@@ -1295,7 +1295,7 @@ Ref<InputEvent> Viewport::_make_input_local(const Ref<InputEvent> &ev) {
     return ev->xformed_by(ai, -vp_ofs);
 }
 
-void Viewport::_vp_input_text(const String &p_text) {
+void Viewport::_vp_input_text(se_string_view p_text) {
 
     if (gui.key_focus) {
         gui.key_focus->call("set_text", p_text);
@@ -1414,10 +1414,10 @@ void Viewport::_gui_cancel_tooltip() {
     }
 }
 
-String Viewport::_gui_get_tooltip(Control *p_control, const Vector2 &p_pos, Control **r_which) {
+StringName Viewport::_gui_get_tooltip(Control *p_control, const Vector2 &p_pos, Control **r_which) {
 
     Vector2 pos = p_pos;
-    String tooltip;
+    StringName tooltip;
 
     while (p_control) {
 
@@ -1449,9 +1449,9 @@ void Viewport::_gui_show_tooltip() {
     }
 
     Control *which = nullptr;
-    String tooltip = _gui_get_tooltip(gui.tooltip, gui.tooltip->get_global_transform().xform_inv(gui.tooltip_pos), &which);
-    tooltip =StringUtils::strip_edges( tooltip);
-    if (tooltip.length() == 0)
+    StringName tooltip = _gui_get_tooltip(gui.tooltip, gui.tooltip->get_global_transform().xform_inv(gui.tooltip_pos), &which);
+    tooltip =StringName(StringUtils::strip_edges( tooltip));
+    if (tooltip.empty())
         return; // bye
 
     if (gui.tooltip_popup) {
@@ -1760,11 +1760,11 @@ void Viewport::_gui_input_event(Ref<InputEvent> p_event) {
                             return; // no one gets the event if exclusive NO ONE
                         }
 
-						if (mb->get_button_index() == BUTTON_WHEEL_UP || mb->get_button_index() == BUTTON_WHEEL_DOWN || mb->get_button_index() == BUTTON_WHEEL_LEFT || mb->get_button_index() == BUTTON_WHEEL_RIGHT) {
-							//cancel scroll wheel events, only clicks should trigger focus changes.
-							set_input_as_handled();
-							return;
-						}
+                        if (mb->get_button_index() == BUTTON_WHEEL_UP || mb->get_button_index() == BUTTON_WHEEL_DOWN || mb->get_button_index() == BUTTON_WHEEL_LEFT || mb->get_button_index() == BUTTON_WHEEL_RIGHT) {
+                            //cancel scroll wheel events, only clicks should trigger focus changes.
+                            set_input_as_handled();
+                            return;
+                        }
                         top->notification(Control::NOTIFICATION_MODAL_CLOSE);
                         top->_modal_stack_remove();
                         top->hide();
@@ -1819,7 +1819,7 @@ void Viewport::_gui_input_event(Ref<InputEvent> p_event) {
                 Array arr;
                 arr.push_back(gui.mouse_focus->get_path());
                 arr.push_back(gui.mouse_focus->get_class());
-                ScriptDebugger::get_singleton()->send_message("click_ctrl", arr);
+                ScriptDebugger::get_singleton()->send_message(("click_ctrl"), arr);
             }
 #endif
 
@@ -2087,15 +2087,15 @@ void Viewport::_gui_input_event(Ref<InputEvent> p_event) {
 
             if (gui.tooltip_popup) {
                 if (can_tooltip && gui.tooltip) {
-                    String tooltip = _gui_get_tooltip(over, gui.tooltip->get_global_transform().xform_inv(mpos));
+                    StringName tooltip = _gui_get_tooltip(over, gui.tooltip->get_global_transform().xform_inv(mpos));
 
-                    if (tooltip.length() == 0)
+                    if (tooltip.empty())
                         _gui_cancel_tooltip();
                     else if (gui.tooltip_label) {
                         if (tooltip == gui.tooltip_label->get_text()) {
                             is_tooltip_shown = true;
                         }
-                    } else if (tooltip == String(gui.tooltip_popup->call("get_tooltip_text"))) {
+                    } else if (tooltip == StringName(gui.tooltip_popup->call("get_tooltip_text"))) {
                         is_tooltip_shown = true;
                     }
                 } else
@@ -2840,14 +2840,14 @@ Control *Viewport::get_modal_stack_top() const {
     return !gui.modal_stack.empty() ? gui.modal_stack.back()->deref() : NULL;
 }
 
-String Viewport::get_configuration_warning() const {
+StringName Viewport::get_configuration_warning() const {
 
     /*if (get_parent() && !object_cast<Control>(get_parent()) && !render_target) {
 
         return TTR("This viewport is not set as render target. If you intend for it to display its contents directly to the screen, make it a child of a Control so it can obtain a size. Otherwise, make it a RenderTarget and assign its internal texture to some node for display.");
     }*/
 
-    return String();
+    return StringName();
 }
 
 void Viewport::gui_reset_canvas_sort_index() {
@@ -3221,11 +3221,11 @@ Viewport::Viewport() {
     set_shadow_atlas_quadrant_subdiv(2, SHADOW_ATLAS_QUADRANT_SUBDIV_16);
     set_shadow_atlas_quadrant_subdiv(3, SHADOW_ATLAS_QUADRANT_SUBDIV_64);
 
-    String id = itos(get_instance_id());
-    input_group = "_vp_input" + id;
-    gui_input_group = "_vp_gui_input" + id;
-    unhandled_input_group = "_vp_unhandled_input" + id;
-    unhandled_key_input_group = "_vp_unhandled_key_input" + id;
+    se_string id = itos(get_instance_id());
+    input_group = StringName("_vp_input" + id);
+    gui_input_group = StringName("_vp_gui_input" + id);
+    unhandled_input_group = StringName("_vp_unhandled_input" + id);
+    unhandled_key_input_group = StringName("_vp_unhandled_key_input" + id);
 
     disable_input = false;
     disable_3d = false;

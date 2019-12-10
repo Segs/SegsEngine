@@ -93,7 +93,7 @@ void FileDialog::_unhandled_input(const Ref<InputEvent> &p_event) {
                 } break;
                 case KEY_BACKSPACE: {
 
-                    _dir_entered("..");
+                    _dir_entered((".."));
                 } break;
                 default: {
                     handled = false;
@@ -111,22 +111,22 @@ void FileDialog::set_enable_multiple_selection(bool p_enable) {
     tree->set_select_mode(p_enable ? Tree::SELECT_MULTI : Tree::SELECT_SINGLE);
 };
 
-Vector<String> FileDialog::get_selected_files() const {
+Vector<se_string> FileDialog::get_selected_files() const {
 
-    Vector<String> list;
+    Vector<se_string> list;
 
     TreeItem *item = tree->get_root();
     while ((item = tree->get_next_selected(item))) {
 
         list.push_back(PathUtils::plus_file(dir_access->get_current_dir(),item->get_text(0)));
-    };
+    }
 
     return list;
 };
 
 void FileDialog::update_dir() {
 
-    dir->set_text(dir_access->get_current_dir());
+    dir->set_text_utf8(dir_access->get_current_dir());
     if (drives->is_visible()) {
         drives->select(dir_access->get_current_drive());
     }
@@ -135,21 +135,21 @@ void FileDialog::update_dir() {
     deselect_items();
 }
 
-void FileDialog::_dir_entered(String p_dir) {
+void FileDialog::_dir_entered(se_string_view p_dir) {
 
     dir_access->change_dir(p_dir);
-    file->set_text("");
+    file->set_text_utf8("");
     invalidate();
     update_dir();
 }
 
-void FileDialog::_file_entered(const String &p_file) {
+void FileDialog::_file_entered(se_string_view p_file) {
 
     _action_pressed();
 }
 
 void FileDialog::_save_confirm_pressed() {
-    String f = PathUtils::plus_file(dir_access->get_current_dir(),file->get_text());
+    se_string f = PathUtils::plus_file(dir_access->get_current_dir(),file->get_text());
     emit_signal("file_selected", f);
     hide();
 }
@@ -178,9 +178,9 @@ void FileDialog::_action_pressed() {
     if (mode == MODE_OPEN_FILES) {
 
         TreeItem *ti = tree->get_next_selected(nullptr);
-        String fbase = dir_access->get_current_dir();
+        se_string fbase = dir_access->get_current_dir();
 
-        PoolVector<String> files;
+        PoolVector<se_string> files;
         while (ti) {
 
             files.push_back(PathUtils::plus_file(fbase,ti->get_text(0)));
@@ -195,21 +195,21 @@ void FileDialog::_action_pressed() {
         return;
     }
 
-    String f = PathUtils::plus_file(dir_access->get_current_dir(),file->get_text());
+    se_string f = PathUtils::plus_file(dir_access->get_current_dir(),file->get_text());
 
     if ((mode == MODE_OPEN_ANY || mode == MODE_OPEN_FILE) && dir_access->file_exists(f)) {
         emit_signal("file_selected", f);
         hide();
     } else if (mode == MODE_OPEN_ANY || mode == MODE_OPEN_DIR) {
 
-        String path = dir_access->get_current_dir();
+        se_string path = dir_access->get_current_dir();
 
         path =StringUtils::replace(path,"\\", "/");
         TreeItem *item = tree->get_selected();
         if (item) {
             Dictionary d = item->get_metadata(0);
             if (d["dir"] && d["name"] != "..") {
-                path = PathUtils::plus_file(path,d["name"]);
+                path = PathUtils::plus_file(path,d["name"].as<se_string>());
             }
         }
 
@@ -227,10 +227,10 @@ void FileDialog::_action_pressed() {
             // match all filters
             for (int i = 0; i < filters.size(); i++) {
 
-                String flt = StringUtils::get_slice(filters[i],";", 0);
-                for (int j = 0; j < StringUtils::get_slice_count(flt,","); j++) {
+                se_string_view flt = StringUtils::get_slice(filters[i],(';'), 0);
+                for (int j = 0; j < StringUtils::get_slice_count(flt,','); j++) {
 
-                    String str = StringUtils::strip_edges(StringUtils::get_slice(flt,",", j));
+                    se_string_view str = StringUtils::strip_edges(StringUtils::get_slice(flt,(','), j));
                     if (StringUtils::match(f,str)) {
                         valid = true;
                         break;
@@ -245,11 +245,11 @@ void FileDialog::_action_pressed() {
                 idx--;
             if (idx >= 0 && idx < filters.size()) {
 
-                String flt = StringUtils::get_slice(filters[idx],";", 0);
-                int filterSliceCount = StringUtils::get_slice_count(flt,",");
+                se_string_view flt = StringUtils::get_slice(filters[idx],(';'), 0);
+                int filterSliceCount = StringUtils::get_slice_count(flt,',');
                 for (int j = 0; j < filterSliceCount; j++) {
 
-                    String str = StringUtils::strip_edges(StringUtils::get_slice(flt,",", j));
+                    se_string_view str = StringUtils::strip_edges(StringUtils::get_slice(flt,(','), j));
                     if (StringUtils::match(f,str)) {
                         valid = true;
                         break;
@@ -257,9 +257,9 @@ void FileDialog::_action_pressed() {
                 }
 
                 if (!valid && filterSliceCount > 0) {
-                    String str = StringUtils::strip_edges(StringUtils::get_slice(flt,",", 0));
+                    se_string_view str = StringUtils::strip_edges(StringUtils::get_slice(flt,(','), 0));
                     f += StringUtils::substr(str,1, str.length() - 1);
-                    file->set_text(PathUtils::get_file(f));
+                    file->set_text_utf8(PathUtils::get_file(f));
                     valid = true;
                 }
             } else {
@@ -286,7 +286,7 @@ void FileDialog::_action_pressed() {
 
 void FileDialog::_cancel_pressed() {
 
-    file->set_text("");
+    file->set_text_utf8("");
     invalidate();
     hide();
 }
@@ -316,7 +316,7 @@ bool FileDialog::_is_open_should_be_disabled() {
 
 void FileDialog::_go_up() {
 
-    dir_access->change_dir("..");
+    dir_access->change_dir_utf8("..");
     update_file_list();
     update_dir();
 }
@@ -360,7 +360,7 @@ void FileDialog::_tree_selected() {
 
     if (!d["dir"]) {
 
-        file->set_text(d["name"]);
+        file->set_text_utf8(d["name"].as<se_string>());
     } else if (mode == MODE_OPEN_DIR) {
         get_ok()->set_text(RTR("Select This Folder"));
     }
@@ -378,9 +378,9 @@ void FileDialog::_tree_item_activated() {
 
     if (d["dir"]) {
 
-        dir_access->change_dir(d["name"]);
+        dir_access->change_dir(d["name"].as<se_string>());
         if (mode == MODE_OPEN_FILE || mode == MODE_OPEN_FILES || mode == MODE_OPEN_DIR || mode == MODE_OPEN_ANY)
-            file->set_text("");
+            file->set_text_utf8("");
         call_deferred("_update_file_list");
         call_deferred("_update_dir");
     } else {
@@ -393,11 +393,11 @@ void FileDialog::update_file_name() {
     int idx = filter->get_selected() - 1;
     if ((idx == -1 && filter->get_item_count() == 2) || (filter->get_item_count() > 2 && idx >= 0 && idx < filter->get_item_count() - 2)) {
         if (idx == -1) idx += 1;
-        String filter_str = filters[idx];
-        String file_str = file->get_text();
-        String base_name = PathUtils::get_basename(file_str);
+        se_string filter_str = filters[idx];
+        se_string file_str = file->get_text();
+        se_string base_name(PathUtils::get_basename(file_str));
         file_str = base_name + "." + StringUtils::to_lower(StringUtils::strip_edges(filter_str));
-        file->set_text(file_str);
+        file->set_text_utf8(file_str);
     }
 }
 
@@ -409,11 +409,11 @@ void FileDialog::update_file_list() {
     TreeItem *root = tree->create_item();
     Ref<Texture> folder = get_icon("folder");
     const Color folder_color = get_color("folder_icon_modulate");
-    List<String> files;
-    List<String> dirs;
+    List<se_string> files;
+    List<se_string> dirs;
 
     bool is_hidden;
-    String item;
+    se_string item;
 
     while (!(item = dir_access->get_next()).empty()) {
 
@@ -434,9 +434,9 @@ void FileDialog::update_file_list() {
     files.sort_custom<NaturalNoCaseComparator>();
 
     while (!dirs.empty()) {
-        String &dir_name = dirs.front()->deref();
+        se_string &dir_name = dirs.front()->deref();
         TreeItem *ti = tree->create_item(root);
-        ti->set_text(0, dir_name);
+        ti->set_text_utf8(0, dir_name);
         ti->set_icon(0, folder);
         ti->set_icon_modulate(0, folder_color);
 
@@ -449,7 +449,7 @@ void FileDialog::update_file_list() {
         dirs.pop_front();
     }
 
-    List<String> patterns;
+    PODVector<se_string> patterns;
     // build filter
     if (filter->get_selected() == filter->get_item_count() - 1) {
 
@@ -458,10 +458,10 @@ void FileDialog::update_file_list() {
         // match all filters
         for (int i = 0; i < filters.size(); i++) {
 
-            String f = StringUtils::get_slice(filters[i],";", 0);
-            for (int j = 0; j < StringUtils::get_slice_count(f,","); j++) {
+            se_string_view f = StringUtils::get_slice(filters[i],";", 0);
+            for (int j = 0; j < StringUtils::get_slice_count(f,','); j++) {
 
-                patterns.push_back(StringUtils::strip_edges(StringUtils::get_slice(f,",", j)));
+                patterns.emplace_back(StringUtils::strip_edges(StringUtils::get_slice(f,",", j)));
             }
         }
     } else {
@@ -471,25 +471,25 @@ void FileDialog::update_file_list() {
 
         if (idx >= 0 && idx < filters.size()) {
 
-            String f = StringUtils::get_slice(filters[idx],";", 0);
-            for (int j = 0; j < StringUtils::get_slice_count(f,","); j++) {
+            se_string_view f = StringUtils::get_slice(filters[idx],";", 0);
+            for (int j = 0; j < StringUtils::get_slice_count(f,','); j++) {
 
-                patterns.push_back(StringUtils::strip_edges(StringUtils::get_slice(f,",", j)));
+                patterns.emplace_back(StringUtils::strip_edges(StringUtils::get_slice(f,',', j)));
             }
         }
     }
 
-    String base_dir = dir_access->get_current_dir();
+    se_string base_dir = dir_access->get_current_dir();
 
     while (!files.empty()) {
 
         bool match = patterns.empty();
-        String match_str;
+        se_string match_str;
 
-        for (List<String>::Element *E = patterns.front(); E; E = E->next()) {
+        for (const se_string & E : patterns) {
 
-            if (StringUtils::matchn(files.front()->deref(),E->deref())) {
-                match_str = E->deref();
+            if (StringUtils::matchn(files.front()->deref(),E)) {
+                match_str = E;
                 match = true;
                 break;
             }
@@ -497,7 +497,7 @@ void FileDialog::update_file_list() {
 
         if (match) {
             TreeItem *ti = tree->create_item(root);
-            ti->set_text(0, files.front()->deref());
+            ti->set_text_utf8(0, files.front()->deref());
 
             if (get_icon_func) {
 
@@ -536,30 +536,30 @@ void FileDialog::update_filters() {
     filter->clear();
 
     if (filters.size() > 1) {
-        String all_filters;
+        se_string all_filters;
 
         const int max_filters = 5;
 
         for (int i = 0; i < MIN(max_filters, filters.size()); i++) {
-            String flt = StringUtils::get_slice(filters[i],";", 0);
+            se_string_view flt = StringUtils::get_slice(filters[i],";", 0);
             if (i > 0)
-                all_filters += ",";
+                all_filters += ',';
             all_filters += flt;
         }
 
         if (max_filters < filters.size())
-            all_filters += ", ...";
+            all_filters += (", ...");
 
         filter->add_item(RTR("All Recognized") + " ( " + all_filters + " )");
     }
     for (int i = 0; i < filters.size(); i++) {
 
-        String flt = StringUtils::strip_edges(StringUtils::get_slice(filters[i],";", 0));
-        String desc = StringUtils::strip_edges(StringUtils::get_slice(filters[i],";", 1));
+        se_string_view flt = StringUtils::strip_edges(StringUtils::get_slice(filters[i],";", 0));
+        se_string_view desc = StringUtils::strip_edges(StringUtils::get_slice(filters[i],";", 1));
         if (desc.length())
-            filter->add_item(String(tr(desc)) + " ( " + flt + " )");
+            filter->add_item(tr(StringName(desc)) + " ( " + flt + " )");
         else
-            filter->add_item("( " + flt + " )");
+            filter->add_item(StringName("( ") + flt + " )");
     }
 
     filter->add_item(RTR("All Files (*)"));
@@ -571,65 +571,64 @@ void FileDialog::clear_filters() {
     update_filters();
     invalidate();
 }
-void FileDialog::add_filter(const String &p_filter) {
+void FileDialog::add_filter(se_string_view p_filter) {
 
-    filters.push_back(p_filter);
+    filters.push_back(se_string(p_filter));
     update_filters();
     invalidate();
 }
 
-void FileDialog::set_filters(const Vector<String> &p_filters) {
+void FileDialog::set_filters(const Vector<se_string> &p_filters) {
     filters = p_filters;
     update_filters();
     invalidate();
 }
 
-Vector<String> FileDialog::get_filters() const {
+Vector<se_string> FileDialog::get_filters() const {
     return filters;
 }
 
-String FileDialog::get_current_dir() const {
+se_string FileDialog::get_current_dir() const {
 
     return dir->get_text();
 }
-String FileDialog::get_current_file() const {
+se_string FileDialog::get_current_file() const {
 
     return file->get_text();
 }
-String FileDialog::get_current_path() const {
+se_string FileDialog::get_current_path() const {
 
     return PathUtils::plus_file(dir->get_text(),file->get_text());
 }
-void FileDialog::set_current_dir(const String &p_dir) {
+void FileDialog::set_current_dir(se_string_view p_dir) {
 
     dir_access->change_dir(p_dir);
     update_dir();
     invalidate();
 }
-void FileDialog::set_current_file(const String &p_file) {
+void FileDialog::set_current_file(se_string_view p_file) {
 
-    file->set_text(p_file);
+    file->set_text_utf8(p_file);
     update_dir();
     invalidate();
-    int lp = StringUtils::find_last(p_file,".");
+    int lp = StringUtils::find_last(p_file,'.');
     if (lp != -1) {
         file->select(0, lp);
         if (file->is_inside_tree() && !get_tree()->is_node_being_edited(file))
             file->grab_focus();
     }
 }
-void FileDialog::set_current_path(const String &p_path) {
+void FileDialog::set_current_path(se_string_view p_path) {
 
     if (p_path.empty())
         return;
-    int pos = MAX(StringUtils::find_last(p_path,"/"), StringUtils::find_last(p_path,"\\"));
-    if (pos == -1) {
-
+    auto base_p(PathUtils::path(p_path));
+    if (base_p==se_string_view(".")) {
         set_current_file(p_path);
     } else {
 
-        String dir = StringUtils::substr(p_path,0, pos);
-        String file = StringUtils::substr(p_path,pos + 1, p_path.length());
+        se_string_view dir = base_p;
+        se_string_view file = PathUtils::get_file(base_p);
         set_current_dir(dir);
         set_current_file(file);
     }
@@ -747,7 +746,7 @@ void FileDialog::_make_dir_confirm() {
     } else {
         mkdirerr->popup_centered_minsize(Size2(250, 50));
     }
-    makedirname->set_text(""); // reset label
+    makedirname->set_text_utf8(""); // reset label
 }
 
 void FileDialog::_make_dir() {
@@ -758,9 +757,9 @@ void FileDialog::_make_dir() {
 
 void FileDialog::_select_drive(int p_idx) {
 
-    String d = drives->get_item_text(p_idx);
+    se_string d = drives->get_item_text_utf8(p_idx);
     dir_access->change_dir(d);
-    file->set_text("");
+    file->set_text_utf8("");
     invalidate();
     update_dir();
 }
@@ -775,7 +774,7 @@ void FileDialog::_update_drives() {
         drives->show();
 
         for (int i = 0; i < dir_access->get_drive_count(); i++) {
-            drives->add_item(dir_access->get_drive(i));
+            drives->add_item(StringName(dir_access->get_drive(i)));
         }
 
         drives->select(dir_access->get_current_drive());
@@ -993,9 +992,9 @@ void LineEditFileChooser::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_file_dialog"), &LineEditFileChooser::get_file_dialog);
 }
 
-void LineEditFileChooser::_chosen(const String &p_text) {
+void LineEditFileChooser::_chosen(se_string_view p_text) {
 
-    line_edit->set_text(p_text);
+    line_edit->set_text_utf8(p_text);
     line_edit->emit_signal("text_entered", p_text);
 }
 

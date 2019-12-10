@@ -31,57 +31,59 @@
 #pragma once
 
 #include "scene/gui/base_button.h"
+#include "core/se_string.h"
 
 class Button : public BaseButton {
 
-	GDCLASS(Button,BaseButton)
+    GDCLASS(Button,BaseButton)
 
 public:
-	enum TextAlign {
-		ALIGN_LEFT,
-		ALIGN_CENTER,
-		ALIGN_RIGHT
-	};
+    enum TextAlign {
+        ALIGN_LEFT,
+        ALIGN_CENTER,
+        ALIGN_RIGHT
+    };
 
 private:
-	bool flat;
-	String text;
-	String xl_text;
-	Ref<Texture> icon;
-	bool expand_icon;
-	bool clip_text;
-	TextAlign align;
-	float _internal_margin[4];
+    bool flat;
+    StringName text;
+    StringName xl_text;
+    Ref<Texture> icon;
+    bool expand_icon;
+    bool clip_text;
+    TextAlign align;
+    float _internal_margin[4];
 
 protected:
-	void _set_internal_margin(Margin p_margin, float p_value);
-	void _notification(int p_what);
-	static void _bind_methods();
+    void _set_internal_margin(Margin p_margin, float p_value);
+    void _notification(int p_what);
+    static void _bind_methods();
 
 public:
-	//
+    //
 
-	Size2 get_minimum_size() const override;
+    Size2 get_minimum_size() const override;
 
-	void set_text(const String &p_text);
-	String get_text() const;
+    void set_text(const StringName &p_text);
+    StringName get_text() const;
+    void set_text_utf8(se_string_view p_text);
 
-	void set_icon(const Ref<Texture> &p_icon);
-	Ref<Texture> get_icon() const;
+    void set_icon(const Ref<Texture> &p_icon);
+    Ref<Texture> get_icon() const;
 
-	void set_expand_icon(bool p_expand_icon);
-	bool is_expand_icon() const;
+    void set_expand_icon(bool p_expand_icon);
+    bool is_expand_icon() const;
 
-	void set_flat(bool p_flat);
-	bool is_flat() const;
+    void set_flat(bool p_flat);
+    bool is_flat() const;
 
-	void set_clip_text(bool p_clip_text);
-	bool get_clip_text() const;
+    void set_clip_text(bool p_clip_text);
+    bool get_clip_text() const;
 
-	void set_text_align(TextAlign p_align);
-	TextAlign get_text_align() const;
+    void set_text_align(TextAlign p_align);
+    TextAlign get_text_align() const;
 
-	Button(const String &p_text = String());
-	~Button() override;
+    Button(const StringName &p_text = StringName());
+    ~Button() override;
 };
 

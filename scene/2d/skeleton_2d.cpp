@@ -138,9 +138,9 @@ int Bone2D::get_index_in_skeleton() const {
     skeleton->_update_bone_setup();
     return skeleton_index;
 }
-String Bone2D::get_configuration_warning() const {
+StringName Bone2D::get_configuration_warning() const {
 
-    String warning = Node2D::get_configuration_warning();
+    se_string warning(Node2D::get_configuration_warning());
     if (!skeleton) {
         if (!warning.empty()) {
             warning += "\n\n";
@@ -159,7 +159,7 @@ String Bone2D::get_configuration_warning() const {
         warning += TTR("This bone lacks a proper REST pose. Go to the Skeleton2D node and set one.");
     }
 
-    return warning;
+    return StringName(warning);
 }
 
 Bone2D::Bone2D() {

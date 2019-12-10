@@ -37,16 +37,17 @@
 #include <cstdlib>
 
 IMPL_GDCLASS(UPNP)
+VARIANT_ENUM_CAST(UPNP::UPNPResult)
 
-bool UPNP::is_common_device(const String &dev) const {
+bool UPNP::is_common_device(se_string_view dev) const {
     return dev.empty() ||
-           StringUtils::find(dev,"InternetGatewayDevice") >= 0 ||
-           StringUtils::find(dev,"WANIPConnection") >= 0 ||
-           StringUtils::find(dev,"WANPPPConnection") >= 0 ||
-           StringUtils::find(dev,"rootdevice") >= 0;
+           StringUtils::contains(dev,"InternetGatewayDevice") ||
+           StringUtils::contains(dev,"WANIPConnection") ||
+           StringUtils::contains(dev,"WANPPPConnection") ||
+           StringUtils::contains(dev,"rootdevice");
 }
 
-int UPNP::discover(int timeout, int ttl, const String &device_filter) {
+int UPNP::discover(int timeout, int ttl, se_string_view device_filter) {
     ERR_FAIL_COND_V(timeout < 0, UPNP_RESULT_INVALID_PARAM)
     ERR_FAIL_COND_V(ttl < 0, UPNP_RESULT_INVALID_PARAM)
     ERR_FAIL_COND_V(ttl > 255, UPNP_RESULT_INVALID_PARAM)
@@ -57,9 +58,9 @@ int UPNP::discover(int timeout, int ttl, const String &device_filter) {
     struct UPNPDev *devlist;
 
     if (is_common_device(device_filter)) {
-        devlist = upnpDiscover(timeout, StringUtils::to_utf8(discover_multicast_if).data(), nullptr, discover_local_port, discover_ipv6, ttl, &error);
+        devlist = upnpDiscover(timeout, discover_multicast_if.c_str(), nullptr, discover_local_port, discover_ipv6, ttl, &error);
     } else {
-        devlist = upnpDiscoverAll(timeout, StringUtils::to_utf8(discover_multicast_if).data(), nullptr, discover_local_port, discover_ipv6, ttl, &error);
+        devlist = upnpDiscoverAll(timeout, discover_multicast_if.c_str(), nullptr, discover_local_port, discover_ipv6, ttl, &error);
     }
 
     if (error != UPNPDISCOVER_SUCCESS) {
@@ -80,7 +81,7 @@ int UPNP::discover(int timeout, int ttl, const String &device_filter) {
     struct UPNPDev *dev = devlist;
 
     while (dev) {
-        if (device_filter.empty() || strstr(dev->st, StringUtils::to_utf8(device_filter).data())) {
+        if (device_filter.empty() || se_string_view(dev->st).contains(device_filter)) {
             add_device_to_list(dev, devlist);
         }
 
@@ -95,16 +96,16 @@ int UPNP::discover(int timeout, int ttl, const String &device_filter) {
 void UPNP::add_device_to_list(UPNPDev *dev, UPNPDev *devlist) {
     Ref<UPNPDevice> new_device(make_ref_counted<UPNPDevice>());
 
-    new_device->set_description_url(dev->descURL);
-    new_device->set_service_type(dev->st);
+    new_device->set_description_url((dev->descURL));
+    new_device->set_service_type((dev->st));
 
     parse_igd(new_device, devlist);
 
     devices.push_back(new_device);
 }
 
-char *UPNP::load_description(const String &url, int *size, int *status_code) const {
-    return (char *)miniwget(StringUtils::to_utf8(url).data(), size, 0, status_code);
+char *UPNP::load_description(const se_string & url, int *size, int *status_code) const {
+    return (char *)miniwget(url.c_str(), size, 0, status_code);
 }
 
 void UPNP::parse_igd(Ref<UPNPDevice> dev, UPNPDev *devlist) {
@@ -137,7 +138,7 @@ void UPNP::parse_igd(Ref<UPNPDevice> dev, UPNPDev *devlist) {
     free(xml);
     xml = nullptr;
 
-    GetUPNPUrls(urls, &data, StringUtils::to_utf8(dev->get_description_url()).data(), 0);
+    GetUPNPUrls(urls, &data, dev->get_description_url().c_str(), 0);
 
     if (!urls) {
         dev->set_igd_status(UPNPDevice::IGD_STATUS_NO_URLS);
@@ -172,9 +173,9 @@ void UPNP::parse_igd(Ref<UPNPDevice> dev, UPNPDev *devlist) {
         return;
     }
 
-    dev->set_igd_control_url(urls->controlURL);
-    dev->set_igd_service_type(data.first.servicetype);
-    dev->set_igd_our_addr(addr);
+    dev->set_igd_control_url((urls->controlURL));
+    dev->set_igd_service_type((data.first.servicetype));
+    dev->set_igd_our_addr((addr));
     dev->set_igd_status(UPNPDevice::IGD_STATUS_OK);
 
     FreeUPNPUrls(urls);
@@ -279,11 +280,11 @@ Ref<UPNPDevice> UPNP::get_gateway() const {
     return Ref<UPNPDevice>();
 }
 
-void UPNP::set_discover_multicast_if(const String &m_if) {
+void UPNP::set_discover_multicast_if(se_string_view m_if) {
     discover_multicast_if = m_if;
 }
 
-String UPNP::get_discover_multicast_if() const {
+const se_string & UPNP::get_discover_multicast_if() const {
     return discover_multicast_if;
 }
 
@@ -303,17 +304,17 @@ bool UPNP::is_discover_ipv6() const {
     return discover_ipv6;
 }
 
-String UPNP::query_external_address() const {
+se_string UPNP::query_external_address() const {
     Ref<UPNPDevice> dev = get_gateway();
 
     if (dev == nullptr) {
-        return "";
+        return se_string();
     }
 
     return dev->query_external_address();
 }
 
-int UPNP::add_port_mapping(int port, int port_internal, String desc, String proto, int duration) const {
+int UPNP::add_port_mapping(int port, int port_internal, const se_string & desc, const se_string &proto, int duration) const {
     Ref<UPNPDevice> dev = get_gateway();
 
     if (dev == nullptr) {
@@ -325,7 +326,7 @@ int UPNP::add_port_mapping(int port, int port_internal, String desc, String prot
     return dev->add_port_mapping(port, port_internal, desc, proto, duration);
 }
 
-int UPNP::delete_port_mapping(int port, String proto) const {
+int UPNP::delete_port_mapping(int port, se_string_view proto) const {
     Ref<UPNPDevice> dev = get_gateway();
 
     if (dev == nullptr) {

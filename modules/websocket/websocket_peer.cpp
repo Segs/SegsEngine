@@ -34,6 +34,7 @@
 GDCINULL(WebSocketPeer);
 
 IMPL_GDCLASS(WebSocketPeer)
+VARIANT_ENUM_CAST(WebSocketPeer::WriteMode);
 
 WebSocketPeer::WebSocketPeer() {
 }

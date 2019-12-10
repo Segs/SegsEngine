@@ -85,5 +85,5 @@ public:
     Dictionary get_environment() { return environment; }
     void set_environment(const Dictionary &p_environment) { environment = p_environment; }
 
-    Variant get_value_or(const String& p_key, const Variant& p_default_value);
+    Variant get_value_or(se_string_view p_key, const Variant& p_default_value);
 };

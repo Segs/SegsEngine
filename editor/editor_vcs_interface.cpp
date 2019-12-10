@@ -65,7 +65,7 @@ void EditorVCSInterface::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_vcs_name"), &EditorVCSInterface::get_vcs_name);
 }
 
-bool EditorVCSInterface::_initialize(const String& p_project_root_path) {
+bool EditorVCSInterface::_initialize(se_string_view p_project_root_path) {
 
     WARN_PRINT("Selected VCS addon does not implement an initialization function. This warning will be suppressed.")
     return true;
@@ -81,16 +81,16 @@ Dictionary EditorVCSInterface::_get_modified_files_data() {
     return Dictionary();
 }
 
-void EditorVCSInterface::_stage_file(const String& p_file_path) {
+void EditorVCSInterface::_stage_file(se_string_view p_file_path) {
 }
 
-void EditorVCSInterface::_unstage_file(const String& p_file_path) {
+void EditorVCSInterface::_unstage_file(se_string_view p_file_path) {
 }
 
-void EditorVCSInterface::_commit(const String& p_msg) {
+void EditorVCSInterface::_commit(se_string_view p_msg) {
 }
 
-Array EditorVCSInterface::_get_file_diff(const String& p_file_path) {
+Array EditorVCSInterface::_get_file_diff(se_string_view p_file_path) {
 
     return Array();
 }
@@ -100,17 +100,17 @@ bool EditorVCSInterface::_shut_down() {
     return false;
 }
 
-String EditorVCSInterface::_get_project_name() {
+se_string EditorVCSInterface::_get_project_name() {
 
-    return String();
+    return se_string();
 }
 
-String EditorVCSInterface::_get_vcs_name() {
+se_string EditorVCSInterface::_get_vcs_name() {
 
-    return "";
+    return se_string();
 }
 
-bool EditorVCSInterface::initialize(const String& p_project_root_path) {
+bool EditorVCSInterface::initialize(se_string_view p_project_root_path) {
 
     is_initialized = call("_initialize", p_project_root_path);
     return is_initialized;
@@ -126,7 +126,7 @@ Dictionary EditorVCSInterface::get_modified_files_data() {
     return call("_get_modified_files_data");
 }
 
-void EditorVCSInterface::stage_file(const String& p_file_path) {
+void EditorVCSInterface::stage_file(se_string_view p_file_path) {
 
     if (is_addon_ready()) {
 
@@ -134,7 +134,7 @@ void EditorVCSInterface::stage_file(const String& p_file_path) {
     }
 }
 
-void EditorVCSInterface::unstage_file(const String& p_file_path) {
+void EditorVCSInterface::unstage_file(se_string_view p_file_path) {
 
     if (is_addon_ready()) {
 
@@ -147,7 +147,7 @@ bool EditorVCSInterface::is_addon_ready() {
     return is_initialized;
 }
 
-void EditorVCSInterface::commit(const String& p_msg) {
+void EditorVCSInterface::commit(se_string_view p_msg) {
 
     if (is_addon_ready()) {
 
@@ -155,7 +155,7 @@ void EditorVCSInterface::commit(const String& p_msg) {
     }
 }
 
-Array EditorVCSInterface::get_file_diff(const String& p_file_path) {
+Array EditorVCSInterface::get_file_diff(se_string_view p_file_path) {
 
     if (is_addon_ready()) {
 
@@ -169,12 +169,12 @@ bool EditorVCSInterface::shut_down() {
     return call("_shut_down");
 }
 
-String EditorVCSInterface::get_project_name() {
+se_string EditorVCSInterface::get_project_name() {
 
     return call("_get_project_name");
 }
 
-String EditorVCSInterface::get_vcs_name() {
+se_string EditorVCSInterface::get_vcs_name() {
 
     return call("_get_vcs_name");
 }

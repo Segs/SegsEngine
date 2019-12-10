@@ -34,7 +34,7 @@
 #ifdef WINDOWS_ENABLED
 
 #include "core/os/dir_access.h"
-#include "core/ustring.h"
+#include "core/se_string.h"
 
 /**
 	@author Juan Linietsky <reduz@gmail.com>

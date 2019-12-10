@@ -31,6 +31,7 @@
 #include "animation_blend_tree.h"
 #include "scene/scene_string_names.h"
 #include "core/method_bind.h"
+#include "core/string_formatter.h"
 #include "core/translation_helpers.h"
 
 #include "EASTL/sort.h"
@@ -58,7 +59,7 @@ StringName AnimationNodeAnimation::get_animation() const {
     return animation;
 }
 
-Vector<String> (*AnimationNodeAnimation::get_editable_animation_list)() = nullptr;
+Vector<se_string> (*AnimationNodeAnimation::get_editable_animation_list)() = nullptr;
 
 void AnimationNodeAnimation::get_parameter_list(List<PropertyInfo> *r_list) const {
     r_list->push_back(PropertyInfo(VariantType::REAL, time, PROPERTY_HINT_NONE, "", 0));
@@ -66,14 +67,14 @@ void AnimationNodeAnimation::get_parameter_list(List<PropertyInfo> *r_list) cons
 void AnimationNodeAnimation::_validate_property(PropertyInfo &property) const {
 
     if (property.name == "animation" && get_editable_animation_list) {
-        Vector<String> names = get_editable_animation_list();
-        String anims;
+        Vector<se_string> names = get_editable_animation_list();
+        se_string anims;
         for (int i = 0; i < names.size(); i++) {
 
             if (i > 0) {
-                anims += ",";
+                anims += ',';
             }
-            anims += String(names[i]);
+            anims += names[i];
         }
         if (!anims.empty()) {
             property.hint = PROPERTY_HINT_ENUM;
@@ -93,11 +94,11 @@ float AnimationNodeAnimation::process(float p_time, bool p_seek) {
 
         AnimationNodeBlendTree *tree = object_cast<AnimationNodeBlendTree>(parent);
         if (tree) {
-            String name = tree->get_node_name(Ref<AnimationNodeAnimation>(this));
-            make_invalid(vformat(RTR("On BlendTree node '%s', animation not found: '%s'"), name, animation));
+            se_string name(tree->get_node_name(Ref<AnimationNodeAnimation>(this)));
+            make_invalid(FormatVE(RTR_utf8("On BlendTree node '%s', animation not found: '%s'").c_str(), name.c_str(), animation.asCString()));
 
         } else {
-            make_invalid(vformat(RTR("Animation not found: '%s'"), animation));
+            make_invalid(FormatVE(RTR_utf8("Animation not found: '%s'").c_str(), animation.asCString()));
         }
 
         return 0;
@@ -135,8 +136,8 @@ float AnimationNodeAnimation::process(float p_time, bool p_seek) {
     return anim_size - time;
 }
 
-String AnimationNodeAnimation::get_caption() const {
-    return "Animation";
+se_string_view AnimationNodeAnimation::get_caption() const {
+    return ("Animation");
 }
 
 void AnimationNodeAnimation::_bind_methods() {
@@ -226,7 +227,7 @@ AnimationNodeOneShot::MixMode AnimationNodeOneShot::get_mix_mode() const {
     return mix;
 }
 
-String AnimationNodeOneShot::get_caption() const {
+se_string_view AnimationNodeOneShot::get_caption() const {
     return "OneShot";
 }
 
@@ -374,8 +375,8 @@ void AnimationNodeOneShot::_bind_methods() {
 
 AnimationNodeOneShot::AnimationNodeOneShot() {
 
-    add_input("in");
-    add_input("shot");
+    add_input(("in"));
+    add_input(("shot"));
 
     fade_in = 0.1f;
     fade_out = 0.1f;
@@ -402,8 +403,8 @@ Variant AnimationNodeAdd2::get_parameter_default_value(const StringName &p_param
     return 0;
 }
 
-String AnimationNodeAdd2::get_caption() const {
-    return "Add2";
+se_string_view AnimationNodeAdd2::get_caption() const {
+    return ("Add2");
 }
 void AnimationNodeAdd2::set_use_sync(bool p_sync) {
 
@@ -440,8 +441,8 @@ void AnimationNodeAdd2::_bind_methods() {
 AnimationNodeAdd2::AnimationNodeAdd2() {
 
     add_amount = "add_amount";
-    add_input("in");
-    add_input("add");
+    add_input(("in"));
+    add_input(("add"));
     sync = false;
 }
 
@@ -454,8 +455,8 @@ Variant AnimationNodeAdd3::get_parameter_default_value(const StringName &p_param
     return 0;
 }
 
-String AnimationNodeAdd3::get_caption() const {
-    return "Add3";
+se_string_view AnimationNodeAdd3::get_caption() const {
+    return ("Add3");
 }
 void AnimationNodeAdd3::set_use_sync(bool p_sync) {
 
@@ -493,9 +494,9 @@ void AnimationNodeAdd3::_bind_methods() {
 AnimationNodeAdd3::AnimationNodeAdd3() {
 
     add_amount = "add_amount";
-    add_input("-add");
-    add_input("in");
-    add_input("+add");
+    add_input(("-add"));
+    add_input(("in"));
+    add_input(("+add"));
     sync = false;
 }
 /////////////////////////////////////////////
@@ -507,8 +508,8 @@ Variant AnimationNodeBlend2::get_parameter_default_value(const StringName &p_par
     return 0; //for blend amount
 }
 
-String AnimationNodeBlend2::get_caption() const {
-    return "Blend2";
+se_string_view AnimationNodeBlend2::get_caption() const {
+    return ("Blend2");
 }
 
 float AnimationNodeBlend2::process(float p_time, bool p_seek) {
@@ -544,8 +545,8 @@ void AnimationNodeBlend2::_bind_methods() {
 }
 AnimationNodeBlend2::AnimationNodeBlend2() {
     blend_amount = "blend_amount";
-    add_input("in");
-    add_input("blend");
+    add_input(("in"));
+    add_input(("blend"));
     sync = false;
 }
 
@@ -558,8 +559,8 @@ Variant AnimationNodeBlend3::get_parameter_default_value(const StringName &p_par
     return 0; //for blend amount
 }
 
-String AnimationNodeBlend3::get_caption() const {
-    return "Blend3";
+se_string_view AnimationNodeBlend3::get_caption() const {
+    return ("Blend3");
 }
 
 void AnimationNodeBlend3::set_use_sync(bool p_sync) {
@@ -591,9 +592,9 @@ void AnimationNodeBlend3::_bind_methods() {
 }
 AnimationNodeBlend3::AnimationNodeBlend3() {
     blend_amount = "blend_amount";
-    add_input("-blend");
-    add_input("in");
-    add_input("+blend");
+    add_input(("-blend"));
+    add_input(("in"));
+    add_input(("+blend"));
     sync = false;
 }
 
@@ -606,8 +607,8 @@ Variant AnimationNodeTimeScale::get_parameter_default_value(const StringName &p_
     return 1.0; //initial timescale
 }
 
-String AnimationNodeTimeScale::get_caption() const {
-    return "TimeScale";
+se_string_view AnimationNodeTimeScale::get_caption() const {
+    return ("TimeScale");
 }
 
 float AnimationNodeTimeScale::process(float p_time, bool p_seek) {
@@ -624,7 +625,7 @@ void AnimationNodeTimeScale::_bind_methods() {
 }
 AnimationNodeTimeScale::AnimationNodeTimeScale() {
     scale = "scale";
-    add_input("in");
+    add_input(("in"));
 }
 
 ////////////////////////////////////
@@ -636,8 +637,8 @@ Variant AnimationNodeTimeSeek::get_parameter_default_value(const StringName &p_p
     return 1.0; //initial timescale
 }
 
-String AnimationNodeTimeSeek::get_caption() const {
-    return "Seek";
+se_string_view AnimationNodeTimeSeek::get_caption() const {
+    return ("Seek");
 }
 
 float AnimationNodeTimeSeek::process(float p_time, bool p_seek) {
@@ -659,7 +660,7 @@ void AnimationNodeTimeSeek::_bind_methods() {
 }
 
 AnimationNodeTimeSeek::AnimationNodeTimeSeek() {
-    add_input("in");
+    add_input(("in"));
     seek_pos = "seek_position";
 }
 
@@ -667,10 +668,10 @@ AnimationNodeTimeSeek::AnimationNodeTimeSeek() {
 
 void AnimationNodeTransition::get_parameter_list(List<PropertyInfo> *r_list) const {
 
-    String anims;
+    se_string anims;
     for (int i = 0; i < enabled_inputs; i++) {
         if (i > 0) {
-            anims += ",";
+            anims += ',';
         }
         anims += inputs[i].name;
     }
@@ -691,7 +692,7 @@ Variant AnimationNodeTransition::get_parameter_default_value(const StringName &p
     }
 }
 
-String AnimationNodeTransition::get_caption() const {
+se_string_view AnimationNodeTransition::get_caption() const {
     return "Transition";
 }
 
@@ -725,14 +726,14 @@ bool AnimationNodeTransition::is_input_set_as_auto_advance(int p_input) const {
     return inputs[p_input].auto_advance;
 }
 
-void AnimationNodeTransition::set_input_caption(int p_input, const String &p_name) {
+void AnimationNodeTransition::set_input_caption(int p_input, se_string_view p_name) {
     ERR_FAIL_INDEX(p_input, MAX_INPUTS);
     inputs[p_input].name = p_name;
     set_input_name(p_input, p_name);
 }
 
-String AnimationNodeTransition::get_input_caption(int p_input) const {
-    ERR_FAIL_INDEX_V(p_input, MAX_INPUTS, String());
+const se_string & AnimationNodeTransition::get_input_caption(int p_input) const {
+    ERR_FAIL_INDEX_V(p_input, MAX_INPUTS, null_se_string);
     return inputs[p_input].name;
 }
 
@@ -819,8 +820,8 @@ float AnimationNodeTransition::process(float p_time, bool p_seek) {
 void AnimationNodeTransition::_validate_property(PropertyInfo &property) const {
 
     if (StringUtils::begins_with(property.name,"input_")) {
-        String n = StringUtils::get_slice(StringUtils::get_slice(property.name,'/', 0),'_', 1);
-        if (n != "count") {
+        se_string_view n = StringUtils::get_slice(StringUtils::get_slice(property.name,'/', 0),'_', 1);
+        if (n != se_string_view("count")) {
             int idx = StringUtils::to_int(n);
             if (idx >= enabled_inputs) {
                 property.usage = 0;
@@ -849,8 +850,8 @@ void AnimationNodeTransition::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::REAL, "xfade_time", PROPERTY_HINT_RANGE, "0,120,0.01"), "set_cross_fade_time", "get_cross_fade_time");
 
     for (int i = 0; i < MAX_INPUTS; i++) {
-        ADD_PROPERTYI(PropertyInfo(VariantType::STRING, "input_" + itos(i) + "/name"), "set_input_caption", "get_input_caption", i);
-        ADD_PROPERTYI(PropertyInfo(VariantType::BOOL, "input_" + itos(i) + "/auto_advance"), "set_input_as_auto_advance", "is_input_set_as_auto_advance", i);
+        ADD_PROPERTYI(PropertyInfo(VariantType::STRING, StringName("input_" + itos(i) + "/name")), "set_input_caption", "get_input_caption", i);
+        ADD_PROPERTYI(PropertyInfo(VariantType::BOOL, StringName("input_" + itos(i) + "/auto_advance")), "set_input_as_auto_advance", "is_input_set_as_auto_advance", i);
     }
 }
 
@@ -872,8 +873,8 @@ AnimationNodeTransition::AnimationNodeTransition() {
 
 /////////////////////
 
-String AnimationNodeOutput::get_caption() const {
-    return "Output";
+se_string_view AnimationNodeOutput::get_caption() const {
+    return ("Output");
 }
 
 float AnimationNodeOutput::process(float p_time, bool p_seek) {
@@ -881,7 +882,7 @@ float AnimationNodeOutput::process(float p_time, bool p_seek) {
 }
 
 AnimationNodeOutput::AnimationNodeOutput() {
-    add_input("output");
+    add_input(("output"));
 }
 
 ///////////////////////////////////////////////////////
@@ -1093,8 +1094,8 @@ void AnimationNodeBlendTree::get_node_connections(List<NodeConnection> *r_connec
     }
 }
 
-String AnimationNodeBlendTree::get_caption() const {
-    return "BlendTree";
+se_string_view AnimationNodeBlendTree::get_caption() const {
+    return ("BlendTree");
 }
 
 float AnimationNodeBlendTree::process(float p_time, bool p_seek) {
@@ -1126,13 +1127,13 @@ Ref<AnimationNode> AnimationNodeBlendTree::get_child_by_name(const StringName &p
 
 bool AnimationNodeBlendTree::_set(const StringName &p_name, const Variant &p_value) {
 
-    String name = p_name;
-    if (StringUtils::begins_with(name,"nodes/")) {
 
-        String node_name = StringUtils::get_slice(name,'/', 1);
-        String what = StringUtils::get_slice(name,'/', 2);
+    if (StringUtils::begins_with(p_name,"nodes/")) {
 
-        if (what == "node") {
+        StringName node_name(StringUtils::get_slice(p_name,'/', 1));
+        se_string_view what(StringUtils::get_slice(p_name,'/', 2));
+
+        if (what == se_string_view("node")) {
             Ref<AnimationNode> anode = refFromRefPtr<AnimationNode>(p_value);
             if (anode) {
                 add_node(node_name, anode);
@@ -1140,14 +1141,14 @@ bool AnimationNodeBlendTree::_set(const StringName &p_name, const Variant &p_val
             return true;
         }
 
-        if (what == "position") {
+        if (what == se_string_view("position")) {
 
             if (nodes.contains(node_name)) {
                 nodes[node_name].position = p_value;
             }
             return true;
         }
-    } else if (name == "node_connections") {
+    } else if (p_name == "node_connections") {
 
         Array conns = p_value;
         ERR_FAIL_COND_V(conns.size() % 3 != 0, false)
@@ -1163,26 +1164,25 @@ bool AnimationNodeBlendTree::_set(const StringName &p_name, const Variant &p_val
 
 bool AnimationNodeBlendTree::_get(const StringName &p_name, Variant &r_ret) const {
 
-    String name = p_name;
-    if (StringUtils::begins_with(name,"nodes/")) {
-        String node_name = StringUtils::get_slice(name,'/', 1);
-        String what = StringUtils::get_slice(name,'/', 2);
+    if (StringUtils::begins_with(p_name,"nodes/")) {
+        StringName node_name(StringUtils::get_slice(p_name,'/', 1));
+        se_string_view what = StringUtils::get_slice(p_name,'/', 2);
 
-        if (what == "node") {
+        if (what == se_string_view("node")) {
             if (nodes.contains(node_name)) {
                 r_ret = nodes.at(node_name).node;
                 return true;
             }
         }
 
-        if (what == "position") {
+        if (what == se_string_view("position")) {
 
             if (nodes.contains(node_name)) {
                 r_ret = nodes.at(node_name).position;
                 return true;
             }
         }
-    } else if (name == "node_connections") {
+    } else if (p_name == "node_connections") {
         List<NodeConnection> nc;
         get_node_connections(&nc);
         Array conns;
@@ -1212,11 +1212,11 @@ void AnimationNodeBlendTree::_get_property_list(ListPOD<PropertyInfo> *p_list) c
     eastl::sort(names.begin(),names.end(),WrapAlphaCompare());
 
     for (const StringName &E : names) {
-        String name(E);
-        if (name != "output") {
-            p_list->push_back(PropertyInfo(VariantType::OBJECT, "nodes/" + name + "/node", PROPERTY_HINT_RESOURCE_TYPE, "AnimationNode", PROPERTY_USAGE_NOEDITOR));
+        StringName name(E);
+        if (E != se_string_view("output")) {
+            p_list->push_back(PropertyInfo(VariantType::OBJECT, StringName(se_string("nodes/") + name + "/node"), PROPERTY_HINT_RESOURCE_TYPE, "AnimationNode", PROPERTY_USAGE_NOEDITOR));
         }
-        p_list->push_back(PropertyInfo(VariantType::VECTOR2, "nodes/" + name + "/position", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR));
+        p_list->push_back(PropertyInfo(VariantType::VECTOR2, StringName(se_string("nodes/") + name + "/position"), PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR));
     }
 
     p_list->push_back(PropertyInfo(VariantType::ARRAY, "node_connections", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR));

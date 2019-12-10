@@ -31,6 +31,7 @@
 #include "gi_probe_editor_plugin.h"
 #include "core/method_bind.h"
 #include "core/translation_helpers.h"
+#include "editor/editor_node.h"
 
 IMPL_GDCLASS(GIProbeEditorPlugin)
 
@@ -71,13 +72,13 @@ void GIProbeEditorPlugin::bake_func_begin(int p_steps) {
 
     ERR_FAIL_COND(tmp_progress != nullptr)
 
-    tmp_progress = memnew(EditorProgress("bake_gi", TTR("Bake GI Probe"), p_steps));
+    tmp_progress = memnew(EditorProgress(("bake_gi"), TTR("Bake GI Probe"), p_steps));
 }
 
-void GIProbeEditorPlugin::bake_func_step(int p_step, const String &p_description) {
+void GIProbeEditorPlugin::bake_func_step(int p_step, se_string_view p_description) {
 
     ERR_FAIL_COND(tmp_progress == nullptr)
-    tmp_progress->step(p_description, p_step, false);
+    tmp_progress->step(StringName(p_description), p_step, false);
 }
 
 void GIProbeEditorPlugin::bake_func_end() {

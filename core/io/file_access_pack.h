@@ -34,16 +34,20 @@
 #include "core/map.h"
 #include "core/os/dir_access.h"
 #include "core/os/file_access.h"
-#include "core/ustring.h"
+#include "core/se_string.h"
+#include "core/string_utils.h"
+#include "core/vector.h"
 #include "core/plugin_interfaces/PackSourceInterface.h"
 #include "core/set.h"
 #include "core/vector.h"
+
+#include <cassert>
 
 class PackSourceInterface;
 
 struct PackedDataFile {
 
-    String pack;
+    se_string pack;
     uint64_t offset; //if offset is ZERO, the file was ERASED
     uint64_t size;
     uint8_t md5[16];
@@ -60,9 +64,9 @@ public:
 private:
     struct PackedDir {
         PackedDir *parent;
-        String name;
-        Map<String, PackedDir *> subdirs;
-        Set<String> files;
+        se_string name;
+        Map<se_string, PackedDir *> subdirs;
+        Set<se_string> files;
     };
 
     struct PathMD5 {
@@ -89,6 +93,12 @@ private:
             a = *((uint64_t *)&p_buf[0]);
             b = *((uint64_t *)&p_buf[8]);
         }
+        PathMD5(const PODVector<uint8_t> &p_buf) {
+            assert(p_buf.size()>=16);
+            a = *((uint64_t *)&p_buf[0]);
+            b = *((uint64_t *)&p_buf[8]);
+        }
+
     };
 
     Map<PathMD5, PackedDataFile> files;
@@ -106,23 +116,23 @@ private:
 public:
     void add_pack_source(PackSourceInterface *p_source);
     void remove_pack_source(PackSourceInterface *p_source);
-    void add_path(const String &pkg_path, const String &path, uint64_t ofs, uint64_t size, const uint8_t *p_md5, PackSourceInterface *p_src, bool p_replace_files); // for PackSource
+    void add_path(se_string_view pkg_path, se_string_view path, uint64_t ofs, uint64_t size, const uint8_t *p_md5, PackSourceInterface *p_src, bool p_replace_files); // for PackSource
 
     void set_disabled(bool p_disabled) { disabled = p_disabled; }
     _FORCE_INLINE_ bool is_disabled() const { return disabled; }
 
     static PackedData *get_singleton() { return singleton; }
-	Error add_pack(const String &p_path, bool p_replace_files);
+    Error add_pack(se_string_view p_path, bool p_replace_files);
 
-    _FORCE_INLINE_ FileAccess *try_open_path(const String &p_path);
-    _FORCE_INLINE_ bool has_path(const String &p_path);
+    _FORCE_INLINE_ FileAccess *try_open_path(se_string_view p_path);
+    _FORCE_INLINE_ bool has_path(se_string_view p_path);
 
     PackedData();
     ~PackedData();
 };
 
 
-FileAccess *PackedData::try_open_path(const String &p_path) {
+FileAccess *PackedData::try_open_path(se_string_view p_path) {
 
     PathMD5 pmd5(StringUtils::md5_buffer(p_path));
     auto E = files.find(pmd5);
@@ -134,7 +144,7 @@ FileAccess *PackedData::try_open_path(const String &p_path) {
     return E->second.src->get_file(p_path, &E->second);
 }
 
-bool PackedData::has_path(const String &p_path) {
+bool PackedData::has_path(se_string_view p_path) {
 
     return files.contains(PathMD5(StringUtils::md5_buffer(p_path)));
 }
@@ -143,34 +153,34 @@ class DirAccessPack : public DirAccess {
 
     PackedData::PackedDir *current;
 
-    List<String> list_dirs;
-    List<String> list_files;
+    List<se_string> list_dirs;
+    List<se_string> list_files;
     bool cdir;
 
 public:
     Error list_dir_begin() override;
-    String get_next() override;
+    se_string get_next() override;
     [[nodiscard]] bool current_is_dir() const override;
     [[nodiscard]] bool current_is_hidden() const override;
     void list_dir_end() override;
 
     int get_drive_count() override;
-    String get_drive(int p_drive) override;
+    se_string get_drive(int p_drive) override;
 
-    Error change_dir(String p_dir) override;
-    String get_current_dir() override;
+    Error change_dir(se_string_view p_dir) override;
+    se_string get_current_dir() override;
 
-    bool file_exists(String p_file) override;
-    bool dir_exists(String p_dir) override;
+    bool file_exists(se_string_view p_file) override;
+    bool dir_exists(se_string_view p_dir) override;
 
-    Error make_dir(String p_dir) override;
+    Error make_dir(se_string_view p_dir) override;
 
-    Error rename(String p_from, String p_to) override;
-    Error remove(String p_name) override;
+    Error rename(se_string_view p_from, se_string_view p_to) override;
+    Error remove(se_string_view p_name) override;
 
     size_t get_space_left() override;
 
-    String get_filesystem_type() const override;
+    se_string get_filesystem_type() const override;
 
     DirAccessPack();
     ~DirAccessPack() override;

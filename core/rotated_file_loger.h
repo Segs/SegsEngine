@@ -1,6 +1,5 @@
 #pragma once
-#include "core/ustring.h"
-#include "core/vector.h"
+#include "core/se_string.h"
 #include "core/io/logger.h"
 
 class FileAccess;
@@ -11,7 +10,7 @@ class FileAccess;
  * it acts as a simple file logger.
  */
 class RotatedFileLogger : public Logger {
-    String base_path;
+    se_string base_path;
     int max_files;
 
     FileAccess *file;
@@ -22,9 +21,8 @@ class RotatedFileLogger : public Logger {
     void rotate_file();
 
 public:
-    RotatedFileLogger(const String &p_base_path, int p_max_files = 10);
+    RotatedFileLogger(const se_string &p_base_path, int p_max_files = 10);
 
-    void logv(const QChar *p_msg, bool p_err) override;
-    void logv(const char *p_msg, bool p_err) override;
+    void logv(se_string_view p_msg, bool p_err) override;
     ~RotatedFileLogger() override;
 };

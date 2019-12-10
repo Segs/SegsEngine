@@ -32,20 +32,20 @@
 #include "servers/visual_server.h"
 #include "core/class_db.h"
 #include "core/property_info.h"
-
+#include "core/list.h"
 
 IMPL_GDCLASS(Canvas)
 
 RID Canvas::get_rid() const {
 
-	return canvas;
+    return canvas;
 }
 
 Canvas::Canvas() {
 
-	canvas = VisualServer::get_singleton()->canvas_create();
+    canvas = VisualServer::get_singleton()->canvas_create();
 }
 
 Canvas::~Canvas() {
-	VisualServer::get_singleton()->free(canvas);
+    VisualServer::get_singleton()->free(canvas);
 }

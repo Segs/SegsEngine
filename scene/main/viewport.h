@@ -317,7 +317,7 @@ private:
     _FORCE_INLINE_ Transform2D _get_input_pre_xform() const;
 
     void _vp_input(const Ref<InputEvent> &p_ev);
-    void _vp_input_text(const String &p_text);
+    void _vp_input_text(se_string_view p_text);
     void _vp_unhandled_input(const Ref<InputEvent> &p_ev);
     Ref<InputEvent> _make_input_local(const Ref<InputEvent> &ev);
 
@@ -334,7 +334,7 @@ private:
     void _gui_remove_root_control(List<Control *>::Element *RI);
     void _gui_remove_subwindow_control(List<Control *>::Element *SI);
 
-    String _gui_get_tooltip(Control *p_control, const Vector2 &p_pos, Control **r_which = nullptr);
+    StringName _gui_get_tooltip(Control *p_control, const Vector2 &p_pos, Control **r_which = nullptr);
     void _gui_cancel_tooltip();
     void _gui_show_tooltip();
 
@@ -495,7 +495,7 @@ public:
     void gui_reset_canvas_sort_index();
     int gui_get_canvas_sort_index();
 
-    String get_configuration_warning() const override;
+    StringName get_configuration_warning() const override;
 
     void set_usage(Usage p_usage);
     Usage get_usage() const;

@@ -31,7 +31,7 @@
 #pragma once
 
 #include "scene/main/node.h"
-#include "core/ustring.h"
+#include "core/se_string.h"
 #include "core/list.h"
 
 class PackedScene;
@@ -40,7 +40,7 @@ class InstancePlaceholder : public Node {
 
     GDCLASS(InstancePlaceholder,Node)
 
-    String path;
+    se_string path;
     struct PropSet {
         StringName name;
         Variant value;
@@ -56,8 +56,8 @@ protected:
     static void _bind_methods();
 
 public:
-    void set_instance_path(const String &p_name);
-    String get_instance_path() const;
+    void set_instance_path(se_string_view p_name);
+    const se_string &get_instance_path() const;
 
     Dictionary get_stored_values(bool p_with_order = false);
 

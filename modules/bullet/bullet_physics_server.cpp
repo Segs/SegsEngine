@@ -37,6 +37,7 @@
 #include "pin_joint_bullet.h"
 #include "shape_bullet.h"
 #include "slider_joint_bullet.h"
+#include "core/list.h"
 
 #include "core/class_db.h"
 #include "core/error_macros.h"
@@ -62,7 +63,7 @@
 /// Assert the body is assigned to a space
 #define JointAssertSpace(body, bIndex, ret)                                                           \
     if (!body->get_space()) {                                                                         \
-        ERR_PRINT("Before create a joint the Body" + String(bIndex) + " must be added to a space!"); \
+        ERR_PRINT("Before create a joint the Body" + se_string(bIndex) + " must be added to a space!"); \
         return ret;                                                                                   \
     }
 

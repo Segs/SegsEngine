@@ -122,7 +122,7 @@ static void GLAPIENTRY _gl_debug_print(GLenum source, GLenum type, GLuint id, GL
     else if (severity == _EXT_DEBUG_SEVERITY_LOW_ARB)
         strcpy(debSev, "Low");
 
-    String output = String() + "GL ERROR: Source: " + debSource + "\tType: " + debType + "\tID: " + itos(id) + "\tSeverity: " + debSev + "\tMessage: " + message;
+    se_string output = se_string() + "GL ERROR: Source: " + debSource + "\tType: " + debType + "\tID: " + itos(id) + "\tSeverity: " + debSev + "\tMessage: " + message;
 
     ERR_PRINT(output);
 }
@@ -185,7 +185,7 @@ void RasterizerGLES3::initialize() {
     */
 
     const GLubyte *renderer = glGetString(GL_RENDERER);
-    print_line("OpenGL ES 3.0 Renderer: " + String((const char *)renderer));
+    print_line("OpenGL ES 3.0 Renderer: " + se_string((const char *)renderer));
     storage->initialize();
     canvas->initialize();
     scene->initialize();

@@ -49,12 +49,12 @@ class EditorQuickOpen : public ConfirmationDialog {
 	void _update_search();
 
 	void _sbox_input(const Ref<InputEvent> &p_ie);
-	void _parse_fs(EditorFileSystemDirectory *efsd, Vector<Pair<String, Ref<Texture> > > &list);
-	Vector<Pair<String, Ref<Texture> > > _sort_fs(Vector<Pair<String, Ref<Texture> > > &list);
-	float _path_cmp(const String& search, const String& path) const;
+	void _parse_fs(EditorFileSystemDirectory *efsd, Vector<Pair<se_string, Ref<Texture> > > &list);
+	Vector<Pair<se_string, Ref<Texture> > > _sort_fs(Vector<Pair<se_string, Ref<Texture> > > &list);
+	float _path_cmp(se_string_view search, se_string_view path) const;
 
 	void _confirmed();
-	void _text_changed(const String &p_newtext);
+	void _text_changed(se_string_view p_newtext);
 
 protected:
 	void _notification(int p_what);
@@ -63,8 +63,8 @@ protected:
 public:
 	StringName get_base_type() const;
 
-	String get_selected() const;
-	Vector<String> get_selected_files() const;
+	se_string get_selected() const;
+	Vector<se_string> get_selected_files() const;
 
 	void popup_dialog(const StringName &p_base, bool p_enable_multi = false, bool p_add_dirs = false, bool p_dontclear = false);
 	EditorQuickOpen();

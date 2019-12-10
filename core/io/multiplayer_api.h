@@ -35,7 +35,7 @@
 #include "core/map.h"
 #include "core/hash_map.h"
 #include "core/set.h"
-#include "core/ustring.h"
+#include "core/se_string.h"
 
 enum MultiplayerAPI_NetworkCommands {
     NETWORK_COMMAND_REMOTE_CALL,
@@ -63,7 +63,7 @@ class GODOT_EXPORT MultiplayerAPI : public RefCounted {
 public:
     struct ProfilingInfo {
         ObjectID node;
-        String node_path;
+        se_string node_path;
         int incoming_rpc;
         int incoming_rset;
         int outgoing_rpc;

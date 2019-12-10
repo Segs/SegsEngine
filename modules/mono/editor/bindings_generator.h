@@ -609,7 +609,7 @@ class BindingsGenerator {
 
     Error _generate_glue_method(const TypeInterface &p_itype, const MethodInterface &p_imethod, StringBuilder &p_output);
 
-    Error _save_file(const String &p_path, const StringBuilder &p_content);
+    Error _save_file(se_string_view p_path, const StringBuilder &p_content);
 
     void _log(const char *p_format, ...) _PRINTF_FORMAT_ATTRIBUTE_2_3;
 

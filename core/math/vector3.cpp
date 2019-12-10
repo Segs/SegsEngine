@@ -31,7 +31,8 @@
 #include "vector3.h"
 
 #include "core/math/basis.h"
-#include "core/ustring.h"
+#include "core/se_string.h"
+#include "core/string_utils.h"
 
 void Vector3::rotate(const Vector3 &p_axis, real_t p_phi) {
 
@@ -135,7 +136,7 @@ Vector3 Vector3::move_toward(const Vector3 &p_to, const real_t p_delta) const {
     return len <= p_delta || len < CMP_EPSILON ? p_to : v + vd / len * p_delta;
 }
 
-Vector3::operator String() const {
+Vector3::operator se_string() const {
 
     return (rtos(x) + ", " + rtos(y) + ", " + rtos(z));
 }

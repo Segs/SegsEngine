@@ -40,9 +40,9 @@ IMPL_GDCLASS(GDScriptLanguageServer)
 GDScriptLanguageServer::GDScriptLanguageServer() {
     thread = nullptr;
     thread_exit = false;
-    _EDITOR_DEF("network/language_server/remote_port", 6008);
-    _EDITOR_DEF("network/language_server/enable_smart_resolve", false);
-    _EDITOR_DEF("network/language_server/show_native_symbols_in_editor", false);
+    _EDITOR_DEF(("network/language_server/remote_port"), 6008);
+    _EDITOR_DEF(("network/language_server/enable_smart_resolve"), false);
+    _EDITOR_DEF(("network/language_server/show_native_symbols_in_editor"), false);
 }
 
 void GDScriptLanguageServer::_notification(int p_what) {
@@ -66,9 +66,9 @@ void GDScriptLanguageServer::thread_main(void *p_userdata) {
 }
 
 void GDScriptLanguageServer::start() {
-    int port = (int)_EDITOR_GET("network/language_server/remote_port");
+    int port = _EDITOR_GET(("network/language_server/remote_port")).as<int>();
     if (protocol.start(port) == OK) {
-        EditorNode::get_log()->add_message("--- GDScript language server started ---", EditorLog::MSG_TYPE_EDITOR);
+        EditorNode::get_log()->add_message(String("--- GDScript language server started ---"), EditorLog::MSG_TYPE_EDITOR);
         ERR_FAIL_COND(thread != nullptr || thread_exit)
         thread_exit = false;
         thread = Thread::create(GDScriptLanguageServer::thread_main, this);
@@ -82,7 +82,7 @@ void GDScriptLanguageServer::stop() {
     memdelete(thread);
     thread = nullptr;
     protocol.stop();
-    EditorNode::get_log()->add_message("--- GDScript language server stopped ---", EditorLog::MSG_TYPE_EDITOR);
+    EditorNode::get_log()->add_message(String("--- GDScript language server stopped ---"), EditorLog::MSG_TYPE_EDITOR);
 }
 
 void register_lsp_types() {

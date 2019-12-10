@@ -82,7 +82,7 @@ class EditorSceneImporterGLTF : public QObject, public EditorSceneImporterInterf
 
     };
 
-    String _get_component_type_name(const uint32_t p_component);
+    const char *_get_component_type_name(const uint32_t p_component);
     int _get_component_type_size(const int component_type);
 
     enum GLTFType {
@@ -95,7 +95,7 @@ class EditorSceneImporterGLTF : public QObject, public EditorSceneImporterInterf
         TYPE_MAT4,
     };
 
-    String _get_type_name(const GLTFType p_component);
+    const char *_get_type_name(const GLTFType p_component);
 
     struct GLTFNode {
         //matrices need to be transformed to this
@@ -103,7 +103,7 @@ class EditorSceneImporterGLTF : public QObject, public EditorSceneImporterInterf
         int height;
 
         Transform xform;
-        String name;
+        se_string name;
 
         GLTFMeshIndex mesh;
         GLTFCameraIndex camera;
@@ -195,7 +195,7 @@ class EditorSceneImporterGLTF : public QObject, public EditorSceneImporterInterf
         Skeleton *godot_skeleton;
 
         // Set of unique bone names for the skeleton
-        Set<String> unique_names;
+        Set<se_string> unique_names;
 
         GLTFSkeleton() :
                 godot_skeleton(nullptr) {
@@ -203,7 +203,7 @@ class EditorSceneImporterGLTF : public QObject, public EditorSceneImporterInterf
     };
 
     struct GLTFSkin {
-        String name;
+        se_string name;
 
         // The "skeleton" property defined in the gltf spec. -1 = Scene Root
         GLTFNodeIndex skin_root;
@@ -285,7 +285,7 @@ class EditorSceneImporterGLTF : public QObject, public EditorSceneImporterInterf
             Vector<Channel<float> > weight_tracks;
         };
 
-        String name;
+        se_string name;
 
         Map<int, Track> tracks;
     };
@@ -305,7 +305,7 @@ class EditorSceneImporterGLTF : public QObject, public EditorSceneImporterInterf
         Vector<GLTFMesh> meshes; //meshes are loaded directly, no reason not to.
         Vector<Ref<Material> > materials;
 
-        String scene_name;
+        se_string scene_name;
         Vector<int> root_nodes;
 
         Vector<GLTFTexture> textures;
@@ -314,7 +314,7 @@ class EditorSceneImporterGLTF : public QObject, public EditorSceneImporterInterf
         Vector<GLTFSkin> skins;
         Vector<GLTFCamera> cameras;
 
-        Set<String> unique_names;
+        Set<se_string> unique_names;
 
         Vector<GLTFSkeleton> skeletons;
         Vector<GLTFAnimation> animations;
@@ -328,21 +328,21 @@ class EditorSceneImporterGLTF : public QObject, public EditorSceneImporterInterf
         }
     };
 
-    String _sanitize_scene_name(const String &name);
-    String _gen_unique_name(GLTFState &state, const String &p_name);
+    se_string _sanitize_scene_name(const se_string &name);
+    se_string _gen_unique_name(GLTFState &state, const se_string &p_name);
 
-    String _sanitize_bone_name(const String &name);
-    String _gen_unique_bone_name(GLTFState &state, const GLTFSkeletonIndex skel_i, const String &p_name);
+    se_string _sanitize_bone_name(const se_string &name);
+    se_string _gen_unique_bone_name(GLTFState &state, const GLTFSkeletonIndex skel_i, const se_string &p_name);
 
     Ref<Texture> _get_texture(GLTFState &state, const GLTFTextureIndex p_texture);
 
-    Error _parse_json(const String &p_path, GLTFState &state);
-    Error _parse_glb(const String &p_path, GLTFState &state);
+    Error _parse_json(se_string_view p_path, GLTFState &state);
+    Error _parse_glb(se_string_view p_path, GLTFState &state);
 
     Error _parse_scenes(GLTFState &state);
     Error _parse_nodes(GLTFState &state);
     void _compute_node_heights(GLTFState &state);
-    Error _parse_buffers(GLTFState &state, const String &p_base_path);
+    Error _parse_buffers(GLTFState &state, se_string_view p_base_path);
     Error _parse_buffer_views(GLTFState &state);
     GLTFType _get_type_from_str(const String &p_string);
     Error _parse_accessors(GLTFState &state);
@@ -360,7 +360,7 @@ class EditorSceneImporterGLTF : public QObject, public EditorSceneImporterInterf
     Vector<Transform> _decode_accessor_as_xform(GLTFState &state, const GLTFAccessorIndex p_accessor, const bool p_for_vertex);
 
     Error _parse_meshes(GLTFState &state);
-    Error _parse_images(GLTFState &state, const String &p_base_path);
+    Error _parse_images(GLTFState &state, se_string_view p_base_path);
     Error _parse_textures(GLTFState &state);
 
     Error _parse_materials(GLTFState &state);
@@ -406,9 +406,9 @@ class EditorSceneImporterGLTF : public QObject, public EditorSceneImporterInterf
 
 public:
     uint32_t get_import_flags() const override;
-    void get_extensions(Vector<String> *r_extensions) const override;
-    Node *import_scene(const String &p_path, uint32_t p_flags, int p_bake_fps, Vector<String> *r_missing_deps = nullptr, Error *r_err = nullptr) override;
-    Ref<Animation> import_animation(const String &p_path, uint32_t p_flags, int p_bake_fps) override;
+    void get_extensions(PODVector<se_string> &r_extensions) const override;
+    Node *import_scene(se_string_view p_path, uint32_t p_flags, int p_bake_fps, PODVector<se_string> *r_missing_deps = nullptr, Error *r_err = nullptr) override;
+    Ref<Animation> import_animation(se_string_view p_path, uint32_t p_flags, int p_bake_fps) override;
 
     EditorSceneImporterGLTF();
 };

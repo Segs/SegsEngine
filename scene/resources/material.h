@@ -93,12 +93,12 @@ protected:
     bool _set(const StringName &p_name, const Variant &p_value);
     bool _get(const StringName &p_name, Variant &r_ret) const;
     void _get_property_list(ListPOD<PropertyInfo> *p_list) const;
-    bool property_can_revert(const String &p_name);
-    Variant property_get_revert(const String &p_name);
+    bool property_can_revert(StringName p_name);
+    Variant property_get_revert(StringName p_name);
 
     static void _bind_methods();
 
-    void get_argument_options(const StringName &p_function, int p_idx, ListPOD<String> *r_options) const override;
+    void get_argument_options(const StringName &p_function, int p_idx, ListPOD<se_string> *r_options) const override;
 
     bool _can_do_next_pass() const override;
 
@@ -446,7 +446,7 @@ private:
 
     Ref<Texture> textures[TEXTURE_MAX];
 
-    _FORCE_INLINE_ void _validate_feature(const String &text, Feature feature, PropertyInfo &property) const;
+    _FORCE_INLINE_ void _validate_feature(se_string_view text, Feature feature, PropertyInfo &property) const;
 
     enum {
         MAX_MATERIALS_FOR_2D = 128
@@ -454,7 +454,7 @@ private:
 
     static Ref<SpatialMaterial> materials_for_2d[MAX_MATERIALS_FOR_2D]; //used by Sprite3D and other stuff
 
-    void _validate_high_end(const String &text, PropertyInfo &property) const;
+    void _validate_high_end(se_string_view text, PropertyInfo &property) const;
 
 protected:
     static void _bind_methods();

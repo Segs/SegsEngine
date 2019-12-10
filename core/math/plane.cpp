@@ -31,7 +31,8 @@
 #include "plane.h"
 
 #include "core/math/math_funcs.h"
-#include "core/ustring.h"
+#include "core/se_string.h"
+#include "core/string_utils.h"
 
 constexpr float _PLANE_EQ_DOT_EPSILON = 0.999f;
 constexpr float _PLANE_EQ_D_EPSILON = 0.0001f;
@@ -162,7 +163,7 @@ bool Plane::is_almost_like(const Plane &p_plane) const {
     return (normal.dot(p_plane.normal) > _PLANE_EQ_DOT_EPSILON && Math::absd(d - p_plane.d) < _PLANE_EQ_D_EPSILON);
 }
 
-Plane::operator String() const {
+Plane::operator se_string() const {
 
-    return normal.operator String() + ", " + rtos(d);
+    return (se_string)normal + ", " + rtos(d);
 }

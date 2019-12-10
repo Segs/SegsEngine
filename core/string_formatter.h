@@ -1,5 +1,5 @@
 #pragma once
-#include "ustring.h"
+#include "core/se_string.h"
 //#include "thirdparty/fmt/fmt/format.h"
 //#include "thirdparty/fmt/fmt/core.h"
 
@@ -58,6 +58,5 @@
 //    return ret;
 //}
 
-#define FormatV(FMT,...) String(QString::asprintf(FMT,__VA_ARGS__))
-
 #define FormatVE(FMT,...) se_string(se_string::CtorSprintf(),FMT,__VA_ARGS__)
+#define FormatSN(FMT,...) StringName(se_string(se_string::CtorSprintf(),FMT,__VA_ARGS__))

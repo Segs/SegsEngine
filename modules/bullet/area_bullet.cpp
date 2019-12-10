@@ -31,12 +31,13 @@
 #include "area_bullet.h"
 
 #include "core/object_db.h"
+#include "core/se_string.h"
+#include "core/string_utils.h"
 #include "bullet_physics_server.h"
 #include "bullet_types_converter.h"
 #include "bullet_utilities.h"
 #include "collision_object_bullet.h"
 #include "space_bullet.h"
-
 #include <BulletCollision/CollisionDispatch/btGhostObject.h>
 #include <btBulletCollisionCommon.h>
 
@@ -246,7 +247,7 @@ void AreaBullet::set_param(PhysicsServer::AreaParameter p_param, const Variant &
             set_spOv_gravityPointAttenuation(p_value);
             break;
         default:
-            WARN_PRINTS("Area doesn't support this parameter in the Bullet backend: " + itos(p_param));
+            WARN_PRINT("Area doesn't support this parameter in the Bullet backend: " + itos(p_param));
     }
 }
 
@@ -269,7 +270,7 @@ Variant AreaBullet::get_param(PhysicsServer::AreaParameter p_param) const {
         case PhysicsServer::AREA_PARAM_GRAVITY_POINT_ATTENUATION:
             return spOv_gravityPointAttenuation;
         default:
-            WARN_PRINTS("Area doesn't support this parameter in the Bullet backend: " + itos(p_param));
+            WARN_PRINT("Area doesn't support this parameter in the Bullet backend: " + itos(p_param));
             return Variant();
     }
 }

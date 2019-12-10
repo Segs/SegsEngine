@@ -32,6 +32,7 @@
 
 #include "core/os/memory.h"
 #include "EASTL/set.h"
+#include "core/forward_decls.h"
 
 template <class T>
 using Set = eastl::set<T,Comparator<T>,wrap_allocator>;

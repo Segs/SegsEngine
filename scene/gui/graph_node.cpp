@@ -41,27 +41,27 @@ VARIANT_ENUM_CAST(GraphNode::Overlay)
 
 bool GraphNode::_set(const StringName &p_name, const Variant &p_value) {
 
-    if (!StringUtils::begins_with(p_name.operator String(),"slot/"))
+    if (!StringUtils::begins_with(p_name,"slot/"))
         return false;
 
     int idx = StringUtils::to_int(StringUtils::get_slice(p_name,"/", 1));
-    String what = StringUtils::get_slice(p_name,"/", 2);
+    se_string_view what = StringUtils::get_slice(p_name,"/", 2);
 
     Slot si;
     if (slot_info.contains(idx))
         si = slot_info[idx];
 
-    if (what == "left_enabled")
+    if (what == se_string_view("left_enabled"))
         si.enable_left = p_value;
-    else if (what == "left_type")
+    else if (what == se_string_view("left_type"))
         si.type_left = p_value;
-    else if (what == "left_color")
+    else if (what == se_string_view("left_color"))
         si.color_left = p_value;
-    else if (what == "right_enabled")
+    else if (what == se_string_view("right_enabled"))
         si.enable_right = p_value;
-    else if (what == "right_type")
+    else if (what == se_string_view("right_type"))
         si.type_right = p_value;
-    else if (what == "right_color")
+    else if (what == se_string_view("right_color"))
         si.color_right = p_value;
     else
         return false;
@@ -72,27 +72,28 @@ bool GraphNode::_set(const StringName &p_name, const Variant &p_value) {
 }
 
 bool GraphNode::_get(const StringName &p_name, Variant &r_ret) const {
+    using namespace eastl;
 
-    if (!StringUtils::begins_with(p_name.operator String(),"slot/")) {
+    if (!StringUtils::begins_with(p_name,"slot/")) {
         return false;
     }
 
     int idx = StringUtils::to_int(StringUtils::get_slice(p_name,"/", 1));
-    String what = StringUtils::get_slice(p_name,"/", 2);
+    se_string_view what = StringUtils::get_slice(p_name,"/", 2);
 
     Slot si=slot_info.at(idx,{});
 
-    if (what == "left_enabled")
+    if (what == "left_enabled"_sv)
         r_ret = si.enable_left;
-    else if (what == "left_type")
+    else if (what == "left_type"_sv)
         r_ret = si.type_left;
-    else if (what == "left_color")
+    else if (what == "left_color"_sv)
         r_ret = si.color_left;
-    else if (what == "right_enabled")
+    else if (what == "right_enabled"_sv)
         r_ret = si.enable_right;
-    else if (what == "right_type")
+    else if (what == "right_type"_sv)
         r_ret = si.type_right;
-    else if (what == "right_color")
+    else if (what == "right_color"_sv)
         r_ret = si.color_right;
     else
         return false;
@@ -107,14 +108,14 @@ void GraphNode::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
         if (!c || c->is_set_as_toplevel())
             continue;
 
-        String base = "slot/" + itos(idx) + "/";
+        se_string base = "slot/" + itos(idx) + "/";
 
-        p_list->push_back(PropertyInfo(VariantType::BOOL, base + "left_enabled"));
-        p_list->push_back(PropertyInfo(VariantType::INT, base + "left_type"));
-        p_list->push_back(PropertyInfo(VariantType::COLOR, base + "left_color"));
-        p_list->push_back(PropertyInfo(VariantType::BOOL, base + "right_enabled"));
-        p_list->push_back(PropertyInfo(VariantType::INT, base + "right_type"));
-        p_list->push_back(PropertyInfo(VariantType::COLOR, base + "right_color"));
+        p_list->push_back(PropertyInfo(VariantType::BOOL, StringName(base + "left_enabled")));
+        p_list->push_back(PropertyInfo(VariantType::INT, StringName(base + "left_type")));
+        p_list->push_back(PropertyInfo(VariantType::COLOR, StringName(base + "left_color")));
+        p_list->push_back(PropertyInfo(VariantType::BOOL, StringName(base + "right_enabled")));
+        p_list->push_back(PropertyInfo(VariantType::INT, StringName(base + "right_type")));
+        p_list->push_back(PropertyInfo(VariantType::COLOR, StringName(base + "right_color")));
 
         idx++;
     }
@@ -162,7 +163,7 @@ void GraphNode::_resort() {
         Rect2 r(sb->get_margin(MARGIN_LEFT), sb->get_margin(MARGIN_TOP) + vofs, w, size.y);
 
         fit_child_in_rect(c, r);
-        cache_y.push_back(vofs + size.y * 0.5);
+        cache_y.push_back(vofs + size.y * 0.5f);
 
         vofs += size.y + sep;
     }
@@ -245,7 +246,10 @@ void GraphNode::_notification(int p_what) {
             if (show_close)
                 w -= close->get_width();
 
-            draw_string(title_font, Point2(sb->get_margin(MARGIN_LEFT) + title_h_offset, -title_font->get_height() + title_font->get_ascent() + title_offset), title, title_color, w);
+            draw_string_utf8(title_font,
+                    Point2(sb->get_margin(MARGIN_LEFT) + title_h_offset,
+                            -title_font->get_height() + title_font->get_ascent() + title_offset),
+                    title, title_color, w);
             if (show_close) {
                 Vector2 cpos = Point2(w + sb->get_margin(MARGIN_LEFT) + close_h_offset, -close->get_height() + close_offset);
                 draw_texture(close, cpos, close_color);
@@ -382,7 +386,7 @@ Size2 GraphNode::get_minimum_size() const {
     bool first = true;
 
     Size2 minsize;
-    minsize.x = title_font->get_string_size(title).x;
+    minsize.x = title_font->get_string_size_utf8(title).x;
     if (show_close) {
         Ref<Texture> close = get_icon("close");
         minsize.x += sep + close->get_width();
@@ -410,17 +414,16 @@ Size2 GraphNode::get_minimum_size() const {
     return minsize + sb->get_minimum_size();
 }
 
-void GraphNode::set_title(const String &p_title) {
-
-    if (title == p_title)
+void GraphNode::set_title(se_string_view _title) {
+    if (title == _title)
         return;
-    title = p_title;
+    title = _title;
     update();
     _change_notify("title");
     minimum_size_changed();
 }
 
-String GraphNode::get_title() const {
+se_string GraphNode::get_title() const {
 
     return title;
 }

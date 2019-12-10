@@ -51,7 +51,7 @@ protected:
 	void _notification(int p_what);
 
 public:
-	String get_configuration_warning() const override;
+    StringName get_configuration_warning() const override;
 
 	Vector3 project_local_ray_normal(const Point2 &p_pos) const override;
 	Point2 unproject_position(const Vector3 &p_pos) const override;
@@ -85,7 +85,7 @@ protected:
 public:
 	void set_controller_id(int p_controller_id);
 	int get_controller_id() const;
-	String get_controller_name() const;
+	StringName get_controller_name() const;
 
 	int get_joystick_id() const;
 	int is_button_pressed(int p_button) const;
@@ -99,7 +99,7 @@ public:
 
 	Ref<Mesh> get_mesh() const;
 
-	String get_configuration_warning() const override;
+    StringName get_configuration_warning() const override;
 
 	ARVRController();
 	~ARVRController() override;
@@ -126,7 +126,7 @@ protected:
 public:
 	void set_anchor_id(int p_anchor_id);
 	int get_anchor_id() const;
-	String get_anchor_name() const;
+	StringName get_anchor_name() const;
 
 	bool get_is_active() const;
 	Vector3 get_size() const;
@@ -135,7 +135,7 @@ public:
 
 	Ref<Mesh> get_mesh() const;
 
-	String get_configuration_warning() const override;
+    StringName get_configuration_warning() const override;
 
 	ARVRAnchor();
 	~ARVRAnchor() override;
@@ -161,7 +161,7 @@ protected:
 	static void _bind_methods();
 
 public:
-	String get_configuration_warning() const override;
+    StringName get_configuration_warning() const override;
 
 	void set_tracked_camera(ARVRCamera *p_tracked_camera);
 	void clear_tracked_camera_if(ARVRCamera *p_tracked_camera);

@@ -33,6 +33,7 @@
 #include "core/method_bind.h"
 #include "core/io/json.h"
 #include "core/os/dir_access.h"
+#include "core/string_formatter.h"
 #include "editor/editor_settings.h"
 #include "editor_node.h"
 #include "editor_scale.h"
@@ -129,25 +130,25 @@ bool EditorFeatureProfile::is_feature_disabled(Feature p_feature) const {
     return features_disabled[p_feature];
 }
 
-String EditorFeatureProfile::get_feature_name(Feature p_feature) {
-    ERR_FAIL_INDEX_V(p_feature, FEATURE_MAX, String());
+se_string_view EditorFeatureProfile::get_feature_name(Feature p_feature) {
+    ERR_FAIL_INDEX_V(p_feature, FEATURE_MAX, {})
     return feature_names[p_feature];
 }
 
-Error EditorFeatureProfile::save_to_file(const String &p_path) {
+Error EditorFeatureProfile::save_to_file(se_string_view p_path) {
 
     Dictionary json;
     json["type"] = "feature_profile";
     Array dis_classes;
     for (const StringName &E : disabled_classes) {
-        dis_classes.push_back(String(E));
+        dis_classes.push_back(E);
     }
     dis_classes.sort();
     json["disabled_classes"] = dis_classes;
 
     Array dis_editors;
     for (const StringName &E : disabled_editors) {
-        dis_editors.push_back(String(E));
+        dis_editors.push_back(E);
     }
     dis_editors.sort();
     json["disabled_editors"] = dis_editors;
@@ -156,7 +157,7 @@ Error EditorFeatureProfile::save_to_file(const String &p_path) {
 
     for (eastl::pair<const StringName,Set<StringName> > &E : disabled_properties) {
         for (const StringName &F : E.second) {
-            dis_props.push_back(String(E.first) + ":" + String(F));
+            dis_props.push_back(se_string(E.first) + ":" + F);
         }
     }
 
@@ -172,35 +173,35 @@ Error EditorFeatureProfile::save_to_file(const String &p_path) {
     json["disabled_features"] = dis_features;
 
     FileAccessRef f = FileAccess::open(p_path, FileAccess::WRITE);
-    ERR_FAIL_COND_V_MSG(!f, ERR_CANT_CREATE, "Cannot create file '" + p_path + "'.")
+    ERR_FAIL_COND_V_MSG(!f, ERR_CANT_CREATE, se_string("Cannot create file '") + p_path + "'.")
 
-    String text = JSON::print(json, "\t");
+    se_string text = JSON::print(json, ("\t"));
     f->store_string(text);
     f->close();
     return OK;
 }
 
-Error EditorFeatureProfile::load_from_file(const String &p_path) {
+Error EditorFeatureProfile::load_from_file(se_string_view p_path) {
 
     Error err;
-    String text = FileAccess::get_file_as_string(p_path, &err);
+    se_string text = FileAccess::get_file_as_string(p_path, &err);
     if (err != OK) {
         return err;
     }
 
-    String err_str;
+    se_string err_str;
     int err_line;
     Variant v;
     err = JSON::parse(text, v, err_str, err_line);
     if (err != OK) {
-        ERR_PRINT("Error parsing '" + p_path + "' on line " + itos(err_line) + ": " + err_str);
+        ERR_PRINT("Error parsing '" + se_string(p_path) + "' on line " + itos(err_line) + ": " + err_str)
         return ERR_PARSE_ERROR;
     }
 
     Dictionary json = v;
 
-    if (!json.has("type") || String(json["type"]) != "feature_profile") {
-        ERR_PRINT("Error parsing '" + p_path + "', it's not a feature profile.");
+    if (!json.has("type") || se_string(json["type"]) != "feature_profile") {
+        ERR_PRINT("Error parsing '" + se_string(p_path) + "', it's not a feature profile.");
         return ERR_PARSE_ERROR;
     }
 
@@ -226,9 +227,12 @@ Error EditorFeatureProfile::load_from_file(const String &p_path) {
 
     if (json.has("disabled_properties")) {
         Array disabled_properties_arr = json["disabled_properties"];
+        FixedVector<se_string_view,4,true> parts;
         for (int i = 0; i < disabled_properties_arr.size(); i++) {
-            String s = disabled_properties_arr[i];
-            set_disable_class_property(StringUtils::get_slice(s,":", 0), StringUtils::get_slice(s,":", 1), true);
+            se_string s = disabled_properties_arr[i];
+            se_string::split_ref(parts,s,':');
+
+            set_disable_class_property(StringName(parts[0]), StringName(parts[1]), true);
         }
     }
 
@@ -237,7 +241,7 @@ Error EditorFeatureProfile::load_from_file(const String &p_path) {
         Array disabled_features_arr = json["disabled_features"];
         for (int i = 0; i < FEATURE_MAX; i++) {
             bool found = false;
-            String f = feature_identifiers[i];
+            String f(feature_identifiers[i]);
             for (int j = 0; j < disabled_features_arr.size(); j++) {
                 String fd = disabled_features_arr[j];
                 if (fd == f) {
@@ -294,13 +298,13 @@ EditorFeatureProfile::EditorFeatureProfile() {
 void EditorFeatureProfileManager::_notification(int p_what) {
     if (p_what == NOTIFICATION_READY) {
 
-        current_profile = EDITOR_GET("_default_feature_profile");
+        current_profile = EDITOR_GET("_default_feature_profile").as<se_string>();
         if (!current_profile.empty()) {
             current = make_ref_counted<EditorFeatureProfile>();
             Error err = current->load_from_file(PathUtils::plus_file(EditorSettings::get_singleton()->get_feature_profiles_dir(),current_profile + ".profile"));
             if (err != OK) {
                 ERR_PRINT("Error loading default feature profile: " + current_profile);
-                current_profile = String();
+                current_profile.clear();
                 current.unref();
             }
         }
@@ -308,43 +312,43 @@ void EditorFeatureProfileManager::_notification(int p_what) {
     }
 }
 
-String EditorFeatureProfileManager::_get_selected_profile() {
+se_string EditorFeatureProfileManager::_get_selected_profile() {
     int idx = profile_list->get_selected();
     if (idx < 0) {
-        return String();
+        return se_string();
     }
 
     return profile_list->get_item_metadata(idx);
 }
 
-void EditorFeatureProfileManager::_update_profile_list(const String &p_select_profile) {
+void EditorFeatureProfileManager::_update_profile_list(se_string_view p_select_profile) {
 
-    String selected_profile;
+    se_string selected_profile;
     if (p_select_profile.empty()) { //default, keep
         if (profile_list->get_selected() >= 0) {
-            selected_profile = profile_list->get_item_metadata(profile_list->get_selected());
+            selected_profile = profile_list->get_item_metadata(profile_list->get_selected()).as<se_string>();
             if (!FileAccess::exists(PathUtils::plus_file(EditorSettings::get_singleton()->get_feature_profiles_dir(),selected_profile + ".profile"))) {
-                selected_profile = String(); //does not exist
+                selected_profile.clear(); //does not exist
             }
         }
     } else {
         selected_profile = p_select_profile;
     }
 
-    Vector<String> profiles;
+    Vector<se_string> profiles;
     DirAccessRef d = DirAccess::open(EditorSettings::get_singleton()->get_feature_profiles_dir());
     ERR_FAIL_COND_MSG(!d, "Cannot open directory '" + EditorSettings::get_singleton()->get_feature_profiles_dir() + "'.")
     d->list_dir_begin();
     while (true) {
-        String f = d->get_next();
+        se_string f = d->get_next();
         if (f.empty()) {
             break;
         }
 
         if (!d->current_is_dir()) {
-            int last_pos = StringUtils::find_last(f,".profile");
-            if (last_pos != -1) {
-                profiles.push_back(StringUtils::substr(f,0, last_pos));
+            auto last_pos = StringUtils::find_last(f,".profile");
+            if (last_pos != se_string::npos) {
+                profiles.emplace_back(StringUtils::substr(f,0, last_pos));
             }
         }
     }
@@ -354,16 +358,16 @@ void EditorFeatureProfileManager::_update_profile_list(const String &p_select_pr
     profile_list->clear();
 
     for (int i = 0; i < profiles.size(); i++) {
-        String name = profiles[i];
+        se_string name = profiles[i];
 
         if (i == 0 && selected_profile.empty()) {
             selected_profile = name;
         }
 
         if (name == current_profile) {
-            name += " (current)";
+            name += (" (current)");
         }
-        profile_list->add_item(name);
+        profile_list->add_item(StringName(name));
         int index = profile_list->get_item_count() - 1;
         profile_list->set_item_metadata(index, profiles[i]);
         if (profiles[i] == selected_profile) {
@@ -376,7 +380,7 @@ void EditorFeatureProfileManager::_update_profile_list(const String &p_select_pr
     profile_actions[PROFILE_EXPORT]->set_disabled(selected_profile.empty());
     profile_actions[PROFILE_SET]->set_disabled(selected_profile.empty());
 
-    current_profile_name->set_text(current_profile);
+    current_profile_name->set_text_utf8(current_profile);
 
     _update_selected_profile();
 }
@@ -396,7 +400,7 @@ void EditorFeatureProfileManager::_profile_action(int p_action) {
         } break;
         case PROFILE_SET: {
 
-            String selected = _get_selected_profile();
+            se_string selected = _get_selected_profile();
             ERR_FAIL_COND(selected.empty())
             if (selected == current_profile) {
                 return; // Nothing to do here.
@@ -426,10 +430,10 @@ void EditorFeatureProfileManager::_profile_action(int p_action) {
         } break;
         case PROFILE_ERASE: {
 
-            String selected = _get_selected_profile();
+            se_string selected = _get_selected_profile();
             ERR_FAIL_COND(selected.empty())
 
-            erase_profile_dialog->set_text(vformat(TTR("Erase profile '%s'? (no undo)"), selected));
+            erase_profile_dialog->set_text(FormatSN(TTR("Erase profile '%s'? (no undo)").asCString(), selected.c_str()));
             erase_profile_dialog->popup_centered_minsize();
         } break;
     }
@@ -437,7 +441,7 @@ void EditorFeatureProfileManager::_profile_action(int p_action) {
 
 void EditorFeatureProfileManager::_erase_selected_profile() {
 
-    String selected = _get_selected_profile();
+    se_string selected = _get_selected_profile();
     ERR_FAIL_COND(selected.empty())
     DirAccessRef da = DirAccess::open(EditorSettings::get_singleton()->get_feature_profiles_dir());
     ERR_FAIL_COND_MSG(!da, "Cannot open directory '" + EditorSettings::get_singleton()->get_feature_profiles_dir() + "'.")
@@ -450,12 +454,12 @@ void EditorFeatureProfileManager::_erase_selected_profile() {
 }
 
 void EditorFeatureProfileManager::_create_new_profile() {
-    String name = StringUtils::strip_edges(new_profile_name->get_text());
-    if (!StringUtils::is_valid_filename(name) || StringUtils::find(name,".") != -1) {
+    se_string name(StringUtils::strip_edges(new_profile_name->get_text()));
+    if (!StringUtils::is_valid_filename(name) || StringUtils::find(name,".") != se_string::npos) {
         EditorNode::get_singleton()->show_warning(TTR("Profile must be a valid filename and must not contain '.'"));
         return;
     }
-    String file = PathUtils::plus_file(EditorSettings::get_singleton()->get_feature_profiles_dir(),name + ".profile");
+    se_string file = PathUtils::plus_file(EditorSettings::get_singleton()->get_feature_profiles_dir(),name + ".profile");
     if (FileAccess::exists(file)) {
         EditorNode::get_singleton()->show_warning(TTR("Profile with this name already exists."));
         return;
@@ -472,12 +476,12 @@ void EditorFeatureProfileManager::_profile_selected(int p_what) {
     _update_selected_profile();
 }
 
-void EditorFeatureProfileManager::_fill_classes_from(TreeItem *p_parent, const String &p_class, const String &p_selected) {
+void EditorFeatureProfileManager::_fill_classes_from(TreeItem *p_parent, const StringName &p_class, se_string_view p_selected) {
 
     TreeItem *class_item = class_list->create_item(p_parent);
     class_item->set_cell_mode(0, TreeItem::CELL_MODE_CHECK);
     class_item->set_icon(0, EditorNode::get_singleton()->get_class_icon(p_class, "Node"));
-    String text = p_class;
+    StringName text(p_class);
 
     bool disabled = edited->is_class_disabled(p_class);
     bool disabled_editor = edited->is_class_editor_disabled(p_class);
@@ -485,11 +489,11 @@ void EditorFeatureProfileManager::_fill_classes_from(TreeItem *p_parent, const S
     if (disabled) {
         class_item->set_custom_color(0, get_color("disabled_font_color", "Editor"));
     } else if (disabled_editor && disabled_properties) {
-        text += " " + TTR("(Editor Disabled, Properties Disabled)");
+        text = text + " " + TTR("(Editor Disabled, Properties Disabled)");
     } else if (disabled_properties) {
-        text += " " + TTR("(Properties Disabled)");
+        text = text + " " + TTR("(Properties Disabled)");
     } else if (disabled_editor) {
-        text += " " + TTR("(Editor Disabled)");
+        text = text + " " + TTR("(Editor Disabled)");
     }
     class_item->set_text(0, text);
     class_item->set_editable(0, true);
@@ -511,11 +515,10 @@ void EditorFeatureProfileManager::_fill_classes_from(TreeItem *p_parent, const S
     child_classes.sort(WrapAlphaCompare());
 
     for (const StringName &E : child_classes) {
-        String name = E;
-        if (StringUtils::begins_with(name,"Editor") || ClassDB::get_api_type(name) != ClassDB::API_CORE) {
+        if (StringUtils::begins_with(E,"Editor") || ClassDB::get_api_type(E) != ClassDB::API_CORE) {
             continue;
         }
-        _fill_classes_from(class_item, name, p_selected);
+        _fill_classes_from(class_item, E, p_selected);
     }
 }
 
@@ -536,7 +539,7 @@ void EditorFeatureProfileManager::_class_list_item_selected() {
         return;
     }
 
-    String class_name = md;
+    StringName class_name(md);
 
     if (edited->is_class_disabled(class_name)) {
         return;
@@ -566,7 +569,7 @@ void EditorFeatureProfileManager::_class_list_item_selected() {
 
     for (const PropertyInfo &E : props) {
 
-        String name = E.name;
+        StringName name = E.name;
         if (!(E.usage & PROPERTY_USAGE_EDITOR))
             continue;
         TreeItem *property = property_list->create_item(properties);
@@ -574,10 +577,10 @@ void EditorFeatureProfileManager::_class_list_item_selected() {
         property->set_editable(0, true);
         property->set_selectable(0, true);
         property->set_checked(0, !edited->is_class_property_disabled(class_name, name));
-        property->set_text(0, StringUtils::capitalize(name));
+        property->set_text_utf8(0, StringUtils::capitalize(name));
         property->set_metadata(0, name);
-        String icon_type = Variant::get_type_name(E.type);
-        property->set_icon(0, EditorNode::get_singleton()->get_class_icon(icon_type));
+        StringName icon_type(Variant::interned_type_name(E.type));
+        property->set_icon(0, EditorNode::get_singleton()->get_class_icon(icon_type,"Object"));
     }
 
     updating_features = false;
@@ -597,7 +600,7 @@ void EditorFeatureProfileManager::_class_list_item_edited() {
 
     Variant md = item->get_metadata(0);
     if (md.get_type() == VariantType::STRING) {
-        String class_selected = md;
+        StringName class_selected = md;
         edited->set_disable_class(class_selected, !checked);
         _save_and_update();
         _update_selected_profile();
@@ -622,7 +625,7 @@ void EditorFeatureProfileManager::_property_item_edited() {
         return;
     }
 
-    String class_name = md;
+    StringName class_name = md;
 
     TreeItem *item = property_list->get_edited();
     if (!item) {
@@ -632,7 +635,7 @@ void EditorFeatureProfileManager::_property_item_edited() {
 
     md = item->get_metadata(0);
     if (md.get_type() == VariantType::STRING) {
-        String property_selected = md;
+        StringName property_selected = md;
         edited->set_disable_class_property(class_name, property_selected, !checked);
         _save_and_update();
         _update_selected_profile();
@@ -650,7 +653,7 @@ void EditorFeatureProfileManager::_property_item_edited() {
 
 void EditorFeatureProfileManager::_update_selected_profile() {
 
-    String class_selected;
+    StringName class_selected;
     int feature_selected = -1;
 
     if (class_list->get_selected()) {
@@ -664,7 +667,7 @@ void EditorFeatureProfileManager::_update_selected_profile() {
 
     class_list->clear();
 
-    String profile = _get_selected_profile();
+    se_string profile(_get_selected_profile());
     if (profile.empty()) { //nothing selected, nothing edited
         property_list->clear();
         edited.unref();
@@ -707,30 +710,32 @@ void EditorFeatureProfileManager::_update_selected_profile() {
     TreeItem *classes = class_list->create_item(root);
     classes->set_text(0, TTR("Enabled Classes:"));
 
-    _fill_classes_from(classes, "Node", class_selected);
-    _fill_classes_from(classes, "Resource", class_selected);
+    _fill_classes_from(classes, ("Node"), class_selected);
+    _fill_classes_from(classes, ("Resource"), class_selected);
 
     updating_features = false;
 
     _class_list_item_selected();
 }
 
-void EditorFeatureProfileManager::_import_profiles(const Vector<String> &p_paths) {
+void EditorFeatureProfileManager::_import_profiles(const Vector<se_string> &p_paths) {
 
     //test it first
     for (int i = 0; i < p_paths.size(); i++) {
         Ref<EditorFeatureProfile> profile(make_ref_counted<EditorFeatureProfile>());
         Error err = profile->load_from_file(p_paths[i]);
-        String basefile = PathUtils::get_file(p_paths[i]);
+        se_string basefile(PathUtils::get_file(p_paths[i]));
         if (err != OK) {
-            EditorNode::get_singleton()->show_warning(vformat(TTR("File '%s' format is invalid, import aborted."), basefile));
+            EditorNode::get_singleton()->show_warning(FormatSN(TTR("File '%s' format is invalid, import aborted.").asCString(), basefile.c_str()));
             return;
         }
 
-        String dst_file = PathUtils::plus_file(EditorSettings::get_singleton()->get_feature_profiles_dir(),basefile);
-
+        se_string dst_file = PathUtils::plus_file(EditorSettings::get_singleton()->get_feature_profiles_dir(),basefile);
+        se_string_view basename(PathUtils::get_basename(basefile));
         if (FileAccess::exists(dst_file)) {
-            EditorNode::get_singleton()->show_warning(vformat(TTR("Profile '%s' already exists. Remove it first before importing, import aborted."), PathUtils::get_basename(basefile)));
+            EditorNode::get_singleton()->show_warning(FormatSN(
+                    TTR("Profile '%.*s' already exists. Remove it first before importing, import aborted.").asCString(),
+                    basename.length(),basename.data()));
             return;
         }
     }
@@ -740,26 +745,26 @@ void EditorFeatureProfileManager::_import_profiles(const Vector<String> &p_paths
         Ref<EditorFeatureProfile> profile(make_ref_counted<EditorFeatureProfile>());
         Error err = profile->load_from_file(p_paths[i]);
         ERR_CONTINUE(err != OK);
-        String basefile = PathUtils::get_file(p_paths[i]);
-        String dst_file = PathUtils::plus_file(EditorSettings::get_singleton()->get_feature_profiles_dir(),basefile);
+        se_string basefile(PathUtils::get_file(p_paths[i]));
+        se_string dst_file = PathUtils::plus_file(EditorSettings::get_singleton()->get_feature_profiles_dir(),basefile);
         profile->save_to_file(dst_file);
     }
 
     _update_profile_list();
 }
 
-void EditorFeatureProfileManager::_export_profile(const String &p_path) {
+void EditorFeatureProfileManager::_export_profile(se_string_view p_path) {
 
     ERR_FAIL_COND(not edited)
     Error err = edited->save_to_file(p_path);
     if (err != OK) {
-        EditorNode::get_singleton()->show_warning(vformat(TTR("Error saving profile to path: '%s'."), p_path));
+        EditorNode::get_singleton()->show_warning(FormatSN(TTR("Error saving profile to path: '%.*s'.").asCString(), p_path.length(),p_path.data()));
     }
 }
 
 void EditorFeatureProfileManager::_save_and_update() {
 
-    String edited_path = _get_selected_profile();
+    se_string edited_path = _get_selected_profile();
     ERR_FAIL_COND(edited_path.empty())
     ERR_FAIL_COND(not edited)
 
@@ -898,7 +903,7 @@ EditorFeatureProfileManager::EditorFeatureProfileManager() {
     import_profiles = memnew(EditorFileDialog);
     add_child(import_profiles);
     import_profiles->set_mode(EditorFileDialog::MODE_OPEN_FILES);
-    import_profiles->add_filter("*.profile; Godot Feature Profile");
+    import_profiles->add_filter(("*.profile; Godot Feature Profile"));
     import_profiles->connect("files_selected", this, "_import_profiles");
     import_profiles->set_title(TTR("Import Profile(s)"));
     import_profiles->set_access(EditorFileDialog::ACCESS_FILESYSTEM);

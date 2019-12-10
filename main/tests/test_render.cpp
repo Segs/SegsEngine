@@ -35,6 +35,7 @@
 #include "core/os/input_event.h"
 #include "core/os/keyboard.h"
 #include "core/os/main_loop.h"
+#include "core/string_utils.h"
 #include "core/os/os.h"
 #include "core/print_string.h"
 #include "servers/visual_server.h"
@@ -138,7 +139,7 @@ public:
         vs->material_set_shader(tcmat,sm);
         */
 
-        ListPOD<String> cmdline = OS::get_singleton()->get_cmdline_args();
+        const ListPOD<se_string> &cmdline(OS::get_singleton()->get_cmdline_args());
         int object_count = OBJECT_COUNT;
         if (!cmdline.empty() && StringUtils::to_int(cmdline.back())) {
             object_count = StringUtils::to_int(cmdline.back());

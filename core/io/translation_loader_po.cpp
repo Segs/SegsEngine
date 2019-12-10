@@ -33,8 +33,11 @@
 #include "core/list.h"
 #include "core/os/file_access.h"
 #include "core/translation.h"
+#include "core/string_utils.inl"
 
-RES TranslationLoaderPO::load_translation(FileAccess *f, Error *r_error, const String &p_path) {
+using namespace eastl;
+
+RES TranslationLoaderPO::load_translation(FileAccess *f, Error *r_error, se_string_view p_path) {
 
     enum Status {
 
@@ -45,9 +48,9 @@ RES TranslationLoaderPO::load_translation(FileAccess *f, Error *r_error, const S
 
     Status status = STATUS_NONE;
 
-    String msg_id;
-    String msg_str;
-    String config;
+    se_string msg_id;
+    se_string msg_str;
+    se_string config;
 
     if (r_error)
         *r_error = ERR_FILE_CORRUPT;
@@ -60,7 +63,7 @@ RES TranslationLoaderPO::load_translation(FileAccess *f, Error *r_error, const S
 
     while (!is_eof) {
 
-        String l = StringUtils::strip_edges(f->get_line());
+        se_string l(StringUtils::strip_edges(f->get_line()));
         is_eof = f->eof_reached();
 
         // If we reached last line and it's not a content line, break, otherwise let processing that last loop
@@ -68,7 +71,7 @@ RES TranslationLoaderPO::load_translation(FileAccess *f, Error *r_error, const S
 
             if (status == STATUS_READING_ID) {
                 memdelete(f);
-                ERR_FAIL_V_MSG(RES(), p_path + ":" + itos(line) + " Unexpected EOF while reading 'msgid' at file: ")
+                ERR_FAIL_V_MSG(RES(), se_string(p_path) + ":" + ::to_string(line) + " Unexpected EOF while reading 'msgid' at file: ")
             } else {
                 break;
             }
@@ -79,7 +82,7 @@ RES TranslationLoaderPO::load_translation(FileAccess *f, Error *r_error, const S
             if (status == STATUS_READING_ID) {
 
                 memdelete(f);
-                ERR_FAIL_V_MSG(RES(), p_path + ":" + itos(line) + " Unexpected 'msgid', was expecting 'msgstr' while parsing: ")
+                ERR_FAIL_V_MSG(RES(), se_string(p_path) + ":" + ::to_string(line) + " Unexpected 'msgid', was expecting 'msgstr' while parsing: ")
             }
 
             if (!msg_id.empty()) {
@@ -101,7 +104,7 @@ RES TranslationLoaderPO::load_translation(FileAccess *f, Error *r_error, const S
             if (status != STATUS_READING_ID) {
 
                 memdelete(f);
-                ERR_FAIL_V_MSG(RES(), p_path + ":" + itos(line) + " Unexpected 'msgstr', was expecting 'msgid' while parsing: ")
+                ERR_FAIL_V_MSG(RES(), se_string(p_path) + ":" + ::to_string(line) + " Unexpected 'msgstr', was expecting 'msgid' while parsing: ")
             }
 
             l = StringUtils::strip_edges(StringUtils::substr(l,6, l.length()));
@@ -116,7 +119,7 @@ RES TranslationLoaderPO::load_translation(FileAccess *f, Error *r_error, const S
             continue; //nothing to read or comment
         }
 
-        ERR_FAIL_COND_V_MSG(!StringUtils::begins_with(l,"\"") || status == STATUS_NONE, RES(), p_path + ":" + itos(line) + " Invalid line '" + l + "' while parsing: ")
+        ERR_FAIL_COND_V_MSG(!StringUtils::begins_with(l,"\"") || status == STATUS_NONE, RES(), se_string(p_path) + ":" + ::to_string(line) + " Invalid line '" + l + "' while parsing: ")
 
         l = StringUtils::substr(l,1, l.length());
         //find final quote
@@ -129,7 +132,7 @@ RES TranslationLoaderPO::load_translation(FileAccess *f, Error *r_error, const S
             }
         }
 
-        ERR_FAIL_COND_V_MSG(end_pos == -1, RES(), p_path + ":" + itos(line) + " Expected '\"' at end of message while parsing file: ")
+        ERR_FAIL_COND_V_MSG(end_pos == -1, RES(), se_string(p_path) + ":" + ::to_string(line) + " Expected '\"' at end of message while parsing file: ")
 
         l = StringUtils::substr(l,0, end_pos);
         l = StringUtils::c_unescape(l);
@@ -154,19 +157,19 @@ RES TranslationLoaderPO::load_translation(FileAccess *f, Error *r_error, const S
             config = msg_str;
     }
 
-    ERR_FAIL_COND_V_MSG(config.empty(), RES(), "No config found in file: " + p_path + ".")
+    ERR_FAIL_COND_V_MSG(config.empty(), RES(), "No config found in file: " + se_string(p_path) + ".")
 
-    Vector<String> configs = StringUtils::split(config,"\n");
+    Vector<se_string_view> configs = StringUtils::split(config,'\n');
     for (int i = 0; i < configs.size(); i++) {
 
-        String c =StringUtils::strip_edges( configs[i]);
+        se_string_view c =StringUtils::strip_edges( configs[i]);
         int p = StringUtils::find(c,":");
         if (p == -1)
             continue;
-        String prop = StringUtils::strip_edges(StringUtils::substr(c,0, p));
-        String value = StringUtils::strip_edges(StringUtils::substr(c,p + 1, c.length()));
+        se_string_view prop = StringUtils::strip_edges(StringUtils::substr(c,0, p));
+        se_string_view value = StringUtils::strip_edges(StringUtils::substr(c,p + 1, c.length()));
 
-        if (prop == "X-Language" || prop == "Language") {
+        if (prop == "X-Language"_sv || prop == "Language"_sv) {
             translation->set_locale(value);
         }
     }
@@ -177,32 +180,32 @@ RES TranslationLoaderPO::load_translation(FileAccess *f, Error *r_error, const S
     return translation;
 }
 
-RES TranslationLoaderPO::load(const String &p_path, const String &p_original_path, Error *r_error) {
+RES TranslationLoaderPO::load(se_string_view p_path, se_string_view p_original_path, Error *r_error) {
 
     if (r_error)
         *r_error = ERR_CANT_OPEN;
 
     FileAccess *f = FileAccess::open(p_path, FileAccess::READ);
-    ERR_FAIL_COND_V_MSG(!f, RES(), "Cannot open file '" + p_path + "'.")
+    ERR_FAIL_COND_V_MSG(!f, RES(), "Cannot open file '" + se_string(p_path) + "'.")
 
     return load_translation(f, r_error);
 }
 
-void TranslationLoaderPO::get_recognized_extensions(ListPOD<String> *p_extensions) const {
+void TranslationLoaderPO::get_recognized_extensions(PODVector<se_string> &p_extensions) const {
 
-    p_extensions->push_back("po");
+    p_extensions.push_back("po");
     //p_extensions->push_back("mo"); //mo in the future...
 }
-bool TranslationLoaderPO::handles_type(const String &p_type) const {
+bool TranslationLoaderPO::handles_type(se_string_view p_type) const {
 
-    return (p_type == "Translation");
+    return (p_type == se_string_view("Translation"));
 }
 
-String TranslationLoaderPO::get_resource_type(const String &p_path) const {
+se_string TranslationLoaderPO::get_resource_type(se_string_view p_path) const {
 
     if (StringUtils::to_lower(PathUtils::get_extension(p_path)) == "po")
         return "Translation";
-    return "";
+    return se_string();
 }
 
 

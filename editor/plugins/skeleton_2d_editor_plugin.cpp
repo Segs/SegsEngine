@@ -30,11 +30,14 @@
 
 #include "skeleton_2d_editor_plugin.h"
 
+#include "canvas_item_editor_plugin.h"
 #include "core/method_bind.h"
 #include "core/translation_helpers.h"
-#include "canvas_item_editor_plugin.h"
+#include "editor/editor_node.h"
 #include "scene/2d/mesh_instance_2d.h"
 #include "scene/gui/box_container.h"
+#include "scene/gui/menu_button.h"
+#include "scene/gui/dialogs.h"
 #include "thirdparty/misc/clipper.hpp"
 
 IMPL_GDCLASS(Skeleton2DEditor)
@@ -68,7 +71,7 @@ void Skeleton2DEditor::_menu_option(int p_option) {
                 return;
             }
             UndoRedo *ur = EditorNode::get_singleton()->get_undo_redo();
-            ur->create_action(TTR("Create Rest Pose from Bones"));
+            ur->create_action_ui(TTR("Create Rest Pose from Bones"));
             for (int i = 0; i < node->get_bone_count(); i++) {
                 Bone2D *bone = node->get_bone(i);
                 ur->add_do_method(bone, "set_rest", bone->get_transform());
@@ -84,7 +87,7 @@ void Skeleton2DEditor::_menu_option(int p_option) {
                 return;
             }
             UndoRedo *ur = EditorNode::get_singleton()->get_undo_redo();
-            ur->create_action(TTR("Set Rest Pose to Bones"));
+            ur->create_action_ui(TTR("Set Rest Pose to Bones"));
             for (int i = 0; i < node->get_bone_count(); i++) {
                 Bone2D *bone = node->get_bone(i);
                 ur->add_do_method(bone, "set_transform", bone->get_rest());

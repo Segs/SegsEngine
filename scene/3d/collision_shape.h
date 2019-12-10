@@ -36,44 +36,44 @@
 class CollisionObject;
 class CollisionShape : public Spatial {
 
-	GDCLASS(CollisionShape,Spatial)
+    GDCLASS(CollisionShape,Spatial)
 
     OBJ_CATEGORY("3D Physics Nodes");
 
-	Ref<Shape> shape;
+    Ref<Shape> shape;
 
-	uint32_t owner_id;
-	CollisionObject *parent;
+    uint32_t owner_id;
+    CollisionObject *parent;
 
-	Node *debug_shape;
-	bool debug_shape_dirty;
+    Node *debug_shape;
+    bool debug_shape_dirty;
 
-	void resource_changed(const RES& res);
-	bool disabled;
-
-protected:
-	void _update_debug_shape();
-	void _shape_changed();
-
-	void _update_in_shape_owner(bool p_xform_only = false);
+    void resource_changed(const RES& res);
+    bool disabled;
 
 protected:
-	void _notification(int p_what);
-	static void _bind_methods();
+    void _update_debug_shape();
+    void _shape_changed();
+
+    void _update_in_shape_owner(bool p_xform_only = false);
+
+protected:
+    void _notification(int p_what);
+    static void _bind_methods();
 
 public:
-	void make_convex_from_brothers();
+    void make_convex_from_brothers();
 
-	void set_shape(const Ref<Shape> &p_shape);
-	Ref<Shape> get_shape() const;
+    void set_shape(const Ref<Shape> &p_shape);
+    Ref<Shape> get_shape() const;
 
-	void set_disabled(bool p_disabled);
-	bool is_disabled() const;
+    void set_disabled(bool p_disabled);
+    bool is_disabled() const;
 
-	String get_configuration_warning() const override;
+    StringName get_configuration_warning() const override;
 
-	CollisionShape();
-	~CollisionShape() override;
+    CollisionShape();
+    ~CollisionShape() override;
 };
 
 #endif // BODY_VOLUME_H

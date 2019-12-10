@@ -35,6 +35,7 @@
 
 #include "core/io/marshalls.h"
 #include "core/version_generated.gen.h"
+#include "core/string_utils.inl"
 #include "drivers/gles3/rasterizer_gles3.h"
 #include "drivers/windows/dir_access_windows.h"
 #include "drivers/windows/file_access_windows.h"
@@ -932,13 +933,13 @@ LRESULT OS_Windows::WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
 
             int fcount = DragQueryFileW(hDropInfo, 0xFFFFFFFF, nullptr, 0);
 
-            Vector<String> files;
+            Vector<se_string> files;
 
             for (int i = 0; i < fcount; i++) {
 
                 DragQueryFileW(hDropInfo, i, buf, buffsize);
                 String file = QString::fromWCharArray(buf);
-                files.push_back(file);
+                files.push_back(StringUtils::to_utf8(file));
             }
 
             if (files.size() && main_loop) {
@@ -1425,7 +1426,7 @@ void OS_Windows::set_clipboard(const String &p_text) {
     CloseClipboard();
 };
 
-String OS_Windows::get_clipboard() const {
+se_string OS_Windows::get_clipboard() const {
 
     String ret;
     if (!OpenClipboard(hWnd)) {
@@ -2606,9 +2607,9 @@ int OS_Windows::get_process_id() const {
     return _getpid();
 }
 
-Error OS_Windows::set_cwd(const String &p_cwd) {
+Error OS_Windows::set_cwd(se_string_view p_cwd) {
 
-    if (_wchdir(qUtf16Printable(p_cwd.m_str)) != 0)
+    if (_wchdir(qUtf16Printable(StringUtils::from_utf8(p_cwd))) != 0)
         return ERR_CANT_OPEN;
 
     return OK;
@@ -3007,13 +3008,6 @@ String OS_Windows::get_user_data_dir() const {
             appname));
 }
 
-String OS_Windows::get_unique_id() const {
-
-    HW_PROFILE_INFO HwProfInfo;
-    ERR_FAIL_COND_V(!GetCurrentHwProfile(&HwProfInfo), "")
-    return String(HwProfInfo.szHwProfileGuid);
-}
-
 void OS_Windows::set_ime_active(const bool p_active) {
 
     if (p_active) {
@@ -3045,7 +3039,7 @@ bool OS_Windows::is_joy_known(int p_device) {
     return input->is_joy_mapped(p_device);
 }
 
-String OS_Windows::get_joy_guid(int p_device) const {
+StringName OS_Windows::get_joy_guid(int p_device) const {
     return input->get_joy_guid_remapped(p_device);
 }
 
@@ -3095,7 +3089,7 @@ void OS_Windows::process_and_drop_events() {
     drop_events = false;
 }
 
-Error OS_Windows::move_to_trash(const String &p_path) {
+Error OS_Windows::move_to_trash(const se_string &p_path) {
     SHFILEOPSTRUCTW sf;
     WCHAR *from = new WCHAR[p_path.length() + 2];
     wcscpy_s(from, p_path.length() + 1, qUtf16Printable(p_path.m_str));

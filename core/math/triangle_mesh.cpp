@@ -34,6 +34,7 @@
 #include "core/class_db.h"
 #include "core/sort_array.h"
 #include "core/property_info.h"
+#include "core/list.h"
 
 IMPL_GDCLASS(TriangleMesh)
 

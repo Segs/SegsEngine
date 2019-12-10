@@ -137,7 +137,7 @@ void InspectorDock::_menu_option(int p_option) {
                 current->get_method_list(&methods);
 
                 ERR_FAIL_INDEX(idx, methods.size());
-                String name = methods[idx].name;
+                StringName name = methods[idx].name;
 
                 current->call(name);
             }
@@ -149,27 +149,27 @@ void InspectorDock::_new_resource() {
     new_resource_dialog->popup_create(true);
 }
 
-void InspectorDock::_load_resource(const String &p_type) {
+void InspectorDock::_load_resource(se_string_view p_type) {
     load_resource_dialog->set_mode(EditorFileDialog::MODE_OPEN_FILE);
 
-    ListPOD<String> extensions;
-    ResourceLoader::get_recognized_extensions_for_type(p_type, &extensions);
+    PODVector<se_string> extensions;
+    ResourceLoader::get_recognized_extensions_for_type(p_type, extensions);
 
     load_resource_dialog->clear_filters();
-    for (const String &ext : extensions) {
+    for (const se_string &ext : extensions) {
         load_resource_dialog->add_filter("*." + ext + " ; " + StringUtils::to_upper(ext));
     }
 
     load_resource_dialog->popup_centered_ratio();
 }
 
-void InspectorDock::_resource_file_selected(const String& p_file) {
+void InspectorDock::_resource_file_selected(se_string_view p_file) {
     RES res(ResourceLoader::load(p_file));
 
     if (not res) {
         warning_dialog->set_text(TTR("Failed to load resource."));
         return;
-    };
+    }
 
     editor->push_item(res.operator->());
 }
@@ -195,7 +195,7 @@ void InspectorDock::_unref_resource() const {
 
     ERR_FAIL_COND(not current_res)
 
-    current_res->set_path("");
+    current_res->set_path(se_string_view());
     editor->edit_current();
 }
 
@@ -213,7 +213,7 @@ void InspectorDock::_copy_resource() const {
 void InspectorDock::_paste_resource() const {
     RES r(EditorSettings::get_singleton()->get_resource_clipboard());
     if (r) {
-        editor->push_item(EditorSettings::get_singleton()->get_resource_clipboard().get(), String());
+        editor->push_item(EditorSettings::get_singleton()->get_resource_clipboard().get(), se_string_view());
     }
 }
 
@@ -244,7 +244,7 @@ void InspectorDock::_prepare_history() {
             icon = base_icon;
         }
 
-        String text;
+        se_string text;
         if (object_cast<Resource>(obj)) {
             Resource *r = object_cast<Resource>(obj);
             if (PathUtils::is_resource_file(r->get_path()))
@@ -257,15 +257,15 @@ void InspectorDock::_prepare_history() {
         } else if (object_cast<Node>(obj)) {
             text = object_cast<Node>(obj)->get_name();
         } else if (obj->is_class("ScriptEditorDebuggerInspectedObject")) {
-            text = obj->call("get_title");
+            text = obj->call("get_title").as<se_string>();
         } else {
             text = obj->get_class();
         }
 
-		if (i == editor_history->get_history_pos() && current) {
+        if (i == editor_history->get_history_pos() && current) {
             text = "[" + text + "]";
         }
-        history_menu->get_popup()->add_icon_item(icon, text, i);
+        history_menu->get_popup()->add_icon_item(icon, StringName(text), i);
     }
 }
 
@@ -289,7 +289,7 @@ void InspectorDock::_resource_created() const {
     editor->push_item(c);
 }
 
-void InspectorDock::_resource_selected(const RES &p_res, const String &p_property) const {
+void InspectorDock::_resource_selected(const RES &p_res, const StringName &p_property) const {
     if (not p_res)
         return;
 
@@ -302,7 +302,7 @@ void InspectorDock::_edit_forward() {
 }
 void InspectorDock::_edit_back() {
     EditorHistory *editor_history = EditorNode::get_singleton()->get_editor_history();
-	if ((current && editor_history->previous()) || editor_history->get_path_size() == 1)
+    if ((current && editor_history->previous()) || editor_history->get_path_size() == 1)
         editor->edit_current();
 }
 
@@ -314,11 +314,11 @@ void InspectorDock::_menu_expandall() {
     inspector->expand_all_folding();
 }
 
-void InspectorDock::_property_keyed(const String &p_keyed, const Variant &p_value, bool p_advance) {
+void InspectorDock::_property_keyed(se_string_view p_keyed, const Variant &p_value, bool p_advance) {
     AnimationPlayerEditor::singleton->get_track_editor()->insert_value_key(p_keyed, p_value, p_advance);
 }
 
-void InspectorDock::_transform_keyed(Object *sp, const String &p_sub, const Transform &p_key) {
+void InspectorDock::_transform_keyed(Object *sp, se_string_view p_sub, const Transform &p_key) {
     Spatial *s = object_cast<Spatial>(sp);
     if (!s)
         return;
@@ -377,14 +377,14 @@ void InspectorDock::_bind_methods() {
 }
 
 void InspectorDock::edit_resource(const Ref<Resource> &p_resource) {
-    _resource_selected(p_resource, "");
+    _resource_selected(p_resource, StringName());
 }
 
-void InspectorDock::open_resource(const String &p_type) {
+void InspectorDock::open_resource(se_string_view p_type) {
     _load_resource(p_type);
 }
 
-void InspectorDock::set_warning(const String &p_message) {
+void InspectorDock::set_warning(const StringName &p_message) {
     warning->hide();
     if (!p_message.empty()) {
         warning->show();
@@ -472,7 +472,7 @@ void InspectorDock::update(Object *p_object) {
                     p->add_separator();
                     found = true;
                 }
-                p->add_item(StringUtils::capitalize(mi.name), OBJECT_METHOD_BASE + i);
+                p->add_item(StringName(StringUtils::capitalize(mi.name)), OBJECT_METHOD_BASE + i);
             }
             i++;
         }
@@ -576,7 +576,7 @@ InspectorDock::InspectorDock(EditorNode *p_editor, EditorData &p_editor_data) {
 
     new_resource_dialog = memnew(CreateDialog);
     editor->get_gui_base()->add_child(new_resource_dialog);
-    new_resource_dialog->set_base_type("Resource");
+    new_resource_dialog->set_base_type(("Resource"));
     new_resource_dialog->connect("create", this, "_resource_created");
 
     search = memnew(LineEdit);
@@ -598,7 +598,7 @@ InspectorDock::InspectorDock(EditorNode *p_editor, EditorData &p_editor_data) {
 
     load_resource_dialog = memnew(EditorFileDialog);
     add_child(load_resource_dialog);
-    load_resource_dialog->set_current_dir("res://");
+    load_resource_dialog->set_current_dir(("res://"));
     load_resource_dialog->connect("file_selected", this, "_resource_file_selected");
 
     inspector = memnew(EditorInspector);

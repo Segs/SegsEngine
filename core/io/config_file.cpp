@@ -34,42 +34,44 @@
 #include "core/os/keyboard.h"
 #include "core/variant_parser.h"
 #include "core/method_bind.h"
+#include "core/string_utils.inl"
 
 
 IMPL_GDCLASS(ConfigFile)
 
-PoolStringArray ConfigFile::_get_sections() const {
+PoolSeStringArray ConfigFile::_get_sections() const {
 
-    List<String> s;
+    List<se_string> s;
     get_sections(&s);
-    PoolStringArray arr;
+    PoolSeStringArray arr;
     arr.resize(s.size());
     int idx = 0;
-    for (const List<String>::Element *E = s.front(); E; E = E->next()) {
+    for (const List<se_string>::Element *E = s.front(); E; E = E->next()) {
 
-        arr.set(idx++, E->deref());
+        arr.set(idx++, Variant(E->deref()));
     }
 
     return arr;
 }
 
-PoolStringArray ConfigFile::_get_section_keys(const String &p_section) const {
+PoolSeStringArray ConfigFile::_get_section_keys(se_string_view p_section) const {
 
-    List<String> s;
+    List<se_string> s;
     get_section_keys(p_section, &s);
-    PoolStringArray arr;
+    PoolSeStringArray arr;
     arr.resize(s.size());
     int idx = 0;
-    for (const List<String>::Element *E = s.front(); E; E = E->next()) {
+    for (const List<se_string>::Element *E = s.front(); E; E = E->next()) {
 
-        arr.set(idx++, E->deref());
+        arr.set(idx++, Variant(E->deref()));
     }
 
     return arr;
 }
 
-void ConfigFile::set_value(const String &p_section, const String &p_key, const Variant &p_value) {
-
+void ConfigFile::set_value(se_string_view _section, se_string_view _key, const Variant &p_value) {
+    se_string p_section(_section);
+    se_string p_key(_key);
     if (p_value.get_type() == VariantType::NIL) {
         //erase
         if (!values.has(p_section))
@@ -81,13 +83,15 @@ void ConfigFile::set_value(const String &p_section, const String &p_key, const V
 
     } else {
         if (!values.has(p_section)) {
-            values[p_section] = OrderedHashMap<String, Variant>();
+            values[p_section] = OrderedHashMap<se_string, Variant>();
         }
 
         values[p_section][p_key] = p_value;
     }
 }
-Variant ConfigFile::get_value(const String &p_section, const String &p_key, const Variant& p_default) const {
+Variant ConfigFile::get_value(se_string_view _section, se_string_view _key, const Variant& p_default) const {
+    se_string p_section(_section);
+    se_string p_key(_key);
 
     if (!values.has(p_section) || !values[p_section].has(p_key)) {
         ERR_FAIL_COND_V_MSG(p_default.get_type() == VariantType::NIL, p_default, "Couldn't find the given section/key and no default was given.")
@@ -96,45 +100,51 @@ Variant ConfigFile::get_value(const String &p_section, const String &p_key, cons
     return values[p_section][p_key];
 }
 
-bool ConfigFile::has_section(const String &p_section) const {
+bool ConfigFile::has_section(se_string_view _section) const {
 
-    return values.has(p_section);
+    return values.has(se_string(_section));
 }
-bool ConfigFile::has_section_key(const String &p_section, const String &p_key) const {
+bool ConfigFile::has_section_key(se_string_view p_section, se_string_view p_key) const {
 
-    if (!values.has(p_section))
+    if (!values.has(se_string(p_section)))
         return false;
-    return values[p_section].has(p_key);
+    return values[se_string(p_section)].has(se_string(p_key));
 }
 
-void ConfigFile::get_sections(List<String> *r_sections) const {
+void ConfigFile::get_sections(List<se_string> *r_sections) const {
 
-    for (OrderedHashMap<String, OrderedHashMap<String, Variant> >::ConstElement E = values.front(); E; E = E.next()) {
+    for (OrderedHashMap<se_string, OrderedHashMap<se_string, Variant> >::ConstElement E = values.front(); E; E = E.next()) {
         r_sections->push_back(E.key());
     }
 }
-void ConfigFile::get_section_keys(const String &p_section, List<String> *r_keys) const {
-
+void ConfigFile::get_section_keys(se_string_view _section, List<se_string> *r_keys) const {
+    const se_string p_section(_section);
     ERR_FAIL_COND_MSG(!values.has(p_section), "Cannont get keys from nonexistent section '" + p_section + "'.")
 
-    for (OrderedHashMap<String, Variant>::ConstElement E = values[p_section].front(); E; E = E.next()) {
+    for (OrderedHashMap<se_string, Variant>::ConstElement E = values[p_section].front(); E; E = E.next()) {
         r_keys->push_back(E.key());
     }
 }
+void ConfigFile::get_section_keys_utf8(se_string_view _section, PODVector<se_string> &r_keys) const {
+    const se_string p_section(_section);
+    ERR_FAIL_COND_MSG(!values.has(p_section), "Cannont get keys from nonexistent section '" + p_section + "'.")
+    r_keys.reserve(r_keys.size()+values.size());
+    for (OrderedHashMap<se_string, Variant>::ConstElement E = values[p_section].front(); E; E = E.next()) {
+        r_keys.push_back(E.key());
+    }
+}
+void ConfigFile::erase_section(se_string_view p_section) {
 
-void ConfigFile::erase_section(const String &p_section) {
+    values.erase(se_string(p_section));
+}
+void ConfigFile::erase_section_key(se_string_view p_section, se_string_view p_key) {
 
-    values.erase(p_section);
+    ERR_FAIL_COND_MSG(!values.has(se_string(p_section)), "Cannot erase key from nonexistent section '" + se_string(p_section) + "'.")
+
+    values[se_string(p_section)].erase(se_string(p_key));
 }
 
-void ConfigFile::erase_section_key(const String &p_section, const String &p_key) {
-
-    ERR_FAIL_COND_MSG(!values.has(p_section), "Cannot erase key from nonexistent section '" + p_section + "'.");
-
-    values[p_section].erase(p_key);
-}
-
-Error ConfigFile::save(const String &p_path) {
+Error ConfigFile::save(se_string_view p_path) {
 
     Error err;
     FileAccess *file = FileAccess::open(p_path, FileAccess::WRITE, &err);
@@ -148,7 +158,7 @@ Error ConfigFile::save(const String &p_path) {
     return _internal_save(file);
 }
 
-Error ConfigFile::save_encrypted(const String &p_path, const Vector<uint8_t> &p_key) {
+Error ConfigFile::save_encrypted(se_string_view p_path, const Vector<uint8_t> &p_key) {
 
     Error err;
     FileAccess *f = FileAccess::open(p_path, FileAccess::WRITE, &err);
@@ -166,7 +176,7 @@ Error ConfigFile::save_encrypted(const String &p_path, const Vector<uint8_t> &p_
     return _internal_save(fae);
 }
 
-Error ConfigFile::save_encrypted_pass(const String &p_path, const String &p_pass) {
+Error ConfigFile::save_encrypted_pass(se_string_view p_path, se_string_view p_pass) {
 
     Error err;
     FileAccess *f = FileAccess::open(p_path, FileAccess::WRITE, &err);
@@ -187,15 +197,15 @@ Error ConfigFile::save_encrypted_pass(const String &p_path, const String &p_pass
 
 Error ConfigFile::_internal_save(FileAccess *file) {
 
-    for (OrderedHashMap<String, OrderedHashMap<String, Variant> >::Element E = values.front(); E; E = E.next()) {
+    for (OrderedHashMap<se_string, OrderedHashMap<se_string, Variant> >::Element E = values.front(); E; E = E.next()) {
 
         if (E != values.front())
             file->store_string("\n");
         file->store_string("[" + E.key() + "]\n\n");
 
-        for (OrderedHashMap<String, Variant>::Element F = E.get().front(); F; F = F.next()) {
+        for (OrderedHashMap<se_string, Variant>::Element F = E.get().front(); F; F = F.next()) {
 
-            String vstr;
+            se_string vstr;
             VariantWriter::write_to_string(F.get(), vstr);
             file->store_string(F.key() + "=" + vstr + "\n");
         }
@@ -206,7 +216,7 @@ Error ConfigFile::_internal_save(FileAccess *file) {
     return OK;
 }
 
-Error ConfigFile::load(const String &p_path) {
+Error ConfigFile::load(se_string_view p_path) {
 
     Error err;
     FileAccess *f = FileAccess::open(p_path, FileAccess::READ, &err);
@@ -217,7 +227,7 @@ Error ConfigFile::load(const String &p_path) {
     return _internal_load(p_path, f);
 }
 
-Error ConfigFile::load_encrypted(const String &p_path, const Vector<uint8_t> &p_key) {
+Error ConfigFile::load_encrypted(se_string_view p_path, const Vector<uint8_t> &p_key) {
 
     Error err;
     FileAccess *f = FileAccess::open(p_path, FileAccess::READ, &err);
@@ -235,7 +245,7 @@ Error ConfigFile::load_encrypted(const String &p_path, const Vector<uint8_t> &p_
     return _internal_load(p_path, fae);
 }
 
-Error ConfigFile::load_encrypted_pass(const String &p_path, const String &p_pass) {
+Error ConfigFile::load_encrypted_pass(se_string_view p_path, se_string_view p_pass) {
 
     Error err;
     FileAccess *f = FileAccess::open(p_path, FileAccess::READ, &err);
@@ -254,24 +264,24 @@ Error ConfigFile::load_encrypted_pass(const String &p_path, const String &p_pass
     return _internal_load(p_path, fae);
 }
 
-Error ConfigFile::_internal_load(const String &p_path, FileAccess *f) {
+Error ConfigFile::_internal_load(se_string_view p_path, FileAccess *f) {
 
     VariantParser::Stream *stream=VariantParser::get_file_stream(f);
 
-    String assign;
+    se_string assign;
     Variant value;
     VariantParser::Tag next_tag;
 
     int lines = 0;
-    String error_text;
+    se_string error_text;
 
-    String section;
+    se_string_view section;
 
     while (true) {
 
-        assign = Variant().as<String>();
+        assign = Variant().as<se_string>();
         next_tag.fields.clear();
-        next_tag.name = String();
+        next_tag.name.clear();
 
         Error err = VariantParser::parse_tag_assign_eof(stream, lines, error_text, next_tag, assign, value, nullptr, true);
         if (err == ERR_FILE_EOF) {
@@ -279,7 +289,8 @@ Error ConfigFile::_internal_load(const String &p_path, FileAccess *f) {
             memdelete(f);
             return OK;
         } else if (err != OK) {
-            ERR_PRINT("ConfgFile::load - " + p_path + ":" + itos(lines) + " error: " + error_text + ".");
+            ERR_PRINT("ConfgFile::load - " + se_string(p_path) + ":" + ::to_string(lines) +
+                      " error: " + error_text + ".")
             VariantParser::release_stream(stream);
             memdelete(f);
             return err;

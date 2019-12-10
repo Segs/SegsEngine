@@ -31,13 +31,15 @@
 #include "editor_about.h"
 #include "editor_node.h"
 
-#include "editor/editor_scale.h"
-#include "core/method_bind.h"
 #include "core/authors.gen.h"
 #include "core/donors.gen.h"
 #include "core/license.gen.h"
+#include "core/method_bind.h"
 #include "core/version.h"
 #include "core/version_hash.gen.h"
+#include "editor/editor_scale.h"
+#include "scene/gui/item_list.h"
+#include "scene/gui/rich_text_label.h"
 
 IMPL_GDCLASS(EditorAbout)
 
@@ -75,7 +77,7 @@ TextureRect *EditorAbout::get_logo() const {
     return _logo;
 }
 
-ScrollContainer *EditorAbout::_populate_list(const String &p_name, const List<String> &p_sections, const char *const *const p_src[], const int p_flag_single_column) {
+ScrollContainer *EditorAbout::_populate_list(se_string_view p_name, const List<StringName> &p_sections, const char *const *const p_src[], const int p_flag_single_column) {
 
     ScrollContainer *sc = memnew(ScrollContainer);
     sc->set_name(p_name);
@@ -102,7 +104,7 @@ ScrollContainer *EditorAbout::_populate_list(const String &p_name, const List<St
             il->set_mouse_filter(Control::MOUSE_FILTER_IGNORE);
             il->add_constant_override("hseparation", 16 * EDSCALE);
             while (*names_ptr) {
-                il->add_item(StringUtils::from_utf8(*names_ptr++), Ref<Texture>(), false);
+                il->add_item(StringName(*names_ptr++), Ref<Texture>(), false);
             }
             il->set_max_columns(il->get_item_count() < 4 || single_column ? 1 : 16);
             vbc->add_child(il);
@@ -133,15 +135,15 @@ EditorAbout::EditorAbout() {
     _logo = memnew(TextureRect);
     hbc->add_child(_logo);
 
-    String hash = String(VERSION_HASH);
-    if (hash.length() != 0)
+    se_string hash = se_string(VERSION_HASH);
+    if (not hash.empty())
         hash = "." + StringUtils::left(hash,9);
 
     Label *about_text = memnew(Label);
     about_text->set_v_size_flags(Control::SIZE_SHRINK_CENTER);
-    about_text->set_text(VERSION_FULL_NAME + hash +
-                         StringUtils::from_utf8("\n\xc2\xa9 2007-2019 Juan Linietsky, Ariel Manzur.\n\xc2\xa9 2014-2019 ") +
-                         TTR("Godot Engine contributors") + "\n");
+    about_text->set_text(StringName(VERSION_FULL_NAME + hash +
+                         se_string("\n\xc2\xa9 2007-2019 Juan Linietsky, Ariel Manzur.\n\xc2\xa9 2014-2019 ") +
+                         TTR("Godot Engine contributors") + "\n"));
     hbc->add_child(about_text);
 
     TabContainer *tc = memnew(TabContainer);
@@ -151,18 +153,18 @@ EditorAbout::EditorAbout() {
 
     // Authors
 
-    List<String> dev_sections;
+    List<StringName> dev_sections;
     dev_sections.push_back(TTR("Project Founders"));
     dev_sections.push_back(TTR("Lead Developer"));
     dev_sections.push_back(TTR("Project Manager ")); // " " appended to distinguish between 'project supervisor' and 'project list'
     dev_sections.push_back(TTR("Developers"));
     const char *const *dev_src[] = { AUTHORS_FOUNDERS, AUTHORS_LEAD_DEVELOPERS,
         AUTHORS_PROJECT_MANAGERS, AUTHORS_DEVELOPERS };
-    tc->add_child(_populate_list(TTR("Authors"), dev_sections, dev_src, 1));
+    tc->add_child(_populate_list((TTR("Authors")), dev_sections, dev_src, 1));
 
     // Donors
 
-    List<String> donor_sections;
+    List<StringName> donor_sections;
     donor_sections.push_back(TTR("Platinum Sponsors"));
     donor_sections.push_back(TTR("Gold Sponsors"));
     donor_sections.push_back(TTR("Mini Sponsors"));
@@ -171,21 +173,21 @@ EditorAbout::EditorAbout() {
     donor_sections.push_back(TTR("Bronze Donors"));
     const char *const *donor_src[] = { DONORS_SPONSOR_PLAT, DONORS_SPONSOR_GOLD,
         DONORS_SPONSOR_MINI, DONORS_GOLD, DONORS_SILVER, DONORS_BRONZE };
-    tc->add_child(_populate_list(TTR("Donors"), donor_sections, donor_src, 3));
+    tc->add_child(_populate_list((TTR("Donors")), donor_sections, donor_src, 3));
 
     // License
 
     _license_text = memnew(RichTextLabel);
-    _license_text->set_name(TTR("License"));
+    _license_text->set_name((TTR("License")));
     _license_text->set_h_size_flags(Control::SIZE_EXPAND_FILL);
     _license_text->set_v_size_flags(Control::SIZE_EXPAND_FILL);
-    _license_text->set_text(StringUtils::from_utf8(GODOT_LICENSE_TEXT));
+    _license_text->set_text_utf8(GODOT_LICENSE_TEXT);
     tc->add_child(_license_text);
 
     // Thirdparty License
 
     VBoxContainer *license_thirdparty = memnew(VBoxContainer);
-    license_thirdparty->set_name(TTR("Third-party Licenses"));
+    license_thirdparty->set_name((TTR("Third-party Licenses")));
     license_thirdparty->set_h_size_flags(Control::SIZE_EXPAND_FILL);
     tc->add_child(license_thirdparty);
 
@@ -213,28 +215,28 @@ EditorAbout::EditorAbout() {
     TreeItem *tpl_ti_lc = _tpl_tree->create_item(root);
     tpl_ti_lc->set_text(0, TTR("Licenses"));
     tpl_ti_lc->set_selectable(0, false);
-    String long_text = "";
+    se_string long_text;
     for (int component_index = 0; component_index < COPYRIGHT_INFO_COUNT; component_index++) {
 
         const ComponentCopyright &component = COPYRIGHT_INFO[component_index];
         TreeItem *ti = _tpl_tree->create_item(tpl_ti_tp);
-        String component_name = component.name;
-        ti->set_text(0, component_name);
-        String text = component_name + "\n";
+        se_string component_name(component.name);
+        ti->set_text_utf8(0, component_name);
+        se_string text = component_name + "\n";
         long_text += "- " + component_name + "\n";
         for (int part_index = 0; part_index < component.part_count; part_index++) {
             const ComponentCopyrightPart &part = component.parts[part_index];
-            text += "\n    Files:";
+            text += ("\n    Files:");
             for (int file_num = 0; file_num < part.file_count; file_num++) {
-                text += "\n        " + String(part.files[file_num]);
+                text += "\n        " + se_string(part.files[file_num]);
             }
-            String copyright;
+            se_string copyright;
             for (int copyright_index = 0; copyright_index < part.copyright_count; copyright_index++) {
-                copyright += StringUtils::from_utf8("\n    \xc2\xa9 ") + StringUtils::from_utf8(part.copyright_statements[copyright_index]);
+                copyright += se_string("\n    \xc2\xa9 ") + part.copyright_statements[copyright_index];
             }
             text += copyright;
             long_text += copyright;
-            String license = "\n    License: " + String(part.license) + "\n";
+            se_string license = "\n    License: " + se_string(part.license) + "\n";
             text += license;
             long_text += license + "\n";
         }
@@ -243,12 +245,12 @@ EditorAbout::EditorAbout() {
     for (int i = 0; i < LICENSE_COUNT; i++) {
 
         TreeItem *ti = _tpl_tree->create_item(tpl_ti_lc);
-        String licensename = String(LICENSE_NAMES[i]);
-        ti->set_text(0, licensename);
+        se_string licensename = se_string(LICENSE_NAMES[i]);
+        ti->set_text_utf8(0, licensename);
         long_text += "- " + licensename + "\n\n";
-        String licensebody = String(LICENSE_BODIES[i]);
+        se_string licensebody = se_string(LICENSE_BODIES[i]);
         ti->set_metadata(0, licensebody);
-        long_text += "    " + StringUtils::replace(licensebody,"\n", "\n    ") + "\n\n";
+        long_text += se_string("    ") + StringUtils::replace(licensebody,"\n", "\n    ") + "\n\n";
     }
     tpl_ti_all->set_metadata(0, long_text);
     tpl_hbc->add_child(_tpl_tree);

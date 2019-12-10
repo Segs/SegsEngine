@@ -33,6 +33,7 @@
 #include "core/io/marshalls.h"
 #include "core/os/os.h"
 #include "core/method_bind.h"
+#include "core/string_utils.inl"
 
 IMPL_GDCLASS(NetworkedMultiplayerENet)
 
@@ -112,7 +113,7 @@ Error NetworkedMultiplayerENet::create_server(int p_port, int p_max_clients, int
     connection_status = CONNECTION_CONNECTED;
     return OK;
 }
-Error NetworkedMultiplayerENet::create_client(const String &p_address, int p_port, int p_in_bandwidth, int p_out_bandwidth, int p_client_port) {
+Error NetworkedMultiplayerENet::create_client(se_string_view p_address, int p_port, int p_in_bandwidth, int p_out_bandwidth, int p_client_port) {
 
     ERR_FAIL_COND_V(active, ERR_ALREADY_IN_USE)
     ERR_FAIL_COND_V(p_port < 0 || p_port > 65535, ERR_INVALID_PARAMETER)

@@ -219,7 +219,7 @@ struct GODOT_EXPORT Rect2 {
 		return Rect2(Point2(position.x + MIN(size.x, 0), position.y + MIN(size.y, 0)), size.abs());
 	}
 
-	operator String() const;
+	operator se_string() const;
 
 	Rect2() = default;
 	Rect2(real_t p_x, real_t p_y, real_t p_width, real_t p_height) :
@@ -375,7 +375,7 @@ struct Rect2i {
 		size = end - begin;
 	}
 
-	operator String() const;
+	operator se_string() const;
 
 	operator Rect2() const { return Rect2(position, size); }
     constexpr Rect2i(const Rect2 &p_r2) :

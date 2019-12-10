@@ -37,6 +37,7 @@
 #include "core/io/resource_loader.h"
 #include "core/io/image_loader.h"
 #include "core/print_string.h"
+#include "core/string_utils.inl"
 #include "plugins/formats/image/svg/image_loader_svg.h"
 
 #include <QDir>
@@ -100,7 +101,7 @@ Ref<ImageTexture> editor_generate_icon(const QString &resource_path,bool p_conve
     bool is_gizmo = QFileInfo(resource_path).baseName().startsWith("Gizmo");
     QByteArray resource_data = resource_file.readAll();
     LoadParams svg_load = {p_scale, false, true, p_convert_color };
-    img->create(ImageLoader::load_image("svg",(const uint8_t *)resource_data.data(),resource_data.size(),svg_load));
+    img->create(ImageLoader::load_image(("svg"),(const uint8_t *)resource_data.data(),resource_data.size(),svg_load));
     img->shrink_x2();
 
     if ((p_scale - (float)((int)p_scale)) > 0.0f || is_gizmo || p_force_filter)
@@ -117,7 +118,7 @@ Ref<ImageTexture> editor_generate_icon(const QString &resource_path,bool p_conve
 
 static void editor_register_and_generate_icons(
         const Ref<Theme> &p_theme, bool p_dark_theme = true, int p_thumb_size = 32, bool p_only_thumbs = false) {
-    ImageFormatLoader * loader= ImageLoader::recognize("svg");
+    ImageFormatLoader * loader= ImageLoader::recognize(("svg"));
     if (loader) {
         //Dictionary dark_icon_color_dictionary;
         PODVector<eastl::pair<Color,Color>> dark_icon_color_dictionary;
@@ -198,7 +199,7 @@ static void editor_register_and_generate_icons(
         // Setup svg color conversion
         loader->set_loader_option(0,&dark_icon_color_dictionary);
 
-        List<String> exceptions;
+        PODVector<se_string_view> exceptions;
         exceptions.push_back("EditorPivot");
         exceptions.push_back("EditorHandle");
         exceptions.push_back("Editor3DHandle");
@@ -228,10 +229,11 @@ static void editor_register_and_generate_icons(
             while (embedded_icons.hasNext()) {
                 const QString resourcepath = embedded_icons.next();
                 const QString base_name = embedded_icons.fileInfo().baseName();
-                List<String>::Element *is_exception = exceptions.find(qPrintable(base_name));
-                if (is_exception) exceptions.erase(is_exception);
+                auto is_exception = exceptions.find(qPrintable(base_name));
+                if (is_exception!=exceptions.end())
+                    exceptions.erase(is_exception);
                 Ref<ImageTexture> icon = editor_generate_icon(resourcepath, !is_exception);
-                p_theme->set_icon(StringName(base_name), "EditorIcons", icon);
+                p_theme->set_icon(StringName(StringUtils::to_utf8(base_name)), "EditorIcons", icon);
             }
         }
 
@@ -243,11 +245,12 @@ static void editor_register_and_generate_icons(
             while (embedded_icons.hasNext()) {
                 const QString resourcepath = embedded_icons.next();
                 const QString base_name = embedded_icons.fileInfo().baseName();
-                List<String>::Element *is_exception = exceptions.find(qPrintable(base_name));
-                if (is_exception) exceptions.erase(is_exception);
+                auto is_exception = exceptions.find(qPrintable(base_name));
+                if (is_exception!=exceptions.end())
+                    exceptions.erase(is_exception);
                 Ref<ImageTexture> icon =
                         editor_generate_icon(resourcepath, !p_dark_theme && !is_exception, scale, force_filter);
-                p_theme->set_icon(StringName(base_name), "EditorIcons", icon);
+                p_theme->set_icon(StringName(StringUtils::to_utf8(base_name)), "EditorIcons", icon);
             }
         } else {
             float scale = (float)p_thumb_size / 32.0f * EDSCALE;
@@ -255,11 +258,12 @@ static void editor_register_and_generate_icons(
             while (embedded_icons.hasNext()) {
                 const QString resourcepath = embedded_icons.next();
                 const QString base_name = embedded_icons.fileInfo().baseName();
-                List<String>::Element *is_exception = exceptions.find(qPrintable(base_name));
-                if (is_exception) exceptions.erase(is_exception);
+                auto is_exception = exceptions.find(qPrintable(base_name));
+                if (is_exception!=exceptions.end())
+                    exceptions.erase(is_exception);
                 Ref<ImageTexture> icon =
                         editor_generate_icon(resourcepath, !p_dark_theme && !is_exception, scale, force_filter);
-                p_theme->set_icon(StringName(base_name), "EditorIcons", icon);
+                p_theme->set_icon(StringName(StringUtils::to_utf8(base_name)), "EditorIcons", icon);
             }
         }
         // Reset svg color conversion
@@ -281,7 +285,7 @@ Ref<Theme> create_editor_theme(const Ref<Theme>& p_theme) {
     float contrast = EDITOR_GET("interface/theme/contrast");
     float relationship_line_opacity = EDITOR_GET("interface/theme/relationship_line_opacity");
 
-    String preset = EDITOR_GET("interface/theme/preset");
+    se_string preset = EDITOR_GET("interface/theme/preset");
 
     bool highlight_tabs = EDITOR_GET("interface/theme/highlight_tabs");
     int border_size = EDITOR_GET("interface/theme/border_size");
@@ -393,9 +397,9 @@ Ref<Theme> create_editor_theme(const Ref<Theme>& p_theme) {
     theme->set_color("box_selection_fill_color", "Editor", accent_color * Color(1, 1, 1, 0.3f));
     theme->set_color("box_selection_stroke_color", "Editor", accent_color * Color(1, 1, 1, 0.8f));
 
-	theme->set_color("axis_x_color", "Editor", Color(0.96f, 0.20f, 0.32f));
-	theme->set_color("axis_y_color", "Editor", Color(0.53f, 0.84f, 0.01f));
-	theme->set_color("axis_z_color", "Editor", Color(0.16f, 0.55f, 0.96f));
+    theme->set_color("axis_x_color", "Editor", Color(0.96f, 0.20f, 0.32f));
+    theme->set_color("axis_y_color", "Editor", Color(0.53f, 0.84f, 0.01f));
+    theme->set_color("axis_z_color", "Editor", Color(0.16f, 0.55f, 0.96f));
 
     theme->set_color("font_color", "Editor", font_color);
     theme->set_color("highlighted_font_color", "Editor", font_color_hl);
@@ -432,7 +436,7 @@ Ref<Theme> create_editor_theme(const Ref<Theme>& p_theme) {
         QDirIterator embedded_icons(":/icons",{"*.svg"},QDir::NoFilter,QDirIterator::Subdirectories);
         while(embedded_icons.hasNext()) {
             embedded_icons.next();
-            const QString basename = embedded_icons.fileInfo().baseName();
+            const se_string basename = StringUtils::to_utf8(embedded_icons.fileInfo().baseName());
             theme->set_icon(StringName(basename), "EditorIcons", p_theme->get_icon(StringName(basename), "EditorIcons"));
         }
     } else {
@@ -815,7 +819,7 @@ Ref<Theme> create_editor_theme(const Ref<Theme>& p_theme) {
     theme->set_color("font_color_fg", "Tabs", font_color);
     theme->set_color("font_color_bg", "Tabs", font_color_disabled);
     theme->set_icon("menu", "TabContainer", theme->get_icon("GuiTabMenu", "EditorIcons"));
-	theme->set_icon("menu_highlight", "TabContainer", theme->get_icon("GuiTabMenuHl", "EditorIcons"));
+    theme->set_icon("menu_highlight", "TabContainer", theme->get_icon("GuiTabMenuHl", "EditorIcons"));
     theme->set_stylebox("SceneTabFG", "EditorStyles", style_tab_selected);
     theme->set_stylebox("SceneTabBG", "EditorStyles", style_tab_unselected);
     theme->set_icon("close", "Tabs", theme->get_icon("GuiClose", "EditorIcons"));
@@ -825,10 +829,10 @@ Ref<Theme> create_editor_theme(const Ref<Theme>& p_theme) {
     theme->set_icon("decrement", "TabContainer", theme->get_icon("GuiScrollArrowLeft", "EditorIcons"));
     theme->set_icon("increment", "Tabs", theme->get_icon("GuiScrollArrowRight", "EditorIcons"));
     theme->set_icon("decrement", "Tabs", theme->get_icon("GuiScrollArrowLeft", "EditorIcons"));
-	theme->set_icon("increment_highlight", "Tabs", theme->get_icon("GuiScrollArrowRightHl", "EditorIcons"));
-	theme->set_icon("decrement_highlight", "Tabs", theme->get_icon("GuiScrollArrowLeftHl", "EditorIcons"));
-	theme->set_icon("increment_highlight", "TabContainer", theme->get_icon("GuiScrollArrowRightHl", "EditorIcons"));
-	theme->set_icon("decrement_highlight", "TabContainer", theme->get_icon("GuiScrollArrowLeftHl", "EditorIcons"));
+    theme->set_icon("increment_highlight", "Tabs", theme->get_icon("GuiScrollArrowRightHl", "EditorIcons"));
+    theme->set_icon("decrement_highlight", "Tabs", theme->get_icon("GuiScrollArrowLeftHl", "EditorIcons"));
+    theme->set_icon("increment_highlight", "TabContainer", theme->get_icon("GuiScrollArrowRightHl", "EditorIcons"));
+    theme->set_icon("decrement_highlight", "TabContainer", theme->get_icon("GuiScrollArrowLeftHl", "EditorIcons"));
     theme->set_constant("hseparation", "Tabs", 4 * EDSCALE);
 
     // Content of each tab
@@ -1130,7 +1134,7 @@ Ref<Theme> create_editor_theme(const Ref<Theme>& p_theme) {
     theme->set_icon("screen_picker", "ColorPicker", theme->get_icon("ColorPick", "EditorIcons"));
     theme->set_icon("add_preset", "ColorPicker", theme->get_icon("Add", "EditorIcons"));
     theme->set_icon("preset_bg", "ColorPicker", theme->get_icon("GuiMiniCheckerboard", "EditorIcons"));
-	theme->set_icon("overbright_indicator", "ColorPicker", theme->get_icon("OverbrightIndicator", "EditorIcons"));
+    theme->set_icon("overbright_indicator", "ColorPicker", theme->get_icon("OverbrightIndicator", "EditorIcons"));
 
     theme->set_icon("bg", "ColorPickerButton", theme->get_icon("GuiMiniCheckerboard", "EditorIcons"));
 
@@ -1235,7 +1239,7 @@ Ref<Theme> create_editor_theme(const Ref<Theme>& p_theme) {
 Ref<Theme> create_custom_theme(const Ref<Theme>& p_theme) {
     Ref<Theme> theme;
 
-    String custom_theme = EditorSettings::get_singleton()->get("interface/theme/custom_theme");
+    se_string custom_theme = EditorSettings::get_singleton()->get("interface/theme/custom_theme");
     if (!custom_theme.empty()) {
         theme = dynamic_ref_cast<Theme>(ResourceLoader::load(custom_theme));
     }

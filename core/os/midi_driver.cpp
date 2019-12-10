@@ -37,76 +37,76 @@
 MIDIDriver *MIDIDriver::singleton = nullptr;
 MIDIDriver *MIDIDriver::get_singleton() {
 
-	return singleton;
+    return singleton;
 }
 
 void MIDIDriver::set_singleton() {
 
-	singleton = this;
+    singleton = this;
 }
 
 void MIDIDriver::receive_input_packet(uint64_t timestamp, uint8_t *data, uint32_t length) {
 
-	Ref<InputEventMIDI> event(make_ref_counted<InputEventMIDI>());
+    Ref<InputEventMIDI> event(make_ref_counted<InputEventMIDI>());
 
-	if (length >= 1) {
-		event->set_channel(data[0] & 0xF);
-		event->set_message(data[0] >> 4);
-	}
+    if (length >= 1) {
+        event->set_channel(data[0] & 0xF);
+        event->set_message(data[0] >> 4);
+    }
 
-	switch (event->get_message()) {
-		case MIDI_MESSAGE_AFTERTOUCH:
-			if (length >= 3) {
-				event->set_pitch(data[1]);
-				event->set_pressure(data[2]);
-			}
-			break;
+    switch (event->get_message()) {
+        case MIDI_MESSAGE_AFTERTOUCH:
+            if (length >= 3) {
+                event->set_pitch(data[1]);
+                event->set_pressure(data[2]);
+            }
+            break;
 
-		case MIDI_MESSAGE_CONTROL_CHANGE:
-			if (length >= 3) {
-				event->set_controller_number(data[1]);
-				event->set_controller_value(data[2]);
-			}
-			break;
+        case MIDI_MESSAGE_CONTROL_CHANGE:
+            if (length >= 3) {
+                event->set_controller_number(data[1]);
+                event->set_controller_value(data[2]);
+            }
+            break;
 
-		case MIDI_MESSAGE_NOTE_ON:
-		case MIDI_MESSAGE_NOTE_OFF:
-		case MIDI_MESSAGE_PITCH_BEND:
-			if (length >= 3) {
-				event->set_pitch(data[1]);
-				event->set_velocity(data[2]);
+        case MIDI_MESSAGE_NOTE_ON:
+        case MIDI_MESSAGE_NOTE_OFF:
+        case MIDI_MESSAGE_PITCH_BEND:
+            if (length >= 3) {
+                event->set_pitch(data[1]);
+                event->set_velocity(data[2]);
 
-				if (event->get_message() == MIDI_MESSAGE_NOTE_ON && event->get_velocity() == 0) {
-					// https://www.midi.org/forum/228-writing-midi-software-send-note-off,-or-zero-velocity-note-on
-					event->set_message(MIDI_MESSAGE_NOTE_OFF);
-				}
-			}
-			break;
+                if (event->get_message() == MIDI_MESSAGE_NOTE_ON && event->get_velocity() == 0) {
+                    // https://www.midi.org/forum/228-writing-midi-software-send-note-off,-or-zero-velocity-note-on
+                    event->set_message(MIDI_MESSAGE_NOTE_OFF);
+                }
+            }
+            break;
 
-		case MIDI_MESSAGE_PROGRAM_CHANGE:
-			if (length >= 2) {
-				event->set_instrument(data[1]);
-			}
-			break;
+        case MIDI_MESSAGE_PROGRAM_CHANGE:
+            if (length >= 2) {
+                event->set_instrument(data[1]);
+            }
+            break;
 
-		case MIDI_MESSAGE_CHANNEL_PRESSURE:
-			if (length >= 2) {
-				event->set_pressure(data[1]);
-			}
-			break;
-	}
+        case MIDI_MESSAGE_CHANNEL_PRESSURE:
+            if (length >= 2) {
+                event->set_pressure(data[1]);
+            }
+            break;
+    }
 
-	InputDefault *id = object_cast<InputDefault>(Input::get_singleton());
-	id->parse_input_event(event);
+    InputDefault *id = object_cast<InputDefault>(Input::get_singleton());
+    id->parse_input_event(event);
 }
 
-PoolStringArray MIDIDriver::get_connected_inputs() {
+PoolSeStringArray MIDIDriver::get_connected_inputs() {
 
-	PoolStringArray list;
-	return list;
+    PoolSeStringArray list;
+    return list;
 }
 
 MIDIDriver::MIDIDriver() {
 
-	set_singleton();
+    set_singleton();
 }

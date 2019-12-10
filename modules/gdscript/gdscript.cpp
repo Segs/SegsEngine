@@ -46,6 +46,8 @@
 #include "core/print_string.h"
 #include "core/project_settings.h"
 
+using namespace eastl;
+
 IMPL_GDCLASS(GDScriptNativeClass)
 IMPL_GDCLASS(GDScript)
 
@@ -77,7 +79,7 @@ void GDScriptNativeClass::_bind_methods() {
 Variant GDScriptNativeClass::_new() {
 
     Object *o = instance();
-    ERR_FAIL_COND_V_MSG(!o, Variant(), "Class type: '" + String(name) + "' is not instantiable.")
+    ERR_FAIL_COND_V_MSG(!o, Variant(), "Class type: '" + se_string(name) + "' is not instantiable.")
 
     RefCounted *ref = object_cast<RefCounted>(o);
     if (ref) {
@@ -330,9 +332,9 @@ ScriptInstance *GDScript::instance_create(Object *p_this) {
         if (!ClassDB::is_parent_class(p_this->get_class_name(), top->native->get_name())) {
 
             if (ScriptDebugger::get_singleton()) {
-                GDScriptLanguage::get_singleton()->debug_break_parse(get_path(), 0, "Script inherits from native type '" + String(top->native->get_name()) + "', so it can't be instanced in object of type: '" + p_this->get_class() + "'");
+                GDScriptLanguage::get_singleton()->debug_break_parse(get_path(), 0, "Script inherits from native type '" + se_string(top->native->get_name()) + "', so it can't be instanced in object of type: '" + p_this->get_class() + "'");
             }
-            ERR_FAIL_V_MSG(nullptr, "Script inherits from native type '" + String(top->native->get_name()) + "', so it can't be instanced in object of type '" + p_this->get_class() + "'" + ".");
+            ERR_FAIL_V_MSG(nullptr, "Script inherits from native type '" + se_string(top->native->get_name()) + "', so it can't be instanced in object of type '" + p_this->get_class() + "'" + ".");
         }
     }
 
@@ -369,22 +371,22 @@ bool GDScript::has_source_code() const {
 
     return !source.empty();
 }
-String GDScript::get_source_code() const {
+se_string_view GDScript::get_source_code() const {
 
     return source;
 }
-void GDScript::set_source_code(const String &p_code) {
+void GDScript::set_source_code(se_string p_code) {
 
     if (source == p_code)
         return;
-    source = p_code;
+    source = eastl::move(p_code);
 #ifdef TOOLS_ENABLED
     source_changed_cache = true;
 #endif
 }
 
 #ifdef TOOLS_ENABLED
-void GDScript::_update_exports_values(Map<StringName, Variant> &values, ListPOD<PropertyInfo> &propnames) {
+void GDScript::_update_exports_values(Map<StringName, Variant> &values, PODVector<PropertyInfo> &propnames) {
 
     if (base_cache) {
         base_cache->_update_exports_values(values, propnames);
@@ -410,7 +412,7 @@ bool GDScript::_update_exports() {
         source_changed_cache = false;
         changed = true;
 
-        String basedir = path;
+        se_string basedir = path;
 
         if (basedir.empty())
             basedir = get_path();
@@ -434,12 +436,12 @@ bool GDScript::_update_exports() {
             }
 
             if (c->extends_used) {
-                String path = "";
-                if (!String(c->extends_file).empty() && String(c->extends_file) != get_path()) {
-                    path = c->extends_file;
+                se_string path;
+                if (!c->extends_file.empty() && c->extends_file.asCString() != get_path()) {
+                    path = c->extends_file.asCString();
                     if (PathUtils::is_rel_path(path)) {
 
-                        String base = get_path();
+                        se_string base = get_path();
                         if (base.empty() || PathUtils::is_rel_path(base)) {
 
                             ERR_PRINT("Could not resolve relative path for parent class: " + path)
@@ -506,7 +508,7 @@ bool GDScript::_update_exports() {
 
         // update placeholders if any
         Map<StringName, Variant> values;
-        ListPOD<PropertyInfo> propnames;
+        PODVector<PropertyInfo> propnames;
         _update_exports_values(values, propnames);
 
         for (PlaceHolderScriptInstance *E : placeholders) {
@@ -540,7 +542,7 @@ void GDScript::update_exports() {
 #endif
 }
 
-void GDScript::_set_subclass_path(Ref<GDScript> &p_sc, const String &p_path) {
+void GDScript::_set_subclass_path(Ref<GDScript> &p_sc, se_string_view p_path) {
 
     p_sc->path = p_path;
     for (eastl::pair<const StringName,Ref<GDScript> > &E : p_sc->subclasses) {
@@ -562,7 +564,7 @@ Error GDScript::reload(bool p_keep_state) {
 
     ERR_FAIL_COND_V(!p_keep_state && has_instances, ERR_ALREADY_IN_USE)
 
-    String basedir = path;
+    se_string basedir = path;
 
     if (basedir.empty())
         basedir = get_path();
@@ -582,7 +584,7 @@ Error GDScript::reload(bool p_keep_state) {
         if (ScriptDebugger::get_singleton()) {
             GDScriptLanguage::get_singleton()->debug_break_parse(get_path(), parser.get_error_line(), "Parser Error: " + parser.get_error());
         }
-        _err_print_error("GDScript::reload", path.empty() ? "built-in" : qPrintable(path.m_str),
+        _err_print_error("GDScript::reload", path.empty() ? "built-in" : path.c_str(),
                          parser.get_error_line(), ("Parse Error: " + parser.get_error()), ERR_HANDLER_SCRIPT);
         ERR_FAIL_V(ERR_PARSE_ERROR)
     }
@@ -598,7 +600,7 @@ Error GDScript::reload(bool p_keep_state) {
             if (ScriptDebugger::get_singleton()) {
                 GDScriptLanguage::get_singleton()->debug_break_parse(get_path(), compiler.get_error_line(), "Parser Error: " + compiler.get_error());
             }
-            _err_print_error("GDScript::reload", path.empty() ? "built-in" : qPrintable(path.m_str), compiler.get_error_line(),
+            _err_print_error("GDScript::reload", path.empty() ? "built-in" : path.c_str(), compiler.get_error_line(),
                              ("Compile Error: " + compiler.get_error()), ERR_HANDLER_SCRIPT);
             ERR_FAIL_V(ERR_COMPILATION_FAILED)
         } else {
@@ -610,7 +612,7 @@ Error GDScript::reload(bool p_keep_state) {
         const GDScriptWarning &warning = E->deref();
         if (ScriptDebugger::get_singleton()) {
             Vector<ScriptLanguage::StackInfo> si;
-            ScriptDebugger::get_singleton()->send_error("", get_path(), warning.line, warning.get_name(), warning.get_message(), ERR_HANDLER_WARNING, si);
+            ScriptDebugger::get_singleton()->send_error({}, get_path(), warning.line, warning.get_name(), warning.get_message(), ERR_HANDLER_WARNING, si);
         }
     }
 #endif
@@ -655,7 +657,7 @@ Variant GDScript::call(const StringName &p_method, const Variant **p_args, int p
         Map<StringName, GDScriptFunction *>::iterator E = top->member_functions.find(p_method);
         if (E!=top->member_functions.end()) {
 
-            ERR_FAIL_COND_V_MSG(!E->second->is_static(), Variant(), "Can't call non-static function '" + String(p_method) + "' in script.")
+            ERR_FAIL_COND_V_MSG(!E->second->is_static(), Variant(), "Can't call non-static function '" + se_string(p_method) + "' in script.")
 
             return E->second->call(nullptr, p_args, p_argcount, r_error);
         }
@@ -707,7 +709,7 @@ bool GDScript::_set(const StringName &p_name, const Variant &p_value) {
 
     if (p_name == GDScriptLanguage::get_singleton()->strings._script_source) {
 
-        set_source_code(p_value);
+        set_source_code(p_value.as<se_string>());
         reload();
     } else
         return false;
@@ -732,7 +734,7 @@ Vector<uint8_t> GDScript::get_as_byte_code() const {
     return GDScriptTokenizerBuffer::parse_code_string(source);
 };
 
-Error GDScript::load_byte_code(const String &p_path) {
+Error GDScript::load_byte_code(se_string_view p_path) {
 
     Vector<uint8_t> bytecode;
 
@@ -773,7 +775,7 @@ Error GDScript::load_byte_code(const String &p_path) {
     ERR_FAIL_COND_V(bytecode.empty(), ERR_PARSE_ERROR)
     path = p_path;
 
-    String basedir = path;
+    se_string basedir = path;
 
     if (basedir.empty())
         basedir = get_path();
@@ -785,7 +787,7 @@ Error GDScript::load_byte_code(const String &p_path) {
     GDScriptParser parser;
     Error err = parser.parse_bytecode(bytecode, basedir, get_path());
     if (err) {
-        _err_print_error("GDScript::load_byte_code", path.empty() ? "built-in" : qPrintable(path.m_str), parser.get_error_line(),
+        _err_print_error("GDScript::load_byte_code", path.empty() ? "built-in" : path.c_str(), parser.get_error_line(),
                 ("Parse Error: " + parser.get_error()), ERR_HANDLER_SCRIPT);
         ERR_FAIL_V(ERR_PARSE_ERROR)
     }
@@ -794,7 +796,7 @@ Error GDScript::load_byte_code(const String &p_path) {
     err = compiler.compile(&parser, this);
 
     if (err) {
-        _err_print_error("GDScript::load_byte_code", path.empty() ? "built-in" : qPrintable(path.m_str),
+        _err_print_error("GDScript::load_byte_code", path.empty() ? "built-in" : path.c_str(),
                 compiler.get_error_line(), ("Compile Error: " + compiler.get_error()), ERR_HANDLER_SCRIPT);
         ERR_FAIL_V(ERR_COMPILATION_FAILED)
     }
@@ -809,9 +811,9 @@ Error GDScript::load_byte_code(const String &p_path) {
     return OK;
 }
 
-Error GDScript::load_source_code(const String &p_path) {
+Error GDScript::load_source_code(se_string_view p_path) {
 
-    PoolVector<uint8_t> sourcef;
+    PODVector<uint8_t> sourcef;
     Error err;
     FileAccess *f = FileAccess::open(p_path, FileAccess::READ, &err);
     if (err) {
@@ -821,17 +823,16 @@ Error GDScript::load_source_code(const String &p_path) {
 
     int len = f->get_len();
     sourcef.resize(len + 1);
-    PoolVector<uint8_t>::Write w = sourcef.write();
-    int r = f->get_buffer(w.ptr(), len);
+    int r = f->get_buffer(sourcef.data(), len);
     f->close();
     memdelete(f);
     ERR_FAIL_COND_V(r != len, ERR_CANT_OPEN)
-    w[len] = 0;
+    sourcef[len] = 0;
 
-    String s=StringUtils::from_utf8((const char *)w.ptr());
+    se_string_view s((const char *)sourcef.data(),len+1);
     if (s.empty()) {
 
-        ERR_FAIL_V_MSG(ERR_INVALID_DATA, "Script '" + p_path + "' contains invalid unicode (UTF-8), so it was not loaded. Please ensure that scripts are saved in valid UTF-8 unicode.")
+        ERR_FAIL_V_MSG(ERR_INVALID_DATA, "Script '" + se_string(p_path) + "' contains invalid unicode (UTF-8), so it was not loaded. Please ensure that scripts are saved in valid UTF-8 unicode.")
     }
 
     source = s;
@@ -1099,7 +1100,7 @@ void GDScriptInstance::get_property_list(ListPOD<PropertyInfo> *p_properties) co
                     if (d.has("hint"))
                         pinfo.hint = PropertyHint(d["hint"].operator int());
                     if (d.has("hint_string"))
-                        pinfo.hint_string = d["hint_string"];
+                        pinfo.hint_string = d["hint_string"].as<se_string>();
                     if (d.has("usage"))
                         pinfo.usage = d["usage"];
 
@@ -1147,7 +1148,7 @@ void GDScriptInstance::get_method_list(PODVector<MethodInfo> *p_list) const {
             mi.name = E.first;
             mi.flags |= METHOD_FLAG_FROM_SCRIPT;
             for (int i = 0; i < E.second->get_argument_count(); i++)
-                mi.arguments.push_back(PropertyInfo(VariantType::NIL, StringUtils::to_utf8("arg" + itos(i)).data()));
+                mi.arguments.push_back(PropertyInfo(VariantType::NIL, StringName("arg" + ::to_string(i))));
             p_list->push_back(mi);
         }
         sptr = sptr->_base;
@@ -1167,7 +1168,7 @@ bool GDScriptInstance::has_method(const StringName &p_method) const {
 }
 Variant GDScriptInstance::call(const StringName &p_method, const Variant **p_args, int p_argcount, Variant::CallError &r_error) {
 
-    //printf("calling %ls:%i method %ls\n", script->get_path().c_str(), -1, String(p_method).c_str());
+    //printf("calling %ls:%i method %ls\n", script->get_path().c_str(), -1, se_string(p_method).c_str());
 
     GDScript *sptr = script.get();
     while (sptr) {
@@ -1235,7 +1236,7 @@ void GDScriptInstance::notification(int p_notification) {
     }
 }
 
-String GDScriptInstance::to_string(bool *r_valid) {
+se_string GDScriptInstance::to_string(bool *r_valid) {
     if (has_method(CoreStringNames::get_singleton()->_to_string)) {
         Variant::CallError ce;
         Variant ret = call(CoreStringNames::get_singleton()->_to_string, nullptr, 0, ce);
@@ -1243,16 +1244,16 @@ String GDScriptInstance::to_string(bool *r_valid) {
             if (ret.get_type() != VariantType::STRING) {
                 if (r_valid)
                     *r_valid = false;
-                ERR_FAIL_V_MSG(String(), "Wrong type for " + CoreStringNames::get_singleton()->_to_string + ", must be a String.");
+                ERR_FAIL_V_MSG(se_string(), se_string("Wrong type for ") + CoreStringNames::get_singleton()->_to_string + ", must be a String.")
             }
             if (r_valid)
                 *r_valid = true;
-            return ret.operator String();
+            return ret.as<se_string>();
         }
     }
     if (r_valid)
         *r_valid = false;
-    return String();
+    return se_string();
 }
 
 Ref<Script> GDScriptInstance::get_script() const {
@@ -1354,9 +1355,9 @@ GDScriptInstance::~GDScriptInstance() {
 
 GDScriptLanguage *GDScriptLanguage::singleton = nullptr;
 
-String GDScriptLanguage::get_name() const {
+StringName GDScriptLanguage::get_name() const {
 
-    return "GDScript";
+    return StringName("GDScript");
 }
 
 /* LANGUAGE FUNCTIONS */
@@ -1408,8 +1409,8 @@ void GDScriptLanguage::init() {
     for (int i=0,fin=class_list.size(); i<fin; ++i) {
 
         StringName n = class_list[i];
-        String s = String(n);
-        if (StringUtils::begins_with(s,'_'))
+        se_string_view s(n);
+        if (StringUtils::begins_with(s,"_"))
             n = StringName(StringUtils::substr(s,1));
 
         if (globals.contains(n))
@@ -1427,15 +1428,15 @@ void GDScriptLanguage::init() {
     }
 }
 
-String GDScriptLanguage::get_type() const {
+se_string GDScriptLanguage::get_type() const {
 
-    return "GDScript";
+    return se_string("GDScript");
 }
-String GDScriptLanguage::get_extension() const {
+se_string GDScriptLanguage::get_extension() const {
 
-    return "gd";
+    return se_string("gd");
 }
-Error GDScriptLanguage::execute_file(const String &p_path) {
+Error GDScriptLanguage::execute_file(se_string_view p_path) {
 
     // ??
     return OK;
@@ -1769,7 +1770,7 @@ void GDScriptLanguage::frame() {
 }
 
 /* EDITOR FUNCTIONS */
-void GDScriptLanguage::get_reserved_words(List<String> *p_words) const {
+void GDScriptLanguage::get_reserved_words(List<se_string> *p_words) const {
 
     static const char *_reserved_words[] = {
         // operators
@@ -1837,30 +1838,30 @@ void GDScriptLanguage::get_reserved_words(List<String> *p_words) const {
 
     while (*w) {
 
-        p_words->push_back(*w);
+        p_words->push_back((*w));
         w++;
     }
 
     for (int i = 0; i < GDScriptFunctions::FUNC_MAX; i++) {
-        p_words->push_back(GDScriptFunctions::get_func_name(GDScriptFunctions::Function(i)));
+        p_words->push_back((GDScriptFunctions::get_func_name(GDScriptFunctions::Function(i))));
     }
 }
 
-bool GDScriptLanguage::handles_global_class_type(const String &p_type) const {
+bool GDScriptLanguage::handles_global_class_type(se_string_view p_type) const {
 
-    return p_type == "GDScript";
+    return p_type.compare("GDScript")==0;
 }
 
-String GDScriptLanguage::get_global_class_name(const String &p_path, String *r_base_type, String *r_icon_path) const {
+StringName GDScriptLanguage::get_global_class_name(se_string_view p_path, se_string *r_base_type, se_string *r_icon_path) const {
 
     PoolVector<uint8_t> sourcef;
     Error err;
     FileAccessRef f = FileAccess::open(p_path, FileAccess::READ, &err);
     if (err) {
-        return String();
+        return StringName();
     }
 
-    String source = f->get_as_utf8_string();
+    se_string source(f->get_as_utf8_string());
 
     GDScriptParser parser;
     parser.parse(source, PathUtils::get_base_dir(p_path), true, p_path, false, nullptr, true);
@@ -1877,28 +1878,28 @@ String GDScriptLanguage::get_global_class_name(const String &p_path, String *r_b
         if (r_base_type) {
 
             const GDScriptParser::ClassNode *subclass = c;
-            String path = p_path;
+            se_string path(p_path);
             GDScriptParser subparser;
             while (subclass) {
                 if (subclass->extends_used) {
                     if (subclass->extends_file) {
                         if (subclass->extends_class.empty()) {
-                            get_global_class_name(subclass->extends_file, r_base_type);
+                            get_global_class_name(subclass->extends_file.asCString(), r_base_type);
                             subclass = nullptr;
                             break;
                         } else {
                             Vector<StringName> extend_classes = subclass->extends_class;
 
-                            FileAccessRef subfile = FileAccess::open(subclass->extends_file, FileAccess::READ);
+                            FileAccessRef subfile = FileAccess::open(subclass->extends_file.asCString(), FileAccess::READ);
                             if (!subfile) {
                                 break;
                             }
-                            String subsource = subfile->get_as_utf8_string();
+                            se_string subsource(subfile->get_as_utf8_string());
 
                             if (subsource.empty()) {
                                 break;
                             }
-                            String subpath = subclass->extends_file;
+                            se_string subpath = subclass->extends_file.asCString();
                             if (PathUtils::is_rel_path(subpath)) {
                                 subpath = PathUtils::simplify_path(PathUtils::plus_file(PathUtils::get_base_dir(path),subpath));
                             }
@@ -1930,7 +1931,7 @@ String GDScriptLanguage::get_global_class_name(const String &p_path, String *r_b
                             }
                         }
                     } else if (subclass->extends_class.size() == 1) {
-                        *r_base_type = subclass->extends_class[0];
+                        *r_base_type = subclass->extends_class[0].asCString();
                         subclass = nullptr;
                     } else {
                         break;
@@ -1944,14 +1945,14 @@ String GDScriptLanguage::get_global_class_name(const String &p_path, String *r_b
         return c->name;
     }
 
-    return String();
+    return StringName();
 }
 
 #ifdef DEBUG_ENABLED
-String GDScriptWarning::get_message() const {
+se_string GDScriptWarning::get_message() const {
 
-#define CHECK_SYMBOLS(m_amount) ERR_FAIL_COND_V(symbols.size() < m_amount, String())
-#define CHECK_SYMBOLS_EMPTY() ERR_FAIL_COND_V(symbols.empty(), String())
+#define CHECK_SYMBOLS(m_amount) ERR_FAIL_COND_V(symbols.size() < m_amount, se_string())
+#define CHECK_SYMBOLS_EMPTY() ERR_FAIL_COND_V(symbols.empty(), se_string())
     switch (code) {
         case UNASSIGNED_VARIABLE_OP_ASSIGN: {
             CHECK_SYMBOLS_EMPTY()
@@ -2008,7 +2009,7 @@ String GDScriptWarning::get_message() const {
             return "Function declaration of '" + symbols[0] + "()' conflicts with a constant of the same name.";
         }
         case INCOMPATIBLE_TERNARY: {
-            return "Values of the ternary conditional are not mutually compatible.";
+            return ("Values of the ternary conditional are not mutually compatible.");
         }
         case UNUSED_SIGNAL: {
             CHECK_SYMBOLS_EMPTY()
@@ -2031,7 +2032,7 @@ String GDScriptWarning::get_message() const {
             return "The property '" + symbols[0] + "' was not found in base '" + symbols[1] + "' but there's a method with the same name. Did you mean to call it?";
         }
         case INTEGER_DIVISION: {
-            return "Integer division, decimal part will be discarded.";
+            return ("Integer division, decimal part will be discarded.");
         }
         case UNSAFE_PROPERTY_ACCESS: {
             CHECK_SYMBOLS(2)
@@ -2055,12 +2056,12 @@ String GDScriptWarning::get_message() const {
         }
         case WARNING_MAX: break; // Can't happen, but silences warning
     }
-    ERR_FAIL_V_MSG(String(), String("Invalid GDScript warning code: ") + get_name_from_code(code) + ".");
+    ERR_FAIL_V_MSG(se_string(), se_string("Invalid GDScript warning code: ") + get_name_from_code(code) + ".")
 
 #undef CHECK_SYMBOLS
 }
 
-String GDScriptWarning::get_name() const {
+se_string GDScriptWarning::get_name() const {
     return get_name_from_code(code);
 }
 
@@ -2100,7 +2101,7 @@ const char *GDScriptWarning::get_name_from_code(Code p_code) {
     return names[(int)p_code];
 }
 
-GDScriptWarning::Code GDScriptWarning::get_code_from_name(const String &p_name) {
+GDScriptWarning::Code GDScriptWarning::get_code_from_name(const se_string &p_name) {
     for (int i = 0; i < WARNING_MAX; i++) {
         if (get_name_from_code((Code)i) == p_name) {
             return (Code)i;
@@ -2154,7 +2155,7 @@ GDScriptLanguage::GDScriptLanguage() {
     GLOBAL_DEF("debug/gdscript/warnings/treat_warnings_as_errors", false);
     GLOBAL_DEF("debug/gdscript/completion/autocomplete_setters_and_getters", false);
     for (int i = 0; i < (int)GDScriptWarning::WARNING_MAX; i++) {
-        String warning = StringUtils::to_lower(GDScriptWarning::get_name_from_code((GDScriptWarning::Code)i));
+        se_string warning(StringUtils::to_lower(se_string(GDScriptWarning::get_name_from_code((GDScriptWarning::Code)i))));
         GLOBAL_DEF(StringName("debug/gdscript/warnings/" + warning), !StringUtils::begins_with(warning,"unsafe_"));
     }
 #endif // DEBUG_ENABLED
@@ -2174,7 +2175,7 @@ GDScriptLanguage::~GDScriptLanguage() {
 
 /*************** RESOURCE ***************/
 
-RES ResourceFormatLoaderGDScript::load(const String &p_path, const String &p_original_path, Error *r_error) {
+RES ResourceFormatLoaderGDScript::load(se_string_view p_path, se_string_view p_original_path, Error *r_error) {
 
     if (r_error)
         *r_error = ERR_FILE_CANT_OPEN;
@@ -2188,11 +2189,11 @@ RES ResourceFormatLoaderGDScript::load(const String &p_path, const String &p_ori
         script->set_script_path(p_original_path); // script needs this.
         script->set_path(p_original_path);
         Error err = script->load_byte_code(p_path);
-		ERR_FAIL_COND_V_MSG(err != OK, RES(), "Cannot load byte code from file '" + p_path + "'.")
+        ERR_FAIL_COND_V_MSG(err != OK, RES(), "Cannot load byte code from file '" + se_string(p_path) + "'.")
 
     } else {
         Error err = script->load_source_code(p_path);
-		ERR_FAIL_COND_V_MSG(err != OK, RES(), "Cannot load source code from file '" + p_path + "'.")
+        ERR_FAIL_COND_V_MSG(err != OK, RES(), "Cannot load source code from file '" + se_string(p_path) + "'.")
 
         script->set_script_path(p_original_path); // script needs this.
         script->set_path(p_original_path);
@@ -2205,32 +2206,32 @@ RES ResourceFormatLoaderGDScript::load(const String &p_path, const String &p_ori
     return scriptres;
 }
 
-void ResourceFormatLoaderGDScript::get_recognized_extensions(ListPOD<String> *p_extensions) const {
+void ResourceFormatLoaderGDScript::get_recognized_extensions(PODVector<se_string> &p_extensions) const {
 
-    p_extensions->push_back("gd");
-    p_extensions->push_back("gdc");
-    p_extensions->push_back("gde");
+    p_extensions.push_back("gd");
+    p_extensions.push_back("gdc");
+    p_extensions.push_back("gde");
 }
 
-bool ResourceFormatLoaderGDScript::handles_type(const String &p_type) const {
+bool ResourceFormatLoaderGDScript::handles_type(se_string_view p_type) const {
 
-    return (p_type == "Script" || p_type == "GDScript");
+    return (p_type == "Script"_sv || p_type == "GDScript"_sv);
 }
 
-String ResourceFormatLoaderGDScript::get_resource_type(const String &p_path) const {
+se_string ResourceFormatLoaderGDScript::get_resource_type(se_string_view p_path) const {
 
-    String el = StringUtils::to_lower(PathUtils::get_extension(p_path));
+    se_string el = StringUtils::to_lower(PathUtils::get_extension(p_path));
     if (el == "gd" || el == "gdc" || el == "gde")
         return "GDScript";
-    return "";
+    return {};
 }
 
-void ResourceFormatLoaderGDScript::get_dependencies(const String &p_path, ListPOD<String> *p_dependencies, bool p_add_types) {
+void ResourceFormatLoaderGDScript::get_dependencies(se_string_view p_path, ListPOD<se_string> *p_dependencies, bool p_add_types) {
 
     FileAccessRef file = FileAccess::open(p_path, FileAccess::READ);
-	ERR_FAIL_COND_MSG(!file, "Cannot open file '" + p_path + "'.");
+    ERR_FAIL_COND_MSG(!file, "Cannot open file '" + se_string(p_path) + "'.");
 
-    String source = file->get_as_utf8_string();
+    se_string source(file->get_as_utf8_string());
     if (source.empty()) {
         return;
     }
@@ -2240,22 +2241,22 @@ void ResourceFormatLoaderGDScript::get_dependencies(const String &p_path, ListPO
         return;
     }
 
-    for (const List<String>::Element *E = parser.get_dependencies().front(); E; E = E->next()) {
+    for (const List<se_string>::Element *E = parser.get_dependencies().front(); E; E = E->next()) {
         p_dependencies->push_back(E->deref());
     }
 }
 
-Error ResourceFormatSaverGDScript::save(const String &p_path, const RES &p_resource, uint32_t p_flags) {
+Error ResourceFormatSaverGDScript::save(se_string_view p_path, const RES &p_resource, uint32_t p_flags) {
 
     Ref<GDScript> sqscr = dynamic_ref_cast<GDScript>(p_resource);
     ERR_FAIL_COND_V(not sqscr, ERR_INVALID_PARAMETER)
 
-    String source = sqscr->get_source_code();
+    se_string source(sqscr->get_source_code());
 
     Error err;
     FileAccess *file = FileAccess::open(p_path, FileAccess::WRITE, &err);
 
-	ERR_FAIL_COND_V_MSG(err, err, "Cannot save GDScript file '" + p_path + "'.");
+    ERR_FAIL_COND_V_MSG(err, err, "Cannot save GDScript file '" + se_string(p_path) + "'.")
 
     file->store_string(source);
     if (file->get_error() != OK && file->get_error() != ERR_FILE_EOF) {
@@ -2272,10 +2273,10 @@ Error ResourceFormatSaverGDScript::save(const String &p_path, const RES &p_resou
     return OK;
 }
 
-void ResourceFormatSaverGDScript::get_recognized_extensions(const RES &p_resource, Vector<String> *p_extensions) const {
+void ResourceFormatSaverGDScript::get_recognized_extensions(const RES &p_resource, PODVector<se_string> &p_extensions) const {
 
     if (object_cast<GDScript>(p_resource.get())) {
-        p_extensions->push_back("gd");
+        p_extensions.push_back("gd");
     }
 }
 bool ResourceFormatSaverGDScript::recognize(const RES &p_resource) const {

@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef RASTERIZERSTORAGEGLES3_H
-#define RASTERIZERSTORAGEGLES3_H
+#pragma once
 
 #include "core/self_list.h"
 #include "servers/visual/rasterizer.h"
@@ -239,7 +238,7 @@ public:
         uint32_t flags=0; // put here to align next field to 8 bytes
         Set<Texture *> proxy_owners;
         Vector<Ref<Image> > images;
-        String path;
+        se_string path;
 
         RenderTarget *render_target = nullptr;
         Texture *proxy=nullptr;
@@ -322,8 +321,8 @@ public:
     void texture_set_size_override(RID p_texture, int p_width, int p_height, int p_depth) override;
     void texture_bind(RID p_texture, uint32_t p_texture_no) override;
 
-    void texture_set_path(RID p_texture, const String &p_path) override;
-    String texture_get_path(RID p_texture) const override;
+    void texture_set_path(RID p_texture, se_string_view p_path) override;
+    const se_string &texture_get_path(RID p_texture) const override;
 
     void texture_set_shrink_all_x2_on_set_data(bool p_enable) override;
 
@@ -369,8 +368,8 @@ public:
         Vector<ShaderLanguage::ShaderNode::Uniform::Hint> texture_hints;
         SelfList<Material>::List materials;
         SelfList<Shader> dirty_list;
-        String code;
-        String path;
+        se_string code;
+        se_string path;
         RID self;
         ShaderGLES3 *shader;
 
@@ -476,8 +475,8 @@ public:
 
     RID shader_create() override;
 
-    void shader_set_code(RID p_shader, const String &p_code) override;
-    String shader_get_code(RID p_shader) const override;
+    void shader_set_code(RID p_shader, const se_string &p_code) override;
+    se_string shader_get_code(RID p_shader) const override;
     void shader_get_param_list(RID p_shader, PODVector<PropertyInfo> *p_param_list) const override;
 
     void shader_set_default_texture_param(RID p_shader, const StringName &p_name, RID p_texture) override;
@@ -1358,7 +1357,7 @@ public:
     void initialize();
     void finalize();
 
-    bool has_os_feature(const String &p_feature) const override;
+    bool has_os_feature(const StringName &p_feature) const override;
 
     void update_dirty_resources() override;
 
@@ -1372,5 +1371,3 @@ public:
 
     RasterizerStorageGLES3();
 };
-
-#endif // RASTERIZERSTORAGEGLES3_H

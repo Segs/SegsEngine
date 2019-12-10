@@ -35,7 +35,7 @@
 #include "platform/x11/logo.gen.h"
 #include "scene/resources/texture.h"
 
-static Error fixup_embedded_pck(const String &p_path, int64_t p_embedded_start, int64_t p_embedded_size);
+static Error fixup_embedded_pck(se_string_view p_path, int64_t p_embedded_start, int64_t p_embedded_size);
 
 void register_x11_exporter() {
 
@@ -47,21 +47,21 @@ void register_x11_exporter() {
     Ref<ImageTexture> logo(make_ref_counted<ImageTexture>());
     logo->create_from_image(img);
     platform->set_logo(logo);
-    platform->set_name("Linux/X11");
-    platform->set_extension("x86");
-    platform->set_extension("x86_64", "binary_format/64_bits");
-    platform->set_release_32("linux_x11_32_release");
-    platform->set_debug_32("linux_x11_32_debug");
-    platform->set_release_64("linux_x11_64_release");
-    platform->set_debug_64("linux_x11_64_debug");
-    platform->set_os_name("X11");
+    platform->set_name(("Linux/X11"));
+    platform->set_extension(("x86"));
+    platform->set_extension(("x86_64"), ("binary_format/64_bits"));
+    platform->set_release_32(("linux_x11_32_release"));
+    platform->set_debug_32(("linux_x11_32_debug"));
+    platform->set_release_64(("linux_x11_64_release"));
+    platform->set_debug_64(("linux_x11_64_debug"));
+    platform->set_os_name(("X11"));
     platform->set_chmod_flags(0755);
     platform->set_fixup_embedded_pck_func(&fixup_embedded_pck);
 
     EditorExport::get_singleton()->add_export_platform(platform);
 }
 
-static Error fixup_embedded_pck(const String &p_path, int64_t p_embedded_start, int64_t p_embedded_size) {
+static Error fixup_embedded_pck(se_string_view p_path, int64_t p_embedded_start, int64_t p_embedded_size) {
 
     // Patch the header of the "pck" section in the ELF file so that it corresponds to the embedded data
 

@@ -249,15 +249,15 @@ public:
 
     void call_group_flags(uint32_t p_call_flags, const StringName &p_group, const StringName &p_function, VARIANT_ARG_LIST);
     void notify_group_flags(uint32_t p_call_flags, const StringName &p_group, int p_notification);
-    void set_group_flags(uint32_t p_call_flags, const StringName &p_group, const String &p_name, const Variant &p_value);
+    void set_group_flags(uint32_t p_call_flags, const StringName &p_group, const StringName &p_name, const Variant &p_value);
 
     void call_group(const StringName &p_group, const StringName &p_function, VARIANT_ARG_LIST);
     void notify_group(const StringName &p_group, int p_notification);
-    void set_group(const StringName &p_group, const String &p_name, const Variant &p_value);
+    void set_group(const StringName &p_group, const StringName &p_name, const Variant &p_value);
 
     void flush_transform_notifications();
 
-    void input_text(const String &p_text) override;
+    void input_text(se_string_view p_text) override;
     void input_event(const Ref<InputEvent> &p_event) override;
     void init() override;
 
@@ -295,7 +295,7 @@ public:
     void set_debug_navigation_hint(bool p_enabled);
     bool is_debugging_navigation_hint() const;
 
-    Map<String, Set<Node *> > &get_live_scene_edit_cache();
+    Map<se_string, Set<Node *> > &get_live_scene_edit_cache();
     Map<Node *, Map<ObjectID, Node *>> &get_live_edit_remove_list();
 #else
     void set_debug_collisions_hint(bool p_enabled) {}
@@ -347,7 +347,7 @@ public:
 
     void set_current_scene(Node *p_scene);
     Node *get_current_scene() const;
-    Error change_scene(const String &p_path);
+    Error change_scene(se_string_view p_path);
     Error change_scene_to(const Ref<PackedScene> &p_scene);
     Error reload_current_scene();
 
@@ -358,9 +358,9 @@ public:
 
     static SceneTree *get_singleton() { return singleton; }
 
-    void drop_files(const Vector<String> &p_files, int p_from_screen = 0) override;
+    void drop_files(const Vector<se_string> &p_files, int p_from_screen = 0) override;
     void global_menu_action(const Variant &p_id, const Variant &p_meta) override;
-    void get_argument_options(const StringName &p_function, int p_idx, ListPOD<String> *r_options) const override;
+    void get_argument_options(const StringName &p_function, int p_idx, ListPOD<se_string> *r_options) const override;
 
     //network API
 

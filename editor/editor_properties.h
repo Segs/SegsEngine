@@ -61,15 +61,15 @@ class EditorPropertyText : public EditorProperty {
     LineEdit *text;
 
     bool updating;
-    void _text_changed(const String &p_string);
-    void _text_entered(const String &p_string);
+    void _text_changed(se_string_view p_string);
+    void _text_entered(se_string_view p_string);
 
 protected:
     static void _bind_methods();
 
 public:
     void update_property() override;
-    void set_placeholder(const String &p_string);
+    void set_placeholder(const StringName &p_string);
     EditorPropertyText();
 };
 
@@ -106,7 +106,7 @@ protected:
     static void _bind_methods();
 
 public:
-    void setup(const Vector<String> &p_options);
+    void setup(const Vector<se_string_view> &p_options);
     void update_property() override;
     EditorPropertyTextEnum();
 };
@@ -114,7 +114,7 @@ public:
 class EditorPropertyPath : public EditorProperty {
     GDCLASS(EditorPropertyPath,EditorProperty)
 
-    Vector<String> extensions;
+    PODVector<se_string> extensions;
     bool folder;
     bool global;
     bool save_mode;
@@ -122,7 +122,7 @@ class EditorPropertyPath : public EditorProperty {
     LineEdit *path;
     Button *path_edit;
 
-    void _path_selected(const String &p_path);
+    void _path_selected(se_string_view p_path);
     void _path_pressed();
     void _path_focus_exited();
 
@@ -131,7 +131,7 @@ protected:
     void _notification(int p_what);
 
 public:
-    void setup(const Vector<String> &p_extensions, bool p_folder, bool p_global);
+    void setup(const Vector<se_string_view> &p_extensions, bool p_folder, bool p_global);
     void set_save_mode();
     void update_property() override;
     EditorPropertyPath();
@@ -143,8 +143,8 @@ class EditorPropertyClassName : public EditorProperty {
 private:
     class CreateDialog *dialog;
     Button *property;
-    String selected_type;
-    String base_type;
+    StringName selected_type;
+    StringName base_type;
     void _property_selected();
     void _dialog_created();
 
@@ -152,7 +152,7 @@ protected:
     static void _bind_methods();
 
 public:
-    void setup(const String &p_base_type, const String &p_selected_type);
+    void setup(const StringName &p_base_type, const StringName &p_selected_type);
     void update_property() override;
     EditorPropertyClassName();
 };
@@ -177,16 +177,16 @@ private:
     Type hint;
     PropertySelector *selector;
     Button *property;
-    String hint_text;
+    se_string hint_text;
 
-    void _property_selected(const String &p_selected);
+    void _property_selected(se_string_view p_selected);
     void _property_select();
 
 protected:
     static void _bind_methods();
 
 public:
-    void setup(Type p_hint, const String &p_hint_text);
+    void setup(Type p_hint, se_string_view p_hint_text);
     void update_property() override;
     EditorPropertyMember();
 };
@@ -217,7 +217,7 @@ protected:
     static void _bind_methods();
 
 public:
-    void setup(const Vector<String> &p_options);
+    void setup(const Vector<se_string_view> &p_options);
     void update_property() override;
     void set_option_button_clip(bool p_enable);
     EditorPropertyEnum();
@@ -236,7 +236,7 @@ protected:
     static void _bind_methods();
 
 public:
-    void setup(const Vector<String> &p_options);
+    void setup(const Vector<se_string_view> &p_options);
     void update_property() override;
     EditorPropertyFlags();
 };
@@ -293,7 +293,7 @@ class EditorPropertyObjectID : public EditorProperty {
     GDCLASS(EditorPropertyObjectID,EditorProperty)
 
     Button *edit;
-    String base_type;
+    StringName base_type;
     void _edit_pressed();
 
 protected:
@@ -301,7 +301,7 @@ protected:
 
 public:
     void update_property() override;
-    void setup(const String &p_base_type);
+    void setup(const StringName &p_base_type);
     EditorPropertyObjectID();
 };
 
@@ -329,7 +329,7 @@ class EditorPropertyEasing : public EditorProperty {
     EditorSpinSlider *spin;
     bool setting;
 
-	bool dragging;
+    bool dragging;
     bool full;
     bool flip;
 
@@ -368,7 +368,7 @@ class EditorPropertyVector2 : public EditorProperty {
 
     EditorSpinSlider *spin[2];
     bool setting;
-    void _value_changed(double p_val, const String &p_name);
+    void _value_changed(double p_val, const StringName &p_name);
 
 protected:
     void _notification(int p_what);
@@ -385,7 +385,7 @@ class EditorPropertyRect2 : public EditorProperty {
 
     EditorSpinSlider *spin[4];
     bool setting;
-    void _value_changed(double p_val, const String &p_name);
+    void _value_changed(double p_val, const StringName &p_name);
 
 protected:
     void _notification(int p_what);
@@ -402,7 +402,7 @@ class EditorPropertyVector3 : public EditorProperty {
 
     EditorSpinSlider *spin[3];
     bool setting;
-    void _value_changed(double p_val, const String &p_name);
+    void _value_changed(double p_val, const StringName &p_name);
 
 protected:
     void _notification(int p_what);
@@ -419,7 +419,7 @@ class EditorPropertyPlane : public EditorProperty {
 
     EditorSpinSlider *spin[4];
     bool setting;
-    void _value_changed(double p_val, const String &p_name);
+    void _value_changed(double p_val, const StringName &p_name);
 
 protected:
     void _notification(int p_what);
@@ -436,7 +436,7 @@ class EditorPropertyQuat : public EditorProperty {
 
     EditorSpinSlider *spin[4];
     bool setting;
-    void _value_changed(double p_val, const String &p_name);
+    void _value_changed(double p_val, const StringName &p_name);
 
 protected:
     void _notification(int p_what);
@@ -453,7 +453,7 @@ class EditorPropertyAABB : public EditorProperty {
 
     EditorSpinSlider *spin[6];
     bool setting;
-    void _value_changed(double p_val, const String &p_name);
+    void _value_changed(double p_val, const StringName &p_name);
 
 protected:
     void _notification(int p_what);
@@ -470,7 +470,7 @@ class EditorPropertyTransform2D : public EditorProperty {
 
     EditorSpinSlider *spin[6];
     bool setting;
-    void _value_changed(double p_val, const String &p_name);
+    void _value_changed(double p_val, const StringName &p_name);
 
 protected:
     void _notification(int p_what);
@@ -487,7 +487,7 @@ class EditorPropertyBasis : public EditorProperty {
 
     EditorSpinSlider *spin[9];
     bool setting;
-    void _value_changed(double p_val, const String &p_name);
+    void _value_changed(double p_val, const StringName &p_name);
 
 protected:
     void _notification(int p_what);
@@ -504,7 +504,7 @@ class EditorPropertyTransform : public EditorProperty {
 
     EditorSpinSlider *spin[12];
     bool setting;
-    void _value_changed(double p_val, const String &p_name);
+    void _value_changed(double p_val, const StringName &p_name);
 
 protected:
     void _notification(int p_what);
@@ -591,19 +591,19 @@ class EditorPropertyResource : public EditorProperty {
     Button *edit;
     PopupMenu *menu;
     EditorFileDialog *file;
-    Vector<String> inheritors_array;
+    Vector<StringName> inheritors_array;
     EditorInspector *sub_inspector;
     VBoxContainer *sub_inspector_vbox;
 
     bool use_sub_inspector;
     bool dropping;
-    String base_type;
+    StringName base_type;
 
     SceneTreeDialog *scene_tree;
 
-    void _file_selected(const String &p_path);
+    void _file_selected(se_string_view p_path);
     void _menu_option(int p_which);
-    void _resource_preview(const String &p_path, const Ref<Texture> &p_preview, const Ref<Texture> &p_small_preview, ObjectID p_obj);
+    void _resource_preview(se_string_view p_path, const Ref<Texture> &p_preview, const Ref<Texture> &p_small_preview, ObjectID p_obj);
     void _resource_selected();
     void _viewport_selected(const NodePath &p_path);
 
@@ -611,8 +611,8 @@ class EditorPropertyResource : public EditorProperty {
 
     void _update_menu();
 
-    void _sub_inspector_property_keyed(const String &p_property, const Variant &p_value, bool);
-    void _sub_inspector_resource_selected(const RES &p_resource, const String &p_property);
+    void _sub_inspector_property_keyed(se_string_view p_property, const Variant &p_value, bool);
+    void _sub_inspector_resource_selected(const RES &p_resource, se_string_view p_property);
     void _sub_inspector_object_id_selected(int p_id);
 
     void _button_draw();
@@ -633,7 +633,7 @@ protected:
 
 public:
     void update_property() override;
-    void setup(const String &p_base_type);
+    void setup(const StringName &p_base_type);
 
     void collapse_all_folding() override;
     void expand_all_folding() override;
@@ -652,7 +652,7 @@ class EditorInspectorDefaultPlugin : public EditorInspectorPlugin {
 public:
     bool can_handle(Object *p_object) override;
     void parse_begin(Object *p_object) override;
-    bool parse_property(Object *p_object, VariantType p_type, const String &p_path, PropertyHint p_hint, const String &p_hint_text, int p_usage) override;
+    bool parse_property(Object *p_object, VariantType p_type, se_string_view p_path, PropertyHint p_hint, se_string_view p_hint_text, int p_usage) override;
     void parse_end() override;
 };
 

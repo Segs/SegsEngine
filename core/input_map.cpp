@@ -82,7 +82,7 @@ void InputMap::_bind_methods() {
 
 void InputMap::add_action(const StringName &p_action, float p_deadzone) {
 
-    ERR_FAIL_COND_MSG(input_map.contains(p_action), "InputMap already has action '" + String(p_action) + "'.")
+    ERR_FAIL_COND_MSG(input_map.contains(p_action), "InputMap already has action '" + se_string(p_action) + "'.")
     input_map[p_action] = Action();
     static int last_id = 1;
     input_map[p_action].id = last_id;
@@ -92,7 +92,7 @@ void InputMap::add_action(const StringName &p_action, float p_deadzone) {
 
 void InputMap::erase_action(const StringName &p_action) {
 
-    ERR_FAIL_COND_MSG(!input_map.contains(p_action), "Request for nonexistent InputMap action '" + String(p_action) + "'.")
+    ERR_FAIL_COND_MSG(!input_map.contains(p_action), "Request for nonexistent InputMap action '" + se_string(p_action) + "'.")
     input_map.erase(p_action);
 }
 
@@ -124,7 +124,7 @@ bool InputMap::has_action(const StringName &p_action) const {
 
 void InputMap::action_set_deadzone(const StringName &p_action, float p_deadzone) {
 
-    ERR_FAIL_COND_MSG(!input_map.contains(p_action), "Request for nonexistent InputMap action '" + String(p_action) + "'.")
+    ERR_FAIL_COND_MSG(!input_map.contains(p_action), "Request for nonexistent InputMap action '" + se_string(p_action) + "'.")
 
     input_map[p_action].deadzone = p_deadzone;
 }
@@ -132,7 +132,7 @@ void InputMap::action_set_deadzone(const StringName &p_action, float p_deadzone)
 void InputMap::action_add_event(const StringName &p_action, const Ref<InputEvent> &p_event) {
 
     ERR_FAIL_COND_CMSG(not p_event, "It's not a reference to a valid InputEvent object.")
-    ERR_FAIL_COND_MSG(!input_map.contains(p_action), "Request for nonexistent InputMap action '" + String(p_action) + "'.")
+    ERR_FAIL_COND_MSG(!input_map.contains(p_action), "Request for nonexistent InputMap action '" + se_string(p_action) + "'.")
     if (_find_event(input_map[p_action], p_event)!=input_map[p_action].inputs.end())
         return; //already gots
 
@@ -141,13 +141,13 @@ void InputMap::action_add_event(const StringName &p_action, const Ref<InputEvent
 
 bool InputMap::action_has_event(const StringName &p_action, const Ref<InputEvent> &p_event) {
 
-    ERR_FAIL_COND_V_MSG(!input_map.contains(p_action), false, "Request for nonexistent InputMap action '" + String(p_action) + "'.")
+    ERR_FAIL_COND_V_MSG(!input_map.contains(p_action), false, "Request for nonexistent InputMap action '" + se_string(p_action) + "'.")
     return (_find_event(input_map[p_action], p_event) != input_map[p_action].inputs.end());
 }
 
 void InputMap::action_erase_event(const StringName &p_action, const Ref<InputEvent> &p_event) {
 
-    ERR_FAIL_COND_MSG(!input_map.contains(p_action), "Request for nonexistent InputMap action '" + String(p_action) + "'.")
+    ERR_FAIL_COND_MSG(!input_map.contains(p_action), "Request for nonexistent InputMap action '" + se_string(p_action) + "'.")
 
     auto iter = _find_event(input_map[p_action], p_event);
     if (input_map[p_action].inputs.end()!=iter)
@@ -156,7 +156,7 @@ void InputMap::action_erase_event(const StringName &p_action, const Ref<InputEve
 
 void InputMap::action_erase_events(const StringName &p_action) {
 
-    ERR_FAIL_COND_MSG(!input_map.contains(p_action), "Request for nonexistent InputMap action '" + String(p_action) + "'.");
+    ERR_FAIL_COND_MSG(!input_map.contains(p_action), "Request for nonexistent InputMap action '" + se_string(p_action) + "'.");
 
     input_map[p_action].inputs.clear();
 }
@@ -189,7 +189,7 @@ bool InputMap::event_is_action(const Ref<InputEvent> &p_event, const StringName 
 
 bool InputMap::event_get_action_status(const Ref<InputEvent> &p_event, const StringName &p_action, bool *p_pressed, float *p_strength) const {
     Map<StringName, Action>::iterator E = input_map.find(p_action);
-    ERR_FAIL_COND_V_MSG(E==input_map.end(), false, "Request for nonexistent InputMap action '" + String(p_action) + "'.")
+    ERR_FAIL_COND_V_MSG(E==input_map.end(), false, "Request for nonexistent InputMap action '" + se_string(p_action) + "'.")
     //TODO: SEGS: holding a ref to p_event is not needed here, a simpler object_cast(p_event.ptr) would work here
     Ref<InputEventAction> input_event_action(dynamic_ref_cast<InputEventAction>(p_event));
     if (input_event_action) {
@@ -228,7 +228,7 @@ void InputMap::load_from_globals() {
         if (!begins_with(pi.name,"input/"))
             continue;
 
-        String name = pi.name.asString();
+        se_string name(pi.name.asCString());
         name = substr(name,find(name,"/") + 1, name.length());
 
         Dictionary action = ProjectSettings::get_singleton()->get(pi.name);

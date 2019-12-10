@@ -487,7 +487,7 @@ void ScrollContainer::set_deadzone(int p_deadzone) {
     deadzone = p_deadzone;
 }
 
-String ScrollContainer::get_configuration_warning() const {
+StringName ScrollContainer::get_configuration_warning() const {
 
     int found = 0;
 
@@ -507,7 +507,7 @@ String ScrollContainer::get_configuration_warning() const {
     if (found != 1)
         return TTR("ScrollContainer is intended to work with a single child control.\nUse a container as child (VBox, HBox, etc.), or a Control and set the custom minimum size manually.");
     else
-        return "";
+        return StringName();
 }
 
 HScrollBar *ScrollContainer::get_h_scrollbar() {

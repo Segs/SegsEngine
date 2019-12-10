@@ -43,16 +43,14 @@ RES_BASE_EXTENSION_IMPL(Animation,"anim")
 
 bool Animation::_set(const StringName &p_name, const Variant &p_value) {
 
-    String name = p_name;
+    if (StringUtils::begins_with(p_name,"tracks/")) {
 
-    if (StringUtils::begins_with(name,"tracks/")) {
-
-        int track = StringUtils::to_int(StringUtils::get_slice(name,'/', 1));
-        String what = StringUtils::get_slice(name,'/', 2);
+        int track = StringUtils::to_int(StringUtils::get_slice(p_name,'/', 1));
+        StringName what(StringUtils::get_slice(p_name,'/', 2));
 
         if (tracks.size() == track && what == "type") {
 
-            String type = p_value;
+            StringName type = p_value;
 
             if (type == "transform") {
 
@@ -302,7 +300,7 @@ bool Animation::_set(const StringName &p_name, const Variant &p_value) {
                 ERR_FAIL_COND_V(!d.has("clips"), false)
 
                 PoolVector<float> times = d["times"];
-                PoolVector<String> clips = d["clips"];
+                PoolVector<se_string> clips = d["clips"].as<PoolVector<se_string>>();
 
                 ERR_FAIL_COND_V(clips.size() != times.size(), false)
 
@@ -311,7 +309,7 @@ bool Animation::_set(const StringName &p_name, const Variant &p_value) {
                     int valcount = times.size();
 
                     PoolVector<float>::Read rt = times.read();
-                    PoolVector<String>::Read rc = clips.read();
+                    PoolVector<se_string>::Read rc = clips.read();
 
                     an->values.resize(valcount);
 
@@ -319,7 +317,7 @@ bool Animation::_set(const StringName &p_name, const Variant &p_value) {
 
                         TKey<StringName> ak;
                         ak.time = rt[i];
-                        ak.value = rc[i];
+                        ak.value = StringName(rc[i]);
                         an->values.write[i] = ak;
                     }
                 }
@@ -338,7 +336,7 @@ bool Animation::_set(const StringName &p_name, const Variant &p_value) {
 
 bool Animation::_get(const StringName &p_name, Variant &r_ret) const {
 
-    String name = p_name;
+    StringName name = p_name;
 
     if (name == "length")
         r_ret = length;
@@ -349,7 +347,7 @@ bool Animation::_get(const StringName &p_name, Variant &r_ret) const {
     else if (StringUtils::begins_with(name,"tracks/")) {
 
         int track = StringUtils::to_int(StringUtils::get_slice(name,'/', 1));
-        String what = StringUtils::get_slice(name,'/', 2);
+        StringName what(StringUtils::get_slice(name,'/', 2));
         ERR_FAIL_INDEX_V(track, tracks.size(), false)
         if (what == "type") {
 
@@ -583,7 +581,7 @@ bool Animation::_get(const StringName &p_name, Variant &r_ret) const {
                 Dictionary d;
 
                 PoolVector<float> key_times;
-                PoolVector<String> clips;
+                PoolVector<se_string> clips;
 
                 int kk = an->values.size();
 
@@ -591,7 +589,7 @@ bool Animation::_get(const StringName &p_name, Variant &r_ret) const {
                 clips.resize(kk);
 
                 PoolVector<float>::Write wti = key_times.write();
-                PoolVector<String>::Write wcl = clips.write();
+                PoolVector<se_string>::Write wcl = clips.write();
 
                 const TKey<StringName> *vls = an->values.ptr();
 
@@ -622,13 +620,13 @@ bool Animation::_get(const StringName &p_name, Variant &r_ret) const {
 void Animation::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
     for (int i = 0; i < tracks.size(); i++) {
 
-        p_list->push_back(PropertyInfo(VariantType::STRING, "tracks/" + itos(i) + "/type", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
-        p_list->push_back(PropertyInfo(VariantType::NODE_PATH, "tracks/" + itos(i) + "/path", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
-        p_list->push_back(PropertyInfo(VariantType::INT, "tracks/" + itos(i) + "/interp", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
-        p_list->push_back(PropertyInfo(VariantType::BOOL, "tracks/" + itos(i) + "/loop_wrap", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
-        p_list->push_back(PropertyInfo(VariantType::BOOL, "tracks/" + itos(i) + "/imported", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
-        p_list->push_back(PropertyInfo(VariantType::BOOL, "tracks/" + itos(i) + "/enabled", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
-        p_list->push_back(PropertyInfo(VariantType::ARRAY, "tracks/" + itos(i) + "/keys", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
+        p_list->push_back(PropertyInfo(VariantType::STRING, StringName("tracks/" + itos(i) + "/type"), PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
+        p_list->push_back(PropertyInfo(VariantType::NODE_PATH, StringName("tracks/" + itos(i) + "/path"), PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
+        p_list->push_back(PropertyInfo(VariantType::INT, StringName("tracks/" + itos(i) + "/interp"), PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
+        p_list->push_back(PropertyInfo(VariantType::BOOL, StringName("tracks/" + itos(i) + "/loop_wrap"), PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
+        p_list->push_back(PropertyInfo(VariantType::BOOL, StringName("tracks/" + itos(i) + "/imported"), PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
+        p_list->push_back(PropertyInfo(VariantType::BOOL, StringName("tracks/" + itos(i) + "/enabled"), PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
+        p_list->push_back(PropertyInfo(VariantType::ARRAY, StringName("tracks/" + itos(i) + "/keys"), PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
     }
 }
 

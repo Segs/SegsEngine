@@ -243,9 +243,9 @@ MaterialEditorPlugin::MaterialEditorPlugin(EditorNode *p_node) {
     add_inspector_plugin(plugin);
 }
 
-String SpatialMaterialConversionPlugin::converts_to() const {
+StringName SpatialMaterialConversionPlugin::converts_to() const {
 
-    return "ShaderMaterial";
+    return StringName("ShaderMaterial");
 }
 bool SpatialMaterialConversionPlugin::handles(const Ref<Resource> &p_resource) const {
 
@@ -261,7 +261,7 @@ Ref<Resource> SpatialMaterialConversionPlugin::convert(const Ref<Resource> &p_re
 
     Ref<Shader> shader(make_ref_counted<Shader>());
 
-    String code = VisualServer::get_singleton()->shader_get_code(mat->get_shader_rid());
+    se_string code(VisualServer::get_singleton()->shader_get_code(mat->get_shader_rid()));
 
     shader->set_code(code);
 
@@ -287,9 +287,9 @@ Ref<Resource> SpatialMaterialConversionPlugin::convert(const Ref<Resource> &p_re
     return smat;
 }
 
-String ParticlesMaterialConversionPlugin::converts_to() const {
+StringName ParticlesMaterialConversionPlugin::converts_to() const {
 
-    return "ShaderMaterial";
+    return StringName("ShaderMaterial");
 }
 bool ParticlesMaterialConversionPlugin::handles(const Ref<Resource> &p_resource) const {
 
@@ -305,7 +305,7 @@ Ref<Resource> ParticlesMaterialConversionPlugin::convert(const Ref<Resource> &p_
 
     Ref<Shader> shader(make_ref_counted<Shader>());
 
-    String code = VisualServer::get_singleton()->shader_get_code(mat->get_shader_rid());
+    se_string code(VisualServer::get_singleton()->shader_get_code(mat->get_shader_rid()));
 
     shader->set_code(code);
 
@@ -323,9 +323,9 @@ Ref<Resource> ParticlesMaterialConversionPlugin::convert(const Ref<Resource> &p_
     return smat;
 }
 
-String CanvasItemMaterialConversionPlugin::converts_to() const {
+StringName CanvasItemMaterialConversionPlugin::converts_to() const {
 
-    return "ShaderMaterial";
+    return StringName("ShaderMaterial");
 }
 bool CanvasItemMaterialConversionPlugin::handles(const Ref<Resource> &p_resource) const {
 
@@ -341,7 +341,7 @@ Ref<Resource> CanvasItemMaterialConversionPlugin::convert(const Ref<Resource> &p
 
     Ref<Shader> shader(make_ref_counted<Shader>());
 
-    String code = VisualServer::get_singleton()->shader_get_code(mat->get_shader_rid());
+    se_string code(VisualServer::get_singleton()->shader_get_code(mat->get_shader_rid()));
 
     shader->set_code(code);
 

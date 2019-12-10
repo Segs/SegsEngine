@@ -40,6 +40,7 @@
 #include "editor/editor_scale.h"
 #include "editor/editor_settings.h"
 #include "scene/gui/split_container.h"
+#include "scene/gui/item_list.h"
 
 IMPL_GDCLASS(TileMapEditor)
 IMPL_GDCLASS(TileMapEditorPlugin)
@@ -158,7 +159,7 @@ void TileMapEditor::_menu_option(int p_option) {
             if (!selection_active)
                 return;
 
-            _start_undo(TTR("Erase Selection"));
+            _start_undo((TTR("Erase Selection")));
             _erase_selection();
             _finish_undo();
 
@@ -169,7 +170,7 @@ void TileMapEditor::_menu_option(int p_option) {
         } break;
         case OPTION_FIX_INVALID: {
 
-            undo_redo->create_action(TTR("Fix Invalid Tiles"));
+            undo_redo->create_action_ui(TTR("Fix Invalid Tiles"));
             undo_redo->add_undo_method(node, "set", "tile_data", node->get("tile_data"));
             node->fix_invalid_tiles();
             undo_redo->add_do_method(node, "set", "tile_data", node->get("tile_data"));
@@ -181,7 +182,7 @@ void TileMapEditor::_menu_option(int p_option) {
             if (selection_active) {
                 _update_copydata();
 
-                _start_undo(TTR("Cut Selection"));
+                _start_undo((TTR("Cut Selection")));
                 _erase_selection();
                 _finish_undo();
 
@@ -268,7 +269,7 @@ void TileMapEditor::_create_set_cell_undo_redo(const Vector2 &p_vec, const CellO
     undo_redo->add_do_method(node, "_set_celld", p_vec, cell_new);
 }
 
-void TileMapEditor::_start_undo(const String &p_action) {
+void TileMapEditor::_start_undo(se_string_view p_action) {
 
     undo_data.clear();
     undo_redo->create_action(p_action);
@@ -358,12 +359,12 @@ void TileMapEditor::_priority_toggled(bool p_enabled) {
     _update_palette();
 }
 
-void TileMapEditor::_text_entered(const String &p_text) {
+void TileMapEditor::_text_entered(se_string_view p_text) {
 
     canvas_item_editor_viewport->grab_focus();
 }
 
-void TileMapEditor::_text_changed(const String &p_text) {
+void TileMapEditor::_text_changed(se_string_view p_text) {
     _update_palette();
 }
 
@@ -386,7 +387,7 @@ void TileMapEditor::_sbox_input(const Ref<InputEvent> &p_ie) {
 namespace {
 struct _PaletteEntry {
     int id;
-    String name;
+    se_string name;
 
     bool operator<(const _PaletteEntry &p_rhs) const {
         return name < p_rhs.name;
@@ -412,7 +413,7 @@ void TileMapEditor::_update_palette() {
 
     Ref<TileSet> tileset = node->get_tileset();
     if (not tileset) {
-        search_box->set_text("");
+        search_box->set_text_utf8("");
         search_box->set_editable(false);
         info_message->show();
         return;
@@ -441,13 +442,14 @@ void TileMapEditor::_update_palette() {
     manual_palette->set_fixed_icon_size(Size2(min_size, min_size));
     manual_palette->set_same_column_width(true);
 
-    String filter = StringUtils::strip_edges(search_box->get_text());
+    se_string filter_text=search_box->get_text();
+    se_string_view filter = StringUtils::strip_edges(filter_text);
 
     Vector<_PaletteEntry> entries;
 
     for (List<int>::Element *E = tiles.front(); E; E = E->next()) {
 
-        String name = tileset->tile_get_name(E->deref());
+        se_string name = tileset->tile_get_name(E->deref());
 
         if (!name.empty()) {
             if (show_tile_ids) {
@@ -475,9 +477,9 @@ void TileMapEditor::_update_palette() {
     for (int i = 0; i < entries.size(); i++) {
 
         if (show_tile_names) {
-            palette->add_item(entries[i].name);
+            palette->add_item(StringName(entries[i].name));
         } else {
-            palette->add_item(String());
+            palette->add_item(StringName());
         }
 
         Ref<Texture> tex = tileset->tile_get_texture(entries[i].id);
@@ -543,7 +545,7 @@ void TileMapEditor::_update_palette() {
 
             for (int i = 0; i < entries2.size(); i++) {
 
-                manual_palette->add_item(String());
+                manual_palette->add_item(StringName());
 
                 if (tex) {
 
@@ -587,8 +589,8 @@ void TileMapEditor::_pick_tile(const Point2 &p_pos) {
     if (id == TileMap::INVALID_CELL)
         return;
 
-    if (!search_box->get_text().empty()) {
-        search_box->set_text("");
+    if (!search_box->get_text_ui().isEmpty()) {
+        search_box->set_text_utf8("");
         _update_palette();
     }
 
@@ -1033,7 +1035,7 @@ bool TileMapEditor::forward_gui_input(const Ref<InputEvent> &p_event) {
 
                         tool = TOOL_PAINTING;
 
-                        _start_undo(TTR("Paint TileMap"));
+                        _start_undo((TTR("Paint TileMap")));
                     }
                 } else if (tool == TOOL_PICKING) {
 
@@ -1068,7 +1070,7 @@ bool TileMapEditor::forward_gui_input(const Ref<InputEvent> &p_event) {
 
                         if (!ids.empty() && ids[0] != TileMap::INVALID_CELL) {
 
-                            _start_undo(TTR("Line Draw"));
+                            _start_undo((TTR("Line Draw")));
                             for (eastl::pair<const Point2i,CellOp> &E : paint_undo) {
 
                                 _set_cell(E.first, ids, flip_h, flip_v, transpose);
@@ -1085,7 +1087,7 @@ bool TileMapEditor::forward_gui_input(const Ref<InputEvent> &p_event) {
 
                         if (!ids.empty() && ids[0] != TileMap::INVALID_CELL) {
 
-                            _start_undo(TTR("Rectangle Paint"));
+                            _start_undo((TTR("Rectangle Paint")));
                             for (int i = rectangle.position.y; i <= rectangle.position.y + rectangle.size.y; i++) {
                                 for (int j = rectangle.position.x; j <= rectangle.position.x + rectangle.size.x; j++) {
 
@@ -1101,7 +1103,7 @@ bool TileMapEditor::forward_gui_input(const Ref<InputEvent> &p_event) {
                         Point2 ofs = over_tile - rectangle.position;
                         Vector<int> ids;
 
-                        _start_undo(TTR("Paste"));
+                        _start_undo((TTR("Paste")));
                         ids.push_back(0);
                         for (List<TileData>::Element *E = copydata.front(); E; E = E->next()) {
 
@@ -1124,7 +1126,7 @@ bool TileMapEditor::forward_gui_input(const Ref<InputEvent> &p_event) {
                         if (points.size() == 0)
                             return false;
 
-                        _start_undo(TTR("Bucket Fill"));
+                        _start_undo((TTR("Bucket Fill")));
 
                         Dictionary op;
                         op["id"] = get_selected_tiles();
@@ -1181,7 +1183,7 @@ bool TileMapEditor::forward_gui_input(const Ref<InputEvent> &p_event) {
 
                     Point2 local = node->world_to_map(xform_inv.xform(mb->get_position()));
 
-                    _start_undo(TTR("Erase TileMap"));
+                    _start_undo((TTR("Erase TileMap")));
 
                     if (mb->get_shift()) {
                         if (mb->get_command())
@@ -1231,7 +1233,7 @@ bool TileMapEditor::forward_gui_input(const Ref<InputEvent> &p_event) {
                     if (points.size() == 0)
                         return false;
 
-                    undo_redo->create_action(TTR("Bucket Fill"));
+                    undo_redo->create_action_ui(TTR("Bucket Fill"));
 
                     undo_redo->add_do_method(this, "_erase_points", Variant(points));
                     undo_redo->add_undo_method(this, "_fill_points", Variant(points), pop);
@@ -1257,11 +1259,11 @@ bool TileMapEditor::forward_gui_input(const Ref<InputEvent> &p_event) {
 
         if (show_tile_info) {
             int tile_under = node->get_cell(over_tile.x, over_tile.y);
-            String tile_name = "none";
+            se_string tile_name("none");
 
             if (node->get_tileset()->has_tile(tile_under))
                 tile_name = node->get_tileset()->tile_get_name(tile_under);
-            tile_info->set_text(FormatV("%d, %d [",over_tile.x,over_tile.y) + tile_name + "]");
+            tile_info->set_text(FormatSN("%d, %d [",over_tile.x,over_tile.y) + tile_name + "]");
         }
 
         if (tool == TOOL_PAINTING) {
@@ -1463,7 +1465,7 @@ bool TileMapEditor::forward_gui_input(const Ref<InputEvent> &p_event) {
             if (selection_active) {
                 _update_copydata();
 
-                _start_undo(TTR("Cut Selection"));
+                _start_undo((TTR("Cut Selection")));
                 _erase_selection();
                 _finish_undo();
 
@@ -1765,7 +1767,7 @@ void TileMapEditor::forward_canvas_draw_over_viewport(Control *p_overlay) {
 
 void TileMapEditor::edit(Node *p_tile_map) {
 
-    search_box->set_text("");
+    search_box->set_text_utf8("");
 
     if (!canvas_item_editor_viewport) {
         canvas_item_editor_viewport = CanvasItemEditor::get_singleton()->get_viewport_control();

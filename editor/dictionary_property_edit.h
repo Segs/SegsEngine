@@ -40,7 +40,7 @@ class DictionaryPropertyEdit : public RefCounted {
 	StringName property;
 
 	void _notif_change();
-	void _notif_changev(const String &p_v);
+	void _notif_changev(const se_string &p_v);
 	void _set_key(const Variant &p_old_key, const Variant &p_new_key);
 	void _set_value(const Variant &p_key, const Variant &p_value);
 

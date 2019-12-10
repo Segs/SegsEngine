@@ -43,17 +43,16 @@ void GDScriptLanguageProtocol::on_data_received(int p_id) {
     Ref<WebSocketPeer> peer = server->get_peer(p_id);
     PoolByteArray data;
     if (OK == peer->get_packet_buffer(data)) {
-        String message = StringUtils::from_utf8((const char *)data.read().ptr(), data.size());
+        se_string message((const char *)data.read().ptr(), data.size());
         if (StringUtils::begins_with(message,"Content-Length:")) return;
-        String output = process_message(message);
+        se_string output = process_message(message);
         if (!output.empty()) {
-            CharString charstr = StringUtils::utf8(output);
-            peer->put_packet((const uint8_t *)charstr.data(), charstr.length());
+            peer->put_packet((const uint8_t *)output.data(), output.length());
         }
     }
 }
 
-void GDScriptLanguageProtocol::on_client_connected(int p_id, const String &p_protocal) {
+void GDScriptLanguageProtocol::on_client_connected(int p_id, se_string_view p_protocal) {
     clients.set(p_id, server->get_peer(p_id));
 }
 
@@ -61,8 +60,8 @@ void GDScriptLanguageProtocol::on_client_disconnected(int p_id, bool p_was_clean
     clients.erase(p_id);
 }
 
-String GDScriptLanguageProtocol::process_message(const String &p_text) {
-    String ret = process_string(p_text);
+se_string GDScriptLanguageProtocol::process_message(const se_string &p_text) {
+    se_string ret = process_string(p_text);
     if (ret.empty()) {
         return ret;
     } else {
@@ -70,11 +69,10 @@ String GDScriptLanguageProtocol::process_message(const String &p_text) {
     }
 }
 
-String GDScriptLanguageProtocol::format_output(const String &p_text) {
+se_string GDScriptLanguageProtocol::format_output(se_string_view p_text) {
 
-    String header = "Content-Length: ";
-    CharString charstr = StringUtils::utf8(p_text);
-    size_t len = charstr.length();
+    se_string header("Content-Length: ");
+    size_t len = p_text.length();
     header += itos(len);
     header += "\r\n\r\n";
 
@@ -99,8 +97,8 @@ Dictionary GDScriptLanguageProtocol::initialize(const Dictionary &p_params) {
 
     lsp::InitializeResult ret;
 
-    String root_uri = p_params["rootUri"];
-    String root = p_params["rootPath"];
+    se_string root_uri = p_params["rootUri"];
+    se_string root = p_params["rootPath"];
     bool is_same_workspace;
 #ifndef WINDOWS_ENABLED
     is_same_workspace = StringUtils::to_lower(root) == StringUtils::to_lower(workspace->root);
@@ -118,10 +116,9 @@ Dictionary GDScriptLanguageProtocol::initialize(const Dictionary &p_params) {
         params["path"] = workspace->root;
         Dictionary request = make_notification("gdscrip_client/changeWorkspace", params);
         if (Ref<WebSocketPeer> *peer = clients.getptr(lastest_client_id)) {
-            String msg = JSON::print(request);
+            se_string msg = JSON::print(request);
             msg = format_output(msg);
-            CharString charstr = StringUtils::utf8(msg);
-            (*peer)->put_packet((const uint8_t *)charstr.data(), charstr.length());
+            (*peer)->put_packet((const uint8_t *)msg.data(), msg.length());
         }
     }
 
@@ -170,30 +167,30 @@ Error GDScriptLanguageProtocol::start(int p_port) {
 }
 
 void GDScriptLanguageProtocol::stop() {
-	const int *ptr = clients.next(nullptr);
-	while (ptr) {
-		clients.get(*ptr)->close();
-		ptr = clients.next(ptr);
-	}
+    const int *ptr = clients.next(nullptr);
+    while (ptr) {
+        clients.get(*ptr)->close();
+        ptr = clients.next(ptr);
+    }
     server->stop();
-	clients.clear();
+    clients.clear();
 }
 
-void GDScriptLanguageProtocol::notify_all_clients(const String &p_method, const Variant &p_params) {
+void GDScriptLanguageProtocol::notify_all_clients(se_string_view p_method, const Variant &p_params) {
 
     Dictionary message = make_notification(p_method, p_params);
-    String msg = JSON::print(message);
+    se_string msg = JSON::print(message);
     msg = format_output(msg);
-    CharString charstr = StringUtils::utf8(msg);
+
     const int *p_id = clients.next(nullptr);
     while (p_id != nullptr) {
         Ref<WebSocketPeer> peer = clients.get(*p_id);
-        peer->put_packet((const uint8_t *)charstr.data(), charstr.length());
+        peer->put_packet((const uint8_t *)msg.data(), msg.length());
         p_id = clients.next(p_id);
     }
 }
 
-void GDScriptLanguageProtocol::notify_client(const String &p_method, const Variant &p_params, int p_client) {
+void GDScriptLanguageProtocol::notify_client(se_string_view p_method, const Variant &p_params, int p_client) {
 
     if (p_client == -1) {
         p_client = lastest_client_id;
@@ -203,19 +200,18 @@ void GDScriptLanguageProtocol::notify_client(const String &p_method, const Varia
     ERR_FAIL_COND(peer == nullptr)
 
     Dictionary message = make_notification(p_method, p_params);
-    String msg = JSON::print(message);
+    se_string msg = JSON::print(message);
     msg = format_output(msg);
-    CharString charstr = StringUtils::utf8(msg);
 
-    (*peer)->put_packet((const uint8_t *)charstr.data(), charstr.length());
+    (*peer)->put_packet((const uint8_t *)msg.data(), msg.length());
 }
 
 bool GDScriptLanguageProtocol::is_smart_resolve_enabled() const {
-    return bool(_EDITOR_GET("network/language_server/enable_smart_resolve"));
+    return bool(_EDITOR_GET(("network/language_server/enable_smart_resolve")));
 }
 
 bool GDScriptLanguageProtocol::is_goto_native_symbols_enabled() const {
-    return bool(_EDITOR_GET("network/language_server/show_native_symbols_in_editor"));
+    return bool(_EDITOR_GET(("network/language_server/show_native_symbols_in_editor")));
 }
 
 GDScriptLanguageProtocol::GDScriptLanguageProtocol() {
@@ -224,9 +220,9 @@ GDScriptLanguageProtocol::GDScriptLanguageProtocol() {
     _initialized = false;
     workspace = make_ref_counted<GDScriptWorkspace>();
     text_document = make_ref_counted<GDScriptTextDocument>();
-    set_scope("textDocument", text_document.get());
-    set_scope("completionItem", text_document.get());
-    set_scope("workspace", workspace.get());
+    set_scope(("textDocument"), text_document.get());
+    set_scope(("completionItem"), text_document.get());
+    set_scope(("workspace"), workspace.get());
     workspace->root = ProjectSettings::get_singleton()->get_resource_path();
 }
 

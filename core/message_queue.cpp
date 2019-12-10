@@ -34,6 +34,7 @@
 #include "core/print_string.h"
 #include "core/os/mutex.h"
 #include "core/object_db.h"
+#include "core/string_utils.h"
 #include "core/script_language.h"
 
 MessageQueue *MessageQueue::singleton = nullptr;
@@ -50,10 +51,10 @@ Error MessageQueue::push_call(ObjectID p_id, const StringName &p_method, const V
     int room_needed = sizeof(Message) + sizeof(Variant) * p_argcount;
 
     if ((buffer_end + room_needed) >= buffer_size) {
-        String type;
+        se_string type;
         if (ObjectDB::get_instance(p_id))
             type = ObjectDB::get_instance(p_id)->get_class();
-        print_line("Failed method: " + type + ":" + p_method + " target ID: " + itos(p_id));
+        print_line(se_string("Failed method: ") + type + ":" + p_method + " target ID: " + ::to_string(p_id));
         statistics();
         ERR_FAIL_V_MSG(ERR_OUT_OF_MEMORY, "Message queue out of memory. Try increasing 'message_queue_size_kb' in project settings.");
     }
@@ -100,10 +101,10 @@ Error MessageQueue::push_set(ObjectID p_id, const StringName &p_prop, const Vari
     uint8_t room_needed = sizeof(Message) + sizeof(Variant);
 
     if ((buffer_end + room_needed) >= buffer_size) {
-        String type;
+        se_string type;
         if (ObjectDB::get_instance(p_id))
             type = ObjectDB::get_instance(p_id)->get_class();
-        print_line("Failed set: " + type + ":" + p_prop + " target ID: " + itos(p_id));
+        print_line("Failed set: " + type + ":" + p_prop + " target ID: " + ::to_string(p_id));
         statistics();
         ERR_FAIL_V_MSG(ERR_OUT_OF_MEMORY, "Message queue out of memory. Try increasing 'message_queue_size_kb' in project settings.")
     }
@@ -132,7 +133,7 @@ Error MessageQueue::push_notification(ObjectID p_id, int p_notification) {
     uint8_t room_needed = sizeof(Message);
 
     if ((buffer_end + room_needed) >= buffer_size) {
-        String type;
+        se_string type;
         if (ObjectDB::get_instance(p_id))
             type = ObjectDB::get_instance(p_id)->get_class();
         print_line("Failed notification: " + itos(p_notification) + " target ID: " + itos(p_id));
@@ -211,7 +212,7 @@ void MessageQueue::statistics() {
 
         } else {
             //object was deleted
-            print_line(String("Object was deleted while awaiting a callback"));
+            print_line("Object was deleted while awaiting a callback");
 
             null_count++;
         }
@@ -225,11 +226,11 @@ void MessageQueue::statistics() {
     print_line("NULL count: " + itos(null_count));
 
     for (const eastl::pair<const StringName,int> &E : set_count) {
-        print_line("SET " + E.first + ": " + itos(E.second));
+        print_line("SET " + se_string(E.first) + ": " + ::to_string(E.second));
     }
 
     for (const eastl::pair<const StringName,int> &E : call_count) {
-        print_line("CALL " + E.first + ": " + itos(E.second));
+        print_line("CALL " + se_string(E.first) + ": " + ::to_string(E.second));
     }
 
     for (const eastl::pair<const int,int> &E : notify_count) {
@@ -343,7 +344,7 @@ bool MessageQueue::is_flushing() const {
 
 MessageQueue::MessageQueue() {
     __thread__safe__.reset(new Mutex);
-	ERR_FAIL_COND_CMSG(singleton != nullptr, "MessageQueue singleton already exist.")
+    ERR_FAIL_COND_CMSG(singleton != nullptr, "MessageQueue singleton already exist.")
     singleton = this;
     flushing = false;
     StringName prop_name("memory/limits/message_queue/max_size_kb");

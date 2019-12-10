@@ -33,6 +33,7 @@
 #include "core/method_bind.h"
 #include "editor/editor_node.h"
 #include "editor/editor_settings.h"
+#include "core/string_formatter.h"
 #include "main/main.h"
 #include "scene/3d/mesh_instance.h"
 #include "scene/3d/navigation_mesh.h"
@@ -61,7 +62,7 @@ void MeshLibraryEditor::_menu_confirm() {
             mesh_library->remove_item(to_erase);
         } break;
         case MENU_OPTION_UPDATE_FROM_SCENE: {
-            String existing = mesh_library->get_meta("_editor_source_scene");
+            se_string existing = mesh_library->get_meta("_editor_source_scene");
             ERR_FAIL_COND(existing.empty())
             _import_scene_cbk(existing);
 
@@ -200,13 +201,13 @@ void MeshLibraryEditor::_import_scene(Node *p_scene,const Ref<MeshLibrary> &p_li
     }
 }
 
-void MeshLibraryEditor::_import_scene_cbk(const String &p_str) {
+void MeshLibraryEditor::_import_scene_cbk(se_string_view p_str) {
 
-    Ref<PackedScene> ps = dynamic_ref_cast<PackedScene>(ResourceLoader::load(p_str, "PackedScene"));
+    Ref<PackedScene> ps = dynamic_ref_cast<PackedScene>(ResourceLoader::load(p_str, ("PackedScene")));
     ERR_FAIL_COND(not ps)
     Node *scene = ps->instance();
 
-    ERR_FAIL_COND_MSG(!scene, "Cannot create an instance from PackedScene '" + p_str + "'.")
+    ERR_FAIL_COND_MSG(!scene, "Cannot create an instance from PackedScene '" + se_string(p_str) + "'.")
 
     _import_scene(scene, mesh_library, option == MENU_OPTION_UPDATE_FROM_SCENE);
 
@@ -232,11 +233,11 @@ void MeshLibraryEditor::_menu_cbk(int p_option) {
         } break;
         case MENU_OPTION_REMOVE_ITEM: {
 
-            String p = editor->get_inspector()->get_selected_path();
-            if (StringUtils::begins_with(p,"/MeshLibrary/item") && StringUtils::get_slice_count(p,"/") >= 3) {
+            se_string p(editor->get_inspector()->get_selected_path());
+            if (StringUtils::begins_with(p,"/MeshLibrary/item") && StringUtils::get_slice_count(p,'/') >= 3) {
 
-                to_erase = StringUtils::to_int(StringUtils::get_slice(p,"/", 3));
-                cd->set_text(vformat(TTR("Remove item %d?"), to_erase));
+                to_erase = StringUtils::to_int(StringUtils::get_slice(p,'/', 3));
+                cd->set_text(FormatSN(TTR("Remove item %d?").asCString(), to_erase));
                 cd->popup_centered(Size2(300, 60));
             }
         } break;
@@ -246,7 +247,7 @@ void MeshLibraryEditor::_menu_cbk(int p_option) {
         } break;
         case MENU_OPTION_UPDATE_FROM_SCENE: {
 
-            cd->set_text("Update from existing scene?:\n" + String(mesh_library->get_meta("_editor_source_scene")));
+            cd->set_text(StringName("Update from existing scene?:\n" + se_string(mesh_library->get_meta("_editor_source_scene"))));
             cd->popup_centered(Size2(500, 60));
         } break;
     }
@@ -264,11 +265,11 @@ MeshLibraryEditor::MeshLibraryEditor(EditorNode *p_editor) {
     file = memnew(EditorFileDialog);
     file->set_mode(EditorFileDialog::MODE_OPEN_FILE);
     //not for now?
-    ListPOD<String> extensions;
-    ResourceLoader::get_recognized_extensions_for_type("PackedScene", &extensions);
+    PODVector<se_string> extensions;
+    ResourceLoader::get_recognized_extensions_for_type(("PackedScene"), extensions);
     file->clear_filters();
     file->set_title(TTR("Import Scene"));
-    for (const String & ext : extensions) {
+    for (const se_string & ext : extensions) {
         file->add_filter("*." + ext + " ; " + StringUtils::to_upper(ext));
     }
     add_child(file);

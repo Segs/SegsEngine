@@ -39,29 +39,29 @@
 #include "scene/resources/texture.h"
 
 
-String LayeredTextureImpl::get_importer_name() const {
+StringName LayeredTextureImpl::get_importer_name() const {
 
-    return is_3d ? "texture_3d" : "texture_array";
+    return is_3d ? StringName("texture_3d") : StringName("texture_array");
 }
 
-String LayeredTextureImpl::get_visible_name() const {
+StringName LayeredTextureImpl::get_visible_name() const {
 
-    return is_3d ? "Texture3D" : "TextureArray";
+    return is_3d ? StringName("Texture3D") : StringName("TextureArray");
 }
-void LayeredTextureImpl::get_recognized_extensions(Vector<String> *p_extensions) const {
+void LayeredTextureImpl::get_recognized_extensions(PODVector<se_string> &p_extensions) const {
 
     ImageLoader::get_recognized_extensions(p_extensions);
 }
-String LayeredTextureImpl::get_save_extension() const {
-    return is_3d ? "tex3d" : "texarr";
+StringName LayeredTextureImpl::get_save_extension() const {
+    return is_3d ? StringName("tex3d") : StringName("texarr");
 }
 
-String LayeredTextureImpl::get_resource_type() const {
+StringName LayeredTextureImpl::get_resource_type() const {
 
-    return is_3d ? "Texture3D" : "TextureArray";
+    return is_3d ? StringName("Texture3D") : StringName("TextureArray");
 }
 
-bool LayeredTextureImpl::get_option_visibility(const String & /*p_option*/, const Map<StringName, Variant> &/*p_options*/) const {
+bool LayeredTextureImpl::get_option_visibility(const StringName & /*p_option*/, const Map<StringName, Variant> &/*p_options*/) const {
 
     return true;
 }
@@ -69,7 +69,7 @@ bool LayeredTextureImpl::get_option_visibility(const String & /*p_option*/, cons
 int LayeredTextureImpl::get_preset_count() const {
     return 3;
 }
-String LayeredTextureImpl::get_preset_name(int p_idx) const {
+StringName LayeredTextureImpl::get_preset_name(int p_idx) const {
 
     static const char *preset_names[] = {
         "3D",
@@ -77,7 +77,7 @@ String LayeredTextureImpl::get_preset_name(int p_idx) const {
         "ColorCorrect"
     };
 
-    return preset_names[p_idx];
+    return StaticCString(preset_names[p_idx],true);
 }
 
 void LayeredTextureImpl::get_import_options(ListPOD<ResourceImporterInterface::ImportOption> *r_options, int p_preset) const {
@@ -92,7 +92,7 @@ void LayeredTextureImpl::get_import_options(ListPOD<ResourceImporterInterface::I
     r_options->push_back(ImportOption(PropertyInfo(VariantType::INT, "slices/vertical", PROPERTY_HINT_RANGE, "1,256,1"), p_preset == PRESET_COLOR_CORRECT ? 1 : 8));
 }
 
-void LayeredTextureImpl::_save_tex(const Vector<Ref<Image> > &p_images, const String &p_to_path, int p_compress_mode, ImageCompressMode p_vram_compression, bool p_mipmaps, int p_texture_flags) {
+void LayeredTextureImpl::_save_tex(const Vector<Ref<Image> > &p_images, se_string_view p_to_path, int p_compress_mode, ImageCompressMode p_vram_compression, bool p_mipmaps, int p_texture_flags) {
 
     FileAccess *f = FileAccess::open(p_to_path, FileAccess::WRITE);
     f->store_8('G');
@@ -190,8 +190,9 @@ void LayeredTextureImpl::_save_tex(const Vector<Ref<Image> > &p_images, const St
     memdelete(f);
 }
 
-Error LayeredTextureImpl::import(const String &p_source_file, const String &p_save_path, const Map<StringName, Variant> &p_options, List<String> *r_platform_variants, List<String> *r_gen_files, Variant *r_metadata) {
+Error LayeredTextureImpl::import(se_string_view p_source_file, se_string_view _save_path, const Map<StringName, Variant> &p_options, List<se_string> *r_platform_variants, List<se_string> *r_gen_files, Variant *r_metadata) {
 
+    se_string p_save_path(_save_path);
     int compress_mode = p_options.at("compress/mode");
     int no_bptc_if_rgb = p_options.at("compress/no_bptc_if_rgb");
     int repeat = p_options.at("flags/repeat");
@@ -250,7 +251,7 @@ Error LayeredTextureImpl::import(const String &p_source_file, const String &p_sa
         }
     }
 
-    String extension = get_save_extension();
+    StringName extension = get_save_extension();
     Array formats_imported;
 
     if (compress_mode == COMPRESS_VIDEO_RAM) {
@@ -337,16 +338,16 @@ const char *LayeredTextureImpl::compression_formats[] = {
     "pvrtc",
     nullptr
 };
-String LayeredTextureImpl::get_import_settings_string() const {
+se_string LayeredTextureImpl::get_import_settings_string() const {
 
-    String s;
+    se_string s;
 
     int index = 0;
     while (compression_formats[index]) {
-        String setting_path = "rendering/vram_compression/import_" + String(compression_formats[index]);
+        StringName setting_path("rendering/vram_compression/import_" + se_string(compression_formats[index]));
         bool test = ProjectSettings::get_singleton()->get(setting_path).as<bool>();
         if (test) {
-            s += String(compression_formats[index]);
+            s += se_string(compression_formats[index]);
         }
         index++;
     }
@@ -354,7 +355,7 @@ String LayeredTextureImpl::get_import_settings_string() const {
     return s;
 }
 
-bool LayeredTextureImpl::are_import_settings_valid(const String &p_path) const {
+bool LayeredTextureImpl::are_import_settings_valid(se_string_view p_path) const {
 
     //will become invalid if formats are missing to import
     Dictionary metadata = ResourceFormatImporter::get_singleton()->get_resource_metadata(p_path);
@@ -376,7 +377,7 @@ bool LayeredTextureImpl::are_import_settings_valid(const String &p_path) const {
     int index = 0;
     bool valid = true;
     while (compression_formats[index]) {
-        String setting_path = "rendering/vram_compression/import_" + String(compression_formats[index]);
+        StringName setting_path("rendering/vram_compression/import_" + se_string(compression_formats[index]));
         bool test = ProjectSettings::get_singleton()->get(setting_path).as<bool>();
         if (test) {
             if (formats_imported.find(compression_formats[index]) == -1) {

@@ -381,7 +381,7 @@ void TabContainer::_notification(int p_what) {
 
                 // Draw the tab contents.
                 Control *control = object_cast<Control>(tabs[i + first_tab_cache]);
-                String text = control->has_meta("_tab_name") ? String(tr(String(control->get_meta("_tab_name")))) : String(tr(control->get_name()));
+                StringName text = control->has_meta("_tab_name") ? tr(control->get_meta("_tab_name")) : tr(control->get_name());
 
                 int x_content = tab_rect.position.x + tab_style->get_margin(MARGIN_LEFT);
                 int top_margin = tab_style->get_margin(MARGIN_TOP);
@@ -400,7 +400,7 @@ void TabContainer::_notification(int p_what) {
 
                 // Draw the tab text.
                 Point2i text_pos(x_content, y_center - (font->get_height() / 2) + font->get_ascent());
-                font->draw(canvas, text_pos, text, font_color);
+                font->draw_utf8(canvas, text_pos, text, font_color);
 
                 x += tab_width;
                 last_tab_cache = i + first_tab_cache;
@@ -463,8 +463,8 @@ int TabContainer::_get_tab_width(int p_index) const {
 
     // Get the width of the text displayed on the tab.
     Ref<Font> font = get_font("font");
-    String text = control->has_meta("_tab_name") ? String(tr(String(control->get_meta("_tab_name")))) : String(control->get_name());
-    int width = font->get_string_size(text).width;
+    StringName text = control->has_meta("_tab_name") ? tr(control->get_meta("_tab_name")) : control->get_name();
+    int width = font->get_string_size_utf8(text).width;
 
     // Add space for a tab icon.
     if (control->has_meta("_tab_icon")) {
@@ -678,7 +678,7 @@ bool TabContainer::can_drop_data(const Point2 &p_point, const Variant &p_data) c
     if (!d.has("type"))
         return false;
 
-    if (String(d["type"]) == "tabc_element") {
+    if (d["type"] == "tabc_element") {
 
         NodePath from_path = d["from_path"];
         NodePath to_path = get_path();
@@ -707,7 +707,7 @@ void TabContainer::drop_data(const Point2 &p_point, const Variant &p_data) {
     if (!d.has("type"))
         return;
 
-    if (String(d["type"]) == "tabc_element") {
+    if (d["type"] == "tabc_element") {
 
         int tab_from_id = d["tabc_element"];
         NodePath from_path = d["from_path"];
@@ -818,7 +818,7 @@ Control *TabContainer::_get_tab(int p_idx) const {
     return get_tab_control(p_idx);
 }
 
-void TabContainer::set_tab_title(int p_tab, const String &p_title) {
+void TabContainer::set_tab_title(int p_tab, const StringName &p_title) {
 
     Control *child = _get_tab(p_tab);
     ERR_FAIL_COND(!child)
@@ -826,10 +826,10 @@ void TabContainer::set_tab_title(int p_tab, const String &p_title) {
     update();
 }
 
-String TabContainer::get_tab_title(int p_tab) const {
+StringName TabContainer::get_tab_title(int p_tab) const {
 
     Control *child = _get_tab(p_tab);
-    ERR_FAIL_COND_V(!child, "")
+    ERR_FAIL_COND_V(!child, StringName())
     if (child->has_meta("_tab_name"))
         return child->get_meta("_tab_name");
     else
@@ -901,7 +901,7 @@ bool TabContainer::get_tab_hidden(int p_tab) const {
         return false;
 }
 
-void TabContainer::get_translatable_strings(ListPOD<String> *p_strings) const {
+void TabContainer::get_translatable_strings(ListPOD<StringName> *p_strings) const {
 
     Vector<Control *> tabs = _get_tabs();
     for (int i = 0; i < tabs.size(); i++) {
@@ -911,7 +911,7 @@ void TabContainer::get_translatable_strings(ListPOD<String> *p_strings) const {
         if (!c->has_meta("_tab_name"))
             continue;
 
-        String name = c->get_meta("_tab_name");
+        StringName name = c->get_meta("_tab_name");
 
         if (!name.empty())
             p_strings->push_back(name);

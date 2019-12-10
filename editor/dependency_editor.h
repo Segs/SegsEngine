@@ -47,13 +47,13 @@ class DependencyEditor : public AcceptDialog {
 
     EditorFileDialog *search;
 
-    String replacing;
-    String editing;
-    List<String> missing;
+    se_string replacing;
+    se_string editing;
+    ListPOD<se_string> missing;
 
-    void _fix_and_find(EditorFileSystemDirectory *efsd, Map<String, Map<String, String> > &candidates);
+    void _fix_and_find(EditorFileSystemDirectory *efsd, Map<se_string_view, Map<se_string, se_string> > &candidates);
 
-    void _searched(const String &p_path);
+    void _searched(se_string_view p_path);
     void _load_pressed(Object *p_item, int p_cell, int p_button);
     void _fix_all();
     void _update_list();
@@ -64,7 +64,7 @@ protected:
     static void _bind_methods();
 
 public:
-    void edit(const String &p_path);
+    void edit(se_string_view p_path);
     DependencyEditor();
 };
 
@@ -74,7 +74,7 @@ class DependencyEditorOwners : public AcceptDialog {
     ItemList *owners;
     PopupMenu *file_options;
     EditorNode *editor;
-    String editing;
+    se_string editing;
 
     void _fill_owners(EditorFileSystemDirectory *efsd);
 
@@ -89,7 +89,7 @@ private:
     };
 
 public:
-    void show(const String &p_path);
+    void show(se_string_view p_path);
     DependencyEditorOwners(EditorNode *p_editor);
 };
 
@@ -99,15 +99,15 @@ class DependencyRemoveDialog : public ConfirmationDialog {
     Label *text;
     Tree *owners;
 
-    Map<String, String> all_remove_files;
-    Vector<String> dirs_to_delete;
-    Vector<String> files_to_delete;
+    Map<se_string, se_string> all_remove_files;
+    Vector<se_string> dirs_to_delete;
+    Vector<se_string> files_to_delete;
 
     struct RemovedDependency {
-        String file;
-        String file_type;
-        String dependency;
-        String dependency_folder;
+        se_string file;
+        se_string file_type;
+        se_string dependency;
+        se_string dependency_folder;
 
         bool operator<(const RemovedDependency &p_other) const {
             if (dependency_folder.empty() != p_other.dependency_folder.empty()) {
@@ -118,7 +118,7 @@ class DependencyRemoveDialog : public ConfirmationDialog {
         }
     };
 
-    void _find_files_in_removed_folder(EditorFileSystemDirectory *efsd, const String &p_folder);
+    void _find_files_in_removed_folder(EditorFileSystemDirectory *efsd, se_string_view p_folder);
     void _find_all_removed_dependencies(EditorFileSystemDirectory *efsd, Vector<RemovedDependency> &p_removed);
     void _build_removed_dependency_tree(const Vector<RemovedDependency> &p_removed);
 
@@ -127,7 +127,7 @@ class DependencyRemoveDialog : public ConfirmationDialog {
     static void _bind_methods();
 
 public:
-    void show(const Vector<String> &p_folders, const Vector<String> &p_files);
+    void show(const Vector<se_string> &p_folders, const Vector<se_string> &p_files);
     DependencyRemoveDialog();
 };
 
@@ -141,16 +141,16 @@ public:
     };
 
 private:
-    String for_file;
+    se_string for_file;
     Mode mode;
     Button *fdep;
     Label *text;
     Tree *files;
     void ok_pressed() override;
-    void custom_action(const String &) override;
+    void custom_action(se_string_view) override;
 
 public:
-    void show(Mode p_mode, const String &p_for_file, const Vector<String> &report);
+    void show(Mode p_mode, se_string_view p_for_file, const Vector<se_string> &report);
     DependencyErrorDialog();
 };
 
@@ -162,10 +162,10 @@ class OrphanResourcesDialog : public ConfirmationDialog {
     ConfirmationDialog *delete_confirm;
     void ok_pressed() override;
 
-    bool _fill_owners(EditorFileSystemDirectory *efsd, HashMap<String, int> &refs, TreeItem *p_parent);
+    bool _fill_owners(EditorFileSystemDirectory *efsd, HashMap<se_string, int> &refs, TreeItem *p_parent);
 
-    List<String> paths;
-    void _find_to_delete(TreeItem *p_item, List<String> &paths);
+    List<se_string> paths;
+    void _find_to_delete(TreeItem *p_item, List<se_string> &paths);
     void _delete_confirm();
     void _button_pressed(Object *p_item, int p_column, int p_id);
 

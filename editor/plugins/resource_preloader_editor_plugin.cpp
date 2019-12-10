@@ -58,11 +58,11 @@ void ResourcePreloaderEditor::_notification(int p_what) {
     }
 }
 
-void ResourcePreloaderEditor::_files_load_request(const Vector<String> &p_paths) {
+void ResourcePreloaderEditor::_files_load_request(const Vector<se_string> &p_paths) {
 
     for (int i = 0; i < p_paths.size(); i++) {
 
-        String path = p_paths[i];
+        se_string_view path = p_paths[i];
 
         RES resource;
         resource = ResourceLoader::load(path);
@@ -76,15 +76,15 @@ void ResourcePreloaderEditor::_files_load_request(const Vector<String> &p_paths)
             return; ///beh should show an error i guess
         }
 
-        String basename = PathUtils::get_basename(PathUtils::get_file(path));
-        String name = basename;
+        se_string_view basename = PathUtils::get_basename(PathUtils::get_file(path));
+        se_string name(basename);
         int counter = 1;
         while (preloader->has_resource(StringName(name))) {
             counter++;
-            name = basename + " " + itos(counter);
+            name = se_string(basename) + " " + itos(counter);
         }
 
-        undo_redo->create_action(TTR("Add Resource"));
+        undo_redo->create_action_ui(TTR("Add Resource"));
         undo_redo->add_do_method(preloader, "add_resource", name, resource);
         undo_redo->add_undo_method(preloader, "remove_resource", name);
         undo_redo->add_do_method(this, "_update_library");
@@ -98,9 +98,9 @@ void ResourcePreloaderEditor::_load_pressed() {
     loading_scene = false;
 
     file->clear_filters();
-    ListPOD<String> extensions;
-    ResourceLoader::get_recognized_extensions_for_type("", &extensions);
-    for (const String & ext : extensions)
+    PODVector<se_string> extensions;
+    ResourceLoader::get_recognized_extensions_for_type("", extensions);
+    for (const se_string & ext : extensions)
         file->add_filter("*." + ext);
 
     file->set_mode(EditorFileDialog::MODE_OPEN_FILES);
@@ -117,19 +117,19 @@ void ResourcePreloaderEditor::_item_edited() {
 
     if (tree->get_selected_column() == 0) {
         // renamed
-        String old_name = s->get_metadata(0);
-        String new_name = s->get_text(0);
+        StringName old_name = s->get_metadata(0);
+        StringName new_name(s->get_text(0));
         if (old_name == new_name)
             return;
 
-        if (new_name.empty() || StringUtils::find(new_name,"\\") != -1 || StringUtils::find(new_name,"/") != -1 || preloader->has_resource(StringName(new_name))) {
+        if (new_name.empty() || StringUtils::contains(new_name,'\\') || StringUtils::contains(new_name,'/') || preloader->has_resource((new_name))) {
 
             s->set_text(0, old_name);
             return;
         }
 
         RES samp(preloader->get_resource(StringName(old_name)));
-        undo_redo->create_action(TTR("Rename Resource"));
+        undo_redo->create_action_ui(TTR("Rename Resource"));
         undo_redo->add_do_method(preloader, "remove_resource", old_name);
         undo_redo->add_do_method(preloader, "add_resource", new_name, samp);
         undo_redo->add_undo_method(preloader, "remove_resource", new_name);
@@ -140,9 +140,9 @@ void ResourcePreloaderEditor::_item_edited() {
     }
 }
 
-void ResourcePreloaderEditor::_remove_resource(const String &p_to_remove) {
+void ResourcePreloaderEditor::_remove_resource(const StringName &p_to_remove) {
 
-    undo_redo->create_action(TTR("Delete Resource"));
+    undo_redo->create_action_ui(TTR("Delete Resource"));
     undo_redo->add_do_method(preloader, "remove_resource", p_to_remove);
     undo_redo->add_undo_method(preloader, "add_resource", p_to_remove, preloader->get_resource(StringName(p_to_remove)));
     undo_redo->add_do_method(this, "_update_library");
@@ -161,20 +161,20 @@ void ResourcePreloaderEditor::_paste_pressed() {
         return; ///beh should show an error i guess
     }
 
-    String name = r->get_name();
+    se_string name(r->get_name());
     if (name.empty())
         name = PathUtils::get_file(r->get_path());
     if (name.empty())
         name = r->get_class();
 
-    String basename = name;
+    se_string basename = name;
     int counter = 1;
     while (preloader->has_resource(StringName(name))) {
         counter++;
         name = basename + " " + itos(counter);
     }
 
-    undo_redo->create_action(TTR("Paste Resource"));
+    undo_redo->create_action_ui(TTR("Paste Resource"));
     undo_redo->add_do_method(preloader, "add_resource", name, r);
     undo_redo->add_undo_method(preloader, "remove_resource", name);
     undo_redo->add_do_method(this, "_update_library");
@@ -191,28 +191,28 @@ void ResourcePreloaderEditor::_update_library() {
     ListPOD<StringName> rnames;
     preloader->get_resource_list(&rnames);
 
-    PODVector<String> names(rnames.begin(),rnames.end());
+    PODVector<StringName> names(rnames.begin(),rnames.end());
 
     eastl::sort(names.begin(),names.end());
 
-    for (const String &E : names) {
+    for (const StringName &E : names) {
 
         TreeItem *ti = tree->create_item(root);
         ti->set_cell_mode(0, TreeItem::CELL_MODE_STRING);
         ti->set_editable(0, true);
         ti->set_selectable(0, true);
-        ti->set_text(0, E);
+        ti->set_text_utf8(0, E);
         ti->set_metadata(0, E);
 
-        RES r(preloader->get_resource(StringName(E)));
+        RES r(preloader->get_resource(E));
 
         ERR_CONTINUE(not r)
 
-        String type = r->get_class();
-        ti->set_icon(0, EditorNode::get_singleton()->get_class_icon(type, "Object"));
-        ti->set_tooltip(0, TTR("Instance:") + " " + r->get_path() + "\n" + TTR("Type:") + " " + type);
+        StringName type(r->get_class());
+        ti->set_icon(0, EditorNode::get_singleton()->get_class_icon(type));
+        ti->set_tooltip(0, TTR("Instance:") + " " + (r->get_path()) + "\n" + TTR("Type:") + " " + (type));
 
-        ti->set_text(1, r->get_path());
+        ti->set_text_utf8(1, r->get_path());
         ti->set_editable(1, false);
         ti->set_selectable(1, false);
 
@@ -233,7 +233,7 @@ void ResourcePreloaderEditor::_cell_button_pressed(Object *p_item, int p_column,
     ERR_FAIL_COND(!item)
 
     if (p_id == BUTTON_OPEN_SCENE) {
-        String rpath = item->get_text(p_column);
+        se_string rpath(item->get_text(p_column));
         EditorInterface::get_singleton()->open_scene_from_path(rpath);
 
     } else if (p_id == BUTTON_EDIT_RESOURCE) {
@@ -241,7 +241,7 @@ void ResourcePreloaderEditor::_cell_button_pressed(Object *p_item, int p_column,
         EditorInterface::get_singleton()->edit_resource(r);
 
     } else if (p_id == BUTTON_REMOVE) {
-        _remove_resource(item->get_text(0));
+        _remove_resource(StringName(item->get_text(0)));
     }
 }
 
@@ -264,9 +264,9 @@ Variant ResourcePreloaderEditor::get_drag_data_fw(const Point2 &p_point, Control
     if (!ti)
         return Variant();
 
-    String name = ti->get_metadata(0);
+    StringName name(ti->get_metadata(0));
 
-    RES res(preloader->get_resource(StringName(name)));
+    RES res(preloader->get_resource(name));
     if (not res)
         return Variant();
 
@@ -313,7 +313,7 @@ void ResourcePreloaderEditor::drop_data_fw(const Point2 &p_point, const Variant 
 
         if (r) {
 
-            String basename;
+            se_string basename;
             if (!r->get_name().empty()) {
                 basename = r->get_name();
             } else if (PathUtils::is_resource_file(r->get_path())) {
@@ -322,14 +322,14 @@ void ResourcePreloaderEditor::drop_data_fw(const Point2 &p_point, const Variant 
                 basename = "Resource";
             }
 
-            String name = basename;
+            se_string name = basename;
             int counter = 0;
             while (preloader->has_resource(StringName(name))) {
                 counter++;
                 name = basename + "_" + itos(counter);
             }
 
-            undo_redo->create_action(TTR("Add Resource"));
+            undo_redo->create_action_ui(TTR("Add Resource"));
             undo_redo->add_do_method(preloader, "add_resource", name, r);
             undo_redo->add_undo_method(preloader, "remove_resource", name);
             undo_redo->add_do_method(this, "_update_library");
@@ -340,7 +340,7 @@ void ResourcePreloaderEditor::drop_data_fw(const Point2 &p_point, const Variant 
 
     if (String(d["type"]) == "files") {
 
-        Vector<String> files = d["files"];
+        Vector<se_string> files(d["files"].as<Vector<se_string>>());
 
         _files_load_request(files);
     }

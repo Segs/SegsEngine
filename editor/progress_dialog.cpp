@@ -42,14 +42,14 @@
 IMPL_GDCLASS(BackgroundProgress)
 IMPL_GDCLASS(ProgressDialog)
 
-void BackgroundProgress::_add_task(const String &p_task, const String &p_label, int p_steps) {
+void BackgroundProgress::_add_task(const StringName &p_task, const StringName &p_label, int p_steps) {
 
     _THREAD_SAFE_METHOD_
     ERR_FAIL_COND_MSG(tasks.contains(p_task), "Task '" + p_task + "' already exists.")
     BackgroundProgress::Task t;
     t.hb = memnew(HBoxContainer);
     Label *l = memnew(Label);
-    l->set_text(p_label + " ");
+    l->set_text(StringName(se_string(p_label) + " "));
     t.hb->add_child(l);
     t.progress = memnew(ProgressBar);
     t.progress->set_max(p_steps);
@@ -71,7 +71,7 @@ void BackgroundProgress::_update() {
 
     _THREAD_SAFE_METHOD_
 
-    for (eastl::pair<const String,int> &E : updates) {
+    for (eastl::pair<const StringName,int> &E : updates) {
 
         if (tasks.contains(E.first)) {
             _task_step(E.first, E.second);
@@ -81,7 +81,7 @@ void BackgroundProgress::_update() {
     updates.clear();
 }
 
-void BackgroundProgress::_task_step(const String &p_task, int p_step) {
+void BackgroundProgress::_task_step(const StringName &p_task, int p_step) {
 
     _THREAD_SAFE_METHOD_
 
@@ -93,7 +93,7 @@ void BackgroundProgress::_task_step(const String &p_task, int p_step) {
     else
         t.progress->set_value(p_step);
 }
-void BackgroundProgress::_end_task(const String &p_task) {
+void BackgroundProgress::_end_task(const StringName &p_task) {
 
     _THREAD_SAFE_METHOD_
 
@@ -112,11 +112,11 @@ void BackgroundProgress::_bind_methods() {
     MethodBinder::bind_method("_update", &BackgroundProgress::_update);
 }
 
-void BackgroundProgress::add_task(const String &p_task, const String &p_label, int p_steps) {
+void BackgroundProgress::add_task(const StringName &p_task, const StringName &p_label, int p_steps) {
 
     MessageQueue::get_singleton()->push_call(this, "_add_task", p_task, p_label, p_steps);
 }
-void BackgroundProgress::task_step(const String &p_task, int p_step) {
+void BackgroundProgress::task_step(const StringName &p_task, int p_step) {
 
     //this code is weird, but it prevents deadlock.
     bool no_updates = true;
@@ -134,7 +134,7 @@ void BackgroundProgress::task_step(const String &p_task, int p_step) {
     }
 }
 
-void BackgroundProgress::end_task(const String &p_task) {
+void BackgroundProgress::end_task(const StringName &p_task) {
 
     MessageQueue::get_singleton()->push_call(this, "_end_task", p_task);
 }
@@ -181,14 +181,14 @@ void ProgressDialog::_popup() {
     popup_centered(ms);
 }
 
-void ProgressDialog::add_task(const String &p_task, const String &p_label, int p_steps, bool p_can_cancel) {
+void ProgressDialog::add_task(const StringName &p_task, const StringName &p_label, int p_steps, bool p_can_cancel) {
 
     if (MessageQueue::get_singleton()->is_flushing()) {
         ERR_PRINT("Do not use progress dialog (task) while flushing the message queue or using call_deferred()!")
         return;
     }
 
-    ERR_FAIL_COND_MSG(tasks.contains(p_task), "Task '" + p_task + "' already exists.")
+    ERR_FAIL_COND_MSG(tasks.contains(p_task), se_string("Task '") + p_task + "' already exists.")
     ProgressDialog::Task t;
     t.vb = memnew(VBoxContainer);
     VBoxContainer *vb2 = memnew(VBoxContainer);
@@ -216,7 +216,7 @@ void ProgressDialog::add_task(const String &p_task, const String &p_label, int p
     }
 }
 
-bool ProgressDialog::task_step(const String &p_task, const String &p_state, int p_step, bool p_force_redraw) {
+bool ProgressDialog::task_step(const StringName &p_task, const StringName &p_state, int p_step, bool p_force_redraw) {
 
     ERR_FAIL_COND_V(!tasks.contains(p_task), cancelled)
 
@@ -241,8 +241,32 @@ bool ProgressDialog::task_step(const String &p_task, const String &p_state, int 
     Main::iteration(); // this will not work on a lot of platforms, so it's only meant for the editor
     return cancelled;
 }
+bool ProgressDialog::task_step(const StringName &p_task, se_string_view p_state, int p_step, bool p_force_redraw) {
 
-void ProgressDialog::end_task(const String &p_task) {
+    ERR_FAIL_COND_V(!tasks.contains(p_task), cancelled)
+
+    if (!p_force_redraw) {
+        uint64_t tus = OS::get_singleton()->get_ticks_usec();
+        if (tus - last_progress_tick < 200000) //200ms
+            return cancelled;
+    }
+
+    Task &t = tasks[p_task];
+    if (p_step < 0)
+        t.progress->set_value(t.progress->get_value() + 1);
+    else
+        t.progress->set_value(p_step);
+
+    t.state->set_text(StringName(p_state));
+    last_progress_tick = OS::get_singleton()->get_ticks_usec();
+    if (cancel_hb->is_visible()) {
+        OS::get_singleton()->force_process_input();
+    }
+
+    Main::iteration(); // this will not work on a lot of platforms, so it's only meant for the editor
+    return cancelled;
+}
+void ProgressDialog::end_task(const StringName &p_task) {
 
     ERR_FAIL_COND(!tasks.contains(p_task))
     Task &t = tasks[p_task];

@@ -86,7 +86,7 @@ public:
         label->set_position(Point2(80, 90));
         label->set_size(Point2(170, 80));
         label->set_align(Label::ALIGN_FILL);
-        label->set_text("There was once upon a time a beautiful unicorn that loved to play with little girls...");
+        label->set_text(("There was once upon a time a beautiful unicorn that loved to play with little girls..."));
 
         frame->add_child(label);
 
@@ -106,14 +106,14 @@ public:
 
         TreeItem *item = tree->create_item();
         item->set_editable(0, true);
-        item->set_text(0, "root");
+        item->set_text(0, ("root"));
         item = tree->create_item(tree->get_root());
         item->set_cell_mode(0, TreeItem::CELL_MODE_CHECK);
         item->set_editable(0, true);
-        item->set_text(0, "check");
+        item->set_text(0, ("check"));
         item->set_cell_mode(1, TreeItem::CELL_MODE_CHECK);
         item->set_editable(1, true);
-        item->set_text(1, "check2");
+        item->set_text(1, ("check2"));
         item = tree->create_item(tree->get_root());
         item->set_cell_mode(0, TreeItem::CELL_MODE_RANGE);
         item->set_editable(0, true);
@@ -128,12 +128,12 @@ public:
         item = tree->create_item(tree->get_root());
         item->set_cell_mode(0, TreeItem::CELL_MODE_RANGE);
         item->set_editable(0, true);
-        item->set_text(0, "Have,Many,Several,Options!");
+        item->set_text(0, ("Have,Many,Several,Options!"));
         item->set_range(0, 2);
 
         item = tree->create_item(item);
         item->set_editable(0, true);
-        item->set_text(0, "Gershwin!");
+        item->set_text(0, ("Gershwin!"));
 
         frame->add_child(tree);
 
@@ -179,16 +179,16 @@ public:
 
         PopupMenu *popup = menu_button->get_popup();
 
-        popup->add_item("Hello, testing");
-        popup->add_item("My Dearest");
+        popup->add_item(("Hello, testing"));
+        popup->add_item(("My Dearest"));
         popup->add_separator();
-        popup->add_item("Popup");
-        popup->add_check_item("Check Popup");
+        popup->add_item(("Popup"));
+        popup->add_check_item(("Check Popup"));
         popup->set_item_checked(4, true);
         popup->add_separator();
-        popup->add_radio_check_item("Option A");
+        popup->add_radio_check_item(("Option A"));
         popup->set_item_checked(6, true);
-        popup->add_radio_check_item("Option B");
+        popup->add_radio_check_item(("Option B"));
 
         OptionButton *options = memnew(OptionButton);
 
@@ -208,34 +208,34 @@ public:
 
         frame->add_child(richtext);
 
-        richtext->add_text("Hello, My Friends!\n\nWelcome to the amazing world of ");
+        richtext->add_text_utf8("Hello, My Friends!\n\nWelcome to the amazing world of ");
 
         richtext->add_newline();
         richtext->add_newline();
 
         richtext->push_color(Color(1, 0.5, 0.5));
-        richtext->add_text("leprechauns");
+        richtext->add_text_utf8("leprechauns");
         richtext->pop();
 
-        richtext->add_text(" and ");
+        richtext->add_text_utf8(" and ");
         richtext->push_color(Color(0, 1.0, 0.5));
-        richtext->add_text("faeries.\n");
+        richtext->add_text_utf8("faeries.\n");
         richtext->pop();
-        richtext->add_text("In this new episode, we will attempt to ");
+        richtext->add_text_utf8("In this new episode, we will attempt to ");
         richtext->push_font(richtext->get_font("mono_font", "Fonts"));
         richtext->push_color(Color(0.7f, 0.5f, 1.0f));
-        richtext->add_text("deliver something nice");
+        richtext->add_text_utf8("deliver something nice");
         richtext->pop();
         richtext->pop();
-        richtext->add_text(" to all the viewers! Unfortunately, I need to ");
+        richtext->add_text_utf8(" to all the viewers! Unfortunately, I need to ");
         richtext->push_underline();
-        richtext->add_text("keep writing a lot of text");
+        richtext->add_text_utf8("keep writing a lot of text");
         richtext->pop();
-        richtext->add_text(" so the label control overflows and the scrollbar appears.\n");
+        richtext->add_text_utf8(" so the label control overflows and the scrollbar appears.\n");
         richtext->push_meta("http://www.scrollingcapabilities.xz");
-        richtext->add_text("This allows to test for the scrolling capabilities ");
+        richtext->add_text_utf8("This allows to test for the scrolling capabilities ");
         richtext->pop();
-        richtext->add_text("of the rich text label for huge text (not like this text will really be huge but, you know).\nAs long as it is so long that it will work nicely for a test/demo, then it's welcomed in my book...\nChanging subject, the day is cloudy today and I'm wondering if I'll get che chance to travel somewhere nice. Sometimes, watching the clouds from satellite images may give a nice insight about how pressure zones in our planet work, although it also makes it pretty obvious to see why most weather forecasts get it wrong so often.\nClouds are so difficult to predict!\nBut it's pretty cool how our civilization has adapted to having water falling from the sky each time it rains...");
+        richtext->add_text_utf8("of the rich text label for huge text (not like this text will really be huge but, you know).\nAs long as it is so long that it will work nicely for a test/demo, then it's welcomed in my book...\nChanging subject, the day is cloudy today and I'm wondering if I'll get che chance to travel somewhere nice. Sometimes, watching the clouds from satellite images may give a nice insight about how pressure zones in our planet work, although it also makes it pretty obvious to see why most weather forecasts get it wrong so often.\nClouds are so difficult to predict!\nBut it's pretty cool how our civilization has adapted to having water falling from the sky each time it rains...");
 
         TabContainer *tabc = memnew(TabContainer);
 
@@ -247,14 +247,14 @@ public:
         ctl->set_name("tab 2");
         tabc->add_child(ctl);
         label = memnew(Label);
-        label->set_text("Some Label");
+        label->set_text(("Some Label"));
         label->set_position(Point2(20, 20));
         ctl->add_child(label);
 
         ctl = memnew(Control);
         ctl->set_name("tab 3");
         button = memnew(Button);
-        button->set_text("Some Button");
+        button->set_text(("Some Button"));
         button->set_position(Point2(30, 50));
         ctl->add_child(button);
 

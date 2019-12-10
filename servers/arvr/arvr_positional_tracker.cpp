@@ -78,14 +78,14 @@ void ARVRPositionalTracker::set_type(ARVRServer::TrackerType p_type) {
         // get a tracker id for our type
         // note if this is a controller this will be 3 or higher but we may change it later.
         tracker_id = arvr_server->get_free_tracker_id_for_type(p_type);
-    };
+    }
 };
 
 ARVRServer::TrackerType ARVRPositionalTracker::get_type() const {
     return type;
 };
 
-void ARVRPositionalTracker::set_name(const String &p_name) {
+void ARVRPositionalTracker::set_name(const StringName &p_name) {
     name = p_name;
 };
 

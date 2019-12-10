@@ -5040,7 +5040,8 @@ void RasterizerSceneGLES3::initialize() {
         //default material and shader
 
         default_overdraw_shader = storage->shader_create();
-        storage->shader_set_code(default_overdraw_shader, "shader_type spatial;\nrender_mode blend_add,unshaded;\n void fragment() { ALBEDO=vec3(0.4,0.8,0.8); ALPHA=0.2; }");
+        storage->shader_set_code(default_overdraw_shader, "shader_type spatial;\nrender_mode blend_add,unshaded;\n void "
+                                                                 "fragment() { ALBEDO=vec3(0.4,0.8,0.8); ALPHA=0.2; }");
         default_overdraw_material = storage->material_create();
         storage->material_set_shader(default_overdraw_material, default_overdraw_shader);
     }
@@ -5177,8 +5178,8 @@ void RasterizerSceneGLES3::initialize() {
 
         state.max_forward_lights_per_object = 8;
 
-        state.scene_shader.add_custom_define("#define MAX_LIGHT_DATA_STRUCTS " + itos(state.max_ubo_lights) + "\n");
-        state.scene_shader.add_custom_define("#define MAX_FORWARD_LIGHTS " + itos(state.max_forward_lights_per_object) + "\n");
+        state.scene_shader.add_custom_define("#define MAX_LIGHT_DATA_STRUCTS " + ::to_string(state.max_ubo_lights) + "\n");
+        state.scene_shader.add_custom_define("#define MAX_FORWARD_LIGHTS " + ::to_string(state.max_forward_lights_per_object) + "\n");
 
         state.max_ubo_reflections = MIN(render_list.max_reflections, max_ubo_size / (int)sizeof(ReflectionProbeDataUBO));
 
@@ -5189,10 +5190,10 @@ void RasterizerSceneGLES3::initialize() {
         glBufferData(GL_UNIFORM_BUFFER, sizeof(ReflectionProbeDataUBO) * state.max_ubo_reflections, nullptr, GL_DYNAMIC_DRAW);
         glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
-        state.scene_shader.add_custom_define("#define MAX_REFLECTION_DATA_STRUCTS " + itos(state.max_ubo_reflections) + "\n");
+        state.scene_shader.add_custom_define("#define MAX_REFLECTION_DATA_STRUCTS " + to_string(state.max_ubo_reflections) + "\n");
 
         state.max_skeleton_bones = MIN(2048, max_ubo_size / (12 * sizeof(float)));
-        state.scene_shader.add_custom_define("#define MAX_SKELETON_BONES " + itos(state.max_skeleton_bones) + "\n");
+        state.scene_shader.add_custom_define("#define MAX_SKELETON_BONES " + to_string(state.max_skeleton_bones) + "\n");
     }
 
     shadow_filter_mode = SHADOW_FILTER_NEAREST;

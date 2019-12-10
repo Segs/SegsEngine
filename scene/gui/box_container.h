@@ -80,7 +80,7 @@ class VBoxContainer : public BoxContainer {
 	GDCLASS(VBoxContainer,BoxContainer)
 
 public:
-	MarginContainer *add_margin_child(const String &p_label, Control *p_control, bool p_expand = false);
+	MarginContainer *add_margin_child(const StringName &p_label, Control *p_control, bool p_expand = false);
 
 	VBoxContainer() :
 			BoxContainer(true) {}

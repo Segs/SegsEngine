@@ -36,117 +36,117 @@ class AudioStreamSample;
 
 class AudioStreamPlaybackSample : public AudioStreamPlayback {
 
-	GDCLASS(AudioStreamPlaybackSample,AudioStreamPlayback)
+    GDCLASS(AudioStreamPlaybackSample,AudioStreamPlayback)
 
     enum {
-		MIX_FRAC_BITS = 13,
-		MIX_FRAC_LEN = (1 << MIX_FRAC_BITS),
-		MIX_FRAC_MASK = MIX_FRAC_LEN - 1,
-	};
+        MIX_FRAC_BITS = 13,
+        MIX_FRAC_LEN = (1 << MIX_FRAC_BITS),
+        MIX_FRAC_MASK = MIX_FRAC_LEN - 1,
+    };
 
-	struct IMA_ADPCM_State {
+    struct IMA_ADPCM_State {
 
-		int16_t step_index;
-		int32_t predictor;
-		/* values at loop point */
-		int16_t loop_step_index;
-		int32_t loop_predictor;
-		int32_t last_nibble;
-		int32_t loop_pos;
-		int32_t window_ofs;
-	} ima_adpcm[2];
+        int16_t step_index;
+        int32_t predictor;
+        /* values at loop point */
+        int16_t loop_step_index;
+        int32_t loop_predictor;
+        int32_t last_nibble;
+        int32_t loop_pos;
+        int32_t window_ofs;
+    } ima_adpcm[2];
 
-	int64_t offset;
-	int sign;
-	bool active;
-	friend class AudioStreamSample;
-	Ref<AudioStreamSample> base;
+    int64_t offset;
+    int sign;
+    bool active;
+    friend class AudioStreamSample;
+    Ref<AudioStreamSample> base;
 
-	template <class Depth, bool is_stereo, bool is_ima_adpcm>
-	void do_resample(const Depth *p_src, AudioFrame *p_dst, int64_t &offset, int32_t &increment, uint32_t amount, IMA_ADPCM_State *ima_adpcm);
+    template <class Depth, bool is_stereo, bool is_ima_adpcm>
+    void do_resample(const Depth *p_src, AudioFrame *p_dst, int64_t &offset, int32_t &increment, uint32_t amount, IMA_ADPCM_State *ima_adpcm);
 
 public:
-	void start(float p_from_pos = 0.0) override;
-	void stop() override;
-	bool is_playing() const override;
+    void start(float p_from_pos = 0.0) override;
+    void stop() override;
+    bool is_playing() const override;
 
-	int get_loop_count() const override; //times it looped
+    int get_loop_count() const override; //times it looped
 
-	float get_playback_position() const override;
-	void seek(float p_time) override;
+    float get_playback_position() const override;
+    void seek(float p_time) override;
 
-	void mix(AudioFrame *p_buffer, float p_rate_scale, int p_frames) override;
+    void mix(AudioFrame *p_buffer, float p_rate_scale, int p_frames) override;
 
-	AudioStreamPlaybackSample();
+    AudioStreamPlaybackSample();
 };
 
 class AudioStreamSample : public AudioStream {
-	GDCLASS(AudioStreamSample,AudioStream)
+    GDCLASS(AudioStreamSample,AudioStream)
 
     RES_BASE_EXTENSION("sample")
 
 public:
-	enum Format {
-		FORMAT_8_BITS,
-		FORMAT_16_BITS,
-		FORMAT_IMA_ADPCM
-	};
+    enum Format {
+        FORMAT_8_BITS,
+        FORMAT_16_BITS,
+        FORMAT_IMA_ADPCM
+    };
 
-	enum LoopMode {
-		LOOP_DISABLED,
-		LOOP_FORWARD,
-		LOOP_PING_PONG,
-		LOOP_BACKWARD
-	};
+    enum LoopMode {
+        LOOP_DISABLED,
+        LOOP_FORWARD,
+        LOOP_PING_PONG,
+        LOOP_BACKWARD
+    };
 
 private:
-	friend class AudioStreamPlaybackSample;
+    friend class AudioStreamPlaybackSample;
 
-	enum {
-		DATA_PAD = 16 //padding for interpolation
-	};
+    enum {
+        DATA_PAD = 16 //padding for interpolation
+    };
 
-	Format format;
-	LoopMode loop_mode;
-	bool stereo;
-	int loop_begin;
-	int loop_end;
-	int mix_rate;
-	void *data;
-	uint32_t data_bytes;
+    Format format;
+    LoopMode loop_mode;
+    bool stereo;
+    int loop_begin;
+    int loop_end;
+    int mix_rate;
+    void *data;
+    uint32_t data_bytes;
 
 protected:
-	static void _bind_methods();
+    static void _bind_methods();
 
 public:
-	void set_format(Format p_format);
-	Format get_format() const;
+    void set_format(Format p_format);
+    Format get_format() const;
 
-	void set_loop_mode(LoopMode p_loop_mode);
-	LoopMode get_loop_mode() const;
+    void set_loop_mode(LoopMode p_loop_mode);
+    LoopMode get_loop_mode() const;
 
-	void set_loop_begin(int p_frame);
-	int get_loop_begin() const;
+    void set_loop_begin(int p_frame);
+    int get_loop_begin() const;
 
-	void set_loop_end(int p_frame);
-	int get_loop_end() const;
+    void set_loop_end(int p_frame);
+    int get_loop_end() const;
 
-	void set_mix_rate(int p_hz);
-	int get_mix_rate() const;
+    void set_mix_rate(int p_hz);
+    int get_mix_rate() const;
 
-	void set_stereo(bool p_enable);
-	bool is_stereo() const;
+    void set_stereo(bool p_enable);
+    bool is_stereo() const;
 
-	float get_length() const override; //if supported, otherwise return 0
+    float get_length() const override; //if supported, otherwise return 0
 
-	void set_data(const PoolVector<uint8_t> &p_data);
-	PoolVector<uint8_t> get_data() const;
+    void set_data(const PoolVector<uint8_t> &p_data);
+    PoolVector<uint8_t> get_data() const;
 
-	Error save_to_wav(const String &p_path);
+    Error save_to_wav(se_string_view p_path);
 
-	Ref<AudioStreamPlayback> instance_playback() override;
-	String get_stream_name() const override;
+    Ref<AudioStreamPlayback> instance_playback() override;
+    se_string get_stream_name() const override;
 
-	AudioStreamSample();
-	~AudioStreamSample() override;
+    AudioStreamSample();
+    ~AudioStreamSample() override;
 };

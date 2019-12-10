@@ -38,16 +38,16 @@ IMPL_GDCLASS(MultiNodeEdit)
 
 bool MultiNodeEdit::_set(const StringName &p_name, const Variant &p_value) {
 
-    return _set_impl(p_name, p_value, String::null_val);
+    return _set_impl(p_name, p_value, se_string_view());
 }
 
-bool MultiNodeEdit::_set_impl(const StringName &p_name, const Variant &p_value, const String &p_field) {
+bool MultiNodeEdit::_set_impl(const StringName &p_name, const Variant &p_value, se_string_view p_field) {
 
     Node *es = EditorNode::get_singleton()->get_edited_scene();
     if (!es)
         return false;
 
-    String name = p_name;
+    StringName name = p_name;
 
     if (name == "scripts") { // script set is intercepted at object level (check Variant Object::get() ) ,so use a different name
         name = "script";
@@ -55,7 +55,7 @@ bool MultiNodeEdit::_set_impl(const StringName &p_name, const Variant &p_value, 
 
     UndoRedo *ur = EditorNode::get_undo_redo();
 
-    ur->create_action(TTR("MultiNode Set") + " " + String(name), UndoRedo::MERGE_ENDS);
+    ur->create_action_ui(TTR("MultiNode Set") + " " + name, UndoRedo::MERGE_ENDS);
     for (const List<NodePath>::Element *E = nodes.front(); E; E = E->next()) {
 
         if (!es->has_node(E->deref()))
@@ -96,7 +96,7 @@ bool MultiNodeEdit::_get(const StringName &p_name, Variant &r_ret) const {
     if (!es)
         return false;
 
-    String name = p_name;
+    StringName name = p_name;
     if (name == "scripts") { // script set is intercepted at object level (check Variant Object::get() ) ,so use a different name
         name = "script";
     }
@@ -121,7 +121,7 @@ bool MultiNodeEdit::_get(const StringName &p_name, Variant &r_ret) const {
 
 void MultiNodeEdit::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
 
-    HashMap<String, PLData> usage;
+    HashMap<StringName, PLData> usage;
 
     Node *es = EditorNode::get_singleton()->get_edited_scene();
     if (!es)
@@ -183,7 +183,7 @@ void MultiNodeEdit::add_node(const NodePath &p_node) {
     nodes.push_back(p_node);
 }
 
-void MultiNodeEdit::set_property_field(const StringName &p_property, const Variant &p_value, const String &p_field) {
+void MultiNodeEdit::set_property_field(const StringName &p_property, const Variant &p_value, se_string_view p_field) {
 
     _set_impl(p_property, p_value, p_field);
 }

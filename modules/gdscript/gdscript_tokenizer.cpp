@@ -35,6 +35,9 @@
 #include "core/hash_map.h"
 #include "core/variant.h"
 #include "core/print_string.h"
+#include "core/se_string.h"
+#include "core/string_utils.h"
+
 #include "gdscript_functions.h"
 
 const char *GDScriptTokenizer::token_names[TK_MAX] = {
@@ -362,22 +365,22 @@ StringName GDScriptTokenizer::get_token_literal(int p_offset) const {
     ERR_FAIL_V_MSG("", "Failed to get token literal.")
 }
 
-static bool _is_text_char(CharType c) {
+static bool _is_text_char(char c) {
 
     return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '_';
 }
 
-static bool _is_number(CharType c) {
+static bool _is_number(char c) {
 
     return (c >= '0' && c <= '9');
 }
 
-static bool _is_hex(CharType c) {
+static bool _is_hex(char c) {
 
     return (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F');
 }
 
-static bool _is_bin(CharType c) {
+static bool _is_bin(char c) {
 
     return (c == '0' || c == '1');
 }
@@ -439,14 +442,26 @@ void GDScriptTokenizerText::_make_type(const VariantType &p_type) {
     tk_rb_pos = (tk_rb_pos + 1) % TK_RB_SIZE;
 }
 
-void GDScriptTokenizerText::_make_error(const String &p_error) {
+//void GDScriptTokenizerText::_make_error(const se_string &p_error) {
+
+//    error_flag = true;
+//    last_error = p_error;
+
+//    TokenData &tk = tk_rb[tk_rb_pos];
+//    tk.type = TK_ERROR;
+//    tk.constant = p_error;
+//    tk.line = line;
+//    tk.col = column;
+//    tk_rb_pos = (tk_rb_pos + 1) % TK_RB_SIZE;
+//}
+void GDScriptTokenizerText::_make_error(se_string_view p_error) {
 
     error_flag = true;
-    last_error = p_error;
+    last_error = p_error.data();
 
     TokenData &tk = tk_rb[tk_rb_pos];
     tk.type = TK_ERROR;
-    tk.constant = p_error;
+    tk.constant = p_error.data();
     tk.line = line;
     tk.col = column;
     tk_rb_pos = (tk_rb_pos + 1) % TK_RB_SIZE;
@@ -474,7 +489,7 @@ void GDScriptTokenizerText::_advance() {
         _make_token(TK_EOF);
         return;
     }
-#define GETCHAR(m_ofs) ((m_ofs + code_pos) >= len ? QChar(0) : _code[m_ofs + code_pos])
+#define GETCHAR(m_ofs) ((m_ofs + code_pos) >= len ? char(0) : _code[m_ofs + code_pos])
 #define INCPOS(m_amount)      \
     {                         \
         code_pos += m_amount; \
@@ -485,7 +500,7 @@ void GDScriptTokenizerText::_advance() {
         bool is_node_path = false;
         StringMode string_mode = STRING_DOUBLE_QUOTE;
 
-        switch (GETCHAR(0).unicode()) {
+        switch (GETCHAR(0)) {
             case 0:
                 _make_token(TK_EOF);
                 break;
@@ -542,28 +557,28 @@ void GDScriptTokenizerText::_advance() {
             }
             case '#': { // line comment skip
 #ifdef DEBUG_ENABLED
-                String comment;
+                se_string comment;
 #endif // DEBUG_ENABLED
                 while (GETCHAR(0) != '\n') {
 #ifdef DEBUG_ENABLED
                     comment += GETCHAR(0);
 #endif // DEBUG_ENABLED
                     code_pos++;
-                    if (GETCHAR(0) == nullptr) { //end of file
+                    if (GETCHAR(0) == 0) { //end of file
                         //_make_error("Unterminated Comment");
                         _make_token(TK_EOF);
                         return;
                     }
                 }
 #ifdef DEBUG_ENABLED
-                String comment_content = StringUtils::trim_prefix(StringUtils::trim_prefix(comment,"#")," ");
+                se_string_view comment_content = StringUtils::trim_prefix(StringUtils::trim_prefix(comment,"#")," ");
                 if (StringUtils::begins_with(comment_content,"warning-ignore:")) {
-                    String code = StringUtils::get_slice(comment_content,":", 1);
-                    warning_skips.push_back(Pair<int, String>(line, StringUtils::to_lower(StringUtils::strip_edges(code))));
+                    se_string_view code = StringUtils::get_slice(comment_content,':', 1);
+                    warning_skips.push_back(Pair<int, se_string>(line, StringUtils::to_lower(StringUtils::strip_edges(code))));
                 } else if (StringUtils::begins_with(comment_content,"warning-ignore-all:")) {
-                    String code = StringUtils::get_slice(comment_content,":", 1);
+                    se_string_view code = StringUtils::get_slice(comment_content,':', 1);
                     warning_global_skips.insert(StringUtils::to_lower(StringUtils::strip_edges(code)));
-                } else if (StringUtils::strip_edges(comment_content) == "warnings-disable") {
+                } else if (StringUtils::strip_edges(comment_content) == se_string_view("warnings-disable")) {
                     ignore_warnings = true;
                 }
 #endif // DEBUG_ENABLED
@@ -593,10 +608,10 @@ void GDScriptTokenizerText::_advance() {
                 _make_newline(i);
                 return;
 
-            } break;
+            }
             case '/': {
 
-                switch (GETCHAR(1).unicode()) {
+                switch (GETCHAR(1)) {
                     case '=': { // diveq
 
                         _make_token(TK_OP_ASSIGN_DIV);
@@ -777,7 +792,7 @@ void GDScriptTokenizerText::_advance() {
                 }
             } break;
             case '@':
-                if (CharType(GETCHAR(1)) != '"' && CharType(GETCHAR(1)) != '\'') {
+                if (char(GETCHAR(1)) != '"' && char(GETCHAR(1)) != '\'') {
                     _make_error("Unexpected '@'");
                     return;
                 }
@@ -796,37 +811,37 @@ void GDScriptTokenizerText::_advance() {
                     string_mode = STRING_MULTILINE;
                 }
 
-                String str;
+                se_string str;
                 while (true) {
-                    if (CharType(GETCHAR(i)) == nullptr) {
+                    if (GETCHAR(i) == 0) {
 
                         _make_error("Unterminated String");
                         return;
-                    } else if (string_mode == STRING_DOUBLE_QUOTE && CharType(GETCHAR(i)) == '"') {
+                    } else if (string_mode == STRING_DOUBLE_QUOTE && char(GETCHAR(i)) == '"') {
                         break;
-                    } else if (string_mode == STRING_SINGLE_QUOTE && CharType(GETCHAR(i)) == '\'') {
+                    } else if (string_mode == STRING_SINGLE_QUOTE && char(GETCHAR(i)) == '\'') {
                         break;
-                    } else if (string_mode == STRING_MULTILINE && CharType(GETCHAR(i)) == '\"' && CharType(GETCHAR(i + 1)) == '\"' && CharType(GETCHAR(i + 2)) == '\"') {
+                    } else if (string_mode == STRING_MULTILINE && char(GETCHAR(i)) == '\"' && char(GETCHAR(i + 1)) == '\"' && char(GETCHAR(i + 2)) == '\"') {
                         i += 2;
                         break;
-                    } else if (string_mode != STRING_MULTILINE && CharType(GETCHAR(i)) == '\n') {
+                    } else if (string_mode != STRING_MULTILINE && char(GETCHAR(i)) == '\n') {
                         _make_error("Unexpected EOL at String.");
                         return;
-                    } else if (CharType(GETCHAR(i)) == 0xFFFF) {
+                    } else if (GETCHAR(i) == c_cursor_marker) {
                         //string ends here, next will be TK
                         i--;
                         break;
-                    } else if (CharType(GETCHAR(i)) == '\\') {
+                    } else if (GETCHAR(i) == '\\') {
                         //escaped characters...
                         i++;
-                        CharType next = GETCHAR(i);
-                        if (next == nullptr) {
+                        char next = GETCHAR(i);
+                        if (next == 0) {
                             _make_error("Unterminated String");
                             return;
                         }
-                        CharType res = 0;
+                        char res = 0;
 
-                        switch (next.unicode()) {
+                        switch (next) {
 
                             case 'a': res = 7; break;
                             case 'b': res = 8; break;
@@ -847,8 +862,8 @@ void GDScriptTokenizerText::_advance() {
                                 i += 1;
                                 uint16_t accval=0;
                                 for (int j = 0; j < 4; j++) {
-                                    CharType c = GETCHAR(i + j);
-                                    if (c == nullptr) {
+                                    char c = GETCHAR(i + j);
+                                    if (c == 0) {
                                         _make_error("Unterminated String");
                                         return;
                                     }
@@ -859,12 +874,12 @@ void GDScriptTokenizerText::_advance() {
                                     }
                                     uint16_t v;
                                     if (c >= '0' && c <= '9') {
-                                        v = c.digitValue();
+                                        v = c-'0';
                                     } else if (c >= 'a' && c <= 'f') {
-                                        v = c.toLatin1() - 'a';
+                                        v = c - 'a';
                                         v += 10;
                                     } else if (c >= 'A' && c <= 'F') {
-                                        v = c.toLatin1() - 'A';
+                                        v = c - 'A';
                                         v += 10;
                                     } else {
                                         ERR_PRINT("BUG");
@@ -874,7 +889,7 @@ void GDScriptTokenizerText::_advance() {
                                     accval <<= 4;
                                     accval |= v;
                                 }
-                                res = QChar(accval);
+                                res = accval;
                                 i += 3;
 
                             } break;
@@ -888,12 +903,12 @@ void GDScriptTokenizerText::_advance() {
                         str += res;
 
                     } else {
-                        if (CharType(GETCHAR(i)) == '\n') {
+                        if (GETCHAR(i) == '\n') {
                             line++;
                             column = 1;
                         }
 
-                        str += CharType(GETCHAR(i));
+                        str += GETCHAR(i);
                     }
                     i++;
                 }
@@ -906,7 +921,7 @@ void GDScriptTokenizerText::_advance() {
                 }
 
             } break;
-            case 0xFFFF: {
+            case c_cursor_marker: {
                 _make_token(TK_CURSOR);
             } break;
             default: {
@@ -919,7 +934,7 @@ void GDScriptTokenizerText::_advance() {
                     bool bin_found = false;
                     bool sign_found = false;
 
-                    String str;
+                    se_string str;
                     int i = 0;
 
                     while (true) {
@@ -971,7 +986,7 @@ void GDScriptTokenizerText::_advance() {
                         } else
                             break;
 
-                        str += CharType(GETCHAR(i));
+                        str += GETCHAR(i);
                         i++;
                     }
 
@@ -1006,12 +1021,12 @@ void GDScriptTokenizerText::_advance() {
 
                 if (_is_text_char(GETCHAR(0))) {
                     // parse identifier
-                    String str;
-                    str += CharType(GETCHAR(0));
+                    se_string str;
+                    str += GETCHAR(0);
 
                     int i = 1;
                     while (_is_text_char(GETCHAR(i))) {
-                        str += CharType(GETCHAR(i));
+                        str += GETCHAR(i);
                         i++;
                     }
 
@@ -1090,7 +1105,7 @@ void GDScriptTokenizerText::_advance() {
                 _make_error("Unknown character");
                 return;
 
-            } break;
+            }
         }
 
         INCPOS(1);
@@ -1098,12 +1113,12 @@ void GDScriptTokenizerText::_advance() {
     }
 }
 
-void GDScriptTokenizerText::set_code(const String &p_code) {
+void GDScriptTokenizerText::set_code(se_string_view p_code) {
 
     code = p_code;
     len = p_code.length();
     if (len) {
-        _code = code.cdata();
+        _code = code.c_str();
     } else {
         _code = nullptr;
     }
@@ -1194,13 +1209,13 @@ int GDScriptTokenizerText::get_token_line_indent(int p_offset) const {
     return tk_rb[ofs].constant;
 }
 
-String GDScriptTokenizerText::get_token_error(int p_offset) const {
+se_string GDScriptTokenizerText::get_token_error(int p_offset) const {
 
-    ERR_FAIL_COND_V(p_offset <= -MAX_LOOKAHEAD, String())
-    ERR_FAIL_COND_V(p_offset >= MAX_LOOKAHEAD, String())
+    ERR_FAIL_COND_V(p_offset <= -MAX_LOOKAHEAD, se_string())
+    ERR_FAIL_COND_V(p_offset >= MAX_LOOKAHEAD, se_string())
 
     int ofs = (TK_RB_SIZE + tk_rb_pos + p_offset - MAX_LOOKAHEAD - 1) % TK_RB_SIZE;
-    ERR_FAIL_COND_V(tk_rb[ofs].type != TK_ERROR, String())
+    ERR_FAIL_COND_V(tk_rb[ofs].type != TK_ERROR, se_string())
     return tk_rb[ofs].constant;
 }
 
@@ -1245,7 +1260,7 @@ Error GDScriptTokenizerBuffer::set_code_buffer(const Vector<uint8_t> &p_buffer) 
         }
 
         cs.write[cs.size() - 1] = 0;
-        String s = StringUtils::from_utf8((const char *)cs.ptr());
+        se_string s((const char *)cs.ptr());
         b += len;
         total_len -= len + 4;
         identifiers.write[i] = StringName(s);
@@ -1301,7 +1316,7 @@ Error GDScriptTokenizerBuffer::set_code_buffer(const Vector<uint8_t> &p_buffer) 
     return OK;
 }
 
-Vector<uint8_t> GDScriptTokenizerBuffer::parse_code_string(const String &p_code) {
+Vector<uint8_t> GDScriptTokenizerBuffer::parse_code_string(se_string_view p_code) {
 
     Vector<uint8_t> buf;
 
@@ -1404,7 +1419,7 @@ Vector<uint8_t> GDScriptTokenizerBuffer::parse_code_string(const String &p_code)
 
     for (eastl::pair<const int,StringName> &E : rev_identifier_map) {
 
-        CharString cs = StringUtils::to_utf8(E.second);
+        se_string_view cs(E.second);
         int len = cs.length() + 1;
         int extra = 4 - (len % 4);
         if (extra == 4)
@@ -1536,9 +1551,9 @@ const Variant &GDScriptTokenizerBuffer::get_token_constant(int p_offset) const {
     ERR_FAIL_UNSIGNED_INDEX_V(constant, (uint32_t)constants.size(), nil);
     return constants[constant];
 }
-String GDScriptTokenizerBuffer::get_token_error(int p_offset) const {
+se_string GDScriptTokenizerBuffer::get_token_error(int p_offset) const {
 
-    ERR_FAIL_V(String());
+    ERR_FAIL_V(se_string());
 }
 
 void GDScriptTokenizerBuffer::advance(int p_amount) {

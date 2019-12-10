@@ -167,7 +167,7 @@ bool CollisionPolygon::is_disabled() const {
     return disabled;
 }
 
-String CollisionPolygon::get_configuration_warning() const {
+StringName CollisionPolygon::get_configuration_warning() const {
 
     if (!object_cast<CollisionObject>(get_parent())) {
         return TTR("CollisionPolygon only serves to provide a collision shape to a CollisionObject derived node. Please only use it as a child of Area, StaticBody, RigidBody, KinematicBody, etc. to give them a shape.");
@@ -177,7 +177,7 @@ String CollisionPolygon::get_configuration_warning() const {
         return TTR("An empty CollisionPolygon has no effect on collision.");
     }
 
-    return String();
+    return StringName();
 }
 
 bool CollisionPolygon::_is_editable_3d_polygon() const {

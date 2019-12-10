@@ -341,11 +341,11 @@ float VideoPlayer::get_volume_db() const {
         return Math::linear2db(volume);
 };
 
-String VideoPlayer::get_stream_name() const {
+StringName VideoPlayer::get_stream_name() const {
 
     if (not stream)
-        return "<No Stream>";
-    return stream->get_name();
+        return StringName("<No Stream>");
+    return StringName(stream->get_name());
 };
 
 float VideoPlayer::get_stream_position() const {
@@ -401,11 +401,11 @@ void VideoPlayer::_validate_property(PropertyInfo &property) const {
 
     if (property.name == "bus") {
 
-        String options;
+        se_string options;
         for (int i = 0; i < AudioServer::get_singleton()->get_bus_count(); i++) {
             if (i > 0)
-                options += ",";
-            String name = AudioServer::get_singleton()->get_bus_name(i);
+                options += ',';
+            StringName name = AudioServer::get_singleton()->get_bus_name(i);
             options += name;
         }
 

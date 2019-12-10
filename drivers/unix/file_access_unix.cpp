@@ -58,7 +58,7 @@
 
 void FileAccessUnix::check_errors() const {
 
-	ERR_FAIL_COND_CMSG(!f, "File must be opened before use.")
+    ERR_FAIL_COND_CMSG(!f, "File must be opened before use.")
 
     if (feof(f)) {
 
@@ -66,7 +66,7 @@ void FileAccessUnix::check_errors() const {
     }
 }
 
-Error FileAccessUnix::_open(const String &p_path, int p_mode_flags) {
+Error FileAccessUnix::_open(se_string_view p_path, int p_mode_flags) {
 
     if (f)
         fclose(f);
@@ -76,7 +76,7 @@ Error FileAccessUnix::_open(const String &p_path, int p_mode_flags) {
     path = fix_path(p_path);
     //printf("opening %ls, %i\n", path.c_str(), Memory::get_static_mem_usage());
 
-	ERR_FAIL_COND_V_MSG(f, ERR_ALREADY_IN_USE, "File is already in use.")
+    ERR_FAIL_COND_V_MSG(f, ERR_ALREADY_IN_USE, "File is already in use.")
     const char *mode_string;
 
     if (p_mode_flags == READ)
@@ -95,7 +95,7 @@ Error FileAccessUnix::_open(const String &p_path, int p_mode_flags) {
 
     //printf("opening %s as %s\n", p_path.utf8().get_data(), path.utf8().get_data());
     struct stat st;
-    int err = stat(StringUtils::to_utf8(path).data(), &st);
+    int err = stat(path.c_str(), &st);
     if (!err) {
         switch (st.st_mode & S_IFMT) {
             case S_IFLNK:
@@ -111,7 +111,7 @@ Error FileAccessUnix::_open(const String &p_path, int p_mode_flags) {
         path = path + ".tmp";
     }
 
-    f = fopen(qPrintable(path.m_str), mode_string);
+    f = fopen(path.c_str(), mode_string);
 
     if (f == nullptr) {
         switch (errno) {
@@ -143,7 +143,7 @@ void FileAccessUnix::close() {
     }
 
     if (!save_path.empty()) {
-        int rename_error = rename(qPrintable((save_path + ".tmp").m_str), StringUtils::to_utf8(save_path).data());
+        int rename_error = rename((save_path + ".tmp").c_str(), save_path.c_str());
 
         if (rename_error && close_fail_notify) {
             close_fail_notify(save_path);
@@ -159,12 +159,9 @@ bool FileAccessUnix::is_open() const {
     return (f != nullptr);
 }
 
-String FileAccessUnix::get_path() const {
 
-    return path_src;
-}
 
-String FileAccessUnix::get_path_absolute() const {
+const se_string &FileAccessUnix::get_path_absolute() const {
 
     return path;
 }
@@ -230,7 +227,7 @@ uint8_t FileAccessUnix::get_8() const {
 
 int FileAccessUnix::get_buffer(uint8_t *p_dst, int p_length) const {
 
-	ERR_FAIL_COND_V_MSG(!f, -1, "File must be opened before use.")
+    ERR_FAIL_COND_V_MSG(!f, -1, "File must be opened before use.")
     int read = fread(p_dst, 1, p_length, f);
     check_errors();
     return read;
@@ -259,23 +256,23 @@ void FileAccessUnix::store_buffer(const uint8_t *p_src, int p_length) {
     ERR_FAIL_COND(!written_size_matched)
 }
 
-bool FileAccessUnix::file_exists(const String &p_path) {
+bool FileAccessUnix::file_exists(se_string_view p_path) {
 
     int err;
     struct stat st;
-    String filename = fix_path(p_path);
+    se_string filename(fix_path(p_path));
 
     // Does the name exist at all?
-    err = stat(qPrintable(filename.m_str), &st);
+    err = stat(filename.c_str(), &st);
     if (err)
         return false;
 
 #ifdef UNIX_ENABLED
     // See if we have access to the file
-    if (access(qPrintable(filename.m_str), F_OK))
+    if (access(filename.c_str(), F_OK))
         return false;
 #else
-    if (_access(StringUtils::to_utf8(filename).get_data(), 4) == -1)
+    if (_access(filename.c_str(), 4) == -1)
         return false;
 #endif
 
@@ -289,37 +286,37 @@ bool FileAccessUnix::file_exists(const String &p_path) {
     }
 }
 
-uint64_t FileAccessUnix::_get_modified_time(const String &p_file) {
+uint64_t FileAccessUnix::_get_modified_time(se_string_view p_file) {
 
-    String file = fix_path(p_file);
+    se_string file(fix_path(p_file));
     struct stat flags;
-    int err = stat(qPrintable(file.m_str), &flags);
+    int err = stat(file.c_str(), &flags);
 
     if (!err) {
         return flags.st_mtime;
     } else {
-        ERR_FAIL_V_MSG(0, "Failed to get modified time for: " + p_file + ".")
+        ERR_FAIL_V_MSG(0, "Failed to get modified time for: " + se_string(p_file) + ".")
     }
 }
 
-uint32_t FileAccessUnix::_get_unix_permissions(const String &p_file) {
+uint32_t FileAccessUnix::_get_unix_permissions(se_string_view p_file) {
 
-    String file = fix_path(p_file);
+    se_string file(fix_path(p_file));
     struct stat flags;
-    int err = stat(qPrintable(file.m_str), &flags);
+    int err = stat(file.c_str(), &flags);
 
     if (!err) {
         return flags.st_mode & 0x7FF; //only permissions
     } else {
-        ERR_FAIL_V_MSG(0, "Failed to get unix permissions for: " + p_file + ".")
+        ERR_FAIL_V_MSG(0, "Failed to get unix permissions for: " + se_string(p_file) + ".")
     }
 }
 
-Error FileAccessUnix::_set_unix_permissions(const String &p_file, uint32_t p_permissions) {
+Error FileAccessUnix::_set_unix_permissions(se_string_view p_file, uint32_t p_permissions) {
 
-    String file = fix_path(p_file);
+    se_string file(fix_path(p_file));
 
-    int err = chmod(qPrintable(file.m_str), p_permissions);
+    int err = chmod(file.c_str(), p_permissions);
     if (!err) {
         return OK;
     }

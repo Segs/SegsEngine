@@ -356,8 +356,7 @@ void Environment::_validate_property(PropertyInfo &property) const {
         "dof_blur_far_",
         "dof_blur_near_",
         "glow_",
-        "adjustment_",
-        nullptr
+        "adjustment_"
 
     };
 
@@ -365,35 +364,27 @@ void Environment::_validate_property(PropertyInfo &property) const {
         "auto_exposure_",
         "tonemap_",
         "ss_reflections_",
-        "ssao_",
-        nullptr
-
+        "ssao_"
     };
 
-    const char **prefixes = hide_prefixes;
-    while (*prefixes) {
-        String prefix = String(*prefixes);
+    for(const char *prefix_val : hide_prefixes) {
+        StringName prefix(StaticCString(prefix_val,true));
 
-        String enabled = prefix + "enabled";
+        StringName enabled = prefix + "enabled";
         if (StringUtils::begins_with(property.name,prefix) && property.name != enabled && !bool(get(enabled))) {
             property.usage = PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL;
             return;
         }
-
-        prefixes++;
     }
 
     if (VisualServer::get_singleton()->is_low_end()) {
-        prefixes = high_end_prefixes;
-        while (*prefixes) {
-            String prefix = String(*prefixes);
+        for(const char *prefix_val : high_end_prefixes) {
+            StringName prefix(StaticCString(prefix_val,true));
 
             if (StringUtils::begins_with(property.name,prefix)) {
                 property.usage = PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL;
                 return;
             }
-
-            prefixes++;
         }
     }
 }

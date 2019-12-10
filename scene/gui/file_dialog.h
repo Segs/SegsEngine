@@ -41,157 +41,157 @@
 
 class FileDialog : public ConfirmationDialog {
 
-	GDCLASS(FileDialog,ConfirmationDialog)
+    GDCLASS(FileDialog,ConfirmationDialog)
 
 public:
-	enum Access {
-		ACCESS_RESOURCES,
-		ACCESS_USERDATA,
-		ACCESS_FILESYSTEM
-	};
+    enum Access {
+        ACCESS_RESOURCES,
+        ACCESS_USERDATA,
+        ACCESS_FILESYSTEM
+    };
 
-	enum Mode {
-		MODE_OPEN_FILE,
-		MODE_OPEN_FILES,
-		MODE_OPEN_DIR,
-		MODE_OPEN_ANY,
+    enum Mode {
+        MODE_OPEN_FILE,
+        MODE_OPEN_FILES,
+        MODE_OPEN_DIR,
+        MODE_OPEN_ANY,
         MODE_SAVE_FILE,
         MODE_MAX
-	};
+    };
 
-	using GetIconFunc = Ref<Texture> (*)(const String &);
-	using RegisterFunc = void (*)(FileDialog *);
+    using GetIconFunc = Ref<Texture> (*)(se_string_view);
+    using RegisterFunc = void (*)(FileDialog *);
 
-	static GetIconFunc get_icon_func;
-	static GetIconFunc get_large_icon_func;
-	static RegisterFunc register_func;
-	static RegisterFunc unregister_func;
+    static GetIconFunc get_icon_func;
+    static GetIconFunc get_large_icon_func;
+    static RegisterFunc register_func;
+    static RegisterFunc unregister_func;
 
 private:
-	ConfirmationDialog *makedialog;
-	LineEdit *makedirname;
+    ConfirmationDialog *makedialog;
+    LineEdit *makedirname;
 
-	Button *makedir;
-	Access access;
-	//Button *action;
-	VBoxContainer *vbox;
-	Mode mode;
-	LineEdit *dir;
-	OptionButton *drives;
-	Tree *tree;
-	LineEdit *file;
-	AcceptDialog *mkdirerr;
-	AcceptDialog *exterr;
-	OptionButton *filter;
-	DirAccess *dir_access;
-	ConfirmationDialog *confirm_save;
+    Button *makedir;
+    Access access;
+    //Button *action;
+    VBoxContainer *vbox;
+    Mode mode;
+    LineEdit *dir;
+    OptionButton *drives;
+    Tree *tree;
+    LineEdit *file;
+    AcceptDialog *mkdirerr;
+    AcceptDialog *exterr;
+    OptionButton *filter;
+    DirAccess *dir_access;
+    ConfirmationDialog *confirm_save;
 
-	ToolButton *dir_up;
+    ToolButton *dir_up;
 
-	ToolButton *refresh;
-	ToolButton *show_hidden;
+    ToolButton *refresh;
+    ToolButton *show_hidden;
 
-	Vector<String> filters;
+    Vector<se_string> filters;
 
-	bool mode_overrides_title;
+    bool mode_overrides_title;
 
-	static bool default_show_hidden_files;
-	bool show_hidden_files;
+    static bool default_show_hidden_files;
+    bool show_hidden_files;
 
-	bool invalidated;
+    bool invalidated;
 
-	void update_dir();
-	void update_file_name();
-	void update_file_list();
-	void update_filters();
+    void update_dir();
+    void update_file_name();
+    void update_file_list();
+    void update_filters();
 
-	void _tree_multi_selected(Object *p_object, int p_cell, bool p_selected);
-	void _tree_selected();
+    void _tree_multi_selected(Object *p_object, int p_cell, bool p_selected);
+    void _tree_selected();
 
-	void _select_drive(int p_idx);
-	void _tree_item_activated();
-	void _dir_entered(String p_dir);
-	void _file_entered(const String &p_file);
-	void _action_pressed();
-	void _save_confirm_pressed();
-	void _cancel_pressed();
-	void _filter_selected(int);
-	void _make_dir();
-	void _make_dir_confirm();
-	void _go_up();
+    void _select_drive(int p_idx);
+    void _tree_item_activated();
+    void _dir_entered(se_string_view p_dir);
+    void _file_entered(se_string_view p_file);
+    void _action_pressed();
+    void _save_confirm_pressed();
+    void _cancel_pressed();
+    void _filter_selected(int);
+    void _make_dir();
+    void _make_dir_confirm();
+    void _go_up();
 
-	void _update_drives();
+    void _update_drives();
 
-	void _unhandled_input(const Ref<InputEvent> &p_event);
+    void _unhandled_input(const Ref<InputEvent> &p_event);
 
-	bool _is_open_should_be_disabled();
+    bool _is_open_should_be_disabled();
 
-	void _post_popup() override;
+    void _post_popup() override;
 
 protected:
-	void _notification(int p_what);
-	static void _bind_methods();
-	//bind helpers
+    void _notification(int p_what);
+    static void _bind_methods();
+    //bind helpers
 public:
-	void clear_filters();
-	void add_filter(const String &p_filter);
-	void set_filters(const Vector<String> &p_filters);
-	Vector<String> get_filters() const;
+    void clear_filters();
+    void add_filter(se_string_view p_filter);
+    void set_filters(const Vector<se_string> &p_filters);
+    Vector<se_string> get_filters() const;
 
-	void set_enable_multiple_selection(bool p_enable);
-	Vector<String> get_selected_files() const;
+    void set_enable_multiple_selection(bool p_enable);
+    Vector<se_string> get_selected_files() const;
 
-	String get_current_dir() const;
-	String get_current_file() const;
-	String get_current_path() const;
-	void set_current_dir(const String &p_dir);
-	void set_current_file(const String &p_file);
-	void set_current_path(const String &p_path);
+    se_string get_current_dir() const;
+    se_string get_current_file() const;
+    se_string get_current_path() const;
+    void set_current_dir(se_string_view p_dir);
+    void set_current_file(se_string_view p_file);
+    void set_current_path(se_string_view p_path);
 
-	void set_mode_overrides_title(bool p_override);
-	bool is_mode_overriding_title() const;
+    void set_mode_overrides_title(bool p_override);
+    bool is_mode_overriding_title() const;
 
-	void set_mode(Mode p_mode);
-	Mode get_mode() const;
+    void set_mode(Mode p_mode);
+    Mode get_mode() const;
 
-	VBoxContainer *get_vbox();
-	LineEdit *get_line_edit() { return file; }
+    VBoxContainer *get_vbox();
+    LineEdit *get_line_edit() { return file; }
 
-	void set_access(Access p_access);
-	Access get_access() const;
+    void set_access(Access p_access);
+    Access get_access() const;
 
-	void set_show_hidden_files(bool p_show);
-	bool is_showing_hidden_files() const;
+    void set_show_hidden_files(bool p_show);
+    bool is_showing_hidden_files() const;
 
-	static void set_default_show_hidden_files(bool p_show);
+    static void set_default_show_hidden_files(bool p_show);
 
-	void invalidate();
+    void invalidate();
 
-	void deselect_items();
+    void deselect_items();
 
-	FileDialog();
-	~FileDialog() override;
+    FileDialog();
+    ~FileDialog() override;
 };
 
 class LineEditFileChooser : public HBoxContainer {
 
-	GDCLASS(LineEditFileChooser,HBoxContainer)
-	Button *button;
-	LineEdit *line_edit;
-	FileDialog *dialog;
+    GDCLASS(LineEditFileChooser,HBoxContainer)
+    Button *button;
+    LineEdit *line_edit;
+    FileDialog *dialog;
 
-	void _chosen(const String &p_text);
-	void _browse();
+    void _chosen(se_string_view p_text);
+    void _browse();
 
 protected:
-	static void _bind_methods();
+    static void _bind_methods();
 
 public:
-	Button *get_button() { return button; }
-	LineEdit *get_line_edit() { return line_edit; }
-	FileDialog *get_file_dialog() { return dialog; }
+    Button *get_button() { return button; }
+    LineEdit *get_line_edit() { return line_edit; }
+    FileDialog *get_file_dialog() { return dialog; }
 
-	LineEditFileChooser();
+    LineEditFileChooser();
 };
 
 #endif

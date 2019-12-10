@@ -356,11 +356,11 @@ void AudioStreamPlayer::_validate_property(PropertyInfo &property) const {
 
     if (property.name == "bus") {
 
-        String options;
+        se_string options;
         for (int i = 0; i < AudioServer::get_singleton()->get_bus_count(); i++) {
             if (i > 0)
-                options += ",";
-            String name = AudioServer::get_singleton()->get_bus_name(i);
+                options += ',';
+            se_string name(AudioServer::get_singleton()->get_bus_name(i));
             options += name;
         }
 

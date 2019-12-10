@@ -2421,7 +2421,7 @@ bool BindingsGenerator::_populate_object_type_interfaces() {
 
         // Populate enums and constants
 
-        List<String> constants;
+        List<se_string> constants;
         ClassDB::get_integer_constant_list(type_cname, &constants, true);
 
         const HashMap<StringName, ListPOD<StringName> > &enum_map = class_info->enum_map;

@@ -89,9 +89,9 @@ void MeshInstanceEditor::_menu_option(int p_option) {
                 Node *owner = node == get_tree()->get_edited_scene_root() ? node : node->get_owner();
 
                 if (trimesh_shape)
-                    ur->create_action(TTR("Create Static Trimesh Body"));
+                    ur->create_action_ui(TTR("Create Static Trimesh Body"));
                 else
-                    ur->create_action(TTR("Create Static Convex Body"));
+                    ur->create_action_ui(TTR("Create Static Convex Body"));
 
                 ur->add_do_method(node, "add_child", Variant(body));
                 ur->add_do_method(body, "set_owner", Variant(owner));
@@ -102,7 +102,7 @@ void MeshInstanceEditor::_menu_option(int p_option) {
                 return;
             }
 
-            ur->create_action(TTR("Create Static Trimesh Body"));
+            ur->create_action_ui(TTR("Create Static Trimesh Body"));
 
             for (List<Node *>::Element *E = selection.front(); E; E = E->next()) {
 
@@ -155,7 +155,7 @@ void MeshInstanceEditor::_menu_option(int p_option) {
 
             UndoRedo *ur = EditorNode::get_singleton()->get_undo_redo();
 
-            ur->create_action(TTR("Create Trimesh Static Shape"));
+            ur->create_action_ui(TTR("Create Trimesh Static Shape"));
 
             ur->add_do_method(node->get_parent(), "add_child", Variant(cshape));
             ur->add_do_method(node->get_parent(), "move_child", Variant(cshape), node->get_index() + 1);
@@ -181,7 +181,7 @@ void MeshInstanceEditor::_menu_option(int p_option) {
             }
             UndoRedo *ur = EditorNode::get_singleton()->get_undo_redo();
 
-            ur->create_action(TTR("Create Convex Shape(s)"));
+            ur->create_action_ui(TTR("Create Convex Shape(s)"));
 
             for (int i = 0; i < shapes.size(); i++) {
 
@@ -214,7 +214,7 @@ void MeshInstanceEditor::_menu_option(int p_option) {
             Node *owner = node == get_tree()->get_edited_scene_root() ? node : node->get_owner();
 
             UndoRedo *ur = EditorNode::get_singleton()->get_undo_redo();
-            ur->create_action(TTR("Create Navigation Mesh"));
+            ur->create_action_ui(TTR("Create Navigation Mesh"));
 
             ur->add_do_method(node, "add_child", Variant(nmi));
             ur->add_do_method(nmi, "set_owner", Variant(owner));
@@ -399,7 +399,7 @@ void MeshInstanceEditor::_create_outline_mesh() {
 
     UndoRedo *ur = EditorNode::get_singleton()->get_undo_redo();
 
-    ur->create_action(TTR("Create Outline"));
+    ur->create_action_ui(TTR("Create Outline"));
 
     ur->add_do_method(node, "add_child", Variant(mi));
     ur->add_do_method(mi, "set_owner", Variant(owner));

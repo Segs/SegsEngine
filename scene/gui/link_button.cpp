@@ -36,14 +36,14 @@
 IMPL_GDCLASS(LinkButton)
 VARIANT_ENUM_CAST(LinkButton::UnderlineMode);
 
-void LinkButton::set_text(const String &p_text) {
-
+void LinkButton::set_text(se_string_view p_text)
+{
     text = p_text;
     update();
     minimum_size_changed();
 }
 
-String LinkButton::get_text() const {
+const se_string & LinkButton::get_text() const {
     return text;
 }
 
@@ -60,7 +60,7 @@ LinkButton::UnderlineMode LinkButton::get_underline_mode() const {
 
 Size2 LinkButton::get_minimum_size() const {
 
-    return get_font("font")->get_string_size(text);
+    return get_font("font")->get_string_size_utf8(text);
 }
 
 void LinkButton::_notification(int p_what) {
@@ -114,11 +114,11 @@ void LinkButton::_notification(int p_what) {
 
             Ref<Font> font = get_font("font");
 
-            draw_string(font, Vector2(0, font->get_ascent()), text, color);
+            draw_string_utf8(font, Vector2(0, font->get_ascent()), text, color);
 
             if (do_underline) {
                 int underline_spacing = get_constant("underline_spacing");
-                int width = font->get_string_size(text).width;
+                int width = font->get_string_size_utf8(text).width;
                 int y = font->get_ascent() + underline_spacing;
 
                 draw_line(Vector2(0, y), Vector2(width, y), color);

@@ -46,7 +46,7 @@ Ref<AnimationNode> AnimationNodeBlendSpace1D::get_child_by_name(const StringName
 
 void AnimationNodeBlendSpace1D::_validate_property(PropertyInfo &property) const {
     if (StringUtils::begins_with(property.name,"blend_point_")) {
-        String left = StringUtils::get_slice(property.name,'/', 0);
+        se_string_view left = StringUtils::get_slice(property.name,'/', 0);
         int idx = StringUtils::to_int(StringUtils::get_slice(left,'_', 2));
         if (idx >= blend_points_used) {
             property.usage = 0;
@@ -85,8 +85,8 @@ void AnimationNodeBlendSpace1D::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("_tree_changed"), &AnimationNodeBlendSpace1D::_tree_changed);
 
     for (int i = 0; i < MAX_BLEND_POINTS; i++) {
-        ADD_PROPERTYI(PropertyInfo(VariantType::OBJECT, "blend_point_" + itos(i) + "/node", PROPERTY_HINT_RESOURCE_TYPE, "AnimationRootNode", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "_add_blend_point", "get_blend_point_node", i);
-        ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "blend_point_" + itos(i) + "/pos", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "set_blend_point_position", "get_blend_point_position", i);
+        ADD_PROPERTYI(PropertyInfo(VariantType::OBJECT, StringName("blend_point_" + itos(i) + "/node"), PROPERTY_HINT_RESOURCE_TYPE, "AnimationRootNode", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "_add_blend_point", "get_blend_point_node", i);
+        ADD_PROPERTYI(PropertyInfo(VariantType::REAL, StringName("blend_point_" + itos(i) + "/pos"), PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "set_blend_point_position", "get_blend_point_position", i);
     }
 
     ADD_PROPERTY(PropertyInfo(VariantType::REAL, "min_space", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR), "set_min_space", "get_min_space");
@@ -98,7 +98,7 @@ void AnimationNodeBlendSpace1D::_bind_methods() {
 void AnimationNodeBlendSpace1D::get_child_nodes(List<ChildNode> *r_child_nodes) {
     for (int i = 0; i < blend_points_used; i++) {
         ChildNode cn;
-        cn.name = itos(i);
+        cn.name = StringName(itos(i));
         cn.node = blend_points[i].node;
         r_child_nodes->push_back(cn);
     }
@@ -207,11 +207,11 @@ float AnimationNodeBlendSpace1D::get_snap() const {
     return snap;
 }
 
-void AnimationNodeBlendSpace1D::set_value_label(const String &p_label) {
+void AnimationNodeBlendSpace1D::set_value_label(se_string_view p_label) {
     value_label = p_label;
 }
 
-String AnimationNodeBlendSpace1D::get_value_label() const {
+const se_string & AnimationNodeBlendSpace1D::get_value_label() const {
     return value_label;
 }
 
@@ -310,14 +310,16 @@ float AnimationNodeBlendSpace1D::process(float p_time, bool p_seek) {
     return max_time_remaining;
 }
 
-String AnimationNodeBlendSpace1D::get_caption() const {
-    return "BlendSpace1D";
+se_string_view AnimationNodeBlendSpace1D::get_caption() const {
+    return ("BlendSpace1D");
 }
 
 AnimationNodeBlendSpace1D::AnimationNodeBlendSpace1D() {
-
+    se_tmp_string<16,false> ts;
     for (int i = 0; i < MAX_BLEND_POINTS; i++) {
-        blend_points[i].name = itos(i);
+        ts.clear();
+        ts.append_sprintf("%d",i);
+        blend_points[i].name = StringName(ts.c_str());
     }
     blend_points_used = 0;
     max_space = 1;

@@ -1,7 +1,7 @@
 #pragma once
 #include <utility>
 
-#include "core/ustring.h"
+#include "core/se_string.h"
 #include "typesystem_decls.h"
 
 enum class VariantType : int8_t;
@@ -10,7 +10,7 @@ class Dictionary;
 struct GODOT_EXPORT PropertyInfo {
 public:
     StringName name;
-    String hint_string;
+    se_string hint_string;
     StringName class_name; // for classes
     VariantType type = VariantType(0);
     PropertyHint hint = PROPERTY_HINT_NONE;
@@ -43,8 +43,23 @@ public:
 
     PropertyInfo(const PropertyInfo &oth) = default;
 
-    PropertyInfo(VariantType p_type, const char *p_name, PropertyHint p_hint = PROPERTY_HINT_NONE,
-            const char *p_hint_string = nullptr, uint32_t p_usage = PROPERTY_USAGE_DEFAULT,
+//    PropertyInfo(VariantType p_type, StringName p_name, PropertyHint p_hint = PROPERTY_HINT_NONE,
+//            const char *p_hint_string = nullptr, uint32_t p_usage = PROPERTY_USAGE_DEFAULT,
+//            const StringName &p_class_name = StringName()) :
+//            name(p_name),
+//            hint_string(p_hint_string ? p_hint_string : se_string()),
+//            type(p_type),
+//            hint(p_hint),
+//            usage(p_usage) {
+
+//        if (hint == PROPERTY_HINT_RESOURCE_TYPE) {
+//            class_name = StaticCString(p_hint_string,true);
+//        } else {
+//            class_name = p_class_name;
+//        }
+//    }
+    PropertyInfo(VariantType p_type, StringName p_name, PropertyHint p_hint = PROPERTY_HINT_NONE,
+            se_string_view p_hint_string=se_string_view(), uint32_t p_usage = PROPERTY_USAGE_DEFAULT,
             const StringName &p_class_name = StringName()) :
             name(p_name),
             hint_string(p_hint_string),
@@ -53,26 +68,12 @@ public:
             usage(p_usage) {
 
         if (hint == PROPERTY_HINT_RESOURCE_TYPE) {
-            class_name = StaticCString(p_hint_string,true);
+            class_name = StringName(p_hint_string);
         } else {
             class_name = p_class_name;
         }
     }
-    PropertyInfo(VariantType p_type, String &&p_name, PropertyHint p_hint = PROPERTY_HINT_NONE,
-            const StringName &p_hint_string = StringName(), uint32_t p_usage = PROPERTY_USAGE_DEFAULT,
-            const StringName &p_class_name = StringName()) :
-            name(std::move(p_name)),
-            hint_string(p_hint_string),
-            type(p_type),
-            hint(p_hint),
-            usage(p_usage) {
 
-        if (hint == PROPERTY_HINT_RESOURCE_TYPE) {
-            class_name = StringName(hint_string);
-        } else {
-            class_name = p_class_name;
-        }
-    }
 
     PropertyInfo(StringName p_class_name, VariantType t) : class_name(std::move(p_class_name)), type(t) {}
     PropertyInfo(const RawPropertyInfo &rp) :
@@ -94,7 +95,7 @@ public:
     }
 
     bool operator<(const PropertyInfo &p_info) const {
-        return StringUtils::compare(name,p_info.name)<0;
+        return se_string_view(name).compare(p_info.name)<0;
     }
     ~PropertyInfo() = default;
 };

@@ -38,32 +38,32 @@
 
 class BakedLightmapEditorPlugin : public EditorPlugin {
 
-	GDCLASS(BakedLightmapEditorPlugin,EditorPlugin)
+    GDCLASS(BakedLightmapEditorPlugin,EditorPlugin)
 
-	BakedLightmap *lightmap;
+    BakedLightmap *lightmap;
 
-	ToolButton *bake;
-	EditorNode *editor;
+    ToolButton *bake;
+    EditorNode *editor;
 
-	static EditorProgress *tmp_progress;
-	static void bake_func_begin(int p_steps);
-	static bool bake_func_step(int p_step, const String &p_description);
-	static void bake_func_end();
+    static EditorProgress *tmp_progress;
+    static void bake_func_begin(int p_steps);
+    static bool bake_func_step(int p_step, se_string_view p_description);
+    static void bake_func_end();
 
-	void _bake();
+    void _bake();
 
 protected:
-	static void _bind_methods();
+    static void _bind_methods();
 
 public:
-	String get_name() const override { return "BakedLightmap"; }
-	bool has_main_screen() const override { return false; }
-	void edit(Object *p_object) override;
-	bool handles(Object *p_object) const override;
-	void make_visible(bool p_visible) override;
+    se_string_view get_name() const override { return ("BakedLightmap"); }
+    bool has_main_screen() const override { return false; }
+    void edit(Object *p_object) override;
+    bool handles(Object *p_object) const override;
+    void make_visible(bool p_visible) override;
 
-	BakedLightmapEditorPlugin(EditorNode *p_node);
-	~BakedLightmapEditorPlugin() override;
+    BakedLightmapEditorPlugin(EditorNode *p_node);
+    ~BakedLightmapEditorPlugin() override;
 };
 
 #endif // BAKED_LIGHTMAP_EDITOR_PLUGIN_H

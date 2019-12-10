@@ -5,7 +5,7 @@
 class EditorServiceInterfaceImpl : public EditorServiceInterface
 {
 public:
-    void reportError(const String &msg) override {
+    void reportError(const StringName &msg) override {
         EditorNode::add_io_error(msg);
     }
 

@@ -34,14 +34,14 @@
 #include "core/class_db.h"
 #include "core/list.h"
 #include "editor/doc/doc_data.h"
-#include "core/ustring.h"
+#include "core/se_string.h"
+#include "core/pool_vector.h"
+#include "core/string_utils.h"
 
 namespace lsp {
 
-typedef String DocumentUri;
-
-/** Format BBCode documentation from DocData to markdown */
-static String marked_documentation(const String &p_bbcode);
+typedef se_string DocumentUri;
+inline se_string marked_documentation(se_string_view p_bbcode);
 /**
  * Text documents are identified using a URI. On the protocol level, URIs are passed as strings.
  */
@@ -52,7 +52,7 @@ struct TextDocumentIdentifier {
     DocumentUri uri;
 
     _FORCE_INLINE_ void load(const Dictionary &p_params) {
-        uri = p_params["uri"];
+        uri = p_params["uri"].as<se_string>();
     }
 
     _FORCE_INLINE_ Dictionary to_json() const {
@@ -133,7 +133,7 @@ struct Location {
     Range range;
 
     _FORCE_INLINE_ void load(const Dictionary &p_params) {
-        uri = p_params["uri"];
+        uri = p_params["uri"].as<se_string>();
         range.load(p_params["range"]);
     }
 
@@ -161,7 +161,7 @@ struct LocationLink {
     /**
      * The target resource identifier of this link.
      */
-    String targetUri;
+    se_string targetUri;
 
     /**
      * The full target range of this link. If the target for example is a symbol then target range is the
@@ -253,7 +253,7 @@ struct TextEdit {
      * The string to be inserted. For delete operations use an
      * empty string.
      */
-    String newText;
+    se_string newText;
 };
 
 /**
@@ -267,11 +267,11 @@ struct Command {
     /**
      * Title of the command, like `save`.
      */
-    String title;
+    se_string title;
     /**
      * The identifier of the actual command handler.
      */
-    String command;
+    se_string command;
     /**
      * Arguments that the command handler should be
      * invoked with.
@@ -322,15 +322,15 @@ struct CompletionOptions {
     /**
      * The characters that trigger completion automatically.
      */
-    Vector<String> triggerCharacters;
+    PoolVector<se_string> triggerCharacters;
 
     CompletionOptions() {
-        triggerCharacters.push_back(".");
-        triggerCharacters.push_back("$");
-        triggerCharacters.push_back("'");
-        triggerCharacters.push_back("\"");
-        triggerCharacters.push_back("(");
-        triggerCharacters.push_back(",");
+        triggerCharacters.push_back(se_string("."));
+        triggerCharacters.push_back(se_string("$"));
+        triggerCharacters.push_back(se_string("'"));
+        triggerCharacters.push_back(se_string("\""));
+        triggerCharacters.push_back(se_string("("));
+        triggerCharacters.push_back(se_string(","));
     }
 
     Dictionary to_json() const {
@@ -508,7 +508,7 @@ struct StaticRegistrationOptions {
      * The id used to register the request. The id can be used to deregister
      * the request again. See also Registration#id.
      */
-    String id;
+    se_string id;
 };
 
 /**
@@ -518,17 +518,17 @@ struct DocumentOnTypeFormattingOptions {
     /**
      * A character on which formatting should be triggered, like `}`.
      */
-    String firstTriggerCharacter;
+    se_string firstTriggerCharacter;
 
     /**
      * More trigger characters.
      */
-    Vector<String> moreTriggerCharacter;
+    Vector<se_string> moreTriggerCharacter;
 
     Dictionary to_json() {
         Dictionary dict;
         dict["firstTriggerCharacter"] = firstTriggerCharacter;
-        dict["moreTriggerCharacter"] = moreTriggerCharacter;
+        dict["moreTriggerCharacter"] = Variant(Vector<se_string>(moreTriggerCharacter));
         return dict;
     }
 };
@@ -542,7 +542,7 @@ struct TextDocumentItem {
     /**
      * The text document's language identifier.
      */
-    String languageId;
+    se_string languageId;
 
     /**
      * The version number of this document (it will increase after each
@@ -553,13 +553,13 @@ struct TextDocumentItem {
     /**
      * The content of the opened text document.
      */
-    String text;
+    se_string text;
 
     void load(const Dictionary &p_dict) {
-        uri = p_dict["uri"];
-        languageId = p_dict["languageId"];
+        uri = p_dict["uri"].as<se_string>();
+        languageId = p_dict["languageId"].as<se_string>();
         version = p_dict["version"];
-        text = p_dict["text"];
+        text = p_dict["text"].as<se_string>();
     }
 
     Dictionary to_json() const {
@@ -590,10 +590,10 @@ struct TextDocumentContentChangeEvent {
     /**
      * The new text of the range/document.
      */
-    String text;
+    se_string text;
 
     void load(const Dictionary &p_params) {
-        text = p_params["text"];
+        text = p_params["text"].as<se_string>();
         rangeLength = p_params["rangeLength"];
         range.load(p_params["range"]);
     }
@@ -633,7 +633,7 @@ struct DiagnosticRelatedInformation {
     /**
      * The message of this related diagnostic information.
      */
-    String message;
+    se_string message;
 
     Dictionary to_json() const {
         Dictionary dict;
@@ -668,12 +668,12 @@ struct Diagnostic {
      * A human-readable string describing the source of this
      * diagnostic, e.g. 'typescript' or 'super lint'.
      */
-    String source;
+    se_string source;
 
     /**
      * The diagnostic's message.
      */
-    String message;
+    se_string message;
 
     /**
      * An array of related diagnostic information, e.g. when symbol-names within
@@ -709,8 +709,8 @@ struct Diagnostic {
  * are reserved for internal usage.
  */
 namespace MarkupKind {
-static const String PlainText = "plaintext";
-static const String Markdown = "markdown";
+static const se_string PlainText("plaintext");
+static const se_string Markdown("markdown");
 }; // namespace MarkupKind
 
 /**
@@ -741,18 +741,18 @@ struct MarkupContent {
     /**
      * The type of the Markup
      */
-    String kind;
+    se_string kind;
 
     /**
      * The content itself
      */
-    String value;
+    se_string value;
 
     MarkupContent() {
         kind = MarkupKind::Markdown;
     }
 
-    MarkupContent(const String &p_value) {
+    MarkupContent(se_string_view p_value) {
         value = p_value;
         kind = MarkupKind::Markdown;
     }
@@ -827,7 +827,7 @@ struct CompletionItem {
      * also the text that is inserted when selecting
      * this completion.
      */
-    String label;
+    se_string label;
 
     /**
      * The kind of this completion item. Based of the kind
@@ -840,7 +840,7 @@ struct CompletionItem {
      * A human-readable string with additional information
      * about this item, like type or symbol information.
      */
-    String detail;
+    se_string detail;
 
     /**
      * A human-readable string that represents a doc-comment.
@@ -865,13 +865,13 @@ struct CompletionItem {
      * A string that should be used when comparing this item
      * with other items. When `falsy` the label is used.
      */
-    String sortText;
+    se_string sortText;
 
     /**
      * A string that should be used when filtering a set of
      * completion items. When `falsy` the label is used.
      */
-    String filterText;
+    se_string filterText;
 
     /**
      * A string that should be inserted into a document when selecting
@@ -886,7 +886,7 @@ struct CompletionItem {
      *
      * @deprecated Use textEdit instead.
      */
-    String insertText;
+    se_string insertText;
 
     /**
      * The format of the insert text. The format applies to both the `insertText` property
@@ -919,7 +919,7 @@ struct CompletionItem {
      * then type that character. *Note* that all commit characters should have `length=1` and that superfluous
      * characters will be ignored.
      */
-    Vector<String> commitCharacters;
+    PoolVector<se_string> commitCharacters;
 
     /**
      * An optional command that is executed *after* inserting this completion. *Note* that
@@ -947,30 +947,30 @@ struct CompletionItem {
             dict["preselect"] = preselect;
             dict["sortText"] = sortText;
             dict["filterText"] = filterText;
-            if (commitCharacters.size()) dict["commitCharacters"] = commitCharacters;
+            if (commitCharacters.size()) dict["commitCharacters"] = Variant(commitCharacters);
             dict["command"] = command.to_json();
         }
         return dict;
     }
 
     void load(const Dictionary &p_dict) {
-        if (p_dict.has("label")) label = p_dict["label"];
+        if (p_dict.has("label")) label = p_dict["label"].as<se_string>();
         if (p_dict.has("kind")) kind = p_dict["kind"];
-        if (p_dict.has("detail")) detail = p_dict["detail"];
+        if (p_dict.has("detail")) detail = p_dict["detail"].as<se_string>();
         if (p_dict.has("documentation")) {
             Variant doc = p_dict["documentation"];
             if (doc.get_type() == VariantType::STRING) {
-                documentation.value = doc;
+                documentation.value = doc.as<se_string>();
             } else if (doc.get_type() == VariantType::DICTIONARY) {
                 Dictionary v = doc;
-                documentation.value = v["value"];
+                documentation.value = v["value"].as<se_string>();
             }
         }
         if (p_dict.has("deprecated")) deprecated = p_dict["deprecated"];
         if (p_dict.has("preselect")) preselect = p_dict["preselect"];
-        if (p_dict.has("sortText")) sortText = p_dict["sortText"];
-        if (p_dict.has("filterText")) filterText = p_dict["filterText"];
-        if (p_dict.has("insertText")) insertText = p_dict["insertText"];
+        if (p_dict.has("sortText")) sortText = p_dict["sortText"].as<se_string>();
+        if (p_dict.has("filterText")) filterText = p_dict["filterText"].as<se_string>();
+        if (p_dict.has("insertText")) insertText = p_dict["insertText"].as<se_string>();
         if (p_dict.has("data")) data = p_dict["data"];
     }
 };
@@ -1035,7 +1035,7 @@ struct SymbolInformation {
     /**
      * The name of this symbol.
      */
-    String name;
+    se_string name;
 
     /**
      * The kind of this symbol.
@@ -1066,7 +1066,7 @@ struct SymbolInformation {
      * if necessary). It can't be used to re-infer a hierarchy for the document
      * symbols.
      */
-    String containerName;
+    se_string containerName;
 
     _FORCE_INLINE_ Dictionary to_json() const {
         Dictionary dict;
@@ -1083,12 +1083,12 @@ struct DocumentedSymbolInformation : public SymbolInformation {
     /**
      * A human-readable string with additional information
      */
-    String detail;
+    se_string detail;
 
     /**
      * A human-readable string that represents a doc-comment.
      */
-    String documentation;
+    se_string documentation;
 };
 
 /**
@@ -1102,22 +1102,22 @@ struct DocumentSymbol {
      * The name of this symbol. Will be displayed in the user interface and therefore must not be
      * an empty string or a string only consisting of white spaces.
      */
-    String name;
+    se_string name;
 
     /**
      * More detail for this symbol, e.g the signature of a function.
      */
-    String detail;
+    se_string detail;
 
     /**
      * Documentation for this symbol
      */
-    String documentation;
+    se_string documentation;
 
     /**
      * Class name for the native symbols
      */
-    String native_class;
+    se_string native_class;
 
     /**
      * The kind of this symbol.
@@ -1143,7 +1143,7 @@ struct DocumentSymbol {
     Range selectionRange;
 
     DocumentUri uri;
-    String script_path;
+    se_string script_path;
 
     /**
      * Children of this symbol, e.g. properties of a class.
@@ -1171,10 +1171,10 @@ struct DocumentSymbol {
         return dict;
     }
 
-    void symbol_tree_as_list(const String &p_uri, Vector<DocumentedSymbolInformation> &r_list, const String &p_container = "", bool p_join_name = false) const {
+    void symbol_tree_as_list(se_string_view p_uri, Vector<DocumentedSymbolInformation> &r_list, se_string_view p_container = {}, bool p_join_name = false) const {
         DocumentedSymbolInformation si;
         if (p_join_name && !p_container.empty()) {
-            si.name = p_container + ">" + name;
+            si.name = se_string(p_container) + ">" + name;
         } else {
             si.name = name;
         }
@@ -1251,12 +1251,12 @@ struct DocumentSymbol {
 
 struct NativeSymbolInspectParams {
 
-    String native_class;
-    String symbol_name;
+    se_string native_class;
+    se_string symbol_name;
 
     void load(const Dictionary &p_params) {
-        native_class = p_params["native_class"];
-        symbol_name = p_params["symbol_name"];
+        native_class = p_params["native_class"].as<se_string>();
+        symbol_name = p_params["symbol_name"].as<se_string>();
     }
 };
 
@@ -1267,15 +1267,15 @@ namespace FoldingRangeKind {
 /**
      * Folding range for a comment
      */
-static const String Comment = "comment";
+static const se_string_view Comment("comment");
 /**
      * Folding range for a imports or includes
      */
-static const String Imports = "imports";
+static const se_string_view Imports("imports");
 /**
      * Folding range for a region (e.g. `#region`)
      */
-static const String Region = "region";
+static const se_string_view Region("region");
 } // namespace FoldingRangeKind
 
 /**
@@ -1308,7 +1308,7 @@ struct FoldingRange {
      * is used to categorize folding ranges and used by commands like 'Fold all comments'. See
      * [FoldingRangeKind](#FoldingRangeKind) for an enumeration of standardized kinds.
      */
-    String kind = FoldingRangeKind::Region;
+    se_string_view kind = FoldingRangeKind::Region;
 
     _FORCE_INLINE_ Dictionary to_json() const {
         Dictionary dict;
@@ -1356,11 +1356,11 @@ struct CompletionContext {
      * The trigger character (a single character) that has trigger code complete.
      * Is undefined if `triggerKind !== CompletionTriggerKind.TriggerCharacter`
      */
-    String triggerCharacter;
+    se_string triggerCharacter;
 
     void load(const Dictionary &p_params) {
         triggerKind = int(p_params["triggerKind"]);
-        triggerCharacter = p_params["triggerCharacter"];
+        triggerCharacter = p_params["triggerCharacter"].as<se_string>();
     }
 };
 
@@ -1569,7 +1569,7 @@ struct InitializeResult {
 };
 struct GodotNativeClassInfo {
 
-    String name;
+    se_string name;
     const DocData::ClassDoc *class_doc = NULL;
     const ClassDB::ClassInfo *class_info = NULL;
 
@@ -1601,54 +1601,54 @@ struct GodotCapabilities {
 };
 
 /** Format BBCode documentation from DocData to markdown */
-static String marked_documentation(const String &p_bbcode) {
+inline se_string marked_documentation(se_string_view p_bbcode) {
     using namespace StringUtils;
-    String markdown = strip_edges(p_bbcode);
+    se_string markdown(strip_edges(p_bbcode));
 
-    Vector<String> lines = split(markdown,'\n');
+    Vector<se_string_view> lines = split(markdown,'\n');
     bool in_code_block = false;
     int code_block_indent = -1;
 
     markdown = "";
     for (int i = 0; i < lines.size(); i++) {
-        String line = lines[i];
-        int block_start = find(line,"[codeblock]");
-        if (block_start != -1) {
+        se_string line(lines[i]);
+        auto block_start = find(line,"[codeblock]");
+        if (block_start != se_string_view::npos) {
             code_block_indent = block_start;
             in_code_block = true;
             line = "\n";
         } else if (in_code_block) {
-            line = "\t" + substr(line,code_block_indent, line.length());
+            line = se_string("\t") + substr(line,code_block_indent, line.length());
         }
 
-        if (in_code_block && contains(line,"[/codeblock]")) {
+        if (in_code_block && contains(line,("[/codeblock]"))) {
             line = "\n";
             in_code_block = false;
         }
 
         if (!in_code_block) {
-            line = strip_edges(line);
-            Inplace::replace(line,"[code]", "`");
-            Inplace::replace(line,"[/code]", "`");
-            Inplace::replace(line,"[i]", "*");
-            Inplace::replace(line,"[/i]", "*");
-            Inplace::replace(line,"[b]", "**");
-            Inplace::replace(line,"[/b]", "**");
-            Inplace::replace(line,"[u]", "__");
-            Inplace::replace(line,"[/u]", "__");
-            Inplace::replace(line,"[method ", "`");
-            Inplace::replace(line,"[member ", "`");
-            Inplace::replace(line,"[signal ", "`");
-            Inplace::replace(line,"[enum ", "`");
-            Inplace::replace(line,"[constant ", "`");
-            Inplace::replace(line,"[", "`");
-            Inplace::replace(line,"]", "`");
+            line = se_string(strip_edges(line));
+            line.replace("[code]", "`");
+            line.replace("[/code]", "`");
+            line.replace("[i]", "*");
+            line.replace("[/i]", "*");
+            line.replace("[b]", "**");
+            line.replace("[/b]", "**");
+            line.replace("[u]", "__");
+            line.replace("[/u]", "__");
+            line.replace("[method ", "`");
+            line.replace("[member ", "`");
+            line.replace("[signal ", "`");
+            line.replace("[enum ", "`");
+            line.replace("[constant ", "`");
+            line.replace("[", "`");
+            line.replace("]", "`");
         }
 
         if (!in_code_block && i < lines.size() - 1) {
-            line += "\n\n";
+            line += ("\n\n");
         } else if (i < lines.size() - 1) {
-            line += "\n";
+            line += '\n';
         }
         markdown += line;
     }

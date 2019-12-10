@@ -40,35 +40,35 @@ IMPL_GDCLASS(XMLParser)
 
 VARIANT_ENUM_CAST(XMLParser::NodeType);
 
-static bool _equalsn(const CharType *str1, const CharType *str2, int len) {
+static bool _equalsn(const char *str1, const char *str2, int len) {
     int i;
-    for (i = 0; i < len && !str1[i].isNull() && !str2[i].isNull(); ++i)
+    for (i = 0; i < len && 0!=str1[i] && 0!=str2[i]; ++i)
         if (str1[i] != str2[i])
             return false;
 
     // if one (or both) of the strings was smaller then they
     // are only equal if they have the same length
-    return (i == len) || (str1[i] == nullptr && str2[i] == nullptr);
+    return (i == len) || (str1[i] == 0 && str2[i] == 0);
 }
 
-String XMLParser::_replace_special_characters(const String &origstr) {
+se_string XMLParser::_replace_special_characters(const se_string &origstr) {
 
-    int pos = StringUtils::find(origstr,"&");
+    auto pos = StringUtils::find(origstr,"&");
     int oldPos = 0;
 
-    if (pos == -1)
+    if (pos == se_string::npos)
         return origstr;
 
-    String newstr;
+    se_string newstr;
 
-    while (pos != -1 && pos < origstr.length() - 2) {
+    while (pos != se_string::npos && pos < origstr.length() - 2) {
         // check if it is one of the special characters
 
         int specialChar = -1;
         for (int i = 0; i < (int)special_characters.size(); ++i) {
-            const CharType *p = origstr.cdata() + pos + 1;
+            const char *p = origstr.c_str() + pos + 1;
 
-            if (_equalsn(special_characters[i].cdata()+1, p, special_characters[i].length() - 1)) {
+            if (_equalsn(special_characters[i].data()+1, p, special_characters[i].length() - 1)) {
                 specialChar = i;
                 break;
             }
@@ -113,7 +113,7 @@ bool XMLParser::_set_text(char *start, char *end) {
     }
 
     // set current text to the parsed text, and replace xml special characters
-    String s = StringUtils::from_utf8(start, (int)(end - start));
+    se_string s(start, (int)(end - start));
     node_name = _replace_special_characters(s);
 
     // current XML node type is text
@@ -133,7 +133,7 @@ void XMLParser::_parse_closing_xml_element() {
     while (*P != '>')
         ++P;
 
-    node_name = StringUtils::from_utf8(pBeginClose, (int)(P - pBeginClose));
+    node_name = se_string(pBeginClose, (int)(P - pBeginClose));
 #ifdef DEBUG_XML
     print_line("XML CLOSE: " + node_name);
 #endif
@@ -147,7 +147,7 @@ void XMLParser::_ignore_definition() {
     // move until end marked with '>' reached
     while (*P != '>')
         ++P;
-    node_name = StringUtils::from_utf8(F, P - F);
+    node_name = se_string(F, P - F);
     ++P;
 }
 
@@ -183,7 +183,7 @@ bool XMLParser::_parse_cdata() {
     }
 
     if (cDataEnd)
-        node_name = StringUtils::from_utf8(cDataBegin, (int)(cDataEnd - cDataBegin));
+        node_name = se_string(cDataBegin, (int)(cDataEnd - cDataBegin));
     else
         node_name = "";
 #ifdef DEBUG_XML
@@ -213,7 +213,7 @@ void XMLParser::_parse_comment() {
     }
 
     P -= 3;
-    node_name = StringUtils::from_utf8(pCommentBegin + 2, (int)(P - pCommentBegin - 2));
+    node_name = se_string(pCommentBegin + 2, (int)(P - pCommentBegin - 2));
     P += 3;
 #ifdef DEBUG_XML
     print_line("XML COMMENT: " + node_name);
@@ -275,11 +275,9 @@ void XMLParser::_parse_opening_xml_element() {
                 ++P;
 
                 Attribute attr;
-                attr.name = StringUtils::from_utf8(attributeNameBegin,
-                        (int)(attributeNameEnd - attributeNameBegin));
+                attr.name = se_string(attributeNameBegin, (int)(attributeNameEnd - attributeNameBegin));
 
-                String s = StringUtils::from_utf8(attributeValueBegin,
-                        (int)(attributeValueEnd - attributeValueBegin));
+                se_string s(attributeValueBegin, (int)(attributeValueEnd - attributeValueBegin));
 
                 attr.value = _replace_special_characters(s);
                 attributes.push_back(attr);
@@ -299,7 +297,7 @@ void XMLParser::_parse_opening_xml_element() {
         endName--;
     }
 
-    node_name = StringUtils::from_utf8(startName, (int)(endName - startName));
+    node_name = se_string(startName, (int)(endName - startName));
 #ifdef DEBUG_XML
     print_line("XML OPEN: " + node_name);
 #endif
@@ -369,9 +367,9 @@ void XMLParser::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_node_offset"), &XMLParser::get_node_offset);
     MethodBinder::bind_method(D_METHOD("get_attribute_count"), &XMLParser::get_attribute_count);
     MethodBinder::bind_method(D_METHOD("get_attribute_name", {"idx"}), &XMLParser::get_attribute_name);
-    MethodBinder::bind_method(D_METHOD("get_attribute_value", {"idx"}), (String(XMLParser::*)(int) const) & XMLParser::get_attribute_value);
+    MethodBinder::bind_method(D_METHOD("get_attribute_value", {"idx"}), (const se_string &(XMLParser::*)(int) const) & XMLParser::get_attribute_value);
     MethodBinder::bind_method(D_METHOD("has_attribute", {"name"}), &XMLParser::has_attribute);
-    MethodBinder::bind_method(D_METHOD("get_named_attribute_value", {"name"}), (String(XMLParser::*)(const String &) const) & XMLParser::get_attribute_value);
+    MethodBinder::bind_method(D_METHOD("get_named_attribute_value", {"name"}), (const se_string &(XMLParser::*)(se_string_view) const) & XMLParser::get_attribute_value);
     MethodBinder::bind_method(D_METHOD("get_named_attribute_value_safe", {"name"}), &XMLParser::get_attribute_value_safe);
     MethodBinder::bind_method(D_METHOD("is_empty"), &XMLParser::is_empty);
     MethodBinder::bind_method(D_METHOD("get_current_line"), &XMLParser::get_current_line);
@@ -404,31 +402,31 @@ XMLParser::NodeType XMLParser::get_node_type() {
 
     return node_type;
 }
-String XMLParser::get_node_data() const {
+const se_string &XMLParser::get_node_data() const {
 
-    ERR_FAIL_COND_V(node_type != NODE_TEXT, "")
+    ERR_FAIL_COND_V(node_type != NODE_TEXT, null_se_string)
     return node_name;
 }
 
-String XMLParser::get_node_name() const {
-    ERR_FAIL_COND_V(node_type == NODE_TEXT, "")
+const se_string &XMLParser::get_node_name() const {
+    ERR_FAIL_COND_V(node_type == NODE_TEXT, null_se_string)
     return node_name;
 }
 int XMLParser::get_attribute_count() const {
 
     return attributes.size();
 }
-String XMLParser::get_attribute_name(int p_idx) const {
+const se_string &XMLParser::get_attribute_name(int p_idx) const {
 
-    ERR_FAIL_INDEX_V(p_idx, attributes.size(), "")
+    ERR_FAIL_INDEX_V(p_idx, attributes.size(), null_se_string)
     return attributes[p_idx].name;
 }
-String XMLParser::get_attribute_value(int p_idx) const {
+const se_string &XMLParser::get_attribute_value(int p_idx) const {
 
-    ERR_FAIL_INDEX_V(p_idx, attributes.size(), "")
+    ERR_FAIL_INDEX_V(p_idx, attributes.size(), null_se_string)
     return attributes[p_idx].value;
 }
-bool XMLParser::has_attribute(const String &p_name) const {
+bool XMLParser::has_attribute(se_string_view p_name) const {
 
     for (int i = 0; i < attributes.size(); i++) {
         if (attributes[i].name == p_name)
@@ -437,7 +435,8 @@ bool XMLParser::has_attribute(const String &p_name) const {
 
     return false;
 }
-String XMLParser::get_attribute_value(const String &p_name) const {
+
+const se_string & XMLParser::get_attribute_value(se_string_view p_name) const {
 
     int idx = -1;
     for (int i = 0; i < attributes.size(); i++) {
@@ -447,12 +446,12 @@ String XMLParser::get_attribute_value(const String &p_name) const {
         }
     }
 
-    ERR_FAIL_COND_V_MSG(idx < 0, "", "Attribute not found: " + p_name + ".")
+    ERR_FAIL_COND_V_MSG(idx < 0, null_se_string, "Attribute not found: " + se_string(p_name) + ".")
 
     return attributes[idx].value;
 }
 
-String XMLParser::get_attribute_value_safe(const String &p_name) const {
+se_string XMLParser::get_attribute_value_safe(se_string_view p_name) const {
 
     int idx = -1;
     for (int i = 0; i < attributes.size(); i++) {
@@ -463,7 +462,7 @@ String XMLParser::get_attribute_value_safe(const String &p_name) const {
     }
 
     if (idx < 0)
-        return "";
+        return se_string();
     return attributes[idx].value;
 }
 bool XMLParser::is_empty() const {
@@ -483,12 +482,12 @@ Error XMLParser::open_buffer(const Vector<uint8_t> &p_buffer) {
     return OK;
 }
 
-Error XMLParser::open(const String &p_path) {
+Error XMLParser::open(se_string_view p_path) {
 
     Error err;
     FileAccess *file = FileAccess::open(p_path, FileAccess::READ, &err);
 
-    ERR_FAIL_COND_V_MSG(err != OK, err, "Cannot open file '" + p_path + "'.")
+    ERR_FAIL_COND_V_MSG(err != OK, err, "Cannot open file '" + se_string(p_path) + "'.")
 
     length = file->get_len();
     ERR_FAIL_COND_V(length < 1, ERR_FILE_CORRUPT)

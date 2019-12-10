@@ -60,7 +60,7 @@ void ShaderTextEditor::set_edited_shader(const Ref<Shader> &p_shader) {
 
     _load_theme_settings();
 
-    get_text_edit()->set_text(p_shader->get_code());
+    get_text_edit()->set_text_utf8(p_shader->get_code());
     get_text_edit()->clear_undo_history();
 
     _validate_script();
@@ -76,7 +76,7 @@ void ShaderTextEditor::reload_text() {
     int h = te->get_h_scroll();
     int v = te->get_v_scroll();
 
-    te->set_text(shader->get_code());
+    te->set_text_utf8(shader->get_code());
     te->cursor_set_line(row);
     te->cursor_set_column(column);
     te->set_h_scroll(h);
@@ -149,7 +149,7 @@ void ShaderTextEditor::_load_theme_settings() {
     get_text_edit()->add_color_override("search_result_border_color", search_result_border_color);
     get_text_edit()->add_color_override("symbol_color", symbol_color);
 
-    PODVector<String> keywords;
+    PODVector<se_string_view> keywords;
     ShaderLanguage::get_keyword_list(&keywords);
 
     if (shader) {
@@ -157,29 +157,29 @@ void ShaderTextEditor::_load_theme_settings() {
         for (const eastl::pair<const StringName, ShaderLanguage::FunctionInfo> &E : ShaderTypes::get_singleton()->get_functions(VS::ShaderMode(shader->get_mode()))) {
 
             for (const eastl::pair<const StringName, ShaderLanguage::BuiltInInfo> &F : E.second.built_ins) {
-                keywords.push_back(F.first);
+                keywords.push_back(F.first.asCString());
             }
         }
 
         for (int i = 0; i < ShaderTypes::get_singleton()->get_modes(VS::ShaderMode(shader->get_mode())).size(); i++) {
 
-            keywords.push_back(ShaderTypes::get_singleton()->get_modes(VS::ShaderMode(shader->get_mode()))[i]);
+            keywords.push_back(ShaderTypes::get_singleton()->get_modes(VS::ShaderMode(shader->get_mode()))[i].asCString());
         }
     }
 
-    for (const String &E : keywords) {
+    for (se_string_view E : keywords) {
 
         get_text_edit()->add_keyword_color(E, keyword_color);
     }
 
     //colorize comments
-    get_text_edit()->add_color_region("/*", "*/", comment_color, false);
-    get_text_edit()->add_color_region("//", "", comment_color, false);
+    get_text_edit()->add_color_region(("/*"), ("*/"), comment_color, false);
+    get_text_edit()->add_color_region(("//"), "", comment_color, false);
 }
 
 void ShaderTextEditor::_check_shader_mode() {
 
-    String type = ShaderLanguage::get_shader_type(get_text_edit()->get_text());
+    se_string type = ShaderLanguage::get_shader_type(get_text_edit()->get_text());
 
     ShaderMode mode;
 
@@ -192,17 +192,17 @@ void ShaderTextEditor::_check_shader_mode() {
     }
 
     if (shader->get_mode() != mode) {
-        shader->set_code(get_text_edit()->get_text());
+        shader->set_code(get_text_edit()->get_text_utf8());
         _load_theme_settings();
     }
 }
 
-void ShaderTextEditor::_code_complete_script(const String &p_code, List<ScriptCodeCompletionOption> *r_options) {
+void ShaderTextEditor::_code_complete_script(const se_string &p_code, List<ScriptCodeCompletionOption> *r_options) {
 
     _check_shader_mode();
 
     ShaderLanguage sl;
-    String calltip;
+    se_string calltip;
 
     sl.complete(p_code, ShaderTypes::get_singleton()->get_functions(VS::ShaderMode(shader->get_mode())), ShaderTypes::get_singleton()->get_modes(VS::ShaderMode(shader->get_mode())), ShaderTypes::get_singleton()->get_types(), r_options, calltip);
 
@@ -213,17 +213,19 @@ void ShaderTextEditor::_validate_script() {
 
     _check_shader_mode();
 
-    String code = get_text_edit()->get_text();
-    //List<StringName> params;
-    //shader->get_param_list(&params);
+    se_string code = get_text_edit()->get_text_utf8();
+    // List<StringName> params;
+    // shader->get_param_list(&params);
 
     ShaderLanguage sl;
 
-    Error err = sl.compile(code, ShaderTypes::get_singleton()->get_functions(VS::ShaderMode(shader->get_mode())), ShaderTypes::get_singleton()->get_modes(VS::ShaderMode(shader->get_mode())), ShaderTypes::get_singleton()->get_types());
+    Error err = sl.compile(code, ShaderTypes::get_singleton()->get_functions(VS::ShaderMode(shader->get_mode())),
+            ShaderTypes::get_singleton()->get_modes(VS::ShaderMode(shader->get_mode())),
+            ShaderTypes::get_singleton()->get_types());
 
     if (err != OK) {
-        String error_text = "error(" + itos(sl.get_error_line()) + "): " + sl.get_error_text();
-        set_error(error_text);
+        se_string error_text = "error(" + itos(sl.get_error_line()) + "): " + sl.get_error_text();
+        set_error(StringName(error_text));
         set_error_pos(sl.get_error_line() - 1, 0);
         for (int i = 0; i < get_text_edit()->get_line_count(); i++)
             get_text_edit()->set_line_as_marked(i, false);
@@ -232,7 +234,7 @@ void ShaderTextEditor::_validate_script() {
     } else {
         for (int i = 0; i < get_text_edit()->get_line_count(); i++)
             get_text_edit()->set_line_as_marked(i, false);
-        set_error("");
+        set_error(StringName());
     }
 
     emit_signal("script_changed");
@@ -346,7 +348,7 @@ void ShaderEditor::_menu_option(int p_option) {
             shader_editor->remove_all_bookmarks();
         } break;
         case HELP_DOCS: {
-            OS::get_singleton()->shell_open("https://docs.godotengine.org/en/stable/tutorials/shading/shading_reference/index.html");
+            OS::get_singleton()->shell_open(("https://docs.godotengine.org/en/stable/tutorials/shading/shading_reference/index.html"));
         } break;
     }
     if (p_option != SEARCH_FIND && p_option != SEARCH_REPLACE && p_option != SEARCH_GOTO_LINE) {
@@ -442,7 +444,7 @@ void ShaderEditor::_check_for_external_edit() {
 
 void ShaderEditor::_reload_shader_from_disk() {
 
-    Ref<Shader> rel_shader = dynamic_ref_cast<Shader>(ResourceLoader::load(shader->get_path(), shader->get_class(), true));
+    Ref<Shader> rel_shader = dynamic_ref_cast<Shader>(ResourceLoader::load(shader->get_path(), (shader->get_class()), true));
     ERR_FAIL_COND(not rel_shader)
 
     shader->set_code(rel_shader->get_code());
@@ -466,7 +468,7 @@ void ShaderEditor::edit(const Ref<Shader> &p_shader) {
     // see if already has it
 }
 
-void ShaderEditor::save_external_data(const String &p_str) {
+void ShaderEditor::save_external_data(se_string_view p_str) {
 
     if (not shader) {
         disk_changed->hide();
@@ -485,8 +487,8 @@ void ShaderEditor::save_external_data(const String &p_str) {
 void ShaderEditor::apply_shaders() {
 
     if (shader) {
-        String shader_code = shader->get_code();
-        String editor_code = shader_editor->get_text_edit()->get_text();
+        se_string shader_code = shader->get_code();
+        se_string editor_code = shader_editor->get_text_edit()->get_text_utf8();
         if (shader_code != editor_code) {
             shader->set_code(editor_code);
             shader->get_tooling_interface()->set_edited(true);
@@ -553,13 +555,13 @@ void ShaderEditor::_update_bookmark_list() {
     bookmarks_menu->add_separator();
 
     for (int i = 0; i < bookmark_list.size(); i++) {
-        String line = StringUtils::strip_edges(shader_editor->get_text_edit()->get_line(bookmark_list[i]));
+        se_string line(StringUtils::strip_edges(shader_editor->get_text_edit()->get_line(bookmark_list[i])));
         // Limit the size of the line if too big.
         if (line.length() > 50) {
             line = StringUtils::substr(line,0, 50);
         }
 
-        bookmarks_menu->add_item(StringUtils::num((int)bookmark_list[i] + 1) + " - \"" + line + "\"");
+        bookmarks_menu->add_item(StringName(StringUtils::num((int)bookmark_list[i] + 1) + " - \"" + line + "\""));
         bookmarks_menu->set_item_metadata(bookmarks_menu->get_item_count() - 1, bookmark_list[i]);
     }
 }
@@ -671,7 +673,7 @@ ShaderEditor::ShaderEditor(EditorNode *p_node) {
     bookmarks_menu = memnew(PopupMenu);
     bookmarks_menu->set_name("Bookmarks");
     goto_menu->get_popup()->add_child(bookmarks_menu);
-    goto_menu->get_popup()->add_submenu_item(TTR("Bookmarks"), "Bookmarks");
+    goto_menu->get_popup()->add_submenu_item(TTR("Bookmarks"), StringName("Bookmarks"));
     _update_bookmark_list();
     bookmarks_menu->connect("about_to_show", this, "_update_bookmark_list");
     bookmarks_menu->connect("index_pressed", this, "_bookmark_item_pressed");

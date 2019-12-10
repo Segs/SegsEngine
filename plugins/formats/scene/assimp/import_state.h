@@ -55,22 +55,22 @@ namespace AssimpImporter {
      */
 struct ImportState {
 
-    String path;
+    se_string path;
     const aiScene *assimp_scene;
     uint32_t max_bone_weights;
 
     Spatial *root;
-    Map<String, Ref<Mesh> > mesh_cache;
+    Map<se_string, Ref<Mesh> > mesh_cache;
     Map<int, Ref<Material> > material_cache;
-    Map<String, int> light_cache;
-    Map<String, int> camera_cache;
+    Map<se_string, int> light_cache;
+    Map<se_string, int> camera_cache;
     //Vector<Skeleton *> skeletons;
     Map<Skeleton *, const Spatial *> armature_skeletons; // maps skeletons based on their armature nodes.
     Map<const aiBone *, Skeleton *> bone_to_skeleton_lookup; // maps bones back into their skeleton
     // very useful for when you need to ask assimp for the bone mesh
-    Map<String, Node *> node_map;
+    Map<StringName, Node *> node_map;
     Map<const aiNode *, const Node *> assimp_node_map;
-    Map<String, Ref<Image> > path_to_image_cache;
+    Map<se_string, Ref<Image> > path_to_image_cache;
     bool fbx; //for some reason assimp does some things different for FBX
     AnimationPlayer *animation_player;
 };
@@ -89,7 +89,7 @@ struct RecursiveState {
             Transform &_node_transform,
             Skeleton *_skeleton,
             Spatial *_new_node,
-            const String &_node_name,
+            const se_string &_node_name,
             const aiNode *_assimp_node,
             Node *_parent_node,
             const aiBone *_bone) :
@@ -104,7 +104,7 @@ struct RecursiveState {
     Transform &node_transform;
     Skeleton *skeleton;
     Spatial *new_node;
-    const String &node_name;
+    const se_string &node_name;
     const aiNode *assimp_node;
     Node *parent_node;
     const aiBone *bone;

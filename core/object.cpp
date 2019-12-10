@@ -38,6 +38,7 @@
 #include "core/print_string.h"
 #include "core/resource.h"
 #include "core/script_language.h"
+#include "core/se_string.h"
 #include "core/string_formatter.h"
 #include "core/translation.h"
 #include "core/hash_map.h"
@@ -49,7 +50,7 @@ struct ObjectToolingImpl final : public IObjectTooling {
 
     bool _edited;
     uint32_t _edited_version;
-    Set<String> editor_section_folding;
+    Set<se_string> editor_section_folding;
 
     // IObjectTooling interface
 public:
@@ -64,17 +65,20 @@ public:
     uint32_t get_edited_version() const final {
         return _edited_version;
     }
-    void editor_set_section_unfold(const String &p_section, bool p_unfolded) final {
+    void editor_set_section_unfold(se_string_view p_section, bool p_unfolded) final {
         set_edited(true);
         if (p_unfolded)
             editor_section_folding.insert(p_section);
-        else
-            editor_section_folding.erase(p_section);
+        else {
+            auto iter=editor_section_folding.find_as(p_section);
+            if(iter!=editor_section_folding.end())
+                editor_section_folding.erase(iter);
+        }
     }
-    bool editor_is_section_unfolded(const String &p_section) const final {
-        return editor_section_folding.contains(p_section);
+    bool editor_is_section_unfolded(se_string_view p_section) const final {
+        return editor_section_folding.contains_as(p_section);
     }
-    const Set<String> &editor_get_section_folding() const final {
+    const Set<se_string> &editor_get_section_folding() const final {
         return editor_section_folding;
     }
     void editor_clear_section_folding() final {
@@ -215,7 +219,7 @@ PropertyInfo PropertyInfo::from_dict(const Dictionary &p_dict) {
 
     if (p_dict.has("hint_string"))
 
-        pi.hint_string = p_dict["hint_string"].as<String>();
+        pi.hint_string = p_dict["hint_string"].as<se_string>();
 
     if (p_dict.has("usage"))
         pi.usage = p_dict["usage"];
@@ -512,16 +516,12 @@ void Object::_postinitialize() {
     notification(NOTIFICATION_POSTINITIALIZE);
 }
 
-String Object::get_category_static() {
-    return String();
+se_string Object::wrap_get_class() const {
+    return se_string(get_class());
 }
 
-String Object::wrap_get_class() const {
-    return String(get_class());
-}
-
-bool Object::wrap_is_class(const String &p_class) const {
-    return is_class(StringUtils::to_utf8(p_class).data());
+bool Object::wrap_is_class(se_string_view p_class) const {
+    return is_class(se_string(p_class).c_str());
 }
 
 void Object::set(const StringName &p_name, const Variant &p_value, bool *r_valid) {
@@ -830,19 +830,19 @@ static void _test_call_error(const StringName &p_func, const Variant::CallError 
         case Variant::CallError::CALL_ERROR_INVALID_METHOD: break;
         case Variant::CallError::CALL_ERROR_INVALID_ARGUMENT: {
 
-            ERR_FAIL_MSG("Error calling function: " + String(p_func) + " - Invalid type for argument " +
+            ERR_FAIL_MSG("Error calling function: " + se_string(p_func) + " - Invalid type for argument " +
                          itos(error.argument) + ", expected " + Variant::get_type_name(error.expected) + ".")
             break;
         }
         case Variant::CallError::CALL_ERROR_TOO_MANY_ARGUMENTS: {
 
-            ERR_FAIL_MSG("Error calling function: " + String(p_func) + " - Too many arguments, expected " +
+            ERR_FAIL_MSG("Error calling function: " + se_string(p_func) + " - Too many arguments, expected " +
                          itos(error.argument) + ".")
             break;
         }
         case Variant::CallError::CALL_ERROR_TOO_FEW_ARGUMENTS: {
 
-            ERR_FAIL_MSG("Error calling function: " + String(p_func) + " - Too few arguments, expected " +
+            ERR_FAIL_MSG("Error calling function: " + se_string(p_func) + " - Too few arguments, expected " +
                          itos(error.argument) + ".")
             break;
         }
@@ -1057,17 +1057,17 @@ void Object::notification(int p_notification, bool p_reversed) {
     }
 }
 
-String Object::to_string() {
+se_string Object::to_string() {
     if (script_instance) {
         bool valid;
-        String ret = script_instance->to_string(&valid);
+        se_string ret = script_instance->to_string(&valid);
         if (valid)
             return ret;
     }
-    return FormatV("[%s:%zd]",get_class(),get_instance_id());
+    return FormatVE("[%s:%zd]",get_class(),get_instance_id());
 }
 
-void Object::_changed_callback(Object * /*p_changed*/, const char * /*p_prop*/) {
+void Object::_changed_callback(Object * /*p_changed*/, StringName /*p_prop*/) {
 }
 
 void Object::add_change_receptor(Object *p_receptor) {
@@ -1079,12 +1079,6 @@ void Object::remove_change_receptor(Object *p_receptor) {
 
     private_data->change_receptors.erase(p_receptor);
 }
-
-void Object::get_inheritance_list_static(List<String> *p_inheritance_list) {
-    p_inheritance_list->push_back(String("Object"));
-}
-
-
 
 void Object::property_list_changed_notify() {
 
@@ -1155,28 +1149,28 @@ RefPtr Object::get_script() const {
     return script;
 }
 
-bool Object::has_meta(const String &p_name) const {
+bool Object::has_meta(se_string_view p_name) const {
 
-    return metadata.has(p_name);
+    return metadata.has(p_name.data());
 }
 
-void Object::set_meta(const String &p_name, const Variant &p_value) {
+void Object::set_meta(se_string_view p_name, const Variant &p_value) {
 
     if (p_value.get_type() == VariantType::NIL) {
-        metadata.erase(p_name);
+        metadata.erase(p_name.data());
         return;
     }
 
-    metadata[p_name] = p_value;
+    metadata[p_name.data()] = p_value;
 }
 
-Variant Object::get_meta(const String &p_name) const {
+Variant Object::get_meta(se_string_view p_name) const {
 
-    ERR_FAIL_COND_V(!metadata.has(p_name), Variant())
+    ERR_FAIL_COND_V(!metadata.has(p_name.data()), Variant())
     return metadata[p_name];
 }
 
-void Object::remove_meta(const String &p_name) {
+void Object::remove_meta(se_string_view p_name) {
     metadata.erase(p_name);
 }
 
@@ -1203,24 +1197,24 @@ Array Object::_get_method_list_bind() const {
     return ret;
 }
 
-PoolVector<String> Object::_get_meta_list_bind() const {
+PoolSeStringArray Object::_get_meta_list_bind() const {
 
-    PoolVector<String> _metaret;
+    PoolSeStringArray _metaret;
 
     PODVector<Variant> keys(metadata.get_key_list());
     for(const Variant &E : keys ) {
 
-        _metaret.push_back(E.as<String>());
+        _metaret.push_back(E.as<se_string>());
     }
 
     return _metaret;
 }
-void Object::get_meta_list(ListPOD<String> *p_list) const {
+void Object::get_meta_list(ListPOD<se_string> *p_list) const {
 
     PODVector<Variant> keys(metadata.get_key_list());
     for(const Variant &E : keys ) {
 
-        p_list->push_back(E.as<String>());
+        p_list->push_back(E.as<se_string>());
     }
 }
 
@@ -1235,9 +1229,9 @@ IObjectTooling *Object::get_tooling_interface() const
 
 void Object::add_user_signal(const MethodInfo &p_signal) {
 
-    ERR_FAIL_COND_CMSG(p_signal.name == "", "Signal name cannot be empty.")
-    ERR_FAIL_COND_MSG(ClassDB::has_signal(get_class_name(), p_signal.name), "User signal's name conflicts with a built-in signal of '" + get_class_name() + "'.")
-    ERR_FAIL_COND_MSG(private_data->signal_map.contains(p_signal.name), "Trying to add already existing signal '" + p_signal.name + "'.")
+    ERR_FAIL_COND_CMSG(p_signal.name.empty(), "Signal name cannot be empty.")
+    ERR_FAIL_COND_MSG(ClassDB::has_signal(get_class_name(), p_signal.name), "User signal's name conflicts with a built-in signal of '" + se_string(get_class_name()) + "'.")
+    ERR_FAIL_COND_MSG(private_data->signal_map.contains(p_signal.name), "Trying to add already existing signal '" + se_string(p_signal.name) + "'.")
     Signal s;
     s.user = p_signal;
     private_data->signal_map[p_signal.name] = s;
@@ -1296,7 +1290,7 @@ Error Object::emit_signal(const StringName &p_name, const Variant **p_args, int 
         bool signal_is_valid = ClassDB::has_signal(get_class_name(), p_name);
         //check in script
         ERR_FAIL_COND_V_MSG(!signal_is_valid && !script.is_null() && !refFromRefPtr<Script>(script)->has_script_signal(p_name),
-                ERR_UNAVAILABLE, "Can't emit non-existing signal " + String("\"") + p_name + "\".")
+                ERR_UNAVAILABLE, "Can't emit non-existing signal " + se_string("\"") + p_name + "\".")
 #endif
         //not connected? just return
         return ERR_UNAVAILABLE;
@@ -1361,7 +1355,7 @@ Error Object::emit_signal(const StringName &p_name, const Variant **p_args, int 
                 if (ce.error == Variant::CallError::CALL_ERROR_INVALID_METHOD && !ClassDB::class_exists(target->get_class_name())) {
                     // most likely object is not initialized yet, do not throw error.
                 } else {
-                    ERR_PRINT("Error calling method from signal '" + String(p_name) +
+                    ERR_PRINT("Error calling method from signal '" + se_string(p_name) +
                                "': " + Variant::get_call_error_text(target, c.method, args, argc, ce) + ".")
                     err = ERR_METHOD_NOT_FOUND;
                 }
@@ -1411,14 +1405,14 @@ Error Object::emit_signal(const StringName &p_name, VARIANT_ARG_DECLARE) {
     return emit_signal(p_name, argptr, argc);
 }
 
-void Object::_add_user_signal(const String &p_name, const Array &p_args) {
+void Object::_add_user_signal(const StringName &p_name, const Array &p_args) {
 
     // this version of add_user_signal is meant to be used from scripts or external apis
     // without access to ADD_SIGNAL in bind_methods
     // added events are per instance, as opposed to the other ones, which are global
 
     MethodInfo mi;
-    mi.name = StringName(p_name);
+    mi.name = p_name;
 
     for (int i = 0; i < p_args.size(); i++) {
 
@@ -1450,7 +1444,7 @@ Array Object::_get_signal_list() const {
     return ret;
 }
 
-Array Object::_get_signal_connection_list(const String &p_signal) const {
+Array Object::_get_signal_connection_list(StringName p_signal) const {
 
     ListPOD<Connection> conns;
     get_all_signal_connections(&conns);
@@ -1459,7 +1453,7 @@ Array Object::_get_signal_connection_list(const String &p_signal) const {
 
     for(Connection &c : conns ) {
         //TODO: SEGS: unneeded string allocations.
-        if (c.signal.asString() == p_signal) {
+        if (c.signal == p_signal) {
             Dictionary rc;
             //TODO: SEGS: note that this WILL NOT PRESERVE source and target if they are Reference counted types!
             rc["signal"] = c.signal;
@@ -1589,7 +1583,7 @@ Error Object::connect(const StringName &p_signal, Object *p_to_object, const Str
         }
         {
             if (unlikely(!signal_is_valid)) {
-                ERR_EXPLAIN("In Object of type '" + String(get_class()) + "': Attempt to connect nonexistent signal '" + p_signal +
+                ERR_EXPLAIN("In Object of type '" + se_string(get_class()) + "': Attempt to connect nonexistent signal '" + p_signal +
                             "' to method '" + p_to_object->get_class() + "." + p_to_method + "'.")
                 _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "Condition ' !signal_is_valid ' is true. returned: " _STR(ERR_INVALID_PARAMETER));
                 return ERR_INVALID_PARAMETER;
@@ -1608,7 +1602,7 @@ Error Object::connect(const StringName &p_signal, Object *p_to_object, const Str
             return OK;
         } else {
             ERR_FAIL_V_MSG(ERR_INVALID_PARAMETER,
-                    "Signal '" + p_signal + "' is already connected to given method '" + p_to_method + "' in that object.")
+                    "Signal '" + se_string(p_signal) + "' is already connected to given method '" + p_to_method + "' in that object.")
         }
     }
 
@@ -1644,7 +1638,7 @@ bool Object::is_connected(const StringName &p_signal, Object *p_to_object, const
         if (!script.is_null() && refFromRefPtr<Script>(script)->has_script_signal(p_signal))
             return false;
 
-        ERR_FAIL_V_MSG(false, "Nonexistent signal: " + p_signal + ".")
+        ERR_FAIL_V_MSG(false, "Nonexistent signal: " + se_string(p_signal) + ".")
     }
 
     Signal::Target target(p_to_object->get_instance_id(), p_to_method);
@@ -1662,14 +1656,14 @@ void Object::_disconnect(const StringName &p_signal, Object *p_to_object, const 
 
     ERR_FAIL_NULL(p_to_object)
     Signal *s = private_data->signal_map.getptr(p_signal);
-    ERR_FAIL_COND_MSG(!s, "Nonexistent signal: " + p_signal + ".")
+    ERR_FAIL_COND_MSG(!s, "Nonexistent signal: " + se_string(p_signal) + ".")
 
-    ERR_FAIL_COND_MSG(s->lock > 0, "Attempt to disconnect signal '" + p_signal + "' while emitting (locks: " + itos(s->lock) + ").")
+    ERR_FAIL_COND_MSG(s->lock > 0, "Attempt to disconnect signal '" + se_string(p_signal) + "' while emitting (locks: " + ::to_string(s->lock) + ").")
 
     Signal::Target target(p_to_object->get_instance_id(), p_to_method);
 
     ERR_FAIL_COND_MSG(!s->slot_map.has(target),
-            "Disconnecting nonexistent signal '" + p_signal + "', slot: " + itos(target._id) + ":" + target.method + ".")
+            "Disconnecting nonexistent signal '" + se_string(p_signal) + "', slot: " + ::to_string(target._id) + ":" + target.method + ".")
 
     Signal::Slot *slot = &s->slot_map[target];
 
@@ -1689,14 +1683,14 @@ void Object::_disconnect(const StringName &p_signal, Object *p_to_object, const 
     }
 }
 
-void Object::_set_bind(const String &p_set, const Variant &p_value) {
+void Object::_set_bind(const StringName &p_set, const Variant &p_value) {
 
-    set(StringName(p_set), p_value);
+    set(p_set, p_value);
 }
 
-Variant Object::_get_bind(const String &p_name) const {
+Variant Object::_get_bind(const StringName &p_name) const {
 
-    return get(StringName(p_name));
+    return get(p_name);
 }
 
 void Object::_set_indexed_bind(const NodePath &p_name, const Variant &p_value) {
@@ -1719,7 +1713,7 @@ bool Object::initialize_class() {
     initialized = true;
     return true;
 }
-void Object::_change_notify(const char *p_property) {
+void Object::_change_notify(StringName p_property) {
 #ifdef TOOLS_ENABLED
     private_data->get_tooling()->set_edited(true,false);
     for (Object *E : private_data->change_receptors)
@@ -1744,14 +1738,14 @@ void Object::_clear_internal_resource_paths(const Variant &p_var) {
             if (not r)
                 return;
 
-            if (!StringUtils::begins_with(r->get_path(),"res://") || !StringUtils::contains(r->get_path(),String("::")))
+            if (!StringUtils::begins_with(r->get_path(),"res://") || !StringUtils::contains(r->get_path(),"::"))
                 return; //not an internal resource
 
             Object *object = p_var;
             if (!object)
                 return;
 
-            r->set_path(String::null_val);
+            r->set_path("");
             r->clear_internal_resource_paths();
         } break;
         case VariantType::ARRAY: {
@@ -1913,7 +1907,7 @@ bool Object::is_blocking_signals() const {
     return _block_signals;
 }
 
-void Object::get_translatable_strings(ListPOD<String> *p_strings) const {
+void Object::get_translatable_strings(ListPOD<StringName> *p_strings) const {
 
     ListPOD<PropertyInfo> plist;
     get_property_list(&plist);
@@ -1923,9 +1917,9 @@ void Object::get_translatable_strings(ListPOD<String> *p_strings) const {
         if (!(E.usage & PROPERTY_USAGE_INTERNATIONALIZED))
             continue;
 
-        String text = get(E.name).as<String>();
+        StringName text = get(E.name).as<StringName>();
 
-        if (text == "")
+        if (text.empty())
             continue;
 
         p_strings->push_back(text);
@@ -2129,7 +2123,7 @@ void ObjectDB::debug_objects(DebugFunc p_func) {
     rw_lock->read_unlock();
 }
 
-void Object::get_argument_options(const StringName & /*p_function*/, int /*p_idx*/, ListPOD<String> * /*r_options*/) const {
+void Object::get_argument_options(const StringName & /*p_function*/, int /*p_idx*/, ListPOD<se_string> * /*r_options*/) const {
 }
 
 int ObjectDB::get_object_count() {
@@ -2158,13 +2152,13 @@ void ObjectDB::cleanup() {
             const ObjectID *K = nullptr;
             while ((K = instances.next(K))) {
 
-                String node_name;
+                se_string node_name;
                 if (instances[*K]->is_class("Node"))
-                    node_name = " - Node name: " + instances[*K]->call("get_name").as<String>();
+                    node_name = " - Node name: " + instances[*K]->call("get_name").as<se_string>();
                 if (instances[*K]->is_class("Resource"))
-                    node_name = " - Resource name: " + instances[*K]->call("get_name").as<String>() +
-                                " Path: " + instances[*K]->call("get_path").as<String>();
-                print_line(FormatV("Leaked instance: %s:%zu%s",instances[*K]->get_class(),*K,qPrintable(node_name.m_str)));
+                    node_name = " - Resource name: " + instances[*K]->call("get_name").as<se_string>() +
+                                " Path: " + instances[*K]->call("get_path").as<se_string>();
+                print_line(FormatVE("Leaked instance: %s:%zu%s",instances[*K]->get_class(),*K,node_name.c_str()));
             }
         }
     }

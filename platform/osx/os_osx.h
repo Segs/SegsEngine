@@ -198,7 +198,7 @@ public:
 
     virtual void alert(const String &p_alert, const String &p_title = "ALERT!");
 
-    virtual Error open_dynamic_library(const String &p_path, void *&p_library_handle, bool p_also_set_library_path = false);
+    virtual Error open_dynamic_library(se_string_view p_path, void *&p_library_handle, bool p_also_set_library_path = false);
 
     virtual void set_cursor_shape(CursorShape p_shape);
     virtual CursorShape get_cursor_shape() const;
@@ -226,7 +226,7 @@ public:
     virtual bool can_draw() const;
 
     virtual void set_clipboard(const String &p_text);
-    virtual String get_clipboard() const;
+    virtual se_string get_clipboard() const;
 
     virtual void release_rendering_thread();
     virtual void make_rendering_thread();
@@ -272,7 +272,7 @@ public:
     virtual void set_window_always_on_top(bool p_enabled);
     virtual bool is_window_always_on_top() const;
     virtual void request_attention();
-    virtual String get_joy_guid(int p_device) const;
+    virtual StringName get_joy_guid(int p_device) const;
 
     virtual void set_borderless_window(bool p_borderless);
     virtual bool get_borderless_window();
@@ -284,8 +284,6 @@ public:
     virtual void set_ime_position(const Point2 &p_pos);
     virtual Point2 get_ime_selection() const;
     virtual String get_ime_text() const;
-
-    virtual String get_unique_id() const;
 
     virtual OS::PowerState get_power_state();
     virtual int get_power_seconds_left();
@@ -304,7 +302,7 @@ public:
     void disable_crash_handler();
     bool is_disable_crash_handler() const;
 
-    virtual Error move_to_trash(const String &p_path);
+    virtual Error move_to_trash(const se_string &p_path);
 
     void force_process_input();
 

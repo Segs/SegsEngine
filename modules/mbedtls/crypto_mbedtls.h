@@ -50,8 +50,8 @@ public:
 	static void make_default() { CryptoKey::_create = create; }
 	static void finalize() { CryptoKey::_create = nullptr; }
 
-	Error load(String p_path) override;
-	Error save(String p_path) override;
+    Error load(se_string_view p_path) override;
+    Error save(se_string_view p_path) override;
 
 	CryptoKeyMbedTLS() {
 		mbedtls_pk_init(&pkey);
@@ -79,9 +79,9 @@ public:
 	static void make_default() { X509Certificate::_create = create; }
 	static void finalize() { X509Certificate::_create = nullptr; }
 
-	Error load(String p_path) override;
+    Error load(se_string_view p_path) override;
 	Error load_from_memory(const uint8_t *p_buffer, int p_len) override;
-	Error save(String p_path) override;
+    Error save(se_string_view p_path) override;
 
 	X509CertificateMbedTLS() {
 		mbedtls_x509_crt_init(&cert);
@@ -110,11 +110,11 @@ public:
 	static void initialize_crypto();
 	static void finalize_crypto();
 	static X509CertificateMbedTLS *get_default_certificates();
-	static void load_default_certificates(String p_path);
+    static void load_default_certificates(se_string_view p_path);
 
 	PoolByteArray generate_random_bytes(int p_bytes) override;
 	Ref<CryptoKey> generate_rsa(int p_bytes) override;
-	Ref<X509Certificate> generate_self_signed_certificate(Ref<CryptoKey> p_key, String p_issuer_name, String p_not_before, String p_not_after) override;
+    Ref<X509Certificate> generate_self_signed_certificate(Ref<CryptoKey> p_key, se_string_view p_issuer_name, se_string_view p_not_before, se_string_view p_not_after) override;
 
 	CryptoMbedTLS();
 	~CryptoMbedTLS() override;

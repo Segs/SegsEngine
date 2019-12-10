@@ -33,6 +33,7 @@
 #include "core/method_bind.h"
 #include "core/os/keyboard.h"
 #include "core/translation_helpers.h"
+#include "editor/editor_node.h"
 #include "scene/resources/curve.h"
 #include "spatial_editor_plugin.h"
 
@@ -40,28 +41,23 @@ IMPL_GDCLASS(PathSpatialGizmo)
 IMPL_GDCLASS(PathSpatialGizmoPlugin)
 IMPL_GDCLASS(PathEditorPlugin)
 
-String PathSpatialGizmo::get_handle_name(int p_idx) const {
+StringName PathSpatialGizmo::get_handle_name(int p_idx) const {
 
     Ref<Curve3D> c = path->get_curve();
     if (not c)
-        return "";
+        return StringName();
 
     if (p_idx < c->get_point_count()) {
 
-        return TTR("Curve Point #") + itos(p_idx);
+        return TTR("Curve Point #") + StringUtils::num(p_idx);
     }
 
     p_idx = p_idx - c->get_point_count() + 1;
 
     int idx = p_idx / 2;
     int t = p_idx % 2;
-    String n = TTR("Curve Point #") + itos(idx);
-    if (t == 0)
-        n += " In";
-    else
-        n += " Out";
-
-    return n;
+    StringName n = TTR("Curve Point #") + StringUtils::num(idx);
+    return n + StringName((t == 0) ? " In":" Out");
 }
 Variant PathSpatialGizmo::get_handle_value(int p_idx) {
 
@@ -175,7 +171,7 @@ void PathSpatialGizmo::commit_handle(int p_idx, const Variant &p_restore, bool p
             c->set_point_position(p_idx, p_restore);
             return;
         }
-        ur->create_action(TTR("Set Curve Point Position"));
+        ur->create_action_ui(TTR("Set Curve Point Position"));
         ur->add_do_method(c.get(), "set_point_position", p_idx, c->get_point_position(p_idx));
         ur->add_undo_method(c.get(), "set_point_position", p_idx, p_restore);
         ur->commit_action();
@@ -194,7 +190,7 @@ void PathSpatialGizmo::commit_handle(int p_idx, const Variant &p_restore, bool p
             return;
         }
 
-        ur->create_action(TTR("Set Curve In Position"));
+        ur->create_action_ui(TTR("Set Curve In Position"));
         ur->add_do_method(c.get(), "set_point_in", idx, c->get_point_in(idx));
         ur->add_undo_method(c.get(), "set_point_in", idx, p_restore);
 
@@ -211,7 +207,7 @@ void PathSpatialGizmo::commit_handle(int p_idx, const Variant &p_restore, bool p
             return;
         }
 
-        ur->create_action(TTR("Set Curve Out Position"));
+        ur->create_action_ui(TTR("Set Curve Out Position"));
         ur->add_do_method(c.get(), "set_point_out", idx, c->get_point_out(idx));
         ur->add_undo_method(c.get(), "set_point_out", idx, p_restore);
 
@@ -384,7 +380,7 @@ bool PathEditorPlugin::forward_spatial_gui_input(Camera *p_camera, const Ref<Inp
             if (closest_seg != -1) {
                 //subdivide
 
-                ur->create_action(TTR("Split Path"));
+                ur->create_action_ui(TTR("Split Path"));
                 ur->add_do_method(c.get(), "add_point", closest_seg_point, Vector3(), Vector3(), closest_seg + 1);
                 ur->add_undo_method(c.get(), "remove_point", closest_seg + 1);
                 ur->commit_action();
@@ -404,7 +400,7 @@ bool PathEditorPlugin::forward_spatial_gui_input(Camera *p_camera, const Ref<Inp
                 Vector3 inters;
                 if (p.intersects_ray(ray_from, ray_dir, &inters)) {
 
-                    ur->create_action(TTR("Add Point to Curve"));
+                    ur->create_action_ui(TTR("Add Point to Curve"));
                     ur->add_do_method(c.get(), "add_point", it.xform(inters), Vector3(), Vector3(), -1);
                     ur->add_undo_method(c.get(), "remove_point", c->get_point_count());
                     ur->commit_action();
@@ -426,7 +422,7 @@ bool PathEditorPlugin::forward_spatial_gui_input(Camera *p_camera, const Ref<Inp
                 if (dist_to_p < click_dist) {
 
                     UndoRedo *ur = editor->get_undo_redo();
-                    ur->create_action(TTR("Remove Path Point"));
+                    ur->create_action_ui(TTR("Remove Path Point"));
                     ur->add_do_method(c.get(), "remove_point", i);
                     ur->add_undo_method(c.get(), "add_point", c->get_point_position(i), c->get_point_in(i), c->get_point_out(i), i);
                     ur->commit_action();
@@ -434,7 +430,7 @@ bool PathEditorPlugin::forward_spatial_gui_input(Camera *p_camera, const Ref<Inp
                 } else if (dist_to_p_out < click_dist) {
 
                     UndoRedo *ur = editor->get_undo_redo();
-                    ur->create_action(TTR("Remove Out-Control Point"));
+                    ur->create_action_ui(TTR("Remove Out-Control Point"));
                     ur->add_do_method(c.get(), "set_point_out", i, Vector3());
                     ur->add_undo_method(c.get(), "set_point_out", i, c->get_point_out(i));
                     ur->commit_action();
@@ -442,7 +438,7 @@ bool PathEditorPlugin::forward_spatial_gui_input(Camera *p_camera, const Ref<Inp
                 } else if (dist_to_p_in < click_dist) {
 
                     UndoRedo *ur = editor->get_undo_redo();
-                    ur->create_action(TTR("Remove In-Control Point"));
+                    ur->create_action_ui(TTR("Remove In-Control Point"));
                     ur->add_do_method(c.get(), "set_point_in", i, Vector3());
                     ur->add_undo_method(c.get(), "set_point_in", i, c->get_point_in(i));
                     ur->commit_action();
@@ -585,7 +581,9 @@ PathEditorPlugin::PathEditorPlugin(EditorNode *p_node) {
     curve_edit->set_toggle_mode(true);
     curve_edit->hide();
     curve_edit->set_focus_mode(Control::FOCUS_NONE);
-    curve_edit->set_tooltip(TTR("Select Points") + "\n" + TTR("Shift+Drag: Select Control Points") + "\n" + keycode_get_string(KEY_MASK_CMD) + TTR("Click: Add Point") + "\n" + TTR("Right Click: Delete Point"));
+    curve_edit->set_tooltip(TTR("Select Points") + "\n" + TTR("Shift+Drag: Select Control Points") + "\n" +
+                            se_string(keycode_get_string(KEY_MASK_CMD)) + TTR("Click: Add Point") + "\n" +
+                            TTR("Right Click: Delete Point"));
     SpatialEditor::get_singleton()->add_control_to_menu_panel(curve_edit);
     curve_create = memnew(ToolButton);
     curve_create->set_icon(EditorNode::get_singleton()->get_gui_base()->get_icon("CurveCreate", "EditorIcons"));
@@ -646,7 +644,7 @@ Ref<EditorSpatialGizmo> PathSpatialGizmoPlugin::create_gizmo(Spatial *p_spatial)
     return ref;
 }
 
-String PathSpatialGizmoPlugin::get_name() const {
+se_string_view PathSpatialGizmoPlugin::get_name() const {
     return "Path";
 }
 

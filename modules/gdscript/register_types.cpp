@@ -60,10 +60,10 @@ class EditorExportGDScript : public EditorExportPlugin {
     GDCLASS(EditorExportGDScript,EditorExportPlugin)
 
 public:
-    void _export_file(const String &p_path, const String &p_type, const Set<String> &p_features) override {
+    void _export_file(se_string_view p_path, se_string_view p_type, const Set<se_string> &p_features) override {
 
         int script_mode = EditorExportPreset::MODE_SCRIPT_COMPILED;
-        String script_key;
+        se_string script_key;
 
         const Ref<EditorExportPreset> &preset = get_export_preset();
 
@@ -79,14 +79,14 @@ public:
         if (file.empty())
             return;
 
-        String txt = StringUtils::from_utf8((const char *)file.ptr(), file.size());
+        se_string txt((const char *)file.ptr(), file.size());
         file = GDScriptTokenizerBuffer::parse_code_string(txt);
-
+        se_string base_path(PathUtils::get_basename(p_path));
         if (!file.empty()) {
 
             if (script_mode == EditorExportPreset::MODE_SCRIPT_ENCRYPTED) {
 
-                String tmp_path = PathUtils::plus_file(EditorSettings::get_singleton()->get_cache_dir(),"script.gde");
+                se_string tmp_path = PathUtils::plus_file(EditorSettings::get_singleton()->get_cache_dir(),"script.gde");
                 FileAccess *fa = FileAccess::open(tmp_path, FileAccess::WRITE);
 
                 Vector<uint8_t> key;
@@ -122,14 +122,14 @@ public:
                 memdelete(fae);
 
                 file = FileAccess::get_file_as_array(tmp_path);
-                add_file(PathUtils::get_basename(p_path) + ".gde", file, true);
+                add_file(base_path + ".gde", file, true);
 
                 // Clean up temporary file.
                 DirAccess::remove_file_or_error(tmp_path);
 
             } else {
 
-                add_file(PathUtils::get_basename(p_path) + ".gdc", file, true);
+                add_file(base_path + ".gdc", file, true);
             }
         }
     }

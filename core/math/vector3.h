@@ -34,10 +34,10 @@
 #include "core/math/math_funcs.h"
 #include "core/typedefs.h"
 #include "core/error_macros.h"
+#include "core/forward_decls.h"
 #include <type_traits>
 
 class Basis;
-class String;
 
 struct GODOT_EXPORT Vector3 {
 
@@ -147,7 +147,7 @@ struct GODOT_EXPORT Vector3 {
     _FORCE_INLINE_ bool operator>(const Vector3 &p_v) const;
     _FORCE_INLINE_ bool operator>=(const Vector3 &p_v) const;
 
-    operator String() const;
+    operator se_string() const;
 
     _FORCE_INLINE_ constexpr Vector3() : x(0),y(0),z(0) {}
     _FORCE_INLINE_ constexpr Vector3(real_t p_x, real_t p_y, real_t p_z) : x(p_x),y(p_y),z(p_z) {

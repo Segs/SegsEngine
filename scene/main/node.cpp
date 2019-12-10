@@ -64,10 +64,18 @@ VARIANT_ENUM_CAST(Node::PauseMode);
 VARIANT_ENUM_CAST(Node::DuplicateFlags);
 
 int Node::orphan_node_count = 0;
-
+se_string_view _get_name_num_separator() {
+    switch (ProjectSettings::get_singleton()->get("node/name_num_separator").as<int>()) {
+        case 0: return "";
+        case 1: return " ";
+        case 2: return "_";
+        case 3: return "-";
+    }
+    return " ";
+}
 struct Node::PrivData {
 
-    String *filename=nullptr;
+    se_string *filename=nullptr;
     Ref<SceneState> instance_state;
     Ref<SceneState> inherited_state;
 
@@ -157,11 +165,11 @@ void Node::_notification(int p_notification) {
             }
 
             if (data->input)
-                add_to_group("_vp_input" + itos(get_viewport()->get_instance_id()));
+                add_to_group(StringName("_vp_input" + itos(get_viewport()->get_instance_id())));
             if (data->unhandled_input)
-                add_to_group("_vp_unhandled_input" + itos(get_viewport()->get_instance_id()));
+                add_to_group(StringName("_vp_unhandled_input" + itos(get_viewport()->get_instance_id())));
             if (data->unhandled_key_input)
-                add_to_group("_vp_unhandled_key_input" + itos(get_viewport()->get_instance_id()));
+                add_to_group(StringName("_vp_unhandled_key_input" + itos(get_viewport()->get_instance_id())));
 
             get_tree()->node_count++;
             orphan_node_count--;
@@ -175,11 +183,11 @@ void Node::_notification(int p_notification) {
             orphan_node_count++;
 
             if (data->input)
-                remove_from_group("_vp_input" + itos(get_viewport()->get_instance_id()));
+                remove_from_group(StringName("_vp_input" + itos(get_viewport()->get_instance_id())));
             if (data->unhandled_input)
-                remove_from_group("_vp_unhandled_input" + itos(get_viewport()->get_instance_id()));
+                remove_from_group(StringName("_vp_unhandled_input" + itos(get_viewport()->get_instance_id())));
             if (data->unhandled_key_input)
-                remove_from_group("_vp_unhandled_key_input" + itos(get_viewport()->get_instance_id()));
+                remove_from_group(StringName("_vp_unhandled_key_input" + itos(get_viewport()->get_instance_id())));
 
             data->pause_owner = nullptr;
             if (data->path_cache) {
@@ -341,7 +349,7 @@ void Node::_propagate_exit_tree() {
 
     if (ScriptDebugger::get_singleton() && data->filename && !data->filename->empty()) {
         //used for live edit
-        Map<String, Set<Node *> >::iterator E = tree->get_live_scene_edit_cache().find(*data->filename);
+        Map<se_string, Set<Node *> >::iterator E = tree->get_live_scene_edit_cache().find(*data->filename);
         if (E!=tree->get_live_scene_edit_cache().end()) {
             E->second.erase(this);
             if (E->second.empty()) {
@@ -938,9 +946,9 @@ void Node::set_process_input(bool p_enable) {
         return;
 
     if (p_enable)
-        add_to_group("_vp_input" + itos(get_viewport()->get_instance_id()));
+        add_to_group(StringName("_vp_input" + itos(get_viewport()->get_instance_id())));
     else
-        remove_from_group("_vp_input" + itos(get_viewport()->get_instance_id()));
+        remove_from_group(StringName("_vp_input" + itos(get_viewport()->get_instance_id())));
 }
 
 bool Node::is_processing_input() const {
@@ -956,9 +964,9 @@ void Node::set_process_unhandled_input(bool p_enable) {
         return;
 
     if (p_enable)
-        add_to_group("_vp_unhandled_input" + itos(get_viewport()->get_instance_id()));
+        add_to_group(StringName("_vp_unhandled_input" + itos(get_viewport()->get_instance_id())));
     else
-        remove_from_group("_vp_unhandled_input" + itos(get_viewport()->get_instance_id()));
+        remove_from_group(StringName("_vp_unhandled_input" + itos(get_viewport()->get_instance_id())));
 }
 
 bool Node::is_processing_unhandled_input() const {
@@ -974,9 +982,9 @@ void Node::set_process_unhandled_key_input(bool p_enable) {
         return;
 
     if (p_enable)
-        add_to_group("_vp_unhandled_key_input" + itos(get_viewport()->get_instance_id()));
+        add_to_group(StringName("_vp_unhandled_key_input" + itos(get_viewport()->get_instance_id())));
     else
-        remove_from_group("_vp_unhandled_key_input" + itos(get_viewport()->get_instance_id()));
+        remove_from_group(StringName("_vp_unhandled_key_input" + itos(get_viewport()->get_instance_id())));
 }
 
 bool Node::is_processing_unhandled_key_input() const {
@@ -993,26 +1001,26 @@ void Node::_set_name_nocheck(const StringName &p_name) {
     data->name = p_name;
 }
 
-String Node::invalid_character = ". : @ / \"";
+const char *Node::invalid_character(". : @ / \"");
 
-bool Node::_validate_node_name(String &p_name) {
-    String name = p_name;
-    Vector<String> chars = StringUtils::split(Node::invalid_character,' ');
+bool Node::_validate_node_name(se_string &p_name) {
+    se_string name = p_name;
+    Vector<se_string_view> chars = StringUtils::split(Node::invalid_character,' ');
     for (int i = 0; i < chars.size(); i++) {
-        name = StringUtils::replace(name,chars[i], "");
+        name = StringUtils::replace(name,chars[i], se_string());
     }
     bool is_valid = name == p_name;
     p_name = name;
     return is_valid;
 }
 
-void Node::set_name(const String &p_name) {
+void Node::set_name(se_string_view p_name) {
 
-    String name = p_name;
+    se_string name(p_name);
     _validate_node_name(name);
 
     ERR_FAIL_COND(name.empty())
-    data->name = name;
+    data->name = StringName(name);
 
     if (data->parent) {
 
@@ -1028,7 +1036,6 @@ void Node::set_name(const String &p_name) {
         get_tree()->tree_changed();
     }
 }
-
 static bool node_hrcr = false;
 static SafeRefCount node_hrcr_count;
 
@@ -1042,11 +1049,11 @@ void Node::set_human_readable_collision_renaming(bool p_enabled) {
 }
 
 #ifdef TOOLS_ENABLED
-String Node::validate_child_name(Node *p_child) {
+se_string Node::validate_child_name(Node *p_child) {
 
     StringName name = p_child->data->name;
     _generate_serial_child_name(p_child, name);
-    return name;
+    return se_string(name);
 }
 #endif
 
@@ -1091,27 +1098,27 @@ void Node::_validate_child_name(Node *p_child, bool p_force_human_readable) {
         if (!unique) {
 
             ERR_FAIL_COND(!node_hrcr_count.ref())
-            String name = "@" + String(p_child->get_name()) + "@" + itos(node_hrcr_count.get());
-            p_child->data->name = name;
+            se_string name = "@" + se_string(p_child->get_name()) + "@" + itos(node_hrcr_count.get());
+            p_child->data->name = StringName(name);
         }
     }
 }
 
 // Return s + 1 as if it were an integer
-String increase_numeric_string(const String &s) {
+se_string increase_numeric_string(se_string_view s) {
 
-    String res = s;
+    se_string res(s);
     bool carry = res.length() > 0;
 
     for (int i = res.length() - 1; i >= 0; i--) {
         if (!carry) {
             break;
         }
-        CharType n = s[i];
+        char n = s[i];
         if (n == '9') { // keep carry as true: 9 + 1
-            res.set(i,'0');
+            res[i]='0';
         } else {
-            res.set(i,n.toLatin1() + 1);
+            res[i] = n + 1;
             carry = false;
         }
     }
@@ -1134,13 +1141,13 @@ void Node::_generate_serial_child_name(const Node *p_child, StringName &name) co
             case NAME_CASING_PASCAL_CASE:
                 break;
             case NAME_CASING_CAMEL_CASE: {
-                String n = name;
-                //TODO: consider char_lowercase that is correct and returns more then 1 char!
-                n.set(0,StringUtils::char_lowercase(n[0]));
-                name = n;
+                se_string n(name);
+                //TODO: SEGS: consider char_lowercase that is correct and returns more then 1 char!
+                n[0] = StringUtils::char_lowercase(n[0]);
+                name = StringName(n);
             } break;
             case NAME_CASING_SNAKE_CASE:
-                name = StringUtils::camelcase_to_underscore(name,true);
+                name = StringName(StringUtils::camelcase_to_underscore(name,true));
                 break;
         }
     }
@@ -1168,18 +1175,18 @@ void Node::_generate_serial_child_name(const Node *p_child, StringName &name) co
     }
 
     // Extract trailing number
-    String name_string = name;
-    String nums;
+    se_string name_string(name);
+    se_string nums;
     for (int i = name_string.length() - 1; i >= 0; i--) {
         CharType n = name_string[i];
         if (n >= '0' && n <= '9') {
-            nums = String(name_string[i]) + nums;
+            nums = name_string[i] + nums;
         } else {
             break;
         }
     }
 
-    String nnsep = _get_name_num_separator();
+    se_string_view nnsep(_get_name_num_separator());
     int name_last_index = name_string.length() - nnsep.length() - nums.length();
 
     // Assign the base name + separator to name if we have numbers preceded by a separator
@@ -1190,7 +1197,7 @@ void Node::_generate_serial_child_name(const Node *p_child, StringName &name) co
     }
 
     for (;;) {
-        StringName attempt = name_string + nums;
+        StringName attempt(name_string + nums);
         bool exists = false;
 
         for (int i = 0; i < cc; i++) {
@@ -1239,8 +1246,8 @@ void Node::_add_child_nocheck(Node *p_child, const StringName &p_name) {
 void Node::add_child(Node *p_child, bool p_legible_unique_name) {
 
     ERR_FAIL_NULL(p_child)
-    ERR_FAIL_COND_MSG(p_child == this, "Can't add child '" + p_child->get_name() + "' to itself.") // adding to itself!
-    ERR_FAIL_COND_MSG(p_child->data->parent, "Can't add child '" + p_child->get_name() + "' to '" + get_name() +
+    ERR_FAIL_COND_MSG(p_child == this, "Can't add child '" + se_string(p_child->get_name()) + "' to itself.") // adding to itself!
+    ERR_FAIL_COND_MSG(p_child->data->parent, "Can't add child '" + se_string(p_child->get_name()) + "' to '" + get_name() +
                                                     "', already has a parent '" + p_child->data->parent->get_name() +
                                                     "'.") // Fail if node has a parent
     ERR_FAIL_COND_CMSG(blocked > 0, "Parent node is busy setting up children, add_node() failed. Consider using "
@@ -1262,7 +1269,7 @@ void Node::add_child_below_node(Node *p_node, Node *p_child, bool p_legible_uniq
     if (is_a_parent_of(p_node)) {
         move_child(p_child, p_node->get_position_in_parent() + 1);
     } else {
-        WARN_PRINTS("Cannot move under node " + p_node->get_name() + " as " + p_child->get_name() + " does not share a parent.")
+        WARN_PRINT("Cannot move under node " + se_string(p_node->get_name()) + " as " + p_child->get_name() + " does not share a parent.")
     }
 }
 
@@ -1323,7 +1330,7 @@ void Node::remove_child(Node *p_child) {
         }
     }
 
-    ERR_FAIL_COND_MSG(idx == -1, "Cannot remove child node " + p_child->get_name() + " as it is not a child of this node.")
+    ERR_FAIL_COND_MSG(idx == -1, "Cannot remove child node " + se_string(p_child->get_name()) + " as it is not a child of this node.")
     //ERR_FAIL_COND( p_child->blocked > 0 )
 
     //if (data->scene) { does not matter
@@ -1448,7 +1455,7 @@ Node *Node::get_node_or_null(const NodePath &p_path) const {
 Node *Node::get_node(const NodePath &p_path) const {
 
     Node *node = get_node_or_null(p_path);
-    ERR_FAIL_COND_V_MSG(!node, nullptr, "Node not found: " + (String)p_path + ".")
+    ERR_FAIL_COND_V_MSG(!node, nullptr, "Node not found: " + (se_string)p_path + ".")
     return node;
 }
 
@@ -1457,7 +1464,7 @@ bool Node::has_node(const NodePath &p_path) const {
     return get_node_or_null(p_path) != nullptr;
 }
 
-Node *Node::find_node(const String &p_mask, bool p_recursive, bool p_owned) const {
+Node *Node::find_node(se_string_view p_mask, bool p_recursive, bool p_owned) const {
 
     Node *const *cptr = data->children.ptr();
     int ccount = data->children.size();
@@ -1482,7 +1489,7 @@ Node *Node::get_parent() const {
     return data->parent;
 }
 
-Node *Node::find_parent(const String &p_mask) const {
+Node *Node::find_parent(se_string_view p_mask) const {
 
     Node *p = data->parent;
     while (p) {
@@ -1701,7 +1708,7 @@ NodePath Node::get_path_to(const Node *p_node) const {
     }
 
     n = this;
-    StringName up = String("..");
+    StringName up("..");
 
     while (n != common_parent) {
 
@@ -1817,7 +1824,7 @@ void Node::print_tree() {
 }
 
 void Node::_print_tree(const Node *p_node) {
-    print_line(String(p_node->get_path_to(this)));
+    print_line(se_string(p_node->get_path_to(this)));
     for (int i = 0; i < data->children.size(); i++)
         data->children[i]->_print_tree(p_node);
 }
@@ -1935,29 +1942,29 @@ void Node::remove_and_skip() {
     data->parent->remove_child(this);
 }
 
-void Node::set_filename(const String &p_filename) {
+void Node::set_filename(se_string_view p_filename) {
     if(!data->filename)
-        data->filename = new String;
+        data->filename = new se_string;
     *data->filename = p_filename;
 }
-String Node::get_filename() const {
+se_string_view Node::get_filename() const {
 
     if(data->filename)
         return *data->filename;
-    return String::null_val;
+    return {};
 }
 
-void Node::set_editor_description(const String &p_editor_description) {
+void Node::set_editor_description(se_string_view p_editor_description) {
 
     set_meta("_editor_description_", p_editor_description);
 }
 
-String Node::get_editor_description() const {
+se_string Node::get_editor_description() const {
 
     if (has_meta("_editor_description_")) {
         return get_meta("_editor_description_");
     } else {
-        return "";
+        return se_string();
     }
 }
 
@@ -2118,7 +2125,7 @@ Node *Node::_duplicate(int p_flags, Map<const Node *, Node *> *r_duplimap) const
 
             if (!(E.usage & PROPERTY_USAGE_STORAGE))
                 continue;
-            String name = E.name;
+            const StringName &name(E.name);
             if (name == script_property_name)
                 continue;
 
@@ -2138,7 +2145,7 @@ Node *Node::_duplicate(int p_flags, Map<const Node *, Node *> *r_duplimap) const
         }
     }
 
-    if (get_name() != String()) {
+    if (get_name() != StringName()) {
         node->set_name(get_name());
     }
 
@@ -2250,11 +2257,11 @@ void Node::_duplicate_and_reown(Node *p_new_parent, const Map<Node *, Node *> &p
     } else {
 
         Object *obj = ClassDB::instance(get_class_name());
-        ERR_FAIL_COND_MSG(!obj, "Node: Could not duplicate: " + String(get_class()) + ".")
+        ERR_FAIL_COND_MSG(!obj, "Node: Could not duplicate: " + se_string(get_class()) + ".")
         node = object_cast<Node>(obj);
         if (!node) {
             memdelete(obj);
-            ERR_FAIL_MSG("Node: Could not duplicate: " + String(get_class()) + ".")
+            ERR_FAIL_MSG("Node: Could not duplicate: " + se_string(get_class()) + ".")
         }
     }
 
@@ -2266,7 +2273,7 @@ void Node::_duplicate_and_reown(Node *p_new_parent, const Map<Node *, Node *> &p
 
         if (!(E.usage & PROPERTY_USAGE_STORAGE))
             continue;
-        String name = E.name;
+        StringName name = E.name;
 
         Variant value = get(name).duplicate(true);
 
@@ -2352,12 +2359,12 @@ Node *Node::duplicate_and_reown(const Map<Node *, Node *> &p_reown_map) const {
     ERR_FAIL_COND_V(!get_filename().empty(), nullptr)
 
     Object *obj = ClassDB::instance(get_class_name());
-    ERR_FAIL_COND_V_MSG(!obj, nullptr, "Node: Could not duplicate: " + String(get_class()) + ".")
+    ERR_FAIL_COND_V_MSG(!obj, nullptr, "Node: Could not duplicate: " + se_string(get_class()) + ".")
 
     Node *node = object_cast<Node>(obj);
     if (!node) {
         memdelete(obj);
-        ERR_FAIL_V_MSG(nullptr, "Node: Could not duplicate: " + String(get_class()) + ".")
+        ERR_FAIL_V_MSG(nullptr, "Node: Could not duplicate: " + se_string(get_class()) + ".")
     }
     node->set_name(get_name());
 
@@ -2369,7 +2376,7 @@ Node *Node::duplicate_and_reown(const Map<Node *, Node *> &p_reown_map) const {
 
         if (!(E.usage & PROPERTY_USAGE_STORAGE))
             continue;
-        String name = E.name;
+        StringName name = E.name;
         node->set(name, get(name));
     }
 
@@ -2404,7 +2411,7 @@ static void find_owned_by(Node *p_by, Node *p_node, List<Node *> *p_owned) {
 
 struct _NodeReplaceByPair {
 
-    String name;
+    StringName name;
     Variant value;
 };
 
@@ -2493,8 +2500,8 @@ void Node::_replace_connections_target(Node *p_new_target) {
             c.source->disconnect(c.signal, this, c.method);
             bool valid = p_new_target->has_method(c.method) || not refFromRefPtr<Script>(p_new_target->get_script()) ||
                          refFromRefPtr<Script>(p_new_target->get_script())->has_method(c.method);
-            ERR_CONTINUE_MSG(!valid, FormatV("Attempt to connect signal '%s.", c.source->get_class()) + c.signal +
-                                             FormatV("' to nonexistent method '%s.", c.target->get_class()) + c.method + "'.")
+            ERR_CONTINUE_MSG(!valid, FormatVE("Attempt to connect signal '%s.", c.source->get_class()) + c.signal +
+                                             FormatVE("' to nonexistent method '%s.", c.target->get_class()) + c.method + "'.")
             c.source->connect(c.signal, p_new_target, c.method, c.binds, c.flags);
         }
     }
@@ -2647,11 +2654,11 @@ static void _Node_debug_sn(Object *p_obj) {
         p = p->get_parent();
     }
 
-    String path;
+    StringName path;
     if (p == n)
         path = n->get_name();
     else
-        path = String(p->get_name()) + "/" + (String)p->get_path_to(n);
+        path = StringName(se_string(p->get_name()) + "/" + (se_string)p->get_path_to(n));
     print_line(itos(p_obj->get_instance_id()) + " - Stray Node: " + path + " (Type: " + n->get_class() + ")");
 }
 #endif // DEBUG_ENABLED
@@ -2704,26 +2711,26 @@ NodePath Node::get_import_path() const {
 #endif
 }
 
-static void _add_nodes_to_options(const Node *p_base, const Node *p_node, ListPOD<String> *r_options) {
+static void _add_nodes_to_options(const Node *p_base, const Node *p_node, ListPOD<se_string> *r_options) {
 
 #ifdef TOOLS_ENABLED
-    const String quote_style = EDITOR_DEF("text_editor/completion/use_single_quotes", 0) ? "'" : "\"";
+    const char * quote_style(EDITOR_DEF("text_editor/completion/use_single_quotes", 0) ? "'" : "\"");
 #else
-    const String quote_style = "\"";
+    const char * quote_style = "\"";
 #endif
 
     if (p_node != p_base && !p_node->get_owner())
         return;
-    String n = (String)p_base->get_path_to(p_node);
+    se_string n(p_base->get_path_to(p_node).asString());
     r_options->push_back(quote_style + n + quote_style);
     for (int i = 0; i < p_node->get_child_count(); i++) {
         _add_nodes_to_options(p_base, p_node->get_child(i), r_options);
     }
 }
 
-void Node::get_argument_options(const StringName &p_function, int p_idx, ListPOD<String> *r_options) const {
+void Node::get_argument_options(const StringName &p_function, int p_idx, ListPOD<se_string> *r_options) const {
 
-    String pf = p_function;
+    StringName pf = p_function;
     if ((pf == "has_node" || pf == "get_node") && p_idx == 0) {
 
         _add_nodes_to_options(this, this, r_options);
@@ -2739,12 +2746,12 @@ void Node::clear_internal_tree_resource_paths() {
     }
 }
 
-String Node::get_configuration_warning() const {
+StringName Node::get_configuration_warning() const {
 
     if (get_script_instance() && get_script_instance()->has_method("_get_configuration_warning")) {
         return get_script_instance()->call("_get_configuration_warning");
     }
-    return String();
+    return StringName();
 }
 
 void Node::update_configuration_warning() {
@@ -2971,16 +2978,6 @@ void Node::_bind_methods() {
     BIND_VMETHOD(MethodInfo("_unhandled_input", PropertyInfo(VariantType::OBJECT, "event", PROPERTY_HINT_RESOURCE_TYPE, "InputEvent")))
     BIND_VMETHOD(MethodInfo("_unhandled_key_input", PropertyInfo(VariantType::OBJECT, "event", PROPERTY_HINT_RESOURCE_TYPE, "InputEventKey")))
     BIND_VMETHOD(MethodInfo(VariantType::STRING, "_get_configuration_warning"))
-}
-
-String Node::_get_name_num_separator() {
-    switch (ProjectSettings::get_singleton()->get("node/name_num_separator").operator int()) {
-        case 0: return "";
-        case 1: return " ";
-        case 2: return "_";
-        case 3: return "-";
-    }
-    return " ";
 }
 
 Node::Node() {

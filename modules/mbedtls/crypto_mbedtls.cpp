@@ -36,6 +36,7 @@
 #include "core/print_string.h"
 #include "core/io/compression.h"
 #include "core/project_settings.h"
+#include "core/string_utils.h"
 #include "core/pool_vector.h"
 
 #ifdef TOOLS_ENABLED
@@ -53,12 +54,12 @@ CryptoKey *CryptoKeyMbedTLS::create() {
     return memnew(CryptoKeyMbedTLS);
 }
 
-Error CryptoKeyMbedTLS::load(String p_path) {
+Error CryptoKeyMbedTLS::load(se_string_view p_path) {
     ERR_FAIL_COND_V_MSG(locks, ERR_ALREADY_IN_USE, "Key is in use")
 
     PoolByteArray out;
     FileAccess *f = FileAccess::open(p_path, FileAccess::READ);
-    ERR_FAIL_COND_V_MSG(!f, ERR_INVALID_PARAMETER, "Cannot open CryptoKeyMbedTLS file '" + p_path + "'.")
+    ERR_FAIL_COND_V_MSG(!f, ERR_INVALID_PARAMETER, "Cannot open CryptoKeyMbedTLS file '" + se_string(p_path) + "'.")
 
     int flen = f->get_len();
     out.resize(flen + 1);
@@ -77,9 +78,9 @@ Error CryptoKeyMbedTLS::load(String p_path) {
     return OK;
 }
 
-Error CryptoKeyMbedTLS::save(String p_path) {
+Error CryptoKeyMbedTLS::save(se_string_view p_path) {
     FileAccess *f = FileAccess::open(p_path, FileAccess::WRITE);
-    ERR_FAIL_COND_V_MSG(!f, ERR_INVALID_PARAMETER, "Cannot save CryptoKeyMbedTLS file '" + p_path + "'.");
+    ERR_FAIL_COND_V_MSG(!f, ERR_INVALID_PARAMETER, "Cannot save CryptoKeyMbedTLS file '" + se_string(p_path) + "'.");
 
     unsigned char w[16000];
     memset(w, 0, sizeof(w));
@@ -102,12 +103,12 @@ X509Certificate *X509CertificateMbedTLS::create() {
     return memnew(X509CertificateMbedTLS);
 }
 
-Error X509CertificateMbedTLS::load(String p_path) {
+Error X509CertificateMbedTLS::load(se_string_view p_path) {
     ERR_FAIL_COND_V_MSG(locks, ERR_ALREADY_IN_USE, "Certificate is in use")
 
     PoolByteArray out;
     FileAccess *f = FileAccess::open(p_path, FileAccess::READ);
-    ERR_FAIL_COND_V_MSG(!f, ERR_INVALID_PARAMETER, "Cannot open X509CertificateMbedTLS file '" + p_path + "'.");
+    ERR_FAIL_COND_V_MSG(!f, ERR_INVALID_PARAMETER, "Cannot open X509CertificateMbedTLS file '" + se_string(p_path) + "'.")
 
     int flen = f->get_len();
     out.resize(flen + 1);
@@ -132,9 +133,9 @@ Error X509CertificateMbedTLS::load_from_memory(const uint8_t *p_buffer, int p_le
     return OK;
 }
 
-Error X509CertificateMbedTLS::save(String p_path) {
+Error X509CertificateMbedTLS::save(se_string_view p_path) {
     FileAccess *f = FileAccess::open(p_path, FileAccess::WRITE);
-    ERR_FAIL_COND_V_MSG(!f, ERR_INVALID_PARAMETER, "Cannot save X509CertificateMbedTLS file '" + p_path + "'.")
+    ERR_FAIL_COND_V_MSG(!f, ERR_INVALID_PARAMETER, "Cannot save X509CertificateMbedTLS file '" + se_string(p_path) + "'.")
 
     mbedtls_x509_crt *crt = &cert;
     while (crt) {
@@ -200,7 +201,7 @@ X509CertificateMbedTLS *CryptoMbedTLS::get_default_certificates() {
     return default_certs;
 }
 
-void CryptoMbedTLS::load_default_certificates(String p_path) {
+void CryptoMbedTLS::load_default_certificates(se_string_view p_path) {
     ERR_FAIL_COND(default_certs != nullptr)
 
     default_certs = memnew(X509CertificateMbedTLS);
@@ -242,7 +243,7 @@ Ref<CryptoKey> CryptoMbedTLS::generate_rsa(int p_bytes) {
     return out;
 }
 
-Ref<X509Certificate> CryptoMbedTLS::generate_self_signed_certificate(Ref<CryptoKey> p_key, String p_issuer_name, String p_not_before, String p_not_after) {
+Ref<X509Certificate> CryptoMbedTLS::generate_self_signed_certificate(Ref<CryptoKey> p_key, se_string_view p_issuer_name, se_string_view p_not_before, se_string_view p_not_after) {
     Ref<CryptoKeyMbedTLS> key = dynamic_ref_cast<CryptoKeyMbedTLS>(p_key);
     ERR_FAIL_COND_V_MSG(not key, Ref<X509Certificate>(), "Invalid private key argument.")
 
@@ -253,8 +254,8 @@ Ref<X509Certificate> CryptoMbedTLS::generate_self_signed_certificate(Ref<CryptoK
 
     mbedtls_x509write_crt_set_subject_key(&crt, &(key->pkey));
     mbedtls_x509write_crt_set_issuer_key(&crt, &(key->pkey));
-    mbedtls_x509write_crt_set_subject_name(&crt, StringUtils::to_utf8(p_issuer_name).data());
-    mbedtls_x509write_crt_set_issuer_name(&crt, StringUtils::to_utf8(p_issuer_name).data());
+    mbedtls_x509write_crt_set_subject_name(&crt, se_string(p_issuer_name).c_str());
+    mbedtls_x509write_crt_set_issuer_name(&crt, se_string(p_issuer_name).c_str());
     mbedtls_x509write_crt_set_version(&crt, MBEDTLS_X509_CRT_VERSION_3);
     mbedtls_x509write_crt_set_md_alg(&crt, MBEDTLS_MD_SHA256);
 
@@ -265,7 +266,7 @@ Ref<X509Certificate> CryptoMbedTLS::generate_self_signed_certificate(Ref<CryptoK
     ERR_FAIL_COND_V(mbedtls_mpi_read_binary(&serial, rand_serial, 20), Ref<X509Certificate>())
     mbedtls_x509write_crt_set_serial(&crt, &serial);
 
-    mbedtls_x509write_crt_set_validity(&crt, StringUtils::to_utf8(p_not_before).data(), StringUtils::to_utf8(p_not_after).data());
+    mbedtls_x509write_crt_set_validity(&crt, se_string(p_not_before).data(), se_string(p_not_after).data());
     mbedtls_x509write_crt_set_basic_constraints(&crt, 1, -1);
     mbedtls_x509write_crt_set_basic_constraints(&crt, 1, 0);
 

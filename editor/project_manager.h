@@ -94,23 +94,23 @@ class ProjectManager : public Control {
     void _language_selected(int p_id);
     void _restart_confirm();
     void _exit_dialog();
-    void _scan_begin(const String &p_base);
+    void _scan_begin(se_string_view p_base);
     void _global_menu_action(const Variant &p_id, const Variant &p_meta);
 
     void _confirm_update_settings();
 
     void _load_recent_projects();
-    void _on_project_created(const String &dir);
+    void _on_project_created(se_string_view dir);
     void _on_projects_updated();
     void _update_scroll_position(const String &dir);
-    void _scan_dir(const String &path, List<String> *r_projects);
+    void _scan_dir(se_string_view path, List<se_string> *r_projects);
 
-    void _install_project(const String &p_zip_path, const String &p_title);
+    void _install_project(se_string_view p_zip_path, se_string_view p_title);
 
     void _dim_window();
     void _unhandled_input(const Ref<InputEvent> &p_ev);
-    void _files_dropped(PoolStringArray p_files, int p_screen);
-    void _scan_multiple_folders(PoolStringArray p_files);
+    void _files_dropped(const PoolVector<se_string> &p_files, int p_screen);
+    void _scan_multiple_folders(PoolVector<se_string> p_files);
 
     void _on_order_option_changed();
     void _on_filter_option_changed();
@@ -143,7 +143,7 @@ private:
     bool has_search_box;
     FilterOption _current_filter;
 
-    void _search_text_changed(const String &p_newtext);
+    void _search_text_changed(se_string_view p_newtext);
     void _filter_option_selected(int p_idx);
 
 protected:
@@ -151,11 +151,12 @@ protected:
     static void _bind_methods();
 
 public:
-    void _setup_filters(Vector<String> options);
+    void _setup_filters(Vector<se_string> options);
     void add_filter_option();
     void add_search_box();
     void set_filter_size(int h_size);
     String get_search_term();
+    se_string get_search_term_utf8() const;
     FilterOption get_filter_option();
     void set_filter_option(FilterOption);
     ProjectListFilter();

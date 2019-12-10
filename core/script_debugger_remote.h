@@ -43,7 +43,7 @@ class GODOT_EXPORT ScriptDebuggerRemote : public ScriptDebugger {
 
     struct Message {
 
-        String message;
+        se_string message;
         Array data;
     };
 
@@ -83,16 +83,16 @@ class GODOT_EXPORT ScriptDebuggerRemote : public ScriptDebugger {
         int min;
         int sec;
         int msec;
-        String source_file;
-        String source_func;
+        se_string source_file;
+        se_string source_func;
         int source_line;
-        String error;
-        String error_descr;
+        se_string error;
+        se_string error_descr;
         bool warning;
         Array callstack;
     };
 
-    ListPOD<String> output_strings;
+    ListPOD<se_string> output_strings;
     ListPOD<Message> messages;
     int max_messages_per_frame;
     int n_messages_dropped;
@@ -110,7 +110,7 @@ class GODOT_EXPORT ScriptDebuggerRemote : public ScriptDebugger {
     uint64_t msec_count;
 
     bool locking; //hack to avoid a deadloop
-    static void _print_handler(void *p_this, const String &p_string, bool p_error);
+    static void _print_handler(void *p_this, const se_string &p_string, bool p_error);
 
     PrintHandlerList phl;
 
@@ -123,7 +123,7 @@ class GODOT_EXPORT ScriptDebuggerRemote : public ScriptDebugger {
     RequestSceneTreeMessageFunc request_scene_tree;
     void *request_scene_tree_ud;
 
-    void _set_object_property(ObjectID p_id, const String &p_property, const Variant &p_value);
+    void _set_object_property(ObjectID p_id, const se_string &p_property, const Variant &p_value);
 
     void _send_object_id(ObjectID p_id);
     void _send_video_memory();
@@ -146,17 +146,17 @@ class GODOT_EXPORT ScriptDebuggerRemote : public ScriptDebugger {
 
     Vector<FrameData> profile_frame_data;
 
-    void _put_variable(const String &p_name, const Variant &p_variable);
+    void _put_variable(se_string_view p_name, const Variant &p_variable);
 
-    void _save_node(ObjectID id, const String &p_path);
+    void _save_node(ObjectID id, se_string_view p_path);
 
     bool skip_breakpoints;
 public:
     struct ResourceUsage {
 
-        String path;
-        String format;
-        String type;
+        se_string path;
+        se_string format;
+        se_string type;
         RID id;
         int vram;
         bool operator<(const ResourceUsage &p_img) const { return vram == p_img.vram ? id < p_img.id : vram > p_img.vram; }
@@ -166,7 +166,7 @@ public:
 
     static ResourceUsageFunc resource_usage_func;
 
-    Error connect_to_host(const String &p_host, uint16_t p_port);
+    Error connect_to_host(se_string_view p_host, uint16_t p_port);
     void debug(ScriptLanguage *p_script, bool p_can_continue = true, bool p_is_error_breakpoint = false) override;
     void idle_poll() override;
     void line_poll() override;
@@ -174,8 +174,8 @@ public:
     bool is_remote() const override { return true; }
     void request_quit() override;
 
-    void send_message(const String &p_message, const Array &p_args) override;
-    void send_error(const String &p_func, const String &p_file, int p_line, const String &p_err, const String &p_descr, ErrorHandlerType p_type, const Vector<ScriptLanguage::StackInfo> &p_stack_info) override;
+    void send_message(const se_string &p_message, const Array &p_args) override;
+    void send_error(se_string_view p_func, se_string_view p_file, int p_line, se_string_view p_err, se_string_view p_descr, ErrorHandlerType p_type, const Vector<ScriptLanguage::StackInfo> &p_stack_info) override;
 
     void set_request_scene_tree_message_func(RequestSceneTreeMessageFunc p_func, void *p_udata) override;
     void set_live_edit_funcs(LiveEditFuncs *p_funcs) override;

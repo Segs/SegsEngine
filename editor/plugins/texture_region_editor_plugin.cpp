@@ -307,7 +307,7 @@ void TextureRegionEditor::_region_input(const Ref<InputEvent> &p_input) {
                                 rect.expand_to(r.position);
                                 rect.expand_to(r.position + r.size);
                             }
-                            undo_redo->create_action(TTR("Set Region Rect"));
+                            undo_redo->create_action_ui(TTR("Set Region Rect"));
                             if (node_sprite) {
                                 undo_redo->add_do_method(node_sprite, "set_region_rect", rect);
                                 undo_redo->add_undo_method(node_sprite, "set_region_rect", node_sprite->get_region_rect());
@@ -365,7 +365,7 @@ void TextureRegionEditor::_region_input(const Ref<InputEvent> &p_input) {
 
             } else if (drag) {
                 if (edited_margin >= 0) {
-                    undo_redo->create_action(TTR("Set Margin"));
+                    undo_redo->create_action_ui(TTR("Set Margin"));
                     static Margin m[4] = { MARGIN_TOP, MARGIN_BOTTOM, MARGIN_LEFT, MARGIN_RIGHT };
                     if (node_ninepatch) {
                         undo_redo->add_do_method(node_ninepatch, "set_patch_margin", m[edited_margin], node_ninepatch->get_patch_margin(m[edited_margin]));
@@ -377,7 +377,7 @@ void TextureRegionEditor::_region_input(const Ref<InputEvent> &p_input) {
                     }
                     edited_margin = -1;
                 } else {
-                    undo_redo->create_action(TTR("Set Region Rect"));
+                    undo_redo->create_action_ui(TTR("Set Region Rect"));
                     if (node_sprite) {
                         undo_redo->add_do_method(node_sprite, "set_region_rect", node_sprite->get_region_rect());
                         undo_redo->add_undo_method(node_sprite, "set_region_rect", rect_prev);
@@ -825,12 +825,12 @@ void TextureRegionEditor::edit(Object *p_obj) {
     }
 }
 
-void TextureRegionEditor::_changed_callback(Object *p_changed, const char *p_prop) {
+void TextureRegionEditor::_changed_callback(Object *p_changed, StringName p_prop) {
 
     if (!is_visible())
         return;
     //TODO: SEGS - the code below does not make much sense, StringName is constructed with a static string, then it is converted to String, and then compared....
-    if (p_prop == StringName("atlas").asString() || p_prop == StringName("texture").asString())
+    if (p_prop == StringName("atlas") || p_prop == StringName("texture"))
         _edit_region();
 }
 
@@ -920,7 +920,7 @@ TextureRegionEditor::TextureRegionEditor(EditorNode *p_editor) {
     sb_off_x->set_max(256);
     sb_off_x->set_step(1);
     sb_off_x->set_value(snap_offset.x);
-    sb_off_x->set_suffix("px");
+    sb_off_x->set_suffix(("px"));
     sb_off_x->connect("value_changed", this, "_set_snap_off_x");
     hb_grid->add_child(sb_off_x);
 
@@ -929,7 +929,7 @@ TextureRegionEditor::TextureRegionEditor(EditorNode *p_editor) {
     sb_off_y->set_max(256);
     sb_off_y->set_step(1);
     sb_off_y->set_value(snap_offset.y);
-    sb_off_y->set_suffix("px");
+    sb_off_y->set_suffix(("px"));
     sb_off_y->connect("value_changed", this, "_set_snap_off_y");
     hb_grid->add_child(sb_off_y);
 
@@ -941,7 +941,7 @@ TextureRegionEditor::TextureRegionEditor(EditorNode *p_editor) {
     sb_step_x->set_max(256);
     sb_step_x->set_step(1);
     sb_step_x->set_value(snap_step.x);
-    sb_step_x->set_suffix("px");
+    sb_step_x->set_suffix(("px"));
     sb_step_x->connect("value_changed", this, "_set_snap_step_x");
     hb_grid->add_child(sb_step_x);
 
@@ -950,7 +950,7 @@ TextureRegionEditor::TextureRegionEditor(EditorNode *p_editor) {
     sb_step_y->set_max(256);
     sb_step_y->set_step(1);
     sb_step_y->set_value(snap_step.y);
-    sb_step_y->set_suffix("px");
+    sb_step_y->set_suffix(("px"));
     sb_step_y->connect("value_changed", this, "_set_snap_step_y");
     hb_grid->add_child(sb_step_y);
 
@@ -962,7 +962,7 @@ TextureRegionEditor::TextureRegionEditor(EditorNode *p_editor) {
     sb_sep_x->set_max(256);
     sb_sep_x->set_step(1);
     sb_sep_x->set_value(snap_separation.x);
-    sb_sep_x->set_suffix("px");
+    sb_sep_x->set_suffix(("px"));
     sb_sep_x->connect("value_changed", this, "_set_snap_sep_x");
     hb_grid->add_child(sb_sep_x);
 
@@ -971,7 +971,7 @@ TextureRegionEditor::TextureRegionEditor(EditorNode *p_editor) {
     sb_sep_y->set_max(256);
     sb_sep_y->set_step(1);
     sb_sep_y->set_value(snap_separation.y);
-    sb_sep_y->set_suffix("px");
+    sb_sep_y->set_suffix(("px"));
     sb_sep_y->connect("value_changed", this, "_set_snap_sep_y");
     hb_grid->add_child(sb_sep_y);
 

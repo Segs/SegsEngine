@@ -44,7 +44,7 @@ Variant RichTextEffect::get_bbcode() const {
     Variant r;
     if (get_script_instance()) {
         if (!get_script_instance()->get("bbcode", r)) {
-            String path = get_script_instance()->get_script()->get_path();
+            se_string path = get_script_instance()->get_script()->get_path();
             r = get_basename(get_file(path));
         }
     }
@@ -107,7 +107,7 @@ void CharFXTransform::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "character"), "set_character", "get_character");
 }
 
-Variant CharFXTransform::get_value_or(const String& p_key, const Variant& p_default_value) {
+Variant CharFXTransform::get_value_or(se_string_view p_key, const Variant& p_default_value) {
     if (!this->environment.has(p_key))
         return p_default_value;
 

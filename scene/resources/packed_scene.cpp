@@ -34,6 +34,7 @@
 #include "core/pair.h"
 #include "core/engine.h"
 #include "core/script_language.h"
+#include "core/string_formatter.h"
 #include "core/io/resource_loader.h"
 #include "core/project_settings.h"
 #include "scene/2d/node_2d.h"
@@ -41,6 +42,17 @@
 #include "scene/gui/control.h"
 #include "scene/main/instance_placeholder.h"
 #include "core/method_bind.h"
+
+struct SVCompare
+{
+    bool operator()(const StringName &a,se_string_view b) const {
+        return se_string_view(a.asCString())<b;
+    }
+    bool operator()(se_string_view a,const StringName &b) const {
+        return a<se_string_view(b.asCString());
+    }
+};
+
 
 #define PACK_VERSION 2
 
@@ -101,12 +113,12 @@ Node *SceneState::instance(GenEditState p_edit_state) const {
 
         if (i > 0) {
 
-            ERR_FAIL_COND_V_MSG(n.parent == -1, nullptr, vformat("Invalid scene: node %s does not specify its parent node.", snames[n.name]))
+            ERR_FAIL_COND_V_MSG(n.parent == -1, nullptr, FormatVE("Invalid scene: node %s does not specify its parent node.", snames[n.name].asCString()))
             NODE_FROM_ID(nparent, n.parent)
 #ifdef DEBUG_ENABLED
             if (!nparent && (n.parent & FLAG_ID_IS_PATH)) {
 
-                WARN_PRINT("Parent path '" + (String)node_paths[n.parent & FLAG_MASK] + "' for node '" + snames[n.name] + "' has vanished when instancing: '" + (String)get_path() + "'.")
+                WARN_PRINT("Parent path '" + (se_string)node_paths[n.parent & FLAG_MASK] + "' for node '" + snames[n.name] + "' has vanished when instancing: '" + (se_string)get_path() + "'.")
             }
 #endif
             parent = nparent;
@@ -128,7 +140,7 @@ Node *SceneState::instance(GenEditState p_edit_state) const {
             //instance a scene into this node
             if (n.instance & FLAG_INSTANCE_IS_PLACEHOLDER) {
 
-                String path = props[n.instance & FLAG_MASK];
+                se_string path = props[n.instance & FLAG_MASK];
                 if (disable_placeholders) {
 
                     Ref<PackedScene> sdata = dynamic_ref_cast<PackedScene>(ResourceLoader::load(path, "PackedScene"));
@@ -154,7 +166,7 @@ Node *SceneState::instance(GenEditState p_edit_state) const {
                 node = parent->_get_child_by_name(snames[n.name]);
 #ifdef DEBUG_ENABLED
                 if (!node) {
-                    WARN_PRINT("Node '" + (String)ret_nodes[0]->get_path_to(parent) + "/" + snames[n.name] + "' was modified from inside an instance, but it has vanished.")
+                    WARN_PRINT("Node '" + (se_string)ret_nodes[0]->get_path_to(parent) + "/" + snames[n.name] + "' was modified from inside an instance, but it has vanished.")
                 }
 #endif
             }
@@ -361,7 +373,7 @@ Node *SceneState::instance(GenEditState p_edit_state) const {
     return ret_nodes[0];
 }
 
-static int _nm_get_string(const String &p_string, Map<StringName, int> &name_map) {
+static int _nm_get_string(const StringName &p_string, Map<StringName, int> &name_map) {
 
     if (name_map.contains(p_string))
         return name_map[p_string];
@@ -370,7 +382,16 @@ static int _nm_get_string(const String &p_string, Map<StringName, int> &name_map
     name_map[p_string] = idx;
     return idx;
 }
+static int _nm_get_string(se_string_view p_string, Map<StringName, int> &name_map) {
+    SVCompare cmp;
+    auto iter = name_map.find_as(p_string,cmp);
+    if (iter!=name_map.end())
+        return iter->second;
 
+    int idx = name_map.size();
+    name_map.emplace(StringName(p_string),idx);
+    return idx;
+}
 static int _vm_get_variant(const Variant &p_variant, HashMap<Variant, int, Hasher<Variant>, VariantComparator> &variant_map) {
 
     if (variant_map.contains(p_variant))
@@ -490,7 +511,7 @@ Error SceneState::_parse_node(Node *p_owner, Node *p_node, int p_parent_idx, Map
             continue;
         }
 
-        String name = E.name;
+        StringName name = E.name;
         Variant value = p_node->get(E.name);
 
         bool isdefault = false;
@@ -871,7 +892,7 @@ Error SceneState::pack(Node *p_scene) {
 
     //if using scene inheritance, pack the scene it inherits from
     if (scene->get_scene_inherited_state()) {
-        String path = scene->get_scene_inherited_state()->get_path();
+        se_string path = scene->get_scene_inherited_state()->get_path();
         Ref<PackedScene> instance = dynamic_ref_cast<PackedScene>(ResourceLoader::load(path));
         if (instance) {
 
@@ -916,12 +937,12 @@ Error SceneState::pack(Node *p_scene) {
     return OK;
 }
 
-void SceneState::set_path(const String &p_path) {
+void SceneState::set_path(se_string_view p_path) {
 
     path = p_path;
 }
 
-String SceneState::get_path() const {
+const se_string &SceneState::get_path() const {
 
     return path;
 }
@@ -1101,14 +1122,14 @@ void SceneState::set_bundled_scene(const Dictionary &p_dictionary) {
 
     ERR_FAIL_COND_MSG(version > PACK_VERSION, "Save format version too new.")
 
-    PoolVector<String> snames = p_dictionary["names"];
+    PoolVector<se_string> snames = p_dictionary["names"].as<PoolVector<se_string>>();
     if (snames.size()) {
 
         int namecount = snames.size();
         names.resize(namecount);
-        PoolVector<String>::Read r = snames.read();
+        PoolVector<se_string>::Read r = snames.read();
         for (int i = 0; i < names.size(); i++)
-            names.write[i] = r[i];
+            names.write[i] = StringName(r[i]);
     }
 
     Array svariants = p_dictionary["variants"];
@@ -1207,12 +1228,12 @@ void SceneState::set_bundled_scene(const Dictionary &p_dictionary) {
 
 Dictionary SceneState::get_bundled_scene() const {
 
-    PoolVector<String> rnames;
+    PoolVector<se_string> rnames;
     rnames.resize(names.size());
 
     if (!names.empty()) {
 
-        PoolVector<String>::Write r = rnames.write();
+        PoolVector<se_string>::Write r = rnames.write();
 
         for (int i = 0; i < names.size(); i++)
             r[i] = names[i];
@@ -1343,15 +1364,15 @@ Ref<PackedScene> SceneState::get_node_instance(int p_idx) const {
     return Ref<PackedScene>();
 }
 
-String SceneState::get_node_instance_placeholder(int p_idx) const {
+se_string SceneState::get_node_instance_placeholder(int p_idx) const {
 
-    ERR_FAIL_INDEX_V(p_idx, nodes.size(), String());
+    ERR_FAIL_INDEX_V(p_idx, nodes.size(), se_string());
 
     if (nodes[p_idx].instance >= 0 && (nodes[p_idx].instance & FLAG_INSTANCE_IS_PLACEHOLDER)) {
         return variants[nodes[p_idx].instance & FLAG_MASK];
     }
 
-    return String();
+    return se_string();
 }
 
 Vector<StringName> SceneState::get_node_groups(int p_idx) const {
@@ -1616,13 +1637,13 @@ void SceneState::add_editable_instance(const NodePath &p_path) {
     editable_instances.push_back(p_path);
 }
 
-PoolVector<String> SceneState::_get_node_groups(int p_idx) const {
+PoolVector<se_string> SceneState::_get_node_groups(int p_idx) const {
 
     Vector<StringName> groups = get_node_groups(p_idx);
-    PoolVector<String> ret;
+    PoolVector<se_string> ret;
 
     for (int i = 0; i < groups.size(); i++)
-        ret.push_back(groups[i]);
+        ret.push_back(groups[i].asCString());
 
     return ret;
 }
@@ -1735,7 +1756,7 @@ Ref<SceneState> PackedScene::get_state() {
     return state;
 }
 
-void PackedScene::set_path(const String &p_path, bool p_take_over) {
+void PackedScene::set_path(se_string_view p_path, bool p_take_over) {
 
     state->set_path(p_path);
     Resource::set_path(p_path, p_take_over);

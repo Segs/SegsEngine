@@ -155,9 +155,9 @@ Ref<AudioStreamPlayback> AudioStreamOGGVorbis::instance_playback() {
     return ovs;
 }
 
-String AudioStreamOGGVorbis::get_stream_name() const {
+se_string AudioStreamOGGVorbis::get_stream_name() const {
 
-    return ""; //return stream_name;
+    return se_string(); //return stream_name;
 }
 
 void AudioStreamOGGVorbis::clear_data() {

@@ -34,15 +34,13 @@
 #include "core/error_macros.h"
 #include <type_traits>
 
-class String;
-
 struct Vector2i;
 
 struct GODOT_EXPORT Vector2 {
 
     enum Axis {
-	AXIS_X,
-	AXIS_Y,
+    AXIS_X,
+    AXIS_Y,
     };
     union {
         real_t x;
@@ -146,7 +144,7 @@ struct GODOT_EXPORT Vector2 {
     Vector2 snapped(const Vector2 &p_by) const;
     constexpr real_t aspect() const { return width / height; }
 
-	operator String() const;
+    operator se_string() const;
 
     _FORCE_INLINE_ constexpr Vector2(real_t p_x, real_t p_y) : x(p_x),y(p_y) {
     }
@@ -314,7 +312,7 @@ struct GODOT_EXPORT Vector2i {
 
     constexpr real_t get_aspect() const { return width / (real_t)height; }
 
-	operator String() const;
+    operator se_string() const;
 
     constexpr operator Vector2() const { return Vector2(float(x), float(y)); }
     constexpr Vector2i(Vector2 p_vec2) : x((int)p_vec2.x),y((int)p_vec2.y) {}

@@ -184,9 +184,9 @@ int VisualScriptFunctionCall::get_output_value_port_count() const {
     }
 }
 
-String VisualScriptFunctionCall::get_output_sequence_port_text(int p_port) const {
+se_string_view VisualScriptFunctionCall::get_output_sequence_port_text(int p_port) const {
 
-    return String();
+    return nullptr;
 }
 
 PropertyInfo VisualScriptFunctionCall::get_input_value_port_info(int p_idx) const {
@@ -278,25 +278,38 @@ PropertyInfo VisualScriptFunctionCall::get_output_value_port_info(int p_idx) con
 #endif
 }
 
-String VisualScriptFunctionCall::get_caption() const {
-    if (call_mode == CALL_MODE_SELF)
-        return "  " + String(function) + "()";
-    if (call_mode == CALL_MODE_SINGLETON)
-        return String(singleton) + ":" + String(function) + "()";
-    else if (call_mode == CALL_MODE_BASIC_TYPE)
-        return FormatV("%s.%s()",Variant::get_type_name(basic_type),qPrintable(function.asString().m_str));
-    else if (call_mode == CALL_MODE_NODE_PATH)
-        return " [" + String(base_path.simplified()) + "]." + String(function) + "()";
-    else
-        return "  " + base_type + "." + String(function) + "()";
+se_string_view VisualScriptFunctionCall::get_caption() const {
+    //NOTE: calling this function twice in a row without copying the result will result in a BUG
+    thread_local char buf[512];
+    buf[0]=0;
+
+    if (call_mode == CALL_MODE_SELF) {
+        strncat(buf,function.asCString(),511);
+    }
+    else if (call_mode == CALL_MODE_SINGLETON) {
+        strncat(buf,singleton.asCString(),511);
+        strncat(buf,":",511);
+        strncat(buf,function.asCString(),511);
+        strncat(buf,"()",511);
+    }
+    else if (call_mode == CALL_MODE_BASIC_TYPE) {
+        strncat(buf,(se_string(Variant::get_type_name(basic_type))+"."+function.asCString() + "()").c_str(),511);
+    }
+    else if (call_mode == CALL_MODE_NODE_PATH) {
+        strncat(buf,(" [" + se_string(base_path.simplified()) + "]." + function.asCString() + "()").c_str(),511);
+    }
+    else {
+        strncat(buf,(se_string("  ") + base_type + "." + function.asCString() + "()").c_str(),511);
+    }
+    return buf;
 }
 
-String VisualScriptFunctionCall::get_text() const {
+se_string VisualScriptFunctionCall::get_text() const {
 
     if (rpc_call_mode) {
         return "RPC";
     }
-    return "";
+    return se_string();
 }
 
 void VisualScriptFunctionCall::set_basic_type(VariantType p_type) {
@@ -329,7 +342,7 @@ StringName VisualScriptFunctionCall::get_base_type() const {
     return base_type;
 }
 
-void VisualScriptFunctionCall::set_base_script(const String &p_path) {
+void VisualScriptFunctionCall::set_base_script(se_string_view p_path) {
 
     if (base_script == p_path)
         return;
@@ -339,7 +352,7 @@ void VisualScriptFunctionCall::set_base_script(const String &p_path) {
     ports_changed_notify();
 }
 
-String VisualScriptFunctionCall::get_base_script() const {
+const se_string & VisualScriptFunctionCall::get_base_script() const {
 
     return base_script;
 }
@@ -435,7 +448,7 @@ void VisualScriptFunctionCall::_update_method_cache() {
         if (mb->is_vararg()) {
             //for vararg just give it 10 arguments (should be enough for most use cases)
             for (int i = 0; i < 10; i++) {
-                method_cache.arguments.push_back(PropertyInfo(VariantType::NIL, "arg" + itos(i)));
+                method_cache.arguments.push_back(PropertyInfo(VariantType::NIL, StringName("arg" + itos(i))));
                 use_default_args++;
             }
         }
@@ -572,7 +585,7 @@ void VisualScriptFunctionCall::_validate_property(PropertyInfo &property) const 
         } else {
             auto &names(Engine::get_singleton()->get_singletons());
             property.hint = PROPERTY_HINT_ENUM;
-            String sl;
+            se_string sl;
             for (const Engine::Singleton &E : names) {
                 if (!sl.empty())
                     sl += ",";
@@ -589,7 +602,7 @@ void VisualScriptFunctionCall::_validate_property(PropertyInfo &property) const 
 
             Node *bnode = _get_base_node();
             if (bnode) {
-                property.hint_string = (String)bnode->get_path(); //convert to loong string
+                property.hint_string = (se_string)bnode->get_path(); //convert to loong string
             }
         }
     }
@@ -715,21 +728,21 @@ void VisualScriptFunctionCall::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_validate", {"enable"}), &VisualScriptFunctionCall::set_validate);
     MethodBinder::bind_method(D_METHOD("get_validate"), &VisualScriptFunctionCall::get_validate);
 
-    String bt;
+    se_string bt;
     for (int i = 0; i < (int)VariantType::VARIANT_MAX; i++) {
         if (i > 0)
-            bt += ",";
+            bt += (",");
 
         bt += Variant::get_type_name(VariantType(i));
     }
 
-    List<String> script_extensions;
+    List<se_string> script_extensions;
     for (int i = 0; i < ScriptServer::get_language_count(); i++) {
         ScriptServer::get_language(i)->get_recognized_extensions(&script_extensions);
     }
 
-    String script_ext_hint;
-    for (List<String>::Element *E = script_extensions.front(); E; E = E->next()) {
+    se_string script_ext_hint;
+    for (List<se_string>::Element *E = script_extensions.front(); E; E = E->next()) {
         if (!script_ext_hint.empty())
             script_ext_hint += ",";
         script_ext_hint += "*." + E->deref();
@@ -806,7 +819,7 @@ public:
         return true;
     }
 
-    int step(const Variant **p_inputs, Variant **p_outputs, StartMode p_start_mode, Variant *p_working_mem, Variant::CallError &r_error, String &r_error_str) override {
+    int step(const Variant **p_inputs, Variant **p_outputs, StartMode p_start_mode, Variant *p_working_mem, Variant::CallError &r_error, se_string &r_error_str) override {
 
         switch (call_mode) {
 
@@ -885,7 +898,7 @@ public:
                 Object *object = Engine::get_singleton()->get_singleton_object(singleton);
                 if (!object) {
                     r_error.error = Variant::CallError::CALL_ERROR_INVALID_METHOD;
-                    r_error_str = "Invalid singleton name: '" + String(singleton) + "'";
+                    r_error_str = "Invalid singleton name: '" + se_string(singleton) + "'";
                     return 0;
                 }
 
@@ -903,7 +916,7 @@ public:
 
             //ignore call errors if validation is disabled
             r_error.error = Variant::CallError::CALL_OK;
-            r_error_str = String();
+            r_error_str.clear();
         }
 
         return 0;
@@ -1027,9 +1040,9 @@ int VisualScriptPropertySet::get_output_value_port_count() const {
     return (call_mode == CALL_MODE_BASIC_TYPE || call_mode == CALL_MODE_INSTANCE) ? 1 : 0;
 }
 
-String VisualScriptPropertySet::get_output_sequence_port_text(int p_port) const {
+se_string_view VisualScriptPropertySet::get_output_sequence_port_text(int p_port) const {
 
-    return String();
+    return nullptr;
 }
 
 void VisualScriptPropertySet::_adjust_input_index(PropertyInfo &pinfo) const {
@@ -1081,24 +1094,26 @@ PropertyInfo VisualScriptPropertySet::get_output_value_port_info(int p_idx) cons
     }
 }
 
-String VisualScriptPropertySet::get_caption() const {
-
+se_string_view VisualScriptPropertySet::get_caption() const {
+    thread_local char buf[512];
+    buf[0]=0;
     static const char *opname[ASSIGN_OP_MAX] = {
         "Set", "Add", "Subtract", "Multiply", "Divide", "Mod", "ShiftLeft", "ShiftRight", "BitAnd", "BitOr", "BitXor"
     };
-
-    String prop = String(opname[assign_op]) + " " + property;
-    if (index != StringName()) {
-        prop += "." + String(index);
+    strncat(buf,opname[assign_op],511);
+    strncat(buf," ",511);
+    strncat(buf,property.asCString(),511);
+    if (not index.empty()) {
+        strncat(buf,index.asCString(),511);
     }
 
-    return prop;
+    return buf;
 }
 
-String VisualScriptPropertySet::get_text() const {
+se_string VisualScriptPropertySet::get_text() const {
 
     if (call_mode == CALL_MODE_BASIC_TYPE) {
-        return String("On ") + Variant::get_type_name(basic_type);
+        return se_string("On ") + Variant::get_type_name(basic_type);
     }
 
     static const char *cname[3] = {
@@ -1107,7 +1122,7 @@ String VisualScriptPropertySet::get_text() const {
         "Instance"
     };
 
-    return String("On ") + cname[call_mode];
+    return se_string("On ") + cname[call_mode];
 }
 
 void VisualScriptPropertySet::_update_base_type() {
@@ -1156,7 +1171,7 @@ StringName VisualScriptPropertySet::get_base_type() const {
     return base_type;
 }
 
-void VisualScriptPropertySet::set_base_script(const String &p_path) {
+void VisualScriptPropertySet::set_base_script(se_string_view p_path) {
 
     if (base_script == p_path)
         return;
@@ -1166,7 +1181,7 @@ void VisualScriptPropertySet::set_base_script(const String &p_path) {
     ports_changed_notify();
 }
 
-String VisualScriptPropertySet::get_base_script() const {
+const se_string & VisualScriptPropertySet::get_base_script() const {
 
     return base_script;
 }
@@ -1376,7 +1391,7 @@ void VisualScriptPropertySet::_validate_property(PropertyInfo &property) const {
 
             Node *bnode = _get_base_node();
             if (bnode) {
-                property.hint_string = (String)bnode->get_path(); //convert to loong string
+                property.hint_string = (se_string)bnode->get_path(); //convert to loong string
             }
         }
     }
@@ -1430,9 +1445,9 @@ void VisualScriptPropertySet::_validate_property(PropertyInfo &property) const {
         Variant v = Variant::construct(type_cache.type, nullptr, 0, ce);
         ListPOD<PropertyInfo> plist;
         v.get_property_list(&plist);
-        String options = "";
+        se_string options;
         for(const PropertyInfo & E : plist) {
-            options += "," + E.name;
+            options += se_string(",") + E.name.asCString();
         }
 
         property.hint = PROPERTY_HINT_ENUM;
@@ -1472,21 +1487,21 @@ void VisualScriptPropertySet::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_assign_op", {"assign_op"}), &VisualScriptPropertySet::set_assign_op);
     MethodBinder::bind_method(D_METHOD("get_assign_op"), &VisualScriptPropertySet::get_assign_op);
 
-    String bt;
+    se_string bt;
     for (int i = 0; i < (int)VariantType::VARIANT_MAX; i++) {
         if (i > 0)
-            bt += ",";
+            bt += (",");
 
-        bt += Variant::get_type_name(VariantType(i));
+        bt += (Variant::get_type_name(VariantType(i)));
     }
 
-    List<String> script_extensions;
+    List<se_string> script_extensions;
     for (int i = 0; i < ScriptServer::get_language_count(); i++) {
         ScriptServer::get_language(i)->get_recognized_extensions(&script_extensions);
     }
 
-    String script_ext_hint;
-    for (List<String>::Element *E = script_extensions.front(); E; E = E->next()) {
+    se_string script_ext_hint;
+    for (List<se_string>::Element *E = script_extensions.front(); E; E = E->next()) {
         if (!script_ext_hint.empty())
             script_ext_hint += ",";
         script_ext_hint += "*." + E->deref();
@@ -1595,7 +1610,7 @@ public:
         }
     }
 
-    int step(const Variant **p_inputs, Variant **p_outputs, StartMode p_start_mode, Variant *p_working_mem, Variant::CallError &r_error, String &r_error_str) override {
+    int step(const Variant **p_inputs, Variant **p_outputs, StartMode p_start_mode, Variant *p_working_mem, Variant::CallError &r_error, se_string &r_error_str) override {
 
         switch (call_mode) {
 
@@ -1615,7 +1630,7 @@ public:
 
                 if (!valid) {
                     r_error.error = Variant::CallError::CALL_ERROR_INVALID_METHOD;
-                    r_error_str = "Invalid set value '" + String(*p_inputs[0]) + "' on property '" + String(property) + "' of type " + object->get_class();
+                    r_error_str = "Invalid set value '" + p_inputs[0]->as<se_string>() + "' on property '" + property + "' of type " + object->get_class();
                 }
             } break;
             case VisualScriptPropertySet::CALL_MODE_NODE_PATH: {
@@ -1647,7 +1662,7 @@ public:
 
                 if (!valid) {
                     r_error.error = Variant::CallError::CALL_ERROR_INVALID_METHOD;
-                    r_error_str = "Invalid set value '" + String(*p_inputs[0]) + "' on property '" + String(property) + "' of type " + another->get_class();
+                    r_error_str = "Invalid set value '" + p_inputs[0]->as<se_string>() + "' on property '" + property + "' of type " + another->get_class();
                 }
 
             } break;
@@ -1669,7 +1684,7 @@ public:
 
                 if (!valid) {
                     r_error.error = Variant::CallError::CALL_ERROR_INVALID_METHOD;
-                    r_error_str = "Invalid set value '" + String(*p_inputs[1]) + "' (" + Variant::get_type_name(p_inputs[1]->get_type()) + ") on property '" + String(property) + "' of type " + Variant::get_type_name(v.get_type());
+                    r_error_str = "Invalid set value '" + p_inputs[1]->as<se_string>() + "' (" + Variant::get_type_name(p_inputs[1]->get_type()) + ") on property '" + property + "' of type " + Variant::get_type_name(v.get_type());
                 }
 
                 *p_outputs[0] = v;
@@ -1804,9 +1819,9 @@ int VisualScriptPropertyGet::get_output_value_port_count() const {
     return 1;
 }
 
-String VisualScriptPropertyGet::get_output_sequence_port_text(int p_port) const {
+se_string_view VisualScriptPropertyGet::get_output_sequence_port_text(int p_port) const {
 
-    return String();
+    return nullptr;
 }
 
 PropertyInfo VisualScriptPropertyGet::get_input_value_port_info(int p_idx) const {
@@ -1827,22 +1842,25 @@ PropertyInfo VisualScriptPropertyGet::get_output_value_port_info(int p_idx) cons
     ClassDB::get_property_list(_get_base_type(), &props, false);
     for(const PropertyInfo & E : props) {
         if (E.name == property) {
-            return PropertyInfo(E.type, "value." + String(index));
+            return PropertyInfo(E.type, StringName("value." + se_string(index)));
         }
     }
 
     return PropertyInfo(type_cache, "value");
 }
 
-String VisualScriptPropertyGet::get_caption() const {
-
-    return String("Get ") + property;
+se_string_view VisualScriptPropertyGet::get_caption() const {
+    thread_local char buf[512];
+    buf[0]=0;
+    strncat(buf,"Get ",511);
+    strncat(buf,property.asCString(),511);
+    return buf;
 }
 
-String VisualScriptPropertyGet::get_text() const {
+se_string VisualScriptPropertyGet::get_text() const {
 
     if (call_mode == CALL_MODE_BASIC_TYPE) {
-        return String("On ") + Variant::get_type_name(basic_type);
+        return se_string("On ") + Variant::get_type_name(basic_type);
     }
 
     static const char *cname[3] = {
@@ -1851,7 +1869,7 @@ String VisualScriptPropertyGet::get_text() const {
         "Instance"
     };
 
-    return String("On ") + cname[call_mode];
+    return se_string("On ") + cname[call_mode];
 }
 
 void VisualScriptPropertyGet::set_base_type(const StringName &p_type) {
@@ -1869,7 +1887,7 @@ StringName VisualScriptPropertyGet::get_base_type() const {
     return base_type;
 }
 
-void VisualScriptPropertyGet::set_base_script(const String &p_path) {
+void VisualScriptPropertyGet::set_base_script(se_string_view p_path) {
 
     if (base_script == p_path)
         return;
@@ -1879,10 +1897,7 @@ void VisualScriptPropertyGet::set_base_script(const String &p_path) {
     ports_changed_notify();
 }
 
-String VisualScriptPropertyGet::get_base_script() const {
 
-    return base_script;
-}
 
 void VisualScriptPropertyGet::_update_cache() {
 
@@ -2091,7 +2106,7 @@ void VisualScriptPropertyGet::_validate_property(PropertyInfo &property) const {
 
             Node *bnode = _get_base_node();
             if (bnode) {
-                property.hint_string = (String)bnode->get_path(); //convert to loong string
+                property.hint_string = (se_string)bnode->get_path(); //convert to loong string
             }
         }
     }
@@ -2144,9 +2159,9 @@ void VisualScriptPropertyGet::_validate_property(PropertyInfo &property) const {
         Variant v = Variant::construct(type_cache, nullptr, 0, ce);
         ListPOD<PropertyInfo> plist;
         v.get_property_list(&plist);
-        String options = "";
+        se_string options;
         for(const PropertyInfo & E : plist) {
-            options += "," + E.name;
+            options += se_string(",") + E.name;
         }
 
         property.hint = PROPERTY_HINT_ENUM;
@@ -2183,7 +2198,7 @@ void VisualScriptPropertyGet::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_index", {"index"}), &VisualScriptPropertyGet::set_index);
     MethodBinder::bind_method(D_METHOD("get_index"), &VisualScriptPropertyGet::get_index);
 
-    CharString bt;
+    se_string bt;
     for (int i = 0; i < (int)VariantType::VARIANT_MAX; i++) {
         if (i > 0)
             bt += ",";
@@ -2191,16 +2206,16 @@ void VisualScriptPropertyGet::_bind_methods() {
         bt += Variant::get_type_name(VariantType(i));
     }
 
-    List<String> script_extensions;
+    List<se_string> script_extensions;
     for (int i = 0; i < ScriptServer::get_language_count(); i++) {
         ScriptServer::get_language(i)->get_recognized_extensions(&script_extensions);
     }
 
-    CharString script_ext_hint;
-    for (List<String>::Element *E = script_extensions.front(); E; E = E->next()) {
-        if (script_ext_hint.isEmpty())
+    se_string script_ext_hint;
+    for (List<se_string>::Element *E = script_extensions.front(); E; E = E->next()) {
+        if (script_ext_hint.empty())
             script_ext_hint += ",";
-        script_ext_hint += "." + StringUtils::to_utf8(E->deref());
+        script_ext_hint += "." + E->deref();
     }
 
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "set_mode", PROPERTY_HINT_ENUM, "Self,Node Path,Instance,Basic Type"), "set_call_mode", "get_call_mode");
@@ -2227,7 +2242,7 @@ public:
     VisualScriptPropertyGet *node;
     VisualScriptInstance *instance;
 
-    int step(const Variant **p_inputs, Variant **p_outputs, StartMode p_start_mode, Variant *p_working_mem, Variant::CallError &r_error, String &r_error_str) override {
+    int step(const Variant **p_inputs, Variant **p_outputs, StartMode p_start_mode, Variant *p_working_mem, Variant::CallError &r_error, se_string &r_error_str) override {
 
         switch (call_mode) {
 
@@ -2245,7 +2260,7 @@ public:
 
                 if (!valid) {
                     r_error.error = Variant::CallError::CALL_ERROR_INVALID_METHOD;
-                    r_error_str = RTR("Invalid index property name.");
+                    r_error_str = RTR_utf8("Invalid index property name.");
                     return 0;
                 }
             } break;
@@ -2254,14 +2269,14 @@ public:
                 Node *node = object_cast<Node>(instance->get_owner_ptr());
                 if (!node) {
                     r_error.error = Variant::CallError::CALL_ERROR_INVALID_METHOD;
-                    r_error_str = RTR("Base object is not a Node!");
+                    r_error_str = RTR_utf8("Base object is not a Node!");
                     return 0;
                 }
 
                 Node *another = node->get_node(node_path);
                 if (!another) {
                     r_error.error = Variant::CallError::CALL_ERROR_INVALID_METHOD;
-                    r_error_str = RTR("Path does not lead Node!");
+                    r_error_str = RTR_utf8("Path does not lead Node!");
                     return 0;
                 }
 
@@ -2275,7 +2290,7 @@ public:
 
                 if (!valid) {
                     r_error.error = Variant::CallError::CALL_ERROR_INVALID_METHOD;
-                    r_error_str = vformat(RTR("Invalid index property name '%s' in node %s."), String(property), another->get_name());
+                    r_error_str = FormatVE(RTR_utf8("Invalid index property name '%s' in node %s.").c_str(), property.asCString(), another->get_name().asCString());
                     return 0;
                 }
 
@@ -2292,9 +2307,9 @@ public:
 
                 if (!valid) {
                     r_error.error = Variant::CallError::CALL_ERROR_INVALID_METHOD;
-                    r_error_str = RTR("Invalid index property name.");
+                    r_error_str = RTR_utf8("Invalid index property name.");
                 }
-            };
+            }
         }
 
         return 0;
@@ -2361,9 +2376,9 @@ int VisualScriptEmitSignal::get_output_value_port_count() const {
     return 0;
 }
 
-String VisualScriptEmitSignal::get_output_sequence_port_text(int p_port) const {
+se_string_view VisualScriptEmitSignal::get_output_sequence_port_text(int p_port) const {
 
-    return String();
+    return nullptr;
 }
 
 PropertyInfo VisualScriptEmitSignal::get_input_value_port_info(int p_idx) const {
@@ -2374,7 +2389,7 @@ PropertyInfo VisualScriptEmitSignal::get_input_value_port_info(int p_idx) const 
         if (!vs->has_custom_signal(name))
             return PropertyInfo();
 
-        return PropertyInfo(vs->custom_signal_get_argument_type(name, p_idx), vs->custom_signal_get_argument_name(name, p_idx));
+        return PropertyInfo(vs->custom_signal_get_argument_type(name, p_idx), StringName(vs->custom_signal_get_argument_name(name, p_idx)));
     }
 
     return PropertyInfo();
@@ -2385,9 +2400,12 @@ PropertyInfo VisualScriptEmitSignal::get_output_value_port_info(int p_idx) const
     return PropertyInfo();
 }
 
-String VisualScriptEmitSignal::get_caption() const {
-
-    return "Emit " + String(name);
+se_string_view VisualScriptEmitSignal::get_caption() const {
+    thread_local char buf[512];
+    buf[0]=0;
+    strncat(buf,"Emit ",511);
+    strncat(buf,name.asCString(),511);
+    return buf;
 }
 
 void VisualScriptEmitSignal::set_signal(const StringName &p_type) {
@@ -2417,11 +2435,11 @@ void VisualScriptEmitSignal::_validate_property(PropertyInfo &property) const {
             vs->get_custom_signal_list(&sigs);
         }
 
-        String ml;
+        se_string ml;
         for (int i=0,fin=sigs.size(); i<fin; ++i) {
 
             if (!ml.empty())
-                ml.m_str += QLatin1String(",");
+                ml += ",";
             ml += sigs[i];
         }
 
@@ -2448,7 +2466,7 @@ public:
     //virtual bool is_output_port_unsequenced(int p_idx) const { return false; }
     //virtual bool get_output_port_unsequenced(int p_idx,Variant* r_value,Variant* p_working_mem,String &r_error) const { return true; }
 
-    int step(const Variant **p_inputs, Variant **p_outputs, StartMode p_start_mode, Variant *p_working_mem, Variant::CallError &r_error, String &r_error_str) override {
+    int step(const Variant **p_inputs, Variant **p_outputs, StartMode p_start_mode, Variant *p_working_mem, Variant::CallError &r_error, se_string &r_error_str) override {
 
         Object *obj = instance->get_owner_ptr();
 
@@ -2471,12 +2489,12 @@ VisualScriptNodeInstance *VisualScriptEmitSignal::instance(VisualScriptInstance 
 VisualScriptEmitSignal::VisualScriptEmitSignal() {
 }
 
-static Ref<VisualScriptNode> create_basic_type_call_node(const String &p_name) {
+static Ref<VisualScriptNode> create_basic_type_call_node(se_string_view p_name) {
 
-    Vector<String> path = StringUtils::split(p_name,"/");
+    Vector<se_string_view > path = StringUtils::split(p_name,'/');
     ERR_FAIL_COND_V(path.size() < 4, Ref<VisualScriptNode>())
-    String base_type = path[2];
-    String method = path[3];
+    se_string_view  base_type = path[2];
+    se_string_view  method = path[3];
 
     Ref<VisualScriptFunctionCall> node(make_ref_counted<VisualScriptFunctionCall>());
 
@@ -2484,7 +2502,7 @@ static Ref<VisualScriptNode> create_basic_type_call_node(const String &p_name) {
 
     for (int i = 0; i < (int)VariantType::VARIANT_MAX; i++) {
 
-        if (Variant::get_type_name(VariantType(i)) == base_type) {
+        if (base_type == se_string_view(Variant::get_type_name(VariantType(i)))) {
             type = VariantType(i);
             break;
         }
@@ -2512,7 +2530,7 @@ void register_visual_script_func_nodes() {
     for (int i = 0; i < (int)VariantType::VARIANT_MAX; i++) {
 
         VariantType t = VariantType(i);
-        String type_name = Variant::get_type_name(t);
+        se_string type_name(Variant::get_type_name(t));
         Variant::CallError ce;
         Variant vt = Variant::construct(t, nullptr, 0, ce);
         PODVector<MethodInfo> ml;

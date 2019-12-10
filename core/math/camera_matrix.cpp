@@ -32,7 +32,8 @@
 
 #include "core/math/math_funcs.h"
 #include "core/print_string.h"
-#include "core/ustring.h"
+#include "core/se_string.h"
+#include "core/string_utils.h"
 #include "core/vector.h"
 
 void CameraMatrix::set_identity() {
@@ -531,12 +532,12 @@ void CameraMatrix::set_light_atlas_rect(const Rect2 &p_rect) {
     m[15] = 1.0;
 }
 
-CameraMatrix::operator String() const {
+CameraMatrix::operator se_string() const {
 
-    String str;
+    se_string str;
     for (int i = 0; i < 4; i++)
         for (int j = 0; j < 4; j++)
-            str += String((j > 0) ? ", " : "\n") + rtos(matrix[i][j]);
+            str += se_string((j > 0) ? ", " : "\n") + rtos(matrix[i][j]);
 
     return str;
 }

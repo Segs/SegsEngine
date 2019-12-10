@@ -269,9 +269,9 @@ void AnimationBezierTrackEdit::_notification(int p_what) {
         close_icon_rect.size = close_icon->get_size();
         draw_texture(close_icon, close_icon_rect.position);
 
-        String base_path(animation->track_get_path(track));
-        int end = StringUtils::find(base_path,":");
-        if (end != -1) {
+        se_string base_path(animation->track_get_path(track));
+        auto end = StringUtils::find(base_path,":");
+        if (end != se_string::npos) {
             base_path = StringUtils::substr(base_path,0, end + 1);
         }
 
@@ -288,7 +288,7 @@ void AnimationBezierTrackEdit::_notification(int p_what) {
                 node = root->get_node(path);
             }
 
-            String text;
+            se_string text;
 
             int h = font->get_height();
 
@@ -309,7 +309,7 @@ void AnimationBezierTrackEdit::_notification(int p_what) {
 
                 Vector2 string_pos = Point2(ofs, vofs + (h - font->get_height()) / 2 + font->get_ascent());
                 string_pos = string_pos.floor();
-                draw_string(font, string_pos, text, color, limit - ofs - hsep);
+                draw_string_utf8(font, string_pos, text, color, limit - ofs - hsep);
 
                 vofs += h + vsep;
             }
@@ -323,10 +323,10 @@ void AnimationBezierTrackEdit::_notification(int p_what) {
         for (int i = 0; i < animation->get_track_count(); i++) {
             if (animation->track_get_type(i) != Animation::TYPE_BEZIER)
                 continue;
-            String path(animation->track_get_path(i));
+            se_string path(animation->track_get_path(i));
             if (!StringUtils::begins_with(path,base_path))
                 continue; //another node
-            path = StringUtils::replace_first(path,base_path, "");
+            path = StringUtils::replace_first(path,base_path, se_string());
 
             Color cc = color;
             Rect2 rect = Rect2(margin, vofs, limit - margin - hsep, font->get_height() + vsep);
@@ -349,7 +349,7 @@ void AnimationBezierTrackEdit::_notification(int p_what) {
                 ac.a = 0.5;
                 draw_rect(rect, ac);
             }
-            draw_string(font, Point2(margin, vofs + font->get_ascent()), path, cc, limit - margin - hsep);
+            draw_string_utf8(font, Point2(margin, vofs + font->get_ascent()), path, cc, limit - margin - hsep);
 
             vofs += font->get_height() + vsep;
         }
@@ -381,11 +381,11 @@ void AnimationBezierTrackEdit::_notification(int p_what) {
                 if (!first && iv != prev_iv) {
 
                     Color lc = linecolor;
-                    lc.a *= 0.5;
+                    lc.a *= 0.5f;
                     draw_line(Point2(limit, i), Point2(right_limit, i), lc);
                     Color c = color;
-                    c.a *= 0.5;
-                    draw_string(font, Point2(limit + 8, i - 2), rtos(Math::stepify((iv + 1) * scale, step)), c);
+                    c.a *= 0.5f;
+                    draw_string_utf8(font, Point2(limit + 8, i - 2), rtos(Math::stepify((iv + 1) * scale, step)), c);
                 }
 
                 first = false;
@@ -460,8 +460,8 @@ void AnimationBezierTrackEdit::_notification(int p_what) {
                     ep.point_rect.size = bezier_icon->get_size();
                     if (selection.contains(i)) {
                         draw_texture(selected_icon, ep.point_rect.position);
-                        draw_string(font, ep.point_rect.position + Vector2(8, -font->get_height() - 4), TTR("Time:") + " " + rtos(Math::stepify(offset, 0.001f)), accent);
-                        draw_string(font, ep.point_rect.position + Vector2(8, -8), TTR("Value:") + " " + rtos(Math::stepify(value, 0.001f)), accent);
+                        draw_string_utf8(font, ep.point_rect.position + Vector2(8, -font->get_height() - 4), TTR("Time:") + " " + (rtos(Math::stepify(offset, 0.001f))), accent);
+                        draw_string_utf8(font, ep.point_rect.position + Vector2(8, -8), TTR("Value:") + " " + (rtos(Math::stepify(value, 0.001f))), accent);
                     } else {
                         draw_texture(bezier_icon, ep.point_rect.position);
                     }
@@ -587,7 +587,7 @@ void AnimationBezierTrackEdit::_zoom_changed() {
     update();
 }
 
-String AnimationBezierTrackEdit::get_tooltip(const Point2 &p_pos) const {
+StringName AnimationBezierTrackEdit::get_tooltip(const Point2 &p_pos) const {
 
     return Control::get_tooltip(p_pos);
 }
@@ -783,7 +783,7 @@ void AnimationBezierTrackEdit::_gui_input(const Ref<InputEvent> &p_event) {
                 time += 0.001f;
             }
 
-            undo_redo->create_action(TTR("Add Bezier Point"));
+            undo_redo->create_action_ui(TTR("Add Bezier Point"));
             undo_redo->add_do_method(animation.get(), "track_insert_key", track, time, new_point);
             undo_redo->add_undo_method(animation.get(), "track_remove_key_at_position", track, time);
             undo_redo->commit_action();
@@ -848,7 +848,7 @@ void AnimationBezierTrackEdit::_gui_input(const Ref<InputEvent> &p_event) {
 
     if (moving_handle != 0 && mb && !mb->is_pressed() && mb->get_button_index() == BUTTON_LEFT) {
 
-        undo_redo->create_action(TTR("Move Bezier Points"));
+        undo_redo->create_action_ui(TTR("Move Bezier Points"));
         undo_redo->add_do_method(animation.get(), "bezier_track_set_key_in_handle", track, moving_handle_key, moving_handle_left);
         undo_redo->add_do_method(animation.get(), "bezier_track_set_key_out_handle", track, moving_handle_key, moving_handle_right);
         undo_redo->add_undo_method(animation.get(), "bezier_track_set_key_in_handle", track, moving_handle_key, animation->bezier_track_get_key_in_handle(track, moving_handle_key));
@@ -864,7 +864,7 @@ void AnimationBezierTrackEdit::_gui_input(const Ref<InputEvent> &p_event) {
         if (moving_selection) {
             //combit it
 
-            undo_redo->create_action(TTR("Move Bezier Points"));
+            undo_redo->create_action_ui(TTR("Move Bezier Points"));
 
             List<AnimMoveRestore> to_restore;
             // 1-remove the keys
@@ -1072,7 +1072,7 @@ void AnimationBezierTrackEdit::_menu_selected(int p_index) {
                 time += 0.001f;
             }
 
-            undo_redo->create_action(TTR("Add Bezier Point"));
+            undo_redo->create_action_ui(TTR("Add Bezier Point"));
             undo_redo->add_do_method(animation.get(), "track_insert_key", track, time, new_point);
             undo_redo->add_undo_method(animation.get(), "track_remove_key_at_position", track, time);
             undo_redo->commit_action();
@@ -1100,7 +1100,7 @@ void AnimationBezierTrackEdit::duplicate_selection() {
             top_time = t;
     }
 
-    undo_redo->create_action(TTR("Anim Duplicate Keys"));
+    undo_redo->create_action_ui(TTR("Anim Duplicate Keys"));
 
     List<Pair<int, float> > new_selection_values;
 
@@ -1147,7 +1147,7 @@ void AnimationBezierTrackEdit::duplicate_selection() {
 
 void AnimationBezierTrackEdit::delete_selection() {
     if (!selection.empty()) {
-        undo_redo->create_action(TTR("Anim Delete Keys"));
+        undo_redo->create_action_ui(TTR("Anim Delete Keys"));
 
         for (auto E = selection.rbegin(); E!=selection.rend(); ++E) {
 

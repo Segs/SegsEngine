@@ -35,8 +35,13 @@
 #include "editor/editor_vcs_interface.h"
 #include "scene/gui/container.h"
 #include "scene/gui/rich_text_label.h"
-#include "scene/gui/text_edit.h"
 #include "scene/gui/tree.h"
+
+class TextEdit;
+class AcceptDialog;
+class OptionButton;
+class Button;
+class HSplitContainer;
 
 class VersionControlEditorPlugin : public EditorPlugin {
 
@@ -69,7 +74,7 @@ private:
     RichTextLabel *set_up_vcs_status;
     Button *set_up_ok_button;
 
-    HashMap<ChangeType, String,HashType<ChangeType> > change_type_to_strings;
+    HashMap<ChangeType, se_string,HashType<ChangeType> > change_type_to_strings;
     HashMap<ChangeType, Color,HashType<ChangeType> > change_type_to_color;
 
     VBoxContainer *version_commit_dock;
@@ -107,7 +112,7 @@ private:
     void _stage_selected();
     void _stage_all();
     void _view_file_diff();
-    void _display_file_diff(String p_file_path);
+    void _display_file_diff(se_string_view p_file_path);
     void _refresh_file_diff();
     void _clear_file_diff();
     void _update_stage_status();
@@ -130,7 +135,7 @@ public:
 
     Vector<StringName> get_available_vcs_names() const { return available_addons; }
     bool get_is_vcs_intialized() const;
-    const String get_vcs_name() const;
+    const se_string get_vcs_name() const;
 
     void register_editor();
     void fetch_available_vcs_addon_names();

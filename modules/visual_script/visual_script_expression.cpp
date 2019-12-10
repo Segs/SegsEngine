@@ -31,36 +31,38 @@
 #include "visual_script_expression.h"
 #include "core/string_formatter.h"
 #include "core/class_db.h"
+#include "core/se_string.h"
+#include "core/string_utils.inl"
 
 IMPL_GDCLASS(VisualScriptExpression)
 
 bool VisualScriptExpression::_set(const StringName &p_name, const Variant &p_value) {
 
-    if (String(p_name) == "expression") {
-        expression = p_value;
+    if ((p_name) == "expression") {
+        expression = p_value.as<se_string>();
         expression_dirty = true;
         ports_changed_notify();
         return true;
     }
 
-    if (String(p_name) == "out_type") {
+    if ((p_name) == "out_type") {
         output_type = VariantType(int(p_value));
         expression_dirty = true;
         ports_changed_notify();
         return true;
     }
-    if (String(p_name) == "sequenced") {
+    if ((p_name) == "sequenced") {
         sequenced = p_value;
         ports_changed_notify();
         return true;
     }
 
-    if (String(p_name) == "input_count") {
+    if ((p_name) == "input_count") {
 
         int from = inputs.size();
         inputs.resize(int(p_value));
         for (int i = from; i < inputs.size(); i++) {
-            inputs.write[i].name = String('a' + i);
+            inputs.write[i].name = ('a' + i);
             if (from == 0) {
                 inputs.write[i].type = output_type;
             } else {
@@ -73,19 +75,19 @@ bool VisualScriptExpression::_set(const StringName &p_name, const Variant &p_val
         return true;
     }
 
-    if (StringUtils::begins_with(String(p_name),"input_")) {
+    if (StringUtils::begins_with(p_name,"input_")) {
 
         int idx = StringUtils::to_int(StringUtils::get_slice(StringUtils::get_slice(p_name,'_', 1),'/', 0));
         ERR_FAIL_INDEX_V(idx, inputs.size(), false)
 
-        String what = StringUtils::get_slice(p_name,"/", 1);
+        se_string_view what = StringUtils::get_slice(p_name,'/', 1);
 
-        if (what == "type") {
+        if (what == se_string_view("type")) {
 
             inputs.write[idx].type = VariantType(int(p_value));
-        } else if (what == "name") {
+        } else if (what == se_string_view("name")) {
 
-            inputs.write[idx].name = p_value;
+            inputs.write[idx].name = se_string(p_value);
         } else {
             return false;
         }
@@ -125,12 +127,12 @@ bool VisualScriptExpression::_get(const StringName &p_name, Variant &r_ret) cons
         int idx = StringUtils::to_int(StringUtils::get_slice(StringUtils::get_slice(p_name,'_', 1),'/', 0));
         ERR_FAIL_INDEX_V(idx, inputs.size(), false)
 
-        String what = StringUtils::get_slice(p_name,"/", 1);
+        se_string_view what = StringUtils::get_slice(p_name,'/', 1);
 
-        if (what == "type") {
+        if (what == se_string_view("type")) {
 
             r_ret = inputs[idx].type;
-        } else if (what == "name") {
+        } else if (what == se_string_view("name")) {
 
             r_ret = inputs[idx].name;
         } else {
@@ -152,9 +154,9 @@ void VisualScriptExpression::_get_property_list(ListPOD<PropertyInfo> *p_list) c
     p_list->push_back(PropertyInfo(VariantType::BOOL, "sequenced"));
 
     for (int i = 0; i < inputs.size(); i++) {
-
-        p_list->push_back(PropertyInfo(VariantType::INT, "input_" + itos(i) + "/type", PROPERTY_HINT_ENUM, argt));
-        p_list->push_back(PropertyInfo(VariantType::STRING, "input_" + itos(i) + "/name"));
+        se_string val=::to_string(i);
+        p_list->push_back(PropertyInfo(VariantType::INT, StringName("input_" + val + "/type"), PROPERTY_HINT_ENUM, argt));
+        p_list->push_back(PropertyInfo(VariantType::STRING, StringName("input_" + val + "/name")));
     }
 }
 
@@ -167,9 +169,9 @@ bool VisualScriptExpression::has_input_sequence_port() const {
     return sequenced;
 }
 
-String VisualScriptExpression::get_output_sequence_port_text(int p_port) const {
+se_string_view VisualScriptExpression::get_output_sequence_port_text(int p_port) const {
 
-    return String();
+    return nullptr;
 }
 
 int VisualScriptExpression::get_input_value_port_count() const {
@@ -183,18 +185,18 @@ int VisualScriptExpression::get_output_value_port_count() const {
 
 PropertyInfo VisualScriptExpression::get_input_value_port_info(int p_idx) const {
 
-    return PropertyInfo(inputs[p_idx].type, String(inputs[p_idx].name));
+    return PropertyInfo(inputs[p_idx].type, StringName(inputs[p_idx].name));
 }
 PropertyInfo VisualScriptExpression::get_output_value_port_info(int p_idx) const {
 
     return PropertyInfo(output_type, "result");
 }
 
-String VisualScriptExpression::get_caption() const {
+se_string_view VisualScriptExpression::get_caption() const {
 
     return "Expression";
 }
-String VisualScriptExpression::get_text() const {
+se_string VisualScriptExpression::get_text() const {
 
     return expression;
 }
@@ -202,20 +204,20 @@ String VisualScriptExpression::get_text() const {
 Error VisualScriptExpression::_get_token(Token &r_token) {
 
     while (true) {
-#define GET_CHAR() (str_ofs >= expression.length() ? QChar(0) : expression[str_ofs++])
+#define GET_CHAR() (str_ofs >= expression.length() ? char(0) : expression[str_ofs++])
 
-        CharType cchar = GET_CHAR();
-        if (cchar == nullptr) {
+        char cchar = GET_CHAR();
+        if (cchar == 0) {
             r_token.type = TK_EOF;
             return OK;
         }
 
-        switch (cchar.unicode()) {
+        switch (cchar) {
 
             case 0: {
                 r_token.type = TK_EOF;
                 return OK;
-            } break;
+            }
             case '{': {
 
                 r_token.type = TK_CURLY_BRACKET_OPEN;
@@ -363,12 +365,12 @@ Error VisualScriptExpression::_get_token(Token &r_token) {
             }
             case '"': {
 
-                String str;
+                se_string str;
                 while (true) {
 
-                    CharType ch = GET_CHAR();
+                    char ch = GET_CHAR();
 
-                    if (ch == nullptr) {
+                    if (ch == 0) {
                         _set_error("Unterminated String");
                         r_token.type = TK_ERROR;
                         return ERR_PARSE_ERROR;
@@ -377,15 +379,15 @@ Error VisualScriptExpression::_get_token(Token &r_token) {
                     } else if (ch == '\\') {
                         //escaped characters...
 
-                        CharType next = GET_CHAR();
-                        if (next == nullptr) {
+                        char next = GET_CHAR();
+                        if (next == 0) {
                             _set_error("Unterminated String");
                             r_token.type = TK_ERROR;
                             return ERR_PARSE_ERROR;
                         }
-                        CharType res = 0;
+                        char res = 0;
 
-                        switch (next.unicode()) {
+                        switch (next) {
 
                             case 'b': res = 8; break;
                             case 't': res = 9; break;
@@ -396,9 +398,9 @@ Error VisualScriptExpression::_get_token(Token &r_token) {
                                 //hexnumbarh - oct is deprecated
                                 uint16_t accval=0;
                                 for (int j = 0; j < 4; j++) {
-                                    CharType c = GET_CHAR();
+                                    char c = GET_CHAR();
 
-                                    if (c == nullptr) {
+                                    if (c == 0) {
                                         _set_error("Unterminated String");
                                         r_token.type = TK_ERROR;
                                         return ERR_PARSE_ERROR;
@@ -409,24 +411,24 @@ Error VisualScriptExpression::_get_token(Token &r_token) {
                                         r_token.type = TK_ERROR;
                                         return ERR_PARSE_ERROR;
                                     }
-                                    uint16_t v;
+                                    int16_t v;
                                     if (c >= '0' && c <= '9') {
-                                        v = c.digitValue();
+                                        v = c-'0';
                                     } else if (c >= 'a' && c <= 'f') {
-                                        v = c.toLatin1() - 'a';
+                                        v = c - 'a';
                                         v += 10;
                                     } else if (c >= 'A' && c <= 'F') {
-                                        v = c.toLatin1() - 'A';
+                                        v = c - 'A';
                                         v += 10;
                                     } else {
-                                        ERR_PRINT("BUG");
+                                        ERR_PRINT("BUG")
                                         v = 0;
                                     }
 
                                     accval <<= 4;
                                     accval |= v;
                                 }
-                                res = QChar(accval);
+                                res = accval;
                             } break;
                             //case '\"': res='\"'; break;
                             //case '\\': res='\\'; break;
@@ -449,7 +451,7 @@ Error VisualScriptExpression::_get_token(Token &r_token) {
                 r_token.value = str;
                 return OK;
 
-            } break;
+            }
             default: {
 
                 if (cchar <= 32) {
@@ -459,7 +461,7 @@ Error VisualScriptExpression::_get_token(Token &r_token) {
                 if (cchar >= '0' && cchar <= '9') {
                     //a number
 
-                    String num;
+                    se_string num;
 #define READING_SIGN 0
 #define READING_INT 1
 #define READING_DEC 2
@@ -467,7 +469,7 @@ Error VisualScriptExpression::_get_token(Token &r_token) {
 #define READING_DONE 4
                     int reading = READING_INT;
 
-                    CharType c = cchar;
+                    char c = cchar;
                     bool exp_sign = false;
                     bool exp_beg = false;
                     bool is_float = false;
@@ -519,7 +521,7 @@ Error VisualScriptExpression::_get_token(Token &r_token) {
 
                         if (reading == READING_DONE)
                             break;
-                        num += {c};
+                        num.push_back(c);
                         c = GET_CHAR();
                     }
 
@@ -535,12 +537,12 @@ Error VisualScriptExpression::_get_token(Token &r_token) {
 
                 } else if ((cchar >= 'A' && cchar <= 'Z') || (cchar >= 'a' && cchar <= 'z') || cchar == '_') {
 
-                    String id;
+                    se_string id;
                     bool first = true;
 
                     while ((cchar >= 'A' && cchar <= 'Z') || (cchar >= 'a' && cchar <= 'z') || cchar == '_' || (!first && cchar >= '0' && cchar <= '9')) {
 
-                        id += {cchar};
+                        id.push_back(cchar);
                         cchar = GET_CHAR();
                         first = false;
                     }
@@ -758,7 +760,7 @@ VisualScriptExpression::ENode *VisualScriptExpression::_parse_expression() {
             } break;
             case TK_IDENTIFIER: {
 
-                String what = tk.value;
+                se_string what(tk.value);
                 int index = -1;
                 for (int i = 0; i < inputs.size(); i++) {
                     if (what == inputs[i].name) {
@@ -772,7 +774,8 @@ VisualScriptExpression::ENode *VisualScriptExpression::_parse_expression() {
                     input->index = index;
                     expr = input;
                 } else {
-                    _set_error("Invalid input identifier '" + what + "'. For script variables, use self (locals are for inputs)." + what);
+
+                    _set_error(("Invalid input identifier '" + what + "'. For script variables, use self (locals are for inputs)." + what).c_str());
                     return nullptr;
                 }
             } break;
@@ -868,7 +871,7 @@ VisualScriptExpression::ENode *VisualScriptExpression::_parse_expression() {
 
                 int expected_args = VisualScriptBuiltinFunc::get_func_argument_count(bifunc->func);
                 if (bifunc->arguments.size() != expected_args) {
-                    _set_error("Builtin func '" + VisualScriptBuiltinFunc::get_func_name(bifunc->func) + "' expects " + itos(expected_args) + " arguments.");
+                    _set_error((se_string("Builtin func '") + VisualScriptBuiltinFunc::get_func_name(bifunc->func) + "' expects " + itos(expected_args) + " arguments.").c_str());
                 }
 
                 expr = bifunc;
@@ -881,7 +884,7 @@ VisualScriptExpression::ENode *VisualScriptExpression::_parse_expression() {
                 e.op = Variant::OP_NEGATE;
                 expression.push_back(e);
                 continue;
-            } break;
+            }
             case TK_OP_NOT: {
 
                 Expression e;
@@ -889,12 +892,12 @@ VisualScriptExpression::ENode *VisualScriptExpression::_parse_expression() {
                 e.op = Variant::OP_NOT;
                 expression.push_back(e);
                 continue;
-            } break;
+            }
 
             default: {
                 _set_error("Expected expression.");
                 return nullptr;
-            } break;
+            }
         }
 
         //before going to operators, must check indexing!
@@ -1034,7 +1037,7 @@ VisualScriptExpression::ENode *VisualScriptExpression::_parse_expression() {
             case TK_OP_BIT_XOR: op = Variant::OP_BIT_XOR; break;
             case TK_OP_BIT_INVERT: op = Variant::OP_BIT_NEGATE; break;
             default: {
-            };
+            }
         }
 
         if (op == Variant::OP_MAX) { //stop appending stuff
@@ -1113,7 +1116,7 @@ VisualScriptExpression::ENode *VisualScriptExpression::_parse_expression() {
                 case Variant::OP_OR: priority = 13; break;
 
                 default: {
-                    _set_error("Parser bug, invalid operator in expression: " + itos(expression[i].op));
+                    _set_error(FormatVE("Parser bug, invalid operator in expression: %d",expression[i].op).c_str());
                     return nullptr;
                 }
             }
@@ -1164,7 +1167,7 @@ VisualScriptExpression::ENode *VisualScriptExpression::_parse_expression() {
 
             if (next_op < 1 || next_op >= (expression.size() - 1)) {
                 _set_error("Parser bug...");
-                ERR_FAIL_V(nullptr);
+                ERR_FAIL_V(nullptr)
             }
 
             OperatorNode *op = alloc_node<OperatorNode>();
@@ -1173,7 +1176,7 @@ VisualScriptExpression::ENode *VisualScriptExpression::_parse_expression() {
             if (expression[next_op - 1].is_op) {
 
                 _set_error("Parser bug...");
-                ERR_FAIL_V(nullptr);
+                ERR_FAIL_V(nullptr)
             }
 
             if (expression[next_op + 1].is_op) {
@@ -1210,7 +1213,7 @@ bool VisualScriptExpression::_compile_expression() {
         root = nullptr;
     }
 
-    error_str = String();
+    error_str.clear();
     error_set = false;
     str_ofs = 0;
 
@@ -1236,7 +1239,7 @@ public:
 
     //virtual int get_working_memory_size() const { return 0; }
     //execute by parsing the tree directly
-    virtual bool _execute(const Variant **p_inputs, VisualScriptExpression::ENode *p_node, Variant &r_ret, String &r_error_str, Variant::CallError &ce) {
+    virtual bool _execute(const Variant **p_inputs, VisualScriptExpression::ENode *p_node, Variant &r_ret, se_string &r_error_str, Variant::CallError &ce) {
 
         switch (p_node->type) {
             case VisualScriptExpression::ENode::TYPE_INPUT: {
@@ -1274,7 +1277,7 @@ public:
                 bool valid = true;
                 Variant::evaluate(op->op, a, b, r_ret, valid);
                 if (!valid) {
-                    r_error_str = "Invalid operands to operator " + Variant::get_operator_name(op->op) + ": " + Variant::get_type_name(a.get_type()) + " and " + Variant::get_type_name(b.get_type()) + ".";
+                    r_error_str = se_string("Invalid operands to operator ") + Variant::get_operator_name(op->op) + ": " + Variant::get_type_name(a.get_type()) + " and " + Variant::get_type_name(b.get_type()) + ".";
                     return true;
                 }
 
@@ -1297,7 +1300,7 @@ public:
                 bool valid;
                 r_ret = base.get(idx, &valid);
                 if (!valid) {
-                    r_error_str = FormatV("Invalid index of type %s for base of type %s.",Variant::get_type_name(idx.get_type()),Variant::get_type_name(base.get_type()));
+                    r_error_str = FormatVE("Invalid index of type %s for base of type %s.",Variant::get_type_name(idx.get_type()),Variant::get_type_name(base.get_type()));
                     return true;
                 }
 
@@ -1314,7 +1317,7 @@ public:
                 bool valid;
                 r_ret = base.get_named(index->name, &valid);
                 if (!valid) {
-                    r_error_str = "Invalid index '" + String(index->name) + "' for base of type " + Variant::get_type_name(base.get_type()) + ".";
+                    r_error_str = "Invalid index '" + se_string(index->name) + "' for base of type " + Variant::get_type_name(base.get_type()) + ".";
                     return true;
                 }
 
@@ -1379,7 +1382,7 @@ public:
                 r_ret = Variant::construct(constructor->data_type, (const Variant **)argp.ptr(), argp.size(), ce);
 
                 if (ce.error != Variant::CallError::CALL_OK) {
-                    r_error_str = FormatV("Invalid arguments to construct '%s'.",Variant::get_type_name(constructor->data_type));
+                    r_error_str = FormatVE("Invalid arguments to construct '%s'.",Variant::get_type_name(constructor->data_type));
                     return true;
                 }
 
@@ -1438,7 +1441,7 @@ public:
                 r_ret = base.call(call->method, (const Variant **)argp.ptr(), argp.size(), ce);
 
                 if (ce.error != Variant::CallError::CALL_OK) {
-                    r_error_str = "On call to '" + String(call->method) + "':";
+                    r_error_str = "On call to '" + se_string(call->method) + "':";
                     return true;
                 }
 
@@ -1447,7 +1450,7 @@ public:
         return false;
     }
 
-    int step(const Variant **p_inputs, Variant **p_outputs, StartMode p_start_mode, Variant *p_working_mem, Variant::CallError &r_error, String &r_error_str) override {
+    int step(const Variant **p_inputs, Variant **p_outputs, StartMode p_start_mode, Variant *p_working_mem, Variant::CallError &r_error, se_string &r_error_str) override {
 
         if (!expression->root || expression->error_set) {
             r_error_str = expression->error_str;
@@ -1463,7 +1466,7 @@ public:
 #ifdef DEBUG_ENABLED
         if (!error && expression->output_type != VariantType::NIL && !Variant::can_convert_strict(p_outputs[0]->get_type(), expression->output_type)) {
 
-            r_error_str += FormatV("Can't convert expression result from %s to %s.",
+            r_error_str += FormatVE("Can't convert expression result from %s to %s.",
                     Variant::get_type_name(p_outputs[0]->get_type()), Variant::get_type_name(expression->output_type));
             r_error.error = Variant::CallError::CALL_ERROR_INVALID_METHOD;
         }

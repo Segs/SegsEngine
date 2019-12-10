@@ -113,12 +113,12 @@ Error ImageLoaderSVG::_create_image(ImageData &p_image, const PoolVector<uint8_t
 
     int w = (int)(svg_image->width * params.p_scale * upscale);
     ERR_FAIL_COND_V_MSG(w > ImageData::MAX_WIDTH, ERR_PARAMETER_RANGE_ERROR,
-            FormatV("Can't create image from SVG with scale %f, the resulting image size exceeds max width.",
+            FormatVE("Can't create image from SVG with scale %f, the resulting image size exceeds max width.",
                     params.p_scale))
 
     int h = (int)(svg_image->height * params.p_scale * upscale);
     ERR_FAIL_COND_V_MSG(h > ImageData::MAX_HEIGHT, ERR_PARAMETER_RANGE_ERROR,
-            FormatV("Can't create image from SVG with scale %f, the resulting image size exceeds max height.",
+            FormatVE("Can't create image from SVG with scale %f, the resulting image size exceeds max height.",
                     params.p_scale))
 
     p_image.data.resize(w * h * 4);
@@ -149,10 +149,10 @@ Error ImageLoaderSVG::load_image(ImageData &p_image, FileAccess *f, LoadParams p
     return _create_image(p_image, &src_image, params);
 }
 
-void ImageLoaderSVG::get_recognized_extensions(Vector<String> *p_extensions) const {
+void ImageLoaderSVG::get_recognized_extensions(PODVector<se_string> &p_extensions) const {
 
-    p_extensions->push_back(String("svg"));
-    p_extensions->push_back(String("svgz"));
+    p_extensions.push_back(("svg"));
+    p_extensions.push_back(("svgz"));
 }
 
 ImageLoaderSVG::ImageLoaderSVG() {

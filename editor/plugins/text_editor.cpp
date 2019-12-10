@@ -40,14 +40,14 @@ IMPL_GDCLASS(TextEditor)
 
 void TextEditor::add_syntax_highlighter(SyntaxHighlighter *p_highlighter) {
     highlighters[p_highlighter->get_name()] = p_highlighter;
-    highlighter_menu->add_radio_check_item(p_highlighter->get_name());
+    highlighter_menu->add_radio_check_item_utf8(p_highlighter->get_name());
 }
 
 void TextEditor::set_syntax_highlighter(SyntaxHighlighter *p_highlighter) {
     TextEdit *te = code_editor->get_text_edit();
     te->_set_syntax_highlighting(p_highlighter);
     if (p_highlighter != nullptr) {
-        highlighter_menu->set_item_checked(highlighter_menu->get_item_idx_from_text(p_highlighter->get_name()), true);
+        highlighter_menu->set_item_checked(highlighter_menu->get_item_idx_from_text_utf8(p_highlighter->get_name()), true);
     } else {
         highlighter_menu->set_item_checked(highlighter_menu->get_item_idx_from_text("Standard"), true);
     }
@@ -66,11 +66,11 @@ void TextEditor::set_syntax_highlighter(SyntaxHighlighter *p_highlighter) {
 }
 
 void TextEditor::_change_syntax_highlighter(int p_idx) {
-    Map<String, SyntaxHighlighter *>::iterator el = highlighters.begin();
+    Map<se_string, SyntaxHighlighter *>::iterator el = highlighters.begin();
     for (;el != highlighters.end(); ++el) {
-        highlighter_menu->set_item_checked(highlighter_menu->get_item_idx_from_text(el->first), false);
+        highlighter_menu->set_item_checked(highlighter_menu->get_item_idx_from_text_utf8(el->first), false);
     }
-    set_syntax_highlighter(highlighters[highlighter_menu->get_item_text(p_idx)]);
+    set_syntax_highlighter(highlighters[highlighter_menu->get_item_text_utf8(p_idx)]);
 }
 
 void TextEditor::_load_theme_settings() {
@@ -150,18 +150,18 @@ void TextEditor::_load_theme_settings() {
     colors_cache.string_color = string_color;
 }
 
-String TextEditor::get_name() {
-    String name;
+se_string TextEditor::get_name() {
+    se_string name;
 
     if (not PathUtils::is_internal_path(text_file->get_path()) ) {
         name = PathUtils::get_file(text_file->get_path());
         if (is_unsaved()) {
-            name += "(*)";
+            name += ("(*)");
         }
     } else if (!text_file->get_name().empty()) {
         name = text_file->get_name();
     } else {
-        name = FormatV("%s(%zd)",text_file->get_class(),text_file->get_instance_id());
+        name = FormatVE("%s(%zd)",text_file->get_class(),text_file->get_instance_id());
     }
 
     return name;
@@ -169,7 +169,7 @@ String TextEditor::get_name() {
 
 Ref<Texture> TextEditor::get_icon() {
 
-    return EditorNode::get_singleton()->get_object_icon(text_file.operator->(), "");
+    return EditorNode::get_singleton()->get_object_icon(text_file.operator->(), StringName());
 }
 
 RES TextEditor::get_edited_resource() const {
@@ -181,7 +181,7 @@ void TextEditor::set_edited_resource(const RES &p_res) {
 
     text_file = dynamic_ref_cast<TextFile>(p_res);
 
-    code_editor->get_text_edit()->set_text(text_file->get_text());
+    code_editor->get_text_edit()->set_text_utf8(text_file->get_text());
     code_editor->get_text_edit()->clear_undo_history();
     code_editor->get_text_edit()->tag_saved_version();
 
@@ -189,7 +189,7 @@ void TextEditor::set_edited_resource(const RES &p_res) {
     code_editor->update_line_and_column();
 }
 
-void TextEditor::add_callback(const String &p_function, PoolStringArray p_args) {
+void TextEditor::add_callback(const StringName &p_function, const PoolVector<se_string> &p_args) {
 }
 
 void TextEditor::set_debugger_active(bool p_active) {
@@ -208,7 +208,7 @@ void TextEditor::reload_text() {
     int h = te->get_h_scroll();
     int v = te->get_v_scroll();
 
-    te->set_text(text_file->get_text());
+    te->set_text_utf8(text_file->get_text());
     te->cursor_set_line(row);
     te->cursor_set_column(column);
     te->set_h_scroll(h);
@@ -241,13 +241,12 @@ void TextEditor::_update_bookmark_list() {
     bookmarks_menu->add_separator();
 
     for (int i = 0; i < bookmark_list.size(); i++) {
-        String line = StringUtils::strip_edges(code_editor->get_text_edit()->get_line(bookmark_list[i]));
+        se_string line(StringUtils::strip_edges(code_editor->get_text_edit()->get_line(bookmark_list[i])));
         // Limit the size of the line if too big.
         if (line.length() > 50) {
             line = StringUtils::substr(line,0, 50);
         }
-
-        bookmarks_menu->add_item(StringUtils::num((int)bookmark_list[i] + 1) + " - \"" + line + "\"");
+        bookmarks_menu->add_item(StringName(StringUtils::num((int)bookmark_list[i] + 1) + " - \"" + line + "\""));
         bookmarks_menu->set_item_metadata(bookmarks_menu->get_item_count() - 1, bookmark_list[i]);
     }
 }
@@ -262,7 +261,7 @@ void TextEditor::_bookmark_item_pressed(int p_idx) {
 }
 
 void TextEditor::apply_code() {
-    text_file->set_text(code_editor->get_text_edit()->get_text());
+    text_file->set_text(code_editor->get_text_edit()->get_text_utf8());
 }
 
 bool TextEditor::is_unsaved() {
@@ -337,9 +336,9 @@ void TextEditor::ensure_focus() {
     code_editor->get_text_edit()->grab_focus();
 }
 
-Vector<String> TextEditor::get_functions() {
+Vector<se_string> TextEditor::get_functions() {
 
-    return Vector<String>();
+    return {};
 }
 
 bool TextEditor::show_members_overview() {
@@ -351,7 +350,7 @@ void TextEditor::update_settings() {
     code_editor->update_editor_settings();
 }
 
-void TextEditor::set_tooltip_request_func(String p_method, Object *p_obj) {
+void TextEditor::set_tooltip_request_func(se_string_view p_method, Object *p_obj) {
 
     code_editor->get_text_edit()->set_tooltip_request_func(p_obj, StringName(p_method), Variant(this));
 }
@@ -489,7 +488,7 @@ void TextEditor::_edit_option(int p_op) {
         } break;
         case SEARCH_IN_FILES: {
 
-            String selected_text = code_editor->get_text_edit()->get_selection_text();
+            se_string selected_text = code_editor->get_text_edit()->get_selection_text();
 
             // Yep, because it doesn't make sense to instance this dialog for every single script open...
             // So this will be delegated to the ScriptEditor.
@@ -692,7 +691,7 @@ TextEditor::TextEditor() {
     PopupMenu *convert_case = memnew(PopupMenu);
     convert_case->set_name("convert_case");
     edit_menu->get_popup()->add_child(convert_case);
-    edit_menu->get_popup()->add_submenu_item(TTR("Convert Case"), "convert_case");
+    edit_menu->get_popup()->add_submenu_item(TTR("Convert Case"), StringName("convert_case"));
     convert_case->add_shortcut(ED_SHORTCUT("script_text_editor/convert_to_uppercase", TTR("Uppercase")), EDIT_TO_UPPERCASE);
     convert_case->add_shortcut(ED_SHORTCUT("script_text_editor/convert_to_lowercase", TTR("Lowercase")), EDIT_TO_LOWERCASE);
     convert_case->add_shortcut(ED_SHORTCUT("script_text_editor/capitalize", TTR("Capitalize")), EDIT_CAPITALIZE);
@@ -702,7 +701,7 @@ TextEditor::TextEditor() {
     highlighter_menu = memnew(PopupMenu);
     highlighter_menu->set_name("highlighter_menu");
     edit_menu->get_popup()->add_child(highlighter_menu);
-    edit_menu->get_popup()->add_submenu_item(TTR("Syntax Highlighter"), "highlighter_menu");
+    edit_menu->get_popup()->add_submenu_item(TTR("Syntax Highlighter"), StringName("highlighter_menu"));
     highlighter_menu->add_radio_check_item(TTR("Standard"));
     highlighter_menu->connect("id_pressed", this, "_change_syntax_highlighter");
 
@@ -716,9 +715,9 @@ TextEditor::TextEditor() {
     goto_menu->get_popup()->add_separator();
 
     bookmarks_menu = memnew(PopupMenu);
-    bookmarks_menu->set_name(TTR("Bookmarks"));
+    bookmarks_menu->set_name((TTR("Bookmarks")));
     goto_menu->get_popup()->add_child(bookmarks_menu);
-    goto_menu->get_popup()->add_submenu_item(TTR("Bookmarks"), "Bookmarks");
+    goto_menu->get_popup()->add_submenu_item(TTR("Bookmarks"), StringName("Bookmarks"));
     _update_bookmark_list();
     bookmarks_menu->connect("about_to_show", this, "_update_bookmark_list");
     bookmarks_menu->connect("index_pressed", this, "_bookmark_item_pressed");
@@ -730,7 +729,7 @@ TextEditor::TextEditor() {
 }
 
 TextEditor::~TextEditor() {
-    for (const eastl::pair<const String,SyntaxHighlighter *> &E : highlighters) {
+    for (const eastl::pair<const se_string,SyntaxHighlighter *> &E : highlighters) {
         if (E.second != nullptr) {
             memdelete(E.second);
         }

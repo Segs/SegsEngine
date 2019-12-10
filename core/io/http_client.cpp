@@ -57,7 +57,7 @@ VARIANT_ENUM_CAST(HTTPClient::Status);
 IMPL_GDCLASS(HTTPClient)
 
 #ifndef JAVASCRIPT_ENABLED
-Error HTTPClient::connect_to_host(const String &p_host, int p_port, bool p_ssl, bool p_verify_host) {
+Error HTTPClient::connect_to_host(const se_string &p_host, int p_port, bool p_ssl, bool p_verify_host) {
 
     close();
 
@@ -67,7 +67,7 @@ Error HTTPClient::connect_to_host(const String &p_host, int p_port, bool p_ssl, 
     ssl = p_ssl;
     ssl_verify_host = p_verify_host;
 
-    String host_lower = StringUtils::to_lower(conn_host);
+    se_string host_lower = StringUtils::to_lower(conn_host);
     if (StringUtils::begins_with(host_lower,"http://")) {
 
         conn_host = StringUtils::substr(conn_host,7, conn_host.length() - 7);
@@ -91,7 +91,7 @@ Error HTTPClient::connect_to_host(const String &p_host, int p_port, bool p_ssl, 
 
     if (StringUtils::is_valid_ip_address(conn_host)) {
         // Host contains valid IP
-        Error err = tcp_connection->connect_to_host(IP_Address(conn_host), p_port);
+        Error err = tcp_connection->connect_to_host(IP_Address(conn_host.c_str()), p_port);
         if (err) {
             status = STATUS_CANT_CONNECT;
             return err;
@@ -119,56 +119,49 @@ Ref<StreamPeer> HTTPClient::get_connection() const {
     return connection;
 }
 
-Error HTTPClient::request_raw(Method p_method, const String &p_url, const Vector<String> &p_headers, const PoolVector<uint8_t> &p_body) {
+Error HTTPClient::request_raw(Method p_method, se_string_view p_url, const Vector<se_string> &p_headers, const PoolVector<uint8_t> &p_body) {
 
     ERR_FAIL_INDEX_V(p_method, METHOD_MAX, ERR_INVALID_PARAMETER);
     ERR_FAIL_COND_V(!StringUtils::begins_with(p_url,"/"), ERR_INVALID_PARAMETER)
     ERR_FAIL_COND_V(status != STATUS_CONNECTED, ERR_INVALID_PARAMETER)
     ERR_FAIL_COND_V(not connection, ERR_INVALID_DATA)
 
-    String request = String(_methods[p_method]) + " " + p_url + " HTTP/1.1\r\n";
+    se_string request = se_string(_methods[p_method]) + " " + p_url + " HTTP/1.1\r\n";
     if ((ssl && conn_port == PORT_HTTPS) || (!ssl && conn_port == PORT_HTTP)) {
         // Don't append the standard ports
-        request += "Host: " + conn_host + "\r\n";
+        request += "Host: " + (conn_host) + "\r\n";
     } else {
-        request += "Host: " + conn_host + ":" + itos(conn_port) + "\r\n";
+        request += "Host: " + (conn_host) + ":" + ::to_string(conn_port) + "\r\n";
     }
     bool add_clen = p_body.size() > 0;
     bool add_uagent = true;
     bool add_accept = true;
     for (int i = 0; i < p_headers.size(); i++) {
         request += p_headers[i] + "\r\n";
-        if (add_clen && StringUtils::findn(p_headers[i],"Content-Length:") == 0) {
+        if (add_clen && StringUtils::findn(p_headers[i],("Content-Length:")) == 0) {
             add_clen = false;
         }
-        if (add_uagent && StringUtils::findn(p_headers[i],"User-Agent:") == 0) {
+        if (add_uagent && StringUtils::findn(p_headers[i],("User-Agent:")) == 0) {
             add_uagent = false;
         }
-        if (add_accept && StringUtils::findn(p_headers[i],"Accept:") == 0) {
+        if (add_accept && StringUtils::findn(p_headers[i],("Accept:")) == 0) {
             add_accept = false;
         }
     }
     if (add_clen) {
-        request += "Content-Length: " + itos(p_body.size()) + "\r\n";
+        request += "Content-Length: " + ::to_string(p_body.size()) + "\r\n";
         // Should it add utf8 encoding?
     }
     if (add_uagent) {
-        request += "User-Agent: GodotEngine/" + String(VERSION_FULL_BUILD) + " (" + OS::get_singleton()->get_name() + ")\r\n";
+        request += "User-Agent: GodotEngine/" + se_string(VERSION_FULL_BUILD) + " (" + OS::get_singleton()->get_name() + ")\r\n";
     }
     if (add_accept) {
-        request += "Accept: */*\r\n";
+        request += ("Accept: */*\r\n");
     }
-    request += "\r\n";
-    CharString cs = StringUtils::to_utf8(request);
-
+    request += ("\r\n");
     PoolVector<uint8_t> data;
-    data.resize(cs.length());
-    {
-        PoolVector<uint8_t>::Write data_write = data.write();
-        for (int i = 0; i < cs.length(); i++) {
-            data_write[i] = cs[i];
-        }
-    }
+    data.resize(request.length());
+    memcpy(data.write().ptr(),request.data(),request.size());
 
     data.append_array(p_body);
 
@@ -186,50 +179,49 @@ Error HTTPClient::request_raw(Method p_method, const String &p_url, const Vector
     return OK;
 }
 
-Error HTTPClient::request(Method p_method, const String &p_url, const Vector<String> &p_headers, const String &p_body) {
+Error HTTPClient::request(Method p_method, se_string_view p_url, const Vector<se_string> &p_headers, const se_string &p_body) {
 
     ERR_FAIL_INDEX_V(p_method, METHOD_MAX, ERR_INVALID_PARAMETER)
-    ERR_FAIL_COND_V(!StringUtils::begins_with(p_url,'/'), ERR_INVALID_PARAMETER)
+    ERR_FAIL_COND_V(!StringUtils::begins_with(p_url,"/"), ERR_INVALID_PARAMETER)
     ERR_FAIL_COND_V(status != STATUS_CONNECTED, ERR_INVALID_PARAMETER)
     ERR_FAIL_COND_V(not connection, ERR_INVALID_DATA)
 
-    String request = String(_methods[p_method]) + " " + p_url + " HTTP/1.1\r\n";
+    se_string request = se_string(_methods[p_method]) + " " + p_url + " HTTP/1.1\r\n";
     if ((ssl && conn_port == PORT_HTTPS) || (!ssl && conn_port == PORT_HTTP)) {
         // Don't append the standard ports
         request += "Host: " + conn_host + "\r\n";
     } else {
-        request += "Host: " + conn_host + ":" + itos(conn_port) + "\r\n";
+        request += "Host: " + conn_host + ":" + ::to_string(conn_port) + "\r\n";
     }
     bool add_uagent = true;
     bool add_accept = true;
     bool add_clen = p_body.length() > 0;
     for (int i = 0; i < p_headers.size(); i++) {
         request += p_headers[i] + "\r\n";
-        if (add_clen && StringUtils::findn(p_headers[i],"Content-Length:") == 0) {
+        if (add_clen && StringUtils::findn(p_headers[i],("Content-Length:")) == 0) {
             add_clen = false;
         }
-        if (add_uagent && StringUtils::findn(p_headers[i],"User-Agent:") == 0) {
+        if (add_uagent && StringUtils::findn(p_headers[i],("User-Agent:")) == 0) {
             add_uagent = false;
         }
-        if (add_accept && StringUtils::findn(p_headers[i],"Accept:") == 0) {
+        if (add_accept && StringUtils::findn(p_headers[i],("Accept:")) == 0) {
             add_accept = false;
         }
     }
     if (add_clen) {
-        request += "Content-Length: " + itos(StringUtils::to_utf8(p_body).length()) + "\r\n";
+        request += "Content-Length: " + ::to_string(p_body.length()) + "\r\n";
         // Should it add utf8 encoding?
     }
     if (add_uagent) {
-        request += "User-Agent: GodotEngine/" + String(VERSION_FULL_BUILD) + " (" + OS::get_singleton()->get_name() + ")\r\n";
+        request += "User-Agent: GodotEngine/" + se_string(VERSION_FULL_BUILD) + " (" + OS::get_singleton()->get_name() + ")\r\n";
     }
     if (add_accept) {
-        request += "Accept: */*\r\n";
+        request += ("Accept: */*\r\n");
     }
-    request += "\r\n";
+    request += ("\r\n");
     request += p_body;
 
-    CharString cs = StringUtils::to_utf8(request);
-    Error err = connection->put_data((const uint8_t *)cs.data(), cs.length());
+    Error err = connection->put_data((const uint8_t *)request.data(), request.length());
     if (err) {
         close();
         status = STATUS_CONNECTION_ERROR;
@@ -256,7 +248,7 @@ int HTTPClient::get_response_code() const {
     return response_num;
 }
 
-Error HTTPClient::get_response_headers(List<String> *r_response) {
+Error HTTPClient::get_response_headers(List<se_string> *r_response) {
 
     if (response_headers.empty())
         return ERR_INVALID_PARAMETER;
@@ -338,7 +330,7 @@ Error HTTPClient::poll() {
 
                 case StreamPeerTCP::STATUS_CONNECTING: {
                     return OK;
-                } break;
+                }
                 case StreamPeerTCP::STATUS_CONNECTED: {
                     if (ssl) {
                         Ref<StreamPeerSSL> ssl;
@@ -432,8 +424,8 @@ Error HTTPClient::poll() {
 
                     // End of response, parse.
                     response_str.push_back(0);
-                    String response = StringUtils::from_utf8((const char *)response_str.ptr());
-                    Vector<String> responses = StringUtils::split(response,"\n");
+                    se_string response((const char *)response_str.ptr(),response_str.size());
+                    Vector<se_string_view> responses = StringUtils::split(response,'\n');
                     body_size = -1;
                     chunked = false;
                     body_left = 0;
@@ -451,8 +443,8 @@ Error HTTPClient::poll() {
 
                     for (int i = 0; i < responses.size(); i++) {
 
-                        String header =StringUtils::strip_edges( responses[i]);
-                        String s = StringUtils::to_lower(header);
+                        se_string_view header =StringUtils::strip_edges( responses[i]);
+                        se_string s = StringUtils::to_lower(header);
                         if (s.empty())
                             continue;
                         if (StringUtils::begins_with(s,"content-length:")) {
@@ -460,8 +452,8 @@ Error HTTPClient::poll() {
                             body_left = body_size;
 
                         } else if (StringUtils::begins_with(s,"transfer-encoding:")) {
-                            String encoding = StringUtils::strip_edges(StringUtils::substr(header,StringUtils::find(header,":") + 1));
-                            if (encoding == "chunked") {
+                            se_string_view encoding = StringUtils::strip_edges(StringUtils::substr(header,StringUtils::find(header,":") + 1));
+                            if (encoding == se_string_view("chunked")) {
                                 chunked = true;
                             }
                         } else if (StringUtils::begins_with(s,"connection: close")) {
@@ -470,11 +462,11 @@ Error HTTPClient::poll() {
 
                         if (i == 0 && StringUtils::begins_with(responses[i],"HTTP")) {
 
-                            String num = StringUtils::get_slice(responses[i],' ', 1);
+                            se_string_view num = StringUtils::get_slice(responses[i],' ', 1);
                             response_num = StringUtils::to_int(num);
                         } else {
 
-                            response_headers.push_back(header);
+                            response_headers.push_back(se_string(header));
                         }
                     }
 
@@ -746,18 +738,18 @@ HTTPClient::~HTTPClient() = default;
 
 #endif // #ifndef JAVASCRIPT_ENABLED
 
-String HTTPClient::query_string_from_dict(const Dictionary &p_dict) {
-    String query = "";
+se_string HTTPClient::query_string_from_dict(const Dictionary &p_dict) {
+    se_string query;
     Array keys = p_dict.keys();
     for (int i = 0; i < keys.size(); ++i) {
-        String encoded_key = StringUtils::http_escape(keys[i].as<String>());
+        se_string encoded_key = StringUtils::http_escape(keys[i].as<se_string>());
         Variant value = p_dict[keys[i]];
         switch (value.get_type()) {
             case VariantType::ARRAY: {
                 // Repeat the key with every values
                 Array values = value;
                 for (int j = 0; j < values.size(); ++j) {
-                    query += "&" + encoded_key + "=" + StringUtils::http_escape(values[j].as<String>());
+                    query += "&" + encoded_key + "=" + StringUtils::http_escape(values[j].as<se_string>());
                 }
                 break;
             }
@@ -768,7 +760,7 @@ String HTTPClient::query_string_from_dict(const Dictionary &p_dict) {
             }
             default: {
                 // Add the key-value pair
-                query += "&" + encoded_key + "=" + StringUtils::http_escape(value.as<String>());
+                query += "&" + encoded_key + "=" + StringUtils::http_escape(value.as<se_string>());
             }
         }
     }
@@ -778,30 +770,30 @@ String HTTPClient::query_string_from_dict(const Dictionary &p_dict) {
 
 Dictionary HTTPClient::_get_response_headers_as_dictionary() {
 
-    List<String> rh;
+    List<se_string> rh;
     get_response_headers(&rh);
     Dictionary ret;
-    for (const List<String>::Element *E = rh.front(); E; E = E->next()) {
-        const String &s = E->deref();
-        int sp = StringUtils::find(s,":");
-        if (sp == -1)
+    for (const List<se_string>::Element *E = rh.front(); E; E = E->next()) {
+        const se_string &s = E->deref();
+        size_t sp = StringUtils::find(s,":");
+        if (sp == se_string::npos)
             continue;
-        String key = StringUtils::strip_edges(StringUtils::substr(s,0, sp));
-        String value = StringUtils::strip_edges(StringUtils::substr(s,sp + 1, s.length()));
+        se_string_view key = StringUtils::strip_edges(StringUtils::substr(s,0, sp));
+        se_string_view value = StringUtils::strip_edges(StringUtils::substr(s,sp + 1, s.length()));
         ret[key] = value;
     }
 
     return ret;
 }
 
-PoolStringArray HTTPClient::_get_response_headers() {
+PoolVector<se_string> HTTPClient::_get_response_headers() {
 
-    List<String> rh;
+    List<se_string> rh;
     get_response_headers(&rh);
-    PoolStringArray ret;
+    PoolVector<se_string> ret;
     ret.resize(rh.size());
     int idx = 0;
-    for (const List<String>::Element *E = rh.front(); E; E = E->next()) {
+    for (const List<se_string>::Element *E = rh.front(); E; E = E->next()) {
         ret.set(idx++, E->deref());
     }
 
@@ -814,7 +806,7 @@ void HTTPClient::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_connection", {"connection"}), &HTTPClient::set_connection);
     MethodBinder::bind_method(D_METHOD("get_connection"), &HTTPClient::get_connection);
     MethodBinder::bind_method(D_METHOD("request_raw", {"method", "url", "headers", "body"}), &HTTPClient::request_raw);
-    MethodBinder::bind_method(D_METHOD("request", {"method", "url", "headers", "body"}), &HTTPClient::request, {DEFVAL(String())});
+    MethodBinder::bind_method(D_METHOD("request", {"method", "url", "headers", "body"}), &HTTPClient::request, {DEFVAL(se_string())});
     MethodBinder::bind_method(D_METHOD("close"), &HTTPClient::close);
 
     MethodBinder::bind_method(D_METHOD("has_response"), &HTTPClient::has_response);

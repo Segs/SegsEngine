@@ -28,48 +28,46 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef CAMERA_EDITOR_PLUGIN_H
-#define CAMERA_EDITOR_PLUGIN_H
+#pragma once
 
-#include "editor/editor_node.h"
 #include "editor/editor_plugin.h"
 #include "scene/3d/camera.h"
 
+class Button;
+
 class CameraEditor : public Control {
 
-	GDCLASS(CameraEditor,Control)
+    GDCLASS(CameraEditor,Control)
 
-	Panel *panel;
-	Button *preview;
-	Node *node;
+    Panel *panel;
+    Button *preview;
+    Node *node;
 
-	void _pressed();
+    void _pressed();
 
 protected:
-	void _node_removed(Node *p_node);
-	static void _bind_methods();
+    void _node_removed(Node *p_node);
+    static void _bind_methods();
 
 public:
-	void edit(Node *p_camera);
-	CameraEditor();
+    void edit(Node *p_camera);
+    CameraEditor();
 };
 
 class CameraEditorPlugin : public EditorPlugin {
 
-	GDCLASS(CameraEditorPlugin,EditorPlugin)
+    GDCLASS(CameraEditorPlugin,EditorPlugin)
 
-	//CameraEditor *camera_editor;
-	EditorNode *editor;
+    //CameraEditor *camera_editor;
+    EditorNode *editor;
 
 public:
-	String get_name() const override { return "Camera"; }
-	bool has_main_screen() const override { return false; }
-	void edit(Object *p_object) override;
-	bool handles(Object *p_object) const override;
-	void make_visible(bool p_visible) override;
+    se_string_view get_name() const override { return ("Camera"); }
+    bool has_main_screen() const override { return false; }
+    void edit(Object *p_object) override;
+    bool handles(Object *p_object) const override;
+    void make_visible(bool p_visible) override;
 
-	CameraEditorPlugin(EditorNode *p_node);
-	~CameraEditorPlugin() override;
+    CameraEditorPlugin(EditorNode *p_node);
+    ~CameraEditorPlugin() override;
 };
-
-#endif // CAMERA_EDITOR_PLUGIN_H

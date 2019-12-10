@@ -33,6 +33,8 @@
 #include "core/math/geometry.h"
 #include "core/math/quick_hull.h"
 #include "core/method_bind.h"
+#include "core/script_language.h"
+#include "editor/editor_node.h"
 #include "scene/3d/audio_stream_player_3d.h"
 #include "scene/3d/baked_lightmap.h"
 #include "scene/3d/collision_polygon.h"
@@ -138,13 +140,13 @@ void EditorSpatialGizmo::redraw() {
     gizmo_plugin->redraw(this);
 }
 
-String EditorSpatialGizmo::get_handle_name(int p_idx) const {
+StringName EditorSpatialGizmo::get_handle_name(int p_idx) const {
 
     if (get_script_instance() && get_script_instance()->has_method("get_handle_name")) {
         return get_script_instance()->call("get_handle_name", p_idx);
     }
 
-    ERR_FAIL_COND_V(!gizmo_plugin, "")
+    ERR_FAIL_COND_V(!gizmo_plugin, StringName())
     return gizmo_plugin->get_handle_name(this, p_idx);
 }
 
@@ -829,7 +831,7 @@ bool LightSpatialGizmoPlugin::has_gizmo(Spatial *p_spatial) {
     return object_cast<Light>(p_spatial) != nullptr;
 }
 
-String LightSpatialGizmoPlugin::get_name() const {
+se_string_view LightSpatialGizmoPlugin::get_name() const {
     return "Lights";
 }
 
@@ -837,12 +839,12 @@ int LightSpatialGizmoPlugin::get_priority() const {
     return -1;
 }
 
-String LightSpatialGizmoPlugin::get_handle_name(const EditorSpatialGizmo *p_gizmo, int p_idx) const {
+StringName LightSpatialGizmoPlugin::get_handle_name(const EditorSpatialGizmo *p_gizmo, int p_idx) const {
 
     if (p_idx == 0)
-        return "Radius";
+        return ("Radius");
     else
-        return "Aperture";
+        return ("Aperture");
 }
 
 Variant LightSpatialGizmoPlugin::get_handle_value(EditorSpatialGizmo *p_gizmo, int p_idx) const {
@@ -944,14 +946,14 @@ void LightSpatialGizmoPlugin::commit_handle(EditorSpatialGizmo *p_gizmo, int p_i
     } else if (p_idx == 0) {
 
         UndoRedo *ur = SpatialEditor::get_singleton()->get_undo_redo();
-        ur->create_action(TTR("Change Light Radius"));
+        ur->create_action_ui(TTR("Change Light Radius"));
         ur->add_do_method(light, "set_param", Light::PARAM_RANGE, light->get_param(Light::PARAM_RANGE));
         ur->add_undo_method(light, "set_param", Light::PARAM_RANGE, p_restore);
         ur->commit_action();
     } else if (p_idx == 1) {
 
         UndoRedo *ur = SpatialEditor::get_singleton()->get_undo_redo();
-        ur->create_action(TTR("Change Light Radius"));
+        ur->create_action_ui(TTR("Change Light Radius"));
         ur->add_do_method(light, "set_param", Light::PARAM_SPOT_ANGLE, light->get_param(Light::PARAM_SPOT_ANGLE));
         ur->add_undo_method(light, "set_param", Light::PARAM_SPOT_ANGLE, p_restore);
         ur->commit_action();
@@ -1113,7 +1115,7 @@ bool AudioStreamPlayer3DSpatialGizmoPlugin::has_gizmo(Spatial *p_spatial) {
     return object_cast<AudioStreamPlayer3D>(p_spatial) != nullptr;
 }
 
-String AudioStreamPlayer3DSpatialGizmoPlugin::get_name() const {
+se_string_view AudioStreamPlayer3DSpatialGizmoPlugin::get_name() const {
     return "AudioStreamPlayer3D";
 }
 
@@ -1121,9 +1123,9 @@ int AudioStreamPlayer3DSpatialGizmoPlugin::get_priority() const {
     return -1;
 }
 
-String AudioStreamPlayer3DSpatialGizmoPlugin::get_handle_name(const EditorSpatialGizmo *p_gizmo, int p_idx) const {
+StringName AudioStreamPlayer3DSpatialGizmoPlugin::get_handle_name(const EditorSpatialGizmo *p_gizmo, int p_idx) const {
 
-    return "Emission Radius";
+    return ("Emission Radius");
 }
 
 Variant AudioStreamPlayer3DSpatialGizmoPlugin::get_handle_value(EditorSpatialGizmo *p_gizmo, int p_idx) const {
@@ -1182,7 +1184,7 @@ void AudioStreamPlayer3DSpatialGizmoPlugin::commit_handle(EditorSpatialGizmo *p_
     } else {
 
         UndoRedo *ur = SpatialEditor::get_singleton()->get_undo_redo();
-        ur->create_action(TTR("Change AudioStreamPlayer3D Emission Angle"));
+        ur->create_action_ui(TTR("Change AudioStreamPlayer3D Emission Angle"));
         ur->add_do_method(player, "set_emission_angle", player->get_emission_angle());
         ur->add_undo_method(player, "set_emission_angle", p_restore);
         ur->commit_action();
@@ -1260,7 +1262,7 @@ bool CameraSpatialGizmoPlugin::has_gizmo(Spatial *p_spatial) {
     return object_cast<Camera>(p_spatial) != nullptr;
 }
 
-String CameraSpatialGizmoPlugin::get_name() const {
+se_string_view CameraSpatialGizmoPlugin::get_name() const {
     return "Camera";
 }
 
@@ -1268,14 +1270,14 @@ int CameraSpatialGizmoPlugin::get_priority() const {
     return -1;
 }
 
-String CameraSpatialGizmoPlugin::get_handle_name(const EditorSpatialGizmo *p_gizmo, int p_idx) const {
+StringName CameraSpatialGizmoPlugin::get_handle_name(const EditorSpatialGizmo *p_gizmo, int p_idx) const {
 
     Camera *camera = object_cast<Camera>(p_gizmo->get_spatial_node());
 
     if (camera->get_projection() == Camera::PROJECTION_PERSPECTIVE) {
-        return "FOV";
+        return ("FOV");
     } else {
-        return "Size";
+        return ("Size");
     }
 }
 
@@ -1312,7 +1314,7 @@ void CameraSpatialGizmoPlugin::set_handle(EditorSpatialGizmo *p_gizmo, int p_idx
 
         Vector3 ra, rb;
         Geometry::get_closest_points_between_segments(Vector3(0, 0, -1), Vector3(4096, 0, -1), s[0], s[1], ra, rb);
-        float d = ra.x * 2.0;
+        float d = ra.x * 2.0f;
         if (SpatialEditor::get_singleton()->is_snap_enabled()) {
             d = Math::stepify(d, SpatialEditor::get_singleton()->get_translate_snap());
         }
@@ -1335,7 +1337,7 @@ void CameraSpatialGizmoPlugin::commit_handle(EditorSpatialGizmo *p_gizmo, int p_
             camera->set("fov", p_restore);
         } else {
             UndoRedo *ur = SpatialEditor::get_singleton()->get_undo_redo();
-            ur->create_action(TTR("Change Camera FOV"));
+            ur->create_action_ui(TTR("Change Camera FOV"));
             ur->add_do_property(camera, "fov", camera->get_fov());
             ur->add_undo_property(camera, "fov", p_restore);
             ur->commit_action();
@@ -1348,7 +1350,7 @@ void CameraSpatialGizmoPlugin::commit_handle(EditorSpatialGizmo *p_gizmo, int p_
             camera->set("size", p_restore);
         } else {
             UndoRedo *ur = SpatialEditor::get_singleton()->get_undo_redo();
-            ur->create_action(TTR("Change Camera Size"));
+            ur->create_action_ui(TTR("Change Camera Size"));
             ur->add_do_property(camera, "size", camera->get_size());
             ur->add_undo_property(camera, "size", p_restore);
             ur->commit_action();
@@ -1396,23 +1398,23 @@ void CameraSpatialGizmoPlugin::redraw(EditorSpatialGizmo *p_gizmo) {
         case Camera::PROJECTION_PERSPECTIVE: {
 
             // The real FOV is halved for accurate representation
-            float fov = camera->get_fov() / 2.0;
+            float fov = camera->get_fov() / 2.0f;
 
             Vector3 side = Vector3(Math::sin(Math::deg2rad(fov)), 0, -Math::cos(Math::deg2rad(fov)));
             Vector3 nside = side;
             nside.x = -nside.x;
             Vector3 up = Vector3(0, side.x, 0);
 
-            ADD_TRIANGLE(Vector3(), side + up, side - up);
-            ADD_TRIANGLE(Vector3(), nside + up, nside - up);
-            ADD_TRIANGLE(Vector3(), side + up, nside + up);
-            ADD_TRIANGLE(Vector3(), side - up, nside - up);
+            ADD_TRIANGLE(Vector3(), side + up, side - up)
+            ADD_TRIANGLE(Vector3(), nside + up, nside - up)
+            ADD_TRIANGLE(Vector3(), side + up, nside + up)
+            ADD_TRIANGLE(Vector3(), side - up, nside - up)
 
             handles.push_back(side);
-            side.x *= 0.25;
-            nside.x *= 0.25;
+            side.x *= 0.25f;
+            nside.x *= 0.25f;
             Vector3 tup(0, up.y * 3 / 2, side.z);
-            ADD_TRIANGLE(tup, side + up, nside + up);
+            ADD_TRIANGLE(tup, side + up, nside + up)
 
         } break;
         case Camera::PROJECTION_ORTHOGONAL: {
@@ -1425,10 +1427,10 @@ void CameraSpatialGizmoPlugin::redraw(EditorSpatialGizmo *p_gizmo) {
             Vector3 back(0, 0, -1.0);
             Vector3 front(0, 0, 0);
 
-            ADD_QUAD(-up - right, -up + right, up + right, up - right);
-            ADD_QUAD(-up - right + back, -up + right + back, up + right + back, up - right + back);
-            ADD_QUAD(up + right, up + right + back, up - right + back, up - right);
-            ADD_QUAD(-up + right, -up + right + back, -up - right + back, -up - right);
+            ADD_QUAD(-up - right, -up + right, up + right, up - right)
+            ADD_QUAD(-up - right + back, -up + right + back, up + right + back, up - right + back)
+            ADD_QUAD(up + right, up + right + back, up - right + back, up - right)
+            ADD_QUAD(-up + right, -up + right + back, -up - right + back, -up - right)
 
             handles.push_back(right + back);
 
@@ -1515,8 +1517,8 @@ bool MeshInstanceSpatialGizmoPlugin::has_gizmo(Spatial *p_spatial) {
     return object_cast<MeshInstance>(p_spatial) != nullptr && object_cast<SoftBody>(p_spatial) == nullptr;
 }
 
-String MeshInstanceSpatialGizmoPlugin::get_name() const {
-    return "MeshInstance";
+se_string_view MeshInstanceSpatialGizmoPlugin::get_name() const {
+    return ("MeshInstance");
 }
 
 int MeshInstanceSpatialGizmoPlugin::get_priority() const {
@@ -1551,8 +1553,8 @@ bool Sprite3DSpatialGizmoPlugin::has_gizmo(Spatial *p_spatial) {
     return object_cast<Sprite3D>(p_spatial) != nullptr;
 }
 
-String Sprite3DSpatialGizmoPlugin::get_name() const {
-    return "Sprite3D";
+se_string_view Sprite3DSpatialGizmoPlugin::get_name() const {
+    return ("Sprite3D");
 }
 
 int Sprite3DSpatialGizmoPlugin::get_priority() const {
@@ -1614,8 +1616,8 @@ bool Position3DSpatialGizmoPlugin::has_gizmo(Spatial *p_spatial) {
     return object_cast<Position3D>(p_spatial) != nullptr;
 }
 
-String Position3DSpatialGizmoPlugin::get_name() const {
-    return "Position3D";
+se_string_view Position3DSpatialGizmoPlugin::get_name() const {
+    return ("Position3D");
 }
 
 int Position3DSpatialGizmoPlugin::get_priority() const {
@@ -1641,8 +1643,8 @@ bool SkeletonSpatialGizmoPlugin::has_gizmo(Spatial *p_spatial) {
     return object_cast<Skeleton>(p_spatial) != nullptr;
 }
 
-String SkeletonSpatialGizmoPlugin::get_name() const {
-    return "Skeleton";
+se_string_view SkeletonSpatialGizmoPlugin::get_name() const {
+    return ("Skeleton");
 }
 
 int SkeletonSpatialGizmoPlugin::get_priority() const {
@@ -1848,8 +1850,8 @@ bool PhysicalBoneSpatialGizmoPlugin::has_gizmo(Spatial *p_spatial) {
     return object_cast<PhysicalBone>(p_spatial) != nullptr;
 }
 
-String PhysicalBoneSpatialGizmoPlugin::get_name() const {
-    return "PhysicalBones";
+se_string_view PhysicalBoneSpatialGizmoPlugin::get_name() const {
+    return ("PhysicalBones");
 }
 
 int PhysicalBoneSpatialGizmoPlugin::get_priority() const {
@@ -2094,8 +2096,8 @@ bool RayCastSpatialGizmoPlugin::has_gizmo(Spatial *p_spatial) {
     return object_cast<RayCast>(p_spatial) != nullptr;
 }
 
-String RayCastSpatialGizmoPlugin::get_name() const {
-    return "RayCast";
+se_string_view RayCastSpatialGizmoPlugin::get_name() const {
+    return ("RayCast");
 }
 
 int RayCastSpatialGizmoPlugin::get_priority() const {
@@ -2148,8 +2150,8 @@ bool SpringArmSpatialGizmoPlugin::has_gizmo(Spatial *p_spatial) {
     return object_cast<SpringArm>(p_spatial) != nullptr;
 }
 
-String SpringArmSpatialGizmoPlugin::get_name() const {
-    return "SpringArm";
+se_string_view SpringArmSpatialGizmoPlugin::get_name() const {
+    return ("SpringArm");
 }
 
 int SpringArmSpatialGizmoPlugin::get_priority() const {
@@ -2168,8 +2170,8 @@ bool VehicleWheelSpatialGizmoPlugin::has_gizmo(Spatial *p_spatial) {
     return object_cast<VehicleWheel>(p_spatial) != nullptr;
 }
 
-String VehicleWheelSpatialGizmoPlugin::get_name() const {
-    return "VehicleWheel";
+se_string_view VehicleWheelSpatialGizmoPlugin::get_name() const {
+    return ("VehicleWheel");
 }
 
 int VehicleWheelSpatialGizmoPlugin::get_priority() const {
@@ -2233,7 +2235,7 @@ void VehicleWheelSpatialGizmoPlugin::redraw(EditorSpatialGizmo *p_gizmo) {
 ///////////
 
 SoftBodySpatialGizmoPlugin::SoftBodySpatialGizmoPlugin() {
-    Color gizmo_color = EDITOR_DEF("editors/3d_gizmos/gizmo_colors/shape", Color(0.5, 0.7, 1));
+    Color gizmo_color = EDITOR_DEF("editors/3d_gizmos/gizmo_colors/shape", Color(0.5, 0.7f, 1));
     create_material("shape_material", gizmo_color);
     create_handle_material("handles");
 }
@@ -2242,7 +2244,7 @@ bool SoftBodySpatialGizmoPlugin::has_gizmo(Spatial *p_spatial) {
     return object_cast<SoftBody>(p_spatial) != nullptr;
 }
 
-String SoftBodySpatialGizmoPlugin::get_name() const {
+se_string_view SoftBodySpatialGizmoPlugin::get_name() const {
     return "SoftBody";
 }
 
@@ -2285,8 +2287,8 @@ void SoftBodySpatialGizmoPlugin::redraw(EditorSpatialGizmo *p_gizmo) {
     p_gizmo->add_collision_triangles(tm);
 }
 
-String SoftBodySpatialGizmoPlugin::get_handle_name(const EditorSpatialGizmo *p_gizmo, int p_idx) const {
-    return "SoftBody pin point";
+StringName SoftBodySpatialGizmoPlugin::get_handle_name(const EditorSpatialGizmo *p_gizmo, int p_idx) const {
+    return ("SoftBody pin point");
 }
 
 Variant SoftBodySpatialGizmoPlugin::get_handle_value(EditorSpatialGizmo *p_gizmo, int p_idx) const {
@@ -2307,9 +2309,9 @@ bool SoftBodySpatialGizmoPlugin::is_handle_highlighted(const EditorSpatialGizmo 
 ///////////
 
 VisibilityNotifierGizmoPlugin::VisibilityNotifierGizmoPlugin() {
-    Color gizmo_color = EDITOR_DEF("editors/3d_gizmos/gizmo_colors/visibility_notifier", Color(0.8, 0.5, 0.7));
+    Color gizmo_color = EDITOR_DEF("editors/3d_gizmos/gizmo_colors/visibility_notifier", Color(0.8f, 0.5, 0.7f));
     create_material("visibility_notifier_material", gizmo_color);
-    gizmo_color.a = 0.1;
+    gizmo_color.a = 0.1f;
     create_material("visibility_notifier_solid_material", gizmo_color);
     create_handle_material("handles");
 }
@@ -2318,26 +2320,26 @@ bool VisibilityNotifierGizmoPlugin::has_gizmo(Spatial *p_spatial) {
     return object_cast<VisibilityNotifier>(p_spatial) != nullptr;
 }
 
-String VisibilityNotifierGizmoPlugin::get_name() const {
-    return "VisibilityNotifier";
+se_string_view VisibilityNotifierGizmoPlugin::get_name() const {
+    return ("VisibilityNotifier");
 }
 
 int VisibilityNotifierGizmoPlugin::get_priority() const {
     return -1;
 }
 
-String VisibilityNotifierGizmoPlugin::get_handle_name(const EditorSpatialGizmo *p_gizmo, int p_idx) const {
+StringName VisibilityNotifierGizmoPlugin::get_handle_name(const EditorSpatialGizmo *p_gizmo, int p_idx) const {
 
     switch (p_idx) {
-        case 0: return "Size X";
-        case 1: return "Size Y";
-        case 2: return "Size Z";
-        case 3: return "Pos X";
-        case 4: return "Pos Y";
-        case 5: return "Pos Z";
+        case 0: return ("Size X");
+        case 1: return ("Size Y");
+        case 2: return ("Size Z");
+        case 3: return ("Pos X");
+        case 4: return ("Pos Y");
+        case 5: return ("Pos Z");
     }
 
-    return "";
+    return {};
 }
 
 Variant VisibilityNotifierGizmoPlugin::get_handle_value(EditorSpatialGizmo *p_gizmo, int p_idx) const {
@@ -2377,7 +2379,7 @@ void VisibilityNotifierGizmoPlugin::set_handle(EditorSpatialGizmo *p_gizmo, int 
             d = Math::stepify(d, SpatialEditor::get_singleton()->get_translate_snap());
         }
 
-        aabb.position[p_idx] = d - 1.0 - aabb.size[p_idx] * 0.5;
+        aabb.position[p_idx] = d - 1.0f - aabb.size[p_idx] * 0.5f;
         notifier->set_aabb(aabb);
 
     } else {
@@ -2389,10 +2391,10 @@ void VisibilityNotifierGizmoPlugin::set_handle(EditorSpatialGizmo *p_gizmo, int 
             d = Math::stepify(d, SpatialEditor::get_singleton()->get_translate_snap());
         }
 
-        if (d < 0.001)
-            d = 0.001;
+        if (d < 0.001f)
+            d = 0.001f;
         //resize
-        aabb.position[p_idx] = (aabb.position[p_idx] + aabb.size[p_idx] * 0.5) - d;
+        aabb.position[p_idx] = (aabb.position[p_idx] + aabb.size[p_idx] * 0.5f) - d;
         aabb.size[p_idx] = d * 2;
         notifier->set_aabb(aabb);
     }
@@ -2408,7 +2410,7 @@ void VisibilityNotifierGizmoPlugin::commit_handle(EditorSpatialGizmo *p_gizmo, i
     }
 
     UndoRedo *ur = SpatialEditor::get_singleton()->get_undo_redo();
-    ur->create_action(TTR("Change Notifier AABB"));
+    ur->create_action_ui(TTR("Change Notifier AABB"));
     ur->add_do_method(notifier, "set_aabb", notifier->get_aabb());
     ur->add_undo_method(notifier, "set_aabb", p_restore);
     ur->commit_action();
@@ -2436,8 +2438,8 @@ void VisibilityNotifierGizmoPlugin::redraw(EditorSpatialGizmo *p_gizmo) {
 
         Vector3 ax;
         ax[i] = aabb.position[i] + aabb.size[i];
-        ax[(i + 1) % 3] = aabb.position[(i + 1) % 3] + aabb.size[(i + 1) % 3] * 0.5;
-        ax[(i + 2) % 3] = aabb.position[(i + 2) % 3] + aabb.size[(i + 2) % 3] * 0.5;
+        ax[(i + 1) % 3] = aabb.position[(i + 1) % 3] + aabb.size[(i + 1) % 3] * 0.5f;
+        ax[(i + 2) % 3] = aabb.position[(i + 2) % 3] + aabb.size[(i + 2) % 3] * 0.5f;
         handles.push_back(ax);
     }
 
@@ -2474,7 +2476,7 @@ bool CPUParticlesGizmoPlugin::has_gizmo(Spatial *p_spatial) {
     return object_cast<CPUParticles>(p_spatial) != nullptr;
 }
 
-String CPUParticlesGizmoPlugin::get_name() const {
+se_string_view CPUParticlesGizmoPlugin::get_name() const {
     return "CPUParticles";
 }
 
@@ -2496,7 +2498,7 @@ void CPUParticlesGizmoPlugin::redraw(EditorSpatialGizmo *p_gizmo) {
 ParticlesGizmoPlugin::ParticlesGizmoPlugin() {
     Color gizmo_color = EDITOR_DEF("editors/3d_gizmos/gizmo_colors/particles", Color(0.8f, 0.7f, 0.4f));
     create_material("particles_material", gizmo_color);
-    gizmo_color.a = 0.1;
+    gizmo_color.a = 0.1f;
     create_material("particles_solid_material", gizmo_color);
     create_icon_material("particles_icon", SpatialEditor::get_singleton()->get_icon("GizmoParticles", "EditorIcons"));
     create_handle_material("handles");
@@ -2506,7 +2508,7 @@ bool ParticlesGizmoPlugin::has_gizmo(Spatial *p_spatial) {
     return object_cast<Particles>(p_spatial) != nullptr;
 }
 
-String ParticlesGizmoPlugin::get_name() const {
+se_string_view ParticlesGizmoPlugin::get_name() const {
     return "Particles";
 }
 
@@ -2518,18 +2520,18 @@ bool ParticlesGizmoPlugin::is_selectable_when_hidden() const {
     return true;
 }
 
-String ParticlesGizmoPlugin::get_handle_name(const EditorSpatialGizmo *p_gizmo, int p_idx) const {
+StringName ParticlesGizmoPlugin::get_handle_name(const EditorSpatialGizmo *p_gizmo, int p_idx) const {
 
     switch (p_idx) {
-        case 0: return "Size X";
-        case 1: return "Size Y";
-        case 2: return "Size Z";
-        case 3: return "Pos X";
-        case 4: return "Pos Y";
-        case 5: return "Pos Z";
+        case 0: return ("Size X");
+        case 1: return ("Size Y");
+        case 2: return ("Size Z");
+        case 3: return ("Pos X");
+        case 4: return ("Pos Y");
+        case 5: return ("Pos Z");
     }
 
-    return "";
+    return {};
 }
 Variant ParticlesGizmoPlugin::get_handle_value(EditorSpatialGizmo *p_gizmo, int p_idx) const {
 
@@ -2598,7 +2600,7 @@ void ParticlesGizmoPlugin::commit_handle(EditorSpatialGizmo *p_gizmo, int p_idx,
     }
 
     UndoRedo *ur = SpatialEditor::get_singleton()->get_undo_redo();
-    ur->create_action(TTR("Change Particles AABB"));
+    ur->create_action_ui(TTR("Change Particles AABB"));
     ur->add_do_method(particles, "set_visibility_aabb", particles->get_visibility_aabb());
     ur->add_undo_method(particles, "set_visibility_aabb", p_restore);
     ur->commit_action();
@@ -2675,7 +2677,7 @@ bool ReflectionProbeGizmoPlugin::has_gizmo(Spatial *p_spatial) {
     return object_cast<ReflectionProbe>(p_spatial) != nullptr;
 }
 
-String ReflectionProbeGizmoPlugin::get_name() const {
+se_string_view ReflectionProbeGizmoPlugin::get_name() const {
     return "ReflectionProbe";
 }
 
@@ -2683,18 +2685,18 @@ int ReflectionProbeGizmoPlugin::get_priority() const {
     return -1;
 }
 
-String ReflectionProbeGizmoPlugin::get_handle_name(const EditorSpatialGizmo *p_gizmo, int p_idx) const {
+StringName ReflectionProbeGizmoPlugin::get_handle_name(const EditorSpatialGizmo *p_gizmo, int p_idx) const {
 
     switch (p_idx) {
-        case 0: return "Extents X";
-        case 1: return "Extents Y";
-        case 2: return "Extents Z";
-        case 3: return "Origin X";
-        case 4: return "Origin Y";
-        case 5: return "Origin Z";
+        case 0: return ("Extents X");
+        case 1: return ("Extents Y");
+        case 2: return ("Extents Z");
+        case 3: return ("Origin X");
+        case 4: return ("Origin Y");
+        case 5: return ("Origin Z");
     }
 
-    return "";
+    return StringName();
 }
 Variant ReflectionProbeGizmoPlugin::get_handle_value(EditorSpatialGizmo *p_gizmo, int p_idx) const {
 
@@ -2772,7 +2774,7 @@ void ReflectionProbeGizmoPlugin::commit_handle(EditorSpatialGizmo *p_gizmo, int 
     }
 
     UndoRedo *ur = SpatialEditor::get_singleton()->get_undo_redo();
-    ur->create_action(TTR("Change Probe Extents"));
+    ur->create_action_ui(TTR("Change Probe Extents"));
     ur->add_do_method(probe, "set_extents", probe->get_extents());
     ur->add_do_method(probe, "set_origin_offset", probe->get_origin_offset());
     ur->add_undo_method(probe, "set_extents", restore.position);
@@ -2862,7 +2864,7 @@ bool GIProbeGizmoPlugin::has_gizmo(Spatial *p_spatial) {
     return object_cast<GIProbe>(p_spatial) != nullptr;
 }
 
-String GIProbeGizmoPlugin::get_name() const {
+se_string_view GIProbeGizmoPlugin::get_name() const {
     return "GIProbe";
 }
 
@@ -2870,15 +2872,15 @@ int GIProbeGizmoPlugin::get_priority() const {
     return -1;
 }
 
-String GIProbeGizmoPlugin::get_handle_name(const EditorSpatialGizmo *p_gizmo, int p_idx) const {
+StringName GIProbeGizmoPlugin::get_handle_name(const EditorSpatialGizmo *p_gizmo, int p_idx) const {
 
     switch (p_idx) {
-        case 0: return "Extents X";
-        case 1: return "Extents Y";
-        case 2: return "Extents Z";
+        case 0: return ("Extents X");
+        case 1: return ("Extents Y");
+        case 2: return ("Extents Z");
     }
 
-    return "";
+    return {};
 }
 Variant GIProbeGizmoPlugin::get_handle_value(EditorSpatialGizmo *p_gizmo, int p_idx) const {
 
@@ -2909,8 +2911,8 @@ void GIProbeGizmoPlugin::set_handle(EditorSpatialGizmo *p_gizmo, int p_idx, Came
         d = Math::stepify(d, SpatialEditor::get_singleton()->get_translate_snap());
     }
 
-    if (d < 0.001)
-        d = 0.001;
+    if (d < 0.001f)
+        d = 0.001f;
 
     extents[p_idx] = d;
     probe->set_extents(extents);
@@ -2928,7 +2930,7 @@ void GIProbeGizmoPlugin::commit_handle(EditorSpatialGizmo *p_gizmo, int p_idx, c
     }
 
     UndoRedo *ur = SpatialEditor::get_singleton()->get_undo_redo();
-    ur->create_action(TTR("Change Probe Extents"));
+    ur->create_action_ui(TTR("Change Probe Extents"));
     ur->add_do_method(probe, "set_extents", probe->get_extents());
     ur->add_undo_method(probe, "set_extents", restore);
     ur->commit_action();
@@ -3022,7 +3024,7 @@ void GIProbeGizmoPlugin::redraw(EditorSpatialGizmo *p_gizmo) {
         p_gizmo->add_solid_box(solid_material, aabb.get_size());
     }
 
-    p_gizmo->add_unscaled_billboard(icon, 0.05);
+    p_gizmo->add_unscaled_billboard(icon, 0.05f);
     p_gizmo->add_handles(handles, get_material("handles"));
 }
 
@@ -3040,15 +3042,15 @@ BakedIndirectLightGizmoPlugin::BakedIndirectLightGizmoPlugin() {
     create_handle_material("handles");
 }
 
-String BakedIndirectLightGizmoPlugin::get_handle_name(const EditorSpatialGizmo *p_gizmo, int p_idx) const {
+StringName BakedIndirectLightGizmoPlugin::get_handle_name(const EditorSpatialGizmo *p_gizmo, int p_idx) const {
 
     switch (p_idx) {
-        case 0: return "Extents X";
-        case 1: return "Extents Y";
-        case 2: return "Extents Z";
+        case 0: return ("Extents X");
+        case 1: return ("Extents Y");
+        case 2: return ("Extents Z");
     }
 
-    return "";
+    return {};
 }
 Variant BakedIndirectLightGizmoPlugin::get_handle_value(EditorSpatialGizmo *p_gizmo, int p_idx) const {
 
@@ -3079,8 +3081,8 @@ void BakedIndirectLightGizmoPlugin::set_handle(EditorSpatialGizmo *p_gizmo, int 
         d = Math::stepify(d, SpatialEditor::get_singleton()->get_translate_snap());
     }
 
-    if (d < 0.001)
-        d = 0.001;
+    if (d < 0.001f)
+        d = 0.001f;
 
     extents[p_idx] = d;
     baker->set_extents(extents);
@@ -3098,7 +3100,7 @@ void BakedIndirectLightGizmoPlugin::commit_handle(EditorSpatialGizmo *p_gizmo, i
     }
 
     UndoRedo *ur = SpatialEditor::get_singleton()->get_undo_redo();
-    ur->create_action(TTR("Change Probe Extents"));
+    ur->create_action_ui(TTR("Change Probe Extents"));
     ur->add_do_method(baker, "set_extents", baker->get_extents());
     ur->add_undo_method(baker, "set_extents", restore);
     ur->commit_action();
@@ -3108,7 +3110,7 @@ bool BakedIndirectLightGizmoPlugin::has_gizmo(Spatial *p_spatial) {
     return object_cast<BakedLightmap>(p_spatial) != nullptr;
 }
 
-String BakedIndirectLightGizmoPlugin::get_name() const {
+se_string_view BakedIndirectLightGizmoPlugin::get_name() const {
     return "BakedLightmap";
 }
 
@@ -3154,17 +3156,17 @@ void BakedIndirectLightGizmoPlugin::redraw(EditorSpatialGizmo *p_gizmo) {
         p_gizmo->add_solid_box(material_internal, aabb.get_size());
     }
 
-    p_gizmo->add_unscaled_billboard(icon, 0.05);
+    p_gizmo->add_unscaled_billboard(icon, 0.05f);
     p_gizmo->add_handles(handles, get_material("handles"));
 }
 
 ////
 
 CollisionShapeSpatialGizmoPlugin::CollisionShapeSpatialGizmoPlugin() {
-    const Color gizmo_color = EDITOR_DEF("editors/3d_gizmos/gizmo_colors/shape", Color(0.5, 0.7, 1));
+    const Color gizmo_color = EDITOR_DEF("editors/3d_gizmos/gizmo_colors/shape", Color(0.5f, 0.7f, 1));
     create_material("shape_material", gizmo_color);
     const float gizmo_value = gizmo_color.get_v();
-    const Color gizmo_color_disabled = Color(gizmo_value, gizmo_value, gizmo_value, 0.65);
+    const Color gizmo_color_disabled = Color(gizmo_value, gizmo_value, gizmo_value, 0.65f);
     create_material("shape_material_disabled", gizmo_color_disabled);
     create_handle_material("handles");
 }
@@ -3173,7 +3175,7 @@ bool CollisionShapeSpatialGizmoPlugin::has_gizmo(Spatial *p_spatial) {
     return object_cast<CollisionShape>(p_spatial) != nullptr;
 }
 
-String CollisionShapeSpatialGizmoPlugin::get_name() const {
+se_string_view CollisionShapeSpatialGizmoPlugin::get_name() const {
     return "CollisionShape";
 }
 
@@ -3181,40 +3183,40 @@ int CollisionShapeSpatialGizmoPlugin::get_priority() const {
     return -1;
 }
 
-String CollisionShapeSpatialGizmoPlugin::get_handle_name(const EditorSpatialGizmo *p_gizmo, int p_idx) const {
+StringName CollisionShapeSpatialGizmoPlugin::get_handle_name(const EditorSpatialGizmo *p_gizmo, int p_idx) const {
 
     const CollisionShape *cs = object_cast<CollisionShape>(p_gizmo->get_spatial_node());
 
     Ref<Shape> s = cs->get_shape();
     if (not s)
-        return "";
+        return ("");
 
     if (dynamic_ref_cast<SphereShape>(s)) {
 
-        return "Radius";
+        return ("Radius");
     }
 
     if (dynamic_ref_cast<BoxShape>(s)) {
 
-        return "Extents";
+        return ("Extents");
     }
 
     if (dynamic_ref_cast<CapsuleShape>(s)) {
 
-        return p_idx == 0 ? "Radius" : "Height";
+        return (p_idx == 0 ? "Radius" : "Height");
     }
 
     if (dynamic_ref_cast<CylinderShape>(s)) {
 
-        return p_idx == 0 ? "Radius" : "Height";
+        return (p_idx == 0 ? "Radius" : "Height");
     }
 
     if (dynamic_ref_cast<RayShape>(s)) {
 
-        return "Length";
+        return ("Length");
     }
 
-    return "";
+    return {};
 }
 
 Variant CollisionShapeSpatialGizmoPlugin::get_handle_value(EditorSpatialGizmo *p_gizmo, int p_idx) const {
@@ -3341,13 +3343,13 @@ void CollisionShapeSpatialGizmoPlugin::set_handle(EditorSpatialGizmo *p_gizmo, i
             d = Math::stepify(d, SpatialEditor::get_singleton()->get_translate_snap());
         }
 
-        if (d < 0.001)
-            d = 0.001;
+        if (d < 0.001f)
+            d = 0.001f;
 
         if (p_idx == 0)
             cs2->set_radius(d);
         else if (p_idx == 1)
-            cs2->set_height(d * 2.0);
+            cs2->set_height(d * 2.0f);
     }
 
     if (dynamic_ref_cast<CylinderShape>(s)) {
@@ -3362,13 +3364,13 @@ void CollisionShapeSpatialGizmoPlugin::set_handle(EditorSpatialGizmo *p_gizmo, i
             d = Math::stepify(d, SpatialEditor::get_singleton()->get_translate_snap());
         }
 
-        if (d < 0.001)
-            d = 0.001;
+        if (d < 0.001f)
+            d = 0.001f;
 
         if (p_idx == 0)
             cs2->set_radius(d);
         else if (p_idx == 1)
-            cs2->set_height(d * 2.0);
+            cs2->set_height(d * 2.0f);
     }
 }
 void CollisionShapeSpatialGizmoPlugin::commit_handle(EditorSpatialGizmo *p_gizmo, int p_idx, const Variant &p_restore, bool p_cancel) {
@@ -3388,7 +3390,7 @@ void CollisionShapeSpatialGizmoPlugin::commit_handle(EditorSpatialGizmo *p_gizmo
         }
 
         UndoRedo *ur = SpatialEditor::get_singleton()->get_undo_redo();
-        ur->create_action(TTR("Change Sphere Shape Radius"));
+        ur->create_action_ui(TTR("Change Sphere Shape Radius"));
         ur->add_do_method(ss.get(), "set_radius", ss->get_radius());
         ur->add_undo_method(ss.get(), "set_radius", p_restore);
         ur->commit_action();
@@ -3403,7 +3405,7 @@ void CollisionShapeSpatialGizmoPlugin::commit_handle(EditorSpatialGizmo *p_gizmo
         }
 
         UndoRedo *ur = SpatialEditor::get_singleton()->get_undo_redo();
-        ur->create_action(TTR("Change Box Shape Extents"));
+        ur->create_action_ui(TTR("Change Box Shape Extents"));
         ur->add_do_method(ss.get(), "set_extents", ss->get_extents());
         ur->add_undo_method(ss.get(), "set_extents", p_restore);
         ur->commit_action();
@@ -3422,11 +3424,11 @@ void CollisionShapeSpatialGizmoPlugin::commit_handle(EditorSpatialGizmo *p_gizmo
 
         UndoRedo *ur = SpatialEditor::get_singleton()->get_undo_redo();
         if (p_idx == 0) {
-            ur->create_action(TTR("Change Capsule Shape Radius"));
+            ur->create_action_ui(TTR("Change Capsule Shape Radius"));
             ur->add_do_method(ss.get(), "set_radius", ss->get_radius());
             ur->add_undo_method(ss.get(), "set_radius", p_restore);
         } else {
-            ur->create_action(TTR("Change Capsule Shape Height"));
+            ur->create_action_ui(TTR("Change Capsule Shape Height"));
             ur->add_do_method(ss.get(), "set_height", ss->get_height());
             ur->add_undo_method(ss.get(), "set_height", p_restore);
         }
@@ -3447,11 +3449,11 @@ void CollisionShapeSpatialGizmoPlugin::commit_handle(EditorSpatialGizmo *p_gizmo
 
         UndoRedo *ur = SpatialEditor::get_singleton()->get_undo_redo();
         if (p_idx == 0) {
-            ur->create_action(TTR("Change Cylinder Shape Radius"));
+            ur->create_action_ui(TTR("Change Cylinder Shape Radius"));
             ur->add_do_method(ss.get(), "set_radius", ss->get_radius());
             ur->add_undo_method(ss.get(), "set_radius", p_restore);
         } else {
-            ur->create_action(
+            ur->create_action_ui(
                     ///
 
                     ////////
@@ -3472,7 +3474,7 @@ void CollisionShapeSpatialGizmoPlugin::commit_handle(EditorSpatialGizmo *p_gizmo
         }
 
         UndoRedo *ur = SpatialEditor::get_singleton()->get_undo_redo();
-        ur->create_action(TTR("Change Ray Shape Length"));
+        ur->create_action_ui(TTR("Change Ray Shape Length"));
         ur->add_do_method(ss.get(), "set_length", ss->get_length());
         ur->add_undo_method(ss.get(), "set_length", p_restore);
         ur->commit_action();
@@ -3519,8 +3521,8 @@ void CollisionShapeSpatialGizmoPlugin::redraw(EditorSpatialGizmo *p_gizmo) {
 
         for (int i = 0; i < 64; i++) {
 
-            float ra = i * Math_PI * 2.0 / 64.0;
-            float rb = (i + 1) * Math_PI * 2.0 / 64.0;
+            float ra = i * Math_PI * 2.0f / 64.0f;
+            float rb = (i + 1) * Math_PI * 2.0f / 64.0f;
             Point2 a = Vector2(Math::sin(ra), Math::cos(ra)) * r;
             Point2 b = Vector2(Math::sin(rb), Math::cos(rb)) * r;
 
@@ -3610,8 +3612,8 @@ void CollisionShapeSpatialGizmoPlugin::redraw(EditorSpatialGizmo *p_gizmo) {
 
         for (int i = 0; i < 64; i++) {
 
-            float ra = i * Math_PI * 2.0 / 64.0;
-            float rb = (i + 1) * Math_PI * 2.0 / 64.0;
+            float ra = i * Math_PI * 2.0f / 64.0f;
+            float rb = (i + 1) * Math_PI * 2.0f / 64.0f;
             Point2 a = Vector2(Math::sin(ra), Math::cos(ra)) * radius;
             Point2 b = Vector2(Math::sin(rb), Math::cos(rb)) * radius;
 
@@ -3639,7 +3641,7 @@ void CollisionShapeSpatialGizmoPlugin::redraw(EditorSpatialGizmo *p_gizmo) {
 
         Vector<Vector3> handles;
         handles.push_back(Vector3(cs2->get_radius(), 0, 0));
-        handles.push_back(Vector3(0, 0, cs2->get_height() * 0.5 + cs2->get_radius()));
+        handles.push_back(Vector3(0, 0, cs2->get_height() * 0.5f + cs2->get_radius()));
         p_gizmo->add_handles(handles, handles_material);
     }
 
@@ -3651,7 +3653,7 @@ void CollisionShapeSpatialGizmoPlugin::redraw(EditorSpatialGizmo *p_gizmo) {
 
         Vector<Vector3> points;
 
-        Vector3 d(0, height * 0.5, 0);
+        Vector3 d(0, height * 0.5f, 0);
         for (int i = 0; i < 360; i++) {
 
             float ra = Math::deg2rad((float)i);
@@ -3678,8 +3680,8 @@ void CollisionShapeSpatialGizmoPlugin::redraw(EditorSpatialGizmo *p_gizmo) {
 
         for (int i = 0; i < 64; i++) {
 
-            float ra = i * Math_PI * 2.0 / 64.0;
-            float rb = (i + 1) * Math_PI * 2.0 / 64.0;
+            float ra = i * Math_PI * 2.0f / 64.0f;
+            float rb = (i + 1) * Math_PI * 2.0f / 64.0f;
             Point2 a = Vector2(Math::sin(ra), Math::cos(ra)) * radius;
             Point2 b = Vector2(Math::sin(rb), Math::cos(rb)) * radius;
 
@@ -3700,7 +3702,7 @@ void CollisionShapeSpatialGizmoPlugin::redraw(EditorSpatialGizmo *p_gizmo) {
 
         Vector<Vector3> handles;
         handles.push_back(Vector3(cs2->get_radius(), 0, 0));
-        handles.push_back(Vector3(0, cs2->get_height() * 0.5, 0));
+        handles.push_back(Vector3(0, cs2->get_height() * 0.5f, 0));
         p_gizmo->add_handles(handles, handles_material);
     }
 
@@ -3803,7 +3805,7 @@ bool CollisionPolygonSpatialGizmoPlugin::has_gizmo(Spatial *p_spatial) {
     return object_cast<CollisionPolygon>(p_spatial) != nullptr;
 }
 
-String CollisionPolygonSpatialGizmoPlugin::get_name() const {
+se_string_view CollisionPolygonSpatialGizmoPlugin::get_name() const {
     return "CollisionPolygon";
 }
 
@@ -3845,7 +3847,7 @@ void CollisionPolygonSpatialGizmoPlugin::redraw(EditorSpatialGizmo *p_gizmo) {
 NavigationMeshSpatialGizmoPlugin::NavigationMeshSpatialGizmoPlugin() {
     create_material("navigation_edge_material", EDITOR_DEF("editors/3d_gizmos/gizmo_colors/navigation_edge", Color(0.5, 1, 1)));
     create_material("navigation_edge_material_disabled", EDITOR_DEF("editors/3d_gizmos/gizmo_colors/navigation_edge_disabled", Color(0.7f, 0.7f, 0.7f)));
-    create_material("navigation_solid_material", EDITOR_DEF("editors/3d_gizmos/gizmo_colors/navigation_solid", Color(0.5, 1, 1, 0.4)));
+    create_material("navigation_solid_material", EDITOR_DEF("editors/3d_gizmos/gizmo_colors/navigation_solid", Color(0.5, 1, 1, 0.4f)));
     create_material("navigation_solid_material_disabled", EDITOR_DEF("editors/3d_gizmos/gizmo_colors/navigation_solid_disabled", Color(0.7f, 0.7f, 0.7f, 0.4f)));
 }
 
@@ -3853,8 +3855,8 @@ bool NavigationMeshSpatialGizmoPlugin::has_gizmo(Spatial *p_spatial) {
     return object_cast<NavigationMeshInstance>(p_spatial) != nullptr;
 }
 
-String NavigationMeshSpatialGizmoPlugin::get_name() const {
-    return "NavigationMeshInstance";
+se_string_view NavigationMeshSpatialGizmoPlugin::get_name() const {
+    return ("NavigationMeshInstance");
 }
 
 int NavigationMeshSpatialGizmoPlugin::get_priority() const {
@@ -4196,8 +4198,8 @@ void JointGizmosDrawer::draw_cone(const Transform &p_offset, const Basis &p_base
 
         float ra = Math::deg2rad((float)i);
         float rb = Math::deg2rad((float)i + 5);
-        float c = i / 720.0;
-        float cn = (i + 5) / 720.0;
+        float c = i / 720.0f;
+        float cn = (i + 5) / 720.0f;
         Point2 a = Vector2(Math::sin(ra), Math::cos(ra)) * w * c;
         Point2 b = Vector2(Math::sin(rb), Math::cos(rb)) * w * cn;
 
@@ -4209,17 +4211,17 @@ void JointGizmosDrawer::draw_cone(const Transform &p_offset, const Basis &p_base
 ////
 
 JointSpatialGizmoPlugin::JointSpatialGizmoPlugin() {
-    create_material("joint_material", EDITOR_DEF("editors/3d_gizmos/gizmo_colors/joint", Color(0.5, 0.8, 1)));
-    create_material("joint_body_a_material", EDITOR_DEF("editors/3d_gizmos/gizmo_colors/joint_body_a", Color(0.6, 0.8, 1)));
-    create_material("joint_body_b_material", EDITOR_DEF("editors/3d_gizmos/gizmo_colors/joint_body_b", Color(0.6, 0.9, 1)));
+    create_material("joint_material", EDITOR_DEF("editors/3d_gizmos/gizmo_colors/joint", Color(0.5, 0.8f, 1)));
+    create_material("joint_body_a_material", EDITOR_DEF("editors/3d_gizmos/gizmo_colors/joint_body_a", Color(0.6f, 0.8f, 1)));
+    create_material("joint_body_b_material", EDITOR_DEF("editors/3d_gizmos/gizmo_colors/joint_body_b", Color(0.6f, 0.9f, 1)));
 }
 
 bool JointSpatialGizmoPlugin::has_gizmo(Spatial *p_spatial) {
     return object_cast<Joint>(p_spatial) != nullptr;
 }
 
-String JointSpatialGizmoPlugin::get_name() const {
-    return "Joints";
+se_string_view JointSpatialGizmoPlugin::get_name() const {
+    return ("Joints");
 }
 
 int JointSpatialGizmoPlugin::get_priority() const {

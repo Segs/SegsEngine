@@ -85,12 +85,12 @@ void EditorRunNative::_notification(int p_what) {
                     mb->get_popup()->clear();
                     mb->show();
                     if (dc == 1) {
-                        mb->set_tooltip(eep->get_device_name(0) + "\n\n" + StringUtils::strip_edges(eep->get_device_info(0)));
+                        mb->set_tooltip_utf8(eep->get_device_name(0) + "\n\n" + StringUtils::strip_edges(eep->get_device_info(0)));
                     } else {
-                        mb->set_tooltip("Select device from the list");
+                        mb->set_tooltip_utf8("Select device from the list");
                         for (int i = 0; i < dc; i++) {
-                            mb->get_popup()->add_icon_item(get_icon("Play", "EditorIcons"), eep->get_device_name(i));
-                            mb->get_popup()->set_item_tooltip(mb->get_popup()->get_item_count() - 1, StringUtils::strip_edges(eep->get_device_info(i)));
+                            mb->get_popup()->add_icon_item(get_icon("Play", "EditorIcons"), StringName(eep->get_device_name(i)));
+                            mb->get_popup()->set_item_tooltip(mb->get_popup()->get_item_count() - 1, StringName(StringUtils::strip_edges(eep->get_device_info(i))));
                         }
                     }
                 }

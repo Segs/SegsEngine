@@ -32,6 +32,7 @@
 
 #include "core/method_bind.h"
 #include "core/os/os.h"
+#include "core/string_utils.inl"
 
 IMPL_GDCLASS(WebSocketMultiplayerPeer)
 

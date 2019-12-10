@@ -149,11 +149,11 @@ public:
     /** Get assimp string
     * automatically filters the string data
     */
-    static String get_assimp_string(const aiString &p_string) {
+    static se_string get_assimp_string(const aiString &p_string) {
         //convert an assimp String to a Godot String
-        String name = StringUtils::from_utf8(p_string.C_Str() /*,p_string.length*/);
-        if (StringUtils::find(name,":") != -1) {
-            String replaced_name = StringUtils::split(name,':')[1];
+        se_string name(p_string.C_Str() /*,p_string.length*/);
+        if (StringUtils::contains(name,":")) {
+            se_string replaced_name(StringUtils::split(name,':')[1]);
             print_verbose("Replacing " + name + " containing : with " + replaced_name);
             name = replaced_name;
         }
@@ -161,11 +161,11 @@ public:
         return name;
     }
 
-    static String get_anim_string_from_assimp(const aiString &p_string) {
+    static se_string get_anim_string_from_assimp(const aiString &p_string) {
 
-        String name=StringUtils::from_utf8(p_string.C_Str() /*,p_string.length*/);
-        if (StringUtils::find(name,":") != -1) {
-            String replaced_name = StringUtils::split(name,":")[1];
+        se_string name(p_string.C_Str() /*,p_string.length*/);
+        if (StringUtils::contains(name,":")) {
+            se_string replaced_name(StringUtils::split(name,":")[1]);
             print_verbose("Replacing " + name + " containing : with " + replaced_name);
             name = replaced_name;
         }
@@ -177,12 +177,11 @@ public:
      * This just convers the aiString to a parsed utf8 string
      * Without removing special chars etc
      */
-    static String get_raw_string_from_assimp(const aiString &p_string) {
-        String name=StringUtils::from_utf8(p_string.C_Str() /*,p_string.length*/);
-        return name;
+    static se_string get_raw_string_from_assimp(const aiString &p_string) {
+        return se_string(p_string.C_Str() ,p_string.length);
     }
 
-    static Ref<Animation> import_animation(const String &p_path, uint32_t p_flags, int p_bake_fps) {
+    static Ref<Animation> import_animation(se_string_view p_path, uint32_t p_flags, int p_bake_fps) {
         return Ref<Animation>();
     }
 
@@ -219,12 +218,12 @@ public:
     /**
       * Find hardcoded textures from assimp which could be in many different directories
       */
-    static void find_texture_path(const String &p_path, DirAccess *dir, String &path, bool &found, const String& extension);
+    static void find_texture_path(se_string_view p_path, DirAccess *dir, se_string &path, bool &found, const se_string &extension);
 
     /** find the texture path for the supplied fbx path inside godot
       * very simple lookup for subfolders etc for a texture which may or may not be in a directory
       */
-    static void find_texture_path(const String &r_p_path, String &r_path, bool &r_found);
+    static void find_texture_path(const se_string &r_p_path, se_string &r_path, bool &r_found);
 
     /**
       * set_texture_mapping_mode
@@ -235,14 +234,13 @@ public:
     /**
       * Load or load from cache image :)
       */
-    static Ref<Image> load_image(ImportState &state, const aiScene *p_scene, const String& p_path);
+    static Ref<Image> load_image(ImportState &state, const aiScene *p_scene, se_string_view p_path);
 
     /* create texture from assimp data, if found in path */
-    static bool CreateAssimpTexture(
-            AssimpImporter::ImportState &state,
+    static bool CreateAssimpTexture(AssimpImporter::ImportState &state,
             const aiString& texture_path,
-            String &filename,
-            String &path,
+            se_string &filename,
+            se_string &path,
             AssimpImageData &image_state);
     /** GetAssimpTexture
       * Designed to retrieve textures for you
@@ -251,8 +249,8 @@ public:
             AssimpImporter::ImportState &state,
             aiMaterial *ai_material,
             aiTextureType texture_type,
-            String &filename,
-            String &path,
+            se_string &filename,
+            se_string &path,
             AssimpImageData &image_state) {
         aiString ai_filename = aiString();
         if (AI_SUCCESS == ai_material->GetTexture(texture_type, 0, &ai_filename, nullptr, nullptr, nullptr, nullptr, image_state.map_mode)) {

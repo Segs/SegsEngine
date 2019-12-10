@@ -663,10 +663,10 @@ Ref<NavigationMesh> NavigationMeshInstance::get_navigation_mesh() const {
     return navmesh;
 }
 
-String NavigationMeshInstance::get_configuration_warning() const {
+StringName NavigationMeshInstance::get_configuration_warning() const {
 
     if (!is_visible_in_tree() || !is_inside_tree())
-        return String();
+        return StringName();
 
     if (not navmesh) {
         return TTR("A NavigationMesh resource must be set or created for this node to work.");
@@ -675,7 +675,7 @@ String NavigationMeshInstance::get_configuration_warning() const {
     while (c) {
 
         if (object_cast<Navigation>(c))
-            return String();
+            return StringName();
 
         c = object_cast<Spatial>(c->get_parent());
     }
@@ -695,7 +695,7 @@ void NavigationMeshInstance::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "enabled"), "set_enabled", "is_enabled");
 }
 
-void NavigationMeshInstance::_changed_callback(Object *p_changed, const char *p_prop) {
+void NavigationMeshInstance::_changed_callback(Object *p_changed, StringName p_prop) {
     update_gizmo();
     update_configuration_warning();
 }

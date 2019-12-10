@@ -33,7 +33,9 @@
 #include "core/math/math_funcs.h"
 #include "core/math/quat.h"
 #include "core/print_string.h"
-#include "core/ustring.h"
+#include "core/se_string.h"
+#include "core/string_utils.h"
+
 
 #define cofac(row1, col1, row2, col2) \
     (elements[row1][col1] * elements[row2][col2] - elements[row1][col2] * elements[row2][col1])
@@ -603,9 +605,9 @@ bool Basis::operator!=(const Basis &p_matrix) const {
     return (!(*this == p_matrix));
 }
 
-Basis::operator String() const {
+Basis::operator se_string() const {
 
-    String mtx;
+    se_string mtx;
     for (int i = 0; i < 3; i++) {
 
         for (int j = 0; j < 3; j++) {

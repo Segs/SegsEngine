@@ -45,17 +45,17 @@ protected:
     static void _bind_methods();
 
 public:
-    String get_caption() const override;
+    se_string_view get_caption() const override;
 
     int get_input_port_count() const override;
     PortType get_input_port_type(int p_port) const override;
-    String get_input_port_name(int p_port) const override;
+    StringName get_input_port_name(int p_port) const override;
 
     int get_output_port_count() const override;
     PortType get_output_port_type(int p_port) const override;
-    String get_output_port_name(int p_port) const override;
+    StringName get_output_port_name(int p_port) const override;
 
-    String generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const String *p_input_vars, const String *p_output_vars, bool p_for_preview = false) const override; //if no output is connected, the output var passed will be empty. if no input is connected and input is NIL, the input var passed will be empty
+    se_string generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const se_string *p_input_vars, const se_string *p_output_vars, bool p_for_preview = false) const override; //if no output is connected, the output var passed will be empty. if no input is connected and input is NIL, the input var passed will be empty
 
     void set_constant(float p_value);
     float get_constant() const;
@@ -76,17 +76,17 @@ protected:
     static void _bind_methods();
 
 public:
-    String get_caption() const override;
+    se_string_view get_caption() const override;
 
     int get_input_port_count() const override;
     PortType get_input_port_type(int p_port) const override;
-    String get_input_port_name(int p_port) const override;
+    StringName get_input_port_name(int p_port) const override;
 
     int get_output_port_count() const override;
     PortType get_output_port_type(int p_port) const override;
-    String get_output_port_name(int p_port) const override;
+    StringName get_output_port_name(int p_port) const override;
 
-    String generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const String *p_input_vars, const String *p_output_vars, bool p_for_preview = false) const override; //if no output is connected, the output var passed will be empty. if no input is connected and input is NIL, the input var passed will be empty
+    se_string generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const se_string *p_input_vars, const se_string *p_output_vars, bool p_for_preview = false) const override; //if no output is connected, the output var passed will be empty. if no input is connected and input is NIL, the input var passed will be empty
 
     void set_constant(bool p_value);
     bool get_constant() const;
@@ -107,17 +107,17 @@ protected:
     static void _bind_methods();
 
 public:
-    String get_caption() const override;
+    se_string_view get_caption() const override;
 
     int get_input_port_count() const override;
     PortType get_input_port_type(int p_port) const override;
-    String get_input_port_name(int p_port) const override;
+    StringName get_input_port_name(int p_port) const override;
 
     int get_output_port_count() const override;
     PortType get_output_port_type(int p_port) const override;
-    String get_output_port_name(int p_port) const override;
+    StringName get_output_port_name(int p_port) const override;
 
-    String generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const String *p_input_vars, const String *p_output_vars, bool p_for_preview = false) const override; //if no output is connected, the output var passed will be empty. if no input is connected and input is NIL, the input var passed will be empty
+    se_string generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const se_string *p_input_vars, const se_string *p_output_vars, bool p_for_preview = false) const override; //if no output is connected, the output var passed will be empty. if no input is connected and input is NIL, the input var passed will be empty
 
     void set_constant(Color p_value);
     Color get_constant() const;
@@ -138,17 +138,17 @@ protected:
     static void _bind_methods();
 
 public:
-    String get_caption() const override;
+    se_string_view get_caption() const override;
 
     int get_input_port_count() const override;
     PortType get_input_port_type(int p_port) const override;
-    String get_input_port_name(int p_port) const override;
+    StringName get_input_port_name(int p_port) const override;
 
     int get_output_port_count() const override;
     PortType get_output_port_type(int p_port) const override;
-    String get_output_port_name(int p_port) const override;
+    StringName get_output_port_name(int p_port) const override;
 
-    String generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const String *p_input_vars, const String *p_output_vars, bool p_for_preview = false) const override; //if no output is connected, the output var passed will be empty. if no input is connected and input is NIL, the input var passed will be empty
+    se_string generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const se_string *p_input_vars, const se_string *p_output_vars, bool p_for_preview = false) const override; //if no output is connected, the output var passed will be empty. if no input is connected and input is NIL, the input var passed will be empty
 
     void set_constant(Vector3 p_value);
     Vector3 get_constant() const;
@@ -169,17 +169,17 @@ protected:
     static void _bind_methods();
 
 public:
-    String get_caption() const override;
+    se_string_view get_caption() const override;
 
     int get_input_port_count() const override;
     PortType get_input_port_type(int p_port) const override;
-    String get_input_port_name(int p_port) const override;
+    StringName get_input_port_name(int p_port) const override;
 
     int get_output_port_count() const override;
     PortType get_output_port_type(int p_port) const override;
-    String get_output_port_name(int p_port) const override;
+    StringName get_output_port_name(int p_port) const override;
 
-    String generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const String *p_input_vars, const String *p_output_vars, bool p_for_preview = false) const override; //if no output is connected, the output var passed will be empty. if no input is connected and input is NIL, the input var passed will be empty
+    se_string generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const se_string *p_input_vars, const se_string *p_output_vars, bool p_for_preview = false) const override; //if no output is connected, the output var passed will be empty. if no input is connected and input is NIL, the input var passed will be empty
 
     void set_constant(Transform p_value);
     Transform get_constant() const;
@@ -222,21 +222,21 @@ protected:
     static void _bind_methods();
 
 public:
-    String get_caption() const override;
+    se_string_view get_caption() const override;
 
     int get_input_port_count() const override;
     PortType get_input_port_type(int p_port) const override;
-    String get_input_port_name(int p_port) const override;
+    StringName get_input_port_name(int p_port) const override;
 
     int get_output_port_count() const override;
     PortType get_output_port_type(int p_port) const override;
-    String get_output_port_name(int p_port) const override;
+    StringName get_output_port_name(int p_port) const override;
 
-    String get_input_port_default_hint(int p_port) const override;
+    StringName get_input_port_default_hint(int p_port) const override;
 
     Vector<VisualShader::DefaultTextureParam> get_default_texture_parameters(VisualShader::Type p_type, int p_id) const override;
-    String generate_global(ShaderMode p_mode, VisualShader::Type p_type, int p_id) const override;
-    String generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const String *p_input_vars, const String *p_output_vars, bool p_for_preview = false) const override; //if no output is connected, the output var passed will be empty. if no input is connected and input is NIL, the input var passed will be empty
+    se_string generate_global(ShaderMode p_mode, VisualShader::Type p_type, int p_id) const override;
+    se_string generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const se_string *p_input_vars, const se_string *p_output_vars, bool p_for_preview = false) const override; //if no output is connected, the output var passed will be empty. if no input is connected and input is NIL, the input var passed will be empty
 
     void set_source(Source p_source);
     Source get_source() const;
@@ -249,7 +249,7 @@ public:
 
     Vector<StringName> get_editable_properties() const override;
 
-    String get_warning(ShaderMode p_mode, VisualShader::Type p_type) const override;
+    StringName get_warning(ShaderMode p_mode, VisualShader::Type p_type) const override;
 
     VisualShaderNodeTexture();
 };
@@ -281,20 +281,20 @@ protected:
     static void _bind_methods();
 
 public:
-    String get_caption() const override;
+    se_string_view get_caption() const override;
 
     int get_input_port_count() const override;
     PortType get_input_port_type(int p_port) const override;
-    String get_input_port_name(int p_port) const override;
-    String get_input_port_default_hint(int p_port) const override;
+    StringName get_input_port_name(int p_port) const override;
+    StringName get_input_port_default_hint(int p_port) const override;
 
     int get_output_port_count() const override;
     PortType get_output_port_type(int p_port) const override;
-    String get_output_port_name(int p_port) const override;
+    StringName get_output_port_name(int p_port) const override;
 
     Vector<VisualShader::DefaultTextureParam> get_default_texture_parameters(VisualShader::Type p_type, int p_id) const override;
-    String generate_global(ShaderMode p_mode, VisualShader::Type p_type, int p_id) const override;
-    String generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const String *p_input_vars, const String *p_output_vars, bool p_for_preview = false) const override; //if no output is connected, the output var passed will be empty. if no input is connected and input is NIL, the input var passed will be empty
+    se_string generate_global(ShaderMode p_mode, VisualShader::Type p_type, int p_id) const override;
+    se_string generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const se_string *p_input_vars, const se_string *p_output_vars, bool p_for_preview = false) const override; //if no output is connected, the output var passed will be empty. if no input is connected and input is NIL, the input var passed will be empty
 
     void set_source(Source p_source);
     Source get_source() const;
@@ -339,17 +339,17 @@ protected:
     static void _bind_methods();
 
 public:
-    String get_caption() const override;
+    se_string_view get_caption() const override;
 
     int get_input_port_count() const override;
     PortType get_input_port_type(int p_port) const override;
-    String get_input_port_name(int p_port) const override;
+    StringName get_input_port_name(int p_port) const override;
 
     int get_output_port_count() const override;
     PortType get_output_port_type(int p_port) const override;
-    String get_output_port_name(int p_port) const override;
+    StringName get_output_port_name(int p_port) const override;
 
-    String generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const String *p_input_vars, const String *p_output_vars, bool p_for_preview = false) const override; //if no output is connected, the output var passed will be empty. if no input is connected and input is NIL, the input var passed will be empty
+    se_string generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const se_string *p_input_vars, const se_string *p_output_vars, bool p_for_preview = false) const override; //if no output is connected, the output var passed will be empty. if no input is connected and input is NIL, the input var passed will be empty
 
     void set_operator(Operator p_op);
     Operator get_operator() const;
@@ -386,17 +386,17 @@ protected:
     static void _bind_methods();
 
 public:
-    String get_caption() const override;
+    se_string_view get_caption() const override;
 
     int get_input_port_count() const override;
     PortType get_input_port_type(int p_port) const override;
-    String get_input_port_name(int p_port) const override;
+    StringName get_input_port_name(int p_port) const override;
 
     int get_output_port_count() const override;
     PortType get_output_port_type(int p_port) const override;
-    String get_output_port_name(int p_port) const override;
+    StringName get_output_port_name(int p_port) const override;
 
-    String generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const String *p_input_vars, const String *p_output_vars, bool p_for_preview = false) const override; //if no output is connected, the output var passed will be empty. if no input is connected and input is NIL, the input var passed will be empty
+    se_string generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const se_string *p_input_vars, const se_string *p_output_vars, bool p_for_preview = false) const override; //if no output is connected, the output var passed will be empty. if no input is connected and input is NIL, the input var passed will be empty
 
     void set_operator(Operator p_op);
     Operator get_operator() const;
@@ -432,17 +432,17 @@ protected:
     static void _bind_methods();
 
 public:
-    String get_caption() const override;
+    se_string_view get_caption() const override;
 
     int get_input_port_count() const override;
     PortType get_input_port_type(int p_port) const override;
-    String get_input_port_name(int p_port) const override;
+    StringName get_input_port_name(int p_port) const override;
 
     int get_output_port_count() const override;
     PortType get_output_port_type(int p_port) const override;
-    String get_output_port_name(int p_port) const override;
+    StringName get_output_port_name(int p_port) const override;
 
-    String generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const String *p_input_vars, const String *p_output_vars, bool p_for_preview = false) const override; //if no output is connected, the output var passed will be empty. if no input is connected and input is NIL, the input var passed will be empty
+    se_string generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const se_string *p_input_vars, const se_string *p_output_vars, bool p_for_preview = false) const override; //if no output is connected, the output var passed will be empty. if no input is connected and input is NIL, the input var passed will be empty
 
     void set_operator(Operator p_op);
     Operator get_operator() const;
@@ -475,17 +475,17 @@ protected:
     static void _bind_methods();
 
 public:
-    String get_caption() const override;
+    se_string_view get_caption() const override;
 
     int get_input_port_count() const override;
     PortType get_input_port_type(int p_port) const override;
-    String get_input_port_name(int p_port) const override;
+    StringName get_input_port_name(int p_port) const override;
 
     int get_output_port_count() const override;
     PortType get_output_port_type(int p_port) const override;
-    String get_output_port_name(int p_port) const override;
+    StringName get_output_port_name(int p_port) const override;
 
-    String generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const String *p_input_vars, const String *p_output_vars, bool p_for_preview = false) const override; //if no output is connected, the output var passed will be empty. if no input is connected and input is NIL, the input var passed will be empty
+    se_string generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const se_string *p_input_vars, const se_string *p_output_vars, bool p_for_preview = false) const override; //if no output is connected, the output var passed will be empty. if no input is connected and input is NIL, the input var passed will be empty
 
     void set_operator(Operator p_op);
     Operator get_operator() const;
@@ -517,17 +517,17 @@ protected:
     static void _bind_methods();
 
 public:
-    String get_caption() const override;
+    se_string_view get_caption() const override;
 
     int get_input_port_count() const override;
     PortType get_input_port_type(int p_port) const override;
-    String get_input_port_name(int p_port) const override;
+    StringName get_input_port_name(int p_port) const override;
 
     int get_output_port_count() const override;
     PortType get_output_port_type(int p_port) const override;
-    String get_output_port_name(int p_port) const override;
+    StringName get_output_port_name(int p_port) const override;
 
-    String generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const String *p_input_vars, const String *p_output_vars, bool p_for_preview = false) const override; //if no output is connected, the output var passed will be empty. if no input is connected and input is NIL, the input var passed will be empty
+    se_string generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const se_string *p_input_vars, const se_string *p_output_vars, bool p_for_preview = false) const override; //if no output is connected, the output var passed will be empty. if no input is connected and input is NIL, the input var passed will be empty
 
     void set_operator(Operator p_op);
     Operator get_operator() const;
@@ -587,17 +587,17 @@ protected:
     static void _bind_methods();
 
 public:
-    String get_caption() const override;
+    se_string_view get_caption() const override;
 
     int get_input_port_count() const override;
     PortType get_input_port_type(int p_port) const override;
-    String get_input_port_name(int p_port) const override;
+    StringName get_input_port_name(int p_port) const override;
 
     int get_output_port_count() const override;
     PortType get_output_port_type(int p_port) const override;
-    String get_output_port_name(int p_port) const override;
+    StringName get_output_port_name(int p_port) const override;
 
-    String generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const String *p_input_vars, const String *p_output_vars, bool p_for_preview = false) const override; //if no output is connected, the output var passed will be empty. if no input is connected and input is NIL, the input var passed will be empty
+    se_string generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const se_string *p_input_vars, const se_string *p_output_vars, bool p_for_preview = false) const override; //if no output is connected, the output var passed will be empty. if no input is connected and input is NIL, the input var passed will be empty
 
     void set_function(Function p_func);
     Function get_function() const;
@@ -660,17 +660,17 @@ protected:
     static void _bind_methods();
 
 public:
-    String get_caption() const override;
+    se_string_view get_caption() const override;
 
     int get_input_port_count() const override;
     PortType get_input_port_type(int p_port) const override;
-    String get_input_port_name(int p_port) const override;
+    StringName get_input_port_name(int p_port) const override;
 
     int get_output_port_count() const override;
     PortType get_output_port_type(int p_port) const override;
-    String get_output_port_name(int p_port) const override;
+    StringName get_output_port_name(int p_port) const override;
 
-    String generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const String *p_input_vars, const String *p_output_vars, bool p_for_preview = false) const override; //if no output is connected, the output var passed will be empty. if no input is connected and input is NIL, the input var passed will be empty
+    se_string generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const se_string *p_input_vars, const se_string *p_output_vars, bool p_for_preview = false) const override; //if no output is connected, the output var passed will be empty. if no input is connected and input is NIL, the input var passed will be empty
 
     void set_function(Function p_func);
     Function get_function() const;
@@ -699,17 +699,17 @@ protected:
     static void _bind_methods();
 
 public:
-    String get_caption() const override;
+    se_string_view get_caption() const override;
 
     int get_input_port_count() const override;
     PortType get_input_port_type(int p_port) const override;
-    String get_input_port_name(int p_port) const override;
+    StringName get_input_port_name(int p_port) const override;
 
     int get_output_port_count() const override;
     PortType get_output_port_type(int p_port) const override;
-    String get_output_port_name(int p_port) const override;
+    StringName get_output_port_name(int p_port) const override;
 
-    String generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const String *p_input_vars, const String *p_output_vars, bool p_for_preview = false) const override; //if no output is connected, the output var passed will be empty. if no input is connected and input is NIL, the input var passed will be empty
+    se_string generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const se_string *p_input_vars, const se_string *p_output_vars, bool p_for_preview = false) const override; //if no output is connected, the output var passed will be empty. if no input is connected and input is NIL, the input var passed will be empty
 
     void set_function(Function p_func);
     Function get_function() const;
@@ -739,17 +739,17 @@ protected:
     static void _bind_methods();
 
 public:
-    String get_caption() const override;
+    se_string_view get_caption() const override;
 
     int get_input_port_count() const override;
     PortType get_input_port_type(int p_port) const override;
-    String get_input_port_name(int p_port) const override;
+    StringName get_input_port_name(int p_port) const override;
 
     int get_output_port_count() const override;
     PortType get_output_port_type(int p_port) const override;
-    String get_output_port_name(int p_port) const override;
+    StringName get_output_port_name(int p_port) const override;
 
-    String generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const String *p_input_vars, const String *p_output_vars, bool p_for_preview = false) const override; //if no output is connected, the output var passed will be empty. if no input is connected and input is NIL, the input var passed will be empty
+    se_string generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const se_string *p_input_vars, const se_string *p_output_vars, bool p_for_preview = false) const override; //if no output is connected, the output var passed will be empty. if no input is connected and input is NIL, the input var passed will be empty
 
     void set_function(Function p_func);
     Function get_function() const;
@@ -769,17 +769,17 @@ class VisualShaderNodeDotProduct : public VisualShaderNode {
 
 
 public:
-    String get_caption() const override;
+    se_string_view get_caption() const override;
 
     int get_input_port_count() const override;
     PortType get_input_port_type(int p_port) const override;
-    String get_input_port_name(int p_port) const override;
+    StringName get_input_port_name(int p_port) const override;
 
     int get_output_port_count() const override;
     PortType get_output_port_type(int p_port) const override;
-    String get_output_port_name(int p_port) const override;
+    StringName get_output_port_name(int p_port) const override;
 
-    String generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const String *p_input_vars, const String *p_output_vars, bool p_for_preview = false) const override; //if no output is connected, the output var passed will be empty. if no input is connected and input is NIL, the input var passed will be empty
+    se_string generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const se_string *p_input_vars, const se_string *p_output_vars, bool p_for_preview = false) const override; //if no output is connected, the output var passed will be empty. if no input is connected and input is NIL, the input var passed will be empty
 
     VisualShaderNodeDotProduct();
 };
@@ -793,17 +793,17 @@ class VisualShaderNodeVectorLen : public VisualShaderNode {
 
 
 public:
-    String get_caption() const override;
+    se_string_view get_caption() const override;
 
     int get_input_port_count() const override;
     PortType get_input_port_type(int p_port) const override;
-    String get_input_port_name(int p_port) const override;
+    StringName get_input_port_name(int p_port) const override;
 
     int get_output_port_count() const override;
     PortType get_output_port_type(int p_port) const override;
-    String get_output_port_name(int p_port) const override;
+    StringName get_output_port_name(int p_port) const override;
 
-    String generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const String *p_input_vars, const String *p_output_vars, bool p_for_preview = false) const override; //if no output is connected, the output var passed will be empty. if no input is connected and input is NIL, the input var passed will be empty
+    se_string generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const se_string *p_input_vars, const se_string *p_output_vars, bool p_for_preview = false) const override; //if no output is connected, the output var passed will be empty. if no input is connected and input is NIL, the input var passed will be empty
 
     VisualShaderNodeVectorLen();
 };
@@ -817,17 +817,17 @@ class VisualShaderNodeDeterminant : public VisualShaderNode {
 
 
 public:
-    String get_caption() const override;
+    se_string_view get_caption() const override;
 
     int get_input_port_count() const override;
     PortType get_input_port_type(int p_port) const override;
-    String get_input_port_name(int p_port) const override;
+    StringName get_input_port_name(int p_port) const override;
 
     int get_output_port_count() const override;
     PortType get_output_port_type(int p_port) const override;
-    String get_output_port_name(int p_port) const override;
+    StringName get_output_port_name(int p_port) const override;
 
-    String generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const String *p_input_vars, const String *p_output_vars, bool p_for_preview = false) const override; //if no output is connected, the output var passed will be empty. if no input is connected and input is NIL, the input var passed will be empty
+    se_string generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const se_string *p_input_vars, const se_string *p_output_vars, bool p_for_preview = false) const override; //if no output is connected, the output var passed will be empty. if no input is connected and input is NIL, the input var passed will be empty
 
     VisualShaderNodeDeterminant();
 };
@@ -841,17 +841,17 @@ class VisualShaderNodeScalarClamp : public VisualShaderNode {
 
 
 public:
-    String get_caption() const override;
+    se_string_view get_caption() const override;
 
     int get_input_port_count() const override;
     PortType get_input_port_type(int p_port) const override;
-    String get_input_port_name(int p_port) const override;
+    StringName get_input_port_name(int p_port) const override;
 
     int get_output_port_count() const override;
     PortType get_output_port_type(int p_port) const override;
-    String get_output_port_name(int p_port) const override;
+    StringName get_output_port_name(int p_port) const override;
 
-    String generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const String *p_input_vars, const String *p_output_vars, bool p_for_preview = false) const override; //if no output is connected, the output var passed will be empty. if no input is connected and input is NIL, the input var passed will be empty
+    se_string generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const se_string *p_input_vars, const se_string *p_output_vars, bool p_for_preview = false) const override; //if no output is connected, the output var passed will be empty. if no input is connected and input is NIL, the input var passed will be empty
 
     VisualShaderNodeScalarClamp();
 };
@@ -863,17 +863,17 @@ class VisualShaderNodeVectorClamp : public VisualShaderNode {
 
 
 public:
-    String get_caption() const override;
+    se_string_view get_caption() const override;
 
     int get_input_port_count() const override;
     PortType get_input_port_type(int p_port) const override;
-    String get_input_port_name(int p_port) const override;
+    StringName get_input_port_name(int p_port) const override;
 
     int get_output_port_count() const override;
     PortType get_output_port_type(int p_port) const override;
-    String get_output_port_name(int p_port) const override;
+    StringName get_output_port_name(int p_port) const override;
 
-    String generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const String *p_input_vars, const String *p_output_vars, bool p_for_preview = false) const override; //if no output is connected, the output var passed will be empty. if no input is connected and input is NIL, the input var passed will be empty
+    se_string generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const se_string *p_input_vars, const se_string *p_output_vars, bool p_for_preview = false) const override; //if no output is connected, the output var passed will be empty. if no input is connected and input is NIL, the input var passed will be empty
 
     VisualShaderNodeVectorClamp();
 };
@@ -899,17 +899,17 @@ protected:
     static void _bind_methods();
 
 public:
-    String get_caption() const override;
+    se_string_view get_caption() const override;
 
     int get_input_port_count() const override;
     PortType get_input_port_type(int p_port) const override;
-    String get_input_port_name(int p_port) const override;
+    StringName get_input_port_name(int p_port) const override;
 
     int get_output_port_count() const override;
     PortType get_output_port_type(int p_port) const override;
-    String get_output_port_name(int p_port) const override;
+    StringName get_output_port_name(int p_port) const override;
 
-    String generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const String *p_input_vars, const String *p_output_vars, bool p_for_preview = false) const override; //if no output is connected, the output var passed will be empty. if no input is connected and input is NIL, the input var passed will be empty
+    se_string generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const se_string *p_input_vars, const se_string *p_output_vars, bool p_for_preview = false) const override; //if no output is connected, the output var passed will be empty. if no input is connected and input is NIL, the input var passed will be empty
 
     void set_function(Function p_func);
     Function get_function() const;
@@ -938,17 +938,17 @@ protected:
     static void _bind_methods();
 
 public:
-    String get_caption() const override;
+    se_string_view get_caption() const override;
 
     int get_input_port_count() const override;
     PortType get_input_port_type(int p_port) const override;
-    String get_input_port_name(int p_port) const override;
+    StringName get_input_port_name(int p_port) const override;
 
     int get_output_port_count() const override;
     PortType get_output_port_type(int p_port) const override;
-    String get_output_port_name(int p_port) const override;
+    StringName get_output_port_name(int p_port) const override;
 
-    String generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const String *p_input_vars, const String *p_output_vars, bool p_for_preview = false) const override; //if no output is connected, the output var passed will be empty. if no input is connected and input is NIL, the input var passed will be empty
+    se_string generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const se_string *p_input_vars, const se_string *p_output_vars, bool p_for_preview = false) const override; //if no output is connected, the output var passed will be empty. if no input is connected and input is NIL, the input var passed will be empty
 
     void set_function(Function p_func);
     Function get_function() const;
@@ -968,17 +968,17 @@ class VisualShaderNodeFaceForward : public VisualShaderNode {
 
 
 public:
-    String get_caption() const override;
+    se_string_view get_caption() const override;
 
     int get_input_port_count() const override;
     PortType get_input_port_type(int p_port) const override;
-    String get_input_port_name(int p_port) const override;
+    StringName get_input_port_name(int p_port) const override;
 
     int get_output_port_count() const override;
     PortType get_output_port_type(int p_port) const override;
-    String get_output_port_name(int p_port) const override;
+    StringName get_output_port_name(int p_port) const override;
 
-    String generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const String *p_input_vars, const String *p_output_vars, bool p_for_preview = false) const override; //if no output is connected, the output var passed will be empty. if no input is connected and input is NIL, the input var passed will be empty
+    se_string generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const se_string *p_input_vars, const se_string *p_output_vars, bool p_for_preview = false) const override; //if no output is connected, the output var passed will be empty. if no input is connected and input is NIL, the input var passed will be empty
 
     VisualShaderNodeFaceForward();
 };
@@ -992,17 +992,17 @@ class VisualShaderNodeOuterProduct : public VisualShaderNode {
 
 
 public:
-    String get_caption() const override;
+    se_string_view get_caption() const override;
 
     int get_input_port_count() const override;
     PortType get_input_port_type(int p_port) const override;
-    String get_input_port_name(int p_port) const override;
+    StringName get_input_port_name(int p_port) const override;
 
     int get_output_port_count() const override;
     PortType get_output_port_type(int p_port) const override;
-    String get_output_port_name(int p_port) const override;
+    StringName get_output_port_name(int p_port) const override;
 
-    String generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const String *p_input_vars, const String *p_output_vars, bool p_for_preview = false) const override; //if no output is connected, the output var passed will be empty. if no input is connected and input is NIL, the input var passed will be empty
+    se_string generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const se_string *p_input_vars, const se_string *p_output_vars, bool p_for_preview = false) const override; //if no output is connected, the output var passed will be empty. if no input is connected and input is NIL, the input var passed will be empty
 
     VisualShaderNodeOuterProduct();
 };
@@ -1016,17 +1016,17 @@ class VisualShaderNodeVectorScalarStep : public VisualShaderNode {
 
 
 public:
-    String get_caption() const override;
+    se_string_view get_caption() const override;
 
     int get_input_port_count() const override;
     PortType get_input_port_type(int p_port) const override;
-    String get_input_port_name(int p_port) const override;
+    StringName get_input_port_name(int p_port) const override;
 
     int get_output_port_count() const override;
     PortType get_output_port_type(int p_port) const override;
-    String get_output_port_name(int p_port) const override;
+    StringName get_output_port_name(int p_port) const override;
 
-    String generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const String *p_input_vars, const String *p_output_vars, bool p_for_preview = false) const override; //if no output is connected, the output var passed will be empty. if no input is connected and input is NIL, the input var passed will be empty
+    se_string generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const se_string *p_input_vars, const se_string *p_output_vars, bool p_for_preview = false) const override; //if no output is connected, the output var passed will be empty. if no input is connected and input is NIL, the input var passed will be empty
 
     VisualShaderNodeVectorScalarStep();
 };
@@ -1040,17 +1040,17 @@ class VisualShaderNodeScalarSmoothStep : public VisualShaderNode {
 
 
 public:
-    String get_caption() const override;
+    se_string_view get_caption() const override;
 
     int get_input_port_count() const override;
     PortType get_input_port_type(int p_port) const override;
-    String get_input_port_name(int p_port) const override;
+    StringName get_input_port_name(int p_port) const override;
 
     int get_output_port_count() const override;
     PortType get_output_port_type(int p_port) const override;
-    String get_output_port_name(int p_port) const override;
+    StringName get_output_port_name(int p_port) const override;
 
-    String generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const String *p_input_vars, const String *p_output_vars, bool p_for_preview = false) const override; //if no output is connected, the output var passed will be empty. if no input is connected and input is NIL, the input var passed will be empty
+    se_string generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const se_string *p_input_vars, const se_string *p_output_vars, bool p_for_preview = false) const override; //if no output is connected, the output var passed will be empty. if no input is connected and input is NIL, the input var passed will be empty
 
     VisualShaderNodeScalarSmoothStep();
 };
@@ -1062,17 +1062,17 @@ class VisualShaderNodeVectorSmoothStep : public VisualShaderNode {
 
 
 public:
-    String get_caption() const override;
+    se_string_view get_caption() const override;
 
     int get_input_port_count() const override;
     PortType get_input_port_type(int p_port) const override;
-    String get_input_port_name(int p_port) const override;
+    StringName get_input_port_name(int p_port) const override;
 
     int get_output_port_count() const override;
     PortType get_output_port_type(int p_port) const override;
-    String get_output_port_name(int p_port) const override;
+    StringName get_output_port_name(int p_port) const override;
 
-    String generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const String *p_input_vars, const String *p_output_vars, bool p_for_preview = false) const override; //if no output is connected, the output var passed will be empty. if no input is connected and input is NIL, the input var passed will be empty
+    se_string generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const se_string *p_input_vars, const se_string *p_output_vars, bool p_for_preview = false) const override; //if no output is connected, the output var passed will be empty. if no input is connected and input is NIL, the input var passed will be empty
 
     VisualShaderNodeVectorSmoothStep();
 };
@@ -1084,17 +1084,17 @@ class VisualShaderNodeVectorScalarSmoothStep : public VisualShaderNode {
 
 
 public:
-    String get_caption() const override;
+    se_string_view get_caption() const override;
 
     int get_input_port_count() const override;
     PortType get_input_port_type(int p_port) const override;
-    String get_input_port_name(int p_port) const override;
+    StringName get_input_port_name(int p_port) const override;
 
     int get_output_port_count() const override;
     PortType get_output_port_type(int p_port) const override;
-    String get_output_port_name(int p_port) const override;
+    StringName get_output_port_name(int p_port) const override;
 
-    String generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const String *p_input_vars, const String *p_output_vars, bool p_for_preview = false) const override; //if no output is connected, the output var passed will be empty. if no input is connected and input is NIL, the input var passed will be empty
+    se_string generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const se_string *p_input_vars, const se_string *p_output_vars, bool p_for_preview = false) const override; //if no output is connected, the output var passed will be empty. if no input is connected and input is NIL, the input var passed will be empty
 
     VisualShaderNodeVectorScalarSmoothStep();
 };
@@ -1108,17 +1108,17 @@ class VisualShaderNodeVectorDistance : public VisualShaderNode {
 
 
 public:
-    String get_caption() const override;
+    se_string_view get_caption() const override;
 
     int get_input_port_count() const override;
     PortType get_input_port_type(int p_port) const override;
-    String get_input_port_name(int p_port) const override;
+    StringName get_input_port_name(int p_port) const override;
 
     int get_output_port_count() const override;
     PortType get_output_port_type(int p_port) const override;
-    String get_output_port_name(int p_port) const override;
+    StringName get_output_port_name(int p_port) const override;
 
-    String generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const String *p_input_vars, const String *p_output_vars, bool p_for_preview = false) const override; //if no output is connected, the output var passed will be empty. if no input is connected and input is NIL, the input var passed will be empty
+    se_string generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const se_string *p_input_vars, const se_string *p_output_vars, bool p_for_preview = false) const override; //if no output is connected, the output var passed will be empty. if no input is connected and input is NIL, the input var passed will be empty
 
     VisualShaderNodeVectorDistance();
 };
@@ -1132,17 +1132,17 @@ class VisualShaderNodeVectorRefract : public VisualShaderNode {
 
 
 public:
-    String get_caption() const override;
+    se_string_view get_caption() const override;
 
     int get_input_port_count() const override;
     PortType get_input_port_type(int p_port) const override;
-    String get_input_port_name(int p_port) const override;
+    StringName get_input_port_name(int p_port) const override;
 
     int get_output_port_count() const override;
     PortType get_output_port_type(int p_port) const override;
-    String get_output_port_name(int p_port) const override;
+    StringName get_output_port_name(int p_port) const override;
 
-    String generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const String *p_input_vars, const String *p_output_vars, bool p_for_preview = false) const override; //if no output is connected, the output var passed will be empty. if no input is connected and input is NIL, the input var passed will be empty
+    se_string generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const se_string *p_input_vars, const se_string *p_output_vars, bool p_for_preview = false) const override; //if no output is connected, the output var passed will be empty. if no input is connected and input is NIL, the input var passed will be empty
 
     VisualShaderNodeVectorRefract();
 };
@@ -1156,17 +1156,17 @@ class VisualShaderNodeScalarInterp : public VisualShaderNode {
 
 
 public:
-    String get_caption() const override;
+    se_string_view get_caption() const override;
 
     int get_input_port_count() const override;
     PortType get_input_port_type(int p_port) const override;
-    String get_input_port_name(int p_port) const override;
+    StringName get_input_port_name(int p_port) const override;
 
     int get_output_port_count() const override;
     PortType get_output_port_type(int p_port) const override;
-    String get_output_port_name(int p_port) const override;
+    StringName get_output_port_name(int p_port) const override;
 
-    String generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const String *p_input_vars, const String *p_output_vars, bool p_for_preview = false) const override; //if no output is connected, the output var passed will be empty. if no input is connected and input is NIL, the input var passed will be empty
+    se_string generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const se_string *p_input_vars, const se_string *p_output_vars, bool p_for_preview = false) const override; //if no output is connected, the output var passed will be empty. if no input is connected and input is NIL, the input var passed will be empty
 
     VisualShaderNodeScalarInterp();
 };
@@ -1178,17 +1178,17 @@ class VisualShaderNodeVectorInterp : public VisualShaderNode {
 
 
 public:
-    String get_caption() const override;
+    se_string_view get_caption() const override;
 
     int get_input_port_count() const override;
     PortType get_input_port_type(int p_port) const override;
-    String get_input_port_name(int p_port) const override;
+    StringName get_input_port_name(int p_port) const override;
 
     int get_output_port_count() const override;
     PortType get_output_port_type(int p_port) const override;
-    String get_output_port_name(int p_port) const override;
+    StringName get_output_port_name(int p_port) const override;
 
-    String generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const String *p_input_vars, const String *p_output_vars, bool p_for_preview = false) const override; //if no output is connected, the output var passed will be empty. if no input is connected and input is NIL, the input var passed will be empty
+    se_string generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const se_string *p_input_vars, const se_string *p_output_vars, bool p_for_preview = false) const override; //if no output is connected, the output var passed will be empty. if no input is connected and input is NIL, the input var passed will be empty
 
     VisualShaderNodeVectorInterp();
 };
@@ -1200,17 +1200,17 @@ class VisualShaderNodeVectorScalarMix : public VisualShaderNode {
 
 
 public:
-    String get_caption() const override;
+    se_string_view get_caption() const override;
 
     int get_input_port_count() const override;
     PortType get_input_port_type(int p_port) const override;
-    String get_input_port_name(int p_port) const override;
+    StringName get_input_port_name(int p_port) const override;
 
     int get_output_port_count() const override;
     PortType get_output_port_type(int p_port) const override;
-    String get_output_port_name(int p_port) const override;
+    StringName get_output_port_name(int p_port) const override;
 
-    String generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const String *p_input_vars, const String *p_output_vars, bool p_for_preview = false) const override; //if no output is connected, the output var passed will be empty. if no input is connected and input is NIL, the input var passed will be empty
+    se_string generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const se_string *p_input_vars, const se_string *p_output_vars, bool p_for_preview = false) const override; //if no output is connected, the output var passed will be empty. if no input is connected and input is NIL, the input var passed will be empty
 
     VisualShaderNodeVectorScalarMix();
 };
@@ -1224,17 +1224,17 @@ class VisualShaderNodeVectorCompose : public VisualShaderNode {
 
 
 public:
-    String get_caption() const override;
+    se_string_view get_caption() const override;
 
     int get_input_port_count() const override;
     PortType get_input_port_type(int p_port) const override;
-    String get_input_port_name(int p_port) const override;
+    StringName get_input_port_name(int p_port) const override;
 
     int get_output_port_count() const override;
     PortType get_output_port_type(int p_port) const override;
-    String get_output_port_name(int p_port) const override;
+    StringName get_output_port_name(int p_port) const override;
 
-    String generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const String *p_input_vars, const String *p_output_vars, bool p_for_preview = false) const override; //if no output is connected, the output var passed will be empty. if no input is connected and input is NIL, the input var passed will be empty
+    se_string generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const se_string *p_input_vars, const se_string *p_output_vars, bool p_for_preview = false) const override; //if no output is connected, the output var passed will be empty. if no input is connected and input is NIL, the input var passed will be empty
 
     VisualShaderNodeVectorCompose();
 };
@@ -1246,17 +1246,17 @@ class VisualShaderNodeTransformCompose : public VisualShaderNode {
 
 
 public:
-    String get_caption() const override;
+    se_string_view get_caption() const override;
 
     int get_input_port_count() const override;
     PortType get_input_port_type(int p_port) const override;
-    String get_input_port_name(int p_port) const override;
+    StringName get_input_port_name(int p_port) const override;
 
     int get_output_port_count() const override;
     PortType get_output_port_type(int p_port) const override;
-    String get_output_port_name(int p_port) const override;
+    StringName get_output_port_name(int p_port) const override;
 
-    String generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const String *p_input_vars, const String *p_output_vars, bool p_for_preview = false) const override; //if no output is connected, the output var passed will be empty. if no input is connected and input is NIL, the input var passed will be empty
+    se_string generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const se_string *p_input_vars, const se_string *p_output_vars, bool p_for_preview = false) const override; //if no output is connected, the output var passed will be empty. if no input is connected and input is NIL, the input var passed will be empty
 
     VisualShaderNodeTransformCompose();
 };
@@ -1270,17 +1270,17 @@ class VisualShaderNodeVectorDecompose : public VisualShaderNode {
 
 
 public:
-    String get_caption() const override;
+    se_string_view get_caption() const override;
 
     int get_input_port_count() const override;
     PortType get_input_port_type(int p_port) const override;
-    String get_input_port_name(int p_port) const override;
+    StringName get_input_port_name(int p_port) const override;
 
     int get_output_port_count() const override;
     PortType get_output_port_type(int p_port) const override;
-    String get_output_port_name(int p_port) const override;
+    StringName get_output_port_name(int p_port) const override;
 
-    String generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const String *p_input_vars, const String *p_output_vars, bool p_for_preview = false) const override; //if no output is connected, the output var passed will be empty. if no input is connected and input is NIL, the input var passed will be empty
+    se_string generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const se_string *p_input_vars, const se_string *p_output_vars, bool p_for_preview = false) const override; //if no output is connected, the output var passed will be empty. if no input is connected and input is NIL, the input var passed will be empty
 
     VisualShaderNodeVectorDecompose();
 };
@@ -1292,17 +1292,17 @@ class VisualShaderNodeTransformDecompose : public VisualShaderNode {
 
 
 public:
-    String get_caption() const override;
+    se_string_view get_caption() const override;
 
     int get_input_port_count() const override;
     PortType get_input_port_type(int p_port) const override;
-    String get_input_port_name(int p_port) const override;
+    StringName get_input_port_name(int p_port) const override;
 
     int get_output_port_count() const override;
     PortType get_output_port_type(int p_port) const override;
-    String get_output_port_name(int p_port) const override;
+    StringName get_output_port_name(int p_port) const override;
 
-    String generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const String *p_input_vars, const String *p_output_vars, bool p_for_preview = false) const override; //if no output is connected, the output var passed will be empty. if no input is connected and input is NIL, the input var passed will be empty
+    se_string generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const se_string *p_input_vars, const se_string *p_output_vars, bool p_for_preview = false) const override; //if no output is connected, the output var passed will be empty. if no input is connected and input is NIL, the input var passed will be empty
 
     VisualShaderNodeTransformDecompose();
 };
@@ -1316,18 +1316,18 @@ class VisualShaderNodeScalarUniform : public VisualShaderNodeUniform {
 
 
 public:
-    String get_caption() const override;
+    se_string_view get_caption() const override;
 
     int get_input_port_count() const override;
     PortType get_input_port_type(int p_port) const override;
-    String get_input_port_name(int p_port) const override;
+    StringName get_input_port_name(int p_port) const override;
 
     int get_output_port_count() const override;
     PortType get_output_port_type(int p_port) const override;
-    String get_output_port_name(int p_port) const override;
+    StringName get_output_port_name(int p_port) const override;
 
-    String generate_global(ShaderMode p_mode, VisualShader::Type p_type, int p_id) const override;
-    String generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const String *p_input_vars, const String *p_output_vars, bool p_for_preview = false) const override; //if no output is connected, the output var passed will be empty. if no input is connected and input is NIL, the input var passed will be empty
+    se_string generate_global(ShaderMode p_mode, VisualShader::Type p_type, int p_id) const override;
+    se_string generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const se_string *p_input_vars, const se_string *p_output_vars, bool p_for_preview = false) const override; //if no output is connected, the output var passed will be empty. if no input is connected and input is NIL, the input var passed will be empty
 
     VisualShaderNodeScalarUniform();
 };
@@ -1339,18 +1339,18 @@ class VisualShaderNodeBooleanUniform : public VisualShaderNodeUniform {
 
 
 public:
-    String get_caption() const override;
+    se_string_view get_caption() const override;
 
     int get_input_port_count() const override;
     PortType get_input_port_type(int p_port) const override;
-    String get_input_port_name(int p_port) const override;
+    StringName get_input_port_name(int p_port) const override;
 
     int get_output_port_count() const override;
     PortType get_output_port_type(int p_port) const override;
-    String get_output_port_name(int p_port) const override;
+    StringName get_output_port_name(int p_port) const override;
 
-    String generate_global(ShaderMode p_mode, VisualShader::Type p_type, int p_id) const override;
-    String generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const String *p_input_vars, const String *p_output_vars, bool p_for_preview = false) const override; //if no output is connected, the output var passed will be empty. if no input is connected and input is NIL, the input var passed will be empty
+    se_string generate_global(ShaderMode p_mode, VisualShader::Type p_type, int p_id) const override;
+    se_string generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const se_string *p_input_vars, const se_string *p_output_vars, bool p_for_preview = false) const override; //if no output is connected, the output var passed will be empty. if no input is connected and input is NIL, the input var passed will be empty
 
     VisualShaderNodeBooleanUniform();
 };
@@ -1362,18 +1362,18 @@ class VisualShaderNodeColorUniform : public VisualShaderNodeUniform {
 
 
 public:
-    String get_caption() const override;
+    se_string_view get_caption() const override;
 
     int get_input_port_count() const override;
     PortType get_input_port_type(int p_port) const override;
-    String get_input_port_name(int p_port) const override;
+    StringName get_input_port_name(int p_port) const override;
 
     int get_output_port_count() const override;
     PortType get_output_port_type(int p_port) const override;
-    String get_output_port_name(int p_port) const override;
+    StringName get_output_port_name(int p_port) const override;
 
-    String generate_global(ShaderMode p_mode, VisualShader::Type p_type, int p_id) const override;
-    String generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const String *p_input_vars, const String *p_output_vars, bool p_for_preview = false) const override; //if no output is connected, the output var passed will be empty. if no input is connected and input is NIL, the input var passed will be empty
+    se_string generate_global(ShaderMode p_mode, VisualShader::Type p_type, int p_id) const override;
+    se_string generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const se_string *p_input_vars, const se_string *p_output_vars, bool p_for_preview = false) const override; //if no output is connected, the output var passed will be empty. if no input is connected and input is NIL, the input var passed will be empty
 
     VisualShaderNodeColorUniform();
 };
@@ -1385,18 +1385,18 @@ class VisualShaderNodeVec3Uniform : public VisualShaderNodeUniform {
 
 
 public:
-    String get_caption() const override;
+    se_string_view get_caption() const override;
 
     int get_input_port_count() const override;
     PortType get_input_port_type(int p_port) const override;
-    String get_input_port_name(int p_port) const override;
+    StringName get_input_port_name(int p_port) const override;
 
     int get_output_port_count() const override;
     PortType get_output_port_type(int p_port) const override;
-    String get_output_port_name(int p_port) const override;
+    StringName get_output_port_name(int p_port) const override;
 
-    String generate_global(ShaderMode p_mode, VisualShader::Type p_type, int p_id) const override;
-    String generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const String *p_input_vars, const String *p_output_vars, bool p_for_preview = false) const override; //if no output is connected, the output var passed will be empty. if no input is connected and input is NIL, the input var passed will be empty
+    se_string generate_global(ShaderMode p_mode, VisualShader::Type p_type, int p_id) const override;
+    se_string generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const se_string *p_input_vars, const se_string *p_output_vars, bool p_for_preview = false) const override; //if no output is connected, the output var passed will be empty. if no input is connected and input is NIL, the input var passed will be empty
 
     VisualShaderNodeVec3Uniform();
 };
@@ -1408,18 +1408,18 @@ class VisualShaderNodeTransformUniform : public VisualShaderNodeUniform {
 
 
 public:
-    String get_caption() const override;
+    se_string_view get_caption() const override;
 
     int get_input_port_count() const override;
     PortType get_input_port_type(int p_port) const override;
-    String get_input_port_name(int p_port) const override;
+    StringName get_input_port_name(int p_port) const override;
 
     int get_output_port_count() const override;
     PortType get_output_port_type(int p_port) const override;
-    String get_output_port_name(int p_port) const override;
+    StringName get_output_port_name(int p_port) const override;
 
-    String generate_global(ShaderMode p_mode, VisualShader::Type p_type, int p_id) const override;
-    String generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const String *p_input_vars, const String *p_output_vars, bool p_for_preview = false) const override; //if no output is connected, the output var passed will be empty. if no input is connected and input is NIL, the input var passed will be empty
+    se_string generate_global(ShaderMode p_mode, VisualShader::Type p_type, int p_id) const override;
+    se_string generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const se_string *p_input_vars, const se_string *p_output_vars, bool p_for_preview = false) const override; //if no output is connected, the output var passed will be empty. if no input is connected and input is NIL, the input var passed will be empty
 
     VisualShaderNodeTransformUniform();
 };
@@ -1451,19 +1451,19 @@ protected:
     static void _bind_methods();
 
 public:
-    String get_caption() const override;
+    se_string_view get_caption() const override;
 
     int get_input_port_count() const override;
     PortType get_input_port_type(int p_port) const override;
-    String get_input_port_name(int p_port) const override;
-    String get_input_port_default_hint(int p_port) const override;
+    StringName get_input_port_name(int p_port) const override;
+    StringName get_input_port_default_hint(int p_port) const override;
 
     int get_output_port_count() const override;
     PortType get_output_port_type(int p_port) const override;
-    String get_output_port_name(int p_port) const override;
+    StringName get_output_port_name(int p_port) const override;
 
-    String generate_global(ShaderMode p_mode, VisualShader::Type p_type, int p_id) const override;
-    String generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const String *p_input_vars, const String *p_output_vars, bool p_for_preview = false) const override; //if no output is connected, the output var passed will be empty. if no input is connected and input is NIL, the input var passed will be empty
+    se_string generate_global(ShaderMode p_mode, VisualShader::Type p_type, int p_id) const override;
+    se_string generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const se_string *p_input_vars, const se_string *p_output_vars, bool p_for_preview = false) const override; //if no output is connected, the output var passed will be empty. if no input is connected and input is NIL, the input var passed will be empty
 
     Vector<StringName> get_editable_properties() const override;
 
@@ -1484,17 +1484,17 @@ class VisualShaderNodeTextureUniformTriplanar : public VisualShaderNodeTextureUn
 
 
 public:
-    String get_caption() const override;
+    se_string_view get_caption() const override;
 
     int get_input_port_count() const override;
     PortType get_input_port_type(int p_port) const override;
-    String get_input_port_name(int p_port) const override;
+    StringName get_input_port_name(int p_port) const override;
 
-    String get_input_port_default_hint(int p_port) const override;
+    StringName get_input_port_default_hint(int p_port) const override;
 
-    String generate_global_per_node(ShaderMode p_mode, VisualShader::Type p_type, int p_id) const override;
-    String generate_global_per_func(ShaderMode p_mode, VisualShader::Type p_type, int p_id) const override;
-    String generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const String *p_input_vars, const String *p_output_vars, bool p_for_preview = false) const override; //if no output is connected, the output var passed will be empty. if no input is connected and input is NIL, the input var passed will be empty
+    se_string generate_global_per_node(ShaderMode p_mode, VisualShader::Type p_type, int p_id) const override;
+    se_string generate_global_per_func(ShaderMode p_mode, VisualShader::Type p_type, int p_id) const override;
+    se_string generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const se_string *p_input_vars, const se_string *p_output_vars, bool p_for_preview = false) const override; //if no output is connected, the output var passed will be empty. if no input is connected and input is NIL, the input var passed will be empty
 
     VisualShaderNodeTextureUniformTriplanar();
 };
@@ -1506,19 +1506,19 @@ class VisualShaderNodeCubeMapUniform : public VisualShaderNodeTextureUniform {
 
 
 public:
-    String get_caption() const override;
+    se_string_view get_caption() const override;
 
     int get_input_port_count() const override;
     PortType get_input_port_type(int p_port) const override;
-    String get_input_port_name(int p_port) const override;
+    StringName get_input_port_name(int p_port) const override;
 
     int get_output_port_count() const override;
     PortType get_output_port_type(int p_port) const override;
-    String get_output_port_name(int p_port) const override;
+    StringName get_output_port_name(int p_port) const override;
 
-    String get_input_port_default_hint(int p_port) const override;
-    String generate_global(ShaderMode p_mode, VisualShader::Type p_type, int p_id) const override;
-    String generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const String *p_input_vars, const String *p_output_vars, bool p_for_preview = false) const override; //if no output is connected, the output var passed will be empty. if no input is connected and input is NIL, the input var passed will be empty
+    StringName get_input_port_default_hint(int p_port) const override;
+    se_string generate_global(ShaderMode p_mode, VisualShader::Type p_type, int p_id) const override;
+    se_string generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const se_string *p_input_vars, const se_string *p_output_vars, bool p_for_preview = false) const override; //if no output is connected, the output var passed will be empty. if no input is connected and input is NIL, the input var passed will be empty
 
     VisualShaderNodeCubeMapUniform();
 };
@@ -1532,17 +1532,17 @@ class VisualShaderNodeIf : public VisualShaderNode {
 
 
 public:
-    String get_caption() const override;
+    se_string_view get_caption() const override;
 
     int get_input_port_count() const override;
     PortType get_input_port_type(int p_port) const override;
-    String get_input_port_name(int p_port) const override;
+    StringName get_input_port_name(int p_port) const override;
 
     int get_output_port_count() const override;
     PortType get_output_port_type(int p_port) const override;
-    String get_output_port_name(int p_port) const override;
+    StringName get_output_port_name(int p_port) const override;
 
-    String generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const String *p_input_vars, const String *p_output_vars, bool p_for_preview = false) const override;
+    se_string generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const se_string *p_input_vars, const se_string *p_output_vars, bool p_for_preview = false) const override;
 
     VisualShaderNodeIf();
 };
@@ -1556,17 +1556,17 @@ class VisualShaderNodeSwitch : public VisualShaderNode {
 
 
 public:
-    String get_caption() const override;
+    se_string_view get_caption() const override;
 
     int get_input_port_count() const override;
     PortType get_input_port_type(int p_port) const override;
-    String get_input_port_name(int p_port) const override;
+    StringName get_input_port_name(int p_port) const override;
 
     int get_output_port_count() const override;
     PortType get_output_port_type(int p_port) const override;
-    String get_output_port_name(int p_port) const override;
+    StringName get_output_port_name(int p_port) const override;
 
-    String generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const String *p_input_vars, const String *p_output_vars, bool p_for_preview = false) const override;
+    se_string generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const se_string *p_input_vars, const se_string *p_output_vars, bool p_for_preview = false) const override;
 
     VisualShaderNodeSwitch();
 };
@@ -1575,7 +1575,7 @@ class VisualShaderNodeScalarSwitch : public VisualShaderNodeSwitch {
     GDCLASS(VisualShaderNodeScalarSwitch, VisualShaderNodeSwitch);
 
 public:
-    String get_caption() const override;
+    se_string_view get_caption() const override;
 
     PortType get_input_port_type(int p_port) const override;
     PortType get_output_port_type(int p_port) const override;
@@ -1591,17 +1591,17 @@ class VisualShaderNodeFresnel : public VisualShaderNode {
 
 
 public:
-    String get_caption() const override;
+    se_string_view get_caption() const override;
 
     int get_input_port_count() const override;
     PortType get_input_port_type(int p_port) const override;
-    String get_input_port_name(int p_port) const override;
+    StringName get_input_port_name(int p_port) const override;
 
     int get_output_port_count() const override;
     PortType get_output_port_type(int p_port) const override;
-    String get_output_port_name(int p_port) const override;
+    StringName get_output_port_name(int p_port) const override;
 
-    String generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const String *p_input_vars, const String *p_output_vars, bool p_for_preview = false) const override;
+    se_string generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const se_string *p_input_vars, const se_string *p_output_vars, bool p_for_preview = false) const override;
 
     VisualShaderNodeFresnel();
 };
@@ -1627,17 +1627,17 @@ protected:
     static void _bind_methods();
 
 public:
-    String get_caption() const override;
+    se_string_view get_caption() const override;
 
     int get_input_port_count() const override;
     PortType get_input_port_type(int p_port) const override;
-    String get_input_port_name(int p_port) const override;
+    StringName get_input_port_name(int p_port) const override;
 
     int get_output_port_count() const override;
     PortType get_output_port_type(int p_port) const override;
-    String get_output_port_name(int p_port) const override;
+    StringName get_output_port_name(int p_port) const override;
 
-    String generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const String *p_input_vars, const String *p_output_vars, bool p_for_preview = false) const override; //if no output is connected, the output var passed will be empty. if no input is connected and input is NIL, the input var passed will be empty
+    se_string generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const se_string *p_input_vars, const se_string *p_output_vars, bool p_for_preview = false) const override; //if no output is connected, the output var passed will be empty. if no input is connected and input is NIL, the input var passed will be empty
 
     void set_function(Function p_func);
     Function get_function() const;
@@ -1686,17 +1686,17 @@ protected:
     static void _bind_methods();
 
 public:
-    String get_caption() const override;
+    se_string_view get_caption() const override;
 
     int get_input_port_count() const override;
     PortType get_input_port_type(int p_port) const override;
-    String get_input_port_name(int p_port) const override;
+    StringName get_input_port_name(int p_port) const override;
 
     int get_output_port_count() const override;
     PortType get_output_port_type(int p_port) const override;
-    String get_output_port_name(int p_port) const override;
+    StringName get_output_port_name(int p_port) const override;
 
-    String generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const String *p_input_vars, const String *p_output_vars, bool p_for_preview = false) const override; //if no output is connected, the output var passed will be empty. if no input is connected and input is NIL, the input var passed will be empty
+    se_string generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const se_string *p_input_vars, const se_string *p_output_vars, bool p_for_preview = false) const override; //if no output is connected, the output var passed will be empty. if no input is connected and input is NIL, the input var passed will be empty
 
     void set_comparsion_type(ComparsionType p_type);
     ComparsionType get_comparsion_type() const;
@@ -1708,7 +1708,7 @@ public:
     Condition get_condition() const;
 
     Vector<StringName> get_editable_properties() const override;
-    String get_warning(ShaderMode p_mode, VisualShader::Type p_type) const override;
+    StringName get_warning(ShaderMode p_mode, VisualShader::Type p_type) const override;
 
     VisualShaderNodeCompare();
 };

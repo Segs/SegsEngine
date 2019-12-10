@@ -81,31 +81,25 @@ lsp::TextDocumentItem GDScriptTextDocument::load_document_item(const Variant &p_
 
 void GDScriptTextDocument::notify_client_show_symbol(const lsp::DocumentSymbol *symbol) {
     ERR_FAIL_NULL(symbol);
-    GDScriptLanguageProtocol::get_singleton()->notify_client("gdscript/show_native_symbol", symbol->to_json(true));
+    GDScriptLanguageProtocol::get_singleton()->notify_client(("gdscript/show_native_symbol"), symbol->to_json(true));
 }
 void GDScriptTextDocument::initialize() {
 
     if (GDScriptLanguageProtocol::get_singleton()->is_smart_resolve_enabled()) {
 
-        const HashMap<StringName, ClassMembers> &native_members = GDScriptLanguageProtocol::get_singleton()->get_workspace()->native_members;
+        const DefHashMap<StringName, ClassMembers> &native_members = GDScriptLanguageProtocol::get_singleton()->get_workspace()->native_members;
 
-        const StringName *class_ptr = native_members.next(nullptr);
-        while (class_ptr) {
+        for(const auto & class_p : native_members) {
 
-            const ClassMembers &members = native_members.get(*class_ptr);
+            const ClassMembers &members = class_p.second;
 
-            const String *name = members.next(nullptr);
-            while (name) {
+            for(const auto &e : members) {
 
-                const lsp::DocumentSymbol *symbol = members.get(*name);
+                const lsp::DocumentSymbol *symbol = e.second;
                 lsp::CompletionItem item = symbol->make_completion_item();
-                item.data = JOIN_SYMBOLS(String(*class_ptr), *name);
+                item.data = JOIN_SYMBOLS(se_string(class_p.first), e.first);
                 native_member_completions.push_back(item.to_json());
-
-                name = members.next(name);
             }
-
-            class_ptr = native_members.next(class_ptr);
         }
     }
 }
@@ -126,11 +120,11 @@ Variant GDScriptTextDocument::nativeSymbol(const Dictionary &p_params) {
 }
 Array GDScriptTextDocument::documentSymbol(const Dictionary &p_params) {
     Dictionary params = p_params["textDocument"];
-    String uri = params["uri"];
-    String path = GDScriptLanguageProtocol::get_singleton()->get_workspace()->get_file_path(uri);
+    se_string uri = params["uri"].as<se_string>();
+    se_string path = GDScriptLanguageProtocol::get_singleton()->get_workspace()->get_file_path(uri);
     Array arr;
     const auto &scripts(GDScriptLanguageProtocol::get_singleton()->get_workspace()->scripts);
-    const auto parser = scripts.find(path);
+    const auto parser = scripts.find_as(path);
     if (parser!=scripts.end()) {
         Vector<lsp::DocumentedSymbolInformation> list;
         parser->second->get_symbols().symbol_tree_as_list(uri, list);
@@ -236,28 +230,29 @@ Dictionary GDScriptTextDocument::resolve(const Dictionary &p_params) {
 
     } else if (data.get_type() == VariantType::STRING) {
 
-        String query = data;
+        se_string query = data;
 
-        Vector<String> param_symbols = StringUtils::split(query,SYMBOL_SEPERATOR, false);
+        Vector<se_string_view> param_symbols = StringUtils::split(query,(SYMBOL_SEPERATOR), false);
 
         if (param_symbols.size() >= 2) {
 
-            String class_ = param_symbols[0];
+            se_string_view class_ = param_symbols[0];
             StringName class_name = StringName(class_);
-            String member_name = param_symbols[param_symbols.size() - 1];
-            String inner_class_name;
+            se_string_view member_name = param_symbols[param_symbols.size() - 1];
+            se_string_view inner_class_name;
             if (param_symbols.size() >= 3) {
                 inner_class_name = param_symbols[1];
             }
-
-            if (const ClassMembers *members = ws->native_members.getptr(class_name)) {
-                if (const lsp::DocumentSymbol *const *member = members->getptr(member_name)) {
-                    symbol = *member;
+            const auto members = ws->native_members.find_as(se_string_view(class_name));
+            if (members == ws->native_members.end()) {
+                const auto member = members->second.find_as(se_string_view(member_name));
+                if (member!=members->second.end()) {
+                    symbol = member->second;
                 }
             }
 
             if (!symbol) {
-                const auto E = ws->scripts.find(class_name);
+                const auto E = ws->scripts.find_as(class_name);
                 if (E!=ws->scripts.end()) {
                     symbol = E->second->get_member_symbol(member_name, inner_class_name);
                 }
@@ -269,14 +264,15 @@ Dictionary GDScriptTextDocument::resolve(const Dictionary &p_params) {
         item.documentation = symbol->render();
     }
 
-    if ((item.kind == lsp::CompletionItemKind::Method || item.kind == lsp::CompletionItemKind::Function) && !StringUtils::ends_with(item.label,"):")) {
+    if ((item.kind == lsp::CompletionItemKind::Method || item.kind == lsp::CompletionItemKind::Function) &&
+            !StringUtils::ends_with(item.label, "):")) {
         item.insertText = item.label + "(";
-        if (symbol && StringUtils::find(symbol->detail,",") == -1) {
-            item.insertText += ")";
+        if (symbol && not StringUtils::contains(symbol->detail,",")) {
+            item.insertText += ')';
         }
     } else if (item.kind == lsp::CompletionItemKind::Event) {
         if (params.context.triggerKind == lsp::CompletionTriggerKind::TriggerCharacter && (params.context.triggerCharacter == "(")) {
-            const String quote_style = EDITOR_DEF("text_editor/completion/use_single_quotes", false) ? "'" : "\"";
+            const char * quote_style(EDITOR_DEF(("text_editor/completion/use_single_quotes"), false) ? "'" : "\"");
             item.insertText = quote_style + item.label + quote_style;
         }
     }
@@ -357,12 +353,12 @@ Array GDScriptTextDocument::definition(const Dictionary &p_params) {
         location.uri = symbol->uri;
         location.range = symbol->range;
 
-        const String &path = GDScriptLanguageProtocol::get_singleton()->get_workspace()->get_file_path(symbol->uri);
+        const se_string &path = GDScriptLanguageProtocol::get_singleton()->get_workspace()->get_file_path(symbol->uri);
         if (file_checker->file_exists(path)) {
             arr.push_back(location.to_json());
         } else if (!symbol->native_class.empty()) {
             if (GDScriptLanguageProtocol::get_singleton()->is_goto_native_symbols_enabled()) {
-            String id;
+            se_string id;
             switch (symbol->kind) {
                 case lsp::SymbolKind::Class:
                     id = "class_name:" + symbol->name;
@@ -418,12 +414,13 @@ GDScriptTextDocument::~GDScriptTextDocument() {
     memdelete(file_checker);
 }
 
-void GDScriptTextDocument::sync_script_content(const String &p_path, const String &p_content) {
-    String path = GDScriptLanguageProtocol::get_singleton()->get_workspace()->get_file_path(p_path);
-    GDScriptLanguageProtocol::get_singleton()->get_workspace()->parse_script(path, p_content);
+void GDScriptTextDocument::sync_script_content(se_string_view p_path, se_string_view p_content) {
+    auto wp = GDScriptLanguageProtocol::get_singleton()->get_workspace();
+    se_string path = wp->get_file_path(p_path);
+    wp->parse_script(path, p_content);
 }
 
-void GDScriptTextDocument::show_native_symbol_in_editor(const String &p_symbol_id) {
+void GDScriptTextDocument::show_native_symbol_in_editor(se_string_view p_symbol_id) {
     ScriptEditor::get_singleton()->call_deferred("_help_class_goto", p_symbol_id);
     OS::get_singleton()->move_window_to_foreground();
 }

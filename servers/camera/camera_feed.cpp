@@ -103,12 +103,12 @@ void CameraFeed::set_active(bool p_is_active) {
     }
 }
 
-String CameraFeed::get_name() const {
+se_string CameraFeed::get_name() const {
     return name;
 }
 
-void CameraFeed::set_name(String p_name) {
-    name = std::move(p_name);
+void CameraFeed::set_name(se_string_view p_name) {
+    name = p_name;
 }
 
 int CameraFeed::get_base_width() const {
@@ -158,12 +158,12 @@ CameraFeed::CameraFeed() {
     texture[CameraServer::FEED_CBCR_IMAGE] = vs->texture_create();
 }
 
-CameraFeed::CameraFeed(String p_name, FeedPosition p_position) {
+CameraFeed::CameraFeed(se_string_view p_name, FeedPosition p_position) {
     // initialize our feed
     id = CameraServer::get_singleton()->get_free_id();
     base_width = 0;
     base_height = 0;
-    name = std::move(p_name);
+    name = p_name;
     active = false;
     datatype = CameraFeed::FEED_NOIMAGE;
     position = p_position;

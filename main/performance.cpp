@@ -93,9 +93,9 @@ float Performance::_get_node_count() const {
         return 0;
     return sml->get_node_count();
 }
-String Performance::get_monitor_name(Monitor p_monitor) const {
+se_string_view Performance::get_monitor_name(Monitor p_monitor) const {
 
-    ERR_FAIL_INDEX_V(p_monitor, MONITOR_MAX, String());
+    ERR_FAIL_INDEX_V(p_monitor, MONITOR_MAX, {});
     static const char *names[MONITOR_MAX] = {
 
         "time/fps",

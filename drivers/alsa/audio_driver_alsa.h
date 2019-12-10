@@ -43,8 +43,8 @@ class GODOT_EXPORT AudioDriverALSA : public AudioDriver {
 
     snd_pcm_t *pcm_handle=nullptr;
 
-    String device_name;
-    String new_device;
+    se_string device_name;
+    se_string new_device;
 
     Vector<int32_t> samples_in;
     Vector<int16_t> samples_out;
@@ -76,8 +76,8 @@ public:
     int get_mix_rate() const override;
     SpeakerMode get_speaker_mode() const override;
     Array get_device_list() override;
-    String get_device() override;
-    void set_device(const String &device) override;
+    se_string_view get_device() override;
+    void set_device(se_string_view device) override;
     void lock() override;
     void unlock() override;
     void finish() override;

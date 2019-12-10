@@ -183,12 +183,12 @@ bool TouchScreenButton::is_pressed() const {
     return finger_pressed != -1;
 }
 
-void TouchScreenButton::set_action(const String &p_action) {
+void TouchScreenButton::set_action(const StringName &p_action) {
 
     action = p_action;
 }
 
-String TouchScreenButton::get_action() const {
+StringName TouchScreenButton::get_action() const {
 
     return action;
 }

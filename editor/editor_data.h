@@ -48,7 +48,7 @@ class EditorHistory {
 
         REF ref;
         ObjectID object;
-        String property;
+        se_string property;
         bool inspector_only;
     };
 
@@ -70,7 +70,7 @@ class EditorHistory {
         Variant value;
     };
 
-    void _add_object(ObjectID p_object, const String &p_property, int p_level_change, bool p_inspector_only = false);
+    void _add_object(ObjectID p_object, se_string_view p_property, int p_level_change, bool p_inspector_only = false);
 
 public:
     void cleanup_history();
@@ -80,7 +80,7 @@ public:
 
     void add_object_inspector_only(ObjectID p_object);
     void add_object(ObjectID p_object);
-    void add_object(ObjectID p_object, const String &p_subprop);
+    void add_object(ObjectID p_object, se_string_view p_subprop);
     void add_object(ObjectID p_object, int p_relevel);
 
     int get_history_len();
@@ -95,7 +95,7 @@ public:
 
     int get_path_size() const;
     ObjectID get_path_object(int p_index) const;
-    String get_path_property(int p_index) const;
+    se_string get_path_property(int p_index) const;
 
     void clear();
 
@@ -109,14 +109,14 @@ class EditorData {
 public:
     struct CustomType {
 
-        String name;
+        StringName name;
         Ref<Script> script;
         Ref<Texture> icon;
     };
 
     struct EditedScene {
         Node *root;
-        String path;
+        se_string path;
         Dictionary editor_states;
         List<Node *> selection;
         Vector<EditorHistory::History> history_stored;
@@ -131,10 +131,10 @@ private:
 
     struct PropertyData {
 
-        String name;
+        StringName name;
         Variant value;
     };
-    Map<String, Vector<CustomType> > custom_types;
+    Map<StringName, Vector<CustomType> > custom_types;
 
     List<PropertyData> clipboard;
     UndoRedo undo_redo;
@@ -144,16 +144,16 @@ private:
     Vector<EditedScene> edited_scene;
     int current_edited_scene;
 
-    bool _find_updated_instances(Node *p_root, Node *p_node, Set<String> &checked_paths);
+    bool _find_updated_instances(Node *p_root, Node *p_node, Set<se_string> &checked_paths);
 
-    HashMap<StringName, String> _script_class_icon_paths;
-    HashMap<String, StringName> _script_class_file_to_path;
+    DefHashMap<StringName, se_string> _script_class_icon_paths;
+    DefHashMap<se_string, StringName> _script_class_file_to_path;
 
 public:
     EditorPlugin *get_editor(Object *p_object);
     EditorPlugin *get_subeditor(Object *p_object);
     Vector<EditorPlugin *> get_subeditors(Object *p_object);
-    EditorPlugin *get_editor(const String& p_name);
+    EditorPlugin *get_editor(se_string_view p_name);
 
     void copy_object_params(Object *p_object);
     void paste_object_params(Object *p_object);
@@ -161,7 +161,7 @@ public:
     Dictionary get_editor_states() const;
     Dictionary get_scene_editor_states(int p_idx) const;
     void set_editor_states(const Dictionary &p_states);
-    void get_editor_breakpoints(List<String> *p_breakpoints);
+    void get_editor_breakpoints(List<se_string> *p_breakpoints);
     void clear_editor_states();
     void save_editor_external_data();
     void apply_changes_in_editors();
@@ -177,10 +177,10 @@ public:
     void save_editor_global_states();
     void restore_editor_global_states();
 
-    void add_custom_type(const String &p_type, const String &p_inherits, const Ref<Script> &p_script, const Ref<Texture> &p_icon);
-    Object *instance_custom_type(const String &p_type, const String &p_inherits);
-    void remove_custom_type(const String &p_type);
-    const Map<String, Vector<CustomType> > &get_custom_types() const { return custom_types; }
+    void add_custom_type(const StringName &p_type, const StringName &p_inherits, const Ref<Script> &p_script, const Ref<Texture> &p_icon);
+    Object *instance_custom_type(const StringName &p_type, const StringName &p_inherits);
+    void remove_custom_type(const StringName &p_type);
+    const Map<StringName, Vector<CustomType> > &get_custom_types() const { return custom_types; }
 
     int add_edited_scene(int p_at_pos);
     void move_edited_scene_index(int p_idx, int p_to_idx);
@@ -191,10 +191,10 @@ public:
     Node *get_edited_scene_root(int p_idx = -1);
     int get_edited_scene_count() const;
     Vector<EditedScene> get_edited_scenes() const;
-    String get_scene_title(int p_idx) const;
-    String get_scene_path(int p_idx) const;
+    StringName get_scene_title(int p_idx) const;
+    se_string get_scene_path(int p_idx) const;
     String get_scene_type(int p_idx) const;
-    void set_scene_path(int p_idx, const String &p_path);
+    void set_scene_path(int p_idx, se_string_view p_path);
     Ref<Script> get_scene_root_script(int p_idx) const;
     void set_edited_scene_version(uint64_t version, int p_scene_idx = -1);
     uint64_t get_edited_scene_version() const;
@@ -214,15 +214,15 @@ public:
     void notify_edited_scene_changed();
     void notify_resource_saved(const Ref<Resource> &p_resource);
 
-    bool script_class_is_parent(const String &p_class, const String &p_inherits);
-    StringName script_class_get_base(const String &p_class) const;
-    Object *script_class_instance(const String &p_class);
+    bool script_class_is_parent(const StringName &p_class, const StringName &p_inherits);
+    StringName script_class_get_base(const StringName &p_class) const;
+    Object *script_class_instance(const StringName &p_class);
 
-    StringName script_class_get_name(const String &p_path) const;
-    void script_class_set_name(const String &p_path, const StringName &p_class);
+    StringName script_class_get_name(se_string_view p_path) const;
+    void script_class_set_name(se_string_view p_path, const StringName &p_class);
 
-    String script_class_get_icon_path(const String &p_class) const;
-    void script_class_set_icon_path(const String &p_class, const String &p_icon_path);
+    se_string script_class_get_icon_path(const StringName &p_class) const;
+    void script_class_set_icon_path(const StringName &p_class, se_string_view p_icon_path);
     void script_class_clear_icon_paths() { _script_class_icon_paths.clear(); }
     void script_class_save_icon_paths();
     void script_class_load_icon_paths();

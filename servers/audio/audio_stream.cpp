@@ -124,12 +124,12 @@ Ref<AudioStreamPlayback> AudioStreamMicrophone::instance_playback() {
     return playback;
 }
 
-String AudioStreamMicrophone::get_stream_name() const {
+se_string AudioStreamMicrophone::get_stream_name() const {
 
     //if (audio_stream.is_valid()) {
     //return "Random: " + audio_stream->get_name();
     //}
-    return "Microphone";
+    return ("Microphone");
 }
 
 float AudioStreamMicrophone::get_length() const {
@@ -180,7 +180,7 @@ void AudioStreamPlaybackMicrophone::_mix_internal(AudioFrame *p_buffer, int p_fr
 
 #ifdef DEBUG_ENABLED
     if (capture_ofs > capture_position && (int)(capture_ofs - capture_position) < (p_frames * 2)) {
-        print_verbose(String(get_class_name()) + " buffer underrun: capture_position=" + itos(capture_position) + " capture_ofs=" + itos(capture_ofs) + " capture_size=" + itos(capture_size));
+        print_verbose(se_string(get_class_name()) + " buffer underrun: capture_position=" + itos(capture_position) + " capture_ofs=" + itos(capture_ofs) + " capture_size=" + itos(capture_size));
     }
 #endif
 
@@ -202,7 +202,7 @@ void AudioStreamPlaybackMicrophone::start(float p_from_pos) {
     }
 
     if (!GLOBAL_GET("audio/enable_audio_input")) {
-        WARN_PRINTS("Need to enable Project settings > Audio > Enable Audio Input option to use capturing.");
+        WARN_PRINT("Need to enable Project settings > Audio > Enable Audio Input option to use capturing.")
         return;
     }
 
@@ -283,7 +283,7 @@ Ref<AudioStreamPlayback> AudioStreamRandomPitch::instance_playback() {
     return playback;
 }
 
-String AudioStreamRandomPitch::get_stream_name() const {
+se_string AudioStreamRandomPitch::get_stream_name() const {
 
     if (audio_stream) {
         return "Random: " + audio_stream->get_name();

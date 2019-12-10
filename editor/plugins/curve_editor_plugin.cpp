@@ -146,7 +146,7 @@ void CurveEditor::on_gui_input(const Ref<InputEvent> &p_event) {
 
                 UndoRedo &ur = *EditorNode::get_singleton()->get_undo_redo();
 
-                ur.create_action(_selected_tangent == TANGENT_NONE ? TTR("Modify Curve Point") : TTR("Modify Curve Tangent"));
+                ur.create_action_ui(_selected_tangent == TANGENT_NONE ? TTR("Modify Curve Point") : TTR("Modify Curve Tangent"));
                 ur.add_do_method(_curve_ref.get(), "_set_data", _curve_ref->get_data());
                 ur.add_undo_method(_curve_ref.get(), "_set_data", _undo_data);
                 // Note: this will trigger one more "changed" signal even if nothing changes,
@@ -304,7 +304,7 @@ void CurveEditor::on_preset_item_selected(int preset_id) {
     }
 
     UndoRedo &ur = *EditorNode::get_singleton()->get_undo_redo();
-    ur.create_action(TTR("Load Curve Preset"));
+    ur.create_action_ui(TTR("Load Curve Preset"));
 
     ur.add_do_method(&curve, "_set_data", curve.get_data());
     ur.add_undo_method(&curve, "_set_data", previous_data);
@@ -434,7 +434,7 @@ void CurveEditor::add_point(Vector2 pos) {
     ERR_FAIL_COND(not _curve_ref)
 
     UndoRedo &ur = *EditorNode::get_singleton()->get_undo_redo();
-    ur.create_action(TTR("Remove Curve Point"));
+    ur.create_action_ui(TTR("Remove Curve Point"));
 
     Vector2 point_pos = get_world_pos(pos);
     if (point_pos.y < 0.0)
@@ -456,7 +456,7 @@ void CurveEditor::remove_point(int index) {
     ERR_FAIL_COND(not _curve_ref)
 
     UndoRedo &ur = *EditorNode::get_singleton()->get_undo_redo();
-    ur.create_action(TTR("Remove Curve Point"));
+    ur.create_action_ui(TTR("Remove Curve Point"));
 
     Curve::Point p = _curve_ref->get_point(index);
 
@@ -476,7 +476,7 @@ void CurveEditor::toggle_linear(TangentIndex tangent) {
     ERR_FAIL_COND(not _curve_ref)
 
     UndoRedo &ur = *EditorNode::get_singleton()->get_undo_redo();
-    ur.create_action(TTR("Toggle Curve Linear Tangent"));
+    ur.create_action_ui(TTR("Toggle Curve Linear Tangent"));
 
     if (tangent == TANGENT_NONE)
         tangent = _selected_tangent;
@@ -669,11 +669,11 @@ void CurveEditor::_draw() {
         // X axis
         float y = curve.get_min_value();
         Vector2 off(0, font_height - 1);
-        draw_string(font, get_view_pos(Vector2(0, y)) + off, "0.0", text_color);
-        draw_string(font, get_view_pos(Vector2(0.25f, y)) + off, "0.25", text_color);
-        draw_string(font, get_view_pos(Vector2(0.5f, y)) + off, "0.5", text_color);
-        draw_string(font, get_view_pos(Vector2(0.75f, y)) + off, "0.75", text_color);
-        draw_string(font, get_view_pos(Vector2(1, y)) + off, "1.0", text_color);
+        draw_string_utf8(font, get_view_pos(Vector2(0, y)) + off, "0.0", text_color);
+        draw_string_utf8(font, get_view_pos(Vector2(0.25f, y)) + off, "0.25", text_color);
+        draw_string_utf8(font, get_view_pos(Vector2(0.5f, y)) + off, "0.5", text_color);
+        draw_string_utf8(font, get_view_pos(Vector2(0.75f, y)) + off, "0.75", text_color);
+        draw_string_utf8(font, get_view_pos(Vector2(1, y)) + off, "1.0", text_color);
     }
 
     {
@@ -682,9 +682,9 @@ void CurveEditor::_draw() {
         float m1 = 0.5f * (curve.get_min_value() + curve.get_max_value());
         float m2 = curve.get_max_value();
         Vector2 off(1, -1);
-        draw_string(font, get_view_pos(Vector2(0, m0)) + off, StringUtils::num(m0, 2), text_color);
-        draw_string(font, get_view_pos(Vector2(0, m1)) + off, StringUtils::num(m1, 2), text_color);
-        draw_string(font, get_view_pos(Vector2(0, m2)) + off, StringUtils::num(m2, 3), text_color);
+        draw_string_utf8(font, get_view_pos(Vector2(0, m0)) + off, StringUtils::num(m0, 2), text_color);
+        draw_string_utf8(font, get_view_pos(Vector2(0, m1)) + off, StringUtils::num(m1, 2), text_color);
+        draw_string_utf8(font, get_view_pos(Vector2(0, m2)) + off, StringUtils::num(m2, 3), text_color);
     }
 
     // Draw tangents for current point
@@ -744,8 +744,8 @@ void CurveEditor::_draw() {
     // Help text
 
     if (_selected_point > 0 && _selected_point + 1 < curve.get_point_count()) {
-        text_color.a *= 0.4;
-        draw_string(font, Vector2(50, font_height), TTR("Hold Shift to edit tangents individually"), text_color);
+        text_color.a *= 0.4f;
+        draw_string_utf8(font, Vector2(50, font_height), TTR("Hold Shift to edit tangents individually"), text_color);
     }
 }
 
@@ -785,8 +785,8 @@ CurveEditorPlugin::CurveEditorPlugin(EditorNode *p_node) {
 //-----------------------------------
 // Preview generator
 
-bool CurvePreviewGenerator::handles(const String &p_type) const {
-    return p_type == "Curve";
+bool CurvePreviewGenerator::handles(se_string_view p_type) const {
+    return p_type == se_string_view("Curve");
 }
 
 Ref<Texture> CurvePreviewGenerator::generate(const Ref<Resource> &p_from, const Size2 &p_size) const {

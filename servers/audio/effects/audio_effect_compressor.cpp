@@ -201,9 +201,9 @@ void AudioEffectCompressor::_validate_property(PropertyInfo &property) const {
 
     if (property.name == "sidechain") {
 
-        String buses = "";
+        se_string buses;
         for (int i = 0; i < AudioServer::get_singleton()->get_bus_count(); i++) {
-            buses += ",";
+            buses += ',';
             buses += AudioServer::get_singleton()->get_bus_name(i);
         }
 

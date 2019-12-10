@@ -36,7 +36,7 @@
 #include "core/math/transform_2d.h"
 #include "core/object.h"
 #include "core/rid.h"
-#include "core/ustring.h"
+#include "core/se_string.h"
 #include "core/variant.h"
 #include "servers/visual_server_enums.h"
 
@@ -100,8 +100,8 @@ public:
     virtual void texture_set_size_override(RID p_texture, int p_width, int p_height, int p_depth_3d) = 0;
     virtual void texture_bind(RID p_texture, uint32_t p_texture_no) = 0;
 
-    virtual void texture_set_path(RID p_texture, const String &p_path) = 0;
-    virtual String texture_get_path(RID p_texture) const = 0;
+    virtual void texture_set_path(RID p_texture, se_string_view p_path) = 0;
+    virtual const se_string &texture_get_path(RID p_texture) const = 0;
 
     virtual void texture_set_shrink_all_x2_on_set_data(bool p_enable) = 0;
 
@@ -118,7 +118,7 @@ public:
         uint32_t depth;
         Image::Format format;
         int bytes;
-        String path;
+        se_string path;
     };
 
     virtual void texture_debug_usage(DefList<TextureInfo> *r_info) = 0;
@@ -138,8 +138,8 @@ public:
 
     virtual RID shader_create() = 0;
 
-    virtual void shader_set_code(RID p_shader, const String &p_code) = 0;
-    virtual String shader_get_code(RID p_shader) const = 0;
+    virtual void shader_set_code(RID p_shader, const se_string &p_code) = 0;
+    virtual se_string shader_get_code(RID p_shader) const = 0;
     virtual void shader_get_param_list(RID p_shader, PODVector<PropertyInfo> *p_param_list) const = 0;
     Array _shader_get_param_list_bind(RID p_shader) const;
 
@@ -661,7 +661,7 @@ public:
 
     virtual bool has_feature(VS::Features p_feature) const = 0;
 
-    virtual bool has_os_feature(const String &p_feature) const = 0;
+    virtual bool has_os_feature(const StringName &p_feature) const = 0;
 
     virtual void set_debug_generate_wireframes(bool p_generate) = 0;
 

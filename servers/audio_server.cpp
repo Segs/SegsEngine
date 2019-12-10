@@ -42,6 +42,7 @@
 #include "servers/audio/audio_driver_dummy.h"
 #include "servers/audio/effects/audio_effect_compressor.h"
 
+using namespace eastl; // for string view suffic
 #ifdef TOOLS_ENABLED
 
 #define MARK_EDITED get_tooling_interface()->set_edited(true);
@@ -148,7 +149,7 @@ Array AudioDriver::get_device_list() {
     return list;
 }
 
-String AudioDriver::get_device() {
+se_string_view AudioDriver::get_device() {
     return "Default";
 }
 
@@ -219,7 +220,7 @@ void AudioDriverManager::initialize(int p_driver) {
         }
     }
 
-    if (driver_count > 1 && String(AudioDriver::get_singleton()->get_name()) == "Dummy") {
+    if (driver_count > 1 && se_string_view(AudioDriver::get_singleton()->get_name()) == se_string_view("Dummy")) {
         WARN_PRINT("All audio drivers failed, falling back to the dummy driver.");
     }
 }
@@ -541,7 +542,7 @@ void AudioServer::set_bus_count(int p_count) {
 
     for (int i = cb; i < buses.size(); i++) {
 
-        String attempt = "New Bus";
+        se_string attempt("New Bus");
         int attempts = 1;
         while (true) {
 
@@ -567,7 +568,8 @@ void AudioServer::set_bus_count(int p_count) {
         for (int j = 0; j < channel_count; j++) {
             buses.write[i]->channels.write[j].buffer.resize(buffer_size);
         }
-        buses[i]->name = attempt;
+        StringName attempt_sn(attempt);
+        buses[i]->name = attempt_sn;
         buses[i]->solo = false;
         buses[i]->mute = false;
         buses[i]->bypass = false;
@@ -576,7 +578,7 @@ void AudioServer::set_bus_count(int p_count) {
             buses[i]->send = "Master";
         }
 
-        bus_map[attempt] = buses[i];
+        bus_map[attempt_sn] = buses[i];
     }
 
     unlock();
@@ -613,7 +615,7 @@ void AudioServer::add_bus(int p_at_pos) {
             p_at_pos = -1;
     }
 
-    String attempt = "New Bus";
+    StringName attempt("New Bus");
     int attempts = 1;
     while (true) {
 
@@ -628,7 +630,7 @@ void AudioServer::add_bus(int p_at_pos) {
 
         if (!name_free) {
             attempts++;
-            attempt = "New Bus " + itos(attempts);
+            attempt = StringName("New Bus " + itos(attempts));
         } else {
             break;
         }
@@ -684,10 +686,10 @@ int AudioServer::get_bus_count() const {
     return buses.size();
 }
 
-void AudioServer::set_bus_name(int p_bus, const String &p_name) {
+void AudioServer::set_bus_name(int p_bus, const StringName &p_name) {
 
     ERR_FAIL_INDEX(p_bus, buses.size());
-    if (p_bus == 0 && p_name != "Master")
+    if (p_bus == 0 && p_name != se_string_view("Master"))
         return; //bus 0 is always master
 
     MARK_EDITED
@@ -699,7 +701,7 @@ void AudioServer::set_bus_name(int p_bus, const String &p_name) {
         return;
     }
 
-    String attempt = p_name;
+    StringName attempt = p_name;
     int attempts = 1;
 
     while (true) {
@@ -718,7 +720,7 @@ void AudioServer::set_bus_name(int p_bus, const String &p_name) {
         }
 
         attempts++;
-        attempt = p_name + " " + itos(attempts);
+        attempt = StringName(p_name + se_string(" ") + itos(attempts));
     }
     bus_map.erase(buses[p_bus]->name);
     buses[p_bus]->name = attempt;
@@ -729,7 +731,7 @@ void AudioServer::set_bus_name(int p_bus, const String &p_name) {
 }
 StringName AudioServer::get_bus_name(int p_bus) const {
 
-    ERR_FAIL_INDEX_V(p_bus, buses.size(), String());
+    ERR_FAIL_INDEX_V(p_bus, buses.size(), StringName());
     return buses[p_bus]->name;
 }
 
@@ -1029,7 +1031,7 @@ void AudioServer::update() {
                 if (!bus->effects[j].enabled)
                     continue;
 
-                values.push_back((String)bus->name + bus->effects[j].effect->get_name());
+                values.push_back(se_string(bus->name) + bus->effects[j].effect->get_name());
                 values.push_back(USEC_TO_SEC(bus->effects[j].prof_time));
 
                 // Subtract the effect time from the driver and server times
@@ -1076,7 +1078,7 @@ void AudioServer::update() {
 
 void AudioServer::load_default_bus_layout() {
 
-    String layout_path = ProjectSettings::get_singleton()->get("audio/default_bus_layout");
+    se_string layout_path = ProjectSettings::get_singleton()->get("audio/default_bus_layout");
 
     if (ResourceLoader::exists(layout_path)) {
         Ref<AudioBusLayout> default_layout = dynamic_ref_cast<AudioBusLayout>(ResourceLoader::load(layout_path));
@@ -1303,12 +1305,12 @@ Array AudioServer::get_device_list() {
     return AudioDriver::get_singleton()->get_device_list();
 }
 
-String AudioServer::get_device() {
+se_string_view AudioServer::get_device() {
 
     return AudioDriver::get_singleton()->get_device();
 }
 
-void AudioServer::set_device(const String& device) {
+void AudioServer::set_device(se_string_view device) {
 
     AudioDriver::get_singleton()->set_device(device);
 }
@@ -1326,12 +1328,12 @@ Array AudioServer::capture_get_device_list() {
     return AudioDriver::get_singleton()->capture_get_device_list();
 }
 
-String AudioServer::capture_get_device() {
+se_string AudioServer::capture_get_device() {
 
     return AudioDriver::get_singleton()->capture_get_device();
 }
 
-void AudioServer::capture_set_device(const String &p_name) {
+void AudioServer::capture_set_device(se_string_view p_name) {
 
     AudioDriver::get_singleton()->capture_set_device(p_name);
 }
@@ -1466,7 +1468,7 @@ AudioServer::~AudioServer() {
 
 bool AudioBusLayout::_set(const StringName &p_name, const Variant &p_value) {
 
-    String s = p_name;
+    se_string_view s(p_name);
     if (StringUtils::begins_with(s,"bus/")) {
         int index = StringUtils::to_int(StringUtils::get_slice(s,"/", 1));
         if (buses.size() <= index) {
@@ -1475,21 +1477,21 @@ bool AudioBusLayout::_set(const StringName &p_name, const Variant &p_value) {
 
         Bus &bus = buses.write[index];
 
-        String what = StringUtils::get_slice(s,"/", 2);
+        se_string_view what = StringUtils::get_slice(s,"/", 2);
 
-        if (what == "name") {
+        if (what == "name"_sv) {
             bus.name = p_value;
-        } else if (what == "solo") {
+        } else if (what == "solo"_sv) {
             bus.solo = p_value;
-        } else if (what == "mute") {
+        } else if (what == "mute"_sv) {
             bus.mute = p_value;
-        } else if (what == "bypass_fx") {
+        } else if (what == "bypass_fx"_sv) {
             bus.bypass = p_value;
-        } else if (what == "volume_db") {
+        } else if (what == "volume_db"_sv) {
             bus.volume_db = p_value;
-        } else if (what == "send") {
+        } else if (what == "send"_sv) {
             bus.send = p_value;
-        } else if (what == "effect") {
+        } else if (what == "effect"_sv) {
             int which = StringUtils::to_int(StringUtils::get_slice(s,"/", 3));
             if (bus.effects.size() <= which) {
                 bus.effects.resize(which + 1);
@@ -1497,10 +1499,10 @@ bool AudioBusLayout::_set(const StringName &p_name, const Variant &p_value) {
 
             Bus::Effect &fx = bus.effects.write[which];
 
-            String fxwhat = StringUtils::get_slice(s,"/", 4);
-            if (fxwhat == "effect") {
+            se_string_view fxwhat = StringUtils::get_slice(s,"/", 4);
+            if (fxwhat == "effect"_sv) {
                 fx.effect = refFromRefPtr<AudioEffect>(p_value);
-            } else if (fxwhat == "enabled") {
+            } else if (fxwhat == "enabled"_sv) {
                 fx.enabled = p_value;
             } else {
                 return false;
@@ -1519,7 +1521,7 @@ bool AudioBusLayout::_set(const StringName &p_name, const Variant &p_value) {
 
 bool AudioBusLayout::_get(const StringName &p_name, Variant &r_ret) const {
 
-    String s = p_name;
+    se_string_view s = p_name;
     if (StringUtils::begins_with(s,"bus/")) {
 
         int index = StringUtils::to_int(StringUtils::get_slice(s,"/", 1));
@@ -1528,21 +1530,21 @@ bool AudioBusLayout::_get(const StringName &p_name, Variant &r_ret) const {
 
         const Bus &bus = buses[index];
 
-        String what = StringUtils::get_slice(s,"/", 2);
+        se_string_view what = StringUtils::get_slice(s,"/", 2);
 
-        if (what == "name") {
+        if (what == "name"_sv) {
             r_ret = bus.name;
-        } else if (what == "solo") {
+        } else if (what == "solo"_sv) {
             r_ret = bus.solo;
-        } else if (what == "mute") {
+        } else if (what == "mute"_sv) {
             r_ret = bus.mute;
-        } else if (what == "bypass_fx") {
+        } else if (what == "bypass_fx"_sv) {
             r_ret = bus.bypass;
-        } else if (what == "volume_db") {
+        } else if (what == "volume_db"_sv) {
             r_ret = bus.volume_db;
-        } else if (what == "send") {
+        } else if (what == "send"_sv) {
             r_ret = bus.send;
-        } else if (what == "effect") {
+        } else if (what == "effect"_sv) {
             int which = StringUtils::to_int(StringUtils::get_slice(s,"/", 3));
             if (which < 0 || which >= bus.effects.size()) {
                 return false;
@@ -1550,10 +1552,10 @@ bool AudioBusLayout::_get(const StringName &p_name, Variant &r_ret) const {
 
             const Bus::Effect &fx = bus.effects[which];
 
-            String fxwhat = StringUtils::get_slice(s,"/", 4);
-            if (fxwhat == "effect") {
+            se_string_view fxwhat = StringUtils::get_slice(s,"/", 4);
+            if (fxwhat == "effect"_sv) {
                 r_ret = fx.effect;
-            } else if (fxwhat == "enabled") {
+            } else if (fxwhat == "enabled"_sv) {
                 r_ret = fx.enabled;
             } else {
                 return false;
@@ -1572,16 +1574,16 @@ bool AudioBusLayout::_get(const StringName &p_name, Variant &r_ret) const {
 void AudioBusLayout::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
 
     for (int i = 0; i < buses.size(); i++) {
-        p_list->push_back(PropertyInfo(VariantType::STRING, "bus/" + itos(i) + "/name", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
-        p_list->push_back(PropertyInfo(VariantType::BOOL, "bus/" + itos(i) + "/solo", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
-        p_list->push_back(PropertyInfo(VariantType::BOOL, "bus/" + itos(i) + "/mute", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
-        p_list->push_back(PropertyInfo(VariantType::BOOL, "bus/" + itos(i) + "/bypass_fx", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
-        p_list->push_back(PropertyInfo(VariantType::REAL, "bus/" + itos(i) + "/volume_db", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
-        p_list->push_back(PropertyInfo(VariantType::REAL, "bus/" + itos(i) + "/send", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
+        p_list->push_back(PropertyInfo(VariantType::STRING, StringName("bus/" + itos(i) + "/name"), PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
+        p_list->push_back(PropertyInfo(VariantType::BOOL, StringName("bus/" + itos(i) + "/solo"), PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
+        p_list->push_back(PropertyInfo(VariantType::BOOL, StringName("bus/" + itos(i) + "/mute"), PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
+        p_list->push_back(PropertyInfo(VariantType::BOOL, StringName("bus/" + itos(i) + "/bypass_fx"), PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
+        p_list->push_back(PropertyInfo(VariantType::REAL, StringName("bus/" + itos(i) + "/volume_db"), PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
+        p_list->push_back(PropertyInfo(VariantType::REAL, StringName("bus/" + itos(i) + "/send"), PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
 
         for (int j = 0; j < buses[i].effects.size(); j++) {
-            p_list->push_back(PropertyInfo(VariantType::OBJECT, "bus/" + itos(i) + "/effect/" + itos(j) + "/effect", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
-            p_list->push_back(PropertyInfo(VariantType::BOOL, "bus/" + itos(i) + "/effect/" + itos(j) + "/enabled", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
+            p_list->push_back(PropertyInfo(VariantType::OBJECT, StringName("bus/" + itos(i) + "/effect/" + itos(j) + "/effect"), PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
+            p_list->push_back(PropertyInfo(VariantType::BOOL, StringName("bus/" + itos(i) + "/effect/" + itos(j) + "/enabled"), PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
         }
     }
 }

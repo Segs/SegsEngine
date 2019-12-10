@@ -34,7 +34,7 @@
 #include "core/math/face3.h"
 #include "core/math/triangle_mesh.h"
 #include "core/resource.h"
-#include "core/ustring.h"
+#include "core/se_string.h"
 //#include "scene/resources/material.h"
 #include "scene/resources/shape.h"
 #include "servers/visual_server_enums.h"
@@ -149,11 +149,11 @@ public:
     Size2 get_lightmap_size_hint() const;
     void clear_cache() const;
 
-    using ConvexDecompositionFunc = Vector<Vector<Face3> > (*)(const Vector<Face3> &);
+    using ConvexDecompositionFunc = Vector< Vector<Face3>> (*)(const Vector<Face3> &);
 
     static ConvexDecompositionFunc convex_composition_function;
 
-    Vector<Ref<Shape> > convex_decompose() const;
+    Vector<Ref<Shape>> convex_decompose() const;
 
     Mesh();
 };
@@ -166,7 +166,7 @@ class GODOT_EXPORT ArrayMesh : public Mesh {
 
 private:
     struct Surface {
-        String name;
+        se_string name;
         AABB aabb;
         Ref<Material> material;
         bool is_2d;
@@ -220,9 +220,9 @@ public:
     void surface_set_material(int p_idx, const Ref<Material> &p_material) override;
     Ref<Material> surface_get_material(int p_idx) const override;
 
-    int surface_find_by_name(const String &p_name) const;
-    void surface_set_name(int p_idx, const String &p_name);
-    String surface_get_name(int p_idx) const;
+    int surface_find_by_name(const se_string &p_name) const;
+    void surface_set_name(int p_idx, se_string_view p_name);
+    se_string surface_get_name(int p_idx) const;
 
     void add_surface_from_mesh_data(const Geometry::MeshData &p_mesh_data);
 

@@ -59,7 +59,7 @@ void FileAccessWindows::check_errors() const {
     }
 }
 
-Error FileAccessWindows::_open(const String &p_path, int p_mode_flags) {
+Error FileAccessWindows::_open(se_string_view p_path, int p_mode_flags) {
 
     path_src = p_path;
     path = fix_path(p_path);
@@ -188,13 +188,11 @@ void FileAccessWindows::close() {
     ERR_FAIL_COND_CMSG(rename_error, "Safe save failed. This may be a permissions problem, but also may happen because you are running a paranoid antivirus. If this is the case, please switch to Windows Defender or disable the 'safe save' option in editor settings. This makes it work, but increases the risk of file corruption in a crash.")
 }
 
-String FileAccessWindows::get_path() const {
-
+const se_string &FileAccessWindows::get_path() const {
     return path_src;
 }
 
-String FileAccessWindows::get_path_absolute() const {
-
+const se_string &FileAccessWindows::get_path_absolute() const {
     return path;
 }
 

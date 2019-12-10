@@ -38,6 +38,7 @@
 #include "scene/gui/split_container.h"
 #include "scene/gui/texture_rect.h"
 #include "scene/gui/tree.h"
+#include "core/se_string.h"
 
 class EditorProfiler : public VBoxContainer {
 
@@ -57,14 +58,14 @@ public:
         struct Category {
 
             StringName signature;
-            String name;
+            se_string name;
             float total_time; //total for category
 
             struct Item {
 
                 StringName signature;
-                String name;
-                String script;
+                se_string name;
+                se_string script;
                 int line;
                 float self;
                 float total;
@@ -135,7 +136,7 @@ private:
     void _activate_pressed();
     void _clear_pressed();
 
-    String _get_time_as_text(const Metric &m, float p_time, int p_calls);
+    se_string _get_time_as_text(const Metric &m, float p_time, int p_calls);
 
     void _make_metric_ptrs(Metric &m);
     void _item_edited();
@@ -168,7 +169,7 @@ public:
 
     void clear();
 
-    Vector<Vector<String> > get_data_as_csv() const;
+    PODVector<PODVector<se_string> > get_data_as_csv() const;
 
     EditorProfiler();
 };

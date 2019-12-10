@@ -28,15 +28,18 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef PARTICLES_EDITOR_PLUGIN_H
-#define PARTICLES_EDITOR_PLUGIN_H
+#pragma once
 
-#include "editor/editor_node.h"
 #include "editor/editor_plugin.h"
 #include "scene/3d/particles.h"
 #include "scene/gui/spin_box.h"
 
 class SceneTreeDialog;
+class MenuButton;
+class EditorFileDialog;
+class ConfirmationDialog;
+class OptionButton;
+
 
 class ParticlesEditorBase : public Control {
 
@@ -112,7 +115,7 @@ class ParticlesEditorPlugin : public EditorPlugin {
     EditorNode *editor;
 
 public:
-    String get_name() const override { return "Particles"; }
+    se_string_view get_name() const override { return ("Particles"); }
     bool has_main_screen() const override { return false; }
     void edit(Object *p_object) override;
     bool handles(Object *p_object) const override;
@@ -121,5 +124,3 @@ public:
     ParticlesEditorPlugin(EditorNode *p_node);
     ~ParticlesEditorPlugin() override;
 };
-
-#endif // PARTICLES_EDITOR_PLUGIN_H

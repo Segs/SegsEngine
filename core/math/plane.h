@@ -71,7 +71,7 @@ public:
 
     _FORCE_INLINE_ bool operator==(const Plane &p_plane) const;
     _FORCE_INLINE_ bool operator!=(const Plane &p_plane) const;
-    operator String() const;
+    operator se_string() const;
 
     _FORCE_INLINE_ Plane() = default;
     _FORCE_INLINE_ Plane(real_t p_a, real_t p_b, real_t p_c, real_t p_d) :

@@ -34,6 +34,7 @@
 #include "core/method_bind.h"
 #include "core/object_db.h"
 #include "core/engine.h"
+#include "core/string_formatter.h"
 #include "core/script_language.h"
 #include "core/translation_helpers.h"
 
@@ -107,10 +108,10 @@ void AnimationNode::blend_animation(const StringName &p_animation, float p_time,
 
         AnimationNodeBlendTree *btree = object_cast<AnimationNodeBlendTree>(parent);
         if (btree) {
-            String name = btree->get_node_name(Ref<AnimationNode>(this));
-            make_invalid(vformat(RTR("In node '%s', invalid animation: '%s'."), name, p_animation));
+            StringName name = btree->get_node_name(Ref<AnimationNode>(this));
+            make_invalid(FormatVE(RTR_utf8("In node '%s', invalid animation: '%s'.").c_str(), name.asCString(), p_animation.asCString()));
         } else {
-            make_invalid(vformat(RTR("Invalid animation: '%s'."), p_animation));
+            make_invalid(FormatVE(RTR_utf8("Invalid animation: '%s'.").c_str(), p_animation.asCString()));
         }
         return;
     }
@@ -145,11 +146,11 @@ float AnimationNode::_pre_process(const StringName &p_base_path, AnimationNode *
     return t;
 }
 
-void AnimationNode::make_invalid(const String &p_reason) {
+void AnimationNode::make_invalid(const se_string &p_reason) {
     ERR_FAIL_COND(!state)
     state->valid = false;
     if (!state->invalid_reasons.empty()) {
-        state->invalid_reasons += "\n";
+        state->invalid_reasons += '\n';
     }
     state->invalid_reasons += "- " + p_reason;
 }
@@ -164,8 +165,8 @@ float AnimationNode::blend_input(int p_input, float p_time, bool p_seek, float p
     StringName node_name = connections[p_input];
 
     if (!blend_tree->has_node(node_name)) {
-        String name = blend_tree->get_node_name(Ref<AnimationNode>(this));
-        make_invalid(vformat(RTR("Nothing connected to input '%s' of node '%s'."), get_input_name(p_input), name));
+        StringName name = blend_tree->get_node_name(Ref<AnimationNode>(this));
+        make_invalid(FormatVE(RTR_utf8("Nothing connected to input '%s' of node '%s'.").c_str(), get_input_name(p_input).c_str(), name.asCString()));
         return 0;
     }
 
@@ -290,17 +291,17 @@ float AnimationNode::_blend_node(const StringName &p_subpath, const Vector<Strin
     if (!p_seek && p_optimize && !any_valid) //pointless to go on, all are zero
         return 0;
 
-    String new_path;
+    StringName new_path;
     AnimationNode *new_parent;
 
     //this is the slowest part of processing, but as strings process in powers of 2, and the paths always exist, it will not result in that many allocations
     if (p_new_parent) {
         new_parent = p_new_parent;
-        new_path = String(base_path) + String(p_subpath) + "/";
+        new_path = StringName(se_string(base_path) + p_subpath + "/");
     } else {
         ERR_FAIL_COND_V(!parent, 0)
         new_parent = parent;
-        new_path = String(parent->base_path) + String(p_subpath) + "/";
+        new_path = StringName(se_string(parent->base_path) + p_subpath + "/");
     }
     return p_node->_pre_process(new_path, new_parent, state, p_time, p_seek, p_connections);
 }
@@ -309,33 +310,35 @@ int AnimationNode::get_input_count() const {
 
     return inputs.size();
 }
-String AnimationNode::get_input_name(int p_input) {
-    ERR_FAIL_INDEX_V(p_input, inputs.size(), String());
+se_string AnimationNode::get_input_name(int p_input) {
+    ERR_FAIL_INDEX_V(p_input, inputs.size(), se_string());
     return inputs[p_input].name;
 }
 
-String AnimationNode::get_caption() const {
-
+se_string_view AnimationNode::get_caption() const {
+    thread_local char buf[512];
     if (get_script_instance()) {
-        return get_script_instance()->call("get_caption");
+        buf[0]=0;
+        strncat(buf,get_script_instance()->call("get_caption").as<se_string>().c_str(),511);
+        return buf;
     }
 
     return "Node";
 }
 
-void AnimationNode::add_input(const String &p_name) {
+void AnimationNode::add_input(const se_string &p_name) {
     //root nodes can't add inputs
     ERR_FAIL_COND(object_cast<AnimationRootNode>(this) != nullptr)
     Input input;
-    ERR_FAIL_COND(StringUtils::find(p_name,".") != -1 || StringUtils::find(p_name,"/") != -1)
+    ERR_FAIL_COND(StringUtils::contains(p_name,".") || StringUtils::contains(p_name,"/") )
     input.name = p_name;
     inputs.push_back(input);
     emit_changed();
 }
 
-void AnimationNode::set_input_name(int p_input, const String &p_name) {
+void AnimationNode::set_input_name(int p_input, se_string_view p_name) {
     ERR_FAIL_INDEX(p_input, inputs.size());
-    ERR_FAIL_COND(StringUtils::find(p_name,".") != -1 || StringUtils::find(p_name,"/") != -1)
+    ERR_FAIL_COND(StringUtils::contains(p_name,".") || StringUtils::contains(p_name,"/"))
     inputs.write[p_input].name = p_name;
     emit_changed();
 }
@@ -385,7 +388,7 @@ Array AnimationNode::_get_filters() const {
 
     const NodePath *K = nullptr;
     while ((K = filter.next(K))) {
-        paths.push_back(String(*K)); //use strings, so sorting is possible
+        paths.push_back(se_string(*K)); //use strings, so sorting is possible
     }
     paths.sort(); //done so every time the scene is saved, it does not change
 
@@ -558,7 +561,7 @@ bool AnimationTree::_update_caches(AnimationPlayer *player) {
     }
     Node *parent = player->get_node(player->get_root());
 
-    ListPOD<StringName> sname;
+    PODVector<StringName> sname;
     player->get_animation_list(&sname);
 
     for (const StringName &E : sname) {
@@ -587,7 +590,7 @@ bool AnimationTree::_update_caches(AnimationPlayer *player) {
                 Node *child = parent->get_node_and_resource(path, resource, leftover_path);
 
                 if (!child) {
-                    ERR_PRINT("AnimationTree: '" + String(E) + "', couldn't resolve track:  '" + String(path) + "'")
+                    ERR_PRINT("AnimationTree: '" + se_string(E) + "', couldn't resolve track:  '" + se_string(path) + "'")
                     continue;
                 }
 
@@ -617,7 +620,7 @@ bool AnimationTree::_update_caches(AnimationPlayer *player) {
                         Spatial *spatial = object_cast<Spatial>(child);
 
                         if (!spatial) {
-                            ERR_PRINT("AnimationTree: '" + String(E) + "', transform track does not point to spatial:  '" + String(path) + "'");
+                            ERR_PRINT("AnimationTree: '" + se_string(E) + "', transform track does not point to spatial:  '" + se_string(path) + "'");
                             continue;
                         }
 
@@ -1180,7 +1183,7 @@ void AnimationTree::_process_graph(float p_delta) {
                             float pos = a->track_get_key_time(i, idx);
 
                             StringName anim_name = a->animation_track_get_key_animation(i, idx);
-                            if (String(anim_name) == "[stop]" || !player2->has_animation(anim_name))
+                            if (anim_name == "[stop]" || !player2->has_animation(anim_name))
                                 continue;
 
                             Ref<Animation> anim = player2->get_animation(anim_name);
@@ -1210,7 +1213,7 @@ void AnimationTree::_process_graph(float p_delta) {
                                 int idx = to_play.back()->deref();
 
                                 StringName anim_name = a->animation_track_get_key_animation(i, idx);
-                                if (String(anim_name) == "[stop]" || !player2->has_animation(anim_name)) {
+                                if (anim_name == "[stop]" || !player2->has_animation(anim_name)) {
 
                                     if (playing_caches.contains(t)) {
                                         playing_caches.erase(t);
@@ -1336,7 +1339,7 @@ bool AnimationTree::is_state_invalid() const {
 
     return !state.valid;
 }
-String AnimationTree::get_invalid_state_reason() const {
+se_string AnimationTree::get_invalid_state_reason() const {
 
     return state.invalid_reasons;
 }
@@ -1345,9 +1348,9 @@ uint64_t AnimationTree::get_last_process_pass() const {
     return process_pass;
 }
 
-String AnimationTree::get_configuration_warning() const {
+StringName AnimationTree::get_configuration_warning() const {
 
-    String warning = Node::get_configuration_warning();
+    se_string warning(Node::get_configuration_warning());
 
     if (not root) {
         if (!warning.empty()) {
@@ -1363,30 +1366,26 @@ String AnimationTree::get_configuration_warning() const {
         }
 
         warning += TTR("Path to an AnimationPlayer node containing animations is not set.");
-        return warning;
+        return StringName(warning);
     }
 
     AnimationPlayer *player = object_cast<AnimationPlayer>(get_node(animation_player));
 
     if (!player) {
         if (!warning.empty()) {
-            warning += "\n\n";
+            warning += ("\n\n");
         }
 
         warning += TTR("Path set for AnimationPlayer does not lead to an AnimationPlayer node.");
-        return warning;
     }
-
-    if (!player->has_node(player->get_root())) {
+    else if (!player->has_node(player->get_root())) {
         if (!warning.empty()) {
             warning += "\n\n";
         }
 
         warning += TTR("The AnimationPlayer root node is not a valid node.");
-        return warning;
     }
-
-    return warning;
+    return StringName(warning);
 }
 
 void AnimationTree::set_root_motion_track(const NodePath &p_track) {
@@ -1410,7 +1409,7 @@ void AnimationTree::_tree_changed() {
     properties_dirty = true;
 }
 
-void AnimationTree::_update_properties_for_node(const String &p_base_path, Ref<AnimationNode> node) {
+void AnimationTree::_update_properties_for_node(const StringName &p_base_path, Ref<AnimationNode> node) {
 
     if (!property_parent_map.contains(p_base_path)) {
         property_parent_map[p_base_path] = HashMap<StringName, StringName>();
@@ -1427,7 +1426,8 @@ void AnimationTree::_update_properties_for_node(const String &p_base_path, Ref<A
         }
         input_activity_map[p_base_path] = activity;
         //TODO: why is the last character trimmed below, document this or remove the trimming.
-        input_activity_map_get[StringUtils::substr(p_base_path,0, String(p_base_path).length() - 1)] = &input_activity_map[p_base_path];
+        input_activity_map_get[StringName(StringUtils::substr(p_base_path, 0, se_string_view(p_base_path).length() - 1))] =
+                &input_activity_map[p_base_path];
     }
 
     List<PropertyInfo> plist;
@@ -1436,14 +1436,14 @@ void AnimationTree::_update_properties_for_node(const String &p_base_path, Ref<A
         PropertyInfo pinfo = E->deref();
 
         StringName key = pinfo.name;
-
-        if (!property_map.contains(p_base_path + key)) {
-            property_map[p_base_path + key] = node->get_parameter_default_value(key);
+        StringName concat(se_string(p_base_path)+key);
+        if (!property_map.contains(concat)) {
+            property_map[concat] = node->get_parameter_default_value(key);
         }
 
-        property_parent_map[p_base_path][key] = p_base_path + key;
+        property_parent_map[p_base_path][key] = concat;
 
-        pinfo.name = p_base_path + key;
+        pinfo.name = concat;
         properties.push_back(pinfo);
     }
 
@@ -1451,7 +1451,7 @@ void AnimationTree::_update_properties_for_node(const String &p_base_path, Ref<A
     node->get_child_nodes(&children);
 
     for (List<AnimationNode::ChildNode>::Element *E = children.front(); E; E = E->next()) {
-        _update_properties_for_node(p_base_path + E->deref().name + "/", E->deref().node);
+        _update_properties_for_node(StringName(se_string(p_base_path) + E->deref().name + "/"), E->deref().node);
     }
 }
 
@@ -1482,7 +1482,7 @@ bool AnimationTree::_set(const StringName &p_name, const Variant &p_value) {
     if (property_map.contains(p_name)) {
         property_map[p_name] = p_value;
 #ifdef TOOLS_ENABLED
-        _change_notify(qPrintable(((String)p_name).m_str));
+        _change_notify(p_name);
 #endif
         return true;
     }
@@ -1512,12 +1512,12 @@ void AnimationTree::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
     }
 }
 
-void AnimationTree::rename_parameter(const String &p_base, const String &p_new_base) {
+void AnimationTree::rename_parameter(se_string_view p_base, se_string_view p_new_base) {
 
     //rename values first
     for (const List<PropertyInfo>::Element *E = properties.front(); E; E = E->next()) {
         if (StringUtils::begins_with(E->deref().name,p_base)) {
-            String new_name = StringUtils::replace_first(E->deref().name,p_base, p_new_base);
+            StringName new_name(StringUtils::replace_first(E->deref().name,p_base, p_new_base));
             property_map[new_name] = property_map[E->deref().name];
         }
     }

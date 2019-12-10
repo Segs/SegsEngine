@@ -36,6 +36,10 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cassert>
+#ifndef PAD_ALIGN
+#define PAD_ALIGN 16 //must always be greater than this at much
+#endif
+
 
 #ifdef DEBUG_ENABLED
 static uint64_t mem_usage=0;

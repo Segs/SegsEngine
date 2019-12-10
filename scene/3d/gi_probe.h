@@ -36,141 +36,141 @@
 
 class GIProbeData : public Resource {
 
-	GDCLASS(GIProbeData,Resource)
+    GDCLASS(GIProbeData,Resource)
 
-	RID probe;
+    RID probe;
 
 protected:
-	static void _bind_methods();
+    static void _bind_methods();
 
 public:
-	void set_bounds(const AABB &p_bounds);
-	AABB get_bounds() const;
+    void set_bounds(const AABB &p_bounds);
+    AABB get_bounds() const;
 
-	void set_cell_size(float p_size);
-	float get_cell_size() const;
+    void set_cell_size(float p_size);
+    float get_cell_size() const;
 
-	void set_to_cell_xform(const Transform &p_xform);
-	Transform get_to_cell_xform() const;
+    void set_to_cell_xform(const Transform &p_xform);
+    Transform get_to_cell_xform() const;
 
-	void set_dynamic_data(const PoolVector<int> &p_data);
-	PoolVector<int> get_dynamic_data() const;
+    void set_dynamic_data(const PoolVector<int> &p_data);
+    PoolVector<int> get_dynamic_data() const;
 
-	void set_dynamic_range(int p_range);
-	int get_dynamic_range() const;
+    void set_dynamic_range(int p_range);
+    int get_dynamic_range() const;
 
-	void set_propagation(float p_range);
-	float get_propagation() const;
+    void set_propagation(float p_range);
+    float get_propagation() const;
 
-	void set_energy(float p_range);
-	float get_energy() const;
+    void set_energy(float p_range);
+    float get_energy() const;
 
-	void set_bias(float p_range);
-	float get_bias() const;
+    void set_bias(float p_range);
+    float get_bias() const;
 
-	void set_normal_bias(float p_range);
-	float get_normal_bias() const;
+    void set_normal_bias(float p_range);
+    float get_normal_bias() const;
 
-	void set_interior(bool p_enable);
-	bool is_interior() const;
+    void set_interior(bool p_enable);
+    bool is_interior() const;
 
-	void set_compress(bool p_enable);
-	bool is_compressed() const;
+    void set_compress(bool p_enable);
+    bool is_compressed() const;
 
-	RID get_rid() const override;
+    RID get_rid() const override;
 
-	GIProbeData();
-	~GIProbeData() override;
+    GIProbeData();
+    ~GIProbeData() override;
 };
 
 class GIProbe : public VisualInstance {
-	GDCLASS(GIProbe,VisualInstance)
+    GDCLASS(GIProbe,VisualInstance)
 
 public:
-	enum Subdiv {
-		SUBDIV_64,
-		SUBDIV_128,
-		SUBDIV_256,
-		SUBDIV_512,
-		SUBDIV_MAX
+    enum Subdiv {
+        SUBDIV_64,
+        SUBDIV_128,
+        SUBDIV_256,
+        SUBDIV_512,
+        SUBDIV_MAX
 
-	};
+    };
 
-	using BakeBeginFunc = void (*)(int);
-	using BakeStepFunc = void (*)(int, const String &);
-	using BakeEndFunc = void (*)();
+    using BakeBeginFunc = void (*)(int);
+    using BakeStepFunc = void (*)(int, se_string_view);
+    using BakeEndFunc = void (*)();
 
 private:
-	Ref<GIProbeData> probe_data;
+    Ref<GIProbeData> probe_data;
 
-	RID gi_probe;
+    RID gi_probe;
 
-	Subdiv subdiv;
-	Vector3 extents;
-	int dynamic_range;
-	float energy;
-	float bias;
-	float normal_bias;
-	float propagation;
-	bool interior;
-	bool compress;
+    Subdiv subdiv;
+    Vector3 extents;
+    int dynamic_range;
+    float energy;
+    float bias;
+    float normal_bias;
+    float propagation;
+    bool interior;
+    bool compress;
 
-	struct PlotMesh {
-		Ref<Material> override_material;
-		Vector<Ref<Material> > instance_materials;
-		Ref<Mesh> mesh;
-		Transform local_xform;
-	};
+    struct PlotMesh {
+        Ref<Material> override_material;
+        Vector<Ref<Material> > instance_materials;
+        Ref<Mesh> mesh;
+        Transform local_xform;
+    };
 
-	void _find_meshes(Node *p_at_node, List<PlotMesh> &plot_meshes);
-	void _debug_bake();
+    void _find_meshes(Node *p_at_node, List<PlotMesh> &plot_meshes);
+    void _debug_bake();
 
 protected:
-	static void _bind_methods();
+    static void _bind_methods();
 
 public:
-	static BakeBeginFunc bake_begin_function;
-	static BakeStepFunc bake_step_function;
-	static BakeEndFunc bake_end_function;
+    static BakeBeginFunc bake_begin_function;
+    static BakeStepFunc bake_step_function;
+    static BakeEndFunc bake_end_function;
 
-	void set_probe_data(const Ref<GIProbeData> &p_data);
-	Ref<GIProbeData> get_probe_data() const;
+    void set_probe_data(const Ref<GIProbeData> &p_data);
+    Ref<GIProbeData> get_probe_data() const;
 
-	void set_subdiv(Subdiv p_subdiv);
-	Subdiv get_subdiv() const;
+    void set_subdiv(Subdiv p_subdiv);
+    Subdiv get_subdiv() const;
 
-	void set_extents(const Vector3 &p_extents);
-	Vector3 get_extents() const;
+    void set_extents(const Vector3 &p_extents);
+    Vector3 get_extents() const;
 
-	void set_dynamic_range(int p_dynamic_range);
-	int get_dynamic_range() const;
+    void set_dynamic_range(int p_dynamic_range);
+    int get_dynamic_range() const;
 
-	void set_energy(float p_energy);
-	float get_energy() const;
+    void set_energy(float p_energy);
+    float get_energy() const;
 
-	void set_bias(float p_bias);
-	float get_bias() const;
+    void set_bias(float p_bias);
+    float get_bias() const;
 
-	void set_normal_bias(float p_normal_bias);
-	float get_normal_bias() const;
+    void set_normal_bias(float p_normal_bias);
+    float get_normal_bias() const;
 
-	void set_propagation(float p_propagation);
-	float get_propagation() const;
+    void set_propagation(float p_propagation);
+    float get_propagation() const;
 
-	void set_interior(bool p_enable);
-	bool is_interior() const;
+    void set_interior(bool p_enable);
+    bool is_interior() const;
 
-	void set_compress(bool p_enable);
-	bool is_compressed() const;
+    void set_compress(bool p_enable);
+    bool is_compressed() const;
 
-	void bake(Node *p_from_node = nullptr, bool p_create_visual_debug = false);
+    void bake(Node *p_from_node = nullptr, bool p_create_visual_debug = false);
 
     AABB get_aabb() const override;
     PoolVector<Face3> get_faces(uint32_t p_usage_flags) const override;
 
-    String get_configuration_warning() const override;
+    StringName get_configuration_warning() const override;
 
-	GIProbe();
+    GIProbe();
     ~GIProbe() override;
 };
 

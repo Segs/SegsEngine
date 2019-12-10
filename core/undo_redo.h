@@ -46,7 +46,7 @@ public:
         MERGE_ALL
     };
 
-    using CommitNotifyCallback = void (*)(void *, const String &);
+    using CommitNotifyCallback = void (*)(void *, se_string_view);
     Variant _add_do_method(const Variant **p_args, int p_argcount, Variant::CallError &r_error);
     Variant _add_undo_method(const Variant **p_args, int p_argcount, Variant::CallError &r_error);
 
@@ -61,12 +61,15 @@ protected:
     static void _bind_methods();
 
 public:
-    void create_action(const String &p_name, MergeMode p_mode = MERGE_DISABLE);
+    void create_action(se_string_view p_name, MergeMode p_mode = MERGE_DISABLE);
+    void create_action_ui(const StringName &p_name, MergeMode p_mode = MERGE_DISABLE);
 
-    void add_do_method(Object *p_object, const String &p_method, VARIANT_ARG_LIST);
-    void add_undo_method(Object *p_object, const String &p_method, VARIANT_ARG_LIST);
-    void add_do_property(Object *p_object, const String &p_property, const Variant &p_value);
-    void add_undo_property(Object *p_object, const String &p_property, const Variant &p_value);
+    void add_do_method(Object *p_object, const StringName &p_method, VARIANT_ARG_LIST);
+
+    void add_undo_method(Object *p_object, const StringName &p_method, VARIANT_ARG_LIST);
+
+    void add_do_property(Object *p_object, se_string_view p_property, const Variant &p_value);
+    void add_undo_property(Object *p_object, se_string_view p_property, const Variant &p_value);
     void add_do_reference(Object *p_object);
     void add_undo_reference(Object *p_object);
 
@@ -75,7 +78,7 @@ public:
 
     bool redo();
     bool undo();
-    String get_current_action_name() const;
+    se_string_view get_current_action_name() const;
     void clear_history(bool p_increase_version = true);
 
     bool has_undo();

@@ -63,6 +63,7 @@ static const char dummy[8] __attribute__((section("pck"), used)) = { 0 };
 
 
 int mainT(int argc, char *argv[]) {
+
     QCoreApplication app(argc,argv);
     QCoreApplication::setApplicationName(VERSION_SHORT_NAME);
     QCoreApplication::setApplicationVersion(VERSION_BRANCH);

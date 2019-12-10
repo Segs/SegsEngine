@@ -322,6 +322,8 @@ set(generic_core_sources
     set.h
     ustring.cpp
     ustring.h
+    string_utils.h
+    string_utils.inl
     vector.cpp
     vector.h
     vmap.h
@@ -394,9 +396,12 @@ foreach(tgt ${global_targets})
     )
 
     set_common_target_properties(${tgt}_core)
-    set_target_properties(${tgt}_core PROPERTIES COTIRE_ADD_UNITY_BUILD FALSE)
-    set_target_properties(${tgt}_core PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "${PROJECT_SOURCE_DIR}/core/precompiled.h")
     if(ENABLE_COTIRE)
+        set_target_properties(${tgt}_core PROPERTIES COTIRE_ADD_UNITY_BUILD FALSE)
+        set_target_properties(${tgt}_core PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "${PROJECT_SOURCE_DIR}/core/precompiled.h")
         cotire(${tgt}_core)
+        set_target_properties(se_core PROPERTIES COTIRE_ADD_UNITY_BUILD FALSE)
+        set_target_properties(se_core PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "${PROJECT_SOURCE_DIR}/core/precompiled.h")
+        cotire(se_core)
     endif()
 endforeach()

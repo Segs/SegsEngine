@@ -45,7 +45,7 @@ class RWLock;
 template<class T>
 using PODVector = eastl::vector<T,wrap_allocator>;
 
-#define DEFVAL(m_defval) (m_defval)
+#define DEFVAL(m_defval) Variant(m_defval)
 
 //#define SIMPLE_METHODDEF
 
@@ -60,11 +60,12 @@ struct MethodDefinition {
             name(p_name) {}
     MethodDefinition(const StringName &p_name) :
             name(p_name) {}
+    MethodDefinition(MethodDefinition &&d) noexcept = default;
     int parameterCount() const { return args.size(); }
 };
 
-MethodDefinition D_METHOD(const char *p_name);
-MethodDefinition D_METHOD(const char *p_name, std::initializer_list<StringName> names);
+MethodDefinition D_METHOD(StringName p_name);
+MethodDefinition D_METHOD(StringName p_name, PODVector<StringName> &&names);
 
 #else
 
@@ -118,12 +119,12 @@ public:
         HashMap<StringName, int> constant_map;
         HashMap<StringName, ListPOD<StringName> > enum_map;
         HashMap<StringName, MethodInfo> signal_map;
-        ListPOD<PropertyInfo> property_list;
+        PODVector<PropertyInfo> property_list;
 #ifdef DEBUG_METHODS_ENABLED
-        ListPOD<StringName> constant_order;
-        ListPOD<StringName> method_order;
+        PODVector<StringName> constant_order;
+        PODVector<StringName> method_order;
         Set<StringName> methods_in_properties;
-        ListPOD<MethodInfo> virtual_methods;
+        PODVector<MethodInfo> virtual_methods;
         StringName category;
 #endif
         HashMap<StringName, PropertySetGet> property_setget;
@@ -144,7 +145,7 @@ public:
 
     static RWLock *lock;
     static HashMap<StringName, ClassInfo> classes;
-    static HashMap<StringName, StringName> resource_base_extensions;
+    static DefHashMap<StringName, StringName> resource_base_extensions;
     static HashMap<StringName, StringName> compat_classes;
 
 #ifdef DEBUG_METHODS_ENABLED
@@ -254,7 +255,7 @@ public:
     static void get_virtual_methods(const StringName &p_class, PODVector<MethodInfo> *p_methods, bool p_no_inheritance = false);
 
     static void bind_integer_constant(const StringName &p_class, const StringName &p_enum, const StringName &p_name, int p_constant);
-    static void get_integer_constant_list(const StringName &p_class, ListPOD<String> *p_constants, bool p_no_inheritance = false);
+    static void get_integer_constant_list(const StringName &p_class, ListPOD<se_string> *p_constants, bool p_no_inheritance = false);
     static int get_integer_constant(const StringName &p_class, const StringName &p_name, bool *p_success = nullptr);
 
     static StringName get_integer_constant_enum(const StringName &p_class, const StringName &p_name, bool p_no_inheritance = false);
@@ -271,8 +272,8 @@ public:
     static bool is_class_exposed(StringName p_class);
 
     static void add_resource_base_extension(const StringName &p_extension, const StringName &p_class);
-    static void get_resource_base_extensions(ListPOD<String> *p_extensions);
-    static void get_extensions_for_type(const StringName &p_class, ListPOD<String> *p_extensions);
+    static void get_resource_base_extensions(PODVector<se_string> &p_extensions);
+    static void get_extensions_for_type(const StringName &p_class, PODVector<se_string> *p_extensions);
 
     static void add_compatibility_class(const StringName &p_class, const StringName &p_fallback);
     static void init();

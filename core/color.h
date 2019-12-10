@@ -31,8 +31,7 @@
 #pragma once
 
 #include "core/math/math_funcs.h"
-
-class String;
+#include "core/forward_decls.h"
 
 struct GODOT_EXPORT Color {
 
@@ -186,15 +185,15 @@ struct GODOT_EXPORT Color {
 
     static Color hex(uint32_t p_hex);
     static Color hex64(uint64_t p_hex);
-    static Color html(const String &p_color);
-    static bool html_is_valid(const String &p_color);
-    static Color named(const String &p_name);
-    [[nodiscard]] String to_html(bool p_alpha = true) const;
+    static Color html(se_string_view p_color);
+    static bool html_is_valid(se_string_view p_color);
+    static Color named(se_string_view p_name);
+    [[nodiscard]] se_string to_html(bool p_alpha = true) const;
     [[nodiscard]] Color from_hsv(float p_h, float p_s, float p_v, float p_a) const;
     static Color from_rgbe9995(uint32_t p_rgbe);
 
     _FORCE_INLINE_ bool operator<(const Color &p_color) const; //used in set keys
-    operator String() const;
+    operator se_string() const;
 
     /**
      * No construct parameters, r=0, g=0, b=0. a=255

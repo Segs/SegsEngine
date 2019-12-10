@@ -1,5 +1,11 @@
 #include "import_utils.h"
 
+template<typename T>
+struct GenericDeleter {
+    void operator()(T *fa) const {
+        memdelete(fa);
+    }
+};
 
 float AssimpUtils::get_fbx_fps(int32_t time_mode, const aiScene *p_scene) {
     switch (time_mode) {
@@ -25,14 +31,14 @@ float AssimpUtils::get_fbx_fps(int32_t time_mode, const aiScene *p_scene) {
     return 0;
 }
 
-void AssimpUtils::find_texture_path(const String &p_path, DirAccess *dir, String &path, bool &found, const String &extension) {
-    Vector<String> paths;
+void AssimpUtils::find_texture_path(se_string_view p_path, DirAccess *dir, se_string &path, bool &found, const se_string &extension) {
+    Vector<se_string> paths;
     using namespace PathUtils;
-    paths.push_back(get_basename(path) + extension);
+    paths.push_back(se_string(get_basename(path)) + extension);
     paths.push_back(path + extension);
     paths.push_back(path);
-    paths.push_back(plus_file(get_base_dir(p_path),get_basename(get_file(path)) + extension));
-    paths.push_back(plus_file(get_base_dir(p_path),get_file(path) + extension));
+    paths.push_back(plus_file(get_base_dir(p_path),se_string(get_basename(get_file(path))) + extension));
+    paths.push_back(plus_file(get_base_dir(p_path),se_string(get_file(path)) + extension));
     paths.push_back(plus_file(get_base_dir(p_path),get_file(path)));
     paths.push_back(plus_file(get_base_dir(p_path),"textures/" + get_basename(get_file(path)) + extension));
     paths.push_back(plus_file(get_base_dir(p_path),"textures/" + get_file(path) + extension));
@@ -67,15 +73,15 @@ void AssimpUtils::find_texture_path(const String &p_path, DirAccess *dir, String
     }
 }
 
-void AssimpUtils::find_texture_path(const String &r_p_path, String &r_path, bool &r_found) {
+void AssimpUtils::find_texture_path(const se_string &r_p_path, se_string &r_path, bool &r_found) {
 
     using namespace PathUtils;
 
     eastl::unique_ptr<DirAccess,GenericDeleter<DirAccess>> dir(DirAccess::create(DirAccess::ACCESS_RESOURCES));
-    Vector<String> exts;
-    ImageLoader::get_recognized_extensions(&exts);
+    PODVector<se_string> exts;
+    ImageLoader::get_recognized_extensions(exts);
 
-    Vector<String> split_path = StringUtils::split(get_basename(r_path),'*');
+    Vector<se_string_view> split_path = StringUtils::split(get_basename(r_path),'*');
     if (split_path.size() == 2) {
         r_found = true;
         return;
@@ -115,28 +121,28 @@ void AssimpUtils::set_texture_mapping_mode(aiTextureMapMode *map_mode, Ref<Image
     texture->set_flags(flags);
 }
 
-Ref<Image> AssimpUtils::load_image(ImportState &state, const aiScene *p_scene, const String &p_path) {
+Ref<Image> AssimpUtils::load_image(ImportState &state, const aiScene *p_scene, se_string_view p_path) {
     using namespace PathUtils;
-    Map<String, Ref<Image> >::iterator match = state.path_to_image_cache.find(p_path);
+    Map<se_string, Ref<Image> >::iterator match = state.path_to_image_cache.find_as(p_path);
 
     // if our cache contains this image then don't bother
     if (match!=state.path_to_image_cache.end()) {
         return match->second;
     }
 
-    Vector<String> split_path = StringUtils::split(get_basename(p_path),'*');
+    Vector<se_string_view> split_path = StringUtils::split(get_basename(p_path),'*');
     if (split_path.size() == 2) {
         size_t texture_idx = StringUtils::to_int(split_path[1]);
         ERR_FAIL_COND_V(texture_idx >= p_scene->mNumTextures, Ref<Image>())
                 aiTexture *tex = p_scene->mTextures[texture_idx];
-        String filename = AssimpUtils::get_raw_string_from_assimp(tex->mFilename);
+        se_string filename = AssimpUtils::get_raw_string_from_assimp(tex->mFilename);
         filename = get_file(filename);
         print_verbose("Open Asset Import: Loading embedded texture " + filename);
         if (tex->mHeight == 0) {
             Ref<Image> img(make_ref_counted<Image>());
             Error e=img->load_from_buffer((uint8_t *)tex->pcData, tex->mWidth,tex->achFormatHint);
             ERR_FAIL_COND_V(e!=OK, Ref<Image>())
-                    state.path_to_image_cache.emplace(p_path, img);
+                    state.path_to_image_cache.emplace(se_string(p_path), img);
         } else {
             Ref<Image> img(make_ref_counted<Image>());
             PoolByteArray arr;
@@ -153,7 +159,7 @@ Ref<Image> AssimpUtils::load_image(ImportState &state, const aiScene *p_scene, c
             }
             img->create(tex->mWidth, tex->mHeight, true, Image::FORMAT_RGBA8, arr);
             ERR_FAIL_COND_V(not img, Ref<Image>())
-            state.path_to_image_cache.emplace(p_path, img);
+            state.path_to_image_cache.emplace(se_string(p_path), img);
             return img;
         }
         return Ref<Image>();
@@ -168,7 +174,7 @@ Ref<Image> AssimpUtils::load_image(ImportState &state, const aiScene *p_scene, c
             else if(Ref<BitMap> bitmap = dynamic_ref_cast<BitMap>(loaded)) {
                 image = bitmap->convert_to_image();
             }
-            state.path_to_image_cache.emplace(p_path, image);
+            state.path_to_image_cache.emplace(se_string(p_path), image);
             return image;
         }
     }
@@ -176,7 +182,7 @@ Ref<Image> AssimpUtils::load_image(ImportState &state, const aiScene *p_scene, c
     return Ref<Image>();
 }
 
-bool AssimpUtils::CreateAssimpTexture(ImportState &state, const aiString &texture_path, String &filename, String &path, AssimpImageData &image_state) {
+bool AssimpUtils::CreateAssimpTexture(ImportState &state, const aiString &texture_path, se_string &filename, se_string &path, AssimpImageData &image_state) {
     using namespace PathUtils;
     filename = get_raw_string_from_assimp(texture_path);
     path = from_native_path(plus_file(get_base_dir(state.path),filename));

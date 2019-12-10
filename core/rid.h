@@ -123,7 +123,7 @@ protected:
 
     _FORCE_INLINE_ void _remove_owner(RID &p_rid) {
 
-        p_rid._data->_owner = NULL;
+        p_rid._data->_owner = nullptr;
     }
 #endif
 

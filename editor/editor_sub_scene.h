@@ -59,8 +59,8 @@ protected:
 	void _notification(int p_what);
 	static void _bind_methods();
 	void _path_browse();
-	void _path_selected(const String &p_path);
-	void _path_changed(const String &p_path);
+	void _path_selected(se_string_view p_path);
+	void _path_changed(se_string_view p_path);
 
 public:
 	void move(Node *p_new_parent, Node *p_new_owner);

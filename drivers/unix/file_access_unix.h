@@ -28,27 +28,27 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef FILE_ACCESS_UNIX_H
-#define FILE_ACCESS_UNIX_H
+#pragma once
 
 #include "core/os/file_access.h"
 #include "core/os/memory.h"
+#include "core/se_string.h"
 #include <cstdio>
 
 #if defined(UNIX_ENABLED) || defined(LIBC_FILEIO_ENABLED)
 
-#include "core/ustring.h"
 
-using CloseNotificationFunc = void (*)(const String &, int);
+
+using CloseNotificationFunc = void (*)(se_string_view, int);
 
 class FileAccessUnix : public FileAccess {
 
     FILE *f=nullptr;
     int flags=0;
     mutable Error last_error=OK;
-    String save_path;
-    String path;
-    String path_src;
+    se_string save_path;
+    se_string path;
+    se_string path_src;
 
     void check_errors() const;
 
@@ -57,12 +57,14 @@ class FileAccessUnix : public FileAccess {
 public:
     static CloseNotificationFunc close_notification_func;
 
-    Error _open(const String &p_path, int p_mode_flags) override; ///< open a file
+    Error _open(se_string_view p_path, int p_mode_flags) override; ///< open a file
     void close() override; ///< close a file
     bool is_open() const override; ///< true when file is open
 
-    String get_path() const override; /// returns the path for the current open file
-    String get_path_absolute() const override; /// returns the absolute path for the current open file
+    const se_string &get_path() const override {
+        return path_src;
+    } /// returns the path for the current open file
+    const se_string &get_path_absolute() const override; /// returns the absolute path for the current open file
 
     void seek(size_t p_position) override; ///< seek to a given position
     void seek_end(int64_t p_position = 0) override; ///< seek from the end of file
@@ -80,15 +82,14 @@ public:
     void store_8(uint8_t p_dest) override; ///< store a byte
     void store_buffer(const uint8_t *p_src, int p_length) override; ///< store an array of bytes
 
-    bool file_exists(const String &p_path) override; ///< return true if a file exists
+    bool file_exists(se_string_view p_path) override; ///< return true if a file exists
 
-    uint64_t _get_modified_time(const String &p_file) override;
-    uint32_t _get_unix_permissions(const String &p_file) override;
-    Error _set_unix_permissions(const String &p_file, uint32_t p_permissions) override;
+    uint64_t _get_modified_time(se_string_view p_file) override;
+    uint32_t _get_unix_permissions(se_string_view p_file) override;
+    Error _set_unix_permissions(se_string_view p_file, uint32_t p_permissions) override;
 
     FileAccessUnix();
     ~FileAccessUnix() override;
 };
 
-#endif
 #endif

@@ -15,10 +15,10 @@ class FileAccessPack : public FileAccess {
     mutable bool eof;
 
     FileAccess *f;
-    Error _open(const String &p_path, int p_mode_flags) override;
-    uint64_t _get_modified_time(const String &p_file) override { return 0; }
-    uint32_t _get_unix_permissions(const String &p_file) override { return 0; }
-    Error _set_unix_permissions(const String &p_file, uint32_t p_permissions) override { return FAILED; }
+    Error _open(se_string_view p_path, int p_mode_flags) override;
+    uint64_t _get_modified_time(se_string_view p_file) override { return 0; }
+    uint32_t _get_unix_permissions(se_string_view p_file) override { return 0; }
+    Error _set_unix_permissions(se_string_view p_file, uint32_t p_permissions) override { return FAILED; }
 
 public:
     void close() override;
@@ -44,14 +44,14 @@ public:
 
     void store_buffer(const uint8_t *p_src, int p_length) override;
 
-    bool file_exists(const String &p_name) override;
+    bool file_exists(se_string_view p_name) override;
 
-    FileAccessPack(const String &p_path, const PackedDataFile &p_file);
+    FileAccessPack(se_string_view p_path, const PackedDataFile &p_file);
     ~FileAccessPack() override;
 };
 //////////////////////////////////////////////////////////////////
 
-Error FileAccessPack::_open(const String &p_path, int p_mode_flags) {
+Error FileAccessPack::_open(se_string_view p_path, int p_mode_flags) {
 
     ERR_FAIL_V(ERR_UNAVAILABLE)
     return ERR_UNAVAILABLE;
@@ -153,16 +153,16 @@ void FileAccessPack::store_buffer(const uint8_t *p_src, int p_length) {
     ERR_FAIL()
 }
 
-bool FileAccessPack::file_exists(const String &p_name) {
+bool FileAccessPack::file_exists(se_string_view p_name) {
 
     return false;
 }
 
-FileAccessPack::FileAccessPack(const String &p_path, const PackedDataFile &p_file) :
+FileAccessPack::FileAccessPack(se_string_view p_path, const PackedDataFile &p_file) :
         pf(p_file),
         f(FileAccess::open(pf.pack, FileAccess::READ)) {
 
-    ERR_FAIL_COND_MSG(!f, "Can't open pack-referenced file '" + String(pf.pack) + "'.")
+    ERR_FAIL_COND_MSG(!f, "Can't open pack-referenced file '" + pf.pack + "'.")
 
     f->seek(pf.offset);
     pos = 0;
@@ -179,7 +179,7 @@ FileAccessPack::~FileAccessPack() {
 
 //////////////////////////////////////////////////////////////////
 
-bool PackedSourcePCK::try_open_pack(const String &p_path, bool p_replace_files) {
+bool PackedSourcePCK::try_open_pack(se_string_view p_path, bool p_replace_files) {
 
     FileAccess *f = FileAccess::open(p_path, FileAccess::READ);
     if (!f)
@@ -246,7 +246,7 @@ bool PackedSourcePCK::try_open_pack(const String &p_path, bool p_replace_files) 
         f->get_buffer((uint8_t *)cs.data(), sl);
         cs[sl] = 0;
 
-        String path = StringUtils::from_utf8(cs.data());
+        se_string path(cs.data());
 
         uint64_t ofs = f->get_64();
         uint64_t size = f->get_64();
@@ -261,7 +261,7 @@ bool PackedSourcePCK::try_open_pack(const String &p_path, bool p_replace_files) 
 };
 
 
-FileAccess *PackedSourcePCK::get_file(const String &p_path, PackedDataFile *p_file) {
+FileAccess *PackedSourcePCK::get_file(se_string_view p_path, PackedDataFile *p_file) {
 
     return memnew_basic(FileAccessPack(p_path, *p_file));
 };

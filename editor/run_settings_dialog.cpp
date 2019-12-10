@@ -43,7 +43,7 @@ void RunSettingsDialog::set_custom_arguments(const String &p_arguments) {
 
     arguments->set_text(p_arguments);
 }
-String RunSettingsDialog::get_custom_arguments() const {
+se_string RunSettingsDialog::get_custom_arguments() const {
 
     return arguments->get_text();
 }

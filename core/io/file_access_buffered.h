@@ -32,60 +32,60 @@
 
 #include "core/os/file_access.h"
 #include "core/vector.h"
-#include "core/ustring.h"
+#include "core/se_string.h"
 
 class FileAccessBuffered : public FileAccess {
 
 public:
-	enum {
-		DEFAULT_CACHE_SIZE = 128 * 1024,
-	};
+    enum {
+        DEFAULT_CACHE_SIZE = 128 * 1024,
+    };
 
 private:
-	int cache_size = DEFAULT_CACHE_SIZE;
+    int cache_size = DEFAULT_CACHE_SIZE;
 
-	int cache_data_left() const;
-	mutable Error last_error;
+    int cache_data_left() const;
+    mutable Error last_error;
 
 protected:
-	Error set_error(Error p_error) const;
+    Error set_error(Error p_error) const;
 
-	mutable struct File {
+    mutable struct File {
 
-		bool open;
-		int size;
-		int offset;
-		String name;
-		int access_flags;
-	} file;
+        bool open;
+        int size;
+        int offset;
+        se_string name;
+        int access_flags;
+    } file;
 
-	mutable struct Cache {
+    mutable struct Cache {
 
-		Vector<uint8_t> buffer;
-		int offset;
-	} cache;
+        Vector<uint8_t> buffer;
+        int offset;
+    } cache;
 
-	virtual int read_data_block(int p_offset, int p_size, uint8_t *p_dest = nullptr) const = 0;
+    virtual int read_data_block(int p_offset, int p_size, uint8_t *p_dest = nullptr) const = 0;
 
-	void set_cache_size(int p_size);
-	int get_cache_size();
+    void set_cache_size(int p_size);
+    int get_cache_size();
 
 public:
-	size_t get_position() const override; ///< get position in the file
-	size_t get_len() const override; ///< get size of the file
+    size_t get_position() const override; ///< get position in the file
+    size_t get_len() const override; ///< get size of the file
 
-	void seek(size_t p_position) override; ///< seek to a given position
-	void seek_end(int64_t p_position = 0) override; ///< seek from the end of file
+    void seek(size_t p_position) override; ///< seek to a given position
+    void seek_end(int64_t p_position = 0) override; ///< seek from the end of file
 
-	bool eof_reached() const override;
+    bool eof_reached() const override;
 
-	uint8_t get_8() const override;
-	int get_buffer(uint8_t *p_dest, int p_length) const override; ///< get an array of bytes
+    uint8_t get_8() const override;
+    int get_buffer(uint8_t *p_dest, int p_length) const override; ///< get an array of bytes
 
-	bool is_open() const override;
+    bool is_open() const override;
 
-	Error get_error() const override;
+    Error get_error() const override;
 
-	FileAccessBuffered() = default;
-	~FileAccessBuffered() override = default ;
+    FileAccessBuffered() = default;
+    ~FileAccessBuffered() override = default ;
 };

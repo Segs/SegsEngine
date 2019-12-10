@@ -33,7 +33,8 @@
 #include "core/math/math_funcs.h"
 #include "core/math/quat.h"
 #include "core/print_string.h"
-#include "core/ustring.h"
+#include "core/se_string.h"
+#include "core/string_utils.h"
 
 
 void Transform::affine_invert() {
@@ -204,9 +205,9 @@ Transform Transform::operator*(const Transform &p_transform) const {
     return t;
 }
 
-Transform::operator String() const {
+Transform::operator se_string() const {
 
-    return basis.operator String() + " - " + origin.operator String();
+    return (se_string)basis + " - " + (se_string)origin;
 }
 
 Transform::Transform(real_t xx, real_t xy, real_t xz, real_t yx, real_t yy, real_t yz, real_t zx, real_t zy, real_t zz, real_t ox, real_t oy, real_t oz) {

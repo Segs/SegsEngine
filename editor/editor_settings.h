@@ -51,13 +51,13 @@ public:
     struct Plugin {
 
         EditorPlugin *instance;
-        String path;
-        String name;
-        String author;
-        String version;
-        String description;
+        se_string path;
+        se_string name;
+        se_string author;
+        se_string version;
+        se_string description;
         bool installs;
-        String script;
+        se_string script;
         Vector<String> install_files;
     };
 
@@ -81,22 +81,22 @@ private:
 
     static Ref<EditorSettings> singleton;
 
-    HashMap<String, PropertyInfo> hints;
-    HashMap<String, VariantContainer> props;
+    HashMap<StringName, PropertyInfo> hints;
+    HashMap<StringName, VariantContainer> props;
     int last_order;
 
     Ref<Resource> clipboard;
-    Map<String, Ref<ShortCut> > shortcuts;
+    Map<se_string, Ref<ShortCut> > shortcuts;
 
-    String resource_path;
-    String settings_dir;
-    String data_dir;
-    String cache_dir;
-    String config_file_path;
-    String project_config_dir;
+    se_string resource_path;
+    se_string settings_dir;
+    se_string data_dir;
+    se_string cache_dir;
+    se_string config_file_path;
+    se_string project_config_dir;
 
-    Vector<String> favorites;
-    Vector<String> recent_dirs;
+    Vector<se_string> favorites;
+    Vector<se_string> recent_dirs;
 
     bool save_changed_setting;
     bool optimize_save; //do not save stuff that came from config but was not set from engine
@@ -110,8 +110,8 @@ private:
 
     void _load_defaults(const Ref<ConfigFile> &p_extra_config = Ref<ConfigFile>());
     void _load_default_text_editor_theme();
-    bool _save_text_editor_theme(const String& p_file);
-    bool _is_default_text_editor_theme(const String& p_theme_name);
+    bool _save_text_editor_theme(se_string_view p_file);
+    bool _is_default_text_editor_theme(se_string_view p_theme_name);
 
 protected:
     static void _bind_methods();
@@ -130,12 +130,12 @@ public:
     static void destroy();
     void set_optimize_save(bool p_optimize);
 
-    bool has_default_value(const String &p_setting) const;
-    void set_setting(const String &p_setting, const Variant &p_value);
-    Variant get_setting(const String &p_setting) const;
-    bool has_setting(const String &p_setting) const;
-    void erase(const String &p_setting);
-    void raise_order(const String &p_setting);
+    bool has_default_value(const StringName &p_setting) const;
+    void set_setting(const StringName &p_setting, const Variant &p_value);
+    Variant get_setting(const StringName &p_setting) const;
+    bool has_setting(const StringName &p_setting) const;
+    void erase(const StringName &p_setting);
+    void raise_order(const StringName &p_setting);
     void set_initial_value(const StringName &p_setting, const Variant &p_value, bool p_update_current = false);
     void set_restart_if_changed(const StringName &p_setting, bool p_restart);
     void set_manually(const StringName &p_setting, const Variant &p_value, bool p_emit_signal = false) {
@@ -144,48 +144,48 @@ public:
         else
             _set_only(p_setting, p_value);
     }
-    bool property_can_revert(const String &p_setting);
-    Variant property_get_revert(const String &p_setting);
+    bool property_can_revert(const StringName &p_setting);
+    Variant property_get_revert(const StringName &p_setting);
     void add_property_hint(const PropertyInfo &p_hint);
 
     void set_resource_clipboard(const Ref<Resource> &p_resource) { clipboard = p_resource; }
     Ref<Resource> get_resource_clipboard() const { return clipboard; }
 
-    String get_data_dir() const;
-    String get_templates_dir() const;
-    String get_settings_dir() const;
-    String get_project_settings_dir() const;
-    String get_text_editor_themes_dir() const;
-    String get_script_templates_dir() const;
-    String get_project_script_templates_dir() const;
-    String get_cache_dir() const;
-    String get_feature_profiles_dir() const;
+    const se_string &get_data_dir() const;
+    se_string get_templates_dir() const;
+    const se_string &get_settings_dir() const;
+    se_string get_project_settings_dir() const;
+    se_string get_text_editor_themes_dir() const;
+    se_string get_script_templates_dir() const;
+    se_string get_project_script_templates_dir() const;
+    const se_string &get_cache_dir() const;
+    se_string get_feature_profiles_dir() const;
 
-    void set_project_metadata(const String &p_section, const String &p_key, const Variant& p_data);
-    Variant get_project_metadata(const String &p_section, const String &p_key, const Variant& p_default) const;
+    void set_project_metadata(se_string_view p_section, se_string_view p_key, const Variant& p_data);
+    Variant get_project_metadata(se_string_view p_section, se_string_view p_key, const Variant& p_default) const;
 
-    void set_favorites(const Vector<String> &p_favorites);
-    Vector<String> get_favorites() const;
-    void set_recent_dirs(const Vector<String> &p_recent_dirs);
-    Vector<String> get_recent_dirs() const;
+    void set_favorites(const Vector<se_string> &p_favorites);
+    const Vector<se_string> &get_favorites() const;
+    void set_recent_dirs(const Vector<se_string> &p_recent_dirs);
+    const Vector<se_string> &get_recent_dirs() const;
     void load_favorites();
 
     bool is_dark_theme();
 
     void list_text_editor_themes();
     void load_text_editor_theme();
-    bool import_text_editor_theme(const String& p_file);
+    bool import_text_editor_theme(se_string_view p_file);
     bool save_text_editor_theme();
-    bool save_text_editor_theme_as(String p_file);
+    bool save_text_editor_theme_as(se_string_view p_file);
     bool is_default_text_editor_theme();
 
-    Vector<String> get_script_templates(const String &p_extension, const String &p_custom_path = String());
-    String get_editor_layouts_config() const;
+    PODVector<se_string> get_script_templates(se_string_view p_extension, se_string_view p_custom_path = {});
+    se_string get_editor_layouts_config() const;
 
-    void add_shortcut(const String &p_name, Ref<ShortCut> &p_shortcut);
-    bool is_shortcut(const String &p_name, const Ref<InputEvent> &p_event) const;
-    Ref<ShortCut> get_shortcut(const String &p_name) const;
-    void get_shortcut_list(List<String> *r_shortcuts);
+    void add_shortcut(se_string_view p_name, Ref<ShortCut> &p_shortcut);
+    bool is_shortcut(se_string_view p_name, const Ref<InputEvent> &p_event) const;
+    Ref<ShortCut> get_shortcut(se_string_view p_name) const;
+    void get_shortcut_list(List<se_string> *r_shortcuts);
 
     void notify_changes();
 
@@ -195,13 +195,13 @@ public:
 
 //not a macro any longer
 
-#define EDITOR_DEF(m_var, m_val) _EDITOR_DEF(m_var, Variant(m_val))
-#define EDITOR_DEF_RST(m_var, m_val) _EDITOR_DEF(m_var, Variant(m_val), true)
-Variant _EDITOR_DEF(const String &p_setting, const Variant &p_default, bool p_restart_if_changed = false);
+#define EDITOR_DEF(m_var, m_val) _EDITOR_DEF(StringName(m_var), Variant(m_val))
+#define EDITOR_DEF_RST(m_var, m_val) _EDITOR_DEF(StringName(m_var), Variant(m_val), true)
+Variant _EDITOR_DEF(const StringName &p_setting, const Variant &p_default, bool p_restart_if_changed = false);
 
 #define EDITOR_GET(m_var) _EDITOR_GET(m_var)
-Variant _EDITOR_GET(const String &p_setting);
+Variant _EDITOR_GET(const StringName &p_setting);
 
 #define ED_IS_SHORTCUT(p_name, p_ev) (EditorSettings::get_singleton()->is_shortcut(p_name, p_ev))
-Ref<ShortCut> ED_SHORTCUT(const String &p_path, const String &p_name, uint32_t p_keycode = 0);
-Ref<ShortCut> ED_GET_SHORTCUT(const String &p_path);
+Ref<ShortCut> ED_SHORTCUT(se_string_view p_path, const StringName &p_name, uint32_t p_keycode = 0);
+Ref<ShortCut> ED_GET_SHORTCUT(se_string_view p_path);

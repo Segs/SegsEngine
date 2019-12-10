@@ -237,7 +237,7 @@ protected:
     static void _bind_methods();
 
     void _validate_property(PropertyInfo &property) const override;
-    void _changed_callback(Object *p_changed, const char *p_prop) override;
+    void _changed_callback(Object *p_changed, StringName p_prop) override;
 
 public:
     enum {
@@ -342,7 +342,7 @@ public:
     void set_clip_uv(bool p_enable);
     bool get_clip_uv() const;
 
-    String get_configuration_warning() const override;
+    StringName get_configuration_warning() const override;
 
     void fix_invalid_tiles();
     void clear();

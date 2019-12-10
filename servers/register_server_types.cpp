@@ -97,10 +97,10 @@ Physics2DServer *_createGodotPhysics2DCallback() {
     return Physics2DServerWrapMT::init_server<Physics2DServerSW>();
 }
 
-static bool has_server_feature_callback(const String &p_feature) {
+static bool has_server_feature_callback(se_string_view p_feature) {
 
     if (VisualServer::get_singleton()) {
-        if (VisualServer::get_singleton()->has_os_feature(p_feature)) {
+        if (VisualServer::get_singleton()->has_os_feature(StringName(p_feature))) {
             return true;
         }
     }
@@ -258,8 +258,8 @@ void setup_server_defs()
     ProjectSettings::get_singleton()->set_custom_property_info(Physics2DServerManager::setting_property_name,
             PropertyInfo(VariantType::STRING, StringName(Physics2DServerManager::setting_property_name), PROPERTY_HINT_ENUM, "DEFAULT"));
 
-    Physics2DServerManager::register_server("GodotPhysics", &_createGodotPhysics2DCallback);
-    Physics2DServerManager::set_default_server("GodotPhysics");
+    Physics2DServerManager::register_server(("GodotPhysics"), &_createGodotPhysics2DCallback);
+    Physics2DServerManager::set_default_server(("GodotPhysics"));
 
     // Physics 3D
     GLOBAL_DEF(PhysicsServerManager::setting_property_name, "DEFAULT");
@@ -267,7 +267,7 @@ void setup_server_defs()
         PropertyInfo(VariantType::STRING, StringName(PhysicsServerManager::setting_property_name), PROPERTY_HINT_ENUM, "DEFAULT"));
 
     PhysicsServerManager::register_server("GodotPhysics", &_createGodotPhysicsCallback);
-    PhysicsServerManager::set_default_server("GodotPhysics");
+    PhysicsServerManager::set_default_server(("GodotPhysics"));
 
 }
 void unregister_server_types() {

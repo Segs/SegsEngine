@@ -63,11 +63,11 @@ void PCKPacker::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("flush", {"verbose"}), &PCKPacker::flush);
 };
 
-Error PCKPacker::pck_start(const String &p_file, int p_alignment) {
+Error PCKPacker::pck_start(se_string_view p_file, int p_alignment) {
 
     file = FileAccess::open(p_file, FileAccess::WRITE);
 
-    ERR_FAIL_COND_V_MSG(!file, ERR_CANT_CREATE, "Can't open file to write: " + String(p_file) + ".")
+    ERR_FAIL_COND_V_MSG(!file, ERR_CANT_CREATE, "Can't open file to write: " + se_string(p_file) + ".")
 
     alignment = p_alignment;
 
@@ -87,7 +87,7 @@ Error PCKPacker::pck_start(const String &p_file, int p_alignment) {
     return OK;
 };
 
-Error PCKPacker::add_file(const String &p_file, const String &p_src) {
+Error PCKPacker::add_file(se_string_view p_file, se_string_view p_src) {
 
     FileAccess *f = FileAccess::open(p_src, FileAccess::READ);
     if (!f) {

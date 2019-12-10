@@ -63,12 +63,12 @@ Physics2DServer *Physics2DServer::singleton = nullptr;
 
 namespace {
 struct ClassInfo {
-    String name;
+    StringName name;
     CreatePhysics2DServerCallback create_callback=nullptr;
 
     ClassInfo() = default;
 
-    ClassInfo(String p_name, CreatePhysics2DServerCallback p_create_callback) :
+    ClassInfo(StringName p_name, CreatePhysics2DServerCallback p_create_callback) :
             name(std::move(p_name)),
             create_callback(p_create_callback) {}
 
@@ -295,7 +295,7 @@ void Physics2DShapeQueryParameters::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("is_collide_with_areas_enabled"), &Physics2DShapeQueryParameters::is_collide_with_areas_enabled);
 
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "collision_layer", PROPERTY_HINT_LAYERS_2D_PHYSICS), "set_collision_layer", "get_collision_layer");
-    ADD_PROPERTY(PropertyInfo(VariantType::ARRAY, "exclude", PROPERTY_HINT_NONE, StringUtils::to_utf8(itos(int8_t(VariantType::_RID)) + ":")), "set_exclude", "get_exclude");
+    ADD_PROPERTY(PropertyInfo(VariantType::ARRAY, "exclude", PROPERTY_HINT_NONE, (itos(int8_t(VariantType::_RID)) + ":")), "set_exclude", "get_exclude");
     ADD_PROPERTY(PropertyInfo(VariantType::REAL, "margin", PROPERTY_HINT_RANGE, "0,100,0.01"), "set_margin", "get_margin");
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "motion"), "set_motion", "get_motion");
     //ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "shape", PROPERTY_HINT_RESOURCE_TYPE, "Shape2D"), "set_shape", ""); // FIXME: Lacks a getter
@@ -827,15 +827,15 @@ const StaticCString Physics2DServerManager::setting_property_name("physics/2d/ph
 
 void Physics2DServerManager::on_servers_changed() {
 
-    String physics_servers("DEFAULT");
+    se_string physics_servers("DEFAULT");
     for (int i = get_servers_count() - 1; 0 <= i; --i) {
-        physics_servers+= ',' + get_server_name(i);
+        physics_servers+= ',' + se_string(get_server_name(i));
     }
     ProjectSettings::get_singleton()->set_custom_property_info(setting_property_name,
             PropertyInfo(VariantType::STRING, StringName(setting_property_name), PROPERTY_HINT_ENUM, physics_servers));
 }
 
-void Physics2DServerManager::register_server(const String &p_name, CreatePhysics2DServerCallback p_creat_callback) {
+void Physics2DServerManager::register_server(const StringName &p_name, CreatePhysics2DServerCallback p_creat_callback) {
 
     ERR_FAIL_COND(!p_creat_callback)
     ERR_FAIL_COND(find_server_id(p_name) != -1)
@@ -843,7 +843,7 @@ void Physics2DServerManager::register_server(const String &p_name, CreatePhysics
     on_servers_changed();
 }
 
-void Physics2DServerManager::set_default_server(const String &p_name, int p_priority) {
+void Physics2DServerManager::set_default_server(const StringName &p_name, int p_priority) {
 
     const int id = find_server_id(p_name);
     ERR_FAIL_COND(id == -1) // Not found
@@ -853,7 +853,7 @@ void Physics2DServerManager::set_default_server(const String &p_name, int p_prio
     }
 }
 
-int Physics2DServerManager::find_server_id(const String &p_name) {
+int Physics2DServerManager::find_server_id(const StringName &p_name) {
 
     for (int i = physics_2d_servers.size() - 1; 0 <= i; --i) {
         if (p_name == physics_2d_servers[i].name) {
@@ -867,8 +867,8 @@ int Physics2DServerManager::get_servers_count() {
     return physics_2d_servers.size();
 }
 
-String Physics2DServerManager::get_server_name(int p_id) {
-    ERR_FAIL_INDEX_V(p_id, get_servers_count(), "")
+StringName Physics2DServerManager::get_server_name(int p_id) {
+    ERR_FAIL_INDEX_V(p_id, get_servers_count(), StringName())
     return physics_2d_servers[p_id].name;
 }
 
@@ -877,7 +877,7 @@ Physics2DServer *Physics2DServerManager::new_default_server() {
     return physics_2d_servers[default_server_id].create_callback();
 }
 
-Physics2DServer *Physics2DServerManager::new_server(const String &p_name) {
+Physics2DServer *Physics2DServerManager::new_server(const StringName &p_name) {
     int id = find_server_id(p_name);
     if (id == -1) {
         return nullptr;

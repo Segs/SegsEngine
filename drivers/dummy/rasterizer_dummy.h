@@ -181,7 +181,7 @@ public:
         DummyTexture *t = texture_owner.get(p_texture);
 
         ERR_FAIL_COND(!t)
-		ERR_FAIL_COND_CMSG(not p_image, "It's not a reference to a valid Image object.")
+        ERR_FAIL_COND_CMSG(not p_image, "It's not a reference to a valid Image object.")
         ERR_FAIL_COND(t->format != p_image->get_format())
         ERR_FAIL_COND(src_w <= 0 || src_h <= 0)
         ERR_FAIL_COND(src_x < 0 || src_y < 0 || src_x + src_w > p_image->get_width() || src_y + src_h > p_image->get_height())
@@ -219,14 +219,14 @@ public:
     void texture_set_size_override(RID p_texture, int p_width, int p_height, int p_depth_3d) {}
     void texture_bind(RID p_texture, uint32_t p_texture_no) {}
 
-    void texture_set_path(RID p_texture, const String &p_path) {
+    void texture_set_path(RID p_texture, se_string_view p_path) {
         DummyTexture *t = texture_owner.getornull(p_texture);
         ERR_FAIL_COND(!t)
         t->path = p_path;
     }
-    String texture_get_path(RID p_texture) const {
+    const se_string &texture_get_path(RID p_texture) const {
         DummyTexture *t = texture_owner.getornull(p_texture);
-        ERR_FAIL_COND_V(!t, String())
+        ERR_FAIL_COND_V(!t, null_se_string)
         return t->path;
     }
 
@@ -255,8 +255,8 @@ public:
 
     RID shader_create() { return RID(); }
 
-    void shader_set_code(RID p_shader, const String &p_code) {}
-    String shader_get_code(RID p_shader) const { return ""; }
+    void shader_set_code(RID p_shader, const se_string &p_code) {}
+    se_string shader_get_code(RID p_shader) const { 	return String(); }
     void shader_get_param_list(RID p_shader, PODVector<PropertyInfo> *p_param_list) const {}
 
     void shader_set_default_texture_param(RID p_shader, const StringName &p_name, RID p_texture) {}

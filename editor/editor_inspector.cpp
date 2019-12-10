@@ -36,6 +36,7 @@
 #include "multi_node_edit.h"
 #include "editor_feature_profile.h"
 #include "scene/resources/packed_scene.h"
+#include "scene/gui/rich_text_label.h"
 #include "core/method_bind.h"
 #include "scene/main/scene_tree.h"
 #include "scene/resources/style_box.h"
@@ -262,7 +263,7 @@ void EditorProperty::_notification(int p_what) {
         }
 
         int v_ofs = (size.height - font->get_height()) / 2;
-        draw_string(font, Point2(ofs, v_ofs + font->get_ascent()), label, color, text_limit);
+        draw_string(font, Point2(ofs, v_ofs + font->get_ascent()), StringUtils::from_utf8(label), color, text_limit);
 
         if (keying) {
             Ref<Texture> key;
@@ -289,12 +290,12 @@ void EditorProperty::_notification(int p_what) {
     }
 }
 
-void EditorProperty::set_label(const String &p_label) {
+void EditorProperty::set_label(se_string_view p_label) {
     label = p_label;
     update();
 }
 
-String EditorProperty::get_label() const {
+const se_string &EditorProperty::get_label() const {
     return label;
 }
 
@@ -713,7 +714,7 @@ void EditorProperty::set_bottom_editor(Control *p_control) {
 }
 Variant EditorProperty::get_drag_data(const Point2 &p_point) {
 
-    if (property == StringName())
+    if (property.empty())
         return Variant();
 
     Dictionary dp;
@@ -766,21 +767,21 @@ void EditorProperty::set_object_and_property(Object *p_object, const StringName 
     property = p_property;
 }
 
-Control *EditorProperty::make_custom_tooltip(const String &p_text) const {
+Control *EditorProperty::make_custom_tooltip(se_string_view p_text) const {
 
     tooltip_text = p_text;
     EditorHelpBit *help_bit = memnew(EditorHelpBit);
     help_bit->add_style_override("panel", get_stylebox("panel", "TooltipPanel"));
     help_bit->get_rich_text()->set_fixed_size_to_width(360 * EDSCALE);
 
-    String text = TTR("Property:") + " [u][b]" + StringUtils::get_slice(p_text,"::", 0) + "[/b][/u]\n";
+    se_string text = se_string(TTR("Property:")) + " [u][b]" + StringUtils::get_slice(p_text,"::", 0) + "[/b][/u]\n";
     text += StringUtils::strip_edges(StringUtils::get_slice(p_text,"::", 1));
     help_bit->set_text(text);
     help_bit->call_deferred("set_text", text); //hack so it uses proper theme once inside scene
     return help_bit;
 }
 
-String EditorProperty::get_tooltip_text() const {
+const se_string& EditorProperty::get_tooltip_text() const {
     return tooltip_text;
 }
 
@@ -870,17 +871,17 @@ void EditorInspectorPlugin::add_custom_control(Control *control) {
     added_editors.push_back(ae);
 }
 
-void EditorInspectorPlugin::add_property_editor(const String &p_for_property, Control *p_prop) {
+void EditorInspectorPlugin::add_property_editor(se_string_view p_for_property, Control *p_prop) {
 
     ERR_FAIL_COND(object_cast<EditorProperty>(p_prop) == nullptr)
 
     AddedEditor ae;
-    ae.properties.push_back(p_for_property);
+    ae.properties.emplace_back(p_for_property);
     ae.property_editor = p_prop;
     added_editors.push_back(ae);
 }
 
-void EditorInspectorPlugin::add_property_editor_for_multiple_properties(const String &p_label, const Vector<String> &p_properties, Control *p_prop) {
+void EditorInspectorPlugin::add_property_editor_for_multiple_properties(se_string_view p_label, const Vector<se_string> &p_properties, Control *p_prop) {
 
     AddedEditor ae;
     ae.properties = p_properties;
@@ -903,14 +904,14 @@ void EditorInspectorPlugin::parse_begin(Object *p_object) {
     }
 }
 
-void EditorInspectorPlugin::parse_category(Object *p_object, const String &p_parse_category) {
+void EditorInspectorPlugin::parse_category(Object *p_object, se_string_view p_parse_category) {
 
     if (get_script_instance()) {
         get_script_instance()->call("parse_category", Variant(p_object), p_parse_category);
     }
 }
 
-bool EditorInspectorPlugin::parse_property(Object *p_object, VariantType p_type, const String &p_path, PropertyHint p_hint, const String &p_hint_text, int p_usage) {
+bool EditorInspectorPlugin::parse_property(Object *p_object, VariantType p_type, se_string_view p_path, PropertyHint p_hint, se_string_view p_hint_text, int p_usage) {
 
     if (get_script_instance()) {
         Variant arg[6] = {
@@ -976,7 +977,7 @@ void EditorInspectorCategory::_notification(int p_what) {
 
         int hs = get_constant("hseparation", "Tree");
 
-        int w = font->get_string_size(label).width;
+        int w = font->get_string_size_utf8(label).width;
         if (icon) {
             w += hs + icon->get_width();
         }
@@ -989,18 +990,18 @@ void EditorInspectorCategory::_notification(int p_what) {
         }
 
         Color color = get_color("font_color", "Tree");
-        draw_string(font, Point2(ofs, font->get_ascent() + (get_size().height - font->get_height()) / 2).floor(), label, color, get_size().width);
+        draw_string_utf8(font, Point2(ofs, font->get_ascent() + (get_size().height - font->get_height()) / 2).floor(), label, color, get_size().width);
     }
 }
 
-Control *EditorInspectorCategory::make_custom_tooltip(const String &p_text) const {
+Control *EditorInspectorCategory::make_custom_tooltip(se_string_view p_text) const {
 
     tooltip_text = p_text;
     EditorHelpBit *help_bit = memnew(EditorHelpBit);
     help_bit->add_style_override("panel", get_stylebox("panel", "TooltipPanel"));
     help_bit->get_rich_text()->set_fixed_size_to_width(360 * EDSCALE);
 
-    String text = "[u][b]" + StringUtils::get_slice(p_text,"::", 0) + "[/b][/u]\n";
+    se_string text = se_string("[u][b]") + StringUtils::get_slice(p_text,"::", 0) + "[/b][/u]\n";
     text += StringUtils::strip_edges(StringUtils::get_slice(p_text,"::", 1));
     help_bit->set_text(text);
     help_bit->call_deferred("set_text", text); //hack so it uses proper theme once inside scene
@@ -1026,7 +1027,7 @@ void EditorInspectorCategory::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_tooltip_text"), &EditorInspectorCategory::get_tooltip_text);
 }
 
-String EditorInspectorCategory::get_tooltip_text() const {
+const se_string &EditorInspectorCategory::get_tooltip_text() const {
 
     return tooltip_text;
 }
@@ -1108,7 +1109,7 @@ void EditorInspectorSection::_notification(int p_what) {
         const int arrow_margin = 3;
 
         Color color = get_color("font_color", "Tree");
-        draw_string(font, Point2(Math::round((16 + arrow_margin) * EDSCALE), font->get_ascent() + (h - font->get_height()) / 2).floor(), label, color, get_size().width);
+        draw_string_utf8(font, Point2(Math::round((16 + arrow_margin) * EDSCALE), font->get_ascent() + (h - font->get_height()) / 2).floor(), label, color, get_size().width);
 
         if (arrow) {
             draw_texture(arrow, Point2(Math::round(arrow_margin * EDSCALE), (h - arrow->get_height()) / 2).floor());
@@ -1140,7 +1141,7 @@ Size2 EditorInspectorSection::get_minimum_size() const {
     return ms;
 }
 
-void EditorInspectorSection::setup(const String &p_section, const String &p_label, Object *p_object, const Color &p_bg_color, bool p_foldable) {
+void EditorInspectorSection::setup(se_string_view p_section, se_string_view p_label, Object *p_object, const Color &p_bg_color, bool p_foldable) {
 
     section = p_section;
     label = p_label;
@@ -1245,7 +1246,7 @@ EditorInspectorSection::~EditorInspectorSection() {
 Ref<EditorInspectorPlugin> EditorInspector::inspector_plugins[MAX_PLUGINS];
 int EditorInspector::inspector_plugin_count = 0;
 
-EditorProperty *EditorInspector::instantiate_property_editor(Object *p_object, VariantType p_type, const String &p_path, PropertyHint p_hint, const String &p_hint_text, int p_usage) {
+EditorProperty *EditorInspector::instantiate_property_editor(Object *p_object, VariantType p_type, se_string_view p_path, PropertyHint p_hint, se_string_view p_hint_text, int p_usage) {
 
     for (int i = inspector_plugin_count - 1; i >= 0; i--) {
 
@@ -1314,7 +1315,7 @@ void EditorInspector::set_undo_redo(UndoRedo *p_undo_redo) {
     undo_redo = p_undo_redo;
 }
 
-String EditorInspector::get_selected_path() const {
+const StringName & EditorInspector::get_selected_path() const {
 
     return property_selected;
 }
@@ -1342,7 +1343,7 @@ void EditorInspector::_parse_added_editors(VBoxContainer *current_vbox, const Re
 
                 if (F->deref().properties.size() == 1) {
                     //since it's one, associate:
-                    ep->property = F->deref().properties[0];
+                    ep->property = StringName(F->deref().properties[0]);
                     ep->property_usage = 0;
                 }
 
@@ -1351,11 +1352,8 @@ void EditorInspector::_parse_added_editors(VBoxContainer *current_vbox, const Re
                 }
 
                 for (int i = 0; i < F->deref().properties.size(); i++) {
-                    String prop = F->deref().properties[i];
+                    StringName prop(F->deref().properties[i]);
 
-                    if (!editor_property_map.contains(prop)) {
-                        editor_property_map[prop] = List<EditorProperty *>();
-                    }
                     editor_property_map[prop].push_back(ep);
                 }
             }
@@ -1444,15 +1442,15 @@ void EditorInspector::update_tree() {
 
     //	TreeItem *current_category = NULL;
 
-    String filter = search_box ? search_box->get_text() : "";
-    String group;
-    String group_base;
+    se_string filter(search_box ? search_box->get_text() : "");
+    se_string group;
+    se_string group_base;
     VBoxContainer *category_vbox = nullptr;
 
     ListPOD<PropertyInfo> plist;
     object->get_property_list(&plist, true);
 
-    HashMap<String, VBoxContainer *> item_path;
+    HashMap<se_string, VBoxContainer *> item_path;
     Map<VBoxContainer *, EditorInspectorSection *> section_map;
 
     item_path[""] = main_vbox;
@@ -1505,8 +1503,8 @@ void EditorInspector::update_tree() {
             main_vbox->add_child(category);
             category_vbox = nullptr; //reset
 
-            String type = p.name;
-            category->icon = EditorNode::get_singleton()->get_class_icon(type, "Object");
+            se_string type(p.name);
+            category->icon = EditorNode::get_singleton()->get_class_icon(StringName(type), "Object");
             category->label = type;
 
             category->bg_color = get_color("prop_category", "Editor");
@@ -1514,16 +1512,16 @@ void EditorInspector::update_tree() {
                 StringName type2 = p.name;
                 if (!class_descr_cache.contains(type2)) {
 
-                    String descr;
+                    se_string descr;
                     DocData *dd = EditorHelp::get_doc_data();
-                    Map<String, DocData::ClassDoc>::iterator E = dd->class_list.find(type2);
+                    Map<StringName, DocData::ClassDoc>::iterator E = dd->class_list.find(type2);
                     if (E!=dd->class_list.end()) {
                         descr = E->second.brief_description;
                     }
                     class_descr_cache[type2] = descr;
                 }
 
-                category->set_tooltip(p.name.asString() + "::" + (class_descr_cache[type2].empty() ? "" : class_descr_cache[type2]));
+                category->set_tooltip_utf8(se_string(p.name.asCString()) + "::" + (class_descr_cache[type2].empty() ? "" : class_descr_cache[type2]));
             }
 
             for (List<Ref<EditorInspectorPlugin> >::Element *E = valid_plugins.front(); E; E = E->next()) {
@@ -1544,7 +1542,7 @@ void EditorInspector::update_tree() {
             continue;
         }
 
-        String basename = p.name;
+        se_string basename(p.name);
         if (!group.empty()) {
             if (!group_base.empty()) {
                 if (StringUtils::begins_with(basename,group_base)) {
@@ -1561,12 +1559,12 @@ void EditorInspector::update_tree() {
             basename = group + "/" + basename;
         }
 
-        String name = (StringUtils::find(basename,"/") != -1) ? StringUtils::right(basename,StringUtils::find_last(basename,"/") + 1) : basename;
+        se_string name((StringUtils::contains(basename,'/')) ? StringUtils::right(basename,StringUtils::find_last(basename,'/') + 1) : basename);
 
         if (capitalize_paths) {
             int dot = StringUtils::find(name,".");
             if (dot != -1) {
-                String ov = StringUtils::right(name,dot);
+                se_string_view ov = StringUtils::right(name,dot);
                 name = StringUtils::substr(name,0, dot);
                 name = StringUtils::capitalize(name);
                 name += ov;
@@ -1576,11 +1574,11 @@ void EditorInspector::update_tree() {
             }
         }
 
-        String path = StringUtils::left(basename,StringUtils::find_last(basename,"/"));
+        se_string_view path = StringUtils::left(basename,StringUtils::find_last(basename,'/'));
 
         if (use_filter && !filter.empty()) {
 
-            String cat = path;
+            se_string cat(path);
 
             if (capitalize_paths)
                 cat = StringUtils::capitalize(cat);
@@ -1598,12 +1596,12 @@ void EditorInspector::update_tree() {
 
         {
 
-            String acc_path = "";
+            se_string acc_path;
             int level = 1;
-            for (int i = 0; i < StringUtils::get_slice_count(path,"/"); i++) {
-                String path_name = StringUtils::get_slice(path,"/", i);
+            for (int i = 0; i < StringUtils::get_slice_count(path,'/'); i++) {
+                se_string_view path_name = StringUtils::get_slice(path,'/', i);
                 if (i > 0)
-                    acc_path += "/";
+                    acc_path += '/';
                 acc_path += path_name;
                 if (!item_path.contains(acc_path)) {
                     EditorInspectorSection *section = memnew(EditorInspectorSection);
@@ -1645,7 +1643,7 @@ void EditorInspector::update_tree() {
             restart_request_props.insert(p.name);
         }
 
-        String doc_hint;
+        se_string doc_hint;
 
         if (use_doc_hints) {
 
@@ -1653,13 +1651,13 @@ void EditorInspector::update_tree() {
             if ( !object_class.empty() ) {
                 classname = object_class;
             }
-            StringName propname = property_prefix + p.name;
-            String descr;
+            StringName propname(property_prefix + p.name);
+            se_string descr;
             bool found = false;
 
-            Map<StringName, Map<StringName, String> >::iterator E = descr_cache.find(classname);
+            Map<StringName, Map<StringName, se_string> >::iterator E = descr_cache.find(classname);
             if (E!=descr_cache.end()) {
-                Map<StringName, String>::iterator F = E->second.find(propname);
+                Map<StringName, se_string>::iterator F = E->second.find(propname);
                 if (F!=E->second.end()) {
                     found = true;
                     descr = F->second;
@@ -1668,10 +1666,10 @@ void EditorInspector::update_tree() {
 
             if (!found) {
                 DocData *dd = EditorHelp::get_doc_data();
-                Map<String, DocData::ClassDoc>::iterator F = dd->class_list.find(classname);
+                Map<StringName, DocData::ClassDoc>::iterator F = dd->class_list.find(classname);
                 while (F!=dd->class_list.end() && descr.empty()) {
                     for (int i = 0; i < F->second.properties.size(); i++) {
-                        if (F->second.properties[i].name == propname.operator String()) {
+                        if (F->second.properties[i].name == propname.asCString()) {
                             descr = StringUtils::strip_edges(F->second.properties[i].description);
                             break;
                         }
@@ -1707,7 +1705,7 @@ void EditorInspector::update_tree() {
 
                         if (F->deref().properties.size() == 1) {
                             //since it's one, associate:
-                            ep->property = F->deref().properties[0];
+                            ep->property = StringName(F->deref().properties[0]);
                             ep->property_usage = p.usage;
                             //and set label?
                         }
@@ -1719,11 +1717,7 @@ void EditorInspector::update_tree() {
                             ep->set_label(name);
                         }
                         for (int i = 0; i < F->deref().properties.size(); i++) {
-                            String prop = F->deref().properties[i];
-
-                            if (!editor_property_map.contains(prop)) {
-                                editor_property_map[prop] = List<EditorProperty *>();
-                            }
+                            StringName prop(F->deref().properties[i]);
                             editor_property_map[prop].push_back(ep);
                         }
                     }
@@ -1752,9 +1746,9 @@ void EditorInspector::update_tree() {
                     ep->connect("resource_selected", this, "_resource_selected", varray(), ObjectNS::CONNECT_DEFERRED);
                     ep->connect("object_id_selected", this, "_object_id_selected", varray(), ObjectNS::CONNECT_DEFERRED);
                     if (!doc_hint.empty()) {
-                        ep->set_tooltip(property_prefix + p.name + "::" + doc_hint);
+                        ep->set_tooltip_utf8(property_prefix + p.name + "::" + doc_hint);
                     } else {
-                        ep->set_tooltip(property_prefix + p.name);
+                        ep->set_tooltip_utf8(property_prefix + p.name);
                     }
                     ep->update_property();
                     ep->update_reload_status();
@@ -1779,7 +1773,7 @@ void EditorInspector::update_tree() {
 
     //see if this property exists and should be kept
 }
-void EditorInspector::update_property(const String &p_prop) {
+void EditorInspector::update_property(const StringName &p_prop) {
     if (!editor_property_map.contains(p_prop))
         return;
 
@@ -1881,7 +1875,7 @@ void EditorInspector::register_text_enter(Node *p_line_edit) {
         search_box->connect("text_changed", this, "_filter_changed");
 }
 
-void EditorInspector::_filter_changed(const String &p_text) {
+void EditorInspector::_filter_changed(se_string_view p_text) {
 
     _clear();
     update_tree();
@@ -1941,7 +1935,7 @@ void EditorInspector::set_sub_inspector(bool p_enable) {
     }
 }
 
-void EditorInspector::_edit_request_change(Object *p_object, const String &p_property) {
+void EditorInspector::_edit_request_change(Object *p_object, se_string_view p_property) {
 
     if (object != p_object) //may be undoing/redoing for a non edited object, so ignore
         return;
@@ -1955,11 +1949,20 @@ void EditorInspector::_edit_request_change(Object *p_object, const String &p_pro
         pending.insert(p_property);
     }
 }
+struct Comparer {
+    bool operator()(const StringName &s,se_string_view b) {
+        return se_string_view(s)<b;
+    }
+    bool operator()(se_string_view a,const StringName &b) {
+        return a<se_string_view(b);
+    }
+};
 
-void EditorInspector::_edit_set(const String &p_name, const Variant &p_value, bool p_refresh_all, const String &p_changed_field) {
+void EditorInspector::_edit_set(se_string_view p_name, const Variant &p_value, bool p_refresh_all, se_string_view p_changed_field) {
 
-    if (autoclear && editor_property_map.contains(p_name)) {
-        for (List<EditorProperty *>::Element *E = editor_property_map[p_name].front(); E; E = E->next()) {
+    auto iter=editor_property_map.find_as(p_name,Comparer());
+    if (autoclear && editor_property_map.end()!=iter) {
+        for (List<EditorProperty *>::Element *E = iter->second.front(); E; E = E->next()) {
             if (E->deref()->is_checkable()) {
                 E->deref()->set_checked(true);
             }
@@ -1968,24 +1971,24 @@ void EditorInspector::_edit_set(const String &p_name, const Variant &p_value, bo
 
     if (!undo_redo || bool(object->call("_dont_undo_redo"))) {
 
-        object->set(p_name, p_value);
+        object->set(StringName(p_name), p_value);
         if (p_refresh_all)
             _edit_request_change(object, "");
         else
-            _edit_request_change(object, p_name);
+            _edit_request_change(object, StringName(p_name));
 
         emit_signal(_prop_edited, p_name);
 
     } else if (object_cast<MultiNodeEdit>(object)) {
 
-        object_cast<MultiNodeEdit>(object)->set_property_field(p_name, p_value, p_changed_field);
+        object_cast<MultiNodeEdit>(object)->set_property_field(StringName(p_name), p_value, p_changed_field);
         _edit_request_change(object, p_name);
         emit_signal(_prop_edited, p_name);
     } else {
 
-        undo_redo->create_action(TTR("Set") + " " + p_name, UndoRedo::MERGE_ENDS);
+        undo_redo->create_action_ui(TTR("Set") + " " + p_name, UndoRedo::MERGE_ENDS);
         undo_redo->add_do_property(object, p_name, p_value);
-        undo_redo->add_undo_property(object, p_name, object->get(p_name));
+        undo_redo->add_undo_property(object, p_name, object->get(StringName(p_name)));
 
         if (p_refresh_all) {
             undo_redo->add_do_method(this, "_edit_request_change", Variant(object), "");
@@ -1999,8 +2002,8 @@ void EditorInspector::_edit_set(const String &p_name, const Variant &p_value, bo
         Resource *r = object_cast<Resource>(object);
         if (r) {
 
-            if (String(p_name) == "resource_local_to_scene") {
-                bool prev = object->get(p_name);
+            if ((p_name) == se_string_view("resource_local_to_scene")) {
+                bool prev = object->get(StringName(p_name));
                 bool next = p_value;
                 if (next) {
                     undo_redo->add_do_method(r, "setup_local_to_scene");
@@ -2015,14 +2018,14 @@ void EditorInspector::_edit_set(const String &p_name, const Variant &p_value, bo
         undo_redo->commit_action();
     }
 
-    if (editor_property_map.contains(p_name)) {
-        for (List<EditorProperty *>::Element *E = editor_property_map[p_name].front(); E; E = E->next()) {
+    if (editor_property_map.contains(StringName(p_name))) {
+        for (List<EditorProperty *>::Element *E = editor_property_map[StringName(p_name)].front(); E; E = E->next()) {
             E->deref()->update_reload_status();
         }
     }
 }
 
-void EditorInspector::_property_changed(const String &p_path, const Variant &p_value, const String &p_name, bool changing) {
+void EditorInspector::_property_changed(se_string_view p_path, const Variant &p_value, se_string_view p_name, bool changing) {
 
     // The "changing" variable must be true for properties that trigger events as typing occurs,
     // like "text_changed" signal. eg: Text property of Label, Button, RichTextLabel, etc.
@@ -2034,29 +2037,29 @@ void EditorInspector::_property_changed(const String &p_path, const Variant &p_v
     if (changing)
         this->changing--;
 
-    if (restart_request_props.contains(p_path)) {
+    if (restart_request_props.contains(StringName(p_path))) {
         emit_signal("restart_requested");
     }
 }
 
-void EditorInspector::_property_changed_update_all(const String &p_path, const Variant &p_value, const String &p_name, bool p_changing) {
+void EditorInspector::_property_changed_update_all(se_string_view /*p_path*/, const Variant & /*p_value*/, se_string_view /*p_name*/, bool /*p_changing*/) {
     update_tree();
 }
 
-void EditorInspector::_multiple_properties_changed(const Vector<String>& p_paths, Array p_values) {
+void EditorInspector::_multiple_properties_changed(const Vector<se_string>& p_paths, Array p_values) {
 
     ERR_FAIL_COND(p_paths.empty() || p_values.empty())
     ERR_FAIL_COND(p_paths.size() != p_values.size())
-    String names;
+    se_string names;
     for (int i = 0; i < p_paths.size(); i++) {
         if (i > 0)
-            names += ",";
+            names += ',';
         names += p_paths[i];
     }
-    undo_redo->create_action(TTR("Set Multiple:") + " " + names, UndoRedo::MERGE_ENDS);
+    undo_redo->create_action_ui(TTR("Set Multiple:") + " " + names, UndoRedo::MERGE_ENDS);
     for (int i = 0; i < p_paths.size(); i++) {
-        _edit_set(p_paths[i], p_values[i], false, "");
-        if (restart_request_props.contains(p_paths[i])) {
+        _edit_set(StringName(p_paths[i]), p_values[i], false, se_string_view());
+        if (restart_request_props.contains(StringName(p_paths[i]))) {
             emit_signal("restart_requested");
         }
     }
@@ -2065,7 +2068,7 @@ void EditorInspector::_multiple_properties_changed(const Vector<String>& p_paths
     changing--;
 }
 
-void EditorInspector::_property_keyed(const String &p_path, bool p_advance) {
+void EditorInspector::_property_keyed(const StringName &p_path, bool p_advance) {
 
     if (!object)
         return;
@@ -2073,7 +2076,7 @@ void EditorInspector::_property_keyed(const String &p_path, bool p_advance) {
     emit_signal("property_keyed", p_path, object->get(p_path), p_advance); //second param is deprecated
 }
 
-void EditorInspector::_property_keyed_with_value(const String &p_path, const Variant &p_value, bool p_advance) {
+void EditorInspector::_property_keyed_with_value(se_string_view p_path, const Variant &p_value, bool p_advance) {
 
     if (!object)
         return;
@@ -2081,7 +2084,7 @@ void EditorInspector::_property_keyed_with_value(const String &p_path, const Var
     emit_signal("property_keyed", p_path, p_value, p_advance); //second param is deprecated
 }
 
-void EditorInspector::_property_checked(const String &p_path, bool p_checked) {
+void EditorInspector::_property_checked(const StringName & p_path, bool p_checked) {
 
     if (!object)
         return;
@@ -2118,7 +2121,7 @@ void EditorInspector::_property_checked(const String &p_path, bool p_checked) {
     }
 }
 
-void EditorInspector::_property_selected(const String &p_path, int p_focusable) {
+void EditorInspector::_property_selected(const StringName &p_path, int p_focusable) {
 
     property_selected = p_path;
     property_focusable = p_focusable;
@@ -2135,12 +2138,12 @@ void EditorInspector::_property_selected(const String &p_path, int p_focusable) 
     emit_signal("property_selected", p_path);
 }
 
-void EditorInspector::_object_id_selected(const String &p_path, ObjectID p_id) {
+void EditorInspector::_object_id_selected(se_string_view p_path, ObjectID p_id) {
 
     emit_signal("object_id_selected", p_id);
 }
 
-void EditorInspector::_resource_selected(const String &p_path, const RES& p_resource) {
+void EditorInspector::_resource_selected(se_string_view p_path, const RES& p_resource) {
     emit_signal("resource_selected", p_resource, p_path);
 }
 
@@ -2232,7 +2235,7 @@ void EditorInspector::_notification(int p_what) {
     }
 }
 
-void EditorInspector::_changed_callback(Object *p_changed, const char *p_prop) {
+void EditorInspector::_changed_callback(Object *p_changed, StringName p_prop) {
     //this is called when property change is notified via _change_notify()
     _edit_request_change(p_changed, p_prop);
 }
@@ -2247,19 +2250,19 @@ void EditorInspector::_vscroll_changed(double p_offset) {
     }
 }
 
-void EditorInspector::set_property_prefix(const String &p_prefix) {
+void EditorInspector::set_property_prefix(const se_string &p_prefix) {
     property_prefix = p_prefix;
 }
 
-String EditorInspector::get_property_prefix() const {
+const se_string &EditorInspector::get_property_prefix() const {
     return property_prefix;
 }
 
-void EditorInspector::set_object_class(const String &p_class) {
+void EditorInspector::set_object_class(const StringName & p_class) {
     object_class = p_class;
 }
 
-String EditorInspector::get_object_class() const {
+const StringName &EditorInspector::get_object_class() const {
     return object_class;
 }
 

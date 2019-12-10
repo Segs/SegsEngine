@@ -61,7 +61,7 @@ void EditorPath::_add_children_to_popup(Object *p_obj, int p_depth) {
         Ref<Texture> icon = EditorNode::get_singleton()->get_object_icon(obj);
 
         int index = get_popup()->get_item_count();
-        get_popup()->add_icon_item(icon, StringUtils::capitalize(E.name), objects.size());
+        get_popup()->add_icon_item(icon, StringName(StringUtils::capitalize(E.name)), objects.size());
         get_popup()->set_item_h_offset(index, p_depth * 10 * EDSCALE);
         objects.push_back(obj->get_instance_id());
 
@@ -79,10 +79,10 @@ void EditorPath::_about_to_show() {
     get_popup()->clear();
     get_popup()->set_size(Size2(get_size().width, 1));
     _add_children_to_popup(obj);
-	if (get_popup()->get_item_count() == 0) {
-		get_popup()->add_item(TTR("No sub-resources found."));
-		get_popup()->set_item_disabled(0, true);
-	}
+    if (get_popup()->get_item_count() == 0) {
+        get_popup()->add_item(TTR("No sub-resources found."));
+        get_popup()->set_item_disabled(0, true);
+    }
 }
 
 void EditorPath::update_path() {
@@ -98,7 +98,7 @@ void EditorPath::update_path() {
             set_icon(icon);
 
         if (i == history->get_path_size() - 1) {
-            String name;
+            se_string name;
             if (object_cast<Resource>(obj)) {
 
                 Resource *r = object_cast<Resource>(obj);
@@ -110,7 +110,7 @@ void EditorPath::update_path() {
                 if (name.empty())
                     name = r->get_class();
             } else if (obj->is_class("ScriptEditorDebuggerInspectedObject"))
-                name = obj->call("get_title");
+                name = obj->call("get_title").as<se_string>();
             else if (object_cast<Node>(obj))
                 name = object_cast<Node>(obj)->get_name();
             else if (object_cast<Resource>(obj) && !object_cast<Resource>(obj)->get_name().empty())
@@ -118,8 +118,8 @@ void EditorPath::update_path() {
             else
                 name = obj->get_class();
 
-            set_text(" " + name); // An extra space so the text is not too close of the icon.
-            set_tooltip(obj->get_class());
+            set_text_utf8(" " + name); // An extra space so the text is not too close of the icon.
+            set_tooltip_utf8(obj->get_class());
         }
     }
 }

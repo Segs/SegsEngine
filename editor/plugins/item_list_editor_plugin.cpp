@@ -33,8 +33,12 @@
 #include "core/io/resource_loader.h"
 #include "core/method_bind.h"
 #include "core/translation_helpers.h"
+#include "core/string_formatter.h"
 #include "editor/editor_scale.h"
 #include "scene/main/scene_tree.h"
+#include "scene/gui/item_list.h"
+
+using namespace eastl;
 
 IMPL_GDCLASS(ItemListPlugin)
 IMPL_GDCLASS(ItemListOptionButtonPlugin)
@@ -45,15 +49,14 @@ IMPL_GDCLASS(ItemListEditorPlugin)
 
 bool ItemListPlugin::_set(const StringName &p_name, const Variant &p_value) {
 
-    String name = p_name;
-    int idx = StringUtils::to_int(StringUtils::get_slice(name,"/", 0));
-    String what = StringUtils::get_slice(name,"/", 1);
+    int idx = StringUtils::to_int(StringUtils::get_slice(p_name,'/', 0));
+    se_string_view what = StringUtils::get_slice(p_name,'/', 1);
 
-    if (what == "text")
+    if (what == "text"_sv)
         set_item_text(idx, p_value);
-    else if (what == "icon")
+    else if (what == "icon"_sv)
         set_item_icon(idx, refFromRefPtr<Texture>(p_value));
-    else if (what == "checkable") {
+    else if (what == "checkable"_sv) {
         // This keeps compatibility to/from versions where this property was a boolean, before radio buttons
         switch ((int)p_value) {
             case 0:
@@ -64,13 +67,13 @@ bool ItemListPlugin::_set(const StringName &p_name, const Variant &p_value) {
                 set_item_radio_checkable(idx, true);
                 break;
         }
-    } else if (what == "checked")
+    } else if (what == "checked"_sv)
         set_item_checked(idx, p_value);
-    else if (what == "id")
+    else if (what == "id"_sv)
         set_item_id(idx, p_value);
-    else if (what == "enabled")
+    else if (what == "enabled"_sv)
         set_item_enabled(idx, p_value);
-    else if (what == "separator")
+    else if (what == "separator"_sv)
         set_item_separator(idx, p_value);
     else
         return false;
@@ -80,28 +83,27 @@ bool ItemListPlugin::_set(const StringName &p_name, const Variant &p_value) {
 
 bool ItemListPlugin::_get(const StringName &p_name, Variant &r_ret) const {
 
-    String name = p_name;
-    int idx = StringUtils::to_int(StringUtils::get_slice(name,"/", 0));
-    String what = StringUtils::get_slice(name,"/", 1);
+    int idx = StringUtils::to_int(StringUtils::get_slice(p_name,'/', 0));
+    se_string_view what = StringUtils::get_slice(p_name,'/', 1);
 
-    if (what == "text")
+    if (what == "text"_sv)
         r_ret = get_item_text(idx);
-    else if (what == "icon")
+    else if (what == "icon"_sv)
         r_ret = get_item_icon(idx);
-    else if (what == "checkable") {
+    else if (what == "checkable"_sv) {
         // This keeps compatibility to/from versions where this property was a boolean, before radio buttons
         if (!is_item_checkable(idx)) {
             r_ret = 0;
         } else {
             r_ret = is_item_radio_checkable(idx) ? 2 : 1;
         }
-    } else if (what == "checked")
+    } else if (what == "checked"_sv)
         r_ret = is_item_checked(idx);
-    else if (what == "id")
+    else if (what == "id"_sv)
         r_ret = get_item_id(idx);
-    else if (what == "enabled")
+    else if (what == "enabled"_sv)
         r_ret = is_item_enabled(idx);
-    else if (what == "separator")
+    else if (what == "separator"_sv)
         r_ret = is_item_separator(idx);
     else
         return false;
@@ -112,26 +114,26 @@ void ItemListPlugin::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
 
     for (int i = 0; i < get_item_count(); i++) {
 
-        String base = itos(i) + "/";
+        se_string base = itos(i) + "/";
 
-        p_list->push_back(PropertyInfo(VariantType::STRING, base + "text"));
-        p_list->push_back(PropertyInfo(VariantType::OBJECT, base + "icon", PROPERTY_HINT_RESOURCE_TYPE, "Texture"));
+        p_list->push_back(PropertyInfo(VariantType::STRING, StringName(base + "text")));
+        p_list->push_back(PropertyInfo(VariantType::OBJECT, StringName(base + "icon"), PROPERTY_HINT_RESOURCE_TYPE, "Texture"));
 
         int flags = get_flags();
 
         if (flags & FLAG_CHECKABLE) {
-            p_list->push_back(PropertyInfo(VariantType::INT, base + "checkable", PROPERTY_HINT_ENUM, "No,As checkbox,As radio button"));
-            p_list->push_back(PropertyInfo(VariantType::BOOL, base + "checked"));
+            p_list->push_back(PropertyInfo(VariantType::INT, StringName(base + "checkable"), PROPERTY_HINT_ENUM, "No,As checkbox,As radio button"));
+            p_list->push_back(PropertyInfo(VariantType::BOOL, StringName(base + "checked")));
         }
 
         if (flags & FLAG_ID)
-            p_list->push_back(PropertyInfo(VariantType::INT, base + "id", PROPERTY_HINT_RANGE, "-1,4096"));
+            p_list->push_back(PropertyInfo(VariantType::INT, StringName(base + "id"), PROPERTY_HINT_RANGE, "-1,4096"));
 
         if (flags & FLAG_ENABLE)
-            p_list->push_back(PropertyInfo(VariantType::BOOL, base + "enabled"));
+            p_list->push_back(PropertyInfo(VariantType::BOOL, StringName(base + "enabled")));
 
         if (flags & FLAG_SEPARATOR)
-            p_list->push_back(PropertyInfo(VariantType::BOOL, base + "separator"));
+            p_list->push_back(PropertyInfo(VariantType::BOOL, StringName(base + "separator")));
     }
 }
 
@@ -156,7 +158,7 @@ int ItemListOptionButtonPlugin::get_flags() const {
 
 void ItemListOptionButtonPlugin::add_item() {
 
-    ob->add_item(vformat(TTR("Item %d"), ob->get_item_count()));
+    ob->add_item(StringName(FormatVE(TTR("Item %d").asCString(), ob->get_item_count())));
     _change_notify();
 }
 
@@ -198,7 +200,7 @@ int ItemListPopupMenuPlugin::get_flags() const {
 
 void ItemListPopupMenuPlugin::add_item() {
 
-    pp->add_item(vformat(TTR("Item %d"), pp->get_item_count()));
+    pp->add_item(StringName(FormatVE(TTR("Item %d").asCString(), pp->get_item_count())));
     _change_notify();
 }
 
@@ -235,9 +237,20 @@ int ItemListItemListPlugin::get_flags() const {
     return FLAG_ICON | FLAG_ENABLE;
 }
 
-void ItemListItemListPlugin::add_item() {
+void ItemListItemListPlugin::set_item_text(int p_idx, const StringName &p_text) { pp->set_item_text(p_idx, p_text); }
 
-    pp->add_item(vformat(TTR("Item %d"), pp->get_item_count()));
+StringName ItemListItemListPlugin::get_item_text(int p_idx) const { return pp->get_item_text(p_idx); }
+
+void ItemListItemListPlugin::set_item_icon(int p_idx, const Ref<Texture> &p_tex) { pp->set_item_icon(p_idx, p_tex); }
+
+Ref<Texture> ItemListItemListPlugin::get_item_icon(int p_idx) const { return pp->get_item_icon(p_idx); }
+
+void ItemListItemListPlugin::set_item_enabled(int p_idx, int p_enabled) { pp->set_item_disabled(p_idx, !p_enabled); }
+
+bool ItemListItemListPlugin::is_item_enabled(int p_idx) const { return !pp->is_item_disabled(p_idx); }
+
+void ItemListItemListPlugin::add_item() {
+    pp->add_item(StringName(FormatVE(TTR("Item %d").asCString(), pp->get_item_count())));
     _change_notify();
 }
 
@@ -295,7 +308,7 @@ void ItemListEditor::_delete_pressed() {
     if (selected_idx == -1)
         return;
 
-    String current_selected = (String)property_editor->get_selected_path();
+    StringName current_selected(property_editor->get_selected_path());
 
     if (current_selected.empty())
         return;
@@ -305,7 +318,7 @@ void ItemListEditor::_delete_pressed() {
     // This should be fixed so that you can delete by selecting the item section header,
     // or a delete button on that header.
 
-    int idx = StringUtils::to_int(StringUtils::get_slice(current_selected,"/", 0));
+    int idx = StringUtils::to_int(StringUtils::get_slice(current_selected,'/', 0));
 
     item_plugins[selected_idx]->erase(idx);
 }
@@ -331,7 +344,7 @@ void ItemListEditor::edit(Node *p_item_list) {
             item_plugins[i]->set_object(p_item_list);
             property_editor->edit(item_plugins[i]);
 
-            toolbar_button->set_icon(EditorNode::get_singleton()->get_object_icon(item_list, ""));
+            toolbar_button->set_icon(EditorNode::get_singleton()->get_object_icon(item_list, StringName()));
 
             selected_idx = i;
             return;

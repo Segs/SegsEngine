@@ -31,6 +31,7 @@
 #include "editor_run.h"
 
 #include "core/project_settings.h"
+#include "core/string_utils.inl"
 #include "editor_settings.h"
 
 #include <QDebug>
@@ -41,12 +42,12 @@ EditorRun::Status EditorRun::get_status() const {
 
     return status;
 }
-Error EditorRun::run(const String &p_scene, const String &p_custom_args, const List<String> &p_breakpoints, const bool &p_skip_breakpoints) {
+Error EditorRun::run(se_string_view p_scene, se_string_view p_custom_args, const List<se_string> &p_breakpoints, const bool &p_skip_breakpoints) {
 
-    ListPOD<String> args;
+    PODVector<se_string> args;
 
-    String resource_path = ProjectSettings::get_singleton()->get_resource_path();
-    String remote_host = EditorSettings::get_singleton()->get("network/debug/remote_host");
+    se_string resource_path(ProjectSettings::get_singleton()->get_resource_path());
+    se_string remote_host = EditorSettings::get_singleton()->get("network/debug/remote_host").as<se_string>();
     int remote_port = (int)EditorSettings::get_singleton()->get("network/debug/remote_port");
 
     if (!resource_path.empty()) {
@@ -58,7 +59,7 @@ Error EditorRun::run(const String &p_scene, const String &p_custom_args, const L
     args.push_back(remote_host + ":" + StringUtils::num(remote_port));
 
     args.push_back("--allow_focus_steal_pid");
-    args.push_back(itos(OS::get_singleton()->get_process_id()));
+    args.push_back(::to_string(OS::get_singleton()->get_process_id()));
 
     if (debug_collisions) {
         args.push_back("--debug-collisions");
@@ -116,7 +117,7 @@ Error EditorRun::run(const String &p_scene, const String &p_custom_args, const L
         case 0: { // top left
 
             args.push_back("--position");
-            args.push_back(itos(screen_rect.position.x) + "," + itos(screen_rect.position.y));
+            args.push_back(::to_string(screen_rect.position.x) + "," + ::to_string(screen_rect.position.y));
         } break;
         case 1: { // centered
             int display_scale = 1;
@@ -128,18 +129,18 @@ Error EditorRun::run(const String &p_scene, const String &p_custom_args, const L
 
             Vector2 pos = screen_rect.position + ((screen_rect.size / display_scale - desired_size) / 2).floor();
             args.push_back("--position");
-            args.push_back(itos(pos.x) + "," + itos(pos.y));
+            args.push_back(::to_string(pos.x) + "," + ::to_string(pos.y));
         } break;
         case 2: { // custom pos
             Vector2 pos = EditorSettings::get_singleton()->get("run/window_placement/rect_custom_position");
             pos += screen_rect.position;
             args.push_back("--position");
-            args.push_back(itos(pos.x) + "," + itos(pos.y));
+            args.push_back(::to_string(pos.x) + "," + ::to_string(pos.y));
         } break;
         case 3: { // force maximized
             Vector2 pos = screen_rect.position;
             args.push_back("--position");
-            args.push_back(itos(pos.x) + "," + itos(pos.y));
+            args.push_back(::to_string(pos.x) + "," + ::to_string(pos.y));
             args.push_back("--maximized");
 
         } break;
@@ -147,7 +148,7 @@ Error EditorRun::run(const String &p_scene, const String &p_custom_args, const L
 
             Vector2 pos = screen_rect.position;
             args.push_back("--position");
-            args.push_back(itos(pos.x) + "," + itos(pos.y));
+            args.push_back(::to_string(pos.x) + "," + ::to_string(pos.y));
             args.push_back("--fullscreen");
         } break;
     }
@@ -155,8 +156,8 @@ Error EditorRun::run(const String &p_scene, const String &p_custom_args, const L
     if (!p_breakpoints.empty()) {
 
         args.push_back("--breakpoints");
-        String bpoints;
-        for (const List<String>::Element *E = p_breakpoints.front(); E; E = E->next()) {
+        se_string bpoints;
+        for (const List<se_string>::Element *E = p_breakpoints.front(); E; E = E->next()) {
 
             bpoints += StringUtils::replace(E->deref()," ", "%20");
             if (E->next())
@@ -171,13 +172,13 @@ Error EditorRun::run(const String &p_scene, const String &p_custom_args, const L
     }
 
     if (!p_scene.empty()) {
-        args.push_back(p_scene);
+        args.emplace_back(p_scene);
     }
 
     if (!p_custom_args.empty()) {
-        auto cargs = p_custom_args.m_str.splitRef(" ", QString::SkipEmptyParts);
+        auto cargs = StringUtils::split(p_custom_args," ");
         for (int i = 0; i < cargs.size(); i++) {
-            args.push_back(cargs[i].toString().replace(" ", "%20"));
+            args.push_back(StringUtils::replace(cargs[i]," ", "%20"));
         }
     }
 
@@ -186,20 +187,20 @@ Error EditorRun::run(const String &p_scene, const String &p_custom_args, const L
     args.push_front("--track-origins=yes");
     args.push_front(OS::get_singleton()->get_executable_path());
 #else
-    String exec = OS::get_singleton()->get_executable_path();
+    se_string exec = OS::get_singleton()->get_executable_path();
 #endif
 
     {
         QDebug msg_log(qDebug());
-        msg_log<<"Running: "<<exec.cdata();
-        for (const String &E : args) {
+        msg_log<<"Running: "<<exec.c_str();
+        for (const se_string &E : args) {
 
-            msg_log<<" "<<E.cdata();
+            msg_log<<" "<<E.data();
         }
     }
 
     pid = 0;
-    Error err = OS::get_singleton()->execute(exec, args, false, &pid);
+    Error err = OS::get_singleton()->execute_utf8(exec, args, false, &pid);
     ERR_FAIL_COND_V(err, err)
 
     status = STATUS_PLAY;

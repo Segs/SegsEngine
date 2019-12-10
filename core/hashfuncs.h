@@ -38,7 +38,7 @@
 
 #include <type_traits>
 
-class String;
+using String = class QString;
 
 /**
  * Hashing functions
@@ -192,7 +192,7 @@ using HashType = typename std::conditional<std::is_enum<Key>::value, Hasher<type
         Hasher<Key>>::type;
 
 template <> struct Hasher<const char *> {
-    _FORCE_INLINE_ uint32_t operator()(const char *p_cstr) const { return hash_djb2(p_cstr); }
+    _FORCE_INLINE_ uint32_t operator()(const char *p_cstr) const { return eastl::hash<se_string_view>()(se_string_view(p_cstr)); }
 };
 template <> struct Hasher<uint64_t> {
     _FORCE_INLINE_ uint32_t operator()(const uint64_t p_int) const { return hash_one_uint64(p_int); }

@@ -31,49 +31,49 @@
 #pragma once
 
 #include "core/variant.h"
-#include "core/ustring.h"
+#include "core/se_string.h"
 #include "core/error_list.h"
 
 class GODOT_EXPORT JSON {
 
-	enum TokenType {
-		TK_CURLY_BRACKET_OPEN,
-		TK_CURLY_BRACKET_CLOSE,
-		TK_BRACKET_OPEN,
-		TK_BRACKET_CLOSE,
-		TK_IDENTIFIER,
-		TK_STRING,
-		TK_NUMBER,
-		TK_COLON,
-		TK_COMMA,
-		TK_EOF,
-		TK_MAX
-	};
+    enum TokenType {
+        TK_CURLY_BRACKET_OPEN,
+        TK_CURLY_BRACKET_CLOSE,
+        TK_BRACKET_OPEN,
+        TK_BRACKET_CLOSE,
+        TK_IDENTIFIER,
+        TK_STRING,
+        TK_NUMBER,
+        TK_COLON,
+        TK_COMMA,
+        TK_EOF,
+        TK_MAX
+    };
 
-	enum Expecting {
+    enum Expecting {
 
-		EXPECT_OBJECT,
-		EXPECT_OBJECT_KEY,
-		EXPECT_COLON,
-		EXPECT_OBJECT_VALUE,
-	};
+        EXPECT_OBJECT,
+        EXPECT_OBJECT_KEY,
+        EXPECT_COLON,
+        EXPECT_OBJECT_VALUE,
+    };
 
-	struct Token {
+    struct Token {
 
-		TokenType type;
-		Variant value;
-	};
+        TokenType type;
+        Variant value;
+    };
 
-	static const char *tk_name[TK_MAX];
+    static const char *tk_name[TK_MAX];
 
-	static String _print_var(const Variant &p_var, const String &p_indent, int p_cur_indent, bool p_sort_keys);
+    static se_string _print_var(const Variant &p_var, se_string_view p_indent, int p_cur_indent, bool p_sort_keys);
 
-	static Error _get_token(const CharType *p_str, int &index, int p_len, Token &r_token, int &line, String &r_err_str);
-	static Error _parse_value(Variant &value, Token &token, const CharType *p_str, int &index, int p_len, int &line, String &r_err_str);
-	static Error _parse_array(Array &array, const CharType *p_str, int &index, int p_len, int &line, String &r_err_str);
-	static Error _parse_object(Dictionary &object, const CharType *p_str, int &index, int p_len, int &line, String &r_err_str);
+    static Error _get_token(const CharType *p_str, int &index, int p_len, Token &r_token, int &line, se_string &r_err_str);
+    static Error _parse_value(Variant &value, Token &token, const CharType *p_str, int &index, int p_len, int &line, se_string &r_err_str);
+    static Error _parse_array(Array &array, const CharType *p_str, int &index, int p_len, int &line, se_string &r_err_str);
+    static Error _parse_object(Dictionary &object, const CharType *p_str, int &index, int p_len, int &line, se_string &r_err_str);
 
 public:
-	static String print(const Variant &p_var, const String &p_indent = "", bool p_sort_keys = true);
-	static Error parse(const String &p_json, Variant &r_ret, String &r_err_str, int &r_err_line);
+    static se_string print(const Variant &p_var, se_string_view p_indent = {}, bool p_sort_keys = true);
+    static Error parse(const se_string &p_json, Variant &r_ret, se_string &r_err_str, int &r_err_line);
 };

@@ -258,7 +258,7 @@ public:
 
 	Array get_colliding_bodies() const; //function for script
 
-	String get_configuration_warning() const override;
+    StringName get_configuration_warning() const override;
 
 	RigidBody2D();
 	~RigidBody2D() override;

@@ -38,33 +38,33 @@
 
 class RunSettingsDialog : public AcceptDialog {
 
-	GDCLASS(RunSettingsDialog,AcceptDialog)
+    GDCLASS(RunSettingsDialog,AcceptDialog)
 
 public:
-	enum RunMode {
-		RUN_LOCAL_SCENE,
-		RUN_MAIN_SCENE,
-	};
+    enum RunMode {
+        RUN_LOCAL_SCENE,
+        RUN_MAIN_SCENE,
+    };
 
 private:
-	OptionButton *run_mode;
-	LineEdit *arguments;
+    OptionButton *run_mode;
+    LineEdit *arguments;
 
-	void _run_mode_changed(int idx);
+    void _run_mode_changed(int idx);
 
 protected:
-	static void _bind_methods();
+    static void _bind_methods();
 
 public:
-	int get_run_mode() const;
-	void set_run_mode(int p_run_mode);
+    int get_run_mode() const;
+    void set_run_mode(int p_run_mode);
 
-	void set_custom_arguments(const String &p_arguments);
-	String get_custom_arguments() const;
+    void set_custom_arguments(const String &p_arguments);
+    se_string get_custom_arguments() const;
 
-	void popup_run_settings();
+    void popup_run_settings();
 
-	RunSettingsDialog();
+    RunSettingsDialog();
 };
 
 #endif // RUN_SETTINGS_DIALOG_H

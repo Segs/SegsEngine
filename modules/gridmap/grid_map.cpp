@@ -40,14 +40,15 @@
 #include "scene/scene_string_names.h"
 #include "scene/main/scene_tree.h"
 #include "servers/visual_server.h"
-
+#include "core/se_string.h"
 IMPL_GDCLASS(GridMap)
 
+using namespace eastl;
 bool GridMap::_set(const StringName &p_name, const Variant &p_value) {
 
-    String name = p_name;
+    se_string_view name(p_name);
 
-    if (name == "data") {
+    if (name == "data"_sv) {
 
         Dictionary d = p_value;
 
@@ -70,7 +71,7 @@ bool GridMap::_set(const StringName &p_name, const Variant &p_value) {
 
         _recreate_octant_data();
 
-    } else if (name == "baked_meshes") {
+    } else if (name == "baked_meshes"_sv) {
 
         clear_baked_meshes();
 
@@ -102,9 +103,9 @@ bool GridMap::_set(const StringName &p_name, const Variant &p_value) {
 
 bool GridMap::_get(const StringName &p_name, Variant &r_ret) const {
 
-    String name = p_name;
+    se_string_view name(p_name);
 
-    if (name == "data") {
+    if (name == "data"_sv) {
 
         Dictionary d;
 
@@ -123,7 +124,7 @@ bool GridMap::_get(const StringName &p_name, Variant &r_ret) const {
         d["cells"] = cells;
 
         r_ret = d;
-    } else if (name == "baked_meshes") {
+    } else if (name == "baked_meshes"_sv) {
 
         Array ret;
         ret.resize(baked_meshes.size());

@@ -28,42 +28,38 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef GIPROBEEDITORPLUGIN_H
-#define GIPROBEEDITORPLUGIN_H
+#pragma once
 
-#include "editor/editor_node.h"
 #include "editor/editor_plugin.h"
 #include "scene/3d/gi_probe.h"
 #include "scene/resources/material.h"
 
 class GIProbeEditorPlugin : public EditorPlugin {
 
-	GDCLASS(GIProbeEditorPlugin,EditorPlugin)
+    GDCLASS(GIProbeEditorPlugin,EditorPlugin)
 
-	GIProbe *gi_probe;
+    GIProbe *gi_probe;
 
-	ToolButton *bake;
-	EditorNode *editor;
+    ToolButton *bake;
+    EditorNode *editor;
 
-	static EditorProgress *tmp_progress;
-	static void bake_func_begin(int p_steps);
-	static void bake_func_step(int p_step, const String &p_description);
-	static void bake_func_end();
+    static class EditorProgress *tmp_progress;
+    static void bake_func_begin(int p_steps);
+    static void bake_func_step(int p_step, se_string_view p_description);
+    static void bake_func_end();
 
-	void _bake();
+    void _bake();
 
 protected:
-	static void _bind_methods();
+    static void _bind_methods();
 
 public:
-	String get_name() const override { return "GIProbe"; }
-	bool has_main_screen() const override { return false; }
-	void edit(Object *p_object) override;
-	bool handles(Object *p_object) const override;
-	void make_visible(bool p_visible) override;
+    se_string_view get_name() const override { return ("GIProbe"); }
+    bool has_main_screen() const override { return false; }
+    void edit(Object *p_object) override;
+    bool handles(Object *p_object) const override;
+    void make_visible(bool p_visible) override;
 
-	GIProbeEditorPlugin(EditorNode *p_node);
-	~GIProbeEditorPlugin() override;
+    GIProbeEditorPlugin(EditorNode *p_node);
+    ~GIProbeEditorPlugin() override;
 };
-
-#endif // GIPROBEEDITORPLUGIN_H

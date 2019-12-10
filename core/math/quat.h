@@ -37,8 +37,6 @@
 #include "core/math/math_funcs.h"
 #include "core/error_macros.h"
 
-class String;
-
 class GODOT_EXPORT Quat {
 public:
     real_t x, y, z, w;
@@ -104,7 +102,7 @@ public:
     _FORCE_INLINE_ bool operator==(const Quat &p_quat) const;
     _FORCE_INLINE_ bool operator!=(const Quat &p_quat) const;
 
-    operator String() const;
+    operator se_string() const;
 
     inline void set(real_t p_x, real_t p_y, real_t p_z, real_t p_w) {
         x = p_x;

@@ -32,6 +32,7 @@
 
 #include "core/math/quick_hull.h"
 #include "core/method_bind.h"
+#include "core/se_string.h"
 #include "core/os/thread.h"
 #include "core/translation_helpers.h"
 #include "editor/editor_settings.h"
@@ -434,7 +435,7 @@ void EditorNavigationMeshGenerator::bake(Ref<NavigationMesh> p_nav_mesh, Node *p
 
     ERR_FAIL_COND(not p_nav_mesh)
 
-    EditorProgress ep("bake", TTR("Navigation Mesh Generator Setup:"), 11);
+    EditorProgress ep(("bake"), TTR("Navigation Mesh Generator Setup:"), 11);
     ep.step(TTR("Parsing Geometry..."), 0);
 
     Vector<float> vertices;

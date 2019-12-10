@@ -42,6 +42,7 @@
 #include "core/project_settings.h"
 #include "core/string_formatter.h"
 #include "core/type_info.h"
+#include "core/string_utils.inl"
 #include "servers/audio_server.h"
 #include "version_generated.gen.h"
 
@@ -51,7 +52,11 @@
 
 #include <cstdarg>
 #include <codecvt>
+
+using namespace eastl;
+
 namespace {
+static se_string s_os_machine_id;
 eastl::fixed_hash_set<se_string_view,16,4,true> s_dynamic_features;
 } // end of anonymous namespace
 
@@ -66,22 +71,22 @@ uint32_t OS::get_ticks_msec() const {
     return get_ticks_usec() / 1000;
 }
 
-String OS::get_iso_date_time(bool local) const {
+se_string OS::get_iso_date_time(bool local) const {
     OS::Date date = get_date(local);
     OS::Time time = get_time(local);
 
-    String timezone;
+    se_string timezone;
     if (!local) {
         TimeZoneInfo zone = get_time_zone_info();
         if (zone.bias >= 0) {
             timezone = "+";
         }
-        timezone += FormatV("%02d %02d",(zone.bias / 60),zone.bias % 60);
+        timezone += FormatVE("%02d %02d",(zone.bias / 60),zone.bias % 60);
     } else {
         timezone = "Z";
     }
 
-    return FormatV("%02d-%02d-%02dT%02d:%02d:%02d",date.year,date.month,date.day,time.hour,time.min,time.sec) +
+    return FormatVE("%02d-%02d-%02dT%02d:%02d:%02d",date.year,date.month,date.day,time.hour,time.min,time.sec) +
            timezone;
 }
 
@@ -125,20 +130,17 @@ void OS::print_error(const char *p_function, const char *p_file, int p_line, con
     _logger->log_error(p_function, p_file, p_line, p_code, p_rationale, p_type);
 }
 
-void OS::print(const char *p_msg) {
+void OS::print(se_string_view p_msg) {
     _logger->logv(p_msg, false);
 }
 
-void OS::print(const String &p_msg)
-{
-    _logger->logv(p_msg.cdata(), false);
-};
+//void OS::print(const String &p_msg)
+//{
+//    _logger->logv(p_msg.constData(), false);
+//};
 
-void OS::printerr(const char *p_format) {
+void OS::printerr(se_string_view p_format) {
     _logger->logv(p_format, true);
-};
-void OS::printerr(const String &p_format) {
-    _logger->logv(p_format.cdata(), true);
 };
 
 void OS::set_keep_screen_on(bool p_enabled) {
@@ -169,18 +171,27 @@ int OS::get_low_processor_usage_mode_sleep_usec() const {
     return low_processor_usage_mode_sleep_usec;
 }
 
-void OS::set_clipboard(const String &p_text) {
+void OS::set_clipboard(se_string_view p_text) {
 
     _local_clipboard = p_text;
 }
-String OS::get_clipboard() const {
+se_string OS::get_clipboard() const {
 
     return _local_clipboard;
 }
 
-String OS::get_executable_path() const {
+se_string OS::get_executable_path() const {
 
     return _execpath;
+}
+
+Error OS::execute_utf8(se_string_view p_path, const PODVector<se_string> &p_arguments, bool p_blocking,
+        OS::ProcessID *r_child_id, se_string *r_pipe, int *r_exitcode, bool read_stderr, Mutex *p_pipe_mutex) {
+    //TODO: SEGS: use QProcess ?
+    ListPOD<se_string> converted_args;
+    for(se_string a : p_arguments)
+        converted_args.emplace_back(std::move(a));
+    return execute(p_path,converted_args,p_blocking,r_child_id,r_pipe,r_exitcode,read_stderr,p_pipe_mutex);
 }
 
 int OS::get_process_id() const {
@@ -234,7 +245,7 @@ static void _OS_printres(Object *p_obj) {
     if (!res)
         return;
 
-    String str = itos(res->get_instance_id()) + String(res->get_class()) + ":" + String(res->get_name()) + " - " + res->get_path();
+    se_string str = FormatVE("%uz%s:%s - %s",res->get_instance_id(),res->get_class(),res->get_name().c_str(),res->get_path().c_str());
     if (_OSPRF)
         _OSPRF->store_line(str);
     else
@@ -246,7 +257,7 @@ bool OS::has_virtual_keyboard() const {
     return false;
 }
 
-void OS::show_virtual_keyboard(const String &p_existing_text, const Rect2 &p_screen_rect) {
+void OS::show_virtual_keyboard(const se_string &p_existing_text, const Rect2 &p_screen_rect) {
 }
 
 void OS::hide_virtual_keyboard() {
@@ -266,7 +277,7 @@ OS::CursorShape OS::get_cursor_shape() const {
 void OS::set_custom_mouse_cursor(const RES &p_cursor, CursorShape p_shape, const Vector2 &p_hotspot) {
 }
 
-void OS::print_all_resources(const String &p_to_file) {
+void OS::print_all_resources(se_string_view p_to_file) {
 
     ERR_FAIL_COND(!p_to_file.empty() && _OSPRF)
     if (!p_to_file.empty()) {
@@ -275,7 +286,7 @@ void OS::print_all_resources(const String &p_to_file) {
         _OSPRF = FileAccess::open(p_to_file, FileAccess::WRITE, &err);
         if (err != OK) {
             _OSPRF = nullptr;
-            ERR_FAIL_MSG("Can't print all resources to file: " + String(p_to_file) + ".")
+            ERR_FAIL_MSG("Can't print all resources to file: " + se_string(p_to_file) + ".")
         }
     }
 
@@ -294,7 +305,7 @@ void OS::print_resources_in_use(bool p_short) {
     ResourceCache::dump(nullptr, p_short);
 }
 
-void OS::dump_resources_to_file(const char *p_file) {
+void OS::dump_resources_to_file(se_string_view p_file) {
 
     ResourceCache::dump(p_file);
 }
@@ -326,25 +337,25 @@ void OS::set_exit_code(int p_code) {
     _exit_code = p_code;
 }
 
-String OS::get_locale() const {
+const char *OS::get_locale() const {
 
     return "en";
 }
 
 // Helper function to ensure that a dir name/path will be valid on the OS
-String OS::get_safe_dir_name(const String& p_dir_name, bool p_allow_dir_separator) const {
+se_string OS::get_safe_dir_name(se_string_view p_dir_name, bool p_allow_dir_separator) const {
 
     constexpr char invalid_chars[7] = {':','*','?', '\\', '<','>','|'};
 
-    String safe_dir_name = StringUtils::strip_edges(PathUtils::from_native_path(p_dir_name));
+    se_string safe_dir_name(StringUtils::strip_edges(PathUtils::from_native_path(p_dir_name)));
     for (char s  : invalid_chars) {
-        safe_dir_name = StringUtils::replace(safe_dir_name,s, '-');
+        safe_dir_name.replace(s, '-');
     }
     if (p_allow_dir_separator) {
         // Dir separators are allowed, but disallow ".." to avoid going up the filesystem
-        safe_dir_name = StringUtils::replace(safe_dir_name,"..", "-");
+        safe_dir_name.replace("..", "-");
     } else {
-        safe_dir_name = StringUtils::replace(safe_dir_name,'/', '-');
+        safe_dir_name.replace("/", "-");
     }
     return safe_dir_name;
 }
@@ -352,41 +363,41 @@ String OS::get_safe_dir_name(const String& p_dir_name, bool p_allow_dir_separato
 // Path to data, config, cache, etc. OS-specific folders
 
 // Get properly capitalized engine name for system paths
-String OS::get_godot_dir_name() const {
+se_string OS::get_godot_dir_name() const {
 
     // Default to lowercase, so only override when different case is needed
-    return StringUtils::to_lower(String(VERSION_SHORT_NAME));
+    return StringUtils::to_lower(se_string_view(VERSION_SHORT_NAME));
 }
 
 // OS equivalent of XDG_DATA_HOME
-String OS::get_data_path() const {
-    return QStandardPaths::standardLocations(QStandardPaths::AppDataLocation).front();
+se_string OS::get_data_path() const {
+    return qPrintable(QStandardPaths::standardLocations(QStandardPaths::AppDataLocation).front());
 }
 
 // OS equivalent of XDG_CONFIG_HOME
-String OS::get_config_path() const {
-    return QStandardPaths::standardLocations(QStandardPaths::AppConfigLocation).front();
+se_string OS::get_config_path() const {
+    return qPrintable(QStandardPaths::standardLocations(QStandardPaths::AppConfigLocation).front());
 }
 
 // OS equivalent of XDG_CACHE_HOME
-String OS::get_cache_path() const {
-    return QStandardPaths::standardLocations(QStandardPaths::CacheLocation).front();
+se_string OS::get_cache_path() const {
+    return qPrintable(QStandardPaths::standardLocations(QStandardPaths::CacheLocation).front());
 }
 
 // OS specific path for user://
-String OS::get_user_data_dir() const {
+se_string OS::get_user_data_dir() const {
 
     return ".";
 };
 
 // Absolute path to res://
-String OS::get_resource_dir() const {
+se_string OS::get_resource_dir() const {
 
     return ProjectSettings::get_singleton()->get_resource_path();
 }
 
 // Access system-specific dirs like Documents, Downloads, etc.
-String OS::get_system_dir(SystemDir p_dir) {
+se_string OS::get_system_dir(SystemDir p_dir) {
     QStandardPaths::StandardLocation translated = QStandardPaths::DocumentsLocation;
     switch (p_dir) {
         case SYSTEM_DIR_DESKTOP: translated = QStandardPaths::DesktopLocation; break;
@@ -398,50 +409,51 @@ String OS::get_system_dir(SystemDir p_dir) {
         case SYSTEM_DIR_PICTURES:  translated = QStandardPaths::PicturesLocation; break;
         default: ;
     }
-    return QStandardPaths::standardLocations(translated).front();
+    return StringUtils::to_utf8(QStandardPaths::standardLocations(translated).front());
 }
 
-Error OS::shell_open(String p_uri) {
+Error OS::shell_open(se_string_view p_uri) {
+    //TODO: use qt desktop services here
     return ERR_UNAVAILABLE;
 };
 
 // implement these with the canvas?
-Error OS::dialog_show(String p_title, String p_description, Vector<String> p_buttons, Object *p_obj, String p_callback) {
+Error OS::dialog_show(String p_title, String p_description, Vector<String> p_buttons, Object *p_obj, const StringName & p_callback) {
     using namespace StringUtils;
     while (true) {
 
-        print(FormatV("%s\n--------\n%s\n",qPrintable(p_title.m_str), qPrintable(p_description.m_str)));
+        print(qPrintable(String("%1\n--------\n%2\n").arg(p_title,p_description)));
         for (int i = 0; i < p_buttons.size(); i++) {
-            if (i > 0) print(", ");
-            print(FormatV("%d=%s",i + 1,qPrintable(p_buttons[i].m_str)));
+            if (i > 0) print(se_string_view(", "));
+            print(qPrintable(String("%1=%2").arg(i + 1).arg(p_buttons[i])));
         }
-        print("\n");
-        String res = StringUtils::strip_edges(get_stdin_string());
+        print(se_string_view("\n"));
+        se_string res(StringUtils::strip_edges(get_stdin_string()));
         if (!is_numeric(res))
             continue;
         int n = to_int(res);
         if (n < 0 || n >= p_buttons.size())
             continue;
         if (p_obj && !p_callback.empty())
-            p_obj->call_deferred(StringName(p_callback), n);
+            p_obj->call_deferred(p_callback, n);
         break;
     }
     return OK;
 };
 
-Error OS::dialog_input_text(String p_title, String p_description, String p_partial, Object *p_obj, String p_callback) {
+Error OS::dialog_input_text(const String &p_title, const String &p_description, const String &p_partial, Object *p_obj, const StringName &p_callback) {
 
     ERR_FAIL_COND_V(!p_obj, FAILED)
     ERR_FAIL_COND_V(p_callback.empty(), FAILED)
-    print(FormatV("%s\n---------\n%s\n[%s]:\n",qPrintable(p_title.m_str), qPrintable(p_description.m_str), qPrintable(p_partial.m_str)));
+    print(FormatVE("%s\n---------\n%s\n[%s]:\n",qPrintable(p_title), qPrintable(p_description), qPrintable(p_partial)));
 
-    String res = StringUtils::strip_edges(get_stdin_string());
+    se_string res(StringUtils::strip_edges(get_stdin_string()));
     bool success = true;
     if (res.empty()) {
-        res = p_partial;
+        res = StringUtils::to_utf8(p_partial).data();
     }
 
-    p_obj->call_deferred(StringName(p_callback), success, res);
+    p_obj->call_deferred(p_callback, success, Variant(res));
 
     return OK;
 };
@@ -460,7 +472,7 @@ uint64_t OS::get_static_memory_peak_usage() const {
     return Memory::get_mem_max_usage();
 }
 
-Error OS::set_cwd(const String &p_cwd) {
+Error OS::set_cwd(se_string_view p_cwd) {
 
     return ERR_CANT_OPEN;
 }
@@ -491,7 +503,7 @@ OS::ScreenOrientation OS::get_screen_orientation() const {
 
 void OS::_ensure_user_data_dir() {
 
-    String dd = get_user_data_dir();
+    se_string dd(get_user_data_dir());
     DirAccess *da = DirAccess::open(dd);
     if (da) {
         memdelete(da);
@@ -505,18 +517,18 @@ void OS::_ensure_user_data_dir() {
     memdelete(da);
 }
 
-void OS::set_native_icon(const String &p_filename) {
+void OS::set_native_icon(const se_string &p_filename) {
 }
 
 void OS::set_icon(const Ref<Image> &p_icon) {
 }
 
-String OS::get_model_name() const {
+se_string OS::get_model_name() const {
 
-    return "GenericDevice";
+    return se_string("GenericDevice");
 }
 
-void OS::set_cmdline(const String &p_execpath, const ListPOD<String> &p_args) {
+void OS::set_cmdline(se_string_view p_execpath, const ListPOD<se_string> &p_args) {
 
     _execpath = p_execpath;
     _cmdline = p_args;
@@ -531,8 +543,10 @@ void OS::make_rendering_thread() {
 void OS::swap_buffers() {
 }
 
-String OS::get_unique_id() const {
-    return QString::fromLatin1(QSysInfo::machineUniqueId());
+const se_string &OS::get_unique_id() const {
+    if(s_os_machine_id.empty())
+        s_os_machine_id = QSysInfo::machineUniqueId().data();
+    return s_os_machine_id;
 }
 
 int OS::get_processor_count() const {
@@ -540,7 +554,7 @@ int OS::get_processor_count() const {
     return 1;
 }
 
-Error OS::native_video_play(String p_path, float p_volume, String p_audio_track, String p_subtitle_track) {
+Error OS::native_video_play(se_string_view p_path, float p_volume, se_string_view p_audio_track, se_string_view p_subtitle_track) {
 
     return FAILED;
 };
@@ -583,7 +597,7 @@ bool OS::is_joy_known(int p_device) {
     return true;
 }
 
-String OS::get_joy_guid(int p_device) const {
+StringName OS::get_joy_guid(int p_device) const {
     return "Default Joypad";
 }
 
@@ -621,18 +635,18 @@ void OS::set_has_server_feature_callback(HasServerFeatureCallback p_callback) {
     has_server_feature_callback = p_callback;
 }
 
-bool OS::has_feature(const StringName &p_feature) {
+bool OS::has_feature(se_string_view p_feature) {
 
-    if (p_feature == get_name())
+    if (p_feature == se_string_view(get_name()))
         return true;
-    if (sizeof(void *) == 8 && p_feature == "64") {
+    if (sizeof(void *) == 8 && p_feature == "64"_sv) {
         return true;
     }
-    if (sizeof(void *) == 4 && p_feature == "32") {
+    if (sizeof(void *) == 4 && p_feature == "32"_sv) {
         return true;
     }
 #if defined(__x86_64) || defined(__x86_64__) || defined(__amd64__)
-    if (p_feature == "x86_64") {
+    if (p_feature == "x86_64"_sv) {
         return true;
     }
 #elif (defined(__i386) || defined(__i386__))
@@ -644,7 +658,7 @@ bool OS::has_feature(const StringName &p_feature) {
         return true;
     }
 #endif
-    auto iter = s_dynamic_features.find(p_feature.asCString());
+    auto iter = s_dynamic_features.find(p_feature);
     if(iter!=s_dynamic_features.end())
         return true;
 
@@ -708,11 +722,11 @@ int OS::get_audio_driver_count() const {
 const char *OS::get_audio_driver_name(int p_driver) const {
 
     AudioDriver *driver = AudioDriverManager::get_driver(p_driver);
-	ERR_FAIL_COND_V_MSG(!driver, "", "Cannot get audio driver at index '" + itos(p_driver) + "'.")
+    ERR_FAIL_COND_V_MSG(!driver, "", "Cannot get audio driver at index '" + itos(p_driver) + "'.")
     return AudioDriverManager::get_driver(p_driver)->get_name();
 }
 
-void OS::set_restart_on_exit(bool p_restart, const ListPOD<String> &p_restart_arguments) {
+void OS::set_restart_on_exit(bool p_restart, const ListPOD<se_string> &p_restart_arguments) {
     restart_on_exit = p_restart;
     restart_commandline = p_restart_arguments;
 }
@@ -721,16 +735,16 @@ bool OS::is_restart_on_exit_set() const {
     return restart_on_exit;
 }
 
-ListPOD<String> OS::get_restart_on_exit_arguments() const {
+ListPOD<se_string> OS::get_restart_on_exit_arguments() const {
     return restart_commandline;
 }
 
-PoolStringArray OS::get_connected_midi_inputs() {
+PoolSeStringArray OS::get_connected_midi_inputs() {
 
     if (MIDIDriver::get_singleton())
         return MIDIDriver::get_singleton()->get_connected_inputs();
 
-    PoolStringArray list;
+    PoolSeStringArray list;
     return list;
 }
 

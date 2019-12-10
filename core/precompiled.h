@@ -1,14 +1,16 @@
 #pragma once
 
-#include <QString>
 #include <EASTL/vector.h>
+#include <EASTL/string.h>
+//#define QT_RESTRICTED_CAST_FROM_ASCII
+#include <QString>
+
 #ifdef USE_PRECOMPILED_HEADERS
 #if 0
 
 #include "Export.h"
 
 #include <EASTL/deque.h>
-#include <EASTL/string.h>
 #include <EASTL/unordered_map.h>
 #include <EASTL/unordered_set.h>
 #include <EASTL/memory.h>

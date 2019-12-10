@@ -33,10 +33,14 @@
 #include "core/method_bind.h"
 #include "core/io/resource_loader.h"
 #include "core/translation_helpers.h"
+#include "core/string_formatter.h"
+#include "editor/editor_node.h"
 #include "editor/plugins/spatial_editor_plugin.h"
+#include "editor/scene_tree_dock.h"
 #include "scene/3d/cpu_particles.h"
 #include "scene/main/scene_tree.h"
 #include "scene/resources/particles_material.h"
+
 #include "editor/scene_tree_editor.h"
 
 IMPL_GDCLASS(ParticlesEditorBase)
@@ -177,14 +181,14 @@ void ParticlesEditorBase::_node_selected(const NodePath &p_path) {
 
     if (!sel->is_class("Spatial")) {
 
-        EditorNode::get_singleton()->show_warning(vformat(TTR("\"%s\" doesn't inherit from Spatial."), sel->get_name()));
+        EditorNode::get_singleton()->show_warning(FormatSN(TTR("\"%s\" doesn't inherit from Spatial.").asCString(), sel->get_name().asCString()));
         return;
     }
 
     VisualInstance *vi = object_cast<VisualInstance>(sel);
     if (!vi) {
 
-        EditorNode::get_singleton()->show_warning(vformat(TTR("\"%s\" doesn't contain geometry."), sel->get_name()));
+        EditorNode::get_singleton()->show_warning(FormatSN(TTR("\"%s\" doesn't contain geometry.").asCString(), sel->get_name().asCString()));
         return;
     }
 
@@ -192,7 +196,7 @@ void ParticlesEditorBase::_node_selected(const NodePath &p_path) {
 
     if (geometry.size() == 0) {
 
-        EditorNode::get_singleton()->show_warning(vformat(TTR("\"%s\" doesn't contain face geometry."), sel->get_name()));
+        EditorNode::get_singleton()->show_warning(FormatSN(TTR("\"%s\" doesn't contain face geometry.").asCString(), sel->get_name().asCString()));
         return;
     }
 
@@ -248,11 +252,11 @@ ParticlesEditorBase::ParticlesEditorBase() {
     add_child(emission_tree_dialog);
     emission_tree_dialog->connect("selected", this, "_node_selected");
 
-    ListPOD<String> extensions;
-    ResourceLoader::get_recognized_extensions_for_type("Mesh", &extensions);
+    PODVector<se_string> extensions;
+    ResourceLoader::get_recognized_extensions_for_type("Mesh", extensions);
 
     emission_file_dialog->clear_filters();
-    for (const String & ext : extensions) {
+    for (const se_string & ext : extensions) {
 
         emission_file_dialog->add_filter("*." + ext + " ; " + StringUtils::to_upper(ext));
     }
@@ -320,7 +324,7 @@ void ParticlesEditor::_menu_option(int p_option) {
             cpu_particles->set_pause_mode(node->get_pause_mode());
 
             UndoRedo *ur = EditorNode::get_singleton()->get_undo_redo();
-            ur->create_action(TTR("Convert to CPUParticles"));
+            ur->create_action_ui(TTR("Convert to CPUParticles"));
             ur->add_do_method(EditorNode::get_singleton()->get_scene_tree_dock(), "replace_node", Variant(node), Variant(cpu_particles), true, false);
             ur->add_do_reference(cpu_particles);
             ur->add_undo_method(EditorNode::get_singleton()->get_scene_tree_dock(), "replace_node", Variant(cpu_particles), Variant(node), false, false);
@@ -342,7 +346,7 @@ void ParticlesEditor::_generate_aabb() {
 
     float running = 0.0;
 
-    EditorProgress ep("gen_aabb", TTR("Generating AABB"), int(time));
+    EditorProgress ep(("gen_aabb"), TTR("Generating AABB"), int(time));
 
     bool was_emitting = node->is_emitting();
     if (!was_emitting) {
@@ -355,7 +359,7 @@ void ParticlesEditor::_generate_aabb() {
     while (running < time) {
 
         uint64_t ticks = OS::get_singleton()->get_ticks_usec();
-        ep.step("Generating...", int(running), true);
+        ep.step(("Generating..."), int(running), true);
         OS::get_singleton()->delay_usec(1000);
 
         AABB capture = node->capture_aabb();
@@ -372,7 +376,7 @@ void ParticlesEditor::_generate_aabb() {
     }
 
     UndoRedo *ur = EditorNode::get_singleton()->get_undo_redo();
-    ur->create_action(TTR("Generate Visibility AABB"));
+    ur->create_action_ui(TTR("Generate Visibility AABB"));
     ur->add_do_method(node, "set_visibility_aabb", rect);
     ur->add_undo_method(node, "set_visibility_aabb", node->get_visibility_aabb());
     ur->commit_action();

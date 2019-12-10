@@ -33,6 +33,8 @@
 #include "core/crypto/crypto_core.h"
 #include "core/method_bind.h"
 
+VARIANT_ENUM_CAST(HashingContext::HashType);
+
 IMPL_GDCLASS(HashingContext)
 
 Error HashingContext::start(HashType p_type) {

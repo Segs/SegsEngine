@@ -37,38 +37,38 @@
 
 class TextureEditor : public Control {
 
-	GDCLASS(TextureEditor,Control)
+    GDCLASS(TextureEditor,Control)
 
-	Ref<Texture> texture;
+    Ref<Texture> texture;
 
 protected:
-	void _notification(int p_what);
-	void _gui_input(const Ref<InputEvent>& p_event);
-	void _changed_callback(Object *p_changed, const char *p_prop) override;
-	static void _bind_methods();
+    void _notification(int p_what);
+    void _gui_input(const Ref<InputEvent>& p_event);
+    void _changed_callback(Object *p_changed, StringName p_prop) override;
+    static void _bind_methods();
 
 public:
-	void edit(const Ref<Texture>& p_texture);
-	TextureEditor();
-	~TextureEditor() override;
+    void edit(const Ref<Texture>& p_texture);
+    TextureEditor();
+    ~TextureEditor() override;
 };
 
 class EditorInspectorPluginTexture : public EditorInspectorPlugin {
-	GDCLASS(EditorInspectorPluginTexture,EditorInspectorPlugin)
+    GDCLASS(EditorInspectorPluginTexture,EditorInspectorPlugin)
 
 public:
-	bool can_handle(Object *p_object) override;
-	void parse_begin(Object *p_object) override;
+    bool can_handle(Object *p_object) override;
+    void parse_begin(Object *p_object) override;
 };
 
 class TextureEditorPlugin : public EditorPlugin {
 
-	GDCLASS(TextureEditorPlugin,EditorPlugin)
+    GDCLASS(TextureEditorPlugin,EditorPlugin)
 
 public:
-	String get_name() const override { return "Texture"; }
+    se_string_view get_name() const override { return ("Texture"); }
 
-	TextureEditorPlugin(EditorNode *p_node);
+    TextureEditorPlugin(EditorNode *p_node);
 };
 
 #endif // TEXTURE_EDITOR_PLUGIN_H

@@ -61,7 +61,7 @@ public:
 
     virtual void poll() = 0;
     virtual Error accept_stream(Ref<StreamPeer> p_base, Ref<CryptoKey> p_key, Ref<X509Certificate> p_cert, Ref<X509Certificate> p_ca_chain = Ref<X509Certificate>()) = 0;
-    virtual Error connect_to_stream(Ref<StreamPeer> p_base, bool p_validate_certs = false, const String &p_for_hostname = String(), Ref<X509Certificate> p_valid_cert = Ref<X509Certificate>()) = 0;
+    virtual Error connect_to_stream(Ref<StreamPeer> p_base, bool p_validate_certs = false, se_string_view p_for_hostname = {}, Ref<X509Certificate> p_valid_cert = Ref<X509Certificate>()) = 0;
     virtual Status get_status() const = 0;
 
     virtual void disconnect_from_stream() = 0;
@@ -73,4 +73,3 @@ public:
     StreamPeerSSL();
 };
 
-VARIANT_ENUM_CAST(StreamPeerSSL::Status);

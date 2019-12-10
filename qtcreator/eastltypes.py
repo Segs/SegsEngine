@@ -103,13 +103,9 @@ def qdump__eastl____1__deque(d, value):
                 d.putSubItem(i, d.createValue(base + j * innerSize, innerType))
 
 def qdump__eastl__list(d, value):
-    if d.isQnxTarget() or d.isMsvcTarget():
-        qdump__eastl__list__QNX(d, value)
-        return
-
-    if value.type.size() == 3 * d.ptrSize():
-        # C++11 only.
-        (dummy1, dummy2, size) = value.split("ppp")
+    d.putValue(value['mSize'])
+    if value['mSize'] != None :
+        size = int(value['mSize'])
         d.putItemCount(size)
     else:
         # Need to count manually.
@@ -129,56 +125,40 @@ def qdump__eastl__list(d, value):
                 d.putSubItem(i, d.createValue(p + 2 * d.ptrSize(), innerType))
                 p = d.extractPointer(p)
 
-def qdump__eastl__list__QNX(d, value):
-    (proxy, head, size) = value.split("ppp")
-    d.putItemCount(size, 1000)
-
-    if d.isExpanded():
-        p = d.extractPointer(head)
-        innerType = value.type[0]
-        with Children(d, size, maxNumChild=1000, childType=innerType):
-            for i in d.childRange():
-                d.putSubItem(i, d.createValue(p + 2 * d.ptrSize(), innerType))
-                p = d.extractPointer(p)
-
 def qform__eastl__map():
     return mapForms()
 
 def qdump__eastl__map(d, value):
-    if d.isQnxTarget() or d.isMsvcTarget():
-        qdump_eastl__map__helper(d, value)
-        return
+#    d.putValue(value["mnSize"])
 
-    # stuff is actually (color, pad) with 'I@', but we can save cycles/
-    (compare, stuff, parent, left, right, size) = value.split('pppppp')
+    impl = value
+    size = value["mnSize"].integer()
     d.check(0 <= size and size <= 100*1000*1000)
     d.putItemCount(size)
-
     if d.isExpanded():
-        keyType = value.type[0]
-        valueType = value.type[1]
+        keyType = value.type.stripTypedefs()[0]
+        valueType = value.type.stripTypedefs()[1]
+        node = impl["mAnchor"]["mpNodeLeft"]
+        nodeSize = node.dereference().type.size()
+        typeCode = "@{%s}@{%s}" % (keyType.name,valueType.name)
+        #d.putItem(node)
         with Children(d, size, maxNumChild=1000):
-            node = value["_M_t"]["_M_impl"]["_M_header"]["_M_left"]
-            nodeSize = node.dereference().type.size()
-            typeCode = "@{%s}@{%s}" % (keyType.name, valueType.name)
             for i in d.childRange():
-                (pad1, key, pad2, value) = d.split(typeCode, node.pointer() + nodeSize)
-                d.putPairItem(i, (key, value))
-                if node["_M_right"].pointer() == 0:
-                    parent = node["_M_parent"]
-                    while True:
-                        if node.pointer() != parent["_M_right"].pointer():
-                            break
+
+                (pad1, key, pad2, val) = d.split(typeCode, node.pointer() + nodeSize)
+
+                d.putPairItem(i, (key, val))
+                if node["mpNodeRight"].pointer() == 0:
+                    parent = node["mpNodeParent"]
+                    while node == parent["mpNodeRight"]:
                         node = parent
-                        parent = parent["_M_parent"]
-                    if node["_M_right"] != parent:
+                        parent = parent["mpNodeParent"]
+                    if node["mpNodeRight"] != parent:
                         node = parent
                 else:
-                    node = node["_M_right"]
-                    while True:
-                        if node["_M_left"].pointer() == 0:
-                            break
-                        node = node["_M_left"]
+                    node = node["mpNodeRight"]
+                    while node["mpNodeLeft"].pointer() != 0:
+                        node = node["mpNodeLeft"]
 
 def qdump_eastl__map__helper(d, value):
     (proxy, head, size) = value.split("ppp")
@@ -378,54 +358,48 @@ def qdump__eastl____1__stack(d, value):
     d.putItem(value["c"])
     d.putBetterType(value.type)
 
-def qform__eastl__string():
-    return [Latin1StringFormat, SeparateLatin1StringFormat,
-            Utf8StringFormat, SeparateUtf8StringFormat ]
+#def qform__eastl__string():
+#    return [Latin1StringFormat, SeparateLatin1StringFormat,
+#            Utf8StringFormat, SeparateUtf8StringFormat ]
 
 def qdump__eastl__string(d, value):
+    warn("zxzzzxz ")
     qdumpHelper_eastl__string(d, value, d.createType("char"), d.currentItemFormat())
 
 def qdumpHelper_eastl__string(d, value, charType, format):
-    if d.isQnxTarget():
-        qdumpHelper__eastl__string__QNX(d, value, charType, format)
-        return
-    if d.isMsvcTarget():
-        qdumpHelper__eastl__string__MSVC(d, value, charType, format)
-        return
+    #FIXME: sometimes the passed value does not contain static/constexpr fields so
+    heapmask = int(0x8000000000000000) #value["kHeapMask"]
+    sso_mask = int(0x80) #value["kSSOMask"]
+    sso_type =  value.type.name+"::SSOLayout"
+    heap_type = value.type.name+"::HeapLayout"
+    sso = d.createValue(value['mPair']["mFirst"].address(),sso_type)
+    #warn("zxz asddsa %s %s" % (str(value.type.name),str()))
+    remaining_size = int(sso["mRemainingSizeField"]["mnRemainingSize"])
+    use_sso = ((remaining_size & int(sso_mask))!=int(sso_mask))
 
-    data = value.extractPointer()
-    # We can't lookup the eastl::string::_Rep type without crashing LLDB,
-    # so hard-code assumption on member position
-    # struct { size_type _M_length, size_type _M_capacity, int _M_refcount; }
-    (size, alloc, refcount) = d.split("ppp", data - 3 * d.ptrSize())
-    refcount = refcount & 0xffffffff
-    d.check(refcount >= -1) # Can be -1 according to docs.
-    d.check(0 <= size and size <= alloc and alloc <= 100*1000*1000)
-    d.putCharArrayHelper(data, size, charType, format)
-
-def qdumpHelper__eastl__string__QNX(d, value, charType, format):
-    size = value['_Mysize']
-    alloc = value['_Myres']
-    _BUF_SIZE = int(16 / charType.size())
-    if _BUF_SIZE <= alloc: #(_BUF_SIZE <= _Myres ? _Bx._Ptr : _Bx._Buf);
-        data = value['_Bx']['_Ptr']
+    data = value["mPair"]
+    alloc = value["mPair"]
+    if use_sso:
+        size = int(sso["mRemainingSizeField"]["mnRemainingSize"])
+        data  = sso["mData"]
+        alloc = int(data.type.size())
+        d.putCharArrayHelper(data.address(),(alloc-size),d.charType(),d.currentItemFormat())
     else:
-        data = value['_Bx']['_Buf']
-    sizePtr = data.cast(d.charType().pointer())
-    refcount = int(sizePtr[-1])
-    d.check(refcount >= -1) # Can be -1 accoring to docs.
-    d.check(0 <= size and size <= alloc and alloc <= 100*1000*1000)
-    d.putCharArrayHelper(sizePtr, size, charType, format)
+        heapval = d.createValue(value['mPair']["mFirst"].address(),heap_type)
+        size = int(heapval["mnSize"])
+        alloc = int(heapval["mnCapacity"]) & ~heapmask
+        data = heapval["mpBegin"]
+        d.putCharArrayHelper(data,size,d.charType(),d.currentItemFormat())
 
-def qdumpHelper__eastl__string__MSVC(d, value, charType, format):
-    (proxy, buffer, size, alloc) = value.split("p16spp");
-    _BUF_SIZE = int(16 / charType.size());
-    d.check(0 <= size and size <= alloc and alloc <= 100*1000*1000)
-    if _BUF_SIZE <= alloc:
-        (proxy, data) = value.split("pp");
-    else:
-        data = value.address() + d.ptrSize()
-    d.putCharArrayHelper(data, size, charType, format)
+
+# We can't lookup the eastl::string::_Rep type without crashing LLDB,
+# so hard-code assumption on member position
+# struct { size_type _M_length, size_type _M_capacity, int _M_refcount; }
+#    (size, alloc, refcount) = d.split("ppp", data - 3 * d.ptrSize())
+#    refcount = refcount & 0xffffffff
+#    d.check(refcount >= -1) # Can be -1 according to docs.
+#    d.check(0 <= size and size <= alloc and alloc <= 100*1000*1000)
+#    d.putCharArrayHelper(data, size, charType, format)
 
 def qdump__eastl____1__string(d, value):
     firstByte = value.split('b')[0]
@@ -569,10 +543,6 @@ def qdump__eastl____debug__unordered_multimap(d, value):
 
 
 def qdump__eastl__unordered_set(d, value):
-    if d.isQnxTarget() or d.isMsvcTarget():
-        qdump__eastl__list__QNX(d, value["_List"])
-        return
-
     try:
         # gcc ~= 4.7
         size = value["_M_element_count"].integer()

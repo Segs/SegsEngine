@@ -36,7 +36,7 @@
 #include "core/math/camera_matrix.h"
 #include "core/color.h"
 #include "core/variant.h"
-#include "core/ustring.h"
+#include "core/se_string.h"
 #include "core/vector.h"
 #include "core/set.h"
 #include "core/math/aabb.h"
@@ -128,15 +128,15 @@ private:
 
     struct CustomCode {
 
-        String vertex;
-        String vertex_globals;
-        String fragment;
-        String fragment_globals;
-        String light;
-        String uniforms;
+        se_string vertex;
+        se_string vertex_globals;
+        se_string fragment;
+        se_string fragment_globals;
+        se_string light;
+        se_string uniforms;
         uint32_t version;
         Vector<StringName> texture_uniforms;
-        Vector<CharString> custom_defines;
+        Vector<se_string> custom_defines;
         Set<uint32_t> versions;
     };
 
@@ -163,7 +163,7 @@ private:
     ShaderVersionKey conditional_version;
     ShaderVersionKey new_conditional_version;
 
-    virtual String get_shader_name() const = 0;
+    virtual const char *get_shader_name() const = 0;
 
     const char **conditional_defines;
     const char **uniform_names;
@@ -173,18 +173,18 @@ private:
     const Feedback *feedbacks;
     const char *vertex_code;
     const char *fragment_code;
-    CharString fragment_code0;
-    CharString fragment_code1;
-    CharString fragment_code2;
-    CharString fragment_code3;
-    CharString fragment_code4;
+    se_string fragment_code0;
+    se_string fragment_code1;
+    se_string fragment_code2;
+    se_string fragment_code3;
+    se_string fragment_code4;
 
-    CharString vertex_code0;
-    CharString vertex_code1;
-    CharString vertex_code2;
-    CharString vertex_code3;
+    se_string vertex_code0;
+    se_string vertex_code1;
+    se_string vertex_code2;
+    se_string vertex_code3;
 
-    Vector<CharString> custom_defines;
+    PODVector<se_string> custom_defines;
 
     int base_material_tex_index;
 
@@ -309,10 +309,10 @@ public:
         CUSTOM_SHADER_DISABLED = 0
     };
 
-    GLint get_uniform_location(const String &p_name) const;
+    GLint get_uniform_location(se_string_view p_name) const;
     GLint get_uniform_location(int p_index) const;
 
-    static _FORCE_INLINE_ ShaderGLES3 *get_active() { return active; };
+    static _FORCE_INLINE_ ShaderGLES3 *get_active() { return active; }
     bool bind();
     void unbind();
     void bind_uniforms();
@@ -322,7 +322,9 @@ public:
     void clear_caches();
 
     uint32_t create_custom_shader();
-    void set_custom_shader_code(uint32_t p_code_id, const String &p_vertex, const String &p_vertex_globals, const String &p_fragment, const String &p_light, const String &p_fragment_globals, const String &p_uniforms, const Vector<StringName> &p_texture_uniforms, const Vector<CharString> &p_custom_defines);
+    void set_custom_shader_code(uint32_t p_code_id, const se_string &p_vertex, const se_string &p_vertex_globals,
+            const se_string &p_fragment, const se_string &p_light, const se_string &p_fragment_globals, const se_string &p_uniforms,
+            const Vector<StringName> &p_texture_uniforms, const Vector<se_string> &p_custom_defines);
     void set_custom_shader(uint32_t p_code_id);
     void free_custom_shader(uint32_t p_code_id);
 
@@ -366,8 +368,8 @@ public:
 
     void set_base_material_tex_index(int p_idx);
 
-    void add_custom_define(const String &p_define) {
-        custom_defines.push_back(StringUtils::to_utf8(p_define));
+    void add_custom_define(const se_string &p_define) {
+        custom_defines.emplace_back(p_define);
     }
 
     virtual ~ShaderGLES3();
@@ -384,7 +386,7 @@ int ShaderGLES3::_get_uniform(int p_which) const {
 
 void ShaderGLES3::_set_conditional(int p_which, bool p_value) {
 
-    ERR_FAIL_INDEX(p_which, conditional_count);
+    ERR_FAIL_INDEX(p_which, conditional_count)
     if (p_value)
         new_conditional_version.version |= (1 << p_which);
     else

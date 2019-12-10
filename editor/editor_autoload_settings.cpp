@@ -34,6 +34,7 @@
 #include "core/method_bind.h"
 #include "core/global_constants.h"
 #include "core/project_settings.h"
+#include "core/string_formatter.h"
 #include "editor_node.h"
 #include "editor_scale.h"
 #include "scene/main/viewport.h"
@@ -48,13 +49,13 @@ void EditorAutoloadSettings::_notification(int p_what) {
 
     if (p_what == NOTIFICATION_ENTER_TREE) {
 
-        ListPOD<String> afn;
-        ResourceLoader::get_recognized_extensions_for_type("Script", &afn);
-        ResourceLoader::get_recognized_extensions_for_type("PackedScene", &afn);
+        PODVector<se_string> afn;
+        ResourceLoader::get_recognized_extensions_for_type(("Script"), afn);
+        ResourceLoader::get_recognized_extensions_for_type(("PackedScene"), afn);
 
         EditorFileDialog *file_dialog = autoload_add_path->get_file_dialog();
 
-        for (const String &E : afn) {
+        for (const se_string &E : afn) {
 
             file_dialog->add_filter("*." + E);
         }
@@ -68,7 +69,7 @@ void EditorAutoloadSettings::_notification(int p_what) {
     }
 }
 
-bool EditorAutoloadSettings::_autoload_name_is_valid(const String &p_name, String *r_error) {
+bool EditorAutoloadSettings::_autoload_name_is_valid(const StringName &p_name, se_string *r_error) {
 
     if (!StringUtils::is_valid_identifier(p_name)) {
         if (r_error)
@@ -103,9 +104,9 @@ bool EditorAutoloadSettings::_autoload_name_is_valid(const String &p_name, Strin
     }
 
     for (int i = 0; i < ScriptServer::get_language_count(); i++) {
-        List<String> keywords;
+        List<se_string> keywords;
         ScriptServer::get_language(i)->get_reserved_words(&keywords);
-        for (List<String>::Element *E = keywords.front(); E; E = E->next()) {
+        for (List<se_string>::Element *E = keywords.front(); E; E = E->next()) {
             if (E->deref() == p_name) {
                 if (r_error)
                     *r_error = TTR("Invalid name.") + "\n" + TTR("Keyword cannot be used as an autoload name.");
@@ -120,10 +121,10 @@ bool EditorAutoloadSettings::_autoload_name_is_valid(const String &p_name, Strin
 
 void EditorAutoloadSettings::_autoload_add() {
 
-    if (autoload_add(autoload_add_name->get_text(), autoload_add_path->get_line_edit()->get_text()))
-        autoload_add_path->get_line_edit()->set_text("");
+    if (autoload_add(StringName(autoload_add_name->get_text()), autoload_add_path->get_line_edit()->get_text()))
+        autoload_add_path->get_line_edit()->set_text_utf8("");
 
-    autoload_add_name->set_text("");
+    autoload_add_name->set_text_utf8("");
 }
 
 void EditorAutoloadSettings::_autoload_selected() {
@@ -147,22 +148,22 @@ void EditorAutoloadSettings::_autoload_edited() {
     UndoRedo *undo_redo = EditorNode::get_undo_redo();
 
     if (column == 0) {
-        String name = ti->get_text(0);
-        String old_name = StringUtils::get_slice(selected_autoload,"/", 1);
+        se_string name = ti->get_text(0);
+        se_string_view old_name = StringUtils::get_slice(selected_autoload,"/", 1);
 
         if (name == old_name)
             return;
 
-        String error;
-        if (!_autoload_name_is_valid(name, &error)) {
-            ti->set_text(0, old_name);
-            EditorNode::get_singleton()->show_warning(error);
+        se_string error;
+        if (!_autoload_name_is_valid(StringName(name), &error)) {
+            ti->set_text_utf8(0, old_name);
+            EditorNode::get_singleton()->show_warning(StringName(error));
             return;
         }
 
-        if (ProjectSettings::get_singleton()->has_setting("autoload/" + name)) {
-            ti->set_text(0, old_name);
-            EditorNode::get_singleton()->show_warning(vformat(TTR("Autoload '%s' already exists!"), name));
+        if (ProjectSettings::get_singleton()->has_setting(StringName("autoload/" + name))) {
+            ti->set_text_utf8(0, old_name);
+            EditorNode::get_singleton()->show_warning(FormatSN(TTR("Autoload '%s' already exists!").asCString(), name.c_str()));
             return;
         }
 
@@ -170,10 +171,10 @@ void EditorAutoloadSettings::_autoload_edited() {
 
         name = "autoload/" + name;
 
-        int order = ProjectSettings::get_singleton()->get_order(selected_autoload);
-        String path = ProjectSettings::get_singleton()->get(selected_autoload);
+        int order = ProjectSettings::get_singleton()->get_order(StringName(selected_autoload));
+        se_string path = ProjectSettings::get_singleton()->get(StringName(selected_autoload));
 
-        undo_redo->create_action(TTR("Rename Autoload"));
+        undo_redo->create_action_ui(TTR("Rename Autoload"));
 
         undo_redo->add_do_property(ProjectSettings::get_singleton(), name, path);
         undo_redo->add_do_method(ProjectSettings::get_singleton(), "set_order", name, order);
@@ -196,10 +197,10 @@ void EditorAutoloadSettings::_autoload_edited() {
         updating_autoload = true;
 
         bool checked = ti->is_checked(2);
-        String base = "autoload/" + ti->get_text(0);
+        StringName base("autoload/" + ti->get_text(0));
 
         int order = ProjectSettings::get_singleton()->get_order(base);
-        String path = ProjectSettings::get_singleton()->get(base);
+        se_string path = ProjectSettings::get_singleton()->get(base);
 
         if (StringUtils::begins_with(path,"*"))
             path = StringUtils::substr(path,1, path.length());
@@ -208,7 +209,7 @@ void EditorAutoloadSettings::_autoload_edited() {
         if (checked)
             path = "*" + path;
 
-        undo_redo->create_action(TTR("Toggle AutoLoad Globals"));
+        undo_redo->create_action_ui(TTR("Toggle AutoLoad Globals"));
 
         undo_redo->add_do_property(ProjectSettings::get_singleton(), base, path);
         undo_redo->add_undo_property(ProjectSettings::get_singleton(), base, ProjectSettings::get_singleton()->get(base));
@@ -232,7 +233,7 @@ void EditorAutoloadSettings::_autoload_button_pressed(Object *p_item, int p_colu
 
     TreeItem *ti = object_cast<TreeItem>(p_item);
 
-    String name = "autoload/" + ti->get_text(0);
+    StringName name("autoload/" + ti->get_text(0));
 
     UndoRedo *undo_redo = EditorNode::get_undo_redo();
 
@@ -254,12 +255,12 @@ void EditorAutoloadSettings::_autoload_button_pressed(Object *p_item, int p_colu
             if (!swap)
                 return;
 
-            String swap_name = "autoload/" + swap->get_text(0);
+            StringName swap_name("autoload/" + swap->get_text(0));
 
             int order = ProjectSettings::get_singleton()->get_order(name);
             int swap_order = ProjectSettings::get_singleton()->get_order(swap_name);
 
-            undo_redo->create_action(TTR("Move Autoload"));
+            undo_redo->create_action_ui(TTR("Move Autoload"));
 
             undo_redo->add_do_method(ProjectSettings::get_singleton(), "set_order", name, swap_order);
             undo_redo->add_undo_method(ProjectSettings::get_singleton(), "set_order", name, order);
@@ -279,7 +280,7 @@ void EditorAutoloadSettings::_autoload_button_pressed(Object *p_item, int p_colu
 
             int order = ProjectSettings::get_singleton()->get_order(name);
 
-            undo_redo->create_action(TTR("Remove Autoload"));
+            undo_redo->create_action_ui(TTR("Remove Autoload"));
 
             undo_redo->add_do_property(ProjectSettings::get_singleton(), name, Variant());
 
@@ -305,7 +306,7 @@ void EditorAutoloadSettings::_autoload_activated() {
     _autoload_open(ti->get_text(1));
 }
 
-void EditorAutoloadSettings::_autoload_open(const String &fpath) {
+void EditorAutoloadSettings::_autoload_open(se_string_view fpath) {
     if (ResourceLoader::get_resource_type(fpath) == "PackedScene") {
         EditorNode::get_singleton()->open_request(fpath);
     } else {
@@ -314,14 +315,14 @@ void EditorAutoloadSettings::_autoload_open(const String &fpath) {
     ProjectSettingsEditor::get_singleton()->hide();
 }
 
-void EditorAutoloadSettings::_autoload_file_callback(const String &p_path) {
+void EditorAutoloadSettings::_autoload_file_callback(se_string_view p_path) {
 
-    autoload_add_name->set_text(PathUtils::get_basename(PathUtils::get_file(p_path)));
+    autoload_add_name->set_text_utf8(PathUtils::get_basename(PathUtils::get_file(p_path)));
 }
 
-Node *EditorAutoloadSettings::_create_autoload(const String &p_path) {
+Node *EditorAutoloadSettings::_create_autoload(se_string_view p_path) {
     RES res(ResourceLoader::load(p_path));
-    ERR_FAIL_COND_V_MSG(not res, nullptr, "Can't autoload: " + p_path + ".")
+    ERR_FAIL_COND_V_MSG(not res, nullptr, se_string("Can't autoload: ") + p_path + ".")
     Node *n = nullptr;
     if (res->is_class("PackedScene")) {
         Ref<PackedScene> ps = dynamic_ref_cast<PackedScene>(res);
@@ -330,17 +331,17 @@ Node *EditorAutoloadSettings::_create_autoload(const String &p_path) {
         Ref<Script> s = dynamic_ref_cast<Script>(res);
         StringName ibt = s->get_instance_base_type();
         bool valid_type = ClassDB::is_parent_class(ibt, "Node");
-        ERR_FAIL_COND_V_MSG(!valid_type, nullptr, "Script does not inherit a Node: " + p_path + ".")
+        ERR_FAIL_COND_V_MSG(!valid_type, nullptr, se_string("Script does not inherit a Node: ") + p_path + ".")
 
         Object *obj = ClassDB::instance(ibt);
 
-        ERR_FAIL_COND_V_MSG(obj == nullptr, nullptr, "Cannot instance script for autoload, expected 'Node' inheritance, got: " + String(ibt) + ".")
+        ERR_FAIL_COND_V_MSG(obj == nullptr, nullptr, "Cannot instance script for autoload, expected 'Node' inheritance, got: " + se_string(ibt) + ".")
 
         n = object_cast<Node>(obj);
         n->set_script(s.get_ref_ptr());
     }
 
-    ERR_FAIL_COND_V_MSG(!n, nullptr, "Path in autoload not a node or script: " + p_path + ".")
+    ERR_FAIL_COND_V_MSG(!n, nullptr, se_string("Path in autoload not a node or script: ") + p_path + ".")
 
     return n;
 }
@@ -352,7 +353,7 @@ void EditorAutoloadSettings::update_autoload() {
 
     updating_autoload = true;
 
-    Map<String, AutoLoadInfo> to_remove;
+    Map<se_string_view, AutoLoadInfo> to_remove;
     List<AutoLoadInfo *> to_add;
 
     for (List<AutoLoadInfo>::Element *E = autoload_cache.front(); E; E = E->next()) {
@@ -373,8 +374,8 @@ void EditorAutoloadSettings::update_autoload() {
         if (!StringUtils::begins_with(pi.name,"autoload/"))
             continue;
 
-        String name = StringUtils::get_slice(pi.name,"/", 1);
-        String path = ProjectSettings::get_singleton()->get(pi.name);
+        se_string name(StringUtils::get_slice(pi.name,"/", 1));
+        se_string path = ProjectSettings::get_singleton()->get(pi.name);
 
         if (name.empty())
             continue;
@@ -386,7 +387,7 @@ void EditorAutoloadSettings::update_autoload() {
             path = StringUtils::substr(path,1, path.length());
         }
 
-        info.name = name;
+        info.name = StringName(name);
         info.path = path;
         info.order = ProjectSettings::get_singleton()->get_order(pi.name);
 
@@ -416,10 +417,10 @@ void EditorAutoloadSettings::update_autoload() {
         }
 
         TreeItem *item = tree->create_item(root);
-        item->set_text(0, name);
+        item->set_text_utf8(0, name);
         item->set_editable(0, true);
 
-        item->set_text(1, path);
+        item->set_text_utf8(1, path);
         item->set_selectable(1, true);
 
         item->set_cell_mode(2, TreeItem::CELL_MODE_CHECK);
@@ -434,7 +435,7 @@ void EditorAutoloadSettings::update_autoload() {
     }
 
     // Remove deleted/changed autoloads
-    for (eastl::pair<const String,AutoLoadInfo> &E : to_remove) {
+    for (eastl::pair<const se_string_view,AutoLoadInfo> &E : to_remove) {
         AutoLoadInfo &info = E.second;
         if (info.is_singleton) {
             for (int i = 0; i < ScriptServer::get_language_count(); i++) {
@@ -442,7 +443,7 @@ void EditorAutoloadSettings::update_autoload() {
             }
         }
         if (info.in_editor) {
-            ERR_CONTINUE(!info.node);
+            ERR_CONTINUE(!info.node)
             get_tree()->get_root()->call_deferred("remove_child", Variant(info.node));
         }
 
@@ -459,7 +460,7 @@ void EditorAutoloadSettings::update_autoload() {
 
         info->node = _create_autoload(info->path);
 
-        ERR_CONTINUE(!info->node);
+        ERR_CONTINUE(!info->node)
         info->node->set_name(info->name);
 
         Ref<Script> scr = refFromRefPtr<Script>(info->node->get_script());
@@ -495,7 +496,7 @@ Variant EditorAutoloadSettings::get_drag_data_fw(const Point2 &p_point, Control 
     if (autoload_cache.size() <= 1)
         return false;
 
-    PoolStringArray autoloads;
+    PoolVector<se_string> autoloads;
 
     TreeItem *next = tree->get_next_selected(nullptr);
 
@@ -512,7 +513,7 @@ Variant EditorAutoloadSettings::get_drag_data_fw(const Point2 &p_point, Control 
     int max_size = MIN(PREVIEW_LIST_MAX_SIZE, autoloads.size());
 
     for (int i = 0; i < max_size; i++) {
-        Label *label = memnew(Label(autoloads[i]));
+        Label *label = memnew(Label(StringName(autoloads[i])));
         label->set_self_modulate(Color(1, 1, 1, Math::lerp(1, 0, float(i) / PREVIEW_LIST_MAX_SIZE)));
 
         preview->add_child(label);
@@ -563,7 +564,7 @@ void EditorAutoloadSettings::drop_data_fw(const Point2 &p_point, const Variant &
     if (section < -1)
         return;
 
-    String name;
+    se_string name;
     bool move_to_back = false;
 
     if (section < 0) {
@@ -575,7 +576,7 @@ void EditorAutoloadSettings::drop_data_fw(const Point2 &p_point, const Variant &
         move_to_back = true;
     }
 
-    int order = ProjectSettings::get_singleton()->get_order("autoload/" + name);
+    int order = ProjectSettings::get_singleton()->get_order(StringName("autoload/" + name));
 
     AutoLoadInfo aux;
     List<AutoLoadInfo>::Element *E = nullptr;
@@ -586,13 +587,13 @@ void EditorAutoloadSettings::drop_data_fw(const Point2 &p_point, const Variant &
     }
 
     Dictionary drop_data = p_data;
-    PoolStringArray autoloads = drop_data["autoloads"];
+    PoolVector<se_string> autoloads = drop_data["autoloads"].as<PoolVector<se_string>>();
 
     Vector<int> orders;
     orders.resize(autoload_cache.size());
 
     for (int i = 0; i < autoloads.size(); i++) {
-        aux.order = ProjectSettings::get_singleton()->get_order("autoload/" + autoloads[i]);
+        aux.order = ProjectSettings::get_singleton()->get_order(StringName("autoload/" + autoloads[i]));
 
         List<AutoLoadInfo>::Element *I = autoload_cache.find(aux);
 
@@ -617,13 +618,13 @@ void EditorAutoloadSettings::drop_data_fw(const Point2 &p_point, const Variant &
 
     UndoRedo *undo_redo = EditorNode::get_undo_redo();
 
-    undo_redo->create_action(TTR("Rearrange Autoloads"));
+    undo_redo->create_action_ui(TTR("Rearrange Autoloads"));
 
     i = 0;
 
     for (List<AutoLoadInfo>::Element *F = autoload_cache.front(); F; F = F->next()) {
-        undo_redo->add_do_method(ProjectSettings::get_singleton(), "set_order", String("autoload/" + F->deref().name), orders[i++]);
-        undo_redo->add_undo_method(ProjectSettings::get_singleton(), "set_order", String("autoload/" + F->deref().name), F->deref().order);
+        undo_redo->add_do_method(ProjectSettings::get_singleton(), "set_order", se_string("autoload/") + F->deref().name, orders[i++]);
+        undo_redo->add_undo_method(ProjectSettings::get_singleton(), "set_order", se_string("autoload/") + F->deref().name, F->deref().order);
     }
 
     orders.clear();
@@ -637,17 +638,17 @@ void EditorAutoloadSettings::drop_data_fw(const Point2 &p_point, const Variant &
     undo_redo->commit_action();
 }
 
-bool EditorAutoloadSettings::autoload_add(const String &p_name, const String &p_path) {
+bool EditorAutoloadSettings::autoload_add(const StringName &p_name, se_string_view p_path) {
 
-    String name = p_name;
+    se_string name(p_name);
 
-    String error;
-    if (!_autoload_name_is_valid(name, &error)) {
-        EditorNode::get_singleton()->show_warning(error);
+    se_string error;
+    if (!_autoload_name_is_valid(p_name, &error)) {
+        EditorNode::get_singleton()->show_warning(StringName(error));
         return false;
     }
 
-    const String &path = p_path;
+    const se_string_view path = p_path;
     if (!FileAccess::exists(path)) {
         EditorNode::get_singleton()->show_warning(TTR("Invalid path.") + "\n" + TTR("File does not exist."));
         return false;
@@ -662,12 +663,12 @@ bool EditorAutoloadSettings::autoload_add(const String &p_name, const String &p_
 
     UndoRedo *undo_redo = EditorNode::get_undo_redo();
 
-    undo_redo->create_action(TTR("Add AutoLoad"));
+    undo_redo->create_action_ui(TTR("Add AutoLoad"));
     // Singleton autoloads are represented with a leading "*" in their path.
-    undo_redo->add_do_property(ProjectSettings::get_singleton(), name, String("*" + path));
+    undo_redo->add_do_property(ProjectSettings::get_singleton(), name, se_string("*") + path);
 
-    if (ProjectSettings::get_singleton()->has_setting(name)) {
-        undo_redo->add_undo_property(ProjectSettings::get_singleton(), name, ProjectSettings::get_singleton()->get(name));
+    if (ProjectSettings::get_singleton()->has_setting(StringName(name))) {
+        undo_redo->add_undo_property(ProjectSettings::get_singleton(), name, ProjectSettings::get_singleton()->get(StringName(name)));
     } else {
         undo_redo->add_undo_property(ProjectSettings::get_singleton(), name, Variant());
     }
@@ -683,15 +684,15 @@ bool EditorAutoloadSettings::autoload_add(const String &p_name, const String &p_
     return true;
 }
 
-void EditorAutoloadSettings::autoload_remove(const String &p_name) {
+void EditorAutoloadSettings::autoload_remove(const StringName &p_name) {
 
-    String name = "autoload/" + p_name;
+    StringName name(se_string("autoload/") + p_name);
 
     UndoRedo *undo_redo = EditorNode::get_undo_redo();
 
     int order = ProjectSettings::get_singleton()->get_order(name);
 
-    undo_redo->create_action(TTR("Remove Autoload"));
+    undo_redo->create_action_ui(TTR("Remove Autoload"));
 
     undo_redo->add_do_property(ProjectSettings::get_singleton(), name, Variant());
 
@@ -740,8 +741,8 @@ EditorAutoloadSettings::EditorAutoloadSettings() {
         if (!StringUtils::begins_with(pi.name,"autoload/"))
             continue;
 
-        String name = StringUtils::get_slice(pi.name,"/", 1);
-        String path = ProjectSettings::get_singleton()->get(pi.name);
+        se_string name(StringUtils::get_slice(pi.name,"/", 1));
+        se_string path = ProjectSettings::get_singleton()->get(pi.name);
 
         if (name.empty())
             continue;
@@ -753,7 +754,7 @@ EditorAutoloadSettings::EditorAutoloadSettings() {
             path = StringUtils::substr(path,1, path.length());
         }
 
-        info.name = name;
+        info.name = StringName(name);
         info.path = path;
         info.order = ProjectSettings::get_singleton()->get_order(pi.name);
 

@@ -139,8 +139,9 @@ public:
         } else if (p_arg < int(arguments.arguments.size())) {
             return arguments.arguments[p_arg];
         } else {
-            //TODO: use a simple char [32] buffer as conversion area.
-            return PropertyInfo(VariantType::NIL, StringUtils::to_utf8("arg_" + itos(p_arg)).data(),
+            char buf[32];
+            snprintf(buf,31,"arg_%d",p_arg);
+            return PropertyInfo(VariantType::NIL, buf,
                     PROPERTY_HINT_NONE, nullptr, PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_NIL_IS_VARIANT);
         }
     }

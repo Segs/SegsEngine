@@ -40,6 +40,7 @@
 #include "core/os/file_access.h"
 #include "core/os/os.h"
 #include "core/print_string.h"
+#include "core/string_formatter.h"
 #include "core/translation_helpers.h"
 
 IMPL_GDCLASS(BakedLightmapData)
@@ -340,7 +341,9 @@ bool BakedLightmap::_bake_time(void *ud, float p_secs, float p_progress) {
         int mins_left = p_secs / 60;
         int secs_left = Math::fmod(p_secs, 60.0f);
         int percent = p_progress * 100;
-        bool abort = bake_step_function(btd->pass + percent, btd->text + " " + vformat(RTR("%d%%"), percent) + " " + vformat(RTR("(Time Left: %d:%02d s)"), mins_left, secs_left));
+        bool abort =
+                bake_step_function(btd->pass + percent, btd->text + " " + FormatVE(RTR_utf8("%d%%").c_str(), percent) + " " +
+                                                                FormatVE(RTR_utf8("(Time Left: %d:%02d s)").c_str(), mins_left, secs_left));
         btd->last_step = time;
         if (abort)
             return true;
@@ -351,7 +354,7 @@ bool BakedLightmap::_bake_time(void *ud, float p_secs, float p_progress) {
 
 BakedLightmap::BakeError BakedLightmap::bake(Node *p_from_node, bool p_create_visual_debug) {
 
-    String save_path;
+    se_string save_path;
 
     if (StringUtils::begins_with(image_path, "res://")) {
         save_path = image_path;
@@ -418,7 +421,7 @@ BakedLightmap::BakeError BakedLightmap::bake(Node *p_from_node, bool p_create_vi
 
         if (bake_step_function) {
             bake_step_function(
-                    step++, RTR("Plotting Meshes: ") + " (" + itos(pmc + 1) + "/" + itos(mesh_list.size()) + ")");
+                    step++, RTR_utf8("Plotting Meshes: ") + " (" + itos(pmc + 1) + "/" + itos(mesh_list.size()) + ")");
         }
 
         pmc++;
@@ -433,7 +436,7 @@ BakedLightmap::BakeError BakedLightmap::bake(Node *p_from_node, bool p_create_vi
 
         if (bake_step_function) {
             bake_step_function(
-                    step++, RTR("Plotting Lights:") + " (" + itos(pmc + 1) + "/" + itos(light_list.size()) + ")");
+                    step++, RTR_utf8("Plotting Lights:") + " (" + itos(pmc + 1) + "/" + itos(light_list.size()) + ")");
         }
 
         pmc++;
@@ -467,19 +470,19 @@ BakedLightmap::BakeError BakedLightmap::bake(Node *p_from_node, bool p_create_vi
 
     baker.end_bake();
 
-    Set<String> used_mesh_names;
+    Set<se_string> used_mesh_names;
 
     pmc = 0;
     for (List<PlotMesh>::Element *E = mesh_list.front(); E; E = E->next()) {
 
-        String mesh_name = E->deref().mesh->get_name();
-        if (mesh_name.empty() || StringUtils::find(mesh_name, ":") != -1 || StringUtils::find(mesh_name, "/") != -1) {
+        se_string mesh_name = E->deref().mesh->get_name();
+        if (mesh_name.empty() || StringUtils::contains(mesh_name, ":") || StringUtils::contains(mesh_name, "/") ) {
             mesh_name = "LightMap";
         }
 
         if (used_mesh_names.contains(mesh_name)) {
             int idx = 2;
-            String base = mesh_name;
+            se_string base = mesh_name;
             while (true) {
                 mesh_name = base + itos(idx);
                 if (!used_mesh_names.contains(mesh_name)) break;
@@ -494,7 +497,7 @@ BakedLightmap::BakeError BakedLightmap::bake(Node *p_from_node, bool p_create_vi
         Error err;
         if (bake_step_function) {
             BakeTimeData btd;
-            btd.text = RTR("Lighting Meshes: ") + mesh_name + " (" + itos(pmc) + "/" + itos(mesh_list.size()) + ")";
+            btd.text = RTR_utf8("Lighting Meshes: ") + mesh_name + " (" + itos(pmc) + "/" + itos(mesh_list.size()) + ")";
             btd.pass = step;
             btd.last_step = 0;
             err = baker.make_lightmap(
@@ -560,7 +563,7 @@ BakedLightmap::BakeError BakedLightmap::bake(Node *p_from_node, bool p_create_vi
                 tex_flags |= Texture::FLAG_CONVERT_TO_LINEAR;
             }
 
-            String image_path = PathUtils::plus_file(save_path, mesh_name);
+            se_string image_path = PathUtils::plus_file(save_path, mesh_name);
             Ref<Texture> texture;
 
             if (ResourceLoader::import) {
@@ -787,11 +790,11 @@ BakedLightmap::BakeMode BakedLightmap::get_bake_mode() const {
     return bake_mode;
 }
 
-void BakedLightmap::set_image_path(const String &p_path) {
+void BakedLightmap::set_image_path(se_string_view p_path) {
     image_path = p_path;
 }
 
-String BakedLightmap::get_image_path() const {
+const se_string &BakedLightmap::get_image_path() const {
     return image_path;
 }
 

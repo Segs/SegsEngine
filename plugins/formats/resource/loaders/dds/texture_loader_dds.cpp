@@ -31,6 +31,7 @@
 #include "texture_loader_dds.h"
 #include "core/os/file_access.h"
 #include "core/class_db.h"
+#include "core/string_utils.h"
 
 #define PF_FOURCC(s) ((uint32_t)(((s)[3] << 24U) | ((s)[2] << 16U) | ((s)[1] << 8U) | ((s)[0])))
 
@@ -95,7 +96,7 @@ static const DDSFormatInfo dds_format_info[DDS_MAX] = {
     { "GRAYSCALE_ALPHA", false, false, 1, 2, Image::FORMAT_LA8 }
 };
 
-RES ResourceFormatDDS::load(const String &p_path, const String &p_original_path, Error *r_error) {
+RES ResourceFormatDDS::load(se_string_view p_path, se_string_view p_original_path, Error *r_error) {
 
     if (r_error)
         *r_error = ERR_CANT_OPEN;
@@ -217,7 +218,7 @@ RES ResourceFormatDDS::load(const String &p_path, const String &p_original_path,
     } else {
 
         printf("unrecognized fourcc %x format_flags: %x - rgbbits %i - red_mask %x green mask %x blue mask %x alpha mask %x\n", format_fourcc, format_flags, format_rgb_bits, format_red_mask, format_green_mask, format_blue_mask, format_alpha_mask);
-		ERR_FAIL_V_MSG(RES(), "Unrecognized or unsupported color layout in DDS '" + p_path + "'.")
+        ERR_FAIL_V_MSG(RES(), "Unrecognized or unsupported color layout in DDS '" + p_path + "'.")
     }
 
     if (!(flags & DDSD_MIPMAPCOUNT))
@@ -451,17 +452,17 @@ RES ResourceFormatDDS::load(const String &p_path, const String &p_original_path,
     return texture;
 }
 
-void ResourceFormatDDS::get_recognized_extensions(ListPOD<String> *p_extensions) const {
+void ResourceFormatDDS::get_recognized_extensions(PODVector<se_string> &p_extensions) const {
 
-    p_extensions->push_back("dds");
+    p_extensions.push_back("dds");
 }
 
-bool ResourceFormatDDS::handles_type(const String &p_type) const {
+bool ResourceFormatDDS::handles_type(se_string_view p_type) const {
 
-    return ClassDB::is_parent_class(p_type, "Texture");
+    return ClassDB::is_parent_class(StringName(p_type), "Texture");
 }
 
-String ResourceFormatDDS::get_resource_type(const String &p_path) const {
+se_string ResourceFormatDDS::get_resource_type(se_string_view p_path) const {
 
     if (StringUtils::to_lower(PathUtils::get_extension(p_path)) == "dds")
         return "ImageTexture";

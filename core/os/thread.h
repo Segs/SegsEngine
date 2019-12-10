@@ -32,10 +32,9 @@
 
 #include "core/typedefs.h"
 #include "core/error_list.h"
+#include "core/forward_decls.h"
 
 using ThreadCreateCallback = void (*)(void *);
-
-class String;
 
 class GODOT_EXPORT Thread {
 public:
@@ -58,7 +57,7 @@ protected:
     static Thread *(*create_func)(ThreadCreateCallback p_callback, void *, const Settings &);
     static ID (*get_thread_id_func)();
     static void (*wait_to_finish_func)(Thread *);
-    static Error (*set_name_func)(const String &);
+    static Error (*set_name_func)(se_string_view);
 
     friend class Main;
 
@@ -69,7 +68,7 @@ protected:
 public:
     virtual ID get_id() const = 0;
 
-    static Error set_name(const String &p_name);
+    static Error set_name(se_string_view p_name);
     _FORCE_INLINE_ static ID get_main_id() { return _main_thread_id; } ///< get the ID of the main thread
     static ID get_caller_id(); ///< get the ID of the caller function ID
     static void wait_to_finish(Thread *p_thread); ///< waits until thread is finished, and deallocates it.

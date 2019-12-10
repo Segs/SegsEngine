@@ -31,6 +31,7 @@
 #include "vector2.h"
 #include "core/string_formatter.h"
 #include "core/ustring.h"
+#include "core/se_string.h"
 
 real_t Vector2::angle() const {
 
@@ -143,10 +144,13 @@ Vector2 Vector2::snapped(const Vector2 &p_by) const {
 
     return Vector2(
             Math::stepify(x, p_by.x),
-            Math::stepify(y, p_by.y));
+                Math::stepify(y, p_by.y));
 }
 
-Vector2::operator String() const { return FormatV("%f, %f",x,y); }
+Vector2::operator se_string() const
+{
+    return FormatVE("%f, %f",x,y);
+}
 
 Vector2 Vector2::clamped(real_t p_len) const {
 
@@ -272,4 +276,4 @@ bool Vector2i::operator!=(const Vector2i &p_vec2) const {
     return x != p_vec2.x || y != p_vec2.y;
 }
 
-Vector2i::operator String() const { return FormatV("%d, %d",x,y); }
+Vector2i::operator se_string() const { return FormatVE("%d, %d",x,y); }

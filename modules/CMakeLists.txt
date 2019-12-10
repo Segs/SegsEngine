@@ -90,6 +90,8 @@ set(module_deps)
 
 foreach(tgt ${global_targets})
     add_library(${tgt}_modules STATIC)
+    set_property(TARGET ${tgt}_modules PROPERTY POSITION_INDEPENDENT_CODE ON)
+
     set_target_properties(${tgt}_modules PROPERTIES AUTORCC ON)
     foreach(module_dir ${module_list})
         if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/${module_dir}/sources.cmake")

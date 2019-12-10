@@ -46,24 +46,24 @@ public:
 
     struct Image {
 
-        String path;
+        se_string path;
     };
 
     struct Material {
 
-        String name;
-        String instance_effect;
+        se_string name;
+        se_string instance_effect;
     };
 
     struct Effect {
 
-        String name;
-        Map<String, Variant> params;
+        se_string name;
+        Map<se_string, Variant> params;
 
         struct Channel {
 
             int uv_idx;
-            String texture;
+            se_string texture;
             Color color;
             Channel() { uv_idx = 0; }
         };
@@ -74,7 +74,7 @@ public:
         bool double_sided;
         bool unshaded;
 
-        String get_texture_path(const String &p_source, Collada &state) const;
+        se_string get_texture_path(const se_string &p_source, Collada &state) const;
 
         Effect() {
             diffuse.color = Color(1, 1, 1, 1);
@@ -152,32 +152,32 @@ public:
 
     struct MeshData {
 
-        String name;
+        se_string name;
         struct Source {
 
             Vector<float> array;
             int stride;
         };
 
-        Map<String, Source> sources;
+        Map<se_string, Source> sources;
 
         struct Vertices {
 
-            Map<String, String> sources;
+            Map<se_string, se_string> sources;
         };
 
-        Map<String, Vertices> vertices;
+        Map<se_string, Vertices> vertices;
 
         struct Primitives {
 
             struct SourceRef {
 
-                String source;
+                se_string source;
                 int offset;
             };
 
-            String material;
-            Map<String, SourceRef> sources;
+            se_string material;
+            Map<se_string, SourceRef> sources;
             Vector<float> polygons;
             Vector<float> indices;
             int count;
@@ -197,19 +197,19 @@ public:
 
     struct CurveData {
 
-        String name;
+        se_string name;
         bool closed;
 
         struct Source {
 
-            Vector<String> sarray;
+            Vector<se_string> sarray;
             Vector<float> array;
             int stride;
         };
 
-        Map<String, Source> sources;
+        Map<se_string, Source> sources;
 
-        Map<String, String> control_vertices;
+        Map<se_string, se_string> control_vertices;
 
         CurveData() {
 
@@ -218,14 +218,14 @@ public:
     };
     struct SkinControllerData {
 
-        String base;
+        se_string base;
         bool use_idrefs;
 
         Transform bind_shape;
 
         struct Source {
 
-            Vector<String> sarray; //maybe for names
+            Vector<se_string> sarray; //maybe for names
             Vector<float> array;
             int stride;
             Source() {
@@ -233,49 +233,49 @@ public:
             }
         };
 
-        Map<String, Source> sources;
+        Map<se_string, Source> sources;
 
         struct Joints {
 
-            Map<String, String> sources;
+            Map<se_string, se_string> sources;
         } joints;
 
         struct Weights {
 
             struct SourceRef {
 
-                String source;
+                se_string source;
                 int offset;
             };
 
-            String material;
-            Map<String, SourceRef> sources;
+            se_string material;
+            Map<se_string, SourceRef> sources;
             Vector<float> sets;
             Vector<float> indices;
             int count;
         } weights;
 
-        Map<String, Transform> bone_rest_map;
+        Map<se_string, Transform> bone_rest_map;
 
         SkinControllerData() { use_idrefs = false; }
     };
 
     struct MorphControllerData {
 
-        String mesh;
-        String mode;
+        se_string mesh;
+        se_string mode;
 
         struct Source {
 
             int stride;
-            Vector<String> sarray; //maybe for names
+            Vector<se_string> sarray; //maybe for names
             Vector<float> array;
             Source() { stride = 1; }
         };
 
-        Map<String, Source> sources;
+        Map<se_string, Source> sources;
 
-        Map<String, String> targets;
+        Map<se_string, se_string> targets;
         MorphControllerData() {}
     };
 
@@ -378,16 +378,16 @@ public:
                 OP_VISIBILITY
             };
 
-            String id;
+            se_string id;
             Op op;
             Vector<float> data;
         };
 
         Type type;
 
-        String name;
-        String id;
-        String empty_draw_type;
+        se_string name;
+        se_string id;
+        se_string empty_draw_type;
         bool noname;
         Vector<XForm> xform_list;
         Transform default_transform;
@@ -422,7 +422,7 @@ public:
     struct NodeJoint : public Node {
 
         NodeSkeleton *owner;
-        String sid;
+        se_string sid;
         NodeJoint() {
             type = TYPE_JOINT;
             owner = nullptr;
@@ -432,35 +432,35 @@ public:
     struct NodeGeometry : public Node {
 
         bool controller;
-        String source;
+        se_string source;
 
         struct Material {
-            String target;
+            se_string target;
         };
 
-        Map<String, Material> material_map;
-        Vector<String> skeletons;
+        Map<se_string, Material> material_map;
+        Vector<se_string> skeletons;
 
         NodeGeometry() { type = TYPE_GEOMETRY; }
     };
 
     struct NodeCamera : public Node {
 
-        String camera;
+        se_string camera;
 
         NodeCamera() { type = TYPE_CAMERA; }
     };
 
     struct NodeLight : public Node {
 
-        String light;
+        se_string light;
 
         NodeLight() { type = TYPE_LIGHT; }
     };
 
     struct VisualScene {
 
-        String name;
+        se_string name;
         Vector<Node *> root_nodes;
 
         ~VisualScene() {
@@ -471,10 +471,10 @@ public:
 
     struct AnimationClip {
 
-        String name;
+        se_string name;
         float begin;
         float end;
-        Vector<String> tracks;
+        Vector<se_string> tracks;
 
         AnimationClip() {
             begin = 0;
@@ -484,10 +484,10 @@ public:
 
     struct AnimationTrack {
 
-        String id;
-        String target;
-        String param;
-        String component;
+        se_string id;
+        se_string target;
+        se_string param;
+        se_string component;
         bool property;
 
         enum InterpolationType {
@@ -542,37 +542,37 @@ public:
             }
         } version;
 
-        Map<String, CameraData> camera_data_map;
-        Map<String, MeshData> mesh_data_map;
-        Map<String, LightData> light_data_map;
-        Map<String, CurveData> curve_data_map;
+        Map<se_string, CameraData> camera_data_map;
+        Map<se_string, MeshData> mesh_data_map;
+        Map<se_string, LightData> light_data_map;
+        Map<se_string, CurveData> curve_data_map;
 
-        Map<String, String> mesh_name_map;
-        Map<String, String> morph_name_map;
-        Map<String, String> morph_ownership_map;
-        Map<String, SkinControllerData> skin_controller_data_map;
-        Map<String, MorphControllerData> morph_controller_data_map;
+        Map<se_string, se_string> mesh_name_map;
+        Map<se_string, se_string> morph_name_map;
+        Map<se_string, se_string> morph_ownership_map;
+        Map<se_string, SkinControllerData> skin_controller_data_map;
+        Map<se_string, MorphControllerData> morph_controller_data_map;
 
-        Map<String, Image> image_map;
-        Map<String, Material> material_map;
-        Map<String, Effect> effect_map;
+        Map<se_string, Image> image_map;
+        Map<se_string, Material> material_map;
+        Map<se_string, Effect> effect_map;
 
-        Map<String, VisualScene> visual_scene_map;
-        Map<String, Node *> scene_map;
-        Set<String> idref_joints;
-        Map<String, String> sid_to_node_map;
-        //Map<String,NodeJoint*> bone_map;
+        Map<se_string, VisualScene> visual_scene_map;
+        Map<se_string, Node *> scene_map;
+        Set<se_string> idref_joints;
+        Map<se_string, se_string> sid_to_node_map;
+        //Map<se_string,NodeJoint*> bone_map;
 
-        Map<String, Transform> bone_rest_map;
+        Map<se_string, Transform> bone_rest_map;
 
-        String local_path;
-        String root_visual_scene;
-        String root_physics_scene;
+        se_string local_path;
+        se_string root_visual_scene;
+        se_string root_physics_scene;
 
         Vector<AnimationClip> animation_clips;
         Vector<AnimationTrack> animation_tracks;
-        Map<String, Vector<int> > referenced_tracks;
-        Map<String, Vector<int> > by_id_tracks;
+        Map<se_string, Vector<int> > referenced_tracks;
+        Map<se_string, Vector<int> > by_id_tracks;
 
         float animation_length;
 
@@ -584,7 +584,7 @@ public:
         }
     } state;
 
-    Error load(const String &p_path, int p_flags = 0);
+    Error load(se_string_view p_path, int p_flags = 0);
 
     Collada();
 
@@ -592,25 +592,25 @@ public:
 
     Transform get_root_transform() const;
 
-    int get_uv_channel(String p_name);
+    int get_uv_channel(se_string p_name);
 
 private: // private stuff
-    Map<String, int> channel_map;
+    Map<se_string, int> channel_map;
 
     void _parse_asset(XMLParser &parser);
     void _parse_image(XMLParser &parser);
     void _parse_material(XMLParser &parser);
-    void _parse_effect_material(XMLParser &parser, Effect &effect, String &id);
+    void _parse_effect_material(XMLParser &parser, Effect &effect, se_string &id);
     void _parse_effect(XMLParser &parser);
     void _parse_camera(XMLParser &parser);
     void _parse_light(XMLParser &parser);
     void _parse_animation_clip(XMLParser &parser);
 
-    void _parse_mesh_geometry(XMLParser &parser, String p_id, String p_name);
-    void _parse_curve_geometry(XMLParser &parser, String p_id, String p_name);
+    void _parse_mesh_geometry(XMLParser &parser, se_string p_id, se_string p_name);
+    void _parse_curve_geometry(XMLParser &parser, se_string p_id, se_string p_name);
 
-    void _parse_skin_controller(XMLParser &parser, String p_id);
-    void _parse_morph_controller(XMLParser &parser, String p_id);
+    void _parse_skin_controller(XMLParser &parser, se_string p_id);
+    void _parse_morph_controller(XMLParser &parser, se_string p_id);
     void _parse_controller(XMLParser &parser);
 
     Node *_parse_visual_instance_geometry(XMLParser &parser);
@@ -627,9 +627,9 @@ private: // private stuff
 
     Variant _parse_param(XMLParser &parser);
     Vector<float> _read_float_array(XMLParser &parser);
-    Vector<String> _read_string_array(XMLParser &parser);
+    Vector<se_string> _read_string_array(XMLParser &parser);
     Transform _read_transform(XMLParser &parser);
-    String _read_empty_draw_type(XMLParser &parser);
+    se_string _read_empty_draw_type(XMLParser &parser);
 
     void _joint_set_owner(Collada::Node *p_node, NodeSkeleton *p_owner);
     void _create_skeletons(Collada::Node **p_node, NodeSkeleton *p_skeleton = nullptr);

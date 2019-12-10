@@ -36,39 +36,39 @@
 #include "scene/gui/gradient_edit.h"
 
 class GradientEditor : public GradientEdit {
-	GDCLASS(GradientEditor,GradientEdit)
+    GDCLASS(GradientEditor,GradientEdit)
 
-	bool editing;
-	Ref<Gradient> gradient;
+    bool editing;
+    Ref<Gradient> gradient;
 
-	void _gradient_changed();
-	void _ramp_changed();
+    void _gradient_changed();
+    void _ramp_changed();
 
 protected:
-	static void _bind_methods();
+    static void _bind_methods();
 
 public:
-	Size2 get_minimum_size() const override;
-	void set_gradient(const Ref<Gradient> &p_gradient);
-	GradientEditor();
+    Size2 get_minimum_size() const override;
+    void set_gradient(const Ref<Gradient> &p_gradient);
+    GradientEditor();
 };
 
 class EditorInspectorPluginGradient : public EditorInspectorPlugin {
-	GDCLASS(EditorInspectorPluginGradient,EditorInspectorPlugin)
+    GDCLASS(EditorInspectorPluginGradient,EditorInspectorPlugin)
 
 public:
-	bool can_handle(Object *p_object) override;
-	void parse_begin(Object *p_object) override;
+    bool can_handle(Object *p_object) override;
+    void parse_begin(Object *p_object) override;
 };
 
 class GradientEditorPlugin : public EditorPlugin {
 
-	GDCLASS(GradientEditorPlugin,EditorPlugin)
+    GDCLASS(GradientEditorPlugin,EditorPlugin)
 
 public:
-	String get_name() const override { return "ColorRamp"; }
+    se_string_view get_name() const override { return ("ColorRamp"); }
 
-	GradientEditorPlugin(EditorNode *p_node);
+    GradientEditorPlugin(EditorNode *p_node);
 };
 
 #endif /* TOOLS_EDITOR_PLUGINS_COLOR_RAMP_EDITOR_PLUGIN_H_ */

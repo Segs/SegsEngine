@@ -30,6 +30,7 @@
 
 #include "groups_editor.h"
 #include "editor/scene_tree_editor.h"
+#include "editor/scene_tree_dock.h"
 #include "editor_node.h"
 #include "editor_scale.h"
 #include "core/method_bind.h"
@@ -54,16 +55,16 @@ void GroupDialog::_group_selected() {
         return;
     }
 
-    selected_group = groups->get_selected()->get_text(0);
+    selected_group = StringName(groups->get_selected()->get_text(0));
     _load_nodes(scene_tree->get_edited_scene_root());
 
     group_empty->set_visible(!remove_node_root->get_children());
 }
 
 void GroupDialog::_load_nodes(Node *p_current) {
-    String item_name = p_current->get_name();
+    StringName item_name = p_current->get_name();
     if (p_current != scene_tree->get_edited_scene_root()) {
-        item_name = String(p_current->get_parent()->get_name()) + "/" + item_name;
+        item_name = StringName(se_string(p_current->get_parent()->get_name()) + "/" + item_name);
     }
 
     bool keep = true;
@@ -92,7 +93,7 @@ void GroupDialog::_load_nodes(Node *p_current) {
     if (keep) {
         node->set_text(0, item_name);
         node->set_metadata(0, path);
-        node->set_tooltip(0, String(path));
+        node->set_tooltip(0, StringName((se_string)path));
 
         Ref<Texture> icon = EditorNode::get_singleton()->get_object_icon(p_current, "Node");
         node->set_icon(0, icon);
@@ -108,11 +109,12 @@ void GroupDialog::_load_nodes(Node *p_current) {
     }
 }
 
-bool GroupDialog::_can_edit(Node *p_node, const String& p_group) {
+bool GroupDialog::_can_edit(Node *p_node, const StringName &p_group) {
     Node *n = p_node;
     bool can_edit = true;
     while (n) {
-        Ref<SceneState> ss = (n == EditorNode::get_singleton()->get_edited_scene()) ? n->get_scene_inherited_state() : n->get_scene_instance_state();
+        Ref<SceneState> ss = (n == EditorNode::get_singleton()->get_edited_scene()) ? n->get_scene_inherited_state() :
+                                                                                      n->get_scene_instance_state();
         if (ss) {
             int path = ss->find_node_by_path(n->get_path_to(p_node));
             if (path != -1) {
@@ -133,7 +135,7 @@ void GroupDialog::_add_pressed() {
         return;
     }
 
-    undo_redo->create_action(TTR("Add to Group"));
+    undo_redo->create_action_ui(TTR("Add to Group"));
 
     while (selected) {
         Node *node = scene_tree->get_edited_scene_root()->get_node(selected->get_metadata(0));
@@ -161,7 +163,7 @@ void GroupDialog::_removed_pressed() {
     if (!selected) {
         return;
     }
-    undo_redo->create_action(TTR("Remove from Group"));
+    undo_redo->create_action_ui(TTR("Remove from Group"));
 
     while (selected) {
         Node *node = scene_tree->get_edited_scene_root()->get_node(selected->get_metadata(0));
@@ -183,31 +185,31 @@ void GroupDialog::_removed_pressed() {
     undo_redo->commit_action();
 }
 
-void GroupDialog::_remove_filter_changed(const String &p_filter) {
+void GroupDialog::_remove_filter_changed(se_string_view p_filter) {
     _group_selected();
 }
 
-void GroupDialog::_add_filter_changed(const String &p_filter) {
+void GroupDialog::_add_filter_changed(se_string_view p_filter) {
     _group_selected();
 }
 
-void GroupDialog::_add_group_pressed(const String &p_name) {
-    _add_group(add_group_text->get_text());
+void GroupDialog::_add_group_pressed(se_string_view p_name) {
+    _add_group(StringName(add_group_text->get_text()));
     add_group_text->clear();
 }
 
-void GroupDialog::_add_group(const String& p_name) {
+void GroupDialog::_add_group(const StringName& p_name) {
     if (!is_visible()) {
         return; // No need to edit the dialog if it's not being used.
     }
 
-    String name = StringUtils::strip_edges(p_name);
+    StringName name(StringUtils::strip_edges(p_name));
     if (name.empty() || groups->search_item_text(name)) {
         return;
     }
 
     TreeItem *new_group = groups->create_item(groups_root);
-    new_group->set_text(0, name);
+    new_group->set_text_utf8(0, name);
     new_group->add_button(0, get_icon("Remove", "EditorIcons"), 0);
     new_group->set_editable(0, true);
     new_group->select(0);
@@ -220,7 +222,7 @@ void GroupDialog::_group_renamed() {
         return;
     }
 
-    String name = StringUtils::strip_edges(renamed_group->get_text(0));
+    se_string name(StringUtils::strip_edges(renamed_group->get_text(0)));
     for (TreeItem *E = groups_root->get_children(); E; E = E->get_next()) {
         if (E != renamed_group && E->get_text(0) == name) {
             renamed_group->set_text(0, selected_group);
@@ -237,7 +239,7 @@ void GroupDialog::_group_renamed() {
         return;
     }
 
-    undo_redo->create_action(TTR("Rename Group"));
+    undo_redo->create_action_ui(TTR("Rename Group"));
 
     List<Node *> nodes;
     scene_tree->get_nodes_in_group(selected_group, &nodes);
@@ -269,16 +271,16 @@ void GroupDialog::_group_renamed() {
     undo_redo->commit_action();
 }
 
-void GroupDialog::_rename_group_item(const String &p_old_name, const String &p_new_name) {
+void GroupDialog::_rename_group_item(se_string_view p_old_name, se_string_view p_new_name) {
     if (!is_visible()) {
         return; // No need to edit the dialog if it's not being used.
     }
 
-    selected_group = p_new_name;
+    selected_group = StringName(p_new_name);
 
     for (TreeItem *E = groups_root->get_children(); E; E = E->get_next()) {
         if (E->get_text(0) == p_old_name) {
-            E->set_text(0, p_new_name);
+            E->set_text_utf8(0, p_new_name);
             return;
         }
     }
@@ -305,8 +307,8 @@ void GroupDialog::_delete_group_pressed(Object *p_item, int p_column, int p_id) 
     if (!ti)
         return;
 
-    String name = ti->get_text(0);
-    undo_redo->create_action(TTR("Delete Group"));
+    StringName name(ti->get_text(0));
+    undo_redo->create_action_ui(TTR("Delete Group"));
 
     List<Node *> nodes;
     scene_tree->get_nodes_in_group(name, &nodes);
@@ -337,7 +339,7 @@ void GroupDialog::_delete_group_pressed(Object *p_item, int p_column, int p_id) 
     undo_redo->commit_action();
 }
 
-void GroupDialog::_delete_group_item(const String &p_name) {
+void GroupDialog::_delete_group_item(se_string_view p_name) {
     if (!is_visible()) {
         return; // No need to edit the dialog if it's not being used.
     }
@@ -454,7 +456,7 @@ GroupDialog::GroupDialog() {
     Button *add_group_button = memnew(Button);
     add_group_button->set_text("Add");
     chbc->add_child(add_group_button);
-    add_group_button->connect("pressed", this, "_add_group_pressed", varray(String()));
+    add_group_button->connect("pressed", this, "_add_group_pressed", varray(se_string_view()));
 
     VBoxContainer *vbc_add = memnew(VBoxContainer);
     hbc->add_child(vbc_add);
@@ -549,19 +551,19 @@ GroupDialog::GroupDialog() {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void GroupsEditor::_add_group(const String &p_group) {
+void GroupsEditor::_add_group(se_string_view p_group) {
 
     if (!node)
         return;
 
-    String name = group_name->get_text();
+    StringName name(group_name->get_text());
     if (StringUtils::strip_edges(name).empty())
         return;
 
     if (node->is_in_group(name))
         return;
 
-    undo_redo->create_action(TTR("Add to Group"));
+    undo_redo->create_action_ui(TTR("Add to Group"));
 
     undo_redo->add_do_method(node, "add_to_group", name, true);
     undo_redo->add_undo_method(node, "remove_from_group", name);
@@ -585,9 +587,9 @@ void GroupsEditor::_remove_group(Object *p_item, int p_column, int p_id) {
     if (!ti)
         return;
 
-    String name = ti->get_text(0);
+    StringName name(ti->get_text(0));
 
-    undo_redo->create_action(TTR("Remove from Group"));
+    undo_redo->create_action_ui(TTR("Remove from Group"));
 
     undo_redo->add_do_method(node, "remove_from_group", name);
     undo_redo->add_undo_method(node, "add_to_group", name, true);
@@ -703,7 +705,7 @@ GroupsEditor::GroupsEditor() {
     add = memnew(Button);
     add->set_text(TTR("Add"));
     hbc->add_child(add);
-    add->connect("pressed", this, "_add_group", varray(String()));
+    add->connect("pressed", this, "_add_group", varray(se_string_view()));
 
     tree = memnew(Tree);
     tree->set_hide_root(true);

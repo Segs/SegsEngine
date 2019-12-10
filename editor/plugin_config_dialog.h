@@ -28,14 +28,13 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef PLUGIN_CONFIG_DIALOG_H
-#define PLUGIN_CONFIG_DIALOG_H
+#pragma once
 
 #include "scene/gui/check_box.h"
 #include "scene/gui/dialogs.h"
-#include "scene/gui/line_edit.h"
+class LineEdit;
 #include "scene/gui/option_button.h"
-#include "scene/gui/text_edit.h"
+class TextEdit;
 
 class PluginConfigDialog : public ConfirmationDialog {
 
@@ -55,17 +54,15 @@ class PluginConfigDialog : public ConfirmationDialog {
 	void _clear_fields();
 	void _on_confirmed();
 	void _on_cancelled();
-	void _on_required_text_changed(const String &p_text);
+	void _on_required_text_changed(se_string_view p_text);
 
 protected:
 	virtual void _notification(int p_what);
 	static void _bind_methods();
 
 public:
-	void config(const String &p_config_path);
+	void config(se_string_view p_config_path);
 
 	PluginConfigDialog();
 	~PluginConfigDialog() override;
 };
-
-#endif // PLUGIN_CONFIG_DIALOG_H

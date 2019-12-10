@@ -32,54 +32,55 @@
 
 #include "core/class_db.h"
 #include "core/translation_helpers.h"
-
+#include "core/se_string.h"
+#include "editor/editor_settings.h"
 ///////////
 IMPL_GDCLASS(CSGShapeSpatialGizmoPlugin)
 IMPL_GDCLASS(EditorPluginCSG)
 
 CSGShapeSpatialGizmoPlugin::CSGShapeSpatialGizmoPlugin() {
 
-    Color gizmo_color = EDITOR_DEF("editors/3d_gizmos/gizmo_colors/csg", Color(0.0, 0.4f, 1, 0.15f));
-    create_material("shape_union_material", gizmo_color);
-    create_material("shape_union_solid_material", gizmo_color);
+    Color gizmo_color = EDITOR_DEF(("editors/3d_gizmos/gizmo_colors/csg"), Color(0.0, 0.4f, 1, 0.15f));
+    create_material(("shape_union_material"), gizmo_color);
+    create_material(("shape_union_solid_material"), gizmo_color);
     gizmo_color.invert();
-    create_material("shape_subtraction_material", gizmo_color);
-    create_material("shape_subtraction_solid_material", gizmo_color);
+    create_material(("shape_subtraction_material"), gizmo_color);
+    create_material(("shape_subtraction_solid_material"), gizmo_color);
     gizmo_color.r = 0.95f;
     gizmo_color.g = 0.95f;
     gizmo_color.b = 0.95f;
-    create_material("shape_intersection_material", gizmo_color);
-    create_material("shape_intersection_solid_material", gizmo_color);
+    create_material(("shape_intersection_material"), gizmo_color);
+    create_material(("shape_intersection_solid_material"), gizmo_color);
 
-    create_handle_material("handles");
+    create_handle_material(("handles"));
 }
 
-String CSGShapeSpatialGizmoPlugin::get_handle_name(const EditorSpatialGizmo *p_gizmo, int p_idx) const {
+StringName CSGShapeSpatialGizmoPlugin::get_handle_name(const EditorSpatialGizmo *p_gizmo, int p_idx) const {
 
     CSGShape *cs = object_cast<CSGShape>(p_gizmo->get_spatial_node());
 
     if (object_cast<CSGSphere>(cs)) {
 
-        return "Radius";
+        return ("Radius");
     }
 
     if (object_cast<CSGBox>(cs)) {
 
         static const char *hname[3] = { "Width", "Height", "Depth" };
-        return hname[p_idx];
+        return StringName(hname[p_idx]);
     }
 
     if (object_cast<CSGCylinder>(cs)) {
 
-        return p_idx == 0 ? "Radius" : "Height";
+        return StringName(p_idx == 0 ? "Radius" : "Height");
     }
 
     if (object_cast<CSGTorus>(cs)) {
 
-        return p_idx == 0 ? "InnerRadius" : "OuterRadius";
+        return StringName(p_idx == 0 ? "InnerRadius" : "OuterRadius");
     }
 
-    return "";
+    return StringName();
 }
 Variant CSGShapeSpatialGizmoPlugin::get_handle_value(EditorSpatialGizmo *p_gizmo, int p_idx) const {
 
@@ -204,7 +205,7 @@ void CSGShapeSpatialGizmoPlugin::set_handle(EditorSpatialGizmo *p_gizmo, int p_i
         }
 
         if (d < 0.001)
-            d = 0.001;
+            d = 0.001f;
 
         if (p_idx == 0)
             s->set_inner_radius(d);
@@ -224,9 +225,9 @@ void CSGShapeSpatialGizmoPlugin::commit_handle(EditorSpatialGizmo *p_gizmo, int 
         }
 
         UndoRedo *ur = SpatialEditor::get_singleton()->get_undo_redo();
-        ur->create_action(TTR("Change Sphere Shape Radius"));
-        ur->add_do_method(s, "set_radius", s->get_radius());
-        ur->add_undo_method(s, "set_radius", p_restore);
+        ur->create_action_ui(TTR("Change Sphere Shape Radius"));
+        ur->add_do_method(s, ("set_radius"), s->get_radius());
+        ur->add_undo_method(s, ("set_radius"), p_restore);
         ur->commit_action();
     }
 
@@ -242,7 +243,7 @@ void CSGShapeSpatialGizmoPlugin::commit_handle(EditorSpatialGizmo *p_gizmo, int 
         }
 
         UndoRedo *ur = SpatialEditor::get_singleton()->get_undo_redo();
-        ur->create_action(TTR("Change Box Shape Extents"));
+        ur->create_action_ui(TTR("Change Box Shape Extents"));
         static const char *method[3] = { "set_width", "set_height", "set_depth" };
         float current = 0;
         switch (p_idx) {
@@ -251,8 +252,8 @@ void CSGShapeSpatialGizmoPlugin::commit_handle(EditorSpatialGizmo *p_gizmo, int 
             case 2: current = s->get_depth(); break;
         }
 
-        ur->add_do_method(s, method[p_idx], current);
-        ur->add_undo_method(s, method[p_idx], p_restore);
+        ur->add_do_method(s, StaticCString(method[p_idx],true), current);
+        ur->add_undo_method(s, StaticCString(method[p_idx],true), p_restore);
         ur->commit_action();
     }
 
@@ -268,13 +269,13 @@ void CSGShapeSpatialGizmoPlugin::commit_handle(EditorSpatialGizmo *p_gizmo, int 
 
         UndoRedo *ur = SpatialEditor::get_singleton()->get_undo_redo();
         if (p_idx == 0) {
-            ur->create_action(TTR("Change Cylinder Radius"));
-            ur->add_do_method(s, "set_radius", s->get_radius());
-            ur->add_undo_method(s, "set_radius", p_restore);
+            ur->create_action_ui(TTR("Change Cylinder Radius"));
+            ur->add_do_method(s, ("set_radius"), s->get_radius());
+            ur->add_undo_method(s, ("set_radius"), p_restore);
         } else {
-            ur->create_action(TTR("Change Cylinder Height"));
-            ur->add_do_method(s, "set_height", s->get_height());
-            ur->add_undo_method(s, "set_height", p_restore);
+            ur->create_action_ui(TTR("Change Cylinder Height"));
+            ur->add_do_method(s, ("set_height"), s->get_height());
+            ur->add_undo_method(s, ("set_height"), p_restore);
         }
 
         ur->commit_action();
@@ -292,13 +293,13 @@ void CSGShapeSpatialGizmoPlugin::commit_handle(EditorSpatialGizmo *p_gizmo, int 
 
         UndoRedo *ur = SpatialEditor::get_singleton()->get_undo_redo();
         if (p_idx == 0) {
-            ur->create_action(TTR("Change Torus Inner Radius"));
-            ur->add_do_method(s, "set_inner_radius", s->get_inner_radius());
-            ur->add_undo_method(s, "set_inner_radius", p_restore);
+            ur->create_action_ui(TTR("Change Torus Inner Radius"));
+            ur->add_do_method(s, ("set_inner_radius"), s->get_inner_radius());
+            ur->add_undo_method(s, ("set_inner_radius"), p_restore);
         } else {
-            ur->create_action(TTR("Change Torus Outer Radius"));
-            ur->add_do_method(s, "set_outer_radius", s->get_outer_radius());
-            ur->add_undo_method(s, "set_outer_radius", p_restore);
+            ur->create_action_ui(TTR("Change Torus Outer Radius"));
+            ur->add_do_method(s, ("set_outer_radius"), s->get_outer_radius());
+            ur->add_undo_method(s, ("set_outer_radius"), p_restore);
         }
 
         ur->commit_action();
@@ -308,7 +309,7 @@ bool CSGShapeSpatialGizmoPlugin::has_gizmo(Spatial *p_spatial) {
     return object_cast<CSGSphere>(p_spatial) || object_cast<CSGBox>(p_spatial) || object_cast<CSGCylinder>(p_spatial) || object_cast<CSGTorus>(p_spatial) || object_cast<CSGMesh>(p_spatial) || object_cast<CSGPolygon>(p_spatial);
 }
 
-String CSGShapeSpatialGizmoPlugin::get_name() const {
+se_string_view CSGShapeSpatialGizmoPlugin::get_name() const {
     return "CSGShapes";
 }
 

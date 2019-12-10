@@ -876,10 +876,10 @@ void AnimatedSprite3D::_validate_property(PropertyInfo &property) const {
 
         for (ListPOD<StringName>::iterator E = names.begin(); E!=names.end(); ++E) {
             if (E!=names.begin()) {
-                property.hint_string += ",";
+                property.hint_string += ',';
             }
 
-            property.hint_string += String(*E);
+            property.hint_string += (*E);
             if (animation == *E) {
                 current_found = true;
             }
@@ -887,9 +887,9 @@ void AnimatedSprite3D::_validate_property(PropertyInfo &property) const {
 
         if (!current_found) {
             if (property.hint_string.empty()) {
-                property.hint_string = String(animation);
+                property.hint_string = (animation);
             } else {
-                property.hint_string = String(animation) + "," + property.hint_string;
+                property.hint_string = se_string(animation) + "," + property.hint_string;
             }
         }
     }
@@ -916,7 +916,7 @@ void AnimatedSprite3D::_notification(int p_what) {
                 return;
 
             float speed = frames->get_animation_speed(animation);
-            if (speed == 0)
+            if (speed == 0.0f)
                 return; //do nothing
 
             float remaining = get_process_delta_time();
@@ -925,7 +925,7 @@ void AnimatedSprite3D::_notification(int p_what) {
 
                 if (timeout <= 0) {
 
-                    timeout = 1.0 / speed;
+                    timeout = 1.0f / speed;
 
                     int fc = frames->get_frame_count(animation);
                     if (frame >= fc - 1) {
@@ -1099,13 +1099,13 @@ StringName AnimatedSprite3D::get_animation() const {
     return animation;
 }
 
-String AnimatedSprite3D::get_configuration_warning() const {
+StringName AnimatedSprite3D::get_configuration_warning() const {
 
     if (not frames) {
         return TTR("A SpriteFrames resource must be created or set in the \"Frames\" property in order for AnimatedSprite3D to display frames.");
     }
 
-    return String();
+    return StringName();
 }
 
 void AnimatedSprite3D::_bind_methods() {

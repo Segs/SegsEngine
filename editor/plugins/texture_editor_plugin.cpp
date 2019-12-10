@@ -88,7 +88,7 @@ void TextureEditor::_notification(int p_what) {
 
         Ref<Font> font = get_font("font", "Label");
 
-        String format;
+        se_string format;
         if (dynamic_ref_cast<ImageTexture>(texture)) {
             format = Image::get_format_name(dynamic_ref_cast<ImageTexture>(texture)->get_format());
         } else if (dynamic_ref_cast<StreamTexture>(texture)) {
@@ -96,21 +96,21 @@ void TextureEditor::_notification(int p_what) {
         } else {
             format = texture->get_class();
         }
-        String text = itos(texture->get_width()) + "x" + itos(texture->get_height()) + " " + format;
+        se_string text = itos(texture->get_width()) + "x" + itos(texture->get_height()) + " " + format;
 
-        Size2 rect = font->get_string_size(text);
+        Size2 rect = font->get_string_size_utf8(text);
 
         Vector2 draw_from = size - rect + Size2(-2, font->get_ascent() - 2);
         if (draw_from.x < 0)
             draw_from.x = 0;
 
-        draw_string(font, draw_from + Vector2(2, 2), text, Color(0, 0, 0, 0.5), size.width);
-        draw_string(font, draw_from - Vector2(2, 2), text, Color(0, 0, 0, 0.5), size.width);
-        draw_string(font, draw_from, text, Color(1, 1, 1, 1), size.width);
+        draw_string_utf8(font, draw_from + Vector2(2, 2), text, Color(0, 0, 0, 0.5f), size.width);
+        draw_string_utf8(font, draw_from - Vector2(2, 2), text, Color(0, 0, 0, 0.5f), size.width);
+        draw_string_utf8(font, draw_from, text, Color(1, 1, 1, 1), size.width);
     }
 }
 
-void TextureEditor::_changed_callback(Object *p_changed, const char *p_prop) {
+void TextureEditor::_changed_callback(Object *p_changed, StringName p_prop) {
 
     if (!is_visible())
         return;

@@ -183,7 +183,7 @@ bool CollisionShape2D::_edit_is_selected_on_click(const Point2 &p_point, double 
     return shape->_edit_is_selected_on_click(p_point, p_tolerance);
 }
 
-String CollisionShape2D::get_configuration_warning() const {
+StringName CollisionShape2D::get_configuration_warning() const {
 
     if (!object_cast<CollisionObject2D>(get_parent())) {
         return TTR("CollisionShape2D only serves to provide a collision shape to a CollisionObject2D derived node. Please only use it as a child of Area2D, StaticBody2D, RigidBody2D, KinematicBody2D, etc. to give them a shape.");
@@ -193,7 +193,7 @@ String CollisionShape2D::get_configuration_warning() const {
         return TTR("A shape must be provided for CollisionShape2D to function. Please create a shape resource for it!");
     }
 
-    return String();
+    return StringName();
 }
 
 void CollisionShape2D::set_disabled(bool p_disabled) {

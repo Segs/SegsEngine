@@ -266,10 +266,10 @@ void PathFollow::_validate_property(PropertyInfo &property) const {
     }
 }
 
-String PathFollow::get_configuration_warning() const {
+StringName PathFollow::get_configuration_warning() const {
 
     if (!is_visible_in_tree() || !is_inside_tree())
-        return String();
+        return StringName();
 
     if (!object_cast<Path>(get_parent())) {
         return TTR("PathFollow only works when set as a child of a Path node.");
@@ -280,7 +280,7 @@ String PathFollow::get_configuration_warning() const {
         }
     }
 
-    return String();
+    return StringName();
 }
 
 void PathFollow::_bind_methods() {

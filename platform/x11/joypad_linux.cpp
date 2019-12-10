@@ -219,7 +219,7 @@ void JoypadLinux::monitor_joypads() {
     }
 }
 
-int JoypadLinux::get_joy_from_path(const String& p_path) const {
+int JoypadLinux::get_joy_from_path(se_string_view p_path) const {
 
     for (int i = 0; i < JOYPADS_MAX; i++) {
 
@@ -247,21 +247,21 @@ void JoypadLinux::close_joypad(int p_id) {
         close(joy.fd);
         joy.fd = -1;
         attached_devices.remove(attached_devices.find(joy.devpath));
-        input->joy_connection_changed(p_id, false, "");
+        input->joy_connection_changed(p_id, false, StringName());
     }
 }
 
-static String _hex_str(uint8_t p_byte) {
+static const char *_hex_str(uint8_t p_byte) {
 
     static const char *dict = "0123456789abcdef";
-    char ret[3];
+    thread_local char ret[3];
+    ret[0] = dict[p_byte >> 4];
+    ret[1] = dict[p_byte & 0xf];
     ret[2] = 0;
 
-    ret[0] = dict[p_byte >> 4];
-    ret[1] = dict[p_byte & 0xF];
-
     return ret;
-}
+};
+
 
 void JoypadLinux::setup_joypad_properties(int p_id) {
 
@@ -329,7 +329,7 @@ void JoypadLinux::open_joypad(const char *p_path) {
         unsigned long absbit[NBITS(ABS_MAX)] = { 0 };
 
         // add to attached devices so we don't try to open it again
-        attached_devices.push_back(String(p_path));
+        attached_devices.push_back(p_path);
 
         if ((ioctl(fd, EVIOCGBIT(0, sizeof(evbit)), evbit) < 0) ||
                 (ioctl(fd, EVIOCGBIT(EV_KEY, sizeof(keybit)), keybit) < 0) ||
@@ -351,7 +351,7 @@ void JoypadLinux::open_joypad(const char *p_path) {
 
         char uid[128];
         char namebuf[128];
-        String name = "";
+        StringName name;
         input_id inpid;
         if (ioctl(fd, EVIOCGNAME(sizeof(namebuf)), namebuf) >= 0) {
             name = namebuf;
@@ -366,7 +366,7 @@ void JoypadLinux::open_joypad(const char *p_path) {
 
         Joypad &joy = joypads[joy_num];
         joy.fd = fd;
-        joy.devpath = String(p_path);
+        joy.devpath = p_path;
         setup_joypad_properties(joy_num);
         sprintf(uid, "%04x%04x", BSWAP16(inpid.bustype), 0);
         if (inpid.vendor && inpid.product && inpid.version) {
@@ -375,17 +375,17 @@ void JoypadLinux::open_joypad(const char *p_path) {
             uint16_t product = BSWAP16(inpid.product);
             uint16_t version = BSWAP16(inpid.version);
 
-            sprintf(uid + String(uid).length(), "%04x%04x%04x%04x%04x%04x", vendor, 0, product, 0, version, 0);
-            input->joy_connection_changed(joy_num, true, name, uid);
+            sprintf(uid + se_string_view(uid).length(), "%04x%04x%04x%04x%04x%04x", vendor, 0, product, 0, version, 0);
+            input->joy_connection_changed(joy_num, true, name, StringName(uid));
         } else {
-            String uidname = uid;
-            int uidlen = MIN(name.length(), 11);
+            se_string uidname(uid);
+            int uidlen = MIN(se_string_view(name).length(), 11);
             for (int i = 0; i < uidlen; i++) {
 
-                uidname = uidname + _hex_str(name[i].toLatin1());
+                uidname += _hex_str(se_string_view(name)[i]);
             }
             uidname += "00";
-            input->joy_connection_changed(joy_num, true, name, uidname);
+            input->joy_connection_changed(joy_num, true, name, StringName(uidname));
         }
     }
 }

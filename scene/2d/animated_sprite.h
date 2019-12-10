@@ -59,7 +59,7 @@ class SpriteFrames : public Resource {
     Array _get_animations() const;
     void _set_animations(const Array &p_animations);
 
-    Vector<String> _get_animation_list() const;
+    PoolVector<se_string> _get_animation_list() const;
     static void report_missing_animation(const char *name);
 protected:
     static void _bind_methods();
@@ -71,7 +71,9 @@ public:
     void rename_animation(const StringName &p_prev, const StringName &p_next);
 
     void get_animation_list(ListPOD<StringName> *r_animations) const;
-    Vector<String> get_animation_names() const;
+    PoolVector<se_string> get_animation_names() const;
+
+    const Map<StringName, Anim> & animation_name_map() const { return animations; }
 
     void set_animation_speed(const StringName &p_anim, float p_fps);
     float get_animation_speed(const StringName &p_anim) const;
@@ -209,6 +211,6 @@ public:
     void set_modulate(const Color &p_color);
     Color get_modulate() const;
 
-    String get_configuration_warning() const override;
+    StringName get_configuration_warning() const override;
     AnimatedSprite();
 };

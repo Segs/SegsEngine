@@ -33,7 +33,8 @@
 #include "bullet_types_converter.h"
 #include "bullet_utilities.h"
 #include "rigid_body_bullet.h"
-#include "core/ustring.h"
+#include "core/se_string.h"
+#include "core/string_utils.h"
 
 #include <BulletDynamics/ConstraintSolver/btConeTwistConstraint.h>
 
@@ -84,7 +85,7 @@ void ConeTwistJointBullet::set_param(PhysicsServer::ConeTwistJointParam p_param,
             coneConstraint->setLimit(coneConstraint->getSwingSpan1(), coneConstraint->getSwingSpan2(), coneConstraint->getTwistSpan(), coneConstraint->getLimitSoftness(), coneConstraint->getBiasFactor(), p_value);
             break;
         default:
-            WARN_DEPRECATED_MSG("The parameter " + itos(p_param) + " is deprecated.");
+            WARN_DEPRECATED_MSG("The parameter " + itos(p_param) + " is deprecated.")
             break;
     }
 }
@@ -102,7 +103,7 @@ real_t ConeTwistJointBullet::get_param(PhysicsServer::ConeTwistJointParam p_para
         case PhysicsServer::CONE_TWIST_JOINT_RELAXATION:
             return coneConstraint->getRelaxationFactor();
         default:
-            WARN_DEPRECATED_MSG("The parameter " + itos(p_param) + " is deprecated.");
+            WARN_DEPRECATED_MSG("The parameter " + itos(p_param) + " is deprecated.")
             return 0;
     }
 }

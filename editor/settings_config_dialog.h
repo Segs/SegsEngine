@@ -42,73 +42,73 @@
 
 class EditorSettingsDialog : public AcceptDialog {
 
-	GDCLASS(EditorSettingsDialog,AcceptDialog)
+    GDCLASS(EditorSettingsDialog,AcceptDialog)
 
-	bool updating;
+    bool updating;
 
-	TabContainer *tabs;
-	Control *tab_general;
-	Control *tab_shortcuts;
+    TabContainer *tabs;
+    Control *tab_general;
+    Control *tab_shortcuts;
 
-	LineEdit *search_box=nullptr;
-	LineEdit *shortcut_search_box;
-	SectionedInspector *inspector;
+    LineEdit *search_box=nullptr;
+    LineEdit *shortcut_search_box;
+    SectionedInspector *inspector;
 
-	Timer *timer;
+    Timer *timer;
 
-	UndoRedo *undo_redo;
-	Tree *shortcuts;
+    UndoRedo *undo_redo;
+    Tree *shortcuts;
 
-	ConfirmationDialog *press_a_key;
-	Label *press_a_key_label;
-	Ref<InputEventKey> last_wait_for_key;
-	String shortcut_configured;
-	String shortcut_filter;
+    ConfirmationDialog *press_a_key;
+    Label *press_a_key_label;
+    Ref<InputEventKey> last_wait_for_key;
+    se_string shortcut_configured;
+    se_string shortcut_filter;
 
-	void cancel_pressed() override;
-	void ok_pressed() override;
+    void cancel_pressed() override;
+    void ok_pressed() override;
 
-	void _settings_changed();
-	void _settings_property_edited(const String &p_name);
-	void _settings_save();
+    void _settings_changed();
+    void _settings_property_edited(const se_string &p_name);
+    void _settings_save();
 
-	void _unhandled_input(const Ref<InputEvent> &p_event);
-	void _notification(int p_what);
-	void _update_icons();
+    void _unhandled_input(const Ref<InputEvent> &p_event);
+    void _notification(int p_what);
+    void _update_icons();
 
-	void _press_a_key_confirm();
-	void _wait_for_key(const Ref<InputEvent> &p_event);
+    void _press_a_key_confirm();
+    void _wait_for_key(const Ref<InputEvent> &p_event);
 
-	void _tabs_tab_changed(int p_tab);
-	void _focus_current_search_box();
+    void _tabs_tab_changed(int p_tab);
+    void _focus_current_search_box();
 
-	void _clear_shortcut_search_box();
-	void _clear_search_box();
+    void _clear_shortcut_search_box();
+    void _clear_search_box();
 
-	void _filter_shortcuts(const String &p_filter);
+    void _filter_shortcuts(se_string_view p_filter);
 
-	void _update_shortcuts();
-	void _shortcut_button_pressed(Object *p_item, int p_column, int p_idx);
+    void _update_shortcuts();
+    void _shortcut_button_pressed(Object *p_item, int p_column, int p_idx);
 
-	static void _undo_redo_callback(void *p_self, const String &p_name);
+    static void _undo_redo_callback(void *p_self, se_string_view p_name);
 
-	Label *restart_label;
-	TextureRect *restart_icon;
-	PanelContainer *restart_container;
-	ToolButton *restart_close_button;
+    Label *restart_label;
+    TextureRect *restart_icon;
+    PanelContainer *restart_container;
+    ToolButton *restart_close_button;
 
-	void _editor_restart_request();
-	void _editor_restart();
-	void _editor_restart_close();
+    void _editor_restart_request();
+    void _editor_restart();
+    void _editor_restart_close();
 
 protected:
-	static void _bind_methods();
+    static void _bind_methods();
 
 public:
-	void popup_edit_settings();
+    void popup_edit_settings();
 
-	EditorSettingsDialog();
-	~EditorSettingsDialog() override;
+    EditorSettingsDialog();
+    ~EditorSettingsDialog() override;
 };
 
 #endif // SETTINGS_CONFIG_DIALOG_H

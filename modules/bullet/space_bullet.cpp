@@ -113,7 +113,7 @@ bool BulletPhysicsDirectSpaceState::intersect_ray(const Vector3 &p_from, const V
             r_result.collider_id = gObj->get_instance_id();
             r_result.collider = 0 == r_result.collider_id ? nullptr : ObjectDB::get_instance(r_result.collider_id);
         } else {
-            WARN_PRINTS("The raycast performed has hit a collision object that is not part of Godot scene, please check it.");
+            WARN_PRINT("The raycast performed has hit a collision object that is not part of Godot scene, please check it.")
         }
         return true;
     } else {
@@ -130,7 +130,7 @@ int BulletPhysicsDirectSpaceState::intersect_shape(const RID &p_shape, const Tra
     btCollisionShape *btShape = shape->create_bt_shape(p_xform.basis.get_scale_abs(), p_margin);
     if (!btShape->isConvex()) {
         bulletdelete(btShape);
-        ERR_PRINT("The shape is not a convex shape, then is not supported: shape type: " + itos(shape->get_type()));
+        ERR_PRINT("The shape is not a convex shape, then is not supported: shape type: " + itos(shape->get_type()))
         return 0;
     }
     btConvexShape *btConvex = static_cast<btConvexShape *>(btShape);
@@ -392,7 +392,7 @@ void SpaceBullet::set_param(PhysicsServer::AreaParameter p_param, const Variant 
         case PhysicsServer::AREA_PARAM_GRAVITY_POINT_ATTENUATION:
             break;
         default:
-            WARN_PRINTS("This set parameter (" + itos(p_param) + ") is ignored, the SpaceBullet doesn't support it.");
+            WARN_PRINTS("This set parameter (" + itos(p_param) + ") is ignored, the SpaceBullet doesn't support it.")
             break;
     }
 }

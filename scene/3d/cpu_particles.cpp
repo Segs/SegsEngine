@@ -64,7 +64,7 @@ void CPUParticles::set_emitting(bool p_emitting) {
 
 void CPUParticles::set_amount(int p_amount) {
 
-	ERR_FAIL_COND_MSG(p_amount < 1, "Amount of particles must be greater than 0.");
+    ERR_FAIL_COND_MSG(p_amount < 1, "Amount of particles must be greater than 0.");
 
     particles.resize(p_amount);
     {
@@ -82,7 +82,7 @@ void CPUParticles::set_amount(int p_amount) {
 }
 void CPUParticles::set_lifetime(float p_lifetime) {
 
-	ERR_FAIL_COND_MSG(p_lifetime <= 0, "Particles lifetime must be greater than 0.");
+    ERR_FAIL_COND_MSG(p_lifetime <= 0, "Particles lifetime must be greater than 0.");
     lifetime = p_lifetime;
 }
 
@@ -201,9 +201,9 @@ bool CPUParticles::get_fractional_delta() const {
     return fractional_delta;
 }
 
-String CPUParticles::get_configuration_warning() const {
+StringName CPUParticles::get_configuration_warning() const {
 
-    String warnings;
+    se_string warnings;
 
     bool mesh_found = false;
     bool anim_material_found = false;
@@ -223,18 +223,18 @@ String CPUParticles::get_configuration_warning() const {
 
     if (!mesh_found) {
         if (!warnings.empty())
-            warnings += "\n";
+            warnings += '\n';
         warnings += "- " + TTR("Nothing is visible because no mesh has been assigned.");
     }
 
     if (!anim_material_found && (get_param(PARAM_ANIM_SPEED) != 0.0 || get_param(PARAM_ANIM_OFFSET) != 0.0 ||
                                         get_param_curve(PARAM_ANIM_SPEED) || get_param_curve(PARAM_ANIM_OFFSET))) {
         if (!warnings.empty())
-            warnings += "\n";
+            warnings += '\n';
         warnings += "- " + TTR("CPUParticles animation requires the usage of a SpatialMaterial whose Billboard Mode is set to \"Particle Billboard\".");
     }
 
-    return warnings;
+    return StringName(warnings);
 }
 
 void CPUParticles::restart() {
@@ -1204,7 +1204,7 @@ void CPUParticles::_notification(int p_what) {
 void CPUParticles::convert_from_particles(Node *p_particles) {
 
     Particles *particles = object_cast<Particles>(p_particles);
-	ERR_FAIL_COND_MSG(!particles, "Only Particles nodes can be converted to CPUParticles.");
+    ERR_FAIL_COND_MSG(!particles, "Only Particles nodes can be converted to CPUParticles.");
 
     set_emitting(particles->is_emitting());
     set_amount(particles->get_amount());

@@ -131,9 +131,9 @@ void Area2D::_body_enter_tree(ObjectID p_id) {
 
     E->second.in_tree = true;
     emit_signal(SceneStringNames::get_singleton()->body_entered, Variant(node));
-    for (int i = 0; i < E->second.shapes.size(); i++) {
+    for (const ShapePair & spair : E->second.shapes) {
 
-        emit_signal(SceneStringNames::get_singleton()->body_shape_entered, p_id, Variant(node), E->second.shapes[i].body_shape, E->second.shapes[i].area_shape);
+        emit_signal(SceneStringNames::get_singleton()->body_shape_entered, p_id, Variant(node), spair.body_shape, spair.area_shape);
     }
 }
 
@@ -250,7 +250,7 @@ void Area2D::_area_exit_tree(ObjectID p_id) {
     ERR_FAIL_COND(!E->second.in_tree)
     E->second.in_tree = false;
     emit_signal(SceneStringNames::get_singleton()->area_exited, Variant(node));
-    for (int i = 0; i < E->second.shapes.size(); i++) {
+    for (size_t i = 0; i < E->second.shapes.size(); i++) {
 
         emit_signal(SceneStringNames::get_singleton()->area_shape_exited, p_id, Variant(node), E->second.shapes[i].area_shape, E->second.shapes[i].self_shape);
     }
@@ -443,7 +443,7 @@ bool Area2D::is_monitorable() const {
 
 Array Area2D::get_overlapping_bodies() const {
 
-	ERR_FAIL_COND_V_MSG(!monitoring, Array(), "Can't find overlapping bodies when monitoring is off.")
+    ERR_FAIL_COND_V_MSG(!monitoring, Array(), "Can't find overlapping bodies when monitoring is off.")
     Array ret;
     ret.resize(body_map.size());
     int idx = 0;
@@ -461,7 +461,7 @@ Array Area2D::get_overlapping_bodies() const {
 
 Array Area2D::get_overlapping_areas() const {
 
-	ERR_FAIL_COND_V_MSG(!monitoring, Array(), "Can't find overlapping bodies when monitoring is off.")
+    ERR_FAIL_COND_V_MSG(!monitoring, Array(), "Can't find overlapping bodies when monitoring is off.")
     Array ret;
     ret.resize(area_map.size());
     int idx = 0;
@@ -576,12 +576,12 @@ void Area2D::_validate_property(PropertyInfo &property) const {
 
     if (property.name == "audio_bus_name") {
 
-        String options;
+        se_string options;
         for (int i = 0; i < AudioServer::get_singleton()->get_bus_count(); i++) {
             if (i > 0)
-                options += ",";
-            String name = AudioServer::get_singleton()->get_bus_name(i);
-            options += name;
+                options += ',';
+            StringName name(AudioServer::get_singleton()->get_bus_name(i));
+            options += se_string(name);
         }
 
         property.hint_string = options;

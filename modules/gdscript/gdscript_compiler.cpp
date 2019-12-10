@@ -34,8 +34,9 @@
 
 #include "core/class_db.h"
 #include "core/io/resource_loader.h"
+#include "core/string_utils.h"
 
-
+using namespace eastl;
 bool GDScriptCompiler::_is_class_member_property(CodeGen &codegen, const StringName &p_name) {
 
     if (codegen.function_node && codegen.function_node->_static)
@@ -63,7 +64,21 @@ bool GDScriptCompiler::_is_class_member_property(GDScript *owner, const StringNa
     return ClassDB::has_property(nc->get_name(), p_name);
 }
 
-void GDScriptCompiler::_set_error(const String &p_error, const GDScriptParser::Node *p_node) {
+void GDScriptCompiler::_set_error(se_string_view p_error, const GDScriptParser::Node *p_node) {
+
+    if (!error.empty())
+        return;
+
+    error = p_error;
+    if (p_node) {
+        err_line = p_node->line;
+        err_column = p_node->column;
+    } else {
+        err_line = 0;
+        err_column = 0;
+    }
+}
+void GDScriptCompiler::_set_error(const char *p_error, const GDScriptParser::Node *p_node) {
 
     if (!error.empty())
         return;
@@ -331,7 +346,7 @@ int GDScriptCompiler::_parse_expression(CodeGen &codegen, const GDScriptParser::
 
                 RES res(ResourceLoader::load(ScriptServer::get_global_class_path(identifier)));
                 if (not res) {
-                    _set_error("Can't load global class " + String(identifier) + ", cyclic reference?", p_expression);
+                    _set_error("Can't load global class " + se_string(identifier) + ", cyclic reference?", p_expression);
                     return -1;
                 }
 
@@ -364,7 +379,7 @@ int GDScriptCompiler::_parse_expression(CodeGen &codegen, const GDScriptParser::
 
             //not found, error
 
-            _set_error("Identifier not found: " + String(identifier), p_expression);
+            _set_error("Identifier not found: " + se_string(identifier), p_expression);
 
             return -1;
 
@@ -493,7 +508,7 @@ int GDScriptCompiler::_parse_expression(CodeGen &codegen, const GDScriptParser::
                         class_idx = GDScriptLanguage::get_singleton()->get_global_map().at(cast_type.native_type);
                         class_idx |= (GDScriptFunction::ADDR_TYPE_GLOBAL << GDScriptFunction::ADDR_BITS); //argument (stack root)
                     } else {
-                        _set_error("Invalid native class type '" + String(cast_type.native_type) + "'.", cn);
+                        _set_error("Invalid native class type '" + se_string(cast_type.native_type) + "'.", cn);
                         return -1;
                     }
                     codegen.opcodes.push_back(GDScriptFunction::OPCODE_CAST_TO_NATIVE); // perform operator
@@ -716,13 +731,13 @@ int GDScriptCompiler::_parse_expression(CodeGen &codegen, const GDScriptParser::
 
 #ifdef DEBUG_ENABLED
                             if (MI!=codegen.script->member_indices.end() && MI->second.getter == codegen.function_node->name) {
-                                String n = static_cast<GDScriptParser::IdentifierNode *>(on->arguments[1])->name;
-                                _set_error("Must use '" + n + "' instead of 'self." + n + "' in getter.", on);
+                                se_string n(static_cast<GDScriptParser::IdentifierNode *>(on->arguments[1])->name);
+                                _set_error(("Must use '" + n + "' instead of 'self." + n + "' in getter.").c_str(), on);
                                 return -1;
                             }
 #endif
 
-                            if (MI!=codegen.script->member_indices.end() && MI->second.getter == "") {
+                            if (MI!=codegen.script->member_indices.end() && MI->second.getter.empty()) {
                                 // Faster than indexing self (as if no self. had been used)
                                 return (MI->second.index) | (GDScriptFunction::ADDR_TYPE_MEMBER << GDScriptFunction::ADDR_BITS);
                             }
@@ -957,8 +972,8 @@ int GDScriptCompiler::_parse_expression(CodeGen &codegen, const GDScriptParser::
                                 const Map<StringName, GDScript::MemberInfo>::iterator MI =
                                         codegen.script->member_indices.find(static_cast<GDScriptParser::IdentifierNode *>(inon->arguments[1])->name);
                                 if (MI!=codegen.script->member_indices.end() && MI->second.setter == codegen.function_node->name) {
-                                    String n = static_cast<GDScriptParser::IdentifierNode *>(inon->arguments[1])->name;
-                                    _set_error("Must use '" + n + "' instead of 'self." + n + "' in setter.", inon);
+                                    se_string n(static_cast<GDScriptParser::IdentifierNode *>(inon->arguments[1])->name);
+                                    _set_error(("Must use '" + n + "' instead of 'self." + n + "' in setter.").c_str(), inon);
                                     return -1;
                                 }
                             }
@@ -1165,7 +1180,7 @@ int GDScriptCompiler::_parse_expression(CodeGen &codegen, const GDScriptParser::
                                         class_idx = GDScriptLanguage::get_singleton()->get_global_map().at(assign_type.native_type);
                                         class_idx |= (GDScriptFunction::ADDR_TYPE_GLOBAL << GDScriptFunction::ADDR_BITS); //argument (stack root)
                                     } else {
-                                        _set_error("Invalid native class type '" + String(assign_type.native_type) + "'.", on->arguments[0]);
+                                        _set_error("Invalid native class type '" + se_string(assign_type.native_type) + "'.", on->arguments[0]);
                                         return -1;
                                     }
                                     codegen.opcodes.push_back(GDScriptFunction::OPCODE_ASSIGN_TYPED_NATIVE); // perform operator
@@ -1609,7 +1624,7 @@ Error GDScriptCompiler::_parse_function(GDScript *p_script, const GDScriptParser
 
     bool is_initializer = !p_for_ready && !p_func;
 
-    if (is_initializer || (p_func && String(p_func->name) == "_init")) {
+    if (is_initializer || (p_func && p_func->name == "_init")) {
         //parse initializer for class members
         if (!p_func && p_class->extends_used && not p_script->native) {
 
@@ -1625,7 +1640,7 @@ Error GDScriptCompiler::_parse_function(GDScript *p_script, const GDScriptParser
         is_initializer = true;
     }
 
-    if (p_for_ready || (p_func && String(p_func->name) == "_ready")) {
+    if (p_for_ready || (p_func && (p_func->name) == "_ready")) {
         //parse initializer for class members
         if (!p_class->ready->statements.empty()) {
             Error err = _parse_block(codegen, p_class->ready, stack_level);
@@ -1768,13 +1783,13 @@ Error GDScriptCompiler::_parse_function(GDScript *p_script, const GDScriptParser
     gdfunc->name = func_name;
 #ifdef DEBUG_ENABLED
     if (ScriptDebugger::get_singleton()) {
-        String signature;
+        se_string signature;
         //path
         if (!p_script->get_path().empty())
             signature += p_script->get_path();
         //loc
         if (p_func) {
-            signature += "::" + itos(p_func->body->line);
+            signature += "::" + ::to_string(p_func->body->line);
         } else {
             signature += "::0";
         }
@@ -1782,9 +1797,9 @@ Error GDScriptCompiler::_parse_function(GDScript *p_script, const GDScriptParser
         //function and class
 
         if (p_class->name) {
-            signature += "::" + String(p_class->name) + "." + String(func_name);
+            signature += "::" + se_string(p_class->name.asCString()) + "." + func_name.asCString();
         } else {
-            signature += "::" + String(func_name);
+            signature += "::" + se_string(func_name.asCString());
         }
 
         gdfunc->profile.signature = StringName(signature);
@@ -1796,7 +1811,7 @@ Error GDScriptCompiler::_parse_function(GDScript *p_script, const GDScriptParser
 #ifdef DEBUG_ENABLED
 
     {
-        gdfunc->func_cname = StringUtils::to_utf8(String(source) + " - " + String(func_name));
+        gdfunc->func_cname = se_string(source) + " - " + se_string(func_name);
         gdfunc->_func_cname = gdfunc->func_cname.data();
     }
 
@@ -1828,7 +1843,7 @@ Error GDScriptCompiler::_parse_class_level(GDScript *p_script, const GDScriptPar
         // Owner is not root
         if (!parsed_classes.contains(p_script->_owner)) {
             if (parsing_classes.contains(p_script->_owner)) {
-                _set_error("Cyclic class reference for '" + String(p_class->name) + "'.", p_class);
+                _set_error("Cyclic class reference for '" + se_string(p_class->name) + "'.", p_class);
                 return ERR_PARSE_ERROR;
             }
             Error err = _parse_class_level(p_script->_owner, p_class->owner, p_keep_state);
@@ -1875,7 +1890,7 @@ Error GDScriptCompiler::_parse_class_level(GDScript *p_script, const GDScriptPar
             if (p_class->base_type.kind == GDScriptParser::DataType::CLASS) {
                 if (!parsed_classes.contains(p_script->_base)) {
                     if (parsing_classes.contains(p_script->_base)) {
-                        _set_error("Cyclic class reference for '" + String(p_class->name) + "'.", p_class);
+                        _set_error("Cyclic class reference for '" + se_string(p_class->name) + "'.", p_class);
                         return ERR_PARSE_ERROR;
                     }
                     Error err = _parse_class_level(p_script->_base, p_class->base_type.class_type, p_keep_state);
@@ -1957,7 +1972,7 @@ Error GDScriptCompiler::_parse_class_level(GDScript *p_script, const GDScriptPar
         while (c) {
 
             if (c->_signals.contains(name)) {
-                _set_error("Signal '" + name + "' redefined (in current or parent class)", p_class);
+                _set_error(("Signal '" + se_string(name) + "' redefined (in current or parent class)").c_str(), p_class);
                 return ERR_ALREADY_EXISTS;
             }
 
@@ -1970,7 +1985,7 @@ Error GDScriptCompiler::_parse_class_level(GDScript *p_script, const GDScriptPar
 
         if (native) {
             if (ClassDB::has_signal(native->get_name(), name)) {
-                _set_error("Signal '" + name + "' redefined (original in native class '" + String(native->get_name()) + "')", p_class);
+                _set_error(("Signal '" + se_string(name) + "' redefined (original in native class '" + se_string(native->get_name()) + "')").c_str(), p_class);
                 return ERR_ALREADY_EXISTS;
             }
         }
@@ -2014,9 +2029,9 @@ Error GDScriptCompiler::_parse_class_blocks(GDScript *p_script, const GDScriptPa
 
     for (int i = 0; i < p_class->functions.size(); i++) {
 
-        if (!has_initializer && p_class->functions[i]->name == "_init")
+        if (!has_initializer && p_class->functions[i]->name == "_init"_sv)
             has_initializer = true;
-        if (!has_ready && p_class->functions[i]->name == "_ready")
+        if (!has_ready && p_class->functions[i]->name == "_ready"_sv)
             has_ready = true;
         Error err = _parse_function(p_script, p_class, p_class->functions[i]);
         if (err)
@@ -2077,7 +2092,7 @@ Error GDScriptCompiler::_parse_class_blocks(GDScript *p_script, const GDScriptPa
                     }
                     instance->owner->set_script_instance(instance);
 
-					/* STEP 2, INITIALIZE AND CONSTRUCT */
+                    /* STEP 2, INITIALIZE AND CONSTRUCT */
 
                     Variant::CallError ce;
                     p_script->initializer->call(instance, nullptr, 0, ce);
@@ -2169,7 +2184,7 @@ Error GDScriptCompiler::compile(const GDScriptParser *p_parser, GDScript *p_scri
     return OK;
 }
 
-String GDScriptCompiler::get_error() const {
+const se_string &GDScriptCompiler::get_error() const {
 
     return error;
 }

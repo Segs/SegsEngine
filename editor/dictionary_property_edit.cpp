@@ -39,8 +39,8 @@ void DictionaryPropertyEdit::_notif_change() {
     _change_notify();
 }
 
-void DictionaryPropertyEdit::_notif_changev(const String &p_v) {
-    _change_notify(qPrintable(p_v.m_str));
+void DictionaryPropertyEdit::_notif_changev(const se_string &p_v) {
+    _change_notify(StringName(p_v));
 }
 
 void DictionaryPropertyEdit::_set_key(const Variant &p_old_key, const Variant &p_new_key) {
@@ -78,14 +78,14 @@ void DictionaryPropertyEdit::_get_property_list(ListPOD<PropertyInfo> *p_list) c
     keys.sort();
 
     for (int i = 0; i < keys.size(); i++) {
-        String index = itos(i);
+        se_string index = itos(i);
 
         const Variant &key = keys[i];
-        PropertyInfo pi(key.get_type(), index + ": key");
+        PropertyInfo pi(key.get_type(), StringName(index + ": key"));
         p_list->push_back(pi);
 
         const Variant &value = dict[key];
-        pi = PropertyInfo(value.get_type(), index + ": value");
+        pi = PropertyInfo(value.get_type(), StringName(index + ": value"));
         p_list->push_back(pi);
     }
 }
@@ -119,22 +119,22 @@ void DictionaryPropertyEdit::_bind_methods() {
 }
 
 bool DictionaryPropertyEdit::_set(const StringName &p_name, const Variant &p_value) {
-
+    using namespace eastl;
     Dictionary dict = get_dictionary();
     Array keys = dict.keys();
     keys.sort();
 
-    String pn = p_name;
-    int slash = StringUtils::find(pn,": ");
-    if (slash != -1 && pn.length() > slash) {
-        String type = StringUtils::substr(pn,slash + 2, pn.length());
+    se_string pn(p_name);
+    auto slash = StringUtils::find(pn,": ");
+    if (slash != se_string::npos && pn.length() > slash) {
+        se_string_view type = StringUtils::substr(pn,slash + 2, pn.length());
         int index = StringUtils::to_int(StringUtils::substr(pn,0, slash));
-        if (type == "key" && index < keys.size()) {
+        if (type == "key"_sv && index < keys.size()) {
 
             const Variant &key = keys[index];
             UndoRedo *ur = EditorNode::get_undo_redo();
 
-            ur->create_action(TTR("Change Dictionary Key"));
+            ur->create_action_ui(TTR("Change Dictionary Key"));
             ur->add_do_method(this, "_set_key", key, p_value);
             ur->add_undo_method(this, "_set_key", p_value, key);
             ur->add_do_method(this, "_notif_changev", p_name);
@@ -142,14 +142,14 @@ bool DictionaryPropertyEdit::_set(const StringName &p_name, const Variant &p_val
             ur->commit_action();
 
             return true;
-        } else if (type == "value" && index < keys.size()) {
+        } else if (type == "value"_sv && index < keys.size()) {
             const Variant &key = keys[index];
             if (dict.has(key)) {
 
                 Variant value = dict[key];
                 UndoRedo *ur = EditorNode::get_undo_redo();
 
-                ur->create_action(TTR("Change Dictionary Value"));
+                ur->create_action_ui(TTR("Change Dictionary Value"));
                 ur->add_do_method(this, "_set_value", key, p_value);
                 ur->add_undo_method(this, "_set_value", key, value);
                 ur->add_do_method(this, "_notif_changev", p_name);
@@ -165,23 +165,24 @@ bool DictionaryPropertyEdit::_set(const StringName &p_name, const Variant &p_val
 }
 
 bool DictionaryPropertyEdit::_get(const StringName &p_name, Variant &r_ret) const {
+    using namespace eastl;
 
     Dictionary dict = get_dictionary();
     Array keys = dict.keys();
     keys.sort();
 
-    String pn = p_name;
+    se_string pn(p_name);
     int slash = StringUtils::find(pn,": ");
 
     if (slash != -1 && pn.length() > slash) {
 
-        String type = StringUtils::substr(pn,slash + 2, pn.length());
+        se_string_view type = StringUtils::substr(pn,slash + 2, pn.length());
         int index = StringUtils::to_int(StringUtils::substr(pn,0, slash));
 
-        if (type == "key" && index < keys.size()) {
+        if (type == "key"_sv && index < keys.size()) {
             r_ret = keys[index];
             return true;
-        } else if (type == "value" && index < keys.size()) {
+        } else if (type == "value"_sv && index < keys.size()) {
             const Variant &key = keys[index];
             if (dict.has(key)) {
                 r_ret = dict[key];

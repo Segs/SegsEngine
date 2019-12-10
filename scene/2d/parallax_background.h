@@ -37,52 +37,52 @@
 
 class ParallaxBackground : public CanvasLayer {
 
-	GDCLASS(ParallaxBackground,CanvasLayer)
+    GDCLASS(ParallaxBackground,CanvasLayer)
 
-	Point2 offset;
-	float scale;
-	Point2 base_offset;
-	Point2 base_scale;
-	Point2 screen_offset;
-	String group_name;
-	Point2 limit_begin;
-	Point2 limit_end;
-	Point2 final_offset;
-	bool ignore_camera_zoom;
+    Point2 offset;
+    float scale;
+    Point2 base_offset;
+    Point2 base_scale;
+    Point2 screen_offset;
+    StringName group_name;
+    Point2 limit_begin;
+    Point2 limit_end;
+    Point2 final_offset;
+    bool ignore_camera_zoom;
 
-	void _update_scroll();
+    void _update_scroll();
 
 protected:
-	void _camera_moved(const Transform2D &p_transform, const Point2 &p_screen_offset);
+    void _camera_moved(const Transform2D &p_transform, const Point2 &p_screen_offset);
 
-	void _notification(int p_what);
-	static void _bind_methods();
+    void _notification(int p_what);
+    static void _bind_methods();
 
 public:
-	void set_scroll_offset(const Point2 &p_ofs);
-	Point2 get_scroll_offset() const;
+    void set_scroll_offset(const Point2 &p_ofs);
+    Point2 get_scroll_offset() const;
 
-	void set_scroll_scale(float p_scale);
-	float get_scroll_scale() const;
+    void set_scroll_scale(float p_scale);
+    float get_scroll_scale() const;
 
-	void set_scroll_base_offset(const Point2 &p_ofs);
-	Point2 get_scroll_base_offset() const;
+    void set_scroll_base_offset(const Point2 &p_ofs);
+    Point2 get_scroll_base_offset() const;
 
-	void set_scroll_base_scale(const Point2 &p_ofs);
-	Point2 get_scroll_base_scale() const;
+    void set_scroll_base_scale(const Point2 &p_ofs);
+    Point2 get_scroll_base_scale() const;
 
-	void set_limit_begin(const Point2 &p_ofs);
-	Point2 get_limit_begin() const;
+    void set_limit_begin(const Point2 &p_ofs);
+    Point2 get_limit_begin() const;
 
-	void set_limit_end(const Point2 &p_ofs);
-	Point2 get_limit_end() const;
+    void set_limit_end(const Point2 &p_ofs);
+    Point2 get_limit_end() const;
 
-	void set_ignore_camera_zoom(bool ignore);
-	bool is_ignore_camera_zoom();
+    void set_ignore_camera_zoom(bool ignore);
+    bool is_ignore_camera_zoom();
 
-	Vector2 get_final_offset() const;
+    Vector2 get_final_offset() const;
 
-	ParallaxBackground();
+    ParallaxBackground();
 };
 
 #endif // PARALLAX_BACKGROUND_H

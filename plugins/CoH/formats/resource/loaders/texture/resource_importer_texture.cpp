@@ -37,6 +37,7 @@
 #include "core/io/resource_importer.h"
 #include "core/os/mutex.h"
 #include "core/project_settings.h"
+#include "core/string_utils.h"
 #include "editor/service_interfaces/EditorServiceInterface.h"
 #include "scene/resources/texture.h"
 
@@ -126,7 +127,7 @@ struct FileDeleter {
     }
 };
 
-RES ResourceLoaderCoHTexture::load(const String &p_path, const String &p_original_path, Error *r_error) {
+RES ResourceLoaderCoHTexture::load(se_string_view p_path, se_string_view p_original_path, Error *r_error) {
 
     if (r_error)
         *r_error = ERR_CANT_OPEN;
@@ -147,14 +148,13 @@ RES ResourceLoaderCoHTexture::load(const String &p_path, const String &p_origina
         ERR_FAIL_V_MSG(RES(), "Invalid or unsupported texture file '" + p_path + "'.")
 
     int name_bytes = hdr.header_size - sizeof(TexFileHdr);
-    CharString data;
+    se_string data;
     data.resize(name_bytes);
 
     if (name_bytes != f->get_buffer((uint8_t *)data.data(), name_bytes))
         ERR_FAIL_V_MSG(RES(), "Invalid or unsupported texture file '" + p_path + "'.")
 
-    QString originalname = QString::fromLatin1(data);
-    if(PathUtils::get_extension(originalname)!="dds")
+    if(PathUtils::get_extension(data)!=se_string_view("dds"))
     {
         ERR_FAIL_V_MSG(RES(), "Only embedded dds textures are supported for now.")
     }
@@ -499,17 +499,17 @@ RES ResourceLoaderCoHTexture::load(const String &p_path, const String &p_origina
     return texture;
 }
 
-void ResourceLoaderCoHTexture::get_recognized_extensions(ListPOD<String> *p_extensions) const {
+void ResourceLoaderCoHTexture::get_recognized_extensions(PODVector<se_string> &p_extensions) const {
 
-    p_extensions->push_back("texture");
+    p_extensions.push_back("texture");
 }
 
-bool ResourceLoaderCoHTexture::handles_type(const String &p_type) const {
+bool ResourceLoaderCoHTexture::handles_type(se_string_view p_type) const {
 
-    return ClassDB::is_parent_class(p_type, "Texture");
+    return ClassDB::is_parent_class(StringName(p_type), "Texture");
 }
 
-String ResourceLoaderCoHTexture::get_resource_type(const String &p_path) const {
+se_string ResourceLoaderCoHTexture::get_resource_type(se_string_view p_path) const {
 
     if (StringUtils::to_lower(PathUtils::get_extension(p_path)) == "texture")
         return "ImageTexture";

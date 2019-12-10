@@ -69,7 +69,7 @@ Error DirAccessWindows::list_dir_begin() {
     _cishidden = false;
 
     list_dir_end();
-    p->h = FindFirstFileExW((current_dir + "\\*").m_str.toStdWString().c_str(), FindExInfoStandard, &p->fu,
+    p->h = FindFirstFileExW((current_dir + "\\*").toStdWString().c_str(), FindExInfoStandard, &p->fu,
             FindExSearchNameMatch, nullptr, 0);
 
     return (p->h == INVALID_HANDLE_VALUE) ? ERR_CANT_OPEN : OK;
@@ -77,7 +77,7 @@ Error DirAccessWindows::list_dir_begin() {
 
 String DirAccessWindows::get_next() {
 
-    if (p->h == INVALID_HANDLE_VALUE) return "";
+    if (p->h == INVALID_HANDLE_VALUE) return String();
 
     _cisdir = (p->fu.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY);
     _cishidden = (p->fu.dwFileAttributes & FILE_ATTRIBUTE_HIDDEN);
@@ -117,7 +117,7 @@ int DirAccessWindows::get_drive_count() {
 }
 String DirAccessWindows::get_drive(int p_drive) {
 
-    if (p_drive < 0 || p_drive >= drive_count) return "";
+    if (p_drive < 0 || p_drive >= drive_count) return String();
 
     return String(drives[p_drive]) + ":";
 }

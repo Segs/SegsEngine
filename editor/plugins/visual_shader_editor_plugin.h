@@ -30,7 +30,6 @@
 
 #pragma once
 
-#include "editor/editor_node.h"
 #include "editor/editor_plugin.h"
 #include "editor/property_editor.h"
 #include "scene/gui/button.h"
@@ -100,13 +99,13 @@ class VisualShaderEditor : public VBoxContainer {
     void _update_graph();
 
     struct AddOption {
-        String name;
-        String category;
-        String sub_category;
-        String type;
-        String description;
+        StringName name;
+        StringName category;
+        StringName sub_category;
+        StringName type;
+        StringName description;
         int sub_func;
-        String sub_func_str;
+        StringName sub_func_str;
         Ref<Script> script;
         int mode;
         int return_type;
@@ -115,7 +114,7 @@ class VisualShaderEditor : public VBoxContainer {
         bool highend;
         bool is_custom;
 
-        AddOption(const String &p_name = String(), const String &p_category = String(), const String &p_sub_category = String(), const String &p_type = String(), const String &p_description = String(), int p_sub_func = -1, int p_return_type = -1, int p_mode = -1, int p_func = -1, float p_value = -1, bool p_highend = false) {
+        AddOption(const StringName &p_name = StringName(), const StringName &p_category = StringName(), const StringName &p_sub_category = StringName(), const StringName &p_type = StringName(), const StringName &p_description = StringName(), int p_sub_func = -1, int p_return_type = -1, int p_mode = -1, int p_func = -1, float p_value = -1, bool p_highend = false) {
             name = p_name;
             type = p_type;
             category = p_category;
@@ -129,14 +128,13 @@ class VisualShaderEditor : public VBoxContainer {
             highend = p_highend;
             is_custom = false;
         }
-
-        AddOption(const String &p_name, const String &p_category, const String &p_sub_category, const String &p_type, const String &p_description, const String &p_sub_func, int p_return_type = -1, int p_mode = -1, int p_func = -1, float p_value = -1, bool p_highend = false) {
+        AddOption(const StringName &p_name, const StringName &p_category, const StringName &p_sub_category, const StringName &p_type, const StringName &p_description, const StringName &p_sub_func, int p_return_type = -1, int p_mode = -1, int p_func = -1, float p_value = -1, bool p_highend = false) {
             name = p_name;
             type = p_type;
             category = p_category;
             sub_category = p_sub_category;
             description = p_description;
-			sub_func = 0;
+            sub_func = 0;
             sub_func_str = p_sub_func;
             return_type = p_return_type;
             mode = p_mode;
@@ -145,31 +143,66 @@ class VisualShaderEditor : public VBoxContainer {
             highend = p_highend;
             is_custom = false;
         }
+//        AddOption(se_string_view p_name, se_string_view p_category = se_string_view(),
+//                se_string_view p_sub_category = se_string_view(), se_string_view p_type = se_string_view(),
+//                const String &p_description = String(), int p_sub_func = -1, int p_return_type = -1, int p_mode = -1,
+//                int p_func = -1, float p_value = -1, bool p_highend = false) {
+//            name = StringUtils::from_utf8(p_name);
+//            type = StringName(p_type);
+//            category = StringUtils::from_utf8(p_category);
+//            sub_category = StringUtils::from_utf8(p_sub_category);
+//            description = p_description;
+//            sub_func = p_sub_func;
+//            return_type = p_return_type;
+//            mode = p_mode;
+//            func = p_func;
+//            value = p_value;
+//            highend = p_highend;
+//            is_custom = false;
+//        }
+//        AddOption(se_string_view p_name, se_string_view p_category,
+//                se_string_view p_sub_category, se_string_view p_type,
+//                const String &p_description, se_string_view p_sub_func, int p_return_type = -1, int p_mode = -1,
+//                int p_func = -1, float p_value = -1, bool p_highend = false) {
+//            name = StringUtils::from_utf8(p_name);
+//            type = StringName(p_type);
+//            category = StringUtils::from_utf8(p_category);
+//            sub_category = StringUtils::from_utf8(p_sub_category);
+//            description = p_description;
+//            sub_func = 0;
+//            sub_func_str= StringUtils::from_utf8(p_sub_func);
+//            return_type = p_return_type;
+//            mode = p_mode;
+//            func = p_func;
+//            value = p_value;
+//            highend = p_highend;
+//            is_custom = false;
+//        }
     };
 
     Vector<AddOption> add_options;
     int texture_node_option_idx;
 	int custom_node_option_idx;
-    PODVector<String> keyword_list;
+    PODVector<se_string_view> keyword_list;
 
     void _draw_color_over_button(Object *obj, Color p_color);
 
-	void _add_custom_node(const String &p_path);
-    void _add_texture_node(const String &p_path);
+	void _add_custom_node(se_string_view p_path);
+    void _add_texture_node(se_string_view p_path);
     VisualShaderNode *_add_node(int p_idx, int p_op_idx = -1);
     void _update_options_menu();
 
     void _show_preview_text();
     void _update_preview();
-    String _get_description(int p_idx);
+    StringName _get_description(int p_idx);
 
     static VisualShaderEditor *singleton;
 
     void _node_dragged(const Vector2 &p_from, const Vector2 &p_to, int p_node);
     bool updating;
 
-    void _connection_request(const String &p_from, int p_from_index, const String &p_to, int p_to_index);
-    void _disconnection_request(const String &p_from, int p_from_index, const String &p_to, int p_to_index);
+    void _connection_request(const StringName &p_from, int p_from_index, const StringName &p_to, int p_to_index);
+    void _disconnection_request(const StringName &p_from, int p_from_index, const StringName &p_to, int p_to_index);
 
     void _scroll_changed(const Vector2 &p_scroll);
     void _node_selected(Object *p_node);
@@ -189,10 +222,10 @@ class VisualShaderEditor : public VBoxContainer {
     int from_node;
     int from_slot;
 
-    void _connection_to_empty(const String &p_from, int p_from_slot, const Vector2 &p_release_position);
-    void _connection_from_empty(const String &p_to, int p_to_slot, const Vector2 &p_release_position);
+    void _connection_to_empty(const StringName &p_from, int p_from_slot, const Vector2 &p_release_position);
+    void _connection_from_empty(const StringName &p_to, int p_to_slot, const Vector2 &p_release_position);
 
-    void _line_edit_changed(const String &p_text, Object *line_edit, int p_node_id);
+    void _line_edit_changed(se_string_view p_text, Object *line_edit, int p_node_id);
     void _line_edit_focus_out(Object *line_edit, int p_node_id);
 
     void _port_name_focus_out(Object *line_edit, int p_node_id, int p_port_id, bool p_output);
@@ -217,17 +250,17 @@ class VisualShaderEditor : public VBoxContainer {
     void _mode_selected(int p_id);
     void _rebuild();
 
-    void _input_select_item(Ref<VisualShaderNodeInput> input, const String& name);
+    void _input_select_item(Ref<VisualShaderNodeInput> input, const StringName &name);
 
-    void _add_input_port(int p_node, int p_port, int p_port_type, const String &p_name);
+    void _add_input_port(int p_node, int p_port, int p_port_type, se_string_view p_name);
     void _remove_input_port(int p_node, int p_port);
     void _change_input_port_type(int p_type, int p_node, int p_port);
-    void _change_input_port_name(const String &p_text, Object *line_edit, int p_node, int p_port);
+    void _change_input_port_name(se_string_view p_text, Object *line_edit, int p_node, int p_port);
 
-    void _add_output_port(int p_node, int p_port, int p_port_type, const String &p_name);
+    void _add_output_port(int p_node, int p_port, int p_port_type, se_string_view p_name);
     void _remove_output_port(int p_node, int p_port);
     void _change_output_port_type(int p_type, int p_node, int p_port);
-    void _change_output_port_name(const String &p_text, Object *line_edit, int p_node, int p_port);
+    void _change_output_port_name(se_string_view p_text, Object *line_edit, int p_node, int p_port);
 
     void _expression_focus_out(Object *text_edit, int p_node);
 
@@ -237,7 +270,7 @@ class VisualShaderEditor : public VBoxContainer {
     void _preview_select_port(int p_node, int p_port);
     void _graph_gui_input(const Ref<InputEvent> &p_event);
 
-    void _member_filter_changed(const String &p_text);
+    void _member_filter_changed(se_string_view p_text);
     void _sbox_input(const Ref<InputEvent> &p_ie);
     void _member_selected();
     void _member_unselected();
@@ -263,7 +296,7 @@ public:
     static VisualShaderEditor *get_singleton() { return singleton; }
 
     void clear_custom_types();
-    void add_custom_type(const String &p_name, const Ref<Script> &p_script, const String &p_description, int p_return_icon_type, const String &p_category, const String &p_sub_category);
+    void add_custom_type(const StringName &p_name, const Ref<Script> &p_script, const StringName &p_description, int p_return_icon_type, const StringName &p_category, const StringName &p_sub_category);
 
     Size2 get_minimum_size() const override;
     void edit(VisualShader *p_visual_shader);
@@ -279,7 +312,7 @@ class VisualShaderEditorPlugin : public EditorPlugin {
     Button *button;
 
 public:
-    String get_name() const override { return "VisualShader"; }
+    se_string_view get_name() const override { return ("VisualShader"); }
     bool has_main_screen() const override { return false; }
     void edit(Object *p_object) override;
     bool handles(Object *p_object) const override;
@@ -307,7 +340,7 @@ protected:
     static void _bind_methods();
 
 public:
-    void setup(const Vector<String> &p_options);
+    void setup(const Vector<se_string_view> &p_options);
     void update_property() override;
     void set_option_button_clip(bool p_enable);
     EditorPropertyShaderMode();
@@ -319,7 +352,7 @@ class EditorInspectorShaderModePlugin : public EditorInspectorPlugin {
 public:
     bool can_handle(Object *p_object) override;
     void parse_begin(Object *p_object) override;
-    bool parse_property(Object *p_object, VariantType p_type, const String &p_path, PropertyHint p_hint, const String &p_hint_text, int p_usage) override;
+    bool parse_property(Object *p_object, VariantType p_type, se_string_view p_path, PropertyHint p_hint, se_string_view p_hint_text, int p_usage) override;
     void parse_end() override;
 };
 
@@ -344,7 +377,7 @@ class VisualShaderConversionPlugin : public EditorResourceConversionPlugin {
     GDCLASS(VisualShaderConversionPlugin,EditorResourceConversionPlugin)
 
 public:
-    String converts_to() const override;
+    StringName converts_to() const override;
     bool handles(const Ref<Resource> &p_resource) const override;
     Ref<Resource> convert(const Ref<Resource> &p_resource) const override;
 };

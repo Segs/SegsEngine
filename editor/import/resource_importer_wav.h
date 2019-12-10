@@ -37,17 +37,17 @@ class ResourceImporterWAV : public ResourceImporter {
     GDCLASS(ResourceImporterWAV,ResourceImporter)
 
 public:
-    String get_importer_name() const override;
-    String get_visible_name() const override;
-    void get_recognized_extensions(Vector<String> *p_extensions) const override;
-    String get_save_extension() const override;
-    String get_resource_type() const override;
+    StringName get_importer_name() const override;
+    StringName get_visible_name() const override;
+    void get_recognized_extensions(PODVector<se_string> &p_extensions) const override;
+    StringName get_save_extension() const override;
+    StringName get_resource_type() const override;
 
     int get_preset_count() const override;
-    String get_preset_name(int p_idx) const override;
+    StringName get_preset_name(int p_idx) const override;
 
     void get_import_options(ListPOD<ImportOption> *r_options, int p_preset = 0) const override;
-    bool get_option_visibility(const String &p_option, const Map<StringName, Variant> &p_options) const override;
+    bool get_option_visibility(const StringName &p_option, const Map<StringName, Variant> &p_options) const override;
 
     static void _compress_ima_adpcm(const Vector<float> &p_data, PoolVector<uint8_t> &dst_data) {
         /*p_sample_data->data = (void*)malloc(len);
@@ -162,7 +162,7 @@ public:
         }
     }
 
-    Error import(const String &p_source_file, const String &p_save_path, const Map<StringName, Variant> &p_options, DefList<String> *r_platform_variants, DefList<String> *r_gen_files = nullptr, Variant *r_metadata = nullptr) override;
+    Error import(se_string_view p_source_file, se_string_view p_save_path, const Map<StringName, Variant> &p_options, DefList<se_string> *r_platform_variants, DefList<se_string> *r_gen_files = nullptr, Variant *r_metadata = nullptr) override;
 
     ResourceImporterWAV();
 };

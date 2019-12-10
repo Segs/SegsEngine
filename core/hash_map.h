@@ -32,7 +32,7 @@
 
 #include "core/error_macros.h"
 
-#include "core/list.h"
+
 #include "core/math/math_funcs.h"
 #include "core/os/memory.h"
 #include "EASTL/unordered_map.h"
@@ -59,8 +59,8 @@ struct HashMapComparatorDefault;
  * times bigger than the hash table, table is resized to solve this condition. if RELATIONSHIP is zero, table is always MIN_HASH_TABLE_POWER.
  *
 */
-template <class TKey, class TData>
-using DefHashMap = eastl::unordered_map<TKey,TData,Hasher<TKey>,HashMapComparatorDefault<TKey>,wrap_allocator>;
+template <class TKey, class TData,class HashFunc=eastl::hash<TKey>>
+using DefHashMap = eastl::unordered_map<TKey,TData,HashFunc,HashMapComparatorDefault<TKey>,wrap_allocator>;
 
 template <class TKey, class TData, class Hasher = Hasher<TKey>,
         class Comparator = HashMapComparatorDefault<TKey>, uint8_t MIN_HASH_TABLE_POWER = 3, uint8_t RELATIONSHIP = 8>
@@ -577,8 +577,8 @@ public:
             }
         }
     }
-
-    void get_key_list(ListPOD<TKey> &p_keys) const {
+    template<typename TGT>
+    void get_key_list(TGT &p_keys) const {
         if (unlikely(!hash_table))
             return;
         for (int i = 0; i < (1 << hash_table_power); i++) {

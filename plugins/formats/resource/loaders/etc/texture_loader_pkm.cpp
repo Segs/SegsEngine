@@ -33,6 +33,7 @@
 #include "core/class_db.h"
 #include "core/io/resource_loader.h"
 #include "core/os/file_access.h"
+#include "core/string_utils.h"
 
 #include <cstring>
 
@@ -45,7 +46,7 @@ struct ETC1Header {
     uint16_t origHeight;
 };
 
-RES ResourceFormatPKM::load(const String &p_path, const String &p_original_path, Error *r_error) {
+RES ResourceFormatPKM::load(se_string_view p_path, se_string_view p_original_path, Error *r_error) {
 
     if (r_error)
         *r_error = ERR_CANT_OPEN;
@@ -97,17 +98,17 @@ RES ResourceFormatPKM::load(const String &p_path, const String &p_original_path,
     return texture;
 }
 
-void ResourceFormatPKM::get_recognized_extensions(ListPOD<String> *p_extensions) const {
+void ResourceFormatPKM::get_recognized_extensions(PODVector<se_string> &p_extensions) const {
 
-    p_extensions->push_back("pkm");
+    p_extensions.push_back("pkm");
 }
 
-bool ResourceFormatPKM::handles_type(const String &p_type) const {
+bool ResourceFormatPKM::handles_type(se_string_view p_type) const {
 
-    return ClassDB::is_parent_class(p_type, "Texture");
+    return ClassDB::is_parent_class(StringName(p_type), "Texture");
 }
 
-String ResourceFormatPKM::get_resource_type(const String &p_path) const {
+se_string ResourceFormatPKM::get_resource_type(se_string_view p_path) const {
 
     if (StringUtils::to_lower(PathUtils::get_extension(p_path)) == "pkm")
         return "ImageTexture";

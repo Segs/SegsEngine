@@ -55,7 +55,7 @@ Variant AnimationNodeBlendSpace2D::get_parameter_default_value(const StringName 
 void AnimationNodeBlendSpace2D::get_child_nodes(List<ChildNode> *r_child_nodes) {
     for (int i = 0; i < blend_points_used; i++) {
         ChildNode cn;
-        cn.name = itos(i);
+        cn.name = StringName(itos(i));
         cn.node = blend_points[i].node;
         r_child_nodes->push_back(cn);
     }
@@ -265,17 +265,17 @@ Vector2 AnimationNodeBlendSpace2D::get_snap() const {
     return snap;
 }
 
-void AnimationNodeBlendSpace2D::set_x_label(const String &p_label) {
+void AnimationNodeBlendSpace2D::set_x_label(se_string_view p_label) {
     x_label = p_label;
 }
-String AnimationNodeBlendSpace2D::get_x_label() const {
+const se_string &AnimationNodeBlendSpace2D::get_x_label() const {
     return x_label;
 }
 
-void AnimationNodeBlendSpace2D::set_y_label(const String &p_label) {
+void AnimationNodeBlendSpace2D::set_y_label(se_string_view p_label) {
     y_label = p_label;
 }
-String AnimationNodeBlendSpace2D::get_y_label() const {
+const se_string &AnimationNodeBlendSpace2D::get_y_label() const {
     return y_label;
 }
 
@@ -556,8 +556,8 @@ float AnimationNodeBlendSpace2D::process(float p_time, bool p_seek) {
     return mind;
 }
 
-String AnimationNodeBlendSpace2D::get_caption() const {
-    return "BlendSpace2D";
+se_string_view AnimationNodeBlendSpace2D::get_caption() const {
+    return ("BlendSpace2D");
 }
 
 void AnimationNodeBlendSpace2D::_validate_property(PropertyInfo &property) const {
@@ -566,7 +566,7 @@ void AnimationNodeBlendSpace2D::_validate_property(PropertyInfo &property) const
         property.usage = 0;
     }
     if (StringUtils::begins_with(property.name,"blend_point_")) {
-        String left = StringUtils::get_slice(property.name,'/', 0);
+        se_string_view left = StringUtils::get_slice(property.name,'/', 0);
         int idx = StringUtils::to_int(StringUtils::get_slice(left,'_', 2));
         if (idx >= blend_points_used) {
             property.usage = 0;
@@ -651,8 +651,8 @@ void AnimationNodeBlendSpace2D::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "auto_triangles", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR), "set_auto_triangles", "get_auto_triangles");
 
     for (int i = 0; i < MAX_BLEND_POINTS; i++) {
-        ADD_PROPERTYI(PropertyInfo(VariantType::OBJECT, "blend_point_" + itos(i) + "/node", PROPERTY_HINT_RESOURCE_TYPE, "AnimationRootNode", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "_add_blend_point", "get_blend_point_node", i);
-        ADD_PROPERTYI(PropertyInfo(VariantType::VECTOR2, "blend_point_" + itos(i) + "/pos", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "set_blend_point_position", "get_blend_point_position", i);
+        ADD_PROPERTYI(PropertyInfo(VariantType::OBJECT, StringName("blend_point_" + itos(i) + "/node"), PROPERTY_HINT_RESOURCE_TYPE, "AnimationRootNode", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "_add_blend_point", "get_blend_point_node", i);
+        ADD_PROPERTYI(PropertyInfo(VariantType::VECTOR2, StringName("blend_point_" + itos(i) + "/pos"), PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "set_blend_point_position", "get_blend_point_position", i);
     }
 
     ADD_PROPERTY(PropertyInfo(VariantType::POOL_INT_ARRAY, "triangles", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "_set_triangles", "_get_triangles");
@@ -673,7 +673,7 @@ void AnimationNodeBlendSpace2D::_bind_methods() {
 AnimationNodeBlendSpace2D::AnimationNodeBlendSpace2D() {
 
     for (int i = 0; i < MAX_BLEND_POINTS; i++) {
-        blend_points[i].name = itos(i);
+        blend_points[i].name = StringName(itos(i));
     }
     auto_triangles = true;
     blend_points_used = 0;

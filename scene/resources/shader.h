@@ -61,8 +61,8 @@ public:
     //void set_mode(Mode p_mode);
     virtual ShaderMode get_mode() const;
 
-    void set_code(const String &p_code);
-    String get_code() const;
+    void set_code(const se_string &p_code);
+    se_string get_code() const;
 
     void get_param_list(ListPOD<PropertyInfo> *p_params) const;
     bool has_param(const StringName &p_param) const;

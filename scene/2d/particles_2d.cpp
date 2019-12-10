@@ -57,13 +57,13 @@ void Particles2D::set_emitting(bool p_emitting) {
 
 void Particles2D::set_amount(int p_amount) {
 
-	ERR_FAIL_COND_MSG(p_amount < 1, "Amount of particles cannot be smaller than 1.");
+    ERR_FAIL_COND_MSG(p_amount < 1, "Amount of particles cannot be smaller than 1.");
     amount = p_amount;
     VisualServer::get_singleton()->particles_set_amount(particles, amount);
 }
 void Particles2D::set_lifetime(float p_lifetime) {
 
-	ERR_FAIL_COND_MSG(p_lifetime <= 0, "Particles lifetime must be greater than 0.");
+    ERR_FAIL_COND_MSG(p_lifetime <= 0, "Particles lifetime must be greater than 0.");
     lifetime = p_lifetime;
     VisualServer::get_singleton()->particles_set_lifetime(particles, lifetime);
 }
@@ -232,13 +232,13 @@ bool Particles2D::get_fractional_delta() const {
     return fractional_delta;
 }
 
-String Particles2D::get_configuration_warning() const {
+StringName Particles2D::get_configuration_warning() const {
 
-    String warnings;
+    se_string warnings;
 
     if (not process_material) {
         if (!warnings.empty())
-            warnings += "\n";
+            warnings += '\n';
         warnings += "- " + TTR("A material to process the particles is not assigned, so no behavior is imprinted.");
     } else {
 
@@ -250,13 +250,13 @@ String Particles2D::get_configuration_warning() const {
                     (process->get_param(ParticlesMaterial::PARAM_ANIM_SPEED) != 0.0f || process->get_param(ParticlesMaterial::PARAM_ANIM_OFFSET) != 0.0f ||
                             process->get_param_texture(ParticlesMaterial::PARAM_ANIM_SPEED) || process->get_param_texture(ParticlesMaterial::PARAM_ANIM_OFFSET))) {
                 if (!warnings.empty())
-                    warnings += "\n";
+                    warnings += '\n';
                 warnings += "- " + TTR("Particles2D animation requires the usage of a CanvasItemMaterial with \"Particles Animation\" enabled.");
             }
         }
     }
 
-    return warnings;
+    return StringName(warnings);
 }
 
 Rect2 Particles2D::capture_rect() const {

@@ -37,6 +37,7 @@
 #include "core/os/os.h"
 #include "core/print_string.h"
 #include "core/project_settings.h"
+#include "core/script_language.h"
 #include "scene/gui/label.h"
 #include "scene/gui/panel.h"
 #include "scene/main/canvas_layer.h"
@@ -51,6 +52,8 @@
 #include "editor/editor_settings.h"
 #include "editor/plugins/canvas_item_editor_plugin.h"
 #endif
+
+#include "EASTL/sort.h"
 
 IMPL_GDCLASS(Control)
 VARIANT_ENUM_CAST(Control::FocusMode);
@@ -157,7 +160,7 @@ bool Control::_edit_use_rotation() const {
 
 void Control::_edit_set_pivot(const Point2 &p_pivot) {
     Vector2 delta_pivot = p_pivot - get_pivot_offset();
-    Vector2 move = Vector2((cos(data.rotation) - 1.0) * delta_pivot.x - sin(data.rotation) * delta_pivot.y, sin(data.rotation) * delta_pivot.x + (cos(data.rotation) - 1.0) * delta_pivot.y);
+    Vector2 move = Vector2((cos(data.rotation) - 1.0f) * delta_pivot.x - sin(data.rotation) * delta_pivot.y, sin(data.rotation) * delta_pivot.x + (cos(data.rotation) - 1.0f) * delta_pivot.y);
     set_position(get_position() + move);
     set_pivot_offset(p_pivot);
 }
@@ -225,47 +228,42 @@ Transform2D Control::_get_internal_transform() const {
 
 bool Control::_set(const StringName &p_name, const Variant &p_value) {
 
-    String name = p_name;
+    StringName name = p_name;
     if (!StringUtils::begins_with(name,"custom")) {
         return false;
     }
 
+    StringName dname(StringUtils::get_slice(name,'/', 1));
     if (p_value.get_type() == VariantType::NIL) {
 
         if (StringUtils::begins_with(name,"custom_icons/")) {
-            String dname = StringUtils::get_slice(name,'/', 1);
             if (data.icon_override.contains(dname)) {
                 data.icon_override[dname]->disconnect("changed", this, "_override_changed");
             }
             data.icon_override.erase(dname);
             notification(NOTIFICATION_THEME_CHANGED);
         } else if (StringUtils::begins_with(name,"custom_shaders/")) {
-            String dname = StringUtils::get_slice(name,'/', 1);
             if (data.shader_override.contains(dname)) {
                 data.shader_override[dname]->disconnect("changed", this, "_override_changed");
             }
             data.shader_override.erase(dname);
             notification(NOTIFICATION_THEME_CHANGED);
         } else if (StringUtils::begins_with(name,"custom_styles/")) {
-            String dname = StringUtils::get_slice(name,'/', 1);
             if (data.style_override.contains(dname)) {
                 data.style_override[dname]->disconnect("changed", this, "_override_changed");
             }
             data.style_override.erase(dname);
             notification(NOTIFICATION_THEME_CHANGED);
         } else if (StringUtils::begins_with(name,"custom_fonts/")) {
-            String dname = StringUtils::get_slice(name,'/', 1);
             if (data.font_override.contains(dname)) {
                 data.font_override[dname]->disconnect("changed", this, "_override_changed");
             }
             data.font_override.erase(dname);
             notification(NOTIFICATION_THEME_CHANGED);
         } else if (StringUtils::begins_with(name,"custom_colors/")) {
-            String dname = StringUtils::get_slice(name,'/', 1);
             data.color_override.erase(dname);
             notification(NOTIFICATION_THEME_CHANGED);
         } else if (StringUtils::begins_with(name,"custom_constants/")) {
-            String dname = StringUtils::get_slice(name,'/', 1);
             data.constant_override.erase(dname);
             notification(NOTIFICATION_THEME_CHANGED);
         } else
@@ -273,22 +271,16 @@ bool Control::_set(const StringName &p_name, const Variant &p_value) {
 
     } else {
         if (StringUtils::begins_with(name,"custom_icons/")) {
-            String dname = StringUtils::get_slice(name,'/', 1);
             add_icon_override(dname, refFromRefPtr<Texture>(p_value));
         } else if (StringUtils::begins_with(name,"custom_shaders/")) {
-            String dname = StringUtils::get_slice(name,'/', 1);
             add_shader_override(dname, refFromRefPtr<Shader>(p_value));
         } else if (StringUtils::begins_with(name,"custom_styles/")) {
-            String dname = StringUtils::get_slice(name,'/', 1);
             add_style_override(dname, refFromRefPtr<StyleBox>(p_value));
         } else if (StringUtils::begins_with(name,"custom_fonts/")) {
-            String dname = StringUtils::get_slice(name,'/', 1);
             add_font_override(dname, refFromRefPtr<Font>(p_value));
         } else if (StringUtils::begins_with(name,"custom_colors/")) {
-            String dname = StringUtils::get_slice(name,'/', 1);
             add_color_override(dname, p_value);
         } else if (StringUtils::begins_with(name,"custom_constants/")) {
-            String dname = StringUtils::get_slice(name,'/', 1);
             add_constant_override(dname, p_value);
         } else
             return false;
@@ -317,34 +309,24 @@ void Control::_update_minimum_size() {
 
 bool Control::_get(const StringName &p_name, Variant &r_ret) const {
 
-    String sname = p_name;
+    se_string_view sname = p_name;
 
     if (!StringUtils::begins_with(sname,"custom")) {
         return false;
     }
 
+    StringName name(StringUtils::get_slice(sname,'/', 1));
     if (StringUtils::begins_with(sname,"custom_icons/")) {
-        String name = StringUtils::get_slice(sname,'/', 1);
-
         r_ret = data.icon_override.contains(name) ? Variant(data.icon_override[name]) : Variant();
     } else if (StringUtils::begins_with(sname,"custom_shaders/")) {
-        String name = StringUtils::get_slice(sname,'/', 1);
-
         r_ret = data.shader_override.contains(name) ? Variant(data.shader_override[name]) : Variant();
     } else if (StringUtils::begins_with(sname,"custom_styles/")) {
-        String name = StringUtils::get_slice(sname,'/', 1);
-
         r_ret = data.style_override.contains(name) ? Variant(data.style_override[name]) : Variant();
     } else if (StringUtils::begins_with(sname,"custom_fonts/")) {
-        String name = StringUtils::get_slice(sname,'/', 1);
-
         r_ret = data.font_override.contains(name) ? Variant(data.font_override[name]) : Variant();
     } else if (StringUtils::begins_with(sname,"custom_colors/")) {
-        String name = StringUtils::get_slice(sname,'/', 1);
         r_ret = data.color_override.contains(name) ? Variant(data.color_override[name]) : Variant();
     } else if (StringUtils::begins_with(sname,"custom_constants/")) {
-        String name = StringUtils::get_slice(sname,'/', 1);
-
         r_ret = data.constant_override.contains(name) ? Variant(data.constant_override[name]) : Variant();
     } else
         return false;
@@ -364,75 +346,81 @@ void Control::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
     }*/
 
     {
-        ListPOD<StringName> names;
+        PODVector<StringName> names;
         theme->get_icon_list(get_class_name(), &names);
+        se_string basename("custom_icons/");
         for (const StringName &E : names) {
 
             uint32_t hint = PROPERTY_USAGE_EDITOR | PROPERTY_USAGE_CHECKABLE;
             if (data.icon_override.contains(E))
                 hint |= PROPERTY_USAGE_STORAGE | PROPERTY_USAGE_CHECKED;
 
-            p_list->push_back(PropertyInfo(VariantType::OBJECT, "custom_icons/" + E, PROPERTY_HINT_RESOURCE_TYPE, "Texture", hint));
+            p_list->push_back(PropertyInfo(VariantType::OBJECT, StringName(basename + E), PROPERTY_HINT_RESOURCE_TYPE, "Texture", hint));
         }
     }
     {
-        ListPOD<StringName> names;
+        PODVector<StringName> names;
         theme->get_shader_list(get_class_name(), &names);
+        se_string basename("custom_shaders/");
         for (const StringName &E : names) {
 
             uint32_t hint = PROPERTY_USAGE_EDITOR | PROPERTY_USAGE_CHECKABLE;
             if (data.shader_override.contains(E))
                 hint |= PROPERTY_USAGE_STORAGE | PROPERTY_USAGE_CHECKED;
 
-            p_list->push_back(PropertyInfo(VariantType::OBJECT, "custom_shaders/" + E, PROPERTY_HINT_RESOURCE_TYPE, "Shader,VisualShader", hint));
+            p_list->push_back(PropertyInfo(VariantType::OBJECT, StringName(basename + E), PROPERTY_HINT_RESOURCE_TYPE, "Shader,VisualShader", hint));
         }
     }
     {
-        ListPOD<StringName> names;
+        PODVector<StringName> names;
         theme->get_stylebox_list(get_class_name(), &names);
+        se_string basename("custom_styles/");
         for (const StringName &E : names) {
 
             uint32_t hint = PROPERTY_USAGE_EDITOR | PROPERTY_USAGE_CHECKABLE;
             if (data.style_override.contains(E))
                 hint |= PROPERTY_USAGE_STORAGE | PROPERTY_USAGE_CHECKED;
 
-            p_list->push_back(PropertyInfo(VariantType::OBJECT, "custom_styles/" + E, PROPERTY_HINT_RESOURCE_TYPE, "StyleBox", hint));
+            p_list->push_back(PropertyInfo(VariantType::OBJECT, StringName(basename + E), PROPERTY_HINT_RESOURCE_TYPE, "StyleBox", hint));
         }
     }
     {
-        ListPOD<StringName> names;
+        PODVector<StringName> names;
         theme->get_font_list(get_class_name(), &names);
+        se_string basename("custom_fonts/");
         for (const StringName &E : names) {
 
             uint32_t hint = PROPERTY_USAGE_EDITOR | PROPERTY_USAGE_CHECKABLE;
             if (data.font_override.contains(E))
                 hint |= PROPERTY_USAGE_STORAGE | PROPERTY_USAGE_CHECKED;
 
-            p_list->push_back(PropertyInfo(VariantType::OBJECT, "custom_fonts/" + E, PROPERTY_HINT_RESOURCE_TYPE, "Font", hint));
+            p_list->push_back(PropertyInfo(VariantType::OBJECT, StringName(basename + E), PROPERTY_HINT_RESOURCE_TYPE, "Font", hint));
         }
     }
     {
-        ListPOD<StringName> names;
+        PODVector<StringName> names;
         theme->get_color_list(get_class_name(), &names);
+        se_string basename("custom_colors/");
         for (const StringName &E : names) {
 
             uint32_t hint = PROPERTY_USAGE_EDITOR | PROPERTY_USAGE_CHECKABLE;
             if (data.color_override.contains(E))
                 hint |= PROPERTY_USAGE_STORAGE | PROPERTY_USAGE_CHECKED;
 
-            p_list->push_back(PropertyInfo(VariantType::COLOR, "custom_colors/" + E, PROPERTY_HINT_NONE, "", hint));
+            p_list->push_back(PropertyInfo(VariantType::COLOR, StringName(basename + E), PROPERTY_HINT_NONE, "", hint));
         }
     }
     {
-        ListPOD<StringName> names;
+        PODVector<StringName> names;
         theme->get_constant_list(get_class_name(), &names);
+        se_string basename("custom_constants/");
         for (const StringName &E : names) {
 
             uint32_t hint = PROPERTY_USAGE_EDITOR | PROPERTY_USAGE_CHECKABLE;
             if (data.constant_override.contains(E))
                 hint |= PROPERTY_USAGE_STORAGE | PROPERTY_USAGE_CHECKED;
 
-            p_list->push_back(PropertyInfo(VariantType::INT, "custom_constants/" + E, PROPERTY_HINT_RANGE, "-16384,16384", hint));
+            p_list->push_back(PropertyInfo(VariantType::INT, StringName(basename + E), PROPERTY_HINT_RANGE, "-16384,16384", hint));
         }
     }
 }
@@ -1347,6 +1335,13 @@ bool Control::has_constant(const StringName &p_name, const StringName &p_type) c
     return Theme::get_default()->has_constant(p_name, type);
 }
 
+void Control::set_tooltip_utf8(se_string_view p_tooltip)
+{
+    data.tooltip = StringName(p_tooltip);
+    update_configuration_warning();
+
+}
+
 Rect2 Control::get_parent_anchorable_rect() const {
     if (!is_inside_tree())
         return Rect2();
@@ -2012,7 +2007,7 @@ Control *Control::find_next_valid_focus() const {
             Node *n = get_node(data.focus_next);
             if (n) {
                 from = object_cast<Control>(n);
-                ERR_FAIL_COND_V_MSG(!from, nullptr, "Next focus node is not a control: " + n->get_name() + ".")
+                ERR_FAIL_COND_V_MSG(!from, nullptr, se_string("Next focus node is not a control: ") + n->get_name() + ".")
             } else {
                 return nullptr;
             }
@@ -2102,7 +2097,7 @@ Control *Control::find_prev_valid_focus() const {
             Node *n = get_node(data.focus_prev);
             if (n) {
                 from = object_cast<Control>(n);
-                ERR_FAIL_COND_V_MSG(!from, nullptr, "Previous focus node is not a control: " + n->get_name() + ".")
+                ERR_FAIL_COND_V_MSG(!from, nullptr, se_string("Previous focus node is not a control: ") + n->get_name() + ".")
             } else {
                 return nullptr;
             }
@@ -2295,17 +2290,17 @@ Ref<Theme> Control::get_theme() const {
     return data.theme;
 }
 
-void Control::set_tooltip(const String &p_tooltip) {
+void Control::set_tooltip(const StringName &p_tooltip) {
 
     data.tooltip = p_tooltip;
     update_configuration_warning();
 }
 
-String Control::get_tooltip(const Point2 &p_pos) const {
+StringName Control::get_tooltip(const Point2 &p_pos) const {
 
     return data.tooltip;
 }
-Control *Control::make_custom_tooltip(const String &p_text) const {
+Control *Control::make_custom_tooltip(se_string_view p_text) const {
     if (get_script_instance()) {
         return const_cast<Control *>(this)->call("_make_custom_tooltip", p_text);
     }
@@ -2333,7 +2328,7 @@ Transform2D Control::get_transform() const {
     return xform;
 }
 
-String Control::_get_tooltip() const {
+StringName Control::_get_tooltip() const {
 
     return data.tooltip;
 }
@@ -2382,7 +2377,7 @@ Control *Control::_get_focus_neighbour(Margin p_margin, int p_count) {
         Node *n = get_node(data.focus_neighbour[p_margin]);
         if (n) {
             c = object_cast<Control>(n);
-            ERR_FAIL_COND_V_MSG(!c, nullptr, "Neighbor focus node is not a control: " + n->get_name() + ".")
+            ERR_FAIL_COND_V_MSG(!c, nullptr, se_string("Neighbor focus node is not a control: ") + n->get_name() + ".")
         } else {
             return nullptr;
         }
@@ -2721,47 +2716,46 @@ bool Control::is_visibility_clip_disabled() const {
 }
 
 
-void Control::get_argument_options(const StringName &p_function, int p_idx, ListPOD<String> *r_options) const {
-
+void Control::get_argument_options(const StringName &p_function, int p_idx, ListPOD<se_string> *r_options) const {
+    using namespace eastl;
 #ifdef TOOLS_ENABLED
-    const String quote_style = EDITOR_DEF("text_editor/completion/use_single_quotes", 0) ? "'" : "\"";
+    const char * quote_style(EDITOR_DEF("text_editor/completion/use_single_quotes", 0) ? "'" : "\"");
 #else
-    const String quote_style = "\"";
+    const char * quote_style = "\"";
 #endif
 
     Node::get_argument_options(p_function, p_idx, r_options);
 
     if (p_idx == 0) {
-        ListPOD<StringName> sn;
-        String pf = p_function;
-        if (pf == "add_color_override" || pf == "has_color" || pf == "has_color_override" || pf == "get_color") {
+        PODVector<StringName> sn;
+        se_string_view pf = p_function;
+        if (pf == "add_color_override"_sv || pf == "has_color"_sv || pf == "has_color_override"_sv || pf == "get_color"_sv) {
             Theme::get_default()->get_color_list(get_class_name(), &sn);
-        } else if (pf == "add_style_override" || pf == "has_style" || pf == "has_style_override" || pf == "get_style") {
+        } else if (pf == "add_style_override"_sv || pf == "has_style"_sv || pf == "has_style_override"_sv || pf == "get_style"_sv) {
             Theme::get_default()->get_stylebox_list(get_class_name(), &sn);
-        } else if (pf == "add_font_override" || pf == "has_font" || pf == "has_font_override" || pf == "get_font") {
+        } else if (pf == "add_font_override"_sv || pf == "has_font"_sv || pf == "has_font_override"_sv || pf == "get_font"_sv) {
             Theme::get_default()->get_font_list(get_class_name(), &sn);
-        } else if (pf == "add_constant_override" || pf == "has_constant" || pf == "has_constant_override" || pf == "get_constant") {
+        } else if (pf == "add_constant_override"_sv || pf == "has_constant"_sv || pf == "has_constant_override"_sv || pf == "get_constant"_sv) {
             Theme::get_default()->get_constant_list(get_class_name(), &sn);
         }
-
-        sn.sort(WrapAlphaCompare());
+        eastl::sort(sn.begin(),sn.end(),WrapAlphaCompare());
         for (const StringName &E : sn) {
-            r_options->push_back(quote_style + E + quote_style);
+            r_options->push_back(quote_style + se_string(E.asCString()) + quote_style);
         }
     }
 }
 
-String Control::get_configuration_warning() const {
-    String warning = CanvasItem::get_configuration_warning();
+StringName Control::get_configuration_warning() const {
+    se_string warning(CanvasItem::get_configuration_warning());
 
     if (data.mouse_filter == MOUSE_FILTER_IGNORE && !data.tooltip.empty()) {
         if (!warning.empty()) {
-            warning += "\n\n";
+            warning += ("\n\n");
         }
         warning += TTR(R"(The Hint Tooltip won't be displayed as the control's Mouse Filter is set to "Ignore". To solve this, set the Mouse Filter to "Stop" or "Pass".)");
     }
 
-    return warning;
+    return StringName(warning);
 }
 
 void Control::set_clip_contents(bool p_clip) {
@@ -2940,7 +2934,7 @@ void Control::_bind_methods() {
     BIND_VMETHOD(MethodInfo(VariantType::BOOL, "can_drop_data", PropertyInfo(VariantType::VECTOR2, "position"), PropertyInfo(VariantType::NIL, "data")));
     BIND_VMETHOD(MethodInfo("drop_data", PropertyInfo(VariantType::VECTOR2, "position"), PropertyInfo(VariantType::NIL, "data")));
     BIND_VMETHOD(MethodInfo(VariantType::OBJECT, "_make_custom_tooltip", PropertyInfo(VariantType::STRING, "for_text")));
-    BIND_VMETHOD(MethodInfo(VariantType::BOOL, "_clips_input"));
+    BIND_VMETHOD(MethodInfo(VariantType::BOOL, "_clips_input"))
 
     ADD_GROUP("Anchor", "anchor_");
     ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "anchor_left", PROPERTY_HINT_RANGE, "0,1,0.001,or_lesser,or_greater"), "_set_anchor", "get_anchor", MARGIN_LEFT);

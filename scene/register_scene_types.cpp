@@ -1096,17 +1096,17 @@ void register_scene_types() {
     OS::get_singleton()->yield(); //may take time to init
 
     for (int i = 0; i < 20; i++) {
-        GLOBAL_DEF("layer_names/2d_render/layer_" + itos(i + 1), "");
-        GLOBAL_DEF("layer_names/2d_physics/layer_" + itos(i + 1), "");
-        GLOBAL_DEF("layer_names/3d_render/layer_" + itos(i + 1), "");
-        GLOBAL_DEF("layer_names/3d_physics/layer_" + itos(i + 1), "");
+        GLOBAL_DEF(StringName("layer_names/2d_render/layer_" + itos(i + 1)), "");
+        GLOBAL_DEF(StringName("layer_names/2d_physics/layer_" + itos(i + 1)), "");
+        GLOBAL_DEF(StringName("layer_names/3d_render/layer_" + itos(i + 1)), "");
+        GLOBAL_DEF(StringName("layer_names/3d_physics/layer_" + itos(i + 1)), "");
     }
 
     bool default_theme_hidpi = GLOBAL_DEF("gui/theme/use_hidpi", false);
     ProjectSettings::get_singleton()->set_custom_property_info("gui/theme/use_hidpi", PropertyInfo(VariantType::BOOL, "gui/theme/use_hidpi", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_RESTART_IF_CHANGED));
-    String theme_path = GLOBAL_DEF("gui/theme/custom", "");
+    se_string theme_path = GLOBAL_DEF("gui/theme/custom", "");
     ProjectSettings::get_singleton()->set_custom_property_info("gui/theme/custom", PropertyInfo(VariantType::STRING, "gui/theme/custom", PROPERTY_HINT_FILE, "*.tres,*.res,*.theme", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_RESTART_IF_CHANGED));
-    String font_path = GLOBAL_DEF("gui/theme/custom_font", "");
+    se_string font_path = GLOBAL_DEF("gui/theme/custom_font", "");
     ProjectSettings::get_singleton()->set_custom_property_info("gui/theme/custom_font", PropertyInfo(VariantType::STRING, "gui/theme/custom_font", PROPERTY_HINT_FILE, "*.tres,*.res,*.font", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_RESTART_IF_CHANGED));
 
     Ref<Font> font;

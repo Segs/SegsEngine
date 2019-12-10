@@ -149,7 +149,7 @@ struct CodecPluginResolver : public ResolverInterface
         bool res=false;
         auto interface = qobject_cast<ImageCodecInterface *>(ob);
         if(interface) {
-            print_line(String("Adding image codec plugin:")+ob->metaObject()->className());
+            print_line(se_string("Adding image codec plugin:")+ob->metaObject()->className());
             PODVector<int> modes;
             interface->fill_modes(modes);
             for(int m : modes)
@@ -161,7 +161,7 @@ struct CodecPluginResolver : public ResolverInterface
     void plugin_removed(QObject * ob)  final  {
         auto interface = qobject_cast<ImageCodecInterface *>(ob);
         if(interface) {
-            print_line(String("Removing image codec plugin:")+ob->metaObject()->className());
+            print_line(se_string("Removing image codec plugin:")+ob->metaObject()->className());
             PODVector<int> modes;
             interface->fill_modes(modes);
             for(int m : modes)
@@ -217,12 +217,12 @@ namespace {
     };
 }
 
-Error Image::save_png_func(const String &p_path, const Ref<Image> &p_img)
+Error Image::save_png_func(se_string_view p_path, const Ref<Image> &p_img)
 {
     PODVector<uint8_t> buffer;
     Ref<Image> source_image = prepareForPngStorage(p_img);
     ERR_FAIL_COND_V(source_image==nullptr, FAILED)
-    Error err = ImageSaver::save_image(String("png"),source_image,buffer);
+    Error err = ImageSaver::save_image("png",source_image,buffer);
     ERR_FAIL_COND_V(err, err)
     FileAccess *file = FileAccess::open(p_path, FileAccess::WRITE, &err);
     ERR_FAIL_COND_V(err, err)
@@ -238,11 +238,11 @@ Error Image::save_png_func(const String &p_path, const Ref<Image> &p_img)
     return OK;
 }
 
-Error Image::save_exr_func(const String &p_path, const Ref<Image> &source_image, bool greyscale)
+Error Image::save_exr_func(se_string_view p_path, const Ref<Image> &source_image, bool greyscale)
 {
     PODVector<uint8_t> buffer;
     ERR_FAIL_COND_V(source_image==nullptr, FAILED)
-    Error err = ImageSaver::save_image(String("exr"),source_image,buffer);
+    Error err = ImageSaver::save_image("exr",source_image,buffer);
     ERR_FAIL_COND_V(err, err)
     FileAccess *file = FileAccess::open(p_path, FileAccess::WRITE, &err);
     ERR_FAIL_COND_V(err, err)
@@ -1772,7 +1772,7 @@ void Image::create(const char **p_xpm) {
     Status status = READING_HEADER;
     int line = 0;
 
-    HashMap<String, Color> colormap;
+    DefHashMap<se_string_view, Color,eastl::hash<se_string_view>> colormap;
     int colormap_size = 0;
     uint32_t pixel_size = 0;
     PoolVector<uint8_t>::Write w;
@@ -1785,7 +1785,7 @@ void Image::create(const char **p_xpm) {
 
             case READING_HEADER: {
 
-                String line_str = StringUtils::replace(String(line_ptr),'\t', ' ');
+                se_string_view line_str = StringUtils::replace(line_ptr,'\t', ' ');
 
                 size_width = StringUtils::to_int(StringUtils::get_slice(line_str,' ', 0));
                 size_height = StringUtils::to_int(StringUtils::get_slice(line_str,' ', 1));
@@ -1799,12 +1799,8 @@ void Image::create(const char **p_xpm) {
             } break;
             case READING_COLORS: {
 
-                String colorstring;
-                for (int i = 0; i < pixelchars; i++) {
-
-                    colorstring += *line_ptr;
-                    line_ptr++;
-                }
+                se_string_view colorstring(line_ptr,pixelchars);
+                line_ptr+=pixelchars;
                 //skip spaces
                 while (*line_ptr == ' ' || *line_ptr == '\t' || *line_ptr == 0) {
                     if (*line_ptr == 0)
@@ -1874,15 +1870,13 @@ void Image::create(const char **p_xpm) {
                 int y = line - colormap_size - 1;
                 for (int x = 0; x < size_width; x++) {
 
-                    char pixelstr[6] = { 0, 0, 0, 0, 0, 0 };
-                    for (int i = 0; i < pixelchars; i++)
-                        pixelstr[i] = line_ptr[x * pixelchars + i];
-                    //FIXME: code below is allocating a String instance for every pixelstr :|
-                    Color *colorptr = colormap.getptr(String(pixelstr));
-                    ERR_FAIL_COND(!colorptr)
+                    se_string_view pixelstr(line_ptr+x * pixelchars,pixelchars);
+
+                    auto colorptr = colormap.find(pixelstr);
+                    ERR_FAIL_COND(colorptr!=colormap.end())
                     uint8_t pixel[4];
                     for (uint32_t i = 0; i < pixel_size; i++) {
-                        pixel[i] = CLAMP<float>((*colorptr)[i] * 255, 0, 255);
+                        pixel[i] = CLAMP<float>(colorptr->second[i] * 255, 0, 255);
                     }
                     _put_pixelb(x, y, pixel_size, w.ptr(), pixel);
                 }
@@ -2021,20 +2015,20 @@ Image::AlphaMode Image::detect_alpha() const {
         return ALPHA_NONE;
 }
 
-Error Image::load(const String &p_path) {
+Error Image::load(se_string_view p_path) {
 #ifdef DEBUG_ENABLED
     if (StringUtils::begins_with(p_path,"res://") && ResourceLoader::exists(p_path)) {
-        WARN_PRINTS("Loaded resource as image file, this will not work on export: '" + p_path + "'. Instead, import the image file as an Image resource and load it normally as a resource.");
+        WARN_PRINT("Loaded resource as image file, this will not work on export: '" + se_string(p_path) + "'. Instead, import the image file as an Image resource and load it normally as a resource.");
     }
 #endif
     return ImageLoader::load_image(p_path, Ref<Image>(this));
 }
 
-Error Image::save_png(const String &p_path) const {
+Error Image::save_png(se_string_view p_path) const {
     return save_png_func(p_path, Ref<Image>((Image *)this));
 }
 
-Error Image::save_exr(const String &p_path, bool p_grayscale) const {
+Error Image::save_exr(se_string_view p_path, bool p_grayscale) const {
 
     return save_exr_func(p_path, Ref<Image>((Image *)this), p_grayscale);
 }
@@ -2444,7 +2438,7 @@ PODVector<uint8_t> Image::lossy_packer(const Ref<Image> &p_image, float qualt)
     }
     PODVector<uint8_t> tmp;
 
-    if(OK!=ImageSaver::save_image(String("webp"),p_image,tmp,qualt))
+    if(OK!=ImageSaver::save_image("webp",p_image,tmp,qualt))
         return {};
     return tmp;
 }
@@ -2468,7 +2462,7 @@ PODVector<uint8_t> Image::lossless_packer(const Ref<Image> &p_image)
     Ref<Image> img = prepareForPngStorage(p_image);
     PODVector<uint8_t> tmp = {'P','N','G',' '}; // Header marker bytes.
 
-    if(OK!=ImageSaver::save_image(String("png"),p_image,tmp,1.0f))
+    if(OK!=ImageSaver::save_image("png",p_image,tmp,1.0f))
         return {};
     return tmp;
 }
@@ -2495,7 +2489,7 @@ void Image::_set_data(const Dictionary &p_data) {
 
     int dwidth = p_data["width"];
     int dheight = p_data["height"];
-    String dformat = p_data["format"].as<String>();
+    se_string dformat = p_data["format"].as<se_string>();
     bool dmipmaps = p_data["mipmaps"].as<bool>();
     PoolVector<uint8_t> ddata = p_data["data"];
     Format ddformat = FORMAT_MAX;
@@ -3210,10 +3204,10 @@ void Image::fix_alpha_edges() {
     }
 }
 
-String Image::get_format_name(Format p_format) {
+se_string_view Image::get_format_name(Format p_format) {
 
-    ERR_FAIL_INDEX_V(p_format, FORMAT_MAX, String())
-    return String(format_names[p_format]);
+    ERR_FAIL_INDEX_V(p_format, FORMAT_MAX, se_string_view())
+    return format_names[p_format];
 }
 
 Error Image::load_png_from_buffer(const PoolVector<uint8_t> &p_array) {
@@ -3242,7 +3236,7 @@ Error Image::_load_from_buffer(const uint8_t *p_array,int buffer_size, const cha
     ERR_FAIL_COND_V(buffer_size == 0, ERR_INVALID_PARAMETER)
     ERR_FAIL_COND_V(!ext, ERR_INVALID_PARAMETER)
 
-    ImageData d = ImageLoader::load_image(String(ext),p_array, buffer_size);
+    ImageData d = ImageLoader::load_image(ext,p_array, buffer_size);
     ERR_FAIL_COND_V(d.data.size()==0, ERR_PARSE_ERROR)
 
     create(std::move(d));

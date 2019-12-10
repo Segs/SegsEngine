@@ -332,13 +332,14 @@ uint16_t StreamPeerTCP::get_connected_port() const {
     return peer_port;
 }
 
-Error StreamPeerTCP::_connect(const String &p_address, int p_port) {
+Error StreamPeerTCP::_connect(se_string_view p_address, int p_port) {
 
     IP_Address ip;
-    if (StringUtils::is_valid_ip_address(p_address)) {
-        ip = p_address;
+    se_string s(p_address);
+    if (StringUtils::is_valid_ip_address(s)) {
+        ip = IP_Address(s);
     } else {
-        ip = IP::get_singleton()->resolve_hostname(p_address);
+        ip = IP::get_singleton()->resolve_hostname(s);
         if (!ip.is_valid())
             return ERR_CANT_RESOLVE;
     }

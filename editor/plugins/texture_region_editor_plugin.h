@@ -125,7 +125,7 @@ protected:
 
 	Vector2 snap_point(Vector2 p_target) const;
 
-	void _changed_callback(Object *p_changed, const char *p_prop) override;
+	void _changed_callback(Object *p_changed, StringName p_prop) override;
 
 public:
 	void _edit_region();
@@ -156,7 +156,7 @@ protected:
 	void _editor_visiblity_changed();
 
 public:
-	String get_name() const override { return "TextureRegion"; }
+    se_string_view get_name() const override { return ("TextureRegion"); }
 	bool has_main_screen() const override { return false; }
 	void edit(Object *p_object) override;
 	bool handles(Object *p_object) const override;

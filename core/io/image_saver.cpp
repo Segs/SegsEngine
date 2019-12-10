@@ -49,7 +49,7 @@ struct ImagePluginResolver : public ResolverInterface
         bool res=false;
         auto image_saver_interface = qobject_cast<ImageFormatSaver *>(ob);
         if(image_saver_interface) {
-            print_line(String("Adding image saver:")+ob->metaObject()->className());
+            print_line(se_string("Adding image saver:")+ob->metaObject()->className());
             ImageSaver::add_image_format_saver(image_saver_interface);
             res=true;
         }
@@ -58,7 +58,7 @@ struct ImagePluginResolver : public ResolverInterface
     void plugin_removed(QObject * ob)  override  {
         auto image_saver_interface = qobject_cast<ImageFormatSaver *>(ob);
         if(image_saver_interface) {
-            print_line(String("Removing image saver:")+ob->metaObject()->className());
+            print_line(se_string("Removing image saver:")+ob->metaObject()->className());
             ImageSaver::remove_image_format_saver(image_saver_interface);
         }
     }
@@ -74,7 +74,7 @@ void ImageSaver::register_plugin_resolver()
     }
 }
 
-Error ImageSaver::save_image(const String& p_file, const Ref<Image> &p_image, FileAccess *p_custom, float p_quality) {
+Error ImageSaver::save_image(se_string_view p_file, const Ref<Image> &p_image, FileAccess *p_custom, float p_quality) {
     ERR_FAIL_COND_V(not p_image, ERR_INVALID_PARAMETER)
 
     register_plugin_resolver();
@@ -84,12 +84,12 @@ Error ImageSaver::save_image(const String& p_file, const Ref<Image> &p_image, Fi
         Error err;
         f = FileAccess::open(p_file, FileAccess::WRITE, &err);
         if (!f) {
-            ERR_PRINT("Error opening file: " + p_file)
+            ERR_PRINT("Error opening file: " + se_string(p_file))
             return err;
         }
     }
 
-    String extension = PathUtils::get_extension(p_file);
+    se_string_view extension = PathUtils::get_extension(p_file);
 
     for (ImageFormatSaver * g_saver : g_savers) {
 
@@ -98,7 +98,7 @@ Error ImageSaver::save_image(const String& p_file, const Ref<Image> &p_image, Fi
         ImageData result_data(static_cast<ImageData>(*p_image));
         Error err = g_saver->save_image(result_data, f, {p_quality,false});
         if (err != OK) {
-            ERR_PRINT("Error saving image: " + p_file)
+            ERR_PRINT("Error saving image: " + se_string(p_file))
         }
         if (err != ERR_FILE_UNRECOGNIZED) {
 
@@ -115,7 +115,7 @@ Error ImageSaver::save_image(const String& p_file, const Ref<Image> &p_image, Fi
     return ERR_FILE_UNRECOGNIZED;
 }
 
-Error ImageSaver::save_image(const String& ext, const Ref<Image> & p_image, PODVector<uint8_t> &tgt, float p_quality)
+Error ImageSaver::save_image(se_string_view ext, const Ref<Image> & p_image, PODVector<uint8_t> &tgt, float p_quality)
 {
     register_plugin_resolver();
     ImageData result_data;
@@ -137,7 +137,7 @@ Error ImageSaver::save_image(const String& ext, const Ref<Image> & p_image, PODV
     return ERR_FILE_UNRECOGNIZED;
 }
 
-void ImageSaver::get_recognized_extensions(Vector<String> *p_extensions) {
+void ImageSaver::get_recognized_extensions(PODVector<se_string> &p_extensions) {
     register_plugin_resolver();
 
     for (ImageFormatSaver *g_saver : g_savers) {
@@ -146,7 +146,7 @@ void ImageSaver::get_recognized_extensions(Vector<String> *p_extensions) {
     }
 }
 
-ImageFormatSaver *ImageSaver::recognize(const String &p_extension) {
+ImageFormatSaver *ImageSaver::recognize(se_string_view p_extension) {
     register_plugin_resolver();
 
     for (ImageFormatSaver *g_saver : g_savers) {

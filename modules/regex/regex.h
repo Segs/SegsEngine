@@ -28,77 +28,74 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef REGEX_H
-#define REGEX_H
+#pragma once
 
 #include "core/array.h"
 #include "core/dictionary.h"
 #include "core/map.h"
 #include "core/reference.h"
-#include "core/ustring.h"
+#include "core/se_string.h"
 #include "core/vector.h"
 
 class RegExMatch : public RefCounted {
 
-	GDCLASS(RegExMatch,RefCounted)
+    GDCLASS(RegExMatch,RefCounted)
 
-	struct Range {
-		int start;
-		int end;
-	};
+    struct Range {
+        int start;
+        int end;
+    };
 
-	String subject;
-	Vector<Range> data;
-	Map<String, int> names;
+    se_string subject;
+    Vector<Range> data;
+    Map<se_string, int> names;
 
-	friend class RegEx;
+    friend class RegEx;
 
 protected:
-	static void _bind_methods();
+    static void _bind_methods();
 
-	int _find(const Variant &p_name) const;
+    int _find(const Variant &p_name) const;
 
 public:
-	String get_subject() const;
-	int get_group_count() const;
-	Dictionary get_names() const;
+    se_string get_subject() const;
+    int get_group_count() const;
+    Dictionary get_names() const;
 
-	Array get_strings() const;
-	String get_string(const Variant &p_name) const;
-	int get_start(const Variant &p_name) const;
-	int get_end(const Variant &p_name) const;
+    Array get_strings() const;
+    se_string get_string(const Variant &p_name) const;
+    int get_start(const Variant &p_name) const;
+    int get_end(const Variant &p_name) const;
 };
 
 class RegEx : public RefCounted {
 
-	GDCLASS(RegEx,RefCounted)
+    GDCLASS(RegEx,RefCounted)
 
-	void *general_ctx;
-	void *code;
-	String pattern;
+    void *general_ctx;
+    void *code;
+    se_string pattern;
 
-	void _pattern_info(uint32_t what, void *where) const;
+    void _pattern_info(uint32_t what, void *where) const;
 
 protected:
-	static void _bind_methods();
+    static void _bind_methods();
 
 public:
-	void clear();
-	Error compile(const String &p_pattern);
-	void _init(const String &p_pattern = "");
+    void clear();
+    Error compile(const se_string &p_pattern);
+    void _init(const se_string &p_pattern = se_string());
 
-	Ref<RegExMatch> search(const String &p_subject, int p_offset = 0, int p_end = -1) const;
-	Array search_all(const String &p_subject, int p_offset = 0, int p_end = -1) const;
-	String sub(const String &p_subject, const String &p_replacement, bool p_all = false, int p_offset = 0, int p_end = -1) const;
+    Ref<RegExMatch> search(const se_string &p_subject, int p_offset = 0, int p_end = -1) const;
+    Array search_all(const se_string &p_subject, int p_offset = 0, int p_end = -1) const;
+    se_string sub(const se_string &p_subject, const se_string &p_replacement, bool p_all = false, int p_offset = 0, int p_end = -1) const;
 
-	bool is_valid() const;
-	String get_pattern() const;
-	int get_group_count() const;
-	Array get_names() const;
+    bool is_valid() const;
+    se_string get_pattern() const;
+    int get_group_count() const;
+    Array get_names() const;
 
-	RegEx();
-	RegEx(const String &p_pattern);
-	~RegEx() override;
+    RegEx();
+    RegEx(const se_string &p_pattern);
+    ~RegEx() override;
 };
-
-#endif // REGEX_H

@@ -120,7 +120,7 @@ void CSharpLanguage::init() {
     // Generate bindings here, before loading assemblies. 'initialize_load_assemblies' aborts
     // the applications if the api assemblies or the main tools assembly is missing, but this
     // is not a problem for BindingsGenerator as it only needs the tools project editor assembly.
-    List<String> cmdline_args = OS::get_singleton()->get_cmdline_args();
+    const ListPOD<se_string> &cmdline_args = OS::get_singleton()->get_cmdline_args();
     BindingsGenerator::handle_cmdline_args(cmdline_args);
 #endif
 
@@ -307,7 +307,7 @@ static String get_base_class_name(const String &p_base_class_name, const String 
     return base_class;
 }
 
-Ref<Script> CSharpLanguage::get_template(const String &p_class_name, const String &p_base_class_name) const {
+Ref<Script> CSharpLanguage::get_template(se_string_view p_class_name, const String &p_base_class_name) const {
 
     String script_template = "using " BINDINGS_NAMESPACE ";\n"
                              "using System;\n"
@@ -494,7 +494,7 @@ String CSharpLanguage::_get_indentation() const {
     return "\t";
 }
 
-String CSharpLanguage::debug_get_error() const {
+const se_string &CSharpLanguage::debug_get_error() const {
 
     return _debug_error;
 }

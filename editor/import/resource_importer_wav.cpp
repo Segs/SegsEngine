@@ -42,29 +42,29 @@ IMPL_GDCLASS(ResourceImporterWAV)
 const float TRIM_DB_LIMIT = -50;
 const int TRIM_FADE_OUT_FRAMES = 500;
 
-String ResourceImporterWAV::get_importer_name() const {
+StringName ResourceImporterWAV::get_importer_name() const {
 
-    return "wav";
+    return StringName("wav");
 }
 
-String ResourceImporterWAV::get_visible_name() const {
+StringName ResourceImporterWAV::get_visible_name() const {
 
-    return "Microsoft WAV";
+    return StringName("Microsoft WAV");
 }
-void ResourceImporterWAV::get_recognized_extensions(Vector<String> *p_extensions) const {
+void ResourceImporterWAV::get_recognized_extensions(PODVector<se_string> &p_extensions) const {
 
-    p_extensions->push_back("wav");
+    p_extensions.emplace_back("wav");
 }
-String ResourceImporterWAV::get_save_extension() const {
+StringName ResourceImporterWAV::get_save_extension() const {
     return "sample";
 }
 
-String ResourceImporterWAV::get_resource_type() const {
+StringName ResourceImporterWAV::get_resource_type() const {
 
     return "AudioStreamSample";
 }
 
-bool ResourceImporterWAV::get_option_visibility(const String &p_option, const Map<StringName, Variant> &p_options) const {
+bool ResourceImporterWAV::get_option_visibility(const StringName &p_option, const Map<StringName, Variant> &p_options) const {
 
     if (p_option == "force/max_rate_hz" && !bool(p_options.at("force/max_rate"))) {
         return false;
@@ -76,9 +76,9 @@ bool ResourceImporterWAV::get_option_visibility(const String &p_option, const Ma
 int ResourceImporterWAV::get_preset_count() const {
     return 0;
 }
-String ResourceImporterWAV::get_preset_name(int p_idx) const {
+StringName ResourceImporterWAV::get_preset_name(int p_idx) const {
 
-    return String();
+    return StringName();
 }
 
 void ResourceImporterWAV::get_import_options(ListPOD<ImportOption> *r_options, int p_preset) const {
@@ -93,14 +93,14 @@ void ResourceImporterWAV::get_import_options(ListPOD<ImportOption> *r_options, i
     r_options->push_back(ImportOption(PropertyInfo(VariantType::INT, "compress/mode", PROPERTY_HINT_ENUM, "Disabled,RAM (Ima-ADPCM)"), 0));
 }
 
-Error ResourceImporterWAV::import(const String &p_source_file, const String &p_save_path, const Map<StringName, Variant> &p_options, List<String> *r_platform_variants, List<String> *r_gen_files, Variant *r_metadata) {
+Error ResourceImporterWAV::import(se_string_view p_source_file, se_string_view p_save_path, const Map<StringName, Variant> &p_options, List<se_string> *r_platform_variants, List<se_string> *r_gen_files, Variant *r_metadata) {
 
     /* STEP 1, READ WAVE FILE */
 
     Error err;
     FileAccess *file = FileAccess::open(p_source_file, FileAccess::READ, &err);
 
-    ERR_FAIL_COND_V_MSG(err != OK, ERR_CANT_OPEN, "Cannot open file '" + p_source_file + "'.")
+    ERR_FAIL_COND_V_MSG(err != OK, ERR_CANT_OPEN, se_string("Cannot open file '") + p_source_file + "'.")
 
     /* CHECK RIFF */
     char riff[5];
@@ -543,7 +543,7 @@ Error ResourceImporterWAV::import(const String &p_source_file, const String &p_s
     sample->set_loop_end(loop_end);
     sample->set_stereo(format_channels == 2);
 
-    ResourceSaver::save(p_save_path + ".sample", sample);
+    ResourceSaver::save(se_string(p_save_path) + ".sample", sample);
 
     return OK;
 }

@@ -33,7 +33,8 @@
 #include "core/math/basis.h"
 #include "core/print_string.h"
 #include "core/string_formatter.h"
-#include "core/ustring.h"
+#include "core/se_string.h"
+#include "core/string_utils.h"
 
 
 // set_euler_xyz expects a vector containing the Euler angles in the format
@@ -229,9 +230,9 @@ Quat Quat::cubic_slerp(const Quat &q, const Quat &prep, const Quat &postq, const
     return sp.slerpni(sq, t2);
 }
 
-Quat::operator String() const {
+Quat::operator se_string() const {
 
-    return FormatV("%f, %f, %f, %f",x,y,z,w);
+    return FormatVE("%f, %f, %f, %f",x,y,z,w);
 }
 
 void Quat::set_axis_angle(const Vector3 &axis, const real_t &angle) {

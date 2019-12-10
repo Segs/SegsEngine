@@ -44,7 +44,7 @@ bool is_csharp_keyword(const String &p_name);
 String escape_csharp_keyword(const String &p_name);
 #endif
 
-Error read_all_file_utf8(const String &p_path, String &r_content);
+Error read_all_file_utf8(se_string_view p_path, String &r_content);
 
 #if defined(__GNUC__)
 #define _PRINTF_FORMAT_ATTRIBUTE_1_0 __attribute__((format(printf, 1, 0)))

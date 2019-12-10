@@ -391,18 +391,18 @@ void CollisionObject2D::_update_pickable() {
         Physics2DServer::get_singleton()->body_set_pickable(rid, is_pickable);
 }
 
-String CollisionObject2D::get_configuration_warning() const {
+StringName CollisionObject2D::get_configuration_warning() const {
 
-    String warning = Node2D::get_configuration_warning();
+    se_string warning(Node2D::get_configuration_warning());
 
     if (shapes.empty()) {
         if (!warning.empty()) {
-            warning += "\n\n";
+            warning = ("\n\n");
         }
         warning += TTR("This node has no shape, so it can't collide or interact with other objects.\nConsider adding a CollisionShape2D or CollisionPolygon2D as a child to define its shape.");
     }
 
-    return warning;
+    return StringName(warning);
 }
 
 void CollisionObject2D::_bind_methods() {

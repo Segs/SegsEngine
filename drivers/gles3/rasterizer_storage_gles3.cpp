@@ -1355,17 +1355,17 @@ void RasterizerStorageGLES3::texture_set_size_override(RID p_texture, int p_widt
     texture->height = p_height;
 }
 
-void RasterizerStorageGLES3::texture_set_path(RID p_texture, const String &p_path) {
+void RasterizerStorageGLES3::texture_set_path(RID p_texture, se_string_view p_path) {
     Texture *texture = texture_owner.get(p_texture);
     ERR_FAIL_COND(!texture)
 
     texture->path = p_path;
 }
 
-String RasterizerStorageGLES3::texture_get_path(RID p_texture) const {
+const se_string &RasterizerStorageGLES3::texture_get_path(RID p_texture) const {
 
     Texture *texture = texture_owner.get(p_texture);
-    ERR_FAIL_COND_V(!texture, String())
+    ERR_FAIL_COND_V(!texture, null_se_string)
     return texture->path;
 }
 void RasterizerStorageGLES3::texture_debug_usage(List<VisualServer::TextureInfo> *r_info) {
@@ -1873,14 +1873,14 @@ void RasterizerStorageGLES3::_shader_make_dirty(Shader *p_shader) {
     _shader_dirty_list.add(&p_shader->dirty_list);
 }
 
-void RasterizerStorageGLES3::shader_set_code(RID p_shader, const String &p_code) {
+void RasterizerStorageGLES3::shader_set_code(RID p_shader, const se_string &p_code) {
 
     Shader *shader = shader_owner.get(p_shader);
     ERR_FAIL_COND(!shader)
 
     shader->code = p_code;
 
-    String mode_string = ShaderLanguage::get_shader_type(p_code);
+    se_string mode_string = ShaderLanguage::get_shader_type(p_code);
     VS::ShaderMode mode;
 
     if (mode_string == "canvas_item")
@@ -1913,10 +1913,10 @@ void RasterizerStorageGLES3::shader_set_code(RID p_shader, const String &p_code)
 
     _shader_make_dirty(shader);
 }
-String RasterizerStorageGLES3::shader_get_code(RID p_shader) const {
+se_string RasterizerStorageGLES3::shader_get_code(RID p_shader) const {
 
     const Shader *shader = shader_owner.get(p_shader);
-    ERR_FAIL_COND_V(!shader, String())
+    ERR_FAIL_COND_V(!shader, se_string())
 
     return shader->code;
 }
@@ -6776,7 +6776,7 @@ void RasterizerStorageGLES3::_render_target_allocate(RenderTarget *rt) {
         int max_samples = 0;
         glGetIntegerv(GL_MAX_SAMPLES, &max_samples);
         if (msaa > max_samples) {
-            WARN_PRINTS("MSAA must be <= GL_MAX_SAMPLES, falling-back to GL_MAX_SAMPLES = " + itos(max_samples));
+            WARN_PRINT("MSAA must be <= GL_MAX_SAMPLES, falling-back to GL_MAX_SAMPLES = " + itos(max_samples))
             msaa = max_samples;
         }
 
@@ -7671,7 +7671,7 @@ bool RasterizerStorageGLES3::free(RID p_rid) {
     return true;
 }
 
-bool RasterizerStorageGLES3::has_os_feature(const String &p_feature) const {
+bool RasterizerStorageGLES3::has_os_feature(const StringName &p_feature) const {
 
     if (p_feature == "bptc")
         return config.bptc_supported;
@@ -7719,7 +7719,7 @@ int RasterizerStorageGLES3::get_captured_render_info(VS::RenderInfo p_info) {
         case VS::INFO_OBJECTS_IN_FRAME: {
 
             return info.snap.object_count;
-        } break;
+        }
         case VS::INFO_VERTICES_IN_FRAME: {
 
             return info.snap.vertices_count;
@@ -7791,11 +7791,11 @@ void RasterizerStorageGLES3::initialize() {
 
     config.shrink_textures_x2 = false;
     config.use_fast_texture_filter = int(ProjectSettings::get_singleton()->get("rendering/quality/filters/use_nearest_mipmap_filter"));
-    config.use_anisotropic_filter = config.extensions.contains("rendering/quality/filters/anisotropic_filter_level");
+    config.use_anisotropic_filter = config.extensions.contains(String("rendering/quality/filters/anisotropic_filter_level"));
 
-    config.etc_supported = config.extensions.contains("GL_OES_compressed_ETC1_RGB8_texture");
-    config.latc_supported = config.extensions.contains("GL_EXT_texture_compression_latc");
-    config.bptc_supported = config.extensions.contains("GL_ARB_texture_compression_bptc");
+    config.etc_supported = config.extensions.contains(String("GL_OES_compressed_ETC1_RGB8_texture"));
+    config.latc_supported = config.extensions.contains(String("GL_EXT_texture_compression_latc"));
+    config.bptc_supported = config.extensions.contains(String("GL_ARB_texture_compression_bptc"));
 
     config.etc2_supported = false;
     config.s3tc_supported = true;
@@ -7804,11 +7804,11 @@ void RasterizerStorageGLES3::initialize() {
     config.framebuffer_float_supported = true;
     config.framebuffer_half_float_supported = true;
 
-    config.pvrtc_supported = config.extensions.contains("GL_IMG_texture_compression_pvrtc");
-    config.srgb_decode_supported = config.extensions.contains("GL_EXT_texture_sRGB_decode");
+    config.pvrtc_supported = config.extensions.contains(String("GL_IMG_texture_compression_pvrtc"));
+    config.srgb_decode_supported = config.extensions.contains(String("GL_EXT_texture_sRGB_decode"));
 
     config.anisotropic_level = 1.0;
-    config.use_anisotropic_filter = config.extensions.contains("GL_EXT_texture_filter_anisotropic");
+    config.use_anisotropic_filter = config.extensions.contains(String("GL_EXT_texture_filter_anisotropic"));
     if (config.use_anisotropic_filter) {
         glGetFloatv(_GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &config.anisotropic_level);
         config.anisotropic_level = MIN(int(ProjectSettings::get_singleton()->get("rendering/quality/filters/anisotropic_filter_level")), config.anisotropic_level);
@@ -7974,23 +7974,23 @@ void RasterizerStorageGLES3::initialize() {
 
     config.force_vertex_shading = GLOBAL_GET("rendering/quality/shading/force_vertex_shading");
 
-    String renderer = (const char *)glGetString(GL_RENDERER);
+    se_string renderer = (const char *)glGetString(GL_RENDERER);
 
     config.use_depth_prepass = bool(GLOBAL_GET("rendering/quality/depth_prepass/enable"));
-    if (config.use_depth_prepass) {
+//    if (config.use_depth_prepass) {
 
-        String vendors = GLOBAL_GET("rendering/quality/depth_prepass/disable_for_vendors");
-        Vector<String> vendor_match = StringUtils::split(vendors,",");
-        for (int i = 0; i < vendor_match.size(); i++) {
-            String v =StringUtils::strip_edges( vendor_match[i]);
-            if (v.empty())
-                continue;
+//        String vendors = GLOBAL_GET("rendering/quality/depth_prepass/disable_for_vendors");
+//        Vector<String> vendor_match = StringUtils::split(vendors,',');
+//        for (int i = 0; i < vendor_match.size(); i++) {
+//            String v =StringUtils::strip_edges( vendor_match[i]);
+//            if (v.empty())
+//                continue;
 
-            if (StringUtils::findn(renderer,v) != -1) {
-                config.use_depth_prepass = false;
-            }
-        }
-    }
+//            if (StringUtils::findn(renderer,v) != -1) {
+//                config.use_depth_prepass = false;
+//            }
+//        }
+//    }
 }
 
 void RasterizerStorageGLES3::finalize() {

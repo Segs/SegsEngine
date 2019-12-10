@@ -195,7 +195,7 @@ private:
     void _on_tileset_toolbar_button_pressed(int p_index);
     void _on_tileset_toolbar_confirm();
     void _on_texture_list_selected(int p_index);
-    void _on_textures_added(const PoolStringArray &p_paths);
+    void _on_textures_added(const PoolVector<se_string> &p_paths);
     void _on_edit_mode_changed(int p_edit_mode);
     void _on_workspace_mode_changed(int p_workspace_mode);
     void _on_workspace_overlay_draw();
@@ -284,7 +284,7 @@ class TileSetEditorPlugin : public EditorPlugin {
     EditorNode *editor;
 
 public:
-    String get_name() const override { return "TileSet"; }
+    se_string_view get_name() const override { return "TileSet"; }
     bool has_main_screen() const override { return false; }
     void edit(Object *p_node) override;
     bool handles(Object *p_node) const override;

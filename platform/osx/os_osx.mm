@@ -614,11 +614,11 @@ static const NSRange kEmptyRange = { NSNotFound, 0 };
     NSPasteboard *pboard = [sender draggingPasteboard];
     NSArray *filenames = [pboard propertyListForType:NSFilenamesPboardType];
 
-    Vector<String> files;
+    Vector<se_string> files;
     for (int i = 0; i < filenames.count; i++) {
         NSString *ns = [filenames objectAtIndex:i];
         char *utfs = strdup([ns UTF8String]);
-        String ret;
+        se_string ret;
         ret.parse_utf8(utfs);
         free(utfs);
         files.push_back(ret);
@@ -1359,30 +1359,6 @@ String OS_OSX::get_ime_text() const {
     return im_text;
 }
 
-String OS_OSX::get_unique_id() const {
-
-    static String serial_number;
-
-    if (serial_number.empty()) {
-        io_service_t platformExpert = IOServiceGetMatchingService(kIOMasterPortDefault, IOServiceMatching("IOPlatformExpertDevice"));
-        CFStringRef serialNumberAsCFString = NULL;
-        if (platformExpert) {
-            serialNumberAsCFString = (CFStringRef)IORegistryEntryCreateCFProperty(platformExpert, CFSTR(kIOPlatformSerialNumberKey), kCFAllocatorDefault, 0);
-            IOObjectRelease(platformExpert);
-        }
-
-        NSString *serialNumberAsNSString = nil;
-        if (serialNumberAsCFString) {
-            serialNumberAsNSString = [NSString stringWithString:(NSString *)serialNumberAsCFString];
-            CFRelease(serialNumberAsCFString);
-        }
-
-        serial_number = [serialNumberAsNSString UTF8String];
-    }
-
-    return serial_number;
-}
-
 void OS_OSX::set_ime_active(const bool p_active) {
 
     im_active = p_active;
@@ -2120,7 +2096,7 @@ void OS_OSX::set_clipboard(const String &p_text) {
     [pasteboard writeObjects:copiedStringArray];
 }
 
-String OS_OSX::get_clipboard() const {
+se_string OS_OSX::get_clipboard() const {
 
     NSPasteboard *pasteboard = [NSPasteboard generalPasteboard];
     NSArray *classArray = [NSArray arrayWithObject:[NSString class]];
@@ -2886,7 +2862,7 @@ OS::MouseMode OS_OSX::get_mouse_mode() const {
     return mouse_mode;
 }
 
-String OS_OSX::get_joy_guid(int p_device) const {
+StringName OS_OSX::get_joy_guid(int p_device) const {
     return input->get_joy_guid_remapped(p_device);
 }
 
@@ -2902,7 +2878,7 @@ int OS_OSX::get_power_percent_left() {
     return power_manager->get_power_percent_left();
 }
 
-Error OS_OSX::move_to_trash(const String &p_path) {
+Error OS_OSX::move_to_trash(const se_string &p_path) {
     NSFileManager *fm = [NSFileManager defaultManager];
     NSURL *url = [NSURL fileURLWithPath:@(p_path.utf8().get_data())];
     NSError *err;

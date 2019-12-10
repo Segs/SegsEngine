@@ -28,76 +28,74 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef SHADERCOMPILERGLES3_H
-#define SHADERCOMPILERGLES3_H
+#pragma once
 
 #include "core/pair.h"
+#include "core/se_string.h"
 #include "servers/visual/shader_language.h"
 #include "servers/visual/shader_types.h"
 #include "servers/visual_server_enums.h"
 
 class ShaderCompilerGLES3 {
 public:
-	struct IdentifierActions {
+    struct IdentifierActions {
 
-		Map<StringName, Pair<int *, int> > render_mode_values;
-		Map<StringName, bool *> render_mode_flags;
-		Map<StringName, bool *> usage_flag_pointers;
-		Map<StringName, bool *> write_flag_pointers;
+        Map<StringName, Pair<int *, int> > render_mode_values;
+        Map<StringName, bool *> render_mode_flags;
+        Map<StringName, bool *> usage_flag_pointers;
+        Map<StringName, bool *> write_flag_pointers;
 
-		Map<StringName, ShaderLanguage::ShaderNode::Uniform> *uniforms;
-	};
+        Map<StringName, ShaderLanguage::ShaderNode::Uniform> *uniforms;
+    };
 
-	struct GeneratedCode {
+    struct GeneratedCode {
 
-		Vector<CharString> defines;
-		Vector<StringName> texture_uniforms;
-		Vector<ShaderLanguage::DataType> texture_types;
-		Vector<ShaderLanguage::ShaderNode::Uniform::Hint> texture_hints;
+        Vector<se_string> defines;
+        Vector<StringName> texture_uniforms;
+        Vector<ShaderLanguage::DataType> texture_types;
+        Vector<ShaderLanguage::ShaderNode::Uniform::Hint> texture_hints;
 
-		Vector<uint32_t> uniform_offsets;
-		uint32_t uniform_total_size;
-		String uniforms;
-		String vertex_global;
-		String vertex;
-		String fragment_global;
-		String fragment;
-		String light;
+        Vector<uint32_t> uniform_offsets;
+        uint32_t uniform_total_size;
+        se_string uniforms;
+        se_string vertex_global;
+        se_string vertex;
+        se_string fragment_global;
+        se_string fragment;
+        se_string light;
 
-		bool uses_fragment_time;
-		bool uses_vertex_time;
-	};
+        bool uses_fragment_time;
+        bool uses_vertex_time;
+    };
 
 private:
-	ShaderLanguage parser;
+    ShaderLanguage parser;
 
-	struct DefaultIdentifierActions {
+    struct DefaultIdentifierActions {
 
-		Map<StringName, String> renames;
-		Map<StringName, String> render_mode_defines;
-		Map<StringName, String> usage_defines;
-	};
+        Map<StringName, se_string> renames;
+        Map<StringName, se_string> render_mode_defines;
+        Map<StringName, se_string> usage_defines;
+    };
 
-	void _dump_function_deps(ShaderLanguage::ShaderNode *p_node, const StringName &p_for_func, const Map<StringName, String> &p_func_code, String &r_to_add, Set<StringName> &added);
-	String _dump_node_code(ShaderLanguage::Node *p_node, int p_level, GeneratedCode &r_gen_code, IdentifierActions &p_actions, const DefaultIdentifierActions &p_default_actions, bool p_assigning);
+    void _dump_function_deps(ShaderLanguage::ShaderNode *p_node, const StringName &p_for_func, const Map<StringName, se_string> &p_func_code, se_string &r_to_add, Set<StringName> &added);
+    se_string _dump_node_code(ShaderLanguage::Node *p_node, int p_level, GeneratedCode &r_gen_code, IdentifierActions &p_actions, const DefaultIdentifierActions &p_default_actions, bool p_assigning);
 
-	StringName current_func_name;
-	StringName vertex_name;
-	StringName fragment_name;
-	StringName light_name;
-	StringName time_name;
+    StringName current_func_name;
+    StringName vertex_name;
+    StringName fragment_name;
+    StringName light_name;
+    StringName time_name;
 
-	Set<StringName> used_name_defines;
-	Set<StringName> used_flag_pointers;
-	Set<StringName> used_rmode_defines;
-	Set<StringName> internal_functions;
+    Set<StringName> used_name_defines;
+    Set<StringName> used_flag_pointers;
+    Set<StringName> used_rmode_defines;
+    Set<StringName> internal_functions;
 
-	DefaultIdentifierActions actions[VS::SHADER_MAX];
+    DefaultIdentifierActions actions[VS::SHADER_MAX];
 
 public:
-	Error compile(VS::ShaderMode p_mode, const String &p_code, IdentifierActions *p_actions, const String &p_path, GeneratedCode &r_gen_code);
+    Error compile(VS::ShaderMode p_mode, const se_string &p_code, IdentifierActions *p_actions, const se_string &p_path, GeneratedCode &r_gen_code);
 
-	ShaderCompilerGLES3();
+    ShaderCompilerGLES3();
 };
-
-#endif // SHADERCOMPILERGLES3_H

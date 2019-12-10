@@ -33,6 +33,7 @@
 #include "spatial_editor_plugin.h"
 #include "core/method_bind.h"
 #include "core/translation_helpers.h"
+#include "editor/editor_node.h"
 
 IMPL_GDCLASS(CameraEditor)
 IMPL_GDCLASS(CameraEditorPlugin)

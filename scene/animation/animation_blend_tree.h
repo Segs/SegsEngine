@@ -35,372 +35,372 @@
 
 class AnimationNodeAnimation : public AnimationRootNode {
 
-	GDCLASS(AnimationNodeAnimation,AnimationRootNode)
+    GDCLASS(AnimationNodeAnimation,AnimationRootNode)
 
-	StringName animation;
-	StringName time;
+    StringName animation;
+    StringName time;
 
-	uint64_t last_version;
-	bool skip;
+    uint64_t last_version;
+    bool skip;
 
 protected:
-	void _validate_property(PropertyInfo &property) const override;
+    void _validate_property(PropertyInfo &property) const override;
 
-	static void _bind_methods();
+    static void _bind_methods();
 
 public:
-	void get_parameter_list(List<PropertyInfo> *r_list) const override;
+    void get_parameter_list(List<PropertyInfo> *r_list) const override;
 
-	static Vector<String> (*get_editable_animation_list)();
+    static Vector<se_string> (*get_editable_animation_list)();
 
-	String get_caption() const override;
-	float process(float p_time, bool p_seek) override;
+    se_string_view get_caption() const override;
+    float process(float p_time, bool p_seek) override;
 
-	void set_animation(const StringName &p_name);
-	StringName get_animation() const;
+    void set_animation(const StringName &p_name);
+    StringName get_animation() const;
 
-	AnimationNodeAnimation();
+    AnimationNodeAnimation();
 };
 
 class AnimationNodeOneShot : public AnimationNode {
-	GDCLASS(AnimationNodeOneShot,AnimationNode)
+    GDCLASS(AnimationNodeOneShot,AnimationNode)
 
 public:
-	enum MixMode {
-		MIX_MODE_BLEND,
-		MIX_MODE_ADD
-	};
+    enum MixMode {
+        MIX_MODE_BLEND,
+        MIX_MODE_ADD
+    };
 
 private:
-	float fade_in;
-	float fade_out;
+    float fade_in;
+    float fade_out;
 
-	bool autorestart;
-	float autorestart_delay;
-	float autorestart_random_delay;
-	MixMode mix;
+    bool autorestart;
+    float autorestart_delay;
+    float autorestart_random_delay;
+    MixMode mix;
 
-	bool sync;
+    bool sync;
 
-	/*	bool active;
-	bool do_start;
-	float time;
-	float remaining;*/
+    /*	bool active;
+    bool do_start;
+    float time;
+    float remaining;*/
 
-	StringName active;
-	StringName prev_active;
-	StringName time;
-	StringName remaining;
-	StringName time_to_restart;
+    StringName active;
+    StringName prev_active;
+    StringName time;
+    StringName remaining;
+    StringName time_to_restart;
 
 protected:
-	static void _bind_methods();
+    static void _bind_methods();
 
 public:
-	void get_parameter_list(List<PropertyInfo> *r_list) const override;
-	Variant get_parameter_default_value(const StringName &p_parameter) const override;
+    void get_parameter_list(List<PropertyInfo> *r_list) const override;
+    Variant get_parameter_default_value(const StringName &p_parameter) const override;
 
-	String get_caption() const override;
+    se_string_view get_caption() const override;
 
-	void set_fadein_time(float p_time);
-	void set_fadeout_time(float p_time);
+    void set_fadein_time(float p_time);
+    void set_fadeout_time(float p_time);
 
-	float get_fadein_time() const;
-	float get_fadeout_time() const;
+    float get_fadein_time() const;
+    float get_fadeout_time() const;
 
-	void set_autorestart(bool p_active);
-	void set_autorestart_delay(float p_time);
-	void set_autorestart_random_delay(float p_time);
+    void set_autorestart(bool p_active);
+    void set_autorestart_delay(float p_time);
+    void set_autorestart_random_delay(float p_time);
 
-	bool has_autorestart() const;
-	float get_autorestart_delay() const;
-	float get_autorestart_random_delay() const;
+    bool has_autorestart() const;
+    float get_autorestart_delay() const;
+    float get_autorestart_random_delay() const;
 
-	void set_mix_mode(MixMode p_mix);
-	MixMode get_mix_mode() const;
+    void set_mix_mode(MixMode p_mix);
+    MixMode get_mix_mode() const;
 
-	void set_use_sync(bool p_sync);
-	bool is_using_sync() const;
+    void set_use_sync(bool p_sync);
+    bool is_using_sync() const;
 
-	bool has_filter() const override;
-	float process(float p_time, bool p_seek) override;
+    bool has_filter() const override;
+    float process(float p_time, bool p_seek) override;
 
-	AnimationNodeOneShot();
+    AnimationNodeOneShot();
 };
 
 
 class AnimationNodeAdd2 : public AnimationNode {
-	GDCLASS(AnimationNodeAdd2,AnimationNode)
+    GDCLASS(AnimationNodeAdd2,AnimationNode)
 
-	StringName add_amount;
-	bool sync;
+    StringName add_amount;
+    bool sync;
 
 protected:
-	static void _bind_methods();
+    static void _bind_methods();
 
 public:
-	void get_parameter_list(List<PropertyInfo> *r_list) const override;
-	Variant get_parameter_default_value(const StringName &p_parameter) const override;
+    void get_parameter_list(List<PropertyInfo> *r_list) const override;
+    Variant get_parameter_default_value(const StringName &p_parameter) const override;
 
-	String get_caption() const override;
+    se_string_view get_caption() const override;
 
-	void set_use_sync(bool p_sync);
-	bool is_using_sync() const;
+    void set_use_sync(bool p_sync);
+    bool is_using_sync() const;
 
-	bool has_filter() const override;
-	float process(float p_time, bool p_seek) override;
+    bool has_filter() const override;
+    float process(float p_time, bool p_seek) override;
 
-	AnimationNodeAdd2();
+    AnimationNodeAdd2();
 };
 
 class AnimationNodeAdd3 : public AnimationNode {
-	GDCLASS(AnimationNodeAdd3,AnimationNode)
+    GDCLASS(AnimationNodeAdd3,AnimationNode)
 
-	StringName add_amount;
-	bool sync;
+    StringName add_amount;
+    bool sync;
 
 protected:
-	static void _bind_methods();
+    static void _bind_methods();
 
 public:
-	void get_parameter_list(List<PropertyInfo> *r_list) const override;
-	Variant get_parameter_default_value(const StringName &p_parameter) const override;
+    void get_parameter_list(List<PropertyInfo> *r_list) const override;
+    Variant get_parameter_default_value(const StringName &p_parameter) const override;
 
-	String get_caption() const override;
+    se_string_view get_caption() const override;
 
-	void set_use_sync(bool p_sync);
-	bool is_using_sync() const;
+    void set_use_sync(bool p_sync);
+    bool is_using_sync() const;
 
-	bool has_filter() const override;
-	float process(float p_time, bool p_seek) override;
+    bool has_filter() const override;
+    float process(float p_time, bool p_seek) override;
 
-	AnimationNodeAdd3();
+    AnimationNodeAdd3();
 };
 
 class AnimationNodeBlend2 : public AnimationNode {
-	GDCLASS(AnimationNodeBlend2,AnimationNode)
+    GDCLASS(AnimationNodeBlend2,AnimationNode)
 
-	StringName blend_amount;
-	bool sync;
+    StringName blend_amount;
+    bool sync;
 
 protected:
-	static void _bind_methods();
+    static void _bind_methods();
 
 public:
-	void get_parameter_list(List<PropertyInfo> *r_list) const override;
-	Variant get_parameter_default_value(const StringName &p_parameter) const override;
+    void get_parameter_list(List<PropertyInfo> *r_list) const override;
+    Variant get_parameter_default_value(const StringName &p_parameter) const override;
 
-	String get_caption() const override;
-	float process(float p_time, bool p_seek) override;
+    se_string_view get_caption() const override;
+    float process(float p_time, bool p_seek) override;
 
-	void set_use_sync(bool p_sync);
-	bool is_using_sync() const;
+    void set_use_sync(bool p_sync);
+    bool is_using_sync() const;
 
-	bool has_filter() const override;
-	AnimationNodeBlend2();
+    bool has_filter() const override;
+    AnimationNodeBlend2();
 };
 
 class AnimationNodeBlend3 : public AnimationNode {
-	GDCLASS(AnimationNodeBlend3,AnimationNode)
+    GDCLASS(AnimationNodeBlend3,AnimationNode)
 
-	StringName blend_amount;
-	bool sync;
+    StringName blend_amount;
+    bool sync;
 
 protected:
-	static void _bind_methods();
+    static void _bind_methods();
 
 public:
-	void get_parameter_list(List<PropertyInfo> *r_list) const override;
-	Variant get_parameter_default_value(const StringName &p_parameter) const override;
+    void get_parameter_list(List<PropertyInfo> *r_list) const override;
+    Variant get_parameter_default_value(const StringName &p_parameter) const override;
 
-	String get_caption() const override;
+    se_string_view get_caption() const override;
 
-	void set_use_sync(bool p_sync);
-	bool is_using_sync() const;
+    void set_use_sync(bool p_sync);
+    bool is_using_sync() const;
 
-	float process(float p_time, bool p_seek) override;
-	AnimationNodeBlend3();
+    float process(float p_time, bool p_seek) override;
+    AnimationNodeBlend3();
 };
 
 class AnimationNodeTimeScale : public AnimationNode {
-	GDCLASS(AnimationNodeTimeScale,AnimationNode)
+    GDCLASS(AnimationNodeTimeScale,AnimationNode)
 
-	StringName scale;
+    StringName scale;
 
 protected:
-	static void _bind_methods();
+    static void _bind_methods();
 
 public:
-	void get_parameter_list(List<PropertyInfo> *r_list) const override;
-	Variant get_parameter_default_value(const StringName &p_parameter) const override;
+    void get_parameter_list(List<PropertyInfo> *r_list) const override;
+    Variant get_parameter_default_value(const StringName &p_parameter) const override;
 
-	String get_caption() const override;
+    se_string_view get_caption() const override;
 
-	float process(float p_time, bool p_seek) override;
+    float process(float p_time, bool p_seek) override;
 
-	AnimationNodeTimeScale();
+    AnimationNodeTimeScale();
 };
 
 class AnimationNodeTimeSeek : public AnimationNode {
-	GDCLASS(AnimationNodeTimeSeek,AnimationNode)
+    GDCLASS(AnimationNodeTimeSeek,AnimationNode)
 
-	StringName seek_pos;
+    StringName seek_pos;
 
 protected:
-	static void _bind_methods();
+    static void _bind_methods();
 
 public:
-	void get_parameter_list(List<PropertyInfo> *r_list) const override;
-	Variant get_parameter_default_value(const StringName &p_parameter) const override;
+    void get_parameter_list(List<PropertyInfo> *r_list) const override;
+    Variant get_parameter_default_value(const StringName &p_parameter) const override;
 
-	String get_caption() const override;
+    se_string_view get_caption() const override;
 
-	float process(float p_time, bool p_seek) override;
+    float process(float p_time, bool p_seek) override;
 
-	AnimationNodeTimeSeek();
+    AnimationNodeTimeSeek();
 };
 
 class AnimationNodeTransition : public AnimationNode {
-	GDCLASS(AnimationNodeTransition,AnimationNode)
+    GDCLASS(AnimationNodeTransition,AnimationNode)
 
-	enum {
-		MAX_INPUTS = 32
-	};
-	struct InputData {
+    enum {
+        MAX_INPUTS = 32
+    };
+    struct InputData {
 
-		String name;
-		bool auto_advance;
-		InputData() { auto_advance = false; }
-	};
+        se_string name;
+        bool auto_advance;
+        InputData() { auto_advance = false; }
+    };
 
-	InputData inputs[MAX_INPUTS];
-	int enabled_inputs;
+    InputData inputs[MAX_INPUTS];
+    int enabled_inputs;
 
-	/*
-	float prev_xfading;
-	int prev;
-	float time;
-	int current;
-	int prev_current; */
+    /*
+    float prev_xfading;
+    int prev;
+    float time;
+    int current;
+    int prev_current; */
 
-	StringName prev_xfading;
-	StringName prev;
-	StringName time;
-	StringName current;
-	StringName prev_current;
+    StringName prev_xfading;
+    StringName prev;
+    StringName time;
+    StringName current;
+    StringName prev_current;
 
-	float xfade;
+    float xfade;
 
-	void _update_inputs();
+    void _update_inputs();
 
 protected:
-	static void _bind_methods();
-	void _validate_property(PropertyInfo &property) const override;
+    static void _bind_methods();
+    void _validate_property(PropertyInfo &property) const override;
 
 public:
-	void get_parameter_list(List<PropertyInfo> *r_list) const override;
-	Variant get_parameter_default_value(const StringName &p_parameter) const override;
+    void get_parameter_list(List<PropertyInfo> *r_list) const override;
+    Variant get_parameter_default_value(const StringName &p_parameter) const override;
 
-	String get_caption() const override;
+    se_string_view get_caption() const override;
 
-	void set_enabled_inputs(int p_inputs);
-	int get_enabled_inputs();
+    void set_enabled_inputs(int p_inputs);
+    int get_enabled_inputs();
 
-	void set_input_as_auto_advance(int p_input, bool p_enable);
-	bool is_input_set_as_auto_advance(int p_input) const;
+    void set_input_as_auto_advance(int p_input, bool p_enable);
+    bool is_input_set_as_auto_advance(int p_input) const;
 
-	void set_input_caption(int p_input, const String &p_name);
-	String get_input_caption(int p_input) const;
+    void set_input_caption(int p_input, se_string_view p_name);
+    const se_string &get_input_caption(int p_input) const;
 
-	void set_cross_fade_time(float p_fade);
-	float get_cross_fade_time() const;
+    void set_cross_fade_time(float p_fade);
+    float get_cross_fade_time() const;
 
-	float process(float p_time, bool p_seek) override;
+    float process(float p_time, bool p_seek) override;
 
-	AnimationNodeTransition();
+    AnimationNodeTransition();
 };
 
 class AnimationNodeOutput : public AnimationNode {
-	GDCLASS(AnimationNodeOutput,AnimationNode)
+    GDCLASS(AnimationNodeOutput,AnimationNode)
 
 public:
-	String get_caption() const override;
-	float process(float p_time, bool p_seek) override;
-	AnimationNodeOutput();
+    se_string_view get_caption() const override;
+    float process(float p_time, bool p_seek) override;
+    AnimationNodeOutput();
 };
 
 /////
 
 class AnimationNodeBlendTree : public AnimationRootNode {
-	GDCLASS(AnimationNodeBlendTree,AnimationRootNode)
+    GDCLASS(AnimationNodeBlendTree,AnimationRootNode)
 
-	struct Node {
-		Ref<AnimationNode> node;
-		Vector2 position;
-		Vector<StringName> connections;
-	};
+    struct Node {
+        Ref<AnimationNode> node;
+        Vector2 position;
+        Vector<StringName> connections;
+    };
 
-	Map<StringName, Node> nodes;
+    Map<StringName, Node> nodes;
 
-	Vector2 graph_offset;
+    Vector2 graph_offset;
 
-	void _tree_changed();
-	void _node_changed(const StringName &p_node);
+    void _tree_changed();
+    void _node_changed(const StringName &p_node);
 
 protected:
-	static void _bind_methods();
-	bool _set(const StringName &p_name, const Variant &p_value);
-	bool _get(const StringName &p_name, Variant &r_ret) const;
-	void _get_property_list(ListPOD<PropertyInfo> *p_list) const;
+    static void _bind_methods();
+    bool _set(const StringName &p_name, const Variant &p_value);
+    bool _get(const StringName &p_name, Variant &r_ret) const;
+    void _get_property_list(ListPOD<PropertyInfo> *p_list) const;
 
 public:
-	enum ConnectionError {
-		CONNECTION_OK,
-		CONNECTION_ERROR_NO_INPUT,
-		CONNECTION_ERROR_NO_INPUT_INDEX,
-		CONNECTION_ERROR_NO_OUTPUT,
-		CONNECTION_ERROR_SAME_NODE,
-		CONNECTION_ERROR_CONNECTION_EXISTS,
-		//no need to check for cycles due to tree topology
-	};
+    enum ConnectionError {
+        CONNECTION_OK,
+        CONNECTION_ERROR_NO_INPUT,
+        CONNECTION_ERROR_NO_INPUT_INDEX,
+        CONNECTION_ERROR_NO_OUTPUT,
+        CONNECTION_ERROR_SAME_NODE,
+        CONNECTION_ERROR_CONNECTION_EXISTS,
+        //no need to check for cycles due to tree topology
+    };
 
-	void add_node(const StringName &p_name, Ref<AnimationNode> p_node, const Vector2 &p_position = Vector2());
-	Ref<AnimationNode> get_node(const StringName &p_name) const;
-	void remove_node(const StringName &p_name);
-	void rename_node(const StringName &p_name, const StringName &p_new_name);
-	bool has_node(const StringName &p_name) const;
-	StringName get_node_name(const Ref<AnimationNode> &p_node) const;
-	Vector<StringName> get_node_connection_array(const StringName &p_name) const;
+    void add_node(const StringName &p_name, Ref<AnimationNode> p_node, const Vector2 &p_position = Vector2());
+    Ref<AnimationNode> get_node(const StringName &p_name) const;
+    void remove_node(const StringName &p_name);
+    void rename_node(const StringName &p_name, const StringName &p_new_name);
+    bool has_node(const StringName &p_name) const;
+    StringName get_node_name(const Ref<AnimationNode> &p_node) const;
+    Vector<StringName> get_node_connection_array(const StringName &p_name) const;
 
-	void set_node_position(const StringName &p_node, const Vector2 &p_position);
-	Vector2 get_node_position(const StringName &p_node) const;
+    void set_node_position(const StringName &p_node, const Vector2 &p_position);
+    Vector2 get_node_position(const StringName &p_node) const;
 
-	void get_child_nodes(List<ChildNode> *r_child_nodes) override;
+    void get_child_nodes(List<ChildNode> *r_child_nodes) override;
 
-	void connect_node(const StringName &p_input_node, int p_input_index, const StringName &p_output_node);
-	void disconnect_node(const StringName &p_node, int p_input_index);
+    void connect_node(const StringName &p_input_node, int p_input_index, const StringName &p_output_node);
+    void disconnect_node(const StringName &p_node, int p_input_index);
 
-	struct NodeConnection {
-		StringName input_node;
-		int input_index;
-		StringName output_node;
-	};
+    struct NodeConnection {
+        StringName input_node;
+        int input_index;
+        StringName output_node;
+    };
 
-	ConnectionError can_connect_node(const StringName &p_input_node, int p_input_index, const StringName &p_output_node) const;
-	void get_node_connections(List<NodeConnection> *r_connections) const;
+    ConnectionError can_connect_node(const StringName &p_input_node, int p_input_index, const StringName &p_output_node) const;
+    void get_node_connections(List<NodeConnection> *r_connections) const;
 
-	String get_caption() const override;
-	float process(float p_time, bool p_seek) override;
+    se_string_view get_caption() const override;
+    float process(float p_time, bool p_seek) override;
 
-	void get_node_list(ListPOD<StringName> *r_list);
+    void get_node_list(ListPOD<StringName> *r_list);
 
-	void set_graph_offset(const Vector2 &p_graph_offset);
-	Vector2 get_graph_offset() const;
+    void set_graph_offset(const Vector2 &p_graph_offset);
+    Vector2 get_graph_offset() const;
 
-	Ref<AnimationNode> get_child_by_name(const StringName &p_name) override;
+    Ref<AnimationNode> get_child_by_name(const StringName &p_name) override;
 
-	AnimationNodeBlendTree();
-	~AnimationNodeBlendTree() override;
+    AnimationNodeBlendTree();
+    ~AnimationNodeBlendTree() override;
 };
 
 

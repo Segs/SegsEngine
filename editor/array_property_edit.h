@@ -31,7 +31,7 @@
 #pragma once
 
 #include "scene/main/node.h"
-#include "core/ustring.h"
+#include "core/se_string.h"
 
 class ArrayPropertyEdit : public RefCounted {
 
@@ -40,15 +40,15 @@ class ArrayPropertyEdit : public RefCounted {
     int page;
     ObjectID obj;
     StringName property;
-    String vtypes;
-    String subtype_hint_string;
+    se_string vtypes;
+    se_string subtype_hint_string;
     PropertyHint subtype_hint;
     VariantType subtype;
     Variant get_array() const;
     VariantType default_type;
 
     void _notif_change();
-    void _notif_changev(const String &p_v);
+    void _notif_changev(StringName p_v);
     void _set_size(int p_size);
     void _set_value(int p_idx, const Variant &p_value);
 
@@ -61,7 +61,7 @@ protected:
     void _get_property_list(ListPOD<PropertyInfo> *p_list) const;
 
 public:
-    void edit(Object *p_obj, const StringName &p_prop, const String &p_hint_string, VariantType p_deftype);
+    void edit(Object *p_obj, const StringName &p_prop, se_string_view p_hint_string, VariantType p_deftype);
 
     Node *get_node();
 

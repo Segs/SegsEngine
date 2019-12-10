@@ -31,14 +31,14 @@
 #pragma once
 
 #include "scene/3d/skeleton.h"
-#include "core/ustring.h"
+#include "core/se_string.h"
 
 class GODOT_EXPORT BoneAttachment : public Spatial {
 
 	GDCLASS(BoneAttachment,Spatial)
 
 	bool bound;
-	String bone_name;
+    se_string bone_name;
 
 	void _check_bind();
 	void _check_unbind();
@@ -50,8 +50,10 @@ protected:
 	static void _bind_methods();
 
 public:
-	void set_bone_name(const String &p_name);
-	String get_bone_name() const;
+    void set_bone_name(const se_string &p_name);
+    const se_string &get_bone_name() const {
+        return bone_name;
+    }
 
 	BoneAttachment();
 };

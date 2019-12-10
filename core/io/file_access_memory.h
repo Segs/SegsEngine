@@ -28,52 +28,49 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef FILE_ACCESS_MEMORY_H
-#define FILE_ACCESS_MEMORY_H
+#pragma once
 
 #include "core/os/file_access.h"
-
+#include "EASTL/string_view.h"
 class FileAccessMemory : public FileAccess {
 
-	uint8_t *data;
-	int length;
-	mutable int pos;
+    uint8_t *data;
+    int length;
+    mutable int pos;
 
-	static FileAccess *create();
+    static FileAccess *create();
 
 public:
-	static void register_file(const String& p_name, const Vector<uint8_t>& p_data);
-	static void cleanup();
+    static void register_file(se_string_view p_name, const Vector<uint8_t>& p_data);
+    static void cleanup();
 
-	virtual Error open_custom(const uint8_t *p_data, int p_len); ///< open a file
-	Error _open(const String &p_path, int p_mode_flags) override; ///< open a file
-	void close() override; ///< close a file
-	bool is_open() const override; ///< true when file is open
+    virtual Error open_custom(const uint8_t *p_data, int p_len); ///< open a file
+    Error _open(se_string_view p_path, int p_mode_flags) override; ///< open a file
+    void close() override; ///< close a file
+    bool is_open() const override; ///< true when file is open
 
-	void seek(size_t p_position) override; ///< seek to a given position
-	void seek_end(int64_t p_position) override; ///< seek from the end of file
-	size_t get_position() const override; ///< get position in the file
-	size_t get_len() const override; ///< get size of the file
+    void seek(size_t p_position) override; ///< seek to a given position
+    void seek_end(int64_t p_position) override; ///< seek from the end of file
+    size_t get_position() const override; ///< get position in the file
+    size_t get_len() const override; ///< get size of the file
 
-	bool eof_reached() const override; ///< reading passed EOF
+    bool eof_reached() const override; ///< reading passed EOF
 
-	uint8_t get_8() const override; ///< get a byte
+    uint8_t get_8() const override; ///< get a byte
 
-	int get_buffer(uint8_t *p_dst, int p_length) const override; ///< get an array of bytes
+    int get_buffer(uint8_t *p_dst, int p_length) const override; ///< get an array of bytes
 
-	Error get_error() const override; ///< get last error
+    Error get_error() const override; ///< get last error
 
-	void flush() override;
-	void store_8(uint8_t p_byte) override; ///< store a byte
-	void store_buffer(const uint8_t *p_src, int p_length) override; ///< store an array of bytes
+    void flush() override;
+    void store_8(uint8_t p_byte) override; ///< store a byte
+    void store_buffer(const uint8_t *p_src, int p_length) override; ///< store an array of bytes
 
-	bool file_exists(const String &p_name) override; ///< return true if a file exists
+    bool file_exists(se_string_view p_name) override; ///< return true if a file exists
 
-    uint64_t _get_modified_time(const String &/*p_file*/) override { return 0; }
-    uint32_t _get_unix_permissions(const String &/*p_file*/) override { return 0; }
-    Error _set_unix_permissions(const String &/*p_file*/, uint32_t /*p_permissions*/) override { return FAILED; }
+    uint64_t _get_modified_time(se_string_view /*p_file*/) override { return 0; }
+    uint32_t _get_unix_permissions(se_string_view /*p_file*/) override { return 0; }
+    Error _set_unix_permissions(se_string_view /*p_file*/, uint32_t /*p_permissions*/) override { return FAILED; }
 
-	FileAccessMemory();
+    FileAccessMemory();
 };
-
-#endif // FILE_ACCESS_MEMORY_H

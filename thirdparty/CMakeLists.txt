@@ -54,10 +54,10 @@ if(OPTION_MINIZIP)
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/minizip>
         $<INSTALL_INTERFACE:include/minizip>
     )
-	install(FILES ${minizip_headers} DESTINATION include/minizip)
-    install(TARGETS minizip_interface EXPORT SegsEngine 
-		INCLUDES DESTINATION include/minizip
-	)
+    install(FILES ${minizip_headers} DESTINATION include/minizip)
+    install(TARGETS minizip_interface EXPORT SegsEngine
+        INCLUDES DESTINATION include/minizip
+    )
 # minizip functions need to be accessible from plugins ? set_common_target_properties(minizip)
 endif()
 
@@ -179,7 +179,7 @@ set(thirdparty_sources
 )
 add_library(regex STATIC ${thirdparty_sources})
 target_include_directories(regex PUBLIC ${PROJECT_SOURCE_DIR}/thirdparty/pcre2/src/)
-target_compile_definitions(regex PUBLIC PCRE2_CODE_UNIT_WIDTH=16 PCRE2_STATIC HAVE_CONFIG_H SUPPORT_JIT)
+target_compile_definitions(regex PUBLIC PCRE2_CODE_UNIT_WIDTH=8 PCRE2_STATIC HAVE_CONFIG_H SUPPORT_JIT)
 set_property(TARGET regex PROPERTY POSITION_INDEPENDENT_CODE ON)
 set_common_target_properties(regex)
 
@@ -328,6 +328,7 @@ set(thirdparty_sources
 )
 add_library(wslay OBJECT ${thirdparty_sources})
 target_include_directories(wslay PUBLIC ${PROJECT_SOURCE_DIR}/thirdparty/wslay/includes)
+set_property(TARGET wslay PROPERTY POSITION_INDEPENDENT_CODE ON)
 set_common_target_properties(wslay)
 
 if(${CMAKE_SYSTEM_NAME} STREQUAL "Windows") # Winsock
@@ -344,6 +345,8 @@ if(OPTION_BUILTIN_LIBOGG)
     )
     add_library(ogg STATIC ${thirdparty_sources})
     target_include_directories(ogg PUBLIC ${PROJECT_SOURCE_DIR}/thirdparty/libogg/)
+    set_property(TARGET ogg PROPERTY POSITION_INDEPENDENT_CODE ON)
+
 endif()
 
 set(thirdparty_sources

@@ -48,13 +48,13 @@ protected:
 
     void finalize_core() override;
 
-    String stdin_buf;
+    se_string stdin_buf;
 
 public:
     OS_Unix();
 
-    void alert(const String &p_alert, const String &p_title = "ALERT!") override;
-    String get_stdin_string(bool p_block) override;
+    void alert(se_string_view p_alert, se_string_view p_title = se_string_view("ALERT!")) override;
+    se_string get_stdin_string(bool p_block) override;
 
     //virtual void set_mouse_show(bool p_show);
     //virtual void set_mouse_grab(bool p_grab);
@@ -66,13 +66,13 @@ public:
     //virtual VideoMode get_video_mode() const;
     //virtual void get_fullscreen_mode_list(List<VideoMode> *p_list) const;
 
-    Error open_dynamic_library(const String &p_path, void *&p_library_handle, bool p_also_set_library_path = false) override;
+    Error open_dynamic_library(se_string_view p_path, void *&p_library_handle, bool p_also_set_library_path = false) override;
     Error close_dynamic_library(void *p_library_handle) override;
-    Error get_dynamic_library_symbol_handle(void *p_library_handle, const String &p_name, void *&p_symbol_handle, bool p_optional = false) override;
+    Error get_dynamic_library_symbol_handle(void *p_library_handle, se_string_view p_name, void *&p_symbol_handle, bool p_optional = false) override;
 
-    Error set_cwd(const String &p_cwd) override;
+    Error set_cwd(se_string_view p_cwd) override;
 
-    String get_name() const override;
+    se_string get_name() const override;
 
     Date get_date(bool utc) const override;
     Time get_time(bool utc) const override;
@@ -85,22 +85,22 @@ public:
     void delay_usec(uint32_t p_usec) const override;
     uint64_t get_ticks_usec() const override;
 
-    Error execute(const String &p_path, const ListPOD<String> &p_arguments, bool p_blocking, ProcessID *r_child_id = nullptr, String *r_pipe = nullptr, int *r_exitcode = nullptr, bool read_stderr = false, Mutex *p_pipe_mutex = nullptr) override;
+    Error execute(se_string_view p_path, const ListPOD<se_string> &p_arguments, bool p_blocking, ProcessID *r_child_id = nullptr, se_string *r_pipe = nullptr, int *r_exitcode = nullptr, bool read_stderr = false, Mutex *p_pipe_mutex = nullptr) override;
     Error kill(const ProcessID &p_pid) override;
     int get_process_id() const override;
 
-    bool has_environment(const String &p_var) const override;
-    String get_environment(const String &p_var) const override;
-    bool set_environment(const String &p_var, const String &p_value) const override;
-    String get_locale() const override;
+    bool has_environment(se_string_view p_var) const override;
+    const char *get_environment(se_string_view p_var) const override;
+    bool set_environment(se_string_view p_var, const String &p_value) const override;
+    const char * get_locale() const override;
 
     int get_processor_count() const override;
 
     void debug_break() override;
     void initialize_debugging() override;
 
-    String get_executable_path() const override;
-    String get_user_data_dir() const override;
+    se_string get_executable_path() const override;
+    se_string get_user_data_dir() const override;
 };
 
 class UnixTerminalLogger : public StdLogger {

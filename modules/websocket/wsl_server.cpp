@@ -33,6 +33,9 @@
 #include "wsl_server.h"
 #include "core/os/os.h"
 #include "core/project_settings.h"
+#include "core/string_utils.h"
+
+using namespace eastl;
 
 WSLServer::PendingPeer::PendingPeer() {
     use_ssl = false;
@@ -43,46 +46,46 @@ WSLServer::PendingPeer::PendingPeer() {
     memset(req_buf, 0, sizeof(req_buf));
 }
 
-bool WSLServer::PendingPeer::_parse_request(const PoolStringArray p_protocols) {
-    Vector<String> psa = StringUtils::split(String((const char *)req_buf),"\r\n");
+bool WSLServer::PendingPeer::_parse_request(const PoolVector<se_string> &p_protocols) {
+    Vector<se_string_view> psa = StringUtils::split(se_string_view((const char *)req_buf),"\r\n");
     int len = psa.size();
     ERR_FAIL_COND_V_MSG(len < 4, false, "Not enough response headers, got: " + itos(len) + ", expected >= 4.")
 
-    Vector<String> req = StringUtils::split(psa[0]," ", false);
+    Vector<se_string_view> req = StringUtils::split(psa[0]," ", false);
     ERR_FAIL_COND_V_MSG(req.size() < 2, false, "Invalid protocol or status code.")
 
     // Wrong protocol
-    ERR_FAIL_COND_V_MSG(req[0] != "GET" || req[2] != "HTTP/1.1", false, "Invalid method or HTTP version.")
+    ERR_FAIL_COND_V_MSG(req[0] != "GET"_sv || req[2] != "HTTP/1.1"_sv, false, "Invalid method or HTTP version.")
 
-    Map<String, String> headers;
+    Map<se_string, se_string> headers;
     for (int i = 1; i < len; i++) {
-        Vector<String> header = StringUtils::split(psa[i],":", false, 1);
-        ERR_FAIL_COND_V_MSG(header.size() != 2, false, "Invalid header -> " + psa[i])
-        String name = StringUtils::to_lower(header[0]);
-        String value =StringUtils::strip_edges( header[1]);
+        Vector<se_string_view> header = StringUtils::split(psa[i],":", false, 1);
+        ERR_FAIL_COND_V_MSG(header.size() != 2, false, se_string("Invalid header -> ") + psa[i])
+        se_string name = StringUtils::to_lower(header[0]);
+        se_string_view value =StringUtils::strip_edges( header[1]);
         if (headers.contains(name))
-            headers[name] += "," + value;
+            headers[name] += se_string(",") + value;
         else
             headers[name] = value;
     }
 #define _WSL_CHECK(NAME, VALUE)                                                         \
     ERR_FAIL_COND_V_MSG(!headers.contains(NAME) || StringUtils::to_lower(headers[NAME]) != VALUE, false, \
-            "Missing or invalid header '" + String(NAME) + "'. Expected value '" + VALUE + "'.");
+            "Missing or invalid header '" + se_string(NAME) + "'. Expected value '" + VALUE + "'.");
 #define _WSL_CHECK_EX(NAME) \
-    ERR_FAIL_COND_V_MSG(!headers.contains(NAME), false, "Missing header '" + String(NAME) + "'.")
-    _WSL_CHECK("upgrade", "websocket");
-    _WSL_CHECK("sec-websocket-version", "13");
-    _WSL_CHECK_EX("sec-websocket-key");
-    _WSL_CHECK_EX("connection");
+    ERR_FAIL_COND_V_MSG(!headers.contains(NAME), false, "Missing header '" + se_string(NAME) + "'.")
+    _WSL_CHECK("upgrade", "websocket")
+    _WSL_CHECK("sec-websocket-version", "13")
+    _WSL_CHECK_EX("sec-websocket-key")
+    _WSL_CHECK_EX("connection")
 #undef _WSL_CHECK_EX
 #undef _WSL_CHECK
     key = headers["sec-websocket-key"];
     if (headers.contains("sec-websocket-protocol")) {
-        Vector<String> protos = StringUtils::split(headers["sec-websocket-protocol"],",");
+        Vector<se_string_view> protos = StringUtils::split(headers["sec-websocket-protocol"],",");
         for (int i = 0; i < protos.size(); i++) {
             // Check if we have the given protocol
             for (int j = 0; j < p_protocols.size(); j++) {
-                if (protos[i] != p_protocols[j])
+                if (protos[i].compare(p_protocols[j])!=0)
                     continue;
                 protocol = protos[i];
                 break;
@@ -98,7 +101,7 @@ bool WSLServer::PendingPeer::_parse_request(const PoolStringArray p_protocols) {
     return true;
 }
 
-Error WSLServer::PendingPeer::do_handshake(PoolStringArray p_protocols) {
+Error WSLServer::PendingPeer::do_handshake(const PoolVector<se_string> & p_protocols) {
     if (OS::get_singleton()->get_ticks_msec() - time > WSL_SERVER_TIMEOUT)
         return ERR_TIMEOUT;
     if (use_ssl) {
@@ -127,14 +130,14 @@ Error WSLServer::PendingPeer::do_handshake(PoolStringArray p_protocols) {
                 if (!_parse_request(p_protocols)) {
                     return FAILED;
                 }
-                String s = "HTTP/1.1 101 Switching Protocols\r\n";
+                se_string s = "HTTP/1.1 101 Switching Protocols\r\n";
                 s += "Upgrade: websocket\r\n";
                 s += "Connection: Upgrade\r\n";
                 s += "Sec-WebSocket-Accept: " + WSLPeer::compute_key_response(key) + "\r\n";
                 if (!protocol.empty())
                     s += "Sec-WebSocket-Protocol: " + protocol + "\r\n";
                 s += "\r\n";
-                response = StringUtils::to_utf8(s);
+                response = s;
                 has_request = true;
                 break;
             }
@@ -154,7 +157,7 @@ Error WSLServer::PendingPeer::do_handshake(PoolStringArray p_protocols) {
     return OK;
 }
 
-Error WSLServer::listen(int p_port, const PoolVector<String> &p_protocols, bool gd_mp_api) {
+Error WSLServer::listen(int p_port, const PoolVector<se_string> &p_protocols, bool gd_mp_api) {
     ERR_FAIL_COND_V(is_listening(), ERR_ALREADY_IN_USE)
 
     _is_multiplayer = gd_mp_api;
@@ -276,7 +279,7 @@ int WSLServer::get_peer_port(int p_peer_id) const {
     return _peer_map.at(p_peer_id)->get_connected_port();
 }
 
-void WSLServer::disconnect_peer(int p_peer_id, int p_code, String p_reason) {
+void WSLServer::disconnect_peer(int p_peer_id, int p_code, se_string_view p_reason) {
     ERR_FAIL_COND(!has_peer(p_peer_id))
 
     get_peer(p_peer_id)->close(p_code, p_reason);

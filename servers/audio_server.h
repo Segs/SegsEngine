@@ -95,16 +95,16 @@ public:
     virtual int get_mix_rate() const = 0;
     virtual SpeakerMode get_speaker_mode() const = 0;
     virtual Array get_device_list();
-    virtual String get_device();
-    virtual void set_device(const String &/*device*/) {}
+    virtual se_string_view get_device();
+    virtual void set_device(se_string_view /*device*/) {}
     virtual void lock() = 0;
     virtual void unlock() = 0;
     virtual void finish() = 0;
 
     virtual Error capture_start() { return FAILED; }
     virtual Error capture_stop() { return FAILED; }
-    virtual void capture_set_device(const String & /*p_name*/) {}
-    virtual String capture_get_device() { return "Default"; }
+    virtual void capture_set_device(se_string_view /*p_name*/) {}
+    virtual se_string capture_get_device() { return "Default"; }
     virtual Array capture_get_device_list(); // TODO: convert this and get_device_list to PoolStringArray
 
     virtual float get_latency() { return 0; }
@@ -292,7 +292,7 @@ public:
 
     void move_bus(int p_bus, int p_to_pos);
 
-    void set_bus_name(int p_bus, const String &p_name);
+    void set_bus_name(int p_bus, const StringName &p_name);
     StringName get_bus_name(int p_bus) const;
     int get_bus_index(const StringName &p_bus_name) const;
 
@@ -370,15 +370,15 @@ public:
     Ref<AudioBusLayout> generate_bus_layout() const;
 
     Array get_device_list();
-    String get_device();
-    void set_device(const String& device);
+    se_string_view get_device();
+    void set_device(se_string_view device);
 
     Error capture_start();
     Error capture_stop();
 
     Array capture_get_device_list();
-    String capture_get_device();
-    void capture_set_device(const String &p_name);
+    se_string capture_get_device();
+    void capture_set_device(se_string_view p_name);
 
     PoolVector<int32_t> get_capture_buffer();
     unsigned int get_capture_position();

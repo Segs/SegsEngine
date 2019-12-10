@@ -119,7 +119,7 @@ void CollisionShape::resource_changed(const RES& res) {
     update_gizmo();
 }
 
-String CollisionShape::get_configuration_warning() const {
+StringName CollisionShape::get_configuration_warning() const {
 
     if (!object_cast<CollisionObject>(get_parent())) {
         return TTR("CollisionShape only serves to provide a collision shape to a CollisionObject derived node. Please only use it as a child of Area, StaticBody, RigidBody, KinematicBody, etc. to give them a shape.");
@@ -133,7 +133,7 @@ String CollisionShape::get_configuration_warning() const {
         return TTR("Plane shapes don't work well and will be removed in future versions. Please don't use them.");
     }
 
-    return String();
+    return StringName();
 }
 
 void CollisionShape::_bind_methods() {

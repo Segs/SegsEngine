@@ -30,7 +30,6 @@
 
 #pragma once
 
-#include "editor/editor_node.h"
 #include "editor/editor_plugin.h"
 #include "scene/2d/collision_polygon_2d.h"
 #include "scene/2d/particles_2d.h"
@@ -38,6 +37,9 @@
 #include "scene/gui/file_dialog.h"
 
 class SpinBox;
+class EditorFileDialog;
+class MenuButton;
+class CheckBox;
 
 class Particles2DEditorPlugin : public EditorPlugin {
 
@@ -75,10 +77,10 @@ class Particles2DEditorPlugin : public EditorPlugin {
     OptionButton *emission_mask_mode;
     CheckBox *emission_colors;
 
-    String source_emission_file;
+    se_string source_emission_file;
 
     UndoRedo *undo_redo;
-    void _file_selected(const String &p_file);
+    void _file_selected(se_string_view p_file);
     void _menu_callback(int p_idx);
     void _generate_visibility_rect();
     void _generate_emission_mask();
@@ -88,7 +90,7 @@ protected:
     static void _bind_methods();
 
 public:
-    String get_name() const override { return "Particles2D"; }
+    se_string_view get_name() const override { return ("Particles2D"); }
     bool has_main_screen() const override { return false; }
     void edit(Object *p_object) override;
     bool handles(Object *p_object) const override;

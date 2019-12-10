@@ -834,11 +834,11 @@ void RigidBody2D::_notification(int p_what) {
 #endif
 }
 
-String RigidBody2D::get_configuration_warning() const {
+StringName RigidBody2D::get_configuration_warning() const {
 
     Transform2D t = get_transform();
 
-    String warning = CollisionObject2D::get_configuration_warning();
+    se_string warning(CollisionObject2D::get_configuration_warning());
 
     if ((get_mode() == MODE_RIGID || get_mode() == MODE_CHARACTER) && (ABS(t.elements[0].length() - 1.0) > 0.05 || ABS(t.elements[1].length() - 1.0) > 0.05)) {
         if (!warning.empty()) {
@@ -847,7 +847,7 @@ String RigidBody2D::get_configuration_warning() const {
         warning += TTR("Size changes to RigidBody2D (in character or rigid modes) will be overridden by the physics engine when running.\nChange the size in children collision shapes instead.");
     }
 
-    return warning;
+    return StringName(warning);
 }
 
 void RigidBody2D::_bind_methods() {

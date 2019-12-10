@@ -39,55 +39,55 @@
 
 class AudioStreamEditor : public ColorRect {
 
-	GDCLASS(AudioStreamEditor,ColorRect)
+    GDCLASS(AudioStreamEditor,ColorRect)
 
-	Ref<AudioStream> stream;
-	AudioStreamPlayer *_player;
-	ColorRect *_preview;
-	Control *_indicator;
-	Label *_current_label;
-	Label *_duration_label;
+    Ref<AudioStream> stream;
+    AudioStreamPlayer *_player;
+    ColorRect *_preview;
+    Control *_indicator;
+    Label *_current_label;
+    Label *_duration_label;
 
-	ToolButton *_play_button;
-	ToolButton *_stop_button;
+    ToolButton *_play_button;
+    ToolButton *_stop_button;
 
-	float _current;
-	bool _dragging;
+    float _current;
+    bool _dragging;
 
 protected:
-	void _notification(int p_what);
-	void _preview_changed(ObjectID p_which);
-	void _play();
-	void _stop();
-	void _on_finished();
-	void _draw_preview();
-	void _draw_indicator();
-	void _on_input_indicator(const Ref<InputEvent>& p_event);
-	void _seek_to(real_t p_x);
-	void _changed_callback(Object *p_changed, const char *p_prop) override;
-	static void _bind_methods();
+    void _notification(int p_what);
+    void _preview_changed(ObjectID p_which);
+    void _play();
+    void _stop();
+    void _on_finished();
+    void _draw_preview();
+    void _draw_indicator();
+    void _on_input_indicator(const Ref<InputEvent>& p_event);
+    void _seek_to(real_t p_x);
+    void _changed_callback(Object *p_changed, StringName p_prop) override;
+    static void _bind_methods();
 
 public:
-	void edit(const Ref<AudioStream>& p_stream);
-	AudioStreamEditor();
+    void edit(const Ref<AudioStream>& p_stream);
+    AudioStreamEditor();
 };
 
 class AudioStreamEditorPlugin : public EditorPlugin {
 
-	GDCLASS(AudioStreamEditorPlugin,EditorPlugin)
+    GDCLASS(AudioStreamEditorPlugin,EditorPlugin)
 
-	AudioStreamEditor *audio_editor;
-	EditorNode *editor;
+    AudioStreamEditor *audio_editor;
+    EditorNode *editor;
 
 public:
-	String get_name() const override { return "Audio"; }
-	bool has_main_screen() const override { return false; }
-	void edit(Object *p_object) override;
-	bool handles(Object *p_object) const override;
-	void make_visible(bool p_visible) override;
+    se_string_view get_name() const override { return "Audio"; }
+    bool has_main_screen() const override { return false; }
+    void edit(Object *p_object) override;
+    bool handles(Object *p_object) const override;
+    void make_visible(bool p_visible) override;
 
-	AudioStreamEditorPlugin(EditorNode *p_node);
-	~AudioStreamEditorPlugin() override;
+    AudioStreamEditorPlugin(EditorNode *p_node);
+    ~AudioStreamEditorPlugin() override;
 };
 
 #endif // AUDIO_STREAM_EDITOR_PLUGIN_H

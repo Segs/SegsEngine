@@ -204,7 +204,7 @@ NetSocketPosix::NetError NetSocketPosix::_get_socket_error() {
         return ERR_NET_IN_PROGRESS;
     if (errno == EAGAIN || errno == EWOULDBLOCK)
         return ERR_NET_WOULD_BLOCK;
-    ERR_PRINT("Socket error: " + itos(errno));
+    ERR_PRINT("Socket error: " + ::to_string(errno))
     return ERR_NET_OTHER;
 #endif
 }
@@ -225,7 +225,7 @@ bool NetSocketPosix::_can_use_ip(const IP_Address &p_ip, const bool p_for_bind) 
     return !(_ip_type != IP::TYPE_ANY && !p_ip.is_wildcard() && _ip_type != type);
 }
 
-_FORCE_INLINE_ Error NetSocketPosix::_change_multicast_group(IP_Address p_ip, const String& p_if_name, bool p_add) {
+_FORCE_INLINE_ Error NetSocketPosix::_change_multicast_group(IP_Address p_ip, se_string_view p_if_name, bool p_add) {
 
     ERR_FAIL_COND_V(!is_open(), ERR_UNCONFIGURED)
     ERR_FAIL_COND_V(!_can_use_ip(p_ip, false), ERR_INVALID_PARAMETER)
@@ -238,11 +238,11 @@ _FORCE_INLINE_ Error NetSocketPosix::_change_multicast_group(IP_Address p_ip, co
 
     IP_Address if_ip;
     uint32_t if_v6id = 0;
-    Map<String, IP::Interface_Info> if_info;
+    Map<se_string, IP::Interface_Info> if_info;
     IP::get_singleton()->get_local_interfaces(&if_info);
-    for (eastl::pair<const String,IP::Interface_Info> &E : if_info) {
+    for (eastl::pair<const se_string,IP::Interface_Info> &E : if_info) {
         IP::Interface_Info &c = E.second;
-        if (c.name != p_if_name)
+        if (0!=p_if_name.compare(c.name))
             continue;
 
         if_v6id = (uint32_t)c.index;
@@ -703,10 +703,10 @@ Ref<NetSocket> NetSocketPosix::accept(IP_Address &r_ip, uint16_t &r_port) {
     return Ref<NetSocket>(ns);
 }
 
-Error NetSocketPosix::join_multicast_group(const IP_Address &p_multi_address, String p_if_name) {
+Error NetSocketPosix::join_multicast_group(const IP_Address &p_multi_address, se_string_view p_if_name) {
     return _change_multicast_group(p_multi_address, p_if_name, true);
 }
 
-Error NetSocketPosix::leave_multicast_group(const IP_Address &p_multi_address, String p_if_name) {
+Error NetSocketPosix::leave_multicast_group(const IP_Address &p_multi_address, se_string_view p_if_name) {
     return _change_multicast_group(p_multi_address, p_if_name, false);
 }

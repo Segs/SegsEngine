@@ -47,7 +47,7 @@ protected:
 	bool is_radio();
 
 public:
-	CheckBox(const String &p_text = String());
+    CheckBox(const StringName &p_text = StringName());
 	~CheckBox() override;
 };
 

@@ -53,6 +53,17 @@ VARIANT_ENUM_CAST(CanvasItemMaterial::BlendMode)
 VARIANT_ENUM_CAST(CanvasItemMaterial::LightMode)
 VARIANT_ENUM_CAST(CanvasItem::BlendMode);
 
+template <>
+struct PtrToArg<CharType> {
+    _FORCE_INLINE_ static CharType convert(const void *p_ptr) {
+        return QChar(uint32_t(*reinterpret_cast<const int64_t *>(p_ptr)));
+    }
+    _FORCE_INLINE_ static void encode(CharType p_val, void *p_ptr) {
+        *((int64_t *)p_ptr) = static_cast<int64_t>(p_val.unicode());
+    }
+};
+
+
 Mutex *CanvasItemMaterial::material_mutex = nullptr;
 SelfList<CanvasItemMaterial>::List *CanvasItemMaterial::dirty_materials = nullptr;
 Map<CanvasItemMaterial::MaterialKey, CanvasItemMaterial::ShaderData> CanvasItemMaterial::shader_map;
@@ -112,7 +123,7 @@ void CanvasItemMaterial::_update_shader() {
 
     //must create a shader!
 
-    String code = "shader_type canvas_item;\nrender_mode ";
+    se_string code("shader_type canvas_item;\nrender_mode ");
     switch (blend_mode) {
         case BLEND_MODE_MIX: code += "blend_mix"; break;
         case BLEND_MODE_ADD: code += "blend_add"; break;
@@ -926,6 +937,13 @@ void CanvasItem::draw_string(const Ref<Font> &p_font, const Point2 &p_pos, const
     ERR_FAIL_COND(not p_font)
     p_font->draw(canvas_item, p_pos, p_text, p_modulate, p_clip_w);
 }
+void CanvasItem::draw_string_utf8(const Ref<Font> &p_font, const Point2 &p_pos, se_string_view p_text, const Color &p_modulate, int p_clip_w) {
+
+    ERR_FAIL_COND_CMSG(!drawing, "Drawing is only allowed inside NOTIFICATION_DRAW, _draw() function or 'draw' signal.")
+
+    ERR_FAIL_COND(not p_font)
+    p_font->draw(canvas_item, p_pos, StringUtils::from_utf8(p_text), p_modulate, p_clip_w);
+}
 
 float CanvasItem::draw_char(const Ref<Font> &p_font, const Point2 &p_pos, QChar p_char, QChar p_next, const Color &p_modulate) {
 
@@ -1174,7 +1192,7 @@ void CanvasItem::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("draw_primitive", {"points", "colors", "uvs", "texture", "width", "normal_map"}), &CanvasItem::draw_primitive, {DEFVAL(Variant()), DEFVAL(1.0), DEFVAL(Variant())});
     MethodBinder::bind_method(D_METHOD("draw_polygon", {"points", "colors", "uvs", "texture", "normal_map", "antialiased"}), &CanvasItem::draw_polygon, {DEFVAL(Variant(PoolVector2Array())), DEFVAL(Variant()), DEFVAL(Variant()), DEFVAL(false)});
     MethodBinder::bind_method(D_METHOD("draw_colored_polygon", {"points", "color", "uvs", "texture", "normal_map", "antialiased"}), &CanvasItem::draw_colored_polygon, {DEFVAL(Variant(PoolVector2Array())), DEFVAL(Variant()), DEFVAL(Variant()), DEFVAL(false)});
-    MethodBinder::bind_method(D_METHOD("draw_string", {"font", "position", "text", "modulate", "clip_w"}), &CanvasItem::draw_string, {DEFVAL(Color(1, 1, 1)), DEFVAL(-1)});
+    MethodBinder::bind_method(D_METHOD("draw_string", {"font", "position", "text", "modulate", "clip_w"}), &CanvasItem::draw_string_utf8, {DEFVAL(Color(1, 1, 1)), DEFVAL(-1)});
     MethodBinder::bind_method(D_METHOD("draw_char", {"font", "position", "char", "next", "modulate"}), &CanvasItem::draw_char, {DEFVAL(Color(1, 1, 1))});
     MethodBinder::bind_method(D_METHOD("draw_mesh", {"mesh", "texture", "normal_map", "transform", "modulate"}), &CanvasItem::draw_mesh, {DEFVAL(Ref<Texture>()), DEFVAL(Transform2D()), DEFVAL(Color(1, 1, 1))});
     MethodBinder::bind_method(D_METHOD("draw_multimesh", {"multimesh", "texture", "normal_map"}), &CanvasItem::draw_multimesh, {DEFVAL(Ref<Texture>())});

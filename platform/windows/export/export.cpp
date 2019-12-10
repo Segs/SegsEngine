@@ -36,17 +36,17 @@
 #include "editor/editor_settings.h"
 #include "platform/windows/logo.gen.h"
 
-static Error fixup_embedded_pck(const String &p_path, int64_t p_embedded_start, int64_t p_embedded_size);
+static Error fixup_embedded_pck(se_string_view p_path, int64_t p_embedded_start, int64_t p_embedded_size);
 
 class EditorExportPlatformWindows : public EditorExportPlatformPC {
-    Error _code_sign(const Ref<EditorExportPreset> &p_preset, const String &p_path);
+    Error _code_sign(const Ref<EditorExportPreset> &p_preset, se_string_view p_path);
 public:
-    Error export_project(const Ref<EditorExportPreset> &p_preset, bool p_debug, const String &p_path, int p_flags = 0) override;
-    Error sign_shared_object(const Ref<EditorExportPreset> &p_preset, bool p_debug, const String &p_path) override;
+    Error export_project(const Ref<EditorExportPreset> &p_preset, bool p_debug, se_string_view p_path, int p_flags = 0) override;
+    Error sign_shared_object(const Ref<EditorExportPreset> &p_preset, bool p_debug, se_string_view p_path) override;
     void get_export_options(List<ExportOption> *r_options) override;
 };
 
-Error EditorExportPlatformWindows::sign_shared_object(const Ref<EditorExportPreset> &p_preset, bool p_debug, const String &p_path) {
+Error EditorExportPlatformWindows::sign_shared_object(const Ref<EditorExportPreset> &p_preset, bool p_debug, se_string_view p_path) {
     if (p_preset->get("codesign/enable")) {
         return _code_sign(p_preset, p_path);
     } else {
@@ -54,14 +54,14 @@ Error EditorExportPlatformWindows::sign_shared_object(const Ref<EditorExportPres
     }
 }
 
-Error EditorExportPlatformWindows::export_project(const Ref<EditorExportPreset> &p_preset, bool p_debug, const String &p_path, int p_flags) {
+Error EditorExportPlatformWindows::export_project(const Ref<EditorExportPreset> &p_preset, bool p_debug, se_string_view p_path, int p_flags) {
     Error err = EditorExportPlatformPC::export_project(p_preset, p_debug, p_path, p_flags);
 
     if (err != OK) {
         return err;
     }
 
-    String rcedit_path = EditorSettings::get_singleton()->get("export/windows/rcedit");
+    se_string rcedit_path = EditorSettings::get_singleton()->get("export/windows/rcedit");
 
     if (rcedit_path.empty()) {
         return OK;
@@ -74,7 +74,7 @@ Error EditorExportPlatformWindows::export_project(const Ref<EditorExportPreset> 
 
 #ifndef WINDOWS_ENABLED
     // On non-Windows we need WINE to run rcedit
-    String wine_path = EditorSettings::get_singleton()->get("export/windows/wine");
+    se_string wine_path = EditorSettings::get_singleton()->get("export/windows/wine");
 
     if (!wine_path.empty() && !FileAccess::exists(wine_path)) {
         ERR_PRINT("Could not find wine executable at " + wine_path + ", aborting.")
@@ -86,53 +86,53 @@ Error EditorExportPlatformWindows::export_project(const Ref<EditorExportPreset> 
     }
 #endif
 
-    String icon_path = ProjectSettings::get_singleton()->globalize_path(p_preset->get("application/icon"));
-    String file_verion = p_preset->get("application/file_version");
-    String product_version = p_preset->get("application/product_version");
-    String company_name = p_preset->get("application/company_name");
-    String product_name = p_preset->get("application/product_name");
-    String file_description = p_preset->get("application/file_description");
-    String copyright = p_preset->get("application/copyright");
-    String trademarks = p_preset->get("application/trademarks");
-    String comments = p_preset->get("application/comments");
+    se_string icon_path = ProjectSettings::get_singleton()->globalize_path(p_preset->get("application/icon").as<se_string>());
+    se_string file_verion = p_preset->get("application/file_version");
+    se_string product_version = p_preset->get("application/product_version");
+    se_string company_name = p_preset->get("application/company_name");
+    se_string product_name = p_preset->get("application/product_name");
+    se_string file_description = p_preset->get("application/file_description");
+    se_string copyright = p_preset->get("application/copyright");
+    se_string trademarks = p_preset->get("application/trademarks");
+    se_string comments = p_preset->get("application/comments");
 
-    ListPOD<String> args;
-    args.push_back(p_path);
+    ListPOD<se_string> args;
+    args.emplace_back(p_path);
     if (!icon_path.empty()) {
-        args.push_back("--set-icon");
+        args.push_back(("--set-icon"));
         args.push_back(icon_path);
     }
     if (!file_verion.empty()) {
-        args.push_back("--set-file-version");
+        args.push_back(("--set-file-version"));
         args.push_back(file_verion);
     }
     if (!product_version.empty()) {
-        args.push_back("--set-product-version");
+        args.push_back(("--set-product-version"));
         args.push_back(product_version);
     }
     if (!company_name.empty()) {
-        args.push_back("--set-version-string");
-        args.push_back("CompanyName");
+        args.push_back(("--set-version-string"));
+        args.push_back(("CompanyName"));
         args.push_back(company_name);
     }
     if (!product_name.empty()) {
-        args.push_back("--set-version-string");
-        args.push_back("ProductName");
+        args.push_back(("--set-version-string"));
+        args.push_back(("ProductName"));
         args.push_back(product_name);
     }
     if (!file_description.empty()) {
-        args.push_back("--set-version-string");
-        args.push_back("FileDescription");
+        args.push_back(("--set-version-string"));
+        args.push_back(("FileDescription"));
         args.push_back(file_description);
     }
     if (!copyright.empty()) {
-        args.push_back("--set-version-string");
-        args.push_back("LegalCopyright");
+        args.push_back(("--set-version-string"));
+        args.push_back(("LegalCopyright"));
         args.push_back(copyright);
     }
     if (!trademarks.empty()) {
-        args.push_back("--set-version-string");
-        args.push_back("LegalTrademarks");
+        args.push_back(("--set-version-string"));
+        args.push_back(("LegalTrademarks"));
         args.push_back(trademarks);
     }
 
@@ -175,8 +175,8 @@ void EditorExportPlatformWindows::get_export_options(List<ExportOption> *r_optio
     r_options->push_back(ExportOption(PropertyInfo(VariantType::STRING, "application/copyright"), ""));
     r_options->push_back(ExportOption(PropertyInfo(VariantType::STRING, "application/trademarks"), ""));
 }
-Error EditorExportPlatformWindows::_code_sign(const Ref<EditorExportPreset> &p_preset, const String &p_path) {
-    ListPOD<String> args;
+Error EditorExportPlatformWindows::_code_sign(const Ref<EditorExportPreset> &p_preset, se_string_view p_path) {
+    ListPOD<se_string> args;
 
 #ifdef WINDOWS_ENABLED
     String signtool_path = EditorSettings::get_singleton()->get("export/windows/signtool");
@@ -188,17 +188,17 @@ Error EditorExportPlatformWindows::_code_sign(const Ref<EditorExportPreset> &p_p
         signtool_path = "signtool"; // try to run signtool from PATH
     }
 #else
-    String signtool_path = EditorSettings::get_singleton()->get("export/windows/osslsigncode");
-    if (signtool_path != String() && !FileAccess::exists(signtool_path)) {
+    se_string signtool_path = EditorSettings::get_singleton()->get("export/windows/osslsigncode");
+    if (not signtool_path.empty() && !FileAccess::exists(signtool_path)) {
         ERR_PRINT("Could not find osslsigncode executable at " + signtool_path + ", aborting.")
         return ERR_FILE_NOT_FOUND;
     }
-    if (signtool_path == String()) {
+    if (not signtool_path.empty()) {
         signtool_path = "osslsigncode"; // try to run signtool from PATH
     }
 #endif
 
-    args.push_back("sign");
+    args.push_back(("sign"));
 
     //identity
 #ifdef WINDOWS_ENABLED
@@ -227,10 +227,10 @@ Error EditorExportPlatformWindows::_code_sign(const Ref<EditorExportPreset> &p_p
     }
 #else
     if (p_preset->get("codesign/identity") != "") {
-        args.push_back("-pkcs12");
+        args.push_back(("-pkcs12"));
         args.push_back(p_preset->get("codesign/identity"));
     } else {
-        EditorNode::add_io_error("codesign: no identity found");
+        EditorNode::add_io_error(("codesign: no identity found"));
         return FAILED;
     }
 #endif
@@ -240,7 +240,7 @@ Error EditorExportPlatformWindows::_code_sign(const Ref<EditorExportPreset> &p_p
 #ifdef WINDOWS_ENABLED
         args.push_back("/p");
 #else
-        args.push_back("-pass");
+        args.push_back(("-pass"));
 #endif
         args.push_back(p_preset->get("codesign/password"));
     }
@@ -249,69 +249,69 @@ Error EditorExportPlatformWindows::_code_sign(const Ref<EditorExportPreset> &p_p
     if (p_preset->get("codesign/timestamp")) {
         if (p_preset->get("codesign/timestamp_server") != "") {
 #ifdef WINDOWS_ENABLED
-            args.push_back("/tr");
+            args.push_back(String("/tr"));
             args.push_back(p_preset->get("codesign/timestamp_server_url"));
-            args.push_back("/td");
+            args.push_back(String("/td"));
             if ((int)p_preset->get("codesign/digest_algorithm") == 0) {
                 args.push_back("sha1");
             } else {
                 args.push_back("sha256");
             }
 #else
-            args.push_back("-ts");
+            args.push_back(("-ts"));
             args.push_back(p_preset->get("codesign/timestamp_server_url"));
 #endif
         } else {
-            EditorNode::add_io_error("codesign: invalid timestamp server");
+            EditorNode::add_io_error(("codesign: invalid timestamp server"));
             return FAILED;
         }
     }
 
     //digest
 #ifdef WINDOWS_ENABLED
-    args.push_back("/fd");
+    args.push_back(String("/fd"));
 #else
-    args.push_back("-h");
+    args.push_back(("-h"));
 #endif
     if ((int)p_preset->get("codesign/digest_algorithm") == 0) {
-        args.push_back("sha1");
+        args.push_back(("sha1"));
     } else {
-        args.push_back("sha256");
+        args.push_back(("sha256"));
     }
 
     //description
     if (p_preset->get("codesign/description") != "") {
 #ifdef WINDOWS_ENABLED
-        args.push_back("/d");
+        args.push_back(String("/d"));
 #else
-        args.push_back("-n");
+        args.push_back(("-n"));
 #endif
         args.push_back(p_preset->get("codesign/description"));
     }
 
     //user options
-    PoolStringArray user_args = p_preset->get("codesign/custom_options");
+    PoolVector<se_string> user_args(p_preset->get("codesign/custom_options").as<PoolVector<se_string>>());
     for (int i = 0; i < user_args.size(); i++) {
-        String user_arg = StringUtils::strip_edges(user_args[i]);
+        se_string user_arg(StringUtils::strip_edges(user_args[i]));
         if (!user_arg.empty()) {
-            args.push_back(user_arg);
+            args.emplace_back(eastl::move(user_arg));
         }
     }
 
 #ifndef WINDOWS_ENABLED
-    args.push_back("-in");
+    args.push_back(("-in"));
 #endif
-    args.push_back(p_path);
+    args.emplace_back(p_path);
 #ifndef WINDOWS_ENABLED
-    args.push_back("-out");
-    args.push_back(p_path);
+    args.push_back(("-out"));
+    args.emplace_back(p_path);
 #endif
 
-    String str;
+    se_string str;
     Error err = OS::get_singleton()->execute(signtool_path, args, true, nullptr, &str, nullptr, true);
     ERR_FAIL_COND_V(err != OK, err)
 
-    print_line("codesign (" + p_path + "): " + str);
+    print_line("codesign (" + se_string(p_path) + "): " + str);
 #ifndef WINDOWS_ENABLED
     if (StringUtils::contains(str,"SignTool Error")) {
 #else
@@ -343,19 +343,19 @@ void register_windows_exporter() {
     Ref<ImageTexture> logo(make_ref_counted<ImageTexture>());
     logo->create_from_image(img);
     platform->set_logo(logo);
-    platform->set_name("Windows Desktop");
-    platform->set_extension("exe");
-    platform->set_release_32("windows_32_release.exe");
-    platform->set_debug_32("windows_32_debug.exe");
-    platform->set_release_64("windows_64_release.exe");
-    platform->set_debug_64("windows_64_debug.exe");
-    platform->set_os_name("Windows");
+    platform->set_name(("Windows Desktop"));
+    platform->set_extension(("exe"));
+    platform->set_release_32(("windows_32_release.exe"));
+    platform->set_debug_32(("windows_32_debug.exe"));
+    platform->set_release_64(("windows_64_release.exe"));
+    platform->set_debug_64(("windows_64_debug.exe"));
+    platform->set_os_name(("Windows"));
     platform->set_fixup_embedded_pck_func(&fixup_embedded_pck);
 
     EditorExport::get_singleton()->add_export_platform(platform);
 }
 
-static Error fixup_embedded_pck(const String &p_path, int64_t p_embedded_start, int64_t p_embedded_size) {
+static Error fixup_embedded_pck(se_string_view p_path, int64_t p_embedded_start, int64_t p_embedded_size) {
 
     // Patch the header of the "pck" section in the PE file so that it corresponds to the embedded data
 

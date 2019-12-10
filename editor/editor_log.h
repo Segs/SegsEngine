@@ -45,47 +45,48 @@
 
 class EditorLog : public VBoxContainer {
 
-	GDCLASS(EditorLog,VBoxContainer)
+    GDCLASS(EditorLog,VBoxContainer)
 
-	Button *clearbutton;
-	Button *copybutton;
-	Label *title;
-	RichTextLabel *log;
-	HBoxContainer *title_hb;
-	//PaneDrag *pd;
-	ToolButton *tool_button;
+    Button *clearbutton;
+    Button *copybutton;
+    Label *title;
+    RichTextLabel *log;
+    HBoxContainer *title_hb;
+    //PaneDrag *pd;
+    ToolButton *tool_button;
 
-	static void _error_handler(void *p_self, const char *p_func, const char *p_file, int p_line, const char *p_error, const char *p_errorexp, ErrorHandlerType p_type);
+    static void _error_handler(void *p_self, const char *p_func, const char *p_file, int p_line, const char *p_error, const char *p_errorexp, ErrorHandlerType p_type);
 
-	ErrorHandlerList eh;
+    ErrorHandlerList eh;
 
-	Thread::ID current;
+    Thread::ID current;
 
-	//void _dragged(const Point2& p_ofs);
-	void _clear_request();
-	void _copy_request();
-	static void _undo_redo_cbk(void *p_self, const String &p_name);
+    //void _dragged(const Point2& p_ofs);
+    void _clear_request();
+    void _copy_request();
+    static void _undo_redo_cbk(void *p_self, se_string_view p_name);
 
 protected:
-	static void _bind_methods();
-	void _notification(int p_what);
+    static void _bind_methods();
+    void _notification(int p_what);
 
 public:
-	enum MessageType {
-		MSG_TYPE_STD,
-		MSG_TYPE_ERROR,
-		MSG_TYPE_WARNING,
-		MSG_TYPE_EDITOR
-	};
+    enum MessageType {
+        MSG_TYPE_STD,
+        MSG_TYPE_ERROR,
+        MSG_TYPE_WARNING,
+        MSG_TYPE_EDITOR
+    };
 
-	void add_message(const String &p_msg, MessageType p_type = MSG_TYPE_STD);
-	void set_tool_button(ToolButton *p_tool_button);
-	void deinit();
+    void add_message_utf8(se_string_view p_msg, MessageType p_type = MSG_TYPE_STD);
+    void add_message(const String &p_msg, MessageType p_type = MSG_TYPE_STD);
+    void set_tool_button(ToolButton *p_tool_button);
+    void deinit();
 
-	void clear();
-	void copy();
-	EditorLog();
-	~EditorLog() override;
+    void clear();
+    void copy();
+    EditorLog();
+    ~EditorLog() override;
 };
 
 #endif // EDITOR_LOG_H

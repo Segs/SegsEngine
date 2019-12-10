@@ -31,7 +31,7 @@
 #include "aabb.h"
 
 #include "core/print_string.h"
-#include "core/ustring.h"
+#include "core/se_string.h"
 
 real_t AABB::get_area() const {
 
@@ -392,7 +392,7 @@ void AABB::get_edge(int p_edge, Vector3 &r_from, Vector3 &r_to) const {
     }
 }
 
-AABB::operator String() const {
+AABB::operator se_string() const {
 
-    return String() + position + " - " + size;
+    return se_string(position) + " - " + se_string(size);
 }

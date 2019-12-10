@@ -39,21 +39,21 @@ protected:
     static void _bind_methods();
 
 public:
-    virtual Error save(const String &p_path, const Ref<Resource> &p_resource, uint32_t p_flags = 0);
+    virtual Error save(se_string_view p_path, const Ref<Resource> &p_resource, uint32_t p_flags = 0);
     virtual bool recognize(const Ref<Resource> &p_resource) const;
-    virtual void get_recognized_extensions(const Ref<Resource> &p_resource, Vector<String> *p_extensions) const;
+    virtual void get_recognized_extensions(const Ref<Resource> &p_resource, PODVector<se_string> &p_extensions) const;
 
     ~ResourceFormatSaver() override = default;
 };
 
-using ResourceSavedCallback = void (*)(const Ref<Resource> &, const String &);
+using ResourceSavedCallback = void (*)(const Ref<Resource> &, se_string_view );
 
 class GODOT_EXPORT ResourceSaver {
     //TODO: SEGS: timestamp_on_save variable is only used when TOOLS_ENABLED is set.
     static bool timestamp_on_save;
     static ResourceSavedCallback save_callback;
 
-    static Ref<ResourceFormatSaver> _find_custom_resource_format_saver(const String& path);
+    static Ref<ResourceFormatSaver> _find_custom_resource_format_saver(se_string_view path);
 
 public:
     enum SaverFlags {
@@ -67,8 +67,8 @@ public:
         FLAG_REPLACE_SUBRESOURCE_PATHS = 64,
     };
 
-    static Error save(const String &p_path, const RES &p_resource, uint32_t p_flags = 0);
-    static void get_recognized_extensions(const RES &p_resource, Vector<String> *p_extensions);
+    static Error save(se_string_view p_path, const RES &p_resource, uint32_t p_flags = 0);
+    static void get_recognized_extensions(const RES &p_resource, PODVector<se_string> &p_extensions);
     static void add_resource_format_saver(const Ref<ResourceFormatSaver>& p_format_saver, bool p_at_front = false);
     static void remove_resource_format_saver(const Ref<ResourceFormatSaver>& p_format_saver);
 
@@ -77,8 +77,8 @@ public:
 
     static void set_save_callback(ResourceSavedCallback p_callback);
 
-    static bool add_custom_resource_format_saver(const String& script_path);
-    static void remove_custom_resource_format_saver(const String& script_path);
+    static bool add_custom_resource_format_saver(se_string_view script_path);
+    static void remove_custom_resource_format_saver(se_string_view script_path);
     static void add_custom_savers();
     static void remove_custom_savers();
     static void finalize();

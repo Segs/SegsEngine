@@ -267,13 +267,13 @@ public:
     Size2 get_layered_buffer_size() override;
     virtual void swap_layered_buffer();
 
-    Error open_dynamic_library(const String &p_path, void *&p_library_handle, bool p_also_set_library_path = false) override;
+    Error open_dynamic_library(se_string_view p_path, void *&p_library_handle, bool p_also_set_library_path = false) override;
     Error close_dynamic_library(void *p_library_handle) override;
-    Error get_dynamic_library_symbol_handle(void *p_library_handle, const String &p_name, void *&p_symbol_handle, bool p_optional = false) override;
+    Error get_dynamic_library_symbol_handle(void *p_library_handle, se_string_view p_name, void *&p_symbol_handle, bool p_optional = false) override;
 
     MainLoop *get_main_loop() const override;
 
-    String get_name() const override;
+    se_string get_name() const override;
 
     Date get_date(bool utc) const override;
     Time get_time(bool utc) const override;
@@ -283,21 +283,21 @@ public:
     virtual uint64_t get_system_time_msecs() const;
 
     virtual bool can_draw() const;
-    virtual Error set_cwd(const String &p_cwd);
+    virtual Error set_cwd(se_string_view p_cwd);
 
     void delay_usec(uint32_t p_usec) const override;
     uint64_t get_ticks_usec() const override;
 
-    Error execute(const String &p_path, const ListPOD<String> &p_arguments, bool p_blocking, ProcessID *r_child_id = nullptr, String *r_pipe = nullptr, int *r_exitcode = nullptr, bool read_stderr = false, Mutex *p_pipe_mutex = nullptr) override;
+    Error execute(se_string_view p_path, const ListPOD<String> &p_arguments, bool p_blocking, ProcessID *r_child_id = nullptr, String *r_pipe = nullptr, int *r_exitcode = nullptr, bool read_stderr = false, Mutex *p_pipe_mutex = nullptr) override;
     Error kill(const ProcessID &p_pid) override;
     virtual int get_process_id() const;
 
-    bool has_environment(const String &p_var) const override;
-    String get_environment(const String &p_var) const override;
+    bool has_environment(se_string_view p_var) const override;
+    se_string get_environment(se_string_view p_var) const override;
     bool set_environment(const String &p_var, const String &p_value) const override;
 
     virtual void set_clipboard(const String &p_text);
-    String get_clipboard() const override;
+    se_string get_clipboard() const override;
 
     void set_cursor_shape(CursorShape p_shape) override;
     CursorShape get_cursor_shape() const override;
@@ -309,7 +309,7 @@ public:
 
     virtual String get_executable_path() const;
 
-    String get_locale() const override;
+    const char *get_locale() const override;
 
     int get_processor_count() const override;
 
@@ -321,8 +321,6 @@ public:
     String get_godot_dir_name() const override;
 
     String get_user_data_dir() const override;
-
-    String get_unique_id() const override;
 
     virtual void set_ime_active(const bool p_active);
     void set_ime_position(const Point2 &p_pos) override;
@@ -338,7 +336,7 @@ public:
     bool get_swap_ok_cancel() override { return true; }
 
     bool is_joy_known(int p_device) override;
-    String get_joy_guid(int p_device) const override;
+    StringName get_joy_guid(int p_device) const override;
 
     virtual void _set_use_vsync(bool p_enable);
     //virtual bool is_vsync_enabled() const;
@@ -355,7 +353,7 @@ public:
 
     void force_process_input() override;
 
-    Error move_to_trash(const String &p_path) override;
+    Error move_to_trash(const se_string &p_path) override;
 
     void process_and_drop_events() override;
 

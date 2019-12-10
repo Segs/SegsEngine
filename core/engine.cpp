@@ -33,6 +33,7 @@
 #include "core/dictionary.h"
 #include "core/variant.h"
 #include "core/ustring.h"
+#include "core/se_string.h"
 #include "authors.gen.h"
 #include "donors.gen.h"
 #include "license.gen.h"
@@ -107,14 +108,14 @@ Dictionary Engine::get_version_info() const {
     dict["build"] = VERSION_BUILD;
     dict["year"] = VERSION_YEAR;
 
-    String hash(VERSION_HASH);
-    dict["hash"] = hash.length() == 0 ? String("unknown") : hash;
+    se_string hash(VERSION_HASH);
+    dict["hash"] = hash.length() == 0 ? Variant("unknown") : Variant(hash);
 
-    String stringver = dict["major"].as<String>() + "." + dict["minor"].as<String>();
+    se_string stringver = dict["major"].as<se_string>() + "." + dict["minor"].as<se_string>();
     if ((int)dict["patch"] != 0)
-        stringver += "." + dict["patch"].as<String>();
-    stringver += "-" + dict["status"].as<String>() + " (" + dict["build"].as<String>() + ")";
-    dict["string"] = stringver;
+        stringver += "." + dict["patch"].as<se_string>();
+    stringver += "-" + dict["status"].as<se_string>() + " (" + dict["build"].as<se_string>() + ")";
+    dict["string"] = Variant(stringver);
 
     return dict;
 }
@@ -186,8 +187,8 @@ Dictionary Engine::get_license_info() const {
     return licenses;
 }
 
-String Engine::get_license_text() const {
-    return String(GODOT_LICENSE_TEXT);
+se_string Engine::get_license_text() const {
+    return se_string(GODOT_LICENSE_TEXT);
 }
 
 void Engine::add_singleton(const Singleton &p_singleton) {
@@ -196,20 +197,12 @@ void Engine::add_singleton(const Singleton &p_singleton) {
     singleton_ptrs[p_singleton.name] = p_singleton.ptr;
 }
 
-Object *Engine::get_singleton_object(const String &p_name) const {
-    //TODO: SEGS: use find_as(p_name.c_str(), {}(const char *a,const StringName &s)->bool { return strcmp(a,s.asCString());});
-    return get_singleton_object(StringName(p_name));
-};
 Object *Engine::get_singleton_object(const StringName &p_name) const {
     Map<StringName, Object *>::const_iterator E = singleton_ptrs.find(p_name);
-    ERR_FAIL_COND_V_MSG(E==singleton_ptrs.end(), nullptr, "Failed to retrieve non-existent singleton '" + p_name + "'.")
+    ERR_FAIL_COND_V_MSG(E==singleton_ptrs.end(), nullptr, "Failed to retrieve non-existent singleton '" + se_string(p_name) + "'.")
     return E->second;
 };
 
-bool Engine::has_singleton(const String &p_name) const {
-    //TODO: SEGS: use contains_as to prevent allocations
-    return has_singleton(StringName(p_name));
-};
 bool Engine::has_singleton(const StringName &p_name) const {
     return singleton_ptrs.contains(p_name);
 };
@@ -244,14 +237,14 @@ public:
     {
         delete d;
     }
-    void reportError(const String &msg, const char *retval, const char *funcstr,const char *file, int line) override
+    void reportError(se_string_view msg, const char *retval, const char *funcstr,const char *file, int line) override
     {
         if(!msg.empty())
         {
-            _err_set_last_error(StringUtils::utf8(msg).data());
+            _err_set_last_error(msg);
             _err_error_exists = true;
         }
-        _err_print_error(funcstr, file, line, String("Method/Function Failed, returning: ")+ retval);
+        _err_print_error(funcstr, file, line, se_string("Method/Function Failed, returning: ")+ retval);
         _err_error_exists = false;
     }
     void clearLastError() override

@@ -550,7 +550,7 @@ MonoObject *create_managed_from(const Dictionary &p_from, GDMonoClass *p_class) 
 }
 
 MonoDomain *create_domain(const String &p_friendly_name) {
-	print_verbose("Mono: Creating domain '" + p_friendly_name + "'...");
+    print_verbose("Mono: Creating domain '" + p_friendly_name + "'...");
 
     MonoDomain *domain = mono_domain_create_appdomain((char *)p_friendly_name.utf8().get_data(), NULL);
 
@@ -652,10 +652,10 @@ void debug_send_unhandled_exception_error(MonoException *p_exc) {
         p_exc = (MonoException *)inner_exc;
     }
 
-    String file = si.size() ? si[0].file : __FILE__;
-    String func = si.size() ? si[0].func : FUNCTION_STR;
+    se_string file = si.size() ? si[0].file : __FILE__;
+    se_string func = si.size() ? si[0].func : FUNCTION_STR;
     int line = si.size() ? si[0].line : __LINE__;
-    String error_msg = "Unhandled exception";
+    String error_msg("Unhandled exception");
 
     ScriptDebugger::get_singleton()->send_error(func, file, line, error_msg, exc_msg, ERR_HANDLER_ERROR, si);
 #endif

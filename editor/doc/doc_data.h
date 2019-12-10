@@ -32,24 +32,25 @@
 
 #include "core/io/xml_parser.h"
 #include "core/map.h"
+#include "core/se_string.h"
 
 class DocData {
 public:
     struct ArgumentDoc {
 
-        String name;
-        String type;
-        String enumeration;
-        String default_value;
+        se_string name;
+        se_string type;
+        se_string enumeration;
+        se_string default_value;
     };
 
     struct MethodDoc {
 
-        String name;
-        String return_type;
-        String return_enum;
-        String qualifiers;
-        String description;
+        se_string name;
+        se_string return_type;
+        se_string return_enum;
+        se_string qualifiers;
+        se_string description;
         Vector<ArgumentDoc> arguments;
         bool operator<(const MethodDoc &p_md) const {
             return name < p_md.name;
@@ -58,20 +59,20 @@ public:
 
     struct ConstantDoc {
 
-        String name;
-        String value;
-        String enumeration;
-        String description;
+        se_string name;
+        se_string value;
+        se_string enumeration;
+        se_string description;
     };
 
     struct PropertyDoc {
 
-        String name;
-        String type;
-        String enumeration;
-        String description;
-        String setter, getter;
-        String default_value;
+        se_string name;
+        StringName type;
+        se_string enumeration;
+        se_string description;
+        se_string setter, getter;
+        se_string default_value;
         bool overridden;
         bool operator<(const PropertyDoc &p_prop) const {
             return name < p_prop.name;
@@ -80,12 +81,12 @@ public:
 
     struct ClassDoc {
 
-        String name;
-        String inherits;
-        String category;
-        String brief_description;
-        String description;
-        Vector<String> tutorials;
+        StringName name;
+        StringName inherits;
+        se_string category;
+        se_string brief_description;
+        se_string description;
+        Vector<se_string> tutorials;
         Vector<MethodDoc> methods;
         Vector<MethodDoc> defined_signals;
         Vector<ConstantDoc> constants;
@@ -93,18 +94,18 @@ public:
         Vector<PropertyDoc> theme_properties;
     };
 
-    String version;
+    se_string version;
 
-    Map<String, ClassDoc> class_list;
+    Map<StringName, ClassDoc> class_list;
     Error _load(Ref<XMLParser> parser);
 
 public:
     void merge_from(const DocData &p_data);
     void remove_from(const DocData &p_data);
     void generate(bool p_basic_types = false);
-    Error load_classes(const String &p_dir);
-    static Error erase_classes(const String &p_dir);
-    Error save_classes(const String &p_default_path, const Map<String, String> &p_class_path);
+    Error load_classes(se_string_view p_dir);
+    static Error erase_classes(se_string_view p_dir);
+    Error save_classes(se_string_view p_default_path, const Map<StringName, se_string> &p_class_path);
 
     Error load_compressed(const uint8_t *p_data, int p_compressed_size, int p_uncompressed_size);
 };

@@ -73,7 +73,7 @@ namespace  {
     class ResourceSaverImage final : public ResourceFormatSaver {
         ImageFormatSaver *m_saver;
     public:
-        Error save(const String &p_path, const RES &p_resource, uint32_t p_flags = 0) final {
+        Error save(se_string_view p_path, const RES &p_resource, uint32_t p_flags = 0) final {
 
             Error err;
             Ref<ImageTexture> texture(dynamic_ref_cast<ImageTexture>(p_resource));
@@ -83,7 +83,7 @@ namespace  {
 
             Ref<Image> img(texture->get_data());
             FileAccess *file = FileAccess::open(p_path, FileAccess::WRITE, &err);
-            ERR_FAIL_COND_V_MSG(err, err, vformat("Can't save using saver wrapper at path: '%s'.", p_path))
+            ERR_FAIL_COND_V_MSG(err, err, vformat(("Can't save using saver wrapper at path: '%s'."), p_path))
             PODVector<uint8_t> buffer;
             err = m_saver->save_image(*img,buffer,{});
 
@@ -103,7 +103,7 @@ namespace  {
 
             return dynamic_ref_cast<ImageTexture>(p_resource)!=nullptr;
         }
-        void get_recognized_extensions(const RES &p_resource, Vector<String> *p_extensions) const final {
+        void get_recognized_extensions(const RES &p_resource, PODVector<se_string> &p_extensions) const final {
             if (object_cast<ImageTexture>(p_resource.get()))
                 return m_saver->get_saved_extensions(p_extensions);
         }
@@ -188,7 +188,7 @@ Texture::Texture() {
 
 void ImageTexture::reload_from_file() {
 
-    String path = ResourceLoader::path_remap(get_path());
+    se_string path = ResourceLoader::path_remap(get_path());
     if (!PathUtils::is_resource_file(path))
         return;
 
@@ -251,7 +251,7 @@ void ImageTexture::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
 
 void ImageTexture::_reload_hook(const RID &p_hook) {
 
-    String path = get_path();
+    se_string path = get_path();
     if (!PathUtils::is_resource_file(path))
         return;
 
@@ -316,7 +316,7 @@ Image::Format ImageTexture::get_format() const {
     return format;
 }
 #ifndef DISABLE_DEPRECATED
-Error ImageTexture::load(const String &p_path) {
+Error ImageTexture::load(se_string_view p_path) {
 
     WARN_DEPRECATED
     Ref<Image> img(make_ref_counted<Image>());
@@ -341,8 +341,8 @@ void ImageTexture::set_data(const Ref<Image> &p_image) {
 }
 
 void ImageTexture::_resource_path_changed() {
-
-    String path = get_path();
+    //TODO: SEGS: ImageTexture::_resource_path_changed - this looks like a dead code?
+    se_string path = get_path();
 }
 
 Ref<Image> ImageTexture::get_data() const {
@@ -441,7 +441,7 @@ void ImageTexture::set_size_override(const Size2 &p_size) {
     VisualServer::get_singleton()->texture_set_size_override(texture, w, h, 0);
 }
 
-void ImageTexture::set_path(const String &p_path, bool p_take_over) {
+void ImageTexture::set_path(se_string_view p_path, bool p_take_over) {
 
     if (texture.is_valid()) {
         VisualServer::get_singleton()->texture_set_path(texture, p_path);
@@ -527,7 +527,7 @@ ImageTexture::~ImageTexture() {
 
 //////////////////////////////////////////
 struct StreamTexture::StreamTextureData {
-    String path_to_file;
+    se_string path_to_file;
     RID texture;
     Image::Format format;
     uint32_t flags;
@@ -535,7 +535,7 @@ struct StreamTexture::StreamTextureData {
     mutable eastl::unique_ptr<BitMap> alpha_cache;
 };
 
-void StreamTexture::set_path(const String &p_path, bool p_take_over) {
+void StreamTexture::set_path(se_string_view p_path, bool p_take_over) {
 
     if (m_impl_data->texture.is_valid()) {
         VisualServer::get_singleton()->texture_set_path(m_impl_data->texture, p_path);
@@ -549,7 +549,7 @@ void StreamTexture::_requested_3d(void *p_ud) {
     StreamTexture *st = (StreamTexture *)p_ud;
     Ref<StreamTexture> stex(st);
     ERR_FAIL_COND(!request_3d_callback)
-    request_3d_callback(stex->get_path());
+    request_3d_callback(StringName(stex->get_path()));
 }
 
 void StreamTexture::_requested_srgb(void *p_ud) {
@@ -557,7 +557,7 @@ void StreamTexture::_requested_srgb(void *p_ud) {
     StreamTexture *st = (StreamTexture *)p_ud;
     Ref<StreamTexture> stex(st);
     ERR_FAIL_COND(!request_srgb_callback)
-    request_srgb_callback(stex->get_path());
+    request_srgb_callback(StringName(stex->get_path()));
 }
 
 void StreamTexture::_requested_normal(void *p_ud) {
@@ -565,7 +565,7 @@ void StreamTexture::_requested_normal(void *p_ud) {
     StreamTexture *st = (StreamTexture *)p_ud;
     Ref<StreamTexture> stex(st);
     ERR_FAIL_COND(!request_normal_callback)
-    request_normal_callback(stex->get_path());
+    request_normal_callback(StringName(stex->get_path()));
 }
 
 StreamTexture::TextureFormatRequestCallback StreamTexture::request_3d_callback = nullptr;
@@ -581,7 +581,7 @@ Image::Format StreamTexture::get_format() const {
     return m_impl_data->format;
 }
 
-Error StreamTexture::_load_data(const String &p_path, int &tw, int &th, int &tw_custom, int &th_custom, int &flags, Ref<Image> &image, int p_size_limit) {
+Error StreamTexture::_load_data(se_string_view p_path, int &tw, int &th, int &tw_custom, int &th_custom, int &flags, Ref<Image> &image, int p_size_limit) {
 
     m_impl_data->alpha_cache.reset(nullptr); // TODO: memory de-allocation, check if actually needed ?
 
@@ -799,7 +799,7 @@ Error StreamTexture::_load_data(const String &p_path, int &tw, int &th, int &tw_
     return ERR_BUG; //unreachable
 }
 
-Error StreamTexture::load(const String &p_path) {
+Error StreamTexture::load(se_string_view p_path) {
 
     int lw, lh, lwc, lhc, lflags;
     Ref<Image> image(make_ref_counted<Image>());
@@ -829,7 +829,7 @@ Error StreamTexture::load(const String &p_path) {
     emit_changed();
     return OK;
 }
-String StreamTexture::get_load_path() const {
+se_string StreamTexture::get_load_path() const {
 
     return m_impl_data->path_to_file;
 }
@@ -923,7 +923,7 @@ void StreamTexture::set_flags(uint32_t p_flags) {
 
 void StreamTexture::reload_from_file() {
 
-    String path = get_path();
+    se_string path = get_path();
     if (!PathUtils::is_resource_file(path))
         return;
 
@@ -964,7 +964,7 @@ StreamTexture::~StreamTexture() {
     delete m_impl_data;
 }
 
-RES ResourceFormatLoaderStreamTexture::load(const String &p_path, const String &p_original_path, Error *r_error) {
+RES ResourceFormatLoaderStreamTexture::load(se_string_view p_path, se_string_view p_original_path, Error *r_error) {
 
     Ref<StreamTexture> st(make_ref_counted<StreamTexture>());
     Error err = st->load(p_path);
@@ -976,18 +976,18 @@ RES ResourceFormatLoaderStreamTexture::load(const String &p_path, const String &
     return st;
 }
 
-void ResourceFormatLoaderStreamTexture::get_recognized_extensions(ListPOD<String> *p_extensions) const {
+void ResourceFormatLoaderStreamTexture::get_recognized_extensions(PODVector<se_string> &p_extensions) const {
 
-    p_extensions->push_back("stex");
+    p_extensions.push_back(("stex"));
 }
-bool ResourceFormatLoaderStreamTexture::handles_type(const String &p_type) const {
-    return p_type == "StreamTexture";
+bool ResourceFormatLoaderStreamTexture::handles_type(se_string_view p_type) const {
+    return p_type == se_string_view("StreamTexture");
 }
-String ResourceFormatLoaderStreamTexture::get_resource_type(const String &p_path) const {
+se_string ResourceFormatLoaderStreamTexture::get_resource_type(se_string_view p_path) const {
 
     if (StringUtils::to_lower(PathUtils::get_extension(p_path)) == "stex")
-        return "StreamTexture";
-    return "";
+        return ("StreamTexture");
+    return {};
 }
 
 //////////////////////////////////////////
@@ -1641,7 +1641,7 @@ float CubeMap::get_lossy_storage_quality() const {
     return lossy_storage_quality;
 }
 
-void CubeMap::set_path(const String &p_path, bool p_take_over) {
+void CubeMap::set_path(se_string_view p_path, bool p_take_over) {
 
     if (cubemap.is_valid()) {
         VisualServer::get_singleton()->texture_set_path(cubemap, p_path);
@@ -2213,7 +2213,7 @@ uint32_t AnimatedTexture::get_flags() const {
 
 void AnimatedTexture::_validate_property(PropertyInfo &property) const {
 
-    String prop = property.name;
+    StringName prop = property.name;
     if (StringUtils::begins_with(prop,"frame_")) {
         int frame = StringUtils::to_int(StringUtils::get_slice(StringUtils::get_slice(prop,'/', 0),'_', 1));
         if (frame >= frame_count) {
@@ -2241,8 +2241,8 @@ void AnimatedTexture::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::REAL, "fps", PROPERTY_HINT_RANGE, "0,1024,0.1"), "set_fps", "get_fps");
 
     for (int i = 0; i < MAX_FRAMES; i++) {
-        ADD_PROPERTYI(PropertyInfo(VariantType::OBJECT, "frame_" + itos(i) + "/texture", PROPERTY_HINT_RESOURCE_TYPE, "Texture", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_INTERNAL), "set_frame_texture", "get_frame_texture", i);
-        ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "frame_" + itos(i) + "/delay_sec", PROPERTY_HINT_RANGE, "0.0,16.0,0.01", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_INTERNAL), "set_frame_delay", "get_frame_delay", i);
+        ADD_PROPERTYI(PropertyInfo(VariantType::OBJECT, StringName("frame_" + itos(i) + "/texture"), PROPERTY_HINT_RESOURCE_TYPE, "Texture", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_INTERNAL), "set_frame_texture", "get_frame_texture", i);
+        ADD_PROPERTYI(PropertyInfo(VariantType::REAL, StringName("frame_" + itos(i) + "/delay_sec"), PROPERTY_HINT_RANGE, "0.0,16.0,0.01", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_INTERNAL), "set_frame_delay", "get_frame_delay", i);
     }
 
     BIND_CONSTANT(MAX_FRAMES);
@@ -2374,7 +2374,7 @@ RID TextureLayered::get_rid() const {
     return texture;
 }
 
-void TextureLayered::set_path(const String &p_path, bool p_take_over) {
+void TextureLayered::set_path(se_string_view p_path, bool p_take_over) {
     if (texture.is_valid()) {
         VisualServer::get_singleton()->texture_set_path(texture, p_path);
     }
@@ -2427,7 +2427,7 @@ TextureLayered::~TextureLayered() {
     }
 }
 
-RES ResourceFormatLoaderTextureLayered::load(const String &p_path, const String &p_original_path, Error *r_error) {
+RES ResourceFormatLoaderTextureLayered::load(se_string_view p_path, se_string_view p_original_path, Error *r_error) {
 
     if (r_error) {
         *r_error = ERR_CANT_OPEN;
@@ -2465,7 +2465,7 @@ RES ResourceFormatLoaderTextureLayered::load(const String &p_path, const String 
         }
     } else {
 
-        ERR_FAIL_V_MSG(RES(), "Unrecognized layered texture file format: " + String((const char *)header) + ".")
+        ERR_FAIL_V_MSG(RES(), "Unrecognized layered texture file format: " + se_string((const char *)header) + ".")
     }
 
     int tw = f->get_32();
@@ -2573,21 +2573,21 @@ RES ResourceFormatLoaderTextureLayered::load(const String &p_path, const String 
     return lt;
 }
 
-void ResourceFormatLoaderTextureLayered::get_recognized_extensions(ListPOD<String> *p_extensions) const {
+void ResourceFormatLoaderTextureLayered::get_recognized_extensions(PODVector<se_string> &p_extensions) const {
 
-    p_extensions->push_back("tex3d");
-    p_extensions->push_back("texarr");
+    p_extensions.push_back(("tex3d"));
+    p_extensions.push_back(("texarr"));
 }
-bool ResourceFormatLoaderTextureLayered::handles_type(const String &p_type) const {
-    return p_type == "Texture3D" || p_type == "TextureArray";
+bool ResourceFormatLoaderTextureLayered::handles_type(se_string_view p_type) const {
+    return p_type == se_string_view("Texture3D") || p_type == se_string_view("TextureArray");
 }
-String ResourceFormatLoaderTextureLayered::get_resource_type(const String &p_path) const {
+se_string ResourceFormatLoaderTextureLayered::get_resource_type(se_string_view p_path) const {
 
     if (StringUtils::to_lower(PathUtils::get_extension(p_path)) == "tex3d")
-        return "Texture3D";
+        return ("Texture3D");
     if (StringUtils::to_lower(PathUtils::get_extension(p_path)) == "texarr")
-        return "TextureArray";
-    return "";
+        return ("TextureArray");
+    return {};
 }
 
 #include "camera_texture.h"

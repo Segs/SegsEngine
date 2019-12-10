@@ -34,17 +34,17 @@
 
 IMPL_GDCLASS(Range)
 
-String Range::get_configuration_warning() const {
-    String warning = Control::get_configuration_warning();
+StringName Range::get_configuration_warning() const {
+    se_string warning(Control::get_configuration_warning());
 
     if (shared->exp_ratio && shared->min <= 0) {
         if (!warning.empty()) {
-            warning += "\n\n";
+            warning += ("\n\n");
         }
         warning += TTR(R"(If "Exp Edit" is enabled, "Min Value" must be greater than 0.)");
     }
 
-    return warning;
+    return StringName(warning);
 }
 
 void Range::_value_changed_notify() {
@@ -64,14 +64,14 @@ void Range::Shared::emit_value_changed() {
     }
 }
 
-void Range::_changed_notify(const char *p_what) {
+void Range::_changed_notify(StringName p_what) {
 
     emit_signal("changed");
     update();
     _change_notify(p_what);
 }
 
-void Range::Shared::emit_changed(const char *p_what) {
+void Range::Shared::emit_changed(StringName p_what) {
 
     for (Range * r : owners) {
         if (!r->is_inside_tree())
@@ -80,7 +80,7 @@ void Range::Shared::emit_changed(const char *p_what) {
     }
 }
 
-void Range::set_value(double p_val) {
+void Range::set_value(real_t p_val) {
 
     if (shared->step > 0)
         p_val = Math::round(p_val / shared->step) * shared->step;
@@ -101,7 +101,7 @@ void Range::set_value(double p_val) {
 
     shared->emit_value_changed();
 }
-void Range::set_min(double p_min) {
+void Range::set_min(real_t p_min) {
 
     shared->min = p_min;
     set_value(shared->val);
@@ -110,14 +110,14 @@ void Range::set_min(double p_min) {
 
     update_configuration_warning();
 }
-void Range::set_max(double p_max) {
+void Range::set_max(real_t p_max) {
 
     shared->max = p_max;
     set_value(shared->val);
 
     shared->emit_changed("max");
 }
-void Range::set_step(double p_step) {
+void Range::set_step(real_t p_step) {
 
     shared->step = p_step;
     shared->emit_changed("step");
@@ -130,7 +130,7 @@ void Range::set_page(double p_page) {
     shared->emit_changed("page");
 }
 
-double Range::get_value() const {
+real_t Range::get_value() const {
 
     return shared->val;
 }

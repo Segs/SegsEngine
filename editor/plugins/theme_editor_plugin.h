@@ -43,77 +43,77 @@
 
 class ThemeEditor : public VBoxContainer {
 
-	GDCLASS(ThemeEditor,VBoxContainer)
+    GDCLASS(ThemeEditor,VBoxContainer)
 
-	Panel *main_panel;
-	MarginContainer *main_container;
-	Ref<Theme> theme;
+    Panel *main_panel;
+    MarginContainer *main_container;
+    Ref<Theme> theme;
 
-	EditorFileDialog *file_dialog;
+    EditorFileDialog *file_dialog;
 
-	double time_left;
+    double time_left;
 
-	MenuButton *theme_menu;
-	ConfirmationDialog *add_del_dialog;
-	HBoxContainer *type_hbc;
-	MenuButton *type_menu;
-	LineEdit *type_edit;
-	HBoxContainer *name_hbc;
-	MenuButton *name_menu;
-	LineEdit *name_edit;
-	OptionButton *type_select;
-	Label *type_select_label;
-	Label *name_select_label;
+    MenuButton *theme_menu;
+    ConfirmationDialog *add_del_dialog;
+    HBoxContainer *type_hbc;
+    MenuButton *type_menu;
+    LineEdit *type_edit;
+    HBoxContainer *name_hbc;
+    MenuButton *name_menu;
+    LineEdit *name_edit;
+    OptionButton *type_select;
+    Label *type_select_label;
+    Label *name_select_label;
 
-	enum PopupMode {
-		POPUP_ADD,
-		POPUP_CLASS_ADD,
-		POPUP_REMOVE,
-		POPUP_CLASS_REMOVE,
-		POPUP_CREATE_EMPTY,
-		POPUP_CREATE_EDITOR_EMPTY,
-		POPUP_IMPORT_EDITOR_THEME
-	};
+    enum PopupMode {
+        POPUP_ADD,
+        POPUP_CLASS_ADD,
+        POPUP_REMOVE,
+        POPUP_CLASS_REMOVE,
+        POPUP_CREATE_EMPTY,
+        POPUP_CREATE_EDITOR_EMPTY,
+        POPUP_IMPORT_EDITOR_THEME
+    };
 
-	int popup_mode;
+    int popup_mode;
 
-	Tree *test_tree;
+    Tree *test_tree;
 
-	void _save_template_cbk(const String &fname);
-	void _dialog_cbk();
-	void _type_menu_cbk(int p_option);
-	void _name_menu_about_to_show();
-	void _name_menu_cbk(int p_option);
-	void _theme_menu_cbk(int p_option);
-	void _propagate_redraw(Control *p_at);
-	void _refresh_interval();
+    void _save_template_cbk(se_string_view fname);
+    void _dialog_cbk();
+    void _type_menu_cbk(int p_option);
+    void _name_menu_about_to_show();
+    void _name_menu_cbk(int p_option);
+    void _theme_menu_cbk(int p_option);
+    void _propagate_redraw(Control *p_at);
+    void _refresh_interval();
 
 protected:
-	void _notification(int p_what);
-	static void _bind_methods();
+    void _notification(int p_what);
+    static void _bind_methods();
 
 public:
-	void edit(const Ref<Theme> &p_theme);
+    void edit(const Ref<Theme> &p_theme);
 
-	ThemeEditor();
+    ThemeEditor();
 };
 
 class ThemeEditorPlugin : public EditorPlugin {
 
-	GDCLASS(ThemeEditorPlugin,EditorPlugin)
+    GDCLASS(ThemeEditorPlugin,EditorPlugin)
 
-	ThemeEditor *theme_editor;
-	EditorNode *editor;
-	Button *button;
+    ThemeEditor *theme_editor;
+    EditorNode *editor;
+    Button *button;
 
 public:
-	String get_name() const override { return "Theme"; }
-	bool has_main_screen() const override { return false; }
-	void edit(Object *p_node) override;
-	bool handles(Object *p_node) const override;
-	void make_visible(bool p_visible) override;
+    se_string_view get_name() const override { return ("Theme"); }
+    bool has_main_screen() const override { return false; }
+    void edit(Object *p_node) override;
+    bool handles(Object *p_node) const override;
+    void make_visible(bool p_visible) override;
 
-	ThemeEditorPlugin(EditorNode *p_node);
+    ThemeEditorPlugin(EditorNode *p_node);
 };
 
 #endif // THEME_EDITOR_PLUGIN_H

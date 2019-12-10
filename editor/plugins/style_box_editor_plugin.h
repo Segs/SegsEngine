@@ -32,7 +32,7 @@
 #define STYLE_BOX_EDITOR_PLUGIN_H
 
 #include "editor/editor_inspector.h"
-#include "editor/editor_node.h"
+#include "editor/editor_plugin.h"
 #include "scene/gui/option_button.h"
 #include "scene/gui/texture_rect.h"
 #include "scene/resources/style_box.h"
@@ -61,7 +61,7 @@ class EditorInspectorPluginStyleBox : public EditorInspectorPlugin {
 public:
 	bool can_handle(Object *p_object) override;
 	void parse_begin(Object *p_object) override;
-	bool parse_property(Object *p_object, VariantType p_type, const String &p_path, PropertyHint p_hint, const String &p_hint_text, int p_usage) override;
+    bool parse_property(Object *p_object, VariantType p_type, se_string_view p_path, PropertyHint p_hint, se_string_view p_hint_text, int p_usage) override;
 	void parse_end() override;
 };
 
@@ -70,7 +70,7 @@ class StyleBoxEditorPlugin : public EditorPlugin {
 	GDCLASS(StyleBoxEditorPlugin,EditorPlugin)
 
 public:
-	String get_name() const override { return "StyleBox"; }
+    se_string_view get_name() const override { return "StyleBox"; }
 
 	StyleBoxEditorPlugin(EditorNode *p_node);
 };

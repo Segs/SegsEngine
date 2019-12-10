@@ -102,10 +102,10 @@ Size2 AnimationTreePlayerEditor::get_node_size(const StringName &p_node) const {
     int count = 2; // title and name
     int inputs = anim_tree->node_get_input_count(p_node);
     count += inputs ? inputs : 1;
-    String name = p_node;
+    StringName name(p_node);
 
-    float name_w = font->get_string_size(name).width;
-    float type_w = font->get_string_size(String(_node_type_names[type])).width;
+    float name_w = font->get_string_size_utf8(p_node).width;
+    float type_w = font->get_string_size_utf8((_node_type_names[type])).width;
     float max_w = MAX(name_w, type_w);
 
     switch (type) {
@@ -133,12 +133,12 @@ Size2 AnimationTreePlayerEditor::get_node_size(const StringName &p_node) const {
     return size;
 }
 
-void AnimationTreePlayerEditor::_edit_dialog_changede(const String&) {
+void AnimationTreePlayerEditor::_edit_dialog_changede(se_string_view) {
 
     edit_dialog->hide();
 }
 
-void AnimationTreePlayerEditor::_edit_dialog_changeds(const String& s) {
+void AnimationTreePlayerEditor::_edit_dialog_changeds(se_string_view s) {
 
     _edit_dialog_changed();
 }
@@ -244,7 +244,7 @@ void AnimationTreePlayerEditor::_master_anim_menu_item(int p_item) {
         _edit_filters();
     else {
 
-        String str = master_anim_popup->get_item_text(p_item);
+        se_string str = master_anim_popup->get_item_text_utf8(p_item);
         anim_tree->animation_node_set_master_animation(edited_node, str);
     }
     update();
@@ -280,7 +280,7 @@ void AnimationTreePlayerEditor::_popup_edit_dialog() {
         edit_label[0]->set_position(Point2(5, 5));
         edit_label[0]->show();
         edit_line[0]->set_begin(Point2(15, 25));
-        edit_line[0]->set_text(edited_node);
+        edit_line[0]->set_text_utf8(edited_node);
         edit_line[0]->show();
         edit_dialog->set_size(Size2(150, 50));
 
@@ -298,9 +298,9 @@ void AnimationTreePlayerEditor::_popup_edit_dialog() {
                     master_anim_popup->clear();
                     master_anim_popup->add_item(TTR("Edit Filters"));
                     master_anim_popup->add_separator();
-                    ListPOD<StringName> sn;
+                    PODVector<StringName> sn;
                     ap->get_animation_list(&sn);
-                    sn.sort(WrapAlphaCompare());
+                    eastl::sort(sn.begin(),sn.end(),WrapAlphaCompare());
                     for (const StringName &E : sn) {
                         master_anim_popup->add_item(E);
                     }
@@ -319,7 +319,7 @@ void AnimationTreePlayerEditor::_popup_edit_dialog() {
                 edit_label[0]->set_position(Point2(5, 5));
                 edit_label[0]->show();
                 edit_line[0]->set_begin(Point2(15, 25));
-                edit_line[0]->set_text(rtos(anim_tree->timescale_node_get_scale(edited_node)));
+                edit_line[0]->set_text_utf8(rtos(anim_tree->timescale_node_get_scale(edited_node)));
                 edit_line[0]->show();
                 edit_dialog->set_size(Size2(150, 50));
                 break;
@@ -328,13 +328,13 @@ void AnimationTreePlayerEditor::_popup_edit_dialog() {
                 edit_label[0]->set_position(Point2(5, 5));
                 edit_label[0]->show();
                 edit_line[0]->set_begin(Point2(15, 25));
-                edit_line[0]->set_text(rtos(anim_tree->oneshot_node_get_fadein_time(edited_node)));
+                edit_line[0]->set_text_utf8(rtos(anim_tree->oneshot_node_get_fadein_time(edited_node)));
                 edit_line[0]->show();
                 edit_label[1]->set_text(TTR("Fade Out (s):"));
                 edit_label[1]->set_position(Point2(5, 55));
                 edit_label[1]->show();
                 edit_line[1]->set_begin(Point2(15, 75));
-                edit_line[1]->set_text(rtos(anim_tree->oneshot_node_get_fadeout_time(edited_node)));
+                edit_line[1]->set_text_utf8(rtos(anim_tree->oneshot_node_get_fadeout_time(edited_node)));
                 edit_line[1]->show();
 
                 edit_option->clear();
@@ -354,13 +354,13 @@ void AnimationTreePlayerEditor::_popup_edit_dialog() {
                 edit_label[2]->set_position(Point2(5, 145));
                 edit_label[2]->show();
                 edit_line[2]->set_begin(Point2(15, 165));
-                edit_line[2]->set_text(rtos(anim_tree->oneshot_node_get_autorestart_delay(edited_node)));
+                edit_line[2]->set_text_utf8(rtos(anim_tree->oneshot_node_get_autorestart_delay(edited_node)));
                 edit_line[2]->show();
                 edit_label[3]->set_text(TTR("Random Restart (s):"));
                 edit_label[3]->set_position(Point2(5, 195));
                 edit_label[3]->show();
                 edit_line[3]->set_begin(Point2(15, 215));
-                edit_line[3]->set_text(rtos(anim_tree->oneshot_node_get_autorestart_random_delay(edited_node)));
+                edit_line[3]->set_text_utf8(rtos(anim_tree->oneshot_node_get_autorestart_random_delay(edited_node)));
                 edit_line[3]->show();
 
                 filter_button->set_begin(Point2(10, 245));
@@ -448,7 +448,7 @@ void AnimationTreePlayerEditor::_popup_edit_dialog() {
                 edit_label[0]->set_position(Point2(5, 5));
                 edit_label[0]->show();
                 edit_line[0]->set_begin(Point2(15, 25));
-                edit_line[0]->set_text(rtos(anim_tree->transition_node_get_xfade_time(edited_node)));
+                edit_line[0]->set_text_utf8(rtos(anim_tree->transition_node_get_xfade_time(edited_node)));
                 edit_line[0]->show();
 
                 edit_label[1]->set_text(TTR("Current:"));
@@ -459,7 +459,7 @@ void AnimationTreePlayerEditor::_popup_edit_dialog() {
                 edit_option->clear();
 
                 for (int i = 0; i < anim_tree->transition_node_get_input_count(edited_node); i++) {
-                    edit_option->add_item(itos(i), i);
+                    edit_option->add_item(StringName(itos(i)), i);
                 }
 
                 edit_option->select(anim_tree->transition_node_get_current(edited_node));
@@ -514,10 +514,10 @@ void AnimationTreePlayerEditor::_draw_node(const StringName &p_node) {
     Color bx = font_color_title;
     bx.a *= 0.1f;
     draw_rect(Rect2(ofs, Size2(size.width - style->get_minimum_size().width, font->get_height())), bx);
-    font->draw_halign(ci, ofs + ascofs, HALIGN_CENTER, w, String(_node_type_names[type]), font_color_title);
+    font->draw_halign_utf8(ci, ofs + ascofs, HALIGN_CENTER, w, _node_type_names[type], font_color_title);
 
     ofs.y += h;
-    font->draw_halign(ci, ofs + ascofs, HALIGN_CENTER, w, p_node, font_color);
+    font->draw_halign_utf8(ci, ofs + ascofs, HALIGN_CENTER, w, p_node, font_color);
     ofs.y += h;
 
     int inputs = anim_tree->node_get_input_count(p_node);
@@ -531,7 +531,7 @@ void AnimationTreePlayerEditor::_draw_node(const StringName &p_node) {
         for (int i = 0; i < inputs; i++) {
 
             slot_icon->draw(ci, ofs + Point2(-slot_icon->get_width(), icon_h_ofs));
-            String text;
+            se_string text;
             switch (type) {
 
                 case AnimationTreePlayer::NODE_TIMESCALE:
@@ -561,13 +561,13 @@ void AnimationTreePlayerEditor::_draw_node(const StringName &p_node) {
                 case AnimationTreePlayer::NODE_TRANSITION:
                     text = itos(i);
                     if (anim_tree->transition_node_has_input_auto_advance(p_node, i))
-                        text += "->";
+                        text += ("->");
 
                     break;
                 default: {
                 }
             }
-            font->draw(ci, ofs + ascofs + Point2(3, 0), text, font_color);
+            font->draw(ci, ofs + ascofs + Point2(3, 0), StringUtils::from_utf8(text), font_color);
 
             ofs.y += h;
         }
@@ -584,7 +584,7 @@ void AnimationTreePlayerEditor::_draw_node(const StringName &p_node) {
         case AnimationTreePlayer::NODE_ANIMATION: {
 
             Ref<Animation> anim = anim_tree->animation_node_get_animation(p_node);
-            String text;
+            se_string text;
             if (!anim_tree->animation_node_get_master_animation(p_node).empty())
                 text = anim_tree->animation_node_get_master_animation(p_node);
             else if (not anim)
@@ -592,7 +592,7 @@ void AnimationTreePlayerEditor::_draw_node(const StringName &p_node) {
             else
                 text = anim->get_name();
 
-            font->draw_halign(ci, ofs + ascofs, HALIGN_CENTER, w, text, font_color_title);
+            font->draw_halign_utf8(ci, ofs + ascofs, HALIGN_CENTER, w, text, font_color_title);
 
         } break;
         case AnimationTreePlayer::NODE_ONESHOT:
@@ -603,7 +603,7 @@ void AnimationTreePlayerEditor::_draw_node(const StringName &p_node) {
         case AnimationTreePlayer::NODE_TIMESCALE:
         case AnimationTreePlayer::NODE_TRANSITION: {
 
-            font->draw_halign(ci, ofs + ascofs, HALIGN_CENTER, w, "edit...", font_color_title);
+            font->draw_halign_utf8(ci, ofs + ascofs, HALIGN_CENTER, w, "edit...", font_color_title);
         } break;
         default: editable = false;
     }
@@ -937,12 +937,12 @@ void AnimationTreePlayerEditor::_notification(int p_what) {
                 case AnimationTreePlayer::CONNECT_OK: {
 
                     Ref<Font> f = get_font("font", "Label");
-                    f->draw(get_canvas_item(), Point2(5, 25 + f->get_ascent()), TTR("Animation tree is valid."), Color(0, 1, 0.6f, 0.8f));
+                    f->draw(get_canvas_item(), Point2(5, 25 + f->get_ascent()), StringUtils::from_utf8(TTR("Animation tree is valid.")), Color(0, 1, 0.6f, 0.8f));
                 } break;
                 default: {
 
                     Ref<Font> f = get_font("font", "Label");
-                    f->draw(get_canvas_item(), Point2(5, 25 + f->get_ascent()), TTR("Animation tree is invalid."), Color(1, 0.6f, 0.0f, 0.8f));
+                    f->draw(get_canvas_item(), Point2(5, 25 + f->get_ascent()), StringUtils::from_utf8(TTR("Animation tree is invalid.")), Color(1, 0.6f, 0.0f, 0.8f));
                 } break;
             }
 
@@ -1083,7 +1083,7 @@ StringName AnimationTreePlayerEditor::_add_node(int p_item) {
         "transition"
     };
 
-    String name;
+    se_string name;
     int idx = 1;
 
     while (true) {
@@ -1109,12 +1109,12 @@ StringName AnimationTreePlayerEditor::_add_node(int p_item) {
     return sn_name;
 };
 
-void AnimationTreePlayerEditor::_file_dialog_selected(const String& p_path) {
+void AnimationTreePlayerEditor::_file_dialog_selected(se_string_view p_path) {
 
     switch (file_op) {
 
         case MENU_IMPORT_ANIMATIONS: {
-            Vector<String> files = file_dialog->get_selected_files();
+            Vector<se_string> files = file_dialog->get_selected_files();
 
             for (int i = 0; i < files.size(); i++) {
 
@@ -1153,14 +1153,14 @@ Size2 AnimationTreePlayerEditor::get_minimum_size() const {
     return Size2(10, 200);
 }
 
-void AnimationTreePlayerEditor::_find_paths_for_filter(const StringName &p_node, Set<String> &paths) {
+void AnimationTreePlayerEditor::_find_paths_for_filter(const StringName &p_node, Set<se_string> &paths) {
 
     ERR_FAIL_COND(!anim_tree->node_exists(p_node))
 
     for (int i = 0; i < anim_tree->node_get_input_count(p_node); i++) {
 
         StringName port = anim_tree->node_get_input_source(p_node, i);
-        if (port == StringName())
+        if (port.empty())
             continue;
         _find_paths_for_filter(port, paths);
     }
@@ -1171,7 +1171,7 @@ void AnimationTreePlayerEditor::_find_paths_for_filter(const StringName &p_node,
         if (anim) {
 
             for (int i = 0; i < anim->get_track_count(); i++) {
-                paths.insert(String(anim->track_get_path(i)));
+                paths.insert((se_string)anim->track_get_path(i));
             }
         }
     }
@@ -1197,19 +1197,19 @@ void AnimationTreePlayerEditor::_edit_filters() {
     filter_dialog->popup_centered_ratio();
     filter->clear();
 
-    Set<String> npb;
+    Set<se_string> npb;
     _find_paths_for_filter(edited_node, npb);
 
     TreeItem *root = filter->create_item();
     filter->set_hide_root(true);
-    Map<String, TreeItem *> pm;
+    Map<se_string, TreeItem *> pm;
 
     Node *base = anim_tree->get_node(anim_tree->get_base_path());
 
-    for (const String &E : npb) {
+    for (const se_string &E : npb) {
 
         TreeItem *parent = root;
-        String descr = E;
+        se_string descr = E;
         if (base) {
             NodePath np(E);
 
@@ -1218,7 +1218,7 @@ void AnimationTreePlayerEditor::_edit_filters() {
                 Skeleton *s = object_cast<Skeleton>(n);
                 if (s) {
 
-                    String skelbase = StringUtils::substr(E,0, StringUtils::find(E,":"));
+                    se_string_view skelbase = StringUtils::substr(E,0, StringUtils::find(E,":"));
 
                     int bidx = s->find_bone(np.get_subname(0));
 
@@ -1227,15 +1227,15 @@ void AnimationTreePlayerEditor::_edit_filters() {
                         //
                         if (bparent != -1) {
 
-                            String bpn = skelbase + ":" + s->get_bone_name(bparent);
+                            se_string bpn = se_string(skelbase) + ":" + s->get_bone_name(bparent);
                             if (pm.contains(bpn)) {
                                 parent = pm[bpn];
                                 descr = np.get_subname(0);
                             }
                         } else {
-
-                            if (pm.contains(skelbase)) {
-                                parent = pm[skelbase];
+                            auto iter=pm.find_as(skelbase);
+                            if (iter!=pm.end()) {
+                                parent = iter->second;
                             }
                         }
                     }
@@ -1245,7 +1245,7 @@ void AnimationTreePlayerEditor::_edit_filters() {
 
         TreeItem *it = filter->create_item(parent);
         it->set_cell_mode(0, TreeItem::CELL_MODE_CHECK);
-        it->set_text(0, descr);
+        it->set_text_utf8(0, descr);
         it->set_metadata(0, NodePath(E));
         it->set_editable(0, true);
         NodePath asnp(E);

@@ -191,7 +191,7 @@ public:
     virtual bool is_placeholder_fallback_enabled() const { return placeholder_fallback_enabled; }
 #endif
 
-    Error load_source_code(const String &p_path);
+    Error load_source_code(se_string_view p_path);
 
     StringName get_script_name() const;
 
@@ -385,7 +385,7 @@ public:
     /* LANGUAGE FUNCTIONS */
     virtual String get_type() const;
     virtual String get_extension() const;
-    virtual Error execute_file(const String &p_path);
+    virtual Error execute_file(se_string_view p_path);
     virtual void init();
     virtual void finish();
 
@@ -393,30 +393,30 @@ public:
     virtual void get_reserved_words(List<String> *p_words) const;
     virtual void get_comment_delimiters(List<String> *p_delimiters) const;
     virtual void get_string_delimiters(List<String> *p_delimiters) const;
-    virtual Ref<Script> get_template(const String &p_class_name, const String &p_base_class_name) const;
+    virtual Ref<Script> get_template(se_string_view p_class_name, const String &p_base_class_name) const;
     virtual bool is_using_templates();
     virtual void make_template(const String &p_class_name, const String &p_base_class_name, Ref<Script> &p_script);
-    /* TODO */ virtual bool validate(const String &p_script, int &r_line_error, int &r_col_error, String &r_test_error, const String &p_path, List<String> *r_functions, List<ScriptLanguage::Warning> *r_warnings = NULL, Set<int> *r_safe_lines = NULL) const { return true; }
-    virtual String validate_path(const String &p_path) const;
+    /* TODO */ virtual bool validate(const String &p_script, int &r_line_error, int &r_col_error, String &r_test_error, se_string_view p_path, List<String> *r_functions, List<ScriptLanguage::Warning> *r_warnings = NULL, Set<int> *r_safe_lines = NULL) const { return true; }
+    virtual String validate_path(se_string_view p_path) const;
     virtual Script *create_script() const;
     virtual bool has_named_classes() const;
     virtual bool supports_builtin_mode() const;
     /* TODO? */ virtual int find_function(const String &p_function, const String &p_code) const { return -1; }
     virtual String make_function(const String &p_class, const String &p_name, const PoolStringArray &p_args) const;
     virtual String _get_indentation() const;
-    /* TODO? */ virtual void auto_indent_code(String &p_code, int p_from_line, int p_to_line) const {}
+    /* TODO? */ virtual void auto_indent_code(se_string &p_code, int p_from_line, int p_to_line) const {}
     /* TODO */ virtual void add_global_constant(const StringName &p_variable, const Variant &p_value) {}
 
     /* DEBUGGER FUNCTIONS */
-    virtual String debug_get_error() const;
+    virtual const se_string &debug_get_error() const;
     virtual int debug_get_stack_level_count() const;
     virtual int debug_get_stack_level_line(int p_level) const;
-    virtual String debug_get_stack_level_function(int p_level) const;
+    virtual se_string debug_get_stack_level_function(int p_level) const;
     virtual String debug_get_stack_level_source(int p_level) const;
-    /* TODO */ virtual void debug_get_stack_level_locals(int p_level, List<String> *p_locals, List<Variant> *p_values, int p_max_subitems, int p_max_depth) {}
-    /* TODO */ virtual void debug_get_stack_level_members(int p_level, List<String> *p_members, List<Variant> *p_values, int p_max_subitems, int p_max_depth) {}
-    /* TODO */ virtual void debug_get_globals(List<String> *p_locals, List<Variant> *p_values, int p_max_subitems, int p_max_depth) {}
-    /* TODO */ virtual String debug_parse_stack_level_expression(int p_level, const String &p_expression, int p_max_subitems, int p_max_depth) { return ""; }
+    /* TODO */ virtual void debug_get_stack_level_locals(int p_level, List<se_string_view> *p_locals, List<Variant> *p_values, int p_max_subitems, int p_max_depth) {}
+    /* TODO */ virtual void debug_get_stack_level_members(int p_level, List<se_string_view> *p_members, List<Variant> *p_values, int p_max_subitems, int p_max_depth) {}
+    /* TODO */ virtual void debug_get_globals(List<se_string_view> *p_locals, List<Variant> *p_values, int p_max_subitems, int p_max_depth) {}
+    /* TODO */ virtual String debug_parse_stack_level_expression(int p_level, se_string_view p_expression, int p_max_subitems, int p_max_depth) { return ""; }
     virtual Vector<StackInfo> debug_get_current_stack_info();
 
     /* PROFILING FUNCTIONS */
@@ -464,15 +464,15 @@ public:
 
 class ResourceFormatLoaderCSharpScript : public ResourceFormatLoader {
 public:
-    virtual RES load(const String &p_path, const String &p_original_path = "", Error *r_error = NULL);
+    virtual RES load(se_string_view p_path, const String &p_original_path = "", Error *r_error = NULL);
     virtual void get_recognized_extensions(List<String> *p_extensions) const;
     virtual bool handles_type(const String &p_type) const;
-    virtual String get_resource_type(const String &p_path) const;
+    virtual String get_resource_type(se_string_view p_path) const;
 };
 
 class ResourceFormatSaverCSharpScript : public ResourceFormatSaver {
 public:
-    virtual Error save(const String &p_path, const RES &p_resource, uint32_t p_flags = 0);
+    virtual Error save(se_string_view p_path, const RES &p_resource, uint32_t p_flags = 0);
     virtual void get_recognized_extensions(const RES &p_resource, List<String> *p_extensions) const;
     virtual bool recognize(const RES &p_resource) const;
 };

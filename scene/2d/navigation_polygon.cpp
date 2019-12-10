@@ -495,10 +495,10 @@ void NavigationPolygonInstance::_navpoly_changed() {
         update();
 }
 
-String NavigationPolygonInstance::get_configuration_warning() const {
+StringName NavigationPolygonInstance::get_configuration_warning() const {
 
     if (!is_visible_in_tree() || !is_inside_tree())
-        return String();
+        return StringName();
 
     if (not navpoly) {
         return TTR("A NavigationPolygon resource must be set or created for this node to work. Please set a property or draw a polygon.");
@@ -507,7 +507,7 @@ String NavigationPolygonInstance::get_configuration_warning() const {
     while (c) {
 
         if (object_cast<Navigation2D>(c)) {
-            return String();
+            return StringName();
         }
 
         c = object_cast<Node2D>(c->get_parent());

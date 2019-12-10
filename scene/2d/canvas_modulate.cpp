@@ -37,27 +37,28 @@ IMPL_GDCLASS(CanvasModulate)
 
 void CanvasModulate::_notification(int p_what) {
 
+    StringName name("_canvas_modulate_" + itos(get_canvas().get_id()));
     if (p_what == NOTIFICATION_ENTER_CANVAS) {
 
         if (is_visible_in_tree()) {
             VisualServer::get_singleton()->canvas_set_modulate(get_canvas(), color);
-            add_to_group("_canvas_modulate_" + itos(get_canvas().get_id()));
+            add_to_group(name);
         }
 
     } else if (p_what == NOTIFICATION_EXIT_CANVAS) {
 
         if (is_visible_in_tree()) {
             VisualServer::get_singleton()->canvas_set_modulate(get_canvas(), Color(1, 1, 1, 1));
-            remove_from_group("_canvas_modulate_" + itos(get_canvas().get_id()));
+            remove_from_group(name);
         }
     } else if (p_what == NOTIFICATION_VISIBILITY_CHANGED) {
 
         if (is_visible_in_tree()) {
             VisualServer::get_singleton()->canvas_set_modulate(get_canvas(), color);
-            add_to_group("_canvas_modulate_" + itos(get_canvas().get_id()));
+            add_to_group(name);
         } else {
             VisualServer::get_singleton()->canvas_set_modulate(get_canvas(), Color(1, 1, 1, 1));
-            remove_from_group("_canvas_modulate_" + itos(get_canvas().get_id()));
+            remove_from_group(name);
         }
 
         update_configuration_warning();
@@ -84,19 +85,20 @@ Color CanvasModulate::get_color() const {
     return color;
 }
 
-String CanvasModulate::get_configuration_warning() const {
+StringName CanvasModulate::get_configuration_warning() const {
 
     if (!is_visible_in_tree() || !is_inside_tree())
-        return String();
+        return StringName();
 
+    StringName name("_canvas_modulate_" + itos(get_canvas().get_id()));
     List<Node *> nodes;
-    get_tree()->get_nodes_in_group("_canvas_modulate_" + itos(get_canvas().get_id()), &nodes);
+    get_tree()->get_nodes_in_group(name, &nodes);
 
     if (nodes.size() > 1) {
         return TTR("Only one visible CanvasModulate is allowed per scene (or set of instanced scenes). The first created one will work, while the rest will be ignored.");
     }
 
-    return String();
+    return StringName();
 }
 
 CanvasModulate::CanvasModulate() {

@@ -28,9 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef WEBSOCKET_CLIENT_H
-#define WEBSOCKET_CLIENT_H
-
+#pragma once
 #include "core/crypto/crypto.h"
 #include "core/error_list.h"
 #include "websocket_multiplayer_peer.h"
@@ -50,7 +48,7 @@ protected:
     static void _bind_methods();
 
 public:
-    Error connect_to_url(String p_url, const PoolVector<String> &p_protocols = PoolVector<String>(), bool gd_mp_api = false, const PoolVector<String> &p_custom_headers = PoolVector<String>());
+    Error connect_to_url(se_string_view p_url, const PoolSeStringArray &p_protocols = {}, bool gd_mp_api = false, const PoolVector<se_string> &p_custom_headers = {});
 
     void set_verify_ssl_enabled(bool p_verify_ssl);
     bool is_verify_ssl_enabled() const;
@@ -58,11 +56,11 @@ public:
     void set_trusted_ssl_certificate(Ref<X509Certificate> p_cert);
 
     void poll() override = 0;
-    virtual Error connect_to_host(String p_host, String p_path, uint16_t p_port, bool p_ssl,
-            const PoolVector<String> &p_protocol = PoolVector<String>(),
-            const PoolVector<String> &p_custom_headers = PoolVector<String>()) = 0;
+    virtual Error connect_to_host(se_string_view p_host, se_string_view p_path, uint16_t p_port, bool p_ssl,
+            const PoolVector<se_string> &p_protocol = PoolVector<se_string>(),
+            const PoolVector<se_string> &p_custom_headers = PoolVector<se_string>()) = 0;
 
-    virtual void disconnect_from_host(int p_code = 1000, String p_reason = "") = 0;
+    virtual void disconnect_from_host(int p_code = 1000, se_string_view p_reason = "") = 0;
     virtual IP_Address get_connected_host() const = 0;
     virtual uint16_t get_connected_port() const = 0;
 
@@ -70,8 +68,8 @@ public:
     ConnectionStatus get_connection_status() const override = 0;
 
     void _on_peer_packet();
-    void _on_connect(String p_protocol);
-    void _on_close_request(int p_code, String p_reason);
+    void _on_connect(se_string p_protocol);
+    void _on_close_request(int p_code, se_string_view p_reason);
     void _on_disconnect(bool p_was_clean);
     void _on_error();
 
@@ -80,5 +78,3 @@ public:
     WebSocketClient();
     ~WebSocketClient() override;
 };
-
-#endif // WEBSOCKET_CLIENT_H

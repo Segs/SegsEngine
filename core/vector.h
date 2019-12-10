@@ -43,10 +43,15 @@
 #include "core/os/memory.h"
 #include "core/sort_array.h"
 #include "EASTL/vector.h"
-
+#include "EASTL/fixed_vector.h"
+#include "EASTL/span.h"
 
 template<class T>
 using PODVector = eastl::vector<T,wrap_allocator>;
+template<class T,int N,bool GROWING>
+using FixedVector = eastl::fixed_vector<T,N,GROWING,wrap_allocator>;
+template <typename T, ptrdiff_t Extent = eastl::dynamic_extent>
+using Span = eastl::span<T,Extent>;
 
 template <class T>
 class VectorWriteProxy {
@@ -70,7 +75,13 @@ private:
 
 public:
     bool push_back(const T &p_elem);
-
+    template<class... Args>
+    bool emplace_back(Args&&... args) {
+        Error err = resize(size() + 1);
+        ERR_FAIL_COND_V(err, true)
+        memnew_placement(&ptrw()[size() - 1],T(eastl::forward<Args>(args)...));
+        return false;
+    }
     void remove(int p_index) { _cowdata.remove(p_index); }
     void erase(const T &p_val) {
         int idx = find(p_val);
@@ -81,7 +92,7 @@ public:
     _FORCE_INLINE_ T *ptrw() { return _cowdata.ptrw(); }
     _FORCE_INLINE_ const T *ptr() const { return _cowdata.ptr(); }
     _FORCE_INLINE_ void clear() { resize(0); }
-    [[nodiscard]] _FORCE_INLINE_ bool empty() const { return _cowdata.empty(); }
+    [[nodiscard]] _FORCE_INLINE_ bool empty() const noexcept { return _cowdata.empty(); }
 
     _FORCE_INLINE_ T get(int p_index) { return _cowdata.get(p_index); }
     _FORCE_INLINE_ const T get(int p_index) const { return _cowdata.get(p_index); }

@@ -59,11 +59,13 @@ Adapted from corresponding SDL 2.0 code.
 #include <unistd.h>
 
 #include "core/error_macros.h"
+#include "core/string_utils.h"
 #include <dirent.h>
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 
+using namespace eastl;
 // CODE CHUNK IMPORTED FROM SDL 2.0
 
 static const char *proc_apm_path = "/proc/apm";
@@ -72,7 +74,7 @@ static const char *proc_acpi_ac_adapter_path = "/proc/acpi/ac_adapter";
 static const char *sys_class_power_supply_path = "/sys/class/power_supply";
 
 FileAccessRef PowerX11::open_power_file(const char *base, const char *node, const char *key) {
-    String path = String(base) + String("/") + String(node) + String("/") + String(key);
+    se_string path = se_string(base) + "/" + se_string(node) + "/" + se_string(key);
     FileAccessRef f = FileAccess::open(path, FileAccess::READ);
     return f;
 }
@@ -160,28 +162,30 @@ void PowerX11::check_proc_acpi_battery(const char *node, bool *have_battery, boo
 
     ptr = &state[0];
     while (make_proc_acpi_key_val(&ptr, &key, &val)) {
-        if (String(key) == "present") {
-            if (String(val) == "yes") {
+        se_string_view key_sv(key);
+        se_string_view val_sv(val);
+        if (key_sv == "present"_sv) {
+            if (val_sv == "yes"_sv) {
                 *have_battery = true;
             }
-        } else if (String(key) == "charging state") {
+        } else if (key_sv == "charging state"_sv) {
             /* !!! FIXME: what exactly _does_ charging/discharging mean? */
-            if (String(val) == "charging/discharging") {
+            if (val_sv == "charging/discharging"_sv) {
                 charge = true;
-            } else if (String(val) == "charging") {
+            } else if (val_sv == "charging"_sv) {
                 charge = true;
             }
-        } else if (String(key) == "remaining capacity") {
-            String sval = val;
-            const int cvt = StringUtils::to_int(sval);
+        } else if (key_sv == "remaining capacity"_sv) {
+            const int cvt = StringUtils::to_int(val_sv);
             remaining = cvt;
         }
     }
 
     ptr = &info[0];
     while (make_proc_acpi_key_val(&ptr, &key, &val)) {
-        if (String(key) == "design capacity") {
-            String sval = val;
+        se_string_view key_sv(key);
+        if (key_sv == "design capacity"_sv) {
+            se_string_view sval(val);
             const int cvt = StringUtils::to_int(sval);
             maximum = cvt;
         }
@@ -236,10 +240,10 @@ void PowerX11::check_proc_acpi_ac_adapter(const char *node, bool *have_ac) {
 
     ptr = &state[0];
     while (make_proc_acpi_key_val(&ptr, &key, &val)) {
-        String skey = key;
-        if (skey == "state") {
-            String sval = val;
-            if (sval == "on-line") {
+        se_string_view skey(key);
+        if (skey == "state"_sv) {
+            se_string_view sval(val);
+            if (sval == "on-line"_sv) {
                 *have_ac = true;
             }
         }
@@ -247,7 +251,7 @@ void PowerX11::check_proc_acpi_ac_adapter(const char *node, bool *have_ac) {
 }
 
 bool PowerX11::GetPowerInfo_Linux_proc_acpi() {
-    String node;
+    se_string node;
     DirAccess *dirp = DirAccess::create(DirAccess::ACCESS_FILESYSTEM);
     bool have_battery = false;
     bool have_ac = false;
@@ -257,7 +261,7 @@ bool PowerX11::GetPowerInfo_Linux_proc_acpi() {
     this->percent_left = -1;
     this->power_state = OS::POWERSTATE_UNKNOWN;
 
-    dirp->change_dir(proc_acpi_battery_path);
+    dirp->change_dir_utf8(proc_acpi_battery_path);
     Error err = dirp->list_dir_begin();
 
     if (err != OK) {
@@ -265,18 +269,18 @@ bool PowerX11::GetPowerInfo_Linux_proc_acpi() {
     } else {
         node = dirp->get_next();
         while (!node.empty()) {
-            check_proc_acpi_battery(qPrintable(node.m_str), &have_battery, &charging /*, seconds, percent*/);
+            check_proc_acpi_battery(node.c_str(), &have_battery, &charging /*, seconds, percent*/);
             node = dirp->get_next();
         }
     }
-    dirp->change_dir(proc_acpi_ac_adapter_path);
+    dirp->change_dir_utf8(proc_acpi_ac_adapter_path);
     err = dirp->list_dir_begin();
     if (err != OK) {
         return false; /* can't use this interface. */
     } else {
         node = dirp->get_next();
         while (!node.empty()) {
-            check_proc_acpi_ac_adapter(qPrintable(node.m_str), &have_ac);
+            check_proc_acpi_ac_adapter(node.c_str(), &have_ac);
             node = dirp->get_next();
         }
     }
@@ -320,20 +324,21 @@ bool PowerX11::next_string(char **_ptr, char **_str) {
 }
 
 bool PowerX11::int_string(char *str, int *val) {
-    String sval = str;
+    se_string_view sval(str);
     *val = StringUtils::to_int(sval);
     return (*str != '\0');
 }
 
 /* http://lxr.linux.no/linux+v2.6.29/drivers/char/apm-emulation.c */
 bool PowerX11::GetPowerInfo_Linux_proc_apm() {
+    using namespace eastl; // for _sv suffix
     bool need_details = false;
     int ac_status = 0;
     int battery_status = 0;
     int battery_flag = 0;
     int battery_percent = 0;
     int battery_time = 0;
-    FileAccessRef fd = FileAccess::open(proc_apm_path, FileAccess::READ);
+    FileAccessRef fd = FileAccess::open(se_string_view(proc_apm_path), FileAccess::READ);
     char buf[128];
     char *ptr = &buf[0];
     char *str = nullptr;
@@ -396,7 +401,7 @@ bool PowerX11::GetPowerInfo_Linux_proc_apm() {
 
     if (!next_string(&ptr, &str)) { /* remaining battery life time units */
         return false;
-    } else if (String(str) == "min") {
+    } else if (se_string_view(str) == "min"_sv) {
         battery_time *= 60;
     }
 
@@ -435,11 +440,13 @@ bool PowerX11::GetPowerInfo_Linux_proc_apm() {
 /* !!! FIXME: implement d-bus queries to org.freedesktop.UPower. */
 
 bool PowerX11::GetPowerInfo_Linux_sys_class_power_supply(/*PowerState *state, int *seconds, int *percent*/) {
+    using namespace eastl; // for _sv suffix
+
     const char *base = sys_class_power_supply_path;
-    String name;
+    se_string name;
 
     DirAccess *dirp = DirAccess::create(DirAccess::ACCESS_FILESYSTEM);
-    dirp->change_dir(base);
+    dirp->change_dir_utf8(base);
     Error err = dirp->list_dir_begin();
 
     if (err != OK) {
@@ -463,40 +470,39 @@ bool PowerX11::GetPowerInfo_Linux_sys_class_power_supply(/*PowerState *state, in
             name = dirp->get_next();
             continue; //skip these, of course.
         } else {
-            if (!read_power_file(base, qPrintable(name.m_str), "type", str, sizeof(str))) {
+            if (!read_power_file(base, name.c_str(), "type", str, sizeof(str))) {
                 name = dirp->get_next();
                 continue; // Don't know _what_ we're looking at. Give up on it.
             } else {
-                if (String(str) != "Battery\n") {
+                if (se_string_view(str) != "Battery\n"_sv) {
                     name = dirp->get_next();
                     continue; // we don't care about UPS and such.
                 }
             }
         }
-
         /* some drivers don't offer this, so if it's not explicitly reported assume it's present. */
-        if (read_power_file(base, qPrintable(name.m_str), "present", str, sizeof(str)) && (String(str) == "0\n")) {
+        if (read_power_file(base, name.c_str(), "present", str, sizeof(str)) && (se_string_view(str) == "0\n"_sv)) {
             st = OS::POWERSTATE_NO_BATTERY;
-        } else if (!read_power_file(base, qPrintable(name.m_str), "status", str, sizeof(str))) {
+        } else if (!read_power_file(base, name.c_str(), "status", str, sizeof(str))) {
             st = OS::POWERSTATE_UNKNOWN; /* uh oh */
-        } else if (String(str) == "Charging\n") {
+        } else if (se_string_view(str) == "Charging\n"_sv) {
             st = OS::POWERSTATE_CHARGING;
-        } else if (String(str) == "Discharging\n") {
+        } else if (se_string_view(str) == "Discharging\n"_sv) {
             st = OS::POWERSTATE_ON_BATTERY;
-        } else if ((String(str) == "Full\n") || (String(str) == "Not charging\n")) {
+        } else if ((se_string_view(str) == "Full\n"_sv) || (se_string_view(str) == "Not charging\n"_sv)) {
             st = OS::POWERSTATE_CHARGED;
         } else {
             st = OS::POWERSTATE_UNKNOWN; /* uh oh */
         }
 
-        if (!read_power_file(base, qPrintable(name.m_str), "capacity", str, sizeof(str))) {
+        if (!read_power_file(base, name.c_str(), "capacity", str, sizeof(str))) {
             pct = -1;
         } else {
             pct = StringUtils::to_int(str);
             pct = (pct > 100) ? 100 : pct; /* clamp between 0%, 100% */
         }
 
-        if (!read_power_file(base, qPrintable(name.m_str), "time_to_empty_now", str, sizeof(str))) {
+        if (!read_power_file(base, name.c_str(), "time_to_empty_now", str, sizeof(str))) {
             secs = -1;
         } else {
             secs = StringUtils::to_int(str);

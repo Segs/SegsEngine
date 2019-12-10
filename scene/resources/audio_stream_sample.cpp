@@ -522,9 +522,9 @@ PoolVector<uint8_t> AudioStreamSample::get_data() const {
     return pv;
 }
 
-Error AudioStreamSample::save_to_wav(const String &p_path) {
+Error AudioStreamSample::save_to_wav(se_string_view p_path) {
     if (format == AudioStreamSample::FORMAT_IMA_ADPCM) {
-        WARN_PRINTS("Saving IMA_ADPC samples are not supported yet");
+        WARN_PRINT("Saving IMA_ADPC samples are not supported yet")
         return ERR_UNAVAILABLE;
     }
 
@@ -546,9 +546,9 @@ Error AudioStreamSample::save_to_wav(const String &p_path) {
         case AudioStreamSample::FORMAT_IMA_ADPCM: byte_pr_sample = 4; break;
     }
 
-    String file_path = p_path;
+    se_string file_path(p_path);
     if (!StringUtils::ends_with(file_path,".wav")) {
-        file_path += ".wav";
+        file_path += (".wav");
     }
 
     FileAccessRef file = FileAccess::open(file_path, FileAccess::WRITE); //Overrides existing file if present
@@ -603,9 +603,9 @@ Ref<AudioStreamPlayback> AudioStreamSample::instance_playback() {
     return sample;
 }
 
-String AudioStreamSample::get_stream_name() const {
+se_string AudioStreamSample::get_stream_name() const {
 
-    return "";
+    return se_string();
 }
 
 void AudioStreamSample::_bind_methods() {

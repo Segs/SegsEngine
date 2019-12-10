@@ -45,73 +45,73 @@
 
 class RenameDialog : public ConfirmationDialog {
 
-	GDCLASS(RenameDialog,ConfirmationDialog)
+    GDCLASS(RenameDialog,ConfirmationDialog)
 
     void ok_pressed() override { rename(); }
     void _cancel_pressed() {}
-	void _features_toggled(bool pressed);
-	void _insert_text(const String& text);
-	void _update_substitute();
-	bool _is_main_field(LineEdit *line_edit);
+    void _features_toggled(bool pressed);
+    void _insert_text(se_string_view text);
+    void _update_substitute();
+    bool _is_main_field(LineEdit *line_edit);
 
-	void _iterate_scene(const Node *node, const Array &selection, int *count);
-	String _apply_rename(const Node *node, int count);
-	String _substitute(const String &subject, const Node *node, int count);
-	String _regex(const String &pattern, const String &subject, const String &replacement);
-	String _postprocess(const String &subject);
-	void _update_preview(const String& new_text = "");
-	void _update_preview_int(int new_value = 0);
-	static void _error_handler(void *p_self, const char *p_func, const char *p_file, int p_line, const char *p_error, const char *p_errorexp, ErrorHandlerType p_type);
+    void _iterate_scene(const Node *node, const Array &selection, int *count);
+    StringName _apply_rename(const Node *node, int count);
+    se_string _substitute(const se_string &subject, const Node *node, int count);
+    se_string _regex(const se_string &pattern, const se_string &subject, const se_string &replacement);
+    se_string _postprocess(const se_string &subject);
+    void _update_preview(se_string_view new_text = se_string_view());
+    void _update_preview_int(int new_value = 0);
+    static void _error_handler(void *p_self, const char *p_func, const char *p_file, int p_line, const char *p_error, const char *p_errorexp, ErrorHandlerType p_type);
 
-	SceneTreeEditor *scene_tree_editor;
-	UndoRedo *undo_redo;
-	int global_count;
+    SceneTreeEditor *scene_tree_editor;
+    UndoRedo *undo_redo;
+    int global_count;
 
-	LineEdit *lne_search;
-	LineEdit *lne_replace;
-	LineEdit *lne_prefix;
-	LineEdit *lne_suffix;
+    LineEdit *lne_search;
+    LineEdit *lne_replace;
+    LineEdit *lne_prefix;
+    LineEdit *lne_suffix;
 
-	TabContainer *tabc_features;
+    TabContainer *tabc_features;
 
-	CheckBox *cbut_substitute;
-	CheckBox *cbut_regex;
-	CheckBox *cbut_process;
-	CheckBox *chk_per_level_counter;
+    CheckBox *cbut_substitute;
+    CheckBox *cbut_regex;
+    CheckBox *cbut_process;
+    CheckBox *chk_per_level_counter;
 
-	Button *but_insert_name;
-	Button *but_insert_parent;
-	Button *but_insert_type;
-	Button *but_insert_scene;
-	Button *but_insert_root;
-	Button *but_insert_count;
+    Button *but_insert_name;
+    Button *but_insert_parent;
+    Button *but_insert_type;
+    Button *but_insert_scene;
+    Button *but_insert_root;
+    Button *but_insert_count;
 
-	SpinBox *spn_count_start;
-	SpinBox *spn_count_step;
-	SpinBox *spn_count_padding;
+    SpinBox *spn_count_start;
+    SpinBox *spn_count_step;
+    SpinBox *spn_count_padding;
 
-	OptionButton *opt_style;
-	OptionButton *opt_case;
+    OptionButton *opt_style;
+    OptionButton *opt_case;
 
-	Label *lbl_preview_title;
-	Label *lbl_preview;
+    Label *lbl_preview_title;
+    Label *lbl_preview;
 
-	List<Pair<NodePath, String> > to_rename;
-	Node *preview_node;
-	bool lock_preview_update;
-	ErrorHandlerList eh;
-	bool has_errors;
+    List<Pair<NodePath, StringName> > to_rename;
+    Node *preview_node;
+    bool lock_preview_update;
+    ErrorHandlerList eh;
+    bool has_errors;
 
 protected:
     void _notification(int /*p_what*/){}
-	static void _bind_methods();
-	void _post_popup() override;
+    static void _bind_methods();
+    void _post_popup() override;
 
 public:
-	void reset();
-	void rename();
+    void reset();
+    void rename();
 
-	RenameDialog(SceneTreeEditor *p_scene_tree_editor, UndoRedo *p_undo_redo = nullptr);
+    RenameDialog(SceneTreeEditor *p_scene_tree_editor, UndoRedo *p_undo_redo = nullptr);
     ~RenameDialog() override = default;
 };
 

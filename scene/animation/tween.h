@@ -176,9 +176,9 @@ public:
 
     bool interpolate_method(Object *p_object, StringName p_method, Variant p_initial_val, Variant p_final_val, real_t p_duration, TransitionType p_trans_type, EaseType p_ease_type, real_t p_delay = 0);
 
-    bool interpolate_callback(Object *p_object, real_t p_duration, const String& p_callback, VARIANT_ARG_DECLARE);
+    bool interpolate_callback(Object *p_object, real_t p_duration, const StringName &p_callback, VARIANT_ARG_DECLARE);
 
-    bool interpolate_deferred_callback(Object *p_object, real_t p_duration, const String& p_callback, VARIANT_ARG_DECLARE);
+    bool interpolate_deferred_callback(Object *p_object, real_t p_duration, const StringName &p_callback, VARIANT_ARG_DECLARE);
 
     bool follow_property(Object *p_object, NodePath p_property, Variant p_initial_val, Object *p_target, NodePath p_target_property, real_t p_duration, TransitionType p_trans_type, EaseType p_ease_type, real_t p_delay = 0);
 

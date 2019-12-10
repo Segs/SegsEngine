@@ -32,6 +32,7 @@
 
 #include "core/method_bind.h"
 #include "core/io/marshalls.h"
+#include "core/se_string.h"
 #include "core/translation_helpers.h"
 #include "core/io/resource_saver.h"
 #include "scene/3d/mesh_instance.h"
@@ -62,7 +63,7 @@ void NavigationMeshEditor::_bake_pressed() {
     button_bake->set_pressed(false);
 
     ERR_FAIL_COND(!node)
-    const String conf_warning = node->get_configuration_warning();
+    const StringName conf_warning = node->get_configuration_warning();
     if (!conf_warning.empty()) {
         err_dialog->set_text(conf_warning);
         err_dialog->popup_centered_minsize();
@@ -81,7 +82,7 @@ void NavigationMeshEditor::_clear_pressed() {
         EditorNavigationMeshGenerator::get_singleton()->clear(node->get_navigation_mesh());
 
     button_bake->set_pressed(false);
-    bake_info->set_text("");
+    bake_info->set_text(StringName());
 
     if (node) {
         node->update_gizmo();

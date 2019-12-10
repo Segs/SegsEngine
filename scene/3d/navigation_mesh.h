@@ -193,7 +193,7 @@ class NavigationMeshInstance : public Spatial {
 protected:
 	void _notification(int p_what);
 	static void _bind_methods();
-	void _changed_callback(Object *p_changed, const char *p_prop) override;
+	void _changed_callback(Object *p_changed, StringName p_prop) override;
 
 public:
 	void set_enabled(bool p_enabled);
@@ -202,7 +202,7 @@ public:
 	void set_navigation_mesh(const Ref<NavigationMesh> &p_navmesh);
 	Ref<NavigationMesh> get_navigation_mesh() const;
 
-	String get_configuration_warning() const override;
+	StringName get_configuration_warning() const override;
 
 	NavigationMeshInstance();
 	~NavigationMeshInstance() override;

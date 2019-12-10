@@ -32,6 +32,7 @@
 
 #include "core/method_bind.h"
 #include "core/translation_helpers.h"
+#include "editor/editor_node.h"
 #include "editor/plugins/spatial_editor_plugin.h"
 #include "editor/scene_tree_editor.h"
 #include "scene/resources/environment.h"

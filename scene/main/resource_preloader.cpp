@@ -39,14 +39,14 @@ void ResourcePreloader::_set_resources(const Array &p_data) {
     resources.clear();
 
     ERR_FAIL_COND(p_data.size() != 2)
-    PoolVector<String> names = p_data[0];
+    PoolVector<se_string> names = p_data[0].as<PoolVector<se_string>>();
     Array resdata = p_data[1];
 
     ERR_FAIL_COND(names.size() != resdata.size())
 
     for (int i = 0; i < resdata.size(); i++) {
 
-        String name = names[i];
+        StringName name(names[i]);
         RES resource(refFromRefPtr<Resource>(resdata[i]));
         ERR_CONTINUE(not resource)
         resources[name] = resource;
@@ -57,21 +57,21 @@ void ResourcePreloader::_set_resources(const Array &p_data) {
 
 Array ResourcePreloader::_get_resources() const {
 
-    PoolVector<String> names;
+    PoolVector<se_string> names;
     Array arr;
     arr.resize(resources.size());
     names.resize(resources.size());
 
-    Set<String> sorted_names;
+    Set<StringName> sorted_names;
 
     for (const eastl::pair<const StringName,RES> &E : resources) {
         sorted_names.insert(E.first);
     }
 
     int i = 0;
-    for (const String &E : sorted_names) {
+    for (const StringName &E : sorted_names) {
 
-        names.set(i, E);
+        names.set(i, E.asCString());
         arr[i] = resources.at(E);
         i++;
     }
@@ -92,7 +92,7 @@ void ResourcePreloader::add_resource(const StringName &p_name, const RES &p_reso
 
         while (true) {
 
-            new_name = p_name.operator String() + " " + itos(idx);
+            new_name = p_name + " " + itos(idx);
             if (resources.contains(new_name)) {
                 idx++;
                 continue;
@@ -133,13 +133,13 @@ RES ResourcePreloader::get_resource(const StringName &p_name) const {
     return resources.at(p_name);
 }
 
-PoolVector<String> ResourcePreloader::_get_resource_list() const {
+PoolVector<se_string> ResourcePreloader::_get_resource_list() const {
 
-    PoolVector<String> res;
+    PoolVector<se_string> res;
     res.resize(resources.size());
     int i = 0;
     for (const eastl::pair<const StringName,RES> &E : resources) {
-        res.set(i++, E.first);
+        res.set(i++, E.first.asCString());
     }
 
     return res;

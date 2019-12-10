@@ -46,10 +46,8 @@ IMPL_GDCLASS(EditorPropertyDictionary)
 
 bool EditorPropertyArrayObject::_set(const StringName &p_name, const Variant &p_value) {
 
-    String pn = p_name;
-
-    if (StringUtils::begins_with(pn,"indices")) {
-        int idx = StringUtils::to_int(StringUtils::get_slice(pn,'/', 1));
+    if (StringUtils::begins_with(p_name,"indices")) {
+        int idx = StringUtils::to_int(StringUtils::get_slice(p_name,'/', 1));
         array.set(idx, p_value);
         return true;
     }
@@ -59,11 +57,9 @@ bool EditorPropertyArrayObject::_set(const StringName &p_name, const Variant &p_
 
 bool EditorPropertyArrayObject::_get(const StringName &p_name, Variant &r_ret) const {
 
-    String pn = p_name;
+    if (StringUtils::begins_with(p_name,"indices")) {
 
-    if (StringUtils::begins_with(pn,"indices")) {
-
-        int idx = StringUtils::to_int(StringUtils::get_slice(pn,'/', 1));
+        int idx = StringUtils::to_int(StringUtils::get_slice(p_name,'/', 1));
         bool valid;
         r_ret = array.get(idx, &valid);
         if (r_ret.get_type() == VariantType::OBJECT && object_cast<EncodedObjectAsID>(r_ret)) {
@@ -91,22 +87,20 @@ EditorPropertyArrayObject::EditorPropertyArrayObject() {
 
 bool EditorPropertyDictionaryObject::_set(const StringName &p_name, const Variant &p_value) {
 
-    String pn = p_name;
-
-    if (pn == "new_item_key") {
+    if (p_name == "new_item_key") {
 
         new_item_key = p_value;
         return true;
     }
 
-    if (pn == "new_item_value") {
+    if (p_name == "new_item_value") {
 
         new_item_value = p_value;
         return true;
     }
 
-    if (StringUtils::begins_with(pn,"indices")) {
-        int idx = StringUtils::to_int(StringUtils::get_slice(pn,'/', 1));
+    if (StringUtils::begins_with(p_name,"indices")) {
+        int idx = StringUtils::to_int(StringUtils::get_slice(p_name,'/', 1));
         Variant key = dict.get_key_at_index(idx);
         dict[key] = p_value;
         return true;
@@ -117,23 +111,21 @@ bool EditorPropertyDictionaryObject::_set(const StringName &p_name, const Varian
 
 bool EditorPropertyDictionaryObject::_get(const StringName &p_name, Variant &r_ret) const {
 
-    String pn = p_name;
-
-    if (pn == "new_item_key") {
+    if (p_name == "new_item_key") {
 
         r_ret = new_item_key;
         return true;
     }
 
-    if (pn == "new_item_value") {
+    if (p_name == "new_item_value") {
 
         r_ret = new_item_value;
         return true;
     }
 
-    if (StringUtils::begins_with(pn,"indices")) {
+    if (StringUtils::begins_with(p_name,"indices")) {
 
-        int idx = StringUtils::to_int(StringUtils::get_slice(pn,'/', 1));
+        int idx = StringUtils::to_int(StringUtils::get_slice(p_name,'/', 1));
         Variant key = dict.get_key_at_index(idx);
         r_ret = dict[key];
         if (r_ret.get_type() == VariantType::OBJECT && object_cast<EncodedObjectAsID>(r_ret)) {
@@ -175,7 +167,7 @@ EditorPropertyDictionaryObject::EditorPropertyDictionaryObject() {
 
 ///////////////////// ARRAY ///////////////////////////
 
-void EditorPropertyArray::_property_changed(const String &p_prop, const Variant& p_value, const String &p_name, bool changing) {
+void EditorPropertyArray::_property_changed(const StringName &p_prop, const Variant& p_value, StringName p_name, bool changing) {
 
     if (StringUtils::begins_with(p_prop,"indices")) {
         int idx = StringUtils::to_int(StringUtils::get_slice(p_prop,"/", 1));
@@ -223,7 +215,7 @@ void EditorPropertyArray::_change_type_menu(int p_index) {
     update_property();
 }
 
-void EditorPropertyArray::_object_id_selected(const String &p_property, ObjectID p_id) {
+void EditorPropertyArray::_object_id_selected(se_string_view p_property, ObjectID p_id) {
     emit_signal("object_id_selected", p_property, p_id);
 }
 
@@ -231,7 +223,7 @@ void EditorPropertyArray::update_property() {
 
     Variant array = get_edited_object()->get(get_edited_property());
 
-    String arrtype = "";
+    StringName arrtype;
     switch (array_type) {
         case VariantType::ARRAY: {
             arrtype = "Array";
@@ -271,17 +263,17 @@ void EditorPropertyArray::update_property() {
     }
 
     if (array.get_type() == VariantType::NIL) {
-        edit->set_text(String("(Nil) ") + arrtype);
+        edit->set_text_utf8(se_string("(Nil) ") + arrtype);
         edit->set_pressed(false);
         if (vbox) {
-			set_bottom_editor(nullptr);
+            set_bottom_editor(nullptr);
             memdelete(vbox);
-			vbox = nullptr;
+            vbox = nullptr;
         }
         return;
     }
 
-    edit->set_text(arrtype + " (size " + itos(array.call("size")) + ")");
+    edit->set_text_utf8(se_string(arrtype) + " (size " + itos(array.call("size")) + ")");
 
     bool unfolded = get_edited_object()->get_tooling_interface()->editor_is_section_unfolded(get_edited_property());
     if (edit->is_pressed() != unfolded) {
@@ -349,7 +341,7 @@ void EditorPropertyArray::update_property() {
         object->set_array(array);
 
         for (int i = 0; i < amount; i++) {
-            String prop_name = "indices/" + itos(i + offset);
+            StringName prop_name("indices/" + itos(i + offset));
 
             EditorProperty *prop = nullptr;
             Variant value = array.get(i + offset);
@@ -361,10 +353,10 @@ void EditorPropertyArray::update_property() {
 
             if (value_type == VariantType::OBJECT && object_cast<EncodedObjectAsID>(value)) {
                 EditorPropertyObjectID *editor = memnew(EditorPropertyObjectID);
-                editor->setup("Object");
+                editor->setup(("Object"));
                 prop = editor;
             } else {
-                prop = EditorInspector::instantiate_property_editor(nullptr, value_type, "", subtype_hint, subtype_hint_string, 0);
+                prop = EditorInspector::instantiate_property_editor(nullptr, value_type, {}, subtype_hint, subtype_hint_string, 0);
             }
 
             prop->set_object_and_property(object.get(), prop_name);
@@ -480,16 +472,16 @@ void EditorPropertyArray::_length_changed(double p_page) {
     update_property();
 }
 
-void EditorPropertyArray::setup(VariantType p_array_type, const String &p_hint_string) {
+void EditorPropertyArray::setup(VariantType p_array_type, se_string_view p_hint_string) {
 
     array_type = p_array_type;
 
     if (array_type == VariantType::ARRAY && !p_hint_string.empty()) {
-        int hint_subtype_seperator = StringUtils::find(p_hint_string,":");
-        if (hint_subtype_seperator >= 0) {
-            String subtype_string = StringUtils::substr(p_hint_string,0, hint_subtype_seperator);
-            int slash_pos = StringUtils::find(subtype_string,"/");
-            if (slash_pos >= 0) {
+        auto hint_subtype_seperator = StringUtils::find(p_hint_string,":");
+        if (hint_subtype_seperator != se_string::npos) {
+            se_string_view subtype_string = StringUtils::substr(p_hint_string,0, hint_subtype_seperator);
+            auto slash_pos = StringUtils::find(subtype_string,"/");
+            if (slash_pos != se_string::npos) {
                 subtype_hint = PropertyHint(StringUtils::to_int(StringUtils::substr(subtype_string,slash_pos + 1, subtype_string.size() - slash_pos - 1)));
                 subtype_string = StringUtils::substr(subtype_string,0, slash_pos);
             }
@@ -504,7 +496,7 @@ void EditorPropertyArray::_bind_methods() {
     MethodBinder::bind_method("_edit_pressed", &EditorPropertyArray::_edit_pressed);
     MethodBinder::bind_method("_page_changed", &EditorPropertyArray::_page_changed);
     MethodBinder::bind_method("_length_changed", &EditorPropertyArray::_length_changed);
-    MethodBinder::bind_method("_property_changed", &EditorPropertyArray::_property_changed, {DEFVAL(String()), DEFVAL(false)});
+    MethodBinder::bind_method("_property_changed", &EditorPropertyArray::_property_changed, {DEFVAL(se_string_view()), DEFVAL(false)});
     MethodBinder::bind_method("_change_type", &EditorPropertyArray::_change_type);
     MethodBinder::bind_method("_change_type_menu", &EditorPropertyArray::_change_type_menu);
     MethodBinder::bind_method("_object_id_selected", &EditorPropertyArray::_object_id_selected);
@@ -533,7 +525,7 @@ EditorPropertyArray::EditorPropertyArray() {
     change_type->connect("id_pressed", this, "_change_type_menu");
 
     for (int i = 0; i < (int)VariantType::VARIANT_MAX; i++) {
-        String type = Variant::get_type_name(VariantType(i));
+        StringName type(Variant::interned_type_name(VariantType(i)));
         change_type->add_item(type, i);
     }
     change_type->add_separator();
@@ -547,7 +539,7 @@ EditorPropertyArray::EditorPropertyArray() {
 
 ///////////////////// DICTIONARY ///////////////////////////
 
-void EditorPropertyDictionary::_property_changed(const String &p_prop, const Variant& p_value, const String &p_name, bool changing) {
+void EditorPropertyDictionary::_property_changed(const StringName &p_prop, const Variant& p_value, StringName p_name, bool changing) {
 
     if (p_prop == "new_item_key") {
 
@@ -643,16 +635,16 @@ void EditorPropertyDictionary::update_property() {
         edit->set_text("Dictionary (Nil)"); //This provides symmetry with the array property.
         edit->set_pressed(false);
         if (vbox) {
-			set_bottom_editor(nullptr);
+            set_bottom_editor(nullptr);
             memdelete(vbox);
-			vbox = nullptr;
+            vbox = nullptr;
         }
         return;
     }
 
     Dictionary dict = updated_val;
 
-    edit->set_text("Dictionary (size " + itos(dict.size()) + ")");
+    edit->set_text_utf8(se_string("Dictionary (size ") + itos(dict.size()) + ")");
 
     bool unfolded = get_edited_object()->get_tooling_interface()->editor_is_section_unfolded(get_edited_property());
     if (edit->is_pressed() != unfolded) {
@@ -705,12 +697,12 @@ void EditorPropertyDictionary::update_property() {
         VBoxContainer *add_vbox = nullptr;
 
         for (int i = 0; i < amount + 2; i++) {
-            String prop_name;
+            StringName prop_name;
             Variant key;
             Variant value;
 
             if (i < amount) {
-                prop_name = "indices/" + itos(i + offset);
+                prop_name = StringName("indices/" + itos(i + offset));
                 key = dict.get_key_at_index(i + offset);
                 value = dict.get_value_at_index(i + offset);
             } else if (i == amount) {
@@ -834,13 +826,13 @@ void EditorPropertyDictionary::update_property() {
                     if (object_cast<EncodedObjectAsID>(value)) {
 
                         EditorPropertyObjectID *editor = memnew(EditorPropertyObjectID);
-                        editor->setup("Object");
+                        editor->setup(("Object"));
                         prop = editor;
 
                     } else {
 
                         EditorPropertyResource *editor = memnew(EditorPropertyResource);
-                        editor->setup("Resource");
+                        editor->setup(("Resource"));
                         prop = editor;
                     }
 
@@ -919,15 +911,15 @@ void EditorPropertyDictionary::update_property() {
             int change_index = 0;
 
             if (i < amount) {
-                String cs = key.get_construct_string();
+                se_string cs = key.get_construct_string();
                 prop->set_label(key.get_construct_string());
-                prop->set_tooltip(cs);
+                prop->set_tooltip_utf8(cs);
                 change_index = i + offset;
             } else if (i == amount) {
-                prop->set_label(TTR("New Key:"));
+                prop->set_label(TTR("New Key:").asCString());
                 change_index = -1;
             } else if (i == amount + 1) {
-                prop->set_label(TTR("New Value:"));
+                prop->set_label(TTR("New Value:").asCString());
                 change_index = -2;
             }
 
@@ -969,7 +961,7 @@ void EditorPropertyDictionary::update_property() {
     }
 }
 
-void EditorPropertyDictionary::_object_id_selected(const String &p_property, ObjectID p_id) {
+void EditorPropertyDictionary::_object_id_selected(se_string_view p_property, ObjectID p_id) {
     emit_signal("object_id_selected", p_property, p_id);
 }
 
@@ -999,7 +991,7 @@ void EditorPropertyDictionary::_page_changed(double p_page) {
 void EditorPropertyDictionary::_bind_methods() {
     MethodBinder::bind_method("_edit_pressed", &EditorPropertyDictionary::_edit_pressed);
     MethodBinder::bind_method("_page_changed", &EditorPropertyDictionary::_page_changed);
-    MethodBinder::bind_method("_property_changed", &EditorPropertyDictionary::_property_changed, {DEFVAL(String()), DEFVAL(false)});
+    MethodBinder::bind_method("_property_changed", &EditorPropertyDictionary::_property_changed, {DEFVAL(se_string_view()), DEFVAL(false)});
     MethodBinder::bind_method("_change_type", &EditorPropertyDictionary::_change_type);
     MethodBinder::bind_method("_change_type_menu", &EditorPropertyDictionary::_change_type_menu);
     MethodBinder::bind_method("_add_key_value", &EditorPropertyDictionary::_add_key_value);
@@ -1027,7 +1019,7 @@ EditorPropertyDictionary::EditorPropertyDictionary() {
     change_type->connect("id_pressed", this, "_change_type_menu");
 
     for (int i = 0; i < (int)VariantType::VARIANT_MAX; i++) {
-        String type = Variant::get_type_name(VariantType(i));
+        StringName type(Variant::interned_type_name(VariantType(i)));
         change_type->add_item(type, i);
     }
     change_type->add_separator();

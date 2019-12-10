@@ -126,7 +126,7 @@ Variant PackedDataContainer::_get_at_ofs(uint32_t p_ofs, const uint8_t *p_buf, b
         if (rerr != OK) {
 
             err = true;
-			ERR_FAIL_COND_V_MSG(err != OK, Variant(), "Error when trying to decode Variant.")
+            ERR_FAIL_COND_V_MSG(err != OK, Variant(), "Error when trying to decode Variant.")
         }
         return v;
     }
@@ -218,13 +218,13 @@ Variant PackedDataContainer::_key_at_ofs(uint32_t p_ofs, const Variant &p_key, b
     }
 }
 
-uint32_t PackedDataContainer::_pack(const Variant &p_data, Vector<uint8_t> &tmpdata, Map<String, uint32_t> &string_cache) {
+uint32_t PackedDataContainer::_pack(const Variant &p_data, Vector<uint8_t> &tmpdata, Map<se_string, uint32_t> &string_cache) {
 
     switch (p_data.get_type()) {
 
         case VariantType::STRING: {
 
-            String s = p_data.as<String>();
+            se_string s = p_data.as<se_string>();
             if (string_cache.contains(s)) {
                 return string_cache[s];
             }
@@ -332,7 +332,7 @@ uint32_t PackedDataContainer::_pack(const Variant &p_data, Vector<uint8_t> &tmpd
 Error PackedDataContainer::pack(const Variant &p_data) {
 
     Vector<uint8_t> tmpdata;
-    Map<String, uint32_t> string_cache;
+    Map<se_string, uint32_t> string_cache;
     _pack(p_data, tmpdata, string_cache);
     datalen = tmpdata.size();
     data.resize(tmpdata.size());

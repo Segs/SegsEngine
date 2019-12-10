@@ -32,6 +32,7 @@
 
 #include "core/os/os.h"
 #include "core/string_formatter.h"
+#include "core/string_utils.inl"
 
 #include "core/oa_hash_map.h"
 
@@ -52,10 +53,10 @@ MainLoop *test() {
         int value = 0;
         map.lookup(42, value);
 
-        OS::get_singleton()->print(FormatV("capacity  %d\n", map.get_capacity()));
-        OS::get_singleton()->print(FormatV("elements  %d\n", map.get_num_elements()));
+        OS::get_singleton()->print(FormatVE("capacity  %d\n", map.get_capacity()));
+        OS::get_singleton()->print(FormatVE("elements  %d\n", map.get_num_elements()));
 
-        OS::get_singleton()->print(FormatV("map[42] = %d\n", value));
+        OS::get_singleton()->print(FormatVE("map[42] = %d\n", value));
     }
 
     // rehashing and deletion
@@ -77,19 +78,19 @@ MainLoop *test() {
                 num_elems++;
         }
 
-        OS::get_singleton()->print(FormatV("elements %d == %d.\n", map.get_num_elements(), num_elems));
+        OS::get_singleton()->print(FormatVE("elements %d == %d.\n", map.get_num_elements(), num_elems));
     }
 
     // iteration
     {
         OAHashMap<String, int> map;
 
-        map.set("Hello", 1);
-        map.set("World", 2);
-        map.set("Godot rocks", 42);
+        map.set(String("Hello"), 1);
+        map.set(String("World"), 2);
+        map.set(String("Godot rocks"), 42);
 
         for (OAHashMap<String, int>::Iterator it = map.iter(); it.valid; it = map.next_iter(it)) {
-			OS::get_singleton()->print(FormatV("map[\"%s\"] = %d\n",qPrintable(it.key->m_str),*it.value));
+            OS::get_singleton()->print(FormatVE("map[\"%s\"] = %d\n",qPrintable(*it.key),*it.value));
         }
     }
 
@@ -108,50 +109,50 @@ MainLoop *test() {
             map.set(keys[i], dummy);
 
             if (!map.lookup(keys[i], dummy))
-                OS::get_singleton()->print(FormatV("could not find 0x%X despite it was just inserted!\n", unsigned(keys[i])));
+                OS::get_singleton()->print(FormatVE("could not find 0x%X despite it was just inserted!\n", unsigned(keys[i])));
         }
 
         // check whether the keys are still present
         for (int i = 0; i < N; i++) {
             if (!map.lookup(keys[i], dummy)) {
-                OS::get_singleton()->print(FormatV("could not find 0x%X despite it has been inserted previously! (not checking the other keys, breaking...)\n", unsigned(keys[i])));
+                OS::get_singleton()->print(FormatVE("could not find 0x%X despite it has been inserted previously! (not checking the other keys, breaking...)\n", unsigned(keys[i])));
                 break;
             }
         }
 
         delete[] keys;
-	}
+    }
 
-	// regression test / test for issue related to #31402
-	{
+    // regression test / test for issue related to #31402
+    {
 
-		OS::get_singleton()->print("test for issue #31402 started...\n");
+        OS::get_singleton()->print("test for issue #31402 started...\n");
 
-		const int num_test_values = 12;
-		int test_values[num_test_values] = { 0, 24, 48, 72, 96, 120, 144, 168, 192, 216, 240, 264 };
+        const int num_test_values = 12;
+        int test_values[num_test_values] = { 0, 24, 48, 72, 96, 120, 144, 168, 192, 216, 240, 264 };
 
-		int dummy = 0;
-		OAHashMap<int, int> map;
-		map.clear();
+        int dummy = 0;
+        OAHashMap<int, int> map;
+        map.clear();
 
-		for (int i = 0; i < num_test_values; ++i) {
-			map.set(test_values[i], dummy);
-		}
+        for (int i = 0; i < num_test_values; ++i) {
+            map.set(test_values[i], dummy);
+        }
 
-		OS::get_singleton()->print("test for issue #31402 passed.\n");
-	}
+        OS::get_singleton()->print("test for issue #31402 passed.\n");
+    }
 
-	// test collision resolution, should not crash or run indefinitely
-	{
-		OAHashMap<int, int> map(4);
-		map.set(1, 1);
-		map.set(5, 1);
-		map.set(9, 1);
-		map.set(13, 1);
-		map.remove(5);
-		map.remove(9);
-		map.remove(13);
-		map.set(5, 1);
+    // test collision resolution, should not crash or run indefinitely
+    {
+        OAHashMap<int, int> map(4);
+        map.set(1, 1);
+        map.set(5, 1);
+        map.set(9, 1);
+        map.set(13, 1);
+        map.remove(5);
+        map.remove(9);
+        map.remove(13);
+        map.set(5, 1);
     }
 
     return nullptr;

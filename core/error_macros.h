@@ -58,7 +58,6 @@ enum ErrorHandlerType {
 
 using ErrorHandlerFunc = void (*)(void *, const char *, const char *, int, const char *, const char *, ErrorHandlerType);
 GODOT_EXPORT void _err_set_last_error(const char *p_err);
-GODOT_EXPORT void _err_set_last_error(const class String &str);
 GODOT_EXPORT void _err_set_last_error(se_string_view str);
 GODOT_EXPORT void _err_clear_last_error();
 
@@ -81,7 +80,7 @@ GODOT_EXPORT void remove_error_handler(ErrorHandlerList *p_handler);
 
 GODOT_EXPORT void _err_print_error(const char *p_function, const char *p_file, int p_line, const char *p_error,
         ErrorHandlerType p_type = ERR_HANDLER_ERROR);
-GODOT_EXPORT void _err_print_error(const char *p_function, const char *p_file, int p_line, const class String &p_error,
+GODOT_EXPORT void _err_print_error(const char *p_function, const char *p_file, int p_line, se_string_view p_error,
         ErrorHandlerType p_type = ERR_HANDLER_ERROR);
 GODOT_EXPORT void _err_print_index_error(const char *p_function, const char *p_file, int p_line, int64_t p_index,
         int64_t p_size, const char *p_index_str, const char *p_size_str, bool fatal = false);
@@ -441,6 +440,11 @@ extern GODOT_EXPORT bool _err_error_exists;
         _err_print_error(FUNCTION_STR, __FILE__, __LINE__, m_string); \
         _err_error_exists = false;                                                              \
     }
+#define ERR_PRINTF(fmt,...)                                           \
+    {                                                                 \
+        _err_print_error(FUNCTION_STR, __FILE__, __LINE__, FormatVE(fmt,__VA_ARGS__)); \
+        _err_error_exists = false;                                                              \
+    }
 
 #define ERR_PRINT_ONCE(m_string)                                          \
     {                                                                     \
@@ -461,11 +465,7 @@ extern GODOT_EXPORT bool _err_error_exists;
         _err_error_exists = false;                                                         \
     }
 
-#define WARN_PRINTS(m_string)                                                                                        \
-    {                                                                                                                \
-        _err_print_error(FUNCTION_STR, __FILE__, __LINE__, StringUtils::utf8(m_string).data(), ERR_HANDLER_WARNING); \
-        _err_error_exists = false;                                                                                   \
-    }
+#define WARN_PRINTS(m_string) WARN_PRINT(m_string)
 
 #define WARN_PRINT_ONCE(m_string)                                                              \
     {                                                                                          \

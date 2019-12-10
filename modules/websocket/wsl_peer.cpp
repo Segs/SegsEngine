@@ -38,9 +38,10 @@
 #include "core/crypto/crypto_core.h"
 #include "core/math/random_number_generator.h"
 #include "core/print_string.h"
+#include "core/string_utils.h"
 #include "core/os/os.h"
 
-String WSLPeer::generate_key() {
+se_string WSLPeer::generate_key() {
     // Random key
     RandomNumberGenerator rng;
     rng.set_seed(OS::get_singleton()->get_unix_time());
@@ -54,8 +55,8 @@ String WSLPeer::generate_key() {
     return CryptoCore::b64_encode_str(&w[0], len);
 }
 
-String WSLPeer::compute_key_response(String p_key) {
-    String key = p_key + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"; // Magic UUID as per RFC
+se_string WSLPeer::compute_key_response(se_string_view p_key) {
+    se_string key = se_string(p_key) + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"; // Magic UUID as per RFC
     Vector<uint8_t> sha = StringUtils::sha1_buffer(key);
     return CryptoCore::b64_encode_str(sha.ptr(), sha.size());
 }
@@ -179,7 +180,7 @@ Error WSLPeer::parse_message(const wslay_event_on_msg_recv_arg *arg) {
         size_t len = arg->msg_length;
         close_reason = "";
         if (len > 2 /* first 2 bytes = close code */) {
-            close_reason = StringUtils::from_utf8((char *)arg->msg + 2, len - 2);
+            close_reason = se_string((char *)arg->msg + 2, len - 2);
         }
         if (!wslay_event_get_close_sent(_data->ctx)) {
             if (_data->is_server) {
@@ -289,10 +290,9 @@ void WSLPeer::close_now() {
     _wsl_destroy(&_data);
 }
 
-void WSLPeer::close(int p_code, String p_reason) {
+void WSLPeer::close(int p_code, se_string_view p_reason) {
     if (_data && !wslay_event_get_close_sent(_data->ctx)) {
-        CharString cs = StringUtils::to_utf8(p_reason);
-        wslay_event_queue_close(_data->ctx, p_code, (uint8_t *)cs.data(), cs.size());
+        wslay_event_queue_close(_data->ctx, p_code, (const uint8_t *)p_reason.data(), p_reason.size());
         wslay_event_send(_data->ctx);
     }
 
@@ -302,14 +302,14 @@ void WSLPeer::close(int p_code, String p_reason) {
 
 IP_Address WSLPeer::get_connected_host() const {
 
-    ERR_FAIL_COND_V(!is_connected_to_host() || not _data->tcp, IP_Address());
+    ERR_FAIL_COND_V(!is_connected_to_host() || not _data->tcp, IP_Address())
 
     return _data->tcp->get_connected_host();
 }
 
 uint16_t WSLPeer::get_connected_port() const {
 
-    ERR_FAIL_COND_V(!is_connected_to_host() || not _data->tcp, 0);
+    ERR_FAIL_COND_V(!is_connected_to_host() || not _data->tcp, 0)
 
     return _data->tcp->get_connected_port();
 }

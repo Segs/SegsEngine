@@ -37,7 +37,7 @@
 class JSONRPC : public Object {
     GDCLASS(JSONRPC,Object)
 
-    Map<String, Object *> method_scopes;
+    Map<se_string, Object *> method_scopes;
 
 protected:
     static void _bind_methods();
@@ -54,13 +54,13 @@ public:
         INTERNAL_ERROR = -32603,
     };
 
-    Dictionary make_response_error(int p_code, const String &p_message, const Variant &p_id = Variant()) const;
+    Dictionary make_response_error(int p_code, se_string_view p_message, const Variant &p_id = Variant()) const;
     Dictionary make_response(const Variant &p_value, const Variant &p_id);
-    Dictionary make_notification(const String &p_method, const Variant &p_params);
-    Dictionary make_request(const String &p_method, const Variant &p_params, const Variant &p_id);
+    Dictionary make_notification(se_string_view p_method, const Variant &p_params);
+    Dictionary make_request(se_string_view p_method, const Variant &p_params, const Variant &p_id);
 
     Variant process_action(const Variant &p_action, bool p_process_arr_elements = false);
-    String process_string(const String &p_input);
+    se_string process_string(const se_string &p_input);
 
-    void set_scope(const String &p_scope, Object *p_obj);
+    void set_scope(const se_string &p_scope, Object *p_obj);
 };

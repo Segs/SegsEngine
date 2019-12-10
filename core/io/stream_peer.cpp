@@ -32,6 +32,7 @@
 
 #include "core/io/marshalls.h"
 #include "core/method_bind.h"
+#include "core/string_utils.inl"
 
 IMPL_GDCLASS(StreamPeer);
 IMPL_GDCLASS(StreamPeerBuffer);
@@ -213,17 +214,15 @@ void StreamPeer::put_double(double p_val) {
     }
     put_data(buf, 8);
 }
-void StreamPeer::put_string(const String &p_string) {
+void StreamPeer::put_string(se_string_view p_string) {
 
-    CharString cs = StringUtils::ascii(p_string);
-    put_u32(cs.length());
-    put_data((const uint8_t *)cs.data(), cs.length());
+    put_u32(p_string.length());
+    put_data((const uint8_t *)p_string.data(), p_string.length());
 }
-void StreamPeer::put_utf8_string(const String &p_string) {
+void StreamPeer::put_utf8_string(se_string_view p_string) {
 
-    CharString cs = StringUtils::to_utf8(p_string);
-    put_u32(cs.length());
-    put_data((const uint8_t *)cs.data(), cs.length());
+    put_u32(p_string.length());
+    put_data((const uint8_t *)p_string.data(), p_string.length());
 }
 void StreamPeer::put_var(const Variant &p_variant, bool p_full_objects) {
 
@@ -333,34 +332,18 @@ double StreamPeer::get_double() {
 
     return decode_double(buf);
 }
-String StreamPeer::get_string(int p_bytes) {
+se_string StreamPeer::get_string(int p_bytes) {
 
     if (p_bytes < 0)
         p_bytes = get_u32();
-    ERR_FAIL_COND_V(p_bytes < 0, String())
+    ERR_FAIL_COND_V(p_bytes < 0, se_string())
 
-    Vector<char> buf;
-    Error err = buf.resize(p_bytes + 1);
-    ERR_FAIL_COND_V(err != OK, String())
-    err = get_data((uint8_t *)&buf[0], p_bytes);
-    ERR_FAIL_COND_V(err != OK, String())
-    buf.write[p_bytes] = 0;
-    return buf.ptr();
-}
-String StreamPeer::get_utf8_string(int p_bytes) {
-
-    if (p_bytes < 0)
-        p_bytes = get_u32();
-    ERR_FAIL_COND_V(p_bytes < 0, String())
-
-    Vector<uint8_t> buf;
-    Error err = buf.resize(p_bytes);
-    ERR_FAIL_COND_V(err != OK, String())
-    err = get_data(buf.ptrw(), p_bytes);
-    ERR_FAIL_COND_V(err != OK, String())
-
-    String ret =StringUtils::from_utf8((const char *)buf.ptr(), buf.size());
-    return ret;
+    se_string buf;
+    buf.resize(p_bytes + 1);
+    Error err = get_data((uint8_t *)&buf[0], p_bytes);
+    ERR_FAIL_COND_V(err != OK, se_string())
+    buf[p_bytes] = 0;
+    return buf;
 }
 Variant StreamPeer::get_var(bool p_allow_objects) {
 
@@ -416,7 +399,7 @@ void StreamPeer::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_float"), &StreamPeer::get_float);
     MethodBinder::bind_method(D_METHOD("get_double"), &StreamPeer::get_double);
     MethodBinder::bind_method(D_METHOD("get_string", {"bytes"}), &StreamPeer::get_string, {DEFVAL(-1)});
-    MethodBinder::bind_method(D_METHOD("get_utf8_string", {"bytes"}), &StreamPeer::get_utf8_string, {DEFVAL(-1)});
+    //MethodBinder::bind_method(D_METHOD("get_utf8_string", {"bytes"}), &StreamPeer::get_utf8_string, {DEFVAL(-1)});
     MethodBinder::bind_method(D_METHOD("get_var", {"allow_objects"}), &StreamPeer::get_var, {DEFVAL(false)});
 
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "big_endian"), "set_big_endian", "is_big_endian_enabled");

@@ -35,110 +35,110 @@
 
 class VisualScriptYield : public VisualScriptNode {
 
-	GDCLASS(VisualScriptYield,VisualScriptNode)
+    GDCLASS(VisualScriptYield,VisualScriptNode)
 
 public:
-	enum YieldMode {
-		YIELD_RETURN,
-		YIELD_FRAME,
-		YIELD_PHYSICS_FRAME,
-		YIELD_WAIT
+    enum YieldMode {
+        YIELD_RETURN,
+        YIELD_FRAME,
+        YIELD_PHYSICS_FRAME,
+        YIELD_WAIT
 
-	};
+    };
 
 private:
-	YieldMode yield_mode;
-	float wait_time;
+    YieldMode yield_mode;
+    float wait_time;
 
 protected:
-	void _validate_property(PropertyInfo &property) const override;
+    void _validate_property(PropertyInfo &property) const override;
 
-	static void _bind_methods();
+    static void _bind_methods();
 
 public:
-	int get_output_sequence_port_count() const override;
-	bool has_input_sequence_port() const override;
+    int get_output_sequence_port_count() const override;
+    bool has_input_sequence_port() const override;
 
-	String get_output_sequence_port_text(int p_port) const override;
+    se_string_view get_output_sequence_port_text(int p_port) const override;
 
-	int get_input_value_port_count() const override;
-	int get_output_value_port_count() const override;
+    int get_input_value_port_count() const override;
+    int get_output_value_port_count() const override;
 
-	PropertyInfo get_input_value_port_info(int p_idx) const override;
-	PropertyInfo get_output_value_port_info(int p_idx) const override;
+    PropertyInfo get_input_value_port_info(int p_idx) const override;
+    PropertyInfo get_output_value_port_info(int p_idx) const override;
 
-	String get_caption() const override;
-	String get_text() const override;
-	String get_category() const override { return "functions"; }
+    se_string_view get_caption() const override;
+    se_string get_text() const override;
+    const char *get_category() const override { return "functions"; }
 
-	void set_yield_mode(YieldMode p_mode);
-	YieldMode get_yield_mode();
+    void set_yield_mode(YieldMode p_mode);
+    YieldMode get_yield_mode();
 
-	void set_wait_time(float p_time);
-	float get_wait_time();
+    void set_wait_time(float p_time);
+    float get_wait_time();
 
-	VisualScriptNodeInstance *instance(VisualScriptInstance *p_instance) override;
+    VisualScriptNodeInstance *instance(VisualScriptInstance *p_instance) override;
 
-	VisualScriptYield();
+    VisualScriptYield();
 };
 
 class VisualScriptYieldSignal : public VisualScriptNode {
 
-	GDCLASS(VisualScriptYieldSignal,VisualScriptNode)
+    GDCLASS(VisualScriptYieldSignal,VisualScriptNode)
 
 public:
-	enum CallMode {
-		CALL_MODE_SELF,
-		CALL_MODE_NODE_PATH,
-		CALL_MODE_INSTANCE,
+    enum CallMode {
+        CALL_MODE_SELF,
+        CALL_MODE_NODE_PATH,
+        CALL_MODE_INSTANCE,
 
-	};
+    };
 
 private:
-	CallMode call_mode;
-	StringName base_type;
-	NodePath base_path;
-	StringName signal;
+    CallMode call_mode;
+    StringName base_type;
+    NodePath base_path;
+    StringName signal;
 
-	Node *_get_base_node() const;
-	StringName _get_base_type() const;
+    Node *_get_base_node() const;
+    StringName _get_base_type() const;
 
 protected:
-	void _validate_property(PropertyInfo &property) const override;
+    void _validate_property(PropertyInfo &property) const override;
 
-	static void _bind_methods();
+    static void _bind_methods();
 
 public:
-	int get_output_sequence_port_count() const override;
-	bool has_input_sequence_port() const override;
+    int get_output_sequence_port_count() const override;
+    bool has_input_sequence_port() const override;
 
-	String get_output_sequence_port_text(int p_port) const override;
+    se_string_view get_output_sequence_port_text(int p_port) const override;
 
-	int get_input_value_port_count() const override;
-	int get_output_value_port_count() const override;
+    int get_input_value_port_count() const override;
+    int get_output_value_port_count() const override;
 
-	PropertyInfo get_input_value_port_info(int p_idx) const override;
-	PropertyInfo get_output_value_port_info(int p_idx) const override;
+    PropertyInfo get_input_value_port_info(int p_idx) const override;
+    PropertyInfo get_output_value_port_info(int p_idx) const override;
 
-	String get_caption() const override;
-	String get_text() const override;
-	String get_category() const override { return "functions"; }
+    se_string_view get_caption() const override;
+    se_string get_text() const override;
+    const char *get_category() const override { return "functions"; }
 
-	void set_base_type(const StringName &p_type);
-	StringName get_base_type() const;
+    void set_base_type(const StringName &p_type);
+    StringName get_base_type() const;
 
-	void set_signal(const StringName &p_type);
-	StringName get_signal() const;
+    void set_signal(const StringName &p_type);
+    StringName get_signal() const;
 
-	void set_base_path(const NodePath &p_type);
-	NodePath get_base_path() const;
+    void set_base_path(const NodePath &p_type);
+    NodePath get_base_path() const;
 
-	void set_call_mode(CallMode p_mode);
-	CallMode get_call_mode() const;
+    void set_call_mode(CallMode p_mode);
+    CallMode get_call_mode() const;
 
-	VisualScriptNodeInstance *instance(VisualScriptInstance *p_instance) override;
+    VisualScriptNodeInstance *instance(VisualScriptInstance *p_instance) override;
 
-	VisualScriptYieldSignal();
+    VisualScriptYieldSignal();
 };
 
 void register_visual_script_yield_nodes();

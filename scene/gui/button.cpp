@@ -41,7 +41,7 @@ VARIANT_ENUM_CAST(Button::TextAlign);
 
 Size2 Button::get_minimum_size() const {
 
-    Size2 minsize = get_font("font")->get_string_size(xl_text);
+    Size2 minsize = get_font("font")->get_string_size_utf8(xl_text);
     if (clip_text)
         minsize.width = 0;
 
@@ -72,7 +72,7 @@ void Button::_notification(int p_what) {
     switch (p_what) {
         case NOTIFICATION_TRANSLATION_CHANGED: {
 
-            xl_text = tr(text);
+            xl_text = tr(StringName(text));
             minimum_size_changed();
             update();
         } break;
@@ -166,7 +166,7 @@ void Button::_notification(int p_what) {
                 if (expand_icon) {
                     Size2 _size = get_size() - style->get_offset() * 2;
                     _size.width -= get_constant("hseparation") + icon_ofs_region;
-                    if (!clip_text) _size.width -= get_font("font")->get_string_size(xl_text).width;
+                    if (!clip_text) _size.width -= get_font("font")->get_string_size_utf8(xl_text).width;
                     float icon_width = icon->get_width() * _size.height / icon->get_height();
                     float icon_height = _size.height;
 
@@ -188,7 +188,7 @@ void Button::_notification(int p_what) {
             Point2 icon_ofs =
                     _icon ? Point2(icon_region.size.width + get_constant("hseparation"), 0) : Point2();
             int text_clip = size.width - style->get_minimum_size().width - icon_ofs.width;
-            Point2 text_ofs = (size - style->get_minimum_size() - icon_ofs - font->get_string_size(xl_text) -
+            Point2 text_ofs = (size - style->get_minimum_size() - icon_ofs - font->get_string_size_utf8(xl_text) -
                                       Point2(_internal_margin[MARGIN_RIGHT] - _internal_margin[MARGIN_LEFT], 0)) /
                               2.0;
 
@@ -209,17 +209,17 @@ void Button::_notification(int p_what) {
                 } break;
                 case ALIGN_RIGHT: {
                     if (_internal_margin[MARGIN_RIGHT] > 0) {
-                        text_ofs.x = size.x - style->get_margin(MARGIN_RIGHT) - font->get_string_size(xl_text).x -
+                        text_ofs.x = size.x - style->get_margin(MARGIN_RIGHT) - font->get_string_size_utf8(xl_text).x -
                                      _internal_margin[MARGIN_RIGHT] - get_constant("hseparation");
                     } else {
-                        text_ofs.x = size.x - style->get_margin(MARGIN_RIGHT) - font->get_string_size(xl_text).x;
+                        text_ofs.x = size.x - style->get_margin(MARGIN_RIGHT) - font->get_string_size_utf8(xl_text).x;
                     }
                     text_ofs.y += style->get_offset().y;
                 } break;
             }
 
             text_ofs.y += font->get_ascent();
-            font->draw(ci, text_ofs.floor(), xl_text, color, clip_text ? text_clip : -1);
+            font->draw_utf8(ci, text_ofs.floor(), xl_text, color, clip_text ? text_clip : -1);
 
             if (_icon && icon_region.size.width > 0) {
                 draw_texture_rect_region(_icon, icon_region, Rect2(Point2(), icon->get_size()), color_icon);
@@ -228,7 +228,7 @@ void Button::_notification(int p_what) {
     }
 }
 
-void Button::set_text(const String &p_text) {
+void Button::set_text(const StringName &p_text) {
 
     if (text == p_text)
         return;
@@ -238,10 +238,22 @@ void Button::set_text(const String &p_text) {
     _change_notify("text");
     minimum_size_changed();
 }
-String Button::get_text() const {
+void Button::set_text_utf8(se_string_view p_text)
+{
+    if (text == p_text)
+        return;
+    text = StringName(p_text);
+    xl_text = tr(text);
+    update();
+    _change_notify("text");
+    minimum_size_changed();
+
+}
+StringName Button::get_text() const {
 
     return text;
 }
+
 
 void Button::set_icon(const Ref<Texture> &p_icon) {
 
@@ -332,7 +344,7 @@ void Button::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "expand_icon"), "set_expand_icon", "is_expand_icon");
 }
 
-Button::Button(const String &p_text) {
+Button::Button(const StringName &p_text) {
 
     flat = false;
     clip_text = false;

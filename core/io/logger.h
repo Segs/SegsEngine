@@ -39,28 +39,24 @@ GODOT_TEMPLATE_EXT_DECLARE(Vector<class Logger *>)
 
 class GODOT_EXPORT Logger {
 protected:
-	bool should_log(bool p_err);
+    bool should_log(bool p_err);
 
 public:
-	enum ErrorType {
-		ERR_ERROR,
-		ERR_WARNING,
-		ERR_SCRIPT,
-		ERR_SHADER
-	};
+    enum ErrorType {
+        ERR_ERROR,
+        ERR_WARNING,
+        ERR_SCRIPT,
+        ERR_SHADER
+    };
 
-	virtual void logv(const QChar *p_msg, bool p_err) = 0;
-	virtual void logv(const char *p_msg, bool p_err) = 0;
+    virtual void logv(se_string_view p_msg, bool p_err) = 0;
 
-	virtual void log_error(const char *p_function, const char *p_file, int p_line, const char *p_code, const char *p_rationale, ErrorType p_type = ERR_ERROR);
+    virtual void log_error(const char *p_function, const char *p_file, int p_line, const char *p_code, const char *p_rationale, ErrorType p_type = ERR_ERROR);
 
-	void logf(const String &p_msg);
-    void logf(const char *p_msg);
+    void logf(se_string_view p_msg);
+    void logf_error(se_string_view p_msg);
 
-	void logf_error(const QChar *p_msg);
-	void logf_error(const char *msg);
-
-	virtual ~Logger();
+    virtual ~Logger();
 };
 
 /**
@@ -69,20 +65,18 @@ public:
 class GODOT_EXPORT StdLogger : public Logger {
 
 public:
-	void logv(const QChar *p_msg, bool p_err) override;
-	void logv(const char *p_msg, bool p_err) override;
+    void logv(se_string_view p_msg, bool p_err) override;
 
-	~StdLogger() override;
+    ~StdLogger() override;
 };
 
 class CompositeLogger : public Logger {
-	Vector<Logger *> loggers;
+    Vector<Logger *> loggers;
 
 public:
     GODOT_EXPORT CompositeLogger(const Vector<Logger *>& p_loggers);
 
-    GODOT_EXPORT void logv(const QChar *p_msg, bool p_err) override;
-    GODOT_EXPORT void logv(const char *p_msg, bool p_err) override;
+    GODOT_EXPORT void logv(se_string_view p_msg, bool p_err) override;
     GODOT_EXPORT void log_error(const char *p_function, const char *p_file, int p_line, const char *p_code, const char *p_rationale, ErrorType p_type = ERR_ERROR) override;
 
     GODOT_EXPORT void add_logger(Logger *p_logger);

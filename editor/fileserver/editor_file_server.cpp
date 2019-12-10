@@ -35,6 +35,7 @@
 #include "core/os/mutex.h"
 #include "core/os/os.h"
 #include "core/print_string.h"
+#include "core/string_utils.h"
 #include "core/class_db.h"
 
 //#define DEBUG_PRINT(m_p) print_line(m_p)
@@ -86,7 +87,7 @@ void EditorFileServer::_subthread_start(void *s) {
             ERR_FAIL_COND(err != OK)
         }
         passutf8.write[passlen] = 0;
-        String s2 = StringUtils::from_utf8(passutf8.ptr());
+        se_string s2(passutf8.ptr());
         if (s2 != cd->efs->password) {
             encode_uint32(ERR_INVALID_DATA, buf4);
             cd->connection->put_data(buf4, 4);
@@ -151,7 +152,7 @@ void EditorFileServer::_subthread_start(void *s) {
                     ERR_FAIL_COND(err != OK)
                 }
                 fileutf8.write[namelen] = 0;
-                String s2 = StringUtils::from_utf8(fileutf8.ptr());
+                se_string s2(fileutf8.ptr());
 
                 if (cmd == FileAccessNetwork::COMMAND_FILE_EXISTS) {
                     print_verbose("FILE EXISTS: " + s2);
@@ -318,7 +319,7 @@ void EditorFileServer::start() {
 
     stop();
     port = EDITOR_DEF("filesystem/file_server/port", 6010);
-    password = EDITOR_DEF("filesystem/file_server/password", "");
+    password = EDITOR_DEF("filesystem/file_server/password", "").as<se_string>();
     cmd = CMD_ACTIVATE;
 }
 

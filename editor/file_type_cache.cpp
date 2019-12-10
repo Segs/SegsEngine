@@ -39,70 +39,69 @@ IMPL_GDCLASS(FileTypeCache)
 
 FileTypeCache *FileTypeCache::singleton = nullptr;
 
-bool FileTypeCache::has_file(const String &p_path) const {
+bool FileTypeCache::has_file(se_string_view p_path) const {
 
-	GLOBAL_LOCK_FUNCTION
-	return file_type_map.contains(p_path);
+    GLOBAL_LOCK_FUNCTION
+    return file_type_map.contains_as(p_path);
 }
 
-String FileTypeCache::get_file_type(const String &p_path) const {
+se_string FileTypeCache::get_file_type(se_string_view p_path) const {
 
-	GLOBAL_LOCK_FUNCTION
-	ERR_FAIL_COND_V(!file_type_map.contains(p_path), "")
-	return file_type_map[p_path];
+    GLOBAL_LOCK_FUNCTION
+    auto iter = file_type_map.find_as(p_path);
+    ERR_FAIL_COND_V(iter==file_type_map.end(), se_string())
+    return iter->second;
 }
-void FileTypeCache::set_file_type(const String &p_path, const String &p_type) {
+void FileTypeCache::set_file_type(se_string_view p_path, se_string_view p_type) {
 
-	GLOBAL_LOCK_FUNCTION
-	file_type_map[p_path] = p_type;
+    GLOBAL_LOCK_FUNCTION
+    file_type_map[se_string(p_path)] = p_type;
 }
 
 void FileTypeCache::load() {
 
-	GLOBAL_LOCK_FUNCTION
-	String project = ProjectSettings::get_singleton()->get_resource_path();
-	FileAccess *f = FileAccess::open(project + "/file_type_cache.cch", FileAccess::READ);
+    GLOBAL_LOCK_FUNCTION
+    se_string project = ProjectSettings::get_singleton()->get_resource_path();
+    FileAccess *f = FileAccess::open(project + "/file_type_cache.cch", FileAccess::READ);
 
-	if (!f) {
+    if (!f) {
 
-		WARN_PRINT("Can't open file_type_cache.cch.");
-		return;
-	}
+        WARN_PRINT("Can't open file_type_cache.cch.");
+        return;
+    }
 
-	file_type_map.clear();
-	while (!f->eof_reached()) {
+    file_type_map.clear();
+    while (!f->eof_reached()) {
 
-		String path = f->get_line();
-		if (f->eof_reached())
-			break;
-		String type = f->get_line();
-		set_file_type(path, type);
-	}
+        se_string path = f->get_line();
+        if (f->eof_reached())
+            break;
+        se_string type = f->get_line();
+        set_file_type(path, type);
+    }
 
-	memdelete(f);
+    memdelete(f);
 }
 
 void FileTypeCache::save() {
 
-	GLOBAL_LOCK_FUNCTION
-	String project = ProjectSettings::get_singleton()->get_resource_path();
-	FileAccess *f = FileAccess::open(project + "/file_type_cache.cch", FileAccess::WRITE);
+    GLOBAL_LOCK_FUNCTION
+    se_string project = ProjectSettings::get_singleton()->get_resource_path();
+    FileAccess *f = FileAccess::open(project + "/file_type_cache.cch", FileAccess::WRITE);
 
     ERR_FAIL_COND_CMSG(!f, "Can't open file_type_cache.cch for writing, not saving file type cache!")
 
-	const String *K = nullptr;
+    for(const auto &v : file_type_map) {
+        f->store_line(v.first);
+        f->store_line(v.second);
 
-	while ((K = file_type_map.next(K))) {
+    }
 
-		f->store_line(*K);
-		f->store_line(file_type_map[*K]);
-	}
-
-	memdelete(f);
+    memdelete(f);
 }
 
 FileTypeCache::FileTypeCache() {
 
-	ERR_FAIL_COND_CMSG(singleton, "FileTypeCache singleton already exist.")
-	singleton = this;
+    ERR_FAIL_COND_CMSG(singleton, "FileTypeCache singleton already exist.")
+    singleton = this;
 }

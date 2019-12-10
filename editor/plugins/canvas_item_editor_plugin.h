@@ -30,7 +30,6 @@
 
 #pragma once
 
-#include "editor/editor_node.h"
 #include "editor/editor_plugin.h"
 #include "scene/2d/canvas_item.h"
 #include "scene/gui/box_container.h"
@@ -42,6 +41,13 @@
 class CanvasItemEditorViewport;
 class StyleBoxTexture;
 class Node2D;
+class MenuButton;
+class EditorData;
+class ConfirmationDialog;
+class AcceptDialog;
+class WindowDialog;
+class HSplitContainer;
+class VSplitContainer;
 
 class CanvasItemEditorSelectedItem : public Object {
 
@@ -299,7 +305,7 @@ private:
 
         Point2 position;
         Ref<Texture> icon;
-        String name;
+        se_string name;
     };
     Vector<_HoverResult> hovering_results;
 
@@ -425,7 +431,7 @@ private:
     void _save_canvas_item_state(List<CanvasItem *> p_canvas_items, bool save_bones = false);
     void _restore_canvas_item_ik_chain(CanvasItem *p_canvas_item, const List<Dictionary> *p_bones_state);
     void _restore_canvas_item_state(const List<CanvasItem *>& p_canvas_items, bool restore_bones = false);
-    void _commit_canvas_item_state(List<CanvasItem *> p_canvas_items, const String& action_name, bool commit_bones = false);
+    void _commit_canvas_item_state(List<CanvasItem *> p_canvas_items, const StringName &action_name, bool commit_bones = false);
 
     Vector2 _anchor_to_position(const Control *p_control, Vector2 anchor);
     Vector2 _position_to_anchor(const Control *p_control, Vector2 position);
@@ -644,7 +650,7 @@ class CanvasItemEditorPlugin : public EditorPlugin {
     EditorNode *editor;
 
 public:
-    String get_name() const override { return "2D"; }
+    se_string_view get_name() const override { return ("2D"); }
     bool has_main_screen() const override { return true; }
     void edit(Object *p_object) override;
     bool handles(Object *p_object) const override;
@@ -661,10 +667,10 @@ public:
 class CanvasItemEditorViewport : public Control {
     GDCLASS(CanvasItemEditorViewport,Control)
 
-    String default_type;
-    Vector<String> types;
+    StringName default_type;
+    Vector<StringName> types;
 
-    Vector<String> selected_files;
+    Vector<se_string> selected_files;
     Node *target_node;
     Point2 drop_pos;
 
@@ -685,13 +691,13 @@ class CanvasItemEditorViewport : public Control {
     void _on_change_type_confirmed();
     void _on_change_type_closed();
 
-    void _create_preview(const Vector<String> &files) const;
+    void _create_preview(const Vector<se_string> &files) const;
     void _remove_preview();
 
-    bool _cyclical_dependency_exists(const String &p_target_scene_path, Node *p_desired_node);
+    bool _cyclical_dependency_exists(se_string_view p_target_scene_path, Node *p_desired_node);
     bool _only_packed_scenes_selected() const;
-    void _create_nodes(Node *parent, Node *child, String &path, const Point2 &p_point);
-    bool _create_instance(Node *parent, String &path, const Point2 &p_point);
+    void _create_nodes(Node *parent, Node *child, se_string_view path, const Point2 &p_point);
+    bool _create_instance(Node *parent, se_string_view path, const Point2 &p_point);
     void _perform_drop_data();
     void _show_resource_type_selector();
 

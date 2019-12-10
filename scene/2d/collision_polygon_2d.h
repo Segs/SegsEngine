@@ -77,7 +77,7 @@ public:
 	bool _edit_use_rect() const override;
 	bool _edit_is_selected_on_click(const Point2 &p_point, double p_tolerance) const override;
 
-	String get_configuration_warning() const override;
+    StringName get_configuration_warning() const override;
 
 	void set_disabled(bool p_disabled);
 	bool is_disabled() const;

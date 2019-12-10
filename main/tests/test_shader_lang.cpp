@@ -35,6 +35,8 @@
 #include "core/os/os.h"
 
 #include "core/print_string.h"
+#include "core/string_formatter.h"
+#include "core/se_string.h"
 #include "scene/gui/control.h"
 #include "scene/gui/text_edit.h"
 #include "servers/visual/shader_language.h"
@@ -43,22 +45,22 @@ using SL = ShaderLanguage;
 
 namespace TestShaderLang {
 
-static String _mktab(int p_level) {
+static se_string _mktab(int p_level) {
 
-    String tb;
+    se_string tb;
     for (int i = 0; i < p_level; i++) {
-        tb += "\t";
+        tb += '\t';
     }
 
     return tb;
 }
 
-static String _typestr(SL::DataType p_type) {
+static se_string_view _typestr(SL::DataType p_type) {
 
     return ShaderLanguage::get_datatype_name(p_type);
 }
 
-static String _prestr(SL::DataPrecision p_pres) {
+static se_string _prestr(SL::DataPrecision p_pres) {
 
     switch (p_pres) {
         case SL::PRECISION_LOWP: return "lowp ";
@@ -69,37 +71,40 @@ static String _prestr(SL::DataPrecision p_pres) {
     return "";
 }
 
-static String _opstr(SL::Operator p_op) {
+static se_string_view _opstr(SL::Operator p_op) {
 
     return ShaderLanguage::get_operator_text(p_op);
 }
-
-static String get_constant_text(SL::DataType p_type, const PODVector<SL::ConstantNode::Value> &p_values) {
+static const char *btos(bool v)
+{
+    return v ? "true" : "false";
+}
+static se_string get_constant_text(SL::DataType p_type, const PODVector<SL::ConstantNode::Value> &p_values) {
 
     switch (p_type) {
         case SL::TYPE_BOOL: return p_values[0].boolean ? "true" : "false";
-        case SL::TYPE_BVEC2: return String() + "bvec2(" + (p_values[0].boolean ? "true" : "false") + (p_values[1].boolean ? "true" : "false") + ")";
-        case SL::TYPE_BVEC3: return String() + "bvec3(" + (p_values[0].boolean ? "true" : "false") + "," + (p_values[1].boolean ? "true" : "false") + "," + (p_values[2].boolean ? "true" : "false") + ")";
-        case SL::TYPE_BVEC4: return String() + "bvec4(" + (p_values[0].boolean ? "true" : "false") + "," + (p_values[1].boolean ? "true" : "false") + "," + (p_values[2].boolean ? "true" : "false") + "," + (p_values[3].boolean ? "true" : "false") + ")";
-        case SL::TYPE_INT: return rtos(p_values[0].sint);
-        case SL::TYPE_IVEC2: return String() + "ivec2(" + rtos(p_values[0].sint) + "," + rtos(p_values[1].sint) + ")";
-        case SL::TYPE_IVEC3: return String() + "ivec3(" + rtos(p_values[0].sint) + "," + rtos(p_values[1].sint) + "," + rtos(p_values[2].sint) + ")";
-        case SL::TYPE_IVEC4: return String() + "ivec4(" + rtos(p_values[0].sint) + "," + rtos(p_values[1].sint) + "," + rtos(p_values[2].sint) + "," + rtos(p_values[3].sint) + ")";
-        case SL::TYPE_UINT: return rtos(p_values[0].real);
-        case SL::TYPE_UVEC2: return String() + "uvec2(" + rtos(p_values[0].real) + "," + rtos(p_values[1].real) + ")";
-        case SL::TYPE_UVEC3: return String() + "uvec3(" + rtos(p_values[0].real) + "," + rtos(p_values[1].real) + "," + rtos(p_values[2].real) + ")";
-        case SL::TYPE_UVEC4: return String() + "uvec4(" + rtos(p_values[0].real) + "," + rtos(p_values[1].real) + "," + rtos(p_values[2].real) + "," + rtos(p_values[3].real) + ")";
-        case SL::TYPE_FLOAT: return rtos(p_values[0].real);
-        case SL::TYPE_VEC2: return String() + "vec2(" + rtos(p_values[0].real) + "," + rtos(p_values[1].real) + ")";
-        case SL::TYPE_VEC3: return String() + "vec3(" + rtos(p_values[0].real) + "," + rtos(p_values[1].real) + "," + rtos(p_values[2].real) + ")";
-        case SL::TYPE_VEC4: return String() + "vec4(" + rtos(p_values[0].real) + "," + rtos(p_values[1].real) + "," + rtos(p_values[2].real) + "," + rtos(p_values[3].real) + ")";
-        default: ERR_FAIL_V(String())
+        case SL::TYPE_BVEC2: return FormatVE("bvec2(%s,%s)",btos(p_values[0].boolean),btos(p_values[1].boolean));
+        case SL::TYPE_BVEC3: return FormatVE("bvec3(%s,%s,%s)",btos(p_values[0].boolean),btos(p_values[1].boolean),btos(p_values[2].boolean));
+        case SL::TYPE_BVEC4: return FormatVE("bvec4(%s,%s,%s,%s)",btos(p_values[0].boolean),btos(p_values[1].boolean),btos(p_values[2].boolean),btos(p_values[3].boolean));
+        case SL::TYPE_INT: return to_string(p_values[0].sint);
+        case SL::TYPE_IVEC2: return se_string() + "ivec2(" + to_string(p_values[0].sint) + "," + to_string(p_values[1].sint) + ")";
+        case SL::TYPE_IVEC3: return se_string() + "ivec3(" + to_string(p_values[0].sint) + "," + to_string(p_values[1].sint) + "," + to_string(p_values[2].sint) + ")";
+        case SL::TYPE_IVEC4: return se_string() + "ivec4(" + to_string(p_values[0].sint) + "," + to_string(p_values[1].sint) + "," + to_string(p_values[2].sint) + "," + to_string(p_values[3].sint) + ")";
+        case SL::TYPE_UINT: return to_string(p_values[0].real);
+        case SL::TYPE_UVEC2: return se_string() + "uvec2(" + to_string(p_values[0].real) + "," + to_string(p_values[1].real) + ")";
+        case SL::TYPE_UVEC3: return se_string() + "uvec3(" + to_string(p_values[0].real) + "," + to_string(p_values[1].real) + "," + to_string(p_values[2].real) + ")";
+        case SL::TYPE_UVEC4: return se_string() + "uvec4(" + to_string(p_values[0].real) + "," + to_string(p_values[1].real) + "," + to_string(p_values[2].real) + "," + to_string(p_values[3].real) + ")";
+        case SL::TYPE_FLOAT: return to_string(p_values[0].real);
+        case SL::TYPE_VEC2: return se_string ()+ "vec2(" + to_string(p_values[0].real) + "," + to_string(p_values[1].real) + ")";
+        case SL::TYPE_VEC3: return se_string() + "vec3(" + to_string(p_values[0].real) + "," + to_string(p_values[1].real) + "," + to_string(p_values[2].real) + ")";
+        case SL::TYPE_VEC4: return se_string() + "vec4(" + to_string(p_values[0].real) + "," + to_string(p_values[1].real) + "," + to_string(p_values[2].real) + "," + to_string(p_values[3].real) + ")";
+        default: ERR_FAIL_V(se_string())
     }
 }
 
-static String dump_node_code(SL::Node *p_node, int p_level) {
+static se_string dump_node_code(SL::Node *p_node, int p_level) {
 
-    String code;
+    se_string code;
 
     switch (p_node->type) {
 
@@ -109,13 +114,13 @@ static String dump_node_code(SL::Node *p_node, int p_level) {
 
             for (eastl::pair<const StringName,SL::ShaderNode::Uniform> &E : pnode->uniforms) {
 
-                String ucode = "uniform ";
+                se_string ucode("uniform ");
                 ucode += _prestr(E.second.precision);
-                ucode += _typestr(E.second.type);
-                ucode += " " + String(E.first);
+                ucode.append(_typestr(E.second.type));
+                ucode += se_string(" ") + E.first.asCString();
 
                 if (!E.second.default_value.empty()) {
-                    ucode += " = " + get_constant_text(E.second.type, E.second.default_value);
+                    ucode.append_sprintf(" = %s",get_constant_text(E.second.type, E.second.default_value).c_str());
                 }
 
                 static const char *hint_name[SL::ShaderNode::Uniform::HINT_MAX] = {
@@ -129,17 +134,17 @@ static String dump_node_code(SL::Node *p_node, int p_level) {
                 };
 
                 if (E.second.hint)
-                    ucode += " : " + String(hint_name[E.second.hint]);
+                    ucode.append_sprintf(" : %s",hint_name[E.second.hint]);
 
                 code += ucode + "\n";
             }
 
             for (eastl::pair<const StringName,SL::ShaderNode::Varying> &E : pnode->varyings) {
 
-                String vcode = "varying ";
+                se_string vcode("varying ");
                 vcode += _prestr(E.second.precision);
-                vcode += _typestr(E.second.type);
-                vcode += " " + String(E.first);
+                vcode.append(_typestr(E.second.type));
+                vcode.append_sprintf(" %s",E.first.asCString());
 
                 code += vcode + "\n";
             }
@@ -147,13 +152,13 @@ static String dump_node_code(SL::Node *p_node, int p_level) {
 
                 SL::FunctionNode *fnode = pnode->functions[i].function;
 
-                String header;
-                header = _typestr(fnode->return_type) + " " + fnode->name + "(";
+                se_string header;
+                header = se_string(_typestr(fnode->return_type)) + " " + fnode->name.asCString() + "(";
                 for (size_t j = 0; j < fnode->arguments.size(); j++) {
 
                     if (j > 0)
                         header += ", ";
-                    header += _prestr(fnode->arguments[j].precision) + _typestr(fnode->arguments[j].type) + " " + fnode->arguments[j].name;
+                    header += _prestr(fnode->arguments[j].precision) + se_string(_typestr(fnode->arguments[j].type)) + " " + fnode->arguments[j].name.asCString();
                 }
 
                 header += ")\n";
@@ -173,12 +178,12 @@ static String dump_node_code(SL::Node *p_node, int p_level) {
             code += _mktab(p_level - 1) + "{\n";
             for (eastl::pair<const StringName,SL::BlockNode::Variable> &E : bnode->variables) {
 
-                code += _mktab(p_level) + _prestr(E.second.precision) + _typestr(E.second.type) + " " + E.first + ";\n";
+                code += _mktab(p_level) + _prestr(E.second.precision) + se_string(_typestr(E.second.type)) + " " + E.first.asCString() + ";\n";
             }
 
             for (int i = 0; i < bnode->statements.size(); i++) {
 
-                String scode = dump_node_code(bnode->statements[i], p_level);
+                se_string scode = dump_node_code(bnode->statements[i], p_level);
 
                 if (bnode->statements[i]->type == SL::Node::TYPE_CONTROL_FLOW) {
                     code += scode; //use directly
@@ -191,7 +196,7 @@ static String dump_node_code(SL::Node *p_node, int p_level) {
         } break;
         case SL::Node::TYPE_VARIABLE: {
             SL::VariableNode *vnode = (SL::VariableNode *)p_node;
-            code = vnode->name;
+            code = vnode->name.asCString();
 
         } break;
         case SL::Node::TYPE_VARIABLE_DECLARATION: {
@@ -199,7 +204,7 @@ static String dump_node_code(SL::Node *p_node, int p_level) {
         } break;
         case SL::Node::TYPE_ARRAY: {
             SL::ArrayNode *vnode = (SL::ArrayNode *)p_node;
-            code = vnode->name;
+            code = vnode->name.asCString();
         } break;
         case SL::Node::TYPE_ARRAY_DECLARATION: {
             // FIXME: Implement
@@ -225,18 +230,18 @@ static String dump_node_code(SL::Node *p_node, int p_level) {
                 case SL::OP_ASSIGN_BIT_AND:
                 case SL::OP_ASSIGN_BIT_OR:
                 case SL::OP_ASSIGN_BIT_XOR:
-                    code = dump_node_code(onode->arguments[0], p_level) + _opstr(onode->op) + dump_node_code(onode->arguments[1], p_level);
+                    code = dump_node_code(onode->arguments[0], p_level) + se_string(_opstr(onode->op)) + dump_node_code(onode->arguments[1], p_level);
                     break;
                 case SL::OP_BIT_INVERT:
                 case SL::OP_NEGATE:
                 case SL::OP_NOT:
                 case SL::OP_DECREMENT:
                 case SL::OP_INCREMENT:
-                    code = _opstr(onode->op) + dump_node_code(onode->arguments[0], p_level);
+                    code = se_string(_opstr(onode->op)) + dump_node_code(onode->arguments[0], p_level);
                     break;
                 case SL::OP_POST_DECREMENT:
                 case SL::OP_POST_INCREMENT:
-                    code = dump_node_code(onode->arguments[0], p_level) + _opstr(onode->op);
+                    code = dump_node_code(onode->arguments[0], p_level) + se_string(_opstr(onode->op));
                     break;
                 case SL::OP_CALL:
                 case SL::OP_CONSTRUCT:
@@ -250,7 +255,7 @@ static String dump_node_code(SL::Node *p_node, int p_level) {
                     break;
                 default: {
 
-                    code = "(" + dump_node_code(onode->arguments[0], p_level) + _opstr(onode->op) + dump_node_code(onode->arguments[1], p_level) + ")";
+                    code = "(" + dump_node_code(onode->arguments[0], p_level) + se_string(_opstr(onode->op)) + dump_node_code(onode->arguments[1], p_level) + ")";
                     break;
                 }
             }
@@ -280,7 +285,7 @@ static String dump_node_code(SL::Node *p_node, int p_level) {
         } break;
         case SL::Node::TYPE_MEMBER: {
             SL::MemberNode *mnode = (SL::MemberNode *)p_node;
-            code = dump_node_code(mnode->owner, p_level) + "." + mnode->name;
+            code = dump_node_code(mnode->owner, p_level) + "." + mnode->name.asCString();
 
         } break;
     }
@@ -290,16 +295,16 @@ static String dump_node_code(SL::Node *p_node, int p_level) {
 
 static Error recreate_code(void *p_str, SL::ShaderNode *p_program) {
 
-    String *str = (String *)p_str;
+    se_string *str = (se_string *)p_str;
 
-    *str = dump_node_code(p_program, 0);
+    *str = se_string(dump_node_code(p_program, 0));
 
     return OK;
 }
 
 MainLoop *test() {
 
-    ListPOD<String> cmdlargs = OS::get_singleton()->get_cmdline_args();
+    const ListPOD<se_string> &cmdlargs(OS::get_singleton()->get_cmdline_args());
 
     if (cmdlargs.empty()) {
         //try editor!
@@ -307,7 +312,7 @@ MainLoop *test() {
         return nullptr;
     }
 
-    String test = cmdlargs.back();
+    const se_string &test(cmdlargs.back());
 
     FileAccess *fa = FileAccess::open(test, FileAccess::READ);
 
@@ -315,13 +320,13 @@ MainLoop *test() {
         ERR_FAIL_V(nullptr);
     }
 
-    String code;
+    se_string code;
 
     while (true) {
-        CharType c = fa->get_8();
+        uint8_t c = fa->get_8();
         if (fa->eof_reached())
             break;
-        code += c;
+        code.push_back(c);
     }
 
     SL sl;
@@ -333,7 +338,7 @@ MainLoop *test() {
 
     Vector<StringName> rm;
     rm.push_back("popo");
-    Set<String> types;
+    Set<StringName> types;
     types.insert("spatial");
 
     Error err = sl.compile(code, dt, rm, types);
@@ -343,7 +348,7 @@ MainLoop *test() {
         print_line("Error at line: " + rtos(sl.get_error_line()) + ": " + sl.get_error_text());
         return nullptr;
     } else {
-        String code2;
+        se_string code2;
         recreate_code(&code2, sl.get_shader());
         print_line("code:\n\n" + code2);
     }
