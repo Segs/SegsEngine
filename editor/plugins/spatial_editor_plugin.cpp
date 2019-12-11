@@ -2787,7 +2787,7 @@ void SpatialEditorViewport::_menu_option(int p_option) {
 }
 
 void SpatialEditorViewport::_preview_exited_scene() {
-
+    preview_camera->disconnect("toggled", this, "_toggle_camera_preview");
     preview_camera->set_pressed(false);
     _toggle_camera_preview(false);
     view_menu->show();
@@ -3058,7 +3058,9 @@ void SpatialEditorViewport::set_state(const Dictionary &p_state) {
         int idx = view_menu->get_popup()->get_item_index(VIEW_CINEMATIC_PREVIEW);
         view_menu->get_popup()->set_item_checked(idx, previewing_cinema);
     }
-
+    if (preview_camera->is_connected("toggled", this, "_toggle_camera_preview")) {
+        preview_camera->disconnect("toggled", this, "_toggle_camera_preview");
+    }
     if (p_state.has("previewing")) {
         Node *pv = EditorNode::get_singleton()->get_edited_scene()->get_node(p_state["previewing"]);
         if (object_cast<Camera>(pv)) {
@@ -3071,6 +3073,7 @@ void SpatialEditorViewport::set_state(const Dictionary &p_state) {
             preview_camera->show();
         }
     }
+    preview_camera->connect("toggled", this, "_toggle_camera_preview");
 }
 
 Dictionary SpatialEditorViewport::get_state() const {
@@ -3623,7 +3626,6 @@ SpatialEditorViewport::SpatialEditorViewport(SpatialEditor *p_spatial_editor, Ed
     vbox->add_child(preview_camera);
     preview_camera->set_h_size_flags(0);
     preview_camera->hide();
-    preview_camera->connect("toggled", this, "_toggle_camera_preview");
     previewing = nullptr;
     gizmo_scale = 1.0;
 

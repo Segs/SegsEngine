@@ -171,6 +171,7 @@ public:
     virtual int get_token_line(int p_offset = 0) const = 0;
     virtual int get_token_column(int p_offset = 0) const = 0;
     virtual int get_token_line_indent(int p_offset = 0) const = 0;
+    virtual int get_token_line_tab_indent(int p_offset = 0) const = 0;
     virtual se_string get_token_error(int p_offset = 0) const = 0;
     virtual void advance(int p_amount = 1) = 0;
 #ifdef DEBUG_ENABLED
@@ -208,7 +209,7 @@ class GDScriptTokenizerText : public GDScriptTokenizer {
     };
 
     void _make_token(Token p_type);
-    void _make_newline(int p_spaces = 0);
+    void _make_newline(int p_indentation = 0, int p_tabs = 0);
     void _make_identifier(const StringName &p_identifier);
     void _make_built_in_func(GDScriptFunctions::Function p_func);
     void _make_constant(const Variant &p_constant);
@@ -225,11 +226,6 @@ class GDScriptTokenizerText : public GDScriptTokenizer {
     int tk_rb_pos;
     se_string last_error;
     bool error_flag;
-    enum {
-        INDENT_NONE,
-        INDENT_SPACES,
-        INDENT_TABS,
-    } file_indent_type;
 
 #ifdef DEBUG_ENABLED
     Vector<Pair<int, se_string> > warning_skips;
@@ -248,6 +244,7 @@ public:
     int get_token_line(int p_offset = 0) const override;
     int get_token_column(int p_offset = 0) const override;
     int get_token_line_indent(int p_offset = 0) const override;
+    int get_token_line_tab_indent(int p_offset = 0) const override;
     const Variant &get_token_constant(int p_offset = 0) const override;
     se_string get_token_error(int p_offset = 0) const override;
     void advance(int p_amount = 1) override;
@@ -286,6 +283,7 @@ public:
     int get_token_line(int p_offset = 0) const override;
     int get_token_column(int p_offset = 0) const override;
     int get_token_line_indent(int p_offset = 0) const override;
+    int get_token_line_tab_indent(int p_offset = 0) const override { return 0;}
     const Variant &get_token_constant(int p_offset = 0) const override;
     se_string get_token_error(int p_offset = 0) const override;
     void advance(int p_amount = 1) override;

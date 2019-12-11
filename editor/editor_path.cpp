@@ -134,7 +134,14 @@ void EditorPath::_id_pressed(int p_idx) {
 
     EditorNode::get_singleton()->push_item(obj);
 }
+void EditorPath::_notification(int p_what) {
 
+    switch (p_what) {
+        case NOTIFICATION_THEME_CHANGED: {
+            update_path();
+        } break;
+    }
+}
 void EditorPath::_bind_methods() {
 
     MethodBinder::bind_method("_about_to_show", &EditorPath::_about_to_show);

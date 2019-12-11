@@ -1982,7 +1982,40 @@ void RichTextLabel::push_font(const Ref<Font> &p_font) {
     item->font = p_font;
     _add_item(item, true);
 }
+void RichTextLabel::push_normal() {
+    Ref<Font> normal_font = get_font("normal_font");
+    ERR_FAIL_COND(not normal_font);
 
+    push_font(normal_font);
+}
+
+void RichTextLabel::push_bold() {
+    Ref<Font> bold_font = get_font("bold_font");
+    ERR_FAIL_COND(not bold_font);
+
+    push_font(bold_font);
+}
+
+void RichTextLabel::push_bold_italics() {
+    Ref<Font> bold_italics_font = get_font("bold_italics_font");
+    ERR_FAIL_COND(not bold_italics_font);
+
+    push_font(bold_italics_font);
+}
+
+void RichTextLabel::push_italics() {
+    Ref<Font> italics_font = get_font("italics_font");
+    ERR_FAIL_COND(not italics_font);
+
+    push_font(italics_font);
+}
+
+void RichTextLabel::push_mono() {
+    Ref<Font> mono_font = get_font("mono_font");
+    ERR_FAIL_COND(not mono_font);
+
+    push_font(mono_font);
+}
 void RichTextLabel::push_color(const Color &p_color) {
 
     ERR_FAIL_COND(current->type == ITEM_TABLE)
@@ -2905,6 +2938,11 @@ void RichTextLabel::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("newline"), &RichTextLabel::add_newline);
     MethodBinder::bind_method(D_METHOD("remove_line", {"line"}), &RichTextLabel::remove_line);
     MethodBinder::bind_method(D_METHOD("push_font", {"font"}), &RichTextLabel::push_font);
+    MethodBinder::bind_method(D_METHOD("push_normal"), &RichTextLabel::push_normal);
+    MethodBinder::bind_method(D_METHOD("push_bold"), &RichTextLabel::push_bold);
+    MethodBinder::bind_method(D_METHOD("push_bold_italics"), &RichTextLabel::push_bold_italics);
+    MethodBinder::bind_method(D_METHOD("push_italics"), &RichTextLabel::push_italics);
+    MethodBinder::bind_method(D_METHOD("push_mono"), &RichTextLabel::push_mono);
     MethodBinder::bind_method(D_METHOD("push_color", {"color"}), &RichTextLabel::push_color);
     MethodBinder::bind_method(D_METHOD("push_align", {"align"}), &RichTextLabel::push_align);
     MethodBinder::bind_method(D_METHOD("push_indent", {"level"}), &RichTextLabel::push_indent);

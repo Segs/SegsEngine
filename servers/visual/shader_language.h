@@ -725,4 +725,6 @@ public:
 
     ShaderLanguage();
     ~ShaderLanguage();
+protected:
+    se_string _get_shader_type_list(const Set<StringName> &p_shader_types) const;
 };

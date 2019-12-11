@@ -284,14 +284,16 @@ void OS_Windows::_drag_event(float p_x, float p_y, int idx) {
     if (curr->second == Vector2(p_x, p_y))
         return;
 
-    curr->second = Vector2(p_x, p_y);
 
     Ref<InputEventScreenDrag> event(make_ref_counted<InputEventScreenDrag>());
     event->set_index(idx);
     event->set_position(Vector2(p_x, p_y));
+    event->set_relative(Vector2(p_x, p_y) - curr->get());
 
     if (main_loop)
         input->accumulate_input_event(event);
+
+    curr->second = Vector2(p_x, p_y);
 };
 
 LRESULT OS_Windows::WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
@@ -1839,6 +1841,7 @@ void OS_Windows::set_window_fullscreen(bool p_enabled) {
 
     if (p_enabled) {
 
+        was_maximized = maximized;
         if (pre_fs_valid) {
             GetWindowRect(hWnd, &pre_fs_rect);
         }
@@ -1868,7 +1871,7 @@ void OS_Windows::set_window_fullscreen(bool p_enabled) {
             rect.bottom = video_mode.height;
         }
 
-        _update_window_style(false);
+        _update_window_style(false,was_maximized);
 
         MoveWindow(hWnd, rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top, TRUE);
 
@@ -2050,12 +2053,16 @@ bool OS_Windows::get_borderless_window() {
     return video_mode.borderless_window;
 }
 
-void OS_Windows::_update_window_style(bool repaint) {
+void OS_Windows::_update_window_style(bool p_repaint, bool p_maximized) {
     if (video_mode.fullscreen || video_mode.borderless_window) {
         SetWindowLongPtr(hWnd, GWL_STYLE, WS_SYSMENU | WS_POPUP | WS_CLIPCHILDREN | WS_CLIPSIBLINGS | WS_VISIBLE);
     } else {
         if (video_mode.resizable) {
-            SetWindowLongPtr(hWnd, GWL_STYLE, WS_OVERLAPPEDWINDOW | WS_VISIBLE);
+            if (p_maximized) {
+                SetWindowLongPtr(hWnd, GWL_STYLE, WS_OVERLAPPEDWINDOW | WS_VISIBLE | WS_MAXIMIZE);
+            } else {
+                SetWindowLongPtr(hWnd, GWL_STYLE, WS_OVERLAPPEDWINDOW | WS_VISIBLE);
+            }
         } else {
             SetWindowLongPtr(hWnd, GWL_STYLE, WS_CAPTION | WS_MINIMIZEBOX | WS_POPUPWINDOW | WS_VISIBLE);
         }
@@ -2063,7 +2070,7 @@ void OS_Windows::_update_window_style(bool repaint) {
 
     SetWindowPos(hWnd, video_mode.always_on_top ? HWND_TOPMOST : HWND_NOTOPMOST, 0, 0, 0, 0, SWP_FRAMECHANGED | SWP_NOMOVE | SWP_NOSIZE);
 
-    if (repaint) {
+    if (p_repaint) {
         RECT rect;
         GetWindowRect(hWnd, &rect);
         MoveWindow(hWnd, rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top, TRUE);
@@ -3128,6 +3135,7 @@ OS_Windows::OS_Windows(HINSTANCE _hInstance) {
     control_mem = false;
     meta_mem = false;
     minimized = false;
+    was_maximized = false;
     console_visible = IsWindowVisible(GetConsoleWindow());
 
     hInstance = _hInstance;

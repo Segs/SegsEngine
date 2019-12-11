@@ -1157,8 +1157,11 @@ void EditorAssetLibrary::_http_request_completed(int p_status, int p_code, const
         case REQUESTING_SEARCH: {
 
             initial_loading = false;
-            // The loading text only needs to be displayed before the first page is loaded
+            // The loading text only needs to be displayed before the first page is loaded.
+            // Therefore, we don't need to show it again.
             library_loading->hide();
+
+            library_error->hide();
 
             if (asset_items) {
                 memdelete(asset_items);
@@ -1207,6 +1210,10 @@ void EditorAssetLibrary::_http_request_completed(int p_status, int p_code, const
             asset_bottom_page = _make_pages(page, pages, page_len, total_items, result.size());
             library_vb->add_child(asset_bottom_page);
 
+            if (result.empty()) {
+                library_error->set_text(FormatSN(TTR("No results for \"%s\".").asCString(), filter->get_text().c_str()));
+                library_error->show();
+            }
             for (int i = 0; i < result.size(); i++) {
 
                 Dictionary r = result[i];
@@ -1475,6 +1482,11 @@ EditorAssetLibrary::EditorAssetLibrary(bool p_templates_only) {
     library_loading = memnew(Label(TTR("Loading...")));
     library_loading->set_align(Label::ALIGN_CENTER);
     library_vb->add_child(library_loading);
+
+    library_error = memnew(Label);
+    library_error->set_align(Label::ALIGN_CENTER);
+    library_error->hide();
+    library_vb->add_child(library_error);
 
     asset_top_page = memnew(HBoxContainer);
     library_vb->add_child(asset_top_page);

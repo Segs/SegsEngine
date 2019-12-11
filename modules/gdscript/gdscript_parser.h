@@ -549,7 +549,27 @@ private:
 
     int pending_newline;
 
-    List<int> tab_level;
+    struct IndentLevel {
+        int indent;
+        int tabs;
+
+        bool is_mixed(IndentLevel other) {
+            return (
+                    (indent == other.indent && tabs != other.tabs) ||
+                    (indent > other.indent && tabs < other.tabs) ||
+                    (indent < other.indent && tabs > other.tabs));
+        }
+
+        IndentLevel() :
+                indent(0),
+                tabs(0) {}
+
+        IndentLevel(int p_indent, int p_tabs) :
+                indent(p_indent),
+                tabs(p_tabs) {}
+    };
+
+    List<IndentLevel> indent_level;
 
     se_string base_path;
     se_string self_path;

@@ -976,12 +976,17 @@ void ScriptTextEditor::_update_connected_methods() {
     text_edit->clear_info_icons();
     missing_connections.clear();
 
+    if (!script->is_valid()) {
+        return;
+    }
     Node *base = get_tree()->get_edited_scene_root();
     if (!base) {
         return;
     }
 
     Vector<Node *> nodes = _find_all_node_for_script(base, base, script);
+    Set<StringName> methods_found;
+
     for (int i = 0; i < nodes.size(); i++) {
         ListPOD<Connection> connections;
         nodes[i]->get_signals_connected_to_this(&connections);
@@ -997,29 +1002,32 @@ void ScriptTextEditor::_update_connected_methods() {
             if (source && !source->is_inside_tree()) {
                 continue;
             }
+            if (methods_found.contains(connection.method)) {
+                continue;
+            }
 
             if (!ClassDB::has_method(script->get_instance_base_type(), connection.method)) {
-
-                int line = script->get_language()->find_function(connection.method, text_edit->get_text_utf8());
-                if (line < 0) {
-                    // There is a chance that the method is inherited from another script.
-                    bool found_inherited_function = false;
-                    Ref<Script> inherited_script = script->get_base_script();
-                    while (inherited_script) {
-                        line = inherited_script->get_language()->find_function(connection.method, inherited_script->get_source_code());
-                        if (line != -1) {
-                            found_inherited_function = true;
-                            break;
-                        }
-
-                        inherited_script = inherited_script->get_base_script();
-                    }
-
-                    if (!found_inherited_function) {
-                        missing_connections.push_back(connection);
-                    }
-                } else {
+                int line = -1;
+                if (script->has_method(connection.method)) {
+                    line = script->get_member_line(connection.method);
                     text_edit->set_line_info_icon(line - 1, get_parent_control()->get_icon("Slot", "EditorIcons"), connection.method);
+                    methods_found.insert(connection.method);
+                    continue;
+                }
+                // There is a chance that the method is inherited from another script.
+                bool found_inherited_function = false;
+                Ref<Script> inherited_script = script->get_base_script();
+                while (inherited_script) {
+                    if (inherited_script->has_method(connection.method)) {
+                        found_inherited_function = true;
+                        break;
+                    }
+
+                    inherited_script = inherited_script->get_base_script();
+                }
+
+                if (!found_inherited_function) {
+                    missing_connections.push_back(connection);
                 }
             }
         }

@@ -72,6 +72,7 @@ public:
         bool bookmark : 1;
         bool hidden : 1;
         bool safe : 1;
+        bool has_info : 1;
         int wrap_amount_cache : 24;
         Map<int, TextColorRegionInfo> region_info;
         Ref<Texture> info_icon;
@@ -108,11 +109,16 @@ public:
     bool is_hidden(int p_line) const { return text[p_line].hidden; }
     void set_safe(int p_line, bool p_safe) { text.write[p_line].safe = p_safe; }
     bool is_safe(int p_line) const { return text[p_line].safe; }
-    void set_info_icon(int p_line, const Ref<Texture>& p_icon, StringName p_info) {
+    void set_info_icon(int p_line, Ref<Texture> p_icon, StringName p_info) {
+        if (p_icon) {
+            text.write[p_line].has_info = false;
+            return;
+        }
         text.write[p_line].info_icon = p_icon;
-        text.write[p_line].info = std::move(p_info);
+        text.write[p_line].info = p_info;
+        text.write[p_line].has_info = true;
     }
-    bool has_info_icon(int p_line) const { return text[p_line].info_icon; }
+    bool has_info_icon(int p_line) const { return text[p_line].has_info; }
     const Ref<Texture> &get_info_icon(int p_line) const { return text[p_line].info_icon; }
     StringName get_info(int p_line) const { return text[p_line].info; }
     void insert(int p_at, const String &p_text);
@@ -121,6 +127,11 @@ public:
     void clear();
     void clear_width_cache();
     void clear_wrap_cache();
+    void clear_info_icons() {
+        for (int i = 0; i < text.size(); i++) {
+            text.write[i].has_info = false;
+        }
+    }
     _FORCE_INLINE_ const String &operator[](int p_line) const { return text[p_line].data; }
     Text() { indent_size = 4; }
 };
@@ -246,6 +257,7 @@ struct TextEdit::PrivateData {
             syntax_highlighter->_update_cache();
         }
     }
+
 };
 
 IMPL_GDCLASS(TextEdit)
@@ -512,6 +524,7 @@ void Text::insert(int p_at, const String &p_text) {
     line.breakpoint = false;
     line.bookmark = false;
     line.hidden = false;
+    line.has_info = false;
     line.width_cache = -1;
     line.wrap_amount_cache = -1;
     line.data = p_text;
@@ -1149,7 +1162,7 @@ void TextEdit::_notification(int p_what) {
                 int minimap_draw_amount = minimap_visible_lines + times_line_wraps(minimap_line + 1);
 
                 // draw the minimap
-                Color viewport_color = (m_priv->cache.background_color.get_v() < 0.5) ? Color(1, 1, 1, 0.1) : Color(0, 0, 0, 0.1);
+                Color viewport_color = (m_priv->cache.background_color.get_v() < 0.5f) ? Color(1, 1, 1, 0.1f) : Color(0, 0, 0, 0.1f);
                 VisualServer::get_singleton()->canvas_item_add_rect(ci, Rect2((xmargin_end + 2), viewport_offset_y, m_priv->cache.minimap_width, viewport_height), viewport_color);
                 for (int i = 0; i < minimap_draw_amount; i++) {
 
@@ -1165,7 +1178,9 @@ void TextEdit::_notification(int p_what) {
                             break;
                         }
                     }
-
+                    if (minimap_line < 0 || minimap_line >= (int)m_priv->text.size()) {
+                        break;
+                    }
                     Map<int, HighlighterInfo> color_map;
                     if (syntax_coloring) {
                         color_map = m_priv->_get_line_syntax_highlighting(this,minimap_line);
@@ -3059,27 +3074,51 @@ void TextEdit::_gui_input(const Ref<InputEvent> &p_gui_input) {
                     // Indent once again if previous line will end with ':','{','[','(' and the line is not a comment
                     // (i.e. colon/brace precedes current cursor position).
                     if (cursor.column > 0) {
-                        CharType prev_char = m_priv->text[cursor.line][cursor.column - 1];
-                        switch (prev_char.toLatin1()) {
-                            case ':':
-                            case '{':
-                            case '[':
-                            case '(': {
-                                if (!is_line_comment(cursor.line)) {
-                                    if (indent_using_spaces) {
-                                        ins += space_indent;
-                                    } else {
-                                        ins += "\t";
-                                    }
+                        const Map<int, TextColorRegionInfo> &cri_map = m_priv->text.get_color_region_info(cursor.line);
+                        bool indent_char_found = false;
+                        bool should_indent = false;
+                        CharType indent_char = ':';
+                        CharType c = m_priv->text[cursor.line][cursor.column];
 
-                                    // No need to move the brace below if we are not taking the text with us.
-                                    CharType closing_char = _get_right_pair_symbol(prev_char);
-                                    if ((closing_char != 0) && (closing_char == m_priv->text[cursor.line][cursor.column]) && !k->get_command()) {
-                                        brace_indent = true;
-                                        ins += "\n" + ins.mid(1, ins.length() - 2);
-                                    }
-                                }
-                            } break;
+                        for (int i = 0; i < cursor.column; i++) {
+                            c = m_priv->text[cursor.line][i];
+                            switch (c.toLatin1()) {
+                                case ':':
+                                case '{':
+                                case '[':
+                                case '(':
+                                    indent_char_found = true;
+                                    should_indent = true;
+                                    indent_char = c;
+                                    continue;
+                            }
+
+                            if (indent_char_found && cri_map.contains(i) &&
+                                    (m_priv->color_regions[cri_map.at(i).region].begin_key == "#" ||
+                                            m_priv->color_regions[cri_map.at(i).region].begin_key == "//")) {
+
+                                should_indent = true;
+                                break;
+                            } else if (indent_char_found && !_is_whitespace(c)) {
+                                should_indent = false;
+                                indent_char_found = false;
+                            }
+                        }
+
+                        if (!is_line_comment(cursor.line) && should_indent) {
+                            if (indent_using_spaces) {
+                                ins += space_indent;
+                            } else {
+                                ins += "\t";
+                            }
+
+                            // No need to move the brace below if we are not taking the text with us.
+                            CharType closing_char = _get_right_pair_symbol(indent_char);
+                            if ((closing_char != 0) && (closing_char == m_priv->text[cursor.line][cursor.column]) &&
+                                    !k->get_command()) {
+                                brace_indent = true;
+                                ins += "\n" + ins.mid(1, ins.length() - 2);
+                            }
                         }
                     }
                 }
@@ -5858,9 +5897,7 @@ void TextEdit::set_line_info_icon(int p_line, const Ref<Texture>& p_icon, String
 }
 
 void TextEdit::clear_info_icons() {
-    for (int i = 0; i < m_priv->text.size(); i++) {
-        m_priv->text.set_info_icon(i, Ref<Texture>(), StringName());
-    }
+    m_priv->text.clear_info_icons();
     update();
 }
 
@@ -6575,8 +6612,11 @@ void TextEdit::_confirm_completion() {
     String line = m_priv->text[cursor.line];
     CharType next_char = line[cursor.column];
     CharType last_completion_char = completion_current.insert_text[completion_current.insert_text.length() - 1];
+    CharType last_completion_char_display = completion_current.display[completion_current.display.length() - 1];
 
-    if ((last_completion_char == '"' || last_completion_char == '\'') && last_completion_char == next_char) {
+
+    if ((last_completion_char == '"' || last_completion_char == '\'') &&
+            (last_completion_char == next_char || last_completion_char_display == next_char)) {
         _remove_text(cursor.line, cursor.column, cursor.line, cursor.column + 1);
     }
 

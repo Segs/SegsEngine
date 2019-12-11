@@ -443,7 +443,7 @@ void EditorSettings::_load_defaults(const Ref<ConfigFile> &p_extra_config) {
     _initial_set("text_editor/indent/size", 4);
     hints["text_editor/indent/size"] = PropertyInfo(VariantType::INT, "text_editor/indent/size", PROPERTY_HINT_RANGE, "1, 64, 1"); // size of 0 crashes.
     _initial_set("text_editor/indent/auto_indent", true);
-    _initial_set("text_editor/indent/convert_indent_on_save", false);
+    _initial_set("text_editor/indent/convert_indent_on_save", true);
     _initial_set("text_editor/indent/draw_tabs", true);
     _initial_set("text_editor/indent/draw_spaces", false);
 
