@@ -217,7 +217,7 @@ public:
     bool script_class_is_parent(const StringName &p_class, const StringName &p_inherits);
     StringName script_class_get_base(const StringName &p_class) const;
     Object *script_class_instance(const StringName &p_class);
-    Ref<Script> script_class_load_script(const StringName &p_class) const;
+    Ref<Script> script_class_load_script(StringName p_class) const;
 
     StringName script_class_get_name(se_string_view p_path) const;
     void script_class_set_name(se_string_view p_path, const StringName &p_class);

@@ -159,7 +159,7 @@ void CreateDialog::add_type(
     if (cpp_type) {
         if (!ClassDB::is_parent_class(p_type, base_type)) return;
     } else {
-        if (!search_loaded_scripts.has(p_type)) {
+        if (!search_loaded_scripts.contains(p_type)) {
             search_loaded_scripts[p_type] = ed.script_class_load_script(p_type);
         }
         if (!ScriptServer::is_global_class(p_type) || !ed.script_class_is_parent(p_type, base_type)) return;
@@ -365,7 +365,7 @@ void CreateDialog::_update_search() {
             bool found = false;
             StringName type2 = type;
 
-            if (!cpp_type && !search_loaded_scripts.has(type)) {
+            if (!cpp_type && !search_loaded_scripts.contains(type)) {
                 search_loaded_scripts[type] = ed.script_class_load_script(type);
             }
             while (!type2.empty() &&
@@ -379,7 +379,7 @@ void CreateDialog::_update_search() {
                 }
 
                 type2 = cpp_type ? ClassDB::get_parent_class(type2) : ed.script_class_get_base(type2);
-                if (!cpp_type && !search_loaded_scripts.has(type2)) {
+                if (!cpp_type && !search_loaded_scripts.contains(type2)) {
                     search_loaded_scripts[type2] = ed.script_class_load_script(type2);
                 }
             }

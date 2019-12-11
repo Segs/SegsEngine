@@ -73,15 +73,15 @@ public:
 
     // -------------------------------------------------------------------
     // Check whether step is active
-    bool IsActive( unsigned int pFlags) const;
+	bool IsActive(unsigned int pFlags) const override;
 
     // -------------------------------------------------------------------
     // Execute step on a given scene
-    void Execute( aiScene* pScene);
+	void Execute(aiScene *pScene) override;
 
     // -------------------------------------------------------------------
     // Setup import settings
-    void SetupProperties(const Importer* pImp);
+	void SetupProperties(const Importer *pImp) override;
 
     // -------------------------------------------------------------------
     /** @brief Toggle the 'keep hierarchy' option
@@ -102,35 +102,35 @@ public:
 private:
     // -------------------------------------------------------------------
     // Count the number of nodes
-    unsigned int CountNodes( aiNode* pcNode );
+	unsigned int CountNodes(const aiNode *pcNode) const;
 
     // -------------------------------------------------------------------
     // Get a bitwise combination identifying the vertex format of a mesh
-    unsigned int GetMeshVFormat(aiMesh* pcMesh);
+	unsigned int GetMeshVFormat(aiMesh *pcMesh) const;
 
     // -------------------------------------------------------------------
     // Count the number of vertices in the whole scene and a given
     // material index
-    void CountVerticesAndFaces( aiScene* pcScene, aiNode* pcNode,
+	void CountVerticesAndFaces(const aiScene *pcScene, const aiNode *pcNode,
         unsigned int iMat,
         unsigned int iVFormat,
         unsigned int* piFaces,
-        unsigned int* piVertices);
+			unsigned int *piVertices) const;
 
     // -------------------------------------------------------------------
     // Collect vertex/face data
-    void CollectData( aiScene* pcScene, aiNode* pcNode,
+	void CollectData(const aiScene *pcScene, const aiNode *pcNode,
         unsigned int iMat,
         unsigned int iVFormat,
         aiMesh* pcMeshOut,
         unsigned int aiCurrent[2],
-        unsigned int* num_refs);
+			unsigned int *num_refs) const;
 
     // -------------------------------------------------------------------
     // Get a list of all vertex formats that occur for a given material
     // The output list contains duplicate elements
-    void GetVFormatList( aiScene* pcScene, unsigned int iMat,
-        std::list<unsigned int>& aiOut);
+	void GetVFormatList(const aiScene *pcScene, unsigned int iMat,
+			std::list<unsigned int> &aiOut) const;
 
     // -------------------------------------------------------------------
     // Compute the absolute transformation matrices of each node
@@ -139,19 +139,19 @@ private:
     // -------------------------------------------------------------------
     // Simple routine to build meshes in worldspace, no further optimization
     void BuildWCSMeshes(std::vector<aiMesh*>& out, aiMesh** in,
-        unsigned int numIn, aiNode* node);
+			unsigned int numIn, aiNode *node) const;
 
     // -------------------------------------------------------------------
     // Apply the node transformation to a mesh
-    void ApplyTransform(aiMesh* mesh, const aiMatrix4x4& mat);
+	void ApplyTransform(aiMesh *mesh, const aiMatrix4x4 &mat) const;
 
     // -------------------------------------------------------------------
     // Reset transformation matrices to identity
-    void MakeIdentityTransform(aiNode* nd);
+	void MakeIdentityTransform(aiNode *nd) const;
 
     // -------------------------------------------------------------------
     // Build reference counters for all meshes
-    void BuildMeshRefCountArray(aiNode* nd, unsigned int * refs);
+	void BuildMeshRefCountArray(const aiNode *nd, unsigned int *refs) const;
 
     //! Configuration option: keep scene hierarchy as long as possible
     bool configKeepHierarchy;

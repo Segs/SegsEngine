@@ -48,8 +48,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "OptimizeGraph.h"
 #include "ProcessHelper.h"
-#include <assimp/SceneCombiner.h>
+#include "ConvertToLHProcess.h"
 #include <assimp/Exceptional.h>
+#include <assimp/SceneCombiner.h>
 #include <stdio.h>
 
 using namespace Assimp;
@@ -70,11 +71,11 @@ using namespace Assimp;
 
 // ------------------------------------------------------------------------------------------------
 // Constructor to be privately used by Importer
-OptimizeGraphProcess::OptimizeGraphProcess()
-: mScene()
-, nodes_in()
-, nodes_out()
-, count_merged() {
+OptimizeGraphProcess::OptimizeGraphProcess() :
+		mScene(),
+		nodes_in(),
+		nodes_out(),
+		count_merged() {
     // empty
 }
 
@@ -136,7 +137,7 @@ void OptimizeGraphProcess::CollectNewChildren(aiNode* nd, std::list<aiNode*>& no
         nodes.push_back(nd);
 
         // Now check for possible optimizations in our list of child nodes. join as many as possible
-        aiNode* join_master = NULL;
+		aiNode *join_master = nullptr;
         aiMatrix4x4 inv;
 
         const LockedSetType::const_iterator end = locked.end();
@@ -173,7 +174,7 @@ void OptimizeGraphProcess::CollectNewChildren(aiNode* nd, std::list<aiNode*>& no
             join_master->mName.length = ::ai_snprintf(join_master->mName.data, MAXLEN, "$MergedNode_%i",count_merged++);
 
             unsigned int out_meshes = 0;
-            for (std::list<aiNode*>::iterator it = join.begin(); it != join.end(); ++it) {
+			for (std::list<aiNode *>::const_iterator it = join.cbegin(); it != join.cend(); ++it) {
                 out_meshes += (*it)->mNumMeshes;
             }
 
@@ -184,17 +185,25 @@ void OptimizeGraphProcess::CollectNewChildren(aiNode* nd, std::list<aiNode*>& no
                     *tmp++ = join_master->mMeshes[n];
                 }
 
-                for (std::list<aiNode*>::iterator it = join.begin(); it != join.end(); ++it) {
-                    for (unsigned int n = 0; n < (*it)->mNumMeshes; ++n) {
+				for (const aiNode *join_node : join) {
+					for (unsigned int n = 0; n < join_node->mNumMeshes; ++n) {
 
-                        *tmp = (*it)->mMeshes[n];
+						*tmp = join_node->mMeshes[n];
                         aiMesh* mesh = mScene->mMeshes[*tmp++];
 
+						// Assume the transformation is affine
                         // manually move the mesh into the right coordinate system
-                        const aiMatrix3x3 IT = aiMatrix3x3( (*it)->mTransformation ).Inverse().Transpose();
+						// Check for odd negative scale (mirror)
+						if (join_node->mTransformation.Determinant() < 0) {
+							// Reverse the mesh face winding order
+                            FlipWindingOrderProcess::ProcessMesh(mesh);
+						}
+
+                        // Update positions, normals and tangents
+						const aiMatrix3x3 IT = aiMatrix3x3(join_node->mTransformation).Inverse().Transpose();
                         for (unsigned int a = 0; a < mesh->mNumVertices; ++a) {
 
-                            mesh->mVertices[a] *= (*it)->mTransformation;
+							mesh->mVertices[a] *= join_node->mTransformation;
 
                             if (mesh->HasNormals())
                                 mesh->mNormals[a] *= IT;
@@ -205,7 +214,7 @@ void OptimizeGraphProcess::CollectNewChildren(aiNode* nd, std::list<aiNode*>& no
                             }
                         }
                     }
-                    delete *it; // bye, node
+					delete join_node; // bye, node
                 }
                 delete[] join_master->mMeshes;
                 join_master->mMeshes = meshes;
@@ -220,8 +229,8 @@ void OptimizeGraphProcess::CollectNewChildren(aiNode* nd, std::list<aiNode*>& no
 
         if (!child_nodes.empty()) {
             nd->mChildren = new aiNode*[child_nodes.size()];
-        }
-        else nd->mChildren = nullptr;
+		} else
+			nd->mChildren = nullptr;
     }
 
     nd->mNumChildren = static_cast<unsigned int>(child_nodes.size());
@@ -305,7 +314,7 @@ void OptimizeGraphProcess::Execute( aiScene* pScene) {
     ai_assert(nodes.size() == 1);
 
     if (dummy_root->mNumChildren == 0) {
-        pScene->mRootNode = NULL;
+		pScene->mRootNode = nullptr;
         throw DeadlyImportError("After optimizing the scene graph, no data remains");
     }
 
@@ -314,17 +323,16 @@ void OptimizeGraphProcess::Execute( aiScene* pScene) {
 
         // Keep the dummy node but assign the name of the old root node to it
         pScene->mRootNode->mName = prev;
-    }
-    else {
+	} else {
 
         // Remove the dummy root node again.
         pScene->mRootNode = dummy_root->mChildren[0];
 
-        dummy_root->mChildren[0] = NULL;
+		dummy_root->mChildren[0] = nullptr;
         delete dummy_root;
     }
 
-    pScene->mRootNode->mParent = NULL;
+	pScene->mRootNode->mParent = nullptr;
     if (!DefaultLogger::isNullLogger()) {
         if ( nodes_in != nodes_out) {
             ASSIMP_LOG_INFO_F("OptimizeGraphProcess finished; Input nodes: ", nodes_in, ", Output nodes: ", nodes_out);
@@ -338,8 +346,7 @@ void OptimizeGraphProcess::Execute( aiScene* pScene) {
 
 // ------------------------------------------------------------------------------------------------
 // Build a LUT of all instanced meshes
-void OptimizeGraphProcess::FindInstancedMeshes (aiNode* pNode)
-{
+void OptimizeGraphProcess::FindInstancedMeshes(aiNode *pNode) {
     for (unsigned int i = 0; i < pNode->mNumMeshes;++i) {
         ++meshes[pNode->mMeshes[i]];
     }

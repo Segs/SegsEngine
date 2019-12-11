@@ -340,7 +340,7 @@ void AnimationNodeBlendSpace2D::_update_triangles() {
         points.write[i] = blend_points[i].position;
     }
 
-    Vector<Delaunay2D::Triangle> triangles = Delaunay2D::triangulate(points);
+    Vector<Delaunay2D::Triangle> triangles = Delaunay2D::triangulate(Span<Vector2>(points.ptrw(),points.size()));
 
     for (int i = 0; i < triangles.size(); i++) {
         add_triangle(triangles[i].points[0], triangles[i].points[1], triangles[i].points[2]);
