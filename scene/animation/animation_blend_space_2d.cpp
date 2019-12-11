@@ -118,6 +118,7 @@ Ref<AnimationRootNode> AnimationNodeBlendSpace2D::get_blend_point_node(int p_poi
 }
 void AnimationNodeBlendSpace2D::remove_blend_point(int p_point) {
     ERR_FAIL_INDEX(p_point, blend_points_used);
+    ERR_FAIL_COND(not blend_points[p_point].node);
 
     blend_points[p_point].node->disconnect("tree_changed", this, "_tree_changed");
 

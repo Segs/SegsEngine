@@ -211,7 +211,7 @@ StringName GDScript::get_instance_base_type() const {
 
     if (native)
         return native->get_name();
-    if (base)
+    if (base && base->is_valid())
         return base->get_instance_base_type();
     return StringName();
 }
@@ -315,7 +315,7 @@ bool GDScript::get_property_default_value(const StringName &p_property, Variant 
         return true;
     }
 
-    if (base_cache) {
+    if (base_cache && base_cache->is_valid()) {
         return base_cache->get_property_default_value(p_property, r_value);
     }
 #endif

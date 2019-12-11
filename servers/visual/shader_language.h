@@ -668,7 +668,7 @@ private:
 
     enum SubClassTag {
         TAG_GLOBAL,
-        TAG_ARRAY
+        TAG_ARRAY,
     };
 
     struct BuiltinFuncDef {
@@ -677,6 +677,7 @@ private:
         DataType rettype;
         const DataType args[MAX_ARGS];
         SubClassTag tag;
+        bool high_end;
     };
 
     struct BuiltinFuncOutArgs { //arguments used as out in built in functions

@@ -269,6 +269,7 @@ void FileAccessUnix::store_8(uint8_t p_dest) {
 
 void FileAccessUnix::store_buffer(const uint8_t *p_src, int p_length) {
     ERR_FAIL_COND_CMSG(!f, "File must be opened before use.")
+    ERR_FAIL_COND(!p_src)
     bool written_size_matched= (int)fwrite(p_src, 1, p_length, f) == p_length;
     ERR_FAIL_COND(!written_size_matched)
 }

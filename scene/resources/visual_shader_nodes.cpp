@@ -942,6 +942,7 @@ void VisualShaderNodeCubeMap::_bind_methods() {
 
 VisualShaderNodeCubeMap::VisualShaderNodeCubeMap() {
     texture_type = TYPE_DATA;
+    source = SOURCE_TEXTURE;
 }
 ////////////// Scalar Op
 

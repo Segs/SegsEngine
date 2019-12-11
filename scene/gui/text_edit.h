@@ -380,6 +380,10 @@ public:
         SEARCH_WHOLE_WORDS = 2,
         SEARCH_BACKWARDS = 4
     };
+    enum SearchResult {
+        SEARCH_RESULT_COLUMN,
+        SEARCH_RESULT_LINE,
+    };
 
     CursorShape get_cursor_shape(const Point2 &p_pos = Point2i()) const override;
 

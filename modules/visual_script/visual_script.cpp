@@ -1368,6 +1368,7 @@ void VisualScript::_bind_methods() {
 VisualScript::VisualScript() {
 
     base_type = "Object";
+    is_tool_script = false;
 }
 
 StringName VisualScript::get_default_func() const {

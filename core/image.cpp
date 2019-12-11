@@ -1487,7 +1487,7 @@ void Image::shrink_x2() {
         int new_size = data.size() - ofs;
         new_img.resize(new_size);
         ERR_FAIL_COND(new_img.size() == 0)
-
+        ERR_FAIL_COND(data.size() == 0)
         {
             PoolVector<uint8_t>::Write w = new_img.write();
             PoolVector<uint8_t>::Read r = data.read();

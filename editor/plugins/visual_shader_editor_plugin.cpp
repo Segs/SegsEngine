@@ -127,11 +127,12 @@ void VisualShaderEditor::clear_custom_types() {
     for (int i = 0; i < add_options.size(); i++) {
         if (add_options[i].is_custom) {
             add_options.remove(i);
+            i--;
         }
     }
 }
 
-void VisualShaderEditor::add_custom_type(const StringName &p_name, const Ref<Script> &p_script, const StringName &p_description, int p_return_icon_type, const StringName &p_category, const StringName &p_sub_category) {
+void VisualShaderEditor::add_custom_type(const StringName &p_name, const Ref<Script> &p_script, const StringName &p_description, int p_return_icon_type, const StringName &p_category, const StringName &p_subcategory) {
 
     ERR_FAIL_COND(!StringUtils::is_valid_identifier(p_name))
     ERR_FAIL_COND(not p_script)
@@ -149,9 +150,24 @@ void VisualShaderEditor::add_custom_type(const StringName &p_name, const Ref<Scr
     ao.return_type = p_return_icon_type;
     ao.description = p_description;
     ao.category = p_category;
-    ao.sub_category = p_sub_category;
+    ao.sub_category = p_subcategory;
     ao.is_custom = true;
+    bool begin = false;
 
+    for (int i = 0; i < add_options.size(); i++) {
+        if (add_options[i].is_custom) {
+            if (add_options[i].category == p_category) {
+                if (!begin) {
+                    begin = true;
+                }
+            } else {
+                if (begin) {
+                    add_options.insert(i, ao);
+                    return;
+                }
+            }
+        }
+    }
     add_options.push_back(ao);
 }
 
@@ -196,13 +212,21 @@ bool VisualShaderEditor::_is_available(int p_mode) {
 }
 
 void VisualShaderEditor::update_custom_nodes() {
-
+    struct AddInfo {
+        StringName name;
+        Ref<Script> script;
+        StringName description;
+        int return_icon_type;
+        StringName category;
+        StringName subcategory;
+    };
     if (members_dialog->is_visible()) {
         return;
     }
     clear_custom_types();
     Vector<StringName> class_list;
     ScriptServer::get_global_class_list(&class_list);
+    DefMap<se_string,AddInfo> added;
     for (int i = 0; i < class_list.size(); i++) {
         if (ScriptServer::get_global_class_native_base(class_list[i]) == "VisualShaderNodeCustom") {
 
@@ -240,13 +264,27 @@ void VisualShaderEditor::update_custom_nodes() {
                 category = "Custom";
             }
 
-            StringName sub_category;
+            StringName subcategory;
             if (ref->has_method("_get_subcategory")) {
-                sub_category = ref->call("_get_subcategory");
+                subcategory = ref->call("_get_subcategory");
             }
 
-            add_custom_type(name, script, description, return_icon_type, category, sub_category);
+            AddInfo dict{ name, script, description, return_icon_type, category, subcategory };
+
+            se_string key;
+            key = category;
+            key += "/";
+            if (subcategory.empty()) {
+                key += subcategory;
+                key += "/";
+            }
+            key += name;
+
+            added[key] = dict;
         }
+    }
+    for (const auto & v : added) {
+        add_custom_type(v.second.name, v.second.script, v.second.description, v.second.return_icon_type, v.second.category, v.second.subcategory);
     }
     _update_options_menu();
 }

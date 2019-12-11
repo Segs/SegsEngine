@@ -263,6 +263,7 @@ struct TextEdit::PrivateData {
 IMPL_GDCLASS(TextEdit)
 VARIANT_ENUM_CAST(TextEdit::MenuItems)
 VARIANT_ENUM_CAST(TextEdit::SearchFlags)
+VARIANT_ENUM_CAST(TextEdit::SearchResult)
 
 #define TAB_PIXELS
 
@@ -4144,8 +4145,9 @@ void TextEdit::_base_insert_text(int p_line, int p_char, const String &p_text, i
     if (shift_first_line) {
         m_priv->text.set_breakpoint(p_line + 1, m_priv->text.is_breakpoint(p_line));
         m_priv->text.set_hidden(p_line + 1, m_priv->text.is_hidden(p_line));
-        m_priv->text.set_info_icon(p_line + 1, m_priv->text.get_info_icon(p_line), m_priv->text.get_info(p_line));
-
+        if (m_priv->text.has_info_icon(p_line)) {
+            m_priv->text.set_info_icon(p_line + 1, m_priv->text.get_info_icon(p_line), m_priv->text.get_info(p_line));
+        }
         m_priv->text.set_breakpoint(p_line, false);
         m_priv->text.set_hidden(p_line, false);
         m_priv->text.set_info_icon(p_line, Ref<Texture>(), StringName());
@@ -5649,11 +5651,11 @@ PoolVector<int> TextEdit::_search_bind(se_string_view _key, uint32_t p_search_fl
 
     String p_key(StringUtils::from_utf8(_key));
     int col, line;
-    if (search(p_key, p_search_flags, p_from_line, p_from_column, col, line)) {
+    if (search(p_key, p_search_flags, p_from_line, p_from_column, line, col)) {
         PoolVector<int> result;
         result.resize(2);
-        result.set(0, line);
-        result.set(1, col);
+        result.set(SEARCH_RESULT_COLUMN, col);
+        result.set(SEARCH_RESULT_LINE, line);
         return result;
 
     } else {
@@ -6763,6 +6765,7 @@ void TextEdit::_update_completion_candidates() {
         if (inquote && restore_quotes == 1 && !StringUtils::is_quoted(option.display)) {
             char quote = single_quote ? '\'' : '\"';
             option.display = StringUtils::quote(option.display,quote);
+            option.insert_text = StringUtils::quote(option.insert_text,quote);
         }
 
         if (StringUtils::begins_with(option.display,s)) {
@@ -7185,6 +7188,8 @@ void TextEdit::_bind_methods() {
     BIND_ENUM_CONSTANT(SEARCH_WHOLE_WORDS)
     BIND_ENUM_CONSTANT(SEARCH_BACKWARDS)
 
+    BIND_ENUM_CONSTANT(SEARCH_RESULT_COLUMN)
+    BIND_ENUM_CONSTANT(SEARCH_RESULT_LINE)
     /*
     MethodBinder::bind_method(D_METHOD("delete_char"),&TextEdit::delete_char);
     MethodBinder::bind_method(D_METHOD("delete_line"),&TextEdit::delete_line);
