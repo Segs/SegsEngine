@@ -182,6 +182,14 @@ void MultiNodeEdit::add_node(const NodePath &p_node) {
 
     nodes.push_back(p_node);
 }
+int MultiNodeEdit::get_node_count() const {
+    return nodes.size();
+}
+
+const NodePath &MultiNodeEdit::get_node(int p_index) const {
+    ERR_FAIL_INDEX_V(p_index, nodes.size(), NodePath());
+    return nodes[p_index];
+}
 
 void MultiNodeEdit::set_property_field(const StringName &p_property, const Variant &p_value, se_string_view p_field) {
 

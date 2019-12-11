@@ -315,13 +315,13 @@ void Particles::_validate_property(PropertyInfo &property) const {
 }
 
 void Particles::_notification(int p_what) {
-
+    auto VS = VisualServer::get_singleton();
     if (p_what == NOTIFICATION_PAUSED || p_what == NOTIFICATION_UNPAUSED) {
         if (can_process()) {
-            VisualServer::get_singleton()->particles_set_speed_scale(particles, speed_scale);
+            VS->particles_set_speed_scale(particles, speed_scale);
         } else {
 
-            VisualServer::get_singleton()->particles_set_speed_scale(particles, 0);
+            VS->particles_set_speed_scale(particles, 0);
         }
     }
 
@@ -332,6 +332,12 @@ void Particles::_notification(int p_what) {
         if (one_shot && !is_emitting()) {
             _change_notify();
             set_process_internal(false);
+        }
+    }
+    if (p_what == NOTIFICATION_VISIBILITY_CHANGED) {
+        // make sure particles are updated before rendering occurs if they were active before
+        if (is_visible_in_tree() && !VS->particles_is_inactive(particles)) {
+            VS->particles_request_process(particles);
         }
     }
 }

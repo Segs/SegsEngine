@@ -1851,6 +1851,8 @@ void VisualServer::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("particles_set_process_material", {"particles", "material"}), &VisualServer::particles_set_process_material);
     MethodBinder::bind_method(D_METHOD("particles_set_fixed_fps", {"particles", "fps"}), &VisualServer::particles_set_fixed_fps);
     MethodBinder::bind_method(D_METHOD("particles_set_fractional_delta", {"particles", "enable"}), &VisualServer::particles_set_fractional_delta);
+    MethodBinder::bind_method(D_METHOD("particles_is_inactive", {"particles"}), &VisualServer::particles_is_inactive);
+    MethodBinder::bind_method(D_METHOD("particles_request_process", {"particles"}), &VisualServer::particles_request_process);
     MethodBinder::bind_method(D_METHOD("particles_restart", {"particles"}), &VisualServer::particles_restart);
     MethodBinder::bind_method(D_METHOD("particles_set_draw_order", {"particles", "order"}), &VisualServer::particles_set_draw_order);
     MethodBinder::bind_method(D_METHOD("particles_set_draw_passes", {"particles", "count"}), &VisualServer::particles_set_draw_passes);

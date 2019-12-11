@@ -97,7 +97,7 @@ Error FileAccessWindows::_open(se_string_view p_path, int p_mode_flags) {
     if (p_mode_flags == READ) {
         WIN32_FIND_DATAW d;
         HANDLE f = FindFirstFileW(stored.c_str(), &d);
-        if (f) {
+        if (f != INVALID_HANDLE_VALUE) {
             String fname = StringUtils::from_wchar(d.cFileName);
             if (!fname.empty()) {
 

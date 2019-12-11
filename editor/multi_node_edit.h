@@ -55,6 +55,9 @@ public:
     void clear_nodes();
     void add_node(const NodePath &p_node);
 
+    int get_node_count() const;
+    const NodePath &get_node(int p_index) const;
+
     void set_property_field(const StringName &p_property, const Variant &p_value, se_string_view p_field);
 
     MultiNodeEdit();
