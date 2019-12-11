@@ -8,8 +8,8 @@ if(MSVC)
     set(LIBRARIES winmm opengl32 dsound kernel32 ole32 oleaut32
             user32 gdi32 IPHLPAPI Shlwapi wsock32 Ws2_32
             shell32 advapi32 dinput8 dxguid imm32 bcrypt Avrt)
-	list(APPEND platform_list windows)
-	include_directories(${PROJECT_SOURCE_DIR}/platform/windows)
+    list(APPEND platform_list windows)
+    include_directories(${PROJECT_SOURCE_DIR}/platform/windows)
 endif()
 if(MINGW)
     ## Build type
@@ -24,6 +24,7 @@ if(MINGW)
     set(LIBRARIES mingw32 opengl32 dsound ole32 d3d9 winmm gdi32 iphlpapi shlwapi wsock32 ws2_32 kernel32 oleaut32 dinput8 dxguid ksuser imm32 bcrypt Avrt)
 
     ADD_DEFINITIONS(-DMINGW_ENABLED)
-	list(APPEND platform_list windows)
-	include_directories(${PROJECT_SOURCE_DIR}/platform/windows)
+    ADD_DEFINITIONS(-DMINGW_HAS_SECURE_API=1)
+    list(APPEND platform_list windows)
+    include_directories(${PROJECT_SOURCE_DIR}/platform/windows)
 endif()

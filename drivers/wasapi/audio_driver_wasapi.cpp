@@ -77,7 +77,7 @@ public:
     CMMNotificationClient() :
             _cRef(1),
             _pEnumerator(nullptr) {}
-    ~CMMNotificationClient() {
+    ~CMMNotificationClient() override {
         if ((_pEnumerator) != nullptr) {
             (_pEnumerator)->Release();
             (_pEnumerator) = nullptr;

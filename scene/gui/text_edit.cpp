@@ -371,57 +371,57 @@ void Text::_update_line_cache(int p_line) const {
             /* BEGIN */
 
             int lr = cr.begin_key.length();
-            if (lr == 0 || lr > left)
-                continue;
+            const CharType *kc;
+            bool match;
 
-            const CharType *kc = cr.begin_key.data();
+            if (lr != 0 && lr <= left) {
+                kc = cr.begin_key.constData();
 
-            bool match = true;
+                match = true;
+                for (int k = 0; k < lr; k++) {
+                    if (kc[k] != str[i + k]) {
+                        match = false;
+                        break;
+                    }
+                }
 
-            for (int k = 0; k < lr; k++) {
-                if (kc[k] != str[i + k]) {
-                    match = false;
+                if (match) {
+
+                    TextColorRegionInfo cri;
+                    cri.end = false;
+                    cri.region = j;
+                    text.write[p_line].region_info[i] = cri;
+                    i += lr - 1;
+
                     break;
                 }
-            }
-
-            if (match) {
-
-                TextColorRegionInfo cri;
-                cri.end = false;
-                cri.region = j;
-                text.write[p_line].region_info[i] = cri;
-                i += lr - 1;
-
-                break;
             }
 
             /* END */
 
             lr = cr.end_key.length();
-            if (lr == 0 || lr > left)
-                continue;
+            if (lr != 0 && lr <= left) {
+                kc = cr.end_key.data();
 
-            kc = cr.end_key.data();
+                match = true;
 
-            match = true;
+                for (int k = 0; k < lr; k++) {
+                    if (kc[k] != str[i + k]) {
+                        match = false;
+                        break;
+                    }
+                }
 
-            for (int k = 0; k < lr; k++) {
-                if (kc[k] != str[i + k]) {
-                    match = false;
+                if (match) {
+
+                    TextColorRegionInfo cri;
+                    cri.end = true;
+                    cri.region = j;
+                    text.write[p_line].region_info[i] = cri;
+                    i += lr - 1;
+
                     break;
                 }
-            }
-
-            if (match) {
-
-                TextColorRegionInfo cri;
-                cri.end = true;
-                cri.region = j;
-                text.write[p_line].region_info[i] = cri;
-                i += lr - 1;
-
-                break;
             }
         }
     }

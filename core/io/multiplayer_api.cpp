@@ -746,12 +746,21 @@ void MultiplayerAPI::_add_peer(int p_id) {
     emit_signal("network_peer_connected", p_id);
 }
 
+
 void MultiplayerAPI::_del_peer(int p_id) {
     connected_peers.erase(p_id);
-    path_get_cache.erase(p_id); // I no longer need your cache, sorry.
+    // Cleanup get cache.
+    path_get_cache.erase(p_id);
+    // Cleanup sent cache.
+    // Some refactoring is needed to make this faster and do paths GC.
+    PODVector<NodePath> keys;
+    path_send_cache.get_key_list(keys);
+    for (const NodePath &E : keys) {
+        PathSentCache *psc = path_send_cache.getptr(E);
+        psc->confirmed_peers.erase(p_id);
+    }
     emit_signal("network_peer_disconnected", p_id);
 }
-
 void MultiplayerAPI::_connected_to_server() {
 
     emit_signal("connected_to_server");

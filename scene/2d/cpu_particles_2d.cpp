@@ -270,8 +270,7 @@ void CPUParticles2D::restart() {
     inactive_time = 0;
     frame_remainder = 0;
     cycle = 0;
-
-    set_emitting(true);
+    emitting = false;
 
     {
         int pc = particles.size();
@@ -281,6 +280,8 @@ void CPUParticles2D::restart() {
             w[i].active = false;
         }
     }
+
+    set_emitting(true);
 }
 
 void CPUParticles2D::set_direction(Vector2 p_direction) {
@@ -1429,6 +1430,7 @@ CPUParticles2D::CPUParticles2D() {
     frame_remainder = 0;
     cycle = 0;
     redraw = false;
+    emitting = false;
 
     mesh = VisualServer::get_singleton()->mesh_create();
     multimesh = VisualServer::get_singleton()->multimesh_create();

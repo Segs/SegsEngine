@@ -34,148 +34,149 @@
 
 void Physics2DServerWrapMT::thread_exit() {
 
-	exit = true;
+    exit = true;
 }
 
 void Physics2DServerWrapMT::thread_step(real_t p_delta) {
 
-	physics_2d_server->step(p_delta);
-	step_sem->post();
+    physics_2d_server->step(p_delta);
+    step_sem->post();
 }
 
 void Physics2DServerWrapMT::_thread_callback(void *_instance) {
 
-	Physics2DServerWrapMT *vsmt = reinterpret_cast<Physics2DServerWrapMT *>(_instance);
+    Physics2DServerWrapMT *vsmt = reinterpret_cast<Physics2DServerWrapMT *>(_instance);
 
-	vsmt->thread_loop();
+    vsmt->thread_loop();
 }
 
 void Physics2DServerWrapMT::thread_loop() {
 
-	server_thread = Thread::get_caller_id();
+    server_thread = Thread::get_caller_id();
 
-	physics_2d_server->init();
+    physics_2d_server->init();
 
-	exit = false;
-	step_thread_up = true;
-	while (!exit) {
-		// flush commands one by one, until exit is requested
-		command_queue.wait_and_flush_one();
-	}
+    exit = false;
+    step_thread_up = true;
+    while (!exit) {
+        // flush commands one by one, until exit is requested
+        command_queue.wait_and_flush_one();
+    }
 
-	command_queue.flush_all(); // flush all
+    command_queue.flush_all(); // flush all
 
-	physics_2d_server->finish();
+    physics_2d_server->finish();
 }
 
 /* EVENT QUEUING */
 
 void Physics2DServerWrapMT::step(real_t p_step) {
 
-	if (create_thread) {
+    if (create_thread) {
 
-		command_queue.push(this, &Physics2DServerWrapMT::thread_step, p_step);
-	} else {
+        command_queue.push(this, &Physics2DServerWrapMT::thread_step, p_step);
+    } else {
 
-		command_queue.flush_all(); //flush all pending from other threads
-		physics_2d_server->step(p_step);
-	}
+        command_queue.flush_all(); //flush all pending from other threads
+        physics_2d_server->step(p_step);
+    }
 }
 
 void Physics2DServerWrapMT::sync() {
 
-	if (step_sem) {
-		if (first_frame)
-			first_frame = false;
-		else
-			step_sem->wait(); //must not wait if a step was not issued
-	}
-	physics_2d_server->sync();
+    if (step_sem) {
+        if (first_frame)
+            first_frame = false;
+        else
+            step_sem->wait(); //must not wait if a step was not issued
+    }
+    physics_2d_server->sync();
 }
 
 void Physics2DServerWrapMT::flush_queries() {
 
-	physics_2d_server->flush_queries();
+    physics_2d_server->flush_queries();
 }
 
 void Physics2DServerWrapMT::end_sync() {
 
-	physics_2d_server->end_sync();
+    physics_2d_server->end_sync();
 }
 
 void Physics2DServerWrapMT::init() {
 
-	if (create_thread) {
+    if (create_thread) {
 
-		step_sem = Semaphore::create();
-		//OS::get_singleton()->release_rendering_thread();
-		if (create_thread) {
-			thread = Thread::create(_thread_callback, this);
-		}
-		while (!step_thread_up) {
-			OS::get_singleton()->delay_usec(1000);
-		}
-	} else {
+        step_sem = Semaphore::create();
+        //OS::get_singleton()->release_rendering_thread();
+        if (create_thread) {
+            thread = Thread::create(_thread_callback, this);
+        }
+        while (!step_thread_up) {
+            OS::get_singleton()->delay_usec(1000);
+        }
+    } else {
 
-		physics_2d_server->init();
-	}
+        physics_2d_server->init();
+    }
 }
 
 void Physics2DServerWrapMT::finish() {
 
-	if (thread) {
+    if (thread) {
 
-		command_queue.push(this, &Physics2DServerWrapMT::thread_exit);
-		Thread::wait_to_finish(thread);
-		memdelete(thread);
+        command_queue.push(this, &Physics2DServerWrapMT::thread_exit);
+        Thread::wait_to_finish(thread);
+        memdelete(thread);
 
-		thread = nullptr;
-	} else {
-		physics_2d_server->finish();
-	}
+        thread = nullptr;
+    } else {
+        physics_2d_server->finish();
+    }
 
-	line_shape_free_cached_ids();
-	ray_shape_free_cached_ids();
-	segment_shape_free_cached_ids();
-	circle_shape_free_cached_ids();
-	rectangle_shape_free_cached_ids();
-	convex_polygon_shape_free_cached_ids();
-	concave_polygon_shape_free_cached_ids();
+    line_shape_free_cached_ids();
+    ray_shape_free_cached_ids();
+    segment_shape_free_cached_ids();
+    circle_shape_free_cached_ids();
+    rectangle_shape_free_cached_ids();
+    capsule_shape_free_cached_ids();
+    convex_polygon_shape_free_cached_ids();
+    concave_polygon_shape_free_cached_ids();
 
-	space_free_cached_ids();
-	area_free_cached_ids();
-	body_free_cached_ids();
+    space_free_cached_ids();
+    area_free_cached_ids();
+    body_free_cached_ids();
 
-	if (step_sem)
-		memdelete(step_sem);
+    if (step_sem)
+        memdelete(step_sem);
 }
 
 Physics2DServerWrapMT::Physics2DServerWrapMT(Physics2DServer *p_contained, bool p_create_thread) :
-		command_queue(p_create_thread) {
+        command_queue(p_create_thread) {
 
-	physics_2d_server = p_contained;
-	create_thread = p_create_thread;
-	thread = nullptr;
-	step_sem = nullptr;
-	step_pending = 0;
-	step_thread_up = false;
-	alloc_mutex = memnew(Mutex);
+    physics_2d_server = p_contained;
+    create_thread = p_create_thread;
+    thread = nullptr;
+    step_sem = nullptr;
+    step_pending = 0;
+    step_thread_up = false;
+    alloc_mutex = memnew(Mutex);
 
-	pool_max_size = GLOBAL_GET("memory/limits/multithreaded_server/rid_pool_prealloc");
+    pool_max_size = GLOBAL_GET("memory/limits/multithreaded_server/rid_pool_prealloc");
 
-	if (!p_create_thread) {
-		server_thread = Thread::get_caller_id();
-	} else {
-		server_thread = 0;
-	}
+    if (!p_create_thread) {
+        server_thread = Thread::get_caller_id();
+    } else {
+        server_thread = 0;
+    }
 
-	main_thread = Thread::get_caller_id();
-	first_frame = true;
+    main_thread = Thread::get_caller_id();
+    first_frame = true;
 }
 
 Physics2DServerWrapMT::~Physics2DServerWrapMT() {
 
-	memdelete(physics_2d_server);
-	memdelete(alloc_mutex);
-	//finish();
+    memdelete(physics_2d_server);
+    memdelete(alloc_mutex);
+    //finish();
 }

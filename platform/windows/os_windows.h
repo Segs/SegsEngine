@@ -106,7 +106,6 @@ class OS_Windows : public OS {
     VisualServer *visual_server;
     CameraWindows *camera_server;
     int pressrc;
-    HDC hDC; // Private GDI Device Context
     HINSTANCE hInstance; // Holds The Instance Of The Application
     HWND hWnd;
     Point2 last_pos;
