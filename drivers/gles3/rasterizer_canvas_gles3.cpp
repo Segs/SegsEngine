@@ -544,10 +544,8 @@ void RasterizerCanvasGLES3::_canvas_item_render_commands(Item *p_item, Item *cur
 
                 if (line->width <= 1) {
                     Vector2 verts[2] = {
-                        // Offset the line slightly to make sure we always draw the pixel at the from coordinate.
-                        // Without this, corners of rectangles might be missing a pixel. (See diamond exit rule and #32657)
-                        Vector2(Math::floor(line->from.x) + 0.5f, Math::floor(line->from.y) + 0.5f),
-                        Vector2(Math::floor(line->to.x) + 0.5f, Math::floor(line->to.y) + 0.5f)
+                        Vector2(line->from.x, line->from.y),
+                        Vector2(line->to.x, line->to.y)
                     };
                     if (line->antialiased)
                         glEnable(GL_LINE_SMOOTH);

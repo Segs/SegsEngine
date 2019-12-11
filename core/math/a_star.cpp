@@ -221,11 +221,11 @@ void AStar::disconnect_points(int p_id, int p_with_id, bool bidirectional) {
 
     AStarPoint *a;
     bool a_exists = points.lookup(p_id, a);
-    CRASH_COND(!a_exists);
+    ERR_FAIL_COND(!a_exists);
 
     AStarPoint *b;
     bool b_exists = points.lookup(p_with_id, b);
-    CRASH_COND(!b_exists);
+    ERR_FAIL_COND(!b_exists);
 
     Segment s(p_id, p_with_id);
     int remove_direction = bidirectional ? (int)Segment::BIDIRECTIONAL : s.direction;
@@ -327,7 +327,7 @@ int AStar::get_closest_point(const Vector3 &p_point, bool p_include_disabled) co
 
     for (OAHashMap<int, AStarPoint *>::Iterator it = points.iter(); it.valid; it = points.next_iter(it)) {
 
-		if (!p_include_disabled && !(*it.value)->enabled) continue; // Disabled points should not be considered.
+        if (!p_include_disabled && !(*it.value)->enabled) continue; // Disabled points should not be considered.
 
         real_t d = p_point.distance_squared_to((*it.value)->pos);
         if (closest_id < 0 || d < closest_dist) {
@@ -444,11 +444,11 @@ float AStar::_estimate_cost(int p_from_id, int p_to_id) {
 
     AStarPoint *from_point;
     bool from_exists = points.lookup(p_from_id, from_point);
-    CRASH_COND(!from_exists)
+    ERR_FAIL_COND_V(!from_exists, 0)
 
     AStarPoint *to_point;
     bool to_exists = points.lookup(p_to_id, to_point);
-    CRASH_COND(!to_exists)
+    ERR_FAIL_COND_V(!to_exists, 0)
 
     return from_point->pos.distance_to(to_point->pos);
 }
@@ -706,7 +706,7 @@ void AStar2D::reserve_space(int p_num_nodes) {
     astar.reserve_space(p_num_nodes);
 }
 int AStar2D::get_closest_point(const Vector2 &p_point, bool p_include_disabled) const {
-	return astar.get_closest_point(Vector3(p_point.x, p_point.y, 0), p_include_disabled);
+    return astar.get_closest_point(Vector3(p_point.x, p_point.y, 0), p_include_disabled);
 }
 
 Vector2 AStar2D::get_closest_position_in_segment(const Vector2 &p_point) const {

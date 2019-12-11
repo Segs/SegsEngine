@@ -175,8 +175,6 @@ set(core_sources
     rid.h
     script_debugger_local.cpp
     script_debugger_local.h
-    script_debugger_remote.cpp
-    script_debugger_remote.h
     script_language.cpp
     script_language.h
     translation.cpp

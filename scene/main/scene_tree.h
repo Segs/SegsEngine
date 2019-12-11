@@ -47,6 +47,32 @@ class ArrayMesh;
 class MultiplayerAPI;
 class NetworkedMultiplayerPeer;
 
+class ISceneTreeDebugAccessor {
+    friend class ScriptDebuggerRemote;
+
+    virtual void _live_edit_node_path_func( const NodePath &p_path, int p_id)=0;
+    virtual void _live_edit_res_path_func( se_string_view p_path, int p_id)=0;
+
+    virtual void _live_edit_node_set_func( int p_id, const StringName &p_prop, const Variant &p_value)=0;
+    virtual  void _live_edit_node_set_res_func( int p_id, const StringName &p_prop, se_string_view p_value)=0;
+    virtual  void _live_edit_node_call_func( int p_id, const StringName &p_method, VARIANT_ARG_DECLARE)=0;
+    virtual  void _live_edit_res_set_func( int p_id, const StringName &p_prop, const Variant &p_value)=0;
+    virtual  void _live_edit_res_set_res_func( int p_id, const StringName &p_prop, se_string_view p_value)=0;
+    virtual  void _live_edit_res_call_func( int p_id, const StringName &p_method, VARIANT_ARG_DECLARE)=0;
+    virtual  void _live_edit_root_func( const NodePath &p_scene_path, se_string_view p_scene_from)=0;
+    virtual  void _live_edit_create_node_func( const NodePath &p_parent, const se_string &p_type, const se_string &p_name)=0;
+    virtual  void _live_edit_instance_node_func(const NodePath &p_parent,se_string_view p_path, const se_string &p_name)=0;
+    virtual  void _live_edit_remove_node_func( const NodePath &p_at)=0;
+    virtual  void _live_edit_remove_and_keep_node_func( const NodePath &p_at, ObjectID p_keep_id)=0;
+    virtual  void _live_edit_restore_node_func( ObjectID p_id, const NodePath &p_at, int p_at_pos)=0;
+    virtual  void _live_edit_duplicate_node_func( const NodePath &p_at, const se_string &p_new_name)=0;
+    virtual  void _live_edit_reparent_node_func(
+             const NodePath &p_at, const NodePath &p_new_place, const se_string &p_new_name, int p_at_pos)=0;
+public:
+    virtual Map<se_string, Set<Node *>> &get_live_scene_edit_cache() = 0;
+    virtual Map<Node *, Map<ObjectID, Node *>> &get_live_edit_remove_list() = 0;
+};
+
 class SceneTreeTimer : public RefCounted {
     GDCLASS(SceneTreeTimer,RefCounted)
 
@@ -212,7 +238,6 @@ private:
     Variant _call_group_flags(const Variant **p_args, int p_argcount, Variant::CallError &r_error);
     Variant _call_group(const Variant **p_args, int p_argcount, Variant::CallError &r_error);
 
-    static void _debugger_request_tree(void *self);
     void _flush_delete_queue();
     //optimization
     friend class CanvasItem;
@@ -221,10 +246,11 @@ private:
 
     SelfList<Node>::List xform_change_list;
 
+    friend class ScriptDebuggerRemote;
 #ifdef DEBUG_ENABLED
-    struct DebugData;
-    DebugData *m_debug_data=nullptr;
-
+    ISceneTreeDebugAccessor *m_debug_data=nullptr;
+    ISceneTreeDebugAccessor *debug() { return m_debug_data;}
+    void _debugger_request_tree();
 #endif
 
     enum {

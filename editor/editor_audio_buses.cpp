@@ -1339,7 +1339,8 @@ EditorAudioBuses::EditorAudioBuses() {
     add_child(top_hb);
 
     file = memnew(Label);
-    file->set_text(TTR("Layout") + ": " + "default_bus_layout.tres");
+    se_string layout_path = ProjectSettings::get_singleton()->get("audio/default_bus_layout");
+    file->set_text(TTR("Layout") + ": " + PathUtils::get_file(layout_path));
     file->set_clip_text(true);
     file->set_h_size_flags(SIZE_EXPAND_FILL);
     top_hb->add_child(file);

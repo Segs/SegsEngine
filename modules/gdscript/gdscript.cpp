@@ -2153,6 +2153,7 @@ GDScriptLanguage::GDScriptLanguage() {
 #ifdef DEBUG_ENABLED
     GLOBAL_DEF("debug/gdscript/warnings/enable", true);
     GLOBAL_DEF("debug/gdscript/warnings/treat_warnings_as_errors", false);
+    GLOBAL_DEF("debug/gdscript/warnings/exclude_addons", true);
     GLOBAL_DEF("debug/gdscript/completion/autocomplete_setters_and_getters", false);
     for (int i = 0; i < (int)GDScriptWarning::WARNING_MAX; i++) {
         se_string warning(StringUtils::to_lower(se_string(GDScriptWarning::get_name_from_code((GDScriptWarning::Code)i))));

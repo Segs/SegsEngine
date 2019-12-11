@@ -67,11 +67,11 @@ bool InputEvent::is_action(const StringName &p_action) const {
     return InputMap::get_singleton()->event_is_action(Ref<InputEvent>((InputEvent *)this), p_action);
 }
 
-bool InputEvent::is_action_pressed(const StringName &p_action) const {
+bool InputEvent::is_action_pressed(const StringName &p_action, bool p_allow_echo) const {
 
     bool pressed;
     bool valid = InputMap::get_singleton()->event_get_action_status(Ref<InputEvent>((InputEvent *)this), p_action, &pressed);
-    return valid && pressed && !is_echo();
+    return valid && pressed && (p_allow_echo || !is_echo());
 }
 
 bool InputEvent::is_action_released(const StringName &p_action) const {
@@ -130,7 +130,7 @@ void InputEvent::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_device"), &InputEvent::get_device);
 
     MethodBinder::bind_method(D_METHOD("is_action", {"action"}), &InputEvent::is_action);
-    MethodBinder::bind_method(D_METHOD("is_action_pressed", {"action"}), &InputEvent::is_action_pressed);
+    MethodBinder::bind_method(D_METHOD("is_action_pressed", {"action","allow_echo"}), &InputEvent::is_action_pressed,{DEFVAL(false)});
     MethodBinder::bind_method(D_METHOD("is_action_released", {"action"}), &InputEvent::is_action_released);
     MethodBinder::bind_method(D_METHOD("get_action_strength", {"action"}), &InputEvent::get_action_strength);
 

@@ -8365,6 +8365,9 @@ void GDScriptParser::_set_error(se_string_view p_error, int p_line, int p_column
 #ifdef DEBUG_ENABLED
 
 void GDScriptParser::_add_warning(int p_code, int p_line, const std::initializer_list<se_string_view> &p_symbols) {
+    if (StringUtils::begins_with(base_path,"res://addons/") && GLOBAL_GET("debug/gdscript/warnings/exclude_addons").booleanize()) {
+        return;
+    }
     if (tokenizer->is_ignoring_warnings() || !GLOBAL_GET("debug/gdscript/warnings/enable").booleanize()) {
         return;
     }

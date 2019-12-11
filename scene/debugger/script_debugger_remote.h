@@ -39,6 +39,8 @@
 #include "core/rid.h"
 #include "core/io/multiplayer_api.h"
 
+class SceneTree;
+
 class GODOT_EXPORT ScriptDebuggerRemote : public ScriptDebugger {
 
     struct Message {
@@ -118,16 +120,14 @@ class GODOT_EXPORT ScriptDebuggerRemote : public ScriptDebugger {
     void _poll_events();
     uint32_t poll_every;
 
-    bool _parse_live_edit(const Array &p_command);
+    SceneTree *scene_tree;
 
-    RequestSceneTreeMessageFunc request_scene_tree;
-    void *request_scene_tree_ud;
+    bool _parse_live_edit(const Array &p_command);
 
     void _set_object_property(ObjectID p_id, const se_string &p_property, const Variant &p_value);
 
     void _send_object_id(ObjectID p_id);
     void _send_video_memory();
-    LiveEditFuncs *live_edit_funcs;
 
     Ref<MultiplayerAPI> multiplayer;
 
@@ -177,8 +177,6 @@ public:
     void send_message(const se_string &p_message, const Array &p_args) override;
     void send_error(se_string_view p_func, se_string_view p_file, int p_line, se_string_view p_err, se_string_view p_descr, ErrorHandlerType p_type, const Vector<ScriptLanguage::StackInfo> &p_stack_info) override;
 
-    void set_request_scene_tree_message_func(RequestSceneTreeMessageFunc p_func, void *p_udata) override;
-    void set_live_edit_funcs(LiveEditFuncs *p_funcs) override;
     void set_multiplayer(const Ref<MultiplayerAPI> &p_multiplayer) override;
 
     bool is_profiling() const override;
@@ -188,7 +186,9 @@ public:
     void profiling_end() override;
     void profiling_set_frame_times(float p_frame_time, float p_idle_time, float p_physics_time, float p_physics_frame_time) override;
 
-     void set_skip_breakpoints(bool p_skip_breakpoints);
+    void set_skip_breakpoints(bool p_skip_breakpoints);
+
+    void set_scene_tree(SceneTree *p_scene_tree) { scene_tree = p_scene_tree; }
 
     ScriptDebuggerRemote();
     ~ScriptDebuggerRemote() override;
