@@ -53,7 +53,8 @@ namespace {
 struct Resource::Data {
     Data(Resource *own) : remapped_list(own) {}
 #ifdef TOOLS_ENABLED
-    Map<se_string, int> id_for_path;
+    static DefHashMap<se_string, DefHashMap<se_string, int> > resource_path_cache; // each tscn has a set of resource paths and IDs
+    static RWLock *path_cache_lock;
     se_string import_path;
 #endif
     Set<ObjectID> owners;
@@ -65,6 +66,8 @@ struct Resource::Data {
     bool local_to_scene=false;
 
 };
+DefHashMap<se_string, DefHashMap<se_string, int> > Resource::Data::resource_path_cache;
+RWLock *Resource::Data::path_cache_lock;
 
 
 IMPL_GDCLASS(Resource)
@@ -402,17 +405,42 @@ bool Resource::is_translation_remapped() const {
 //helps keep IDs same number when loading/saving scenes. -1 clears ID and it Returns -1 when no id stored
 void Resource::set_id_for_path(se_string_view p_path, int p_id) {
     if (p_id == -1) {
-        impl_data->id_for_path.erase_as(p_path);
+        if (Resource::Data::path_cache_lock) {
+            Resource::Data::path_cache_lock->write_lock();
+        }
+        Resource::Data::resource_path_cache[se_string(p_path)].erase(get_path());
+        if (Resource::Data::path_cache_lock) {
+            Resource::Data::path_cache_lock->write_unlock();
+        }
     } else {
-        impl_data->id_for_path.emplace(se_string(p_path),p_id);
+        if (Resource::Data::path_cache_lock) {
+            Resource::Data::path_cache_lock->write_lock();
+        }
+        Resource::Data::resource_path_cache[se_string(p_path)][get_path()] = p_id;
+        if (Resource::Data::path_cache_lock) {
+            Resource::Data::path_cache_lock->write_unlock();
+        }
     }
 }
 
 int Resource::get_id_for_path(se_string_view p_path) const {
-    auto iter = impl_data->id_for_path.find_as(p_path);
-    if(iter!=impl_data->id_for_path.end())
-        return iter->second;
-    return -1;
+    if (Resource::Data::path_cache_lock) {
+        Resource::Data::path_cache_lock->read_lock();
+    }
+    auto & res_path_cache(Resource::Data::resource_path_cache[se_string(p_path)]);
+    auto iter = res_path_cache.find(get_path());
+    if (iter!=res_path_cache.end()) {
+        int result = iter->second;
+        if (Resource::Data::path_cache_lock) {
+            Resource::Data::path_cache_lock->read_unlock();
+        }
+        return result;
+    } else {
+        if (Resource::Data::path_cache_lock) {
+            Resource::Data::path_cache_lock->read_unlock();
+        }
+        return -1;
+    }
 }
 #endif
 se_string Resource::_get_category_wrap() {

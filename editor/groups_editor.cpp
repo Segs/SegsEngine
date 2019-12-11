@@ -241,11 +241,10 @@ void GroupDialog::_group_renamed() {
 
     undo_redo->create_action_ui(TTR("Rename Group"));
 
-    List<Node *> nodes;
+    Deque<Node *> nodes;
     scene_tree->get_nodes_in_group(selected_group, &nodes);
     bool removed_all = true;
-    for (List<Node *>::Element *E = nodes.front(); E; E = E->next()) {
-        Node *node = E->deref();
+    for (Node *node : nodes) {
         if (_can_edit(node, selected_group)) {
             undo_redo->add_do_method(node, "remove_from_group", selected_group);
             undo_redo->add_undo_method(node, "remove_from_group", name);
@@ -310,13 +309,13 @@ void GroupDialog::_delete_group_pressed(Object *p_item, int p_column, int p_id) 
     StringName name(ti->get_text(0));
     undo_redo->create_action_ui(TTR("Delete Group"));
 
-    List<Node *> nodes;
+    Deque<Node *> nodes;
     scene_tree->get_nodes_in_group(name, &nodes);
     bool removed_all = true;
-    for (List<Node *>::Element *E = nodes.front(); E; E = E->next()) {
-        if (_can_edit(E->deref(), name)) {
-            undo_redo->add_do_method(E->deref(), "remove_from_group", name);
-            undo_redo->add_undo_method(E->deref(), "add_to_group", name, true);
+    for (Node *E : nodes) {
+        if (_can_edit(E, name)) {
+            undo_redo->add_do_method(E, "remove_from_group", name);
+            undo_redo->add_undo_method(E, "add_to_group", name, true);
         } else {
             removed_all = false;
         }

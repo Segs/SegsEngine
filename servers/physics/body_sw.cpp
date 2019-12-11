@@ -798,7 +798,7 @@ BodySW::BodySW() :
 
     still_time = 0;
     continuous_cd = false;
-    can_sleep = false;
+    can_sleep = true;
     fi_callback = nullptr;
 }
 

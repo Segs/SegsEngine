@@ -2444,17 +2444,11 @@ void EditorPropertyResource::_update_menu_items() {
 
                 int id = TYPE_BASE_ID + idx;
 
-                if (not icon && has_icon(t, "EditorIcons")) {
-                    icon = get_icon(t, "EditorIcons");
-                }
                 StringName itemname(FormatSN(TTR("New %s").asCString(), t.asCString()));
-                if (icon) {
+                if (!icon)
+                    icon = get_icon(has_icon(t, "EditorIcons") ? t : "Object", "EditorIcons");
 
-                    menu->add_icon_item(icon, itemname, id);
-                } else {
-
-                    menu->add_item(itemname, id);
-                }
+                menu->add_icon_item(icon, itemname, id);
 
                 idx++;
             }

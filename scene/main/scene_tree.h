@@ -36,6 +36,7 @@
 #include "scene/resources/world.h"
 #include "scene/resources/world_2d.h"
 #include "scene/main/scene_tree_notifications.h"
+#include "core/deque.h"
 
 class PackedScene;
 class Node;
@@ -331,7 +332,7 @@ public:
 
     void queue_delete(Object *p_object);
 
-    void get_nodes_in_group(const StringName &p_group, List<Node *> *p_list);
+    void get_nodes_in_group(const StringName &p_group, Deque<Node *> *p_list);
     bool has_group(const StringName &p_identifier) const;
 
     void set_screen_stretch(StretchMode p_mode, StretchAspect p_aspect, const Size2 &p_minsize, real_t p_shrink = 1);

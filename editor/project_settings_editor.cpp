@@ -1112,6 +1112,8 @@ void ProjectSettingsEditor::drop_data_fw(const Point2 &p_point, const Variant &p
 
     TreeItem *selected = input_editor->get_selected();
     TreeItem *item = input_editor->get_item_at_position(p_point);
+    if (!item)
+        return;
     TreeItem *target = item->get_parent() == input_editor->get_root() ? item : item->get_parent();
 
     StringName selected_name("input/" + selected->get_text(0));

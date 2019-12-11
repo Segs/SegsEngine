@@ -113,6 +113,23 @@ bool NavigationMesh::get_collision_mask_bit(int p_bit) const {
 
     return get_collision_mask() & (1 << p_bit);
 }
+void NavigationMesh::set_source_geometry_mode(int p_geometry_mode) {
+    ERR_FAIL_INDEX(p_geometry_mode, SOURCE_GEOMETRY_MAX);
+    source_geometry_mode = static_cast<SourceGeometryMode>(p_geometry_mode);
+    _change_notify();
+}
+
+int NavigationMesh::get_source_geometry_mode() const {
+    return source_geometry_mode;
+}
+
+void NavigationMesh::set_source_group_name(StringName p_group_name) {
+    source_group_name = p_group_name;
+}
+
+StringName NavigationMesh::get_source_group_name() const {
+    return source_group_name;
+}
 
 void NavigationMesh::set_cell_size(float p_value) {
     cell_size = p_value;
@@ -393,6 +410,12 @@ void NavigationMesh::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_collision_mask_bit", {"bit", "value"}), &NavigationMesh::set_collision_mask_bit);
     MethodBinder::bind_method(D_METHOD("get_collision_mask_bit", {"bit"}), &NavigationMesh::get_collision_mask_bit);
 
+    MethodBinder::bind_method(D_METHOD("set_source_geometry_mode", {"mask"}), &NavigationMesh::set_source_geometry_mode);
+    MethodBinder::bind_method(D_METHOD("get_source_geometry_mode"), &NavigationMesh::get_source_geometry_mode);
+
+    MethodBinder::bind_method(D_METHOD("set_source_group_name", {"mask"}), &NavigationMesh::set_source_group_name);
+    MethodBinder::bind_method(D_METHOD("get_source_group_name"), &NavigationMesh::get_source_group_name);
+
     MethodBinder::bind_method(D_METHOD("set_cell_size", {"cell_size"}), &NavigationMesh::set_cell_size);
     MethodBinder::bind_method(D_METHOD("get_cell_size"), &NavigationMesh::get_cell_size);
 
@@ -468,6 +491,8 @@ void NavigationMesh::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "sample_partition_type/sample_partition_type", PROPERTY_HINT_ENUM, "Watershed,Monotone,Layers"), "set_sample_partition_type", "get_sample_partition_type");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "geometry/parsed_geometry_type", PROPERTY_HINT_ENUM, "Mesh Instances,Static Colliders,Both"), "set_parsed_geometry_type", "get_parsed_geometry_type");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "geometry/collision_mask", PROPERTY_HINT_LAYERS_3D_PHYSICS), "set_collision_mask", "get_collision_mask");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "geometry/source_geometry_mode", PROPERTY_HINT_ENUM, "Navmesh Children, Group With Children, Group Explicit"), "set_source_geometry_mode", "get_source_geometry_mode");
+    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "geometry/source_group_name"), "set_source_group_name", "get_source_group_name");
 
     ADD_PROPERTY(PropertyInfo(VariantType::REAL, "cell/size", PROPERTY_HINT_RANGE, "0.1,1.0,0.01,or_greater"), "set_cell_size", "get_cell_size");
     ADD_PROPERTY(PropertyInfo(VariantType::REAL, "cell/height", PROPERTY_HINT_RANGE, "0.1,1.0,0.01,or_greater"), "set_cell_height", "get_cell_height");
@@ -495,6 +520,12 @@ void NavigationMesh::_validate_property(PropertyInfo &property) const {
             return;
         }
     }
+    if (property.name == "geometry/source_group_name") {
+        if (source_geometry_mode == SOURCE_GEOMETRY_NAVMESH_CHILDREN) {
+            property.usage = 0;
+            return;
+        }
+    }
 }
 
 NavigationMesh::NavigationMesh() {
@@ -515,6 +546,8 @@ NavigationMesh::NavigationMesh() {
     partition_type = SAMPLE_PARTITION_WATERSHED;
     parsed_geometry_type = PARSED_GEOMETRY_MESH_INSTANCES;
     collision_mask = 0xFFFFFFFF;
+    source_geometry_mode = SOURCE_GEOMETRY_NAVMESH_CHILDREN;
+    source_group_name = "navmesh";
     filter_low_hanging_obstacles = false;
     filter_ledge_spans = false;
     filter_walkable_low_height_spans = false;

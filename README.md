@@ -2,7 +2,7 @@
 
 # This is a heavily modified stand-alone fork of the Godot engine
 
-Synced with upstream up to godotengine/godot@dd23d0b635ffe3f9292e00e15ce7a35e1bb22e71
+Synced with upstream up to godotengine/godot@4a726998bd28121dde1d212f363d9eba7efa0caf
 
 ### Note: Our changes likely introduced new errors, please if at all possible, check similar operations on upstream editor.
 

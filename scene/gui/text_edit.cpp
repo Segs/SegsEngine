@@ -1144,7 +1144,7 @@ void TextEdit::_notification(int p_what) {
                 int minimap_line = (v_scroll->get_max() <= minimap_visible_lines) ? -1 : first_visible_line;
                 if (minimap_line >= 0) {
                     minimap_line -= num_lines_from_rows(first_visible_line, 0, -num_lines_before, wi);
-                    minimap_line -= (smooth_scroll_enabled ? 1 : 0);
+                    minimap_line -= (minimap_line > 0 && smooth_scroll_enabled ? 1 : 0);
                 }
                 int minimap_draw_amount = minimap_visible_lines + times_line_wraps(minimap_line + 1);
 
@@ -2357,7 +2357,7 @@ void TextEdit::_get_minimap_mouse_row(const Point2i &p_mouse, int &r_row) const 
     int minimap_line = (v_scroll->get_max() <= minimap_visible_lines) ? -1 : first_visible_line;
     if (first_visible_line > 0 && minimap_line >= 0) {
         minimap_line -= num_lines_from_rows(first_visible_line, 0, -num_lines_before, wi);
-        minimap_line -= (smooth_scroll_enabled ? 1 : 0);
+        minimap_line -= (minimap_line > 0 && smooth_scroll_enabled ? 1 : 0);
     } else {
         minimap_line = 0;
     }
@@ -6113,7 +6113,7 @@ void TextEdit::unfold_line(int p_line) {
 
     if (!is_folded(p_line) && !is_line_hidden(p_line))
         return;
-    int fold_start = p_line;
+    int fold_start;
     for (fold_start = p_line; fold_start > 0; fold_start--) {
         if (is_folded(fold_start))
             break;

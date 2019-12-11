@@ -30,6 +30,7 @@
 
 #include "scene_tree.h"
 
+#include "core/deque.h"
 #include "core/io/marshalls.h"
 #include "core/io/resource_loader.h"
 #include "core/message_queue.h"
@@ -467,9 +468,7 @@ float SceneTreeTimer::get_time_left() const {
 }
 
 void SceneTreeTimer::set_pause_mode_process(bool p_pause_mode_process) {
-    if (process_pause != p_pause_mode_process) {
-        process_pause = p_pause_mode_process;
-    }
+    process_pause = p_pause_mode_process;
 }
 
 bool SceneTreeTimer::is_pause_mode_process() {
@@ -1463,7 +1462,7 @@ bool SceneTree::has_group(const StringName &p_identifier) const {
 
     return group_map.contains(p_identifier);
 }
-void SceneTree::get_nodes_in_group(const StringName &p_group, List<Node *> *p_list) {
+void SceneTree::get_nodes_in_group(const StringName &p_group, Deque<Node *> *p_list) {
 
     Map<StringName, SceneTreeGroup>::iterator E = group_map.find(p_group);
     if (E==group_map.end())

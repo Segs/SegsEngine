@@ -35,6 +35,7 @@
 #include "core/os/file_access.h"
 #include "core/project_settings.h"
 #include "core/string_formatter.h"
+#include "editor/editor_scale.h"
 #include "editor/editor_file_system.h"
 #include "editor_node.h"
 #include "scene/gui/item_list.h"
@@ -653,7 +654,7 @@ DependencyErrorDialog::DependencyErrorDialog() {
     vb->add_margin_child(TTR("Load failed due to missing dependencies:"), files, true);
     files->set_v_size_flags(SIZE_EXPAND_FILL);
 
-    set_custom_minimum_size(Size2(500, 220));
+    set_custom_minimum_size(Size2(500, 220) * EDSCALE);
     get_ok()->set_text(TTR("Open Anyway"));
     get_cancel()->set_text(TTR("Close"));
 

@@ -93,7 +93,7 @@ StringName WorldEnvironment::get_configuration_warning() const {
     if (/*!is_visible_in_tree() ||*/ !is_inside_tree())
         return StringName();
 
-    List<Node *> nodes;
+    Deque<Node *> nodes;
     get_tree()->get_nodes_in_group(StringName("_world_environment_" + itos(get_viewport()->find_world()->get_scenario().get_id())), &nodes);
 
     if (nodes.size() > 1) {

@@ -91,7 +91,7 @@ StringName CanvasModulate::get_configuration_warning() const {
         return StringName();
 
     StringName name("_canvas_modulate_" + itos(get_canvas().get_id()));
-    List<Node *> nodes;
+    Deque<Node *> nodes;
     get_tree()->get_nodes_in_group(name, &nodes);
 
     if (nodes.size() > 1) {

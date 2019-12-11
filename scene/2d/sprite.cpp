@@ -272,8 +272,8 @@ int Sprite::get_frame() const {
 }
 
 void Sprite::set_frame_coords(const Vector2 &p_coord) {
-    ERR_FAIL_INDEX(int(p_coord.x), vframes);
-    ERR_FAIL_INDEX(int(p_coord.y), hframes);
+    ERR_FAIL_INDEX(int(p_coord.x), hframes);
+    ERR_FAIL_INDEX(int(p_coord.y), vframes);
 
     set_frame(int(p_coord.y) * hframes + int(p_coord.x));
 }
@@ -284,7 +284,7 @@ Vector2 Sprite::get_frame_coords() const {
 
 void Sprite::set_vframes(int p_amount) {
 
-	ERR_FAIL_COND_MSG(p_amount < 1, "Amount of vframes cannot be smaller than 1.");
+    ERR_FAIL_COND_MSG(p_amount < 1, "Amount of vframes cannot be smaller than 1.");
     vframes = p_amount;
     update();
     item_rect_changed();
@@ -297,7 +297,7 @@ int Sprite::get_vframes() const {
 
 void Sprite::set_hframes(int p_amount) {
 
-	ERR_FAIL_COND_MSG(p_amount < 1, "Amount of hframes cannot be smaller than 1.");
+    ERR_FAIL_COND_MSG(p_amount < 1, "Amount of hframes cannot be smaller than 1.");
     hframes = p_amount;
     update();
     item_rect_changed();

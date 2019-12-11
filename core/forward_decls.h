@@ -5,6 +5,8 @@
 namespace eastl {
     template <typename T, typename Allocator>
     class vector;
+    template <typename T, typename Allocator, unsigned kDequeSubarraySize>
+    class deque;
     template <class T, class A>
     class list;
     template <class K,class CMP, class A>
@@ -34,6 +36,7 @@ struct Comparator;
 
 template<class T>
 using PODVector = eastl::vector<T,wrap_allocator>;
+
 template <class T>
 class Vector;
 

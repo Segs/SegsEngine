@@ -2251,9 +2251,7 @@ void GDScriptParser::_parse_pattern_block(BlockNode *p_block, Vector<PatternBran
             break; // go back a level
         }
 
-        if (pending_newline != -1) {
-            pending_newline = -1;
-        }
+        pending_newline = -1;
 
         PatternBranchNode *branch = alloc_node<PatternBranchNode>();
         branch->body = alloc_node<BlockNode>();
@@ -6127,15 +6125,19 @@ bool GDScriptParser::_is_type_compatible(const DataType &p_container, const Data
         case DataType::UNRESOLVED: // Not allowed, see above
             break;
     }
-
+    // Some classes are prefixed with `_` internally
+    if (!ClassDB::class_exists(expr_native)) {
+        expr_native = "_" + expr_native;
+    }
     switch (p_container.kind) {
         case DataType::NATIVE: {
             if (p_container.is_meta_type) {
                 return ClassDB::is_parent_class(expr_native, GDScriptNativeClass::get_class_static_name());
             } else {
-                return ClassDB::is_parent_class(expr_native, p_container.native_type);
+                StringName container_native = ClassDB::class_exists(p_container.native_type) ? p_container.native_type : StringName("_" + p_container.native_type);
+                return ClassDB::is_parent_class(expr_native, container_native);
             }
-        } break;
+        }
         case DataType::SCRIPT:
         case DataType::GDSCRIPT: {
             if (p_container.is_meta_type) {
@@ -6152,7 +6154,7 @@ bool GDScriptParser::_is_type_compatible(const DataType &p_container, const Data
                 expr_script = expr_script->get_base_script();
             }
             return false;
-        } break;
+        }
         case DataType::CLASS: {
             if (p_container.is_meta_type) {
                 return ClassDB::is_parent_class(expr_native, GDScript::get_class_static_name());

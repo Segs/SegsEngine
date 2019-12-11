@@ -495,7 +495,7 @@ struct TextDocumentSyncOptions {
         dict["willSave"] = willSave;
         dict["openClose"] = openClose;
         dict["change"] = change;
-        dict["change"] = save.to_json();
+        dict["save"] = save.to_json();
         return dict;
     }
 };
