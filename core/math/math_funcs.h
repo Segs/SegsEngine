@@ -420,7 +420,7 @@ public:
         return p_step != 0.0f ? float(Math::stepify(p_target - p_offset, p_step) + p_offset) : p_target;
     }
 
-    static _ALWAYS_INLINE_ float snap_scalar_seperation(float p_offset, float p_step, float p_target, float p_separation) {
+    static _ALWAYS_INLINE_ float snap_scalar_separation(float p_offset, float p_step, float p_target, float p_separation) {
         if (p_step != 0.0f) {
             float a = float(Math::stepify(p_target - p_offset, p_step + p_separation) + p_offset);
             float b = a;

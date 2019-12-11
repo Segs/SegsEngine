@@ -151,8 +151,12 @@ public:
         grid_step_y->set_h_size_flags(SIZE_EXPAND_FILL);
         child_container->add_child(grid_step_y);
 
+        child_container = memnew(GridContainer);
+        child_container->set_columns(2);
+        container->add_child(child_container);
+
         label = memnew(Label);
-        label->set_text(TTR("Primary Line Every"));
+        label->set_text(TTR("Primary Line Every:"));
         label->set_h_size_flags(SIZE_EXPAND_FILL);
         child_container->add_child(label);
 
@@ -161,16 +165,14 @@ public:
         primary_grid_steps->set_step(1);
         primary_grid_steps->set_max(100);
         primary_grid_steps->set_allow_greater(true);
+        primary_grid_steps->set_suffix(se_string(TTR("steps")));
         primary_grid_steps->set_h_size_flags(SIZE_EXPAND_FILL);
         child_container->add_child(primary_grid_steps);
 
-        label = memnew(Label);
-        label->set_text(TTR("steps"));
-        label->set_h_size_flags(SIZE_EXPAND_FILL);
-        child_container->add_child(label);
-
         container->add_child(memnew(HSeparator));
 
+        // We need to create another GridContainer with the same column count,
+        // so we can put an HSeparator above
         child_container = memnew(GridContainer);
         child_container->set_columns(2);
         container->add_child(child_container);
@@ -1771,14 +1773,14 @@ bool CanvasItemEditor::_gui_input_resize(const Ref<InputEvent> &p_event) {
             // Symmetric resize
             if (symmetric) {
                 if (drag_type == DRAG_LEFT || drag_type == DRAG_TOP_LEFT || drag_type == DRAG_BOTTOM_LEFT) {
-                    current_end.x = 2.0 * center.x - current_begin.x;
+                    current_end.x = 2.0f * center.x - current_begin.x;
                 } else if (drag_type == DRAG_RIGHT || drag_type == DRAG_TOP_RIGHT || drag_type == DRAG_BOTTOM_RIGHT) {
-                    current_begin.x = 2.0 * center.x - current_end.x;
+                    current_begin.x = 2.0f * center.x - current_end.x;
                 }
                 if (drag_type == DRAG_TOP || drag_type == DRAG_TOP_LEFT || drag_type == DRAG_TOP_RIGHT) {
-                    current_end.y = 2.0 * center.y - current_begin.y;
+                    current_end.y = 2.0f * center.y - current_begin.y;
                 } else if (drag_type == DRAG_BOTTOM || drag_type == DRAG_BOTTOM_LEFT || drag_type == DRAG_BOTTOM_RIGHT) {
-                    current_begin.y = 2.0 * center.y - current_end.y;
+                    current_begin.y = 2.0f * center.y - current_end.y;
                 }
             }
             canvas_item->_edit_set_rect(Rect2(current_begin, current_end - current_begin));
@@ -1827,7 +1829,7 @@ bool CanvasItemEditor::_gui_input_scale(const Ref<InputEvent> &p_event) {
                 if (_is_node_movable(canvas_item)) {
 
                     Transform2D xform = transform * canvas_item->get_global_transform_with_canvas();
-                    Transform2D unscaled_transform = (xform * canvas_item->get_transform().affine_inverse() * Transform2D(canvas_item->_edit_get_rotation(), canvas_item->_edit_get_position())).orthonormalized();
+                    Transform2D unscaled_transform = (xform * canvas_item->get_transform().affine_inverse() * canvas_item->_edit_get_transform()).orthonormalized();
                     Transform2D simple_xform = viewport->get_transform() * unscaled_transform;
 
                     drag_type = DRAG_SCALE_BOTH;
@@ -1861,7 +1863,7 @@ bool CanvasItemEditor::_gui_input_scale(const Ref<InputEvent> &p_event) {
             drag_to = transform.affine_inverse().xform(m->get_position());
 
             Transform2D parent_xform = canvas_item->get_global_transform_with_canvas() * canvas_item->get_transform().affine_inverse();
-            Transform2D unscaled_transform = (transform * parent_xform * Transform2D(canvas_item->_edit_get_rotation(), canvas_item->_edit_get_position())).orthonormalized();
+            Transform2D unscaled_transform = (transform * parent_xform * canvas_item->_edit_get_transform()).orthonormalized();
             Transform2D simple_xform = (viewport->get_transform() * unscaled_transform).affine_inverse() * transform;
 
             bool uniform = m->get_shift();
@@ -1875,14 +1877,14 @@ bool CanvasItemEditor::_gui_input_scale(const Ref<InputEvent> &p_event) {
             if (drag_type == DRAG_SCALE_BOTH) {
                 Size2 scale_factor = drag_to_local / drag_from_local;
                 if (uniform) {
-                    scale *= (scale_factor.x + scale_factor.y) / 2.0;
+                    scale *= (scale_factor.x + scale_factor.y) / 2.0f;
                 } else {
                     scale *= scale_factor;
                 }
             } else {
                 Size2 scale_factor = Vector2(offset.x, -offset.y) / SCALE_HANDLE_DISTANCE;
                 Size2 parent_scale = parent_xform.get_scale();
-                scale_factor *= Vector2(1.0 / parent_scale.x, 1.0 / parent_scale.y);
+                scale_factor *= Vector2(1.0 / parent_scale.x, 1.0f / parent_scale.y);
                 if (drag_type == DRAG_SCALE_X) {
                     scale.x += scale_factor.x;
                     if (uniform) {
@@ -3151,7 +3153,7 @@ void CanvasItemEditor::_draw_selection() {
             }
         } else {
 
-            Transform2D unscaled_transform = (xform * canvas_item->get_transform().affine_inverse() * Transform2D(canvas_item->_edit_get_rotation(), canvas_item->_edit_get_position())).orthonormalized();
+            Transform2D unscaled_transform = (xform * canvas_item->get_transform().affine_inverse() * canvas_item->_edit_get_transform()).orthonormalized();
             Transform2D simple_xform = viewport->get_transform() * unscaled_transform;
             viewport->draw_set_transform_matrix(simple_xform);
             viewport->draw_texture(position_icon, -(position_icon->get_size() / 2));
@@ -3163,7 +3165,7 @@ void CanvasItemEditor::_draw_selection() {
             if (canvas_item->_edit_use_pivot()) {
 
                 // Draw the node's pivot
-                Transform2D unscaled_transform = (xform * canvas_item->get_transform().affine_inverse() * Transform2D(canvas_item->_edit_get_rotation(), canvas_item->_edit_get_position() + canvas_item->_edit_get_pivot())).orthonormalized();
+                Transform2D unscaled_transform = (xform * canvas_item->get_transform().affine_inverse() * canvas_item->_edit_get_transform()).orthonormalized();
                 Transform2D simple_xform = viewport->get_transform() * unscaled_transform;
 
                 viewport->draw_set_transform_matrix(simple_xform);
@@ -3208,7 +3210,7 @@ void CanvasItemEditor::_draw_selection() {
             bool is_alt = Input::get_singleton()->is_key_pressed(KEY_ALT);
             if ((is_alt && is_ctrl) || tool == TOOL_SCALE || drag_type == DRAG_SCALE_X || drag_type == DRAG_SCALE_Y) {
                 if (_is_node_movable(canvas_item)) {
-                    Transform2D unscaled_transform = (xform * canvas_item->get_transform().affine_inverse() * Transform2D(canvas_item->_edit_get_rotation(), canvas_item->_edit_get_position())).orthonormalized();
+                    Transform2D unscaled_transform = (xform * canvas_item->get_transform().affine_inverse() * canvas_item->_edit_get_transform()).orthonormalized();
                     Transform2D simple_xform = viewport->get_transform() * unscaled_transform;
 
                     Size2 scale_factor = Size2(SCALE_HANDLE_DISTANCE, SCALE_HANDLE_DISTANCE);
@@ -3429,7 +3431,7 @@ void CanvasItemEditor::_draw_invisible_nodes_positions(Node *p_node, const Trans
 
         // Draw the node's position
         Ref<Texture> position_icon = get_icon("EditorPositionUnselected", "EditorIcons");
-        Transform2D unscaled_transform = (xform * canvas_item->get_transform().affine_inverse() * Transform2D(canvas_item->_edit_get_rotation(), canvas_item->_edit_get_position())).orthonormalized();
+        Transform2D unscaled_transform = (xform * canvas_item->get_transform().affine_inverse() * canvas_item->_edit_get_transform()).orthonormalized();
         Transform2D simple_xform = viewport->get_transform() * unscaled_transform;
         viewport->draw_set_transform_matrix(simple_xform);
         viewport->draw_texture(position_icon, -position_icon->get_size() / 2, Color(1.0, 1.0, 1.0, 0.5));

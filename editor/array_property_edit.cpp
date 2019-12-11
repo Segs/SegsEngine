@@ -272,9 +272,9 @@ void ArrayPropertyEdit::edit(Object *p_obj, const StringName &p_prop, se_string_
     default_type = p_deftype;
 
     if (!p_hint_string.empty()) {
-        auto hint_subtype_seperator = StringUtils::find(p_hint_string,":");
-        if (hint_subtype_seperator != se_string::npos) {
-            se_string_view subtype_string = StringUtils::substr(p_hint_string,0, hint_subtype_seperator);
+        auto hint_subtype_separator = StringUtils::find(p_hint_string,":");
+        if (hint_subtype_separator != se_string::npos) {
+            se_string_view subtype_string = StringUtils::substr(p_hint_string,0, hint_subtype_separator);
 
             auto slash_pos = StringUtils::find(subtype_string,"/");
             if (slash_pos != se_string::npos) {
@@ -282,7 +282,7 @@ void ArrayPropertyEdit::edit(Object *p_obj, const StringName &p_prop, se_string_
                 subtype_string = StringUtils::substr(subtype_string,0, slash_pos);
             }
 
-            subtype_hint_string = StringUtils::substr(p_hint_string,hint_subtype_seperator + 1, p_hint_string.size() - hint_subtype_seperator - 1);
+            subtype_hint_string = StringUtils::substr(p_hint_string,hint_subtype_separator + 1, p_hint_string.size() - hint_subtype_separator - 1);
             subtype = VariantType(StringUtils::to_int(subtype_string));
         }
     }

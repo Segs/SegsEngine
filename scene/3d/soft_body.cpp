@@ -123,7 +123,7 @@ SoftBody::PinnedPoint SoftBody::PinnedPoint::operator=(const PinnedPoint &obj) {
 void SoftBody::_update_pickable() {
     if (!is_inside_tree())
         return;
-    bool pickable = ray_pickable && is_inside_tree() && is_visible_in_tree();
+    bool pickable = ray_pickable && is_visible_in_tree();
     PhysicsServer::get_singleton()->soft_body_set_ray_pickable(physics_rid, pickable);
 }
 
@@ -402,6 +402,8 @@ void SoftBody::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::REAL, "damping_coefficient", PROPERTY_HINT_RANGE, "0,1,0.01"), "set_damping_coefficient", "get_damping_coefficient");
     ADD_PROPERTY(PropertyInfo(VariantType::REAL, "drag_coefficient", PROPERTY_HINT_RANGE, "0,1,0.01"), "set_drag_coefficient", "get_drag_coefficient");
     ADD_PROPERTY(PropertyInfo(VariantType::REAL, "pose_matching_coefficient", PROPERTY_HINT_RANGE, "0,1,0.01"), "set_pose_matching_coefficient", "get_pose_matching_coefficient");
+
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "ray_pickable"), "set_ray_pickable", "is_ray_pickable");
 }
 
 StringName SoftBody::get_configuration_warning() const {
@@ -707,7 +709,8 @@ SoftBody::SoftBody() :
         collision_mask(1),
         collision_layer(1),
         simulation_started(false),
-        pinned_points_cache_dirty(true) {
+        pinned_points_cache_dirty(true),
+        ray_pickable(true) {
 
     PhysicsServer::get_singleton()->body_attach_object_instance_id(physics_rid, get_instance_id());
     //set_notify_transform(true);

@@ -52,6 +52,7 @@
 #include "core/os/semaphore.h"
 #include "core/os/thread.h"
 #include "core/project_settings.h"
+#include "core/string_formatter.h"
 
 VARIANT_ENUM_CAST(_ResourceSaver::SaverFlags);
 VARIANT_ENUM_CAST(_OS::VideoDriver);
@@ -3200,7 +3201,9 @@ Ref<JSONParseResult> _JSON::parse(const se_string &p_json) {
     Ref<JSONParseResult> result(make_ref_counted<JSONParseResult>());
 
     result->error = JSON::parse(p_json, result->result, result->error_string, result->error_line);
-
+    if (result->error != OK) {
+        ERR_PRINT(FormatVE("Error parsing JSON at line %s: %s", result->error_line, result->error_string.c_str()));
+    }
     return result;
 }
 

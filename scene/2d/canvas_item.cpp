@@ -382,7 +382,9 @@ bool CanvasItem::_edit_is_selected_on_click(const Point2 &p_point, double p_tole
         return p_point.length() < p_tolerance;
     }
 }
-
+Transform2D CanvasItem::_edit_get_transform() const {
+    return Transform2D(_edit_get_rotation(), _edit_get_position() + _edit_get_pivot());
+}
 bool CanvasItem::is_visible_in_tree() const {
 
     if (!is_inside_tree())
@@ -1162,6 +1164,7 @@ void CanvasItem::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("_edit_set_pivot", {"pivot"}), &CanvasItem::_edit_set_pivot);
     MethodBinder::bind_method(D_METHOD("_edit_get_pivot"), &CanvasItem::_edit_get_pivot);
     MethodBinder::bind_method(D_METHOD("_edit_use_pivot"), &CanvasItem::_edit_use_pivot);
+    MethodBinder::bind_method(D_METHOD("_edit_get_transform"), &CanvasItem::_edit_get_transform);
 
     MethodBinder::bind_method(D_METHOD("get_canvas_item"), &CanvasItem::get_canvas_item);
 

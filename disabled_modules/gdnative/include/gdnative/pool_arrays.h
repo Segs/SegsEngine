@@ -191,6 +191,7 @@ uint8_t GDAPI godot_pool_byte_array_get(const godot_pool_byte_array *p_self, con
 
 godot_int GDAPI godot_pool_byte_array_size(const godot_pool_byte_array *p_self);
 
+godot_bool GDAPI godot_pool_byte_array_empty(const godot_pool_byte_array *p_self);
 void GDAPI godot_pool_byte_array_destroy(godot_pool_byte_array *p_self);
 
 // int
@@ -221,6 +222,7 @@ void GDAPI godot_pool_int_array_set(godot_pool_int_array *p_self, const godot_in
 godot_int GDAPI godot_pool_int_array_get(const godot_pool_int_array *p_self, const godot_int p_idx);
 
 godot_int GDAPI godot_pool_int_array_size(const godot_pool_int_array *p_self);
+godot_bool GDAPI godot_pool_int_array_empty(const godot_pool_int_array *p_self);
 
 void GDAPI godot_pool_int_array_destroy(godot_pool_int_array *p_self);
 
@@ -252,6 +254,7 @@ void GDAPI godot_pool_real_array_set(godot_pool_real_array *p_self, const godot_
 godot_real GDAPI godot_pool_real_array_get(const godot_pool_real_array *p_self, const godot_int p_idx);
 
 godot_int GDAPI godot_pool_real_array_size(const godot_pool_real_array *p_self);
+godot_bool GDAPI godot_pool_real_array_empty(const godot_pool_real_array *p_self);
 
 void GDAPI godot_pool_real_array_destroy(godot_pool_real_array *p_self);
 
@@ -283,6 +286,7 @@ void GDAPI godot_pool_string_array_set(godot_pool_string_array *p_self, const go
 godot_string GDAPI godot_pool_string_array_get(const godot_pool_string_array *p_self, const godot_int p_idx);
 
 godot_int GDAPI godot_pool_string_array_size(const godot_pool_string_array *p_self);
+godot_bool GDAPI godot_pool_string_array_empty(const godot_pool_string_array *p_self);
 
 void GDAPI godot_pool_string_array_destroy(godot_pool_string_array *p_self);
 
@@ -314,6 +318,7 @@ void GDAPI godot_pool_vector2_array_set(godot_pool_vector2_array *p_self, const 
 godot_vector2 GDAPI godot_pool_vector2_array_get(const godot_pool_vector2_array *p_self, const godot_int p_idx);
 
 godot_int GDAPI godot_pool_vector2_array_size(const godot_pool_vector2_array *p_self);
+godot_bool GDAPI godot_pool_vector2_array_empty(const godot_pool_vector2_array *p_self);
 
 void GDAPI godot_pool_vector2_array_destroy(godot_pool_vector2_array *p_self);
 
@@ -345,6 +350,7 @@ void GDAPI godot_pool_vector3_array_set(godot_pool_vector3_array *p_self, const 
 godot_vector3 GDAPI godot_pool_vector3_array_get(const godot_pool_vector3_array *p_self, const godot_int p_idx);
 
 godot_int GDAPI godot_pool_vector3_array_size(const godot_pool_vector3_array *p_self);
+godot_bool GDAPI godot_pool_vector3_array_empty(const godot_pool_vector3_array *p_self);
 
 void GDAPI godot_pool_vector3_array_destroy(godot_pool_vector3_array *p_self);
 
@@ -376,6 +382,7 @@ void GDAPI godot_pool_color_array_set(godot_pool_color_array *p_self, const godo
 godot_color GDAPI godot_pool_color_array_get(const godot_pool_color_array *p_self, const godot_int p_idx);
 
 godot_int GDAPI godot_pool_color_array_size(const godot_pool_color_array *p_self);
+godot_bool GDAPI godot_pool_color_array_empty(const godot_pool_color_array *p_self);
 
 void GDAPI godot_pool_color_array_destroy(godot_pool_color_array *p_self);
 

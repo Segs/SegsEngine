@@ -325,6 +325,7 @@ public:
     }
 
     inline int size() const;
+    inline bool empty() const;
     const T & get(int p_index) const;
     void set(int p_index, const T &p_val);
     void push_back(const T &p_val);
@@ -378,7 +379,6 @@ public:
 
         return OK;
     }
-    constexpr bool empty() const { return size()==0;}
     bool is_locked() const { return alloc && alloc->lock > 0; }
 
     inline const T & operator[](int p_index) const;
@@ -408,6 +408,12 @@ template <class T>
 int PoolVector<T>::size() const {
 
     return alloc ? int(alloc->size / sizeof(T)) : 0;
+}
+
+template <class T>
+bool PoolVector<T>::empty() const {
+
+    return alloc ? alloc->size == 0 : true;
 }
 
 template <class T>

@@ -477,16 +477,16 @@ void EditorPropertyArray::setup(VariantType p_array_type, se_string_view p_hint_
     array_type = p_array_type;
 
     if (array_type == VariantType::ARRAY && !p_hint_string.empty()) {
-        auto hint_subtype_seperator = StringUtils::find(p_hint_string,":");
-        if (hint_subtype_seperator != se_string::npos) {
-            se_string_view subtype_string = StringUtils::substr(p_hint_string,0, hint_subtype_seperator);
+        auto hint_subtype_separator = StringUtils::find(p_hint_string,":");
+        if (hint_subtype_separator != se_string::npos) {
+            se_string_view subtype_string = StringUtils::substr(p_hint_string,0, hint_subtype_separator);
             auto slash_pos = StringUtils::find(subtype_string,"/");
             if (slash_pos != se_string::npos) {
                 subtype_hint = PropertyHint(StringUtils::to_int(StringUtils::substr(subtype_string,slash_pos + 1, subtype_string.size() - slash_pos - 1)));
                 subtype_string = StringUtils::substr(subtype_string,0, slash_pos);
             }
 
-            subtype_hint_string = StringUtils::substr(p_hint_string,hint_subtype_seperator + 1, p_hint_string.size() - hint_subtype_seperator - 1);
+            subtype_hint_string = StringUtils::substr(p_hint_string,hint_subtype_separator + 1, p_hint_string.size() - hint_subtype_separator - 1);
             subtype = VariantType(StringUtils::to_int(subtype_string));
         }
     }

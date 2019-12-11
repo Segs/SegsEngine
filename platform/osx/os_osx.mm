@@ -705,6 +705,11 @@ static void _mouseDownEvent(NSEvent *event, int index, int mask, bool pressed) {
     const Vector2 pos = get_mouse_pos([event locationInWindow], backingScaleFactor);
     mm->set_position(pos);
     mm->set_global_position(pos);
+    mm->set_pressure([event pressure]);
+    if ([event subtype] == NSTabletPointEventSubtype) {
+            const NSPoint p = [event tilt];
+            mm->set_tilt(Vector2(p.x, p.y));
+    }
     mm->set_speed(OS_OSX::singleton->input->get_last_mouse_speed());
     Vector2 relativeMotion = Vector2();
     relativeMotion.x = [event deltaX] * OS_OSX::singleton -> _mouse_scale(backingScaleFactor);

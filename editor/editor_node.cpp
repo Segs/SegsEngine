@@ -5519,13 +5519,19 @@ void EditorNode::_open_imported() {
 }
 
 void EditorNode::dim_editor(bool p_dimming, bool p_force_dim) {
-    // Dimming can be forced regardless of the editor setting, which is useful when quitting the editor
+    // Dimming can be forced regardless of the editor setting, which is useful when quitting the editor.
     if ((p_force_dim || EditorSettings::get_singleton()->get("interface/editor/dim_editor_on_dialog_popup")) &&
             p_dimming) {
+        dimmed = true;
         gui_base->set_modulate(Color(0.5, 0.5, 0.5));
     } else {
+        dimmed = false;
         gui_base->set_modulate(Color(1, 1, 1));
     }
+}
+
+bool EditorNode::is_editor_dimmed() const {
+    return dimmed;
 }
 
 void EditorNode::update_keying() const { inspector_dock->update_keying(); }
@@ -5901,6 +5907,7 @@ EditorNode::EditorNode() {
 
     singleton = this;
     exiting = false;
+    dimmed = false;
     last_checked_version = 0;
     changing_scene = false;
     _initializing_addons = false;
