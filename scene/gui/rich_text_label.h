@@ -193,7 +193,7 @@ public:
     se_string get_text();
     void add_text_utf8(se_string_view p_text);
     void add_text(const String &p_text);
-    void add_image(const Ref<Texture> &p_image);
+    void add_image(const Ref<Texture> &p_image, const int p_width = 0, const int p_height = 0);
     void add_newline();
     bool remove_line(const int p_line);
     void push_font(const Ref<Font> &p_font);

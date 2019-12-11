@@ -1948,12 +1948,11 @@ static void _find_identifiers_in_base(const GDScriptCompletionContext &p_context
                                 ScriptCodeCompletionOption option(E.name.asCString(), ScriptCodeCompletionOption::KIND_MEMBER);
                                 r_result.emplace(option.display, option);
                             }
-                        } else {
+                        }
                         for (const StringName &E : script->get_members()) {
                             ScriptCodeCompletionOption option(E.asCString(), ScriptCodeCompletionOption::KIND_MEMBER);
                             r_result.emplace(option.display, option);
                         }
-                    }
                     }
                     if (!p_only_functions) {
                         for (const auto &E : script->get_constants()) {

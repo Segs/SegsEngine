@@ -47,6 +47,9 @@ VARIANT_ENUM_CAST(CPUParticles2D::EmissionShape)
 
 void CPUParticles2D::set_emitting(bool p_emitting) {
 
+    if (emitting == p_emitting)
+        return;
+
     emitting = p_emitting;
     if (emitting)
         set_process_internal(true);
@@ -1010,6 +1013,10 @@ void CPUParticles2D::_notification(int p_what) {
     }
 
     if (p_what == NOTIFICATION_DRAW) {
+        // first update before rendering to avoid one frame delay after emitting starts
+        if (emitting && (time == 0.0f))
+            _update_internal();
+
         if (!redraw)
             return; // don't add to render list
 
@@ -1027,71 +1034,7 @@ void CPUParticles2D::_notification(int p_what) {
     }
 
     if (p_what == NOTIFICATION_INTERNAL_PROCESS) {
-
-        if (particles.size() == 0 || !is_visible_in_tree()) {
-            _set_redraw(false);
-            return;
-        }
-
-        float delta = get_process_delta_time();
-        if (emitting) {
-            inactive_time = 0;
-        } else {
-            inactive_time += delta;
-            if (inactive_time > lifetime * 1.2) {
-                set_process_internal(false);
-                _set_redraw(false);
-
-                //reset variables
-                time = 0;
-                inactive_time = 0;
-                frame_remainder = 0;
-                cycle = 0;
-                return;
-            }
-        }
-        _set_redraw(true);
-
-        if (time == 0 && pre_process_time > 0.0) {
-
-            float frame_time;
-            if (fixed_fps > 0)
-                frame_time = 1.0 / fixed_fps;
-            else
-                frame_time = 1.0 / 30.0;
-
-            float todo = pre_process_time;
-
-            while (todo >= 0) {
-                _particles_process(frame_time);
-                todo -= frame_time;
-            }
-        }
-
-        if (fixed_fps > 0) {
-            float frame_time = 1.0 / fixed_fps;
-            float decr = frame_time;
-
-            float ldelta = delta;
-            if (ldelta > 0.1) { //avoid recursive stalls if fps goes below 10
-                ldelta = 0.1;
-            } else if (ldelta <= 0.0) { //unlikely but..
-                ldelta = 0.001;
-            }
-            float todo = frame_remainder + ldelta;
-
-            while (todo >= frame_time) {
-                _particles_process(frame_time);
-                todo -= decr;
-            }
-
-            frame_remainder = todo;
-
-        } else {
-            _particles_process(delta);
-        }
-
-        _update_particle_data_buffer();
+        _update_internal();
     }
 
     if (p_what == NOTIFICATION_TRANSFORM_CHANGED) {
@@ -1130,7 +1073,73 @@ void CPUParticles2D::_notification(int p_what) {
         }
     }
 }
+void CPUParticles2D::_update_internal() {
+    if (particles.empty() || !is_visible_in_tree()) {
+        _set_redraw(false);
+        return;
+    }
 
+    float delta = get_process_delta_time();
+    if (emitting) {
+        inactive_time = 0;
+    } else {
+        inactive_time += delta;
+        if (inactive_time > lifetime * 1.2f) {
+            set_process_internal(false);
+            _set_redraw(false);
+
+            //reset variables
+            time = 0;
+            inactive_time = 0;
+            frame_remainder = 0;
+            cycle = 0;
+            return;
+        }
+    }
+    _set_redraw(true);
+
+    if (time == 0.0f && pre_process_time > 0.0f) {
+
+        float frame_time;
+        if (fixed_fps > 0)
+            frame_time = 1.0f / fixed_fps;
+        else
+            frame_time = 1.0f / 30.0f;
+
+        float todo = pre_process_time;
+
+        while (todo >= 0) {
+            _particles_process(frame_time);
+            todo -= frame_time;
+        }
+    }
+
+    if (fixed_fps > 0) {
+        float frame_time = 1.0f / fixed_fps;
+        float decr = frame_time;
+
+        float ldelta = delta;
+        if (ldelta > 0.1f) { //avoid recursive stalls if fps goes below 10
+            ldelta = 0.1f;
+        } else if (ldelta <= 0.0f) { //unlikely but..
+            ldelta = 0.001f;
+        }
+        float todo = frame_remainder + ldelta;
+
+        while (todo >= frame_time) {
+            _particles_process(frame_time);
+            todo -= decr;
+        }
+
+        frame_remainder = todo;
+
+    } else {
+        _particles_process(delta);
+    }
+
+    _update_particle_data_buffer();
+
+}
 void CPUParticles2D::convert_from_particles(Node *p_particles) {
     Particles2D *particles = object_cast<Particles2D>(p_particles);
     ERR_FAIL_COND_MSG(!particles, "Only Particles2D nodes can be converted to CPUParticles2D.");

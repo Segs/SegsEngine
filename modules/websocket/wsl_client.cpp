@@ -185,7 +185,13 @@ Error WSLClient::connect_to_host(se_string_view p_host, se_string_view p_path, u
     _connection = _tcp;
     _use_ssl = p_ssl;
     _host = p_host;
-    _protocols = p_protocols;
+    // Strip edges from protocols.
+    _protocols.resize(p_protocols.size());
+    auto pw(_protocols.write());
+    auto rd(p_protocols.read());
+    for (int i = 0; i < p_protocols.size(); i++) {
+        pw[i] = StringUtils::strip_edges(p_protocols[i]);
+    }
 
     _key = WSLPeer::generate_key();
     // TODO custom extra headers (allow overriding this too?)

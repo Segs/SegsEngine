@@ -83,11 +83,12 @@ bool WSLServer::PendingPeer::_parse_request(const PoolVector<se_string> &p_proto
     if (headers.contains("sec-websocket-protocol")) {
         Vector<se_string_view> protos = StringUtils::split(headers["sec-websocket-protocol"],",");
         for (int i = 0; i < protos.size(); i++) {
+            auto proto = StringUtils::strip_edges(protos[i]);
             // Check if we have the given protocol
             for (int j = 0; j < p_protocols.size(); j++) {
-                if (protos[i].compare(p_protocols[j])!=0)
+                if (proto != se_string_view(p_protocols[j]))
                     continue;
-                protocol = protos[i];
+                protocol = proto;
                 break;
             }
             // Found a protocol
@@ -161,6 +162,14 @@ Error WSLServer::listen(int p_port, const PoolVector<se_string> &p_protocols, bo
     ERR_FAIL_COND_V(is_listening(), ERR_ALREADY_IN_USE)
 
     _is_multiplayer = gd_mp_api;
+    _is_multiplayer = gd_mp_api;
+    // Strip edges from protocols.
+    _protocols.resize(p_protocols.size());
+    auto pw(_protocols.write());
+    for (int i = 0; i < p_protocols.size(); i++) {
+        pw[i] = StringUtils::strip_edges(p_protocols[i]);
+    }
+
     _protocols.append_array(p_protocols);
     _server->listen(p_port);
 

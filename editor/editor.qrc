@@ -152,6 +152,7 @@
         <file alias="CPUParticles2D.svg">icons/icon_c_p_u_particles_2_d.svg</file>
         <file alias="CPUParticles.svg">icons/icon_c_p_u_particles.svg</file>
         <file alias="CreateNewSceneFrom.svg">icons/icon_create_new_scene_from.svg</file>
+        <file alias="CryptoKey.svg">icons/icon_crypto_key.svg</file>
         <file alias="CubeMap.svg">icons/icon_cube_map.svg</file>
         <file alias="CubeMesh.svg">icons/icon_cube_mesh.svg</file>
         <file alias="Curve2d.svg">icons/icon_curve_2d.svg</file>
@@ -260,7 +261,6 @@
         <file alias="GuiHsplitter.svg">icons/icon_GUI_hsplitter.svg</file>
         <file alias="GuiHTick.svg">icons/icon_GUI_h_tick.svg</file>
         <file alias="GuiMiniCheckerboard.svg">icons/icon_GUI_mini_checkerboard.svg</file>
-        <file alias="GuiMiniTabMenu.svg">icons/icon_GUI_mini_tab_menu.svg</file>
         <file alias="GuiOptionArrow.svg">icons/icon_GUI_option_arrow.svg</file>
         <file alias="GuiProgressBar.svg">icons/icon_GUI_progress_bar.svg</file>
         <file alias="GuiProgressFill.svg">icons/icon_GUI_progress_fill.svg</file>
@@ -668,6 +668,7 @@
         <file alias="World2d.svg">icons/icon_world_2d.svg</file>
         <file alias="WorldEnvironment.svg">icons/icon_world_environment.svg</file>
         <file alias="World.svg">icons/icon_world.svg</file>
+        <file alias="X509Certificate.svg">icons/icon_x509_certificate.svg</file>
         <file alias="YSort.svg">icons/icon_y_sort.svg</file>
         <file alias="ZoomLess.svg">icons/icon_zoom_less.svg</file>
         <file alias="ZoomMore.svg">icons/icon_zoom_more.svg</file>

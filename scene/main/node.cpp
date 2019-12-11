@@ -2908,6 +2908,8 @@ void Node::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("rset_unreliable", {"property", "value"}), &Node::rset_unreliable);
     MethodBinder::bind_method(D_METHOD("rset_unreliable_id", {"peer_id", "property", "value"}), &Node::rset_unreliable_id);
 
+    MethodBinder::bind_method(D_METHOD("update_configuration_warning"), &Node::update_configuration_warning);
+
     BIND_CONSTANT(NOTIFICATION_ENTER_TREE)
     BIND_CONSTANT(NOTIFICATION_EXIT_TREE)
     BIND_CONSTANT(NOTIFICATION_MOVED_IN_PARENT)

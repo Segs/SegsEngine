@@ -276,6 +276,7 @@ struct ItemText : public RichTextItem {
 struct ItemImage : public RichTextItem {
 
     Ref<Texture> image;
+    Size2 size;
     ItemImage() { type = RichTextLabel::ITEM_IMAGE; }
 };
 
@@ -880,19 +881,19 @@ int RichTextLabel::_process_line(RichTextItemFrame *p_frame, const Vector2 &p_of
                 if (p_mode == PROCESS_POINTER && r_click_char)
                     *r_click_char = 0;
 
-                ENSURE_WIDTH(img->image->get_width());
+                ENSURE_WIDTH(img->size.width);
 
-                bool visible = visible_characters < 0 || (p_char_count < visible_characters && YRANGE_VISIBLE(y + lh - font->get_descent() - img->image->get_height(), img->image->get_height()));
+                bool visible = visible_characters < 0 || (p_char_count < visible_characters && YRANGE_VISIBLE(y + lh - font->get_descent() - img->size.height, img->size.height));
                 if (visible)
                     line_is_blank = false;
 
                 if (p_mode == PROCESS_DRAW && visible) {
-                    img->image->draw(ci, p_ofs + Point2(align_ofs + wofs, y + lh - font->get_descent() - img->image->get_height()));
+                    img->image->draw_rect(ci, Rect2(p_ofs + Point2(align_ofs + wofs, y + lh - font->get_descent() - img->size.height), img->size));
                 }
                 p_char_count++;
 
-                ADVANCE(img->image->get_width());
-                CHECK_HEIGHT((img->image->get_height() + font->get_descent()));
+                ADVANCE(img->size.width);
+                CHECK_HEIGHT((img->size.height + font->get_descent()));
 
             } break;
             case ITEM_NEWLINE: {
@@ -1897,7 +1898,7 @@ void RichTextLabel::_remove_item(RichTextItem *p_item, const int p_line, const i
     }
 }
 
-void RichTextLabel::add_image(const Ref<Texture> &p_image) {
+void RichTextLabel::add_image(const Ref<Texture> &p_image, const int p_width, const int p_height) {
 
     if (current->type == ITEM_TABLE)
         return;
@@ -1906,6 +1907,28 @@ void RichTextLabel::add_image(const Ref<Texture> &p_image) {
     ItemImage *item = memnew(ItemImage);
 
     item->image = p_image;
+    if (p_width > 0) {
+        // custom width
+        item->size.width = p_width;
+        if (p_height > 0) {
+            // custom height
+            item->size.height = p_height;
+        } else {
+            // calculate height to keep aspect ratio
+            item->size.height = p_image->get_height() * p_width / p_image->get_width();
+        }
+    } else {
+        if (p_height > 0) {
+            // custom height
+            item->size.height = p_height;
+            // calculate width to keep aspect ratio
+            item->size.width = p_image->get_width() * p_height / p_image->get_height();
+        } else {
+            // keep original width and height
+            item->size.height = p_image->get_height();
+            item->size.width = p_image->get_width();
+        }
+    }
     _add_item(item, false);
 }
 
@@ -2399,6 +2422,32 @@ Error RichTextLabel::append_bbcode(se_string_view p_bbcode) {
 
             pos = end;
             tag_stack.push_front(tag);
+        } else if (tag == se_string_view("img=")) {
+
+            int width = 0;
+            int height = 0;
+
+            se_string_view params = tag.substr(4, tag.length());
+            auto sep = params.find("x");
+            if (sep == se_string::npos) {
+                width = StringUtils::to_int(params);
+            } else {
+                width = StringUtils::to_int(params.substr(0, sep));
+                height = StringUtils::to_int(params.substr(sep + 1));
+            }
+
+            auto end = p_bbcode.find("[", brk_end);
+            if (end == se_string::npos)
+                end = p_bbcode.length();
+
+            se_string_view image = p_bbcode.substr(brk_end + 1, end - brk_end - 1);
+
+            Ref<Texture> texture(dynamic_ref_cast<Texture>(ResourceLoader::load(image, "Texture")));
+            if (texture)
+                add_image(texture, width, height);
+
+            pos = end;
+            tag_stack.push_front("img");
         } else if (StringUtils::begins_with(tag,"color=")) {
 
             se_string_view col = StringUtils::substr(tag,6, tag.length());
@@ -2852,7 +2901,7 @@ void RichTextLabel::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_text"), &RichTextLabel::get_text);
     MethodBinder::bind_method(D_METHOD("add_text", {"text"}), &RichTextLabel::add_text_utf8);
     MethodBinder::bind_method(D_METHOD("set_text", {"text"}), &RichTextLabel::set_text_utf8);
-    MethodBinder::bind_method(D_METHOD("add_image", {"image"}), &RichTextLabel::add_image);
+    MethodBinder::bind_method(D_METHOD("add_image", {"image", "width", "height"}), &RichTextLabel::add_image, {DEFVAL(0), DEFVAL(0)});
     MethodBinder::bind_method(D_METHOD("newline"), &RichTextLabel::add_newline);
     MethodBinder::bind_method(D_METHOD("remove_line", {"line"}), &RichTextLabel::remove_line);
     MethodBinder::bind_method(D_METHOD("push_font", {"font"}), &RichTextLabel::push_font);
