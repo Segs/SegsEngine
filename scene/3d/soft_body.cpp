@@ -459,16 +459,18 @@ void SoftBody::update_physics_server() {
 
         return;
     }
-
+    auto VS = VisualServer::get_singleton();
     if (get_mesh()) {
 
         become_mesh_owner();
         PhysicsServer::get_singleton()->soft_body_set_mesh(physics_rid, get_mesh());
-        VisualServer::get_singleton()->connect("frame_pre_draw", this, "_draw_soft_mesh");
+        VS->connect("frame_pre_draw", this, "_draw_soft_mesh");
     } else {
 
         PhysicsServer::get_singleton()->soft_body_set_mesh(physics_rid, REF());
-        VisualServer::get_singleton()->disconnect("frame_pre_draw", this, "_draw_soft_mesh");
+        if(VS->is_connected("frame_pre_draw", this, "_draw_soft_mesh")) {
+            VS->disconnect("frame_pre_draw", this, "_draw_soft_mesh");
+        }
     }
 }
 

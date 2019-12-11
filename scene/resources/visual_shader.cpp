@@ -1610,7 +1610,7 @@ StringName VisualShaderNodeInput::get_output_port_name(int p_port) const {
 }
 
 se_string_view VisualShaderNodeInput::get_caption() const {
-    return TTR("Input");
+    return "Input";
 }
 
 se_string VisualShaderNodeInput::generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const se_string *p_input_vars, const se_string *p_output_vars, bool p_for_preview) const {
@@ -1932,9 +1932,7 @@ bool VisualShaderNodeOutput::is_port_separator(int p_index) const {
 }
 
 se_string_view VisualShaderNodeOutput::get_caption() const {
-    thread_local StringName translated;
-    translated = TTR("Output");
-    return translated;
+    return "Output";
 }
 
 se_string VisualShaderNodeOutput::generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const se_string *p_input_vars, const se_string *p_output_vars, bool p_for_preview) const {

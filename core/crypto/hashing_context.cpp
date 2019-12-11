@@ -55,6 +55,8 @@ Error HashingContext::start(HashType p_type) {
 Error HashingContext::update(const PoolByteArray& p_chunk) {
     ERR_FAIL_COND_V(ctx == nullptr, ERR_UNCONFIGURED)
     size_t len = p_chunk.size();
+    ERR_FAIL_COND_V(len == 0, FAILED);
+
     PoolByteArray::Read r = p_chunk.read();
     switch (type) {
         case HASH_MD5:

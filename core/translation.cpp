@@ -995,6 +995,7 @@ se_string TranslationServer::get_locale_name(se_string_view p_locale) const {
 Array TranslationServer::get_loaded_locales() const {
     Array locales;
     for (const Ref<Translation> &t : translations) {
+        ERR_FAIL_COND_V(not t, Array());
 
         const se_string &l(t->get_locale());
 
@@ -1065,6 +1066,7 @@ StringName TranslationServer::translate(const StringName &p_message) const {
     const char *lptr = locale.data();
 
     for (const Ref<Translation> &t : translations) {
+        ERR_FAIL_COND_V(not t, StringName(""));
 
         const se_string &l(t->get_locale());
         if (lptr[0] != l[0] || lptr[1] != l[1])

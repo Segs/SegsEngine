@@ -79,10 +79,11 @@ private:
     LineEdit *dir;
     OptionButton *drives;
     Tree *tree;
+    HBoxContainer *file_box;
     LineEdit *file;
+    OptionButton *filter;
     AcceptDialog *mkdirerr;
     AcceptDialog *exterr;
-    OptionButton *filter;
     DirAccess *dir_access;
     ConfirmationDialog *confirm_save;
 

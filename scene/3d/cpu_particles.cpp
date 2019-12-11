@@ -1129,14 +1129,17 @@ void CPUParticles::_set_redraw(bool p_redraw) {
 #ifndef NO_THREADS
     update_mutex->lock();
 #endif
+    auto VS = VisualServer::get_singleton();
     if (redraw) {
-        VisualServer::get_singleton()->connect("frame_pre_draw", this, "_update_render_thread");
-        VisualServer::get_singleton()->instance_geometry_set_flag(get_instance(), VS::INSTANCE_FLAG_DRAW_NEXT_FRAME_IF_VISIBLE, true);
-        VisualServer::get_singleton()->multimesh_set_visible_instances(multimesh, -1);
+        VS->connect("frame_pre_draw", this, "_update_render_thread");
+        VS->instance_geometry_set_flag(get_instance(), VS::INSTANCE_FLAG_DRAW_NEXT_FRAME_IF_VISIBLE, true);
+        VS->multimesh_set_visible_instances(multimesh, -1);
     } else {
-        VisualServer::get_singleton()->disconnect("frame_pre_draw", this, "_update_render_thread");
-        VisualServer::get_singleton()->instance_geometry_set_flag(get_instance(), VS::INSTANCE_FLAG_DRAW_NEXT_FRAME_IF_VISIBLE, false);
-        VisualServer::get_singleton()->multimesh_set_visible_instances(multimesh, 0);
+        if(VS->is_connected("frame_pre_draw", this, "_update_render_thread")) {
+            VS->disconnect("frame_pre_draw", this, "_update_render_thread");
+        }
+        VS->instance_geometry_set_flag(get_instance(), VS::INSTANCE_FLAG_DRAW_NEXT_FRAME_IF_VISIBLE, false);
+        VS->multimesh_set_visible_instances(multimesh, 0);
     }
 #ifndef NO_THREADS
     update_mutex->unlock();

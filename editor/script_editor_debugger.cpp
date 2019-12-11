@@ -621,8 +621,16 @@ void ScriptEditorDebugger::_parse_message(const se_string &p_msg, const Array &p
                     }
                     var = ResourceLoader::load(path);
 
-                    if (pinfo.hint_string == "Script")
-                        debugObj->set_script(var);
+                    if (pinfo.hint_string == "Script") {
+                        if (debugObj->get_script() != var) {
+                            debugObj->set_script(RefPtr());
+                            Ref<Script> script(var);
+                            if (script) {
+                                ScriptInstance *script_instance = script->placeholder_instance_create(debugObj);
+                                debugObj->set_script_and_instance(var, script_instance);
+                            }
+                        }
+                    }
                 } else if (var.get_type() == VariantType::OBJECT) {
                     if (((Object *)var)->is_class("EncodedObjectAsID")) {
                         var = object_cast<EncodedObjectAsID>(var)->get_object_id();

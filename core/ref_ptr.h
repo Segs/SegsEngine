@@ -53,7 +53,8 @@ public:
         return *this;
     }
 	bool operator==(const RefPtr &p_other) const;
-	RID get_rid() const;
+    bool operator!=(const RefPtr &p_other) const;
+    RID get_rid() const;
 	void unref();
     _FORCE_INLINE_ void *get_data() const { return &data; }
 	RefPtr(const RefPtr &p_other);

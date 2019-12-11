@@ -1064,8 +1064,8 @@ void Image::resize(int p_width, int p_height, Interpolation p_interpolation) {
 
     bool mipmap_aware = p_interpolation == INTERPOLATE_TRILINEAR /* || p_interpolation == INTERPOLATE_TRICUBIC */;
 
-    ERR_FAIL_COND_CMSG(p_width <= 0, "Image width cannot be greater than 0.")
-    ERR_FAIL_COND_CMSG(p_height <= 0, "Image height cannot be greater than 0.")
+    ERR_FAIL_COND_CMSG(p_width <= 0, "Image width must be greater than 0.")
+    ERR_FAIL_COND_CMSG(p_height <= 0, "Image height must be greater than 0.")
     ERR_FAIL_COND_MSG(p_width > MAX_WIDTH, "Image width cannot be greater than " + itos(MAX_WIDTH) + ".")
     ERR_FAIL_COND_MSG(p_height > MAX_HEIGHT, "Image height cannot be greater than " + itos(MAX_HEIGHT) + ".")
 
@@ -1453,6 +1453,8 @@ void Image::expand_x2_hq2x() {
     {
         PoolVector<uint8_t>::Read r = data.read();
         PoolVector<uint8_t>::Write w = dest.write();
+
+        ERR_FAIL_COND(!r.ptr());
 
         hq2x_resize((const uint32_t *)r.ptr(), width, height, (uint32_t *)w.ptr());
     }
@@ -3046,10 +3048,10 @@ void Image::bumpmap_to_normalmap(float bump_scale) {
     {
         PoolVector<uint8_t>::Read rp = data.read();
         PoolVector<uint8_t>::Write wp = result_image.write();
+        ERR_FAIL_COND(!rp.ptr());
 
         unsigned char *write_ptr = wp.ptr();
         float *read_ptr = (float *)rp.ptr();
-
         for (int ty = 0; ty < height; ty++) {
             int py = ty + 1;
             if (py >= height) py -= height;

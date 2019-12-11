@@ -262,6 +262,7 @@ private:
 
     Point2 grid_offset;
     Point2 grid_step;
+    int primary_grid_steps;
     int grid_step_multiplier;
 
     float snap_rotation_step;
