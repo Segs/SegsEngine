@@ -1615,7 +1615,7 @@ Vector<int> _Geometry::triangulate_polygon(const Vector<Vector2> &p_polygon) {
 
 Vector<int> _Geometry::triangulate_delaunay_2d(const Vector<Vector2> &p_points) {
 
-    return Geometry::triangulate_delaunay_2d(p_points);
+    return Geometry::triangulate_delaunay_2d(Span<const Vector2>(p_points.ptr(),p_points.size()));
 }
 
 Vector<Point2> _Geometry::convex_hull_2d(const Vector<Point2> &p_points) {

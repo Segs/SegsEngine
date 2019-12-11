@@ -157,6 +157,11 @@ Transform2D Transform2D::orthonormalized() const {
     return on;
 }
 
+bool Transform2D::is_equal_approx(const Transform2D &p_transform) const {
+
+    return elements[0].is_equal_approx(p_transform.elements[0]) && elements[1].is_equal_approx(p_transform.elements[1]) && elements[2].is_equal_approx(p_transform.elements[2]);
+}
+
 bool Transform2D::operator==(const Transform2D &p_transform) const {
 
     for (int i = 0; i < 3; i++) {

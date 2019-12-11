@@ -464,12 +464,13 @@ struct _VariantCall {
         r_ret = retval;
     }
 
-    VCALL_LOCALMEM0R(Vector2, normalized)
-    VCALL_LOCALMEM0R(Vector2, length)
-    VCALL_LOCALMEM0R(Vector2, length_squared)
-    VCALL_LOCALMEM0R(Vector2, is_normalized)
     VCALL_LOCALMEM1R(Vector2, distance_to)
     VCALL_LOCALMEM1R(Vector2, distance_squared_to)
+    VCALL_LOCALMEM0R(Vector2, length)
+    VCALL_LOCALMEM0R(Vector2, length_squared)
+    VCALL_LOCALMEM0R(Vector2, normalized)
+    VCALL_LOCALMEM0R(Vector2, is_normalized)
+    VCALL_LOCALMEM1R(Vector2, is_equal_approx)
     VCALL_LOCALMEM1R(Vector2, posmod)
     VCALL_LOCALMEM1R(Vector2, posmodv)
     VCALL_LOCALMEM1R(Vector2, project)
@@ -498,24 +499,28 @@ struct _VariantCall {
     VCALL_LOCALMEM0R(Vector2, sign)
 
     VCALL_LOCALMEM0R(Rect2, get_area)
+    VCALL_LOCALMEM0R(Rect2, has_no_area)
+    VCALL_LOCALMEM1R(Rect2, has_point)
+    VCALL_LOCALMEM1R(Rect2, is_equal_approx)
     VCALL_LOCALMEM1R(Rect2, intersects)
     VCALL_LOCALMEM1R(Rect2, encloses)
-    VCALL_LOCALMEM0R(Rect2, has_no_area)
     VCALL_LOCALMEM1R(Rect2, clip)
     VCALL_LOCALMEM1R(Rect2, merge)
-    VCALL_LOCALMEM1R(Rect2, has_point)
+    VCALL_LOCALMEM1R(Rect2, expand)
     VCALL_LOCALMEM1R(Rect2, grow)
     VCALL_LOCALMEM2R(Rect2, grow_margin)
     VCALL_LOCALMEM4R(Rect2, grow_individual)
-    VCALL_LOCALMEM1R(Rect2, expand)
     VCALL_LOCALMEM0R(Rect2, abs)
 
     VCALL_LOCALMEM0R(Vector3, min_axis)
     VCALL_LOCALMEM0R(Vector3, max_axis)
+    VCALL_LOCALMEM1R(Vector3, distance_to)
+    VCALL_LOCALMEM1R(Vector3, distance_squared_to)
     VCALL_LOCALMEM0R(Vector3, length)
     VCALL_LOCALMEM0R(Vector3, length_squared)
-    VCALL_LOCALMEM0R(Vector3, is_normalized)
     VCALL_LOCALMEM0R(Vector3, normalized)
+    VCALL_LOCALMEM0R(Vector3, is_normalized)
+    VCALL_LOCALMEM1R(Vector3, is_equal_approx)
     VCALL_LOCALMEM0R(Vector3, inverse)
     VCALL_LOCALMEM1R(Vector3, snapped)
     VCALL_LOCALMEM2R(Vector3, rotated)
@@ -531,8 +536,6 @@ struct _VariantCall {
     VCALL_LOCALMEM0R(Vector3, floor)
     VCALL_LOCALMEM0R(Vector3, ceil)
     VCALL_LOCALMEM0R(Vector3, round)
-    VCALL_LOCALMEM1R(Vector3, distance_to)
-    VCALL_LOCALMEM1R(Vector3, distance_squared_to)
     VCALL_LOCALMEM1R(Vector3, posmod)
     VCALL_LOCALMEM1R(Vector3, posmodv)
     VCALL_LOCALMEM1R(Vector3, project)
@@ -546,6 +549,7 @@ struct _VariantCall {
     VCALL_LOCALMEM0R(Plane, normalized)
     VCALL_LOCALMEM0R(Plane, center)
     VCALL_LOCALMEM0R(Plane, get_any_point)
+    VCALL_LOCALMEM1R(Plane, is_equal_approx)
     VCALL_LOCALMEM1R(Plane, is_point_over)
     VCALL_LOCALMEM1R(Plane, distance_to)
     VCALL_LOCALMEM2R(Plane, has_point)
@@ -580,6 +584,7 @@ struct _VariantCall {
     VCALL_LOCALMEM0R(Quat, length_squared)
     VCALL_LOCALMEM0R(Quat, normalized)
     VCALL_LOCALMEM0R(Quat, is_normalized)
+    VCALL_LOCALMEM1R(Quat, is_equal_approx)
     VCALL_LOCALMEM0R(Quat, inverse)
     VCALL_LOCALMEM1R(Quat, dot)
     VCALL_LOCALMEM1R(Quat, xform)
@@ -605,6 +610,7 @@ struct _VariantCall {
     VCALL_LOCALMEM1R(Color, darkened)
     VCALL_LOCALMEM1R(Color, to_html)
     VCALL_LOCALMEM4R(Color, from_hsv)
+    VCALL_LOCALMEM1R(Color, is_equal_approx)
 
     VCALL_LOCALMEM0R(RID, get_id)
 
@@ -872,6 +878,7 @@ struct _VariantCall {
     VCALL_PTR0R(AABB, get_area)
     VCALL_PTR0R(AABB, has_no_area)
     VCALL_PTR0R(AABB, has_no_surface)
+    VCALL_PTR1R(AABB, is_equal_approx)
     VCALL_PTR1R(AABB, intersects)
     VCALL_PTR1R(AABB, encloses)
     VCALL_PTR1R(AABB, merge)
@@ -900,6 +907,7 @@ struct _VariantCall {
     VCALL_PTR1R(Transform2D, scaled)
     VCALL_PTR1R(Transform2D, translated)
     VCALL_PTR2R(Transform2D, interpolate_with)
+    VCALL_PTR1R(Transform2D, is_equal_approx)
 
     static void _call_Transform2D_xform(Variant &r_ret, Variant &p_self, const Variant **p_args) {
         Transform2D *trn = reinterpret_cast<Transform2D *>(p_self._data._ptr);
@@ -981,7 +989,7 @@ struct _VariantCall {
     VCALL_PTR0R(Transform, orthonormalized)
     VCALL_PTR2R(Transform, looking_at)
     VCALL_PTR2R(Transform, interpolate_with)
-
+    VCALL_PTR1R(Transform, is_equal_approx)
     static void _call_Transform_xform(Variant &r_ret, Variant &p_self, const Variant **p_args) {
         Transform *trn = reinterpret_cast<Transform *>(p_self._data._ptr);
         switch (p_args[0]->type) {
@@ -1776,6 +1784,7 @@ void register_variant_methods() {
     ADDFUNC0R(VECTOR2, REAL, Vector2, angle)
     ADDFUNC0R(VECTOR2, REAL, Vector2, length_squared)
     ADDFUNC0R(VECTOR2, BOOL, Vector2, is_normalized)
+    ADDFUNC1R(VECTOR2, BOOL, Vector2, is_equal_approx, VECTOR2, "v");
     ADDFUNC1R(VECTOR2, VECTOR2, Vector2, direction_to, VECTOR2, "b")
     ADDFUNC1R(VECTOR2, REAL, Vector2, distance_to, VECTOR2, "to")
     ADDFUNC1R(VECTOR2, REAL, Vector2, distance_squared_to, VECTOR2, "to")
@@ -1811,6 +1820,7 @@ void register_variant_methods() {
     ADDFUNC1R(RECT2, RECT2, Rect2, clip, RECT2, "b")
     ADDFUNC1R(RECT2, RECT2, Rect2, merge, RECT2, "b")
     ADDFUNC1R(RECT2, BOOL, Rect2, has_point, VECTOR2, "point")
+    ADDFUNC1R(RECT2, BOOL, Rect2, is_equal_approx, RECT2, "rect")
     ADDFUNC1R(RECT2, RECT2, Rect2, grow, REAL, "by")
     ADDFUNC2R(RECT2, RECT2, Rect2, grow_margin, INT, "margin", REAL, "by")
     ADDFUNC4R(RECT2, RECT2, Rect2, grow_individual, REAL, "left", REAL, "top", REAL, "right", REAL, " bottom")
@@ -1822,6 +1832,7 @@ void register_variant_methods() {
     ADDFUNC0R(VECTOR3, REAL, Vector3, length)
     ADDFUNC0R(VECTOR3, REAL, Vector3, length_squared)
     ADDFUNC0R(VECTOR3, BOOL, Vector3, is_normalized)
+    ADDFUNC1R(VECTOR3, BOOL, Vector3, is_equal_approx, VECTOR3, "v");
     ADDFUNC0R(VECTOR3, VECTOR3, Vector3, normalized)
     ADDFUNC0R(VECTOR3, VECTOR3, Vector3, inverse)
     ADDFUNC1R(VECTOR3, VECTOR3, Vector3, snapped, VECTOR3, "by")
@@ -1853,6 +1864,7 @@ void register_variant_methods() {
     ADDFUNC0R(PLANE, PLANE, Plane, normalized)
     ADDFUNC0R(PLANE, VECTOR3, Plane, center)
     ADDFUNC0R(PLANE, VECTOR3, Plane, get_any_point)
+    ADDFUNC1R(PLANE, BOOL, Plane, is_equal_approx, PLANE, "plane")
     ADDFUNC1R(PLANE, BOOL, Plane, is_point_over, VECTOR3, "point")
     ADDFUNC1R(PLANE, REAL, Plane, distance_to, VECTOR3, "point")
     ADDFUNC2R(PLANE, BOOL, Plane, has_point, VECTOR3, "point", REAL, "epsilon", CMP_EPSILON)
@@ -1865,6 +1877,7 @@ void register_variant_methods() {
     ADDFUNC0R(QUAT, REAL, Quat, length_squared)
     ADDFUNC0R(QUAT, QUAT, Quat, normalized)
     ADDFUNC0R(QUAT, BOOL, Quat, is_normalized)
+    ADDFUNC1R(QUAT, BOOL, Quat, is_equal_approx, QUAT, "quat")
     ADDFUNC0R(QUAT, QUAT, Quat, inverse)
     ADDFUNC1R(QUAT, REAL, Quat, dot, QUAT, "b")
     ADDFUNC1R(QUAT, VECTOR3, Quat, xform, VECTOR3, "v")

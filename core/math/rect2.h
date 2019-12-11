@@ -154,6 +154,10 @@ struct GODOT_EXPORT Rect2 {
 
 		return true;
 	}
+    bool is_equal_approx(Rect2 p_rect) const {
+
+        return position.is_equal_approx(p_rect.position) && size.is_equal_approx(p_rect.size);
+    }
 
 	bool operator==(const Rect2 &p_rect) const { return position == p_rect.position && size == p_rect.size; }
 	bool operator!=(const Rect2 &p_rect) const { return position != p_rect.position || size != p_rect.size; }

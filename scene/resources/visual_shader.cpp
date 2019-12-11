@@ -1081,10 +1081,11 @@ Error VisualShader::_write_node(Type type, StringBuilder &global_code, StringBui
             se_string src_var = "n_out" + itos(from_node) + "p" + itos(from_port);
 
             if (in_type == VisualShaderNode::PORT_TYPE_SAMPLER && out_type == VisualShaderNode::PORT_TYPE_SAMPLER) {
-
-                VisualShaderNodeUniform *uniform = (VisualShaderNodeUniform *)graph[type].nodes.at(from_node).node.get();
-                if (uniform) {
-                    inputs[i] = uniform->get_uniform_name();
+                VisualShaderNode *ptr = const_cast<VisualShaderNode *>(graph[type].nodes.at(from_node).node.get());
+                if (ptr->has_method("get_input_real_name")) {
+                    inputs[i] = ptr->call("get_input_real_name").as<se_string>();
+                } else if (ptr->has_method("get_uniform_name")) {
+                    inputs[i] = ptr->call("get_uniform_name").as<se_string>();
                 } else {
                     inputs[i] = "";
                 }
@@ -1453,6 +1454,9 @@ const VisualShaderNodeInput::Port VisualShaderNodeInput::ports[] = {
     { ShaderMode::SPATIAL, VisualShader::TYPE_FRAGMENT, VisualShaderNode::PORT_TYPE_VECTOR, "viewport_size", "vec3(VIEWPORT_SIZE, 0.0)" },
     { ShaderMode::SPATIAL, VisualShader::TYPE_FRAGMENT, VisualShaderNode::PORT_TYPE_BOOLEAN, "output_is_srgb", "OUTPUT_IS_SRGB" },
     { ShaderMode::SPATIAL, VisualShader::TYPE_FRAGMENT, VisualShaderNode::PORT_TYPE_BOOLEAN, "front_facing", "FRONT_FACING" },
+    { ShaderMode::SPATIAL, VisualShader::TYPE_FRAGMENT, VisualShaderNode::PORT_TYPE_SAMPLER, "screen_texture", "SCREEN_TEXTURE" },
+    { ShaderMode::SPATIAL, VisualShader::TYPE_FRAGMENT, VisualShaderNode::PORT_TYPE_SAMPLER, "depth_texture", "DEPTH_TEXTURE" },
+
 
     // Spatial, Light
     { ShaderMode::SPATIAL, VisualShader::TYPE_LIGHT, VisualShaderNode::PORT_TYPE_VECTOR, "fragcoord", "FRAGCOORD.xyz" },
@@ -1499,6 +1503,10 @@ const VisualShaderNodeInput::Port VisualShaderNodeInput::ports[] = {
     { ShaderMode::CANVAS_ITEM, VisualShader::TYPE_FRAGMENT, VisualShaderNode::PORT_TYPE_VECTOR, "point_coord", "vec3(POINT_COORD,0.0)" },
     { ShaderMode::CANVAS_ITEM, VisualShader::TYPE_FRAGMENT, VisualShaderNode::PORT_TYPE_SCALAR, "time", "TIME" },
     { ShaderMode::CANVAS_ITEM, VisualShader::TYPE_FRAGMENT, VisualShaderNode::PORT_TYPE_SCALAR, "light_pass", "float(AT_LIGHT_PASS ? 1.0 : 0.0)" },
+    { ShaderMode::CANVAS_ITEM, VisualShader::TYPE_FRAGMENT, VisualShaderNode::PORT_TYPE_SAMPLER, "texture", "TEXTURE" },
+    { ShaderMode::CANVAS_ITEM, VisualShader::TYPE_FRAGMENT, VisualShaderNode::PORT_TYPE_SAMPLER, "normal_texture", "NORMAL_TEXTURE" },
+    { ShaderMode::CANVAS_ITEM, VisualShader::TYPE_FRAGMENT, VisualShaderNode::PORT_TYPE_SAMPLER, "screen_texture", "SCREEN_TEXTURE" },
+
     // Canvas Item, Light
     { ShaderMode::CANVAS_ITEM, VisualShader::TYPE_LIGHT, VisualShaderNode::PORT_TYPE_VECTOR, "fragcoord", "FRAGCOORD.xyz" },
     { ShaderMode::CANVAS_ITEM, VisualShader::TYPE_LIGHT, VisualShaderNode::PORT_TYPE_VECTOR, "uv", "vec3(UV,0.0)" },
@@ -1515,6 +1523,7 @@ const VisualShaderNodeInput::Port VisualShaderNodeInput::ports[] = {
     { ShaderMode::CANVAS_ITEM, VisualShader::TYPE_LIGHT, VisualShaderNode::PORT_TYPE_VECTOR, "texture_pixel_size", "vec3(TEXTURE_PIXEL_SIZE, 1.0)" },
     { ShaderMode::CANVAS_ITEM, VisualShader::TYPE_LIGHT, VisualShaderNode::PORT_TYPE_VECTOR, "point_coord", "vec3(POINT_COORD,0.0)" },
     { ShaderMode::CANVAS_ITEM, VisualShader::TYPE_LIGHT, VisualShaderNode::PORT_TYPE_SCALAR, "time", "TIME" },
+    { ShaderMode::CANVAS_ITEM, VisualShader::TYPE_LIGHT, VisualShaderNode::PORT_TYPE_SAMPLER, "texture", "TEXTURE" },
 
     // Particles, Vertex
     { ShaderMode::PARTICLES, VisualShader::TYPE_VERTEX, VisualShaderNode::PORT_TYPE_VECTOR, "color", "COLOR.rgb" },
@@ -1615,6 +1624,9 @@ se_string_view VisualShaderNodeInput::get_caption() const {
 
 se_string VisualShaderNodeInput::generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const se_string *p_input_vars, const se_string *p_output_vars, bool p_for_preview) const {
 
+    if (get_output_port_type(0) == PORT_TYPE_SAMPLER) {
+        return "";
+    }
     if (p_for_preview) {
         int idx = 0;
 
@@ -1682,7 +1694,19 @@ void VisualShaderNodeInput::set_input_name(StringName p_name) {
 StringName VisualShaderNodeInput::get_input_name() const {
     return input_name;
 }
+se_string VisualShaderNodeInput::get_input_real_name() const {
 
+    int idx = 0;
+
+    while (ports[idx].mode != ShaderMode::MAX) {
+        if (ports[idx].mode == shader_mode && ports[idx].shader_type == shader_type && ports[idx].name == input_name) {
+            return se_string(ports[idx].string);
+        }
+        idx++;
+    }
+
+    return "";
+}
 VisualShaderNodeInput::PortType VisualShaderNodeInput::get_input_type_by_name(StringName p_name) const {
 
     int idx = 0;
@@ -1779,6 +1803,7 @@ void VisualShaderNodeInput::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("set_input_name", {"name"}), &VisualShaderNodeInput::set_input_name);
     MethodBinder::bind_method(D_METHOD("get_input_name"), &VisualShaderNodeInput::get_input_name);
+    MethodBinder::bind_method(D_METHOD("get_input_real_name"), &VisualShaderNodeInput::get_input_real_name);
 
     ADD_PROPERTY(PropertyInfo(VariantType::STRING, "input_name", PROPERTY_HINT_ENUM, ""), "set_input_name", "get_input_name");
     ADD_SIGNAL(MethodInfo("input_type_changed"));

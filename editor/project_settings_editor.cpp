@@ -444,16 +444,7 @@ void ProjectSettingsEditor::_wait_for_key(const Ref<InputEvent> &p_event) {
     if (k && k->is_pressed() && k->get_scancode() != 0) {
 
         last_wait_for_key = dynamic_ref_cast<InputEventKey>(p_event);
-        se_string str = StringUtils::capitalize(keycode_get_string(k->get_scancode()));
-        if (k->get_metakey())
-            str = se_string(find_keycode_name(KEY_META)) + "+" + str;
-        if (k->get_shift())
-            str = ("Shift+") + str;
-        if (k->get_alt())
-            str = ("Alt+") + str;
-        if (k->get_control())
-            str = ("Control+") + str;
-
+        const se_string str = keycode_get_string(k->get_scancode_with_modifiers());
         press_a_key_label->set_text(StringName(str));
         press_a_key->accept_event();
     }
@@ -743,17 +734,7 @@ void ProjectSettingsEditor::_update_actions() {
 
             Ref<InputEventKey> k = dynamic_ref_cast<InputEventKey>(event);
             if (k) {
-
-                se_string str(StringUtils::capitalize(keycode_get_string(k->get_scancode())));
-                if (k->get_metakey())
-                    str = se_string(find_keycode_name(KEY_META))+"+" + str;
-                if (k->get_shift())
-                    str = ("Shift+") + str;
-                if (k->get_alt())
-                    str = ("Alt+") + str;
-                if (k->get_control())
-                    str = ("Control+") + str;
-
+                const se_string str = keycode_get_string(k->get_scancode_with_modifiers());
                 action2->set_text_utf8(0, str);
                 action2->set_icon(0, get_icon("Keyboard", "EditorIcons"));
             }
@@ -1549,27 +1530,33 @@ void ProjectSettingsEditor::_update_translations() {
     Array l_filter = l_filter_all[1];
 
     int s = names.size();
-    if (!translation_locales_list_created) {
+    bool is_short_list_when_show_all_selected = filter_mode == SHOW_ALL_LOCALES && translation_filter_treeitems.size() < s;
+    bool is_full_list_when_show_only_selected = filter_mode == SHOW_ONLY_SELECTED_LOCALES && translation_filter_treeitems.size() == s;
+    bool should_recreate_locales_list = is_short_list_when_show_all_selected || is_full_list_when_show_only_selected;
+
+    if (!translation_locales_list_created || should_recreate_locales_list) {
 
         translation_locales_list_created = true;
         translation_filter->clear();
         root = translation_filter->create_item(nullptr);
         translation_filter->set_hide_root(true);
-        translation_filter_treeitems.resize(s);
+        translation_filter_treeitems.clear();
 
         for (int i = 0; i < s; i++) {
             StringName n(names[i]);
             StringName l(langs[i]);
+            bool is_checked = l_filter.contains(l);
+            if (filter_mode == SHOW_ONLY_SELECTED_LOCALES && !is_checked) continue;
             TreeItem *t = translation_filter->create_item(root);
             t->set_cell_mode(0, TreeItem::CELL_MODE_CHECK);
             t->set_text(0, n);
             t->set_editable(0, true);
             t->set_tooltip(0, l);
-            t->set_checked(0, l_filter.contains(l));
-            translation_filter_treeitems.write[i] = t;
+            t->set_checked(0, is_checked);
+            translation_filter_treeitems.push_back(t);
         }
     } else {
-        for (int i = 0; i < s; i++) {
+        for (int i = 0; i < translation_filter_treeitems.size(); i++) {
 
             TreeItem *t = translation_filter_treeitems[i];
             t->set_checked(0, l_filter.contains(t->get_tooltip(0)));

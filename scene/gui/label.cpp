@@ -390,7 +390,14 @@ void Label::regenerate_word_cache() {
     }
 
     Ref<StyleBox> style = get_stylebox("normal");
-    int width = autowrap ? (get_size().width - style->get_minimum_size().width) : get_longest_line_width();
+    int width;
+    if (autowrap) {
+        Ref<StyleBox> style = get_stylebox("normal");
+        width = MAX(get_size().width, get_custom_minimum_size().width) - style->get_minimum_size().width;
+    } else {
+        width = get_longest_line_width();
+    }
+
     Ref<Font> font = get_font("font");
 
     int current_word_size = 0;

@@ -114,7 +114,7 @@ se_string ProjectSettings::localize_path(se_string_view p_path) const {
         if (plocal.empty()) {
             return se_string();
         }
-        return plocal + StringUtils::substr(path,sep);
+        return plocal + StringUtils::substr(path,(sep + 1), path.size() - (sep + 1));
     }
 }
 

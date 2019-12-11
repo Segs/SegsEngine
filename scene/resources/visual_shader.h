@@ -292,6 +292,7 @@ public:
 
     void set_input_name(StringName p_name);
     StringName get_input_name() const;
+    se_string get_input_real_name() const;
 
     int get_input_index_count() const;
     PortType get_input_index_type(int p_index) const;

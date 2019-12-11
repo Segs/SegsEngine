@@ -71,6 +71,7 @@ size_t ZSTD_compressBlock_fast_generic(
     U32 offsetSaved = 0;
 
     /* init */
+    DEBUGLOG(5, "ZSTD_compressBlock_fast_generic");
     ip0 += (ip0 == prefixStart);
     ip1 = ip0 + 1;
     {
@@ -239,6 +240,7 @@ size_t ZSTD_compressBlock_fast_dictMatchState_generic(
     assert(prefixStartIndex >= (U32)(dictEnd - dictBase));
 
     /* init */
+    DEBUGLOG(5, "ZSTD_compressBlock_fast_dictMatchState_generic");
     ip += (dictAndPrefixLength == 0);
     /* dictMatchState repCode checks don't currently handle repCode == 0
      * disabling. */
@@ -389,6 +391,7 @@ static size_t ZSTD_compressBlock_fast_extDict_generic(
     const BYTE* const iend = istart + srcSize;
     const BYTE* const ilimit = iend - 8;
     U32 offset_1=rep[0], offset_2=rep[1];
+    DEBUGLOG(5, "ZSTD_compressBlock_fast_extDict_generic");
 
     /* switch to "regular" variant if extDict is invalidated due to maxDistance */
     if (prefixStartIndex == dictStartIndex)

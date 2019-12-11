@@ -59,7 +59,7 @@ public:
 		}
 	};
 
-	static bool circum_circle_contains(const Vector<Vector2> &p_vertices, const Triangle &p_triangle, int p_vertex) {
+    static bool circum_circle_contains(Span<const Vector2> p_vertices, const Triangle &p_triangle, int p_vertex) {
 
 		Vector2 p1 = p_vertices[p_triangle.points[0]];
 		Vector2 p2 = p_vertices[p_triangle.points[1]];
@@ -79,21 +79,21 @@ public:
 		return d <= r;
 	}
 
-	static bool edge_compare(const Vector<Vector2> &p_vertices, const Edge &p_a, const Edge &p_b) {
-		if (p_vertices[p_a.edge[0]] == p_vertices[p_b.edge[0]] && p_vertices[p_a.edge[1]] == p_vertices[p_b.edge[1]]) {
-			return true;
-		}
+    static bool edge_compare(Span<const Vector2> p_vertices, const Edge &p_a, const Edge &p_b) {
+        if (p_vertices[p_a.edge[0]].is_equal_approx(p_vertices[p_b.edge[0]]) && p_vertices[p_a.edge[1]].is_equal_approx(p_vertices[p_b.edge[1]])) {
+            return true;
+        }
 
-		if (p_vertices[p_a.edge[0]] == p_vertices[p_b.edge[1]] && p_vertices[p_a.edge[1]] == p_vertices[p_b.edge[0]]) {
-			return true;
-		}
+        if (p_vertices[p_a.edge[0]].is_equal_approx(p_vertices[p_b.edge[1]]) && p_vertices[p_a.edge[1]].is_equal_approx(p_vertices[p_b.edge[0]])) {
+            return true;
+        }
 
-		return false;
-	}
+        return false;
+    }
 
-	static Vector<Triangle> triangulate(const Vector<Vector2> &p_points) {
+    static Vector<Triangle> triangulate(Span<const Vector2> p_points) {
 
-		Vector<Vector2> points = p_points;
+        PODVector<Vector2> points(p_points.begin(),p_points.end());
 		Vector<Triangle> triangles;
 
 		Rect2 rect;

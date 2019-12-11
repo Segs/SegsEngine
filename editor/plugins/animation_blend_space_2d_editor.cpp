@@ -393,7 +393,7 @@ void AnimationNodeBlendSpace2DEditor::_tool_switch(int p_tool) {
         for (int i = 0; i < blend_space->get_blend_point_count(); i++) {
             points.push_back(blend_space->get_blend_point_position(i));
         }
-        Vector<Delaunay2D::Triangle> tr = Delaunay2D::triangulate(points);
+        Vector<Delaunay2D::Triangle> tr = Delaunay2D::triangulate(Span<const Vector2>(points.ptr(),points.size()));
         for (int i = 0; i < tr.size(); i++) {
             blend_space->add_triangle(tr[i].points[0], tr[i].points[1], tr[i].points[2]);
         }
@@ -414,7 +414,7 @@ void AnimationNodeBlendSpace2DEditor::_blend_space_draw() {
 
     Color linecolor = get_color("font_color", "Label");
     Color linecolor_soft = linecolor;
-    linecolor_soft.a *= 0.5;
+    linecolor_soft.a *= 0.5f;
     Ref<Font> font = get_font("font", "Label");
     Ref<Texture> icon = get_icon("KeyValue", "EditorIcons");
     Ref<Texture> icon_selected = get_icon("KeySelected", "EditorIcons");

@@ -51,6 +51,7 @@ class CreateDialog : public ConfirmationDialog {
     LineEdit *search_box;
     Tree *search_options;
     HashMap<StringName, TreeItem *> search_options_types;
+    HashMap<StringName, RES> search_loaded_scripts;
     bool is_replace_mode;
     StringName base_type;
     StringName preferred_search_result_type;

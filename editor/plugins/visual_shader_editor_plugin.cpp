@@ -2536,9 +2536,13 @@ VisualShaderEditor::VisualShaderEditor() {
     add_options.push_back(AddOption("Alpha", "Input", "Fragment", "VisualShaderNodeInput", FormatSN(input_param_for_vertex_and_fragment_shader_modes.asCString(), "alpha"), "alpha", VisualShaderNode::PORT_TYPE_SCALAR, VisualShader::TYPE_FRAGMENT, (int)ShaderMode::SPATIAL));
     add_options.push_back(AddOption("Binormal", "Input", "Fragment", "VisualShaderNodeInput", FormatSN(input_param_for_vertex_and_fragment_shader_modes.asCString(), "binormal"), "binormal", VisualShaderNode::PORT_TYPE_VECTOR, VisualShader::TYPE_FRAGMENT, (int)ShaderMode::SPATIAL));
     add_options.push_back(AddOption("Color", "Input", "Fragment", "VisualShaderNodeInput", FormatSN(input_param_for_vertex_and_fragment_shader_modes.asCString(), "color"), "color", VisualShaderNode::PORT_TYPE_VECTOR, VisualShader::TYPE_FRAGMENT, (int)ShaderMode::SPATIAL));
+    add_options.push_back(AddOption("DepthTexture", "Input", "Fragment", "VisualShaderNodeInput", FormatSN(input_param_for_fragment_shader_mode.asCString(), "depth_texture"), "depth_texture", VisualShaderNode::PORT_TYPE_SAMPLER, VisualShader::TYPE_FRAGMENT, (int)ShaderMode::SPATIAL));
+
     add_options.push_back(AddOption("FragCoord", "Input", "Fragment", "VisualShaderNodeInput", FormatSN(input_param_for_fragment_and_light_shader_modes.asCString(), "fragcoord"), "fragcoord", VisualShaderNode::PORT_TYPE_VECTOR, VisualShader::TYPE_FRAGMENT, (int)ShaderMode::SPATIAL));
     add_options.push_back(AddOption("FrontFacing", "Input", "Fragment", "VisualShaderNodeInput", FormatSN(input_param_for_fragment_shader_mode.asCString(), "front_facing"), "front_facing", VisualShaderNode::PORT_TYPE_BOOLEAN, VisualShader::TYPE_FRAGMENT, (int)ShaderMode::SPATIAL));
     add_options.push_back(AddOption("PointCoord", "Input", "Fragment", "VisualShaderNodeInput", FormatSN(input_param_for_fragment_shader_mode.asCString(), "point_coord"), "point_coord", VisualShaderNode::PORT_TYPE_VECTOR, VisualShader::TYPE_FRAGMENT, (int)ShaderMode::SPATIAL));
+    add_options.push_back(AddOption("ScreenTexture", "Input", "Fragment", "VisualShaderNodeInput", FormatSN(input_param_for_fragment_shader_mode.asCString(), "screen_texture"), "screen_texture", VisualShaderNode::PORT_TYPE_SAMPLER, VisualShader::TYPE_FRAGMENT,(int)ShaderMode::SPATIAL));
+
     add_options.push_back(AddOption("ScreenUV", "Input", "Fragment", "VisualShaderNodeInput", FormatSN(input_param_for_fragment_shader_mode.asCString(), "screen_uv"), "screen_uv", VisualShaderNode::PORT_TYPE_VECTOR, VisualShader::TYPE_FRAGMENT, (int)ShaderMode::SPATIAL));
     add_options.push_back(AddOption("Side", "Input", "Fragment", "VisualShaderNodeInput", FormatSN(input_param_for_fragment_shader_mode.asCString(), "side"), "side", VisualShaderNode::PORT_TYPE_SCALAR, VisualShader::TYPE_FRAGMENT, (int)ShaderMode::SPATIAL));
     add_options.push_back(AddOption("Tangent", "Input", "Fragment", "VisualShaderNodeInput", FormatSN(input_param_for_vertex_and_fragment_shader_modes.asCString(), "tangent"), "tangent", VisualShaderNode::PORT_TYPE_VECTOR, VisualShader::TYPE_FRAGMENT, (int)ShaderMode::SPATIAL));
@@ -2572,9 +2576,12 @@ VisualShaderEditor::VisualShaderEditor() {
 
     add_options.push_back(AddOption("FragCoord", "Input", "Fragment", "VisualShaderNodeInput", FormatSN(input_param_for_fragment_and_light_shader_modes.asCString(), "fragcoord"), "fragcoord", VisualShaderNode::PORT_TYPE_VECTOR, VisualShader::TYPE_FRAGMENT, (int)ShaderMode::CANVAS_ITEM));
     add_options.push_back(AddOption("LightPass", "Input", "Fragment", "VisualShaderNodeInput", FormatSN(input_param_for_vertex_and_fragment_shader_modes.asCString(), "light_pass"), "light_pass", VisualShaderNode::PORT_TYPE_SCALAR, VisualShader::TYPE_FRAGMENT, (int)ShaderMode::CANVAS_ITEM));
+    add_options.push_back(AddOption("NormalTexture", "Input", "Fragment", "VisualShaderNodeInput", FormatSN(input_param_for_fragment_shader_mode.asCString(), "normal_texture"), "normal_texture", VisualShaderNode::PORT_TYPE_SAMPLER, VisualShader::TYPE_FRAGMENT, (int)ShaderMode::CANVAS_ITEM));
     add_options.push_back(AddOption("PointCoord", "Input", "Fragment", "VisualShaderNodeInput", FormatSN(input_param_for_fragment_and_light_shader_modes.asCString(), "point_coord"), "point_coord", VisualShaderNode::PORT_TYPE_VECTOR, VisualShader::TYPE_FRAGMENT, (int)ShaderMode::CANVAS_ITEM));
     add_options.push_back(AddOption("ScreenPixelSize", "Input", "Fragment", "VisualShaderNodeInput", FormatSN(input_param_for_fragment_shader_mode.asCString(), "screen_pixel_size"), "screen_pixel_size", VisualShaderNode::PORT_TYPE_VECTOR, VisualShader::TYPE_FRAGMENT, (int)ShaderMode::CANVAS_ITEM));
+    add_options.push_back(AddOption("ScreenTexture", "Input", "Fragment", "VisualShaderNodeInput", FormatSN(input_param_for_fragment_shader_mode.asCString(), "screen_texture"), "screen_texture", VisualShaderNode::PORT_TYPE_SAMPLER, VisualShader::TYPE_FRAGMENT, (int)ShaderMode::CANVAS_ITEM));
     add_options.push_back(AddOption("ScreenUV", "Input", "Fragment", "VisualShaderNodeInput", FormatSN(input_param_for_fragment_and_light_shader_modes.asCString(), "screen_uv"), "screen_uv", VisualShaderNode::PORT_TYPE_VECTOR, VisualShader::TYPE_FRAGMENT, (int)ShaderMode::CANVAS_ITEM));
+    add_options.push_back(AddOption("Texture", "Input", "Fragment", "VisualShaderNodeInput", FormatSN(input_param_for_fragment_and_light_shader_modes.asCString(), "texture"), "texture", VisualShaderNode::PORT_TYPE_SAMPLER, VisualShader::TYPE_FRAGMENT, (int)ShaderMode::CANVAS_ITEM));
 
     add_options.push_back(AddOption("FragCoord", "Input", "Light", "VisualShaderNodeInput", FormatSN(input_param_for_fragment_and_light_shader_modes.asCString(), "fragcoord"), "fragcoord", VisualShaderNode::PORT_TYPE_VECTOR, VisualShader::TYPE_LIGHT, (int)ShaderMode::CANVAS_ITEM));
     add_options.push_back(AddOption("LightAlpha", "Input", "Light", "VisualShaderNodeInput", FormatSN(input_param_for_light_shader_mode.asCString(), "light_alpha"), "light_alpha", VisualShaderNode::PORT_TYPE_VECTOR, VisualShader::TYPE_LIGHT, (int)ShaderMode::CANVAS_ITEM));
@@ -2586,6 +2593,7 @@ VisualShaderEditor::VisualShaderEditor() {
     add_options.push_back(AddOption("PointCoord", "Input", "Light", "VisualShaderNodeInput", FormatSN(input_param_for_fragment_and_light_shader_modes.asCString(), "point_coord"), "point_coord", VisualShaderNode::PORT_TYPE_VECTOR, VisualShader::TYPE_LIGHT, (int)ShaderMode::CANVAS_ITEM));
     add_options.push_back(AddOption("ScreenUV", "Input", "Light", "VisualShaderNodeInput", FormatSN(input_param_for_fragment_and_light_shader_modes.asCString(), "screen_uv"), "screen_uv", VisualShaderNode::PORT_TYPE_VECTOR, VisualShader::TYPE_LIGHT, (int)ShaderMode::CANVAS_ITEM));
     add_options.push_back(AddOption("ShadowColor", "Input", "Light", "VisualShaderNodeInput", FormatSN(input_param_for_light_shader_mode.asCString(), "shadow_color"), "shadow_color", VisualShaderNode::PORT_TYPE_VECTOR, VisualShader::TYPE_LIGHT, (int)ShaderMode::CANVAS_ITEM));
+    add_options.push_back(AddOption("Texture", "Input", "Light", "VisualShaderNodeInput", FormatSN(input_param_for_fragment_and_light_shader_modes.asCString(), "texture"), "texture", VisualShaderNode::PORT_TYPE_SAMPLER, VisualShader::TYPE_LIGHT, (int)ShaderMode::CANVAS_ITEM));
 
     add_options.push_back(AddOption("Extra", "Input", "Vertex", "VisualShaderNodeInput", FormatSN(input_param_for_vertex_shader_mode.asCString(), "extra"), "extra", VisualShaderNode::PORT_TYPE_TRANSFORM, VisualShader::TYPE_VERTEX, (int)ShaderMode::CANVAS_ITEM));
     add_options.push_back(AddOption("LightPass", "Input", "Vertex", "VisualShaderNodeInput", FormatSN(input_param_for_vertex_and_fragment_shader_modes.asCString(), "light_pass"), "light_pass", VisualShaderNode::PORT_TYPE_SCALAR, VisualShader::TYPE_VERTEX, (int)ShaderMode::CANVAS_ITEM));
@@ -2883,11 +2891,12 @@ public:
 
     void setup(const Ref<VisualShaderNodeInput> &p_input) {
         input = p_input;
-        Ref<Texture> type_icon[4] = {
+        Ref<Texture> type_icon[5] = {
             EditorNode::get_singleton()->get_gui_base()->get_icon("float", "EditorIcons"),
             EditorNode::get_singleton()->get_gui_base()->get_icon("Vector3", "EditorIcons"),
             EditorNode::get_singleton()->get_gui_base()->get_icon("bool", "EditorIcons"),
             EditorNode::get_singleton()->get_gui_base()->get_icon("Transform", "EditorIcons"),
+            EditorNode::get_singleton()->get_gui_base()->get_icon("ImageTexture", "EditorIcons"),
         };
 
         add_item("[None]");

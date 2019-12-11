@@ -530,27 +530,31 @@ se_string VisualShaderNodeTexture::generate_code(ShaderMode p_mode, VisualShader
 
     if (source == SOURCE_PORT) {
         se_string id = p_input_vars[2];
+
         se_string code;
+        code += "\t{\n";
         if (id.empty()) {
-            code += "\tvec4 " + id + "_tex_read = vec4(0.0);\n";
+            code += "\t\tvec4 " + id + "_tex_read = vec4(0.0);\n";
         } else {
             if (p_input_vars[0].empty()) { // Use UV by default.
 
                 if (p_input_vars[1].empty()) {
-                    code += "\tvec4 " + id + "_tex_read = texture( " + id + " , UV.xy );\n";
+                    code += "\t\tvec4 " + id + "_tex_read = texture( " + id + " , UV.xy );\n";
                 } else {
-                    code += "\tvec4 " + id + "_tex_read = textureLod( " + id + " , UV.xy , " + p_input_vars[1] + " );\n";
+                    code += "\t\tvec4 " + id + "_tex_read = textureLod( " + id + " , UV.xy , " + p_input_vars[1] + " );\n";
                 }
+
             } else if (p_input_vars[1].empty()) {
                 //no lod
-                code += "\tvec4 " + id + "_tex_read = texture( " + id + " , " + p_input_vars[0] + ".xy );\n";
+                code += "\t\tvec4 " + id + "_tex_read = texture( " + id + " , " + p_input_vars[0] + ".xy );\n";
             } else {
-                code += "\tvec4 " + id + "_tex_read = textureLod( " + id + " , " + p_input_vars[0] + ".xy , " + p_input_vars[1] + " );\n";
+                code += "\t\tvec4 " + id + "_tex_read = textureLod( " + id + " , " + p_input_vars[0] + ".xy , " + p_input_vars[1] + " );\n";
             }
 
-            code += "\t" + p_output_vars[0] + " = " + id + "_tex_read.rgb;\n";
-            code += "\t" + p_output_vars[1] + " = " + id + "_tex_read.a;\n";
+            code += "\t\t" + p_output_vars[0] + " = " + id + "_tex_read.rgb;\n";
+            code += "\t\t" + p_output_vars[1] + " = " + id + "_tex_read.a;\n";
         }
+        code += "\t}\n";
         return code;
     }
 

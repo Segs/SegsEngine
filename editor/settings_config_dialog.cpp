@@ -316,16 +316,7 @@ void EditorSettingsDialog::_wait_for_key(const Ref<InputEvent> &p_event) {
     if (k && k->is_pressed() && k->get_scancode() != 0) {
 
         last_wait_for_key = k;
-        se_string str = StringUtils::capitalize(keycode_get_string(k->get_scancode()));
-        if (k->get_metakey())
-            str = FormatVE("%s+", find_keycode_name(KEY_META)) + str;
-        if (k->get_shift())
-            str = ("Shift+") + str;
-        if (k->get_alt())
-            str = ("Alt+") + str;
-        if (k->get_control())
-            str = ("Control+") + str;
-
+        const se_string str = keycode_get_string(k->get_scancode_with_modifiers());
         press_a_key_label->set_text(StringName(str));
         press_a_key->accept_event();
     }

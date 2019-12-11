@@ -828,7 +828,7 @@ public:
 	}
 
 
-	static Vector<int> triangulate_delaunay_2d(const Vector<Vector2> &p_points) {
+    static Vector<int> triangulate_delaunay_2d(Span<const Vector2> p_points) {
 
 		Vector<Delaunay2D::Triangle> tr = Delaunay2D::triangulate(p_points);
 		Vector<int> triangles;

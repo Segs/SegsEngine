@@ -1503,8 +1503,6 @@ bool Main::start() {
         }
     }
 
-    GLOBAL_DEF("editor/active", editor);
-
     se_string main_loop_type;
 #ifdef TOOLS_ENABLED
     if (!doc_tool.empty()) {

@@ -47,29 +47,40 @@ class GODOT_EXPORT AStar : public RefCounted {
     GDCLASS(AStar,RefCounted)
 
 
-	struct Segment {
-		union {
-			struct {
-				int32_t from;
-				int32_t to;
-			};
-			uint64_t key;
-		};
+    struct Segment {
+        union {
+            struct {
+                int32_t u;
+                int32_t v;
+            };
+            uint64_t key;
+        };
 
-        AStarPoint *from_point;
-        AStarPoint *to_point;
+        enum {
+            NONE = 0,
+            FORWARD = 1,
+            BACKWARD = 2,
+            BIDIRECTIONAL = FORWARD | BACKWARD
+        };
+        unsigned char direction;
 
-		bool operator<(const Segment &p_s) const { return key < p_s.key; }
-		Segment() { key = 0; }
-		Segment(int p_from, int p_to) {
-			if (p_from > p_to) {
-				SWAP(p_from, p_to);
-			}
-
-			from = p_from;
-			to = p_to;
-		}
-	};
+        bool operator<(const Segment &p_s) const { return key < p_s.key; }
+        Segment() {
+            key = 0;
+            direction = NONE;
+        }
+        Segment(int p_from, int p_to) {
+            if (p_from < p_to) {
+                u = p_from;
+                v = p_to;
+                direction = FORWARD;
+            } else {
+                u = p_to;
+                v = p_from;
+                direction = BACKWARD;
+            }
+        }
+    };
 
 	int last_free_id;
 	uint64_t pass;
@@ -102,8 +113,8 @@ public:
 	bool is_point_disabled(int p_id) const;
 
 	void connect_points(int p_id, int p_with_id, bool bidirectional = true);
-	void disconnect_points(int p_id, int p_with_id);
-	bool are_points_connected(int p_id, int p_with_id) const;
+    void disconnect_points(int p_id, int p_with_id, bool bidirectional = true);
+    bool are_points_connected(int p_id, int p_with_id, bool bidirectional = true) const;
 
 	int get_point_count() const;
 	int get_point_capacity() const;

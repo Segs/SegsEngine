@@ -2427,6 +2427,7 @@ void SceneTreeDock::_tree_rmb(const Vector2 &p_menu_pos) {
     }
 
     List<Node *> selection = editor_selection->get_selected_node_list();
+    List<Node *> full_selection = editor_selection->get_full_selected_node_list(); // Above method only returns nodes with common parent.
 
     if (selection.empty())
         return;
@@ -2461,21 +2462,40 @@ void SceneTreeDock::_tree_rmb(const Vector2 &p_menu_pos) {
     }
 
     if (profile_allow_script_editing) {
+        bool add_separator = false;
 
-        if (selection.size() == 1) {
+        if (full_selection.size() == 1) {
+            add_separator = true;
             menu->add_icon_shortcut(get_icon("ScriptCreate", "EditorIcons"), ED_GET_SHORTCUT("scene_tree/attach_script"), TOOL_ATTACH_SCRIPT);
             if (existing_script) {
                 menu->add_icon_shortcut(get_icon("ScriptExtend", "EditorIcons"), ED_GET_SHORTCUT("scene_tree/extend_script"), TOOL_EXTEND_SCRIPT);
             }
         }
-        if (selection.size() > 1 || (existing_script && exisiting_script_removable)) {
+        if (existing_script && exisiting_script_removable) {
+            add_separator = true;
             menu->add_icon_shortcut(get_icon("ScriptRemove", "EditorIcons"), ED_GET_SHORTCUT("scene_tree/clear_script"), TOOL_CLEAR_SCRIPT);
+        } else if (full_selection.size() > 1) {
+            bool script_exists = false;
+            for (List<Node *>::Element *E = full_selection.front(); E; E = E->next()) {
+                if (!E->deref()->get_script().is_null()) {
+                    script_exists = true;
+                    break;
+                }
+            }
+
+            if (script_exists) {
+                add_separator = true;
+                menu->add_icon_shortcut(get_icon("ScriptRemove", "EditorIcons"), ED_GET_SHORTCUT("scene_tree/clear_script"), TOOL_CLEAR_SCRIPT);
+            }
         }
-        menu->add_separator();
+
+        if (add_separator) {
+            menu->add_separator();
+        }
     }
 
     if (profile_allow_editing) {
-        if (selection.size() == 1) {
+        if (full_selection.size() == 1) {
             menu->add_icon_shortcut(get_icon("Rename", "EditorIcons"), ED_GET_SHORTCUT("scene_tree/rename"), TOOL_RENAME);
         }
         menu->add_icon_shortcut(get_icon("Reload", "EditorIcons"), ED_GET_SHORTCUT("scene_tree/change_node_type"), TOOL_REPLACE);
@@ -2487,7 +2507,9 @@ void SceneTreeDock::_tree_rmb(const Vector2 &p_menu_pos) {
             menu->add_icon_shortcut(get_icon("Duplicate", "EditorIcons"), ED_GET_SHORTCUT("scene_tree/duplicate"), TOOL_DUPLICATE);
             menu->add_icon_shortcut(get_icon("Reparent", "EditorIcons"), ED_GET_SHORTCUT("scene_tree/reparent"), TOOL_REPARENT);
             menu->add_icon_shortcut(get_icon("ReparentToNewNode", "EditorIcons"), ED_GET_SHORTCUT("scene_tree/reparent_to_new_node"), TOOL_REPARENT_TO_NEW_NODE);
-            menu->add_icon_shortcut(get_icon("NewRoot", "EditorIcons"), ED_GET_SHORTCUT("scene_tree/make_root"), TOOL_MAKE_ROOT);
+            if (selection.size() == 1) {
+                menu->add_icon_shortcut(get_icon("NewRoot", "EditorIcons"), ED_GET_SHORTCUT("scene_tree/make_root"), TOOL_MAKE_ROOT);
+            }
         }
     }
     if (selection.size() == 1) {
@@ -2496,7 +2518,10 @@ void SceneTreeDock::_tree_rmb(const Vector2 &p_menu_pos) {
             menu->add_separator();
             menu->add_icon_shortcut(get_icon("Blend", "EditorIcons"), ED_GET_SHORTCUT("scene_tree/merge_from_scene"), TOOL_MERGE_FROM_SCENE);
             menu->add_icon_shortcut(get_icon("CreateNewSceneFrom", "EditorIcons"), ED_GET_SHORTCUT("scene_tree/save_branch_as_scene"), TOOL_NEW_SCENE_FROM);
+        }
+        if (full_selection.size() == 1) {
             menu->add_separator();
+            menu->add_icon_shortcut(get_icon("CopyNodePath", "EditorIcons"), ED_GET_SHORTCUT("scene_tree/copy_node_path"), TOOL_COPY_NODE_PATH);
         }
         menu->add_icon_shortcut(get_icon("CopyNodePath", "EditorIcons"), ED_GET_SHORTCUT("scene_tree/copy_node_path"), TOOL_COPY_NODE_PATH);
 

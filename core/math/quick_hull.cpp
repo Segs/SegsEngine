@@ -452,7 +452,7 @@ Error QuickHull::build(const Vector<Vector3> &p_points, Geometry::MeshData &r_me
             ERR_CONTINUE(O == E)
             ERR_CONTINUE(O == nullptr)
 
-            if (O->deref().plane.is_almost_like(f.plane)) {
+            if (O->deref().plane.is_equal_approx(f.plane)) {
                 //merge and delete edge and contiguous face, while repointing edges (uuugh!)
                 int ois = O->deref().indices.size();
                 int merged = 0;

@@ -3537,6 +3537,7 @@ void VisualScriptEditor::_selected_connect_node(const se_string &p_text, se_stri
     }
 
     Ref<VisualScriptNode> vnode;
+    Ref<VisualScriptPropertySet> script_prop_set;
 
     if (p_category == se_string_view("method")) {
 
@@ -3546,8 +3547,8 @@ void VisualScriptEditor::_selected_connect_node(const se_string &p_text, se_stri
 
         Ref<VisualScriptPropertySet> n(make_ref_counted<VisualScriptPropertySet>());
 
-        n->set_property(StringName(p_text));
         vnode = n;
+        script_prop_set = n;
     } else if (p_category == se_string_view("get")) {
 
         auto n(make_ref_counted<VisualScriptPropertyGet>());
@@ -3591,6 +3592,9 @@ void VisualScriptEditor::_selected_connect_node(const se_string &p_text, se_stri
     undo_redo->add_do_method(this, "_update_graph", new_id);
     undo_redo->add_undo_method(this, "_update_graph", new_id);
     undo_redo->commit_action();
+
+    if (script_prop_set)
+        script_prop_set->set_property(StringName(p_text));
 
     port_action_new_node = new_id;
 

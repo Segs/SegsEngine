@@ -69,6 +69,9 @@ public:
 
     AABB merge(const AABB &p_with) const;
     void merge_with(const AABB &p_aabb); ///merge with another AABB
+    bool is_equal_approx(const AABB &p_aabb) const {
+        return position.is_equal_approx(p_aabb.position) && size.is_equal_approx(p_aabb.size);
+    }
     AABB intersection(const AABB &p_aabb) const; ///get box where two intersect, empty if no intersection occurs
     bool intersects_segment(const Vector3 &p_from, const Vector3 &p_to, Vector3 *r_clip = nullptr, Vector3 *r_normal = nullptr) const;
     bool intersects_ray(const Vector3 &p_from, const Vector3 &p_dir, Vector3 *r_clip = nullptr, Vector3 *r_normal = nullptr) const;

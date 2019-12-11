@@ -79,6 +79,7 @@ size_t ZSTD_decodeLiteralsBlock(ZSTD_DCtx* dctx,
 size_t ZSTD_decodeLiteralsBlock(ZSTD_DCtx* dctx,
                           const void* src, size_t srcSize)   /* note : srcSize < BLOCKSIZE */
 {
+    DEBUGLOG(5, "ZSTD_decodeLiteralsBlock");
     RETURN_ERROR_IF(srcSize < MIN_CBLOCK_SIZE, corruption_detected);
 
     {   const BYTE* const istart = (const BYTE*) src;
@@ -87,6 +88,7 @@ size_t ZSTD_decodeLiteralsBlock(ZSTD_DCtx* dctx,
         switch(litEncType)
         {
         case set_repeat:
+            DEBUGLOG(5, "set_repeat flag : re-using stats from previous compressed literals block");
             RETURN_ERROR_IF(dctx->litEntropy==0, dictionary_corrupted);
             /* fall-through */
 
@@ -391,6 +393,7 @@ ZSTD_buildFSETable(ZSTD_seqSymbol* dt,
                     symbolNext[s] = 1;
                 } else {
                     if (normalizedCounter[s] >= largeLimit) DTableH.fastMode=0;
+                    assert(normalizedCounter[s]>=0);
                     symbolNext[s] = (U16)normalizedCounter[s];
         }   }   }
         memcpy(dt, &DTableH, sizeof(DTableH));

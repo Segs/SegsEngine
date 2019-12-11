@@ -82,11 +82,8 @@ bool FileSystemDock::_create_tree(TreeItem *p_parent, EditorFileSystemDirectory 
         subdirectory_item->select(0);
     }
 
-    if ((StringUtils::begins_with(path,lpath) && path != lpath)) {
-        subdirectory_item->set_collapsed(false);
-    } else {
-        subdirectory_item->set_collapsed(uncollapsed_paths.find(lpath) < 0);
-    }
+    subdirectory_item->set_collapsed(uncollapsed_paths.find(lpath) < 0);
+
     if (searched_string.length() > 0 && StringUtils::contains(StringUtils::to_lower(dname),searched_string)) {
         parent_should_expand = true;
     }

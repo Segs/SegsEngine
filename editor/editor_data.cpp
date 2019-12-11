@@ -870,7 +870,7 @@ bool EditorData::script_class_is_parent(const StringName & p_class, const String
     if (!ScriptServer::is_global_class(p_class))
         return false;
     StringName base = script_class_get_base(p_class);
-    Ref<Script> script = dynamic_ref_cast<Script>(ResourceLoader::load(ScriptServer::get_global_class_path(p_class), "Script"));
+    Ref<Script> script = script_class_load_script(p_class);
     Ref<Script> base_script = script->get_base_script();
 
     while (p_inherits != base) {
@@ -889,12 +889,8 @@ bool EditorData::script_class_is_parent(const StringName & p_class, const String
 
 StringName EditorData::script_class_get_base(const StringName &p_class) const {
 
-    if (!ScriptServer::is_global_class(p_class))
-        return StringName();
+    Ref<Script> script = script_class_load_script(p_class);
 
-    se_string_view path = ScriptServer::get_global_class_path(p_class);
-
-    Ref<Script> script = dynamic_ref_cast<Script>(ResourceLoader::load(path, "Script"));
     if (not script)
         return StringName();
 
@@ -910,13 +906,21 @@ Object *EditorData::script_class_instance(const StringName & p_class) {
     if (ScriptServer::is_global_class(p_class)) {
         Object *obj = ClassDB::instance(ScriptServer::get_global_class_native_base(p_class));
         if (obj) {
-            RES script(ResourceLoader::load(ScriptServer::get_global_class_path(p_class)));
+            Ref<Script> script = script_class_load_script(p_class);
             if (script)
                 obj->set_script(script.get_ref_ptr());
             return obj;
         }
     }
     return nullptr;
+}
+Ref<Script> EditorData::script_class_load_script(StringName p_class) const {
+
+    if (!ScriptServer::is_global_class(p_class))
+        return Ref<Script>();
+
+    se_string_view path = ScriptServer::get_global_class_path(p_class);
+    return dynamic_ref_cast<Script>(ResourceLoader::load(path, "Script"));
 }
 
 void EditorData::script_class_set_icon_path(const StringName & p_class, se_string_view p_icon_path) {
@@ -1139,7 +1143,15 @@ List<Node *> &EditorSelection::get_selected_node_list() {
         _update_nl();
     return selected_node_list;
 }
+List<Node *> EditorSelection::get_full_selected_node_list() {
 
+    List<Node *> node_list;
+    for (const auto &E : selection) {
+        node_list.push_back(E.first);
+    }
+
+    return node_list;
+}
 void EditorSelection::clear() {
 
     while (!selection.empty()) {

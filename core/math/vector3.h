@@ -122,6 +122,10 @@ struct GODOT_EXPORT Vector3 {
     _FORCE_INLINE_ Vector3 bounce(const Vector3 &p_normal) const;
     _FORCE_INLINE_ Vector3 reflect(const Vector3 &p_normal) const;
 
+    bool is_equal_approx(Vector3 p_v) const {
+
+        return Math::is_equal_approx(x, p_v.x) && Math::is_equal_approx(y, p_v.y) && Math::is_equal_approx(z, p_v.z);
+    }
     /* Operators */
 
     _FORCE_INLINE_ Vector3 &operator+=(const Vector3 &p_v);
@@ -330,11 +334,12 @@ Vector3 Vector3::operator-() const {
 
 bool Vector3::operator==(const Vector3 &p_v) const {
 
-    return (Math::is_equal_approx(x, p_v.x) && Math::is_equal_approx(y, p_v.y) && Math::is_equal_approx(z, p_v.z));
+    return x == p_v.x && y == p_v.y && z == p_v.z;
 }
 
 bool Vector3::operator!=(const Vector3 &p_v) const {
-    return (!Math::is_equal_approx(x, p_v.x) || !Math::is_equal_approx(y, p_v.y) || !Math::is_equal_approx(z, p_v.z));
+
+    return x != p_v.x || y != p_v.y || z != p_v.z;
 }
 
 bool Vector3::operator<(const Vector3 &p_v) const {
