@@ -49,6 +49,8 @@
 #include "editor_settings.h"
 #include "scene/resources/resource_format_text.h"
 
+#include <scene/resources/theme.h>
+
 IMPL_GDCLASS(EditorExportPreset)
 IMPL_GDCLASS(EditorExportPlatform)
 IMPL_GDCLASS(EditorExportPlugin)
@@ -413,6 +415,12 @@ Error EditorExportPlatform::_save_zip_file(void *p_userdata, se_string_view p_pa
     }
 
     return OK;
+}
+
+Ref<ImageTexture> EditorExportPlatform::get_option_icon(int p_index) const {
+    Ref<Theme> theme = EditorNode::get_singleton()->get_editor_theme();
+    ERR_FAIL_COND_V(not theme, Ref<ImageTexture>());
+    return dynamic_ref_cast<ImageTexture>(theme->get_icon("Play", "EditorIcons"));
 }
 
 se_string EditorExportPlatform::find_export_template(se_string_view template_file_name, se_string *err) const {
@@ -1391,7 +1399,7 @@ bool EditorExport::poll_export_platforms() {
 
     bool changed = false;
     for (int i = 0; i < export_platforms.size(); i++) {
-        if (export_platforms.write[i]->poll_devices()) {
+        if (export_platforms.write[i]->poll_export()) {
             changed = true;
         }
     }

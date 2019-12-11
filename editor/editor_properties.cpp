@@ -2251,14 +2251,21 @@ void EditorPropertyResource::_menu_option(int p_which) {
             update_property();
 
         } break;
-        case OBJ_MENU_NEW_SCRIPT: {
+    case OBJ_MENU_NEW_SCRIPT: {
 
-            if (object_cast<Node>(get_edited_object())) {
-                EditorNode::get_singleton()->get_scene_tree_dock()->open_script_dialog(object_cast<Node>(get_edited_object()));
-            }
+        if (object_cast<Node>(get_edited_object())) {
+            EditorNode::get_singleton()->get_scene_tree_dock()->open_script_dialog(object_cast<Node>(get_edited_object()), false);
+        }
 
-        } break;
-        case OBJ_MENU_SHOW_IN_FILE_SYSTEM: {
+    } break;
+    case OBJ_MENU_EXTEND_SCRIPT: {
+
+        if (object_cast<Node>(get_edited_object())) {
+            EditorNode::get_singleton()->get_scene_tree_dock()->open_script_dialog(object_cast<Node>(get_edited_object()), true);
+        }
+
+    } break;
+    case OBJ_MENU_SHOW_IN_FILE_SYSTEM: {
             RES res(get_edited_object()->get(get_edited_property()));
 
             FileSystemDock *file_system_dock = EditorNode::get_singleton()->get_filesystem_dock();
@@ -2387,7 +2394,8 @@ void EditorPropertyResource::_update_menu_items() {
     menu->clear();
 
     if (get_edited_property() == "script" && base_type == "Script" && object_cast<Node>(get_edited_object())) {
-        menu->add_icon_item(get_icon("Script", "EditorIcons"), TTR("New Script"), OBJ_MENU_NEW_SCRIPT);
+        menu->add_icon_item(get_icon("ScriptCreate", "EditorIcons"), TTR("New Script"), OBJ_MENU_NEW_SCRIPT);
+        menu->add_icon_item(get_icon("ScriptExtend", "EditorIcons"), TTR("Extend Script"), OBJ_MENU_EXTEND_SCRIPT);
         menu->add_separator();
     } else if (!base_type.empty()) {
         int idx = 0;
@@ -2677,7 +2685,6 @@ void EditorPropertyResource::update_property() {
     if (res == RES()) {
         assign->set_icon(Ref<Texture>());
         assign->set_text(TTR("[empty]"));
-        assign->set_tooltip_utf8("");
     } else {
 
         assign->set_icon(EditorNode::get_singleton()->get_object_icon(res.get(), "Object"));

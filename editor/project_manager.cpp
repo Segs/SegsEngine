@@ -1030,6 +1030,7 @@ public:
     ProjectList();
     ~ProjectList() override;
 
+    void update_dock_menu();
     void load_projects();
     void set_search_term(se_string_view p_search_term);
     void set_order_option(ProjectListFilter::FilterOption p_option);
@@ -1217,7 +1218,6 @@ void ProjectList::load_projects() {
     _projects.clear();
     _last_clicked = "";
     _selected_project_keys.clear();
-    OS::get_singleton()->global_menu_clear("_dock");
 
     // Load data
     // TODO Would be nice to change how projects and favourites are stored... it complicates things a bit.
@@ -1255,14 +1255,40 @@ void ProjectList::load_projects() {
         create_project_item_control(i);
     }
 
-    OS::get_singleton()->global_menu_add_separator("_dock");
-    OS::get_singleton()->global_menu_add_item("_dock", TTR("New Window"), GLOBAL_NEW_WINDOW, Variant());
-
     sort_projects();
 
     set_v_scroll(0);
 
     update_icons_async();
+
+    update_dock_menu();
+}
+
+void ProjectList::update_dock_menu() {
+    OS::get_singleton()->global_menu_clear("_dock");
+
+    int favs_added = 0;
+    int total_added = 0;
+    for (int i = 0; i < _projects.size(); ++i) {
+        if (!_projects[i].grayed && !_projects[i].missing) {
+            if (_projects[i].favorite) {
+                favs_added++;
+            } else {
+                if (favs_added != 0) {
+                    OS::get_singleton()->global_menu_add_separator("_dock");
+                }
+                favs_added = 0;
+            }
+            OS::get_singleton()->global_menu_add_item("_dock",
+                    StringName(_projects[i].project_name + " ( " + _projects[i].path + " )"), GLOBAL_OPEN_PROJECT,
+                    PathUtils::plus_file(_projects[i].path, "project.godot"));
+            total_added++;
+        }
+    }
+    if (total_added != 0) {
+        OS::get_singleton()->global_menu_add_separator("_dock");
+    }
+    OS::get_singleton()->global_menu_add_item("_dock", TTR("New Window"), GLOBAL_NEW_WINDOW, Variant());
 }
 
 void ProjectList::create_project_item_control(int p_index) {
@@ -1347,8 +1373,6 @@ void ProjectList::create_project_item_control(int p_index) {
     fpath->set_clip_text(true);
 
     _scroll_children->add_child(hb);
-    OS::get_singleton()->global_menu_add_item("_dock", StringName(item.project_name + " ( " + item.path + " )"), GLOBAL_OPEN_PROJECT,
-            Variant(PathUtils::plus_file(item.path,"project.godot")));
     item.control = hb;
 }
 
@@ -1402,6 +1426,8 @@ void ProjectList::sort_projects() {
 
     // Rewind the coroutine because order of projects changed
     update_icons_async();
+
+    update_dock_menu();
 }
 
 const Set<StringName> &ProjectList::get_selected_project_keys() const {
@@ -1478,6 +1504,8 @@ void ProjectList::remove_project(int p_index, bool p_update_settings) {
         EditorSettings::get_singleton()->erase(StringName(se_string("favorite_projects/") + item.project_key));
         // Not actually saving the file, in case you are doing more changes to settings
     }
+
+    update_dock_menu();
 }
 
 bool ProjectList::is_any_project_missing() const {
@@ -1649,7 +1677,9 @@ void ProjectList::erase_selected_projects() {
     EditorSettings::get_singleton()->save();
 
     _selected_project_keys.clear();
-    _last_clicked = "";
+    _last_clicked = StringName();
+
+    update_dock_menu();
 }
 
 // Draws selected project highlight
@@ -1733,6 +1763,8 @@ void ProjectList::_favorite_pressed(Node *p_hb) {
             }
         }
     }
+
+    update_dock_menu();
 }
 
 void ProjectList::_show_project(se_string_view p_path) {
@@ -1935,6 +1967,8 @@ void ProjectManager::_on_projects_updated() {
     if (index != -1) {
         _project_list->ensure_project_visible(index);
     }
+
+    _project_list->update_dock_menu();
 }
 
 void ProjectManager::_on_project_created(se_string_view dir) {
@@ -1943,6 +1977,8 @@ void ProjectManager::_on_project_created(se_string_view dir) {
     _project_list->select_project(i);
     _project_list->ensure_project_visible(i);
     _open_selected_projects_ask();
+
+    _project_list->update_dock_menu();
 }
 
 void ProjectManager::_confirm_update_settings() {

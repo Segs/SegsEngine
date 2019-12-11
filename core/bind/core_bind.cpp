@@ -1153,6 +1153,15 @@ bool _OS::request_permission(se_string_view p_name) {
 
     return OS::get_singleton()->request_permission(p_name);
 }
+bool _OS::request_permissions() {
+
+    return OS::get_singleton()->request_permissions();
+}
+
+PoolVector<se_string> _OS::get_granted_permissions() const {
+
+    return OS::get_singleton()->get_granted_permissions();
+}
 
 IMPL_GDCLASS(_OS);
 
@@ -1339,6 +1348,8 @@ void _OS::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_power_percent_left"), &_OS::get_power_percent_left);
 
     MethodBinder::bind_method(D_METHOD("request_permission", {"name"}), &_OS::request_permission);
+    MethodBinder::bind_method(D_METHOD("request_permissions"), &_OS::request_permissions);
+    MethodBinder::bind_method(D_METHOD("get_granted_permissions"), &_OS::get_granted_permissions);
 
     ADD_PROPERTY(PropertyInfo(VariantType::STRING, "clipboard"), "set_clipboard", "get_clipboard");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "current_screen"), "set_current_screen", "get_current_screen");

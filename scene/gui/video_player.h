@@ -38,91 +38,90 @@
 
 class VideoPlayer : public Control {
 
-	GDCLASS(VideoPlayer,Control)
+    GDCLASS(VideoPlayer,Control)
 
-	struct Output {
+    struct Output {
 
-		AudioFrame vol;
-		int bus_index;
-		Viewport *viewport; //pointer only used for reference to previous mix
-	};
-	Ref<VideoStreamPlayback> playback;
-	Ref<VideoStream> stream;
+        AudioFrame vol;
+        int bus_index;
+        Viewport *viewport; //pointer only used for reference to previous mix
+    };
+    Ref<VideoStreamPlayback> playback;
+    Ref<VideoStream> stream;
 
-	int sp_get_channel_count() const;
-	bool mix(AudioFrame *p_buffer, int p_frames);
+    int sp_get_channel_count() const;
+    bool mix(AudioFrame *p_buffer, int p_frames);
 
-	RID stream_rid;
+    RID stream_rid;
 
-	Ref<ImageTexture> texture;
-	Ref<Image> last_frame;
+    Ref<ImageTexture> texture;
 
-	AudioRBResampler resampler;
-	Vector<AudioFrame> mix_buffer;
-	int wait_resampler, wait_resampler_limit;
+    AudioRBResampler resampler;
+    Vector<AudioFrame> mix_buffer;
+    int wait_resampler, wait_resampler_limit;
 
-	bool paused;
-	bool autoplay;
-	float volume;
-	double last_audio_time;
-	bool expand;
-	bool loops;
-	int buffering_ms;
-	int audio_track;
-	int bus_index;
+    bool paused;
+    bool autoplay;
+    float volume;
+    double last_audio_time;
+    bool expand;
+    bool loops;
+    int buffering_ms;
+    int audio_track;
+    int bus_index;
 
-	StringName bus;
+    StringName bus;
 
-	void _mix_audio();
-	static int _audio_mix_callback(void *p_udata, const float *p_data, int p_frames);
-	static void _mix_audios(void *self) { reinterpret_cast<VideoPlayer *>(self)->_mix_audio(); }
+    void _mix_audio();
+    static int _audio_mix_callback(void *p_udata, const float *p_data, int p_frames);
+    static void _mix_audios(void *self);
 
 protected:
-	static void _bind_methods();
-	void _notification(int p_notification);
-	void _validate_property(PropertyInfo &property) const override;
+    static void _bind_methods();
+    void _notification(int p_notification);
+    void _validate_property(PropertyInfo &property) const override;
 
 public:
-	Size2 get_minimum_size() const override;
-	void set_expand(bool p_expand);
-	bool has_expand() const;
+    Size2 get_minimum_size() const override;
+    void set_expand(bool p_expand);
+    bool has_expand() const;
 
-	Ref<Texture> get_video_texture();
+    Ref<Texture> get_video_texture() const;
 
-	void set_stream(const Ref<VideoStream> &p_stream);
-	Ref<VideoStream> get_stream() const;
+    void set_stream(const Ref<VideoStream> &p_stream);
+    Ref<VideoStream> get_stream() const;
 
-	void play();
-	void stop();
-	bool is_playing() const;
+    void play();
+    void stop();
+    bool is_playing() const;
 
-	void set_paused(bool p_paused);
-	bool is_paused() const;
+    void set_paused(bool p_paused);
+    bool is_paused() const;
 
-	void set_volume(float p_vol);
-	float get_volume() const;
+    void set_volume(float p_vol);
+    float get_volume() const;
 
-	void set_volume_db(float p_db);
-	float get_volume_db() const;
+    void set_volume_db(float p_db);
+    float get_volume_db() const;
 
-	StringName get_stream_name() const;
-	float get_stream_position() const;
-	void set_stream_position(float p_position);
+    StringName get_stream_name() const;
+    float get_stream_position() const;
+    void set_stream_position(float p_position);
 
-	void set_autoplay(bool p_enable);
-	bool has_autoplay() const;
+    void set_autoplay(bool p_enable);
+    bool has_autoplay() const;
 
-	void set_audio_track(int p_track);
-	int get_audio_track() const;
+    void set_audio_track(int p_track);
+    int get_audio_track() const;
 
-	void set_buffering_msec(int p_msec);
-	int get_buffering_msec() const;
+    void set_buffering_msec(int p_msec);
+    int get_buffering_msec() const;
 
-	void set_bus(const StringName &p_bus);
-	StringName get_bus() const;
+    void set_bus(const StringName &p_bus);
+    StringName get_bus() const;
 
-	VideoPlayer();
-	~VideoPlayer() override;
+    VideoPlayer();
+    ~VideoPlayer() override;
 };
 
 #endif // VIDEO_PLAYER_H

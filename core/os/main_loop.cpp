@@ -69,6 +69,10 @@ void MainLoop::_bind_methods() {
     BIND_CONSTANT(NOTIFICATION_OS_IME_UPDATE)
     BIND_CONSTANT(NOTIFICATION_APP_RESUMED)
     BIND_CONSTANT(NOTIFICATION_APP_PAUSED)
+
+    ADD_SIGNAL(MethodInfo("on_request_permissions_result", PropertyInfo(VariantType::STRING, "permission"),
+            PropertyInfo(VariantType::BOOL, "granted")));
+
 };
 
 void MainLoop::set_init_script(const Ref<Script> &p_init_script) {

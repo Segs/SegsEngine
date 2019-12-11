@@ -283,7 +283,7 @@ void VideoStreamPlaybackGDNative::set_paused(bool p_paused) {
     paused = p_paused;
 }
 
-Ref<Texture> VideoStreamPlaybackGDNative::get_texture() {
+Ref<Texture> VideoStreamPlaybackGDNative::get_texture() const {
     return texture;
 }
 

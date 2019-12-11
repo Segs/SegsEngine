@@ -541,6 +541,8 @@ public:
     ListPOD<se_string> get_restart_on_exit_arguments() const;
 
     virtual bool request_permission(se_string_view /*p_name*/) { return true; }
+    virtual bool request_permissions() { return true; }
+    virtual PoolVector<se_string> get_granted_permissions() const;
     virtual void run() = 0;
     virtual void process_and_drop_events() {}
     OS();

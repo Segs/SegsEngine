@@ -66,69 +66,13 @@ protected:
 
     Ref<Font> default_theme_font;
 
-    PoolVector<se_string> _get_icon_list(const se_string &p_type) const {
-        PoolVector<se_string> ilret;
-        PODVector<StringName> il;
-        get_icon_list(StringName(p_type), &il);
-        for (const StringName &E : il) {
-            ilret.push_back(se_string(E));
-        }
-        return ilret;
-    }
-    PoolVector<se_string> _get_stylebox_list(const se_string &p_type) const {
-        PoolVector<se_string> ilret;
-        PODVector<StringName> il;
-        get_stylebox_list(StringName(p_type), &il);
-        for (const StringName &E : il) {
-            ilret.push_back(se_string(E));
-        }
-        return ilret;
-    }
-    PoolVector<se_string> _get_stylebox_types() const {
-        PoolVector<se_string> ilret;
-        PODVector<StringName> il;
-        get_stylebox_types(&il);
-        for (const StringName &E : il) {
-            ilret.push_back(se_string(E));
-        }
-        return ilret;
-    }
-    PoolVector<se_string> _get_font_list(const se_string &p_type) const {
-        PoolVector<se_string> ilret;
-        PODVector<StringName> il;
-        get_font_list(StringName(p_type), &il);
-        for (const StringName &E : il) {
-            ilret.push_back(se_string(E));
-        }
-        return ilret;
-    }
-    PoolVector<se_string> _get_color_list(const se_string &p_type) const {
-        PoolVector<se_string> ilret;
-        PODVector<StringName> il;
-        get_color_list(StringName(p_type), &il);
-        for (const StringName &E : il) {
-            ilret.push_back(se_string(E));
-        }
-        return ilret;
-    }
-    PoolVector<se_string> _get_constant_list(const se_string &p_type) const {
-        PoolVector<se_string> ilret;
-        PODVector<StringName> il;
-        get_constant_list(StringName(p_type), &il);
-        for (const StringName &E : il) {
-            ilret.push_back(se_string(E));
-        }
-        return ilret;
-    }
-    PoolVector<se_string> _get_type_list(se_string_view p_type) const {
-        PoolVector<se_string> ilret;
-        PODVector<StringName> il;
-        get_type_list(&il);
-        for (const StringName &E : il) {
-            ilret.push_back(se_string(E));
-        }
-        return ilret;
-    }
+    PoolVector<se_string> _get_icon_list(const se_string &p_type) const;
+    PoolVector<se_string> _get_stylebox_list(const se_string &p_type) const;
+    PoolVector<se_string> _get_stylebox_types() const;
+    PoolVector<se_string> _get_font_list(const se_string &p_type) const;
+    PoolVector<se_string> _get_color_list(const se_string &p_type) const;
+    PoolVector<se_string> _get_constant_list(const se_string &p_type) const;
+    PoolVector<se_string> _get_type_list(se_string_view p_type) const;
 
     static void _bind_methods();
 

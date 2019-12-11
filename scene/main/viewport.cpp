@@ -2390,7 +2390,6 @@ void Viewport::_gui_remove_from_modal_stack(List<Control *>::Element *MI, Object
     List<Control *>::Element *next = MI->next();
 
     gui.modal_stack.erase(MI);
-    MI = nullptr;
 
     if (p_prev_focus_owner) {
 

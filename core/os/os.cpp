@@ -739,6 +739,8 @@ ListPOD<se_string> OS::get_restart_on_exit_arguments() const {
     return restart_commandline;
 }
 
+PoolVector<se_string> OS::get_granted_permissions() const { return PoolVector<se_string>(); }
+
 PoolSeStringArray OS::get_connected_midi_inputs() {
 
     if (MIDIDriver::get_singleton())

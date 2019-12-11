@@ -2214,9 +2214,11 @@ void Control::_modal_stack_remove() {
     if (!data.MI)
         return;
 
-    get_viewport()->_gui_remove_from_modal_stack(data.MI, data.modal_prev_focus_owner);
-
+    List<Control *>::Element *element = data.MI;
     data.MI = nullptr;
+
+    get_viewport()->_gui_remove_from_modal_stack(element, data.modal_prev_focus_owner);
+
     data.modal_prev_focus_owner = 0;
 }
 

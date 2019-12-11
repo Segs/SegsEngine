@@ -219,10 +219,12 @@ public:
     Error save_pack(const Ref<EditorExportPreset> &p_preset, se_string_view p_path, Vector<SharedObject> *p_so_files = nullptr, bool p_embed = false, int64_t *r_embedded_start = nullptr, int64_t *r_embedded_size = nullptr);
     Error save_zip(const Ref<EditorExportPreset> &p_preset, const se_string &p_path);
 
-    virtual bool poll_devices() { return false; }
-    virtual int get_device_count() const { return 0; }
-    virtual const se_string & get_device_name(int p_device) const { return null_se_string; }
-    virtual const se_string & get_device_info(int p_device) const { return null_se_string; }
+    virtual bool poll_export() { return false; }
+    virtual int get_options_count() const { return 0; }
+    virtual const se_string & get_options_tooltip() const { return null_se_string; }
+    virtual Ref<ImageTexture> get_option_icon(int p_index) const;
+    virtual StringName get_option_label(int p_device) const { return StringName(); }
+    virtual StringName get_option_tooltip(int p_device) const { return StringName(); }
 
     enum DebugFlags {
         DEBUG_FLAG_DUMB_CLIENT = 1,

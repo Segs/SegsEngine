@@ -39,6 +39,10 @@ IMPL_GDCLASS(VideoPlayer)
 
 int VideoPlayer::sp_get_channel_count() const {
 
+    if (not playback) {
+        return 0;
+    }
+
     return playback->get_channels();
 }
 
@@ -58,6 +62,8 @@ bool VideoPlayer::mix(AudioFrame *p_buffer, int p_frames) {
 
 // Called from main thread (eg VideoStreamPlaybackWebm::update)
 int VideoPlayer::_audio_mix_callback(void *p_udata, const float *p_data, int p_frames) {
+    ERR_FAIL_NULL_V(p_udata, 0)
+    ERR_FAIL_NULL_V(p_data, 0)
 
     VideoPlayer *vp = (VideoPlayer *)p_udata;
 
@@ -73,7 +79,11 @@ int VideoPlayer::_audio_mix_callback(void *p_udata, const float *p_data, int p_f
 
     return todo;
 }
+void VideoPlayer::_mix_audios(void *p_self) {
 
+    ERR_FAIL_NULL(p_self);
+    reinterpret_cast<VideoPlayer *>(p_self)->_mix_audio();
+}
 // Called from audio thread
 void VideoPlayer::_mix_audio() {
 
@@ -146,7 +156,7 @@ void VideoPlayer::_notification(int p_notification) {
 
             bus_index = AudioServer::get_singleton()->thread_find_bus_index(bus);
 
-            if (not stream || paused || !playback->is_playing())
+            if (not stream || paused || !playback || !playback->is_playing())
                 return;
 
             double audio_time = USEC_TO_SEC(OS::get_singleton()->get_ticks_usec());
@@ -361,7 +371,7 @@ void VideoPlayer::set_stream_position(float p_position) {
         playback->seek(p_position);
 }
 
-Ref<Texture> VideoPlayer::get_video_texture() {
+Ref<Texture> VideoPlayer::get_video_texture() const {
 
     if (playback)
         return playback->get_texture();
@@ -397,9 +407,9 @@ StringName VideoPlayer::get_bus() const {
     return "Master";
 }
 
-void VideoPlayer::_validate_property(PropertyInfo &property) const {
+void VideoPlayer::_validate_property(PropertyInfo &p_property) const {
 
-    if (property.name == "bus") {
+    if (p_property.name == "bus") {
 
         se_string options;
         for (int i = 0; i < AudioServer::get_singleton()->get_bus_count(); i++) {
@@ -409,7 +419,7 @@ void VideoPlayer::_validate_property(PropertyInfo &property) const {
             options += name;
         }
 
-        property.hint_string = options;
+        p_property.hint_string = options;
     }
 }
 

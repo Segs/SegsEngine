@@ -607,7 +607,19 @@ void ScriptEditorDebugger::_parse_message(const se_string &p_msg, const Array &p
                 if (var.is_zero()) {
                     var = RES();
                 } else if (var.get_type() == VariantType::STRING) {
-                    var = ResourceLoader::load(var.as<se_string>());
+                    se_string path = var;
+                    if (path.contains("::")) {
+                        // built-in resource
+                        se_string_view base_path = StringUtils::get_slice(path,"::", 0);
+                        if (ResourceLoader::get_resource_type(base_path) == "PackedScene") {
+                            if (!EditorNode::get_singleton()->is_scene_open(base_path)) {
+                                EditorNode::get_singleton()->load_scene(base_path);
+                            }
+                        } else {
+                            EditorNode::get_singleton()->load_resource(base_path);
+                        }
+                    }
+                    var = ResourceLoader::load(path);
 
                     if (pinfo.hint_string == "Script")
                         debugObj->set_script(var);

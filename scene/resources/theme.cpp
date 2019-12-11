@@ -42,7 +42,75 @@ void Theme::_emit_theme_changed() {
 
     emit_changed();
 }
+PoolVector<se_string> Theme::_get_icon_list(const se_string &p_type) const {
+    PoolVector<se_string> ilret;
+    PODVector<StringName> il;
+    get_icon_list(StringName(p_type), &il);
+    for (const StringName &E : il) {
+        ilret.push_back(se_string(E));
+    }
+    return ilret;
+}
 
+PoolVector<se_string> Theme::_get_stylebox_list(const se_string &p_type) const {
+    PoolVector<se_string> ilret;
+    PODVector<StringName> il;
+    get_stylebox_list(StringName(p_type), &il);
+    for (const StringName &E : il) {
+        ilret.push_back(se_string(E));
+    }
+    return ilret;
+}
+
+PoolVector<se_string> Theme::_get_stylebox_types() const {
+    PoolVector<se_string> ilret;
+    PODVector<StringName> il;
+    get_stylebox_types(&il);
+    for (const StringName &E : il) {
+        ilret.push_back(se_string(E));
+    }
+    return ilret;
+}
+
+PoolVector<se_string> Theme::_get_font_list(const se_string &p_type) const {
+    PoolVector<se_string> ilret;
+    PODVector<StringName> il;
+    get_font_list(StringName(p_type), &il);
+    for (const StringName &E : il) {
+        ilret.push_back(se_string(E));
+    }
+    return ilret;
+}
+
+PoolVector<se_string> Theme::_get_color_list(const se_string &p_type) const {
+    PoolVector<se_string> ilret;
+    PODVector<StringName> il;
+    get_color_list(StringName(p_type), &il);
+    for (const StringName &E : il) {
+        ilret.push_back(se_string(E));
+    }
+    return ilret;
+}
+
+PoolVector<se_string> Theme::_get_constant_list(const se_string &p_type) const {
+    PoolVector<se_string> ilret;
+    PODVector<StringName> il;
+    get_constant_list(StringName(p_type), &il);
+    for (const StringName &E : il) {
+        ilret.push_back(se_string(E));
+    }
+    return ilret;
+}
+
+PoolVector<se_string> Theme::_get_type_list(se_string_view p_type) const {
+    PoolVector<se_string> ilret;
+    PODVector<StringName> il;
+    get_type_list(&il);
+    for (const StringName &E : il) {
+        ilret.push_back(se_string(E));
+    }
+    return ilret;
+}
 bool Theme::_set(const StringName &p_name, const Variant &p_value) {
     using namespace eastl;
 
@@ -184,6 +252,8 @@ void Theme::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
         p_list->push_back(E->deref());
     }
 }
+
+
 
 void Theme::set_default_theme_font(const Ref<Font> &p_default_font) {
 
@@ -635,6 +705,11 @@ void Theme::copy_default_theme() {
 }
 
 void Theme::copy_theme(const Ref<Theme> &p_other) {
+
+    if (not p_other) {
+        clear();
+        return;
+    }
 
     //these need reconnecting, so add normally
     {

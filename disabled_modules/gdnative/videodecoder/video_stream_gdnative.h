@@ -168,7 +168,7 @@ public:
 
     //virtual int mix(int16_t* p_buffer,int p_frames)=0;
 
-    Ref<Texture> get_texture() override;
+    Ref<Texture> get_texture() const override;
     void update(float p_delta) override;
 
     void set_mix_callback(AudioMixCallback p_callback, void *p_userdata) override;

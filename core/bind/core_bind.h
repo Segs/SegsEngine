@@ -352,6 +352,8 @@ public:
     bool has_feature(se_string_view p_feature) const;
 
     bool request_permission(se_string_view p_name);
+    bool request_permissions();
+    PoolVector<se_string> get_granted_permissions() const;
 
     static _OS *get_singleton() { return singleton; }
 
