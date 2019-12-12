@@ -89,7 +89,7 @@ void FileTypeCache::save() {
     se_string project = ProjectSettings::get_singleton()->get_resource_path();
     FileAccess *f = FileAccess::open(project + "/file_type_cache.cch", FileAccess::WRITE);
 
-    ERR_FAIL_COND_CMSG(!f, "Can't open file_type_cache.cch for writing, not saving file type cache!")
+    ERR_FAIL_COND_MSG(!f, "Can't open file_type_cache.cch for writing, not saving file type cache!")
 
     for(const auto &v : file_type_map) {
         f->store_line(v.first);
@@ -102,6 +102,6 @@ void FileTypeCache::save() {
 
 FileTypeCache::FileTypeCache() {
 
-    ERR_FAIL_COND_CMSG(singleton, "FileTypeCache singleton already exist.")
+    ERR_FAIL_COND_MSG(singleton, "FileTypeCache singleton already exist.")
     singleton = this;
 }

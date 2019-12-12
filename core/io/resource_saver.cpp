@@ -182,7 +182,7 @@ void ResourceSaver::get_recognized_extensions(const RES &p_resource, PODVector<s
 
 void ResourceSaver::add_resource_format_saver(const Ref<ResourceFormatSaver>& p_format_saver, bool p_at_front) {
 
-    ERR_FAIL_COND_CMSG(not p_format_saver, "It's not a reference to a valid ResourceFormatSaver object.")
+    ERR_FAIL_COND_MSG(not p_format_saver, "It's not a reference to a valid ResourceFormatSaver object.")
 
     if (p_at_front) {
         saver.push_front(p_format_saver);

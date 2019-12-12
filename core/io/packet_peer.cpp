@@ -150,7 +150,7 @@ void PacketPeer::_bind_methods() {
 
 void PacketPeerStream::_set_stream_peer(const REF& p_peer) {
 
-    ERR_FAIL_COND_CMSG(not p_peer, "It's not a reference to a valid Resource object.")
+    ERR_FAIL_COND_MSG(not p_peer, "It's not a reference to a valid Resource object.")
     set_stream_peer(dynamic_ref_cast<StreamPeer>(p_peer));
 }
 

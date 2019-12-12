@@ -252,7 +252,7 @@ Error FileAccessEncrypted::get_error() const {
 
 void FileAccessEncrypted::store_buffer(const uint8_t *p_src, int p_length) {
 
-    ERR_FAIL_COND_CMSG(!writing, "File has not been opened in read mode.")
+    ERR_FAIL_COND_MSG(!writing, "File has not been opened in read mode.")
 
     if (pos < data.size()) {
 
@@ -272,14 +272,14 @@ void FileAccessEncrypted::store_buffer(const uint8_t *p_src, int p_length) {
 }
 
 void FileAccessEncrypted::flush() {
-    ERR_FAIL_COND_CMSG(!writing, "File has not been opened in read mode.")
+    ERR_FAIL_COND_MSG(!writing, "File has not been opened in read mode.")
 
     // encrypted files keep data in memory till close()
 }
 
 void FileAccessEncrypted::store_8(uint8_t p_dest) {
 
-    ERR_FAIL_COND_CMSG(!writing, "File has not been opened in read mode.")
+    ERR_FAIL_COND_MSG(!writing, "File has not been opened in read mode.")
 
     if (pos < data.size()) {
         data.write[pos] = p_dest;

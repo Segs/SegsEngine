@@ -151,7 +151,6 @@ public:
             ERR_REPORT_COND(!p_static_string.ptr || !p_static_string.ptr[0])
             return;
         }
-        ERR_RESET()
         setupFromCString(p_static_string);
     }
     constexpr StringName() noexcept : _data(nullptr) {}

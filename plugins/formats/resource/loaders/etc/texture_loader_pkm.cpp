@@ -95,6 +95,9 @@ RES ResourceFormatPKM::load(se_string_view p_path, se_string_view p_original_pat
     if (r_error)
         *r_error = OK;
 
+    f->close();
+    memdelete(f);
+
     return texture;
 }
 

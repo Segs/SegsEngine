@@ -408,8 +408,8 @@ void Node::move_child(Node *p_child, int p_pos) {
 
     ERR_FAIL_NULL(p_child)
     ERR_FAIL_INDEX_MSG(p_pos, data->children.size() + 1, "Invalid new child position: " + itos(p_pos) + ".")
-    ERR_FAIL_COND_CMSG(p_child->data->parent != this, "Child is not a child of this node.")
-    ERR_FAIL_COND_CMSG(blocked > 0, "Parent node is busy setting up children, move_child() failed. Consider using call_deferred(\"move_child\") instead (or \"popup\" if this is from a popup).")
+    ERR_FAIL_COND_MSG(p_child->data->parent != this, "Child is not a child of this node.")
+    ERR_FAIL_COND_MSG(blocked > 0, "Parent node is busy setting up children, move_child() failed. Consider using call_deferred(\"move_child\") instead (or \"popup\" if this is from a popup).")
 
     // Specifying one place beyond the end
     // means the same as moving to the last position
@@ -1250,7 +1250,7 @@ void Node::add_child(Node *p_child, bool p_legible_unique_name) {
     ERR_FAIL_COND_MSG(p_child->data->parent, "Can't add child '" + se_string(p_child->get_name()) + "' to '" + get_name() +
                                                     "', already has a parent '" + p_child->data->parent->get_name() +
                                                     "'.") // Fail if node has a parent
-    ERR_FAIL_COND_CMSG(blocked > 0, "Parent node is busy setting up children, add_node() failed. Consider using "
+    ERR_FAIL_COND_MSG(blocked > 0, "Parent node is busy setting up children, add_node() failed. Consider using "
                                          "call_deferred(\"add_child\", child) instead.")
 
     /* Validate name */
@@ -1307,7 +1307,7 @@ void Node::_propagate_validate_owner() {
 void Node::remove_child(Node *p_child) {
 
     ERR_FAIL_NULL(p_child)
-    ERR_FAIL_COND_CMSG(blocked > 0, "Parent node is busy setting up children, remove_node() failed. Consider using call_deferred(\"remove_child\", child) instead.")
+    ERR_FAIL_COND_MSG(blocked > 0, "Parent node is busy setting up children, remove_node() failed. Consider using call_deferred(\"remove_child\", child) instead.")
 
     int child_count = data->children.size();
     Node **children = data->children.ptrw();

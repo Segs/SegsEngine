@@ -159,11 +159,9 @@ StringName ClassDB::get_parent_class(const StringName &p_class) {
     ClassInfo *ti = classes.getptr(p_class);
     {
         if (unlikely(!ti)) {
-            ERR_EXPLAIN("Cannot get class '" + se_string(p_class) + "'.")                                                                                                     \
-            _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "Condition ' " _STR(!ti) " ' is true. returned: " _STR(StringName()));
+            _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "Condition ' " _STR(!ti) " ' is true. returned: " _STR(StringName()),"Cannot get class '" + se_string(p_class) + "'.");
             return StringName();
         }
-        _err_error_exists = false;
     }
     return ti->inherits;
 }

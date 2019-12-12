@@ -131,7 +131,7 @@ void InputMap::action_set_deadzone(const StringName &p_action, float p_deadzone)
 
 void InputMap::action_add_event(const StringName &p_action, const Ref<InputEvent> &p_event) {
 
-    ERR_FAIL_COND_CMSG(not p_event, "It's not a reference to a valid InputEvent object.")
+    ERR_FAIL_COND_MSG(not p_event, "It's not a reference to a valid InputEvent object.")
     ERR_FAIL_COND_MSG(!input_map.contains(p_action), "Request for nonexistent InputMap action '" + se_string(p_action) + "'.")
     if (_find_event(input_map[p_action], p_event)!=input_map[p_action].inputs.end())
         return; //already gots
@@ -278,6 +278,6 @@ void InputMap::load_default() {
 
 InputMap::InputMap() {
 
-    ERR_FAIL_COND_CMSG(singleton, "Singleton in InputMap already exist.")
+    ERR_FAIL_COND_MSG(singleton, "Singleton in InputMap already exist.")
     singleton = this;
 }

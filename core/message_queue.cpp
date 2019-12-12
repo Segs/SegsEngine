@@ -344,7 +344,7 @@ bool MessageQueue::is_flushing() const {
 
 MessageQueue::MessageQueue() {
     __thread__safe__.reset(new Mutex);
-    ERR_FAIL_COND_CMSG(singleton != nullptr, "MessageQueue singleton already exist.")
+    ERR_FAIL_COND_MSG(singleton != nullptr, "MessageQueue singleton already exist.")
     singleton = this;
     flushing = false;
     StringName prop_name("memory/limits/message_queue/max_size_kb");

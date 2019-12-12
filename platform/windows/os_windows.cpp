@@ -1524,7 +1524,7 @@ void OS_Windows::set_clipboard(const String &p_text) {
     EmptyClipboard();
 
     HGLOBAL mem = GlobalAlloc(GMEM_MOVEABLE, (text.length() + 1) * sizeof(CharType));
-    ERR_FAIL_COND_CMSG(mem == nullptr, "Unable to allocate memory for clipboard contents.")
+    ERR_FAIL_COND_MSG(mem == nullptr, "Unable to allocate memory for clipboard contents.")
 
     LPWSTR lptstrCopy = (LPWSTR)GlobalLock(mem);
     text.m_str.toWCharArray(lptstrCopy);
@@ -2945,7 +2945,7 @@ void OS_Windows::move_window_to_foreground() {
 
 Error OS_Windows::shell_open(String p_uri) {
 
-    ShellExecuteW(nullptr, L"open", qUtf16Printable(p_uri.m_str), nullptr, nullptr, SW_SHOWNORMAL);
+    ShellExecuteW(nullptr, nullptr, qUtf16Printable(p_uri.m_str), nullptr, nullptr, SW_SHOWNORMAL);
     return OK;
 }
 

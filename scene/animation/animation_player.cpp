@@ -1106,7 +1106,7 @@ void AnimationPlayer::get_animation_list(PODVector<StringName> *p_animations) co
 
 void AnimationPlayer::set_blend_time(const StringName &p_animation1, const StringName &p_animation2, float p_time) {
 
-    ERR_FAIL_COND_CMSG(p_time < 0, "Blend time cannot be smaller than 0.")
+    ERR_FAIL_COND_MSG(p_time < 0, "Blend time cannot be smaller than 0.")
 
     BlendKey bk;
     bk.from = p_animation1;

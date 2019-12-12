@@ -225,6 +225,9 @@ public:
     void set_low_processor_usage_mode(bool p_enabled);
     bool is_in_low_processor_usage_mode() const;
 
+    void set_low_processor_usage_mode_sleep_usec(int p_usec);
+    int get_low_processor_usage_mode_sleep_usec() const;
+
     se_string get_executable_path() const;
     int execute(se_string_view p_path, const Vector<se_string> &p_arguments, bool p_blocking, Array p_output = Array(), bool p_read_stderr = false);
 

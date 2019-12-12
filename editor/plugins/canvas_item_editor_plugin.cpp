@@ -4365,11 +4365,11 @@ void CanvasItemEditor::_button_toggle_anchor_mode(bool p_status) {
 void CanvasItemEditor::_update_override_camera_button(bool p_game_running) {
     if (p_game_running) {
         override_camera_button->set_disabled(false);
-        override_camera_button->set_tooltip(TTR("Game camera override\nOverrides game camera with editor viewport camera."));
+        override_camera_button->set_tooltip(TTR("Game Camera Override\nOverrides game camera with editor viewport camera."));
     } else {
         override_camera_button->set_disabled(true);
         override_camera_button->set_pressed(false);
-        override_camera_button->set_tooltip(TTR("Game camera override\nNo game instance running."));
+        override_camera_button->set_tooltip(TTR("Game Camera Override\nNo game instance running."));
     }
 }
 
@@ -5273,6 +5273,7 @@ CanvasItemEditor::CanvasItemEditor(EditorNode *p_editor) {
     snap_other_nodes = true;
     snap_guides = true;
     snap_rotation = false;
+    snap_scale = false;
     snap_relative = false;
     snap_pixel = false;
     snap_target[0] = SNAP_TARGET_NONE;

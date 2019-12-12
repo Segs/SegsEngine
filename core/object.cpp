@@ -859,9 +859,9 @@ void Object::call_multilevel(const StringName &p_method, const Variant **p_args,
 
     if (p_method == CoreStringNames::get_singleton()->_free) {
 #ifdef DEBUG_ENABLED
-        ERR_FAIL_COND_CMSG(object_cast<RefCounted>(this), "Can't 'free' a reference.")
+        ERR_FAIL_COND_MSG(object_cast<RefCounted>(this), "Can't 'free' a reference.")
 
-        ERR_FAIL_COND_CMSG(private_data->_lock_index.get() > 1, "Object is locked and can't be freed.")
+        ERR_FAIL_COND_MSG(private_data->_lock_index.get() > 1, "Object is locked and can't be freed.")
 #endif
 
         //must be here, must be before everything,
@@ -1229,7 +1229,7 @@ IObjectTooling *Object::get_tooling_interface() const
 
 void Object::add_user_signal(const MethodInfo &p_signal) {
 
-    ERR_FAIL_COND_CMSG(p_signal.name.empty(), "Signal name cannot be empty.")
+    ERR_FAIL_COND_MSG(p_signal.name.empty(), "Signal name cannot be empty.")
     ERR_FAIL_COND_MSG(ClassDB::has_signal(get_class_name(), p_signal.name), "User signal's name conflicts with a built-in signal of '" + se_string(get_class_name()) + "'.")
     ERR_FAIL_COND_MSG(private_data->signal_map.contains(p_signal.name), "Trying to add already existing signal '" + se_string(p_signal.name) + "'.")
     Signal s;
@@ -1583,12 +1583,11 @@ Error Object::connect(const StringName &p_signal, Object *p_to_object, const Str
         }
         {
             if (unlikely(!signal_is_valid)) {
-                ERR_EXPLAIN("In Object of type '" + se_string(get_class()) + "': Attempt to connect nonexistent signal '" + p_signal +
-                            "' to method '" + p_to_object->get_class() + "." + p_to_method + "'.")
-                _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "Condition ' !signal_is_valid ' is true. returned: " _STR(ERR_INVALID_PARAMETER));
+                se_string msg("In Object of type '" + se_string(get_class()) + "': Attempt to connect nonexistent signal '" + p_signal +
+                            "' to method '" + p_to_object->get_class() + "." + p_to_method + "'.");
+                _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "Condition ' !signal_is_valid ' is true. returned: " _STR(ERR_INVALID_PARAMETER),msg);
                 return ERR_INVALID_PARAMETER;
             }
-            _err_error_exists = false;
         }
 
         private_data->signal_map[p_signal] = Signal();

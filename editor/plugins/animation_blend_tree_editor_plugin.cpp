@@ -541,15 +541,36 @@ bool AnimationNodeBlendTreeEditor::_update_filters(const Ref<AnimationNode> &ano
     updating = true;
 
     Set<se_string> paths;
+    HashMap<se_string, Set<se_string> > types;
     {
         PODVector<StringName> animations;
         player->get_animation_list(&animations);
 
-        for (const StringName &E : animations) {
+        for (StringName E : animations) {
 
             Ref<Animation> anim = player->get_animation(E);
             for (int i = 0; i < anim->get_track_count(); i++) {
-                paths.insert((se_string)anim->track_get_path(i));
+                se_string track_path = (se_string)anim->track_get_path(i);
+                paths.insert(track_path);
+
+                StringName track_type_name;
+                Animation::TrackType track_type = anim->track_get_type(i);
+                switch (track_type) {
+                    case Animation::TrackType::TYPE_ANIMATION: {
+                        track_type_name = TTR("Anim Clips");
+                    } break;
+                    case Animation::TrackType::TYPE_AUDIO: {
+                        track_type_name = TTR("Audio Clips");
+                    } break;
+                    case Animation::TrackType::TYPE_METHOD: {
+                        track_type_name = TTR("Functions");
+                    } break;
+                    default: {
+                    } break;
+                }
+                if (!track_type_name.empty()) {
+                    types[track_path].insert(track_type_name);
+                }
             }
         }
     }
@@ -653,10 +674,23 @@ bool AnimationNodeBlendTreeEditor::_update_filters(const Ref<AnimationNode> &ano
             }
         } else {
             if (ti) {
-                //just a node, likely call or animation track
+                //just a node, not a property track
+                se_string types_text = "[";
+                if (types.contains((se_string)path)) {
+                    auto & c(types[(se_string)path]);
+                    auto F = types[(se_string)path].begin();
+                    types_text += *F;
+                    ++F;
+                    for (;F != c.end(); ++F) {
+                        types_text += " / " + *F;
+                    }
+                }
+                types_text += "]";
+                ti = filters->create_item(ti);
+                ti->set_cell_mode(0, TreeItem::CELL_MODE_CHECK);
+                ti->set_text_utf8(0, types_text);
                 ti->set_editable(0, true);
                 ti->set_selectable(0, true);
-                ti->set_cell_mode(0, TreeItem::CELL_MODE_CHECK);
                 ti->set_checked(0, anode->is_path_filtered(path));
                 ti->set_metadata(0, path);
             }

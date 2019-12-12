@@ -964,7 +964,7 @@ void TileMap::update_bitmask_region(const Vector2 &p_start, const Vector2 &p_end
 
 void TileMap::update_cell_bitmask(int p_x, int p_y) {
 
-    ERR_FAIL_COND_CMSG(not tile_set, "Cannot update cell bitmask if Tileset is not open.")
+    ERR_FAIL_COND_MSG(not tile_set, "Cannot update cell bitmask if Tileset is not open.")
 
     PosKey p(p_x, p_y);
     Map<PosKey, Cell>::iterator E = tile_map.find(p);

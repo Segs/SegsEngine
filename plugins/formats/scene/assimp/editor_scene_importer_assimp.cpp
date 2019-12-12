@@ -198,8 +198,7 @@ Node *EditorSceneImporterAssimp::import_scene(se_string_view p_path, uint32_t p_
                                  //aiProcess_SplitByBoneCount |
                                  0;
     aiScene *scene = (aiScene *)importer.ReadFile(s_path.c_str(), post_process_Steps);
-    ERR_EXPLAIN(se_string("Open Asset Import failed to open: ") + se_string(importer.GetErrorString()))
-    ERR_FAIL_COND_V(scene == nullptr, nullptr)
+    ERR_FAIL_COND_V_MSG(scene == nullptr, nullptr,se_string("Open Asset Import failed to open: ") + se_string(importer.GetErrorString()))
     return _generate_scene(p_path, scene, p_flags, p_bake_fps, max_bone_weights);
 }
 

@@ -1125,7 +1125,7 @@ void SceneTreeDock::_notification(int p_what) {
             button_2d->set_icon(get_icon("Node2D", "EditorIcons"));
             button_2d->connect("pressed", this, "_tool_selected", make_binds(TOOL_CREATE_2D_SCENE, false));
 
-            Button *button_3d = memnew(Button);
+            button_3d = memnew(Button);
             beginner_node_shortcuts->add_child(button_3d);
             button_3d->set_text(TTR("3D Scene"));
             button_3d->set_icon(get_icon("Spatial", "EditorIcons"));
@@ -1571,7 +1571,7 @@ void SceneTreeDock::_do_reparent(Node *p_new_parent, int p_position_in_parent, V
     Node *validate = new_parent;
     while (validate) {
 
-        ERR_FAIL_COND_CMSG(p_nodes.find(validate) != -1, "Selection changed at some point. Can't reparent.")
+        ERR_FAIL_COND_MSG(p_nodes.find(validate) != -1, "Selection changed at some point. Can't reparent.")
         validate = validate->get_parent();
     }
 
@@ -2774,12 +2774,16 @@ void SceneTreeDock::_feature_profile_changed() {
 
         profile_allow_editing = !profile->is_feature_disabled(EditorFeatureProfile::FEATURE_SCENE_TREE);
         profile_allow_script_editing = !profile->is_feature_disabled(EditorFeatureProfile::FEATURE_SCRIPT);
+        bool profile_allow_3d = !profile->is_feature_disabled(EditorFeatureProfile::FEATURE_3D);
+
+        button_3d->set_visible(profile_allow_3d);
 
         button_add->set_visible(profile_allow_editing);
         button_instance->set_visible(profile_allow_editing);
         scene_tree->set_can_rename(profile_allow_editing);
 
     } else {
+        button_3d->set_visible(true);
         button_add->set_visible(true);
         button_instance->set_visible(true);
         scene_tree->set_can_rename(true);

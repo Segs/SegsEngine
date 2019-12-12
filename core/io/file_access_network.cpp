@@ -346,7 +346,7 @@ bool FileAccessNetwork::is_open() const {
 
 void FileAccessNetwork::seek(size_t p_position) {
 
-    ERR_FAIL_COND_CMSG(!opened, "File must be opened before use.")
+    ERR_FAIL_COND_MSG(!opened, "File must be opened before use.")
     eof_flag = p_position > total_size;
 
     if (p_position >= total_size) {

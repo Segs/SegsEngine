@@ -43,12 +43,20 @@ extern "C" {
 
 #if defined(MBEDTLS_CHECK_PARAMS)
 
+#if defined(MBEDTLS_CHECK_PARAMS_ASSERT)
+/* Allow the user to define MBEDTLS_PARAM_FAILED to something like assert
+ * (which is what our config.h suggests). */
+#include <assert.h>
+#endif /* MBEDTLS_CHECK_PARAMS_ASSERT */
 #if defined(MBEDTLS_PARAM_FAILED)
 /** An alternative definition of MBEDTLS_PARAM_FAILED has been set in config.h.
  *
  * This flag can be used to check whether it is safe to assume that
  * MBEDTLS_PARAM_FAILED() will expand to a call to mbedtls_param_failed().
  */
+#define MBEDTLS_PARAM_FAILED_ALT
+#elif defined(MBEDTLS_CHECK_PARAMS_ASSERT)
+#define MBEDTLS_PARAM_FAILED( cond ) assert( cond )
 #define MBEDTLS_PARAM_FAILED_ALT
 #else /* MBEDTLS_PARAM_FAILED */
 #define MBEDTLS_PARAM_FAILED( cond ) \

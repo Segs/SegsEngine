@@ -843,11 +843,11 @@ void ScriptEditorDebugger::_parse_message(const se_string &p_msg, const Array &p
     } else if (p_msg == "error") {
 
         // Should have at least two elements, error array and stack items count.
-        ERR_FAIL_COND_CMSG(p_data.size() < 2, "Malformed error message from script debugger.")
+        ERR_FAIL_COND_MSG(p_data.size() < 2, "Malformed error message from script debugger.")
 
         // Error or warning data.
         Array err = p_data[0];
-        ERR_FAIL_COND_CMSG(err.size() < 10, "Malformed error message from script debugger.")
+        ERR_FAIL_COND_MSG(err.size() < 10, "Malformed error message from script debugger.")
 
         // Format time.
         Array time_vals;

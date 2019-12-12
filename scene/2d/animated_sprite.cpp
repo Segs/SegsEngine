@@ -192,7 +192,7 @@ PoolVector<se_string> SpriteFrames::_get_animation_list() const {
 void SpriteFrames::report_missing_animation(const char *name)
 {
     se_string msg="Animation '" + se_string(name) + "' doesn't exist.";
-    ERR_EXPLAIN(msg);
+    ERR_PRINT(msg)
 }
 
 void SpriteFrames::get_animation_list(ListPOD<StringName> *r_animations) const {

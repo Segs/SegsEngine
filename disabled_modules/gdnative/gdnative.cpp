@@ -272,7 +272,7 @@ void GDNative::_bind_methods() {
 }
 
 void GDNative::set_library(Ref<GDNativeLibrary> p_library) {
-    ERR_FAIL_COND_CMSG(library, "Tried to change library of GDNative when it is already set.")
+    ERR_FAIL_COND_MSG(library, "Tried to change library of GDNative when it is already set.")
     library = p_library;
 }
 

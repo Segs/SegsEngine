@@ -143,7 +143,7 @@ void ScriptDebuggerRemote::debug(ScriptLanguage *p_script, bool p_can_continue, 
     if (skip_breakpoints && !p_is_error_breakpoint)
         return;
 
-    ERR_FAIL_COND_CMSG(!tcp_client->is_connected_to_host(), "Script Debugger failed to connect, but being used anyway.")
+    ERR_FAIL_COND_MSG(!tcp_client->is_connected_to_host(), "Script Debugger failed to connect, but being used anyway.")
 
     packet_peer_stream->put_var("debug_enter");
     packet_peer_stream->put_var(2);

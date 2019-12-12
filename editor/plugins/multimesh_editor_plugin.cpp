@@ -155,7 +155,7 @@ void MultiMeshEditor::_populate() {
 
     PoolVector<Face3> faces = geometry;
     int facecount = faces.size();
-    ERR_FAIL_COND_CMSG(!facecount, "Parent has no solid faces to populate.")
+    ERR_FAIL_COND_MSG(!facecount, "Parent has no solid faces to populate.")
 
     PoolVector<Face3>::Read r = faces.read();
 
@@ -170,8 +170,8 @@ void MultiMeshEditor::_populate() {
         area_accum += area;
     }
 
-    ERR_FAIL_COND_CMSG(triangle_area_map.empty(), "Couldn't map area.")
-    ERR_FAIL_COND_CMSG(area_accum == 0.0f, "Couldn't map area.")
+    ERR_FAIL_COND_MSG(triangle_area_map.empty(), "Couldn't map area.")
+    ERR_FAIL_COND_MSG(area_accum == 0.0f, "Couldn't map area.")
 
     Ref<MultiMesh> multimesh(make_ref_counted<MultiMesh>());
     multimesh->set_mesh(mesh);

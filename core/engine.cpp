@@ -42,7 +42,7 @@
 
 void Engine::set_iterations_per_second(int p_ips) {
 
-    ERR_FAIL_COND_CMSG(p_ips <= 0, "Engine iterations per second must be greater than 0.")
+    ERR_FAIL_COND_MSG(p_ips <= 0, "Engine iterations per second must be greater than 0.")
     ips = p_ips;
 }
 int Engine::get_iterations_per_second() const {
@@ -239,17 +239,10 @@ public:
     }
     void reportError(se_string_view msg, const char *retval, const char *funcstr,const char *file, int line) override
     {
-        if(!msg.empty())
-        {
-            _err_set_last_error(msg);
-            _err_error_exists = true;
-        }
-        _err_print_error(funcstr, file, line, se_string("Method/Function Failed, returning: ")+ retval);
-        _err_error_exists = false;
+        _err_print_error(funcstr, file, line, se_string("Method/Function Failed, returning: ")+ retval,msg);
     }
     void clearLastError() override
     {
-        _err_error_exists = false;
     }
 
     // CoreInterface interface

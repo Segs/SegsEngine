@@ -2253,8 +2253,8 @@ void Tree::_go_up() {
 void Tree::_go_down() {
     TreeItem *next = nullptr;
     if (!selected_item) {
-
-        next = hide_root ? root->get_next_visible() : root;
+        if(root)
+            next = hide_root ? root->get_next_visible() : root;
         selected_item = nullptr;
     } else {
 
@@ -4081,6 +4081,7 @@ Tree::Tree() {
     drop_mode_section = 0;
     single_select_defer = nullptr;
 
+    scrolling = false;
     allow_rmb_select = false;
     force_edit_checkbox_only_on_checkbox = false;
 

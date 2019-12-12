@@ -273,7 +273,7 @@ void Particles2DEditorPlugin::_generate_emission_mask() {
         valid_normals.resize(vpc);
     }
 
-    ERR_FAIL_COND_CMSG(valid_positions.empty(), "No pixels with transparency > 128 in image...")
+    ERR_FAIL_COND_MSG(valid_positions.empty(), "No pixels with transparency > 128 in image...")
 
     PoolVector<uint8_t> texdata;
 

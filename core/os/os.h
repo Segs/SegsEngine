@@ -69,8 +69,6 @@ class GODOT_EXPORT OS {
     bool _allow_layered;
     bool _use_vsync;
 
-    char *last_error;
-
     void *_stack_bottom;
 
     CompositeLogger *_logger;
@@ -164,10 +162,6 @@ public:
 
     virtual void alert(se_string_view p_alert, se_string_view p_title = se_string_view("ALERT!")) = 0;
     virtual se_string get_stdin_string(bool p_block = true) = 0;
-
-    virtual void set_last_error(const char *p_error);
-    virtual const char *get_last_error() const;
-    virtual void clear_last_error();
 
     enum MouseMode {
         MOUSE_MODE_VISIBLE,

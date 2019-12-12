@@ -484,6 +484,16 @@ bool _OS::is_in_low_processor_usage_mode() const {
     return OS::get_singleton()->is_in_low_processor_usage_mode();
 }
 
+void _OS::set_low_processor_usage_mode_sleep_usec(int p_usec) {
+
+    OS::get_singleton()->set_low_processor_usage_mode_sleep_usec(p_usec);
+}
+
+int _OS::get_low_processor_usage_mode_sleep_usec() const {
+
+    return OS::get_singleton()->get_low_processor_usage_mode_sleep_usec();
+}
+
 se_string _OS::get_executable_path() const {
 
     return OS::get_singleton()->get_executable_path();
@@ -1252,6 +1262,9 @@ void _OS::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_low_processor_usage_mode", {"enable"}), &_OS::set_low_processor_usage_mode);
     MethodBinder::bind_method(D_METHOD("is_in_low_processor_usage_mode"), &_OS::is_in_low_processor_usage_mode);
 
+    MethodBinder::bind_method(D_METHOD("set_low_processor_usage_mode_sleep_usec", {"usec"}), &_OS::set_low_processor_usage_mode_sleep_usec);
+    MethodBinder::bind_method(D_METHOD("get_low_processor_usage_mode_sleep_usec"), &_OS::get_low_processor_usage_mode_sleep_usec);
+
     MethodBinder::bind_method(D_METHOD("get_processor_count"), &_OS::get_processor_count);
 
     MethodBinder::bind_method(D_METHOD("get_executable_path"), &_OS::get_executable_path);
@@ -1357,6 +1370,7 @@ void _OS::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "exit_code"), "set_exit_code", "get_exit_code");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "vsync_enabled"), "set_use_vsync", "is_vsync_enabled");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "low_processor_usage_mode"), "set_low_processor_usage_mode", "is_in_low_processor_usage_mode");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "low_processor_usage_mode_sleep_usec"), "set_low_processor_usage_mode_sleep_usec", "get_low_processor_usage_mode_sleep_usec");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "keep_screen_on"), "set_keep_screen_on", "is_keep_screen_on");
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "min_window_size"), "set_min_window_size", "get_min_window_size");
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "max_window_size"), "set_max_window_size", "get_max_window_size");
@@ -1378,6 +1392,7 @@ void _OS::_bind_methods() {
     ADD_PROPERTY_DEFAULT("exit_code", 0);
     ADD_PROPERTY_DEFAULT("vsync_enabled", true);
     ADD_PROPERTY_DEFAULT("low_processor_usage_mode", false);
+    ADD_PROPERTY_DEFAULT("low_processor_usage_mode_sleep_usec", 6900);
     ADD_PROPERTY_DEFAULT("keep_screen_on", true);
     ADD_PROPERTY_DEFAULT("min_window_size", Vector2());
     ADD_PROPERTY_DEFAULT("max_window_size", Vector2());
@@ -1916,12 +1931,12 @@ const se_string & _File::get_path_absolute() const {
 
 void _File::seek(int64_t p_position) {
 
-    ERR_FAIL_COND_CMSG(!f, "File must be opened before use.")
+    ERR_FAIL_COND_MSG(!f, "File must be opened before use.")
     f->seek(p_position);
 }
 void _File::seek_end(int64_t p_position) {
 
-    ERR_FAIL_COND_CMSG(!f, "File must be opened before use.")
+    ERR_FAIL_COND_MSG(!f, "File must be opened before use.")
     f->seek_end(p_position);
 }
 int64_t _File::get_position() const {
@@ -2069,58 +2084,58 @@ Error _File::get_error() const {
 
 void _File::store_8(uint8_t p_dest) {
 
-    ERR_FAIL_COND_CMSG(!f, "File must be opened before use.")
+    ERR_FAIL_COND_MSG(!f, "File must be opened before use.")
 
     f->store_8(p_dest);
 }
 void _File::store_16(uint16_t p_dest) {
 
-    ERR_FAIL_COND_CMSG(!f, "File must be opened before use.")
+    ERR_FAIL_COND_MSG(!f, "File must be opened before use.")
 
     f->store_16(p_dest);
 }
 void _File::store_32(uint32_t p_dest) {
 
-    ERR_FAIL_COND_CMSG(!f, "File must be opened before use.")
+    ERR_FAIL_COND_MSG(!f, "File must be opened before use.")
 
     f->store_32(p_dest);
 }
 void _File::store_64(uint64_t p_dest) {
 
-    ERR_FAIL_COND_CMSG(!f, "File must be opened before use.")
+    ERR_FAIL_COND_MSG(!f, "File must be opened before use.")
 
     f->store_64(p_dest);
 }
 
 void _File::store_float(float p_dest) {
 
-    ERR_FAIL_COND_CMSG(!f, "File must be opened before use.")
+    ERR_FAIL_COND_MSG(!f, "File must be opened before use.")
 
     f->store_float(p_dest);
 }
 void _File::store_double(double p_dest) {
 
-    ERR_FAIL_COND_CMSG(!f, "File must be opened before use.")
+    ERR_FAIL_COND_MSG(!f, "File must be opened before use.")
 
     f->store_double(p_dest);
 }
 void _File::store_real(real_t p_real) {
 
-    ERR_FAIL_COND_CMSG(!f, "File must be opened before use.")
+    ERR_FAIL_COND_MSG(!f, "File must be opened before use.")
 
     f->store_real(p_real);
 }
 
 void _File::store_string(se_string_view p_string) {
 
-    ERR_FAIL_COND_CMSG(!f, "File must be opened before use.")
+    ERR_FAIL_COND_MSG(!f, "File must be opened before use.")
 
     f->store_string(p_string);
 }
 
 void _File::store_pascal_string(se_string_view p_string) {
 
-    ERR_FAIL_COND_CMSG(!f, "File must be opened before use.")
+    ERR_FAIL_COND_MSG(!f, "File must be opened before use.")
 
     f->store_pascal_string(p_string);
 };
@@ -2134,12 +2149,12 @@ se_string _File::get_pascal_string() {
 
 void _File::store_line(se_string_view p_string) {
 
-    ERR_FAIL_COND_CMSG(!f, "File must be opened before use.")
+    ERR_FAIL_COND_MSG(!f, "File must be opened before use.")
     f->store_line(p_string);
 }
 
 void _File::store_csv_line(const PoolVector<se_string> &p_values, char p_delim) {
-    ERR_FAIL_COND_CMSG(!f, "File must be opened before use.")
+    ERR_FAIL_COND_MSG(!f, "File must be opened before use.")
     auto rd = p_values.read();
     PODVector<se_string> vals(rd.ptr(),rd.ptr()+p_values.size());
     f->store_csv_line(vals, p_delim);
@@ -2147,7 +2162,7 @@ void _File::store_csv_line(const PoolVector<se_string> &p_values, char p_delim) 
 
 void _File::store_buffer(const PoolVector<uint8_t> &p_buffer) {
 
-    ERR_FAIL_COND_CMSG(!f, "File must be opened before use.")
+    ERR_FAIL_COND_MSG(!f, "File must be opened before use.")
 
     int len = p_buffer.size();
     if (len == 0)
@@ -2165,17 +2180,17 @@ bool _File::file_exists(se_string_view p_name) const {
 
 void _File::store_var(const Variant &p_var, bool p_full_objects) {
 
-    ERR_FAIL_COND_CMSG(!f, "File must be opened before use.")
+    ERR_FAIL_COND_MSG(!f, "File must be opened before use.")
     int len;
     Error err = encode_variant(p_var, nullptr, len, p_full_objects);
-    ERR_FAIL_COND_CMSG(err != OK, "Error when trying to encode Variant.")
+    ERR_FAIL_COND_MSG(err != OK, "Error when trying to encode Variant.")
 
     PoolVector<uint8_t> buff;
     buff.resize(len);
 
     PoolVector<uint8_t>::Write w = buff.write();
     err = encode_variant(p_var, &w[0], len, p_full_objects);
-    ERR_FAIL_COND_CMSG(err != OK, "Error when trying to encode Variant.")
+    ERR_FAIL_COND_MSG(err != OK, "Error when trying to encode Variant.")
     w.release();
 
     store_32(len);
@@ -2327,7 +2342,7 @@ bool _Directory::current_is_dir() const {
 
 void _Directory::list_dir_end() {
 
-    ERR_FAIL_COND_CMSG(!d, "Directory must be opened before use.")
+    ERR_FAIL_COND_MSG(!d, "Directory must be opened before use.")
     d->list_dir_end();
 }
 
@@ -2767,7 +2782,7 @@ _Thread::_Thread() {
 
 _Thread::~_Thread() {
 
-    ERR_FAIL_COND_CMSG(active, "Reference to a Thread object object was lost while the thread is still running...")
+    ERR_FAIL_COND_MSG(active, "Reference to a Thread object object was lost while the thread is still running...")
 }
 /////////////////////////////////////
 

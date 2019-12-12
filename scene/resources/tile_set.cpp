@@ -41,33 +41,35 @@ VARIANT_ENUM_CAST(TileSet::BitmaskMode);
 VARIANT_ENUM_CAST(TileSet::TileMode);
 
 bool TileSet::_set(const StringName &p_name, const Variant &p_value) {
+    using namespace eastl;
 
-    int slash = StringUtils::find(p_name,"/");
-    if (slash == -1)
+    auto slash = StringUtils::find(p_name,"/");
+    if (slash == se_string::npos)
         return false;
+
     int id = StringUtils::to_int(p_name.asCString(), slash);
 
     if (!tile_map.contains(id))
         create_tile(id);
-    StringName what(StringUtils::substr(p_name,slash + 1, se_string_view(p_name).length()));
+    se_string_view what(StringUtils::substr(p_name,slash + 1));
 
-    if (what == "name")
+    if (what == "name"_sv)
         tile_set_name(id, p_value.as<se_string>());
-    else if (what == "texture")
+    else if (what == "texture"_sv)
         tile_set_texture(id, refFromRefPtr<Texture>(p_value));
-    else if (what == "normal_map")
+    else if (what == "normal_map"_sv)
         tile_set_normal_map(id, refFromRefPtr<Texture>(p_value));
-    else if (what == "tex_offset")
+    else if (what == "tex_offset"_sv)
         tile_set_texture_offset(id, p_value);
-    else if (what == "material")
+    else if (what == "material"_sv)
         tile_set_material(id, refFromRefPtr<ShaderMaterial>(p_value));
-    else if (what == "modulate")
+    else if (what == "modulate"_sv)
         tile_set_modulate(id, p_value);
-    else if (what == "region")
+    else if (what == "region"_sv)
         tile_set_region(id, p_value);
-    else if (what == "tile_mode")
+    else if (what == "tile_mode"_sv)
         tile_set_tile_mode(id, (TileMode)((int)p_value));
-    else if (what == "is_autotile") {
+    else if (what == "is_autotile"_sv) {
         // backward compatibility for Godot 3.0.x
         // autotile used to be a bool, it's now an enum
         bool is_autotile = p_value;
@@ -75,15 +77,15 @@ bool TileSet::_set(const StringName &p_name, const Variant &p_value) {
             tile_set_tile_mode(id, AUTO_TILE);
     } else if (StringUtils::left(what,9) == se_string_view("autotile/")) {
         what = StringName(StringUtils::right(what,9));
-        if (what == "bitmask_mode")
+        if (what == "bitmask_mode"_sv)
             autotile_set_bitmask_mode(id, (BitmaskMode)((int)p_value));
-        else if (what == "icon_coordinate")
+        else if (what == "icon_coordinate"_sv)
             autotile_set_icon_coordinate(id, p_value);
-        else if (what == "tile_size")
+        else if (what == "tile_size"_sv)
             autotile_set_size(id, p_value);
-        else if (what == "spacing")
+        else if (what == "spacing"_sv)
             autotile_set_spacing(id, p_value);
-        else if (what == "bitmask_flags") {
+        else if (what == "bitmask_flags"_sv) {
             tile_map[id].autotile_data.flags.clear();
             if (p_value.is_array()) {
                 Array p = p_value;
@@ -97,7 +99,7 @@ bool TileSet::_set(const StringName &p_name, const Variant &p_value) {
                     p.pop_front();
                 }
             }
-        } else if (what == "occluder_map") {
+        } else if (what == "occluder_map"_sv) {
             tile_map[id].autotile_data.occluder_map.clear();
             Array p = p_value;
             Vector2 last_coord;
@@ -109,7 +111,7 @@ bool TileSet::_set(const StringName &p_name, const Variant &p_value) {
                 }
                 p.pop_front();
             }
-        } else if (what == "navpoly_map") {
+        } else if (what == "navpoly_map"_sv) {
             tile_map[id].autotile_data.navpoly_map.clear();
             Array p = p_value;
             Vector2 last_coord;
@@ -121,7 +123,7 @@ bool TileSet::_set(const StringName &p_name, const Variant &p_value) {
                 }
                 p.pop_front();
             }
-        } else if (what == "priority_map") {
+        } else if (what == "priority_map"_sv) {
             tile_map[id].autotile_data.priority_map.clear();
             Array p = p_value;
             Vector3 val;
@@ -137,7 +139,7 @@ bool TileSet::_set(const StringName &p_name, const Variant &p_value) {
                 }
                 p.pop_front();
             }
-        } else if (what == "z_index_map") {
+        } else if (what == "z_index_map"_sv) {
             tile_map[id].autotile_data.z_index_map.clear();
             Array p = p_value;
             Vector3 val;
@@ -154,32 +156,62 @@ bool TileSet::_set(const StringName &p_name, const Variant &p_value) {
                 p.pop_front();
             }
         }
-    } else if (what == "shape")
-        for (int i = 0; i < tile_get_shape_count(id); i++)
-            tile_set_shape(id, i, refFromRefPtr<Shape2D>(p_value));
-    else if (what == "shape_offset")
-        for (int i = 0; i < tile_get_shape_count(id); i++)
-            tile_set_shape_offset(id, i, p_value);
-    else if (what == "shape_transform")
-        for (int i = 0; i < tile_get_shape_count(id); i++)
-            tile_set_shape_transform(id, i, p_value);
-    else if (what == "shape_one_way")
-        for (int i = 0; i < tile_get_shape_count(id); i++)
-            tile_set_shape_one_way(id, i, p_value);
-    else if (what == "shape_one_way_margin")
-        for (int i = 0; i < tile_get_shape_count(id); i++)
-            tile_set_shape_one_way_margin(id, i, p_value);
-    else if (what == "shapes")
+    } else if (what == "shape"_sv) {
+        if (tile_get_shape_count(id) > 0) {
+            for (int i = 0; i < tile_get_shape_count(id); i++) {
+                tile_set_shape(id, i, refFromRefPtr<Shape2D>(p_value));
+            }
+        } else {
+            tile_set_shape(id, 0, refFromRefPtr<Shape2D>(p_value));
+        }
+    }
+    else if (what == "shape_offset"_sv) {
+        if (tile_get_shape_count(id) > 0) {
+            for (int i = 0; i < tile_get_shape_count(id); i++) {
+                tile_set_shape_offset(id, i, p_value);
+            }
+        } else {
+            tile_set_shape_offset(id, 0, p_value);
+        }
+    }
+    else if (what == "shape_transform"_sv) {
+        if (tile_get_shape_count(id) > 0) {
+            for (int i = 0; i < tile_get_shape_count(id); i++) {
+                tile_set_shape_transform(id, i, p_value);
+            }
+        } else {
+            tile_set_shape_transform(id, 0, p_value);
+        }
+    }
+    else if (what == "shape_one_way"_sv) {
+        if (tile_get_shape_count(id) > 0) {
+            for (int i = 0; i < tile_get_shape_count(id); i++) {
+                tile_set_shape_one_way(id, i, p_value);
+            }
+        } else {
+            tile_set_shape_one_way(id, 0, p_value);
+        }
+    }
+    else if (what == "shape_one_way_margin"_sv) {
+        if (tile_get_shape_count(id) > 0) {
+            for (int i = 0; i < tile_get_shape_count(id); i++) {
+                tile_set_shape_one_way_margin(id, i, p_value);
+            }
+        } else {
+            tile_set_shape_one_way_margin(id, 0, p_value);
+        }
+    }
+    else if (what == "shapes"_sv)
         _tile_set_shapes(id, p_value);
-    else if (what == "occluder")
+    else if (what == "occluder"_sv)
         tile_set_light_occluder(id, refFromRefPtr<OccluderPolygon2D>(p_value));
-    else if (what == "occluder_offset")
+    else if (what == "occluder_offset"_sv)
         tile_set_occluder_offset(id, p_value);
-    else if (what == "navigation")
+    else if (what == "navigation"_sv)
         tile_set_navigation_polygon(id, refFromRefPtr<NavigationPolygon>(p_value));
-    else if (what == "navigation_offset")
+    else if (what == "navigation_offset"_sv)
         tile_set_navigation_polygon_offset(id, p_value);
-    else if (what == "z_index")
+    else if (what == "z_index"_sv)
         tile_set_z_index(id, p_value);
     else
         return false;

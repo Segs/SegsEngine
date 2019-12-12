@@ -487,6 +487,8 @@ RES ResourceFormatLoaderWebm::load(const String &p_path, const String &p_origina
         *r_error = OK;
     }
 
+    f->close();
+    memdelete(f);
     return webm_stream;
 }
 

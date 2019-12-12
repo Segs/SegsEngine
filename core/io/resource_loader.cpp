@@ -610,8 +610,6 @@ void ResourceLoader::remove_resource_format_loader(const ResourceLoaderInterface
         _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "Null p_format_loader in remove_resource_format_loader.");
         return;
     }
-    _err_error_exists = false;
-
     // Find loader
     int i = 0;
     for (; i < loader_count; ++i) {
@@ -635,8 +633,6 @@ void ResourceLoader::remove_resource_format_loader(const Ref<ResourceFormatLoade
         _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "Null p_format_loader in remove_resource_format_loader.");
         return;
     }
-    _err_error_exists = false;
-
     // Find loader
     int i = 0;
     for (; i < loader_count; ++i) {

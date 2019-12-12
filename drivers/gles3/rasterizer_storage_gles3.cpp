@@ -3055,7 +3055,7 @@ void RasterizerStorageGLES3::mesh_add_surface(RID p_mesh, uint32_t p_format, VS:
     //must have index and bones, both.
     {
         uint32_t bones_weight = VS::ARRAY_FORMAT_BONES | VS::ARRAY_FORMAT_WEIGHTS;
-        ERR_FAIL_COND_CMSG((p_format & bones_weight) && (p_format & bones_weight) != bones_weight, "Array must have both bones and weights in format or none.")
+        ERR_FAIL_COND_MSG((p_format & bones_weight) && (p_format & bones_weight) != bones_weight, "Array must have both bones and weights in format or none.")
     }
 
     //bool has_morph = p_blend_shapes.size();
@@ -6774,7 +6774,7 @@ void RasterizerStorageGLES3::_render_target_allocate(RenderTarget *rt) {
 
         rt->buffers.active = true;
 
-        static const int msaa_value[] = { 0, 2, 4, 8, 16 };
+        static const int msaa_value[] = { 0, 2, 4, 8, 16, 4, 16 }; // MSAA_EXT_nX is a GLES2 temporary hack ignored in GLES3 for now...
         int msaa = msaa_value[rt->msaa];
 
         int max_samples = 0;

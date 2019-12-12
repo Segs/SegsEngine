@@ -62,7 +62,7 @@
 #endif
 void FileAccessUnix::check_errors() const {
 
-    ERR_FAIL_COND_CMSG(!f, "File must be opened before use.")
+    ERR_FAIL_COND_MSG(!f, "File must be opened before use.")
 
     if (feof(f)) {
 
@@ -185,7 +185,7 @@ const se_string &FileAccessUnix::get_path_absolute() const {
 
 void FileAccessUnix::seek(size_t p_position) {
 
-    ERR_FAIL_COND_CMSG(!f, "File must be opened before use.")
+    ERR_FAIL_COND_MSG(!f, "File must be opened before use.")
 
     last_error = OK;
     if (fseek(f, p_position, SEEK_SET))
@@ -194,7 +194,7 @@ void FileAccessUnix::seek(size_t p_position) {
 
 void FileAccessUnix::seek_end(int64_t p_position) {
 
-    ERR_FAIL_COND_CMSG(!f, "File must be opened before use.")
+    ERR_FAIL_COND_MSG(!f, "File must be opened before use.")
 
     if (fseek(f, p_position, SEEK_END))
         check_errors();
@@ -257,18 +257,18 @@ Error FileAccessUnix::get_error() const {
 
 void FileAccessUnix::flush() {
 
-    ERR_FAIL_COND_CMSG(!f, "File must be opened before use.")
+    ERR_FAIL_COND_MSG(!f, "File must be opened before use.")
     fflush(f);
 }
 
 void FileAccessUnix::store_8(uint8_t p_dest) {
 
-    ERR_FAIL_COND_CMSG(!f, "File must be opened before use.")
+    ERR_FAIL_COND_MSG(!f, "File must be opened before use.")
     ERR_FAIL_COND(fwrite(&p_dest, 1, 1, f) != 1)
 }
 
 void FileAccessUnix::store_buffer(const uint8_t *p_src, int p_length) {
-    ERR_FAIL_COND_CMSG(!f, "File must be opened before use.")
+    ERR_FAIL_COND_MSG(!f, "File must be opened before use.")
     ERR_FAIL_COND(!p_src)
     bool written_size_matched= (int)fwrite(p_src, 1, p_length, f) == p_length;
     ERR_FAIL_COND(!written_size_matched)

@@ -5204,7 +5204,7 @@ void EditorNode::remove_control_from_dock(Control *p_control) {
         }
     }
 
-    ERR_FAIL_COND_CMSG(!dock, "Control was not in dock.")
+    ERR_FAIL_COND_MSG(!dock, "Control was not in dock.")
 
     dock->remove_child(p_control);
     _update_dock_slots_visibility();

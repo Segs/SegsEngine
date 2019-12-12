@@ -75,7 +75,7 @@ static double _clock_scale = 0;
 static void _setup_clock() {
     mach_timebase_info_data_t info;
     kern_return_t ret = mach_timebase_info(&info);
-    ERR_FAIL_COND_CMSG(ret != 0, "OS CLOCK IS NOT WORKING!")
+    ERR_FAIL_COND_MSG(ret != 0, "OS CLOCK IS NOT WORKING!")
     _clock_scale = ((double)info.numer / (double)info.denom) / 1000.0;
     _clock_start = mach_absolute_time() * _clock_scale;
 }
@@ -87,7 +87,7 @@ static void _setup_clock() {
 #endif
 static void _setup_clock() {
     struct timespec tv_now = { 0, 0 };
-    ERR_FAIL_COND_CMSG(clock_gettime(GODOT_CLOCK, &tv_now) != 0, "OS CLOCK IS NOT WORKING!")
+    ERR_FAIL_COND_MSG(clock_gettime(GODOT_CLOCK, &tv_now) != 0, "OS CLOCK IS NOT WORKING!")
     _clock_start = ((uint64_t)tv_now.tv_nsec / 1000L) + (uint64_t)tv_now.tv_sec * 1000000L;
 }
 #endif

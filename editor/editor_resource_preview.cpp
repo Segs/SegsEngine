@@ -213,6 +213,7 @@ void EditorResourcePreview::_generate_preview(Ref<ImageTexture> &r_texture, Ref<
             f->store_line(itos(has_small_texture));
             f->store_line(itos(FileAccess::get_modified_time(p_item.path)));
             f->store_line(FileAccess::get_md5(p_item.path));
+            f->close();
             memdelete(f);
         }
     }
@@ -461,7 +462,7 @@ void EditorResourcePreview::check_for_invalidation(se_string_view p_path) {
 }
 
 void EditorResourcePreview::start() {
-    ERR_FAIL_COND_CMSG(thread, "Thread already started.")
+    ERR_FAIL_COND_MSG(thread, "Thread already started.")
     thread = Thread::create(_thread_func, this);
 }
 

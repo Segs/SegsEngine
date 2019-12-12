@@ -34,26 +34,9 @@
 #include "os/os.h"
 #include "core/string_formatter.h"
 #include "core/se_string.h"
-
-bool _err_error_exists = false;
+#include "core/string_utils.h"
 
 static ErrorHandlerList *error_handler_list = nullptr;
-
-void _err_set_last_error(const char *p_err) {
-
-    OS::get_singleton()->set_last_error(p_err);
-    _err_error_exists = true;
-}
-void _err_set_last_error(se_string_view p_err) {
-
-    OS::get_singleton()->set_last_error(p_err.data());
-    _err_error_exists = true;
-}
-
-void _err_clear_last_error() {
-
-    OS::get_singleton()->clear_last_error();
-}
 
 void add_error_handler(ErrorHandlerList *p_handler) {
 
@@ -87,31 +70,38 @@ void remove_error_handler(ErrorHandlerList *p_handler) {
     _global_unlock();
 }
 void _err_print_error(const char *p_function, const char *p_file, int p_line, se_string_view p_error, ErrorHandlerType p_type) {
-    _err_print_error(p_function, p_file, p_line, p_error.data(), p_type);
+    _err_print_error(p_function, p_file, p_line, p_error, "", p_type);
 }
-void _err_print_error(const char *p_function, const char *p_file, int p_line, const char *p_error, ErrorHandlerType p_type) {
 
-    OS::get_singleton()->print_error(p_function, p_file, p_line, p_error, _err_error_exists ? OS::get_singleton()->get_last_error() : "", (Logger::ErrorType)p_type);
+void _err_print_error(const char *p_function, const char *p_file, int p_line, const char *p_error, const char *p_message, ErrorHandlerType p_type) {
+
+    OS::get_singleton()->print_error(p_function, p_file, p_line, p_error, p_message, (Logger::ErrorType)p_type);
 
     _global_lock();
     ErrorHandlerList *l = error_handler_list;
     while (l) {
 
-        l->errfunc(l->userdata, p_function, p_file, p_line, p_error, _err_error_exists ? OS::get_singleton()->get_last_error() : "", p_type);
+        l->errfunc(l->userdata, p_function, p_file, p_line, p_error, p_message, p_type);
         l = l->next;
     }
 
     _global_unlock();
-
-    if (_err_error_exists) {
-        OS::get_singleton()->clear_last_error();
-        _err_error_exists = false;
-    }
 }
 
-void _err_print_index_error(const char *p_function, const char *p_file, int p_line, int64_t p_index, int64_t p_size, const char *p_index_str, const char *p_size_str, bool fatal) {
+void _err_print_error(const char *p_function, const char *p_file, int p_line, se_string_view p_error, const char *p_message, ErrorHandlerType p_type) {
+    _err_print_error(p_function, p_file, p_line, p_error, p_message, p_type);
+}
 
-    const char *fstr(fatal ? "FATAL: " : "");
-    se_string err = FormatVE("%sIndex %s=%zd out of size (%s=%zd)",fstr,p_index_str,p_index,p_size_str,p_size);
-    _err_print_error(p_function, p_file, p_line, err);
+void _err_print_error(const char *p_function, const char *p_file, int p_line, const char *p_error, se_string_view p_message, ErrorHandlerType p_type) {
+    _err_print_error(p_function, p_file, p_line, p_error, p_message, p_type);
+}
+
+void _err_print_error(const char *p_function, const char *p_file, int p_line, se_string_view p_error, se_string_view p_message, ErrorHandlerType p_type) {
+    _err_print_error(p_function, p_file, p_line, p_error, p_message, p_type);
+}
+
+void _err_print_index_error(const char *p_function, const char *p_file, int p_line, int64_t p_index, int64_t p_size, const char *p_index_str, const char *p_size_str, se_string_view p_message, bool fatal) {
+    se_string fstr(fatal ? "FATAL: " : "");
+    se_string err(fstr + "Index " + p_index_str + "=" + itos(p_index) + " out of size (" + p_size_str + "=" + itos(p_size) + ")");
+    _err_print_error(p_function, p_file, p_line, err, p_message);
 }

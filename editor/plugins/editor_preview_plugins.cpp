@@ -115,9 +115,11 @@ Ref<Texture> EditorTexturePreviewPlugin::generate(const RES &p_from, const Size2
         img = ltex->to_image();
     } else {
         Ref<Texture> tex = dynamic_ref_cast<Texture>(p_from);
-        img = tex->get_data();
-        if (img) {
-            img = dynamic_ref_cast<Image>(img->duplicate());
+        if(tex) {
+            img = tex->get_data();
+            if (img) {
+                img = dynamic_ref_cast<Image>(img->duplicate());
+            }
         }
     }
 

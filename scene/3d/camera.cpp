@@ -497,7 +497,7 @@ void Camera::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("project_ray_origin", {"screen_point"}), &Camera::project_ray_origin);
     MethodBinder::bind_method(D_METHOD("unproject_position", {"world_point"}), &Camera::unproject_position);
     MethodBinder::bind_method(D_METHOD("is_position_behind", {"world_point"}), &Camera::is_position_behind);
-    MethodBinder::bind_method(D_METHOD("project_position", {"screen_point", "z_depth"}), &Camera::project_position, {DEFVAL(0)});
+    MethodBinder::bind_method(D_METHOD("project_position", {"screen_point", "z_depth"}), &Camera::project_position);
     MethodBinder::bind_method(D_METHOD("set_perspective", {"fov", "z_near", "z_far"}), &Camera::set_perspective);
     MethodBinder::bind_method(D_METHOD("set_orthogonal", {"size", "z_near", "z_far"}), &Camera::set_orthogonal);
     MethodBinder::bind_method(D_METHOD("set_frustum", {"size", "offset", "z_near", "z_far"}), &Camera::set_frustum);

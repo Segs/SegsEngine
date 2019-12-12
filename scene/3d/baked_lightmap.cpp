@@ -102,7 +102,7 @@ float BakedLightmapData::get_energy() const {
 
 void BakedLightmapData::add_user(const NodePath &p_path, const Ref<Texture> &p_lightmap, int p_instance) {
 
-    ERR_FAIL_COND_CMSG(not p_lightmap, "It's not a reference to a valid Texture object.")
+    ERR_FAIL_COND_MSG(not p_lightmap, "It's not a reference to a valid Texture object.")
     User user;
     user.path = p_path;
     user.lightmap = p_lightmap;

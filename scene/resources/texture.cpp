@@ -2455,16 +2455,19 @@ RES ResourceFormatLoaderTextureLayered::load(se_string_view p_path, se_string_vi
 
     if (header[0] == 'G' && header[1] == 'D' && header[2] == '3' && header[3] == 'T') {
         if (not tex3d) {
+            f->close();
             memdelete(f);
             ERR_FAIL_COND_V(not tex3d, RES())
         }
     } else if (header[0] == 'G' && header[1] == 'D' && header[2] == 'A' && header[3] == 'T') {
         if (not texarr) {
+            f->close();
             memdelete(f);
             ERR_FAIL_COND_V(not texarr, RES())
         }
     } else {
-
+        f->close();
+        memdelete(f);
         ERR_FAIL_V_MSG(RES(), "Unrecognized layered texture file format: " + se_string((const char *)header) + ".")
     }
 
@@ -2500,6 +2503,7 @@ RES ResourceFormatLoaderTextureLayered::load(se_string_view p_path, se_string_vi
                     if (r_error) {
                         *r_error = ERR_FILE_CORRUPT;
                     }
+                    f->close();
                     memdelete(f);
                     ERR_FAIL_V(RES())
                 }
@@ -2535,6 +2539,7 @@ RES ResourceFormatLoaderTextureLayered::load(se_string_view p_path, se_string_vi
                     if (r_error) {
                         *r_error = ERR_FILE_CORRUPT;
                     }
+                    f->close();
                     memdelete(f);
                     ERR_FAIL_V(RES());
                 }
@@ -2555,8 +2560,9 @@ RES ResourceFormatLoaderTextureLayered::load(se_string_view p_path, se_string_vi
                 if (bytes != total_size) {
                     if (r_error) {
                         *r_error = ERR_FILE_CORRUPT;
-                        memdelete(f);
                     }
+                    f->close();
+                    memdelete(f);
                     ERR_FAIL_V(RES());
                 }
             }

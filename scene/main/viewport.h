@@ -116,6 +116,7 @@ public:
         MSAA_4X,
         MSAA_8X,
         MSAA_16X,
+        MSAA_COUNT
     };
 
     enum Usage {

@@ -298,12 +298,11 @@ Error DynamicFontAtSize::_load() {
     //error = FT_New_Face( library, src_path.utf8().get_data(),0,&face );
 
     if (error == FT_Err_Unknown_File_Format) {
-        ERR_EXPLAIN("Unknown font format.")
+        ERR_PRINT("Unknown font format.")
         FT_Done_FreeType(m_impl->library);
-
     } else if (error) {
 
-        ERR_EXPLAIN("Error loading font.")
+        ERR_PRINT("Error loading font.")
         FT_Done_FreeType(m_impl->library);
     }
 

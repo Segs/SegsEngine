@@ -150,7 +150,7 @@ static void godot_free(voidpf opaque, voidpf address) {
 
 void ZipArchive::close_handle(unzFile p_file) const {
 
-    ERR_FAIL_COND_CMSG(!p_file, "Cannot close a file if none is open.")
+    ERR_FAIL_COND_MSG(!p_file, "Cannot close a file if none is open.")
     FileAccess *f = (FileAccess *)unzGetOpaque(p_file);
     unzCloseCurrentFile(p_file);
     unzClose(p_file);

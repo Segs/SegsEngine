@@ -1774,7 +1774,7 @@ void FileSystemDock::_file_option(int p_option, const Vector<se_string> &p_selec
                 reimport.push_back(p_selected[i]);
             }
 
-            ERR_FAIL_COND_CMSG(reimport.empty(), "You need to select files to reimport them.")
+            ERR_FAIL_COND_MSG(reimport.empty(), "You need to select files to reimport them.")
         } break;
 
         case FILE_NEW_FOLDER: {
@@ -2162,7 +2162,7 @@ void FileSystemDock::_get_drag_target_folder(se_string &target, bool &target_fav
 void FileSystemDock::_file_and_folders_fill_popup(
         PopupMenu *p_popup, const Vector<se_string>& p_paths, bool p_display_path_dependent_options) {
     // Add options for files and folders.
-    ERR_FAIL_COND_CMSG(p_paths.empty(), "Path cannot be empty.")
+    ERR_FAIL_COND_MSG(p_paths.empty(), "Path cannot be empty.")
 
     Vector<se_string> filenames;
     Vector<se_string> foldernames;
@@ -2206,7 +2206,9 @@ void FileSystemDock::_file_and_folders_fill_popup(
             if (filenames.size() == 1) {
                 p_popup->add_icon_item(get_icon("Load", "EditorIcons"), TTR("Open Scene"), FILE_OPEN);
                 p_popup->add_icon_item(get_icon("CreateNewSceneFrom", "EditorIcons"), TTR("New Inherited Scene"), FILE_INHERIT);
-                p_popup->add_item(TTR("Set As Main Scene"), FILE_MAIN_SCENE);
+                if (ProjectSettings::get_singleton()->get("application/run/main_scene") != filenames[0]) {
+                    p_popup->add_icon_item(get_icon("PlayScene", "EditorIcons"), TTR("Set As Main Scene"), FILE_MAIN_SCENE);
+                }
             } else {
                 p_popup->add_icon_item(get_icon("Load", "EditorIcons"), TTR("Open Scenes"), FILE_OPEN);
             }
