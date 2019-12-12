@@ -992,7 +992,7 @@ se_string_view VisualScriptOperator::get_caption() const {
         //mathematic
         "A + B", //OP_ADD,
         "A - B", //OP_SUBTRACT,
-        "A x B", //OP_MULTIPLY,
+        "A × B", //OP_MULTIPLY,
         "A ÷ B", //OP_DIVIDE,
         "¬ A", //OP_NEGATE,
         "+ A", //OP_POSITIVE,
@@ -1331,7 +1331,7 @@ public:
         if (!instance->get_variable(variable, p_outputs[0])) {
             r_error.error = Variant::CallError::CALL_ERROR_INVALID_METHOD;
             r_error_str = RTR_utf8("VariableGet not found in script: ") + "'" + se_string(variable) + "'";
-            return false;
+            return 0;
         }
         return 0;
     }

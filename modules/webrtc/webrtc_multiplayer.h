@@ -69,6 +69,7 @@ private:
     int target_peer;
     int client_count;
     bool refuse_connections;
+
     ConnectionStatus connection_status;
     TransferMode transfer_mode;
     int next_packet_peer;

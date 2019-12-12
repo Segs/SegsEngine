@@ -49,13 +49,13 @@ String cwd();
  * Obtains a normalized absolute path to p_path. Symbolic links are
  * not resolved. The path p_path might not exist in the file system.
  */
-String abspath(se_string_view p_path);
+String abspath(const String &p_path);
 
 /**
  * Obtains a normalized path to p_path with symbolic links resolved.
  * The resulting path might be either a relative or an absolute path.
  */
-String realpath(se_string_view p_path);
+String realpath(const String &p_path);
 
 } // namespace path
 

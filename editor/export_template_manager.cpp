@@ -180,7 +180,7 @@ void ExportTemplateManager::_uninstall_template_confirm() {
     ERR_FAIL_COND_MSG(err != OK, "Could not remove all templates in '" + plus_file(templates_dir,to_remove) + "'.");
 
     da->change_dir("..");
-    da->remove(to_remove);
+    err = da->remove(to_remove);
     ERR_FAIL_COND_MSG(err != OK, "Could not remove templates directory at '" + plus_file(templates_dir,to_remove) + "'.");
 
     _update_template_list();

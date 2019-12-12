@@ -54,7 +54,7 @@ class PCKPacker : public RefCounted {
     Vector<File> files;
 
 public:
-    Error pck_start(se_string_view p_file, int p_alignment);
+    Error pck_start(se_string_view p_file, int p_alignment = 0);
     Error add_file(se_string_view p_file, se_string_view p_src);
     Error flush(bool p_verbose = false);
 

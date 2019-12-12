@@ -43,6 +43,11 @@ T unbox(MonoObject *p_obj) {
 	return *(T *)mono_object_unbox(p_obj);
 }
 
+template <typename T>
+T *unbox_addr(MonoObject *p_obj) {
+	return (T *)mono_object_unbox(p_obj);
+}
+
 #define BOX_DOUBLE(x) mono_value_box(mono_domain_get(), CACHED_CLASS_RAW(double), &x)
 #define BOX_FLOAT(x) mono_value_box(mono_domain_get(), CACHED_CLASS_RAW(float), &x)
 #define BOX_INT64(x) mono_value_box(mono_domain_get(), CACHED_CLASS_RAW(int64_t), &x)
@@ -57,7 +62,7 @@ T unbox(MonoObject *p_obj) {
 #define BOX_PTR(x) mono_value_box(mono_domain_get(), CACHED_CLASS_RAW(IntPtr), x)
 #define BOX_ENUM(m_enum_class, x) mono_value_box(mono_domain_get(), m_enum_class, &x)
 
-VariantType managed_to_variant_type(const ManagedType &p_type);
+Variant::Type managed_to_variant_type(const ManagedType &p_type);
 
 bool try_get_array_element_type(const ManagedType &p_array_type, ManagedType &r_elem_type);
 bool try_get_dictionary_key_value_types(const ManagedType &p_dictionary_type, ManagedType &r_key_type, ManagedType &r_value_type);
@@ -160,7 +165,11 @@ enum {
 
 	MATCHES_double = (sizeof(double) == sizeof(uint64_t)),
 
+#ifdef REAL_T_IS_DOUBLE
+	MATCHES_real_t = (sizeof(real_t) == sizeof(uint64_t)),
+#else
 	MATCHES_real_t = (sizeof(real_t) == sizeof(uint32_t)),
+#endif
 
 	MATCHES_Vector2 = (MATCHES_real_t && (sizeof(Vector2) == (sizeof(real_t) * 2)) &&
 					   offsetof(Vector2, x) == (sizeof(real_t) * 0) &&

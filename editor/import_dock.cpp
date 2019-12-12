@@ -194,7 +194,7 @@ void ImportDock::set_edit_multiple_paths(const Vector<se_string> &p_paths) {
 
     clear();
 
-    //use the value that is repeated the most
+    // Use the value that is repeated the most.
     Map<se_string_view, Dictionary> value_frequency;
 
     for (int i = 0; i < p_paths.size(); i++) {

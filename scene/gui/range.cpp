@@ -174,6 +174,7 @@ void Range::set_as_ratio(double p_value) {
     set_value(v);
 }
 double Range::get_as_ratio() const {
+    ERR_FAIL_COND_V_MSG(Math::is_equal_approx(get_max(), get_min()), 0.0, "Cannot get ratio when minimum and maximum value are equal.");
 
     if (shared->exp_ratio && get_min() >= 0) {
 

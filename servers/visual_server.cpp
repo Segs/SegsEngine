@@ -1700,7 +1700,7 @@ void VisualServer::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("mesh_create"), &VisualServer::mesh_create);
     MethodBinder::bind_method(D_METHOD("mesh_surface_get_format_offset", {"format", "vertex_len", "index_len", "array_index"}), &VisualServer::mesh_surface_get_format_offset);
     MethodBinder::bind_method(D_METHOD("mesh_surface_get_format_stride", {"format", "vertex_len", "index_len"}), &VisualServer::mesh_surface_get_format_stride);
-    MethodBinder::bind_method(D_METHOD("mesh_add_surface_from_arrays", {"mesh", "primtive", "arrays", "blend_shapes", "compress_format"}), &VisualServer::mesh_add_surface_from_arrays, {DEFVAL(Array()), DEFVAL(ARRAY_COMPRESS_DEFAULT)});
+    MethodBinder::bind_method(D_METHOD("mesh_add_surface_from_arrays", {"mesh", "primitive", "arrays", "blend_shapes", "compress_format"}), &VisualServer::mesh_add_surface_from_arrays, {DEFVAL(Array()), DEFVAL(ARRAY_COMPRESS_DEFAULT)});
     MethodBinder::bind_method(D_METHOD("mesh_set_blend_shape_count", {"mesh", "amount"}), &VisualServer::mesh_set_blend_shape_count);
     MethodBinder::bind_method(D_METHOD("mesh_get_blend_shape_count", {"mesh"}), &VisualServer::mesh_get_blend_shape_count);
     MethodBinder::bind_method(D_METHOD("mesh_set_blend_shape_mode", {"mesh", "mode"}), &VisualServer::mesh_set_blend_shape_mode);
@@ -1724,6 +1724,7 @@ void VisualServer::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("mesh_get_custom_aabb", {"mesh"}), &VisualServer::mesh_get_custom_aabb);
     MethodBinder::bind_method(D_METHOD("mesh_clear", {"mesh"}), &VisualServer::mesh_clear);
 
+    MethodBinder::bind_method(D_METHOD("multimesh_create"), &VisualServer::multimesh_create);
     MethodBinder::bind_method(D_METHOD("multimesh_allocate", {"multimesh", "instances", "transform_format", "color_format", "custom_data_format"}), &VisualServer::multimesh_allocate, {DEFVAL(MULTIMESH_CUSTOM_DATA_NONE)});
     MethodBinder::bind_method(D_METHOD("multimesh_get_instance_count", {"multimesh"}), &VisualServer::multimesh_get_instance_count);
     MethodBinder::bind_method(D_METHOD("multimesh_set_mesh", {"multimesh", "mesh"}), &VisualServer::multimesh_set_mesh);
@@ -1980,7 +1981,7 @@ void VisualServer::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("canvas_item_add_nine_patch", {"item", "rect", "source", "texture", "topleft", "bottomright", "x_axis_mode", "y_axis_mode", "draw_center", "modulate", "normal_map"}), &VisualServer::canvas_item_add_nine_patch, {DEFVAL(NINE_PATCH_STRETCH), DEFVAL(NINE_PATCH_STRETCH), DEFVAL(true), DEFVAL(Color(1, 1, 1)), DEFVAL(RID())});
     MethodBinder::bind_method(D_METHOD("canvas_item_add_primitive", {"item", "points", "colors", "uvs", "texture", "width", "normal_map"}), &VisualServer::canvas_item_add_primitive, {DEFVAL(1.0), DEFVAL(RID())});
     MethodBinder::bind_method(D_METHOD("canvas_item_add_polygon", {"item", "points", "colors", "uvs", "texture", "normal_map", "antialiased"}), &VisualServer::canvas_item_add_polygon, {DEFVAL(Vector<Point2>()), DEFVAL(RID()), DEFVAL(RID()), DEFVAL(false)});
-    MethodBinder::bind_method(D_METHOD("canvas_item_add_triangle_array", {"item", "indices", "points", "colors", "uvs", "bones", "weights", "texture", "count", "normal_map"}), &VisualServer::canvas_item_add_triangle_array, {DEFVAL(Vector<Point2>()), DEFVAL(Vector<int>()), DEFVAL(Vector<float>()), DEFVAL(RID()), DEFVAL(-1), DEFVAL(RID())});
+    MethodBinder::bind_method(D_METHOD("canvas_item_add_triangle_array", {"item", "indices", "points", "colors", "uvs", "bones", "weights", "texture", "count", "normal_map", "antialiased"}), &VisualServer::canvas_item_add_triangle_array, {DEFVAL(Vector<Point2>()), DEFVAL(Vector<int>()), DEFVAL(Vector<float>()), DEFVAL(RID()), DEFVAL(-1), DEFVAL(RID()), DEFVAL(false)});
     MethodBinder::bind_method(D_METHOD("canvas_item_add_mesh", {"item", "mesh", "transform", "modulate", "texture", "normal_map"}), &VisualServer::canvas_item_add_mesh, {DEFVAL(Transform2D()), DEFVAL(Color(1, 1, 1)), DEFVAL(RID()), DEFVAL(RID())});
 
     MethodBinder::bind_method(D_METHOD("canvas_item_add_multimesh", {"item", "mesh", "texture", "normal_map"}), &VisualServer::canvas_item_add_multimesh, {DEFVAL(RID())});

@@ -3363,7 +3363,12 @@ void GDScriptParser::_parse_block(BlockNode *p_block, bool p_static) {
                 }
                 p_block->statements.push_back(expression);
                 if (!_end_statement()) {
-                    _set_error("Expected end of statement after expression.");
+                    // Attempt to guess a better error message if the user "retypes" a variable
+                    if (tokenizer->get_token() == GDScriptTokenizer::TK_COLON && tokenizer->get_token(1) == GDScriptTokenizer::TK_OP_ASSIGN) {
+                        _set_error("Unexpected ':=', use '=' instead. Expected end of statement after expression.");
+                    } else {
+                        _set_error(se_string("Expected end of statement after expression, got ") + tokenizer->get_token_name(tokenizer->get_token()) + " instead");
+                    }
                     return;
                 }
 
@@ -6480,6 +6485,8 @@ GDScriptParser::DataType GDScriptParser::_reduce_node_type(Node *p_node) {
 
                     DataType true_type = _reduce_node_type(op->arguments[1]);
                     DataType false_type = _reduce_node_type(op->arguments[2]);
+                    // Check arguments[0] errors.
+                    _reduce_node_type(op->arguments[0]);
 
                     // If types are equal, then the expression is of the same type
                     // If they are compatible, return the broader type

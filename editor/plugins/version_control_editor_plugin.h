@@ -134,7 +134,7 @@ public:
     PanelContainer *get_version_control_dock() const { return version_control_dock; }
 
     Vector<StringName> get_available_vcs_names() const { return available_addons; }
-    bool get_is_vcs_intialized() const;
+    bool is_vcs_initialized() const;
     const se_string get_vcs_name() const;
 
     void register_editor();

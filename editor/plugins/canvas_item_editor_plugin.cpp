@@ -67,7 +67,7 @@
 #define MIN_ZOOM 0.01
 #define MAX_ZOOM 100
 
-#define RULER_WIDTH 15 * EDSCALE
+#define RULER_WIDTH (15 * EDSCALE)
 #define SCALE_HANDLE_DISTANCE 25
 
 IMPL_GDCLASS(CanvasItemEditorSelectedItem)
@@ -809,6 +809,7 @@ bool CanvasItemEditor::_select_click_on_item(CanvasItem *item, Point2 p_click_po
             editor_selection->add_node(item);
             // Reselect
             if (Engine::get_singleton()->is_editor_hint()) {
+                selected_from_canvas = true;
                 editor->call("edit_node", Variant(item));
             }
         }
@@ -1125,7 +1126,11 @@ bool CanvasItemEditor::_gui_input_rulers_and_guides(const Ref<InputEvent> &p_eve
                         if (dragged_guide_index >= 0) {
                             vguides.remove(dragged_guide_index);
                             undo_redo->create_action_ui(TTR("Remove Vertical Guide"));
-                            undo_redo->add_do_method(EditorNode::get_singleton()->get_edited_scene(), "set_meta", "_edit_vertical_guides_", vguides);
+                            if (vguides.empty()) {
+                                undo_redo->add_do_method(EditorNode::get_singleton()->get_edited_scene(), "remove_meta", "_edit_vertical_guides_");
+                            } else {
+                                undo_redo->add_do_method(EditorNode::get_singleton()->get_edited_scene(), "set_meta", "_edit_vertical_guides_", vguides);
+                            }
                             undo_redo->add_undo_method(EditorNode::get_singleton()->get_edited_scene(), "set_meta", "_edit_vertical_guides_", prev_vguides);
                             undo_redo->add_undo_method(viewport, "update");
                             undo_redo->commit_action();
@@ -1154,7 +1159,11 @@ bool CanvasItemEditor::_gui_input_rulers_and_guides(const Ref<InputEvent> &p_eve
                         if (dragged_guide_index >= 0) {
                             hguides.remove(dragged_guide_index);
                             undo_redo->create_action_ui(TTR("Remove Horizontal Guide"));
-                            undo_redo->add_do_method(EditorNode::get_singleton()->get_edited_scene(), "set_meta", "_edit_horizontal_guides_", hguides);
+                            if (hguides.empty()) {
+                                undo_redo->add_do_method(EditorNode::get_singleton()->get_edited_scene(), "remove_meta", "_edit_horizontal_guides_");
+                            } else {
+                                undo_redo->add_do_method(EditorNode::get_singleton()->get_edited_scene(), "set_meta", "_edit_horizontal_guides_", hguides);
+                            }
                             undo_redo->add_undo_method(EditorNode::get_singleton()->get_edited_scene(), "set_meta", "_edit_horizontal_guides_", prev_hguides);
                             undo_redo->add_undo_method(viewport, "update");
                             undo_redo->commit_action();
@@ -2250,7 +2259,8 @@ bool CanvasItemEditor::_gui_input_select(const Ref<InputEvent> &p_event) {
                     // Clear the selection if not additive
                     editor_selection->clear();
                     viewport->update();
-                };
+                    selected_from_canvas = true;
+                }
 
                 drag_from = click;
                 drag_type = DRAG_BOX_SELECTION;
@@ -3223,7 +3233,7 @@ void CanvasItemEditor::_draw_selection() {
                     int next = (i + 1) % 4;
 
                     Vector2 ofs = ((endpoints[i] - endpoints[prev]).normalized() + ((endpoints[i] - endpoints[next]).normalized())).normalized();
-                    ofs *= 1.4144 * (select_handle->get_size().width / 2);
+                    ofs *= Math_SQRT2 * (select_handle->get_size().width / 2);
 
                     select_handle->draw(ci, (endpoints[i] + ofs - (select_handle->get_size() / 2)).floor());
 
@@ -3696,7 +3706,7 @@ void CanvasItemEditor::_notification(int p_what) {
         int nb_having_pivot = 0;
 
         // Update the viewport if the canvas_item changes
-        List<CanvasItem *> selection = _get_edited_canvas_items();
+        List<CanvasItem *> selection = _get_edited_canvas_items(true);
         for (List<CanvasItem *>::Element *E = selection.front(); E; E = E->next()) {
             CanvasItem *canvas_item = E->deref();
             CanvasItemEditorSelectedItem *se = editor_selection->get_node_editor_data<CanvasItemEditorSelectedItem>(canvas_item);
@@ -3935,6 +3945,11 @@ void CanvasItemEditor::_selection_changed() {
     }
     anchors_mode = (nbValidControls == nbAnchorsMode);
     anchor_mode_button->set_pressed(anchors_mode);
+
+    if (!selected_from_canvas) {
+        drag_type = DRAG_NONE;
+    }
+    selected_from_canvas = false;
 }
 
 void CanvasItemEditor::edit(CanvasItem *p_canvas_item) {
@@ -3995,9 +4010,9 @@ void CanvasItemEditor::_update_scrollbars() {
     updating_scroll = true;
 
     // Move the zoom buttons
-    Point2 zoom_hb_begin = Point2(5, 5);
-    zoom_hb_begin += (show_rulers) ? Point2(RULER_WIDTH, RULER_WIDTH) : Point2();
-    zoom_hb->set_begin(zoom_hb_begin);
+    Point2 controls_vb_begin = Point2(5, 5);
+    controls_vb_begin += (show_rulers) ? Point2(RULER_WIDTH, RULER_WIDTH) : Point2();
+    controls_vb->set_begin(controls_vb_begin);
 
     // Move and resize the scrollbars
     Size2 size = viewport->get_size();
@@ -4770,19 +4785,21 @@ void CanvasItemEditor::_popup_callback(int p_op) {
         } break;
         case CLEAR_GUIDES: {
 
-            if (EditorNode::get_singleton()->get_edited_scene()->has_meta("_edit_horizontal_guides_") || EditorNode::get_singleton()->get_edited_scene()->has_meta("_edit_vertical_guides_")) {
-                undo_redo->create_action_ui(TTR("Clear Guides"));
-                if (EditorNode::get_singleton()->get_edited_scene()->has_meta("_edit_horizontal_guides_")) {
-                    Array hguides = EditorNode::get_singleton()->get_edited_scene()->get_meta("_edit_horizontal_guides_");
+            Node *const root = EditorNode::get_singleton()->get_edited_scene();
 
-                    undo_redo->add_do_method(EditorNode::get_singleton()->get_edited_scene(), "set_meta", "_edit_horizontal_guides_", Array());
-                    undo_redo->add_undo_method(EditorNode::get_singleton()->get_edited_scene(), "set_meta", "_edit_horizontal_guides_", hguides);
+            if (root && (root->has_meta("_edit_horizontal_guides_") || root->has_meta("_edit_vertical_guides_"))) {
+                undo_redo->create_action(TTR("Clear Guides"));
+                if (root->has_meta("_edit_horizontal_guides_")) {
+                    Array hguides = root->get_meta("_edit_horizontal_guides_");
+
+                    undo_redo->add_do_method(root, "remove_meta", "_edit_horizontal_guides_");
+                    undo_redo->add_undo_method(root, "set_meta", "_edit_horizontal_guides_", hguides);
                 }
-                if (EditorNode::get_singleton()->get_edited_scene()->has_meta("_edit_vertical_guides_")) {
-                    Array vguides = EditorNode::get_singleton()->get_edited_scene()->get_meta("_edit_vertical_guides_");
+                if (root->has_meta("_edit_vertical_guides_")) {
+                    Array vguides = root->get_meta("_edit_vertical_guides_");
 
-                    undo_redo->add_do_method(EditorNode::get_singleton()->get_edited_scene(), "set_meta", "_edit_vertical_guides_", Array());
-                    undo_redo->add_undo_method(EditorNode::get_singleton()->get_edited_scene(), "set_meta", "_edit_vertical_guides_", vguides);
+                    undo_redo->add_do_method(root, "remove_meta", "_edit_vertical_guides_");
+                    undo_redo->add_undo_method(root, "set_meta", "_edit_vertical_guides_", vguides);
                 }
                 undo_redo->add_undo_method(viewport, "update");
                 undo_redo->commit_action();
@@ -4946,8 +4963,8 @@ void CanvasItemEditor::_focus_selection(int p_op) {
 
         center = rect.position + rect.size / 2;
         Vector2 offset = viewport->get_size() / 2 - editor->get_scene_root()->get_global_canvas_transform().xform(center);
-        view_offset.x -= offset.x / zoom;
-        view_offset.y -= offset.y / zoom;
+        view_offset.x -= Math::round(offset.x / zoom);
+        view_offset.y -= Math::round(offset.y / zoom);
         update_viewport();
 
     } else { // VIEW_FRAME_TO_SELECTION
@@ -5279,6 +5296,7 @@ CanvasItemEditor::CanvasItemEditor(EditorNode *p_editor) {
     snap_target[0] = SNAP_TARGET_NONE;
     snap_target[1] = SNAP_TARGET_NONE;
 
+    selected_from_canvas = false;
     anchors_mode = false;
 
     skeleton_show_bones = true;
@@ -5288,6 +5306,8 @@ CanvasItemEditor::CanvasItemEditor(EditorNode *p_editor) {
     drag_to = Vector2();
     dragged_guide_pos = Point2();
     dragged_guide_index = -1;
+    is_hovering_h_guide = false;
+    is_hovering_v_guide = false;
     panning = false;
     pan_pressed = false;
 
@@ -5334,6 +5354,14 @@ CanvasItemEditor::CanvasItemEditor(EditorNode *p_editor) {
     scene_tree->set_anchors_and_margins_preset(Control::PRESET_WIDE);
     scene_tree->add_child(p_editor->get_scene_root());
 
+    controls_vb = memnew(VBoxContainer);
+    controls_vb->set_begin(Point2(5, 5));
+
+    zoom_hb = memnew(HBoxContainer);
+    // Bring the zoom percentage closer to the zoom buttons
+    zoom_hb->add_constant_override("separation", Math::round(-8 * EDSCALE));
+    controls_vb->add_child(zoom_hb);
+
     viewport = memnew(CanvasItemEditorViewport(p_editor, this));
     viewport_scrollable->add_child(viewport);
     viewport->set_mouse_filter(MOUSE_FILTER_PASS);
@@ -5377,11 +5405,7 @@ CanvasItemEditor::CanvasItemEditor(EditorNode *p_editor) {
     v_scroll->connect("value_changed", this, "_update_scroll");
     v_scroll->hide();
 
-    zoom_hb = memnew(HBoxContainer);
-    viewport->add_child(zoom_hb);
-    zoom_hb->set_begin(Point2(5, 5));
-    // Bring the zoom percentage closer to the zoom buttons
-    zoom_hb->add_constant_override("separation", Math::round(-8 * EDSCALE));
+    viewport->add_child(controls_vb);
 
     zoom_minus = memnew(ToolButton);
     zoom_hb->add_child(zoom_minus);
@@ -5772,8 +5796,7 @@ void CanvasItemEditorViewport::_on_change_type_closed() {
 }
 
 void CanvasItemEditorViewport::_create_preview(const Vector<se_string> &files) const {
-    label->set_position(get_global_position() + Point2(14, 14) * EDSCALE);
-    label_desc->set_position(label->get_position() + Point2(0, label->get_size().height));
+
     bool add_preview = false;
     for (int i = 0; i < files.size(); i++) {
         se_string path = files[i];
@@ -6198,7 +6221,7 @@ CanvasItemEditorViewport::CanvasItemEditorViewport(EditorNode *p_node, CanvasIte
     label->add_color_override("font_color_shadow", Color(0, 0, 0, 1));
     label->add_constant_override("shadow_as_outline", 1 * EDSCALE);
     label->hide();
-    editor->get_gui_base()->add_child(label);
+    canvas_item_editor->get_controls_container()->add_child(label);
 
     label_desc = memnew(Label);
     label_desc->set_text(TTR("Drag & drop + Shift : Add node as sibling\nDrag & drop + Alt : Change node type"));
@@ -6207,7 +6230,7 @@ CanvasItemEditorViewport::CanvasItemEditorViewport(EditorNode *p_node, CanvasIte
     label_desc->add_constant_override("shadow_as_outline", 1 * EDSCALE);
     label_desc->add_constant_override("line_spacing", 0);
     label_desc->hide();
-    editor->get_gui_base()->add_child(label_desc);
+    canvas_item_editor->get_controls_container()->add_child(label_desc);
     VisualServer::get_singleton()->canvas_set_disable_scale(true);
 }
 

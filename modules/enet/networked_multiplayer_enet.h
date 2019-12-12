@@ -80,6 +80,7 @@ private:
     ENetHost *host;
 
     bool refuse_connections;
+    bool server_relay;
 
     ConnectionStatus connection_status;
 
@@ -160,6 +161,8 @@ public:
     int get_channel_count() const;
     void set_always_ordered(bool p_ordered);
     bool is_always_ordered() const;
+    void set_server_relay_enabled(bool p_enabled);
+    bool is_server_relay_enabled() const;
 
     NetworkedMultiplayerENet();
     ~NetworkedMultiplayerENet() override;

@@ -1419,7 +1419,8 @@ void LargeTexture::set_piece_offset(int p_idx, const Point2 &p_offset) {
 void LargeTexture::set_piece_texture(int p_idx, const Ref<Texture> &p_texture) {
 
     ERR_FAIL_COND(p_texture.get() == this)
-    ERR_FAIL_INDEX(p_idx, pieces.size());
+    ERR_FAIL_COND(not p_texture)
+    ERR_FAIL_INDEX(p_idx, pieces.size())
     pieces.write[p_idx].texture = p_texture;
 };
 

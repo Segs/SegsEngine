@@ -79,10 +79,8 @@ private:
     PopupMenu *menu;
 
     int cursor_pos;
-    int window_pos;
     int max_length; // 0 for no maximum.
 
-    int cached_width;
     int cached_placeholder_width;
 
     bool clear_button_enabled;

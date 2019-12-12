@@ -124,7 +124,10 @@ String NativeScript::get_class_name() const {
 
 void NativeScript::set_library(Ref<GDNativeLibrary> p_library) {
     if (library) {
-        WARN_PRINT("library on NativeScript already set. Do nothing.")
+        WARN_PRINT("Library in NativeScript already set. Do nothing.");
+        return;
+    }
+    if (not p_library) {
         return;
     }
     library = p_library;

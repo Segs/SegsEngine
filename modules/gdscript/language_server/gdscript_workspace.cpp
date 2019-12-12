@@ -107,9 +107,9 @@ const lsp::DocumentSymbol *GDScriptWorkspace::get_script_symbol(se_string_view p
 }
 
 void GDScriptWorkspace::reload_all_workspace_scripts() {
-    ListPOD<se_string> pathes;
-    list_script_files("res://", pathes);
-    for (const se_string &path : pathes) {
+    ListPOD<se_string> paths;
+    list_script_files("res://", paths);
+    for (const se_string &path : paths) {
         Error err;
         se_string content = FileAccess::get_file_as_string(path, &err);
         ERR_CONTINUE(err != OK)

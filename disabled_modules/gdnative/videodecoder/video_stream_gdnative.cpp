@@ -117,26 +117,29 @@ void GDAPI godot_videodecoder_register_decoder(const godot_videodecoder_interfac
 // VideoStreamPlaybackGDNative starts here.
 
 bool VideoStreamPlaybackGDNative::open_file(const String &p_file) {
-    ERR_FAIL_COND_V(interface == nullptr, false)
-    file = FileAccess::open(p_file, FileAccess::READ);
-    bool file_opened = interface->open_file(data_struct, file);
+        ERR_FAIL_COND_V(interface == NULL, false);
+        file = FileAccess::open(p_file, FileAccess::READ);
+        bool file_opened = interface->open_file(data_struct, file);
 
-    if (file_opened) {
-        num_channels = interface->get_channels(data_struct);
-        mix_rate = interface->get_mix_rate(data_struct);
+        if (file_opened) {
+                num_channels = interface->get_channels(data_struct);
+                mix_rate = interface->get_mix_rate(data_struct);
 
-        godot_vector2 vec = interface->get_texture_size(data_struct);
-        texture_size = *(Vector2 *)&vec;
+                godot_vector2 vec = interface->get_texture_size(data_struct);
+                texture_size = *(Vector2 *)&vec;
+                // Only do memset if num_channels > 0 otherwise it will crash.
+                if (num_channels > 0) {
+                        pcm = (float *)memalloc(num_channels * AUX_BUFFER_SIZE * sizeof(float));
+                        memset(pcm, 0, num_channels * AUX_BUFFER_SIZE * sizeof(float));
+                }
 
-        pcm = (float *)memalloc(num_channels * AUX_BUFFER_SIZE * sizeof(float));
-        memset(pcm, 0, num_channels * AUX_BUFFER_SIZE * sizeof(float));
-        pcm_write_idx = -1;
-        samples_decoded = 0;
+                pcm_write_idx = -1;
+                samples_decoded = 0;
 
-        texture->create((int)texture_size.width, (int)texture_size.height, Image::FORMAT_RGBA8, Texture::FLAG_FILTER | Texture::FLAG_VIDEO_SURFACE);
-    }
+                texture->create((int)texture_size.width, (int)texture_size.height, Image::FORMAT_RGBA8, Texture::FLAG_FILTER | Texture::FLAG_VIDEO_SURFACE);
+        }
 
-    return file_opened;
+        return file_opened;
 }
 
 void VideoStreamPlaybackGDNative::update(float p_delta) {
@@ -150,7 +153,8 @@ void VideoStreamPlaybackGDNative::update(float p_delta) {
     ERR_FAIL_COND(interface == nullptr)
     interface->update(data_struct, p_delta);
 
-    if (mix_callback) {
+    // Don't mix if there's no audio (num_channels == 0).
+    if (mix_callback && num_channels > 0) {
         if (pcm_write_idx >= 0) {
             // Previous remains
             int mixed = mix_callback(mix_udata, pcm + pcm_write_idx * num_channels, samples_decoded);

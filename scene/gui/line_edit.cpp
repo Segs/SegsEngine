@@ -56,8 +56,14 @@ struct LineEdit::PrivateData {
     String undo_text;
     String text;
     String ime_text;
+    int cached_width;
+    int window_pos;
+
+
     struct TextOperation {
         int cursor_pos;
+        int window_pos;
+        int cached_width;
         String text;
     };
     List<TextOperation> undo_stack;
@@ -66,6 +72,8 @@ struct LineEdit::PrivateData {
         TextOperation op;
         op.text = text;
         op.cursor_pos = cursor_pos;
+        op.window_pos = window_pos;
+        op.cached_width = cached_width;
         undo_stack.push_back(op);
     }
     void _clear_redo(int cursor_pos) {
@@ -99,6 +107,8 @@ struct LineEdit::PrivateData {
         undo_stack_pos = undo_stack_pos->prev();
         TextOperation op = undo_stack_pos->deref();
         text = op.text;
+        cached_width = op.cached_width;
+        window_pos = op.window_pos;
         return op.cursor_pos;
     }
     int do_redo() {
@@ -111,6 +121,8 @@ struct LineEdit::PrivateData {
         undo_stack_pos = undo_stack_pos->next();
         TextOperation op = undo_stack_pos->deref();
         text = op.text;
+        cached_width = op.cached_width;
+        window_pos = op.window_pos;
         return op.cursor_pos;
     }
 };
@@ -316,10 +328,10 @@ void LineEdit::_gui_input(const Ref<InputEvent>& p_event) {
 
                         Ref<Font> font = get_font("font");
 
-                        cached_width = 0;
+                        m_priv->cached_width = 0;
                         if (font != nullptr) {
                             for (int i = 0; i < m_priv->text.length(); i++)
-                                cached_width += font->get_char_size(m_priv->text[i]).width;
+                                m_priv->cached_width += font->get_char_size(m_priv->text[i]).width;
                         }
 
                         set_cursor_position(0);
@@ -682,7 +694,7 @@ void LineEdit::drop_data(const Point2 &p_point, const Variant &p_data) {
         Ref<Font> font = get_font("font");
         if (font != nullptr) {
             for (int i = selection.begin; i < selection.end; i++)
-                cached_width -= font->get_char_size(m_priv->text[i]).width;
+                m_priv->cached_width -= font->get_char_size(m_priv->text[i]).width;
         }
 
         StringUtils::erase(m_priv->text,selection.begin, selected);
@@ -726,7 +738,7 @@ void LineEdit::_notification(int p_what) {
 #endif
         case NOTIFICATION_RESIZED: {
 
-            window_pos = 0;
+            m_priv->window_pos = 0;
             set_cursor_position(get_cursor_position());
 
         } break;
@@ -775,8 +787,8 @@ void LineEdit::_notification(int p_what) {
             }
 
             int x_ofs = 0;
-            bool using_placeholder = m_priv->text.isEmpty();
-            int cached_text_width = using_placeholder ? cached_placeholder_width : cached_width;
+            bool using_placeholder = m_priv->text.isEmpty() && m_priv->ime_text.isEmpty();
+            int cached_text_width = using_placeholder ? cached_placeholder_width : m_priv->cached_width;
 
             switch (align) {
 
@@ -787,7 +799,7 @@ void LineEdit::_notification(int p_what) {
                 } break;
                 case ALIGN_CENTER: {
 
-                    if (window_pos != 0)
+                    if (m_priv->window_pos != 0)
                         x_ofs = style->get_offset().x;
                     else
                         x_ofs = MAX(style->get_margin(MARGIN_LEFT), int(size.width - (cached_text_width)) / 2);
@@ -799,7 +811,7 @@ void LineEdit::_notification(int p_what) {
             }
 
             int ofs_max = width - style->get_margin(MARGIN_RIGHT);
-            int char_ofs = window_pos;
+            int char_ofs = m_priv->window_pos;
 
             int y_area = height - style->get_minimum_size().height;
             int y_ofs = style->get_offset().y + (y_area - font->get_height()) / 2;
@@ -830,7 +842,7 @@ void LineEdit::_notification(int p_what) {
                 r_icon->draw(ci, Point2(width - r_icon->get_width() - style->get_margin(MARGIN_RIGHT), height / 2 - r_icon->get_height() / 2), color_icon);
 
                 if (align == ALIGN_CENTER) {
-                    if (window_pos == 0) {
+                    if (m_priv->window_pos == 0) {
                         x_ofs = MAX(style->get_margin(MARGIN_LEFT), int(size.width - cached_text_width - r_icon->get_width() - style->get_margin(MARGIN_RIGHT) * 2) / 2);
                     }
                 } else {
@@ -894,7 +906,7 @@ void LineEdit::_notification(int p_what) {
                 int yofs = y_ofs + (caret_height - font->get_height()) / 2;
                 drawer.draw_char(ci, Point2(x_ofs, yofs + font_ascent), cchar, next, selected ? font_color_selected : font_color);
 
-                if (char_ofs == cursor_pos && draw_caret) {
+                if (char_ofs == cursor_pos && draw_caret && !using_placeholder) {
                     if (m_priv->ime_text.length() == 0) {
 #ifdef TOOLS_ENABLED
                         VisualServer::get_singleton()->canvas_item_add_rect(ci, Rect2(Point2(x_ofs, y_ofs), Size2(Math::round(EDSCALE), caret_height)), cursor_color);
@@ -938,12 +950,27 @@ void LineEdit::_notification(int p_what) {
                 }
             }
 
-            if (char_ofs == cursor_pos && draw_caret) { // May be at the end.
+            if ((char_ofs == cursor_pos || using_placeholder) && draw_caret) { // May be at the end, or placeholder.
                 if (m_priv->ime_text.length() == 0) {
+                    int caret_x_ofs = x_ofs;
+                    if (using_placeholder) {
+                        switch (align) {
+                            case ALIGN_LEFT:
+                            case ALIGN_FILL: {
+                                caret_x_ofs = style->get_offset().x;
+                            } break;
+                            case ALIGN_CENTER: {
+                                caret_x_ofs = ofs_max / 2;
+                            } break;
+                            case ALIGN_RIGHT: {
+                                caret_x_ofs = ofs_max;
+                            } break;
+                        }
+                    }
 #ifdef TOOLS_ENABLED
-                    VisualServer::get_singleton()->canvas_item_add_rect(ci, Rect2(Point2(x_ofs, y_ofs), Size2(Math::round(EDSCALE), caret_height)), cursor_color);
+                    VisualServer::get_singleton()->canvas_item_add_rect(ci, Rect2(Point2(caret_x_ofs, y_ofs), Size2(Math::round(EDSCALE), caret_height)), cursor_color);
 #else
-                    VisualServer::get_singleton()->canvas_item_add_rect(ci, Rect2(Point2(x_ofs, y_ofs), Size2(1, caret_height)), cursor_color);
+                    VisualServer::get_singleton()->canvas_item_add_rect(ci, Rect2(Point2(caret_x_ofs, y_ofs), Size2(1, caret_height)), cursor_color);
 #endif
                 }
             }
@@ -1033,6 +1060,7 @@ void LineEdit::undo() {
     int pos = m_priv->do_undo();
     if(-1==pos)
         return;
+
     set_cursor_position(pos);
 
     if (expand_to_text_length)
@@ -1071,7 +1099,7 @@ void LineEdit::shift_selection_check_post(bool p_shift) {
 void LineEdit::set_cursor_at_pixel_pos(int p_x) {
 
     Ref<Font> font = get_font("font");
-    int ofs = window_pos;
+    int ofs = m_priv->window_pos;
     Ref<StyleBox> style = get_stylebox("normal");
     int pixel_ofs = 0;
     Size2 size = get_size();
@@ -1087,17 +1115,17 @@ void LineEdit::set_cursor_at_pixel_pos(int p_x) {
         } break;
         case ALIGN_CENTER: {
 
-            if (window_pos != 0)
+            if (m_priv->window_pos != 0)
                 pixel_ofs = int(style->get_offset().x);
             else
-                pixel_ofs = int(size.width - (cached_width)) / 2;
+                pixel_ofs = int(size.width - (m_priv->cached_width)) / 2;
 
             if (display_clear_icon)
                 pixel_ofs -= int(r_icon_width / 2 + style->get_margin(MARGIN_RIGHT));
         } break;
         case ALIGN_RIGHT: {
 
-            pixel_ofs = int(size.width - style->get_margin(MARGIN_RIGHT) - (cached_width));
+            pixel_ofs = int(size.width - style->get_margin(MARGIN_RIGHT) - (m_priv->cached_width));
 
             if (display_clear_icon)
                 pixel_ofs -= int(r_icon_width + style->get_margin(MARGIN_RIGHT));
@@ -1125,7 +1153,7 @@ void LineEdit::set_cursor_at_pixel_pos(int p_x) {
 int LineEdit::get_cursor_pixel_pos() {
 
     Ref<Font> font = get_font("font");
-    int ofs = window_pos;
+    int ofs = m_priv->window_pos;
     Ref<StyleBox> style = get_stylebox("normal");
     int pixel_ofs = 0;
     Size2 size = get_size();
@@ -1141,17 +1169,17 @@ int LineEdit::get_cursor_pixel_pos() {
         } break;
         case ALIGN_CENTER: {
 
-            if (window_pos != 0)
+            if (m_priv->window_pos != 0)
                 pixel_ofs = int(style->get_offset().x);
             else
-                pixel_ofs = int(size.width - (cached_width)) / 2;
+                pixel_ofs = int(size.width - (m_priv->cached_width)) / 2;
 
             if (display_clear_icon)
                 pixel_ofs -= int(r_icon_width / 2 + style->get_margin(MARGIN_RIGHT));
         } break;
         case ALIGN_RIGHT: {
 
-            pixel_ofs = int(size.width - style->get_margin(MARGIN_RIGHT) - (cached_width));
+            pixel_ofs = int(size.width - style->get_margin(MARGIN_RIGHT) - (m_priv->cached_width));
 
             if (display_clear_icon)
                 pixel_ofs -= int(r_icon_width + style->get_margin(MARGIN_RIGHT));
@@ -1159,7 +1187,7 @@ int LineEdit::get_cursor_pixel_pos() {
     }
 
     while (ofs < cursor_pos) {
-        if (font != NULL) {
+        if (font != nullptr) {
             pixel_ofs += font->get_char_size(m_priv->text[ofs]).width;
         }
         ofs++;
@@ -1217,13 +1245,15 @@ void LineEdit::delete_char() {
 
     Ref<Font> font = get_font("font");
     if (font != nullptr) {
-        cached_width -= font->get_char_size(m_priv->text[cursor_pos - 1]).width;
+        m_priv->cached_width -= font->get_char_size(m_priv->text[cursor_pos - 1]).width;
     }
 
     StringUtils::erase(m_priv->text,cursor_pos - 1, 1);
 
     set_cursor_position(get_cursor_position() - 1);
-
+    if (align == ALIGN_CENTER || align == ALIGN_RIGHT) {
+        m_priv->window_pos = CLAMP(m_priv->window_pos - 1, 0, m_priv->text.length() - 1);
+    }
     _text_changed();
 }
 
@@ -1233,10 +1263,10 @@ void LineEdit::delete_text(int p_from_column, int p_to_column) {
         Ref<Font> font = get_font("font");
         if (font != nullptr) {
             for (int i = p_from_column; i < p_to_column; i++)
-                cached_width -= font->get_char_size(m_priv->text[i]).width;
+                m_priv->cached_width -= font->get_char_size(m_priv->text[i]).width;
         }
     } else {
-        cached_width = 0;
+        m_priv->cached_width = 0;
     }
 
     StringUtils::erase(m_priv->text,p_from_column, p_to_column - p_from_column);
@@ -1246,11 +1276,13 @@ void LineEdit::delete_text(int p_from_column, int p_to_column) {
 
         cursor_pos = m_priv->text.length();
     }
-    if (window_pos > cursor_pos) {
+    if (m_priv->window_pos > cursor_pos) {
 
-        window_pos = cursor_pos;
+        m_priv->window_pos = cursor_pos;
     }
-
+    if (align == ALIGN_CENTER || align == ALIGN_RIGHT) {
+        m_priv->window_pos = CLAMP(m_priv->window_pos - (p_to_column - p_from_column), 0, m_priv->text.length() - 1);
+    }
     if (!text_changed_dirty) {
         if (is_inside_tree()) {
             MessageQueue::get_singleton()->push_call(this, "_text_changed");
@@ -1265,7 +1297,7 @@ void LineEdit::set_text(const String& p_text) {
     append_at_cursor(StringUtils::to_utf8(p_text));
     update();
     cursor_pos = 0;
-    window_pos = 0;
+    m_priv->window_pos = 0;
 }
 void LineEdit::set_text_utf8(se_string_view p_text) {
 
@@ -1273,7 +1305,7 @@ void LineEdit::set_text_utf8(se_string_view p_text) {
     append_at_cursor(p_text);
     update();
     cursor_pos = 0;
-    window_pos = 0;
+    m_priv->window_pos = 0;
 }
 void LineEdit::clear() {
 
@@ -1327,14 +1359,14 @@ void LineEdit::set_cursor_position(int p_pos) {
 
     if (!is_inside_tree()) {
 
-        window_pos = cursor_pos;
+        m_priv->window_pos = cursor_pos;
         return;
     }
 
     Ref<StyleBox> style = get_stylebox("normal");
     Ref<Font> font = get_font("font");
 
-    if (cursor_pos <= window_pos) {
+    if (cursor_pos <= m_priv->window_pos) {
         // Adjust window if cursor goes too much to the left.
         set_window_pos(MAX(0, cursor_pos - 1));
     } else {
@@ -1348,13 +1380,13 @@ void LineEdit::set_cursor_position(int p_pos) {
 
         if (window_width < 0)
             return;
-        int wp = window_pos;
+        int wp = m_priv->window_pos;
 
         if (font) {
 
             int accum_width = 0;
 
-            for (int i = cursor_pos; i >= window_pos; i--) {
+            for (int i = cursor_pos; i >= m_priv->window_pos; i--) {
 
                 if (i >= m_priv->text.length()) {
                     // Do not do this, because if the cursor is at the end, its just fine that it takes no space.
@@ -1369,7 +1401,7 @@ void LineEdit::set_cursor_position(int p_pos) {
             }
         }
 
-        if (wp != window_pos)
+        if (wp != m_priv->window_pos)
             set_window_pos(wp);
     }
     update();
@@ -1382,8 +1414,8 @@ int LineEdit::get_cursor_position() const {
 
 void LineEdit::set_window_pos(int p_pos) {
 
-    window_pos = p_pos;
-    if (window_pos < 0) window_pos = 0;
+    m_priv->window_pos = p_pos;
+    if (m_priv->window_pos < 0) m_priv->window_pos = 0;
 }
 
 void LineEdit::append_at_cursor(se_string_view _text) {
@@ -1394,9 +1426,9 @@ void LineEdit::append_at_cursor(se_string_view _text) {
         Ref<Font> font = get_font("font");
         if (font != nullptr) {
             for (int i = 0; i < p_text.length(); i++)
-                cached_width += font->get_char_size(p_text[i]).width;
+                m_priv->cached_width += font->get_char_size(p_text[i]).width;
         } else {
-            cached_width = 0;
+            m_priv->cached_width = 0;
         }
 
         String pre = StringUtils::substr(m_priv->text,0, cursor_pos);
@@ -1410,9 +1442,9 @@ void LineEdit::clear_internal() {
 
     deselect();
     m_priv->_clear_undo_stack(cursor_pos);
-    cached_width = 0;
+    m_priv->cached_width = 0;
     cursor_pos = 0;
-    window_pos = 0;
+    m_priv->window_pos = 0;
     m_priv->undo_text = "";
     m_priv->text = "";
     update();
@@ -1835,10 +1867,10 @@ LineEdit::LineEdit() {
     m_priv->undo_stack_pos = nullptr;
     m_priv->_create_undo_state(0);
     align = ALIGN_LEFT;
-    cached_width = 0;
+    m_priv->cached_width = 0;
     cached_placeholder_width = 0;
     cursor_pos = 0;
-    window_pos = 0;
+    m_priv->window_pos = 0;
     window_has_focus = true;
     max_length = 0;
     pass = false;

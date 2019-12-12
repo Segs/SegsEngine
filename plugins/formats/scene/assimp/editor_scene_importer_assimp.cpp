@@ -414,8 +414,6 @@ Spatial *EditorSceneImporterAssimp::_generate_scene(se_string_view p_path, aiSce
                 }
             } else if (bone != NULL) {
                 continue;
-            } else if (element_assimp_node->mNumMeshes > 0) {
-                spatial = memnew(Spatial);
             } else {
                 spatial = memnew(Spatial);
             }
@@ -443,16 +441,11 @@ Spatial *EditorSceneImporterAssimp::_generate_scene(se_string_view p_path, aiSce
                 ERR_FAIL_COND_V_MSG(parent_node == NULL, state.root,
                         "Parent node invalid even though lookup successful, out of ram?")
 
-                if (parent_node && spatial != state.root) {
+                if (spatial != state.root) {
                     parent_node->add_child(spatial);
                     spatial->set_owner(state.root);
-                } else if (spatial == state.root) {
+                } else {
                     // required - think about it root never has a parent yet is valid, anything else without a parent is not valid.
-                } else // Safety for instances
-                {
-                    WARN_PRINT(
-                            "Failed to find parent node instance after lookup, serious warning report to godot with model");
-                    memdelete(spatial); // this node is broken
                 }
             } else if (spatial != state.root) {
                 // if the ainode is not in the tree
@@ -527,10 +520,11 @@ Spatial *EditorSceneImporterAssimp::_generate_scene(se_string_view p_path, aiSce
         for (const eastl::pair<const aiNode *, Spatial *> &key_value_pair : state.flat_node_map) {
             const aiNode *assimp_node = key_value_pair.first;
             Spatial *mesh_template = key_value_pair.second;
-            Node *parent_node = mesh_template->get_parent();
 
             ERR_CONTINUE(assimp_node == nullptr)
             ERR_CONTINUE(mesh_template == nullptr)
+
+            Node *parent_node = mesh_template->get_parent();
 
             if (mesh_template == state.root) {
                 continue;
@@ -1043,7 +1037,6 @@ EditorSceneImporterAssimp::_generate_mesh_from_surface_indices(ImportState &stat
             }
         }
 
-        const se_string mesh_name = AssimpUtils::get_assimp_string(ai_mesh->mName);
         aiString mat_name;
         if (AI_SUCCESS == ai_material->Get(AI_MATKEY_NAME, mat_name)) {
             mat->set_name(AssimpUtils::get_assimp_string(mat_name));
@@ -1350,7 +1343,7 @@ EditorSceneImporterAssimp::create_mesh(ImportState &state, const aiNode *assimp_
 
     RegenerateBoneStack(state);
 
-    // Configure indicies
+    // Configure indices
     for (uint32_t i = 0; i < assimp_node->mNumMeshes; i++) {
         int mesh_index = assimp_node->mMeshes[i];
         // create list of mesh indexes
@@ -1366,8 +1359,8 @@ EditorSceneImporterAssimp::create_mesh(ImportState &state, const aiNode *assimp_
         mesh_key += itos(surface_indices[i]);
     }
 
-    Skeleton *skeleton = NULL;
-    aiNode *armature = NULL;
+    Skeleton *skeleton = nullptr;
+    aiNode *armature = nullptr;
 
     if (!state.mesh_cache.contains(mesh_key)) {
         mesh = _generate_mesh_from_surface_indices(state, surface_indices, assimp_node, skin, skeleton);
@@ -1526,7 +1519,6 @@ void EditorSceneImporterAssimp::_generate_node(
 
     ERR_FAIL_COND(assimp_node == NULL);
     state.nodes.push_back(assimp_node);
-    se_string node_name = AssimpUtils::get_assimp_string(assimp_node->mName);
     se_string parent_name = AssimpUtils::get_assimp_string(assimp_node->mParent->mName);
 
     // please note

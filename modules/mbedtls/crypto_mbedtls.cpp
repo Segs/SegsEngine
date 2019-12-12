@@ -207,8 +207,6 @@ void CryptoMbedTLS::load_default_certificates(se_string_view p_path) {
     default_certs = memnew(X509CertificateMbedTLS);
     ERR_FAIL_COND(default_certs == nullptr)
 
-    String certs_path = GLOBAL_DEF("network/ssl/certificates", "");
-
     if (!p_path.empty()) {
         // Use certs defined in project settings.
         default_certs->load(p_path);

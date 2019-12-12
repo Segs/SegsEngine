@@ -532,6 +532,18 @@ const se_string &HTTPRequest::get_download_file() const {
 
     return IMPLD()->download_to_file;
 }
+
+void HTTPRequest::set_download_chunk_size(int p_chunk_size) {
+
+    ERR_FAIL_COND(get_http_client_status() != HTTPClient::STATUS_DISCONNECTED);
+
+    IMPLD()->client->set_read_chunk_size(p_chunk_size);
+}
+
+int HTTPRequest::get_download_chunk_size() const {
+    return IMPLD()->client->get_read_chunk_size();
+}
+
 HTTPClient::Status HTTPRequest::get_http_client_status() const {
     return IMPLD()->client->get_status();
 }
@@ -599,9 +611,13 @@ void HTTPRequest::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_timeout", {"timeout"}), &HTTPRequest::set_timeout);
     MethodBinder::bind_method(D_METHOD("get_timeout"), &HTTPRequest::get_timeout);
 
+    MethodBinder::bind_method(D_METHOD("set_download_chunk_size"), &HTTPRequest::set_download_chunk_size);
+    MethodBinder::bind_method(D_METHOD("get_download_chunk_size"), &HTTPRequest::get_download_chunk_size);
+
     MethodBinder::bind_method(D_METHOD("_timeout"), &HTTPRequest::_timeout);
 
     ADD_PROPERTY(PropertyInfo(VariantType::STRING, "download_file", PROPERTY_HINT_FILE), "set_download_file", "get_download_file");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "download_chunk_size", PROPERTY_HINT_RANGE, "256,16777216"), "set_download_chunk_size", "get_download_chunk_size");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "use_threads"), "set_use_threads", "is_using_threads");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "body_size_limit", PROPERTY_HINT_RANGE, "-1,2000000000"), "set_body_size_limit", "get_body_size_limit");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "max_redirects", PROPERTY_HINT_RANGE, "-1,64"), "set_max_redirects", "get_max_redirects");

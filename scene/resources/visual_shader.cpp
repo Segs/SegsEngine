@@ -2269,6 +2269,7 @@ void VisualShaderNodeGroupBase::set_input_port_type(int p_id, int p_type) {
     int index = 0;
     for (int i = 0; i < inputs_strings.size(); i++) {
         Vector<se_string_view> arr = StringUtils::split(inputs_strings[i],',');
+        ERR_FAIL_COND(arr.size() != 3)
         if (StringUtils::to_int(arr[0]) == p_id) {
             index += arr[0].size();
             count = arr[1].size() - 1;
@@ -2415,6 +2416,7 @@ void VisualShaderNodeGroupBase::_apply_port_changes() {
 
     for (int i = 0; i < inputs_strings.size(); i++) {
         Vector<se_string_view> arr = StringUtils::split(inputs_strings[i],',');
+        ERR_FAIL_COND(arr.size() != 3)
         Port port;
         port.type = (PortType)StringUtils::to_int(arr[1]);
         port.name = arr[2];
@@ -2422,6 +2424,7 @@ void VisualShaderNodeGroupBase::_apply_port_changes() {
     }
     for (int i = 0; i < outputs_strings.size(); i++) {
         Vector<se_string_view> arr = StringUtils::split(outputs_strings[i],',');
+        ERR_FAIL_COND(arr.size() != 3)
         Port port;
         port.type = (PortType)StringUtils::to_int(arr[1]);
         port.name = arr[2];

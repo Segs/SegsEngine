@@ -200,9 +200,6 @@ bool GridMap::get_collision_layer_bit(int p_bit) const {
     return get_collision_layer() & (1 << p_bit);
 }
 
-//WARN_DEPRECATED_MSG("GridMap.theme/set_theme() is deprecated and will be removed in a future version. Use GridMap.mesh_library/set_mesh_library() instead.");
-//WARN_DEPRECATED_MSG("GridMap.theme/get_theme() is deprecated and will be removed in a future version. Use GridMap.mesh_library/get_mesh_library() instead.");
-
 void GridMap::set_mesh_library(const Ref<MeshLibrary> &p_mesh_library) {
 
     if (mesh_library)

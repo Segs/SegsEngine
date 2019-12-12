@@ -398,9 +398,9 @@ void VersionControlEditorPlugin::shut_down() {
     }
 }
 
-bool VersionControlEditorPlugin::get_is_vcs_intialized() const {
+bool VersionControlEditorPlugin::is_vcs_initialized() const {
 
-    return EditorVCSInterface::get_singleton() ? EditorVCSInterface::get_singleton()->get_is_vcs_intialized() : false;
+    return EditorVCSInterface::get_singleton() ? EditorVCSInterface::get_singleton()->is_vcs_initialized() : false;
 }
 
 const se_string VersionControlEditorPlugin::get_vcs_name() const {

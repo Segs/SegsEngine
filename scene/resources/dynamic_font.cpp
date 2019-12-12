@@ -690,6 +690,7 @@ void DynamicFont::_reload_cache() {
     if (not data) {
         data_at_size.unref();
         outline_data_at_size.unref();
+        fallbacks.clear();
         fallback_data_at_size.resize(0);
         fallback_outline_data_at_size.resize(0);
         return;

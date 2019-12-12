@@ -286,7 +286,6 @@ public:
                 else
                     undo_redo->create_action_ui(TTR("Anim Change Call"));
 
-                Variant prev = animation->track_get_key_value(track, key);
                 setting = true;
                 undo_redo->add_do_method(animation.get(), "track_set_key_value", track, key, d_new);
                 undo_redo->add_undo_method(animation.get(), "track_set_key_value", track, key, d_old);
@@ -298,7 +297,7 @@ public:
                 if (change_notify_deserved)
                     notify_change();
                 return true;
-            } break;
+            }
             case Animation::TYPE_BEZIER: {
 
                 if (name == "value"_sv) {
@@ -2039,7 +2038,7 @@ void AnimationTrackEdit::_notification(int p_what) {
 
                 float offset = animation->track_get_key_time(track, i) - timeline->get_value();
                 if (editor->is_key_selected(track, i) && editor->is_moving_selection()) {
-                    offset = editor->snap_time(offset + editor->get_moving_selection_offset());
+                    offset = editor->snap_time(offset + editor->get_moving_selection_offset(), true);
                 }
                 offset = offset * scale + limit;
                 if (i < animation->track_get_key_count(track) - 1) {
@@ -5721,7 +5720,7 @@ void AnimationTrackEditor::_selection_changed() {
     }
 }
 
-float AnimationTrackEditor::snap_time(float p_value) {
+float AnimationTrackEditor::snap_time(float p_value, bool p_relative) {
 
     if (is_snap_enabled()) {
 
@@ -5731,7 +5730,12 @@ float AnimationTrackEditor::snap_time(float p_value) {
         else
             snap_increment = step->get_value();
 
-        p_value = Math::stepify(p_value, snap_increment);
+        if (p_relative) {
+            float rel = Math::fmod(timeline->get_value(), snap_increment);
+            p_value = Math::stepify(p_value + rel, snap_increment) - rel;
+        } else {
+            p_value = Math::stepify(p_value, snap_increment);
+        }
     }
 
     return p_value;

@@ -44,7 +44,7 @@ bool is_csharp_keyword(const String &p_name);
 String escape_csharp_keyword(const String &p_name);
 #endif
 
-Error read_all_file_utf8(se_string_view p_path, String &r_content);
+Error read_all_file_utf8(const String &p_path, String &r_content);
 
 #if defined(__GNUC__)
 #define _PRINTF_FORMAT_ATTRIBUTE_1_0 __attribute__((format(printf, 1, 0)))
@@ -56,5 +56,7 @@ Error read_all_file_utf8(se_string_view p_path, String &r_content);
 
 String str_format(const char *p_format, ...) _PRINTF_FORMAT_ATTRIBUTE_1_2;
 String str_format(const char *p_format, va_list p_list) _PRINTF_FORMAT_ATTRIBUTE_1_0;
+char *str_format_new(const char *p_format, ...) _PRINTF_FORMAT_ATTRIBUTE_1_2;
+char *str_format_new(const char *p_format, va_list p_list) _PRINTF_FORMAT_ATTRIBUTE_1_0;
 
 #endif // STRING_FORMAT_H

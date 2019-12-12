@@ -1963,6 +1963,9 @@ bool RichTextLabel::remove_line(const int p_line) {
 
     if (!was_newline) {
         current_frame->lines.remove(p_line);
+        if (current_frame->lines.empty()) {
+            current_frame->lines.resize(1);
+        }
     }
 
     if (p_line == 0 && !current->subitems.empty())

@@ -1151,23 +1151,11 @@ void GDScriptFunctions::call(Function p_func, const Variant **p_args, int p_arg_
 
                     p = base.get();
 
-                    while (p) {
-
-                        for (const StringName &E : p->members) {
-
-                            Variant value;
-                            if (ins->get(E, value)) {
-
-                                const char *k = E.asCString();
-                                if (!d.has(k)) {
-                                    d[k] = value;
-                                }
-                            }
+                    for (const auto &E : base->member_indices) {
+                        if (!d.has(E.first)) {
+                            d[E.first] = ins->members[E.second.index];
                         }
-
-                        p = p->_base;
                     }
-
                     r_ret = d;
                 }
             }

@@ -233,6 +233,10 @@ void EditorSpatialGizmo::add_mesh(const Ref<ArrayMesh> &p_mesh, bool p_billboard
 
 void EditorSpatialGizmo::add_lines(const Vector<Vector3> &p_lines, const Ref<Material> &p_material, bool p_billboard) {
 
+    if (p_lines.empty()) {
+        return;
+    }
+
     ERR_FAIL_COND(!spatial_node)
     Instance ins;
 
@@ -520,7 +524,7 @@ bool EditorSpatialGizmo::intersect_ray(Camera *p_camera, const Point2 &p_point, 
     if (r_gizmo_handle && !hidden) {
 
         Transform t = spatial_node->get_global_transform();
-        t.orthonormalize();
+
         if (billboard_handle) {
             t.set_look_at(t.origin, t.origin - p_camera->get_transform().basis.get_axis(2), p_camera->get_transform().basis.get_axis(1));
         }
@@ -581,7 +585,7 @@ bool EditorSpatialGizmo::intersect_ray(Camera *p_camera, const Point2 &p_point, 
     if (selectable_icon_size > 0.0f) {
 
         Transform t = spatial_node->get_global_transform();
-        t.orthonormalize();
+
         Vector3 camera_position = p_camera->get_camera_transform().origin;
         if (camera_position.distance_squared_to(t.origin) > 0.01) {
             t.set_look_at(t.origin, camera_position, Vector3(0, 1, 0));
@@ -891,7 +895,7 @@ void LightSpatialGizmoPlugin::set_handle(EditorSpatialGizmo *p_gizmo, int p_idx,
 
     Light *light = object_cast<Light>(p_gizmo->get_spatial_node());
     Transform gt = light->get_global_transform();
-    gt.orthonormalize();
+
     Transform gi = gt.affine_inverse();
 
     Vector3 ray_from = p_camera->project_ray_origin(p_point);
@@ -1138,7 +1142,7 @@ void AudioStreamPlayer3DSpatialGizmoPlugin::set_handle(EditorSpatialGizmo *p_giz
     AudioStreamPlayer3D *player = object_cast<AudioStreamPlayer3D>(p_gizmo->get_spatial_node());
 
     Transform gt = player->get_global_transform();
-    gt.orthonormalize();
+
     Transform gi = gt.affine_inverse();
 
     Vector3 ray_from = p_camera->project_ray_origin(p_point);
@@ -1298,7 +1302,7 @@ void CameraSpatialGizmoPlugin::set_handle(EditorSpatialGizmo *p_gizmo, int p_idx
     Camera *camera = object_cast<Camera>(p_gizmo->get_spatial_node());
 
     Transform gt = camera->get_global_transform();
-    gt.orthonormalize();
+
     Transform gi = gt.affine_inverse();
 
     Vector3 ray_from = p_camera->project_ray_origin(p_point);
@@ -3268,7 +3272,7 @@ void CollisionShapeSpatialGizmoPlugin::set_handle(EditorSpatialGizmo *p_gizmo, i
         return;
 
     Transform gt = cs->get_global_transform();
-    gt.orthonormalize();
+
     Transform gi = gt.affine_inverse();
 
     Vector3 ray_from = p_camera->project_ray_origin(p_point);
@@ -4233,8 +4237,20 @@ void JointSpatialGizmoPlugin::redraw(EditorSpatialGizmo *p_gizmo) {
 
     p_gizmo->clear();
 
-    const Spatial *node_body_a = object_cast<Spatial>(joint->get_node(joint->get_node_a()));
-    const Spatial *node_body_b = object_cast<Spatial>(joint->get_node(joint->get_node_b()));
+    Spatial *node_body_a = nullptr;
+    if (!joint->get_node_a().is_empty()) {
+        node_body_a = object_cast<Spatial>(joint->get_node(joint->get_node_a()));
+    }
+
+    Spatial *node_body_b = nullptr;
+    if (!joint->get_node_b().is_empty()) {
+        node_body_b = object_cast<Spatial>(joint->get_node(joint->get_node_b()));
+    }
+
+    if (!node_body_a && !node_body_b) {
+        return;
+    }
+
     Ref<EditorSpatialGizmo> ref_gizmo(p_gizmo);
 
     Ref<Material> common_material = get_material("joint_material", ref_gizmo);

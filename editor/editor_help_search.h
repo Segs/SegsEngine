@@ -61,6 +61,7 @@ class EditorHelpSearch : public ConfirmationDialog {
     Tree *results_tree;
     Ref<Runner> search;
     bool old_search;
+    se_string old_term;
 
     void _update_icons();
     void _update_results();

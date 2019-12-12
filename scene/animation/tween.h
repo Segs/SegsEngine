@@ -69,7 +69,7 @@ public:
     };
 
 private:
-    enum InterpolateType {
+    enum InterpolateType : int8_t {
 
         INTER_PROPERTY,
         INTER_METHOD,
@@ -81,10 +81,10 @@ private:
     };
 
     struct InterpolateData {
-        bool active;
+        bool active=false;
         InterpolateType type;
-        bool finish;
-        bool call_deferred;
+        bool finish=false;
+        bool call_deferred=false;
         real_t elapsed;
         ObjectID id;
         Vector<StringName> key;
@@ -100,7 +100,7 @@ private:
         real_t delay;
         int args;
         Variant arg[5];
-        int uid;
+        int uid=0;
     };
 
     //String autoplay;

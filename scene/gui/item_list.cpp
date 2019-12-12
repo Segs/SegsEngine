@@ -986,7 +986,7 @@ void ItemList::_notification(int p_what) {
                 }
 
                 if (all_fit) {
-                    float page = size.height - bg->get_minimum_size().height;
+                    float page = MAX(0, size.height - bg->get_minimum_size().height);
                     float max = MAX(page, ofs.y + max_h);
                     if (auto_height)
                         auto_height_value = ofs.y + max_h + bg->get_minimum_size().height;

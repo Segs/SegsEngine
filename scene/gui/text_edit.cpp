@@ -78,6 +78,17 @@ public:
         Ref<Texture> info_icon;
         StringName info;
         String data;
+
+        Line() {
+            width_cache = 0;
+            marked = false;
+            breakpoint = false;
+            bookmark = false;
+            hidden = false;
+            safe = false;
+            has_info = false;
+            wrap_amount_cache = 0;
+        }
     };
 
 private:
@@ -185,13 +196,13 @@ struct TextEdit::PrivateData {
         Color symbol_color;
         Color background_color;
 
-        int row_height;
-        int line_spacing;
-        int line_number_w;
-        int breakpoint_gutter_width;
-        int fold_gutter_width;
-        int info_gutter_width;
-        int minimap_width;
+        int row_height=0;
+        int line_spacing=0;
+        int line_number_w=0;
+        int breakpoint_gutter_width=0;
+        int fold_gutter_width=0;
+        int info_gutter_width=0;
+        int minimap_width=0;
     } cache;
 
     //syntax coloring
@@ -634,7 +645,6 @@ void TextEdit::_update_scrollbars() {
         cursor.line_ofs = 0;
         cursor.wrap_ofs = 0;
         v_scroll->set_value(0);
-        v_scroll->set_max(0);
         v_scroll->hide();
     }
 
@@ -653,7 +663,6 @@ void TextEdit::_update_scrollbars() {
 
         cursor.x_ofs = 0;
         h_scroll->set_value(0);
-        h_scroll->set_max(0);
         h_scroll->hide();
     }
 
@@ -4808,6 +4817,7 @@ void TextEdit::_scroll_moved(double p_to_val) {
                     break;
             }
         }
+        n_line = MIN(n_line, m_priv->text.size() - 1);
         int line_wrap_amount = times_line_wraps(n_line);
         int wi = line_wrap_amount - (sc - v_scroll_i - 1);
         wi = CLAMP(wi, 0, line_wrap_amount);

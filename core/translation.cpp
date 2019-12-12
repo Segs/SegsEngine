@@ -800,11 +800,6 @@ static const char *locale_renames[][2] = {
     { nullptr, nullptr }
 };
 
-static se_string_view get_trimmed_locale(se_string_view p_locale) {
-
-    return StringUtils::substr(p_locale,0, 2);
-}
-
 ///////////////////////////////////////////////
 
 PoolSeStringArray Translation::_get_messages() const {
@@ -854,7 +849,7 @@ void Translation::set_locale(se_string_view p_locale) {
     se_string univ_locale = TranslationServer::standardize_locale(p_locale);
 
     if (!TranslationServer::is_locale_valid(univ_locale)) {
-        se_string_view trimmed_locale = get_trimmed_locale(univ_locale);
+        se_string_view trimmed_locale = TranslationServer::get_language_code(univ_locale);
 
         ERR_FAIL_COND_MSG(!TranslationServer::is_locale_valid(trimmed_locale), "Invalid locale: " + se_string(trimmed_locale) + ".")
 
@@ -952,13 +947,28 @@ se_string TranslationServer::standardize_locale(se_string_view p_locale) {
 
     return univ_locale;
 }
+se_string_view TranslationServer::get_language_code(se_string_view p_locale) {
 
+    ERR_FAIL_COND_V_MSG(p_locale.length() < 2, p_locale, "Invalid locale '" + p_locale + "'.");
+    // Most language codes are two letters, but some are three,
+    // so we have to look for a regional code separator ('_' or '-')
+    // to extract the left part.
+    // For example we get 'nah_MX' as input and should return 'nah'.
+    auto split = p_locale.find("_");
+    if (split == se_string::npos) {
+        split = p_locale.find("-");
+    }
+    if (split == se_string::npos) { // No separator, so the locale is already only a language code.
+        return p_locale;
+    }
+    return StringUtils::left(p_locale,split);
+}
 void TranslationServer::set_locale(se_string_view p_locale) {
 
     se_string univ_locale = standardize_locale(p_locale);
 
     if (!is_locale_valid(univ_locale)) {
-        se_string_view trimmed_locale = get_trimmed_locale(univ_locale);
+        se_string_view trimmed_locale = TranslationServer::get_language_code(univ_locale);
         print_verbose(FormatVE("Unsupported locale '%.*s', falling back to '%.*s'.", p_locale.size(), p_locale,
                 trimmed_locale.size(), trimmed_locale));
 
@@ -1049,10 +1059,12 @@ void TranslationServer::clear() {
 
 StringName TranslationServer::translate(const StringName &p_message) const {
 
-    //translate using locale
+    // Match given message against the translation catalog for the project locale.
 
     if (!enabled)
         return p_message;
+
+    ERR_FAIL_COND_V_MSG(locale.length() < 2, p_message, "Could not translate message as configured locale '" + locale + "' is invalid.")
 
     // Locale can be of the form 'll_CC', i.e. language code and regional code,
     // e.g. 'en_US', 'en_GB', etc. It might also be simply 'll', e.g. 'en'.
@@ -1061,21 +1073,27 @@ StringName TranslationServer::translate(const StringName &p_message) const {
     // form. If not found, we fall back to a near match (another locale with
     // same language code).
 
+    // Note: ResourceLoader::_path_remap reproduces this locale near matching
+    // logic, so be sure to propagate changes there when changing things here.
+
     StringName res;
+    se_string_view lang = get_language_code(locale);
     bool near_match = false;
-    const char *lptr = locale.data();
 
     for (const Ref<Translation> &t : translations) {
-        ERR_FAIL_COND_V(not t, StringName(""));
+        ERR_FAIL_COND_V(not t, p_message);
 
         const se_string &l(t->get_locale());
-        if (lptr[0] != l[0] || lptr[1] != l[1])
-            continue; // Language code does not match.
 
         bool exact_match = (l == locale);
-        if (!exact_match && near_match)
-            continue; // Only near-match once, but keep looking for exact matches.
-
+        if (!exact_match) {
+            if (near_match) {
+                continue; // Only near-match once, but keep looking for exact matches.
+            }
+            if (get_language_code(l) != lang) {
+                continue; // Language code does not match.
+            }
+        }
         StringName r = t->get_message(p_message);
 
         if (!r)
@@ -1091,29 +1109,34 @@ StringName TranslationServer::translate(const StringName &p_message) const {
 
     if (!res && fallback.length() >= 2) {
         // Try again with the fallback locale.
-        const char *fptr = fallback.data();
+        se_string_view fallback_lang = get_language_code(fallback);
         near_match = false;
-        for (const Ref<Translation> &t : translations) {
 
-            const se_string &l(t->get_locale());
-            if (fptr[0] != l[0] || fptr[1] != l[1])
-                continue; // Language code does not match.
+        for (const Ref<Translation> &t : translations) {
+            ERR_FAIL_COND_V(not t, p_message);
+            se_string l = t->get_locale();
 
             bool exact_match = (l == fallback);
-            if (!exact_match && near_match)
-                continue; // Only near-match once, but keep looking for exact matches.
+            if (!exact_match) {
+                if (near_match) {
+                    continue; // Only near-match once, but keep looking for exact matches.
+                }
+                if (get_language_code(l) != fallback_lang) {
+                    continue; // Language code does not match.
+                }
+            }
 
             StringName r = t->get_message(p_message);
-
-            if (!r)
+            if (!r) {
                 continue;
-
+            }
             res = r;
 
-            if (exact_match)
+            if (exact_match) {
                 break;
-            else
+            } else {
                 near_match = true;
+            }
         }
     }
 

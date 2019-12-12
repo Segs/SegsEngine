@@ -86,7 +86,12 @@ GODOT_EXPORT void _err_print_index_error(const char *p_function, const char *p_f
 
 #define _FNL __FILE__ ":"
 
-/** An index has failed if m_index<0 or m_index >=m_size, the function exits */
+// Used to strip debug messages in release mode
+#ifdef DEBUG_ENABLED
+#define DEBUG_STR(m_msg) m_msg
+#else
+#define DEBUG_STR(m_msg) ""
+#endif
 
 #ifdef __GNUC__
 //#define FUNCTION_STR __PRETTY_FUNCTION__ - too annoying
@@ -119,7 +124,7 @@ GODOT_EXPORT void _err_print_index_error(const char *p_function, const char *p_f
 #define ERR_FAIL_INDEX_MSG(m_index, m_size, m_msg)                                                                         \
     do {                                                                                                                   \
         if (unlikely((m_index) < 0 || (m_index) >= (m_size))) {                                                            \
-            _err_print_index_error(FUNCTION_STR, __FILE__, __LINE__, m_index, m_size, _STR(m_index), _STR(m_size), m_msg); \
+            _err_print_index_error(FUNCTION_STR, __FILE__, __LINE__, m_index, m_size, _STR(m_index), _STR(m_size), DEBUG_STR(m_msg)); \
             return;                                                                                                        \
         }                                                                                                                  \
     } while (0); // (*)
@@ -140,7 +145,7 @@ GODOT_EXPORT void _err_print_index_error(const char *p_function, const char *p_f
 #define ERR_FAIL_INDEX_V_MSG(m_index, m_size, m_retval, m_msg)                                                             \
     do {                                                                                                                   \
         if (unlikely((m_index) < 0 || (m_index) >= (m_size))) {                                                            \
-            _err_print_index_error(FUNCTION_STR, __FILE__, __LINE__, m_index, m_size, _STR(m_index), _STR(m_size), m_msg); \
+            _err_print_index_error(FUNCTION_STR, __FILE__, __LINE__, m_index, m_size, _STR(m_index), _STR(m_size), DEBUG_STR(m_msg)); \
             return m_retval;                                                                                               \
         }                                                                                                                  \
     } while (0); // (*)
@@ -161,7 +166,7 @@ GODOT_EXPORT void _err_print_index_error(const char *p_function, const char *p_f
 #define ERR_FAIL_UNSIGNED_INDEX_V_MSG(m_index, m_size, m_retval, m_msg)                                                    \
     do {                                                                                                                   \
         if (unlikely((m_index) >= (m_size))) {                                                                             \
-            _err_print_index_error(FUNCTION_STR, __FILE__, __LINE__, m_index, m_size, _STR(m_index), _STR(m_size), m_msg); \
+            _err_print_index_error(FUNCTION_STR, __FILE__, __LINE__, m_index, m_size, _STR(m_index), _STR(m_size), DEBUG_STR(m_msg)); \
             return m_retval;                                                                                               \
         }                                                                                                                  \
     } while (0); // (*)
@@ -180,7 +185,7 @@ GODOT_EXPORT void _err_print_index_error(const char *p_function, const char *p_f
 #define CRASH_BAD_INDEX_MSG(m_index, m_size, m_msg)                                                                              \
     do {                                                                                                                         \
         if (unlikely((m_index) < 0 || (m_index) >= (m_size))) {                                                                  \
-            _err_print_index_error(FUNCTION_STR, __FILE__, __LINE__, m_index, m_size, _STR(m_index), _STR(m_size), m_msg, true); \
+            _err_print_index_error(FUNCTION_STR, __FILE__, __LINE__, m_index, m_size, _STR(m_index), _STR(m_size), DEBUG_STR(m_msg), true); \
             GENERATE_TRAP                                                                                                        \
         }                                                                                                                        \
     } while (0); // (*)
@@ -200,7 +205,7 @@ GODOT_EXPORT void _err_print_index_error(const char *p_function, const char *p_f
 #define ERR_FAIL_NULL_MSG(m_param, m_msg)                                                                   \
     {                                                                                                       \
         if (unlikely(!m_param)) {                                                                           \
-            _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "Parameter ' " _STR(m_param) " ' is null.",m_msg); \
+            _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "Parameter ' " _STR(m_param) " ' is null.",DEBUG_STR(m_msg)); \
             return;                                                                                         \
         }                                                                                                   \
     }
@@ -216,7 +221,7 @@ GODOT_EXPORT void _err_print_index_error(const char *p_function, const char *p_f
 #define ERR_FAIL_NULL_V_MSG(m_param, m_retval, m_msg)                                                       \
     {                                                                                                       \
         if (unlikely(!m_param)) {                                                                           \
-            _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "Parameter ' " _STR(m_param) " ' is null.",m_msg); \
+            _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "Parameter ' " _STR(m_param) " ' is null.",DEBUG_STR(m_msg)); \
             return m_retval;                                                                                \
         }                                                                                                   \
     }
@@ -238,7 +243,7 @@ GODOT_EXPORT void _err_print_index_error(const char *p_function, const char *p_f
 #define ERR_FAIL_COND_MSG(m_cond, m_msg)                                                                          \
     {                                                                                                             \
         if (unlikely(m_cond)) {                                                                                   \
-            _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "Condition ' " _STR(m_cond) " ' is true.", m_msg); \
+            _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "Condition ' " _STR(m_cond) " ' is true.", DEBUG_STR(m_msg)); \
             return;                                                                                               \
         }                                                                                                         \
     }
@@ -257,7 +262,7 @@ GODOT_EXPORT void _err_print_index_error(const char *p_function, const char *p_f
 #define CRASH_COND_MSG(m_cond, m_msg)                                                                                    \
     {                                                                                                                    \
         if (unlikely(m_cond)) {                                                                                          \
-            _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "FATAL: Condition ' " _STR(m_cond) " ' is true.", m_msg); \
+            _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "FATAL: Condition ' " _STR(m_cond) " ' is true.", DEBUG_STR(m_msg)); \
             GENERATE_TRAP                                                                                                \
         }                                                                                                                \
     }
@@ -279,7 +284,7 @@ GODOT_EXPORT void _err_print_index_error(const char *p_function, const char *p_f
 #define ERR_FAIL_COND_V_MSG(m_cond, m_retval, m_msg)                                                                                        \
     {                                                                                                                                       \
         if (unlikely(m_cond)) {                                                                                                             \
-            _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "Condition ' " _STR(m_cond) " ' is true. returned: " _STR(m_retval), m_msg); \
+            _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "Condition ' " _STR(m_cond) " ' is true. returned: " _STR(m_retval), DEBUG_STR(m_msg)); \
             return m_retval;                                                                                                                \
         }                                                                                                                                   \
     }
@@ -298,7 +303,7 @@ GODOT_EXPORT void _err_print_index_error(const char *p_function, const char *p_f
 #define ERR_CONTINUE_MSG(m_cond, m_msg)                                                                                         \
     {                                                                                                                           \
         if (unlikely(m_cond)) {                                                                                                 \
-            _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "Condition ' " _STR(m_cond) " ' is true. Continuing..:", m_msg); \
+            _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "Condition ' " _STR(m_cond) " ' is true. Continuing..:", DEBUG_STR(m_msg)); \
             continue;                                                                                                           \
         }                                                                                                                       \
     }
@@ -318,7 +323,7 @@ GODOT_EXPORT void _err_print_index_error(const char *p_function, const char *p_f
 #define ERR_BREAK_MSG(m_cond, m_msg)                                                                                          \
     {                                                                                                                         \
         if (unlikely(m_cond)) {                                                                                               \
-            _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "Condition ' " _STR(m_cond) " ' is true. Breaking..:", m_msg); \
+            _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "Condition ' " _STR(m_cond) " ' is true. Breaking..:", DEBUG_STR(m_msg)); \
             break;                                                                                                            \
         }                                                                                                                     \
     }
@@ -334,7 +339,7 @@ GODOT_EXPORT void _err_print_index_error(const char *p_function, const char *p_f
 
 #define ERR_FAIL_MSG(m_msg)                                                                   \
     {                                                                                         \
-        _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "Method/Function Failed.", m_msg); \
+        _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "Method/Function Failed.", DEBUG_STR(m_msg)); \
         return;                                                                               \
     }
 
@@ -349,7 +354,7 @@ GODOT_EXPORT void _err_print_index_error(const char *p_function, const char *p_f
 
 #define ERR_FAIL_V_MSG(m_value, m_msg)                                                                                   \
     {                                                                                                                    \
-        _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "Method/Function Failed, returning: " __STR(m_value), m_msg); \
+        _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "Method/Function Failed, returning: " __STR(m_value), DEBUG_STR(m_msg)); \
         return m_value;                                                                                                  \
     }
 /** Use this one if there is no sensible fallback, that is, the error is unrecoverable.
@@ -363,7 +368,7 @@ GODOT_EXPORT void _err_print_index_error(const char *p_function, const char *p_f
 
 #define CRASH_NOW_MSG(m_msg)                                                                         \
     {                                                                                                \
-        _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "FATAL: Method/Function Failed.", m_msg); \
+        _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "FATAL: Method/Function Failed.", DEBUG_STR(m_msg)); \
         GENERATE_TRAP                                                                                \
     }
 
@@ -421,7 +426,7 @@ GODOT_EXPORT void _err_print_index_error(const char *p_function, const char *p_f
     {                                                                                                                                                            \
         static volatile bool warning_shown = false;                                                                                                              \
         if (!warning_shown) {                                                                                                                                    \
-            _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "This method has been deprecated and will be removed in the future", m_msg, ERR_HANDLER_WARNING); \
+            _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "This method has been deprecated and will be removed in the future", DEBUG_STR(m_msg), ERR_HANDLER_WARNING); \
             warning_shown = true;                                                                                                                                \
         }                                                                                                                                                        \
     }

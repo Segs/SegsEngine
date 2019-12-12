@@ -45,6 +45,8 @@ IMPL_GDCLASS(CameraServer)
 ////////////////////////////////////////////////////////
 // CameraServer
 
+CameraServer::CreateFunc CameraServer::create_func = nullptr;
+
 void CameraServer::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_feed", {"index"}), &CameraServer::get_feed);
     MethodBinder::bind_method(D_METHOD("get_feed_count"), &CameraServer::get_feed_count);
@@ -79,9 +81,9 @@ int CameraServer::get_free_id() {
         for (int i = 0; i < feeds.size() && !id_exists; i++) {
             if (feeds[i]->get_id() == newid) {
                 id_exists = true;
-            };
-        };
-    };
+            }
+        }
+    }
 
     return newid;
 };

@@ -396,7 +396,6 @@ void ScrollContainer::update_scrollbars() {
     if (hide_scroll_v) {
 
         v_scroll->hide();
-        v_scroll->set_max(0);
         scroll.y = 0;
     } else {
 
@@ -413,7 +412,6 @@ void ScrollContainer::update_scrollbars() {
     if (hide_scroll_h) {
 
         h_scroll->hide();
-        h_scroll->set_max(0);
         scroll.x = 0;
     } else {
 

@@ -44,8 +44,8 @@ class SyntaxHighlighter;
 
 struct TextColorRegionInfo {
 
-    int region;
-    bool end;
+    int region=0;
+    bool end=false;
 };
 class TextEdit : public Control {
 
@@ -76,9 +76,9 @@ private:
     struct PrivateData;
     PrivateData *m_priv=nullptr;
     struct Cursor {
-        int last_fit_x;
-        int line, column; ///< cursor
-        int x_ofs, line_ofs, wrap_ofs;
+        int last_fit_x=0;
+        int line=0, column=0; ///< cursor
+        int x_ofs=0, line_ofs=0, wrap_ofs=0;
     } cursor = {};
 
     struct Selection {
@@ -92,17 +92,17 @@ private:
             MODE_LINE
         };
 
-        Mode selecting_mode;
-        int selecting_line, selecting_column;
-        int selected_word_beg, selected_word_end, selected_word_origin;
-        bool selecting_text;
+        Mode selecting_mode=MODE_NONE;
+        int selecting_line=0, selecting_column=0;
+        int selected_word_beg=0, selected_word_end=0, selected_word_origin=0;
+        bool selecting_text=false;
 
-        bool active;
+        bool active=false;
 
-        int from_line, from_column;
-        int to_line, to_column;
+        int from_line=0, from_column=0;
+        int to_line=0, to_column=0;
 
-        bool shiftclick_left;
+        bool shiftclick_left=false;
 
     } selection;
 
@@ -117,14 +117,14 @@ private:
             TYPE_REMOVE
         };
 
-        Type type;
-        int from_line, from_column;
-        int to_line, to_column;
+        Type type=TYPE_NONE;
+        int from_line=0, from_column=0;
+        int to_line=0, to_column=0;
         String text;
-        uint32_t prev_version;
-        uint32_t version;
-        bool chain_forward;
-        bool chain_backward;
+        uint32_t prev_version=0;
+        uint32_t version=0;
+        bool chain_forward=false;
+        bool chain_backward=false;
     };
 
     String ime_text;

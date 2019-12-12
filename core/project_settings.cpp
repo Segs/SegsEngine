@@ -114,7 +114,7 @@ se_string ProjectSettings::localize_path(se_string_view p_path) const {
         if (plocal.empty()) {
             return se_string();
         }
-        return plocal + StringUtils::substr(path,(sep + 1), path.size() - (sep + 1));
+        return plocal + StringUtils::substr(path,int(sep), path.size() - sep);
     }
 }
 
@@ -533,6 +533,8 @@ Error ProjectSettings::_load_settings_binary(se_string_view p_path) {
         set(StringName(key), value);
     }
 
+    f->close();
+    memdelete(f);
     return OK;
 }
 

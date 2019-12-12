@@ -95,6 +95,9 @@ void AnimationPlayerEditor::_notification(int p_what) {
                 track_editor->set_anim_pos(player->get_current_animation_position());
                 EditorNode::get_singleton()->get_inspector()->refresh();
 
+            } else if (!player->is_valid()) {
+                // Reset timeline when the player has been stopped externally
+                frame->set_value(0);
             } else if (last_active) {
                 // Need the last frame after it stopped.
                 frame->set_value(player->get_current_animation_position());
@@ -1093,8 +1096,6 @@ void AnimationPlayerEditor::_animation_key_editor_seek(float p_pos, bool p_drag)
 
     if (!player->has_animation(StringName(player->get_assigned_animation())))
         return;
-
-    Ref<Animation> anim = player->get_animation(StringName(player->get_assigned_animation()));
 
     updating = true;
     frame->set_value(Math::stepify(p_pos, float(_get_editor_step())));

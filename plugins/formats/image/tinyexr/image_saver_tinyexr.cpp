@@ -262,11 +262,6 @@ Error prepare_exr_save(EXRImage &image,EXRHeader &header, const ImageData &p_img
     header.channels = channel_infos;
     header.pixel_types = pixel_types;
     header.requested_pixel_types = requested_pixel_types;
-    // TODO DEBUG REMOVE
-    for (int i = 0; i < 4; ++i) {
-        //TODO: use OsInterface if the reporting is needed.
-        //print_line(String("requested_pixel_types{0}: {1}").format(varray(i, requested_pixel_types[i])));
-    }
 
     return OK;
 }

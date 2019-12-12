@@ -834,19 +834,27 @@ void EditorFontPreviewPlugin::_bind_methods() {
 
 bool EditorFontPreviewPlugin::handles(se_string_view p_type) const {
 
-    return ClassDB::is_parent_class(StringName(p_type), "DynamicFontData");
+    return ClassDB::is_parent_class(StringName(p_type), "DynamicFontData") || ClassDB::is_parent_class(StringName(p_type), "DynamicFont");
+
 }
 
 Ref<Texture> EditorFontPreviewPlugin::generate_from_path(se_string_view p_path, const Size2 &p_size) const {
 
-    Ref<DynamicFontData> SampledFont(make_ref_counted<DynamicFontData>());
-    SampledFont->set_font_path(p_path);
-
-    Ref<DynamicFont> sampled_font(make_ref_counted<DynamicFont>());
+    RES res = ResourceLoader::load(p_path);
+    Ref<DynamicFont> sampled_font;
+    if (res->is_class("DynamicFont")) {
+        sampled_font = dynamic_ref_cast<DynamicFont>(res->duplicate());
+        if (sampled_font->get_outline_color() == Color(1, 1, 1, 1)) {
+            sampled_font->set_outline_color(Color(0, 0, 0, 1));
+        }
+    } else if (res->is_class("DynamicFontData")) {
+        sampled_font = make_ref_counted<DynamicFont>();
+        sampled_font->set_font_data(dynamic_ref_cast<DynamicFontData>(res));
+    }
     sampled_font->set_size(50);
-    sampled_font->set_font_data(SampledFont);
 
-    String sampled_text("Abg");
+    String sampled_text = "Abg";
+
     Vector2 size = sampled_font->get_string_size(sampled_text);
 
     Vector2 pos;

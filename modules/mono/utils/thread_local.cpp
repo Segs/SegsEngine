@@ -72,7 +72,7 @@ struct ThreadLocalStorage::Impl {
 	Impl(void(_CALLBACK_FUNC_ *p_destr_callback_func)(void *)) {
 #ifdef WINDOWS_ENABLED
 		dwFlsIndex = FlsAlloc(p_destr_callback_func);
-		ERR_FAIL_COND(dwFlsIndex == FLS_OUT_OF_INDEXES)
+		ERR_FAIL_COND(dwFlsIndex == FLS_OUT_OF_INDEXES);
 #else
 		pthread_key_create(&key, p_destr_callback_func);
 #endif

@@ -927,13 +927,15 @@ void GDScriptTokenizerText::_advance() {
                                 return;
                             }
                             hexa_found = true;
-                        } else if (GETCHAR(i) == 'b') {
-                            if (hexa_found || bin_found || str.length() != 1 || !((i == 1 && str[0] == '0') || (i == 2 && str[1] == '0' && str[0] == '-'))) {
+                        } else if (hexa_found && _is_hex(GETCHAR(i))) {
+
+                        } else if (!hexa_found && GETCHAR(i) == 'b') {
+                            if (bin_found || str.length() != 1 || !((i == 1 && str[0] == '0') || (i == 2 && str[1] == '0' && str[0] == '-'))) {
                                 _make_error("Invalid numeric constant at 'b'");
                                 return;
                             }
                             bin_found = true;
-                        } else if (!hexa_found && GETCHAR(i) == 'e') {
+                        }  else if (!hexa_found && GETCHAR(i) == 'e') {
                             if (exponent_found || bin_found) {
                                 _make_error("Invalid numeric constant at 'e'");
                                 return;

@@ -58,9 +58,9 @@ static void _pad(FileAccess *p_file, int p_bytes) {
 
 void PCKPacker::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("pck_start", {"pck_name", "alignment"}), &PCKPacker::pck_start);
+    MethodBinder::bind_method(D_METHOD("pck_start", {"pck_name", "alignment"}), &PCKPacker::pck_start, {DEFVAL(0)});
     MethodBinder::bind_method(D_METHOD("add_file", {"pck_path", "source_path"}), &PCKPacker::add_file);
-    MethodBinder::bind_method(D_METHOD("flush", {"verbose"}), &PCKPacker::flush);
+    MethodBinder::bind_method(D_METHOD("flush", {"verbose"}), &PCKPacker::flush, {DEFVAL(false)});
 };
 
 Error PCKPacker::pck_start(se_string_view p_file, int p_alignment) {

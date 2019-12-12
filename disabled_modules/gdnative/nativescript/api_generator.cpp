@@ -128,7 +128,7 @@ struct ClassAPI {
     bool is_instanciable;
     // @Unclear
     bool is_reference;
-
+    se_string singleton_name;
     PODVector<MethodAPI> methods;
     PODVector<PropertyAPI> properties;
     PODVector<ConstantAPI> constants;
@@ -199,6 +199,7 @@ List<ClassAPI> generate_c_api_classes() {
         global_constants_api.class_name = "GlobalConstants";
         global_constants_api.api_type = ClassDB::API_CORE;
         global_constants_api.is_singleton = true;
+        global_constants_api.singleton_name = "GlobalConstants";
         global_constants_api.is_instanciable = false;
         const int constants_count = GlobalConstants::get_global_constant_count();
         for (int i = 0; i < constants_count; ++i) {
@@ -220,11 +221,14 @@ List<ClassAPI> generate_c_api_classes() {
         class_api.class_name = class_name.asCString();
         class_api.super_class_name = ClassDB::get_parent_class(class_name).asCString();
         {
-            String name = class_name;
+            se_string name = class_name;
             if (StringUtils::begins_with(name,"_")) {
                 StringUtils::erase(name,0,1);
             }
             class_api.is_singleton = Engine::get_singleton()->has_singleton(name);
+            if (class_api.is_singleton) {
+                    class_api.singleton_name = name;
+            }
         }
         class_api.is_instanciable = !class_api.is_singleton && ClassDB::can_instance(class_name);
 
@@ -431,6 +435,7 @@ static se_string generate_c_api_json(const List<ClassAPI> &p_api) {
         sb["base_class"] = api.super_class_name.c_str();
         sb["api_type"] = api.api_type == ClassDB::API_CORE ? "core" : (api.api_type == ClassDB::API_EDITOR ? "tools" : "none");
         sb["singleton"] = api.is_singleton;
+        sb["singleton_name"] = api.singleton_name.c_str();
         sb["instanciable"] = api.is_instanciable;
         sb["is_reference"] = api.is_reference;
         QJsonObject constants;

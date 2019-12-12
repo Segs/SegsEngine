@@ -97,18 +97,14 @@ void AssimpUtils::find_texture_path(const se_string &r_p_path, se_string &r_path
         if (r_found) {
             return;
         }
-        if (r_found == false) {
-            find_texture_path(r_p_path, dir.get(), r_path, r_found, "." + exts[i]);
-        }
+        find_texture_path(r_p_path, dir.get(), r_path, r_found, "." + exts[i]);
     }
 }
 
 void AssimpUtils::set_texture_mapping_mode(aiTextureMapMode *map_mode, Ref<ImageTexture> texture) {
     ERR_FAIL_COND(not texture)
-            ERR_FAIL_COND(map_mode == nullptr)
-            aiTextureMapMode tex_mode = aiTextureMapMode::aiTextureMapMode_Wrap;
-
-    tex_mode = map_mode[0];
+    ERR_FAIL_COND(map_mode == nullptr)
+    aiTextureMapMode tex_mode = map_mode[0];
 
     int32_t flags = Texture::FLAGS_DEFAULT;
     if (tex_mode == aiTextureMapMode_Wrap) {
@@ -168,12 +164,9 @@ Ref<Image> AssimpUtils::load_image(ImportState &state, const aiScene *p_scene, s
         if(loaded) {
             Ref<Image> image;
             Ref<Texture> texture(dynamic_ref_cast<Texture>(loaded));
-            if(texture) {
-                image = texture->get_data();
-            }
-            else if(Ref<BitMap> bitmap = dynamic_ref_cast<BitMap>(loaded)) {
-                image = bitmap->convert_to_image();
-            }
+            ERR_FAIL_COND_V(not texture, Ref<Image>());
+            image = texture->get_data();
+            ERR_FAIL_COND_V(not image, Ref<Image>());
             state.path_to_image_cache.emplace(se_string(p_path), image);
             return image;
         }

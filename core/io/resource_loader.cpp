@@ -816,29 +816,52 @@ se_string ResourceLoader::get_resource_type(se_string_view p_path) {
 }
 
 se_string ResourceLoader::_path_remap(se_string_view p_path, bool *r_translation_remapped) {
-
+    using namespace StringUtils;
     se_string new_path(p_path);
 
     if (translation_remaps.contains(new_path)) {
+        // translation_remaps has the following format:
+        //   { "res://path.png": PoolStringArray( "res://path-ru.png:ru", "res://path-de.png:de" ) }
 
-        Vector<se_string> &v = *translation_remaps.getptr(new_path);
-        se_string_view locale = TranslationServer::get_singleton()->get_locale();
+        // To find the path of the remapped resource, we extract the locale name after
+        // the last ':' to match the project locale.
+        // We also fall back in case of regional locales as done in TranslationServer::translate
+        // (e.g. 'ru_RU' -> 'ru' if the former has no specific mapping).
+
+        se_string locale = TranslationServer::get_singleton()->get_locale();
+        ERR_FAIL_COND_V_MSG(locale.length() < 2, new_path, "Could not remap path '" + p_path + "' for translation as configured locale '" + locale + "' is invalid.")
+        se_string lang(TranslationServer::get_language_code(locale));
+
+        Vector<se_string> &res_remaps = *translation_remaps.getptr(new_path);
+        bool near_match = false;
+
+        for (int i = 0; i < res_remaps.size(); i++) {
+            auto split = res_remaps[i].rfind(':');
+            if (split == se_string::npos) {
+                continue;
+            }
+
+            se_string_view l = strip_edges(right(res_remaps[i],split + 1));
+            if (locale == l) { // Exact match.
+                new_path = res_remaps[i].left(split);
+                break;
+            } else if (near_match) {
+                continue; // Already found near match, keep going for potential exact match.
+            }
+
+            // No exact match (e.g. locale 'ru_RU' but remap is 'ru'), let's look further
+            // for a near match (same language code, i.e. first 2 or 3 letters before
+            // regional code, if included).
+            if (lang == TranslationServer::get_language_code(l)) {
+                // Language code matches, that's a near match. Keep looking for exact match.
+                near_match = true;
+                new_path = res_remaps[i].left(split);
+                continue;
+            }
+        }
+
         if (r_translation_remapped) {
             *r_translation_remapped = true;
-        }
-        for (int i = 0; i < v.size(); i++) {
-
-            auto split = StringUtils::find_last(v[i],":");
-            if (split == se_string::npos)
-                continue;
-            se_string_view l(StringUtils::strip_edges(StringUtils::right(v[i],split + 1)));
-            if (l.empty())
-                continue;
-
-            if (StringUtils::begins_with(l,locale)) {
-                new_path = StringUtils::left(v[i],split);
-                break;
-            }
         }
     }
 
@@ -846,8 +869,8 @@ se_string ResourceLoader::_path_remap(se_string_view p_path, bool *r_translation
         new_path = path_remaps[new_path];
     }
 
-    if (new_path == p_path) { //did not remap
-        //try file remap
+    if (new_path == p_path) { // Did not remap.
+        // Try file remap.
         Error err;
         FileAccess *f = FileAccess::open(se_string(p_path) + ".remap", FileAccess::READ, &err);
 

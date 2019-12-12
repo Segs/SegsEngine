@@ -117,18 +117,15 @@ void PathFollow::_update_transform() {
         return;
     }
     float bi = c->get_bake_interval();
-    float o = offset;
     float o_next = offset + bi;
 
     if (loop) {
-        o = Math::fposmod(o, bl);
         o_next = Math::fposmod(o_next, bl);
     } else if (rotation_mode == ROTATION_ORIENTED && o_next >= bl) {
-        o = bl - bi;
         o_next = bl;
     }
 
-    Vector3 pos = c->interpolate_baked(o, cubic);
+    Vector3 pos = c->interpolate_baked(offset, cubic);
     Transform t = get_transform();
     // Vector3 pos_offset = Vector3(h_offset, v_offset, 0); not used in all cases
     // will be replaced by "Vector3(h_offset, v_offset, 0)" where it was formerly used
@@ -142,9 +139,9 @@ void PathFollow::_update_transform() {
         else
             forward.normalize();
 
-        Vector3 up = c->interpolate_baked_up_vector(o, true);
+        Vector3 up = c->interpolate_baked_up_vector(offset, true);
 
-        if (o_next < o) {
+        if (o_next < offset) {
             Vector3 up1 = c->interpolate_baked_up_vector(o_next, true);
             Vector3 axis = up.cross(up1);
 
@@ -172,8 +169,8 @@ void PathFollow::_update_transform() {
 
         t.origin = pos;
 
-        Vector3 t_prev = (pos - c->interpolate_baked(o - delta_offset, cubic)).normalized();
-        Vector3 t_cur = (c->interpolate_baked(o + delta_offset, cubic) - pos).normalized();
+        Vector3 t_prev = (pos - c->interpolate_baked(offset - delta_offset, cubic)).normalized();
+        Vector3 t_cur = (c->interpolate_baked(offset + delta_offset, cubic) - pos).normalized();
 
         Vector3 axis = t_prev.cross(t_cur);
         float dot = t_prev.dot(t_cur);
@@ -196,7 +193,7 @@ void PathFollow::_update_transform() {
         }
 
         // do the additional tilting
-        float tilt_angle = c->interpolate_baked_tilt(o);
+        float tilt_angle = c->interpolate_baked_tilt(offset);
         Vector3 tilt_axis = t_cur; // not sure what tilt is supposed to do, is this correct??
 
         if (likely(!Math::is_zero_approx(Math::abs(tilt_angle)))) {
@@ -262,7 +259,7 @@ void PathFollow::_validate_property(PropertyInfo &property) const {
         if (path && path->get_curve())
             max = path->get_curve()->get_baked_length();
 
-        property.hint_string = "0," + rtos(max) + ",0.01,or_greater";
+        property.hint_string = "0," + rtos(max) + ",0.01,or_lesser";
     }
 }
 
@@ -306,8 +303,8 @@ void PathFollow::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_loop", {"loop"}), &PathFollow::set_loop);
     MethodBinder::bind_method(D_METHOD("has_loop"), &PathFollow::has_loop);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "offset", PROPERTY_HINT_RANGE, "0,10000,0.01,or_greater"), "set_offset", "get_offset");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "unit_offset", PROPERTY_HINT_RANGE, "0,1,0.0001,or_greater", PROPERTY_USAGE_EDITOR), "set_unit_offset", "get_unit_offset");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "offset", PROPERTY_HINT_RANGE, "0,10000,0.01,or_lesser"), "set_offset", "get_offset");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "unit_offset", PROPERTY_HINT_RANGE, "0,1,0.0001,or_lesser", PROPERTY_USAGE_EDITOR), "set_unit_offset", "get_unit_offset");
     ADD_PROPERTY(PropertyInfo(VariantType::REAL, "h_offset"), "set_h_offset", "get_h_offset");
     ADD_PROPERTY(PropertyInfo(VariantType::REAL, "v_offset"), "set_v_offset", "get_v_offset");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "rotation_mode", PROPERTY_HINT_ENUM, "None,Y,XY,XYZ,Oriented"), "set_rotation_mode", "get_rotation_mode");
@@ -325,11 +322,28 @@ void PathFollow::set_offset(float p_offset) {
     delta_offset = p_offset - offset;
     offset = p_offset;
 
-    if (path)
+    if (path) {
+        if (path->get_curve() && path->get_curve()->get_baked_length()!=0.0f) {
+            float path_length = path->get_curve()->get_baked_length();
+
+            if (loop) {
+                while (offset > path_length)
+                    offset -= path_length;
+
+                while (offset < 0)
+                    offset += path_length;
+
+            } else {
+                offset = CLAMP(offset, 0, path_length);
+            }
+        }
+
         _update_transform();
+    }
     _change_notify("offset");
     _change_notify("unit_offset");
 }
+
 
 void PathFollow::set_h_offset(float p_h_offset) {
 

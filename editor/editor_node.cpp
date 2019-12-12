@@ -669,7 +669,7 @@ void EditorNode::_editor_select_next() {
         } else {
             editor++;
         }
-    } while (main_editor_buttons[editor]->is_visible());
+    } while (!main_editor_buttons[editor]->is_visible());
 
     _editor_select(editor);
 }
@@ -684,7 +684,7 @@ void EditorNode::_editor_select_prev() {
         } else {
             editor--;
         }
-    } while (main_editor_buttons[editor]->is_visible());
+    } while (!main_editor_buttons[editor]->is_visible());
 
     _editor_select(editor);
 }
@@ -1070,13 +1070,10 @@ void EditorNode::_save_scene_with_preview(se_string_view p_file, int p_idx) {
     int c3d = 0;
     _find_node_types(editor_data.get_edited_scene_root(), c2d, c3d);
 
-    RID viewport;
     bool is2d;
     if (c3d < c2d) {
-        viewport = scene_root->get_viewport_rid();
         is2d = true;
     } else {
-        viewport = SpatialEditor::get_singleton()->get_editor_viewport(0)->get_viewport_node()->get_viewport_rid();
         is2d = false;
     }
     save.step(TTR("Creating Thumbnail"), 1);
@@ -1328,7 +1325,6 @@ void EditorNode::restart_editor() {
     }
 
     _exit_editor();
-    se_string exec = OS::get_singleton()->get_executable_path();
 
     ListPOD<se_string> args;
     args.push_back(("--path"));
@@ -2097,23 +2093,24 @@ void EditorNode::_menu_option_confirm(int p_option, bool p_confirmed) {
         case FILE_CLOSE_ALL_AND_RUN_PROJECT_MANAGER:
         case FILE_CLOSE: {
 
-            if (!p_confirmed && (unsaved_cache || p_option == FILE_CLOSE_ALL_AND_QUIT ||
-                                        p_option == FILE_CLOSE_ALL_AND_RUN_PROJECT_MANAGER)) {
-                tab_closing = p_option == FILE_CLOSE ? editor_data.get_edited_scene() : _next_unsaved_scene(false);
+        if (!p_confirmed) {
+            tab_closing = p_option == FILE_CLOSE ? editor_data.get_edited_scene() : _next_unsaved_scene(false);
+
+            if (unsaved_cache || p_option == FILE_CLOSE_ALL_AND_QUIT || p_option == FILE_CLOSE_ALL_AND_RUN_PROJECT_MANAGER) {
                 se_string scene_filename(editor_data.get_edited_scene_root(tab_closing)->get_filename());
                 save_confirmation->get_ok()->set_text(TTR("Save & Close"));
-                save_confirmation->set_text(FormatSN(TTR("Save changes to '%s' before closing?").asCString(),
-                        !scene_filename.empty() ? scene_filename.c_str() : "unsaved scene"));
+                save_confirmation->set_text(FormatSN(TTR("Save changes to '%s' before closing?").asCString(), scene_filename != "" ? scene_filename.c_str() : "unsaved scene"));
                 save_confirmation->popup_centered_minsize();
                 break;
-            } else {
-                tab_closing = editor_data.get_edited_scene();
             }
-            if (!editor_data.get_edited_scene_root(tab_closing)) {
-                // empty tab
-                _scene_tab_closed(tab_closing);
-                break;
-            }
+        } else if (p_option == FILE_CLOSE) {
+            tab_closing = editor_data.get_edited_scene();
+        }
+        if (!editor_data.get_edited_scene_root(tab_closing)) {
+            // empty tab
+            _scene_tab_closed(tab_closing);
+            break;
+        }
 
             FALLTHROUGH;
         }
@@ -6521,7 +6518,7 @@ EditorNode::EditorNode() {
     left_menu_hb->add_child(debug_menu);
 
     p = debug_menu->get_popup();
-    p->set_hide_on_window_lose_focus(true);
+    p->set_hide_on_checkable_item_selection(false);
     p->set_hide_on_item_selection(false);
     p->add_check_shortcut(
             ED_SHORTCUT("editor/deploy_with_remote_debug", TTR("Deploy with Remote Debug")), RUN_DEPLOY_REMOTE_DEBUG);
@@ -6655,7 +6652,7 @@ EditorNode::EditorNode() {
     pause_button->set_toggle_mode(true);
     pause_button->set_icon(gui_base->get_icon("Pause", "EditorIcons"));
     pause_button->set_focus_mode(Control::FOCUS_NONE);
-    pause_button->set_tooltip(TTR("Pause the scene"));
+    pause_button->set_tooltip(TTR("Pause the scene execution for debugging."));
     pause_button->set_disabled(true);
     play_hb->add_child(pause_button);
 #ifdef OSX_ENABLED

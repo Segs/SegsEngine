@@ -1168,8 +1168,6 @@ bool GDScriptInstance::has_method(const StringName &p_method) const {
 }
 Variant GDScriptInstance::call(const StringName &p_method, const Variant **p_args, int p_argcount, Variant::CallError &r_error) {
 
-    //printf("calling %ls:%i method %ls\n", script->get_path().c_str(), -1, se_string(p_method).c_str());
-
     GDScript *sptr = script.get();
     while (sptr) {
         Map<StringName, GDScriptFunction *>::iterator E = sptr->member_functions.find(p_method);
@@ -1963,20 +1961,20 @@ se_string GDScriptWarning::get_message() const {
             return "The variable '" + symbols[0] + "' was used but never assigned a value.";
         }
         case UNUSED_VARIABLE: {
-            CHECK_SYMBOLS_EMPTY()
-            return "The local variable '" + symbols[0] + "' is declared but never used in the block.";
+            CHECK_SYMBOLS(1);
+            return "The local variable '" + symbols[0] + "' is declared but never used in the block. If this is intended, prefix it with an underscore: '_" + symbols[0] + "'";
         }
         case SHADOWED_VARIABLE: {
-            CHECK_SYMBOLS(2)
-            return "The local variable '" + symbols[0] + "' is shadowing an already defined variable at line " + symbols[1] + ".";
+            CHECK_SYMBOLS(2);
+            return "The local variable '" + symbols[0] + "' is shadowing an already-defined variable at line " + symbols[1] + ".";
         }
         case UNUSED_CLASS_VARIABLE: {
-            CHECK_SYMBOLS_EMPTY()
+            CHECK_SYMBOLS(1);
             return "The class variable '" + symbols[0] + "' is declared but never used in the script.";
         }
         case UNUSED_ARGUMENT: {
-            CHECK_SYMBOLS(2)
-            return "The argument '" + symbols[1] + "' is never used in the function '" + symbols[0] + "'.";
+            CHECK_SYMBOLS(2);
+            return "The argument '" + symbols[1] + "' is never used in the function '" + symbols[0] + "'. If this is intended, prefix it with an underscore: '_" + symbols[1] + "'";
         }
         case UNREACHABLE_CODE: {
             CHECK_SYMBOLS_EMPTY()
@@ -2157,7 +2155,8 @@ GDScriptLanguage::GDScriptLanguage() {
     GLOBAL_DEF("debug/gdscript/completion/autocomplete_setters_and_getters", false);
     for (int i = 0; i < (int)GDScriptWarning::WARNING_MAX; i++) {
         se_string warning(StringUtils::to_lower(se_string(GDScriptWarning::get_name_from_code((GDScriptWarning::Code)i))));
-        GLOBAL_DEF(StringName("debug/gdscript/warnings/" + warning), !StringUtils::begins_with(warning,"unsafe_"));
+        bool default_enabled = !StringUtils::begins_with(warning,"unsafe_") && i != GDScriptWarning::UNUSED_CLASS_VARIABLE;
+        GLOBAL_DEF(StringName("debug/gdscript/warnings/" + warning), default_enabled);
     }
 #endif // DEBUG_ENABLED
 }

@@ -33,6 +33,7 @@
 #include <mono/metadata/attrdefs.h>
 
 #include "gd_mono_assembly.h"
+#include "gd_mono_cache.h"
 #include "gd_mono_marshal.h"
 
 String GDMonoClass::get_full_name(MonoClass *p_mono_class) {
@@ -87,7 +88,7 @@ GDMonoClass *GDMonoClass::get_nesting_class() {
 Vector<MonoClassField *> GDMonoClass::get_enum_fields() {
 
 	bool class_is_enum = mono_class_is_enum(mono_class);
-	ERR_FAIL_COND_V(!class_is_enum, Vector<MonoClassField *>())
+	ERR_FAIL_COND_V(!class_is_enum, Vector<MonoClassField *>());
 
 	Vector<MonoClassField *> enum_fields;
 
@@ -139,7 +140,7 @@ MonoObject *GDMonoClass::get_attribute(GDMonoClass *p_attr_class) {
 
 void GDMonoClass::fetch_attributes() {
 
-	ERR_FAIL_COND(attributes != NULL)
+	ERR_FAIL_COND(attributes != NULL);
 
 	attributes = mono_custom_attrs_from_class(get_mono_ptr());
 	attrs_fetched = true;
@@ -241,7 +242,7 @@ void GDMonoClass::fetch_methods_with_godot_api_checks(GDMonoClass *p_native_base
 
 GDMonoMethod *GDMonoClass::get_fetched_method_unknown_params(const StringName &p_name) {
 
-	ERR_FAIL_COND_V(!methods_fetched, NULL)
+	ERR_FAIL_COND_V(!methods_fetched, NULL);
 
 	const MethodKey *k = NULL;
 
@@ -323,19 +324,13 @@ GDMonoMethod *GDMonoClass::get_method(MonoMethod *p_raw_method, const StringName
 
 GDMonoMethod *GDMonoClass::get_method_with_desc(const String &p_description, bool p_include_namespace) {
 
-	MonoMethodDesc *desc = mono_method_desc_new(StringUtils::to_utf8(p_description).get_data(), p_include_namespace);
+	MonoMethodDesc *desc = mono_method_desc_new(p_description.utf8().get_data(), p_include_namespace);
 	MonoMethod *method = mono_method_desc_search_in_class(desc, mono_class);
 	mono_method_desc_free(desc);
 
-	ERR_FAIL_COND_V(mono_method_get_class(method) != mono_class, NULL)
+	ERR_FAIL_COND_V(mono_method_get_class(method) != mono_class, NULL);
 
 	return get_method(method);
-}
-
-void *GDMonoClass::get_method_thunk(const StringName &p_name, int p_params_count) {
-
-	GDMonoMethod *method = get_method(p_name, p_params_count);
-	return method ? method->get_thunk() : NULL;
 }
 
 GDMonoField *GDMonoClass::get_field(const StringName &p_name) {

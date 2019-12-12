@@ -73,7 +73,7 @@ public:
         se_string description;
         se_string setter, getter;
         se_string default_value;
-        bool overridden;
+        bool overridden = false;
         bool operator<(const PropertyDoc &p_prop) const {
             return name < p_prop.name;
         }

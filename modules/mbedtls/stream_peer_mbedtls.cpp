@@ -112,7 +112,6 @@ Error StreamPeerMbedTLS::connect_to_stream(Ref<StreamPeer> p_base, bool p_valida
     ERR_FAIL_COND_V(not p_base, ERR_INVALID_PARAMETER)
 
     base = p_base;
-    int ret = 0;
     int authmode = p_validate_certs ? MBEDTLS_SSL_VERIFY_REQUIRED : MBEDTLS_SSL_VERIFY_NONE;
 
     Error err = ssl_ctx->init_client(MBEDTLS_SSL_TRANSPORT_STREAM, authmode, dynamic_ref_cast<X509CertificateMbedTLS>(p_ca_certs));
@@ -123,7 +122,7 @@ Error StreamPeerMbedTLS::connect_to_stream(Ref<StreamPeer> p_base, bool p_valida
 
     status = STATUS_HANDSHAKING;
 
-    if ((ret = _do_handshake()) != OK) {
+    if (_do_handshake() != OK) {
         status = STATUS_ERROR_HOSTNAME_MISMATCH;
         return FAILED;
     }
@@ -145,7 +144,7 @@ Error StreamPeerMbedTLS::accept_stream(Ref<StreamPeer> p_base, Ref<CryptoKey> p_
 
     status = STATUS_HANDSHAKING;
 
-    if ((err = _do_handshake()) != OK) {
+    if (_do_handshake() != OK) {
         return FAILED;
     }
 

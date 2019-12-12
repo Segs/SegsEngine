@@ -156,7 +156,7 @@ void TextureRegionEditor::_region_draw() {
         int next = (i + 1) % 4;
 
         Vector2 ofs = ((endpoints[i] - endpoints[prev]).normalized() + ((endpoints[i] - endpoints[next]).normalized())).normalized();
-        ofs *= 1.4144 * (select_handle->get_size().width / 2);
+        ofs *= Math_SQRT2 * (select_handle->get_size().width / 2);
 
         edit_draw->draw_line(endpoints[i] - draw_ofs * draw_zoom, endpoints[next] - draw_ofs * draw_zoom, color, 2);
 
@@ -436,9 +436,9 @@ void TextureRegionEditor::_region_input(const Ref<InputEvent> &p_input) {
 
         if (mm->get_button_mask() & BUTTON_MASK_MIDDLE || Input::get_singleton()->is_key_pressed(KEY_SPACE)) {
 
-            Vector2 draged(mm->get_relative().x / draw_zoom, mm->get_relative().y / draw_zoom);
-            hscroll->set_value(hscroll->get_value() - draged.x);
-            vscroll->set_value(vscroll->get_value() - draged.y);
+            Vector2 dragged(mm->get_relative().x / draw_zoom, mm->get_relative().y / draw_zoom);
+            hscroll->set_value(hscroll->get_value() - dragged.x);
+            vscroll->set_value(vscroll->get_value() - dragged.y);
 
         } else if (drag) {
 

@@ -96,7 +96,7 @@
 #define C_METHOD_MONOARRAY_TO(m_type) C_NS_MONOMARSHAL "::mono_array_to_" #m_type
 #define C_METHOD_MONOARRAY_FROM(m_type) C_NS_MONOMARSHAL "::" #m_type "_to_mono_array"
 
-#define BINDINGS_GENERATOR_VERSION UINT32_C(9)
+#define BINDINGS_GENERATOR_VERSION UINT32_C(11)
 
 const char *BindingsGenerator::TypeInterface::DEFAULT_VARARG_C_IN("\t%0 %1_in = %1;\n");
 
@@ -483,7 +483,11 @@ String BindingsGenerator::bbcode_to_xml(const String &p_bbcode, const TypeInterf
                 xml_output.append("\"/>");
             } else if (tag == "float") {
                 xml_output.append("<see cref=\""
+#ifdef REAL_T_IS_DOUBLE
+								  "double"
+#else
                                   "float"
+#endif
                                   "\"/>");
             } else if (tag == "Variant") {
                 // We use System.Object for Variant, so there is no Variant type in C#
@@ -502,7 +506,11 @@ String BindingsGenerator::bbcode_to_xml(const String &p_bbcode, const TypeInterf
             } else if (tag == "PoolIntArray") {
                 xml_output.append("<see cref=\"int\"/>");
             } else if (tag == "PoolRealArray") {
+#ifdef REAL_T_IS_DOUBLE
+				xml_output.append("<see cref=\"double\"/>");
+#else
                 xml_output.append("<see cref=\"float\"/>");
+#endif
             } else if (tag == "PoolStringArray") {
                 xml_output.append("<see cref=\"string\"/>");
             } else if (tag == "PoolVector2Array") {
@@ -720,13 +728,25 @@ void BindingsGenerator::_generate_method_icalls(const TypeInterface &p_itype) {
             i++;
         }
 
+	se_string im_type_out = return_type->im_type_out;
+
+	if (return_type->ret_as_byref_arg) {
+		// Doesn't affect the unique signature
+		im_type_out = "void";
+
+		im_sig += ", ";
+		im_sig += return_type->im_type_out;
+		im_sig += " argRet";
+
+		i++;
+	}
         // godot_icall_{argc}_{icallcount}
         String icall_method = ICALL_PREFIX;
         icall_method += itos(imethod.arguments.size());
         icall_method += "_";
         icall_method += itos(method_icalls.size());
 
-        InternalCall im_icall = InternalCall(p_itype.api_type, icall_method, return_type->im_type_out, im_sig, im_unique_sig);
+        InternalCall im_icall = InternalCall(p_itype.api_type, icall_method, im_type_out, im_sig, im_unique_sig);
 
         List<InternalCall>::Element *match = method_icalls.find(im_icall);
 
@@ -1671,17 +1691,18 @@ Error BindingsGenerator::_generate_cs_method(const BindingsGenerator::TypeInterf
         const InternalCall *im_icall = match->value();
 
         String im_call = im_icall->editor_only ? BINDINGS_CLASS_NATIVECALLS_EDITOR : BINDINGS_CLASS_NATIVECALLS;
-        im_call += "." + im_icall->name + "(" + icall_params + ")";
+		im_call += ".";
+		im_call += im_icall->name;
 
         if (p_imethod.arguments.size())
             p_output.append(cs_in_statements);
 
         if (return_type->cname == name_cache.type_void) {
-            p_output.append(im_call + ";\n");
+			p_output.append(im_call + "(" + icall_params + ");\n");
         } else if (return_type->cs_out.empty()) {
-            p_output.append("return " + im_call + ";\n");
+			p_output.append("return " + im_call + "(" + icall_params + ");\n");
         } else {
-            p_output.append(sformat(return_type->cs_out, im_call, return_type->cs_type, return_type->im_type_out));
+			p_output.append(sformat(return_type->cs_out, im_call, icall_params, return_type->cs_type, return_type->im_type_out));
             p_output.append("\n");
         }
 
@@ -1922,6 +1943,14 @@ Error BindingsGenerator::_generate_glue_method(const BindingsGenerator::TypeInte
         i++;
     }
 
+	if (return_type->ret_as_byref_arg) {
+		c_func_sig += ", ";
+		c_func_sig += return_type->c_type_in;
+		c_func_sig += " ";
+		c_func_sig += "arg_ret";
+
+		i++;
+	}
     const Map<const MethodInterface *, const InternalCall *>::Element *match = method_icalls_map.find(&p_imethod);
     ERR_FAIL_NULL_V(match, ERR_BUG)
 
@@ -1936,13 +1965,12 @@ Error BindingsGenerator::_generate_glue_method(const BindingsGenerator::TypeInte
 
         // Generate icall function
 
-        p_output.append(ret_void ? "void " : return_type->c_type_out + " ");
+		p_output.append((ret_void || return_type->ret_as_byref_arg) ? "void " : return_type->c_type_out + " ");
         p_output.append(icall_method);
         p_output.append("(");
         p_output.append(c_func_sig);
         p_output.append(") " OPEN_BLOCK);
 
-                String fail_ret = ret_void ? "" : ", " + (StringUtils::ends_with(return_type->c_type_out,"*") ? "NULL" : return_type->c_type_out + "()");
 
         if (!ret_void) {
             String ptrcall_return_type;
@@ -1967,9 +1995,17 @@ Error BindingsGenerator::_generate_glue_method(const BindingsGenerator::TypeInte
             p_output.append("\t" + ptrcall_return_type);
             p_output.append(" " C_LOCAL_RET);
             p_output.append(initialization + ";\n");
-            p_output.append("\tERR_FAIL_NULL_V(" CS_PARAM_INSTANCE);
+			String fail_ret = return_type->c_type_out.ends_with("*") && !return_type->ret_as_byref_arg ? "NULL" : return_type->c_type_out + "()";
+
+			if (return_type->ret_as_byref_arg) {
+				p_output.append("\tif (" CS_PARAM_INSTANCE " == NULL) { *arg_ret = ");
+				p_output.append(fail_ret);
+				p_output.append("; ERR_FAIL_MSG(\"Parameter ' arg_ret ' is null.\"); }\n");
+			} else {
+				p_output.append("\tERR_FAIL_NULL_V(" CS_PARAM_INSTANCE ", ");
             p_output.append(fail_ret);
             p_output.append(");\n");
+			}
         } else {
             p_output.append("\tERR_FAIL_NULL(" CS_PARAM_INSTANCE ");\n");
         }
@@ -2030,10 +2066,13 @@ Error BindingsGenerator::_generate_glue_method(const BindingsGenerator::TypeInte
         }
 
         if (!ret_void) {
-            if (return_type->c_out.empty())
+			if (return_type->c_out.empty()) {
                 p_output.append("\treturn " C_LOCAL_RET ";\n");
-            else
+			} else if (return_type->ret_as_byref_arg) {
+				p_output.append(sformat(return_type->c_out, return_type->c_type_out, C_LOCAL_RET, return_type->name, "arg_ret"));
+			} else {
                 p_output.append(sformat(return_type->c_out, return_type->c_type_out, C_LOCAL_RET, return_type->name));
+			}
         }
 
         p_output.append(CLOSE_BLOCK "\n");
@@ -2135,8 +2174,12 @@ StringName BindingsGenerator::_get_float_type_name_from_meta(GodotTypeInfo::Meta
             return "double";
             break;
         default:
-            // Assume real_t (float )
+			// Assume real_t (float or double depending of REAL_T_IS_DOUBLE)
+#ifdef REAL_T_IS_DOUBLE
+			return "double";
+#else
             return "float";
+#endif
     }
 }
 
@@ -2521,7 +2564,9 @@ bool BindingsGenerator::_arg_default_value_from_variant(const Variant &p_val, Ar
             }
             break;
         case Variant::REAL:
+#ifndef REAL_T_IS_DOUBLE
             r_iarg.default_argument += "f";
+#endif
             break;
         case Variant::STRING:
         case Variant::NODE_PATH:
@@ -2595,30 +2640,32 @@ void BindingsGenerator::_populate_builtin_type_interfaces() {
 
     TypeInterface itype;
 
-#define INSERT_STRUCT_TYPE(m_type, m_type_in)                          \
+#define INSERT_STRUCT_TYPE(m_type)                                     \
     {                                                                  \
         itype = TypeInterface::create_value_type(String(#m_type));     \
         itype.c_in = "\t%0 %1_in = MARSHALLED_IN(" #m_type ", %1);\n"; \
-        itype.c_out = "\treturn MARSHALLED_OUT(" #m_type ", %1);\n";   \
+		itype.c_out = "\t*%3 = MARSHALLED_OUT(" #m_type ", %1);\n";    \
         itype.c_arg_in = "&%s_in";                                     \
         itype.c_type_in = "GDMonoMarshal::M_" #m_type "*";             \
         itype.c_type_out = "GDMonoMarshal::M_" #m_type;                \
         itype.cs_in = "ref %s";                                        \
-        itype.cs_out = "return (%1)%0;";                               \
-        itype.im_type_out = itype.cs_type;                             \
+		/* in cs_out, im_type_out (%3) includes the 'out ' part */     \
+		itype.cs_out = "%0(%1, %3 argRet); return (%2)argRet;";        \
+		itype.im_type_out = "out " + itype.cs_type;                    \
+		itype.ret_as_byref_arg = true;                                 \
         builtin_types.insert(itype.cname, itype);                      \
     }
 
-    INSERT_STRUCT_TYPE(Vector2, "real_t*")
-    INSERT_STRUCT_TYPE(Rect2, "real_t*")
-    INSERT_STRUCT_TYPE(Transform2D, "real_t*")
-    INSERT_STRUCT_TYPE(Vector3, "real_t*")
-    INSERT_STRUCT_TYPE(Basis, "real_t*")
-    INSERT_STRUCT_TYPE(Quat, "real_t*")
-    INSERT_STRUCT_TYPE(Transform, "real_t*")
-    INSERT_STRUCT_TYPE(AABB, "real_t*")
-    INSERT_STRUCT_TYPE(Color, "real_t*")
-    INSERT_STRUCT_TYPE(Plane, "real_t*")
+	INSERT_STRUCT_TYPE(Vector2)
+	INSERT_STRUCT_TYPE(Rect2)
+	INSERT_STRUCT_TYPE(Transform2D)
+	INSERT_STRUCT_TYPE(Vector3)
+	INSERT_STRUCT_TYPE(Basis)
+	INSERT_STRUCT_TYPE(Quat)
+	INSERT_STRUCT_TYPE(Transform)
+	INSERT_STRUCT_TYPE(AABB)
+	INSERT_STRUCT_TYPE(Color)
+	INSERT_STRUCT_TYPE(Plane)
 
 #undef INSERT_STRUCT_TYPE
 
@@ -2662,11 +2709,43 @@ void BindingsGenerator::_populate_builtin_type_interfaces() {
         INSERT_INT_TYPE("sbyte", int8_t, int64_t);
         INSERT_INT_TYPE("short", int16_t, int64_t);
         INSERT_INT_TYPE("int", int32_t, int64_t);
-        INSERT_INT_TYPE("long", int64_t, int64_t);
         INSERT_INT_TYPE("byte", uint8_t, int64_t);
         INSERT_INT_TYPE("ushort", uint16_t, int64_t);
         INSERT_INT_TYPE("uint", uint32_t, int64_t);
-        INSERT_INT_TYPE("ulong", uint64_t, int64_t);
+		itype = TypeInterface::create_value_type(String("long"));
+		{
+			itype.c_out = "\treturn (%0)%1;\n";
+			itype.c_in = "\t%0 %1_in = (%0)*%1;\n";
+			itype.c_out = "\t*%3 = (%0)%1;\n";
+			itype.c_type = "int64_t";
+			itype.c_arg_in = "&%s_in";
+		}
+		itype.c_type_in = "int64_t*";
+		itype.c_type_out = "int64_t";
+		itype.im_type_in = "ref " + itype.name;
+		itype.im_type_out = "out " + itype.name;
+		itype.cs_in = "ref %0";
+		/* in cs_out, im_type_out (%3) includes the 'out ' part */
+		itype.cs_out = "%0(%1, %3 argRet); return (%2)argRet;";
+		itype.ret_as_byref_arg = true;
+		builtin_types.insert(itype.cname, itype);
+
+		itype = TypeInterface::create_value_type(String("ulong"));
+		{
+			itype.c_in = "\t%0 %1_in = (%0)*%1;\n";
+			itype.c_out = "\t*%3 = (%0)%1;\n";
+			itype.c_type = "int64_t";
+			itype.c_arg_in = "&%s_in";
+		}
+		itype.c_type_in = "uint64_t*";
+		itype.c_type_out = "uint64_t";
+		itype.im_type_in = "ref " + itype.name;
+		itype.im_type_out = "out " + itype.name;
+		itype.cs_in = "ref %0";
+		/* in cs_out, im_type_out (%3) includes the 'out ' part */
+		itype.cs_out = "%0(%1, %3 argRet); return (%2)argRet;";
+		itype.ret_as_byref_arg = true;
+		builtin_types.insert(itype.cname, itype);
     }
 
     // Floating point types
@@ -2678,16 +2757,20 @@ void BindingsGenerator::_populate_builtin_type_interfaces() {
         itype.proxy_name = "float";
         {
             // The expected type for 'float' in ptrcall is 'double'
-            itype.c_in = "\t%0 %1_in = (%0)%1;\n";
-            itype.c_out = "\treturn (%0)%1;\n";
+			itype.c_in = "\t%0 %1_in = (%0)*%1;\n";
+			itype.c_out = "\t*%3 = (%0)%1;\n";
             itype.c_type = "double";
-            itype.c_type_in = "float";
+			itype.c_type_in = "float*";
             itype.c_type_out = "float";
             itype.c_arg_in = "&%s_in";
         }
         itype.cs_type = itype.proxy_name;
-        itype.im_type_in = itype.proxy_name;
-        itype.im_type_out = itype.proxy_name;
+		itype.im_type_in = "ref " + itype.proxy_name;
+		itype.im_type_out = "out " + itype.proxy_name;
+		itype.cs_in = "ref %0";
+		/* in cs_out, im_type_out (%3) includes the 'out ' part */
+		itype.cs_out = "%0(%1, %3 argRet); return (%2)argRet;";
+		itype.ret_as_byref_arg = true;
         builtin_types.insert(itype.cname, itype);
 
         // double
@@ -2695,13 +2778,21 @@ void BindingsGenerator::_populate_builtin_type_interfaces() {
         itype.name = "double";
         itype.cname = itype.name;
         itype.proxy_name = "double";
+		{
+			itype.c_in = "\t%0 %1_in = (%0)*%1;\n";
+			itype.c_out = "\t*%3 = (%0)%1;\n";
         itype.c_type = "double";
-        itype.c_type_in = "double";
+			itype.c_type_in = "double*";
         itype.c_type_out = "double";
-        itype.c_arg_in = "&%s";
+			itype.c_arg_in = "&%s_in";
+		}
         itype.cs_type = itype.proxy_name;
-        itype.im_type_in = itype.proxy_name;
-        itype.im_type_out = itype.proxy_name;
+		itype.im_type_in = "ref " + itype.proxy_name;
+		itype.im_type_out = "out " + itype.proxy_name;
+		itype.cs_in = "ref %0";
+		/* in cs_out, im_type_out (%3) includes the 'out ' part */
+		itype.cs_out = "%0(%1, %3 argRet); return (%2)argRet;";
+		itype.ret_as_byref_arg = true;
         builtin_types.insert(itype.cname, itype);
     }
 
@@ -2732,7 +2823,7 @@ void BindingsGenerator::_populate_builtin_type_interfaces() {
     itype.c_type_out = itype.c_type + "*";
     itype.cs_type = itype.proxy_name;
     itype.cs_in = "NodePath." CS_SMETHOD_GETINSTANCE "(%0)";
-    itype.cs_out = "return new %1(%0);";
+	itype.cs_out = "return new %2(%0(%1));";
     itype.im_type_in = "IntPtr";
     itype.im_type_out = "IntPtr";
     builtin_types.insert(itype.cname, itype);
@@ -2748,7 +2839,7 @@ void BindingsGenerator::_populate_builtin_type_interfaces() {
     itype.c_type_out = itype.c_type + "*";
     itype.cs_type = itype.proxy_name;
     itype.cs_in = "RID." CS_SMETHOD_GETINSTANCE "(%0)";
-    itype.cs_out = "return new %1(%0);";
+	itype.cs_out = "return new %2(%0(%1));";
     itype.im_type_in = "IntPtr";
     itype.im_type_out = "IntPtr";
     builtin_types.insert(itype.cname, itype);
@@ -2804,7 +2895,11 @@ void BindingsGenerator::_populate_builtin_type_interfaces() {
 
     INSERT_ARRAY(PoolIntArray, int);
     INSERT_ARRAY_FULL(PoolByteArray, PoolByteArray, byte);
+#ifdef REAL_T_IS_DOUBLE
+	INSERT_ARRAY(PoolRealArray, double);
+#else
     INSERT_ARRAY(PoolRealArray, float);
+#endif
     INSERT_ARRAY(PoolStringArray, string);
     INSERT_ARRAY(PoolColorArray, Color);
     INSERT_ARRAY(PoolVector2Array, Vector2);
@@ -2823,7 +2918,7 @@ void BindingsGenerator::_populate_builtin_type_interfaces() {
     itype.c_type_out = itype.c_type + "*";
     itype.cs_type = BINDINGS_NAMESPACE_COLLECTIONS "." + itype.proxy_name;
     itype.cs_in = "%0." CS_SMETHOD_GETINSTANCE "()";
-    itype.cs_out = "return new " + itype.cs_type + "(%0);";
+	itype.cs_out = "return new " + itype.cs_type + "(%0(%1));";
     itype.im_type_in = "IntPtr";
     itype.im_type_out = "IntPtr";
     builtin_types.insert(itype.cname, itype);
@@ -2839,7 +2934,7 @@ void BindingsGenerator::_populate_builtin_type_interfaces() {
     itype.c_type_out = itype.c_type + "*";
     itype.cs_type = BINDINGS_NAMESPACE_COLLECTIONS "." + itype.proxy_name;
     itype.cs_in = "%0." CS_SMETHOD_GETINSTANCE "()";
-    itype.cs_out = "return new " + itype.cs_type + "(%0);";
+	itype.cs_out = "return new " + itype.cs_type + "(%0(%1));";
     itype.im_type_in = "IntPtr";
     itype.im_type_out = "IntPtr";
     builtin_types.insert(itype.cname, itype);
@@ -2919,7 +3014,7 @@ void BindingsGenerator::_populate_global_constants() {
             // HARDCODED: The Error enum have the prefix 'ERR_' for everything except 'OK' and 'FAILED'.
             if (ienum.cname == name_cache.enum_Error) {
                 if (prefix_length > 0) { // Just in case it ever changes
-                    ERR_PRINT("Prefix for enum '" _STR(Error) "' is not empty.");
+					ERR_PRINT("Prefix for enum '" _STR(Error) "' is not empty.");
                 }
 
                 prefix_length = 1; // 'ERR_'
@@ -3011,7 +3106,7 @@ void BindingsGenerator::handle_cmdline_args(const List<String> &p_cmdline_args) 
                 glue_dir_path = path_elem->get();
                 elem = elem->next();
             } else {
-                ERR_PRINT(generate_all_glue_option + ": No output directory specified (expected path to '{GODOT_ROOT}/modules/mono/glue').");
+				ERR_PRINT(generate_all_glue_option + ": No output directory specified (expected path to '{GODOT_ROOT}/modules/mono/glue').");
             }
 
             --options_left;
@@ -3022,7 +3117,7 @@ void BindingsGenerator::handle_cmdline_args(const List<String> &p_cmdline_args) 
                 cs_dir_path = path_elem->get();
                 elem = elem->next();
             } else {
-                ERR_PRINT(generate_cs_glue_option + ": No output directory specified.");
+				ERR_PRINT(generate_cs_glue_option + ": No output directory specified.");
             }
 
             --options_left;
@@ -3033,7 +3128,7 @@ void BindingsGenerator::handle_cmdline_args(const List<String> &p_cmdline_args) 
                 cpp_dir_path = path_elem->get();
                 elem = elem->next();
             } else {
-                ERR_PRINT(generate_cpp_glue_option + ": No output directory specified.");
+				ERR_PRINT(generate_cpp_glue_option + ": No output directory specified.");
             }
 
             --options_left;

@@ -1246,7 +1246,7 @@ static double built_in_strtod(const CharType *string, /* A decimal ASCII floatin
         1.0e256
     };
 
-    int sign, expSign = false;
+    bool sign, expSign = false;
     double fraction, dblExp;
     const double *d;
     const CharType *p;

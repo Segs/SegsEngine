@@ -1443,6 +1443,7 @@ Error OS_Windows::initialize(const VideoMode &p_desired, int p_video_driver, int
     video_driver_index = p_video_driver;
 
     gl_context->set_use_vsync(video_mode.use_vsync);
+    set_vsync_via_compositor(video_mode.vsync_via_compositor);
 #endif
 
     visual_server = memnew(VisualServerRaster);
@@ -1456,8 +1457,6 @@ Error OS_Windows::initialize(const VideoMode &p_desired, int p_video_driver, int
     joypad = memnew(JoypadWindows(input, &hWnd));
 
     power_manager = memnew(PowerWindows);
-
-    camera_server = memnew(CameraWindows);
 
     AudioDriverManager::initialize(p_audio_driver);
 
@@ -1612,7 +1611,6 @@ void OS_Windows::finalize() {
 
     memdelete(joypad);
     memdelete(input);
-    memdelete(camera_server);
     touch_state.clear();
 
     cursors_cache.clear();

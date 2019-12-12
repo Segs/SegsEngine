@@ -62,7 +62,7 @@ Ref<Texture> FileSystemDock::_get_tree_item_icon(EditorFileSystemDirectory *p_di
     return file_icon;
 }
 
-bool FileSystemDock::_create_tree(TreeItem *p_parent, EditorFileSystemDirectory *p_dir, Vector<se_string> &uncollapsed_paths, bool p_select_in_favorites) {
+bool FileSystemDock::_create_tree(TreeItem *p_parent, EditorFileSystemDirectory *p_dir, Vector<se_string> &uncollapsed_paths, bool p_select_in_favorites, bool p_unfold_path) {
 
     bool parent_should_expand = false;
 
@@ -82,15 +82,18 @@ bool FileSystemDock::_create_tree(TreeItem *p_parent, EditorFileSystemDirectory 
         subdirectory_item->select(0);
     }
 
-    subdirectory_item->set_collapsed(uncollapsed_paths.find(lpath) < 0);
-
+    if (p_unfold_path && StringUtils::begins_with(path,lpath) && path != lpath) {
+        subdirectory_item->set_collapsed(false);
+    } else {
+        subdirectory_item->set_collapsed(uncollapsed_paths.find(lpath) < 0);
+    }
     if (searched_string.length() > 0 && StringUtils::contains(StringUtils::to_lower(dname),searched_string)) {
         parent_should_expand = true;
     }
 
     // Create items for all subdirectories.
     for (int i = 0; i < p_dir->get_subdir_count(); i++)
-        parent_should_expand = (_create_tree(subdirectory_item, p_dir->get_subdir(i), uncollapsed_paths, p_select_in_favorites) || parent_should_expand);
+        parent_should_expand = (_create_tree(subdirectory_item, p_dir->get_subdir(i), uncollapsed_paths, p_select_in_favorites, p_unfold_path) || parent_should_expand);
 
     // Create all items for the files in the subdirectory.
     if (display_mode == DISPLAY_MODE_TREE_ONLY) {
@@ -176,7 +179,7 @@ Vector<se_string> FileSystemDock::_compute_uncollapsed_paths() {
     return uncollapsed_paths;
 }
 
-void FileSystemDock::_update_tree(const Vector<se_string> &p_uncollapsed_paths, bool p_uncollapse_root, bool p_select_in_favorites) {
+void FileSystemDock::_update_tree(const Vector<se_string> &p_uncollapsed_paths, bool p_uncollapse_root, bool p_select_in_favorites, bool p_unfold_path) {
 
     // Recreate the tree.
     tree->clear();
@@ -250,7 +253,7 @@ void FileSystemDock::_update_tree(const Vector<se_string> &p_uncollapsed_paths, 
     }
 
     // Create the remaining of the tree.
-    _create_tree(root, EditorFileSystem::get_singleton()->get_filesystem(), uncollapsed_paths, p_select_in_favorites);
+    _create_tree(root, EditorFileSystem::get_singleton()->get_filesystem(), uncollapsed_paths, p_select_in_favorites, p_unfold_path);
     tree->ensure_cursor_is_visible();
     updating_tree = false;
 }
@@ -480,7 +483,7 @@ void FileSystemDock::_navigate_to_path(se_string_view p_path, bool p_select_in_f
     _set_current_path_text(path);
     _push_to_history();
 
-    _update_tree(_compute_uncollapsed_paths(), false, p_select_in_favorites);
+    _update_tree(_compute_uncollapsed_paths(), false, p_select_in_favorites, true);
     if (display_mode == DISPLAY_MODE_SPLIT) {
         _update_file_list(false);
         files->get_v_scroll()->set_value(0);
@@ -1834,7 +1837,7 @@ void FileSystemDock::_resource_created() const {
 }
 
 void FileSystemDock::_search_changed(const se_string &p_text, const Control *p_from) {
-    if (searched_string.length() == 0 && p_text.length() > 0) {
+    if (searched_string.empty()) {
         // Register the uncollapsed paths before they change.
         uncollapsed_paths_before_search = _compute_uncollapsed_paths();
     }
@@ -1845,14 +1848,14 @@ void FileSystemDock::_search_changed(const se_string &p_text, const Control *p_f
         file_list_search_box->set_text_utf8(searched_string);
     else // File_list_search_box.
         tree_search_box->set_text_utf8(searched_string);
-
+    bool unfold_path = (p_text.empty() && not path.empty());
     switch (display_mode) {
         case DISPLAY_MODE_TREE_ONLY: {
-            _update_tree(searched_string.length() == 0 ? uncollapsed_paths_before_search : Vector<se_string>());
+            _update_tree(searched_string.length() == 0 ? uncollapsed_paths_before_search : Vector<se_string>(), false, false, unfold_path);
         } break;
         case DISPLAY_MODE_SPLIT: {
             _update_file_list(false);
-            _update_tree(searched_string.length() == 0 ? uncollapsed_paths_before_search : Vector<se_string>());
+            _update_tree(searched_string.length() == 0 ? uncollapsed_paths_before_search : Vector<se_string>(), false, false, unfold_path);
         } break;
     }
 }

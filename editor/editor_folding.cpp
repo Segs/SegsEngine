@@ -57,7 +57,6 @@ void EditorFolding::save_resource_folding(const RES &p_resource, se_string_view 
     PoolVector<se_string> unfolds = _get_unfolds(p_resource.get());
     config->set_value("folding", "sections_unfolded", unfolds);
 
-    se_string path = EditorSettings::get_singleton()->get_project_settings_dir();
     se_string file = se_string(PathUtils::get_file(p_path)) + "-folding-" + (StringUtils::md5_text(p_path)) + ".cfg";
     file = PathUtils::plus_file(EditorSettings::get_singleton()->get_project_settings_dir(),file);
     config->save(file);
@@ -77,7 +76,6 @@ void EditorFolding::load_resource_folding(const RES& p_resource, se_string_view 
 
     Ref<ConfigFile> config(make_ref_counted<ConfigFile>());
 
-    se_string path = EditorSettings::get_singleton()->get_project_settings_dir();
     se_string file(se_string(PathUtils::get_file(p_path)) + "-folding-" + (StringUtils::md5_text(p_path)) + ".cfg");
     file = PathUtils::plus_file(EditorSettings::get_singleton()->get_project_settings_dir(),file);
 
@@ -150,7 +148,6 @@ void EditorFolding::save_scene_folding(const Node *p_scene, se_string_view p_pat
     config->set_value("folding", "resource_unfolds", res_unfolds);
     config->set_value("folding", "nodes_folded", nodes_folded);
 
-    se_string path = EditorSettings::get_singleton()->get_project_settings_dir();
     se_string file = se_string(PathUtils::get_file(p_path)) + "-folding-" + (StringUtils::md5_text(p_path)) + ".cfg";
     file = PathUtils::plus_file(EditorSettings::get_singleton()->get_project_settings_dir(),file);
     config->save(file);

@@ -1015,8 +1015,6 @@ Error ColladaImport::_create_resources(Collada::Node *p_node, bool p_use_compres
 
             Path *path = object_cast<Path>(node);
 
-            se_string curve = ng->source;
-
             if (curve_cache.contains(ng->source)) {
 
                 path->set_curve(curve_cache[ng->source]);

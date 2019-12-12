@@ -2546,7 +2546,7 @@ void TileSetEditor::draw_grid_snap() {
                 if (i == 0 && snap_offset.y != 0.0f) {
                     last_p = snap_offset.y;
                 }
-                if (snap_separation.x != 0.0f) {
+                if (snap_separation.y != 0.0f) {
                     if (i != 0) {
                         workspace->draw_rect(Rect2(0, last_p, s.width, snap_separation.y), grid_color);
                         last_p += snap_separation.y;
@@ -3246,8 +3246,8 @@ void TileSetEditor::update_workspace_minsize() {
     delete tiles;
 
     workspace->set_custom_minimum_size(workspace_min_size + WORKSPACE_MARGIN * 2);
-    workspace_container->set_custom_minimum_size(workspace_min_size + WORKSPACE_MARGIN * 2);
-    workspace_overlay->set_custom_minimum_size(workspace_min_size + WORKSPACE_MARGIN * 2);
+    workspace_container->set_custom_minimum_size(workspace_min_size * workspace->get_scale() + WORKSPACE_MARGIN * 2);
+    workspace_overlay->set_custom_minimum_size(workspace_min_size * workspace->get_scale() + WORKSPACE_MARGIN * 2);
 }
 
 void TileSetEditor::update_edited_region(const Vector2 &end_point) {

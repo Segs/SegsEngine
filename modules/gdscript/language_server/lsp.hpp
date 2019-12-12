@@ -1581,7 +1581,7 @@ struct GodotNativeClassInfo {
     }
 };
 
-/** Features not included in the standart lsp specifications */
+/** Features not included in the standard lsp specifications */
 struct GodotCapabilities {
 
     /**

@@ -106,7 +106,7 @@ public:
     static Vector<se_string> get_all_locale_names();
     static bool is_locale_valid(se_string_view p_locale);
     static se_string standardize_locale(se_string_view p_locale);
-
+    static se_string_view get_language_code(se_string_view p_locale);
     void set_tool_translation(const Ref<Translation> &p_translation);
     StringName tool_translate(const StringName &p_message) const;
 

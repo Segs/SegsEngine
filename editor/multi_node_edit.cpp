@@ -129,7 +129,7 @@ void MultiNodeEdit::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
 
     int nc = 0;
 
-    List<PLData *> datas;
+    PODVector<PLData *> data_list;
 
     for (const List<NodePath>::Element *E = nodes.front(); E; E = E->next()) {
 
@@ -152,7 +152,7 @@ void MultiNodeEdit::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
                 pld.uses = 0;
                 pld.info = F;
                 usage[F.name] = pld;
-                datas.push_back(usage.getptr(F.name));
+                data_list.push_back(usage.getptr(F.name));
             }
 
             // Make sure only properties with the same exact PropertyInfo data will appear
@@ -163,10 +163,10 @@ void MultiNodeEdit::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
         nc++;
     }
 
-    for (List<PLData *>::Element *E = datas.front(); E; E = E->next()) {
+    for (PLData *E : data_list) {
 
-        if (nc == E->deref()->uses) {
-            p_list->push_back(E->deref()->info);
+        if (nc == E->uses) {
+            p_list->push_back(E->info);
         }
     }
 

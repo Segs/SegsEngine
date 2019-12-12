@@ -7,7 +7,7 @@ if(MSVC)
     add_definitions(-DWINDOWS_ENABLED -DOPENGL_ENABLED -DRTAUDIO_ENABLED -DWASAPI_ENABLED -DTYPED_METHOD_BIND -DWIN32 -DMSVC -DWINVER=${target_win_version} -D_WIN32_WINNT=${target_win_version})
     set(LIBRARIES winmm opengl32 dsound kernel32 ole32 oleaut32
             user32 gdi32 IPHLPAPI Shlwapi wsock32 Ws2_32
-            shell32 advapi32 dinput8 dxguid imm32 bcrypt Avrt)
+            shell32 advapi32 dinput8 dxguid imm32 bcrypt Avrt dwmapi)
     list(APPEND platform_list windows)
     include_directories(${PROJECT_SOURCE_DIR}/platform/windows)
 endif()

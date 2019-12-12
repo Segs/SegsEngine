@@ -109,6 +109,8 @@ public:
     void set_round_precision(int precision);
     int get_round_precision() const;
 
+    void set_antialiased(bool p_antialiased);
+    bool get_antialiased() const;
 protected:
     void _notification(int p_what);
     void _draw();
@@ -132,4 +134,5 @@ private:
     Ref<Texture> _texture;
     float _sharp_limit;
     int _round_precision;
+    bool _antialiased;
 };

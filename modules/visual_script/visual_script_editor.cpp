@@ -1663,7 +1663,7 @@ void VisualScriptEditor::_on_nodes_duplicate() {
 
     for (const int F : to_duplicate) {
 
-        // duplicate from the specifc function but place it into the default func as it would lack the connections
+        // duplicate from the specific function but place it into the default func as it would lack the connections
         StringName func = _get_function_of_node(F);
         Ref<VisualScriptNode> node(dynamic_ref_cast<VisualScriptNode>(script->get_node(func, F)));
 
@@ -2960,7 +2960,7 @@ void VisualScriptEditor::_graph_connected(se_string_view p_from, int p_from_slot
                     if ((to_node_pos.x - from_node_pos.x) < 0) {
                         // to is behind from node
                         if (to_node_pos.x > (from_node_pos.x - to_node_size.x - 240))
-                            new_to_node_pos.x = from_node_pos.x - to_node_size.x - 240; // approx size of construtor node + padding
+                            new_to_node_pos.x = from_node_pos.x - to_node_size.x - 240; // approx size of constructor node + padding
                         else
                             new_to_node_pos.x = to_node_pos.x;
                         new_to_node_pos.y = to_node_pos.y;
@@ -2969,7 +2969,7 @@ void VisualScriptEditor::_graph_connected(se_string_view p_from, int p_from_slot
                     } else {
                         // to is ahead of from node
                         if (to_node_pos.x < (from_node_size.x + from_node_pos.x + 240))
-                            new_to_node_pos.x = from_node_size.x + from_node_pos.x + 240; // approx size of construtor node + padding
+                            new_to_node_pos.x = from_node_size.x + from_node_pos.x + 240; // approx size of constructor node + padding
                         else
                             new_to_node_pos.x = to_node_pos.x;
                         new_to_node_pos.y = to_node_pos.y;
@@ -3486,6 +3486,7 @@ void VisualScriptEditor::_selected_connect_node(const se_string &p_text, se_stri
         ofs = ofs.snapped(Vector2(snap, snap));
     }
     ofs /= EDSCALE;
+    ofs /= graph->get_zoom();
 
     Set<int> vn;
 

@@ -564,7 +564,7 @@ void FileDialog::update_filters() {
         const int max_filters = 5;
 
         for (int i = 0; i < MIN(max_filters, filters.size()); i++) {
-            se_string_view flt = StringUtils::get_slice(filters[i],";", 0);
+            se_string_view flt = StringUtils::strip_edges(StringUtils::get_slice(filters[i],";", 0));
             if (i > 0)
                 all_filters += ',';
             all_filters += flt;

@@ -545,7 +545,7 @@ void SpatialEditorViewport::_select_region() {
 
         if (selected.find(item) != -1) continue;
 
-        if (_is_node_locked(object_cast<Spatial>(item))) continue;
+        if (_is_node_locked(item)) continue;
 
         Ref<EditorSpatialGizmo> seg = dynamic_ref_cast<EditorSpatialGizmo>(sp->get_gizmo());
 
@@ -989,7 +989,7 @@ void SpatialEditorViewport::_sinput(const Ref<InputEvent> &p_event) {
                 }
 
                 if (b->is_pressed()) {
-                    int mod = _get_key_modifier(b);
+                    const int mod = _get_key_modifier(b);
                     if (!orthogonal) {
                         if (mod == _get_key_modifier_setting(("editors/3d/freelook/freelook_activation_modifier"))) {
                             set_freelook_active(true);
@@ -1684,14 +1684,16 @@ void SpatialEditorViewport::_sinput(const Ref<InputEvent> &p_event) {
 
             if (nav_scheme == NAVIGATION_GODOT) {
 
-                int mod = _get_key_modifier(m);
+                const int mod = _get_key_modifier(m);
 
-                if (mod == _get_key_modifier_setting("editors/3d/navigation/pan_modifier"))
+                if (mod == _get_key_modifier_setting("editors/3d/navigation/pan_modifier")) {
                     nav_mode = NAVIGATION_PAN;
-                else if (mod == _get_key_modifier_setting("editors/3d/navigation/zoom_modifier"))
+                } else if (mod == _get_key_modifier_setting("editors/3d/navigation/zoom_modifier")) {
                     nav_mode = NAVIGATION_ZOOM;
-                else if (mod == _get_key_modifier_setting("editors/3d/navigation/orbit_modifier"))
+                } else if (mod == KEY_ALT || mod == _get_key_modifier_setting("editors/3d/navigation/orbit_modifier")) {
+                    // Always allow Alt as a modifier to better support graphic tablets.
                     nav_mode = NAVIGATION_ORBIT;
+                }
 
             } else if (nav_scheme == NAVIGATION_MAYA) {
                 if (m->get_alt())
@@ -1700,15 +1702,17 @@ void SpatialEditorViewport::_sinput(const Ref<InputEvent> &p_event) {
 
         } else if (EditorSettings::get_singleton()->get("editors/3d/navigation/emulate_3_button_mouse")) {
             // Handle trackpad (no external mouse) use case
-            int mod = _get_key_modifier(m);
+            const int mod = _get_key_modifier(m);
 
             if (mod) {
-                if (mod == _get_key_modifier_setting("editors/3d/navigation/pan_modifier"))
+                if (mod == _get_key_modifier_setting("editors/3d/navigation/pan_modifier")) {
                     nav_mode = NAVIGATION_PAN;
-                else if (mod == _get_key_modifier_setting("editors/3d/navigation/zoom_modifier"))
+                } else if (mod == _get_key_modifier_setting("editors/3d/navigation/zoom_modifier")) {
                     nav_mode = NAVIGATION_ZOOM;
-                else if (mod == _get_key_modifier_setting("editors/3d/navigation/orbit_modifier"))
+                } else if (mod == KEY_ALT || mod == _get_key_modifier_setting("editors/3d/navigation/orbit_modifier")) {
+                    // Always allow Alt as a modifier to better support graphic tablets.
                     nav_mode = NAVIGATION_ORBIT;
+                }
             }
         }
 
@@ -1755,14 +1759,16 @@ void SpatialEditorViewport::_sinput(const Ref<InputEvent> &p_event) {
 
         if (nav_scheme == NAVIGATION_GODOT) {
 
-            int mod = _get_key_modifier(pan_gesture);
+            const int mod = _get_key_modifier(pan_gesture);
 
-            if (mod == _get_key_modifier_setting("editors/3d/navigation/pan_modifier"))
+            if (mod == _get_key_modifier_setting("editors/3d/navigation/pan_modifier")) {
                 nav_mode = NAVIGATION_PAN;
-            else if (mod == _get_key_modifier_setting("editors/3d/navigation/zoom_modifier"))
+            } else if (mod == _get_key_modifier_setting("editors/3d/navigation/zoom_modifier")) {
                 nav_mode = NAVIGATION_ZOOM;
-            else if (mod == _get_key_modifier_setting("editors/3d/navigation/orbit_modifier"))
+            } else if (mod == KEY_ALT || mod == _get_key_modifier_setting("editors/3d/navigation/orbit_modifier")) {
+                // Always allow Alt as a modifier to better support graphic tablets.
                 nav_mode = NAVIGATION_ORBIT;
+            }
 
         } else if (nav_scheme == NAVIGATION_MAYA) {
             if (pan_gesture->get_alt())

@@ -177,7 +177,7 @@ void Physics2DServerSW::_shape_col_cbk(const Vector2 &p_point_A, const Vector2 &
         }
         Vector2 rel_dir = (p_point_A - p_point_B).normalized();
 
-        if (cbk->valid_dir.dot(rel_dir) < 0.7071) { //sqrt(2)/2.0 - 45 degrees
+        if (cbk->valid_dir.dot(rel_dir) < Math_SQRT12) { //sqrt(2)/2.0 - 45 degrees
             cbk->invalid_by_dir++;
 
             /*
@@ -193,7 +193,7 @@ void Physics2DServerSW::_shape_col_cbk(const Vector2 &p_point_A, const Vector2 &
 
     if (cbk->amount == cbk->max) {
         //find least deep
-        real_t min_depth = 1e20;
+        real_t min_depth = 1e20f;
         int min_depth_idx = 0;
         for (int i = 0; i < cbk->amount; i++) {
 

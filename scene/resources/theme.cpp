@@ -662,7 +662,8 @@ void Theme::clear() {
     {
         for(auto & kv : icon_map ) {
             for( auto &L : kv.second) {
-                L.second->disconnect("changed", this, "_emit_theme_changed");
+                if(L.second)
+                    L.second->disconnect("changed", this, "_emit_theme_changed");
             }
         }
     }
@@ -672,7 +673,9 @@ void Theme::clear() {
         while ((K = style_map.next(K))) {
             const StringName *L = nullptr;
             while ((L = style_map[*K].next(L))) {
-                style_map[*K][*L]->disconnect("changed", this, "_emit_theme_changed");
+                auto style(style_map[*K][*L]);
+                if(style)
+                    style->disconnect("changed", this, "_emit_theme_changed");
             }
         }
     }
@@ -682,7 +685,9 @@ void Theme::clear() {
         while ((K = font_map.next(K))) {
             const StringName *L = nullptr;
             while ((L = font_map[*K].next(L))) {
-                font_map[*K][*L]->disconnect("changed", this, "_emit_theme_changed");
+                auto font(font_map[*K][*L]);
+                if(font)
+                    font->disconnect("changed", this, "_emit_theme_changed");
             }
         }
     }

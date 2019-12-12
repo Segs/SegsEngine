@@ -97,7 +97,7 @@ class GDMonoAssembly {
 	static MonoAssembly *_search_hook(MonoAssemblyName *aname, void *user_data, bool refonly);
 	static MonoAssembly *_preload_hook(MonoAssemblyName *aname, char **assemblies_path, void *user_data, bool refonly);
 
-	static GDMonoAssembly *_load_assembly_from(const String &p_name, se_string_view p_path, bool p_refonly);
+	static GDMonoAssembly *_load_assembly_from(const String &p_name, const String &p_path, bool p_refonly);
 	static GDMonoAssembly *_load_assembly_search(const String &p_name, const Vector<String> &p_search_dirs, bool p_refonly);
 	static void _wrap_mono_assembly(MonoAssembly *assembly);
 
@@ -122,11 +122,13 @@ public:
 
 	GDMonoClass *get_object_derived_class(const StringName &p_class);
 
+	static String find_assembly(const String &p_name);
+
 	static void fill_search_dirs(Vector<String> &r_search_dirs, const String &p_custom_config = String(), const String &p_custom_bcl_dir = String());
 
-	static GDMonoAssembly *load_from(const String &p_name, se_string_view p_path, bool p_refonly);
+	static GDMonoAssembly *load_from(const String &p_name, const String &p_path, bool p_refonly);
 
-	GDMonoAssembly(const String &p_name, se_string_view p_path = String());
+	GDMonoAssembly(const String &p_name, const String &p_path = String());
 	~GDMonoAssembly();
 };
 

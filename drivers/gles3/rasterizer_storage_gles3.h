@@ -344,8 +344,9 @@ public:
     /* SKY API */
 
     struct Sky : public RID_Data {
-        GLuint radiance;
         RID panorama;
+        GLuint radiance;
+        GLuint irradiance;
         int radiance_size;
     };
 

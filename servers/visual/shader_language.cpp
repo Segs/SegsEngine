@@ -3719,8 +3719,8 @@ ShaderLanguage::Node *ShaderLanguage::_reduce_expression(BlockNode *p_block, Sha
                         nv.sint = -value.sint;
                     } break;
                     case TYPE_UINT: {
-                        // FIXME: This can't work on uint
-                        nv.uint = -value.uint;
+                    // Intentionally wrap the unsigned int value, because GLSL does.
+                    nv.uint = 0 - value.uint;
                     } break;
                     case TYPE_FLOAT: {
                         nv.real = -value.real;
@@ -5035,7 +5035,7 @@ Error ShaderLanguage::_parse_shader(const Map<StringName, FunctionInfo> &p_funct
                             if (!expr)
                                 return ERR_PARSE_ERROR;
 
-                            if (expr->type != Node::TYPE_CONSTANT) {
+                            if (expr->type == Node::TYPE_OPERATOR && ((OperatorNode *)expr)->op == OP_CALL) {
                                 _set_error("Expected constant expression after '='");
                                 return ERR_PARSE_ERROR;
                             }

@@ -56,6 +56,7 @@ struct MathConsts<double> {
     constexpr static double PI = 3.1415926535897932384626433833;
     constexpr static double E = 2.7182818284590452353602874714;
 };
+//sqrt(2)/2.0
 #define Math_SQRT12 MathConsts<float>::SQRT12
 #define Math_SQRT2 MathConsts<float>::SQRT2
 #define Math_LN2 MathConsts<float>::LN2
