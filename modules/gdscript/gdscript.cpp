@@ -584,8 +584,8 @@ Error GDScript::reload(bool p_keep_state) {
         if (ScriptDebugger::get_singleton()) {
             GDScriptLanguage::get_singleton()->debug_break_parse(get_path(), parser.get_error_line(), "Parser Error: " + parser.get_error());
         }
-        _err_print_error("GDScript::reload", path.empty() ? "built-in" : path.c_str(),
-                         parser.get_error_line(), ("Parse Error: " + parser.get_error()), ERR_HANDLER_SCRIPT);
+        _err_print_error("GDScript::reload", path.empty() ? "built-in" : path,
+                         parser.get_error_line(), ("Parse Error: " + parser.get_error()), {},ERR_HANDLER_SCRIPT);
         ERR_FAIL_V(ERR_PARSE_ERROR)
     }
 
@@ -601,7 +601,7 @@ Error GDScript::reload(bool p_keep_state) {
                 GDScriptLanguage::get_singleton()->debug_break_parse(get_path(), compiler.get_error_line(), "Parser Error: " + compiler.get_error());
             }
             _err_print_error("GDScript::reload", path.empty() ? "built-in" : path.c_str(), compiler.get_error_line(),
-                             ("Compile Error: " + compiler.get_error()), ERR_HANDLER_SCRIPT);
+                             ("Compile Error: " + compiler.get_error()), {},ERR_HANDLER_SCRIPT);
             ERR_FAIL_V(ERR_COMPILATION_FAILED)
         } else {
             return err;
@@ -746,10 +746,9 @@ Error GDScript::load_byte_code(se_string_view p_path) {
         FileAccessEncrypted *fae = memnew(FileAccessEncrypted);
         ERR_FAIL_COND_V(!fae, ERR_CANT_OPEN)
 
-        Vector<uint8_t> key;
-        key.resize(32);
-        for (int i = 0; i < key.size(); i++) {
-            key.write[i] = script_encryption_key[i];
+        uint8_t key[32];
+        for (int i = 0; i < 32; i++) {
+            key[i] = script_encryption_key[i];
         }
 
         Error err = fae->open_and_parse(fa, key, FileAccessEncrypted::MODE_READ);
@@ -787,8 +786,8 @@ Error GDScript::load_byte_code(se_string_view p_path) {
     GDScriptParser parser;
     Error err = parser.parse_bytecode(bytecode, basedir, get_path());
     if (err) {
-        _err_print_error("GDScript::load_byte_code", path.empty() ? "built-in" : path.c_str(), parser.get_error_line(),
-                ("Parse Error: " + parser.get_error()), ERR_HANDLER_SCRIPT);
+        _err_print_error("GDScript::load_byte_code", path.empty() ? "built-in" : path, parser.get_error_line(),
+                ("Parse Error: " + parser.get_error()), {},ERR_HANDLER_SCRIPT);
         ERR_FAIL_V(ERR_PARSE_ERROR)
     }
 
@@ -796,8 +795,8 @@ Error GDScript::load_byte_code(se_string_view p_path) {
     err = compiler.compile(&parser, this);
 
     if (err) {
-        _err_print_error("GDScript::load_byte_code", path.empty() ? "built-in" : path.c_str(),
-                compiler.get_error_line(), ("Compile Error: " + compiler.get_error()), ERR_HANDLER_SCRIPT);
+        _err_print_error("GDScript::load_byte_code", path.empty() ? "built-in" : path,
+                compiler.get_error_line(), ("Compile Error: " + compiler.get_error()), {},ERR_HANDLER_SCRIPT);
         ERR_FAIL_V(ERR_COMPILATION_FAILED)
     }
 

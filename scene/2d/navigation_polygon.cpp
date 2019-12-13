@@ -69,7 +69,7 @@ Rect2 NavigationPolygon::_edit_get_rect() const {
     return item_rect;
 }
 
-bool NavigationPolygon::_edit_is_selected_on_click(const Point2 &p_point, double p_tolerance) const {
+bool NavigationPolygon::_edit_is_selected_on_click(const Point2 &p_point, float p_tolerance) const {
 
     for (int i = 0; i < outlines.size(); i++) {
         const PoolVector<Vector2> &outline = outlines[i];
@@ -362,7 +362,7 @@ Rect2 NavigationPolygonInstance::_edit_get_rect() const {
     return navpoly ? navpoly->_edit_get_rect() : Rect2();
 }
 
-bool NavigationPolygonInstance::_edit_is_selected_on_click(const Point2 &p_point, double p_tolerance) const {
+bool NavigationPolygonInstance::_edit_is_selected_on_click(const Point2 &p_point, float p_tolerance) const {
 
     return navpoly ? navpoly->_edit_is_selected_on_click(p_point, p_tolerance) : false;
 }

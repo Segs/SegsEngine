@@ -69,11 +69,8 @@ void remove_error_handler(ErrorHandlerList *p_handler) {
 
     _global_unlock();
 }
-void _err_print_error(const char *p_function, const char *p_file, int p_line, se_string_view p_error, ErrorHandlerType p_type) {
-    _err_print_error(p_function, p_file, p_line, p_error, "", p_type);
-}
 
-void _err_print_error(const char *p_function, const char *p_file, int p_line, const char *p_error, const char *p_message, ErrorHandlerType p_type) {
+void _err_print_error(se_string_view p_function, se_string_view p_file, int p_line, se_string_view p_error, se_string_view p_message, ErrorHandlerType p_type) {
 
     OS::get_singleton()->print_error(p_function, p_file, p_line, p_error, p_message, (Logger::ErrorType)p_type);
 
@@ -88,19 +85,7 @@ void _err_print_error(const char *p_function, const char *p_file, int p_line, co
     _global_unlock();
 }
 
-void _err_print_error(const char *p_function, const char *p_file, int p_line, se_string_view p_error, const char *p_message, ErrorHandlerType p_type) {
-    _err_print_error(p_function, p_file, p_line, p_error, p_message, p_type);
-}
-
-void _err_print_error(const char *p_function, const char *p_file, int p_line, const char *p_error, se_string_view p_message, ErrorHandlerType p_type) {
-    _err_print_error(p_function, p_file, p_line, p_error, p_message, p_type);
-}
-
-void _err_print_error(const char *p_function, const char *p_file, int p_line, se_string_view p_error, se_string_view p_message, ErrorHandlerType p_type) {
-    _err_print_error(p_function, p_file, p_line, p_error, p_message, p_type);
-}
-
-void _err_print_index_error(const char *p_function, const char *p_file, int p_line, int64_t p_index, int64_t p_size, const char *p_index_str, const char *p_size_str, se_string_view p_message, bool fatal) {
+void _err_print_index_error(se_string_view p_function, se_string_view p_file, int p_line, int64_t p_index, int64_t p_size, se_string_view p_index_str, se_string_view p_size_str, se_string_view p_message, bool fatal) {
     se_string fstr(fatal ? "FATAL: " : "");
     se_string err(fstr + "Index " + p_index_str + "=" + itos(p_index) + " out of size (" + p_size_str + "=" + itos(p_size) + ")");
     _err_print_error(p_function, p_file, p_line, err, p_message);

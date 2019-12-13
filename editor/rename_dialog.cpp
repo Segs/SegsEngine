@@ -496,17 +496,17 @@ se_string RenameDialog::_substitute(const se_string &subject, const Node *node, 
     return result;
 }
 
-void RenameDialog::_error_handler(void *p_self, const char *p_func, const char *p_file, int p_line, const char *p_error, const char *p_errorexp, ErrorHandlerType p_type) {
+void RenameDialog::_error_handler(void *p_self, se_string_view p_func, se_string_view p_file, int p_line, se_string_view p_error, se_string_view p_errorexp, ErrorHandlerType p_type) {
 
     RenameDialog *self = (RenameDialog *)p_self;
-    String source_file(p_file);
+    se_string_view source_file(p_file);
 
     // Only show first error that is related to "regex"
-    if (self->has_errors || StringUtils::find(source_file,"regex") < 0)
+    if (self->has_errors || StringUtils::contains(source_file,"regex"))
         return;
 
     se_string err_str;
-    if (p_errorexp && p_errorexp[0]) {
+    if (not p_errorexp.empty()) {
         err_str = p_errorexp;
     } else {
         err_str = p_error;

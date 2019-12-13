@@ -98,7 +98,7 @@ class EditorScriptCodeCompletionCache : public ScriptCodeCompletionCache {
 
 public:
     uint64_t max_time_cache;
-    int max_cache_size;
+    size_t max_cache_size;
 
     void cleanup() {
 
@@ -2077,7 +2077,7 @@ bool ScriptEditor::edit(const RES &p_resource, int p_line, int p_col, bool p_gra
             int num_chars = 0;
             bool inside_quotes = false;
 
-            for (int i = 0; i < flags.size(); i++) {
+            for (size_t i = 0; i < flags.size(); i++) {
 
                 if (flags[i] == '"' && (!i || flags[i - 1] != '\\')) {
 

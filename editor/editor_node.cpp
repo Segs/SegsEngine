@@ -2159,9 +2159,9 @@ void EditorNode::_menu_option_confirm(int p_option, bool p_confirmed) {
             Ref<PackedScene> sd(make_ref_counted<PackedScene>());
             ResourceSaver::get_recognized_extensions(sd, extensions);
             file->clear_filters();
-            for (int i = 0; i < extensions.size(); i++) {
+            for (const se_string &ext : extensions) {
 
-                file->add_filter("*." + extensions[i] + " ; " + StringUtils::to_upper(extensions[i]));
+                file->add_filter("*." + ext + " ; " + StringUtils::to_upper(ext));
             }
 
             if (!scene->get_filename().empty()) {
@@ -4223,7 +4223,7 @@ void EditorNode::show_warning(const StringName &p_text, const StringName &p_titl
         warning->set_title(p_title);
         warning->popup_centered_minsize();
     } else {
-        WARN_PRINTS(se_string(p_title) + " " + p_text)
+        WARN_PRINT(se_string(p_title) + " " + p_text)
     }
 }
 void EditorNode::_copy_warning(se_string_view p_str) {

@@ -1584,7 +1584,7 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
         if (!GDScriptLanguage::get_singleton()->debug_break(err_text, false)) {
             // debugger break did not happen
 
-            _err_print_error(err_func.c_str(), err_file.c_str(), err_line, err_text, ERR_HANDLER_SCRIPT);
+            _err_print_error(err_func, err_file, err_line, err_text,{}, ERR_HANDLER_SCRIPT);
         }
 
 #endif

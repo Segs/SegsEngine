@@ -159,8 +159,8 @@ public:
     virtual void global_menu_remove_item(const StringName &/*p_menu*/, int /*p_idx*/){}
     virtual void global_menu_clear(const StringName &/*p_menu*/){}
 
-    void print_error(const char *p_function, const char *p_file, int p_line, const char *p_code,
-            const char *p_rationale, Logger::ErrorType p_type = Logger::ERR_ERROR);
+    void print_error(se_string_view p_function, se_string_view p_file, int p_line, se_string_view p_code,
+            se_string_view p_rationale, Logger::ErrorType p_type = Logger::ERR_ERROR);
     void print(se_string_view p_msg);
     void printerr(se_string_view p_msg);
 

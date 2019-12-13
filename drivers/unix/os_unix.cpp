@@ -154,7 +154,7 @@ void OS_Unix::finalize_core() {
 
 void OS_Unix::alert(se_string_view p_alert, se_string_view p_title) {
 
-    fprintf(stderr, "ERROR: %.*s\n", p_alert.length(),p_alert.data());
+    fprintf(stderr, "ERROR: [%.*s] %.*s\n", p_title.length(),p_title.data(),p_alert.length(),p_alert.data());
 }
 
 se_string OS_Unix::get_stdin_string(bool p_block) {
@@ -498,34 +498,34 @@ se_string OS_Unix::get_executable_path() const {
     return qPrintable(QCoreApplication::applicationFilePath());
 }
 
-void UnixTerminalLogger::log_error(const char *p_function, const char *p_file, int p_line, const char *p_code, const char *p_rationale, ErrorType p_type) {
+void UnixTerminalLogger::log_error(se_string_view p_function, se_string_view p_file, int p_line, se_string_view p_code, se_string_view p_rationale, ErrorType p_type) {
     if (!should_log(true)) {
         return;
     }
 
-    const char *err_details;
-    if (p_rationale && p_rationale[0])
+    se_string_view err_details;
+    if (not p_rationale.empty())
         err_details = p_rationale;
     else
         err_details = p_code;
 
     switch (p_type) {
         case ERR_WARNING:
-            logf_error(FormatVE("\E[1;33mWARNING: %s: \E[0m\E[1m%s\n", p_function, err_details));
-            logf_error(FormatVE("\E[0;33m   At: %s:%i.\E[0m\n", p_file, p_line));
+            logf_error(FormatVE("\E[1;33mWARNING: %.*s: \E[0m\E[1m%.*s\n", p_function.size(),p_function.data(), err_details.size(), err_details.data()));
+            logf_error(FormatVE("\E[0;33m   At: %.*s:%i.\E[0m\n", p_file.size(),p_file.data(), p_line));
             break;
         case ERR_SCRIPT:
-            logf_error(FormatVE("\E[1;35mSCRIPT ERROR: %s: \E[0m\E[1m%s\n", p_function, err_details));
-            logf_error(FormatVE("\E[0;35m   At: %s:%i.\E[0m\n", p_file, p_line));
+            logf_error(FormatVE("\E[1;35mSCRIPT ERROR: %.*s: \E[0m\E[1m%.*s\n", p_function.size(),p_function.data(), err_details.size(), err_details.data()));
+            logf_error(FormatVE("\E[0;35m   At: %.*s:%i.\E[0m\n", p_file.size(),p_file.data(), p_line));
             break;
         case ERR_SHADER:
-            logf_error(FormatVE("\E[1;36mSHADER ERROR: %s: \E[0m\E[1m%s\n", p_function, err_details));
-            logf_error(FormatVE("\E[0;36m   At: %s:%i.\E[0m\n", p_file, p_line));
+            logf_error(FormatVE("\E[1;36mSHADER ERROR: %.*s: \E[0m\E[1m%.*s\n", p_function.size(),p_function.data(), err_details.size(), err_details.data()));
+            logf_error(FormatVE("\E[0;36m   At: %.*s:%i.\E[0m\n", p_file.size(),p_file.data(), p_line));
             break;
         case ERR_ERROR:
         default:
-            logf_error(FormatVE("\E[1;31mERROR: %s: \E[0m\E[1m%s\n", p_function, err_details));
-            logf_error(FormatVE("\E[0;31m   At: %s:%i.\E[0m\n", p_file, p_line));
+            logf_error(FormatVE("\E[1;31mERROR: %.*s: \E[0m\E[1m%.*s\n", p_function.size(),p_function.data(), err_details.size(), err_details.data()));
+            logf_error(FormatVE("\E[0;31m   At: %.*s:%i.\E[0m\n", p_file.size(),p_file.data(), p_line));
             break;
     }
 }

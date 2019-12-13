@@ -242,7 +242,7 @@ bool CollisionPolygon2D::_edit_use_rect() const {
     return true;
 }
 
-bool CollisionPolygon2D::_edit_is_selected_on_click(const Point2 &p_point, double p_tolerance) const {
+bool CollisionPolygon2D::_edit_is_selected_on_click(const Point2 &p_point, float p_tolerance) const {
 
     return Geometry::is_point_in_polygon(p_point, Variant(polygon));
 }

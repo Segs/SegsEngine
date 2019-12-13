@@ -253,8 +253,8 @@ MethodInfo::operator Dictionary() const {
     d["name"] = name;
     d["args"] = convert_property_vector(&arguments);
     Array da;
-    for (int i = 0; i < default_arguments.size(); i++)
-        da.push_back(default_arguments[i]);
+    for (const Variant &varg : default_arguments)
+        da.push_back(varg);
     d["default_args"] = da;
     d["flags"] = flags;
     d["id"] = id;

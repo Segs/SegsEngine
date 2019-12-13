@@ -468,7 +468,7 @@ void ScriptDebuggerRemote::line_poll() {
     poll_every++;
 }
 
-void ScriptDebuggerRemote::_err_handler(void *ud, const char *p_func, const char *p_file, int p_line, const char *p_err, const char *p_descr, ErrorHandlerType p_type) {
+void ScriptDebuggerRemote::_err_handler(void *ud, se_string_view p_func, se_string_view p_file, int p_line, se_string_view p_err, se_string_view p_descr, ErrorHandlerType p_type) {
 
     if (p_type == ERR_HANDLER_SCRIPT)
         return; //ignore script errors, those go through debugger

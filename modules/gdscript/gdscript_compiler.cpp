@@ -1285,7 +1285,7 @@ Error GDScriptCompiler::_parse_block(CodeGen &codegen, const GDScriptParser::Blo
     int new_identifiers = 0;
     codegen.current_line = p_block->line;
 
-    for (int i = 0; i < p_block->statements.size(); i++) {
+    for (size_t i = 0; i < p_block->statements.size(); i++) {
 
         const GDScriptParser::Node *s = p_block->statements[i];
 

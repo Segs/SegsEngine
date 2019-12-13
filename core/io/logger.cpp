@@ -51,7 +51,7 @@ bool Logger::should_log(bool p_err) {
     return (!p_err || _print_error_enabled) && (p_err || _print_line_enabled);
 }
 
-void Logger::log_error(const char *p_function, const char *p_file, int p_line, const char *p_code, const char *p_rationale, ErrorType p_type) {
+void Logger::log_error(se_string_view p_function, se_string_view p_file, int p_line, se_string_view p_code, se_string_view p_rationale, ErrorType p_type) {
     if (!should_log(true)) {
         return;
     }
@@ -65,14 +65,14 @@ void Logger::log_error(const char *p_function, const char *p_file, int p_line, c
         default: ERR_PRINT("Unknown error type"); break;
     }
 
-    const char *err_details;
-    if (p_rationale && *p_rationale)
+    se_string_view err_details;
+    if (!p_rationale.empty())
         err_details = p_rationale;
     else
         err_details = p_code;
 
-    logf_error(FormatVE("%s: %s\n",err_type,err_details));
-    logf_error(FormatVE("   At: %s:%i:%s() - %s\n",p_file,p_line,p_function,p_code));
+    logf_error(FormatVE("%s: %.*s\n",err_type,err_details.size(),err_details.data()));
+    logf_error(FormatVE("   At: %.*s:%i:%.*s() - %.*s\n",p_file.size(),p_file.data(),p_line,p_function.size(),p_function.data(),p_code.size(),p_code.data()));
 }
 
 void Logger::logf(se_string_view p_msg) {
@@ -206,9 +206,9 @@ void StdLogger::logv(se_string_view p_format, bool p_err) {
     }
 
     if (p_err) {
-        fprintf(stderr, "%s",p_format);
+        fprintf(stderr, "%.*s",p_format.length(),p_format.data());
     } else {
-        printf("%s",p_format);
+        printf("%.*s",p_format.length(),p_format.data());
 #ifdef DEBUG_ENABLED
         fflush(stdout);
 #endif
@@ -230,7 +230,7 @@ void CompositeLogger::logv(se_string_view p_msg, bool p_err) {
         loggers[i]->logv(p_msg, p_err);
     }
 }
-void CompositeLogger::log_error(const char *p_function, const char *p_file, int p_line, const char *p_code, const char *p_rationale, ErrorType p_type) {
+void CompositeLogger::log_error(se_string_view p_function, se_string_view p_file, int p_line, se_string_view p_code, se_string_view p_rationale, ErrorType p_type) {
     if (!should_log(true)) {
         return;
     }

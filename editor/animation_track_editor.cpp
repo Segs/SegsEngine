@@ -3974,7 +3974,7 @@ int AnimationTrackEditor::_confirm_insert(InsertData p_id, int p_last_track, boo
             PODVector<se_string_view> subindices = _get_bezier_subindices_for_type(p_id.value.get_type(), &valid);
             if (valid) {
 
-            for (int i = 0; i < subindices.size(); i++) {
+            for (size_t i = 0; i < subindices.size(); i++) {
                 InsertData id = p_id;
                 id.type = Animation::TYPE_BEZIER;
                     id.value = p_id.value.get(StringUtils::substr(subindices[i],1, subindices[i].length()));
@@ -4595,7 +4595,7 @@ void AnimationTrackEditor::_new_track_property_selected(se_string_view p_name) {
 
         undo_redo->create_action_ui(TTR("Add Bezier Track"));
         int base_track = animation->get_track_count();
-        for (int i = 0; i < subindices.size(); i++) {
+        for (size_t i = 0; i < subindices.size(); i++) {
             undo_redo->add_do_method(animation.get(), "add_track", adding_track_type);
             undo_redo->add_do_method(animation.get(), "track_set_path", base_track + i, full_path + subindices[i]);
             undo_redo->add_undo_method(animation.get(), "remove_track", base_track);

@@ -40,14 +40,14 @@
 
 IMPL_GDCLASS(EditorLog)
 
-void EditorLog::_error_handler(void *p_self, const char *p_func, const char *p_file, int p_line, const char *p_error, const char *p_errorexp, ErrorHandlerType p_type) {
+void EditorLog::_error_handler(void *p_self, se_string_view p_func, se_string_view p_file, int p_line, se_string_view p_error, se_string_view p_errorexp, ErrorHandlerType p_type) {
 
     EditorLog *self = (EditorLog *)p_self;
     if (self->current != Thread::get_caller_id())
         return;
 
     se_string err_str;
-    if (p_errorexp && p_errorexp[0]) {
+    if (not p_errorexp.empty()) {
         err_str = p_errorexp;
     } else {
         err_str = se_string(p_file) + ":" + itos(p_line) + " - " + p_error;

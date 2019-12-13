@@ -47,20 +47,20 @@
 
 #ifdef DEBUG_METHODS_ENABLED
 
-MethodDefinition D_METHOD(StringName p_name) {
+//MethodDefinition D_METHOD(StringName p_name) {
 
-    MethodDefinition md;
-    md.name = eastl::move(p_name);
-    return md;
-}
+//    MethodDefinition md;
+//    md.name = eastl::move(p_name);
+//    return md;
+//}
 
-MethodDefinition D_METHOD(StringName p_name, PODVector<StringName> &&names) {
+//MethodDefinition D_METHOD(StringName p_name, PODVector<StringName> &&names) {
 
-    MethodDefinition md;
-    md.name = eastl::move(p_name);
-    md.args = eastl::move(names);
-    return md;
-}
+//    MethodDefinition md;
+//    md.name = eastl::move(p_name);
+//    md.args = eastl::move(names);
+//    return md;
+//}
 
 #endif
 
@@ -1056,7 +1056,7 @@ MethodBind *ClassDB::bind_methodfi(uint32_t p_flags, MethodBind *p_bind, const c
         ERR_FAIL_V_MSG(nullptr, se_string("Method definition provides more arguments than the method actually has '") + instance_type + "::" + mdname + "'.")
     }
 
-    p_bind->set_argument_names(method_name.args);
+    //p_bind->set_argument_names(method_name.args);
 
     type->method_order.push_back(mdname);
 #endif

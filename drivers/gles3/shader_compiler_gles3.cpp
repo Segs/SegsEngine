@@ -869,11 +869,11 @@ Error ShaderCompilerGLES3::compile(VS::ShaderMode p_mode, const se_string &p_cod
         PODVector<se_string_view> shader;
         se_string::split_ref(shader,p_code,'\n');
 
-        for (int i = 0; i < shader.size(); i++) {
-            print_line((::to_string(i + 1) + " " + shader[i]).c_str());
+        for (size_t i = 0; i < shader.size(); i++) {
+            print_line(::to_string(i + 1) + " " + shader[i]);
         }
 
-        _err_print_error(nullptr, p_path.data(), parser.get_error_line(), parser.get_error_text(), ERR_HANDLER_SHADER);
+        _err_print_error({}, p_path.data(), parser.get_error_line(), parser.get_error_text(), {},ERR_HANDLER_SHADER);
         return err;
     }
 

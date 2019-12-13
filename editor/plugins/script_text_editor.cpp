@@ -1658,10 +1658,10 @@ void ScriptTextEditor::_text_edit_gui_input(const Ref<InputEvent> &ev) {
             color_position.x = row;
             color_position.y = col;
 
-            int begin = 0;
-            int end = 0;
+            size_t begin = 0;
+            size_t end = 0;
             bool valid = false;
-            for (int i = col; i < line.length(); i++) {
+            for (size_t i = col; i < line.length(); i++) {
                 if (line[i] == '(') {
                     begin = i;
                     continue;

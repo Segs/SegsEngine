@@ -105,7 +105,7 @@ public:
 
 class UnixTerminalLogger : public StdLogger {
 public:
-    void log_error(const char *p_function, const char *p_file, int p_line, const char *p_code, const char *p_rationale, ErrorType p_type = ERR_ERROR) override;
+    void log_error(se_string_view p_function, se_string_view p_file, int p_line, se_string_view p_code, se_string_view p_rationale, ErrorType p_type = ERR_ERROR) override;
     ~UnixTerminalLogger() override;
 };
 

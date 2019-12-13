@@ -861,7 +861,7 @@ Error EditorExportPlatform::export_project_files(const Ref<EditorExportPreset> &
                 se_string remap_file = "[remap]\n\npath=\"" + StringUtils::c_escape(to) + "\"\n";
                 Vector<uint8_t> new_file;
                 new_file.resize(remap_file.length());
-                for (int j = 0; j < remap_file.length(); j++) {
+                for (size_t j = 0; j < remap_file.length(); j++) {
                     new_file.write[j] = remap_file[j];
                 }
 

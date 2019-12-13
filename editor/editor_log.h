@@ -55,7 +55,7 @@ class EditorLog : public VBoxContainer {
     //PaneDrag *pd;
     ToolButton *tool_button;
 
-    static void _error_handler(void *p_self, const char *p_func, const char *p_file, int p_line, const char *p_error, const char *p_errorexp, ErrorHandlerType p_type);
+    static void _error_handler(void *p_self, se_string_view p_func, se_string_view p_file, int p_line, se_string_view p_error, se_string_view p_errorexp, ErrorHandlerType p_type);
 
     ErrorHandlerList eh;
 

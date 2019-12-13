@@ -172,9 +172,9 @@ bool DictionaryPropertyEdit::_get(const StringName &p_name, Variant &r_ret) cons
     keys.sort();
 
     se_string pn(p_name);
-    int slash = StringUtils::find(pn,": ");
+    auto slash = StringUtils::find(pn,": ");
 
-    if (slash != -1 && pn.length() > slash) {
+    if (slash != se_string::npos && pn.length() > slash) {
 
         se_string_view type = StringUtils::substr(pn,slash + 2, pn.length());
         int index = StringUtils::to_int(StringUtils::substr(pn,0, slash));

@@ -41,13 +41,8 @@
  * to fail or crash.
  */
 
-/**
- * Pointer to the error macro printing function. Reassign to any function to have errors printed
- */
 
 /** Function used by the error macros */
-
-// function, file, line, error, explanation
 
 enum ErrorHandlerType {
     ERR_HANDLER_ERROR,
@@ -56,35 +51,27 @@ enum ErrorHandlerType {
     ERR_HANDLER_SHADER,
 };
 
-using ErrorHandlerFunc = void (*)(void *, const char *, const char *, int, const char *, const char *, ErrorHandlerType);
 struct ErrorHandlerList {
+/**
+ * Pointer to the error macro printing function. Reassign to any function to have errors printed
+ */
+    using ErrorHandlerFunc = void (*)(void *, se_string_view, se_string_view, int, se_string_view, se_string_view, ErrorHandlerType);
 
-    ErrorHandlerFunc errfunc;
-    void *userdata;
-
-    ErrorHandlerList *next;
-
-    ErrorHandlerList() {
-        errfunc = nullptr;
-        next = nullptr;
-        userdata = nullptr;
-    }
+    ErrorHandlerFunc errfunc = nullptr;
+    void *userdata = nullptr;
+    ErrorHandlerList *next = nullptr;
 };
 
 GODOT_EXPORT void add_error_handler(ErrorHandlerList *p_handler);
 GODOT_EXPORT void remove_error_handler(ErrorHandlerList *p_handler);
-
-GODOT_EXPORT void _err_print_error(const char *p_function, const char *p_file, int p_line, se_string_view p_error, ErrorHandlerType p_type = ERR_HANDLER_ERROR);
-GODOT_EXPORT void _err_print_error(const char *p_function, const char *p_file, int p_line, se_string_view p_error, se_string_view p_message, ErrorHandlerType p_type = ERR_HANDLER_ERROR);
-GODOT_EXPORT void _err_print_index_error(const char *p_function, const char *p_file, int p_line, int64_t p_index, int64_t p_size, const char *p_index_str, const char *p_size_str, se_string_view p_message, bool fatal = false);
+GODOT_EXPORT void _err_print_error(se_string_view p_function, se_string_view p_file, int p_line, se_string_view p_error, se_string_view p_message ={}, ErrorHandlerType p_type = ERR_HANDLER_ERROR);
+GODOT_EXPORT void _err_print_index_error(se_string_view p_function, se_string_view p_file, int p_line, int64_t p_index, int64_t p_size, se_string_view p_index_str, se_string_view p_size_str, se_string_view p_message, bool fatal = false);
 
 
 #ifndef _STR
 #define _STR(m_x) #m_x
 #define _MKSTR(m_x) _STR(m_x)
 #endif
-
-#define _FNL __FILE__ ":"
 
 // Used to strip debug messages in release mode
 #ifdef DEBUG_ENABLED
@@ -399,16 +386,14 @@ GODOT_EXPORT void _err_print_index_error(const char *p_function, const char *p_f
 
 #define WARN_PRINT(m_string)                                                               \
     {                                                                                      \
-        _err_print_error(FUNCTION_STR, __FILE__, __LINE__, m_string, ERR_HANDLER_WARNING); \
+        _err_print_error(FUNCTION_STR, __FILE__, __LINE__, m_string,{}, ERR_HANDLER_WARNING); \
     }
-
-#define WARN_PRINTS(m_string) WARN_PRINT(m_string)
 
 #define WARN_PRINT_ONCE(m_string)                                                              \
     {                                                                                          \
         static bool first_print = true;                                                        \
         if (first_print) {                                                                     \
-            _err_print_error(FUNCTION_STR, __FILE__, __LINE__, m_string, ERR_HANDLER_WARNING); \
+            _err_print_error(FUNCTION_STR, __FILE__, __LINE__, m_string,{}, ERR_HANDLER_WARNING); \
             first_print = false;                                                               \
         }                                                                                      \
     }
@@ -417,7 +402,7 @@ GODOT_EXPORT void _err_print_index_error(const char *p_function, const char *p_f
     {                                                                                                                                                     \
         static volatile bool warning_shown = false;                                                                                                       \
         if (!warning_shown) {                                                                                                                             \
-            _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "This method has been deprecated and will be removed in the future", ERR_HANDLER_WARNING); \
+            _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "This method has been deprecated and will be removed in the future", {},ERR_HANDLER_WARNING); \
             warning_shown = true;                                                                                                                         \
         }                                                                                                                                                 \
     }

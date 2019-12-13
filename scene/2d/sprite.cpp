@@ -308,7 +308,7 @@ int Sprite::get_hframes() const {
     return hframes;
 }
 
-bool Sprite::_edit_is_selected_on_click(const Point2 &p_point, double p_tolerance) const {
+bool Sprite::_edit_is_selected_on_click(const Point2 &p_point, float p_tolerance) const {
 
     return is_pixel_opaque(p_point);
 }

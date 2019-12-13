@@ -25,7 +25,6 @@ protected:
 
 #ifdef DEBUG_METHODS_ENABLED
     VariantType *argument_types=nullptr;
-    PODVector<StringName> arg_names;
 #endif
 #ifdef DEBUG_METHODS_ENABLED
     bool checkArgs(const Variant** p_args,int p_arg_count,bool (*const verifiers[])(const Variant &), int max_args, Variant::CallError& r_error)
@@ -86,8 +85,8 @@ public:
     PropertyInfo get_argument_info(int p_argument) const;
     PropertyInfo get_return_info() const;
 
-    void set_argument_names(const PODVector<StringName> &p_names); //set by class, db, can't be inferred otherwise
-    const PODVector<StringName> &get_argument_names() const;
+//    void set_argument_names(const PODVector<StringName> &p_names); //set by class, db, can't be inferred otherwise
+//    const PODVector<StringName> &get_argument_names() const;
 
     GodotTypeInfo::Metadata get_argument_meta(int p_arg) const  noexcept;
 
@@ -164,16 +163,16 @@ public:
         at[0] = p_info.return_val.type;
         if (!p_info.arguments.empty()) {
 
-            PODVector<StringName> names;
-            names.resize(p_info.arguments.size());
+//            PODVector<StringName> names;
+//            names.resize(p_info.arguments.size());
             int i=0;
             for (const PropertyInfo & pi : p_info.arguments) {
 
-                names[i] = pi.name;
+//                names[i] = pi.name;
                 at[++i] = pi.type;
             }
 
-            set_argument_names(names);
+            //set_argument_names(names);
         }
         argument_types = at;
         arguments = p_info;

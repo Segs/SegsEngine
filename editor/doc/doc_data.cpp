@@ -652,7 +652,7 @@ void DocData::generate(bool p_basic_types) {
 
                 return_doc_from_retinfo(md, mi.return_val);
 
-                for (int j = 0; j < mi.arguments.size(); j++) {
+                for (size_t j = 0; j < mi.arguments.size(); j++) {
 
                     ArgumentDoc ad;
                     argument_doc_from_arginfo(ad, mi.arguments[j]);

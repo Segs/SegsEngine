@@ -1876,10 +1876,10 @@ void CustomPropertyEditor::config_value_editors_utf8(int p_amount, int p_columns
 
     set_size(Size2(cell_margin + p_label_w + (cell_width + cell_margin + p_label_w) * p_columns, cell_margin + (cell_height + cell_margin) * rows) * EDSCALE);
 
-    for (int i = 0; i < MAX_VALUE_EDITORS; i++) {
+    for (size_t i = 0; i < MAX_VALUE_EDITORS; i++) {
 
-        int c = i % p_columns;
-        int r = i / p_columns;
+        size_t c = i % p_columns;
+        size_t r = i / p_columns;
 
         if (i < p_amount) {
             value_editor[i]->show();

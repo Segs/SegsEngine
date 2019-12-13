@@ -836,7 +836,7 @@ void GDScriptFunctions::call(Function p_func, const Variant **p_args, int p_arg_
             }
 
             se_string message = *p_args[0];
-            WARN_PRINTS(message);
+            WARN_PRINT(message);
             r_ret = Variant();
         } break;
         case VAR_TO_STR: {

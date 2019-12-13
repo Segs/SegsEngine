@@ -90,12 +90,6 @@ foreach(tgt ${global_targets})
 endforeach()
 set_common_target_properties(edit_tools)
 
-set_target_properties(edit_tools PROPERTIES COTIRE_ADD_UNITY_BUILD FALSE)
-set_target_properties(edit_tools PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "${PROJECT_SOURCE_DIR}/core/precompiled.h")
-if(ENABLE_COTIRE)
-    cotire(edit_tools)
-endif()
-
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${editor_sources})
 source_group(TREE ${PROJECT_SOURCE_DIR} FILES ${editor_3rdparty})
 source_group(Generated FILES ${editor_sources_gen})

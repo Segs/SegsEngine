@@ -282,7 +282,7 @@ void EditorPropertyPath::_path_pressed() {
         dialog->set_current_dir(full_path);
     } else {
         dialog->set_mode(save_mode ? EditorFileDialog::MODE_SAVE_FILE : EditorFileDialog::MODE_OPEN_FILE);
-        for (int i = 0; i < extensions.size(); i++) {
+        for (size_t i = 0; i < extensions.size(); i++) {
             se_string_view e =StringUtils::strip_edges( extensions[i]);
             if (!e.empty()) {
                 dialog->add_filter(StringUtils::strip_edges(extensions[i]));

@@ -125,7 +125,7 @@ void OS::add_logger(Logger *p_logger) {
     }
 }
 
-void OS::print_error(const char *p_function, const char *p_file, int p_line, const char *p_code, const char *p_rationale, Logger::ErrorType p_type) {
+void OS::print_error(se_string_view p_function, se_string_view p_file, int p_line, se_string_view p_code, se_string_view p_rationale, Logger::ErrorType p_type) {
 
     _logger->log_error(p_function, p_file, p_line, p_code, p_rationale, p_type);
 }

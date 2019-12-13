@@ -805,7 +805,7 @@ void BulletPhysicsServer::body_remove_collision_exception(RID p_body, RID p_body
 void BulletPhysicsServer::body_get_collision_exceptions(RID p_body, List<RID> *p_exceptions) {
     RigidBodyBullet *body = rigid_body_owner.get(p_body);
     ERR_FAIL_COND(!body)
-    for (int i = 0; i < body->get_exceptions().size(); i++) {
+    for (size_t i = 0; i < body->get_exceptions().size(); i++) {
         p_exceptions->push_back(body->get_exceptions()[i]);
     }
 }
@@ -993,7 +993,7 @@ void BulletPhysicsServer::soft_body_remove_collision_exception(RID p_body, RID p
 void BulletPhysicsServer::soft_body_get_collision_exceptions(RID p_body, List<RID> *p_exceptions) {
     SoftBodyBullet *body = soft_body_owner.get(p_body);
     ERR_FAIL_COND(!body)
-    for (int i = 0; i < body->get_exceptions().size(); i++) {
+    for (size_t i = 0; i < body->get_exceptions().size(); i++) {
         p_exceptions->push_back(body->get_exceptions()[i]);
     }
 }

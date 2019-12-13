@@ -115,7 +115,7 @@ void AudioDriver::capture_buffer_write(int32_t sample) {
             capture_size++;
         }
     } else {
-        WARN_PRINTS("capture_buffer_write: Invalid capture_position=" + itos(capture_position) + " capture_buffer.size()=" + itos(capture_buffer.size()));
+        WARN_PRINT("capture_buffer_write: Invalid capture_position=" + itos(capture_position) + " capture_buffer.size()=" + itos(capture_buffer.size()));
     }
 }
 

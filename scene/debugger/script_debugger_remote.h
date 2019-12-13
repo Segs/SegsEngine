@@ -132,7 +132,7 @@ class GODOT_EXPORT ScriptDebuggerRemote : public ScriptDebugger {
     Ref<MultiplayerAPI> multiplayer;
 
     ErrorHandlerList eh;
-    static void _err_handler(void *, const char *, const char *, int p_line, const char *, const char *, ErrorHandlerType p_type);
+    static void _err_handler(void *, se_string_view, se_string_view, int p_line, se_string_view, se_string_view, ErrorHandlerType p_type);
 
     void _send_profiling_data(bool p_for_frame);
     void _send_network_profiling_data();

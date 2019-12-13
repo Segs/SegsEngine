@@ -61,7 +61,7 @@ public:
 
     Rect2 _edit_get_rect() const override;
     bool _edit_use_rect() const override;
-    bool _edit_is_selected_on_click(const Point2 &p_point, double p_tolerance) const override;
+    bool _edit_is_selected_on_click(const Point2 &p_point, float p_tolerance) const override;
 
     void set_points(const PoolVector<Vector2> &p_points);
     PoolVector<Vector2> get_points() const;

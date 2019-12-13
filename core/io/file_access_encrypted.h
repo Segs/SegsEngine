@@ -44,7 +44,7 @@ public:
 
 private:
     Mode mode;
-    Vector<uint8_t> key;
+    FixedVector<uint8_t,32,true> key;
     bool writing;
     FileAccess *file;
     size_t base;
@@ -54,7 +54,7 @@ private:
     mutable bool eofed;
 
 public:
-    Error open_and_parse(FileAccess *p_base, const Vector<uint8_t> &p_key, Mode p_mode);
+    Error open_and_parse(FileAccess *p_base, Span<const uint8_t> p_key, Mode p_mode);
     Error open_and_parse_password(FileAccess *p_base, se_string_view p_key, Mode p_mode);
 
     Error _open(se_string_view p_path, int p_mode_flags) override; ///< open a file

@@ -179,9 +179,9 @@ Error DirAccess::make_dir_recursive(se_string_view p_dir) {
     se_string::split_ref(subdirs,full_dir,'/');
 
     se_string curpath = base;
-    for (int i = 0; i < subdirs.size(); i++) {
+    for (se_string_view dir : subdirs) {
 
-        curpath = PathUtils::plus_file(curpath,subdirs[i]);
+        curpath = PathUtils::plus_file(curpath,dir);
         Error err = make_dir(curpath);
         if (err != OK && err != ERR_ALREADY_EXISTS) {
 

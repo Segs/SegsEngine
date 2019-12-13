@@ -361,7 +361,7 @@ Vector<se_string> FileAccess::get_csv_line(char p_delim) const {
 
         l += get_line() + "\n";
         qc = 0;
-        for (int i = 0; i < l.length(); i++) {
+        for (size_t i = 0; i < l.length(); i++) {
 
             if (l[i] == '"')
                 qc++;
@@ -375,7 +375,7 @@ Vector<se_string> FileAccess::get_csv_line(char p_delim) const {
 
     bool in_quote = false;
     se_string current;
-    for (int i = 0; i < l.length(); i++) {
+    for (size_t i = 0; i < l.length(); i++) {
 
         char c = l[i];
         if (!in_quote && c == p_delim) {
@@ -647,7 +647,7 @@ se_string FileAccess::get_multiple_md5(const PODVector<se_string> &p_file) {
     CryptoCore::MD5Context ctx;
     ctx.start();
 
-    for (int i = 0; i < p_file.size(); i++) {
+    for (size_t i = 0; i < p_file.size(); i++) {
         FileAccess *f = FileAccess::open(p_file[i], READ);
         ERR_CONTINUE(!f);
 

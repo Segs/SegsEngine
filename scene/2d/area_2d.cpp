@@ -147,7 +147,7 @@ void Area2D::_body_exit_tree(ObjectID p_id) {
     ERR_FAIL_COND(!E->second.in_tree)
     E->second.in_tree = false;
     emit_signal(SceneStringNames::get_singleton()->body_exited, Variant(node));
-    for (int i = 0; i < E->second.shapes.size(); i++) {
+    for (size_t i = 0; i < E->second.shapes.size(); i++) {
 
         emit_signal(SceneStringNames::get_singleton()->body_shape_exited, p_id, Variant(node), E->second.shapes[i].body_shape, E->second.shapes[i].area_shape);
     }
@@ -234,7 +234,7 @@ void Area2D::_area_enter_tree(ObjectID p_id) {
 
     E->second.in_tree = true;
     emit_signal(SceneStringNames::get_singleton()->area_entered, Variant(node));
-    for (int i = 0; i < E->second.shapes.size(); i++) {
+    for (size_t i = 0; i < E->second.shapes.size(); i++) {
 
         emit_signal(SceneStringNames::get_singleton()->area_shape_entered, p_id, Variant(node), E->second.shapes[i].area_shape, E->second.shapes[i].self_shape);
     }

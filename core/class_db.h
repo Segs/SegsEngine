@@ -54,18 +54,24 @@ using PODVector = eastl::vector<T,wrap_allocator>;
 struct MethodDefinition {
 
     StringName name;
-    eastl::vector<StringName,wrap_allocator> args;
+    int arg_count=0;
+    //eastl::vector<StringName,wrap_allocator> args;
     MethodDefinition() = default;
     MethodDefinition(const char *p_name) :
             name(p_name) {}
-    MethodDefinition(const StringName &p_name) :
+    MethodDefinition(StringName p_name,int count=0) :
             name(p_name) {}
     MethodDefinition(MethodDefinition &&d) noexcept = default;
-    int parameterCount() const { return args.size(); }
+    int parameterCount() const { return arg_count; } //args.size();
 };
 
-MethodDefinition D_METHOD(StringName p_name);
-MethodDefinition D_METHOD(StringName p_name, PODVector<StringName> &&names);
+inline MethodDefinition D_METHOD(StringName p_name) {
+    return MethodDefinition {p_name,0};
+}
+template<int N>
+inline MethodDefinition D_METHOD(StringName p_name, const char * const(&)[N]) {
+    return MethodDefinition { p_name, N};
+}
 
 #else
 

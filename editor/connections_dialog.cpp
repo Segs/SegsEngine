@@ -684,7 +684,7 @@ void ConnectionsDock::_open_connection_dialog(TreeItem &item) {
     se_string signal = item.get_metadata(0).operator Dictionary()["name"];
     const se_string &signalname = signal;
     se_string midname(selectedNode->get_name());
-    for (int i = 0; i < midname.length(); i++) { //TODO: Regex filter may be cleaner.
+    for (size_t i = 0; i < midname.length(); i++) { //TODO: Regex filter may be cleaner.
         char c = midname[i];
         if (!((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '_')) {
             if (c == ' ') {

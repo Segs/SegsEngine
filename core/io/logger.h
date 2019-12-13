@@ -51,7 +51,7 @@ public:
 
     virtual void logv(se_string_view p_msg, bool p_err) = 0;
 
-    virtual void log_error(const char *p_function, const char *p_file, int p_line, const char *p_code, const char *p_rationale, ErrorType p_type = ERR_ERROR);
+    virtual void log_error(se_string_view p_function, se_string_view p_file, int p_line, se_string_view p_code, se_string_view p_rationale, ErrorType p_type = ERR_ERROR);
 
     void logf(se_string_view p_msg);
     void logf_error(se_string_view p_msg);
@@ -77,7 +77,7 @@ public:
     GODOT_EXPORT CompositeLogger(const Vector<Logger *>& p_loggers);
 
     GODOT_EXPORT void logv(se_string_view p_msg, bool p_err) override;
-    GODOT_EXPORT void log_error(const char *p_function, const char *p_file, int p_line, const char *p_code, const char *p_rationale, ErrorType p_type = ERR_ERROR) override;
+    GODOT_EXPORT void log_error(se_string_view p_function, se_string_view p_file, int p_line, se_string_view p_code, se_string_view p_rationale, ErrorType p_type = ERR_ERROR) override;
 
     GODOT_EXPORT void add_logger(Logger *p_logger);
 

@@ -199,8 +199,6 @@ void Theme::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
     const StringName *key = nullptr;
     const StringName *key2 = nullptr;
 
-    key = nullptr;
-
     while ((key = style_map.next(key))) {
 
         const StringName *key2 = nullptr;

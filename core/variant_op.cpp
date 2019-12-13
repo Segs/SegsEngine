@@ -3628,17 +3628,17 @@ void Variant::interpolate(const Variant &a, const Variant &b, float c, Variant &
             se_string sa = *reinterpret_cast<const se_string *>(a._data._mem);
             se_string sb = *reinterpret_cast<const se_string *>(b._data._mem);
             se_string dst;
-            int sa_len = sa.length();
-            int sb_len = sb.length();
-            int csize = sa_len + (sb_len - sa_len) * c;
+            size_t sa_len = sa.length();
+            size_t sb_len = sb.length();
+            size_t csize = sa_len + (sb_len - sa_len) * c;
             if (csize == 0) {
                 r_dst = "";
                 return;
             }
             dst.resize(csize);
-            int split = csize / 2;
+            size_t split = csize / 2;
 
-            for (int i = 0; i < csize; i++) {
+            for (size_t i = 0; i < csize; i++) {
 
                 char chr = ' ';
 

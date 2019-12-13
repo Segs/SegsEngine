@@ -71,7 +71,7 @@ static Error _parse_material_library(se_string_view p_path, Map<se_string, Ref<S
             material_map[current_name] = current;
         } else if (StringUtils::begins_with(l,"Ka ")) {
             //uv
-            WARN_PRINTS("OBJ: Ambient light for material '" + current_name + "' is ignored in PBR")
+            WARN_PRINT("OBJ: Ambient light for material '" + current_name + "' is ignored in PBR")
 
         } else if (StringUtils::begins_with(l,"Kd ")) {
             //normal
@@ -127,7 +127,7 @@ static Error _parse_material_library(se_string_view p_path, Map<se_string, Ref<S
 
         } else if (StringUtils::begins_with(l,"map_Ka ")) {
             //uv
-            WARN_PRINTS("OBJ: Ambient light texture for material '" + current_name + "' is ignored in PBR")
+            WARN_PRINT("OBJ: Ambient light texture for material '" + current_name + "' is ignored in PBR")
 
         } else if (StringUtils::begins_with(l,"map_Kd ")) {
             //normal

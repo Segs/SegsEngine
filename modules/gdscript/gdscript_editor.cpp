@@ -1566,7 +1566,7 @@ static bool _find_last_return_in_block(const GDScriptCompletionContext &p_contex
         return false;
     }
 
-    for (int i = 0; i < p_context.block->statements.size(); i++) {
+    for (size_t i = 0; i < p_context.block->statements.size(); i++) {
         if (p_context.block->statements[i]->line < r_last_return_line) {
             continue;
         }
@@ -1584,9 +1584,9 @@ static bool _find_last_return_in_block(const GDScriptCompletionContext &p_contex
     }
 
     // Recurse into subblocks
-    for (int i = 0; i < p_context.block->sub_blocks.size(); i++) {
+    for (GDScriptParser::BlockNode * blk : p_context.block->sub_blocks) {
         GDScriptCompletionContext c = p_context;
-        c.block = p_context.block->sub_blocks[i];
+        c.block = blk;
         _find_last_return_in_block(c, r_last_return_line, r_last_returned_value);
     }
 
@@ -2705,23 +2705,21 @@ Error GDScriptLanguage::complete_code(const se_string &p_code, se_string_view p_
                 }
                 method_hint += '(';
 
-                if (!mi.arguments.empty()) {
-                    for (int i = 0; i < mi.arguments.size(); i++) {
-                        if (i > 0) {
-                            method_hint += (", ");
-                        }
-                        se_string_view arg = mi.arguments[i].name.asCString();
-                        if (StringUtils::contains(arg,':')) {
-                            arg = StringUtils::substr(arg,0, StringUtils::find(arg,":"));
-                        }
-                        method_hint += arg;
-                        if (use_type_hint && mi.arguments[i].type != VariantType::NIL) {
-                            method_hint += (": ");
-                            if (mi.arguments[i].type == VariantType::OBJECT && not mi.arguments[i].class_name.empty()) {
-                                method_hint += mi.arguments[i].class_name.asCString();
-                            } else {
-                                method_hint += Variant::get_type_name(mi.arguments[i].type);
-                            }
+                for (size_t i = 0; i < mi.arguments.size(); i++) {
+                    if (i > 0) {
+                        method_hint += (", ");
+                    }
+                    se_string_view arg = mi.arguments[i].name.asCString();
+                    if (StringUtils::contains(arg,':')) {
+                        arg = StringUtils::substr(arg,0, StringUtils::find(arg,":"));
+                    }
+                    method_hint += arg;
+                    if (use_type_hint && mi.arguments[i].type != VariantType::NIL) {
+                        method_hint += (": ");
+                        if (mi.arguments[i].type == VariantType::OBJECT && not mi.arguments[i].class_name.empty()) {
+                            method_hint += mi.arguments[i].class_name.asCString();
+                        } else {
+                            method_hint += Variant::get_type_name(mi.arguments[i].type);
                         }
                     }
                 }
@@ -3034,7 +3032,7 @@ void GDScriptLanguage::auto_indent_code(se_string &p_code, int p_from_line, int 
 
         se_string_view l = lines[i];
         int tc = 0;
-        for (int j = 0; j < l.length(); j++) {
+        for (size_t j = 0; j < l.length(); j++) {
             if (l[j] == ' ' || l[j] == '\t') {
 
                 tc++;

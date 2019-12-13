@@ -43,7 +43,7 @@ class GIProbeEditorPlugin : public EditorPlugin {
     ToolButton *bake;
     EditorNode *editor;
 
-    static class EditorProgress *tmp_progress;
+    static struct EditorProgress *tmp_progress;
     static void bake_func_begin(int p_steps);
     static void bake_func_step(int p_step, se_string_view p_description);
     static void bake_func_end();

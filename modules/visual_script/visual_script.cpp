@@ -1903,7 +1903,7 @@ Variant VisualScriptInstance::_call_internal(const StringName &p_method, void *p
 
         if (!VisualScriptLanguage::singleton->debug_break(error_str, false)) {
 
-            _err_print_error(err_func.c_str(), err_file.c_str(), err_line, error_str, ERR_HANDLER_SCRIPT);
+            _err_print_error(err_func, err_file, err_line, error_str,{ }, ERR_HANDLER_SCRIPT);
         }
 
         //}

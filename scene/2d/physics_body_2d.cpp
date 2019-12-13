@@ -277,7 +277,7 @@ void RigidBody2D::_body_enter_tree(ObjectID p_id) {
     E->second.in_scene = true;
     emit_signal(SceneStringNames::get_singleton()->body_entered, Variant(node));
 
-    for (int i = 0; i < E->second.shapes.size(); i++) {
+    for (size_t i = 0; i < E->second.shapes.size(); i++) {
 
         emit_signal(SceneStringNames::get_singleton()->body_shape_entered, p_id, Variant(node), E->second.shapes[i].body_shape, E->second.shapes[i].local_shape);
     }
@@ -300,7 +300,7 @@ void RigidBody2D::_body_exit_tree(ObjectID p_id) {
 
     emit_signal(SceneStringNames::get_singleton()->body_exited, Variant(node));
 
-    for (int i = 0; i < E->second.shapes.size(); i++) {
+    for (size_t i = 0; i < E->second.shapes.size(); i++) {
 
         emit_signal(SceneStringNames::get_singleton()->body_shape_exited, p_id, Variant(node), E->second.shapes[i].body_shape, E->second.shapes[i].local_shape);
     }
@@ -415,7 +415,7 @@ void RigidBody2D::_direct_state_changed(Object *p_state) {
         int rc = 0;
         for (eastl::pair<const ObjectID,BodyState> &E : contact_monitor->body_map) {
 
-            for (int i = 0; i < E.second.shapes.size(); i++) {
+            for (size_t i = 0; i < E.second.shapes.size(); i++) {
 
                 E.second.shapes[i].tagged = false;
                 rc++;

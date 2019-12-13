@@ -175,7 +175,7 @@ Ref<Shape2D> CollisionShape2D::get_shape() const {
     return shape;
 }
 
-bool CollisionShape2D::_edit_is_selected_on_click(const Point2 &p_point, double p_tolerance) const {
+bool CollisionShape2D::_edit_is_selected_on_click(const Point2 &p_point, float p_tolerance) const {
 
     if (not shape)
         return false;

@@ -40,7 +40,7 @@
 
 #define COMP_MAGIC 0x43454447
 
-Error FileAccessEncrypted::open_and_parse(FileAccess *p_base, const Vector<uint8_t> &p_key, Mode p_mode) {
+Error FileAccessEncrypted::open_and_parse(FileAccess *p_base, Span<const uint8_t> p_key, Mode p_mode) {
 
     ERR_FAIL_COND_V_MSG(file != nullptr, ERR_ALREADY_IN_USE, "Can't open file while another file from path '" + file->get_path_absolute() + "' is open.")
     ERR_FAIL_COND_V(p_key.size() != 32, ERR_INVALID_PARAMETER)
@@ -54,12 +54,12 @@ Error FileAccessEncrypted::open_and_parse(FileAccess *p_base, const Vector<uint8
         writing = true;
         file = p_base;
         mode = p_mode;
-        key = p_key;
+        key = FixedVector<uint8_t,32,true>(p_key.begin(),p_key.end());
 
     } else if (p_mode == MODE_READ) {
 
         writing = false;
-        key = p_key;
+        key = FixedVector<uint8_t,32,true>(p_key.begin(),p_key.end());
         uint32_t magic = p_base->get_32();
         ERR_FAIL_COND_V(magic != COMP_MAGIC, ERR_FILE_UNRECOGNIZED)
 
@@ -83,7 +83,7 @@ Error FileAccessEncrypted::open_and_parse(FileAccess *p_base, const Vector<uint8
         ERR_FAIL_COND_V(blen != ds, ERR_FILE_CORRUPT)
 
         CryptoCore::AESContext ctx;
-        ctx.set_decode_key(key.ptrw(), 256);
+        ctx.set_decode_key(key.data(), 256);
 
         for (size_t i = 0; i < ds; i += 16) {
 
@@ -107,10 +107,8 @@ Error FileAccessEncrypted::open_and_parse_password(FileAccess *p_base, se_string
 
     se_string cs = StringUtils::md5_text(p_key);
     ERR_FAIL_COND_V(cs.length() != 32, ERR_INVALID_PARAMETER)
-    Vector<uint8_t> key;
-    key.resize(32);
-
-    memcpy(key.ptrw(),cs.c_str(),32);
+    uint8_t key[32];
+    memcpy(key,cs.c_str(),32);
 
     return open_and_parse(p_base, key, p_mode);
 }
@@ -142,7 +140,7 @@ void FileAccessEncrypted::close() {
         }
 
         CryptoCore::AESContext ctx;
-        ctx.set_encode_key(key.ptrw(), 256);
+        ctx.set_encode_key(key.data(), 256);
 
         for (size_t i = 0; i < len; i += 16) {
 

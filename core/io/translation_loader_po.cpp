@@ -124,7 +124,7 @@ RES TranslationLoaderPO::load_translation(FileAccess *f, Error *r_error, se_stri
         l = StringUtils::substr(l,1, l.length());
         //find final quote
         int end_pos = -1;
-        for (int i = 0; i < l.length(); i++) {
+        for (size_t i = 0; i < l.length(); i++) {
 
             if (l[i] == '"' && (i == 0 || l[i - 1] != '\\')) {
                 end_pos = i;

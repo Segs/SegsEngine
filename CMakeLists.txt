@@ -1,11 +1,10 @@
-cmake_minimum_required(VERSION 3.13)
+cmake_minimum_required(VERSION 3.16)
 project(SegsEngine)
 
 set(CMAKE_INSTALL_PREFIX ${PROJECT_SOURCE_DIR}/../SegsEngine_installdir/)
 # NOTE: when running on linux the following commands allow for ccache based build acceleration and build timing
 # respectively
 #set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ccache)
-#set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE "/usr/bin/time -f \"%E,%M,%C,%O\"")
 #set(CMAKE_CXX_INCLUDE_WHAT_YOU_USE /usr/bin/include-what-you-use)
 #set(CMAKE_C_INCLUDE_WHAT_YOU_USE /usr/bin/include-what-you-use)
 
@@ -30,10 +29,7 @@ find_package(Qt5 COMPONENTS Core REQUIRED)
 include(GenerateExportHeader)
 include(Helpers)
 include(PluginSupport)
-####################### COTIRE SUPPORT
-include(cotire)
-set(COTIRE_ADD_UNITY_BUILD FALSE)
-#set(ENABLE_COTIRE ON)
+
 ######################################
 
 set(global_targets "" CACHE INTERNAL "")
@@ -242,11 +238,6 @@ elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
 endif()
 
 foreach(tgt ${global_targets})
-    set_target_properties(${tgt}_engine PROPERTIES COTIRE_ADD_UNITY_BUILD FALSE)
-    set_target_properties(${tgt}_engine PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "${PROJECT_SOURCE_DIR}/core/precompiled.h")
-    if(ENABLE_COTIRE)
-        cotire(${tgt}_engine)
-    endif()
 if(WIN32)
     install(TARGETS ${tgt}_engine EXPORT SegsEngine
         ARCHIVE DESTINATION .

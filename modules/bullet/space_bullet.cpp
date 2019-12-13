@@ -393,7 +393,7 @@ void SpaceBullet::set_param(PhysicsServer::AreaParameter p_param, const Variant 
         case PhysicsServer::AREA_PARAM_GRAVITY_POINT_ATTENUATION:
             break;
         default:
-            WARN_PRINTS("This set parameter (" + itos(p_param) + ") is ignored, the SpaceBullet doesn't support it.")
+            WARN_PRINT("This set parameter (" + itos(p_param) + ") is ignored, the SpaceBullet doesn't support it.")
             break;
     }
 }
@@ -416,7 +416,7 @@ Variant SpaceBullet::get_param(PhysicsServer::AreaParameter p_param) {
         case PhysicsServer::AREA_PARAM_GRAVITY_POINT_ATTENUATION:
             return 0;
         default:
-            WARN_PRINTS("This get parameter (" + itos(p_param) + ") is ignored, the SpaceBullet doesn't support it.");
+            WARN_PRINT("This get parameter (" + itos(p_param) + ") is ignored, the SpaceBullet doesn't support it.");
             return Variant();
     }
 }
@@ -432,7 +432,7 @@ void SpaceBullet::set_param(PhysicsServer::SpaceParameter p_param, real_t p_valu
         case PhysicsServer::SPACE_PARAM_BODY_ANGULAR_VELOCITY_DAMP_RATIO:
         case PhysicsServer::SPACE_PARAM_CONSTRAINT_DEFAULT_BIAS:
         default:
-            WARN_PRINTS("This set parameter (" + itos(p_param) + ") is ignored, the SpaceBullet doesn't support it.");
+            WARN_PRINT("This set parameter (" + itos(p_param) + ") is ignored, the SpaceBullet doesn't support it.");
             break;
     }
 }
@@ -448,7 +448,7 @@ real_t SpaceBullet::get_param(PhysicsServer::SpaceParameter p_param) {
         case PhysicsServer::SPACE_PARAM_BODY_ANGULAR_VELOCITY_DAMP_RATIO:
         case PhysicsServer::SPACE_PARAM_CONSTRAINT_DEFAULT_BIAS:
         default:
-            WARN_PRINTS("The SpaceBullet  doesn't support this get parameter (" + itos(p_param) + "), 0 is returned.");
+            WARN_PRINT("The SpaceBullet  doesn't support this get parameter (" + itos(p_param) + "), 0 is returned.");
             return 0.f;
     }
 }

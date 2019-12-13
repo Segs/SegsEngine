@@ -51,7 +51,7 @@ Error ImageLoaderHDR::load_image(ImageData & p_image, FileAccess *f, LoadParams 
         if (StringUtils::begins_with(line,"FORMAT=")) { // leave option to implement other commands
             ERR_FAIL_COND_V_MSG(line != "FORMAT=32-bit_rle_rgbe", ERR_FILE_UNRECOGNIZED, "Only 32-bit_rle_rgbe is supported for HDR files.")
         } else if (!StringUtils::begins_with(line,"#")) { // not comment
-            WARN_PRINTS("Ignoring unsupported header information in HDR: " + line + ".")
+            WARN_PRINT("Ignoring unsupported header information in HDR: " + line + ".")
         }
     }
 

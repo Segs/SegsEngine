@@ -217,7 +217,7 @@ void EditorProperty::_notification(int p_what) {
         } else {
             color = get_color("property_color", "Editor");
         }
-        if (StringUtils::find(label,".") != -1) {
+        if (StringUtils::contains(label,'.')) {
             color.a = 0.5; //this should be un-hacked honestly, as it's used for editor overrides
         }
 

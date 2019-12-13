@@ -710,7 +710,7 @@ se_string VisualShader::validate_port_name(se_string_view p_name, const List<Str
 
         se_string valid_name;
 
-        for (int i = 0; i < name.length(); i++) {
+        for (size_t i = 0; i < name.length(); i++) {
             if (IS_SYMBOL_CHAR(name[i])) {
                 valid_name += name[i];
             } else if (name[i] == ' ') {
@@ -757,7 +757,7 @@ se_string VisualShader::validate_uniform_name(se_string_view p_name, const Ref<V
 
         se_string valid_name;
 
-        for (int i = 0; i < name.length(); i++) {
+        for (size_t i = 0; i < name.length(); i++) {
             if (IS_SYMBOL_CHAR(name[i])) {
                 valid_name += name[i];
             } else if (name[i] == ' ') {
@@ -2128,9 +2128,9 @@ void VisualShaderNodeGroupBase::add_input_port(int p_id, int p_type, const se_st
     inputs_strings = StringUtils::split(inputs,';', false);
     index = 0;
 
-    for (int i = 0; i < inputs_strings.size(); i++) {
+    for (size_t i = 0; i < inputs_strings.size(); i++) {
         int count = 0;
-        for (int j = 0; j < inputs_strings[i].size(); j++) {
+        for (size_t j = 0; j < inputs_strings[i].size(); j++) {
             if (inputs_strings[i][j] == ',') {
                 break;
             }
@@ -2180,11 +2180,12 @@ bool VisualShaderNodeGroupBase::has_input_port(int p_id) const {
 
 void VisualShaderNodeGroupBase::add_output_port(int p_id, int p_type, const se_string &p_name) {
 
+    FixedVector<se_string_view,16,true> outputs_strings;
     se_string str = itos(p_id) + "," + itos(p_type) + "," + p_name + ";";
-    Vector<se_string_view> outputs_strings = StringUtils::split(outputs,';', false);
+    se_string::split_ref(outputs_strings,outputs,';');
     int index = 0;
     if (p_id < outputs_strings.size()) {
-        for (int i = 0; i < outputs_strings.size(); i++) {
+        for (size_t i = 0; i < outputs_strings.size(); i++) {
             if (i == p_id) {
                 outputs = StringUtils::insert(outputs,index, str);
                 break;
@@ -2194,13 +2195,13 @@ void VisualShaderNodeGroupBase::add_output_port(int p_id, int p_type, const se_s
     } else {
         outputs += str;
     }
-
-    outputs_strings = StringUtils::split(outputs,';', false);
+    outputs_strings.clear();
+    se_string::split_ref(outputs_strings,outputs,';');
     index = 0;
 
-    for (int i = 0; i < outputs_strings.size(); i++) {
+    for (size_t i = 0; i < outputs_strings.size(); i++) {
         int count = 0;
-        for (int j = 0; j < outputs_strings[i].size(); j++) {
+        for (size_t j = 0; j < outputs_strings[i].size(); j++) {
             if (outputs_strings[i][j] == ',') {
                 break;
             }

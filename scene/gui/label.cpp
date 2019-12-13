@@ -94,7 +94,6 @@ void Label::_notification(int p_what) {
 
         RID ci = get_canvas_item();
 
-        Size2 string_size;
         Size2 size = get_size();
         Ref<StyleBox> style = get_stylebox("normal");
         Ref<Font> font = get_font("font");

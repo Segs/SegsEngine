@@ -281,7 +281,7 @@ const ShaderLanguage::KeyWord ShaderLanguage::keyword_list[] = {
 
 ShaderLanguage::Token ShaderLanguage::_get_token() {
 
-#define GETCHAR(m_idx) (((char_idx + m_idx) < code.length()) ? code[char_idx + m_idx] : char(0))
+#define GETCHAR(m_idx) ((size_t(char_idx + m_idx) < code.length()) ? code[size_t(char_idx + m_idx)] : char(0))
 
     while (true) {
         char_idx++;
@@ -5314,7 +5314,7 @@ static int _get_first_ident_pos(const se_string &p_code) {
 
     int idx = 0;
 
-#define GETCHAR(m_idx) (((idx + m_idx) < p_code.length()) ? p_code[idx + m_idx] : CharType(0))
+#define GETCHAR(m_idx) ((size_t(idx + m_idx) < p_code.length()) ? p_code[size_t(idx + m_idx)] : CharType(0))
 
     while (true) {
         if (GETCHAR(0) == '/' && GETCHAR(1) == '/') {

@@ -4,7 +4,7 @@
 
 using String = class QString;
 namespace StringUtils {
-    [[nodiscard]] inline se_string to_utf8(const String &s);
+    [[nodiscard]] se_string to_utf8(const String &s);
 }
 //tool translate
 #ifdef TOOLS_ENABLED

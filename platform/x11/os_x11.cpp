@@ -3299,15 +3299,15 @@ OS::LatinKeyboardVariant OS_X11::get_latin_keyboard_variant() const {
 
     if (StringUtils::contains(info[1],"colemak")) {
         return LATIN_KEYBOARD_COLEMAK;
-    } else if (StringUtils::find(info[1],"qwertz") != -1) {
+    } else if (StringUtils::contains(info[1],"qwertz")) {
         return LATIN_KEYBOARD_QWERTZ;
-    } else if (StringUtils::find(info[1],"azerty") != -1) {
+    } else if (StringUtils::contains(info[1],"azerty")) {
         return LATIN_KEYBOARD_AZERTY;
-    } else if (StringUtils::find(info[1],"qzerty") != -1) {
+    } else if (StringUtils::contains(info[1],"qzerty")) {
         return LATIN_KEYBOARD_QZERTY;
-    } else if (StringUtils::find(info[1],"dvorak") != -1) {
+    } else if (StringUtils::contains(info[1],"dvorak")) {
         return LATIN_KEYBOARD_DVORAK;
-    } else if (StringUtils::find(info[1],"neo") != -1) {
+    } else if (StringUtils::contains(info[1],"neo")) {
         return LATIN_KEYBOARD_NEO;
     }
 

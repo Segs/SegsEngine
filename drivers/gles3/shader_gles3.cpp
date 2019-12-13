@@ -148,7 +148,7 @@ static void _display_error_with_code(const se_string &p_error, const Vector<cons
     PODVector<se_string_view> lines;
     se_string::split_ref(lines,total_code,'\n');
 
-    for (int j = 0; j < lines.size(); j++) {
+    for (size_t j = 0; j < lines.size(); j++) {
 
         print_line((::to_string(line) + ": " + lines[j]).c_str());
         line++;
@@ -198,7 +198,7 @@ ShaderGLES3::Version *ShaderGLES3::get_current_version() {
     Vector<const char *> strings;
     strings.push_back("#version 330\n");
 
-    for (int i = 0; i < custom_defines.size(); i++) {
+    for (size_t i = 0; i < custom_defines.size(); i++) {
 
         strings.push_back(custom_defines[i].data());
     }

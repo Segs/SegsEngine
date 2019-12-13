@@ -375,7 +375,7 @@ CanvasItemMaterial::~CanvasItemMaterial() {
 
 ///////////////////////////////////////////////////////////////////
 
-bool CanvasItem::_edit_is_selected_on_click(const Point2 &p_point, double p_tolerance) const {
+bool CanvasItem::_edit_is_selected_on_click(const Point2 &p_point, float p_tolerance) const {
     if (_edit_use_rect()) {
         return _edit_get_rect().has_point(p_point);
     } else {

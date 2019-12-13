@@ -72,7 +72,7 @@ Rect2 OccluderPolygon2D::_edit_get_rect() const {
     return item_rect;
 }
 
-bool OccluderPolygon2D::_edit_is_selected_on_click(const Point2 &p_point, double p_tolerance) const {
+bool OccluderPolygon2D::_edit_is_selected_on_click(const Point2 &p_point, float p_tolerance) const {
 
     if (closed) {
         return Geometry::is_point_in_polygon(p_point, Variant(polygon));
@@ -228,7 +228,7 @@ Rect2 LightOccluder2D::_edit_get_rect() const {
     return occluder_polygon ? occluder_polygon->_edit_get_rect() : Rect2();
 }
 
-bool LightOccluder2D::_edit_is_selected_on_click(const Point2 &p_point, double p_tolerance) const {
+bool LightOccluder2D::_edit_is_selected_on_click(const Point2 &p_point, float p_tolerance) const {
 
     return occluder_polygon ? occluder_polygon->_edit_is_selected_on_click(p_point, p_tolerance) : false;
 }

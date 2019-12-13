@@ -210,7 +210,7 @@ bool ProjectSettings::_get(const StringName &p_name, Variant &r_ret) const {
         name = feature_overrides.at(name);
     }
     if (!props.contains(name)) {
-        WARN_PRINTS("Property not found: " + se_string(name))
+        WARN_PRINT("Property not found: " + se_string(name))
         return false;
     }
     r_ret = props.at(name).variant;

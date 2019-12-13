@@ -1864,7 +1864,7 @@ Error _File::open_encrypted(se_string_view p_path, ModeFlags p_mode_flags, const
         return err;
 
     FileAccessEncrypted *fae = memnew(FileAccessEncrypted);
-    err = fae->open_and_parse(f, p_key, (p_mode_flags == WRITE) ? FileAccessEncrypted::MODE_WRITE_AES256 : FileAccessEncrypted::MODE_READ);
+    err = fae->open_and_parse(f, {p_key.ptr(),p_key.size()}, (p_mode_flags == WRITE) ? FileAccessEncrypted::MODE_WRITE_AES256 : FileAccessEncrypted::MODE_READ);
     if (err) {
         memdelete(fae);
         close();

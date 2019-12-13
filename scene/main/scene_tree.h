@@ -69,6 +69,7 @@ class ISceneTreeDebugAccessor {
     virtual  void _live_edit_reparent_node_func(
              const NodePath &p_at, const NodePath &p_new_place, const se_string &p_new_name, int p_at_pos)=0;
 public:
+    virtual ~ISceneTreeDebugAccessor() {}
     virtual Map<se_string, Set<Node *>> &get_live_scene_edit_cache() = 0;
     virtual Map<Node *, Map<ObjectID, Node *>> &get_live_edit_remove_list() = 0;
 };

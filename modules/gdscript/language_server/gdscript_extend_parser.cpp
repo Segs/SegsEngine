@@ -471,9 +471,9 @@ se_string ExtendGDScriptParser::get_text_for_lookup_symbol(const lsp::Position &
 
 se_string ExtendGDScriptParser::get_identifier_under_position(const lsp::Position &p_position, Vector2i &p_offset) const {
 
-    ERR_FAIL_INDEX_V(p_position.line, lines.size(), null_se_string)
+    ERR_FAIL_INDEX_V(p_position.line, lines.size(), {})
     se_string_view line = lines[p_position.line];
-    ERR_FAIL_INDEX_V(p_position.character, line.size(), null_se_string)
+    ERR_FAIL_INDEX_V(p_position.character, line.size(), {})
 
     int start_pos = p_position.character;
     for (int c = p_position.character; c >= 0; c--) {
@@ -486,7 +486,7 @@ se_string ExtendGDScriptParser::get_identifier_under_position(const lsp::Positio
     }
 
     int end_pos = p_position.character;
-    for (int c = p_position.character; c < line.length(); c++) {
+    for (size_t c = p_position.character; c < line.length(); c++) {
         char ch = line[c];
         bool valid_char = (ch >= '0' && ch <= '9') || (ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') || ch == '_';
         if (!valid_char) {

@@ -89,9 +89,9 @@ public:
                 se_string tmp_path = PathUtils::plus_file(EditorSettings::get_singleton()->get_cache_dir(),"script.gde");
                 FileAccess *fa = FileAccess::open(tmp_path, FileAccess::WRITE);
 
-                Vector<uint8_t> key;
+                FixedVector<uint8_t,32,true> key;
                 key.resize(32);
-                for (int i = 0; i < 32; i++) {
+                for (uint32_t i = 0; i < 32; i++) {
                     int v = 0;
                     if (i * 2 < script_key.length()) {
                         CharType ct = script_key[i * 2];
@@ -110,7 +110,7 @@ public:
                             ct = 10 + ct.toLatin1() - 'a';
                         v |= ct.toLatin1();
                     }
-                    key.write[i] = v;
+                    key[i] = v;
                 }
                 FileAccessEncrypted *fae = memnew(FileAccessEncrypted);
                 Error err = fae->open_and_parse(fa, key, FileAccessEncrypted::MODE_WRITE_AES256);

@@ -228,7 +228,7 @@ se_string StringUtils::camelcase_to_underscore(se_string_view s,bool lowercase) 
     const char a = 'a', z = 'z';
     int start_index = 0;
 
-    for (int i = 1; i < s.size(); i++) {
+    for (size_t i = 1; i < s.size(); i++) {
         bool is_upper = cstr[i] >= A && cstr[i] <= Z;
         bool is_number = cstr[i] >= '0' && cstr[i] <= '9';
         bool are_next_2_lower = false;
@@ -336,8 +336,8 @@ se_string_view StringUtils::get_slice(se_string_view str,se_string_view p_splitt
     if (p_slice<0 || str.empty() || p_splitter.empty())
         return se_string_view();
 
-    int pos = 0;
-    int prev_pos = 0;
+    size_t pos = 0;
+    size_t prev_pos = 0;
 
     if (not StringUtils::contains(str,p_splitter))
         return str;
@@ -1110,7 +1110,7 @@ int StringUtils::hex_to_int(se_string_view s,bool p_with_prefix) {
     }
     else
         to_convert = s;
-    int res;
+    int res=0;
     auto conv_res = std::from_chars(to_convert.begin(),to_convert.end(),res,16);
     return res;
 }
@@ -1194,10 +1194,11 @@ bool StringUtils::is_numeric(const se_string &str) {
         return false;
     }
 
-    int s = 0;
-    if (str[0] == '-') ++s;
+    size_t s = 0;
+    if (str[0] == '-')
+        ++s;
     bool dot = false;
-    for (int i = s; i < str.length(); i++) {
+    for (size_t i = s; i < str.length(); i++) {
 
         char c = str[i];
         if (c == '.') {
@@ -2249,10 +2250,10 @@ se_string StringUtils::dedent(se_string_view str) {
     se_string indent;
     bool has_indent = false;
     bool has_text = false;
-    int line_start = 0;
+    size_t line_start = 0;
     int indent_stop = -1;
 
-    for (int i = 0; i < str.length(); i++) {
+    for (size_t i = 0; i < str.length(); i++) {
 
         char c = str[i];
         if (c == '\n') {
@@ -2391,7 +2392,7 @@ String StringUtils::lstrip(const String &str,const String &p_chars)  {
 se_string_view StringUtils::lstrip(se_string_view str,se_string_view p_chars)  {
 
     size_t len = str.length();
-    int beg;
+    size_t beg;
 
     for (beg = 0; beg < len; beg++) {
 
@@ -2698,7 +2699,7 @@ se_string StringUtils::http_escape(se_string_view temp) {
 //}
 se_string StringUtils::http_unescape(se_string_view str) {
     se_string res;
-    for (int i = 0; i < str.length(); ++i) {
+    for (size_t i = 0; i < str.length(); ++i) {
         if (str.at(i) == '%' && i + 2 < str.length()) {
             char ord1 = str.at(i + 1);
             if ((ord1 >= '0' && ord1 <= '9') || (ord1 >= 'A' && ord1 <= 'Z')) {
@@ -3540,7 +3541,7 @@ bool StringUtils::is_valid_ip_address(se_string_view str) {
     if (StringUtils::contains(str,':')) {
         FixedVector<se_string_view,8,true> ip;
         se_string::split_ref(ip,str,':');
-        for (int i = 0; i < ip.size(); i++) {
+        for (size_t i = 0; i < ip.size(); i++) {
 
             se_string_view n = ip[i];
             if (n.empty())
@@ -3560,7 +3561,7 @@ bool StringUtils::is_valid_ip_address(se_string_view str) {
         se_string::split_ref(ip,str,'.');
         if (ip.size() != 4)
             return false;
-        for (int i = 0; i < ip.size(); i++) {
+        for (size_t i = 0; i < ip.size(); i++) {
 
             se_string_view n = ip[i];
             if (!is_valid_integer(n))
@@ -3681,7 +3682,7 @@ String StringUtils::percent_encode(const String &str) {
 
     se_string cs = StringUtils::to_utf8(str);
     String encoded;
-    for (int i = 0; i < cs.length(); i++) {
+    for (size_t i = 0; i < cs.length(); i++) {
         char c = cs[i];
         if ((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') || c == '-' || c == '_' || c == '~' || c == '.') {
             encoded += c;
@@ -3700,7 +3701,7 @@ String StringUtils::percent_encode(const String &str) {
 se_string StringUtils::percent_encode(se_string_view cs) {
 
     se_string encoded;
-    for (int i = 0; i < cs.length(); i++) {
+    for (size_t i = 0; i < cs.length(); i++) {
         char c = cs[i];
         if ((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') || c == '-' || c == '_' || c == '~' || c == '.') {
             encoded += c;
@@ -3725,18 +3726,18 @@ se_string StringUtils::percent_decode(se_string_view str) {
 
     se_string pe;
 
-    for (int i = 0; i < str.length(); i++) {
+    for (size_t i = 0; i < str.length(); i++) {
 
-        uint8_t c = str[i];
+        char c = str[i];
         if (c == '%' && i < str.length() - 2) {
 
-            uint8_t a = tolower(str[i + 1]);
-            uint8_t b = tolower(str[i + 2]);
+            char a = tolower(str[i + 1]);
+            char b = tolower(str[i + 2]);
 
             if (a >= '0' && a <= '9')
-                c = (a - '0') << 4;
+                c = char((a - '0') << 4);
             else if (a >= 'a' && a <= 'f')
-                c = (a - 'a' + 10) << 4;
+                c = char((a - 'a' + 10) << 4);
             else
                 continue;
 

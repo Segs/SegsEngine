@@ -84,7 +84,7 @@ bool Polygon2D::_edit_use_rect() const {
     return polygon.size() > 0;
 }
 
-bool Polygon2D::_edit_is_selected_on_click(const Point2 &p_point, double p_tolerance) const {
+bool Polygon2D::_edit_is_selected_on_click(const Point2 &p_point, float p_tolerance) const {
 
     Vector<Vector2> polygon2d = Variant(polygon);
     if (internal_vertices > 0) {

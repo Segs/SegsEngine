@@ -66,7 +66,7 @@ IP_Address::operator se_string() const {
 static void _parse_hex(se_string_view p_string, int p_start, uint8_t *p_dst) {
 
     uint16_t ret = 0;
-    for (int i = p_start; i < p_start + 4; i++) {
+    for (size_t i = p_start; i < p_start + 4; i++) {
 
         if (i >= p_string.length()) {
             break;
@@ -104,7 +104,7 @@ void IP_Address::_parse_ipv6(se_string_view p_string) {
     bool part_ipv4 = false;
     int parts_idx = 0;
 
-    for (int i = 0; i < p_string.length(); i++) {
+    for (size_t i = 0; i < p_string.length(); i++) {
 
         char c = p_string[i];
         if (c == ':') {

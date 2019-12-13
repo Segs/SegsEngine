@@ -251,7 +251,7 @@ public:
     /* EDITOR */
 
     // Select the node
-    virtual bool _edit_is_selected_on_click(const Point2 &p_point, double p_tolerance) const;
+    virtual bool _edit_is_selected_on_click(const Point2 &p_point, float p_tolerance) const;
 
     // Save and restore a CanvasItem state
     virtual void _edit_set_state(const Dictionary &/*p_state*/){}

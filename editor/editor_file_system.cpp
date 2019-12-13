@@ -304,8 +304,6 @@ void EditorFileSystem::_scan_filesystem() {
     sources_changed.clear();
     file_cache.clear();
 
-    const se_string &project(ProjectSettings::get_singleton()->get_resource_path());
-
     // read the disk cache
     _scan_from_cache();
 
@@ -1650,7 +1648,7 @@ Error EditorFileSystem::_reimport_group(se_string_view p_group_file, const Vecto
         f->store_line("source_file=" + Variant(file).get_construct_string());
         if (!dest_paths.empty()) {
             Array dp;
-            for (int i = 0; i < dest_paths.size(); i++) {
+            for (size_t i = 0; i < dest_paths.size(); i++) {
                 dp.push_back(dest_paths[i]);
             }
             f->store_line("dest_files=" + Variant(dp).get_construct_string() + "\n");
@@ -1865,7 +1863,7 @@ void EditorFileSystem::_reimport_file(const se_string &p_file) {
 
     if (!dest_paths.empty()) {
         Array dp;
-        for (int i = 0; i < dest_paths.size(); i++) {
+        for (size_t i = 0; i < dest_paths.size(); i++) {
             dp.push_back(dest_paths[i]);
         }
         f->store_line("dest_files=" + Variant(dp).get_construct_string() + "\n");

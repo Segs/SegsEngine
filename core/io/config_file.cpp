@@ -167,7 +167,7 @@ Error ConfigFile::save_encrypted(se_string_view p_path, const Vector<uint8_t> &p
         return err;
 
     FileAccessEncrypted *fae = memnew(FileAccessEncrypted);
-    err = fae->open_and_parse(f, p_key, FileAccessEncrypted::MODE_WRITE_AES256);
+    err = fae->open_and_parse(f, {p_key.ptr(),p_key.size()}, FileAccessEncrypted::MODE_WRITE_AES256);
     if (err) {
         memdelete(fae);
         memdelete(f);
@@ -236,7 +236,7 @@ Error ConfigFile::load_encrypted(se_string_view p_path, const Vector<uint8_t> &p
         return err;
 
     FileAccessEncrypted *fae = memnew(FileAccessEncrypted);
-    err = fae->open_and_parse(f, p_key, FileAccessEncrypted::MODE_READ);
+    err = fae->open_and_parse(f, {p_key.ptr(),p_key.size()}, FileAccessEncrypted::MODE_READ);
     if (err) {
         memdelete(fae);
         memdelete(f);

@@ -261,7 +261,7 @@ void DocDump::dump(se_string_view p_file) {
             for (const MethodInfo &EV : signal_list) {
 
                 _write_string(f, 2, se_string("<signal name=\"") + EV.name + "\">");
-                for (int i = 0; i < EV.arguments.size(); i++) {
+                for (size_t i = 0; i < EV.arguments.size(); i++) {
                     PropertyInfo arginfo = EV.arguments[i];
                     _write_string(f, 3, "<argument index=\"" + itos(i) + "\" name=\"" + arginfo.name + "\" type=\"" + Variant::get_type_name(arginfo.type) + "\">");
                     _write_string(f, 3, "</argument>");

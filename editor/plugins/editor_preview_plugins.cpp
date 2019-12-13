@@ -548,7 +548,7 @@ Ref<Texture> EditorScriptPreviewPlugin::generate(const RES &p_from, const Size2 
 
     bool prev_is_text = false;
     bool in_keyword = false;
-    for (int i = 0; i < code.length(); i++) {
+    for (size_t i = 0; i < code.length(); i++) {
 
         CharType c = code[i];
         if (c > 32) {

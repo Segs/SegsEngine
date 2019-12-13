@@ -509,8 +509,8 @@ se_string ResourceFormatImporter::get_import_settings_hash() const {
     eastl::sort(sorted_importers.begin(),sorted_importers.end(),SortImporterByName());
 
     se_string hash;
-    for (int i = 0; i < sorted_importers.size(); i++) {
-        hash += se_string(":") + sorted_importers[i]->get_importer_name() + ":" + sorted_importers[i]->get_import_settings_string();
+    for (const ResourceImporterInterface *imp : sorted_importers) {
+        hash += se_string(":") + imp->get_importer_name() + ":" + imp->get_import_settings_string();
     }
     return StringUtils::md5_text(hash);
 }

@@ -77,7 +77,7 @@ Error EditorSceneImporterGLTF::_parse_json(se_string_view p_path, GLTFState &sta
     Variant v;
     err = JSON::parse(text, v, err_txt, err_line);
     if (err != OK) {
-        _err_print_error("", se_string(p_path).c_str(), err_line, err_txt, ERR_HANDLER_SCRIPT);
+        _err_print_error("", p_path, err_line, err_txt, {},ERR_HANDLER_SCRIPT);
         return err;
     }
     state.json = v;
@@ -114,7 +114,7 @@ Error EditorSceneImporterGLTF::_parse_glb(se_string_view p_path, GLTFState &stat
     Variant v;
     err = JSON::parse(text, v, err_txt, err_line);
     if (err != OK) {
-        _err_print_error("", se_string(p_path).c_str(), err_line, err_txt, ERR_HANDLER_SCRIPT);
+        _err_print_error("", p_path, err_line, err_txt, {}, ERR_HANDLER_SCRIPT);
         return err;
     }
 
@@ -2408,7 +2408,7 @@ Error EditorSceneImporterGLTF::_parse_animations(GLTFState &state) {
                     track->weight_tracks.write[k] = cf;
                 }
             } else {
-                WARN_PRINTS("Invalid path '" + path + "'.")
+                WARN_PRINT("Invalid path '" + path + "'.")
             }
         }
 

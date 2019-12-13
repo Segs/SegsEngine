@@ -67,7 +67,7 @@ bool Path2D::_edit_use_rect() const {
     return curve && curve->get_point_count() != 0;
 }
 
-bool Path2D::_edit_is_selected_on_click(const Point2 &p_point, double p_tolerance) const {
+bool Path2D::_edit_is_selected_on_click(const Point2 &p_point, float p_tolerance) const {
 
     if (not curve) {
         return false;

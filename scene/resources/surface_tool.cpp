@@ -851,7 +851,7 @@ void SurfaceTool::mikktGetPosition(const SMikkTSpaceContext *pContext, float fvP
     TangentGenerationContextUserData &triangle_data = *reinterpret_cast<TangentGenerationContextUserData *>(pContext->m_pUserData);
     Vector3 v;
     if (!triangle_data.indices.empty()) {
-        int index = triangle_data.indices[iFace * 3 + iVert];
+        size_t index = triangle_data.indices[iFace * 3 + iVert];
         if (index < triangle_data.vertices.size()) {
             v = triangle_data.vertices[index].vertex;
         }

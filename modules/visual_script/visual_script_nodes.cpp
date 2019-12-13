@@ -803,7 +803,7 @@ se_string VisualScriptComposeArray::get_text() const {
 class VisualScriptComposeArrayNode : public VisualScriptNodeInstance {
 public:
     int input_count = 0;
-    virtual int get_working_memory_size() const { return 0; }
+    int get_working_memory_size() const override { return 0; }
 
     virtual int step(const Variant **p_inputs, Variant **p_outputs, StartMode p_start_mode, Variant *p_working_mem, Variant::CallError &r_error, se_string &r_error_str) override {
 

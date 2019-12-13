@@ -314,7 +314,7 @@ static se_string _parser_expr(const GDScriptParser::Node *p_expr) {
 
 static void _parser_show_block(const GDScriptParser::BlockNode *p_block, int p_indent) {
 
-    for (int i = 0; i < p_block->statements.size(); i++) {
+    for (size_t i = 0; i < p_block->statements.size(); i++) {
 
         const GDScriptParser::Node *statement = p_block->statements[i];
 
@@ -936,7 +936,7 @@ MainLoop *test(TestType p_type) {
     Vector<se_string_view> lines;
     int last = 0;
 
-    for (int i = 0; i <= code.length(); i++) {
+    for (size_t i = 0; i <= code.length(); i++) {
 
         if (code[i] == '\n' || code[i] == 0) {
 

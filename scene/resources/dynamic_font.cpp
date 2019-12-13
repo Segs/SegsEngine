@@ -42,7 +42,6 @@
 
 #include FT_STROKER_H
 
-#define __STDC_LIMIT_MACROS
 #include <cstdint>
 
 IMPL_GDCLASS(DynamicFontData)

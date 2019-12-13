@@ -388,7 +388,7 @@ void Text::_update_line_cache(int p_line) const {
 
         int left = len - i;
 
-        for (int j = 0; j < color_regions->size(); j++) {
+        for (size_t j = 0; j < color_regions->size(); j++) {
 
             const TextEdit::ColorRegion &cr = color_regions->operator[](j);
 
@@ -1861,7 +1861,7 @@ void TextEdit::_notification(int p_what) {
                     int l = line_from + i;
                     ERR_CONTINUE(l < 0 || l >= completion_options.size())
                     Color text_color = m_priv->cache.completion_font_color;
-                    for (int j = 0; j < m_priv->color_regions.size(); j++) {
+                    for (size_t j = 0; j < m_priv->color_regions.size(); j++) {
                         if (StringUtils::begins_with(StringUtils::from_utf8(completion_options[l].insert_text),m_priv->color_regions[j].begin_key)) {
                             text_color = m_priv->color_regions[j].color;
                         }
@@ -4707,7 +4707,7 @@ void TextEdit::cursor_set_line(int p_row, bool p_adjust_viewport, bool p_can_be_
                 if (p_row - move_up > 0 && !is_line_hidden(p_row - move_up)) {
                     p_row -= move_up;
                 } else {
-                    WARN_PRINTS(("Cursor set to hidden line " + itos(p_row) + " and there are no nonhidden lines."));
+                    WARN_PRINT(("Cursor set to hidden line " + itos(p_row) + " and there are no nonhidden lines."));
                 }
             }
         }
@@ -7605,7 +7605,7 @@ Map<int, TextEdit::HighlighterInfo> TextEdit::PrivateData::_get_line_syntax_high
             while (to < str.length() && _is_text_char(str[to]))
                 to++;
 
-            uint32_t hash = StringUtils::hash(str.constData()+j, to - j);
+            //uint32_t hash = StringUtils::hash(str.constData()+j, to - j);
 
             QStringRef range(str.midRef(j, to - j));
             auto iter = keywords.find_as(range);
