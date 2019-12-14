@@ -346,10 +346,9 @@ void VisualScript::add_node(const StringName &p_func, int p_id, const Ref<Visual
     nd.node = p_node;
     nd.pos = p_pos;
 
-    Ref<VisualScriptNode> vsn = p_node;
-    vsn->connect("ports_changed", this, "_node_ports_changed", varray(p_id));
-    vsn->scripts_used.insert(this);
-    vsn->validate_input_default_values(); // Validate when fully loaded
+    p_node->connect("ports_changed", this, "_node_ports_changed", varray(p_id));
+    p_node->scripts_used.insert(this);
+    p_node->validate_input_default_values(); // Validate when fully loaded
 
     func.nodes[p_id] = nd;
 }

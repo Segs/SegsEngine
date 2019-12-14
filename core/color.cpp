@@ -335,9 +335,9 @@ Color Color::html(se_string_view p_color) {
     if (p_color[0] == '#')
         p_color = p_color.substr(1);
     if (p_color.length() == 3 || p_color.length() == 4) {
-        for (int i = 0; i < p_color.length(); i++) {
-            exp_color += p_color[i];
-            exp_color += p_color[i];
+        for (char i : p_color) {
+            exp_color += i;
+            exp_color += i;
         }
         p_color = exp_color;
     }

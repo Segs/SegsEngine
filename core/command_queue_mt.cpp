@@ -34,100 +34,100 @@
 
 void CommandQueueMT::lock() {
 
-	if (mutex)
-		mutex->lock();
+    if (mutex)
+        mutex->lock();
 }
 
 void CommandQueueMT::unlock() {
 
-	if (mutex)
-		mutex->unlock();
+    if (mutex)
+        mutex->unlock();
 }
 
 void CommandQueueMT::wait_for_flush() {
 
-	// wait one millisecond for a flush to happen
-	OS::get_singleton()->delay_usec(1000);
+    // wait one millisecond for a flush to happen
+    OS::get_singleton()->delay_usec(1000);
 }
 
 CommandQueueMT::SyncSemaphore *CommandQueueMT::_alloc_sync_sem() {
 
-	int idx = -1;
+    int idx = -1;
 
-	while (true) {
+    while (true) {
 
-		lock();
-		for (int i = 0; i < SYNC_SEMAPHORES; i++) {
+        lock();
+        for (int i = 0; i < SYNC_SEMAPHORES; i++) {
 
-			if (!sync_sems[i].in_use) {
-				sync_sems[i].in_use = true;
-				idx = i;
-				break;
-			}
-		}
-		unlock();
+            if (!sync_sems[i].in_use) {
+                sync_sems[i].in_use = true;
+                idx = i;
+                break;
+            }
+        }
+        unlock();
 
-		if (idx == -1) {
-			wait_for_flush();
-		} else {
-			break;
-		}
-	}
+        if (idx == -1) {
+            wait_for_flush();
+        } else {
+            break;
+        }
+    }
 
-	return &sync_sems[idx];
+    return &sync_sems[idx];
 }
 
 bool CommandQueueMT::dealloc_one() {
 tryagain:
-	if (dealloc_ptr == write_ptr) {
-		// The queue is empty
-		return false;
-	}
+    if (dealloc_ptr == write_ptr) {
+        // The queue is empty
+        return false;
+    }
 
-	uint32_t size = *(uint32_t *)&command_mem[dealloc_ptr];
+    uint32_t size = *(uint32_t *)&command_mem[dealloc_ptr];
 
-	if (size == 0) {
-		// End of command buffer wrap down
-		dealloc_ptr = 0;
-		goto tryagain;
-	}
+    if (size == 0) {
+        // End of command buffer wrap down
+        dealloc_ptr = 0;
+        goto tryagain;
+    }
 
-	if (size & 1) {
-		// Still used, nothing can be deallocated
-		return false;
-	}
+    if (size & 1) {
+        // Still used, nothing can be deallocated
+        return false;
+    }
 
-	dealloc_ptr += (size >> 1) + 8;
-	return true;
+    dealloc_ptr += (size >> 1) + 8;
+    return true;
 }
 
 CommandQueueMT::CommandQueueMT(bool p_sync) {
 
-	read_ptr = 0;
-	write_ptr = 0;
-	dealloc_ptr = 0;
+    read_ptr = 0;
+    write_ptr = 0;
+    dealloc_ptr = 0;
     mutex = memnew(Mutex);
-	command_mem = (uint8_t *)memalloc(COMMAND_MEM_SIZE);
+    command_mem = (uint8_t *)memalloc(COMMAND_MEM_SIZE);
 
-	for (int i = 0; i < SYNC_SEMAPHORES; i++) {
+    for (SyncSemaphore & sync_sem : sync_sems) {
 
-		sync_sems[i].sem = Semaphore::create();
-		sync_sems[i].in_use = false;
-	}
-	if (p_sync)
-		sync = Semaphore::create();
-	else
-		sync = nullptr;
+        sync_sem.sem = Semaphore::create();
+        sync_sem.in_use = false;
+    }
+    if (p_sync)
+        sync = Semaphore::create();
+    else
+        sync = nullptr;
 }
 
 CommandQueueMT::~CommandQueueMT() {
 
-	if (sync)
-		memdelete(sync);
-	memdelete(mutex);
-	for (int i = 0; i < SYNC_SEMAPHORES; i++) {
+    if (sync)
+        memdelete(sync);
+    memdelete(mutex);
+    for (int i = 0; i < SYNC_SEMAPHORES; i++) {
 
-		memdelete(sync_sems[i].sem);
-	}
-	memfree(command_mem);
+        memdelete(sync_sems[i].sem);
+    }
+    memfree(command_mem);
 }

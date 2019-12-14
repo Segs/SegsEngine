@@ -60,7 +60,7 @@ struct MethodDefinition {
     MethodDefinition(const char *p_name) :
             name(p_name) {}
     MethodDefinition(StringName p_name,int count=0) :
-            name(p_name) {}
+            name(p_name),arg_count(count) {}
     MethodDefinition(MethodDefinition &&d) noexcept = default;
     int parameterCount() const { return arg_count; } //args.size();
 };

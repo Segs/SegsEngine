@@ -160,10 +160,10 @@ void ResourceFormatImporter::get_recognized_extensions(PODVector<se_string> &p_e
     for (int i = 0; i < importers.size(); i++) {
         PODVector<se_string> local_exts;
         importers[i]->get_recognized_extensions(local_exts);
-        for (size_t j=0,fin=local_exts.size(); j<fin; ++j) {
-            if (!found.contains(local_exts[j])) {
-                p_extensions.emplace_back(local_exts[j]);
-                found.insert(local_exts[j]);
+        for (auto & ext : local_exts) {
+            if (!found.contains(ext)) {
+                p_extensions.emplace_back(ext);
+                found.insert(ext);
             }
         }
     }

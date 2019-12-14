@@ -3790,8 +3790,8 @@ void VisualScriptEditor::_selected_new_virtual_method(se_string_view p_text, se_
     undo_redo->create_action_ui(TTR("Add Function"));
     undo_redo->add_do_method(script.get(), "add_function", name);
 
-    for (size_t i = 0; i < minfo.arguments.size(); i++) {
-        func_node->add_argument(minfo.arguments[i].type, minfo.arguments[i].name, -1, minfo.arguments[i].hint, minfo.arguments[i].hint_string);
+    for (const PropertyInfo & argument : minfo.arguments) {
+        func_node->add_argument(argument.type, argument.name, -1, argument.hint, argument.hint_string);
     }
 
     Vector2 ofs = _get_available_pos();

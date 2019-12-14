@@ -1508,7 +1508,9 @@ CPUParticles::CPUParticles() {
     cycle = 0;
     redraw = false;
     emitting = false;
-
+#ifndef NO_THREADS
+    update_mutex = memnew(Mutex);
+#endif
     set_notify_transform(true);
 
     multimesh = VisualServer::get_singleton()->multimesh_create();
@@ -1563,9 +1565,7 @@ CPUParticles::CPUParticles() {
 
     set_color(Color(1, 1, 1, 1));
 
-#ifndef NO_THREADS
-    update_mutex = memnew(Mutex);
-#endif
+
 }
 
 CPUParticles::~CPUParticles() {

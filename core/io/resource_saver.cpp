@@ -123,9 +123,9 @@ Error ResourceSaver::save(se_string_view p_path, const RES &p_resource, uint32_t
         bool recognized = false;
         s->get_recognized_extensions(p_resource, extensions);
 
-        for (int i=0,fin=extensions.size(); i<fin; ++i) {
+        for (auto & ext : extensions) {
 
-            if (StringUtils::compare(extensions[i],extension,StringUtils::CaseInsensitive) == 0)
+            if (StringUtils::compare(ext,extension,StringUtils::CaseInsensitive) == 0)
                 recognized = true;
         }
 

@@ -2026,7 +2026,7 @@ const ShaderLanguage::BuiltinFuncDef ShaderLanguage::builtin_func_defs[] = {
     //array
     { "length", TYPE_INT, { TYPE_VOID }, TAG_ARRAY, false },
 
-    { NULL, TYPE_VOID, { TYPE_VOID }, TAG_GLOBAL, false }
+    { nullptr, TYPE_VOID, { TYPE_VOID }, TAG_GLOBAL, false }
 
 };
 
@@ -3489,7 +3489,7 @@ ShaderLanguage::Node *ShaderLanguage::_parse_expression(BlockNode *p_block, cons
                     break;
 
                 default:
-                    ERR_FAIL_V(nullptr); //unexpected operator
+                    ERR_FAIL_V(nullptr) //unexpected operator
             }
 
             if (priority < min_priority) {
@@ -4575,7 +4575,7 @@ se_string ShaderLanguage::_get_shader_type_list(const Set<StringName> &p_shader_
 
     // Return a list of shader types as an human-readable string
     se_string valid_types;
-    for (StringName E : p_shader_types) {
+    for (const StringName &E : p_shader_types) {
         if (valid_types.empty()) {
             valid_types += ", ";
         }
