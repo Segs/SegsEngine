@@ -579,7 +579,7 @@ void VisualScriptEditor::_update_graph(int p_only_id) {
             gnode->set_meta("__vnode", node);
             gnode->set_name(itos(E->deref()));
             gnode->connect("dragged", this, "_node_moved", varray(E->deref()));
-            gnode->connect("close_request", this, "_remove_node", varray(E->deref()), ObjectNS::CONNECT_DEFERRED);
+            gnode->connect("close_request", this, "_remove_node", varray(E->deref()), ObjectNS::CONNECT_QUEUED);
 
             if (E->deref() != script->get_function_node_id(funcs[fi])) {
                 //function can't be erased
@@ -756,13 +756,13 @@ void VisualScriptEditor::_update_graph(int p_only_id) {
                             opbtn->select((int8_t)left_type);
                             opbtn->set_custom_minimum_size(Size2(100 * EDSCALE, 0));
                             hbc->add_child(opbtn);
-                            opbtn->connect("item_selected", this, "_change_port_type", varray(E->deref(), i, true), ObjectNS::CONNECT_DEFERRED);
+                            opbtn->connect("item_selected", this, "_change_port_type", varray(E->deref(), i, true), ObjectNS::CONNECT_QUEUED);
                         }
 
                         Button *rmbtn = memnew(Button);
                         rmbtn->set_icon(EditorNode::get_singleton()->get_gui_base()->get_icon("Remove", "EditorIcons"));
                         hbc->add_child(rmbtn);
-                        rmbtn->connect("pressed", this, "_remove_input_port", varray(E->deref(), i), ObjectNS::CONNECT_DEFERRED);
+                        rmbtn->connect("pressed", this, "_remove_input_port", varray(E->deref(), i), ObjectNS::CONNECT_QUEUED);
                     } else {
                         hbc->add_child(memnew(Label(left_name)));
                     }
@@ -824,7 +824,7 @@ void VisualScriptEditor::_update_graph(int p_only_id) {
                         Button *rmbtn = memnew(Button);
                         rmbtn->set_icon(EditorNode::get_singleton()->get_gui_base()->get_icon("Remove", "EditorIcons"));
                         hbc->add_child(rmbtn);
-                        rmbtn->connect("pressed", this, "_remove_output_port", varray(E->deref(), i), ObjectNS::CONNECT_DEFERRED);
+                        rmbtn->connect("pressed", this, "_remove_output_port", varray(E->deref(), i), ObjectNS::CONNECT_QUEUED);
 
                         if (nd_list->is_output_port_type_editable()) {
                             OptionButton *opbtn = memnew(OptionButton);
@@ -834,7 +834,7 @@ void VisualScriptEditor::_update_graph(int p_only_id) {
                             opbtn->select((int8_t)right_type);
                             opbtn->set_custom_minimum_size(Size2(100 * EDSCALE, 0));
                             hbc->add_child(opbtn);
-                            opbtn->connect("item_selected", this, "_change_port_type", varray(E->deref(), i, false), ObjectNS::CONNECT_DEFERRED);
+                            opbtn->connect("item_selected", this, "_change_port_type", varray(E->deref(), i, false), ObjectNS::CONNECT_QUEUED);
                         }
 
                         if (nd_list->is_output_port_name_editable()) {
@@ -4727,7 +4727,7 @@ VisualScriptEditor::VisualScriptEditor() {
     members->set_hide_root(true);
     members->connect("button_pressed", this, "_member_button");
     members->connect("item_edited", this, "_member_edited");
-    members->connect("cell_selected", this, "_member_selected", varray(), ObjectNS::CONNECT_DEFERRED);
+    members->connect("cell_selected", this, "_member_selected", varray(), ObjectNS::CONNECT_QUEUED);
     members->connect("gui_input", this, "_members_gui_input");
     members->connect("item_rmb_selected", this, "_member_rmb_selected");
     members->set_allow_rmb_select(true);

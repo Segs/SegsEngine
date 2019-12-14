@@ -179,7 +179,7 @@ void VersionControlEditorPlugin::_refresh_stage_area() {
         for (int i = 0; i < modified_file_paths.size(); i++) {
 
             file_path = modified_file_paths.get_key_at_index(i).as<se_string>();
-            TreeItem *found = stage_files->search_item_text((file_path), nullptr, true);
+            TreeItem *found = stage_files->search_item_text(file_path, nullptr, true);
             if (!found) {
 
                 ChangeType change_index = (ChangeType)(int)modified_file_paths.get_value_at_index(i);
@@ -495,11 +495,11 @@ VersionControlEditorPlugin::VersionControlEditorPlugin() {
     stage_files->set_hide_root(true);
     commit_box_vbc->add_child(stage_files);
 
-    change_type_to_strings[CHANGE_TYPE_NEW] = (TTR("New"));
-    change_type_to_strings[CHANGE_TYPE_MODIFIED] = (TTR("Modified"));
-    change_type_to_strings[CHANGE_TYPE_RENAMED] = (TTR("Renamed"));
-    change_type_to_strings[CHANGE_TYPE_DELETED] = (TTR("Deleted"));
-    change_type_to_strings[CHANGE_TYPE_TYPECHANGE] = (TTR("Typechange"));
+    change_type_to_strings[CHANGE_TYPE_NEW] = TTR("New");
+    change_type_to_strings[CHANGE_TYPE_MODIFIED] = TTR("Modified");
+    change_type_to_strings[CHANGE_TYPE_RENAMED] = TTR("Renamed");
+    change_type_to_strings[CHANGE_TYPE_DELETED] = TTR("Deleted");
+    change_type_to_strings[CHANGE_TYPE_TYPECHANGE] = TTR("Typechange");
 
     change_type_to_color[CHANGE_TYPE_NEW] = EditorNode::get_singleton()->get_gui_base()->get_color("success_color", "Editor");
     change_type_to_color[CHANGE_TYPE_MODIFIED] = EditorNode::get_singleton()->get_gui_base()->get_color("warning_color", "Editor");

@@ -81,7 +81,7 @@ class MeshLibraryEditorPlugin : public EditorPlugin {
     EditorNode *editor;
 
 public:
-    se_string_view get_name() const override { return ("MeshLibrary"); }
+    se_string_view get_name() const override { return "MeshLibrary"; }
     bool has_main_screen() const override { return false; }
     void edit(Object *p_node) override;
     bool handles(Object *p_node) const override;

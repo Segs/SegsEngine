@@ -54,7 +54,7 @@ void SpriteFramesEditor::_open_sprite_sheet() {
 
     file_split_sheet->clear_filters();
     PODVector<se_string> extensions;
-    ResourceLoader::get_recognized_extensions_for_type(("Texture"), extensions);
+    ResourceLoader::get_recognized_extensions_for_type("Texture", extensions);
     for (const se_string &ext : extensions) {
         file_split_sheet->add_filter("*." + ext);
     }
@@ -213,7 +213,7 @@ void SpriteFramesEditor::_prepare_sprite_sheet(se_string_view p_file) {
 
     Ref<Texture> texture = dynamic_ref_cast<Texture>(ResourceLoader::load(p_file));
     if (not texture) {
-        EditorNode::get_singleton()->show_warning(("Unable to load images"));
+        EditorNode::get_singleton()->show_warning("Unable to load images");
         ERR_FAIL_COND(not texture)
     }
     if (texture != split_sheet_preview->get_texture()) {
@@ -305,7 +305,7 @@ void SpriteFramesEditor::_load_pressed() {
 
     file->clear_filters();
     PODVector<se_string> extensions;
-    ResourceLoader::get_recognized_extensions_for_type(("Texture"), extensions);
+    ResourceLoader::get_recognized_extensions_for_type("Texture", extensions);
     for (const se_string &ext : extensions)
         file->add_filter("*." + ext);
 
@@ -525,7 +525,7 @@ void SpriteFramesEditor::_animation_name_edited() {
 
     se_string new_name(edited->get_text(0));
 
-    if (new_name == (edited_anim))
+    if (new_name == edited_anim)
         return;
 
     new_name = StringUtils::replace(StringUtils::replace(new_name,"/", "_"),",", " ");
@@ -765,7 +765,7 @@ bool SpriteFramesEditor::can_drop_data_fw(const Point2 &p_point, const Variant &
         return false;
 
     // reordering frames
-    if (d.has("from") && (Object *)(d["from"]) == tree)
+    if (d.has("from") && (Object *)d["from"] == tree)
         return true;
 
     if (String(d["type"]) == "resource" && d.has("resource")) {
@@ -819,7 +819,7 @@ void SpriteFramesEditor::drop_data_fw(const Point2 &p_point, const Variant &p_da
 
         if (texture) {
             bool reorder = false;
-            if (d.has("from") && (Object *)(d["from"]) == tree)
+            if (d.has("from") && (Object *)d["from"] == tree)
                 reorder = true;
 
             if (reorder) { //drop is from reordering frames

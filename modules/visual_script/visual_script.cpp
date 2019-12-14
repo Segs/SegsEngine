@@ -41,6 +41,8 @@
 #include "scene/main/node.h"
 #include "visual_script_nodes.h"
 
+#include "EASTL/sort.h"
+
 IMPL_GDCLASS(VisualScript)
 IMPL_GDCLASS(VisualScriptNode)
 IMPL_GDCLASS(VisualScriptFunctionState)
@@ -247,7 +249,7 @@ void VisualScript::get_function_list(Vector<StringName> *r_functions) const {
     for (const eastl::pair<const StringName,Function> &E : functions) {
         r_functions->push_back(E.first);
     }
-    std::sort(r_functions->ptrw(),r_functions->ptrw()+r_functions->size(),StringName::AlphCompare);
+    eastl::sort(r_functions->ptrw(),r_functions->ptrw()+r_functions->size(),StringName::AlphCompare);
 }
 
 int VisualScript::get_function_node_id(const StringName &p_name) const {
@@ -707,7 +709,7 @@ void VisualScript::get_variable_list(Vector<StringName> *r_variables) const {
     for (const eastl::pair<const StringName,Variable> &E : variables) {
         r_variables->push_back(E.first);
     }
-    std::sort(r_variables->ptrw(),r_variables->ptrw()+r_variables->size(),StringName::AlphCompare);
+    eastl::sort(r_variables->ptrw(),r_variables->ptrw()+r_variables->size(),StringName::AlphCompare);
 }
 
 void VisualScript::set_instance_base_type(const StringName &p_type) {
@@ -834,7 +836,7 @@ void VisualScript::get_custom_signal_list(Vector<StringName> *r_custom_signals) 
     for (const eastl::pair<const StringName,Vector<Argument> > &E : custom_signals) {
         r_custom_signals->push_back(E.first);
     }
-    std::sort(r_custom_signals->ptrw(),r_custom_signals->ptrw()+r_custom_signals->size(),StringName::AlphCompare);
+    eastl::sort(r_custom_signals->ptrw(),r_custom_signals->ptrw()+r_custom_signals->size(),StringName::AlphCompare);
 }
 
 int VisualScript::get_available_id() const {

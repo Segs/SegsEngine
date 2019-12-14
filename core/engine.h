@@ -74,7 +74,7 @@ private:
     static Engine *singleton;
 
 public:
-    GODOT_EXPORT static Engine *get_singleton();
+    static Engine *get_singleton();
 
     virtual void set_iterations_per_second(int p_ips);
     virtual int get_iterations_per_second() const;

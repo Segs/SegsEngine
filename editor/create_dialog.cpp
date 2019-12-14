@@ -189,7 +189,7 @@ void CreateDialog::add_type(
             return;
     }
 
-    bool can_instance = (cpp_type && ClassDB::can_instance(p_type)) || ScriptServer::is_global_class(p_type);
+    bool can_instance = cpp_type && ClassDB::can_instance(p_type) || ScriptServer::is_global_class(p_type);
 
     TreeItem *item = search_options->create_item(parent);
     if (cpp_type) {
@@ -231,13 +231,13 @@ void CreateDialog::add_type(
 
             if (is_subsequence_of_type && !is_selected_equal) {
                 if (is_substring_of_type) {
-                    if (!is_substring_of_selected || (current_type_prefered && !selected_type_prefered)) {
+                    if (!is_substring_of_selected || current_type_prefered && !selected_type_prefered) {
                         *to_select = item;
                     }
                 } else {
                     // substring results weigh more than subsequences, so let's make sure we don't override them
                     if (!is_substring_of_selected) {
-                        if (!is_subsequence_of_selected || (current_type_prefered && !selected_type_prefered)) {
+                        if (!is_subsequence_of_selected || current_type_prefered && !selected_type_prefered) {
                             *to_select = item;
                         }
                     }
@@ -250,11 +250,11 @@ void CreateDialog::add_type(
         item->set_collapsed(false);
     } else {
         // don't collapse search results
-        bool collapse = (search_box->get_text_ui().isEmpty());
+        bool collapse = search_box->get_text_ui().isEmpty();
         // don't collapse the root node
-        collapse &= (item != p_root);
+        collapse &= item != p_root;
         // don't collapse abstract nodes on the first tree level
-        collapse &= ((parent != p_root) || (can_instance));
+        collapse &= parent != p_root || can_instance;
         item->set_collapsed(collapse);
     }
 
@@ -443,7 +443,7 @@ void CreateDialog::_confirmed() {
     if (!ti) return;
 
     FileAccess *f = FileAccess::open(PathUtils::plus_file(EditorSettings::get_singleton()->get_project_settings_dir(),
-                                             (se_string("create_recent.") + base_type)),
+                                             se_string("create_recent.") + base_type),
             FileAccess::WRITE);
 
     if (f) {

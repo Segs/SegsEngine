@@ -173,8 +173,8 @@ void ShaderTextEditor::_load_theme_settings() {
     }
 
     //colorize comments
-    get_text_edit()->add_color_region(("/*"), ("*/"), comment_color, false);
-    get_text_edit()->add_color_region(("//"), "", comment_color, false);
+    get_text_edit()->add_color_region("/*", "*/", comment_color, false);
+    get_text_edit()->add_color_region("//", "", comment_color, false);
 }
 
 void ShaderTextEditor::_check_shader_mode() {
@@ -348,7 +348,7 @@ void ShaderEditor::_menu_option(int p_option) {
             shader_editor->remove_all_bookmarks();
         } break;
         case HELP_DOCS: {
-            OS::get_singleton()->shell_open(("https://docs.godotengine.org/en/stable/tutorials/shading/shading_reference/index.html"));
+            OS::get_singleton()->shell_open("https://docs.godotengine.org/en/stable/tutorials/shading/shading_reference/index.html");
         } break;
     }
     if (p_option != SEARCH_FIND && p_option != SEARCH_REPLACE && p_option != SEARCH_GOTO_LINE) {
@@ -444,7 +444,7 @@ void ShaderEditor::_check_for_external_edit() {
 
 void ShaderEditor::_reload_shader_from_disk() {
 
-    Ref<Shader> rel_shader = dynamic_ref_cast<Shader>(ResourceLoader::load(shader->get_path(), (shader->get_class()), true));
+    Ref<Shader> rel_shader = dynamic_ref_cast<Shader>(ResourceLoader::load(shader->get_path(), shader->get_class(), true));
     ERR_FAIL_COND(not rel_shader)
 
     shader->set_code(rel_shader->get_code());
@@ -517,7 +517,7 @@ void ShaderEditor::_text_edit_gui_input(const Ref<InputEvent> &ev) {
                     int from_column = tx->get_selection_from_column();
                     int to_column = tx->get_selection_to_column();
 
-                    if (row < from_line || row > to_line || (row == from_line && col < from_column) || (row == to_line && col > to_column)) {
+                    if (row < from_line || row > to_line || row == from_line && col < from_column || row == to_line && col > to_column) {
                         // Right click is outside the selected text
                         tx->deselect();
                     }

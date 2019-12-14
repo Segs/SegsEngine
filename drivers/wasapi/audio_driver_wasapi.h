@@ -54,8 +54,8 @@ class AudioDriverWASAPI : public AudioDriver {
         unsigned int channels=0;
         unsigned int frame_size=0;
 
-        String device_name;
-        String new_device;
+        se_string device_name;
+        se_string new_device;
 
         AudioDeviceWASAPI() :
                 device_name("Default"),
@@ -97,22 +97,22 @@ public:
         return "WASAPI";
     }
 
-    virtual Error init();
-    virtual void start();
-    virtual int get_mix_rate() const;
-    virtual SpeakerMode get_speaker_mode() const;
-    virtual Array get_device_list();
-    virtual String get_device();
-    virtual void set_device(const String &device);
-    virtual void lock();
-    virtual void unlock();
-    virtual void finish();
+    Error init() override;
+    void start() override;
+    int get_mix_rate() const override;
+    SpeakerMode get_speaker_mode() const override;
+    Array get_device_list() override;
+    se_string_view get_device() override;
+    void set_device(se_string_view device) override;
+    void lock() override;
+    void unlock() override;
+    void finish() override;
 
-    virtual Error capture_start();
-    virtual Error capture_stop();
-    virtual Array capture_get_device_list();
-    virtual void capture_set_device(const String &p_name);
-    virtual String capture_get_device();
+    Error capture_start() override;
+    Error capture_stop() override;
+    Array capture_get_device_list() override;
+    void capture_set_device(se_string_view p_name) override;
+    se_string capture_get_device() override;
 
     AudioDriverWASAPI();
 };

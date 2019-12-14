@@ -363,7 +363,7 @@ void AnimationPlayerEditor::_animation_load() {
     file->clear_filters();
     PODVector<se_string> extensions;
 
-    ResourceLoader::get_recognized_extensions_for_type(("Animation"), extensions);
+    ResourceLoader::get_recognized_extensions_for_type("Animation", extensions);
     for (const se_string &E : extensions) {
 
         file->add_filter("*." + E + " ; " + StringUtils::to_upper(E));
@@ -613,11 +613,11 @@ void AnimationPlayerEditor::_animation_blend() {
         blend->set_text(0, E);
         blend->set_cell_mode(1, TreeItem::CELL_MODE_RANGE);
         blend->set_range_config(1, 0, 3600, 0.001);
-        blend->set_range(1, player->get_blend_time((current), E));
+        blend->set_range(1, player->get_blend_time(current, E));
 
         i++;
         blend_editor.next->add_item(E, i);
-        if (E == player->animation_get_next((current))) {
+        if (E == player->animation_get_next(current)) {
             blend_editor.next->select(i);
             anim_found = true;
         }
@@ -626,7 +626,7 @@ void AnimationPlayerEditor::_animation_blend() {
     // make sure we reset it else it becomes out of sync and could contain a deleted animation
     if (!anim_found) {
         blend_editor.next->select(0);
-        player->animation_set_next((current), StringName(blend_editor.next->get_item_text_utf8(0)));
+        player->animation_set_next(current, StringName(blend_editor.next->get_item_text_utf8(0)));
     }
 
     updating_blends = false;
@@ -747,7 +747,7 @@ void AnimationPlayerEditor::_dialog_action(se_string_view p_file) {
         case RESOURCE_LOAD: {
             ERR_FAIL_COND(!player)
 
-            Ref<Resource> res = ResourceLoader::load(p_file, ("Animation"));
+            Ref<Resource> res = ResourceLoader::load(p_file, "Animation");
             ERR_FAIL_COND_MSG(not res, "Cannot load Animation from file '" + se_string(p_file) + "'.")
             ERR_FAIL_COND_MSG(!res->is_class("Animation"), "Loaded resource from file '" + se_string(p_file) + "' is not Animation.")
             if (StringUtils::contains(p_file,'/')) {
@@ -1247,7 +1247,7 @@ void AnimationPlayerEditor::_onion_skinning_menu(int p_option) {
         case ONION_SKINNING_2_STEPS:
         case ONION_SKINNING_3_STEPS: {
 
-            onion.steps = (p_option - ONION_SKINNING_1_STEP) + 1;
+            onion.steps = p_option - ONION_SKINNING_1_STEP + 1;
             int one_frame_idx = menu->get_item_index(ONION_SKINNING_1_STEP);
             for (int i = 0; i <= ONION_SKINNING_LAST_STEPS_OPTION - ONION_SKINNING_1_STEP; i++) {
                 menu->set_item_checked(one_frame_idx + i, onion.steps == i + 1);
@@ -1466,7 +1466,7 @@ void AnimationPlayerEditor::_prepare_onion_layers_2() {
 
         float pos = cpos + step_off * anim->get_step();
 
-        bool valid = anim->has_loop() || (pos >= 0 && pos <= anim->get_length());
+        bool valid = anim->has_loop() || pos >= 0 && pos <= anim->get_length();
         onion.captures_valid.write[cidx] = valid;
         if (valid) {
             player->seek(pos, true);

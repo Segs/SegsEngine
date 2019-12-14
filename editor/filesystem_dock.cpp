@@ -57,7 +57,7 @@ Ref<Texture> FileSystemDock::_get_tree_item_icon(EditorFileSystemDirectory *p_di
         file_icon = get_icon("ImportFail", "EditorIcons");
     } else {
         StringName file_type(p_dir->get_file_type(p_idx));
-        file_icon = (has_icon(file_type, "EditorIcons")) ? get_icon(file_type, "EditorIcons") : get_icon("File", "EditorIcons");
+        file_icon = has_icon(file_type, "EditorIcons") ? get_icon(file_type, "EditorIcons") : get_icon("File", "EditorIcons");
     }
     return file_icon;
 }
@@ -78,7 +78,7 @@ bool FileSystemDock::_create_tree(TreeItem *p_parent, EditorFileSystemDirectory 
     subdirectory_item->set_selectable(0, true);
     se_string lpath = p_dir->get_path();
     subdirectory_item->set_metadata(0, lpath);
-    if (!p_select_in_favorites && (path == lpath || ((display_mode == DISPLAY_MODE_SPLIT) && PathUtils::get_base_dir(path) == lpath))) {
+    if (!p_select_in_favorites && (path == lpath || display_mode == DISPLAY_MODE_SPLIT && PathUtils::get_base_dir(path) == lpath)) {
         subdirectory_item->select(0);
     }
 
@@ -93,7 +93,7 @@ bool FileSystemDock::_create_tree(TreeItem *p_parent, EditorFileSystemDirectory 
 
     // Create items for all subdirectories.
     for (int i = 0; i < p_dir->get_subdir_count(); i++)
-        parent_should_expand = (_create_tree(subdirectory_item, p_dir->get_subdir(i), uncollapsed_paths, p_select_in_favorites, p_unfold_path) || parent_should_expand);
+        parent_should_expand = _create_tree(subdirectory_item, p_dir->get_subdir(i), uncollapsed_paths, p_select_in_favorites, p_unfold_path) || parent_should_expand;
 
     // Create all items for the files in the subdirectory.
     if (display_mode == DISPLAY_MODE_TREE_ONLY) {
@@ -192,7 +192,7 @@ void FileSystemDock::_update_tree(const Vector<se_string> &p_uncollapsed_paths, 
     favorites->set_icon(0, get_icon("Favorites", "EditorIcons"));
     favorites->set_text(0, TTR("Favorites:"));
     favorites->set_metadata(0, "Favorites");
-    favorites->set_collapsed(p_uncollapsed_paths.find(("Favorites")) < 0);
+    favorites->set_collapsed(p_uncollapsed_paths.find("Favorites") < 0);
 
     Vector<se_string> favorite_paths = EditorSettings::get_singleton()->get_favorites();
     for (int i = 0; i < favorite_paths.size(); i++) {
@@ -355,9 +355,9 @@ void FileSystemDock::_notification(int p_what) {
             se_string type(dd["type"]);
             if (tree->is_visible_in_tree() && dd.has("type")) {
                 if (dd.has("favorite")) {
-                    if ((se_string(dd["favorite"]) == "all")) tree->set_drop_mode_flags(Tree::DROP_MODE_INBETWEEN);
-                } else if ((se_string(dd["type"]) == "files") || (se_string(dd["type"]) == "files_and_dirs") ||
-                           (se_string(dd["type"]) == "resource")) {
+                    if (se_string(dd["favorite"]) == "all") tree->set_drop_mode_flags(Tree::DROP_MODE_INBETWEEN);
+                } else if (se_string(dd["type"]) == "files" || se_string(dd["type"]) == "files_and_dirs" ||
+                           se_string(dd["type"]) == "resource") {
                     tree->set_drop_mode_flags(Tree::DROP_MODE_ON_ITEM | Tree::DROP_MODE_INBETWEEN);
                 }
             }
@@ -468,7 +468,7 @@ void FileSystemDock::_navigate_to_path(se_string_view p_path, bool p_select_in_f
         if (StringUtils::ends_with(target_path,"/")) {
             target_path = StringUtils::substr(target_path,0, target_path.length() - 1);
         }
-        DirAccess *dirAccess = DirAccess::open(("res://"));
+        DirAccess *dirAccess = DirAccess::open("res://");
         if (dirAccess->file_exists(p_path)) {
             path = target_path;
         } else if (dirAccess->dir_exists(p_path)) {
@@ -631,7 +631,7 @@ void FileSystemDock::_update_file_list(bool p_keep_selection) {
     Ref<Texture> file_thumbnail;
     Ref<Texture> file_thumbnail_broken;
 
-    bool use_thumbnails = (file_list_display_mode == FILE_LIST_DISPLAY_THUMBNAILS);
+    bool use_thumbnails = file_list_display_mode == FILE_LIST_DISPLAY_THUMBNAILS;
 
     if (use_thumbnails) {
         // Thumbnails mode.
@@ -660,7 +660,7 @@ void FileSystemDock::_update_file_list(bool p_keep_selection) {
         files->set_fixed_icon_size(Size2());
     }
 
-    Ref<Texture> folder_icon = (use_thumbnails) ? folder_thumbnail : get_icon("folder", "FileDialog");
+    Ref<Texture> folder_icon = use_thumbnails ? folder_thumbnail : get_icon("folder", "FileDialog");
     const Color folder_color = get_color("folder_icon_modulate", "FileDialog");
 
     // Build the FileInfo list.
@@ -730,7 +730,7 @@ void FileSystemDock::_update_file_list(bool p_keep_selection) {
                 // Display folders in the list.
 
                 if (directory != "res://") {
-                    files->add_item((".."), folder_icon, true);
+                    files->add_item("..", folder_icon, true);
 
                     se_string bd(PathUtils::get_base_dir(directory));
                     if (bd != "res://" && !StringUtils::ends_with(bd,"/"))
@@ -746,7 +746,7 @@ void FileSystemDock::_update_file_list(bool p_keep_selection) {
                     se_string dname = efd->get_subdir(i)->get_name();
 
                     files->add_item(StringName(dname), folder_icon, true);
-                    files->set_item_metadata(files->get_item_count() - 1, (PathUtils::plus_file(directory,dname) + "/"));
+                    files->set_item_metadata(files->get_item_count() - 1, PathUtils::plus_file(directory,dname) + "/");
                     files->set_item_icon_modulate(files->get_item_count() - 1, folder_color);
 
                     if (cselection.contains(dname)) {
@@ -773,7 +773,7 @@ void FileSystemDock::_update_file_list(bool p_keep_selection) {
     // Fills the ItemList control node from the FileInfos.
     StringName oi("Object");
     for (List<FileInfo>::Element *E = filelist.front(); E; E = E->next()) {
-        FileInfo *finfo = &(E->deref());
+        FileInfo *finfo = &E->deref();
         se_string fname = finfo->name;
         se_string fpath = finfo->path;
         StringName ftype = finfo->type;
@@ -785,7 +785,7 @@ void FileSystemDock::_update_file_list(bool p_keep_selection) {
 
         // Select the icons.
         if (!finfo->import_broken) {
-            type_icon = (has_icon(ftype, ei)) ? get_icon(ftype, ei) : get_icon(oi, ei);
+            type_icon = has_icon(ftype, ei) ? get_icon(ftype, ei) : get_icon(oi, ei);
             big_icon = file_thumbnail;
         } else {
             type_icon = get_icon("ImportFail", ei);
@@ -858,7 +858,7 @@ void FileSystemDock::_tree_activate_file() {
         TreeItem *parent = selected->get_parent();
         bool is_favorite = parent != nullptr && parent->get_metadata(0) == "Favorites";
 
-        if ((!is_favorite && StringUtils::ends_with( path,"/")) || path == "Favorites") {
+        if (!is_favorite && StringUtils::ends_with( path,"/") || path == "Favorites") {
             bool collapsed = selected->is_collapsed();
             selected->set_collapsed(!collapsed);
         } else {
@@ -1002,8 +1002,8 @@ void FileSystemDock::_find_remaps(EditorFileSystemDirectory *efsd, const Map<se_
 void FileSystemDock::_try_move_item(const FileOrFolder &p_item, se_string_view p_new_path,
         Map<se_string, se_string> &p_file_renames, Map<se_string, se_string> &p_folder_renames) {
     // Ensure folder paths end with "/".
-    se_string old_path = (p_item.is_file || StringUtils::ends_with(p_item.path,"/")) ? p_item.path : (p_item.path + "/");
-    se_string new_path((p_item.is_file || StringUtils::ends_with(p_new_path,"/")) ? p_new_path : (se_string(p_new_path) + "/"));
+    se_string old_path = p_item.is_file || StringUtils::ends_with(p_item.path,"/") ? p_item.path : p_item.path + "/";
+    se_string new_path(p_item.is_file || StringUtils::ends_with(p_new_path,"/") ? p_new_path : se_string(p_new_path) + "/");
 
     if (new_path == old_path) {
         return;
@@ -1072,8 +1072,8 @@ void FileSystemDock::_try_move_item(const FileOrFolder &p_item, se_string_view p
 
 void FileSystemDock::_try_duplicate_item(const FileOrFolder &p_item, const se_string &p_new_path) const {
     // Ensure folder paths end with "/".
-    se_string old_path = (p_item.is_file || StringUtils::ends_with(p_item.path,"/")) ? p_item.path : (p_item.path + "/");
-    se_string new_path = (p_item.is_file || StringUtils::ends_with(p_new_path,"/")) ? p_new_path : (p_new_path + "/");
+    se_string old_path = p_item.is_file || StringUtils::ends_with(p_item.path,"/") ? p_item.path : p_item.path + "/";
+    se_string new_path = p_item.is_file || StringUtils::ends_with(p_new_path,"/") ? p_new_path : p_new_path + "/";
 
     if (new_path == old_path) {
         return;
@@ -1431,8 +1431,8 @@ bool FileSystemDock::_check_existing() {
         se_string p_new_path = PathUtils::plus_file(p_to_path,PathUtils::get_file(ol_pth));
         FileOrFolder p_item = to_move[i];
 
-        se_string old_path = (p_item.is_file || StringUtils::ends_with(p_item.path,"/")) ? p_item.path : (p_item.path + "/");
-        se_string new_path = (p_item.is_file || StringUtils::ends_with(p_new_path,"/")) ? p_new_path : (p_new_path + "/");
+        se_string old_path = p_item.is_file || StringUtils::ends_with(p_item.path,"/") ? p_item.path : p_item.path + "/";
+        se_string new_path = p_item.is_file || StringUtils::ends_with(p_new_path,"/") ? p_new_path : p_new_path + "/";
 
         if (p_item.is_file && FileAccess::exists(new_path)) {
             return false;
@@ -1549,7 +1549,7 @@ void FileSystemDock::_tree_rmb_option(int p_option) {
         case FOLDER_COLLAPSE_ALL: {
             // Expand or collapse the folder
             if (selected_strings.size() == 1) {
-                bool is_collapsed = (p_option == FOLDER_COLLAPSE_ALL);
+                bool is_collapsed = p_option == FOLDER_COLLAPSE_ALL;
 
                 Vector<TreeItem *> needs_check;
                 needs_check.push_back(tree->get_selected());
@@ -1597,7 +1597,7 @@ void FileSystemDock::_file_option(int p_option, const Vector<se_string> &p_selec
                 fpath = PathUtils::get_base_dir(fpath);
             }
             se_string dir = ProjectSettings::get_singleton()->globalize_path(fpath);
-            OS::get_singleton()->shell_open(("file://") + dir);
+            OS::get_singleton()->shell_open("file://" + dir);
         } break;
 
         case FILE_OPEN: {
@@ -1752,12 +1752,12 @@ void FileSystemDock::_file_option(int p_option, const Vector<se_string> &p_selec
                 to_duplicate.is_file = !StringUtils::ends_with(to_duplicate.path,"/");
                 if (to_duplicate.is_file) {
                     se_string name(PathUtils::get_file(to_duplicate.path));
-                    duplicate_dialog->set_title((TTR("Duplicating file:")) + " " + name);
+                    duplicate_dialog->set_title(TTR("Duplicating file:") + " " + name);
                     duplicate_dialog_text->set_text_utf8(name);
                     duplicate_dialog_text->select(0, StringUtils::find_last(name,'.'));
                 } else {
                     se_string name(PathUtils::get_file(StringUtils::substr(to_duplicate.path,0, to_duplicate.path.length() - 1)));
-                    duplicate_dialog->set_title((TTR("Duplicating folder:")) + " " + name);
+                    duplicate_dialog->set_title(TTR("Duplicating folder:") + " " + name);
                     duplicate_dialog_text->set_text_utf8(name);
                     duplicate_dialog_text->select(0, name.length());
                 }
@@ -1848,7 +1848,7 @@ void FileSystemDock::_search_changed(const se_string &p_text, const Control *p_f
         file_list_search_box->set_text_utf8(searched_string);
     else // File_list_search_box.
         tree_search_box->set_text_utf8(searched_string);
-    bool unfold_path = (p_text.empty() && not path.empty());
+    bool unfold_path = p_text.empty() && not path.empty();
     switch (display_mode) {
         case DISPLAY_MODE_TREE_ONLY: {
             _update_tree(searched_string.length() == 0 ? uncollapsed_paths_before_search : Vector<se_string>(), false, false, unfold_path);
@@ -1954,13 +1954,13 @@ bool FileSystemDock::can_drop_data_fw(const Point2 &p_point, const Variant &p_da
         TreeItem *resources_item = favorites_item->get_next();
 
         if (ti == favorites_item) {
-            return (drop_section == 1); // The parent, first fav.
+            return drop_section == 1; // The parent, first fav.
         }
         if (ti->get_parent() && favorites_item == ti->get_parent()) {
             return true; // A favorite
         }
         if (ti == resources_item) {
-            return (drop_section == -1); // The tree, last fav.
+            return drop_section == -1; // The tree, last fav.
         }
 
         return false;
@@ -1988,7 +1988,7 @@ bool FileSystemDock::can_drop_data_fw(const Point2 &p_point, const Variant &p_da
 
         // Attempting to move a folder into itself will fail later,
         // rather than bring up a message don't try to do it in the first place
-        to_dir = StringUtils::ends_with(to_dir,"/") ? to_dir : (to_dir + "/");
+        to_dir = StringUtils::ends_with(to_dir,"/") ? to_dir : to_dir + "/";
         Vector<se_string> fnames = drag_data["files"].as<Vector<se_string>>();
         for (int i = 0; i < fnames.size(); ++i) {
             if (StringUtils::ends_with(fnames[i],"/") && StringUtils::begins_with(to_dir,fnames[i]))
@@ -2185,7 +2185,7 @@ void FileSystemDock::_file_and_folders_fill_popup(
         } else {
             filenames.push_back(fpath);
             all_folders = false;
-            all_files_scenes &= (EditorFileSystem::get_singleton()->get_file_type(fpath) == "PackedScene");
+            all_files_scenes &= EditorFileSystem::get_singleton()->get_file_type(fpath) == "PackedScene";
         }
 
         // Check if in favorites.
@@ -2752,7 +2752,7 @@ FileSystemDock::FileSystemDock(EditorNode *p_editor) {
 
     new_resource_dialog = memnew(CreateDialog);
     add_child(new_resource_dialog);
-    new_resource_dialog->set_base_type(("Resource"));
+    new_resource_dialog->set_base_type("Resource");
     new_resource_dialog->connect("create", this, "_resource_created");
 
     searched_string = se_string();

@@ -678,10 +678,10 @@ public:
             for (int i = 0; i < flag_rects.size(); i++) {
                 if (flag_rects[i].has_point(mb->get_position())) {
                     //toggle
-                    if (value & (1 << i)) {
+                    if (value & 1 << i) {
                         value &= ~(1 << i);
                     } else {
-                        value |= (1 << i);
+                        value |= 1 << i;
                     }
                     emit_signal("flag_changed", value);
                     update();
@@ -697,7 +697,7 @@ public:
             rect.size = get_size();
             flag_rects.clear();
 
-            int bsize = (rect.size.height * 80 / 100) / 2;
+            int bsize = rect.size.height * 80 / 100 / 2;
 
             int h = bsize * 2 + 1;
             int vofs = (rect.size.height - h) / 2;
@@ -717,7 +717,7 @@ public:
                         o.x += 1;
 
                     uint32_t idx = i * 10 + j;
-                    bool on = value & (1 << idx);
+                    bool on = value & 1 << idx;
                     Rect2 rect2 = Rect2(o, Size2(bsize, bsize));
                     color.a = on ? 0.6 : 0.2;
                     draw_rect(rect2, color);
@@ -806,7 +806,7 @@ void EditorPropertyLayers::_button_pressed() {
         }
         layers->add_check_item_utf8(grid->names[i], i);
         int idx = layers->get_item_index(i);
-        layers->set_item_checked(idx, grid->value & (1 << i));
+        layers->set_item_checked(idx, grid->value & 1 << i);
     }
 
     Rect2 gp = button->get_global_rect();
@@ -817,13 +817,13 @@ void EditorPropertyLayers::_button_pressed() {
 }
 
 void EditorPropertyLayers::_menu_pressed(int p_menu) {
-    if (grid->value & (1 << p_menu)) {
+    if (grid->value & 1 << p_menu) {
         grid->value &= ~(1 << p_menu);
     } else {
-        grid->value |= (1 << p_menu);
+        grid->value |= 1 << p_menu;
     }
     grid->update();
-    layers->set_item_checked(layers->get_item_index(p_menu), grid->value & (1 << p_menu));
+    layers->set_item_checked(layers->get_item_index(p_menu), grid->value & 1 << p_menu);
     _grid_changed(grid->value);
 }
 
@@ -1119,13 +1119,13 @@ void EditorPropertyEasing::_notification(int p_what) {
         case NOTIFICATION_THEME_CHANGED:
         case NOTIFICATION_ENTER_TREE: {
             preset->clear();
-            preset->add_icon_item(get_icon("CurveConstant", "EditorIcons"), ("Zero"), EASING_ZERO);
-            preset->add_icon_item(get_icon("CurveLinear", "EditorIcons"), ("Linear"), EASING_LINEAR);
-            preset->add_icon_item(get_icon("CurveIn", "EditorIcons"), ("In"), EASING_IN);
-            preset->add_icon_item(get_icon("CurveOut", "EditorIcons"), ("Out"), EASING_OUT);
+            preset->add_icon_item(get_icon("CurveConstant", "EditorIcons"), "Zero", EASING_ZERO);
+            preset->add_icon_item(get_icon("CurveLinear", "EditorIcons"), "Linear", EASING_LINEAR);
+            preset->add_icon_item(get_icon("CurveIn", "EditorIcons"), "In", EASING_IN);
+            preset->add_icon_item(get_icon("CurveOut", "EditorIcons"), "Out", EASING_OUT);
             if (full) {
-                preset->add_icon_item(get_icon("CurveInOut", "EditorIcons"), ("In-Out"), EASING_IN_OUT);
-                preset->add_icon_item(get_icon("CurveOutIn", "EditorIcons"), ("Out-In"), EASING_OUT_IN);
+                preset->add_icon_item(get_icon("CurveInOut", "EditorIcons"), "In-Out", EASING_IN_OUT);
+                preset->add_icon_item(get_icon("CurveOutIn", "EditorIcons"), "Out-In", EASING_OUT_IN);
             }
             easing_draw->set_custom_minimum_size(Size2(0, get_font("font", "Label")->get_height() * 2));
         } break;
@@ -2137,7 +2137,7 @@ void EditorPropertyResource::_file_selected(se_string_view p_path) {
     se_string property_types;
 
     for (const PropertyInfo &E : prop_list) {
-        if (E.name == get_edited_property() && (E.hint & PROPERTY_HINT_RESOURCE_TYPE)) {
+        if (E.name == get_edited_property() && E.hint & PROPERTY_HINT_RESOURCE_TYPE) {
             property_types = E.hint_string;
         }
     }
@@ -2356,7 +2356,7 @@ void EditorPropertyResource::_menu_option(int p_which) {
             }
 
             if (!obj) {
-                obj = EditorNode::get_editor_data().instance_custom_type(intype,("Resource"));
+                obj = EditorNode::get_editor_data().instance_custom_type(intype,"Resource");
             }
 
             ERR_BREAK(!obj);
@@ -2419,7 +2419,7 @@ void EditorPropertyResource::_update_menu_items() {
 
         Vector<EditorData::CustomType> custom_resources;
 
-        if (EditorNode::get_editor_data().get_custom_types().contains(("Resource"))) {
+        if (EditorNode::get_editor_data().get_custom_types().contains("Resource")) {
             custom_resources = EditorNode::get_editor_data().get_custom_types().at("Resource");
         }
 
@@ -2633,7 +2633,7 @@ void EditorPropertyResource::update_property() {
 
     if (use_sub_inspector) {
 
-        if ((res!=nullptr) != assign->is_toggle_mode()) {
+        if (res!=nullptr != assign->is_toggle_mode()) {
             assign->set_toggle_mode(res);
         }
         if (res && get_edited_object()->get_tooling_interface()->editor_is_section_unfolded(get_edited_property())) {
@@ -3127,7 +3127,7 @@ bool EditorInspectorDefaultPlugin::parse_property(Object *p_object, VariantType 
                 add_property_editor(p_path, editor);
             } else if (p_hint == PROPERTY_HINT_TYPE_STRING) {
                 EditorPropertyClassName *editor = memnew(EditorPropertyClassName);
-                editor->setup(("Object"), StringName(p_hint_text));
+                editor->setup("Object", StringName(p_hint_text));
                 add_property_editor(p_path, editor);
             } else if (p_hint == PROPERTY_HINT_DIR || p_hint == PROPERTY_HINT_FILE || p_hint == PROPERTY_HINT_SAVE_FILE || p_hint == PROPERTY_HINT_GLOBAL_DIR || p_hint == PROPERTY_HINT_GLOBAL_FILE) {
 
@@ -3347,12 +3347,12 @@ bool EditorInspectorDefaultPlugin::parse_property(Object *p_object, VariantType 
 
             EditorPropertyNodePath *editor = memnew(EditorPropertyNodePath);
             if (p_hint == PROPERTY_HINT_NODE_PATH_TO_EDITED_NODE && !p_hint_text.empty()) {
-                editor->setup((NodePath)p_hint_text, Vector<StringName>(), (p_usage & PROPERTY_USAGE_NODE_PATH_FROM_SCENE_ROOT));
+                editor->setup((NodePath)p_hint_text, Vector<StringName>(), p_usage & PROPERTY_USAGE_NODE_PATH_FROM_SCENE_ROOT);
             }
             if (p_hint == PROPERTY_HINT_NODE_PATH_VALID_TYPES && !p_hint_text.empty()) {
                 Vector<se_string_view> types = StringUtils::split(p_hint_text,',', false);
                 Vector<StringName> sn = Variant(types); //convert via variant
-                editor->setup(NodePath(), sn, (p_usage & PROPERTY_USAGE_NODE_PATH_FROM_SCENE_ROOT));
+                editor->setup(NodePath(), sn, p_usage & PROPERTY_USAGE_NODE_PATH_FROM_SCENE_ROOT);
             }
             add_property_editor(p_path, editor);
 
@@ -3363,7 +3363,7 @@ bool EditorInspectorDefaultPlugin::parse_property(Object *p_object, VariantType 
         } break;
         case VariantType::OBJECT: {
             EditorPropertyResource *editor = memnew(EditorPropertyResource);
-            editor->setup(StringName(p_hint == PROPERTY_HINT_RESOURCE_TYPE ? p_hint_text : ("Resource")));
+            editor->setup(StringName(p_hint == PROPERTY_HINT_RESOURCE_TYPE ? p_hint_text : "Resource"));
 
             if (p_hint == PROPERTY_HINT_RESOURCE_TYPE) {
                 se_string open_in_new = EDITOR_GET("interface/inspector/resources_to_open_in_new_inspector");

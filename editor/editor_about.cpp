@@ -161,7 +161,7 @@ EditorAbout::EditorAbout() {
     dev_sections.push_back(TTR("Developers"));
     const char *const *dev_src[] = { AUTHORS_FOUNDERS, AUTHORS_LEAD_DEVELOPERS,
         AUTHORS_PROJECT_MANAGERS, AUTHORS_DEVELOPERS };
-    tc->add_child(_populate_list((TTR("Authors")), dev_sections, dev_src, 1));
+    tc->add_child(_populate_list(TTR("Authors"), dev_sections, dev_src, 1));
 
     // Donors
 
@@ -174,12 +174,12 @@ EditorAbout::EditorAbout() {
     donor_sections.push_back(TTR("Bronze Donors"));
     const char *const *donor_src[] = { DONORS_SPONSOR_PLAT, DONORS_SPONSOR_GOLD,
         DONORS_SPONSOR_MINI, DONORS_GOLD, DONORS_SILVER, DONORS_BRONZE };
-    tc->add_child(_populate_list((TTR("Donors")), donor_sections, donor_src, 3));
+    tc->add_child(_populate_list(TTR("Donors"), donor_sections, donor_src, 3));
 
     // License
 
     _license_text = memnew(RichTextLabel);
-    _license_text->set_name((TTR("License")));
+    _license_text->set_name(TTR("License"));
     _license_text->set_h_size_flags(Control::SIZE_EXPAND_FILL);
     _license_text->set_v_size_flags(Control::SIZE_EXPAND_FILL);
     _license_text->set_text_utf8(GODOT_LICENSE_TEXT);
@@ -188,7 +188,7 @@ EditorAbout::EditorAbout() {
     // Thirdparty License
 
     VBoxContainer *license_thirdparty = memnew(VBoxContainer);
-    license_thirdparty->set_name((TTR("Third-party Licenses")));
+    license_thirdparty->set_name(TTR("Third-party Licenses"));
     license_thirdparty->set_h_size_flags(Control::SIZE_EXPAND_FILL);
     tc->add_child(license_thirdparty);
 
@@ -227,7 +227,7 @@ EditorAbout::EditorAbout() {
         long_text += "- " + component_name + "\n";
         for (int part_index = 0; part_index < component.part_count; part_index++) {
             const ComponentCopyrightPart &part = component.parts[part_index];
-            text += ("\n    Files:");
+            text += "\n    Files:";
             for (int file_num = 0; file_num < part.file_count; file_num++) {
                 text += "\n        " + se_string(part.files[file_num]);
             }

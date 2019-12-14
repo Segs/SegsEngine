@@ -84,12 +84,12 @@ public:
         const float *in = p_data.ptr();
 
         /* initial value is zero */
-        *(out++) = 0;
-        *(out++) = 0;
+        *out++ = 0;
+        *out++ = 0;
         /* Table index initial value */
-        *(out++) = 0;
+        *out++ = 0;
         /* unused */
-        *(out++) = 0;
+        *out++ = 0;
 
         for (i = 0; i < datalen; i++) {
             int step, diff, vpdiff, mask;

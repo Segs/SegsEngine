@@ -65,7 +65,7 @@ float AudioStreamPreview::get_max(float p_time, float p_time_next) const {
         }
     }
 
-    return (vmax / 255.0f) * 2.0f - 1.0f;
+    return vmax / 255.0f * 2.0f - 1.0f;
 }
 float AudioStreamPreview::get_min(float p_time, float p_time_next) const {
 
@@ -92,7 +92,7 @@ float AudioStreamPreview::get_min(float p_time, float p_time_next) const {
         }
     }
 
-    return (vmin / 255.0f) * 2.0f - 1.0f;
+    return vmin / 255.0f * 2.0f - 1.0f;
 }
 
 AudioStreamPreview::AudioStreamPreview() {

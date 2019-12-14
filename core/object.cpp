@@ -1341,7 +1341,7 @@ Error Object::emit_signal(const StringName &p_name, const Variant **p_args, int 
             argc = bind_mem.size();
         }
 
-        if (c.flags & ObjectNS::CONNECT_DEFERRED) {
+        if (c.flags & ObjectNS::CONNECT_QUEUED) {
             MessageQueue::get_singleton()->push_call(target->get_instance_id(), c.method, args, argc, true);
         } else {
             Variant::CallError ce;
@@ -1881,7 +1881,7 @@ void Object::_bind_methods() {
     BIND_CONSTANT(NOTIFICATION_POSTINITIALIZE)
     BIND_CONSTANT(NOTIFICATION_PREDELETE)
 
-    BIND_ENUM_CONSTANT(ObjectNS::CONNECT_DEFERRED)
+    BIND_ENUM_CONSTANT(ObjectNS::CONNECT_QUEUED)
     BIND_ENUM_CONSTANT(ObjectNS::CONNECT_PERSIST)
     BIND_ENUM_CONSTANT(ObjectNS::CONNECT_ONESHOT)
     BIND_ENUM_CONSTANT(ObjectNS::CONNECT_REFERENCE_COUNTED)

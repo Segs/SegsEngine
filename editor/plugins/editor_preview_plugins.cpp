@@ -425,7 +425,7 @@ EditorMaterialPreviewPlugin::EditorMaterialPreviewPlugin() {
             double x0 = Math::cos(lng0);
             double y0 = Math::sin(lng0);
 
-            double lng1 = 2 * Math_PI * (double)(j) / lons;
+            double lng1 = 2 * Math_PI * (double)j / lons;
             double x1 = Math::cos(lng1);
             double y1 = Math::sin(lng1);
 
@@ -490,7 +490,7 @@ EditorMaterialPreviewPlugin::~EditorMaterialPreviewPlugin() {
 
 static bool _is_text_char(CharType c) {
 
-    return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '_';
+    return c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z' || c >= '0' && c <= '9' || c == '_';
 }
 
 bool EditorScriptPreviewPlugin::handles(se_string_view p_type) const {
@@ -555,7 +555,7 @@ Ref<Texture> EditorScriptPreviewPlugin::generate(const RES &p_from, const Size2 
             if (col < thumbnail_size) {
                 Color color = text_color;
 
-                if (c != '_' && ((c >= '!' && c <= '/') || (c >= ':' && c <= '@') || (c >= '[' && c <= '`') || (c >= '{' && c <= '~') || c == '\t')) {
+                if (c != '_' && (c >= '!' && c <= '/' || c >= ':' && c <= '@' || c >= '[' && c <= '`' || c >= '{' && c <= '~' || c == '\t')) {
                     //make symbol a little visible
                     color = symbol_color;
                     in_keyword = false;

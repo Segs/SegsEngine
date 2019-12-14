@@ -270,7 +270,7 @@ class AudioBusesEditorPlugin : public EditorPlugin {
     EditorAudioBuses *audio_bus_editor;
 
 public:
-    se_string_view get_name() const override { return ("SampleLibrary"); }
+    se_string_view get_name() const override { return "SampleLibrary"; }
     bool has_main_screen() const override { return false; }
     void edit(Object *p_node) override;
     bool handles(Object *p_node) const override;

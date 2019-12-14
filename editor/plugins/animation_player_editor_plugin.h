@@ -258,7 +258,7 @@ public:
     Dictionary get_state() const override { return anim_editor->get_state(); }
     void set_state(const Dictionary &p_state) override { anim_editor->set_state(p_state); }
 
-    se_string_view get_name() const override { return ("Anim"); }
+    se_string_view get_name() const override { return "Anim"; }
     bool has_main_screen() const override { return false; }
     void edit(Object *p_object) override;
     bool handles(Object *p_object) const override;

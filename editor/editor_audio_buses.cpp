@@ -917,7 +917,7 @@ EditorAudioBus::EditorAudioBus(EditorAudioBuses *p_buses, bool p_is_master) {
     EditorAudioMeterNotches *scale = memnew(EditorAudioMeterNotches);
 
     for (float db = 6.0f; db >= -80.0f; db -= 6.0f) {
-        bool renderNotch = (db >= -6.0f || db == -24.0f || db == -72.0f);
+        bool renderNotch = db >= -6.0f || db == -24.0f || db == -72.0f;
         scale->add_notch(_scaled_db_to_normalized_volume(db), db, renderNotch);
     }
     scale->set_mouse_filter(MOUSE_FILTER_PASS);
@@ -1008,7 +1008,7 @@ void EditorAudioBusDrop::_notification(int p_what) {
 bool EditorAudioBusDrop::can_drop_data(const Point2 &p_point, const Variant &p_data) const {
 
     Dictionary d = p_data;
-    return (d.has("type") && se_string(d["type"]) == "move_audio_bus");
+    return d.has("type") && se_string(d["type"]) == "move_audio_bus";
 }
 
 void EditorAudioBusDrop::drop_data(const Point2 &p_point, const Variant &p_data) {
@@ -1037,14 +1037,14 @@ void EditorAudioBuses::_update_buses() {
 
     for (int i = 0; i < AudioServer::get_singleton()->get_bus_count(); i++) {
 
-        bool is_master = (i == 0);
+        bool is_master = i == 0;
         EditorAudioBus *audio_bus = memnew(EditorAudioBus(this, is_master));
         bus_hb->add_child(audio_bus);
-        audio_bus->connect("delete_request", this, "_delete_bus", varray(Variant(audio_bus)), ObjectNS::CONNECT_DEFERRED);
-        audio_bus->connect("duplicate_request", this, "_duplicate_bus", varray(), ObjectNS::CONNECT_DEFERRED);
-        audio_bus->connect("vol_reset_request", this, "_reset_bus_volume", varray(Variant(audio_bus)), ObjectNS::CONNECT_DEFERRED);
+        audio_bus->connect("delete_request", this, "_delete_bus", varray(Variant(audio_bus)), ObjectNS::CONNECT_QUEUED);
+        audio_bus->connect("duplicate_request", this, "_duplicate_bus", varray(), ObjectNS::CONNECT_QUEUED);
+        audio_bus->connect("vol_reset_request", this, "_reset_bus_volume", varray(Variant(audio_bus)), ObjectNS::CONNECT_QUEUED);
         audio_bus->connect("drop_end_request", this, "_request_drop_end");
-        audio_bus->connect("dropped", this, "_drop_at_index", varray(), ObjectNS::CONNECT_DEFERRED);
+        audio_bus->connect("dropped", this, "_drop_at_index", varray(), ObjectNS::CONNECT_QUEUED);
     }
 }
 
@@ -1198,7 +1198,7 @@ void EditorAudioBuses::_request_drop_end() {
 
         bus_hb->add_child(drop_end);
         drop_end->set_custom_minimum_size(object_cast<Control>(bus_hb->get_child(0))->get_size());
-        drop_end->connect("dropped", this, "_drop_at_index", varray(), ObjectNS::CONNECT_DEFERRED);
+        drop_end->connect("dropped", this, "_drop_at_index", varray(), ObjectNS::CONNECT_QUEUED);
     }
 }
 
@@ -1266,7 +1266,7 @@ void EditorAudioBuses::_load_default_layout() {
     }
 
     edited_path = layout_path;
-    file->set_text(TTR("Layout") + (": ") + PathUtils::get_file(layout_path));
+    file->set_text(TTR("Layout") + ": " + PathUtils::get_file(layout_path));
     AudioServer::get_singleton()->set_bus_layout(state);
     _update_buses();
     EditorNode::get_singleton()->get_undo_redo()->clear_history();
@@ -1304,7 +1304,7 @@ void EditorAudioBuses::_file_dialog_callback(se_string_view p_string) {
         }
 
         edited_path = p_string;
-        file->set_text(TTR("Layout") + (": ") + PathUtils::get_file(p_string));
+        file->set_text(TTR("Layout") + ": " + PathUtils::get_file(p_string));
         _update_buses();
         EditorNode::get_singleton()->get_undo_redo()->clear_history();
         call_deferred("_select_layout");
@@ -1399,7 +1399,7 @@ EditorAudioBuses::EditorAudioBuses() {
 
     file_dialog = memnew(EditorFileDialog);
     PODVector<se_string> ext;
-    ResourceLoader::get_recognized_extensions_for_type(("AudioBusLayout"), ext);
+    ResourceLoader::get_recognized_extensions_for_type("AudioBusLayout", ext);
     for (const se_string &E : ext) {
         file_dialog->add_filter("*." + E + "; Audio Bus Layout");
     }
@@ -1440,7 +1440,7 @@ void AudioBusesEditorPlugin::edit(Object *p_node) {
 
 bool AudioBusesEditorPlugin::handles(Object *p_node) const {
 
-    return (object_cast<AudioBusLayout>(p_node) != nullptr);
+    return object_cast<AudioBusLayout>(p_node) != nullptr;
 }
 
 void AudioBusesEditorPlugin::make_visible(bool p_visible) {
@@ -1511,7 +1511,7 @@ void EditorAudioMeterNotches::_draw_audio_notches() {
         if (n.render_db_value) {
             draw_string(font,
                     Vector2(line_length + label_space,
-                            (1.0f - n.relative_position) * (get_size().y - btm_padding - top_padding) + (font_height / 4) + top_padding),
+                            (1.0f - n.relative_position) * (get_size().y - btm_padding - top_padding) + font_height / 4 + top_padding),
                     String::number(Math::abs(n.db_value)) + "dB",
                     notch_color);
         }

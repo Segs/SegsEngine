@@ -105,7 +105,7 @@ Size2 AnimationTreePlayerEditor::get_node_size(const StringName &p_node) const {
     StringName name(p_node);
 
     float name_w = font->get_string_size_utf8(p_node).width;
-    float type_w = font->get_string_size_utf8((_node_type_names[type])).width;
+    float type_w = font->get_string_size_utf8(_node_type_names[type]).width;
     float max_w = MAX(name_w, type_w);
 
     switch (type) {
@@ -538,9 +538,9 @@ void AnimationTreePlayerEditor::_draw_node(const StringName &p_node) {
                 case AnimationTreePlayer::NODE_TIMESEEK: text = "in"; break;
                 case AnimationTreePlayer::NODE_OUTPUT: text = "out"; break;
                 case AnimationTreePlayer::NODE_ANIMATION: break;
-                case AnimationTreePlayer::NODE_ONESHOT: text = (i == 0 ? "in" : "add"); break;
+                case AnimationTreePlayer::NODE_ONESHOT: text = i == 0 ? "in" : "add"; break;
                 case AnimationTreePlayer::NODE_BLEND2:
-                case AnimationTreePlayer::NODE_MIX: text = (i == 0 ? "a" : "b"); break;
+                case AnimationTreePlayer::NODE_MIX: text = i == 0 ? "a" : "b"; break;
                 case AnimationTreePlayer::NODE_BLEND3:
                     switch (i) {
                         case 0: text = "b-"; break;
@@ -561,7 +561,7 @@ void AnimationTreePlayerEditor::_draw_node(const StringName &p_node) {
                 case AnimationTreePlayer::NODE_TRANSITION:
                     text = itos(i);
                     if (anim_tree->transition_node_has_input_auto_advance(p_node, i))
-                        text += ("->");
+                        text += "->";
 
                     break;
                 default: {
@@ -621,7 +621,7 @@ AnimationTreePlayerEditor::ClickType AnimationTreePlayerEditor::_locate_click(co
     Ref<StyleBox> style = get_stylebox("panel", "PopupMenu");
     Ref<Font> font = get_font("font", "PopupMenu");
 
-    float h = (font->get_height() + get_constant("vseparation", "PopupMenu"));
+    float h = font->get_height() + get_constant("vseparation", "PopupMenu");
 
     for (auto iter = order.rbegin(); iter!=order.rend(); ++iter) {
 
@@ -651,7 +651,7 @@ AnimationTreePlayerEditor::ClickType AnimationTreePlayerEditor::_locate_click(co
         int inputs = anim_tree->node_get_input_count(node);
         int count = MAX(inputs, 1);
 
-        if (inputs == 0 || (pos.x > size.width / 2 && type != AnimationTreePlayer::NODE_OUTPUT)) {
+        if (inputs == 0 || pos.x > size.width / 2 && type != AnimationTreePlayer::NODE_OUTPUT) {
 
             if (y < count * h) {
 
@@ -863,7 +863,7 @@ void AnimationTreePlayerEditor::_draw_cos_line(const Vector2 &p_from, const Vect
     Rect2 r;
     r.position = p_from;
     r.expand_to(p_to);
-    Vector2 sign = Vector2((p_from.x < p_to.x) ? 1 : -1, (p_from.y < p_to.y) ? 1 : -1);
+    Vector2 sign = Vector2(p_from.x < p_to.x ? 1 : -1, p_from.y < p_to.y ? 1 : -1);
     bool flip = sign.x * sign.y < 0;
 
     Vector2 prev;

@@ -40,6 +40,7 @@
 #include "core/io/image_loader.h"
 #include "core/io/image_saver.h"
 #include "core/io/resource_saver.h"
+#include "core/io/resource_loader.h"
 #include "core/method_bind.h"
 #include "core/os/os.h"
 #include "core/plugin_interfaces/ImageLoaderInterface.h"

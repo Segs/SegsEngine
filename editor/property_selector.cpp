@@ -259,7 +259,7 @@ void PropertySelector::_update_search() {
             if (virtuals_only && !(E.flags & METHOD_FLAG_VIRTUAL))
                 continue;
 
-            if (!virtuals_only && (E.flags & METHOD_FLAG_VIRTUAL))
+            if (!virtuals_only && E.flags & METHOD_FLAG_VIRTUAL)
                 continue;
 
             if (!search_box->get_text_ui().isEmpty() && not StringUtils::contains(name,search_box->get_text()))
@@ -283,10 +283,10 @@ void PropertySelector::_update_search() {
             for (size_t i = 0; i < mi.arguments.size(); i++) {
 
                 if (i > 0)
-                    desc += (", ");
+                    desc += ", ";
 
                 if (mi.arguments[i].type == VariantType::NIL)
-                    desc += ("var ");
+                    desc += "var ";
                 else if (StringUtils::contains(mi.arguments[i].name,":")) {
                     desc += se_string(StringUtils::get_slice(mi.arguments[i].name,":", 1)) + " ";
                     mi.arguments[i].name = StringName(StringUtils::get_slice(mi.arguments[i].name,":", 0));
@@ -296,13 +296,13 @@ void PropertySelector::_update_search() {
                 desc += mi.arguments[i].name;
             }
 
-            desc += (" )");
+            desc += " )";
 
             if (E.flags & METHOD_FLAG_CONST)
-                desc += (" const");
+                desc += " const";
 
             if (E.flags & METHOD_FLAG_VIRTUAL)
-                desc += (" virtual");
+                desc += " virtual";
 
             item->set_text_utf8(0, desc);
             item->set_metadata(0, name);

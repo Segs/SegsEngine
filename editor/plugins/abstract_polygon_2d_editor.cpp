@@ -323,7 +323,7 @@ bool AbstractPolygon2DEditor::forward_gui_input(const Ref<InputEvent> &p_event) 
             create_resource->set_text("No polygon resource on this node.\nCreate and assign one?");
             create_resource->popup_centered_minsize();
         }
-        return (mb && mb->get_button_index() == 1);
+        return mb && mb->get_button_index() == 1;
     }
 
     CanvasItemEditor::Tool tool = CanvasItemEditor::get_singleton()->get_current_tool();
@@ -337,7 +337,7 @@ bool AbstractPolygon2DEditor::forward_gui_input(const Ref<InputEvent> &p_event) 
         Vector2 gpoint = mb->get_position();
         Vector2 cpoint = _get_node()->get_global_transform().affine_inverse().xform(canvas_item_editor->snap_point(canvas_item_editor->get_canvas_transform().affine_inverse().xform(mb->get_position())));
 
-        if (mode == MODE_EDIT || (_is_line() && mode == MODE_CREATE)) {
+        if (mode == MODE_EDIT || _is_line() && mode == MODE_CREATE) {
             if (mb->get_button_index() == BUTTON_LEFT) {
                 if (mb->is_pressed()) {
                     if (mb->get_control() || mb->get_shift() || mb->get_alt())
@@ -488,7 +488,7 @@ bool AbstractPolygon2DEditor::forward_gui_input(const Ref<InputEvent> &p_event) 
 
         Vector2 gpoint = mm->get_position();
 
-        if (edited_point.valid() && (wip_active || (mm->get_button_mask() & BUTTON_MASK_LEFT))) {
+        if (edited_point.valid() && (wip_active || mm->get_button_mask() & BUTTON_MASK_LEFT)) {
 
             Vector2 cpoint = _get_node()->get_global_transform().affine_inverse().xform(canvas_item_editor->snap_point(canvas_item_editor->get_canvas_transform().affine_inverse().xform(gpoint)));
 
@@ -513,7 +513,7 @@ bool AbstractPolygon2DEditor::forward_gui_input(const Ref<InputEvent> &p_event) 
             }
 
             canvas_item_editor->update_viewport();
-        } else if (mode == MODE_EDIT || (_is_line() && mode == MODE_CREATE)) {
+        } else if (mode == MODE_EDIT || _is_line() && mode == MODE_CREATE) {
 
             const PosVertex onEdgeVertex = closest_edge_point(gpoint);
 
@@ -634,14 +634,14 @@ void AbstractPolygon2DEditor::forward_canvas_draw_over_viewport(Control *p_overl
 
             const Vertex vertex(j, i);
 
-            const Vector2 p = (vertex == edited_point) ? edited_point.pos : (points[i] + offset);
+            const Vector2 p = vertex == edited_point ? edited_point.pos : points[i] + offset;
             const Vector2 point = xform.xform(p);
 
             if (is_closed || i < n_points - 1) {
 
                 Vector2 p2;
                 if (j == edited_point.polygon &&
-                        ((wip_active && i == n_points - 1) || (((i + 1) % n_points) == edited_point.vertex)))
+                        (wip_active && i == n_points - 1 || (i + 1) % n_points == edited_point.vertex))
                     p2 = edited_point.pos;
                 else
                     p2 = points[(i + 1) % n_points] + offset;
@@ -655,7 +655,7 @@ void AbstractPolygon2DEditor::forward_canvas_draw_over_viewport(Control *p_overl
 
             const Vertex vertex(j, i);
 
-            const Vector2 p = (vertex == edited_point) ? edited_point.pos : (points[i] + offset);
+            const Vector2 p = vertex == edited_point ? edited_point.pos : points[i] + offset;
             const Vector2 point = xform.xform(p);
 
             const Color modulate = vertex == active_point ? Color(0.5, 1, 2) : Color(1, 1, 1);

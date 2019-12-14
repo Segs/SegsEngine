@@ -721,8 +721,8 @@ InputDefault::InputDefault() {
     hat_map_default[HAT_LEFT].value = 0;
 
     fallback_mapping = -1;
-    const char *env_var = OS::get_singleton()->get_environment("SDL_GAMECONTROLLERCONFIG");
-    se_string env_mapping(env_var ? env_var : "");
+    se_string env_var = OS::get_singleton()->get_environment("SDL_GAMECONTROLLERCONFIG");
+    se_string env_mapping(env_var);
     if (!env_mapping.empty()) {
 
         Vector<se_string_view> entries = StringUtils::split(env_mapping,'\n');

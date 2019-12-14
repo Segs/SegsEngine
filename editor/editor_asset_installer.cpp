@@ -230,7 +230,7 @@ void EditorAssetInstaller::ok_pressed() {
 
     Vector<se_string> failed_files;
 
-    ProgressDialog::get_singleton()->add_task(("uncompress"), TTR("Uncompressing Assets"), status_map.size());
+    ProgressDialog::get_singleton()->add_task("uncompress", TTR("Uncompressing Assets"), status_map.size());
 
     int idx = 0;
     while (ret == UNZ_OK) {
@@ -280,7 +280,7 @@ void EditorAssetInstaller::ok_pressed() {
                     failed_files.push_back(path);
                 }
 
-                ProgressDialog::get_singleton()->task_step(("uncompress"), (path), idx);
+                ProgressDialog::get_singleton()->task_step("uncompress", path, idx);
             }
         }
 
@@ -288,7 +288,7 @@ void EditorAssetInstaller::ok_pressed() {
         ret = unzGoToNextFile(pkg);
     }
 
-    ProgressDialog::get_singleton()->end_task(("uncompress"));
+    ProgressDialog::get_singleton()->end_task("uncompress");
     unzClose(pkg);
 
     if (!failed_files.empty()) {

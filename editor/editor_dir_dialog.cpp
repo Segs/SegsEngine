@@ -90,7 +90,7 @@ void EditorDirDialog::_notification(int p_what) {
         reload();
 
         if (!tree->is_connected("item_collapsed", this, "_item_collapsed")) {
-            tree->connect("item_collapsed", this, "_item_collapsed", varray(), ObjectNS::CONNECT_DEFERRED);
+            tree->connect("item_collapsed", this, "_item_collapsed", varray(), ObjectNS::CONNECT_QUEUED);
         }
 
         if (!EditorFileSystem::get_singleton()->is_connected("filesystem_changed", this, "reload")) {

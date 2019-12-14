@@ -122,14 +122,14 @@ void ProjectSettingsEditor::_notification(int p_what) {
             popup_add->add_icon_item(get_icon("Mouse", "EditorIcons"), TTR("Mouse Button"), INPUT_MOUSE_BUTTON);
 
             PODVector<se_string> tfn;
-            ResourceLoader::get_recognized_extensions_for_type(("Translation"), tfn);
+            ResourceLoader::get_recognized_extensions_for_type("Translation", tfn);
             for (const se_string &E : tfn) {
 
                 translation_file_open->add_filter("*." + E);
             }
 
             PODVector<se_string> rfn;
-            ResourceLoader::get_recognized_extensions_for_type(("Resource"), rfn);
+            ResourceLoader::get_recognized_extensions_for_type("Resource", rfn);
             for (const se_string &E : rfn) {
                 translation_res_file_open->add_filter("*." + E);
                 translation_res_option_file_open->add_filter("*." + E);
@@ -282,7 +282,7 @@ void ProjectSettingsEditor::_device_input_add() {
 
             Ref<InputEventJoypadMotion> jm(make_ref_counted<InputEventJoypadMotion>());
             jm->set_axis(device_index->get_selected() >> 1);
-            jm->set_axis_value((device_index->get_selected() & 1) ? 1 : -1);
+            jm->set_axis_value(device_index->get_selected() & 1 ? 1 : -1);
             jm->set_device(_get_current_device());
 
             for (int i = 0; i < events.size(); i++) {
@@ -499,7 +499,7 @@ void ProjectSettingsEditor::_add_item(int p_item, const Ref<InputEvent>& p_exiti
             for (int i = 0; i < JOY_AXIS_MAX * 2; i++) {
 
                 se_string desc(_axis_names[i]);
-                device_index->add_item((TTR("Axis")) + " " + itos(i / 2) + " " + ((i & 1) ? "+" : "-") + desc);
+                device_index->add_item(TTR("Axis") + " " + itos(i / 2) + " " + (i & 1 ? "+" : "-") + desc);
             }
             device_input->popup_centered_minsize(Size2(350, 95) * EDSCALE);
 
@@ -521,7 +521,7 @@ void ProjectSettingsEditor::_add_item(int p_item, const Ref<InputEvent>& p_exiti
 
             for (int i = 0; i < JOY_BUTTON_MAX; i++) {
 
-                device_index->add_item(StringName(itos(i) + ": " + (_button_names[i])));
+                device_index->add_item(StringName(itos(i) + ": " + _button_names[i]));
             }
             device_input->popup_centered_minsize(Size2(350, 95) * EDSCALE);
 
@@ -545,16 +545,16 @@ void ProjectSettingsEditor::_edit_item(const Ref<InputEvent>& p_exiting_event) {
 
     InputType ie_type;
 
-    if ((dynamic_ref_cast<InputEventKey>(p_exiting_event))) {
+    if (dynamic_ref_cast<InputEventKey>(p_exiting_event)) {
         ie_type = INPUT_KEY;
 
-    } else if ((dynamic_ref_cast<InputEventJoypadButton>(p_exiting_event))) {
+    } else if (dynamic_ref_cast<InputEventJoypadButton>(p_exiting_event)) {
         ie_type = INPUT_JOY_BUTTON;
 
-    } else if ((dynamic_ref_cast<InputEventMouseButton>(p_exiting_event))) {
+    } else if (dynamic_ref_cast<InputEventMouseButton>(p_exiting_event)) {
         ie_type = INPUT_MOUSE_BUTTON;
 
-    } else if ((dynamic_ref_cast<InputEventJoypadMotion>(p_exiting_event))) {
+    } else if (dynamic_ref_cast<InputEventJoypadMotion>(p_exiting_event)) {
         ie_type = INPUT_JOY_MOTION;
 
     } else {
@@ -1621,7 +1621,7 @@ void ProjectSettingsEditor::_update_translations() {
 
             TreeItem *t = translation_remap->create_item(root);
             t->set_editable(0, false);
-            t->set_text_utf8(0, StringUtils::replace_first(keys[i],("res://"), se_string()));
+            t->set_text_utf8(0, StringUtils::replace_first(keys[i],"res://", se_string()));
             t->set_tooltip(0, StringName(keys[i]));
             t->set_metadata(0, keys[i]);
             t->add_button(0, get_icon("Remove", "EditorIcons"), 0, false, TTR("Remove"));

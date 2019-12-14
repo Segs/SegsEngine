@@ -687,7 +687,7 @@ bool EditorFileDialog::_is_open_should_be_disabled() {
 
         Dictionary d = item_list->get_item_metadata(items.get(i));
 
-        if (((mode == MODE_OPEN_FILE || mode == MODE_OPEN_FILES) && d["dir"]) || (mode == MODE_OPEN_DIR && !d["dir"]))
+        if ((mode == MODE_OPEN_FILE || mode == MODE_OPEN_FILES) && d["dir"] || mode == MODE_OPEN_DIR && !d["dir"])
             return true;
     }
 
@@ -696,7 +696,7 @@ bool EditorFileDialog::_is_open_should_be_disabled() {
 
 void EditorFileDialog::update_file_name() {
     int idx = filter->get_selected() - 1;
-    if ((idx == -1 && filter->get_item_count() == 2) || (filter->get_item_count() > 2 && idx >= 0 && idx < filter->get_item_count() - 2)) {
+    if (idx == -1 && filter->get_item_count() == 2 || filter->get_item_count() > 2 && idx >= 0 && idx < filter->get_item_count() - 2) {
         if (idx == -1) idx += 1;
         se_string filter_str = filters[idx];
         se_string file_str = file->get_text();
@@ -926,7 +926,7 @@ void EditorFileDialog::update_filters() {
         }
 
         if (max_filters < filters.size())
-            all_filters += (", ...");
+            all_filters += ", ...";
 
         filter->add_item(TTR("All Recognized") + " ( " + all_filters + " )");
     }
@@ -1186,8 +1186,8 @@ void EditorFileDialog::_favorite_move_up() {
     if (current > 0 && current < favorites->get_item_count()) {
         Vector<se_string> favorited = EditorSettings::get_singleton()->get_favorites();
 
-        int a_idx = favorited.find((favorites->get_item_metadata(current - 1)));
-        int b_idx = favorited.find((favorites->get_item_metadata(current)));
+        int a_idx = favorited.find(favorites->get_item_metadata(current - 1));
+        int b_idx = favorited.find(favorites->get_item_metadata(current));
 
         if (a_idx == -1 || b_idx == -1)
             return;
@@ -1206,8 +1206,8 @@ void EditorFileDialog::_favorite_move_down() {
     if (current >= 0 && current < favorites->get_item_count() - 1) {
         Vector<se_string> favorited = EditorSettings::get_singleton()->get_favorites();
 
-        int a_idx = favorited.find((favorites->get_item_metadata(current + 1)));
-        int b_idx = favorited.find((favorites->get_item_metadata(current)));
+        int a_idx = favorited.find(favorites->get_item_metadata(current + 1));
+        int b_idx = favorited.find(favorites->get_item_metadata(current));
 
         if (a_idx == -1 || b_idx == -1)
             return;
@@ -1484,7 +1484,7 @@ void EditorFileDialog::_save_to_recent() {
 
     for (int i = 0; i < recent.size(); i++) {
         bool cres = StringUtils::begins_with(recent[i],"res://");
-        if (recent[i] == dir || (res == cres && count > max)) {
+        if (recent[i] == dir || res == cres && count > max) {
             recent.remove(i);
             i--;
         } else {
@@ -1697,8 +1697,8 @@ EditorFileDialog::EditorFileDialog() {
     _update_drives();
 
     connect("confirmed", this, "_action_pressed");
-    item_list->connect("item_selected", this, "_item_selected", varray(), ObjectNS::CONNECT_DEFERRED);
-    item_list->connect("multi_selected", this, "_multi_selected", varray(), ObjectNS::CONNECT_DEFERRED);
+    item_list->connect("item_selected", this, "_item_selected", varray(), ObjectNS::CONNECT_QUEUED);
+    item_list->connect("multi_selected", this, "_multi_selected", varray(), ObjectNS::CONNECT_QUEUED);
     item_list->connect("item_activated", this, "_item_db_selected", varray());
     item_list->connect("nothing_selected", this, "_items_clear_selection");
     dir->connect("text_entered", this, "_dir_entered");

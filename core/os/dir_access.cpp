@@ -312,7 +312,7 @@ Error DirAccess::copy(se_string_view p_from, se_string_view p_to, int p_chmod_fl
     }
 
     fsrc->seek_end(0);
-    int size = fsrc->get_position();
+    size_t size = fsrc->get_position();
     fsrc->seek(0);
     err = OK;
     while (size--) {

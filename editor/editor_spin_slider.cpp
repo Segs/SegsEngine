@@ -122,7 +122,7 @@ void EditorSpinSlider::_gui_input(const Ref<InputEvent> &p_event) {
                 }
             }
         } else if (updown_offset != -1) {
-            bool new_hover = (mm->get_position().x > updown_offset);
+            bool new_hover = mm->get_position().x > updown_offset;
             if (new_hover != hover_updown) {
                 hover_updown = new_hover;
                 update();

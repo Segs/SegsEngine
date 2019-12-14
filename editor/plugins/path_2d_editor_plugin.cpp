@@ -108,7 +108,7 @@ bool Path2DEditor::forward_gui_input(const Ref<InputEvent> &p_event) {
                         return true;
                     } else if (mode == MODE_EDIT || mode == MODE_EDIT_CURVE) {
                         // In/out controls can be moved in multiple modes.
-                        if (dist_to_p_out < grab_threshold && i < (curve->get_point_count() - 1)) {
+                        if (dist_to_p_out < grab_threshold && i < curve->get_point_count() - 1) {
 
                             action = ACTION_MOVING_OUT;
                             action_point = i;
@@ -129,7 +129,7 @@ bool Path2DEditor::forward_gui_input(const Ref<InputEvent> &p_event) {
                 }
 
                 // Check for point deletion.
-                if ((mb->get_button_index() == BUTTON_RIGHT && mode == MODE_EDIT) || (mb->get_button_index() == BUTTON_LEFT && mode == MODE_DELETE)) {
+                if (mb->get_button_index() == BUTTON_RIGHT && mode == MODE_EDIT || mb->get_button_index() == BUTTON_LEFT && mode == MODE_DELETE) {
                     if (dist_to_p < grab_threshold) {
 
                         undo_redo->create_action_ui(TTR("Remove Point from Curve"));
@@ -163,7 +163,7 @@ bool Path2DEditor::forward_gui_input(const Ref<InputEvent> &p_event) {
         }
 
         // Check for point creation.
-        if (mb->is_pressed() && mb->get_button_index() == BUTTON_LEFT && ((mb->get_command() && mode == MODE_EDIT) || mode == MODE_CREATE)) {
+        if (mb->is_pressed() && mb->get_button_index() == BUTTON_LEFT && (mb->get_command() && mode == MODE_EDIT || mode == MODE_CREATE)) {
 
             Ref<Curve2D> curve = node->get_curve();
 
@@ -249,8 +249,8 @@ bool Path2DEditor::forward_gui_input(const Ref<InputEvent> &p_event) {
                     undo_redo->add_undo_method(curve.get(), "set_point_in", action_point, moving_from);
 
                     if (mirror_handle_angle) {
-                        undo_redo->add_do_method(curve.get(), "set_point_out", action_point, mirror_handle_length ? -new_pos : (-new_pos.normalized() * orig_out_length));
-                        undo_redo->add_undo_method(curve.get(), "set_point_out", action_point, mirror_handle_length ? -moving_from : (-moving_from.normalized() * orig_out_length));
+                        undo_redo->add_do_method(curve.get(), "set_point_out", action_point, mirror_handle_length ? -new_pos : -new_pos.normalized() * orig_out_length);
+                        undo_redo->add_undo_method(curve.get(), "set_point_out", action_point, mirror_handle_length ? -moving_from : -moving_from.normalized() * orig_out_length);
                     }
                     undo_redo->add_do_method(canvas_item_editor, "update_viewport");
                     undo_redo->add_undo_method(canvas_item_editor, "update_viewport");
@@ -265,8 +265,8 @@ bool Path2DEditor::forward_gui_input(const Ref<InputEvent> &p_event) {
                     undo_redo->add_undo_method(curve.get(), "set_point_out", action_point, moving_from);
 
                     if (mirror_handle_angle) {
-                        undo_redo->add_do_method(curve.get(), "set_point_in", action_point, mirror_handle_length ? -new_pos : (-new_pos.normalized() * orig_in_length));
-                        undo_redo->add_undo_method(curve.get(), "set_point_in", action_point, mirror_handle_length ? -moving_from : (-moving_from.normalized() * orig_in_length));
+                        undo_redo->add_do_method(curve.get(), "set_point_in", action_point, mirror_handle_length ? -new_pos : -new_pos.normalized() * orig_in_length);
+                        undo_redo->add_undo_method(curve.get(), "set_point_in", action_point, mirror_handle_length ? -moving_from : -moving_from.normalized() * orig_in_length);
                     }
                     undo_redo->add_do_method(canvas_item_editor, "update_viewport");
                     undo_redo->add_undo_method(canvas_item_editor, "update_viewport");
@@ -352,14 +352,14 @@ bool Path2DEditor::forward_gui_input(const Ref<InputEvent> &p_event) {
                     curve->set_point_in(action_point, new_pos);
 
                     if (mirror_handle_angle)
-                        curve->set_point_out(action_point, mirror_handle_length ? -new_pos : (-new_pos.normalized() * orig_out_length));
+                        curve->set_point_out(action_point, mirror_handle_length ? -new_pos : -new_pos.normalized() * orig_out_length);
                 } break;
 
                 case ACTION_MOVING_OUT: {
                     curve->set_point_out(action_point, new_pos);
 
                     if (mirror_handle_angle)
-                        curve->set_point_in(action_point, mirror_handle_length ? -new_pos : (-new_pos.normalized() * orig_in_length));
+                        curve->set_point_in(action_point, mirror_handle_length ? -new_pos : -new_pos.normalized() * orig_in_length);
                 } break;
             }
 

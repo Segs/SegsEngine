@@ -148,7 +148,7 @@ RenameDialog::RenameDialog(SceneTreeEditor *p_scene_tree_editor, UndoRedo *p_und
 
     but_insert_name = memnew(Button);
     but_insert_name->set_text("NAME");
-    but_insert_name->set_tooltip(("${NAME}\n") + TTR("Node name"));
+    but_insert_name->set_tooltip("${NAME}\n" + TTR("Node name"));
     but_insert_name->set_focus_mode(FOCUS_NONE);
     but_insert_name->connect("pressed", this, "_insert_text", make_binds("${NAME}"));
     but_insert_name->set_h_size_flags(SIZE_EXPAND_FILL);
@@ -158,7 +158,7 @@ RenameDialog::RenameDialog(SceneTreeEditor *p_scene_tree_editor, UndoRedo *p_und
 
     but_insert_parent = memnew(Button);
     but_insert_parent->set_text("PARENT");
-    but_insert_parent->set_tooltip(("${PARENT}\n") + TTR("Node's parent name, if available"));
+    but_insert_parent->set_tooltip("${PARENT}\n" + TTR("Node's parent name, if available"));
     but_insert_parent->set_focus_mode(FOCUS_NONE);
     but_insert_parent->connect("pressed", this, "_insert_text", make_binds("${PARENT}"));
     but_insert_parent->set_h_size_flags(SIZE_EXPAND_FILL);
@@ -168,7 +168,7 @@ RenameDialog::RenameDialog(SceneTreeEditor *p_scene_tree_editor, UndoRedo *p_und
 
     but_insert_type = memnew(Button);
     but_insert_type->set_text("TYPE");
-    but_insert_type->set_tooltip(("${TYPE}\n") + TTR("Node type"));
+    but_insert_type->set_tooltip("${TYPE}\n" + TTR("Node type"));
     but_insert_type->set_focus_mode(FOCUS_NONE);
     but_insert_type->connect("pressed", this, "_insert_text", make_binds("${TYPE}"));
     but_insert_type->set_h_size_flags(SIZE_EXPAND_FILL);
@@ -178,7 +178,7 @@ RenameDialog::RenameDialog(SceneTreeEditor *p_scene_tree_editor, UndoRedo *p_und
 
     but_insert_scene = memnew(Button);
     but_insert_scene->set_text("SCENE");
-    but_insert_scene->set_tooltip(("${SCENE}\n") + TTR("Current scene name"));
+    but_insert_scene->set_tooltip("${SCENE}\n" + TTR("Current scene name"));
     but_insert_scene->set_focus_mode(FOCUS_NONE);
     but_insert_scene->connect("pressed", this, "_insert_text", make_binds("${SCENE}"));
     but_insert_scene->set_h_size_flags(SIZE_EXPAND_FILL);
@@ -188,7 +188,7 @@ RenameDialog::RenameDialog(SceneTreeEditor *p_scene_tree_editor, UndoRedo *p_und
 
     but_insert_root = memnew(Button);
     but_insert_root->set_text("ROOT");
-    but_insert_root->set_tooltip(("${ROOT}\n") + TTR("Root node name"));
+    but_insert_root->set_tooltip("${ROOT}\n" + TTR("Root node name"));
     but_insert_root->set_focus_mode(FOCUS_NONE);
     but_insert_root->connect("pressed", this, "_insert_text", make_binds("${ROOT}"));
     but_insert_root->set_h_size_flags(SIZE_EXPAND_FILL);
@@ -198,7 +198,7 @@ RenameDialog::RenameDialog(SceneTreeEditor *p_scene_tree_editor, UndoRedo *p_und
 
     but_insert_count = memnew(Button);
     but_insert_count->set_text("COUNTER");
-    but_insert_count->set_tooltip(("${COUNTER}\n") + TTR("Sequential integer counter.\nCompare counter options."));
+    but_insert_count->set_tooltip("${COUNTER}\n" + TTR("Sequential integer counter.\nCompare counter options."));
     but_insert_count->set_focus_mode(FOCUS_NONE);
     but_insert_count->connect("pressed", this, "_insert_text", make_binds("${COUNTER}"));
     but_insert_count->set_h_size_flags(SIZE_EXPAND_FILL);
@@ -450,12 +450,12 @@ StringName RenameDialog::_apply_rename(const Node *node, int count) {
 
     if (cbut_regex->is_pressed()) {
 
-        new_name = (_regex(search, new_name, replace));
+        new_name = _regex(search, new_name, replace);
     } else {
         new_name.replace(search, replace);
     }
 
-    new_name = (prefix + new_name + suffix);
+    new_name = prefix + new_name + suffix;
 
     if (cbut_process->is_pressed()) {
         new_name = _postprocess(new_name);
@@ -535,7 +535,7 @@ se_string RenameDialog::_postprocess(const se_string &subject) {
 
         // CamelCase to Under_Line
         result = StringUtils::camelcase_to_underscore(result,true);
-        result = _regex(se_string("_+"), result, ("_"));
+        result = _regex(se_string("_+"), result, "_");
 
     } else if (style_id == 2) {
 

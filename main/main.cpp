@@ -1929,8 +1929,8 @@ bool Main::start() {
 #endif
 
 #ifdef WINDOWS_ENABLED
-                String win_iconpath = GLOBAL_DEF("application/config/windows_native_icon", "Variant()");
-                if (win_iconpath != "") {
+                se_string win_iconpath = GLOBAL_DEF("application/config/windows_native_icon", "Variant()");
+                if (not win_iconpath.empty()) {
                     OS::get_singleton()->set_native_icon(win_iconpath);
                     hasicon = true;
                 }

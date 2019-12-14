@@ -101,10 +101,10 @@ Ref<ImageTexture> editor_generate_icon(const QString &resource_path,bool p_conve
     bool is_gizmo = QFileInfo(resource_path).baseName().startsWith("Gizmo");
     QByteArray resource_data = resource_file.readAll();
     LoadParams svg_load = {p_scale, false, true, p_convert_color };
-    img->create(ImageLoader::load_image(("svg"),(const uint8_t *)resource_data.data(),resource_data.size(),svg_load));
+    img->create(ImageLoader::load_image("svg",(const uint8_t *)resource_data.data(),resource_data.size(),svg_load));
     img->shrink_x2();
 
-    if ((p_scale - (float)((int)p_scale)) > 0.0f || is_gizmo || p_force_filter)
+    if (p_scale - (float)(int)p_scale > 0.0f || is_gizmo || p_force_filter)
         icon->create_from_image(img); // in this case filter really helps
     else
         icon->create_from_image(img, 0);
@@ -118,7 +118,7 @@ Ref<ImageTexture> editor_generate_icon(const QString &resource_path,bool p_conve
 
 static void editor_register_and_generate_icons(
         const Ref<Theme> &p_theme, bool p_dark_theme = true, int p_thumb_size = 32, bool p_only_thumbs = false) {
-    ImageFormatLoader * loader= ImageLoader::recognize(("svg"));
+    ImageFormatLoader * loader= ImageLoader::recognize("svg");
     if (loader) {
         //Dictionary dark_icon_color_dictionary;
         PODVector<eastl::pair<Color,Color>> dark_icon_color_dictionary;

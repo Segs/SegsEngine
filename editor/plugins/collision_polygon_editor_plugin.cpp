@@ -398,7 +398,7 @@ void Polygon3DEditor::_polygon_draw() {
 
         Vector2 p, p2;
         p = i == edited_point ? edited_point_pos : poly[i];
-        if ((wip_active && i == poly.size() - 1) || (((i + 1) % poly.size()) == edited_point))
+        if (wip_active && i == poly.size() - 1 || (i + 1) % poly.size() == edited_point)
             p2 = edited_point_pos;
         else
             p2 = poly[(i + 1) % poly.size()];
@@ -485,7 +485,7 @@ void Polygon3DEditor::_polygon_draw() {
         PoolVector<Vector3>::Write w = va.write();
         for (int i = 0; i < poly.size(); i++) {
 
-            Vector2 p = (i == edited_point) ? edited_point_pos : poly[i];
+            Vector2 p = i == edited_point ? edited_point_pos : poly[i];
 
             Vector3 point = Vector3(p.x, p.y, depth);
             w[i] = point;

@@ -225,7 +225,7 @@ void CurveEditor::on_gui_input(const Ref<InputEvent> &p_event) {
                         curve.set_point_left_tangent(_selected_point, tangent);
 
                         // Note: if a tangent is set to linear, it shouldn't be linked to the other
-                        if (link && _selected_point != (curve.get_point_count() - 1) && curve.get_point_right_mode(_selected_point) != Curve::TANGENT_LINEAR)
+                        if (link && _selected_point != curve.get_point_count() - 1 && curve.get_point_right_mode(_selected_point) != Curve::TANGENT_LINEAR)
                             curve.set_point_right_tangent(_selected_point, tangent);
 
                     } else {
@@ -533,7 +533,7 @@ void CurveEditor::update_view_transform() {
 
     Rect2 world_rect = Rect2(Curve::MIN_X, min_y, Curve::MAX_X, max_y - min_y);
     Vector2 wm = Vector2(margin, margin) / control_size;
-    wm.y *= (max_y - min_y);
+    wm.y *= max_y - min_y;
     world_rect.position -= wm;
     world_rect.size += 2.0 * wm;
 
@@ -647,7 +647,7 @@ void CurveEditor::_draw() {
     draw_line(Vector2(0, min_edge.y), Vector2(0, max_edge.y), grid_color0);
     draw_line(Vector2(1, max_edge.y), Vector2(1, min_edge.y), grid_color0);
 
-    float curve_height = (curve.get_max_value() - curve.get_min_value());
+    float curve_height = curve.get_max_value() - curve.get_min_value();
     const Vector2 grid_step(0.25f, 0.5f * curve_height);
 
     for (real_t x = 0; x < 1.0f; x += grid_step.x) {

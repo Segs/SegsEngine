@@ -457,17 +457,18 @@ Error OS_Unix::set_cwd(se_string_view p_cwd) {
     return OK;
 }
 
-const char *OS_Unix::get_environment(se_string_view p_var) const {
+se_string OS_Unix::get_environment(se_string_view p_var) const {
     se_string zterm(p_var);
     const char *res=getenv(zterm.data());
     if (res)
         return res;
-    return nullptr;
+    return se_string();
 }
 
-bool OS_Unix::set_environment(se_string_view p_var, const String &p_value) const {
+bool OS_Unix::set_environment(se_string_view p_var, se_string_view p_value) const {
     se_string zterm(p_var);
-    return setenv(zterm.data(), qPrintable(p_value), /* overwrite: */ true) == 0;
+    se_string zval(p_value);
+    return setenv(zterm.data(), zval.data(), /* overwrite: */ true) == 0;
 }
 
 int OS_Unix::get_processor_count() const {

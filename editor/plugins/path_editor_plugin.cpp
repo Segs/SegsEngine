@@ -57,7 +57,7 @@ StringName PathSpatialGizmo::get_handle_name(int p_idx) const {
     int idx = p_idx / 2;
     int t = p_idx % 2;
     StringName n = TTR("Curve Point #") + StringUtils::num(idx);
-    return n + StringName((t == 0) ? " In":" Out");
+    return n + StringName(t == 0 ? " In":" Out");
 }
 Variant PathSpatialGizmo::get_handle_value(int p_idx) {
 
@@ -147,11 +147,11 @@ void PathSpatialGizmo::set_handle(int p_idx, Camera *p_camera, const Point2 &p_p
         if (t == 0) {
             c->set_point_in(idx, local);
             if (PathEditorPlugin::singleton->mirror_angle_enabled())
-                c->set_point_out(idx, PathEditorPlugin::singleton->mirror_length_enabled() ? -local : (-local.normalized() * orig_out_length));
+                c->set_point_out(idx, PathEditorPlugin::singleton->mirror_length_enabled() ? -local : -local.normalized() * orig_out_length);
         } else {
             c->set_point_out(idx, local);
             if (PathEditorPlugin::singleton->mirror_angle_enabled())
-                c->set_point_in(idx, PathEditorPlugin::singleton->mirror_length_enabled() ? -local : (-local.normalized() * orig_in_length));
+                c->set_point_in(idx, PathEditorPlugin::singleton->mirror_length_enabled() ? -local : -local.normalized() * orig_in_length);
         }
     }
 }
@@ -195,8 +195,8 @@ void PathSpatialGizmo::commit_handle(int p_idx, const Variant &p_restore, bool p
         ur->add_undo_method(c.get(), "set_point_in", idx, p_restore);
 
         if (PathEditorPlugin::singleton->mirror_angle_enabled()) {
-            ur->add_do_method(c.get(), "set_point_out", idx, PathEditorPlugin::singleton->mirror_length_enabled() ? -c->get_point_in(idx) : (-c->get_point_in(idx).normalized() * orig_out_length));
-            ur->add_undo_method(c.get(), "set_point_out", idx, PathEditorPlugin::singleton->mirror_length_enabled() ? -static_cast<Vector3>(p_restore) : (-static_cast<Vector3>(p_restore).normalized() * orig_out_length));
+            ur->add_do_method(c.get(), "set_point_out", idx, PathEditorPlugin::singleton->mirror_length_enabled() ? -c->get_point_in(idx) : -c->get_point_in(idx).normalized() * orig_out_length);
+            ur->add_undo_method(c.get(), "set_point_out", idx, PathEditorPlugin::singleton->mirror_length_enabled() ? -static_cast<Vector3>(p_restore) : -static_cast<Vector3>(p_restore).normalized() * orig_out_length);
         }
         ur->commit_action();
 
@@ -212,8 +212,8 @@ void PathSpatialGizmo::commit_handle(int p_idx, const Variant &p_restore, bool p
         ur->add_undo_method(c.get(), "set_point_out", idx, p_restore);
 
         if (PathEditorPlugin::singleton->mirror_angle_enabled()) {
-            ur->add_do_method(c.get(), "set_point_in", idx, PathEditorPlugin::singleton->mirror_length_enabled() ? -c->get_point_out(idx) : (-c->get_point_out(idx).normalized() * orig_in_length));
-            ur->add_undo_method(c.get(), "set_point_in", idx, PathEditorPlugin::singleton->mirror_length_enabled() ? -static_cast<Vector3>(p_restore) : (-static_cast<Vector3>(p_restore).normalized() * orig_in_length));
+            ur->add_do_method(c.get(), "set_point_in", idx, PathEditorPlugin::singleton->mirror_length_enabled() ? -c->get_point_out(idx) : -c->get_point_out(idx).normalized() * orig_in_length);
+            ur->add_undo_method(c.get(), "set_point_in", idx, PathEditorPlugin::singleton->mirror_length_enabled() ? -static_cast<Vector3>(p_restore) : -static_cast<Vector3>(p_restore).normalized() * orig_in_length);
         }
         ur->commit_action();
     }
@@ -316,7 +316,7 @@ bool PathEditorPlugin::forward_spatial_gui_input(Camera *p_camera, const Ref<Inp
         if (!mb->is_pressed())
             set_handle_clicked(false);
 
-        if (mb->is_pressed() && mb->get_button_index() == BUTTON_LEFT && (curve_create->is_pressed() || (curve_edit->is_pressed() && mb->get_control()))) {
+        if (mb->is_pressed() && mb->get_button_index() == BUTTON_LEFT && (curve_create->is_pressed() || curve_edit->is_pressed() && mb->get_control())) {
             //click into curve, break it down
             PoolVector<Vector3> v3a = c->tessellate();
             int idx = 0;
@@ -410,7 +410,7 @@ bool PathEditorPlugin::forward_spatial_gui_input(Camera *p_camera, const Ref<Inp
                 //add new at pos
             }
 
-        } else if (mb->is_pressed() && ((mb->get_button_index() == BUTTON_LEFT && curve_del->is_pressed()) || (mb->get_button_index() == BUTTON_RIGHT && curve_edit->is_pressed()))) {
+        } else if (mb->is_pressed() && (mb->get_button_index() == BUTTON_LEFT && curve_del->is_pressed() || mb->get_button_index() == BUTTON_RIGHT && curve_edit->is_pressed())) {
 
             for (int i = 0; i < c->get_point_count(); i++) {
                 real_t dist_to_p = p_camera->unproject_position(gt.xform(c->get_point_position(i))).distance_to(mbpos);

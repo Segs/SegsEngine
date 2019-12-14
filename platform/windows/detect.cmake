@@ -21,7 +21,7 @@ if(MINGW)
     ADD_DEFINITIONS(-DRTAUDIO_ENABLED)
     ADD_DEFINITIONS(-DWASAPI_ENABLED)
     ADD_DEFINITIONS(-DWINVER=${target_win_version} -D_WIN32_WINNT=${target_win_version})
-    set(LIBRARIES mingw32 opengl32 dsound ole32 d3d9 winmm gdi32 iphlpapi shlwapi wsock32 ws2_32 kernel32 oleaut32 dinput8 dxguid ksuser imm32 bcrypt Avrt)
+    set(LIBRARIES mingw32 opengl32 dsound ole32 d3d9 winmm gdi32 iphlpapi shlwapi wsock32 ws2_32 kernel32 oleaut32 dinput8 dxguid ksuser imm32 bcrypt Avrt dwmapi)
 
     ADD_DEFINITIONS(-DMINGW_ENABLED)
     ADD_DEFINITIONS(-DMINGW_HAS_SECURE_API=1)

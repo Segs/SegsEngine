@@ -120,7 +120,7 @@ void DocDump::dump(se_string_view p_file) {
 
             se_string qualifiers;
             if (E.flags & METHOD_FLAG_CONST)
-                qualifiers += ("qualifiers=\"const\"");
+                qualifiers += "qualifiers=\"const\"";
 
             _write_string(f, 2, "<method name=\"" + _escape_string(E.name) + "\" " + qualifiers + " >");
 
@@ -131,7 +131,7 @@ void DocDump::dump(se_string_view p_file) {
                 if (i == -1) {
 
                     arginfo = E.return_val;
-                    se_string type_name = (arginfo.hint == PROPERTY_HINT_RESOURCE_TYPE) ? arginfo.hint_string : Variant::get_type_name(arginfo.type);
+                    se_string type_name = arginfo.hint == PROPERTY_HINT_RESOURCE_TYPE ? arginfo.hint_string : Variant::get_type_name(arginfo.type);
 
                     if (arginfo.type == VariantType::NIL)
                         continue;
@@ -221,7 +221,7 @@ void DocDump::dump(se_string_view p_file) {
                     case PROPERTY_HINT_ENUM:
                         hint = "Values: ";
                         for (int j = 0; j < StringUtils::get_slice_count(arginfo.hint_string,','); j++) {
-                            if (j > 0) hint += (", ");
+                            if (j > 0) hint += ", ";
                             hint += se_string(StringUtils::get_slice(arginfo.hint_string,",", j)) + "=" + itos(j);
                         }
                         break;
@@ -229,7 +229,7 @@ void DocDump::dump(se_string_view p_file) {
                     case PROPERTY_HINT_FLAGS:
                         hint = "Values: ";
                         for (int j = 0; j < StringUtils::get_slice_count(arginfo.hint_string,','); j++) {
-                            if (j > 0) hint += (", ");
+                            if (j > 0) hint += ", ";
                             hint += se_string(StringUtils::get_slice(arginfo.hint_string,",", j)) + "=" + itos((uint64_t)1 << j);
                         }
                         break;
@@ -241,7 +241,7 @@ void DocDump::dump(se_string_view p_file) {
                 if (!hint.empty())
                     _write_string(f, 4, hint);
 
-                _write_string(f, 3, (i == -1) ? "</return>" : "</argument>");
+                _write_string(f, 3, i == -1 ? "</return>" : "</argument>");
             }
 
             _write_string(f, 3, "<description>");

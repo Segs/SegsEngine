@@ -304,7 +304,7 @@ void ConnectDialog::init(const Connection& c, bool bEdit) {
         get_ok()->set_disabled(true);
     }
 
-    bool bDeferred = (c.flags & ObjectNS::CONNECT_DEFERRED) == ObjectNS::CONNECT_DEFERRED;
+    bool bDeferred = (c.flags & ObjectNS::CONNECT_QUEUED) == ObjectNS::CONNECT_QUEUED;
     bool bOneshot = (c.flags & ObjectNS::CONNECT_ONESHOT) == ObjectNS::CONNECT_ONESHOT;
 
     deferred->set_pressed(bDeferred);
@@ -424,7 +424,7 @@ ConnectDialog::ConnectDialog() {
     vbc_right->add_margin_child(TTR("Extra Call Arguments:"), bind_editor, true);
 
     HBoxContainer *dstm_hb = memnew(HBoxContainer);
-    vbc_left->add_margin_child(("Receiver Method:"), dstm_hb);
+    vbc_left->add_margin_child("Receiver Method:", dstm_hb);
 
     dst_method = memnew(LineEdit);
     dst_method->set_h_size_flags(SIZE_EXPAND_FILL);
@@ -518,7 +518,7 @@ void ConnectionsDock::_make_or_edit_connection() {
     cToMake.binds = connect_dialog->get_binds();
     bool defer = connect_dialog->get_deferred();
     bool oshot = connect_dialog->get_oneshot();
-    cToMake.flags = ObjectNS::CONNECT_PERSIST | (defer ? ObjectNS::CONNECT_DEFERRED : 0) | (oshot ? ObjectNS::CONNECT_ONESHOT : 0);
+    cToMake.flags = ObjectNS::CONNECT_PERSIST | (defer ? ObjectNS::CONNECT_QUEUED : 0) | (oshot ? ObjectNS::CONNECT_ONESHOT : 0);
 
     // Conditions to add function: must have a script and must not have the method already
     // (in the class, the script itself, or inherited).
@@ -673,7 +673,7 @@ void ConnectionsDock::_tree_item_activated() { // "Activation" on double-click.
 
 bool ConnectionsDock::_is_item_signal(TreeItem &item) {
 
-    return (item.get_parent() == tree->get_root() || item.get_parent()->get_parent() == tree->get_root());
+    return item.get_parent() == tree->get_root() || item.get_parent()->get_parent() == tree->get_root();
 }
 
 /*
@@ -686,7 +686,7 @@ void ConnectionsDock::_open_connection_dialog(TreeItem &item) {
     se_string midname(selectedNode->get_name());
     for (size_t i = 0; i < midname.length(); i++) { //TODO: Regex filter may be cleaner.
         char c = midname[i];
-        if (!((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '_')) {
+        if (!(c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z' || c >= '0' && c <= '9' || c == '_')) {
             if (c == ' ') {
                 // Replace spaces with underlines.
                 c = '_';
@@ -726,7 +726,7 @@ void ConnectionsDock::_open_connection_dialog(const Connection& cToEdit) {
     Node *dst = static_cast<Node *>(cToEdit.target);
 
     if (src && dst) {
-        connect_dialog->set_title(TTR("Edit Connection:") + (cToEdit.signal));
+        connect_dialog->set_title(TTR("Edit Connection:") + cToEdit.signal);
         connect_dialog->popup_centered();
         connect_dialog->init(cToEdit, true);
     }
@@ -930,7 +930,7 @@ void ConnectionsDock::update_tree() {
                 int idx=0;
                 for (PropertyInfo &pi : mi.arguments) {
                     if (0==idx)
-                        signaldesc += (", ");
+                        signaldesc += ", ";
 
                     se_string tname("var");
                     if (pi.type == VariantType::OBJECT && pi.class_name != StringName()) {
@@ -1002,20 +1002,20 @@ void ConnectionsDock::update_tree() {
                     continue;
 
                 se_string path = se_string(selectedNode->get_path_to(target)) + " :: " + c.method + "()";
-                if (c.flags & ObjectNS::CONNECT_DEFERRED)
-                    path += (" (deferred)");
+                if (c.flags & ObjectNS::CONNECT_QUEUED)
+                    path += " (deferred)";
                 if (c.flags & ObjectNS::CONNECT_ONESHOT)
-                    path += (" (oneshot)");
+                    path += " (oneshot)";
                 if (!c.binds.empty()) {
 
-                    path += (" binds( ");
+                    path += " binds( ";
                     for (int i = 0; i < c.binds.size(); i++) {
 
                         if (i > 0)
-                            path += (", ");
+                            path += ", ";
                         path += c.binds[i].as<se_string>();
                     }
-                    path += (" )");
+                    path += " )";
                 }
 
                 TreeItem *item2 = tree->create_item(item);

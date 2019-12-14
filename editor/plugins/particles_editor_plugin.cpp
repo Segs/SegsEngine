@@ -359,7 +359,7 @@ void ParticlesEditor::_generate_aabb() {
     while (running < time) {
 
         uint64_t ticks = OS::get_singleton()->get_ticks_usec();
-        ep.step(("Generating..."), int(running), true);
+        ep.step("Generating...", int(running), true);
         OS::get_singleton()->delay_usec(1000);
 
         AABB capture = node->capture_aabb();
@@ -401,7 +401,7 @@ void ParticlesEditor::_generate_emission_points() {
     int point_count = points.size();
 
     int w = 2048;
-    int h = (point_count / 2048) + 1;
+    int h = point_count / 2048 + 1;
 
     PoolVector<uint8_t> point_img;
     point_img.resize(w * h * 3 * sizeof(float));

@@ -171,10 +171,10 @@ void EditorQuickOpen::_parse_fs(EditorFileSystemDirectory *efsd, Vector<Pair<se_
         se_string file = efsd->get_file_path(i);
         file = StringUtils::substr(file,6, file.length());
 
-        if (ClassDB::is_parent_class(efsd->get_file_type(i), base_type) && (StringUtils::is_subsequence_of(search_text,file,StringUtils::CaseInsensitive))) {
+        if (ClassDB::is_parent_class(efsd->get_file_type(i), base_type) && StringUtils::is_subsequence_of(search_text,file,StringUtils::CaseInsensitive)) {
             Pair<se_string, Ref<Texture> > pair;
             pair.first = file;
-            pair.second = get_icon((has_icon(efsd->get_file_type(i), ei) ? efsd->get_file_type(i) : ot), ei);
+            pair.second = get_icon(has_icon(efsd->get_file_type(i), ei) ? efsd->get_file_type(i) : ot, ei);
             list.push_back(pair);
         }
     }

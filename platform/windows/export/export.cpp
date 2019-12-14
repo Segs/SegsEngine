@@ -76,7 +76,7 @@ void EditorExportPlatformWindows::get_export_options(List<ExportOption> *r_optio
 
     r_options->push_back(ExportOption(PropertyInfo(VariantType::BOOL, "codesign/enable"), false));
 #ifdef WINDOWS_ENABLED
-    r_options->push_back(ExportOption(PropertyInfo(Variant::INT, "codesign/identity_type", PROPERTY_HINT_ENUM, "Select automatically,Use PKCS12 file (specify *.PFX/*.P12 file),Use certificate store (specify SHA1 hash)"), 0));
+    r_options->push_back(ExportOption(PropertyInfo(VariantType::INT, "codesign/identity_type", PROPERTY_HINT_ENUM, "Select automatically,Use PKCS12 file (specify *.PFX/*.P12 file),Use certificate store (specify SHA1 hash)"), 0));
 #endif
     r_options->push_back(ExportOption(PropertyInfo(VariantType::STRING, "codesign/identity", PROPERTY_HINT_GLOBAL_FILE, "*.pfx,*.p12"), ""));
     r_options->push_back(ExportOption(PropertyInfo(VariantType::STRING, "codesign/password"), ""));
@@ -185,12 +185,12 @@ Error EditorExportPlatformWindows::_code_sign(const Ref<EditorExportPreset> &p_p
     ListPOD<se_string> args;
 
 #ifdef WINDOWS_ENABLED
-    String signtool_path = EditorSettings::get_singleton()->get("export/windows/signtool");
-    if (signtool_path != String() && !FileAccess::exists(signtool_path)) {
+    se_string signtool_path = EditorSettings::get_singleton()->get("export/windows/signtool");
+    if (not signtool_path.empty() && !FileAccess::exists(signtool_path)) {
         ERR_PRINT("Could not find signtool executable at " + signtool_path + ", aborting.");
         return ERR_FILE_NOT_FOUND;
     }
-    if (signtool_path == String()) {
+    if (signtool_path.empty()) {
         signtool_path = "signtool"; // try to run signtool from PATH
     }
 #else
@@ -255,9 +255,9 @@ Error EditorExportPlatformWindows::_code_sign(const Ref<EditorExportPreset> &p_p
     if (p_preset->get("codesign/timestamp")) {
         if (p_preset->get("codesign/timestamp_server") != "") {
 #ifdef WINDOWS_ENABLED
-            args.push_back(String("/tr"));
+            args.push_back("/tr");
             args.push_back(p_preset->get("codesign/timestamp_server_url"));
-            args.push_back(String("/td"));
+            args.push_back("/td");
             if ((int)p_preset->get("codesign/digest_algorithm") == 0) {
                 args.push_back("sha1");
             } else {
@@ -275,7 +275,7 @@ Error EditorExportPlatformWindows::_code_sign(const Ref<EditorExportPreset> &p_p
 
     //digest
 #ifdef WINDOWS_ENABLED
-    args.push_back(String("/fd"));
+    args.push_back("/fd");
 #else
     args.push_back(("-h"));
 #endif
@@ -288,7 +288,7 @@ Error EditorExportPlatformWindows::_code_sign(const Ref<EditorExportPreset> &p_p
     //description
     if (p_preset->get("codesign/description") != "") {
 #ifdef WINDOWS_ENABLED
-        args.push_back(String("/d"));
+        args.push_back("/d");
 #else
         args.push_back(("-n"));
 #endif

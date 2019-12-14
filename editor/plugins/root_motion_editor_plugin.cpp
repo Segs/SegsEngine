@@ -82,7 +82,7 @@ void EditorPropertyRootMotion::_node_assign() {
 
             Ref<Animation> anim = player->get_animation(E);
             for (int i = 0; i < anim->get_track_count(); i++) {
-                paths.insert((anim->track_get_path(i)));
+                paths.insert(anim->track_get_path(i));
             }
         }
     }
@@ -117,7 +117,7 @@ void EditorPropertyRootMotion::_node_assign() {
 
                 if (base->has_node(accum_np)) {
                     Node *node = base->get_node(accum_np);
-                    ti->set_icon(0, EditorNode::get_singleton()->get_object_icon(node, ("Node")));
+                    ti->set_icon(0, EditorNode::get_singleton()->get_object_icon(node, "Node"));
                 }
 
             } else {
@@ -239,7 +239,7 @@ void EditorPropertyRootMotion::update_property() {
     ERR_FAIL_COND(!target_node)
 
     assign->set_text(target_node->get_name());
-    assign->set_icon(EditorNode::get_singleton()->get_object_icon(target_node, ("Node")));
+    assign->set_icon(EditorNode::get_singleton()->get_object_icon(target_node, "Node"));
 }
 
 void EditorPropertyRootMotion::setup(const NodePath &p_base_hint) {

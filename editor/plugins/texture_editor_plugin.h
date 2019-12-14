@@ -66,7 +66,7 @@ class TextureEditorPlugin : public EditorPlugin {
     GDCLASS(TextureEditorPlugin,EditorPlugin)
 
 public:
-    se_string_view get_name() const override { return ("Texture"); }
+    se_string_view get_name() const override { return "Texture"; }
 
     TextureEditorPlugin(EditorNode *p_node);
 };

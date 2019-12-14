@@ -85,7 +85,7 @@ void AnimationNodeStateMachineEditor::_state_machine_gui_input(const Ref<InputEv
     Ref<InputEventMouseButton> mb = dynamic_ref_cast<InputEventMouseButton>(p_event);
 
     //Add new node
-    if (mb && mb->is_pressed() && ((tool_select->is_pressed() && mb->get_button_index() == BUTTON_RIGHT) || (tool_create->is_pressed() && mb->get_button_index() == BUTTON_LEFT))) {
+    if (mb && mb->is_pressed() && (tool_select->is_pressed() && mb->get_button_index() == BUTTON_RIGHT || tool_create->is_pressed() && mb->get_button_index() == BUTTON_LEFT)) {
         menu->clear();
         animations_menu->clear();
         animations_to_add.clear();
@@ -111,7 +111,7 @@ void AnimationNodeStateMachineEditor::_state_machine_gui_input(const Ref<InputEv
 
         for (const StringName &E : classes) {
 
-            se_string name = StringUtils::replace_first(E,("AnimationNode"), "");
+            se_string name = StringUtils::replace_first(E,"AnimationNode", "");
             if (name == se_string_view("Animation"))
                 continue; // nope
             int idx = menu->get_item_count();
@@ -250,7 +250,7 @@ void AnimationNodeStateMachineEditor::_state_machine_gui_input(const Ref<InputEv
     }
 
     //connect nodes
-    if (mb && ((tool_select->is_pressed() && mb->get_shift()) || tool_connect->is_pressed()) && mb->get_button_index() == BUTTON_LEFT && mb->is_pressed()) {
+    if (mb && (tool_select->is_pressed() && mb->get_shift() || tool_connect->is_pressed()) && mb->get_button_index() == BUTTON_LEFT && mb->is_pressed()) {
 
         for (int i = node_rects.size() - 1; i >= 0; i--) { //inverse to draw order
             if (node_rects[i].node.has_point(mb->get_position())) { //select node since nothing else was selected
@@ -426,7 +426,7 @@ void AnimationNodeStateMachineEditor::_add_menu_type(int p_index) {
 
         open_file->clear_filters();
         PODVector<se_string> filters;
-        ResourceLoader::get_recognized_extensions_for_type(("AnimationRootNode"), filters);
+        ResourceLoader::get_recognized_extensions_for_type("AnimationRootNode", filters);
         for (const se_string &E : filters) {
             open_file->add_filter("*." + E);
         }
@@ -448,7 +448,7 @@ void AnimationNodeStateMachineEditor::_add_menu_type(int p_index) {
         ERR_FAIL_COND(!an)
 
         node = dynamic_ref_cast<AnimationRootNode>(Ref<AnimationNode>(an));
-        base_name = StringUtils::replace_first(type,("AnimationNode"), "");
+        base_name = StringUtils::replace_first(type,"AnimationNode", "");
     }
 
     if (not node) {
@@ -617,13 +617,13 @@ void AnimationNodeStateMachineEditor::_state_machine_draw() {
     //snap lines
     if (dragging_selected) {
 
-        Vector2 from = (state_machine->get_node_position(selected_node) * EDSCALE) + drag_ofs - state_machine->get_graph_offset() * EDSCALE;
+        Vector2 from = state_machine->get_node_position(selected_node) * EDSCALE + drag_ofs - state_machine->get_graph_offset() * EDSCALE;
         if (snap_x != StringName()) {
-            Vector2 to = (state_machine->get_node_position(snap_x) * EDSCALE) - state_machine->get_graph_offset() * EDSCALE;
+            Vector2 to = state_machine->get_node_position(snap_x) * EDSCALE - state_machine->get_graph_offset() * EDSCALE;
             state_machine_draw->draw_line(from, to, linecolor, 2);
         }
         if (snap_y != StringName()) {
-            Vector2 to = (state_machine->get_node_position(snap_y) * EDSCALE) - state_machine->get_graph_offset() * EDSCALE;
+            Vector2 to = state_machine->get_node_position(snap_y) * EDSCALE - state_machine->get_graph_offset() * EDSCALE;
             state_machine_draw->draw_line(from, to, linecolor, 2);
         }
     }
@@ -670,10 +670,10 @@ void AnimationNodeStateMachineEditor::_state_machine_draw() {
 
     //draw connecting line for potential new transition
     if (connecting) {
-        Vector2 from = (state_machine->get_node_position(connecting_from) * EDSCALE) - state_machine->get_graph_offset() * EDSCALE;
+        Vector2 from = state_machine->get_node_position(connecting_from) * EDSCALE - state_machine->get_graph_offset() * EDSCALE;
         Vector2 to;
         if (connecting_to_node != StringName()) {
-            to = (state_machine->get_node_position(connecting_to_node) * EDSCALE) - state_machine->get_graph_offset() * EDSCALE;
+            to = state_machine->get_node_position(connecting_to_node) * EDSCALE - state_machine->get_graph_offset() * EDSCALE;
         } else {
             to = connecting_to;
         }
@@ -698,12 +698,12 @@ void AnimationNodeStateMachineEditor::_state_machine_draw() {
 
         TransitionLine tl;
         tl.from_node = state_machine->get_transition_from(i);
-        Vector2 ofs_from = (dragging_selected && tl.from_node == selected_node) ? drag_ofs : Vector2();
-        tl.from = (state_machine->get_node_position(tl.from_node) * EDSCALE) + ofs_from - state_machine->get_graph_offset() * EDSCALE;
+        Vector2 ofs_from = dragging_selected && tl.from_node == selected_node ? drag_ofs : Vector2();
+        tl.from = state_machine->get_node_position(tl.from_node) * EDSCALE + ofs_from - state_machine->get_graph_offset() * EDSCALE;
 
         tl.to_node = state_machine->get_transition_to(i);
-        Vector2 ofs_to = (dragging_selected && tl.to_node == selected_node) ? drag_ofs : Vector2();
-        tl.to = (state_machine->get_node_position(tl.to_node) * EDSCALE) + ofs_to - state_machine->get_graph_offset() * EDSCALE;
+        Vector2 ofs_to = dragging_selected && tl.to_node == selected_node ? drag_ofs : Vector2();
+        tl.to = state_machine->get_node_position(tl.to_node) * EDSCALE + ofs_to - state_machine->get_graph_offset() * EDSCALE;
 
         Ref<AnimationNodeStateMachineTransition> tr = state_machine->get_transition(i);
         tl.disabled = tr->is_disabled();
@@ -751,7 +751,7 @@ void AnimationNodeStateMachineEditor::_state_machine_draw() {
         }
 
         bool auto_advance = tl.auto_advance;
-        StringName fullpath(AnimationTreeEditor::get_singleton()->get_base_path() + (tl.advance_condition_name));
+        StringName fullpath(AnimationTreeEditor::get_singleton()->get_base_path() + tl.advance_condition_name);
         if (tl.advance_condition_name != StringName() && bool(AnimationTreeEditor::get_singleton()->get_tree()->get(fullpath))) {
             tl.advance_condition_state = true;
             auto_advance = true;
@@ -1292,21 +1292,21 @@ AnimationNodeStateMachineEditor::AnimationNodeStateMachineEditor() {
     tool_select->set_button_group(bg);
     tool_select->set_pressed(true);
     tool_select->set_tooltip(TTR("Select and move nodes.\nRMB to add new nodes.\nShift+LMB to create connections."));
-    tool_select->connect("pressed", this, "_update_mode", varray(),ObjectNS::CONNECT_DEFERRED);
+    tool_select->connect("pressed", this, "_update_mode", varray(),ObjectNS::CONNECT_QUEUED);
 
     tool_create = memnew(ToolButton);
     top_hb->add_child(tool_create);
     tool_create->set_toggle_mode(true);
     tool_create->set_button_group(bg);
     tool_create->set_tooltip(TTR("Create new nodes."));
-    tool_create->connect("pressed", this, "_update_mode", varray(),ObjectNS::CONNECT_DEFERRED);
+    tool_create->connect("pressed", this, "_update_mode", varray(),ObjectNS::CONNECT_QUEUED);
 
     tool_connect = memnew(ToolButton);
     top_hb->add_child(tool_connect);
     tool_connect->set_toggle_mode(true);
     tool_connect->set_button_group(bg);
     tool_connect->set_tooltip(TTR("Connect nodes."));
-    tool_connect->connect("pressed", this, "_update_mode", varray(),ObjectNS::CONNECT_DEFERRED);
+    tool_connect->connect("pressed", this, "_update_mode", varray(),ObjectNS::CONNECT_QUEUED);
 
     tool_erase_hb = memnew(HBoxContainer);
     top_hb->add_child(tool_erase_hb);

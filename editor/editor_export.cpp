@@ -312,26 +312,26 @@ void EditorExportPlatform::gen_debug_flags(Vector<se_string> &r_flags, int p_fla
     if (p_flags & DEBUG_FLAG_DUMB_CLIENT) {
         int port = EditorSettings::get_singleton()->get("filesystem/file_server/port");
         se_string passwd = EditorSettings::get_singleton()->get("filesystem/file_server/password");
-        r_flags.emplace_back(("--remote-fs"));
+        r_flags.emplace_back("--remote-fs");
         r_flags.emplace_back(host + ":" + itos(port));
         if (!passwd.empty()) {
-            r_flags.emplace_back(("--remote-fs-password"));
+            r_flags.emplace_back("--remote-fs-password");
             r_flags.emplace_back(passwd);
         }
     }
 
     if (p_flags & DEBUG_FLAG_REMOTE_DEBUG) {
 
-        r_flags.emplace_back(("--remote-debug"));
+        r_flags.emplace_back("--remote-debug");
 
-        r_flags.emplace_back(host + ":" + (StringUtils::num(remote_port)));
+        r_flags.emplace_back(host + ":" + StringUtils::num(remote_port));
 
         List<se_string> breakpoints;
         ScriptEditor::get_singleton()->get_breakpoints(&breakpoints);
 
         if (!breakpoints.empty()) {
 
-            r_flags.emplace_back(("--breakpoints"));
+            r_flags.emplace_back("--breakpoints");
             se_string bpoints;
             for (const List<se_string>::Element *E = breakpoints.front(); E; E = E->next()) {
 
@@ -390,7 +390,7 @@ Error EditorExportPlatform::_save_pack_file(void *p_userdata, se_string_view p_p
 
 Error EditorExportPlatform::_save_zip_file(void *p_userdata, se_string_view p_path, const Vector<uint8_t> &p_data, int p_file, int p_total) {
 
-    se_string path = StringUtils::replace_first(p_path,("res://"), se_string());
+    se_string path = StringUtils::replace_first(p_path,"res://", se_string());
 
     ZipData *zd = (ZipData *)p_userdata;
 
@@ -532,7 +532,7 @@ void EditorExportPlatform::_edit_files_with_filter(DirAccess *da, const Vector<s
             continue;
         da->change_dir(dir);
         _edit_files_with_filter(da, p_filters, r_list, exclude);
-        da->change_dir((".."));
+        da->change_dir("..");
     }
 }
 
@@ -700,8 +700,8 @@ Error EditorExportPlatform::export_project_files(const Ref<EditorExportPreset> &
     }
 
     //add native icons to non-resource include list
-    _edit_filter_list(paths, ("*.icns"), false);
-    _edit_filter_list(paths, ("*.ico"), false);
+    _edit_filter_list(paths, "*.icns", false);
+    _edit_filter_list(paths, "*.ico", false);
 
     _edit_filter_list(paths, p_preset->get_include_filter(), false);
     _edit_filter_list(paths, p_preset->get_exclude_filter(), true);
@@ -1096,26 +1096,26 @@ void EditorExportPlatform::gen_export_flags(Vector<se_string> &r_flags, int p_fl
     if (p_flags & DEBUG_FLAG_DUMB_CLIENT) {
         int port = EditorSettings::get_singleton()->get("filesystem/file_server/port");
         se_string passwd = EditorSettings::get_singleton()->get("filesystem/file_server/password");
-        r_flags.push_back(("--remote-fs"));
+        r_flags.push_back("--remote-fs");
         r_flags.push_back(host + ":" + itos(port));
         if (!passwd.empty()) {
-            r_flags.push_back(("--remote-fs-password"));
+            r_flags.push_back("--remote-fs-password");
             r_flags.push_back(passwd);
         }
     }
 
     if (p_flags & DEBUG_FLAG_REMOTE_DEBUG) {
 
-        r_flags.push_back(("--remote-debug"));
+        r_flags.push_back("--remote-debug");
 
-        r_flags.push_back(host + ":" + (StringUtils::num(remote_port)));
+        r_flags.push_back(host + ":" + StringUtils::num(remote_port));
 
         List<se_string> breakpoints;
         ScriptEditor::get_singleton()->get_breakpoints(&breakpoints);
 
         if (!breakpoints.empty()) {
 
-            r_flags.push_back(("--breakpoints"));
+            r_flags.push_back("--breakpoints");
             se_string bpoints;
             for (const List<se_string>::Element *E = breakpoints.front(); E; E = E->next()) {
 
@@ -1130,12 +1130,12 @@ void EditorExportPlatform::gen_export_flags(Vector<se_string> &r_flags, int p_fl
 
     if (p_flags & DEBUG_FLAG_VIEW_COLLISONS) {
 
-        r_flags.push_back(("--debug-collisions"));
+        r_flags.push_back("--debug-collisions");
     }
 
     if (p_flags & DEBUG_FLAG_VIEW_NAVIGATION) {
 
-        r_flags.push_back(("--debug-navigation"));
+        r_flags.push_back("--debug-navigation");
     }
 }
 EditorExportPlatform::EditorExportPlatform() {
@@ -1427,19 +1427,19 @@ EditorExport::~EditorExport() {
 void EditorExportPlatformPC::get_preset_features(const Ref<EditorExportPreset> &p_preset, List<se_string> *r_features) {
 
     if (p_preset->get("texture_format/s3tc")) {
-        r_features->push_back(("s3tc"));
+        r_features->push_back("s3tc");
     }
     if (p_preset->get("texture_format/etc")) {
-        r_features->push_back(("etc"));
+        r_features->push_back("etc");
     }
     if (p_preset->get("texture_format/etc2")) {
-        r_features->push_back(("etc2"));
+        r_features->push_back("etc2");
     }
 
     if (p_preset->get("binary_format/64_bits")) {
-        r_features->push_back(("64"));
+        r_features->push_back("64");
     } else {
-        r_features->push_back(("32"));
+        r_features->push_back("32");
     }
 }
 
@@ -1657,8 +1657,8 @@ void EditorExportPlatformPC::add_platform_feature(se_string_view p_feature) {
 }
 
 void EditorExportPlatformPC::get_platform_features(List<se_string> *r_features) {
-    r_features->push_back(("pc")); //all pcs support "pc"
-    r_features->push_back(("s3tc")); //all pcs support "s3tc" compression
+    r_features->push_back("pc"); //all pcs support "pc"
+    r_features->push_back("s3tc"); //all pcs support "s3tc" compression
     r_features->push_back(get_os_name()); //OS name is a feature
     for (const se_string &E : extra_features) {
         r_features->push_back(E);
@@ -1667,7 +1667,7 @@ void EditorExportPlatformPC::get_platform_features(List<se_string> *r_features) 
 
 void EditorExportPlatformPC::resolve_platform_feature_priorities(const Ref<EditorExportPreset> &p_preset, Set<se_string> &p_features) {
 
-    if (p_features.contains(("bptc"))) {
+    if (p_features.contains("bptc")) {
         if (p_preset->has("texture_format/no_bptc_fallbacks")) {
             p_features.erase("s3tc");
         }

@@ -90,8 +90,8 @@ public:
     int get_process_id() const override;
 
     bool has_environment(se_string_view p_var) const override;
-    const char *get_environment(se_string_view p_var) const override;
-    bool set_environment(se_string_view p_var, const String &p_value) const override;
+    se_string get_environment(se_string_view p_var) const override;
+    bool set_environment(se_string_view p_var, se_string_view p_value) const override;
     const char * get_locale() const override;
 
     int get_processor_count() const override;

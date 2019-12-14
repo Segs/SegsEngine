@@ -381,8 +381,8 @@ void EditorAssetLibraryItemDownload::_http_download_completed(int p_status, int 
         } break;
         default: {
             if (p_code != 200) {
-                error_text = TTR("Request failed, return code:") + " " + (itos(p_code));
-                status->set_text(TTR("Failed:") + " " + (itos(p_code)));
+                error_text = TTR("Request failed, return code:") + " " + itos(p_code);
+                status->set_text(TTR("Failed:") + " " + itos(p_code));
             } else if (!sha256.empty()) {
                 se_string download_sha256 = FileAccess::get_sha256(download->get_download_file());
                 if (sha256 != download_sha256) {
@@ -742,9 +742,9 @@ void EditorAssetLibrary::_image_update(bool use_cache, bool final, const PoolByt
 
         if (r.ptr()) {
             if (memcmp(&r[0], &png_signature[0], 8) == 0) {
-                image->create(ImageLoader::load_image(("png"),r.ptr(), len));
+                image->create(ImageLoader::load_image("png",r.ptr(), len));
             } else if (memcmp(&r[0], &jpg_signature[0], 3) == 0) {
-                image->create(ImageLoader::load_image(("jpg"),r.ptr(), len));
+                image->create(ImageLoader::load_image("jpg",r.ptr(), len));
             }
         }
 
@@ -850,7 +850,7 @@ void EditorAssetLibrary::_update_image_queue() {
         if (!E.second.active && current_images < max_images) {
 
             se_string cache_filename_base = PathUtils::plus_file(EditorSettings::get_singleton()->get_cache_dir(),
-                    ("assetimage_" + StringUtils::md5_text(E.second.image_url)));
+                    "assetimage_" + StringUtils::md5_text(E.second.image_url));
             Vector<se_string> headers;
 
             if (FileAccess::exists(cache_filename_base + ".etag") && FileAccess::exists(cache_filename_base + ".data")) {
@@ -907,9 +907,9 @@ void EditorAssetLibrary::_request_image(ObjectID p_for, se_string p_image_url, I
 void EditorAssetLibrary::_repository_changed(int p_repository_id) {
     host = repository->get_item_metadata(p_repository_id).as<se_string>();
     if (templates_only) {
-        _api_request(("configure"), REQUESTING_CONFIG, ("?type=project"));
+        _api_request("configure", REQUESTING_CONFIG, "?type=project");
     } else {
-        _api_request(("configure"), REQUESTING_CONFIG);
+        _api_request("configure", REQUESTING_CONFIG);
     }
 }
 
@@ -927,9 +927,9 @@ void EditorAssetLibrary::_search(int p_page) {
     se_string args;
 
     if (templates_only) {
-        args += ("?type=project&");
+        args += "?type=project&";
     } else {
-        args += ("?");
+        args += "?";
     }
     args += se_string("sort=") + sort_key[sort->get_selected()];
 
@@ -953,7 +953,7 @@ void EditorAssetLibrary::_search(int p_page) {
 
     // Sorting options with an odd index are always the reverse of the previous one
     if (sort->get_selected() % 2 == 1) {
-        args += ("&reverse=true");
+        args += "&reverse=true";
     }
 
     if (!filter->get_text_ui().isEmpty()) {
@@ -964,7 +964,7 @@ void EditorAssetLibrary::_search(int p_page) {
         args += "&page=" + itos(p_page);
     }
 
-    _api_request(("asset"), REQUESTING_SEARCH, args);
+    _api_request("asset", REQUESTING_SEARCH, args);
 }
 
 void EditorAssetLibrary::_search_text_entered(se_string_view p_text) {
@@ -1532,7 +1532,7 @@ EditorAssetLibrary::EditorAssetLibrary(bool p_templates_only) {
     asset_open = memnew(EditorFileDialog);
 
     asset_open->set_access(EditorFileDialog::ACCESS_FILESYSTEM);
-    asset_open->add_filter("*.zip ; " + (TTR("Assets ZIP File")));
+    asset_open->add_filter("*.zip ; " + TTR("Assets ZIP File"));
     asset_open->set_mode(EditorFileDialog::MODE_OPEN_FILE);
     add_child(asset_open);
     asset_open->connect("file_selected", this, "_asset_file_selected");

@@ -661,7 +661,7 @@ void EditorFileSystem::scan() {
 
 void EditorFileSystem::ScanProgress::update(int p_current, int p_total) const {
 
-    float ratio = low + ((hi - low) / p_total) * p_current;
+    float ratio = low + (hi - low) / p_total * p_current;
     progress->step(ratio * 1000);
     EditorFileSystem::singleton->scan_total = ratio;
 }
@@ -895,9 +895,9 @@ void EditorFileSystem::_scan_fs_changes(EditorFileSystemDirectory *p_dir, const 
                 int idx = p_dir->find_dir_index(f);
                 if (idx == -1) {
 
-                    if (FileAccess::exists(PathUtils::plus_file(PathUtils::plus_file(cd,f),("project.godot")))) // skip if another project inside this
+                    if (FileAccess::exists(PathUtils::plus_file(PathUtils::plus_file(cd,f),"project.godot"))) // skip if another project inside this
                         continue;
-                    if (FileAccess::exists(PathUtils::plus_file(PathUtils::plus_file(cd,f),(".gdignore")))) // skip if another project inside this
+                    if (FileAccess::exists(PathUtils::plus_file(PathUtils::plus_file(cd,f),".gdignore"))) // skip if another project inside this
                         continue;
 
                     EditorFileSystemDirectory *efd = memnew(EditorFileSystemDirectory);
@@ -2139,12 +2139,12 @@ EditorFileSystem::EditorFileSystem() {
     scanning_changes_done = false;
 
     DirAccess *da = DirAccess::create(DirAccess::ACCESS_RESOURCES);
-    if (da->change_dir(("res://.import")) != OK) {
-        da->make_dir(("res://.import"));
+    if (da->change_dir("res://.import") != OK) {
+        da->make_dir("res://.import");
     }
     // This should probably also work on Unix and use the string it returns for FAT32 or exFAT
     se_string fstype = da->get_filesystem_type();
-    using_fat32_or_exfat = (fstype == "FAT32" || fstype == "exFAT");
+    using_fat32_or_exfat = fstype == "FAT32" || fstype == "exFAT";
     memdelete(da);
 
     scan_total = 0;

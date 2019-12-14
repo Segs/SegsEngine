@@ -29,6 +29,7 @@
 /*************************************************************************/
 
 #include "editor_atlas_packer.h"
+#include "se_string.h"
 #include "core/string_utils.h"
 
 void EditorAtlasPacker::_plot_triangle(Ref<BitMap> p_bitmap, Vector2i *vertices) {
@@ -112,9 +113,9 @@ void EditorAtlasPacker::chart_pack(Vector<Chart> &charts, int &r_width, int &r_h
         Ref<BitMap> src_bitmap(make_ref_counted<BitMap>());
 
         src_bitmap->create(aabb.size / divide_by);
-
-        int w = src_bitmap->get_size().width;
-        int h = src_bitmap->get_size().height;
+        const auto sz= src_bitmap->get_size();
+        int w = sz.width;
+        int h = sz.height;
 
         //plot triangles, using divisor
 
@@ -135,8 +136,8 @@ void EditorAtlasPacker::chart_pack(Vector<Chart> &charts, int &r_width, int &r_h
 
         //grow by 1 for each side
 
-        int bmw = src_bitmap->get_size().width + 2;
-        int bmh = src_bitmap->get_size().height + 2;
+        int bmw = sz.width + 2;
+        int bmh = sz.height + 2;
 
         int heights_size = -1;
         bool transpose = false;

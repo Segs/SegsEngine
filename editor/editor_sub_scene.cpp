@@ -55,7 +55,7 @@ void EditorSubScene::_path_changed(se_string_view p_path) {
     if (p_path.empty())
         return;
 
-    Ref<PackedScene> ps = dynamic_ref_cast<PackedScene>(ResourceLoader::load(p_path, ("PackedScene")));
+    Ref<PackedScene> ps = dynamic_ref_cast<PackedScene>(ResourceLoader::load(p_path, "PackedScene"));
 
     if (not ps)
         return;
@@ -88,7 +88,7 @@ void EditorSubScene::_fill_tree(Node *p_node, TreeItem *p_parent) {
     it->set_text(0, p_node->get_name());
     it->set_editable(0, false);
     it->set_selectable(0, true);
-    it->set_icon(0, EditorNode::get_singleton()->get_object_icon(p_node, ("Node")));
+    it->set_icon(0, EditorNode::get_singleton()->get_object_icon(p_node, "Node"));
 
     for (int i = 0; i < p_node->get_child_count(); i++) {
 
@@ -261,11 +261,11 @@ EditorSubScene::EditorSubScene() {
     //tree->connect("nothing_selected", this, "_deselect_items");
     tree->connect("cell_selected", this, "_selected_changed");
 
-    tree->connect("item_activated", this, "_ok", make_binds(), ObjectNS::CONNECT_DEFERRED);
+    tree->connect("item_activated", this, "_ok", make_binds(), ObjectNS::CONNECT_QUEUED);
 
     file_dialog = memnew(EditorFileDialog);
     PODVector<se_string> extensions;
-    ResourceLoader::get_recognized_extensions_for_type(("PackedScene"), extensions);
+    ResourceLoader::get_recognized_extensions_for_type("PackedScene", extensions);
 
     for (const se_string &E : extensions) {
 

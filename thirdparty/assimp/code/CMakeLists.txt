@@ -615,6 +615,8 @@ ADD_ASSIMP_EXPORTER( FBX
 )
 
 SET( PostProcessing_SRCS
+  PostProcessing/ArmaturePopulate.cpp
+  PostProcessing/ArmaturePopulate.h
   PostProcessing/CalcTangentsProcess.cpp
   PostProcessing/CalcTangentsProcess.h
   PostProcessing/ComputeUVMappingProcess.cpp

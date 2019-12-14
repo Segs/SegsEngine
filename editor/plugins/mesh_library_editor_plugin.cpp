@@ -203,7 +203,7 @@ void MeshLibraryEditor::_import_scene(Node *p_scene,const Ref<MeshLibrary> &p_li
 
 void MeshLibraryEditor::_import_scene_cbk(se_string_view p_str) {
 
-    Ref<PackedScene> ps = dynamic_ref_cast<PackedScene>(ResourceLoader::load(p_str, ("PackedScene")));
+    Ref<PackedScene> ps = dynamic_ref_cast<PackedScene>(ResourceLoader::load(p_str, "PackedScene"));
     ERR_FAIL_COND(not ps)
     Node *scene = ps->instance();
 
@@ -266,7 +266,7 @@ MeshLibraryEditor::MeshLibraryEditor(EditorNode *p_editor) {
     file->set_mode(EditorFileDialog::MODE_OPEN_FILE);
     //not for now?
     PODVector<se_string> extensions;
-    ResourceLoader::get_recognized_extensions_for_type(("PackedScene"), extensions);
+    ResourceLoader::get_recognized_extensions_for_type("PackedScene", extensions);
     file->clear_filters();
     file->set_title(TTR("Import Scene"));
     for (const se_string & ext : extensions) {

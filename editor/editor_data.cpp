@@ -170,14 +170,14 @@ bool EditorHistory::is_at_beginning() const {
 }
 bool EditorHistory::is_at_end() const {
 
-    return ((current + 1) >= history.size());
+    return current + 1 >= history.size();
 }
 
 bool EditorHistory::next() {
 
     cleanup_history();
 
-    if ((current + 1) < history.size())
+    if (current + 1 < history.size())
         current++;
     else
         return false;

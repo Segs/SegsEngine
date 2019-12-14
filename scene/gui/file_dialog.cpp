@@ -956,8 +956,8 @@ FileDialog::FileDialog() {
     _update_drives();
 
     connect("confirmed", this, "_action_pressed");
-    tree->connect("multi_selected", this, "_tree_multi_selected", varray(), ObjectNS::CONNECT_DEFERRED);
-    tree->connect("cell_selected", this, "_tree_selected", varray(), ObjectNS::CONNECT_DEFERRED);
+    tree->connect("multi_selected", this, "_tree_multi_selected", varray(), ObjectNS::CONNECT_QUEUED);
+    tree->connect("cell_selected", this, "_tree_selected", varray(), ObjectNS::CONNECT_QUEUED);
     tree->connect("item_activated", this, "_tree_item_activated", varray());
     tree->connect("nothing_selected", this, "deselect_items");
     dir->connect("text_entered", this, "_dir_entered");

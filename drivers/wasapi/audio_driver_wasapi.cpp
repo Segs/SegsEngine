@@ -35,7 +35,8 @@
 #include "core/os/os.h"
 #include "core/project_settings.h"
 #include "core/print_string.h"
-
+#include "core/ustring.h"
+#include "core/string_utils.inl"
 #include <functiondiscoverykeys.h>
 
 #ifndef PKEY_Device_FriendlyName
@@ -77,7 +78,7 @@ public:
     CMMNotificationClient() :
             _cRef(1),
             _pEnumerator(nullptr) {}
-    ~CMMNotificationClient() override {
+    ~CMMNotificationClient() {
         if ((_pEnumerator) != nullptr) {
             (_pEnumerator)->Release();
             (_pEnumerator) = nullptr;
@@ -183,7 +184,7 @@ Error AudioDriverWASAPI::audio_device_init(AudioDeviceWASAPI *p_device, bool p_c
             hr = props->GetValue(PKEY_Device_FriendlyName, &propvar);
             ERR_BREAK(hr != S_OK)
 
-            if (p_device->device_name == StringUtils::from_wchar(propvar.pwszVal)) {
+            if (StringUtils::from_utf8(p_device->device_name) == StringUtils::from_wchar(propvar.pwszVal)) {
                 hr = tmp_device->GetId(&strId);
                 ERR_BREAK(hr != S_OK)
 
@@ -328,7 +329,7 @@ Error AudioDriverWASAPI::init_render_device(bool reinit) {
             break;
 
         default:
-            WARN_PRINTS("WASAPI: Unsupported number of channels: " + itos(audio_output.channels))
+            WARN_PRINT("WASAPI: Unsupported number of channels: " + itos(audio_output.channels))
             channels = 2;
             break;
     }
@@ -429,7 +430,7 @@ Array AudioDriverWASAPI::audio_device_get_list(bool p_capture) {
     IMMDeviceCollection *devices = nullptr;
     IMMDeviceEnumerator *enumerator = nullptr;
 
-    list.push_back(String("Default"));
+    list.push_back("Default");
 
     CoInitialize(nullptr);
 
@@ -459,7 +460,7 @@ Array AudioDriverWASAPI::audio_device_get_list(bool p_capture) {
         hr = props->GetValue(PKEY_Device_FriendlyName, &propvar);
         ERR_BREAK(hr != S_OK)
 
-        list.push_back(StringUtils::from_wchar(propvar.pwszVal));
+        list.push_back(StringUtils::to_utf8(StringUtils::from_wchar(propvar.pwszVal)));
 
         PropVariantClear(&propvar);
         props->Release();
@@ -476,16 +477,16 @@ Array AudioDriverWASAPI::get_device_list() {
     return audio_device_get_list(false);
 }
 
-String AudioDriverWASAPI::get_device() {
-
+se_string_view  AudioDriverWASAPI::get_device() {
+    thread_local se_string name;
     lock();
-    String name = audio_output.device_name;
+    name = audio_output.device_name;
     unlock();
 
     return name;
 }
 
-void AudioDriverWASAPI::set_device(const String &device) {
+void AudioDriverWASAPI::set_device(se_string_view device) {
 
     lock();
     audio_output.new_device = device;
@@ -841,7 +842,7 @@ Error AudioDriverWASAPI::capture_stop() {
     return FAILED;
 }
 
-void AudioDriverWASAPI::capture_set_device(const String &p_name) {
+void AudioDriverWASAPI::capture_set_device(se_string_view p_name) {
 
     lock();
     audio_input.new_device = p_name;
@@ -853,10 +854,10 @@ Array AudioDriverWASAPI::capture_get_device_list() {
     return audio_device_get_list(true);
 }
 
-String AudioDriverWASAPI::capture_get_device() {
+se_string AudioDriverWASAPI::capture_get_device() {
 
     lock();
-    String name = audio_input.device_name;
+    se_string name = audio_input.device_name;
     unlock();
 
     return name;

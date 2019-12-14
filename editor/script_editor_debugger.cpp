@@ -1164,7 +1164,7 @@ void ScriptEditorDebugger::_performance_draw() {
         r.size -= graph_sb->get_minimum_size();
         int pi = which[i];
         Color c = get_color("accent_color", "Editor");
-        float h = (float)which[i] / (float)(perf_items.size());
+        float h = (float)which[i] / (float)perf_items.size();
         // Use a darker color on light backgrounds for better visibility
         float value_multiplier = EditorSettings::get_singleton()->is_dark_theme() ? 1.4f : 0.55f;
         c.set_hsv(Math::fmod(h + 0.4f, 0.9f), c.get_s() * 0.9f, c.get_v() * value_multiplier);
@@ -1288,7 +1288,7 @@ void ScriptEditorDebugger::_notification(int p_what) {
             if (error_count != last_error_count || warning_count != last_warning_count) {
 
                 if (error_count == 0 && warning_count == 0) {
-                    errors_tab->set_name((TTR("Errors")));
+                    errors_tab->set_name(TTR("Errors"));
                     debugger_button->set_text(TTR("Debugger"));
                     debugger_button->set_icon(Ref<Texture>());
                     tabs->set_tab_icon(errors_tab->get_index(), Ref<Texture>());
@@ -2271,7 +2271,7 @@ ScriptEditorDebugger::ScriptEditorDebugger(EditorNode *p_editor) {
 
     { //debugger
         VBoxContainer *vbc = memnew(VBoxContainer);
-        vbc->set_name((TTR("Debugger")));
+        vbc->set_name(TTR("Debugger"));
         //tabs->add_child(vbc);
         Control *dbg = vbc;
 
@@ -2372,7 +2372,7 @@ ScriptEditorDebugger::ScriptEditorDebugger(EditorNode *p_editor) {
 
     { //errors
         errors_tab = memnew(VBoxContainer);
-        errors_tab->set_name((TTR("Errors")));
+        errors_tab->set_name(TTR("Errors"));
 
         HBoxContainer *errhb = memnew(HBoxContainer);
         errors_tab->add_child(errhb);
@@ -2444,7 +2444,7 @@ ScriptEditorDebugger::ScriptEditorDebugger(EditorNode *p_editor) {
 
     { //profiler
         profiler = memnew(EditorProfiler);
-        profiler->set_name((TTR("Profiler")));
+        profiler->set_name(TTR("Profiler"));
         tabs->add_child(profiler);
         profiler->connect("enable_profiling", this, "_profiler_activate");
         profiler->connect("break_request", this, "_profiler_seeked");
@@ -2452,7 +2452,7 @@ ScriptEditorDebugger::ScriptEditorDebugger(EditorNode *p_editor) {
 
     { //network profiler
         network_profiler = memnew(EditorNetworkProfiler);
-        network_profiler->set_name((TTR("Network Profiler")));
+        network_profiler->set_name(TTR("Network Profiler"));
         tabs->add_child(network_profiler);
         network_profiler->connect("enable_profiling", this, "_network_profiler_activate");
     }
@@ -2473,7 +2473,7 @@ ScriptEditorDebugger::ScriptEditorDebugger(EditorNode *p_editor) {
         perf_draw->set_clip_contents(true);
         perf_draw->connect("draw", this, "_performance_draw");
         hsp->add_child(perf_draw);
-        hsp->set_name((TTR("Monitors")));
+        hsp->set_name(TTR("Monitors"));
         hsp->set_split_offset(340 * EDSCALE);
         tabs->add_child(hsp);
         perf_max.resize(Performance::MONITOR_MAX);
@@ -2542,7 +2542,7 @@ ScriptEditorDebugger::ScriptEditorDebugger(EditorNode *p_editor) {
         vmmc->set_v_size_flags(SIZE_EXPAND_FILL);
         vmem_vb->add_child(vmmc);
 
-        vmem_vb->set_name((TTR("Video Mem")));
+        vmem_vb->set_name(TTR("Video Mem"));
         vmem_tree->set_columns(4);
         vmem_tree->set_column_titles_visible(true);
         vmem_tree->set_column_title(0, TTR("Resource Path"));

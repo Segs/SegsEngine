@@ -353,7 +353,7 @@ void EditorPropertyArray::update_property() {
 
             if (value_type == VariantType::OBJECT && object_cast<EncodedObjectAsID>(value)) {
                 EditorPropertyObjectID *editor = memnew(EditorPropertyObjectID);
-                editor->setup(("Object"));
+                editor->setup("Object");
                 prop = editor;
             } else {
                 prop = EditorInspector::instantiate_property_editor(nullptr, value_type, {}, subtype_hint, subtype_hint_string, 0);
@@ -826,13 +826,13 @@ void EditorPropertyDictionary::update_property() {
                     if (object_cast<EncodedObjectAsID>(value)) {
 
                         EditorPropertyObjectID *editor = memnew(EditorPropertyObjectID);
-                        editor->setup(("Object"));
+                        editor->setup("Object");
                         prop = editor;
 
                     } else {
 
                         EditorPropertyResource *editor = memnew(EditorPropertyResource);
-                        editor->setup(("Resource"));
+                        editor->setup("Resource");
                         prop = editor;
                     }
 

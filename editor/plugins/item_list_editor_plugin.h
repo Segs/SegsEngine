@@ -242,7 +242,7 @@ class ItemListEditorPlugin : public EditorPlugin {
     EditorNode *editor;
 
 public:
-    se_string_view get_name() const override { return ("ItemList"); }
+    se_string_view get_name() const override { return "ItemList"; }
     bool has_main_screen() const override { return false; }
     void edit(Object *p_object) override;
     bool handles(Object *p_object) const override;

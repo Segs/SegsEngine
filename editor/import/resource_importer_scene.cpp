@@ -174,12 +174,12 @@ EditorScenePostImport::EditorScenePostImport() {}
 
 StringName ResourceImporterScene::get_importer_name() const {
 
-    return ("scene");
+    return "scene";
 }
 
 StringName ResourceImporterScene::get_visible_name() const {
 
-    return ("Scene");
+    return "Scene";
 }
 
 void ResourceImporterScene::get_recognized_extensions(PODVector<se_string> &p_extensions) const {
@@ -190,12 +190,12 @@ void ResourceImporterScene::get_recognized_extensions(PODVector<se_string> &p_ex
 }
 
 StringName ResourceImporterScene::get_save_extension() const {
-    return ("scn");
+    return "scn";
 }
 
 StringName ResourceImporterScene::get_resource_type() const {
 
-    return ("PackedScene");
+    return "PackedScene";
 }
 
 bool ResourceImporterScene::get_option_visibility(
@@ -261,7 +261,7 @@ static bool _teststr(const se_string &p_what, const char *_str) {
 
     // remove trailing spaces and numbers, some apps like blender add ".number" to duplicates so also compensate for
     // this
-    while (what.length() && ((what[what.length() - 1] >= '0' && what[what.length() - 1] <= '9') ||
+    while (what.length() && (what[what.length() - 1] >= '0' && what[what.length() - 1] <= '9' ||
                                     what[what.length() - 1] <= 32 || what[what.length() - 1] == '.')) {
 
         what = StringUtils::substr(what, 0, what.length() - 1);
@@ -284,7 +284,7 @@ static se_string_view _fixstr(se_string_view p_what, se_string_view p_str) {
 
     // remove trailing spaces and numbers, some apps like blender add ".number" to duplicates so also compensate for
     // this
-    while (what.length() && ((what.back() >= '0' && what.back() <= '9') || what.back() <= 32 || what.back() == '.')) {
+    while (what.length() && (what.back() >= '0' && what.back() <= '9' || what.back() <= 32 || what.back() == '.')) {
 
         what = StringUtils::substr(what, 0, what.length() - 1);
     }
@@ -297,7 +297,7 @@ static se_string_view _fixstr(se_string_view p_what, se_string_view p_str) {
         return StringUtils::replace(what, test, "") + end;
     test[0] = '-'; // collada only supports "_" and "-" besides letters
     if (StringUtils::ends_with(StringUtils::to_lower(what), test))
-        return se_string(StringUtils::substr(what, 0, what.length() - (p_str.length() + 1))) + (end);
+        return se_string(StringUtils::substr(what, 0, what.length() - (p_str.length() + 1))) + end;
     test[0] = '_';
     if (StringUtils::ends_with(StringUtils::to_lower(what), test))
         return se_string(StringUtils::substr(what, 0, what.length() - (p_str.length() + 1))) + end;
@@ -523,7 +523,7 @@ Node *ResourceImporterScene::_fix_node(
             }
         }
 
-    } else if ((_teststr(name, "col") || (_teststr(name, "convcol"))) && object_cast<MeshInstance>(p_node)) {
+    } else if ((_teststr(name, "col") || _teststr(name, "convcol")) && object_cast<MeshInstance>(p_node)) {
 
         MeshInstance *mi = object_cast<MeshInstance>(p_node);
 
@@ -716,7 +716,7 @@ void ResourceImporterScene::_create_clips(Node *scene, const Array &p_clips, boo
                         dtrack = new_anim->get_track_count() - 1;
                         new_anim->track_set_path(dtrack, default_anim->track_get_path(j));
 
-                        if (kt > (from + 0.01f) && k > 0) {
+                        if (kt > from + 0.01f && k > 0) {
 
                             if (default_anim->track_get_type(j) == Animation::TYPE_TRANSFORM) {
                                 Quat q;
@@ -1195,7 +1195,7 @@ void ResourceImporterScene::get_import_options(ListPOD<ImportOption> *r_options,
             scenes_out ? 1 : 0));
     r_options->push_back(
             ImportOption(PropertyInfo(VariantType::INT, "materials/location", PROPERTY_HINT_ENUM, "Node,Mesh"),
-                    (meshes_out || materials_out) ? 1 : 0));
+                    meshes_out || materials_out ? 1 : 0));
     r_options->push_back(ImportOption(PropertyInfo(VariantType::INT, "materials/storage", PROPERTY_HINT_ENUM,
                                               "Built-In,Files (.material),Files (.tres)",
                                               PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_UPDATE_ALL_IF_MODIFIED),
@@ -1387,7 +1387,7 @@ Error ResourceImporterScene::import(se_string_view p_source_file, se_string_view
     }
 
     if (root_type != se_string_view("Spatial")) {
-        Node *base_node = object_cast<Node>(ClassDB::instance((root_type)));
+        Node *base_node = object_cast<Node>(ClassDB::instance(root_type));
 
         if (base_node) {
 

@@ -50,6 +50,7 @@
 #include "servers/visual/visual_server_wrap_mt.h"
 #include "windows_terminal_logger.h"
 
+#include <QString>
 #include <avrt.h>
 #include <direct.h>
 #include <knownfolders.h>
@@ -98,13 +99,13 @@ static BOOL CALLBACK _MonitorEnumProcSize(HMONITOR hMonitor, HDC hdcMonitor, LPR
 }
 
 #ifdef DEBUG_ENABLED
-static String format_error_message(DWORD id) {
+static se_string format_error_message(DWORD id) {
 
     LPWSTR messageBuffer = nullptr;
     size_t size = FormatMessageW(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
             nullptr, id, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPWSTR)&messageBuffer, 0, nullptr);
 
-    String msg = "Error " + itos(id) + ": " + StringUtils::from_wchar(messageBuffer, size);
+    se_string msg = "Error " + itos(id) + ": " + StringUtils::to_utf8(StringUtils::from_wchar(messageBuffer, size));
 
     LocalFree(messageBuffer);
 
@@ -293,7 +294,7 @@ void OS_Windows::_drag_event(float p_x, float p_y, int idx) {
     Ref<InputEventScreenDrag> event(make_ref_counted<InputEventScreenDrag>());
     event->set_index(idx);
     event->set_position(Vector2(p_x, p_y));
-    event->set_relative(Vector2(p_x, p_y) - curr->get());
+    event->set_relative(Vector2(p_x, p_y) - curr->second);
 
     if (main_loop)
         input->accumulate_input_event(event);
@@ -537,8 +538,7 @@ LRESULT OS_Windows::WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
                 if (!window_has_focus && mouse_mode == MOUSE_MODE_CAPTURED)
                         break;
 
-                Ref<InputEventMouseMotion> mm;
-                mm.instance();
+                Ref<InputEventMouseMotion> mm(make_ref_counted<InputEventMouseMotion >());
 
                 mm->set_pressure(pen_info.pressure ? (float)pen_info.pressure / 1024 : 0);
                 mm->set_tilt(Vector2(pen_info.tiltX ? (float)pen_info.tiltX / 90 : 0, pen_info.tiltY ? (float)pen_info.tiltY / 90 : 0));
@@ -1063,7 +1063,7 @@ LRESULT OS_Windows::WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
                 files.push_back(StringUtils::to_utf8(file));
             }
 
-            if (files.size() && main_loop) {
+            if (!files.empty() && main_loop) {
                 main_loop->drop_files(files, 0);
             }
 
@@ -1511,11 +1511,11 @@ Error OS_Windows::initialize(const VideoMode &p_desired, int p_video_driver, int
     return OK;
 }
 
-void OS_Windows::set_clipboard(const String &p_text) {
+void OS_Windows::set_clipboard(se_string_view p_text) {
 
     // Convert LF line endings to CRLF in clipboard content
     // Otherwise, line endings won't be visible when pasted in other software
-    String text = StringUtils::replace(p_text,"\n", "\r\n");
+    se_string text = StringUtils::replace(p_text,"\n", "\r\n");
 
     if (!OpenClipboard(hWnd)) {
         ERR_FAIL_MSG("Unable to open clipboard.");
@@ -1526,19 +1526,18 @@ void OS_Windows::set_clipboard(const String &p_text) {
     ERR_FAIL_COND_MSG(mem == nullptr, "Unable to allocate memory for clipboard contents.")
 
     LPWSTR lptstrCopy = (LPWSTR)GlobalLock(mem);
-    text.m_str.toWCharArray(lptstrCopy);
+    StringUtils::from_utf8(text).toWCharArray(lptstrCopy);
     GlobalUnlock(mem);
 
     SetClipboardData(CF_UNICODETEXT, mem);
 
     // set the CF_TEXT version (not needed?)
-    CharString utf8 = text.m_str.toUtf8();
-    mem = GlobalAlloc(GMEM_MOVEABLE, utf8.length() + 1);
+    mem = GlobalAlloc(GMEM_MOVEABLE, text.length() + 1);
     ERR_FAIL_COND_MSG(mem == nullptr, "Unable to allocate memory for clipboard contents.")
 
     LPTSTR ptr = (LPTSTR)GlobalLock(mem);
-    memcpy(ptr, utf8.data(), utf8.length());
-    ptr[utf8.length()] = 0;
+    memcpy(ptr, text.data(), text.length());
+    ptr[text.length()] = 0;
     GlobalUnlock(mem);
 
     SetClipboardData(CF_TEXT, mem);
@@ -1548,7 +1547,7 @@ void OS_Windows::set_clipboard(const String &p_text) {
 
 se_string OS_Windows::get_clipboard() const {
 
-    String ret;
+    se_string ret;
     if (!OpenClipboard(hWnd)) {
         ERR_FAIL_V_MSG("", "Unable to open clipboard.")
     }
@@ -1561,7 +1560,7 @@ se_string OS_Windows::get_clipboard() const {
             LPWSTR ptr = (LPWSTR)GlobalLock(mem);
             if (ptr != nullptr) {
 
-                ret = String((CharType *)ptr);
+                ret = StringUtils::to_utf8(StringUtils::from_wchar(ptr));
                 GlobalUnlock(mem);
             }
         }
@@ -1574,7 +1573,7 @@ se_string OS_Windows::get_clipboard() const {
             LPTSTR ptr = (LPTSTR)GlobalLock(mem);
             if (ptr != nullptr) {
 
-                ret = StringUtils::from_utf8((const char *)ptr);
+                ret = ptr;
                 GlobalUnlock(mem);
             }
         }
@@ -1634,10 +1633,10 @@ void OS_Windows::finalize_core() {
     NetSocketPosix::cleanup();
 }
 
-void OS_Windows::alert(const String &p_alert, const String &p_title) {
+void OS_Windows::alert(se_string_view p_alert, se_string_view p_title) {
 
     if (!is_no_window_mode_enabled())
-        MessageBoxW(nullptr, qUtf16Printable(p_alert.m_str), qUtf16Printable(p_title.m_str),
+        MessageBoxW(nullptr, qUtf16Printable(StringUtils::from_utf8(p_alert)), qUtf16Printable(StringUtils::from_utf8(p_title)),
                 MB_OK | MB_ICONEXCLAMATION | MB_TASKMODAL);
     else
         print_line("ALERT: " + p_alert);
@@ -1726,9 +1725,9 @@ int OS_Windows::get_mouse_button_state() const {
     return last_button_state;
 }
 
-void OS_Windows::set_window_title(const String &p_title) {
+void OS_Windows::set_window_title(se_string_view p_title) {
 
-    SetWindowTextW(hWnd, qUtf16Printable(p_title.m_str));
+    SetWindowTextW(hWnd, qUtf16Printable(StringUtils::from_utf8(p_title)));
 }
 
 void OS_Windows::set_video_mode(const VideoMode &p_video_mode, int p_screen) {
@@ -2194,9 +2193,9 @@ void OS_Windows::_update_window_style(bool p_repaint, bool p_maximized) {
     }
 }
 
-Error OS_Windows::open_dynamic_library(const String &p_path, void *&p_library_handle, bool p_also_set_library_path) {
+Error OS_Windows::open_dynamic_library(se_string_view p_path, void *&p_library_handle, bool p_also_set_library_path) {
 
-    String path = p_path;
+    se_string path(p_path);
 
     if (!FileAccess::exists(path)) {
         //this code exists so gdnative can load .dll files from within the executable path
@@ -2213,10 +2212,10 @@ Error OS_Windows::open_dynamic_library(const String &p_path, void *&p_library_ha
     DLL_DIRECTORY_COOKIE cookie = nullptr;
 
     if (p_also_set_library_path && has_dll_directory_api) {
-        cookie = add_dll_directory(qUtf16Printable(PathUtils::get_base_dir(path).m_str));
+        cookie = add_dll_directory(qUtf16Printable(StringUtils::from_utf8(PathUtils::get_base_dir(path))));
     }
 
-    p_library_handle = (void *)LoadLibraryExW(qUtf16Printable(path.m_str), nullptr,
+    p_library_handle = (void *)LoadLibraryExW(qUtf16Printable(StringUtils::from_utf8(path)), nullptr,
             (p_also_set_library_path && has_dll_directory_api) ? LOAD_LIBRARY_SEARCH_DEFAULT_DIRS : 0);
     ERR_FAIL_COND_V_MSG(!p_library_handle, ERR_CANT_OPEN, "Can't open dynamic library: " + p_path + ", error: " + format_error_message(GetLastError()) + ".")
 
@@ -2234,8 +2233,8 @@ Error OS_Windows::close_dynamic_library(void *p_library_handle) {
     return OK;
 }
 
-Error OS_Windows::get_dynamic_library_symbol_handle(void *p_library_handle, const String &p_name, void *&p_symbol_handle, bool p_optional) {
-    p_symbol_handle = (void *)GetProcAddress((HMODULE)p_library_handle, qUtf8Printable(p_name.m_str));
+Error OS_Windows::get_dynamic_library_symbol_handle(void *p_library_handle, se_string_view p_name, void *&p_symbol_handle, bool p_optional) {
+    p_symbol_handle = (void *)GetProcAddress((HMODULE)p_library_handle, se_string(p_name).c_str());
     if (!p_symbol_handle) {
         if (!p_optional) {
             ERR_FAIL_V_MSG(ERR_CANT_RESOLVE, "Can't resolve symbol " + p_name + ", error: " + StringUtils::num(GetLastError()) + ".");
@@ -2257,7 +2256,7 @@ void OS_Windows::request_attention() {
     FlashWindowEx(&info);
 }
 
-String OS_Windows::get_name() const {
+se_string OS_Windows::get_name() const {
 
     return "Windows";
 }
@@ -2301,9 +2300,9 @@ OS::TimeZoneInfo OS_Windows::get_time_zone_info() const {
 
     TimeZoneInfo ret;
     if (daylight) {
-        ret.name = QString::fromWCharArray(info.DaylightName);
+        ret.name = StringUtils::to_utf8(QString::fromWCharArray(info.DaylightName));
     } else {
-        ret.name = QString::fromWCharArray(info.StandardName);
+        ret.name = StringUtils::to_utf8(QString::fromWCharArray(info.StandardName));
     }
 
     // Bias value returned by GetTimeZoneInformation is inverted of what we expect
@@ -2637,13 +2636,13 @@ void OS_Windows::GetMaskBitmaps(HBITMAP hSourceBitmap, COLORREF clrTransparent, 
     DeleteDC(hMainDC);
 }
 
-Error OS_Windows::execute(const String &p_path, const ListPOD<String> &p_arguments, bool p_blocking, ProcessID *r_child_id, String *r_pipe, int *r_exitcode, bool read_stderr, Mutex *p_pipe_mutex) {
+Error OS_Windows::execute(se_string_view p_path, const ListPOD<se_string> &p_arguments, bool p_blocking, ProcessID *r_child_id, se_string *r_pipe, int *r_exitcode, bool read_stderr, Mutex *p_pipe_mutex) {
 
     if (p_blocking && r_pipe) {
 
-        String argss = "\"\"" + p_path + "\"";
+        se_string argss = se_string("\"\"") + p_path + "\"";
 
-        for (const String &E : p_arguments) {
+        for (const se_string &E : p_arguments) {
 
             argss += " \"" + E + "\"";
         }
@@ -2654,7 +2653,7 @@ Error OS_Windows::execute(const String &p_path, const ListPOD<String> &p_argumen
             argss += " 2>&1"; // Read stderr too
         }
 
-        FILE *f = _wpopen(qUtf16Printable(argss.m_str), L"r");
+        FILE *f = _wpopen(qUtf16Printable(StringUtils::from_utf8(argss)), L"r");
 
         ERR_FAIL_COND_V(!f, ERR_CANT_OPEN)
 
@@ -2677,9 +2676,9 @@ Error OS_Windows::execute(const String &p_path, const ListPOD<String> &p_argumen
         return OK;
     }
 
-    String cmdline = "\"" + p_path + "\"";
+    se_string cmdline = se_string("\"") + p_path + "\"";
 
-    for(const String &arg : p_arguments) {
+    for(const se_string &arg : p_arguments) {
         cmdline += " \"" + arg + "\"";
     }
 
@@ -2689,7 +2688,7 @@ Error OS_Windows::execute(const String &p_path, const ListPOD<String> &p_argumen
     ZeroMemory(&pi.pi, sizeof(pi.pi));
     LPSTARTUPINFOW si_w = (LPSTARTUPINFOW)&pi.si;
 
-    auto modstr = cmdline.m_str.toStdWString();
+    auto modstr = StringUtils::from_utf8(cmdline).toStdWString();
     int ret = CreateProcessW(nullptr, modstr.data(), nullptr, nullptr, 0, NORMAL_PRIORITY_CLASS & CREATE_NO_WINDOW, nullptr, nullptr, si_w, &pi.pi);
     ERR_FAIL_COND_V(ret == 0, ERR_CANT_FORK)
 
@@ -2739,15 +2738,14 @@ Error OS_Windows::set_cwd(se_string_view p_cwd) {
     return OK;
 }
 
-String OS_Windows::get_executable_path() const {
+se_string OS_Windows::get_executable_path() const {
 
     wchar_t bufname[4096];
     GetModuleFileNameW(nullptr, bufname, 4096);
-    String s = QString::fromWCharArray(bufname);
-    return s;
+    return StringUtils::to_utf8(QString::fromWCharArray(bufname));
 }
 
-void OS_Windows::set_native_icon(const String &p_filename) {
+void OS_Windows::set_native_icon(const se_string &p_filename) {
 
     FileAccess *f = FileAccess::open(p_filename, FileAccess::READ);
     ERR_FAIL_COND_MSG(!f, "Cannot open file with icon '" + p_filename + "'.");
@@ -2799,7 +2797,7 @@ void OS_Windows::set_native_icon(const String &p_filename) {
     ERR_FAIL_COND_MSG(big_icon_index == -1, "No valid icons found!")
 
     if (small_icon_index == -1) {
-        WARN_PRINTS("No small icon found, reusing " + itos(big_icon_width) + "x" + itos(big_icon_width) + " @" + itos(big_icon_cc) + " icon!");
+        WARN_PRINT("No small icon found, reusing " + itos(big_icon_width) + "x" + itos(big_icon_width) + " @" + itos(big_icon_cc) + " icon!");
         small_icon_index = big_icon_index;
         small_icon_cc = big_icon_cc;
     }
@@ -2892,43 +2890,43 @@ void OS_Windows::set_icon(const Ref<Image> &p_icon) {
     SendMessage(hWnd, WM_SETICON, ICON_BIG, (LPARAM)hicon);
 }
 
-bool OS_Windows::has_environment(const String &p_var) const {
+bool OS_Windows::has_environment(se_string_view p_var) const {
 
 #ifdef MINGW_ENABLED
-    return _wgetenv(qUtf16Printable(p_var.m_str)) != nullptr;
+    return _wgetenv(qUtf16Printable(StringUtils::from_utf8(p_var))) != nullptr;
 #else
     wchar_t *env;
     size_t len;
-    _wdupenv_s(&env, &len, qUtf16Printable(p_var.m_str));
+    _wdupenv_s(&env, &len, qUtf16Printable(StringUtils::from_utf8(p_var)));
     const bool has_env = env != nullptr;
     free(env);
     return has_env;
 #endif
 };
 
-String OS_Windows::get_environment(const String &p_var) const {
+se_string OS_Windows::get_environment(se_string_view p_var) const {
 
-    wchar_t wval[0x7Fff]; // MSDN says 32767 char is the maximum
-    int wlen = GetEnvironmentVariableW(qUtf16Printable(p_var.m_str), wval, 0x7Fff);
+    wchar_t wval[0x7fff]; // MSDN says 32767 char is the maximum
+    int wlen = GetEnvironmentVariableW(qUtf16Printable(StringUtils::from_utf8(p_var)), wval, 0x7fff);
     if (wlen > 0) {
-        return StringUtils::from_wchar(wval);
+        return StringUtils::to_utf8(StringUtils::from_wchar(wval));
     }
     return "";
 }
 
-bool OS_Windows::set_environment(const String &p_var, const String &p_value) const {
+bool OS_Windows::set_environment(se_string_view p_var, se_string_view p_value) const {
 
-    return (bool)SetEnvironmentVariableW(qUtf16Printable(p_var.m_str), qUtf16Printable(p_value.m_str));
+    return (bool)SetEnvironmentVariableW(qUtf16Printable(StringUtils::from_utf8(p_var)), qUtf16Printable(StringUtils::from_utf8(p_value)));
 }
 
-String OS_Windows::get_stdin_string(bool p_block) {
+se_string OS_Windows::get_stdin_string(bool p_block) {
 
     if (p_block) {
         char buff[1024];
         return fgets(buff, 1024, stdin);
     };
 
-    return String();
+    return se_string();
 }
 
 void OS_Windows::enable_for_stealing_focus(ProcessID pid) {
@@ -2941,18 +2939,18 @@ void OS_Windows::move_window_to_foreground() {
     SetForegroundWindow(hWnd);
 }
 
-Error OS_Windows::shell_open(String p_uri) {
+Error OS_Windows::shell_open(se_string_view p_uri) {
 
-    ShellExecuteW(nullptr, nullptr, qUtf16Printable(p_uri.m_str), nullptr, nullptr, SW_SHOWNORMAL);
+    ShellExecuteW(nullptr, nullptr, qUtf16Printable(StringUtils::from_utf8(p_uri)), nullptr, nullptr, SW_SHOWNORMAL);
     return OK;
 }
 
-String OS_Windows::get_locale() const {
+const char *OS_Windows::get_locale() const {
 
     const _WinLocale *wl = &_win_locales[0];
 
     LANGID langid = GetUserDefaultUILanguage();
-    String neutral;
+    const char *neutral=nullptr;
     int lang = langid & ((1 << 9) - 1);
     int sublang = langid & ~((1 << 9) - 1);
 
@@ -2967,7 +2965,7 @@ String OS_Windows::get_locale() const {
         wl++;
     }
 
-    if (neutral != "")
+    if (neutral)
         return neutral;
 
     return "en";
@@ -3107,22 +3105,22 @@ MainLoop *OS_Windows::get_main_loop() const {
 }
 
 // Get properly capitalized engine name for system paths
-String OS_Windows::get_godot_dir_name() const {
+se_string OS_Windows::get_godot_dir_name() const {
 
-        return StringUtils::capitalize(String(VERSION_SHORT_NAME));
+    return StringUtils::capitalize(se_string_view(VERSION_SHORT_NAME));
 }
 
-String OS_Windows::get_user_data_dir() const {
+se_string OS_Windows::get_user_data_dir() const {
 
-    String appname = get_safe_dir_name(ProjectSettings::get_singleton()->get("application/config/name"));
+    se_string appname = get_safe_dir_name(ProjectSettings::get_singleton()->get("application/config/name").as<se_string>());
     if (appname.empty())
         return ProjectSettings::get_singleton()->get_resource_path();
 
     bool use_custom_dir = ProjectSettings::get_singleton()->get("application/config/use_custom_user_dir");
     if (use_custom_dir) {
-        String custom_dir = get_safe_dir_name(
-                ProjectSettings::get_singleton()->get("application/config/custom_user_dir_name"), true);
-        if (custom_dir == "") {
+        se_string custom_dir = get_safe_dir_name(
+                ProjectSettings::get_singleton()->get("application/config/custom_user_dir_name").as<se_string>(), true);
+        if (custom_dir.empty()) {
             custom_dir = appname;
         }
         return PathUtils::from_native_path(PathUtils::plus_file(get_data_path(), custom_dir));
@@ -3193,9 +3191,9 @@ int OS_Windows::get_power_percent_left() {
     return power_manager->get_power_percent_left();
 }
 
-bool OS_Windows::_check_internal_feature_support(const String &p_feature) {
+bool OS_Windows::_check_internal_feature_support(se_string_view p_feature) {
 
-    return p_feature == "pc";
+    return se_string_view("pc") == p_feature;
 }
 
 void OS_Windows::disable_crash_handler() {
@@ -3213,10 +3211,10 @@ void OS_Windows::process_and_drop_events() {
     drop_events = false;
 }
 
-Error OS_Windows::move_to_trash(const se_string &p_path) {
+Error OS_Windows::move_to_trash(se_string_view p_path) {
     SHFILEOPSTRUCTW sf;
     WCHAR *from = new WCHAR[p_path.length() + 2];
-    wcscpy_s(from, p_path.length() + 1, qUtf16Printable(p_path.m_str));
+    wcscpy_s(from, p_path.length() + 1, qUtf16Printable(StringUtils::from_utf8(p_path)));
     from[p_path.length() + 1] = 0;
 
     sf.hwnd = hWnd;

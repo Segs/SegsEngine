@@ -312,7 +312,7 @@ class VisualShaderEditorPlugin : public EditorPlugin {
     Button *button;
 
 public:
-    se_string_view get_name() const override { return ("VisualShader"); }
+    se_string_view get_name() const override { return "VisualShader"; }
     bool has_main_screen() const override { return false; }
     void edit(Object *p_object) override;
     bool handles(Object *p_object) const override;

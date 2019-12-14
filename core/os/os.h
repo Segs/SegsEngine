@@ -284,8 +284,8 @@ public:
     virtual Error set_cwd(se_string_view p_cwd);
 
     virtual bool has_environment(se_string_view p_var) const = 0;
-    virtual const char *get_environment(se_string_view p_var) const = 0;
-    virtual bool set_environment(se_string_view p_var, const String &p_value) const = 0;
+    virtual se_string get_environment(se_string_view p_var) const = 0;
+    virtual bool set_environment(se_string_view p_var, se_string_view p_value) const = 0;
 
     virtual se_string get_name() const = 0;
     virtual const ListPOD<se_string> &get_cmdline_args() const { return _cmdline; }

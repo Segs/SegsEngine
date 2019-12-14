@@ -302,7 +302,7 @@ void InspectorDock::_edit_forward() {
 }
 void InspectorDock::_edit_back() {
     EditorHistory *editor_history = EditorNode::get_singleton()->get_editor_history();
-    if ((current && editor_history->previous()) || editor_history->get_path_size() == 1)
+    if (current && editor_history->previous() || editor_history->get_path_size() == 1)
         editor->edit_current();
 }
 
@@ -576,7 +576,7 @@ InspectorDock::InspectorDock(EditorNode *p_editor, EditorData &p_editor_data) {
 
     new_resource_dialog = memnew(CreateDialog);
     editor->get_gui_base()->add_child(new_resource_dialog);
-    new_resource_dialog->set_base_type(("Resource"));
+    new_resource_dialog->set_base_type("Resource");
     new_resource_dialog->connect("create", this, "_resource_created");
 
     search = memnew(LineEdit);
@@ -598,7 +598,7 @@ InspectorDock::InspectorDock(EditorNode *p_editor, EditorData &p_editor_data) {
 
     load_resource_dialog = memnew(EditorFileDialog);
     add_child(load_resource_dialog);
-    load_resource_dialog->set_current_dir(("res://"));
+    load_resource_dialog->set_current_dir("res://");
     load_resource_dialog->connect("file_selected", this, "_resource_file_selected");
 
     inspector = memnew(EditorInspector);

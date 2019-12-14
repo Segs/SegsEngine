@@ -212,7 +212,7 @@ Error ResourceImporterWAV::import(se_string_view p_source_file, se_string_view p
                 ERR_FAIL_COND_V(format_channels == 0, ERR_INVALID_DATA)
             }
             frames /= format_channels;
-            frames /= (format_bits >> 3);
+            frames /= format_bits >> 3;
 
             /*print_line("chunksize: "+itos(chunksize));
             print_line("channels: "+itos(format_channels));
@@ -245,11 +245,11 @@ Error ResourceImporterWAV::import(se_string_view p_source_file, se_string_view p
                     // if sample is > 16 bits, just read extra bytes
 
                     uint32_t s = 0;
-                    for (int b = 0; b < (format_bits >> 3); b++) {
+                    for (int b = 0; b < format_bits >> 3; b++) {
 
-                        s |= ((uint32_t)file->get_8()) << (b * 8);
+                        s |= (uint32_t)file->get_8() << b * 8;
                     }
-                    s <<= (32 - format_bits);
+                    s <<= 32 - format_bits;
 
                     data.write[i] = (int32_t(s) >> 16) / 32768.f;
                 }
@@ -347,7 +347,7 @@ Error ResourceImporterWAV::import(se_string_view p_source_file, se_string_view p
                 float a2 = y2 - y0;
                 float a3 = y1;
 
-                float res = (a0 * mu * mu2 + a1 * mu2 + a2 * mu + a3);
+                float res = a0 * mu * mu2 + a1 * mu2 + a2 * mu + a3;
 
                 new_data.write[i * format_channels + c] = res;
 
@@ -398,14 +398,14 @@ Error ResourceImporterWAV::import(se_string_view p_source_file, se_string_view p
     if (trim && !loop && format_channels > 0) {
 
         int first = 0;
-        int last = (frames / format_channels) - 1;
+        int last = frames / format_channels - 1;
         bool found = false;
         float limit = Math::db2linear(TRIM_DB_LIMIT);
 
         for (int i = 0; i < data.size() / format_channels; i++) {
             float ampChannelSum = 0;
             for (int j = 0; j < format_channels; j++) {
-                ampChannelSum += Math::abs(data[(i * format_channels) + j]);
+                ampChannelSum += Math::abs(data[i * format_channels + j]);
             }
 
             float amp = Math::abs(ampChannelSum / (float)format_channels);
@@ -428,11 +428,11 @@ Error ResourceImporterWAV::import(se_string_view p_source_file, se_string_view p
                 float fadeOutMult = 1;
 
                 if (last - i < TRIM_FADE_OUT_FRAMES) {
-                    fadeOutMult = ((float)(last - i - 1) / (float)TRIM_FADE_OUT_FRAMES);
+                    fadeOutMult = (float)(last - i - 1) / (float)TRIM_FADE_OUT_FRAMES;
                 }
 
                 for (int j = 0; j < format_channels; j++) {
-                    new_data.write[((i - first) * format_channels) + j] = data[(i * format_channels) + j] * fadeOutMult;
+                    new_data.write[(i - first) * format_channels + j] = data[i * format_channels + j] * fadeOutMult;
                 }
             }
 

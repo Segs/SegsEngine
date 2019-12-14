@@ -388,8 +388,8 @@ public:
             CALL_ERROR_TOO_FEW_ARGUMENTS,
             CALL_ERROR_INSTANCE_IS_NULL,
         };
-        Error error;
         int argument;
+        Error error;
         VariantType expected;
     };
 

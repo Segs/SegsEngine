@@ -181,7 +181,7 @@ bool SceneTreeEditor::_add_nodes(Node *p_node, TreeItem *p_parent) {
 
     if (!display_foreign && p_node->get_owner() != get_scene_node() && p_node != get_scene_node()) {
 
-        if ((show_enabled_subscene || can_open_instance) && p_node->get_owner() && (get_scene_node()->is_editable_instance(p_node->get_owner()))) {
+        if ((show_enabled_subscene || can_open_instance) && p_node->get_owner() && get_scene_node()->is_editable_instance(p_node->get_owner())) {
 
             part_of_subscene = true;
             //allow
@@ -205,7 +205,7 @@ bool SceneTreeEditor::_add_nodes(Node *p_node, TreeItem *p_parent) {
             item->set_collapsed(true);
     }
 
-    Ref<Texture> icon = EditorNode::get_singleton()->get_object_icon(p_node, ("Node"));
+    Ref<Texture> icon = EditorNode::get_singleton()->get_object_icon(p_node, "Node");
     item->set_icon(0, icon);
     item->set_metadata(0, p_node->get_path());
 
@@ -232,7 +232,7 @@ bool SceneTreeEditor::_add_nodes(Node *p_node, TreeItem *p_parent) {
         if (marked.contains(p_node)) {
             se_string node_name(p_node->get_name());
             if (connecting_signal) {
-                node_name += " " + (TTR("(Connecting From)"));
+                node_name += " " + TTR("(Connecting From)");
             }
             item->set_text_utf8(0, node_name);
             item->set_custom_color(0, accent);
@@ -446,7 +446,7 @@ bool SceneTreeEditor::_add_nodes(Node *p_node, TreeItem *p_parent) {
 
 void SceneTreeEditor::_node_visibility_changed(Node *p_node) {
 
-    if (!p_node || (p_node != get_scene_node() && !p_node->get_owner())) {
+    if (!p_node || p_node != get_scene_node() && !p_node->get_owner()) {
 
         return;
     }
@@ -983,7 +983,7 @@ Variant SceneTreeEditor::get_drag_data_fw(const Point2 &p_point, Control *p_from
 }
 
 bool SceneTreeEditor::_is_script_type(const StringName &p_type) const {
-    return (script_types->contains(p_type));
+    return script_types->contains(p_type);
 }
 
 bool SceneTreeEditor::can_drop_data_fw(const Point2 &p_point, const Variant &p_data, Control *p_from) const {
@@ -1002,7 +1002,7 @@ bool SceneTreeEditor::can_drop_data_fw(const Point2 &p_point, const Variant &p_d
         return false;
 
     int section = tree->get_drop_section_at_position(p_point);
-    if (section < -1 || (section == -1 && !item->get_parent()))
+    if (section < -1 || section == -1 && !item->get_parent())
         return false;
 
     if (String(d["type"]) == "files") {
@@ -1191,7 +1191,7 @@ SceneTreeEditor::SceneTreeEditor(bool p_label, bool p_can_rename, bool p_can_ope
     }
 
     tree->connect("cell_selected", this, "_selected_changed");
-    tree->connect("item_edited", this, "_renamed", varray(),ObjectNS::CONNECT_DEFERRED);
+    tree->connect("item_edited", this, "_renamed", varray(),ObjectNS::CONNECT_QUEUED);
     tree->connect("multi_selected", this, "_cell_multi_selected");
     tree->connect("button_pressed", this, "_cell_button_pressed");
     tree->connect("nothing_selected", this, "_deselect_items");

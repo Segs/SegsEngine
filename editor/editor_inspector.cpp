@@ -237,7 +237,7 @@ void EditorProperty::_notification(int p_what) {
                 color2.g *= 1.2f;
                 color2.b *= 1.2f;
             }
-            check_rect = Rect2(ofs, ((size.height - checkbox->get_height()) / 2), checkbox->get_width(), checkbox->get_height());
+            check_rect = Rect2(ofs, (size.height - checkbox->get_height()) / 2, checkbox->get_width(), checkbox->get_height());
             draw_texture(checkbox, check_rect.position, color2);
             ofs += get_constant("hseparator", "Tree") + checkbox->get_width() + get_constant("hseparation", "CheckBox");
             text_limit -= ofs;
@@ -282,7 +282,7 @@ void EditorProperty::_notification(int p_what) {
                 color2.g *= 1.2f;
                 color2.b *= 1.2f;
             }
-            keying_rect = Rect2(ofs, ((size.height - key->get_height()) / 2), key->get_width(), key->get_height());
+            keying_rect = Rect2(ofs, (size.height - key->get_height()) / 2, key->get_width(), key->get_height());
             draw_texture(key, keying_rect.position, color2);
         } else {
             keying_rect = Rect2();
@@ -513,7 +513,7 @@ bool EditorProperty::use_keying_next() const {
 
     for (const PropertyInfo &p : plist) {
         if (p.name == property) {
-            return (p.usage & PROPERTY_USAGE_KEYING_INCREMENTS);
+            return p.usage & PROPERTY_USAGE_KEYING_INCREMENTS;
         }
     }
 
@@ -1348,8 +1348,8 @@ void EditorInspector::_parse_added_editors(VBoxContainer *current_vbox, const Re
             ep->connect("property_checked", this, "_property_checked");
             ep->connect("selected", this, "_property_selected");
             ep->connect("multiple_properties_changed", this, "_multiple_properties_changed");
-            ep->connect("resource_selected", this, "_resource_selected", varray(), ObjectNS::CONNECT_DEFERRED);
-            ep->connect("object_id_selected", this, "_object_id_selected", varray(), ObjectNS::CONNECT_DEFERRED);
+            ep->connect("resource_selected", this, "_resource_selected", varray(), ObjectNS::CONNECT_QUEUED);
+            ep->connect("object_id_selected", this, "_object_id_selected", varray(), ObjectNS::CONNECT_QUEUED);
 
             if (!F->deref().properties.empty()) {
 
@@ -1571,7 +1571,7 @@ void EditorInspector::update_tree() {
             basename = group + "/" + basename;
         }
 
-        se_string name((StringUtils::contains(basename,'/')) ? StringUtils::right(basename,StringUtils::find_last(basename,'/') + 1) : basename);
+        se_string name(StringUtils::contains(basename,'/') ? StringUtils::right(basename,StringUtils::find_last(basename,'/') + 1) : basename);
 
         if (capitalize_paths) {
             int dot = StringUtils::find(name,".");
@@ -1632,7 +1632,7 @@ void EditorInspector::update_tree() {
                     section_map[vb] = section;
                 }
                 current_vbox = item_path[acc_path];
-                level = (MIN(level + 1, 4));
+                level = MIN(level + 1, 4);
             }
 
             if (current_vbox == main_vbox) {
@@ -1748,15 +1748,15 @@ void EditorInspector::update_tree() {
 
                     ep->connect("property_changed", this, "_property_changed");
                     if (p.usage & PROPERTY_USAGE_UPDATE_ALL_IF_MODIFIED) {
-                        ep->connect("property_changed", this, "_property_changed_update_all", varray(), ObjectNS::CONNECT_DEFERRED);
+                        ep->connect("property_changed", this, "_property_changed_update_all", varray(), ObjectNS::CONNECT_QUEUED);
                     }
                     ep->connect("property_keyed", this, "_property_keyed");
                     ep->connect("property_keyed_with_value", this, "_property_keyed_with_value");
                     ep->connect("property_checked", this, "_property_checked");
                     ep->connect("selected", this, "_property_selected");
                     ep->connect("multiple_properties_changed", this, "_multiple_properties_changed");
-                    ep->connect("resource_selected", this, "_resource_selected", varray(), ObjectNS::CONNECT_DEFERRED);
-                    ep->connect("object_id_selected", this, "_object_id_selected", varray(), ObjectNS::CONNECT_DEFERRED);
+                    ep->connect("resource_selected", this, "_resource_selected", varray(), ObjectNS::CONNECT_QUEUED);
+                    ep->connect("object_id_selected", this, "_object_id_selected", varray(), ObjectNS::CONNECT_QUEUED);
                     if (!doc_hint.empty()) {
                         ep->set_tooltip_utf8(property_prefix + p.name + "::" + doc_hint);
                     } else {
@@ -2014,7 +2014,7 @@ void EditorInspector::_edit_set(se_string_view p_name, const Variant &p_value, b
         Resource *r = object_cast<Resource>(object);
         if (r) {
 
-            if ((p_name) == se_string_view("resource_local_to_scene")) {
+            if (p_name == se_string_view("resource_local_to_scene")) {
                 bool prev = object->get(StringName(p_name));
                 bool next = p_value;
                 if (next) {

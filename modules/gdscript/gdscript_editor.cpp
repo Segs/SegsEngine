@@ -3010,7 +3010,7 @@ const char * GDScriptLanguage::_get_indentation() const {
             int indent_size = EDITOR_DEF(("text_editor/indent/size"), 4);
             if(last_indent==indent_size)
                 return spaces;
-            uint8_t space_count = std::min<uint8_t>(indent_size,64);
+            uint8_t space_count = eastl::min<uint8_t>(indent_size,64);
             memset(spaces,' ',space_count);
             spaces[space_count]=0;
             return spaces;

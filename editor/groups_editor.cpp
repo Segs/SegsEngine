@@ -113,7 +113,7 @@ bool GroupDialog::_can_edit(Node *p_node, const StringName &p_group) {
     Node *n = p_node;
     bool can_edit = true;
     while (n) {
-        Ref<SceneState> ss = (n == EditorNode::get_singleton()->get_edited_scene()) ? n->get_scene_inherited_state() :
+        Ref<SceneState> ss = n == EditorNode::get_singleton()->get_edited_scene() ? n->get_scene_inherited_state() :
                                                                                       n->get_scene_instance_state();
         if (ss) {
             int path = ss->find_node_by_path(n->get_path_to(p_node));
@@ -633,7 +633,7 @@ void GroupsEditor::update_tree() {
 
         while (n) {
 
-            Ref<SceneState> ss = (n == EditorNode::get_singleton()->get_edited_scene()) ? n->get_scene_inherited_state() : n->get_scene_instance_state();
+            Ref<SceneState> ss = n == EditorNode::get_singleton()->get_edited_scene() ? n->get_scene_inherited_state() : n->get_scene_instance_state();
 
             if (ss) {
 

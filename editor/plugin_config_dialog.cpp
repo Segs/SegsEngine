@@ -187,7 +187,7 @@ PluginConfigDialog::PluginConfigDialog() {
 
     name_edit = memnew(LineEdit);
     name_edit->connect("text_changed", this, "_on_required_text_changed");
-    name_edit->set_placeholder(("MyPlugin"));
+    name_edit->set_placeholder("MyPlugin");
     grid->add_child(name_edit);
 
     Label *subfolder_lb = memnew(Label);
@@ -195,7 +195,7 @@ PluginConfigDialog::PluginConfigDialog() {
     grid->add_child(subfolder_lb);
 
     subfolder_edit = memnew(LineEdit);
-    subfolder_edit->set_placeholder(("\"my_plugin\" -> res://addons/my_plugin"));
+    subfolder_edit->set_placeholder("\"my_plugin\" -> res://addons/my_plugin");
     grid->add_child(subfolder_edit);
 
     Label *desc_lb = memnew(Label);
@@ -211,7 +211,7 @@ PluginConfigDialog::PluginConfigDialog() {
     grid->add_child(author_lb);
 
     author_edit = memnew(LineEdit);
-    author_edit->set_placeholder(("Godette"));
+    author_edit->set_placeholder("Godette");
     grid->add_child(author_edit);
 
     Label *version_lb = memnew(Label);
@@ -219,7 +219,7 @@ PluginConfigDialog::PluginConfigDialog() {
     grid->add_child(version_lb);
 
     version_edit = memnew(LineEdit);
-    version_edit->set_placeholder(("1.0"));
+    version_edit->set_placeholder("1.0");
     grid->add_child(version_edit);
 
     Label *script_option_lb = memnew(Label);
@@ -244,7 +244,7 @@ PluginConfigDialog::PluginConfigDialog() {
 
     script_edit = memnew(LineEdit);
     script_edit->connect("text_changed", this, "_on_required_text_changed");
-    script_edit->set_placeholder(("\"plugin.gd\" -> res://addons/my_plugin/plugin.gd"));
+    script_edit->set_placeholder("\"plugin.gd\" -> res://addons/my_plugin/plugin.gd");
     grid->add_child(script_edit);
 
     // TODO Make this option work better with languages like C#. Right now, it does not work because the C# project must be compiled first.

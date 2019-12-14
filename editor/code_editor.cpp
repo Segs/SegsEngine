@@ -483,7 +483,7 @@ void FindReplaceBar::popup_replace() {
         hbc_option_replace->show();
     }
 
-    selection_only->set_pressed((text_edit->is_selection_active() && text_edit->get_selection_from_line() < text_edit->get_selection_to_line()));
+    selection_only->set_pressed(text_edit->is_selection_active() && text_edit->get_selection_from_line() < text_edit->get_selection_to_line());
 
     _show_search(is_visible() || text_edit->is_selection_active());
 }

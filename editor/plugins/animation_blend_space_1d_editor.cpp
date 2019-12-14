@@ -57,7 +57,7 @@ void AnimationNodeBlendSpace1DEditor::_blend_space_gui_input(const Ref<InputEven
 
     Ref<InputEventMouseButton> mb = dynamic_ref_cast<InputEventMouseButton>(p_event);
 
-    if (mb && mb->is_pressed() && ((tool_select->is_pressed() && mb->get_button_index() == BUTTON_RIGHT) || (mb->get_button_index() == BUTTON_LEFT && tool_create->is_pressed()))) {
+    if (mb && mb->is_pressed() && (tool_select->is_pressed() && mb->get_button_index() == BUTTON_RIGHT || mb->get_button_index() == BUTTON_LEFT && tool_create->is_pressed())) {
         menu->clear();
         animations_menu->clear();
         animations_to_add.clear();
@@ -86,7 +86,7 @@ void AnimationNodeBlendSpace1DEditor::_blend_space_gui_input(const Ref<InputEven
         }
 
         for (const StringName &E : classes) {
-            se_string name = StringUtils::replace_first(E,("AnimationNode"), "");
+            se_string name = StringUtils::replace_first(E,"AnimationNode", "");
             if (name == "Animation")
                 continue;
 
@@ -107,7 +107,7 @@ void AnimationNodeBlendSpace1DEditor::_blend_space_gui_input(const Ref<InputEven
         menu->popup();
 
         add_point_pos = (mb->get_position() / blend_space_draw->get_size()).x;
-        add_point_pos *= (blend_space->get_max_space() - blend_space->get_min_space());
+        add_point_pos *= blend_space->get_max_space() - blend_space->get_min_space();
         add_point_pos += blend_space->get_min_space();
 
         if (snap->is_pressed()) {
@@ -185,7 +185,7 @@ void AnimationNodeBlendSpace1DEditor::_blend_space_gui_input(const Ref<InputEven
 
     if (mm && dragging_selected_attempt) {
         dragging_selected = true;
-        drag_ofs = ((mm->get_position() - drag_from) / blend_space_draw->get_size()) * ((blend_space->get_max_space() - blend_space->get_min_space()) * Vector2(1, 0));
+        drag_ofs = (mm->get_position() - drag_from) / blend_space_draw->get_size() * ((blend_space->get_max_space() - blend_space->get_min_space()) * Vector2(1, 0));
         blend_space_draw->update();
         _update_edited_point_pos();
     }
@@ -271,7 +271,7 @@ void AnimationNodeBlendSpace1DEditor::_blend_space_draw() {
 
         Vector2 gui_point = Vector2(point, s.height / 2.0);
 
-        gui_point -= (icon->get_size() / 2.0);
+        gui_point -= icon->get_size() / 2.0;
 
         gui_point = gui_point.floor();
 
@@ -379,7 +379,7 @@ void AnimationNodeBlendSpace1DEditor::_add_menu_type(int p_index) {
 
         open_file->clear_filters();
         PODVector<se_string> filters;
-        ResourceLoader::get_recognized_extensions_for_type(("AnimationRootNode"), filters);
+        ResourceLoader::get_recognized_extensions_for_type("AnimationRootNode", filters);
         for (const se_string &E : filters) {
             open_file->add_filter("*." + E);
         }
@@ -679,7 +679,7 @@ AnimationNodeBlendSpace1DEditor::AnimationNodeBlendSpace1DEditor() {
     open_editor = memnew(Button);
     edit_hb->add_child(open_editor);
     open_editor->set_text(TTR("Open Editor"));
-    open_editor->connect("pressed", this, "_open_editor", varray(),ObjectNS::CONNECT_DEFERRED);
+    open_editor->connect("pressed", this, "_open_editor", varray(),ObjectNS::CONNECT_QUEUED);
 
     edit_hb->hide();
     open_editor->hide();

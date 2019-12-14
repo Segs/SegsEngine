@@ -50,8 +50,8 @@ void EditorAutoloadSettings::_notification(int p_what) {
     if (p_what == NOTIFICATION_ENTER_TREE) {
 
         PODVector<se_string> afn;
-        ResourceLoader::get_recognized_extensions_for_type(("Script"), afn);
-        ResourceLoader::get_recognized_extensions_for_type(("PackedScene"), afn);
+        ResourceLoader::get_recognized_extensions_for_type("Script", afn);
+        ResourceLoader::get_recognized_extensions_for_type("PackedScene", afn);
 
         EditorFileDialog *file_dialog = autoload_add_path->get_file_dialog();
 
@@ -413,7 +413,7 @@ void EditorAutoloadSettings::update_autoload() {
         autoload_cache.push_back(info);
 
         if (need_to_add) {
-            to_add.push_back(&(autoload_cache.back()->deref()));
+            to_add.push_back(&autoload_cache.back()->deref());
         }
 
         TreeItem *item = tree->create_item(root);

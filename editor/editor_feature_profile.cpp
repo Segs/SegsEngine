@@ -175,7 +175,7 @@ Error EditorFeatureProfile::save_to_file(se_string_view p_path) {
     FileAccessRef f = FileAccess::open(p_path, FileAccess::WRITE);
     ERR_FAIL_COND_V_MSG(!f, ERR_CANT_CREATE, se_string("Cannot create file '") + p_path + "'.")
 
-    se_string text = JSON::print(json, ("\t"));
+    se_string text = JSON::print(json, "\t");
     f->store_string(text);
     f->close();
     return OK;
@@ -365,7 +365,7 @@ void EditorFeatureProfileManager::_update_profile_list(se_string_view p_select_p
         }
 
         if (name == current_profile) {
-            name += (" (current)");
+            name += " (current)";
         }
         profile_list->add_item(StringName(name));
         int index = profile_list->get_item_count() - 1;
@@ -710,8 +710,8 @@ void EditorFeatureProfileManager::_update_selected_profile() {
     TreeItem *classes = class_list->create_item(root);
     classes->set_text(0, TTR("Enabled Classes:"));
 
-    _fill_classes_from(classes, ("Node"), class_selected);
-    _fill_classes_from(classes, ("Resource"), class_selected);
+    _fill_classes_from(classes, "Node", class_selected);
+    _fill_classes_from(classes, "Resource", class_selected);
 
     updating_features = false;
 
@@ -872,7 +872,7 @@ EditorFeatureProfileManager::EditorFeatureProfileManager() {
     class_list->set_hide_root(true);
     class_list->set_edit_checkbox_cell_only_when_checkbox_is_pressed(true);
     class_list->connect("cell_selected", this, "_class_list_item_selected");
-    class_list->connect("item_edited", this, "_class_list_item_edited", varray(), ObjectNS::CONNECT_DEFERRED);
+    class_list->connect("item_edited", this, "_class_list_item_edited", varray(), ObjectNS::CONNECT_QUEUED);
 
     VBoxContainer *property_list_vbc = memnew(VBoxContainer);
     h_split->add_child(property_list_vbc);
@@ -883,7 +883,7 @@ EditorFeatureProfileManager::EditorFeatureProfileManager() {
     property_list->set_hide_root(true);
     property_list->set_hide_folding(true);
     property_list->set_edit_checkbox_cell_only_when_checkbox_is_pressed(true);
-    property_list->connect("item_edited", this, "_property_item_edited", varray(), ObjectNS::CONNECT_DEFERRED);
+    property_list->connect("item_edited", this, "_property_item_edited", varray(), ObjectNS::CONNECT_QUEUED);
 
     new_profile_dialog = memnew(ConfirmationDialog);
     new_profile_dialog->set_title(TTR("New profile name:"));
@@ -903,7 +903,7 @@ EditorFeatureProfileManager::EditorFeatureProfileManager() {
     import_profiles = memnew(EditorFileDialog);
     add_child(import_profiles);
     import_profiles->set_mode(EditorFileDialog::MODE_OPEN_FILES);
-    import_profiles->add_filter(("*.profile; Godot Feature Profile"));
+    import_profiles->add_filter("*.profile; Godot Feature Profile");
     import_profiles->connect("files_selected", this, "_import_profiles");
     import_profiles->set_title(TTR("Import Profile(s)"));
     import_profiles->set_access(EditorFileDialog::ACCESS_FILESYSTEM);

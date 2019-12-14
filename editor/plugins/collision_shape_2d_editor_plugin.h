@@ -91,7 +91,7 @@ public:
     bool forward_canvas_gui_input(const Ref<InputEvent> &p_event) override { return collision_shape_2d_editor->forward_canvas_gui_input(p_event); }
     void forward_canvas_draw_over_viewport(Control *p_overlay) override { collision_shape_2d_editor->forward_canvas_draw_over_viewport(p_overlay); }
 
-    se_string_view get_name() const override { return ("CollisionShape2D"); }
+    se_string_view get_name() const override { return "CollisionShape2D"; }
     bool has_main_screen() const override { return false; }
     void edit(Object *p_obj) override;
     bool handles(Object *p_obj) const override;

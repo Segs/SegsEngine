@@ -381,7 +381,7 @@ public:
     Error export_project(const Ref<EditorExportPreset> &p_preset, bool p_debug, se_string_view p_path, int p_flags = 0) override;
     virtual Error sign_shared_object(const Ref<EditorExportPreset> &p_preset, bool p_debug, se_string_view p_path);
 
-    void set_extension(se_string_view p_extension, se_string_view p_feature_key = ("default"));
+    void set_extension(se_string_view p_extension, se_string_view p_feature_key = "default");
     void set_name(se_string_view p_name);
     void set_os_name(se_string_view p_name);
 

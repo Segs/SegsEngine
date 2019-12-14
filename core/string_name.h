@@ -171,7 +171,7 @@ public:
             unref();
     }
 };
-StringName operator+(StringName v,se_string_view sv);
+GODOT_EXPORT StringName operator+(StringName v,se_string_view sv);
 
 struct WrapAlphaCompare
 {

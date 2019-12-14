@@ -122,7 +122,7 @@ void ResourcePreloaderEditor::_item_edited() {
         if (old_name == new_name)
             return;
 
-        if (new_name.empty() || StringUtils::contains(new_name,'\\') || StringUtils::contains(new_name,'/') || preloader->has_resource((new_name))) {
+        if (new_name.empty() || StringUtils::contains(new_name,'\\') || StringUtils::contains(new_name,'/') || preloader->has_resource(new_name)) {
 
             s->set_text(0, old_name);
             return;
@@ -210,7 +210,7 @@ void ResourcePreloaderEditor::_update_library() {
 
         StringName type(r->get_class());
         ti->set_icon(0, EditorNode::get_singleton()->get_class_icon(type));
-        ti->set_tooltip(0, TTR("Instance:") + " " + (r->get_path()) + "\n" + TTR("Type:") + " " + (type));
+        ti->set_tooltip(0, TTR("Instance:") + " " + r->get_path() + "\n" + TTR("Type:") + " " + type);
 
         ti->set_text_utf8(1, r->get_path());
         ti->set_editable(1, false);
@@ -280,7 +280,7 @@ bool ResourcePreloaderEditor::can_drop_data_fw(const Point2 &p_point, const Vari
     if (!d.has("type"))
         return false;
 
-    if (d.has("from") && (Object *)(d["from"]) == tree)
+    if (d.has("from") && (Object *)d["from"] == tree)
         return false;
 
     if (String(d["type"]) == "resource" && d.has("resource")) {

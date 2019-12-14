@@ -69,7 +69,7 @@ void MeshInstanceEditor::_menu_option(int p_option) {
         case MENU_OPTION_CREATE_STATIC_TRIMESH_BODY:
         case MENU_OPTION_CREATE_STATIC_CONVEX_BODY: {
 
-            bool trimesh_shape = (p_option == MENU_OPTION_CREATE_STATIC_TRIMESH_BODY);
+            bool trimesh_shape = p_option == MENU_OPTION_CREATE_STATIC_TRIMESH_BODY;
 
             EditorSelection *editor_selection = EditorNode::get_singleton()->get_editor_selection();
             UndoRedo *ur = EditorNode::get_singleton()->get_undo_redo();
@@ -334,10 +334,10 @@ void MeshInstanceEditor::_create_uv_lines(int p_layer) {
                 MeshInstanceEditorEdgeSort edge;
                 if (use_indices) {
                     edge.a = r[ri[j + k]];
-                    edge.b = r[ri[j + ((k + 1) % 3)]];
+                    edge.b = r[ri[j + (k + 1) % 3]];
                 } else {
                     edge.a = r[j + k];
-                    edge.b = r[j + ((k + 1) % 3)];
+                    edge.b = r[j + (k + 1) % 3];
                 }
 
                 if (edges.contains(edge))

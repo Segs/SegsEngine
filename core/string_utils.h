@@ -286,10 +286,10 @@ namespace PathUtils
     [[nodiscard]] GODOT_EXPORT String get_basename(const String &p);
     [[nodiscard]] GODOT_EXPORT se_string plus_file(se_string_view bp,se_string_view p_file);
     //! @note for now it just replaces \\ with /
-    [[nodiscard]] se_string from_native_path(se_string_view p);
-    [[nodiscard]] String from_native_path(const String &p);
-    [[nodiscard]] se_string to_win_path(const se_string &v);
-    [[nodiscard]] String to_win_path(const String &v);
+    [[nodiscard]] GODOT_EXPORT se_string from_native_path(se_string_view p);
+    [[nodiscard]] GODOT_EXPORT String from_native_path(const String &p);
+    [[nodiscard]] GODOT_EXPORT se_string to_win_path(const se_string &v);
+    [[nodiscard]] GODOT_EXPORT String to_win_path(const String &v);
     // path functions
     [[nodiscard]] GODOT_EXPORT bool is_internal_path(se_string_view path);
     [[nodiscard]] GODOT_EXPORT bool is_internal_path(const String &path);

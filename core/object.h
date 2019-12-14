@@ -113,7 +113,7 @@ private:
 private:                                                                                                               \
     mutable StringName _class_name;                                                                                    \
     friend class ClassDB;                                                                                              \
-    static constexpr TypeInfo typeInfoStatic = TypeInfo(#m_class, BaseClassName::get_type_info_static());              \
+    static constexpr TypeInfo typeInfoStatic {#m_class, BaseClassName::get_type_info_static()};              \
                                                                                                                        \
 public:                                                                                                                \
     static constexpr const TypeInfo *get_type_info_static() { return &typeInfoStatic; }                                \
@@ -548,7 +548,7 @@ namespace ObjectNS
 {
     enum ConnectFlags : uint8_t {
 
-        CONNECT_DEFERRED = 1,
+        CONNECT_QUEUED = 1,
         CONNECT_PERSIST = 2, // hint for scene to save this connection
         CONNECT_ONESHOT = 4,
         CONNECT_REFERENCE_COUNTED = 8,

@@ -1544,7 +1544,7 @@ void AnimationTimelineEdit::_notification(int p_what) {
                 }
             }
 
-            float extra = (zoomw / scale) * 0.5;
+            float extra = zoomw / scale * 0.5;
 
             //if (time_min < -0.001)
             //	time_min -= extra;
@@ -1552,7 +1552,7 @@ void AnimationTimelineEdit::_notification(int p_what) {
             set_min(time_min);
             set_max(time_max);
 
-            if (zoomw / scale < (time_max - time_min)) {
+            if (zoomw / scale < time_max - time_min) {
                 hscroll->show();
 
             } else {
@@ -1614,7 +1614,7 @@ void AnimationTimelineEdit::_notification(int p_what) {
             static const int _multp[3] = { 1, 2, 5 };
             for (int i = 0; i < 3; i++) {
 
-                step = (_multp[i] * dec);
+                step = _multp[i] * dec;
                 if (step * scale / SC_ADJ > min) {
                     step_found = true;
                     break;
@@ -1663,14 +1663,14 @@ void AnimationTimelineEdit::_notification(int p_what) {
 
                 int sc = int(Math::floor(pos * SC_ADJ));
                 int prev_sc = int(Math::floor(prev * SC_ADJ));
-                bool sub = (sc % SC_ADJ);
+                bool sub = sc % SC_ADJ;
 
-                if ((sc / step) != (prev_sc / step) || (prev_sc < 0 && sc >= 0)) {
+                if (sc / step != prev_sc / step || prev_sc < 0 && sc >= 0) {
 
                     int scd = sc < 0 ? prev_sc : sc;
                     draw_line(Point2(get_name_limit() + i, 0), Point2(get_name_limit() + i, h), linecolor, Math::round(EDSCALE));
                     draw_string_utf8(font, Point2(get_name_limit() + i + 3, (h - font->get_height()) / 2 + font->get_ascent()).floor(),
-                            StringUtils::num((scd - (scd % step)) / double(SC_ADJ), decimals),
+                            StringUtils::num((scd - scd % step) / double(SC_ADJ), decimals),
                                 sub ? color_time_dec : color_time_sec, zoomw - i);
                 }
             }
@@ -1758,7 +1758,7 @@ void AnimationTimelineEdit::_play_position_draw() {
 
     int px = (-get_value() + play_position_pos) * scale + get_name_limit();
 
-    if (px >= get_name_limit() && px < (play_position->get_size().width - get_buttons_width())) {
+    if (px >= get_name_limit() && px < play_position->get_size().width - get_buttons_width()) {
         Color color = get_color("accent_color", "Editor");
         play_position->draw_line(Point2(px, 0), Point2(px, h), color, Math::round(2 * EDSCALE));
         play_position->draw_texture(
@@ -1782,7 +1782,7 @@ void AnimationTimelineEdit::_gui_input(const Ref<InputEvent> &p_event) {
     if (mb && !mb->is_pressed() && mb->get_button_index() == BUTTON_LEFT && dragging_hsize) {
         dragging_hsize = false;
     }
-    if (mb && mb->get_position().x > get_name_limit() && mb->get_position().x < (get_size().width - get_buttons_width())) {
+    if (mb && mb->get_position().x > get_name_limit() && mb->get_position().x < get_size().width - get_buttons_width()) {
 
         if (!panning_timeline && mb->get_button_index() == BUTTON_LEFT) {
             int x = mb->get_position().x - get_name_limit();
@@ -2205,7 +2205,7 @@ void AnimationTrackEdit::_notification(int p_what) {
 
                 Ref<Texture> icon = get_icon("Remove", "EditorIcons");
 
-                remove_rect.position.x = ofs + ((get_size().width - ofs) - icon->get_width()) / 2;
+                remove_rect.position.x = ofs + (get_size().width - ofs - icon->get_width()) / 2;
                 remove_rect.position.y = int(get_size().height - icon->get_height()) / 2;
                 remove_rect.size = icon->get_size();
 
@@ -2368,7 +2368,7 @@ void AnimationTrackEdit::draw_texture_region_clipped(const Ref<Texture> &p_textu
     Rect2 region = p_region;
 
     if (clip_left > rect.position.x) {
-        int rect_pixels = (clip_left - rect.position.x);
+        int rect_pixels = clip_left - rect.position.x;
         int region_pixels = rect_pixels * region.size.x / rect.size.x;
 
         rect.position.x += rect_pixels;
@@ -2459,7 +2459,7 @@ void AnimationTrackEdit::_play_position_draw() {
 
     int px = (-timeline->get_value() + play_position_pos) * scale + timeline->get_name_limit();
 
-    if (px >= timeline->get_name_limit() && px < (get_size().width - timeline->get_buttons_width())) {
+    if (px >= timeline->get_name_limit() && px < get_size().width - timeline->get_buttons_width()) {
         Color color = get_color("accent_color", "Editor");
         play_position->draw_line(Point2(px, 0), Point2(px, h), color, Math::round(2 * EDSCALE));
     }
@@ -2508,7 +2508,7 @@ bool AnimationTrackEdit::_is_value_key_valid(const Variant &p_key_value, Variant
         r_valid_type = obj->get_static_property_type_indexed(leftover_path, &prop_exists);
     }
 
-    return (!prop_exists || Variant::can_convert(p_key_value.get_type(), r_valid_type));
+    return !prop_exists || Variant::can_convert(p_key_value.get_type(), r_valid_type);
 }
 
 StringName AnimationTrackEdit::get_tooltip(const Point2 &p_pos) const {
@@ -2573,7 +2573,7 @@ StringName AnimationTrackEdit::get_tooltip(const Point2 &p_pos) const {
 
         if (key_idx != -1) {
 
-            se_string text((TTR("Time (s): ")) + rtos(animation->track_get_key_time(track, key_idx)) + "\n");
+            se_string text(TTR("Time (s): ") + rtos(animation->track_get_key_time(track, key_idx)) + "\n");
             switch (animation->track_get_type(track)) {
 
                 case Animation::TYPE_TRANSFORM: {
@@ -2611,7 +2611,7 @@ StringName AnimationTrackEdit::get_tooltip(const Point2 &p_pos) const {
                     for (int i = 0; i < args.size(); i++) {
 
                         if (i > 0)
-                            text += (", ");
+                            text += ", ";
                         text += se_string(args[i]);
                     }
                     text += se_string(")\n");
@@ -3204,7 +3204,7 @@ void AnimationTrackEditGroup::_notification(int p_what) {
 
         int px = (-timeline->get_value() + timeline->get_play_position()) * timeline->get_zoom_scale() + timeline->get_name_limit();
 
-        if (px >= timeline->get_name_limit() && px < (get_size().width - timeline->get_buttons_width())) {
+        if (px >= timeline->get_name_limit() && px < get_size().width - timeline->get_buttons_width()) {
             Color accent = get_color("accent_color", "Editor");
             draw_line(Point2(px, 0), Point2(px, get_size().height), accent, Math::round(2 * EDSCALE));
         }
@@ -4228,7 +4228,7 @@ void AnimationTrackEditor::_update_tracks() {
                 if (root && root->has_node((NodePath)base_path)) {
                     Node *n = root->get_node((NodePath)base_path);
                     if (n) {
-                        icon = EditorNode::get_singleton()->get_object_icon(n, ("Node"));
+                        icon = EditorNode::get_singleton()->get_object_icon(n, "Node");
                         name = n->get_name();
                         tooltip = (se_string)root->get_path_to(n);
                     }
@@ -4266,20 +4266,20 @@ void AnimationTrackEditor::_update_tracks() {
         }
 
         track_edit->connect("timeline_changed", this, "_timeline_changed");
-        track_edit->connect("remove_request", this, "_track_remove_request", varray(), ObjectNS::CONNECT_DEFERRED);
-        track_edit->connect("dropped", this, "_dropped_track", varray(), ObjectNS::CONNECT_DEFERRED);
-        track_edit->connect("insert_key", this, "_insert_key_from_track", varray(i), ObjectNS::CONNECT_DEFERRED);
-        track_edit->connect("select_key", this, "_key_selected", varray(i), ObjectNS::CONNECT_DEFERRED);
-        track_edit->connect("deselect_key", this, "_key_deselected", varray(i), ObjectNS::CONNECT_DEFERRED);
-        track_edit->connect("bezier_edit", this, "_bezier_edit", varray(i), ObjectNS::CONNECT_DEFERRED);
+        track_edit->connect("remove_request", this, "_track_remove_request", varray(), ObjectNS::CONNECT_QUEUED);
+        track_edit->connect("dropped", this, "_dropped_track", varray(), ObjectNS::CONNECT_QUEUED);
+        track_edit->connect("insert_key", this, "_insert_key_from_track", varray(i), ObjectNS::CONNECT_QUEUED);
+        track_edit->connect("select_key", this, "_key_selected", varray(i), ObjectNS::CONNECT_QUEUED);
+        track_edit->connect("deselect_key", this, "_key_deselected", varray(i), ObjectNS::CONNECT_QUEUED);
+        track_edit->connect("bezier_edit", this, "_bezier_edit", varray(i), ObjectNS::CONNECT_QUEUED);
         track_edit->connect("move_selection_begin", this, "_move_selection_begin");
         track_edit->connect("move_selection", this, "_move_selection");
         track_edit->connect("move_selection_commit", this, "_move_selection_commit");
         track_edit->connect("move_selection_cancel", this, "_move_selection_cancel");
 
-        track_edit->connect("duplicate_request", this, "_edit_menu_pressed", varray(EDIT_DUPLICATE_SELECTION), ObjectNS::CONNECT_DEFERRED);
-        track_edit->connect("duplicate_transpose_request", this, "_edit_menu_pressed", varray(EDIT_DUPLICATE_TRANSPOSED), ObjectNS::CONNECT_DEFERRED);
-        track_edit->connect("delete_request", this, "_edit_menu_pressed", varray(EDIT_DELETE_SELECTION), ObjectNS::CONNECT_DEFERRED);
+        track_edit->connect("duplicate_request", this, "_edit_menu_pressed", varray(EDIT_DUPLICATE_SELECTION), ObjectNS::CONNECT_QUEUED);
+        track_edit->connect("duplicate_transpose_request", this, "_edit_menu_pressed", varray(EDIT_DUPLICATE_TRANSPOSED), ObjectNS::CONNECT_QUEUED);
+        track_edit->connect("delete_request", this, "_edit_menu_pressed", varray(EDIT_DELETE_SELECTION), ObjectNS::CONNECT_QUEUED);
     }
 }
 
@@ -4588,7 +4588,7 @@ void AnimationTrackEditor::_new_track_property_selected(se_string_view p_name) {
             bool valid;
             subindices = _get_bezier_subindices_for_type(h.type, &valid);
             if (!valid) {
-                EditorNode::get_singleton()->show_warning(("Invalid track for Bezier (no suitable sub-properties)"));
+                EditorNode::get_singleton()->show_warning("Invalid track for Bezier (no suitable sub-properties)");
                 return;
             }
         }
@@ -5197,7 +5197,7 @@ void AnimationTrackEditor::_bezier_edit(int p_for_track) {
 
 void AnimationTrackEditor::_anim_duplicate_keys(bool transpose) {
     //duplicait!
-    if (!selection.empty() && animation && (!transpose || (_get_track_selected() >= 0 && _get_track_selected() < animation->get_track_count()))) {
+    if (!selection.empty() && animation && (!transpose || _get_track_selected() >= 0 && _get_track_selected() < animation->get_track_count())) {
 
         int top_track = 0x7FFFFFFF;
         float top_time = 1e10;

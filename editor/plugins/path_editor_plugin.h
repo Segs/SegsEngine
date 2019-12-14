@@ -106,7 +106,7 @@ public:
 
     //virtual bool forward_gui_input(const InputEvent& p_event) { return collision_polygon_editor->forward_gui_input(p_event); }
     //virtual Ref<SpatialEditorGizmo> create_spatial_gizmo(Spatial *p_spatial);
-    se_string_view get_name() const override { return ("Path"); }
+    se_string_view get_name() const override { return "Path"; }
     bool has_main_screen() const override { return false; }
     void edit(Object *p_object) override;
     bool handles(Object *p_object) const override;

@@ -208,7 +208,7 @@ bool VisualShaderEditor::_is_available(int p_mode) {
         p_mode = temp_mode;
     }
 
-    return (p_mode == -1 || (p_mode & current_mode) != 0);
+    return p_mode == -1 || (p_mode & current_mode) != 0;
 }
 
 void VisualShaderEditor::update_custom_nodes() {
@@ -346,7 +346,7 @@ void VisualShaderEditor::_update_options_menu() {
 
         if (!use_filter || StringUtils::findn(add_options[i].name.asString(),filter) != -1) {
 
-            if ((add_options[i].func != current_func && add_options[i].func != -1) || !_is_available(add_options[i].mode))
+            if (add_options[i].func != current_func && add_options[i].func != -1 || !_is_available(add_options[i].mode))
                 continue;
 
             if (prev_category != add_options[i].category) {
@@ -462,7 +462,7 @@ void VisualShaderEditor::_update_created_node(GraphNode *node) {
     if (EditorSettings::get_singleton()->get("interface/theme/use_graph_node_headers")) {
         Ref<StyleBoxFlat> sb = dynamic_ref_cast<StyleBoxFlat>(node->get_stylebox("frame", "GraphNode"));
         Color c = sb->get_border_color();
-        Color mono_color = ((c.r + c.g + c.b) / 3) < 0.7f ? Color(1.0, 1.0, 1.0) : Color(0.0, 0.0, 0.0);
+        Color mono_color = (c.r + c.g + c.b) / 3 < 0.7f ? Color(1.0, 1.0, 1.0) : Color(0.0, 0.0, 0.0);
         mono_color.a = 0.85f;
         c = mono_color;
 
@@ -539,7 +539,7 @@ void VisualShaderEditor::_update_graph() {
         }
 
         /*if (!vsnode->is_connected("changed", this, "_node_changed")) {
-            vsnode->connect("changed", this, "_node_changed", varray(vsnode->get_instance_id()),ObjectNS::CONNECT_DEFERRED);
+            vsnode->connect("changed", this, "_node_changed", varray(vsnode->get_instance_id()),ObjectNS::CONNECT_QUEUED);
         }*/
 
         node->set_offset(position);
@@ -549,7 +549,7 @@ void VisualShaderEditor::_update_graph() {
 
         if (nodes[n_i] >= 2) {
             node->set_show_close_button(true);
-            node->connect("close_request", this, "_delete_request", varray(nodes[n_i]),ObjectNS::CONNECT_DEFERRED);
+            node->connect("close_request", this, "_delete_request", varray(nodes[n_i]),ObjectNS::CONNECT_QUEUED);
         }
 
         node->connect("dragged", this, "_node_dragged", varray(nodes[n_i]));
@@ -607,14 +607,14 @@ void VisualShaderEditor::_update_graph() {
 
                 Button *add_input_btn = memnew(Button);
                 add_input_btn->set_text(TTR("Add Input"));
-                add_input_btn->connect("pressed", this, "_add_input_port", varray(nodes[n_i], group_node->get_free_input_port_id(), VisualShaderNode::PORT_TYPE_VECTOR, se_string("input" + itos(group_node->get_free_input_port_id()))),ObjectNS::CONNECT_DEFERRED);
+                add_input_btn->connect("pressed", this, "_add_input_port", varray(nodes[n_i], group_node->get_free_input_port_id(), VisualShaderNode::PORT_TYPE_VECTOR, se_string("input" + itos(group_node->get_free_input_port_id()))),ObjectNS::CONNECT_QUEUED);
                 hb2->add_child(add_input_btn);
 
                 hb2->add_spacer();
 
                 Button *add_output_btn = memnew(Button);
                 add_output_btn->set_text(TTR("Add Output"));
-                add_output_btn->connect("pressed", this, "_add_output_port", varray(nodes[n_i], group_node->get_free_output_port_id(), VisualShaderNode::PORT_TYPE_VECTOR, se_string("output" + itos(group_node->get_free_output_port_id()))),ObjectNS::CONNECT_DEFERRED);
+                add_output_btn->connect("pressed", this, "_add_output_port", varray(nodes[n_i], group_node->get_free_output_port_id(), VisualShaderNode::PORT_TYPE_VECTOR, se_string("output" + itos(group_node->get_free_output_port_id()))),ObjectNS::CONNECT_QUEUED);
                 hb2->add_child(add_output_btn);
 
                 node->add_child(hb2);
@@ -671,7 +671,7 @@ void VisualShaderEditor::_update_graph() {
                         button->connect("draw", this, "_draw_color_over_button", varray(Variant(button), default_value));
                     } break;
                     case VariantType::BOOL: {
-                        button->set_text(((bool)default_value) ? StringName("true") : StringName("false"));
+                        button->set_text((bool)default_value ? StringName("true") : StringName("false"));
                     } break;
                     case VariantType::INT:
                     case VariantType::REAL: {
@@ -703,7 +703,7 @@ void VisualShaderEditor::_update_graph() {
                         type_box->add_item(TTR("Sampler"));
                         type_box->select(group_node->get_input_port_type(i));
                         type_box->set_custom_minimum_size(Size2(100 * EDSCALE, 0));
-                        type_box->connect("item_selected", this, "_change_input_port_type", varray(nodes[n_i], i),ObjectNS::CONNECT_DEFERRED);
+                        type_box->connect("item_selected", this, "_change_input_port_type", varray(nodes[n_i], i),ObjectNS::CONNECT_QUEUED);
 
                         LineEdit *name_box = memnew(LineEdit);
                         hb->add_child(name_box);
@@ -716,7 +716,7 @@ void VisualShaderEditor::_update_graph() {
                         Button *remove_btn = memnew(Button);
                         remove_btn->set_icon(EditorNode::get_singleton()->get_gui_base()->get_icon("Remove", "EditorIcons"));
                         remove_btn->set_tooltip(TTR("Remove") + " " + name_left);
-                        remove_btn->connect("pressed", this, "_remove_input_port", varray(nodes[n_i], i),ObjectNS::CONNECT_DEFERRED);
+                        remove_btn->connect("pressed", this, "_remove_input_port", varray(nodes[n_i], i),ObjectNS::CONNECT_QUEUED);
                         hb->add_child(remove_btn);
                     } else {
 
@@ -744,7 +744,7 @@ void VisualShaderEditor::_update_graph() {
                         Button *remove_btn = memnew(Button);
                         remove_btn->set_icon(EditorNode::get_singleton()->get_gui_base()->get_icon("Remove", "EditorIcons"));
                         remove_btn->set_tooltip(TTR("Remove") + " " + name_left);
-                        remove_btn->connect("pressed", this, "_remove_output_port", varray(nodes[n_i], i),ObjectNS::CONNECT_DEFERRED);
+                        remove_btn->connect("pressed", this, "_remove_output_port", varray(nodes[n_i], i),ObjectNS::CONNECT_QUEUED);
                         hb->add_child(remove_btn);
 
                         LineEdit *name_box = memnew(LineEdit);
@@ -763,7 +763,7 @@ void VisualShaderEditor::_update_graph() {
                         type_box->add_item(TTR("Transform"));
                         type_box->select(group_node->get_output_port_type(i));
                         type_box->set_custom_minimum_size(Size2(100 * EDSCALE, 0));
-                        type_box->connect("item_selected", this, "_change_output_port_type", varray(nodes[n_i], i),ObjectNS::CONNECT_DEFERRED);
+                        type_box->connect("item_selected", this, "_change_output_port_type", varray(nodes[n_i], i),ObjectNS::CONNECT_QUEUED);
                     } else {
                         Label *label = memnew(Label);
                         label->set_text(name_right);
@@ -784,7 +784,7 @@ void VisualShaderEditor::_update_graph() {
                     preview->set_pressed(true);
                 }
 
-                preview->connect("pressed", this, "_preview_select_port", varray(nodes[n_i], i),ObjectNS::CONNECT_DEFERRED);
+                preview->connect("pressed", this, "_preview_select_port", varray(nodes[n_i], i),ObjectNS::CONNECT_QUEUED);
                 hb->add_child(preview);
             }
 
@@ -850,8 +850,8 @@ void VisualShaderEditor::_update_graph() {
             expression_box->add_font_override("font", get_font("expression", "EditorFonts"));
             expression_box->add_color_override("font_color", text_color);
             expression_box->add_color_override("symbol_color", symbol_color);
-            expression_box->add_color_region(("/*"), ("*/"), comment_color, false);
-            expression_box->add_color_region(("//"), (""), comment_color, false);
+            expression_box->add_color_region("/*", "*/", comment_color, false);
+            expression_box->add_color_region("//", "", comment_color, false);
 
             expression_box->set_text_utf8(expression);
             expression_box->set_context_menu_enabled(false);
@@ -1699,8 +1699,8 @@ void VisualShaderEditor::_notification(int p_what) {
             preview_text->add_font_override("font", get_font("expression", "EditorFonts"));
             preview_text->add_color_override("font_color", text_color);
             preview_text->add_color_override("symbol_color", symbol_color);
-            preview_text->add_color_region(("/*"), ("*/"), comment_color, false);
-            preview_text->add_color_region(("//"), (""), comment_color, false);
+            preview_text->add_color_region("/*", "*/", comment_color, false);
+            preview_text->add_color_region("//", "", comment_color, false);
 
             error_text->add_font_override("font", get_font("status_source", "EditorFonts"));
             error_text->add_color_override("font_color", get_color("error_color", "Editor"));
@@ -1906,7 +1906,7 @@ void VisualShaderEditor::_paste_nodes() {
 
     float scale = graph->get_zoom();
 
-    _dup_paste_nodes(type, copy_type, copy_nodes_buffer, copy_nodes_excluded_buffer, (graph->get_scroll_ofs() / scale + graph->get_local_mouse_position() / scale - selection_center), false);
+    _dup_paste_nodes(type, copy_type, copy_nodes_buffer, copy_nodes_excluded_buffer, graph->get_scroll_ofs() / scale + graph->get_local_mouse_position() / scale - selection_center, false);
 
     _dup_update_excluded(type, copy_nodes_excluded_buffer); // to prevent selection of previous copies at new paste
 }
@@ -2316,8 +2316,8 @@ VisualShaderEditor::VisualShaderEditor() {
     graph->add_valid_right_disconnect_type(VisualShaderNode::PORT_TYPE_SAMPLER);
     //graph->add_valid_left_disconnect_type(0);
     graph->set_v_size_flags(SIZE_EXPAND_FILL);
-    graph->connect("connection_request", this, "_connection_request", varray(),ObjectNS::CONNECT_DEFERRED);
-    graph->connect("disconnection_request", this, "_disconnection_request", varray(),ObjectNS::CONNECT_DEFERRED);
+    graph->connect("connection_request", this, "_connection_request", varray(),ObjectNS::CONNECT_QUEUED);
+    graph->connect("disconnection_request", this, "_disconnection_request", varray(),ObjectNS::CONNECT_QUEUED);
     graph->connect("node_selected", this, "_node_selected");
     graph->connect("scroll_offset_changed", this, "_scroll_changed");
     graph->connect("duplicate_nodes_request", this, "_duplicate_nodes");
@@ -2931,7 +2931,7 @@ public:
         UndoRedo *undo_redo = EditorNode::get_singleton()->get_undo_redo();
 
         updating = true;
-        undo_redo->create_action_ui(TTR("Edit Visual Property") + ": " + (prop), UndoRedo::MERGE_ENDS);
+        undo_redo->create_action_ui(TTR("Edit Visual Property") + ": " + prop, UndoRedo::MERGE_ENDS);
         undo_redo->add_do_property(node.get(), prop, p_value);
         undo_redo->add_undo_property(node.get(), prop, node->get(prop));
 
@@ -3003,7 +3003,7 @@ public:
             properties[i]->set_name_split_ratio(0);
         }
         node->connect("changed", this, "_node_changed");
-        node->connect("editor_refresh_request", this, "_refresh_request", varray(),ObjectNS::CONNECT_DEFERRED);
+        node->connect("editor_refresh_request", this, "_refresh_request", varray(),ObjectNS::CONNECT_QUEUED);
     }
 
     static void _bind_methods() {

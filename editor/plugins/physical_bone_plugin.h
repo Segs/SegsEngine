@@ -69,7 +69,7 @@ class PhysicalBonePlugin : public EditorPlugin {
     PhysicalBoneEditor physical_bone_editor;
 
 public:
-    se_string_view get_name() const override { return ("PhysicalBone"); }
+    se_string_view get_name() const override { return "PhysicalBone"; }
     bool handles(Object *p_object) const override { return p_object->is_class("PhysicalBone"); }
     void make_visible(bool p_visible) override;
     void edit(Object *p_node) override;

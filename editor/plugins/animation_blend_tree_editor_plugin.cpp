@@ -155,7 +155,7 @@ void AnimationNodeBlendTreeEditor::_update_graph() {
             name->connect("focus_exited", this, "_node_renamed_focus_out", varray(Variant(name), Variant(agnode)));
             base = 1;
             node->set_show_close_button(true);
-            node->connect("close_request", this, "_delete_request", varray(E),ObjectNS::CONNECT_DEFERRED);
+            node->connect("close_request", this, "_delete_request", varray(E),ObjectNS::CONNECT_QUEUED);
         }
 
         for (int i = 0; i < agnode->get_input_count(); i++) {
@@ -192,7 +192,7 @@ void AnimationNodeBlendTreeEditor::_update_graph() {
             open_in_editor->set_text(TTR("Open Editor"));
             open_in_editor->set_icon(get_icon("Edit", "EditorIcons"));
             node->add_child(open_in_editor);
-            open_in_editor->connect("pressed", this, "_open_in_editor", varray(E),ObjectNS::CONNECT_DEFERRED);
+            open_in_editor->connect("pressed", this, "_open_in_editor", varray(E),ObjectNS::CONNECT_QUEUED);
             open_in_editor->set_h_size_flags(SIZE_SHRINK_CENTER);
         }
 
@@ -203,7 +203,7 @@ void AnimationNodeBlendTreeEditor::_update_graph() {
             edit_filters->set_text(TTR("Edit Filters"));
             edit_filters->set_icon(get_icon("AnimationFilter", "EditorIcons"));
             node->add_child(edit_filters);
-            edit_filters->connect("pressed", this, "_edit_filters", varray(E),ObjectNS::CONNECT_DEFERRED);
+            edit_filters->connect("pressed", this, "_edit_filters", varray(E),ObjectNS::CONNECT_QUEUED);
             edit_filters->set_h_size_flags(SIZE_SHRINK_CENTER);
         }
 
@@ -243,13 +243,13 @@ void AnimationNodeBlendTreeEditor::_update_graph() {
             animations[E] = pb;
             node->add_child(pb);
 
-            mb->get_popup()->connect("index_pressed", this, "_anim_selected", varray(options, E),ObjectNS::CONNECT_DEFERRED);
+            mb->get_popup()->connect("index_pressed", this, "_anim_selected", varray(options, E),ObjectNS::CONNECT_QUEUED);
         }
 
         if (EditorSettings::get_singleton()->get("interface/theme/use_graph_node_headers")) {
             Ref<StyleBoxFlat> sb = dynamic_ref_cast<StyleBoxFlat>(node->get_stylebox("frame", "GraphNode"));
             Color c = sb->get_border_color();
-            Color mono_color = ((c.r + c.g + c.b) / 3) < 0.7 ? Color(1.0, 1.0, 1.0) : Color(0.0, 0.0, 0.0);
+            Color mono_color = (c.r + c.g + c.b) / 3 < 0.7 ? Color(1.0, 1.0, 1.0) : Color(0.0, 0.0, 0.0);
             mono_color.a = 0.85f;
             c = mono_color;
 
@@ -291,7 +291,7 @@ void AnimationNodeBlendTreeEditor::_add_node(int p_idx) {
 
         open_file->clear_filters();
         PODVector<se_string> filters;
-        ResourceLoader::get_recognized_extensions_for_type(("AnimationNode"), filters);
+        ResourceLoader::get_recognized_extensions_for_type("AnimationNode", filters);
         for (const se_string &E : filters) {
             open_file->add_filter("*." + E);
         }
@@ -413,13 +413,13 @@ void AnimationNodeBlendTreeEditor::_delete_request(const StringName & p_which) {
 
     undo_redo->create_action_ui(TTR("Delete Node"));
     undo_redo->add_do_method(blend_tree.get(), "remove_node", p_which);
-    undo_redo->add_undo_method(blend_tree.get(), "add_node", p_which, blend_tree->get_node((p_which)), blend_tree->get_node_position((p_which)));
+    undo_redo->add_undo_method(blend_tree.get(), "add_node", p_which, blend_tree->get_node(p_which), blend_tree->get_node_position(p_which));
 
     List<AnimationNodeBlendTree::NodeConnection> conns;
     blend_tree->get_node_connections(&conns);
 
     for (List<AnimationNodeBlendTree::NodeConnection>::Element *E = conns.front(); E; E = E->next()) {
-        if (E->deref().output_node == (p_which) || E->deref().input_node == (p_which)) {
+        if (E->deref().output_node == p_which || E->deref().input_node == p_which) {
             undo_redo->add_undo_method(blend_tree.get(), "connect_node", E->deref().input_node, E->deref().input_index, E->deref().output_node);
         }
     }
@@ -635,10 +635,10 @@ bool AnimationNodeBlendTreeEditor::_update_filters(const Ref<AnimationNode> &ano
                     idx = skeleton->get_bone_parent(idx);
                 }
 
-                accum += (":");
+                accum += ":";
                 for (List<se_string>::Element *F = bone_path.front(); F; F = F->next()) {
                     if (F != bone_path.front()) {
-                        accum += ("/");
+                        accum += "/";
                     }
 
                     accum += F->deref();
@@ -776,7 +776,7 @@ void AnimationNodeBlendTreeEditor::_notification(int p_what) {
                         if (anim) {
                             E.second->set_max(anim->get_length());
                             //StringName path = AnimationTreeEditor::get_singleton()->get_base_path() + E->get().input_node;
-                            StringName time_path(AnimationTreeEditor::get_singleton()->get_base_path() + (E.first) + "/time");
+                            StringName time_path(AnimationTreeEditor::get_singleton()->get_base_path() + E.first + "/time");
                             E.second->set_value(AnimationTreeEditor::get_singleton()->get_tree()->get(time_path));
                         }
                     }
@@ -940,8 +940,8 @@ AnimationNodeBlendTreeEditor::AnimationNodeBlendTreeEditor() {
     graph->add_valid_right_disconnect_type(0);
     graph->add_valid_left_disconnect_type(0);
     graph->set_v_size_flags(SIZE_EXPAND_FILL);
-    graph->connect("connection_request", this, "_connection_request", varray(),ObjectNS::CONNECT_DEFERRED);
-    graph->connect("disconnection_request", this, "_disconnection_request", varray(),ObjectNS::CONNECT_DEFERRED);
+    graph->connect("connection_request", this, "_connection_request", varray(),ObjectNS::CONNECT_QUEUED);
+    graph->connect("disconnection_request", this, "_disconnection_request", varray(),ObjectNS::CONNECT_QUEUED);
     graph->connect("node_selected", this, "_node_selected");
     graph->connect("scroll_offset_changed", this, "_scroll_changed");
     graph->connect("delete_nodes_request", this, "_delete_nodes_request");

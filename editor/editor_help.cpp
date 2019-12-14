@@ -108,10 +108,10 @@ void EditorHelp::_class_desc_select(se_string_view p_select) {
         } else {
             class_name = "@GlobalScope";
         }
-        emit_signal("go_to_help", (se_string("class_enum:") + class_name + ":" + select));
+        emit_signal("go_to_help", se_string("class_enum:") + class_name + ":" + select);
         return;
     } else if (StringUtils::begins_with(p_select,"#")) {
-        emit_signal("go_to_help", (se_string("class_name:") + StringUtils::substr(p_select,1, p_select.length())));
+        emit_signal("go_to_help", se_string("class_name:") + StringUtils::substr(p_select,1, p_select.length()));
         return;
     } else if (StringUtils::begins_with(p_select,"@")) {
         int tag_end = StringUtils::find(p_select," ");
@@ -142,7 +142,7 @@ void EditorHelp::_class_desc_select(se_string_view p_select) {
         }
         StringName gscope("@GlobalScope");
         if (StringUtils::contains(link,".")) {
-            emit_signal("go_to_help", (topic + ":" + StringUtils::get_slice(link,".", 0) + ":" + StringUtils::get_slice(link,".", 1)));
+            emit_signal("go_to_help", topic + ":" + StringUtils::get_slice(link,".", 0) + ":" + StringUtils::get_slice(link,".", 1));
         } else {
             if (table->contains_as(link)) {
                 // Found in the current page
@@ -199,7 +199,7 @@ void EditorHelp::_add_type(se_string_view p_type, se_string_view p_enum) {
     se_string_view t = p_type;
     if (t.empty())
         t = "void";
-    bool can_ref = (t != "int"_sv && t != "real"_sv && t != "bool"_sv && t != "void"_sv) || !p_enum.empty();
+    bool can_ref = t != "int"_sv && t != "real"_sv && t != "bool"_sv && t != "void"_sv || !p_enum.empty();
 
     if (!p_enum.empty()) {
         if (StringUtils::get_slice_count(p_enum,'.') > 1) {
@@ -227,15 +227,15 @@ void EditorHelp::_add_type(se_string_view p_type, se_string_view p_enum) {
 se_string_view _fix_constant(se_string_view p_constant) {
 
     if (StringUtils::strip_edges(p_constant) == "4294967295"_sv) {
-        return ("0xFFFFFFFF");
+        return "0xFFFFFFFF";
     }
 
     if (StringUtils::strip_edges(p_constant) == "2147483647"_sv) {
-        return ("0x7FFFFFFF");
+        return "0x7FFFFFFF";
     }
 
     if (StringUtils::strip_edges(p_constant) == "1048575"_sv) {
-        return ("0xFFFFF");
+        return "0xFFFFF";
     }
 
     return p_constant;
@@ -595,7 +595,7 @@ void EditorHelp::_update_doc() {
 
             for (int i = 0; i < methods.size(); i++) {
                 se_string_view q = methods[i].qualifiers;
-                if ((pass == 0 && StringUtils::find(q,"virtual") != se_string::npos) || (pass == 1 && StringUtils::find(q,"virtual") == se_string::npos)) {
+                if (pass == 0 && StringUtils::find(q,"virtual") != se_string::npos || pass == 1 && StringUtils::find(q,"virtual") == se_string::npos) {
                     m.push_back(methods[i]);
                 }
             }
@@ -994,11 +994,10 @@ void EditorHelp::_update_doc() {
         }
         else {
             class_desc->push_color(comment_color);
-            auto translated = (
-                    TTR("There are currently no tutorials for this class, you can [color=$color][url=$url]contribute "
-                        "one[/url][/color] or [color=$color][url=$url2]request one[/url][/color]."));
+            auto translated = TTR("There are currently no tutorials for this class, you can [color=$color][url=$url]contribute "
+                    "one[/url][/color] or [color=$color][url=$url2]request one[/url][/color].");
             class_desc->append_bbcode(replace(
-                    replace(replace(translated, ("$url2"), REQUEST_URL), "$url", CONTRIBUTE2_URL), ("$color"), link_color_text));
+                    replace(replace(translated, "$url2", REQUEST_URL), "$url", CONTRIBUTE2_URL), "$color", link_color_text));
             class_desc->pop();
         }
         class_desc->pop();
@@ -1108,9 +1107,9 @@ void EditorHelp::_update_doc() {
                 class_desc->add_image(get_icon("Error", "EditorIcons"));
                 class_desc->add_text_utf8(" ");
                 class_desc->push_color(comment_color);
-                auto translated = (TTR("There is currently no description for this property. Please help us by "
-                                        "[color=$color][url=$url]contributing one[/url][/color]!"));
-                class_desc->append_bbcode(replace(replace(translated, "$url", CONTRIBUTE_URL), ("$color"), link_color_text));
+                auto translated = TTR("There is currently no description for this property. Please help us by "
+                        "[color=$color][url=$url]contributing one[/url][/color]!");
+                class_desc->append_bbcode(replace(replace(translated, "$url", CONTRIBUTE_URL), "$color", link_color_text));
                 class_desc->pop();
             }
             class_desc->pop();
@@ -1140,7 +1139,7 @@ void EditorHelp::_update_doc() {
 
             for (int i = 0; i < methods.size(); i++) {
                 se_string_view q = methods[i].qualifiers;
-                if ((pass == 0 && contains(q, "virtual")) || (pass == 1 && not contains(q, "virtual"))) {
+                if (pass == 0 && contains(q, "virtual") || pass == 1 && not contains(q, "virtual")) {
                     methods_filtered.push_back(methods[i]);
                 }
             }
@@ -1324,7 +1323,7 @@ static void _add_text_to_rt(se_string_view p_bbcode, RichTextLabel *p_rt) {
             se_string_view link_target = StringUtils::lstrip(StringUtils::substr(tag,tag_end + 1, tag.length())," ");
 
             p_rt->push_color(link_color);
-            p_rt->push_meta((se_string("@") + link_tag + " " + link_target));
+            p_rt->push_meta(se_string("@") + link_tag + " " + link_target);
             p_rt->add_text_utf8(se_string(link_target) + (StringUtils::begins_with(tag,"method ") ? "()" : ""));
             p_rt->pop();
             p_rt->pop();

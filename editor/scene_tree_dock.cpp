@@ -504,7 +504,7 @@ void SceneTreeDock::_tool_selected(int p_tool, bool p_confirm_override) {
             if (!_validate_no_foreign())
                 break;
 
-            bool MOVING_DOWN = (p_tool == TOOL_MOVE_DOWN);
+            bool MOVING_DOWN = p_tool == TOOL_MOVE_DOWN;
             bool MOVING_UP = !MOVING_DOWN;
 
             Node *common_parent = scene_tree->get_selected()->get_parent();
@@ -525,7 +525,7 @@ void SceneTreeDock::_tool_selected(int p_tool, bool p_confirm_override) {
                     common_parent = nullptr;
             }
 
-            if (!common_parent || (MOVING_DOWN && highest_id >= common_parent->get_child_count() - MOVING_DOWN) || (MOVING_UP && lowest_id == 0))
+            if (!common_parent || MOVING_DOWN && highest_id >= common_parent->get_child_count() - MOVING_DOWN || MOVING_UP && lowest_id == 0)
                 break; // one or more nodes can not be moved
 
             if (selection.size() == 1) editor_data->get_undo_redo().create_action_ui(TTR("Move Node In Parent"));
@@ -1072,14 +1072,14 @@ void SceneTreeDock::_notification(int p_what) {
 
             EditorFeatureProfileManager::get_singleton()->connect("current_feature_profile_changed", this, "_feature_profile_changed");
 
-            CanvasItemEditorPlugin *canvas_item_plugin = object_cast<CanvasItemEditorPlugin>(editor_data->get_editor(("2D")));
+            CanvasItemEditorPlugin *canvas_item_plugin = object_cast<CanvasItemEditorPlugin>(editor_data->get_editor("2D"));
             if (canvas_item_plugin) {
                 canvas_item_plugin->get_canvas_item_editor()->connect("item_lock_status_changed", scene_tree, "_update_tree");
                 canvas_item_plugin->get_canvas_item_editor()->connect("item_group_status_changed", scene_tree, "_update_tree");
                 scene_tree->connect("node_changed", canvas_item_plugin->get_canvas_item_editor()->get_viewport_control(), "update");
             }
 
-            SpatialEditorPlugin *spatial_editor_plugin = object_cast<SpatialEditorPlugin>(editor_data->get_editor(("3D")));
+            SpatialEditorPlugin *spatial_editor_plugin = object_cast<SpatialEditorPlugin>(editor_data->get_editor("3D"));
             spatial_editor_plugin->get_spatial_editor()->connect("item_lock_status_changed", scene_tree, "_update_tree");
             spatial_editor_plugin->get_spatial_editor()->connect("item_group_status_changed", scene_tree, "_update_tree");
 
@@ -1625,7 +1625,7 @@ void SceneTreeDock::_do_reparent(Node *p_new_parent, int p_position_in_parent, V
             Vector<StringName> fixed_new_names;
 
             // Get last name and replace with fixed new name.
-            for (int a = 0; a < (unfixed_new_names.size() - 1); a++) {
+            for (int a = 0; a < unfixed_new_names.size() - 1; a++) {
                 fixed_new_names.push_back(unfixed_new_names[a]);
             }
             fixed_new_names.push_back(new_name);
@@ -2525,7 +2525,7 @@ void SceneTreeDock::_tree_rmb(const Vector2 &p_menu_pos) {
         }
         menu->add_icon_shortcut(get_icon("CopyNodePath", "EditorIcons"), ED_GET_SHORTCUT("scene_tree/copy_node_path"), TOOL_COPY_NODE_PATH);
 
-        bool is_external = (!selection[0]->get_filename().empty());
+        bool is_external = !selection[0]->get_filename().empty();
         if (is_external) {
             bool is_inherited = selection[0]->get_scene_inherited_state() != nullptr;
             bool is_top_level = selection[0]->get_owner() == nullptr;
@@ -2592,10 +2592,10 @@ void SceneTreeDock::_focus_node() {
     ERR_FAIL_COND(!node)
 
     if (node->is_class("CanvasItem")) {
-        CanvasItemEditorPlugin *editor = object_cast<CanvasItemEditorPlugin>(editor_data->get_editor(("2D")));
+        CanvasItemEditorPlugin *editor = object_cast<CanvasItemEditorPlugin>(editor_data->get_editor("2D"));
         editor->get_canvas_item_editor()->focus_selection();
     } else {
-        SpatialEditorPlugin *editor = object_cast<SpatialEditorPlugin>(editor_data->get_editor(("3D")));
+        SpatialEditorPlugin *editor = object_cast<SpatialEditorPlugin>(editor_data->get_editor("3D"));
         editor->get_spatial_editor()->get_editor_viewport(0)->focus_selection();
     }
 }
@@ -2719,7 +2719,7 @@ void SceneTreeDock::_update_create_root_dialog() {
     if (!beginner_nodes || !favorite_nodes)
         return;
 
-    EditorSettings::get_singleton()->set_setting(("_use_favorites_root_selection"), toggle->is_pressed());
+    EditorSettings::get_singleton()->set_setting("_use_favorites_root_selection", toggle->is_pressed());
     EditorSettings::get_singleton()->save();
     if (toggle->is_pressed()) {
 
@@ -2937,8 +2937,8 @@ SceneTreeDock::SceneTreeDock(EditorNode *p_editor, Node *p_scene_root, EditorSel
     scene_tree->set_v_size_flags(SIZE_EXPAND | SIZE_FILL);
     scene_tree->connect("rmb_pressed", this, "_tree_rmb");
 
-    scene_tree->connect("node_selected", this, "_node_selected", varray(), ObjectNS::CONNECT_DEFERRED);
-    scene_tree->connect("node_renamed", this, "_node_renamed", varray(), ObjectNS::CONNECT_DEFERRED);
+    scene_tree->connect("node_selected", this, "_node_selected", varray(), ObjectNS::CONNECT_QUEUED);
+    scene_tree->connect("node_renamed", this, "_node_renamed", varray(), ObjectNS::CONNECT_QUEUED);
     scene_tree->connect("node_prerename", this, "_node_prerenamed");
     scene_tree->connect("open", this, "_load_request");
     scene_tree->connect("open_script", this, "_script_open_request");
@@ -2953,7 +2953,7 @@ SceneTreeDock::SceneTreeDock(EditorNode *p_editor, Node *p_scene_root, EditorSel
     scene_tree->set_editor_selection(editor_selection);
 
     create_dialog = memnew(CreateDialog);
-    create_dialog->set_base_type(("Node"));
+    create_dialog->set_base_type("Node");
     add_child(create_dialog);
     create_dialog->connect("create", this, "_create");
     create_dialog->connect("favorites_updated", this, "_update_create_root_dialog");

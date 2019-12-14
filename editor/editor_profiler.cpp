@@ -108,7 +108,7 @@ void EditorProfiler::clear() {
 static se_string _get_percent_txt(float p_value, float p_total) {
     if (p_total == 0.0f)
         p_total = 0.00001f;
-    return se_string(StringUtils::num((p_value / p_total) * 100, 1) + "%");
+    return se_string(StringUtils::num(p_value / p_total * 100, 1) + "%");
 }
 
 se_string EditorProfiler::_get_time_as_text(const Metric &m, float p_time, int p_calls) {
@@ -496,8 +496,8 @@ void EditorProfiler::_graph_tex_input(const Ref<InputEvent> &p_ev) {
     Ref<InputEventMouseMotion> mm = dynamic_ref_cast<InputEventMouseMotion>(p_ev);
 
     if (
-            (mb && mb->get_button_index() == BUTTON_LEFT && mb->is_pressed()) ||
-            (mm)) {
+            mb && mb->get_button_index() == BUTTON_LEFT && mb->is_pressed() ||
+            mm) {
 
         int x = me->get_position().x;
         x = x * frame_metrics.size() / graph->get_size().width;
@@ -574,7 +574,7 @@ int EditorProfiler::_get_cursor_index() const {
     if (!frame_metrics[last_metric].valid)
         return 0;
 
-    int diff = (frame_metrics[last_metric].frame_number - cursor_metric_edit->get_value());
+    int diff = frame_metrics[last_metric].frame_number - cursor_metric_edit->get_value();
 
     int idx = last_metric - diff;
     while (idx < 0) {

@@ -73,7 +73,7 @@ class Skeleton2DEditorPlugin : public EditorPlugin {
 	EditorNode *editor;
 
 public:
-    se_string_view get_name() const override { return ("Skeleton2D"); }
+    se_string_view get_name() const override { return "Skeleton2D"; }
 	bool has_main_screen() const override { return false; }
 	void edit(Object *p_object) override;
 	bool handles(Object *p_object) const override;

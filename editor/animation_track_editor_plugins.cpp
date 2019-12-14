@@ -112,7 +112,7 @@ bool AnimationTrackEditColor::is_key_selectable_by_distance() const {
 void AnimationTrackEditColor::draw_key_link(int p_index, float p_pixels_sec, int p_x, int p_next_x, int p_clip_left, int p_clip_right) {
 
     Ref<Font> font = get_font("font", "Label");
-    int fh = (font->get_height() * 0.8);
+    int fh = font->get_height() * 0.8;
 
     int x_from = p_x + fh / 2 - 1;
     int x_to = p_next_x - fh / 2 + 1;
@@ -305,7 +305,7 @@ void AnimationTrackEditAudio::draw_key(int p_index, float p_pixels_sec, int p_x,
         for (int i = from_x; i < to_x; i++) {
 
             float ofs = (i - pixel_begin) * preview_len / pixel_len;
-            float ofs_n = ((i + 1) - pixel_begin) * preview_len / pixel_len;
+            float ofs_n = (i + 1 - pixel_begin) * preview_len / pixel_len;
             float max = preview->get_max(ofs, ofs_n) * 0.5 + 0.5;
             float min = preview->get_min(ofs, ofs_n) * 0.5 + 0.5;
 
@@ -583,7 +583,7 @@ Rect2 AnimationTrackEditSubAnim::get_key_rect(int p_index, float p_pixels_sec) {
 
     StringName anim = get_animation()->track_get_key_value(get_track(), p_index);
 
-    if (anim != StringName("[stop]") && ap->has_animation((anim))) {
+    if (anim != StringName("[stop]") && ap->has_animation(anim)) {
 
         float len = ap->get_animation(anim)->get_length();
 
@@ -674,7 +674,7 @@ void AnimationTrackEditSubAnim::draw_key(int p_index, float p_pixels_sec, int p_
                     float ofs = animation->track_get_key_time(i, j);
                     int x = p_x + ofs * p_pixels_sec + 2;
 
-                    if (x < from_x || x >= (to_x - 4))
+                    if (x < from_x || x >= to_x - 4)
                         continue;
 
                     lines.push_back(Point2(x, y));
@@ -743,7 +743,7 @@ void AnimationTrackEditVolumeDB::draw_fg(int p_clip_left, int p_clip_right) {
     Ref<Texture> volume_texture = get_icon("ColorTrackVu", "EditorIcons");
     int tex_h = volume_texture->get_height();
     int y_from = (get_size().height - tex_h) / 2;
-    int db0 = y_from + (24 / 80.0f) * tex_h;
+    int db0 = y_from + 24 / 80.0f * tex_h;
 
     draw_line(Vector2(p_clip_left, db0), Vector2(p_clip_right, db0), Color(1, 1, 1, 0.3f));
 }
@@ -759,8 +759,8 @@ void AnimationTrackEditVolumeDB::draw_key_link(int p_index, float p_pixels_sec, 
     db = CLAMP(db, -60, 24);
     db_n = CLAMP(db_n, -60, 24);
 
-    float h = 1.0f - ((db + 60) / 84.0f);
-    float h_n = 1.0f - ((db_n + 60) / 84.0f);
+    float h = 1.0f - (db + 60) / 84.0f;
+    float h_n = 1.0f - (db_n + 60) / 84.0f;
 
     int from_x = p_x;
     int to_x = p_next_x;
@@ -924,7 +924,7 @@ void AnimationTrackEditTypeAudio::draw_key(int p_index, float p_pixels_sec, int 
     for (int i = from_x; i < to_x; i++) {
 
         float ofs = (i - pixel_begin) * preview_len / pixel_total_len;
-        float ofs_n = ((i + 1) - pixel_begin) * preview_len / pixel_total_len;
+        float ofs_n = (i + 1 - pixel_begin) * preview_len / pixel_total_len;
         ofs += start_ofs;
         ofs_n += start_ofs;
 
@@ -1257,7 +1257,7 @@ void AnimationTrackEditTypeAnimation::draw_key(int p_index, float p_pixels_sec, 
                     float ofs = animation->track_get_key_time(i, j);
                     int x = p_x + ofs * p_pixels_sec + 2;
 
-                    if (x < from_x || x >= (to_x - 4))
+                    if (x < from_x || x >= to_x - 4)
                         continue;
 
                     lines.push_back(Point2(x, y));
@@ -1329,7 +1329,7 @@ AnimationTrackEdit *AnimationTrackEditDefaultPlugin::create_value_track_edit(Obj
         return sprite;
     }
 
-    if (p_property == "current_animation" && (p_object->is_class("AnimationPlayer"))) {
+    if (p_property == "current_animation" && p_object->is_class("AnimationPlayer")) {
 
         AnimationTrackEditSubAnim *player = memnew(AnimationTrackEditSubAnim);
         player->set_node(p_object);

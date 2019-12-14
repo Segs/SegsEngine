@@ -133,7 +133,7 @@ class CurveEditorPlugin : public EditorPlugin {
 public:
     CurveEditorPlugin(EditorNode *p_node);
 
-    se_string_view get_name() const override { return ("Curve"); }
+    se_string_view get_name() const override { return "Curve"; }
 };
 
 class CurvePreviewGenerator : public EditorResourcePreviewGenerator {

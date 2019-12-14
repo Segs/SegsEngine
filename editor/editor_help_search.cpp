@@ -284,14 +284,14 @@ EditorHelpSearch::EditorHelpSearch() {
     hbox->add_child(search_box);
 
     case_sensitive_button = memnew(ToolButton);
-    case_sensitive_button->set_tooltip(("Case Sensitive"));
+    case_sensitive_button->set_tooltip("Case Sensitive");
     case_sensitive_button->connect("pressed", this, "_update_results");
     case_sensitive_button->set_toggle_mode(true);
     case_sensitive_button->set_focus_mode(FOCUS_NONE);
     hbox->add_child(case_sensitive_button);
 
     hierarchy_button = memnew(ToolButton);
-    hierarchy_button->set_tooltip(("Show Hierarchy"));
+    hierarchy_button->set_tooltip("Show Hierarchy");
     hierarchy_button->connect("pressed", this, "_update_results");
     hierarchy_button->set_toggle_mode(true);
     hierarchy_button->set_pressed(true);
@@ -416,8 +416,8 @@ bool EditorHelpSearch::Runner::_phase_match_classes() {
         if (term.length() > 1) {
             if (search_flags & SEARCH_METHODS)
                 for (int i = 0; i < class_doc.methods.size(); i++) {
-                    se_string method_name = (search_flags & SEARCH_CASE_SENSITIVE) ? class_doc.methods[i].name : StringUtils::to_lower(class_doc.methods[i].name);
-                    se_string aux_term = (search_flags & SEARCH_CASE_SENSITIVE) ? term : StringUtils::to_lower(term);
+                    se_string method_name = search_flags & SEARCH_CASE_SENSITIVE ? class_doc.methods[i].name : StringUtils::to_lower(class_doc.methods[i].name);
+                    se_string aux_term = search_flags & SEARCH_CASE_SENSITIVE ? term : StringUtils::to_lower(term);
 
                     if (StringUtils::begins_with(aux_term,"."))
                         aux_term = right(aux_term,1);
@@ -489,7 +489,7 @@ bool EditorHelpSearch::Runner::_phase_member_items() {
 
     ClassMatch &match = iterator_match->second;
 
-    TreeItem *parent = (search_flags & SEARCH_SHOW_HIERARCHY) ? class_items[match.doc->name] : root_item;
+    TreeItem *parent = search_flags & SEARCH_SHOW_HIERARCHY ? class_items[match.doc->name] : root_item;
     for (int i = 0; i < match.methods.size(); i++)
         _create_method_item(parent, match.doc, match.methods[i]);
     for (int i = 0; i < match.defined_signals.size(); i++)
@@ -515,7 +515,7 @@ bool EditorHelpSearch::Runner::_phase_select_match() {
 bool EditorHelpSearch::Runner::_match_string(const se_string &p_term, se_string_view p_string) const {
 
     return StringUtils::is_subsequence_of(p_term, p_string,
-            (search_flags & SEARCH_CASE_SENSITIVE) ? StringUtils::CaseSensitive : StringUtils::CaseInsensitive);
+            search_flags & SEARCH_CASE_SENSITIVE ? StringUtils::CaseSensitive : StringUtils::CaseInsensitive);
 }
 
 void EditorHelpSearch::Runner::_match_item(TreeItem *p_item, se_string_view p_text) {
@@ -587,7 +587,7 @@ TreeItem *EditorHelpSearch::Runner::_create_method_item(TreeItem *p_parent, cons
         if (!arg.default_value.empty())
             tooltip += " = " + arg.default_value;
         if (i < p_doc->arguments.size() - 1)
-            tooltip += (", ");
+            tooltip += ", ";
     }
     tooltip += ')';
     return _create_member_item(p_parent, p_class_doc->name, "MemberMethod", p_doc->name, "Method", "method", tooltip);
@@ -602,7 +602,7 @@ TreeItem *EditorHelpSearch::Runner::_create_signal_item(TreeItem *p_parent, cons
         if (!arg.default_value.empty())
             tooltip += " = " + arg.default_value;
         if (i < p_doc->arguments.size() - 1)
-            tooltip += (", ");
+            tooltip += ", ";
     }
     tooltip += ')';
     return _create_member_item(p_parent, p_class_doc->name, "MemberSignal", p_doc->name, "Signal", "signal", tooltip);

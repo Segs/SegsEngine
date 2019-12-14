@@ -62,7 +62,7 @@ inline void pop_back(T &container) {
 
 // TODO Copied from TextEdit private, would be nice to extract it in a single place
 static bool is_text_char(CharType c) {
-    return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '_';
+    return c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z' || c >= '0' && c <= '9' || c == '_';
 }
 
 static bool find_next(const se_string &line, const se_string& pattern, int from, bool match_case, bool whole_words, int &out_begin, int &out_end) {
@@ -163,7 +163,7 @@ void FindInFiles::_process() {
     float time_before = os.get_ticks_msec();
     while (is_processing()) {
         _iterate();
-        float elapsed = (os.get_ticks_msec() - time_before);
+        float elapsed = os.get_ticks_msec() - time_before;
         if (elapsed > 1000.0f / 120.0f)
             break;
     }
@@ -419,7 +419,7 @@ Set<se_string> FindInFilesDialog::get_filter() const {
     for (int i = 0; i < _filters_container->get_child_count(); ++i) {
         CheckBox *cb = (CheckBox *)_filters_container->get_child(i);
         if (cb->is_pressed()) {
-            filters.insert((cb->get_text()));
+            filters.insert(cb->get_text());
         }
     }
     return filters;
@@ -681,7 +681,7 @@ void FindInFilesPanel::_on_result_found(se_string_view fpath, int line_number, i
     r.line_number = line_number;
     r.begin = begin;
     r.end = end;
-    r.draw_begin = (item_text_width - raw_text_width) + font->get_string_size_utf8(StringUtils::left(text,r.begin)).x;
+    r.draw_begin = item_text_width - raw_text_width + font->get_string_size_utf8(StringUtils::left(text,r.begin)).x;
     r.draw_width = font->get_string_size_utf8(StringUtils::substr(text,r.begin, r.end - r.begin)).x;
     _result_items[item] = r;
 

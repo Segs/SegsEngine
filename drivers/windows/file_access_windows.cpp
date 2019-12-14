@@ -28,6 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
+#include "string_utils.inl"
 #ifdef WINDOWS_ENABLED
 
 #include "file_access_windows.h"
@@ -81,7 +82,8 @@ Error FileAccessWindows::_open(se_string_view p_path, int p_mode_flags) {
 
     /* pretty much every implementation that uses fopen as primary
        backend supports utf8 encoding */
-    std::wstring stored = StringUtils::to_wstring(path);
+    
+    auto stored = StringUtils::from_utf8(path).toStdWString();
     struct _stat st;
     if (_wstat(stored.c_str(), &st) == 0) {
 
@@ -98,12 +100,12 @@ Error FileAccessWindows::_open(se_string_view p_path, int p_mode_flags) {
         WIN32_FIND_DATAW d;
         HANDLE f = FindFirstFileW(stored.c_str(), &d);
         if (f != INVALID_HANDLE_VALUE) {
-            String fname = StringUtils::from_wchar(d.cFileName);
+            se_string fname = StringUtils::to_utf8(StringUtils::from_wchar(d.cFileName));
             if (!fname.empty()) {
 
-                String base_file = PathUtils::get_file(path);
-                if (base_file != fname && StringUtils::findn(base_file,fname) == 0) {
-                    WARN_PRINTS("Case mismatch opening requested file '" + base_file + "', stored as '" + fname + "' in the filesystem. This file will not open when exported to other case-sensitive platforms.");
+                se_string_view base_file = PathUtils::get_file(path);
+                if (se_string_view(fname) != base_file && StringUtils::findn(base_file,fname) == 0) {
+                    WARN_PRINT("Case mismatch opening requested file '" + base_file + "', stored as '" + fname + "' in the filesystem. This file will not open when exported to other case-sensitive platforms.");
                 }
             }
             FindClose(f);
@@ -116,7 +118,7 @@ Error FileAccessWindows::_open(se_string_view p_path, int p_mode_flags) {
         path = path + ".tmp";
     }
 
-    errno_t errcode = _wfopen_s(&f, StringUtils::to_wstring(path).c_str(), mode_string);
+    errno_t errcode = _wfopen_s(&f, StringUtils::from_utf8(path).toStdWString().c_str(), mode_string);
 
     if (f == nullptr) {
         switch (errcode) {
@@ -143,12 +145,12 @@ void FileAccessWindows::close() {
     fclose(f);
     f = nullptr;
 
-    if (save_path == "")
+    if (save_path.empty())
         return;
 
     bool rename_error = true;
     int attempts = 4;
-    std::wstring stored = StringUtils::to_wstring(save_path);
+    std::wstring stored = StringUtils::to_wstring(StringUtils::from_utf8(save_path));
     while (rename_error && attempts) {
         // This workaround of trying multiple times is added to deal with paranoid Windows
         // antiviruses that love reading just written files even if they are not executable, thus
@@ -314,12 +316,12 @@ void FileAccessWindows::store_buffer(const uint8_t *p_src, int p_length) {
     ERR_FAIL_COND(fwrite(p_src, 1, p_length, f) != (size_t)p_length)
 }
 
-bool FileAccessWindows::file_exists(const String &p_name) {
+bool FileAccessWindows::file_exists(se_string_view p_name) {
 
     FILE *g;
     //printf("opening file %s\n", p_fname.c_str());
-    String filename = fix_path(p_name);
-    _wfopen_s(&g, StringUtils::to_wstring(filename).c_str(), L"rb");
+    se_string filename = fix_path(p_name);
+    _wfopen_s(&g, StringUtils::from_utf8(filename).toStdWString().c_str(), L"rb");
     if (g == nullptr) {
 
         return false;
@@ -330,14 +332,14 @@ bool FileAccessWindows::file_exists(const String &p_name) {
     }
 }
 
-uint64_t FileAccessWindows::_get_modified_time(const String &p_file) {
+uint64_t FileAccessWindows::_get_modified_time(se_string_view p_file) {
 
-    String file = fix_path(p_file);
+    se_string file = fix_path(p_file);
     if (StringUtils::ends_with(file,"/") && file != "/")
         file = StringUtils::substr(file,0, file.length() - 1);
 
     struct _stat st;
-    int rv = _wstat(StringUtils::to_wstring(file).c_str(), &st);
+    int rv = _wstat(StringUtils::from_utf8(file).toStdWString().c_str(), &st);
 
     if (rv == 0) {
 
@@ -347,11 +349,11 @@ uint64_t FileAccessWindows::_get_modified_time(const String &p_file) {
     }
 }
 
-uint32_t FileAccessWindows::_get_unix_permissions(const String &p_file) {
+uint32_t FileAccessWindows::_get_unix_permissions(se_string_view p_file) {
     return 0;
 }
 
-Error FileAccessWindows::_set_unix_permissions(const String &p_file, uint32_t p_permissions) {
+Error FileAccessWindows::_set_unix_permissions(se_string_view p_file, uint32_t p_permissions) {
     return ERR_UNAVAILABLE;
 }
 

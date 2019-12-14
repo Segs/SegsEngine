@@ -33,6 +33,8 @@
 
 #if defined(UNIX_ENABLED) || defined(WINDOWS_ENABLED)
 #include "core/property_info.h"
+#include "core/string_utils.h"
+#include "core/string_utils.inl"
 
 #include <cstring>
 
@@ -170,7 +172,7 @@ void IP_Unix::get_local_interfaces(Map<String, Interface_Info> *r_interfaces) co
 
 #else
 
-void IP_Unix::get_local_interfaces(Map<String, Interface_Info> *r_interfaces) const {
+void IP_Unix::get_local_interfaces(Map<se_string, Interface_Info> *r_interfaces) const {
 
     ULONG buf_size = 1024;
     IP_ADAPTER_ADDRESSES *addrs;
@@ -197,7 +199,7 @@ void IP_Unix::get_local_interfaces(Map<String, Interface_Info> *r_interfaces) co
 
         Interface_Info info;
         info.name = adapter->AdapterName;
-        info.name_friendly = StringUtils::from_wchar(adapter->FriendlyName);
+        info.name_friendly = StringUtils::to_utf8(StringUtils::from_wchar(adapter->FriendlyName));
         info.index = adapter->IfIndex;
 
         IP_ADAPTER_UNICAST_ADDRESS *address = adapter->FirstUnicastAddress;

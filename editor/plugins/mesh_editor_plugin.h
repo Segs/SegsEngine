@@ -87,7 +87,7 @@ class MeshEditorPlugin : public EditorPlugin {
     GDCLASS(MeshEditorPlugin,EditorPlugin)
 
 public:
-    se_string_view get_name() const override { return ("Mesh"); }
+    se_string_view get_name() const override { return "Mesh"; }
 
     MeshEditorPlugin(EditorNode *p_node);
 };

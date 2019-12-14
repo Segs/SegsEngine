@@ -54,36 +54,36 @@ class DirAccessWindows : public DirAccess {
 	char drives[MAX_DRIVES]; // a-z:
 	int drive_count;
 
-	String current_dir;
+    se_string current_dir;
 
 	bool _cisdir;
 	bool _cishidden;
 
 public:
-	virtual Error list_dir_begin(); ///< This starts dir listing
-	String get_next() override;
-	virtual bool current_is_dir() const;
-	virtual bool current_is_hidden() const;
-	virtual void list_dir_end(); ///<
+	Error list_dir_begin() override; ///< This starts dir listing
+	se_string get_next() override;
+	bool current_is_dir() const override;
+	bool current_is_hidden() const override;
+	void list_dir_end() override; ///<
 
-	virtual int get_drive_count();
-	virtual String get_drive(int p_drive);
+	int get_drive_count() override;
+	se_string get_drive(int p_drive) override;
 
-	virtual Error change_dir(String p_dir); ///< can be relative or absolute, return false on success
-	virtual String get_current_dir(); ///< return current dir location
+	Error change_dir(se_string_view p_dir) override; ///< can be relative or absolute, return false on success
+    se_string get_current_dir() override; ///< return current dir location
 
-	virtual bool file_exists(String p_file);
-	virtual bool dir_exists(String p_dir);
+	bool file_exists(se_string_view p_file) override;
+	bool dir_exists(se_string_view p_dir) override;
 
-	virtual Error make_dir(String p_dir);
+	Error make_dir(se_string_view p_dir) override;
 
-	virtual Error rename(String p_path, String p_new_path);
-	virtual Error remove(String p_path);
+	Error rename(se_string_view p_path, se_string_view p_new_path) override;
+	Error remove(se_string_view p_path) override;
 
 	//virtual FileType get_file_type() const;
-	size_t get_space_left();
+	size_t get_space_left() override;
 
-	virtual String get_filesystem_type() const;
+    se_string get_filesystem_type() const override;
 
 	DirAccessWindows();
 	~DirAccessWindows();

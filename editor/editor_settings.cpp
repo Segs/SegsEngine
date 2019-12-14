@@ -143,7 +143,7 @@ bool EditorSettings::_get(const StringName &p_name, Variant &r_ret) const {
                 }
 
                 Ref<InputEvent> original(sc->get_meta("original"));
-                if (sc->is_shortcut(original) || (not original && not sc->get_shortcut()))
+                if (sc->is_shortcut(original) || not original && not sc->get_shortcut())
                     continue; //not changed from default, don't save
             }
 
@@ -312,7 +312,7 @@ void EditorSettings::_load_defaults(const Ref<ConfigFile> &p_extra_config) {
 
         _initial_set("interface/editor/editor_language", best);
         set_restart_if_changed("interface/editor/editor_language", true);
-        hints[StringName("interface/editor/editor_language")] = PropertyInfo(VariantType::STRING, "interface/editor/editor_language", PROPERTY_HINT_ENUM, (lang_hint), PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_RESTART_IF_CHANGED);
+        hints[StringName("interface/editor/editor_language")] = PropertyInfo(VariantType::STRING, "interface/editor/editor_language", PROPERTY_HINT_ENUM, lang_hint, PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_RESTART_IF_CHANGED);
     }
 
     /* Interface */
@@ -1041,7 +1041,7 @@ void EditorSettings::setup_network() {
     }
 
     // Add hints with valid IP addresses to remote_host property.
-    add_property_hint(PropertyInfo(VariantType::STRING, "network/debug/remote_host", PROPERTY_HINT_ENUM, (hint)));
+    add_property_hint(PropertyInfo(VariantType::STRING, "network/debug/remote_host", PROPERTY_HINT_ENUM, hint));
 
     // Fix potentially invalid remote_host due to network change.
     set("network/debug/remote_host", selected);
@@ -1317,7 +1317,7 @@ bool EditorSettings::is_dark_theme() {
     int LIGHT_COLOR = 2;
     Color base_color = get("interface/theme/base_color");
     int icon_font_color_setting = get("interface/theme/icon_and_font_color");
-    return (icon_font_color_setting == AUTO_COLOR && ((base_color.r + base_color.g + base_color.b) / 3.0f) < 0.5f) ||
+    return icon_font_color_setting == AUTO_COLOR && (base_color.r + base_color.g + base_color.b) / 3.0f < 0.5f ||
            icon_font_color_setting == LIGHT_COLOR;
 }
 

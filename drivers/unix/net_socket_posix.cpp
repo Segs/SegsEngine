@@ -30,6 +30,7 @@
 
 #include "net_socket_posix.h"
 #include "core/print_string.h"
+#include "core/string_utils.h"
 
 #if defined(UNIX_ENABLED)
 

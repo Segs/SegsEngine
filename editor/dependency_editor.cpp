@@ -96,9 +96,9 @@ void DependencyEditor::_fix_and_find(EditorFileSystemDirectory *efsd, Map<se_str
             }
 
             //must match the best, using subdirs
-            se_string existing = StringUtils::replace_first(E.second,("res://"), se_string());
-            se_string current = StringUtils::replace_first(path,("res://"), se_string());
-            se_string lost = StringUtils::replace_first(E.first,("res://"), se_string());
+            se_string existing = StringUtils::replace_first(E.second,"res://", se_string());
+            se_string current = StringUtils::replace_first(path,"res://", se_string());
+            se_string lost = StringUtils::replace_first(E.first,"res://", se_string());
 
             Vector<se_string_view> existingv = StringUtils::split(existing,'/');
             existingv.invert();
@@ -244,7 +244,7 @@ void DependencyEditor::_bind_methods() {
 DependencyEditor::DependencyEditor() {
 
     VBoxContainer *vb = memnew(VBoxContainer);
-    vb->set_name((TTR("Dependencies")));
+    vb->set_name(TTR("Dependencies"));
     add_child(vb);
 
     tree = memnew(Tree);
@@ -466,7 +466,7 @@ void DependencyRemoveDialog::show(const Vector<se_string> &p_folders, const Vect
     owners->clear();
 
     for (int i = 0; i < p_folders.size(); ++i) {
-        se_string folder = StringUtils::ends_with(p_folders[i],"/") ? p_folders[i] : (p_folders[i] + "/");
+        se_string folder = StringUtils::ends_with(p_folders[i],"/") ? p_folders[i] : p_folders[i] + "/";
         _find_files_in_removed_folder(EditorFileSystem::get_singleton()->get_filesystem_path(folder), folder);
         dirs_to_delete.push_back(folder);
     }
@@ -544,7 +544,7 @@ void DependencyRemoveDialog::ok_pressed() {
     } else {
 
         for (int i = 0; i < dirs_to_delete.size(); ++i) {
-            se_string path = OS::get_singleton()->get_resource_dir() + StringUtils::replace_first(dirs_to_delete[i],("res://"), ("/"));
+            se_string path = OS::get_singleton()->get_resource_dir() + StringUtils::replace_first(dirs_to_delete[i],"res://", "/");
             print_verbose("Moving to trash: " + path);
             Error err = OS::get_singleton()->move_to_trash(path);
             if (err != OK) {

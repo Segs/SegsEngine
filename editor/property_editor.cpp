@@ -132,11 +132,11 @@ void CustomPropertyEditor::_menu_option(int p_which) {
 
                 int val = v;
 
-                if (val & (1 << p_which)) {
+                if (val & 1 << p_which) {
 
                     val &= ~(1 << p_which);
                 } else {
-                    val |= (1 << p_which);
+                    val |= 1 << p_which;
                 }
 
                 v = val;
@@ -161,7 +161,7 @@ void CustomPropertyEditor::_menu_option(int p_which) {
                 case OBJ_MENU_LOAD: {
 
                     file->set_mode(EditorFileDialog::MODE_OPEN_FILE);
-                    se_string type = (hint == PROPERTY_HINT_RESOURCE_TYPE) ? hint_text : se_string();
+                    se_string type = hint == PROPERTY_HINT_RESOURCE_TYPE ? hint_text : se_string();
 
                     PODVector<se_string> extensions;
                     for (int i = 0; i < StringUtils::get_slice_count(type,','); i++) {
@@ -305,7 +305,7 @@ void CustomPropertyEditor::_menu_option(int p_which) {
                         if (ScriptServer::is_global_class(intype)) {
                             obj = EditorNode::get_editor_data().script_class_instance(intype);
                         } else {
-                            obj = EditorNode::get_editor_data().instance_custom_type(intype, ("Resource"));
+                            obj = EditorNode::get_editor_data().instance_custom_type(intype, "Resource");
                         }
                     }
 
@@ -383,7 +383,7 @@ bool CustomPropertyEditor::edit(Object *p_owner, se_string_view p_name, VariantT
     for (auto & i : checks20)
         i->hide();
 
-    type = (p_variant.get_type() != VariantType::NIL && p_variant.get_type() != VariantType::_RID && p_type != VariantType::OBJECT) ? p_variant.get_type() : p_type;
+    type = p_variant.get_type() != VariantType::NIL && p_variant.get_type() != VariantType::_RID && p_type != VariantType::OBJECT ? p_variant.get_type() : p_type;
 
     switch (type) {
 
@@ -488,7 +488,7 @@ bool CustomPropertyEditor::edit(Object *p_owner, se_string_view p_name, VariantT
                         int idx = i * 10 + j;
                         CheckBox *c = checks20[idx];
                         c->set_text(ProjectSettings::get_singleton()->get(StringName(basename + "/layer_" + itos(idx + 1))));
-                        c->set_pressed(flgs & (1 << (i * 10 + j)));
+                        c->set_pressed(flgs & 1 << i * 10 + j);
                         c->show();
                     }
                 }
@@ -532,7 +532,7 @@ bool CustomPropertyEditor::edit(Object *p_owner, se_string_view p_name, VariantT
                         continue;
                     menu->add_check_item_utf8(flag, i);
                     int f = v;
-                    if (f & (1 << i))
+                    if (f & 1 << i)
                         menu->set_item_checked(menu->get_item_index(i), true);
                 }
                 menu->set_position(get_position());
@@ -858,7 +858,7 @@ bool CustomPropertyEditor::edit(Object *p_owner, se_string_view p_name, VariantT
             Transform tr = v;
             for (int i = 0; i < 9; i++) {
 
-                value_editor[(i / 3) * 4 + i % 3]->set_text_utf8(StringUtils::num(tr.basis.elements[i / 3][i % 3]));
+                value_editor[i / 3 * 4 + i % 3]->set_text_utf8(StringUtils::num(tr.basis.elements[i / 3][i % 3]));
             }
 
             value_editor[3]->set_text_utf8(StringUtils::num(tr.origin.x));
@@ -897,7 +897,7 @@ bool CustomPropertyEditor::edit(Object *p_owner, se_string_view p_name, VariantT
             names.push_back(TTR("Assign"));
             names.push_back(TTR("Clear"));
 
-            if (owner && owner->is_class("Node") && (v.get_type() == VariantType::NODE_PATH) && object_cast<Node>(owner)->has_node(v))
+            if (owner && owner->is_class("Node") && v.get_type() == VariantType::NODE_PATH && object_cast<Node>(owner)->has_node(v))
                 names.push_back(TTR("Select Node"));
 
             config_action_buttons(names);
@@ -916,8 +916,8 @@ bool CustomPropertyEditor::edit(Object *p_owner, se_string_view p_name, VariantT
 
                 Vector<EditorData::CustomType> custom_resources;
 
-                if (EditorNode::get_editor_data().get_custom_types().contains(("Resource"))) {
-                    custom_resources = EditorNode::get_editor_data().get_custom_types().at(("Resource"));
+                if (EditorNode::get_editor_data().get_custom_types().contains("Resource")) {
+                    custom_resources = EditorNode::get_editor_data().get_custom_types().at("Resource");
                 }
 
                 for (int i = 0; i <StringUtils::get_slice_count( hint_text,','); i++) {
@@ -1099,7 +1099,7 @@ void CustomPropertyEditor::_file_selected(se_string_view p_file) {
         } break;
         case VariantType::OBJECT: {
 
-            StringName type = (hint == PROPERTY_HINT_RESOURCE_TYPE) ? StringName(hint_text) : StringName();
+            StringName type = hint == PROPERTY_HINT_RESOURCE_TYPE ? StringName(hint_text) : StringName();
 
             RES res(ResourceLoader::load(p_file, type));
             if (not res) {
@@ -1163,7 +1163,7 @@ void CustomPropertyEditor::_type_create_selected(int p_idx) {
             if (ScriptServer::is_global_class(intype)) {
                 obj = EditorNode::get_editor_data().script_class_instance(intype);
             } else {
-                obj = EditorNode::get_editor_data().instance_custom_type(intype, ("Resource"));
+                obj = EditorNode::get_editor_data().instance_custom_type(intype, "Resource");
             }
         }
 
@@ -1257,7 +1257,7 @@ void CustomPropertyEditor::_action_pressed(int p_which) {
 
                 uint32_t f = v;
                 if (checks20[p_which]->is_pressed())
-                    f |= (1 << p_which);
+                    f |= 1 << p_which;
                 else
                     f &= ~(1 << p_which);
 
@@ -1341,7 +1341,7 @@ void CustomPropertyEditor::_action_pressed(int p_which) {
                 hide();
             } else if (p_which == 2) {
 
-                if (owner->is_class("Node") && (v.get_type() == VariantType::NODE_PATH) && object_cast<Node>(owner)->has_node(v)) {
+                if (owner->is_class("Node") && v.get_type() == VariantType::NODE_PATH && object_cast<Node>(owner)->has_node(v)) {
 
                     Node *target_node = object_cast<Node>(owner)->get_node(v);
                     EditorNode::get_singleton()->get_editor_selection()->clear();
@@ -1368,7 +1368,7 @@ void CustomPropertyEditor::_action_pressed(int p_which) {
                         if (ScriptServer::is_global_class(intype)) {
                             obj = EditorNode::get_editor_data().script_class_instance(intype);
                         } else {
-                            obj = EditorNode::get_editor_data().instance_custom_type(intype, ("Resource"));
+                            obj = EditorNode::get_editor_data().instance_custom_type(intype, "Resource");
                         }
                     }
 
@@ -1385,7 +1385,7 @@ void CustomPropertyEditor::_action_pressed(int p_which) {
                 file->set_access(EditorFileDialog::ACCESS_RESOURCES);
                 file->set_mode(EditorFileDialog::MODE_OPEN_FILE);
                 PODVector<se_string> extensions;
-                StringName type = (hint == PROPERTY_HINT_RESOURCE_TYPE) ? StringName(hint_text) : StringName();
+                StringName type = hint == PROPERTY_HINT_RESOURCE_TYPE ? StringName(hint_text) : StringName();
 
                 ResourceLoader::get_recognized_extensions_for_type(type, extensions);
                 file->clear_filters();
@@ -1673,7 +1673,7 @@ void CustomPropertyEditor::_modified(se_string_view p_string) {
 
             Basis basis;
             for (int i = 0; i < 9; i++) {
-                basis.elements[i / 3][i % 3] = _parse_real_expression(value_editor[(i / 3) * 4 + i % 3]->get_text());
+                basis.elements[i / 3][i % 3] = _parse_real_expression(value_editor[i / 3 * 4 + i % 3]->get_text());
             }
 
             Vector3 origin;
@@ -1842,7 +1842,7 @@ void CustomPropertyEditor::config_value_editors(int p_amount, int p_columns, int
     int cell_margin = 5;
     int hor_spacing = 5; // Spacing between labels and their values
 
-    int rows = ((p_amount - 1) / p_columns) + 1;
+    int rows = (p_amount - 1) / p_columns + 1;
 
     set_size(Size2(cell_margin + p_label_w + (cell_width + cell_margin + p_label_w) * p_columns, cell_margin + (cell_height + cell_margin) * rows) * EDSCALE);
 
@@ -1872,7 +1872,7 @@ void CustomPropertyEditor::config_value_editors_utf8(int p_amount, int p_columns
     int cell_margin = 5;
     int hor_spacing = 5; // Spacing between labels and their values
 
-    int rows = ((p_amount - 1) / p_columns) + 1;
+    int rows = (p_amount - 1) / p_columns + 1;
 
     set_size(Size2(cell_margin + p_label_w + (cell_width + cell_margin + p_label_w) * p_columns, cell_margin + (cell_height + cell_margin) * rows) * EDSCALE);
 

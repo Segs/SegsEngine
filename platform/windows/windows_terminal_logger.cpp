@@ -34,28 +34,19 @@
 #ifdef WINDOWS_ENABLED
 
 #include <stdio.h>
+#include <cstring>
 #include <windows.h>
 
-void WindowsTerminalLogger::logv(const char *p_format, va_list p_list, bool p_err) {
+void WindowsTerminalLogger::logv(se_string_view p_format , bool p_err) {
 	if (!should_log(p_err)) {
 		return;
 	}
-
-	const unsigned int BUFFER_SIZE = 16384;
-	char buf[BUFFER_SIZE + 1]; // +1 for the terminating character
-	int len = vsnprintf(buf, BUFFER_SIZE, p_format, p_list);
-	if (len <= 0)
-		return;
-	if ((unsigned int)len >= BUFFER_SIZE)
-		len = BUFFER_SIZE; // Output is too big, will be truncated
-	buf[len] = 0;
-
-	int wlen = MultiByteToWideChar(CP_UTF8, 0, buf, len, nullptr, 0);
+	int wlen = MultiByteToWideChar(CP_UTF8, 0, p_format.data(), p_format.size(), nullptr, 0);
 	if (wlen < 0)
 		return;
 
-	wchar_t *wbuf = (wchar_t *)malloc((len + 1) * sizeof(wchar_t));
-	MultiByteToWideChar(CP_UTF8, 0, buf, len, wbuf, wlen);
+	wchar_t *wbuf = (wchar_t *)malloc((wlen + 1) * sizeof(wchar_t));
+	MultiByteToWideChar(CP_UTF8, 0, p_format.data(), p_format.size(), wbuf, wlen);
 	wbuf[wlen] = 0;
 
 	if (p_err)
@@ -70,7 +61,7 @@ void WindowsTerminalLogger::logv(const char *p_format, va_list p_list, bool p_er
 #endif
 }
 
-void WindowsTerminalLogger::log_error(const char *p_function, const char *p_file, int p_line, const char *p_code, const char *p_rationale, ErrorType p_type) {
+void WindowsTerminalLogger::log_error(se_string_view p_function, se_string_view p_file, int p_line, se_string_view p_code, se_string_view p_rationale, ErrorType p_type) {
 	if (!should_log(true)) {
 		return;
 	}
@@ -100,7 +91,7 @@ void WindowsTerminalLogger::log_error(const char *p_function, const char *p_file
 
 		basecol |= current_bg;
 
-		if (p_rationale && p_rationale[0]) {
+		if (not p_rationale.empty()) {
 
 			SetConsoleTextAttribute(hCon, basecol | FOREGROUND_INTENSITY);
 			switch (p_type) {
@@ -111,7 +102,7 @@ void WindowsTerminalLogger::log_error(const char *p_function, const char *p_file
 			}
 
 			SetConsoleTextAttribute(hCon, current_fg | current_bg | FOREGROUND_INTENSITY);
-            logf(FormatV("%s\n",p_rationale));
+            logf(FormatVE("%.*s\n",p_rationale.length(), p_rationale.data()));
 
 			SetConsoleTextAttribute(hCon, basecol);
 			switch (p_type) {
@@ -122,20 +113,20 @@ void WindowsTerminalLogger::log_error(const char *p_function, const char *p_file
 			}
 
 			SetConsoleTextAttribute(hCon, current_fg | current_bg);
-            logf(FormatV("%s:%i\n", p_file, p_line));
+            logf(FormatVE("%.*s:%i\n", p_file.length(), p_file.data(),p_line));
 
 		} else {
 
 			SetConsoleTextAttribute(hCon, basecol | FOREGROUND_INTENSITY);
 			switch (p_type) {
-                case ERR_ERROR: logf(FormatV("ERROR: %s: ", p_function).m_str); break;
-                case ERR_WARNING: logf(FormatV("WARNING: %s: ", p_function)); break;
-                case ERR_SCRIPT: logf(FormatV("SCRIPT ERROR: %s: ", p_function)); break;
-                case ERR_SHADER: logf(FormatV("SCRIPT ERROR: %s: ", p_function)); break;
+                case ERR_ERROR: logf(FormatVE("ERROR: %.*s: ", p_function.size(), p_function.data())); break;
+                case ERR_WARNING: logf(FormatVE("WARNING: %.*s: ", p_function.size(), p_function.data())); break;
+                case ERR_SCRIPT: logf(FormatVE("SCRIPT ERROR: %.*s: ", p_function.size(), p_function.data())); break;
+                case ERR_SHADER: logf(FormatVE("SCRIPT ERROR: %.*s: ", p_function.size(), p_function.data())); break;
 			}
 
 			SetConsoleTextAttribute(hCon, current_fg | current_bg | FOREGROUND_INTENSITY);
-            logf(FormatV("%s\n", p_code));
+            logf(FormatVE("%.*s\n", p_code.size(), p_code.data()));
 
 			SetConsoleTextAttribute(hCon, basecol);
 			switch (p_type) {
@@ -146,7 +137,7 @@ void WindowsTerminalLogger::log_error(const char *p_function, const char *p_file
 			}
 
 			SetConsoleTextAttribute(hCon, current_fg | current_bg);
-            logf(FormatV("%s:%i\n", p_file, p_line));
+            logf(FormatVE("%.*s:%i\n", p_file.size(), p_file.data(), p_line));
 		}
 
 		SetConsoleTextAttribute(hCon, sbi.wAttributes);

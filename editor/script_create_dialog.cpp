@@ -99,7 +99,7 @@ void ScriptCreateDialog::_path_hbox_sorted() {
 }
 
 bool ScriptCreateDialog::_can_be_built_in() {
-    return (supports_built_in && built_in_enabled);
+    return supports_built_in && built_in_enabled;
 }
 
 void ScriptCreateDialog::config(se_string_view p_base_name, se_string_view p_base_path, bool p_built_in_enabled) {
@@ -156,7 +156,7 @@ bool ScriptCreateDialog::_validate_class(const String &p_string) {
                 return false; // no start with number plz
         }
 
-        bool valid_char = (p_string[i] >= '0' && p_string[i] <= '9') || (p_string[i] >= 'a' && p_string[i] <= 'z') || (p_string[i] >= 'A' && p_string[i] <= 'Z') || p_string[i] == '_' || p_string[i] == '.';
+        bool valid_char = p_string[i] >= '0' && p_string[i] <= '9' || p_string[i] >= 'a' && p_string[i] <= 'z' || p_string[i] >= 'A' && p_string[i] <= 'Z' || p_string[i] == '_' || p_string[i] == '.';
 
         if (!valid_char)
             return false;
@@ -325,7 +325,7 @@ void ScriptCreateDialog::_create_new() {
 void ScriptCreateDialog::_load_exist() {
 
     se_string path = file_path->get_text();
-    RES p_script(ResourceLoader::load(path, ("Script")));
+    RES p_script(ResourceLoader::load(path, "Script"));
     if (not p_script) {
         alert->set_text(FormatSN(TTR("Error loading script from %s").asCString(), path.c_str()));
         alert->popup_centered();

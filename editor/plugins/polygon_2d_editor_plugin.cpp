@@ -315,7 +315,7 @@ void Polygon2DEditor::_menu_option(int p_option) {
                 undo_redo->commit_action();
             }
 
-            if (EditorSettings::get_singleton()->has_setting(("interface/dialogs/uv_editor_bounds")))
+            if (EditorSettings::get_singleton()->has_setting("interface/dialogs/uv_editor_bounds"))
                 uv_edit->popup(EditorSettings::get_singleton()->get("interface/dialogs/uv_editor_bounds"));
             else
                 uv_edit->popup_centered_ratio(0.85f);
@@ -810,10 +810,10 @@ void Polygon2DEditor::_uv_input(const Ref<InputEvent> &p_input) {
 
         } else if (mb->get_button_index() == BUTTON_WHEEL_UP && mb->is_pressed()) {
 
-            uv_zoom->set_value(uv_zoom->get_value() / (1 - (0.1f * mb->get_factor())));
+            uv_zoom->set_value(uv_zoom->get_value() / (1 - 0.1f * mb->get_factor()));
         } else if (mb->get_button_index() == BUTTON_WHEEL_DOWN && mb->is_pressed()) {
 
-            uv_zoom->set_value(uv_zoom->get_value() * (1 - (0.1f * mb->get_factor())));
+            uv_zoom->set_value(uv_zoom->get_value() * (1 - 0.1f * mb->get_factor()));
         }
     }
 
@@ -821,7 +821,7 @@ void Polygon2DEditor::_uv_input(const Ref<InputEvent> &p_input) {
 
     if (mm) {
 
-        if ((mm->get_button_mask() & BUTTON_MASK_MIDDLE) || Input::get_singleton()->is_key_pressed(KEY_SPACE)) {
+        if (mm->get_button_mask() & BUTTON_MASK_MIDDLE || Input::get_singleton()->is_key_pressed(KEY_SPACE)) {
 
             Vector2 drag(mm->get_relative().x, mm->get_relative().y);
             uv_hscroll->set_value(uv_hscroll->get_value() - drag.x);
@@ -1142,7 +1142,7 @@ void Polygon2DEditor::_uv_draw() {
     if (!polygon_create.empty()) {
         for (int i = 0; i < polygon_create.size(); i++) {
             Vector2 from = uvs[polygon_create[i]];
-            Vector2 to = (i + 1) < polygon_create.size() ? uvs[polygon_create[i + 1]] : uv_create_to;
+            Vector2 to = i + 1 < polygon_create.size() ? uvs[polygon_create[i + 1]] : uv_create_to;
             uv_edit_draw->draw_line(mtx.xform(from), mtx.xform(to), polygon_line_color, Math::round(EDSCALE), true);
         }
     }
@@ -1420,7 +1420,7 @@ Polygon2DEditor::Polygon2DEditor(EditorNode *p_editor) :
     sb_off_x->set_max(256);
     sb_off_x->set_step(1);
     sb_off_x->set_value(snap_offset.x);
-    sb_off_x->set_suffix(("px"));
+    sb_off_x->set_suffix("px");
     sb_off_x->connect("value_changed", this, "_set_snap_off_x");
     grid_settings_vb->add_margin_child(TTR("Grid Offset X:"), sb_off_x);
 
@@ -1429,7 +1429,7 @@ Polygon2DEditor::Polygon2DEditor(EditorNode *p_editor) :
     sb_off_y->set_max(256);
     sb_off_y->set_step(1);
     sb_off_y->set_value(snap_offset.y);
-    sb_off_y->set_suffix(("px"));
+    sb_off_y->set_suffix("px");
     sb_off_y->connect("value_changed", this, "_set_snap_off_y");
     grid_settings_vb->add_margin_child(TTR("Grid Offset Y:"), sb_off_y);
 
@@ -1438,7 +1438,7 @@ Polygon2DEditor::Polygon2DEditor(EditorNode *p_editor) :
     sb_step_x->set_max(256);
     sb_step_x->set_step(1);
     sb_step_x->set_value(snap_step.x);
-    sb_step_x->set_suffix(("px"));
+    sb_step_x->set_suffix("px");
     sb_step_x->connect("value_changed", this, "_set_snap_step_x");
     grid_settings_vb->add_margin_child(TTR("Grid Step X:"), sb_step_x);
 
@@ -1447,7 +1447,7 @@ Polygon2DEditor::Polygon2DEditor(EditorNode *p_editor) :
     sb_step_y->set_max(256);
     sb_step_y->set_step(1);
     sb_step_y->set_value(snap_step.y);
-    sb_step_y->set_suffix(("px"));
+    sb_step_y->set_suffix("px");
     sb_step_y->connect("value_changed", this, "_set_snap_step_y");
     grid_settings_vb->add_margin_child(TTR("Grid Step Y:"), sb_step_y);
 

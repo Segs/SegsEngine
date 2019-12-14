@@ -107,7 +107,7 @@ class ThemeEditorPlugin : public EditorPlugin {
     Button *button;
 
 public:
-    se_string_view get_name() const override { return ("Theme"); }
+    se_string_view get_name() const override { return "Theme"; }
     bool has_main_screen() const override { return false; }
     void edit(Object *p_node) override;
     bool handles(Object *p_node) const override;
