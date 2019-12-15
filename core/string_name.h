@@ -78,7 +78,6 @@ public:
     bool operator==(se_string_view p_name) const {
 
         if (!_data) {
-
             return p_name.empty();
         }
 
@@ -88,7 +87,9 @@ public:
     bool operator==(const char *p_name) const noexcept {
         return *this==se_string_view(p_name);
     }
-    bool operator!=(se_string_view p_name) const;
+    bool operator!=(se_string_view p_name) const {
+        return !(operator==(p_name));
+    }
     _FORCE_INLINE_ bool operator<(const StringName &p_name) const {
         return _data < p_name._data;
     }
@@ -117,7 +118,11 @@ public:
 
     StringName& operator=(const StringName &p_name);
     explicit operator String() const;
-    operator se_string_view() const;
+    operator se_string_view() const
+    {
+        return se_string_view(asCString());
+    }
+
     String asString() const;
     const char *asCString() const noexcept;
 

@@ -1414,7 +1414,7 @@ Error Main::setup2(Thread::ID p_main_tid_override) {
 
     register_module_types();
 
-    //camera_server = CameraServer::create();
+    camera_server = CameraServer::create();
 
     initialize_physics();
     register_server_singletons();

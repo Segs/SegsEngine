@@ -122,7 +122,7 @@ bool Polygon3DEditor::forward_spatial_gui_input(Camera *p_camera, const Ref<Inpu
 
     Transform gt = node->get_global_transform();
     Transform gi = gt.affine_inverse();
-    float depth = _get_depth() * 0.5;
+    float depth = _get_depth() * 0.5f;
     Vector3 n = gt.basis.get_axis(2).normalized();
     Plane p(gt.origin + n * depth, n);
 
@@ -250,7 +250,7 @@ bool Polygon3DEditor::forward_spatial_gui_input(Camera *p_camera, const Ref<Inpu
 
                             int closest_idx = -1;
                             Vector2 closest_pos;
-                            real_t closest_dist = 1e10;
+                            real_t closest_dist = 1e10f;
                             for (int i = 0; i < poly.size(); i++) {
 
                                 Vector2 cp = p_camera->unproject_position(gt.xform(Vector3(poly[i].x, poly[i].y, depth)));
@@ -386,7 +386,7 @@ void Polygon3DEditor::_polygon_draw() {
     else
         poly = node->call("get_polygon");
 
-    float depth = _get_depth() * 0.5;
+    float depth = _get_depth() * 0.5f;
 
     imgeom->clear();
     imgeom->set_material_override(line_material);

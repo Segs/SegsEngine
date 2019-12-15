@@ -210,16 +210,17 @@ Map<int, TextEdit::HighlighterInfo> GDScriptSyntaxHighlighter::_get_line_syntax_
         if (!in_function_name && in_word && !in_keyword) {
 
             int k = j;
-            while (k < str.length() && !_is_symbol(str[k]) && str[k] != '\t' && str[k] != ' ') {
+            auto str_len = str.length();
+            while (k < str_len && !_is_symbol(str[k]) && str[k] != '\t' && str[k] != ' ') {
                 k++;
             }
 
             // check for space between name and bracket
-            while (k < str.length() && (str[k] == '\t' || str[k] == ' ')) {
+            while (k < str_len && (str[k] == '\t' || str[k] == ' ')) {
                 k++;
             }
 
-            if (str[k] == '(') {
+            if (k<str_len && str[k] == '(') {
                 in_function_name = true;
             } else if (previous_text == GDScriptTokenizer::get_token_name(GDScriptTokenizer::TK_PR_VAR)) {
                 in_variable_declaration = true;

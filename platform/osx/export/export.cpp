@@ -346,7 +346,7 @@ void EditorExportPlatformOSX::_fix_plist(const Ref<EditorExportPreset> &p_preset
     }
 
     plist.resize(strnew.size() - 1);
-    for (int i = 0; i < strnew.size() - 1; i++) {
+    for (size_t i = 0; i < strnew.size() - 1; i++) {
         plist.write[i] = strnew[i];
     }
 }

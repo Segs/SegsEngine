@@ -553,7 +553,7 @@ constexpr int _MAX_LENGTH = 20;
         }
     }
 
-    global_aabb.grow_by(0.01); // Avoid numerical error.
+    global_aabb.grow_by(0.01f); // Avoid numerical error.
 
     // Determine amount of cells in grid axis.
     int div_x, div_y, div_z;
@@ -940,8 +940,8 @@ PoolVector<Plane> Geometry::build_capsule_planes(real_t p_radius, real_t p_heigh
     for (int i = 0; i < p_sides; i++) {
 
         Vector3 normal;
-        normal[(p_axis + 1) % 3] = Math::cos(i * (2.0 * Math_PI) / p_sides);
-        normal[(p_axis + 2) % 3] = Math::sin(i * (2.0 * Math_PI) / p_sides);
+        normal[(p_axis + 1) % 3] = Math::cos(i * (2.0f * Math_PI) / p_sides);
+        normal[(p_axis + 2) % 3] = Math::sin(i * (2.0f * Math_PI) / p_sides);
 
         planes.push_back(Plane(normal, p_radius));
 
@@ -962,7 +962,7 @@ struct _AtlasWorkRect {
     Size2i s;
     Point2i p;
     int idx;
-    _FORCE_INLINE_ bool operator<(const _AtlasWorkRect &p_r) const { return s.width > p_r.s.width; };
+    _FORCE_INLINE_ bool operator<(const _AtlasWorkRect &p_r) const { return s.width > p_r.s.width; }
 };
 
 struct _AtlasWorkRectResult {
@@ -1057,7 +1057,7 @@ void Geometry::make_atlas(const Vector<Size2i> &p_rects, Vector<Point2i> &r_resu
     //find the result with the best aspect ratio
 
     int best = -1;
-    real_t best_aspect = 1e20;
+    real_t best_aspect = 1e20f;
 
     for (int i = 0; i < results.size(); i++) {
 

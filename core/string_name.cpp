@@ -179,12 +179,6 @@ StringName::operator const void*() const {
     return (_data && _data->cname) ? (void *)1 : nullptr;
 }
 
-
-bool StringName::operator!=(se_string_view p_name) const {
-
-    return !(operator==(p_name));
-}
-
 uint32_t StringName::hash() const {
 
     return _data ? _data->hash : 0;
@@ -210,7 +204,7 @@ String StringName::asString() const { return (String)*this; }
 const char *StringName::asCString() const noexcept
 {
     if (!_data||!_data->cname)
-        return nullptr;
+        return "";
 
     return _data->get_name();
 }
@@ -228,11 +222,6 @@ StringName &StringName::operator=(const StringName &p_name) {
         _data = p_name._data;
     }
     return *this;
-}
-
-StringName::operator se_string_view() const
-{
-    return se_string_view(asCString());
 }
 
 StringName::StringName(const StringName &p_name) {

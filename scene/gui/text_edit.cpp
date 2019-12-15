@@ -4902,10 +4902,11 @@ int TextEdit::get_char_pos_for(int p_px, const String& p_str) const {
 
     int px = 0;
     int c = 0;
+    auto len = p_str.length();
+    while (c < len) {
 
-    while (c < p_str.length()) {
-
-        int w = m_priv->text.get_char_width(p_str[c], p_str[c + 1], px);
+        CharType next = (c+1)<len ? p_str[c + 1] : CharType(0);
+        int w = m_priv->text.get_char_width(p_str[c], next, px);
 
         if (p_px < (px + w / 2))
             break;
@@ -4920,11 +4921,12 @@ int TextEdit::get_column_x_offset(int p_char, const String& p_str) const {
 
     int px = 0;
 
-    for (int i = 0; i < p_char; i++) {
+    auto len = p_str.length();
+    for (int i = 0; i < len; i++) {
 
-        if (i >= p_str.length())
+        if (i >= p_char)
             break;
-        QChar next = ((i+1)>=p_str.length()) ? QChar(0) : p_str[i + 1];
+        QChar next = ((i+1)>=len) ? QChar(0) : p_str[i + 1];
         px += m_priv->text.get_char_width(p_str[i], next, px);
     }
 

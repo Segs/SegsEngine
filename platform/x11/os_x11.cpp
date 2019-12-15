@@ -2937,7 +2937,7 @@ void OS_X11::alert(se_string_view _alert, se_string_view _title) {
     const char *message_programs[] = { "zenity", "kdialog", "Xdialog", "xmessage" };
     const se_string p_alert(_alert);
     const se_string p_title(_title);
-    const char *path = get_environment("PATH");
+    se_string path = get_environment("PATH");
     Vector<se_string_view> path_elems = StringUtils::split(path,':', false);
     se_string program;
 
