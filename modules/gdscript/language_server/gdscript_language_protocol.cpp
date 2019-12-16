@@ -141,9 +141,8 @@ void GDScriptLanguageProtocol::initialized(const Variant &p_params) {
         lsp::GodotNativeClassInfo gdclass;
         gdclass.name = E.second.name;
         gdclass.class_doc = &E.second;
-        if (ClassDB::ClassInfo *ptr = ClassDB::classes.getptr(StringName(E.second.name))) {
-            gdclass.class_info = ptr;
-        }
+        auto iter = ClassDB::classes.find(StringName(E.second.name));
+        gdclass.class_info = iter!=ClassDB::classes.end() ? &iter->second : nullptr;
         capabilities.native_classes.push_back(gdclass);
     }
 

@@ -76,7 +76,7 @@ ClassDB::APIType ClassDB::get_current_api() {
     return current_api;
 }
 
-HashMap<StringName, ClassDB::ClassInfo> ClassDB::classes;
+DefHashMap<StringName, ClassDB::ClassInfo> ClassDB::classes;
 DefHashMap<StringName, StringName> ClassDB::resource_base_extensions;
 HashMap<StringName, StringName> ClassDB::compat_classes;
 
@@ -109,11 +109,9 @@ void ClassDB::get_class_list(Vector<StringName> *p_classes) {
 
     RWLockRead _rw_lockr_(lock);
 
-    const StringName *k = nullptr;
+    for(const auto &k : classes) {
 
-    while ((k = classes.next(k))) {
-
-        p_classes->push_back(*k);
+        p_classes->push_back(k.first);
     }
 
     p_classes->sort();
@@ -123,11 +121,10 @@ void ClassDB::get_inheriters_from_class(const StringName &p_class, ListPOD<Strin
 
     RWLockRead _rw_lockr_(lock);
 
-    const StringName *k = nullptr;
+    for(const auto &k : classes) {
 
-    while ((k = classes.next(k))) {
-
-        if (*k != p_class && is_parent_class(*k, p_class)) p_classes->push_back(*k);
+        if (k.first != p_class && is_parent_class(k.first, p_class))
+            p_classes->push_back(k.first);
     }
 }
 
@@ -135,81 +132,80 @@ void ClassDB::get_direct_inheriters_from_class(const StringName &p_class, ListPO
 
     RWLockRead _rw_lockr_(lock);
 
-    const StringName *k = nullptr;
+    for(const auto &k : classes) {
 
-    while ((k = classes.next(k))) {
-
-        if (*k != p_class && get_parent_class(*k) == p_class) p_classes->push_back(*k);
+        if (k.first != p_class && get_parent_class(k.first) == p_class) p_classes->push_back(k.first);
     }
 }
 
 StringName ClassDB::get_parent_class_nocheck(const StringName &p_class) {
 
     RWLockRead _rw_lockr_(lock);
-
-    ClassInfo *ti = classes.getptr(p_class);
-    if (!ti) return StringName();
-    return ti->inherits;
+    auto iter = classes.find(p_class);
+    if(iter==classes.end())
+        return StringName();
+    return iter->second.inherits;
 }
 
 StringName ClassDB::get_parent_class(const StringName &p_class) {
 
     RWLockRead _rw_lockr_(lock);
 
-    ClassInfo *ti = classes.getptr(p_class);
+    auto iter = classes.find(p_class);
+    if(iter==classes.end())
+        return StringName();
     {
-        if (unlikely(!ti)) {
+        if (unlikely(iter==classes.end())) {
             _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "Condition ' " _STR(!ti) " ' is true. returned: " _STR(StringName()),"Cannot get class '" + se_string(p_class) + "'.");
             return StringName();
         }
     }
-    return ti->inherits;
+    return iter->second.inherits;
 }
 
 ClassDB::APIType ClassDB::get_api_type(const StringName &p_class) {
 
     RWLockRead _rw_lockr_(lock);
 
-    ClassInfo *ti = classes.getptr(p_class);
-
-    ERR_FAIL_COND_V_MSG(!ti, API_NONE, "Cannot get class '" + se_string(p_class) + "'.")
-    return ti->api;
+    auto iter = classes.find(p_class);
+    ERR_FAIL_COND_V_MSG(iter==classes.end(), API_NONE, "Cannot get class '" + se_string(p_class) + "'.")
+    return iter->second.api;
 }
 
 uint64_t ClassDB::get_api_hash(APIType p_api) {
 
     RWLockRead _rw_lockr_(lock);
 #ifdef DEBUG_METHODS_ENABLED
-
+    using class_iter = DefHashMap<StringName, ClassInfo>::iterator;
     uint64_t hash = hash_djb2_one_64(Hasher<const char *>()(VERSION_FULL_CONFIG));
     // TODO: bunch of copiers are made here, the containers should just hold pointers/const references to objects ?
-    PODVector<StringName> names;
+    PODVector<class_iter> entries;
+    entries.reserve(classes.size());
 
-    const StringName *k = nullptr;
+    for(auto iter=classes.begin(),fin=classes.end(); iter!=fin; ++iter) {
 
-    while ((k = classes.next(k))) {
-
-        names.push_back(*k);
+        entries.push_back(iter);
     }
-    eastl::stable_sort(names.begin(), names.end(), StringName::AlphCompare);
+    eastl::stable_sort(entries.begin(), entries.end(),
+            [](class_iter a, class_iter b) -> bool { return StringName::AlphCompare(a->first, b->first); });
     // must be alphabetically sorted for hash to compute
     PODVector<StringName> snames;
+    const StringName *k = nullptr;
 
-    for (const StringName &n : names) {
+    for (auto iter : entries) {
 
-        ClassInfo *t = classes.getptr(n);
-        ERR_FAIL_COND_V_MSG(!t, 0, "Cannot get class '" + se_string(n) + "'.")
-        if (t->api != p_api || !t->exposed)
+        ClassInfo &t = iter->second;
+        if (t.api != p_api || !t.exposed)
             continue;
-        hash = hash_djb2_one_64(t->name.hash(), hash);
-        hash = hash_djb2_one_64(t->inherits.hash(), hash);
+        hash = hash_djb2_one_64(t.name.hash(), hash);
+        hash = hash_djb2_one_64(t.inherits.hash(), hash);
 
         { // methods
 
             snames.clear();
             k = nullptr;
 
-            while ((k = t->method_map.next(k))) {
+            while ((k = t.method_map.next(k))) {
 
                 snames.push_back(*k);
             }
@@ -218,7 +214,7 @@ uint64_t ClassDB::get_api_hash(APIType p_api) {
 
             for (const StringName &sn : snames) {
 
-                MethodBind *mb = t->method_map[sn];
+                MethodBind *mb = t.method_map[sn];
                 hash = hash_djb2_one_64(mb->get_name().hash(), hash);
                 hash = hash_djb2_one_64(mb->get_argument_count(), hash);
                 hash = hash_djb2_one_64(uint64_t(mb->get_argument_type(-1)), hash); // return
@@ -249,7 +245,7 @@ uint64_t ClassDB::get_api_hash(APIType p_api) {
 
             k = nullptr;
 
-            while ((k = t->constant_map.next(k))) {
+            while ((k = t.constant_map.next(k))) {
 
                 snames.push_back(*k);
             }
@@ -258,7 +254,7 @@ uint64_t ClassDB::get_api_hash(APIType p_api) {
             for (StringName &sn : snames) {
 
                 hash = hash_djb2_one_64(sn.hash(), hash);
-                hash = hash_djb2_one_64(t->constant_map[sn], hash);
+                hash = hash_djb2_one_64(t.constant_map[sn], hash);
             }
         }
 
@@ -267,7 +263,7 @@ uint64_t ClassDB::get_api_hash(APIType p_api) {
             snames.clear();
             k = nullptr;
 
-            while ((k = t->signal_map.next(k))) {
+            while ((k = t.signal_map.next(k))) {
 
                 snames.push_back(*k);
             }
@@ -276,7 +272,7 @@ uint64_t ClassDB::get_api_hash(APIType p_api) {
 
             for (StringName &sn : snames) {
 
-                MethodInfo &mi = t->signal_map[sn];
+                MethodInfo &mi = t.signal_map[sn];
                 hash = hash_djb2_one_64(sn.hash(), hash);
                 for (const PropertyInfo & argument : mi.arguments) {
                     hash = hash_djb2_one_64(uint64_t(argument.type), hash);
@@ -290,7 +286,7 @@ uint64_t ClassDB::get_api_hash(APIType p_api) {
 
             k = nullptr;
 
-            while ((k = t->property_setget.next(k))) {
+            while ((k = t.property_setget.next(k))) {
 
                 snames.push_back(*k);
             }
@@ -299,7 +295,7 @@ uint64_t ClassDB::get_api_hash(APIType p_api) {
 
             for (StringName &sn : snames) {
 
-                PropertySetGet *psg = t->property_setget.getptr(sn);
+                PropertySetGet *psg = t.property_setget.getptr(sn);
                 ERR_FAIL_COND_V(!psg, 0)
 
                 hash = hash_djb2_one_64(sn.hash(), hash);
@@ -309,7 +305,7 @@ uint64_t ClassDB::get_api_hash(APIType p_api) {
         }
 
         // property list
-        for (const PropertyInfo &pi : t->property_list) {
+        for (const PropertyInfo &pi : t.property_list) {
             hash = hash_djb2_one_64(StringUtils::hash(pi.name), hash);
             hash = hash_djb2_one_64(uint64_t(pi.type), hash);
             hash = hash_djb2_one_64(pi.hint, hash);
@@ -341,13 +337,14 @@ Object *ClassDB::instance(const StringName &p_class) {
     ClassInfo *ti;
     {
         RWLockRead _rw_lockr_(lock);
-        ti = classes.getptr(p_class);
-        if (!ti || ti->disabled || !ti->creation_func) {
+        auto iter=classes.find(p_class);
+        if (iter==classes.end() || iter->second.disabled || !iter->second.creation_func) {
             if (compat_classes.contains(p_class)) {
-                ti = classes.getptr(compat_classes[p_class]);
+                iter = classes.find(compat_classes[p_class]);
             }
         }
-        ERR_FAIL_COND_V_MSG(!ti, nullptr, "Cannot get class '" + se_string(p_class) + "'.")
+        ERR_FAIL_COND_V_MSG(iter==classes.end(), nullptr, "Cannot get class '" + se_string(p_class) + "'.")
+        ti = &iter->second;
         ERR_FAIL_COND_V_MSG(ti->disabled, nullptr, "Class '" + se_string(p_class) + "' is disabled.")
         ERR_FAIL_COND_V(!ti->creation_func, nullptr)
     }
@@ -363,8 +360,9 @@ bool ClassDB::can_instance(const StringName &p_class) {
 
     RWLockRead _rw_lockr_(lock);
 
-    ClassInfo *ti = classes.getptr(p_class);
-    ERR_FAIL_COND_V_MSG(!ti, false, "Cannot get class '" + se_string(p_class) + "'.")
+    auto iter=classes.find(p_class);
+    ERR_FAIL_COND_V_MSG(iter==classes.end(), false, "Cannot get class '" + se_string(p_class) + "'.")
+    ClassInfo *ti = &iter->second;
 #ifdef TOOLS_ENABLED
     if (ti->api == API_EDITOR && !Engine::get_singleton()->is_editor_hint()) {
         return false;
@@ -402,8 +400,9 @@ void ClassDB::get_method_list(
 
     RWLockRead _rw_lockr_(lock);
 
-    ClassInfo *type = classes.getptr(p_class);
+    auto iter=classes.find(p_class);
 
+    ClassInfo *type = iter!=classes.end() ? &iter->second : nullptr;
     while (type) {
 
         if (type->disabled) {
@@ -473,10 +472,10 @@ MethodBind *ClassDB::get_method(StringName p_class, StringName p_name) {
 
     RWLockRead _rw_lockr_(lock);
 
-    ClassInfo *type = classes.getptr(p_class);
+    auto iter=classes.find(p_class);
 
+    ClassInfo *type = iter!=classes.end() ? &iter->second : nullptr;
     while (type) {
-
         MethodBind **method = type->method_map.getptr(p_name);
         if (method && *method)
             return *method;
@@ -490,9 +489,12 @@ void ClassDB::bind_integer_constant(
 
     OBJTYPE_WLOCK;
 
-    ClassInfo *type = classes.getptr(p_class);
+    auto iter=classes.find(p_class);
 
-    ERR_FAIL_COND(!type)
+
+    ERR_FAIL_COND(iter==classes.end())
+
+    ClassInfo *type = &iter->second;
 
     if (type->constant_map.contains(p_name)) {
 
@@ -528,8 +530,9 @@ void ClassDB::get_integer_constant_list(const StringName &p_class, ListPOD<se_st
 
     RWLockRead _rw_lockr_(lock);
 
-    ClassInfo *type = classes.getptr(p_class);
+    auto iter=classes.find(p_class);
 
+    ClassInfo *type = iter!=classes.end() ? &iter->second : nullptr;
     while (type) {
 
 #ifdef DEBUG_METHODS_ENABLED
@@ -555,8 +558,9 @@ int ClassDB::get_integer_constant(const StringName &p_class, const StringName &p
 
     RWLockRead _rw_lockr_(lock);
 
-    ClassInfo *type = classes.getptr(p_class);
+    auto iter=classes.find(p_class);
 
+    ClassInfo *type = iter!=classes.end() ? &iter->second : nullptr;
     while (type) {
 
         int *constant = type->constant_map.getptr(p_name);
@@ -579,8 +583,9 @@ StringName ClassDB::get_integer_constant_enum(
 
     RWLockRead _rw_lockr_(lock);
 
-    ClassInfo *type = classes.getptr(p_class);
+    auto iter=classes.find(p_class);
 
+    ClassInfo *type = iter!=classes.end() ? &iter->second : nullptr;
     while (type) {
 
         const StringName *k = nullptr;
@@ -602,8 +607,9 @@ void ClassDB::get_enum_list(const StringName &p_class, ListPOD<StringName> *p_en
 
     RWLockRead _rw_lockr_(lock);
 
-    ClassInfo *type = classes.getptr(p_class);
+    auto iter=classes.find(p_class);
 
+    ClassInfo *type = iter!=classes.end() ? &iter->second : nullptr;
     while (type) {
 
         const StringName *k = nullptr;
@@ -622,8 +628,9 @@ void ClassDB::get_enum_constants(
 
     RWLockRead _rw_lockr_(lock);
 
-    ClassInfo *type = classes.getptr(p_class);
+    auto iter=classes.find(p_class);
 
+    ClassInfo *type = iter!=classes.end() ? &iter->second : nullptr;
     while (type) {
 
         const ListPOD<StringName> *constants = type->enum_map.getptr(p_enum);
@@ -645,8 +652,9 @@ void ClassDB::add_signal(StringName p_class, const MethodInfo &p_signal) {
 
     OBJTYPE_WLOCK;
 
-    ClassInfo *type = classes.getptr(p_class);
-    ERR_FAIL_COND(!type)
+    auto iter=classes.find(p_class);
+    ERR_FAIL_COND(iter==classes.end())
+    ClassInfo *type = &iter->second;
 
     StringName sname = p_signal.name;
 
@@ -665,8 +673,9 @@ void ClassDB::get_signal_list(StringName p_class, ListPOD<MethodInfo> *p_signals
 
     RWLockRead _rw_lockr_(lock);
 
-    ClassInfo *type = classes.getptr(p_class);
-    ERR_FAIL_COND(!type)
+    auto iter=classes.find(p_class);
+    ERR_FAIL_COND(iter==classes.end())
+    ClassInfo *type = &iter->second;
 
     ClassInfo *check = type;
 
@@ -688,7 +697,8 @@ void ClassDB::get_signal_list(StringName p_class, ListPOD<MethodInfo> *p_signals
 bool ClassDB::has_signal(StringName p_class, StringName p_signal) {
 
     RWLockRead _rw_lockr_(lock);
-    ClassInfo *type = classes.getptr(p_class);
+    auto iter=classes.find(p_class);
+    ClassInfo *type = iter!=classes.end() ? &iter->second : nullptr;
     ClassInfo *check = type;
     while (check) {
         if (check->signal_map.contains(p_signal))
@@ -702,7 +712,8 @@ bool ClassDB::has_signal(StringName p_class, StringName p_signal) {
 bool ClassDB::get_signal(StringName p_class, StringName p_signal, MethodInfo *r_signal) {
 
     RWLockRead _rw_lockr_(lock);
-    ClassInfo *type = classes.getptr(p_class);
+    auto iter=classes.find(p_class);
+    ClassInfo *type = iter!=classes.end() ? &iter->second : nullptr;
     ClassInfo *check = type;
     while (check) {
         if (check->signal_map.contains(p_signal)) {
@@ -720,7 +731,8 @@ bool ClassDB::get_signal(StringName p_class, StringName p_signal, MethodInfo *r_
 void ClassDB::add_property_group(StringName p_class, const char *p_name, const char *p_prefix) {
 
     OBJTYPE_WLOCK
-    ClassInfo *type = classes.getptr(p_class);
+    auto iter=classes.find(p_class);
+    ClassInfo *type = iter!=classes.end() ? &iter->second : nullptr;
     ERR_FAIL_COND(!type)
 
     type->property_list.push_back(
@@ -731,7 +743,8 @@ void ClassDB::add_property(StringName p_class, const PropertyInfo &p_pinfo, cons
         const StringName &p_getter, int p_index) {
 
     lock->read_lock();
-    ClassInfo *type = classes.getptr(p_class);
+    auto iter=classes.find(p_class);
+    ClassInfo *type = iter!=classes.end() ? &iter->second : nullptr;
     lock->read_unlock();
 
     ERR_FAIL_COND(!type)
@@ -799,7 +812,8 @@ void ClassDB::get_property_list(
 
     RWLockRead _rw_lockr_(lock);
 
-    ClassInfo *type = classes.getptr(p_class);
+    auto iter=classes.find(p_class);
+    ClassInfo *type = iter!=classes.end() ? &iter->second : nullptr;
     ClassInfo *check = type;
     while (check) {
 
@@ -820,8 +834,8 @@ void ClassDB::get_property_list(
     }
 }
 bool ClassDB::set_property(Object *p_object, const StringName &p_property, const Variant &p_value, bool *r_valid) {
-
-    ClassInfo *type = classes.getptr(p_object->get_class_name());
+    auto iter=classes.find(p_object->get_class_name());
+    ClassInfo *type = iter!=classes.end() ? &iter->second : nullptr;
     ClassInfo *check = type;
     while (check) {
         const PropertySetGet *psg = check->property_setget.getptr(p_property);
@@ -867,7 +881,8 @@ bool ClassDB::set_property(Object *p_object, const StringName &p_property, const
 }
 bool ClassDB::get_property(Object *p_object, const StringName &p_property, Variant &r_value) {
 
-    ClassInfo *type = classes.getptr(p_object->get_class_name());
+    auto iter=classes.find(p_object->get_class_name());
+    ClassInfo *type = iter!=classes.end() ? &iter->second : nullptr;
     ClassInfo *check = type;
     while (check) {
         const PropertySetGet *psg = check->property_setget.getptr(p_property);
@@ -908,7 +923,8 @@ bool ClassDB::get_property(Object *p_object, const StringName &p_property, Varia
 
 int ClassDB::get_property_index(const StringName &p_class, const StringName &p_property, bool *r_is_valid) {
 
-    ClassInfo *type = classes.getptr(p_class);
+    auto iter=classes.find(p_class);
+    ClassInfo *type = iter!=classes.end() ? &iter->second : nullptr;
     ClassInfo *check = type;
     while (check) {
         const PropertySetGet *psg = check->property_setget.getptr(p_property);
@@ -928,7 +944,8 @@ int ClassDB::get_property_index(const StringName &p_class, const StringName &p_p
 
 VariantType ClassDB::get_property_type(const StringName &p_class, const StringName &p_property, bool *r_is_valid) {
 
-    ClassInfo *type = classes.getptr(p_class);
+    auto iter=classes.find(p_class);
+    ClassInfo *type = iter!=classes.end() ? &iter->second : nullptr;
     ClassInfo *check = type;
     while (check) {
         const PropertySetGet *psg = check->property_setget.getptr(p_property);
@@ -948,7 +965,8 @@ VariantType ClassDB::get_property_type(const StringName &p_class, const StringNa
 
 StringName ClassDB::get_property_setter(StringName p_class, const StringName &p_property) {
 
-    ClassInfo *type = classes.getptr(p_class);
+    auto iter=classes.find(p_class);
+    ClassInfo *type = iter!=classes.end() ? &iter->second : nullptr;
     ClassInfo *check = type;
     while (check) {
         const PropertySetGet *psg = check->property_setget.getptr(p_property);
@@ -965,7 +983,8 @@ StringName ClassDB::get_property_setter(StringName p_class, const StringName &p_
 
 StringName ClassDB::get_property_getter(StringName p_class, const StringName &p_property) {
 
-    ClassInfo *type = classes.getptr(p_class);
+    auto iter=classes.find(p_class);
+    ClassInfo *type = iter!=classes.end() ? &iter->second : nullptr;
     ClassInfo *check = type;
     while (check) {
         const PropertySetGet *psg = check->property_setget.getptr(p_property);
@@ -982,7 +1001,8 @@ StringName ClassDB::get_property_getter(StringName p_class, const StringName &p_
 
 bool ClassDB::has_property(const StringName &p_class, const StringName &p_property, bool p_no_inheritance) {
 
-    ClassInfo *type = classes.getptr(p_class);
+    auto iter=classes.find(p_class);
+    ClassInfo *type = iter!=classes.end() ? &iter->second : nullptr;
     ClassInfo *check = type;
     while (check) {
         if (check->property_setget.contains(p_property)) return true;
@@ -997,7 +1017,8 @@ bool ClassDB::has_property(const StringName &p_class, const StringName &p_proper
 void ClassDB::set_method_flags(StringName p_class, StringName p_method, int p_flags) {
 
     OBJTYPE_WLOCK;
-    ClassInfo *type = classes.getptr(p_class);
+    auto iter=classes.find(p_class);
+    ClassInfo *type = iter!=classes.end() ? &iter->second : nullptr;
     ClassInfo *check = type;
     ERR_FAIL_COND(!check)
     ERR_FAIL_COND(!check->method_map.contains(p_method))
@@ -1006,7 +1027,8 @@ void ClassDB::set_method_flags(StringName p_class, StringName p_method, int p_fl
 
 bool ClassDB::has_method(StringName p_class, StringName p_method, bool p_no_inheritance) {
 
-    ClassInfo *type = classes.getptr(p_class);
+    auto iter=classes.find(p_class);
+    ClassInfo *type = iter!=classes.end() ? &iter->second : nullptr;
     ClassInfo *check = type;
     while (check) {
         if (check->method_map.contains(p_method)) return true;
@@ -1037,7 +1059,8 @@ MethodBind *ClassDB::bind_methodfi(uint32_t p_flags, MethodBind *p_bind, const c
     ERR_FAIL_COND_V_MSG(has_method(StringName(instance_type), mdname), nullptr, "Class " + se_string(instance_type) + " already has a method " + se_string(mdname) + ".")
 #endif
 
-    ClassInfo *type = classes.getptr(StringName(instance_type));
+    auto iter=classes.find_as(instance_type);
+    ClassInfo *type = iter!=classes.end() ? &iter->second : nullptr;
     if (!type) {
         memdelete(p_bind);
         ERR_FAIL_V_MSG(nullptr, se_string("Couldn't bind method '") + mdname + "' for instance '" + instance_type + "'.")
@@ -1095,7 +1118,8 @@ void ClassDB::get_virtual_methods(const StringName &p_class, PODVector<MethodInf
 
 #ifdef DEBUG_METHODS_ENABLED
 
-    ClassInfo *type = classes.getptr(p_class);
+    auto iter=classes.find(p_class);
+    ClassInfo *type = iter!=classes.end() ? &iter->second : nullptr;
     ClassInfo *check = type;
     while (check) {
 
@@ -1122,24 +1146,24 @@ bool ClassDB::is_class_enabled(StringName p_class) {
 
     RWLockRead _rw_lockr_(lock);
 
-    ClassInfo *ti = classes.getptr(p_class);
-    if (!ti || !ti->creation_func) {
+    auto iter=classes.find(p_class);
+    if (iter==classes.end() || !iter->second.creation_func) {
         if (compat_classes.contains(p_class)) {
-            ti = classes.getptr(compat_classes[p_class]);
+            iter = classes.find(compat_classes[p_class]);
         }
     }
 
-    ERR_FAIL_COND_V_MSG(!ti, false, "Cannot get class '" + se_string(p_class) + "'.")
-    return !ti->disabled;
+    ERR_FAIL_COND_V_MSG(iter==classes.end(), false, "Cannot get class '" + se_string(p_class) + "'.")
+    return !iter->second.disabled;
 }
 
 bool ClassDB::is_class_exposed(StringName p_class) {
 
     RWLockRead _rw_lockr_(lock);
 
-    ClassInfo *ti = classes.getptr(p_class);
-    ERR_FAIL_COND_V_MSG(!ti, false, "Cannot get class '" + se_string(p_class) + "'.")
-    return ti->exposed;
+    auto iter=classes.find(p_class);
+    ERR_FAIL_COND_V_MSG(iter==classes.end(), false, "Cannot get class '" + se_string(p_class) + "'.")
+    return iter->second.exposed;
 }
 
 StringName ClassDB::get_category(const StringName &p_node) {
@@ -1251,11 +1275,9 @@ void ClassDB::cleanup() {
 
     // OBJTYPE_LOCK; hah not here
 
-    const StringName *k = nullptr;
+    for(auto & entry : classes) {
 
-    while ((k = classes.next(k))) {
-
-        ClassInfo &ti = classes[*k];
+        ClassInfo &ti = entry.second;
 
         const StringName *m = nullptr;
         while ((m = ti.method_map.next(m))) {
@@ -1273,12 +1295,12 @@ void ClassDB::cleanup() {
 //
 
 bool ClassDB::bind_helper(MethodBind *bind, const char *instance_type, const StringName &p_name) {
-    ClassInfo *type = ClassDB::classes.getptr(StaticCString(bind->get_instance_class(), true));
-    if (!type) {
+    auto iter = classes.find(StaticCString(bind->get_instance_class(), true));
+    if (iter==classes.end()) {
         memdelete(bind);
     }
-    ERR_FAIL_COND_V(!type, false)
-
+    ERR_FAIL_COND_V(iter==classes.end(), false)
+    auto type = &iter->second;
     if (type->method_map.contains(p_name)) {
         memdelete(bind);
         // overloading not supported

@@ -1521,7 +1521,8 @@ void TextEdit::_notification(int p_what) {
                         int char_w;
 
                         // Handle tabulator.
-                        char_w = m_priv->text.get_char_width(str[j], str[j + 1], char_ofs);
+                        CharType next_c = (j+1)<str.length() ? str[j + 1] : CharType(0);
+                        char_w = m_priv->text.get_char_width(str[j], next_c, char_ofs);
 
                         if ((char_ofs + char_margin) < xmargin_beg) {
                             char_ofs += char_w;
@@ -1706,7 +1707,8 @@ void TextEdit::_notification(int p_what) {
 
                         if (str[j] >= 32) {
                             int yofs = ofs_y + (get_row_height() - m_priv->cache.font->get_height()) / 2;
-                            int w = drawer.draw_char(ci, Point2i(char_ofs + char_margin + ofs_x, yofs + ascent), str[j], str[j + 1], in_selection && override_selected_font_color ? m_priv->cache.font_color_selected : color);
+                            CharType nexc((j+1)<str.length() ? str[j+1] : CharType(0));
+                            int w = drawer.draw_char(ci, Point2i(char_ofs + char_margin + ofs_x, yofs + ascent), str[j], next_c, in_selection && override_selected_font_color ? m_priv->cache.font_color_selected : color);
                             if (underlined) {
                                 float line_width = 1.0;
 #ifdef TOOLS_ENABLED

@@ -179,10 +179,11 @@ Map<int, TextEdit::HighlighterInfo> GDScriptSyntaxHighlighter::_get_line_syntax_
             in_keyword = false;
         }
 
+        auto str_len = str.length();
         if (in_region == -1 && !in_keyword && is_char && !prev_is_char) {
 
             int to = j;
-            while (to < str.length() && _is_text_char(str[to]))
+            while (to < str_len && _is_text_char(str[to]))
                 to++;
 
             String word = StringUtils::substr(str,j, to - j);
@@ -210,7 +211,6 @@ Map<int, TextEdit::HighlighterInfo> GDScriptSyntaxHighlighter::_get_line_syntax_
         if (!in_function_name && in_word && !in_keyword) {
 
             int k = j;
-            auto str_len = str.length();
             while (k < str_len && !_is_symbol(str[k]) && str[k] != '\t' && str[k] != ' ') {
                 k++;
             }
@@ -263,7 +263,7 @@ Map<int, TextEdit::HighlighterInfo> GDScriptSyntaxHighlighter::_get_line_syntax_
                     k++;
                 }
 
-                if (str[k] == ':') {
+                if (k<str_len && str[k] == ':') {
                     // has type hint
                     expect_type = true;
                 }

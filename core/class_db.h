@@ -150,7 +150,7 @@ public:
     }
 
     static RWLock *lock;
-    static HashMap<StringName, ClassInfo> classes;
+    static DefHashMap<StringName, ClassInfo> classes;
     static DefHashMap<StringName, StringName> resource_base_extensions;
     static HashMap<StringName, StringName> compat_classes;
 
@@ -184,10 +184,10 @@ public:
 
         GLOBAL_LOCK_FUNCTION
         T::initialize_class();
-        ClassInfo *t = classes.getptr(T::get_class_static_name());
-        ERR_FAIL_COND(!t)
-        t->creation_func = &creator<T>;
-        t->exposed = true;
+        auto iter = classes.find(T::get_class_static_name());
+        ERR_FAIL_COND(iter==classes.end())
+        iter->second.creation_func = &creator<T>;
+        iter->second.exposed = true;
         T::register_custom_data_to_otdb();
     }
 
@@ -196,9 +196,9 @@ public:
 
         GLOBAL_LOCK_FUNCTION
         T::initialize_class();
-        ClassInfo *t = classes.getptr(T::get_class_static_name());
-        ERR_FAIL_COND(!t)
-        t->exposed = true;
+        auto iter = classes.find(T::get_class_static_name());
+        ERR_FAIL_COND(iter==classes.end())
+        iter->second.exposed = true;
         //nothing
     }
 
@@ -213,10 +213,10 @@ public:
 
         GLOBAL_LOCK_FUNCTION
         T::initialize_class();
-        ClassInfo *t = classes.getptr(T::get_class_static_name());
-        ERR_FAIL_COND(!t)
-        t->creation_func = &_create_ptr_func<T>;
-        t->exposed = true;
+        auto iter = classes.find(T::get_class_static_name());
+        ERR_FAIL_COND(iter==classes.end())
+        iter->second.creation_func = &_create_ptr_func<T>;
+        iter->second.exposed = true;
         T::register_custom_data_to_otdb();
     }
     static bool bind_helper(MethodBind *bind,const char * instance_type,const StringName &p_name);
