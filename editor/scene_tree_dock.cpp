@@ -525,7 +525,7 @@ void SceneTreeDock::_tool_selected(int p_tool, bool p_confirm_override) {
                     common_parent = nullptr;
             }
 
-            if (!common_parent || MOVING_DOWN && highest_id >= common_parent->get_child_count() - MOVING_DOWN || MOVING_UP && lowest_id == 0)
+            if (!common_parent || (MOVING_DOWN && highest_id >= common_parent->get_child_count() - MOVING_DOWN) || (MOVING_UP && lowest_id == 0))
                 break; // one or more nodes can not be moved
 
             if (selection.size() == 1) editor_data->get_undo_redo().create_action_ui(TTR("Move Node In Parent"));
@@ -1548,7 +1548,7 @@ void SceneTreeDock::_node_reparent(const NodePath& p_path, bool p_keep_global_xf
 void SceneTreeDock::_do_reparent(Node *p_new_parent, int p_position_in_parent, Vector<Node *> p_nodes, bool p_keep_global_xform) {
 
     Node *new_parent = p_new_parent;
-    ERR_FAIL_COND(!new_parent);
+    ERR_FAIL_COND(!new_parent)
 
     if (p_nodes.empty())
         return; // Nothing to reparent.

@@ -3617,7 +3617,7 @@ se_string PathUtils::get_base_dir(se_string_view path) {
         }
     }
 
-    auto parent_path = PathUtils::path(path);
+    auto parent_path = PathUtils::path(rs);
     if(parent_path==se_string_view("."))
         return se_string(base);
     return se_string(base) + parent_path;
@@ -3625,7 +3625,7 @@ se_string PathUtils::get_base_dir(se_string_view path) {
 se_string_view PathUtils::get_file(se_string_view path) {
     auto pos = path.find_last_of("/\\");
     if (pos == se_string::npos)
-        return se_string(path);
+        return path;
     return path.substr(pos + 1);
 }
 String PathUtils::get_extension(const String &path) {

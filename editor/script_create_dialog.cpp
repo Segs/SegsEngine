@@ -167,7 +167,7 @@ bool ScriptCreateDialog::_validate_class(const String &p_string) {
 
 StringName ScriptCreateDialog::_validate_path(se_string_view p_path, bool p_file_must_exist) {
 
-    se_string_view p = StringUtils::strip_edges( p_path);
+    se_string p(StringUtils::strip_edges( p_path));
 
     if (p.empty()) return TTR("Path is empty.");
     if (PathUtils::get_basename(PathUtils::get_file(p)).empty()) return TTR("Filename is empty.");
