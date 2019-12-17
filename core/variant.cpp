@@ -1831,6 +1831,35 @@ PODVector<se_string> Variant::as<PODVector<se_string>>() const {
     return res;
 }
 template<>
+PODVector<uint8_t> Variant::as<PODVector<uint8_t>>() const {
+
+    PoolVector<uint8_t> tmp;
+    if (type == VariantType::POOL_BYTE_ARRAY) {
+        tmp = *reinterpret_cast<const PoolVector<uint8_t> *>(_data._mem);
+    }
+    else
+        tmp = _convert_array_from_variant<PoolVector<uint8_t> >(*this);
+    return PODVector<uint8_t>(tmp.read().ptr(),tmp.read().ptr()+tmp.size());
+}
+template<>
+PODVector<int> Variant::as<PODVector<int>>() const {
+
+    PoolVector<int> tmp;
+    if (type == VariantType::POOL_INT_ARRAY) {
+        tmp = *reinterpret_cast<const PoolVector<int> *>(_data._mem);
+    }
+    else
+        tmp = _convert_array_from_variant<PoolVector<int> >(*this);
+    return PODVector<int>(tmp.read().ptr(),tmp.read().ptr()+tmp.size());
+}
+template<>
+Span<const uint8_t> Variant::as<Span<const uint8_t>>() const {
+    ERR_FAIL_COND_V(type != VariantType::POOL_BYTE_ARRAY, Span<const uint8_t>())
+
+    auto tmp = reinterpret_cast<const PoolVector<uint8_t> *>(_data._mem);
+    return Span<const uint8_t>(tmp->read().ptr(),tmp->size());
+}
+template<>
 Vector<se_string> Variant::as<Vector<se_string>>() const {
 
     Vector<se_string> res;
@@ -2282,6 +2311,15 @@ Variant::Variant(const PoolVector<int> &p_int_array) {
     type = VariantType::POOL_INT_ARRAY;
     static_assert (sizeof(PoolVector<int>)<=sizeof(_data));
     memnew_placement(_data._mem, PoolVector<int>(p_int_array));
+}
+Variant::Variant(const PODVector<int> &p_raw_array) {
+
+    type = VariantType::POOL_INT_ARRAY;
+    PoolVector<int> to_add;
+    to_add.resize(p_raw_array.size());
+    memcpy(to_add.write().ptr(),p_raw_array.data(),p_raw_array.size()*sizeof(int));
+    static_assert (sizeof(PoolVector<uint8_t>)<=sizeof(_data));
+    memnew_placement(_data._mem, PoolVector<int>(to_add));
 }
 Variant::Variant(const PoolVector<real_t> &p_real_array) {
 

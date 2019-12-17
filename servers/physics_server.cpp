@@ -824,6 +824,13 @@ PhysicsServer *PhysicsServerManager::new_server(const StringName &p_name) {
         return physics_servers[id].create_callback();
     }
 }
+
+void PhysicsServerManager::cleanup()
+{
+    physics_servers.clear();
+    default_server_id = -1;
+    default_server_priority = -1;
+}
 PhysicsServer * initialize_3d_physics() {
     PhysicsServer *physics_server = PhysicsServerManager::new_server(ProjectSettings::get_singleton()->get(PhysicsServerManager::setting_property_name));
     if (!physics_server) {

@@ -917,7 +917,6 @@ public:
 		Vector<Face> faces;
 
 		struct Edge {
-
 			int a, b;
 		};
 

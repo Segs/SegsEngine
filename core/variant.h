@@ -76,11 +76,12 @@ using PoolVector2Array = PoolVector<Vector2>;
 using PoolVector3Array = PoolVector<Vector3>;
 using PoolColorArray = PoolVector<Color>;
 namespace eastl {
-template<class T,class A>
-class vector;
+template <typename T, ptrdiff_t Extent>
+class span;
 }
-template<class T>
-using PODVector = eastl::vector<T,wrap_allocator>;
+template <typename T>
+using Span = eastl::span<T,ptrdiff_t(-1)>;
+
 // Temporary workaround until c++11 alignas()
 #ifdef __GNUC__
 #define GCC_ALIGNED_8 __attribute__((aligned(8)))
@@ -302,6 +303,7 @@ public:
     Variant(const PoolVector<uint8_t> &p_raw_array);
     Variant(const PODVector<uint8_t> &p_raw_array);
     Variant(const PoolVector<int> &p_int_array);
+    Variant(const PODVector<int> &p_int_array);
     Variant(const PoolVector<real_t> &p_real_array);
     Variant(const PoolVector<String> &p_string_array);
     Variant(const PoolVector<se_string> &p_string_array);
@@ -501,6 +503,9 @@ template <> GODOT_EXPORT Basis Variant::as<Basis>() const;
 template <> GODOT_EXPORT Quat Variant::as<Quat>() const;
 template <> GODOT_EXPORT PoolVector<se_string> Variant::as<PoolVector<se_string>>() const;
 template <> GODOT_EXPORT PODVector<se_string> Variant::as<PODVector<se_string>>() const;
+template <> GODOT_EXPORT PODVector<uint8_t> Variant::as<PODVector<uint8_t>>() const;
+template <> GODOT_EXPORT PODVector<int> Variant::as<PODVector<int>>() const;
+template <> GODOT_EXPORT Span<const uint8_t> Variant::as<Span<const uint8_t>>() const;
 template <> GODOT_EXPORT Vector<se_string> Variant::as<Vector<se_string>>() const;
 
 

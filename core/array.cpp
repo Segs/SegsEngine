@@ -399,7 +399,7 @@ Variant Array::pop_back() {
 
     if (!_p->array.empty()) {
         int n = _p->array.size() - 1;
-        Variant ret = _p->array.get(n);
+        Variant ret = _p->array[n];
         _p->array.resize(n);
         return ret;
     }
@@ -409,7 +409,7 @@ Variant Array::pop_back() {
 Variant Array::pop_front() {
 
     if (!_p->array.empty()) {
-        Variant ret = _p->array.get(0);
+        Variant ret = _p->array[0];
         _p->array.remove(0);
         return ret;
     }

@@ -202,6 +202,9 @@ void finalize_physics() {
 
     physics_2d_server->finish();
     memdelete(physics_2d_server);
+
+    Physics2DServerManager::cleanup();
+    PhysicsServerManager::cleanup();
 }
 
 

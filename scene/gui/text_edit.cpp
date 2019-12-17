@@ -93,7 +93,7 @@ public:
 
 private:
     const PODVector<TextEdit::ColorRegion> *color_regions;
-    mutable Vector<Line> text;
+    mutable PODVector<Line> text;
     Ref<Font> font;
     int indent_size;
 
@@ -110,37 +110,37 @@ public:
     int get_line_wrap_amount(int p_line) const;
     const Map<int, TextColorRegionInfo> &get_color_region_info(int p_line) const;
     void set(int p_line, const String &p_text);
-    void set_marked(int p_line, bool p_marked) { text.write[p_line].marked = p_marked; }
+    void set_marked(int p_line, bool p_marked) { text[p_line].marked = p_marked; }
     bool is_marked(int p_line) const { return text[p_line].marked; }
-    void set_bookmark(int p_line, bool p_bookmark) { text.write[p_line].bookmark = p_bookmark; }
+    void set_bookmark(int p_line, bool p_bookmark) { text[p_line].bookmark = p_bookmark; }
     bool is_bookmark(int p_line) const { return text[p_line].bookmark; }
-    void set_breakpoint(int p_line, bool p_breakpoint) { text.write[p_line].breakpoint = p_breakpoint; }
+    void set_breakpoint(int p_line, bool p_breakpoint) { text[p_line].breakpoint = p_breakpoint; }
     bool is_breakpoint(int p_line) const { return text[p_line].breakpoint; }
-    void set_hidden(int p_line, bool p_hidden) { text.write[p_line].hidden = p_hidden; }
+    void set_hidden(int p_line, bool p_hidden) { text[p_line].hidden = p_hidden; }
     bool is_hidden(int p_line) const { return text[p_line].hidden; }
-    void set_safe(int p_line, bool p_safe) { text.write[p_line].safe = p_safe; }
+    void set_safe(int p_line, bool p_safe) { text[p_line].safe = p_safe; }
     bool is_safe(int p_line) const { return text[p_line].safe; }
     void set_info_icon(int p_line, Ref<Texture> p_icon, StringName p_info) {
         if (p_icon) {
-            text.write[p_line].has_info = false;
+            text[p_line].has_info = false;
             return;
         }
-        text.write[p_line].info_icon = p_icon;
-        text.write[p_line].info = p_info;
-        text.write[p_line].has_info = true;
+        text[p_line].info_icon = p_icon;
+        text[p_line].info = p_info;
+        text[p_line].has_info = true;
     }
     bool has_info_icon(int p_line) const { return text[p_line].has_info; }
     const Ref<Texture> &get_info_icon(int p_line) const { return text[p_line].info_icon; }
     StringName get_info(int p_line) const { return text[p_line].info; }
     void insert(int p_at, const String &p_text);
     void remove(int p_at);
-    int size() const { return text.size(); }
+    size_t size() const { return text.size(); }
     void clear();
     void clear_width_cache();
     void clear_wrap_cache();
     void clear_info_icons() {
         for (int i = 0; i < text.size(); i++) {
-            text.write[i].has_info = false;
+            text[i].has_info = false;
         }
     }
     _FORCE_INLINE_ const String &operator[](int p_line) const { return text[p_line].data; }
@@ -369,13 +369,13 @@ void Text::_update_line_cache(int p_line) const {
         w += get_char_width(str[i], str[i + 1], w);
     }
 
-    text.write[p_line].width_cache = w;
+    text[p_line].width_cache = w;
 
-    text.write[p_line].wrap_amount_cache = -1;
+    text[p_line].wrap_amount_cache = -1;
 
     // Update regions.
 
-    text.write[p_line].region_info.clear();
+    text[p_line].region_info.clear();
 
     for (int i = 0; i < len; i++) {
 
@@ -414,7 +414,7 @@ void Text::_update_line_cache(int p_line) const {
                     TextColorRegionInfo cri;
                     cri.end = false;
                     cri.region = j;
-                    text.write[p_line].region_info[i] = cri;
+                    text[p_line].region_info[i] = cri;
                     i += lr - 1;
 
                     break;
@@ -441,7 +441,7 @@ void Text::_update_line_cache(int p_line) const {
                     TextColorRegionInfo cri;
                     cri.end = true;
                     cri.region = j;
-                    text.write[p_line].region_info[i] = cri;
+                    text[p_line].region_info[i] = cri;
                     i += lr - 1;
 
                     break;
@@ -478,7 +478,7 @@ void Text::set_line_wrap_amount(int p_line, int p_wrap_amount) const {
 
     ERR_FAIL_INDEX(p_line, text.size())
 
-    text.write[p_line].wrap_amount_cache = p_wrap_amount;
+    text[p_line].wrap_amount_cache = p_wrap_amount;
 }
 
 int Text::get_line_wrap_amount(int p_line) const {
@@ -491,14 +491,14 @@ int Text::get_line_wrap_amount(int p_line) const {
 void Text::clear_width_cache() {
 
     for (int i = 0; i < text.size(); i++) {
-        text.write[i].width_cache = -1;
+        text[i].width_cache = -1;
     }
 }
 
 void Text::clear_wrap_cache() {
 
     for (int i = 0; i < text.size(); i++) {
-        text.write[i].wrap_amount_cache = -1;
+        text[i].wrap_amount_cache = -1;
     }
 }
 
@@ -523,9 +523,9 @@ void Text::set(int p_line, const String &p_text) {
 
     ERR_FAIL_INDEX(p_line, text.size());
 
-    text.write[p_line].width_cache = -1;
-    text.write[p_line].wrap_amount_cache = -1;
-    text.write[p_line].data = p_text;
+    text[p_line].width_cache = -1;
+    text[p_line].wrap_amount_cache = -1;
+    text[p_line].data = p_text;
 }
 
 void Text::insert(int p_at, const String &p_text) {
@@ -540,11 +540,11 @@ void Text::insert(int p_at, const String &p_text) {
     line.width_cache = -1;
     line.wrap_amount_cache = -1;
     line.data = p_text;
-    text.insert(p_at, line);
+    text.insert(text.begin() + p_at, line);
 }
 void Text::remove(int p_at) {
 
-    text.remove(p_at);
+    text.erase(text.begin() + p_at);
 }
 
 int Text::get_char_width(CharType c, CharType next_c, int px) const {
@@ -1507,6 +1507,7 @@ void TextEdit::_notification(int p_what) {
                     // Loop through characters in one line.
                     int j = 0;
                     for ( ; j < str.length(); j++) {
+                        CharType next_c = (j+1)<str.length() ? str[j + 1] : CharType(0);
 
                         if (syntax_coloring) {
                             if (color_map.contains(last_wrap_column + j)) {
@@ -1521,7 +1522,6 @@ void TextEdit::_notification(int p_what) {
                         int char_w;
 
                         // Handle tabulator.
-                        CharType next_c = (j+1)<str.length() ? str[j + 1] : CharType(0);
                         char_w = m_priv->text.get_char_width(str[j], next_c, char_ofs);
 
                         if ((char_ofs + char_margin) < xmargin_beg) {
@@ -1628,7 +1628,7 @@ void TextEdit::_notification(int p_what) {
 
                                 if (brace_open_mismatch)
                                     color = m_priv->cache.brace_mismatch_color;
-                                drawer.draw_char(ci, Point2i(char_ofs + char_margin + ofs_x, yofs + ascent), '_', str[j + 1], in_selection && override_selected_font_color ? m_priv->cache.font_color_selected : color);
+                                drawer.draw_char(ci, Point2i(char_ofs + char_margin + ofs_x, yofs + ascent), '_', next_c, in_selection && override_selected_font_color ? m_priv->cache.font_color_selected : color);
                             }
 
                             if ((brace_close_match_line == line && brace_close_match_column == last_wrap_column + j) ||
@@ -1636,7 +1636,7 @@ void TextEdit::_notification(int p_what) {
 
                                 if (brace_close_mismatch)
                                     color = m_priv->cache.brace_mismatch_color;
-                                drawer.draw_char(ci, Point2i(char_ofs + char_margin + ofs_x, yofs + ascent), '_', str[j + 1], in_selection && override_selected_font_color ? m_priv->cache.font_color_selected : color);
+                                drawer.draw_char(ci, Point2i(char_ofs + char_margin + ofs_x, yofs + ascent), '_', next_c, in_selection && override_selected_font_color ? m_priv->cache.font_color_selected : color);
                             }
                         }
 
@@ -1707,8 +1707,7 @@ void TextEdit::_notification(int p_what) {
 
                         if (str[j] >= 32) {
                             int yofs = ofs_y + (get_row_height() - m_priv->cache.font->get_height()) / 2;
-                            CharType nexc((j+1)<str.length() ? str[j+1] : CharType(0));
-                            int w = drawer.draw_char(ci, Point2i(char_ofs + char_margin + ofs_x, yofs + ascent), str[j], nexc, in_selection && override_selected_font_color ? m_priv->cache.font_color_selected : color);
+                            int w = drawer.draw_char(ci, Point2i(char_ofs + char_margin + ofs_x, yofs + ascent), str[j], next_c, in_selection && override_selected_font_color ? m_priv->cache.font_color_selected : color);
                             if (underlined) {
                                 float line_width = 1.0;
 #ifdef TOOLS_ENABLED
@@ -3090,7 +3089,8 @@ void TextEdit::_gui_input(const Ref<InputEvent> &p_gui_input) {
                         bool indent_char_found = false;
                         bool should_indent = false;
                         CharType indent_char = ':';
-                        CharType c = m_priv->text[cursor.line][cursor.column];
+                        const auto &line_ref(m_priv->text[cursor.line]);
+                        CharType c = cursor.column<line_ref.size() ? line_ref[cursor.column] : CharType(0);
 
                         for (int i = 0; i < cursor.column; i++) {
                             c = m_priv->text[cursor.line][i];

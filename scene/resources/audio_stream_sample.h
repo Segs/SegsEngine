@@ -139,7 +139,7 @@ public:
 
     float get_length() const override; //if supported, otherwise return 0
 
-    void set_data(const PoolVector<uint8_t> &p_data);
+    void set_data(Span<const uint8_t> p_data);
     PoolVector<uint8_t> get_data() const;
 
     Error save_to_wav(se_string_view p_path);

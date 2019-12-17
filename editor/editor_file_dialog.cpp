@@ -685,7 +685,7 @@ bool EditorFileDialog::_is_open_should_be_disabled() {
 
     for (int i = 0; i < items.size(); i++) {
 
-        Dictionary d = item_list->get_item_metadata(items.get(i));
+        Dictionary d = item_list->get_item_metadata(items[i]);
 
         if ((mode == MODE_OPEN_FILE || mode == MODE_OPEN_FILES) && d["dir"] || mode == MODE_OPEN_DIR && !d["dir"])
             return true;

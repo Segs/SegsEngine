@@ -155,6 +155,23 @@ MAKE_TYPE_INFO(PoolVector2Array, VariantType::POOL_VECTOR2_ARRAY)
 MAKE_TYPE_INFO(PoolVector3Array, VariantType::POOL_VECTOR3_ARRAY)
 MAKE_TYPE_INFO(PoolColorArray, VariantType::POOL_COLOR_ARRAY)
 
+template <>
+struct GetTypeInfo<Span<uint8_t>> {
+    constexpr static const VariantType VARIANT_TYPE = VariantType::POOL_BYTE_ARRAY;
+    constexpr static const GodotTypeInfo::Metadata METADATA = GodotTypeInfo::METADATA_NONE;
+    static inline PropertyInfo get_class_info() {
+        return PropertyInfo(VARIANT_TYPE, StringName());
+    }
+};
+template <>
+struct GetTypeInfo<Span<const uint8_t>> {
+    constexpr static const VariantType VARIANT_TYPE = VariantType::POOL_BYTE_ARRAY;
+    constexpr static const GodotTypeInfo::Metadata METADATA = GodotTypeInfo::METADATA_NONE;
+    static inline PropertyInfo get_class_info() {
+        return PropertyInfo(VARIANT_TYPE, StringName());
+    }
+};
+
 MAKE_TYPE_INFO(StringName, VariantType::STRING)
 MAKE_TYPE_INFO(IP_Address, VariantType::STRING)
 

@@ -494,7 +494,7 @@ bool AbstractPolygon2DEditor::forward_gui_input(const Ref<InputEvent> &p_event) 
 
             //Move the point in a single axis. Should only work when editing a polygon and while holding shift.
             if (mode == MODE_EDIT && mm->get_shift()) {
-                Vector2 old_point = pre_move_edit.get(selected_point.vertex);
+                Vector2 old_point = pre_move_edit[selected_point.vertex];
                 if (ABS(cpoint.x - old_point.x) > ABS(cpoint.y - old_point.y)) {
                     cpoint.y = old_point.y;
                 } else {

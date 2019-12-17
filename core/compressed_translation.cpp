@@ -142,8 +142,8 @@ void PHashTranslation::generate(const Ref<Translation> &p_from) {
     hash_table.resize(size);
     bucket_table.resize(bucket_table_size);
 
-    PoolVector<int>::Write htwb = hash_table.write();
-    PoolVector<int>::Write btwb = bucket_table.write();
+    auto &htwb = hash_table;
+    auto &btwb = bucket_table;
 
     uint32_t *htw = (uint32_t *)&htwb[0];
     uint32_t *btw = (uint32_t *)&btwb[0];
@@ -175,7 +175,7 @@ void PHashTranslation::generate(const Ref<Translation> &p_from) {
     }
 
     strings.resize(total_compression_size);
-    PoolVector<uint8_t>::Write cw = strings.write();
+    PODVector<uint8_t> &cw = strings;
 
     for (int i = 0; i < compressed.size(); i++) {
         memcpy(&cw[compressed[i].offset], compressed[i].compressed.data(), compressed[i].compressed.size());
@@ -190,11 +190,11 @@ void PHashTranslation::generate(const Ref<Translation> &p_from) {
 bool PHashTranslation::_set(const StringName &p_name, const Variant &p_value) {
 
     if (p_name == "hash_table") {
-        hash_table = p_value;
+        hash_table = p_value.as<PODVector<int>>();
     } else if (p_name == "bucket_table") {
-        bucket_table = p_value;
+        bucket_table = p_value.as<PODVector<int>>();
     } else if (p_name == "strings") {
-        strings = p_value;
+        strings = p_value.as<PODVector<uint8_t>>();
     } else if (p_name == "load_from") {
         generate(refFromVariant<Translation>(p_value));
     } else
@@ -227,12 +227,9 @@ StringName PHashTranslation::get_message(const StringName &p_src_text) const {
     se_string_view str(p_src_text);
     uint32_t h = hash(0, str.data());
 
-    PoolVector<int>::Read htr = hash_table.read();
-    const uint32_t *htptr = (const uint32_t *)&htr[0];
-    PoolVector<int>::Read btr = bucket_table.read();
-    const uint32_t *btptr = (const uint32_t *)&btr[0];
-    PoolVector<uint8_t>::Read sr = strings.read();
-    const char *sptr = (const char *)&sr[0];
+    const uint32_t *htptr = (const uint32_t *)hash_table.data();
+    const uint32_t *btptr = (const uint32_t *)bucket_table.data();
+    const char *sptr = (const char *)strings.data();
 
     uint32_t p = htptr[h % htsize];
 

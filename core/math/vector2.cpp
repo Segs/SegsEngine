@@ -91,7 +91,7 @@ real_t Vector2::angle_to_point(const Vector2 &p_vector2) const {
     return Math::atan2(y - p_vector2.y, x - p_vector2.x);
 }
 
-real_t Vector2::dot(const Vector2 &p_other) const {
+real_t Vector2::dot(Vector2 p_other) const {
 
     return x * p_other.x + y * p_other.y;
 }
@@ -176,8 +176,7 @@ Vector2 Vector2::cubic_interpolate(const Vector2 &p_b, const Vector2 &p_pre_a, c
     real_t t2 = t * t;
     real_t t3 = t2 * t;
 
-    Vector2 out;
-    out = 0.5 * ((p1 * 2.0) +
+    Vector2 out = 0.5 * ((p1 * 2.0) +
                         (-p0 + p2) * t +
                         (2.0 * p0 - 5.0 * p1 + 4 * p2 - p3) * t2 +
                         (-p0 + 3.0 * p1 - 3.0 * p2 + p3) * t3);
@@ -212,10 +211,6 @@ Vector2 Vector2::reflect(const Vector2 &p_normal) const {
 
 /* Vector2i */
 
-Vector2i Vector2i::operator+(const Vector2i &p_v) const {
-
-    return Vector2i(x + p_v.x, y + p_v.y);
-}
 void Vector2i::operator+=(const Vector2i &p_v) {
 
     x += p_v.x;
@@ -234,32 +229,6 @@ void Vector2i::operator-=(const Vector2i &p_v) {
 Vector2i Vector2i::operator*(const Vector2i &p_v1) const {
 
     return Vector2i(x * p_v1.x, y * p_v1.y);
-};
-
-Vector2i Vector2i::operator*(const int &rvalue) const {
-
-    return Vector2i(x * rvalue, y * rvalue);
-};
-void Vector2i::operator*=(const int &rvalue) {
-
-    x *= rvalue;
-    y *= rvalue;
-};
-
-Vector2i Vector2i::operator/(const Vector2i &p_v1) const {
-
-    return Vector2i(x / p_v1.x, y / p_v1.y);
-};
-
-Vector2i Vector2i::operator/(const int &rvalue) const {
-
-    return Vector2i(x / rvalue, y / rvalue);
-};
-
-void Vector2i::operator/=(const int &rvalue) {
-
-    x /= rvalue;
-    y /= rvalue;
 };
 
 Vector2i Vector2i::operator-() const {

@@ -357,7 +357,7 @@ set_common_target_properties(se_core)
 # Build it all as a library
 # Make binders
 foreach(tgt ${global_targets})
-    OPTION(OPTION_${tgt}_USE_PTRCALL "Use ptrcall in GDNative" ON)
+    OPTION(OPTION_${tgt}_USE_PTRCALL "Use ptrcall in GDNative" OFF)
 
     add_library(${tgt}_core STATIC
         ${CMAKE_CURRENT_BINARY_DIR}/script_encryption_key.gen.cpp

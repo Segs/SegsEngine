@@ -103,7 +103,7 @@ bool select_word(const String &p_s, int p_col, int &r_beg, int &r_end) {
     int beg = CLAMP(p_col, 0, s.length());
     int end = beg;
 
-    if (s[beg] > 32 || beg == s.length()) {
+    if (beg == s.length() || s[beg] > 32) {
 
         bool symbol = beg < s.length() && is_symbol(s[beg]);
 

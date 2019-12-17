@@ -240,7 +240,7 @@ int UPNP::get_device_count() const {
 Ref<UPNPDevice> UPNP::get_device(int index) const {
     ERR_FAIL_INDEX_V(index, devices.size(), Ref<UPNPDevice>())
 
-    return devices.get(index);
+    return devices[index];
 }
 
 void UPNP::add_device(Ref<UPNPDevice> device) {
@@ -253,13 +253,13 @@ void UPNP::set_device(int index, Ref<UPNPDevice> device) {
     ERR_FAIL_INDEX(index, devices.size());
     ERR_FAIL_COND(device == nullptr)
 
-    devices.set(index, device);
+    devices[index]=device;
 }
 
 void UPNP::remove_device(int index) {
     ERR_FAIL_INDEX(index, devices.size());
 
-    devices.remove(index);
+    devices.erase(devices.begin()+index);
 }
 
 void UPNP::clear_devices() {
@@ -269,7 +269,7 @@ void UPNP::clear_devices() {
 Ref<UPNPDevice> UPNP::get_gateway() const {
     ERR_FAIL_COND_V(devices.empty(), Ref<UPNPDevice>())
 
-    for (int i = 0; i < devices.size(); i++) {
+    for (size_t i = 0; i < devices.size(); i++) {
         Ref<UPNPDevice> dev = get_device(i);
 
         if (dev != nullptr && dev->is_valid_gateway()) {

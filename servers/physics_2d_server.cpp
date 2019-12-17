@@ -885,6 +885,14 @@ Physics2DServer *Physics2DServerManager::new_server(const StringName &p_name) {
         return physics_2d_servers[id].create_callback();
     }
 }
+
+void Physics2DServerManager::cleanup()
+{
+    physics_2d_servers.clear();
+    default_server_id=-1;
+    default_server_priority=-1;
+
+}
 Physics2DServer *initialize_2d_physics() {
     Physics2DServer *physics_2d_server = Physics2DServerManager::new_server(ProjectSettings::get_singleton()->get(Physics2DServerManager::setting_property_name));
     if (!physics_2d_server) {

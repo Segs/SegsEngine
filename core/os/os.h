@@ -36,7 +36,7 @@
 #include "core/math/vector2.h"
 #include "core/se_string.h"
 #include "core/vector.h"
-#include "core/variant.h"
+
 #include "core/math/rect2.h"
 
 #include <cstdarg>
@@ -48,6 +48,7 @@ class recursive_mutex;
 using Mutex = std::recursive_mutex;
 class MainLoop;
 class Resource;
+class Variant;
 template <class T>
 class Ref;
 
@@ -201,7 +202,7 @@ public:
     virtual int get_audio_driver_count() const;
     virtual const char *get_audio_driver_name(int p_driver) const;
 
-    virtual PoolSeStringArray get_connected_midi_inputs();
+    virtual PoolVector<se_string> get_connected_midi_inputs();
     virtual void open_midi_inputs();
     virtual void close_midi_inputs();
 

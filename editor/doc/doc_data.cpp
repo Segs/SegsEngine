@@ -1032,7 +1032,7 @@ Error DocData::save_classes(se_string_view p_default_path, const Map<StringName,
         _write_string(f, 1, "</description>");
         _write_string(f, 1, "<tutorials>");
         for (int i = 0; i < c.tutorials.size(); i++) {
-            _write_string(f, 2, "<link>" + StringUtils::xml_escape(c.tutorials.get(i)) + "</link>");
+            _write_string(f, 2, "<link>" + StringUtils::xml_escape(c.tutorials[i]) + "</link>");
         }
         _write_string(f, 1, "</tutorials>");
         _write_string(f, 1, "<methods>");

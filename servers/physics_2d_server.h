@@ -660,5 +660,6 @@ public:
     static StringName get_server_name(int p_id);
     static Physics2DServer *new_default_server();
     static Physics2DServer *new_server(const StringName &p_name);
+    static void cleanup();
 };
 GODOT_EXPORT Physics2DServer *initialize_2d_physics();

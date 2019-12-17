@@ -34,6 +34,7 @@
 #include "core/io/compression.h"
 #include "core/method_enum_caster.h"
 #include "core/method_arg_casters.h"
+#include "core/se_string.h"
 #include "core/math/rect2.h"
 #include "core/math/vector3.h"
 

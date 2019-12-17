@@ -483,7 +483,7 @@ float AudioStreamSample::get_length() const {
     return float(len) / mix_rate;
 }
 
-void AudioStreamSample::set_data(const PoolVector<uint8_t> &p_data) {
+void AudioStreamSample::set_data(Span<const uint8_t> p_data) {
 
     AudioServer::get_singleton()->lock();
     if (data) {
@@ -494,13 +494,11 @@ void AudioStreamSample::set_data(const PoolVector<uint8_t> &p_data) {
 
     int datalen = p_data.size();
     if (datalen) {
-
-        PoolVector<uint8_t>::Read r = p_data.read();
         int alloc_len = datalen + DATA_PAD * 2;
         data = AudioServer::get_singleton()->audio_data_alloc(alloc_len); //alloc with some padding for interpolation
         memset(data, 0, alloc_len);
         uint8_t *dataptr = (uint8_t *)data;
-        memcpy(dataptr + DATA_PAD, r.ptr(), datalen);
+        memcpy(dataptr + DATA_PAD, p_data.data(), datalen);
         data_bytes = datalen;
     }
 

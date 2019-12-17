@@ -130,19 +130,19 @@ Error ResourceImporterWAV::import(se_string_view p_source_file, se_string_view p
         ERR_FAIL_V_MSG(ERR_FILE_UNRECOGNIZED, "Not a WAV file (no WAVE RIFF header).")
     }
 
-    int format_bits = 0;
-    int format_channels = 0;
+    uint16_t format_bits = 0;
+    uint16_t format_channels = 0;
 
     AudioStreamSample::LoopMode loop = AudioStreamSample::LOOP_DISABLED;
     uint16_t compression_code = 1;
     bool format_found = false;
     bool data_found = false;
-    int format_freq = 0;
-    int loop_begin = 0;
-    int loop_end = 0;
-    int frames = 0;
+    uint32_t format_freq = 0;
+    uint32_t loop_begin = 0;
+    uint32_t loop_end = 0;
+    size_t frames = 0;
 
-    Vector<float> data;
+    PODVector<float> data;
 
     while (!file->eof_reached()) {
 
@@ -152,7 +152,7 @@ Error ResourceImporterWAV::import(se_string_view p_source_file, se_string_view p
 
         /* chunk size */
         uint32_t chunksize = file->get_32();
-        uint32_t file_pos = file->get_position(); //save file pos, so we can skip to next chunk safely
+        size_t file_pos = file->get_position(); //save file pos, so we can skip to next chunk safely
 
         if (file->eof_reached()) {
 
@@ -222,25 +222,25 @@ Error ResourceImporterWAV::import(se_string_view p_source_file, se_string_view p
             data.resize(frames * format_channels);
 
             if (format_bits == 8) {
-                for (int i = 0; i < frames * format_channels; i++) {
+                for (size_t i = 0; i < frames * format_channels; i++) {
                     // 8 bit samples are UNSIGNED
 
-                    data.write[i] = int8_t(file->get_8() - 128) / 128.f;
+                    data[i] = int8_t(file->get_8() - 128) / 128.f;
                 }
             } else if (format_bits == 32 && compression_code == 3) {
-                for (int i = 0; i < frames * format_channels; i++) {
+                for (size_t i = 0; i < frames * format_channels; i++) {
                     //32 bit IEEE Float
 
-                    data.write[i] = file->get_float();
+                    data[i] = file->get_float();
                 }
             } else if (format_bits == 16) {
-                for (int i = 0; i < frames * format_channels; i++) {
+                for (size_t i = 0; i < frames * format_channels; i++) {
                     //16 bit SIGNED
 
-                    data.write[i] = int16_t(file->get_16()) / 32768.f;
+                    data[i] = int16_t(file->get_16()) / 32768.f;
                 }
             } else {
-                for (int i = 0; i < frames * format_channels; i++) {
+                for (size_t i = 0; i < frames * format_channels; i++) {
                     //16+ bits samples are SIGNED
                     // if sample is > 16 bits, just read extra bytes
 
@@ -251,7 +251,7 @@ Error ResourceImporterWAV::import(se_string_view p_source_file, se_string_view p
                     }
                     s <<= 32 - format_bits;
 
-                    data.write[i] = (int32_t(s) >> 16) / 32768.f;
+                    data[i] = (int32_t(s) >> 16) / 32768.f;
                 }
             }
 
@@ -280,7 +280,7 @@ Error ResourceImporterWAV::import(se_string_view p_source_file, se_string_view p
             // only read 0x00 (loop forward), 0x01 (loop ping-pong) and 0x02 (loop backward)
             // Skip anything else because it's not supported, reserved for future uses or sampler specific
             // from https://sites.google.com/site/musicgapi/technical-documents/wav-file-format#smpl (loop type values table)
-            int loop_type = file->get_32();
+            uint32_t loop_type = file->get_32();
             if (loop_type == 0x00 || loop_type == 0x01 || loop_type == 0x02) {
                 if (loop_type == 0x00) {
                     loop = AudioStreamSample::LOOP_FORWARD;
@@ -323,7 +323,7 @@ Error ResourceImporterWAV::import(se_string_view p_source_file, se_string_view p
         // resample!
         int new_data_frames = (int)(frames * (float)limit_rate_hz / (float)rate);
 
-        Vector<float> new_data;
+        PODVector<float> new_data;
         new_data.resize(new_data_frames * format_channels);
         for (int c = 0; c < format_channels; c++) {
 
@@ -349,7 +349,7 @@ Error ResourceImporterWAV::import(se_string_view p_source_file, se_string_view p
 
                 float res = a0 * mu * mu2 + a1 * mu2 + a2 * mu + a3;
 
-                new_data.write[i * format_channels + c] = res;
+                new_data[i * format_channels + c] = res;
 
                 // update position and always keep fractional part within ]0...1]
                 // in order to avoid 32bit floating point precision errors
@@ -376,19 +376,17 @@ Error ResourceImporterWAV::import(se_string_view p_source_file, se_string_view p
     if (normalize) {
 
         float max = 0;
-        for (int i = 0; i < data.size(); i++) {
-
-            float amp = Math::abs(data[i]);
+        for (float v : data) {
+            float amp = Math::abs(v);
             if (amp > max)
                 max = amp;
         }
 
         if (max > 0) {
 
-            float mult = 1.0 / max;
-            for (int i = 0; i < data.size(); i++) {
-
-                data.write[i] *= mult;
+            float mult = 1.0f / max;
+            for (float & v : data) {
+                v *= mult;
             }
         }
     }
@@ -421,7 +419,7 @@ Error ResourceImporterWAV::import(se_string_view p_source_file, se_string_view p
         }
 
         if (first < last) {
-            Vector<float> new_data;
+            PODVector<float> new_data;
             new_data.resize((last - first) * format_channels);
             for (int i = first; i < last; i++) {
 
@@ -432,7 +430,7 @@ Error ResourceImporterWAV::import(se_string_view p_source_file, se_string_view p
                 }
 
                 for (int j = 0; j < format_channels; j++) {
-                    new_data.write[(i - first) * format_channels + j] = data[i * format_channels + j] * fadeOutMult;
+                    new_data[(i - first) * format_channels + j] = data[i * format_channels + j] * fadeOutMult;
                 }
             }
 
@@ -455,10 +453,10 @@ Error ResourceImporterWAV::import(se_string_view p_source_file, se_string_view p
 
     if (force_mono && format_channels == 2) {
 
-        Vector<float> new_data;
+        PODVector<float> new_data;
         new_data.resize(data.size() / 2);
-        for (int i = 0; i < frames; i++) {
-            new_data.write[i] = (data[i * 2 + 0] + data[i * 2 + 1]) / 2.0;
+        for (size_t i = 0; i < frames; i++) {
+            new_data[i] = (data[i * 2 + 0] + data[i * 2 + 1]) / 2.0f;
         }
 
         data = new_data;
@@ -471,7 +469,7 @@ Error ResourceImporterWAV::import(se_string_view p_source_file, se_string_view p
         is16 = false;
     }
 
-    PoolVector<uint8_t> dst_data;
+    PODVector<uint8_t> dst_data;
     AudioStreamSample::Format dst_format;
 
     if (compression == 1) {
@@ -482,20 +480,20 @@ Error ResourceImporterWAV::import(se_string_view p_source_file, se_string_view p
         } else {
 
             //byte interleave
-            Vector<float> left;
-            Vector<float> right;
+            PODVector<float> left;
+            PODVector<float> right;
 
             int tframes = data.size() / 2;
             left.resize(tframes);
             right.resize(tframes);
 
             for (int i = 0; i < tframes; i++) {
-                left.write[i] = data[i * 2 + 0];
-                right.write[i] = data[i * 2 + 1];
+                left[i] = data[i * 2 + 0];
+                right[i] = data[i * 2 + 1];
             }
 
-            PoolVector<uint8_t> bleft;
-            PoolVector<uint8_t> bright;
+            PODVector<uint8_t> bleft;
+            PODVector<uint8_t> bright;
 
             _compress_ima_adpcm(left, bleft);
             _compress_ima_adpcm(right, bright);
@@ -503,13 +501,9 @@ Error ResourceImporterWAV::import(se_string_view p_source_file, se_string_view p
             int dl = bleft.size();
             dst_data.resize(dl * 2);
 
-            PoolVector<uint8_t>::Write w = dst_data.write();
-            PoolVector<uint8_t>::Read rl = bleft.read();
-            PoolVector<uint8_t>::Read rr = bright.read();
-
             for (int i = 0; i < dl; i++) {
-                w[i * 2 + 0] = rl[i];
-                w[i * 2 + 1] = rr[i];
+                dst_data[i * 2 + 0] = bleft[i];
+                dst_data[i * 2 + 1] = bright[i];
             }
         }
 
@@ -518,17 +512,15 @@ Error ResourceImporterWAV::import(se_string_view p_source_file, se_string_view p
         dst_format = is16 ? AudioStreamSample::FORMAT_16_BITS : AudioStreamSample::FORMAT_8_BITS;
         dst_data.resize(data.size() * (is16 ? 2 : 1));
         {
-            PoolVector<uint8_t>::Write w = dst_data.write();
-
-            int ds = data.size();
-            for (int i = 0; i < ds; i++) {
+            size_t ds = data.size();
+            for (size_t i = 0; i < ds; i++) {
 
                 if (is16) {
                     int16_t v = CLAMP(data[i] * 32768, -32768, 32767);
-                    encode_uint16(v, &w[i * 2]);
+                    encode_uint16(v, &dst_data[i * 2]);
                 } else {
                     int8_t v = CLAMP(data[i] * 128, -128, 127);
-                    w[i] = v;
+                    dst_data[i] = v;
                 }
             }
         }

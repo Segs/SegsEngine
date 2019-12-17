@@ -718,7 +718,7 @@ ListPOD<se_string> OS::get_restart_on_exit_arguments() const {
 
 PoolVector<se_string> OS::get_granted_permissions() const { return PoolVector<se_string>(); }
 
-PoolSeStringArray OS::get_connected_midi_inputs() {
+PoolVector<se_string> OS::get_connected_midi_inputs() {
 
     if (MIDIDriver::get_singleton())
         return MIDIDriver::get_singleton()->get_connected_inputs();

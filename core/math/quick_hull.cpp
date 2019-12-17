@@ -47,7 +47,7 @@ struct QHEdge {
         return id < p_edge.id;
     }
 
-    QHEdge(int p_vtx_a = 0, int p_vtx_b = 0) {
+    QHEdge(uint32_t p_vtx_a = 0, uint32_t p_vtx_b = 0) {
 
         if (p_vtx_a > p_vtx_b) {
             SWAP(p_vtx_a, p_vtx_b);

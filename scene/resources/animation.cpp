@@ -2719,7 +2719,7 @@ void Animation::track_move_to(int p_track, int p_to_index) {
     if (p_track == p_to_index || p_track == p_to_index - 1)
         return;
 
-    Track *track = tracks.get(p_track);
+    Track *track = tracks[p_track];
     tracks.remove(p_track);
     // Take into account that the position of the tracks that come after the one removed will change.
     tracks.insert(p_to_index > p_track ? p_to_index - 1 : p_to_index, track);

@@ -45,7 +45,7 @@ private:
     int discover_local_port;
     bool discover_ipv6;
 
-    Vector<Ref<UPNPDevice> > devices;
+    PODVector<Ref<UPNPDevice> > devices;
 
     bool is_common_device(se_string_view dev) const;
     void add_device_to_list(UPNPDev *dev, UPNPDev *devlist);

@@ -817,5 +817,6 @@ public:
     static StringName get_server_name(int p_id);
     static PhysicsServer *new_default_server();
     static PhysicsServer *new_server(const StringName &p_name);
+    static void cleanup();
 };
 GODOT_EXPORT PhysicsServer * initialize_3d_physics();

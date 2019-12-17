@@ -51,10 +51,10 @@ struct GODOT_EXPORT Vector2 {
         real_t height;
     };
 
-    _FORCE_INLINE_ real_t &operator[](int p_idx) {
+    constexpr real_t &operator[](int p_idx) {
         return p_idx ? y : x;
     }
-    _FORCE_INLINE_ const real_t &operator[](int p_idx) const {
+    constexpr real_t operator[](int p_idx) const {
         return p_idx ? y : x;
     }
 
@@ -71,13 +71,13 @@ struct GODOT_EXPORT Vector2 {
     real_t angle_to_point(const Vector2 &p_vector2) const;
     _FORCE_INLINE_ Vector2 direction_to(const Vector2 &p_b) const;
 
-    real_t dot(const Vector2 &p_other) const;
+    real_t dot(Vector2 p_other) const;
     real_t cross(const Vector2 &p_other) const;
     Vector2 posmod(const real_t p_mod) const;
     Vector2 posmodv(const Vector2 &p_modv) const;
     Vector2 project(const Vector2 &p_b) const;
 
-    Vector2 plane_project(real_t p_d, const Vector2 &p_vec) const;
+    Vector2 plane_project(real_t p_d, Vector2 p_vec) const;
 
     Vector2 clamped(real_t p_len) const;
 
@@ -98,17 +98,17 @@ struct GODOT_EXPORT Vector2 {
     void operator+=(const Vector2 &p_v);
     Vector2 operator-(const Vector2 &p_v) const;
     void operator-=(const Vector2 &p_v);
-    Vector2 operator*(const Vector2 &p_v1) const;
+    constexpr Vector2 operator*(Vector2 p_v1) const;
 
-    Vector2 operator*(const real_t &rvalue) const;
-    void operator*=(const real_t &rvalue);
+    Vector2 operator*(real_t rvalue) const;
+    void operator*=(real_t rvalue);
     void operator*=(const Vector2 &rvalue) { *this = *this * rvalue; }
 
     Vector2 operator/(const Vector2 &p_v1) const;
 
-    Vector2 operator/(const real_t &rvalue) const;
+    Vector2 operator/(real_t rvalue) const;
 
-    void operator/=(const real_t &rvalue);
+    void operator/=(real_t rvalue);
     void operator/=(const Vector2 &rvalue) { *this = *this / rvalue; }
 
     Vector2 operator-() const;
@@ -116,10 +116,10 @@ struct GODOT_EXPORT Vector2 {
     bool operator==(const Vector2 &p_vec2) const;
     bool operator!=(const Vector2 &p_vec2) const;
 
-    bool operator<(const Vector2 &p_vec2) const { return Math::is_equal_approx(x, p_vec2.x) ? (y < p_vec2.y) : (x < p_vec2.x); }
-    bool operator>(const Vector2 &p_vec2) const { return Math::is_equal_approx(x, p_vec2.x) ? (y > p_vec2.y) : (x > p_vec2.x); }
-    bool operator<=(const Vector2 &p_vec2) const { return Math::is_equal_approx(x, p_vec2.x) ? (y <= p_vec2.y) : (x < p_vec2.x); }
-    bool operator>=(const Vector2 &p_vec2) const { return Math::is_equal_approx(x, p_vec2.x) ? (y >= p_vec2.y) : (x > p_vec2.x); }
+    bool operator<(Vector2 p_vec2) const { return Math::is_equal_approx(x, p_vec2.x) ? (y < p_vec2.y) : (x < p_vec2.x); }
+    bool operator>(Vector2 p_vec2) const { return Math::is_equal_approx(x, p_vec2.x) ? (y > p_vec2.y) : (x > p_vec2.x); }
+    bool operator<=(Vector2 p_vec2) const { return Math::is_equal_approx(x, p_vec2.x) ? (y <= p_vec2.y) : (x < p_vec2.x); }
+    bool operator>=(Vector2 p_vec2) const { return Math::is_equal_approx(x, p_vec2.x) ? (y >= p_vec2.y) : (x > p_vec2.x); }
 
     real_t angle() const;
 
@@ -130,13 +130,11 @@ struct GODOT_EXPORT Vector2 {
     }
 
     _FORCE_INLINE_ Vector2 abs() const {
-
         return Vector2(Math::abs(x), Math::abs(y));
     }
 
     Vector2 rotated(real_t p_by) const;
     constexpr Vector2 tangent() const {
-
         return Vector2(y, -x);
     }
 
@@ -156,7 +154,7 @@ struct GODOT_EXPORT Vector2 {
 };
 static_assert (std::is_trivially_copyable<Vector2>() );
 
-_FORCE_INLINE_ Vector2 Vector2::plane_project(real_t p_d, const Vector2 &p_vec) const {
+_FORCE_INLINE_ Vector2 Vector2::plane_project(real_t p_d, Vector2 p_vec) const {
 
     return p_vec - *this * (dot(p_vec) - p_d);
 }
@@ -185,16 +183,16 @@ _FORCE_INLINE_ void Vector2::operator-=(const Vector2 &p_v) {
     y -= p_v.y;
 }
 
-_FORCE_INLINE_ Vector2 Vector2::operator*(const Vector2 &p_v1) const {
+constexpr _FORCE_INLINE_ Vector2 Vector2::operator*(Vector2 p_v1) const {
 
     return Vector2(x * p_v1.x, y * p_v1.y);
 };
 
-_FORCE_INLINE_ Vector2 Vector2::operator*(const real_t &rvalue) const {
+_FORCE_INLINE_ Vector2 Vector2::operator*(real_t rvalue) const {
 
     return Vector2(x * rvalue, y * rvalue);
 };
-_FORCE_INLINE_ void Vector2::operator*=(const real_t &rvalue) {
+_FORCE_INLINE_ void Vector2::operator*=(real_t rvalue) {
 
     x *= rvalue;
     y *= rvalue;
@@ -205,12 +203,12 @@ _FORCE_INLINE_ Vector2 Vector2::operator/(const Vector2 &p_v1) const {
     return Vector2(x / p_v1.x, y / p_v1.y);
 };
 
-_FORCE_INLINE_ Vector2 Vector2::operator/(const real_t &rvalue) const {
+_FORCE_INLINE_ Vector2 Vector2::operator/(real_t rvalue) const {
 
     return Vector2(x / rvalue, y / rvalue);
 };
 
-_FORCE_INLINE_ void Vector2::operator/=(const real_t &rvalue) {
+_FORCE_INLINE_ void Vector2::operator/=(real_t rvalue) {
 
     x /= rvalue;
     y /= rvalue;
@@ -284,28 +282,44 @@ struct GODOT_EXPORT Vector2i {
         int height;
     };
 
-    _FORCE_INLINE_ int &operator[](int p_idx) {
+   constexpr int &operator[](int p_idx) {
         return p_idx ? y : x;
     }
-    _FORCE_INLINE_ const int &operator[](int p_idx) const {
+   constexpr int operator[](int p_idx) const {
         return p_idx ? y : x;
     }
 
-    Vector2i operator+(const Vector2i &p_v) const;
+    Vector2i operator+(Vector2i p_v) const {
+
+        return Vector2i(x + p_v.x, y + p_v.y);
+    }
+
     void operator+=(const Vector2i &p_v);
     Vector2i operator-(const Vector2i &p_v) const;
     void operator-=(const Vector2i &p_v);
     Vector2i operator*(const Vector2i &p_v1) const;
 
-    Vector2i operator*(const int &rvalue) const;
-    void operator*=(const int &rvalue);
+    Vector2i operator*(int rvalue) const {
+        return Vector2i(x * rvalue, y * rvalue);
+    }
 
-    Vector2i operator/(const Vector2i &p_v1) const;
+    void operator*=(int rvalue) {
+        x *= rvalue;
+        y *= rvalue;
+    }
 
-    Vector2i operator/(const int &rvalue) const;
+    constexpr Vector2i operator/(Vector2i p_v1) const {
+        return Vector2i(x / p_v1.x, y / p_v1.y);
+    };
 
-    void operator/=(const int &rvalue);
+    Vector2i operator/(int rvalue) const {
+        return Vector2i(x / rvalue, y / rvalue);
+    }
 
+    void operator/=(int rvalue) {
+        x /= rvalue;
+        y /= rvalue;
+    }
     Vector2i operator-() const;
     bool operator<(Vector2i p_vec2) const { return (x == p_vec2.x) ? (y < p_vec2.y) : (x < p_vec2.x); }
     bool operator>(Vector2i p_vec2) const { return (x == p_vec2.x) ? (y > p_vec2.y) : (x > p_vec2.x); }

@@ -50,8 +50,8 @@ template<class T>
 using PODVector = eastl::vector<T,wrap_allocator>;
 template<class T,int N,bool GROWING>
 using FixedVector = eastl::fixed_vector<T,N,GROWING,wrap_allocator>;
-template <typename T, ptrdiff_t Extent = eastl::dynamic_extent>
-using Span = eastl::span<T,Extent>;
+template <typename T>
+using Span = eastl::span<T,eastl::dynamic_extent>;
 
 template <class T>
 class VectorWriteProxy {
@@ -94,8 +94,6 @@ public:
     _FORCE_INLINE_ void clear() { resize(0); }
     [[nodiscard]] _FORCE_INLINE_ bool empty() const noexcept { return _cowdata.empty(); }
 
-    _FORCE_INLINE_ T get(int p_index) { return _cowdata.get(p_index); }
-    _FORCE_INLINE_ const T get(int p_index) const { return _cowdata.get(p_index); }
     _FORCE_INLINE_ void set(int p_index, const T &p_elem) { _cowdata.set(p_index, p_elem); }
     [[nodiscard]] _FORCE_INLINE_ int size() const { return _cowdata.size(); }
     Error resize(int p_size) { return _cowdata.resize(p_size); }
@@ -104,7 +102,6 @@ public:
     int find(const T &p_val, int p_from = 0) const { return _cowdata.find(p_val, p_from); }
 
     void append_array(const Vector<T> &p_other);
-
     template <class C>
     void sort_custom() {
 
