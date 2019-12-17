@@ -29,7 +29,6 @@ foreach(tgt ${global_targets})
 
     target_link_libraries(${tgt}_drivers PRIVATE glad)
 
-    include(convex_decomp/sources.cmake)
     if(OPTION_${tgt}_ENABLE_MIDI)
         if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
             add_subdirectory(alsamidi)

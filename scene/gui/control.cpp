@@ -2005,14 +2005,15 @@ Control *Control::find_next_valid_focus() const {
 
         if (!data.focus_next.is_empty()) {
             Node *n = get_node(data.focus_next);
+            Control *c;
             if (n) {
-                from = object_cast<Control>(n);
-                ERR_FAIL_COND_V_MSG(!from, nullptr, se_string("Next focus node is not a control: ") + n->get_name() + ".")
+                c = object_cast<Control>(n);
+                ERR_FAIL_COND_V_MSG(!c, nullptr, "Next focus node is not a control: " + n->get_name() + ".")
             } else {
                 return nullptr;
             }
-            if (from->is_visible() && from->get_focus_mode() != FOCUS_NONE)
-                return from;
+            if (c->is_visible() && c->get_focus_mode() != FOCUS_NONE)
+                return c;
         }
 
         // find next child
@@ -2095,14 +2096,15 @@ Control *Control::find_prev_valid_focus() const {
 
         if (!data.focus_prev.is_empty()) {
             Node *n = get_node(data.focus_prev);
+            Control *c;
             if (n) {
-                from = object_cast<Control>(n);
-                ERR_FAIL_COND_V_MSG(!from, nullptr, se_string("Previous focus node is not a control: ") + n->get_name() + ".")
+                c = object_cast<Control>(n);
+                ERR_FAIL_COND_V_MSG(!c, nullptr, "Previous focus node is not a control: " + n->get_name() + ".")
             } else {
                 return nullptr;
             }
-            if (from->is_visible() && from->get_focus_mode() != FOCUS_NONE)
-                return from;
+            if (c->is_visible() && c->get_focus_mode() != FOCUS_NONE)
+                return c;
         }
 
         // find prev child

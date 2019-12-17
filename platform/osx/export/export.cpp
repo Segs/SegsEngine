@@ -134,6 +134,9 @@ void EditorExportPlatformOSX::get_export_options(List<ExportOption> *r_options) 
     r_options->push_back(ExportOption(PropertyInfo(VariantType::STRING, "application/version"), "1.0"));
     r_options->push_back(ExportOption(PropertyInfo(VariantType::STRING, "application/copyright"), ""));
     r_options->push_back(ExportOption(PropertyInfo(VariantType::BOOL, "display/high_res"), false));
+    r_options->push_back(ExportOption(PropertyInfo(VariantType::STRING, "privacy/camera_usage_description", PROPERTY_HINT_PLACEHOLDER_TEXT, "Provide a message if you need to use the camera"), ""));
+    r_options->push_back(ExportOption(PropertyInfo(VariantType::STRING, "privacy/microphone_usage_description", PROPERTY_HINT_PLACEHOLDER_TEXT, "Provide a message if you need to use the microphone"), ""));
+
 
 #ifdef OSX_ENABLED
     r_options->push_back(ExportOption(PropertyInfo(VariantType::BOOL, "codesign/enable"), false));
@@ -335,6 +338,8 @@ void EditorExportPlatformOSX::_fix_plist(const Ref<EditorExportPreset> &p_preset
         {"$signature", p_preset->get("application/signature")},
         {"$copyright", p_preset->get("application/copyright")},
         {"$highres", se_string(p_preset->get("display/high_res") ? "<true/>" : "<false/>")},
+        {"$camera_usage_description",p_preset->get("privacy/camera_usage_description")},
+        {"$microphone_usage_description",p_preset->get("privacy/microphone_usage_description")}
     };
     for (int i = 0; i < lines.size(); i++) {
         se_string line(lines[i]);

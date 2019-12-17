@@ -1186,6 +1186,10 @@ void Variant::evaluate(Operator p_op, const Variant &p_a, const Variant &p_b, Va
             CASE_TYPE(math, OP_SHIFT_LEFT, INT) {
                 if (p_b.type != VariantType::INT)
                     _RETURN_FAIL
+
+                if (p_b._data._int < 0 || p_b._data._int >= 64)
+                    _RETURN_FAIL
+
                 _RETURN(p_a._data._int << p_b._data._int)
             }
 
@@ -1196,7 +1200,11 @@ void Variant::evaluate(Operator p_op, const Variant &p_a, const Variant &p_b, Va
         SWITCH_OP(math, OP_SHIFT_RIGHT, p_a.type) {
             CASE_TYPE(math, OP_SHIFT_RIGHT, INT) {
                 if (p_b.type != VariantType::INT)
-                    _RETURN_FAIL;
+                    _RETURN_FAIL
+
+                if (p_b._data._int < 0 || p_b._data._int >= 64)
+                    _RETURN_FAIL
+
                 _RETURN(p_a._data._int >> p_b._data._int);
             }
 

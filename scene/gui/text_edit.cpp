@@ -5395,17 +5395,22 @@ void TextEdit::cut() {
     if (!selection.active) {
 
         String clipboard = m_priv->text[cursor.line];
-        OS::get_singleton()->set_clipboard(StringUtils::to_utf8(clipboard).data());
+        OS::get_singleton()->set_clipboard(StringUtils::to_utf8(clipboard));
         cursor_set_line(cursor.line);
         cursor_set_column(0);
-        _remove_text(cursor.line, 0, cursor.line, m_priv->text[cursor.line].length());
 
-        backspace_at_cursor();
+        if (cursor.line == 0 && get_line_count() > 1) {
+            _remove_text(cursor.line, 0, cursor.line + 1, 0);
+        } else {
+            _remove_text(cursor.line, 0, cursor.line, m_priv->text[cursor.line].length());
+            backspace_at_cursor();
+            cursor_set_line(cursor.line + 1);
+        }
+
         update();
-        cursor_set_line(cursor.line + 1);
         cut_copy_line = clipboard;
 
-    } else {
+    }  else {
 
         String clipboard = _base_get_text(selection.from_line, selection.from_column, selection.to_line, selection.to_column);
         OS::get_singleton()->set_clipboard(StringUtils::to_utf8(clipboard).data());

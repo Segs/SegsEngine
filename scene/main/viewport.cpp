@@ -2649,6 +2649,7 @@ void Viewport::_gui_control_grab_focus(Control *p_control) {
         return;
     get_tree()->call_group_flags(SceneTree::GROUP_CALL_REALTIME, "_viewports", "_gui_remove_focus");
     gui.key_focus = p_control;
+    emit_signal("gui_focus_changed", Variant(p_control));
     p_control->notification(Control::NOTIFICATION_FOCUS_ENTER);
     p_control->update();
 }

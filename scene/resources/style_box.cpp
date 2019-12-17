@@ -186,7 +186,7 @@ float StyleBoxTexture::get_style_margin(Margin p_margin) const {
 }
 
 Rect2 StyleBoxTexture::get_draw_rect(const Rect2 &p_rect) const {
-	return p_rect.grow_individual(expand_margin[MARGIN_LEFT], expand_margin[MARGIN_TOP], expand_margin[MARGIN_RIGHT], expand_margin[MARGIN_BOTTOM]);
+    return p_rect.grow_individual(expand_margin[MARGIN_LEFT], expand_margin[MARGIN_TOP], expand_margin[MARGIN_RIGHT], expand_margin[MARGIN_BOTTOM]);
 }
 void StyleBoxTexture::draw(RID p_canvas_item, const Rect2 &p_rect) const {
     if (not texture)
@@ -416,13 +416,13 @@ int StyleBoxFlat::get_border_width_min() const {
 }
 
 void StyleBoxFlat::set_border_width(Margin p_margin, int p_width) {
-	ERR_FAIL_INDEX((int)p_margin, 4);
+    ERR_FAIL_INDEX((int)p_margin, 4);
     border_width[p_margin] = p_width;
     emit_changed();
 }
 
 int StyleBoxFlat::get_border_width(Margin p_margin) const {
-	ERR_FAIL_INDEX_V((int)p_margin, 4, 0);
+    ERR_FAIL_INDEX_V((int)p_margin, 4, 0);
     return border_width[p_margin];
 }
 
@@ -464,18 +464,18 @@ int StyleBoxFlat::get_corner_radius_min() const {
 
 void StyleBoxFlat::set_corner_radius(const Corner p_corner, const int radius) {
 
-	ERR_FAIL_INDEX((int)p_corner, 4);
+    ERR_FAIL_INDEX((int)p_corner, 4);
     corner_radius[p_corner] = radius;
     emit_changed();
 }
 int StyleBoxFlat::get_corner_radius(const Corner p_corner) const {
-	ERR_FAIL_INDEX_V((int)p_corner, 4, 0);
+    ERR_FAIL_INDEX_V((int)p_corner, 4, 0);
     return corner_radius[p_corner];
 }
 
 void StyleBoxFlat::set_expand_margin_size(Margin p_expand_margin, float p_size) {
 
-	ERR_FAIL_INDEX((int)p_expand_margin, 4);
+    ERR_FAIL_INDEX((int)p_expand_margin, 4);
     expand_margin[p_expand_margin] = p_size;
     emit_changed();
 }
@@ -498,7 +498,7 @@ void StyleBoxFlat::set_expand_margin_size_all(float p_expand_margin_size) {
 
 float StyleBoxFlat::get_expand_margin_size(Margin p_expand_margin) const {
 
-	ERR_FAIL_INDEX_V((int)p_expand_margin, 4, 0.0);
+    ERR_FAIL_INDEX_V((int)p_expand_margin, 4, 0.0);
     return expand_margin[p_expand_margin];
 }
 void StyleBoxFlat::set_draw_center(bool p_enabled) {
@@ -558,7 +558,7 @@ int StyleBoxFlat::get_aa_size() const {
 }
 
 void StyleBoxFlat::set_corner_detail(const int &p_corner_detail) {
-    corner_detail = CLAMP(p_corner_detail, 1, 128);
+    corner_detail = CLAMP(p_corner_detail, 1, 20);
     emit_changed();
 }
 int StyleBoxFlat::get_corner_detail() const {
@@ -861,7 +861,7 @@ void StyleBoxFlat::draw(RID p_canvas_item, const Rect2 &p_rect) const {
 }
 
 float StyleBoxFlat::get_style_margin(Margin p_margin) const {
-	ERR_FAIL_INDEX_V((int)p_margin, 4, 0.0);
+    ERR_FAIL_INDEX_V((int)p_margin, 4, 0.0);
     return border_width[p_margin];
 }
 void StyleBoxFlat::_bind_methods() {
@@ -934,7 +934,7 @@ void StyleBoxFlat::_bind_methods() {
     ADD_PROPERTYI(PropertyInfo(VariantType::INT, "corner_radius_bottom_right", PROPERTY_HINT_RANGE, "0,1024,1"), "set_corner_radius", "get_corner_radius", CORNER_BOTTOM_RIGHT);
     ADD_PROPERTYI(PropertyInfo(VariantType::INT, "corner_radius_bottom_left", PROPERTY_HINT_RANGE, "0,1024,1"), "set_corner_radius", "get_corner_radius", CORNER_BOTTOM_LEFT);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "corner_detail", PROPERTY_HINT_RANGE, "1,128,1"), "set_corner_detail", "get_corner_detail");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "corner_detail", PROPERTY_HINT_RANGE, "1,20,1"), "set_corner_detail", "get_corner_detail");
 
     ADD_GROUP("Expand Margin", "expand_margin_");
     ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "expand_margin_left", PROPERTY_HINT_RANGE, "0,2048,1"), "set_expand_margin", "get_expand_margin", MARGIN_LEFT);
@@ -1045,7 +1045,7 @@ void StyleBoxLine::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "vertical"), "set_vertical", "is_vertical");
 }
 float StyleBoxLine::get_style_margin(Margin p_margin) const {
-	ERR_FAIL_INDEX_V((int)p_margin, 4, thickness);
+    ERR_FAIL_INDEX_V((int)p_margin, 4, thickness);
     return thickness;
 }
 Size2 StyleBoxLine::get_center_size() const {
