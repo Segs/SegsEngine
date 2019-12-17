@@ -1194,6 +1194,8 @@ Error Main::setup(bool p_second_phase) {
     OS::get_singleton()->set_low_processor_usage_mode_sleep_usec(GLOBAL_DEF("application/run/low_processor_mode_sleep_usec", 6900)); // Roughly 144 FPS
     ProjectSettings::get_singleton()->set_custom_property_info("application/run/low_processor_mode_sleep_usec", PropertyInfo(VariantType::INT, "application/run/low_processor_mode_sleep_usec", PROPERTY_HINT_RANGE, "0,33200,1,or_greater")); // No negative numbers
 
+    GLOBAL_DEF("display/window/ios/hide_home_indicator", true);
+
     Engine::get_singleton()->set_frame_delay(frame_delay);
 
     message_queue = memnew(MessageQueue);

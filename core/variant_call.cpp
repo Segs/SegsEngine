@@ -2102,7 +2102,7 @@ void register_variant_methods() {
     ADDFUNC0R(TRANSFORM, TRANSFORM, Transform, orthonormalized)
     ADDFUNC2R(TRANSFORM, TRANSFORM, Transform, rotated, VECTOR3, "axis", REAL, "phi")
     ADDFUNC1R(TRANSFORM, TRANSFORM, Transform, scaled, VECTOR3, "scale")
-    ADDFUNC1R(TRANSFORM, TRANSFORM, Transform, translated, VECTOR3, "ofs")
+    ADDFUNC1R(TRANSFORM, TRANSFORM, Transform, translated, VECTOR3, "offset")
     ADDFUNC2R(TRANSFORM, TRANSFORM, Transform, looking_at, VECTOR3, "target", VECTOR3, "up")
     ADDFUNC2R(TRANSFORM, TRANSFORM, Transform, interpolate_with, TRANSFORM, "transform", REAL, "weight")
     ADDFUNC1R(TRANSFORM, NIL, Transform, xform, NIL, "v")

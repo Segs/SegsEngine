@@ -18,7 +18,7 @@ namespace Godot
             int pos = 0;
             int slices = 1;
 
-            while ((pos = instance.Find(splitter, pos)) >= 0)
+            while ((pos = instance.Find(splitter, true, pos)) >= 0)
             {
                 slices++;
                 pos += splitter.Length;

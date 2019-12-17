@@ -199,7 +199,7 @@ void EditorHelp::_add_type(se_string_view p_type, se_string_view p_enum) {
     se_string_view t = p_type;
     if (t.empty())
         t = "void";
-    bool can_ref = t != "int"_sv && t != "real"_sv && t != "bool"_sv && t != "void"_sv || !p_enum.empty();
+    bool can_ref = (t != "void"_sv) || !p_enum.empty();
 
     if (!p_enum.empty()) {
         if (StringUtils::get_slice_count(p_enum,'.') > 1) {
@@ -814,7 +814,7 @@ void EditorHelp::_update_doc() {
                 class_desc->pop();
                 class_desc->push_font(doc_code_font);
                 se_string_view e = E.first;
-                if (StringUtils::get_slice_count(e,'.')) {
+                if (StringUtils::get_slice_count(e,'.')>1 && se_string_view(edited_class)==StringUtils::get_slice(E.first,'.', 0)) {
                     e = StringUtils::get_slice(E.first,'.', 1);
                 }
 

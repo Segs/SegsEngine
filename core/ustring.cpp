@@ -610,7 +610,7 @@ Vector<se_string_view> StringUtils::rsplit(se_string_view str,se_string_view p_s
     Vector<se_string_view> ret;
     const size_t len = str.length();
     const size_t split_len = p_splitter.size();
-    int remaining_len = len;
+    size_t remaining_len = len;
 
     while (true) {
 
@@ -630,7 +630,7 @@ Vector<se_string_view> StringUtils::rsplit(se_string_view str,se_string_view p_s
             break;
         }
 
-        int substr_start = left_edge + split_len;
+        size_t substr_start = left_edge + split_len;
         if (p_allow_empty || substr_start < remaining_len) {
             ret.push_back(StringUtils::substr(str,substr_start, remaining_len - substr_start));
         }
@@ -1874,8 +1874,8 @@ static int str_count(se_string_view s,se_string_view p_string, int p_from, int p
     if (p_string.empty()) {
         return 0;
     }
-    int len = s.length();
-    int slen = p_string.length();
+    size_t len = s.length();
+    size_t slen = p_string.length();
     if (len < slen) {
         return 0;
     }

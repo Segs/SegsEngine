@@ -30,11 +30,7 @@
 
 #include "register_driver_types.h"
 
-#include "core/math/geometry.h"
 #include "core/io/image_loader.h"
-#ifdef TOOLS_ENABLED
-#include "drivers/convex_decomp/b2d_decompose.h"
-#endif
 
 #ifdef TOOLS_ENABLED
 #include "platform/windows/export/export.h"
@@ -54,9 +50,6 @@ void unregister_core_driver_types() {
 
 void register_driver_types() {
 
-#ifdef TOOLS_ENABLED
-    Geometry::_decompose_func = b2d_decompose;
-#endif
 }
 
 void unregister_driver_types() {

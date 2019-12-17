@@ -668,12 +668,12 @@ const char *EditorAssetLibrary::sort_key[SORT_MAX] = {
 };
 
 const char *EditorAssetLibrary::sort_text[SORT_MAX] = {
-    "Recently Updated",
-    "Least Recently Updated",
-    "Name (A-Z)",
-    "Name (Z-A)",
-    "License (A-Z)", // "cost" stores the SPDX license name in the Godot Asset Library.
-    "License (Z-A)", // "cost" stores the SPDX license name in the Godot Asset Library.
+    TTRC("Recently Updated"),
+    TTRC("Least Recently Updated"),
+    TTRC("Name (A-Z)"),
+    TTRC("Name (Z-A)"),
+    TTRC("License (A-Z)"), // "cost" stores the SPDX license name in the Godot Asset Library.
+    TTRC("License (Z-A)"), // "cost" stores the SPDX license name in the Godot Asset Library.
 };
 
 const char *EditorAssetLibrary::support_key[SUPPORT_MAX] = {
@@ -1406,7 +1406,7 @@ EditorAssetLibrary::EditorAssetLibrary(bool p_templates_only) {
     search_hb2->add_child(memnew(Label(TTR("Sort:") + " ")));
     sort = memnew(OptionButton);
     for (int i = 0; i < SORT_MAX; i++) {
-        sort->add_item(StringName(sort_text[i]));
+        sort->add_item(StringName(TTRGET(sort_text[i])));
     }
 
     search_hb2->add_child(sort);
@@ -1516,6 +1516,7 @@ EditorAssetLibrary::EditorAssetLibrary(bool p_templates_only) {
     error_label->add_color_override("color", get_color("error_color", "Editor"));
     error_hb->add_child(error_label);
     error_tr = memnew(TextureRect);
+    error_tr->set_v_size_flags(Control::SIZE_SHRINK_CENTER);
     error_hb->add_child(error_tr);
 
     description = nullptr;

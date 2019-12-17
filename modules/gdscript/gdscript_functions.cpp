@@ -1879,7 +1879,7 @@ MethodInfo GDScriptFunctions::get_info(Function p_func) {
         } break;
         case TEXT_CHAR: {
 
-            MethodInfo mi("char", PropertyInfo(VariantType::INT, "ascii"));
+            MethodInfo mi("char", PropertyInfo(VariantType::INT, "code"));
             mi.return_val.type = VariantType::STRING;
             return mi;
 
@@ -1897,16 +1897,14 @@ MethodInfo GDScriptFunctions::get_info(Function p_func) {
             mi.return_val.type = VariantType::STRING;
             mi.flags |= METHOD_FLAG_VARARG;
             return mi;
-
-        } break;
+        }
         case TEXT_PRINT: {
 
             MethodInfo mi("print");
             mi.return_val.type = VariantType::NIL;
             mi.flags |= METHOD_FLAG_VARARG;
             return mi;
-
-        } break;
+        }
         case TEXT_PRINT_TABBED: {
 
             MethodInfo mi("printt");

@@ -51,6 +51,7 @@ protected:
     IP_Address peer_addr;
     int peer_port=0;
     bool blocking=true;
+    bool broadcast=false;
     Ref<NetSocket> _sock;
 
     static void _bind_methods();
@@ -75,6 +76,7 @@ public:
     Error get_packet(const uint8_t **r_buffer, int &r_buffer_size) override;
     int get_available_packet_count() const override;
     int get_max_packet_size() const override;
+    void set_broadcast_enabled(bool p_enabled);
     Error join_multicast_group(IP_Address p_multi_address, se_string_view p_if_name);
     Error leave_multicast_group(IP_Address p_multi_address, se_string_view p_if_name);
 
