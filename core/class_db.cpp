@@ -89,7 +89,12 @@ ClassDB::ClassInfo::ClassInfo() {
     exposed = false;
 }
 
-ClassDB::ClassInfo::~ClassInfo() = default;
+ClassDB::ClassInfo::~ClassInfo() {
+    for(auto & entry : method_map) {
+        memdelete(entry.second);
+    }
+    method_map.clear();
+}
 
 bool ClassDB::is_parent_class(const StringName &p_class, const StringName &p_inherits) {
 
@@ -204,10 +209,8 @@ uint64_t ClassDB::get_api_hash(APIType p_api) {
 
             snames.clear();
             k = nullptr;
-
-            while ((k = t.method_map.next(k))) {
-
-                snames.push_back(*k);
+            for(const auto & v : t.method_map) {
+                snames.push_back(v.first);
             }
 
             eastl::stable_sort(snames.begin(), snames.end(), StringName::AlphCompare);
@@ -422,7 +425,7 @@ void ClassDB::get_method_list(
 
         for (const StringName &nm : type->method_order) {
 
-            MethodBind *method = type->method_map.get(nm);
+            MethodBind *method = type->method_map.at(nm);
             MethodInfo minfo;
             minfo.name = nm;
             minfo.id = method->get_method_id();
@@ -476,9 +479,9 @@ MethodBind *ClassDB::get_method(StringName p_class, StringName p_name) {
 
     ClassInfo *type = iter!=classes.end() ? &iter->second : nullptr;
     while (type) {
-        MethodBind **method = type->method_map.getptr(p_name);
-        if (method && *method)
-            return *method;
+        MethodBind *method = type->method_map.at(p_name,nullptr);
+        if (method)
+            return method;
         type = type->inherits_ptr;
     }
     return nullptr;
@@ -1274,17 +1277,6 @@ void ClassDB::cleanup_defaults() {
 void ClassDB::cleanup() {
 
     // OBJTYPE_LOCK; hah not here
-
-    for(auto & entry : classes) {
-
-        ClassInfo &ti = entry.second;
-
-        const StringName *m = nullptr;
-        while ((m = ti.method_map.next(m))) {
-
-            memdelete(ti.method_map[*m]);
-        }
-    }
     classes.clear();
     resource_base_extensions.clear();
     compat_classes.clear();

@@ -518,5 +518,12 @@ struct PtrToArg<const PoolVector<Face3> &> {
         return ret;
     }
 };
-
+template <>
+struct PtrToArg<Span<const uint8_t>> {
+    _FORCE_INLINE_ static Span<const uint8_t> convert(const void *p_ptr) {
+        const Span<const uint8_t> *dvs = reinterpret_cast<const Span<const uint8_t> *>(p_ptr);
+        // FIXME: this very likely won't work
+        return *dvs;
+    }
+};
 #endif //PTRCALL_ENABLED

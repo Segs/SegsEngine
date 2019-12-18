@@ -121,7 +121,7 @@ public:
 
         APIType api;
         ClassInfo *inherits_ptr;
-        HashMap<StringName, MethodBind *> method_map;
+        DefHashMap<StringName, MethodBind *> method_map;
         HashMap<StringName, int> constant_map;
         HashMap<StringName, ListPOD<StringName> > enum_map;
         HashMap<StringName, MethodInfo> signal_map;

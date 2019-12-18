@@ -1031,11 +1031,11 @@ ProjectSettings::ProjectSettings() {
     GLOBAL_DEF("audio/default_bus_layout", "res://default_bus_layout.tres");
     custom_prop_info[StaticCString("audio/default_bus_layout")] = PropertyInfo(VariantType::STRING, "audio/default_bus_layout", PROPERTY_HINT_FILE, "*.tres");
 
-    PoolStringArray extensions = PoolStringArray();
-    extensions.push_back(String("gd"));
+    PoolSeStringArray extensions = PoolSeStringArray();
+    extensions.push_back("gd");
     if (Engine::get_singleton()->has_singleton("GodotSharp"))
-        extensions.push_back(String("cs"));
-    extensions.push_back(String("shader"));
+        extensions.push_back("cs");
+    extensions.push_back("shader");
 
     GLOBAL_DEF("editor/search_in_file_extensions", extensions);
     custom_prop_info[StaticCString("editor/search_in_file_extensions")] = PropertyInfo(VariantType::POOL_STRING_ARRAY, "editor/search_in_file_extensions");

@@ -369,9 +369,9 @@ void VisualServerScene::instance_set_base(RID p_instance, RID p_base) {
 
                 InstanceLightData *light = static_cast<InstanceLightData *>(instance->base_data);
 
-                if (instance->scenario && light->D!=instance->scenario->directional_lights.end()) {
-                    instance->scenario->directional_lights.erase(light->D);
-                    light->D = nullptr;
+                if (instance->scenario && light->D) {
+                    instance->scenario->directional_lights.erase_first(instance);
+                    light->D = false;
                 }
                 VSG::scene_render->free(light->instance);
             } break;
@@ -446,7 +446,8 @@ void VisualServerScene::instance_set_base(RID p_instance, RID p_base) {
                 InstanceLightData *light = memnew(InstanceLightData);
 
                 if (scenario && VSG::storage->light_get_type(p_base) == VS::LIGHT_DIRECTIONAL) {
-                    light->D = scenario->directional_lights.insert(scenario->directional_lights.end(),instance);
+                    scenario->directional_lights.push_back(instance);
+                    light->D = true;
                 }
 
                 light->instance = VSG::scene_render->light_instance_create(p_base);
@@ -522,10 +523,9 @@ void VisualServerScene::instance_set_scenario(RID p_instance, RID p_scenario) {
             case VS::INSTANCE_LIGHT: {
 
                 InstanceLightData *light = static_cast<InstanceLightData *>(instance->base_data);
-
-                if (light->D!=instance->scenario->directional_lights.end()) {
-                    instance->scenario->directional_lights.erase(light->D);
-                    light->D = nullptr;
+                if (light->D) {
+                    instance->scenario->directional_lights.erase_first(instance);
+                    light->D = false;
                 }
             } break;
             case VS::INSTANCE_REFLECTION_PROBE: {
@@ -563,7 +563,8 @@ void VisualServerScene::instance_set_scenario(RID p_instance, RID p_scenario) {
                 InstanceLightData *light = static_cast<InstanceLightData *>(instance->base_data);
 
                 if (VSG::storage->light_get_type(instance->base) == VS::LIGHT_DIRECTIONAL) {
-                    light->D = scenario->directional_lights.insert(scenario->directional_lights.end(),instance);
+                    scenario->directional_lights.push_back(instance);
+                    light->D = true;
                 }
             } break;
             case VS::INSTANCE_GI_PROBE: {

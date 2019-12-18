@@ -3229,6 +3229,7 @@ void Viewport::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::TRANSFORM2D, "global_canvas_transform", PROPERTY_HINT_NONE, "", 0), "set_global_canvas_transform", "get_global_canvas_transform");
 
     ADD_SIGNAL(MethodInfo("size_changed"));
+    ADD_SIGNAL(MethodInfo("gui_focus_changed", PropertyInfo(VariantType::OBJECT, "node", PROPERTY_HINT_RESOURCE_TYPE, "Control")));
 
     BIND_ENUM_CONSTANT(UPDATE_DISABLED)
     BIND_ENUM_CONSTANT(UPDATE_ONCE)
