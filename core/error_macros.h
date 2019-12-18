@@ -102,8 +102,8 @@ GODOT_EXPORT void _err_print_index_error(se_string_view p_function, se_string_vi
 
 #define ERR_FAIL_INDEX(m_index, m_size)                                                                             \
     do {                                                                                                            \
-        if (unlikely((m_index) < 0 || (m_index) >= (m_size))) {                                                     \
-            _err_print_index_error(FUNCTION_STR, __FILE__, __LINE__, m_index, m_size, _STR(m_index), _STR(m_size),""); \
+        if (unlikely(decltype(m_size)(m_index) < 0 || decltype(m_size)(m_index) >= (m_size))) {                                                     \
+            _err_print_index_error(FUNCTION_STR, __FILE__, __LINE__, m_index, int64_t(m_size), _STR(m_index), _STR(m_size),""); \
             return;                                                                                                 \
         }                                                                                                           \
     } while (0); // (*)
@@ -111,7 +111,7 @@ GODOT_EXPORT void _err_print_index_error(se_string_view p_function, se_string_vi
 #define ERR_FAIL_INDEX_MSG(m_index, m_size, m_msg)                                                                         \
     do {                                                                                                                   \
         if (unlikely((m_index) < 0 || (m_index) >= (m_size))) {                                                            \
-            _err_print_index_error(FUNCTION_STR, __FILE__, __LINE__, m_index, m_size, _STR(m_index), _STR(m_size), DEBUG_STR(m_msg)); \
+            _err_print_index_error(FUNCTION_STR, __FILE__, __LINE__, m_index, int64_t(m_size), _STR(m_index), _STR(m_size), DEBUG_STR(m_msg)); \
             return;                                                                                                        \
         }                                                                                                                  \
     } while (0); // (*)

@@ -42,7 +42,7 @@ class SceneState : public RefCounted {
 
     GDCLASS(SceneState,RefCounted)
 
-    Vector<StringName> names;
+    PODVector<StringName> names;
     Vector<Variant> variants;
     Vector<NodePath> node_paths;
     Vector<NodePath> editable_instances;
@@ -82,7 +82,7 @@ class SceneState : public RefCounted {
         PackState() { node = -1; }
     };
 
-    Vector<NodeData> nodes;
+    PODVector<NodeData> nodes;
 
     struct ConnectionData {
 

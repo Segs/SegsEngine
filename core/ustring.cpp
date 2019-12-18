@@ -274,7 +274,9 @@ int StringUtils::get_slice_count(const String &str,CharType p_splitter) {
     return parts.size();
 }
 int StringUtils::get_slice_count(se_string_view str,char p_splitter) {
-    int count=0;
+    if(str.empty())
+        return 0;
+    int count=1;
     auto loc = str.find(p_splitter);
     while(loc!=str.npos)
     {
@@ -284,7 +286,9 @@ int StringUtils::get_slice_count(se_string_view str,char p_splitter) {
     return count;
 }
 int StringUtils::get_slice_count(se_string_view str,se_string_view p_splitter) {
-    int count=0;
+    if(str.empty() || p_splitter.empty())
+        return 0;
+    int count=1;
     auto loc = str.find(p_splitter);
     while(loc!=str.npos)
     {
@@ -1820,11 +1824,15 @@ bool StringUtils::begins_with(se_string_view s,se_string_view p_string) {
 }
 
 bool StringUtils::is_subsequence_of(const String &str,const String &p_string, Compare mode) {
-
-    return p_string.startsWith(str,mode==CaseSensitive ? Qt::CaseSensitive : Qt::CaseInsensitive);
+    if(str.isEmpty())
+        return true;
+    return str.contains(p_string,mode==CaseSensitive ? Qt::CaseSensitive : Qt::CaseInsensitive);
 }
 bool StringUtils::is_subsequence_of(se_string_view str,se_string_view p_string, Compare mode) {
-
+    if(str.empty())
+        return true;
+    if(str.length()>p_string.length())
+        return false;
     return is_subsequence_of(from_utf8(p_string),from_utf8(str),mode);
 }
 bool StringUtils::is_quoted(const String &str) {
@@ -2021,19 +2029,21 @@ static bool _wildcard_match(const CharType *p_pattern, const CharType *p_string,
             return (p_case_sensitive ? (*p_string == *p_pattern) : (p_string->toUpper() == p_pattern->toUpper())) && _wildcard_match(p_pattern + 1, p_string + 1, p_case_sensitive);
     }
 }
-static bool _wildcard_match(const char *p_pattern, const char *p_string, bool p_case_sensitive) {
-    switch (*p_pattern) {
-        case '\0':
-            return *p_string==0;
+
+static bool _wildcard_match(se_string_view p_pattern, se_string_view p_string, bool p_case_sensitive) {
+    if(p_pattern.empty() && p_string.empty())
+        return true;
+    switch (p_pattern[0]) {
         case '*':
-            return _wildcard_match(p_pattern + 1, p_string, p_case_sensitive) || (*p_string!=0 && _wildcard_match(p_pattern, p_string + 1, p_case_sensitive));
+            return _wildcard_match(p_pattern.substr(1), p_string, p_case_sensitive) || (!p_string.empty() && _wildcard_match(p_pattern, p_string.substr(1), p_case_sensitive));
         case '?':
-            return *p_string!=0 && (*p_string != '.') && _wildcard_match(p_pattern + 1, p_string + 1, p_case_sensitive);
+            return !p_string.empty() && (p_string[0] != '.') && _wildcard_match(p_pattern.substr(1), p_string.substr(1), p_case_sensitive);
         default:
 
-            return (p_case_sensitive ? (*p_string == *p_pattern) : (eastl::CharToUpper(*p_string) == eastl::CharToUpper(*p_pattern))) && _wildcard_match(p_pattern + 1, p_string + 1, p_case_sensitive);
+            return (p_case_sensitive ? (p_string[0] == p_pattern[0]) : (eastl::CharToUpper(p_string[0]) == eastl::CharToUpper(p_pattern[0]))) && _wildcard_match(p_pattern.substr(1), p_string.substr(1), p_case_sensitive);
     }
 }
+
 bool StringUtils::match(const String &s, const String &p_wildcard, Compare sensitivity)  {
 
     if (p_wildcard.isEmpty() || s.isEmpty())
@@ -2046,7 +2056,7 @@ bool StringUtils::match(se_string_view s, se_string_view p_wildcard, Compare sen
     if (p_wildcard.empty() || s.empty())
         return false;
     assert(sensitivity!=CaseNatural);
-    return _wildcard_match(p_wildcard.data(), s.data(), sensitivity==CaseSensitive);
+    return _wildcard_match(p_wildcard, s, sensitivity==CaseSensitive);
 }
 bool StringUtils::matchn(const String &s,const String &p_wildcard)  {
     return match(s,p_wildcard,CaseInsensitive);

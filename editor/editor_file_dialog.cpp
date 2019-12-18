@@ -413,9 +413,10 @@ void EditorFileDialog::_action_pressed() {
             for (int i = 0; i < filters.size(); i++) {
 
                 se_string flt(StringUtils::get_slice(filters[i],";", 0));
-                for (int j = 0; j < StringUtils::get_slice_count(flt,','); j++) {
-
-                    se_string str(StringUtils::strip_edges(StringUtils::get_slice(flt,",", j)));
+                FixedVector<se_string_view,4,true> parts;
+                se_string::split_ref(parts,flt,',');
+                for (se_string_view alts : parts) {
+                    se_string_view str(StringUtils::strip_edges(alts));
                     if (StringUtils::match(f,str)) {
                         valid = true;
                         break;

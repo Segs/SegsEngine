@@ -133,7 +133,7 @@ private:
     int local_history_pos;
     void _push_history();
 
-    Vector<se_string> filters;
+    PODVector<se_string> filters;
 
     bool preview_waiting;
     int preview_wheel_index;

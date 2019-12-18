@@ -85,10 +85,8 @@ Node *SceneState::instance(GenEditState p_edit_state) const {
     int nc = nodes.size();
     ERR_FAIL_COND_V(nc == 0, nullptr)
 
-    const StringName *snames = nullptr;
-    int sname_count = names.size();
-    if (sname_count)
-        snames = &names[0];
+    const PODVector<StringName> &snames(names);
+    size_t sname_count = names.size();
 
     const Variant *props = nullptr;
     int prop_count = variants.size();
@@ -383,8 +381,8 @@ static int _nm_get_string(const StringName &p_string, Map<StringName, int> &name
     return idx;
 }
 static int _nm_get_string(se_string_view p_string, Map<StringName, int> &name_map) {
-    SVCompare cmp;
-    auto iter = name_map.find_as(p_string,cmp);
+    //FIXME: this allocates strings, but name_map.find_as does not work here since StringName comparisons are done using data pointer
+    auto iter = name_map.find(StringName(p_string));
     if (iter!=name_map.end())
         return iter->second;
 
@@ -920,7 +918,7 @@ Error SceneState::pack(Node *p_scene) {
 
     for (eastl::pair<const StringName,int> &E : name_map) {
 
-        names.write[E.second] = E.first;
+        names[E.second] = E.first;
     }
 
     variants.resize(variant_map.size());
@@ -1026,7 +1024,7 @@ Variant SceneState::get_property_value(int p_node, const StringName &p_property,
     if (p_node < nodes.size()) {
         //find in built-in nodes
         int pc = nodes[p_node].properties.size();
-        const StringName *namep = names.ptr();
+        const StringName *namep = names.data();
 
         const NodeData::Property *p = nodes[p_node].properties.ptr();
         for (int i = 0; i < pc; i++) {
@@ -1051,7 +1049,7 @@ bool SceneState::is_node_in_group(int p_node, const StringName &p_group) const {
     ERR_FAIL_COND_V(p_node < 0, false)
 
     if (p_node < nodes.size()) {
-        const StringName *namep = names.ptr();
+        const StringName *namep = names.data();
         for (int i = 0; i < nodes[p_node].groups.size(); i++) {
             if (namep[nodes[p_node].groups[i]] == p_group)
                 return true;
@@ -1131,8 +1129,8 @@ void SceneState::set_bundled_scene(const Dictionary &p_dictionary) {
         int namecount = snames.size();
         names.resize(namecount);
         PoolVector<se_string>::Read r = snames.read();
-        for (int i = 0; i < names.size(); i++)
-            names.write[i] = StringName(r[i]);
+        for (size_t i = 0; i < names.size(); i++)
+            names[i] = StringName(r[i]);
     }
 
     Array svariants = p_dictionary["variants"];
@@ -1150,13 +1148,11 @@ void SceneState::set_bundled_scene(const Dictionary &p_dictionary) {
     }
 
     nodes.resize(p_dictionary["node_count"]);
-    int nc = nodes.size();
-    if (nc) {
+    if (!nodes.empty()) {
         PoolVector<int> snodes = p_dictionary["nodes"];
         PoolVector<int>::Read r = snodes.read();
         int idx = 0;
-        for (int i = 0; i < nc; i++) {
-            NodeData &nd = nodes.write[i];
+        for (NodeData &nd : nodes) {
             nd.parent = r[idx++];
             nd.owner = r[idx++];
             nd.type = r[idx++];
@@ -1556,14 +1552,14 @@ Vector<NodePath> SceneState::get_editable_instances() const {
 //add
 
 int SceneState::add_name(const StringName &p_name) {
-
+    int idx = names.size();
     names.push_back(p_name);
-    return names.size() - 1;
+    return idx;
 }
 
 int SceneState::find_name(const StringName &p_name) const {
 
-    for (int i = 0; i < names.size(); i++) {
+    for (size_t i = 0; i < names.size(); i++) {
         if (names[i] == p_name)
             return i;
     }
@@ -1598,33 +1594,33 @@ int SceneState::add_node(int p_parent, int p_owner, int p_type, int p_name, int 
 }
 void SceneState::add_node_property(int p_node, int p_name, int p_value) {
 
-    ERR_FAIL_INDEX(p_node, nodes.size());
-    ERR_FAIL_INDEX(p_name, names.size());
-    ERR_FAIL_INDEX(p_value, variants.size());
+    ERR_FAIL_INDEX(p_node, nodes.size())
+    ERR_FAIL_INDEX(p_name, names.size())
+    ERR_FAIL_INDEX(p_value, variants.size())
 
     NodeData::Property prop;
     prop.name = p_name;
     prop.value = p_value;
-    nodes.write[p_node].properties.push_back(prop);
+    nodes[p_node].properties.push_back(prop);
 }
 void SceneState::add_node_group(int p_node, int p_group) {
 
-    ERR_FAIL_INDEX(p_node, nodes.size());
-    ERR_FAIL_INDEX(p_group, names.size());
-    nodes.write[p_node].groups.push_back(p_group);
+    ERR_FAIL_INDEX(p_node, nodes.size())
+    ERR_FAIL_INDEX(p_group, names.size())
+    nodes[p_node].groups.push_back(p_group);
 }
 void SceneState::set_base_scene(int p_idx) {
 
-    ERR_FAIL_INDEX(p_idx, variants.size());
+    ERR_FAIL_INDEX(p_idx, variants.size())
     base_scene_idx = p_idx;
 }
 void SceneState::add_connection(int p_from, int p_to, int p_signal, int p_method, int p_flags, const Vector<int> &p_binds) {
 
-    ERR_FAIL_INDEX(p_signal, names.size());
-    ERR_FAIL_INDEX(p_method, names.size());
+    ERR_FAIL_INDEX(p_signal, names.size())
+    ERR_FAIL_INDEX(p_method, names.size())
 
     for (int i = 0; i < p_binds.size(); i++) {
-        ERR_FAIL_INDEX(p_binds[i], variants.size());
+        ERR_FAIL_INDEX(p_binds[i], variants.size())
     }
     ConnectionData c;
     c.from = p_from;

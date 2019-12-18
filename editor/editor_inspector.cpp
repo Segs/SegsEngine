@@ -1619,9 +1619,11 @@ void EditorInspector::update_tree() {
                     EditorInspectorSection *section = memnew(EditorInspectorSection);
                     current_vbox->add_child(section);
                     sections.push_back(section);
-
-                    if (capitalize_paths)
-                        path_name = StringUtils::capitalize(path_name);
+                    se_string capitalized_path;
+                    if (capitalize_paths) {
+                        capitalized_path = StringUtils::capitalize(path_name);
+                        path_name = capitalized_path;
+                    }
 
                     Color c = sscolor;
                     c.a /= level;
