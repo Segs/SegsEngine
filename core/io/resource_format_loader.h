@@ -18,7 +18,7 @@ using DefMap = eastl::map<K,V,Comparator<K>,wrap_allocator>;
 class Resource;
 using RES = Ref<Resource>;
 
-class ResourceInteractiveLoader : public RefCounted {
+class GODOT_EXPORT ResourceInteractiveLoader : public RefCounted {
 
     GDCLASS(ResourceInteractiveLoader, RefCounted)
     friend class ResourceLoader;
@@ -41,7 +41,7 @@ public:
     ~ResourceInteractiveLoader() override;
 };
 
-class ResourceFormatLoader : public RefCounted {
+class GODOT_EXPORT ResourceFormatLoader : public RefCounted {
 
     GDCLASS(ResourceFormatLoader, RefCounted)
 

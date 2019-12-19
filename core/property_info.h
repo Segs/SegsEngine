@@ -26,7 +26,7 @@ public:
 
     static PropertyInfo from_dict(const Dictionary &p_dict);
 
-    PropertyInfo& operator=(PropertyInfo &&oth) = default;
+    PropertyInfo& operator=(PropertyInfo &&oth) noexcept = default;
 
     PropertyInfo& operator=(const PropertyInfo&oth) {
         if(this==&oth)
@@ -61,7 +61,7 @@ public:
     PropertyInfo(VariantType p_type, StringName p_name, PropertyHint p_hint = PROPERTY_HINT_NONE,
             se_string_view p_hint_string=se_string_view(), uint32_t p_usage = PROPERTY_USAGE_DEFAULT,
             const StringName &p_class_name = StringName()) :
-            name(p_name),
+            name(eastl::move(p_name)),
             hint_string(p_hint_string),
             type(p_type),
             hint(p_hint),

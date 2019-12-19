@@ -280,7 +280,7 @@ static int _bsp_find_best_half_plane(const Face3 *p_faces, const Vector<int> &p_
 	const int *indices = p_indices.ptr();
 
 	int best_plane = -1;
-	real_t best_plane_cost = 1e20;
+	real_t best_plane_cost = 1e20f;
 
 	// Loop to find the polygon that best divides the set.
 

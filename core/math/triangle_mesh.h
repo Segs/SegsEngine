@@ -56,30 +56,9 @@ class GODOT_EXPORT TriangleMesh : public RefCounted {
 
 		int face_index;
 	};
-
-	struct BVHCmpX {
-
-		bool operator()(const BVH *p_left, const BVH *p_right) const {
-
-			return p_left->center.x < p_right->center.x;
-		}
-	};
-
-	struct BVHCmpY {
-
-		bool operator()(const BVH *p_left, const BVH *p_right) const {
-
-			return p_left->center.y < p_right->center.y;
-		}
-	};
-	struct BVHCmpZ {
-
-		bool operator()(const BVH *p_left, const BVH *p_right) const {
-
-			return p_left->center.z < p_right->center.z;
-		}
-	};
-
+    friend struct BVHCmpX;
+    friend struct BVHCmpY;
+    friend struct BVHCmpZ;
 	int _create_bvh(BVH *p_bvh, BVH **p_bb, int p_from, int p_size, int p_depth, int &max_depth, int &max_alloc);
 
 	PoolVector<BVH> bvh;
@@ -95,8 +74,8 @@ public:
 	Vector3 get_area_normal(const AABB &p_aabb) const;
 	PoolVector<Face3> get_faces() const;
 
-	PoolVector<Triangle> get_triangles() const { return triangles; }
-	PoolVector<Vector3> get_vertices() const { return vertices; }
+	const PoolVector<Triangle> &get_triangles() const { return triangles; }
+	const PoolVector<Vector3> &get_vertices() const { return vertices; }
 	void get_indices(PoolVector<int> *r_triangles_indices) const;
 
 	void create(const PoolVector<Vector3> &p_faces);

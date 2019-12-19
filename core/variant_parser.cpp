@@ -1648,7 +1648,6 @@ Error VariantWriter::write(const Variant &p_variant, StoreStringFunc p_store_str
         case VariantType::POOL_BYTE_ARRAY: {
 
             p_store_string_func(p_store_string_ud, ("PoolByteArray( "));
-            String s;
             PoolVector<uint8_t> data = p_variant;
             int len = data.size();
             PoolVector<uint8_t>::Read r = data.read();

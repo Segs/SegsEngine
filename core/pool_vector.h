@@ -386,7 +386,7 @@ public:
     Error resize(int p_size);
 
     PoolVector & operator=(const PoolVector &p_pool_vector) { _reference(p_pool_vector); return *this; }
-    PoolVector & operator=(PoolVector &&p_pool_vector) {
+    PoolVector & operator=(PoolVector &&p_pool_vector) noexcept {
         if (this == &p_pool_vector || this->alloc==p_pool_vector.alloc)
         {
             return *this;
@@ -491,11 +491,11 @@ Error PoolVector<T>::resize(int p_size) {
 
         Write w = write();
         if constexpr(std::is_base_of<Object, T>::value) {
-            for (int i = cur_elements; i < p_size; i++) {
+            for (int i = cur_elements; i < p_size; ++i) {
                 memnew_placement(&w[i], T);
             }
         } else {
-            for (int i = cur_elements; i < p_size; i++) {
+            for (int i = cur_elements; i < p_size; ++i) {
                 memnew_placement_basic(&w[i], T);
             }
         }
@@ -524,13 +524,12 @@ Error PoolVector<T>::resize(int p_size) {
 
 template <class T>
 void invert(PoolVector<T> &v) {
-    T temp;
     typename PoolVector<T>::Write w = v.write();
     int s = v.size();
     int half_s = s / 2;
 
     for (int i = 0; i < half_s; i++) {
-        temp = w[i];
+        T temp = w[i];
         w[i] = w[s - i - 1];
         w[s - i - 1] = temp;
     }

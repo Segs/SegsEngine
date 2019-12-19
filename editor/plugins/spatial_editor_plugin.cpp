@@ -6008,7 +6008,7 @@ bool SpatialEditor::are_local_coords_enabled() const {
 }
 
 float SpatialEditor::get_translate_snap() const {
-    float snap_value=snap_value = snap_translate->get_text_ui().toFloat();
+    float snap_value = snap_translate->get_text_ui().toFloat();
 
     if (Input::get_singleton()->is_key_pressed(KEY_SHIFT))
          snap_value /= 10.0f;
@@ -6017,7 +6017,7 @@ float SpatialEditor::get_translate_snap() const {
 }
 
 float SpatialEditor::get_rotate_snap() const {
-    float snap_value=snap_value = snap_rotate->get_text_ui().toFloat();
+    float snap_value= snap_rotate->get_text_ui().toFloat();
 
     if (Input::get_singleton()->is_key_pressed(KEY_SHIFT))
          snap_value /= 3.0f;
@@ -6027,7 +6027,7 @@ float SpatialEditor::get_rotate_snap() const {
 
 float SpatialEditor::get_scale_snap() const {
 
-    float snap_value=snap_value = snap_scale->get_text_ui().toFloat();
+    float snap_value= snap_scale->get_text_ui().toFloat();
 
     if (Input::get_singleton()->is_key_pressed(KEY_SHIFT))
          snap_value /= 2.0f;

@@ -718,7 +718,7 @@ Dictionary _OS::get_datetime(bool utc) const {
     res[MONTH_KEY] = date.month;
     res[DAY_KEY] = date.day;
     res[WEEKDAY_KEY] = date.weekday;
-    res[DST_KEY] = date.dst;
+    res[DST_KEY] = Variant(date.dst);
     res[HOUR_KEY] = time.hour;
     res[MINUTE_KEY] = time.min;
     res[SECOND_KEY] = time.sec;

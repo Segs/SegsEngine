@@ -121,12 +121,12 @@ se_string DirAccessWindows::get_drive(int p_drive) {
 
     if (p_drive < 0 || p_drive >= drive_count) return se_string();
 
-    return drives[p_drive] + ":";
+    return se_string(&drives[p_drive],1) + ":";
 }
 
-Error DirAccessWindows::change_dir(se_string_view p_dir)
+Error DirAccessWindows::change_dir(se_string_view _dir)
 {
-    p_dir = fix_path(p_dir);
+    se_string p_dir = fix_path(_dir);
 
     QString real_current_dir_name = QDir::currentPath();
 
