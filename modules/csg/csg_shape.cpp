@@ -312,7 +312,7 @@ void CSGShape::_update_shape() {
     root_mesh.unref(); //byebye root mesh
 
     CSGBrush *n = _get_brush();
-    ERR_FAIL_COND_CMSG(!n, "Cannot get CSGBrush.")
+    ERR_FAIL_COND_MSG(!n, "Cannot get CSGBrush.")
 
     OAHashMap<Vector3, Vector3> vec_map;
 

@@ -277,7 +277,7 @@ void RigidBody2D::_body_enter_tree(ObjectID p_id) {
     E->second.in_scene = true;
     emit_signal(SceneStringNames::get_singleton()->body_entered, Variant(node));
 
-    for (int i = 0; i < E->second.shapes.size(); i++) {
+    for (size_t i = 0; i < E->second.shapes.size(); i++) {
 
         emit_signal(SceneStringNames::get_singleton()->body_shape_entered, p_id, Variant(node), E->second.shapes[i].body_shape, E->second.shapes[i].local_shape);
     }
@@ -300,7 +300,7 @@ void RigidBody2D::_body_exit_tree(ObjectID p_id) {
 
     emit_signal(SceneStringNames::get_singleton()->body_exited, Variant(node));
 
-    for (int i = 0; i < E->second.shapes.size(); i++) {
+    for (size_t i = 0; i < E->second.shapes.size(); i++) {
 
         emit_signal(SceneStringNames::get_singleton()->body_shape_exited, p_id, Variant(node), E->second.shapes[i].body_shape, E->second.shapes[i].local_shape);
     }
@@ -415,7 +415,7 @@ void RigidBody2D::_direct_state_changed(Object *p_state) {
         int rc = 0;
         for (eastl::pair<const ObjectID,BodyState> &E : contact_monitor->body_map) {
 
-            for (int i = 0; i < E.second.shapes.size(); i++) {
+            for (size_t i = 0; i < E.second.shapes.size(); i++) {
 
                 E.second.shapes[i].tagged = false;
                 rc++;
@@ -447,8 +447,8 @@ void RigidBody2D::_direct_state_changed(Object *p_state) {
             }
 
             ShapePair sp(shape, local_shape);
-            int idx = E->second.shapes.find(sp);
-            if (idx == -1) {
+            auto idx = E->second.shapes.find(sp);
+            if (idx == E->second.shapes.end()) {
 
                 toadd[toadd_count].local_shape = local_shape;
                 toadd[toadd_count].id = obj;
@@ -457,19 +457,19 @@ void RigidBody2D::_direct_state_changed(Object *p_state) {
                 continue;
             }
 
-            E->second.shapes[idx].tagged = true;
+            idx->tagged = true;
         }
 
         //put the ones to remove
 
         for (eastl::pair<const ObjectID,BodyState> &E : contact_monitor->body_map) {
 
-            for (int i = 0; i < E.second.shapes.size(); i++) {
+            for (auto &i : E.second.shapes) {
 
-                if (!E.second.shapes[i].tagged) {
+                if (!i.tagged) {
 
                     toremove[toremove_count].body_id = E.first;
-                    toremove[toremove_count].pair = E.second.shapes[i];
+                    toremove[toremove_count].pair = i;
                     toremove_count++;
                 }
             }
@@ -834,11 +834,11 @@ void RigidBody2D::_notification(int p_what) {
 #endif
 }
 
-String RigidBody2D::get_configuration_warning() const {
+StringName RigidBody2D::get_configuration_warning() const {
 
     Transform2D t = get_transform();
 
-    String warning = CollisionObject2D::get_configuration_warning();
+    se_string warning(CollisionObject2D::get_configuration_warning());
 
     if ((get_mode() == MODE_RIGID || get_mode() == MODE_CHARACTER) && (ABS(t.elements[0].length() - 1.0) > 0.05 || ABS(t.elements[1].length() - 1.0) > 0.05)) {
         if (!warning.empty()) {
@@ -847,7 +847,7 @@ String RigidBody2D::get_configuration_warning() const {
         warning += TTR("Size changes to RigidBody2D (in character or rigid modes) will be overridden by the physics engine when running.\nChange the size in children collision shapes instead.");
     }
 
-    return warning;
+    return StringName(warning);
 }
 
 void RigidBody2D::_bind_methods() {
@@ -931,10 +931,7 @@ void RigidBody2D::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::REAL, "mass", PROPERTY_HINT_EXP_RANGE, "0.01,65535,0.01"), "set_mass", "get_mass");
     ADD_PROPERTY(PropertyInfo(VariantType::REAL, "inertia", PROPERTY_HINT_EXP_RANGE, "0.01,65535,0.01", 0), "set_inertia", "get_inertia");
     ADD_PROPERTY(PropertyInfo(VariantType::REAL, "weight", PROPERTY_HINT_EXP_RANGE, "0.01,65535,0.01", PROPERTY_USAGE_EDITOR), "set_weight", "get_weight");
-#ifndef DISABLE_DEPRECATED
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "friction", PROPERTY_HINT_RANGE, "0,1,0.01", 0), "set_friction", "get_friction");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "bounce", PROPERTY_HINT_RANGE, "0,1,0.01", 0), "set_bounce", "get_bounce");
-#endif // DISABLE_DEPRECATED
+
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "physics_material_override", PROPERTY_HINT_RESOURCE_TYPE, "PhysicsMaterial"), "set_physics_material_override", "get_physics_material_override");
     ADD_PROPERTY(PropertyInfo(VariantType::REAL, "gravity_scale", PROPERTY_HINT_RANGE, "-128,128,0.01"), "set_gravity_scale", "get_gravity_scale");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "custom_integrator"), "set_use_custom_integrator", "is_using_custom_integrator");
@@ -1102,18 +1099,20 @@ bool KinematicBody2D::move_and_collide(const Vector2 &p_motion, bool p_infinite_
 
 Vector2 KinematicBody2D::move_and_slide(const Vector2 &p_linear_velocity, const Vector2 &p_floor_direction, bool p_stop_on_slope, int p_max_slides, float p_floor_max_angle, bool p_infinite_inertia) {
 
-    Vector2 floor_motion = floor_velocity;
+    Vector2 body_velocity = p_linear_velocity;
+    Vector2 body_velocity_normal = body_velocity.normalized();
+
+    Vector2 current_floor_velocity = floor_velocity;
     if (on_floor && on_floor_body.is_valid()) {
         //this approach makes sure there is less delay between the actual body velocity and the one we saved
         Physics2DDirectBodyState *bs = Physics2DServer::get_singleton()->body_get_direct_state(on_floor_body);
         if (bs) {
-            floor_motion = bs->get_linear_velocity();
+            current_floor_velocity = bs->get_linear_velocity();
         }
     }
 
     // Hack in order to work with calling from _process as well as from _physics_process; calling from thread is risky
-    Vector2 motion = (floor_motion + p_linear_velocity) * (Engine::get_singleton()->is_in_physics_frame() ? get_physics_process_delta_time() : get_process_delta_time());
-    Vector2 lv = p_linear_velocity;
+    Vector2 motion = (current_floor_velocity + body_velocity) * (Engine::get_singleton()->is_in_physics_frame() ? get_physics_process_delta_time() : get_process_delta_time());
 
     on_floor = false;
     on_floor_body = RID();
@@ -1122,14 +1121,12 @@ Vector2 KinematicBody2D::move_and_slide(const Vector2 &p_linear_velocity, const 
     colliders.clear();
     floor_velocity = Vector2();
 
-    Vector2 lv_n = p_linear_velocity.normalized();
-
     while (p_max_slides) {
 
         Collision collision;
         bool found_collision = false;
 
-        for (int i = 0; i < 2; i++) {
+        for (int i = 0; i < 2; ++i) {
             bool collided;
             if (i == 0) { //collide
                 collided = move_and_collide(motion, p_infinite_inertia, collision);
@@ -1161,9 +1158,9 @@ Vector2 KinematicBody2D::move_and_slide(const Vector2 &p_linear_velocity, const 
                         floor_velocity = collision.collider_vel;
 
                         if (p_stop_on_slope) {
-                            if ((lv_n + p_floor_direction).length() < 0.01 && collision.travel.length() < 1) {
+                            if ((body_velocity_normal + p_floor_direction).length() < 0.01 && collision.travel.length() < 1) {
                                 Transform2D gt = get_global_transform();
-                                gt.elements[2] -= collision.travel.project(p_floor_direction.tangent());
+                                gt.elements[2] -= collision.travel.slide(p_floor_direction);
                                 set_global_transform(gt);
                                 return Vector2();
                             }
@@ -1176,22 +1173,20 @@ Vector2 KinematicBody2D::move_and_slide(const Vector2 &p_linear_velocity, const 
                     }
                 }
 
-                Vector2 n = collision.normal;
-                motion = motion.slide(n);
-                lv = lv.slide(n);
+                motion = motion.slide(collision.normal);
+                body_velocity = body_velocity.slide(collision.normal);
             }
         }
 
-        if (!found_collision) {
+        if (!found_collision || motion == Vector2())
             break;
-        }
-        p_max_slides--;
-        if (motion == Vector2())
-            break;
+
+        --p_max_slides;
     }
 
-    return lv;
+    return body_velocity;
 }
+
 
 Vector2 KinematicBody2D::move_and_slide_with_snap(const Vector2 &p_linear_velocity, const Vector2 &p_snap, const Vector2 &p_floor_direction, bool p_stop_on_slope, int p_max_slides, float p_floor_max_angle, bool p_infinite_inertia) {
 

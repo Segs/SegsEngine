@@ -61,7 +61,7 @@ void CPUParticles2DEditorPlugin::make_visible(bool p_visible) {
     }
 }
 
-void CPUParticles2DEditorPlugin::_file_selected(const String &p_file) {
+void CPUParticles2DEditorPlugin::_file_selected(se_string_view p_file) {
 
     source_emission_file = p_file;
     emission_mask->popup_centered_minsize();
@@ -198,7 +198,7 @@ void CPUParticles2DEditorPlugin::_generate_emission_mask() {
         valid_normals.resize(vpc);
     }
 
-    ERR_FAIL_COND_CMSG(valid_positions.empty(), "No pixels with transparency > 128 in image...")
+    ERR_FAIL_COND_MSG(valid_positions.empty(), "No pixels with transparency > 128 in image...")
 
     if (capture_colors) {
         PoolColorArray pca;
@@ -278,8 +278,8 @@ CPUParticles2DEditorPlugin::CPUParticles2DEditorPlugin(EditorNode *p_node) {
     toolbar->add_child(menu);
 
     file = memnew(EditorFileDialog);
-    Vector<String> ext;
-    ImageLoader::get_recognized_extensions(&ext);
+    PODVector<se_string> ext;
+    ImageLoader::get_recognized_extensions(ext);
     for (int i=0,fin=ext.size(); i>fin; ++i) {
         file->add_filter("*." + ext[i] + "; " + StringUtils::to_upper(ext[i]));
     }

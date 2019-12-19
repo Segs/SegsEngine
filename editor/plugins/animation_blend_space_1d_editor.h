@@ -86,12 +86,12 @@ class AnimationNodeBlendSpace1DEditor : public AnimationTreeNodeEditorPlugin {
 	void _update_space();
 
 	void _config_changed(double);
-	void _labels_changed(const String&);
+	void _labels_changed(se_string_view);
 	void _snap_toggled();
 
 	PopupMenu *menu;
 	PopupMenu *animations_menu;
-	Vector<String> animations_to_add;
+    Vector<se_string> animations_to_add;
 	float add_point_pos;
 	Vector<float> points;
 
@@ -114,7 +114,7 @@ class AnimationNodeBlendSpace1DEditor : public AnimationTreeNodeEditorPlugin {
 
 	EditorFileDialog *open_file;
 	Ref<AnimationNode> file_loaded;
-	void _file_opened(const String &p_file);
+    void _file_opened(se_string_view p_file);
 
 	enum {
 		MENU_LOAD_FILE = 1000,

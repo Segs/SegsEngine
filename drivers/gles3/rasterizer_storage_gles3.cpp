@@ -111,13 +111,13 @@ void glTexStorage2DCustom(GLenum target, GLsizei levels, GLenum internalformat, 
 
 GLuint RasterizerStorageGLES3::system_fbo = 0;
 
-Ref<Image> RasterizerStorageGLES3::_get_gl_image_and_format(const Ref<Image> &p_image, Image::Format p_format, uint32_t p_flags, Image::Format &r_real_format, GLenum &r_gl_format, GLenum &r_gl_internal_format, GLenum &r_gl_type, bool &r_compressed, bool &srgb) const {
+Ref<Image> RasterizerStorageGLES3::_get_gl_image_and_format(const Ref<Image> &p_image, Image::Format p_format, uint32_t p_flags, Image::Format &r_real_format, GLenum &r_gl_format, GLenum &r_gl_internal_format, GLenum &r_gl_type, bool &r_compressed, bool &r_srgb, bool p_force_decompress) const {
 
     r_compressed = false;
     r_gl_format = 0;
     r_real_format = p_format;
     Ref<Image> image = p_image;
-    srgb = false;
+    r_srgb = false;
 
     bool need_decompress = false;
 
@@ -152,7 +152,7 @@ Ref<Image> RasterizerStorageGLES3::_get_gl_image_and_format(const Ref<Image> &p_
             r_gl_internal_format = (config.srgb_decode_supported || (p_flags & VS::TEXTURE_FLAG_CONVERT_TO_LINEAR)) ? GL_SRGB8 : GL_RGB8;
             r_gl_format = GL_RGB;
             r_gl_type = GL_UNSIGNED_BYTE;
-            srgb = true;
+            r_srgb = true;
 
         } break;
         case Image::FORMAT_RGBA8: {
@@ -160,7 +160,7 @@ Ref<Image> RasterizerStorageGLES3::_get_gl_image_and_format(const Ref<Image> &p_
             r_gl_format = GL_RGBA;
             r_gl_internal_format = (config.srgb_decode_supported || (p_flags & VS::TEXTURE_FLAG_CONVERT_TO_LINEAR)) ? GL_SRGB8_ALPHA8 : GL_RGBA8;
             r_gl_type = GL_UNSIGNED_BYTE;
-            srgb = true;
+            r_srgb = true;
 
         } break;
         case Image::FORMAT_RGBA4444: {
@@ -242,7 +242,7 @@ Ref<Image> RasterizerStorageGLES3::_get_gl_image_and_format(const Ref<Image> &p_
                 r_gl_format = GL_RGBA;
                 r_gl_type = GL_UNSIGNED_BYTE;
                 r_compressed = true;
-                srgb = true;
+                r_srgb = true;
 
             } else {
 
@@ -258,7 +258,7 @@ Ref<Image> RasterizerStorageGLES3::_get_gl_image_and_format(const Ref<Image> &p_
                 r_gl_format = GL_RGBA;
                 r_gl_type = GL_UNSIGNED_BYTE;
                 r_compressed = true;
-                srgb = true;
+                r_srgb = true;
 
             } else {
 
@@ -274,7 +274,7 @@ Ref<Image> RasterizerStorageGLES3::_get_gl_image_and_format(const Ref<Image> &p_
                 r_gl_format = GL_RGBA;
                 r_gl_type = GL_UNSIGNED_BYTE;
                 r_compressed = true;
-                srgb = true;
+                r_srgb = true;
 
             } else {
 
@@ -319,7 +319,7 @@ Ref<Image> RasterizerStorageGLES3::_get_gl_image_and_format(const Ref<Image> &p_
                 r_gl_format = GL_RGBA;
                 r_gl_type = GL_UNSIGNED_BYTE;
                 r_compressed = true;
-                srgb = true;
+                r_srgb = true;
 
             } else {
 
@@ -359,7 +359,7 @@ Ref<Image> RasterizerStorageGLES3::_get_gl_image_and_format(const Ref<Image> &p_
                 r_gl_format = GL_RGBA;
                 r_gl_type = GL_UNSIGNED_BYTE;
                 r_compressed = true;
-                srgb = true;
+                r_srgb = true;
 
             } else {
 
@@ -374,7 +374,7 @@ Ref<Image> RasterizerStorageGLES3::_get_gl_image_and_format(const Ref<Image> &p_
                 r_gl_format = GL_RGBA;
                 r_gl_type = GL_UNSIGNED_BYTE;
                 r_compressed = true;
-                srgb = true;
+                r_srgb = true;
 
             } else {
 
@@ -390,7 +390,7 @@ Ref<Image> RasterizerStorageGLES3::_get_gl_image_and_format(const Ref<Image> &p_
                 r_gl_format = GL_RGBA;
                 r_gl_type = GL_UNSIGNED_BYTE;
                 r_compressed = true;
-                srgb = true;
+                r_srgb = true;
 
             } else {
 
@@ -406,7 +406,7 @@ Ref<Image> RasterizerStorageGLES3::_get_gl_image_and_format(const Ref<Image> &p_
                 r_gl_format = GL_RGBA;
                 r_gl_type = GL_UNSIGNED_BYTE;
                 r_compressed = true;
-                srgb = true;
+                r_srgb = true;
 
             } else {
 
@@ -491,7 +491,7 @@ Ref<Image> RasterizerStorageGLES3::_get_gl_image_and_format(const Ref<Image> &p_
                 r_gl_format = GL_RGB;
                 r_gl_type = GL_UNSIGNED_BYTE;
                 r_compressed = true;
-                srgb = true;
+                r_srgb = true;
 
             } else {
 
@@ -506,7 +506,7 @@ Ref<Image> RasterizerStorageGLES3::_get_gl_image_and_format(const Ref<Image> &p_
                 r_gl_format = GL_RGBA;
                 r_gl_type = GL_UNSIGNED_BYTE;
                 r_compressed = true;
-                srgb = true;
+                r_srgb = true;
 
             } else {
 
@@ -521,7 +521,7 @@ Ref<Image> RasterizerStorageGLES3::_get_gl_image_and_format(const Ref<Image> &p_
                 r_gl_format = GL_RGBA;
                 r_gl_type = GL_UNSIGNED_BYTE;
                 r_compressed = true;
-                srgb = true;
+                r_srgb = true;
 
             } else {
 
@@ -534,7 +534,7 @@ Ref<Image> RasterizerStorageGLES3::_get_gl_image_and_format(const Ref<Image> &p_
         }
     }
 
-    if (need_decompress) {
+    if (need_decompress || p_force_decompress) {
 
         if (image) {
             image = dynamic_ref_cast<Image>(image->duplicate());
@@ -548,7 +548,7 @@ Ref<Image> RasterizerStorageGLES3::_get_gl_image_and_format(const Ref<Image> &p_
         r_gl_type = GL_UNSIGNED_BYTE;
         r_compressed = false;
         r_real_format = Image::FORMAT_RGBA8;
-        srgb = true;
+        r_srgb = true;
 
         return image;
     }
@@ -622,7 +622,7 @@ void RasterizerStorageGLES3::texture_allocate(RID p_texture, int p_width, int p_
     }
 
     Image::Format real_format;
-    _get_gl_image_and_format(Ref<Image>(), texture->format, texture->flags, real_format, format, internal_format, type, compressed, srgb);
+    _get_gl_image_and_format(Ref<Image>(), texture->format, texture->flags, real_format, format, internal_format, type, compressed, srgb, false);
 
     texture->alloc_width = texture->width;
     texture->alloc_height = texture->height;
@@ -699,7 +699,7 @@ void RasterizerStorageGLES3::texture_set_data(RID p_texture, const Ref<Image> &p
     }
 
     Image::Format real_format;
-    Ref<Image> img = _get_gl_image_and_format(p_image, p_image->get_format(), texture->flags, real_format, format, internal_format, type, compressed, srgb);
+    Ref<Image> img = _get_gl_image_and_format(p_image, p_image->get_format(), texture->flags, real_format, format, internal_format, type, compressed, srgb,false);
 
     if (config.shrink_textures_x2 && (p_image->has_mipmaps() || !p_image->is_compressed()) && !(texture->flags & VS::TEXTURE_FLAG_USED_FOR_STREAMING)) {
 
@@ -713,7 +713,7 @@ void RasterizerStorageGLES3::texture_set_data(RID p_texture, const Ref<Image> &p
 
             img->resize(texture->alloc_width, texture->alloc_height, Image::INTERPOLATE_BILINEAR);
         }
-    };
+    }
 
     GLenum blit_target = GL_TEXTURE_2D;
 
@@ -735,6 +735,7 @@ void RasterizerStorageGLES3::texture_set_data(RID p_texture, const Ref<Image> &p
 
     texture->data_size = img->get_data().size();
     PoolVector<uint8_t>::Read read = img->get_data().read();
+    ERR_FAIL_COND(!read.ptr());
 
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(texture->target, texture->tex_id);
@@ -931,7 +932,7 @@ void RasterizerStorageGLES3::texture_set_data_partial(RID p_texture, const Ref<I
     }
 
     Image::Format real_format;
-    Ref<Image> img = _get_gl_image_and_format(p_sub_img, p_sub_img->get_format(), texture->flags, real_format, format, internal_format, type, compressed, srgb);
+    Ref<Image> img = _get_gl_image_and_format(p_sub_img, p_sub_img->get_format(), texture->flags, real_format, format, internal_format, type, compressed, srgb,false);
 
     GLenum blit_target = GL_TEXTURE_2D;
 
@@ -1030,7 +1031,8 @@ Ref<Image> RasterizerStorageGLES3::texture_get_data(RID p_texture, int p_layer) 
                 gl_internal_format,
                 gl_type,
                 compressed,
-                srgb);
+                srgb,
+                false);
 
         PoolVector<uint8_t> data;
 
@@ -1134,7 +1136,7 @@ Ref<Image> RasterizerStorageGLES3::texture_get_data(RID p_texture, int p_layer) 
     GLenum gl_type;
     bool compressed;
     bool srgb;
-    _get_gl_image_and_format(Ref<Image>(), texture->format, texture->flags, real_format, gl_format, gl_internal_format, gl_type, compressed, srgb);
+    _get_gl_image_and_format(Ref<Image>(), texture->format, texture->flags, real_format, gl_format, gl_internal_format, gl_type, compressed, srgb,false);
 
     PoolVector<uint8_t> data;
 
@@ -1355,17 +1357,17 @@ void RasterizerStorageGLES3::texture_set_size_override(RID p_texture, int p_widt
     texture->height = p_height;
 }
 
-void RasterizerStorageGLES3::texture_set_path(RID p_texture, const String &p_path) {
+void RasterizerStorageGLES3::texture_set_path(RID p_texture, se_string_view p_path) {
     Texture *texture = texture_owner.get(p_texture);
     ERR_FAIL_COND(!texture)
 
     texture->path = p_path;
 }
 
-String RasterizerStorageGLES3::texture_get_path(RID p_texture) const {
+const se_string &RasterizerStorageGLES3::texture_get_path(RID p_texture) const {
 
     Texture *texture = texture_owner.get(p_texture);
-    ERR_FAIL_COND_V(!texture, String())
+    ERR_FAIL_COND_V(!texture, null_se_string)
     return texture->path;
 }
 void RasterizerStorageGLES3::texture_debug_usage(List<VisualServer::TextureInfo> *r_info) {
@@ -1873,14 +1875,14 @@ void RasterizerStorageGLES3::_shader_make_dirty(Shader *p_shader) {
     _shader_dirty_list.add(&p_shader->dirty_list);
 }
 
-void RasterizerStorageGLES3::shader_set_code(RID p_shader, const String &p_code) {
+void RasterizerStorageGLES3::shader_set_code(RID p_shader, const se_string &p_code) {
 
     Shader *shader = shader_owner.get(p_shader);
     ERR_FAIL_COND(!shader)
 
     shader->code = p_code;
 
-    String mode_string = ShaderLanguage::get_shader_type(p_code);
+    se_string mode_string = ShaderLanguage::get_shader_type(p_code);
     VS::ShaderMode mode;
 
     if (mode_string == "canvas_item")
@@ -1913,10 +1915,10 @@ void RasterizerStorageGLES3::shader_set_code(RID p_shader, const String &p_code)
 
     _shader_make_dirty(shader);
 }
-String RasterizerStorageGLES3::shader_get_code(RID p_shader) const {
+se_string RasterizerStorageGLES3::shader_get_code(RID p_shader) const {
 
     const Shader *shader = shader_owner.get(p_shader);
-    ERR_FAIL_COND_V(!shader, String())
+    ERR_FAIL_COND_V(!shader, se_string())
 
     return shader->code;
 }
@@ -2067,7 +2069,7 @@ void RasterizerStorageGLES3::update_dirty_shaders() {
     }
 }
 
-void RasterizerStorageGLES3::shader_get_param_list(RID p_shader, ListPOD<PropertyInfo> *p_param_list) const {
+void RasterizerStorageGLES3::shader_get_param_list(RID p_shader, PODVector<PropertyInfo> *p_param_list) const {
 
     Shader *shader = shader_owner.get(p_shader);
     ERR_FAIL_COND(!shader)
@@ -2085,7 +2087,7 @@ void RasterizerStorageGLES3::shader_get_param_list(RID p_shader, ListPOD<Propert
             order[E.second.order] = E.first;
         }
     }
-
+    p_param_list->reserve(p_param_list->size()+order.size());
     for (const eastl::pair<const int,StringName> &E : order) {
 
         PropertyInfo pi;
@@ -3053,7 +3055,7 @@ void RasterizerStorageGLES3::mesh_add_surface(RID p_mesh, uint32_t p_format, VS:
     //must have index and bones, both.
     {
         uint32_t bones_weight = VS::ARRAY_FORMAT_BONES | VS::ARRAY_FORMAT_WEIGHTS;
-        ERR_FAIL_COND_CMSG((p_format & bones_weight) && (p_format & bones_weight) != bones_weight, "Array must have both bones and weights in format or none.")
+        ERR_FAIL_COND_MSG((p_format & bones_weight) && (p_format & bones_weight) != bones_weight, "Array must have both bones and weights in format or none.")
     }
 
     //bool has_morph = p_blend_shapes.size();
@@ -4547,6 +4549,7 @@ void RasterizerStorageGLES3::multimesh_set_as_bulk_array(RID p_multimesh, const 
 
     MultiMesh *multimesh = multimesh_owner.getornull(p_multimesh);
     ERR_FAIL_COND(!multimesh)
+    ERR_FAIL_COND(!multimesh->data.ptr())
 
     int dsize = multimesh->data.size();
 
@@ -4683,7 +4686,8 @@ RID RasterizerStorageGLES3::immediate_create() {
     return immediate_owner.make_rid(im);
 }
 
-void RasterizerStorageGLES3::immediate_begin(RID p_immediate, VS::PrimitiveType p_rimitive, RID p_texture) {
+void RasterizerStorageGLES3::immediate_begin(RID p_immediate, VS::PrimitiveType p_primitive, RID p_texture) {
+    ERR_FAIL_INDEX(p_primitive, (int)VS::PRIMITIVE_MAX);
 
     Immediate *im = immediate_owner.get(p_immediate);
     ERR_FAIL_COND(!im)
@@ -4691,7 +4695,7 @@ void RasterizerStorageGLES3::immediate_begin(RID p_immediate, VS::PrimitiveType 
 
     Immediate::Chunk ic;
     ic.texture = p_texture;
-    ic.primitive = p_rimitive;
+    ic.primitive = p_primitive;
     im->chunks.push_back(ic);
     im->mask = 0;
     im->building = true;
@@ -6770,13 +6774,13 @@ void RasterizerStorageGLES3::_render_target_allocate(RenderTarget *rt) {
 
         rt->buffers.active = true;
 
-        static const int msaa_value[] = { 0, 2, 4, 8, 16 };
+        static const int msaa_value[] = { 0, 2, 4, 8, 16, 4, 16 }; // MSAA_EXT_nX is a GLES2 temporary hack ignored in GLES3 for now...
         int msaa = msaa_value[rt->msaa];
 
         int max_samples = 0;
         glGetIntegerv(GL_MAX_SAMPLES, &max_samples);
         if (msaa > max_samples) {
-            WARN_PRINTS("MSAA must be <= GL_MAX_SAMPLES, falling-back to GL_MAX_SAMPLES = " + itos(max_samples));
+            WARN_PRINT("MSAA must be <= GL_MAX_SAMPLES, falling-back to GL_MAX_SAMPLES = " + itos(max_samples))
             msaa = max_samples;
         }
 
@@ -7671,7 +7675,7 @@ bool RasterizerStorageGLES3::free(RID p_rid) {
     return true;
 }
 
-bool RasterizerStorageGLES3::has_os_feature(const String &p_feature) const {
+bool RasterizerStorageGLES3::has_os_feature(const StringName &p_feature) const {
 
     if (p_feature == "bptc")
         return config.bptc_supported;
@@ -7719,7 +7723,7 @@ int RasterizerStorageGLES3::get_captured_render_info(VS::RenderInfo p_info) {
         case VS::INFO_OBJECTS_IN_FRAME: {
 
             return info.snap.object_count;
-        } break;
+        }
         case VS::INFO_VERTICES_IN_FRAME: {
 
             return info.snap.vertices_count;
@@ -7791,11 +7795,11 @@ void RasterizerStorageGLES3::initialize() {
 
     config.shrink_textures_x2 = false;
     config.use_fast_texture_filter = int(ProjectSettings::get_singleton()->get("rendering/quality/filters/use_nearest_mipmap_filter"));
-    config.use_anisotropic_filter = config.extensions.contains("rendering/quality/filters/anisotropic_filter_level");
+    config.use_anisotropic_filter = config.extensions.contains(String("rendering/quality/filters/anisotropic_filter_level"));
 
-    config.etc_supported = config.extensions.contains("GL_OES_compressed_ETC1_RGB8_texture");
-    config.latc_supported = config.extensions.contains("GL_EXT_texture_compression_latc");
-    config.bptc_supported = config.extensions.contains("GL_ARB_texture_compression_bptc");
+    config.etc_supported = config.extensions.contains(String("GL_OES_compressed_ETC1_RGB8_texture"));
+    config.latc_supported = config.extensions.contains(String("GL_EXT_texture_compression_latc"));
+    config.bptc_supported = config.extensions.contains(String("GL_ARB_texture_compression_bptc"));
 
     config.etc2_supported = false;
     config.s3tc_supported = true;
@@ -7804,11 +7808,11 @@ void RasterizerStorageGLES3::initialize() {
     config.framebuffer_float_supported = true;
     config.framebuffer_half_float_supported = true;
 
-    config.pvrtc_supported = config.extensions.contains("GL_IMG_texture_compression_pvrtc");
-    config.srgb_decode_supported = config.extensions.contains("GL_EXT_texture_sRGB_decode");
+    config.pvrtc_supported = config.extensions.contains(String("GL_IMG_texture_compression_pvrtc"));
+    config.srgb_decode_supported = config.extensions.contains(String("GL_EXT_texture_sRGB_decode"));
 
     config.anisotropic_level = 1.0;
-    config.use_anisotropic_filter = config.extensions.contains("GL_EXT_texture_filter_anisotropic");
+    config.use_anisotropic_filter = config.extensions.contains(String("GL_EXT_texture_filter_anisotropic"));
     if (config.use_anisotropic_filter) {
         glGetFloatv(_GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &config.anisotropic_level);
         config.anisotropic_level = MIN(int(ProjectSettings::get_singleton()->get("rendering/quality/filters/anisotropic_filter_level")), config.anisotropic_level);
@@ -7974,23 +7978,23 @@ void RasterizerStorageGLES3::initialize() {
 
     config.force_vertex_shading = GLOBAL_GET("rendering/quality/shading/force_vertex_shading");
 
-    String renderer = (const char *)glGetString(GL_RENDERER);
+    se_string renderer = (const char *)glGetString(GL_RENDERER);
 
     config.use_depth_prepass = bool(GLOBAL_GET("rendering/quality/depth_prepass/enable"));
-    if (config.use_depth_prepass) {
+//    if (config.use_depth_prepass) {
 
-        String vendors = GLOBAL_GET("rendering/quality/depth_prepass/disable_for_vendors");
-        Vector<String> vendor_match = StringUtils::split(vendors,",");
-        for (int i = 0; i < vendor_match.size(); i++) {
-            String v =StringUtils::strip_edges( vendor_match[i]);
-            if (v.empty())
-                continue;
+//        String vendors = GLOBAL_GET("rendering/quality/depth_prepass/disable_for_vendors");
+//        Vector<String> vendor_match = StringUtils::split(vendors,',');
+//        for (int i = 0; i < vendor_match.size(); i++) {
+//            String v =StringUtils::strip_edges( vendor_match[i]);
+//            if (v.empty())
+//                continue;
 
-            if (StringUtils::findn(renderer,v) != -1) {
-                config.use_depth_prepass = false;
-            }
-        }
-    }
+//            if (StringUtils::findn(renderer,v) != -1) {
+//                config.use_depth_prepass = false;
+//            }
+//        }
+//    }
 }
 
 void RasterizerStorageGLES3::finalize() {

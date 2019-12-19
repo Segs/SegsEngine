@@ -172,7 +172,7 @@ void ScriptServer::init_languages() {
                 Dictionary c = script_classes[i];
                 if (!c.has("class") || !c.has("language") || !c.has("path") || !c.has("base"))
                     continue;
-                add_global_class(c["class"], c["base"], c["language"], c["path"]);
+                add_global_class(c["class"], c["base"], c["language"], c["path"].as<se_string>());
             }
         }
     }
@@ -221,7 +221,8 @@ void ScriptServer::global_classes_clear() {
     global_classes.clear();
 }
 
-void ScriptServer::add_global_class(const StringName &p_class, const StringName &p_base, const StringName &p_language, const String &p_path) {
+void ScriptServer::add_global_class(const StringName &p_class, const StringName &p_base, const StringName &p_language, se_string_view p_path) {
+    ERR_FAIL_COND_MSG(p_class == p_base || (global_classes.contains(p_base) && get_global_class_native_base(p_base) == p_class), "Cyclic inheritance in script class.");
     GlobalScriptClass g;
     g.language = p_language;
     g.path = p_path;
@@ -238,18 +239,18 @@ StringName ScriptServer::get_global_class_language(const StringName &p_class) {
     ERR_FAIL_COND_V(!global_classes.contains(p_class), StringName())
     return global_classes[p_class].language;
 }
-String ScriptServer::get_global_class_path(const String &p_class) {
-    ERR_FAIL_COND_V(!global_classes.contains(StringName(p_class)), String())
-    return global_classes[StringName(p_class)].path;
+se_string_view ScriptServer::get_global_class_path(const StringName & p_class) {
+    ERR_FAIL_COND_V(!global_classes.contains(p_class), se_string_view())
+    return global_classes[p_class].path;
 }
 
-StringName ScriptServer::get_global_class_base(const String &p_class) {
+StringName ScriptServer::get_global_class_base(se_string_view p_class) {
     ERR_FAIL_COND_V(!global_classes.contains(StringName(p_class)), StringName())
     return global_classes[StringName(p_class)].base;
 }
-StringName ScriptServer::get_global_class_native_base(const String &p_class) {
-    ERR_FAIL_COND_V(!global_classes.contains(StringName(p_class)), StringName())
-    StringName base = global_classes[StringName(p_class)].base;
+StringName ScriptServer::get_global_class_native_base(const StringName &p_class) {
+    ERR_FAIL_COND_V(!global_classes.contains((p_class)), StringName())
+    StringName base = global_classes[(p_class)].base;
     while (global_classes.contains(base)) {
         base = global_classes[base].base;
     }
@@ -405,9 +406,9 @@ bool ScriptDebugger::is_breakpoint_line(int p_line) const {
     return breakpoints.contains(p_line);
 }
 
-String ScriptDebugger::breakpoint_find_source(const String &p_source) const {
+se_string ScriptDebugger::breakpoint_find_source(se_string_view p_source) const {
 
-    return p_source;
+    return se_string(p_source);
 }
 
 void ScriptDebugger::clear_breakpoints() {
@@ -545,7 +546,7 @@ bool PlaceHolderScriptInstance::has_method(const StringName &p_method) const {
     return false;
 }
 
-void PlaceHolderScriptInstance::update(const ListPOD<PropertyInfo> &p_properties, const Map<StringName, Variant> &p_values) {
+void PlaceHolderScriptInstance::update(const PODVector<PropertyInfo> &p_properties, const Map<StringName, Variant> &p_values) {
 
     Set<StringName> new_values;
     for(const PropertyInfo &E : p_properties ) {
@@ -606,7 +607,7 @@ void PlaceHolderScriptInstance::property_set_fallback(const StringName &p_name, 
             }
         }
         if (!found) {
-            properties.push_back(PropertyInfo(p_value.get_type(), StringUtils::utf8(p_name).data(), PROPERTY_HINT_NONE,
+            properties.push_back(PropertyInfo(p_value.get_type(), p_name, PROPERTY_HINT_NONE,
                     nullptr, PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_SCRIPT_VARIABLE));
         }
     }

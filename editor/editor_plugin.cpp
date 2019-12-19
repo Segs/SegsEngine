@@ -94,7 +94,7 @@ Vector<Ref<Texture> > EditorInterface::make_mesh_previews(const Vector<Ref<Mesh>
     VisualServer::get_singleton()->light_set_color(light2, Color(0.7, 0.7, 0.7));
     RID light_instance2 = VisualServer::get_singleton()->instance_create2(light2, scenario);
 
-    EditorProgress ep("mlib", TTR("Creating Mesh Previews"), p_meshes.size());
+    EditorProgress ep(("mlib"), TTR("Creating Mesh Previews"), p_meshes.size());
 
     Vector<Ref<Texture> > textures;
 
@@ -115,14 +115,14 @@ Vector<Ref<Texture> > EditorInterface::make_mesh_previews(const Vector<Ref<Mesh>
         VisualServer::get_singleton()->instance_set_transform(inst, mesh_xform);
 
         AABB aabb = mesh->get_aabb();
-        Vector3 ofs = aabb.position + aabb.size * 0.5;
+        Vector3 ofs = aabb.position + aabb.size * 0.5f;
         aabb.position -= ofs;
         Transform xform;
         xform.basis = Basis().rotated(Vector3(0, 1, 0), -Math_PI / 6);
         xform.basis = Basis().rotated(Vector3(1, 0, 0), Math_PI / 6) * xform.basis;
         AABB rot_aabb = xform.xform(aabb);
-        float m = MAX(rot_aabb.size.x, rot_aabb.size.y) * 0.5;
-        if (m == 0) {
+        float m = MAX(rot_aabb.size.x, rot_aabb.size.y) * 0.5f;
+        if (m == 0.0f) {
             textures.push_back(Ref<Texture>());
             continue;
         }
@@ -132,7 +132,7 @@ Vector<Ref<Texture> > EditorInterface::make_mesh_previews(const Vector<Ref<Mesh>
         xform = mesh_xform * xform;
 
         VisualServer::get_singleton()->camera_set_transform(camera, xform * Transform(Basis(), Vector3(0, 0, 3)));
-        VisualServer::get_singleton()->camera_set_orthogonal(camera, m * 2, 0.01, 1000.0);
+        VisualServer::get_singleton()->camera_set_orthogonal(camera, m * 2, 0.01f, 1000.0f);
 
         VisualServer::get_singleton()->instance_set_transform(light_instance, xform * Transform().looking_at(Vector3(-2, -1, -1), Vector3(0, 1, 0)));
         VisualServer::get_singleton()->instance_set_transform(light_instance2, xform * Transform().looking_at(Vector3(+1, -1, -2), Vector3(0, 1, 0)));
@@ -141,7 +141,7 @@ Vector<Ref<Texture> > EditorInterface::make_mesh_previews(const Vector<Ref<Mesh>
         Main::iteration();
         Main::iteration();
         Ref<Image> img = VisualServer::get_singleton()->texture_get_data(viewport_texture);
-        ERR_CONTINUE(not img || img->empty());
+        ERR_CONTINUE(not img || img->empty())
         Ref<ImageTexture> it(make_ref_counted<ImageTexture>());
         it->create_from_image(img);
 
@@ -161,7 +161,7 @@ Vector<Ref<Texture> > EditorInterface::make_mesh_previews(const Vector<Ref<Mesh>
     return textures;
 }
 
-void EditorInterface::set_main_screen_editor(const String &p_name) {
+void EditorInterface::set_main_screen_editor(const StringName &p_name) {
     EditorNode::get_singleton()->select_editor_by_name(p_name);
 }
 
@@ -175,7 +175,7 @@ void EditorInterface::edit_resource(const Ref<Resource> &p_resource) {
     EditorNode::get_singleton()->edit_resource(p_resource);
 }
 
-void EditorInterface::open_scene_from_path(const String &scene_path) {
+void EditorInterface::open_scene_from_path(se_string_view scene_path) {
 
     if (EditorNode::get_singleton()->is_changing_scene()) {
         return;
@@ -184,7 +184,7 @@ void EditorInterface::open_scene_from_path(const String &scene_path) {
     EditorNode::get_singleton()->open_request(scene_path);
 }
 
-void EditorInterface::reload_scene_from_path(const String &scene_path) {
+void EditorInterface::reload_scene_from_path(se_string_view scene_path) {
 
     if (EditorNode::get_singleton()->is_changing_scene()) {
         return;
@@ -215,19 +215,19 @@ ScriptEditor *EditorInterface::get_script_editor() {
     return ScriptEditor::get_singleton();
 }
 
-void EditorInterface::select_file(const String &p_file) {
+void EditorInterface::select_file(se_string_view p_file) {
     EditorNode::get_singleton()->get_filesystem_dock()->select_file(p_file);
 }
 
-String EditorInterface::get_selected_path() const {
+se_string EditorInterface::get_selected_path() const {
     return EditorNode::get_singleton()->get_filesystem_dock()->get_selected_path();
 }
 
-String EditorInterface::get_current_path() const {
+const se_string &EditorInterface::get_current_path() const {
     return EditorNode::get_singleton()->get_filesystem_dock()->get_current_path();
 }
 
-void EditorInterface::inspect_object(Object *p_obj, const String &p_for_property) {
+void EditorInterface::inspect_object(Object *p_obj, se_string_view p_for_property) {
 
     EditorNode::get_singleton()->push_item(p_obj, p_for_property);
 }
@@ -253,11 +253,11 @@ Control *EditorInterface::get_base_control() {
     return EditorNode::get_singleton()->get_gui_base();
 }
 
-void EditorInterface::set_plugin_enabled(const String &p_plugin, bool p_enabled) {
+void EditorInterface::set_plugin_enabled(const StringName &p_plugin, bool p_enabled) {
     EditorNode::get_singleton()->set_addon_plugin_enabled(p_plugin, p_enabled, true);
 }
 
-bool EditorInterface::is_plugin_enabled(const String &p_plugin) const {
+bool EditorInterface::is_plugin_enabled(const StringName &p_plugin) const {
     return EditorNode::get_singleton()->is_addon_plugin_enabled(p_plugin);
 }
 
@@ -275,7 +275,7 @@ Error EditorInterface::save_scene() {
     return OK;
 }
 
-void EditorInterface::save_scene_as(const String &p_scene, bool p_with_preview) {
+void EditorInterface::save_scene_as(se_string_view p_scene, bool p_with_preview) {
 
     EditorNode::get_singleton()->save_scene_to_path(p_scene, p_with_preview);
 }
@@ -288,7 +288,7 @@ EditorInterface *EditorInterface::singleton = nullptr;
 
 void EditorInterface::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("inspect_object", {"object", "for_property"}), &EditorInterface::inspect_object, {DEFVAL(String())});
+    MethodBinder::bind_method(D_METHOD("inspect_object", {"object", "for_property"}), &EditorInterface::inspect_object, {DEFVAL(se_string_view())});
     MethodBinder::bind_method(D_METHOD("get_selection"), &EditorInterface::get_selection);
     MethodBinder::bind_method(D_METHOD("get_editor_settings"), &EditorInterface::get_editor_settings);
     MethodBinder::bind_method(D_METHOD("get_script_editor"), &EditorInterface::get_script_editor);
@@ -323,25 +323,25 @@ EditorInterface::EditorInterface() {
 }
 
 ///////////////////////////////////////////
-void EditorPlugin::add_custom_type(const String &p_type, const String &p_base, const Ref<Script> &p_script, const Ref<Texture> &p_icon) {
+void EditorPlugin::add_custom_type(const StringName &p_type, const StringName &p_base, const Ref<Script> &p_script, const Ref<Texture> &p_icon) {
 
     EditorNode::get_editor_data().add_custom_type(p_type, p_base, p_script, p_icon);
 }
 
-void EditorPlugin::remove_custom_type(const String &p_type) {
+void EditorPlugin::remove_custom_type(const StringName &p_type) {
 
     EditorNode::get_editor_data().remove_custom_type(p_type);
 }
 
-void EditorPlugin::add_autoload_singleton(const String &p_name, const String &p_path) {
+void EditorPlugin::add_autoload_singleton(const StringName &p_name, se_string_view p_path) {
     EditorNode::get_singleton()->get_project_settings()->get_autoload_settings()->autoload_add(p_name, p_path);
 }
 
-void EditorPlugin::remove_autoload_singleton(const String &p_name) {
+void EditorPlugin::remove_autoload_singleton(const StringName &p_name) {
     EditorNode::get_singleton()->get_project_settings()->get_autoload_settings()->autoload_remove(p_name);
 }
 
-ToolButton *EditorPlugin::add_control_to_bottom_panel(Control *p_control, const String &p_title) {
+ToolButton *EditorPlugin::add_control_to_bottom_panel(Control *p_control, const StringName &p_title) {
     ERR_FAIL_NULL_V(p_control, nullptr)
     return EditorNode::get_singleton()->add_bottom_panel_item(p_title, p_control);
 }
@@ -494,18 +494,18 @@ void EditorPlugin::remove_control_from_container(CustomControlContainer p_locati
     }
 }
 
-void EditorPlugin::add_tool_menu_item(const String &p_name, Object *p_handler, const String &p_callback, const Variant &p_ud) {
+void EditorPlugin::add_tool_menu_item(const StringName &p_name, Object *p_handler, se_string_view p_callback, const Variant &p_ud) {
     EditorNode::get_singleton()->add_tool_menu_item(p_name, p_handler, p_callback, p_ud);
 }
 
-void EditorPlugin::add_tool_submenu_item(const String &p_name, Object *p_submenu) {
+void EditorPlugin::add_tool_submenu_item(const StringName &p_name, Object *p_submenu) {
     ERR_FAIL_NULL(p_submenu);
     PopupMenu *submenu = object_cast<PopupMenu>(p_submenu);
     ERR_FAIL_NULL(submenu);
     EditorNode::get_singleton()->add_tool_submenu_item(p_name, submenu);
 }
 
-void EditorPlugin::remove_tool_menu_item(const String &p_name) {
+void EditorPlugin::remove_tool_menu_item(const StringName &p_name) {
     EditorNode::get_singleton()->remove_tool_menu_item(p_name);
 }
 
@@ -525,16 +525,16 @@ void EditorPlugin::notify_scene_changed(const Node *scn_root) {
     emit_signal("scene_changed", Variant(scn_root));
 }
 
-void EditorPlugin::notify_main_screen_changed(const String &screen_name) {
+void EditorPlugin::notify_main_screen_changed(se_string_view screen_name) {
 
-    if (screen_name == last_main_screen_name)
+    if (last_main_screen_name == screen_name)
         return;
 
     emit_signal("main_screen_changed", screen_name);
     last_main_screen_name = screen_name;
 }
 
-void EditorPlugin::notify_scene_closed(const String &scene_filepath) {
+void EditorPlugin::notify_scene_closed(se_string_view scene_filepath) {
     emit_signal("scene_closed", scene_filepath);
 }
 
@@ -606,13 +606,15 @@ void EditorPlugin::forward_spatial_force_draw_over_viewport(Control *p_overlay) 
         get_script_instance()->call("forward_spatial_force_draw_over_viewport", Variant(p_overlay));
     }
 }
-String EditorPlugin::get_name() const {
-
+se_string_view EditorPlugin::get_name() const {
+    thread_local char namebuf[512];
     if (get_script_instance() && get_script_instance()->has_method("get_plugin_name")) {
-        return get_script_instance()->call("get_plugin_name");
+        namebuf[0]=0;
+        strncpy(namebuf,get_script_instance()->call("get_plugin_name").as<se_string>().c_str(),511);
+        return namebuf;
     }
 
-    return String();
+    return se_string_view();
 }
 const Ref<Texture> EditorPlugin::get_icon() const {
 
@@ -695,10 +697,10 @@ void EditorPlugin::apply_changes() {
     }
 }
 
-void EditorPlugin::get_breakpoints(List<String> *p_breakpoints) {
+void EditorPlugin::get_breakpoints(List<se_string> *p_breakpoints) {
 
     if (get_script_instance() && get_script_instance()->has_method("get_breakpoints")) {
-        PoolStringArray arr = get_script_instance()->call("get_breakpoints");
+        PoolVector<se_string> arr(get_script_instance()->call("get_breakpoints").as<PoolVector<se_string>>());
         for (int i = 0; i < arr.size(); i++)
             p_breakpoints->push_back(arr[i]);
     }
@@ -753,13 +755,13 @@ public:
     uint32_t get_import_flags() const override {
         return wrapped->get_import_flags();
     }
-    void get_extensions(Vector<String> *p_extensions) const override {
+    void get_extensions(PODVector<se_string> &p_extensions) const override {
         wrapped->get_extensions(p_extensions);
     }
-    Node *import_scene(const String &p_path, uint32_t p_flags, int p_bake_fps, Vector<String> *r_missing_deps, Error *r_err) override {
+    Node *import_scene(se_string_view p_path, uint32_t p_flags, int p_bake_fps, PODVector<se_string> *r_missing_deps, Error *r_err) override {
         return wrapped->import_scene(p_path,p_flags,p_bake_fps,r_missing_deps,r_err);
     }
-    Ref<Animation> import_animation(const String &p_path, uint32_t p_flags, int p_bake_fps) override {
+    Ref<Animation> import_animation(se_string_view p_path, uint32_t p_flags, int p_bake_fps) override {
         return wrapped->import_animation(p_path,p_flags,p_bake_fps);
     }
 };

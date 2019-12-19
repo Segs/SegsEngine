@@ -1,10 +1,11 @@
 #pragma once
 
-#include <cstdint>
 #include "core/godot_export.h"
+#include "core/forward_decls.h"
+#include <cstdint>
 
 class FileAccess;
-class String;
+using String = class QString;
 
 /** This interface is used by the infrastructure plugins to interact with the engine core
  * For now main usages revolve around error/progress reporting and image memory allocations
@@ -15,7 +16,7 @@ public:
     virtual FileAccess * wrapMemoryAsFileAccess(const uint8_t *data,int sz) = 0;
     virtual void  releaseFileAccess(FileAccess *) = 0;
 
-    virtual void reportError(const String &msg,const char *retval,const char *funcstr, const char *file,int line) = 0;
+    virtual void reportError(se_string_view msg,const char *retval,const char *funcstr, const char *file,int line) = 0;
     virtual void clearLastError() = 0;
     virtual void fillVersion(uint32_t &major,uint32_t &minor,uint32_t &patch) = 0;
 
@@ -29,7 +30,7 @@ GODOT_EXPORT CoreInterface *getCoreInterface();
     }
 #define PLUG_FAIL_V(m_value)                                                                                       \
     {                                                                                                             \
-        getCoreInterface()->reportError(String(),__STR(m_value),FUNCTION_STR, __FILE__, __LINE__); \
+    getCoreInterface()->reportError({},__STR(m_value),FUNCTION_STR, __FILE__, __LINE__); \
         return m_value;                                                                                           \
     }
 #define PLUG_FAIL_COND_V(m_cond, m_retval)                                                                                            \

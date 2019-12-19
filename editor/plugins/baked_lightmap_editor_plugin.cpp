@@ -93,13 +93,13 @@ void BakedLightmapEditorPlugin::bake_func_begin(int p_steps) {
 
     ERR_FAIL_COND(tmp_progress != nullptr)
 
-    tmp_progress = memnew(EditorProgress("bake_lightmaps", TTR("Bake Lightmaps"), p_steps, true));
+    tmp_progress = memnew(EditorProgress(("bake_lightmaps"), TTR("Bake Lightmaps"), p_steps, true));
 }
 
-bool BakedLightmapEditorPlugin::bake_func_step(int p_step, const String &p_description) {
+bool BakedLightmapEditorPlugin::bake_func_step(int p_step, se_string_view p_description) {
 
     ERR_FAIL_COND_V(tmp_progress == nullptr, false)
-    return tmp_progress->step(p_description, p_step, false);
+    return tmp_progress->step(StringName(p_description), p_step, false);
 }
 
 void BakedLightmapEditorPlugin::bake_func_end() {
@@ -129,5 +129,4 @@ BakedLightmapEditorPlugin::BakedLightmapEditorPlugin(EditorNode *p_node) {
     BakedLightmap::bake_end_function = bake_func_end;
 }
 
-BakedLightmapEditorPlugin::~BakedLightmapEditorPlugin() {
-}
+BakedLightmapEditorPlugin::~BakedLightmapEditorPlugin() = default;

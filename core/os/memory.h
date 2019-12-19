@@ -30,14 +30,9 @@
 
 #pragma once
 
-#include "core/safe_refcount.h"
-
-#include <type_traits>
+#include "core/godot_export.h"
+#include <stdint.h>
 #include <cstddef>
-
-#ifndef PAD_ALIGN
-#define PAD_ALIGN 16 //must always be greater than this at much
-#endif
 
 class GODOT_EXPORT Memory {
 
@@ -57,17 +52,17 @@ public:
 
 class GODOT_EXPORT DefaultAllocator {
 public:
-    _FORCE_INLINE_ static void *alloc(size_t p_memory) { return Memory::alloc_static(p_memory, false); }
-    _FORCE_INLINE_ static void free(void *p_ptr) { Memory::free_static(p_ptr, false); }
+    static void *alloc(size_t p_memory) { return Memory::alloc_static(p_memory, false); }
+    static void free(void *p_ptr) { Memory::free_static(p_ptr, false); }
 };
 class GODOT_EXPORT wrap_allocator
 {
 public:
-    explicit wrap_allocator(const char* /*pName*/ = "") noexcept {}
-    wrap_allocator(const wrap_allocator& x) noexcept = default;
-    wrap_allocator(const wrap_allocator& /*x*/, const char* /*pName*/) noexcept {}
+    constexpr explicit wrap_allocator(const char* /*pName*/ = "") noexcept {}
+    constexpr wrap_allocator(const wrap_allocator& x) noexcept = default;
+    constexpr wrap_allocator(const wrap_allocator& /*x*/, const char* /*pName*/) noexcept {}
 
-    wrap_allocator& operator=(const wrap_allocator& x) noexcept = default;
+    constexpr wrap_allocator& operator=(const wrap_allocator& x) noexcept = default;
 
     void* allocate(size_t n, int /*flags*/ = 0) {
         return Memory::alloc_static(n, false);
@@ -81,49 +76,22 @@ public:
     }
     static void *alloc(size_t p_memory) { return Memory::alloc_static(p_memory, false); }
     static void free(void *p_ptr) { Memory::free_static(p_ptr, false); }
-    inline bool operator==(const wrap_allocator&)
+    constexpr inline bool operator==(const wrap_allocator&)
     {
         return true; // All allocators are considered equal, as they merely use global new/delete.
     }
 
 
-    inline bool operator!=(const wrap_allocator&)
+    constexpr inline bool operator!=(const wrap_allocator&)
     {
         return false; // All allocators are considered equal, as they merely use global new/delete.
     }
-    const char* get_name() const noexcept { return "wrap godot allocator"; }
-    void        set_name(const char* /*pName*/) {}
-};
-template<typename T>
-struct GenericDeleter {
-    void operator()(T *fa) const {
-        memdelete(fa);
-    }
+    constexpr const char* get_name() const noexcept { return "wrap godot allocator"; }
+    constexpr void        set_name(const char* /*pName*/) {}
 };
 
-template <class T>
-class GODOT_EXPORT wrap_allocator_T : public wrap_allocator {
-public:
-    using size_type = size_t;
-    using difference_type = ptrdiff_t;
-    using pointer = T *;
-    using const_pointer = const T *;
-    using reference = T &;
-    using const_reference = const T &;
-    using value_type = T;
-
-    value_type* allocate(std::size_t n)
-    {
-        return (value_type*)wrap_allocator::allocate(n*sizeof(value_type));
-    }
-    template<class U>
-    wrap_allocator_T(const wrap_allocator_T<U> &) : wrap_allocator() {}
-
-    using wrap_allocator::wrap_allocator;
-};
 GODOT_EXPORT void *operator new(size_t p_size, const char *p_description); ///< operator new that takes a description and uses MemoryStaticPool
 GODOT_EXPORT void *operator new(size_t p_size, void *(*p_allocfunc)(size_t p_size)); ///< operator new that takes a description and uses MemoryStaticPool
-
 GODOT_EXPORT void *operator new(size_t p_size, void *p_pointer, size_t check, const char *p_description); ///< operator new that takes a description and uses a pointer to the preallocated memory
 
 #ifdef _MSC_VER
@@ -141,11 +109,11 @@ GODOT_EXPORT void operator delete(void *p_mem, void *p_pointer, size_t check, co
 inline void postinitialize_handler(void *) {}
 
 template <class T>
-_ALWAYS_INLINE_ T *_post_initialize(T *p_obj) {
+inline T *_post_initialize(T *p_obj) {
     postinitialize_handler(p_obj);
     return p_obj;
 }
-_ALWAYS_INLINE_ void *operator new(size_t /*p_size*/, void *p_pointer, size_t /*check*/, const char * /*p_description*/) {
+inline void *operator new(size_t /*p_size*/, void *p_pointer, size_t /*check*/, const char * /*p_description*/) {
     //void *failptr=0;
     //ERR_FAIL_COND_V( check < p_size , failptr) /** bug, or strange compiler, most likely */
 
@@ -161,7 +129,7 @@ _ALWAYS_INLINE_ void *operator new(size_t /*p_size*/, void *p_pointer, size_t /*
 #define memnew_allocator(m_class, m_allocator) _post_initialize(new (m_allocator::alloc) m_class)
 #define memnew_placement(m_placement, m_class) _post_initialize(new (m_placement, sizeof(m_class), "") m_class)
 
-_ALWAYS_INLINE_ bool predelete_handler(void *) {
+inline bool predelete_handler(void *) {
     return true;
 }
 
@@ -170,7 +138,7 @@ void memdelete(T *p_class) {
 
     if (!predelete_handler(p_class))
         return; // doesn't want to be deleted
-    if (!__has_trivial_destructor(T))
+    if constexpr(!__has_trivial_destructor(T))
         p_class->~T();
 
     Memory::free_static(p_class, false);
@@ -181,16 +149,11 @@ void memdelete_allocator(T *p_class) {
 
     if (!predelete_handler(p_class))
         return; // doesn't want to be deleted
-    if (!__has_trivial_destructor(T))
+    if constexpr(!__has_trivial_destructor(T))
         p_class->~T();
 
     A::free(p_class);
 }
-
-#define memdelete_notnull(m_v)   \
-    {                            \
-        if (m_v) memdelete(m_v); \
-    }
 
 #define memnew_arr(m_class, m_count) memnew_arr_template<m_class>(m_count)
 
@@ -208,7 +171,7 @@ T *memnew_arr_template(size_t p_elements, const char *p_descr = "") {
 
     *(mem - 1) = p_elements;
 
-    if (!__has_trivial_constructor(T)) {
+    if constexpr(!__has_trivial_constructor(T)) {
         T *elems = (T *)mem;
 
         /* call operator new */
@@ -220,24 +183,17 @@ T *memnew_arr_template(size_t p_elements, const char *p_descr = "") {
     return (T *)mem;
 }
 
-/**
- * Wonders of having own array functions, you can actually check the length of
- * an allocated-with memnew_arr() array
- */
-
-template <typename T>
-size_t memarr_len(const T *p_class) {
-
-    const uint64_t *ptr = (const uint64_t *)p_class;
-    return *(ptr - 1);
-}
+///**
+// * Wonders of having own array functions, you can actually check the length of
+// * an allocated-with memnew_arr() array
+// */
 
 template <typename T>
 void memdelete_arr(T *p_class) {
 
     uint64_t *ptr = (uint64_t *)p_class;
 
-    if (!__has_trivial_destructor(T)) {
+     if constexpr(!__has_trivial_destructor(T)) {
         uint64_t elem_count = *(ptr - 1);
 
         for (uint64_t i = 0; i < elem_count; i++) {

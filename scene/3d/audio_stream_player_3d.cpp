@@ -793,12 +793,12 @@ void AudioStreamPlayer3D::_validate_property(PropertyInfo &property) const {
 
     if (property.name == "bus") {
 
-        String options;
+        se_string options;
         for (int i = 0; i < AudioServer::get_singleton()->get_bus_count(); i++) {
             if (i > 0)
-                options += ",";
-            String name = AudioServer::get_singleton()->get_bus_name(i);
-            options += name;
+                options += ',';
+            StringName name(AudioServer::get_singleton()->get_bus_name(i));
+            options += se_string(name);
         }
 
         property.hint_string = options;
@@ -844,7 +844,7 @@ void AudioStreamPlayer3D::set_emission_angle(float p_angle) {
     ERR_FAIL_COND(p_angle < 0 || p_angle > 90)
     emission_angle = p_angle;
     update_gizmo();
-	_change_notify("emission_angle");
+    _change_notify("emission_angle");
 }
 
 float AudioStreamPlayer3D::get_emission_angle() const {

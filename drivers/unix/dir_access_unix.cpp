@@ -35,6 +35,9 @@
 #include "core/list.h"
 #include "core/os/memory.h"
 #include "core/print_string.h"
+#include "core/se_string.h"
+#include "core/string_utils.h"
+#include "core/string_utils.inl"
 #include "core/vector.h"
 
 #include <cerrno>
@@ -61,8 +64,8 @@ Error DirAccessUnix::list_dir_begin() {
 
     //char real_current_dir_name[2048]; //is this enough?!
     //getcwd(real_current_dir_name,2048);
-	//chdir(StringUtils::to_utf8(current_path).data());
-	dir_stream = opendir(StringUtils::to_utf8(current_dir).data());
+    //chdir(StringUtils::to_utf8(current_path).data());
+    dir_stream = opendir(current_dir.data());
     //chdir(real_current_dir_name);
     if (!dir_stream)
         return ERR_CANT_OPEN; //error!
@@ -70,8 +73,9 @@ Error DirAccessUnix::list_dir_begin() {
     return OK;
 }
 
-bool DirAccessUnix::file_exists(String p_file) {
+bool DirAccessUnix::file_exists(se_string_view _file) {
 
+    se_string p_file(_file);
     GLOBAL_LOCK_FUNCTION
 
     if (PathUtils::is_rel_path(p_file))
@@ -80,7 +84,7 @@ bool DirAccessUnix::file_exists(String p_file) {
     p_file = fix_path(p_file);
 
     struct stat flags;
-	bool success = (stat(StringUtils::to_utf8(p_file).data(), &flags) == 0);
+    bool success = (stat(p_file.data(), &flags) == 0);
 
     if (success && S_ISDIR(flags.st_mode)) {
         success = false;
@@ -89,8 +93,9 @@ bool DirAccessUnix::file_exists(String p_file) {
     return success;
 }
 
-bool DirAccessUnix::dir_exists(String p_dir) {
+bool DirAccessUnix::dir_exists(se_string_view _dir) {
 
+    se_string p_dir(_dir);
     GLOBAL_LOCK_FUNCTION
 
     if (PathUtils::is_rel_path(p_dir))
@@ -99,20 +104,20 @@ bool DirAccessUnix::dir_exists(String p_dir) {
     p_dir = fix_path(p_dir);
 
     struct stat flags;
-	bool success = (stat(StringUtils::to_utf8(p_dir).data(), &flags) == 0);
+    bool success = (stat(p_dir.data(), &flags) == 0);
 
     return (success && S_ISDIR(flags.st_mode));
 }
 
-uint64_t DirAccessUnix::get_modified_time(String p_file) {
-
+uint64_t DirAccessUnix::get_modified_time(se_string_view _file) {
+    se_string p_file(_file);
     if (PathUtils::is_rel_path(p_file))
         p_file = PathUtils::plus_file(current_dir,p_file);
 
     p_file = fix_path(p_file);
 
     struct stat flags;
-	bool success = (stat(StringUtils::to_utf8(p_file).data(), &flags) == 0);
+    bool success = (stat(p_file.data(), &flags) == 0);
 
     if (success) {
         return flags.st_mtime;
@@ -123,19 +128,19 @@ uint64_t DirAccessUnix::get_modified_time(String p_file) {
     return 0;
 };
 
-String DirAccessUnix::get_next() {
+se_string DirAccessUnix::get_next() {
 
     if (!dir_stream)
-        return "";
+        return se_string();
 
     dirent *entry = readdir(dir_stream);
 
     if (entry == nullptr) {
         list_dir_end();
-        return "";
+        return se_string();
     }
 
-    String fname = fix_unicode_name(entry->d_name);
+    se_string fname = fix_unicode_name(entry->d_name);
 
     // Look at d_type to determine if the entry is a directory, unless
     // its type is unknown (the file system does not support it) or if
@@ -143,10 +148,10 @@ String DirAccessUnix::get_next() {
     // known if it points to a directory. stat() will resolve the link
     // for us.
     if (entry->d_type == DT_UNKNOWN || entry->d_type == DT_LNK) {
-        String f = PathUtils::plus_file(current_dir,fname);
+        se_string f = PathUtils::plus_file(current_dir,fname);
 
         struct stat flags;
-		if (stat(StringUtils::to_utf8(f).data(), &flags) == 0) {
+        if (stat(f.data(), &flags) == 0) {
             _cisdir = S_ISDIR(flags.st_mode);
         } else {
             _cisdir = false;
@@ -198,7 +203,7 @@ static bool _filter_drive(struct mntent *mnt) {
 }
 #endif
 
-static void _get_drives(List<String> *list) {
+static void _get_drives(List<se_string> *list) {
 
 #if defined(HAVE_MNTENT) && defined(X11_ENABLED)
     // Check /etc/mtab for the list of mounted partitions
@@ -235,10 +240,11 @@ static void _get_drives(List<String> *list) {
         if (fd) {
             char string[1024];
             while (fgets(string, 1024, fd)) {
+                se_string_view string_sv(string);
                 // Parse only file:// links
-                if (strncmp(string, "file://", 7) == 0) {
+                if (string_sv.starts_with("file://")) {
                     // Strip any unwanted edges on the strings and push_back if it's not a duplicate
-                    String fpath = StringUtils::percent_decode(StringUtils::split_spaces(StringUtils::strip_edges(string + 7))[0]);
+                    se_string fpath = StringUtils::percent_decode(StringUtils::split_spaces(StringUtils::strip_edges(string_sv.substr(7)))[0]);
                     if (!list->find(fpath)) {
                         list->push_back(fpath);
                     }
@@ -254,24 +260,24 @@ static void _get_drives(List<String> *list) {
 
 int DirAccessUnix::get_drive_count() {
 
-    List<String> list;
+    List<se_string> list;
     _get_drives(&list);
 
     return list.size();
 }
 
-String DirAccessUnix::get_drive(int p_drive) {
+se_string DirAccessUnix::get_drive(int p_drive) {
 
-    List<String> list;
+    List<se_string> list;
     _get_drives(&list);
 
-	ERR_FAIL_INDEX_V(p_drive, list.size(), "")
+    ERR_FAIL_INDEX_V(p_drive, list.size(), se_string())
 
     return list[p_drive];
 }
 
-Error DirAccessUnix::make_dir(String p_dir) {
-
+Error DirAccessUnix::make_dir(se_string_view _dir) {
+    se_string p_dir(_dir);
     GLOBAL_LOCK_FUNCTION
 
     if (PathUtils::is_rel_path(p_dir))
@@ -279,52 +285,52 @@ Error DirAccessUnix::make_dir(String p_dir) {
 
     p_dir = fix_path(p_dir);
 
-	bool success = (mkdir(StringUtils::to_utf8(p_dir).data(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH) == 0);
+    bool success = (mkdir(p_dir.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH) == 0);
     int err = errno;
 
     if (success) {
         return OK;
-	}
+    }
 
     if (err == EEXIST) {
         return ERR_ALREADY_EXISTS;
-	}
+    }
 
     return ERR_CANT_CREATE;
 }
 
-Error DirAccessUnix::change_dir(String p_dir) {
+Error DirAccessUnix::change_dir(se_string_view _dir) {
 
     GLOBAL_LOCK_FUNCTION
 
-    p_dir = fix_path(p_dir);
+    se_string p_dir = fix_path(_dir);
 
     // prev_dir is the directory we are changing out of
     String prev_dir;
     char real_current_dir_name[2048];
-	ERR_FAIL_COND_V(getcwd(real_current_dir_name, 2048) == nullptr, ERR_BUG)
-	if (StringUtils::parse_utf8(prev_dir,real_current_dir_name))
+    ERR_FAIL_COND_V(getcwd(real_current_dir_name, 2048) == nullptr, ERR_BUG)
+    if (StringUtils::parse_utf8(prev_dir,real_current_dir_name))
         prev_dir = real_current_dir_name; //no utf8, maybe latin?
 
     // try_dir is the directory we are trying to change into
-    String try_dir = "";
+    se_string try_dir;
     if (PathUtils::is_rel_path(p_dir)) {
-        String next_dir = PathUtils::plus_file(current_dir,p_dir);
+        se_string next_dir = PathUtils::plus_file(current_dir,p_dir);
         next_dir = PathUtils::simplify_path(next_dir);
         try_dir = next_dir;
     } else {
         try_dir = p_dir;
     }
 
-	bool worked = (chdir(StringUtils::to_utf8(try_dir).data()) == 0); // we can only give this utf8
+    bool worked = (chdir(try_dir.data()) == 0); // we can only give this utf8
     if (!worked) {
         return ERR_INVALID_PARAMETER;
     }
 
-    String base = _get_root_path();
+    se_string base = _get_root_path();
     if (!base.empty() && !StringUtils::begins_with(try_dir,base)) {
-		ERR_FAIL_COND_V(getcwd(real_current_dir_name, 2048) == nullptr, ERR_BUG)
-		String new_dir = StringUtils::from_utf8(real_current_dir_name);
+        ERR_FAIL_COND_V(getcwd(real_current_dir_name, 2048) == nullptr, ERR_BUG)
+        se_string new_dir = real_current_dir_name;
 
         if (!StringUtils::begins_with(new_dir,base)) {
             try_dir = current_dir; //revert
@@ -333,16 +339,16 @@ Error DirAccessUnix::change_dir(String p_dir) {
 
     // the directory exists, so set current_dir to try_dir
     current_dir = try_dir;
-	ERR_FAIL_COND_V(chdir(StringUtils::to_utf8(prev_dir).data()) != 0, ERR_BUG)
+    ERR_FAIL_COND_V(chdir(StringUtils::to_utf8(prev_dir).data()) != 0, ERR_BUG)
     return OK;
 }
 
-String DirAccessUnix::get_current_dir() {
+se_string DirAccessUnix::get_current_dir() {
 
-    String base = _get_root_path();
+    se_string base = _get_root_path();
     if (!base.empty()) {
 
-		String bd = StringUtils::replace_first(current_dir,base, "");
+        se_string bd = StringUtils::replace_first(current_dir,base, se_string());
         if (StringUtils::begins_with(bd,"/"))
             return _get_root_string() + StringUtils::substr(bd,1, bd.length());
         else
@@ -351,7 +357,7 @@ String DirAccessUnix::get_current_dir() {
     return current_dir;
 }
 
-Error DirAccessUnix::rename(String p_path, String p_new_path) {
+Error DirAccessUnix::rename(se_string_view p_path, se_string_view p_new_path) {
 
     if (PathUtils::is_rel_path(p_path))
         p_path = PathUtils::plus_file(get_current_dir(),p_path);
@@ -363,10 +369,10 @@ Error DirAccessUnix::rename(String p_path, String p_new_path) {
 
     p_new_path = fix_path(p_new_path);
 
-	return ::rename(StringUtils::to_utf8(p_path).data(), StringUtils::to_utf8(p_new_path).data()) == 0 ? OK : FAILED;
+    return ::rename(p_path.data(), p_new_path.data()) == 0 ? OK : FAILED;
 }
 
-Error DirAccessUnix::remove(String p_path) {
+Error DirAccessUnix::remove(se_string_view p_path) {
 
     if (PathUtils::is_rel_path(p_path))
         p_path = PathUtils::plus_file(get_current_dir(),p_path);
@@ -374,20 +380,20 @@ Error DirAccessUnix::remove(String p_path) {
     p_path = fix_path(p_path);
 
     struct stat flags;
-	if ((stat(StringUtils::to_utf8(p_path).data(), &flags) != 0))
+    if ((stat(p_path.data(), &flags) != 0))
         return FAILED;
 
     if (S_ISDIR(flags.st_mode))
-		return ::rmdir(StringUtils::to_utf8(p_path).data()) == 0 ? OK : FAILED;
+        return ::rmdir(p_path.data()) == 0 ? OK : FAILED;
     else
-		return ::unlink(StringUtils::to_utf8(p_path).data()) == 0 ? OK : FAILED;
+        return ::unlink(p_path.data()) == 0 ? OK : FAILED;
 }
 
 size_t DirAccessUnix::get_space_left() {
 
 #ifndef NO_STATVFS
     struct statvfs vfs;
-	if (statvfs(StringUtils::to_utf8(current_dir).data(), &vfs) != 0) {
+    if (statvfs(current_dir.data(), &vfs) != 0) {
 
         return 0;
     }
@@ -399,8 +405,8 @@ size_t DirAccessUnix::get_space_left() {
 #endif
 };
 
-String DirAccessUnix::get_filesystem_type() const {
-    return ""; //TODO this should be implemented
+se_string DirAccessUnix::get_filesystem_type() const {
+    return se_string(); //TODO this should be implemented
 }
 
 DirAccessUnix::DirAccessUnix() {
@@ -412,9 +418,8 @@ DirAccessUnix::DirAccessUnix() {
 
     // set current directory to an absolute path of the current directory
     char real_current_dir_name[2048];
-	ERR_FAIL_COND(getcwd(real_current_dir_name, 2048) == nullptr)
-	if (StringUtils::parse_utf8(current_dir,real_current_dir_name))
-        current_dir = real_current_dir_name;
+    ERR_FAIL_COND(getcwd(real_current_dir_name, 2048) == nullptr)
+    current_dir = real_current_dir_name;
 
     change_dir(current_dir);
 }

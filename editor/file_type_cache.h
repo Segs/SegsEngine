@@ -32,24 +32,25 @@
 
 #include "core/object.h"
 #include "core/hash_map.h"
+#include "core/se_string.h"
 
 class FileTypeCache : Object {
 
-	GDCLASS(FileTypeCache,Object)
+    GDCLASS(FileTypeCache,Object)
 
-	HashMap<String, String> file_type_map;
+    DefHashMap<se_string, se_string> file_type_map;
 
-	static FileTypeCache *singleton;
+    static FileTypeCache *singleton;
 
 public:
-	static FileTypeCache *get_singleton() { return singleton; }
+    static FileTypeCache *get_singleton() { return singleton; }
 
-	bool has_file(const String &p_path) const;
-	String get_file_type(const String &p_path) const;
-	void set_file_type(const String &p_path, const String &p_type);
+    bool has_file(se_string_view p_path) const;
+    se_string get_file_type(se_string_view p_path) const;
+    void set_file_type(se_string_view p_path, se_string_view p_type);
 
-	void load();
-	void save();
+    void load();
+    void save();
 
-	FileTypeCache();
+    FileTypeCache();
 };

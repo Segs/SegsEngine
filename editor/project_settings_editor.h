@@ -59,7 +59,7 @@ class ProjectSettingsEditor : public AcceptDialog {
 
     Timer *timer;
     InputType add_type;
-    String add_at;
+    StringName add_at;
     int edit_idx;
 
     EditorData *data;
@@ -111,8 +111,8 @@ class ProjectSettingsEditor : public AcceptDialog {
 
     EditorPluginSettings *plugin_settings;
 
-    void _item_selected(const String &);
-    void _item_adds(const String&);
+    void _item_selected(se_string_view);
+    void _item_adds(se_string_view);
     void _item_add();
     void _item_del();
     void _update_actions();
@@ -120,36 +120,36 @@ class ProjectSettingsEditor : public AcceptDialog {
     void _add_item(int p_item, const Ref<InputEvent>& p_exiting_event = Ref<InputEvent>());
     void _edit_item(const Ref<InputEvent>& p_exiting_event);
 
-    void _action_check(const String& p_action);
-    void _action_adds(const String&);
+    void _action_check(se_string_view p_action);
+    void _action_adds(se_string_view );
     void _action_add();
     void _device_input_add();
 
-    void _item_checked(const String &p_item, bool p_check);
+    void _item_checked(se_string_view p_item, bool p_check);
     void _action_selected();
     void _action_edited();
     void _action_activated();
     void _action_button_pressed(Object *p_obj, int p_column, int p_id);
     void _wait_for_key(const Ref<InputEvent> &p_event);
     void _press_a_key_confirm();
-    void _show_last_added(const Ref<InputEvent> &p_event, const String &p_name);
+    void _show_last_added(const Ref<InputEvent> &p_event, se_string_view p_name);
 
-    void _settings_prop_edited(const String &p_name);
+    void _settings_prop_edited(se_string_view p_name);
     void _settings_changed();
 
     void _copy_to_platform(int p_which);
 
     void _translation_file_open();
-    void _translation_add(const String &p_path);
+    void _translation_add(se_string_view p_path);
     void _translation_delete(Object *p_item, int p_column, int p_button);
     void _update_translations();
 
     void _translation_res_file_open();
-    void _translation_res_add(const String &p_path);
+    void _translation_res_add(se_string_view p_path);
     void _translation_res_delete(Object *p_item, int p_column, int p_button);
     void _translation_res_select();
     void _translation_res_option_file_open();
-    void _translation_res_option_add(const String &p_path);
+    void _translation_res_option_add(se_string_view p_path);
     void _translation_res_option_changed();
     void _translation_res_option_delete(Object *p_item, int p_column, int p_button);
 
@@ -158,9 +158,9 @@ class ProjectSettingsEditor : public AcceptDialog {
 
     void _toggle_search_bar(bool p_pressed);
 
-	Variant get_drag_data_fw(const Point2 &p_point, Control *p_from);
-	bool can_drop_data_fw(const Point2 &p_point, const Variant &p_data, Control *p_from) const;
-	void drop_data_fw(const Point2 &p_point, const Variant &p_data, Control *p_from);
+    Variant get_drag_data_fw(const Point2 &p_point, Control *p_from);
+    bool can_drop_data_fw(const Point2 &p_point, const Variant &p_data, Control *p_from) const;
+    void drop_data_fw(const Point2 &p_point, const Variant &p_data, Control *p_from);
 
     void _copy_to_platform_about_to_show();
 
@@ -184,7 +184,7 @@ protected:
 
     int _get_current_device();
     void _set_current_device(int i_device);
-    String _get_device_string(int i_device);
+    StringName _get_device_string(int i_device);
 
 public:
     void add_translation(const String &p_translation);

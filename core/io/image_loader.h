@@ -46,7 +46,6 @@ class Ref;
 template <class T>
 class PoolVector;
 class Image;
-class String;
 struct ImageData;
 
 //TODO: SEGS - convert ImageLoader to singelton, so we can have a single initialization point at which to register plugin resolver
@@ -58,10 +57,10 @@ class GODOT_EXPORT ImageLoader {
 protected:
 public:
     static void register_plugin_resolver();
-    static Error load_image(const String& p_file, const Ref<Image> &p_image, FileAccess *p_custom = nullptr, const LoadParams &params={});
-    static ImageData load_image(const String &ext, const uint8_t *data, int sz, const LoadParams &params={});
-    static void get_recognized_extensions(Vector<String> *p_extensions);
-    static ImageFormatLoader *recognize(const String &p_extension);
+    static Error load_image(se_string_view p_file, const Ref<Image> &p_image, FileAccess *p_custom = nullptr, const LoadParams &params={});
+    static ImageData load_image(se_string_view ext, const uint8_t *data, int sz, const LoadParams &params={});
+    static void get_recognized_extensions(PODVector<se_string> &p_extensions);
+    static ImageFormatLoader *recognize(se_string_view p_extension);
 
     static void add_image_format_loader(ImageFormatLoader *p_loader);
     static void remove_image_format_loader(ImageFormatLoader *p_loader);
@@ -73,8 +72,8 @@ public:
 
 class ResourceFormatLoaderImage : public ResourceFormatLoader {
 public:
-    RES load(const String &p_path, const String &p_original_path = String::null_val, Error *r_error = nullptr) override;
-    void get_recognized_extensions(ListPOD<String> *p_extensions) const override;
-    bool handles_type(const String &p_type) const override;
-    String get_resource_type(const String &p_path) const override;
+    RES load(se_string_view p_path, se_string_view p_original_path = se_string_view(), Error *r_error = nullptr) override;
+    void get_recognized_extensions(PODVector<se_string> &p_extensions) const override;
+    bool handles_type(se_string_view p_type) const override;
+    se_string get_resource_type(se_string_view p_path) const override;
 };

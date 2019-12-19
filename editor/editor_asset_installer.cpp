@@ -68,7 +68,7 @@ void EditorAssetInstaller::_item_edited() {
     if (!item)
         return;
 
-    String path = item->get_metadata(0);
+    se_string path = item->get_metadata(0);
 
     updating = true;
     if (path.empty()) { //a dir
@@ -84,15 +84,15 @@ void EditorAssetInstaller::_item_edited() {
     updating = false;
 }
 
-void EditorAssetInstaller::open(const String &p_path, int p_depth) {
+void EditorAssetInstaller::open(se_string_view p_path, int p_depth) {
 
     package_path = p_path;
-    Set<String> files_sorted;
+    Set<se_string> files_sorted;
 
     FileAccess *src_f = nullptr;
     zlib_filefunc_def io = zipio_create_io_from_file(&src_f);
 
-    unzFile pkg = unzOpen2(qPrintable(p_path.m_str), &io);
+    unzFile pkg = unzOpen2(package_path.c_str(), &io);
     if (!pkg) {
 
         error->set_text(TTR("Error opening package file, not in ZIP format."));
@@ -108,13 +108,13 @@ void EditorAssetInstaller::open(const String &p_path, int p_depth) {
         char fname[16384];
         unzGetCurrentFileInfo(pkg, &info, fname, 16384, nullptr, 0, nullptr, 0);
 
-        String name = fname;
+        se_string name(fname);
         files_sorted.insert(name);
 
         ret = unzGoToNextFile(pkg);
     }
 
-    Map<String, Ref<Texture> > extension_guess;
+    Map<se_string_view, Ref<Texture> > extension_guess;
     {
         extension_guess["png"] = get_icon("ImageTexture", "EditorIcons");
         extension_guess["jpg"] = get_icon("ImageTexture", "EditorIcons");
@@ -138,11 +138,11 @@ void EditorAssetInstaller::open(const String &p_path, int p_depth) {
     root->set_icon(0, get_icon("folder", "FileDialog"));
     root->set_text(0, "res://");
     root->set_editable(0, true);
-    Map<String, TreeItem *> dir_map;
+    Map<se_string, TreeItem *> dir_map;
 
-    for (const String &E : files_sorted) {
+    for (const se_string &E : files_sorted) {
 
-        String path = E;
+        se_string path = E;
         int depth = p_depth;
         bool skip = false;
         while (depth > 0) {
@@ -160,19 +160,19 @@ void EditorAssetInstaller::open(const String &p_path, int p_depth) {
 
         bool isdir = false;
 
-        if (StringUtils::ends_with(path,"/")) {
+        if (StringUtils::ends_with(path,'/')) {
             //a directory
             path = StringUtils::substr(path,0, path.length() - 1);
             isdir = true;
         }
 
-        int pp = StringUtils::find_last(path,"/");
+        int pp = StringUtils::find_last(path,'/');
 
         TreeItem *parent;
         if (pp == -1) {
             parent = root;
         } else {
-            String ppath = StringUtils::substr(path,0, pp);
+            se_string ppath(StringUtils::substr(path,0, pp));
             ERR_CONTINUE(!dir_map.contains(ppath))
             parent = dir_map[ppath];
         }
@@ -183,26 +183,26 @@ void EditorAssetInstaller::open(const String &p_path, int p_depth) {
         ti->set_editable(0, true);
         if (isdir) {
             dir_map[path] = ti;
-            ti->set_text(0, PathUtils::get_file(path) + "/");
+            ti->set_text_utf8(0, se_string(PathUtils::get_file(path)) + "/");
             ti->set_icon(0, get_icon("folder", "FileDialog"));
-            ti->set_metadata(0, String());
+            ti->set_metadata(0, se_string_view());
         } else {
-            String file = PathUtils::get_file(path);
-            String extension = StringUtils::to_lower(PathUtils::get_extension(file));
+            se_string file(PathUtils::get_file(path));
+            se_string extension(StringUtils::to_lower(PathUtils::get_extension(file)));
             if (extension_guess.contains(extension)) {
                 ti->set_icon(0, extension_guess[extension]);
             } else {
                 ti->set_icon(0, generic_extension);
             }
-            ti->set_text(0, file);
+            ti->set_text_utf8(0, file);
 
-            String res_path = "res://" + path;
+            se_string res_path = "res://" + path;
             if (FileAccess::exists(res_path)) {
                 ti->set_custom_color(0, get_color("error_color", "Editor"));
-                ti->set_tooltip(0, res_path + " (Already Exists)");
+                ti->set_tooltip(0, StringName(res_path + " (Already Exists)"));
                 ti->set_checked(0, false);
             } else {
-                ti->set_tooltip(0, res_path);
+                ti->set_tooltip(0, StringName(res_path));
             }
 
             ti->set_metadata(0, res_path);
@@ -219,7 +219,7 @@ void EditorAssetInstaller::ok_pressed() {
     FileAccess *src_f = nullptr;
     zlib_filefunc_def io = zipio_create_io_from_file(&src_f);
 
-    unzFile pkg = unzOpen2(qPrintable(package_path.m_str), &io);
+    unzFile pkg = unzOpen2(package_path.c_str(), &io);
     if (!pkg) {
 
         error->set_text(TTR("Error opening package file, not in ZIP format."));
@@ -228,7 +228,7 @@ void EditorAssetInstaller::ok_pressed() {
 
     int ret = unzGoToFirstFile(pkg);
 
-    Vector<String> failed_files;
+    Vector<se_string> failed_files;
 
     ProgressDialog::get_singleton()->add_task("uncompress", TTR("Uncompressing Assets"), status_map.size());
 
@@ -240,21 +240,21 @@ void EditorAssetInstaller::ok_pressed() {
         char fname[16384];
         ret = unzGetCurrentFileInfo(pkg, &info, fname, 16384, nullptr, 0, nullptr, 0);
 
-        String name = fname;
+        se_string name(fname);
 
         if (status_map.contains(name) && status_map[name]->is_checked(0)) {
 
-            String path = status_map[name]->get_metadata(0);
+            se_string path = status_map[name]->get_metadata(0);
             if (path.empty()) { // a dir
 
-                String dirpath;
+                se_string dirpath;
                 TreeItem *t = status_map[name];
                 while (t) {
                     dirpath = t->get_text(0) + dirpath;
                     t = t->get_parent();
                 }
 
-                if (StringUtils::ends_with(dirpath,"/")) {
+                if (StringUtils::ends_with(dirpath,'/')) {
                     dirpath = StringUtils::substr(dirpath,0, dirpath.length() - 1);
                 }
 
@@ -292,7 +292,7 @@ void EditorAssetInstaller::ok_pressed() {
     unzClose(pkg);
 
     if (!failed_files.empty()) {
-        String msg = "The following files failed extraction from package:\n\n";
+        se_string msg("The following files failed extraction from package:\n\n");
         for (int i = 0; i < failed_files.size(); i++) {
 
             if (i > 15) {
@@ -302,7 +302,7 @@ void EditorAssetInstaller::ok_pressed() {
             msg += failed_files[i];
         }
         if (EditorNode::get_singleton() != nullptr)
-            EditorNode::get_singleton()->show_warning(msg);
+            EditorNode::get_singleton()->show_warning(StringName(msg));
     } else {
         if (EditorNode::get_singleton() != nullptr)
             EditorNode::get_singleton()->show_warning(TTR("Package installed successfully!"), TTR("Success!"));
@@ -321,7 +321,7 @@ EditorAssetInstaller::EditorAssetInstaller() {
     add_child(vb);
 
     tree = memnew(Tree);
-    vb->add_margin_child("Package Contents:", tree, true);
+    vb->add_margin_child(StringName("Package Contents:"), tree, true);
     tree->connect("item_edited", this, "_item_edited");
 
     error = memnew(AcceptDialog);

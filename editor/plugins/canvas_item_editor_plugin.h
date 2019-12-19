@@ -30,7 +30,6 @@
 
 #pragma once
 
-#include "editor/editor_node.h"
 #include "editor/editor_plugin.h"
 #include "scene/2d/canvas_item.h"
 #include "scene/gui/box_container.h"
@@ -42,6 +41,13 @@
 class CanvasItemEditorViewport;
 class StyleBoxTexture;
 class Node2D;
+class MenuButton;
+class EditorData;
+class ConfirmationDialog;
+class AcceptDialog;
+class WindowDialog;
+class HSplitContainer;
+class VSplitContainer;
 
 class CanvasItemEditorSelectedItem : public Object {
 
@@ -109,6 +115,7 @@ private:
         SNAP_USE_GRID,
         SNAP_USE_GUIDES,
         SNAP_USE_ROTATION,
+        SNAP_USE_SCALE,
         SNAP_RELATIVE,
         SNAP_CONFIGURE,
         SNAP_USE_PIXEL,
@@ -252,14 +259,17 @@ private:
     Point2 view_offset;
     Point2 previous_update_view_offset;
 
+    bool selected_from_canvas;
     bool anchors_mode;
 
     Point2 grid_offset;
     Point2 grid_step;
+    int primary_grid_steps;
     int grid_step_multiplier;
 
     float snap_rotation_step;
     float snap_rotation_offset;
+    float snap_scale_step;
     bool smart_snap_active;
     bool grid_snap_active;
 
@@ -270,6 +280,7 @@ private:
     bool snap_other_nodes;
     bool snap_guides;
     bool snap_rotation;
+    bool snap_scale;
     bool snap_relative;
     bool snap_pixel;
     bool skeleton_show_bones;
@@ -299,7 +310,7 @@ private:
 
         Point2 position;
         Ref<Texture> icon;
-        String name;
+        se_string name;
     };
     Vector<_HoverResult> hovering_results;
 
@@ -361,6 +372,7 @@ private:
     ToolButton *ungroup_button;
 
     MenuButton *skeleton_menu;
+    ToolButton *override_camera_button;
     MenuButton *view_menu;
     HBoxContainer *animation_hb;
     MenuButton *animation_menu;
@@ -425,7 +437,7 @@ private:
     void _save_canvas_item_state(List<CanvasItem *> p_canvas_items, bool save_bones = false);
     void _restore_canvas_item_ik_chain(CanvasItem *p_canvas_item, const List<Dictionary> *p_bones_state);
     void _restore_canvas_item_state(const List<CanvasItem *>& p_canvas_items, bool restore_bones = false);
-    void _commit_canvas_item_state(List<CanvasItem *> p_canvas_items, const String& action_name, bool commit_bones = false);
+    void _commit_canvas_item_state(List<CanvasItem *> p_canvas_items, const StringName &action_name, bool commit_bones = false);
 
     Vector2 _anchor_to_position(const Control *p_control, Vector2 anchor);
     Vector2 _position_to_anchor(const Control *p_control, Vector2 position);
@@ -526,6 +538,7 @@ private:
 
     void _button_toggle_anchor_mode(bool p_status);
 
+    VBoxContainer *controls_vb;
     HBoxContainer *zoom_hb;
     void _zoom_on_position(float p_zoom, Point2 p_position = Point2());
     void _update_zoom_label();
@@ -534,7 +547,10 @@ private:
     void _button_zoom_plus();
     void _button_toggle_smart_snap(bool p_status);
     void _button_toggle_grid_snap(bool p_status);
+    void _button_override_camera(bool p_pressed);
     void _button_tool_select(int p_index);
+
+    void _update_override_camera_button(bool p_game_running);
 
     HSplitContainer *palette_split;
     VSplitContainer *bottom_split;
@@ -621,6 +637,8 @@ public:
 
     Control *get_viewport_control() { return viewport; }
 
+    Control *get_controls_container() { return controls_vb; }
+
     void update_viewport();
 
     Tool get_current_tool() { return tool; }
@@ -644,7 +662,7 @@ class CanvasItemEditorPlugin : public EditorPlugin {
     EditorNode *editor;
 
 public:
-    String get_name() const override { return "2D"; }
+    se_string_view get_name() const override { return "2D"; }
     bool has_main_screen() const override { return true; }
     void edit(Object *p_object) override;
     bool handles(Object *p_object) const override;
@@ -661,10 +679,10 @@ public:
 class CanvasItemEditorViewport : public Control {
     GDCLASS(CanvasItemEditorViewport,Control)
 
-    String default_type;
-    Vector<String> types;
+    StringName default_type;
+    Vector<StringName> types;
 
-    Vector<String> selected_files;
+    Vector<se_string> selected_files;
     Node *target_node;
     Point2 drop_pos;
 
@@ -685,13 +703,13 @@ class CanvasItemEditorViewport : public Control {
     void _on_change_type_confirmed();
     void _on_change_type_closed();
 
-    void _create_preview(const Vector<String> &files) const;
+    void _create_preview(const Vector<se_string> &files) const;
     void _remove_preview();
 
-    bool _cyclical_dependency_exists(const String &p_target_scene_path, Node *p_desired_node);
+    bool _cyclical_dependency_exists(se_string_view p_target_scene_path, Node *p_desired_node);
     bool _only_packed_scenes_selected() const;
-    void _create_nodes(Node *parent, Node *child, String &path, const Point2 &p_point);
-    bool _create_instance(Node *parent, String &path, const Point2 &p_point);
+    void _create_nodes(Node *parent, Node *child, se_string_view path, const Point2 &p_point);
+    bool _create_instance(Node *parent, se_string_view path, const Point2 &p_point);
     void _perform_drop_data();
     void _show_resource_type_selector();
 

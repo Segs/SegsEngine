@@ -28,11 +28,11 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef GRID_THEME_H
-#define GRID_THEME_H
+#pragma once
 
-#include "core/map.h"
 #include "core/resource.h"
+#include "core/map.h"
+#include "core/se_string.h"
 #include "mesh.h"
 #include "scene/3d/navigation_mesh.h"
 #include "shape.h"
@@ -51,7 +51,7 @@ public:
         Transform local_transform;
     };
     struct Item {
-        String name;
+        se_string name;
         Ref<Mesh> mesh;
         Vector<ShapeData> shapes;
         Ref<Texture> preview;
@@ -73,13 +73,13 @@ protected:
 
 public:
     void create_item(int p_item);
-    void set_item_name(int p_item, const String &p_name);
+    void set_item_name(int p_item, se_string_view p_name);
     void set_item_mesh(int p_item, const Ref<Mesh> &p_mesh);
     void set_item_navmesh(int p_item, const Ref<NavigationMesh> &p_navmesh);
     void set_item_navmesh_transform(int p_item, const Transform &p_transform);
     void set_item_shapes(int p_item, const Vector<ShapeData> &p_shapes);
     void set_item_preview(int p_item, const Ref<Texture> &p_preview);
-    String get_item_name(int p_item) const;
+    const se_string &get_item_name(int p_item) const;
     Ref<Mesh> get_item_mesh(int p_item) const;
     Ref<NavigationMesh> get_item_navmesh(int p_item) const;
     Transform get_item_navmesh_transform(int p_item) const;
@@ -91,7 +91,7 @@ public:
 
     void clear();
 
-    int find_item_by_name(const String &p_name) const;
+    int find_item_by_name(se_string_view p_name) const;
 
     Vector<int> get_item_list() const;
     int get_last_unused_item_id() const;
@@ -99,5 +99,3 @@ public:
     MeshLibrary();
     ~MeshLibrary() override;
 };
-
-#endif // CUBE_GRID_THEME_H

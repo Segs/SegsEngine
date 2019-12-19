@@ -123,7 +123,7 @@ void AudioEffectEQ::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
 
     for (int i = 0; i < band_names.size(); i++) {
 
-        p_list->push_back(PropertyInfo(VariantType::REAL, String(band_names[i]), PROPERTY_HINT_RANGE, "-60,24,0.1"));
+        p_list->push_back(PropertyInfo(VariantType::REAL, StringName(band_names[i]), PROPERTY_HINT_RANGE, "-60,24,0.1"));
     }
 }
 
@@ -141,7 +141,7 @@ AudioEffectEQ::AudioEffectEQ(EQ::Preset p_preset) {
     gain.resize(eq.get_band_count());
     for (int i = 0; i < gain.size(); i++) {
         gain.write[i] = 0.0;
-        String name = "band_db/" + itos(eq.get_band_frequency(i)) + "_hz";
+        StringName name("band_db/" + itos(eq.get_band_frequency(i)) + "_hz");
         prop_band_map[name] = i;
         band_names.push_back(name);
     }

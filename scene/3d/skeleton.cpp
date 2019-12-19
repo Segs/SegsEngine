@@ -71,31 +71,29 @@ SkinReference::~SkinReference() {
 }
 bool Skeleton::_set(const StringName &p_path, const Variant &p_value) {
 
-    String path = p_path;
-
-    if (!StringUtils::begins_with(path,"bones/"))
+    if (!StringUtils::begins_with(p_path,"bones/"))
         return false;
 
-    int which = StringUtils::to_int(StringUtils::get_slice(path,'/', 1));
-    String what = StringUtils::get_slice(path,'/', 2);
+    int which = StringUtils::to_int(StringUtils::get_slice(p_path,'/', 1));
+    se_string_view what = StringUtils::get_slice(p_path,'/', 2);
 
-    if (which == bones.size() && what == "name") {
+    if (which == bones.size() && what == se_string_view("name")) {
 
-        add_bone(p_value);
+        add_bone(p_value.as<se_string>());
         return true;
     }
 
     ERR_FAIL_INDEX_V(which, bones.size(), false);
 
-    if (what == "parent")
+    if (what == se_string_view("parent"))
         set_bone_parent(which, p_value);
-    else if (what == "rest")
+    else if (what == se_string_view("rest"))
         set_bone_rest(which, p_value);
-    else if (what == "enabled")
+    else if (what == se_string_view("enabled"))
         set_bone_enabled(which, p_value);
-    else if (what == "pose")
+    else if (what == se_string_view("pose"))
         set_bone_pose(which, p_value);
-    else if (what == "bound_children") {
+    else if (what == se_string_view("bound_children")) {
         Array children = p_value;
 
         if (is_inside_tree()) {
@@ -104,7 +102,7 @@ bool Skeleton::_set(const StringName &p_path, const Variant &p_value) {
             for (int i = 0; i < children.size(); i++) {
 
                 NodePath npath = children[i];
-                ERR_CONTINUE(npath.operator String().empty());
+                ERR_CONTINUE(npath.empty())
                 Node *node = get_node(npath);
                 ERR_CONTINUE(!node);
                 bind_child_node_to_bone(which, node);
@@ -119,27 +117,25 @@ bool Skeleton::_set(const StringName &p_path, const Variant &p_value) {
 
 bool Skeleton::_get(const StringName &p_path, Variant &r_ret) const {
 
-    String path = p_path;
-
-    if (!StringUtils::begins_with(path,"bones/"))
+    if (!StringUtils::begins_with(p_path,"bones/"))
         return false;
 
-    int which = StringUtils::to_int(StringUtils::get_slice(path,'/', 1));
-    String what = StringUtils::get_slice(path,'/', 2);
+    int which = StringUtils::to_int(StringUtils::get_slice(p_path,'/', 1));
+    se_string_view what = StringUtils::get_slice(p_path,'/', 2);
 
     ERR_FAIL_INDEX_V(which, bones.size(), false);
 
-    if (what == "name")
+    if (what == se_string_view("name"))
         r_ret = get_bone_name(which);
-    else if (what == "parent")
+    else if (what == se_string_view("parent"))
         r_ret = get_bone_parent(which);
-    else if (what == "rest")
+    else if (what == se_string_view("rest"))
         r_ret = get_bone_rest(which);
-    else if (what == "enabled")
+    else if (what == se_string_view("enabled"))
         r_ret = is_bone_enabled(which);
-    else if (what == "pose")
+    else if (what == se_string_view("pose"))
         r_ret = get_bone_pose(which);
-    else if (what == "bound_children") {
+    else if (what == se_string_view("bound_children")) {
         Array children;
 
         for (const List<uint32_t>::Element *E = bones[which].nodes_bound.front(); E; E = E->next()) {
@@ -162,13 +158,13 @@ void Skeleton::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
 
     for (int i = 0; i < bones.size(); i++) {
 
-        String prep = "bones/" + itos(i) + "/";
-        p_list->push_back(PropertyInfo(VariantType::STRING, prep + "name"));
-        p_list->push_back(PropertyInfo(VariantType::INT, prep + "parent", PROPERTY_HINT_RANGE, "-1," + itos(bones.size() - 1) + ",1"));
-        p_list->push_back(PropertyInfo(VariantType::TRANSFORM, prep + "rest"));
-        p_list->push_back(PropertyInfo(VariantType::BOOL, prep + "enabled"));
-        p_list->push_back(PropertyInfo(VariantType::TRANSFORM, prep + "pose", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_EDITOR));
-        p_list->push_back(PropertyInfo(VariantType::ARRAY, prep + "bound_children"));
+        se_string prep = "bones/" + itos(i) + "/";
+        p_list->push_back(PropertyInfo(VariantType::STRING, StringName(prep + "name")));
+        p_list->push_back(PropertyInfo(VariantType::INT, StringName(prep + "parent"), PROPERTY_HINT_RANGE, "-1," + itos(bones.size() - 1) + ",1"));
+        p_list->push_back(PropertyInfo(VariantType::TRANSFORM, StringName(prep + "rest")));
+        p_list->push_back(PropertyInfo(VariantType::BOOL, StringName(prep + "enabled")));
+        p_list->push_back(PropertyInfo(VariantType::TRANSFORM, StringName(prep + "pose"), PROPERTY_HINT_NONE, "", PROPERTY_USAGE_EDITOR));
+        p_list->push_back(PropertyInfo(VariantType::ARRAY, StringName(prep + "bound_children")));
     }
 }
 
@@ -253,9 +249,9 @@ void Skeleton::_notification(int p_what) {
 
                         Transform pose = b.pose;
 
-							if (b.custom_pose_enable) {
-								pose = b.custom_pose * pose;
-							}
+                            if (b.custom_pose_enable) {
+                                pose = b.custom_pose * pose;
+                            }
                         if (b.parent >= 0) {
 
                             b.pose_global = bonesptr[b.parent].pose_global * pose;
@@ -279,9 +275,9 @@ void Skeleton::_notification(int p_what) {
 
                         Transform pose = b.pose;
 
-							if (b.custom_pose_enable) {
-								pose = b.custom_pose * pose;
-							}
+                            if (b.custom_pose_enable) {
+                                pose = b.custom_pose * pose;
+                            }
                         if (b.parent >= 0) {
 
                             b.pose_global = bonesptr[b.parent].pose_global * (b.rest * pose);
@@ -360,9 +356,9 @@ Transform Skeleton::get_bone_global_pose(int p_bone) const {
 }
 
 // skeleton creation api
-void Skeleton::add_bone(const String &p_name) {
+void Skeleton::add_bone(se_string_view p_name) {
 
-    ERR_FAIL_COND(p_name.empty() || StringUtils::find(p_name,":") != -1 || StringUtils::find(p_name,"/") != -1)
+    ERR_FAIL_COND(p_name.empty() || StringUtils::contains(p_name,':') || StringUtils::contains(p_name,'/'))
 
     for (int i = 0; i < bones.size(); i++) {
 
@@ -377,7 +373,7 @@ void Skeleton::add_bone(const String &p_name) {
     _make_dirty();
     update_gizmo();
 }
-int Skeleton::find_bone(const String &p_name) const {
+int Skeleton::find_bone(se_string_view p_name) const {
 
     for (int i = 0; i < bones.size(); i++) {
 
@@ -387,9 +383,9 @@ int Skeleton::find_bone(const String &p_name) const {
 
     return -1;
 }
-String Skeleton::get_bone_name(int p_bone) const {
+const se_string &Skeleton::get_bone_name(int p_bone) const {
 
-    ERR_FAIL_INDEX_V(p_bone, bones.size(), "");
+    ERR_FAIL_INDEX_V(p_bone, bones.size(), null_se_string)
 
     return bones[p_bone].name;
 }
@@ -548,19 +544,19 @@ Transform Skeleton::get_bone_pose(int p_bone) const {
 
 void Skeleton::set_bone_custom_pose(int p_bone, const Transform &p_custom_pose) {
 
-	ERR_FAIL_INDEX(p_bone, bones.size());
-	//ERR_FAIL_COND( !is_inside_scene() );
+    ERR_FAIL_INDEX(p_bone, bones.size());
+    //ERR_FAIL_COND( !is_inside_scene() );
 
-	bones.write[p_bone].custom_pose_enable = (p_custom_pose != Transform());
-	bones.write[p_bone].custom_pose = p_custom_pose;
+    bones.write[p_bone].custom_pose_enable = (p_custom_pose != Transform());
+    bones.write[p_bone].custom_pose = p_custom_pose;
 
-	_make_dirty();
+    _make_dirty();
 }
 
 Transform Skeleton::get_bone_custom_pose(int p_bone) const {
 
-	ERR_FAIL_INDEX_V(p_bone, bones.size(), Transform());
-	return bones[p_bone].custom_pose;
+    ERR_FAIL_INDEX_V(p_bone, bones.size(), Transform());
+    return bones[p_bone].custom_pose;
 }
 
 void Skeleton::_make_dirty() {
@@ -704,7 +700,7 @@ void Skeleton::physical_bones_start_simulation_on(const Array &p_bones) {
         int c = 0;
         for (int i = sim_bones.size() - 1; 0 <= i; --i) {
             if (VariantType::STRING == p_bones.get(i).get_type()) {
-                int bone_id = find_bone(p_bones.get(i));
+                int bone_id = find_bone(p_bones.get(i).as<se_string>());
                 if (bone_id != -1)
                     sim_bones.write[c++] = bone_id;
             }
@@ -800,7 +796,7 @@ Ref<SkinReference> Skeleton::register_skin(const Ref<Skin> &p_skin) {
     skin_bindings.insert(skin_ref.get());
 
     skin->connect("changed", skin_ref.get(), "_skin_changed");
-	_make_dirty();
+    _make_dirty();
     return skin_ref;
 }
 
@@ -838,8 +834,8 @@ void Skeleton::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_bone_global_pose_override", {"bone_idx", "pose", "amount", "persistent"}), &Skeleton::set_bone_global_pose_override, {DEFVAL(false)});
     MethodBinder::bind_method(D_METHOD("get_bone_global_pose", {"bone_idx"}), &Skeleton::get_bone_global_pose);
 
-	MethodBinder::bind_method(D_METHOD("get_bone_custom_pose", {"bone_idx"}), &Skeleton::get_bone_custom_pose);
-	MethodBinder::bind_method(D_METHOD("set_bone_custom_pose", {"bone_idx", "custom_pose"}), &Skeleton::set_bone_custom_pose);
+    MethodBinder::bind_method(D_METHOD("get_bone_custom_pose", {"bone_idx"}), &Skeleton::get_bone_custom_pose);
+    MethodBinder::bind_method(D_METHOD("set_bone_custom_pose", {"bone_idx", "custom_pose"}), &Skeleton::set_bone_custom_pose);
 
 #ifndef _3D_DISABLED
 

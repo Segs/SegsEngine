@@ -63,9 +63,9 @@ Error ImageLoaderPNG::load_image(ImageData &p_image,const uint8_t *p_png, int p_
 
     return OK;
 }
-void ImageLoaderPNG::get_recognized_extensions(Vector<String> *p_extensions) const {
+void ImageLoaderPNG::get_recognized_extensions(PODVector<se_string> &p_extensions) const {
 
-    p_extensions->push_back(String("png"));
+    p_extensions.emplace_back("png");
 }
 
 ImageData ImageLoaderPNG::load_mem_png(const uint8_t *p_png, int p_size) {
@@ -95,7 +95,7 @@ Error ImageLoaderPNG::save_image(const ImageData &p_image, FileAccess *p_fileacc
     return OK;
 }
 
-bool ImageLoaderPNG::can_save(const String &extension)
+bool ImageLoaderPNG::can_save(se_string_view extension)
 {
-    return "png"==extension;
+    return extension==se_string_view("png");
 }

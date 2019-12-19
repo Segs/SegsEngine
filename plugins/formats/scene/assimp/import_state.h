@@ -55,24 +55,37 @@ namespace AssimpImporter {
      */
 struct ImportState {
 
-    String path;
+    se_string path;
+    Spatial *root;
     const aiScene *assimp_scene;
     uint32_t max_bone_weights;
 
-    Spatial *root;
-    Map<String, Ref<Mesh> > mesh_cache;
+    Map<se_string, Ref<Mesh> > mesh_cache;
     Map<int, Ref<Material> > material_cache;
-    Map<String, int> light_cache;
-    Map<String, int> camera_cache;
-    //Vector<Skeleton *> skeletons;
-    Map<Skeleton *, const Spatial *> armature_skeletons; // maps skeletons based on their armature nodes.
-    Map<const aiBone *, Skeleton *> bone_to_skeleton_lookup; // maps bones back into their skeleton
+    Map<se_string, int> light_cache;
+    Map<se_string, int> camera_cache;
     // very useful for when you need to ask assimp for the bone mesh
-    Map<String, Node *> node_map;
-    Map<const aiNode *, const Node *> assimp_node_map;
-    Map<String, Ref<Image> > path_to_image_cache;
-    bool fbx; //for some reason assimp does some things different for FBX
+
+    Map<const aiNode *, Node *> assimp_node_map;
+    Map<se_string, Ref<Image> > path_to_image_cache;
+
+    // Generation 3 - determinisitic iteration
+    // to lower potential recursion errors
+    List<const aiNode *> nodes;
+    Map<const aiNode *, Spatial *> flat_node_map;
     AnimationPlayer *animation_player;
+
+    // Generation 3 - deterministic armatures
+    // list of armature nodes - flat and simple to parse
+    // assimp node, node in godot
+    List<aiNode *> armature_nodes;
+    Map<const aiNode *, Skeleton *> armature_skeletons;
+    Map<aiBone *, Skeleton *> skeleton_bone_map;
+    // Generation 3 - deterministic bone handling
+    // bones from the stack are popped when found
+    // this means we can detect
+    // what bones are for other armatures
+    List<aiBone *> bone_stack;
 };
 
 struct AssimpImageData {
@@ -85,14 +98,15 @@ struct AssimpImageData {
     * This makes the code easier to handle too and add extra arguments without breaking things
     */
 struct RecursiveState {
+    RecursiveState() = delete;
     RecursiveState(
             Transform &_node_transform,
             Skeleton *_skeleton,
             Spatial *_new_node,
-            const String &_node_name,
+            const se_string &_node_name,
             const aiNode *_assimp_node,
             Node *_parent_node,
-            const aiBone *_bone) :
+            aiBone *_bone) :
             node_transform(_node_transform),
             skeleton(_skeleton),
             new_node(_new_node),
@@ -104,10 +118,10 @@ struct RecursiveState {
     Transform &node_transform;
     Skeleton *skeleton;
     Spatial *new_node;
-    const String &node_name;
+    const se_string &node_name;
     const aiNode *assimp_node;
     Node *parent_node;
-    const aiBone *bone;
+    aiBone *bone;
 };
 } // namespace AssimpImporter
 

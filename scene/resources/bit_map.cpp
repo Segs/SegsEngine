@@ -501,7 +501,7 @@ static void fill_bits(const BitMap *p_src, Ref<BitMap> &p_map, const Point2i &p_
 Vector<Vector<Vector2> > BitMap::clip_opaque_to_polygons(const Rect2 &p_rect, float p_epsilon) const {
 
     Rect2i r = Rect2i(0, 0, width, height).clip(p_rect);
-    print_verbose("BitMap: Rect: " + r);
+    print_verbose("BitMap: Rect: " + (se_string)r);
 
     Point2i from;
     Ref<BitMap> fill(make_ref_counted<BitMap>());
@@ -536,7 +536,7 @@ void BitMap::grow_mask(int p_pixels, const Rect2 &p_rect) {
         return;
     }
 
-    bool bit_value = (p_pixels > 0) ? true : false;
+    bool bit_value = p_pixels > 0;
     p_pixels = Math::abs(p_pixels);
 
     Rect2i r = Rect2i(0, 0, width, height).clip(p_rect);

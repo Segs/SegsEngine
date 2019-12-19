@@ -59,14 +59,13 @@ bool xatlas_mesh_lightmap_unwrap_callback(float p_texel_size, const float *p_ver
     xatlas::PackOptions pack_options;
 
     pack_options.maxChartSize = 4096;
-	pack_options.blockAlign = true;
+    pack_options.blockAlign = true;
     pack_options.texelsPerUnit = 1.0f / p_texel_size;
 
     xatlas::Atlas *atlas = xatlas::Create();
     printf("Adding mesh..\n");
     xatlas::AddMeshError::Enum err = xatlas::AddMesh(atlas, input_mesh, 1);
-    ERR_EXPLAIN(xatlas::StringForEnum(err))
-    ERR_FAIL_COND_V(err != xatlas::AddMeshError::Enum::Success, false)
+    ERR_FAIL_COND_V_MSG(err != xatlas::AddMeshError::Enum::Success, false,xatlas::StringForEnum(err))
 
     printf("Generate..\n");
     xatlas::Generate(atlas, chart_options, nullptr, pack_options);
@@ -78,7 +77,7 @@ bool xatlas_mesh_lightmap_unwrap_callback(float p_texel_size, const float *p_ver
     float h = *r_size_hint_y;
 
     if (w == 0.0f || h == 0.0f) {
-		return false; //could not bake because there is no area
+        return false; //could not bake because there is no area
     }
 
     const xatlas::Mesh &output = atlas->meshes[0];
@@ -106,7 +105,7 @@ bool xatlas_mesh_lightmap_unwrap_callback(float p_texel_size, const float *p_ver
 
     *r_index_count = output.indexCount;
 
-	xatlas::Destroy(atlas);
+    xatlas::Destroy(atlas);
     printf("Done\n");
     return true;
 }

@@ -191,16 +191,17 @@ void AudioEffectRecord::ensure_thread_stopped() {
 void AudioEffectRecord::set_recording_active(bool p_record) {
     if (p_record) {
         if (current_instance == nullptr) {
-            WARN_PRINTS("Recording should not be set as active before Godot has initialized.");
+            WARN_PRINT("Recording should not be set as active before Godot has initialized.")
             recording_active = false;
             return;
         }
 
         ensure_thread_stopped();
+        recording_active = true;
         current_instance->init();
+    } else {
+        recording_active = false;
     }
-
-    recording_active = p_record;
 }
 
 bool AudioEffectRecord::is_recording_active() const {
@@ -219,7 +220,7 @@ Ref<AudioStreamSample> AudioEffectRecord::get_recording() const {
     AudioStreamSample::Format dst_format = format;
     bool stereo = true; //forcing mono is not implemented
 
-    PoolVector<uint8_t> dst_data;
+    PODVector<uint8_t> dst_data;
 
     ERR_FAIL_COND_V(not current_instance, Ref<AudioStreamSample>())
     ERR_FAIL_COND_V(current_instance->recording_data.empty(), Ref<AudioStreamSample>())
@@ -227,37 +228,35 @@ Ref<AudioStreamSample> AudioEffectRecord::get_recording() const {
     if (dst_format == AudioStreamSample::FORMAT_8_BITS) {
         int data_size = current_instance->recording_data.size();
         dst_data.resize(data_size);
-        PoolVector<uint8_t>::Write w = dst_data.write();
 
         for (int i = 0; i < data_size; i++) {
             int8_t v = CLAMP(current_instance->recording_data[i] * 128, -128, 127);
-            w[i] = v;
+            dst_data[i] = v;
         }
     } else if (dst_format == AudioStreamSample::FORMAT_16_BITS) {
         int data_size = current_instance->recording_data.size();
         dst_data.resize(data_size * 2);
-        PoolVector<uint8_t>::Write w = dst_data.write();
 
         for (int i = 0; i < data_size; i++) {
             int16_t v = CLAMP(current_instance->recording_data[i] * 32768, -32768, 32767);
-            encode_uint16(v, &w[i * 2]);
+            encode_uint16(v, &dst_data[i * 2]);
         }
     } else if (dst_format == AudioStreamSample::FORMAT_IMA_ADPCM) {
         //byte interleave
-        Vector<float> left;
-        Vector<float> right;
+        PODVector<float> left;
+        PODVector<float> right;
 
         int tframes = current_instance->recording_data.size() / 2;
         left.resize(tframes);
         right.resize(tframes);
 
         for (int i = 0; i < tframes; i++) {
-            left.set(i, current_instance->recording_data[i * 2 + 0]);
-            right.set(i, current_instance->recording_data[i * 2 + 1]);
+            left[i] = current_instance->recording_data[i * 2 + 0];
+            right[i] = current_instance->recording_data[i * 2 + 1];
         }
 
-        PoolVector<uint8_t> bleft;
-        PoolVector<uint8_t> bright;
+        PODVector<uint8_t> bleft;
+        PODVector<uint8_t> bright;
 
         ResourceImporterWAV::_compress_ima_adpcm(left, bleft);
         ResourceImporterWAV::_compress_ima_adpcm(right, bright);
@@ -265,13 +264,9 @@ Ref<AudioStreamSample> AudioEffectRecord::get_recording() const {
         int dl = bleft.size();
         dst_data.resize(dl * 2);
 
-        PoolVector<uint8_t>::Write w = dst_data.write();
-        PoolVector<uint8_t>::Read rl = bleft.read();
-        PoolVector<uint8_t>::Read rr = bright.read();
-
         for (int i = 0; i < dl; i++) {
-            w[i * 2 + 0] = rl[i];
-            w[i * 2 + 1] = rr[i];
+            dst_data[i * 2 + 0] = bleft[i];
+            dst_data[i * 2 + 1] = bright[i];
         }
     } else {
         ERR_PRINT("Format not implemented.");
@@ -301,4 +296,5 @@ void AudioEffectRecord::_bind_methods() {
 
 AudioEffectRecord::AudioEffectRecord() {
     format = AudioStreamSample::FORMAT_16_BITS;
+    recording_active = false;
 }

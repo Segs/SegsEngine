@@ -49,7 +49,7 @@ private:
     void _iteration();
 
 public:
-    Error parse_script_file(const String &p_path);
+    Error parse_script_file(se_string_view p_path);
     GDScriptLanguageServer();
     void start();
     void stop();

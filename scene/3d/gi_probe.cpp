@@ -250,7 +250,7 @@ void GIProbe::set_extents(const Vector3 &p_extents) {
 
     extents = p_extents;
     update_gizmo();
-	_change_notify("extents");
+    _change_notify("extents");
 }
 
 Vector3 GIProbe::get_extents() const {
@@ -395,9 +395,6 @@ void GIProbe::_find_meshes(Node *p_at_node, List<PlotMesh> &plot_meshes) {
     for (int i = 0; i < p_at_node->get_child_count(); i++) {
 
         Node *child = p_at_node->get_child(i);
-        if (!child->get_owner())
-            continue; //maybe a helper
-
         _find_meshes(child, plot_meshes);
     }
 }
@@ -427,7 +424,7 @@ void GIProbe::bake(Node *p_from_node, bool p_create_visual_debug) {
     for (List<PlotMesh>::Element *E = mesh_list.front(); E; E = E->next()) {
 
         if (bake_step_function) {
-            bake_step_function(pmc, RTR("Plotting Meshes") + " " + itos(pmc) + "/" + itos(mesh_list.size()));
+            bake_step_function(pmc, RTR_utf8("Plotting Meshes") + " " + itos(pmc) + "/" + itos(mesh_list.size()));
         }
 
         pmc++;
@@ -435,7 +432,7 @@ void GIProbe::bake(Node *p_from_node, bool p_create_visual_debug) {
         baker.plot_mesh(E->deref().local_xform, E->deref().mesh, E->deref().instance_materials, E->deref().override_material);
     }
     if (bake_step_function) {
-        bake_step_function(pmc++, RTR("Finishing Plot"));
+        bake_step_function(pmc++, RTR_utf8("Finishing Plot"));
     }
 
     baker.end_bake();
@@ -500,12 +497,8 @@ PoolVector<Face3> GIProbe::get_faces(uint32_t p_usage_flags) const {
     return PoolVector<Face3>();
 }
 
-String GIProbe::get_configuration_warning() const {
-
-    if (OS::get_singleton()->get_current_video_driver() == OS::VIDEO_DRIVER_GLES2) {
-        return TTR("GIProbes are not supported by the GLES2 video driver.\nUse a BakedLightmap instead.");
-    }
-    return String();
+StringName GIProbe::get_configuration_warning() const {
+    return StringName();
 }
 
 void GIProbe::_bind_methods() {

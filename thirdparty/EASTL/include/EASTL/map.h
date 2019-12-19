@@ -151,6 +151,17 @@ namespace eastl
         const T& at(const Key& key) const;
 #if EASTL_LF3D_EXTENSIONS
         const T& at(const Key& key,const T &default_val) const noexcept;
+        // Erase an element that matches the given key
+        template<typename U, typename Compare2=less_2<Key,U>>
+        size_type erase_as(const U& key, Compare2 compare2=Compare2()) {
+            auto it(base_type::find_as(key,compare2));
+            if(it != end()) // If it exists...
+            {
+                base_type::erase(it);
+                return 1;
+            }
+            return 0;
+        }
 #endif
     }; // map
 

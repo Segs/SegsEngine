@@ -370,8 +370,8 @@ void VisualServerScene::instance_set_base(RID p_instance, RID p_base) {
                 InstanceLightData *light = static_cast<InstanceLightData *>(instance->base_data);
 
                 if (instance->scenario && light->D) {
-                    instance->scenario->directional_lights.erase(light->D);
-                    light->D = nullptr;
+                    instance->scenario->directional_lights.erase_first(instance);
+                    light->D = false;
                 }
                 VSG::scene_render->free(light->instance);
             } break;
@@ -446,7 +446,8 @@ void VisualServerScene::instance_set_base(RID p_instance, RID p_base) {
                 InstanceLightData *light = memnew(InstanceLightData);
 
                 if (scenario && VSG::storage->light_get_type(p_base) == VS::LIGHT_DIRECTIONAL) {
-                    light->D = scenario->directional_lights.push_back(instance);
+                    scenario->directional_lights.push_back(instance);
+                    light->D = true;
                 }
 
                 light->instance = VSG::scene_render->light_instance_create(p_base);
@@ -522,10 +523,9 @@ void VisualServerScene::instance_set_scenario(RID p_instance, RID p_scenario) {
             case VS::INSTANCE_LIGHT: {
 
                 InstanceLightData *light = static_cast<InstanceLightData *>(instance->base_data);
-
                 if (light->D) {
-                    instance->scenario->directional_lights.erase(light->D);
-                    light->D = nullptr;
+                    instance->scenario->directional_lights.erase_first(instance);
+                    light->D = false;
                 }
             } break;
             case VS::INSTANCE_REFLECTION_PROBE: {
@@ -563,7 +563,8 @@ void VisualServerScene::instance_set_scenario(RID p_instance, RID p_scenario) {
                 InstanceLightData *light = static_cast<InstanceLightData *>(instance->base_data);
 
                 if (VSG::storage->light_get_type(instance->base) == VS::LIGHT_DIRECTIONAL) {
-                    light->D = scenario->directional_lights.push_back(instance);
+                    scenario->directional_lights.push_back(instance);
+                    light->D = true;
                 }
             } break;
             case VS::INSTANCE_GI_PROBE: {
@@ -2041,22 +2042,22 @@ void VisualServerScene::_prepare_scene(const Transform p_cam_transform, const Ca
         Instance **lights_with_shadow = (Instance **)alloca(sizeof(Instance *) * scenario->directional_lights.size());
         int directional_shadow_count = 0;
 
-        for (List<Instance *>::Element *E = scenario->directional_lights.front(); E; E = E->next()) {
+        for (Instance *E : scenario->directional_lights) {
 
             if (light_cull_count + directional_light_count >= MAX_LIGHTS_CULLED) {
                 break;
             }
 
-            if (!E->deref()->visible)
+            if (!E->visible)
                 continue;
 
-            InstanceLightData *light = static_cast<InstanceLightData *>(E->deref()->base_data);
+            InstanceLightData *light = static_cast<InstanceLightData *>(E->base_data);
 
             //check shadow..
 
             if (light) {
-                if (p_shadow_atlas.is_valid() && VSG::storage->light_has_shadow(E->deref()->base)) {
-                    lights_with_shadow[directional_shadow_count++] = E->deref();
+                if (p_shadow_atlas.is_valid() && VSG::storage->light_has_shadow(E->base)) {
+                    lights_with_shadow[directional_shadow_count++] = E;
                 }
                 //add to list
                 directional_light_ptr[directional_light_count++] = light->instance;
@@ -2622,13 +2623,13 @@ static float _get_normal_advance(const Vector3 &p_normal) {
 
     if ((unorm.x >= unorm.y) && (unorm.x >= unorm.z)) {
         // x code
-        unorm = normal.x > 0.0 ? Vector3(1.0, 0.0, 0.0) : Vector3(-1.0, 0.0, 0.0);
+        unorm = normal.x > 0.0f ? Vector3(1.0, 0.0, 0.0) : Vector3(-1.0, 0.0, 0.0);
     } else if ((unorm.y > unorm.x) && (unorm.y >= unorm.z)) {
         // y code
-        unorm = normal.y > 0.0 ? Vector3(0.0, 1.0, 0.0) : Vector3(0.0, -1.0, 0.0);
+        unorm = normal.y > 0.0f ? Vector3(0.0, 1.0, 0.0) : Vector3(0.0, -1.0, 0.0);
     } else if ((unorm.z > unorm.x) && (unorm.z > unorm.y)) {
         // z code
-        unorm = normal.z > 0.0 ? Vector3(0.0, 0.0, 1.0) : Vector3(0.0, 0.0, -1.0);
+        unorm = normal.z > 0.0f ? Vector3(0.0, 0.0, 1.0) : Vector3(0.0, 0.0, -1.0);
     } else {
         // oh-no we messed up code
         // has to be
@@ -2640,9 +2641,9 @@ static float _get_normal_advance(const Vector3 &p_normal) {
 
 void VisualServerScene::_bake_gi_probe_light(const GIProbeDataHeader *header, const GIProbeDataCell *cells, InstanceGIProbeData::LocalData *local_data, const uint32_t *leaves, int p_leaf_count, const InstanceGIProbeData::LightCache &light_cache, int p_sign) {
 
-    int light_r = int(light_cache.color.r * light_cache.energy * 1024.0) * p_sign;
-    int light_g = int(light_cache.color.g * light_cache.energy * 1024.0) * p_sign;
-    int light_b = int(light_cache.color.b * light_cache.energy * 1024.0) * p_sign;
+    int light_r = int(light_cache.color.r * light_cache.energy * 1024.0f) * p_sign;
+    int light_g = int(light_cache.color.g * light_cache.energy * 1024.0f) * p_sign;
+    int light_b = int(light_cache.color.b * light_cache.energy * 1024.0f) * p_sign;
 
     float limits[3] = { float(header->width), float(header->height), float(header->depth) };
     Plane clip[3];
@@ -2652,7 +2653,7 @@ void VisualServerScene::_bake_gi_probe_light(const GIProbeDataHeader *header, co
 
         case VS::LIGHT_DIRECTIONAL: {
 
-            float max_len = Vector3(limits[0], limits[1], limits[2]).length() * 1.1;
+            float max_len = Vector3(limits[0], limits[1], limits[2]).length() * 1.1f;
 
             Vector3 light_axis = -light_cache.transform.basis.get_axis(2).normalized();
 
@@ -2666,7 +2667,7 @@ void VisualServerScene::_bake_gi_probe_light(const GIProbeDataHeader *header, co
 
                     clip[clip_planes].d = limits[i] + 1;
                 } else {
-                    clip[clip_planes].d -= 1.0;
+                    clip[clip_planes].d -= 1.0f;
                 }
 
                 clip_planes++;
@@ -2685,13 +2686,13 @@ void VisualServerScene::_bake_gi_probe_light(const GIProbeDataHeader *header, co
                 const GIProbeDataCell *cell = &cells[idx];
                 InstanceGIProbeData::LocalData *light = &local_data[idx];
 
-                Vector3 to(light->pos[0] + 0.5, light->pos[1] + 0.5, light->pos[2] + 0.5);
-                to += -light_axis.sign() * 0.47; //make it more likely to receive a ray
+                Vector3 to(light->pos[0] + 0.5f, light->pos[1] + 0.5, light->pos[2] + 0.5f);
+                to += -light_axis.sign() * 0.47f; //make it more likely to receive a ray
 
                 Vector3 norm(
-                        (((cells[idx].normal >> 16) & 0xFF) / 255.0) * 2.0 - 1.0,
-                        (((cells[idx].normal >> 8) & 0xFF) / 255.0) * 2.0 - 1.0,
-                        (((cells[idx].normal >> 0) & 0xFF) / 255.0) * 2.0 - 1.0);
+                        (((cells[idx].normal >> 16) & 0xFF) / 255.0f) * 2.0f - 1.0f,
+                        (((cells[idx].normal >> 8) & 0xFF) / 255.0f) * 2.0f - 1.0f,
+                        (((cells[idx].normal >> 0) & 0xFF) / 255.0f) * 2.0f - 1.0f);
 
                 float att = norm.dot(-light_axis);
                 if (att < 0.001) {
@@ -3119,27 +3120,27 @@ bool VisualServerScene::_check_gi_probe(Instance *p_gi_probe) {
 
     bool all_equal = true;
 
-    for (List<Instance *>::Element *E = p_gi_probe->scenario->directional_lights.front(); E; E = E->next()) {
+    for (Instance *E : p_gi_probe->scenario->directional_lights) {
 
-        if (!VSG::storage->light_get_use_gi(E->deref()->base))
+        if (!VSG::storage->light_get_use_gi(E->base))
             continue;
 
         InstanceGIProbeData::LightCache lc;
-        lc.type = VSG::storage->light_get_type(E->deref()->base);
-        lc.color = VSG::storage->light_get_color(E->deref()->base);
-        lc.energy = VSG::storage->light_get_param(E->deref()->base, VS::LIGHT_PARAM_ENERGY) * VSG::storage->light_get_param(E->deref()->base, VS::LIGHT_PARAM_INDIRECT_ENERGY);
-        lc.radius = VSG::storage->light_get_param(E->deref()->base, VS::LIGHT_PARAM_RANGE);
-        lc.attenuation = VSG::storage->light_get_param(E->deref()->base, VS::LIGHT_PARAM_ATTENUATION);
-        lc.spot_angle = VSG::storage->light_get_param(E->deref()->base, VS::LIGHT_PARAM_SPOT_ANGLE);
-        lc.spot_attenuation = VSG::storage->light_get_param(E->deref()->base, VS::LIGHT_PARAM_SPOT_ATTENUATION);
-        lc.transform = probe_data->dynamic.light_to_cell_xform * E->deref()->transform;
-        lc.visible = E->deref()->visible;
+        lc.type = VSG::storage->light_get_type(E->base);
+        lc.color = VSG::storage->light_get_color(E->base);
+        lc.energy = VSG::storage->light_get_param(E->base, VS::LIGHT_PARAM_ENERGY) * VSG::storage->light_get_param(E->base, VS::LIGHT_PARAM_INDIRECT_ENERGY);
+        lc.radius = VSG::storage->light_get_param(E->base, VS::LIGHT_PARAM_RANGE);
+        lc.attenuation = VSG::storage->light_get_param(E->base, VS::LIGHT_PARAM_ATTENUATION);
+        lc.spot_angle = VSG::storage->light_get_param(E->base, VS::LIGHT_PARAM_SPOT_ANGLE);
+        lc.spot_attenuation = VSG::storage->light_get_param(E->base, VS::LIGHT_PARAM_SPOT_ATTENUATION);
+        lc.transform = probe_data->dynamic.light_to_cell_xform * E->transform;
+        lc.visible = E->visible;
 
-        if (!probe_data->dynamic.light_cache.contains(E->deref()->self) || probe_data->dynamic.light_cache[E->deref()->self] != lc) {
+        if (!probe_data->dynamic.light_cache.contains(E->self) || probe_data->dynamic.light_cache[E->self] != lc) {
             all_equal = false;
         }
 
-        probe_data->dynamic.light_cache_changes[E->deref()->self] = lc;
+        probe_data->dynamic.light_cache_changes[E->self] = lc;
     }
 
     for (Instance * E : probe_data->lights) {

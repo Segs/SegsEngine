@@ -32,7 +32,8 @@
 
 #include "core/math/math_funcs.h"
 #include "core/print_string.h"
-#include "core/ustring.h"
+#include "core/se_string.h"
+#include "core/string_utils.h"
 #include "core/vector.h"
 
 void CameraMatrix::set_identity() {
@@ -48,13 +49,7 @@ void CameraMatrix::set_identity() {
 
 void CameraMatrix::set_zero() {
 
-    for (int i = 0; i < 4; i++) {
-
-        for (int j = 0; j < 4; j++) {
-
-            matrix[i][j] = 0;
-        }
-    }
+    memset(matrix,0,sizeof(real_t)*16);
 }
 
 Plane CameraMatrix::xform4(const Plane &p_vec4) const {
@@ -80,7 +75,7 @@ void CameraMatrix::set_perspective(real_t p_fovy_degrees, real_t p_aspect, real_
     deltaZ = p_z_far - p_z_near;
     sine = Math::sin(radians);
 
-    if ((deltaZ == 0) || (sine == 0) || (p_aspect == 0)) {
+    if ((deltaZ == 0.0f) || (sine == 0.0f) || (p_aspect == 0.0f)) {
         return;
     }
     cotangent = Math::cos(radians) / sine;
@@ -184,6 +179,9 @@ void CameraMatrix::set_orthogonal(real_t p_size, real_t p_aspect, real_t p_znear
 }
 
 void CameraMatrix::set_frustum(real_t p_left, real_t p_right, real_t p_bottom, real_t p_top, real_t p_near, real_t p_far) {
+    ERR_FAIL_COND(p_right <= p_left)
+    ERR_FAIL_COND(p_top <= p_bottom)
+    ERR_FAIL_COND(p_far <= p_near)
 
     real_t *te = &matrix[0][0];
     real_t x = 2 * p_near / (p_right - p_left);
@@ -194,22 +192,10 @@ void CameraMatrix::set_frustum(real_t p_left, real_t p_right, real_t p_bottom, r
     real_t c = -(p_far + p_near) / (p_far - p_near);
     real_t d = -2 * p_far * p_near / (p_far - p_near);
 
-    te[0] = x;
-    te[1] = 0;
-    te[2] = 0;
-    te[3] = 0;
-    te[4] = 0;
-    te[5] = y;
-    te[6] = 0;
-    te[7] = 0;
-    te[8] = a;
-    te[9] = b;
-    te[10] = c;
-    te[11] = -1;
-    te[12] = 0;
-    te[13] = 0;
-    te[14] = d;
-    te[15] = 0;
+    te[0]  = x; te[1]  = 0; te[2]  = 0; te[3]  = 0;
+    te[4]  = 0; te[5]  = y; te[6]  = 0; te[7]  = 0;
+    te[8]  = a; te[9]  = b; te[10] = c; te[11] = -1;
+    te[12] = 0; te[13] = 0; te[14] = d; te[15] = 0;
 }
 
 void CameraMatrix::set_frustum(real_t p_size, real_t p_aspect, Vector2 p_offset, real_t p_near, real_t p_far, bool p_flip_fov) {
@@ -549,12 +535,12 @@ void CameraMatrix::set_light_atlas_rect(const Rect2 &p_rect) {
     m[15] = 1.0;
 }
 
-CameraMatrix::operator String() const {
+CameraMatrix::operator se_string() const {
 
-    String str;
+    se_string str;
     for (int i = 0; i < 4; i++)
         for (int j = 0; j < 4; j++)
-            str += String((j > 0) ? ", " : "\n") + rtos(matrix[i][j]);
+            str += se_string((j > 0) ? ", " : "\n") + rtos(matrix[i][j]);
 
     return str;
 }

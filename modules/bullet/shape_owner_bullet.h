@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef SHAPE_OWNER_BULLET_H
-#define SHAPE_OWNER_BULLET_H
+#pragma once
 
 #include "rid_bullet.h"
 
@@ -49,6 +48,5 @@ public:
 	virtual void shape_changed(int p_shape_index) = 0;
 	virtual void reload_shapes() = 0;
 	virtual void remove_shape_full(class ShapeBullet *p_shape) = 0;
-	virtual ~ShapeOwnerBullet() {}
+    virtual ~ShapeOwnerBullet() = default;
 };
-#endif

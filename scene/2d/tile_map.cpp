@@ -225,7 +225,7 @@ Size2 TileMap::get_cell_size() const {
 
 void TileMap::set_quadrant_size(int p_size) {
 
-	ERR_FAIL_COND_MSG(p_size < 1, "Quadrant size cannot be smaller than 1.");
+    ERR_FAIL_COND_MSG(p_size < 1, "Quadrant size cannot be smaller than 1.");
 
     _clear_quadrants();
     quadrant_size = p_size;
@@ -398,9 +398,9 @@ void TileMap::update_dirty_quadrants() {
         RID prev_canvas_item;
         RID prev_debug_canvas_item;
 
-        for (int i = 0; i < q.cells.size(); i++) {
+        for (const PosKey &pk : q.cells) {
 
-            Map<PosKey, Cell>::iterator E = tile_map.find(q.cells[i]);
+            Map<PosKey, Cell>::iterator E = tile_map.find(pk);
             Cell &c = E->second;
             //moment of truth
             if (!tile_set->has_tile(c.id))
@@ -587,7 +587,7 @@ void TileMap::update_dirty_quadrants() {
                                     _add_shape(shape_idx, q, convex, shapes[j], xform, Vector2(E->first.x, E->first.y));
 #ifdef DEBUG_ENABLED
                                 } else {
-                                    print_error("The TileSet assigned to the TileMap " + get_name() + " has an invalid convex shape.");
+                                    print_error(se_string("The TileSet assigned to the TileMap ") + get_name() + " has an invalid convex shape.");
 #endif
                                 }
                             }
@@ -964,7 +964,7 @@ void TileMap::update_bitmask_region(const Vector2 &p_start, const Vector2 &p_end
 
 void TileMap::update_cell_bitmask(int p_x, int p_y) {
 
-    ERR_FAIL_COND_CMSG(not tile_set, "Cannot update cell bitmask if Tileset is not open.")
+    ERR_FAIL_COND_MSG(not tile_set, "Cannot update cell bitmask if Tileset is not open.")
 
     PosKey p(p_x, p_y);
     Map<PosKey, Cell>::iterator E = tile_map.find(p);
@@ -1061,7 +1061,7 @@ void TileMap::update_dirty_bitmask() {
 
 void TileMap::fix_invalid_tiles() {
 
-	ERR_FAIL_COND_MSG(not tile_set, "Cannot fix invalid tiles if Tileset is not open.");
+    ERR_FAIL_COND_MSG(not tile_set, "Cannot fix invalid tiles if Tileset is not open.");
     for (eastl::pair<const PosKey,Cell> &E : tile_map) {
 
         if (!tile_set->has_tile(get_cell(E.first.x, E.first.y))) {
@@ -1243,8 +1243,8 @@ void TileMap::_set_tile_data(const PoolVector<int> &p_data) {
         }
 #endif
 
-        int16_t x = decode_uint16(&local[0]);
-        int16_t y = decode_uint16(&local[2]);
+        uint16_t x = decode_uint16(&local[0]);
+        uint16_t y = decode_uint16(&local[2]);
         uint32_t v = decode_uint32(&local[4]);
         bool flip_h = v & (1 << 29);
         bool flip_v = v & (1 << 30);
@@ -1561,8 +1561,8 @@ Vector2 TileMap::_map_to_world(int p_x, int p_y, bool p_ignore_ofs) const {
                     ret += get_cell_transform()[1] * (half_offset == HALF_OFFSET_Y ? 0.5 : -0.5);
                 }
             } break;
-			case HALF_OFFSET_DISABLED: {
-				// Nothing to do.
+            case HALF_OFFSET_DISABLED: {
+                // Nothing to do.
             }
         }
     }
@@ -1625,27 +1625,27 @@ Vector2 TileMap::world_to_map(const Vector2 &p_pos) const {
     switch (half_offset) {
 
         case HALF_OFFSET_X: {
-			if (int(floor(ret.y)) & 1) {
-				ret.x -= 0.5;
+            if (int(floor(ret.y)) & 1) {
+                ret.x -= 0.5;
             }
         } break;
         case HALF_OFFSET_NEGATIVE_X: {
-			if (int(floor(ret.y)) & 1) {
-				ret.x += 0.5;
+            if (int(floor(ret.y)) & 1) {
+                ret.x += 0.5;
             }
         } break;
         case HALF_OFFSET_Y: {
-			if (int(floor(ret.x)) & 1) {
-				ret.y -= 0.5;
+            if (int(floor(ret.x)) & 1) {
+                ret.y -= 0.5;
             }
         } break;
         case HALF_OFFSET_NEGATIVE_Y: {
-			if (int(floor(ret.x)) & 1) {
-				ret.y += 0.5;
+            if (int(floor(ret.x)) & 1) {
+                ret.y += 0.5;
             }
         } break;
-		case HALF_OFFSET_DISABLED: {
-			// Nothing to do.
+        case HALF_OFFSET_DISABLED: {
+            // Nothing to do.
         }
     }
 
@@ -1788,9 +1788,9 @@ bool TileMap::get_clip_uv() const {
     return clip_uv;
 }
 
-String TileMap::get_configuration_warning() const {
+StringName TileMap::get_configuration_warning() const {
 
-    String warning = Node2D::get_configuration_warning();
+    se_string warning(Node2D::get_configuration_warning());
 
     if (use_parent && !collision_parent) {
         if (!warning.empty()) {
@@ -1799,7 +1799,7 @@ String TileMap::get_configuration_warning() const {
         return TTR("TileMap with Use Parent on needs a parent CollisionObject2D to give shapes to. Please use it as a child of Area2D, StaticBody2D, RigidBody2D, KinematicBody2D, etc. to give them a shape.");
     }
 
-    return warning;
+    return StringName(warning);
 }
 
 void TileMap::_bind_methods() {
@@ -1944,7 +1944,7 @@ void TileMap::_bind_methods() {
     BIND_ENUM_CONSTANT(TILE_ORIGIN_BOTTOM_LEFT)
 }
 
-void TileMap::_changed_callback(Object *p_changed, const char *p_prop) {
+void TileMap::_changed_callback(Object *p_changed, StringName p_prop) {
     if (tile_set && tile_set.get() == p_changed) {
         emit_signal("settings_changed");
     }

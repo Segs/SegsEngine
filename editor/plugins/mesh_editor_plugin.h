@@ -42,54 +42,54 @@
 
 class MeshEditor : public ViewportContainer {
 
-	GDCLASS(MeshEditor,ViewportContainer)
+    GDCLASS(MeshEditor,ViewportContainer)
 
-	float rot_x;
-	float rot_y;
+    float rot_x;
+    float rot_y;
 
-	Viewport *viewport;
-	MeshInstance *mesh_instance;
-	Spatial *rotation;
-	DirectionalLight *light1;
-	DirectionalLight *light2;
-	Camera *camera;
+    Viewport *viewport;
+    MeshInstance *mesh_instance;
+    Spatial *rotation;
+    DirectionalLight *light1;
+    DirectionalLight *light2;
+    Camera *camera;
 
-	Ref<Mesh> mesh;
+    Ref<Mesh> mesh;
 
-	TextureButton *light_1_switch;
-	TextureButton *light_2_switch;
+    TextureButton *light_1_switch;
+    TextureButton *light_2_switch;
 
-	void _button_pressed(Node *p_button);
-	bool first_enter;
+    void _button_pressed(Node *p_button);
+    bool first_enter;
 
-	void _update_rotation();
+    void _update_rotation();
 
 protected:
-	void _notification(int p_what);
-	void _gui_input(const Ref<InputEvent>& p_event);
-	static void _bind_methods();
+    void _notification(int p_what);
+    void _gui_input(const Ref<InputEvent>& p_event);
+    static void _bind_methods();
 
 public:
-	void edit(const Ref<Mesh>& p_mesh);
-	MeshEditor();
+    void edit(const Ref<Mesh>& p_mesh);
+    MeshEditor();
 };
 
 class EditorInspectorPluginMesh : public EditorInspectorPlugin {
-	GDCLASS(EditorInspectorPluginMesh,EditorInspectorPlugin)
+    GDCLASS(EditorInspectorPluginMesh,EditorInspectorPlugin)
 
 public:
-	bool can_handle(Object *p_object) override;
-	void parse_begin(Object *p_object) override;
+    bool can_handle(Object *p_object) override;
+    void parse_begin(Object *p_object) override;
 };
 
 class MeshEditorPlugin : public EditorPlugin {
 
-	GDCLASS(MeshEditorPlugin,EditorPlugin)
+    GDCLASS(MeshEditorPlugin,EditorPlugin)
 
 public:
-	String get_name() const override { return "Mesh"; }
+    se_string_view get_name() const override { return "Mesh"; }
 
-	MeshEditorPlugin(EditorNode *p_node);
+    MeshEditorPlugin(EditorNode *p_node);
 };
 
 #endif

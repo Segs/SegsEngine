@@ -28,78 +28,75 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef ANIMATION_BLEND_SPACE_1D_H
-#define ANIMATION_BLEND_SPACE_1D_H
+#pragma once
 
 #include "scene/animation/animation_tree.h"
 
 class AnimationNodeBlendSpace1D : public AnimationRootNode {
-	GDCLASS(AnimationNodeBlendSpace1D,AnimationRootNode)
+    GDCLASS(AnimationNodeBlendSpace1D,AnimationRootNode)
 
-	enum {
-		MAX_BLEND_POINTS = 64
-	};
+    enum {
+        MAX_BLEND_POINTS = 64
+    };
 
-	struct BlendPoint {
-		StringName name;
-		Ref<AnimationRootNode> node;
-		float position;
-	};
+    struct BlendPoint {
+        StringName name;
+        Ref<AnimationRootNode> node;
+        float position;
+    };
 
-	BlendPoint blend_points[MAX_BLEND_POINTS];
-	int blend_points_used;
+    BlendPoint blend_points[MAX_BLEND_POINTS];
+    int blend_points_used;
 
-	float max_space;
-	float min_space;
+    float max_space;
+    float min_space;
 
-	float snap;
+    float snap;
 
-	String value_label;
+    se_string value_label;
 
-	void _add_blend_point(int p_index, const Ref<AnimationRootNode> &p_node);
+    void _add_blend_point(int p_index, const Ref<AnimationRootNode> &p_node);
 
-	void _tree_changed();
+    void _tree_changed();
 
-	StringName blend_position;
+    StringName blend_position;
 
 protected:
-	void _validate_property(PropertyInfo &property) const override;
-	static void _bind_methods();
+    void _validate_property(PropertyInfo &property) const override;
+    static void _bind_methods();
 
 public:
-	void get_parameter_list(List<PropertyInfo> *r_list) const override;
-	Variant get_parameter_default_value(const StringName &p_parameter) const override;
+    void get_parameter_list(List<PropertyInfo> *r_list) const override;
+    Variant get_parameter_default_value(const StringName &p_parameter) const override;
 
-	void get_child_nodes(List<ChildNode> *r_child_nodes) override;
+    void get_child_nodes(List<ChildNode> *r_child_nodes) override;
 
-	void add_blend_point(const Ref<AnimationRootNode> &p_node, float p_position, int p_at_index = -1);
-	void set_blend_point_position(int p_point, float p_position);
-	void set_blend_point_node(int p_point, const Ref<AnimationRootNode> &p_node);
+    void add_blend_point(const Ref<AnimationRootNode> &p_node, float p_position, int p_at_index = -1);
+    void set_blend_point_position(int p_point, float p_position);
+    void set_blend_point_node(int p_point, const Ref<AnimationRootNode> &p_node);
 
-	float get_blend_point_position(int p_point) const;
-	Ref<AnimationRootNode> get_blend_point_node(int p_point) const;
-	void remove_blend_point(int p_point);
-	int get_blend_point_count() const;
+    float get_blend_point_position(int p_point) const;
+    Ref<AnimationRootNode> get_blend_point_node(int p_point) const;
+    void remove_blend_point(int p_point);
+    int get_blend_point_count() const;
 
-	void set_min_space(float p_min);
-	float get_min_space() const;
+    void set_min_space(float p_min);
+    float get_min_space() const;
 
-	void set_max_space(float p_max);
-	float get_max_space() const;
+    void set_max_space(float p_max);
+    float get_max_space() const;
 
-	void set_snap(float p_snap);
-	float get_snap() const;
+    void set_snap(float p_snap);
+    float get_snap() const;
 
-	void set_value_label(const String &p_label);
-	String get_value_label() const;
+    void set_value_label(se_string_view p_label);
+    const se_string &get_value_label() const;
 
-	float process(float p_time, bool p_seek) override;
-	String get_caption() const override;
+    float process(float p_time, bool p_seek) override;
+    se_string_view get_caption() const override;
 
-	Ref<AnimationNode> get_child_by_name(const StringName &p_name) override;
+    Ref<AnimationNode> get_child_by_name(const StringName &p_name) override;
 
-	AnimationNodeBlendSpace1D();
-	~AnimationNodeBlendSpace1D() override;
+    AnimationNodeBlendSpace1D();
+    ~AnimationNodeBlendSpace1D() override;
 };
-
-#endif // ANIMATION_BLEND_SPACE_1D_H

@@ -31,6 +31,7 @@
 #include "crash_handler_x11.h"
 
 #include "core/os/os.h"
+#include "core/string_utils.h"
 #include "core/os/main_loop.h"
 #include "core/project_settings.h"
 #include "main/main.h"
@@ -53,12 +54,12 @@ static void handle_crash(int sig) {
 
     void *bt_buffer[256];
     size_t size = backtrace(bt_buffer, 256);
-    String _execpath = OS::get_singleton()->get_executable_path();
+    se_string _execpath = OS::get_singleton()->get_executable_path();
 
-    String msg;
+    se_string msg;
     const ProjectSettings *proj_settings = ProjectSettings::get_singleton();
     if (proj_settings) {
-        msg = proj_settings->get("debug/settings/crash_handler/message");
+        msg = proj_settings->get("debug/settings/crash_handler/message").as<se_string>();
     }
 
     // Dump the backtrace to stderr with a message to the user
@@ -67,7 +68,7 @@ static void handle_crash(int sig) {
     if (OS::get_singleton()->get_main_loop())
         OS::get_singleton()->get_main_loop()->notification(MainLoop::NOTIFICATION_CRASH);
 
-    fprintf(stderr, "Dumping the backtrace. %ss\n", qPrintable(msg.m_str));
+    fprintf(stderr, "Dumping the backtrace. %ss\n", msg.c_str());
     char **strings = backtrace_symbols(bt_buffer, size);
     if (strings) {
         for (size_t i = 1; i < size; i++) {
@@ -91,7 +92,7 @@ static void handle_crash(int sig) {
                 }
             }
 
-            ListPOD<String> args;
+            PODVector<se_string> args;
 
             char str[1024];
             snprintf(str, 1024, "%p", bt_buffer[i]);
@@ -99,16 +100,16 @@ static void handle_crash(int sig) {
             args.push_back("-e");
             args.push_back(_execpath);
 
-            String output = "";
+            se_string output;
 
             // Try to get the file/line number using addr2line
             int ret;
-            Error err = OS::get_singleton()->execute(String("addr2line"), args, true, nullptr, &output, &ret);
+            Error err = OS::get_singleton()->execute_utf8("addr2line", args, true, nullptr, &output, &ret);
             if (err == OK) {
                 StringUtils::erase(output,output.length() - 1, 1);
             }
 
-            fprintf(stderr, "[%ld] %s (%s)\n", i, fname, qPrintable(output.m_str));
+            fprintf(stderr, "[%ld] %s (%s)\n", i, fname, output.c_str());
         }
 
         free(strings);

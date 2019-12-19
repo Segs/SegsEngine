@@ -28,14 +28,13 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef INPUT_EVENT_H
-#define INPUT_EVENT_H
+#pragma once
 
 #include "core/math/transform_2d.h"
 #include "core/resource.h"
 #include "core/typedefs.h"
 
-class String;
+
 /**
  * Input Event classes. These are used in the main loop.
  * The events are pretty obvious.
@@ -183,7 +182,7 @@ public:
     int get_device() const;
 
     bool is_action(const StringName &p_action) const;
-    bool is_action_pressed(const StringName &p_action) const;
+    bool is_action_pressed(const StringName &p_action, bool p_allow_echo = false) const;
     bool is_action_released(const StringName &p_action) const;
     float get_action_strength(const StringName &p_action) const;
 
@@ -192,7 +191,7 @@ public:
     virtual bool is_echo() const;
     // ...-.
 
-    virtual String as_text() const;
+    virtual se_string as_text() const;
 
     virtual Ref<InputEvent> xformed_by(const Transform2D &p_xform, const Vector2 &p_local_ofs = Vector2()) const;
 
@@ -283,7 +282,7 @@ public:
 
     bool is_action_type() const override { return true; }
 
-    String as_text() const override;
+    se_string as_text() const override;
 
     InputEventKey();
 };
@@ -333,16 +332,16 @@ public:
     int get_button_index() const;
 
     void set_pressed(bool p_pressed);
-	bool is_pressed() const override;
+    bool is_pressed() const override;
 
     void set_doubleclick(bool p_doubleclick);
     bool is_doubleclick() const;
 
-	Ref<InputEvent> xformed_by(const Transform2D &p_xform, const Vector2 &p_local_ofs = Vector2()) const override;
-	bool action_match(const Ref<InputEvent> &p_event, bool *p_pressed, float *p_strength, float p_deadzone) const override;
+    Ref<InputEvent> xformed_by(const Transform2D &p_xform, const Vector2 &p_local_ofs = Vector2()) const override;
+    bool action_match(const Ref<InputEvent> &p_event, bool *p_pressed, float *p_strength, float p_deadzone) const override;
 
-	bool is_action_type() const override { return true; }
-	String as_text() const override;
+    bool is_action_type() const override { return true; }
+    se_string as_text() const override;
 
     InputEventMouseButton();
 };
@@ -352,21 +351,28 @@ class GODOT_EXPORT InputEventMouseMotion : public InputEventMouse {
     GDCLASS(InputEventMouseMotion,InputEventMouse)
     Vector2 relative;
     Vector2 speed;
-
+    Vector2 tilt;
+    float pressure=0;
 protected:
     static void _bind_methods();
 
 public:
+    void set_tilt(const Vector2 &p_tilt);
+    Vector2 get_tilt() const;
+
+    void set_pressure(float p_pressure);
+    float get_pressure() const { return pressure; }
+
     void set_relative(const Vector2 &p_relative);
     Vector2 get_relative() const;
 
     void set_speed(const Vector2 &p_speed);
     Vector2 get_speed() const;
 
-	Ref<InputEvent> xformed_by(const Transform2D &p_xform, const Vector2 &p_local_ofs = Vector2()) const override;
-	String as_text() const override;
+    Ref<InputEvent> xformed_by(const Transform2D &p_xform, const Vector2 &p_local_ofs = Vector2()) const override;
+    se_string as_text() const override;
 
-	bool accumulate(const Ref<InputEvent> &p_event) override;
+    bool accumulate(const Ref<InputEvent> &p_event) override;
 
     InputEventMouseMotion() {}
 };
@@ -388,12 +394,12 @@ public:
     void set_axis_value(float p_value);
     float get_axis_value() const;
 
-	bool is_pressed() const override;
+    bool is_pressed() const override;
 
-	bool action_match(const Ref<InputEvent> &p_event, bool *p_pressed, float *p_strength, float p_deadzone) const override;
+    bool action_match(const Ref<InputEvent> &p_event, bool *p_pressed, float *p_strength, float p_deadzone) const override;
 
-	bool is_action_type() const override { return true; }
-	String as_text() const override;
+    bool is_action_type() const override { return true; }
+    se_string as_text() const override;
 
     InputEventJoypadMotion();
 };
@@ -412,16 +418,16 @@ public:
     int get_button_index() const;
 
     void set_pressed(bool p_pressed);
-	bool is_pressed() const override;
+    bool is_pressed() const override;
 
     void set_pressure(float p_pressure);
     float get_pressure() const;
 
-	bool action_match(const Ref<InputEvent> &p_event, bool *p_pressed, float *p_strength, float p_deadzone) const override;
-	bool shortcut_match(const Ref<InputEvent> &p_event) const override;
+    bool action_match(const Ref<InputEvent> &p_event, bool *p_pressed, float *p_strength, float p_deadzone) const override;
+    bool shortcut_match(const Ref<InputEvent> &p_event) const override;
 
-	bool is_action_type() const override { return true; }
-	String as_text() const override;
+    bool is_action_type() const override { return true; }
+    se_string as_text() const override;
 
     InputEventJoypadButton();
 };
@@ -443,10 +449,10 @@ public:
     Vector2 get_position() const;
 
     void set_pressed(bool p_pressed);
-	bool is_pressed() const override;
+    bool is_pressed() const override;
 
-	Ref<InputEvent> xformed_by(const Transform2D &p_xform, const Vector2 &p_local_ofs = Vector2()) const override;
-	String as_text() const override;
+    Ref<InputEvent> xformed_by(const Transform2D &p_xform, const Vector2 &p_local_ofs = Vector2()) const override;
+    se_string as_text() const override;
 
     InputEventScreenTouch();
 };
@@ -475,8 +481,8 @@ public:
     void set_speed(const Vector2 &p_speed);
     Vector2 get_speed() const;
 
-	Ref<InputEvent> xformed_by(const Transform2D &p_xform, const Vector2 &p_local_ofs = Vector2()) const override;
-	String as_text() const override;
+    Ref<InputEvent> xformed_by(const Transform2D &p_xform, const Vector2 &p_local_ofs = Vector2()) const override;
+    se_string as_text() const override;
 
     InputEventScreenDrag();
 };
@@ -497,18 +503,18 @@ public:
     StringName get_action() const;
 
     void set_pressed(bool p_pressed);
-	bool is_pressed() const override;
+    bool is_pressed() const override;
 
     void set_strength(float p_strength);
     float get_strength() const;
 
     virtual bool is_action(const StringName &p_action) const;
 
-	bool action_match(const Ref<InputEvent> &p_event, bool *p_pressed, float *p_strength, float p_deadzone) const override;
+    bool action_match(const Ref<InputEvent> &p_event, bool *p_pressed, float *p_strength, float p_deadzone) const override;
 
-	bool shortcut_match(const Ref<InputEvent> &p_event) const override;
-	bool is_action_type() const override { return true; }
-	String as_text() const override;
+    bool shortcut_match(const Ref<InputEvent> &p_event) const override;
+    bool is_action_type() const override { return true; }
+    se_string as_text() const override;
 
     InputEventAction();
 };
@@ -539,8 +545,8 @@ public:
     void set_factor(real_t p_factor);
     real_t get_factor() const;
 
-	Ref<InputEvent> xformed_by(const Transform2D &p_xform, const Vector2 &p_local_ofs = Vector2()) const override;
-	String as_text() const override;
+    Ref<InputEvent> xformed_by(const Transform2D &p_xform, const Vector2 &p_local_ofs = Vector2()) const override;
+    se_string as_text() const override;
 
     InputEventMagnifyGesture();
 };
@@ -557,8 +563,8 @@ public:
     void set_delta(const Vector2 &p_delta);
     Vector2 get_delta() const;
 
-	Ref<InputEvent> xformed_by(const Transform2D &p_xform, const Vector2 &p_local_ofs = Vector2()) const override;
-	String as_text() const override;
+    Ref<InputEvent> xformed_by(const Transform2D &p_xform, const Vector2 &p_local_ofs = Vector2()) const override;
+    se_string as_text() const override;
 
     InputEventPanGesture();
 };
@@ -603,9 +609,7 @@ public:
     void set_controller_value(const int p_controller_value);
     int get_controller_value() const;
 
-	String as_text() const override;
+    se_string as_text() const override;
 
     InputEventMIDI();
 };
-
-#endif

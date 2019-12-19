@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef AUDIOFRAME_H
-#define AUDIOFRAME_H
+#pragma once
 
 #include "core/math/vector2.h"
 #include "core/typedefs.h"
@@ -132,5 +131,3 @@ struct AudioFrame {
 	}
 	_ALWAYS_INLINE_ AudioFrame() = default;
 };
-
-#endif

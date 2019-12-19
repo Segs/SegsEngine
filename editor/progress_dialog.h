@@ -50,21 +50,21 @@ class BackgroundProgress : public HBoxContainer {
         ProgressBar *progress;
     };
 
-    Map<String, Task> tasks;
-    Map<String, int> updates;
+    Map<StringName, Task> tasks;
+    Map<StringName, int> updates;
     void _update();
 
 protected:
-    void _add_task(const String &p_task, const String &p_label, int p_steps);
-    void _task_step(const String &p_task, int p_step = -1);
-    void _end_task(const String &p_task);
+    void _add_task(const StringName &p_task, const StringName &p_label, int p_steps);
+    void _task_step(const StringName &p_task, int p_step = -1);
+    void _end_task(const StringName &p_task);
 
     static void _bind_methods();
 
 public:
-    void add_task(const String &p_task, const String &p_label, int p_steps);
-    void task_step(const String &p_task, int p_step = -1);
-    void end_task(const String &p_task);
+    void add_task(const StringName &p_task, const StringName &p_label, int p_steps);
+    void task_step(const StringName &p_task, int p_step = -1);
+    void end_task(const StringName &p_task);
 
     BackgroundProgress();
     ~BackgroundProgress() override;
@@ -76,7 +76,7 @@ class ProgressDialog : public Popup {
 
     struct Task {
 
-        String task;
+        se_string task;
         VBoxContainer *vb;
         ProgressBar *progress;
         Label *state;
@@ -84,7 +84,7 @@ class ProgressDialog : public Popup {
     HBoxContainer *cancel_hb;
     Button *cancel;
 
-    Map<String, Task> tasks;
+    Map<StringName, Task> tasks;
     VBoxContainer *main;
     uint64_t last_progress_tick;
 
@@ -100,9 +100,10 @@ protected:
 
 public:
     static ProgressDialog *get_singleton() { return singleton; }
-    void add_task(const String &p_task, const String &p_label, int p_steps, bool p_can_cancel = false);
-    bool task_step(const String &p_task, const String &p_state, int p_step = -1, bool p_force_redraw = true);
-    void end_task(const String &p_task);
+    void add_task(const StringName &p_task, const StringName &p_label, int p_steps, bool p_can_cancel = false);
+    bool task_step(const StringName &p_task, const StringName &p_state, int p_step = -1, bool p_force_redraw = true);
+    bool task_step(const StringName &p_task, se_string_view p_state, int p_step = -1, bool p_force_redraw = true);
+    void end_task(const StringName &p_task);
 
     ProgressDialog();
 };

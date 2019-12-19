@@ -35,12 +35,14 @@
 #include "core/math/expression.h"
 #include "core/os/keyboard.h"
 #include "core/method_bind.h"
+#include "core/string_formatter.h"
 #include "core/translation_helpers.h"
 #include "editor/editor_node.h"
 #include "editor/editor_scale.h"
 #include "editor/editor_settings.h"
 #include "editor/script_editor_debugger.h"
 #include "scene/main/scene_tree.h"
+#include "scene/gui/rich_text_label.h"
 
 IMPL_GDCLASS(ConnectionInfoDialog)
 IMPL_GDCLASS(ScriptTextEditor)
@@ -48,8 +50,8 @@ IMPL_GDCLASS(ScriptTextEditor)
 void ConnectionInfoDialog::ok_pressed() {
 }
 
-void ConnectionInfoDialog::popup_connections(const String& p_method, const Vector<Node *>& p_nodes) {
-    method->set_text(p_method);
+void ConnectionInfoDialog::popup_connections(se_string_view p_method, const Vector<Node *>& p_nodes) {
+    method->set_text(StringName(p_method));
 
     tree->clear();
     TreeItem *root = tree->create_item();
@@ -67,7 +69,7 @@ void ConnectionInfoDialog::popup_connections(const String& p_method, const Vecto
             TreeItem *node_item = tree->create_item(root);
 
             node_item->set_text(0, object_cast<Node>(connection.source)->get_name());
-            node_item->set_icon(0, EditorNode::get_singleton()->get_object_icon(connection.source, "Node"));
+            node_item->set_icon(0, EditorNode::get_singleton()->get_object_icon(connection.source, ("Node")));
             node_item->set_selectable(0, false);
             node_item->set_editable(0, false);
 
@@ -77,7 +79,7 @@ void ConnectionInfoDialog::popup_connections(const String& p_method, const Vecto
             node_item->set_editable(1, false);
 
             node_item->set_text(2, object_cast<Node>(connection.target)->get_name());
-            node_item->set_icon(2, EditorNode::get_singleton()->get_object_icon(connection.target, "Node"));
+            node_item->set_icon(2, EditorNode::get_singleton()->get_object_icon(connection.target, ("Node")));
             node_item->set_selectable(2, false);
             node_item->set_editable(2, false);
         }
@@ -114,19 +116,19 @@ ConnectionInfoDialog::ConnectionInfoDialog() {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Vector<String> ScriptTextEditor::get_functions() {
+Vector<se_string> ScriptTextEditor::get_functions() {
 
-    String errortxt;
+    se_string errortxt;
     int line = -1, col;
     TextEdit *te = code_editor->get_text_edit();
-    String text = te->get_text();
-    List<String> fnc;
+    se_string text(te->get_text_utf8());
+    List<se_string> fnc;
 
     if (script->get_language()->validate(text, line, col, errortxt, script->get_path(), &fnc)) {
 
         //if valid rewrite functions to latest
         functions.clear();
-        for (List<String>::Element *E = fnc.front(); E; E = E->next()) {
+        for (List<se_string>::Element *E = fnc.front(); E; E = E->next()) {
 
             functions.push_back(E->deref());
         }
@@ -139,7 +141,7 @@ void ScriptTextEditor::apply_code() {
 
     if (not script)
         return;
-    script->set_source_code(code_editor->get_text_edit()->get_text());
+    script->set_source_code(code_editor->get_text_edit()->get_text_utf8());
     script->update_exports();
     _update_member_keywords();
 }
@@ -154,7 +156,7 @@ void ScriptTextEditor::set_edited_resource(const RES &p_res) {
     script = dynamic_ref_cast<Script>(p_res);
     _set_theme_for_script();
 
-    code_editor->get_text_edit()->set_text(script->get_source_code());
+    code_editor->get_text_edit()->set_text_utf8(script->get_source_code());
     code_editor->get_text_edit()->clear_undo_history();
     code_editor->get_text_edit()->tag_saved_version();
 
@@ -177,7 +179,7 @@ void ScriptTextEditor::_update_member_keywords() {
     ClassDB::get_property_list(instance_base, &plist);
 
     for(const PropertyInfo & E : plist) {
-        String name = E.name;
+        StringName name(E.name);
         if (E.usage & PROPERTY_USAGE_CATEGORY || E.usage & PROPERTY_USAGE_GROUP)
             continue;
         if (StringUtils::contains(name,'/'))
@@ -186,10 +188,10 @@ void ScriptTextEditor::_update_member_keywords() {
         code_editor->get_text_edit()->add_member_keyword(name, member_variable_color);
     }
 
-    ListPOD<String> clist;
+    ListPOD<se_string> clist;
     ClassDB::get_integer_constant_list(instance_base, &clist);
 
-    for(const String & E : clist) {
+    for(const se_string & E : clist) {
 
         code_editor->get_text_edit()->add_member_keyword(E, member_variable_color);
     }
@@ -287,10 +289,10 @@ void ScriptTextEditor::_set_theme_for_script() {
 
     TextEdit *text_edit = code_editor->get_text_edit();
 
-    List<String> keywords;
+    List<se_string> keywords;
     script->get_language()->get_reserved_words(&keywords);
 
-    for (List<String>::Element *E = keywords.front(); E; E = E->next()) {
+    for (List<se_string>::Element *E = keywords.front(); E; E = E->next()) {
 
         text_edit->add_keyword_color(E->deref(), colors_cache.keyword_color);
     }
@@ -327,7 +329,7 @@ void ScriptTextEditor::_set_theme_for_script() {
 
     for (int i=0,fin=types.size(); i<fin; ++i) {
 
-        String n = types[i];
+        se_string_view n(types[i].asCString());
         if (StringUtils::begins_with(n,"_"))
             n = StringUtils::substr(n,1, n.length());
 
@@ -340,43 +342,44 @@ void ScriptTextEditor::_set_theme_for_script() {
 
     for (int i=0; i<global_classes.size(); ++i) {
 
-        text_edit->add_keyword_color(global_classes[i], colors_cache.usertype_color);
+        text_edit->add_keyword_color(global_classes[i].asCString(), colors_cache.usertype_color);
     }
 
     //colorize singleton autoloads (as types, just as engine singletons are)
     ListPOD<PropertyInfo> props;
     ProjectSettings::get_singleton()->get_property_list(&props);
     for (const PropertyInfo &E : props) {
-        String s = E.name;
+        se_string_view s(E.name);
         if (!StringUtils::begins_with(s,"autoload/")) {
             continue;
         }
-        String path = ProjectSettings::get_singleton()->get(StringName(s));
+        StringName sn(s);
+        String path = ProjectSettings::get_singleton()->get(sn);
         if (StringUtils::begins_with(path,'*')) {
-            text_edit->add_keyword_color(StringUtils::get_slice(s,"/", 1), colors_cache.usertype_color);
+            text_edit->add_keyword_color(StringUtils::get_slice(sn.asCString(),'/', 1), colors_cache.usertype_color);
         }
     }
     //colorize comments
-    List<String> comments;
+    List<se_string> comments;
     script->get_language()->get_comment_delimiters(&comments);
 
-    for (List<String>::Element *E = comments.front(); E; E = E->next()) {
+    for (List<se_string>::Element *E = comments.front(); E; E = E->next()) {
 
-        String comment = E->deref();
-        String beg = StringUtils::get_slice(comment," ", 0);
-        String end = StringUtils::get_slice_count(comment," ") > 1 ? StringUtils::get_slice(comment," ", 1) : String();
+        se_string comment = E->deref();
+        se_string_view beg = StringUtils::get_slice(comment," ", 0);
+        se_string_view end = StringUtils::get_slice_count(comment,' ') > 1 ? StringUtils::get_slice(comment," ", 1) : se_string_view();
 
         text_edit->add_color_region(beg, end, colors_cache.comment_color, end.empty());
     }
 
     //colorize strings
-    List<String> strings;
+    List<se_string> strings;
     script->get_language()->get_string_delimiters(&strings);
-    for (List<String>::Element *E = strings.front(); E; E = E->next()) {
+    for (List<se_string>::Element *E = strings.front(); E; E = E->next()) {
 
-        String string = E->deref();
-        String beg = StringUtils::get_slice(string," ", 0);
-        String end = StringUtils::get_slice_count(string," ") > 1 ? StringUtils::get_slice(string," ", 1) : String();
+        se_string string = E->deref();
+        se_string_view beg = StringUtils::get_slice(string," ", 0);
+        se_string_view end = StringUtils::get_slice_count(string,' ') > 1 ? StringUtils::get_slice(string," ", 1) : se_string_view();
         text_edit->add_color_region(beg, end, colors_cache.string_color, end.empty());
     }
 }
@@ -409,7 +412,7 @@ void ScriptTextEditor::reload_text() {
     int h = te->get_h_scroll();
     int v = te->get_v_scroll();
 
-    te->set_text(script->get_source_code());
+    te->set_text_utf8(script->get_source_code());
     te->cursor_set_line(row);
     te->cursor_set_column(column);
     te->set_h_scroll(h);
@@ -429,19 +432,19 @@ void ScriptTextEditor::_notification(int p_what) {
     }
 }
 
-void ScriptTextEditor::add_callback(const String &p_function, PoolStringArray p_args) {
+void ScriptTextEditor::add_callback(const StringName &p_function, const PoolVector<se_string> &p_args) {
 
-    String code = code_editor->get_text_edit()->get_text();
+    se_string code = code_editor->get_text_edit()->get_text_utf8();
     int pos = script->get_language()->find_function(p_function, code);
     if (pos == -1) {
         //does not exist
         code_editor->get_text_edit()->deselect();
         pos = code_editor->get_text_edit()->get_line_count() + 2;
-        String func = script->get_language()->make_function("", p_function, p_args);
+        se_string func = script->get_language()->make_function("", p_function, p_args);
         //code=code+func;
         code_editor->get_text_edit()->cursor_set_line(pos + 1);
         code_editor->get_text_edit()->cursor_set_column(1000000); //none shall be that big
-        code_editor->get_text_edit()->insert_text_at_cursor("\n\n" + func);
+        code_editor->get_text_edit()->insert_text_at_cursor(StringUtils::from_utf8("\n\n" + func));
     }
     code_editor->get_text_edit()->cursor_set_line(pos);
     code_editor->get_text_edit()->cursor_set_column(1);
@@ -537,18 +540,18 @@ void ScriptTextEditor::ensure_focus() {
     code_editor->get_text_edit()->grab_focus();
 }
 
-String ScriptTextEditor::get_name() {
-    String name;
+se_string ScriptTextEditor::get_name() {
+    se_string name;
     //TODO: use PathUtils::is_internal_path ?
     if (not PathUtils::is_internal_path(script->get_path())) {
         name = PathUtils::get_file(script->get_path());
         if (is_unsaved()) {
-            name += "(*)";
+            name += ("(*)");
         }
     } else if (!script->get_name().empty())
         name = script->get_name();
     else
-        name = String(script->get_class()) + "(" + itos(script->get_instance_id()) + ")";
+        name = se_string(script->get_class()) + "(" + itos(script->get_instance_id()) + ")";
 
     return name;
 }
@@ -564,21 +567,22 @@ Ref<Texture> ScriptTextEditor::get_icon() {
 
 void ScriptTextEditor::_validate_script() {
 
-    String errortxt;
+    se_string errortxt;
     int line = -1, col;
     TextEdit *te = code_editor->get_text_edit();
 
-    String text = te->get_text();
-    List<String> fnc;
+    se_string text = te->get_text_utf8();
+    List<se_string> fnc;
     Set<int> safe_lines;
     List<ScriptLanguage::Warning> warnings;
 
     if (!script->get_language()->validate(text, line, col, errortxt, script->get_path(), &fnc, &warnings, &safe_lines)) {
-        String error_text = "error(" + itos(line) + "," + itos(col) + "): " + errortxt;
-        code_editor->set_error(error_text);
+        se_string error_text = "error(" + itos(line) + "," + itos(col) + "): " + errortxt;
+        code_editor->set_error(StringName(error_text));
         code_editor->set_error_pos(line - 1, col - 1);
+        script_is_valid = false;
     } else {
-        code_editor->set_error("");
+        code_editor->set_error(StringName());
         line = -1;
         if (!script->is_tool()) {
             script->set_source_code(text);
@@ -587,10 +591,11 @@ void ScriptTextEditor::_validate_script() {
         }
 
         functions.clear();
-        for (List<String>::Element *E = fnc.front(); E; E = E->next()) {
+        for (List<se_string>::Element *E = fnc.front(); E; E = E->next()) {
 
             functions.push_back(E->deref());
         }
+        script_is_valid = true;
     }
     _update_connected_methods();
 
@@ -605,13 +610,15 @@ void ScriptTextEditor::_validate_script() {
             for (List<Connection>::Element *E = missing_connections.front(); E; E = E->next()) {
                 Connection connection = E->deref();
 
-                String base_path = base->get_name();
-                String source_path = base == connection.source ? base_path : base_path + "/" + String(base->get_path_to(object_cast<Node>(connection.source)));
-                String target_path = base == connection.target ? base_path : base_path + "/" + String(base->get_path_to(object_cast<Node>(connection.target)));
+                se_string base_path(base->get_name());
+                se_string source_path = base == connection.source ? base_path : base_path + "/" + se_string(base->get_path_to(object_cast<Node>(connection.source)));
+                se_string target_path = base == connection.target ? base_path : base_path + "/" + se_string(base->get_path_to(object_cast<Node>(connection.target)));
 
                 warnings_panel->push_cell();
                 warnings_panel->push_color(warnings_panel->get_color("warning_color", "Editor"));
-                warnings_panel->add_text(vformat(TTR("Missing connected method '%s' for signal '%s' from node '%s' to node '%s'."), connection.method, connection.signal, source_path, target_path));
+                warnings_panel->add_text_utf8(FormatVE(
+                        TTR("Missing connected method '%s' for signal '%s' from node '%s' to node '%s'.").asCString(),
+                        connection.method.asCString(), connection.signal.asCString(), source_path.c_str(), target_path.c_str()));
                 warnings_panel->pop(); // Color.
                 warnings_panel->pop(); // Cell.
             }
@@ -631,14 +638,14 @@ void ScriptTextEditor::_validate_script() {
         warnings_panel->push_cell();
         warnings_panel->push_meta(w.line - 1);
         warnings_panel->push_color(warnings_panel->get_color("warning_color", "Editor"));
-        warnings_panel->add_text(TTR("Line") + " " + itos(w.line));
-        warnings_panel->add_text(" (" + w.string_code + "):");
+        warnings_panel->add_text((TTR("Line") + " " + itos(w.line)).asString());
+        warnings_panel->add_text_utf8(" (" + w.string_code + "):");
         warnings_panel->pop(); // Color.
         warnings_panel->pop(); // Meta goto.
         warnings_panel->pop(); // Cell.
 
         warnings_panel->push_cell();
-        warnings_panel->add_text(w.message);
+        warnings_panel->add_text_utf8(w.message);
         warnings_panel->pop(); // Cell.
 
         Dictionary ignore_meta;
@@ -646,7 +653,7 @@ void ScriptTextEditor::_validate_script() {
         ignore_meta["code"] = StringUtils::to_lower(w.string_code);
         warnings_panel->push_cell();
         warnings_panel->push_meta(ignore_meta);
-        warnings_panel->add_text(TTR("(ignore)"));
+        warnings_panel->add_text(TTR("(ignore)").asString());
         warnings_panel->pop(); // Meta ignore.
         warnings_panel->pop(); // Cell.
     }
@@ -694,13 +701,13 @@ void ScriptTextEditor::_update_bookmark_list() {
     bookmarks_menu->add_separator();
 
     for (int i = 0; i < bookmark_list.size(); i++) {
-        String line = StringUtils::strip_edges(code_editor->get_text_edit()->get_line(bookmark_list[i]));
+        se_string line(StringUtils::strip_edges(code_editor->get_text_edit()->get_line(bookmark_list[i])));
         // Limit the size of the line if too big.
         if (line.length() > 50) {
             line = StringUtils::substr(line,0, 50);
         }
 
-        bookmarks_menu->add_item(StringUtils::num((int)bookmark_list[i] + 1) + " - \"" + line + "\"");
+        bookmarks_menu->add_item(StringName(StringUtils::num((int)bookmark_list[i] + 1) + " - \"" + line + "\""));
         bookmarks_menu->set_item_metadata(bookmarks_menu->get_item_count() - 1, bookmark_list[i]);
     }
 }
@@ -711,6 +718,7 @@ void ScriptTextEditor::_bookmark_item_pressed(int p_idx) {
         _edit_option(bookmarks_menu->get_item_id(p_idx));
     } else {
         code_editor->goto_line(bookmarks_menu->get_item_metadata(p_idx));
+        code_editor->get_text_edit()->call_deferred("center_viewport_to_cursor"); //Need to be deferred, because goto uses call_deferred().
     }
 }
 
@@ -794,29 +802,29 @@ void ScriptEditor::_update_modified_scripts_for_external_editor(const Ref<Script
 
         if (last_date != date) {
 
-            Ref<Script> rel_script = dynamic_ref_cast<Script>(ResourceLoader::load(script->get_path(), script->get_class(), true));
+            Ref<Script> rel_script = dynamic_ref_cast<Script>(ResourceLoader::load(script->get_path(), se_string(script->get_class()), true));
             ERR_CONTINUE(not rel_script)
-            script->set_source_code(rel_script->get_source_code());
+            script->set_source_code(se_string(rel_script->get_source_code()));
             script->set_last_modified_time(rel_script->get_last_modified_time());
             script->update_exports();
         }
     }
 }
 
-void ScriptTextEditor::_code_complete_scripts(void *p_ud, const String &p_code, List<ScriptCodeCompletionOption> *r_options, bool &r_force) {
+void ScriptTextEditor::_code_complete_scripts(void *p_ud, const se_string &p_code, List<ScriptCodeCompletionOption> *r_options, bool &r_force) {
 
     ScriptTextEditor *ste = (ScriptTextEditor *)p_ud;
     ste->_code_complete_script(p_code, r_options, r_force);
 }
 
-void ScriptTextEditor::_code_complete_script(const String &p_code, List<ScriptCodeCompletionOption> *r_options, bool &r_force) {
+void ScriptTextEditor::_code_complete_script(const se_string &p_code, List<ScriptCodeCompletionOption> *r_options, bool &r_force) {
 
     if (color_panel->is_visible_in_tree()) return;
     Node *base = get_tree()->get_edited_scene_root();
     if (base) {
         base = _find_node_for_script(base, base, script);
     }
-    String hint;
+    se_string hint;
     Error err = script->get_language()->complete_code(p_code, script->get_path(), base, r_options, r_force, hint);
     if (err == OK) {
         code_editor->get_text_edit()->set_code_hint(hint);
@@ -841,13 +849,13 @@ void ScriptTextEditor::_update_breakpoint_list() {
     breakpoints_menu->add_separator();
 
     for (int i = 0; i < breakpoint_list.size(); i++) {
-        String line = StringUtils::strip_edges(code_editor->get_text_edit()->get_line(breakpoint_list[i]));
+        se_string line(StringUtils::strip_edges(code_editor->get_text_edit()->get_line(breakpoint_list[i])));
         // Limit the size of the line if too big.
         if (line.length() > 50) {
             line = StringUtils::substr(line,0, 50);
         }
-
-        breakpoints_menu->add_item(StringUtils::num((int)breakpoint_list[i] + 1) + " - \"" + line + "\"");
+        se_tmp_string<64,true> tmp(line);
+        breakpoints_menu->add_item(FormatSN("%d - \"%s\"",((int)breakpoint_list[i] + 1),tmp.c_str()));
         breakpoints_menu->set_item_metadata(breakpoints_menu->get_item_count() - 1, breakpoint_list[i]);
     }
 }
@@ -858,6 +866,8 @@ void ScriptTextEditor::_breakpoint_item_pressed(int p_idx) {
         _edit_option(breakpoints_menu->get_item_id(p_idx));
     } else {
         code_editor->goto_line(breakpoints_menu->get_item_metadata(p_idx));
+        code_editor->get_text_edit()->call_deferred("center_viewport_to_cursor"); //Need to be deferred, because goto uses call_deferred().
+
     }
 }
 
@@ -866,7 +876,7 @@ void ScriptTextEditor::_breakpoint_toggled(int p_row) {
     ScriptEditor::get_singleton()->get_debugger()->set_breakpoint(script->get_path(), p_row + 1, code_editor->get_text_edit()->is_line_set_as_breakpoint(p_row));
 }
 
-void ScriptTextEditor::_lookup_symbol(const String &p_symbol, int p_row, int p_column) {
+void ScriptTextEditor::_lookup_symbol(const StringName & p_symbol, int p_row, int p_column) {
 
     Node *base = get_tree()->get_edited_scene_root();
     if (base) {
@@ -874,13 +884,13 @@ void ScriptTextEditor::_lookup_symbol(const String &p_symbol, int p_row, int p_c
     }
 
     ScriptLanguage::LookupResult result;
-    if (ScriptServer::is_global_class(StringName(p_symbol))) {
+    if (ScriptServer::is_global_class(p_symbol)) {
         EditorNode::get_singleton()->load_resource(ScriptServer::get_global_class_path(p_symbol));
     } else if (PathUtils::is_resource_file(p_symbol)) {
-        ListPOD<String> scene_extensions;
-        ResourceLoader::get_recognized_extensions_for_type("PackedScene", &scene_extensions);
+        PODVector<se_string> scene_extensions;
+        ResourceLoader::get_recognized_extensions_for_type(("PackedScene"), scene_extensions);
 
-        if (scene_extensions.contains(PathUtils::get_extension(p_symbol))) {
+        if (scene_extensions.contains(se_string(PathUtils::get_extension(p_symbol)))) {
             EditorNode::get_singleton()->load_scene(p_symbol);
         } else {
             EditorNode::get_singleton()->load_resource(p_symbol);
@@ -890,7 +900,7 @@ void ScriptTextEditor::_lookup_symbol(const String &p_symbol, int p_row, int p_c
 
         _goto_line(p_row);
 
-        result.class_name = StringUtils::trim_prefix(result.class_name,"_");
+        result.class_name = StringUtils::trim_prefix(result.class_name,("_"));
 
         switch (result.type) {
             case ScriptLanguage::LookupResult::RESULT_SCRIPT_LOCATION: {
@@ -903,7 +913,7 @@ void ScriptTextEditor::_lookup_symbol(const String &p_symbol, int p_row, int p_c
                 }
             } break;
             case ScriptLanguage::LookupResult::RESULT_CLASS: {
-                emit_signal("go_to_help", String("class_name:" + result.class_name));
+                emit_signal("go_to_help", StringName("class_name:" + result.class_name));
             } break;
             case ScriptLanguage::LookupResult::RESULT_CLASS_CONSTANT: {
 
@@ -919,11 +929,11 @@ void ScriptTextEditor::_lookup_symbol(const String &p_symbol, int p_row, int p_c
                     }
                 }
 
-                emit_signal("go_to_help", String("class_constant:" + result.class_name + ":" + result.class_member));
+                emit_signal("go_to_help", StringName("class_constant:" + result.class_name + ":" + result.class_member));
 
             } break;
             case ScriptLanguage::LookupResult::RESULT_CLASS_PROPERTY: {
-                emit_signal("go_to_help", String("class_property:" + result.class_name + ":" + result.class_member));
+                emit_signal("go_to_help", StringName("class_property:" + result.class_name + ":" + result.class_member));
 
             } break;
             case ScriptLanguage::LookupResult::RESULT_CLASS_METHOD: {
@@ -939,7 +949,7 @@ void ScriptTextEditor::_lookup_symbol(const String &p_symbol, int p_row, int p_c
                     }
                 }
 
-                emit_signal("go_to_help", String("class_method:" + result.class_name + ":" + result.class_member));
+                emit_signal("go_to_help", StringName("class_method:" + result.class_name + ":" + result.class_member));
 
             } break;
             case ScriptLanguage::LookupResult::RESULT_CLASS_ENUM: {
@@ -956,11 +966,11 @@ void ScriptTextEditor::_lookup_symbol(const String &p_symbol, int p_row, int p_c
                     }
                 }
 
-                emit_signal("go_to_help", String("class_enum:" + result.class_name + ":" + result.class_member));
+                emit_signal("go_to_help", StringName("class_enum:" + result.class_name + ":" + result.class_member));
 
             } break;
             case ScriptLanguage::LookupResult::RESULT_CLASS_TBD_GLOBALSCOPE: {
-                emit_signal("go_to_help", String("class_global:" + result.class_name + ":" + result.class_member));
+                emit_signal("go_to_help", StringName("class_global:" + result.class_name + ":" + result.class_member));
             } break;
         }
     }
@@ -971,12 +981,17 @@ void ScriptTextEditor::_update_connected_methods() {
     text_edit->clear_info_icons();
     missing_connections.clear();
 
+    if (!script_is_valid) {
+        return;
+    }
     Node *base = get_tree()->get_edited_scene_root();
     if (!base) {
         return;
     }
 
     Vector<Node *> nodes = _find_all_node_for_script(base, base, script);
+    Set<StringName> methods_found;
+
     for (int i = 0; i < nodes.size(); i++) {
         ListPOD<Connection> connections;
         nodes[i]->get_signals_connected_to_this(&connections);
@@ -992,36 +1007,47 @@ void ScriptTextEditor::_update_connected_methods() {
             if (source && !source->is_inside_tree()) {
                 continue;
             }
+            if (methods_found.contains(connection.method)) {
+                continue;
+            }
 
             if (!ClassDB::has_method(script->get_instance_base_type(), connection.method)) {
+                int line = -1;
 
-                int line = script->get_language()->find_function(connection.method, text_edit->get_text());
-                if (line < 0) {
-                    // There is a chance that the method is inherited from another script.
-                    bool found_inherited_function = false;
-                    Ref<Script> inherited_script = script->get_base_script();
-                    while (inherited_script) {
-                        line = inherited_script->get_language()->find_function(connection.method, inherited_script->get_source_code());
-                        if (line != -1) {
-                            found_inherited_function = true;
-                            break;
-                        }
+                for (int j = 0; j < functions.size(); j++) {
+                    se_string_view name = StringUtils::get_slice(functions[j],":", 0);
+                    if (name == se_string_view(connection.method)) {
+                        line = StringUtils::to_int(StringUtils::get_slice(functions[j],":", 1));
+                        text_edit->set_line_info_icon(line - 1, get_parent_control()->get_icon("Slot", "EditorIcons"), connection.method);
+                        methods_found.insert(connection.method);
+                        break;
+                    }
+                }
 
-                        inherited_script = inherited_script->get_base_script();
+                if (line >= 0) {
+                    continue;
+                }
+                // There is a chance that the method is inherited from another script.
+                bool found_inherited_function = false;
+                Ref<Script> inherited_script = script->get_base_script();
+                while (inherited_script) {
+                    if (inherited_script->has_method(connection.method)) {
+                        found_inherited_function = true;
+                        break;
                     }
 
-                    if (!found_inherited_function) {
-                        missing_connections.push_back(connection);
-                    }
-                } else {
-                    text_edit->set_line_info_icon(line - 1, get_parent_control()->get_icon("Slot", "EditorIcons"), connection.method);
+                    inherited_script = inherited_script->get_base_script();
+                }
+
+                if (!found_inherited_function) {
+                    missing_connections.push_back(connection);
                 }
             }
         }
     }
 }
 
-void ScriptTextEditor::_lookup_connections(int p_row, const String& p_method) {
+void ScriptTextEditor::_lookup_connections(int p_row, se_string_view p_method) {
     Node *base = get_tree()->get_edited_scene_root();
     if (!base) {
         return;
@@ -1123,7 +1149,7 @@ void ScriptTextEditor::_edit_option(int p_op) {
         } break;
         case EDIT_AUTO_INDENT: {
 
-            String text = tx->get_text();
+            se_string text(tx->get_text_utf8());
             Ref<Script> scr = script;
             if (not scr)
                 return;
@@ -1142,7 +1168,7 @@ void ScriptTextEditor::_edit_option(int p_op) {
                 end = tx->get_line_count() - 1;
             }
             scr->get_language()->auto_indent_code(text, begin, end);
-            Vector<String> lines = StringUtils::split(text,"\n");
+            Vector<se_string_view> lines = StringUtils::split(text,'\n');
             for (int i = begin; i <= end; ++i) {
                 tx->set_line(i, lines[i]);
             }
@@ -1180,27 +1206,28 @@ void ScriptTextEditor::_edit_option(int p_op) {
         case EDIT_EVALUATE: {
 
             Expression expression;
-            Vector<String> lines = StringUtils::split(code_editor->get_text_edit()->get_selection_text(),"\n");
-            PoolStringArray results;
+            Vector<se_string_view> lines = StringUtils::split(code_editor->get_text_edit()->get_selection_text(),'\n');
+            PODVector<se_string> results;
 
             for (int i = 0; i < lines.size(); i++) {
-                String line = lines[i];
-                String whitespace = StringUtils::substr(line,0, line.size() - StringUtils::strip_edges(line,true, false).size()); //extract the whitespace at the beginning
+                se_string_view line = lines[i];
+                //extract the whitespace at the beginning
+                se_string_view whitespace = StringUtils::substr(line,0, line.size() - StringUtils::strip_edges(line,true, false).size());
 
                 if (expression.parse(line) == OK) {
                     Variant result = expression.execute(Array(), Variant(), false);
                     if (expression.get_error_text().empty()) {
-                        results.append(whitespace + (String)result);
+                        results.push_back(se_string(whitespace)+result.get_construct_string());
                     } else {
-                        results.append(line);
+                        results.emplace_back(line);
                     }
                 } else {
-                    results.append(line);
+                    results.emplace_back(line);
                 }
             }
 
             code_editor->get_text_edit()->begin_complex_operation(); //prevents creating a two-step undo
-            code_editor->get_text_edit()->insert_text_at_cursor(results.join("\n"));
+            code_editor->get_text_edit()->insert_text_at_cursor(StringUtils::from_utf8(se_string::joined(results,"\n")));
             code_editor->get_text_edit()->end_complex_operation();
         } break;
         case SEARCH_FIND: {
@@ -1221,7 +1248,7 @@ void ScriptTextEditor::_edit_option(int p_op) {
         } break;
         case SEARCH_IN_FILES: {
 
-            String selected_text = code_editor->get_text_edit()->get_selection_text();
+            se_string selected_text = code_editor->get_text_edit()->get_selection_text();
 
             // Yep, because it doesn't make sense to instance this dialog for every single script open...
             // So this will be delegated to the ScriptEditor.
@@ -1291,6 +1318,7 @@ void ScriptTextEditor::_edit_option(int p_op) {
                     if (bline > line) {
                         tx->unfold_line(bline);
                         tx->cursor_set_line(bline);
+                        tx->center_viewport_to_cursor();
                         return;
                     }
                 }
@@ -1316,6 +1344,7 @@ void ScriptTextEditor::_edit_option(int p_op) {
                     if (bline < line) {
                         tx->unfold_line(bline);
                         tx->cursor_set_line(bline);
+                        tx->center_viewport_to_cursor();
                         return;
                     }
                 }
@@ -1324,7 +1353,7 @@ void ScriptTextEditor::_edit_option(int p_op) {
         } break;
         case HELP_CONTEXTUAL: {
 
-            String text = tx->get_selection_text();
+            se_string text = tx->get_selection_text();
             if (text.empty())
                 text = tx->get_word_under_cursor();
             if (!text.empty()) {
@@ -1333,11 +1362,11 @@ void ScriptTextEditor::_edit_option(int p_op) {
         } break;
         case LOOKUP_SYMBOL: {
 
-            String text = tx->get_word_under_cursor();
+            se_string text = tx->get_word_under_cursor();
             if (text.empty())
                 text = tx->get_selection_text();
             if (!text.empty()) {
-                _lookup_symbol(text, tx->cursor_get_line(), tx->cursor_get_column());
+                _lookup_symbol(StringName(text), tx->cursor_get_line(), tx->cursor_get_column());
             }
         } break;
     }
@@ -1347,12 +1376,12 @@ void ScriptTextEditor::_edit_option_toggle_inline_comment() {
     if (not script)
         return;
 
-    String delimiter = "#";
-    List<String> comment_delimiters;
+    se_string delimiter("#");
+    List<se_string> comment_delimiters;
     script->get_language()->get_comment_delimiters(&comment_delimiters);
 
-    for (List<String>::Element *E = comment_delimiters.front(); E; E = E->next()) {
-        String script_delimiter = E->deref();
+    for (List<se_string>::Element *E = comment_delimiters.front(); E; E = E->next()) {
+        se_string_view script_delimiter = E->deref();
         if ( not StringUtils::contains(script_delimiter,' ')) {
             delimiter = script_delimiter;
             break;
@@ -1364,25 +1393,25 @@ void ScriptTextEditor::_edit_option_toggle_inline_comment() {
 
 void ScriptTextEditor::add_syntax_highlighter(SyntaxHighlighter *p_highlighter) {
     highlighters[p_highlighter->get_name()] = p_highlighter;
-    highlighter_menu->add_radio_check_item(p_highlighter->get_name());
+    highlighter_menu->add_radio_check_item(StringName(p_highlighter->get_name()));
 }
 
 void ScriptTextEditor::set_syntax_highlighter(SyntaxHighlighter *p_highlighter) {
     TextEdit *te = code_editor->get_text_edit();
     te->_set_syntax_highlighting(p_highlighter);
     if (p_highlighter != nullptr)
-        highlighter_menu->set_item_checked(highlighter_menu->get_item_idx_from_text(p_highlighter->get_name()), true);
+        highlighter_menu->set_item_checked(highlighter_menu->get_item_idx_from_text(StringName(p_highlighter->get_name())), true);
     else
         highlighter_menu->set_item_checked(highlighter_menu->get_item_idx_from_text(TTR("Standard")), true);
 }
 
 void ScriptTextEditor::_change_syntax_highlighter(int p_idx) {
-    Map<String, SyntaxHighlighter *>::iterator el = highlighters.begin();
+    Map<se_string, SyntaxHighlighter *>::iterator el = highlighters.begin();
     for( ;el != highlighters.end(); ++el) {
-        highlighter_menu->set_item_checked(highlighter_menu->get_item_idx_from_text(el->first), false);
+        highlighter_menu->set_item_checked(highlighter_menu->get_item_idx_from_text(StringName(el->first)), false);
     }
     // highlighter_menu->set_item_checked(p_idx, true);
-    set_syntax_highlighter(highlighters[highlighter_menu->get_item_text(p_idx)]);
+    set_syntax_highlighter(highlighters[highlighter_menu->get_item_text_utf8(p_idx)]);
 }
 
 void ScriptTextEditor::_bind_methods() {
@@ -1426,7 +1455,7 @@ void ScriptTextEditor::reload(bool p_soft) {
     Ref<Script> scr = script;
     if (not scr)
         return;
-    scr->set_source_code(te->get_text());
+    scr->set_source_code(te->get_text_utf8());
     bool soft = p_soft || scr->get_instance_base_type() == "EditorPlugin"; //always soft-reload editor plugins
 
     scr->get_language()->reload_tool_script(scr, soft);
@@ -1437,7 +1466,7 @@ void ScriptTextEditor::get_breakpoints(List<int> *p_breakpoints) {
     code_editor->get_text_edit()->get_breakpoints(p_breakpoints);
 }
 
-void ScriptTextEditor::set_tooltip_request_func(String p_method, Object *p_obj) {
+void ScriptTextEditor::set_tooltip_request_func(se_string_view p_method, Object *p_obj) {
 
     code_editor->get_text_edit()->set_tooltip_request_func(p_obj, StringName(p_method), Variant(this));
 }
@@ -1506,24 +1535,24 @@ void ScriptTextEditor::drop_data_fw(const Point2 &p_point, const Variant &p_data
 
         te->cursor_set_line(row);
         te->cursor_set_column(col);
-        te->insert_text_at_cursor(res->get_path());
+        te->insert_text_at_cursor(StringUtils::from_utf8(res->get_path()));
     }
 
     if (d.has("type") && (String(d["type"]) == "files" || String(d["type"]) == "files_and_dirs")) {
 
         Array files = d["files"];
 
-        String text_to_drop;
+        se_string text_to_drop;
         for (int i = 0; i < files.size(); i++) {
 
             if (i > 0)
                 text_to_drop += ",";
-            text_to_drop += "\"" + StringUtils::c_escape(files[i]) + "\"";
+            text_to_drop += "\"" + StringUtils::c_escape(files[i].as<se_string>()) + "\"";
         }
 
         te->cursor_set_line(row);
         te->cursor_set_column(col);
-        te->insert_text_at_cursor(text_to_drop);
+        te->insert_text_at_cursor(StringUtils::from_utf8(text_to_drop));
     }
 
     if (d.has("type") && String(d["type"]) == "nodes") {
@@ -1531,16 +1560,16 @@ void ScriptTextEditor::drop_data_fw(const Point2 &p_point, const Variant &p_data
         Node *sn = _find_script_node(get_tree()->get_edited_scene_root(), get_tree()->get_edited_scene_root(), script);
 
         if (!sn) {
-            EditorNode::get_singleton()->show_warning("Can't drop nodes because script '" + get_name() + "' is not used in this scene.");
+            EditorNode::get_singleton()->show_warning(StringName("Can't drop nodes because script '" + get_name() + "' is not used in this scene."));
             return;
         }
 
         Array nodes = d["nodes"];
-        String text_to_drop;
+        se_string text_to_drop;
         for (int i = 0; i < nodes.size(); i++) {
 
             if (i > 0)
-                text_to_drop += ",";
+                text_to_drop += (",");
 
             NodePath np = nodes[i];
             Node *node = get_node(np);
@@ -1548,13 +1577,13 @@ void ScriptTextEditor::drop_data_fw(const Point2 &p_point, const Variant &p_data
                 continue;
             }
 
-            String path(sn->get_path_to(node));
+            se_string path(sn->get_path_to(node));
             text_to_drop += "\"" + StringUtils::c_escape(path) + "\"";
         }
 
         te->cursor_set_line(row);
         te->cursor_set_column(col);
-        te->insert_text_at_cursor(text_to_drop);
+        te->insert_text_at_cursor(StringUtils::from_utf8(text_to_drop));
     }
 }
 
@@ -1600,7 +1629,7 @@ void ScriptTextEditor::_text_edit_gui_input(const Ref<InputEvent> &ev) {
             }
         }
 
-        String word_at_pos = tx->get_word_at_pos(local_pos);
+        se_string word_at_pos = tx->get_word_at_pos(local_pos);
         if (word_at_pos.empty()) word_at_pos = tx->get_word_under_cursor();
         if (word_at_pos.empty()) word_at_pos = tx->get_selection_text();
 
@@ -1625,14 +1654,14 @@ void ScriptTextEditor::_text_edit_gui_input(const Ref<InputEvent> &ev) {
         }
 
         if (has_color) {
-            String line = tx->get_line(row);
+            se_string line = tx->get_line(row);
             color_position.x = row;
             color_position.y = col;
 
-            int begin = 0;
-            int end = 0;
+            size_t begin = 0;
+            size_t end = 0;
             bool valid = false;
-            for (int i = col; i < line.length(); i++) {
+            for (size_t i = col; i < line.length(); i++) {
                 if (line[i] == '(') {
                     begin = i;
                     continue;
@@ -1644,7 +1673,7 @@ void ScriptTextEditor::_text_edit_gui_input(const Ref<InputEvent> &ev) {
             }
             if (valid) {
                 color_args = StringUtils::substr(line, begin, end - begin);
-                String stripped = StringUtils::replace(
+                se_string stripped = StringUtils::replace(
                         StringUtils::replace(StringUtils::replace(color_args, " ", ""), "(", ""), ")", "");
                 Vector<float> color = StringUtils::split_floats(stripped, ",");
                 if (color.size() > 2) {
@@ -1661,22 +1690,22 @@ void ScriptTextEditor::_text_edit_gui_input(const Ref<InputEvent> &ev) {
 }
 
 void ScriptTextEditor::_color_changed(const Color &p_color) {
-    String new_args;
+    se_string new_args;
     if (p_color.a == 1.0f) {
-        new_args = String("(" + rtos(p_color.r) + ", " + rtos(p_color.g) + ", " + rtos(p_color.b) + ")");
+        new_args = FormatVE("(%f, %f, %f)",p_color.r,p_color.g,p_color.b);
     } else {
-        new_args = String("(" + rtos(p_color.r) + ", " + rtos(p_color.g) + ", " + rtos(p_color.b) + ", " + rtos(p_color.a) + ")");
+        new_args = FormatVE("(%f, %f, %f, %f)",p_color.r,p_color.g,p_color.b,p_color.a);
     }
 
-    String line = code_editor->get_text_edit()->get_line(color_position.x);
-    int color_args_pos = StringUtils::find(line,color_args, color_position.y);
+    String line = StringUtils::from_utf8(code_editor->get_text_edit()->get_line(color_position.x));
+    int color_args_pos = StringUtils::find(line,StringUtils::from_utf8(color_args), color_position.y);
     String line_with_replaced_args = line;
     StringUtils::erase(line_with_replaced_args,color_args_pos, color_args.length());
-    line_with_replaced_args = StringUtils::insert(line_with_replaced_args,color_args_pos, new_args);
+    line_with_replaced_args = StringUtils::insert(line_with_replaced_args,color_args_pos, StringUtils::from_utf8(new_args));
 
     color_args = new_args;
     code_editor->get_text_edit()->begin_complex_operation();
-    code_editor->get_text_edit()->set_line(color_position.x, line_with_replaced_args);
+    code_editor->get_text_edit()->set_line(color_position.x, StringUtils::to_utf8(line_with_replaced_args));
     code_editor->get_text_edit()->end_complex_operation();
     code_editor->get_text_edit()->update();
 }
@@ -1726,6 +1755,7 @@ void ScriptTextEditor::_make_context_menu(bool p_selection, bool p_color, bool p
 ScriptTextEditor::ScriptTextEditor() {
 
     theme_loaded = false;
+    script_is_valid = false;
 
     VSplitContainer *editor_box = memnew(VSplitContainer);
     add_child(editor_box);
@@ -1824,17 +1854,17 @@ ScriptTextEditor::ScriptTextEditor() {
     PopupMenu *convert_case = memnew(PopupMenu);
     convert_case->set_name("convert_case");
     edit_menu->get_popup()->add_child(convert_case);
-    edit_menu->get_popup()->add_submenu_item(TTR("Convert Case"), "convert_case");
+    edit_menu->get_popup()->add_submenu_item(TTR("Convert Case"), StringName("convert_case"));
     convert_case->add_shortcut(ED_SHORTCUT("script_text_editor/convert_to_uppercase", TTR("Uppercase"), KEY_MASK_SHIFT | KEY_F4), EDIT_TO_UPPERCASE);
     convert_case->add_shortcut(ED_SHORTCUT("script_text_editor/convert_to_lowercase", TTR("Lowercase"), KEY_MASK_SHIFT | KEY_F5), EDIT_TO_LOWERCASE);
     convert_case->add_shortcut(ED_SHORTCUT("script_text_editor/capitalize", TTR("Capitalize"), KEY_MASK_SHIFT | KEY_F6), EDIT_CAPITALIZE);
     convert_case->connect("id_pressed", this, "_edit_option");
 
-    highlighters[TTR("Standard")] = nullptr;
+    highlighters[se_string(TTR("Standard"))] = nullptr;
     highlighter_menu = memnew(PopupMenu);
     highlighter_menu->set_name("highlighter_menu");
     edit_menu->get_popup()->add_child(highlighter_menu);
-    edit_menu->get_popup()->add_submenu_item(TTR("Syntax Highlighter"), "highlighter_menu");
+    edit_menu->get_popup()->add_submenu_item(TTR("Syntax Highlighter"), StringName("highlighter_menu"));
     highlighter_menu->add_radio_check_item(TTR("Standard"));
     highlighter_menu->connect("id_pressed", this, "_change_syntax_highlighter");
 
@@ -1868,7 +1898,7 @@ ScriptTextEditor::ScriptTextEditor() {
     bookmarks_menu = memnew(PopupMenu);
     bookmarks_menu->set_name("Bookmarks");
     goto_menu->get_popup()->add_child(bookmarks_menu);
-    goto_menu->get_popup()->add_submenu_item(TTR("Bookmarks"), "Bookmarks");
+    goto_menu->get_popup()->add_submenu_item(TTR("Bookmarks"), StringName("Bookmarks"));
     _update_bookmark_list();
     bookmarks_menu->connect("about_to_show", this, "_update_bookmark_list");
     bookmarks_menu->connect("index_pressed", this, "_bookmark_item_pressed");
@@ -1876,7 +1906,7 @@ ScriptTextEditor::ScriptTextEditor() {
     breakpoints_menu = memnew(PopupMenu);
     breakpoints_menu->set_name("Breakpoints");
     goto_menu->get_popup()->add_child(breakpoints_menu);
-    goto_menu->get_popup()->add_submenu_item(TTR("Breakpoints"), "Breakpoints");
+    goto_menu->get_popup()->add_submenu_item(TTR("Breakpoints"), StringName("Breakpoints"));
     _update_breakpoint_list();
     breakpoints_menu->connect("about_to_show", this, "_update_breakpoint_list");
     breakpoints_menu->connect("index_pressed", this, "_breakpoint_item_pressed");
@@ -1895,7 +1925,7 @@ ScriptTextEditor::ScriptTextEditor() {
 }
 
 ScriptTextEditor::~ScriptTextEditor() {
-    for (eastl::pair<const String,SyntaxHighlighter *> &E : highlighters) {
+    for (eastl::pair<const se_string,SyntaxHighlighter *> &E : highlighters) {
         if (E.second != nullptr) {
             memdelete(E.second);
         }

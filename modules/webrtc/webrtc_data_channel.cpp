@@ -33,6 +33,8 @@
 #include "core/method_bind.h"
 
 IMPL_GDCLASS(WebRTCDataChannel)
+VARIANT_ENUM_CAST(WebRTCDataChannel::WriteMode);
+VARIANT_ENUM_CAST(WebRTCDataChannel::ChannelState);
 
 void WebRTCDataChannel::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("poll"), &WebRTCDataChannel::poll);

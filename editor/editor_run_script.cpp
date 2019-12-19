@@ -29,7 +29,7 @@
 /*************************************************************************/
 
 #include "editor_run_script.h"
-
+#include "core/string_formatter.h"
 #include "core/method_bind.h"
 #include "editor_node.h"
 
@@ -68,9 +68,11 @@ Node *EditorScript::get_scene() {
 void EditorScript::_run() {
 
     Ref<Script> s(refFromRefPtr<Script>(get_script()));
+
     ERR_FAIL_COND(not s)
     if (!get_script_instance()) {
-        EditorNode::add_io_error(TTR("Couldn't instance script:") + "\n " + s->get_path() + "\n" + TTR("Did you forget the 'tool' keyword?"));
+        EditorNode::add_io_error(FormatSN(
+                TTR("Couldn't instance script:\n %s\nDid you forget the 'tool' keyword?").asCString(), s->get_path().c_str()));
         return;
     }
 
@@ -78,8 +80,8 @@ void EditorScript::_run() {
     ce.error = Variant::CallError::CALL_OK;
     get_script_instance()->call("_run", nullptr, 0, ce);
     if (ce.error != Variant::CallError::CALL_OK) {
-
-        EditorNode::add_io_error(TTR("Couldn't run script:") + "\n " + s->get_path() + "\n" + TTR("Did you forget the '_run' method?"));
+        EditorNode::add_io_error(FormatSN(
+                TTR("Couldn't run script:\n %s\nDid you forget the '_run' method?").asCString(), s->get_path().c_str()));
     }
 }
 

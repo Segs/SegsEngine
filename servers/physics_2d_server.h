@@ -653,12 +653,13 @@ private:
     static void on_servers_changed();
 
 public:
-    static void register_server(const String &p_name, CreatePhysics2DServerCallback p_creat_callback);
-    static void set_default_server(const String &p_name, int p_priority = 0);
-    static int find_server_id(const String &p_name);
+    static void register_server(const StringName &p_name, CreatePhysics2DServerCallback p_creat_callback);
+    static void set_default_server(const StringName &p_name, int p_priority = 0);
+    static int find_server_id(const StringName &p_name);
     static int get_servers_count();
-    static String get_server_name(int p_id);
+    static StringName get_server_name(int p_id);
     static Physics2DServer *new_default_server();
-    static Physics2DServer *new_server(const String &p_name);
+    static Physics2DServer *new_server(const StringName &p_name);
+    static void cleanup();
 };
 GODOT_EXPORT Physics2DServer *initialize_2d_physics();

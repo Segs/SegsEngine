@@ -82,30 +82,30 @@ void ProximityGroup::update_groups() {
     clear_groups();
 };
 
-void ProximityGroup::add_groups(int *p_cell, String p_base, int p_depth) {
+void ProximityGroup::add_groups(int *p_cell, StringName p_base, int p_depth) {
 
-    p_base = p_base + "|";
+    p_base = StringName(p_base + se_string("|"));
     if (grid_radius[p_depth] == 0) {
 
         if (p_depth == 2) {
             _new_group(p_base);
         } else {
             add_groups(p_cell, p_base, p_depth + 1);
-        };
-    };
+        }
+    }
 
     int start = p_cell[p_depth] - grid_radius[p_depth];
     int end = p_cell[p_depth] + grid_radius[p_depth];
 
     for (int i = start; i <= end; i++) {
 
-        String gname = p_base + itos(i);
+        StringName gname(p_base + itos(i));
         if (p_depth == 2) {
             _new_group(gname);
         } else {
             add_groups(p_cell, gname, p_depth + 1);
-        };
-    };
+        }
+    }
 };
 
 void ProximityGroup::_new_group(const StringName& p_name) {
@@ -129,10 +129,10 @@ void ProximityGroup::_notification(int p_what) {
         case NOTIFICATION_TRANSFORM_CHANGED:
             update_groups();
             break;
-    };
+    }
 };
 
-void ProximityGroup::broadcast(const String& p_name, const Variant& p_params) {
+void ProximityGroup::broadcast(se_string_view p_name, const Variant& p_params) {
 
     Map<StringName, uint32_t>::iterator E;
     E = groups.begin();
@@ -143,7 +143,7 @@ void ProximityGroup::broadcast(const String& p_name, const Variant& p_params) {
     }
 };
 
-void ProximityGroup::_proximity_group_broadcast(const String& p_name, const Variant& p_params) {
+void ProximityGroup::_proximity_group_broadcast(const StringName& p_name, const Variant& p_params) {
 
     if (dispatch_mode == MODE_PROXY) {
 
@@ -154,12 +154,12 @@ void ProximityGroup::_proximity_group_broadcast(const String& p_name, const Vari
     };
 };
 
-void ProximityGroup::set_group_name(const String &p_group_name) {
+void ProximityGroup::set_group_name(const StringName &p_group_name) {
 
     group_name = p_group_name;
 };
 
-String ProximityGroup::get_group_name() const {
+StringName ProximityGroup::get_group_name() const {
 
     return group_name;
 };

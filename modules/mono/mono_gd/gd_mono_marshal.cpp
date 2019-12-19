@@ -31,6 +31,7 @@
 #include "gd_mono_marshal.h"
 
 #include "gd_mono.h"
+#include "gd_mono_cache.h"
 #include "gd_mono_class.h"
 
 namespace GDMonoMarshal {
@@ -276,7 +277,7 @@ String mono_to_utf8_string(MonoString *p_mono_string) {
 	char *utf8 = mono_string_to_utf8_checked(p_mono_string, &error);
 
 	if (!mono_error_ok(&error)) {
-		ERR_PRINT(String() + "Failed to convert MonoString* to UTF-8: '" + mono_error_get_message(&error) + "'.");
+		ERR_PRINTS(String() + "Failed to convert MonoString* to UTF-8: '" + mono_error_get_message(&error) + "'.");
 		mono_error_cleanup(&error);
 		return String();
 	}
@@ -474,7 +475,7 @@ MonoObject *variant_to_mono_object(const Variant *p_var, const ManagedType &p_ty
 						return BOX_ENUM(enum_baseclass, val);
 					}
 					default: {
-                                                ERR_FAIL_V_MSG(NULL, "Attempted to convert Variant to a managed enum value of unmarshallable base type.");
+						ERR_FAIL_V_MSG(NULL, "Attempted to convert Variant to a managed enum value of unmarshallable base type.");
 					}
 				}
 			}
@@ -508,7 +509,7 @@ MonoObject *variant_to_mono_object(const Variant *p_var, const ManagedType &p_ty
 			if (array_type->eklass == CACHED_CLASS_RAW(Color))
 				return (MonoObject *)PoolColorArray_to_mono_array(p_var->operator PoolColorArray());
 
-                        ERR_FAIL_V_MSG(NULL, "Attempted to convert Variant to a managed array of unmarshallable element type.");
+			ERR_FAIL_V_MSG(NULL, "Attempted to convert Variant to a managed array of unmarshallable element type.");
 		} break;
 
 		case MONO_TYPE_CLASS: {
@@ -556,7 +557,7 @@ MonoObject *variant_to_mono_object(const Variant *p_var, const ManagedType &p_ty
 			}
 
 			if (type_class->implements_interface(CACHED_CLASS(System_Collections_IEnumerable))) {
-				if (GDMonoUtils::tools_godot_api_check()) {
+				if (GDMonoCache::tools_godot_api_check()) {
 					return GDMonoUtils::create_managed_from(p_var->operator Array(), CACHED_CLASS(Array));
 				} else {
 					return (MonoObject *)GDMonoMarshal::Array_to_mono_array(p_var->operator Array());
@@ -575,8 +576,13 @@ MonoObject *variant_to_mono_object(const Variant *p_var, const ManagedType &p_ty
 					return BOX_INT32(val);
 				}
 				case Variant::REAL: {
+#ifdef REAL_T_IS_DOUBLE
+					double val = p_var->operator double();
+					return BOX_DOUBLE(val);
+#else
 					float val = p_var->operator float();
 					return BOX_FLOAT(val);
+#endif
 				}
 				case Variant::STRING:
 					return (MonoObject *)mono_string_from_godot(p_var->operator String());
@@ -678,7 +684,7 @@ MonoObject *variant_to_mono_object(const Variant *p_var, const ManagedType &p_ty
 				}
 
 				if (p_type.type_class->implements_interface(CACHED_CLASS(System_Collections_IEnumerable))) {
-					if (GDMonoUtils::tools_godot_api_check()) {
+					if (GDMonoCache::tools_godot_api_check()) {
 						return GDMonoUtils::create_managed_from(p_var->operator Array(), CACHED_CLASS(Array));
 					} else {
 						return (MonoObject *)GDMonoMarshal::Array_to_mono_array(p_var->operator Array());
@@ -698,7 +704,7 @@ Variant mono_object_to_variant(MonoObject *p_obj) {
 
 	ManagedType type = ManagedType::from_class(mono_object_get_class(p_obj));
 
-	ERR_FAIL_COND_V(!type.type_class, Variant())
+	ERR_FAIL_COND_V(!type.type_class, Variant());
 
 	switch (type.type_encoding) {
 		case MONO_TYPE_BOOLEAN:
@@ -801,7 +807,7 @@ Variant mono_object_to_variant(MonoObject *p_obj) {
 			if (array_type->eklass == CACHED_CLASS_RAW(Color))
 				return mono_array_to_PoolColorArray((MonoArray *)p_obj);
 
-                        ERR_FAIL_V_MSG(Variant(), "Attempted to convert a managed array of unmarshallable element type to Variant.");
+			ERR_FAIL_V_MSG(Variant(), "Attempted to convert a managed array of unmarshallable element type to Variant.");
 		} break;
 
 		case MONO_TYPE_CLASS: {
@@ -811,7 +817,7 @@ Variant mono_object_to_variant(MonoObject *p_obj) {
 			if (CACHED_CLASS(GodotObject)->is_assignable_from(type_class)) {
 				Object *ptr = unbox<Object *>(CACHED_FIELD(GodotObject, ptr)->get_value(p_obj));
 				if (ptr != NULL) {
-					Reference *ref = object_cast<Reference>(ptr);
+					Reference *ref = Object::cast_to<Reference>(ptr);
 					return ref ? Variant(Ref<Reference>(ref)) : Variant(ptr);
 				}
 				return Variant();
@@ -829,14 +835,14 @@ Variant mono_object_to_variant(MonoObject *p_obj) {
 
 			if (CACHED_CLASS(Array) == type_class) {
 				MonoException *exc = NULL;
-				Array *ptr = invoke_method_thunk(CACHED_METHOD_THUNK(Array, GetPtr), p_obj, &exc);
+				Array *ptr = CACHED_METHOD_THUNK(Array, GetPtr).invoke(p_obj, &exc);
 				UNHANDLED_EXCEPTION(exc);
 				return ptr ? Variant(*ptr) : Variant();
 			}
 
 			if (CACHED_CLASS(Dictionary) == type_class) {
 				MonoException *exc = NULL;
-				Dictionary *ptr = invoke_method_thunk(CACHED_METHOD_THUNK(Dictionary, GetPtr), p_obj, &exc);
+				Dictionary *ptr = CACHED_METHOD_THUNK(Dictionary, GetPtr).invoke(p_obj, &exc);
 				UNHANDLED_EXCEPTION(exc);
 				return ptr ? Variant(*ptr) : Variant();
 			}
@@ -928,6 +934,8 @@ Array mono_array_to_Array(MonoArray *p_array) {
 
 	return ret;
 }
+
+// TODO: Use memcpy where possible
 
 MonoArray *PoolIntArray_to_mono_array(const PoolIntArray &p_array) {
 	PoolIntArray::Read r = p_array.read();

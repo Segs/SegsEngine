@@ -51,7 +51,7 @@ void GotoLineDialog::popup_find_line(TextEdit *p_edit) {
 
     text_editor = p_edit;
 
-    line->set_text(itos(text_editor->cursor_get_line()));
+    line->set_text_utf8(itos(text_editor->cursor_get_line()));
     line->select_all();
     popup_centered(Size2(180, 80) * EDSCALE);
     line->grab_focus();
@@ -59,7 +59,7 @@ void GotoLineDialog::popup_find_line(TextEdit *p_edit) {
 
 int GotoLineDialog::get_line() const {
 
-    return StringUtils::to_int(line->get_text());
+    return line->get_text_ui().toInt();
 }
 
 void GotoLineDialog::ok_pressed() {
@@ -115,6 +115,8 @@ void FindReplaceBar::_notification(int p_what) {
         hide_button->set_hover_texture(get_icon("Close", "EditorIcons"));
         hide_button->set_pressed_texture(get_icon("Close", "EditorIcons"));
         hide_button->set_custom_minimum_size(hide_button->get_normal_texture()->get_size());
+    } else if (p_what == NOTIFICATION_THEME_CHANGED) {
+        matches_label->add_color_override("font_color", results_count > 0 ? get_color("font_color", "Label") : get_color("error_color", "Editor"));
     }
 }
 
@@ -174,7 +176,7 @@ bool FindReplaceBar::_search(uint32_t p_flags, int p_from_line, int p_from_col) 
         results_count = 0;
         result_line = -1;
         result_col = -1;
-        text_edit->set_search_text("");
+        text_edit->set_search_text(String());
         text_edit->set_search_flags(p_flags);
         text_edit->set_current_search_result(line, col);
     }
@@ -198,7 +200,9 @@ void FindReplaceBar::_replace() {
         results_count = -1;
     }
 
-    search_current();
+    if (!search_current()) {
+        search_next();
+    }
 }
 
 void FindReplaceBar::_replace_all() {
@@ -280,7 +284,7 @@ void FindReplaceBar::_replace_all() {
     }
 
     text_edit->set_v_scroll(vsval);
-    set_error(vformat(TTR("Replaced %d occurrence(s)."), rc));
+    set_error(FormatSN(TTR("Replaced %d occurrence(s).").asCString(), rc));
 
     text_edit->call_deferred("connect", "text_changed", Variant(this), "_editor_text_changed");
     results_count = -1;
@@ -303,9 +307,9 @@ void FindReplaceBar::_update_results_count() {
     results_count = 0;
 
     String searched = get_search_text();
-    if (searched.empty()) return;
+    if (searched.isEmpty()) return;
 
-    String full_text = text_edit->get_text();
+    String full_text = StringUtils::from_utf8(text_edit->get_text());
 
     int from_pos = 0;
 
@@ -328,13 +332,13 @@ void FindReplaceBar::_update_results_count() {
 
 void FindReplaceBar::_update_matches_label() {
 
-    if (search_text->get_text().empty() || results_count == -1) {
+    if (search_text->get_text_ui().isEmpty() || results_count == -1) {
         matches_label->hide();
     } else {
         matches_label->show();
 
-        matches_label->add_color_override("font_color", results_count > 0 ? Color(1, 1, 1) : EditorNode::get_singleton()->get_gui_base()->get_color("error_color", "Editor"));
-        matches_label->set_text(vformat(results_count == 1 ? TTR("%d match.") : TTR("%d matches."), results_count));
+        matches_label->add_color_override("font_color", results_count > 0 ? get_color("font_color", "Label") : get_color("error_color", "Editor"));
+        matches_label->set_text(FormatSN((results_count == 1 ? TTR("%d match.") : TTR("%d matches.")).asCString(), results_count));
     }
 }
 
@@ -424,7 +428,7 @@ void FindReplaceBar::_hide_bar() {
     if (replace_text->has_focus() || search_text->has_focus())
         text_edit->grab_focus();
 
-    text_edit->set_search_text("");
+    text_edit->set_search_text(String());
     result_line = -1;
     result_col = -1;
     hide();
@@ -445,16 +449,16 @@ void FindReplaceBar::_show_search(bool p_focus_replace, bool p_show_only) {
     }
 
     if (text_edit->is_selection_active() && !selection_only->is_pressed()) {
-        search_text->set_text(text_edit->get_selection_text());
+        search_text->set_text_utf8(text_edit->get_selection_text());
     }
 
-    if (!get_search_text().empty()) {
+    if (!get_search_text().isEmpty()) {
         if (p_focus_replace) {
             replace_text->select_all();
-            replace_text->set_cursor_position(replace_text->get_text().length());
+            replace_text->set_cursor_position(replace_text->get_text_ui().length());
         } else {
             search_text->select_all();
-            search_text->set_cursor_position(search_text->get_text().length());
+            search_text->set_cursor_position(search_text->get_text_ui().length());
         }
 
         results_count = -1;
@@ -479,7 +483,7 @@ void FindReplaceBar::popup_replace() {
         hbc_option_replace->show();
     }
 
-    selection_only->set_pressed((text_edit->is_selection_active() && text_edit->get_selection_from_line() < text_edit->get_selection_to_line()));
+    selection_only->set_pressed(text_edit->is_selection_active() && text_edit->get_selection_from_line() < text_edit->get_selection_to_line());
 
     _show_search(is_visible() || text_edit->is_selection_active());
 }
@@ -500,13 +504,13 @@ void FindReplaceBar::_editor_text_changed() {
     }
 }
 
-void FindReplaceBar::_search_text_changed(const String &p_text) {
+void FindReplaceBar::_search_text_changed(se_string_view p_text) {
 
     results_count = -1;
     search_current();
 }
 
-void FindReplaceBar::_search_text_entered(const String &p_text) {
+void FindReplaceBar::_search_text_entered(se_string_view p_text) {
 
     if (Input::get_singleton()->is_key_pressed(KEY_SHIFT)) {
         search_prev();
@@ -515,7 +519,7 @@ void FindReplaceBar::_search_text_entered(const String &p_text) {
     }
 }
 
-void FindReplaceBar::_replace_text_entered(const String &p_text) {
+void FindReplaceBar::_replace_text_entered(se_string_view p_text) {
 
     if (selection_only->is_pressed() && text_edit->is_selection_active()) {
         _replace_all();
@@ -525,12 +529,12 @@ void FindReplaceBar::_replace_text_entered(const String &p_text) {
 
 String FindReplaceBar::get_search_text() const {
 
-    return search_text->get_text();
+    return search_text->get_text_ui();
 }
 
 String FindReplaceBar::get_replace_text() const {
 
-    return replace_text->get_text();
+    return replace_text->get_text_ui();
 }
 
 bool FindReplaceBar::is_case_sensitive() const {
@@ -548,7 +552,7 @@ bool FindReplaceBar::is_selection_only() const {
     return selection_only->is_pressed();
 }
 
-void FindReplaceBar::set_error(const String &p_label) {
+void FindReplaceBar::set_error(se_string_view p_label) {
 
     emit_signal("error", p_label);
 }
@@ -768,7 +772,7 @@ void CodeTextEditor::_reset_zoom() {
 
 void CodeTextEditor::_line_col_changed() {
 
-    String line = text_editor->get_line(text_editor->cursor_get_line());
+    String line = StringUtils::from_utf8(text_editor->get_line(text_editor->cursor_get_line()));
 
     int positional_column = 0;
     for (int i = 0; i < text_editor->cursor_get_column(); i++) {
@@ -778,7 +782,7 @@ void CodeTextEditor::_line_col_changed() {
             positional_column += 1;
         }
     }
-    line_and_col_txt->set_text(FormatV("(%3d,%3d)",text_editor->cursor_get_line() + 1,positional_column + 1));
+    line_and_col_txt->set_text(FormatSN("(%3d,%3d)",text_editor->cursor_get_line() + 1,positional_column + 1));
 }
 
 void CodeTextEditor::_text_changed() {
@@ -799,7 +803,7 @@ void CodeTextEditor::_code_complete_timer_timeout() {
 void CodeTextEditor::_complete_request() {
 
     List<ScriptCodeCompletionOption> entries;
-    String ctext = text_editor->get_text_for_completion();
+    se_string ctext = text_editor->get_text_for_completion_utf8();
     _code_complete_script(ctext, &entries);
     bool forced = false;
     if (code_complete_func) {
@@ -818,8 +822,8 @@ Ref<Texture> CodeTextEditor::_get_completion_icon(const ScriptCodeCompletionOpti
     Ref<Texture> tex;
     switch (p_option.kind) {
         case ScriptCodeCompletionOption::KIND_CLASS: {
-            if (has_icon(p_option.display, "EditorIcons")) {
-                tex = get_icon(p_option.display, "EditorIcons");
+            if (has_icon(StringName(p_option.display), "EditorIcons")) {
+                tex = get_icon(StringName(p_option.display), "EditorIcons");
             } else {
                 tex = get_icon("Object", "EditorIcons");
             }
@@ -917,7 +921,7 @@ void CodeTextEditor::update_editor_settings() {
 void CodeTextEditor::trim_trailing_whitespace() {
     bool trimed_whitespace = false;
     for (int i = 0; i < text_editor->get_line_count(); i++) {
-        String line = text_editor->get_line(i);
+        String line = StringUtils::from_utf8(text_editor->get_line(i));
         if (StringUtils::ends_with(line," ") || StringUtils::ends_with(line,"\t")) {
 
             if (!trimed_whitespace) {
@@ -932,7 +936,7 @@ void CodeTextEditor::trim_trailing_whitespace() {
                     break;
                 }
             }
-            text_editor->set_line(i, StringUtils::substr(line,0, end));
+            text_editor->set_line(i, StringUtils::to_utf8(StringUtils::substr(line,0, end)));
         }
     }
 
@@ -945,15 +949,15 @@ void CodeTextEditor::trim_trailing_whitespace() {
 void CodeTextEditor::insert_final_newline() {
     int final_line = text_editor->get_line_count() - 1;
 
-    String line = text_editor->get_line(final_line);
+    String line = StringUtils::from_utf8(text_editor->get_line(final_line));
 
     //length 0 means it's already an empty line,
     //no need to add a newline
     if (line.length() > 0 && !StringUtils::ends_with(line,"\n")) {
         text_editor->begin_complex_operation();
 
-        line += "\n";
-        text_editor->set_line(final_line, line);
+        line += '\n';
+        text_editor->set_line(final_line, StringUtils::to_utf8(line));
 
         text_editor->end_complex_operation();
         text_editor->update();
@@ -962,10 +966,10 @@ void CodeTextEditor::insert_final_newline() {
 
 void CodeTextEditor::convert_indent_to_spaces() {
     int indent_size = EditorSettings::get_singleton()->get("text_editor/indent/size");
-    String indent = "";
+    String indent;
 
     for (int i = 0; i < indent_size; i++) {
-        indent += " ";
+        indent += ' ';
     }
 
     int cursor_line = text_editor->cursor_get_line();
@@ -973,7 +977,7 @@ void CodeTextEditor::convert_indent_to_spaces() {
 
     bool changed_indentation = false;
     for (int i = 0; i < text_editor->get_line_count(); i++) {
-        String line = text_editor->get_line(i);
+        String line = StringUtils::from_utf8(text_editor->get_line(i));
 
         if (line.length() <= 0) {
             continue;
@@ -994,7 +998,7 @@ void CodeTextEditor::convert_indent_to_spaces() {
             j++;
         }
         if (changed_indentation) {
-            text_editor->set_line(i, line);
+            text_editor->set_line(i, StringUtils::to_utf8(line));
         }
     }
     if (changed_indentation) {
@@ -1013,7 +1017,7 @@ void CodeTextEditor::convert_indent_to_tabs() {
 
     bool changed_indentation = false;
     for (int i = 0; i < text_editor->get_line_count(); i++) {
-        String line = text_editor->get_line(i);
+        String line = StringUtils::from_utf8(text_editor->get_line(i));
 
         if (line.length() <= 0) {
             continue;
@@ -1043,7 +1047,7 @@ void CodeTextEditor::convert_indent_to_tabs() {
             j++;
         }
         if (changed_indentation) {
-            text_editor->set_line(i, line);
+            text_editor->set_line(i, StringUtils::to_utf8(line));
         }
     }
     if (changed_indentation) {
@@ -1071,14 +1075,14 @@ void CodeTextEditor::convert_case(CaseStyle p_case) {
             len = end_col;
         if (i == begin)
             len -= begin_col;
-        String new_line = StringUtils::substr(text_editor->get_line(i),i == begin ? begin_col : 0, len);
+        String new_line = StringUtils::from_utf8(StringUtils::substr(text_editor->get_line(i),i == begin ? begin_col : 0, len));
 
         switch (p_case) {
             case UPPER: {
-                new_line = StringUtils::to_upper(new_line);
+                new_line = new_line.toUpper();
             } break;
             case LOWER: {
-                new_line = StringUtils::to_lower(new_line);
+                new_line = new_line.toLower();
             } break;
             case CAPITALIZE: {
                 new_line = StringUtils::capitalize(new_line);
@@ -1086,12 +1090,12 @@ void CodeTextEditor::convert_case(CaseStyle p_case) {
         }
 
         if (i == begin) {
-            new_line = StringUtils::left(text_editor->get_line(i),begin_col) + new_line;
+            new_line =  StringUtils::from_utf8(StringUtils::left(text_editor->get_line(i),begin_col)) + new_line;
         }
         if (i == end) {
-            new_line = new_line + StringUtils::right(text_editor->get_line(i),end_col);
+            new_line = new_line +  StringUtils::from_utf8(StringUtils::right(text_editor->get_line(i),end_col));
         }
-        text_editor->set_line(i, new_line);
+        text_editor->set_line(i,  StringUtils::to_utf8(new_line));
     }
     text_editor->end_complex_operation();
 }
@@ -1177,7 +1181,18 @@ void CodeTextEditor::move_lines_down() {
     text_editor->end_complex_operation();
     text_editor->update();
 }
-
+void CodeTextEditor::_delete_line(int p_line) {
+    // this is currently intended to be called within delete_lines()
+    // so `begin_complex_operation` is ommitted here
+    text_editor->set_line(p_line, "");
+    if (p_line == 0 && text_editor->get_line_count() > 1) {
+        text_editor->cursor_set_line(1);
+        text_editor->cursor_set_column(0);
+    }
+    text_editor->backspace_at_cursor();
+    text_editor->unfold_line(p_line);
+    text_editor->cursor_set_line(p_line);
+}
 void CodeTextEditor::delete_lines() {
     text_editor->begin_complex_operation();
     if (text_editor->is_selection_active()) {
@@ -1185,25 +1200,17 @@ void CodeTextEditor::delete_lines() {
         int from_line = text_editor->get_selection_from_line();
         int count = Math::abs(to_line - from_line) + 1;
 
-        text_editor->cursor_set_line(to_line, false);
-        while (count) {
-            text_editor->set_line(text_editor->cursor_get_line(), "");
-            text_editor->backspace_at_cursor();
-            count--;
-            if (count)
-                text_editor->unfold_line(from_line);
+        text_editor->cursor_set_line(from_line, false);
+        for (int i = 0; i < count; i++) {
+            _delete_line(from_line);
         }
-        text_editor->cursor_set_line(from_line - 1);
         text_editor->deselect();
     } else {
-        int line = text_editor->cursor_get_line();
-        text_editor->set_line(text_editor->cursor_get_line(), "");
-        text_editor->backspace_at_cursor();
-        text_editor->unfold_line(line);
-        text_editor->cursor_set_line(line);
+        _delete_line(text_editor->cursor_get_line());
     }
     text_editor->end_complex_operation();
 }
+
 
 void CodeTextEditor::clone_lines_down() {
     const int cursor_column = text_editor->cursor_get_column();
@@ -1213,7 +1220,7 @@ void CodeTextEditor::clone_lines_down() {
     int to_column = 0;
     int cursor_new_line = to_line + 1;
     int cursor_new_column = text_editor->cursor_get_column();
-    String new_text = "\n" + text_editor->get_line(from_line);
+    String new_text = "\n" + StringUtils::from_utf8(text_editor->get_line(from_line));
     bool selection_active = false;
 
     text_editor->cursor_set_column(text_editor->get_line(from_line).length());
@@ -1225,7 +1232,7 @@ void CodeTextEditor::clone_lines_down() {
         to_line = text_editor->get_selection_to_line();
         cursor_new_line = to_line + text_editor->cursor_get_line() - from_line;
         cursor_new_column = to_column == cursor_column ? 2 * to_column - from_column : to_column;
-        new_text = text_editor->get_selection_text();
+        new_text = StringUtils::from_utf8(text_editor->get_selection_text());
         selection_active = true;
 
         text_editor->cursor_set_line(to_line);
@@ -1249,8 +1256,9 @@ void CodeTextEditor::clone_lines_down() {
     text_editor->update();
 }
 
-void CodeTextEditor::toggle_inline_comment(const String &delimiter) {
+void CodeTextEditor::toggle_inline_comment(se_string_view delimiter) {
     text_editor->begin_complex_operation();
+    String ui_delimiter(StringUtils::from_utf8(delimiter));
     if (text_editor->is_selection_active()) {
         int begin = text_editor->get_selection_from_line();
         int end = text_editor->get_selection_to_line();
@@ -1271,18 +1279,18 @@ void CodeTextEditor::toggle_inline_comment(const String &delimiter) {
             }
         }
         for (int i = begin; i <= end; i++) {
-            String line_text = text_editor->get_line(i);
+            String line_text = StringUtils::from_utf8(text_editor->get_line(i));
 
-            if (StringUtils::strip_edges(line_text).empty()) {
-                line_text = delimiter;
+            if (StringUtils::strip_edges(line_text).isEmpty()) {
+                line_text = ui_delimiter;
             } else {
                 if (is_commented) {
                     line_text = StringUtils::substr(line_text,delimiter.length(), line_text.length());
                 } else {
-                    line_text = delimiter + line_text;
+                    line_text = ui_delimiter + line_text;
                 }
             }
-            text_editor->set_line(i, line_text);
+            text_editor->set_line(i, StringUtils::to_utf8(line_text));
         }
 
         // Adjust selection & cursor position.
@@ -1303,19 +1311,19 @@ void CodeTextEditor::toggle_inline_comment(const String &delimiter) {
 
     } else {
         int begin = text_editor->cursor_get_line();
-        String line_text = text_editor->get_line(begin);
+        String line_text = StringUtils::from_utf8(text_editor->get_line(begin));
         int delimiter_length = delimiter.length();
 
         int col = text_editor->cursor_get_column();
-        if (StringUtils::begins_with(line_text,delimiter)) {
+        if (StringUtils::begins_with(line_text,ui_delimiter)) {
             line_text = StringUtils::substr(line_text,delimiter_length, line_text.length());
             col -= delimiter_length;
         } else {
-            line_text = delimiter + line_text;
+            line_text = ui_delimiter + line_text;
             col += delimiter_length;
         }
 
-        text_editor->set_line(begin, line_text);
+        text_editor->set_line(begin, StringUtils::to_utf8(line_text));
         text_editor->cursor_set_column(col);
     }
     text_editor->end_complex_operation();
@@ -1414,7 +1422,7 @@ void CodeTextEditor::set_edit_state(const Variant &p_state) {
     text_editor->grab_focus();
 }
 
-void CodeTextEditor::set_error(const String &p_error) {
+void CodeTextEditor::set_error(const StringName &p_error) {
 
     error->set_text(p_error);
     if (!p_error.empty()) {
@@ -1440,6 +1448,9 @@ void CodeTextEditor::goto_error() {
 void CodeTextEditor::_update_font() {
 
     text_editor->add_font_override("font", get_font("source", "EditorFonts"));
+
+    error->add_font_override("font", get_font("status_source", "EditorFonts"));
+    error->add_color_override("font_color", get_color("error_color", "Editor"));
 
     Ref<Font> status_bar_font = get_font("status_source", "EditorFonts");
     error->add_font_override("font", status_bar_font);
@@ -1527,7 +1538,7 @@ void CodeTextEditor::_notification(int p_what) {
 }
 
 void CodeTextEditor::set_warning_nb(int p_warning_nb) {
-    warning_count_label->set_text(itos(p_warning_nb));
+    warning_count_label->set_text(StringName(itos(p_warning_nb)));
     warning_count_label->set_visible(p_warning_nb > 0);
     warning_button->set_visible(p_warning_nb > 0);
     if (!p_warning_nb)
@@ -1558,6 +1569,7 @@ void CodeTextEditor::goto_next_bookmark() {
             if (bline > line) {
                 text_editor->unfold_line(bline);
                 text_editor->cursor_set_line(bline);
+                text_editor->center_viewport_to_cursor();
                 return;
             }
         }
@@ -1582,6 +1594,7 @@ void CodeTextEditor::goto_prev_bookmark() {
             if (bline < line) {
                 text_editor->unfold_line(bline);
                 text_editor->cursor_set_line(bline);
+                text_editor->center_viewport_to_cursor();
                 return;
             }
         }
@@ -1675,8 +1688,6 @@ CodeTextEditor::CodeTextEditor() {
     error = memnew(Label);
     scroll->add_child(error);
     error->set_v_size_flags(SIZE_EXPAND | SIZE_SHRINK_CENTER);
-    error->add_color_override("font_color", EditorNode::get_singleton()->get_gui_base()->get_color("error_color", "Editor"));
-    error->add_font_override("font", EditorNode::get_singleton()->get_gui_base()->get_font("status_source", "EditorFonts"));
     error->set_mouse_filter(MOUSE_FILTER_STOP);
     error->connect("gui_input", this, "_error_pressed");
     find_replace_bar->connect("error", error, "set_text");
@@ -1716,11 +1727,11 @@ CodeTextEditor::CodeTextEditor() {
     text_editor->connect("text_changed", this, "_text_changed");
     text_editor->connect("request_completion", this, "_complete_request");
     Vector<String> cs;
-    cs.push_back(".");
-    cs.push_back(",");
-    cs.push_back("(");
-    cs.push_back("=");
-    cs.push_back("$");
+    cs.push_back(String("."));
+    cs.push_back(String(","));
+    cs.push_back(String("("));
+    cs.push_back(String("="));
+    cs.push_back(String("$"));
     text_editor->set_completion(true, cs);
     idle->connect("timeout", this, "_text_changed_idle_timeout");
 
@@ -1731,7 +1742,7 @@ CodeTextEditor::CodeTextEditor() {
     font_resize_timer = memnew(Timer);
     add_child(font_resize_timer);
     font_resize_timer->set_one_shot(true);
-    font_resize_timer->set_wait_time(0.07);
+    font_resize_timer->set_wait_time(0.07f);
     font_resize_timer->connect("timeout", this, "_font_resize_timeout");
 
     EditorSettings::get_singleton()->connect("settings_changed", this, "_on_settings_change");

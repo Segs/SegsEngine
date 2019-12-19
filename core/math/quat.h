@@ -37,13 +37,14 @@
 #include "core/math/math_funcs.h"
 #include "core/error_macros.h"
 
-class String;
-
 class GODOT_EXPORT Quat {
 public:
     real_t x, y, z, w;
 
     constexpr real_t length_squared() const;
+    bool is_equal_approx(Quat p_quat) const {
+        return Math::is_equal_approx(x, p_quat.x) && Math::is_equal_approx(y, p_quat.y) && Math::is_equal_approx(z, p_quat.z) && Math::is_equal_approx(w, p_quat.w);
+    }
     real_t length() const;
     void normalize();
     Quat normalized() const;
@@ -104,7 +105,7 @@ public:
     _FORCE_INLINE_ bool operator==(const Quat &p_quat) const;
     _FORCE_INLINE_ bool operator!=(const Quat &p_quat) const;
 
-    operator String() const;
+    operator se_string() const;
 
     inline void set(real_t p_x, real_t p_y, real_t p_z, real_t p_w) {
         x = p_x;

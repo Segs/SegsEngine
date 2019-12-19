@@ -39,7 +39,7 @@ ManagedType ManagedType::from_class(GDMonoClass *p_class) {
 
 ManagedType ManagedType::from_class(MonoClass *p_mono_class) {
 	GDMonoClass *tclass = GDMono::get_singleton()->get_class(p_mono_class);
-	ERR_FAIL_COND_V(!tclass, ManagedType())
+	ERR_FAIL_COND_V(!tclass, ManagedType());
 
 	return ManagedType(mono_type_get_type(tclass->get_mono_type()), tclass);
 }
@@ -47,7 +47,7 @@ ManagedType ManagedType::from_class(MonoClass *p_mono_class) {
 ManagedType ManagedType::from_type(MonoType *p_mono_type) {
 	MonoClass *mono_class = mono_class_from_mono_type(p_mono_type);
 	GDMonoClass *tclass = GDMono::get_singleton()->get_class(mono_class);
-	ERR_FAIL_COND_V(!tclass, ManagedType())
+	ERR_FAIL_COND_V(!tclass, ManagedType());
 
 	return ManagedType(mono_type_get_type(p_mono_type), tclass);
 }

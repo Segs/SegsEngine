@@ -44,7 +44,7 @@ Variant RichTextEffect::get_bbcode() const {
     Variant r;
     if (get_script_instance()) {
         if (!get_script_instance()->get("bbcode", r)) {
-            String path = get_script_instance()->get_script()->get_path();
+            se_string path = get_script_instance()->get_script()->get_path();
             r = get_basename(get_file(path));
         }
     }
@@ -95,7 +95,6 @@ void CharFXTransform::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_character"), &CharFXTransform::get_character);
     MethodBinder::bind_method(D_METHOD("set_character", {"character"}), &CharFXTransform::set_character);
 
-    MethodBinder::bind_method(D_METHOD("get_value_or", {"key", "default_value"}), &CharFXTransform::get_value_or);
 
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "relative_index"), "set_relative_index", "get_relative_index");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "absolute_index"), "set_absolute_index", "get_absolute_index");
@@ -105,17 +104,6 @@ void CharFXTransform::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::COLOR, "color"), "set_color", "get_color");
     ADD_PROPERTY(PropertyInfo(VariantType::DICTIONARY, "env"), "set_environment", "get_environment");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "character"), "set_character", "get_character");
-}
-
-Variant CharFXTransform::get_value_or(const String& p_key, const Variant& p_default_value) {
-    if (!this->environment.has(p_key))
-        return p_default_value;
-
-    Variant r = environment[p_key];
-    if (r.get_type() != p_default_value.get_type())
-        return p_default_value;
-
-    return r;
 }
 
 CharFXTransform::CharFXTransform() {

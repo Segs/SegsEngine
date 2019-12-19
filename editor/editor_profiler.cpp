@@ -92,27 +92,26 @@ void EditorProfiler::clear() {
     frame_metrics.resize(metric_size);
     last_metric = -1;
     variables->clear();
-    //activate->set_pressed(false);
     plot_sigs.clear();
     plot_sigs.insert("physics_frame_time");
     plot_sigs.insert("category_frame_time");
 
     updating_frame = true;
     cursor_metric_edit->set_min(0);
-    cursor_metric_edit->set_max(0);
+    cursor_metric_edit->set_max(100); // Doesn't make much sense, but we can't have min == max. Doesn't hurt.
     cursor_metric_edit->set_value(0);
     updating_frame = false;
     hover_metric = -1;
     seeking = false;
 }
 
-static String _get_percent_txt(float p_value, float p_total) {
-    if (p_total == 0)
+static se_string _get_percent_txt(float p_value, float p_total) {
+    if (p_total == 0.0f)
         p_total = 0.00001f;
-    return StringUtils::num((p_value / p_total) * 100, 1) + "%";
+    return se_string(StringUtils::num(p_value / p_total * 100, 1) + "%");
 }
 
-String EditorProfiler::_get_time_as_text(const Metric &m, float p_time, int p_calls) {
+se_string EditorProfiler::_get_time_as_text(const Metric &m, float p_time, int p_calls) {
 
     int dmode = display_mode->get_selected();
 
@@ -382,8 +381,8 @@ void EditorProfiler::_update_frame() {
         category->set_cell_mode(0, TreeItem::CELL_MODE_CHECK);
         category->set_editable(0, true);
         category->set_metadata(0, m.categories[i].signature);
-        category->set_text(0, String(m.categories[i].name));
-        category->set_text(1, _get_time_as_text(m, m.categories[i].total_time, 1));
+        category->set_text_utf8(0, m.categories[i].name);
+        category->set_text_utf8(1, _get_time_as_text(m, m.categories[i].total_time, 1));
 
         if (plot_sigs.contains(m.categories[i].signature)) {
             category->set_checked(0, true);
@@ -396,17 +395,17 @@ void EditorProfiler::_update_frame() {
             TreeItem *item = variables->create_item(category);
             item->set_cell_mode(0, TreeItem::CELL_MODE_CHECK);
             item->set_editable(0, true);
-            item->set_text(0, it.name);
+            item->set_text_utf8(0, it.name);
             item->set_metadata(0, it.signature);
             item->set_metadata(1, it.script);
             item->set_metadata(2, it.line);
-            item->set_tooltip(0, it.script + ":" + itos(it.line));
+            item->set_tooltip(0, StringName(it.script + ":" + itos(it.line)));
 
             float time = dtime == DISPLAY_SELF_TIME ? it.self : it.total;
 
-            item->set_text(1, _get_time_as_text(m, time, it.calls));
+            item->set_text_utf8(1, _get_time_as_text(m, time, it.calls));
 
-            item->set_text(2, itos(it.calls));
+            item->set_text_utf8(2, itos(it.calls));
 
             if (plot_sigs.contains(it.signature)) {
                 item->set_checked(0, true);
@@ -497,8 +496,8 @@ void EditorProfiler::_graph_tex_input(const Ref<InputEvent> &p_ev) {
     Ref<InputEventMouseMotion> mm = dynamic_ref_cast<InputEventMouseMotion>(p_ev);
 
     if (
-            (mb && mb->get_button_index() == BUTTON_LEFT && mb->is_pressed()) ||
-            (mm)) {
+            mb && mb->get_button_index() == BUTTON_LEFT && mb->is_pressed() ||
+            mm) {
 
         int x = me->get_position().x;
         x = x * frame_metrics.size() / graph->get_size().width;
@@ -575,7 +574,7 @@ int EditorProfiler::_get_cursor_index() const {
     if (!frame_metrics[last_metric].valid)
         return 0;
 
-    int diff = (frame_metrics[last_metric].frame_number - cursor_metric_edit->get_value());
+    int diff = frame_metrics[last_metric].frame_number - cursor_metric_edit->get_value();
 
     int idx = last_metric - diff;
     while (idx < 0) {
@@ -623,30 +622,30 @@ bool EditorProfiler::is_profiling() {
     return activate->is_pressed();
 }
 
-Vector<Vector<String> > EditorProfiler::get_data_as_csv() const {
-    Vector<Vector<String> > res;
+PODVector<PODVector<se_string> > EditorProfiler::get_data_as_csv() const {
+    PODVector<PODVector<se_string> > res;
 
     if (frame_metrics.empty()) {
         return res;
     }
 
     // signatures
-    Vector<String> signatures;
+    PODVector<se_string> signatures;
     const Vector<EditorProfiler::Metric::Category> &categories = frame_metrics[0].categories;
 
     for (int j = 0; j < categories.size(); j++) {
 
         const EditorProfiler::Metric::Category &c = categories[j];
-        signatures.push_back(c.signature);
+        signatures.emplace_back(c.signature);
 
         for (int k = 0; k < c.items.size(); k++) {
-            signatures.push_back(c.items[k].signature);
+            signatures.emplace_back(c.items[k].signature);
         }
     }
     res.push_back(signatures);
 
     // values
-    Vector<String> values;
+    PODVector<se_string> values;
     values.resize(signatures.size());
 
     int index = last_metric;
@@ -668,13 +667,13 @@ Vector<Vector<String> > EditorProfiler::get_data_as_csv() const {
         for (int j = 0; j < frame_cat.size(); j++) {
 
             const EditorProfiler::Metric::Category &c = frame_cat[j];
-            values.write[it++] = StringUtils::num_real(c.total_time);
+            values[it++] = StringUtils::num_real(c.total_time);
 
             for (int k = 0; k < c.items.size(); k++) {
-                values.write[it++] = StringUtils::num_real(c.items[k].total);
+                values[it++] = StringUtils::num_real(c.items[k].total);
             }
         }
-        res.push_back(values);
+        res.emplace_back(values);
     }
 
     return res;

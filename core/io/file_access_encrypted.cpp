@@ -33,13 +33,14 @@
 #include "core/crypto/crypto_core.h"
 #include "core/print_string.h"
 #include "core/variant.h"
-#include "core/ustring.h"
+#include "core/string_utils.h"
+#include "core/se_string.h"
 
 #include <cstdio>
 
 #define COMP_MAGIC 0x43454447
 
-Error FileAccessEncrypted::open_and_parse(FileAccess *p_base, const Vector<uint8_t> &p_key, Mode p_mode) {
+Error FileAccessEncrypted::open_and_parse(FileAccess *p_base, Span<const uint8_t> p_key, Mode p_mode) {
 
     ERR_FAIL_COND_V_MSG(file != nullptr, ERR_ALREADY_IN_USE, "Can't open file while another file from path '" + file->get_path_absolute() + "' is open.")
     ERR_FAIL_COND_V(p_key.size() != 32, ERR_INVALID_PARAMETER)
@@ -53,12 +54,12 @@ Error FileAccessEncrypted::open_and_parse(FileAccess *p_base, const Vector<uint8
         writing = true;
         file = p_base;
         mode = p_mode;
-        key = p_key;
+        key = FixedVector<uint8_t,32,true>(p_key.begin(),p_key.end());
 
     } else if (p_mode == MODE_READ) {
 
         writing = false;
-        key = p_key;
+        key = FixedVector<uint8_t,32,true>(p_key.begin(),p_key.end());
         uint32_t magic = p_base->get_32();
         ERR_FAIL_COND_V(magic != COMP_MAGIC, ERR_FILE_UNRECOGNIZED)
 
@@ -82,7 +83,7 @@ Error FileAccessEncrypted::open_and_parse(FileAccess *p_base, const Vector<uint8
         ERR_FAIL_COND_V(blen != ds, ERR_FILE_CORRUPT)
 
         CryptoCore::AESContext ctx;
-        ctx.set_decode_key(key.ptrw(), 256);
+        ctx.set_decode_key(key.data(), 256);
 
         for (size_t i = 0; i < ds; i += 16) {
 
@@ -102,21 +103,17 @@ Error FileAccessEncrypted::open_and_parse(FileAccess *p_base, const Vector<uint8
     return OK;
 }
 
-Error FileAccessEncrypted::open_and_parse_password(FileAccess *p_base, const String &p_key, Mode p_mode) {
+Error FileAccessEncrypted::open_and_parse_password(FileAccess *p_base, se_string_view p_key, Mode p_mode) {
 
-    String cs = StringUtils::md5_text(p_key);
+    se_string cs = StringUtils::md5_text(p_key);
     ERR_FAIL_COND_V(cs.length() != 32, ERR_INVALID_PARAMETER)
-    Vector<uint8_t> key;
-    key.resize(32);
-    for (int i = 0; i < 32; i++) {
-
-        key.write[i] = cs[i].toLatin1();
-    }
+    uint8_t key[32];
+    memcpy(key,cs.c_str(),32);
 
     return open_and_parse(p_base, key, p_mode);
 }
 
-Error FileAccessEncrypted::_open(const String &p_path, int p_mode_flags) {
+Error FileAccessEncrypted::_open(se_string_view p_path, int p_mode_flags) {
 
     return OK;
 }
@@ -143,7 +140,7 @@ void FileAccessEncrypted::close() {
         }
 
         CryptoCore::AESContext ctx;
-        ctx.set_encode_key(key.ptrw(), 256);
+        ctx.set_encode_key(key.data(), 256);
 
         for (size_t i = 0; i < len; i += 16) {
 
@@ -175,20 +172,20 @@ bool FileAccessEncrypted::is_open() const {
 
     return file != nullptr;
 }
-String FileAccessEncrypted::get_path() const {
+const se_string &FileAccessEncrypted::get_path() const {
 
     if (file)
         return file->get_path();
     else
-        return "";
+        return null_se_string;
 }
 
-String FileAccessEncrypted::get_path_absolute() const {
+const se_string &FileAccessEncrypted::get_path_absolute() const {
 
     if (file)
         return file->get_path_absolute();
     else
-        return "";
+        return null_se_string;
 }
 void FileAccessEncrypted::seek(size_t p_position) {
 
@@ -253,7 +250,7 @@ Error FileAccessEncrypted::get_error() const {
 
 void FileAccessEncrypted::store_buffer(const uint8_t *p_src, int p_length) {
 
-    ERR_FAIL_COND_CMSG(!writing, "File has not been opened in read mode.")
+    ERR_FAIL_COND_MSG(!writing, "File has not been opened in read mode.")
 
     if (pos < data.size()) {
 
@@ -273,14 +270,14 @@ void FileAccessEncrypted::store_buffer(const uint8_t *p_src, int p_length) {
 }
 
 void FileAccessEncrypted::flush() {
-    ERR_FAIL_COND_CMSG(!writing, "File has not been opened in read mode.")
+    ERR_FAIL_COND_MSG(!writing, "File has not been opened in read mode.")
 
     // encrypted files keep data in memory till close()
 }
 
 void FileAccessEncrypted::store_8(uint8_t p_dest) {
 
-    ERR_FAIL_COND_CMSG(!writing, "File has not been opened in read mode.")
+    ERR_FAIL_COND_MSG(!writing, "File has not been opened in read mode.")
 
     if (pos < data.size()) {
         data.write[pos] = p_dest;
@@ -291,7 +288,7 @@ void FileAccessEncrypted::store_8(uint8_t p_dest) {
     }
 }
 
-bool FileAccessEncrypted::file_exists(const String &p_name) {
+bool FileAccessEncrypted::file_exists(se_string_view p_name) {
 
     FileAccess *fa = FileAccess::open(p_name, FileAccess::READ);
     if (!fa)
@@ -300,17 +297,17 @@ bool FileAccessEncrypted::file_exists(const String &p_name) {
     return true;
 }
 
-uint64_t FileAccessEncrypted::_get_modified_time(const String &p_file) {
+uint64_t FileAccessEncrypted::_get_modified_time(se_string_view p_file) {
 
     return 0;
 }
 
-uint32_t FileAccessEncrypted::_get_unix_permissions(const String &p_file) {
+uint32_t FileAccessEncrypted::_get_unix_permissions(se_string_view p_file) {
 
     return 0;
 }
 
-Error FileAccessEncrypted::_set_unix_permissions(const String &p_file, uint32_t p_permissions) {
+Error FileAccessEncrypted::_set_unix_permissions(se_string_view p_file, uint32_t p_permissions) {
     ERR_PRINT("Setting UNIX permissions on encrypted files is not implemented yet.")
     return ERR_UNAVAILABLE;
 }

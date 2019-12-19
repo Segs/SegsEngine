@@ -40,7 +40,6 @@
 
 template <class T>
 class Vector;
-class String;
 template <class T, class V>
 class VMap;
 
@@ -86,7 +85,7 @@ public:
     _FORCE_INLINE_ int size() const;
 
     _FORCE_INLINE_ void clear() { resize(0); }
-    _FORCE_INLINE_ bool empty() const { return _ptr == nullptr; }
+    _FORCE_INLINE_ bool empty() const noexcept { return _ptr == nullptr; }
 
     _FORCE_INLINE_ void set(int p_index, const T &p_elem) {
 

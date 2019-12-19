@@ -43,13 +43,13 @@ public:
 
     FindInFiles();
 
-    void set_search_text(String p_pattern);
+    void set_search_text(se_string p_pattern);
     void set_whole_words(bool p_whole_word);
     void set_match_case(bool p_match_case);
-    void set_folder(String folder);
-    void set_filter(const Set<String> &exts);
+    void set_folder(se_string_view folder);
+    void set_filter(const Set<se_string> &exts);
 
-    String get_search_text() const { return _pattern; }
+    const se_string & get_search_text() const { return _pattern; }
 
     bool is_whole_words() const { return _whole_words; }
     bool is_match_case() const { return _match_case; }
@@ -68,21 +68,21 @@ protected:
 private:
     void _process();
     void _iterate();
-    void _scan_dir(const String& path, PoolStringArray &out_folders);
-    void _scan_file(const String& fpath);
+    void _scan_dir(se_string_view path, PoolVector<se_string> &out_folders);
+    void _scan_file(se_string_view fpath);
 
     // Config
-    String _pattern;
-    Set<String> _extension_filter;
-    String _root_dir;
+    se_string _pattern;
+    Set<se_string> _extension_filter;
+    se_string _root_dir;
     bool _whole_words;
     bool _match_case;
 
     // State
     bool _searching;
-    String _current_dir;
-    Vector<PoolStringArray> _folders_stack;
-    Vector<String> _files_to_scan;
+    se_string _current_dir;
+    Vector<PoolVector<se_string>> _folders_stack;
+    Vector<se_string> _files_to_scan;
     int _initial_files_count;
 };
 
@@ -101,25 +101,25 @@ public:
 
     FindInFilesDialog();
 
-    void set_search_text(const String& text);
+    void set_search_text(se_string_view text);
 
-    String get_search_text() const;
+    se_string get_search_text() const;
     bool is_match_case() const;
     bool is_whole_words() const;
-    String get_folder() const;
-    Set<String> get_filter() const;
+    se_string get_folder() const;
+    Set<se_string> get_filter() const;
 
 protected:
     static void _bind_methods();
 
     void _notification(int p_what);
-    void custom_action(const String &p_action) override;
+    void custom_action(se_string_view p_action) override;
 
 private:
     void _on_folder_button_pressed();
-    void _on_folder_selected(String path);
-    void _on_search_text_modified(const String& text);
-    void _on_search_text_entered(const String& text);
+    void _on_folder_selected(se_string_view path);
+    void _on_search_text_modified(se_string_view text);
+    void _on_search_text_entered(se_string_view text);
 
     LineEdit *_search_text_line_edit;
     LineEdit *_folder_line_edit;
@@ -129,7 +129,7 @@ private:
     Button *_replace_button;
     FileDialog *_folder_dialog;
     HBoxContainer *_filters_container;
-    HashMap<String, bool> _filters_preferences;
+    HashMap<StringName, bool> _filters_preferences;
 };
 
 class Button;
@@ -160,12 +160,12 @@ protected:
     void _notification(int p_what);
 
 private:
-    void _on_result_found(const String& fpath, int line_number, int begin, int end, const String& text);
+    void _on_result_found(se_string_view fpath, int line_number, int begin, int end, const se_string &text);
     void _on_finished();
     void _on_cancel_button_clicked();
     void _on_result_selected();
     void _on_item_edited();
-    void _on_replace_text_changed(const String& text);
+    void _on_replace_text_changed(se_string_view text);
     void _on_replace_all_clicked();
 
     struct Result {
@@ -176,9 +176,9 @@ private:
         float draw_width;
     };
 
-    void apply_replaces_in_file(const String& fpath, const Vector<Result> &locations, const String& new_text);
+    void apply_replaces_in_file(se_string_view fpath, const Vector<Result> &locations, se_string_view new_text);
     void update_replace_buttons();
-    String get_replace_text();
+    se_string get_replace_text();
 
     void draw_result_text(Object *item_obj, Rect2 rect);
 
@@ -191,7 +191,7 @@ private:
     Label *_status_label;
     Button *_cancel_button;
     ProgressBar *_progress_bar;
-    Map<String, TreeItem *> _file_items;
+    Map<se_string, TreeItem *> _file_items;
     Map<TreeItem *, Result> _result_items;
     bool _with_replace;
 

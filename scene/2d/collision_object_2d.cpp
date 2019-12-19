@@ -54,8 +54,6 @@ void CollisionObject2D::_notification(int p_what) {
             else
                 Physics2DServer::get_singleton()->body_set_state(rid, Physics2DServer::BODY_STATE_TRANSFORM, global_transform);
 
-            last_transform = global_transform;
-
             RID space = get_world_2d()->get_space();
             if (area) {
                 Physics2DServer::get_singleton()->area_set_space(rid, space);
@@ -81,18 +79,16 @@ void CollisionObject2D::_notification(int p_what) {
         } break;
         case NOTIFICATION_TRANSFORM_CHANGED: {
 
-            Transform2D global_transform = get_global_transform();
-
-            if (only_update_transform_changes && global_transform == last_transform) {
+            if (only_update_transform_changes) {
                 return;
             }
+
+            Transform2D global_transform = get_global_transform();
 
             if (area)
                 Physics2DServer::get_singleton()->area_set_transform(rid, global_transform);
             else
                 Physics2DServer::get_singleton()->body_set_state(rid, Physics2DServer::BODY_STATE_TRANSFORM, global_transform);
-
-            last_transform = global_transform;
 
         } break;
         case NOTIFICATION_EXIT_TREE: {
@@ -391,18 +387,18 @@ void CollisionObject2D::_update_pickable() {
         Physics2DServer::get_singleton()->body_set_pickable(rid, is_pickable);
 }
 
-String CollisionObject2D::get_configuration_warning() const {
+StringName CollisionObject2D::get_configuration_warning() const {
 
-    String warning = Node2D::get_configuration_warning();
+    se_string warning(Node2D::get_configuration_warning());
 
     if (shapes.empty()) {
         if (!warning.empty()) {
-            warning += "\n\n";
+            warning = ("\n\n");
         }
         warning += TTR("This node has no shape, so it can't collide or interact with other objects.\nConsider adding a CollisionShape2D or CollisionPolygon2D as a child to define its shape.");
     }
 
-    return warning;
+    return StringName(warning);
 }
 
 void CollisionObject2D::_bind_methods() {

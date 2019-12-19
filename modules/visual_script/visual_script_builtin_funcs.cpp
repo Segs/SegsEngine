@@ -36,6 +36,8 @@
 #include "core/math/math_funcs.h"
 #include "core/method_bind.h"
 #include "core/os/os.h"
+#include "core/se_string.h"
+#include "core/ustring.h"
 #include "core/print_string.h"
 #include "core/reference.h"
 #include "core/translation_helpers.h"
@@ -116,19 +118,19 @@ const char *VisualScriptBuiltinFunc::func_name[VisualScriptBuiltinFunc::FUNC_MAX
     "ord",
 };
 
-VisualScriptBuiltinFunc::BuiltinFunc VisualScriptBuiltinFunc::find_function(const String &p_string) {
+VisualScriptBuiltinFunc::BuiltinFunc VisualScriptBuiltinFunc::find_function(se_string_view p_string) {
 
     for (int i = 0; i < FUNC_MAX; i++) {
-        if (p_string == func_name[i])
+        if (p_string == se_string_view(func_name[i]))
             return BuiltinFunc(i);
     }
 
     return FUNC_MAX;
 }
 
-String VisualScriptBuiltinFunc::get_func_name(BuiltinFunc p_func) {
+se_string_view VisualScriptBuiltinFunc::get_func_name(BuiltinFunc p_func) {
 
-    ERR_FAIL_INDEX_V(p_func, FUNC_MAX, String());
+    ERR_FAIL_INDEX_V(p_func, FUNC_MAX, {})
     return func_name[p_func];
 }
 
@@ -256,9 +258,9 @@ int VisualScriptBuiltinFunc::get_output_value_port_count() const {
     return 1;
 }
 
-String VisualScriptBuiltinFunc::get_output_sequence_port_text(int p_port) const {
+se_string_view VisualScriptBuiltinFunc::get_output_sequence_port_text(int p_port) const {
 
-    return String();
+    return nullptr;
 }
 
 PropertyInfo VisualScriptBuiltinFunc::get_input_value_port_info(int p_idx) const {
@@ -659,13 +661,13 @@ PropertyInfo VisualScriptBuiltinFunc::get_output_value_port_info(int p_idx) cons
 }
 
 /*
-String VisualScriptBuiltinFunc::get_caption() const {
+se_string_view VisualScriptBuiltinFunc::get_caption() const {
 
     return "BuiltinFunc";
 }
 */
 
-String VisualScriptBuiltinFunc::get_caption() const {
+se_string_view VisualScriptBuiltinFunc::get_caption() const {
 
     return func_name[func];
 }
@@ -690,7 +692,7 @@ VisualScriptBuiltinFunc::BuiltinFunc VisualScriptBuiltinFunc::get_func() {
         return;                                                          \
     }
 
-void VisualScriptBuiltinFunc::exec_func(BuiltinFunc p_func, const Variant **p_inputs, Variant *r_return, Variant::CallError &r_error, String &r_error_str) {
+void VisualScriptBuiltinFunc::exec_func(BuiltinFunc p_func, const Variant **p_inputs, Variant *r_return, Variant::CallError &r_error, se_string &r_error_str) {
 
     switch (p_func) {
         case VisualScriptBuiltinFunc::MATH_SIN: {
@@ -808,7 +810,7 @@ void VisualScriptBuiltinFunc::exec_func(BuiltinFunc p_func, const Variant **p_in
             } else if (p_inputs[0]->get_type() == VariantType::REAL) {
 
                 real_t r = *p_inputs[0];
-                *r_return = r < 0.0 ? -1.0 : (r > 0.0 ? +1.0 : 0.0);
+                *r_return = r < 0.0f ? -1.0 : (r > 0.0f ? +1.0 : 0.0);
             } else {
 
                 r_error.error = Variant::CallError::CALL_ERROR_INVALID_ARGUMENT;
@@ -1117,7 +1119,7 @@ void VisualScriptBuiltinFunc::exec_func(BuiltinFunc p_func, const Variant **p_in
             int type = *p_inputs[1];
             if (type < 0 || type >= int(VariantType::VARIANT_MAX)) {
 
-                r_error_str = RTR("Invalid type argument to convert(), use TYPE_* constants.");
+                r_error_str = RTR_utf8("Invalid type argument to convert(), use TYPE_* constants.");
                 r_error.error = Variant::CallError::CALL_ERROR_INVALID_ARGUMENT;
                 r_error.argument = 0;
                 r_error.expected = VariantType::INT;
@@ -1140,7 +1142,7 @@ void VisualScriptBuiltinFunc::exec_func(BuiltinFunc p_func, const Variant **p_in
         } break;
         case VisualScriptBuiltinFunc::TEXT_CHAR: {
 
-            *r_return = String(QChar(p_inputs[0]->as<unsigned int>()));
+            *r_return = StringUtils::to_utf8(String(QChar(p_inputs[0]->as<unsigned int>())));
 
         } break;
         case VisualScriptBuiltinFunc::TEXT_ORD: {
@@ -1153,7 +1155,7 @@ void VisualScriptBuiltinFunc::exec_func(BuiltinFunc p_func, const Variant **p_in
                 return;
             }
 
-            String str = p_inputs[0]->operator String();
+            se_string str = p_inputs[0]->as<se_string>();
 
             if (str.length() != 1) {
                 r_error.error = Variant::CallError::CALL_ERROR_INVALID_ARGUMENT;
@@ -1169,21 +1171,21 @@ void VisualScriptBuiltinFunc::exec_func(BuiltinFunc p_func, const Variant **p_in
         } break;
         case VisualScriptBuiltinFunc::TEXT_STR: {
 
-            String str = *p_inputs[0];
+            se_string str = *p_inputs[0];
 
             *r_return = str;
 
         } break;
         case VisualScriptBuiltinFunc::TEXT_PRINT: {
 
-            String str = *p_inputs[0];
+            se_string str = *p_inputs[0];
             print_line(str);
 
         } break;
 
         case VisualScriptBuiltinFunc::TEXT_PRINTERR: {
 
-            String str = *p_inputs[0];
+            se_string str = *p_inputs[0];
             print_error(str);
 
         } break;
@@ -1195,7 +1197,7 @@ void VisualScriptBuiltinFunc::exec_func(BuiltinFunc p_func, const Variant **p_in
         } break;
         case VisualScriptBuiltinFunc::VAR_TO_STR: {
 
-            String vars;
+            se_string vars;
             VariantWriter::write_to_string(*p_inputs[0], vars);
             *r_return = vars;
         } break;
@@ -1211,7 +1213,7 @@ void VisualScriptBuiltinFunc::exec_func(BuiltinFunc p_func, const Variant **p_in
 
             VariantParser::Stream *ss = VariantParser::get_string_stream(*p_inputs[0]);
 
-            String errs;
+            se_string errs;
             int line;
             Error err = VariantParser::parse(ss, *r_return, errs, line);
             VariantParser::release_stream(ss);
@@ -1219,7 +1221,7 @@ void VisualScriptBuiltinFunc::exec_func(BuiltinFunc p_func, const Variant **p_in
                 r_error.error = Variant::CallError::CALL_ERROR_INVALID_ARGUMENT;
                 r_error.argument = 0;
                 r_error.expected = VariantType::STRING;
-                *r_return = String("Parse error at line " + itos(line) + ": " + errs);
+                *r_return = se_string("Parse error at line " + itos(line) + ": " + errs);
                 return;
             }
 
@@ -1273,7 +1275,7 @@ void VisualScriptBuiltinFunc::exec_func(BuiltinFunc p_func, const Variant **p_in
                 PoolByteArray::Read r = varr.read();
                 Error err = decode_variant(ret, r.ptr(), varr.size(), nullptr, allow_objects);
                 if (err != OK) {
-                    r_error_str = RTR("Not enough bytes for decoding bytes, or invalid format.");
+                    r_error_str = RTR_utf8("Not enough bytes for decoding bytes, or invalid format.");
                     r_error.error = Variant::CallError::CALL_ERROR_INVALID_ARGUMENT;
                     r_error.argument = 0;
                     r_error.expected = VariantType::POOL_BYTE_ARRAY;
@@ -1288,10 +1290,10 @@ void VisualScriptBuiltinFunc::exec_func(BuiltinFunc p_func, const Variant **p_in
 
             VALIDATE_ARG_NUM(1);
 
-            Color color = Color::named(*p_inputs[0]);
+            Color color = Color::named(p_inputs[0]->as<se_string>());
             color.a = *p_inputs[1];
 
-            *r_return = String(color);
+            *r_return = se_string(color);
 
         } break;
         default: {
@@ -1310,7 +1312,7 @@ public:
     //virtual bool is_output_port_unsequenced(int p_idx) const { return false; }
     //virtual bool get_output_port_unsequenced(int p_idx,Variant* r_value,Variant* p_working_mem,String &r_error) const { return true; }
 
-    int step(const Variant **p_inputs, Variant **p_outputs, StartMode p_start_mode, Variant *p_working_mem, Variant::CallError &r_error, String &r_error_str) override {
+    int step(const Variant **p_inputs, Variant **p_outputs, StartMode p_start_mode, Variant *p_working_mem, Variant::CallError &r_error, se_string &r_error_str) override {
 
         VisualScriptBuiltinFunc::exec_func(func, p_inputs, p_outputs[0], r_error, r_error_str);
         return 0;
@@ -1331,7 +1333,7 @@ void VisualScriptBuiltinFunc::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_func", {"which"}), &VisualScriptBuiltinFunc::set_func);
     MethodBinder::bind_method(D_METHOD("get_func"), &VisualScriptBuiltinFunc::get_func);
 
-    CharString cc;
+    se_string cc;
 
     for (int i = 0; i < FUNC_MAX; i++) {
 
@@ -1423,7 +1425,7 @@ VisualScriptBuiltinFunc::VisualScriptBuiltinFunc() {
 }
 
 template <VisualScriptBuiltinFunc::BuiltinFunc func>
-static Ref<VisualScriptNode> create_builtin_func_node(const String &p_name) {
+static Ref<VisualScriptNode> create_builtin_func_node(se_string_view p_name) {
 
     Ref<VisualScriptBuiltinFunc> node(make_ref_counted<VisualScriptBuiltinFunc>(func));
     return node;

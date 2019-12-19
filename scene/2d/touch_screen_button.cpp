@@ -183,12 +183,12 @@ bool TouchScreenButton::is_pressed() const {
     return finger_pressed != -1;
 }
 
-void TouchScreenButton::set_action(const String &p_action) {
+void TouchScreenButton::set_action(const StringName &p_action) {
 
     action = p_action;
 }
 
-String TouchScreenButton::get_action() const {
+StringName TouchScreenButton::get_action() const {
 
     return action;
 }
@@ -328,8 +328,9 @@ void TouchScreenButton::_release(bool p_exiting_tree) {
 }
 
 Rect2 TouchScreenButton::_edit_get_rect() const {
-    if (not texture)
+    if (not texture) {
         return CanvasItem::_edit_get_rect();
+    }
 
     return Rect2(Size2(), texture->get_size());
 }

@@ -39,37 +39,38 @@ class GODOT_EXPORT ConfigFile : public RefCounted {
 
     GDCLASS(ConfigFile, RefCounted)
 
-    OrderedHashMap<String, OrderedHashMap<String, Variant> > values;
+    OrderedHashMap<se_string, OrderedHashMap<se_string, Variant> > values;
 
-    PoolStringArray _get_sections() const;
-    PoolStringArray _get_section_keys(const String &p_section) const;
-    Error _internal_load(const String &p_path, FileAccess *f);
+    PoolSeStringArray _get_sections() const;
+    PoolSeStringArray _get_section_keys(se_string_view p_section) const;
+    Error _internal_load(se_string_view p_path, FileAccess *f);
     Error _internal_save(FileAccess *file);
 
 protected:
     static void _bind_methods();
 
 public:
-    void set_value(const String &p_section, const String &p_key, const Variant &p_value);
-    Variant get_value(const String &p_section, const String &p_key, const Variant& p_default = Variant()) const;
+    void set_value(se_string_view p_section, se_string_view p_key, const Variant &p_value);
+    Variant get_value(se_string_view p_section, se_string_view p_key, const Variant& p_default = Variant()) const;
 
-    bool has_section(const String &p_section) const;
-    bool has_section_key(const String &p_section, const String &p_key) const;
+    bool has_section(se_string_view p_section) const;
+    bool has_section_key(se_string_view p_section, se_string_view p_key) const;
 
-    void get_sections(List<String> *r_sections) const;
-    void get_section_keys(const String &p_section, List<String> *r_keys) const;
+    void get_sections(List<se_string> *r_sections) const;
+    void get_section_keys(se_string_view p_section, List<se_string> *r_keys) const;
+    void get_section_keys_utf8(se_string_view p_section, PODVector<se_string> &r_keys) const;
 
-    void erase_section(const String &p_section);
-    void erase_section_key(const String &p_section, const String &p_key);
+    void erase_section(se_string_view p_section);
+    void erase_section_key(se_string_view p_section, se_string_view p_key);
 
-    Error save(const String &p_path);
-    Error load(const String &p_path);
+    Error save(se_string_view p_path);
+    Error load(se_string_view p_path);
 
-    Error load_encrypted(const String &p_path, const Vector<uint8_t> &p_key);
-    Error load_encrypted_pass(const String &p_path, const String &p_pass);
+    Error load_encrypted(se_string_view p_path, const Vector<uint8_t> &p_key);
+    Error load_encrypted_pass(se_string_view p_path, se_string_view p_pass);
 
-    Error save_encrypted(const String &p_path, const Vector<uint8_t> &p_key);
-    Error save_encrypted_pass(const String &p_path, const String &p_pass);
+    Error save_encrypted(se_string_view p_path, const Vector<uint8_t> &p_key);
+    Error save_encrypted_pass(se_string_view p_path, se_string_view p_pass);
 
     ConfigFile();
 };

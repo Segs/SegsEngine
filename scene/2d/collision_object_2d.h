@@ -66,7 +66,6 @@ class CollisionObject2D : public Node2D {
 	int total_subshapes;
 
 	Map<uint32_t, ShapeData> shapes;
-	Transform2D last_transform;
 	bool only_update_transform_changes; //this is used for sync physics in KinematicBody
 
 protected:
@@ -115,7 +114,7 @@ public:
 	void set_pickable(bool p_enabled);
 	bool is_pickable() const;
 
-	String get_configuration_warning() const override;
+    StringName get_configuration_warning() const override;
 
 	_FORCE_INLINE_ RID get_rid() const { return rid; }
 

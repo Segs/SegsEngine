@@ -35,6 +35,7 @@
 #include "core/os/os.h"
 #include "core/project_settings.h"
 #include "core/print_string.h"
+#include "core/string_utils.h"
 
 #include <cerrno>
 
@@ -73,12 +74,12 @@ Error AudioDriverALSA::init_device() {
     if (device_name == "Default") {
         status = snd_pcm_open(&pcm_handle, "default", SND_PCM_STREAM_PLAYBACK, SND_PCM_NONBLOCK);
     } else {
-        String device = device_name;
+        se_string_view device = device_name;
         int pos = StringUtils::find(device,";");
         if (pos != -1) {
             device = StringUtils::substr(device,0, pos);
         }
-        status = snd_pcm_open(&pcm_handle, StringUtils::to_utf8(device).data(), SND_PCM_STREAM_PLAYBACK, SND_PCM_NONBLOCK);
+        status = snd_pcm_open(&pcm_handle, se_string(device).c_str(), SND_PCM_STREAM_PLAYBACK, SND_PCM_NONBLOCK);
     }
 
     ERR_FAIL_COND_V(status < 0, ERR_CANT_OPEN)
@@ -205,7 +206,7 @@ void AudioDriverALSA::thread_func(void *p_udata) {
             } else {
                 wrote = snd_pcm_recover(ad->pcm_handle, wrote, 0);
                 if (wrote < 0) {
-                    ERR_PRINT("ALSA: Failed and can't recover: " + String(snd_strerror(wrote)));
+                    ERR_PRINT("ALSA: Failed and can't recover: " + se_string(snd_strerror(wrote)));
                     ad->active = false;
                     ad->exit_thread = true;
                 }
@@ -270,9 +271,9 @@ Array AudioDriverALSA::get_device_list() {
 
         if (name != nullptr && !strncmp(name, "plughw", 6)) {
             if (desc) {
-                list.push_back(String(String(name) + ";" + String(desc)));
+                list.push_back(se_string(name) + ";" + desc);
             } else {
-                list.push_back(String(name));
+                list.push_back(name);
             }
         }
 
@@ -286,12 +287,12 @@ Array AudioDriverALSA::get_device_list() {
     return list;
 }
 
-String AudioDriverALSA::get_device() {
+se_string_view AudioDriverALSA::get_device() {
 
     return device_name;
 }
 
-void AudioDriverALSA::set_device(const String &device) {
+void AudioDriverALSA::set_device(se_string_view device) {
 
     lock();
     new_device = device;

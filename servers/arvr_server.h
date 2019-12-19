@@ -153,7 +153,7 @@ public:
     void remove_interface(const Ref<ARVRInterface> &p_interface);
     int get_interface_count() const;
     Ref<ARVRInterface> get_interface(int p_index) const;
-    Ref<ARVRInterface> find_interface(const String &p_name) const;
+    Ref<ARVRInterface> find_interface(const StringName &p_name) const;
     Array get_interfaces() const;
 
     /*

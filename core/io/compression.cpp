@@ -52,7 +52,7 @@ int Compression::compress(uint8_t *p_dst, const uint8_t *p_src, int p_src_size, 
                 return fastlz_compress(p_src, p_src_size, p_dst);
             }
 
-        } break;
+        }
         case MODE_DEFLATE:
         case MODE_GZIP: {
 
@@ -77,7 +77,7 @@ int Compression::compress(uint8_t *p_dst, const uint8_t *p_src, int p_src_size, 
             deflateEnd(&strm);
             return aout;
 
-        } break;
+        }
         case MODE_ZSTD: {
             ZSTD_CCtx *cctx = ZSTD_createCCtx();
             ZSTD_CCtx_setParameter(cctx, ZSTD_c_compressionLevel, zstd_level);
@@ -89,10 +89,10 @@ int Compression::compress(uint8_t *p_dst, const uint8_t *p_src, int p_src_size, 
             int ret = ZSTD_compressCCtx(cctx, p_dst, max_dst_size, p_src, p_src_size, zstd_level);
             ZSTD_freeCCtx(cctx);
             return ret;
-        } break;
+        }
     }
 
-    ERR_FAIL_V(-1);
+    ERR_FAIL_V(-1)
 }
 
 int Compression::get_max_compressed_buffer_size(int p_src_size, Mode p_mode) {
@@ -104,8 +104,7 @@ int Compression::get_max_compressed_buffer_size(int p_src_size, Mode p_mode) {
             if (ss < 66)
                 ss = 66;
             return ss;
-
-        } break;
+        }
         case MODE_DEFLATE:
         case MODE_GZIP: {
 
@@ -121,14 +120,14 @@ int Compression::get_max_compressed_buffer_size(int p_src_size, Mode p_mode) {
             int aout = deflateBound(&strm, p_src_size);
             deflateEnd(&strm);
             return aout;
-        } break;
+        }
         case MODE_ZSTD: {
 
             return ZSTD_compressBound(p_src_size);
-        } break;
+        }
     }
 
-    ERR_FAIL_V(-1);
+    ERR_FAIL_V(-1)
 }
 
 int Compression::decompress(uint8_t *p_dst, int p_dst_max_size, const uint8_t *p_src, int p_src_size, Mode p_mode) {
@@ -146,7 +145,7 @@ int Compression::decompress(uint8_t *p_dst, int p_dst_max_size, const uint8_t *p
                 ret_size = fastlz_decompress(p_src, p_src_size, p_dst, p_dst_max_size);
             }
             return ret_size;
-        } break;
+        }
         case MODE_DEFLATE:
         case MODE_GZIP: {
 
@@ -171,7 +170,7 @@ int Compression::decompress(uint8_t *p_dst, int p_dst_max_size, const uint8_t *p
             inflateEnd(&strm);
             ERR_FAIL_COND_V(err != Z_STREAM_END, -1)
             return total;
-        } break;
+        }
         case MODE_ZSTD: {
             ZSTD_DCtx *dctx = ZSTD_createDCtx();
             if (zstd_long_distance_matching) {
@@ -180,10 +179,10 @@ int Compression::decompress(uint8_t *p_dst, int p_dst_max_size, const uint8_t *p
             int ret = ZSTD_decompressDCtx(dctx, p_dst, p_dst_max_size, p_src, p_src_size);
             ZSTD_freeDCtx(dctx);
             return ret;
-        } break;
+        }
     }
 
-    ERR_FAIL_V(-1);
+    ERR_FAIL_V(-1)
 }
 
 int Compression::zlib_level = Z_DEFAULT_COMPRESSION;

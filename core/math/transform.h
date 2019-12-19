@@ -68,6 +68,7 @@ public:
 
     void orthonormalize();
     Transform orthonormalized() const;
+    bool is_equal_approx(const Transform &p_transform) const;
 
     bool operator==(const Transform &p_transform) const;
     bool operator!=(const Transform &p_transform) const;
@@ -104,7 +105,7 @@ public:
         origin.z = tz;
     }
 
-    operator String() const;
+    operator se_string() const;
 
     Transform(real_t xx, real_t xy, real_t xz, real_t yx, real_t yy, real_t yz, real_t zx, real_t zy, real_t zz, real_t ox, real_t oy, real_t oz);
     constexpr Transform(const Basis &p_basis, const Vector3 &p_origin = Vector3()) :

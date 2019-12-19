@@ -33,6 +33,8 @@
 
 #if defined(UNIX_ENABLED) || defined(WINDOWS_ENABLED)
 #include "core/property_info.h"
+#include "core/string_utils.h"
+#include "core/string_utils.inl"
 
 #include <cstring>
 
@@ -94,7 +96,7 @@ static IP_Address _sockaddr2ip(struct sockaddr *p_addr) {
 
 IMPL_GDCLASS(IP_Unix)
 
-IP_Address IP_Unix::_resolve_hostname(const String &p_hostname, Type p_type) {
+IP_Address IP_Unix::_resolve_hostname(se_string_view p_hostname, Type p_type) {
 
     struct addrinfo hints;
     struct addrinfo *result;
@@ -108,21 +110,21 @@ IP_Address IP_Unix::_resolve_hostname(const String &p_hostname, Type p_type) {
     } else {
         hints.ai_family = AF_UNSPEC;
         hints.ai_flags = AI_ADDRCONFIG;
-    };
+    }
     hints.ai_flags &= ~AI_NUMERICHOST;
-
-    int s = getaddrinfo(qPrintable(p_hostname.m_str), nullptr, &hints, &result);
+    se_string sd(p_hostname);
+    int s = getaddrinfo(sd.data()   , nullptr, &hints, &result);
     if (s != 0) {
-        ERR_PRINT("getaddrinfo failed! Cannot resolve hostname.");
+        ERR_PRINT("getaddrinfo failed! Cannot resolve hostname.")
         return IP_Address();
-    };
+    }
 
     if (result == nullptr || result->ai_addr == nullptr) {
-        ERR_PRINT("Invalid response from getaddrinfo");
+        ERR_PRINT("Invalid response from getaddrinfo")
         if (result)
             freeaddrinfo(result);
         return IP_Address();
-    };
+    }
 
     IP_Address ip = _sockaddr2ip(result->ai_addr);
 
@@ -170,7 +172,7 @@ void IP_Unix::get_local_interfaces(Map<String, Interface_Info> *r_interfaces) co
 
 #else
 
-void IP_Unix::get_local_interfaces(Map<String, Interface_Info> *r_interfaces) const {
+void IP_Unix::get_local_interfaces(Map<se_string, Interface_Info> *r_interfaces) const {
 
     ULONG buf_size = 1024;
     IP_ADAPTER_ADDRESSES *addrs;
@@ -197,7 +199,7 @@ void IP_Unix::get_local_interfaces(Map<String, Interface_Info> *r_interfaces) co
 
         Interface_Info info;
         info.name = adapter->AdapterName;
-        info.name_friendly = StringUtils::from_wchar(adapter->FriendlyName);
+        info.name_friendly = StringUtils::to_utf8(StringUtils::from_wchar(adapter->FriendlyName));
         info.index = adapter->IfIndex;
 
         IP_ADAPTER_UNICAST_ADDRESS *address = adapter->FirstUnicastAddress;
@@ -221,7 +223,7 @@ void IP_Unix::get_local_interfaces(Map<String, Interface_Info> *r_interfaces) co
 
 #else // UNIX
 
-void IP_Unix::get_local_interfaces(Map<String, Interface_Info> *r_interfaces) const {
+void IP_Unix::get_local_interfaces(Map<se_string, Interface_Info> *r_interfaces) const {
 
     struct ifaddrs *ifAddrStruct = nullptr;
     struct ifaddrs *ifa = nullptr;
@@ -238,7 +240,7 @@ void IP_Unix::get_local_interfaces(Map<String, Interface_Info> *r_interfaces) co
         if (family != AF_INET && family != AF_INET6)
             continue;
 
-        Map<String, Interface_Info>::iterator E = r_interfaces->find(ifa->ifa_name);
+        Map<se_string, Interface_Info>::iterator E = r_interfaces->find(ifa->ifa_name);
         if (E==r_interfaces->end()) {
             Interface_Info info;
             info.name = ifa->ifa_name;

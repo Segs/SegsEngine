@@ -84,7 +84,7 @@ bool Polygon2D::_edit_use_rect() const {
     return polygon.size() > 0;
 }
 
-bool Polygon2D::_edit_is_selected_on_click(const Point2 &p_point, double p_tolerance) const {
+bool Polygon2D::_edit_is_selected_on_click(const Point2 &p_point, float p_tolerance) const {
 
     Vector<Vector2> polygon2d = Variant(polygon);
     if (internal_vertices > 0) {
@@ -313,7 +313,7 @@ void Polygon2D::_notification(int p_what) {
             if (invert || polygons.empty()) {
                 Vector<int> indices = Geometry::triangulate_polygon(points);
                 if (!indices.empty()) {
-                    VisualServer::get_singleton()->canvas_item_add_triangle_array(get_canvas_item(), indices, points, colors, uvs, bones, weights, texture ? texture->get_rid() : RID());
+                    VisualServer::get_singleton()->canvas_item_add_triangle_array(get_canvas_item(), indices, points, colors, uvs, bones, weights, texture ? texture->get_rid() : RID(), -1, RID(), antialiased);
                 }
             } else {
                 //draw individual polygons
@@ -347,7 +347,7 @@ void Polygon2D::_notification(int p_what) {
                 }
 
                 if (!total_indices.empty()) {
-                    VisualServer::get_singleton()->canvas_item_add_triangle_array(get_canvas_item(), total_indices, points, colors, uvs, bones, weights, texture ? texture->get_rid() : RID());
+                    VisualServer::get_singleton()->canvas_item_add_triangle_array(get_canvas_item(), total_indices, points, colors, uvs, bones, weights, texture ? texture->get_rid() : RID(), -1, RID(), antialiased);
                 }
 
 #if 0

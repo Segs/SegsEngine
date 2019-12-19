@@ -44,6 +44,7 @@
 #include "editor_scale.h"
 #include "editor_settings.h"
 #include "scene/gui/center_container.h"
+#include "scene/gui/item_list.h"
 #include "scene/gui/label.h"
 #include "scene/gui/margin_container.h"
 
@@ -89,7 +90,7 @@ void EditorFileDialog::_notification(int p_what) {
                 preview_wheel_index++;
                 if (preview_wheel_index >= 8)
                     preview_wheel_index = 0;
-                Ref<Texture> frame = get_icon("Progress" + itos(preview_wheel_index + 1), "EditorIcons");
+                Ref<Texture> frame = get_icon(StringName("Progress" + itos(preview_wheel_index + 1)), "EditorIcons");
                 preview->set_texture(frame);
                 preview_wheel_timeout = 0.1f;
             }
@@ -198,19 +199,19 @@ void EditorFileDialog::set_enable_multiple_selection(bool p_enable) {
     item_list->set_select_mode(p_enable ? ItemList::SELECT_MULTI : ItemList::SELECT_SINGLE);
 };
 
-Vector<String> EditorFileDialog::get_selected_files() const {
+Vector<se_string> EditorFileDialog::get_selected_files() const {
 
-    Vector<String> list;
+    Vector<se_string> list;
     for (int i = 0; i < item_list->get_item_count(); i++) {
         if (item_list->is_selected(i))
-            list.push_back(item_list->get_item_text(i));
+            list.push_back(item_list->get_item_text(i).asCString());
     }
     return list;
 };
 
 void EditorFileDialog::update_dir() {
 
-    dir->set_text(dir_access->get_current_dir());
+    dir->set_text_utf8(dir_access->get_current_dir());
 
     // Disable "Open" button only when selecting file(s) mode.
     get_ok()->set_disabled(_is_open_should_be_disabled());
@@ -230,23 +231,23 @@ void EditorFileDialog::update_dir() {
     }
 }
 
-void EditorFileDialog::_dir_entered(String p_dir) {
+void EditorFileDialog::_dir_entered(se_string_view p_dir) {
 
-    dir_access->change_dir(std::move(p_dir));
-    file->set_text("");
+    dir_access->change_dir(p_dir);
+    file->set_text_utf8("");
     invalidate();
     update_dir();
     _push_history();
 }
 
-void EditorFileDialog::_file_entered(const String &p_file) {
+void EditorFileDialog::_file_entered(se_string_view p_file) {
 
     _action_pressed();
 }
 
 void EditorFileDialog::_save_confirm_pressed() {
 
-    String f = PathUtils::plus_file(dir_access->get_current_dir(),file->get_text());
+    se_string f(PathUtils::plus_file(dir_access->get_current_dir(),file->get_text()));
     _save_to_recent();
     hide();
     emit_signal("file_selected", f);
@@ -264,6 +265,12 @@ void EditorFileDialog::_post_popup() {
     else
         item_list->grab_focus();
 
+    if (mode == MODE_OPEN_DIR) {
+        file_box->set_visible(false);
+    } else {
+        file_box->set_visible(true);
+    }
+
     if (is_visible_in_tree() && !get_current_file().empty())
         _request_single_thumbnail(PathUtils::plus_file(get_current_dir(),get_current_file()));
 
@@ -273,19 +280,19 @@ void EditorFileDialog::_post_popup() {
         recent->clear();
 
         bool res = access == ACCESS_RESOURCES;
-        Vector<String> recentd = EditorSettings::get_singleton()->get_recent_dirs();
+        Vector<se_string> recentd = EditorSettings::get_singleton()->get_recent_dirs();
         for (int i = 0; i < recentd.size(); i++) {
             bool cres = StringUtils::begins_with(recentd[i],"res://");
             if (cres != res)
                 continue;
-            String name = recentd[i];
+            se_string name = recentd[i];
             if (res && name == "res://") {
                 name = "/";
             } else {
-                name = PathUtils::get_file(name) + "/";
+                name = se_string(PathUtils::get_file(name)) + "/";
             }
 
-            recent->add_item(name, folder);
+            recent->add_item(StringName(name), folder);
             recent->set_item_metadata(recent->get_item_count() - 1, recentd[i]);
             recent->set_item_icon_modulate(recent->get_item_count() - 1, folder_color);
         }
@@ -300,14 +307,14 @@ void EditorFileDialog::_post_popup() {
     set_process_unhandled_input(true);
 }
 
-void EditorFileDialog::_thumbnail_result(const String &p_path, const Ref<Texture> &p_preview, const Ref<Texture> &p_small_preview, const Variant &p_udata) {
+void EditorFileDialog::_thumbnail_result(se_string_view p_path, const Ref<Texture> &p_preview, const Ref<Texture> &p_small_preview, const Variant &p_udata) {
 
     if (display_mode == DISPLAY_LIST || not p_preview)
         return;
 
     for (int i = 0; i < item_list->get_item_count(); i++) {
         Dictionary d = item_list->get_item_metadata(i);
-        String pname = d["path"];
+        se_string pname = d["path"];
         if (pname == p_path) {
             item_list->set_item_icon(i, p_preview);
             item_list->set_item_tag_icon(i, Ref<Texture>());
@@ -315,7 +322,7 @@ void EditorFileDialog::_thumbnail_result(const String &p_path, const Ref<Texture
     }
 }
 
-void EditorFileDialog::_thumbnail_done(const String &p_path, const Ref<Texture> &p_preview, const Ref<Texture> &p_small_preview, const Variant &p_udata) {
+void EditorFileDialog::_thumbnail_done(se_string_view p_path, const Ref<Texture> &p_preview, const Ref<Texture> &p_small_preview, const Variant &p_udata) {
 
     set_process(false);
     preview_waiting = false;
@@ -335,7 +342,7 @@ void EditorFileDialog::_thumbnail_done(const String &p_path, const Ref<Texture> 
     }
 }
 
-void EditorFileDialog::_request_single_thumbnail(const String &p_path) {
+void EditorFileDialog::_request_single_thumbnail(se_string_view p_path) {
 
     if (!FileAccess::exists(p_path))
         return;
@@ -350,9 +357,9 @@ void EditorFileDialog::_action_pressed() {
 
     if (mode == MODE_OPEN_FILES) {
 
-        String fbase = dir_access->get_current_dir();
+        se_string fbase = dir_access->get_current_dir();
 
-        PoolVector<String> files;
+        PoolVector<se_string> files;
         for (int i = 0; i < item_list->get_item_count(); i++) {
             if (item_list->is_selected(i))
                 files.push_back(PathUtils::plus_file(fbase,item_list->get_item_text(i)));
@@ -367,7 +374,7 @@ void EditorFileDialog::_action_pressed() {
         return;
     }
 
-    String f = PathUtils::plus_file(dir_access->get_current_dir(),file->get_text());
+    se_string f = PathUtils::plus_file(dir_access->get_current_dir(),file->get_text());
 
     if ((mode == MODE_OPEN_ANY || mode == MODE_OPEN_FILE) && dir_access->file_exists(f)) {
         _save_to_recent();
@@ -375,7 +382,7 @@ void EditorFileDialog::_action_pressed() {
         emit_signal("file_selected", f);
     } else if (mode == MODE_OPEN_ANY || mode == MODE_OPEN_DIR) {
 
-        String path = dir_access->get_current_dir();
+        se_string path = dir_access->get_current_dir();
 
         path = PathUtils::from_native_path(path);
 
@@ -383,7 +390,7 @@ void EditorFileDialog::_action_pressed() {
             if (item_list->is_selected(i)) {
                 Dictionary d = item_list->get_item_metadata(i);
                 if (d["dir"]) {
-                    path = PathUtils::plus_file(path,d["name"]);
+                    path = PathUtils::plus_file(path,d["name"].as<se_string>());
 
                     break;
                 }
@@ -405,10 +412,11 @@ void EditorFileDialog::_action_pressed() {
             // match all filters
             for (int i = 0; i < filters.size(); i++) {
 
-                String flt = StringUtils::get_slice(filters[i],";", 0);
-                for (int j = 0; j < StringUtils::get_slice_count(flt,","); j++) {
-
-                    String str = StringUtils::strip_edges(StringUtils::get_slice(flt,",", j));
+                se_string flt(StringUtils::get_slice(filters[i],";", 0));
+                FixedVector<se_string_view,4,true> parts;
+                se_string::split_ref(parts,flt,',');
+                for (se_string_view alts : parts) {
+                    se_string_view str(StringUtils::strip_edges(alts));
                     if (StringUtils::match(f,str)) {
                         valid = true;
                         break;
@@ -423,11 +431,11 @@ void EditorFileDialog::_action_pressed() {
                 idx--;
             if (idx >= 0 && idx < filters.size()) {
 
-                String flt = StringUtils::get_slice(filters[idx],";", 0);
-                int filterSliceCount = StringUtils::get_slice_count(flt,",");
+                se_string flt(StringUtils::get_slice(filters[idx],";", 0));
+                int filterSliceCount = StringUtils::get_slice_count(flt,',');
                 for (int j = 0; j < filterSliceCount; j++) {
 
-                    String str = StringUtils::strip_edges(StringUtils::get_slice(flt,",", j));
+                    se_string str(StringUtils::strip_edges(StringUtils::get_slice(flt,",", j)));
                     if (StringUtils::match(f,str)) {
                         valid = true;
                         break;
@@ -435,10 +443,10 @@ void EditorFileDialog::_action_pressed() {
                 }
 
                 if (!valid && filterSliceCount > 0) {
-                    String str = StringUtils::strip_edges(StringUtils::get_slice(flt,",", 0));
+                    se_string str(StringUtils::strip_edges(StringUtils::get_slice(flt,",", 0)));
                     f += StringUtils::substr(str,1, str.length() - 1);
                     _request_single_thumbnail(PathUtils::plus_file(get_current_dir(),PathUtils::get_file(f)));
-                    file->set_text(PathUtils::get_file(f));
+                    file->set_text_utf8(PathUtils::get_file(f));
                     valid = true;
                 }
             } else {
@@ -466,7 +474,7 @@ void EditorFileDialog::_action_pressed() {
 
 void EditorFileDialog::_cancel_pressed() {
 
-    file->set_text("");
+    file->set_text_utf8("");
     invalidate();
     hide();
 }
@@ -535,7 +543,7 @@ void EditorFileDialog::_items_clear_selection() {
 void EditorFileDialog::_push_history() {
 
     local_history.resize(local_history_pos + 1);
-    String new_path = dir_access->get_current_dir();
+    se_string new_path = dir_access->get_current_dir();
     if (local_history.empty() || new_path != local_history[local_history_pos]) {
         local_history.push_back(new_path);
         local_history_pos++;
@@ -553,7 +561,7 @@ void EditorFileDialog::_item_dc_selected(int p_item) {
 
     if (d["dir"]) {
 
-        dir_access->change_dir(d["name"]);
+        dir_access->change_dir(d["name"].as<se_string>());
         call_deferred("_update_file_list");
         call_deferred("_update_dir");
 
@@ -596,7 +604,7 @@ void EditorFileDialog::_item_list_item_rmb_selected(int p_item, const Vector2 &p
     if (single_item_selected) {
         item_menu->add_separator();
         Dictionary item_meta = item_list->get_item_metadata(p_item);
-        String item_text = item_meta["dir"] ? TTR("Open in File Manager") : TTR("Show in File Manager");
+        StringName item_text = item_meta["dir"] ? TTR("Open in File Manager") : TTR("Show in File Manager");
         item_menu->add_icon_item(get_icon("Filesystem", "EditorIcons"), item_text, ITEM_MENU_SHOW_IN_EXPLORER);
     }
 
@@ -633,7 +641,7 @@ void EditorFileDialog::_item_menu_id_pressed(int p_option) {
 
         case ITEM_MENU_COPY_PATH: {
             Dictionary item_meta = item_list->get_item_metadata(item_list->get_current());
-            OS::get_singleton()->set_clipboard(item_meta["path"]);
+            OS::get_singleton()->set_clipboard(item_meta["path"].as<se_string>());
         } break;
 
         case ITEM_MENU_DELETE: {
@@ -649,7 +657,7 @@ void EditorFileDialog::_item_menu_id_pressed(int p_option) {
         } break;
 
         case ITEM_MENU_SHOW_IN_EXPLORER: {
-            String path;
+            se_string path;
             int idx = item_list->get_current();
             if (idx == -1 || item_list->get_selected_items().empty()) {
                 // Folder background was clicked. Open this folder.
@@ -657,12 +665,12 @@ void EditorFileDialog::_item_menu_id_pressed(int p_option) {
             } else {
                 // Specific item was clicked. Open folders directly, or the folder containing a selected file.
                 Dictionary item_meta = item_list->get_item_metadata(idx);
-                path = ProjectSettings::get_singleton()->globalize_path(item_meta["path"]);
+                path = ProjectSettings::get_singleton()->globalize_path(item_meta["path"].as<se_string>());
                 if (!item_meta["dir"]) {
                     path = PathUtils::get_base_dir(path);
                 }
             }
-            OS::get_singleton()->shell_open(String("file://") + path);
+            OS::get_singleton()->shell_open(se_string("file://") + path);
         } break;
     }
 }
@@ -678,9 +686,9 @@ bool EditorFileDialog::_is_open_should_be_disabled() {
 
     for (int i = 0; i < items.size(); i++) {
 
-        Dictionary d = item_list->get_item_metadata(items.get(i));
+        Dictionary d = item_list->get_item_metadata(items[i]);
 
-        if (((mode == MODE_OPEN_FILE || mode == MODE_OPEN_FILES) && d["dir"]) || (mode == MODE_OPEN_DIR && !d["dir"]))
+        if ((mode == MODE_OPEN_FILE || mode == MODE_OPEN_FILES) && d["dir"] || mode == MODE_OPEN_DIR && !d["dir"])
             return true;
     }
 
@@ -689,18 +697,18 @@ bool EditorFileDialog::_is_open_should_be_disabled() {
 
 void EditorFileDialog::update_file_name() {
     int idx = filter->get_selected() - 1;
-    if ((idx == -1 && filter->get_item_count() == 2) || (filter->get_item_count() > 2 && idx >= 0 && idx < filter->get_item_count() - 2)) {
+    if (idx == -1 && filter->get_item_count() == 2 || filter->get_item_count() > 2 && idx >= 0 && idx < filter->get_item_count() - 2) {
         if (idx == -1) idx += 1;
-        String filter_str = filters[idx];
-        String file_str = file->get_text();
-        String base_name = PathUtils::get_basename(file_str);
-        Vector<String> filter_substr = StringUtils::split(filter_str,";");
+        se_string filter_str = filters[idx];
+        se_string file_str = file->get_text();
+        se_string base_name(PathUtils::get_basename(file_str));
+        Vector<se_string_view> filter_substr = StringUtils::split(filter_str,';');
         if (filter_substr.size() >= 2) {
             file_str = base_name + "." + StringUtils::to_lower(StringUtils::strip_edges(filter_substr[1]));
         } else {
             file_str = base_name + "." + StringUtils::to_lower(StringUtils::strip_edges(PathUtils::get_extension(filter_str)));
         }
-        file->set_text(file_str);
+        file->set_text_utf8(file_str);
     }
 }
 
@@ -713,6 +721,9 @@ void EditorFileDialog::update_file_list() {
     Ref<Texture> file_thumbnail;
 
     item_list->clear();
+
+    // Scroll back to the top after opening a directory
+    item_list->get_v_scroll()->set_value(0);
 
     if (display_mode == DISPLAY_THUMBNAILS) {
 
@@ -743,16 +754,16 @@ void EditorFileDialog::update_file_list() {
             preview_vb->show();
     }
 
-    String cdir = dir_access->get_current_dir();
+    se_string cdir = dir_access->get_current_dir();
 
     dir_access->list_dir_begin();
 
     Ref<Texture> folder = get_icon("folder", "FileDialog");
     const Color folder_color = get_color("folder_icon_modulate", "FileDialog");
-    List<String> files;
-    List<String> dirs;
+    ListPOD<se_string> files;
+    ListPOD<se_string> dirs;
 
-    String item;
+    se_string item;
 
     while (!(item = dir_access->get_next()).empty()) {
 
@@ -766,14 +777,14 @@ void EditorFileDialog::update_file_list() {
                 dirs.push_back(item);
         }
     }
-
-    dirs.sort_custom<NaturalNoCaseComparator>();
-    files.sort_custom<NaturalNoCaseComparator>();
+    NaturalNoCaseComparator sort_fn;
+    dirs.sort(sort_fn);
+    files.sort(sort_fn);
 
     while (!dirs.empty()) {
-        const String &dir_name = dirs.front()->deref();
+        const se_string &dir_name = dirs.front();
 
-        item_list->add_item(dir_name);
+        item_list->add_item(StringName(dir_name));
 
         if (display_mode == DISPLAY_THUMBNAILS) {
 
@@ -793,7 +804,7 @@ void EditorFileDialog::update_file_list() {
         dirs.pop_front();
     }
 
-    List<String> patterns;
+    ListPOD<se_string> patterns;
     // build filter
     if (filter->get_selected() == filter->get_item_count() - 1) {
 
@@ -802,10 +813,10 @@ void EditorFileDialog::update_file_list() {
         // match all filters
         for (int i = 0; i < filters.size(); i++) {
 
-            String f = StringUtils::get_slice(filters[i],";", 0);
-            for (int j = 0; j < StringUtils::get_slice_count(f,","); j++) {
+            se_string f(StringUtils::get_slice(filters[i],";", 0));
+            for (int j = 0; j < StringUtils::get_slice_count(f,','); j++) {
 
-                patterns.push_back(StringUtils::strip_edges(StringUtils::get_slice(f,",", j)));
+                patterns.emplace_back(StringUtils::strip_edges(StringUtils::get_slice(f,",", j)));
             }
         }
     } else {
@@ -815,10 +826,10 @@ void EditorFileDialog::update_file_list() {
 
         if (idx >= 0 && idx < filters.size()) {
 
-            String f = StringUtils::get_slice(filters[idx],";", 0);
-            for (int j = 0; j < StringUtils::get_slice_count(f,","); j++) {
+            se_string f(StringUtils::get_slice(filters[idx],";", 0));
+            for (int j = 0; j < StringUtils::get_slice_count(f,','); j++) {
 
-                patterns.push_back(StringUtils::strip_edges(StringUtils::get_slice(f,",", j)));
+                patterns.emplace_back(StringUtils::strip_edges(StringUtils::get_slice(f,",", j)));
             }
         }
     }
@@ -827,9 +838,9 @@ void EditorFileDialog::update_file_list() {
 
         bool match = patterns.empty();
 
-        for (List<String>::Element *E = patterns.front(); E; E = E->next()) {
+        for (const se_string & E : patterns) {
 
-            if (StringUtils::matchn(files.front()->deref(),E->deref())) {
+            if (StringUtils::matchn(files.front(),E)) {
 
                 match = true;
                 break;
@@ -838,11 +849,11 @@ void EditorFileDialog::update_file_list() {
 
         if (match) {
 
-            item_list->add_item(files.front()->deref());
+            item_list->add_item(StringName(files.front()));
 
             if (get_icon_func) {
 
-                Ref<Texture> icon = get_icon_func(PathUtils::plus_file(cdir,files.front()->deref()));
+                Ref<Texture> icon = get_icon_func(PathUtils::plus_file(cdir,files.front()));
                 if (display_mode == DISPLAY_THUMBNAILS) {
 
                     item_list->set_item_icon(item_list->get_item_count() - 1, file_thumbnail);
@@ -853,9 +864,9 @@ void EditorFileDialog::update_file_list() {
             }
 
             Dictionary d;
-            d["name"] = files.front()->deref();
+            d["name"] = files.front();
             d["dir"] = false;
-            String fullpath = PathUtils::plus_file(cdir,files.front()->deref());
+            se_string fullpath(PathUtils::plus_file(cdir,files.front()));
             d["path"] = fullpath;
             item_list->set_item_metadata(item_list->get_item_count() - 1, d);
 
@@ -863,7 +874,7 @@ void EditorFileDialog::update_file_list() {
                 EditorResourcePreview::get_singleton()->queue_resource_preview(fullpath, this, "_thumbnail_result", fullpath);
             }
 
-            if (file->get_text() == files.front()->deref())
+            if (file->get_text() == files.front())
                 item_list->set_current(item_list->get_item_count() - 1);
         }
 
@@ -879,7 +890,7 @@ void EditorFileDialog::update_file_list() {
     fav_down->set_disabled(true);
     get_ok()->set_disabled(_is_open_should_be_disabled());
     for (int i = 0; i < favorites->get_item_count(); i++) {
-        String md(favorites->get_item_metadata(i));
+        se_string md(favorites->get_item_metadata(i));
         if (md == cdir || md == cdir + "/") {
             favorites->select(i);
             favorite->set_pressed(true);
@@ -904,14 +915,14 @@ void EditorFileDialog::update_filters() {
     filter->clear();
 
     if (filters.size() > 1) {
-        String all_filters;
+        se_string all_filters;
 
         const int max_filters = 5;
 
         for (int i = 0; i < MIN(max_filters, filters.size()); i++) {
-            String flt = StringUtils::get_slice(filters[i],";", 0);
+            se_string flt(StringUtils::strip_edges(StringUtils::get_slice(filters[i],";", 0)));
             if (i > 0)
-                all_filters += ",";
+                all_filters += ',';
             all_filters += flt;
         }
 
@@ -922,12 +933,12 @@ void EditorFileDialog::update_filters() {
     }
     for (int i = 0; i < filters.size(); i++) {
 
-        String flt = StringUtils::strip_edges(StringUtils::get_slice(filters[i],";", 0));
-        String desc = StringUtils::strip_edges(StringUtils::get_slice(filters[i],";", 1));
+        se_string flt(StringUtils::strip_edges(StringUtils::get_slice(filters[i],";", 0)));
+        se_string desc(StringUtils::strip_edges(StringUtils::get_slice(filters[i],";", 1)));
         if (desc.length())
-            filter->add_item(desc + " ( " + flt + " )");
+            filter->add_item(StringName(desc + " ( " + flt + " )"));
         else
-            filter->add_item("( " + flt + " )");
+            filter->add_item(StringName("( " + flt + " )"));
     }
 
     filter->add_item(TTR("All Files (*)"));
@@ -939,37 +950,36 @@ void EditorFileDialog::clear_filters() {
     update_filters();
     invalidate();
 }
-void EditorFileDialog::add_filter(const String &p_filter) {
+void EditorFileDialog::add_filter(se_string_view p_filter) {
 
-    filters.push_back(p_filter);
+    filters.emplace_back(p_filter);
     update_filters();
     invalidate();
 }
-
-String EditorFileDialog::get_current_dir() const {
+se_string EditorFileDialog::get_current_dir() const {
 
     return dir->get_text();
 }
-String EditorFileDialog::get_current_file() const {
+se_string EditorFileDialog::get_current_file() const {
 
     return file->get_text();
 }
-String EditorFileDialog::get_current_path() const {
+se_string EditorFileDialog::get_current_path() const {
 
     return PathUtils::plus_file(dir->get_text(),file->get_text());
 }
-void EditorFileDialog::set_current_dir(const String &p_dir) {
+void EditorFileDialog::set_current_dir(se_string_view p_dir) {
 
     dir_access->change_dir(p_dir);
     update_dir();
     invalidate();
 }
-void EditorFileDialog::set_current_file(const String &p_file) {
+void EditorFileDialog::set_current_file(se_string_view p_file) {
 
-    file->set_text(p_file);
+    file->set_text_utf8(p_file);
     update_dir();
     invalidate();
-    int lp = StringUtils::find_last(p_file,".");
+    int lp = StringUtils::find_last(p_file,'.');
     if (lp != -1) {
         file->select(0, lp);
         file->grab_focus();
@@ -978,21 +988,21 @@ void EditorFileDialog::set_current_file(const String &p_file) {
     if (is_visible_in_tree())
         _request_single_thumbnail(PathUtils::plus_file(get_current_dir(),get_current_file()));
 }
-void EditorFileDialog::set_current_path(const String &p_path) {
+void EditorFileDialog::set_current_path(se_string_view p_path) {
 
     if (p_path.empty())
         return;
-    int pos = MAX(StringUtils::find_last(p_path,"/"), StringUtils::find_last(p_path,"\\"));
-    if (pos == -1) {
+    auto base_p(PathUtils::path(p_path));
+    if (base_p==se_string_view(".")) {
 
         set_current_file(p_path);
-    } else {
-
-        String dir = StringUtils::substr(p_path,0, pos);
-        String file = StringUtils::substr(p_path,pos + 1, p_path.length());
-        set_current_dir(dir);
-        set_current_file(file);
+        return;
     }
+
+    se_string_view dir = base_p;
+    se_string_view file = PathUtils::get_file(p_path);
+    set_current_dir(dir);
+    set_current_file(file);
 }
 
 void EditorFileDialog::set_mode(Mode p_mode) {
@@ -1097,12 +1107,12 @@ void EditorFileDialog::_make_dir_confirm() {
         update_filters();
         update_dir();
         _push_history();
-		EditorFileSystem::get_singleton()->scan_changes(); //we created a dir, so rescan changes
+        EditorFileSystem::get_singleton()->scan_changes(); //we created a dir, so rescan changes
 
     } else {
         mkdirerr->popup_centered_minsize(Size2(250, 50) * EDSCALE);
     }
-    makedirname->set_text(""); // reset label
+    makedirname->set_text_utf8(""); // reset label
 }
 
 void EditorFileDialog::_make_dir() {
@@ -1114,8 +1124,8 @@ void EditorFileDialog::_make_dir() {
 void EditorFileDialog::_delete_items() {
 
     // Collect the selected folders and files to delete and check them in the deletion dependency dialog.
-    Vector<String> folders;
-    Vector<String> files;
+    Vector<se_string> folders;
+    Vector<se_string> files;
     for (int i = 0; i < item_list->get_item_count(); i++) {
         if (!item_list->is_selected(i)) {
             continue;
@@ -1135,9 +1145,9 @@ void EditorFileDialog::_delete_items() {
 
 void EditorFileDialog::_select_drive(int p_idx) {
 
-    String d = drives->get_item_text(p_idx);
+    se_string d = drives->get_item_text_utf8(p_idx);
     dir_access->change_dir(d);
-    file->set_text("");
+    file->set_text_utf8("");
     invalidate();
     update_dir();
     _push_history();
@@ -1153,8 +1163,8 @@ void EditorFileDialog::_update_drives() {
         drives->show();
 
         for (int i = 0; i < dir_access->get_drive_count(); i++) {
-            String d = dir_access->get_drive(i);
-            drives->add_item(dir_access->get_drive(i));
+            se_string d = dir_access->get_drive(i);
+            drives->add_item(StringName(dir_access->get_drive(i)));
         }
 
         drives->select(dir_access->get_current_drive());
@@ -1163,8 +1173,8 @@ void EditorFileDialog::_update_drives() {
 
 void EditorFileDialog::_favorite_selected(int p_idx) {
 
-    dir_access->change_dir(favorites->get_item_metadata(p_idx));
-    file->set_text("");
+    dir_access->change_dir(favorites->get_item_metadata(p_idx).as<se_string>());
+    file->set_text_utf8("");
     update_dir();
     invalidate();
     _push_history();
@@ -1175,10 +1185,10 @@ void EditorFileDialog::_favorite_move_up() {
     int current = favorites->get_current();
 
     if (current > 0 && current < favorites->get_item_count()) {
-        Vector<String> favorited = EditorSettings::get_singleton()->get_favorites();
+        Vector<se_string> favorited = EditorSettings::get_singleton()->get_favorites();
 
-        int a_idx = favorited.find(String(favorites->get_item_metadata(current - 1)));
-        int b_idx = favorited.find(String(favorites->get_item_metadata(current)));
+        int a_idx = favorited.find(favorites->get_item_metadata(current - 1));
+        int b_idx = favorited.find(favorites->get_item_metadata(current));
 
         if (a_idx == -1 || b_idx == -1)
             return;
@@ -1195,10 +1205,10 @@ void EditorFileDialog::_favorite_move_down() {
     int current = favorites->get_current();
 
     if (current >= 0 && current < favorites->get_item_count() - 1) {
-        Vector<String> favorited = EditorSettings::get_singleton()->get_favorites();
+        Vector<se_string> favorited = EditorSettings::get_singleton()->get_favorites();
 
-        int a_idx = favorited.find(String(favorites->get_item_metadata(current + 1)));
-        int b_idx = favorited.find(String(favorites->get_item_metadata(current)));
+        int a_idx = favorited.find(favorites->get_item_metadata(current + 1));
+        int b_idx = favorited.find(favorites->get_item_metadata(current));
 
         if (a_idx == -1 || b_idx == -1)
             return;
@@ -1215,19 +1225,19 @@ void EditorFileDialog::_update_favorites() {
 
     bool res = access == ACCESS_RESOURCES;
 
-    String current = get_current_dir();
+    se_string current = get_current_dir();
     Ref<Texture> folder_icon = get_icon("Folder", "EditorIcons");
     const Color folder_color = get_color("folder_icon_modulate", "FileDialog");
     favorites->clear();
 
     favorite->set_pressed(false);
 
-    Vector<String> favorited = EditorSettings::get_singleton()->get_favorites();
+    Vector<se_string> favorited = EditorSettings::get_singleton()->get_favorites();
     for (int i = 0; i < favorited.size(); i++) {
         bool cres = StringUtils::begins_with(favorited[i],"res://");
         if (cres != res)
             continue;
-        String name = favorited[i];
+        se_string name = favorited[i];
         bool setthis = false;
 
         if (res && name == "res://") {
@@ -1235,14 +1245,14 @@ void EditorFileDialog::_update_favorites() {
                 setthis = true;
             name = "/";
 
-            favorites->add_item(name, folder_icon);
+            favorites->add_item(StringName(name), folder_icon);
         } else if (StringUtils::ends_with(name,"/")) {
             if (name == current || name == current + "/")
                 setthis = true;
             name = StringUtils::substr(name,0, name.length() - 1);
             name = PathUtils::get_file(name);
 
-            favorites->add_item(name, folder_icon);
+            favorites->add_item(StringName(name), folder_icon);
         } else {
             continue; // We don't handle favorite files here.
         }
@@ -1261,11 +1271,11 @@ void EditorFileDialog::_update_favorites() {
 void EditorFileDialog::_favorite_pressed() {
     bool res = access == ACCESS_RESOURCES;
 
-    String cd = get_current_dir();
+    se_string cd = get_current_dir();
     if (!StringUtils::ends_with(cd,"/"))
-        cd += "/";
+        cd += '/';
 
-    Vector<String> favorited = EditorSettings::get_singleton()->get_favorites();
+    Vector<se_string> favorited = EditorSettings::get_singleton()->get_favorites();
 
     bool found = false;
     for (int i = 0; i < favorited.size(); i++) {
@@ -1291,10 +1301,10 @@ void EditorFileDialog::_favorite_pressed() {
 
 void EditorFileDialog::_recent_selected(int p_idx) {
 
-    Vector<String> recentd = EditorSettings::get_singleton()->get_recent_dirs();
+    Vector<se_string> recentd = EditorSettings::get_singleton()->get_recent_dirs();
     ERR_FAIL_INDEX(p_idx, recentd.size());
 
-    dir_access->change_dir(recent->get_item_metadata(p_idx));
+    dir_access->change_dir(recent->get_item_metadata(p_idx).as<se_string>());
     update_file_list();
     update_dir();
     _push_history();
@@ -1466,8 +1476,8 @@ void EditorFileDialog::set_default_display_mode(DisplayMode p_mode) {
 
 void EditorFileDialog::_save_to_recent() {
 
-    String dir = get_current_dir();
-    Vector<String> recent = EditorSettings::get_singleton()->get_recent_dirs();
+    se_string dir = get_current_dir();
+    Vector<se_string> recent = EditorSettings::get_singleton()->get_recent_dirs();
 
     const int max = 20;
     int count = 0;
@@ -1475,7 +1485,7 @@ void EditorFileDialog::_save_to_recent() {
 
     for (int i = 0; i < recent.size(); i++) {
         bool cres = StringUtils::begins_with(recent[i],"res://");
-        if (recent[i] == dir || (res == cres && count > max)) {
+        if (recent[i] == dir || res == cres && count > max) {
             recent.remove(i);
             i--;
         } else {
@@ -1669,27 +1679,27 @@ EditorFileDialog::EditorFileDialog() {
     prev_cc->add_child(preview);
     preview_vb->hide();
 
-    HBoxContainer *filename_hbc = memnew(HBoxContainer);
-    filename_hbc->add_child(memnew(Label(TTR("File:"))));
+    file_box = memnew(HBoxContainer);
+    file_box->add_child(memnew(Label(TTR("File:"))));
     file = memnew(LineEdit);
     file->set_stretch_ratio(4);
     file->set_h_size_flags(SIZE_EXPAND_FILL);
-    filename_hbc->add_child(file);
+    file_box->add_child(file);
     filter = memnew(OptionButton);
     filter->set_stretch_ratio(3);
     filter->set_h_size_flags(SIZE_EXPAND_FILL);
     filter->set_clip_text(true); // Too many extensions overflow it.
-    filename_hbc->add_child(filter);
-    filename_hbc->set_h_size_flags(SIZE_EXPAND_FILL);
-    item_vb->add_child(filename_hbc);
+    file_box->add_child(filter);
+    file_box->set_h_size_flags(SIZE_EXPAND_FILL);
+    item_vb->add_child(file_box);
 
     dir_access = DirAccess::create(DirAccess::ACCESS_RESOURCES);
     access = ACCESS_RESOURCES;
     _update_drives();
 
     connect("confirmed", this, "_action_pressed");
-    item_list->connect("item_selected", this, "_item_selected", varray(), ObjectNS::CONNECT_DEFERRED);
-    item_list->connect("multi_selected", this, "_multi_selected", varray(), ObjectNS::CONNECT_DEFERRED);
+    item_list->connect("item_selected", this, "_item_selected", varray(), ObjectNS::CONNECT_QUEUED);
+    item_list->connect("multi_selected", this, "_multi_selected", varray(), ObjectNS::CONNECT_QUEUED);
     item_list->connect("item_activated", this, "_item_db_selected", varray());
     item_list->connect("nothing_selected", this, "_items_clear_selection");
     dir->connect("text_entered", this, "_dir_entered");
@@ -1759,9 +1769,9 @@ void EditorLineEditFileChooser::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_file_dialog"), &EditorLineEditFileChooser::get_file_dialog);
 }
 
-void EditorLineEditFileChooser::_chosen(const String &p_text) {
+void EditorLineEditFileChooser::_chosen(se_string_view p_text) {
 
-    line_edit->set_text(p_text);
+    line_edit->set_text_utf8(p_text);
     line_edit->emit_signal("text_entered", p_text);
 }
 

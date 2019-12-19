@@ -32,7 +32,7 @@
 
 #include "core/array.h"
 #include "core/resource.h"
-#include "core/ustring.h"
+#include "core/se_string.h"
 #include "scene/2d/light_occluder_2d.h"
 #include "scene/2d/navigation_polygon.h"
 #include "scene/resources/convex_polygon_shape_2d.h"
@@ -113,7 +113,7 @@ public:
 private:
     struct TileData {
 
-        String name;
+        se_string name;
         Ref<Texture> texture;
         Ref<Texture> normal_map;
         Vector2 offset;
@@ -155,8 +155,8 @@ public:
     void autotile_set_bitmask_mode(int p_id, BitmaskMode p_mode);
     BitmaskMode autotile_get_bitmask_mode(int p_id) const;
 
-    void tile_set_name(int p_id, const String &p_name);
-    String tile_get_name(int p_id) const;
+    void tile_set_name(int p_id, se_string_view p_name);
+    const se_string &tile_get_name(int p_id) const;
 
     void tile_set_texture(int p_id, const Ref<Texture> &p_texture);
     Ref<Texture> tile_get_texture(int p_id) const;
@@ -254,7 +254,7 @@ public:
 
     bool is_tile_bound(int p_drawn_id, int p_neighbor_id);
 
-    int find_tile_by_name(const String &p_name) const;
+    int find_tile_by_name(se_string_view p_name) const;
     void get_tile_list(List<int> *p_tiles) const;
 
     void clear();

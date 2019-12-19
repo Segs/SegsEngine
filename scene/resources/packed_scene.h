@@ -31,7 +31,7 @@
 #pragma once
 
 #include "core/resource.h"
-#include "core/ustring.h"
+#include "core/se_string.h"
 #include "core/map.h"
 #include "core/hash_map.h"
 #include "scene/main/node.h"
@@ -42,7 +42,7 @@ class SceneState : public RefCounted {
 
     GDCLASS(SceneState,RefCounted)
 
-    Vector<StringName> names;
+    PODVector<StringName> names;
     Vector<Variant> variants;
     Vector<NodePath> node_paths;
     Vector<NodePath> editable_instances;
@@ -82,7 +82,7 @@ class SceneState : public RefCounted {
         PackState() { node = -1; }
     };
 
-    Vector<NodeData> nodes;
+    PODVector<NodeData> nodes;
 
     struct ConnectionData {
 
@@ -99,7 +99,7 @@ class SceneState : public RefCounted {
     Error _parse_node(Node *p_owner, Node *p_node, int p_parent_idx, Map<StringName, int> &name_map, HashMap<Variant, int, Hasher<Variant>, VariantComparator> &variant_map, Map<Node *, int> &node_map, Map<Node *, int> &nodepath_map);
     Error _parse_connections(Node *p_owner, Node *p_node, Map<StringName, int> &name_map, HashMap<Variant, int, Hasher<Variant>, VariantComparator> &variant_map, Map<Node *, int> &node_map, Map<Node *, int> &nodepath_map);
 
-    String path;
+    se_string path;
 
     uint64_t last_modified_time;
 
@@ -107,7 +107,7 @@ class SceneState : public RefCounted {
 
     static bool disable_placeholders;
 
-    PoolVector<String> _get_node_groups(int p_idx) const;
+    PoolVector<se_string> _get_node_groups(int p_idx) const;
 
     int _find_base_scene_node_remap_key(int p_idx) const;
 
@@ -140,8 +140,8 @@ public:
 
     Error pack(Node *p_scene);
 
-    void set_path(const String &p_path);
-    String get_path() const;
+    void set_path(se_string_view p_path);
+    const se_string &get_path() const;
 
     void clear();
 
@@ -156,7 +156,7 @@ public:
     NodePath get_node_path(int p_idx, bool p_for_parent = false) const;
     NodePath get_node_owner_path(int p_idx) const;
     Ref<PackedScene> get_node_instance(int p_idx) const;
-    String get_node_instance_placeholder(int p_idx) const;
+    se_string get_node_instance_placeholder(int p_idx) const;
     bool is_node_instance_placeholder(int p_idx) const;
     Vector<StringName> get_node_groups(int p_idx) const;
     int get_node_index(int p_idx) const;
@@ -229,7 +229,7 @@ public:
     void recreate_state();
     void replace_state(Ref<SceneState> p_by);
 
-    void set_path(const String &p_path, bool p_take_over = false) override;
+    void set_path(se_string_view p_path, bool p_take_over = false) override;
 #ifdef TOOLS_ENABLED
     void set_last_modified_time(uint64_t p_time) override { state->set_last_modified_time(p_time); }
 

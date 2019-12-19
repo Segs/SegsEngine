@@ -60,7 +60,7 @@ Size2 CheckBox::get_minimum_size() const {
     Size2 minsize = Button::get_minimum_size();
     Size2 tex_size = get_icon_size();
     minsize.width += tex_size.width;
-    if (get_text().length() > 0) {
+    if (not get_text().empty()) {
         minsize.width += get_constant("hseparation");
     }
     Ref<StyleBox> sb = get_stylebox("normal");
@@ -98,7 +98,7 @@ bool CheckBox::is_radio() {
     return get_button_group();
 }
 
-CheckBox::CheckBox(const String &p_text) :
+CheckBox::CheckBox(const StringName &p_text) :
         Button(p_text) {
     set_toggle_mode(true);
     set_text_align(ALIGN_LEFT);

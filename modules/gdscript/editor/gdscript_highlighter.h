@@ -65,8 +65,8 @@ public:
 	void _update_cache() override;
 	Map<int, TextEdit::HighlighterInfo> _get_line_syntax_highlighting(int p_line) override;
 
-	String get_name() const override;
-	List<String> get_supported_languages() override;
+    se_string get_name() const override;
+    List<se_string> get_supported_languages() override;
 };
 
 #endif // GDSCRIPT_HIGHLIGHTER_H

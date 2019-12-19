@@ -58,7 +58,7 @@ protected:
 
 public:
 	Rect2 _edit_get_rect() const;
-	bool _edit_is_selected_on_click(const Point2 &p_point, double p_tolerance) const;
+    bool _edit_is_selected_on_click(const Point2 &p_point, float p_tolerance) const;
 
 	void set_vertices(const PoolVector<Vector2> &p_vertices);
 	PoolVector<Vector2> get_vertices() const;
@@ -101,7 +101,7 @@ protected:
 
 public:
 	Rect2 _edit_get_rect() const override;
-	bool _edit_is_selected_on_click(const Point2 &p_point, double p_tolerance) const override;
+    bool _edit_is_selected_on_click(const Point2 &p_point, float p_tolerance) const override;
 
 	void set_enabled(bool p_enabled);
 	bool is_enabled() const;
@@ -109,7 +109,7 @@ public:
 	void set_navigation_polygon(const Ref<NavigationPolygon> &p_navpoly);
 	Ref<NavigationPolygon> get_navigation_polygon() const;
 
-	String get_configuration_warning() const override;
+    StringName get_configuration_warning() const override;
 
 	NavigationPolygonInstance();
 };

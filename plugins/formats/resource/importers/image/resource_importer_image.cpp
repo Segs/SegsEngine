@@ -33,31 +33,32 @@
 #include "core/io/image_loader.h"
 #include "core/io/resource_saver.h"
 #include "core/os/file_access.h"
+#include "core/string_utils.h"
 
-String ResourceImporterImage::get_importer_name() const {
+StringName ResourceImporterImage::get_importer_name() const {
 
     return "image";
 }
 
-String ResourceImporterImage::get_visible_name() const {
+StringName ResourceImporterImage::get_visible_name() const {
 
     return "Image";
 }
-void ResourceImporterImage::get_recognized_extensions(Vector<String> *p_extensions) const {
+void ResourceImporterImage::get_recognized_extensions(PODVector<se_string> &p_extensions) const {
 
     ImageLoader::get_recognized_extensions(p_extensions);
 }
 
-String ResourceImporterImage::get_save_extension() const {
+StringName ResourceImporterImage::get_save_extension() const {
     return "image";
 }
 
-String ResourceImporterImage::get_resource_type() const {
+StringName ResourceImporterImage::get_resource_type() const {
 
     return "Image";
 }
 
-bool ResourceImporterImage::get_option_visibility(const String &p_option, const Map<StringName, Variant> &p_options) const {
+bool ResourceImporterImage::get_option_visibility(const StringName &p_option, const Map<StringName, Variant> &p_options) const {
 
     return true;
 }
@@ -65,15 +66,15 @@ bool ResourceImporterImage::get_option_visibility(const String &p_option, const 
 int ResourceImporterImage::get_preset_count() const {
     return 0;
 }
-String ResourceImporterImage::get_preset_name(int p_idx) const {
+StringName ResourceImporterImage::get_preset_name(int p_idx) const {
 
-    return String();
+    return StringName();
 }
 
 void ResourceImporterImage::get_import_options(ListPOD<ImportOption> *r_options, int p_preset) const {
 }
 
-Error ResourceImporterImage::import(const String &p_source_file, const String &p_save_path, const Map<StringName, Variant> &p_options, List<String> *r_platform_variants, List<String> *r_gen_files, Variant *r_metadata) {
+Error ResourceImporterImage::import(se_string_view p_source_file, se_string_view p_save_path, const Map<StringName, Variant> &p_options, List<se_string> *r_platform_variants, List<se_string> *r_gen_files, Variant *r_metadata) {
 
     FileAccess *f = FileAccess::open(p_source_file, FileAccess::READ);
 
@@ -88,7 +89,7 @@ Error ResourceImporterImage::import(const String &p_source_file, const String &p
 
     memdelete(f);
 
-    f = FileAccess::open(p_save_path + ".image", FileAccess::WRITE);
+    f = FileAccess::open(se_string(p_save_path) + ".image", FileAccess::WRITE);
     ERR_FAIL_COND_V_MSG(!f, ERR_CANT_CREATE, "Cannot create file in path '" + p_save_path + ".image'.")
 
     //save the header GDIM

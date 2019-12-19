@@ -34,8 +34,6 @@
 #include "core/math/math_defs.h"
 #include "core/math/random_pcg.h"
 
-#include "thirdparty/misc/pcg.h"
-
 #include <cfloat>
 #include <cmath>
 
@@ -106,42 +104,11 @@ public:
     static _ALWAYS_INLINE_ float exp(float p_x) { return ::expf(p_x); }
 
     static _ALWAYS_INLINE_ bool is_nan(double p_val) {
-#ifdef _MSC_VER
-        return _isnan(p_val);
-#elif defined(__GNUC__) && __GNUC__ < 6
-        union {
-            uint64_t u;
-            double f;
-        } ieee754;
-        ieee754.f = p_val;
-        // (unsigned)(0x7ff0000000000001 >> 32) : 0x7ff00000
-        return ((((unsigned)(ieee754.u >> 32) & 0x7fffffff) + ((unsigned)ieee754.u != 0)) > 0x7ff00000);
-#else
         return std::isnan(p_val);
-#endif
     }
 
     static _ALWAYS_INLINE_ bool is_nan(float p_val) {
-#ifdef _MSC_VER
-        return _isnan(p_val);
-#elif defined(__GNUC__) && __GNUC__ < 6
-        union {
-            uint32_t u;
-            float f;
-        } ieee754;
-        ieee754.f = p_val;
-        // -----------------------------------
-        // (single-precision floating-point)
-        // NaN : s111 1111 1xxx xxxx xxxx xxxx xxxx xxxx
-        //     : (> 0x7f800000)
-        // where,
-        //   s : sign
-        //   x : non-zero number
-        // -----------------------------------
-        return ((ieee754.u & 0x7fffffff) > 0x7f800000);
-#else
         return std::isnan(p_val);
-#endif
     }
 
     static _ALWAYS_INLINE_ bool is_inf(double p_val) {
@@ -351,27 +318,7 @@ public:
 
     //this function should be as fast as possible and rounding mode should not matter
     static _ALWAYS_INLINE_ int fast_ftoi(float a) {
-
-        static int b;
-
-#if (defined(_WIN32_WINNT) && _WIN32_WINNT >= 0x0603) || WINAPI_FAMILY == WINAPI_FAMILY_PHONE_APP // windows 8 phone?
-        b = (int)((a > 0.0f) ? (a + 0.5f) : (a - 0.5f));
-
-#elif defined(_MSC_VER) && _MSC_VER < 1800
-        __asm fld a __asm fistp b
-        /*#elif defined( __GNUC__ ) && ( defined( __i386__ ) || defined( __x86_64__ ) )
-        // use AT&T inline assembly style, document that
-        // we use memory as output (=m) and input (m)
-        __asm__ __volatile__ (
-        "flds %1        \n\t"
-        "fistpl %0      \n\t"
-        : "=m" (b)
-        : "m" (a));*/
-
-#else
-        b = lrintf(a); //assuming everything but msvc 2012 or earlier has lrint
-#endif
-        return b;
+        return (int)((a > 0.0f) ? (a + 0.5f) : (a - 0.5f)); // a+std::copysign(0.5f,a);
     }
 
     static _ALWAYS_INLINE_ uint32_t halfbits_to_floatbits(uint16_t h) {
@@ -473,7 +420,7 @@ public:
         return p_step != 0.0f ? float(Math::stepify(p_target - p_offset, p_step) + p_offset) : p_target;
     }
 
-    static _ALWAYS_INLINE_ float snap_scalar_seperation(float p_offset, float p_step, float p_target, float p_separation) {
+    static _ALWAYS_INLINE_ float snap_scalar_separation(float p_offset, float p_step, float p_target, float p_separation) {
         if (p_step != 0.0f) {
             float a = float(Math::stepify(p_target - p_offset, p_step + p_separation) + p_offset);
             float b = a;

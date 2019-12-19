@@ -34,7 +34,7 @@
 
 class NetworkedMultiplayerPeer : public PacketPeer {
 
-    GDCLASS(NetworkedMultiplayerPeer, PacketPeer);
+    GDCLASS(NetworkedMultiplayerPeer, PacketPeer)
 
 protected:
     static void _bind_methods();

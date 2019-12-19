@@ -36,6 +36,10 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cassert>
+#ifndef PAD_ALIGN
+#define PAD_ALIGN 16 //must always be greater than this at much
+#endif
+
 
 #ifdef DEBUG_ENABLED
 static uint64_t mem_usage=0;
@@ -55,20 +59,17 @@ void *operator new(size_t p_size, void *(*p_allocfunc)(size_t p_size)) {
 #ifdef _MSC_VER
 void operator delete(void *p_mem, const char *p_description) {
 
-    ERR_EXPLAIN("Call to placement delete should not happen.");
-    CRASH_NOW();
+    CRASH_NOW_MSG("Call to placement delete should not happen.");
 }
 
 void operator delete(void *p_mem, void *(*p_allocfunc)(size_t p_size)) {
 
-    ERR_EXPLAIN("Call to placement delete should not happen.");
-    CRASH_NOW();
+    CRASH_NOW_MSG("Call to placement delete should not happen.");
 }
 
 void operator delete(void *p_mem, void *p_pointer, size_t check, const char *p_description) {
 
-    ERR_EXPLAIN("Call to placement delete should not happen.");
-    CRASH_NOW();
+    CRASH_NOW_MSG("Call to placement delete should not happen.");
 }
 #endif
 

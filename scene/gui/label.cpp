@@ -35,6 +35,7 @@
 #include "scene/resources/font.h"
 #include "scene/resources/style_box.h"
 #include "core/method_bind.h"
+#include "core/string_utils.inl"
 
 IMPL_GDCLASS(Label)
 VARIANT_ENUM_CAST(Label::Align);
@@ -69,9 +70,10 @@ int Label::get_line_height() const {
 
 void Label::_notification(int p_what) {
 
+
     if (p_what == NOTIFICATION_TRANSLATION_CHANGED) {
 
-        String new_text = tr(text);
+        StringName new_text = tr(text);
         if (new_text == xl_text)
             return; //nothing new
         xl_text = new_text;
@@ -79,6 +81,7 @@ void Label::_notification(int p_what) {
         regenerate_word_cache();
         update();
     }
+    se_string xltext(xl_text);
 
     if (p_what == NOTIFICATION_DRAW) {
 
@@ -91,7 +94,6 @@ void Label::_notification(int p_what) {
 
         RID ci = get_canvas_item();
 
-        Size2 string_size;
         Size2 size = get_size();
         Ref<StyleBox> style = get_stylebox("normal");
         Ref<Font> font = get_font("font");
@@ -247,8 +249,8 @@ void Label::_notification(int p_what) {
                     for (int i = 0; i < from->word_len; i++) {
 
                         if (visible_chars < 0 || chars_total_shadow < visible_chars) {
-                            CharType c = xl_text[i + pos];
-                            CharType n = (i + pos + 1)<xl_text.length() ? xl_text[i + pos + 1] : QChar();
+                            CharType c = xltext[i + pos];
+                            CharType n = (i + pos + 1)<xltext.length() ? xltext[i + pos + 1] : QChar();
                             if (uppercase) {
                                 c = StringUtils::char_uppercase(c);
                                 n = StringUtils::char_uppercase(n);
@@ -268,8 +270,8 @@ void Label::_notification(int p_what) {
                 for (int i = 0; i < from->word_len; i++) {
 
                     if (visible_chars < 0 || chars_total < visible_chars) {
-                        CharType c = xl_text[i + pos];
-                        CharType n = (i + pos + 1)<xl_text.length() ? xl_text[i + pos + 1] : QChar();
+                        CharType c = xltext[i + pos];
+                        CharType n = (i + pos + 1)<xltext.length() ? xltext[i + pos + 1] : QChar();
                         if (uppercase) {
                             c = StringUtils::char_uppercase(c);
                             n = StringUtils::char_uppercase(n);
@@ -321,10 +323,10 @@ int Label::get_longest_line_width() const {
     Ref<Font> font = get_font("font");
     int max_line_width = 0;
     int line_width = 0;
+    String xltext(StringUtils::from_utf8(xl_text));
+    for (int i = 0; i < xltext.size(); i++) {
 
-    for (int i = 0; i < xl_text.size(); i++) {
-
-        CharType current = xl_text[i];
+        CharType current = xltext[i];
         if (uppercase)
             current = StringUtils::char_uppercase(current);
 
@@ -339,8 +341,8 @@ int Label::get_longest_line_width() const {
         } else {
 
             // ceiling to ensure autowrapping does not cut text
-            if((i+1)<xl_text.size()) {
-                int char_width = Math::ceil(font->get_char_size(current, xl_text[i + 1]).width);
+            if((i+1)<xltext.size()) {
+                int char_width = Math::ceil(font->get_char_size(current, xltext[i + 1]).width);
                 line_width += char_width;
             }
         }
@@ -387,7 +389,14 @@ void Label::regenerate_word_cache() {
     }
 
     Ref<StyleBox> style = get_stylebox("normal");
-    int width = autowrap ? (get_size().width - style->get_minimum_size().width) : get_longest_line_width();
+    int width;
+    if (autowrap) {
+        Ref<StyleBox> style = get_stylebox("normal");
+        width = MAX(get_size().width, get_custom_minimum_size().width) - style->get_minimum_size().width;
+    } else {
+        width = get_longest_line_width();
+    }
+
     Ref<Font> font = get_font("font");
 
     int current_word_size = 0;
@@ -401,11 +410,12 @@ void Label::regenerate_word_cache() {
     total_char_cache = 0;
 
     WordCache *last = nullptr;
+    String xltext(StringUtils::from_utf8(xl_text));
 
-    for (int i = 0; i <= xl_text.length(); i++) {
+    for (int i = 0; i <= xltext.length(); i++) {
 
-        CharType current = i < xl_text.length() ? xl_text[i] : QChar(' '); //always a space at the end, so the algo works
-        CharType next = (i+1) < xl_text.length() ? xl_text[i+1] : QChar();
+        CharType current = i < xltext.length() ? xltext[i] : QChar(' '); //always a space at the end, so the algo works
+        CharType next = (i+1) < xltext.length() ? xltext[i+1] : QChar();
         if (uppercase)
             current = StringUtils::char_uppercase(current);
 
@@ -442,7 +452,7 @@ void Label::regenerate_word_cache() {
                 total_char_cache++;
             }
 
-            if (i < xl_text.length() && current == ' ') {
+            if (i < se_string_view(xl_text).length() && current == ' ') {
                 if (line_width > 0 || last == nullptr || last->char_pos != WordCache::CHAR_WRAPLINE) {
                     space_count++;
                     line_width += space_width;
@@ -461,6 +471,10 @@ void Label::regenerate_word_cache() {
             current_word_size += char_width;
             line_width += char_width;
             total_char_cache++;
+            // allow autowrap to cut words when they exceed line width
+            if (autowrap && (current_word_size > width)) {
+                separatable = true;
+            }
         }
 
         if ((autowrap && (line_width >= width) && ((last && last->char_pos >= 0) || separatable)) || insert_newline) {
@@ -540,7 +554,7 @@ Label::VAlign Label::get_valign() const {
     return valign;
 }
 
-void Label::set_text(const String &p_string) {
+void Label::set_text(const StringName &p_string) {
 
     if (text == p_string)
         return;
@@ -564,9 +578,14 @@ bool Label::is_clipping_text() const {
     return clip;
 }
 
-String Label::get_text() const {
+StringName Label::get_text() const {
 
     return text;
+}
+
+se_string Label::get_text_utf8() const
+{
+    return se_string(text);
 }
 
 void Label::set_visible_characters(int p_amount) {
@@ -683,8 +702,7 @@ void Label::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "lines_skipped", PROPERTY_HINT_RANGE, "0,999,1"), "set_lines_skipped", "get_lines_skipped");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "max_lines_visible", PROPERTY_HINT_RANGE, "-1,999,1"), "set_max_lines_visible", "get_max_lines_visible");
 }
-
-Label::Label(const String &p_text) {
+Label::Label(const StringName &p_text) {
 
     align = ALIGN_LEFT;
     valign = VALIGN_TOP;

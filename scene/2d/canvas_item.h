@@ -251,7 +251,7 @@ public:
     /* EDITOR */
 
     // Select the node
-    virtual bool _edit_is_selected_on_click(const Point2 &p_point, double p_tolerance) const;
+    virtual bool _edit_is_selected_on_click(const Point2 &p_point, float p_tolerance) const;
 
     // Save and restore a CanvasItem state
     virtual void _edit_set_state(const Dictionary &/*p_state*/){}
@@ -281,6 +281,7 @@ public:
     virtual void _edit_set_pivot(const Point2 &/*p_pivot*/){}
     virtual Point2 _edit_get_pivot() const { return Point2(); }
 
+    virtual Transform2D _edit_get_transform() const;
     /* VISIBILITY */
 
     void set_visible(bool p_visible);
@@ -305,6 +306,7 @@ public:
     void draw_line(const Point2 &p_from, const Point2 &p_to, const Color &p_color, float p_width = 1.0, bool p_antialiased = false);
     void draw_polyline(const Vector<Point2> &p_points, const Color &p_color, float p_width = 1.0, bool p_antialiased = false);
     void draw_polyline_colors(const Vector<Point2> &p_points, const Vector<Color> &p_colors, float p_width = 1.0, bool p_antialiased = false);
+    void draw_arc(const Vector2 &p_center, float p_radius, float p_start_angle, float p_end_angle, int p_point_count, const Color &p_color, float p_width = 1.0, bool p_antialiased = false);
     void draw_multiline(const Vector<Point2> &p_points, const Color &p_color, float p_width = 1.0, bool p_antialiased = false);
     void draw_multiline_colors(const Vector<Point2> &p_points, const Vector<Color> &p_colors, float p_width = 1.0, bool p_antialiased = false);
     void draw_rect(const Rect2 &p_rect, const Color &p_color, bool p_filled = true, float p_width = 1.0, bool p_antialiased = false);
@@ -321,6 +323,7 @@ public:
     void draw_multimesh(const Ref<MultiMesh> &p_multimesh, const Ref<Texture> &p_texture, const Ref<Texture> &p_normal_map);
 
     void draw_string(const Ref<Font> &p_font, const Point2 &p_pos, const String &p_text, const Color &p_modulate = Color(1, 1, 1), int p_clip_w = -1);
+    void draw_string_utf8(const Ref<Font> &p_font, const Point2 &p_pos, se_string_view p_text, const Color &p_modulate = Color(1, 1, 1), int p_clip_w = -1);
     float draw_char(const Ref<Font> &p_font, const Point2 &p_pos, QChar p_char, QChar p_next, const Color &p_modulate = Color(1, 1, 1));
 
     void draw_set_transform(const Point2 &p_offset, float p_rot, const Size2 &p_scale);

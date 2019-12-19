@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef OA_HASH_MAP_H
-#define OA_HASH_MAP_H
+#pragma once
 
 #include "core/hashfuncs.h"
 #include "core/math/math_funcs.h"
@@ -350,5 +349,3 @@ public:
         memdelete_arr(hashes);
     }
 };
-
-#endif

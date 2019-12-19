@@ -57,14 +57,22 @@ PoolVector<Face3> CPUParticles::get_faces(uint32_t p_usage_flags) const {
 
 void CPUParticles::set_emitting(bool p_emitting) {
 
+    if (emitting == p_emitting)
+        return;
+
     emitting = p_emitting;
-    if (emitting)
+    if (emitting) {
         set_process_internal(true);
+
+        // first update before rendering to avoid one frame delay after emitting starts
+        if (time == 0.0f)
+            _update_internal();
+    }
 }
 
 void CPUParticles::set_amount(int p_amount) {
 
-	ERR_FAIL_COND_MSG(p_amount < 1, "Amount of particles must be greater than 0.");
+    ERR_FAIL_COND_MSG(p_amount < 1, "Amount of particles must be greater than 0.");
 
     particles.resize(p_amount);
     {
@@ -82,7 +90,7 @@ void CPUParticles::set_amount(int p_amount) {
 }
 void CPUParticles::set_lifetime(float p_lifetime) {
 
-	ERR_FAIL_COND_MSG(p_lifetime <= 0, "Particles lifetime must be greater than 0.");
+    ERR_FAIL_COND_MSG(p_lifetime <= 0, "Particles lifetime must be greater than 0.");
     lifetime = p_lifetime;
 }
 
@@ -201,9 +209,9 @@ bool CPUParticles::get_fractional_delta() const {
     return fractional_delta;
 }
 
-String CPUParticles::get_configuration_warning() const {
+StringName CPUParticles::get_configuration_warning() const {
 
-    String warnings;
+    se_string warnings;
 
     bool mesh_found = false;
     bool anim_material_found = false;
@@ -223,18 +231,18 @@ String CPUParticles::get_configuration_warning() const {
 
     if (!mesh_found) {
         if (!warnings.empty())
-            warnings += "\n";
+            warnings += '\n';
         warnings += "- " + TTR("Nothing is visible because no mesh has been assigned.");
     }
 
     if (!anim_material_found && (get_param(PARAM_ANIM_SPEED) != 0.0 || get_param(PARAM_ANIM_OFFSET) != 0.0 ||
                                         get_param_curve(PARAM_ANIM_SPEED) || get_param_curve(PARAM_ANIM_OFFSET))) {
         if (!warnings.empty())
-            warnings += "\n";
+            warnings += '\n';
         warnings += "- " + TTR("CPUParticles animation requires the usage of a SpatialMaterial whose Billboard Mode is set to \"Particle Billboard\".");
     }
 
-    return warnings;
+    return StringName(warnings);
 }
 
 void CPUParticles::restart() {
@@ -243,8 +251,8 @@ void CPUParticles::restart() {
     inactive_time = 0;
     frame_remainder = 0;
     cycle = 0;
+    emitting = false;
 
-    set_emitting(true);
 
     {
         int pc = particles.size();
@@ -254,6 +262,7 @@ void CPUParticles::restart() {
             w[i].active = false;
         }
     }
+    set_emitting(true);
 }
 
 void CPUParticles::set_direction(Vector3 p_direction) {
@@ -516,7 +525,81 @@ static float rand_from_seed(uint32_t &seed) {
     if (s < 0)
         s += 2147483647;
     seed = uint32_t(s);
-    return float(seed % uint32_t(65536)) / 65535.0;
+    return float(seed % uint32_t(65536)) / 65535.0f;
+}
+void CPUParticles::_update_internal() {
+
+    if (particles.empty() == 0 || !is_visible_in_tree()) {
+        _set_redraw(false);
+        return;
+    }
+
+    float delta = get_process_delta_time();
+    if (emitting) {
+        inactive_time = 0;
+    } else {
+        inactive_time += delta;
+        if (inactive_time > lifetime * 1.2f) {
+            set_process_internal(false);
+            _set_redraw(false);
+
+            //reset variables
+            time = 0;
+            inactive_time = 0;
+            frame_remainder = 0;
+            cycle = 0;
+            return;
+        }
+    }
+    _set_redraw(true);
+
+    bool processed = false;
+
+    if (time == 0.0f && pre_process_time > 0.0f) {
+
+        float frame_time;
+        if (fixed_fps > 0)
+            frame_time = 1.0f / fixed_fps;
+        else
+            frame_time = 1.0f / 30.0f;
+
+        float todo = pre_process_time;
+
+        while (todo >= 0) {
+            _particles_process(frame_time);
+            processed = true;
+            todo -= frame_time;
+        }
+    }
+
+    if (fixed_fps > 0) {
+        float frame_time = 1.0f / fixed_fps;
+        float decr = frame_time;
+
+        float ldelta = delta;
+        if (ldelta > 0.1f) { //avoid recursive stalls if fps goes below 10
+            ldelta = 0.1f;
+        } else if (ldelta <= 0.0f) { //unlikely but..
+            ldelta = 0.001f;
+        }
+        float todo = frame_remainder + ldelta;
+
+        while (todo >= frame_time) {
+            _particles_process(frame_time);
+            processed = true;
+            todo -= decr;
+        }
+
+        frame_remainder = todo;
+
+    } else {
+        _particles_process(delta);
+        processed = true;
+    }
+
+    if (processed) {
+        _update_particle_data_buffer();
+    }
 }
 
 void CPUParticles::_particles_process(float p_delta) {
@@ -1046,14 +1129,17 @@ void CPUParticles::_set_redraw(bool p_redraw) {
 #ifndef NO_THREADS
     update_mutex->lock();
 #endif
+    auto VS = VisualServer::get_singleton();
     if (redraw) {
-        VisualServer::get_singleton()->connect("frame_pre_draw", this, "_update_render_thread");
-        VisualServer::get_singleton()->instance_geometry_set_flag(get_instance(), VS::INSTANCE_FLAG_DRAW_NEXT_FRAME_IF_VISIBLE, true);
-        VisualServer::get_singleton()->multimesh_set_visible_instances(multimesh, -1);
+        VS->connect("frame_pre_draw", this, "_update_render_thread");
+        VS->instance_geometry_set_flag(get_instance(), VS::INSTANCE_FLAG_DRAW_NEXT_FRAME_IF_VISIBLE, true);
+        VS->multimesh_set_visible_instances(multimesh, -1);
     } else {
-        VisualServer::get_singleton()->disconnect("frame_pre_draw", this, "_update_render_thread");
-        VisualServer::get_singleton()->instance_geometry_set_flag(get_instance(), VS::INSTANCE_FLAG_DRAW_NEXT_FRAME_IF_VISIBLE, false);
-        VisualServer::get_singleton()->multimesh_set_visible_instances(multimesh, 0);
+        if(VS->is_connected("frame_pre_draw", this, "_update_render_thread")) {
+            VS->disconnect("frame_pre_draw", this, "_update_render_thread");
+        }
+        VS->instance_geometry_set_flag(get_instance(), VS::INSTANCE_FLAG_DRAW_NEXT_FRAME_IF_VISIBLE, false);
+        VS->multimesh_set_visible_instances(multimesh, 0);
     }
 #ifndef NO_THREADS
     update_mutex->unlock();
@@ -1079,87 +1165,25 @@ void CPUParticles::_notification(int p_what) {
 
     if (p_what == NOTIFICATION_ENTER_TREE) {
         set_process_internal(emitting);
+
+        // first update before rendering to avoid one frame delay after emitting starts
+        if (emitting && (time == 0.0f))
+            _update_internal();
     }
 
     if (p_what == NOTIFICATION_EXIT_TREE) {
         _set_redraw(false);
     }
 
-    if (p_what == NOTIFICATION_INTERNAL_PROCESS) {
-
-        if (particles.size() == 0 || !is_visible_in_tree()) {
-            _set_redraw(false);
-            return;
-        }
-
-        float delta = get_process_delta_time();
-        if (emitting) {
-            inactive_time = 0;
-        } else {
-            inactive_time += delta;
-            if (inactive_time > lifetime * 1.2f) {
-                set_process_internal(false);
-                _set_redraw(false);
-
-                //reset variables
-                time = 0;
-                inactive_time = 0;
-                frame_remainder = 0;
-                cycle = 0;
-                return;
-            }
-        }
-        _set_redraw(true);
-
-        bool processed = false;
-
-        if (time == 0.0f && pre_process_time > 0.0f) {
-
-            float frame_time;
-            if (fixed_fps > 0)
-                frame_time = 1.0f / fixed_fps;
-            else
-                frame_time = 1.0f / 30.0f;
-
-            float todo = pre_process_time;
-
-            while (todo >= 0) {
-                _particles_process(frame_time);
-                processed = true;
-                todo -= frame_time;
-            }
-        }
-
-        if (fixed_fps > 0) {
-            float frame_time = 1.0f / fixed_fps;
-            float decr = frame_time;
-
-            float ldelta = delta;
-            if (ldelta > 0.1f) { //avoid recursive stalls if fps goes below 10
-                ldelta = 0.1f;
-            } else if (ldelta <= 0.0f) { //unlikely but..
-                ldelta = 0.001f;
-            }
-            float todo = frame_remainder + ldelta;
-
-            while (todo >= frame_time) {
-                _particles_process(frame_time);
-                processed = true;
-                todo -= decr;
-            }
-
-            frame_remainder = todo;
-
-        } else {
-            _particles_process(delta);
-            processed = true;
-        }
-
-        if (processed) {
-            _update_particle_data_buffer();
-        }
+    if (p_what == NOTIFICATION_VISIBILITY_CHANGED) {
+        // first update before rendering to avoid one frame delay after emitting starts
+        if (emitting && (time == 0.0f))
+            _update_internal();
     }
 
+    if (p_what == NOTIFICATION_INTERNAL_PROCESS) {
+        _update_internal();
+    }
     if (p_what == NOTIFICATION_TRANSFORM_CHANGED) {
 
         inv_emission_transform = get_global_transform().affine_inverse();
@@ -1204,7 +1228,7 @@ void CPUParticles::_notification(int p_what) {
 void CPUParticles::convert_from_particles(Node *p_particles) {
 
     Particles *particles = object_cast<Particles>(p_particles);
-	ERR_FAIL_COND_MSG(!particles, "Only Particles nodes can be converted to CPUParticles.");
+    ERR_FAIL_COND_MSG(!particles, "Only Particles nodes can be converted to CPUParticles.");
 
     set_emitting(particles->is_emitting());
     set_amount(particles->get_amount());
@@ -1483,7 +1507,10 @@ CPUParticles::CPUParticles() {
     frame_remainder = 0;
     cycle = 0;
     redraw = false;
-
+    emitting = false;
+#ifndef NO_THREADS
+    update_mutex = memnew(Mutex);
+#endif
     set_notify_transform(true);
 
     multimesh = VisualServer::get_singleton()->multimesh_create();
@@ -1538,9 +1565,7 @@ CPUParticles::CPUParticles() {
 
     set_color(Color(1, 1, 1, 1));
 
-#ifndef NO_THREADS
-    update_mutex = memnew(Mutex);
-#endif
+
 }
 
 CPUParticles::~CPUParticles() {

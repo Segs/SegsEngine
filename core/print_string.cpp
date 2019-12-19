@@ -30,7 +30,7 @@
 
 #include "print_string.h"
 
-#include "core/ustring.h"
+#include "core/string_utils.inl"
 #include "core/string_formatter.h"
 #include "core/os/os.h"
 
@@ -74,7 +74,7 @@ void remove_print_handler(PrintHandlerList *p_handler) {
     ERR_FAIL_COND(l == nullptr)
 }
 
-void print_line(const String &p_string) {
+void print_line(const se_string &p_string) {
 
     if (!_print_line_enabled)
         return;
@@ -91,26 +91,68 @@ void print_line(const String &p_string) {
 
     _global_unlock();
 }
+void print_line(se_string_view p_string) {
 
-void print_error(const String & p_string) {
-
-    if (!_print_error_enabled)
+    if (!_print_line_enabled)
         return;
 
-    OS::get_singleton()->printerr(p_string+"\n");
+    OS::get_singleton()->print(p_string);
+    OS::get_singleton()->print(se_string_view("\n"));
 
     _global_lock();
     PrintHandlerList *l = print_handler_list;
     while (l) {
 
-        l->printfunc(l->userdata, p_string, true);
+        l->printfunc(l->userdata, se_string(p_string), false);
         l = l->next;
     }
 
     _global_unlock();
 }
 
-void print_verbose(const String &p_string) {
+//void print_error(const String & p_string) {
+
+//    if (!_print_error_enabled)
+//        return;
+
+//    OS::get_singleton()->printerr(p_string+"\n");
+
+//    _global_lock();
+//    PrintHandlerList *l = print_handler_list;
+//    while (l) {
+
+//        l->printfunc(l->userdata, StringUtils::to_utf8(p_string).data(), true);
+//        l = l->next;
+//    }
+
+//    _global_unlock();
+//}
+void print_error(se_string_view p_string) {
+
+    if (!_print_error_enabled)
+        return;
+
+    OS::get_singleton()->printerr(p_string);
+    OS::get_singleton()->printerr("\n");
+
+    _global_lock();
+    PrintHandlerList *l = print_handler_list;
+    while (l) {
+
+        l->printfunc(l->userdata, se_string(p_string), true);
+        l = l->next;
+    }
+
+    _global_unlock();
+}
+
+//void print_verbose(const String &p_string) {
+
+//    if (OS::get_singleton()->is_stdout_verbose()) {
+//        print_line(p_string);
+//    }
+//}
+void print_verbose(se_string_view p_string) {
 
     if (OS::get_singleton()->is_stdout_verbose()) {
         print_line(p_string);

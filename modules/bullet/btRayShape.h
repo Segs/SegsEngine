@@ -61,7 +61,7 @@ public:
 
 	void setMargin(btScalar margin) override;
 
-	void setSlipsOnSlope(bool p_slipOnSlope);
+    void setSlipsOnSlope(bool p_slipsOnSlope);
 	bool getSlipsOnSlope() const { return slipsOnSlope; }
 
 	const btTransform &getSupportPoint() const { return m_cacheSupportPoint; }

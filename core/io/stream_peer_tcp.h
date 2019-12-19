@@ -57,7 +57,7 @@ protected:
     IP_Address peer_host;
     uint16_t peer_port=0;
 
-    Error _connect(const String &p_address, int p_port);
+    Error _connect(se_string_view p_address, int p_port);
     Error _poll_connection();
     Error write(const uint8_t *p_data, int p_bytes, int &r_sent, bool p_block);
     Error read(uint8_t *p_buffer, int p_bytes, int &r_received, bool p_block);

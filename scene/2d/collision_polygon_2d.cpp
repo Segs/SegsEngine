@@ -242,12 +242,12 @@ bool CollisionPolygon2D::_edit_use_rect() const {
     return true;
 }
 
-bool CollisionPolygon2D::_edit_is_selected_on_click(const Point2 &p_point, double p_tolerance) const {
+bool CollisionPolygon2D::_edit_is_selected_on_click(const Point2 &p_point, float p_tolerance) const {
 
     return Geometry::is_point_in_polygon(p_point, Variant(polygon));
 }
 
-String CollisionPolygon2D::get_configuration_warning() const {
+StringName CollisionPolygon2D::get_configuration_warning() const {
 
     if (!object_cast<CollisionObject2D>(get_parent())) {
         return TTR("CollisionPolygon2D only serves to provide a collision shape to a CollisionObject2D derived node. Please only use it as a child of Area2D, StaticBody2D, RigidBody2D, KinematicBody2D, etc. to give them a shape.");
@@ -257,7 +257,7 @@ String CollisionPolygon2D::get_configuration_warning() const {
         return TTR("An empty CollisionPolygon2D has no effect on collision.");
     }
 
-    return String();
+    return StringName();
 }
 
 void CollisionPolygon2D::set_disabled(bool p_disabled) {

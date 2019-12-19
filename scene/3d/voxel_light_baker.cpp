@@ -32,6 +32,7 @@
 
 #include "scene/resources/texture.h"
 #include "core/os/os.h"
+#include "core/string_utils.h"
 #include "core/os/threaded_array_processor.h"
 #include "core/print_string.h"
 
@@ -362,7 +363,7 @@ void VoxelLightBaker::_plot_face(int p_idx, int p_level, int p_x, int p_y, int p
             }
         }
 
-        if (alpha == 0) {
+        if (alpha == 0.0f) {
             //could not in any way get texture information.. so use closest point to center
 
             Face3 f(p_vtx[0], p_vtx[1], p_vtx[2]);
@@ -379,7 +380,7 @@ void VoxelLightBaker::_plot_face(int p_idx, int p_level, int p_x, int p_y, int p
 
             int ofs = uv_y * bake_texture_size + uv_x;
 
-            alpha = 1.0 / (color_scan_cell_width * color_scan_cell_width);
+            alpha = 1.0f / (color_scan_cell_width * color_scan_cell_width);
 
             albedo_accum.r = p_material.albedo[ofs].r * alpha;
             albedo_accum.g = p_material.albedo[ofs].g * alpha;
@@ -394,7 +395,7 @@ void VoxelLightBaker::_plot_face(int p_idx, int p_level, int p_x, int p_y, int p
 
         } else {
 
-            float accdiv = 1.0 / (color_scan_cell_width * color_scan_cell_width);
+            float accdiv = 1.0f / (color_scan_cell_width * color_scan_cell_width);
             alpha *= accdiv;
 
             albedo_accum.r *= accdiv;
@@ -1597,10 +1598,10 @@ Vector3 VoxelLightBaker::_compute_pixel_light_at_pos(const Vector3 &p_pos, const
         case BAKE_QUALITY_LOW: {
             //default quality
             static const Vector3 dirs[4] = {
-                Vector3(0.707107, 0, 0.707107),
-                Vector3(0, 0.707107, 0.707107),
-                Vector3(-0.707107, 0, 0.707107),
-                Vector3(0, -0.707107, 0.707107)
+                Vector3(Math_SQRT12, 0, Math_SQRT12),
+                Vector3(0, Math_SQRT12, Math_SQRT12),
+                Vector3(-Math_SQRT12, 0, Math_SQRT12),
+                Vector3(0, -Math_SQRT12, Math_SQRT12)
             };
 
             static const float weights[4] = { 0.25, 0.25, 0.25, 0.25 };

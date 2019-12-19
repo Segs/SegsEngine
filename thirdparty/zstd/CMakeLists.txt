@@ -22,6 +22,8 @@ set(thirdparty_zstd_sources
     "compress/zstd_ldm.c"
     "compress/zstd_opt.c"
     "compress/zstdmt_compress.c"
+    "compress/zstd_compress_literals.c"
+    "compress/zstd_compress_sequences.c"
     "decompress/huf_decompress.c"
     "decompress/zstd_ddict.c"
     "decompress/zstd_decompress_block.c"
@@ -30,4 +32,4 @@ set(thirdparty_zstd_sources
 add_library(zstd_internal STATIC ${thirdparty_zstd_sources})
 target_include_directories(zstd_internal PUBLIC ${PROJECT_SOURCE_DIR}/thirdparty/zstd/ ${PROJECT_SOURCE_DIR}/thirdparty/zstd/common)
 target_compile_definitions(zstd_internal PUBLIC ZSTD_STATIC_LINKING_ONLY)
-
+set_property(TARGET zstd_internal PROPERTY POSITION_INDEPENDENT_CODE ON)

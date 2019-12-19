@@ -35,9 +35,9 @@
 #include "core/error_macros.h"
 #include <cstddef>
 
-class QString;
-class String;
-class QChar;
+#include "EASTL/string_view.h"
+
+using String = class QString;
 
 struct StaticCString {
 
@@ -75,9 +75,21 @@ class GODOT_EXPORT StringName {
 public:
     operator const void *() const;
 
-    bool operator==(const QString &p_name) const;
-    bool operator==(const char *p_name) const;
-    bool operator!=(const QString &p_name) const;
+    bool operator==(se_string_view p_name) const {
+
+        if (!_data) {
+            return p_name.empty();
+        }
+
+        return p_name.compare(asCString())==0;
+    }
+
+    bool operator==(const char *p_name) const noexcept {
+        return *this==se_string_view(p_name);
+    }
+    bool operator!=(se_string_view p_name) const {
+        return !(operator==(p_name));
+    }
     _FORCE_INLINE_ bool operator<(const StringName &p_name) const {
         return _data < p_name._data;
     }
@@ -93,11 +105,26 @@ public:
     }
     bool operator!=(const StringName &p_name) const;
 
-    StringName& operator=(StringName &&p_name);
+    StringName& operator=(StringName &&p_name)
+    {
+        if(this==&p_name)
+            return *this;
+        if(_data)
+            unref();
+        _data = p_name._data;
+        p_name._data = nullptr;
+        return *this;
+    }
+
     StringName& operator=(const StringName &p_name);
-    operator String() const;
+    explicit operator String() const;
+    operator se_string_view() const
+    {
+        return se_string_view(asCString());
+    }
+
     String asString() const;
-    const char *asCString() const;
+    const char *asCString() const noexcept;
 
     static StringName search(const char *p_name);
 
@@ -118,7 +145,7 @@ public:
         p_name._data = nullptr;
     }
     //TODO: mark StringName(const String &p_name) explicit, it allocates some memory, even if COW'ed
-    StringName(const String &p_name);
+    explicit StringName(se_string_view p_name);
 
     StringName(const StaticCString &p_static_string) {
         _data = nullptr;
@@ -129,10 +156,9 @@ public:
             ERR_REPORT_COND(!p_static_string.ptr || !p_static_string.ptr[0])
             return;
         }
-        ERR_RESET()
         setupFromCString(p_static_string);
     }
-    constexpr StringName() : _data(nullptr) {}
+    constexpr StringName() noexcept : _data(nullptr) {}
 
     template<std::size_t N>
     GODOT_NO_EXPORT StringName(char const (&s)[N]) {
@@ -150,6 +176,8 @@ public:
             unref();
     }
 };
+GODOT_EXPORT StringName operator+(StringName v,se_string_view sv);
+
 struct WrapAlphaCompare
 {
     bool operator()(const StringName &a,const StringName &b) const {
@@ -157,4 +185,10 @@ struct WrapAlphaCompare
     }
 };
 
-
+namespace eastl {
+template <typename T> struct hash;
+template <>
+struct hash<StringName> {
+    size_t operator()(StringName val) const { return val.hash(); }
+};
+}

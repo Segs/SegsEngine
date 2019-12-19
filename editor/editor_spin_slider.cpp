@@ -34,16 +34,17 @@
 #include "core/os/input.h"
 #include "scene/resources/style_box.h"
 #include "scene/resources/font.h"
+#include "core/string_utils.inl"
 #include "editor_scale.h"
 
 IMPL_GDCLASS(EditorSpinSlider)
 
-String EditorSpinSlider::get_tooltip(const Point2 &p_pos) const {
-    return rtos(get_value());
+StringName EditorSpinSlider::get_tooltip(const Point2 &p_pos) const {
+    return StringName(StringUtils::num(get_value()));
 }
 
 String EditorSpinSlider::get_text_value() const {
-    return StringUtils::num(get_value(), Math::range_step_decimals(get_step()));
+    return StringUtils::from_utf8(StringUtils::num(get_value(), Math::range_step_decimals(get_step())));
 }
 
 void EditorSpinSlider::_gui_input(const Ref<InputEvent> &p_event) {
@@ -114,14 +115,14 @@ void EditorSpinSlider::_gui_input(const Ref<InputEvent> &p_event) {
             }
 
             if (grabbing_spinner) {
-				if (mm->get_control()) {
-					set_value(Math::round(pre_grab_value + get_step() * grabbing_spinner_dist_cache * 10));
+                if (mm->get_control()) {
+                    set_value(Math::round(pre_grab_value + get_step() * grabbing_spinner_dist_cache * 10));
                 } else {
-                    set_value(pre_grab_value + get_step() * grabbing_spinner_dist_cache * 10);
+                    set_value(pre_grab_value + get_step() * grabbing_spinner_dist_cache);
                 }
             }
         } else if (updown_offset != -1) {
-            bool new_hover = (mm->get_position().x > updown_offset);
+            bool new_hover = mm->get_position().x > updown_offset;
             if (new_hover != hover_updown) {
                 hover_updown = new_hover;
                 update();
@@ -200,7 +201,7 @@ void EditorSpinSlider::_notification(int p_what) {
         int sep_base = 4 * EDSCALE;
         int sep = sep_base + sb->get_offset().x; //make it have the same margin on both sides, looks better
 
-        int string_width = font->get_string_size(label).width;
+        int string_width = font->get_string_size_utf8(label).width;
         int number_width = get_size().width - sb->get_minimum_size().width - string_width - sep;
 
         Ref<Texture> updown = get_icon("updown", "SpinBox");
@@ -231,9 +232,9 @@ void EditorSpinSlider::_notification(int p_what) {
             draw_style_box(focus, Rect2(Vector2(), get_size()));
         }
 
-        draw_string(font, Vector2(sb->get_offset().x, vofs), label, lc * Color(1, 1, 1, 0.5));
+        draw_string_utf8(font, Vector2(Math::round(sb->get_offset().x), vofs), label, lc * Color(1, 1, 1, 0.5));
 
-        draw_string(font, Vector2(sb->get_offset().x + string_width + sep, vofs), numstr, fc, number_width);
+        draw_string(font, Vector2(Math::round(sb->get_offset().x + string_width + sep), vofs), numstr, fc, number_width);
 
         if (get_step() == 1) {
             Ref<Texture> updown2 = get_icon("updown", "SpinBox");
@@ -335,17 +336,16 @@ bool EditorSpinSlider::is_hiding_slider() const {
     return hide_slider;
 }
 
-void EditorSpinSlider::set_label(const String &p_label) {
+void EditorSpinSlider::set_label(se_string_view p_label) {
     label = p_label;
     update();
 }
-
-String EditorSpinSlider::get_label() const {
+const se_string &EditorSpinSlider::get_label() const {
     return label;
 }
 
 void EditorSpinSlider::_evaluate_input_text() {
-    String text = value_input->get_text();
+    se_string text = value_input->get_text();
     Ref<Expression> expr(make_ref_counted<Expression>());
     Error err = expr->parse(text);
     if (err != OK) {
@@ -359,7 +359,7 @@ void EditorSpinSlider::_evaluate_input_text() {
 }
 
 //text_entered signal
-void EditorSpinSlider::_value_input_entered(const String &p_text) {
+void EditorSpinSlider::_value_input_entered(se_string_view p_text) {
     value_input_just_closed = true;
     value_input->hide();
 }

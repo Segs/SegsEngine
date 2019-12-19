@@ -36,9 +36,12 @@
 #include "core/os/mutex.h"
 #include "core/os/os.h"
 #include "core/project_settings.h"
+#include "core/se_string.h"
 #include "core/translation_helpers.h"
 #include "scene/main/node.h"
 #include "visual_script_nodes.h"
+
+#include "EASTL/sort.h"
 
 IMPL_GDCLASS(VisualScript)
 IMPL_GDCLASS(VisualScriptNode)
@@ -116,8 +119,8 @@ Array VisualScriptNode::_get_default_input_values() const {
     return values;
 }
 
-String VisualScriptNode::get_text() const {
-    return "";
+se_string VisualScriptNode::get_text() const {
+    return {};
 }
 
 void VisualScriptNode::_bind_methods() {
@@ -133,7 +136,7 @@ void VisualScriptNode::_bind_methods() {
     ADD_SIGNAL(MethodInfo("ports_changed"));
 }
 
-VisualScriptNode::TypeGuess VisualScriptNode::guess_output_type(TypeGuess *p_inputs, int p_output) const {
+VisualScriptNode::TypeGuess VisualScriptNode::guess_output_type(TypeGuess * /*p_inputs*/, int p_output) const {
 
     PropertyInfo pinfo = get_output_value_port_info(p_output);
 
@@ -187,7 +190,7 @@ VisualScriptNodeInstance::~VisualScriptNodeInstance() {
 void VisualScript::add_function(const StringName &p_name) {
 
     ERR_FAIL_COND(instances.size())
-    ERR_FAIL_COND(!StringUtils::is_valid_identifier(String(p_name)))
+    ERR_FAIL_COND(!StringUtils::is_valid_identifier((p_name)))
     ERR_FAIL_COND(functions.contains(p_name))
 
     functions[p_name] = Function();
@@ -219,7 +222,7 @@ void VisualScript::rename_function(const StringName &p_name, const StringName &p
     if (p_new_name == p_name)
         return;
 
-    ERR_FAIL_COND(!StringUtils::is_valid_identifier(String(p_new_name)))
+    ERR_FAIL_COND(!StringUtils::is_valid_identifier((p_new_name)))
 
     ERR_FAIL_COND(functions.contains(p_new_name))
     ERR_FAIL_COND(variables.contains(p_new_name))
@@ -246,7 +249,7 @@ void VisualScript::get_function_list(Vector<StringName> *r_functions) const {
     for (const eastl::pair<const StringName,Function> &E : functions) {
         r_functions->push_back(E.first);
     }
-    std::sort(r_functions->ptrw(),r_functions->ptrw()+r_functions->size(),StringName::AlphCompare);
+    eastl::sort(r_functions->ptrw(),r_functions->ptrw()+r_functions->size(),StringName::AlphCompare);
 }
 
 int VisualScript::get_function_node_id(const StringName &p_name) const {
@@ -345,10 +348,9 @@ void VisualScript::add_node(const StringName &p_func, int p_id, const Ref<Visual
     nd.node = p_node;
     nd.pos = p_pos;
 
-    Ref<VisualScriptNode> vsn = p_node;
-    vsn->connect("ports_changed", this, "_node_ports_changed", varray(p_id));
-    vsn->scripts_used.insert(this);
-    vsn->validate_input_default_values(); // Validate when fully loaded
+    p_node->connect("ports_changed", this, "_node_ports_changed", varray(p_id));
+    p_node->scripts_used.insert(this);
+    p_node->validate_input_default_values(); // Validate when fully loaded
 
     func.nodes[p_id] = nd;
 }
@@ -592,7 +594,7 @@ void VisualScript::set_tool_enabled(bool p_enabled) {
 void VisualScript::add_variable(const StringName &p_name, const Variant &p_default_value, bool p_export) {
 
     ERR_FAIL_COND(instances.size())
-    ERR_FAIL_COND(!StringUtils::is_valid_identifier(String(p_name)))
+    ERR_FAIL_COND(!StringUtils::is_valid_identifier((p_name)))
     ERR_FAIL_COND(variables.contains(p_name))
 
     Variable v;
@@ -682,7 +684,7 @@ void VisualScript::_set_variable_info(const StringName &p_name, const Dictionary
     if (p_info.has("hint"))
         pinfo.hint = PropertyHint(int(p_info["hint"]));
     if (p_info.has("hint_string"))
-        pinfo.hint_string = p_info["hint_string"];
+        pinfo.hint_string = p_info["hint_string"].as<se_string>();
     if (p_info.has("usage"))
         pinfo.usage = p_info["usage"];
 
@@ -707,7 +709,7 @@ void VisualScript::get_variable_list(Vector<StringName> *r_variables) const {
     for (const eastl::pair<const StringName,Variable> &E : variables) {
         r_variables->push_back(E.first);
     }
-    std::sort(r_variables->ptrw(),r_variables->ptrw()+r_variables->size(),StringName::AlphCompare);
+    eastl::sort(r_variables->ptrw(),r_variables->ptrw()+r_variables->size(),StringName::AlphCompare);
 }
 
 void VisualScript::set_instance_base_type(const StringName &p_type) {
@@ -723,7 +725,7 @@ void VisualScript::rename_variable(const StringName &p_name, const StringName &p
     if (p_new_name == p_name)
         return;
 
-    ERR_FAIL_COND(!StringUtils::is_valid_identifier(String(p_new_name)))
+    ERR_FAIL_COND(!StringUtils::is_valid_identifier((p_new_name)))
 
     ERR_FAIL_COND(functions.contains(p_new_name))
     ERR_FAIL_COND(variables.contains(p_new_name))
@@ -736,7 +738,7 @@ void VisualScript::rename_variable(const StringName &p_name, const StringName &p
 void VisualScript::add_custom_signal(const StringName &p_name) {
 
     ERR_FAIL_COND(instances.size())
-    ERR_FAIL_COND(!StringUtils::is_valid_identifier(String(p_name)))
+    ERR_FAIL_COND(!StringUtils::is_valid_identifier((p_name)))
     ERR_FAIL_COND(custom_signals.contains(p_name))
 
     custom_signals[p_name] = Vector<Argument>();
@@ -777,10 +779,10 @@ void VisualScript::custom_signal_set_argument_name(const StringName &p_func, int
     ERR_FAIL_INDEX(p_argidx, custom_signals[p_func].size())
     custom_signals[p_func].write[p_argidx].name = p_name;
 }
-String VisualScript::custom_signal_get_argument_name(const StringName &p_func, int p_argidx) const {
+se_string_view VisualScript::custom_signal_get_argument_name(const StringName &p_func, int p_argidx) const {
 
-    ERR_FAIL_COND_V(!custom_signals.contains(p_func), String())
-    ERR_FAIL_INDEX_V(p_argidx, custom_signals.at(p_func).size(), String())
+    ERR_FAIL_COND_V(!custom_signals.contains(p_func), nullptr)
+    ERR_FAIL_INDEX_V(p_argidx, custom_signals.at(p_func).size(), nullptr)
     return custom_signals.at(p_func)[p_argidx].name;
 }
 void VisualScript::custom_signal_remove_argument(const StringName &p_func, int p_argidx) {
@@ -834,7 +836,7 @@ void VisualScript::get_custom_signal_list(Vector<StringName> *r_custom_signals) 
     for (const eastl::pair<const StringName,Vector<Argument> > &E : custom_signals) {
         r_custom_signals->push_back(E.first);
     }
-    std::sort(r_custom_signals->ptrw(),r_custom_signals->ptrw()+r_custom_signals->size(),StringName::AlphCompare);
+    eastl::sort(r_custom_signals->ptrw(),r_custom_signals->ptrw()+r_custom_signals->size(),StringName::AlphCompare);
 }
 
 int VisualScript::get_available_id() const {
@@ -877,7 +879,7 @@ void VisualScript::_update_placeholders() {
 
     if (placeholders.empty())
         return; //no bother if no placeholders
-    ListPOD<PropertyInfo> pinfo;
+    PODVector<PropertyInfo> pinfo;
     Map<StringName, Variant> values;
 
     for (eastl::pair<const StringName,Variable> &E : variables) {
@@ -908,7 +910,7 @@ ScriptInstance *VisualScript::instance_create(Object *p_this) {
         PlaceHolderScriptInstance *sins = memnew(PlaceHolderScriptInstance(VisualScriptLanguage::singleton, Ref<Script>(this), p_this));
         placeholders.insert(sins);
 
-        ListPOD<PropertyInfo> pinfo;
+        PODVector<PropertyInfo> pinfo;
         Map<StringName, Variant> values;
 
         for (eastl::pair<const StringName,Variable> &E : variables) {
@@ -952,12 +954,12 @@ bool VisualScript::has_source_code() const {
     return false;
 }
 
-String VisualScript::get_source_code() const {
+se_string_view VisualScript::get_source_code() const {
 
-    return String();
+    return {};
 }
 
-void VisualScript::set_source_code(const String &p_code) {
+void VisualScript::set_source_code(se_string p_code) {
 }
 
 Error VisualScript::reload(bool p_keep_state) {
@@ -1367,13 +1369,14 @@ void VisualScript::_bind_methods() {
 VisualScript::VisualScript() {
 
     base_type = "Object";
+    is_tool_script = false;
 }
 
 StringName VisualScript::get_default_func() const {
     return StringName("f_312843592");
 }
 
-Set<int> VisualScript::get_output_sequence_ports_connected(const String &edited_func, int from_node) {
+Set<int> VisualScript::get_output_sequence_ports_connected(se_string_view edited_func, int from_node) {
     List<VisualScript::SequenceConnection> *sc = memnew(List<VisualScript::SequenceConnection>);
     get_sequence_connection_list(StringName(edited_func), sc);
     Set<int> connected;
@@ -1484,7 +1487,7 @@ bool VisualScriptInstance::has_method(const StringName &p_method) const {
 //#define VSDEBUG(m_text) print_line(m_text)
 #define VSDEBUG(m_text)
 
-void VisualScriptInstance::_dependency_step(VisualScriptNodeInstance *node, int p_pass, int *pass_stack, const Variant **input_args, Variant **output_args, Variant *variant_stack, Variant::CallError &r_error, String &error_str, VisualScriptNodeInstance **r_error_node) {
+void VisualScriptInstance::_dependency_step(VisualScriptNodeInstance *node, int p_pass, int *pass_stack, const Variant **input_args, Variant **output_args, Variant *variant_stack, Variant::CallError &r_error, se_string &error_str, VisualScriptNodeInstance **r_error_node) {
 
     ERR_FAIL_COND(node->pass_idx == -1)
 
@@ -1546,7 +1549,7 @@ Variant VisualScriptInstance::_call_internal(const StringName &p_method, void *p
     int *flow_stack = flow_max ? (int *)(output_args + max_output_args) : (int *)nullptr;
     int *pass_stack = flow_stack ? (int *)(flow_stack + flow_max) : (int *)nullptr;
 
-    String error_str;
+    se_string error_str;
 
     VisualScriptNodeInstance *node = p_node;
     bool error = false;
@@ -1663,7 +1666,7 @@ Variant VisualScriptInstance::_call_internal(const StringName &p_method, void *p
             //yielded!
             if (node->get_working_memory_size() == 0) {
                 r_error.error = Variant::CallError::CALL_ERROR_INVALID_METHOD;
-                error_str = RTR("A node yielded without working memory, please read the docs on how to yield properly!");
+                error_str = RTR_utf8("A node yielded without working memory, please read the docs on how to yield properly!");
                 error = true;
                 break;
 
@@ -1672,7 +1675,7 @@ Variant VisualScriptInstance::_call_internal(const StringName &p_method, void *p
                 if (not state) {
 
                     r_error.error = Variant::CallError::CALL_ERROR_INVALID_METHOD;
-                    error_str = RTR("Node yielded, but did not return a function state in the first working memory.");
+                    error_str = RTR_utf8("Node yielded, but did not return a function state in the first working memory.");
                     error = true;
                     break;
                 }
@@ -1720,7 +1723,7 @@ Variant VisualScriptInstance::_call_internal(const StringName &p_method, void *p
                 do_break = true;
 
             if (do_break) {
-                VisualScriptLanguage::singleton->debug_break("Breakpoint", true);
+                VisualScriptLanguage::singleton->debug_break(("Breakpoint"), true);
             }
 
             ScriptDebugger::get_singleton()->line_poll();
@@ -1734,14 +1737,14 @@ Variant VisualScriptInstance::_call_internal(const StringName &p_method, void *p
             if (node->get_working_memory_size() == 0) {
 
                 r_error.error = Variant::CallError::CALL_ERROR_INVALID_METHOD;
-                error_str = RTR("Return value must be assigned to first element of node working memory! Fix your node please.");
+                error_str = RTR_utf8("Return value must be assigned to first element of node working memory! Fix your node please.");
                 error = true;
             } else {
                 //assign from working memory, first element
                 return_value = *working_mem;
             }
 
-            VSDEBUG("EXITING FUNCTION - VALUE " + String(return_value));
+            VSDEBUG("EXITING FUNCTION - VALUE " + se_string(return_value));
             break; //exit function requested, bye
         }
 
@@ -1751,7 +1754,7 @@ Variant VisualScriptInstance::_call_internal(const StringName &p_method, void *p
             //if no exit bit was set, and has sequence outputs, guess next node
             if (output >= node->sequence_output_count) {
                 r_error.error = Variant::CallError::CALL_ERROR_INVALID_METHOD;
-                error_str = RTR("Node returned an invalid sequence output: ") + itos(output);
+                error_str = RTR_utf8("Node returned an invalid sequence output: ") + itos(output);
                 error = true;
                 break;
             }
@@ -1813,7 +1816,7 @@ Variant VisualScriptInstance::_call_internal(const StringName &p_method, void *p
 
                     if (!found) {
                         r_error.error = Variant::CallError::CALL_ERROR_INVALID_METHOD;
-                        error_str = RTR("Found sequence bit but not the node in the stack, report bug!");
+                        error_str = RTR_utf8("Found sequence bit but not the node in the stack, report bug!");
                         error = true;
                         break;
                     }
@@ -1825,7 +1828,7 @@ Variant VisualScriptInstance::_call_internal(const StringName &p_method, void *p
                     // check for stack overflow
                     if (flow_stack_pos + 1 >= flow_max) {
                         r_error.error = Variant::CallError::CALL_ERROR_INVALID_METHOD;
-                        error_str = RTR("Stack overflow with stack depth: ") + itos(output);
+                        error_str = RTR_utf8("Stack overflow with stack depth: ") + itos(output);
                         error = true;
                         break;
                     }
@@ -1872,14 +1875,14 @@ Variant VisualScriptInstance::_call_internal(const StringName &p_method, void *p
 
         //error
         // function, file, line, error, explanation
-        String err_file = script->get_path();
-        String err_func = p_method;
+        se_string err_file = script->get_path();
+        se_string err_func = p_method.asCString();
         int err_line = current_node_id; //not a line but it works as one
 
         if (node && (r_error.error != Variant::CallError::CALL_ERROR_INVALID_METHOD || error_str.empty())) {
 
             if (!error_str.empty()) {
-                error_str += " ";
+                error_str += ' ';
             }
 
             if (r_error.error == Variant::CallError::CALL_ERROR_INVALID_ARGUMENT) {
@@ -1890,9 +1893,9 @@ Variant VisualScriptInstance::_call_internal(const StringName &p_method, void *p
             } else if (r_error.error == Variant::CallError::CALL_ERROR_TOO_FEW_ARGUMENTS) {
                 error_str += "Expected " + itos(r_error.argument) + " arguments.";
             } else if (r_error.error == Variant::CallError::CALL_ERROR_INVALID_METHOD) {
-                error_str += "Invalid Call.";
+                error_str += ("Invalid Call.");
             } else if (r_error.error == Variant::CallError::CALL_ERROR_INSTANCE_IS_NULL) {
-                error_str += "Base Instance is null";
+                error_str += ("Base Instance is null");
             }
         }
 
@@ -1901,7 +1904,7 @@ Variant VisualScriptInstance::_call_internal(const StringName &p_method, void *p
 
         if (!VisualScriptLanguage::singleton->debug_break(error_str, false)) {
 
-            _err_print_error(StringUtils::to_utf8(err_func).data(), StringUtils::to_utf8(err_file).data(), err_line, StringUtils::to_utf8(error_str).data(), ERR_HANDLER_SCRIPT);
+            _err_print_error(err_func, err_file, err_line, error_str,{ }, ERR_HANDLER_SCRIPT);
         }
 
         //}
@@ -1934,7 +1937,7 @@ Variant VisualScriptInstance::call(const StringName &p_method, const Variant **p
         return Variant();
     }
 
-    VSDEBUG("CALLING: " + String(p_method));
+    VSDEBUG("CALLING: " + se_string(p_method));
 
     Function *f = &F->second;
 
@@ -2022,7 +2025,7 @@ void VisualScriptInstance::notification(int p_notification) {
     call(VisualScriptLanguage::singleton->notification, &whatp, 1, ce); //do as call
 }
 
-String VisualScriptInstance::to_string(bool *r_valid) {
+se_string VisualScriptInstance::to_string(bool *r_valid) {
     if (has_method(CoreStringNames::get_singleton()->_to_string)) {
         Variant::CallError ce;
         Variant ret = call(CoreStringNames::get_singleton()->_to_string, nullptr, 0, ce);
@@ -2030,16 +2033,16 @@ String VisualScriptInstance::to_string(bool *r_valid) {
             if (ret.get_type() != VariantType::STRING) {
                 if (r_valid)
                     *r_valid = false;
-                ERR_FAIL_V_MSG(String(), "Wrong type for " + CoreStringNames::get_singleton()->_to_string + ", must be a String.");
+                ERR_FAIL_V_MSG(se_string(), se_string("Wrong type for ") + CoreStringNames::get_singleton()->_to_string + ", must be a String.")
             }
             if (r_valid)
                 *r_valid = true;
-            return ret.operator String();
+            return ret.as<se_string>();
         }
     }
     if (r_valid)
         *r_valid = false;
-    return String();
+    return se_string();
 }
 
 Ref<Script> VisualScriptInstance::get_script() const {
@@ -2116,7 +2119,7 @@ void VisualScriptInstance::create(const Ref<VisualScript> &p_script, Object *p_o
         Map<StringName, int> local_var_indices;
 
         if (function.node < 0) {
-            VisualScriptLanguage::singleton->debug_break_parse(get_script()->get_path(), 0, "No start node in function: " + String(E.first));
+            VisualScriptLanguage::singleton->debug_break_parse(get_script()->get_path(), 0, "No start node in function: " + se_string(E.first));
 
             ERR_CONTINUE(function.node < 0)
         }
@@ -2125,7 +2128,7 @@ void VisualScriptInstance::create(const Ref<VisualScript> &p_script, Object *p_o
             Ref<VisualScriptFunction> func_node = dynamic_ref_cast<VisualScriptFunction>(script->get_node(E.first, E.second.function_id));
 
             if (not func_node) {
-                VisualScriptLanguage::singleton->debug_break_parse(get_script()->get_path(), 0, "No VisualScriptFunction typed start node in function: " + String(E.first));
+                VisualScriptLanguage::singleton->debug_break_parse(get_script()->get_path(), 0, "No VisualScriptFunction typed start node in function: " + se_string(E.first));
             }
 
             ERR_CONTINUE(not func_node)
@@ -2362,7 +2365,16 @@ Variant VisualScriptFunctionState::_signal_callback(const Variant **p_args, int 
     return ret;
 }
 
-void VisualScriptFunctionState::connect_to_signal(Object *p_obj, const String &p_signal, Array p_binds) {
+void VisualScriptFunctionState::connect_to_signal(Object *p_obj, se_string_view p_signal, Array p_binds) {
+
+    Vector<Variant> binds;
+    for (int i = 0; i < p_binds.size(); i++) {
+        binds.push_back(p_binds[i]);
+    }
+    binds.push_back(Ref<VisualScriptFunctionState>(this)); //add myself on the back to avoid dying from unreferencing
+    p_obj->connect(StringName(p_signal), this, "_signal_callback", binds, ObjectNS::CONNECT_ONESHOT);
+}
+void VisualScriptFunctionState::connect_to_signal_sv(Object *p_obj, se_string_view p_signal, Array p_binds) {
 
     Vector<Variant> binds;
     for (int i = 0; i < p_binds.size(); i++) {
@@ -2422,23 +2434,23 @@ VisualScriptFunctionState::~VisualScriptFunctionState() {
 
 ///////////////////////////////////////////////
 
-String VisualScriptLanguage::get_name() const {
+StringName VisualScriptLanguage::get_name() const {
 
-    return "VisualScript";
+    return StringName("VisualScript");
 }
 
 /* LANGUAGE FUNCTIONS */
 void VisualScriptLanguage::init() {
 }
-String VisualScriptLanguage::get_type() const {
+se_string VisualScriptLanguage::get_type() const {
 
-    return "VisualScript";
+    return ("VisualScript");
 }
-String VisualScriptLanguage::get_extension() const {
+se_string VisualScriptLanguage::get_extension() const {
 
-    return "vs";
+    return se_string("vs");
 }
-Error VisualScriptLanguage::execute_file(const String &p_path) {
+Error VisualScriptLanguage::execute_file(se_string_view p_path) {
 
     return OK;
 }
@@ -2446,13 +2458,13 @@ void VisualScriptLanguage::finish() {
 }
 
 /* EDITOR FUNCTIONS */
-void VisualScriptLanguage::get_reserved_words(List<String> *p_words) const {
+void VisualScriptLanguage::get_reserved_words(List<se_string> *p_words) const {
 }
-void VisualScriptLanguage::get_comment_delimiters(List<String> *p_delimiters) const {
+void VisualScriptLanguage::get_comment_delimiters(List<se_string> *p_delimiters) const {
 }
-void VisualScriptLanguage::get_string_delimiters(List<String> *p_delimiters) const {
+void VisualScriptLanguage::get_string_delimiters(List<se_string> *p_delimiters) const {
 }
-Ref<Script> VisualScriptLanguage::get_template(const String &p_class_name, const String &p_base_class_name) const {
+Ref<Script> VisualScriptLanguage::get_template(se_string_view p_class_name, se_string_view p_base_class_name) const {
 
     Ref<VisualScript> script(make_ref_counted<VisualScript>());
     script->set_instance_base_type(StringName(p_base_class_name));
@@ -2464,12 +2476,12 @@ bool VisualScriptLanguage::is_using_templates() {
     return true;
 }
 
-void VisualScriptLanguage::make_template(const String &p_class_name, const String &p_base_class_name, Ref<Script> &p_script) {
+void VisualScriptLanguage::make_template(se_string_view p_class_name, se_string_view p_base_class_name, Ref<Script> &p_script) {
     Ref<VisualScript> script = dynamic_ref_cast<VisualScript>(p_script);
     script->set_instance_base_type(StringName(p_base_class_name));
 }
 
-bool VisualScriptLanguage::validate(const String &p_script, int &r_line_error, int &r_col_error, String &r_test_error, const String &p_path, List<String> *r_functions, List<ScriptLanguage::Warning> *r_warnings, Set<int> *r_safe_lines) const {
+bool VisualScriptLanguage::validate(se_string_view p_script, int &r_line_error, int &r_col_error, se_string &r_test_error, se_string_view p_path, DefList<se_string> *r_functions, List<ScriptLanguage::Warning> *r_warnings, Set<int> *r_safe_lines) const {
 
     return false;
 }
@@ -2485,23 +2497,23 @@ bool VisualScriptLanguage::supports_builtin_mode() const {
 
     return true;
 }
-int VisualScriptLanguage::find_function(const String &p_function, const String &p_code) const {
+int VisualScriptLanguage::find_function(se_string_view p_function, se_string_view p_code) const {
 
     return -1;
 }
-String VisualScriptLanguage::make_function(const String &p_class, const String &p_name, const PoolStringArray &p_args) const {
+se_string VisualScriptLanguage::make_function(const se_string &p_class, const StringName &p_name, const PoolVector<se_string> &p_args) const {
 
-    return String();
+    return se_string();
 }
 
-void VisualScriptLanguage::auto_indent_code(String &p_code, int p_from_line, int p_to_line) const {
+void VisualScriptLanguage::auto_indent_code(se_string &p_code, int p_from_line, int p_to_line) const {
 }
 void VisualScriptLanguage::add_global_constant(const StringName &p_variable, const Variant &p_value) {
 }
 
 /* DEBUGGER FUNCTIONS */
 
-bool VisualScriptLanguage::debug_break_parse(const String &p_file, int p_node, const String &p_error) {
+bool VisualScriptLanguage::debug_break_parse(se_string_view p_file, int p_node, se_string_view p_error) {
     //break because of parse error
 
     if (ScriptDebugger::get_singleton() && Thread::get_caller_id() == Thread::get_main_id()) {
@@ -2516,7 +2528,7 @@ bool VisualScriptLanguage::debug_break_parse(const String &p_file, int p_node, c
     }
 }
 
-bool VisualScriptLanguage::debug_break(const String &p_error, bool p_allow_continue) {
+bool VisualScriptLanguage::debug_break(se_string_view p_error, bool p_allow_continue) {
 
     if (ScriptDebugger::get_singleton() && Thread::get_caller_id() == Thread::get_main_id()) {
 
@@ -2530,7 +2542,7 @@ bool VisualScriptLanguage::debug_break(const String &p_error, bool p_allow_conti
     }
 }
 
-String VisualScriptLanguage::debug_get_error() const {
+const se_string &VisualScriptLanguage::debug_get_error() const {
 
     return _debug_error;
 }
@@ -2553,30 +2565,30 @@ int VisualScriptLanguage::debug_get_stack_level_line(int p_level) const {
 
     return *(_call_stack[l].current_id);
 }
-String VisualScriptLanguage::debug_get_stack_level_function(int p_level) const {
+se_string VisualScriptLanguage::debug_get_stack_level_function(int p_level) const {
 
     if (_debug_parse_err_node >= 0)
-        return "";
+        return null_se_string;
 
-    ERR_FAIL_INDEX_V(p_level, _debug_call_stack_pos, "");
+    ERR_FAIL_INDEX_V(p_level, _debug_call_stack_pos, null_se_string);
     int l = _debug_call_stack_pos - p_level - 1;
-    return *_call_stack[l].function;
+    return _call_stack[l].function->asCString();
 }
-String VisualScriptLanguage::debug_get_stack_level_source(int p_level) const {
+se_string VisualScriptLanguage::debug_get_stack_level_source(int p_level) const {
 
     if (_debug_parse_err_node >= 0)
         return _debug_parse_err_file;
 
-    ERR_FAIL_INDEX_V(p_level, _debug_call_stack_pos, "");
+    ERR_FAIL_INDEX_V(p_level, _debug_call_stack_pos, se_string())
     int l = _debug_call_stack_pos - p_level - 1;
     return _call_stack[l].instance->get_script_ptr()->get_path();
 }
-void VisualScriptLanguage::debug_get_stack_level_locals(int p_level, List<String> *p_locals, List<Variant> *p_values, int p_max_subitems, int p_max_depth) {
+void VisualScriptLanguage::debug_get_stack_level_locals(int p_level, ListPOD<se_string> *p_locals, List<Variant> *p_values, int p_max_subitems, int p_max_depth) {
 
     if (_debug_parse_err_node >= 0)
         return;
 
-    ERR_FAIL_INDEX(p_level, _debug_call_stack_pos);
+    ERR_FAIL_INDEX(p_level, _debug_call_stack_pos)
 
     int l = _debug_call_stack_pos - p_level - 1;
     const StringName *f = _call_stack[l].function;
@@ -2591,7 +2603,7 @@ void VisualScriptLanguage::debug_get_stack_level_locals(int p_level, List<String
     p_values->push_back(node->get_base_node()->get_text());
 
     for (int i = 0; i < node->input_port_count; i++) {
-        String name = node->get_base_node()->get_input_value_port_info(i).name;
+        se_string name = node->get_base_node()->get_input_value_port_info(i).name.asCString();
         if (name.empty()) {
             name = "in_" + itos(i);
         }
@@ -2612,7 +2624,7 @@ void VisualScriptLanguage::debug_get_stack_level_locals(int p_level, List<String
 
     for (int i = 0; i < node->output_port_count; i++) {
 
-        String name = node->get_base_node()->get_output_value_port_info(i).name;
+        se_string name = node->get_base_node()->get_output_value_port_info(i).name.asCString();
         if (name.empty()) {
             name = "out_" + itos(i);
         }
@@ -2646,7 +2658,7 @@ void VisualScriptLanguage::debug_get_stack_level_locals(int p_level, List<String
     }
 */
 }
-void VisualScriptLanguage::debug_get_stack_level_members(int p_level, List<String> *p_members, List<Variant> *p_values, int p_max_subitems, int p_max_depth) {
+void VisualScriptLanguage::debug_get_stack_level_members(int p_level, ListPOD<se_string> *p_members, List<Variant> *p_values, int p_max_subitems, int p_max_depth) {
 
     if (_debug_parse_err_node >= 0)
         return;
@@ -2663,19 +2675,19 @@ void VisualScriptLanguage::debug_get_stack_level_members(int p_level, List<Strin
     for (int i=0,fin=vars.size(); i<fin; ++i) {
         Variant v;
         if (_call_stack[l].instance->get_variable(vars[i], &v)) {
-            p_members->push_back("variables/" + vars[i]);
+            p_members->emplace_back(se_string("variables/") + vars[i]);
             p_values->push_back(v);
         }
     }
 }
 
-void VisualScriptLanguage::debug_get_globals(List<String> *p_locals, List<Variant> *p_values, int p_max_subitems, int p_max_depth) {
+void VisualScriptLanguage::debug_get_globals(ListPOD<se_string> *p_locals, List<Variant> *p_values, int p_max_subitems, int p_max_depth) {
 
     //no globals are really reachable in gdscript
 }
-String VisualScriptLanguage::debug_parse_stack_level_expression(int p_level, const String &p_expression, int p_max_subitems, int p_max_depth) {
+se_string VisualScriptLanguage::debug_parse_stack_level_expression(int p_level, se_string_view p_expression, int p_max_subitems, int p_max_depth) {
 
-    return "";
+    return se_string();
 }
 
 void VisualScriptLanguage::reload_all_scripts() {
@@ -2684,13 +2696,13 @@ void VisualScriptLanguage::reload_tool_script(const Ref<Script> &p_script, bool 
 }
 /* LOADER FUNCTIONS */
 
-void VisualScriptLanguage::get_recognized_extensions(List<String> *p_extensions) const {
+void VisualScriptLanguage::get_recognized_extensions(List<se_string> *p_extensions) const {
 
-    p_extensions->push_back("vs");
+    p_extensions->push_back(("vs"));
 }
 void VisualScriptLanguage::get_public_functions(List<MethodInfo> *p_functions) const {
 }
-void VisualScriptLanguage::get_public_constants(List<Pair<String, Variant> > *p_constants) const {
+void VisualScriptLanguage::get_public_constants(List<Pair<se_string_view, Variant> > *p_constants) const {
 }
 
 void VisualScriptLanguage::profiling_start() {
@@ -2710,27 +2722,26 @@ int VisualScriptLanguage::profiling_get_frame_data(ProfilingInfo *p_info_arr, in
 
 VisualScriptLanguage *VisualScriptLanguage::singleton = nullptr;
 
-void VisualScriptLanguage::add_register_func(const String &p_name, VisualScriptNodeRegisterFunc p_func) {
+void VisualScriptLanguage::add_register_func(se_string_view p_name, VisualScriptNodeRegisterFunc p_func) {
 
-    ERR_FAIL_COND(register_funcs.contains(p_name))
-    register_funcs[p_name] = p_func;
+    ERR_FAIL_COND(register_funcs.contains_as(p_name))
+    register_funcs.emplace(se_string(p_name),p_func);
+}
+void VisualScriptLanguage::remove_register_func(se_string_view p_name) {
+    ERR_FAIL_COND(!register_funcs.contains_as(p_name))
+    register_funcs.erase(se_string(p_name));
 }
 
-void VisualScriptLanguage::remove_register_func(const String &p_name) {
-    ERR_FAIL_COND(!register_funcs.contains(p_name))
-    register_funcs.erase(p_name);
-}
-
-Ref<VisualScriptNode> VisualScriptLanguage::create_node_from_name(const String &p_name) {
+Ref<VisualScriptNode> VisualScriptLanguage::create_node_from_name(const se_string &p_name) {
 
     ERR_FAIL_COND_V(!register_funcs.contains(p_name), Ref<VisualScriptNode>())
 
     return register_funcs[p_name](p_name);
 }
 
-void VisualScriptLanguage::get_registered_node_names(List<String> *r_names) {
+void VisualScriptLanguage::get_registered_node_names(List<se_string> *r_names) {
 
-    for (eastl::pair<const String,VisualScriptNodeRegisterFunc> &E : register_funcs) {
+    for (eastl::pair<const se_string,VisualScriptNodeRegisterFunc> &E : register_funcs) {
         r_names->push_back(E.first);
     }
 }

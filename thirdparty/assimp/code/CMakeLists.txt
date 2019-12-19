@@ -202,6 +202,10 @@ SOURCE_GROUP(CApi FILES ${CApi_SRCS})
 
 
 
+# if this variable is set to TRUE, the user can manually disable importers by setting
+# ASSIMP_BUILD_XXX_IMPORTER to FALSE for each importer
+# if this variable is set to FALSE, the user can manually enable importers by setting
+# ASSIMP_BUILD_XXX_IMPORTER to TRUE for each importer
 
 SET(ASSIMP_BUILD_ALL_IMPORTERS_BY_DEFAULT FALSE)
 
@@ -227,6 +231,10 @@ MACRO(ADD_ASSIMP_IMPORTER name)
   ENDIF()
 ENDMACRO()
 
+# if this variable is set to TRUE, the user can manually disable exporters by setting
+# ASSIMP_BUILD_XXX_EXPORTER to FALSE for each exporter
+# if this variable is set to FALSE, the user can manually enable exporters by setting
+# ASSIMP_BUILD_XXX_EXPORTER to TRUE for each exporter
 
 SET(ASSIMP_BUILD_ALL_EXPORTERS_BY_DEFAULT FALSE)
 
@@ -387,6 +395,19 @@ ADD_ASSIMP_IMPORTER( LWS
   LWS/LWSLoader.h
 )
 
+ADD_ASSIMP_IMPORTER( M3D
+  M3D/M3DMaterials.h
+  M3D/M3DImporter.h
+  M3D/M3DImporter.cpp
+  M3D/M3DWrapper.h
+  M3D/M3DWrapper.cpp
+  M3D/m3d.h
+)
+
+ADD_ASSIMP_EXPORTER( M3D
+  M3D/M3DExporter.h
+  M3D/M3DExporter.cpp
+)
 ADD_ASSIMP_IMPORTER( MD2
   MD2/MD2FileData.h
   MD2/MD2Loader.cpp
@@ -594,6 +615,8 @@ ADD_ASSIMP_EXPORTER( FBX
 )
 
 SET( PostProcessing_SRCS
+  PostProcessing/ArmaturePopulate.cpp
+  PostProcessing/ArmaturePopulate.h
   PostProcessing/CalcTangentsProcess.cpp
   PostProcessing/CalcTangentsProcess.h
   PostProcessing/ComputeUVMappingProcess.cpp

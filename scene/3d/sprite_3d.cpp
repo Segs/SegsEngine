@@ -587,9 +587,6 @@ void Sprite3D::set_frame(int p_frame) {
 
     ERR_FAIL_INDEX(p_frame, int64_t(vframes) * hframes);
 
-    if (frame != p_frame)
-
-        frame = p_frame;
     _queue_update();
 
     _change_notify("frame");
@@ -603,8 +600,8 @@ int Sprite3D::get_frame() const {
 }
 
 void Sprite3D::set_frame_coords(const Vector2 &p_coord) {
-    ERR_FAIL_INDEX(int(p_coord.x), vframes);
-    ERR_FAIL_INDEX(int(p_coord.y), hframes);
+    ERR_FAIL_INDEX(int(p_coord.x), hframes);
+    ERR_FAIL_INDEX(int(p_coord.y), vframes);
 
     set_frame(int(p_coord.y) * hframes + int(p_coord.x));
 }
@@ -671,6 +668,9 @@ void Sprite3D::_validate_property(PropertyInfo &property) const {
     if (property.name == "frame") {
         property.hint = PROPERTY_HINT_RANGE;
         property.hint_string = "0," + itos(vframes * hframes - 1) + ",1";
+        property.usage |= PROPERTY_USAGE_KEYING_INCREMENTS;
+    }
+    if (property.name == "frame_coords") {
         property.usage |= PROPERTY_USAGE_KEYING_INCREMENTS;
     }
 }
@@ -876,10 +876,10 @@ void AnimatedSprite3D::_validate_property(PropertyInfo &property) const {
 
         for (ListPOD<StringName>::iterator E = names.begin(); E!=names.end(); ++E) {
             if (E!=names.begin()) {
-                property.hint_string += ",";
+                property.hint_string += ',';
             }
 
-            property.hint_string += String(*E);
+            property.hint_string += (*E);
             if (animation == *E) {
                 current_found = true;
             }
@@ -887,9 +887,9 @@ void AnimatedSprite3D::_validate_property(PropertyInfo &property) const {
 
         if (!current_found) {
             if (property.hint_string.empty()) {
-                property.hint_string = String(animation);
+                property.hint_string = (animation);
             } else {
-                property.hint_string = String(animation) + "," + property.hint_string;
+                property.hint_string = se_string(animation) + "," + property.hint_string;
             }
         }
     }
@@ -916,7 +916,7 @@ void AnimatedSprite3D::_notification(int p_what) {
                 return;
 
             float speed = frames->get_animation_speed(animation);
-            if (speed == 0)
+            if (speed == 0.0f)
                 return; //do nothing
 
             float remaining = get_process_delta_time();
@@ -925,7 +925,7 @@ void AnimatedSprite3D::_notification(int p_what) {
 
                 if (timeout <= 0) {
 
-                    timeout = 1.0 / speed;
+                    timeout = 1.0f / speed;
 
                     int fc = frames->get_frame_count(animation);
                     if (frame >= fc - 1) {
@@ -1099,13 +1099,13 @@ StringName AnimatedSprite3D::get_animation() const {
     return animation;
 }
 
-String AnimatedSprite3D::get_configuration_warning() const {
+StringName AnimatedSprite3D::get_configuration_warning() const {
 
     if (not frames) {
         return TTR("A SpriteFrames resource must be created or set in the \"Frames\" property in order for AnimatedSprite3D to display frames.");
     }
 
-    return String();
+    return StringName();
 }
 
 void AnimatedSprite3D::_bind_methods() {

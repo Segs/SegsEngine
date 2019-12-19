@@ -481,8 +481,8 @@ OmniLight::OmniLight() :
     set_shadow_detail(SHADOW_DETAIL_HORIZONTAL);
 }
 
-String SpotLight::get_configuration_warning() const {
-    String warning = Light::get_configuration_warning();
+StringName SpotLight::get_configuration_warning() const {
+    se_string warning(Light::get_configuration_warning());
 
     if (has_shadow() && get_param(PARAM_SPOT_ANGLE) >= 90.0f) {
         if (!warning.empty()) {
@@ -492,7 +492,7 @@ String SpotLight::get_configuration_warning() const {
         warning += TTR("A SpotLight with an angle wider than 90 degrees cannot cast shadows.");
     }
 
-    return warning;
+    return StringName(warning);
 }
 
 void SpotLight::_bind_methods() {

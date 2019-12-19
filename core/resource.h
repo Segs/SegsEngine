@@ -67,7 +67,7 @@ public:
     virtual void set_import_last_modified_time(uint64_t p_time) = 0;
     virtual uint64_t get_import_last_modified_time() const = 0;
 
-    virtual void set_import_path(const String &p_path) = 0;
+    virtual void set_import_path(se_string_view p_path) = 0;
     virtual String get_import_path() const = 0;
     virtual ~IResourceTooling() = default;
 };
@@ -100,8 +100,8 @@ protected:
     virtual void _resource_path_changed();
     static void _bind_methods();
 
-    void _set_path(const String &p_path);
-    void _take_over_path(const String &p_path);
+    void _set_path(se_string_view p_path);
+    void _take_over_path(se_string_view p_path);
 public:
     static Node *(*_get_local_scene_func)(); //used by editor
 
@@ -111,11 +111,11 @@ public:
     void register_owner(Object *p_owner);
     void unregister_owner(Object *p_owner);
 
-    void set_name(const String &p_name);
-    String get_name() const;
+    void set_name(se_string_view p_name);
+    const se_string &get_name() const;
 
-    virtual void set_path(const String &p_path, bool p_take_over = false);
-    String get_path() const;
+    virtual void set_path(se_string_view p_path, bool p_take_over = false);
+    const se_string &get_path() const;
 
     void set_subindex(int p_sub_index);
     int get_subindex() const;
@@ -141,8 +141,8 @@ public:
     virtual void set_import_last_modified_time(uint64_t p_time) { import_last_modified_time = p_time; }
     uint64_t get_import_last_modified_time() const { return import_last_modified_time; }
 
-    void set_import_path(const String &p_path);
-    String get_import_path() const;
+    void set_import_path(se_string_view p_path);
+    const se_string &get_import_path() const;
 
 #endif
 
@@ -153,8 +153,8 @@ public:
 
 #ifdef TOOLS_ENABLED
     //helps keep IDs same number when loading/saving scenes. -1 clears ID and it Returns -1 when no id stored
-    void set_id_for_path(const String &p_path, int p_id);
-    int get_id_for_path(const String &p_path) const;
+    void set_id_for_path(se_string_view p_path, int p_id);
+    int get_id_for_path(se_string_view p_path) const;
 #endif
 
     Resource();
@@ -171,12 +171,12 @@ class GODOT_EXPORT ResourceCache {
     static void clear();
     friend void register_core_types();
     static void setup();
-    static Resource *get_unguarded(const String &p_path);
+    static Resource *get_unguarded(se_string_view p_path);
 public:
     static void reload_externals();
-    static bool has(const String &p_path);
-    static Resource *get(const String &p_path);
-    static void dump(const char *p_file = nullptr, bool p_short = false);
+    static bool has(se_string_view p_path);
+    static Resource *get(se_string_view p_path);
+    static void dump(se_string_view p_file = nullptr, bool p_short = false);
     static void get_cached_resources(DefList<Ref<Resource> > *p_resources);
     static int get_cached_resource_count();
 };

@@ -56,6 +56,7 @@ public:
     float get_margin(Margin p_margin) const;
     virtual Size2 get_center_size() const;
 
+    virtual Rect2 get_draw_rect(const Rect2 &p_rect) const;
     virtual void draw(RID p_canvas_item, const Rect2 &p_rect) const = 0;
 
     CanvasItem *get_current_item_drawn() const;
@@ -134,6 +135,7 @@ public:
     void set_modulate(const Color &p_modulate);
     Color get_modulate() const;
 
+    Rect2 get_draw_rect(const Rect2 &p_rect) const override;
 	void draw(RID p_canvas_item, const Rect2 &p_rect) const override;
 
     StyleBoxTexture();
@@ -227,6 +229,7 @@ public:
 
 	Size2 get_center_size() const override;
 
+    Rect2 get_draw_rect(const Rect2 &p_rect) const override;
 	void draw(RID p_canvas_item, const Rect2 &p_rect) const override;
 
     StyleBoxFlat();

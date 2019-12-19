@@ -34,6 +34,7 @@
 #include "core/io/config_file.h"
 #include "core/os/file_access.h"
 #include "core/os/main_loop.h"
+#include "core/string_formatter.h"
 #include "core/project_settings.h"
 #include "editor_node.h"
 #include "scene/gui/margin_container.h"
@@ -68,14 +69,14 @@ void EditorPluginSettings::update_plugins() {
 
     da->list_dir_begin();
 
-    String d = da->get_next();
+    se_string d = da->get_next();
 
-    Vector<String> plugins;
+    Vector<se_string> plugins;
 
     while (!d.empty()) {
 
         bool dir = da->current_is_dir();
-        String path = "res://addons/" + d + "/plugin.cfg";
+        se_string path = "res://addons/" + d + "/plugin.cfg";
 
         if (dir && FileAccess::exists(path)) {
 
@@ -93,47 +94,48 @@ void EditorPluginSettings::update_plugins() {
     for (int i = 0; i < plugins.size(); i++) {
 
         Ref<ConfigFile> cf(make_ref_counted<ConfigFile>());
-        String path = "res://addons/" + plugins[i] + "/plugin.cfg";
+        se_string path = "res://addons/" + plugins[i] + "/plugin.cfg";
 
         Error err2 = cf->load(path);
 
         if (err2 != OK) {
-            WARN_PRINTS("Can't load plugin config: " + path);
+            WARN_PRINT("Can't load plugin config: " + path)
         } else {
-			bool key_missing = false;
+            bool key_missing = false;
 
-			if (!cf->has_section_key("plugin", "name")) {
-				WARN_PRINTS("Plugin config misses \"plugin/name\" key: " + path);
-				key_missing = true;
-			}
-			if (!cf->has_section_key("plugin", "author")) {
-				WARN_PRINTS("Plugin config misses \"plugin/author\" key: " + path);
-				key_missing = true;
-			}
-			if (!cf->has_section_key("plugin", "version")) {
-				WARN_PRINTS("Plugin config misses \"plugin/version\" key: " + path);
-				key_missing = true;
-			}
-			if (!cf->has_section_key("plugin", "description")) {
-				WARN_PRINTS("Plugin config misses \"plugin/description\" key: " + path);
-				key_missing = true;
-			}
-			if (!cf->has_section_key("plugin", "script")) {
-				WARN_PRINTS("Plugin config misses \"plugin/script\" key: " + path);
-				key_missing = true;
-			}
+            if (!cf->has_section_key("plugin", "name")) {
+                WARN_PRINT("Plugin config misses \"plugin/name\" key: " + path)
+                key_missing = true;
+            }
+            if (!cf->has_section_key("plugin", "author")) {
+                WARN_PRINT("Plugin config misses \"plugin/author\" key: " + path)
+                key_missing = true;
+            }
+            if (!cf->has_section_key("plugin", "version")) {
+                WARN_PRINT("Plugin config misses \"plugin/version\" key: " + path)
+                key_missing = true;
+            }
+            if (!cf->has_section_key("plugin", "description")) {
+                WARN_PRINT("Plugin config misses \"plugin/description\" key: " + path)
+                key_missing = true;
+            }
+            if (!cf->has_section_key("plugin", "script")) {
+                WARN_PRINT("Plugin config misses \"plugin/script\" key: " + path)
+                key_missing = true;
+            }
 
-			if (!key_missing) {
-            String d2 = plugins[i];
-            String name = cf->get_value("plugin", "name");
-            String author = cf->get_value("plugin", "author");
-            String version = cf->get_value("plugin", "version");
-            String description = cf->get_value("plugin", "description");
-            String script = cf->get_value("plugin", "script");
+            if (!key_missing) {
+            StringName d2(plugins[i]);
+            StringName name = cf->get_value("plugin", "name");
+            StringName author = cf->get_value("plugin", "author");
+            StringName version = cf->get_value("plugin", "version");
+            StringName description = cf->get_value("plugin", "description");
+            StringName script = cf->get_value("plugin", "script");
 
             TreeItem *item = plugin_list->create_item(root);
             item->set_text(0, name);
-			item->set_tooltip(0, TTR("Name:") + " " + name + "\n" + TTR("Path:") + " " + path + "\n" + TTR("Main Script:") + " " + script + "\n" + TTR("Description:") + " " + description);
+            item->set_tooltip(0, FormatSN(TTR("Name: %s\nPath: %s\nMain Script: %3\nDescription: %4").asCString(),
+                                         name.asCString(), path.c_str(), script.asCString(), description.asCString()));
             item->set_metadata(0, d2);
             item->set_text(1, version);
             item->set_metadata(1, script);
@@ -151,7 +153,7 @@ void EditorPluginSettings::update_plugins() {
             } else {
                 item->set_custom_color(3, get_color("disabled_font_color", "Editor"));
                 item->set_range(3, 0);
-			}
+            }
             }
         }
     }
@@ -167,7 +169,7 @@ void EditorPluginSettings::_plugin_activity_changed() {
     TreeItem *ti = plugin_list->get_edited();
     ERR_FAIL_COND(!ti)
     bool active = ti->get_range(3);
-    String name = ti->get_metadata(0);
+    StringName name(ti->get_metadata(0));
 
     EditorNode::get_singleton()->set_addon_plugin_enabled(name, active, true);
 
@@ -186,7 +188,7 @@ void EditorPluginSettings::_plugin_activity_changed() {
 }
 
 void EditorPluginSettings::_create_clicked() {
-    plugin_config_dialog->config("");
+    plugin_config_dialog->config({});
     plugin_config_dialog->popup_centered();
 }
 
@@ -196,7 +198,7 @@ void EditorPluginSettings::_cell_button_pressed(Object *p_item, int p_column, in
         return;
     if (p_id == BUTTON_PLUGIN_EDIT) {
         if (p_column == 4) {
-            String dir = item->get_metadata(0);
+            se_string dir = item->get_metadata(0);
             plugin_config_dialog->config("res://addons/" + dir + "/plugin.cfg");
             plugin_config_dialog->popup_centered();
         }
@@ -214,7 +216,7 @@ void EditorPluginSettings::_bind_methods() {
 EditorPluginSettings::EditorPluginSettings() {
 
     plugin_config_dialog = memnew(PluginConfigDialog);
-    plugin_config_dialog->config("");
+    plugin_config_dialog->config(se_string());
     add_child(plugin_config_dialog);
 
     HBoxContainer *title_hb = memnew(HBoxContainer);

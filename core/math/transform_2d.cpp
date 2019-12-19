@@ -29,7 +29,8 @@
 /*************************************************************************/
 
 #include "transform_2d.h"
-#include "core/ustring.h"
+#include "core/se_string.h"
+#include "core/string_utils.h"
 #include "core/string_formatter.h"
 
 void Transform2D::invert() {
@@ -156,6 +157,11 @@ Transform2D Transform2D::orthonormalized() const {
     return on;
 }
 
+bool Transform2D::is_equal_approx(const Transform2D &p_transform) const {
+
+    return elements[0].is_equal_approx(p_transform.elements[0]) && elements[1].is_equal_approx(p_transform.elements[1]) && elements[2].is_equal_approx(p_transform.elements[2]);
+}
+
 bool Transform2D::operator==(const Transform2D &p_transform) const {
 
     for (int i = 0; i < 3; i++) {
@@ -258,11 +264,11 @@ Transform2D Transform2D::interpolate_with(const Transform2D &p_transform, real_t
 
     real_t dot = v1.dot(v2);
 
-	dot = (dot < -1.0f) ? -1.0 : ((dot > 1.0f) ? 1.0 : dot); //clamp dot to [-1,1]
+    dot = (dot < -1.0f) ? -1.0 : ((dot > 1.0f) ? 1.0 : dot); //clamp dot to [-1,1]
 
     Vector2 v;
 
-	if (dot > 0.9995f) {
+    if (dot > 0.9995f) {
         v = Vector2::linear_interpolate(v1, v2, p_c).normalized(); //linearly interpolate to avoid numerical precision issues
     } else {
         real_t angle = p_c * Math::acos(dot);
@@ -276,7 +282,7 @@ Transform2D Transform2D::interpolate_with(const Transform2D &p_transform, real_t
     return res;
 }
 
-Transform2D::operator String() const {
+Transform2D::operator se_string() const {
 
-	return FormatV("%s, %s, %s",qPrintable(((String)elements[0]).m_str),qPrintable(((String)elements[1]).m_str),qPrintable(((String)elements[2]).m_str));
+    return FormatVE("%s, %s, %s",((se_string)elements[0]).c_str(),((se_string)elements[1]).c_str(),((se_string)elements[2]).c_str());
 }

@@ -64,19 +64,19 @@ class EditorHelpSearch::Runner : public RefCounted {
         }
     };
 
-    Map<String, ClassMatch> matches;
-    Map<String, TreeItem *> class_items;
+    Map<StringName, ClassMatch> matches;
+    Map<StringName, TreeItem *> class_items;
     Control *ui_service;
     Tree *results_tree;
-    String term;
+    se_string term;
 
     Ref<Texture> empty_icon;
     int search_flags;
     int phase;
     Color disabled_color;
 
-    Map<String, DocData::ClassDoc>::iterator iterator_doc;
-    Map<String, ClassMatch>::iterator iterator_match;
+    Map<StringName, DocData::ClassDoc>::iterator iterator_doc;
+    Map<StringName, ClassMatch>::iterator iterator_match;
     TreeItem *root_item;
     TreeItem *matched_item;
 
@@ -91,8 +91,8 @@ class EditorHelpSearch::Runner : public RefCounted {
     bool _phase_member_items();
     bool _phase_select_match();
 
-    bool _match_string(const String &p_term, const String &p_string) const;
-    void _match_item(TreeItem *p_item, const String &p_text);
+    bool _match_string(const se_string &p_term, se_string_view p_string) const;
+    void _match_item(TreeItem *p_item, se_string_view p_text);
     TreeItem *_create_class_hierarchy(const ClassMatch &p_match);
     TreeItem *_create_class_item(TreeItem *p_parent, const DocData::ClassDoc *p_doc, bool p_gray);
     TreeItem *_create_method_item(TreeItem *p_parent, const DocData::ClassDoc *p_class_doc, const DocData::MethodDoc *p_doc);
@@ -100,12 +100,12 @@ class EditorHelpSearch::Runner : public RefCounted {
     TreeItem *_create_constant_item(TreeItem *p_parent, const DocData::ClassDoc *p_class_doc, const DocData::ConstantDoc *p_doc);
     TreeItem *_create_property_item(TreeItem *p_parent, const DocData::ClassDoc *p_class_doc, const DocData::PropertyDoc *p_doc);
     TreeItem *_create_theme_property_item(TreeItem *p_parent, const DocData::ClassDoc *p_class_doc, const DocData::PropertyDoc *p_doc);
-    TreeItem *_create_member_item(TreeItem *p_parent, const String &p_class_name, const String &p_icon, const String &p_name, const String &p_type, const String &p_metatype, const String &p_tooltip);
+    TreeItem *_create_member_item(TreeItem *p_parent, const StringName &p_class_name, se_string_view p_icon, const se_string &p_name, se_string_view p_type, se_string_view p_metatype, se_string_view p_tooltip);
 
 public:
     bool work(uint64_t slot = 100000);
 
-    Runner(Control *p_icon_service, Tree *p_results_tree, const String &p_term, int p_search_flags);
+    Runner(Control *p_icon_service, Tree *p_results_tree, se_string_view p_term, int p_search_flags);
 };
 
 void EditorHelpSearch::_update_icons() {
@@ -122,7 +122,7 @@ void EditorHelpSearch::_update_icons() {
 
 void EditorHelpSearch::_update_results() {
 
-    String term = search_box->get_text();
+    se_string term = search_box->get_text();
 
     int search_flags = filter_combo->get_selected_id();
     if (case_sensitive_button->is_pressed())
@@ -151,7 +151,7 @@ void EditorHelpSearch::_search_box_gui_input(const Ref<InputEvent> &p_event) {
     }
 }
 
-void EditorHelpSearch::_search_box_text_changed(const String &p_text) {
+void EditorHelpSearch::_search_box_text_changed(se_string_view p_text) {
 
     _update_results();
 }
@@ -233,7 +233,7 @@ void EditorHelpSearch::popup_dialog() {
     popup_dialog(search_box->get_text());
 }
 
-void EditorHelpSearch::popup_dialog(const String &p_term) {
+void EditorHelpSearch::popup_dialog(se_string_view p_term) {
 
     // Restore valid window bounds or pop up at default size.
     Rect2 saved_size = EditorSettings::get_singleton()->get_project_metadata("dialog_bounds", "search_help", Rect2());
@@ -245,8 +245,11 @@ void EditorHelpSearch::popup_dialog(const String &p_term) {
     if (p_term.empty()) {
         search_box->clear();
     } else {
-        old_search = true;
-        search_box->set_text(p_term);
+        if (old_term == p_term)
+            old_search = true;
+        else
+            old_term = p_term;
+        search_box->set_text_utf8(p_term);
         search_box->select_all();
     }
     search_box->grab_focus();
@@ -413,10 +416,10 @@ bool EditorHelpSearch::Runner::_phase_match_classes() {
         if (term.length() > 1) {
             if (search_flags & SEARCH_METHODS)
                 for (int i = 0; i < class_doc.methods.size(); i++) {
-                    String method_name = (search_flags & SEARCH_CASE_SENSITIVE) ? class_doc.methods[i].name : StringUtils::to_lower(class_doc.methods[i].name);
-                    String aux_term = (search_flags & SEARCH_CASE_SENSITIVE) ? term : StringUtils::to_lower(term);
+                    se_string method_name = search_flags & SEARCH_CASE_SENSITIVE ? class_doc.methods[i].name : StringUtils::to_lower(class_doc.methods[i].name);
+                    se_string aux_term = search_flags & SEARCH_CASE_SENSITIVE ? term : StringUtils::to_lower(term);
 
-                    if (StringUtils::begins_with(aux_term,'.'))
+                    if (StringUtils::begins_with(aux_term,"."))
                         aux_term = right(aux_term,1);
 
                     if (ends_with(aux_term,"("))
@@ -486,7 +489,7 @@ bool EditorHelpSearch::Runner::_phase_member_items() {
 
     ClassMatch &match = iterator_match->second;
 
-    TreeItem *parent = (search_flags & SEARCH_SHOW_HIERARCHY) ? class_items[match.doc->name] : root_item;
+    TreeItem *parent = search_flags & SEARCH_SHOW_HIERARCHY ? class_items[match.doc->name] : root_item;
     for (int i = 0; i < match.methods.size(); i++)
         _create_method_item(parent, match.doc, match.methods[i]);
     for (int i = 0; i < match.defined_signals.size(); i++)
@@ -509,17 +512,17 @@ bool EditorHelpSearch::Runner::_phase_select_match() {
     return true;
 }
 
-bool EditorHelpSearch::Runner::_match_string(const String &p_term, const String &p_string) const {
+bool EditorHelpSearch::Runner::_match_string(const se_string &p_term, se_string_view p_string) const {
 
     return StringUtils::is_subsequence_of(p_term, p_string,
-            (search_flags & SEARCH_CASE_SENSITIVE) ? StringUtils::CaseSensitive : StringUtils::CaseInsensitive);
+            search_flags & SEARCH_CASE_SENSITIVE ? StringUtils::CaseSensitive : StringUtils::CaseInsensitive);
 }
 
-void EditorHelpSearch::Runner::_match_item(TreeItem *p_item, const String &p_text) {
+void EditorHelpSearch::Runner::_match_item(TreeItem *p_item, se_string_view p_text) {
 
     if (!matched_item) {
         if (search_flags & SEARCH_CASE_SENSITIVE) {
-            if (p_text==term)
+            if (term==p_text)
                 matched_item = p_item;
         } else {
             if (StringUtils::compare(p_text,term,StringUtils::CaseInsensitive) == 0)
@@ -556,7 +559,7 @@ TreeItem *EditorHelpSearch::Runner::_create_class_item(TreeItem *p_parent, const
         icon = ui_service->get_icon(p_doc->name, "EditorIcons");
     else if (ClassDB::class_exists(p_doc->name) && ClassDB::is_parent_class(p_doc->name, "Object"))
         icon = ui_service->get_icon("Object", "EditorIcons");
-    String tooltip = StringUtils::strip_edges(p_doc->brief_description);
+    StringName tooltip(StringUtils::strip_edges(p_doc->brief_description));
 
     TreeItem *item = results_tree->create_item(p_parent);
     item->set_icon(0, icon);
@@ -564,7 +567,7 @@ TreeItem *EditorHelpSearch::Runner::_create_class_item(TreeItem *p_parent, const
     item->set_text(1, TTR("Class"));
     item->set_tooltip(0, tooltip);
     item->set_tooltip(1, tooltip);
-    item->set_metadata(0, String("class_name:" + p_doc->name));
+    item->set_metadata(0, se_string("class_name:") + p_doc->name);
     if (p_gray) {
         item->set_custom_color(0, disabled_color);
         item->set_custom_color(1, disabled_color);
@@ -577,7 +580,7 @@ TreeItem *EditorHelpSearch::Runner::_create_class_item(TreeItem *p_parent, const
 
 TreeItem *EditorHelpSearch::Runner::_create_method_item(TreeItem *p_parent, const DocData::ClassDoc *p_class_doc, const DocData::MethodDoc *p_doc) {
 
-    String tooltip = p_doc->return_type + " " + p_class_doc->name + "." + p_doc->name + "(";
+    se_string tooltip = p_doc->return_type + " " + p_class_doc->name + "." + p_doc->name + "(";
     for (int i = 0; i < p_doc->arguments.size(); i++) {
         const DocData::ArgumentDoc &arg = p_doc->arguments[i];
         tooltip += arg.type + " " + arg.name;
@@ -586,13 +589,13 @@ TreeItem *EditorHelpSearch::Runner::_create_method_item(TreeItem *p_parent, cons
         if (i < p_doc->arguments.size() - 1)
             tooltip += ", ";
     }
-    tooltip += ")";
+    tooltip += ')';
     return _create_member_item(p_parent, p_class_doc->name, "MemberMethod", p_doc->name, "Method", "method", tooltip);
 }
 
 TreeItem *EditorHelpSearch::Runner::_create_signal_item(TreeItem *p_parent, const DocData::ClassDoc *p_class_doc, const DocData::MethodDoc *p_doc) {
 
-    String tooltip = p_doc->return_type + " " + p_class_doc->name + "." + p_doc->name + "(";
+    se_string tooltip = p_doc->return_type + " " + p_class_doc->name + "." + p_doc->name + "(";
     for (int i = 0; i < p_doc->arguments.size(); i++) {
         const DocData::ArgumentDoc &arg = p_doc->arguments[i];
         tooltip += arg.type + " " + arg.name;
@@ -601,54 +604,56 @@ TreeItem *EditorHelpSearch::Runner::_create_signal_item(TreeItem *p_parent, cons
         if (i < p_doc->arguments.size() - 1)
             tooltip += ", ";
     }
-    tooltip += ")";
+    tooltip += ')';
     return _create_member_item(p_parent, p_class_doc->name, "MemberSignal", p_doc->name, "Signal", "signal", tooltip);
 }
 
 TreeItem *EditorHelpSearch::Runner::_create_constant_item(TreeItem *p_parent, const DocData::ClassDoc *p_class_doc, const DocData::ConstantDoc *p_doc) {
 
-    String tooltip = p_class_doc->name + "." + p_doc->name;
+    se_string tooltip = se_string(p_class_doc->name) + "." + p_doc->name;
     return _create_member_item(p_parent, p_class_doc->name, "MemberConstant", p_doc->name, "Constant", "constant", tooltip);
 }
 
 TreeItem *EditorHelpSearch::Runner::_create_property_item(TreeItem *p_parent, const DocData::ClassDoc *p_class_doc, const DocData::PropertyDoc *p_doc) {
 
-    String tooltip = p_doc->type + " " + p_class_doc->name + "." + p_doc->name;
-    tooltip += "\n    " + p_class_doc->name + "." + p_doc->setter + "(value) setter";
-    tooltip += "\n    " + p_class_doc->name + "." + p_doc->getter + "() getter";
+    se_string tooltip = se_string(p_doc->type) + " " + p_class_doc->name + "." + p_doc->name;
+    tooltip += se_string("\n    ") + p_class_doc->name + "." + p_doc->setter + "(value) setter";
+    tooltip += se_string("\n    ") + p_class_doc->name + "." + p_doc->getter + "() getter";
     return _create_member_item(p_parent, p_class_doc->name, "MemberProperty", p_doc->name, "Property", "property", tooltip);
 }
 
 TreeItem *EditorHelpSearch::Runner::_create_theme_property_item(TreeItem *p_parent, const DocData::ClassDoc *p_class_doc, const DocData::PropertyDoc *p_doc) {
 
-    String tooltip = p_doc->type + " " + p_class_doc->name + "." + p_doc->name;
+    se_string tooltip = se_string(p_doc->type) + " " + p_class_doc->name + "." + p_doc->name;
     return _create_member_item(p_parent, p_class_doc->name, "MemberTheme", p_doc->name, "Theme Property", "theme_item", tooltip);
 }
 
-TreeItem *EditorHelpSearch::Runner::_create_member_item(TreeItem *p_parent, const String &p_class_name, const String &p_icon, const String &p_name, const String &p_type, const String &p_metatype, const String &p_tooltip) {
+TreeItem *EditorHelpSearch::Runner::_create_member_item(TreeItem *p_parent, const StringName &p_class_name,
+        se_string_view p_icon, const se_string &p_name, se_string_view p_type, se_string_view p_metatype,
+        se_string_view p_tooltip) {
 
     Ref<Texture> icon;
-    String text;
+    se_string text;
     if (search_flags & SEARCH_SHOW_HIERARCHY) {
-        icon = ui_service->get_icon(p_icon, "EditorIcons");
+        icon = ui_service->get_icon(StringName(p_icon), "EditorIcons");
         text = p_name;
     } else {
-        icon = ui_service->get_icon(p_icon, "EditorIcons");
+        icon = ui_service->get_icon(StringName(p_icon), "EditorIcons");
         /*// In flat mode, show the class icon.
         if (ui_service->has_icon(p_class_name, "EditorIcons"))
             icon = ui_service->get_icon(p_class_name, "EditorIcons");
         else if (ClassDB::is_parent_class(p_class_name, "Object"))
             icon = ui_service->get_icon("Object", "EditorIcons");*/
-        text = p_class_name + "." + p_name;
+        text = se_string(p_class_name) + "." + p_name;
     }
 
     TreeItem *item = results_tree->create_item(p_parent);
     item->set_icon(0, icon);
-    item->set_text(0, text);
+    item->set_text_utf8(0, text);
     item->set_text(1, TTR(p_type));
-    item->set_tooltip(0, p_tooltip);
-    item->set_tooltip(1, p_tooltip);
-    item->set_metadata(0, String("class_" + p_metatype + ":" + p_class_name + ":" + p_name));
+    item->set_tooltip(0, StringName(p_tooltip));
+    item->set_tooltip(1, StringName(p_tooltip));
+    item->set_metadata(0, se_string("class_") + p_metatype + ":" + p_class_name + ":" + p_name);
 
     _match_item(item, p_name);
 
@@ -665,7 +670,7 @@ bool EditorHelpSearch::Runner::work(uint64_t slot) {
     return true;
 }
 
-EditorHelpSearch::Runner::Runner(Control *p_icon_service, Tree *p_results_tree, const String &p_term, int p_search_flags) :
+EditorHelpSearch::Runner::Runner(Control *p_icon_service, Tree *p_results_tree, se_string_view p_term, int p_search_flags) :
         ui_service(p_icon_service),
         results_tree(p_results_tree),
         term((p_search_flags & SEARCH_CASE_SENSITIVE) == 0 ? StringUtils::to_lower(StringUtils::strip_edges(p_term)) : StringUtils::strip_edges( p_term)),

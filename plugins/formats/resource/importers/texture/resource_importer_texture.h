@@ -51,20 +51,20 @@ protected:
     Mutex *mutex;
     Map<StringName, int> make_flags;
 
-    static void _texture_reimport_srgb(const StringName &p_tex);
-    static void _texture_reimport_3d(const StringName &p_tex_path);
-    static void _texture_reimport_normal(const StringName &p_tex_path);
+    static void _texture_reimport_srgb(StringName p_tex);
+    static void _texture_reimport_3d(StringName p_tex_path);
+    static void _texture_reimport_normal(StringName p_tex_path);
 
     static ResourceImporterTexture *singleton;
     static const char *compression_formats[];
 
 public:
     static ResourceImporterTexture *get_singleton() { return singleton; }
-    String get_importer_name() const override;
-    String get_visible_name() const override;
-    void get_recognized_extensions(Vector<String> *p_extensions) const override;
-    String get_save_extension() const override;
-    String get_resource_type() const override;
+    StringName get_importer_name() const override;
+    StringName get_visible_name() const override;
+    void get_recognized_extensions(PODVector<se_string> &p_extensions) const override;
+    StringName get_save_extension() const override;
+    StringName get_resource_type() const override;
 
     enum Preset {
         PRESET_DETECT,
@@ -76,33 +76,33 @@ public:
     enum CompressMode { COMPRESS_LOSSLESS, COMPRESS_LOSSY, COMPRESS_VIDEO_RAM, COMPRESS_UNCOMPRESSED };
 
     int get_preset_count() const override;
-    String get_preset_name(int p_idx) const override;
+    StringName get_preset_name(int p_idx) const override;
 
     void get_import_options(ListPOD<ImportOption> *r_options, int p_preset = 0) const override;
-    bool get_option_visibility(const String &p_option, const Map<StringName, Variant> &p_options) const override;
+    bool get_option_visibility(const StringName &p_option, const Map<StringName, Variant> &p_options) const override;
 
-    void _save_stex(const Ref<Image> &p_image, const String &p_to_path, int p_compress_mode, float p_lossy_quality,
+    void _save_stex(const Ref<Image> &p_image, se_string_view p_to_path, int p_compress_mode, float p_lossy_quality,
             ImageCompressMode p_vram_compression, bool p_mipmaps, int p_texture_flags, bool p_streamable,
             bool p_detect_3d, bool p_detect_srgb, bool p_force_rgbe, bool p_detect_normal, bool p_force_normal,
             bool p_force_po2_for_compressed);
 
-    Error import(const String &p_source_file, const String &p_save_path, const Map<StringName, Variant> &p_options,
-            DefList<String> *r_platform_variants, DefList<String> *r_gen_files = nullptr,
+    Error import(se_string_view p_source_file, se_string_view p_save_path, const Map<StringName, Variant> &p_options,
+            DefList<se_string> *r_platform_variants, DefList<se_string> *r_gen_files = nullptr,
             Variant *r_metadata = nullptr) override;
 
-    void build_reconfigured_list(Vector<String> &editor_is_scanning_or_importing) override;
+    void build_reconfigured_list(Vector<se_string> &editor_is_scanning_or_importing) override;
 
-    bool are_import_settings_valid(const String &p_path) const override;
-    String get_import_settings_string() const override;
+    bool are_import_settings_valid(se_string_view p_path) const override;
+    se_string get_import_settings_string() const override;
 
     // ResourceImporterInterface defaults
 public:
     float get_priority() const override { return 1.0f; }
     int get_import_order() const override { return 0; }
-    String get_option_group_file() const override { return String(); }
-    Error import_group_file(const String & /*p_group_file*/,
-            const Map<String, Map<StringName, Variant>> & /*p_source_file_options*/,
-            const Map<String, String> & /*p_base_paths*/) override {
+    StringName get_option_group_file() const override { return StringName(); }
+    Error import_group_file(se_string_view /*p_group_file*/,
+            const Map<se_string, Map<StringName, Variant>> & /*p_source_file_options*/,
+            const Map<se_string, se_string> & /*p_base_paths*/) override {
         return ERR_UNAVAILABLE;
     }
 

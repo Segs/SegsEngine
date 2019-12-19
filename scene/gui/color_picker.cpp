@@ -106,10 +106,10 @@ void ColorPicker::_update_controls() {
 
     if (hsv_mode_enabled) {
         for (int i = 0; i < 3; i++)
-            labels[i]->set_text(hsv[i]);
+            labels[i]->set_text(StaticCString(hsv[i],true));
     } else {
         for (int i = 0; i < 3; i++)
-            labels[i]->set_text(rgb[i]);
+            labels[i]->set_text(StaticCString(rgb[i],true));
     }
 
     if (hsv_mode_enabled) {
@@ -192,7 +192,7 @@ void ColorPicker::_value_changed(double) {
     emit_signal("color_changed", color);
 }
 
-void ColorPicker::_html_entered(const String &p_html) {
+void ColorPicker::_html_entered(se_string_view p_html) {
 
     if (updating || text_is_constructor || !c_text->is_visible())
         return;
@@ -386,18 +386,18 @@ bool ColorPicker::is_deferred_mode() const {
 void ColorPicker::_update_text_value() {
     bool visible = true;
     if (text_is_constructor) {
-        String t = FormatV("Color(%f, %f, %f",color.r,color.g,color.b);
+        se_string t = FormatVE("Color(%f, %f, %f",color.r,color.g,color.b);
         if (edit_alpha && color.a < 1)
             t += ", " + StringUtils::num(color.a) + ")";
         else
-            t += ")";
-        c_text->set_text(t);
+            t += ')';
+        c_text->set_text_utf8(t);
     }
 
     if (color.r > 1 || color.g > 1 || color.b > 1 || color.r < 0 || color.g < 0 || color.b < 0) {
         visible = false;
     } else if (!text_is_constructor) {
-        c_text->set_text(color.to_html(edit_alpha && color.a < 1));
+        c_text->set_text_utf8(color.to_html(edit_alpha && color.a < 1));
     }
 
     text_type->set_visible(visible);
@@ -405,7 +405,7 @@ void ColorPicker::_update_text_value() {
 }
 
 void ColorPicker::_sample_draw() {
-    const Rect2 r = Rect2(Point2(), Size2(uv_edit->get_size().width, sample->get_size().height * 0.95));
+    const Rect2 r = Rect2(Point2(), Size2(uv_edit->get_size().width, sample->get_size().height * 0.95f));
     if (color.a < 1.0f) {
         sample->draw_texture_rect(get_icon("preset_bg", "ColorPicker"), r, true);
     }
@@ -580,7 +580,7 @@ void ColorPicker::_preset_input(const Ref<InputEvent> &p_event) {
             index /= preset->get_size().x;
         }
         if (index < 0 || index >= presets.size()) return;
-        preset->set_tooltip("Color: #" + presets[index].to_html(presets[index].a < 1) +
+        preset->set_tooltip_utf8("Color: #" + presets[index].to_html(presets[index].a < 1) +
                             "\n"
                             "LMB: Set color\n"
                             "RMB: Remove preset");

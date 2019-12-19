@@ -40,7 +40,7 @@ PropertyInfo MethodBind::get_argument_info(int p_argument) const {
     ERR_FAIL_INDEX_V(p_argument, get_argument_count(), PropertyInfo())
 
     PropertyInfo info = _gen_argument_type_info(p_argument);
-    info.name = p_argument < arg_names.size() ? (arg_names[p_argument]) : StringName("arg" + itos(p_argument));
+    info.name = StringName("arg" + itos(p_argument));
     return info;
 }
 
@@ -50,12 +50,12 @@ PropertyInfo MethodBind::get_return_info() const {
 }
 
 #endif
-void MethodBind::_set_const(bool p_const) {
+void MethodBind::_set_const(bool p_const) noexcept {
 
     _const = p_const;
 }
 
-void MethodBind::_set_returns(bool p_returns) {
+void MethodBind::_set_returns(bool p_returns) noexcept {
 
     _returns = p_returns;
 }
@@ -68,16 +68,16 @@ void MethodBind::set_name(const StringName &p_name) {
 }
 
 #ifdef DEBUG_METHODS_ENABLED
-void MethodBind::set_argument_names(const PODVector<StringName> &p_names) {
+//void MethodBind::set_argument_names(const PODVector<StringName> &p_names) {
 
-    arg_names = p_names;
-}
-const PODVector<StringName> &MethodBind::get_argument_names() const {
+//    arg_names = p_names;
+//}
+//const PODVector<StringName> &MethodBind::get_argument_names() const {
 
-    return arg_names;
-}
+//    return arg_names;
+//}
 
-GodotTypeInfo::Metadata MethodBind::get_argument_meta(int p_arg) const
+GodotTypeInfo::Metadata MethodBind::get_argument_meta(int p_arg) const noexcept
 {
     if(p_arg<-1 || p_arg >= argument_count)
         return GodotTypeInfo::METADATA_NONE;

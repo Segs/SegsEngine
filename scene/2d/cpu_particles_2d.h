@@ -175,6 +175,7 @@ private:
 
     Vector2 gravity;
 
+    void _update_internal();
     void _particles_process(float p_delta);
     void _update_particle_data_buffer();
 
@@ -282,7 +283,7 @@ public:
     void set_gravity(const Vector2 &p_gravity);
     Vector2 get_gravity() const;
 
-    String get_configuration_warning() const override;
+    StringName get_configuration_warning() const override;
 
     void restart();
 

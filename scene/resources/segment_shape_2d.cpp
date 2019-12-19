@@ -37,7 +37,7 @@
 IMPL_GDCLASS(SegmentShape2D)
 IMPL_GDCLASS(RayShape2D)
 
-bool SegmentShape2D::_edit_is_selected_on_click(const Point2 &p_point, double p_tolerance) const {
+bool SegmentShape2D::_edit_is_selected_on_click(const Point2 &p_point, float p_tolerance) const {
 
     Vector2 l[2] = { a, b };
     Vector2 closest = Geometry::get_closest_point_to_segment_2d(p_point, l);

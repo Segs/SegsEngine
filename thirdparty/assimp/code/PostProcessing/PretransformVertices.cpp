@@ -47,9 +47,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 #include "PretransformVertices.h"
+#include "ConvertToLHProcess.h"
 #include "ProcessHelper.h"
-#include <assimp/SceneCombiner.h>
 #include <assimp/Exceptional.h>
+#include <assimp/SceneCombiner.h>
 
 using namespace Assimp;
 
@@ -59,12 +60,12 @@ using namespace Assimp;
 
 // ------------------------------------------------------------------------------------------------
 // Constructor to be privately used by Importer
-PretransformVertices::PretransformVertices()
-: configKeepHierarchy (false)
-, configNormalize(false)
-, configTransform(false)
-, configTransformation()
-, mConfigPointCloud( false ) {
+PretransformVertices::PretransformVertices() :
+		configKeepHierarchy(false),
+		configNormalize(false),
+		configTransform(false),
+		configTransformation(),
+		mConfigPointCloud(false) {
     // empty
 }
 
@@ -76,15 +77,13 @@ PretransformVertices::~PretransformVertices() {
 
 // ------------------------------------------------------------------------------------------------
 // Returns whether the processing step is present in the given flag field.
-bool PretransformVertices::IsActive( unsigned int pFlags) const
-{
+bool PretransformVertices::IsActive(unsigned int pFlags) const {
     return  (pFlags & aiProcess_PreTransformVertices) != 0;
 }
 
 // ------------------------------------------------------------------------------------------------
 // Setup import configuration
-void PretransformVertices::SetupProperties(const Importer* pImp)
-{
+void PretransformVertices::SetupProperties(const Importer *pImp) {
     // Get the current value of AI_CONFIG_PP_PTV_KEEP_HIERARCHY, AI_CONFIG_PP_PTV_NORMALIZE,
     // AI_CONFIG_PP_PTV_ADD_ROOT_TRANSFORMATION and AI_CONFIG_PP_PTV_ROOT_TRANSFORMATION
     configKeepHierarchy = (0 != pImp->GetPropertyInteger(AI_CONFIG_PP_PTV_KEEP_HIERARCHY,0));
@@ -98,11 +97,9 @@ void PretransformVertices::SetupProperties(const Importer* pImp)
 
 // ------------------------------------------------------------------------------------------------
 // Count the number of nodes
-unsigned int PretransformVertices::CountNodes( aiNode* pcNode )
-{
+unsigned int PretransformVertices::CountNodes(const aiNode *pcNode) const {
     unsigned int iRet = 1;
-    for (unsigned int i = 0;i < pcNode->mNumChildren;++i)
-    {
+	for (unsigned int i = 0; i < pcNode->mNumChildren; ++i) {
         iRet += CountNodes(pcNode->mChildren[i]);
     }
     return iRet;
@@ -110,8 +107,7 @@ unsigned int PretransformVertices::CountNodes( aiNode* pcNode )
 
 // ------------------------------------------------------------------------------------------------
 // Get a bitwise combination identifying the vertex format of a mesh
-unsigned int PretransformVertices::GetMeshVFormat( aiMesh* pcMesh )
-{
+unsigned int PretransformVertices::GetMeshVFormat(aiMesh *pcMesh) const {
     // the vertex format is stored in aiMesh::mBones for later retrieval.
     // there isn't a good reason to compute it a few hundred times
     // from scratch. The pointer is unused as animations are lost
@@ -130,20 +126,16 @@ unsigned int PretransformVertices::GetMeshVFormat( aiMesh* pcMesh )
 // ------------------------------------------------------------------------------------------------
 // Count the number of vertices in the whole scene and a given
 // material index
-void PretransformVertices::CountVerticesAndFaces( aiScene* pcScene, aiNode* pcNode, unsigned int iMat,
-    unsigned int iVFormat, unsigned int* piFaces, unsigned int* piVertices)
-{
-    for (unsigned int i = 0; i < pcNode->mNumMeshes;++i)
-    {
+void PretransformVertices::CountVerticesAndFaces(const aiScene *pcScene, const aiNode *pcNode, unsigned int iMat,
+		unsigned int iVFormat, unsigned int *piFaces, unsigned int *piVertices) const {
+	for (unsigned int i = 0; i < pcNode->mNumMeshes; ++i) {
         aiMesh* pcMesh = pcScene->mMeshes[ pcNode->mMeshes[i] ];
-        if (iMat == pcMesh->mMaterialIndex && iVFormat == GetMeshVFormat(pcMesh))
-        {
+		if (iMat == pcMesh->mMaterialIndex && iVFormat == GetMeshVFormat(pcMesh)) {
             *piVertices += pcMesh->mNumVertices;
             *piFaces += pcMesh->mNumFaces;
         }
     }
-    for (unsigned int i = 0;i < pcNode->mNumChildren;++i)
-    {
+	for (unsigned int i = 0; i < pcNode->mNumChildren; ++i) {
         CountVerticesAndFaces(pcScene,pcNode->mChildren[i],iMat,
             iVFormat,piFaces,piVertices);
     }
@@ -151,24 +143,20 @@ void PretransformVertices::CountVerticesAndFaces( aiScene* pcScene, aiNode* pcNo
 
 // ------------------------------------------------------------------------------------------------
 // Collect vertex/face data
-void PretransformVertices::CollectData( aiScene* pcScene, aiNode* pcNode, unsigned int iMat,
+void PretransformVertices::CollectData(const aiScene *pcScene, const aiNode *pcNode, unsigned int iMat,
     unsigned int iVFormat, aiMesh* pcMeshOut,
-    unsigned int aiCurrent[2], unsigned int* num_refs)
-{
+		unsigned int aiCurrent[2], unsigned int *num_refs) const {
     // No need to multiply if there's no transformation
     const bool identity = pcNode->mTransformation.IsIdentity();
-    for (unsigned int i = 0; i < pcNode->mNumMeshes;++i)
-    {
+	for (unsigned int i = 0; i < pcNode->mNumMeshes; ++i) {
         aiMesh* pcMesh = pcScene->mMeshes[ pcNode->mMeshes[i] ];
-        if (iMat == pcMesh->mMaterialIndex && iVFormat == GetMeshVFormat(pcMesh))
-        {
+		if (iMat == pcMesh->mMaterialIndex && iVFormat == GetMeshVFormat(pcMesh)) {
             // Decrement mesh reference counter
             unsigned int& num_ref = num_refs[pcNode->mMeshes[i]];
             ai_assert(0 != num_ref);
             --num_ref;
             // Save the name of the last mesh
-            if (num_ref==0)
-            {
+			if (num_ref == 0) {
                 pcMeshOut->mName = pcMesh->mName;
             }
 
@@ -184,8 +172,7 @@ void PretransformVertices::CollectData( aiScene* pcScene, aiNode* pcNode, unsign
                         pcMesh->mNormals,
                         pcMesh->mNumVertices * sizeof(aiVector3D));
                 }
-                if (iVFormat & 0x4)
-                {
+				if (iVFormat & 0x4) {
                     // copy tangents without modifying them
                     ::memcpy(pcMeshOut->mTangents + aiCurrent[AI_PTVS_VERTEX],
                         pcMesh->mTangents,
@@ -195,9 +182,7 @@ void PretransformVertices::CollectData( aiScene* pcScene, aiNode* pcNode, unsign
                         pcMesh->mBitangents,
                         pcMesh->mNumVertices * sizeof(aiVector3D));
                 }
-            }
-            else
-            {
+			} else {
                 // copy positions, transform them to worldspace
                 for (unsigned int n = 0; n < pcMesh->mNumVertices;++n)  {
                     pcMeshOut->mVertices[aiCurrent[AI_PTVS_VERTEX]+n] = pcNode->mTransformation * pcMesh->mVertices[n];
@@ -208,16 +193,14 @@ void PretransformVertices::CollectData( aiScene* pcScene, aiNode* pcNode, unsign
                 // TODO: implement Inverse() for aiMatrix3x3
                 aiMatrix3x3 m = aiMatrix3x3(mWorldIT);
 
-                if (iVFormat & 0x2)
-                {
+				if (iVFormat & 0x2) {
                     // copy normals, transform them to worldspace
                     for (unsigned int n = 0; n < pcMesh->mNumVertices;++n)  {
                         pcMeshOut->mNormals[aiCurrent[AI_PTVS_VERTEX]+n] =
                             (m * pcMesh->mNormals[n]).Normalize();
                     }
                 }
-                if (iVFormat & 0x4)
-                {
+				if (iVFormat & 0x4) {
                     // copy tangents and bitangents, transform them to worldspace
                     for (unsigned int n = 0; n < pcMesh->mNumVertices;++n)  {
                         pcMeshOut->mTangents  [aiCurrent[AI_PTVS_VERTEX]+n] = (m * pcMesh->mTangents[n]).Normalize();
@@ -226,8 +209,7 @@ void PretransformVertices::CollectData( aiScene* pcScene, aiNode* pcNode, unsign
                 }
             }
             unsigned int p = 0;
-            while (iVFormat & (0x100 << p))
-            {
+			while (iVFormat & (0x100 << p)) {
                 // copy texture coordinates
                 memcpy(pcMeshOut->mTextureCoords[p] + aiCurrent[AI_PTVS_VERTEX],
                     pcMesh->mTextureCoords[p],
@@ -235,8 +217,7 @@ void PretransformVertices::CollectData( aiScene* pcScene, aiNode* pcNode, unsign
                 ++p;
             }
             p = 0;
-            while (iVFormat & (0x1000000 << p))
-            {
+			while (iVFormat & (0x1000000 << p)) {
                 // copy vertex colors
                 memcpy(pcMeshOut->mColors[p] + aiCurrent[AI_PTVS_VERTEX],
                     pcMesh->mColors[p],
@@ -246,8 +227,7 @@ void PretransformVertices::CollectData( aiScene* pcScene, aiNode* pcNode, unsign
             // now we need to copy all faces. since we will delete the source mesh afterwards,
             // we don't need to reallocate the array of indices except if this mesh is
             // referenced multiple times.
-            for (unsigned int planck = 0;planck < pcMesh->mNumFaces;++planck)
-            {
+			for (unsigned int planck = 0; planck < pcMesh->mNumFaces; ++planck) {
                 aiFace& f_src = pcMesh->mFaces[planck];
                 aiFace& f_dst = pcMeshOut->mFaces[aiCurrent[AI_PTVS_FACE]+planck];
 
@@ -263,8 +243,7 @@ void PretransformVertices::CollectData( aiScene* pcScene, aiNode* pcNode, unsign
                     for (unsigned int hahn = 0; hahn < num_idx;++hahn){
                         pi[hahn] += aiCurrent[AI_PTVS_VERTEX];
                     }
-                }
-                else {
+				} else {
                     pi = f_dst.mIndices = new unsigned int[num_idx];
 
                     // copy and offset all vertex indices
@@ -274,8 +253,7 @@ void PretransformVertices::CollectData( aiScene* pcScene, aiNode* pcNode, unsign
                 }
 
                 // Update the mPrimitiveTypes member of the mesh
-                switch (pcMesh->mFaces[planck].mNumIndices)
-                {
+				switch (pcMesh->mFaces[planck].mNumIndices) {
                 case 0x1:
                     pcMeshOut->mPrimitiveTypes |= aiPrimitiveType_POINT;
                     break;
@@ -305,11 +283,9 @@ void PretransformVertices::CollectData( aiScene* pcScene, aiNode* pcNode, unsign
 // ------------------------------------------------------------------------------------------------
 // Get a list of all vertex formats that occur for a given material index
 // The output list contains duplicate elements
-void PretransformVertices::GetVFormatList( aiScene* pcScene, unsigned int iMat,
-    std::list<unsigned int>& aiOut)
-{
-    for (unsigned int i = 0; i < pcScene->mNumMeshes;++i)
-    {
+void PretransformVertices::GetVFormatList(const aiScene *pcScene, unsigned int iMat,
+		std::list<unsigned int> &aiOut) const {
+	for (unsigned int i = 0; i < pcScene->mNumMeshes; ++i) {
         aiMesh* pcMesh = pcScene->mMeshes[ i ];
         if (iMat == pcMesh->mMaterialIndex) {
             aiOut.push_back(GetMeshVFormat(pcMesh));
@@ -319,8 +295,7 @@ void PretransformVertices::GetVFormatList( aiScene* pcScene, unsigned int iMat,
 
 // ------------------------------------------------------------------------------------------------
 // Compute the absolute transformation matrices of each node
-void PretransformVertices::ComputeAbsoluteTransform( aiNode* pcNode )
-{
+void PretransformVertices::ComputeAbsoluteTransform(aiNode *pcNode) {
     if (pcNode->mParent)    {
         pcNode->mTransformation = pcNode->mParent->mTransformation*pcNode->mTransformation;
     }
@@ -332,22 +307,25 @@ void PretransformVertices::ComputeAbsoluteTransform( aiNode* pcNode )
 
 // ------------------------------------------------------------------------------------------------
 // Apply the node transformation to a mesh
-void PretransformVertices::ApplyTransform(aiMesh* mesh, const aiMatrix4x4& mat)
-{
+void PretransformVertices::ApplyTransform(aiMesh *mesh, const aiMatrix4x4 &mat) const {
     // Check whether we need to transform the coordinates at all
     if (!mat.IsIdentity()) {
 
+		// Check for odd negative scale (mirror)
+		if (mesh->HasFaces() && mat.Determinant() < 0) {
+			// Reverse the mesh face winding order
+			FlipWindingOrderProcess::ProcessMesh(mesh);
+		}
+
+		// Update positions
         if (mesh->HasPositions()) {
             for (unsigned int i = 0; i < mesh->mNumVertices; ++i) {
                 mesh->mVertices[i] = mat * mesh->mVertices[i];
             }
         }
+		// Update normals and tangents
         if (mesh->HasNormals() || mesh->HasTangentsAndBitangents()) {
-            aiMatrix4x4 mWorldIT = mat;
-            mWorldIT.Inverse().Transpose();
-
-            // TODO: implement Inverse() for aiMatrix3x3
-            aiMatrix3x3 m = aiMatrix3x3(mWorldIT);
+			const aiMatrix3x3 m = aiMatrix3x3(mat).Inverse().Transpose();
 
             if (mesh->HasNormals()) {
                 for (unsigned int i = 0; i < mesh->mNumVertices; ++i) {
@@ -367,8 +345,7 @@ void PretransformVertices::ApplyTransform(aiMesh* mesh, const aiMatrix4x4& mat)
 // ------------------------------------------------------------------------------------------------
 // Simple routine to build meshes in worldspace, no further optimization
 void PretransformVertices::BuildWCSMeshes(std::vector<aiMesh*>& out, aiMesh** in,
-    unsigned int numIn, aiNode* node)
-{
+		unsigned int numIn, aiNode *node) const {
     // NOTE:
     //  aiMesh::mNumBones store original source mesh, or UINT_MAX if not a copy
     //  aiMesh::mBones store reference to abs. transform we multiplied with
@@ -382,8 +359,7 @@ void PretransformVertices::BuildWCSMeshes(std::vector<aiMesh*>& out, aiMesh** in
             // yes, we can.
             mesh->mBones = reinterpret_cast<aiBone**> (&node->mTransformation);
             mesh->mNumBones = UINT_MAX;
-        }
-        else {
+		} else {
 
             // try to find us in the list of newly created meshes
             for (unsigned int n = 0; n < out.size(); ++n) {
@@ -421,8 +397,7 @@ void PretransformVertices::BuildWCSMeshes(std::vector<aiMesh*>& out, aiMesh** in
 
 // ------------------------------------------------------------------------------------------------
 // Reset transformation matrices to identity
-void PretransformVertices::MakeIdentityTransform(aiNode* nd)
-{
+void PretransformVertices::MakeIdentityTransform(aiNode *nd) const {
     nd->mTransformation = aiMatrix4x4();
 
     // call children
@@ -432,8 +407,7 @@ void PretransformVertices::MakeIdentityTransform(aiNode* nd)
 
 // ------------------------------------------------------------------------------------------------
 // Build reference counters for all meshes
-void PretransformVertices::BuildMeshRefCountArray(aiNode* nd, unsigned int * refs)
-{
+void PretransformVertices::BuildMeshRefCountArray(const aiNode *nd, unsigned int *refs) const {
     for (unsigned int i = 0; i< nd->mNumMeshes;++i)
         refs[nd->mMeshes[i]]++;
 
@@ -444,8 +418,7 @@ void PretransformVertices::BuildMeshRefCountArray(aiNode* nd, unsigned int * ref
 
 // ------------------------------------------------------------------------------------------------
 // Executes the post processing step on the given imported data.
-void PretransformVertices::Execute( aiScene* pScene)
-{
+void PretransformVertices::Execute(aiScene *pScene) {
     ASSIMP_LOG_DEBUG("PretransformVerticesProcess begin");
 
     // Return immediately if we have no meshes
@@ -496,7 +469,8 @@ void PretransformVertices::Execute( aiScene* pScene)
             memcpy(npp+pScene->mNumMeshes,&apcOutMeshes[0],sizeof(aiMesh*)*apcOutMeshes.size());
 
             pScene->mNumMeshes  += static_cast<unsigned int>(apcOutMeshes.size());
-            delete[] pScene->mMeshes; pScene->mMeshes = npp;
+			delete[] pScene->mMeshes;
+			pScene->mMeshes = npp;
         }
 
         // now iterate through all meshes and transform them to worldspace
@@ -524,8 +498,7 @@ void PretransformVertices::Execute( aiScene* pScene)
                 unsigned int iVertices = 0;
                 unsigned int iFaces = 0;
                 CountVerticesAndFaces(pScene,pScene->mRootNode,i,*j,&iFaces,&iVertices);
-                if (0 != iFaces && 0 != iVertices)
-                {
+				if (0 != iFaces && 0 != iVertices) {
                     apcOutMeshes.push_back(new aiMesh());
                     aiMesh* pcMesh = apcOutMeshes.back();
                     pcMesh->mNumFaces = iFaces;
@@ -534,17 +507,17 @@ void PretransformVertices::Execute( aiScene* pScene)
                     pcMesh->mVertices = new aiVector3D[iVertices];
                     pcMesh->mMaterialIndex = i;
                     if ((*j) & 0x2)pcMesh->mNormals = new aiVector3D[iVertices];
-                    if ((*j) & 0x4)
-                    {
+					if ((*j) & 0x4) {
                         pcMesh->mTangents    = new aiVector3D[iVertices];
                         pcMesh->mBitangents  = new aiVector3D[iVertices];
                     }
                     iFaces = 0;
-                    while ((*j) & (0x100 << iFaces))
-                    {
+					while ((*j) & (0x100 << iFaces)) {
                         pcMesh->mTextureCoords[iFaces] = new aiVector3D[iVertices];
-                        if ((*j) & (0x10000 << iFaces))pcMesh->mNumUVComponents[iFaces] = 3;
-                        else pcMesh->mNumUVComponents[iFaces] = 2;
+						if ((*j) & (0x10000 << iFaces))
+							pcMesh->mNumUVComponents[iFaces] = 3;
+						else
+							pcMesh->mNumUVComponents[iFaces] = 2;
                         iFaces++;
                     }
                     iFaces = 0;
@@ -562,12 +535,9 @@ void PretransformVertices::Execute( aiScene* pScene)
         if (apcOutMeshes.empty()) {
             
             throw DeadlyImportError("No output meshes: all meshes are orphaned and are not referenced by any nodes");
-        }
-        else
-        {
+		} else {
             // now delete all meshes in the scene and build a new mesh list
-            for (unsigned int i = 0; i < pScene->mNumMeshes;++i)
-            {
+			for (unsigned int i = 0; i < pScene->mNumMeshes; ++i) {
                 aiMesh* mesh = pScene->mMeshes[i];
                 mesh->mNumBones = 0;
                 mesh->mBones    = NULL;
@@ -606,8 +576,7 @@ void PretransformVertices::Execute( aiScene* pScene)
     pScene->mNumAnimations = 0;
 
     // --- we need to keep all cameras and lights
-    for (unsigned int i = 0; i < pScene->mNumCameras;++i)
-    {
+	for (unsigned int i = 0; i < pScene->mNumCameras; ++i) {
         aiCamera* cam = pScene->mCameras[i];
         const aiNode* nd = pScene->mRootNode->FindNode(cam->mName);
         ai_assert(NULL != nd);
@@ -619,8 +588,7 @@ void PretransformVertices::Execute( aiScene* pScene)
         cam->mUp       = aiMatrix3x3( nd->mTransformation ) * cam->mUp;
     }
 
-    for (unsigned int i = 0; i < pScene->mNumLights;++i)
-    {
+	for (unsigned int i = 0; i < pScene->mNumLights; ++i) {
         aiLight* l = pScene->mLights[i];
         const aiNode* nd = pScene->mRootNode->FindNode(l->mName);
         ai_assert(NULL != nd);
@@ -641,20 +609,16 @@ void PretransformVertices::Execute( aiScene* pScene)
         delete pScene->mRootNode;
         pScene->mRootNode = newRoot;
 
-        if (1 == pScene->mNumMeshes && !pScene->mNumLights && !pScene->mNumCameras)
-        {
+		if (1 == pScene->mNumMeshes && !pScene->mNumLights && !pScene->mNumCameras) {
             pScene->mRootNode->mNumMeshes = 1;
             pScene->mRootNode->mMeshes = new unsigned int[1];
             pScene->mRootNode->mMeshes[0] = 0;
-        }
-        else
-        {
+		} else {
             pScene->mRootNode->mNumChildren = pScene->mNumMeshes+pScene->mNumLights+pScene->mNumCameras;
             aiNode** nodes = pScene->mRootNode->mChildren = new aiNode*[pScene->mRootNode->mNumChildren];
 
             // generate mesh nodes
-            for (unsigned int i = 0; i < pScene->mNumMeshes;++i,++nodes)
-            {
+			for (unsigned int i = 0; i < pScene->mNumMeshes; ++i, ++nodes) {
                 aiNode* pcNode = new aiNode();
                 *nodes = pcNode;
                 pcNode->mParent = pScene->mRootNode;
@@ -666,8 +630,7 @@ void PretransformVertices::Execute( aiScene* pScene)
                 pcNode->mMeshes[0] = i;
             }
             // generate light nodes
-            for (unsigned int i = 0; i < pScene->mNumLights;++i,++nodes)
-            {
+			for (unsigned int i = 0; i < pScene->mNumLights; ++i, ++nodes) {
                 aiNode* pcNode = new aiNode();
                 *nodes = pcNode;
                 pcNode->mParent = pScene->mRootNode;
@@ -675,8 +638,7 @@ void PretransformVertices::Execute( aiScene* pScene)
                 pScene->mLights[i]->mName = pcNode->mName;
             }
             // generate camera nodes
-            for (unsigned int i = 0; i < pScene->mNumCameras;++i,++nodes)
-            {
+			for (unsigned int i = 0; i < pScene->mNumCameras; ++i, ++nodes) {
                 aiNode* pcNode = new aiNode();
                 *nodes = pcNode;
                 pcNode->mParent = pScene->mRootNode;
@@ -684,8 +646,7 @@ void PretransformVertices::Execute( aiScene* pScene)
                 pScene->mCameras[i]->mName = pcNode->mName;
             }
         }
-    }
-    else {
+	} else {
         // ... and finally set the transformation matrix of all nodes to identity
         MakeIdentityTransform(pScene->mRootNode);
     }

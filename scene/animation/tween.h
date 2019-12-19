@@ -69,7 +69,7 @@ public:
     };
 
 private:
-    enum InterpolateType {
+    enum InterpolateType : int8_t {
 
         INTER_PROPERTY,
         INTER_METHOD,
@@ -81,10 +81,10 @@ private:
     };
 
     struct InterpolateData {
-        bool active;
+        bool active=false;
         InterpolateType type;
-        bool finish;
-        bool call_deferred;
+        bool finish=false;
+        bool call_deferred=false;
         real_t elapsed;
         ObjectID id;
         Vector<StringName> key;
@@ -100,7 +100,7 @@ private:
         real_t delay;
         int args;
         Variant arg[5];
-        int uid;
+        int uid=0;
     };
 
     //String autoplay;
@@ -126,10 +126,12 @@ private:
     static interpolater interpolaters[TRANS_COUNT][EASE_COUNT];
 
     real_t _run_equation(TransitionType p_trans_type, EaseType p_ease_type, real_t t, real_t b, real_t c, real_t d);
-    Variant &_get_delta_val(InterpolateData &p_data);
-    Variant &_get_initial_val(InterpolateData &p_data);
+    const Variant &_get_delta_val(InterpolateData &p_data);
+    Variant _get_initial_val(const InterpolateData &p_data) const;
+    Variant _get_final_val(const InterpolateData &p_data) const;
+
     Variant _run_equation(InterpolateData &p_data);
-    bool _calc_delta_val(const Variant &p_initial_val, const Variant &p_final_val, Variant &p_delta_val);
+    bool _calc_delta_val(const Variant &p_initial_val, const Variant &p_final_val, Variant &p_delta_val) const;
     bool _apply_tween_value(InterpolateData &p_data, Variant &value);
 
     void _tween_process(float p_delta);
@@ -172,21 +174,14 @@ public:
     real_t tell() const;
     real_t get_runtime() const;
 
-    bool interpolate_property(Object *p_object, NodePath p_property, Variant p_initial_val, Variant p_final_val, real_t p_duration, TransitionType p_trans_type, EaseType p_ease_type, real_t p_delay = 0);
-
-    bool interpolate_method(Object *p_object, StringName p_method, Variant p_initial_val, Variant p_final_val, real_t p_duration, TransitionType p_trans_type, EaseType p_ease_type, real_t p_delay = 0);
-
-    bool interpolate_callback(Object *p_object, real_t p_duration, const String& p_callback, VARIANT_ARG_DECLARE);
-
-    bool interpolate_deferred_callback(Object *p_object, real_t p_duration, const String& p_callback, VARIANT_ARG_DECLARE);
-
-    bool follow_property(Object *p_object, NodePath p_property, Variant p_initial_val, Object *p_target, NodePath p_target_property, real_t p_duration, TransitionType p_trans_type, EaseType p_ease_type, real_t p_delay = 0);
-
-    bool follow_method(Object *p_object, const StringName& p_method, Variant p_initial_val, Object *p_target, const StringName& p_target_method, real_t p_duration, TransitionType p_trans_type, EaseType p_ease_type, real_t p_delay = 0);
-
-    bool targeting_property(Object *p_object, NodePath p_property, Object *p_initial, NodePath p_initial_property, Variant p_final_val, real_t p_duration, TransitionType p_trans_type, EaseType p_ease_type, real_t p_delay = 0);
-
-    bool targeting_method(Object *p_object, const StringName& p_method, Object *p_initial, const StringName& p_initial_method, Variant p_final_val, real_t p_duration, TransitionType p_trans_type, EaseType p_ease_type, real_t p_delay = 0);
+    bool interpolate_property(Object *p_object, NodePath p_property, Variant p_initial_val, Variant p_final_val, real_t p_duration, TransitionType p_trans_type = TRANS_LINEAR, EaseType p_ease_type = EASE_IN_OUT, real_t p_delay = 0);
+    bool interpolate_method(Object *p_object, StringName p_method, Variant p_initial_val, Variant p_final_val, real_t p_duration, TransitionType p_trans_type = TRANS_LINEAR, EaseType p_ease_type = EASE_IN_OUT, real_t p_delay = 0);
+    bool interpolate_callback(Object *p_object, real_t p_duration, const StringName &p_callback, VARIANT_ARG_DECLARE);
+    bool interpolate_deferred_callback(Object *p_object, real_t p_duration, const StringName &p_callback, VARIANT_ARG_DECLARE);
+    bool follow_property(Object *p_object, NodePath p_property, Variant p_initial_val, Object *p_target, NodePath p_target_property, real_t p_duration, TransitionType p_trans_type = TRANS_LINEAR, EaseType p_ease_type = EASE_IN_OUT, real_t p_delay = 0);
+    bool follow_method(Object *p_object, const StringName &p_method, Variant p_initial_val, Object *p_target, const StringName &p_target_method, real_t p_duration, TransitionType p_trans_type = TRANS_LINEAR, EaseType p_ease_type = EASE_IN_OUT, real_t p_delay = 0);
+    bool targeting_property(Object *p_object, NodePath p_property, Object *p_initial, NodePath p_initial_property, Variant p_final_val, real_t p_duration, TransitionType p_trans_type = TRANS_LINEAR, EaseType p_ease_type = EASE_IN_OUT, real_t p_delay = 0);
+    bool targeting_method(Object *p_object, const StringName & p_method, Object *p_initial, const StringName & p_initial_method, Variant p_final_val, real_t p_duration, TransitionType p_trans_type = TRANS_LINEAR, EaseType p_ease_type = EASE_IN_OUT, real_t p_delay = 0);
 
     Tween();
     ~Tween() override;

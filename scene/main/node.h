@@ -45,8 +45,6 @@ class NodePath;
 
 enum MultiplayerAPI_RPCMode : int8_t;
 
-class String;
-
 class GODOT_EXPORT Node : public Object {
 
     GDCLASS(Node,Object)
@@ -152,8 +150,8 @@ private:
 #ifdef TOOLS_ENABLED
     friend class SceneTreeEditor;
 #endif
-    static String invalid_character;
-    static bool _validate_node_name(String &p_name);
+    static const char *invalid_character;
+    static bool _validate_node_name(se_string &p_name);
 
 protected:
     void _block() { blocked++; }
@@ -168,7 +166,6 @@ protected:
     void _propagate_replace_owner(Node *p_owner, Node *p_by_owner);
 
     static void _bind_methods();
-    static String _get_name_num_separator();
 
     friend class SceneState;
 
@@ -219,7 +216,7 @@ public:
     /* NODE/TREE */
 
     StringName get_name() const;
-    void set_name(const String &p_name);
+    void set_name(se_string_view p_name);
 
     void add_child(Node *p_child, bool p_legible_unique_name = false);
     void add_child_below_node(Node *p_node, Node *p_child, bool p_legible_unique_name = false);
@@ -230,12 +227,12 @@ public:
     bool has_node(const NodePath &p_path) const;
     Node *get_node(const NodePath &p_path) const;
     Node *get_node_or_null(const NodePath &p_path) const;
-    Node *find_node(const String &p_mask, bool p_recursive = true, bool p_owned = true) const;
+    Node *find_node(se_string_view p_mask, bool p_recursive = true, bool p_owned = true) const;
     bool has_node_and_resource(const NodePath &p_path) const;
     Node *get_node_and_resource(const NodePath &p_path, Ref<Resource> &r_res, Vector<StringName> &r_leftover_subpath, bool p_last_is_property = true) const;
 
     Node *get_parent() const;
-    Node *find_parent(const String &p_mask) const;
+    Node *find_parent(se_string_view p_mask) const;
 
     _FORCE_INLINE_ SceneTree *get_tree() const {
         ERR_FAIL_COND_V(!tree, nullptr)
@@ -277,11 +274,11 @@ public:
     void print_tree();
     void print_tree_pretty();
 
-    void set_filename(const String &p_filename);
-    String get_filename() const;
+    void set_filename(se_string_view p_filename);
+    se_string_view get_filename() const;
 
-    void set_editor_description(const String &p_editor_description);
-    String get_editor_description() const;
+    void set_editor_description(se_string_view p_editor_description);
+    se_string get_editor_description() const;
 
     void set_editable_instance(Node *p_node, bool p_editable);
     bool is_editable_instance(const Node *p_node) const;
@@ -310,6 +307,7 @@ public:
     bool is_processing_internal() const;
 
     void set_process_priority(int p_priority);
+    int get_process_priority() const;
 
     void set_process_input(bool p_enable);
     bool is_processing_input() const;
@@ -352,7 +350,7 @@ public:
     static void print_stray_nodes();
 
 #ifdef TOOLS_ENABLED
-    String validate_child_name(Node *p_child);
+    se_string validate_child_name(Node *p_child);
 #endif
 
     void queue_delete();
@@ -368,13 +366,13 @@ public:
 
     bool is_owned_by_parent() const;
 
-    void get_argument_options(const StringName &p_function, int p_idx, ListPOD<String> *r_options) const override;
+    void get_argument_options(const StringName &p_function, int p_idx, ListPOD<se_string> *r_options) const override;
 
     void clear_internal_tree_resource_paths();
 
     _FORCE_INLINE_ Viewport *get_viewport() const { return viewport; }
 
-    virtual String get_configuration_warning() const;
+    virtual StringName get_configuration_warning() const;
 
     void update_configuration_warning();
 

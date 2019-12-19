@@ -32,6 +32,7 @@
 
 #include "core/method_bind.h"
 #include "core/translation_helpers.h"
+#include "editor/editor_node.h"
 #include "editor/scene_tree_editor.h"
 #include "scene/3d/mesh_instance.h"
 #include "scene/gui/box_container.h"
@@ -55,7 +56,7 @@ void MultiMeshEditor::_populate() {
 
     Ref<Mesh> mesh;
 
-    if (mesh_source->get_text().empty()) {
+    if (mesh_source->get_text_ui().isEmpty()) {
 
         Ref<MultiMesh> multimesh;
         multimesh = node->get_multimesh();
@@ -103,7 +104,7 @@ void MultiMeshEditor::_populate() {
         }
     }
 
-    if (surface_source->get_text().empty()) {
+    if (surface_source->get_text_ui().isEmpty()) {
 
         err_dialog->set_text(TTR("No surface source specified."));
         err_dialog->popup_centered_minsize();
@@ -154,7 +155,7 @@ void MultiMeshEditor::_populate() {
 
     PoolVector<Face3> faces = geometry;
     int facecount = faces.size();
-    ERR_FAIL_COND_CMSG(!facecount, "Parent has no solid faces to populate.")
+    ERR_FAIL_COND_MSG(!facecount, "Parent has no solid faces to populate.")
 
     PoolVector<Face3>::Read r = faces.read();
 
@@ -169,8 +170,8 @@ void MultiMeshEditor::_populate() {
         area_accum += area;
     }
 
-    ERR_FAIL_COND_CMSG(triangle_area_map.empty(), "Couldn't map area.")
-    ERR_FAIL_COND_CMSG(area_accum == 0.0f, "Couldn't map area.")
+    ERR_FAIL_COND_MSG(triangle_area_map.empty(), "Couldn't map area.")
+    ERR_FAIL_COND_MSG(area_accum == 0.0f, "Couldn't map area.")
 
     Ref<MultiMesh> multimesh(make_ref_counted<MultiMesh>());
     multimesh->set_mesh(mesh);
@@ -236,12 +237,12 @@ void MultiMeshEditor::_populate() {
 
 void MultiMeshEditor::_browsed(const NodePath &p_path) {
 
-    String path = String(node->get_path_to(get_node(p_path)));
+    se_string path(node->get_path_to(get_node(p_path)));
 
     if (browsing_source)
-        mesh_source->set_text(path);
+        mesh_source->set_text_utf8(path);
     else
-        surface_source->set_text(path);
+        surface_source->set_text_utf8(path);
 }
 
 void MultiMeshEditor::_menu_option(int p_option) {
@@ -252,8 +253,8 @@ void MultiMeshEditor::_menu_option(int p_option) {
 
             if (_last_pp_node != node) {
 
-                surface_source->set_text("..");
-                mesh_source->set_text("..");
+                surface_source->set_text_utf8("..");
+                mesh_source->set_text_utf8("..");
                 populate_axis->select(1);
                 populate_rotate_random->set_value(0);
                 populate_tilt_random->set_value(0);

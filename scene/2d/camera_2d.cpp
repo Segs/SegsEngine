@@ -251,8 +251,8 @@ void Camera2D::_notification(int p_what) {
 
             RID vp = viewport->get_viewport_rid();
 
-            group_name = "__cameras_" + itos(vp.get_id());
-            canvas_group_name = "__cameras_c" + itos(canvas.get_id());
+            group_name = StringName("__cameras_" + itos(vp.get_id()));
+            canvas_group_name = StringName("__cameras_c" + itos(canvas.get_id()));
             add_to_group(group_name);
             add_to_group(canvas_group_name);
 
@@ -625,8 +625,8 @@ void Camera2D::set_custom_viewport(Node *p_viewport) {
             viewport = get_viewport();
 
         RID vp = viewport->get_viewport_rid();
-        group_name = "__cameras_" + itos(vp.get_id());
-        canvas_group_name = "__cameras_c" + itos(canvas.get_id());
+        group_name = StringName("__cameras_" + itos(vp.get_id()));
+        canvas_group_name = StringName("__cameras_c" + itos(canvas.get_id()));
         add_to_group(group_name);
         add_to_group(canvas_group_name);
     }

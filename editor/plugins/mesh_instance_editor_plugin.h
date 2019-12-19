@@ -38,67 +38,67 @@
 
 class MeshInstanceEditor : public Control {
 
-	GDCLASS(MeshInstanceEditor,Control)
+    GDCLASS(MeshInstanceEditor,Control)
 
-	enum Menu {
+    enum Menu {
 
-		MENU_OPTION_CREATE_STATIC_TRIMESH_BODY,
-		MENU_OPTION_CREATE_STATIC_CONVEX_BODY,
-		MENU_OPTION_CREATE_TRIMESH_COLLISION_SHAPE,
-		MENU_OPTION_CREATE_CONVEX_COLLISION_SHAPE,
-		MENU_OPTION_CREATE_NAVMESH,
-		MENU_OPTION_CREATE_OUTLINE_MESH,
-		MENU_OPTION_CREATE_UV2,
-		MENU_OPTION_DEBUG_UV1,
-		MENU_OPTION_DEBUG_UV2,
-	};
+        MENU_OPTION_CREATE_STATIC_TRIMESH_BODY,
+        MENU_OPTION_CREATE_STATIC_CONVEX_BODY,
+        MENU_OPTION_CREATE_TRIMESH_COLLISION_SHAPE,
+        MENU_OPTION_CREATE_CONVEX_COLLISION_SHAPE,
+        MENU_OPTION_CREATE_NAVMESH,
+        MENU_OPTION_CREATE_OUTLINE_MESH,
+        MENU_OPTION_CREATE_UV2,
+        MENU_OPTION_DEBUG_UV1,
+        MENU_OPTION_DEBUG_UV2,
+    };
 
-	MeshInstance *node;
+    MeshInstance *node;
 
-	MenuButton *options;
+    MenuButton *options;
 
-	ConfirmationDialog *outline_dialog;
-	SpinBox *outline_size;
+    ConfirmationDialog *outline_dialog;
+    SpinBox *outline_size;
 
-	AcceptDialog *err_dialog;
+    AcceptDialog *err_dialog;
 
-	AcceptDialog *debug_uv_dialog;
-	Control *debug_uv;
-	Vector<Vector2> uv_lines;
+    AcceptDialog *debug_uv_dialog;
+    Control *debug_uv;
+    Vector<Vector2> uv_lines;
 
-	void _menu_option(int p_option);
-	void _create_outline_mesh();
+    void _menu_option(int p_option);
+    void _create_outline_mesh();
 
-	void _create_uv_lines(int p_layer);
-	friend class MeshInstanceEditorPlugin;
+    void _create_uv_lines(int p_layer);
+    friend class MeshInstanceEditorPlugin;
 
-	void _debug_uv_draw();
+    void _debug_uv_draw();
 
 protected:
-	void _node_removed(Node *p_node);
-	static void _bind_methods();
+    void _node_removed(Node *p_node);
+    static void _bind_methods();
 
 public:
-	void edit(MeshInstance *p_mesh);
-	MeshInstanceEditor();
+    void edit(MeshInstance *p_mesh);
+    MeshInstanceEditor();
 };
 
 class MeshInstanceEditorPlugin : public EditorPlugin {
 
-	GDCLASS(MeshInstanceEditorPlugin,EditorPlugin)
+    GDCLASS(MeshInstanceEditorPlugin,EditorPlugin)
 
-	MeshInstanceEditor *mesh_editor;
-	EditorNode *editor;
+    MeshInstanceEditor *mesh_editor;
+    EditorNode *editor;
 
 public:
-	String get_name() const override { return "MeshInstance"; }
-	bool has_main_screen() const override { return false; }
-	void edit(Object *p_object) override;
-	bool handles(Object *p_object) const override;
-	void make_visible(bool p_visible) override;
+    se_string_view get_name() const override { return "MeshInstance"; }
+    bool has_main_screen() const override { return false; }
+    void edit(Object *p_object) override;
+    bool handles(Object *p_object) const override;
+    void make_visible(bool p_visible) override;
 
-	MeshInstanceEditorPlugin(EditorNode *p_node);
-	~MeshInstanceEditorPlugin() override;
+    MeshInstanceEditorPlugin(EditorNode *p_node);
+    ~MeshInstanceEditorPlugin() override;
 };
 
 #endif // MESH_EDITOR_PLUGIN_H

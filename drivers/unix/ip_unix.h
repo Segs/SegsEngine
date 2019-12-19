@@ -36,17 +36,17 @@
 #if defined(UNIX_ENABLED) || defined(WINDOWS_ENABLED)
 
 class IP_Unix : public IP {
-	GDCLASS(IP_Unix,IP)
+    GDCLASS(IP_Unix,IP)
 
-	IP_Address _resolve_hostname(const String &p_hostname, IP::Type p_type) override;
+    IP_Address _resolve_hostname(se_string_view p_hostname, IP::Type p_type) override;
 
-	static IP *_create_unix();
+    static IP *_create_unix();
 
 public:
-	void get_local_interfaces(Map<String, Interface_Info> *r_interfaces) const override;
+    void get_local_interfaces(Map<se_string, Interface_Info> *r_interfaces) const override;
 
     static GODOT_EXPORT void make_default();
-	IP_Unix();
+    IP_Unix();
 };
 
 #endif

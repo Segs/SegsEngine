@@ -90,8 +90,8 @@ public:
     void set_tabs_visible(bool p_visibe);
     bool are_tabs_visible() const;
 
-    void set_tab_title(int p_tab, const String &p_title);
-    String get_tab_title(int p_tab) const;
+    void set_tab_title(int p_tab, const StringName &p_title);
+    StringName get_tab_title(int p_tab) const;
 
     void set_tab_icon(int p_tab, const Ref<Texture> &p_icon);
     Ref<Texture> get_tab_icon(int p_tab) const;
@@ -112,7 +112,7 @@ public:
 
     Size2 get_minimum_size() const override;
 
-    void get_translatable_strings(ListPOD<String> *p_strings) const override;
+    void get_translatable_strings(ListPOD<StringName> *p_strings) const override;
 
     void set_popup(Node *p_popup);
     Popup *get_popup() const;

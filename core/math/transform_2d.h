@@ -53,11 +53,11 @@ struct GODOT_EXPORT Transform2D {
     Vector2 &operator[](int p_idx) { return elements[p_idx]; }
 
     _FORCE_INLINE_ Vector2 get_axis(int p_axis) const {
-        ERR_FAIL_INDEX_V(p_axis, 3, Vector2());
+        ERR_FAIL_INDEX_V(p_axis, 3, Vector2())
         return elements[p_axis];
     }
     _FORCE_INLINE_ void set_axis(int p_axis, const Vector2 &p_vec) {
-        ERR_FAIL_INDEX(p_axis, 3);
+        ERR_FAIL_INDEX(p_axis, 3)
         elements[p_axis] = p_vec;
     }
 
@@ -94,6 +94,7 @@ struct GODOT_EXPORT Transform2D {
 
     void orthonormalize();
     Transform2D orthonormalized() const;
+    bool is_equal_approx(const Transform2D &p_transform) const;
 
     bool operator==(const Transform2D &p_transform) const;
     bool operator!=(const Transform2D &p_transform) const;
@@ -112,7 +113,7 @@ struct GODOT_EXPORT Transform2D {
     _FORCE_INLINE_ void xform(Vector2 *p_array,int size) const;
     _FORCE_INLINE_ void xform_inv(Vector2 *p_array,int size) const;
 
-    operator String() const;
+    operator se_string() const;
 
     Transform2D(real_t xx, real_t xy, real_t yx, real_t yy, real_t ox, real_t oy) {
 

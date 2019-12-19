@@ -109,7 +109,7 @@ public:
 // when display signal documentation.
 class ConnectionsDockTree : public Tree {
 
-    Control *make_custom_tooltip(const String &p_text) const override;
+    Control *make_custom_tooltip(se_string_view p_text) const override;
 };
 
 class ConnectionsDock : public VBoxContainer {
@@ -139,7 +139,7 @@ class ConnectionsDock : public VBoxContainer {
     PopupMenu *slot_menu;
     UndoRedo *undo_redo;
 
-    Map<StringName, Map<StringName, String> > descr_cache;
+    Map<StringName, Map<StringName, se_string> > descr_cache;
 
     void _make_or_edit_connection();
     void _connect(const Connection& cToMake);

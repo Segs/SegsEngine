@@ -34,6 +34,7 @@
 #include "core/io/compression.h"
 #include "core/method_enum_caster.h"
 #include "core/method_arg_casters.h"
+#include "core/se_string.h"
 #include "core/math/rect2.h"
 #include "core/math/vector3.h"
 
@@ -59,13 +60,13 @@ protected:
 
 public:
     static _ResourceLoader *get_singleton() { return singleton; }
-    INVOCABLE Ref<ResourceInteractiveLoader> load_interactive(const String &p_path, const String &p_type_hint = String::null_val);
-    INVOCABLE RES load(const String &p_path, const String &p_type_hint = String::null_val, bool p_no_cache = false);
-    INVOCABLE PoolVector<String> get_recognized_extensions_for_type(const String &p_type);
+    INVOCABLE Ref<ResourceInteractiveLoader> load_interactive(se_string_view p_path, se_string_view p_type_hint = se_string_view());
+    INVOCABLE RES load(se_string_view p_path, se_string_view p_type_hint = se_string_view(), bool p_no_cache = false);
+    INVOCABLE PoolSeStringArray get_recognized_extensions_for_type(se_string_view p_type);
     INVOCABLE void set_abort_on_missing_resources(bool p_abort);
-    INVOCABLE PoolStringArray get_dependencies(const String &p_path);
-    INVOCABLE bool has_cached(const String &p_path);
-    INVOCABLE bool exists(const String &p_path, const String &p_type_hint = String::null_val);
+    INVOCABLE PoolSeStringArray get_dependencies(se_string_view p_path);
+    INVOCABLE bool has_cached(se_string_view p_path);
+    INVOCABLE bool exists(se_string_view p_path, se_string_view p_type_hint = se_string_view());
 
     _ResourceLoader();
 };
@@ -90,13 +91,11 @@ public:
 
     static _ResourceSaver *get_singleton() { return singleton; }
 
-    INVOCABLE Error save(const String &p_path, const RES &p_resource, SaverFlags p_flags);
-    INVOCABLE PoolVector<String> get_recognized_extensions(const RES &p_resource);
+    INVOCABLE Error save(se_string_view p_path, const RES &p_resource, SaverFlags p_flags);
+    INVOCABLE PoolVector<se_string> get_recognized_extensions(const RES &p_resource);
 
     _ResourceSaver();
 };
-
-VARIANT_ENUM_CAST(_ResourceSaver::SaverFlags);
 
 class MainLoop;
 
@@ -148,17 +147,17 @@ public:
         MONTH_DECEMBER
     };
 
-    void global_menu_add_item(const String &p_menu, const String &p_label, const Variant &p_signal, const Variant &p_meta);
-    void global_menu_add_separator(const String &p_menu);
-    void global_menu_remove_item(const String &p_menu, int p_idx);
-    void global_menu_clear(const String &p_menu);
+    void global_menu_add_item(const StringName &p_menu, const StringName &p_label, const Variant &p_signal, const Variant &p_meta);
+    void global_menu_add_separator(const StringName &p_menu);
+    void global_menu_remove_item(const StringName &p_menu, int p_idx);
+    void global_menu_clear(const StringName &p_menu);
 
     Point2 get_mouse_position() const;
-    void set_window_title(const String &p_title);
+    void set_window_title(const se_string &p_title);
     int get_mouse_button_state() const;
 
-    void set_clipboard(const String &p_text);
-    String get_clipboard() const;
+    void set_clipboard(se_string_view p_text);
+    se_string get_clipboard() const;
 
     void set_video_mode(const Size2 &p_size, bool p_fullscreen, bool p_resizeable, int p_screen = 0);
     Size2 get_video_mode(int p_screen = 0) const;
@@ -167,13 +166,13 @@ public:
     Array get_fullscreen_mode_list(int p_screen = 0) const;
 
     virtual int get_video_driver_count() const;
-    virtual String get_video_driver_name(VideoDriver p_driver) const;
+    virtual se_string get_video_driver_name(VideoDriver p_driver) const;
     virtual VideoDriver get_current_video_driver() const;
 
     virtual int get_audio_driver_count() const;
-    virtual String get_audio_driver_name(int p_driver) const;
+    virtual se_string get_audio_driver_name(int p_driver) const;
 
-    virtual PoolStringArray get_connected_midi_inputs();
+    virtual PoolSeStringArray get_connected_midi_inputs();
     virtual void open_midi_inputs();
     virtual void close_midi_inputs();
 
@@ -216,9 +215,9 @@ public:
     virtual void set_ime_active(const bool p_active);
     virtual void set_ime_position(const Point2 &p_pos);
     virtual Point2 get_ime_selection() const;
-    virtual String get_ime_text() const;
+    virtual se_string get_ime_text() const;
 
-    Error native_video_play(String p_path, float p_volume, String p_audio_track, String p_subtitle_track);
+    Error native_video_play(se_string_view p_path, float p_volume, se_string_view p_audio_track, se_string_view p_subtitle_track);
     bool native_video_is_playing();
     void native_video_pause();
     void native_video_unpause();
@@ -227,51 +226,54 @@ public:
     void set_low_processor_usage_mode(bool p_enabled);
     bool is_in_low_processor_usage_mode() const;
 
-    String get_executable_path() const;
-    int execute(const String &p_path, const Vector<String> &p_arguments, bool p_blocking, Array p_output = Array(), bool p_read_stderr = false);
+    void set_low_processor_usage_mode_sleep_usec(int p_usec);
+    int get_low_processor_usage_mode_sleep_usec() const;
+
+    se_string get_executable_path() const;
+    int execute(se_string_view p_path, const Vector<se_string> &p_arguments, bool p_blocking, Array p_output = Array(), bool p_read_stderr = false);
 
     Error kill(int p_pid);
-    Error shell_open(String p_uri);
+    Error shell_open(se_string p_uri);
 
     int get_process_id() const;
 
-    bool has_environment(const String &p_var) const;
-    String get_environment(const String &p_var) const;
+    bool has_environment(const se_string &p_var) const;
+    se_string get_environment(const se_string &p_var) const;
 
-    String get_name() const;
-    Vector<String> get_cmdline_args();
+    se_string get_name() const;
+    PoolVector<se_string> get_cmdline_args();
 
-    String get_locale() const;
-    String get_latin_keyboard_variant() const;
+    se_string get_locale() const;
+    se_string get_latin_keyboard_variant() const;
 
-    String get_model_name() const;
+    se_string get_model_name() const;
 
-    void dump_memory_to_file(const String &p_file);
-    void dump_resources_to_file(const String &p_file);
+    void dump_memory_to_file(const se_string &p_file);
+    void dump_resources_to_file(se_string_view p_file);
 
     bool has_virtual_keyboard() const;
-    void show_virtual_keyboard(const String &p_existing_text = String::null_val);
+    void show_virtual_keyboard(const se_string &p_existing_text = se_string());
     void hide_virtual_keyboard();
     int get_virtual_keyboard_height();
 
     void print_resources_in_use(bool p_short = false);
-    void print_all_resources(const String &p_to_file);
+    void print_all_resources(se_string_view p_to_file);
     void print_all_textures_by_size();
-    void print_resources_by_type(const Vector<String> &p_types);
+    void print_resources_by_type(const Vector<se_string> &p_types);
 
     bool has_touchscreen_ui_hint() const;
 
     bool is_debug_build() const;
 
-    String get_unique_id() const;
+    const se_string &get_unique_id() const;
 
-    String get_scancode_string(uint32_t p_code) const;
+    se_string get_scancode_string(uint32_t p_code) const;
     bool is_scancode_unicode(uint32_t p_unicode) const;
-    int find_scancode_from_string(const String &p_code) const;
+    int find_scancode_from_string(se_string_view p_code) const;
 
     void set_use_file_access_save_and_swap(bool p_enable);
 
-    void set_native_icon(const String &p_filename);
+    void set_native_icon(const se_string &p_filename);
     void set_icon(const Ref<Image> &p_icon);
 
     int get_exit_code() const;
@@ -328,11 +330,11 @@ public:
         SCREEN_ORIENTATION_SENSOR,
     };
 
-    String get_system_dir(SystemDir p_dir) const;
+    se_string get_system_dir(SystemDir p_dir) const;
 
-    String get_user_data_dir() const;
+    se_string get_user_data_dir() const;
 
-    void alert(const String &p_alert, const String &p_title = String("ALERT!"));
+    void alert(se_string_view p_alert, se_string_view p_title = se_string_view("ALERT!"));
 
     void set_screen_orientation(ScreenOrientation p_orientation);
     ScreenOrientation get_screen_orientation() const;
@@ -342,30 +344,28 @@ public:
 
     bool is_ok_left_and_cancel_right() const;
 
-    Error set_thread_name(const String &p_name);
+    Error set_thread_name(se_string_view p_name);
 
     void set_use_vsync(bool p_enable);
     bool is_vsync_enabled() const;
+
+    void set_vsync_via_compositor(bool p_enable);
+    bool is_vsync_via_compositor_enabled() const;
 
     PowerState get_power_state();
     int get_power_seconds_left();
     int get_power_percent_left();
 
-    bool has_feature(const String &p_feature) const;
+    bool has_feature(se_string_view p_feature) const;
 
-    bool request_permission(const String &p_name);
+    bool request_permission(se_string_view p_name);
+    bool request_permissions();
+    PoolVector<se_string> get_granted_permissions() const;
 
     static _OS *get_singleton() { return singleton; }
 
     _OS();
 };
-
-VARIANT_ENUM_CAST(_OS::VideoDriver);
-VARIANT_ENUM_CAST(_OS::PowerState);
-VARIANT_ENUM_CAST(_OS::Weekday);
-VARIANT_ENUM_CAST(_OS::Month);
-VARIANT_ENUM_CAST(_OS::SystemDir);
-VARIANT_ENUM_CAST(_OS::ScreenOrientation);
 
 class _Geometry : public Object {
 
@@ -444,9 +444,6 @@ public:
     _Geometry();
 };
 
-VARIANT_ENUM_CAST(_Geometry::PolyBooleanOperation);
-VARIANT_ENUM_CAST(_Geometry::PolyJoinType);
-VARIANT_ENUM_CAST(_Geometry::PolyEndType);
 
 class _File : public RefCounted {
 
@@ -473,16 +470,16 @@ public:
         COMPRESSION_GZIP = Compression::MODE_GZIP
     };
 
-    Error open_encrypted(const String &p_path, ModeFlags p_mode_flags, const Vector<uint8_t> &p_key);
-    Error open_encrypted_pass(const String &p_path, ModeFlags p_mode_flags, const String &p_pass);
-    Error open_compressed(const String &p_path, ModeFlags p_mode_flags, CompressionMode p_compress_mode = COMPRESSION_FASTLZ);
+    Error open_encrypted(se_string_view p_path, ModeFlags p_mode_flags, const Vector<uint8_t> &p_key);
+    Error open_encrypted_pass(se_string_view p_path, ModeFlags p_mode_flags, se_string_view p_pass);
+    Error open_compressed(se_string_view p_path, ModeFlags p_mode_flags, CompressionMode p_compress_mode = COMPRESSION_FASTLZ);
 
-    Error open(const String &p_path, ModeFlags p_mode_flags); // open a file.
+    Error open(se_string_view p_path, ModeFlags p_mode_flags); // open a file.
     void close(); // Close a file.
     bool is_open() const; // True when file is open.
 
-    String get_path() const; // Returns the path for the current open file.
-    String get_path_absolute() const; // Returns the absolute path for the current open file.
+    const se_string &get_path() const; // Returns the path for the current open file.
+    const se_string &get_path_absolute() const; // Returns the absolute path for the current open file.
 
     void seek(int64_t p_position); // Seek to a given position.
     void seek_end(int64_t p_position = 0); // Seek from the end of file.
@@ -503,11 +500,11 @@ public:
     Variant get_var(bool p_allow_objects = false) const;
 
     PoolVector<uint8_t> get_buffer(int p_length) const; // Get an array of bytes.
-    String get_line() const;
-    Vector<String> get_csv_line(char p_delim = ',') const;
-    String get_as_text() const;
-    String get_md5(const String &p_path) const;
-    String get_sha256(const String &p_path) const;
+    se_string get_line() const;
+    Vector<se_string> get_csv_line(char p_delim = ',') const;
+    se_string get_as_text() const;
+    se_string get_md5(se_string_view p_path) const;
+    se_string get_sha256(se_string_view p_path) const;
 
     /* Use this for files WRITTEN in _big_ endian machines (ie, amiga/mac).
      * It's not about the current CPU type but file formats.
@@ -528,27 +525,25 @@ public:
     void store_double(double p_dest);
     void store_real(real_t p_real);
 
-    void store_string(const String &p_string);
-    void store_line(const String &p_string);
-    void store_csv_line(const Vector<String> &p_values, char p_delim = ',');
+    void store_string(se_string_view p_string);
+    void store_line(se_string_view p_string);
+    void store_csv_line(const PoolVector<se_string> &p_values, char p_delim = ',');
 
-    virtual void store_pascal_string(const String &p_string);
-    virtual String get_pascal_string();
+    virtual void store_pascal_string(se_string_view p_string);
+    virtual se_string get_pascal_string();
 
     void store_buffer(const PoolVector<uint8_t> &p_buffer); // Store an array of bytes.
 
     void store_var(const Variant &p_var, bool p_full_objects = false);
 
-    bool file_exists(const String &p_name) const; // Return true if a file exists.
+    bool file_exists(se_string_view p_name) const; // Return true if a file exists.
 
-    uint64_t get_modified_time(const String &p_file) const;
+    uint64_t get_modified_time(se_string_view p_file) const;
 
     _File();
     ~_File() override;
 };
 
-VARIANT_ENUM_CAST(_File::ModeFlags);
-VARIANT_ENUM_CAST(_File::CompressionMode);
 
 class _Directory : public RefCounted {
 
@@ -559,32 +554,32 @@ protected:
     static void _bind_methods();
 
 public:
-    Error open(const String &p_path);
+    Error open(se_string_view p_path);
 
     Error list_dir_begin(bool p_skip_navigational = false, bool p_skip_hidden = false); // This starts dir listing.
-    String get_next();
+    se_string get_next();
     bool current_is_dir() const;
 
     void list_dir_end();
 
     int get_drive_count();
-    String get_drive(int p_drive);
+    se_string get_drive(int p_drive);
     int get_current_drive();
 
-    Error change_dir(String p_dir); // Can be relative or absolute, return false on success.
-    String get_current_dir(); // Return current dir location.
+    Error change_dir(se_string_view p_dir); // Can be relative or absolute, return false on success.
+    se_string get_current_dir(); // Return current dir location.
 
-    Error make_dir(String p_dir);
-    Error make_dir_recursive(String p_dir);
+    Error make_dir(se_string_view p_dir);
+    Error make_dir_recursive(se_string_view p_dir);
 
-    bool file_exists(String p_file);
-    bool dir_exists(String p_dir);
+    bool file_exists(se_string_view p_file);
+    bool dir_exists(se_string_view p_dir);
 
     int get_space_left();
 
-    Error copy(String p_from, String p_to);
-    Error rename(String p_from, String p_to);
-    Error remove(String p_name);
+    Error copy(se_string_view p_from, se_string_view p_to);
+    Error rename(se_string_view p_from, se_string_view p_to);
+    Error remove(se_string_view p_name);
 
     _Directory();
     ~_Directory() override;
@@ -606,14 +601,14 @@ protected:
 public:
     static _Marshalls *get_singleton();
 
-    String variant_to_base64(const Variant &p_var, bool p_full_objects = false);
-    Variant base64_to_variant(const String &p_str, bool p_allow_objects = false);
+    se_string variant_to_base64(const Variant &p_var, bool p_full_objects = false);
+    Variant base64_to_variant(se_string_view p_str, bool p_allow_objects = false);
 
-    String raw_to_base64(const PoolVector<uint8_t> &p_arr);
-    PoolVector<uint8_t> base64_to_raw(const String &p_str);
+    se_string raw_to_base64(const PoolVector<uint8_t> &p_arr);
+    PoolVector<uint8_t> base64_to_raw(se_string_view p_str);
 
-    String utf8_to_base64(const String &p_str);
-    String base64_to_utf8(const String &p_str);
+    se_string utf8_to_base64(se_string_view p_str);
+    se_string base64_to_utf8(se_string_view p_str);
 
     _Marshalls() { singleton = this; }
     ~_Marshalls() override { singleton = nullptr; }
@@ -674,7 +669,7 @@ public:
     };
 
     Error start(Object *p_instance, const StringName &p_method, const Variant &p_userdata = Variant(), Priority p_priority = PRIORITY_NORMAL);
-    String get_id() const;
+    se_string get_id() const;
     bool is_active() const;
     Variant wait_to_finish();
 
@@ -682,7 +677,6 @@ public:
     ~_Thread() override;
 };
 
-VARIANT_ENUM_CAST(_Thread::Priority);
 
 class _ClassDB : public Object {
 
@@ -692,8 +686,8 @@ protected:
     static void _bind_methods();
 
 public:
-    PoolStringArray get_class_list() const;
-    PoolStringArray get_inheriters_from_class(const StringName &p_class) const;
+    PoolSeStringArray get_class_list() const;
+    PoolSeStringArray get_inheriters_from_class(const StringName &p_class) const;
     StringName get_parent_class(const StringName &p_class) const;
     bool class_exists(const StringName &p_class) const;
     bool is_parent_class(const StringName &p_class, const StringName &p_inherits) const;
@@ -712,7 +706,7 @@ public:
 
     Array get_method_list(StringName p_class, bool p_no_inheritance = false) const;
 
-    PoolStringArray get_integer_constant_list(const StringName &p_class, bool p_no_inheritance = false) const;
+    PoolSeStringArray get_integer_constant_list(const StringName &p_class, bool p_no_inheritance = false) const;
     bool has_integer_constant(const StringName &p_class, const StringName &p_name) const;
     int get_integer_constant(const StringName &p_class, const StringName &p_name) const;
     StringName get_category(const StringName &p_node) const;
@@ -756,12 +750,12 @@ public:
     Array get_copyright_info() const;
     Dictionary get_donor_info() const;
     Dictionary get_license_info() const;
-    String get_license_text() const;
+    se_string get_license_text() const;
 
     bool is_in_physics_frame() const;
 
-    bool has_singleton(const String &p_name) const;
-    Object *get_singleton_object(const String &p_name) const;
+    bool has_singleton(se_string_view p_name) const;
+    Object *get_singleton_object(const StringName &p_name) const;
 
     void set_editor_hint(bool p_enabled);
     bool is_editor_hint() const;
@@ -776,11 +770,11 @@ class JSONParseResult : public RefCounted {
 
     friend class _JSON;
 
+    Variant result;
+    se_string error_string;
     Error error;
-    String error_string;
     int error_line=-1;
 
-    Variant result;
 
 protected:
     static void _bind_methods();
@@ -789,8 +783,8 @@ public:
     void set_error(Error p_error);
     Error get_error() const;
 
-    void set_error_string(const String &p_error_string);
-    String get_error_string() const;
+    void set_error_string(se_string_view p_error_string);
+    const se_string &get_error_string() const;
 
     void set_error_line(int p_error_line);
     int get_error_line() const;
@@ -810,8 +804,8 @@ protected:
 public:
     static _JSON *get_singleton() { return singleton; }
 
-    String print(const Variant &p_value, const String &p_indent = String::null_val, bool p_sort_keys = false);
-    Ref<JSONParseResult> parse(const String &p_json);
+    se_string print(const Variant &p_value, se_string_view p_indent = {}, bool p_sort_keys = false);
+    Ref<JSONParseResult> parse(const se_string &p_json);
 
     _JSON();
 };

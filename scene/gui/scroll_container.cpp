@@ -33,9 +33,10 @@
 #include "core/method_bind.h"
 #include "core/os/input_event.h"
 #include "core/os/os.h"
-#include "scene/resources/style_box.h"
 #include "core/project_settings.h"
 #include "core/translation_helpers.h"
+#include "scene/main/viewport.h"
+#include "scene/resources/style_box.h"
 
 IMPL_GDCLASS(ScrollContainer)
 
@@ -240,11 +241,33 @@ void ScrollContainer::_update_scrollbar_position() {
     v_scroll->raise();
 }
 
+void ScrollContainer::_ensure_focused_visible(Control *p_control) {
+
+    if (is_a_parent_of(p_control)) {
+        float right_margin = 0;
+        if (v_scroll->is_visible()) {
+            right_margin += v_scroll->get_size().x;
+        }
+        float bottom_margin = 0;
+        if (h_scroll->is_visible()) {
+            bottom_margin += h_scroll->get_size().y;
+        }
+
+        set_v_scroll(MAX(MIN(p_control->get_begin().y, get_v_scroll()), p_control->get_end().y - get_size().y + bottom_margin));
+        set_h_scroll(MAX(MIN(p_control->get_begin().x, get_h_scroll()), p_control->get_end().x - get_size().x + right_margin));
+    }
+}
+
+
 void ScrollContainer::_notification(int p_what) {
 
     if (p_what == NOTIFICATION_ENTER_TREE || p_what == NOTIFICATION_THEME_CHANGED) {
 
         call_deferred("_update_scrollbar_position");
+    }
+
+    if (p_what == NOTIFICATION_READY) {
+        get_viewport()->connect("gui_focus_changed", this, "_ensure_focused_visible");
     }
 
     if (p_what == NOTIFICATION_SORT_CHILDREN) {
@@ -396,7 +419,6 @@ void ScrollContainer::update_scrollbars() {
     if (hide_scroll_v) {
 
         v_scroll->hide();
-        v_scroll->set_max(0);
         scroll.y = 0;
     } else {
 
@@ -413,7 +435,6 @@ void ScrollContainer::update_scrollbars() {
     if (hide_scroll_h) {
 
         h_scroll->hide();
-        h_scroll->set_max(0);
         scroll.x = 0;
     } else {
 
@@ -487,7 +508,7 @@ void ScrollContainer::set_deadzone(int p_deadzone) {
     deadzone = p_deadzone;
 }
 
-String ScrollContainer::get_configuration_warning() const {
+StringName ScrollContainer::get_configuration_warning() const {
 
     int found = 0;
 
@@ -507,7 +528,7 @@ String ScrollContainer::get_configuration_warning() const {
     if (found != 1)
         return TTR("ScrollContainer is intended to work with a single child control.\nUse a container as child (VBox, HBox, etc.), or a Control and set the custom minimum size manually.");
     else
-        return "";
+        return StringName();
 }
 
 HScrollBar *ScrollContainer::get_h_scrollbar() {
@@ -529,6 +550,8 @@ void ScrollContainer::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_enable_v_scroll", {"enable"}), &ScrollContainer::set_enable_v_scroll);
     MethodBinder::bind_method(D_METHOD("is_v_scroll_enabled"), &ScrollContainer::is_v_scroll_enabled);
     MethodBinder::bind_method(D_METHOD("_update_scrollbar_position"), &ScrollContainer::_update_scrollbar_position);
+    MethodBinder::bind_method(D_METHOD("_ensure_focused_visible"), &ScrollContainer::_ensure_focused_visible);
+
     MethodBinder::bind_method(D_METHOD("set_h_scroll", {"value"}), &ScrollContainer::set_h_scroll);
     MethodBinder::bind_method(D_METHOD("get_h_scroll"), &ScrollContainer::get_h_scroll);
     MethodBinder::bind_method(D_METHOD("set_v_scroll", {"value"}), &ScrollContainer::set_v_scroll);

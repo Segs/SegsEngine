@@ -562,8 +562,8 @@ public:
         uint16_t line;
     };
 
-    static String get_operator_text(Operator p_op);
-    static String get_token_text(const Token& p_token);
+    static const char *get_operator_text(Operator p_op);
+    static se_string get_token_text(const Token& p_token);
 
     static bool is_token_datatype(TokenType p_type);
     static bool is_token_variable_datatype(TokenType p_type);
@@ -572,8 +572,8 @@ public:
     static DataInterpolation get_token_interpolation(TokenType p_type);
     static bool is_token_precision(TokenType p_type);
     static DataPrecision get_token_precision(TokenType p_type);
-    static String get_precision_name(DataPrecision p_type);
-    static String get_datatype_name(DataType p_type);
+    static const char *get_precision_name(DataPrecision p_type);
+    static const char *get_datatype_name(DataType p_type);
     static bool is_token_nonvoid_datatype(TokenType p_type);
     static bool is_token_operator(TokenType p_type);
 
@@ -584,8 +584,8 @@ public:
     static bool is_sampler_type(DataType p_type);
     static Variant constant_value_to_variant(const PODVector<ConstantNode::Value> &p_value, DataType p_type, ShaderLanguage::ShaderNode::Uniform::Hint p_hint = ShaderLanguage::ShaderNode::Uniform::HINT_NONE);
 
-    static void get_keyword_list(PODVector<String> *r_keywords);
-    static void get_builtin_funcs(PODVector<String> *r_keywords);
+    static void get_keyword_list(PODVector<se_string_view> *r_keywords);
+    static void get_builtin_funcs(PODVector<se_string> *r_keywords);
 
     struct BuiltInInfo {
         DataType type;
@@ -604,6 +604,7 @@ public:
         Map<StringName, BuiltInInfo> built_ins;
         bool can_discard;
     };
+    static bool has_builtin(const Map<StringName, ShaderLanguage::FunctionInfo> &p_functions, const StringName &p_name);
 
 private:
     struct KeyWord {
@@ -614,10 +615,10 @@ private:
     static const KeyWord keyword_list[];
 
     bool error_set;
-    String error_str;
+    se_string error_str;
     int error_line;
 
-    String code;
+    se_string code;
     int char_idx;
     int tk_line;
 
@@ -640,14 +641,8 @@ private:
         tk_line = p_pos.tk_line;
     }
 
-    void _set_error(const String &p_str) {
-        if (error_set)
-            return;
-
-        error_line = tk_line;
-        error_set = true;
-        error_str = p_str;
-    }
+    void _set_error_ui(const String &p_str);
+    void _set_error(se_string_view p_str);
 
     static const char *token_names[TK_MAX];
 
@@ -668,12 +663,12 @@ private:
 
     bool _find_identifier(const BlockNode *p_block, const Map<StringName, BuiltInInfo> &p_builtin_types, const StringName &p_identifier, DataType *r_data_type = nullptr, IdentifierType *r_type = nullptr, bool *r_is_const = nullptr, int *r_array_size = nullptr);
     bool _is_operator_assign(Operator p_op) const;
-    bool _validate_assign(Node *p_node, const Map<StringName, BuiltInInfo> &p_builtin_types, String *r_message = nullptr);
+    bool _validate_assign(Node *p_node, const Map<StringName, BuiltInInfo> &p_builtin_types, se_string *r_message = nullptr);
     bool _validate_operator(OperatorNode *p_op, DataType *r_ret_type = nullptr);
 
     enum SubClassTag {
         TAG_GLOBAL,
-        TAG_ARRAY
+        TAG_ARRAY,
     };
 
     struct BuiltinFuncDef {
@@ -682,6 +677,7 @@ private:
         DataType rettype;
         const DataType args[MAX_ARGS];
         SubClassTag tag;
+        bool high_end;
     };
 
     struct BuiltinFuncOutArgs { //arguments used as out in built in functions
@@ -709,7 +705,7 @@ private:
 
     Node *_parse_and_reduce_expression(BlockNode *p_block, const Map<StringName, BuiltInInfo> &p_builtin_types);
     Error _parse_block(BlockNode *p_block, const Map<StringName, BuiltInInfo> &p_builtin_types, bool p_just_one = false, bool p_can_break = false, bool p_can_continue = false);
-    Error _parse_shader(const Map<StringName, FunctionInfo> &p_functions, const Vector<StringName> &p_render_modes, const Set<String> &p_shader_types);
+    Error _parse_shader(const Map<StringName, FunctionInfo> &p_functions, const Vector<StringName> &p_render_modes, const Set<StringName> &p_shader_types);
 
     Error _find_last_flow_op_in_block(BlockNode *p_block, FlowOperation p_op);
     Error _find_last_flow_op_in_op(ControlFlowNode *p_flow, FlowOperation p_op);
@@ -718,17 +714,19 @@ public:
 
     void clear();
 
-    static String get_shader_type(const String &p_code);
-    Error compile(const String &p_code, const Map<StringName, FunctionInfo> &p_functions, const Vector<StringName> &p_render_modes, const Set<String> &p_shader_types);
-    Error complete(const String &p_code, const Map<StringName, FunctionInfo> &p_functions, const Vector<StringName> &p_render_modes, const Set<String> &p_shader_types, List<ScriptCodeCompletionOption> *r_options, String &r_call_hint);
+    static se_string get_shader_type(const se_string &p_code);
+    Error compile(const se_string &p_code, const Map<StringName, FunctionInfo> &p_functions, const Vector<StringName> &p_render_modes, const Set<StringName> &p_shader_types);
+    Error complete(const se_string &p_code, const Map<StringName, FunctionInfo> &p_functions, const Vector<StringName> &p_render_modes, const Set<StringName> &p_shader_types, List<ScriptCodeCompletionOption> *r_options, se_string &r_call_hint);
 
-    String get_error_text();
+    const se_string &get_error_text();
     int get_error_line();
 
     ShaderNode *get_shader();
 
-    String token_debug(const String &p_code);
+    se_string token_debug(const se_string &p_code);
 
     ShaderLanguage();
     ~ShaderLanguage();
+protected:
+    se_string _get_shader_type_list(const Set<StringName> &p_shader_types) const;
 };

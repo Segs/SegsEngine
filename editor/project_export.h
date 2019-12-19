@@ -56,130 +56,130 @@
 class EditorNode;
 
 class ProjectExportDialog : public ConfirmationDialog {
-	GDCLASS(ProjectExportDialog,ConfirmationDialog)
+    GDCLASS(ProjectExportDialog,ConfirmationDialog)
 
 private:
-	TabContainer *sections;
+    TabContainer *sections;
 
-	MenuButton *add_preset;
-	Button *duplicate_preset;
-	Button *delete_preset;
-	ItemList *presets;
+    MenuButton *add_preset;
+    Button *duplicate_preset;
+    Button *delete_preset;
+    ItemList *presets;
 
-	LineEdit *name;
-	EditorPropertyPath *export_path;
-	EditorInspector *parameters;
-	CheckButton *runnable;
+    LineEdit *name;
+    EditorPropertyPath *export_path;
+    EditorInspector *parameters;
+    CheckButton *runnable;
 
-	Button *button_export;
-	bool updating;
+    Button *button_export;
+    bool updating;
 
-	AcceptDialog *error_dialog;
-	ConfirmationDialog *delete_confirm;
+    AcceptDialog *error_dialog;
+    ConfirmationDialog *delete_confirm;
 
-	OptionButton *export_filter;
-	LineEdit *include_filters;
-	LineEdit *exclude_filters;
-	Tree *include_files;
+    OptionButton *export_filter;
+    LineEdit *include_filters;
+    LineEdit *exclude_filters;
+    Tree *include_files;
 
-	Label *include_label;
-	MarginContainer *include_margin;
+    Label *include_label;
+    MarginContainer *include_margin;
 
-	StringName editor_icons;
+    StringName editor_icons;
 
-	Tree *patches;
-	Button *patch_export;
-	int patch_index;
-	EditorFileDialog *patch_dialog;
-	ConfirmationDialog *patch_erase;
+    Tree *patches;
+    Button *patch_export;
+    int patch_index;
+    EditorFileDialog *patch_dialog;
+    ConfirmationDialog *patch_erase;
 
-	Button *export_button;
-	Button *export_all_button;
-	AcceptDialog *export_all_dialog;
+    Button *export_button;
+    Button *export_all_button;
+    AcceptDialog *export_all_dialog;
 
-	LineEdit *custom_features;
-	RichTextLabel *custom_feature_display;
+    LineEdit *custom_features;
+    RichTextLabel *custom_feature_display;
 
-	OptionButton *script_mode;
-	LineEdit *script_key;
-	Label *script_key_error;
+    OptionButton *script_mode;
+    LineEdit *script_key;
+    Label *script_key_error;
 
-	Label *export_error;
-	HBoxContainer *export_templates_error;
+    Label *export_error;
+    HBoxContainer *export_templates_error;
 
-	String default_filename;
+    se_string default_filename;
 
-	void _patch_selected(const String &p_path);
-	void _patch_deleted();
+    void _patch_selected(se_string_view p_path);
+    void _patch_deleted();
 
-	void _runnable_pressed();
-	void _update_parameters(const String &p_edited_property);
-	void _name_changed(const String &p_string);
-	void _export_path_changed(const StringName &p_property, const Variant &p_value, const String &p_field, bool p_changing);
-	void _add_preset(int p_platform);
-	void _edit_preset(int p_index);
-	void _duplicate_preset();
-	void _delete_preset();
-	void _delete_preset_confirm();
-	void _update_export_all();
+    void _runnable_pressed();
+    void _update_parameters(se_string_view p_edited_property);
+    void _name_changed(se_string_view p_string);
+    void _export_path_changed(const StringName &p_property, const Variant &p_value, se_string_view p_field, bool p_changing);
+    void _add_preset(int p_platform);
+    void _edit_preset(int p_index);
+    void _duplicate_preset();
+    void _delete_preset();
+    void _delete_preset_confirm();
+    void _update_export_all();
 
-	void _update_current_preset();
-	void _update_presets();
+    void _update_current_preset();
+    void _update_presets();
 
-	void _export_type_changed(int p_which);
-	void _filter_changed(const String &p_filter);
-	void _fill_resource_tree();
-	bool _fill_tree(EditorFileSystemDirectory *p_dir, TreeItem *p_item, Ref<EditorExportPreset> &current, bool p_only_scenes);
-	void _tree_changed();
+    void _export_type_changed(int p_which);
+    void _filter_changed(se_string_view p_filter);
+    void _fill_resource_tree();
+    bool _fill_tree(EditorFileSystemDirectory *p_dir, TreeItem *p_item, Ref<EditorExportPreset> &current, bool p_only_scenes);
+    void _tree_changed();
 
-	void _patch_button_pressed(Object *p_item, int p_column, int p_id);
-	void _patch_edited();
+    void _patch_button_pressed(Object *p_item, int p_column, int p_id);
+    void _patch_edited();
 
-	Variant get_drag_data_fw(const Point2 &p_point, Control *p_from);
-	bool can_drop_data_fw(const Point2 &p_point, const Variant &p_data, Control *p_from) const;
-	void drop_data_fw(const Point2 &p_point, const Variant &p_data, Control *p_from);
+    Variant get_drag_data_fw(const Point2 &p_point, Control *p_from);
+    bool can_drop_data_fw(const Point2 &p_point, const Variant &p_data, Control *p_from) const;
+    void drop_data_fw(const Point2 &p_point, const Variant &p_data, Control *p_from);
 
-	EditorFileDialog *export_pck_zip;
-	EditorFileDialog *export_project;
-	CheckBox *export_debug;
-	CheckBox *export_pck_zip_debug;
+    EditorFileDialog *export_pck_zip;
+    EditorFileDialog *export_project;
+    CheckBox *export_debug;
+    CheckBox *export_pck_zip_debug;
 
-	void _open_export_template_manager();
+    void _open_export_template_manager();
 
-	void _export_pck_zip();
-	void _export_pck_zip_selected(const String &p_path);
+    void _export_pck_zip();
+    void _export_pck_zip_selected(se_string_view p_path);
 
-	void _validate_export_path(const String &p_path);
-	void _export_project();
-	void _export_project_to_path(const String &p_path);
-	void _export_all_dialog();
-	void _export_all_dialog_action(const String &p_str);
-	void _export_all(bool p_debug);
+    void _validate_export_path(se_string_view p_path);
+    void _export_project();
+    void _export_project_to_path(se_string_view p_path);
+    void _export_all_dialog();
+    void _export_all_dialog_action(se_string_view p_str);
+    void _export_all(bool p_debug);
 
-	void _update_feature_list();
-	void _custom_features_changed(const String &p_text);
+    void _update_feature_list();
+    void _custom_features_changed(se_string_view p_text);
 
-	bool updating_script_key;
-	void _script_export_mode_changed(int p_mode);
-	void _script_encryption_key_changed(const String &p_key);
-	bool _validate_script_encryption_key(const String &p_key);
+    bool updating_script_key;
+    void _script_export_mode_changed(int p_mode);
+    void _script_encryption_key_changed(const se_string &p_key);
+    bool _validate_script_encryption_key(se_string_view p_key);
 
-	void _tab_changed(int);
+    void _tab_changed(int);
 
 protected:
-	void _notification(int p_what);
-	static void _bind_methods();
+    void _notification(int p_what);
+    static void _bind_methods();
 
 public:
-	void popup_export();
+    void popup_export();
 
-	void set_export_path(const String &p_value);
-	String get_export_path();
+    void set_export_path(se_string_view p_value);
+    se_string get_export_path();
 
-	Ref<EditorExportPreset> get_current_preset() const;
+    Ref<EditorExportPreset> get_current_preset() const;
 
-	ProjectExportDialog();
-	~ProjectExportDialog() override;
+    ProjectExportDialog();
+    ~ProjectExportDialog() override;
 };
 
 #endif // PROJECT_EXPORT_SETTINGS_H

@@ -30,7 +30,6 @@
 
 #pragma once
 
-#include "camera_win.h"
 #include "context_gl_windows.h"
 #include "core/os/input.h"
 #include "core/os/os.h"
@@ -55,6 +54,70 @@
 #include <windows.h>
 #include <windowsx.h>
 
+#ifndef POINTER_STRUCTURES
+
+#define POINTER_STRUCTURES
+
+typedef DWORD POINTER_INPUT_TYPE;
+typedef UINT32 POINTER_FLAGS;
+typedef UINT32 PEN_FLAGS;
+typedef UINT32 PEN_MASK;
+
+enum tagPOINTER_INPUT_TYPE {
+    PT_POINTER = 0x00000001,
+    PT_TOUCH = 0x00000002,
+    PT_PEN = 0x00000003,
+    PT_MOUSE = 0x00000004,
+    PT_TOUCHPAD = 0x00000005
+};
+
+typedef enum tagPOINTER_BUTTON_CHANGE_TYPE {
+    POINTER_CHANGE_NONE,
+    POINTER_CHANGE_FIRSTBUTTON_DOWN,
+    POINTER_CHANGE_FIRSTBUTTON_UP,
+    POINTER_CHANGE_SECONDBUTTON_DOWN,
+    POINTER_CHANGE_SECONDBUTTON_UP,
+    POINTER_CHANGE_THIRDBUTTON_DOWN,
+    POINTER_CHANGE_THIRDBUTTON_UP,
+    POINTER_CHANGE_FOURTHBUTTON_DOWN,
+    POINTER_CHANGE_FOURTHBUTTON_UP,
+    POINTER_CHANGE_FIFTHBUTTON_DOWN,
+    POINTER_CHANGE_FIFTHBUTTON_UP,
+} POINTER_BUTTON_CHANGE_TYPE;
+
+typedef struct tagPOINTER_INFO {
+    POINTER_INPUT_TYPE pointerType;
+    UINT32 pointerId;
+    UINT32 frameId;
+    POINTER_FLAGS pointerFlags;
+    HANDLE sourceDevice;
+    HWND hwndTarget;
+    POINT ptPixelLocation;
+    POINT ptHimetricLocation;
+    POINT ptPixelLocationRaw;
+    POINT ptHimetricLocationRaw;
+    DWORD dwTime;
+    UINT32 historyCount;
+    INT32 InputData;
+    DWORD dwKeyStates;
+    UINT64 PerformanceCount;
+    POINTER_BUTTON_CHANGE_TYPE ButtonChangeType;
+} POINTER_INFO;
+
+typedef struct tagPOINTER_PEN_INFO {
+    POINTER_INFO pointerInfo;
+    PEN_FLAGS penFlags;
+    PEN_MASK penMask;
+    UINT32 pressure;
+    UINT32 rotation;
+    INT32 tiltX;
+    INT32 tiltY;
+} POINTER_PEN_INFO;
+
+#endif
+
+typedef BOOL(WINAPI *GetPointerTypePtr)(uint32_t p_id, POINTER_INPUT_TYPE *p_type);
+typedef BOOL(WINAPI *GetPointerPenInfoPtr)(uint32_t p_id, POINTER_PEN_INFO *p_pen_info);
 typedef struct {
     BYTE bWidth; // Width, in pixels, of the image
     BYTE bHeight; // Height, in pixels, of the image
@@ -75,6 +138,8 @@ typedef struct {
 
 class JoypadWindows;
 class OS_Windows : public OS {
+    static GetPointerTypePtr win8p_GetPointerType;
+    static GetPointerPenInfoPtr win8p_GetPointerPenInfo;
 
     enum {
         KEY_EVENT_BUFFER_SIZE = 512
@@ -104,9 +169,7 @@ class OS_Windows : public OS {
     ContextGL_Windows *gl_context;
 #endif
     VisualServer *visual_server;
-    CameraWindows *camera_server;
     int pressrc;
-    HDC hDC; // Private GDI Device Context
     HINSTANCE hInstance; // Holds The Instance Of The Application
     HWND hWnd;
     Point2 last_pos;
@@ -174,7 +237,7 @@ class OS_Windows : public OS {
     void _drag_event(float p_x, float p_y, int idx);
     void _touch_event(bool p_pressed, float p_x, float p_y, int idx);
 
-    void _update_window_style(bool repaint = true);
+    void _update_window_style(bool p_repaint = true, bool p_maximized = false);
 
     void _set_mouse_mode_impl(MouseMode p_mode);
 
@@ -207,12 +270,13 @@ protected:
     bool minimized;
     bool borderless;
     bool console_visible;
+    bool was_maximized;
 
 public:
     LRESULT WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
-    void alert(const String &p_alert, const String &p_title = "ALERT!") override;
-    String get_stdin_string(bool p_block) override;
+    void alert(se_string_view p_alert, se_string_view p_title = "ALERT!") override;
+    se_string get_stdin_string(bool p_block) override;
 
     void set_mouse_mode(MouseMode p_mode) override;
     MouseMode get_mouse_mode() const;
@@ -221,10 +285,10 @@ public:
     Point2 get_mouse_position() const override;
     void update_real_mouse_position();
     int get_mouse_button_state() const override;
-    void set_window_title(const String &p_title) override;
+    void set_window_title(se_string_view p_title) override;
 
-    virtual void set_video_mode(const VideoMode &p_video_mode, int p_screen = 0);
-    virtual VideoMode get_video_mode(int p_screen = 0) const;
+    void set_video_mode(const VideoMode &p_video_mode, int p_screen = 0) override;
+    VideoMode get_video_mode(int p_screen = 0) const override;
     void get_fullscreen_mode_list(List<VideoMode> *p_list, int p_screen = 0) const override;
 
     int get_screen_count() const override;
@@ -235,7 +299,7 @@ public:
     int get_screen_dpi(int p_screen = -1) const override;
 
     Point2 get_window_position() const override;
-    virtual void set_window_position(const Point2 &p_position);
+    void set_window_position(const Point2 &p_position) override;
     Size2 get_window_size() const override;
     Size2 get_real_window_size() const override;
     Size2 get_max_window_size() const override;
@@ -265,89 +329,87 @@ public:
 
     uint8_t *get_layered_buffer_data() override;
     Size2 get_layered_buffer_size() override;
-    virtual void swap_layered_buffer();
+    void swap_layered_buffer() override;
 
-    Error open_dynamic_library(const String &p_path, void *&p_library_handle, bool p_also_set_library_path = false) override;
+    Error open_dynamic_library(se_string_view p_path, void *&p_library_handle, bool p_also_set_library_path = false) override;
     Error close_dynamic_library(void *p_library_handle) override;
-    Error get_dynamic_library_symbol_handle(void *p_library_handle, const String &p_name, void *&p_symbol_handle, bool p_optional = false) override;
+    Error get_dynamic_library_symbol_handle(void *p_library_handle, se_string_view p_name, void *&p_symbol_handle, bool p_optional = false) override;
 
     MainLoop *get_main_loop() const override;
 
-    String get_name() const override;
+    se_string get_name() const override;
 
     Date get_date(bool utc) const override;
     Time get_time(bool utc) const override;
-    virtual TimeZoneInfo get_time_zone_info() const;
+    TimeZoneInfo get_time_zone_info() const override;
     uint64_t get_unix_time() const override;
     uint64_t get_system_time_secs() const override;
-    virtual uint64_t get_system_time_msecs() const;
+    uint64_t get_system_time_msecs() const override;
 
-    virtual bool can_draw() const;
-    virtual Error set_cwd(const String &p_cwd);
+    bool can_draw() const override;
+    Error set_cwd(se_string_view p_cwd) override;
 
     void delay_usec(uint32_t p_usec) const override;
     uint64_t get_ticks_usec() const override;
 
-    Error execute(const String &p_path, const ListPOD<String> &p_arguments, bool p_blocking, ProcessID *r_child_id = nullptr, String *r_pipe = nullptr, int *r_exitcode = nullptr, bool read_stderr = false, Mutex *p_pipe_mutex = nullptr) override;
+    Error execute(se_string_view p_path, const ListPOD<se_string> &p_arguments, bool p_blocking, ProcessID *r_child_id = nullptr, se_string *r_pipe = nullptr, int *r_exitcode = nullptr, bool read_stderr = false, Mutex *p_pipe_mutex = nullptr) override;
     Error kill(const ProcessID &p_pid) override;
-    virtual int get_process_id() const;
+    int get_process_id() const override;
 
-    bool has_environment(const String &p_var) const override;
-    String get_environment(const String &p_var) const override;
-    bool set_environment(const String &p_var, const String &p_value) const override;
+    bool has_environment(se_string_view p_var) const override;
+    se_string get_environment(se_string_view p_var) const override;
+    bool set_environment(se_string_view p_var, se_string_view p_value) const override;
 
-    virtual void set_clipboard(const String &p_text);
-    String get_clipboard() const override;
+    void set_clipboard(se_string_view p_text) override;
+    se_string get_clipboard() const override;
 
     void set_cursor_shape(CursorShape p_shape) override;
     CursorShape get_cursor_shape() const override;
     void set_custom_mouse_cursor(const RES &p_cursor, CursorShape p_shape, const Vector2 &p_hotspot) override;
     void GetMaskBitmaps(HBITMAP hSourceBitmap, COLORREF clrTransparent, OUT HBITMAP &hAndMaskBitmap, OUT HBITMAP &hXorMaskBitmap);
 
-    void set_native_icon(const String &p_filename) override;
+    void set_native_icon(const se_string &p_filename) override;
     void set_icon(const Ref<Image> &p_icon) override;
 
-    virtual String get_executable_path() const;
+    se_string get_executable_path() const override;
 
-    String get_locale() const override;
+    const char *get_locale() const override;
 
     int get_processor_count() const override;
 
     virtual LatinKeyboardVariant get_latin_keyboard_variant() const;
 
-    virtual void enable_for_stealing_focus(ProcessID pid);
+    void enable_for_stealing_focus(ProcessID pid) override;
     void move_window_to_foreground() override;
 
-    String get_godot_dir_name() const override;
+    se_string get_godot_dir_name() const override;
 
-    String get_user_data_dir() const override;
+    se_string get_user_data_dir() const override;
 
-    String get_unique_id() const override;
-
-    virtual void set_ime_active(const bool p_active);
+    void set_ime_active(const bool p_active) override;
     void set_ime_position(const Point2 &p_pos) override;
 
     void release_rendering_thread() override;
     void make_rendering_thread() override;
     void swap_buffers() override;
 
-    Error shell_open(String p_uri) override;
+    Error shell_open(se_string_view p_uri) override;
 
     void run();
 
     bool get_swap_ok_cancel() override { return true; }
 
     bool is_joy_known(int p_device) override;
-    String get_joy_guid(int p_device) const override;
+    StringName get_joy_guid(int p_device) const override;
 
-    virtual void _set_use_vsync(bool p_enable);
+    void _set_use_vsync(bool p_enable) override;
     //virtual bool is_vsync_enabled() const;
 
-    virtual OS::PowerState get_power_state();
+    OS::PowerState get_power_state() override;
     int get_power_seconds_left() override;
     int get_power_percent_left() override;
 
-    virtual bool _check_internal_feature_support(const String &p_feature);
+    bool _check_internal_feature_support(se_string_view p_feature) override;
 
     void disable_crash_handler() override;
     bool is_disable_crash_handler() const override;
@@ -355,7 +417,7 @@ public:
 
     void force_process_input() override;
 
-    Error move_to_trash(const String &p_path) override;
+    Error move_to_trash(se_string_view p_path) override;
 
     void process_and_drop_events() override;
 

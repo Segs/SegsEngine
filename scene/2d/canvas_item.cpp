@@ -53,6 +53,17 @@ VARIANT_ENUM_CAST(CanvasItemMaterial::BlendMode)
 VARIANT_ENUM_CAST(CanvasItemMaterial::LightMode)
 VARIANT_ENUM_CAST(CanvasItem::BlendMode);
 
+template <>
+struct PtrToArg<CharType> {
+    _FORCE_INLINE_ static CharType convert(const void *p_ptr) {
+        return QChar(uint32_t(*reinterpret_cast<const int64_t *>(p_ptr)));
+    }
+    _FORCE_INLINE_ static void encode(CharType p_val, void *p_ptr) {
+        *((int64_t *)p_ptr) = static_cast<int64_t>(p_val.unicode());
+    }
+};
+
+
 Mutex *CanvasItemMaterial::material_mutex = nullptr;
 SelfList<CanvasItemMaterial>::List *CanvasItemMaterial::dirty_materials = nullptr;
 Map<CanvasItemMaterial::MaterialKey, CanvasItemMaterial::ShaderData> CanvasItemMaterial::shader_map;
@@ -112,7 +123,7 @@ void CanvasItemMaterial::_update_shader() {
 
     //must create a shader!
 
-    String code = "shader_type canvas_item;\nrender_mode ";
+    se_string code("shader_type canvas_item;\nrender_mode ");
     switch (blend_mode) {
         case BLEND_MODE_MIX: code += "blend_mix"; break;
         case BLEND_MODE_ADD: code += "blend_add"; break;
@@ -364,14 +375,16 @@ CanvasItemMaterial::~CanvasItemMaterial() {
 
 ///////////////////////////////////////////////////////////////////
 
-bool CanvasItem::_edit_is_selected_on_click(const Point2 &p_point, double p_tolerance) const {
+bool CanvasItem::_edit_is_selected_on_click(const Point2 &p_point, float p_tolerance) const {
     if (_edit_use_rect()) {
         return _edit_get_rect().has_point(p_point);
     } else {
         return p_point.length() < p_tolerance;
     }
 }
-
+Transform2D CanvasItem::_edit_get_transform() const {
+    return Transform2D(_edit_get_rotation(), _edit_get_position() + _edit_get_pivot());
+}
 bool CanvasItem::is_visible_in_tree() const {
 
     if (!is_inside_tree())
@@ -748,6 +761,19 @@ void CanvasItem::draw_polyline_colors(const Vector<Point2> &p_points, const Vect
     VisualServer::get_singleton()->canvas_item_add_polyline(canvas_item, p_points, p_colors, p_width, p_antialiased);
 }
 
+void CanvasItem::draw_arc(const Vector2 &p_center, float p_radius, float p_start_angle, float p_end_angle, int p_point_count, const Color &p_color, float p_width, bool p_antialiased) {
+
+    Vector<Point2> points;
+    points.resize(p_point_count);
+    const float delta_angle = p_end_angle - p_start_angle;
+    for (int i = 0; i < p_point_count; i++) {
+        float theta = (i / (p_point_count - 1.0f)) * delta_angle + p_start_angle;
+        points.set(i, p_center + Vector2(Math::cos(theta), Math::sin(theta)) * p_radius);
+    }
+
+    draw_polyline(points, p_color, p_width, p_antialiased);
+}
+
 void CanvasItem::draw_multiline(const Vector<Point2> &p_points, const Color &p_color, float p_width, bool p_antialiased) {
 
     ERR_FAIL_COND_MSG(!drawing, "Drawing is only allowed inside NOTIFICATION_DRAW, _draw() function or 'draw' signal.")
@@ -790,29 +816,29 @@ void CanvasItem::draw_rect(const Rect2 &p_rect, const Color &p_color, bool p_fil
 
         VisualServer::get_singleton()->canvas_item_add_line(
                 canvas_item,
-                p_rect.position + Point2(-offset, 0),
+                p_rect.position + Size2(-offset, 0),
                 p_rect.position + Size2(p_rect.size.width + offset, 0),
                 p_color,
                 p_width,
                 p_antialiased);
         VisualServer::get_singleton()->canvas_item_add_line(
                 canvas_item,
-                p_rect.position + Point2(0, offset),
-                p_rect.position + Size2(0, p_rect.size.height - offset),
-                p_color,
-                p_width,
-                p_antialiased);
-        VisualServer::get_singleton()->canvas_item_add_line(
-                canvas_item,
-                p_rect.position + Point2(-offset, p_rect.size.height),
-                p_rect.position + Size2(p_rect.size.width + offset, p_rect.size.height),
-                p_color,
-                p_width,
-                p_antialiased);
-        VisualServer::get_singleton()->canvas_item_add_line(
-                canvas_item,
-                p_rect.position + Point2(p_rect.size.width, offset),
+                p_rect.position + Size2(p_rect.size.width, offset),
                 p_rect.position + Size2(p_rect.size.width, p_rect.size.height - offset),
+                p_color,
+                p_width,
+                p_antialiased);
+        VisualServer::get_singleton()->canvas_item_add_line(
+                canvas_item,
+                p_rect.position + Size2(p_rect.size.width + offset, p_rect.size.height),
+                p_rect.position + Size2(-offset, p_rect.size.height),
+                p_color,
+                p_width,
+                p_antialiased);
+        VisualServer::get_singleton()->canvas_item_add_line(
+                canvas_item,
+                p_rect.position + Size2(0, p_rect.size.height - offset),
+                p_rect.position + Size2(0, offset),
                 p_color,
                 p_width,
                 p_antialiased);
@@ -921,10 +947,17 @@ void CanvasItem::draw_multimesh(const Ref<MultiMesh> &p_multimesh, const Ref<Tex
 
 void CanvasItem::draw_string(const Ref<Font> &p_font, const Point2 &p_pos, const String &p_text, const Color &p_modulate, int p_clip_w) {
 
-    ERR_FAIL_COND_CMSG(!drawing, "Drawing is only allowed inside NOTIFICATION_DRAW, _draw() function or 'draw' signal.")
+    ERR_FAIL_COND_MSG(!drawing, "Drawing is only allowed inside NOTIFICATION_DRAW, _draw() function or 'draw' signal.")
 
     ERR_FAIL_COND(not p_font)
     p_font->draw(canvas_item, p_pos, p_text, p_modulate, p_clip_w);
+}
+void CanvasItem::draw_string_utf8(const Ref<Font> &p_font, const Point2 &p_pos, se_string_view p_text, const Color &p_modulate, int p_clip_w) {
+
+    ERR_FAIL_COND_MSG(!drawing, "Drawing is only allowed inside NOTIFICATION_DRAW, _draw() function or 'draw' signal.")
+
+    ERR_FAIL_COND(not p_font)
+    p_font->draw(canvas_item, p_pos, StringUtils::from_utf8(p_text), p_modulate, p_clip_w);
 }
 
 float CanvasItem::draw_char(const Ref<Font> &p_font, const Point2 &p_pos, QChar p_char, QChar p_next, const Color &p_modulate) {
@@ -1131,6 +1164,7 @@ void CanvasItem::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("_edit_set_pivot", {"pivot"}), &CanvasItem::_edit_set_pivot);
     MethodBinder::bind_method(D_METHOD("_edit_get_pivot"), &CanvasItem::_edit_get_pivot);
     MethodBinder::bind_method(D_METHOD("_edit_use_pivot"), &CanvasItem::_edit_use_pivot);
+    MethodBinder::bind_method(D_METHOD("_edit_get_transform"), &CanvasItem::_edit_get_transform);
 
     MethodBinder::bind_method(D_METHOD("get_canvas_item"), &CanvasItem::get_canvas_item);
 
@@ -1163,6 +1197,7 @@ void CanvasItem::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("draw_line", {"from", "to", "color", "width", "antialiased"}), &CanvasItem::draw_line, {DEFVAL(1.0), DEFVAL(false)});
     MethodBinder::bind_method(D_METHOD("draw_polyline", {"points", "color", "width", "antialiased"}), &CanvasItem::draw_polyline, {DEFVAL(1.0), DEFVAL(false)});
     MethodBinder::bind_method(D_METHOD("draw_polyline_colors", {"points", "colors", "width", "antialiased"}), &CanvasItem::draw_polyline_colors, {DEFVAL(1.0), DEFVAL(false)});
+    MethodBinder::bind_method(D_METHOD("draw_arc", {"center", "radius", "start_angle", "end_angle", "point_count", "color", "width", "antialiased"}), &CanvasItem::draw_arc, {DEFVAL(1.0), DEFVAL(false)});
     MethodBinder::bind_method(D_METHOD("draw_multiline", {"points", "color", "width", "antialiased"}), &CanvasItem::draw_multiline, {DEFVAL(1.0), DEFVAL(false)});
     MethodBinder::bind_method(D_METHOD("draw_multiline_colors", {"points", "colors", "width", "antialiased"}), &CanvasItem::draw_multiline_colors, {DEFVAL(1.0), DEFVAL(false)});
     MethodBinder::bind_method(D_METHOD("draw_rect", {"rect", "color", "filled", "width", "antialiased"}), &CanvasItem::draw_rect, {DEFVAL(true), DEFVAL(1.0), DEFVAL(false)});
@@ -1174,7 +1209,7 @@ void CanvasItem::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("draw_primitive", {"points", "colors", "uvs", "texture", "width", "normal_map"}), &CanvasItem::draw_primitive, {DEFVAL(Variant()), DEFVAL(1.0), DEFVAL(Variant())});
     MethodBinder::bind_method(D_METHOD("draw_polygon", {"points", "colors", "uvs", "texture", "normal_map", "antialiased"}), &CanvasItem::draw_polygon, {DEFVAL(Variant(PoolVector2Array())), DEFVAL(Variant()), DEFVAL(Variant()), DEFVAL(false)});
     MethodBinder::bind_method(D_METHOD("draw_colored_polygon", {"points", "color", "uvs", "texture", "normal_map", "antialiased"}), &CanvasItem::draw_colored_polygon, {DEFVAL(Variant(PoolVector2Array())), DEFVAL(Variant()), DEFVAL(Variant()), DEFVAL(false)});
-    MethodBinder::bind_method(D_METHOD("draw_string", {"font", "position", "text", "modulate", "clip_w"}), &CanvasItem::draw_string, {DEFVAL(Color(1, 1, 1)), DEFVAL(-1)});
+    MethodBinder::bind_method(D_METHOD("draw_string", {"font", "position", "text", "modulate", "clip_w"}), &CanvasItem::draw_string_utf8, {DEFVAL(Color(1, 1, 1)), DEFVAL(-1)});
     MethodBinder::bind_method(D_METHOD("draw_char", {"font", "position", "char", "next", "modulate"}), &CanvasItem::draw_char, {DEFVAL(Color(1, 1, 1))});
     MethodBinder::bind_method(D_METHOD("draw_mesh", {"mesh", "texture", "normal_map", "transform", "modulate"}), &CanvasItem::draw_mesh, {DEFVAL(Ref<Texture>()), DEFVAL(Transform2D()), DEFVAL(Color(1, 1, 1))});
     MethodBinder::bind_method(D_METHOD("draw_multimesh", {"multimesh", "texture", "normal_map"}), &CanvasItem::draw_multimesh, {DEFVAL(Ref<Texture>())});

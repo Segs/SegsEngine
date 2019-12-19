@@ -40,10 +40,10 @@ class ResourceFormatDDS : public QObject, public ResourceLoaderInterface {
     Q_OBJECT
 
 public:
-    RES load(const String &p_path, const String &p_original_path = "", Error *r_error = nullptr) override;
-    void get_recognized_extensions(ListPOD<String> *p_extensions) const override;
-    bool handles_type(const String &p_type) const override;
-    String get_resource_type(const String &p_path) const override;
+    RES load(se_string_view p_path, se_string_view p_original_path = "", Error *r_error = nullptr) override;
+    void get_recognized_extensions(PODVector<se_string> &p_extensions) const override;
+    bool handles_type(se_string_view p_type) const override;
+    se_string get_resource_type(se_string_view p_path) const override;
 
     ~ResourceFormatDDS() override {}
 };

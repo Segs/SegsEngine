@@ -119,7 +119,7 @@ void VisualServerRaster::draw(bool p_swap_buffers, double frame_step) {
             const Variant *v = &frame_drawn_callbacks.front()->deref().param;
             obj->call(frame_drawn_callbacks.front()->deref().method, &v, 1, ce);
             if (ce.error != Variant::CallError::CALL_OK) {
-                String err = Variant::get_call_error_text(obj, frame_drawn_callbacks.front()->deref().method, &v, 1, ce);
+                se_string err = Variant::get_call_error_text(obj, frame_drawn_callbacks.front()->deref().method, &v, 1, ce);
                 ERR_PRINT("Error calling frame drawn function: " + err)
             }
         }
@@ -177,7 +177,7 @@ RID VisualServerRaster::get_test_cube() {
     return test_cube;
 }
 
-bool VisualServerRaster::has_os_feature(const String &p_feature) const {
+bool VisualServerRaster::has_os_feature(const StringName &p_feature) const {
 
     return VSG::storage->has_os_feature(p_feature);
 }

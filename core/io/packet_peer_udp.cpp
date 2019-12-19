@@ -42,7 +42,13 @@ void PacketPeerUDP::set_blocking_mode(bool p_enable) {
     blocking = p_enable;
 }
 
-Error PacketPeerUDP::join_multicast_group(IP_Address p_multi_address, String p_if_name) {
+void PacketPeerUDP::set_broadcast_enabled(bool p_enabled) {
+    broadcast = p_enabled;
+    if (_sock && _sock->is_open())
+        _sock->set_broadcasting_enabled(p_enabled);
+}
+
+Error PacketPeerUDP::join_multicast_group(IP_Address p_multi_address, se_string_view p_if_name) {
 
     ERR_FAIL_COND_V(not _sock, ERR_UNAVAILABLE)
     ERR_FAIL_COND_V(!p_multi_address.is_valid(), ERR_INVALID_PARAMETER)
@@ -52,27 +58,28 @@ Error PacketPeerUDP::join_multicast_group(IP_Address p_multi_address, String p_i
         Error err = _sock->open(NetSocket::TYPE_UDP, ip_type);
         ERR_FAIL_COND_V(err != OK, err)
         _sock->set_blocking_enabled(false);
+        _sock->set_broadcasting_enabled(broadcast);
     }
-    return _sock->join_multicast_group(p_multi_address, std::move(p_if_name));
+    return _sock->join_multicast_group(p_multi_address, p_if_name);
 }
 
-Error PacketPeerUDP::leave_multicast_group(IP_Address p_multi_address, String p_if_name) {
+Error PacketPeerUDP::leave_multicast_group(IP_Address p_multi_address, se_string_view p_if_name) {
 
     ERR_FAIL_COND_V(not _sock, ERR_UNAVAILABLE)
     ERR_FAIL_COND_V(!_sock->is_open(), ERR_UNCONFIGURED)
-    return _sock->leave_multicast_group(p_multi_address, std::move(p_if_name));
+    return _sock->leave_multicast_group(p_multi_address, p_if_name);
 }
 
-String PacketPeerUDP::_get_packet_ip() const {
+se_string PacketPeerUDP::_get_packet_ip() const {
 
     return get_packet_address();
 }
 
-Error PacketPeerUDP::_set_dest_address(const String &p_address, int p_port) {
+Error PacketPeerUDP::_set_dest_address(const se_string &p_address, int p_port) {
 
     IP_Address ip;
     if (StringUtils::is_valid_ip_address(p_address)) {
-        ip = p_address;
+        ip = IP_Address(p_address);
     } else {
         ip = IP::get_singleton()->resolve_hostname(p_address);
         if (!ip.is_valid())
@@ -127,6 +134,7 @@ Error PacketPeerUDP::put_packet(const uint8_t *p_buffer, int p_buffer_size) {
         err = _sock->open(NetSocket::TYPE_UDP, ip_type);
         ERR_FAIL_COND_V(err != OK, err)
         _sock->set_blocking_enabled(false);
+        _sock->set_broadcasting_enabled(broadcast);
     }
 
     do {
@@ -170,6 +178,7 @@ Error PacketPeerUDP::listen(int p_port, const IP_Address &p_bind_address, int p_
 
     _sock->set_blocking_enabled(false);
     _sock->set_reuse_address_enabled(true);
+    _sock->set_broadcasting_enabled(broadcast);
     err = _sock->bind(p_bind_address, p_port);
 
     if (err != OK) {
@@ -218,7 +227,7 @@ Error PacketPeerUDP::_poll() {
 
         if (rb.space_left() < read + 24) {
 #ifdef TOOLS_ENABLED
-            WARN_PRINTS("Buffer full, dropping packets!");
+            WARN_PRINT("Buffer full, dropping packets!")
 #endif
             continue;
         }
@@ -263,6 +272,7 @@ void PacketPeerUDP::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_packet_ip"), &PacketPeerUDP::_get_packet_ip);
     MethodBinder::bind_method(D_METHOD("get_packet_port"), &PacketPeerUDP::get_packet_port);
     MethodBinder::bind_method(D_METHOD("set_dest_address", {"host", "port"}), &PacketPeerUDP::_set_dest_address);
+    MethodBinder::bind_method(D_METHOD("set_broadcast_enabled", {"enabled"}), &PacketPeerUDP::set_broadcast_enabled);
     MethodBinder::bind_method(D_METHOD("join_multicast_group", {"multicast_address", "interface_name"}), &PacketPeerUDP::join_multicast_group);
     MethodBinder::bind_method(D_METHOD("leave_multicast_group", {"multicast_address", "interface_name"}), &PacketPeerUDP::leave_multicast_group);
 }

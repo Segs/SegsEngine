@@ -30,8 +30,12 @@
 
 #include "node_path.h"
 
-#include "core/ustring.h"
+#include "core/se_string.h"
+#include "core/string_utils.h"
 #include "core/vector.h"
+
+using namespace eastl;
+
 namespace {
 // references to this static variable are returned from get_names and get_subnames
 static Vector<StringName> s_null_stringname_vec;
@@ -76,7 +80,7 @@ StringName NodePath::get_sname() const {
 
 void NodePath::prepend_period() {
 
-    if (!data->path.empty() && data->path[0].operator String() != ".") {
+    if (!data->path.empty() && se_string_view(data->path[0]) != "."_sv) {
         data->path.insert(0, StaticCString("."));
         hash_cache_valid = false;
     }
@@ -187,11 +191,14 @@ NodePath &NodePath::operator=(const NodePath &p_path) {
     }
     return *this;
 }
-String NodePath::asString() const {
+bool NodePath::empty() const noexcept {
+    return !data || (data->path.empty() && data->subpath.empty());
+}
+se_string NodePath::asString() const {
     if (!data)
-        return String();
+        return se_string();
 
-    String ret;
+    se_string ret;
     if (data->absolute)
         ret = "/";
 
@@ -199,17 +206,18 @@ String NodePath::asString() const {
 
         if (i > 0)
             ret += '/';
-        ret += data->path[i].asString();
+        ret += data->path[i].asCString();
     }
 
     for (int i = 0; i < data->subpath.size(); i++) {
 
-        ret += ":" + data->subpath[i].asString();
+        ret += se_string(":") + data->subpath[i].asCString();
     }
 
     return ret;
 }
-NodePath::operator String() const {
+
+NodePath::operator se_string() const {
     return asString();
 }
 
@@ -242,10 +250,10 @@ StringName NodePath::get_concatenated_subnames() const {
 
     if (!data->concatenated_subpath) {
         int spc = data->subpath.size();
-        String concatenated;
+        se_string concatenated;
         const StringName *ssn = data->subpath.ptr();
         for (int i = 0; i < spc; i++) {
-            concatenated += i == 0 ? ssn[i].operator String() : ":" + ssn[i];
+            concatenated += i == 0 ? ssn[i].asCString() : se_string(":") + ssn[i];
         }
         data->concatenated_subpath = StringName(concatenated);
     }
@@ -300,10 +308,10 @@ NodePath NodePath::get_as_property_path() const {
     } else {
         Vector<StringName> new_path = data->subpath;
 
-        String initial_subname = data->path[0];
+        se_string initial_subname(data->path[0]);
 
         for (int i = 1; i < data->path.size(); i++) {
-            initial_subname += "/" + data->path[i];
+            initial_subname += "/" + se_string(data->path[i].asCString());
         }
         new_path.insert(0, StringName(initial_subname));
 
@@ -347,11 +355,11 @@ void NodePath::simplify() {
     for (int i = 0; i < data->path.size(); i++) {
         if (data->path.size() == 1)
             break;
-        if (String(data->path[i]) == ".") {
+        if (se_string_view(data->path[i]) == "."_sv) {
             data->path.remove(i);
             i--;
-        } else if (String(data->path[i]) == ".." && i > 0 && String(data->path[i - 1]) != "." &&
-                   String(data->path[i - 1]) != "..") {
+        } else if (se_string_view(data->path[i]) == ".."_sv && i > 0 && se_string_view(data->path[i - 1]) != "."_sv &&
+                   se_string_view(data->path[i - 1]) != ".."_sv) {
             // remove both
             data->path.remove(i - 1);
             data->path.remove(i - 1);
@@ -372,35 +380,35 @@ NodePath NodePath::simplified() const {
     return np;
 }
 
-NodePath::NodePath(const String &p_path) {
+NodePath::NodePath(se_string_view p_path) {
 
     data = nullptr;
 
     if (p_path.length() == 0)
         return;
 
-    String path = p_path;
+    se_string path(p_path);
     Vector<StringName> subpath;
 
     bool absolute = (path[0] == '/');
     bool last_is_slash = true;
     bool has_slashes = false;
     int slices = 0;
-    int subpath_pos = StringUtils::find(path,":");
+    auto subpath_pos = StringUtils::find(path,":");
 
-    if (subpath_pos != -1) {
+    if (subpath_pos != se_string::npos) {
 
         int from = subpath_pos + 1;
 
         for (int i = from; i <= path.length(); i++) {
 
-            if (path[i] == ':' || path[i].isNull() ) {
+            if (path[i] == ':' || path[i]==0 ) {
 
-                String str = StringUtils::substr(path,from, i - from);
+                se_string_view str = StringUtils::substr(path,from, i - from);
                 if (str.empty()) {
-                    if (path[i].isNull()) continue; // Allow end-of-path :
+                    if (path[i]==0) continue; // Allow end-of-path :
 
-                    ERR_FAIL_MSG("Invalid NodePath '" + p_path + "'.")
+                    ERR_FAIL_MSG("Invalid NodePath '" + se_string(p_path) + "'.")
                 }
                 subpath.push_back(StringName(str));
 
@@ -448,7 +456,7 @@ NodePath::NodePath(const String &p_path) {
 
             if (!last_is_slash) {
 
-                String name = StringUtils::substr(path,from, i - from);
+                se_string_view name = StringUtils::substr(path,from, i - from);
                 ERR_FAIL_INDEX(slice, data->path.size())
                 data->path.write[slice++] = StringName(name);
             }
@@ -461,7 +469,7 @@ NodePath::NodePath(const String &p_path) {
     // part after the final slash
     if (!last_is_slash) {
 
-        String name = StringUtils::substr(path,from);
+        se_string_view name = StringUtils::substr(path,from);
         ERR_FAIL_INDEX(slice, data->path.size())
         data->path.write[slice++] = StringName(name);
     }

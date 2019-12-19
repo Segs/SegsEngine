@@ -210,7 +210,7 @@ protected:
     static void _bind_methods();
 
 public:
-    String get_configuration_warning() const override;
+    StringName get_configuration_warning() const override;
 
     SpotLight() :
             Light(VS::LIGHT_SPOT) {}

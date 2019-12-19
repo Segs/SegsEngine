@@ -39,9 +39,13 @@
 #include "core/pool_vector.h"
 #include "core/rid.h"
 #include "core/typedefs.h"
-#include "core/ustring.h"
+//#include "core/ustring.h"
+#include "core/se_string.h"
+#include "core/string_utils.h"
 #include "core/variant.h"
 #include "core/vector.h"
+//#include "core/dictionary.h"
+//#include "core/array.h"
 
 #ifdef PTRCALL_ENABLED
 
@@ -112,6 +116,7 @@ struct PtrToArg {
 MAKE_PTRARG(bool);
 MAKE_PTRARGCONV(uint8_t, int64_t);
 MAKE_PTRARGCONV(int8_t, int64_t);
+
 MAKE_PTRARGCONV(uint16_t, int64_t);
 MAKE_PTRARGCONV(int16_t, int64_t);
 MAKE_PTRARGCONV(uint32_t, int64_t);
@@ -121,7 +126,9 @@ MAKE_PTRARG(uint64_t);
 MAKE_PTRARGCONV(float, double);
 MAKE_PTRARG(double);
 
-MAKE_PTRARG(String);
+//MAKE_PTRARG(String);
+MAKE_PTRARG(se_string);
+MAKE_PTRARG(se_string_view);
 MAKE_PTRARG(Vector2);
 MAKE_PTRARG(Rect2);
 MAKE_PTRARG_BY_REFERENCE(Vector3);
@@ -139,7 +146,8 @@ MAKE_PTRARG_BY_REFERENCE(Array);
 MAKE_PTRARG_BY_REFERENCE(PoolByteArray);
 MAKE_PTRARG_BY_REFERENCE(PoolIntArray);
 MAKE_PTRARG_BY_REFERENCE(PoolRealArray);
-MAKE_PTRARG_BY_REFERENCE(PoolStringArray);
+MAKE_PTRARG_BY_REFERENCE(PoolVector<se_string>);
+//MAKE_PTRARG_BY_REFERENCE(PoolStringArray);
 MAKE_PTRARG_BY_REFERENCE(PoolVector2Array);
 MAKE_PTRARG_BY_REFERENCE(PoolVector3Array);
 MAKE_PTRARG_BY_REFERENCE(PoolColorArray);
@@ -222,7 +230,7 @@ struct PtrToArg<const T *> {
         }                                                                                        \
     }
 
-MAKE_VECARG(String);
+//MAKE_VECARG(String);
 MAKE_VECARG(uint8_t);
 MAKE_VECARG(int);
 MAKE_VECARG(float);
@@ -233,12 +241,12 @@ MAKE_VECARG(Color);
 template <>
 struct PtrToArg<Vector<StringName> > {
     _FORCE_INLINE_ static Vector<StringName> convert(const void *p_ptr) {
-        const PoolVector<String> *dvs = reinterpret_cast<const PoolVector<String> *>(p_ptr);
+        const PoolVector<se_string> *dvs = reinterpret_cast<const PoolVector<se_string> *>(p_ptr);
         Vector<StringName> ret;
         int len = dvs->size();
         ret.resize(len);
         {
-            PoolVector<String>::Read r = dvs->read();
+            PoolVector<se_string>::Read r = dvs->read();
             for (int i = 0; i < len; i++) {
                 ret.write[i] = StringName(r[i]);
             }
@@ -246,13 +254,13 @@ struct PtrToArg<Vector<StringName> > {
         return ret;
     }
     _FORCE_INLINE_ static void encode(const Vector<StringName> &p_vec, void *p_ptr) {
-        PoolVector<String> *dv = reinterpret_cast<PoolVector<String> *>(p_ptr);
+        PoolVector<se_string> *dv = reinterpret_cast<PoolVector<se_string> *>(p_ptr);
         int len = p_vec.size();
         dv->resize(len);
         {
-            PoolVector<String>::Write w = dv->write();
+            PoolVector<se_string>::Write w = dv->write();
             for (int i = 0; i < len; i++) {
-                w[i] = p_vec[i];
+                w[i] = se_string(p_vec[i]);
             }
         }
     }
@@ -260,17 +268,71 @@ struct PtrToArg<Vector<StringName> > {
 template <>
 struct PtrToArg<const Vector<StringName> &> {
     _FORCE_INLINE_ static Vector<StringName> convert(const void *p_ptr) {
-        const PoolVector<String> *dvs = reinterpret_cast<const PoolVector<String> *>(p_ptr);
+        const PoolVector<se_string> *dvs = reinterpret_cast<const PoolVector<se_string> *>(p_ptr);
         Vector<StringName> ret;
         int len = dvs->size();
         ret.resize(len);
         {
-            PoolVector<String>::Read r = dvs->read();
+            PoolVector<se_string>::Read r = dvs->read();
             for (int i = 0; i < len; i++) {
                 ret.write[i] = StringName(r[i]);
             }
         }
         return ret;
+    }
+};
+template <>
+struct PtrToArg<Vector<se_string> > {
+    _FORCE_INLINE_ static Vector<se_string> convert(const void *p_ptr) {
+        const PoolVector<se_string> *dvs = reinterpret_cast<const PoolVector<se_string> *>(p_ptr);
+        Vector<se_string> ret;
+        int len = dvs->size();
+        ret.resize(len);
+        {
+            PoolVector<se_string>::Read r = dvs->read();
+            for (int i = 0; i < len; i++) {
+                ret.write[i] = r[i];
+            }
+        }
+        return ret;
+    }
+    _FORCE_INLINE_ static void encode(const Vector<se_string> &p_vec, void *p_ptr) {
+        PoolVector<se_string> *dv = reinterpret_cast<PoolVector<se_string> *>(p_ptr);
+        int len = p_vec.size();
+        dv->resize(len);
+        {
+            PoolVector<se_string>::Write w = dv->write();
+            for (int i = 0; i < len; i++) {
+                w[i] = p_vec[i];
+            }
+        }
+    }
+};
+template <>
+struct PtrToArg<const Vector<se_string> &> {
+    _FORCE_INLINE_ static Vector<se_string> convert(const void *p_ptr) {
+        const PoolVector<se_string> *dvs = reinterpret_cast<const PoolVector<se_string> *>(p_ptr);
+        Vector<se_string> ret;
+        int len = dvs->size();
+        ret.resize(len);
+        {
+            PoolVector<se_string>::Read r = dvs->read();
+            for (int i = 0; i < len; i++) {
+                ret.write[i] = r[i];
+            }
+        }
+        return ret;
+    }
+    _FORCE_INLINE_ static void encode(const Vector<se_string> &p_vec, void *p_ptr) {
+        Array *arr = reinterpret_cast<Array *>(p_ptr);
+        int len = p_vec.size();
+        arr->resize(len);
+        {
+            auto r = p_vec.ptr();
+            for (int i = 0; i < len; i++) {
+                (*arr)[i] = Variant(r[i]);
+            }
+        }
     }
 };
 
@@ -367,45 +429,42 @@ MAKE_DVECARR(Plane);
 template <>
 struct PtrToArg<StringName> {
     _FORCE_INLINE_ static StringName convert(const void *p_ptr) {
-        StringName s(*reinterpret_cast<const String *>(p_ptr));
+        StringName s(*reinterpret_cast<const se_string *>(p_ptr));
         return s;
     }
-    _FORCE_INLINE_ static void encode(StringName p_vec, void *p_ptr) {
-        String *arr = reinterpret_cast<String *>(p_ptr);
-        *arr = p_vec;
+    _FORCE_INLINE_ static void encode(const StringName &p_vec, void *p_ptr) {
+        se_string *arr = reinterpret_cast<se_string *>(p_ptr);
+        *arr = se_string(p_vec);
     }
 };
 
 template <>
 struct PtrToArg<const StringName &> {
     _FORCE_INLINE_ static StringName convert(const void *p_ptr) {
-        StringName s(*reinterpret_cast<const String *>(p_ptr));
+        StringName s(*reinterpret_cast<const se_string *>(p_ptr));
         return s;
     }
 };
 
-#define MAKE_STRINGCONV_BY_REFERENCE(m_type)                                  \
-    template <>                                                               \
-    struct PtrToArg<m_type> {                                                 \
-        _FORCE_INLINE_ static m_type convert(const void *p_ptr) {             \
-            m_type s = *reinterpret_cast<const String *>(p_ptr);              \
-            return s;                                                         \
-        }                                                                     \
-        _FORCE_INLINE_ static void encode(const m_type &p_vec, void *p_ptr) { \
-            String *arr = reinterpret_cast<String *>(p_ptr);                  \
-            *arr = p_vec;                                                     \
-        }                                                                     \
-    };                                                                        \
-                                                                              \
-    template <>                                                               \
-    struct PtrToArg<const m_type &> {                                         \
-        _FORCE_INLINE_ static m_type convert(const void *p_ptr) {             \
-            m_type s = *reinterpret_cast<const String *>(p_ptr);              \
-            return s;                                                         \
-        }                                                                     \
+template <>
+struct PtrToArg<IP_Address> {
+    _FORCE_INLINE_ static IP_Address convert(const void *p_ptr) {
+        IP_Address s(reinterpret_cast<const se_string *>(p_ptr)->c_str());
+        return s;
     }
+    _FORCE_INLINE_ static void encode(const IP_Address &p_vec, void *p_ptr) {
+        se_string *arr = reinterpret_cast<se_string *>(p_ptr);
+        *arr = p_vec;
+    }
+};
 
-MAKE_STRINGCONV_BY_REFERENCE(IP_Address);
+template <>
+struct PtrToArg<const IP_Address &> {
+    _FORCE_INLINE_ static IP_Address convert(const void *p_ptr) {
+        IP_Address s(reinterpret_cast<const se_string *>(p_ptr)->c_str());
+        return s;
+    }
+};
 
 template <>
 struct PtrToArg<PoolVector<Face3> > {
@@ -459,5 +518,12 @@ struct PtrToArg<const PoolVector<Face3> &> {
         return ret;
     }
 };
-
+template <>
+struct PtrToArg<Span<const uint8_t>> {
+    _FORCE_INLINE_ static Span<const uint8_t> convert(const void *p_ptr) {
+        const Span<const uint8_t> *dvs = reinterpret_cast<const Span<const uint8_t> *>(p_ptr);
+        // FIXME: this very likely won't work
+        return *dvs;
+    }
+};
 #endif //PTRCALL_ENABLED

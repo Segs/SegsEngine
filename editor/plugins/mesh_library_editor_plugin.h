@@ -36,58 +36,58 @@
 
 class MeshLibraryEditor : public Control {
 
-	GDCLASS(MeshLibraryEditor,Control)
+    GDCLASS(MeshLibraryEditor,Control)
 
-	Ref<MeshLibrary> mesh_library;
+    Ref<MeshLibrary> mesh_library;
 
-	EditorNode *editor;
-	MenuButton *menu;
-	ConfirmationDialog *cd;
-	EditorFileDialog *file;
-	int to_erase;
+    EditorNode *editor;
+    MenuButton *menu;
+    ConfirmationDialog *cd;
+    EditorFileDialog *file;
+    int to_erase;
 
-	enum {
+    enum {
 
-		MENU_OPTION_ADD_ITEM,
-		MENU_OPTION_REMOVE_ITEM,
-		MENU_OPTION_UPDATE_FROM_SCENE,
-		MENU_OPTION_IMPORT_FROM_SCENE
-	};
+        MENU_OPTION_ADD_ITEM,
+        MENU_OPTION_REMOVE_ITEM,
+        MENU_OPTION_UPDATE_FROM_SCENE,
+        MENU_OPTION_IMPORT_FROM_SCENE
+    };
 
-	int option;
-	void _import_scene_cbk(const String &p_str);
-	void _menu_cbk(int p_option);
-	void _menu_confirm();
+    int option;
+    void _import_scene_cbk(se_string_view p_str);
+    void _menu_cbk(int p_option);
+    void _menu_confirm();
 
-	static void _import_scene(Node *p_scene, const Ref<MeshLibrary> &p_library, bool p_merge);
+    static void _import_scene(Node *p_scene, const Ref<MeshLibrary> &p_library, bool p_merge);
 
 protected:
-	static void _bind_methods();
+    static void _bind_methods();
 
 public:
-	MenuButton *get_menu_button() const { return menu; }
+    MenuButton *get_menu_button() const { return menu; }
 
-	void edit(const Ref<MeshLibrary> &p_mesh_library);
-	static Error update_library_file(Node *p_base_scene, const Ref<MeshLibrary>& ml, bool p_merge = true);
+    void edit(const Ref<MeshLibrary> &p_mesh_library);
+    static Error update_library_file(Node *p_base_scene, const Ref<MeshLibrary>& ml, bool p_merge = true);
 
-	MeshLibraryEditor(EditorNode *p_editor);
+    MeshLibraryEditor(EditorNode *p_editor);
 };
 
 class MeshLibraryEditorPlugin : public EditorPlugin {
 
-	GDCLASS(MeshLibraryEditorPlugin,EditorPlugin)
+    GDCLASS(MeshLibraryEditorPlugin,EditorPlugin)
 
-	MeshLibraryEditor *mesh_library_editor;
-	EditorNode *editor;
+    MeshLibraryEditor *mesh_library_editor;
+    EditorNode *editor;
 
 public:
-	String get_name() const override { return "MeshLibrary"; }
-	bool has_main_screen() const override { return false; }
-	void edit(Object *p_node) override;
-	bool handles(Object *p_node) const override;
-	void make_visible(bool p_visible) override;
+    se_string_view get_name() const override { return "MeshLibrary"; }
+    bool has_main_screen() const override { return false; }
+    void edit(Object *p_node) override;
+    bool handles(Object *p_node) const override;
+    void make_visible(bool p_visible) override;
 
-	MeshLibraryEditorPlugin(EditorNode *p_node);
+    MeshLibraryEditorPlugin(EditorNode *p_node);
 };
 
 #endif // MESH_LIBRARY_EDITOR_PLUGIN_H

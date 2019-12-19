@@ -29,7 +29,8 @@
 /*************************************************************************/
 
 #include "scene_string_names.h"
-#include "core/ustring.h"
+#include "core/se_string.h"
+#include "core/string_utils.h"
 
 SceneStringNames *SceneStringNames::singleton = nullptr;
 
@@ -198,7 +199,7 @@ SceneStringNames::SceneStringNames() {
 
     for (int i = 0; i < MAX_MATERIALS; i++) {
 
-        mesh_materials[i] = "material/" + itos(i);
+        mesh_materials[i] = StringName("material/" + itos(i));
     }
 
     _mesh_changed = StringName("_mesh_changed");

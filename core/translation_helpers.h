@@ -1,12 +1,18 @@
 #pragma once
 
-class String;
+#include "core/forward_decls.h"
 
+using String = class QString;
+namespace StringUtils {
+    [[nodiscard]] se_string to_utf8(const String &s);
+}
 //tool translate
 #ifdef TOOLS_ENABLED
 
 //gets parsed
-String TTR(const String &);
+StringName TTR(se_string_view);
+#define TTR_utf8(v) StringUtils::to_utf8(TTR(v))
+
 //use for C strings
 #define TTRC(m_value) (m_value)
 //use to avoid parsing (for use later with C strings)
@@ -21,4 +27,5 @@ String TTR(const String &);
 #endif
 
 //tool or regular translate
-String RTR(const String &);
+StringName RTR(const char *);
+se_string RTR_utf8(se_string_view sv);

@@ -177,10 +177,11 @@ private:
 
     Vector3 gravity;
 
+    void _update_internal();
     void _particles_process(float p_delta);
     void _update_particle_data_buffer();
 
-    Mutex *update_mutex;
+    Mutex *update_mutex=nullptr;
 
     void _update_render_thread();
 
@@ -282,7 +283,7 @@ public:
     void set_gravity(const Vector3 &p_gravity);
     Vector3 get_gravity() const;
 
-    String get_configuration_warning() const override;
+    StringName get_configuration_warning() const override;
 
     void restart();
 

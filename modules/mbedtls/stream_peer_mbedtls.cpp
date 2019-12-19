@@ -32,6 +32,7 @@
 
 #include "core/io/stream_peer_tcp.h"
 #include "core/os/file_access.h"
+#include "core/string_utils.h"
 
 void _print_error(int ret) {
     printf("mbedtls error: returned -0x%x\n\n", -ret);
@@ -106,23 +107,22 @@ Error StreamPeerMbedTLS::_do_handshake() {
     return OK;
 }
 
-Error StreamPeerMbedTLS::connect_to_stream(Ref<StreamPeer> p_base, bool p_validate_certs, const String &p_for_hostname, Ref<X509Certificate> p_ca_certs) {
+Error StreamPeerMbedTLS::connect_to_stream(Ref<StreamPeer> p_base, bool p_validate_certs, se_string_view p_for_hostname, Ref<X509Certificate> p_ca_certs) {
 
     ERR_FAIL_COND_V(not p_base, ERR_INVALID_PARAMETER)
 
     base = p_base;
-    int ret = 0;
     int authmode = p_validate_certs ? MBEDTLS_SSL_VERIFY_REQUIRED : MBEDTLS_SSL_VERIFY_NONE;
 
     Error err = ssl_ctx->init_client(MBEDTLS_SSL_TRANSPORT_STREAM, authmode, dynamic_ref_cast<X509CertificateMbedTLS>(p_ca_certs));
     ERR_FAIL_COND_V(err != OK, err)
-
-    mbedtls_ssl_set_hostname(ssl_ctx->get_context(), StringUtils::to_utf8(p_for_hostname));
+    se_string zterm(p_for_hostname);
+    mbedtls_ssl_set_hostname(ssl_ctx->get_context(), zterm.c_str());
     mbedtls_ssl_set_bio(ssl_ctx->get_context(), this, bio_send, bio_recv, nullptr);
 
     status = STATUS_HANDSHAKING;
 
-    if ((ret = _do_handshake()) != OK) {
+    if (_do_handshake() != OK) {
         status = STATUS_ERROR_HOSTNAME_MISMATCH;
         return FAILED;
     }
@@ -144,7 +144,7 @@ Error StreamPeerMbedTLS::accept_stream(Ref<StreamPeer> p_base, Ref<CryptoKey> p_
 
     status = STATUS_HANDSHAKING;
 
-    if ((err = _do_handshake()) != OK) {
+    if (_do_handshake() != OK) {
         return FAILED;
     }
 

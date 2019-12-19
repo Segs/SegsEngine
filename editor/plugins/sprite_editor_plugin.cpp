@@ -34,6 +34,7 @@
 #include "core/translation_helpers.h"
 #include "canvas_item_editor_plugin.h"
 #include "editor/editor_scale.h"
+#include "editor/scene_tree_dock.h"
 #include "scene/2d/collision_polygon_2d.h"
 #include "scene/2d/light_occluder_2d.h"
 #include "scene/2d/mesh_instance_2d.h"
@@ -234,9 +235,9 @@ void SpriteEditor::_update_mesh_data() {
 
                 //flip if flipped
                 if (node->is_flipped_h())
-                    vtx.x = rect.size.x - vtx.x - 1.0;
+                    vtx.x = rect.size.x - vtx.x - 1.0f;
                 if (node->is_flipped_v())
-                    vtx.y = rect.size.y - vtx.y - 1.0;
+                    vtx.y = rect.size.y - vtx.y - 1.0f;
 
                 if (node->is_centered())
                     vtx -= rect.size / 2.0;
@@ -282,9 +283,9 @@ void SpriteEditor::_update_mesh_data() {
 
                 //flip if flipped
                 if (node->is_flipped_h())
-                    vtx.x = rect.size.x - vtx.x - 1.0;
+                    vtx.x = rect.size.x - vtx.x - 1.0f;
                 if (node->is_flipped_v())
-                    vtx.y = rect.size.y - vtx.y - 1.0;
+                    vtx.y = rect.size.y - vtx.y - 1.0f;
 
                 if (node->is_centered())
                     vtx -= rect.size / 2.0;
@@ -339,7 +340,7 @@ void SpriteEditor::_convert_to_mesh_2d_node() {
     mesh_instance->set_mesh(mesh);
 
     UndoRedo *ur = EditorNode::get_undo_redo();
-    ur->create_action(TTR("Convert to Mesh2D"));
+    ur->create_action_ui(TTR("Convert to Mesh2D"));
     ur->add_do_method(EditorNode::get_singleton()->get_scene_tree_dock(), "replace_node", Variant(node), Variant(mesh_instance), true, false);
     ur->add_do_reference(mesh_instance);
     ur->add_undo_method(EditorNode::get_singleton()->get_scene_tree_dock(), "replace_node", Variant(mesh_instance), Variant(node), false, false);
@@ -398,7 +399,7 @@ void SpriteEditor::_convert_to_polygon_2d_node() {
     polygon_2d_instance->set_polygons(polys);
 
     UndoRedo *ur = EditorNode::get_singleton()->get_undo_redo();
-    ur->create_action(TTR("Convert to Polygon2D"));
+    ur->create_action_ui(TTR("Convert to Polygon2D"));
     ur->add_do_method(EditorNode::get_singleton()->get_scene_tree_dock(), "replace_node", Variant(node), Variant(polygon_2d_instance), true, false);
     ur->add_do_reference(polygon_2d_instance);
     ur->add_undo_method(EditorNode::get_singleton()->get_scene_tree_dock(), "replace_node", Variant(polygon_2d_instance), Variant(node), false, false);
@@ -422,7 +423,7 @@ void SpriteEditor::_create_collision_polygon_2d_node() {
         collision_polygon_2d_instance->set_polygon(outline);
 
         UndoRedo *ur = EditorNode::get_singleton()->get_undo_redo();
-        ur->create_action(TTR("Create CollisionPolygon2D Sibling"));
+        ur->create_action_ui(TTR("Create CollisionPolygon2D Sibling"));
         ur->add_do_method(this, "_add_as_sibling_or_child", Variant(node), Variant(collision_polygon_2d_instance));
         ur->add_do_reference(collision_polygon_2d_instance);
         ur->add_undo_method(node != this->get_tree()->get_edited_scene_root() ? node->get_parent() : this->get_tree()->get_edited_scene_root(), "remove_child", Variant(collision_polygon_2d_instance));
@@ -456,7 +457,7 @@ void SpriteEditor::_create_light_occluder_2d_node() {
         light_occluder_2d_instance->set_occluder_polygon(polygon);
 
         UndoRedo *ur = EditorNode::get_singleton()->get_undo_redo();
-        ur->create_action(TTR("Create LightOccluder2D Sibling"));
+        ur->create_action_ui(TTR("Create LightOccluder2D Sibling"));
         ur->add_do_method(this, "_add_as_sibling_or_child", Variant(node), Variant(light_occluder_2d_instance));
         ur->add_do_reference(light_occluder_2d_instance);
         ur->add_undo_method(node != this->get_tree()->get_edited_scene_root() ? node->get_parent() : this->get_tree()->get_edited_scene_root(), "remove_child", Variant(light_occluder_2d_instance));
@@ -544,8 +545,8 @@ void SpriteEditor::_debug_uv_draw() {
     Ref<Texture> tex = node->get_texture();
     ERR_FAIL_COND(not tex)
 
-    Point2 draw_pos_offset = Point2(1.0, 1.0);
-    Size2 draw_size_offset = Size2(2.0, 2.0);
+    Point2 draw_pos_offset = Point2(1.0f, 1.0f);
+    Size2 draw_size_offset = Size2(2.0f, 2.0f);
 
     debug_uv->set_clip_contents(true);
     debug_uv->draw_texture(tex, draw_pos_offset);

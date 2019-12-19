@@ -25,8 +25,8 @@ static void load_all_plugins() {
     get_static_plugins(s_common_plugins);
 
     print_line("Retrieving dynamically linked plugins");
-    String exepath = OS::get_singleton()->get_executable_path();
-    auto base_path = QFileInfo(exepath.m_str).path();
+    se_string exepath(OS::get_singleton()->get_executable_path());
+    auto base_path = QFileInfo(exepath.c_str()).path();
     QDir plugins_dir(base_path+"/plugins");
     QCoreApplication::addLibraryPath( base_path+"/plugins" );
     for (const QString &filename : plugins_dir.entryList(QDir::Files)) {

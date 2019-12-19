@@ -53,14 +53,14 @@ namespace TestMath {
 
 class GetClassAndNamespace {
 
-    String code;
+    se_string code;
     int idx;
     int line;
-    String error_str;
+    se_string error_str;
     bool error;
     Variant value;
 
-    String class_name;
+    se_string class_name;
 
     enum Token {
         TK_BRACKET_OPEN,
@@ -81,7 +81,7 @@ class GetClassAndNamespace {
     Token get_token() {
 
         while (true) {
-            switch (code[idx].unicode()) {
+            switch (code[idx]) {
 
                 case '\n': {
 
@@ -130,19 +130,19 @@ class GetClassAndNamespace {
                 };
                 case '#': {
                     //compiler directive
-                    while (code[idx] != '\n' && code[idx] != nullptr) {
+                    while (code[idx] != '\n' && code[idx] != 0) {
                         idx++;
                     }
                     continue;
                 } break;
                 case '/': {
 
-                    switch (code[idx + 1].unicode()) {
+                    switch (code[idx + 1]) {
                         case '*': { // block comment
 
                             idx += 2;
                             while (true) {
-                                if (code[idx] == nullptr) {
+                                if (code[idx] == 0) {
                                     error_str = "Unterminated comment";
                                     error = true;
                                     return TK_ERROR;
@@ -160,7 +160,7 @@ class GetClassAndNamespace {
                         } break;
                         case '/': { // line comment skip
 
-                            while (code[idx] != '\n' && code[idx] != nullptr) {
+                            while (code[idx] != '\n' && code[idx] != 0) {
                                 idx++;
                             }
 
@@ -179,9 +179,9 @@ class GetClassAndNamespace {
 
                     CharType begin_str = code[idx];
                     idx++;
-                    String tk_string = String();
+                    se_string tk_string;
                     while (true) {
-                        if (code[idx] == nullptr) {
+                        if (code[idx] == 0) {
                             error_str = "Unterminated String";
                             error = true;
                             return TK_ERROR;
@@ -191,15 +191,15 @@ class GetClassAndNamespace {
                         } else if (code[idx] == '\\') {
                             //escaped characters...
                             idx++;
-                            CharType next = code[idx];
-                            if (next == nullptr) {
+                            char next = code[idx];
+                            if (next == 0) {
                                 error_str = "Unterminated String";
                                 error = true;
                                 return TK_ERROR;
                             }
-                            CharType res = 0;
+                            char res = 0;
 
-                            switch (next.unicode()) {
+                            switch (next) {
 
                                 case 'b': res = 8; break;
                                 case 't': res = 9; break;
@@ -247,15 +247,16 @@ class GetClassAndNamespace {
 
                     if (code[idx] == '-' || (code[idx] >= '0' && code[idx] <= '9')) {
                         //a number
-                        const CharType *rptr;
-                        double number = StringUtils::to_double(code.cdata()+idx, &rptr);
-                        idx += (rptr - (code.cdata()+idx));
+                        char *rptr;
+
+                        double number = std::strtod(code.c_str()+idx,&rptr);
+                        idx += (rptr - (code.c_str()+idx));
                         value = number;
                         return TK_NUMBER;
 
                     } else if ((code[idx] >= 'A' && code[idx] <= 'Z') || (code[idx] >= 'a' && code[idx] <= 'z') || code[idx] > 127) {
 
-                        String id;
+                        se_string id;
 
                         while ((code[idx] >= 'A' && code[idx] <= 'Z') || (code[idx] >= 'a' && code[idx] <= 'z') || code[idx] > 127) {
 
@@ -276,56 +277,56 @@ class GetClassAndNamespace {
     }
 
 public:
-    Error parse(const String &p_code, const String &p_known_class_name = String()) {
+    Error parse(const se_string &p_code, const se_string &p_known_class_name = {}) {
 
         code = p_code;
         idx = 0;
         line = 0;
-        error_str = String();
+        error_str = se_string();
         error = false;
         value = Variant();
-        class_name = String();
+        class_name = se_string();
 
         bool use_next_class = false;
         Token tk = get_token();
 
-        Map<int, String> namespace_stack;
+        Map<int, se_string> namespace_stack;
         int curly_stack = 0;
 
         while (!error || tk != TK_EOF) {
 
             if (tk == TK_BRACKET_OPEN) {
                 tk = get_token();
-                if (tk == TK_IDENTIFIER && String(value) == "ScriptClass") {
+                if (tk == TK_IDENTIFIER && se_string(value) == "ScriptClass") {
                     if (get_token() == TK_BRACKET_CLOSE) {
                         use_next_class = true;
                     }
                 }
-            } else if (tk == TK_IDENTIFIER && String(value) == "class") {
+            } else if (tk == TK_IDENTIFIER && se_string(value) == "class") {
                 tk = get_token();
                 if (tk == TK_IDENTIFIER) {
-                    String name = value;
+                    se_string name = value;
                     if (use_next_class || p_known_class_name == name) {
-                        for (eastl::pair<const int,String> &E : namespace_stack) {
+                        for (eastl::pair<const int,se_string> &E : namespace_stack) {
                             class_name += E.second + ".";
                         }
-                        class_name += String(value);
+                        class_name += se_string(value);
                         break;
                     }
                 }
 
             } else if (tk == TK_IDENTIFIER && String(value) == "namespace") {
-                String name;
+                se_string name;
                 int at_level = curly_stack;
                 while (true) {
                     tk = get_token();
                     if (tk == TK_IDENTIFIER) {
-                        name += String(value);
+                        name += se_string(value);
                     }
 
                     tk = get_token();
                     if (tk == TK_PERIOD) {
-                        name += ".";
+                        name += '.';
                     } else if (tk == TK_CURLY_BRACKET_OPEN) {
                         curly_stack++;
                         break;
@@ -356,11 +357,11 @@ public:
         return OK;
     }
 
-    String get_error() {
+    se_string get_error() {
         return error_str;
     }
 
-    String get_class() {
+    se_string get_class() {
         return class_name;
     }
 };
@@ -371,9 +372,9 @@ void test_vec(Plane p_vec) {
     cm.set_perspective(45, 1, 0, 100);
     Plane v0 = cm.xform4(p_vec);
 
-    print_line("out: " + v0);
+    print_line("out: " + (se_string)v0);
     v0.normal.z = (v0.d / 100.0f * 2.0f - 1.0f) * v0.d;
-    print_line("out_F: " + v0);
+    print_line("out_F: " + (se_string)v0);
 }
 
 uint32_t ihash(uint32_t a) {
@@ -450,7 +451,7 @@ MainLoop *test() {
         float gd = gb * mb;
         float bd = bb * mb;
 
-        print_line("RGBE: " + Color(rd, gd, bd));
+        print_line("RGBE: " + (se_string)Color(rd, gd, bd));
     }
 
     print_line("Dvectors: " + itos(MemoryPool::allocs_used));
@@ -481,14 +482,14 @@ MainLoop *test() {
     print_line("later Mem used: " + itos(MemoryPool::total_memory));
     print_line("Mlater Ax mem used: " + itos(MemoryPool::max_memory));
 
-    ListPOD<String> cmdlargs = OS::get_singleton()->get_cmdline_args();
+    const ListPOD<se_string> &cmdlargs(OS::get_singleton()->get_cmdline_args());
 
     if (cmdlargs.empty()) {
         //try editor!
         return nullptr;
     }
 
-    String test = cmdlargs.back();
+    se_string test = cmdlargs.back();
     if (test == "math") {
         // Not a file name but the test name, abort.
         // FIXME: This test is ugly as heck, needs fixing :)
@@ -504,7 +505,7 @@ MainLoop *test() {
     fa->get_buffer(buf.ptrw(), flen);
     buf.write[flen] = 0;
 
-    String code = StringUtils::from_utf8((const char *)&buf[0]);
+    se_string code((const char *)&buf[0]);
 
     GetClassAndNamespace getclass;
     if (getclass.parse(code)) {
@@ -521,7 +522,7 @@ MainLoop *test() {
 
         for (int i=0,fin=tl.size(); i<fin; ++i) {
 
-            Vector<uint8_t> m5b = StringUtils::md5_buffer(tl[i].asString());
+            PODVector<uint8_t> m5b = StringUtils::md5_buffer(tl[i].asCString());
             hashes.push_back(hashes.size());
         }
 
@@ -561,13 +562,13 @@ MainLoop *test() {
     {
         Vector3 v(1, 2, 3);
         v.normalize();
-        float a = 0.3;
+        float a = 0.3f;
 
         Basis m(v, a);
 
         Vector3 v2(7, 3, 1);
         v2.normalize();
-        float a2 = 0.8;
+        float a2 = 0.8f;
 
         Basis m2(v2, a2);
 
@@ -577,17 +578,17 @@ MainLoop *test() {
         Basis m3 = m.inverse() * m2;
         Quat q3 = (q.inverse() * q2); //.normalized();
 
-        print_line(Quat(m3));
-        print_line(q3);
+        print_line((se_string)Quat(m3));
+        print_line((se_string)q3);
 
-        print_line("before v: " + v + " a: " + rtos(a));
+        print_line("before v: " + (se_string)v + " a: " + rtos(a));
         q.get_axis_angle(v, a);
-        print_line("after v: " + v + " a: " + rtos(a));
+        print_line("after v: " + (se_string)v + " a: " + rtos(a));
     }
 
-    String ret;
+    se_string ret;
 
-    ListPOD<String> args;
+    ListPOD<se_string> args;
     args.push_back("-l");
     Error err = OS::get_singleton()->execute("/bin/ls", args, true, nullptr, &ret);
     print_line("error: " + itos(err));
@@ -599,7 +600,7 @@ MainLoop *test() {
     m3.rotate(Vector3(0, 0, 1), 212);
     Basis m32;
     m32.set_euler(m3.get_euler());
-    print_line("ELEULEEEEEEEEEEEEEEEEEER: " + m3.get_euler() + " vs " + m32.get_euler());
+    print_line("ELEULEEEEEEEEEEEEEEEEEER: " + (se_string)m3.get_euler() + " vs " + (se_string)m32.get_euler());
 
     {
         Dictionary d;
@@ -610,63 +611,63 @@ MainLoop *test() {
 
     print_line("inters: " + rtos(Geometry::segment_intersects_circle(Vector2(-5, 0), Vector2(-2, 0), Vector2(), 1.0)));
 
-    print_line("cross: " + Vector3(1, 2, 3).cross(Vector3(4, 5, 7)));
+    print_line("cross: " + (se_string)Vector3(1, 2, 3).cross(Vector3(4, 5, 7)));
     print_line("dot: " + rtos(Vector3(1, 2, 3).dot(Vector3(4, 5, 7))));
-    print_line("abs: " + Vector3(-1, 2, -3).abs());
+    print_line("abs: " + (se_string)Vector3(-1, 2, -3).abs());
     print_line("distance_to: " + rtos(Vector3(1, 2, 3).distance_to(Vector3(4, 5, 7))));
     print_line("distance_squared_to: " + rtos(Vector3(1, 2, 3).distance_squared_to(Vector3(4, 5, 7))));
-    print_line("plus: " + (Vector3(1, 2, 3) + Vector3(Vector3(4, 5, 7))));
-    print_line("minus: " + (Vector3(1, 2, 3) - Vector3(Vector3(4, 5, 7))));
-    print_line("mul: " + (Vector3(1, 2, 3) * Vector3(Vector3(4, 5, 7))));
-    print_line("div: " + (Vector3(1, 2, 3) / Vector3(Vector3(4, 5, 7))));
-    print_line("mul scalar: " + (Vector3(1, 2, 3) * 2));
-    print_line("premul scalar: " + (2 * Vector3(1, 2, 3)));
-    print_line("div scalar: " + (Vector3(1, 2, 3) / 3.0));
+    print_line("plus: " + (se_string)(Vector3(1, 2, 3) + Vector3(Vector3(4, 5, 7))));
+    print_line("minus: " + (se_string)(Vector3(1, 2, 3) - Vector3(Vector3(4, 5, 7))));
+    print_line("mul: " + (se_string)(Vector3(1, 2, 3) * Vector3(Vector3(4, 5, 7))));
+    print_line("div: " + (se_string)(Vector3(1, 2, 3) / Vector3(Vector3(4, 5, 7))));
+    print_line("mul scalar: " + (se_string)(Vector3(1, 2, 3) * 2));
+    print_line("premul scalar: " + (se_string)(2 * Vector3(1, 2, 3)));
+    print_line("div scalar: " + (se_string)(Vector3(1, 2, 3) / 3.0));
     print_line("length: " + rtos(Vector3(1, 2, 3).length()));
     print_line("length squared: " + rtos(Vector3(1, 2, 3).length_squared()));
-    print_line("normalized: " + Vector3(1, 2, 3).normalized());
-    print_line("inverse: " + Vector3(1, 2, 3).inverse());
+    print_line("normalized: " + (se_string)Vector3(1, 2, 3).normalized());
+    print_line("inverse: " + (se_string)Vector3(1, 2, 3).inverse());
 
     {
         Vector3 v(4, 5, 7);
         v.normalize();
-        print_line("normalize: " + v);
+        print_line("normalize: " + (se_string)v);
     }
 
     {
         Vector3 v(4, 5, 7);
         v += Vector3(1, 2, 3);
-        print_line("+=: " + v);
+        print_line("+=: " + (se_string)v);
     }
 
     {
         Vector3 v(4, 5, 7);
         v -= Vector3(1, 2, 3);
-        print_line("-=: " + v);
+        print_line("-=: " + (se_string)v);
     }
 
     {
         Vector3 v(4, 5, 7);
         v *= Vector3(1, 2, 3);
-        print_line("*=: " + v);
+        print_line("*=: " + (se_string)v);
     }
 
     {
         Vector3 v(4, 5, 7);
         v /= Vector3(1, 2, 3);
-        print_line("/=: " + v);
+        print_line("/=: " + (se_string)v);
     }
 
     {
         Vector3 v(4, 5, 7);
         v *= 2.0;
-        print_line("scalar *=: " + v);
+        print_line("scalar *=: " + (se_string)v);
     }
 
     {
         Vector3 v(4, 5, 7);
         v /= 2.0;
-        print_line("scalar /=: " + v);
+        print_line("scalar /=: " + (se_string)v);
     }
 
     return nullptr;

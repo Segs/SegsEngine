@@ -30,7 +30,7 @@
 
 #pragma once
 
-#include "core/ustring.h"
+#include "core/se_string.h"
 
 #include "core/vector.h"
 
@@ -38,7 +38,7 @@ class StringBuilder {
 
     uint32_t string_length;
 
-    Vector<String> strings;
+    Vector<se_string> strings;
     Vector<const char *> c_strings;
 
     // -1 means it's a Godot String
@@ -46,10 +46,10 @@ class StringBuilder {
     Vector<int32_t> appended_strings;
 
 public:
-    StringBuilder &append(const String &p_string);
+    StringBuilder &append(const se_string &p_string);
     StringBuilder &append(const char *p_cstring);
 
-    _FORCE_INLINE_ StringBuilder &operator+(const String &p_string) {
+    _FORCE_INLINE_ StringBuilder &operator+(const se_string &p_string) {
         return append(p_string);
     }
 
@@ -57,7 +57,7 @@ public:
         return append(p_cstring);
     }
 
-    _FORCE_INLINE_ void operator+=(const String &p_string) {
+    _FORCE_INLINE_ void operator+=(const se_string &p_string) {
         append(p_string);
     }
 
@@ -73,9 +73,9 @@ public:
         return string_length;
     }
 
-    String as_string() const;
+    se_string as_string() const;
 
-    _FORCE_INLINE_ operator String() const {
+    _FORCE_INLINE_ operator se_string() const {
         return as_string();
     }
 

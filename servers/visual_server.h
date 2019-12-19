@@ -36,7 +36,7 @@
 #include "core/math/transform_2d.h"
 #include "core/object.h"
 #include "core/rid.h"
-#include "core/ustring.h"
+#include "core/se_string.h"
 #include "core/variant.h"
 #include "servers/visual_server_enums.h"
 
@@ -100,8 +100,8 @@ public:
     virtual void texture_set_size_override(RID p_texture, int p_width, int p_height, int p_depth_3d) = 0;
     virtual void texture_bind(RID p_texture, uint32_t p_texture_no) = 0;
 
-    virtual void texture_set_path(RID p_texture, const String &p_path) = 0;
-    virtual String texture_get_path(RID p_texture) const = 0;
+    virtual void texture_set_path(RID p_texture, se_string_view p_path) = 0;
+    virtual const se_string &texture_get_path(RID p_texture) const = 0;
 
     virtual void texture_set_shrink_all_x2_on_set_data(bool p_enable) = 0;
 
@@ -118,7 +118,7 @@ public:
         uint32_t depth;
         Image::Format format;
         int bytes;
-        String path;
+        se_string path;
     };
 
     virtual void texture_debug_usage(DefList<TextureInfo> *r_info) = 0;
@@ -138,9 +138,9 @@ public:
 
     virtual RID shader_create() = 0;
 
-    virtual void shader_set_code(RID p_shader, const String &p_code) = 0;
-    virtual String shader_get_code(RID p_shader) const = 0;
-    virtual void shader_get_param_list(RID p_shader, ListPOD<PropertyInfo> *p_param_list) const = 0;
+    virtual void shader_set_code(RID p_shader, const se_string &p_code) = 0;
+    virtual se_string shader_get_code(RID p_shader) const = 0;
+    virtual void shader_get_param_list(RID p_shader, PODVector<PropertyInfo> *p_param_list) const = 0;
     Array _shader_get_param_list_bind(RID p_shader) const;
 
     virtual void shader_set_default_texture_param(RID p_shader, const StringName &p_name, RID p_texture) = 0;
@@ -370,6 +370,8 @@ public:
     virtual void particles_set_process_material(RID p_particles, RID p_material) = 0;
     virtual void particles_set_fixed_fps(RID p_particles, int p_fps) = 0;
     virtual void particles_set_fractional_delta(RID p_particles, bool p_enable) = 0;
+    virtual bool particles_is_inactive(RID p_particles) = 0;
+    virtual void particles_request_process(RID p_particles) = 0;
     virtual void particles_restart(RID p_particles) = 0;
 
     virtual void particles_set_draw_order(RID p_particles, VS::ParticlesDrawOrder p_order) = 0;
@@ -563,7 +565,7 @@ public:
     virtual void canvas_item_add_nine_patch(RID p_item, const Rect2 &p_rect, const Rect2 &p_source, RID p_texture, const Vector2 &p_topleft, const Vector2 &p_bottomright, VS::NinePatchAxisMode p_x_axis_mode = VS::NINE_PATCH_STRETCH, VS::NinePatchAxisMode p_y_axis_mode = VS::NINE_PATCH_STRETCH, bool p_draw_center = true, const Color &p_modulate = Color(1, 1, 1), RID p_normal_map = RID()) = 0;
     virtual void canvas_item_add_primitive(RID p_item, const Vector<Point2> &p_points, const Vector<Color> &p_colors, const Vector<Point2> &p_uvs, RID p_texture, float p_width = 1.0, RID p_normal_map = RID()) = 0;
     virtual void canvas_item_add_polygon(RID p_item, const Vector<Point2> &p_points, const Vector<Color> &p_colors, const Vector<Point2> &p_uvs = Vector<Point2>(), RID p_texture = RID(), RID p_normal_map = RID(), bool p_antialiased = false) = 0;
-    virtual void canvas_item_add_triangle_array(RID p_item, const Vector<int> &p_indices, const Vector<Point2> &p_points, const Vector<Color> &p_colors, const Vector<Point2> &p_uvs = Vector<Point2>(), const Vector<int> &p_bones = Vector<int>(), const Vector<float> &p_weights = Vector<float>(), RID p_texture = RID(), int p_count = -1, RID p_normal_map = RID()) = 0;
+    virtual void canvas_item_add_triangle_array(RID p_item, const Vector<int> &p_indices, const Vector<Point2> &p_points, const Vector<Color> &p_colors, const Vector<Point2> &p_uvs = Vector<Point2>(), const Vector<int> &p_bones = Vector<int>(), const Vector<float> &p_weights = Vector<float>(), RID p_texture = RID(), int p_count = -1, RID p_normal_map = RID(), bool p_antialiased = false) = 0;
     virtual void canvas_item_add_mesh(RID p_item, const RID &p_mesh, const Transform2D &p_transform = Transform2D(), const Color &p_modulate = Color(1, 1, 1), RID p_texture = RID(), RID p_normal_map = RID()) = 0;
     virtual void canvas_item_add_multimesh(RID p_item, RID p_mesh, RID p_texture = RID(), RID p_normal_map = RID()) = 0;
     virtual void canvas_item_add_particles(RID p_item, RID p_particles, RID p_texture, RID p_normal_map) = 0;
@@ -661,7 +663,7 @@ public:
 
     virtual bool has_feature(VS::Features p_feature) const = 0;
 
-    virtual bool has_os_feature(const String &p_feature) const = 0;
+    virtual bool has_os_feature(const StringName &p_feature) const = 0;
 
     virtual void set_debug_generate_wireframes(bool p_generate) = 0;
 

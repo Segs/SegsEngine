@@ -33,7 +33,22 @@
 #include "core/color_names.inc"
 #include "core/map.h"
 #include "core/math/math_funcs.h"
-#include "core/ustring.h"
+#include "core/se_string.h"
+#include "core/string_utils.h"
+#include "core/string_utils.inl"
+
+namespace  {
+
+static constexpr char vals[16] = {'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F' };
+void _to_hex(float p_val,char *tgt) {
+
+    int v = int(p_val * 255);
+    v = CLAMP(v, 0, 255);
+    tgt[0] = vals[(v & 0xF)];
+    tgt[1] = vals[((v>>4) & 0xF)];
+}
+} // end of anonymous namespace
+
 
 uint32_t Color::to_argb32() const {
 
@@ -268,22 +283,22 @@ Color Color::from_rgbe9995(uint32_t p_rgbe) {
     return Color(rd, gd, bd, 1.0f);
 }
 
-static float _parse_col(const QStringRef &p_str, int p_ofs) {
+static float _parse_col(se_string_view p_str, int p_ofs) {
 
     int ig = 0;
 
     for (int i = 0; i < 2; i++) {
 
-        QChar c = p_str[i + p_ofs];
+        char c = p_str[i + p_ofs];
         int v = 0;
 
-        if (c.isDigit()) {
-            v = c.digitValue();
+        if (isdigit(c)) {
+            v = c-'0';
         } else if (c >= 'a' && c <= 'f') {
-            v = c.toLatin1() - 'a';
+            v = c - 'a';
             v += 10;
         } else if (c >= 'A' && c <= 'F') {
-            v = c.toLatin1() - 'A';
+            v = c - 'A';
             v += 10;
         } else {
             return -1;
@@ -312,58 +327,56 @@ Color Color::contrasted() const {
     return c;
 }
 
-Color Color::html(const String &p_color) {
-
-    String exp_color;
-    QStringRef color(&p_color.m_str);
-    if (color.length() == 0)
+Color Color::html(se_string_view p_color) {
+    const se_string errcode("Invalid color code: ");
+    se_string exp_color;
+    if (p_color.length() == 0)
         return Color();
-    if (color[0] == '#')
-        color = color.mid(1);
-    if (color.length() == 3 || color.length() == 4) {
-        for (int i = 0; i < color.length(); i++) {
-            exp_color += color[i];
-            exp_color += color[i];
+    if (p_color[0] == '#')
+        p_color = p_color.substr(1);
+    if (p_color.length() == 3 || p_color.length() == 4) {
+        for (char i : p_color) {
+            exp_color += i;
+            exp_color += i;
         }
-        color = &exp_color.m_str;
+        p_color = exp_color;
     }
 
     bool alpha = false;
 
-    if (color.length() == 8) {
+    if (p_color.length() == 8) {
         alpha = true;
-    } else if (color.length() == 6) {
+    } else if (p_color.length() == 6) {
         alpha = false;
     } else {
-        ERR_FAIL_V_MSG(Color(), "Invalid color code: " + p_color + ".")
+        ERR_FAIL_V_MSG(Color(), errcode + p_color + ".")
     }
 
     int a = 255;
     if (alpha) {
-        a = _parse_col(color, 0);
-        ERR_FAIL_COND_V_MSG(a < 0, Color(), "Invalid color code: " + p_color + ".")
+        a = _parse_col(p_color, 0);
+        ERR_FAIL_COND_V_MSG(a < 0, Color(), errcode + p_color + ".")
     }
 
     int from = alpha ? 2 : 0;
 
-    int r = _parse_col(color, from + 0);
-    ERR_FAIL_COND_V_MSG(r < 0, Color(), "Invalid color code: " + p_color + ".")
-    int g = _parse_col(color, from + 2);
-    ERR_FAIL_COND_V_MSG(g < 0, Color(), "Invalid color code: " + p_color + ".")
-    int b = _parse_col(color, from + 4);
-    ERR_FAIL_COND_V_MSG(b < 0, Color(), "Invalid color code: " + p_color + ".")
+    int r = _parse_col(p_color, from + 0);
+    ERR_FAIL_COND_V_MSG(r < 0, Color(), errcode + p_color + ".")
+    int g = _parse_col(p_color, from + 2);
+    ERR_FAIL_COND_V_MSG(g < 0, Color(), errcode + p_color + ".")
+    int b = _parse_col(p_color, from + 4);
+    ERR_FAIL_COND_V_MSG(b < 0, Color(), errcode + p_color + ".")
 
     return Color(r / 255.0f, g / 255.0f, b / 255.0f, a / 255.0f);
 }
+bool Color::html_is_valid(se_string_view p_color) {
 
-bool Color::html_is_valid(const String &p_color) {
-
-    QStringRef color(&p_color.m_str);
+    se_string_view color(p_color);
 
     if (color.length() == 0)
         return false;
     if (color[0] == '#')
-        color = color.mid(1);
+        color = color.substr(1);
 
     bool alpha;
 
@@ -396,8 +409,8 @@ bool Color::html_is_valid(const String &p_color) {
     return b >= 0;
 }
 
-Color Color::named(const String &p_name) {
-    String name = p_name;
+Color Color::named(se_string_view p_name) {
+    se_string name(p_name);
     // Normalize name
     name = StringUtils::replace(name," ", "");
     name = StringUtils::replace(name,"-", "");
@@ -406,41 +419,20 @@ Color Color::named(const String &p_name) {
     name = StringUtils::replace(name,".", "");
     name = StringUtils::to_lower(name);
 
-    const Map<const char *, Color>::iterator color = _named_colors.find(StringUtils::to_utf8(name).data());
-    ERR_FAIL_COND_V_MSG(color==_named_colors.end(), Color(), "Invalid color name: " + p_name + ".")
+    const Map<const char *, Color>::iterator color = _named_colors.find(name.data());
+    ERR_FAIL_COND_V_MSG(color==_named_colors.end(), Color(), "Invalid color name: " + se_string(p_name) + ".")
     return color->second;
 }
 
-String _to_hex(float p_val) {
+se_string Color::to_html(bool p_alpha) const {
 
-    int v = Math::round(p_val * 255);
-    v = CLAMP(v, 0, 255);
-    String ret;
-
-    for (int i = 0; i < 2; i++) {
-
-        CharType c[2] = { 0, 0 };
-        int lv = v & 0xF;
-        if (lv < 10)
-            c[0] = '0' + lv;
-        else
-            c[0] = 'a' + lv - 10;
-
-        v >>= 4;
-        ret = c[0] + ret;
-    }
-
-    return ret;
-}
-
-String Color::to_html(bool p_alpha) const {
-
-    String txt;
-    txt += _to_hex(r);
-    txt += _to_hex(g);
-    txt += _to_hex(b);
-    if (p_alpha)
-        txt = _to_hex(a) + txt;
+    se_string txt;
+    txt.resize(p_alpha ? 8 : 6);
+    _to_hex(r,txt.data());
+    _to_hex(g,txt.data()+2);
+    _to_hex(r,txt.data()+4);
+    if(p_alpha)
+        _to_hex(a,txt.data()+6);
     return txt;
 }
 
@@ -497,7 +489,7 @@ Color Color::from_hsv(float p_h, float p_s, float p_v, float p_a) const {
     return Color(m + r, m + g, m + b, p_a);
 }
 
-Color::operator String() const {
+Color::operator se_string() const {
 
     return rtos(r) + ", " + rtos(g) + ", " + rtos(b) + ", " + rtos(a);
 }

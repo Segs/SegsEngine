@@ -30,8 +30,10 @@
 
 #include "gd_mono_method.h"
 
+#include "gd_mono_cache.h"
 #include "gd_mono_class.h"
 #include "gd_mono_marshal.h"
+#include "gd_mono_utils.h"
 
 #include <mono/metadata/attrdefs.h>
 
@@ -99,10 +101,6 @@ IMonoClassMember::Visibility GDMonoMethod::get_visibility() {
 	}
 }
 
-void *GDMonoMethod::get_thunk() {
-	return mono_method_get_unmanaged_thunk(mono_method);
-}
-
 MonoObject *GDMonoMethod::invoke(MonoObject *p_object, const Variant **p_params, MonoException **r_exc) {
 	if (get_return_type().type_encoding != MONO_TYPE_VOID || get_parameters_count() > 0) {
 		MonoArray *params = mono_array_new(mono_domain_get(), CACHED_CLASS_RAW(MonoObject), get_parameters_count());
@@ -142,7 +140,7 @@ MonoObject *GDMonoMethod::invoke(MonoObject *p_object, const Variant **p_params,
 }
 
 MonoObject *GDMonoMethod::invoke(MonoObject *p_object, MonoException **r_exc) {
-	ERR_FAIL_COND_V(get_parameters_count() > 0, NULL)
+	ERR_FAIL_COND_V(get_parameters_count() > 0, NULL);
 	return invoke_raw(p_object, NULL, r_exc);
 }
 
@@ -187,7 +185,7 @@ MonoObject *GDMonoMethod::get_attribute(GDMonoClass *p_attr_class) {
 }
 
 void GDMonoMethod::fetch_attributes() {
-	ERR_FAIL_COND(attributes != NULL)
+	ERR_FAIL_COND(attributes != NULL);
 	attributes = mono_custom_attrs_from_method(mono_method);
 	attrs_fetched = true;
 }

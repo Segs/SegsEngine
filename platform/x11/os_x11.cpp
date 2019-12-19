@@ -32,6 +32,9 @@
 #include "detect_prime.h"
 
 #include "core/os/dir_access.h"
+#include "core/string_utils.h"
+#include "core/string_utils.inl"
+#include "core/string_formatter.h"
 #include "core/print_string.h"
 #include "drivers/gles3/rasterizer_gles3.h"
 #include <cerrno>
@@ -82,8 +85,17 @@
 #define XINPUT_CLIENT_VERSION_MAJOR 2
 #define XINPUT_CLIENT_VERSION_MINOR 2
 
+#define VALUATOR_ABSX 0
+#define VALUATOR_ABSY 1
+#define VALUATOR_PRESSURE 2
+#define VALUATOR_TILTX 3
+#define VALUATOR_TILTY 4
+
+namespace  {
 static const double abs_resolution_mult = 10000.0;
 static const double abs_resolution_range_mult = 10.0;
+static se_string machine_id;
+}
 
 void OS_X11::initialize_core() {
 
@@ -181,7 +193,7 @@ Error OS_X11::initialize(const VideoMode &p_desired, int p_video_driver, int p_a
     if (!refresh_device_info()) {
         OS::get_singleton()->alert("Your system does not support XInput 2.\n"
                                    "Please upgrade your distribution.",
-                "Unable to initialize XInput");
+                ("Unable to initialize XInput"));
         return ERR_UNAVAILABLE;
     }
 
@@ -240,12 +252,14 @@ Error OS_X11::initialize(const VideoMode &p_desired, int p_video_driver, int p_a
         }
 
         if (getenv("LD_LIBRARY_PATH")) {
-            String ld_library_path(getenv("LD_LIBRARY_PATH"));
-            Vector<String> libraries = StringUtils::split(ld_library_path,":");
+            se_string_view ld_library_path(getenv("LD_LIBRARY_PATH"));
+            FixedVector<se_string_view,32,true> libraries;
+            se_string::split_ref(libraries,ld_library_path,':');
 
-            for (int i = 0; i < libraries.size(); ++i) {
-                if (FileAccess::exists(libraries[i] + "/libGL.so.1") ||
-                        FileAccess::exists(libraries[i] + "/libGL.so")) {
+            for (se_string_view path : libraries) {
+                se_string libpath(path);
+                if (FileAccess::exists(libpath + "/libGL.so.1") ||
+                        FileAccess::exists(libpath + "/libGL.so")) {
 
                     print_verbose("Custom libGL override detected. Skipping GPU detection");
                     use_prime = 0;
@@ -267,11 +281,6 @@ Error OS_X11::initialize(const VideoMode &p_desired, int p_video_driver, int p_a
 
     ContextGL_X11::ContextType opengl_api_type = ContextGL_X11::GLES_3_0_COMPATIBLE;
 
-    if (p_video_driver == VIDEO_DRIVER_GLES2) {
-        opengl_api_type = ContextGL_X11::GLES_2_0_COMPATIBLE;
-    }
-
-    bool editor = Engine::get_singleton()->is_editor_hint();
     bool gl_initialization_error = false;
 
     context_gl = nullptr;
@@ -281,19 +290,8 @@ Error OS_X11::initialize(const VideoMode &p_desired, int p_video_driver, int p_a
         if (context_gl->initialize() != OK) {
             memdelete(context_gl);
             context_gl = nullptr;
-
-            if (GLOBAL_GET("rendering/quality/driver/fallback_to_gles2") || editor) {
-                if (p_video_driver == VIDEO_DRIVER_GLES2) {
-                    gl_initialization_error = true;
-                    break;
-                }
-
-                p_video_driver = VIDEO_DRIVER_GLES2;
-                opengl_api_type = ContextGL_X11::GLES_2_0_COMPATIBLE;
-            } else {
-                gl_initialization_error = true;
-                break;
-            }
+            gl_initialization_error = true;
+            break;
         }
     }
 
@@ -304,22 +302,16 @@ Error OS_X11::initialize(const VideoMode &p_desired, int p_video_driver, int p_a
                 RasterizerGLES3::make_current();
                 break;
             } else {
-                if (GLOBAL_GET("rendering/quality/driver/fallback_to_gles2") || editor) {
-                    p_video_driver = VIDEO_DRIVER_GLES2;
-                    opengl_api_type = ContextGL_X11::GLES_2_0_COMPATIBLE;
-                    continue;
-                } else {
-                    gl_initialization_error = true;
-                    break;
-                }
+                gl_initialization_error = true;
+                break;
             }
         }
     }
 
     if (gl_initialization_error) {
-        OS::get_singleton()->alert("Your video card driver does not support any of the supported OpenGL versions.\n"
-                                   "Please update your drivers or if you have a very old or integrated GPU upgrade it.",
-                "Unable to initialize Video driver");
+        OS::get_singleton()->alert(("Your video card driver does not support any of the supported OpenGL versions.\n"
+                                   "Please update your drivers or if you have a very old or integrated GPU upgrade it."),
+                ("Unable to initialize Video driver"));
         return ERR_UNAVAILABLE;
     }
 
@@ -508,7 +500,7 @@ Error OS_X11::initialize(const VideoMode &p_desired, int p_video_driver, int p_a
         if (img[i]) {
             cursors[i] = XcursorImageLoadCursor(x11_display, img[i]);
         } else {
-            print_verbose("Failed loading custom cursor: " + String(cursor_file[i]));
+            print_verbose("Failed loading custom cursor: " + se_string(cursor_file[i]));
         }
     }
 
@@ -537,7 +529,7 @@ Error OS_X11::initialize(const VideoMode &p_desired, int p_video_driver, int p_a
         XFreeGC(x11_display, gc);
 
         if (cursor == None) {
-            ERR_PRINT("FAILED CREATING CURSOR");
+            ERR_PRINT("FAILED CREATING CURSOR")
         }
 
         null_cursor = cursor;
@@ -561,9 +553,6 @@ Error OS_X11::initialize(const VideoMode &p_desired, int p_video_driver, int p_a
     visual_server->init();
 
     AudioDriverManager::initialize(p_audio_driver);
-
-    ///@TODO implement a subclass for Linux and instantiate that instead
-    camera_server = memnew(CameraServer);
 
     input = memnew(InputDefault);
 
@@ -606,13 +595,13 @@ bool OS_X11::refresh_device_info() {
     int xi_minor_query = XINPUT_CLIENT_VERSION_MINOR;
 
     if (XIQueryVersion(x11_display, &xi_major_query, &xi_minor_query) != Success) {
-        print_verbose(vformat("XInput 2 not available (server supports %d.%d).", xi_major_query, xi_minor_query));
+        print_verbose(FormatVE("XInput 2 not available (server supports %d.%d).", xi_major_query, xi_minor_query));
         xi.opcode = 0;
         return false;
     }
 
     if (xi_major_query < XINPUT_CLIENT_VERSION_MAJOR || (xi_major_query == XINPUT_CLIENT_VERSION_MAJOR && xi_minor_query < XINPUT_CLIENT_VERSION_MINOR)) {
-        print_verbose(vformat("XInput %d.%d not available (server supports %d.%d). Touch input unavailable.",
+        print_verbose(FormatVE("XInput %d.%d not available (server supports %d.%d). Touch input unavailable.",
                 XINPUT_CLIENT_VERSION_MAJOR, XINPUT_CLIENT_VERSION_MINOR, xi_major_query, xi_minor_query));
     }
 
@@ -637,6 +626,15 @@ bool OS_X11::refresh_device_info() {
         int range_min_y = 0;
         int range_max_x = 0;
         int range_max_y = 0;
+        int pressure_resolution = 0;
+        int pressure_min = 0;
+        int pressure_max = 0;
+        int tilt_resolution_x = 0;
+        int tilt_resolution_y = 0;
+        int tilt_range_min_x = 0;
+        int tilt_range_min_y = 0;
+        int tilt_range_max_x = 0;
+        int tilt_range_max_y = 0;
         for (int j = 0; j < dev->num_classes; j++) {
 #ifdef TOUCH_ENABLED
             if (dev->classes[j]->type == XITouchClass && ((XITouchClassInfo *)dev->classes[j])->mode == XIDirectTouch) {
@@ -646,22 +644,34 @@ bool OS_X11::refresh_device_info() {
             if (dev->classes[j]->type == XIValuatorClass) {
                 XIValuatorClassInfo *class_info = (XIValuatorClassInfo *)dev->classes[j];
 
-                if (class_info->number == 0 && class_info->mode == XIModeAbsolute) {
+                if (class_info->number == VALUATOR_ABSX && class_info->mode == XIModeAbsolute) {
                     resolution_x = class_info->resolution;
                     range_min_x = class_info->min;
                     range_max_x = class_info->max;
                     absolute_mode = true;
-                } else if (class_info->number == 1 && class_info->mode == XIModeAbsolute) {
+                } else if (class_info->number == VALUATOR_ABSY && class_info->mode == XIModeAbsolute) {
                     resolution_y = class_info->resolution;
                     range_min_y = class_info->min;
                     range_max_y = class_info->max;
                     absolute_mode = true;
+                } else if (class_info->number == VALUATOR_PRESSURE && class_info->mode == XIModeAbsolute) {
+                    pressure_resolution = class_info->resolution;
+                    pressure_min = class_info->min;
+                    pressure_max = class_info->max;
+                } else if (class_info->number == VALUATOR_TILTX && class_info->mode == XIModeAbsolute) {
+                    tilt_resolution_x = class_info->resolution;
+                    tilt_range_min_x = class_info->min;
+                    tilt_range_max_x = class_info->max;
+                } else if (class_info->number == VALUATOR_TILTY && class_info->mode == XIModeAbsolute) {
+                    tilt_resolution_y = class_info->resolution;
+                    tilt_range_min_y = class_info->min;
+                    tilt_range_max_y = class_info->max;
                 }
             }
         }
         if (direct_touch) {
             xi.touch_devices.push_back(dev->deviceid);
-            print_verbose("XInput: Using touch device: " + String(dev->name));
+            print_verbose("XInput: Using touch device: " + se_string(dev->name));
         }
         if (absolute_mode) {
             // If no resolution was reported, use the min/max ranges.
@@ -673,8 +683,19 @@ bool OS_X11::refresh_device_info() {
             }
 
             xi.absolute_devices[dev->deviceid] = Vector2(abs_resolution_mult / resolution_x, abs_resolution_mult / resolution_y);
-            print_verbose("XInput: Absolute pointing device: " + String(dev->name));
+            print_verbose("XInput: Absolute pointing device: " + se_string(dev->name));
         }
+        if (pressure_resolution <= 0) {
+            pressure_resolution = (pressure_max - pressure_min);
+        }
+        if (tilt_resolution_x <= 0) {
+            tilt_resolution_x = (tilt_range_max_x - tilt_range_min_x);
+        }
+        if (tilt_resolution_y <= 0) {
+            tilt_resolution_y = (tilt_range_max_y - tilt_range_min_y);
+        }
+        xi.pressure = 0;
+        xi.pen_devices[dev->deviceid] = Vector3(pressure_resolution, tilt_resolution_x, tilt_resolution_y);
     }
 
     XIFreeDeviceInfo(info);
@@ -726,21 +747,6 @@ void OS_X11::set_ime_position(const Point2 &p_pos) {
     XFree(preedit_attr);
 }
 
-String OS_X11::get_unique_id() const {
-
-    static String machine_id;
-    if (machine_id.empty()) {
-        if (FileAccess *f = FileAccess::open("/etc/machine-id", FileAccess::READ)) {
-            while (machine_id.empty() && !f->eof_reached()) {
-                machine_id = StringUtils::strip_edges(f->get_line());
-            }
-            f->close();
-            memdelete(f);
-        }
-    }
-    return machine_id;
-}
-
 void OS_X11::finalize() {
 
     if (main_loop)
@@ -764,8 +770,6 @@ void OS_X11::finalize() {
     xi.state.clear();
 
     memdelete(input);
-
-    memdelete(camera_server);
 
     cursors_cache.clear();
     visual_server->finish();
@@ -924,13 +928,14 @@ void OS_X11::set_window_per_pixel_transparency_enabled(bool p_enabled) {
     }
 }
 
-void OS_X11::set_window_title(const String &p_title) {
-    XStoreName(x11_display, x11_window, qPrintable(p_title.m_str));
+void OS_X11::set_window_title(se_string_view p_title) {
+    se_tmp_string<64,true> title(p_title);
+    XStoreName(x11_display, x11_window, title.c_str());
 
     Atom _net_wm_name = XInternAtom(x11_display, "_NET_WM_NAME", false);
     Atom utf8_string = XInternAtom(x11_display, "UTF8_STRING", false);
 
-    XChangeProperty(x11_display, x11_window, _net_wm_name, utf8_string, 8, PropModeReplace, (const uint8_t *)qPrintable(p_title.m_str), p_title.length());
+    XChangeProperty(x11_display, x11_window, _net_wm_name, utf8_string, 8, PropModeReplace, (const uint8_t *)title.c_str(), p_title.length());
 }
 
 void OS_X11::set_video_mode(const VideoMode &p_video_mode, int p_screen) {
@@ -1798,6 +1803,7 @@ void OS_X11::handle_key_event(XKeyEvent *p_event, bool p_echo) {
 
                 input->accumulate_input_event(k);
             }
+            memfree(utf8string);
             return;
         }
         memfree(utf8string);
@@ -2065,14 +2071,39 @@ void OS_X11::process_xevents() {
 
                         double rel_x = 0.0;
                         double rel_y = 0.0;
+                        double pressure = 0.0;
+                        double tilt_x = 0.0;
+                        double tilt_y = 0.0;
 
-                        if (XIMaskIsSet(raw_event->valuators.mask, 0)) {
+                        if (XIMaskIsSet(raw_event->valuators.mask, VALUATOR_ABSX)) {
                             rel_x = *values;
                             values++;
                         }
 
-                        if (XIMaskIsSet(raw_event->valuators.mask, 1)) {
+                        if (XIMaskIsSet(raw_event->valuators.mask, VALUATOR_ABSY)) {
                             rel_y = *values;
+                            values++;
+                        }
+
+                        if (XIMaskIsSet(raw_event->valuators.mask, VALUATOR_PRESSURE)) {
+                            pressure = *values;
+                            values++;
+                        }
+
+                        if (XIMaskIsSet(raw_event->valuators.mask, VALUATOR_TILTX)) {
+                            tilt_x = *values;
+                            values++;
+                        }
+
+                        if (XIMaskIsSet(raw_event->valuators.mask, VALUATOR_TILTY)) {
+                            tilt_y = *values;
+                        }
+
+                        Map<int, Vector3>::iterator pen_info = xi.pen_devices.find(device_id);
+                        if (pen_info!=xi.pen_devices.end()) {
+                            Vector3 mult = pen_info->second;
+                            if (mult.x != 0.0f) xi.pressure = pressure / mult.x;
+                            if ((mult.y != 0.0f) && (mult.z != 0.0f)) xi.tilt = Vector2(tilt_x / mult.y, tilt_y / mult.z);
                         }
 
                         // https://bugs.freedesktop.org/show_bug.cgi?id=71609
@@ -2382,6 +2413,9 @@ void OS_X11::process_xevents() {
 
                 Ref<InputEventMouseMotion> mm(make_ref_counted<InputEventMouseMotion>());
 
+                mm->set_pressure(xi.pressure);
+                mm->set_tilt(xi.tilt);
+
                 // Make the absolute position integral so it doesn't look _too_ weird :)
                 Point2i posi(pos);
 
@@ -2426,14 +2460,14 @@ void OS_X11::process_xevents() {
                         req->target == XA_STRING ||
                         req->target == XInternAtom(x11_display, "text/plain;charset=utf-8", 0) ||
                         req->target == XInternAtom(x11_display, "text/plain", 0)) {
-                    CharString clip = StringUtils::to_utf8(OS::get_clipboard());
+                    auto clip = OS::get_clipboard();
                     XChangeProperty(x11_display,
                             req->requestor,
                             req->property,
                             req->target,
                             8,
                             PropModeReplace,
-                            (const unsigned char *)clip.data(),
+                            (const unsigned char *)clip.c_str(),
                             clip.length());
                     respond.xselection.property = req->property;
                 } else if (req->target == XInternAtom(x11_display, "TARGETS", 0)) {
@@ -2480,10 +2514,11 @@ void OS_X11::process_xevents() {
                 if (event.xselection.target == requested) {
 
                     Property p = read_property(x11_display, x11_window, XInternAtom(x11_display, "PRIMARY", 0));
-
-                    Vector<String> files = StringUtils::split(String((char *)p.data),"\n", false);
+                    FixedVector<se_string,16,true> parts;
+                    se_string::split_ref(parts,(const char *)p.data,"\n");
+                    Vector<se_string> files;
                     for (int i = 0; i < files.size(); i++) {
-                        files.write[i] = StringUtils::strip_edges(StringUtils::http_unescape(StringUtils::replace(files[i],"file://", "")));
+                        files.emplace_back(StringUtils::strip_edges(StringUtils::http_unescape(StringUtils::replace(parts[i],"file://", ""))));
                     }
                     main_loop->drop_files(files);
 
@@ -2612,7 +2647,7 @@ bool OS_X11::can_draw() const {
     return !minimized;
 };
 
-void OS_X11::set_clipboard(const String &p_text) {
+void OS_X11::set_clipboard(se_string_view p_text) {
 
     OS::set_clipboard(p_text);
 
@@ -2620,9 +2655,9 @@ void OS_X11::set_clipboard(const String &p_text) {
     XSetSelectionOwner(x11_display, XInternAtom(x11_display, "CLIPBOARD", 0), x11_window, CurrentTime);
 };
 
-static String _get_clipboard_impl(Atom p_source, Window x11_window, ::Display *x11_display, String p_internal_clipboard, Atom target) {
+static se_string _get_clipboard_impl(Atom p_source, Window x11_window, ::Display *x11_display, se_string_view p_internal_clipboard, Atom target) {
 
-    String ret;
+    se_string ret;
 
     Atom type;
     Atom selection = XA_PRIMARY;
@@ -2633,8 +2668,8 @@ static String _get_clipboard_impl(Atom p_source, Window x11_window, ::Display *x
 
     if (Sown == x11_window) {
 
-        return p_internal_clipboard;
-    };
+        return se_string(p_internal_clipboard);
+    }
 
     if (Sown != None) {
         XConvertSelection(x11_display, p_source, target, selection,
@@ -2645,8 +2680,8 @@ static String _get_clipboard_impl(Atom p_source, Window x11_window, ::Display *x
             XNextEvent(x11_display, &event);
             if (event.type == SelectionNotify && event.xselection.requestor == x11_window) {
                 break;
-            };
-        };
+            }
+        }
 
         //
         // Do not get any data, see how much data is there
@@ -2667,7 +2702,7 @@ static String _get_clipboard_impl(Atom p_source, Window x11_window, ::Display *x
                     AnyPropertyType, &type, &format,
                     &len, &dummy, &data);
             if (result == Success) {
-                ret = StringUtils::from_utf8((const char *)data);
+                ret = se_string((const char *)data);
             } else
                 printf("FAIL\n");
             XFree(data);
@@ -2677,8 +2712,8 @@ static String _get_clipboard_impl(Atom p_source, Window x11_window, ::Display *x
     return ret;
 }
 
-static String _get_clipboard(Atom p_source, Window x11_window, ::Display *x11_display, const String& p_internal_clipboard) {
-    String ret;
+static se_string _get_clipboard(Atom p_source, Window x11_window, ::Display *x11_display, se_string_view p_internal_clipboard) {
+    se_string ret;
     Atom utf8_atom = XInternAtom(x11_display, "UTF8_STRING", True);
     if (utf8_atom != None) {
         ret = _get_clipboard_impl(p_source, x11_window, x11_display, p_internal_clipboard, utf8_atom);
@@ -2689,41 +2724,41 @@ static String _get_clipboard(Atom p_source, Window x11_window, ::Display *x11_di
     return ret;
 }
 
-String OS_X11::get_clipboard() const {
+se_string OS_X11::get_clipboard() const {
 
-    String ret;
+    se_string ret;
     ret = _get_clipboard(XInternAtom(x11_display, "CLIPBOARD", 0), x11_window, x11_display, OS::get_clipboard());
 
     if (ret.empty()) {
         ret = _get_clipboard(XA_PRIMARY, x11_window, x11_display, OS::get_clipboard());
-    };
+    }
 
     return ret;
 }
 
-String OS_X11::get_name() const {
+se_string OS_X11::get_name() const {
 
-    return "X11";
+    return ("X11");
 }
 
-Error OS_X11::shell_open(String p_uri) {
+Error OS_X11::shell_open(se_string_view p_uri) {
 
     Error ok;
-    ListPOD<String> args;
-    args.push_back(p_uri);
-    ok = execute("xdg-open", args, false);
+    ListPOD<se_string> args;
+    args.emplace_back(p_uri);
+    ok = execute(("xdg-open"), args, false);
     if (ok == OK)
         return OK;
-    ok = execute("gnome-open", args, false);
+    ok = execute(("gnome-open"), args, false);
     if (ok == OK)
         return OK;
-    ok = execute("kde-open", args, false);
+    ok = execute(("kde-open"), args, false);
     return ok;
 }
 
-bool OS_X11::_check_internal_feature_support(const String &p_feature) {
+bool OS_X11::_check_internal_feature_support(se_string_view p_feature) {
 
-    return p_feature == "pc";
+    return p_feature == se_string_view("pc");
 }
 
 void OS_X11::move_window_to_foreground() {
@@ -2898,16 +2933,17 @@ void OS_X11::swap_buffers() {
 #endif
 }
 
-void OS_X11::alert(const String &p_alert, const String &p_title) {
+void OS_X11::alert(se_string_view _alert, se_string_view _title) {
     const char *message_programs[] = { "zenity", "kdialog", "Xdialog", "xmessage" };
-
-    String path = get_environment("PATH");
-    Vector<String> path_elems = StringUtils::split(path,":", false);
-    String program;
+    const se_string p_alert(_alert);
+    const se_string p_title(_title);
+    se_string path = get_environment("PATH");
+    Vector<se_string_view> path_elems = StringUtils::split(path,':', false);
+    se_string program;
 
     for (int i = 0; i < path_elems.size(); i++) {
         for (uint64_t k = 0; k < sizeof(message_programs) / sizeof(char *); k++) {
-            String tested_path = PathUtils::plus_file(path_elems[i],message_programs[k]);
+            se_string tested_path(PathUtils::plus_file(path_elems[i],message_programs[k]));
 
             if (FileAccess::exists(tested_path)) {
                 program = tested_path;
@@ -2919,37 +2955,37 @@ void OS_X11::alert(const String &p_alert, const String &p_title) {
             break;
     }
 
-    ListPOD<String> args;
+    ListPOD<se_string> args;
 
     if (StringUtils::ends_with(program,"zenity")) {
-        args.push_back("--error");
-        args.push_back("--width");
-        args.push_back("500");
-        args.push_back("--title");
+        args.push_back(("--error"));
+        args.push_back(("--width"));
+        args.push_back(("500"));
+        args.push_back(("--title"));
         args.push_back(p_title);
-        args.push_back("--text");
+        args.push_back(("--text"));
         args.push_back(p_alert);
     }
 
     if (StringUtils::ends_with(program,"kdialog")) {
-        args.push_back("--error");
+        args.push_back(("--error"));
         args.push_back(p_alert);
-        args.push_back("--title");
+        args.push_back(("--title"));
         args.push_back(p_title);
     }
 
     if (StringUtils::ends_with(program,"Xdialog")) {
-        args.push_back("--title");
+        args.push_back(("--title"));
         args.push_back(p_title);
-        args.push_back("--msgbox");
+        args.push_back(("--msgbox"));
         args.push_back(p_alert);
-        args.push_back("0");
-        args.push_back("0");
+        args.push_back(("0"));
+        args.push_back(("0"));
     }
 
     if (StringUtils::ends_with(program,"xmessage")) {
-        args.push_back("-center");
-        args.push_back("-title");
+        args.push_back(("-center"));
+        args.push_back(("-title"));
         args.push_back(p_title);
         args.push_back(p_alert);
     }
@@ -3006,16 +3042,16 @@ void OS_X11::set_icon(const Ref<Image> &p_icon) {
             }
 
             // We're using long to have wordsize (32Bit build -> 32 Bits, 64 Bit build -> 64 Bits
-            Vector<long> pd;
+            PODVector<long> pd;
 
             pd.resize(2 + w * h);
 
-            pd.write[0] = w;
-            pd.write[1] = h;
+            pd[0] = w;
+            pd[1] = h;
 
             PoolVector<uint8_t>::Read r = img->get_data().read();
 
-            long *wr = &pd.write[2];
+            long *wr = &pd[2];
             uint8_t const *pr = r.ptr();
 
             for (int i = 0; i < w * h; i++) {
@@ -3026,7 +3062,7 @@ void OS_X11::set_icon(const Ref<Image> &p_icon) {
                 pr += 4;
             }
 
-            XChangeProperty(x11_display, x11_window, net_wm_icon, XA_CARDINAL, 32, PropModeReplace, (unsigned char *)pd.ptr(), pd.size());
+            XChangeProperty(x11_display, x11_window, net_wm_icon, XA_CARDINAL, 32, PropModeReplace, (unsigned char *)pd.data(), pd.size());
 
             if (!g_set_icon_error)
                 break;
@@ -3077,7 +3113,7 @@ bool OS_X11::is_joy_known(int p_device) {
     return input->is_joy_mapped(p_device);
 }
 
-String OS_X11::get_joy_guid(int p_device) const {
+StringName OS_X11::get_joy_guid(int p_device) const {
     return input->get_joy_guid_remapped(p_device);
 }
 
@@ -3115,13 +3151,13 @@ void OS_X11::set_context(int p_context) {
                 break;
         }
 
-        CharString class_str;
+        se_string class_str;
         if (p_context == CONTEXT_ENGINE) {
-            String config_name = GLOBAL_GET("application/config/name");
-            if (config_name.length() == 0) {
+            se_string config_name = GLOBAL_GET("application/config/name");
+            if (config_name.empty()) {
                 class_str = "Godot_Engine";
             } else {
-                class_str = StringUtils::to_utf8(config_name);
+                class_str = config_name;
             }
         } else {
             class_str = "Godot";
@@ -3155,10 +3191,10 @@ bool OS_X11::is_disable_crash_handler() const {
     return crash_handler.is_disabled();
 }
 
-static String get_mountpoint(const String &p_path) {
+static se_string get_mountpoint(se_string_view p_path) {
     struct stat s;
-    if (stat(qPrintable(p_path.m_str), &s)) {
-        return "";
+    if (stat(se_string(p_path).c_str(), &s)) {
+        return null_se_string;
     }
 
 #ifdef HAVE_MNTENT
@@ -3180,18 +3216,18 @@ static String get_mountpoint(const String &p_path) {
 
     endmntent(fd);
 #endif
-    return "";
+    return null_se_string;
 }
 
-Error OS_X11::move_to_trash(const String &p_path) {
-    String trash_can = "";
-    String mnt = get_mountpoint(p_path);
+Error OS_X11::move_to_trash(se_string_view p_path) {
+    se_string  trash_can;
+    se_string  mnt = get_mountpoint(p_path);
 
     // If there is a directory "[Mountpoint]/.Trash-[UID]/files", use it as the trash can.
     if (!mnt.empty()) {
-        String path(mnt + "/.Trash-" + itos(getuid()) + "/files");
+        se_string path(mnt + "/.Trash-" + itos(getuid()) + "/files");
         struct stat s;
-        if (!stat(qPrintable(path.m_str), &s)) {
+        if (!stat(path.c_str(), &s)) {
             trash_can = path;
         }
     }
@@ -3200,7 +3236,7 @@ Error OS_X11::move_to_trash(const String &p_path) {
     if (trash_can.empty()) {
         char *dhome = getenv("XDG_DATA_HOME");
         if (dhome) {
-            trash_can = String(dhome) + "/Trash/files";
+            trash_can = se_string(dhome) + "/Trash/files";
         }
     }
 
@@ -3208,7 +3244,7 @@ Error OS_X11::move_to_trash(const String &p_path) {
     if (trash_can.empty()) {
         char *home = getenv("HOME");
         if (home) {
-            trash_can = String(home) + "/.local/share/Trash/files";
+            trash_can = se_string(home) + "/.local/share/Trash/files";
         }
     }
 
@@ -3231,8 +3267,8 @@ Error OS_X11::move_to_trash(const String &p_path) {
 
     // The trash can is successfully created, now move the given resource to it.
     // Do not use DirAccess:rename() because it can't move files across multiple mountpoints.
-    ListPOD<String> mv_args;
-    mv_args.push_back(p_path);
+    ListPOD<se_string> mv_args;
+    mv_args.emplace_back(p_path);
     mv_args.push_back(trash_can);
     int retval;
     err = execute("mv", mv_args, true, nullptr, nullptr, &retval);
@@ -3258,20 +3294,20 @@ OS::LatinKeyboardVariant OS_X11::get_latin_keyboard_variant() const {
     char *layout = XGetAtomName(x11_display, xkbdesc->names->symbols);
     ERR_FAIL_COND_V(!layout, LATIN_KEYBOARD_QWERTY)
 
-    Vector<String> info = StringUtils::split(layout,"+");
+    Vector<se_string_view> info = StringUtils::split(layout,'+');
     ERR_FAIL_INDEX_V(1, info.size(), LATIN_KEYBOARD_QWERTY)
 
-    if (StringUtils::find(info[1],"colemak") != -1) {
+    if (StringUtils::contains(info[1],"colemak")) {
         return LATIN_KEYBOARD_COLEMAK;
-    } else if (StringUtils::find(info[1],"qwertz") != -1) {
+    } else if (StringUtils::contains(info[1],"qwertz")) {
         return LATIN_KEYBOARD_QWERTZ;
-    } else if (StringUtils::find(info[1],"azerty") != -1) {
+    } else if (StringUtils::contains(info[1],"azerty")) {
         return LATIN_KEYBOARD_AZERTY;
-    } else if (StringUtils::find(info[1],"qzerty") != -1) {
+    } else if (StringUtils::contains(info[1],"qzerty")) {
         return LATIN_KEYBOARD_QZERTY;
-    } else if (StringUtils::find(info[1],"dvorak") != -1) {
+    } else if (StringUtils::contains(info[1],"dvorak")) {
         return LATIN_KEYBOARD_DVORAK;
-    } else if (StringUtils::find(info[1],"neo") != -1) {
+    } else if (StringUtils::contains(info[1],"neo")) {
         return LATIN_KEYBOARD_NEO;
     }
 

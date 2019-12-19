@@ -56,9 +56,9 @@ Variant ArrayPropertyEdit::get_array() const {
 void ArrayPropertyEdit::_notif_change() {
     _change_notify();
 }
-void ArrayPropertyEdit::_notif_changev(const String &p_v) {
+void ArrayPropertyEdit::_notif_changev(StringName p_v) {
 
-    _change_notify(qPrintable(p_v.m_str));
+    _change_notify(p_v);
 }
 
 void ArrayPropertyEdit::_set_size(int p_size) {
@@ -85,7 +85,7 @@ void ArrayPropertyEdit::_set_value(int p_idx, const Variant &p_value) {
 
 bool ArrayPropertyEdit::_set(const StringName &p_name, const Variant &p_value) {
 
-    String pn = p_name;
+    StringName pn = p_name;
 
     if (StringUtils::begins_with(pn,"array/")) {
 
@@ -99,7 +99,7 @@ bool ArrayPropertyEdit::_set(const StringName &p_name, const Variant &p_value) {
                 return true;
 
             UndoRedo *ur = EditorNode::get_undo_redo();
-            ur->create_action(TTR("Resize Array"));
+            ur->create_action_ui(TTR("Resize Array"));
             ur->add_do_method(this, "_set_size", newsize);
             ur->add_undo_method(this, "_set_size", size);
             if (newsize < size) {
@@ -134,7 +134,7 @@ bool ArrayPropertyEdit::_set(const StringName &p_name, const Variant &p_value) {
 
     } else if (StringUtils::begins_with(pn,"indices")) {
 
-        if (StringUtils::find(pn,"_") != -1) {
+        if (StringUtils::contains(pn,'_')) {
             //type
             int idx = StringUtils::to_int(StringUtils::get_slice(StringUtils::get_slice(pn,'/', 1),'_', 0));
 
@@ -148,7 +148,7 @@ bool ArrayPropertyEdit::_set(const StringName &p_name, const Variant &p_value) {
                 Variant new_value = Variant::construct(VariantType(type), nullptr, 0, ce);
                 UndoRedo *ur = EditorNode::get_undo_redo();
 
-                ur->create_action(TTR("Change Array Value Type"));
+                ur->create_action_ui(TTR("Change Array Value Type"));
                 ur->add_do_method(this, "_set_value", idx, new_value);
                 ur->add_undo_method(this, "_set_value", idx, value);
                 ur->add_do_method(this, "_notif_change");
@@ -164,7 +164,7 @@ bool ArrayPropertyEdit::_set(const StringName &p_name, const Variant &p_value) {
             Variant value = arr.get(idx);
             UndoRedo *ur = EditorNode::get_undo_redo();
 
-            ur->create_action(TTR("Change Array Value"));
+            ur->create_action_ui(TTR("Change Array Value"));
             ur->add_do_method(this, "_set_value", idx, p_value);
             ur->add_undo_method(this, "_set_value", idx, value);
             ur->add_do_method(this, "_notif_changev", p_name);
@@ -182,7 +182,7 @@ bool ArrayPropertyEdit::_get(const StringName &p_name, Variant &r_ret) const {
     Variant arr = get_array();
     //int size = arr.call("size");
 
-    String pn = p_name;
+    StringName pn = p_name;
     if (StringUtils::begins_with(pn,"array/")) {
 
         if (pn == "array/size") {
@@ -195,7 +195,7 @@ bool ArrayPropertyEdit::_get(const StringName &p_name, Variant &r_ret) const {
         }
     } else if (StringUtils::begins_with(pn,"indices")) {
 
-        if (StringUtils::find(pn,"_") != -1) {
+        if (StringUtils::contains(pn,'_')) {
             //type
             int idx = StringUtils::to_int(StringUtils::get_slice(StringUtils::get_slice(pn,'/', 1),'_', 0));
             bool valid;
@@ -240,16 +240,16 @@ void ArrayPropertyEdit::_get_property_list(ListPOD<PropertyInfo> *p_list) const 
         bool is_typed = arr.get_type() != VariantType::ARRAY || subtype != VariantType::NIL;
 
         if (!is_typed) {
-            p_list->push_back(PropertyInfo(VariantType::INT, "indices/" + itos(i + offset) + "_type", PROPERTY_HINT_ENUM, vtypes));
+            p_list->push_back(PropertyInfo(VariantType::INT, StringName("indices/" + itos(i + offset) + "_type"), PROPERTY_HINT_ENUM, vtypes));
         }
 
         if (v.get_type() == VariantType::OBJECT && object_cast<EncodedObjectAsID>(v)) {
-            p_list->push_back(PropertyInfo(VariantType::INT, "indices/" + itos(i + offset), PROPERTY_HINT_OBJECT_ID, "Object"));
+            p_list->push_back(PropertyInfo(VariantType::INT, StringName("indices/" + itos(i + offset)), PROPERTY_HINT_OBJECT_ID, "Object"));
             continue;
         }
 
         if (is_typed || v.get_type() != VariantType::NIL) {
-            PropertyInfo pi(v.get_type(), "indices/" + itos(i + offset));
+            PropertyInfo pi(v.get_type(), StringName("indices/" + itos(i + offset)));
             if (subtype != VariantType::NIL) {
                 pi.type = VariantType(subtype);
                 pi.hint = PropertyHint(subtype_hint);
@@ -264,7 +264,7 @@ void ArrayPropertyEdit::_get_property_list(ListPOD<PropertyInfo> *p_list) const 
     }
 }
 
-void ArrayPropertyEdit::edit(Object *p_obj, const StringName &p_prop, const String &p_hint_string, VariantType p_deftype) {
+void ArrayPropertyEdit::edit(Object *p_obj, const StringName &p_prop, se_string_view p_hint_string, VariantType p_deftype) {
 
     page = 0;
     property = p_prop;
@@ -272,17 +272,17 @@ void ArrayPropertyEdit::edit(Object *p_obj, const StringName &p_prop, const Stri
     default_type = p_deftype;
 
     if (!p_hint_string.empty()) {
-        int hint_subtype_seperator = StringUtils::find(p_hint_string,":");
-        if (hint_subtype_seperator >= 0) {
-            String subtype_string = StringUtils::substr(p_hint_string,0, hint_subtype_seperator);
+        auto hint_subtype_separator = StringUtils::find(p_hint_string,":");
+        if (hint_subtype_separator != se_string::npos) {
+            se_string_view subtype_string = StringUtils::substr(p_hint_string,0, hint_subtype_separator);
 
-            int slash_pos = StringUtils::find(subtype_string,"/");
-            if (slash_pos >= 0) {
+            auto slash_pos = StringUtils::find(subtype_string,"/");
+            if (slash_pos != se_string::npos) {
                 subtype_hint = PropertyHint(StringUtils::to_int(StringUtils::substr(subtype_string,slash_pos + 1, subtype_string.size() - slash_pos - 1)));
                 subtype_string = StringUtils::substr(subtype_string,0, slash_pos);
             }
 
-            subtype_hint_string = StringUtils::substr(p_hint_string,hint_subtype_seperator + 1, p_hint_string.size() - hint_subtype_seperator - 1);
+            subtype_hint_string = StringUtils::substr(p_hint_string,hint_subtype_separator + 1, p_hint_string.size() - hint_subtype_separator - 1);
             subtype = VariantType(StringUtils::to_int(subtype_string));
         }
     }
@@ -311,7 +311,7 @@ ArrayPropertyEdit::ArrayPropertyEdit() {
     for (int i = 0; i < int(VariantType::VARIANT_MAX); i++) {
 
         if (i > 0)
-            vtypes += ",";
+            vtypes += ',';
         vtypes += Variant::get_type_name(VariantType(i));
     }
     default_type = VariantType::NIL;

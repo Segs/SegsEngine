@@ -56,7 +56,7 @@ class ThreadPosix : public Thread {
 	static ID get_thread_id_func_posix();
 	static void wait_to_finish_func_posix(Thread *p_thread);
 
-	static Error set_name_func_posix(const String &p_name);
+	static Error set_name_func_posix(se_string_view p_name);
 
 	ThreadPosix() {}
 

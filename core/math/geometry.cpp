@@ -99,8 +99,6 @@ void Geometry::MeshData::optimize_vertices() {
     vertices = new_vertices;
 }
 
-Vector<Vector<Vector2> > (*Geometry::_decompose_func)(const Vector<Vector2> &p_polygon) = nullptr;
-
 struct _FaceClassify {
 
     struct _Link {
@@ -123,7 +121,7 @@ struct _FaceClassify {
     _FaceClassify() {
         group = -1;
         valid = false;
-    };
+    }
 };
 
 static bool _connect_faces(_FaceClassify *p_faces, int len, int p_group) {
@@ -159,19 +157,18 @@ static bool _connect_faces(_FaceClassify *p_faces, int len, int p_group) {
                     Vector3 vj2 = p_faces[j].face.vertex[l];
                     Vector3 vj1 = p_faces[j].face.vertex[(l + 1) % 3];
 
-                    if (vi1.distance_to(vj1) < 0.00001 &&
-                            vi2.distance_to(vj2) < 0.00001) {
+                    if (vi1.distance_to(vj1) < 0.00001f && vi2.distance_to(vj2) < 0.00001f) {
                         if (p_faces[i].links[k].face != -1) {
 
-                            ERR_PRINT("already linked\n");
+                            ERR_PRINT("already linked\n")
                             error = true;
-                            break;
+                            goto ERR_OUT;
                         }
                         if (p_faces[j].links[l].face != -1) {
 
-                            ERR_PRINT("already linked\n");
+                            ERR_PRINT("already linked\n")
                             error = true;
-                            break;
+                            goto ERR_OUT;
                         }
 
                         p_faces[i].links[k].face = j;
@@ -180,15 +177,10 @@ static bool _connect_faces(_FaceClassify *p_faces, int len, int p_group) {
                         p_faces[j].links[l].edge = k;
                     }
                 }
-                if (error)
-                    break;
             }
-            if (error)
-                break;
         }
-        if (error)
-            break;
     }
+ERR_OUT:
 
     for (int i = 0; i < len; i++) {
 
@@ -211,7 +203,7 @@ static bool _group_face(_FaceClassify *p_faces, int len, int p_index, int p_grou
 
     for (int i = 0; i < 3; i++) {
 
-        ERR_FAIL_INDEX_V(p_faces[p_index].links[i].face, len, true);
+        ERR_FAIL_INDEX_V(p_faces[p_index].links[i].face, len, true)
         _group_face(p_faces, len, p_faces[p_index].links[i].face, p_group);
     }
 
@@ -457,7 +449,7 @@ static inline void _mark_outside(uint8_t ***p_cell_status, int x, int y, int z, 
                 next_z--;
                 prev = _CELL_PREV_Z_POS;
             } break;
-            default: ERR_FAIL();
+            default: ERR_FAIL()
         }
 
         if (next_x < 0 || next_x >= len_x)
@@ -559,7 +551,7 @@ constexpr int _MAX_LENGTH = 20;
         }
     }
 
-    global_aabb.grow_by(0.01); // Avoid numerical error.
+    global_aabb.grow_by(0.01f); // Avoid numerical error.
 
     // Determine amount of cells in grid axis.
     int div_x, div_y, div_z;
@@ -946,8 +938,8 @@ PoolVector<Plane> Geometry::build_capsule_planes(real_t p_radius, real_t p_heigh
     for (int i = 0; i < p_sides; i++) {
 
         Vector3 normal;
-        normal[(p_axis + 1) % 3] = Math::cos(i * (2.0 * Math_PI) / p_sides);
-        normal[(p_axis + 2) % 3] = Math::sin(i * (2.0 * Math_PI) / p_sides);
+        normal[(p_axis + 1) % 3] = Math::cos(i * (2.0f * Math_PI) / p_sides);
+        normal[(p_axis + 2) % 3] = Math::sin(i * (2.0f * Math_PI) / p_sides);
 
         planes.push_back(Plane(normal, p_radius));
 
@@ -968,7 +960,7 @@ struct _AtlasWorkRect {
     Size2i s;
     Point2i p;
     int idx;
-    _FORCE_INLINE_ bool operator<(const _AtlasWorkRect &p_r) const { return s.width > p_r.s.width; };
+    _FORCE_INLINE_ bool operator<(const _AtlasWorkRect &p_r) const { return s.width > p_r.s.width; }
 };
 
 struct _AtlasWorkRectResult {
@@ -1063,7 +1055,7 @@ void Geometry::make_atlas(const Vector<Size2i> &p_rects, Vector<Point2i> &r_resu
     //find the result with the best aspect ratio
 
     int best = -1;
-    real_t best_aspect = 1e20;
+    real_t best_aspect = 1e20f;
 
     for (int i = 0; i < results.size(); i++) {
 
@@ -1159,7 +1151,7 @@ Vector<Vector<Point2> > Geometry::_polypath_offset(const Vector<Point2> &p_polyp
         case END_SQUARE: et = etOpenSquare; break;
         case END_ROUND: et = etOpenRound; break;
     }
-    ClipperOffset co;
+    ClipperOffset co(2.0, 0.25 * SCALE_FACTOR); // Defaults from ClipperOffset.
     Path path;
 
     // Need to scale points (Clipper's requirement for robust computation)

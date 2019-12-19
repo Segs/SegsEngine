@@ -29,10 +29,10 @@
 /*************************************************************************/
 
 #include "string_builder.h"
-
+#include "core/se_string.h"
 #include <cstring>
 
-StringBuilder &StringBuilder::append(const String &p_string) {
+StringBuilder &StringBuilder::append(const se_string &p_string) {
 
     if (p_string.empty())
         return *this;
@@ -57,12 +57,12 @@ StringBuilder &StringBuilder::append(const char *p_cstring) {
     return *this;
 }
 
-String StringBuilder::as_string() const {
+se_string StringBuilder::as_string() const {
 
     if (string_length == 0)
-        return "";
+        return se_string();
 
-    CharType *buffer = memnew_arr(CharType, string_length);
+    char *buffer = memnew_arr(char, string_length);
 
     int current_position = 0;
 
@@ -72,9 +72,9 @@ String StringBuilder::as_string() const {
     for (int i = 0; i < appended_strings.size(); i++) {
         if (appended_strings[i] == -1) {
             // Godot string
-            const String &s = strings[godot_string_elem];
+            const se_string &s = strings[godot_string_elem];
 
-            memcpy(buffer + current_position, s.cdata(), s.length() * sizeof(CharType));
+            memcpy(buffer + current_position, s.c_str(), s.size() * sizeof(char));
 
             current_position += s.length();
 
@@ -93,7 +93,7 @@ String StringBuilder::as_string() const {
         }
     }
 
-    String final_string = String(buffer, string_length);
+    se_string final_string = se_string(buffer, string_length);
 
     memdelete_arr(buffer);
 

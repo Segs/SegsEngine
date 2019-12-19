@@ -31,7 +31,7 @@
 #include "aabb.h"
 
 #include "core/print_string.h"
-#include "core/ustring.h"
+#include "core/se_string.h"
 
 real_t AABB::get_area() const {
 
@@ -110,12 +110,12 @@ bool AABB::intersects_ray(const Vector3 &p_from, const Vector3 &p_dir, Vector3 *
 
     Vector3 c1, c2;
     Vector3 end = position + size;
-    real_t near = -1e20;
-    real_t far = 1e20;
+    real_t near = -1e20f;
+    real_t far = 1e20f;
     int axis = 0;
 
     for (int i = 0; i < 3; i++) {
-        if (p_dir[i] == 0) {
+        if (p_dir[i] == 0.0f) {
             if ((p_from[i] < position[i]) || (p_from[i] > end[i])) {
                 return false;
             }
@@ -392,7 +392,7 @@ void AABB::get_edge(int p_edge, Vector3 &r_from, Vector3 &r_to) const {
     }
 }
 
-AABB::operator String() const {
+AABB::operator se_string() const {
 
-    return String() + position + " - " + size;
+    return se_string(position) + " - " + se_string(size);
 }

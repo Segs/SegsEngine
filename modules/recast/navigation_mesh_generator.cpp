@@ -32,12 +32,15 @@
 
 #include "core/math/quick_hull.h"
 #include "core/method_bind.h"
+#include "core/deque.h"
+#include "core/se_string.h"
 #include "core/os/thread.h"
 #include "core/translation_helpers.h"
 #include "editor/editor_settings.h"
 #include "scene/3d/collision_shape.h"
 #include "scene/3d/mesh_instance.h"
 #include "scene/3d/physics_body.h"
+#include "scene/main/scene_tree.h"
 #include "scene/resources/box_shape.h"
 #include "scene/resources/capsule_shape.h"
 #include "scene/resources/concave_polygon_shape.h"
@@ -47,7 +50,6 @@
 #include "scene/resources/primitive_meshes.h"
 #include "scene/resources/shape.h"
 #include "scene/resources/sphere_shape.h"
-
 #ifdef MODULE_CSG_ENABLED
 #include "modules/csg/csg_shape.h"
 #endif
@@ -67,7 +69,7 @@ void EditorNavigationMeshGenerator::_add_vertex(const Vector3 &p_vec3, Vector<fl
 }
 
 void EditorNavigationMeshGenerator::_add_mesh(const Ref<Mesh> &p_mesh, const Transform &p_xform, Vector<float> &p_verticies, Vector<int> &p_indices) {
-    int current_vertex_count = 0;
+    int current_vertex_count;
 
     for (int i = 0; i < p_mesh->get_surface_count(); i++) {
         current_vertex_count = p_verticies.size() / 3;
@@ -136,7 +138,7 @@ void EditorNavigationMeshGenerator::_add_faces(const PoolVector3Array &p_faces, 
     }
 }
 
-void EditorNavigationMeshGenerator::_parse_geometry(Transform p_accumulated_transform, Node *p_node, Vector<float> &p_verticies, Vector<int> &p_indices, int p_generate_from, uint32_t p_collision_mask) {
+void EditorNavigationMeshGenerator::_parse_geometry(Transform p_accumulated_transform, Node *p_node, Vector<float> &p_verticies, Vector<int> &p_indices, int p_generate_from, uint32_t p_collision_mask, bool p_recurse_children) {
 
     if (object_cast<MeshInstance>(p_node) && p_generate_from != NavigationMesh::PARSED_GEOMETRY_STATIC_COLLIDERS) {
 
@@ -264,8 +266,11 @@ void EditorNavigationMeshGenerator::_parse_geometry(Transform p_accumulated_tran
         p_accumulated_transform = p_accumulated_transform * spatial->get_transform();
     }
 
-    for (int i = 0; i < p_node->get_child_count(); i++) {
-        _parse_geometry(p_accumulated_transform, p_node->get_child(i), p_verticies, p_indices, p_generate_from, p_collision_mask);
+    if (p_recurse_children) {
+        for (int i = 0; i < p_node->get_child_count(); i++) {
+            _parse_geometry(p_accumulated_transform, p_node->get_child(i), p_verticies, p_indices, p_generate_from,
+                    p_collision_mask, p_recurse_children);
+        }
     }
 }
 
@@ -434,13 +439,25 @@ void EditorNavigationMeshGenerator::bake(Ref<NavigationMesh> p_nav_mesh, Node *p
 
     ERR_FAIL_COND(not p_nav_mesh)
 
-    EditorProgress ep("bake", TTR("Navigation Mesh Generator Setup:"), 11);
+    EditorProgress ep(("bake"), TTR("Navigation Mesh Generator Setup:"), 11);
     ep.step(TTR("Parsing Geometry..."), 0);
 
     Vector<float> vertices;
     Vector<int> indices;
+    Deque<Node *> parse_nodes;
+    if (p_nav_mesh->get_source_geometry_mode() == NavigationMesh::SOURCE_GEOMETRY_NAVMESH_CHILDREN) {
+        parse_nodes.push_back(p_node);
+    } else {
+        p_node->get_tree()->get_nodes_in_group(p_nav_mesh->get_source_group_name(), &parse_nodes);
+    }
 
-    _parse_geometry(object_cast<Spatial>(p_node)->get_transform().affine_inverse(), p_node, vertices, indices, p_nav_mesh->get_parsed_geometry_type(), p_nav_mesh->get_collision_mask());
+    Transform navmesh_xform = object_cast<Spatial>(p_node)->get_transform().affine_inverse();
+    for (Node * E : parse_nodes) {
+        int geometry_type = p_nav_mesh->get_parsed_geometry_type();
+        uint32_t collision_mask = p_nav_mesh->get_collision_mask();
+        bool recurse_children = p_nav_mesh->get_source_geometry_mode() != NavigationMesh::SOURCE_GEOMETRY_GROUPS_EXPLICIT;
+        _parse_geometry(navmesh_xform, E, vertices, indices, geometry_type, collision_mask, recurse_children);
+    }
 
     if (!vertices.empty() && !indices.empty()) {
 

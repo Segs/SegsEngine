@@ -336,6 +336,8 @@ static CVReturn DisplayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeSt
     CGFloat oldBackingScaleFactor = [[[notification userInfo] objectForKey:@"NSBackingPropertyOldScaleFactorKey"] doubleValue];
     if (OS_OSX::singleton->is_hidpi_allowed()) {
         [OS_OSX::singleton->window_view setWantsBestResolutionOpenGLSurface:YES];
+    } else {
+        [OS_OSX::singleton->window_view setWantsBestResolutionOpenGLSurface:NO];
     }
 
     if (newBackingScaleFactor != oldBackingScaleFactor) {
@@ -350,12 +352,8 @@ static CVReturn DisplayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeSt
 
         //Update context
         if (OS_OSX::singleton->main_loop) {
-            [OS_OSX::singleton->context update];
-
-            //Force window resize ???
-            NSRect frame = [OS_OSX::singleton->window_object frame];
-            [OS_OSX::singleton->window_object setFrame:NSMakeRect(frame.origin.x, frame.origin.y, 1, 1) display:YES];
-            [OS_OSX::singleton->window_object setFrame:frame display:YES];
+            //Force window resize event
+            [self windowDidResize:notification];
         }
     }
 }
@@ -614,11 +612,11 @@ static const NSRange kEmptyRange = { NSNotFound, 0 };
     NSPasteboard *pboard = [sender draggingPasteboard];
     NSArray *filenames = [pboard propertyListForType:NSFilenamesPboardType];
 
-    Vector<String> files;
+    Vector<se_string> files;
     for (int i = 0; i < filenames.count; i++) {
         NSString *ns = [filenames objectAtIndex:i];
         char *utfs = strdup([ns UTF8String]);
-        String ret;
+        se_string ret;
         ret.parse_utf8(utfs);
         free(utfs);
         files.push_back(ret);
@@ -703,6 +701,11 @@ static void _mouseDownEvent(NSEvent *event, int index, int mask, bool pressed) {
     const Vector2 pos = get_mouse_pos([event locationInWindow], backingScaleFactor);
     mm->set_position(pos);
     mm->set_global_position(pos);
+    mm->set_pressure([event pressure]);
+    if ([event subtype] == NSTabletPointEventSubtype) {
+            const NSPoint p = [event tilt];
+            mm->set_tilt(Vector2(p.x, p.y));
+    }
     mm->set_speed(OS_OSX::singleton->input->get_last_mouse_speed());
     Vector2 relativeMotion = Vector2();
     relativeMotion.x = [event deltaX] * OS_OSX::singleton -> _mouse_scale(backingScaleFactor);
@@ -1359,30 +1362,6 @@ String OS_OSX::get_ime_text() const {
     return im_text;
 }
 
-String OS_OSX::get_unique_id() const {
-
-    static String serial_number;
-
-    if (serial_number.empty()) {
-        io_service_t platformExpert = IOServiceGetMatchingService(kIOMasterPortDefault, IOServiceMatching("IOPlatformExpertDevice"));
-        CFStringRef serialNumberAsCFString = NULL;
-        if (platformExpert) {
-            serialNumberAsCFString = (CFStringRef)IORegistryEntryCreateCFProperty(platformExpert, CFSTR(kIOPlatformSerialNumberKey), kCFAllocatorDefault, 0);
-            IOObjectRelease(platformExpert);
-        }
-
-        NSString *serialNumberAsNSString = nil;
-        if (serialNumberAsCFString) {
-            serialNumberAsNSString = [NSString stringWithString:(NSString *)serialNumberAsCFString];
-            CFRelease(serialNumberAsCFString);
-        }
-
-        serial_number = [serialNumberAsNSString UTF8String];
-    }
-
-    return serial_number;
-}
-
 void OS_OSX::set_ime_active(const bool p_active) {
 
     im_active = p_active;
@@ -1483,6 +1462,8 @@ Error OS_OSX::initialize(const VideoMode &p_desired, int p_video_driver, int p_a
         [window_view setWantsBestResolutionOpenGLSurface:YES];
         //if (current_videomode.resizable)
         [window_object setCollectionBehavior:NSWindowCollectionBehaviorFullScreenPrimary];
+    } else {
+        [window_view setWantsBestResolutionOpenGLSurface:NO];
     }
 
     //[window_object setTitle:[NSString stringWithUTF8String:"GodotEnginies"]];
@@ -2120,7 +2101,7 @@ void OS_OSX::set_clipboard(const String &p_text) {
     [pasteboard writeObjects:copiedStringArray];
 }
 
-String OS_OSX::get_clipboard() const {
+se_string OS_OSX::get_clipboard() const {
 
     NSPasteboard *pasteboard = [NSPasteboard generalPasteboard];
     NSArray *classArray = [NSArray arrayWithObject:[NSString class]];
@@ -2886,7 +2867,7 @@ OS::MouseMode OS_OSX::get_mouse_mode() const {
     return mouse_mode;
 }
 
-String OS_OSX::get_joy_guid(int p_device) const {
+StringName OS_OSX::get_joy_guid(int p_device) const {
     return input->get_joy_guid_remapped(p_device);
 }
 
@@ -2902,7 +2883,7 @@ int OS_OSX::get_power_percent_left() {
     return power_manager->get_power_percent_left();
 }
 
-Error OS_OSX::move_to_trash(const String &p_path) {
+Error OS_OSX::move_to_trash(const se_string &p_path) {
     NSFileManager *fm = [NSFileManager defaultManager];
     NSURL *url = [NSURL fileURLWithPath:@(p_path.utf8().get_data())];
     NSError *err;

@@ -61,7 +61,7 @@ public:
 
     Rect2 _edit_get_rect() const override;
     bool _edit_use_rect() const override;
-    bool _edit_is_selected_on_click(const Point2 &p_point, double p_tolerance) const override;
+    bool _edit_is_selected_on_click(const Point2 &p_point, float p_tolerance) const override;
 
     void set_points(const PoolVector<Vector2> &p_points);
     PoolVector<Vector2> get_points() const;
@@ -109,6 +109,8 @@ public:
     void set_round_precision(int precision);
     int get_round_precision() const;
 
+    void set_antialiased(bool p_antialiased);
+    bool get_antialiased() const;
 protected:
     void _notification(int p_what);
     void _draw();
@@ -132,4 +134,5 @@ private:
     Ref<Texture> _texture;
     float _sharp_limit;
     int _round_precision;
+    bool _antialiased;
 };

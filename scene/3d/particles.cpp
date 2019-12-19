@@ -245,13 +245,9 @@ bool Particles::get_fractional_delta() const {
     return fractional_delta;
 }
 
-String Particles::get_configuration_warning() const {
+StringName Particles::get_configuration_warning() const {
 
-    if (OS::get_singleton()->get_current_video_driver() == OS::VIDEO_DRIVER_GLES2) {
-        return TTR("GPU-based particles are not supported by the GLES2 video driver.\nUse the CPUParticles node instead. You can use the \"Convert to CPUParticles\" option for this purpose.");
-    }
-
-    String warnings;
+    se_string warnings;
 
     bool meshes_found = false;
     bool anim_material_found = false;
@@ -274,13 +270,13 @@ String Particles::get_configuration_warning() const {
 
     if (!meshes_found) {
         if (!warnings.empty())
-            warnings += "\n";
+            warnings += '\n';
         warnings += "- " + TTR("Nothing is visible because meshes have not been assigned to draw passes.");
     }
 
     if (not process_material) {
         if (!warnings.empty())
-            warnings += "\n";
+            warnings += '\n';
         warnings += "- " + TTR("A material to process the particles is not assigned, so no behavior is imprinted.");
     } else {
         const ParticlesMaterial *process = object_cast<ParticlesMaterial>(process_material.get());
@@ -288,12 +284,12 @@ String Particles::get_configuration_warning() const {
                 (process->get_param(ParticlesMaterial::PARAM_ANIM_SPEED) != 0.0f || process->get_param(ParticlesMaterial::PARAM_ANIM_OFFSET) != 0.0f ||
                         process->get_param_texture(ParticlesMaterial::PARAM_ANIM_SPEED) || process->get_param_texture(ParticlesMaterial::PARAM_ANIM_OFFSET))) {
             if (!warnings.empty())
-                warnings += "\n";
+                warnings += '\n';
             warnings += "- " + TTR("Particles animation requires the usage of a SpatialMaterial whose Billboard Mode is set to \"Particle Billboard\".");
         }
     }
 
-    return warnings;
+    return StringName(warnings);
 }
 
 void Particles::restart() {
@@ -319,13 +315,13 @@ void Particles::_validate_property(PropertyInfo &property) const {
 }
 
 void Particles::_notification(int p_what) {
-
+    auto VS = VisualServer::get_singleton();
     if (p_what == NOTIFICATION_PAUSED || p_what == NOTIFICATION_UNPAUSED) {
         if (can_process()) {
-            VisualServer::get_singleton()->particles_set_speed_scale(particles, speed_scale);
+            VS->particles_set_speed_scale(particles, speed_scale);
         } else {
 
-            VisualServer::get_singleton()->particles_set_speed_scale(particles, 0);
+            VS->particles_set_speed_scale(particles, 0);
         }
     }
 
@@ -336,6 +332,12 @@ void Particles::_notification(int p_what) {
         if (one_shot && !is_emitting()) {
             _change_notify();
             set_process_internal(false);
+        }
+    }
+    if (p_what == NOTIFICATION_VISIBILITY_CHANGED) {
+        // make sure particles are updated before rendering occurs if they were active before
+        if (is_visible_in_tree() && !VS->particles_is_inactive(particles)) {
+            VS->particles_request_process(particles);
         }
     }
 }
@@ -404,7 +406,7 @@ void Particles::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "draw_passes", PROPERTY_HINT_RANGE, "0," + itos(MAX_DRAW_PASSES) + ",1"), "set_draw_passes", "get_draw_passes");
     for (int i = 0; i < MAX_DRAW_PASSES; i++) {
 
-        ADD_PROPERTYI(PropertyInfo(VariantType::OBJECT, "draw_pass_" + itos(i + 1), PROPERTY_HINT_RESOURCE_TYPE, "Mesh"), "set_draw_pass_mesh", "get_draw_pass_mesh", i);
+        ADD_PROPERTYI(PropertyInfo(VariantType::OBJECT, StringName("draw_pass_" + itos(i + 1)), PROPERTY_HINT_RESOURCE_TYPE, "Mesh"), "set_draw_pass_mesh", "get_draw_pass_mesh", i);
     }
 
     BIND_ENUM_CONSTANT(DRAW_ORDER_INDEX)

@@ -37,6 +37,10 @@
 #include "core/os/semaphore.h"
 #include "core/os/mutex.h"
 #include "core/os/thread.h"
+#include "core/se_string.h"
+#include "core/string_utils.h"
+#include "core/string_utils.inl"
+#include "core/string_formatter.h"
 #include "core/project_settings.h"
 
 //#define DEBUG_PRINT(m_p) print_line(m_p)
@@ -187,19 +191,19 @@ void FileAccessNetworkClient::_thread_func(void *s) {
     self->_thread_func();
 }
 
-Error FileAccessNetworkClient::connect(const String &p_host, int p_port, const String &p_password) {
+Error FileAccessNetworkClient::connect(const se_string &p_host, int p_port, const se_string &p_password) {
 
     IP_Address ip;
 
     if (StringUtils::is_valid_ip_address(p_host)) {
-        ip = p_host;
+        ip = IP_Address(p_host.c_str());
     } else {
         ip = IP::get_singleton()->resolve_hostname(p_host);
     }
 
-    DEBUG_PRINT("IP: " + String(ip) + " port " + itos(p_port));
+    DEBUG_PRINT("IP: " + se_string(ip) + " port " + ::to_string(p_port));
     Error err = client->connect_to_host(ip, p_port);
-	ERR_FAIL_COND_V_MSG(err != OK, err, "Cannot connect to host with IP: " + String(ip) + " and port: " + itos(p_port))
+    ERR_FAIL_COND_V_MSG(err != OK, err, FormatVE("Cannot connect to host with IP: %s and port: %d",se_string(ip).c_str(),p_port))
     while (client->get_status() == StreamPeerTCP::STATUS_CONNECTING) {
         //DEBUG_PRINT("trying to connect....");
         OS::get_singleton()->delay_usec(1000);
@@ -209,7 +213,7 @@ Error FileAccessNetworkClient::connect(const String &p_host, int p_port, const S
         return ERR_CANT_CONNECT;
     }
 
-	CharString cs = StringUtils::to_utf8(p_password);
+    se_string cs = p_password;
     put_32(cs.length());
     client->put_data((const uint8_t *)cs.data(), cs.length());
 
@@ -286,7 +290,7 @@ void FileAccessNetwork::_respond(size_t p_len, Error p_status) {
     pages.resize(pc);
 }
 
-Error FileAccessNetwork::_open(const String &p_path, int p_mode_flags) {
+Error FileAccessNetwork::_open(se_string_view p_path, int p_mode_flags) {
 
     ERR_FAIL_COND_V(p_mode_flags != READ, ERR_UNAVAILABLE)
     if (opened)
@@ -300,9 +304,8 @@ Error FileAccessNetwork::_open(const String &p_path, int p_mode_flags) {
     nc->put_32(id);
     nc->accesses[id] = this;
     nc->put_32(COMMAND_OPEN_FILE);
-	CharString cs = StringUtils::to_utf8(p_path);
-    nc->put_32(cs.length());
-    nc->client->put_data((const uint8_t *)cs.data(), cs.length());
+    nc->put_32(p_path.length());
+    nc->client->put_data((const uint8_t *)p_path.data(), p_path.length());
     pos = 0;
     eof_flag = false;
     last_page = -1;
@@ -343,7 +346,7 @@ bool FileAccessNetwork::is_open() const {
 
 void FileAccessNetwork::seek(size_t p_position) {
 
-	ERR_FAIL_COND_CMSG(!opened, "File must be opened before use.")
+    ERR_FAIL_COND_MSG(!opened, "File must be opened before use.")
     eof_flag = p_position > total_size;
 
     if (p_position >= total_size) {
@@ -359,18 +362,18 @@ void FileAccessNetwork::seek_end(int64_t p_position) {
 }
 size_t FileAccessNetwork::get_position() const {
 
-	ERR_FAIL_COND_V_MSG(!opened, 0, "File must be opened before use.")
+    ERR_FAIL_COND_V_MSG(!opened, 0, "File must be opened before use.")
     return pos;
 }
 size_t FileAccessNetwork::get_len() const {
 
-	ERR_FAIL_COND_V_MSG(!opened, 0, "File must be opened before use.")
+    ERR_FAIL_COND_V_MSG(!opened, 0, "File must be opened before use.")
     return total_size;
 }
 
 bool FileAccessNetwork::eof_reached() const {
 
-	ERR_FAIL_COND_V_MSG(!opened, false, "File must be opened before use.")
+    ERR_FAIL_COND_V_MSG(!opened, false, "File must be opened before use.")
     return eof_flag;
 }
 
@@ -469,15 +472,14 @@ void FileAccessNetwork::store_8(uint8_t p_dest) {
     ERR_FAIL();
 }
 
-bool FileAccessNetwork::file_exists(const String &p_path) {
+bool FileAccessNetwork::file_exists(se_string_view p_path) {
 
     FileAccessNetworkClient *nc = FileAccessNetworkClient::singleton;
     nc->lock_mutex();
     nc->put_32(id);
     nc->put_32(COMMAND_FILE_EXISTS);
-	CharString cs = StringUtils::to_utf8(p_path);
-    nc->put_32(cs.length());
-    nc->client->put_data((const uint8_t *)cs.data(), cs.length());
+    nc->put_32(p_path.length());
+    nc->client->put_data((const uint8_t *)p_path.data(), p_path.length());
     nc->unlock_mutex();
     DEBUG_PRINT("FILE EXISTS POST");
     nc->sem->post();
@@ -486,15 +488,14 @@ bool FileAccessNetwork::file_exists(const String &p_path) {
     return exists_modtime != 0;
 }
 
-uint64_t FileAccessNetwork::_get_modified_time(const String &p_file) {
+uint64_t FileAccessNetwork::_get_modified_time(se_string_view p_file) {
 
     FileAccessNetworkClient *nc = FileAccessNetworkClient::singleton;
     nc->lock_mutex();
     nc->put_32(id);
     nc->put_32(COMMAND_GET_MODTIME);
-	CharString cs = StringUtils::to_utf8(p_file);
-    nc->put_32(cs.length());
-    nc->client->put_data((const uint8_t *)cs.data(), cs.length());
+    nc->put_32(p_file.length());
+    nc->client->put_data((const uint8_t *)p_file.data(), p_file.length());
     nc->unlock_mutex();
     DEBUG_PRINT("MODTIME POST");
     nc->sem->post();
@@ -503,13 +504,13 @@ uint64_t FileAccessNetwork::_get_modified_time(const String &p_file) {
     return exists_modtime;
 }
 
-uint32_t FileAccessNetwork::_get_unix_permissions(const String &p_file) {
-	ERR_PRINT("Getting UNIX permissions from network drives is not implemented yet")
+uint32_t FileAccessNetwork::_get_unix_permissions(se_string_view p_file) {
+    ERR_PRINT("Getting UNIX permissions from network drives is not implemented yet")
     return 0;
 }
 
-Error FileAccessNetwork::_set_unix_permissions(const String &p_file, uint32_t p_permissions) {
-	ERR_PRINT("Setting UNIX permissions on network drives is not implemented yet")
+Error FileAccessNetwork::_set_unix_permissions(se_string_view p_file, uint32_t p_permissions) {
+    ERR_PRINT("Setting UNIX permissions on network drives is not implemented yet")
     return ERR_UNAVAILABLE;
 }
 

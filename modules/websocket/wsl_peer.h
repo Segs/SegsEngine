@@ -45,75 +45,75 @@
 
 class WSLPeer : public WebSocketPeer {
 
-	GDCIIMPL(WSLPeer, WebSocketPeer);
+    GDCIIMPL(WSLPeer, WebSocketPeer);
 
 public:
-	struct PeerData {
-		bool polling;
-		bool destroy;
-		bool valid;
-		bool is_server;
-		void *obj;
-		void *peer;
-		Ref<StreamPeer> conn;
-		Ref<StreamPeerTCP> tcp;
-		int id;
-		wslay_event_context_ptr ctx;
+    struct PeerData {
+        bool polling;
+        bool destroy;
+        bool valid;
+        bool is_server;
+        void *obj;
+        void *peer;
+        Ref<StreamPeer> conn;
+        Ref<StreamPeerTCP> tcp;
+        int id;
+        wslay_event_context_ptr ctx;
 
-		PeerData() {
-			polling = false;
-			destroy = false;
-			valid = false;
-			is_server = false;
-			id = 1;
-			ctx = nullptr;
-			obj = nullptr;
-			peer = nullptr;
-		}
-	};
+        PeerData() {
+            polling = false;
+            destroy = false;
+            valid = false;
+            is_server = false;
+            id = 1;
+            ctx = nullptr;
+            obj = nullptr;
+            peer = nullptr;
+        }
+    };
 
-	static String compute_key_response(String p_key);
-	static String generate_key();
+    static se_string compute_key_response(se_string_view p_key);
+    static se_string generate_key();
 
 private:
-	static bool _wsl_poll(struct PeerData *p_data);
-	static void _wsl_destroy(struct PeerData **p_data);
+    static bool _wsl_poll(struct PeerData *p_data);
+    static void _wsl_destroy(struct PeerData **p_data);
 
-	struct PeerData *_data;
-	uint8_t _is_string;
-	// Our packet info is just a boolean (is_string), using uint8_t for it.
-	PacketBuffer<uint8_t> _in_buffer;
+    struct PeerData *_data;
+    uint8_t _is_string;
+    // Our packet info is just a boolean (is_string), using uint8_t for it.
+    PacketBuffer<uint8_t> _in_buffer;
 
-	PoolVector<uint8_t> _packet_buffer;
+    PoolVector<uint8_t> _packet_buffer;
 
-	WriteMode write_mode;
+    WriteMode write_mode;
 
 public:
-	int close_code;
-	String close_reason;
-	void poll(); // Used by client and server.
+    int close_code;
+    se_string close_reason;
+    void poll(); // Used by client and server.
 
-	int get_available_packet_count() const override;
-	Error get_packet(const uint8_t **r_buffer, int &r_buffer_size) override;
-	Error put_packet(const uint8_t *p_buffer, int p_buffer_size) override;
-	int get_max_packet_size() const override { return _packet_buffer.size(); };
+    int get_available_packet_count() const override;
+    Error get_packet(const uint8_t **r_buffer, int &r_buffer_size) override;
+    Error put_packet(const uint8_t *p_buffer, int p_buffer_size) override;
+    int get_max_packet_size() const override { return _packet_buffer.size(); }
 
-	virtual void close_now();
-	void close(int p_code = 1000, String p_reason = "") override;
-	bool is_connected_to_host() const override;
-	IP_Address get_connected_host() const override;
-	uint16_t get_connected_port() const override;
+    virtual void close_now();
+    void close(int p_code = 1000, se_string_view p_reason = "") override;
+    bool is_connected_to_host() const override;
+    IP_Address get_connected_host() const override;
+    uint16_t get_connected_port() const override;
 
-	WriteMode get_write_mode() const override;
-	void set_write_mode(WriteMode p_mode) override;
-	bool was_string_packet() const override;
+    WriteMode get_write_mode() const override;
+    void set_write_mode(WriteMode p_mode) override;
+    bool was_string_packet() const override;
 
-	void make_context(PeerData *p_data, unsigned int p_in_buf_size, unsigned int p_in_pkt_size, unsigned int p_out_buf_size, unsigned int p_out_pkt_size);
-	Error parse_message(const wslay_event_on_msg_recv_arg *arg);
-	void invalidate();
+    void make_context(PeerData *p_data, unsigned int p_in_buf_size, unsigned int p_in_pkt_size, unsigned int p_out_buf_size, unsigned int p_out_pkt_size);
+    Error parse_message(const wslay_event_on_msg_recv_arg *arg);
+    void invalidate();
 
-	WSLPeer();
-	~WSLPeer() override;
+    WSLPeer();
+    ~WSLPeer() override;
 };
 
 #endif // JAVASCRIPT_ENABLED

@@ -108,12 +108,12 @@ void VehicleWheel::_notification(int p_what) {
     }
 }
 
-String VehicleWheel::get_configuration_warning() const {
+StringName VehicleWheel::get_configuration_warning() const {
     if (!object_cast<VehicleBody>(get_parent())) {
         return TTR("VehicleWheel serves to provide a wheel system to a VehicleBody. Please use it as a child of a VehicleBody.");
     }
 
-    return String();
+    return StringName();
 }
 
 void VehicleWheel::_update(PhysicsDirectBodyState *s) {

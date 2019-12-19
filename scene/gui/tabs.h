@@ -56,8 +56,8 @@ public:
 private:
 	struct Tab {
 
-		String text;
-        String xl_text;
+        StringName text;
+        StringName xl_text;
 		Ref<Texture> icon;
 		int ofs_cache;
 		bool disabled;
@@ -114,10 +114,10 @@ protected:
 	int get_tab_idx_at_point(const Point2 &p_point) const;
 
 public:
-	void add_tab(const String &p_str = "", const Ref<Texture> &p_icon = Ref<Texture>());
+    void add_tab(const StringName &p_str = StringName(), const Ref<Texture> &p_icon = Ref<Texture>());
 
-	void set_tab_title(int p_tab, const String &p_title);
-	String get_tab_title(int p_tab) const;
+    void set_tab_title(int p_tab, const StringName &p_title);
+    StringName get_tab_title(int p_tab) const;
 
 	void set_tab_icon(int p_tab, const Ref<Texture> &p_icon);
 	Ref<Texture> get_tab_icon(int p_tab) const;

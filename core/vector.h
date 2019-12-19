@@ -43,10 +43,15 @@
 #include "core/os/memory.h"
 #include "core/sort_array.h"
 #include "EASTL/vector.h"
-
+#include "EASTL/fixed_vector.h"
+#include "EASTL/span.h"
 
 template<class T>
 using PODVector = eastl::vector<T,wrap_allocator>;
+template<class T,int N,bool GROWING>
+using FixedVector = eastl::fixed_vector<T,N,GROWING,wrap_allocator>;
+template <typename T>
+using Span = eastl::span<T,eastl::dynamic_extent>;
 
 template <class T>
 class VectorWriteProxy {
@@ -70,7 +75,13 @@ private:
 
 public:
     bool push_back(const T &p_elem);
-
+    template<class... Args>
+    bool emplace_back(Args&&... args) {
+        Error err = resize(size() + 1);
+        ERR_FAIL_COND_V(err, true)
+        memnew_placement(&ptrw()[size() - 1],T(eastl::forward<Args>(args)...));
+        return false;
+    }
     void remove(int p_index) { _cowdata.remove(p_index); }
     void erase(const T &p_val) {
         int idx = find(p_val);
@@ -81,10 +92,8 @@ public:
     _FORCE_INLINE_ T *ptrw() { return _cowdata.ptrw(); }
     _FORCE_INLINE_ const T *ptr() const { return _cowdata.ptr(); }
     _FORCE_INLINE_ void clear() { resize(0); }
-    [[nodiscard]] _FORCE_INLINE_ bool empty() const { return _cowdata.empty(); }
+    [[nodiscard]] _FORCE_INLINE_ bool empty() const noexcept { return _cowdata.empty(); }
 
-    _FORCE_INLINE_ T get(int p_index) { return _cowdata.get(p_index); }
-    _FORCE_INLINE_ const T get(int p_index) const { return _cowdata.get(p_index); }
     _FORCE_INLINE_ void set(int p_index, const T &p_elem) { _cowdata.set(p_index, p_elem); }
     [[nodiscard]] _FORCE_INLINE_ int size() const { return _cowdata.size(); }
     Error resize(int p_size) { return _cowdata.resize(p_size); }
@@ -93,7 +102,6 @@ public:
     int find(const T &p_val, int p_from = 0) const { return _cowdata.find(p_val, p_from); }
 
     void append_array(const Vector<T> &p_other);
-
     template <class C>
     void sort_custom() {
 
@@ -162,10 +170,13 @@ bool Vector<T>::push_back(const T &p_elem) {
     return false;
 }
 
+#ifndef __MINGW32__
 extern template class EXPORT_TEMPLATE_DECLARE(GODOT_EXPORT) eastl::vector<class StringName,wrap_allocator>;
 extern template class EXPORT_TEMPLATE_DECLARE(GODOT_EXPORT) eastl::vector<uint8_t,wrap_allocator>;
 extern template class EXPORT_TEMPLATE_DECLARE(GODOT_EXPORT) eastl::vector<class Variant,wrap_allocator>;
-GODOT_TEMPLATE_EXT_DECLARE(Vector<String>)
-GODOT_TEMPLATE_EXT_DECLARE(Vector<struct Vector2>)
-GODOT_TEMPLATE_EXT_DECLARE(Vector<struct Vector3>)
+extern template class EXPORT_TEMPLATE_DECLARE(GODOT_EXPORT) eastl::vector<struct PropertyInfo,wrap_allocator>;
 
+extern template class EXPORT_TEMPLATE_DECLARE(GODOT_EXPORT) Vector<String>;
+extern template class EXPORT_TEMPLATE_DECLARE(GODOT_EXPORT) Vector<struct Vector2>;
+extern template class EXPORT_TEMPLATE_DECLARE(GODOT_EXPORT) Vector<struct Vector3>;
+#endif

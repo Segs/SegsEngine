@@ -31,8 +31,59 @@
 #include "quick_hull.h"
 
 #include "core/map.h"
+#include "core/set.h"
+#include "core/math/aabb.h"
 
 uint32_t QuickHull::debug_stop_after = 0xFFFFFFFF;
+namespace {
+struct QHEdge {
+
+    union {
+        uint32_t vertices[2];
+        uint64_t id;
+    };
+
+    bool operator<(const QHEdge &p_edge) const {
+        return id < p_edge.id;
+    }
+
+    QHEdge(uint32_t p_vtx_a = 0, uint32_t p_vtx_b = 0) {
+
+        if (p_vtx_a > p_vtx_b) {
+            SWAP(p_vtx_a, p_vtx_b);
+        }
+
+        vertices[0] = p_vtx_a;
+        vertices[1] = p_vtx_b;
+    }
+};
+
+struct QHFace {
+
+    Plane plane;
+    uint32_t vertices[3];
+    Vector<int> points_over;
+
+    bool operator<(const QHFace &p_face) const {
+
+        return points_over.size() < p_face.points_over.size();
+    }
+};
+struct QHFaceConnect {
+    List<QHFace>::Element *left, *right;
+    QHFaceConnect() {
+        left = nullptr;
+        right = nullptr;
+    }
+};
+struct QHRetFaceConnect {
+    List<Geometry::MeshData::Face>::Element *left, *right;
+    QHRetFaceConnect() {
+        left = nullptr;
+        right = nullptr;
+    }
+};
+} // end of anonymous namespace
 
 Error QuickHull::build(const Vector<Vector3> &p_points, Geometry::MeshData &r_mesh) {
 
@@ -149,7 +200,7 @@ Error QuickHull::build(const Vector<Vector3> &p_points, Geometry::MeshData &r_me
 
     //add faces
 
-    List<Face> faces;
+    List<QHFace> faces;
 
     for (int i = 0; i < 4; i++) {
 
@@ -160,7 +211,7 @@ Error QuickHull::build(const Vector<Vector3> &p_points, Geometry::MeshData &r_me
             { 1, 2, 3 }
         };
 
-        Face f;
+        QHFace f;
         for (int j = 0; j < 3; j++) {
             f.vertices[j] = simplex[face_order[i][j]];
         }
@@ -195,7 +246,7 @@ Error QuickHull::build(const Vector<Vector3> &p_points, Geometry::MeshData &r_me
         if (!valid_points[i])
             continue;
 
-        for (List<Face>::Element *E = faces.front(); E; E = E->next()) {
+        for (List<QHFace>::Element *E = faces.front(); E; E = E->next()) {
 
             if (E->deref().plane.distance_to(p_points[i]) > over_tolerance) {
 
@@ -218,10 +269,10 @@ Error QuickHull::build(const Vector<Vector3> &p_points, Geometry::MeshData &r_me
 
     uint32_t debug_stop = debug_stop_after;
 
-    while (debug_stop > 0 && faces.back()->deref().points_over.size()) {
+    while (debug_stop > 0 && !faces.back()->deref().points_over.empty()) {
 
         debug_stop--;
-        Face &f = faces.back()->deref();
+        QHFace &f = faces.back()->deref();
 
         //find vertex most outside
         int next = -1;
@@ -242,11 +293,11 @@ Error QuickHull::build(const Vector<Vector3> &p_points, Geometry::MeshData &r_me
         Vector3 v = p_points[f.points_over[next]];
 
         //find lit faces and lit edges
-        List<List<Face>::Element *> lit_faces; //lit face is a death sentence
+        List<List<QHFace>::Element *> lit_faces; //lit face is a death sentence
 
-        Map<Edge, FaceConnect> lit_edges; //create this on the flight, should not be that bad for performance and simplifies code a lot
+        Map<QHEdge, QHFaceConnect> lit_edges; //create this on the flight, should not be that bad for performance and simplifies code a lot
 
-        for (List<Face>::Element *E = faces.front(); E; E = E->next()) {
+        for (List<QHFace>::Element *E = faces.front(); E; E = E->next()) {
 
             if (E->deref().plane.distance_to(v) > 0) {
 
@@ -255,11 +306,11 @@ Error QuickHull::build(const Vector<Vector3> &p_points, Geometry::MeshData &r_me
                 for (int i = 0; i < 3; i++) {
                     uint32_t a = E->deref().vertices[i];
                     uint32_t b = E->deref().vertices[(i + 1) % 3];
-                    Edge e(a, b);
+                    QHEdge e(a, b);
 
-                    Map<Edge, FaceConnect>::iterator F = lit_edges.find(e);
+                    Map<QHEdge, QHFaceConnect>::iterator F = lit_edges.find(e);
                     if (F==lit_edges.end()) {
-                        F = lit_edges.emplace(e, FaceConnect()).first;
+                        F = lit_edges.emplace(e, QHFaceConnect()).first;
                     }
                     if (e.vertices[0] == a) {
                         //left
@@ -273,18 +324,18 @@ Error QuickHull::build(const Vector<Vector3> &p_points, Geometry::MeshData &r_me
         }
 
         //create new faces from horizon edges
-        List<List<Face>::Element *> new_faces; //new faces
+        List<List<QHFace>::Element *> new_faces; //new faces
 
-        for (eastl::pair<const Edge,FaceConnect> &E : lit_edges) {
+        for (eastl::pair<const QHEdge,QHFaceConnect> &E : lit_edges) {
 
-            FaceConnect &fc = E.second;
+            QHFaceConnect &fc = E.second;
             if (fc.left && fc.right) {
                 continue; //edge is uninteresting, not on horizont
             }
 
             //create new face!
 
-            Face face;
+            QHFace face;
             face.vertices[0] = f.points_over[next];
             face.vertices[1] = E.first.vertices[0];
             face.vertices[2] = E.first.vertices[1];
@@ -303,9 +354,9 @@ Error QuickHull::build(const Vector<Vector3> &p_points, Geometry::MeshData &r_me
 
         //distribute points into new faces
 
-        for (List<List<Face>::Element *>::Element *F = lit_faces.front(); F; F = F->next()) {
+        for (List<List<QHFace>::Element *>::Element *F = lit_faces.front(); F; F = F->next()) {
 
-            Face &lf = F->deref()->deref();
+            QHFace &lf = F->deref()->deref();
 
             for (int i = 0; i < lf.points_over.size(); i++) {
 
@@ -313,9 +364,9 @@ Error QuickHull::build(const Vector<Vector3> &p_points, Geometry::MeshData &r_me
                     continue;
 
                 Vector3 p = p_points[lf.points_over[i]];
-                for (List<List<Face>::Element *>::Element *E = new_faces.front(); E; E = E->next()) {
+                for (List<List<QHFace>::Element *>::Element *E = new_faces.front(); E; E = E->next()) {
 
-                    Face &f2 = E->deref()->deref();
+                    QHFace &f2 = E->deref()->deref();
                     if (f2.plane.distance_to(p) > over_tolerance) {
                         f2.points_over.push_back(lf.points_over[i]);
                         break;
@@ -326,7 +377,7 @@ Error QuickHull::build(const Vector<Vector3> &p_points, Geometry::MeshData &r_me
 
         //erase lit faces
 
-        while (lit_faces.size()) {
+        while (!lit_faces.empty()) {
 
             faces.erase(lit_faces.front()->deref());
             lit_faces.pop_front();
@@ -334,10 +385,10 @@ Error QuickHull::build(const Vector<Vector3> &p_points, Geometry::MeshData &r_me
 
         //put faces that contain no points on the front
 
-        for (List<List<Face>::Element *>::Element *E = new_faces.front(); E; E = E->next()) {
+        for (List<List<QHFace>::Element *>::Element *E = new_faces.front(); E; E = E->next()) {
 
-            Face &f2 = E->deref()->deref();
-            if (f2.points_over.size() == 0) {
+            QHFace &f2 = E->deref()->deref();
+            if (f2.points_over.empty()) {
                 faces.move_to_front(E->deref());
             }
         }
@@ -348,10 +399,10 @@ Error QuickHull::build(const Vector<Vector3> &p_points, Geometry::MeshData &r_me
     /* CREATE MESHDATA */
 
     //make a map of edges again
-    Map<Edge, RetFaceConnect> ret_edges;
+    Map<QHEdge, QHRetFaceConnect> ret_edges;
     List<Geometry::MeshData::Face> ret_faces;
 
-    for (List<Face>::Element *E = faces.front(); E; E = E->next()) {
+    for (List<QHFace>::Element *E = faces.front(); E; E = E->next()) {
 
         Geometry::MeshData::Face f;
         f.plane = E->deref().plane;
@@ -366,11 +417,11 @@ Error QuickHull::build(const Vector<Vector3> &p_points, Geometry::MeshData &r_me
 
             uint32_t a = E->deref().vertices[i];
             uint32_t b = E->deref().vertices[(i + 1) % 3];
-            Edge e(a, b);
+            QHEdge e(a, b);
 
-            Map<Edge, RetFaceConnect>::iterator G = ret_edges.find(e);
+            Map<QHEdge, QHRetFaceConnect>::iterator G = ret_edges.find(e);
             if (G==ret_edges.end()) {
-                G = ret_edges.emplace(e, RetFaceConnect()).first;
+                G = ret_edges.emplace(e, QHRetFaceConnect()).first;
             }
             if (e.vertices[0] == a) {
                 //left
@@ -392,16 +443,16 @@ Error QuickHull::build(const Vector<Vector3> &p_points, Geometry::MeshData &r_me
 
             int a = E->deref().indices[i];
             int b = E->deref().indices[(i + 1) % f.indices.size()];
-            Edge e(a, b);
+            QHEdge e(a, b);
 
-            Map<Edge, RetFaceConnect>::iterator F = ret_edges.find(e);
+            Map<QHEdge, QHRetFaceConnect>::iterator F = ret_edges.find(e);
 
-            ERR_CONTINUE(F==ret_edges.end());
+            ERR_CONTINUE(F==ret_edges.end())
             List<Geometry::MeshData::Face>::Element *O = F->second.left == E ? F->second.right : F->second.left;
-            ERR_CONTINUE(O == E);
-            ERR_CONTINUE(O == nullptr);
+            ERR_CONTINUE(O == E)
+            ERR_CONTINUE(O == nullptr)
 
-            if (O->deref().plane.is_almost_like(f.plane)) {
+            if (O->deref().plane.is_equal_approx(f.plane)) {
                 //merge and delete edge and contiguous face, while repointing edges (uuugh!)
                 int ois = O->deref().indices.size();
                 int merged = 0;
@@ -422,9 +473,9 @@ Error QuickHull::build(const Vector<Vector3> &p_points, Geometry::MeshData &r_me
                                 i++;
                                 merged++;
                             }
-                            Edge e2(idx, idxn);
+                            QHEdge e2(idx, idxn);
 
-                            Map<Edge, RetFaceConnect>::iterator F2 = ret_edges.find(e2);
+                            Map<QHEdge, QHRetFaceConnect>::iterator F2 = ret_edges.find(e2);
                             ERR_CONTINUE(F2==ret_edges.end())
                             //change faceconnect, point to this face instead
                             if (F2->second.left == O)
@@ -438,7 +489,7 @@ Error QuickHull::build(const Vector<Vector3> &p_points, Geometry::MeshData &r_me
                 }
 
                 // remove all edge connections to this face
-                for (eastl::pair<const Edge,RetFaceConnect> &G : ret_edges) {
+                for (eastl::pair<const QHEdge,QHRetFaceConnect> &G : ret_edges) {
                     if (G.second.left == O)
                         G.second.left = nullptr;
 
@@ -462,7 +513,7 @@ Error QuickHull::build(const Vector<Vector3> &p_points, Geometry::MeshData &r_me
     }
     r_mesh.edges.resize(ret_edges.size());
     idx = 0;
-    for (eastl::pair<const Edge,RetFaceConnect> &E : ret_edges) {
+    for (eastl::pair<const QHEdge,QHRetFaceConnect> &E : ret_edges) {
 
         Geometry::MeshData::Edge e;
         e.a = E.first.vertices[0];

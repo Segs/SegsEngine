@@ -39,11 +39,11 @@
 
 IMPL_GDCLASS(EditorDirDialog)
 
-void EditorDirDialog::_update_dir(TreeItem *p_item, EditorFileSystemDirectory *p_dir, const String &p_select_path) {
+void EditorDirDialog::_update_dir(TreeItem *p_item, EditorFileSystemDirectory *p_dir, se_string_view p_select_path) {
 
     updating = true;
 
-    String path = p_dir->get_path();
+    se_string path = p_dir->get_path();
 
     p_item->set_metadata(0, p_dir->get_path());
     p_item->set_icon(0, get_icon("Folder", "EditorIcons"));
@@ -52,11 +52,11 @@ void EditorDirDialog::_update_dir(TreeItem *p_item, EditorFileSystemDirectory *p
         p_item->set_text(0, "res://");
     } else {
 
-		if (!opened_paths.contains(path) && (p_select_path.empty() || !StringUtils::begins_with(p_select_path,path))) {
+        if (!opened_paths.contains(path) && (p_select_path.empty() || !StringUtils::begins_with(p_select_path,path))) {
             p_item->set_collapsed(true);
         }
 
-        p_item->set_text(0, p_dir->get_name());
+        p_item->set_text_utf8(0, p_dir->get_name());
     }
 
     //this should be handled by EditorFileSystem already
@@ -69,7 +69,7 @@ void EditorDirDialog::_update_dir(TreeItem *p_item, EditorFileSystemDirectory *p
     }
 }
 
-void EditorDirDialog::reload(const String &p_path) {
+void EditorDirDialog::reload(se_string_view p_path) {
 
     if (!is_visible_in_tree()) {
         must_reload = true;
@@ -90,7 +90,7 @@ void EditorDirDialog::_notification(int p_what) {
         reload();
 
         if (!tree->is_connected("item_collapsed", this, "_item_collapsed")) {
-            tree->connect("item_collapsed", this, "_item_collapsed", varray(), ObjectNS::CONNECT_DEFERRED);
+            tree->connect("item_collapsed", this, "_item_collapsed", varray(), ObjectNS::CONNECT_QUEUED);
         }
 
         if (!EditorFileSystem::get_singleton()->is_connected("filesystem_changed", this, "reload")) {
@@ -99,7 +99,9 @@ void EditorDirDialog::_notification(int p_what) {
     }
 
     if (p_what == NOTIFICATION_EXIT_TREE) {
-        EditorFileSystem::get_singleton()->disconnect("filesystem_changed", this, "reload");
+        if (EditorFileSystem::get_singleton()->is_connected("filesystem_changed", this, "reload")) {
+            EditorFileSystem::get_singleton()->disconnect("filesystem_changed", this, "reload");
+        }
     }
 
     if (p_what == NOTIFICATION_VISIBILITY_CHANGED) {
@@ -128,7 +130,7 @@ void EditorDirDialog::ok_pressed() {
     if (!ti)
         return;
 
-    String dir = ti->get_metadata(0);
+    se_string dir = ti->get_metadata(0);
     emit_signal("dir_selected", dir);
     hide();
 }
@@ -152,10 +154,10 @@ void EditorDirDialog::_make_dir_confirm() {
     if (!ti)
         return;
 
-    String dir = ti->get_metadata(0);
+    se_string dir = ti->get_metadata(0);
 
     DirAccessRef d = DirAccess::open(dir);
-	ERR_FAIL_COND_MSG(!d, "Cannot open directory '" + dir + "'.")
+    ERR_FAIL_COND_MSG(!d, "Cannot open directory '" + dir + "'.")
     Error err = d->make_dir(makedirname->get_text());
 
     if (err != OK) {
@@ -165,7 +167,7 @@ void EditorDirDialog::_make_dir_confirm() {
         //reload(PathUtils::plus_file(dir,makedirname->get_text()));
         EditorFileSystem::get_singleton()->scan_changes(); //we created a dir, so rescan changes
     }
-    makedirname->set_text(""); // reset label
+    makedirname->set_text_utf8(""); // reset label
 }
 
 void EditorDirDialog::_bind_methods() {

@@ -41,7 +41,7 @@ IMPL_GDCLASS(ItemList)
 VARIANT_ENUM_CAST(ItemList::SelectMode);
 VARIANT_ENUM_CAST(ItemList::IconMode);
 
-void ItemList::add_item(const String &p_item, const Ref<Texture> &p_texture, bool p_selectable) {
+void ItemList::add_item(const StringName &p_item, const Ref<Texture> &p_texture, bool p_selectable) {
 
     Item item;
     item.icon = p_texture;
@@ -79,43 +79,51 @@ void ItemList::add_icon_item(const Ref<Texture> &p_item, bool p_selectable) {
     shape_changed = true;
 }
 
-void ItemList::set_item_text(int p_idx, const String &p_text) {
+void ItemList::set_item_text(int p_idx, const StringName &p_text) {
 
-    ERR_FAIL_INDEX(p_idx, items.size());
+    ERR_FAIL_INDEX(p_idx, items.size())
 
     items.write[p_idx].text = p_text;
     update();
     shape_changed = true;
 }
 
-String ItemList::get_item_text(int p_idx) const {
+StringName ItemList::get_item_text(int p_idx) const {
 
-    ERR_FAIL_INDEX_V(p_idx, items.size(), String());
+    ERR_FAIL_INDEX_V(p_idx, items.size(), StringName())
     return items[p_idx].text;
 }
 
 void ItemList::set_item_tooltip_enabled(int p_idx, const bool p_enabled) {
-    ERR_FAIL_INDEX(p_idx, items.size());
+    ERR_FAIL_INDEX(p_idx, items.size())
     items.write[p_idx].tooltip_enabled = p_enabled;
 }
 
 bool ItemList::is_item_tooltip_enabled(int p_idx) const {
-    ERR_FAIL_INDEX_V(p_idx, items.size(), false);
+    ERR_FAIL_INDEX_V(p_idx, items.size(), false)
     return items[p_idx].tooltip_enabled;
 }
 
-void ItemList::set_item_tooltip(int p_idx, const String &p_tooltip) {
+void ItemList::set_item_tooltip_utf8(int p_idx, se_string_view p_tooltip) {
 
-    ERR_FAIL_INDEX(p_idx, items.size());
+    ERR_FAIL_INDEX(p_idx, items.size())
+
+    items.write[p_idx].tooltip = StringName(p_tooltip);
+    update();
+    shape_changed = true;
+}
+void ItemList::set_item_tooltip(int p_idx, StringName p_tooltip) {
+
+    ERR_FAIL_INDEX(p_idx, items.size())
 
     items.write[p_idx].tooltip = p_tooltip;
     update();
     shape_changed = true;
 }
 
-String ItemList::get_item_tooltip(int p_idx) const {
+StringName ItemList::get_item_tooltip(int p_idx) const {
 
-    ERR_FAIL_INDEX_V(p_idx, items.size(), String());
+    ERR_FAIL_INDEX_V(p_idx, items.size(), StringName());
     return items[p_idx].tooltip;
 }
 
@@ -420,6 +428,7 @@ void ItemList::set_max_columns(int p_amount) {
     ERR_FAIL_COND(p_amount < 0)
     max_columns = p_amount;
     update();
+    shape_changed = true;
 }
 int ItemList::get_max_columns() const {
 
@@ -603,7 +612,7 @@ void ItemList::_gui_input(const Ref<InputEvent> &p_event) {
     if (p_event->is_pressed() && !items.empty()) {
         if (p_event->is_action("ui_up")) {
 
-            if (!search_string.empty()) {
+            if (!search_string.isEmpty()) {
 
                 uint64_t now = OS::get_singleton()->get_ticks_msec();
                 uint64_t diff = now - search_time_msec;
@@ -612,7 +621,7 @@ void ItemList::_gui_input(const Ref<InputEvent> &p_event) {
 
                     for (int i = current - 1; i >= 0; i--) {
 
-                        if (StringUtils::begins_with(items[i].text,search_string)) {
+                        if (StringUtils::begins_with(items[i].text.asString(),search_string)) {
 
                             set_current(i);
                             ensure_current_is_visible();
@@ -638,7 +647,7 @@ void ItemList::_gui_input(const Ref<InputEvent> &p_event) {
             }
         } else if (p_event->is_action("ui_down")) {
 
-            if (!search_string.empty()) {
+            if (!search_string.isEmpty()) {
 
                 uint64_t now = OS::get_singleton()->get_ticks_msec();
                 uint64_t diff = now - search_time_msec;
@@ -647,7 +656,7 @@ void ItemList::_gui_input(const Ref<InputEvent> &p_event) {
 
                     for (int i = current + 1; i < items.size(); i++) {
 
-                        if (StringUtils::begins_with(items[i].text,search_string)) {
+                        if (StringUtils::begins_with(items[i].text.asString(),search_string)) {
 
                             set_current(i);
                             ensure_current_is_visible();
@@ -773,7 +782,7 @@ void ItemList::_gui_input(const Ref<InputEvent> &p_event) {
                     if (i == current)
                         break;
 
-                    if (StringUtils::findn(items[i].text,search_string) == 0) {
+                    if (StringUtils::findn(items[i].text.asString(),search_string) == 0) {
                         set_current(i);
                         ensure_current_is_visible();
                         if (select_mode == SELECT_SINGLE) {
@@ -899,7 +908,7 @@ void ItemList::_notification(int p_what) {
 
                 if (!items[i].text.empty()) {
 
-                    Size2 s = font->get_string_size(items[i].text);
+                    Size2 s = font->get_string_size_utf8(items[i].text);
                     //s.width=MIN(s.width,fixed_column_width);
 
                     if (icon_mode == ICON_MODE_TOP) {
@@ -977,7 +986,7 @@ void ItemList::_notification(int p_what) {
                 }
 
                 if (all_fit) {
-                    float page = size.height - bg->get_minimum_size().height;
+                    float page = MAX(0, size.height - bg->get_minimum_size().height);
                     float max = MAX(page, ofs.y + max_h);
                     if (auto_height)
                         auto_height_value = ofs.y + max_h + bg->get_minimum_size().height;
@@ -1119,7 +1128,7 @@ void ItemList::_notification(int p_what) {
 
                 Color modulate = items[i].icon_modulate;
                 if (items[i].disabled)
-                    modulate.a *= 0.5;
+                    modulate.a *= 0.5f;
 
                 // If the icon is transposed, we have to switch the size so that it is drawn correctly
                 if (items[i].icon_transposed) {
@@ -1141,7 +1150,7 @@ void ItemList::_notification(int p_what) {
 
                 int max_len = -1;
 
-                Vector2 size2 = font->get_string_size(items[i].text);
+                Vector2 size2 = font->get_string_size_utf8(items[i].text);
                 if (fixed_column_width)
                     max_len = fixed_column_width;
                 else if (same_column_width)
@@ -1151,16 +1160,16 @@ void ItemList::_notification(int p_what) {
 
                 Color modulate = items[i].selected ? font_color_selected : (items[i].custom_fg != Color() ? items[i].custom_fg : font_color);
                 if (items[i].disabled)
-                    modulate.a *= 0.5;
+                    modulate.a *= 0.5f;
 
+                String item_text(items[i].text.asString());
                 if (icon_mode == ICON_MODE_TOP && max_text_lines > 0) {
-
-                    int ss = items[i].text.length();
+                    int ss = item_text.length();
                     float ofs = 0;
                     int line = 0;
                     for (int j = 0; j <= ss; j++) {
 
-                        int cs = j < ss ? font->get_char_size(items[i].text[j], items[i].text[j + 1]).x : 0;
+                        int cs = j < ss ? font->get_char_size(item_text[j], item_text[j + 1]).x : 0;
                         if (ofs + cs > max_len || j == ss) {
                             line_limit_cache.write[line] = j;
                             line_size_cache.write[line] = ofs;
@@ -1190,7 +1199,7 @@ void ItemList::_notification(int p_what) {
                             if (line >= max_text_lines)
                                 break;
                         }
-                        ofs += drawer.draw_char(get_canvas_item(), text_ofs + Vector2(ofs + (max_len - line_size_cache[line]) / 2, line * (font_height + line_separation)).floor(), items[i].text[j], items[i].text[j + 1], modulate);
+                        ofs += drawer.draw_char(get_canvas_item(), text_ofs + Vector2(ofs + (max_len - line_size_cache[line]) / 2, line * (font_height + line_separation)).floor(), item_text[j], item_text[j + 1], modulate);
                     }
 
                     //special multiline mode
@@ -1210,7 +1219,7 @@ void ItemList::_notification(int p_what) {
                     text_ofs += base_ofs;
                     text_ofs += items[i].rect_cache.position;
 
-                    draw_string(font, text_ofs, items[i].text, modulate, max_len + 1);
+                    draw_string(font, text_ofs, item_text, modulate, max_len + 1);
                 }
             }
 
@@ -1302,13 +1311,13 @@ bool ItemList::is_pos_at_end_of_items(const Point2 &p_pos) const {
     return (pos.y > endrect.position.y + endrect.size.y);
 }
 
-String ItemList::get_tooltip(const Point2 &p_pos) const {
+StringName ItemList::get_tooltip(const Point2 &p_pos) const {
 
     int closest = get_item_at_position(p_pos, true);
 
     if (closest != -1) {
         if (!items[closest].tooltip_enabled) {
-            return "";
+            return StringName();
         }
         if (!items[closest].tooltip.empty()) {
             return items[closest].tooltip;
@@ -1405,7 +1414,7 @@ void ItemList::_set_items(const Array &p_items) {
 
     for (int i = 0; i < p_items.size(); i += 3) {
 
-        String text = p_items[i + 0];
+        StringName text = p_items[i + 0];
         Ref<Texture> icon = refFromRefPtr<Texture>(p_items[i + 1]);
         bool disabled = p_items[i + 2];
 

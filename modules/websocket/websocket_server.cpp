@@ -45,7 +45,7 @@ WebSocketServer::~WebSocketServer() {
 void WebSocketServer::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("is_listening"), &WebSocketServer::is_listening);
-    MethodBinder::bind_method(D_METHOD("listen", {"port", "protocols", "gd_mp_api"}), &WebSocketServer::listen, {DEFVAL(PoolVector<String>()), DEFVAL(false)});
+    MethodBinder::bind_method(D_METHOD("listen", {"port", "protocols", "gd_mp_api"}), &WebSocketServer::listen, {DEFVAL(PoolVector<se_string>()), DEFVAL(false)});
     MethodBinder::bind_method(D_METHOD("stop"), &WebSocketServer::stop);
     MethodBinder::bind_method(D_METHOD("has_peer", {"id"}), &WebSocketServer::has_peer);
     MethodBinder::bind_method(D_METHOD("get_peer_address", {"id"}), &WebSocketServer::get_peer_address);
@@ -116,7 +116,7 @@ void WebSocketServer::_on_peer_packet(int32_t p_peer_id) {
     }
 }
 
-void WebSocketServer::_on_connect(int32_t p_peer_id, String p_protocol) {
+void WebSocketServer::_on_connect(int32_t p_peer_id, se_string_view p_protocol) {
 
     if (_is_multiplayer) {
         // Send add to clients
@@ -138,7 +138,7 @@ void WebSocketServer::_on_disconnect(int32_t p_peer_id, bool p_was_clean) {
     }
 }
 
-void WebSocketServer::_on_close_request(int32_t p_peer_id, int p_code, String p_reason) {
+void WebSocketServer::_on_close_request(int32_t p_peer_id, int p_code, se_string_view p_reason) {
 
     emit_signal("client_close_request", p_peer_id, p_code, p_reason);
 }

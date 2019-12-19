@@ -34,8 +34,31 @@
 #include "core/class_db.h"
 #include "core/sort_array.h"
 #include "core/property_info.h"
+#include "core/list.h"
 
 IMPL_GDCLASS(TriangleMesh)
+
+struct BVHCmpX {
+
+    bool operator()(const TriangleMesh::BVH *p_left, const TriangleMesh::BVH *p_right) const {
+        return p_left->center.x < p_right->center.x;
+    }
+};
+
+struct BVHCmpY {
+
+    bool operator()(const TriangleMesh::BVH *p_left, const TriangleMesh::BVH *p_right) const {
+
+        return p_left->center.y < p_right->center.y;
+    }
+};
+struct BVHCmpZ {
+
+    bool operator()(const TriangleMesh::BVH *p_left, const TriangleMesh::BVH *p_right) const {
+
+        return p_left->center.z < p_right->center.z;
+    }
+};
 
 int TriangleMesh::_create_bvh(BVH *p_bvh, BVH **p_bb, int p_from, int p_size, int p_depth, int &max_depth, int &max_alloc) {
 
@@ -46,13 +69,13 @@ int TriangleMesh::_create_bvh(BVH *p_bvh, BVH **p_bb, int p_from, int p_size, in
     if (p_size == 1) {
 
         return p_bb[p_from] - p_bvh;
-    } else if (p_size == 0) {
+    }
+    if (p_size == 0) {
 
         return -1;
     }
 
-    AABB aabb;
-    aabb = p_bb[p_from]->aabb;
+    AABB aabb(p_bb[p_from]->aabb);
     for (int i = 1; i < p_size; i++) {
 
         aabb.merge_with(p_bb[p_from + i]->aabb);
@@ -65,17 +88,14 @@ int TriangleMesh::_create_bvh(BVH *p_bvh, BVH **p_bb, int p_from, int p_size, in
         case Vector3::AXIS_X: {
             SortArray<BVH *, BVHCmpX> sort_x;
             sort_x.nth_element(0, p_size, p_size / 2, &p_bb[p_from]);
-            //sort_x.sort(&p_bb[p_from],p_size);
         } break;
         case Vector3::AXIS_Y: {
             SortArray<BVH *, BVHCmpY> sort_y;
             sort_y.nth_element(0, p_size, p_size / 2, &p_bb[p_from]);
-            //sort_y.sort(&p_bb[p_from],p_size);
         } break;
         case Vector3::AXIS_Z: {
             SortArray<BVH *, BVHCmpZ> sort_z;
             sort_z.nth_element(0, p_size, p_size / 2, &p_bb[p_from]);
-            //sort_z.sort(&p_bb[p_from],p_size);
 
         } break;
     }
@@ -143,7 +163,7 @@ void TriangleMesh::create(const PoolVector<Vector3> &p_faces) {
 
             for (int j = 0; j < 3; j++) {
 
-                int vidx = -1;
+                int vidx;
                 Vector3 vs = v[j].snapped(Vector3(0.0001f, 0.0001f, 0.0001f));
                 Map<Vector3, int>::iterator E = db.find(vs);
                 if (E!=db.end()) {
@@ -165,7 +185,7 @@ void TriangleMesh::create(const PoolVector<Vector3> &p_faces) {
             bw[i].left = -1;
             bw[i].right = -1;
             bw[i].face_index = i;
-            bw[i].center = bw[i].aabb.position + bw[i].aabb.size * 0.5;
+            bw[i].center = bw[i].aabb.position + bw[i].aabb.size * 0.5f;
         }
 
         vertices.resize(db.size());
@@ -419,7 +439,7 @@ bool TriangleMesh::intersect_ray(const Vector3 &p_begin, const Vector3 &p_dir, V
     };
 
     Vector3 n = p_dir;
-    real_t d = 1e20;
+    real_t d = 1e20f;
     bool inters = false;
 
     int level = 0;
@@ -553,8 +573,8 @@ bool TriangleMesh::intersect_convex_shape(const Plane *p_planes, int p_plane_cou
         switch (stack[level] >> VISITED_BIT_SHIFT) {
             case TEST_AABB_BIT: {
 
-                bool valid = b.aabb.intersects_convex_shape(p_planes, p_plane_count);
-                if (!valid) {
+                bool valid_intersect = b.aabb.intersects_convex_shape(p_planes, p_plane_count);
+                if (!valid_intersect) {
 
                     stack[level] = (VISIT_DONE_BIT << VISITED_BIT_SHIFT) | node;
 

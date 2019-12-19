@@ -47,14 +47,14 @@ void WorldEnvironment::_notification(int p_what) {
                 WARN_PRINT("World already has an environment (Another WorldEnvironment?), overriding.");
             }
             get_viewport()->find_world()->set_environment(environment);
-            add_to_group("_world_environment_" + itos(get_viewport()->find_world()->get_scenario().get_id()));
+            add_to_group(StringName("_world_environment_" + itos(get_viewport()->find_world()->get_scenario().get_id())));
         }
 
     } else if (p_what == Spatial::NOTIFICATION_EXIT_WORLD || p_what == Spatial::NOTIFICATION_EXIT_TREE) {
 
         if (environment && get_viewport()->find_world()->get_environment() == environment) {
             get_viewport()->find_world()->set_environment(Ref<Environment>());
-            remove_from_group("_world_environment_" + itos(get_viewport()->find_world()->get_scenario().get_id()));
+            remove_from_group(StringName("_world_environment_" + itos(get_viewport()->find_world()->get_scenario().get_id())));
         }
     }
 }
@@ -63,7 +63,7 @@ void WorldEnvironment::set_environment(const Ref<Environment> &p_environment) {
 
     if (is_inside_tree() && environment && get_viewport()->find_world()->get_environment() == environment) {
         get_viewport()->find_world()->set_environment(Ref<Environment>());
-        remove_from_group("_world_environment_" + itos(get_viewport()->find_world()->get_scenario().get_id()));
+        remove_from_group(StringName("_world_environment_" + itos(get_viewport()->find_world()->get_scenario().get_id())));
         //clean up
     }
 
@@ -73,7 +73,7 @@ void WorldEnvironment::set_environment(const Ref<Environment> &p_environment) {
             WARN_PRINT("World already has an environment (Another WorldEnvironment?), overriding.");
         }
         get_viewport()->find_world()->set_environment(environment);
-        add_to_group("_world_environment_" + itos(get_viewport()->find_world()->get_scenario().get_id()));
+        add_to_group(StringName("_world_environment_" + itos(get_viewport()->find_world()->get_scenario().get_id())));
     }
 
     update_configuration_warning();
@@ -84,17 +84,17 @@ Ref<Environment> WorldEnvironment::get_environment() const {
     return environment;
 }
 
-String WorldEnvironment::get_configuration_warning() const {
+StringName WorldEnvironment::get_configuration_warning() const {
 
     if (not environment) {
         return TTR("WorldEnvironment requires its \"Environment\" property to contain an Environment to have a visible effect.");
     }
 
     if (/*!is_visible_in_tree() ||*/ !is_inside_tree())
-        return String();
+        return StringName();
 
-    List<Node *> nodes;
-    get_tree()->get_nodes_in_group("_world_environment_" + itos(get_viewport()->find_world()->get_scenario().get_id()), &nodes);
+    Deque<Node *> nodes;
+    get_tree()->get_nodes_in_group(StringName("_world_environment_" + itos(get_viewport()->find_world()->get_scenario().get_id())), &nodes);
 
     if (nodes.size() > 1) {
         return TTR("Only one WorldEnvironment is allowed per scene (or set of instanced scenes).");
@@ -105,7 +105,7 @@ String WorldEnvironment::get_configuration_warning() const {
     //	return TTR("This WorldEnvironment is ignored. Either add a Camera (for 3D scenes) or set this environment's Background Mode to Canvas (for 2D scenes).");
     //}
 
-    return String();
+    return StringName();
 }
 
 void WorldEnvironment::_bind_methods() {

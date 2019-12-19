@@ -87,7 +87,7 @@ String cwd() {
 	if (::GetCurrentDirectoryW(expected_size, buffer.ptrw()) == 0)
 		return ".";
 
-        return PathUtils::simplify_path(buffer);
+	return buffer.simplify_path();
 #else
 	char buffer[PATH_MAX];
 	if (::getcwd(buffer, sizeof(buffer)) == NULL)
@@ -97,15 +97,15 @@ String cwd() {
 	if (result.parse_utf8(buffer))
 		return ".";
 
-        return PathUtils::simplify_path(result);
+	return result.simplify_path();
 #endif
 }
 
 String abspath(const String &p_path) {
-        if (PathUtils::is_abs_path(p_path)) {
-                return PathUtils::simplify_path(p_path);
+	if (p_path.is_abs_path()) {
+		return p_path.simplify_path();
 	} else {
-                return PathUtils::simplify_path(path::join(path::cwd(), p_path));
+		return path::join(path::cwd(), p_path).simplify_path();
 	}
 }
 
@@ -131,9 +131,9 @@ String realpath(const String &p_path) {
 	::GetFinalPathNameByHandleW(hFile, buffer.ptrw(), expected_size, FILE_NAME_NORMALIZED);
 
 	::CloseHandle(hFile);
-        return PathUtils::simplify_path(buffer);
+	return buffer.simplify_path();
 #elif UNIX_ENABLED
-	char *resolved_path = ::realpath(StringUtils::to_utf8(p_path).get_data(), NULL);
+	char *resolved_path = ::realpath(p_path.utf8().get_data(), NULL);
 
 	if (!resolved_path)
 		return p_path;
@@ -145,7 +145,7 @@ String realpath(const String &p_path) {
 	if (parse_ok)
 		return p_path;
 
-        return PathUtils::simplify_path(result);
+	return result.simplify_path();
 #endif
 }
 

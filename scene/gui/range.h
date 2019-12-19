@@ -44,7 +44,7 @@ class Range : public Control {
         bool allow_lesser;
         Set<Range *> owners;
         void emit_value_changed();
-        void emit_changed(const char *p_what = "");
+        void emit_changed(StringName p_what = "");
     };
 
     Shared *shared;
@@ -55,7 +55,7 @@ class Range : public Control {
     void _share(Node *p_range);
 
     void _value_changed_notify();
-    void _changed_notify(const char *p_what = "");
+    void _changed_notify(StringName p_what = "");
 
 protected:
     virtual void _value_changed(double) {}
@@ -65,14 +65,14 @@ protected:
     bool _rounded_values;
 
 public:
-    void set_value(double p_val);
-    void set_min(double p_min);
-    void set_max(double p_max);
-    void set_step(double p_step);
+    void set_value(real_t p_val);
+    void set_min(real_t p_min);
+    void set_max(real_t p_max);
+    void set_step(real_t p_step);
     void set_page(double p_page);
     void set_as_ratio(double p_value);
 
-    double get_value() const;
+    real_t get_value() const;
     double get_min() const;
     double get_max() const;
     double get_step() const;
@@ -94,7 +94,7 @@ public:
     void share(Range *p_range);
     void unshare();
 
-    String get_configuration_warning() const override;
+    StringName get_configuration_warning() const override;
 
     Range();
     ~Range() override;

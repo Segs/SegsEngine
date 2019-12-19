@@ -240,7 +240,7 @@ public:
 
     Rect2 get_item_rect() const override;
 
-    String get_configuration_warning() const override;
+    StringName get_configuration_warning() const override;
     AnimatedSprite3D();
 };
 

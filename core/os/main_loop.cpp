@@ -67,8 +67,12 @@ void MainLoop::_bind_methods() {
     BIND_CONSTANT(NOTIFICATION_WM_ABOUT)
     BIND_CONSTANT(NOTIFICATION_CRASH)
     BIND_CONSTANT(NOTIFICATION_OS_IME_UPDATE)
-	BIND_CONSTANT(NOTIFICATION_APP_RESUMED)
-	BIND_CONSTANT(NOTIFICATION_APP_PAUSED)
+    BIND_CONSTANT(NOTIFICATION_APP_RESUMED)
+    BIND_CONSTANT(NOTIFICATION_APP_PAUSED)
+
+    ADD_SIGNAL(MethodInfo("on_request_permissions_result", PropertyInfo(VariantType::STRING, "permission"),
+            PropertyInfo(VariantType::BOOL, "granted")));
+
 };
 
 void MainLoop::set_init_script(const Ref<Script> &p_init_script) {
@@ -83,7 +87,7 @@ MainLoop::~MainLoop()
 
 }
 
-void MainLoop::input_text(const String &p_text) {
+void MainLoop::input_text(se_string_view p_text) {
 
     if (get_script_instance())
         get_script_instance()->call("_input_text", p_text);
@@ -118,10 +122,10 @@ bool MainLoop::idle(float p_time) {
     return false;
 }
 
-void MainLoop::drop_files(const Vector<String> &p_files, int p_from_screen) {
+void MainLoop::drop_files(const Vector<se_string> &p_files, int p_from_screen) {
 
     if (get_script_instance())
-        get_script_instance()->call("_drop_files", p_files, p_from_screen);
+        get_script_instance()->call("_drop_files", Variant(p_files), p_from_screen);
 }
 
 void MainLoop::global_menu_action(const Variant &p_id, const Variant &p_meta) {

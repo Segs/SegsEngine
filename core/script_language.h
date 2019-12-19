@@ -37,14 +37,14 @@
 #include "core/pair.h"
 #include "core/resource.h"
 #include "core/variant.h"
-#include "core/ustring.h"
+#include "core/se_string.h"
 #include "core/property_info.h"
 
 class ScriptLanguage;
 class MultiplayerAPI;
 enum MultiplayerAPI_RPCMode : int8_t;
 
-using ScriptEditRequestFunction = void (*)(const String &);
+using ScriptEditRequestFunction = void (*)(se_string_view);
 
 class GODOT_EXPORT ScriptServer {
     enum {
@@ -60,7 +60,7 @@ class GODOT_EXPORT ScriptServer {
 
     struct GlobalScriptClass {
         StringName language;
-        String path;
+        se_string path;
         StringName base;
     };
 
@@ -83,13 +83,13 @@ public:
     static void thread_exit();
 
     static void global_classes_clear();
-    static void add_global_class(const StringName &p_class, const StringName &p_base, const StringName &p_language, const String &p_path);
+    static void add_global_class(const StringName &p_class, const StringName &p_base, const StringName &p_language, se_string_view p_path);
     static void remove_global_class(const StringName &p_class);
     static bool is_global_class(const StringName &p_class);
     static StringName get_global_class_language(const StringName &p_class);
-    static String get_global_class_path(const String &p_class);
-    static StringName get_global_class_base(const String &p_class);
-    static StringName get_global_class_native_base(const String &p_class);
+    static se_string_view get_global_class_path(const StringName &p_class);
+    static StringName get_global_class_base(se_string_view p_class);
+    static StringName get_global_class_native_base(const StringName &p_class);
     static void get_global_class_list(Vector<StringName> *r_global_classes);
     static void save_global_classes();
 
@@ -132,8 +132,8 @@ public:
     virtual bool instance_has(const Object *p_this) const = 0;
 
     virtual bool has_source_code() const = 0;
-    virtual String get_source_code() const = 0;
-    virtual void set_source_code(const String &p_code) = 0;
+    virtual se_string_view get_source_code() const = 0;
+    virtual void set_source_code(se_string p_code) = 0;
     virtual Error reload(bool p_keep_state = false) = 0;
 
     virtual bool has_method(const StringName &p_method) const = 0;
@@ -181,10 +181,10 @@ public:
     virtual void call_multilevel(const StringName &p_method, const Variant **p_args, int p_argcount);
     virtual void call_multilevel_reversed(const StringName &p_method, const Variant **p_args, int p_argcount);
     virtual void notification(int p_notification) = 0;
-    virtual String to_string(bool *r_valid) {
+    virtual se_string to_string(bool *r_valid) {
         if (r_valid)
             *r_valid = false;
-        return String();
+        return se_string();
     }
 
     //this is used by script languages that keep a reference counter of their own
@@ -222,15 +222,15 @@ struct ScriptCodeCompletionOption {
         KIND_PLAIN_TEXT,
     };
     Kind kind;
-    String display;
-    String insert_text;
+    se_string display;
+    se_string insert_text;
     RES icon;
 
     ScriptCodeCompletionOption() {
         kind = KIND_PLAIN_TEXT;
     }
 
-    ScriptCodeCompletionOption(const String &p_text, Kind p_kind) {
+    ScriptCodeCompletionOption(se_string_view p_text, Kind p_kind) {
         display = p_text;
         insert_text = p_text;
         kind = p_kind;
@@ -242,7 +242,7 @@ class ScriptCodeCompletionCache {
     static ScriptCodeCompletionCache *singleton;
 
 public:
-    virtual RES get_cached_resource(const String &p_path) = 0;
+    virtual RES get_cached_resource(se_string_view p_path) = 0;
 
     static ScriptCodeCompletionCache *get_singleton() { return singleton; }
 
@@ -253,42 +253,44 @@ public:
 
 class ScriptLanguage {
 public:
-    virtual String get_name() const = 0;
+    virtual StringName get_name() const = 0;
 
     /* LANGUAGE FUNCTIONS */
     virtual void init() = 0;
-    virtual String get_type() const = 0;
-    virtual String get_extension() const = 0;
-    virtual Error execute_file(const String &p_path) = 0;
+    virtual se_string get_type() const = 0;
+    virtual se_string get_extension() const = 0;
+    virtual Error execute_file(se_string_view p_path) = 0;
     virtual void finish() = 0;
 
     /* EDITOR FUNCTIONS */
     struct Warning {
         int line;
         int code;
-        String string_code;
-        String message;
+        se_string string_code;
+        se_string message;
     };
 
-    virtual void get_reserved_words(DefList<String> *p_words) const = 0;
-    virtual void get_comment_delimiters(DefList<String> *p_delimiters) const = 0;
-    virtual void get_string_delimiters(DefList<String> *p_delimiters) const = 0;
-    virtual Ref<Script> get_template(const String &p_class_name, const String &p_base_class_name) const = 0;
-    virtual void make_template(const String & /*p_class_name*/, const String & /*p_base_class_name*/, Ref<Script> & /*p_script*/) {}
+    virtual void get_reserved_words(DefList<se_string> *p_words) const = 0;
+    virtual void get_comment_delimiters(DefList<se_string> *p_delimiters) const = 0;
+    virtual void get_string_delimiters(DefList<se_string> *p_delimiters) const = 0;
+    virtual Ref<Script> get_template(se_string_view p_class_name, se_string_view p_base_class_name) const = 0;
+    virtual void make_template(se_string_view /*p_class_name*/, se_string_view /*p_base_class_name*/, Ref<Script> & /*p_script*/) {}
     virtual bool is_using_templates() { return false; }
-    virtual bool validate(const String &p_script, int &r_line_error, int &r_col_error, String &r_test_error, const String &p_path = String::null_val, DefList<String> *r_functions = nullptr, DefList<Warning> *r_warnings = nullptr, Set<int> *r_safe_lines = nullptr) const = 0;
-    virtual String validate_path(const String & /*p_path*/) const { return String::null_val; }
+    virtual bool validate(se_string_view p_script, int &r_line_error, int &r_col_error, se_string &r_test_error,
+            se_string_view p_path = {}, DefList<se_string> *r_functions = nullptr,
+            DefList<Warning> *r_warnings = nullptr, Set<int> *r_safe_lines = nullptr) const = 0;
+    virtual se_string validate_path(se_string_view /*p_path*/) const { return se_string(); }
     virtual Script *create_script() const = 0;
     virtual bool has_named_classes() const = 0;
     virtual bool supports_builtin_mode() const = 0;
     virtual bool can_inherit_from_file() { return false; }
-    virtual int find_function(const String &p_function, const String &p_code) const = 0;
-    virtual String make_function(const String &p_class, const String &p_name, const PoolStringArray &p_args) const = 0;
+    virtual int find_function(se_string_view p_function, se_string_view p_code) const = 0;
+    virtual se_string make_function(const se_string &p_class, const StringName &p_name, const PoolVector<se_string> &p_args) const = 0;
     virtual Error open_in_external_editor(const Ref<Script> & /*p_script*/, int /*p_line*/, int /*p_col*/) { return ERR_UNAVAILABLE; }
     virtual bool overrides_external_editor() { return false; }
 
-    virtual Error complete_code(const String &/*p_code*/, const String &/*p_path*/, Object * /*p_owner*/,
-            DefList<ScriptCodeCompletionOption> * /*r_options*/, bool &/*r_force*/, String &/*r_call_hint*/) {
+    virtual Error complete_code(const se_string &/*p_code*/, se_string_view /*p_path*/, Object * /*p_owner*/,
+            DefList<ScriptCodeCompletionOption> * /*r_options*/, bool &/*r_force*/, se_string &/*r_call_hint*/) {
         return ERR_UNAVAILABLE;
     }
 
@@ -304,17 +306,17 @@ public:
         };
         Type type;
         Ref<Script> script;
-        String class_name;
-        String class_member;
+        se_string class_name;
+        se_string class_member;
         int location;
     };
 
-    virtual Error lookup_code(const String & /*p_code*/, const String & /*p_symbol*/, const String & /*p_path*/,
+    virtual Error lookup_code(se_string_view /*p_code*/, se_string_view /*p_symbol*/, se_string_view /*p_path*/,
             Object * /*p_owner*/, LookupResult & /*r_result*/) {
         return ERR_UNAVAILABLE;
     }
 
-    virtual void auto_indent_code(String &p_code, int p_from_line, int p_to_line) const = 0;
+    virtual void auto_indent_code(se_string &p_code, int p_from_line, int p_to_line) const = 0;
     virtual void add_global_constant(const StringName &p_variable, const Variant &p_value) = 0;
     virtual void add_named_global_constant(const StringName &/*p_name*/, const Variant &/*p_value*/) {}
     virtual void remove_named_global_constant(const StringName &/*p_name*/) {}
@@ -327,20 +329,20 @@ public:
 
     /* DEBUGGER FUNCTIONS */
 
-    virtual String debug_get_error() const = 0;
+    virtual const se_string &debug_get_error() const = 0;
     virtual int debug_get_stack_level_count() const = 0;
     virtual int debug_get_stack_level_line(int p_level) const = 0;
-    virtual String debug_get_stack_level_function(int p_level) const = 0;
-    virtual String debug_get_stack_level_source(int p_level) const = 0;
-    virtual void debug_get_stack_level_locals(int p_level, DefList<String> *p_locals, DefList<Variant> *p_values, int p_max_subitems = -1, int p_max_depth = -1) = 0;
-    virtual void debug_get_stack_level_members(int p_level, DefList<String> *p_members, DefList<Variant> *p_values, int p_max_subitems = -1, int p_max_depth = -1) = 0;
+    virtual se_string debug_get_stack_level_function(int p_level) const = 0;
+    virtual se_string debug_get_stack_level_source(int p_level) const = 0;
+    virtual void debug_get_stack_level_locals(int p_level, ListPOD<se_string> *p_locals, DefList<Variant> *p_values, int p_max_subitems = -1, int p_max_depth = -1) = 0;
+    virtual void debug_get_stack_level_members(int p_level, ListPOD<se_string> *p_members, DefList<Variant> *p_values, int p_max_subitems = -1, int p_max_depth = -1) = 0;
     virtual ScriptInstance *debug_get_stack_level_instance(int /*p_level*/) { return nullptr; }
-    virtual void debug_get_globals(DefList<String> *p_globals, DefList<Variant> *p_values, int p_max_subitems = -1, int p_max_depth = -1) = 0;
-    virtual String debug_parse_stack_level_expression(int p_level, const String &p_expression, int p_max_subitems = -1, int p_max_depth = -1) = 0;
+    virtual void debug_get_globals(ListPOD<se_string> *p_globals, DefList<Variant> *p_values, int p_max_subitems = -1, int p_max_depth = -1) = 0;
+    virtual se_string debug_parse_stack_level_expression(int p_level, se_string_view p_expression, int p_max_subitems = -1, int p_max_depth = -1) = 0;
 
     struct StackInfo {
-        String file;
-        String func;
+        se_string file;
+        se_string func;
         int line;
     };
 
@@ -350,9 +352,9 @@ public:
     virtual void reload_tool_script(const Ref<Script> &p_script, bool p_soft_reload) = 0;
     /* LOADER FUNCTIONS */
 
-    virtual void get_recognized_extensions(DefList<String> *p_extensions) const = 0;
+    virtual void get_recognized_extensions(DefList<se_string> *p_extensions) const = 0;
     virtual void get_public_functions(DefList<MethodInfo> *p_functions) const = 0;
-    virtual void get_public_constants(DefList<Pair<String, Variant> > *p_constants) const = 0;
+    virtual void get_public_constants(DefList<Pair<se_string_view, Variant> > *p_constants) const = 0;
 
     struct ProfilingInfo {
         StringName signature;
@@ -374,8 +376,8 @@ public:
 
     virtual void frame();
 
-    virtual bool handles_global_class_type(const String & /*p_type*/) const { return false; }
-    virtual String get_global_class_name(const String & /*p_path*/, String * /*r_base_type*/ = nullptr, String * /*r_icon_path*/ = nullptr) const { return String(); }
+    virtual bool handles_global_class_type(se_string_view  /*p_type*/) const { return false; }
+    virtual StringName get_global_class_name(se_string_view /*p_path*/, se_string * /*r_base_type*/ = nullptr, se_string * /*r_icon_path*/ = nullptr) const { return StringName(); }
 
     virtual ~ScriptLanguage() = default;
 };
@@ -385,7 +387,7 @@ extern uint8_t script_encryption_key[32];
 class PlaceHolderScriptInstance : public ScriptInstance {
 
     Object *owner;
-    ListPOD<PropertyInfo> properties;
+    PODVector<PropertyInfo> properties;
     Map<StringName, Variant> values;
     Map<StringName, Variant> constants;
     ScriptLanguage *language;
@@ -416,7 +418,7 @@ public:
 
     Object *get_owner() override { return owner; }
 
-    void update(const ListPOD<PropertyInfo> &p_properties, const Map<StringName, Variant> &p_values); //likely changed in editor
+    void update(const PODVector<PropertyInfo> &p_properties, const Map<StringName, Variant> &p_values); //likely changed in editor
 
     bool is_placeholder() const override { return true; }
 
@@ -445,30 +447,6 @@ class ScriptDebugger {
     ScriptLanguage *break_lang;
 
 public:
-    using RequestSceneTreeMessageFunc = void (*)(void *);
-
-    struct LiveEditFuncs {
-
-        void *udata;
-        void (*node_path_func)(void *, const NodePath &p_path, int p_id);
-        void (*res_path_func)(void *, const String &p_path, int p_id);
-
-        void (*node_set_func)(void *, int p_id, const StringName &p_prop, const Variant &p_value);
-        void (*node_set_res_func)(void *, int p_id, const StringName &p_prop, const String &p_value);
-        void (*node_call_func)(void *, int p_id, const StringName &p_method, VARIANT_ARG_DECLARE);
-        void (*res_set_func)(void *, int p_id, const StringName &p_prop, const Variant &p_value);
-        void (*res_set_res_func)(void *, int p_id, const StringName &p_prop, const String &p_value);
-        void (*res_call_func)(void *, int p_id, const StringName &p_method, VARIANT_ARG_DECLARE);
-        void (*root_func)(void *, const NodePath &p_scene_path, const String &p_scene_from);
-
-        void (*tree_create_node_func)(void *, const NodePath &p_parent, const String &p_type, const String &p_name);
-        void (*tree_instance_node_func)(void *, const NodePath &p_parent, const String &p_path, const String &p_name);
-        void (*tree_remove_node_func)(void *, const NodePath &p_at);
-        void (*tree_remove_and_keep_node_func)(void *, const NodePath &p_at, ObjectID p_keep_id);
-        void (*tree_restore_node_func)(void *, ObjectID p_id, const NodePath &p_at, int p_at_pos);
-        void (*tree_duplicate_node_func)(void *, const NodePath &p_at, const String &p_new_name);
-        void (*tree_reparent_node_func)(void *, const NodePath &p_at, const NodePath &p_new_place, const String &p_new_name, int p_at_pos);
-    };
 
     _FORCE_INLINE_ static ScriptDebugger *get_singleton() { return singleton; }
     void set_lines_left(int p_left);
@@ -477,7 +455,7 @@ public:
     void set_depth(int p_depth);
     int get_depth() const;
 
-    String breakpoint_find_source(const String &p_source) const;
+    se_string breakpoint_find_source(se_string_view p_source) const;
     void insert_breakpoint(int p_line, const StringName &p_source);
     void remove_breakpoint(int p_line, const StringName &p_source);
     bool is_breakpoint(int p_line, const StringName &p_source) const;
@@ -492,14 +470,12 @@ public:
     void set_break_language(ScriptLanguage *p_lang);
     ScriptLanguage *get_break_language() const;
 
-    virtual void send_message(const String &p_message, const Array &p_args) = 0;
-    virtual void send_error(const String &p_func, const String &p_file, int p_line, const String &p_err, const String &p_descr, ErrorHandlerType p_type, const Vector<ScriptLanguage::StackInfo> &p_stack_info) = 0;
+    virtual void send_message(const se_string &p_message, const Array &p_args) = 0;
+    virtual void send_error(se_string_view p_func, se_string_view p_file, int p_line, se_string_view p_err, se_string_view p_descr, ErrorHandlerType p_type, const Vector<ScriptLanguage::StackInfo> &p_stack_info) = 0;
 
     virtual bool is_remote() const { return false; }
     virtual void request_quit() {}
 
-    virtual void set_request_scene_tree_message_func(RequestSceneTreeMessageFunc /*p_func*/, void * /*p_udata*/) {}
-    virtual void set_live_edit_funcs(LiveEditFuncs * /*p_funcs*/) {}
     virtual void set_multiplayer(const Ref<MultiplayerAPI> & /*p_multiplayer*/) {}
 
     virtual bool is_profiling() const = 0;

@@ -222,6 +222,8 @@ enum ViewportMSAA {
     VIEWPORT_MSAA_4X,
     VIEWPORT_MSAA_8X,
     VIEWPORT_MSAA_16X,
+    VIEWPORT_MSAA_EXT_2X,
+    VIEWPORT_MSAA_EXT_4X,
 };
 enum ViewportUsage {
     VIEWPORT_USAGE_2D,

@@ -38,6 +38,7 @@
 #include "scene/gui/progress_bar.h"
 #include "scene/gui/color_picker.h"
 
+#include "EASTL/sort.h"
 IMPL_GDCLASS(ThemeEditor)
 IMPL_GDCLASS(ThemeEditorPlugin)
 
@@ -69,13 +70,13 @@ void ThemeEditor::_refresh_interval() {
 
 void ThemeEditor::_type_menu_cbk(int p_option) {
 
-    type_edit->set_text(type_menu->get_popup()->get_item_text(p_option));
+    type_edit->set_text(type_menu->get_popup()->get_item_text(p_option).asCString());
 }
 
 void ThemeEditor::_name_menu_about_to_show() {
 
     StringName fromtype(type_edit->get_text());
-    ListPOD<StringName> names;
+    PODVector<StringName> names;
 
     if (popup_mode == POPUP_ADD) {
 
@@ -106,7 +107,7 @@ void ThemeEditor::_name_menu_about_to_show() {
 
 void ThemeEditor::_name_menu_cbk(int p_option) {
 
-    name_edit->set_text(name_menu->get_popup()->get_item_text(p_option));
+    name_edit->set_text(name_menu->get_popup()->get_item_text(p_option).asCString());
 }
 
 struct _TECategory {
@@ -123,7 +124,7 @@ struct _TECategory {
     struct Item {
 
         T item;
-        String name;
+        se_string name;
         bool operator<(const Item<T> &p) const { return name < p.name; }
     };
 
@@ -135,14 +136,14 @@ struct _TECategory {
     Set<Item<int> > constant_items;
 };
 
-void ThemeEditor::_save_template_cbk(const String &fname) {
+void ThemeEditor::_save_template_cbk(se_string_view fname) {
 
-    String filename = file_dialog->get_current_path();
+    se_string filename = file_dialog->get_current_path();
 
     Map<StringName, _TECategory> categories;
 
     // Fill types.
-    ListPOD<StringName> type_list;
+    PODVector<StringName> type_list;
     Theme::get_default()->get_type_list(&type_list);
     for (const StringName &E : type_list) {
         categories.emplace(E, _TECategory());
@@ -153,7 +154,7 @@ void ThemeEditor::_save_template_cbk(const String &fname) {
 
         _TECategory &tc(E.second);
 
-        ListPOD<StringName> stylebox_list;
+        PODVector<StringName> stylebox_list;
         Theme::get_default()->get_stylebox_list(E.first, &stylebox_list);
         for (const StringName &F : stylebox_list) {
             _TECategory::RefItem<StyleBox> it;
@@ -162,7 +163,7 @@ void ThemeEditor::_save_template_cbk(const String &fname) {
             tc.stylebox_items.insert(it);
         }
 
-        ListPOD<StringName> font_list;
+        PODVector<StringName> font_list;
         Theme::get_default()->get_font_list(E.first, &font_list);
         for (const StringName &F : font_list) {
             _TECategory::RefItem<Font> it;
@@ -171,7 +172,7 @@ void ThemeEditor::_save_template_cbk(const String &fname) {
             tc.font_items.insert(it);
         }
 
-        ListPOD<StringName> icon_list;
+        PODVector<StringName> icon_list;
         Theme::get_default()->get_icon_list(E.first, &icon_list);
         for (const StringName &F : icon_list) {
             _TECategory::RefItem<Texture> it;
@@ -180,7 +181,7 @@ void ThemeEditor::_save_template_cbk(const String &fname) {
             tc.icon_items.insert(it);
         }
 
-        ListPOD<StringName> color_list;
+        PODVector<StringName> color_list;
         Theme::get_default()->get_color_list(E.first, &color_list);
         for (const StringName &F : color_list) {
             _TECategory::Item<Color> it;
@@ -189,7 +190,7 @@ void ThemeEditor::_save_template_cbk(const String &fname) {
             tc.color_items.insert(it);
         }
 
-        ListPOD<StringName> constant_list;
+        PODVector<StringName> constant_list;
         Theme::get_default()->get_constant_list(E.first, &constant_list);
         for (const StringName &F : constant_list) {
             _TECategory::Item<int> it;
@@ -253,7 +254,7 @@ void ThemeEditor::_save_template_cbk(const String &fname) {
     file->store_line("; ");
     file->store_line("; ******************* ");
     file->store_line("; ");
-    file->store_line("; Template Generated Using: " + String(VERSION_FULL_BUILD));
+    file->store_line("; Template Generated Using: " + se_string(VERSION_FULL_BUILD));
     file->store_line(";    ");
     file->store_line("; ");
     file->store_line("");
@@ -270,21 +271,21 @@ void ThemeEditor::_save_template_cbk(const String &fname) {
 
         _TECategory &tc(E.second);
 
-        String underline = "; ";
+        se_string underline("; ");
         for (size_t i = 0,fin=strlen(E.first.asCString()); i < fin; i++)
-            underline += "*";
+            underline += '*';
 
         file->store_line("");
         file->store_line(underline);
-        file->store_line("; " + E.first);
+        file->store_line(se_string("; ") + E.first);
         file->store_line(underline);
 
         if (!tc.stylebox_items.empty())
             file->store_line("\n; StyleBox Items:\n");
-
+        const se_string dot(".");
         for (const _TECategory::RefItem<StyleBox>  &F : tc.stylebox_items) {
 
-            file->store_line(E.first.asString() + "." + F.name + " = default");
+            file->store_line(E.first + dot + F.name + " = default");
         }
 
         if (!tc.font_items.empty())
@@ -292,7 +293,7 @@ void ThemeEditor::_save_template_cbk(const String &fname) {
 
         for (const _TECategory::RefItem<Font>  &F : tc.font_items) {
 
-            file->store_line(E.first.asString() + "." + F.name + " = default");
+            file->store_line(E.first + dot + F.name + " = default");
         }
 
         if (!tc.icon_items.empty())
@@ -300,7 +301,7 @@ void ThemeEditor::_save_template_cbk(const String &fname) {
 
         for (const _TECategory::RefItem<Texture>  &F : tc.icon_items) {
 
-            file->store_line(E.first.asString()+ "." + F.name + " = default");
+            file->store_line(E.first + dot + F.name + " = default");
         }
 
         if (!tc.color_items.empty())
@@ -308,7 +309,7 @@ void ThemeEditor::_save_template_cbk(const String &fname) {
 
         for (const _TECategory::Item<Color>  &F : tc.color_items) {
 
-            file->store_line(E.first.asString() + "." + F.name + " = default");
+            file->store_line(E.first + dot + F.name + " = default");
         }
 
         if (!tc.constant_items.empty())
@@ -316,7 +317,7 @@ void ThemeEditor::_save_template_cbk(const String &fname) {
 
         for (const _TECategory::Item<int>  &F : tc.constant_items) {
 
-            file->store_line(E.first.asString() + "." + F.name + " = default");
+            file->store_line(E.first + dot + F.name + " = default");
         }
     }
 
@@ -343,7 +344,7 @@ void ThemeEditor::_dialog_cbk() {
         case POPUP_CLASS_ADD: {
 
             StringName fromtype = StringName(type_edit->get_text());
-            ListPOD<StringName> names;
+            PODVector<StringName> names;
 
             {
                 names.clear();
@@ -397,7 +398,7 @@ void ThemeEditor::_dialog_cbk() {
         } break;
         case POPUP_CLASS_REMOVE: {
             StringName fromtype = StringName(type_edit->get_text());
-            ListPOD<StringName> names;
+            PODVector<StringName> names;
 
             {
                 names.clear();
@@ -455,47 +456,47 @@ void ThemeEditor::_theme_menu_cbk(int p_option) {
 
         {
 
-            ListPOD<StringName> types;
+            PODVector<StringName> types;
             base_theme->get_type_list(&types);
 
             for (const StringName &type : types) {
 
-                ListPOD<StringName> icons;
+                PODVector<StringName> icons;
                 base_theme->get_icon_list(type, &icons);
 
                 for (const StringName &E : icons) {
                     theme->set_icon(E, type, import ? base_theme->get_icon(E, type) : Ref<Texture>());
                 }
 
-                ListPOD<StringName> shaders;
+                PODVector<StringName> shaders;
                 base_theme->get_shader_list(type, &shaders);
 
                 for (const StringName &E : shaders) {
                     theme->set_shader(E, type, import ? base_theme->get_shader(E, type) : Ref<Shader>());
                 }
 
-                ListPOD<StringName> styleboxs;
+                PODVector<StringName> styleboxs;
                 base_theme->get_stylebox_list(type, &styleboxs);
 
                 for (const StringName &E : styleboxs) {
                     theme->set_stylebox(E, type, import ? base_theme->get_stylebox(E, type) : Ref<StyleBox>());
                 }
 
-                ListPOD<StringName> fonts;
+                PODVector<StringName> fonts;
                 base_theme->get_font_list(type, &fonts);
 
                 for (const StringName &E : fonts) {
                     theme->set_font(E, type, Ref<Font>());
                 }
 
-                ListPOD<StringName> colors;
+                PODVector<StringName> colors;
                 base_theme->get_color_list(type, &colors);
 
                 for (const StringName &E : colors) {
                     theme->set_color(E, type, import ? base_theme->get_color(E, type) : Color());
                 }
 
-                ListPOD<StringName> constants;
+                PODVector<StringName> constants;
                 base_theme->get_constant_list(type, &constants);
 
                 for (const StringName &E : constants) {
@@ -559,14 +560,14 @@ void ThemeEditor::_theme_menu_cbk(int p_option) {
 
     ERR_FAIL_COND(not theme)
 
-    ListPOD<StringName> types;
+    PODVector<StringName> types;
     base_theme->get_type_list(&types);
 
     type_menu->get_popup()->clear();
 
     if (p_option == 0 || p_option == 1) { // Add.
 
-        ListPOD<StringName> new_types;
+        PODVector<StringName> new_types;
         theme->get_type_list(&new_types);
         for (const StringName &F : new_types) {
             bool found = false;
@@ -580,8 +581,7 @@ void ThemeEditor::_theme_menu_cbk(int p_option) {
                 types.push_back(F);
         }
     }
-
-    types.sort(WrapAlphaCompare());
+    eastl::sort(types.begin(),types.end(),WrapAlphaCompare());
     for (const StringName &E : types) {
 
         type_menu->get_popup()->add_item(E);
@@ -672,9 +672,9 @@ ThemeEditor::ThemeEditor() {
     first_vb->set_h_size_flags(SIZE_EXPAND_FILL);
     first_vb->add_constant_override("separation", 10 * EDSCALE);
 
-    first_vb->add_child(memnew(Label("Label")));
+    first_vb->add_child(memnew(Label(("Label"))));
 
-    first_vb->add_child(memnew(Button("Button")));
+    first_vb->add_child(memnew(Button(("Button"))));
     Button *bt = memnew(Button);
     bt->set_text(TTR("Toggle Button"));
     bt->set_toggle_mode(true);
@@ -713,13 +713,13 @@ ThemeEditor::ThemeEditor() {
     PopupMenu *test_submenu = memnew(PopupMenu);
     test_menu_button->get_popup()->add_child(test_submenu);
     test_submenu->set_name("submenu");
-    test_menu_button->get_popup()->add_submenu_item(TTR("Submenu"), "submenu");
+    test_menu_button->get_popup()->add_submenu_item(TTR("Submenu"), StringName("submenu"));
     test_submenu->add_item(TTR("Subitem 1"));
     test_submenu->add_item(TTR("Subitem 2"));
     first_vb->add_child(test_menu_button);
 
     OptionButton *test_option_button = memnew(OptionButton);
-    test_option_button->add_item("OptionButton");
+    test_option_button->add_item(("OptionButton"));
     test_option_button->add_separator();
     test_option_button->add_item(TTR("Has"));
     test_option_button->add_item(TTR("Many"));
@@ -732,14 +732,14 @@ ThemeEditor::ThemeEditor() {
     main_hb->add_child(second_vb);
     second_vb->add_constant_override("separation", 10 * EDSCALE);
     LineEdit *le = memnew(LineEdit);
-    le->set_text("LineEdit");
+    le->set_text_utf8("LineEdit");
     second_vb->add_child(le);
     le = memnew(LineEdit);
-    le->set_text(TTR("Disabled LineEdit"));
+    le->set_text(TTR("Disabled LineEdit").asString());
     le->set_editable(false);
     second_vb->add_child(le);
     TextEdit *te = memnew(TextEdit);
-    te->set_text("TextEdit");
+    te->set_text(String("TextEdit"));
     te->set_custom_minimum_size(Size2(0, 100) * EDSCALE);
     second_vb->add_child(te);
     second_vb->add_child(memnew(SpinBox));
@@ -777,13 +777,13 @@ ThemeEditor::ThemeEditor() {
     third_vb->add_child(tc);
     tc->set_custom_minimum_size(Size2(0, 135) * EDSCALE);
     Control *tcc = memnew(Control);
-    tcc->set_name(TTR("Tab 1"));
+    tcc->set_name((TTR("Tab 1")));
     tc->add_child(tcc);
     tcc = memnew(Control);
-    tcc->set_name(TTR("Tab 2"));
+    tcc->set_name((TTR("Tab 2")));
     tc->add_child(tcc);
     tcc = memnew(Control);
-    tcc->set_name(TTR("Tab 3"));
+    tcc->set_name((TTR("Tab 3")));
     tc->add_child(tcc);
     tc->set_tab_disabled(2, true);
 
@@ -879,7 +879,7 @@ ThemeEditor::ThemeEditor() {
     add_del_dialog->get_ok()->connect("pressed", this, "_dialog_cbk");
 
     file_dialog = memnew(EditorFileDialog);
-    file_dialog->add_filter("*.theme ; Theme File");
+    file_dialog->add_filter("*.theme ; " + TTR("Theme File"));
     add_child(file_dialog);
     file_dialog->connect("file_selected", this, "_save_template_cbk");
 }

@@ -356,8 +356,7 @@ void Environment::_validate_property(PropertyInfo &property) const {
         "dof_blur_far_",
         "dof_blur_near_",
         "glow_",
-        "adjustment_",
-        nullptr
+        "adjustment_"
 
     };
 
@@ -365,35 +364,27 @@ void Environment::_validate_property(PropertyInfo &property) const {
         "auto_exposure_",
         "tonemap_",
         "ss_reflections_",
-        "ssao_",
-        nullptr
-
+        "ssao_"
     };
 
-    const char **prefixes = hide_prefixes;
-    while (*prefixes) {
-        String prefix = String(*prefixes);
+    for(const char *prefix_val : hide_prefixes) {
+        StringName prefix(StaticCString(prefix_val,true));
 
-        String enabled = prefix + "enabled";
+        StringName enabled = prefix + "enabled";
         if (StringUtils::begins_with(property.name,prefix) && property.name != enabled && !bool(get(enabled))) {
             property.usage = PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL;
             return;
         }
-
-        prefixes++;
     }
 
     if (VisualServer::get_singleton()->is_low_end()) {
-        prefixes = high_end_prefixes;
-        while (*prefixes) {
-            String prefix = String(*prefixes);
+        for(const char *prefix_val : high_end_prefixes) {
+            StringName prefix(StaticCString(prefix_val,true));
 
             if (StringUtils::begins_with(property.name,prefix)) {
                 property.usage = PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL;
                 return;
             }
-
-            prefixes++;
         }
     }
 }
@@ -990,7 +981,9 @@ void Environment::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "background_sky", PROPERTY_HINT_RESOURCE_TYPE, "Sky"), "set_sky", "get_sky");
     ADD_PROPERTY(PropertyInfo(VariantType::REAL, "background_sky_custom_fov", PROPERTY_HINT_RANGE, "0,180,0.1"), "set_sky_custom_fov", "get_sky_custom_fov");
     ADD_PROPERTY(PropertyInfo(VariantType::BASIS, "background_sky_orientation"), "set_sky_orientation", "get_sky_orientation");
-    ADD_PROPERTY(PropertyInfo(VariantType::VECTOR3, "background_sky_rotation", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_EDITOR), "set_sky_rotation", "get_sky_rotation");
+    // Only display rotation in degrees in the inspector (like in Spatial).
+    // This avoids displaying the same information twice.
+    ADD_PROPERTY(PropertyInfo(VariantType::VECTOR3, "background_sky_rotation", PROPERTY_HINT_NONE, "", 0), "set_sky_rotation", "get_sky_rotation");
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR3, "background_sky_rotation_degrees", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_EDITOR), "set_sky_rotation_degrees", "get_sky_rotation_degrees");
     ADD_PROPERTY(PropertyInfo(VariantType::COLOR, "background_color"), "set_bg_color", "get_bg_color");
     ADD_PROPERTY(PropertyInfo(VariantType::REAL, "background_energy", PROPERTY_HINT_RANGE, "0,16,0.01"), "set_bg_energy", "get_bg_energy");

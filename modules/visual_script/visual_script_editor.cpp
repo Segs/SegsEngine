@@ -37,6 +37,9 @@
 #include "core/os/input.h"
 #include "core/os/keyboard.h"
 #include "core/script_language.h"
+#include "core/string_formatter.h"
+#include "core/property_info.h"
+#include "core/se_string.h"
 #include "core/translation_helpers.h"
 #include "core/variant.h"
 #include "editor/editor_node.h"
@@ -95,7 +98,7 @@ protected:
             if (argc == new_argc)
                 return true;
 
-            undo_redo->create_action(TTR("Change Signal Arguments"));
+            undo_redo->create_action_ui(TTR("Change Signal Arguments"));
 
             if (new_argc < argc) {
                 for (int i = new_argc; i < argc; i++) {
@@ -121,12 +124,12 @@ protected:
         if (StringUtils::begins_with(p_name,"argument/")) {
             int idx = to_int(get_slice(p_name,'/', 1)) - 1;
             ERR_FAIL_INDEX_V(idx, script->custom_signal_get_argument_count(sig), false);
-            String what = get_slice(p_name,'/', 2);
-            if (what == "type") {
+            se_string_view what = get_slice(p_name,'/', 2);
+            if (what == se_string_view("type")) {
 
                 VariantType old_type = script->custom_signal_get_argument_type(sig, idx);
                 int new_type = p_value;
-                undo_redo->create_action(TTR("Change Argument Type"));
+                undo_redo->create_action_ui(TTR("Change Argument Type"));
                 undo_redo->add_do_method(script.get(), "custom_signal_set_argument_type", sig, idx, new_type);
                 undo_redo->add_undo_method(script.get(), "custom_signal_set_argument_type", sig, idx, old_type);
                 undo_redo->commit_action();
@@ -134,11 +137,11 @@ protected:
                 return true;
             }
 
-            if (what == "name") {
+            if (what == se_string_view("name")) {
 
-                String old_name = script->custom_signal_get_argument_name(sig, idx);
-                String new_name = p_value;
-                undo_redo->create_action(TTR("Change Argument name"));
+                se_string_view old_name(script->custom_signal_get_argument_name(sig, idx));
+                se_string new_name = p_value;
+                undo_redo->create_action_ui(TTR("Change Argument name"));
                 undo_redo->add_do_method(script.get(), "custom_signal_set_argument_name", sig, idx, new_name);
                 undo_redo->add_undo_method(script.get(), "custom_signal_set_argument_name", sig, idx, old_name);
                 undo_redo->commit_action();
@@ -162,12 +165,12 @@ protected:
         if (begins_with(p_name,"argument/")) {
             int idx = to_int(get_slice(p_name,'/', 1)) - 1;
             ERR_FAIL_INDEX_V(idx, script->custom_signal_get_argument_count(sig), false);
-            String what = get_slice(p_name,"/", 2);
-            if (what == "type") {
+            se_string_view what = get_slice(p_name,'/', 2);
+            if (what == se_string_view("type")) {
                 r_ret = script->custom_signal_get_argument_type(sig, idx);
                 return true;
             }
-            if (what == "name") {
+            if (what == se_string_view("name")) {
                 r_ret = script->custom_signal_get_argument_name(sig, idx);
                 return true;
             }
@@ -181,14 +184,14 @@ protected:
             return;
 
         p_list->push_back(PropertyInfo(VariantType::INT, "argument_count", PROPERTY_HINT_RANGE, "0,256"));
-        String argt = "Variant";
+        se_string argt("Variant");
         for (int i = 1; i < (int)VariantType::VARIANT_MAX; i++) {
-            argt += String(",") + Variant::get_type_name(VariantType(i));
+            argt += se_string(",") + Variant::get_type_name(VariantType(i));
         }
 
         for (int i = 0; i < script->custom_signal_get_argument_count(sig); i++) {
-            p_list->push_back(PropertyInfo(VariantType::INT, "argument/" + itos(i + 1) + "/type", PROPERTY_HINT_ENUM, StringName(argt)));
-            p_list->push_back(PropertyInfo(VariantType::STRING, "argument/" + itos(i + 1) + "/name"));
+            p_list->push_back(PropertyInfo(VariantType::INT, StringName("argument/" + ::to_string(i + 1) + "/type"), PROPERTY_HINT_ENUM, StringName(argt)));
+            p_list->push_back(PropertyInfo(VariantType::STRING, StringName("argument/" + ::to_string(i + 1) + "/name")));
         }
     }
 
@@ -199,7 +202,7 @@ public:
         _change_notify();
     }
 
-    VisualScriptEditorSignalEdit() { undo_redo = NULL; }
+    VisualScriptEditorSignalEdit() { undo_redo = nullptr; }
 };
 IMPL_GDCLASS(VisualScriptEditorSignalEdit)
 
@@ -237,7 +240,7 @@ protected:
             return false;
 
         if (String(p_name) == "value") {
-            undo_redo->create_action(TTR("Set Variable Default Value"));
+            undo_redo->create_action_ui(TTR("Set Variable Default Value"));
             Variant current = script->get_variable_default_value(var);
             undo_redo->add_do_method(script.get(), "set_variable_default_value", var, p_value);
             undo_redo->add_undo_method(script.get(), "set_variable_default_value", var, current);
@@ -253,7 +256,7 @@ protected:
 
             Dictionary dc = d.duplicate();
             dc["type"] = p_value;
-            undo_redo->create_action(TTR("Set Variable Type"));
+            undo_redo->create_action_ui(TTR("Set Variable Type"));
             undo_redo->add_do_method(script.get(), "set_variable_info", var, dc);
             undo_redo->add_undo_method(script.get(), "set_variable_info", var, d);
             undo_redo->add_do_method(this, "_var_changed");
@@ -266,7 +269,7 @@ protected:
 
             Dictionary dc = d.duplicate();
             dc["hint"] = p_value;
-            undo_redo->create_action(TTR("Set Variable Type"));
+            undo_redo->create_action_ui(TTR("Set Variable Type"));
             undo_redo->add_do_method(script.get(), "set_variable_info", var, dc);
             undo_redo->add_undo_method(script.get(), "set_variable_info", var, d);
             undo_redo->add_do_method(this, "_var_changed");
@@ -279,7 +282,7 @@ protected:
 
             Dictionary dc = d.duplicate();
             dc["hint_string"] = p_value;
-            undo_redo->create_action(TTR("Set Variable Type"));
+            undo_redo->create_action_ui(TTR("Set Variable Type"));
             undo_redo->add_do_method(script.get(), "set_variable_info", var, dc);
             undo_redo->add_undo_method(script.get(), "set_variable_info", var, d);
             undo_redo->add_do_method(this, "_var_changed");
@@ -334,11 +337,11 @@ protected:
         if (var == StringName())
             return;
 
-        String argt = "Variant";
+        se_string argt("Variant");
         for (int i = 1; i < (int)VariantType::VARIANT_MAX; i++) {
-            argt += String(",") + Variant::get_type_name(VariantType(i));
+            argt += se_string(",") + Variant::get_type_name(VariantType(i));
         }
-        p_list->push_back(PropertyInfo(VariantType::INT, "type", PROPERTY_HINT_ENUM, StringName(argt)));
+        p_list->push_back(PropertyInfo(VariantType::INT, "type", PROPERTY_HINT_ENUM, argt.c_str()));
         p_list->push_back(PropertyInfo(script->get_variable_info(var).type, "value", script->get_variable_info(var).hint, StringName(script->get_variable_info(var).hint_string), PROPERTY_USAGE_DEFAULT));
         // Update this when PropertyHint changes
         p_list->push_back(PropertyInfo(VariantType::INT, "hint", PROPERTY_HINT_ENUM, "None,Range,ExpRange,Enum,ExpEasing,Length,SpriteFrame,KeyAccel,Flags,Layers2dRender,Layers2dPhysics,Layer3dRender,Layer3dPhysics,File,Dir,GlobalFile,GlobalDir,ResourceType,MultilineText,PlaceholderText,ColorNoAlpha,ImageCompressLossy,ImageCompressLossLess,ObjectId,String,NodePathToEditedNode,MethodOfVariantType,MethodOfBaseType,MethodOfInstance,MethodOfScript,PropertyOfVariantType,PropertyOfBaseType,PropertyOfInstance,PropertyOfScript,ObjectTooBig,NodePathValidTypes"));
@@ -353,7 +356,7 @@ public:
         _change_notify();
     }
 
-    VisualScriptEditorVariableEdit() { undo_redo = NULL; }
+    VisualScriptEditorVariableEdit() { undo_redo = nullptr; }
 };
 IMPL_GDCLASS(VisualScriptEditorVariableEdit)
 
@@ -576,7 +579,7 @@ void VisualScriptEditor::_update_graph(int p_only_id) {
             gnode->set_meta("__vnode", node);
             gnode->set_name(itos(E->deref()));
             gnode->connect("dragged", this, "_node_moved", varray(E->deref()));
-            gnode->connect("close_request", this, "_remove_node", varray(E->deref()), ObjectNS::CONNECT_DEFERRED);
+            gnode->connect("close_request", this, "_remove_node", varray(E->deref()), ObjectNS::CONNECT_QUEUED);
 
             if (E->deref() != script->get_function_node_id(funcs[fi])) {
                 //function can't be erased
@@ -609,17 +612,17 @@ void VisualScriptEditor::_update_graph(int p_only_id) {
             } else if (object_cast<VisualScriptExpression>(node.get())) {
                 has_gnode_text = true;
                 LineEdit *line_edit = memnew(LineEdit);
-                line_edit->set_text(node->get_text());
+                line_edit->set_text_utf8(node->get_text());
                 line_edit->set_expand_to_text_length(true);
                 line_edit->add_font_override("font", get_font("source", "EditorFonts"));
                 gnode->add_child(line_edit);
                 line_edit->connect("text_changed", this, "_expression_text_changed", varray(E->deref()));
             } else {
-                String text = node->get_text();
+                se_string text(node->get_text());
                 if (!text.empty()) {
                     has_gnode_text = true;
                     Label *label = memnew(Label);
-                    label->set_text(text);
+                    label->set_text(StringName(text));
                     gnode->add_child(label);
                 }
             }
@@ -655,7 +658,7 @@ void VisualScriptEditor::_update_graph(int p_only_id) {
 
             int slot_idx = 0;
 
-            bool single_seq_output = node->get_output_sequence_port_count() == 1 && node->get_output_sequence_port_text(0) == String();
+            bool single_seq_output = node->get_output_sequence_port_count() == 1 && node->get_output_sequence_port_text(0).empty();
             if ((node->has_input_sequence_port() || single_seq_output) || has_gnode_text) {
                 // IF has_gnode_text is true BUT we have no sequence ports to draw (in here),
                 // we still draw the disabled default ones to shift up the slots by one,
@@ -682,7 +685,7 @@ void VisualScriptEditor::_update_graph(int p_only_id) {
                     for (int i = 0; i < node->get_output_sequence_port_count(); i++) {
 
                         Label *text2 = memnew(Label);
-                        text2->set_text(node->get_output_sequence_port_text(i));
+                        text2->set_text(StringName(node->get_output_sequence_port_text(i)));
                         text2->set_align(Label::ALIGN_RIGHT);
                         gnode->add_child(text2);
                         gnode->set_slot(slot_idx, false, 0, Color(), true, TYPE_SEQUENCE, mono_color, seq_port, seq_port);
@@ -695,7 +698,7 @@ void VisualScriptEditor::_update_graph(int p_only_id) {
 
                 bool left_ok = false;
                 VariantType left_type = VariantType::NIL;
-                String left_name;
+                StringName left_name;
 
                 if (i < node->get_input_value_port_count()) {
                     PropertyInfo pi = node->get_input_value_port_info(i);
@@ -706,7 +709,7 @@ void VisualScriptEditor::_update_graph(int p_only_id) {
 
                 bool right_ok = false;
                 VariantType right_type = VariantType::NIL;
-                String right_name;
+                StringName right_name;
 
                 if (i >= mixed_seq_ports && i < node->get_output_value_port_count() + mixed_seq_ports) {
                     PropertyInfo pi = node->get_output_value_port_info(i - mixed_seq_ports);
@@ -737,7 +740,7 @@ void VisualScriptEditor::_update_graph(int p_only_id) {
                             LineEdit *name_box = memnew(LineEdit);
                             hbc->add_child(name_box);
                             name_box->set_custom_minimum_size(Size2(60 * EDSCALE, 0));
-                            name_box->set_text(left_name);
+                            name_box->set_text_utf8(left_name);
                             name_box->set_expand_to_text_length(true);
                             name_box->connect("resized", this, "_update_node_size", varray(E->deref()));
                             name_box->connect("focus_exited", this, "_port_name_focus_out", varray(Variant(name_box), E->deref(), i, true));
@@ -748,18 +751,18 @@ void VisualScriptEditor::_update_graph(int p_only_id) {
                         if (nd_list->is_input_port_type_editable()) {
                             OptionButton *opbtn = memnew(OptionButton);
                             for (int j = (int8_t)VariantType::NIL; j < (int8_t)VariantType::VARIANT_MAX; j++) {
-                                opbtn->add_item(Variant::get_type_name(VariantType(j)));
+                                opbtn->add_item(Variant::interned_type_name(VariantType(j)));
                             }
                             opbtn->select((int8_t)left_type);
                             opbtn->set_custom_minimum_size(Size2(100 * EDSCALE, 0));
                             hbc->add_child(opbtn);
-                            opbtn->connect("item_selected", this, "_change_port_type", varray(E->deref(), i, true), ObjectNS::CONNECT_DEFERRED);
+                            opbtn->connect("item_selected", this, "_change_port_type", varray(E->deref(), i, true), ObjectNS::CONNECT_QUEUED);
                         }
 
                         Button *rmbtn = memnew(Button);
                         rmbtn->set_icon(EditorNode::get_singleton()->get_gui_base()->get_icon("Remove", "EditorIcons"));
                         hbc->add_child(rmbtn);
-                        rmbtn->connect("pressed", this, "_remove_input_port", varray(E->deref(), i), ObjectNS::CONNECT_DEFERRED);
+                        rmbtn->connect("pressed", this, "_remove_input_port", varray(E->deref(), i), ObjectNS::CONNECT_QUEUED);
                     } else {
                         hbc->add_child(memnew(Label(left_name)));
                     }
@@ -785,12 +788,12 @@ void VisualScriptEditor::_update_graph(int p_only_id) {
                             Ref<Resource> res = refFromVariant<Resource>(value);
                             Array arr;
                             arr.push_back(button->get_instance_id());
-                            arr.push_back(String(value));
+                            arr.push_back(value);
                             EditorResourcePreview::get_singleton()->queue_edited_resource_preview(res, this, "_button_resource_previewed", arr);
 
                         } else if (pi.type == VariantType::INT && pi.hint == PROPERTY_HINT_ENUM) {
 
-                            button->set_text(StringUtils::get_slice(pi.hint_string,',', value));
+                            button->set_text_utf8(StringUtils::get_slice(pi.hint_string,',', value));
                         } else {
 
                             button->set_text(value);
@@ -810,7 +813,7 @@ void VisualScriptEditor::_update_graph(int p_only_id) {
                 if (i < mixed_seq_ports) {
 
                     Label *text2 = memnew(Label);
-                    text2->set_text(node->get_output_sequence_port_text(i));
+                    text2->set_text(StringName(node->get_output_sequence_port_text(i)));
                     text2->set_align(Label::ALIGN_RIGHT);
                     hbc->add_child(text2);
                 }
@@ -821,24 +824,24 @@ void VisualScriptEditor::_update_graph(int p_only_id) {
                         Button *rmbtn = memnew(Button);
                         rmbtn->set_icon(EditorNode::get_singleton()->get_gui_base()->get_icon("Remove", "EditorIcons"));
                         hbc->add_child(rmbtn);
-                        rmbtn->connect("pressed", this, "_remove_output_port", varray(E->deref(), i), ObjectNS::CONNECT_DEFERRED);
+                        rmbtn->connect("pressed", this, "_remove_output_port", varray(E->deref(), i), ObjectNS::CONNECT_QUEUED);
 
                         if (nd_list->is_output_port_type_editable()) {
                             OptionButton *opbtn = memnew(OptionButton);
                             for (int j = (int8_t)VariantType::NIL; j < (int8_t)VariantType::VARIANT_MAX; j++) {
-                                opbtn->add_item(Variant::get_type_name(VariantType(j)));
+                                opbtn->add_item(Variant::interned_type_name(VariantType(j)));
                             }
                             opbtn->select((int8_t)right_type);
                             opbtn->set_custom_minimum_size(Size2(100 * EDSCALE, 0));
                             hbc->add_child(opbtn);
-                            opbtn->connect("item_selected", this, "_change_port_type", varray(E->deref(), i, false), ObjectNS::CONNECT_DEFERRED);
+                            opbtn->connect("item_selected", this, "_change_port_type", varray(E->deref(), i, false), ObjectNS::CONNECT_QUEUED);
                         }
 
                         if (nd_list->is_output_port_name_editable()) {
                             LineEdit *name_box = memnew(LineEdit);
                             hbc->add_child(name_box);
                             name_box->set_custom_minimum_size(Size2(60 * EDSCALE, 0));
-                            name_box->set_text(right_name);
+                            name_box->set_text_utf8(right_name);
                             name_box->set_expand_to_text_length(true);
                             name_box->connect("resized", this, "_update_node_size", varray(E->deref()));
                             name_box->connect("focus_exited", this, "_port_name_focus_out", varray(Variant(name_box), E->deref(), i, false));
@@ -921,16 +924,16 @@ void VisualScriptEditor::_port_name_focus_out(const Node *p_name_box, int p_id, 
     String text;
 
     if (object_cast<LineEdit>(p_name_box))
-        text = object_cast<LineEdit>(p_name_box)->get_text();
+        text = object_cast<LineEdit>(p_name_box)->get_text_ui();
     else
         return;
 
     undo_redo->create_action("Change Port Name");
     if (is_input) {
-        undo_redo->add_do_method(vsn.get(), "set_input_data_port_name", p_port, text);
+        undo_redo->add_do_method(vsn.get(), "set_input_data_port_name", p_port, StringUtils::to_utf8(text));
         undo_redo->add_undo_method(vsn.get(), "set_input_data_port_name", p_port, vsn->get_input_value_port_info(p_port).name);
     } else {
-        undo_redo->add_do_method(vsn.get(), "set_output_data_port_name", p_port, text);
+        undo_redo->add_do_method(vsn.get(), "set_output_data_port_name", p_port, StringUtils::to_utf8(text));
         undo_redo->add_undo_method(vsn.get(), "set_output_data_port_name", p_port, vsn->get_output_value_port_info(p_port).name);
     }
     undo_redo->commit_action();
@@ -960,7 +963,7 @@ void VisualScriptEditor::_update_members() {
         }
 
         TreeItem *ti = members->create_item(functions);
-        ti->set_text(0, func_names[fi]);
+        ti->set_text_utf8(0, func_names[fi]);
         ti->set_selectable(0, true);
         ti->set_metadata(0, func_names[fi]);
         ti->add_button(0, Control::get_icon("Edit", "EditorIcons"), 0);
@@ -1009,9 +1012,9 @@ void VisualScriptEditor::_update_members() {
     for(int fi=0; fi<var_names.size(); ++fi) {
         TreeItem *ti = members->create_item(variables);
 
-        ti->set_text(0, var_names[fi]);
+        ti->set_text_utf8(0, var_names[fi]);
         Variant var = script->get_variable_default_value(var_names[fi]);
-        ti->set_suffix(0, "= " + String(var));
+        ti->set_suffix(0, "= " + se_string(var));
         ti->set_icon(0, type_icons[(int8_t)script->get_variable_info(var_names[fi]).type]);
 
         ti->set_selectable(0, true);
@@ -1031,7 +1034,7 @@ void VisualScriptEditor::_update_members() {
     script->get_custom_signal_list(&signal_names);
     for(int fi=0; fi<signal_names.size(); ++fi) {
         TreeItem *ti = members->create_item(_signals);
-        ti->set_text(0, signal_names[fi]);
+        ti->set_text_utf8(0, signal_names[fi]);
         ti->set_selectable(0, true);
         ti->set_editable(0, true);
         ti->set_metadata(0, signal_names[fi]);
@@ -1083,8 +1086,8 @@ void VisualScriptEditor::_member_edited() {
     TreeItem *ti = members->get_edited();
     ERR_FAIL_COND(!ti)
 
-    String str_name = ti->get_metadata(0);
-    String str_new_name = ti->get_text(0);
+    se_string str_name = ti->get_metadata(0);
+    se_string str_new_name = ti->get_text(0);
 
     if (str_name == str_new_name)
         return;
@@ -1093,18 +1096,18 @@ void VisualScriptEditor::_member_edited() {
 
     if (!StringUtils::is_valid_identifier(new_name)) {
 
-        EditorNode::get_singleton()->show_warning(TTR("Name is not a valid identifier:") + " " + new_name);
+        EditorNode::get_singleton()->show_warning(StringName(se_string(TTR("Name is not a valid identifier:")) + " " + new_name));
         updating_members = true;
-        ti->set_text(0, name);
+        ti->set_text_utf8(0, name);
         updating_members = false;
         return;
     }
 
     if (script->has_function(new_name) || script->has_variable(new_name) || script->has_custom_signal(new_name)) {
 
-        EditorNode::get_singleton()->show_warning(TTR("Name already in use by another func/var/signal:") + " " + new_name);
+        EditorNode::get_singleton()->show_warning(StringName(se_string(TTR("Name already in use by another func/var/signal:")) + " " + new_name));
         updating_members = true;
-        ti->set_text(0, name);
+        ti->set_text_utf8(0, name);
         updating_members = false;
         return;
     }
@@ -1120,7 +1123,7 @@ void VisualScriptEditor::_member_edited() {
         if (script->has_node(name, node_id)) {
             func = dynamic_ref_cast<VisualScriptFunction>(script->get_node(name, node_id));
         }
-        undo_redo->create_action(TTR("Rename Function"));
+        undo_redo->create_action_ui(TTR("Rename Function"));
         undo_redo->add_do_method(script.get(), "rename_function", name, new_name);
         undo_redo->add_undo_method(script.get(), "rename_function", new_name, name);
         if (func) {
@@ -1159,7 +1162,7 @@ void VisualScriptEditor::_member_edited() {
     if (ti->get_parent() == root->get_children()->get_next()) {
 
         selected = new_name;
-        undo_redo->create_action(TTR("Rename Variable"));
+        undo_redo->create_action_ui(TTR("Rename Variable"));
         undo_redo->add_do_method(script.get(), "rename_variable", name, new_name);
         undo_redo->add_undo_method(script.get(), "rename_variable", new_name, name);
         undo_redo->add_do_method(this, "_update_members");
@@ -1174,7 +1177,7 @@ void VisualScriptEditor::_member_edited() {
     if (ti->get_parent() == root->get_children()->get_next()->get_next()) {
 
         selected = new_name;
-        undo_redo->create_action(TTR("Rename Signal"));
+        undo_redo->create_action_ui(TTR("Rename Signal"));
         undo_redo->add_do_method(script.get(), "rename_custom_signal", name, new_name);
         undo_redo->add_undo_method(script.get(), "rename_custom_signal", new_name, name);
         undo_redo->add_do_method(this, "_update_members");
@@ -1190,7 +1193,7 @@ void VisualScriptEditor::_member_edited() {
 void VisualScriptEditor::_create_function_dialog() {
     function_create_dialog->popup_centered();
     function_create_dialog->set_position(graph->get_global_position() + Vector2(55, 80));
-    func_name_box->set_text("");
+    func_name_box->set_text_utf8("");
     func_name_box->grab_focus();
     for (int i = 0; i < func_input_vbox->get_child_count(); i++) {
         Node *nd = func_input_vbox->get_child(i);
@@ -1199,7 +1202,7 @@ void VisualScriptEditor::_create_function_dialog() {
 }
 
 void VisualScriptEditor::_create_function() {
-    String name = _validate_name((func_name_box->get_text() == "") ? "new_func" : func_name_box->get_text());
+    se_string name(_validate_name(func_name_box->get_text_ui().isEmpty() ? "new_func" : func_name_box->get_text()));
     selected = StringName(name);
     Vector2 ofs = _get_available_pos();
 
@@ -1217,7 +1220,7 @@ void VisualScriptEditor::_create_function() {
         func_node->add_argument(arg_type, arg_name);
     }
 
-    undo_redo->create_action(TTR("Add Function"));
+    undo_redo->create_action_ui(TTR("Add Function"));
     undo_redo->add_do_method(script.get(), "add_function", name);
     undo_redo->add_do_method(script.get(), "add_node", name, script->get_available_id(), func_node, ofs);
     undo_redo->add_undo_method(script.get(), "remove_function", name);
@@ -1233,7 +1236,7 @@ void VisualScriptEditor::_create_function() {
 }
 
 void VisualScriptEditor::_add_node_dialog() {
-    _generic_search(script->get_instance_base_type(), graph->get_global_position() + Vector2(55, 80), true);
+    _generic_search(script->get_instance_base_type().asCString(), graph->get_global_position() + Vector2(55, 80), true);
 }
 
 void VisualScriptEditor::_add_func_input() {
@@ -1246,7 +1249,7 @@ void VisualScriptEditor::_add_func_input() {
 
     LineEdit *name_box = memnew(LineEdit);
     name_box->set_h_size_flags(SIZE_EXPAND_FILL);
-    name_box->set_text("input");
+    name_box->set_text_utf8("input");
     name_box->connect("focus_entered", this, "_deselect_input_names");
     hbox->add_child(name_box);
 
@@ -1257,13 +1260,13 @@ void VisualScriptEditor::_add_func_input() {
     OptionButton *type_box = memnew(OptionButton);
     type_box->set_custom_minimum_size(Size2(120 * EDSCALE, 0));
     for (int i = (int8_t)VariantType::NIL; i < (int8_t)VariantType::VARIANT_MAX; i++)
-        type_box->add_item(Variant::get_type_name(VariantType(i)));
+        type_box->add_item(Variant::interned_type_name(VariantType(i)));
     type_box->select(1);
     hbox->add_child(type_box);
 
     Button *delete_button = memnew(Button);
     delete_button->set_icon(EditorNode::get_singleton()->get_gui_base()->get_icon("Remove", "EditorIcons"));
-    delete_button->set_tooltip(vformat(TTR("Delete input port")));
+    delete_button->set_tooltip(TTR("Delete input port"));
     hbox->add_child(delete_button);
 
     for (int i = 0; i < func_input_vbox->get_child_count(); i++) {
@@ -1301,24 +1304,25 @@ void VisualScriptEditor::_member_button(Object *p_item, int p_column, int p_butt
     TreeItem *root = members->get_root();
 
     if (ti->get_parent() == root) {
-        //main buttons
+        // main buttons
         if (ti == root->get_children()) {
-            //add function, this one uses menu
+            // add function, this one uses menu
 
             if (p_button == 1) {
-                new_virtual_method_select->select_method_from_base_type(script->get_instance_base_type(), String(), true);
+                new_virtual_method_select->select_method_from_base_type(
+                        script->get_instance_base_type().asCString(), String(), true);
 
                 return;
             } else if (p_button == 0) {
 
-                String name = _validate_name("new_function");
+                se_string name(_validate_name("new_function"));
                 selected = StringName(name);
                 Vector2 ofs = _get_available_pos();
 
                 Ref<VisualScriptFunction> func_node(make_ref_counted<VisualScriptFunction>());
                 func_node->set_name(name);
 
-                undo_redo->create_action(TTR("Add Function"));
+                undo_redo->create_action_ui(TTR("Add Function"));
                 undo_redo->add_do_method(script.get(), "add_function", name);
                 undo_redo->add_do_method(script.get(), "add_node", name, script->get_available_id(), func_node, ofs);
                 undo_redo->add_undo_method(script.get(), "remove_function", name);
@@ -1333,15 +1337,15 @@ void VisualScriptEditor::_member_button(Object *p_item, int p_column, int p_butt
                 _update_graph();
             }
 
-            return; //or crash because it will become invalid
+            return; // or crash because it will become invalid
         }
 
         if (ti == root->get_children()->get_next()) {
             //add variable
-            String name = _validate_name("new_variable");
+            se_string name(_validate_name("new_variable"));
             selected = StringName(name);
 
-            undo_redo->create_action(TTR("Add Variable"));
+            undo_redo->create_action_ui(TTR("Add Variable"));
             undo_redo->add_do_method(script.get(), "add_variable", name);
             undo_redo->add_undo_method(script.get(), "remove_variable", name);
             undo_redo->add_do_method(this, "_update_members");
@@ -1354,10 +1358,10 @@ void VisualScriptEditor::_member_button(Object *p_item, int p_column, int p_butt
 
         if (ti == root->get_children()->get_next()->get_next()) {
             //add variable
-            String name = _validate_name("new_signal");
+            se_string name(_validate_name("new_signal"));
             selected = StringName(name);
 
-            undo_redo->create_action(TTR("Add Signal"));
+            undo_redo->create_action_ui(TTR("Add Signal"));
             undo_redo->add_do_method(script.get(), "add_custom_signal", name);
             undo_redo->add_undo_method(script.get(), "remove_custom_signal", name);
             undo_redo->add_do_method(this, "_update_members");
@@ -1371,7 +1375,7 @@ void VisualScriptEditor::_member_button(Object *p_item, int p_column, int p_butt
         selected = StringName(ti->get_text(0));
         function_name_edit->set_position(Input::get_singleton()->get_mouse_position() - Vector2(60, -10));
         function_name_edit->popup();
-        function_name_box->set_text(selected);
+        function_name_box->set_text_utf8(selected);
         function_name_box->select_all();
     }
 }
@@ -1386,7 +1390,7 @@ void VisualScriptEditor::_add_input_port(int p_id) {
 
     updating_graph = true;
 
-    undo_redo->create_action(TTR("Add Input Port"), UndoRedo::MERGE_ENDS);
+    undo_redo->create_action_ui(TTR("Add Input Port"), UndoRedo::MERGE_ENDS);
     undo_redo->add_do_method(vsn.get(), "add_input_data_port", VariantType::NIL, "arg", -1);
     undo_redo->add_do_method(this, "_update_graph", p_id);
 
@@ -1408,7 +1412,7 @@ void VisualScriptEditor::_add_output_port(int p_id) {
 
     updating_graph = true;
 
-    undo_redo->create_action(TTR("Add Output Port"), UndoRedo::MERGE_ENDS);
+    undo_redo->create_action_ui(TTR("Add Output Port"), UndoRedo::MERGE_ENDS);
     undo_redo->add_do_method(vsn.get(), "add_output_data_port", VariantType::NIL, "arg", -1);
     undo_redo->add_do_method(this, "_update_graph", p_id);
 
@@ -1430,7 +1434,7 @@ void VisualScriptEditor::_remove_input_port(int p_id, int p_port) {
 
     updating_graph = true;
 
-    undo_redo->create_action(TTR("Remove Input Port"), UndoRedo::MERGE_ENDS);
+    undo_redo->create_action_ui(TTR("Remove Input Port"), UndoRedo::MERGE_ENDS);
 
     int conn_from = -1, conn_port = -1;
     script->get_input_value_port_connection_source(func, p_id, p_port, &conn_from, &conn_port);
@@ -1462,7 +1466,7 @@ void VisualScriptEditor::_remove_output_port(int p_id, int p_port) {
 
     updating_graph = true;
 
-    undo_redo->create_action(TTR("Remove Output Port"), UndoRedo::MERGE_ENDS);
+    undo_redo->create_action_ui(TTR("Remove Output Port"), UndoRedo::MERGE_ENDS);
 
     List<VisualScript::DataConnection> data_connections;
     script->get_data_connection_list(func, &data_connections);
@@ -1496,7 +1500,7 @@ void VisualScriptEditor::_remove_output_port(int p_id, int p_port) {
     undo_redo->commit_action();
 }
 
-void VisualScriptEditor::_expression_text_changed(const String &p_text, int p_id) {
+void VisualScriptEditor::_expression_text_changed(se_string_view p_text, int p_id) {
 
     StringName func = _get_function_of_node(p_id);
 
@@ -1506,7 +1510,7 @@ void VisualScriptEditor::_expression_text_changed(const String &p_text, int p_id
 
     updating_graph = true;
 
-    undo_redo->create_action(TTR("Change Expression"), UndoRedo::MERGE_ENDS);
+    undo_redo->create_action_ui(TTR("Change Expression"), UndoRedo::MERGE_ENDS);
     undo_redo->add_do_property(vse.get(), "expression", p_text);
     undo_redo->add_undo_property(vse.get(), "expression", vse->get("expression"));
     undo_redo->add_do_method(this, "_update_graph", p_id);
@@ -1556,9 +1560,9 @@ Vector2 VisualScriptEditor::_get_available_pos(bool centered, Vector2 ofs) const
     return ofs;
 }
 
-String VisualScriptEditor::_validate_name(const String &p_name) const {
+se_string VisualScriptEditor::_validate_name(se_string_view p_name) const {
 
-    StringName valid(p_name);
+    StringName valid(p_name.data());
 
     int counter = 1;
     while (true) {
@@ -1567,14 +1571,14 @@ String VisualScriptEditor::_validate_name(const String &p_name) const {
 
         if (exists) {
             counter++;
-            valid = StringName(p_name + "_" + itos(counter));
+            valid = StringName(se_string(p_name) + "_" + ::to_string(counter));
             continue;
         }
 
         break;
     }
 
-    return valid;
+    return valid.asCString();
 }
 
 void VisualScriptEditor::_on_nodes_delete() {
@@ -1587,7 +1591,7 @@ void VisualScriptEditor::_on_nodes_delete() {
         GraphNode *gn = object_cast<GraphNode>(graph->get_child(i));
         if (gn) {
             if (gn->is_selected() && gn->is_close_button_visible()) {
-                to_erase.push_back(StringUtils::to_int(gn->get_name().asString()));
+                to_erase.push_back(StringUtils::to_int(gn->get_name().asCString()));
             }
         }
     }
@@ -1595,7 +1599,7 @@ void VisualScriptEditor::_on_nodes_delete() {
     if (to_erase.empty())
         return;
 
-    undo_redo->create_action(TTR("Remove VisualScript Nodes"));
+    undo_redo->create_action_ui(TTR("Remove VisualScript Nodes"));
 
     for (List<int>::Element *F = to_erase.front(); F; F = F->next()) {
 
@@ -1651,7 +1655,7 @@ void VisualScriptEditor::_on_nodes_duplicate() {
     if (to_duplicate.empty())
         return;
 
-    undo_redo->create_action(TTR("Duplicate VisualScript Nodes"));
+    undo_redo->create_action_ui(TTR("Duplicate VisualScript Nodes"));
     int idc = script->get_available_id() + 1;
 
     Set<int> to_select;
@@ -1659,7 +1663,7 @@ void VisualScriptEditor::_on_nodes_duplicate() {
 
     for (const int F : to_duplicate) {
 
-        // duplicate from the specifc function but place it into the default func as it would lack the connections
+        // duplicate from the specific function but place it into the default func as it would lack the connections
         StringName func = _get_function_of_node(F);
         Ref<VisualScriptNode> node(dynamic_ref_cast<VisualScriptNode>(script->get_node(func, F)));
 
@@ -1709,7 +1713,7 @@ void VisualScriptEditor::_on_nodes_duplicate() {
     }
 }
 
-void VisualScriptEditor::_generic_search(String p_base_type, Vector2 pos, bool node_centered) {
+void VisualScriptEditor::_generic_search(se_string_view p_base_type, Vector2 pos, bool node_centered) {
     if (node_centered)
         port_action_pos = graph->get_size() / 2.0f;
     else
@@ -1742,7 +1746,7 @@ void VisualScriptEditor::_graph_gui_input(const Ref<InputEvent> &p_event) {
         saved_position = graph->get_local_mouse_position();
 
         Point2 gpos = Input::get_singleton()->get_mouse_position();
-        _generic_search(script->get_instance_base_type(), gpos);
+        _generic_search(script->get_instance_base_type().asCString(), gpos);
     }
 }
 
@@ -1786,13 +1790,13 @@ void VisualScriptEditor::_rename_function(const StringName &name, const StringNa
 
     if (!StringUtils::is_valid_identifier(new_name)) {
 
-        EditorNode::get_singleton()->show_warning(TTR("Name is not a valid identifier:") + " " + new_name);
+        EditorNode::get_singleton()->show_warning(StringName(se_string(TTR("Name is not a valid identifier:")) + " " + new_name));
         return;
     }
 
     if (script->has_function(new_name) || script->has_variable(new_name) || script->has_custom_signal(new_name)) {
 
-        EditorNode::get_singleton()->show_warning(TTR("Name already in use by another func/var/signal:") + " " + new_name);
+        EditorNode::get_singleton()->show_warning(StringName(se_string(TTR("Name already in use by another func/var/signal:")) + " " + new_name));
         return;
     }
 
@@ -1801,7 +1805,7 @@ void VisualScriptEditor::_rename_function(const StringName &name, const StringNa
     if (script->has_node(name, node_id)) {
         func = dynamic_ref_cast<VisualScriptFunction>(script->get_node(name, node_id));
     }
-    undo_redo->create_action(TTR("Rename Function"));
+    undo_redo->create_action_ui(TTR("Rename Function"));
     undo_redo->add_do_method(script.get(), "rename_function", name, new_name);
     undo_redo->add_undo_method(script.get(), "rename_function", new_name, name);
     if (func) {
@@ -1856,9 +1860,9 @@ Variant VisualScriptEditor::get_drag_data_fw(const Point2 &p_point, Control *p_f
         if (!it)
             return Variant();
 
-        String type = it->get_metadata(0);
+        se_string type = it->get_metadata(0);
 
-        if (type == String())
+        if (type.empty())
             return Variant();
 
         Dictionary dd;
@@ -1882,7 +1886,7 @@ Variant VisualScriptEditor::get_drag_data_fw(const Point2 &p_point, Control *p_f
         }
 
         Label *label = memnew(Label);
-        label->set_text(it->get_text(0));
+        label->set_text(StringName(it->get_text_ui(0)));
         set_drag_preview(label);
         return dd;
     }
@@ -2021,7 +2025,7 @@ void VisualScriptEditor::drop_data_fw(const Point2 &p_point, const Variant &p_da
 
         int new_id = script->get_available_id();
 
-        undo_redo->create_action(TTR("Add Node"));
+        undo_redo->create_action_ui(TTR("Add Node"));
         undo_redo->add_do_method(script.get(), "add_node", default_func, new_id, vnode, ofs);
         undo_redo->add_undo_method(script.get(), "remove_node", default_func, new_id);
         undo_redo->add_do_method(this, "_update_graph");
@@ -2050,7 +2054,7 @@ void VisualScriptEditor::drop_data_fw(const Point2 &p_point, const Variant &p_da
 
         int new_id = script->get_available_id();
 
-        undo_redo->create_action(TTR("Add Node"));
+        undo_redo->create_action_ui(TTR("Add Node"));
         undo_redo->add_do_method(script.get(), "add_node", default_func, new_id, vnode, ofs);
         undo_redo->add_do_method(vnode.get(), "set_base_type", script->get_instance_base_type());
         undo_redo->add_do_method(vnode.get(), "set_function", d["function"]);
@@ -2083,7 +2087,7 @@ void VisualScriptEditor::drop_data_fw(const Point2 &p_point, const Variant &p_da
 
         int new_id = script->get_available_id();
 
-        undo_redo->create_action(TTR("Add Node"));
+        undo_redo->create_action_ui(TTR("Add Node"));
         undo_redo->add_do_method(script.get(), "add_node", default_func, new_id, vnode, ofs);
         undo_redo->add_undo_method(script.get(), "remove_node", default_func, new_id);
         undo_redo->add_do_method(this, "_update_graph");
@@ -2113,7 +2117,7 @@ void VisualScriptEditor::drop_data_fw(const Point2 &p_point, const Variant &p_da
 
         int new_id = script->get_available_id();
 
-        undo_redo->create_action(TTR("Add Preload Node"));
+        undo_redo->create_action_ui(TTR("Add Preload Node"));
         undo_redo->add_do_method(script.get(), "add_node", default_func, new_id, prnode, ofs);
         undo_redo->add_undo_method(script.get(), "remove_node", default_func, new_id);
         undo_redo->add_do_method(this, "_update_graph");
@@ -2143,11 +2147,11 @@ void VisualScriptEditor::drop_data_fw(const Point2 &p_point, const Variant &p_da
         int new_id = script->get_available_id();
 
         if (files.size()) {
-            undo_redo->create_action(TTR("Add Preload Node"));
+            undo_redo->create_action_ui(TTR("Add Preload Node"));
 
             for (int i = 0; i < files.size(); i++) {
 
-                Ref<Resource> res = ResourceLoader::load(files[i]);
+                Ref<Resource> res(ResourceLoader::load(files[i].as<se_string>()));
                 if (not res)
                     continue;
 
@@ -2202,7 +2206,7 @@ void VisualScriptEditor::drop_data_fw(const Point2 &p_point, const Variant &p_da
         }
         ofs /= EDSCALE;
 
-        undo_redo->create_action(TTR("Add Node(s) From Tree"));
+        undo_redo->create_action_ui(TTR("Add Node(s) From Tree"));
         int base_id = script->get_available_id();
 
         if (nodes.size() > 1) {
@@ -2232,7 +2236,7 @@ void VisualScriptEditor::drop_data_fw(const Point2 &p_point, const Variant &p_da
                 call->set_base_path(sn->get_path_to(node));
                 call->set_base_type(StringName(StaticCString(node->get_class(),true)));
                 n = call;
-                method_select->select_from_instance(node, "", true, node->get_class());
+                method_select->select_from_instance(node, {}, true, node->get_class());
                 selecting_method_id = base_id;
             }
 
@@ -2279,9 +2283,9 @@ void VisualScriptEditor::drop_data_fw(const Point2 &p_point, const Variant &p_da
         if (!node || Input::get_singleton()->is_key_pressed(KEY_SHIFT)) {
 
             if (use_get)
-                undo_redo->create_action(TTR("Add Getter Property"));
+                undo_redo->create_action_ui(TTR("Add Getter Property"));
             else
-                undo_redo->create_action(TTR("Add Setter Property"));
+                undo_redo->create_action_ui(TTR("Add Setter Property"));
 
             int base_id = script->get_available_id();
 
@@ -2323,9 +2327,9 @@ void VisualScriptEditor::drop_data_fw(const Point2 &p_point, const Variant &p_da
         } else {
 
             if (use_get)
-                undo_redo->create_action(TTR("Add Getter Property"));
+                undo_redo->create_action_ui(TTR("Add Getter Property"));
             else
-                undo_redo->create_action(TTR("Add Setter Property"));
+                undo_redo->create_action_ui(TTR("Add Setter Property"));
 
             int base_id = script->get_available_id();
 
@@ -2369,12 +2373,12 @@ void VisualScriptEditor::drop_data_fw(const Point2 &p_point, const Variant &p_da
     }
 }
 
-void VisualScriptEditor::_selected_method(const String &p_method, const String &p_type, const bool p_connecting) {
+void VisualScriptEditor::_selected_method(const StringName &p_method, StringName p_type, const bool p_connecting) {
 
     Ref<VisualScriptFunctionCall> vsfc(dynamic_ref_cast<VisualScriptFunctionCall>(script->get_node(default_func, selecting_method_id)));
     if (not vsfc)
         return;
-    vsfc->set_function(StringName(p_method));
+    vsfc->set_function(p_method);
 }
 
 void VisualScriptEditor::_draw_color_over_button(Object *obj, Color p_color) {
@@ -2387,7 +2391,7 @@ void VisualScriptEditor::_draw_color_over_button(Object *obj, Color p_color) {
     button->draw_rect(Rect2(normal->get_offset(), button->get_size() - normal->get_minimum_size()), p_color);
 }
 
-void VisualScriptEditor::_button_resource_previewed(const String &p_path, const Ref<Texture> &p_preview, const Ref<Texture> &p_small_preview, Variant p_ud) {
+void VisualScriptEditor::_button_resource_previewed(se_string_view p_path, const Ref<Texture> &p_preview, const Ref<Texture> &p_small_preview, Variant p_ud) {
 
     Array ud = p_ud;
     ERR_FAIL_COND(ud.size() != 2)
@@ -2440,27 +2444,27 @@ void VisualScriptEditor::set_edited_resource(const RES &p_res) {
     _update_members();
 }
 
-Vector<String> VisualScriptEditor::get_functions() {
+Vector<se_string> VisualScriptEditor::get_functions() {
 
-    return Vector<String>();
+    return {};
 }
 
 void VisualScriptEditor::reload_text() {
 }
 
-String VisualScriptEditor::get_name() {
+se_string VisualScriptEditor::get_name() {
 
-    String name;
+    se_string name;
 
-    if (!StringUtils::contains(script->get_path(),"local://") && StringUtils::contains(script->get_path(),"::")) {
+    if (!StringUtils::contains(script->get_path(),("local://")) && StringUtils::contains(script->get_path(),("::"))) {
         name = PathUtils::get_file(script->get_path());
         if (is_unsaved()) {
-            name += "(*)";
+            name += ("(*)");
         }
     } else if (script->get_name() != "")
         name = script->get_name();
     else
-        name = String(script->get_class()) + "(" + itos(script->get_instance_id()) + ")";
+        name = se_string(script->get_class()) + "(" + itos(script->get_instance_id()) + ")";
 
     return name;
 }
@@ -2602,12 +2606,12 @@ void VisualScriptEditor::get_breakpoints(List<int> *p_breakpoints) {
     }
 }
 
-void VisualScriptEditor::add_callback(const String &p_function, PoolStringArray p_args) {
+void VisualScriptEditor::add_callback(const StringName & p_function, const PoolVector<se_string> &p_args) {
 
-    if (script->has_function(StringName(p_function))) {
+    if (script->has_function((p_function))) {
         _update_members();
         _update_graph();
-        _center_on_node(StringName(p_function), script->get_function_node_id(StringName(p_function)));
+        _center_on_node((p_function), script->get_function_node_id((p_function)));
         return;
     }
 
@@ -2615,15 +2619,15 @@ void VisualScriptEditor::add_callback(const String &p_function, PoolStringArray 
 
     for (int i = 0; i < p_args.size(); i++) {
 
-        String name = p_args[i];
+        se_string_view name = p_args[i];
         VariantType type = VariantType::NIL;
 
         if (StringUtils::contains(name, ':')) {
-            String tt = StringUtils::get_slice(name, ':', 1);
+            se_string_view tt = StringUtils::get_slice(name, ':', 1);
             name = StringUtils::get_slice(name, ':', 0);
             for (int j = 0; j < (int)VariantType::VARIANT_MAX; j++) {
 
-                String tname = Variant::get_type_name(VariantType(j));
+                se_string_view tname(Variant::get_type_name(VariantType(j)));
                 if (tname == tt) {
                     type = VariantType(j);
                     break;
@@ -2635,13 +2639,13 @@ void VisualScriptEditor::add_callback(const String &p_function, PoolStringArray 
     }
 
     func->set_name(p_function);
-    script->add_function(StringName(p_function));
-    script->add_node(StringName(p_function), script->get_available_id(), func);
+    script->add_function((p_function));
+    script->add_node((p_function), script->get_available_id(), func);
 
     _update_members();
     _update_graph();
 
-    _center_on_node(StringName(p_function), script->get_function_node_id(StringName(p_function)));
+    _center_on_node((p_function), script->get_function_node_id((p_function)));
 }
 
 bool VisualScriptEditor::show_members_overview() {
@@ -2660,7 +2664,7 @@ void VisualScriptEditor::set_debugger_active(bool p_active) {
     }
 }
 
-void VisualScriptEditor::set_tooltip_request_func(String p_method, Object *p_obj) {
+void VisualScriptEditor::set_tooltip_request_func(se_string_view p_method, Object *p_obj) {
 }
 
 Control *VisualScriptEditor::get_edit_menu() {
@@ -2684,10 +2688,10 @@ void VisualScriptEditor::clear_edit_menu() {
 
 void VisualScriptEditor::_change_base_type_callback() {
 
-    String bt = select_base_type->get_selected_type();
+    StringName bt = select_base_type->get_selected_type();
 
     ERR_FAIL_COND(bt.empty())
-    undo_redo->create_action(TTR("Change Base Type"));
+    undo_redo->create_action_ui(TTR("Change Base Type"));
     undo_redo->add_do_method(script.get(), "set_instance_base_type", bt);
     undo_redo->add_undo_method(script.get(), "set_instance_base_type", script->get_instance_base_type());
     undo_redo->add_do_method(this, "_update_members");
@@ -2735,7 +2739,7 @@ static bool _get_in_slot(const Ref<VisualScriptNode> &p_node, int p_slot, int &r
 
 void VisualScriptEditor::_begin_node_move() {
 
-    undo_redo->create_action(TTR("Move Node(s)"));
+    undo_redo->create_action_ui(TTR("Move Node(s)"));
 }
 
 void VisualScriptEditor::_end_node_move() {
@@ -2779,7 +2783,7 @@ void VisualScriptEditor::_node_moved(Vector2 p_from, Vector2 p_to, int p_id) {
 
 void VisualScriptEditor::_remove_node(int p_id) {
 
-    undo_redo->create_action(TTR("Remove VisualScript Node"));
+    undo_redo->create_action_ui(TTR("Remove VisualScript Node"));
 
     StringName func = _get_function_of_node(p_id);
 
@@ -2812,7 +2816,7 @@ void VisualScriptEditor::_remove_node(int p_id) {
     undo_redo->commit_action();
 }
 
-void VisualScriptEditor::_node_ports_changed(const String &p_func, int p_id) {
+void VisualScriptEditor::_node_ports_changed(se_string_view p_func, int p_id) {
 
     _update_graph(p_id);
 }
@@ -2832,7 +2836,7 @@ bool VisualScriptEditor::node_has_sequence_connections(const StringName &p_func,
     return false;
 }
 
-void VisualScriptEditor::_graph_connected(const String &p_from, int p_from_slot, const String &p_to, int p_to_slot) {
+void VisualScriptEditor::_graph_connected(se_string_view p_from, int p_from_slot, se_string_view p_to, int p_to_slot) {
 
     StringName from_func = _get_function_of_node(StringUtils::to_int(p_from));
 
@@ -2861,7 +2865,7 @@ void VisualScriptEditor::_graph_connected(const String &p_from, int p_from_slot,
     // Do all the checks here
     StringName func; // this the func where we store the one the nodes at the end of the resolution on having multiple nodes
 
-    undo_redo->create_action(TTR("Connect Nodes"));
+    undo_redo->create_action_ui(TTR("Connect Nodes"));
 
     if (from_func == to_func) {
         func = to_func;
@@ -2956,7 +2960,7 @@ void VisualScriptEditor::_graph_connected(const String &p_from, int p_from_slot,
                     if ((to_node_pos.x - from_node_pos.x) < 0) {
                         // to is behind from node
                         if (to_node_pos.x > (from_node_pos.x - to_node_size.x - 240))
-                            new_to_node_pos.x = from_node_pos.x - to_node_size.x - 240; // approx size of construtor node + padding
+                            new_to_node_pos.x = from_node_pos.x - to_node_size.x - 240; // approx size of constructor node + padding
                         else
                             new_to_node_pos.x = to_node_pos.x;
                         new_to_node_pos.y = to_node_pos.y;
@@ -2965,7 +2969,7 @@ void VisualScriptEditor::_graph_connected(const String &p_from, int p_from_slot,
                     } else {
                         // to is ahead of from node
                         if (to_node_pos.x < (from_node_size.x + from_node_pos.x + 240))
-                            new_to_node_pos.x = from_node_size.x + from_node_pos.x + 240; // approx size of construtor node + padding
+                            new_to_node_pos.x = from_node_size.x + from_node_pos.x + 240; // approx size of constructor node + padding
                         else
                             new_to_node_pos.x = to_node_pos.x;
                         new_to_node_pos.y = to_node_pos.y;
@@ -3030,7 +3034,7 @@ void VisualScriptEditor::_graph_connected(const String &p_from, int p_from_slot,
     undo_redo->commit_action();
 }
 
-void VisualScriptEditor::_graph_disconnected(const String &p_from, int p_from_slot, const String &p_to, int p_to_slot) {
+void VisualScriptEditor::_graph_disconnected(se_string_view p_from, int p_from_slot, se_string_view p_to, int p_to_slot) {
 
     StringName func = _get_function_of_node(StringUtils::to_int(p_from));
     ERR_FAIL_COND(func != _get_function_of_node(StringUtils::to_int(p_to)));
@@ -3055,7 +3059,7 @@ void VisualScriptEditor::_graph_disconnected(const String &p_from, int p_from_sl
 
     ERR_FAIL_COND(from_seq != to_seq)
 
-    undo_redo->create_action(TTR("Disconnect Nodes"));
+    undo_redo->create_action_ui(TTR("Disconnect Nodes"));
 
     if (from_seq) {
         undo_redo->add_do_method(script.get(), "sequence_disconnect", func, StringUtils::to_int(p_from), from_port, StringUtils::to_int(p_to));
@@ -3291,7 +3295,7 @@ void VisualScriptEditor::_move_nodes_with_rescan(const StringName &p_func_from, 
     // undo_redo->commit_action();
 }
 
-void VisualScriptEditor::_graph_connect_to_empty(const String &p_from, int p_from_slot, const Vector2 &p_release_pos) {
+void VisualScriptEditor::_graph_connect_to_empty(se_string_view p_from, int p_from_slot, const Vector2 &p_release_pos) {
 
     Node *node = graph->get_node(NodePath(p_from));
     GraphNode *gn = object_cast<GraphNode>(node);
@@ -3397,20 +3401,20 @@ void VisualScriptEditor::_port_action_menu(int p_option, const StringName &func)
             } else {
                 n->set_base_type("Object");
             }
-            String type_string;
+            se_string type_string;
             if (script->get_node(func, port_action_node)->get_output_value_port_count() > 0) {
                 type_string = script->get_node(func, port_action_node)->get_output_value_port_info(port_action_output).hint_string;
             }
             if (tg.type == VariantType::OBJECT) {
                 if (tg.script) {
-                    new_connect_node_select->select_from_script(tg.script, "");
+                    new_connect_node_select->select_from_script(tg.script, {});
                 } else if (not type_string.empty()) {
                     new_connect_node_select->select_from_base_type(type_string);
                 } else {
-                    new_connect_node_select->select_from_base_type(n->get_base_type());
+                    new_connect_node_select->select_from_base_type(n->get_base_type().asCString());
                 }
             } else if (tg.type == VariantType::NIL) {
-                new_connect_node_select->select_from_base_type("");
+                new_connect_node_select->select_from_base_type({});
             } else {
                 new_connect_node_select->select_from_basic_type(tg.type);
             }
@@ -3428,13 +3432,13 @@ void VisualScriptEditor::_port_action_menu(int p_option, const StringName &func)
                 property_info = script->get_node(func, port_action_node)->get_output_value_port_info(port_action_output);
             }
             if (tg.type == VariantType::OBJECT) {
-                if (property_info.type == VariantType::OBJECT && property_info.hint_string != String()) {
-                    new_connect_node_select->select_from_action(property_info.hint_string);
-                } else {
-                    new_connect_node_select->select_from_action("");
+                se_string action;
+                if (property_info.type == VariantType::OBJECT && not property_info.hint_string.empty()) {
+                    action = property_info.hint_string;
                 }
+                new_connect_node_select->select_from_action(action);
             } else if (tg.type == VariantType::NIL) {
-                new_connect_node_select->select_from_action("");
+                new_connect_node_select->select_from_action({});
             } else {
                 new_connect_node_select->select_from_action(Variant::get_type_name(tg.type));
             }
@@ -3450,9 +3454,9 @@ void VisualScriptEditor::_port_action_menu(int p_option, const StringName &func)
 
 void VisualScriptEditor::connect_data(Ref<VisualScriptNode> vnode_old, Ref<VisualScriptNode> vnode, int new_id) {
 
-    undo_redo->create_action(TTR("Connect Node Data"));
+    undo_redo->create_action_ui(TTR("Connect Node Data"));
     VisualScriptReturn *vnode_return = object_cast<VisualScriptReturn>(vnode.get());
-    if (vnode_return != NULL && vnode_old->get_output_value_port_count() > 0) {
+    if (vnode_return != nullptr && vnode_old->get_output_value_port_count() > 0) {
         vnode_return->set_enable_return_value(true);
     }
     if (vnode_old->get_output_value_port_count() <= 0) {
@@ -3474,7 +3478,7 @@ void VisualScriptEditor::connect_data(Ref<VisualScriptNode> vnode_old, Ref<Visua
     undo_redo->commit_action();
 }
 
-void VisualScriptEditor::_selected_connect_node(const String &p_text, const String &p_category, const bool p_connecting) {
+void VisualScriptEditor::_selected_connect_node(const se_string &p_text, se_string_view p_category, const bool p_connecting) {
 
     Vector2 ofs = graph->get_scroll_ofs() + port_action_pos;
     if (graph->is_using_snap()) {
@@ -3482,6 +3486,7 @@ void VisualScriptEditor::_selected_connect_node(const String &p_text, const Stri
         ofs = ofs.snapped(Vector2(snap, snap));
     }
     ofs /= EDSCALE;
+    ofs /= graph->get_zoom();
 
     Set<int> vn;
 
@@ -3493,7 +3498,7 @@ void VisualScriptEditor::_selected_connect_node(const String &p_text, const Stri
         port_node_exists = false;
     }
 
-    if (p_category == "visualscript") {
+    if (p_category == se_string_view ("visualscript")) {
         Ref<VisualScriptNode> vnode_new = VisualScriptLanguage::singleton->create_node_from_name(p_text);
         Ref<VisualScriptNode> vnode_old;
         if (port_node_exists)
@@ -3507,7 +3512,7 @@ void VisualScriptEditor::_selected_connect_node(const String &p_text, const Stri
 
         if (object_cast<VisualScriptTypeCast>(vnode_new.get()) && vnode_old) {
             VariantType type = vnode_old->get_output_value_port_info(port_action_output).type;
-            String hint_name = vnode_old->get_output_value_port_info(port_action_output).hint_string;
+            se_string_view hint_name = vnode_old->get_output_value_port_info(port_action_output).hint_string;
 
             if (type == VariantType::OBJECT) {
                 object_cast<VisualScriptTypeCast>(vnode_new.get())->set_base_type(StringName(hint_name));
@@ -3518,7 +3523,7 @@ void VisualScriptEditor::_selected_connect_node(const String &p_text, const Stri
             }
         }
 
-        undo_redo->create_action(TTR("Add Node"));
+        undo_redo->create_action_ui(TTR("Add Node"));
         undo_redo->add_do_method(script.get(), "add_node", func, new_id, vnode_new, ofs);
         if (vnode_old && p_connecting) {
             connect_seq(vnode_old, vnode_new, new_id);
@@ -3533,47 +3538,48 @@ void VisualScriptEditor::_selected_connect_node(const String &p_text, const Stri
     }
 
     Ref<VisualScriptNode> vnode;
+    Ref<VisualScriptPropertySet> script_prop_set;
 
-    if (p_category == String("method")) {
+    if (p_category == se_string_view("method")) {
 
         Ref<VisualScriptFunctionCall> n(make_ref_counted<VisualScriptFunctionCall>());
         vnode = n;
-    } else if (p_category == String("set")) {
+    } else if (p_category == se_string_view("set")) {
 
         Ref<VisualScriptPropertySet> n(make_ref_counted<VisualScriptPropertySet>());
 
-        n->set_property(StringName(p_text));
         vnode = n;
-    } else if (p_category == String("get")) {
+        script_prop_set = n;
+    } else if (p_category == se_string_view("get")) {
 
         auto n(make_ref_counted<VisualScriptPropertyGet>());
         n->set_property(StringName(p_text));
         vnode = n;
     }
 
-    if (p_category == String("action")) {
-        if (p_text == "VisualScriptCondition") {
+    if (p_category == se_string_view("action")) {
+        if (p_text == se_string_view("VisualScriptCondition")) {
 
             auto n(make_ref_counted<VisualScriptCondition>());
             vnode = n;
         }
-        if (p_text == "VisualScriptSwitch") {
+        if (p_text == se_string_view("VisualScriptSwitch")) {
 
             auto n(make_ref_counted<VisualScriptSwitch>());
             vnode = n;
-        } else if (p_text == "VisualScriptSequence") {
+        } else if (p_text == se_string_view("VisualScriptSequence")) {
 
             auto n(make_ref_counted<VisualScriptSequence>());
             vnode = n;
-        } else if (p_text == "VisualScriptIterator") {
+        } else if (p_text == se_string_view("VisualScriptIterator")) {
 
             auto n(make_ref_counted<VisualScriptIterator>());
             vnode = n;
-        } else if (p_text == "VisualScriptWhile") {
+        } else if (p_text == se_string_view("VisualScriptWhile")) {
 
             auto n(make_ref_counted<VisualScriptWhile>());
             vnode = n;
-        } else if (p_text == "VisualScriptReturn") {
+        } else if (p_text == se_string_view("VisualScriptReturn")) {
 
             auto n(make_ref_counted<VisualScriptReturn>());
             vnode = n;
@@ -3581,12 +3587,15 @@ void VisualScriptEditor::_selected_connect_node(const String &p_text, const Stri
     }
 
     int new_id = script->get_available_id();
-    undo_redo->create_action(TTR("Add Node"));
+    undo_redo->create_action_ui(TTR("Add Node"));
     undo_redo->add_do_method(script.get(), "add_node", func, new_id, vnode, ofs);
     undo_redo->add_undo_method(script.get(), "remove_node", func, new_id);
     undo_redo->add_do_method(this, "_update_graph", new_id);
     undo_redo->add_undo_method(this, "_update_graph", new_id);
     undo_redo->commit_action();
+
+    if (script_prop_set)
+        script_prop_set->set_property(StringName(p_text));
 
     port_action_new_node = new_id;
 
@@ -3608,12 +3617,12 @@ void VisualScriptEditor::_selected_connect_node(const String &p_text, const Stri
 
                 } else if (script->get_node(func, port_action_node)) {
                     PropertyHint hint = script->get_node(func, port_action_node)->get_output_value_port_info(port_action_output).hint;
-                    String base_type = script->get_node(func, port_action_node)->get_output_value_port_info(port_action_output).hint_string;
+                    se_string_view base_type = script->get_node(func, port_action_node)->get_output_value_port_info(port_action_output).hint_string;
 
-                    if (base_type != String() && hint == PROPERTY_HINT_TYPE_STRING) {
+                    if (not base_type.empty() && hint == PROPERTY_HINT_TYPE_STRING) {
                         vsfc->set_base_type(StringName(base_type));
                     }
-                    if (p_text == "call" || p_text == "call_deferred") {
+                    if (p_text == se_string_view("call") || p_text == se_string_view("call_deferred")) {
                         vsfc->set_function(StringName());
                     }
                 }
@@ -3643,9 +3652,9 @@ void VisualScriptEditor::_selected_connect_node(const String &p_text, const Stri
 
                     } else if (script->get_node(func, port_action_node)) {
                         PropertyHint hint = script->get_node(func, port_action_node)->get_output_value_port_info(port_action_output).hint;
-                        String base_type = script->get_node(func, port_action_node)->get_output_value_port_info(port_action_output).hint_string;
+                        se_string_view base_type = script->get_node(func, port_action_node)->get_output_value_port_info(port_action_output).hint_string;
 
-                        if (base_type != String() && hint == PROPERTY_HINT_TYPE_STRING) {
+                        if (not base_type.empty() && hint == PROPERTY_HINT_TYPE_STRING) {
                             vspg->set_base_type(StringName(base_type));
                         }
                     }
@@ -3673,8 +3682,8 @@ void VisualScriptEditor::_selected_connect_node(const String &p_text, const Stri
 
                 } else if (script->get_node(func, port_action_node)) {
                     PropertyHint hint = script->get_node(func, port_action_node)->get_output_value_port_info(port_action_output).hint;
-                    String base_type = script->get_node(func, port_action_node)->get_output_value_port_info(port_action_output).hint_string;
-                    if (base_type != String() && hint == PROPERTY_HINT_TYPE_STRING) {
+                    se_string_view base_type = script->get_node(func, port_action_node)->get_output_value_port_info(port_action_output).hint_string;
+                    if (not base_type.empty() && hint == PROPERTY_HINT_TYPE_STRING) {
                         vsp->set_base_type(StringName(base_type));
                     }
                 }
@@ -3721,7 +3730,7 @@ void VisualScriptEditor::connect_seq(Ref<VisualScriptNode> vnode_old, Ref<Visual
 
     StringName func = _get_function_of_node(port_action_node);
 
-    undo_redo->create_action(TTR("Connect Node Sequence"));
+    undo_redo->create_action_ui(TTR("Connect Node Sequence"));
     int pass_port = -vnode_old->get_output_sequence_port_count() + 1;
     int return_port = port_action_output - 1;
     if (vnode_old->get_output_value_port_info(port_action_output).name == StringName("pass") &&
@@ -3750,11 +3759,11 @@ void VisualScriptEditor::connect_seq(Ref<VisualScriptNode> vnode_old, Ref<Visual
     undo_redo->commit_action();
 }
 
-void VisualScriptEditor::_selected_new_virtual_method(const String &p_text, const String &p_category, const bool p_connecting) {
+void VisualScriptEditor::_selected_new_virtual_method(se_string_view p_text, se_string_view p_category, const bool p_connecting) {
 
     StringName name(p_text);
     if (script->has_function(name)) {
-        EditorNode::get_singleton()->show_warning(vformat(TTR("Script already has function '%s'"), name));
+        EditorNode::get_singleton()->show_warning(StringName(FormatVE(TTR("Script already has function '%s'").asCString(), name.asCString())));
         return;
     }
 
@@ -3778,11 +3787,11 @@ void VisualScriptEditor::_selected_new_virtual_method(const String &p_text, cons
     Ref<VisualScriptFunction> func_node(make_ref_counted<VisualScriptFunction>());
     func_node->set_name(name);
 
-    undo_redo->create_action(TTR("Add Function"));
+    undo_redo->create_action_ui(TTR("Add Function"));
     undo_redo->add_do_method(script.get(), "add_function", name);
 
-    for (int i = 0; i < minfo.arguments.size(); i++) {
-        func_node->add_argument(minfo.arguments[i].type, minfo.arguments[i].name, -1, minfo.arguments[i].hint, minfo.arguments[i].hint_string);
+    for (const PropertyInfo & argument : minfo.arguments) {
+        func_node->add_argument(argument.type, argument.name, -1, argument.hint, argument.hint_string);
     }
 
     Vector2 ofs = _get_available_pos();
@@ -3813,7 +3822,7 @@ void VisualScriptEditor::_cancel_connect_node() {
     port_action_new_node = -1;
 }
 
-int VisualScriptEditor::_create_new_node_from_name(const String &p_text, const Vector2 &p_point, const StringName &p_func) {
+int VisualScriptEditor::_create_new_node_from_name(const se_string &p_text, const Vector2 &p_point, const StringName &p_func) {
 
     StringName func = default_func;
     if (p_func != StringName())
@@ -3821,7 +3830,7 @@ int VisualScriptEditor::_create_new_node_from_name(const String &p_text, const V
 
     Ref<VisualScriptNode> vnode = VisualScriptLanguage::singleton->create_node_from_name(p_text);
     int new_id = script->get_available_id();
-    undo_redo->create_action(TTR("Add Node"));
+    undo_redo->create_action_ui(TTR("Add Node"));
     undo_redo->add_do_method(script.get(), "add_node", func, new_id, vnode, p_point);
     undo_redo->add_undo_method(script.get(), "remove_node", func, new_id);
     undo_redo->add_do_method(this, "_update_graph");
@@ -3836,7 +3845,7 @@ void VisualScriptEditor::_default_value_changed() {
     if (not vsn)
         return;
 
-    undo_redo->create_action(TTR("Change Input Value"));
+    undo_redo->create_action_ui(TTR("Change Input Value"));
     undo_redo->add_do_method(vsn.get(), "set_default_input_value", editing_input, default_value_edit->get_variant());
     undo_redo->add_undo_method(vsn.get(), "set_default_input_value", editing_input, vsn->get_default_input_value(editing_input));
 
@@ -3872,16 +3881,16 @@ void VisualScriptEditor::_default_value_edited(Node *p_button, int p_id, int p_i
             if (script_node) {
                 //pick a node relative to the script, IF the script exists
                 pinfo.hint = PROPERTY_HINT_NODE_PATH_TO_EDITED_NODE;
-                pinfo.hint_string = (String)script_node->get_path();
+                pinfo.hint_string = script_node->get_path().asString();
             } else {
                 //pick a path relative to edited scene
                 pinfo.hint = PROPERTY_HINT_NODE_PATH_TO_EDITED_NODE;
-                pinfo.hint_string = (String)get_tree()->get_edited_scene_root()->get_path();
+                pinfo.hint_string = get_tree()->get_edited_scene_root()->get_path().asString();
             }
         }
     }
 
-    if (default_value_edit->edit(NULL, pinfo.name, pinfo.type, existing, pinfo.hint, pinfo.hint_string)) {
+    if (default_value_edit->edit(nullptr, pinfo.name, pinfo.type, existing, pinfo.hint, pinfo.hint_string)) {
         if (pinfo.hint == PROPERTY_HINT_MULTILINE_TEXT)
             default_value_edit->popup_centered_ratio();
         else
@@ -3892,7 +3901,7 @@ void VisualScriptEditor::_default_value_edited(Node *p_button, int p_id, int p_i
     editing_input = p_input_port;
 }
 
-void VisualScriptEditor::_show_hint(const String &p_hint) {
+void VisualScriptEditor::_show_hint(const StringName &p_hint) {
 
     hint_text->set_text(p_hint);
     hint_text->show();
@@ -3925,32 +3934,32 @@ void VisualScriptEditor::_notification(int p_what) {
 
             bool dark_theme = tm->get_constant("dark_theme", "Editor");
 
-            List<Pair<String, Color>> colors;
+            PODVector<Pair<se_string_view, Color>> colors;
             if (dark_theme) {
-                colors.push_back(Pair<String, Color>("flow_control", Color(0.96f, 0.96f, 0.96f)));
-                colors.push_back(Pair<String, Color>("functions", Color(0.96f, 0.52f, 0.51f)));
-                colors.push_back(Pair<String, Color>("data", Color(0.5f, 0.96f, 0.81f)));
-                colors.push_back(Pair<String, Color>("operators", Color(0.67f, 0.59f, 0.87f)));
-                colors.push_back(Pair<String, Color>("custom", Color(0.5f, 0.73f, 0.96f)));
-                colors.push_back(Pair<String, Color>("constants", Color(0.96f, 0.5f, 0.69f)));
+                colors.emplace_back("flow_control", Color(0.96f, 0.96f, 0.96f));
+                colors.emplace_back("functions", Color(0.96f, 0.52f, 0.51f));
+                colors.emplace_back("data", Color(0.5f, 0.96f, 0.81f));
+                colors.emplace_back("operators", Color(0.67f, 0.59f, 0.87f));
+                colors.emplace_back("custom", Color(0.5f, 0.73f, 0.96f));
+                colors.emplace_back("constants", Color(0.96f, 0.5f, 0.69f));
             } else {
-                colors.push_back(Pair<String, Color>("flow_control", Color(0.26f, 0.26f, 0.26f)));
-                colors.push_back(Pair<String, Color>("functions", Color(0.95f, 0.4f, 0.38f)));
-                colors.push_back(Pair<String, Color>("data", Color(0.07f, 0.73f, 0.51f)));
-                colors.push_back(Pair<String, Color>("operators", Color(0.51f, 0.4f, 0.82f)));
-                colors.push_back(Pair<String, Color>("custom", Color(0.31f, 0.63f, 0.95f)));
-                colors.push_back(Pair<String, Color>("constants", Color(0.94f, 0.18f, 0.49f)));
+                colors.emplace_back("flow_control", Color(0.26f, 0.26f, 0.26f));
+                colors.emplace_back("functions", Color(0.95f, 0.4f, 0.38f));
+                colors.emplace_back("data", Color(0.07f, 0.73f, 0.51f));
+                colors.emplace_back("operators", Color(0.51f, 0.4f, 0.82f));
+                colors.emplace_back("custom", Color(0.31f, 0.63f, 0.95f));
+                colors.emplace_back("constants", Color(0.94f, 0.18f, 0.49f));
             }
 
-            for (List<Pair<String, Color>>::Element *E = colors.front(); E; E = E->next()) {
+            for (const Pair<se_string_view, Color> &E : colors) {
                 Ref<StyleBoxFlat> sb(dynamic_ref_cast<StyleBoxFlat>(tm->get_stylebox("frame", "GraphNode")));
                 if (sb) {
                     Ref<StyleBoxFlat> frame_style(dynamic_ref_cast<StyleBoxFlat>(sb->duplicate()));
                     Color c = sb->get_border_color();
-                    Color cn = E->deref().second;
+                    Color cn = E.second;
                     cn.a = c.a;
                     frame_style->set_border_color(cn);
-                    node_styles[StringName(E->deref().first)] = frame_style;
+                    node_styles[StringName(E.first)] = frame_style;
                 }
             }
 
@@ -4000,7 +4009,7 @@ void VisualScriptEditor::_comment_node_resized(const Vector2 &p_new_size, int p_
 
     graph->set_block_minimum_size_adjust(true); //faster resize
 
-    undo_redo->create_action(TTR("Resize Comment"), UndoRedo::MERGE_ENDS);
+    undo_redo->create_action_ui(TTR("Resize Comment"), UndoRedo::MERGE_ENDS);
     undo_redo->add_do_method(vsc.get(), "set_size", p_new_size / EDSCALE);
     undo_redo->add_undo_method(vsc.get(), "set_size", vsc->get_size());
     undo_redo->commit_action();
@@ -4019,7 +4028,7 @@ void VisualScriptEditor::_menu_option(int p_what) {
         } break;
         case EDIT_TOGGLE_BREAKPOINT: {
 
-            List<String> reselect;
+            List<StringName> reselect;
             for (int i = 0; i < graph->get_child_count(); i++) {
                 GraphNode *gn = object_cast<GraphNode>(graph->get_child(i));
                 if (gn) {
@@ -4037,14 +4046,14 @@ void VisualScriptEditor::_menu_option(int p_what) {
 
             _update_graph();
 
-            for (List<String>::Element *E = reselect.front(); E; E = E->next()) {
+            for (List<StringName>::Element *E = reselect.front(); E; E = E->next()) {
                 GraphNode *gn = object_cast<GraphNode>(graph->get_node(NodePath(E->deref())));
                 gn->set_selected(true);
             }
 
         } break;
         case EDIT_FIND_NODE_TYPE: {
-            _generic_search(script->get_instance_base_type());
+            _generic_search(script->get_instance_base_type().asCString());
         } break;
         case EDIT_COPY_NODES:
         case EDIT_CUT_NODES: {
@@ -4055,7 +4064,7 @@ void VisualScriptEditor::_menu_option(int p_what) {
             clipboard->data_connections.clear();
             clipboard->sequence_connections.clear();
 
-            Set<String> funcs;
+            Set<se_string> funcs;
             for (int i = 0; i < graph->get_child_count(); i++) {
                 GraphNode *gn = object_cast<GraphNode>(graph->get_child(i));
                 if (gn) {
@@ -4071,7 +4080,7 @@ void VisualScriptEditor::_menu_option(int p_what) {
                         if (node) {
                             clipboard->nodes[id] = dynamic_ref_cast<VisualScriptNode>(node->duplicate(true));
                             clipboard->nodes_positions[id] = script->get_node_position(func, id);
-                            funcs.insert(String(func));
+                            funcs.insert(func);
                         }
                     }
                 }
@@ -4080,7 +4089,7 @@ void VisualScriptEditor::_menu_option(int p_what) {
             if (clipboard->nodes.empty())
                 break;
 
-            for (const String &F : funcs) {
+            for (const se_string &F : funcs) {
                 List<VisualScript::SequenceConnection> sequence_connections;
 
                 script->get_sequence_connection_list(StringName(F), &sequence_connections);
@@ -4121,7 +4130,7 @@ void VisualScriptEditor::_menu_option(int p_what) {
 
             Map<int, int> remap;
 
-            undo_redo->create_action(TTR("Paste VisualScript Nodes"));
+            undo_redo->create_action_ui(TTR("Paste VisualScript Nodes"));
             int idc = script->get_available_id() + 1;
 
             Set<int> to_select;
@@ -4330,14 +4339,14 @@ void VisualScriptEditor::_menu_option(int p_what) {
                 }
             }
 
-            String new_fn = _validate_name("new_function");
+            se_string new_fn(_validate_name("new_function"));
 
             Vector2 ofs = _get_available_pos(false, script->get_node_position(function, start_node) - Vector2(80, 150));
 
             Ref<VisualScriptFunction> func_node(make_ref_counted<VisualScriptFunction>());
             func_node->set_name(new_fn);
 
-            undo_redo->create_action(TTR("Create Function"));
+            undo_redo->create_action_ui(TTR("Create Function"));
 
             undo_redo->add_do_method(script.get(), "add_function", new_fn);
             int fn_id = script->get_available_id();
@@ -4518,7 +4527,7 @@ void VisualScriptEditor::_member_option(int p_option) {
 
             if (p_option == MEMBER_REMOVE) {
                 //delete the function
-                undo_redo->create_action(TTR("Remove Function"));
+                undo_redo->create_action_ui(TTR("Remove Function"));
                 undo_redo->add_do_method(script.get(), "remove_function", name);
                 undo_redo->add_undo_method(script.get(), "add_function", name);
                 List<int> nodes;
@@ -4551,7 +4560,7 @@ void VisualScriptEditor::_member_option(int p_option) {
             } else if (p_option == MEMBER_EDIT) {
                 selected = StringName(members->get_selected()->get_text(0));
                 function_name_edit->popup();
-                function_name_box->set_text(selected);
+                function_name_box->set_text_utf8(selected);
                 function_name_box->select_all();
             }
         } break;
@@ -4559,7 +4568,7 @@ void VisualScriptEditor::_member_option(int p_option) {
 
 
             if (p_option == MEMBER_REMOVE) {
-                undo_redo->create_action(TTR("Remove Variable"));
+                undo_redo->create_action_ui(TTR("Remove Variable"));
                 undo_redo->add_do_method(script.get(), "remove_variable", name);
                 undo_redo->add_undo_method(script.get(), "add_variable", name, script->get_variable_default_value(name));
                 undo_redo->add_undo_method(script.get(), "set_variable_info", name, script->call("get_variable_info", name)); //return as dict
@@ -4574,7 +4583,7 @@ void VisualScriptEditor::_member_option(int p_option) {
         } break;
         case MEMBER_SIGNAL: {
             if (p_option == MEMBER_REMOVE) {
-                undo_redo->create_action(TTR("Remove Signal"));
+                undo_redo->create_action_ui(TTR("Remove Signal"));
                 undo_redo->add_do_method(script.get(), "remove_custom_signal", name);
                 undo_redo->add_undo_method(script.get(), "add_custom_signal", name);
 
@@ -4718,7 +4727,7 @@ VisualScriptEditor::VisualScriptEditor() {
     members->set_hide_root(true);
     members->connect("button_pressed", this, "_member_button");
     members->connect("item_edited", this, "_member_edited");
-    members->connect("cell_selected", this, "_member_selected", varray(), ObjectNS::CONNECT_DEFERRED);
+    members->connect("cell_selected", this, "_member_selected", varray(), ObjectNS::CONNECT_QUEUED);
     members->connect("gui_input", this, "_members_gui_input");
     members->connect("item_rmb_selected", this, "_member_rmb_selected");
     members->set_allow_rmb_select(true);
@@ -4758,7 +4767,7 @@ VisualScriptEditor::VisualScriptEditor() {
     HBoxContainer *graph_hbc = graph->get_zoom_hbox();
 
     Label *base_lbl = memnew(Label);
-    base_lbl->set_text("Change Base Type: ");
+    base_lbl->set_text(TTR("Change Base Type: "));
     graph_hbc->add_child(base_lbl);
 
     base_type_select = memnew(Button);
@@ -4766,12 +4775,12 @@ VisualScriptEditor::VisualScriptEditor() {
     graph_hbc->add_child(base_type_select);
 
     Button *add_nds = memnew(Button);
-    add_nds->set_text("Add Nodes...");
+    add_nds->set_text(TTR("Add Nodes..."));
     graph_hbc->add_child(add_nds);
     add_nds->connect("pressed", this, "_add_node_dialog");
 
     Button *fn_btn = memnew(Button);
-    fn_btn->set_text("Add Function...");
+    fn_btn->set_text(TTR("Add Function..."));
     graph_hbc->add_child(fn_btn);
     fn_btn->connect("pressed", this, "_create_function_dialog");
 
@@ -4789,7 +4798,7 @@ VisualScriptEditor::VisualScriptEditor() {
     func_name_box = memnew(LineEdit);
     func_name_box->set_h_size_flags(SIZE_EXPAND_FILL);
     func_name_box->set_placeholder(TTR("function_name"));
-    func_name_box->set_text("");
+    func_name_box->set_text_utf8("");
     func_name_box->connect("focus_entered", this, "_deselect_input_names");
     func_name_hbox->add_child(func_name_box);
 
@@ -4880,7 +4889,7 @@ VisualScriptEditor::VisualScriptEditor() {
     edit_variable_edit->edit(variable_editor);
 
     select_base_type = memnew(CreateDialog);
-    select_base_type->set_base_type("Object"); // Anything goes.
+    select_base_type->set_base_type(("Object")); // Anything goes.
     select_base_type->connect("create", this, "_change_base_type_callback");
     add_child(select_base_type);
 
@@ -4955,15 +4964,15 @@ void VisualScriptEditor::register_editor() {
     EditorNode::add_plugin_init_callback(register_editor_callback);
 }
 
-Ref<VisualScriptNode> _VisualScriptEditor::create_node_custom(const String &p_name) {
+Ref<VisualScriptNode> _VisualScriptEditor::create_node_custom(se_string_view p_name) {
 
     Ref<VisualScriptCustomNode> node(make_ref_counted<VisualScriptCustomNode>());
-    node->set_script(singleton->custom_nodes[p_name]);
+    node->set_script(singleton->custom_nodes[se_string(p_name)]);
     return node;
 }
 
 _VisualScriptEditor *_VisualScriptEditor::singleton = nullptr;
-Map<String, RefPtr> _VisualScriptEditor::custom_nodes;
+Map<se_string, RefPtr> _VisualScriptEditor::custom_nodes;
 
 _VisualScriptEditor::_VisualScriptEditor() {
     singleton = this;
@@ -4973,15 +4982,15 @@ _VisualScriptEditor::~_VisualScriptEditor() {
     custom_nodes.clear();
 }
 
-void _VisualScriptEditor::add_custom_node(const String &p_name, const String &p_category, const Ref<Script> &p_script) {
-    String node_name = "custom/" + p_category + "/" + p_name;
+void _VisualScriptEditor::add_custom_node(se_string_view p_name, se_string_view p_category, const Ref<Script> &p_script) {
+    se_string node_name = se_string("custom/") + p_category + "/" + p_name;
     custom_nodes.emplace(node_name, p_script.get_ref_ptr());
     VisualScriptLanguage::singleton->add_register_func(node_name, &_VisualScriptEditor::create_node_custom);
     emit_signal("custom_nodes_updated");
 }
 
-void _VisualScriptEditor::remove_custom_node(const String &p_name, const String &p_category) {
-    String node_name = "custom/" + p_category + "/" + p_name;
+void _VisualScriptEditor::remove_custom_node(se_string_view p_name, se_string_view p_category) {
+    se_string node_name = se_string("custom/") + p_category + "/" + p_name;
     custom_nodes.erase(node_name);
     VisualScriptLanguage::singleton->remove_register_func(node_name);
     emit_signal("custom_nodes_updated");

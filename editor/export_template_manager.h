@@ -41,57 +41,57 @@
 class ExportTemplateVersion;
 
 class ExportTemplateManager : public ConfirmationDialog {
-	GDCLASS(ExportTemplateManager,ConfirmationDialog)
+    GDCLASS(ExportTemplateManager,ConfirmationDialog)
 
-	AcceptDialog *template_downloader;
-	VBoxContainer *template_list;
-	Label *template_list_state;
-	ProgressBar *template_download_progress;
+    AcceptDialog *template_downloader;
+    VBoxContainer *template_list;
+    Label *template_list_state;
+    ProgressBar *template_download_progress;
 
-	ScrollContainer *installed_scroll;
-	VBoxContainer *installed_vb;
-	HBoxContainer *current_hb;
-	FileDialog *template_open;
+    ScrollContainer *installed_scroll;
+    VBoxContainer *installed_vb;
+    HBoxContainer *current_hb;
+    FileDialog *template_open;
 
-	ConfirmationDialog *remove_confirm;
-	String to_remove;
+    ConfirmationDialog *remove_confirm;
+    se_string to_remove;
 
-	HTTPRequest *request_mirror;
-	HTTPRequest *download_templates;
+    HTTPRequest *request_mirror;
+    HTTPRequest *download_templates;
 
-	Vector<uint8_t> download_data;
+    Vector<uint8_t> download_data;
 
-	float update_countdown;
+    float update_countdown;
 
-	void _update_template_list();
+    void _update_template_list();
 
-	void _download_template(const String &p_version);
-	void _uninstall_template(const String &p_version);
-	void _uninstall_template_confirm();
+    void _download_template(const se_string &p_version);
+    void _uninstall_template(const se_string &p_version);
+    void _uninstall_template_confirm();
 
-	void ok_pressed() override;
-	bool _install_from_file(const String &p_file, bool p_use_progress = true);
+    void ok_pressed() override;
+    bool _install_from_file(const se_string & p_file, bool p_use_progress = true);
 
-	Error _extract_libs_from_apk(const String &p_target_name);
+    Error _extract_libs_from_apk(const se_string &p_target_name);
 
-	void _http_download_mirror_completed(int p_status, int p_code, const PoolStringArray &headers, const PoolByteArray &p_data);
-	void _http_download_templates_completed(int p_status, int p_code, const PoolStringArray &headers, const PoolByteArray &p_data);
+    void _http_download_mirror_completed(int p_status, int p_code, const PoolSeStringArray &headers, const PoolByteArray &p_data);
+    void _http_download_templates_completed(int p_status, int p_code, const PoolSeStringArray &headers, const PoolByteArray &p_data);
 
-	void _begin_template_download(const String &p_url);
+    void _begin_template_download(const se_string &p_url);
 
-	void _window_template_downloader_closed();
+    void _window_template_downloader_closed();
 
 protected:
-	void _notification(int p_what);
-	static void _bind_methods();
+    void _notification(int p_what);
+    static void _bind_methods();
 
 public:
-	bool can_install_android_template();
-	Error install_android_template();
+    bool can_install_android_template();
+    Error install_android_template();
 
-	void popup_manager();
+    void popup_manager();
 
-	ExportTemplateManager();
+    ExportTemplateManager();
 };
 
 #endif // EXPORT_TEMPLATE_MANAGER_H

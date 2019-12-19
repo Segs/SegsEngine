@@ -52,7 +52,7 @@ subject to the following restrictions:
 
 static void plane_space(const Vector3 &n, Vector3 &p, Vector3 &q) {
 
-    if (Math::abs(n.z) > 0.707106781186547524400844362f) {
+    if (Math::abs(n.z) > Math_SQRT12) {
 		// choose p in y-z plane
         real_t a = n.y * n.y + n.z * n.z;
         real_t k = 1.0f / Math::sqrt(a);

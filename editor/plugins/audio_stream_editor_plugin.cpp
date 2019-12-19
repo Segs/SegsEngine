@@ -105,7 +105,7 @@ void AudioStreamEditor::_preview_changed(ObjectID p_which) {
     }
 }
 
-void AudioStreamEditor::_changed_callback(Object *p_changed, const char *p_prop) {
+void AudioStreamEditor::_changed_callback(Object *p_changed, StringName p_prop) {
 
     if (!is_visible())
         return;
@@ -154,7 +154,7 @@ void AudioStreamEditor::_draw_indicator() {
     float ofs_x = _current / len * rect.size.width;
     _indicator->draw_line(Point2(ofs_x, 0), Point2(ofs_x, rect.size.height), get_color("accent_color", "Editor"), 1);
 
-    _current_label->set_text(StringUtils::pad_decimals(StringUtils::num(_current, 2),2) + " /");
+    _current_label->set_text(StringName(StringUtils::pad_decimals(StringUtils::num(_current, 2),2) + " /"));
 }
 
 void AudioStreamEditor::_on_input_indicator(const Ref<InputEvent>& p_event) {
@@ -191,8 +191,8 @@ void AudioStreamEditor::edit(const Ref<AudioStream>& p_stream) {
     stream = p_stream;
     _player->set_stream(stream);
     _current = 0;
-    String text = StringUtils::pad_decimals(StringUtils::num(stream->get_length(), 2),2) + "s";
-    _duration_label->set_text(text);
+    se_string text = StringUtils::pad_decimals(StringUtils::num(stream->get_length(), 2),2) + "s";
+    _duration_label->set_text(StringName(text));
 
     if (stream) {
         stream->add_change_receptor(this);

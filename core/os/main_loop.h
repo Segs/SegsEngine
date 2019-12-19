@@ -66,14 +66,14 @@ public:
 	};
 
 	virtual void input_event(const Ref<InputEvent> &p_event);
-	virtual void input_text(const String &p_text);
+	virtual void input_text(se_string_view p_text);
 
 	virtual void init();
 	virtual bool iteration(float p_time);
 	virtual bool idle(float p_time);
 	virtual void finish();
 
-	virtual void drop_files(const Vector<String> &p_files, int p_from_screen = 0);
+	virtual void drop_files(const Vector<se_string> &p_files, int p_from_screen = 0);
 	virtual void global_menu_action(const Variant &p_id, const Variant &p_meta);
 
 	void set_init_script(const Ref<Script> &p_init_script);

@@ -34,7 +34,6 @@
 #include "core/forward_decls.h"
 
 class StringName;
-class String;
 
 class GODOT_EXPORT NodePath {
 
@@ -43,59 +42,60 @@ class GODOT_EXPORT NodePath {
     mutable bool hash_cache_valid=false;
     mutable uint32_t hash_cache;
 
-	void unref();
+    void unref();
 
-	void _update_hash_cache() const;
+    void _update_hash_cache() const;
 
 public:
-	StringName get_sname() const;
-    String asString() const;
+    StringName get_sname() const;
+    se_string asString() const;
 
-	bool is_absolute() const;
-	int get_name_count() const;
-	StringName get_name(int p_idx) const;
-	int get_subname_count() const;
-	StringName get_subname(int p_idx) const;
+    bool is_absolute() const;
+    int get_name_count() const;
+    StringName get_name(int p_idx) const;
+    int get_subname_count() const;
+    StringName get_subname(int p_idx) const;
     const Vector<StringName> &get_names() const;
     const Vector<StringName> &get_subnames() const;
-	StringName get_concatenated_subnames() const;
+    StringName get_concatenated_subnames() const;
 
-	NodePath rel_path_to(const NodePath &p_np) const;
-	NodePath get_as_property_path() const;
+    NodePath rel_path_to(const NodePath &p_np) const;
+    NodePath get_as_property_path() const;
 
-	void prepend_period();
+    void prepend_period();
 
-	NodePath get_parent() const;
+    NodePath get_parent() const;
 
-	_FORCE_INLINE_ uint32_t hash() const {
-		if (!data)
-			return 0;
-		if (!hash_cache_valid) {
-			_update_hash_cache();
-		}
-		return hash_cache;
-	}
+    _FORCE_INLINE_ uint32_t hash() const {
+        if (!data)
+            return 0;
+        if (!hash_cache_valid) {
+            _update_hash_cache();
+        }
+        return hash_cache;
+    }
 
-    explicit operator String() const;
+    explicit operator se_string() const;
 
-	bool is_empty() const;
+    bool is_empty() const; //!< this function only checks if `data` is set/allocated
+    bool empty() const noexcept;
 
-	bool operator==(const NodePath &p_path) const;
-	bool operator!=(const NodePath &p_path) const;
+    bool operator==(const NodePath &p_path) const;
+    bool operator!=(const NodePath &p_path) const;
     NodePath &operator=(const NodePath &p_path);
 
-	void simplify();
-	NodePath simplified() const;
+    void simplify();
+    NodePath simplified() const;
 
-	NodePath(const Vector<StringName> &p_path, bool p_absolute);
-	NodePath(const Vector<StringName> &p_path, const Vector<StringName> &p_subpath, bool p_absolute);
-	NodePath(const NodePath &p_path);
+    NodePath(const Vector<StringName> &p_path, bool p_absolute);
+    NodePath(const Vector<StringName> &p_path, const Vector<StringName> &p_subpath, bool p_absolute);
+    NodePath(const NodePath &p_path);
     NodePath(NodePath &&p_path) noexcept : data(p_path.data),hash_cache_valid(p_path.hash_cache_valid),hash_cache(p_path.hash_cache) {
         p_path.data = nullptr;
         p_path.hash_cache_valid = false;
         p_path.hash_cache = 0;
     }
-    explicit NodePath(const String &p_path);
-	NodePath();
-	~NodePath();
+    explicit NodePath(se_string_view p_path);
+    NodePath();
+    ~NodePath();
 };

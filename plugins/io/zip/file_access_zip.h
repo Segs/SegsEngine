@@ -55,12 +55,12 @@ public:
 
 private:
 	struct Package {
-		String filename;
+        se_string filename;
 		unzFile zfile;
 	};
 	Vector<Package> packages;
 
-	Map<String, File> files;
+    Map<se_string, File> files;
 
 	static ZipArchive *instance;
 
@@ -68,14 +68,14 @@ private:
 
 public:
 	void close_handle(unzFile p_file) const;
-	unzFile get_file_handle(String p_file) const;
+    unzFile get_file_handle(se_string_view p_file) const;
 
 	Error add_package(String p_name);
 
-	bool file_exists(String p_name) const;
+    bool file_exists(se_string_view p_name) const;
 
-	bool try_open_pack(const String &p_path, bool p_replace_files) override;
-    FileAccess *get_file(const String &p_path, PackedDataFile *p_file) override;
+	bool try_open_pack(se_string_view p_path, bool p_replace_files) override;
+    FileAccess *get_file(se_string_view p_path, PackedDataFile *p_file) override;
 
 	static ZipArchive *get_singleton();
 

@@ -40,18 +40,19 @@
 #include "scene/resources/font.h"
 #include "scene/main/timer.h"
 #include "core/project_settings.h"
+#include "core/string_utils.inl"
 
 IMPL_GDCLASS(PopupMenu)
 
-String PopupMenu::_get_accel_text(int p_item) const {
+se_string PopupMenu::_get_accel_text(int p_item) const {
 
-    ERR_FAIL_INDEX_V(p_item, items.size(), String());
+    ERR_FAIL_INDEX_V(p_item, items.size(), se_string())
 
     if (items[p_item].shortcut)
         return items[p_item].shortcut->get_as_text();
     else if (items[p_item].accel)
         return keycode_get_string(items[p_item].accel);
-    return String();
+    return se_string();
 }
 
 Size2 PopupMenu::get_minimum_size() const {
@@ -87,15 +88,15 @@ Size2 PopupMenu::get_minimum_size() const {
         if (items[i].checkable_type)
             has_check = true;
 
-        String text = items[i].xl_text;
-        size.width += font->get_string_size(text).width;
+        StringName text(items[i].xl_text);
+        size.width += font->get_string_size_utf8(text).width;
         if (i > 0)
             size.height += vseparation;
 
         if (items[i].accel || (items[i].shortcut && items[i].shortcut->is_valid())) {
 
             int accel_w = hseparation * 2;
-            accel_w += font->get_string_size(_get_accel_text(i)).width;
+            accel_w += font->get_string_size_utf8(_get_accel_text(i)).width;
             accel_max_w = MAX(accel_w, accel_max_w);
         }
 
@@ -156,9 +157,9 @@ int PopupMenu::_get_mouse_over(const Point2 &p_over) const {
 void PopupMenu::_activate_submenu(int over) {
 
     Node *n = get_node((NodePath)items[over].submenu);
-    ERR_FAIL_COND_MSG(!n, "Item subnode does not exist: " + items[over].submenu + ".")
+    ERR_FAIL_COND_MSG(!n, se_string("Item subnode does not exist: ") + items[over].submenu + ".")
     Popup *pm = object_cast<Popup>(n);
-    ERR_FAIL_COND_MSG(!pm, "Item subnode is not a Popup: " + items[over].submenu + ".")
+    ERR_FAIL_COND_MSG(!pm, se_string("Item subnode is not a Popup: ") + items[over].submenu + ".")
     if (pm->is_visible_in_tree())
         return; //already visible!
 
@@ -199,23 +200,26 @@ void PopupMenu::_submenu_timeout() {
 
 void PopupMenu::_scroll(float p_factor, const Point2 &p_over) {
 
-    const float global_y = get_global_position().y;
-
     int vseparation = get_constant("vseparation");
     Ref<Font> font = get_font("font");
 
     float dy = (vseparation + font->get_height()) * 3 * p_factor * get_global_transform().get_scale().y;
-    if (dy > 0 && global_y < 0)
-        dy = MIN(dy, -global_y - 1);
-    else if (dy < 0 && global_y + get_size().y * get_global_transform().get_scale().y > get_viewport_rect().size.y)
-        dy = -MIN(-dy, global_y + get_size().y * get_global_transform().get_scale().y - get_viewport_rect().size.y - 1);
+    if (dy > 0) {
+        const float global_top = get_global_position().y;
+        const float limit = global_top < 0 ? -global_top : 0;
+        dy = MIN(dy, limit);
+    } else if (dy < 0) {
+        const float global_bottom = get_global_position().y + get_size().y * get_global_transform().get_scale().y;
+        const float viewport_height = get_viewport_rect().size.y;
+        const float limit = global_bottom > viewport_height ? global_bottom - viewport_height : 0;
+        dy = -MIN(-dy, limit);
+    }
     set_position(get_position() + Vector2(0, dy));
 
     Ref<InputEventMouseMotion> ie(make_ref_counted<InputEventMouseMotion>());
     ie->set_position(p_over - Vector2(0, dy));
     _gui_input(ie);
 }
-
 void PopupMenu::_gui_input(const Ref<InputEvent> &p_event) {
 
     if (p_event->is_action("ui_down") && p_event->is_pressed()) {
@@ -399,9 +403,10 @@ void PopupMenu::_gui_input(const Ref<InputEvent> &p_event) {
         if (diff > max_interval) {
             search_string = "";
         }
+        se_string r=StringUtils::to_utf8(String(k->get_unicode()));
         //TODO: strange logic here, only add the character to search string if the search string is not that character
-        if (String(k->get_unicode()) != search_string)
-            search_string += String(k->get_unicode());
+        if (r != search_string)
+            search_string += r;
 
         for (int i = mouse_over + 1; i <= items.size(); i++) {
             if (i == items.size()) {
@@ -454,7 +459,7 @@ void PopupMenu::_notification(int p_what) {
         case NOTIFICATION_TRANSLATION_CHANGED: {
 
             for (int i = 0; i < items.size(); i++) {
-                items.write[i].xl_text = tr(items[i].text);
+                items.write[i].xl_text = tr(StringName(items[i].text));
             }
 
             minimum_size_changed();
@@ -497,7 +502,7 @@ void PopupMenu::_notification(int p_what) {
                 if (items[i].checkable_type)
                     has_check = true;
             }
-            if (icon_ofs > 0.0)
+            if (icon_ofs > 0.0f)
                 icon_ofs += hseparation;
 
             float check_ofs = 0.0;
@@ -526,25 +531,25 @@ void PopupMenu::_notification(int p_what) {
                     hover->draw(ci, Rect2(item_ofs + Point2(-hseparation, -vseparation / 2), Size2(get_size().width - style->get_minimum_size().width + hseparation * 2, h + vseparation)));
                 }
 
-                String text = items[i].xl_text;
+                StringName text = items[i].xl_text;
 
                 item_ofs.x += items[i].h_ofs;
                 if (items[i].separator) {
 
                     int sep_h = separator->get_center_size().height + separator->get_minimum_size().height;
                     if (!text.empty()) {
-                        int ss = font->get_string_size(text).width;
+                        int ss = font->get_string_size_utf8(text).width;
                         int center = (get_size().width) / 2;
                         int l = center - ss / 2;
                         int r = center + ss / 2;
                         if (l > item_ofs.x) {
-                            labeled_separator_left->draw(ci, Rect2(item_ofs + Point2(0, Math::floor((h - sep_h) / 2.0)), Size2(MAX(0, l - item_ofs.x), sep_h)));
+                            labeled_separator_left->draw(ci, Rect2(item_ofs + Point2(0, Math::floor((h - sep_h) / 2.0f)), Size2(MAX(0, l - item_ofs.x), sep_h)));
                         }
                         if (r < get_size().width - style->get_margin(MARGIN_RIGHT)) {
-                            labeled_separator_right->draw(ci, Rect2(Point2(r, item_ofs.y + Math::floor((h - sep_h) / 2.0)), Size2(MAX(0, get_size().width - style->get_margin(MARGIN_RIGHT) - r), sep_h)));
+                            labeled_separator_right->draw(ci, Rect2(Point2(r, item_ofs.y + Math::floor((h - sep_h) / 2.0f)), Size2(MAX(0, get_size().width - style->get_margin(MARGIN_RIGHT) - r), sep_h)));
                         }
                     } else {
-                        separator->draw(ci, Rect2(item_ofs + Point2(0, Math::floor((h - sep_h) / 2.0)), Size2(get_size().width - style->get_minimum_size().width, sep_h)));
+                        separator->draw(ci, Rect2(item_ofs + Point2(0, Math::floor((h - sep_h) / 2.0f)), Size2(get_size().width - style->get_minimum_size().width, sep_h)));
                     }
                 }
 
@@ -552,11 +557,11 @@ void PopupMenu::_notification(int p_what) {
 
                 if (items[i].checkable_type) {
                     Texture *icon = (items[i].checked ? check[items[i].checkable_type - 1] : uncheck[items[i].checkable_type - 1]).get();
-                    icon->draw(ci, item_ofs + Point2(0, Math::floor((h - icon->get_height()) / 2.0)), icon_color);
+                    icon->draw(ci, item_ofs + Point2(0, Math::floor((h - icon->get_height()) / 2.0f)), icon_color);
                 }
 
                 if (items[i].icon) {
-                    items[i].icon->draw(ci, item_ofs + Size2(check_ofs, 0) + Point2(0, Math::floor((h - icon_size.height) / 2.0)), icon_color);
+                    items[i].icon->draw(ci, item_ofs + Size2(check_ofs, 0) + Point2(0, Math::floor((h - icon_size.height) / 2.0f)), icon_color);
                 }
 
                 if (!items[i].submenu.empty()) {
@@ -567,20 +572,20 @@ void PopupMenu::_notification(int p_what) {
                 if (items[i].separator) {
 
                     if (!text.empty()) {
-                        int center = (get_size().width - font->get_string_size(text).width) / 2;
-                        font->draw(ci, Point2(center, item_ofs.y + Math::floor((h - font_h) / 2.0)), text, font_color_disabled);
+                        int center = (get_size().width - font->get_string_size_utf8(text).width) / 2;
+                        font->draw_utf8(ci, Point2(center, item_ofs.y + Math::floor((h - font_h) / 2.0f)), text, font_color_disabled);
                     }
                 } else {
 
                     item_ofs.x += icon_ofs + check_ofs;
-                    font->draw(ci, item_ofs + Point2(0, Math::floor((h - font_h) / 2.0)), text, items[i].disabled ? font_color_disabled : (i == mouse_over ? font_color_hover : font_color));
+                    font->draw_utf8(ci, item_ofs + Point2(0, Math::floor((h - font_h) / 2.0f)), text, items[i].disabled ? font_color_disabled : (i == mouse_over ? font_color_hover : font_color));
                 }
 
                 if (items[i].accel || (items[i].shortcut && items[i].shortcut->is_valid())) {
                     //accelerator
-                    String text2 = _get_accel_text(i);
-                    item_ofs.x = size.width - style->get_margin(MARGIN_RIGHT) - font->get_string_size(text2).width;
-                    font->draw(ci, item_ofs + Point2(0, Math::floor((h - font_h) / 2.0)), text2, i == mouse_over ? font_color_hover : font_color_accel);
+                    se_string text2 = _get_accel_text(i);
+                    item_ofs.x = size.width - style->get_margin(MARGIN_RIGHT) - font->get_string_size_utf8(text2).width;
+                    font->draw_utf8(ci, item_ofs + Point2(0, Math::floor((h - font_h) / 2.0f)), text2, i == mouse_over ? font_color_hover : font_color_accel);
                 }
 
                 items.write[i]._ofs_cache = ofs.y;
@@ -640,11 +645,11 @@ void PopupMenu::_notification(int p_what) {
 
 #define ITEM_SETUP_WITH_ACCEL(p_label, p_id, p_accel) \
     item.text = p_label;                              \
-    item.xl_text = tr(p_label);                       \
+    item.xl_text = tr(p_label); \
     item.id = p_id == -1 ? items.size() : p_id;       \
     item.accel = p_accel;
 
-void PopupMenu::add_item(const String &p_label, int p_id, uint32_t p_accel) {
+void PopupMenu::add_item(const StringName &p_label, int p_id, uint32_t p_accel) {
 
     Item item;
     ITEM_SETUP_WITH_ACCEL(p_label, p_id, p_accel)
@@ -652,8 +657,7 @@ void PopupMenu::add_item(const String &p_label, int p_id, uint32_t p_accel) {
     update();
     minimum_size_changed();
 }
-
-void PopupMenu::add_icon_item(const Ref<Texture> &p_icon, const String &p_label, int p_id, uint32_t p_accel) {
+void PopupMenu::add_icon_item(const Ref<Texture> &p_icon, const StringName &p_label, int p_id, uint32_t p_accel) {
 
     Item item;
     ITEM_SETUP_WITH_ACCEL(p_label, p_id, p_accel)
@@ -662,8 +666,19 @@ void PopupMenu::add_icon_item(const Ref<Texture> &p_icon, const String &p_label,
     update();
     minimum_size_changed();
 }
+void PopupMenu::add_icon_item_utf8(const Ref<Texture> &p_icon, se_string_view _label, int p_id, uint32_t p_accel) {
 
-void PopupMenu::add_check_item(const String &p_label, int p_id, uint32_t p_accel) {
+    Item item;
+    item.text = StringName(_label);
+    item.xl_text = tr(StringName(_label));
+    item.id = p_id == -1 ? items.size() : p_id;
+    item.accel = p_accel;
+    item.icon = p_icon;
+    items.push_back(item);
+    update();
+    minimum_size_changed();
+}
+void PopupMenu::add_check_item(const StringName &p_label, int p_id, uint32_t p_accel) {
 
     Item item;
     ITEM_SETUP_WITH_ACCEL(p_label, p_id, p_accel)
@@ -672,8 +687,20 @@ void PopupMenu::add_check_item(const String &p_label, int p_id, uint32_t p_accel
     update();
     minimum_size_changed();
 }
+void PopupMenu::add_check_item_utf8(se_string_view p_label, int p_id, uint32_t p_accel) {
 
-void PopupMenu::add_icon_check_item(const Ref<Texture> &p_icon, const String &p_label, int p_id, uint32_t p_accel) {
+    Item item;
+    item.text = StringName(p_label);
+    item.xl_text = tr(StringName(p_label));
+    item.id = p_id == -1 ? items.size() : p_id;
+    item.accel = p_accel;
+
+    item.checkable_type = Item::CHECKABLE_TYPE_CHECK_BOX;
+    items.push_back(item);
+    update();
+    minimum_size_changed();
+}
+void PopupMenu::add_icon_check_item(const Ref<Texture> &p_icon, const StringName &p_label, int p_id, uint32_t p_accel) {
 
     Item item;
     ITEM_SETUP_WITH_ACCEL(p_label, p_id, p_accel)
@@ -684,7 +711,7 @@ void PopupMenu::add_icon_check_item(const Ref<Texture> &p_icon, const String &p_
     minimum_size_changed();
 }
 
-void PopupMenu::add_radio_check_item(const String &p_label, int p_id, uint32_t p_accel) {
+void PopupMenu::add_radio_check_item(const StringName &p_label, int p_id, uint32_t p_accel) {
 
     Item item;
     ITEM_SETUP_WITH_ACCEL(p_label, p_id, p_accel)
@@ -693,8 +720,21 @@ void PopupMenu::add_radio_check_item(const String &p_label, int p_id, uint32_t p
     update();
     minimum_size_changed();
 }
+void PopupMenu::add_radio_check_item_utf8(se_string_view p_label, int p_id, uint32_t p_accel) {
 
-void PopupMenu::add_icon_radio_check_item(const Ref<Texture> &p_icon, const String &p_label, int p_id, uint32_t p_accel) {
+    Item item;
+    item.text = StringName(p_label);
+    item.xl_text = tr(StringName(p_label));
+    item.id = p_id == -1 ? items.size() : p_id;
+    item.accel = p_accel;
+
+    item.checkable_type = Item::CHECKABLE_TYPE_RADIO_BUTTON;
+    items.push_back(item);
+    update();
+    minimum_size_changed();
+}
+
+void PopupMenu::add_icon_radio_check_item(const Ref<Texture> &p_icon, const StringName &p_label, int p_id, uint32_t p_accel) {
 
     Item item;
     ITEM_SETUP_WITH_ACCEL(p_label, p_id, p_accel)
@@ -705,7 +745,7 @@ void PopupMenu::add_icon_radio_check_item(const Ref<Texture> &p_icon, const Stri
     minimum_size_changed();
 }
 
-void PopupMenu::add_multistate_item(const String &p_label, int p_max_states, int p_default_state, int p_id, uint32_t p_accel) {
+void PopupMenu::add_multistate_item(const StringName &p_label, int p_max_states, int p_default_state, int p_id, uint32_t p_accel) {
 
     Item item;
     ITEM_SETUP_WITH_ACCEL(p_label, p_id, p_accel)
@@ -719,7 +759,7 @@ void PopupMenu::add_multistate_item(const String &p_label, int p_max_states, int
 #define ITEM_SETUP_WITH_SHORTCUT(p_shortcut, p_id, p_global)                           \
     ERR_FAIL_COND_MSG(not p_shortcut, "Cannot add item with invalid ShortCut.");       \
     _ref_shortcut(p_shortcut);                                                         \
-    item.text = p_shortcut->get_name();                                                \
+    item.text = StringName(p_shortcut->get_name());                                    \
     item.xl_text = tr(item.text);                                                      \
     item.id = p_id == -1 ? items.size() : p_id;                                        \
     item.shortcut = p_shortcut;                                                        \
@@ -786,7 +826,7 @@ void PopupMenu::add_icon_radio_check_shortcut(const Ref<Texture> &p_icon, const 
     minimum_size_changed();
 }
 
-void PopupMenu::add_submenu_item(const String &p_label, const String &p_submenu, int p_id) {
+void PopupMenu::add_submenu_item(const StringName &p_label, const StringName &p_submenu, int p_id) {
 
     Item item;
     item.text = p_label;
@@ -803,7 +843,7 @@ void PopupMenu::add_submenu_item(const String &p_label, const String &p_submenu,
 
 /* Methods to modify existing items. */
 
-void PopupMenu::set_item_text(int p_idx, const String &p_text) {
+void PopupMenu::set_item_text(int p_idx, const StringName &p_text) {
 
     ERR_FAIL_INDEX(p_idx, items.size())
     items.write[p_idx].text = p_text;
@@ -863,7 +903,7 @@ void PopupMenu::set_item_disabled(int p_idx, bool p_disabled) {
     minimum_size_changed();
 }
 
-void PopupMenu::set_item_submenu(int p_idx, const String &p_submenu) {
+void PopupMenu::set_item_submenu(int p_idx, const StringName &p_submenu) {
 
     ERR_FAIL_INDEX(p_idx, items.size());
     items.write[p_idx].submenu = p_submenu;
@@ -879,13 +919,17 @@ void PopupMenu::toggle_item_checked(int p_idx) {
     minimum_size_changed();
 }
 
-String PopupMenu::get_item_text(int p_idx) const {
+StringName PopupMenu::get_item_text(int p_idx) const {
 
-    ERR_FAIL_INDEX_V(p_idx, items.size(), "");
+    ERR_FAIL_INDEX_V(p_idx, items.size(), StringName());
     return items[p_idx].text;
 }
+se_string PopupMenu::get_item_text_utf8(int p_idx) const {
 
-int PopupMenu::get_item_idx_from_text(const String &text) const {
+    ERR_FAIL_INDEX_V(p_idx, items.size(), {});
+    return se_string(items[p_idx].text);
+}
+int PopupMenu::get_item_idx_from_text_utf8(se_string_view text) const {
 
     for (int idx = 0; idx < items.size(); idx++) {
         if (items[idx].text == text)
@@ -894,7 +938,15 @@ int PopupMenu::get_item_idx_from_text(const String &text) const {
 
     return -1;
 }
+int PopupMenu::get_item_idx_from_text(const StringName &text) const {
 
+    for (int idx = 0; idx < items.size(); idx++) {
+        if (items[idx].text == text)
+            return idx;
+    }
+
+    return -1;
+}
 Ref<Texture> PopupMenu::get_item_icon(int p_idx) const {
 
     ERR_FAIL_INDEX_V(p_idx, items.size(), Ref<Texture>());
@@ -942,15 +994,15 @@ int PopupMenu::get_item_index(int p_id) const {
     return -1;
 }
 
-String PopupMenu::get_item_submenu(int p_idx) const {
+StringName PopupMenu::get_item_submenu(int p_idx) const {
 
-    ERR_FAIL_INDEX_V(p_idx, items.size(), "");
+    ERR_FAIL_INDEX_V(p_idx, items.size(), StringName());
     return items[p_idx].submenu;
 }
 
-String PopupMenu::get_item_tooltip(int p_idx) const {
+StringName PopupMenu::get_item_tooltip(int p_idx) const {
 
-    ERR_FAIL_INDEX_V(p_idx, items.size(), "");
+    ERR_FAIL_INDEX_V(p_idx, items.size(), StringName());
     return items[p_idx].tooltip;
 }
 
@@ -991,7 +1043,7 @@ void PopupMenu::set_item_as_radio_checkable(int p_idx, bool p_radio_checkable) {
     update();
 }
 
-void PopupMenu::set_item_tooltip(int p_idx, const String &p_tooltip) {
+void PopupMenu::set_item_tooltip(int p_idx, const StringName &p_tooltip) {
 
     ERR_FAIL_INDEX(p_idx, items.size());
     items.write[p_idx].tooltip = p_tooltip;
@@ -1182,7 +1234,7 @@ void PopupMenu::remove_item(int p_idx) {
     minimum_size_changed();
 }
 
-void PopupMenu::add_separator(const String &p_text) {
+void PopupMenu::add_separator(const StringName &p_text) {
 
     Item sep;
     sep.separator = true;
@@ -1258,7 +1310,7 @@ void PopupMenu::_set_items(const Array &p_items) {
 
     for (int i = 0; i < p_items.size(); i += 10) {
 
-        String text = p_items[i + 0];
+        StringName text = p_items[i + 0];
         Ref<Texture> icon(p_items[i + 1]);
         // For compatibility, use false/true for no/checkbox and integers for other values
         bool checkable = p_items[i + 2];
@@ -1269,7 +1321,7 @@ void PopupMenu::_set_items(const Array &p_items) {
         int id = p_items[i + 5];
         int accel = p_items[i + 6];
         Variant meta = p_items[i + 7];
-        String subm = p_items[i + 8];
+        StringName subm = p_items[i + 8];
         bool sep = p_items[i + 9];
 
         int idx = get_item_count();
@@ -1356,11 +1408,11 @@ bool PopupMenu::is_hide_on_window_lose_focus() const {
     return hide_on_window_lose_focus;
 }
 
-String PopupMenu::get_tooltip(const Point2 &p_pos) const {
+StringName PopupMenu::get_tooltip(const Point2 &p_pos) const {
 
     int over = _get_mouse_over(p_pos);
     if (over < 0 || over >= items.size())
-        return "";
+        return StringName();
     return items[over].tooltip;
 }
 
@@ -1369,7 +1421,7 @@ void PopupMenu::set_parent_rect(const Rect2 &p_rect) {
     parent_rect = p_rect;
 }
 
-void PopupMenu::get_translatable_strings(ListPOD<String> *p_strings) const {
+void PopupMenu::get_translatable_strings(ListPOD<StringName> *p_strings) const {
 
     for (int i = 0; i < items.size(); i++) {
 
@@ -1449,7 +1501,7 @@ void PopupMenu::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("remove_item", {"idx"}), &PopupMenu::remove_item);
 
-    MethodBinder::bind_method(D_METHOD("add_separator", {"label"}), &PopupMenu::add_separator, {DEFVAL(String())});
+    MethodBinder::bind_method(D_METHOD("add_separator", {"label"}), &PopupMenu::add_separator, {DEFVAL(se_string_view())});
     MethodBinder::bind_method(D_METHOD("clear"), &PopupMenu::clear);
 
     MethodBinder::bind_method(D_METHOD("_set_items"), &PopupMenu::_set_items);

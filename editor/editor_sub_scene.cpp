@@ -37,13 +37,13 @@
 
 IMPL_GDCLASS(EditorSubScene)
 
-void EditorSubScene::_path_selected(const String &p_path) {
+void EditorSubScene::_path_selected(se_string_view p_path) {
 
-    path->set_text(p_path);
+    path->set_text_utf8(p_path);
     _path_changed(p_path);
 }
 
-void EditorSubScene::_path_changed(const String &p_path) {
+void EditorSubScene::_path_changed(se_string_view p_path) {
 
     tree->clear();
 
@@ -169,7 +169,7 @@ void EditorSubScene::_reown(Node *p_node, List<Node *> *p_to_reown) {
 
     if (p_node == scene) {
 
-        scene->set_filename("");
+        scene->set_filename(se_string());
         p_to_reown->push_back(p_node);
     } else if (p_node->get_owner() == scene) {
 
@@ -216,8 +216,8 @@ void EditorSubScene::move(Node *p_new_parent, Node *p_new_owner) {
 
 void EditorSubScene::clear() {
 
-    path->set_text("");
-    _path_changed("");
+    path->set_text_utf8("");
+    _path_changed(se_string());
 }
 
 void EditorSubScene::_bind_methods() {
@@ -261,13 +261,13 @@ EditorSubScene::EditorSubScene() {
     //tree->connect("nothing_selected", this, "_deselect_items");
     tree->connect("cell_selected", this, "_selected_changed");
 
-    tree->connect("item_activated", this, "_ok", make_binds(), ObjectNS::CONNECT_DEFERRED);
+    tree->connect("item_activated", this, "_ok", make_binds(), ObjectNS::CONNECT_QUEUED);
 
     file_dialog = memnew(EditorFileDialog);
-    ListPOD<String> extensions;
-    ResourceLoader::get_recognized_extensions_for_type("PackedScene", &extensions);
+    PODVector<se_string> extensions;
+    ResourceLoader::get_recognized_extensions_for_type("PackedScene", extensions);
 
-    for (const String &E : extensions) {
+    for (const se_string &E : extensions) {
 
         file_dialog->add_filter("*." + E);
     }

@@ -126,6 +126,7 @@
 			<return type="bool">
 			</return>
 			<description>
+				Returns [code]true[/code] if the viewport is currently performing a drag operation.
 			</description>
 		</method>
 		<method name="input">
@@ -307,6 +308,13 @@
 		<signal name="size_changed">
 			<description>
 				Emitted when the size of the viewport is changed, whether by [method set_size_override], resize of window, or some other means.
+			</description>
+		</signal>
+		<signal name="gui_focus_changed">
+			<argument index="0" name="control" type="Control">
+			</argument>
+			<description>
+				Emitted when a Control node grabs keyboard focus.
 			</description>
 		</signal>
 	</signals>

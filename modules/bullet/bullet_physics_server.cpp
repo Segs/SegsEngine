@@ -37,6 +37,7 @@
 #include "pin_joint_bullet.h"
 #include "shape_bullet.h"
 #include "slider_joint_bullet.h"
+#include "core/list.h"
 
 #include "core/class_db.h"
 #include "core/error_macros.h"
@@ -62,7 +63,7 @@
 /// Assert the body is assigned to a space
 #define JointAssertSpace(body, bIndex, ret)                                                           \
     if (!body->get_space()) {                                                                         \
-        ERR_PRINT("Before create a joint the Body" + String(bIndex) + " must be added to a space!"); \
+        ERR_PRINT("Before create a joint the Body" + se_string(bIndex) + " must be added to a space!"); \
         return ret;                                                                                   \
     }
 
@@ -804,7 +805,7 @@ void BulletPhysicsServer::body_remove_collision_exception(RID p_body, RID p_body
 void BulletPhysicsServer::body_get_collision_exceptions(RID p_body, List<RID> *p_exceptions) {
     RigidBodyBullet *body = rigid_body_owner.get(p_body);
     ERR_FAIL_COND(!body)
-    for (int i = 0; i < body->get_exceptions().size(); i++) {
+    for (size_t i = 0; i < body->get_exceptions().size(); i++) {
         p_exceptions->push_back(body->get_exceptions()[i]);
     }
 }
@@ -992,7 +993,7 @@ void BulletPhysicsServer::soft_body_remove_collision_exception(RID p_body, RID p
 void BulletPhysicsServer::soft_body_get_collision_exceptions(RID p_body, List<RID> *p_exceptions) {
     SoftBodyBullet *body = soft_body_owner.get(p_body);
     ERR_FAIL_COND(!body)
-    for (int i = 0; i < body->get_exceptions().size(); i++) {
+    for (size_t i = 0; i < body->get_exceptions().size(); i++) {
         p_exceptions->push_back(body->get_exceptions()[i]);
     }
 }

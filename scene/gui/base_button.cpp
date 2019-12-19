@@ -367,17 +367,17 @@ void BaseButton::_unhandled_input(Ref<InputEvent> p_event) {
     }
 }
 
-String BaseButton::get_tooltip(const Point2 &p_pos) const {
+StringName BaseButton::get_tooltip(const Point2 &p_pos) const {
 
-    String tooltip = Control::get_tooltip(p_pos);
+    se_string tooltip(Control::get_tooltip(p_pos));
     if (shortcut_in_tooltip && shortcut && shortcut->is_valid()) {
-        String text = shortcut->get_name() + " (" + shortcut->get_as_text() + ")";
+        se_string text = shortcut->get_name() + " (" + shortcut->get_as_text() + ")";
         if (StringUtils::compare(shortcut->get_name(),tooltip,StringUtils::CaseInsensitive) != 0) {
             text += "\n" + tooltip;
         }
         tooltip = text;
     }
-    return tooltip;
+    return StringName(tooltip);
 }
 
 void BaseButton::set_button_group(const Ref<ButtonGroup> &p_group) {

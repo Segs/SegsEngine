@@ -34,54 +34,54 @@
 
 class Popup : public Control {
 
-	GDCLASS(Popup,Control)
+    GDCLASS(Popup,Control)
 
-	bool exclusive;
-	bool popped_up;
+    bool exclusive;
+    bool popped_up;
 
 private:
-	void _popup(const Rect2 &p_bounds = Rect2(), const bool p_centered = false);
+    void _popup(const Rect2 &p_bounds = Rect2(), const bool p_centered = false);
 
 protected:
-	virtual void _post_popup() {}
+    virtual void _post_popup() {}
 
-	void _gui_input(const Ref<InputEvent>& p_event);
-	void _notification(int p_what);
-	virtual void _fix_size();
-	static void _bind_methods();
+    void _gui_input(const Ref<InputEvent>& p_event);
+    void _notification(int p_what);
+    virtual void _fix_size();
+    static void _bind_methods();
 
 public:
-	enum {
-		NOTIFICATION_POST_POPUP = 80,
-		NOTIFICATION_POPUP_HIDE = 81
-	};
+    enum {
+        NOTIFICATION_POST_POPUP = 80,
+        NOTIFICATION_POPUP_HIDE = 81
+    };
 
-	void set_exclusive(bool p_exclusive);
-	bool is_exclusive() const;
+    void set_exclusive(bool p_exclusive);
+    bool is_exclusive() const;
 
     void popup_centered_ratio(float p_screen_ratio = 0.75f);
-	void popup_centered(const Size2 &p_size = Size2());
-	void popup_centered_minsize(const Size2 &p_minsize = Size2());
-	void set_as_minsize();
+    void popup_centered(const Size2 &p_size = Size2());
+    void popup_centered_minsize(const Size2 &p_minsize = Size2());
+    void set_as_minsize();
     void popup_centered_clamped(const Size2 &p_size = Size2(), float p_fallback_ratio = 0.75f);
-	virtual void popup(const Rect2 &p_bounds = Rect2());
+    virtual void popup(const Rect2 &p_bounds = Rect2());
 
-	String get_configuration_warning() const override;
+    StringName get_configuration_warning() const override;
 
-	Popup();
-	~Popup() override;
+    Popup();
+    ~Popup() override;
 };
 
 class PopupPanel : public Popup {
 
-	GDCLASS(PopupPanel,Popup)
+    GDCLASS(PopupPanel,Popup)
 
 protected:
-	void _update_child_rects();
-	void _notification(int p_what);
+    void _update_child_rects();
+    void _notification(int p_what);
 
 public:
-	void set_child_rect(Control *p_child);
-	Size2 get_minimum_size() const override;
-	PopupPanel();
+    void set_child_rect(Control *p_child);
+    Size2 get_minimum_size() const override;
+    PopupPanel();
 };

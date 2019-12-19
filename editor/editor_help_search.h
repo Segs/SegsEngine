@@ -61,12 +61,13 @@ class EditorHelpSearch : public ConfirmationDialog {
     Tree *results_tree;
     Ref<Runner> search;
     bool old_search;
+    se_string old_term;
 
     void _update_icons();
     void _update_results();
 
     void _search_box_gui_input(const Ref<InputEvent> &p_event);
-    void _search_box_text_changed(const String &p_text);
+    void _search_box_text_changed(se_string_view p_text);
     void _filter_combo_item_selected(int p_option);
     void _confirmed();
 
@@ -76,7 +77,7 @@ protected:
 
 public:
     void popup_dialog();
-    void popup_dialog(const String &p_term);
+    void popup_dialog(se_string_view p_term);
 
     EditorHelpSearch();
 };

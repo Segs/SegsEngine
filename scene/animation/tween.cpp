@@ -69,6 +69,8 @@ void Tween::_add_pending_command(StringName p_key, const Variant &p_arg1, const 
         count = 2;
     else if (p_arg1.get_type() != VariantType::NIL)
         count = 1;
+    else
+        count = 0;
 
     // Add the specified arguments to the command
     // TODO: Make this a switch statement?
@@ -126,14 +128,13 @@ void Tween::_process_pending_commands() {
 bool Tween::_set(const StringName &p_name, const Variant &p_value) {
 
     // Set the correct attribute based on the given name
-    String name = p_name;
-    if (name == "playback/speed" || name == "speed") { // Backwards compatibility
+    if (p_name == "playback/speed" || p_name == "speed") { // Backwards compatibility
         set_speed_scale(p_value);
 
-    } else if (name == "playback/active") {
+    } else if (p_name == "playback/active") {
         set_active(p_value);
 
-    } else if (name == "playback/repeat") {
+    } else if (p_name == "playback/repeat") {
         set_repeat(p_value);
     }
     return true;
@@ -142,14 +143,13 @@ bool Tween::_set(const StringName &p_name, const Variant &p_value) {
 bool Tween::_get(const StringName &p_name, Variant &r_ret) const {
 
     // Get the correct attribute based on the given name
-    String name = p_name;
-    if (name == "playback/speed") { // Backwards compatibility
+    if (p_name == "playback/speed") { // Backwards compatibility
         r_ret = speed_scale;
 
-    } else if (name == "playback/active") {
+    } else if (p_name == "playback/active") {
         r_ret = is_active();
 
-    } else if (name == "playback/repeat") {
+    } else if (p_name == "playback/repeat") {
         r_ret = is_repeat();
     }
     return true;
@@ -195,7 +195,7 @@ void Tween::_notification(int p_what) {
         case NOTIFICATION_INTERNAL_PHYSICS_PROCESS: {
             // Are we processing during 'regular' time?
             if (tween_process_mode == TWEEN_PROCESS_IDLE)
-				// Do nothing since we would only process during idle time
+                // Do nothing since we would only process during idle time
                 break;
 
             // Should we update?
@@ -241,14 +241,14 @@ void Tween::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_runtime"), &Tween::get_runtime);
 
     // Bind interpolation and follow methods
-    MethodBinder::bind_method(D_METHOD("interpolate_property", {"object", "property", "initial_val", "final_val", "duration", "trans_type", "ease_type", "delay"}), &Tween::interpolate_property, {DEFVAL(0)});
-    MethodBinder::bind_method(D_METHOD("interpolate_method", {"object", "method", "initial_val", "final_val", "duration", "trans_type", "ease_type", "delay"}), &Tween::interpolate_method, {DEFVAL(0)});
+    MethodBinder::bind_method(D_METHOD("interpolate_property", {"object", "property", "initial_val", "final_val", "duration", "trans_type", "ease_type", "delay"}), &Tween::interpolate_property, {DEFVAL(TRANS_LINEAR), DEFVAL(EASE_IN_OUT), DEFVAL(0)});
+    MethodBinder::bind_method(D_METHOD("interpolate_method", {"object", "method", "initial_val", "final_val", "duration", "trans_type", "ease_type", "delay"}), &Tween::interpolate_method, {DEFVAL(TRANS_LINEAR), DEFVAL(EASE_IN_OUT), DEFVAL(0)});
     MethodBinder::bind_method(D_METHOD("interpolate_callback", {"object", "duration", "callback", "arg1", "arg2", "arg3", "arg4", "arg5"}), &Tween::interpolate_callback, {DEFVAL(Variant()), DEFVAL(Variant()), DEFVAL(Variant()), DEFVAL(Variant()), DEFVAL(Variant())});
     MethodBinder::bind_method(D_METHOD("interpolate_deferred_callback", {"object", "duration", "callback", "arg1", "arg2", "arg3", "arg4", "arg5"}), &Tween::interpolate_deferred_callback, {DEFVAL(Variant()), DEFVAL(Variant()), DEFVAL(Variant()), DEFVAL(Variant()), DEFVAL(Variant())});
-    MethodBinder::bind_method(D_METHOD("follow_property", {"object", "property", "initial_val", "target", "target_property", "duration", "trans_type", "ease_type", "delay"}), &Tween::follow_property, {DEFVAL(0)});
-    MethodBinder::bind_method(D_METHOD("follow_method", {"object", "method", "initial_val", "target", "target_method", "duration", "trans_type", "ease_type", "delay"}), &Tween::follow_method, {DEFVAL(0)});
-    MethodBinder::bind_method(D_METHOD("targeting_property", {"object", "property", "initial", "initial_val", "final_val", "duration", "trans_type", "ease_type", "delay"}), &Tween::targeting_property, {DEFVAL(0)});
-    MethodBinder::bind_method(D_METHOD("targeting_method", {"object", "method", "initial", "initial_method", "final_val", "duration", "trans_type", "ease_type", "delay"}), &Tween::targeting_method, {DEFVAL(0)});
+    MethodBinder::bind_method(D_METHOD("follow_property", {"object", "property", "initial_val", "target", "target_property", "duration", "trans_type", "ease_type", "delay"}), &Tween::follow_property, {DEFVAL(TRANS_LINEAR), DEFVAL(EASE_IN_OUT), DEFVAL(0)});
+    MethodBinder::bind_method(D_METHOD("follow_method", {"object", "method", "initial_val", "target", "target_method", "duration", "trans_type", "ease_type", "delay"}), &Tween::follow_method, {DEFVAL(TRANS_LINEAR), DEFVAL(EASE_IN_OUT), DEFVAL(0)});
+    MethodBinder::bind_method(D_METHOD("targeting_property", {"object", "property", "initial", "initial_val", "final_val", "duration", "trans_type", "ease_type", "delay"}), &Tween::targeting_property, {DEFVAL(TRANS_LINEAR), DEFVAL(EASE_IN_OUT), DEFVAL(0)});
+    MethodBinder::bind_method(D_METHOD("targeting_method", {"object", "method", "initial", "initial_method", "final_val", "duration", "trans_type", "ease_type", "delay"}), &Tween::targeting_method, {DEFVAL(TRANS_LINEAR), DEFVAL(EASE_IN_OUT), DEFVAL(0)});
 
     // Add the Tween signals
     ADD_SIGNAL(MethodInfo("tween_started", PropertyInfo(VariantType::OBJECT, "object"), PropertyInfo(VariantType::NODE_PATH, "key")));
@@ -285,7 +285,7 @@ void Tween::_bind_methods() {
     BIND_ENUM_CONSTANT(EASE_OUT_IN)
 }
 
-Variant &Tween::_get_initial_val(InterpolateData &p_data) {
+Variant Tween::_get_initial_val(const InterpolateData &p_data) const {
 
     // What type of data are we interpolating?
     switch (p_data.type) {
@@ -303,7 +303,7 @@ Variant &Tween::_get_initial_val(InterpolateData &p_data) {
             ERR_FAIL_COND_V(object == nullptr, p_data.initial_val)
 
             // Are we targeting a property or a method?
-            static Variant initial_val;
+            Variant initial_val;
             if (p_data.type == TARGETING_PROPERTY) {
                 // Get the property from the target object
                 bool valid = false;
@@ -326,7 +326,41 @@ Variant &Tween::_get_initial_val(InterpolateData &p_data) {
     return p_data.delta_val;
 }
 
-Variant &Tween::_get_delta_val(InterpolateData &p_data) {
+Variant Tween::_get_final_val(const InterpolateData &p_data) const {
+    switch (p_data.type) {
+        case FOLLOW_PROPERTY:
+        case FOLLOW_METHOD: {
+            // Get the object that is being followed
+            Object *target = ObjectDB::get_instance(p_data.target_id);
+            ERR_FAIL_COND_V(target == NULL, p_data.initial_val);
+
+            // We want to figure out the final value
+            Variant final_val;
+            if (p_data.type == FOLLOW_PROPERTY) {
+                // Read the property as-is
+                bool valid = false;
+                final_val = target->get_indexed(p_data.target_key, &valid);
+                ERR_FAIL_COND_V(!valid, p_data.initial_val);
+            } else {
+                // We're looking at a method. Call the method on the target object
+                Variant::CallError error;
+                final_val = target->call(p_data.target_key[0], nullptr, 0, error);
+                ERR_FAIL_COND_V(error.error != Variant::CallError::CALL_OK, p_data.initial_val);
+            }
+
+            // If we're looking at an INT value, instead convert it to a REAL
+            // This is better for interpolation
+            if (final_val.get_type() == VariantType::INT) final_val = final_val.operator real_t();
+
+            return final_val;
+        }
+        default: {
+            // If we're not following a final value/method, use the final value from the data
+            return p_data.final_val;
+        }
+    }
+}
+const Variant &Tween::_get_delta_val(InterpolateData &p_data) {
 
     // What kind of data are we interpolating?
     switch (p_data.type) {
@@ -388,8 +422,8 @@ Variant &Tween::_get_delta_val(InterpolateData &p_data) {
 
 Variant Tween::_run_equation(InterpolateData &p_data) {
     // Get the initial and delta values from the data
-    Variant &initial_val = _get_initial_val(p_data);
-    Variant &delta_val = _get_delta_val(p_data);
+    Variant initial_val = _get_initial_val(p_data);
+    const Variant &delta_val = _get_delta_val(p_data);
     Variant result;
 
 #define APPLY_EQUATION(element) \
@@ -717,7 +751,8 @@ void Tween::_tween_process(float p_delta) {
         // Is the tween now finished?
         if (data.finish) {
             // Set it to the final value directly
-            _apply_tween_value(data, data.final_val);
+            Variant final_val = _get_final_val(data);
+            _apply_tween_value(data, final_val);
 
             // Mark the tween as completed and emit the signal
             data.elapsed = 0;
@@ -1046,7 +1081,7 @@ real_t Tween::get_runtime() const {
     return runtime / speed_scale;
 }
 
-bool Tween::_calc_delta_val(const Variant &p_initial_val, const Variant &p_final_val, Variant &p_delta_val) {
+bool Tween::_calc_delta_val(const Variant &p_initial_val, const Variant &p_final_val, Variant &p_delta_val) const {
 
     // Get the initial, final, and delta values
     const Variant &initial_val = p_initial_val;
@@ -1151,7 +1186,7 @@ bool Tween::_calc_delta_val(const Variant &p_initial_val, const Variant &p_final
             // TODO: Should move away from a 'magic string'?
             ERR_PRINT("Invalid param type, except(int/real/vector2/vector/matrix/matrix32/quat/aabb/transform/color)");
             return false;
-    };
+    }
     return true;
 }
 
@@ -1176,7 +1211,7 @@ bool Tween::_build_interpolation(InterpolateType p_interpolation_type, Object *p
 
     // Validate the initial and final values
     ERR_FAIL_COND_V_MSG(p_initial_val.get_type() != p_final_val.get_type(), false,
-            FormatV("Initial value type '%s' does not match final value type '%s'.",
+            FormatVE("Initial value type '%s' does not match final value type '%s'.",
                     Variant::get_type_name(p_initial_val.get_type()), Variant::get_type_name(p_final_val.get_type())))
     data.initial_val = p_initial_val;
     data.final_val = p_final_val;
@@ -1202,7 +1237,7 @@ bool Tween::_build_interpolation(InterpolateType p_interpolation_type, Object *p
         // Check that the object actually contains the given property
         bool prop_valid = false;
         p_object->get_indexed(p_property->get_subnames(), &prop_valid);
-        ERR_FAIL_COND_V_MSG(!prop_valid, false, "Tween target object has no property named: " + p_property->get_concatenated_subnames() + ".")
+        ERR_FAIL_COND_V_MSG(!prop_valid, false, se_string("Tween target object has no property named: ") + p_property->get_concatenated_subnames() + ".")
 
         data.key = p_property->get_subnames();
         data.concatenated_key = p_property->get_concatenated_subnames();
@@ -1211,7 +1246,7 @@ bool Tween::_build_interpolation(InterpolateType p_interpolation_type, Object *p
     // Is the method defined?
     if (p_method) {
         // Does the object even have the requested method?
-        ERR_FAIL_COND_V_MSG(!p_object->has_method(*p_method), false, "Tween target object has no method named: " + *p_method + ".")
+        ERR_FAIL_COND_V_MSG(!p_object->has_method(*p_method), false, se_string("Tween target object has no method named: ") + *p_method + ".")
 
         data.key.push_back(*p_method);
         data.concatenated_key = *p_method;
@@ -1265,7 +1300,7 @@ bool Tween::interpolate_method(Object *p_object, StringName p_method, Variant p_
     return result;
 }
 
-bool Tween::interpolate_callback(Object *p_object, real_t p_duration, const String& p_callback, VARIANT_ARG_DECLARE) {
+bool Tween::interpolate_callback(Object *p_object, real_t p_duration, const StringName& p_callback, VARIANT_ARG_DECLARE) {
     // If we are already updating, call this function again later
     if (pending_update != 0) {
         _add_pending_command("interpolate_callback", Variant(p_object), p_duration, p_callback, p_arg1, p_arg2, p_arg3, p_arg4, p_arg5);
@@ -1280,7 +1315,7 @@ bool Tween::interpolate_callback(Object *p_object, real_t p_duration, const Stri
     ERR_FAIL_COND_V(p_duration < 0, false)
 
     // Check whether the object even has the callback
-    ERR_FAIL_COND_V_MSG(!p_object->has_method(p_callback), false, "Object has no callback named: " + p_callback + ".")
+    ERR_FAIL_COND_V_MSG(!p_object->has_method(p_callback), false, "Object has no callback named: " + se_string(p_callback) + ".")
 
     // Build a new InterpolationData
     InterpolateData data;
@@ -1324,7 +1359,7 @@ bool Tween::interpolate_callback(Object *p_object, real_t p_duration, const Stri
     return true;
 }
 
-bool Tween::interpolate_deferred_callback(Object *p_object, real_t p_duration, const String& p_callback, VARIANT_ARG_DECLARE) {
+bool Tween::interpolate_deferred_callback(Object *p_object, real_t p_duration, const StringName& p_callback, VARIANT_ARG_DECLARE) {
     // If we are already updating, call this function again later
     if (pending_update != 0) {
         _add_pending_command("interpolate_deferred_callback", Variant(p_object), p_duration, p_callback, p_arg1, p_arg2, p_arg3, p_arg4, p_arg5);
@@ -1339,7 +1374,7 @@ bool Tween::interpolate_deferred_callback(Object *p_object, real_t p_duration, c
     ERR_FAIL_COND_V(p_duration < 0, false)
 
     // Confirm the callback exists on the object
-    ERR_FAIL_COND_V_MSG(!p_object->has_method(p_callback), false, "Object has no callback named: " + p_callback + ".")
+    ERR_FAIL_COND_V_MSG(!p_object->has_method(p_callback), false, "Object has no callback named: " + se_string(p_callback) + ".")
 
     // Create a new InterpolateData for the callback
     InterpolateData data;
@@ -1482,8 +1517,8 @@ bool Tween::follow_method(Object *p_object, const StringName& p_method, Variant 
     ERR_FAIL_COND_V(p_delay < 0, false)
 
     // Confirm both objects have the target methods
-    ERR_FAIL_COND_V_MSG(!p_object->has_method(p_method), false, "Object has no method named: " + p_method + ".")
-    ERR_FAIL_COND_V_MSG(!p_target->has_method(p_target_method), false, "Target has no method named: " + p_target_method + ".")
+    ERR_FAIL_COND_V_MSG(!p_object->has_method(p_method), false, "Object has no method named: " + se_string(p_method) + ".")
+    ERR_FAIL_COND_V_MSG(!p_target->has_method(p_target_method), false, "Target has no method named: " + se_string(p_target_method) + ".")
 
     // Call the method to get the target value
     Variant::CallError error;
@@ -1597,7 +1632,7 @@ bool Tween::targeting_method(Object *p_object, const StringName& p_method, Objec
     }
 
     // Convert final INT values to REAL as they are better for interpolation
-    if (p_final_val.get_type() == VariantType::INT) p_final_val = p_final_val.operator real_t();
+    if (p_final_val.get_type() == VariantType::INT) p_final_val = p_final_val.as<real_t>();
 
     // Make sure the given objects are valid
     ERR_FAIL_COND_V(p_object == nullptr, false)
@@ -1616,8 +1651,8 @@ bool Tween::targeting_method(Object *p_object, const StringName& p_method, Objec
     ERR_FAIL_COND_V(p_delay < 0, false)
 
     // Make sure both objects have the given method
-    ERR_FAIL_COND_V_MSG(!p_object->has_method(p_method), false, "Object has no method named: " + p_method + ".")
-    ERR_FAIL_COND_V_MSG(!p_initial->has_method(p_initial_method), false, "Initial Object has no method named: " + p_initial_method + ".")
+    ERR_FAIL_COND_V_MSG(!p_object->has_method(p_method), false, "Object has no method named: " + se_string(p_method) + ".")
+    ERR_FAIL_COND_V_MSG(!p_initial->has_method(p_initial_method), false, "Initial Object has no method named: " + se_string(p_initial_method) + ".")
 
     // Call the method to get the initial value
     Variant::CallError error;

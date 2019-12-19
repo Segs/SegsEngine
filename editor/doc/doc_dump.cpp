@@ -32,28 +32,28 @@
 
 #include "core/os/file_access.h"
 #include "core/version.h"
+#include "core/string_utils.h"
 #include "core/math/transform.h"
 #include "scene/main/node.h"
 #include "core/method_bind_interface.h"
 
 #include "EASTL/sort.h"
 
-static void _write_string(FileAccess *f, int p_tablevel, const String &p_string) {
+static void _write_string(FileAccess *f, int p_tablevel, se_string_view p_string) {
 
-    String tab;
+    se_string tab;
     for (int i = 0; i < p_tablevel; i++)
-        tab += "\t";
+        tab += '\t';
     f->store_string(tab + p_string + "\n");
 }
-
 struct _ConstantSort {
 
-    String name;
+    se_string name;
     int value;
     bool operator<(const _ConstantSort &p_c) const {
 
-        String left_a = StringUtils::find(name,"_") == -1 ? name : StringUtils::substr(name,0, StringUtils::find(name,"_"));
-        String left_b = StringUtils::find(p_c.name,"_") == -1 ? p_c.name : StringUtils::substr(p_c.name,0, StringUtils::find(p_c.name,"_"));
+        se_string_view left_a = not name.contains("_") ? name : StringUtils::substr(name,0, StringUtils::find(name,"_"));
+        se_string_view left_b = StringUtils::find(p_c.name,"_") == se_string::npos ? p_c.name : StringUtils::substr(p_c.name,0, StringUtils::find(p_c.name,"_"));
         if (left_a == left_b)
             return value < p_c.value;
         else
@@ -61,9 +61,9 @@ struct _ConstantSort {
     }
 };
 
-static String _escape_string(const String &p_str) {
+static se_string _escape_string(se_string_view p_str) {
 
-    String ret = p_str;
+    se_string ret(p_str);
     ret = StringUtils::replace(ret,"&", "&amp;");
     ret = StringUtils::replace(ret,"<", "&gt;");
     ret = StringUtils::replace(ret,">", "&lt;");
@@ -74,10 +74,9 @@ static String _escape_string(const String &p_str) {
         char chr[2] = { i, 0 };
         ret = StringUtils::replace(ret,chr, "&#" + StringUtils::num(i) + ";");
     }
-    ret = QString::fromUtf16((ushort *)ret.cdata(),ret.m_str.size());
     return ret;
 }
-void DocDump::dump(const String &p_file) {
+void DocDump::dump(se_string_view p_file) {
 
     Vector<StringName> class_list;
     ClassDB::get_class_list(&class_list);
@@ -87,21 +86,21 @@ void DocDump::dump(const String &p_file) {
     FileAccess *f = FileAccess::open(p_file, FileAccess::WRITE);
 
     _write_string(f, 0, R"(<?xml version="1.0" encoding="UTF-8" ?>)");
-    _write_string(f, 0, String("<doc version=\"") + VERSION_NUMBER + "\" name=\"Engine Types\">");
+    _write_string(f, 0, se_string("<doc version=\"") + VERSION_NUMBER + "\" name=\"Engine Types\">");
 
     for(int i=0,fin=class_list.size(); i<fin; ++i) {
 
-        String name = class_list[i];
+        StringName name(class_list[i]);
 
-        String header = "<class name=\"" + name + "\"";
-        String inherits = ClassDB::get_parent_class(name);
+        se_string header = se_string("<class name=\"") + name + "\"";
+        StringName inherits = ClassDB::get_parent_class(name);
         if (!inherits.empty())
-            header += " inherits=\"" + inherits + "\"";
-        String category = ClassDB::get_category(name);
+            header += se_string(" inherits=\"") + inherits + "\"";
+        StringName category = ClassDB::get_category(name);
         if (category.empty())
             category = "Core";
-        header += " category=\"" + category + "\"";
-        header += ">";
+        header += se_string(" category=\"") + category + "\"";
+        header += '>';
         _write_string(f, 0, header);
         _write_string(f, 1, "<brief_description>");
         _write_string(f, 1, "</brief_description>");
@@ -119,7 +118,7 @@ void DocDump::dump(const String &p_file) {
 
             MethodBind *m = ClassDB::get_method(name, E.name);
 
-            String qualifiers;
+            se_string qualifiers;
             if (E.flags & METHOD_FLAG_CONST)
                 qualifiers += "qualifiers=\"const\"";
 
@@ -132,7 +131,7 @@ void DocDump::dump(const String &p_file) {
                 if (i == -1) {
 
                     arginfo = E.return_val;
-                    String type_name = (arginfo.hint == PROPERTY_HINT_RESOURCE_TYPE) ? arginfo.hint_string : Variant::get_type_name(arginfo.type);
+                    se_string type_name = arginfo.hint == PROPERTY_HINT_RESOURCE_TYPE ? arginfo.hint_string : Variant::get_type_name(arginfo.type);
 
                     if (arginfo.type == VariantType::NIL)
                         continue;
@@ -141,7 +140,7 @@ void DocDump::dump(const String &p_file) {
 
                     arginfo = E.arguments[i];
 
-                    String type_name;
+                    se_string type_name;
 
                     if (arginfo.hint == PROPERTY_HINT_RESOURCE_TYPE)
                         type_name = arginfo.hint_string;
@@ -152,7 +151,7 @@ void DocDump::dump(const String &p_file) {
 
                     if (m && m->has_default_argument(i)) {
                         Variant default_arg = m->get_default_argument(i);
-                        String default_arg_text = String(_escape_string(m->get_default_argument(i)));
+                        se_string default_arg_text = _escape_string(m->get_default_argument(i).as<se_string>());
 
                         switch (default_arg.get_type()) {
 
@@ -179,7 +178,7 @@ void DocDump::dump(const String &p_file) {
                                     default_arg_text = "";
                                 }
 
-                                default_arg_text = String(Variant::get_type_name(default_arg.get_type())) + "(" + default_arg_text + ")";
+                                default_arg_text = se_string(Variant::get_type_name(default_arg.get_type())) + "(" + default_arg_text + ")";
                                 break;
 
                             case VariantType::VECTOR2:
@@ -196,7 +195,7 @@ void DocDump::dump(const String &p_file) {
                             case VariantType::POOL_STRING_ARRAY:
                             case VariantType::POOL_VECTOR3_ARRAY:
                             case VariantType::POOL_COLOR_ARRAY:
-                                default_arg_text = String(Variant::get_type_name(default_arg.get_type())) + "(" + default_arg_text + ")";
+                                default_arg_text = se_string(Variant::get_type_name(default_arg.get_type())) + "(" + default_arg_text + ")";
                                 break;
                             case VariantType::OBJECT:
                             case VariantType::DICTIONARY: // 20
@@ -212,26 +211,26 @@ void DocDump::dump(const String &p_file) {
                         _write_string(f, 3, "<argument index=\"" + itos(i) + "\" name=\"" + arginfo.name + "\" type=\"" + type_name + "\">");
                 }
 
-                String hint;
+                se_string hint;
                 switch (arginfo.hint) {
                     case PROPERTY_HINT_DIR: hint = "A directory."; break;
                 case PROPERTY_HINT_RANGE:
-                    hint = "Range - min: " + StringUtils::get_slice(arginfo.hint_string,",", 0) + " max: " + StringUtils::get_slice(arginfo.hint_string,",", 1) +
+                    hint = se_string("Range - min: ") + StringUtils::get_slice(arginfo.hint_string,",", 0) + " max: " + StringUtils::get_slice(arginfo.hint_string,",", 1) +
                            " step: " + StringUtils::get_slice(arginfo.hint_string,",", 2);
                     break;
                     case PROPERTY_HINT_ENUM:
                         hint = "Values: ";
-                        for (int j = 0; j < StringUtils::get_slice_count(arginfo.hint_string,","); j++) {
+                        for (int j = 0; j < StringUtils::get_slice_count(arginfo.hint_string,','); j++) {
                             if (j > 0) hint += ", ";
-                            hint += StringUtils::get_slice(arginfo.hint_string,",", j) + "=" + itos(j);
+                            hint += se_string(StringUtils::get_slice(arginfo.hint_string,",", j)) + "=" + itos(j);
                         }
                         break;
                     case PROPERTY_HINT_LENGTH: hint = "Length: " + arginfo.hint_string; break;
                     case PROPERTY_HINT_FLAGS:
                         hint = "Values: ";
-                        for (int j = 0; j < StringUtils::get_slice_count(arginfo.hint_string,","); j++) {
+                        for (int j = 0; j < StringUtils::get_slice_count(arginfo.hint_string,','); j++) {
                             if (j > 0) hint += ", ";
-                            hint += StringUtils::get_slice(arginfo.hint_string,",", j) + "=" + itos((uint64_t)1 << j);
+                            hint += se_string(StringUtils::get_slice(arginfo.hint_string,",", j)) + "=" + itos((uint64_t)1 << j);
                         }
                         break;
                     case PROPERTY_HINT_FILE: hint = "A file:"; break;
@@ -242,7 +241,7 @@ void DocDump::dump(const String &p_file) {
                 if (!hint.empty())
                     _write_string(f, 4, hint);
 
-                _write_string(f, 3, (i == -1) ? "</return>" : "</argument>");
+                _write_string(f, 3, i == -1 ? "</return>" : "</argument>");
             }
 
             _write_string(f, 3, "<description>");
@@ -261,8 +260,8 @@ void DocDump::dump(const String &p_file) {
             _write_string(f, 1, "<signals>");
             for (const MethodInfo &EV : signal_list) {
 
-                _write_string(f, 2, "<signal name=\"" + EV.name + "\">");
-                for (int i = 0; i < EV.arguments.size(); i++) {
+                _write_string(f, 2, se_string("<signal name=\"") + EV.name + "\">");
+                for (size_t i = 0; i < EV.arguments.size(); i++) {
                     PropertyInfo arginfo = EV.arguments[i];
                     _write_string(f, 3, "<argument index=\"" + itos(i) + "\" name=\"" + arginfo.name + "\" type=\"" + Variant::get_type_name(arginfo.type) + "\">");
                     _write_string(f, 3, "</argument>");
@@ -278,17 +277,17 @@ void DocDump::dump(const String &p_file) {
 
         _write_string(f, 1, "<constants>");
 
-        ListPOD<String> constant_list;
+        ListPOD<se_string> constant_list;
         ClassDB::get_integer_constant_list(name, &constant_list, true);
 
         /* constants are sorted in a special way */
 
         List<_ConstantSort> constant_sort;
 
-        for (const String &E : constant_list) {
+        for (const se_string &E : constant_list) {
             _ConstantSort cs;
             cs.name = E;
-            cs.value = ClassDB::get_integer_constant(name, E);
+            cs.value = ClassDB::get_integer_constant(name, StringName(E));
             constant_sort.push_back(cs);
         }
 

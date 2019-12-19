@@ -117,7 +117,7 @@ void Material::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_render_priority", {"priority"}), &Material::set_render_priority);
     MethodBinder::bind_method(D_METHOD("get_render_priority"), &Material::get_render_priority);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "render_priority", PROPERTY_HINT_RANGE, itos(RENDER_PRIORITY_MIN) + "," + itos(RENDER_PRIORITY_MAX) + ",1"), "set_render_priority", "get_render_priority");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "render_priority", PROPERTY_HINT_RANGE, ::to_string(RENDER_PRIORITY_MIN) + "," + ::to_string(RENDER_PRIORITY_MAX) + ",1"), "set_render_priority", "get_render_priority");
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "next_pass", PROPERTY_HINT_RESOURCE_TYPE, "Material"), "set_next_pass", "get_next_pass");
 
     BIND_CONSTANT(RENDER_PRIORITY_MAX)
@@ -143,12 +143,11 @@ bool ShaderMaterial::_set(const StringName &p_name, const Variant &p_value) {
 
         StringName pr = shader->remap_param(p_name);
         if (!pr) {
-            String n = p_name;
-            if (StringUtils::begins_with(n,"param/") ) { //backwards compatibility
-                pr = StringUtils::substr(n,6, n.length());
+            if (StringUtils::begins_with(p_name,"param/") ) { //backwards compatibility
+                pr = StringName(StringUtils::substr(p_name,6));
             }
-            if (StringUtils::begins_with(n,"shader_param/") ) { //backwards compatibility
-                pr = StringUtils::replace_first(n,"shader_param/", "");
+            if (StringUtils::begins_with(p_name,"shader_param/") ) { //backwards compatibility
+                pr = StringName(StringUtils::replace_first(p_name,"shader_param/", ""));
             }
         }
         if (pr) {
@@ -166,12 +165,11 @@ bool ShaderMaterial::_get(const StringName &p_name, Variant &r_ret) const {
 
         StringName pr = shader->remap_param(p_name);
         if (!pr) {
-            String n = p_name;
-            if (StringUtils::begins_with(n,"param/") ) { //backwards compatibility
-                pr = StringUtils::substr(n,6, n.length());
+            if (StringUtils::begins_with(p_name,"param/") ) { //backwards compatibility
+                pr = StringName(StringUtils::substr(p_name,6));
             }
-            if (StringUtils::begins_with(n,"shader_param/") ) { //backwards compatibility
-                pr = StringUtils::replace_first(n,"shader_param/", "");
+            if (StringUtils::begins_with(p_name,"shader_param/") ) { //backwards compatibility
+                pr = StringName(StringUtils::replace_first(p_name,"shader_param/", ""));
             }
         }
 
@@ -191,7 +189,7 @@ void ShaderMaterial::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
     }
 }
 
-bool ShaderMaterial::property_can_revert(const String &p_name) {
+bool ShaderMaterial::property_can_revert(StringName p_name) {
     if (shader) {
 
         StringName pr = shader->remap_param(p_name);
@@ -205,7 +203,7 @@ bool ShaderMaterial::property_can_revert(const String &p_name) {
     return false;
 }
 
-Variant ShaderMaterial::property_get_revert(const String &p_name) {
+Variant ShaderMaterial::property_get_revert(StringName p_name) {
     Variant r_ret;
     if (shader) {
         StringName pr = shader->remap_param(p_name);
@@ -267,12 +265,12 @@ void ShaderMaterial::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "shader", PROPERTY_HINT_RESOURCE_TYPE, "Shader"), "set_shader", "get_shader");
 }
 
-void ShaderMaterial::get_argument_options(const StringName &p_function, int p_idx, ListPOD<String> *r_options) const {
+void ShaderMaterial::get_argument_options(const StringName &p_function, int p_idx, ListPOD<se_string> *r_options) const {
 
 #ifdef TOOLS_ENABLED
-    const String quote_style = EDITOR_DEF("text_editor/completion/use_single_quotes", 0) ? "'" : "\"";
+    const char * quote_style(EDITOR_DEF("text_editor/completion/use_single_quotes", 0) ? "'" : "\"");
 #else
-    const String quote_style = "\"";
+    const char * quote_style = "\"";
 #endif
 
     String f = p_function.operator String();
@@ -436,7 +434,7 @@ void SpatialMaterial::_update_shader() {
 
     //must create a shader!
 
-    String code = "shader_type spatial;\nrender_mode ";
+    se_string code("shader_type spatial;\nrender_mode ");
     switch (blend_mode) {
         case BLEND_MODE_MIX: code += "blend_mix"; break;
         case BLEND_MODE_ADD: code += "blend_add"; break;
@@ -523,10 +521,16 @@ void SpatialMaterial::_update_shader() {
     }
     code += "uniform float roughness : hint_range(0,1);\n";
     code += "uniform float point_size : hint_range(0,128);\n";
-    code += "uniform sampler2D texture_metallic : hint_white;\n";
-    code += "uniform vec4 metallic_texture_channel;\n";
-    code += "uniform sampler2D texture_roughness : hint_white;\n";
-    code += "uniform vec4 roughness_texture_channel;\n";
+
+    if (textures[TEXTURE_METALLIC] != nullptr) {
+        code += "uniform sampler2D texture_metallic : hint_white;\n";
+        code += "uniform vec4 metallic_texture_channel;\n";
+    }
+
+    if (textures[TEXTURE_ROUGHNESS] != nullptr) {
+        code += "uniform sampler2D texture_roughness : hint_white;\n";
+        code += "uniform vec4 roughness_texture_channel;\n";
+    }
     if (billboard_mode == BILLBOARD_PARTICLES) {
         code += "uniform int particles_anim_h_frames;\n";
         code += "uniform int particles_anim_v_frames;\n";
@@ -814,23 +818,36 @@ void SpatialMaterial::_update_shader() {
         code += "\talbedo_tex.rgb = mix(pow((albedo_tex.rgb + vec3(0.055)) * (1.0 / (1.0 + 0.055)),vec3(2.4)),albedo_tex.rgb.rgb * (1.0 / 12.92),lessThan(albedo_tex.rgb,vec3(0.04045)));\n";
     }
 
+    if (flags[FLAG_ALBEDO_TEXTURE_FORCE_SRGB]) {
+        code += "\talbedo_tex.rgb = mix(pow((albedo_tex.rgb + vec3(0.055)) * (1.0 / (1.0 + 0.055)),vec3(2.4)),albedo_tex.rgb.rgb * (1.0 / 12.92),lessThan(albedo_tex.rgb,vec3(0.04045)));\n";
+    }
+
     if (flags[FLAG_ALBEDO_FROM_VERTEX_COLOR]) {
         code += "\talbedo_tex *= COLOR;\n";
     }
 
     code += "\tALBEDO = albedo.rgb * albedo_tex.rgb;\n";
-    if (flags[FLAG_UV1_USE_TRIPLANAR]) {
-        code += "\tfloat metallic_tex = dot(triplanar_texture(texture_metallic,uv1_power_normal,uv1_triplanar_pos),metallic_texture_channel);\n";
+    if (textures[TEXTURE_METALLIC] != nullptr) {
+        if (flags[FLAG_UV1_USE_TRIPLANAR]) {
+            code += "\tfloat metallic_tex = dot(triplanar_texture(texture_metallic,uv1_power_normal,uv1_triplanar_pos),metallic_texture_channel);\n";
+        } else {
+            code += "\tfloat metallic_tex = dot(texture(texture_metallic,base_uv),metallic_texture_channel);\n";
+        }
+        code += "\tMETALLIC = metallic_tex * metallic;\n";
     } else {
-        code += "\tfloat metallic_tex = dot(texture(texture_metallic,base_uv),metallic_texture_channel);\n";
+        code += "\tMETALLIC = metallic;\n";
     }
-    code += "\tMETALLIC = metallic_tex * metallic;\n";
-    if (flags[FLAG_UV1_USE_TRIPLANAR]) {
-        code += "\tfloat roughness_tex = dot(triplanar_texture(texture_roughness,uv1_power_normal,uv1_triplanar_pos),roughness_texture_channel);\n";
+
+    if (textures[TEXTURE_ROUGHNESS] != nullptr) {
+        if (flags[FLAG_UV1_USE_TRIPLANAR]) {
+            code += "\tfloat roughness_tex = dot(triplanar_texture(texture_roughness,uv1_power_normal,uv1_triplanar_pos),roughness_texture_channel);\n";
+        } else {
+            code += "\tfloat roughness_tex = dot(texture(texture_roughness,base_uv),roughness_texture_channel);\n";
+        }
+        code += "\tROUGHNESS = roughness_tex * roughness;\n";
     } else {
-        code += "\tfloat roughness_tex = dot(texture(texture_roughness,base_uv),roughness_texture_channel);\n";
+        code += "\tROUGHNESS = roughness;\n";
     }
-    code += "\tROUGHNESS = roughness_tex * roughness;\n";
     code += "\tSPECULAR = specular;\n";
 
     if (features[FEATURE_NORMAL_MAPPING]) {
@@ -1009,12 +1026,12 @@ void SpatialMaterial::_update_shader() {
         bool triplanar = (flags[FLAG_UV1_USE_TRIPLANAR] && detail_uv == DETAIL_UV_1) || (flags[FLAG_UV2_USE_TRIPLANAR] && detail_uv == DETAIL_UV_2);
 
         if (triplanar) {
-            String tp_uv = detail_uv == DETAIL_UV_1 ? "uv1" : "uv2";
+            se_string tp_uv = detail_uv == DETAIL_UV_1 ? "uv1" : "uv2";
             code += "\tvec4 detail_tex = triplanar_texture(texture_detail_albedo," + tp_uv + "_power_normal," + tp_uv + "_triplanar_pos);\n";
             code += "\tvec4 detail_norm_tex = triplanar_texture(texture_detail_normal," + tp_uv + "_power_normal," + tp_uv + "_triplanar_pos);\n";
 
         } else {
-            String det_uv = detail_uv == DETAIL_UV_1 ? "base_uv" : "base_uv2";
+            se_string det_uv = detail_uv == DETAIL_UV_1 ? "base_uv" : "base_uv2";
             code += "\tvec4 detail_tex = texture(texture_detail_albedo," + det_uv + ");\n";
             code += "\tvec4 detail_norm_tex = texture(texture_detail_normal," + det_uv + ");\n";
         }
@@ -1416,6 +1433,8 @@ void SpatialMaterial::set_texture(TextureParam p_param, const Ref<Texture> &p_te
     textures[p_param] = p_texture;
     RID rid = p_texture ? p_texture->get_rid() : RID();
     VisualServer::get_singleton()->material_set_param(_get_material(), shader_names->texture_names[p_param], rid);
+    _change_notify();
+    _queue_shader_change();
 }
 
 Ref<Texture> SpatialMaterial::get_texture(TextureParam p_param) const {
@@ -1433,14 +1452,14 @@ Ref<Texture> SpatialMaterial::get_texture_by_name(const StringName& p_name) cons
     return Ref<Texture>();
 }
 
-void SpatialMaterial::_validate_feature(const String &text, Feature feature, PropertyInfo &property) const {
-    if (StringUtils::begins_with(property.name,text) && property.name != text + "_enabled" && !features[feature]) {
+void SpatialMaterial::_validate_feature(se_string_view text, Feature feature, PropertyInfo &property) const {
+    if (StringUtils::begins_with(property.name,text) && property.name != StringName(se_string(text) + "_enabled") && !features[feature]) {
         property.usage = 0;
     }
 }
 
-void SpatialMaterial::_validate_high_end(const String &text, PropertyInfo &property) const {
-    if (StringUtils::begins_with(property.name,text)) {
+void SpatialMaterial::_validate_high_end(se_string_view text, PropertyInfo &property) const {
+    if (StringUtils::begins_with(property.name.asCString(),text)) {
         property.usage |= PROPERTY_USAGE_HIGH_END_GFX;
     }
 }
@@ -1780,7 +1799,7 @@ SpatialMaterial::TextureChannel SpatialMaterial::get_roughness_texture_channel()
 }
 
 void SpatialMaterial::set_ao_texture_channel(TextureChannel p_channel) {
-
+    ERR_FAIL_INDEX(p_channel, 5);
     ao_texture_channel = p_channel;
     VisualServer::get_singleton()->material_set_param(_get_material(), shader_names->ao_texture_channel, _get_texture_mask(p_channel));
 }
@@ -1790,6 +1809,7 @@ SpatialMaterial::TextureChannel SpatialMaterial::get_ao_texture_channel() const 
 }
 
 void SpatialMaterial::set_refraction_texture_channel(TextureChannel p_channel) {
+    ERR_FAIL_INDEX(p_channel, 5);
 
     refraction_texture_channel = p_channel;
     VisualServer::get_singleton()->material_set_param(_get_material(), shader_names->refraction_texture_channel, _get_texture_mask(p_channel));
@@ -1830,11 +1850,9 @@ RID SpatialMaterial::get_material_rid_for_2d(bool p_shaded, bool p_transparent, 
     material->set_flag(FLAG_SRGB_VERTEX_COLOR, true);
     material->set_flag(FLAG_ALBEDO_FROM_VERTEX_COLOR, true);
     material->set_flag(FLAG_USE_ALPHA_SCISSOR, p_cut_alpha);
-
-    if (p_billboard) {
-        material->set_billboard_mode(BILLBOARD_ENABLED);
-    } else if (p_billboard_y) {
-        material->set_billboard_mode(BILLBOARD_FIXED_Y);
+    if (p_billboard || p_billboard_y) {
+        material->set_flag(FLAG_BILLBOARD_KEEP_SCALE, true);
+        material->set_billboard_mode(p_billboard_y ? BILLBOARD_FIXED_Y : BILLBOARD_ENABLED);
     }
 
     materials_for_2d[version] = material;

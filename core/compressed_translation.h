@@ -43,9 +43,9 @@ class GODOT_EXPORT PHashTranslation : public Translation {
     //of catching untranslated strings
 
     //load/store friendly types
-    PoolVector<int> hash_table;
-    PoolVector<int> bucket_table;
-    PoolVector<uint8_t> strings;
+    PODVector<int> hash_table;
+    PODVector<int> bucket_table;
+    PODVector<uint8_t> strings;
 
     struct Bucket {
 

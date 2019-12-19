@@ -69,7 +69,7 @@ Rect2 NavigationPolygon::_edit_get_rect() const {
     return item_rect;
 }
 
-bool NavigationPolygon::_edit_is_selected_on_click(const Point2 &p_point, double p_tolerance) const {
+bool NavigationPolygon::_edit_is_selected_on_click(const Point2 &p_point, float p_tolerance) const {
 
     for (int i = 0; i < outlines.size(); i++) {
         const PoolVector<Vector2> &outline = outlines[i];
@@ -362,7 +362,7 @@ Rect2 NavigationPolygonInstance::_edit_get_rect() const {
     return navpoly ? navpoly->_edit_get_rect() : Rect2();
 }
 
-bool NavigationPolygonInstance::_edit_is_selected_on_click(const Point2 &p_point, double p_tolerance) const {
+bool NavigationPolygonInstance::_edit_is_selected_on_click(const Point2 &p_point, float p_tolerance) const {
 
     return navpoly ? navpoly->_edit_is_selected_on_click(p_point, p_tolerance) : false;
 }
@@ -495,10 +495,10 @@ void NavigationPolygonInstance::_navpoly_changed() {
         update();
 }
 
-String NavigationPolygonInstance::get_configuration_warning() const {
+StringName NavigationPolygonInstance::get_configuration_warning() const {
 
     if (!is_visible_in_tree() || !is_inside_tree())
-        return String();
+        return StringName();
 
     if (not navpoly) {
         return TTR("A NavigationPolygon resource must be set or created for this node to work. Please set a property or draw a polygon.");
@@ -507,7 +507,7 @@ String NavigationPolygonInstance::get_configuration_warning() const {
     while (c) {
 
         if (object_cast<Navigation2D>(c)) {
-            return String();
+            return StringName();
         }
 
         c = object_cast<Node2D>(c->get_parent());

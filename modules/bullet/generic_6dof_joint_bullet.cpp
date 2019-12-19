@@ -33,7 +33,8 @@
 #include "bullet_types_converter.h"
 #include "bullet_utilities.h"
 #include "rigid_body_bullet.h"
-#include "core/ustring.h"
+#include "core/se_string.h"
+#include "core/string_utils.h"
 
 #include <BulletDynamics/ConstraintSolver/btGeneric6DofSpring2Constraint.h>
 

@@ -80,7 +80,7 @@ void EditorLayoutsDialog::ok_pressed() {
 
             emit_signal("name_confirmed", layout_names->get_item_text(selected_items[i]));
         }
-    } else if (name->is_visible() && !name->get_text().empty()) {
+    } else if (name->is_visible() && !name->get_text_ui().isEmpty()) {
 
         emit_signal("name_confirmed", name->get_text());
     }
@@ -99,12 +99,12 @@ void EditorLayoutsDialog::_post_popup() {
         return;
     }
 
-    List<String> layouts;
+    List<se_string> layouts;
     config.get_sections(&layouts);
 
-    for (List<String>::Element *E = layouts.front(); E; E = E->next()) {
+    for (List<se_string>::Element *E = layouts.front(); E; E = E->next()) {
 
-        layout_names->add_item(**E);
+        layout_names->add_item(StringName(**E));
     }
 }
 

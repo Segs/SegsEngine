@@ -35,6 +35,7 @@
 #include "core/os/dir_access.h"
 #include "core/os/os.h"
 #include "core/print_string.h"
+#include "core/string_utils.h"
 #include "core/string_formatter.h"
 #include "core/set.h"
 
@@ -50,7 +51,7 @@ bool Logger::should_log(bool p_err) {
     return (!p_err || _print_error_enabled) && (p_err || _print_line_enabled);
 }
 
-void Logger::log_error(const char *p_function, const char *p_file, int p_line, const char *p_code, const char *p_rationale, ErrorType p_type) {
+void Logger::log_error(se_string_view p_function, se_string_view p_file, int p_line, se_string_view p_code, se_string_view p_rationale, ErrorType p_type) {
     if (!should_log(true)) {
         return;
     }
@@ -64,24 +65,17 @@ void Logger::log_error(const char *p_function, const char *p_file, int p_line, c
         default: ERR_PRINT("Unknown error type"); break;
     }
 
-    const char *err_details;
-    if (p_rationale && *p_rationale)
+    se_string_view err_details;
+    if (!p_rationale.empty())
         err_details = p_rationale;
     else
         err_details = p_code;
 
-    logf_error(FormatV("%s: %s\n", err_type, err_details).cdata());
-    logf_error(FormatV("   At: %s:%i:%s() - %s\n", p_file, p_line, p_function, p_code).cdata());
+    logf_error(FormatVE("%s: %.*s\n",err_type,err_details.size(),err_details.data()));
+    logf_error(FormatVE("   At: %.*s:%i:%.*s() - %.*s\n",p_file.size(),p_file.data(),p_line,p_function.size(),p_function.data(),p_code.size(),p_code.data()));
 }
 
-void Logger::logf(const String &p_msg) {
-    if (!should_log(false)) {
-        return;
-    }
-
-    logv(qPrintable(p_msg.m_str), false);
-}
-void Logger::logf(const char *p_msg) {
+void Logger::logf(se_string_view p_msg) {
     if (!should_log(false)) {
         return;
     }
@@ -89,14 +83,7 @@ void Logger::logf(const char *p_msg) {
     logv(p_msg, false);
 }
 
-void Logger::logf_error(const char *p_msg) {
-    if (!should_log(true)) {
-        return;
-    }
-
-    logv(p_msg, true);
-}
-void Logger::logf_error(const QChar *p_msg) {
+void Logger::logf_error(se_string_view p_msg) {
     if (!should_log(true)) {
         return;
     }
@@ -115,8 +102,8 @@ void RotatedFileLogger::close_file() {
 void RotatedFileLogger::clear_old_backups() const {
     int max_backups = max_files - 1; // -1 for the current file
 
-    String basename =  PathUtils::get_basename(PathUtils::get_file(base_path));
-    String extension = PathUtils::get_extension(base_path);
+    se_string_view basename =  PathUtils::get_basename(PathUtils::get_file(base_path));
+    se_string_view extension = PathUtils::get_extension(base_path);
 
     DirAccess *da = DirAccess::open(PathUtils::get_base_dir(base_path));
     if (!da) {
@@ -124,10 +111,11 @@ void RotatedFileLogger::clear_old_backups() const {
     }
 
     da->list_dir_begin();
-    String f = da->get_next();
-    Set<String> backups;
+    se_string f = da->get_next();
+    Set<se_string> backups;
     while (!f.empty()) {
-        if (!da->current_is_dir() && StringUtils::begins_with(f,basename) && PathUtils::get_extension(f) == extension && f != PathUtils::get_file(base_path)) {
+        if (!da->current_is_dir() && StringUtils::begins_with(f, basename) && PathUtils::get_extension(f) == extension &&
+                se_string_view(f) != PathUtils::get_file(base_path)) {
             backups.insert(f);
         }
         f = da->get_next();
@@ -138,7 +126,7 @@ void RotatedFileLogger::clear_old_backups() const {
         // since backups are appended with timestamp and Set iterates them in sorted order,
         // first backups are the oldest
         int to_delete = backups.size() - max_backups;
-        for (const String &E : backups) {
+        for (const se_string &E : backups) {
             if(to_delete--<=0)
                 break;
             da->remove(E);
@@ -158,9 +146,10 @@ void RotatedFileLogger::rotate_file() {
             OS::Time time = OS::get_singleton()->get_time();
             sprintf(timestamp, "-%04d-%02d-%02d-%02d-%02d-%02d", date.year, date.month, date.day, time.hour, time.min, time.sec);
 
-            String backup_name = PathUtils::get_basename(base_path) + timestamp;
+            se_string backup_name = se_string(PathUtils::get_basename(base_path)) + timestamp;
             if (!PathUtils::get_extension(base_path).empty()) {
-                backup_name += "." + PathUtils::get_extension(base_path);
+                backup_name.push_back('.');
+                backup_name.append(PathUtils::get_extension(base_path));
             }
 
             DirAccess *da = DirAccess::open(PathUtils::get_base_dir(base_path));
@@ -181,32 +170,14 @@ void RotatedFileLogger::rotate_file() {
     file = FileAccess::open(base_path, FileAccess::WRITE);
 }
 
-RotatedFileLogger::RotatedFileLogger(const String &p_base_path, int p_max_files) :
+RotatedFileLogger::RotatedFileLogger(const se_string &p_base_path, int p_max_files) :
         base_path(PathUtils::simplify_path(p_base_path)),
         max_files(p_max_files > 0 ? p_max_files : 1),
         file(nullptr) {
     rotate_file();
 }
 
-void RotatedFileLogger::logv(const QChar *p_msg, bool p_err) {
-    if (!should_log(p_err)) {
-        return;
-    }
-
-    if (!file) return;
-    QString dat = QString::fromUtf16((char16_t *)p_msg);
-    file->store_buffer((const uint8_t *)qUtf8Printable(dat), dat.size());
-#ifdef DEBUG_ENABLED
-    const bool need_flush = true;
-#else
-    bool need_flush = p_err;
-#endif
-    if (need_flush) {
-        file->flush();
-    }
-}
-
-void RotatedFileLogger::logv(const char *p_format, bool p_err) {
+void RotatedFileLogger::logv(se_string_view p_format, bool p_err) {
     if (!should_log(p_err)) {
         return;
     }
@@ -214,7 +185,7 @@ void RotatedFileLogger::logv(const char *p_format, bool p_err) {
     if (!file)
         return;
 
-    file->store_buffer((const uint8_t *)p_format, strlen(p_format));
+    file->store_buffer((const uint8_t *)p_format.data(), p_format.length());
 #ifdef DEBUG_ENABLED
     const bool need_flush = true;
 #else
@@ -228,31 +199,16 @@ void RotatedFileLogger::logv(const char *p_format, bool p_err) {
 RotatedFileLogger::~RotatedFileLogger() {
     close_file();
 }
-void StdLogger::logv(const QChar *p_format, bool p_err) {
-    if (!should_log(p_err)) {
-        return;
-    }
-    int len=0;
-    while (p_format && !p_format[len++].isNull())
-        ;
-    if (p_err) {
-        fprintf(stderr, "%s", QString::fromRawData(p_format,len-1).toUtf8().constData());
-    } else {
-        printf("%s", QString::fromRawData(p_format, len - 1).toUtf8().constData());
-#ifdef DEBUG_ENABLED
-        fflush(stdout);
-#endif
-    }
-}
-void StdLogger::logv(const char *p_format, bool p_err) {
+
+void StdLogger::logv(se_string_view p_format, bool p_err) {
     if (!should_log(p_err)) {
         return;
     }
 
     if (p_err) {
-        fprintf(stderr, "%s",p_format);
+        fprintf(stderr, "%.*s",p_format.length(),p_format.data());
     } else {
-        printf("%s",p_format);
+        printf("%.*s",p_format.length(),p_format.data());
 #ifdef DEBUG_ENABLED
         fflush(stdout);
 #endif
@@ -265,7 +221,7 @@ CompositeLogger::CompositeLogger(const Vector<Logger *>& p_loggers) :
         loggers(p_loggers) {
 }
 
-void CompositeLogger::logv(const QChar *p_msg, bool p_err) {
+void CompositeLogger::logv(se_string_view p_msg, bool p_err) {
     if (!should_log(p_err)) {
         return;
     }
@@ -274,16 +230,7 @@ void CompositeLogger::logv(const QChar *p_msg, bool p_err) {
         loggers[i]->logv(p_msg, p_err);
     }
 }
-void CompositeLogger::logv(const char *p_msg, bool p_err) {
-    if (!should_log(p_err)) {
-        return;
-    }
-
-    for (int i = 0; i < loggers.size(); ++i) {
-        loggers[i]->logv(p_msg, p_err);
-    }
-}
-void CompositeLogger::log_error(const char *p_function, const char *p_file, int p_line, const char *p_code, const char *p_rationale, ErrorType p_type) {
+void CompositeLogger::log_error(se_string_view p_function, se_string_view p_file, int p_line, se_string_view p_code, se_string_view p_rationale, ErrorType p_type) {
     if (!should_log(true)) {
         return;
     }

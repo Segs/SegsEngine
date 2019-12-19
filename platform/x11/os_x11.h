@@ -41,7 +41,6 @@
 #include "main/input_default.h"
 #include "power_x11.h"
 #include "servers/audio_server.h"
-#include "servers/camera_server.h"
 #include "servers/visual/rasterizer.h"
 #include "servers/visual_server.h"
 //#include "servers/visual/visual_server_wrap_mt.h"
@@ -97,7 +96,7 @@ class OS_X11 : public OS_Unix {
     //Rasterizer *rasterizer;
     VisualServer *visual_server;
     VideoMode current_videomode;
-    ListPOD<String> args;
+    ListPOD<se_string> args;
     Window x11_window;
     Window xdnd_source_window;
     MainLoop *main_loop;
@@ -130,9 +129,12 @@ class OS_X11 : public OS_Unix {
         int opcode;
         Vector<int> touch_devices;
         Map<int, Vector2> absolute_devices;
+        Map<int, Vector3> pen_devices;
         XIEventMask all_event_mask;
         XIEventMask all_master_event_mask;
         Map<int, Vector2> state;
+        double pressure;
+        Vector2 tilt;
         Vector2 mouse_pos_to_filter;
         Vector2 relative_motion;
         Vector2 raw_pos;
@@ -145,8 +147,6 @@ class OS_X11 : public OS_Unix {
     unsigned int get_mouse_button_state(unsigned int p_x11_button, int p_x11_type);
     void get_key_modifier_state(unsigned int p_x11_state, Ref<InputEventWithModifiers> state);
     void flush_mouse_motion();
-
-    CameraServer *camera_server;
 
     MouseMode mouse_mode;
     Point2i center;
@@ -219,7 +219,7 @@ protected:
     bool is_window_maximize_allowed();
 
 public:
-    String get_name() const override;
+    se_string get_name() const override;
 
     void set_cursor_shape(CursorShape p_shape) override;
     CursorShape get_cursor_shape() const override;
@@ -231,7 +231,7 @@ public:
     void warp_mouse_position(const Point2 &p_to) override;
     Point2 get_mouse_position() const override;
     int get_mouse_button_state() const override;
-    void set_window_title(const String &p_title) override;
+    void set_window_title(se_string_view p_title) override;
 
     void set_icon(const Ref<Image> &p_icon) override;
 
@@ -239,14 +239,14 @@ public:
 
     bool can_draw() const override;
 
-    void set_clipboard(const String &p_text) override;
-    String get_clipboard() const override;
+    void set_clipboard(se_string_view p_text) override;
+    se_string get_clipboard() const override;
 
     void release_rendering_thread() override;
     void make_rendering_thread() override;
     void swap_buffers() override;
 
-    Error shell_open(String p_uri) override;
+    Error shell_open(se_string_view p_uri) override;
 
     void set_video_mode(const VideoMode &p_video_mode, int p_screen = 0) override;
     VideoMode get_video_mode(int p_screen = 0) const override;
@@ -288,13 +288,11 @@ public:
     void set_ime_active(const bool p_active) override;
     void set_ime_position(const Point2 &p_pos) override;
 
-    String get_unique_id() const override;
-
     void move_window_to_foreground() override;
-    void alert(const String &p_alert, const String &p_title = "ALERT!") override;
+    void alert(se_string_view p_alert, se_string_view p_title = se_string_view("ALERT!")) override;
 
     bool is_joy_known(int p_device) override;
-    String get_joy_guid(int p_device) const override;
+    StringName get_joy_guid(int p_device) const override;
 
     void set_context(int p_context) override;
 
@@ -305,7 +303,7 @@ public:
     int get_power_seconds_left() override;
     int get_power_percent_left() override;
 
-    bool _check_internal_feature_support(const String &p_feature) override;
+    bool _check_internal_feature_support(se_string_view p_feature) override;
 
     void force_process_input() override;
     void run() override;
@@ -313,7 +311,7 @@ public:
     void disable_crash_handler() override;
     bool is_disable_crash_handler() const override;
 
-    Error move_to_trash(const String &p_path) override;
+    Error move_to_trash(se_string_view p_path) override;
 
     LatinKeyboardVariant get_latin_keyboard_variant() const override;
 

@@ -52,6 +52,8 @@ Line2D::Line2D() {
     _texture_mode = LINE_TEXTURE_NONE;
     _sharp_limit = 2.f;
     _round_precision = 8;
+    _antialiased = false;
+
 }
 
 Rect2 Line2D::_edit_get_rect() const {
@@ -71,7 +73,7 @@ bool Line2D::_edit_use_rect() const {
     return true;
 }
 
-bool Line2D::_edit_is_selected_on_click(const Point2 &p_point, double p_tolerance) const {
+bool Line2D::_edit_is_selected_on_click(const Point2 &p_point, float p_tolerance) const {
 
     const real_t d = _width / 2 + p_tolerance;
     PoolVector<Vector2>::Read points = _points.read();
@@ -265,6 +267,15 @@ int Line2D::get_round_precision() const {
     return _round_precision;
 }
 
+void Line2D::set_antialiased(bool p_antialiased) {
+    _antialiased = p_antialiased;
+    update();
+}
+
+bool Line2D::get_antialiased() const {
+    return _antialiased;
+}
+
 void Line2D::_draw() {
     if (_points.size() <= 1 || _width == 0.f)
         return;
@@ -305,13 +316,13 @@ void Line2D::_draw() {
     lb.build();
 
     VisualServer::get_singleton()->canvas_item_add_triangle_array(
-            get_canvas_item(),
-            lb.indices,
-            lb.vertices,
-            lb.colors,
-            lb.uvs, Vector<int>(), Vector<float>(),
-
-            texture_rid);
+                get_canvas_item(),
+                lb.indices,
+                lb.vertices,
+                lb.colors,
+                lb.uvs, Vector<int>(), Vector<float>(),
+                texture_rid, -1, RID(),
+                _antialiased);
 
     // DEBUG
     // Draw wireframe
@@ -391,6 +402,9 @@ void Line2D::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_round_precision", {"precision"}), &Line2D::set_round_precision);
     MethodBinder::bind_method(D_METHOD("get_round_precision"), &Line2D::get_round_precision);
 
+    MethodBinder::bind_method(D_METHOD("set_antialiased", {"antialiased"}), &Line2D::set_antialiased);
+    MethodBinder::bind_method(D_METHOD("get_antialiased"), &Line2D::get_antialiased);
+
     ADD_PROPERTY(PropertyInfo(VariantType::POOL_VECTOR2_ARRAY, "points"), "set_points", "get_points");
     ADD_PROPERTY(PropertyInfo(VariantType::REAL, "width"), "set_width", "get_width");
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "width_curve", PROPERTY_HINT_RESOURCE_TYPE, "Curve"), "set_curve", "get_curve");
@@ -406,6 +420,7 @@ void Line2D::_bind_methods() {
     ADD_GROUP("Border", "");
     ADD_PROPERTY(PropertyInfo(VariantType::REAL, "sharp_limit"), "set_sharp_limit", "get_sharp_limit");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "round_precision"), "set_round_precision", "get_round_precision");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "antialiased"), "set_antialiased", "get_antialiased");
 
     BIND_ENUM_CONSTANT(LINE_JOINT_SHARP)
     BIND_ENUM_CONSTANT(LINE_JOINT_BEVEL)

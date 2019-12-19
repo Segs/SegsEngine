@@ -29,6 +29,7 @@
 /*************************************************************************/
 
 #include "context_gl_x11.h"
+#include "core/string_utils.h"
 
 #ifdef X11_ENABLED
 #if defined(OPENGL_ENABLED)
@@ -171,11 +172,6 @@ Error ContextGL_X11::initialize() {
             p->glx_context = glXCreateContext(x11_display, vi, nullptr, GL_TRUE);
             ERR_FAIL_COND_V(!p->glx_context, ERR_UNCONFIGURED)
         } break;
-        case GLES_2_0_COMPATIBLE: {
-
-            p->glx_context = glXCreateNewContext(x11_display, fbconfig, GLX_RGBA_TYPE, nullptr, true);
-            ERR_FAIL_COND_V(!p->glx_context, ERR_UNCONFIGURED)
-        } break;
         case GLES_3_0_COMPATIBLE: {
 
             static int context_attribs[] = {
@@ -232,7 +228,7 @@ void ContextGL_X11::set_use_vsync(bool p_use) {
     using namespace StringUtils;
     if (!setup) {
         setup = true;
-        String extensions = glXQueryExtensionsString(x11_display, DefaultScreen(x11_display));
+        se_string extensions(glXQueryExtensionsString(x11_display, DefaultScreen(x11_display)));
         if (contains(extensions,"GLX_EXT_swap_control"))
             glXSwapIntervalEXT = (PFNGLXSWAPINTERVALEXTPROC)glXGetProcAddressARB((const GLubyte *)"glXSwapIntervalEXT");
         if (contains(extensions,"GLX_MESA_swap_control"))

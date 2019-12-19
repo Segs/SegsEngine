@@ -39,27 +39,34 @@
 
 String DirAccessOSX::fix_unicode_name(const char *p_name) const {
 
-	String fname;
-	NSString *nsstr = [[NSString stringWithUTF8String:p_name] precomposedStringWithCanonicalMapping];
+    String fname;
+    NSString *nsstr = [[NSString stringWithUTF8String:p_name] precomposedStringWithCanonicalMapping];
 
-	fname.parse_utf8([nsstr UTF8String]);
+    fname.parse_utf8([nsstr UTF8String]);
 
-	return fname;
+    return fname;
 }
 
 int DirAccessOSX::get_drive_count() {
-	NSArray *vols = [[NSWorkspace sharedWorkspace] mountedLocalVolumePaths];
-	return [vols count];
+    NSArray *res_keys = [NSArray arrayWithObjects:NSURLVolumeURLKey, NSURLIsSystemImmutableKey, nil];
+    NSArray *vols = [[NSFileManager defaultManager] mountedVolumeURLsIncludingResourceValuesForKeys:res_keys options:NSVolumeEnumerationSkipHiddenVolumes];
+
+    return [vols count];
 }
 
 String DirAccessOSX::get_drive(int p_drive) {
-	NSArray *vols = [[NSWorkspace sharedWorkspace] mountedLocalVolumePaths];
-	int count = [vols count];
+    NSArray *res_keys = [NSArray arrayWithObjects:NSURLVolumeURLKey, NSURLIsSystemImmutableKey, nil];
+    NSArray *vols = [[NSFileManager defaultManager] mountedVolumeURLsIncludingResourceValuesForKeys:res_keys options:NSVolumeEnumerationSkipHiddenVolumes];
+    int count = [vols count];
 
-	ERR_FAIL_INDEX_V(p_drive, count, "");
+    ERR_FAIL_INDEX_V(p_drive, count, "");
 
-	NSString *path = vols[p_drive];
-	return String([path UTF8String]);
+    String volname;
+    NSString *path = [vols[p_drive] path];
+
+    volname.parse_utf8([path UTF8String]);
+
+    return volname;
 }
 
 #endif //posix_enabled

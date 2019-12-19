@@ -34,6 +34,12 @@
 #include "scene/gui/scroll_container.h"
 
 class SpinBox;
+class HSlider;
+class MenuButton;
+class ButtonGroup;
+class AcceptDialog;
+class TextureRect;
+class Button;
 
 class Polygon2DEditor : public AbstractPolygon2DEditor {
 

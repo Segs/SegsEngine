@@ -30,12 +30,16 @@
 
 #pragma once
 
-#include "editor/editor_node.h"
 #include "editor/editor_plugin.h"
 #include "scene/3d/multimesh_instance.h"
 #include "scene/gui/spin_box.h"
 
 class SceneTreeDialog;
+class AcceptDialog;
+class MenuButton;
+class ConfirmationDialog;
+class OptionButton;
+class HSlider;
 
 class MultiMeshEditor : public Control {
 
@@ -91,7 +95,7 @@ class MultiMeshEditorPlugin : public EditorPlugin {
     EditorNode *editor;
 
 public:
-    String get_name() const override { return "MultiMesh"; }
+    se_string_view get_name() const override { return "MultiMesh"; }
     bool has_main_screen() const override { return false; }
     void edit(Object *p_object) override;
     bool handles(Object *p_object) const override;

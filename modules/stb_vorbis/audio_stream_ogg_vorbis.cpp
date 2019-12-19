@@ -155,9 +155,9 @@ Ref<AudioStreamPlayback> AudioStreamOGGVorbis::instance_playback() {
     return ovs;
 }
 
-String AudioStreamOGGVorbis::get_stream_name() const {
+se_string AudioStreamOGGVorbis::get_stream_name() const {
 
-    return ""; //return stream_name;
+    return se_string(); //return stream_name;
 }
 
 void AudioStreamOGGVorbis::clear_data() {
@@ -271,8 +271,8 @@ void AudioStreamOGGVorbis::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_loop_offset"), &AudioStreamOGGVorbis::get_loop_offset);
 
     ADD_PROPERTY(PropertyInfo(VariantType::POOL_BYTE_ARRAY, "data", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR), "set_data", "get_data");
-    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "loop", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR), "set_loop", "has_loop");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "loop_offset", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR), "set_loop_offset", "get_loop_offset");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "loop"), "set_loop", "has_loop");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "loop_offset"), "set_loop_offset", "get_loop_offset");
 }
 
 AudioStreamOGGVorbis::AudioStreamOGGVorbis() {

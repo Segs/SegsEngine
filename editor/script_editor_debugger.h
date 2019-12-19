@@ -53,10 +53,20 @@ class EditorNetworkProfiler;
 
 class ScriptEditorDebuggerInspectedObject;
 
-class ScriptEditorDebugger : public Control {
+class ScriptEditorDebugger : public MarginContainer {
 
-    GDCLASS(ScriptEditorDebugger,Control)
+    GDCLASS(ScriptEditorDebugger,MarginContainer)
+public:
+    enum CameraOverride {
+        OVERRIDE_NONE,
+        OVERRIDE_2D,
+        OVERRIDE_3D_1, // 3D Viewport 1
+        OVERRIDE_3D_2, // 3D Viewport 2
+        OVERRIDE_3D_3, // 3D Viewport 3
+        OVERRIDE_3D_4 // 3D Viewport 4
+    };
 
+private:
     enum MessageType {
         MESSAGE_ERROR,
         MESSAGE_WARNING,
@@ -129,11 +139,11 @@ class ScriptEditorDebugger : public Control {
     Vector<float> perf_max;
     Vector<TreeItem *> perf_items;
 
-    Map<int, String> profiler_signature;
+    Map<int, StringName> profiler_signature;
 
     Tree *perf_monitors;
     Control *perf_draw;
-	Label *info_message;
+    Label *info_message;
 
     Tree *vmem_tree;
     Button *vmem_refresh;
@@ -146,13 +156,13 @@ class ScriptEditorDebugger : public Control {
     Ref<StreamPeerTCP> connection;
     Ref<PacketPeerStream> ppeer;
 
-    String message_type;
+    se_string message_type;
     Array message;
     int pending_in_queue;
 
     HashMap<NodePath, int> node_path_cache;
     int last_path_id;
-    Map<String, int> res_path_cache;
+    Map<se_string, int> res_path_cache;
 
     EditorProfiler *profiler;
     EditorNetworkProfiler *network_profiler;
@@ -163,6 +173,8 @@ class ScriptEditorDebugger : public Control {
 
     bool live_debug;
 
+    CameraOverride camera_override;
+
     void _performance_draw();
     void _performance_select();
     void _stack_dump_frame_selected();
@@ -171,19 +183,19 @@ class ScriptEditorDebugger : public Control {
     void _scene_tree_folded(Object *obj);
     void _scene_tree_selected();
     void _scene_tree_rmb_selected(const Vector2 &p_position);
-    void _file_selected(const String &p_file);
+    void _file_selected(se_string_view p_file);
     void _scene_tree_request();
-    void _parse_message(const String &p_msg, const Array &p_data);
-    void _set_reason_text(const String &p_reason, MessageType p_type);
+    void _parse_message(const se_string &p_msg, const Array &p_data);
+    void _set_reason_text(const StringName &p_reason, MessageType p_type);
     void _scene_tree_property_select_object(ObjectID p_object);
-    void _scene_tree_property_value_edited(const String &p_prop, const Variant &p_value);
+    void _scene_tree_property_value_edited(se_string_view p_prop, const Variant &p_value);
     int _update_scene_tree(TreeItem *parent, const Array &nodes, int current_index);
 
     void _video_mem_request();
 
     int _get_node_path_cache(const NodePath &p_path);
 
-    int _get_res_path_cache(const String &p_path);
+    int _get_res_path_cache(se_string_view p_path);
 
     void _live_edit_set();
     void _live_edit_clear();
@@ -233,22 +245,25 @@ public:
     void debug_break();
     void debug_continue();
 
-    String get_var_value(const String &p_var) const;
+    se_string get_var_value(se_string_view p_var) const;
 
     void set_live_debugging(bool p_enable);
 
     static void _method_changeds(void *p_ud, Object *p_base, const StringName &p_name, VARIANT_ARG_DECLARE);
     static void _property_changeds(void *p_ud, Object *p_base, const StringName &p_property, const Variant &p_value);
 
-    void live_debug_create_node(const NodePath &p_parent, const String &p_type, const String &p_name);
-    void live_debug_instance_node(const NodePath &p_parent, const String &p_path, const String &p_name);
+    void live_debug_create_node(const NodePath &p_parent, se_string_view p_type, se_string_view p_name);
+    void live_debug_instance_node(const NodePath &p_parent, se_string_view p_path, se_string_view p_name);
     void live_debug_remove_node(const NodePath &p_at);
     void live_debug_remove_and_keep_node(const NodePath &p_at, ObjectID p_keep_id);
     void live_debug_restore_node(ObjectID p_id, const NodePath &p_at, int p_at_pos);
-    void live_debug_duplicate_node(const NodePath &p_at, const String &p_new_name);
-    void live_debug_reparent_node(const NodePath &p_at, const NodePath &p_new_place, const String &p_new_name, int p_at_pos);
+    void live_debug_duplicate_node(const NodePath &p_at, se_string_view p_new_name);
+    void live_debug_reparent_node(const NodePath &p_at, const NodePath &p_new_place, se_string_view p_new_name, int p_at_pos);
 
-    void set_breakpoint(const String &p_path, int p_line, bool p_enabled);
+    CameraOverride get_camera_override() const;
+    void set_camera_override(CameraOverride p_override);
+
+    void set_breakpoint(se_string_view p_path, int p_line, bool p_enabled);
 
     void update_live_edit_root();
 

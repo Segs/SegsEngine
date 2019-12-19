@@ -28,13 +28,12 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef DIR_ACCESS_UNIX_H
-#define DIR_ACCESS_UNIX_H
+#pragma once
 
 #if defined(UNIX_ENABLED) || defined(LIBC_FILEIO_ENABLED)
 
 #include "core/os/dir_access.h"
-#include "core/ustring.h"
+#include "core/se_string.h"
 
 #include <dirent.h>
 #include <sys/stat.h>
@@ -47,43 +46,42 @@ class DirAccessUnix : public DirAccess {
 
     static DirAccess *create_fs();
 
-    String current_dir;
+    se_string current_dir;
     bool _cisdir;
     bool _cishidden;
 
 protected:
-	virtual String fix_unicode_name(const char *p_name) const { return StringUtils::from_utf8(p_name); }
+    virtual se_string fix_unicode_name(const char *p_name) const { return p_name; }
 
 public:
     Error list_dir_begin() override; ///< This starts dir listing
-    String get_next() override;
+    se_string get_next() override;
     bool current_is_dir() const override;
     bool current_is_hidden() const override;
 
     void list_dir_end() override; ///<
 
     int get_drive_count() override;
-    String get_drive(int p_drive) override;
+    se_string get_drive(int p_drive) override;
 
-    Error change_dir(String p_dir) override; ///< can be relative or absolute, return false on success
-    String get_current_dir() override; ///< return current dir location
-    Error make_dir(String p_dir) override;
+    Error change_dir(se_string_view p_dir) override; ///< can be relative or absolute, return false on success
+    se_string get_current_dir() override; ///< return current dir location
+    Error make_dir(se_string_view p_dir) override;
 
-    bool file_exists(String p_file) override;
-    bool dir_exists(String p_dir) override;
+    bool file_exists(se_string_view p_file) override;
+    bool dir_exists(se_string_view p_dir) override;
 
-    virtual uint64_t get_modified_time(String p_file);
+    virtual uint64_t get_modified_time(se_string_view p_file);
 
-    Error rename(String p_path, String p_new_path) override;
-    Error remove(String p_path) override;
+    Error rename(se_string_view p_path, se_string_view p_new_path) override;
+    Error remove(se_string_view p_path) override;
 
     size_t get_space_left() override;
 
-    String get_filesystem_type() const override;
+    se_string get_filesystem_type() const override;
 
     DirAccessUnix();
     ~DirAccessUnix() override;
 };
 
 #endif //UNIX ENABLED
-#endif

@@ -161,8 +161,8 @@ public:
     BIND3(texture_set_detect_srgb_callback, RID, TextureDetectCallback, void *)
     BIND3(texture_set_detect_normal_callback, RID, TextureDetectCallback, void *)
 
-    BIND2(texture_set_path, RID, const String &)
-    BIND1RC(String, texture_get_path, RID)
+    BIND2(texture_set_path, RID, se_string_view)
+    BIND1RC(const se_string &, texture_get_path, RID)
     BIND1(texture_set_shrink_all_x2_on_set_data, bool)
     BIND1(texture_debug_usage, List<TextureInfo> *)
 
@@ -181,10 +181,10 @@ public:
 
     BIND0R(RID, shader_create)
 
-    BIND2(shader_set_code, RID, const String &)
-    BIND1RC(String, shader_get_code, RID)
+    BIND2(shader_set_code, RID, const se_string &)
+    BIND1RC(se_string, shader_get_code, RID)
 
-    BIND2C(shader_get_param_list, RID, ListPOD<PropertyInfo> *)
+    BIND2C(shader_get_param_list, RID, PODVector<PropertyInfo> *)
 
     BIND3(shader_set_default_texture_param, RID, const StringName &, RID)
     BIND2RC(RID, shader_get_default_texture_param, RID, const StringName &)
@@ -408,6 +408,8 @@ public:
     BIND2(particles_set_process_material, RID, RID)
     BIND2(particles_set_fixed_fps, RID, int)
     BIND2(particles_set_fractional_delta, RID, bool)
+    BIND1R(bool, particles_is_inactive, RID)
+    BIND1(particles_request_process, RID)
     BIND1(particles_restart, RID)
 
     BIND2(particles_set_draw_order, RID, VS::ParticlesDrawOrder)
@@ -599,7 +601,7 @@ public:
     BIND11(canvas_item_add_nine_patch, RID, const Rect2 &, const Rect2 &, RID, const Vector2 &, const Vector2 &, VS::NinePatchAxisMode, VS::NinePatchAxisMode, bool, const Color &, RID)
     BIND7(canvas_item_add_primitive, RID, const Vector<Point2> &, const Vector<Color> &, const Vector<Point2> &, RID, float, RID)
     BIND7(canvas_item_add_polygon, RID, const Vector<Point2> &, const Vector<Color> &, const Vector<Point2> &, RID, RID, bool)
-    BIND10(canvas_item_add_triangle_array, RID, const Vector<int> &, const Vector<Point2> &, const Vector<Color> &, const Vector<Point2> &, const Vector<int> &, const Vector<float> &, RID, int, RID)
+    BIND11(canvas_item_add_triangle_array, RID, const Vector<int> &, const Vector<Point2> &, const Vector<Color> &, const Vector<Point2> &, const Vector<int> &, const Vector<float> &, RID, int, RID, bool)
     BIND6(canvas_item_add_mesh, RID, const RID &, const Transform2D &, const Color &, RID, RID)
     BIND4(canvas_item_add_multimesh, RID, RID, RID, RID)
     BIND4(canvas_item_add_particles, RID, RID, RID, RID)
@@ -687,7 +689,7 @@ public:
 
     bool has_feature(VS::Features p_feature) const override;
 
-    bool has_os_feature(const String &p_feature) const override;
+    bool has_os_feature(const StringName &p_feature) const override;
     void set_debug_generate_wireframes(bool p_generate) override;
 
     void call_set_use_vsync(bool p_enable) override;

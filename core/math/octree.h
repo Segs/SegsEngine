@@ -558,7 +558,7 @@ void Octree<T, use_pairs, AL>::_ensure_valid_root(const AABB &p_aabb) {
 
         while (!base.encloses(p_aabb)) {
 
-            ERR_FAIL_COND_CMSG(base.size.x > OCTREE_SIZE_LIMIT, "Octree upper size limit reached, does the AABB supplied contain NAN?")
+            ERR_FAIL_COND_MSG(base.size.x > OCTREE_SIZE_LIMIT, "Octree upper size limit reached, does the AABB supplied contain NAN?")
 
             Octant *gp = memnew_allocator(Octant, AL);
             octant_count++;

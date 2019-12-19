@@ -3,7 +3,7 @@ file(GLOB header_files "*.h" )
 file(GLOB qrc_files "*.qrc" )
 
 foreach(tgt ${global_targets})
-    add_library(${tgt}_module_gdscript OBJECT)
+    add_library(${tgt}_module_gdscript STATIC)
     if(OPTION_TOOLS)
         list(APPEND source_files ${CMAKE_CURRENT_SOURCE_DIR}/editor/gdscript_highlighter.cpp ${CMAKE_CURRENT_SOURCE_DIR}/editor/gdscript_highlighter.h)
     endif()

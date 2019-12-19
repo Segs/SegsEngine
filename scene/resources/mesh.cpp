@@ -497,6 +497,7 @@ void Mesh::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("set_lightmap_size_hint", {"size"}), &Mesh::set_lightmap_size_hint);
     MethodBinder::bind_method(D_METHOD("get_lightmap_size_hint"), &Mesh::get_lightmap_size_hint);
+    MethodBinder::bind_method(D_METHOD("get_aabb"), &Mesh::get_aabb);
 
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "lightmap_size_hint"), "set_lightmap_size_hint", "get_lightmap_size_hint");
 
@@ -607,15 +608,13 @@ Mesh::Mesh() {
 
 bool ArrayMesh::_set(const StringName &p_name, const Variant &p_value) {
 
-    String sname = p_name;
-
     if (p_name == "blend_shape/names") {
 
-        PoolVector<String> sk = p_value;
+        PoolVector<se_string> sk(p_value.as<PoolVector<se_string>>());
         int sz = sk.size();
-        PoolVector<String>::Read r = sk.read();
+        PoolVector<se_string>::Read r = sk.read();
         for (int i = 0; i < sz; i++)
-            add_blend_shape(r[i]);
+            add_blend_shape(StringName(r[i]));
         return true;
     }
 
@@ -625,25 +624,25 @@ bool ArrayMesh::_set(const StringName &p_name, const Variant &p_value) {
         return true;
     }
 
-    if (StringUtils::begins_with(sname,"surface_")) {
+    if (StringUtils::begins_with(p_name,"surface_")) {
 
-        int sl = StringUtils::find(sname,"/");
+        int sl = StringUtils::find(p_name,"/");
         if (sl == -1)
             return false;
-        int idx = StringUtils::to_int(StringUtils::substr(sname,8, sl - 8)) - 1;
-        String what = StringUtils::get_slice(sname,'/', 1);
+        int idx = StringUtils::to_int(StringUtils::substr(p_name,8, sl - 8)) - 1;
+        StringName what( StringUtils::get_slice(p_name,'/', 1));
         if (what == "material")
             surface_set_material(idx, refFromRefPtr<Material>(p_value));
         else if (what == "name")
-            surface_set_name(idx, p_value);
+            surface_set_name(idx, p_value.as<se_string>());
         return true;
     }
 
-    if (!StringUtils::begins_with(sname,"surfaces"))
+    if (!StringUtils::begins_with(p_name,"surfaces"))
         return false;
 
-    int idx = StringUtils::to_int(StringUtils::get_slice(sname,'/', 1));
-    String what = StringUtils::get_slice(sname,'/', 2);
+    int idx = StringUtils::to_int(StringUtils::get_slice(p_name,'/', 1));
+    StringName what(StringUtils::get_slice(p_name,'/', 2));
 
     if (idx == surfaces.size()) {
 
@@ -708,7 +707,7 @@ bool ArrayMesh::_set(const StringName &p_name, const Variant &p_value) {
             surface_set_material(idx, refFromRefPtr<Material>(d["material"]));
         }
         if (d.has("name")) {
-            surface_set_name(idx, d["name"]);
+            surface_set_name(idx, d["name"].as<se_string>());
         }
 
         return true;
@@ -722,35 +721,33 @@ bool ArrayMesh::_get(const StringName &p_name, Variant &r_ret) const {
     if (_is_generated())
         return false;
 
-    String sname = p_name;
-
     if (p_name == "blend_shape/names") {
 
-        PoolVector<String> sk;
+        PoolVector<se_string> sk;
         for (int i = 0; i < blend_shapes.size(); i++)
-            sk.push_back(blend_shapes[i]);
+            sk.push_back(blend_shapes[i].asCString());
         r_ret = sk;
         return true;
     } else if (p_name == "blend_shape/mode") {
 
         r_ret = get_blend_shape_mode();
         return true;
-    } else if (StringUtils::begins_with(sname,"surface_")) {
+    } else if (StringUtils::begins_with(p_name,"surface_")) {
 
-        int sl = StringUtils::find(sname,"/");
+        int sl = StringUtils::find(p_name,"/");
         if (sl == -1)
             return false;
-        int idx = StringUtils::to_int(StringUtils::substr(sname,8, sl - 8)) - 1;
-        String what = StringUtils::get_slice(sname,'/', 1);
+        int idx = StringUtils::to_int(StringUtils::substr(p_name,8, sl - 8)) - 1;
+        StringName what(StringUtils::get_slice(p_name,'/', 1));
         if (what == "material")
             r_ret = surface_get_material(idx);
         else if (what == "name")
             r_ret = surface_get_name(idx);
         return true;
-    } else if (!StringUtils::begins_with(sname,"surfaces"))
+    } else if (!StringUtils::begins_with(p_name,"surfaces"))
         return false;
 
-    int idx = StringUtils::to_int(StringUtils::get_slice(sname,'/', 1));
+    int idx = StringUtils::to_int(StringUtils::get_slice(p_name,'/', 1));
     ERR_FAIL_INDEX_V(idx, surfaces.size(), false)
 
     Dictionary d;
@@ -783,7 +780,7 @@ bool ArrayMesh::_get(const StringName &p_name, Variant &r_ret) const {
     Ref<Material> m = surface_get_material(idx);
     if (m)
         d["material"] = m;
-    String n = surface_get_name(idx);
+    se_string n = surface_get_name(idx);
     if (!n.empty())
         d["name"] = n;
 
@@ -804,12 +801,12 @@ void ArrayMesh::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
 
     for (int i = 0; i < surfaces.size(); i++) {
 
-        p_list->push_back(PropertyInfo(VariantType::DICTIONARY, "surfaces/" + itos(i), PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
-        p_list->push_back(PropertyInfo(VariantType::STRING, "surface_" + itos(i + 1) + "/name", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_EDITOR));
+        p_list->push_back(PropertyInfo(VariantType::DICTIONARY, StringName("surfaces/" + itos(i)), PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
+        p_list->push_back(PropertyInfo(VariantType::STRING, StringName("surface_" + itos(i + 1) + "/name"), PROPERTY_HINT_NONE, "", PROPERTY_USAGE_EDITOR));
         if (surfaces[i].is_2d) {
-            p_list->push_back(PropertyInfo(VariantType::OBJECT, "surface_" + itos(i + 1) + "/material", PROPERTY_HINT_RESOURCE_TYPE, "ShaderMaterial,CanvasItemMaterial", PROPERTY_USAGE_EDITOR));
+            p_list->push_back(PropertyInfo(VariantType::OBJECT, StringName("surface_" + itos(i + 1) + "/material"), PROPERTY_HINT_RESOURCE_TYPE, "ShaderMaterial,CanvasItemMaterial", PROPERTY_USAGE_EDITOR));
         } else {
-            p_list->push_back(PropertyInfo(VariantType::OBJECT, "surface_" + itos(i + 1) + "/material", PROPERTY_HINT_RESOURCE_TYPE, "ShaderMaterial,SpatialMaterial", PROPERTY_USAGE_EDITOR));
+            p_list->push_back(PropertyInfo(VariantType::OBJECT, StringName("surface_" + itos(i + 1) + "/material"), PROPERTY_HINT_RESOURCE_TYPE, "ShaderMaterial,SpatialMaterial", PROPERTY_USAGE_EDITOR));
         }
     }
 }
@@ -905,7 +902,7 @@ void ArrayMesh::add_blend_shape(const StringName &p_name) {
         int count = 2;
         do {
 
-            name = String(p_name) + " " + itos(count);
+            name = p_name + " " + itos(count);
             count++;
         } while (blend_shapes.find(name) != -1);
     }
@@ -988,7 +985,7 @@ void ArrayMesh::surface_set_material(int p_idx, const Ref<Material> &p_material)
     emit_changed();
 }
 
-int ArrayMesh::surface_find_by_name(const String &p_name) const {
+int ArrayMesh::surface_find_by_name(const se_string &p_name) const {
     for (int i = 0; i < surfaces.size(); i++) {
         if (surfaces[i].name == p_name) {
             return i;
@@ -998,7 +995,7 @@ int ArrayMesh::surface_find_by_name(const String &p_name) const {
     return -1;
 }
 
-void ArrayMesh::surface_set_name(int p_idx, const String &p_name) {
+void ArrayMesh::surface_set_name(int p_idx, se_string_view p_name) {
 
     ERR_FAIL_INDEX(p_idx, surfaces.size())
 
@@ -1006,9 +1003,9 @@ void ArrayMesh::surface_set_name(int p_idx, const String &p_name) {
     emit_changed();
 }
 
-String ArrayMesh::surface_get_name(int p_idx) const {
+se_string ArrayMesh::surface_get_name(int p_idx) const {
 
-    ERR_FAIL_INDEX_V(p_idx, surfaces.size(), String())
+    ERR_FAIL_INDEX_V(p_idx, surfaces.size(), se_string())
     return surfaces[p_idx].name;
 }
 

@@ -40,24 +40,22 @@
 
 IMPL_GDCLASS(EditorLog)
 
-void EditorLog::_error_handler(void *p_self, const char *p_func, const char *p_file, int p_line, const char *p_error, const char *p_errorexp, ErrorHandlerType p_type) {
+void EditorLog::_error_handler(void *p_self, se_string_view p_func, se_string_view p_file, int p_line, se_string_view p_error, se_string_view p_errorexp, ErrorHandlerType p_type) {
 
     EditorLog *self = (EditorLog *)p_self;
     if (self->current != Thread::get_caller_id())
         return;
 
-    String err_str;
-    if (p_errorexp && p_errorexp[0]) {
+    se_string err_str;
+    if (not p_errorexp.empty()) {
         err_str = p_errorexp;
     } else {
-        err_str = String(p_file) + ":" + itos(p_line) + " - " + String(p_error);
+        err_str = se_string(p_file) + ":" + itos(p_line) + " - " + p_error;
     }
-
-    if (p_type == ERR_HANDLER_WARNING) {
-        self->add_message(err_str, MSG_TYPE_WARNING);
-    } else {
-        self->add_message(err_str, MSG_TYPE_ERROR);
-    }
+    auto level = MSG_TYPE_WARNING;
+    if (p_type != ERR_HANDLER_WARNING)
+        level = MSG_TYPE_ERROR;
+    self->add_message(StringUtils::from_utf8(err_str), level);
 }
 
 void EditorLog::_notification(int p_what) {
@@ -94,7 +92,38 @@ void EditorLog::clear() {
 void EditorLog::copy() {
     _copy_request();
 }
+void EditorLog::add_message_utf8(se_string_view p_msg, MessageType p_type) {
+    log->add_newline();
 
+    bool restore = p_type != MSG_TYPE_STD;
+    switch (p_type) {
+        case MSG_TYPE_STD: {
+        } break;
+        case MSG_TYPE_ERROR: {
+            log->push_color(get_color("error_color", "Editor"));
+            Ref<Texture> icon = get_icon("Error", "EditorIcons");
+            log->add_image(icon);
+            log->add_text_utf8(" ");
+            tool_button->set_icon(icon);
+        } break;
+        case MSG_TYPE_WARNING: {
+            log->push_color(get_color("warning_color", "Editor"));
+            Ref<Texture> icon = get_icon("Warning", "EditorIcons");
+            log->add_image(icon);
+            log->add_text_utf8(" ");
+            tool_button->set_icon(icon);
+        } break;
+        case MSG_TYPE_EDITOR: {
+            // Distinguish editor messages from messages printed by the project
+            log->push_color(get_color("font_color", "Editor") * Color(1, 1, 1, 0.6f));
+        } break;
+    }
+
+    log->add_text_utf8(p_msg);
+
+    if (restore)
+        log->pop();
+}
 void EditorLog::add_message(const String &p_msg, MessageType p_type) {
 
     log->add_newline();
@@ -107,20 +136,20 @@ void EditorLog::add_message(const String &p_msg, MessageType p_type) {
             log->push_color(get_color("error_color", "Editor"));
             Ref<Texture> icon = get_icon("Error", "EditorIcons");
             log->add_image(icon);
-            log->add_text(" ");
+            log->add_text_utf8(" ");
             tool_button->set_icon(icon);
         } break;
         case MSG_TYPE_WARNING: {
             log->push_color(get_color("warning_color", "Editor"));
             Ref<Texture> icon = get_icon("Warning", "EditorIcons");
             log->add_image(icon);
-            log->add_text(" ");
+            log->add_text_utf8(" ");
             tool_button->set_icon(icon);
         } break;
-		case MSG_TYPE_EDITOR: {
-			// Distinguish editor messages from messages printed by the project
-			log->push_color(get_color("font_color", "Editor") * Color(1, 1, 1, 0.6));
-		} break;
+        case MSG_TYPE_EDITOR: {
+            // Distinguish editor messages from messages printed by the project
+            log->push_color(get_color("font_color", "Editor") * Color(1, 1, 1, 0.6f));
+        } break;
     }
 
     log->add_text(p_msg);
@@ -133,10 +162,10 @@ void EditorLog::set_tool_button(ToolButton *p_tool_button) {
     tool_button = p_tool_button;
 }
 
-void EditorLog::_undo_redo_cbk(void *p_self, const String &p_name) {
+void EditorLog::_undo_redo_cbk(void *p_self, se_string_view p_name) {
 
     EditorLog *self = (EditorLog *)p_self;
-	self->add_message(p_name, EditorLog::MSG_TYPE_EDITOR);
+    self->add_message(StringUtils::from_utf8(p_name), EditorLog::MSG_TYPE_EDITOR);
 }
 
 void EditorLog::_bind_methods() {
@@ -178,7 +207,7 @@ EditorLog::EditorLog() {
     log->set_v_size_flags(SIZE_EXPAND_FILL);
     log->set_h_size_flags(SIZE_EXPAND_FILL);
     vb->add_child(log);
-    add_message(VERSION_FULL_NAME " (c) 2007-2019 Juan Linietsky, Ariel Manzur & Godot Contributors.");
+    add_message(String(VERSION_FULL_NAME " (c) 2007-2019 Juan Linietsky, Ariel Manzur & Godot Contributors."));
 
     eh.errfunc = _error_handler;
     eh.userdata = this;

@@ -36,6 +36,7 @@
 #include "scene/resources/world.h"
 #include "scene/resources/world_2d.h"
 #include "scene/main/scene_tree_notifications.h"
+#include "core/deque.h"
 
 class PackedScene;
 class Node;
@@ -45,6 +46,33 @@ class Mesh;
 class ArrayMesh;
 class MultiplayerAPI;
 class NetworkedMultiplayerPeer;
+
+class ISceneTreeDebugAccessor {
+    friend class ScriptDebuggerRemote;
+
+    virtual void _live_edit_node_path_func( const NodePath &p_path, int p_id)=0;
+    virtual void _live_edit_res_path_func( se_string_view p_path, int p_id)=0;
+
+    virtual void _live_edit_node_set_func( int p_id, const StringName &p_prop, const Variant &p_value)=0;
+    virtual  void _live_edit_node_set_res_func( int p_id, const StringName &p_prop, se_string_view p_value)=0;
+    virtual  void _live_edit_node_call_func( int p_id, const StringName &p_method, VARIANT_ARG_DECLARE)=0;
+    virtual  void _live_edit_res_set_func( int p_id, const StringName &p_prop, const Variant &p_value)=0;
+    virtual  void _live_edit_res_set_res_func( int p_id, const StringName &p_prop, se_string_view p_value)=0;
+    virtual  void _live_edit_res_call_func( int p_id, const StringName &p_method, VARIANT_ARG_DECLARE)=0;
+    virtual  void _live_edit_root_func( const NodePath &p_scene_path, se_string_view p_scene_from)=0;
+    virtual  void _live_edit_create_node_func( const NodePath &p_parent, const se_string &p_type, const se_string &p_name)=0;
+    virtual  void _live_edit_instance_node_func(const NodePath &p_parent,se_string_view p_path, const se_string &p_name)=0;
+    virtual  void _live_edit_remove_node_func( const NodePath &p_at)=0;
+    virtual  void _live_edit_remove_and_keep_node_func( const NodePath &p_at, ObjectID p_keep_id)=0;
+    virtual  void _live_edit_restore_node_func( ObjectID p_id, const NodePath &p_at, int p_at_pos)=0;
+    virtual  void _live_edit_duplicate_node_func( const NodePath &p_at, const se_string &p_new_name)=0;
+    virtual  void _live_edit_reparent_node_func(
+             const NodePath &p_at, const NodePath &p_new_place, const se_string &p_new_name, int p_at_pos)=0;
+public:
+    virtual ~ISceneTreeDebugAccessor() {}
+    virtual Map<se_string, Set<Node *>> &get_live_scene_edit_cache() = 0;
+    virtual Map<Node *, Map<ObjectID, Node *>> &get_live_edit_remove_list() = 0;
+};
 
 class SceneTreeTimer : public RefCounted {
     GDCLASS(SceneTreeTimer,RefCounted)
@@ -61,6 +89,8 @@ public:
 
     void set_pause_mode_process(bool p_pause_mode_process);
     bool is_pause_mode_process();
+
+    void release_connections();
 
     SceneTreeTimer();
 };
@@ -209,7 +239,6 @@ private:
     Variant _call_group_flags(const Variant **p_args, int p_argcount, Variant::CallError &r_error);
     Variant _call_group(const Variant **p_args, int p_argcount, Variant::CallError &r_error);
 
-    static void _debugger_request_tree(void *self);
     void _flush_delete_queue();
     //optimization
     friend class CanvasItem;
@@ -218,10 +247,11 @@ private:
 
     SelfList<Node>::List xform_change_list;
 
+    friend class ScriptDebuggerRemote;
 #ifdef DEBUG_ENABLED
-    struct DebugData;
-    DebugData *m_debug_data=nullptr;
-
+    ISceneTreeDebugAccessor *m_debug_data=nullptr;
+    ISceneTreeDebugAccessor *debug() { return m_debug_data;}
+    void _debugger_request_tree();
 #endif
 
     enum {
@@ -249,15 +279,15 @@ public:
 
     void call_group_flags(uint32_t p_call_flags, const StringName &p_group, const StringName &p_function, VARIANT_ARG_LIST);
     void notify_group_flags(uint32_t p_call_flags, const StringName &p_group, int p_notification);
-    void set_group_flags(uint32_t p_call_flags, const StringName &p_group, const String &p_name, const Variant &p_value);
+    void set_group_flags(uint32_t p_call_flags, const StringName &p_group, const StringName &p_name, const Variant &p_value);
 
     void call_group(const StringName &p_group, const StringName &p_function, VARIANT_ARG_LIST);
     void notify_group(const StringName &p_group, int p_notification);
-    void set_group(const StringName &p_group, const String &p_name, const Variant &p_value);
+    void set_group(const StringName &p_group, const StringName &p_name, const Variant &p_value);
 
     void flush_transform_notifications();
 
-    void input_text(const String &p_text) override;
+    void input_text(se_string_view p_text) override;
     void input_event(const Ref<InputEvent> &p_event) override;
     void init() override;
 
@@ -295,7 +325,7 @@ public:
     void set_debug_navigation_hint(bool p_enabled);
     bool is_debugging_navigation_hint() const;
 
-    Map<String, Set<Node *> > &get_live_scene_edit_cache();
+    Map<se_string, Set<Node *> > &get_live_scene_edit_cache();
     Map<Node *, Map<ObjectID, Node *>> &get_live_edit_remove_list();
 #else
     void set_debug_collisions_hint(bool p_enabled) {}
@@ -331,7 +361,7 @@ public:
 
     void queue_delete(Object *p_object);
 
-    void get_nodes_in_group(const StringName &p_group, List<Node *> *p_list);
+    void get_nodes_in_group(const StringName &p_group, Deque<Node *> *p_list);
     bool has_group(const StringName &p_identifier) const;
 
     void set_screen_stretch(StretchMode p_mode, StretchAspect p_aspect, const Size2 &p_minsize, real_t p_shrink = 1);
@@ -347,7 +377,7 @@ public:
 
     void set_current_scene(Node *p_scene);
     Node *get_current_scene() const;
-    Error change_scene(const String &p_path);
+    Error change_scene(se_string_view p_path);
     Error change_scene_to(const Ref<PackedScene> &p_scene);
     Error reload_current_scene();
 
@@ -358,9 +388,9 @@ public:
 
     static SceneTree *get_singleton() { return singleton; }
 
-    void drop_files(const Vector<String> &p_files, int p_from_screen = 0) override;
+    void drop_files(const Vector<se_string> &p_files, int p_from_screen = 0) override;
     void global_menu_action(const Variant &p_id, const Variant &p_meta) override;
-    void get_argument_options(const StringName &p_function, int p_idx, ListPOD<String> *r_options) const override;
+    void get_argument_options(const StringName &p_function, int p_idx, ListPOD<se_string> *r_options) const override;
 
     //network API
 

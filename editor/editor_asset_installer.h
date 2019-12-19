@@ -35,23 +35,23 @@
 #include "scene/gui/tree.h"
 class EditorAssetInstaller : public ConfirmationDialog {
 
-	GDCLASS(EditorAssetInstaller,ConfirmationDialog)
+    GDCLASS(EditorAssetInstaller,ConfirmationDialog)
 
-	Tree *tree;
-	String package_path;
-	AcceptDialog *error;
-	Map<String, TreeItem *> status_map;
-	bool updating;
-	void _update_subitems(TreeItem *p_item, bool p_check, bool p_first = false);
-	void _item_edited();
-	void ok_pressed() override;
+    Tree *tree;
+    se_string package_path;
+    AcceptDialog *error;
+    Map<se_string, TreeItem *> status_map;
+    bool updating;
+    void _update_subitems(TreeItem *p_item, bool p_check, bool p_first = false);
+    void _item_edited();
+    void ok_pressed() override;
 
 protected:
-	static void _bind_methods();
+    static void _bind_methods();
 
 public:
-	void open(const String &p_path, int p_depth = 0);
-	EditorAssetInstaller();
+    void open(se_string_view p_path, int p_depth = 0);
+    EditorAssetInstaller();
 };
 
 #endif // EDITORASSETINSTALLER_H

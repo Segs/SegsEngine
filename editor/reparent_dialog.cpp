@@ -114,5 +114,4 @@ ReparentDialog::ReparentDialog() {
     get_ok()->set_text(TTR("Reparent"));
 }
 
-ReparentDialog::~ReparentDialog() {
-}
+ReparentDialog::~ReparentDialog() = default;

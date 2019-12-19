@@ -37,13 +37,17 @@
 #include "core/project_settings.h"
 #include "core/string_formatter.h"
 #include "core/ustring.h"
+#include "editor/plugins/canvas_item_editor_plugin.h"
+#include "editor/plugins/spatial_editor_plugin.h"
 #include "editor/editor_scale.h"
+#include "editor/scene_tree_dock.h"
 #include "editor_network_profiler.h"
 #include "editor_node.h"
 #include "editor_profiler.h"
 #include "editor_settings.h"
 #include "main/performance.h"
 #include "property_editor.h"
+#include "scene/3d/camera.h"
 #include "scene/gui/dialogs.h"
 #include "scene/gui/label.h"
 #include "scene/gui/line_edit.h"
@@ -92,18 +96,18 @@ public:
         values.clear();
     }
 
-    String get_var_value(const String &p_var) const {
+    se_string get_var_value(se_string_view p_var) const {
 
         for (const eastl::pair<const StringName,Variant> &E : values) {
-            String v = StringUtils::get_slice(E.first,"/", 1);
+            se_string_view v = StringUtils::get_slice(E.first,"/", 1);
             if (v == p_var)
                 return E.second;
         }
 
-        return "";
+        return se_string();
     }
 
-    void add_property(const String &p_name, const Variant &p_value, const PropertyHint &p_hint, const String& p_hint_string) {
+    void add_property(const StringName &p_name, const Variant &p_value, const PropertyHint &p_hint, se_string_view p_hint_string) {
 
         PropertyInfo pinfo;
         pinfo.name = p_name;
@@ -174,9 +178,9 @@ public:
         return remote_object_id;
     }
 
-    String get_title() {
+    se_string get_title() {
         if (remote_object_id)
-            return TTR("Remote ") + String(type_name) + ": " + itos(remote_object_id);
+            return StringUtils::to_utf8(TTR("Remote %1: %2").asString().arg(type_name).arg(remote_object_id));
         else
             return "<null>";
     }
@@ -195,7 +199,7 @@ public:
     void update() {
         _change_notify();
     }
-    void update_single(const char *p_prop) {
+    void update_single(StringName p_prop) {
         _change_notify(p_prop);
     }
 
@@ -206,8 +210,9 @@ public:
 IMPL_GDCLASS(ScriptEditorDebuggerInspectedObject)
 
 void ScriptEditorDebugger::debug_copy() {
-    String msg = reason->get_text();
-    if (msg.empty()) return;
+    se_string msg(reason->get_text_utf8());
+    if (msg.empty())
+        return;
     OS::get_singleton()->set_clipboard(msg);
 }
 
@@ -329,7 +334,7 @@ void ScriptEditorDebugger::_scene_tree_rmb_selected(const Vector2 &p_position) {
     item_menu->popup();
 }
 
-void ScriptEditorDebugger::_file_selected(const String &p_file) {
+void ScriptEditorDebugger::_file_selected(se_string_view p_file) {
     switch (file_dialog_mode) {
         case SAVE_NODE: {
             Array msg;
@@ -343,15 +348,15 @@ void ScriptEditorDebugger::_file_selected(const String &p_file) {
             FileAccessRef file = FileAccess::open(p_file, FileAccess::WRITE, &err);
 
             if (err != OK) {
-                ERR_PRINT("Failed to open " + p_file)
+                ERR_PRINT("Failed to open " + se_string(p_file))
                 return;
             }
-            Vector<String> line;
+            PODVector<se_string> line;
             line.resize(Performance::MONITOR_MAX);
 
             // signatures
             for (int i = 0; i < Performance::MONITOR_MAX; i++) {
-                line.write[i] = Performance::get_singleton()->get_monitor_name(Performance::Monitor(i));
+                line[i] = Performance::get_singleton()->get_monitor_name(Performance::Monitor(i));
             }
             file->store_csv_line(line);
 
@@ -362,14 +367,14 @@ void ScriptEditorDebugger::_file_selected(const String &p_file) {
                 Vector<float> &perf_data = E->deref();
                 for (int i = 0; i < perf_data.size(); i++) {
 
-                    line.write[i] = StringUtils::num_real(perf_data[i]);
+                    line[i] = StringUtils::num_real(perf_data[i]);
                 }
                 file->store_csv_line(line);
                 E = E->prev();
             }
             file->store_string("\n");
 
-            Vector<Vector<String> > profiler_data = profiler->get_data_as_csv();
+            PODVector<PODVector<se_string> > profiler_data(profiler->get_data_as_csv());
             for (int i = 0; i < profiler_data.size(); i++) {
                 file->store_csv_line(profiler_data[i]);
             }
@@ -378,7 +383,7 @@ void ScriptEditorDebugger::_file_selected(const String &p_file) {
     }
 }
 
-void ScriptEditorDebugger::_scene_tree_property_value_edited(const String &p_prop, const Variant &p_value) {
+void ScriptEditorDebugger::_scene_tree_property_value_edited(se_string_view p_prop, const Variant &p_value) {
 
     Array msg;
     msg.push_back("set_object_property");
@@ -431,15 +436,15 @@ void ScriptEditorDebugger::_scene_tree_request() {
 ///
 int ScriptEditorDebugger::_update_scene_tree(TreeItem *parent, const Array &nodes, int current_index) {
     String filter = EditorNode::get_singleton()->get_scene_tree_dock()->get_filter();
-    String item_text = nodes[current_index + 1];
-    String item_type = nodes[current_index + 2];
-    bool keep = StringUtils::is_subsequence_of(filter,item_text,StringUtils::CaseInsensitive);
+    StringName item_text = nodes[current_index + 1];
+    StringName item_type = nodes[current_index + 2];
+    bool keep = StringUtils::is_subsequence_of(filter,item_text.asString(),StringUtils::CaseInsensitive);
 
     TreeItem *item = inspect_scene_tree->create_item(parent);
     item->set_text(0, item_text);
     item->set_tooltip(0, TTR("Type:") + " " + item_type);
     ObjectID id = ObjectID(nodes[current_index + 3]);
-    Ref<Texture> icon = EditorNode::get_singleton()->get_class_icon(nodes[current_index + 2], "");
+    Ref<Texture> icon = EditorNode::get_singleton()->get_class_icon(nodes[current_index + 2], StringName());
     if (icon) {
         item->set_icon(0, icon);
     }
@@ -498,12 +503,12 @@ void ScriptEditorDebugger::_video_mem_request() {
 
 Size2 ScriptEditorDebugger::get_minimum_size() const {
 
-    Size2 ms = Control::get_minimum_size();
+    Size2 ms = MarginContainer::get_minimum_size();
     ms.y = MAX(ms.y, 250 * EDSCALE);
     return ms;
 }
 
-void ScriptEditorDebugger::_parse_message(const String &p_msg, const Array &p_data) {
+void ScriptEditorDebugger::_parse_message(const se_string &p_msg, const Array &p_data) {
 
     if (p_msg == "debug_enter") {
         Array msg;
@@ -511,7 +516,7 @@ void ScriptEditorDebugger::_parse_message(const String &p_msg, const Array &p_da
         ppeer->put_var(msg);
         ERR_FAIL_COND(p_data.size() != 2)
         bool can_continue = p_data[0];
-        String error = p_data[1];
+        StringName error = p_data[1];
         step->set_disabled(!can_continue);
         next->set_disabled(!can_continue);
         _set_reason_text(error, MESSAGE_ERROR);
@@ -537,7 +542,7 @@ void ScriptEditorDebugger::_parse_message(const String &p_msg, const Array &p_da
         step->set_disabled(true);
         next->set_disabled(true);
         reason->set_text("");
-        reason->set_tooltip("");
+        reason->set_tooltip_utf8("");
         back->set_disabled(true);
         forward->set_disabled(true);
         dobreak->set_disabled(false);
@@ -586,7 +591,7 @@ void ScriptEditorDebugger::_parse_message(const String &p_msg, const Array &p_da
 
         debugObj->prop_list.clear();
         int new_props_added = 0;
-        Set<String> changed;
+        Set<StringName> changed;
         for (int i = 0; i < properties.size(); i++) {
 
             Array prop = properties[i];
@@ -597,7 +602,7 @@ void ScriptEditorDebugger::_parse_message(const String &p_msg, const Array &p_da
             pinfo.name = prop[0];
             pinfo.type = VariantType(int(prop[1]));
             pinfo.hint = PropertyHint(int(prop[2]));
-            pinfo.hint_string = prop[3];
+            pinfo.hint_string = prop[3].as<se_string>();
             pinfo.usage = PropertyUsageFlags(int(prop[4]));
             Variant var = prop[5];
 
@@ -605,10 +610,30 @@ void ScriptEditorDebugger::_parse_message(const String &p_msg, const Array &p_da
                 if (var.is_zero()) {
                     var = RES();
                 } else if (var.get_type() == VariantType::STRING) {
-                    var = ResourceLoader::load(var);
+                    se_string path = var;
+                    if (path.contains("::")) {
+                        // built-in resource
+                        se_string_view base_path = StringUtils::get_slice(path,"::", 0);
+                        if (ResourceLoader::get_resource_type(base_path) == "PackedScene") {
+                            if (!EditorNode::get_singleton()->is_scene_open(base_path)) {
+                                EditorNode::get_singleton()->load_scene(base_path);
+                            }
+                        } else {
+                            EditorNode::get_singleton()->load_resource(base_path);
+                        }
+                    }
+                    var = ResourceLoader::load(path);
 
-                    if (pinfo.hint_string == "Script")
-                        debugObj->set_script(var);
+                    if (pinfo.hint_string == "Script") {
+                        if (debugObj->get_script() != var) {
+                            debugObj->set_script(RefPtr());
+                            Ref<Script> script(var);
+                            if (script) {
+                                ScriptInstance *script_instance = script->placeholder_instance_create(debugObj);
+                                debugObj->set_script_and_instance(var, script_instance);
+                            }
+                        }
+                    }
                 } else if (var.get_type() == VariantType::OBJECT) {
                     if (((Object *)var)->is_class("EncodedObjectAsID")) {
                         var = object_cast<EncodedObjectAsID>(var)->get_object_id();
@@ -635,12 +660,12 @@ void ScriptEditorDebugger::_parse_message(const String &p_msg, const Array &p_da
         }
 
         if (editor->get_editor_history()->get_current() != debugObj->get_instance_id()) {
-            editor->push_item(debugObj, "");
+            editor->push_item(debugObj, {});
         } else {
 
             if (old_prop_size == debugObj->prop_list.size() && new_props_added == 0) {
                 //only some may have changed, if so, then update those, if exist
-                for (const String &E : changed) {
+                for (const StringName &E : changed) {
                     EditorNode::get_singleton()->get_inspector()->update_property(E);
                 }
             } else {
@@ -658,12 +683,12 @@ void ScriptEditorDebugger::_parse_message(const String &p_msg, const Array &p_da
         for (int i = 0; i < p_data.size(); i += 4) {
 
             TreeItem *it = vmem_tree->create_item(root);
-            String type = p_data[i + 1];
+            StringName type = p_data[i + 1];
             int bytes = p_data[i + 3].operator int();
             it->set_text(0, p_data[i + 0]); //path
-            it->set_text(1, type); //type
+            it->set_text_utf8(1, type); //type
             it->set_text(2, p_data[i + 2]); //type
-            it->set_text(3, PathUtils::humanize_size(bytes)); //type
+            it->set_text(3, StringName(PathUtils::humanize_size(bytes))); //type
             total += bytes;
 
             if (has_icon(type, "EditorIcons"))
@@ -671,7 +696,7 @@ void ScriptEditorDebugger::_parse_message(const String &p_msg, const Array &p_da
         }
 
         vmem_total->set_tooltip(TTR("Bytes:") + " " + itos(total));
-        vmem_total->set_text(PathUtils::humanize_size(total));
+        vmem_total->set_text_utf8(PathUtils::humanize_size(total));
 
     } else if (p_msg == "stack_dump") {
 
@@ -689,8 +714,8 @@ void ScriptEditorDebugger::_parse_message(const String &p_msg, const Array &p_da
             d["frame"] = i;
             s->set_metadata(0, d);
 
-            String line = FormatV("%d - %s:%d - at function: %s",i,qPrintable(String(d["file"]).m_str),int(d["line"]),qPrintable(String(d["function"]).m_str));
-            s->set_text(0, line);
+            se_string line = FormatVE("%d - %s:%d - at function: %s",i,d["file"].as<se_string>().c_str(),int(d["line"]),d["function"].as<se_string>().c_str());
+            s->set_text(0, StringName(line));
 
             if (i == 0)
                 s->select(0);
@@ -704,7 +729,7 @@ void ScriptEditorDebugger::_parse_message(const String &p_msg, const Array &p_da
         ofs++;
         for (int i = 0; i < mcount; i++) {
 
-            String n = p_data[ofs + i * 2 + 0];
+            se_string n = p_data[ofs + i * 2 + 0];
             Variant v = p_data[ofs + i * 2 + 1];
 
             PropertyHint h = PROPERTY_HINT_NONE;
@@ -716,7 +741,7 @@ void ScriptEditorDebugger::_parse_message(const String &p_msg, const Array &p_da
                 hs = "Object";
             }
 
-            variables->add_property("Locals/" + n, v, h, hs);
+            variables->add_property(StringName("Locals/" + n), v, h, hs);
         }
 
         ofs += mcount * 2;
@@ -724,7 +749,7 @@ void ScriptEditorDebugger::_parse_message(const String &p_msg, const Array &p_da
         ofs++;
         for (int i = 0; i < mcount; i++) {
 
-            String n = p_data[ofs + i * 2 + 0];
+            se_string n = p_data[ofs + i * 2 + 0];
             Variant v = p_data[ofs + i * 2 + 1];
             PropertyHint h = PROPERTY_HINT_NONE;
             const char *hs = "";
@@ -735,11 +760,11 @@ void ScriptEditorDebugger::_parse_message(const String &p_msg, const Array &p_da
                 hs = "Object";
             }
 
-            variables->add_property("Members/" + n, v, h, hs);
+            variables->add_property(StringName("Members/" + n), v, h, hs);
 
-			if (n == "self") {
-				_scene_tree_property_select_object(v);
-			}
+            if (n == "self") {
+                _scene_tree_property_select_object(v);
+            }
         }
 
         ofs += mcount * 2;
@@ -747,7 +772,7 @@ void ScriptEditorDebugger::_parse_message(const String &p_msg, const Array &p_da
         ofs++;
         for (int i = 0; i < mcount; i++) {
 
-            String n = p_data[ofs + i * 2 + 0];
+            se_string n = p_data[ofs + i * 2 + 0];
             Variant v = p_data[ofs + i * 2 + 1];
             PropertyHint h = PROPERTY_HINT_NONE;
             const char *hs = "";
@@ -758,7 +783,7 @@ void ScriptEditorDebugger::_parse_message(const String &p_msg, const Array &p_da
                 hs = "Object";
             }
 
-            variables->add_property("Globals/" + n, v, h, hs);
+            variables->add_property(StringName("Globals/" + n), v, h, hs);
         }
 
         variables->update();
@@ -790,19 +815,19 @@ void ScriptEditorDebugger::_parse_message(const String &p_msg, const Array &p_da
             if (i < perf_items.size()) {
 
                 float v = p[i];
-                String vs = rtos(v);
-                String tt = vs;
+                StringName vs(StringUtils::num_real(v));
+                StringName tt = vs;
                 switch (Performance::MonitorType((int)perf_items[i]->get_metadata(1))) {
                     case Performance::MONITOR_TYPE_MEMORY: {
-                        vs = PathUtils::humanize_size(v);
+                        vs = StringName(PathUtils::humanize_size(v));
                         tt = vs;
                     } break;
                     case Performance::MONITOR_TYPE_TIME: {
-                        tt += " seconds";
-                        vs += " s";
+                        tt = tt + " seconds";
+                        vs = vs + " s";
                     } break;
                     default: {
-                        tt += " " + perf_items[i]->get_text(0);
+                        tt = tt + " " + perf_items[i]->get_text_ui(0);
                     } break;
                 }
 
@@ -818,11 +843,11 @@ void ScriptEditorDebugger::_parse_message(const String &p_msg, const Array &p_da
     } else if (p_msg == "error") {
 
         // Should have at least two elements, error array and stack items count.
-        ERR_FAIL_COND_CMSG(p_data.size() < 2, "Malformed error message from script debugger.");
+        ERR_FAIL_COND_MSG(p_data.size() < 2, "Malformed error message from script debugger.")
 
         // Error or warning data.
         Array err = p_data[0];
-        ERR_FAIL_COND_CMSG(err.size() < 10, "Malformed error message from script debugger.");
+        ERR_FAIL_COND_MSG(err.size() < 10, "Malformed error message from script debugger.")
 
         // Format time.
         Array time_vals;
@@ -831,15 +856,15 @@ void ScriptEditorDebugger::_parse_message(const String &p_msg, const Array &p_da
         time_vals.push_back(err[2]);
         time_vals.push_back(err[3]);
         bool e;
-        String time = StringUtils::sprintf("%d:%02d:%02d:%04d",time_vals, &e);
+        se_string time = StringUtils::sprintf("%d:%02d:%02d:%03d",time_vals, &e);
         String txt = err[8].is_zero() ? String(err[7]) : String(err[8]);
 
         // Rest of the error data.
-        String method = err[4];
-        String source_file = err[5];
-        String source_line = err[6];
-        String error_cond = err[7];
-        String error_msg = err[8];
+        se_string method = err[4];
+        se_string source_file = err[5];
+        se_string source_line = err[6];
+        se_string error_cond = err[7];
+        se_string error_msg = err[8];
         bool is_warning = err[9];
         bool has_method = !method.empty();
         bool has_error_msg = !error_msg.empty();
@@ -858,29 +883,29 @@ void ScriptEditorDebugger::_parse_message(const String &p_msg, const Array &p_da
 
         // Also provide the relevant details as tooltip to quickly check without
         // uncollapsing the tree.
-        String tooltip = is_warning ? TTR("Warning:") : TTR("Error:");
+        se_string tooltip(is_warning ? TTR("Warning:") : TTR("Error:"));
         TreeItem *error = error_tree->create_item(r);
         error->set_collapsed(true);
 
         error->set_icon(0, get_icon(is_warning ? StringName("Warning") : StringName("Error"), "EditorIcons"));
-        error->set_text(0, time);
+        error->set_text(0, StringName(time));
         error->set_text_align(0, TreeItem::ALIGN_LEFT);
 
-        String error_title;
+        se_string error_title;
         // Include method name, when given, in error title.
         if (has_method)
             error_title += method + ": ";
         // If we have a (custom) error message, use it as title, and add a C++ Error
         // item with the original error condition.
         error_title += error_msg.empty() ? error_cond : error_msg;
-        error->set_text(1, error_title);
+        error->set_text(1, StringName(error_title));
         tooltip += " " + error_title + "\n";
 
         if (has_error_msg) {
             // Add item for C++ error condition.
             TreeItem *cpp_cond = error_tree->create_item(error);
             cpp_cond->set_text(0, "<" + TTR("C++ Error") + ">");
-            cpp_cond->set_text(1, error_cond);
+            cpp_cond->set_text(1, StringName(error_cond));
             cpp_cond->set_text_align(0, TreeItem::ALIGN_LEFT);
             tooltip += TTR("C++ Error:") + " " + error_cond + "\n";
         if (source_is_project_file)
@@ -888,13 +913,13 @@ void ScriptEditorDebugger::_parse_message(const String &p_msg, const Array &p_da
         }
 
         // Source of the error.
-        String source_txt = (source_is_project_file ? PathUtils::get_file(source_file) : source_file) + ":" + source_line;
+        se_string source_txt = se_string(source_is_project_file ? PathUtils::get_file(source_file) : source_file) + ":" + source_line;
         if (has_method)
             source_txt += " @ " + method + "()";
 
         TreeItem *cpp_source = error_tree->create_item(error);
         cpp_source->set_text(0, "<" + (source_is_project_file ? TTR("Source") : TTR("C++ Source")) + ">");
-        cpp_source->set_text(1, source_txt);
+        cpp_source->set_text(1, StringName(source_txt));
         cpp_source->set_text_align(0, TreeItem::ALIGN_LEFT);
         tooltip += (source_is_project_file ? TTR("Source:") : TTR("C++ Source:")) + " " + source_txt + "\n";
 
@@ -904,8 +929,8 @@ void ScriptEditorDebugger::_parse_message(const String &p_msg, const Array &p_da
             cpp_source->set_metadata(0, source_meta);
         }
 
-        error->set_tooltip(0, tooltip);
-        error->set_tooltip(1, tooltip);
+        error->set_tooltip(0, StringName(tooltip));
+        error->set_tooltip(1, StringName(tooltip));
 
         // Format stack trace.
         // stack_items_count is the number of elements to parse, with 3 items per frame
@@ -913,8 +938,8 @@ void ScriptEditorDebugger::_parse_message(const String &p_msg, const Array &p_da
         int stack_items_count = p_data[1];
 
         for (int i = 0; i < stack_items_count; i += 3) {
-            String script = p_data[2 + i];
-            String method2 = p_data[3 + i];
+            se_string script = p_data[2 + i];
+            se_string method2 = p_data[3 + i];
             int line = p_data[4 + i];
             TreeItem *stack_trace = error_tree->create_item(error);
 
@@ -928,7 +953,7 @@ void ScriptEditorDebugger::_parse_message(const String &p_msg, const Array &p_da
                 stack_trace->set_text_align(0, TreeItem::ALIGN_LEFT);
                 error->set_metadata(0, meta);
             }
-            stack_trace->set_text(1, PathUtils::get_file(script) + ":" + itos(line) + " @ " + method2 + "()");
+            stack_trace->set_text_utf8(1, se_string(PathUtils::get_file(script)) + ":" + itos(line) + " @ " + method2 + "()");
         }
 
         if (is_warning)
@@ -990,21 +1015,21 @@ void ScriptEditorDebugger::_parse_message(const String &p_msg, const Array &p_da
         for (int i = 0; i < frame_data_amount; i++) {
 
             EditorProfiler::Metric::Category c;
-            String name = p_data[idx++];
+            se_string name = p_data[idx++];
             Array values = p_data[idx++];
             c.name = StringUtils::capitalize(name);
             c.items.resize(values.size() / 2);
             c.total_time = 0;
-            c.signature = "categ::" + name;
+            c.signature = StringName("categ::" + name);
             for (int j = 0; j < values.size(); j += 2) {
 
                 EditorProfiler::Metric::Category::Item item;
                 item.calls = 1;
                 item.line = 0;
-                item.name = values[j];
+                item.name = values[j].as<se_string>();
                 item.self = values[j + 1];
                 item.total = item.self;
-                item.signature = "categ::" + name + "::" + item.name;
+                item.signature = StringName("categ::" + name + "::" + item.name);
                 item.name = StringUtils::capitalize(item.name);
                 c.total_time += item.total;
                 c.items.write[j / 2] = item;
@@ -1029,15 +1054,15 @@ void ScriptEditorDebugger::_parse_message(const String &p_msg, const Array &p_da
 
                 item.signature = profiler_signature[signature];
 
-                String name = profiler_signature[signature];
-                Vector<String> strings = StringUtils::split(name,"::");
+                se_string_view name = profiler_signature[signature];
+                Vector<se_string_view> strings = StringUtils::split(name,"::");
                 if (strings.size() == 3) {
                     item.name = strings[2];
                     item.script = strings[0];
                     item.line = StringUtils::to_int(strings[1]);
                 } else if (strings.size() == 4) { //Built-in scripts have an :: in their name
                     item.name = strings[3];
-                    item.script = strings[0] + "::" + strings[1];
+                    item.script = se_string(strings[0]) + "::" + strings[1];
                     item.line = StringUtils::to_int(strings[2]);
                 }
 
@@ -1063,7 +1088,7 @@ void ScriptEditorDebugger::_parse_message(const String &p_msg, const Array &p_da
         for (int i = 0; i < p_data.size(); i += frame_size) {
             MultiplayerAPI::ProfilingInfo pi;
             pi.node = p_data[i + 0];
-            pi.node_path = p_data[i + 1];
+            pi.node_path = p_data[i + 1].as<se_string>();
             pi.incoming_rpc = p_data[i + 2];
             pi.incoming_rset = p_data[i + 3];
             pi.outgoing_rpc = p_data[i + 4];
@@ -1078,7 +1103,7 @@ void ScriptEditorDebugger::_parse_message(const String &p_msg, const Array &p_da
     }
 }
 
-void ScriptEditorDebugger::_set_reason_text(const String &p_reason, MessageType p_type) {
+void ScriptEditorDebugger::_set_reason_text(const StringName &p_reason, MessageType p_type) {
     switch (p_type) {
         case MESSAGE_ERROR:
             reason->add_color_override("font_color", get_color("error_color", "Editor"));
@@ -1090,7 +1115,8 @@ void ScriptEditorDebugger::_set_reason_text(const String &p_reason, MessageType 
             reason->add_color_override("font_color", get_color("success_color", "Editor"));
     }
     reason->set_text(p_reason);
-    reason->set_tooltip(StringUtils::word_wrap(p_reason,80));
+    String wrapped(StringUtils::word_wrap(p_reason.asString(),80));
+    reason->set_tooltip(StringName(StringUtils::to_utf8(wrapped)));
 }
 
 void ScriptEditorDebugger::_performance_select() {
@@ -1138,15 +1164,15 @@ void ScriptEditorDebugger::_performance_draw() {
         r.size -= graph_sb->get_minimum_size();
         int pi = which[i];
         Color c = get_color("accent_color", "Editor");
-        float h = (float)which[i] / (float)(perf_items.size());
+        float h = (float)which[i] / (float)perf_items.size();
         // Use a darker color on light backgrounds for better visibility
-        float value_multiplier = EditorSettings::get_singleton()->is_dark_theme() ? 1.4 : 0.55;
-        c.set_hsv(Math::fmod(h + 0.4, 0.9), c.get_s() * 0.9, c.get_v() * value_multiplier);
+        float value_multiplier = EditorSettings::get_singleton()->is_dark_theme() ? 1.4f : 0.55f;
+        c.set_hsv(Math::fmod(h + 0.4f, 0.9f), c.get_s() * 0.9f, c.get_v() * value_multiplier);
 
-        c.a = 0.6;
-        perf_draw->draw_string(graph_font, r.position + Point2(0, graph_font->get_ascent()), perf_items[pi]->get_text(0), c, r.size.x);
-        c.a = 0.9;
-        perf_draw->draw_string(graph_font, r.position + Point2(0, graph_font->get_ascent() + graph_font->get_height()), perf_items[pi]->get_text(1), c, r.size.y);
+        c.a = 0.6f;
+        perf_draw->draw_string_utf8(graph_font, r.position + Point2(0, graph_font->get_ascent()), perf_items[pi]->get_text(0), c, r.size.x);
+        c.a = 0.9f;
+        perf_draw->draw_string_utf8(graph_font, r.position + Point2(0, graph_font->get_ascent() + graph_font->get_height()), perf_items[pi]->get_text(1), c, r.size.y);
 
         float spacing = point_sep / float(cols);
         float from = r.size.width;
@@ -1222,6 +1248,41 @@ void ScriptEditorDebugger::_notification(int p_what) {
                         }
                     }
                 }
+                if (camera_override == OVERRIDE_2D) {
+                    CanvasItemEditor *editor = CanvasItemEditor::get_singleton();
+
+                    Dictionary state = editor->get_state();
+                    float zoom = state["zoom"];
+                    Point2 offset = state["ofs"];
+                    Transform2D transform;
+
+                    transform.scale_basis(Size2(zoom, zoom));
+                    transform.elements[2] = -offset * zoom;
+
+                    Array msg;
+                    msg.push_back("override_camera_2D:transform");
+                    msg.push_back(transform);
+                    ppeer->put_var(msg);
+
+                } else if (camera_override >= OVERRIDE_3D_1) {
+                    int viewport_idx = camera_override - OVERRIDE_3D_1;
+                    SpatialEditorViewport *viewport = SpatialEditor::get_singleton()->get_editor_viewport(viewport_idx);
+                    Camera *const cam = viewport->get_camera();
+
+                    Array msg;
+                    msg.push_back("override_camera_3D:transform");
+                    msg.push_back(cam->get_camera_transform());
+                    if (cam->get_projection() == Camera::PROJECTION_ORTHOGONAL) {
+                        msg.push_back(false);
+                        msg.push_back(cam->get_size());
+                    } else {
+                        msg.push_back(true);
+                        msg.push_back(cam->get_fov());
+                    }
+                    msg.push_back(cam->get_znear());
+                    msg.push_back(cam->get_zfar());
+                    ppeer->put_var(msg);
+                }
             }
 
             if (error_count != last_error_count || warning_count != last_warning_count) {
@@ -1257,7 +1318,7 @@ void ScriptEditorDebugger::_notification(int p_what) {
                     if (not connection)
                         break;
 
-                    EditorNode::get_log()->add_message("--- Debugging process started ---", EditorLog::MSG_TYPE_EDITOR);
+                    EditorNode::get_log()->add_message(String("--- Debugging process started ---"), EditorLog::MSG_TYPE_EDITOR);
 
                     ppeer->set_stream_peer(connection);
 
@@ -1346,7 +1407,7 @@ void ScriptEditorDebugger::_notification(int p_what) {
                             ERR_FAIL_COND(cmd.get_type() != VariantType::STRING)
                         }
 
-                        message_type = cmd;
+                        message_type = cmd.as<se_string>();
 
                         ret = ppeer->get_var(cmd);
                         if (ret != OK) {
@@ -1377,11 +1438,12 @@ void ScriptEditorDebugger::_notification(int p_what) {
         } break;
         case EditorSettings::NOTIFICATION_EDITOR_SETTINGS_CHANGED: {
 
-            tabs->add_style_override("panel", editor->get_gui_base()->get_stylebox("DebuggerPanel", "EditorStyles"));
-            tabs->add_style_override("tab_fg", editor->get_gui_base()->get_stylebox("DebuggerTabFG", "EditorStyles"));
-            tabs->add_style_override("tab_bg", editor->get_gui_base()->get_stylebox("DebuggerTabBG", "EditorStyles"));
-            tabs->set_margin(MARGIN_LEFT, -EditorNode::get_singleton()->get_gui_base()->get_stylebox("BottomPanelDebuggerOverride", "EditorStyles")->get_margin(MARGIN_LEFT));
-            tabs->set_margin(MARGIN_RIGHT, EditorNode::get_singleton()->get_gui_base()->get_stylebox("BottomPanelDebuggerOverride", "EditorStyles")->get_margin(MARGIN_RIGHT));
+        add_constant_override("margin_left", -EditorNode::get_singleton()->get_gui_base()->get_stylebox("BottomPanelDebuggerOverride", "EditorStyles")->get_margin(MARGIN_LEFT));
+        add_constant_override("margin_right", -EditorNode::get_singleton()->get_gui_base()->get_stylebox("BottomPanelDebuggerOverride", "EditorStyles")->get_margin(MARGIN_RIGHT));
+
+        tabs->add_style_override("panel", editor->get_gui_base()->get_stylebox("DebuggerPanel", "EditorStyles"));
+        tabs->add_style_override("tab_fg", editor->get_gui_base()->get_stylebox("DebuggerTabFG", "EditorStyles"));
+        tabs->add_style_override("tab_bg", editor->get_gui_base()->get_stylebox("DebuggerTabBG", "EditorStyles"));
 
             copy->set_icon(get_icon("ActionCopy", "EditorIcons"));
             step->set_icon(get_icon("DebugStep", "EditorIcons"));
@@ -1402,7 +1464,7 @@ void ScriptEditorDebugger::_clear_execution() {
 
     Dictionary d = ti->get_metadata(0);
 
-    stack_script = dynamic_ref_cast<Script>(ResourceLoader::load(d["file"]));
+    stack_script = dynamic_ref_cast<Script>(ResourceLoader::load(d["file"].as<se_string>()));
     emit_signal("clear_execution", stack_script);
     stack_script.unref();
 }
@@ -1423,7 +1485,7 @@ void ScriptEditorDebugger::start() {
 
     int remote_port = (int)EditorSettings::get_singleton()->get("network/debug/remote_port");
     if (server->listen(remote_port) != OK) {
-        EditorNode::get_log()->add_message(String("Error listening on port ") + itos(remote_port), EditorLog::MSG_TYPE_ERROR);
+        EditorNode::get_log()->add_message(String("Error listening on port %1").arg(remote_port), EditorLog::MSG_TYPE_ERROR);
         return;
     }
 
@@ -1435,6 +1497,7 @@ void ScriptEditorDebugger::start() {
 
     set_process(true);
     breaked = false;
+    camera_override = OVERRIDE_NONE;
 }
 
 void ScriptEditorDebugger::pause() {
@@ -1454,11 +1517,11 @@ void ScriptEditorDebugger::stop() {
     ppeer->set_stream_peer(Ref<StreamPeer>());
 
     if (connection) {
-        EditorNode::get_log()->add_message("--- Debugging process stopped ---", EditorLog::MSG_TYPE_EDITOR);
+        EditorNode::get_log()->add_message(String("--- Debugging process stopped ---"), EditorLog::MSG_TYPE_EDITOR);
         connection.unref();
 
         reason->set_text("");
-        reason->set_tooltip("");
+        reason->set_tooltip_utf8("");
     }
 
     pending_in_queue = 0;
@@ -1544,7 +1607,7 @@ void ScriptEditorDebugger::_stack_dump_frame_selected() {
 
     Dictionary d = ti->get_metadata(0);
 
-    stack_script = dynamic_ref_cast<Script>(ResourceLoader::load(d["file"]));
+    stack_script = dynamic_ref_cast<Script>(ResourceLoader::load(d["file"].as<se_string>()));
     emit_signal("goto_script_line", stack_script, int(d["line"]) - 1);
     emit_signal("set_execution", stack_script, int(d["line"]) - 1);
     stack_script.unref();
@@ -1572,9 +1635,9 @@ void ScriptEditorDebugger::_export_csv() {
     file_dialog->popup_centered_ratio();
 }
 
-String ScriptEditorDebugger::get_var_value(const String &p_var) const {
+se_string ScriptEditorDebugger::get_var_value(se_string_view p_var) const {
     if (!breaked)
-        return String();
+        return se_string();
     return variables->get_var_value(p_var);
 }
 
@@ -1596,16 +1659,16 @@ int ScriptEditorDebugger::_get_node_path_cache(const NodePath &p_path) {
     return last_path_id;
 }
 
-int ScriptEditorDebugger::_get_res_path_cache(const String &p_path) {
+int ScriptEditorDebugger::_get_res_path_cache(se_string_view p_path) {
 
-    Map<String, int>::iterator E = res_path_cache.find(p_path);
+    Map<se_string, int>::iterator E = res_path_cache.find_as(p_path);
 
     if (E!=res_path_cache.end())
         return E->second;
 
     last_path_id++;
 
-    res_path_cache[p_path] = last_path_id;
+    res_path_cache[se_string(p_path)] = last_path_id;
     Array msg;
     msg.push_back("live_res_path");
     msg.push_back(p_path);
@@ -1652,7 +1715,7 @@ void ScriptEditorDebugger::_method_changed(Object *p_base, const StringName &p_n
 
     if (res && !res->get_path().empty()) {
 
-        String respath = res->get_path();
+        se_string respath = res->get_path();
         int pathid = _get_res_path_cache(respath);
 
         Array msg;
@@ -1709,7 +1772,7 @@ void ScriptEditorDebugger::_property_changed(Object *p_base, const StringName &p
 
     if (res && !res->get_path().empty()) {
 
-        String respath = res->get_path();
+        se_string respath = res->get_path();
         int pathid = _get_res_path_cache(respath);
 
         if (p_value.is_ref()) {
@@ -1762,10 +1825,10 @@ void ScriptEditorDebugger::_live_edit_set() {
     TreeItem *ti = inspect_scene_tree->get_selected();
     if (!ti)
         return;
-    String path;
+    se_string path;
 
     while (ti) {
-        String lp = ti->get_text(0);
+        se_string lp = ti->get_text(0);
         path = "/" + lp + path;
         ti = ti->get_parent();
     }
@@ -1799,10 +1862,10 @@ void ScriptEditorDebugger::update_live_edit_root() {
             msg.push_back("");
         ppeer->put_var(msg);
     }
-    live_edit_root->set_text(String(np));
+    live_edit_root->set_text(StringUtils::from_utf8((se_string)np));
 }
 
-void ScriptEditorDebugger::live_debug_create_node(const NodePath &p_parent, const String &p_type, const String &p_name) {
+void ScriptEditorDebugger::live_debug_create_node(const NodePath &p_parent, se_string_view p_type, se_string_view p_name) {
 
     if (live_debug && connection) {
         Array msg;
@@ -1814,7 +1877,7 @@ void ScriptEditorDebugger::live_debug_create_node(const NodePath &p_parent, cons
     }
 }
 
-void ScriptEditorDebugger::live_debug_instance_node(const NodePath &p_parent, const String &p_path, const String &p_name) {
+void ScriptEditorDebugger::live_debug_instance_node(const NodePath &p_parent, se_string_view p_path, se_string_view p_name) {
 
     if (live_debug && connection) {
         Array msg;
@@ -1855,7 +1918,7 @@ void ScriptEditorDebugger::live_debug_restore_node(ObjectID p_id, const NodePath
         ppeer->put_var(msg);
     }
 }
-void ScriptEditorDebugger::live_debug_duplicate_node(const NodePath &p_at, const String &p_new_name) {
+void ScriptEditorDebugger::live_debug_duplicate_node(const NodePath &p_at, se_string_view p_new_name) {
 
     if (live_debug && connection) {
         Array msg;
@@ -1865,7 +1928,7 @@ void ScriptEditorDebugger::live_debug_duplicate_node(const NodePath &p_at, const
         ppeer->put_var(msg);
     }
 }
-void ScriptEditorDebugger::live_debug_reparent_node(const NodePath &p_at, const NodePath &p_new_place, const String &p_new_name, int p_at_pos) {
+void ScriptEditorDebugger::live_debug_reparent_node(const NodePath &p_at, const NodePath &p_new_place, se_string_view p_new_name, int p_at_pos) {
 
     if (live_debug && connection) {
         Array msg;
@@ -1878,7 +1941,45 @@ void ScriptEditorDebugger::live_debug_reparent_node(const NodePath &p_at, const 
     }
 }
 
-void ScriptEditorDebugger::set_breakpoint(const String &p_path, int p_line, bool p_enabled) {
+ScriptEditorDebugger::CameraOverride ScriptEditorDebugger::get_camera_override() const {
+    return camera_override;
+}
+
+void ScriptEditorDebugger::set_camera_override(CameraOverride p_override) {
+
+    if (p_override == OVERRIDE_2D && camera_override != OVERRIDE_2D) {
+        if (connection) {
+            Array msg;
+            msg.push_back("override_camera_2D:set");
+            msg.push_back(true);
+            ppeer->put_var(msg);
+        }
+    } else if (p_override != OVERRIDE_2D && camera_override == OVERRIDE_2D) {
+        if (connection) {
+            Array msg;
+            msg.push_back("override_camera_2D:set");
+            msg.push_back(false);
+            ppeer->put_var(msg);
+        }
+    } else if (p_override >= OVERRIDE_3D_1 && camera_override < OVERRIDE_3D_1) {
+        if (connection) {
+            Array msg;
+            msg.push_back("override_camera_3D:set");
+            msg.push_back(true);
+            ppeer->put_var(msg);
+        }
+    } else if (p_override < OVERRIDE_3D_1 && camera_override >= OVERRIDE_3D_1) {
+        if (connection) {
+            Array msg;
+            msg.push_back("override_camera_3D:set");
+            msg.push_back(false);
+            ppeer->put_var(msg);
+        }
+    }
+
+    camera_override = p_override;
+}
+void ScriptEditorDebugger::set_breakpoint(se_string_view p_path, int p_line, bool p_enabled) {
 
     if (connection) {
         Array msg;
@@ -1921,7 +2022,7 @@ void ScriptEditorDebugger::_error_selected() {
         return;
     }
 
-    Ref<Script> s = dynamic_ref_cast<Script>(ResourceLoader::load(meta[0]));
+    Ref<Script> s = dynamic_ref_cast<Script>(ResourceLoader::load(meta[0].as<se_string>()));
     emit_signal("goto_script_line", s, int(meta[1]) - 1);
 }
 
@@ -2036,7 +2137,7 @@ void ScriptEditorDebugger::_item_menu_id_pressed(int p_option) {
             while (ti->get_parent() != error_tree->get_root())
                 ti = ti->get_parent();
 
-            String type;
+            se_string type;
 
             if (ti->get_icon(0) == get_icon("Warning", "EditorIcons")) {
                 type = "W ";
@@ -2044,7 +2145,7 @@ void ScriptEditorDebugger::_item_menu_id_pressed(int p_option) {
                 type = "E ";
             }
 
-            String text = ti->get_text(0) + "   ";
+            se_string text = ti->get_text(0) + "   ";
             int rpad_len = text.length();
 
             text = type + text + ti->get_text(1) + "\n";
@@ -2063,11 +2164,11 @@ void ScriptEditorDebugger::_item_menu_id_pressed(int p_option) {
             file_dialog->set_mode(EditorFileDialog::MODE_SAVE_FILE);
             file_dialog_mode = SAVE_NODE;
 
-            Vector<String> extensions;
+            PODVector<se_string> extensions;
             Ref<PackedScene> sd(make_ref_counted<PackedScene>());
-            ResourceSaver::get_recognized_extensions(sd, &extensions);
+            ResourceSaver::get_recognized_extensions(sd, extensions);
             file_dialog->clear_filters();
-            for (int i = 0; i < extensions.size(); i++) {
+            for (size_t i = 0; i < extensions.size(); i++) {
                 file_dialog->add_filter("*." + extensions[i] + " ; " + StringUtils::to_upper(extensions[i]));
             }
 
@@ -2076,7 +2177,7 @@ void ScriptEditorDebugger::_item_menu_id_pressed(int p_option) {
         case ITEM_MENU_COPY_NODE_PATH: {
 
             TreeItem *ti = inspect_scene_tree->get_selected();
-            String text = ti->get_text(0);
+            se_string text = ti->get_text(0);
 
             if (ti->get_parent() == nullptr) {
                 text = ".";
@@ -2152,6 +2253,9 @@ void ScriptEditorDebugger::_bind_methods() {
 
 ScriptEditorDebugger::ScriptEditorDebugger(EditorNode *p_editor) {
 
+    add_constant_override("margin_left", -EditorNode::get_singleton()->get_gui_base()->get_stylebox("BottomPanelDebuggerOverride", "EditorStyles")->get_margin(MARGIN_LEFT));
+    add_constant_override("margin_right", -EditorNode::get_singleton()->get_gui_base()->get_stylebox("BottomPanelDebuggerOverride", "EditorStyles")->get_margin(MARGIN_RIGHT));
+
     ppeer = make_ref_counted<PacketPeerStream>();
     ppeer->set_input_buffer_max_size(1024 * 1024 * 8); //8mb should be enough
     editor = p_editor;
@@ -2163,9 +2267,6 @@ ScriptEditorDebugger::ScriptEditorDebugger(EditorNode *p_editor) {
     tabs->add_style_override("tab_fg", editor->get_gui_base()->get_stylebox("DebuggerTabFG", "EditorStyles"));
     tabs->add_style_override("tab_bg", editor->get_gui_base()->get_stylebox("DebuggerTabBG", "EditorStyles"));
 
-    tabs->set_anchors_and_margins_preset(Control::PRESET_WIDE);
-    tabs->set_margin(MARGIN_LEFT, -editor->get_gui_base()->get_stylebox("BottomPanelDebuggerOverride", "EditorStyles")->get_margin(MARGIN_LEFT));
-    tabs->set_margin(MARGIN_RIGHT, editor->get_gui_base()->get_stylebox("BottomPanelDebuggerOverride", "EditorStyles")->get_margin(MARGIN_RIGHT));
     add_child(tabs);
 
     { //debugger
@@ -2377,31 +2478,32 @@ ScriptEditorDebugger::ScriptEditorDebugger(EditorNode *p_editor) {
         tabs->add_child(hsp);
         perf_max.resize(Performance::MONITOR_MAX);
 
-        Map<String, TreeItem *> bases;
+        Map<se_string, TreeItem *> bases;
         TreeItem *root = perf_monitors->create_item();
         perf_monitors->set_hide_root(true);
         for (int i = 0; i < Performance::MONITOR_MAX; i++) {
 
-            String n = Performance::get_singleton()->get_monitor_name(Performance::Monitor(i));
+            se_string_view n(Performance::get_singleton()->get_monitor_name(Performance::Monitor(i)));
             Performance::MonitorType mtype = Performance::get_singleton()->get_monitor_type(Performance::Monitor(i));
-            String base = StringUtils::get_slice(n,"/", 0);
-            String name = StringUtils::get_slice(n,"/", 1);
-            if (!bases.contains(base)) {
+            se_string_view base = StringUtils::get_slice(n,"/", 0);
+            se_string_view name = StringUtils::get_slice(n,"/", 1);
+            auto iter = bases.find_as(base);
+            if (iter==bases.end()) {
                 TreeItem *b = perf_monitors->create_item(root);
-                b->set_text(0, StringUtils::capitalize(base));
+                b->set_text_utf8(0, StringUtils::capitalize(base));
                 b->set_editable(0, false);
                 b->set_selectable(0, false);
                 b->set_expand_right(0, true);
-                bases[base] = b;
+                iter = bases.emplace(se_string(base),b).first;
             }
 
-            TreeItem *it = perf_monitors->create_item(bases[base]);
+            TreeItem *it = perf_monitors->create_item(iter->second);
             it->set_metadata(1, mtype);
             it->set_cell_mode(0, TreeItem::CELL_MODE_CHECK);
             it->set_editable(0, true);
             it->set_selectable(0, false);
             it->set_selectable(1, false);
-            it->set_text(0, StringUtils::capitalize(name));
+            it->set_text_utf8(0, StringUtils::capitalize(name));
             perf_items.push_back(it);
             perf_max.write[i] = 0;
         }
@@ -2411,6 +2513,7 @@ ScriptEditorDebugger::ScriptEditorDebugger(EditorNode *p_editor) {
         info_message->set_valign(Label::VALIGN_CENTER);
         info_message->set_align(Label::ALIGN_CENTER);
         info_message->set_autowrap(true);
+        info_message->set_custom_minimum_size(Size2(100 * EDSCALE, 0));
         info_message->set_anchors_and_margins_preset(PRESET_WIDE, PRESET_MODE_KEEP_SIZE, 8 * EDSCALE);
         perf_draw->add_child(info_message);
     }
@@ -2508,6 +2611,7 @@ ScriptEditorDebugger::ScriptEditorDebugger(EditorNode *p_editor) {
     p_editor->get_undo_redo()->set_method_notify_callback(_method_changeds, this);
     p_editor->get_undo_redo()->set_property_notify_callback(_property_changeds, this);
     live_debug = true;
+    camera_override = OVERRIDE_NONE;
     last_path_id = false;
     error_count = 0;
     warning_count = 0;

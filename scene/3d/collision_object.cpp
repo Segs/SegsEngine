@@ -378,9 +378,9 @@ bool CollisionObject::get_capture_input_on_drag() const {
     return capture_input_on_drag;
 }
 
-String CollisionObject::get_configuration_warning() const {
+StringName CollisionObject::get_configuration_warning() const {
 
-    String warning = Spatial::get_configuration_warning();
+    se_string warning(Spatial::get_configuration_warning());
 
     if (shapes.empty()) {
         if (!warning.empty()) {
@@ -389,7 +389,7 @@ String CollisionObject::get_configuration_warning() const {
         warning += TTR("This node has no shape, so it can't collide or interact with other objects.\nConsider adding a CollisionShape or CollisionPolygon as a child to define its shape.");
     }
 
-    return warning;
+    return StringName(warning);
 }
 
 CollisionObject::CollisionObject() {

@@ -31,33 +31,33 @@
 #pragma once
 
 #include "core/reference.h"
-#include "core/ustring.h"
+#include "core/se_string.h"
 
 class FileAccess;
 
 class PCKPacker : public RefCounted {
 
-	GDCLASS(PCKPacker, RefCounted);
+    GDCLASS(PCKPacker, RefCounted);
 
-	FileAccess *file;
-	int alignment;
+    FileAccess *file;
+    int alignment;
 
-	static void _bind_methods();
+    static void _bind_methods();
 
-	struct File {
+    struct File {
 
-		String path;
-		String src_path;
-		int size;
-		uint64_t offset_offset;
-	};
-	Vector<File> files;
+        se_string path;
+        se_string src_path;
+        int size;
+        uint64_t offset_offset;
+    };
+    Vector<File> files;
 
 public:
-	Error pck_start(const String &p_file, int p_alignment);
-	Error add_file(const String &p_file, const String &p_src);
-	Error flush(bool p_verbose = false);
+    Error pck_start(se_string_view p_file, int p_alignment = 0);
+    Error add_file(se_string_view p_file, se_string_view p_src);
+    Error flush(bool p_verbose = false);
 
-	PCKPacker();
-	~PCKPacker() override;
+    PCKPacker();
+    ~PCKPacker() override;
 };

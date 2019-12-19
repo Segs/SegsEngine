@@ -500,8 +500,10 @@ namespace eastl
         ///     set<string> strings;
         ///     strings.find_as("hello", less_2<string, const char*>());
         ///
-        template <typename U, typename Compare2> iterator       find_as(const U& u, Compare2 compare2);
-        template <typename U, typename Compare2> const_iterator find_as(const U& u, Compare2 compare2) const;
+        template <typename U, typename Compare2=less_2<Key,U> >
+        iterator       find_as(const U& u, Compare2 compare2=Compare2());
+        template <typename U, typename Compare2=less_2<Key,U> >
+        const_iterator find_as(const U& u, Compare2 compare2=Compare2()) const;
 
         iterator       lower_bound(const key_type& key);
         const_iterator lower_bound(const key_type& key) const;
@@ -517,14 +519,15 @@ namespace eastl
         {
             return find(key) != end();
         }
-        template<class U,class Compare2>
+        template<class U,class Compare2=less_2<key_type,U>>
         EA_PURE bool contains_as(const U& key,Compare2 c = Compare2()) const
         {
             return find_as<U,Compare2>(key) != end();
         }
-        eastl::vector<key_type> keys() const
+        template<class VectorAllocator = allocator_type>
+        eastl::vector<key_type,VectorAllocator> keys(const VectorAllocator& allocator=VectorAllocator()) const
         {
-            eastl::vector<key_type> result{};
+            eastl::vector<key_type,VectorAllocator> result(allocator);
             result.reserve(size());
             for (const auto& pair : *this)
                 result.emplace_back(pair.first);

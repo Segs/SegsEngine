@@ -85,7 +85,7 @@ void AnimationCache::_update_cache() {
         if (!node) {
 
             path_cache.push_back(Path());
-            ERR_CONTINUE_MSG(!node, "Invalid track path in animation: " + (String)np + ".");
+            ERR_CONTINUE_MSG(!node, "Invalid track path in animation: " + (se_string)np + ".");
         }
 
         Path path;
@@ -96,7 +96,7 @@ void AnimationCache::_update_cache() {
 
             if (np.get_subname_count() > 1) {
                 path_cache.push_back(Path());
-                ERR_CONTINUE_MSG(animation->track_get_type(i) == Animation::TYPE_TRANSFORM, "Transform tracks can't have a subpath: " + (String)np + ".");
+                ERR_CONTINUE_MSG(animation->track_get_type(i) == Animation::TYPE_TRANSFORM, "Transform tracks can't have a subpath: " + (se_string)np + ".");
             }
 
             Spatial *sp = object_cast<Spatial>(node);
@@ -104,24 +104,24 @@ void AnimationCache::_update_cache() {
             if (!sp) {
 
                 path_cache.push_back(Path());
-                ERR_CONTINUE_MSG(!sp, "Transform track not of type Spatial: " + (String)np + ".");
+                ERR_CONTINUE_MSG(!sp, "Transform track not of type Spatial: " + (se_string)np + ".");
             }
 
             if (np.get_subname_count() == 1) {
                 StringName property = np.get_subname(0);
-                String ps = property;
+
 
                 Skeleton *sk = object_cast<Skeleton>(node);
                 if (!sk) {
 
                     path_cache.push_back(Path());
-                    ERR_CONTINUE_MSG(!sk, "Property defined in Transform track, but not a Skeleton!: " + (String)np + ".");
+                    ERR_CONTINUE_MSG(!sk, "Property defined in Transform track, but not a Skeleton!: " + (se_string)np + ".");
                 }
 
-                int idx = sk->find_bone(ps);
+                int idx = sk->find_bone(property);
                 if (idx == -1) {
                     path_cache.push_back(Path());
-                    ERR_CONTINUE_MSG(idx == -1, "Property defined in Transform track, but not a Skeleton Bone!: " + (String)np + ".");
+                    ERR_CONTINUE_MSG(idx == -1, "Property defined in Transform track, but not a Skeleton Bone!: " + (se_string)np + ".");
                 }
 
                 path.bone_idx = idx;
@@ -161,7 +161,7 @@ void AnimationCache::_update_cache() {
             if (np.get_subname_count() == 0) {
 
                 path_cache.push_back(Path());
-                ERR_CONTINUE_MSG(np.get_subname_count() == 0, "Value Track lacks property: " + (String)np + ".");
+                ERR_CONTINUE_MSG(np.get_subname_count() == 0, "Value Track lacks property: " + (se_string)np + ".");
             }
 
         } else if (animation->track_get_type(i) == Animation::TYPE_METHOD) {
@@ -169,7 +169,7 @@ void AnimationCache::_update_cache() {
             if (!path.subpath.empty()) { // Trying to call a method of a non-resource
 
                 path_cache.push_back(Path());
-                ERR_CONTINUE_MSG(!path.subpath.empty(), "Method Track has property: " + (String)np + ".");
+                ERR_CONTINUE_MSG(!path.subpath.empty(), "Method Track has property: " + (se_string)np + ".");
             }
         }
 

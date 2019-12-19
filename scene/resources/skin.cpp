@@ -29,7 +29,6 @@
 /*************************************************************************/
 #include "skin.h"
 
-#include "core/ustring.h"
 #include "core/list.h"
 
 #include "core/method_bind_interface.h"
@@ -74,13 +73,12 @@ void Skin::clear_binds() {
 
 bool Skin::_set(const StringName &p_name, const Variant &p_value) {
     using namespace StringUtils;
-    String name = p_name;
-    if (name == "bind_count") {
+    if (p_name == "bind_count") {
         set_bind_count(p_value);
         return true;
-    } else if (begins_with(name,"bind/")) {
-        int index = to_int(get_slice(name,'/', 1));
-        String what = get_slice(name,'/', 2);
+    } else if (begins_with(p_name,"bind/")) {
+        int index = to_int(get_slice(p_name,'/', 1));
+        StringName what(get_slice(p_name,'/', 2));
         if (what == "bone") {
             set_bind_bone(index, p_value);
             return true;
@@ -95,13 +93,12 @@ bool Skin::_set(const StringName &p_name, const Variant &p_value) {
 bool Skin::_get(const StringName &p_name, Variant &r_ret) const {
     using namespace StringUtils;
 
-    String name = p_name;
-    if (name == "bind_count") {
+    if (p_name == "bind_count") {
         r_ret = get_bind_count();
         return true;
-    } else if (begins_with(name,"bind/")) {
-        int index = to_int(get_slice(name,'/', 1));
-        String what = get_slice(name,'/', 2);
+    } else if (begins_with(p_name,"bind/")) {
+        int index = to_int(get_slice(p_name,'/', 1));
+        StringName what(get_slice(p_name,'/', 2));
         if (what == "bone") {
             r_ret = get_bind_bone(index);
             return true;
@@ -115,8 +112,8 @@ bool Skin::_get(const StringName &p_name, Variant &r_ret) const {
 void Skin::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
     p_list->push_back(PropertyInfo(VariantType::INT, "bind_count", PROPERTY_HINT_RANGE, "0,16384,1,or_greater"));
     for (int i = 0; i < get_bind_count(); i++) {
-        p_list->push_back(PropertyInfo(VariantType::INT, "bind/" + itos(i) + "/bone", PROPERTY_HINT_RANGE, "0,16384,1,or_greater"));
-        p_list->push_back(PropertyInfo(VariantType::TRANSFORM, "bind/" + itos(i) + "/pose"));
+        p_list->push_back(PropertyInfo(VariantType::INT, StringName("bind/" + itos(i) + "/bone"), PROPERTY_HINT_RANGE, "0,16384,1,or_greater"));
+        p_list->push_back(PropertyInfo(VariantType::TRANSFORM, StringName("bind/" + itos(i) + "/pose")));
     }
 }
 

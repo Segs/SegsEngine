@@ -85,7 +85,7 @@ void post_process_preview(Ref<Image> p_image) {
     p_image->unlock();
 }
 
-bool EditorTexturePreviewPlugin::handles(const String &p_type) const {
+bool EditorTexturePreviewPlugin::handles(se_string_view p_type) const {
 
     return ClassDB::is_parent_class(StringName(p_type), "Texture");
 }
@@ -115,9 +115,11 @@ Ref<Texture> EditorTexturePreviewPlugin::generate(const RES &p_from, const Size2
         img = ltex->to_image();
     } else {
         Ref<Texture> tex = dynamic_ref_cast<Texture>(p_from);
-        img = tex->get_data();
-        if (img) {
-            img = dynamic_ref_cast<Image>(img->duplicate());
+        if(tex) {
+            img = tex->get_data();
+            if (img) {
+                img = dynamic_ref_cast<Image>(img->duplicate());
+            }
         }
     }
 
@@ -155,9 +157,9 @@ EditorTexturePreviewPlugin::EditorTexturePreviewPlugin() {
 
 ////////////////////////////////////////////////////////////////////////////
 
-bool EditorImagePreviewPlugin::handles(const String &p_type) const {
+bool EditorImagePreviewPlugin::handles(se_string_view p_type) const {
 
-    return p_type == "Image";
+    return p_type == se_string_view("Image");
 }
 
 Ref<Texture> EditorImagePreviewPlugin::generate(const RES &p_from, const Size2 &p_size) const {
@@ -202,7 +204,7 @@ bool EditorImagePreviewPlugin::generate_small_preview_automatically() const {
 }
 ////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////
-bool EditorBitmapPreviewPlugin::handles(const String &p_type) const {
+bool EditorBitmapPreviewPlugin::handles(se_string_view p_type) const {
 
     return ClassDB::is_parent_class(StringName(p_type), "BitMap");
 }
@@ -269,7 +271,7 @@ EditorBitmapPreviewPlugin::EditorBitmapPreviewPlugin() {
 
 ///////////////////////////////////////////////////////////////////////////
 
-bool EditorPackedScenePreviewPlugin::handles(const String &p_type) const {
+bool EditorPackedScenePreviewPlugin::handles(se_string_view p_type) const {
 
     return ClassDB::is_parent_class(StringName(p_type), "PackedScene");
 }
@@ -278,15 +280,15 @@ Ref<Texture> EditorPackedScenePreviewPlugin::generate(const RES &p_from, const S
     return generate_from_path(p_from->get_path(), p_size);
 }
 
-Ref<Texture> EditorPackedScenePreviewPlugin::generate_from_path(const String &p_path, const Size2 &p_size) const {
+Ref<Texture> EditorPackedScenePreviewPlugin::generate_from_path(se_string_view p_path, const Size2 &p_size) const {
 
-    String temp_path = EditorSettings::get_singleton()->get_cache_dir();
-    String cache_base = StringUtils::md5_text(ProjectSettings::get_singleton()->globalize_path(p_path));
+    se_string temp_path = EditorSettings::get_singleton()->get_cache_dir();
+    se_string cache_base = StringUtils::md5_text(ProjectSettings::get_singleton()->globalize_path(p_path));
     cache_base = PathUtils::plus_file(temp_path,"resthumb-" + cache_base);
 
     //does not have it, try to load a cached thumbnail
 
-    String path = cache_base + ".png";
+    se_string path = cache_base + ".png";
 
     if (!FileAccess::exists(path))
         return Ref<Texture>();
@@ -321,7 +323,7 @@ void EditorMaterialPreviewPlugin::_bind_methods() {
     MethodBinder::bind_method("_preview_done", &EditorMaterialPreviewPlugin::_preview_done);
 }
 
-bool EditorMaterialPreviewPlugin::handles(const String &p_type) const {
+bool EditorMaterialPreviewPlugin::handles(se_string_view p_type) const {
 
     return ClassDB::is_parent_class(StringName(p_type), "Material"); //any material
 }
@@ -423,7 +425,7 @@ EditorMaterialPreviewPlugin::EditorMaterialPreviewPlugin() {
             double x0 = Math::cos(lng0);
             double y0 = Math::sin(lng0);
 
-            double lng1 = 2 * Math_PI * (double)(j) / lons;
+            double lng1 = 2 * Math_PI * (double)j / lons;
             double x1 = Math::cos(lng1);
             double y1 = Math::sin(lng1);
 
@@ -488,10 +490,10 @@ EditorMaterialPreviewPlugin::~EditorMaterialPreviewPlugin() {
 
 static bool _is_text_char(CharType c) {
 
-    return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '_';
+    return c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z' || c >= '0' && c <= '9' || c == '_';
 }
 
-bool EditorScriptPreviewPlugin::handles(const String &p_type) const {
+bool EditorScriptPreviewPlugin::handles(se_string_view p_type) const {
 
     return ClassDB::is_parent_class(StringName(p_type), "Script");
 }
@@ -502,16 +504,16 @@ Ref<Texture> EditorScriptPreviewPlugin::generate(const RES &p_from, const Size2 
     if (not scr)
         return Ref<Texture>();
 
-    String code = StringUtils::strip_edges(scr->get_source_code());
+    se_string_view code = StringUtils::strip_edges(scr->get_source_code());
     if (code.empty())
         return Ref<Texture>();
 
-    List<String> kwors;
+    List<se_string> kwors;
     scr->get_language()->get_reserved_words(&kwors);
 
-    Set<String> keywords;
+    Set<se_string> keywords;
 
-    for (List<String>::Element *E = kwors.front(); E; E = E->next()) {
+    for (List<se_string>::Element *E = kwors.front(); E; E = E->next()) {
 
         keywords.insert(E->deref());
     }
@@ -531,7 +533,7 @@ Ref<Texture> EditorScriptPreviewPlugin::generate(const RES &p_from, const Size2 
 
     if (bg_color.a == 0)
         bg_color = Color(0, 0, 0, 0);
-    bg_color.a = MAX(bg_color.a, 0.2); // some background
+    bg_color.a = MAX(bg_color.a, 0.2f); // some background
 
     for (int i = 0; i < thumbnail_size; i++) {
         for (int j = 0; j < thumbnail_size; j++) {
@@ -546,14 +548,14 @@ Ref<Texture> EditorScriptPreviewPlugin::generate(const RES &p_from, const Size2 
 
     bool prev_is_text = false;
     bool in_keyword = false;
-    for (int i = 0; i < code.length(); i++) {
+    for (size_t i = 0; i < code.length(); i++) {
 
         CharType c = code[i];
         if (c > 32) {
             if (col < thumbnail_size) {
                 Color color = text_color;
 
-                if (c != '_' && ((c >= '!' && c <= '/') || (c >= ':' && c <= '@') || (c >= '[' && c <= '`') || (c >= '{' && c <= '~') || c == '\t')) {
+                if (c != '_' && (c >= '!' && c <= '/' || c >= ':' && c <= '@' || c >= '[' && c <= '`' || c >= '{' && c <= '~' || c == '\t')) {
                     //make symbol a little visible
                     color = symbol_color;
                     in_keyword = false;
@@ -563,8 +565,8 @@ Ref<Texture> EditorScriptPreviewPlugin::generate(const RES &p_from, const Size2 
                     while (_is_text_char(code[pos])) {
                         pos++;
                     }
-                    String word = StringUtils::substr(code,i, pos - i);
-                    if (keywords.contains(word))
+                    se_string_view word = StringUtils::substr(code,i, pos - i);
+                    if (keywords.contains_as(word))
                         in_keyword = true;
 
                 } else if (!_is_text_char(c)) {
@@ -575,7 +577,7 @@ Ref<Texture> EditorScriptPreviewPlugin::generate(const RES &p_from, const Size2 
                     color = keyword_color;
 
                 Color ul = color;
-                ul.a *= 0.5;
+                ul.a *= 0.5f;
                 img->set_pixel(col, y0 + line * 2, bg_color.blend(ul));
                 img->set_pixel(col, y0 + line * 2 + 1, color);
 
@@ -612,7 +614,7 @@ EditorScriptPreviewPlugin::EditorScriptPreviewPlugin() {
 }
 ///////////////////////////////////////////////////////////////////
 
-bool EditorAudioStreamPreviewPlugin::handles(const String &p_type) const {
+bool EditorAudioStreamPreviewPlugin::handles(se_string_view p_type) const {
 
     return ClassDB::is_parent_class(StringName(p_type), "AudioStream");
 }
@@ -709,7 +711,7 @@ void EditorMeshPreviewPlugin::_bind_methods() {
 
     MethodBinder::bind_method("_preview_done", &EditorMeshPreviewPlugin::_preview_done);
 }
-bool EditorMeshPreviewPlugin::handles(const String &p_type) const {
+bool EditorMeshPreviewPlugin::handles(se_string_view p_type) const {
 
     return ClassDB::is_parent_class(StringName(p_type), "Mesh"); //any Mesh
 }
@@ -830,21 +832,29 @@ void EditorFontPreviewPlugin::_bind_methods() {
     MethodBinder::bind_method("_preview_done", &EditorFontPreviewPlugin::_preview_done);
 }
 
-bool EditorFontPreviewPlugin::handles(const String &p_type) const {
+bool EditorFontPreviewPlugin::handles(se_string_view p_type) const {
 
-    return ClassDB::is_parent_class(StringName(p_type), "DynamicFontData");
+    return ClassDB::is_parent_class(StringName(p_type), "DynamicFontData") || ClassDB::is_parent_class(StringName(p_type), "DynamicFont");
+
 }
 
-Ref<Texture> EditorFontPreviewPlugin::generate_from_path(const String &p_path, const Size2 &p_size) const {
+Ref<Texture> EditorFontPreviewPlugin::generate_from_path(se_string_view p_path, const Size2 &p_size) const {
 
-    Ref<DynamicFontData> SampledFont(make_ref_counted<DynamicFontData>());
-    SampledFont->set_font_path(p_path);
-
-    Ref<DynamicFont> sampled_font(make_ref_counted<DynamicFont>());
+    RES res = ResourceLoader::load(p_path);
+    Ref<DynamicFont> sampled_font;
+    if (res->is_class("DynamicFont")) {
+        sampled_font = dynamic_ref_cast<DynamicFont>(res->duplicate());
+        if (sampled_font->get_outline_color() == Color(1, 1, 1, 1)) {
+            sampled_font->set_outline_color(Color(0, 0, 0, 1));
+        }
+    } else if (res->is_class("DynamicFontData")) {
+        sampled_font = make_ref_counted<DynamicFont>();
+        sampled_font->set_font_data(dynamic_ref_cast<DynamicFontData>(res));
+    }
     sampled_font->set_size(50);
-    sampled_font->set_font_data(SampledFont);
 
     String sampled_text = "Abg";
+
     Vector2 size = sampled_font->get_string_size(sampled_text);
 
     Vector2 pos;
@@ -890,7 +900,7 @@ Ref<Texture> EditorFontPreviewPlugin::generate_from_path(const String &p_path, c
 
 Ref<Texture> EditorFontPreviewPlugin::generate(const RES &p_from, const Size2 &p_size) const {
 
-    String path = p_from->get_path();
+    se_string path = p_from->get_path();
     if (!FileAccess::exists(path)) {
         return Ref<Texture>();
     }

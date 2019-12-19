@@ -312,7 +312,7 @@ void BoxContainer::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "alignment", PROPERTY_HINT_ENUM, "Begin,Center,End"), "set_alignment", "get_alignment");
 }
 
-MarginContainer *VBoxContainer::add_margin_child(const String &p_label, Control *p_control, bool p_expand) {
+MarginContainer *VBoxContainer::add_margin_child(const StringName &p_label, Control *p_control, bool p_expand) {
 
     Label *l = memnew(Label);
     l->set_text(p_label);

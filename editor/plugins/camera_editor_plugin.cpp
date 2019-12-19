@@ -33,6 +33,7 @@
 #include "spatial_editor_plugin.h"
 #include "core/method_bind.h"
 #include "core/translation_helpers.h"
+#include "editor/editor_node.h"
 
 IMPL_GDCLASS(CameraEditor)
 IMPL_GDCLASS(CameraEditorPlugin)
@@ -48,7 +49,7 @@ void CameraEditor::_node_removed(Node *p_node) {
 
 void CameraEditor::_pressed() {
 
-    Node *sn = (node && preview->is_pressed()) ? node : nullptr;
+    Node *sn = node && preview->is_pressed() ? node : nullptr;
     SpatialEditor::get_singleton()->set_custom_camera(sn);
 }
 

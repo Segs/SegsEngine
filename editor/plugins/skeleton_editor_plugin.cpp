@@ -71,13 +71,14 @@ void SkeletonEditor::create_physical_skeleton() {
     for (int bone_id = 0; bc > bone_id; ++bone_id) {
 
         const int parent = skeleton->get_bone_parent(bone_id);
-        const int parent_parent = skeleton->get_bone_parent(parent);
 
         if (parent < 0) {
 
             bones_infos.write[bone_id].relative_rest = skeleton->get_bone_rest(bone_id);
 
         } else {
+
+            const int parent_parent = skeleton->get_bone_parent(parent);
 
             bones_infos.write[bone_id].relative_rest = bones_infos[parent].relative_rest * skeleton->get_bone_rest(bone_id);
 
@@ -86,7 +87,7 @@ void SkeletonEditor::create_physical_skeleton() {
 
                 bones_infos.write[parent].physical_bone = create_physical_bone(parent, bone_id, bones_infos);
 
-                ur->create_action(TTR("Create physical bones"));
+                ur->create_action_ui(TTR("Create physical bones"));
                 ur->add_do_method(skeleton, "add_child", Variant(bones_infos[parent].physical_bone));
                 ur->add_do_reference(bones_infos[parent].physical_bone);
                 ur->add_undo_method(skeleton, "remove_child", Variant(bones_infos[parent].physical_bone));

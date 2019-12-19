@@ -183,8 +183,7 @@ void VisualServerViewport::_draw_viewport(Viewport *p_viewport, ARVRInterface::E
             for (eastl::pair<const RID,Viewport::CanvasData> &E : p_viewport->canvas_map) {
 
                 VisualServerCanvas::Canvas *canvas = static_cast<VisualServerCanvas::Canvas *>(E.second.canvas);
-                Transform2D xf = p_viewport->global_transform * E.second.transform;
-
+                Transform2D xf = _canvas_get_transform(p_viewport, canvas, &E.second, clip_rect.size);
                 for (RasterizerCanvas::LightOccluderInstance * F : canvas->occluders) {
 
                     if (!F->enabled)

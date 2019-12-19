@@ -39,6 +39,7 @@
 #include "core/variant.h"
 #include "core/variant_parser.h"
 
+#include "../mono_gd/gd_mono_cache.h"
 #include "../mono_gd/gd_mono_utils.h"
 
 MonoObject *godot_icall_GD_bytes2var(MonoArray *p_bytes, MonoBoolean p_allow_objects) {
@@ -57,7 +58,7 @@ MonoObject *godot_icall_GD_convert(MonoObject *p_what, int32_t p_type) {
 	const Variant *args[1] = { &what };
 	Variant::CallError ce;
 	Variant ret = Variant::construct(Variant::Type(p_type), args, 1, ce);
-	ERR_FAIL_COND_V(ce.error != Variant::CallError::CALL_OK, NULL)
+	ERR_FAIL_COND_V(ce.error != Variant::CallError::CALL_OK, NULL);
 	return GDMonoMarshal::variant_to_mono_object(ret);
 }
 
@@ -168,7 +169,7 @@ MonoObject *godot_icall_GD_str2var(MonoString *p_str) {
 	Error err = VariantParser::parse(&ss, ret, errs, line);
 	if (err != OK) {
 		String err_str = "Parse error at line " + itos(line) + ": " + errs + ".";
-		ERR_PRINT(err_str);
+		ERR_PRINTS(err_str);
 		ret = err_str;
 	}
 
@@ -180,7 +181,7 @@ MonoBoolean godot_icall_GD_type_exists(MonoString *p_type) {
 }
 
 void godot_icall_GD_pusherror(MonoString *p_str) {
-	ERR_PRINT(GDMonoMarshal::mono_string_to_godot(p_str));
+	ERR_PRINTS(GDMonoMarshal::mono_string_to_godot(p_str));
 }
 
 void godot_icall_GD_pushwarning(MonoString *p_str) {
@@ -193,7 +194,7 @@ MonoArray *godot_icall_GD_var2bytes(MonoObject *p_var, MonoBoolean p_full_object
 	PoolByteArray barr;
 	int len;
 	Error err = encode_variant(var, NULL, len, p_full_objects);
-	ERR_FAIL_COND_V_MSG(err != OK, NULL, "Unexpected error encoding variable to bytes, likely unserializable type found (Object or RID).")
+	ERR_FAIL_COND_V_MSG(err != OK, NULL, "Unexpected error encoding variable to bytes, likely unserializable type found (Object or RID).");
 
 	barr.resize(len);
 	{
@@ -211,7 +212,7 @@ MonoString *godot_icall_GD_var2str(MonoObject *p_var) {
 }
 
 MonoObject *godot_icall_DefaultGodotTaskScheduler() {
-	return GDMonoUtils::mono_cache.task_scheduler_handle->get_target();
+	return GDMonoCache::cached_data.task_scheduler_handle->get_target();
 }
 
 void godot_register_gd_icalls() {

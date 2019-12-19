@@ -43,14 +43,14 @@ class VisualScriptPropertySelector : public ConfirmationDialog {
 
     void _update_search();
 
-    void create_visualscript_item(const String &name, TreeItem *const root, const String &search_input, const String &text);
+    void create_visualscript_item(StringName name, TreeItem *const root, const String &search_input, const StringName &text);
 
-    void get_visual_node_names(const String &root_filter, const Set<String> &filter, bool &found, TreeItem *const root, LineEdit *const search_box);
+    void get_visual_node_names(se_string_view root_filter, const Set<se_string> &p_modifiers, bool &found, TreeItem *const root, LineEdit *const search_box);
 
     void _sbox_input(const Ref<InputEvent> &p_ie);
 
     void _confirmed();
-    void _text_changed(const String &p_newtext);
+    void _text_changed(se_string_view p_newtext);
 
     EditorHelpBit *help_bit;
 
@@ -59,7 +59,7 @@ class VisualScriptPropertySelector : public ConfirmationDialog {
     bool connecting;
     String selected;
     VariantType type;
-    String base_type;
+    se_string base_type;
     ObjectID script;
     Object *instance;
     bool virtuals_only;
@@ -74,13 +74,13 @@ protected:
     static void _bind_methods();
 
 public:
-    void select_method_from_base_type(const String &p_base, const String &p_current = "", const bool p_virtuals_only = false, const bool p_connecting = true, bool clear_text = true);
-    void select_from_base_type(const String &p_base, const String &p_current = "", bool p_virtuals_only = false, bool p_seq_connect = false, const bool p_connecting = true, bool clear_text = true);
-    void select_from_script(const Ref<Script> &p_script, const String &p_current = "", const bool p_connecting = true, bool clear_text = true);
-    void select_from_basic_type(VariantType p_type, const String &p_current = "", const bool p_connecting = true, bool clear_text = true);
-    void select_from_action(const String &p_type, const String &p_current = "", const bool p_connecting = true, bool clear_text = true);
-    void select_from_instance(Object *p_instance, const String &p_current = "", const bool p_connecting = true, const String &p_basetype = "", bool clear_text = true);
-    void select_from_visual_script(const String &p_base, const bool p_connecting = true, bool clear_text = true);
+    void select_method_from_base_type(se_string_view p_base, const String &p_current = String(), const bool p_virtuals_only = false, const bool p_connecting = true, bool clear_text = true);
+    void select_from_base_type(se_string_view p_base, const String &p_current = String(), bool p_virtuals_only = false, bool p_seq_connect = false, const bool p_connecting = true, bool clear_text = true);
+    void select_from_script(const Ref<Script> &p_script, const String &p_current = String(), const bool p_connecting = true, bool clear_text = true);
+    void select_from_basic_type(VariantType p_type, const String &p_current = String(), const bool p_connecting = true, bool clear_text = true);
+    void select_from_action(se_string_view p_type, const String &p_current = String(), const bool p_connecting = true, bool clear_text = true);
+    void select_from_instance(Object *p_instance, const String &p_current = String(), const bool p_connecting = true, se_string_view p_basetype = {}, bool clear_text = true);
+    void select_from_visual_script(se_string_view p_base, const bool p_connecting = true, bool clear_text = true);
 
     void show_window(float p_screen_ratio);
 

@@ -31,7 +31,7 @@
 #include "image_saver_tinyexr.h"
 #include "core/math/math_funcs.h"
 #include "core/image_data.h"
-#include "core/ustring.h"
+#include "core/se_string.h"
 
 #include "thirdparty/tinyexr/tinyexr.h"
 
@@ -262,15 +262,10 @@ Error prepare_exr_save(EXRImage &image,EXRHeader &header, const ImageData &p_img
     header.channels = channel_infos;
     header.pixel_types = pixel_types;
     header.requested_pixel_types = requested_pixel_types;
-    // TODO DEBUG REMOVE
-    for (int i = 0; i < 4; ++i) {
-        //TODO: use OsInterface if the reporting is needed.
-        //print_line(String("requested_pixel_types{0}: {1}").format(varray(i, requested_pixel_types[i])));
-    }
 
     return OK;
 }
-Error save_exr(const String &p_path, const ImageData &p_img, bool p_grayscale) {
+Error save_exr(se_string_view p_path, const ImageData &p_img, bool p_grayscale) {
     EXRImage image;
     EXRHeader header;
     auto res = prepare_exr_save(image,header,p_img,p_grayscale);
@@ -278,7 +273,7 @@ Error save_exr(const String &p_path, const ImageData &p_img, bool p_grayscale) {
         return res;
 
     const char *err;
-    CharString utf8_filename = StringUtils::utf8(p_path);
+    se_string utf8_filename(p_path);
     int ret = SaveEXRImageToFile(&image, &header, utf8_filename.data(), &err);
     if (ret != TINYEXR_SUCCESS) {
         //TODO: use OsInterface if the reporting is needed.

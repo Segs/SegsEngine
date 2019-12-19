@@ -432,7 +432,7 @@ void fill_default_theme(Ref<Theme> &theme, const Ref<Font> &default_font, const 
 
     theme->set_font("font", "TextEdit", default_font);
 
-    theme->set_color("background_color", "TextEdit", Color(0, 0, 0));
+    theme->set_color("background_color", "TextEdit", Color(0, 0, 0, 0));
     theme->set_color("completion_background_color", "TextEdit", Color(0.17f, 0.16f, 0.2f));
     theme->set_color("completion_selected_color", "TextEdit", Color(0.26f, 0.26f, 0.27f));
     theme->set_color("completion_existing_color", "TextEdit", Color(0.87f, 0.87f, 0.87f, 0.13f));
@@ -496,9 +496,6 @@ void fill_default_theme(Ref<Theme> &theme, const Ref<Font> &default_font, const 
 
     theme->set_stylebox("slider", "HSlider", make_stylebox(hslider_bg_png, 4, 4, 4, 4));
     theme->set_stylebox("grabber_area", "HSlider", make_stylebox(hslider_bg_png, 4, 4, 4, 4));
-    theme->set_stylebox("grabber_highlight", "HSlider", make_stylebox(hslider_grabber_hl_png, 6, 6, 6, 6));
-    theme->set_stylebox("grabber_disabled", "HSlider", make_stylebox(hslider_grabber_disabled_png, 6, 6, 6, 6));
-    theme->set_stylebox("focus", "HSlider", focus);
 
     theme->set_icon("grabber", "HSlider", make_icon(hslider_grabber_png));
     theme->set_icon("grabber_highlight", "HSlider", make_icon(hslider_grabber_hl_png));
@@ -509,9 +506,6 @@ void fill_default_theme(Ref<Theme> &theme, const Ref<Font> &default_font, const 
 
     theme->set_stylebox("slider", "VSlider", make_stylebox(vslider_bg_png, 4, 4, 4, 4));
     theme->set_stylebox("grabber_area", "VSlider", make_stylebox(vslider_bg_png, 4, 4, 4, 4));
-    theme->set_stylebox("grabber_highlight", "VSlider", make_stylebox(vslider_grabber_hl_png, 6, 6, 6, 6));
-    theme->set_stylebox("grabber_disabled", "VSlider", make_stylebox(vslider_grabber_disabled_png, 6, 6, 6, 6));
-    theme->set_stylebox("focus", "VSlider", focus);
 
     theme->set_icon("grabber", "VSlider", make_icon(vslider_grabber_png));
     theme->set_icon("grabber_highlight", "VSlider", make_icon(vslider_grabber_hl_png));
@@ -556,10 +550,13 @@ void fill_default_theme(Ref<Theme> &theme, const Ref<Font> &default_font, const 
     }
 
     theme->set_stylebox("panel", "PopupPanel", style_pp);
+    // PopupDialog
 
+    Ref<StyleBoxTexture> style_pd = make_stylebox(popup_bg_png, 4, 4, 4, 4, 10, 10, 10, 10);
+    theme->set_stylebox("panel", "PopupDialog", style_pd);
     // PopupMenu
 
-    theme->set_stylebox("panel", "PopupMenu", make_stylebox(popup_bg_png, 4, 4, 4, 4, 10, 10, 10, 10));
+    theme->set_stylebox("panel", "PopupMenu", style_pd);
     theme->set_stylebox("panel_disabled", "PopupMenu", make_stylebox(popup_bg_disabled_png, 4, 4, 4, 4));
     theme->set_stylebox("hover", "PopupMenu", selected);
     theme->set_stylebox("separator", "PopupMenu", make_stylebox(vseparator_png, 3, 3, 3, 3));

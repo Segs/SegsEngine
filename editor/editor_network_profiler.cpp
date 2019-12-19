@@ -33,6 +33,7 @@
 #include "core/method_bind.h"
 #include "core/os/os.h"
 #include "core/translation_helpers.h"
+#include "core/string_formatter.h"
 #include "editor_scale.h"
 #include "editor_settings.h"
 #include "scene/main/timer.h"
@@ -74,11 +75,11 @@ void EditorNetworkProfiler::_update_frame() {
             node->set_text_align(j, j > 0 ? TreeItem::ALIGN_RIGHT : TreeItem::ALIGN_LEFT);
         }
 
-        node->set_text(0, E.second.node_path);
-        node->set_text(1, E.second.incoming_rpc == 0 ? "-" : itos(E.second.incoming_rpc));
-        node->set_text(2, E.second.incoming_rset == 0 ? "-" : itos(E.second.incoming_rset));
-        node->set_text(3, E.second.outgoing_rpc == 0 ? "-" : itos(E.second.outgoing_rpc));
-        node->set_text(4, E.second.outgoing_rset == 0 ? "-" : itos(E.second.outgoing_rset));
+        node->set_text_utf8(0, E.second.node_path);
+        node->set_text_utf8(1, E.second.incoming_rpc == 0 ? "-" : ::to_string(E.second.incoming_rpc));
+        node->set_text_utf8(2, E.second.incoming_rset == 0 ? "-" : ::to_string(E.second.incoming_rset));
+        node->set_text_utf8(3, E.second.outgoing_rpc == 0 ? "-" : ::to_string(E.second.outgoing_rpc));
+        node->set_text_utf8(4, E.second.outgoing_rset == 0 ? "-" : ::to_string(E.second.outgoing_rset));
     }
 }
 
@@ -121,8 +122,8 @@ void EditorNetworkProfiler::add_node_frame_data(const MultiplayerAPI::ProfilingI
 }
 
 void EditorNetworkProfiler::set_bandwidth(int p_incoming, int p_outgoing) {
-    incoming_bandwidth_text->set_text(vformat(TTR("%s/s"), PathUtils::humanize_size(p_incoming)));
-    outgoing_bandwidth_text->set_text(vformat(TTR("%s/s"), PathUtils::humanize_size(p_outgoing)));
+    incoming_bandwidth_text->set_text_utf8(FormatVE(TTR("%s/s").asCString(), PathUtils::humanize_size(p_incoming).c_str()));
+    outgoing_bandwidth_text->set_text_utf8(FormatVE(TTR("%s/s").asCString(), PathUtils::humanize_size(p_outgoing).c_str()));
 }
 
 bool EditorNetworkProfiler::is_profiling() {

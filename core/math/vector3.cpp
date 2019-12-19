@@ -31,7 +31,8 @@
 #include "vector3.h"
 
 #include "core/math/basis.h"
-#include "core/ustring.h"
+#include "core/se_string.h"
+#include "core/string_utils.h"
 
 void Vector3::rotate(const Vector3 &p_axis, real_t p_phi) {
 
@@ -101,8 +102,7 @@ Vector3 Vector3::cubic_interpolaten(const Vector3 &p_b, const Vector3 &p_pre_a, 
     real_t t2 = t * t;
     real_t t3 = t2 * t;
 
-    Vector3 out;
-    out = 0.5 * ((p1 * 2.0) +
+    Vector3 out = 0.5 * ((p1 * 2.0) +
                         (-p0 + p2) * t +
                         (2.0 * p0 - 5.0 * p1 + 4 * p2 - p3) * t2 +
                         (-p0 + 3.0 * p1 - 3.0 * p2 + p3) * t3);
@@ -120,8 +120,7 @@ Vector3 Vector3::cubic_interpolate(const Vector3 &p_b, const Vector3 &p_pre_a, c
     real_t t2 = t * t;
     real_t t3 = t2 * t;
 
-    Vector3 out;
-    out = 0.5 * ((p1 * 2.0) +
+    Vector3 out = 0.5 * ((p1 * 2.0) +
                         (-p0 + p2) * t +
                         (2.0 * p0 - 5.0 * p1 + 4 * p2 - p3) * t2 +
                         (-p0 + 3.0 * p1 - 3.0 * p2 + p3) * t3);
@@ -135,7 +134,7 @@ Vector3 Vector3::move_toward(const Vector3 &p_to, const real_t p_delta) const {
     return len <= p_delta || len < CMP_EPSILON ? p_to : v + vd / len * p_delta;
 }
 
-Vector3::operator String() const {
+Vector3::operator se_string() const {
 
     return (rtos(x) + ", " + rtos(y) + ", " + rtos(z));
 }

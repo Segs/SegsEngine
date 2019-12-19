@@ -30,8 +30,6 @@
 
 #pragma once
 
-#include <utility>
-
 #include "core/list.h"
 #include "core/script_language.h"
 #include "scene/gui/control.h"
@@ -39,9 +37,16 @@
 #include "scene/gui/scroll_bar.h"
 #include "scene/main/timer.h"
 #include "scene/resources/font.h"
+#include "core/ustring.h"
+#include <utility>
 
 class SyntaxHighlighter;
 
+struct TextColorRegionInfo {
+
+    int region=0;
+    bool end=false;
+};
 class TextEdit : public Control {
 
     GDCLASS(TextEdit,Control)
@@ -58,88 +63,22 @@ public:
         String end_key;
         bool line_only;
         bool eq;
-        ColorRegion(const String &p_begin_key = "", const String &p_end_key = "", const Color &p_color = Color(), bool p_line_only = false) {
+        ColorRegion(const String &p_begin_key = String(), const String &p_end_key = String(), const Color &p_color = Color(), bool p_line_only = false) {
             begin_key = p_begin_key;
             end_key = p_end_key;
             color = p_color;
-            line_only = p_line_only || p_end_key.empty();
+            line_only = p_line_only || p_end_key.isEmpty();
             eq = begin_key == end_key;
         }
     };
 
-    class Text {
-    public:
-        struct ColorRegionInfo {
-
-            int region;
-            bool end;
-        };
-
-        struct Line {
-            int width_cache : 24;
-            bool marked : 1;
-            bool breakpoint : 1;
-            bool bookmark : 1;
-            bool hidden : 1;
-            bool safe : 1;
-            int wrap_amount_cache : 24;
-            Map<int, ColorRegionInfo> region_info;
-            Ref<Texture> info_icon;
-            String info;
-            String data;
-        };
-
-    private:
-        const Vector<ColorRegion> *color_regions;
-        mutable Vector<Line> text;
-        Ref<Font> font;
-        int indent_size;
-
-        void _update_line_cache(int p_line) const;
-
-    public:
-        void set_indent_size(int p_indent_size);
-        void set_font(const Ref<Font> &p_font);
-        void set_color_regions(const Vector<ColorRegion> *p_regions) { color_regions = p_regions; }
-        int get_line_width(int p_line) const;
-        int get_max_width(bool p_exclude_hidden = false) const;
-        int get_char_width(CharType c, CharType next_c, int px) const;
-        void set_line_wrap_amount(int p_line, int p_wrap_amount) const;
-        int get_line_wrap_amount(int p_line) const;
-        const Map<int, ColorRegionInfo> &get_color_region_info(int p_line) const;
-        void set(int p_line, const String &p_text);
-        void set_marked(int p_line, bool p_marked) { text.write[p_line].marked = p_marked; }
-        bool is_marked(int p_line) const { return text[p_line].marked; }
-        void set_bookmark(int p_line, bool p_bookmark) { text.write[p_line].bookmark = p_bookmark; }
-        bool is_bookmark(int p_line) const { return text[p_line].bookmark; }
-        void set_breakpoint(int p_line, bool p_breakpoint) { text.write[p_line].breakpoint = p_breakpoint; }
-        bool is_breakpoint(int p_line) const { return text[p_line].breakpoint; }
-        void set_hidden(int p_line, bool p_hidden) { text.write[p_line].hidden = p_hidden; }
-        bool is_hidden(int p_line) const { return text[p_line].hidden; }
-        void set_safe(int p_line, bool p_safe) { text.write[p_line].safe = p_safe; }
-        bool is_safe(int p_line) const { return text[p_line].safe; }
-        void set_info_icon(int p_line, const Ref<Texture>& p_icon, String p_info) {
-            text.write[p_line].info_icon = p_icon;
-            text.write[p_line].info = std::move(p_info);
-        }
-        bool has_info_icon(int p_line) const { return text[p_line].info_icon; }
-        const Ref<Texture> &get_info_icon(int p_line) const { return text[p_line].info_icon; }
-        const String &get_info(int p_line) const { return text[p_line].info; }
-        void insert(int p_at, const String &p_text);
-        void remove(int p_at);
-        int size() const { return text.size(); }
-        void clear();
-        void clear_width_cache();
-        void clear_wrap_cache();
-        _FORCE_INLINE_ const String &operator[](int p_line) const { return text[p_line].data; }
-        Text() { indent_size = 4; }
-    };
-
 private:
+    struct PrivateData;
+    PrivateData *m_priv=nullptr;
     struct Cursor {
-        int last_fit_x;
-        int line, column; ///< cursor
-        int x_ofs, line_ofs, wrap_ofs;
+        int last_fit_x=0;
+        int line=0, column=0; ///< cursor
+        int x_ofs=0, line_ofs=0, wrap_ofs=0;
     } cursor = {};
 
     struct Selection {
@@ -153,73 +92,22 @@ private:
             MODE_LINE
         };
 
-        Mode selecting_mode;
-        int selecting_line, selecting_column;
-        int selected_word_beg, selected_word_end, selected_word_origin;
-        bool selecting_text;
+        Mode selecting_mode=MODE_NONE;
+        int selecting_line=0, selecting_column=0;
+        int selected_word_beg=0, selected_word_end=0, selected_word_origin=0;
+        bool selecting_text=false;
 
-        bool active;
+        bool active=false;
 
-        int from_line, from_column;
-        int to_line, to_column;
+        int from_line=0, from_column=0;
+        int to_line=0, to_column=0;
 
-        bool shiftclick_left;
+        bool shiftclick_left=false;
 
     } selection;
 
-    struct Cache {
-
-        Ref<Texture> tab_icon;
-        Ref<Texture> space_icon;
-        Ref<Texture> can_fold_icon;
-        Ref<Texture> folded_icon;
-        Ref<Texture> folded_eol_icon;
-        Ref<Texture> executing_icon;
-        Ref<StyleBox> style_normal;
-        Ref<StyleBox> style_focus;
-        Ref<StyleBox> style_readonly;
-        Ref<Font> font;
-        Color completion_background_color;
-        Color completion_selected_color;
-        Color completion_existing_color;
-        Color completion_font_color;
-        Color caret_color;
-        Color caret_background_color;
-        Color line_number_color;
-        Color safe_line_number_color;
-        Color font_color;
-        Color font_color_selected;
-        Color font_color_readonly;
-        Color keyword_color;
-        Color number_color;
-        Color function_color;
-        Color member_variable_color;
-        Color selection_color;
-        Color mark_color;
-        Color bookmark_color;
-        Color breakpoint_color;
-        Color executing_line_color;
-        Color code_folding_color;
-        Color current_line_color;
-        Color line_length_guideline_color;
-        Color brace_mismatch_color;
-        Color word_highlighted_color;
-        Color search_result_color;
-        Color search_result_border_color;
-        Color symbol_color;
-        Color background_color;
-
-        int row_height;
-        int line_spacing;
-        int line_number_w;
-        int breakpoint_gutter_width;
-        int fold_gutter_width;
-        int info_gutter_width;
-        int minimap_width;
-    } cache;
 
     Map<int, int> color_region_cache;
-    Map<int, Map<int, HighlighterInfo> > syntax_highlighting_cache;
 
     struct TextOperation {
 
@@ -229,14 +117,14 @@ private:
             TYPE_REMOVE
         };
 
-        Type type;
-        int from_line, from_column;
-        int to_line, to_column;
+        Type type=TYPE_NONE;
+        int from_line=0, from_column=0;
+        int to_line=0, to_column=0;
         String text;
-        uint32_t prev_version;
-        uint32_t version;
-        bool chain_forward;
-        bool chain_backward;
+        uint32_t prev_version=0;
+        uint32_t version=0;
+        bool chain_forward=false;
+        bool chain_backward=false;
     };
 
     String ime_text;
@@ -250,14 +138,6 @@ private:
     void _clear_redo();
     void _do_text_op(const TextOperation &p_op, bool p_reverse);
 
-    //syntax coloring
-    SyntaxHighlighter *syntax_highlighter;
-    HashMap<String, Color> keywords;
-    HashMap<String, Color> member_keywords;
-
-    Map<int, HighlighterInfo> _get_line_syntax_highlighting(int p_line);
-
-    Vector<ColorRegion> color_regions;
 
     Set<String> completion_prefixes;
     bool completion_enabled;
@@ -266,17 +146,14 @@ private:
     bool completion_active;
     bool completion_forced;
     ScriptCodeCompletionOption completion_current;
-    String completion_base;
+    se_string completion_base;
     int completion_index;
     Rect2i completion_rect;
     int completion_line_ofs;
-    String completion_hint;
+    se_string completion_hint;
     int completion_hint_offset;
 
     bool setting_text;
-
-    // data
-    Text text;
 
     uint32_t version;
     uint32_t saved_version;
@@ -450,7 +327,7 @@ private:
 
     int _get_column_pos_of_word(const String &p_key, const String &p_search, uint32_t p_search_flags, int p_from_column);
 
-    PoolVector<int> _search_bind(const String &p_key, uint32_t p_search_flags, int p_from_line, int p_from_column) const;
+    PoolVector<int> _search_bind(se_string_view p_key, uint32_t p_search_flags, int p_from_line, int p_from_column) const;
 
     PopupMenu *menu;
 
@@ -464,7 +341,7 @@ private:
     int _calculate_spaces_till_next_right_indent(int column);
 
 protected:
-    String get_tooltip(const Point2 &p_pos) const override;
+    StringName get_tooltip(const Point2 &p_pos) const override;
 
     void _insert_text(int p_line, int p_char, const String &p_text, int *r_end_line = nullptr, int *r_end_char = nullptr);
     void _remove_text(int p_from_line, int p_from_column, int p_to_line, int p_to_column);
@@ -483,7 +360,7 @@ public:
 
     int _is_line_in_region(int p_line);
     ColorRegion _get_color_region(int p_region) const;
-    Map<int, Text::ColorRegionInfo> _get_line_color_region_info(int p_line) const;
+    Map<int, TextColorRegionInfo> _get_line_color_region_info(int p_line) const;
 
     enum MenuItems {
         MENU_CUT,
@@ -503,6 +380,10 @@ public:
         SEARCH_WHOLE_WORDS = 2,
         SEARCH_BACKWARDS = 4
     };
+    enum SearchResult {
+        SEARCH_RESULT_COLUMN,
+        SEARCH_RESULT_LINE,
+    };
 
     CursorShape get_cursor_shape(const Point2 &p_pos = Point2i()) const override;
 
@@ -517,7 +398,9 @@ public:
 
     bool is_insert_text_operation();
 
+    void set_text_utf8(se_string_view p_text);
     void set_text(const String& p_text);
+    void insert_text_at_cursor_utf8(se_string_view p_text);
     void insert_text_at_cursor(const String &p_text);
     void insert_at(const String &p_text, int at);
     int get_line_count() const;
@@ -536,7 +419,7 @@ public:
     Array get_breakpoints_array() const;
     void remove_breakpoints();
 
-    void set_line_info_icon(int p_line, const Ref<Texture>& p_icon, String p_info = "");
+    void set_line_info_icon(int p_line, const Ref<Texture>& p_icon, StringName p_info = StringName());
     void clear_info_icons();
 
     void set_line_as_hidden(int p_line, bool p_hidden);
@@ -554,9 +437,11 @@ public:
     void unfold_line(int p_line);
     void toggle_fold_line(int p_line);
 
-    String get_text();
-    String get_line(int line) const;
-    void set_line(int line, const String& new_text);
+    se_string get_text_utf8() const;
+    se_string get_text();
+    //String get_line(int line) const;
+    se_string get_line(int line) const;
+    void set_line(int line, se_string_view new_text);
     void backspace_at_cursor();
 
     void indent_left();
@@ -588,7 +473,7 @@ public:
 
     int cursor_get_column() const;
     int cursor_get_line() const;
-	Vector2i _get_cursor_pixel_pos();
+    Vector2i _get_cursor_pixel_pos();
 
     bool cursor_get_blink_enabled() const;
     void cursor_set_blink_enabled(const bool p_enabled);
@@ -635,10 +520,10 @@ public:
     int get_selection_from_column() const;
     int get_selection_to_line() const;
     int get_selection_to_column() const;
-    String get_selection_text() const;
+    se_string get_selection_text() const;
 
-    String get_word_under_cursor() const;
-    String get_word_at_pos(const Vector2 &p_pos) const;
+    se_string get_word_under_cursor() const;
+    se_string get_word_at_pos(const Vector2 &p_pos) const;
 
     bool search(const String &p_key, uint32_t p_search_flags, int p_from_line, int p_from_column, int &r_line, int &r_column) const;
 
@@ -660,14 +545,16 @@ public:
     void set_insert_mode(bool p_enabled);
     bool is_insert_mode() const;
 
-    void add_keyword_color(const String &p_keyword, const Color &p_color);
+    void add_keyword_color(se_string_view p_keyword, const Color &p_color);
     bool has_keyword_color(const String& p_keyword) const;
+    bool has_keyword_color_utf8(se_string_view p_keyword) const;
     Color get_keyword_color(const String& p_keyword) const;
+    Color get_keyword_color_utf8(se_string_view p_keyword) const;
 
-    void add_color_region(const String &p_begin_key = String(), const String &p_end_key = String(), const Color &p_color = Color(), bool p_line_only = false);
+    void add_color_region(se_string_view p_begin_key = {}, se_string_view p_end_key = {}, const Color &p_color = Color(), bool p_line_only = false);
     void clear_colors();
 
-    void add_member_keyword(const String &p_keyword, const Color &p_color);
+    void add_member_keyword(se_string_view p_keyword, const Color &p_color);
     bool has_member_color(const String& p_member) const;
     Color get_member_color(const String& p_member) const;
     void clear_member_keywords();
@@ -734,7 +621,7 @@ public:
 
     void set_completion(bool p_enabled, const Vector<String> &p_prefixes);
     void code_complete(const List<ScriptCodeCompletionOption> &p_strings, bool p_forced = false);
-    void set_code_hint(const String &p_hint);
+    void set_code_hint(const se_string &p_hint);
     void query_code_comple();
 
     void set_select_identifiers_on_hover(bool p_enable);
@@ -752,7 +639,8 @@ public:
     PopupMenu *get_menu() const;
 
     String get_text_for_completion();
-    String get_text_for_lookup_completion();
+    se_string get_text_for_completion_utf8() const;
+    se_string get_text_for_lookup_completion();
 
     bool is_text_field() const override;
     TextEdit();
@@ -769,8 +657,8 @@ public:
     virtual void _update_cache() = 0;
     virtual Map<int, TextEdit::HighlighterInfo> _get_line_syntax_highlighting(int p_line) = 0;
 
-    virtual String get_name() const = 0;
-    virtual List<String> get_supported_languages() = 0;
+    virtual se_string get_name() const = 0;
+    virtual List<se_string> get_supported_languages() = 0;
 
     void set_text_editor(TextEdit *p_text_editor);
     TextEdit *get_text_editor();

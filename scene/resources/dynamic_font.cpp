@@ -42,7 +42,6 @@
 
 #include FT_STROKER_H
 
-#define __STDC_LIMIT_MACROS
 #include <cstdint>
 
 IMPL_GDCLASS(DynamicFontData)
@@ -183,12 +182,12 @@ void DynamicFontData::set_font_ptr(const uint8_t *p_font_mem, int p_font_mem_siz
     font_mem_size = p_font_mem_size;
 }
 
-void DynamicFontData::set_font_path(const String &p_path) {
+void DynamicFontData::set_font_path(se_string_view p_path) {
 
     font_path = p_path;
 }
 
-String DynamicFontData::get_font_path() const {
+const se_string &DynamicFontData::get_font_path() const {
     return font_path;
 }
 
@@ -228,7 +227,7 @@ DynamicFontData::~DynamicFontData() {
 }
 
 ////////////////////
-HashMap<String, Vector<uint8_t> > DynamicFontAtSize::_fontdata;
+HashMap<se_string, Vector<uint8_t> > DynamicFontAtSize::_fontdata;
 
 Error DynamicFontAtSize::_load() {
 
@@ -298,12 +297,11 @@ Error DynamicFontAtSize::_load() {
     //error = FT_New_Face( library, src_path.utf8().get_data(),0,&face );
 
     if (error == FT_Err_Unknown_File_Format) {
-        ERR_EXPLAIN("Unknown font format.")
+        ERR_PRINT("Unknown font format.")
         FT_Done_FreeType(m_impl->library);
-
     } else if (error) {
 
-        ERR_EXPLAIN("Error loading font.")
+        ERR_PRINT("Error loading font.")
         FT_Done_FreeType(m_impl->library);
     }
 
@@ -326,8 +324,8 @@ Error DynamicFontAtSize::_load() {
         FT_Set_Pixel_Sizes(m_impl->face, 0, id.size * oversampling);
     }
 
-    ascent = (m_impl->face->size->metrics.ascender / 64.0) / oversampling * scale_color_font;
-    descent = (-m_impl->face->size->metrics.descender / 64.0) / oversampling * scale_color_font;
+    ascent = (m_impl->face->size->metrics.ascender / 64.0f) / oversampling * scale_color_font;
+    descent = (-m_impl->face->size->metrics.descender / 64.0f) / oversampling * scale_color_font;
     linegap = 0;
     texture_flags = 0;
     if (id.mipmaps)
@@ -370,7 +368,7 @@ const Pair<const DynamicFontAtSize::Character *, DynamicFontAtSize *> DynamicFon
 
             fb->_update_char(p_char);
             const Character *fallback_chr = fb->char_map.getptr(p_char);
-            ERR_CONTINUE(!fallback_chr);
+            ERR_CONTINUE(!fallback_chr)
 
             if (!fallback_chr->found)
                 continue;
@@ -691,6 +689,7 @@ void DynamicFont::_reload_cache() {
     if (not data) {
         data_at_size.unref();
         outline_data_at_size.unref();
+        fallbacks.clear();
         fallback_data_at_size.resize(0);
         fallback_outline_data_at_size.resize(0);
         return;
@@ -952,9 +951,8 @@ void DynamicFont::remove_fallback(int p_idx) {
 
 bool DynamicFont::_set(const StringName &p_name, const Variant &p_value) {
 
-    String str = p_name;
-    if (StringUtils::begins_with(str,"fallback/")) {
-        int idx = StringUtils::to_int(StringUtils::get_slice(str,'/', 1));
+    if (StringUtils::begins_with(p_name,"fallback/")) {
+        int idx = StringUtils::to_int(StringUtils::get_slice(p_name,'/', 1));
         Ref<DynamicFontData> fd = refFromRefPtr<DynamicFontData>(p_value);
 
         if (fd) {
@@ -978,7 +976,7 @@ bool DynamicFont::_set(const StringName &p_name, const Variant &p_value) {
 
 bool DynamicFont::_get(const StringName &p_name, Variant &r_ret) const {
 
-    String str = p_name;
+    StringName str(p_name);
     if (StringUtils::begins_with(str,"fallback/")) {
         int idx = StringUtils::to_int(StringUtils::get_slice(str,'/', 1));
 
@@ -996,10 +994,10 @@ bool DynamicFont::_get(const StringName &p_name, Variant &r_ret) const {
 void DynamicFont::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
 
     for (int i = 0; i < fallbacks.size(); i++) {
-        p_list->push_back(PropertyInfo(VariantType::OBJECT, "fallback/" + itos(i), PROPERTY_HINT_RESOURCE_TYPE, "DynamicFontData"));
+        p_list->push_back(PropertyInfo(VariantType::OBJECT, StringName("fallback/" + itos(i)), PROPERTY_HINT_RESOURCE_TYPE, "DynamicFontData"));
     }
 
-    p_list->push_back(PropertyInfo(VariantType::OBJECT, "fallback/" + itos(fallbacks.size()), PROPERTY_HINT_RESOURCE_TYPE, "DynamicFontData"));
+    p_list->push_back(PropertyInfo(VariantType::OBJECT, StringName("fallback/" + itos(fallbacks.size())), PROPERTY_HINT_RESOURCE_TYPE, "DynamicFontData"));
 }
 
 void DynamicFont::_bind_methods() {
@@ -1133,7 +1131,7 @@ void DynamicFont::update_oversampling() {
 
 /////////////////////////
 
-RES ResourceFormatLoaderDynamicFont::load(const String &p_path, const String &p_original_path, Error *r_error) {
+RES ResourceFormatLoaderDynamicFont::load(se_string_view p_path, se_string_view p_original_path, Error *r_error) {
 
     if (r_error)
         *r_error = ERR_FILE_CANT_OPEN;
@@ -1147,23 +1145,23 @@ RES ResourceFormatLoaderDynamicFont::load(const String &p_path, const String &p_
     return dfont;
 }
 
-void ResourceFormatLoaderDynamicFont::get_recognized_extensions(ListPOD<String> *p_extensions) const {
+void ResourceFormatLoaderDynamicFont::get_recognized_extensions(PODVector<se_string> &p_extensions) const {
 
-    p_extensions->push_back("ttf");
-    p_extensions->push_back("otf");
+    p_extensions.push_back(("ttf"));
+    p_extensions.push_back(("otf"));
 }
 
-bool ResourceFormatLoaderDynamicFont::handles_type(const String &p_type) const {
+bool ResourceFormatLoaderDynamicFont::handles_type(se_string_view p_type) const {
 
-    return (p_type == "DynamicFontData");
+    return (p_type == se_string_view("DynamicFontData"));
 }
 
-String ResourceFormatLoaderDynamicFont::get_resource_type(const String &p_path) const {
+se_string ResourceFormatLoaderDynamicFont::get_resource_type(se_string_view p_path) const {
 
-    String el = StringUtils::to_lower(PathUtils::get_extension(p_path));
+    se_string el = StringUtils::to_lower(PathUtils::get_extension(p_path));
     if (el == "ttf" || el == "otf")
-        return "DynamicFontData";
-    return "";
+        return ("DynamicFontData");
+    return {};
 }
 
 #endif

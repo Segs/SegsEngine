@@ -40,14 +40,15 @@
 #include "scene/scene_string_names.h"
 #include "scene/main/scene_tree.h"
 #include "servers/visual_server.h"
-
+#include "core/se_string.h"
 IMPL_GDCLASS(GridMap)
 
+using namespace eastl;
 bool GridMap::_set(const StringName &p_name, const Variant &p_value) {
 
-    String name = p_name;
+    se_string_view name(p_name);
 
-    if (name == "data") {
+    if (name == "data"_sv) {
 
         Dictionary d = p_value;
 
@@ -70,7 +71,7 @@ bool GridMap::_set(const StringName &p_name, const Variant &p_value) {
 
         _recreate_octant_data();
 
-    } else if (name == "baked_meshes") {
+    } else if (name == "baked_meshes"_sv) {
 
         clear_baked_meshes();
 
@@ -102,9 +103,9 @@ bool GridMap::_set(const StringName &p_name, const Variant &p_value) {
 
 bool GridMap::_get(const StringName &p_name, Variant &r_ret) const {
 
-    String name = p_name;
+    se_string_view name(p_name);
 
-    if (name == "data") {
+    if (name == "data"_sv) {
 
         Dictionary d;
 
@@ -123,7 +124,7 @@ bool GridMap::_get(const StringName &p_name, Variant &r_ret) const {
         d["cells"] = cells;
 
         r_ret = d;
-    } else if (name == "baked_meshes") {
+    } else if (name == "baked_meshes"_sv) {
 
         Array ret;
         ret.resize(baked_meshes.size());
@@ -199,9 +200,6 @@ bool GridMap::get_collision_layer_bit(int p_bit) const {
     return get_collision_layer() & (1 << p_bit);
 }
 
-//WARN_DEPRECATED_MSG("GridMap.theme/set_theme() is deprecated and will be removed in a future version. Use GridMap.mesh_library/set_mesh_library() instead.");
-//WARN_DEPRECATED_MSG("GridMap.theme/get_theme() is deprecated and will be removed in a future version. Use GridMap.mesh_library/get_mesh_library() instead.");
-
 void GridMap::set_mesh_library(const Ref<MeshLibrary> &p_mesh_library) {
 
     if (mesh_library)
@@ -224,6 +222,7 @@ void GridMap::set_cell_size(const Vector3 &p_size) {
     ERR_FAIL_COND(p_size.x < 0.001f || p_size.y < 0.001f || p_size.z < 0.001f)
     cell_size = p_size;
     _recreate_octant_data();
+    emit_signal("cell_size_changed", cell_size);
 }
 Vector3 GridMap::get_cell_size() const {
 
@@ -886,6 +885,7 @@ void GridMap::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "collision_mask", PROPERTY_HINT_LAYERS_3D_PHYSICS), "set_collision_mask", "get_collision_mask");
 
     BIND_CONSTANT(INVALID_CELL_ITEM)
+    ADD_SIGNAL(MethodInfo("cell_size_changed", PropertyInfo(VariantType::VECTOR3, "cell_size")));
 }
 
 void GridMap::set_clip(bool p_enabled, bool p_clip_above, int p_floor, Vector3::Axis p_axis) {

@@ -31,90 +31,90 @@
 #pragma once
 
 #include "core/resource.h"
-#include "core/ustring.h"
+#include "core/se_string.h"
 #include "core/map.h"
 #include "core/set.h"
 
 class GODOT_EXPORT Translation : public Resource {
 
-	GDCLASS(Translation,Resource)
+    GDCLASS(Translation,Resource)
     OBJ_SAVE_TYPE(Translation)
     RES_BASE_EXTENSION("translation")
 
-	String locale;
-	Map<StringName, StringName> translation_map;
+    se_string locale;
+    Map<StringName, StringName> translation_map;
 
-	PoolVector<String> _get_message_list() const;
-	PoolVector<String> _get_messages() const;
-	void _set_messages(const PoolVector<String> &p_messages);
+    PoolSeStringArray _get_message_list() const;
+    PoolSeStringArray _get_messages() const;
+    void _set_messages(const PoolVector<se_string> &p_messages);
 
 protected:
-	static void _bind_methods();
+    static void _bind_methods();
 
 public:
-	void set_locale(const String &p_locale);
-	_FORCE_INLINE_ String get_locale() const { return locale; }
+    void set_locale(se_string_view p_locale);
+    _FORCE_INLINE_ const se_string &get_locale() const { return locale; }
 
-	void add_message(const StringName &p_src_text, const StringName &p_xlated_text);
-	virtual StringName get_message(const StringName &p_src_text) const; //overridable for other implementations
-	void erase_message(const StringName &p_src_text);
+    void add_message(const StringName &p_src_text, const StringName &p_xlated_text);
+    virtual StringName get_message(const StringName &p_src_text) const; //overridable for other implementations
+    void erase_message(const StringName &p_src_text);
 
     void get_message_list(ListPOD<StringName> *r_messages) const;
-	int get_message_count() const;
+    int get_message_count() const;
 
-	Translation();
+    Translation();
 };
 
 class GODOT_EXPORT TranslationServer : public Object {
 
-	GDCLASS(TranslationServer,Object)
+    GDCLASS(TranslationServer,Object)
 
-	String locale;
-	String fallback;
+    se_string locale;
+    se_string fallback;
 
-	Set<Ref<Translation> > translations;
-	Ref<Translation> tool_translation;
+    Set<Ref<Translation> > translations;
+    Ref<Translation> tool_translation;
 
-	Map<String, String> locale_name_map;
+    Map<se_string, se_string> locale_name_map;
 
-	bool enabled = true;
+    bool enabled = true;
 
-	static TranslationServer *singleton;
-	bool _load_translations(const StringName &p_from);
+    static TranslationServer *singleton;
+    bool _load_translations(const StringName &p_from);
 
-	static void _bind_methods();
+    static void _bind_methods();
 
 public:
-	_FORCE_INLINE_ static TranslationServer *get_singleton() { return singleton; }
+    _FORCE_INLINE_ static TranslationServer *get_singleton() { return singleton; }
 
-	void set_enabled(bool p_enabled) { enabled = p_enabled; }
-	_FORCE_INLINE_ bool is_enabled() const { return enabled; }
+    void set_enabled(bool p_enabled) { enabled = p_enabled; }
+    _FORCE_INLINE_ bool is_enabled() const { return enabled; }
 
-	void set_locale(const String &p_locale);
-	String get_locale() const;
+    void set_locale(se_string_view p_locale);
+    const se_string &get_locale() const;
 
-	String get_locale_name(const String &p_locale) const;
+    se_string get_locale_name(se_string_view p_locale) const;
 
-	Array get_loaded_locales() const;
+    Array get_loaded_locales() const;
 
-	void add_translation(const Ref<Translation> &p_translation);
-	void remove_translation(const Ref<Translation> &p_translation);
+    void add_translation(const Ref<Translation> &p_translation);
+    void remove_translation(const Ref<Translation> &p_translation);
 
-	StringName translate(const StringName &p_message) const;
+    StringName translate(const StringName &p_message) const;
 
-	static Vector<String> get_all_locales();
-	static Vector<String> get_all_locale_names();
-	static bool is_locale_valid(const String &p_locale);
-	static String standardize_locale(const String& p_locale);
+    static Vector<se_string> get_all_locales();
+    static Vector<se_string> get_all_locale_names();
+    static bool is_locale_valid(se_string_view p_locale);
+    static se_string standardize_locale(se_string_view p_locale);
+    static se_string_view get_language_code(se_string_view p_locale);
+    void set_tool_translation(const Ref<Translation> &p_translation);
+    StringName tool_translate(const StringName &p_message) const;
 
-	void set_tool_translation(const Ref<Translation> &p_translation);
-	StringName tool_translate(const StringName &p_message) const;
+    void setup();
 
-	void setup();
+    void clear();
 
-	void clear();
+    void load_translations();
 
-	void load_translations();
-
-	TranslationServer();
+    TranslationServer();
 };

@@ -145,7 +145,7 @@ protected:
 	void _notification(int p_what);
 
 public:
-	String get_tooltip(const Point2 &p_pos) const override;
+    StringName get_tooltip(const Point2 &p_pos) const override;
 
 	Ref<Animation> get_animation() const;
 

@@ -46,14 +46,14 @@ class PropertySelector : public ConfirmationDialog {
     void _sbox_input(const Ref<InputEvent> &p_ie);
 
     void _confirmed();
-    void _text_changed(const String &p_newtext);
+    void _text_changed(se_string_view p_newtext);
 
     EditorHelpBit *help_bit;
 
     bool properties;
     String selected;
     VariantType type;
-    CharString base_type;
+    StringName base_type;
     ObjectID script;
     Object *instance;
     bool virtuals_only;
@@ -67,15 +67,15 @@ protected:
     static void _bind_methods();
 
 public:
-    void select_method_from_base_type(const String &p_base, const String &p_current = "", bool p_virtuals_only = false);
-    void select_method_from_script(const Ref<Script> &p_script, const String &p_current = "");
-    void select_method_from_basic_type(VariantType p_type, const String &p_current = "");
-    void select_method_from_instance(Object *p_instance, const String &p_current = "");
+    void select_method_from_base_type(const StringName &p_base, const String &p_current = String(), bool p_virtuals_only = false);
+    void select_method_from_script(const Ref<Script> &p_script, const String &p_current = String());
+    void select_method_from_basic_type(VariantType p_type, const String &p_current = String());
+    void select_method_from_instance(Object *p_instance, const String &p_current = String());
 
-    void select_property_from_base_type(const String &p_base, const String &p_current = "");
-    void select_property_from_script(const Ref<Script> &p_script, const String &p_current = "");
-    void select_property_from_basic_type(VariantType p_type, const String &p_current = "");
-    void select_property_from_instance(Object *p_instance, const String &p_current = "");
+    void select_property_from_base_type(const StringName &p_base, const String &p_current = String());
+    void select_property_from_script(const Ref<Script> &p_script, const String &p_current = String());
+    void select_property_from_basic_type(VariantType p_type, const String &p_current = String());
+    void select_property_from_instance(Object *p_instance, const String &p_current = String());
 
     void set_type_filter(const Vector<VariantType> &p_type_filter);
 

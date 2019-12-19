@@ -73,11 +73,7 @@ public:
 		OverlappingObjectData(const OverlappingObjectData &other) {
 			operator=(other);
 		}
-        OverlappingObjectData &operator=(const OverlappingObjectData &other) {
-			object = other.object;
-			state = other.state;
-            return *this;
-		}
+        OverlappingObjectData &operator=(const OverlappingObjectData &other) = default;
 	};
 
 private:

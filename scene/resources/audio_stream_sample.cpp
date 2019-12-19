@@ -102,7 +102,8 @@ void AudioStreamPlaybackSample::do_resample(const Depth *p_src, AudioFrame *p_ds
     // this function will be compiled branchless by any decent compiler
 
     int32_t final, final_r, next, next_r;
-    while (amount--) {
+    while (amount) {
+        amount--;
 
         int64_t pos = offset >> MIX_FRAC_BITS;
         if (is_stereo && !is_ima_adpcm)
@@ -450,7 +451,7 @@ int AudioStreamSample::get_loop_end() const {
 }
 
 void AudioStreamSample::set_mix_rate(int p_hz) {
-
+    ERR_FAIL_COND(p_hz == 0)
     mix_rate = p_hz;
 }
 int AudioStreamSample::get_mix_rate() const {
@@ -482,7 +483,7 @@ float AudioStreamSample::get_length() const {
     return float(len) / mix_rate;
 }
 
-void AudioStreamSample::set_data(const PoolVector<uint8_t> &p_data) {
+void AudioStreamSample::set_data(Span<const uint8_t> p_data) {
 
     AudioServer::get_singleton()->lock();
     if (data) {
@@ -493,13 +494,11 @@ void AudioStreamSample::set_data(const PoolVector<uint8_t> &p_data) {
 
     int datalen = p_data.size();
     if (datalen) {
-
-        PoolVector<uint8_t>::Read r = p_data.read();
         int alloc_len = datalen + DATA_PAD * 2;
         data = AudioServer::get_singleton()->audio_data_alloc(alloc_len); //alloc with some padding for interpolation
         memset(data, 0, alloc_len);
         uint8_t *dataptr = (uint8_t *)data;
-        memcpy(dataptr + DATA_PAD, r.ptr(), datalen);
+        memcpy(dataptr + DATA_PAD, p_data.data(), datalen);
         data_bytes = datalen;
     }
 
@@ -522,9 +521,9 @@ PoolVector<uint8_t> AudioStreamSample::get_data() const {
     return pv;
 }
 
-Error AudioStreamSample::save_to_wav(const String &p_path) {
+Error AudioStreamSample::save_to_wav(se_string_view p_path) {
     if (format == AudioStreamSample::FORMAT_IMA_ADPCM) {
-        WARN_PRINTS("Saving IMA_ADPC samples are not supported yet");
+        WARN_PRINT("Saving IMA_ADPC samples are not supported yet")
         return ERR_UNAVAILABLE;
     }
 
@@ -546,9 +545,9 @@ Error AudioStreamSample::save_to_wav(const String &p_path) {
         case AudioStreamSample::FORMAT_IMA_ADPCM: byte_pr_sample = 4; break;
     }
 
-    String file_path = p_path;
+    se_string file_path(p_path);
     if (!StringUtils::ends_with(file_path,".wav")) {
-        file_path += ".wav";
+        file_path += (".wav");
     }
 
     FileAccessRef file = FileAccess::open(file_path, FileAccess::WRITE); //Overrides existing file if present
@@ -603,9 +602,9 @@ Ref<AudioStreamPlayback> AudioStreamSample::instance_playback() {
     return sample;
 }
 
-String AudioStreamSample::get_stream_name() const {
+se_string AudioStreamSample::get_stream_name() const {
 
-    return "";
+    return se_string();
 }
 
 void AudioStreamSample::_bind_methods() {

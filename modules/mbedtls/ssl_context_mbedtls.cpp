@@ -29,6 +29,7 @@
 /*************************************************************************/
 
 #include "ssl_context_mbedtls.h"
+#include "core/string_utils.h"
 
 #include <mbedtls/config.h>
 #include <mbedtls/ctr_drbg.h>

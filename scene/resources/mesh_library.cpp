@@ -37,32 +37,32 @@ IMPL_GDCLASS(MeshLibrary)
 RES_BASE_EXTENSION_IMPL(MeshLibrary,"meshlib")
 
 bool MeshLibrary::_set(const StringName &p_name, const Variant &p_value) {
-
-    String name = p_name;
+    using namespace eastl;
+    se_string_view name = p_name;
     if (StringUtils::begins_with(name,"item/")) {
 
         int idx = StringUtils::to_int(StringUtils::get_slice(name,'/', 1));
-        String what = StringUtils::get_slice(name,'/', 2);
+        se_string_view what = StringUtils::get_slice(name,'/', 2);
         if (!item_map.contains(idx))
             create_item(idx);
 
-        if (what == "name")
-            set_item_name(idx, p_value);
-        else if (what == "mesh")
+        if (what == "name"_sv)
+            set_item_name(idx, p_value.as<se_string>());
+        else if (what == "mesh"_sv)
             set_item_mesh(idx, refFromRefPtr<Mesh>(p_value));
-        else if (what == "shape") {
+        else if (what == "shape"_sv) {
             Vector<ShapeData> shapes;
             ShapeData sd;
             sd.shape = refFromVariant<Shape>(p_value);
             shapes.push_back(sd);
             set_item_shapes(idx, shapes);
-        } else if (what == "shapes") {
+        } else if (what == "shapes"_sv) {
             _set_item_shapes(idx, p_value);
-        } else if (what == "preview")
+        } else if (what == "preview"_sv)
             set_item_preview(idx, refFromRefPtr<Texture>(p_value));
-        else if (what == "navmesh")
+        else if (what == "navmesh"_sv)
             set_item_navmesh(idx, refFromRefPtr<NavigationMesh>(p_value));
-        else if (what == "navmesh_transform")
+        else if (what == "navmesh_transform"_sv)
             set_item_navmesh_transform(idx, p_value);
         else
             return false;
@@ -74,23 +74,24 @@ bool MeshLibrary::_set(const StringName &p_name, const Variant &p_value) {
 }
 
 bool MeshLibrary::_get(const StringName &p_name, Variant &r_ret) const {
+    using namespace eastl;
 
-    String name = p_name;
+    se_string_view name(p_name);
     int idx = StringUtils::to_int(StringUtils::get_slice(name,'/', 1));
     ERR_FAIL_COND_V(!item_map.contains(idx), false)
-    String what = StringUtils::get_slice(name,'/', 2);
+    se_string_view what = StringUtils::get_slice(name,'/', 2);
 
-    if (what == "name")
+    if (what == "name"_sv)
         r_ret = get_item_name(idx);
-    else if (what == "mesh")
+    else if (what == "mesh"_sv)
         r_ret = get_item_mesh(idx);
-    else if (what == "shapes")
+    else if (what == "shapes"_sv)
         r_ret = _get_item_shapes(idx);
-    else if (what == "navmesh")
+    else if (what == "navmesh"_sv)
         r_ret = get_item_navmesh(idx);
-    else if (what == "navmesh_transform")
+    else if (what == "navmesh_transform"_sv)
         r_ret = get_item_navmesh_transform(idx);
-    else if (what == "preview")
+    else if (what == "preview"_sv)
         r_ret = get_item_preview(idx);
     else
         return false;
@@ -102,14 +103,14 @@ void MeshLibrary::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
 
     for (const eastl::pair<const int,Item> &E : item_map) {
 
-        String name = "item/" + itos(E.first) + "/";
-        p_list->push_back(PropertyInfo(VariantType::STRING, name + "name"));
-        p_list->push_back(PropertyInfo(VariantType::OBJECT, name + "mesh", PROPERTY_HINT_RESOURCE_TYPE, "Mesh"));
-        p_list->push_back(PropertyInfo(VariantType::TRANSFORM, name + "mesh_transform"));
-        p_list->push_back(PropertyInfo(VariantType::ARRAY, name + "shapes"));
-        p_list->push_back(PropertyInfo(VariantType::OBJECT, name + "navmesh", PROPERTY_HINT_RESOURCE_TYPE, "NavigationMesh"));
-        p_list->push_back(PropertyInfo(VariantType::TRANSFORM, name + "navmesh_transform"));
-        p_list->push_back(PropertyInfo(VariantType::OBJECT, name + "preview", PROPERTY_HINT_RESOURCE_TYPE, "Texture", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_EDITOR_HELPER));
+        se_string name = "item/" + itos(E.first) + "/";
+        p_list->push_back(PropertyInfo(VariantType::STRING, StringName(name + "name")));
+        p_list->push_back(PropertyInfo(VariantType::OBJECT, StringName(name + "mesh"), PROPERTY_HINT_RESOURCE_TYPE, "Mesh"));
+        p_list->push_back(PropertyInfo(VariantType::TRANSFORM, StringName(name + "mesh_transform")));
+        p_list->push_back(PropertyInfo(VariantType::ARRAY, StringName(name + "shapes")));
+        p_list->push_back(PropertyInfo(VariantType::OBJECT, StringName(name + "navmesh"), PROPERTY_HINT_RESOURCE_TYPE, "NavigationMesh"));
+        p_list->push_back(PropertyInfo(VariantType::TRANSFORM, StringName(name + "navmesh_transform")));
+        p_list->push_back(PropertyInfo(VariantType::OBJECT, StringName(name + "preview"), PROPERTY_HINT_RESOURCE_TYPE, "Texture", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_EDITOR_HELPER));
     }
 }
 
@@ -121,7 +122,7 @@ void MeshLibrary::create_item(int p_item) {
     _change_notify();
 }
 
-void MeshLibrary::set_item_name(int p_item, const String &p_name) {
+void MeshLibrary::set_item_name(int p_item, se_string_view p_name) {
 
     ERR_FAIL_COND(!item_map.contains(p_item))
     item_map[p_item].name = p_name;
@@ -175,9 +176,9 @@ void MeshLibrary::set_item_preview(int p_item, const Ref<Texture> &p_preview) {
     _change_notify();
 }
 
-String MeshLibrary::get_item_name(int p_item) const {
+const se_string &MeshLibrary::get_item_name(int p_item) const {
 
-    ERR_FAIL_COND_V_MSG(!item_map.contains(p_item), "", "Requested for nonexistent MeshLibrary item '" + itos(p_item) + "'.")
+    ERR_FAIL_COND_V_MSG(!item_map.contains(p_item), null_se_string, "Requested for nonexistent MeshLibrary item '" + itos(p_item) + "'.")
     return item_map.at(p_item).name;
 }
 
@@ -250,7 +251,7 @@ Vector<int> MeshLibrary::get_item_list() const {
     return ret;
 }
 
-int MeshLibrary::find_item_by_name(const String &p_name) const {
+int MeshLibrary::find_item_by_name(se_string_view p_name) const {
 
     for (const eastl::pair<const int,Item> &E : item_map) {
 

@@ -36,6 +36,8 @@
 #include "core/method_bind.h"
 #include "core/os/input.h"
 #include "core/os/keyboard.h"
+#include "core/string_formatter.h"
+#include "core/ustring.h"
 #include "core/project_settings.h"
 #include "core/translation_helpers.h"
 #include "scene/animation/animation_blend_tree.h"
@@ -87,7 +89,7 @@ void AnimationNodeBlendSpace2DEditor::_blend_space_gui_input(const Ref<InputEven
 
     Ref<InputEventMouseButton> mb = dynamic_ref_cast<InputEventMouseButton>(p_event);
 
-    if (mb && mb->is_pressed() && ((tool_select->is_pressed() && mb->get_button_index() == BUTTON_RIGHT) || (mb->get_button_index() == BUTTON_LEFT && tool_create->is_pressed()))) {
+    if (mb && mb->is_pressed() && (tool_select->is_pressed() && mb->get_button_index() == BUTTON_RIGHT || mb->get_button_index() == BUTTON_LEFT && tool_create->is_pressed())) {
         menu->clear();
         animations_menu->clear();
         animations_to_add.clear();
@@ -95,29 +97,29 @@ void AnimationNodeBlendSpace2DEditor::_blend_space_gui_input(const Ref<InputEven
         classes.sort(WrapAlphaCompare());
 
         ClassDB::get_inheriters_from_class("AnimationRootNode", &classes);
-        menu->add_submenu_item(TTR("Add Animation"), "animations");
+        menu->add_submenu_item(TTR("Add Animation"), StringName("animations"));
 
         AnimationTree *gp = AnimationTreeEditor::get_singleton()->get_tree();
         ERR_FAIL_COND(!gp)
         if (gp && gp->has_node(gp->get_animation_player())) {
             AnimationPlayer *ap = object_cast<AnimationPlayer>(gp->get_node(gp->get_animation_player()));
             if (ap) {
-                ListPOD<StringName> names;
+                PODVector<StringName> names;
                 ap->get_animation_list(&names);
                 for (const StringName &E : names) {
                     animations_menu->add_icon_item(get_icon("Animation", "EditorIcons"), E);
-                    animations_to_add.push_back(E);
+                    animations_to_add.emplace_back(E);
                 }
             }
         }
 
         for(const StringName & E : classes) {
 
-            String name = StringUtils::replace_first(E,"AnimationNode", "");
+            se_string name = StringUtils::replace_first(E,"AnimationNode", "");
             if (name == "Animation")
                 continue; // nope
             int idx = menu->get_item_count();
-            menu->add_item(vformat("Add %s", name), idx);
+            menu->add_item(StringName(FormatVE("Add %s", name.c_str())), idx);
             menu->set_item_metadata(idx, E);
         }
 
@@ -131,9 +133,9 @@ void AnimationNodeBlendSpace2DEditor::_blend_space_gui_input(const Ref<InputEven
 
         menu->set_global_position(blend_space_draw->get_global_transform().xform(mb->get_position()));
         menu->popup();
-        add_point_pos = (mb->get_position() / blend_space_draw->get_size());
-        add_point_pos.y = 1.0 - add_point_pos.y;
-        add_point_pos *= (blend_space->get_max_space() - blend_space->get_min_space());
+        add_point_pos = mb->get_position() / blend_space_draw->get_size();
+        add_point_pos.y = 1.0f - add_point_pos.y;
+        add_point_pos *= blend_space->get_max_space() - blend_space->get_min_space();
         add_point_pos += blend_space->get_min_space();
 
         if (snap->is_pressed()) {
@@ -155,7 +157,7 @@ void AnimationNodeBlendSpace2DEditor::_blend_space_gui_input(const Ref<InputEven
             if (points[i].distance_to(mb->get_position()) < 10 * EDSCALE) {
                 selected_point = i;
                 Ref<AnimationNode> node = blend_space->get_blend_point_node(i);
-                EditorNode::get_singleton()->push_item(node.get(), "", true);
+                EditorNode::get_singleton()->push_item(node.get(), {}, true);
                 dragging_selected_attempt = true;
                 drag_from = mb->get_position();
                 _update_tool_erase();
@@ -206,7 +208,7 @@ void AnimationNodeBlendSpace2DEditor::_blend_space_gui_input(const Ref<InputEven
                     }
 
                     updating = true;
-                    undo_redo->create_action(TTR("Add Triangle"));
+                    undo_redo->create_action_ui(TTR("Add Triangle"));
                     undo_redo->add_do_method(blend_space.get(), "add_triangle", making_triangle[0], making_triangle[1], making_triangle[2]);
                     undo_redo->add_undo_method(blend_space.get(), "remove_triangle", blend_space->get_triangle_count());
                     undo_redo->add_do_method(this, "_update_space");
@@ -231,7 +233,7 @@ void AnimationNodeBlendSpace2DEditor::_blend_space_gui_input(const Ref<InputEven
             }
 
             updating = true;
-            undo_redo->create_action(TTR("Move Node Point"));
+            undo_redo->create_action_ui(TTR("Move Node Point"));
             undo_redo->add_do_method(blend_space.get(), "set_blend_point_position", selected_point, point);
             undo_redo->add_undo_method(blend_space.get(), "set_blend_point_position", selected_point, blend_space->get_blend_point_position(selected_point));
             undo_redo->add_do_method(this, "_update_space");
@@ -249,9 +251,9 @@ void AnimationNodeBlendSpace2DEditor::_blend_space_gui_input(const Ref<InputEven
 
     if (mb && mb->is_pressed() && tool_blend->is_pressed() && mb->get_button_index() == BUTTON_LEFT) {
 
-        Vector2 blend_pos = (mb->get_position() / blend_space_draw->get_size());
+        Vector2 blend_pos = mb->get_position() / blend_space_draw->get_size();
         blend_pos.y = 1.0 - blend_pos.y;
-        blend_pos *= (blend_space->get_max_space() - blend_space->get_min_space());
+        blend_pos *= blend_space->get_max_space() - blend_space->get_min_space();
         blend_pos += blend_space->get_min_space();
 
         AnimationTreeEditor::get_singleton()->get_tree()->set(get_blend_position_path(), blend_pos);
@@ -268,7 +270,7 @@ void AnimationNodeBlendSpace2DEditor::_blend_space_gui_input(const Ref<InputEven
 
     if (mm && dragging_selected_attempt) {
         dragging_selected = true;
-        drag_ofs = ((mm->get_position() - drag_from) / blend_space_draw->get_size()) * (blend_space->get_max_space() - blend_space->get_min_space()) * Vector2(1, -1);
+        drag_ofs = (mm->get_position() - drag_from) / blend_space_draw->get_size() * (blend_space->get_max_space() - blend_space->get_min_space()) * Vector2(1, -1);
         blend_space_draw->update();
         _update_edited_point_pos();
     }
@@ -284,9 +286,9 @@ void AnimationNodeBlendSpace2DEditor::_blend_space_gui_input(const Ref<InputEven
 
     if (mm && tool_blend->is_pressed() && mm->get_button_mask() & BUTTON_MASK_LEFT) {
 
-        Vector2 blend_pos = (mm->get_position() / blend_space_draw->get_size());
+        Vector2 blend_pos = mm->get_position() / blend_space_draw->get_size();
         blend_pos.y = 1.0 - blend_pos.y;
-        blend_pos *= (blend_space->get_max_space() - blend_space->get_min_space());
+        blend_pos *= blend_space->get_max_space() - blend_space->get_min_space();
         blend_pos += blend_space->get_min_space();
 
         AnimationTreeEditor::get_singleton()->get_tree()->set(get_blend_position_path(), blend_pos);
@@ -295,7 +297,7 @@ void AnimationNodeBlendSpace2DEditor::_blend_space_gui_input(const Ref<InputEven
     }
 }
 
-void AnimationNodeBlendSpace2DEditor::_file_opened(const String &p_file) {
+void AnimationNodeBlendSpace2DEditor::_file_opened(se_string_view p_file) {
 
     file_loaded = dynamic_ref_cast<AnimationNode>(ResourceLoader::load(p_file));
     if (file_loaded) {
@@ -309,9 +311,9 @@ void AnimationNodeBlendSpace2DEditor::_add_menu_type(int p_index) {
     if (p_index == MENU_LOAD_FILE) {
 
         open_file->clear_filters();
-        ListPOD<String> filters;
-        ResourceLoader::get_recognized_extensions_for_type("AnimationRootNode", &filters);
-        for (const String &E : filters) {
+        PODVector<se_string> filters;
+        ResourceLoader::get_recognized_extensions_for_type("AnimationRootNode", filters);
+        for (const se_string &E : filters) {
             open_file->add_filter("*." + E);
         }
         open_file->popup_centered_ratio();
@@ -323,7 +325,7 @@ void AnimationNodeBlendSpace2DEditor::_add_menu_type(int p_index) {
 
         node = dynamic_ref_cast<AnimationRootNode>(EditorSettings::get_singleton()->get_resource_clipboard());
     } else {
-        String type = menu->get_item_metadata(p_index);
+        se_string type = menu->get_item_metadata(p_index);
 
         Object *obj = ClassDB::instance(StringName(type));
         ERR_FAIL_COND(!obj)
@@ -339,7 +341,7 @@ void AnimationNodeBlendSpace2DEditor::_add_menu_type(int p_index) {
     }
 
     updating = true;
-    undo_redo->create_action(TTR("Add Node Point"));
+    undo_redo->create_action_ui(TTR("Add Node Point"));
     undo_redo->add_do_method(blend_space.get(), "add_blend_point", node, add_point_pos);
     undo_redo->add_undo_method(blend_space.get(), "remove_blend_point", blend_space->get_blend_point_count());
     undo_redo->add_do_method(this, "_update_space");
@@ -357,7 +359,7 @@ void AnimationNodeBlendSpace2DEditor::_add_animation_type(int p_index) {
     anim->set_animation(StringName(animations_to_add[p_index]));
 
     updating = true;
-    undo_redo->create_action(TTR("Add Animation Point"));
+    undo_redo->create_action_ui(TTR("Add Animation Point"));
     undo_redo->add_do_method(blend_space.get(), "add_blend_point", anim, add_point_pos);
     undo_redo->add_undo_method(blend_space.get(), "remove_blend_point", blend_space->get_blend_point_count());
     undo_redo->add_do_method(this, "_update_space");
@@ -391,7 +393,7 @@ void AnimationNodeBlendSpace2DEditor::_tool_switch(int p_tool) {
         for (int i = 0; i < blend_space->get_blend_point_count(); i++) {
             points.push_back(blend_space->get_blend_point_position(i));
         }
-        Vector<Delaunay2D::Triangle> tr = Delaunay2D::triangulate(points);
+        Vector<Delaunay2D::Triangle> tr = Delaunay2D::triangulate(Span<const Vector2>(points.ptr(),points.size()));
         for (int i = 0; i < tr.size(); i++) {
             blend_space->add_triangle(tr[i].points[0], tr[i].points[1], tr[i].points[2]);
         }
@@ -412,7 +414,7 @@ void AnimationNodeBlendSpace2DEditor::_blend_space_draw() {
 
     Color linecolor = get_color("font_color", "Label");
     Color linecolor_soft = linecolor;
-    linecolor_soft.a *= 0.5;
+    linecolor_soft.a *= 0.5f;
     Ref<Font> font = get_font("font", "Label");
     Ref<Texture> icon = get_icon("KeyValue", "EditorIcons");
     Ref<Texture> icon_selected = get_icon("KeySelected", "EditorIcons");
@@ -428,16 +430,16 @@ void AnimationNodeBlendSpace2DEditor::_blend_space_draw() {
 
     blend_space_draw->draw_line(Point2(0, 0), Point2(5 * EDSCALE, 0), linecolor);
     if (blend_space->get_min_space().y < 0) {
-        int y = (blend_space->get_max_space().y / (blend_space->get_max_space().y - blend_space->get_min_space().y)) * s.height;
+        int y = blend_space->get_max_space().y / (blend_space->get_max_space().y - blend_space->get_min_space().y) * s.height;
         blend_space_draw->draw_line(Point2(0, y), Point2(5 * EDSCALE, y), linecolor);
-        blend_space_draw->draw_string(font, Point2(2 * EDSCALE, y - font->get_height() + font->get_ascent()), "0", linecolor);
+        blend_space_draw->draw_string(font, Point2(2 * EDSCALE, y - font->get_height() + font->get_ascent()), String("0"), linecolor);
         blend_space_draw->draw_line(Point2(5 * EDSCALE, y), Point2(s.width, y), linecolor_soft);
     }
 
     if (blend_space->get_min_space().x < 0) {
-        int x = (-blend_space->get_min_space().x / (blend_space->get_max_space().x - blend_space->get_min_space().x)) * s.width;
+        int x = -blend_space->get_min_space().x / (blend_space->get_max_space().x - blend_space->get_min_space().x) * s.width;
         blend_space_draw->draw_line(Point2(x, s.height - 1), Point2(x, s.height - 5 * EDSCALE), linecolor);
-        blend_space_draw->draw_string(font, Point2(x + 2 * EDSCALE, s.height - 2 * EDSCALE - font->get_height() + font->get_ascent()), "0", linecolor);
+        blend_space_draw->draw_string(font, Point2(x + 2 * EDSCALE, s.height - 2 * EDSCALE - font->get_height() + font->get_ascent()), String("0"), linecolor);
         blend_space_draw->draw_line(Point2(x, s.height - 5 * EDSCALE), Point2(x, 0), linecolor_soft);
     }
 
@@ -536,7 +538,7 @@ void AnimationNodeBlendSpace2DEditor::_blend_space_draw() {
         point.y = s.height - point.y;
 
         points.push_back(point);
-        point -= (icon->get_size() / 2);
+        point -= icon->get_size() / 2;
         point = point.floor();
 
         if (i == selected_point) {
@@ -628,8 +630,8 @@ void AnimationNodeBlendSpace2DEditor::_update_space() {
     min_x_value->set_value(blend_space->get_min_space().x);
     min_y_value->set_value(blend_space->get_min_space().y);
 
-    label_x->set_text(blend_space->get_x_label());
-    label_y->set_text(blend_space->get_y_label());
+    label_x->set_text_utf8(blend_space->get_x_label());
+    label_y->set_text_utf8(blend_space->get_y_label());
 
     snap_x->set_value(blend_space->get_snap().x);
     snap_y->set_value(blend_space->get_snap().y);
@@ -644,7 +646,7 @@ void AnimationNodeBlendSpace2DEditor::_config_changed(double) {
         return;
 
     updating = true;
-    undo_redo->create_action(TTR("Change BlendSpace2D Limits"));
+    undo_redo->create_action_ui(TTR("Change BlendSpace2D Limits"));
     undo_redo->add_do_method(blend_space.get(), "set_max_space", Vector2(max_x_value->get_value(), max_y_value->get_value()));
     undo_redo->add_undo_method(blend_space.get(), "set_max_space", blend_space->get_max_space());
     undo_redo->add_do_method(blend_space.get(), "set_min_space", Vector2(min_x_value->get_value(), min_y_value->get_value()));
@@ -661,12 +663,12 @@ void AnimationNodeBlendSpace2DEditor::_config_changed(double) {
     blend_space_draw->update();
 }
 
-void AnimationNodeBlendSpace2DEditor::_labels_changed(const String&) {
+void AnimationNodeBlendSpace2DEditor::_labels_changed(se_string_view) {
     if (updating)
         return;
 
     updating = true;
-    undo_redo->create_action(TTR("Change BlendSpace2D Labels"), UndoRedo::MERGE_ENDS);
+    undo_redo->create_action_ui(TTR("Change BlendSpace2D Labels"), UndoRedo::MERGE_ENDS);
     undo_redo->add_do_method(blend_space.get(), "set_x_label", label_x->get_text());
     undo_redo->add_undo_method(blend_space.get(), "set_x_label", blend_space->get_x_label());
     undo_redo->add_do_method(blend_space.get(), "set_y_label", label_y->get_text());
@@ -682,7 +684,7 @@ void AnimationNodeBlendSpace2DEditor::_erase_selected() {
     if (selected_point != -1) {
 
         updating = true;
-        undo_redo->create_action(TTR("Remove BlendSpace2D Point"));
+        undo_redo->create_action_ui(TTR("Remove BlendSpace2D Point"));
         undo_redo->add_do_method(blend_space.get(), "remove_blend_point", selected_point);
         undo_redo->add_undo_method(blend_space.get(), "add_blend_point", blend_space->get_blend_point_node(selected_point), blend_space->get_blend_point_position(selected_point), selected_point);
 
@@ -705,7 +707,7 @@ void AnimationNodeBlendSpace2DEditor::_erase_selected() {
     } else if (selected_triangle != -1) {
 
         updating = true;
-        undo_redo->create_action(TTR("Remove BlendSpace2D Triangle"));
+        undo_redo->create_action_ui(TTR("Remove BlendSpace2D Triangle"));
         undo_redo->add_do_method(blend_space.get(), "remove_triangle", selected_triangle);
         undo_redo->add_undo_method(blend_space.get(), "add_triangle", blend_space->get_triangle_point(selected_triangle, 0), blend_space->get_triangle_point(selected_triangle, 1), blend_space->get_triangle_point(selected_triangle, 2), selected_triangle);
 
@@ -742,7 +744,7 @@ void AnimationNodeBlendSpace2DEditor::_edit_point_pos(double) {
     if (updating)
         return;
     updating = true;
-    undo_redo->create_action(TTR("Move Node Point"));
+    undo_redo->create_action_ui(TTR("Move Node Point"));
     undo_redo->add_do_method(blend_space.get(), "set_blend_point_position", selected_point, Vector2(edit_x->get_value(), edit_y->get_value()));
     undo_redo->add_undo_method(blend_space.get(), "set_blend_point_position", selected_point, blend_space->get_blend_point_position(selected_point));
     undo_redo->add_do_method(this, "_update_space");
@@ -770,14 +772,14 @@ void AnimationNodeBlendSpace2DEditor::_notification(int p_what) {
         open_editor->set_icon(get_icon("Edit", "EditorIcons"));
         auto_triangles->set_icon(get_icon("AutoTriangle", "EditorIcons"));
         interpolation->clear();
-        interpolation->add_icon_item(get_icon("TrackContinuous", "EditorIcons"), "", 0);
-        interpolation->add_icon_item(get_icon("TrackDiscrete", "EditorIcons"), "", 1);
-        interpolation->add_icon_item(get_icon("TrackCapture", "EditorIcons"), "", 2);
+        interpolation->add_icon_item(get_icon("TrackContinuous", "EditorIcons"), StringName(), 0);
+        interpolation->add_icon_item(get_icon("TrackDiscrete", "EditorIcons"), StringName(), 1);
+        interpolation->add_icon_item(get_icon("TrackCapture", "EditorIcons"), StringName(), 2);
     }
 
     if (p_what == NOTIFICATION_PROCESS) {
 
-        String error;
+        se_string error;
 
         if (!AnimationTreeEditor::get_singleton()->get_tree()) {
             error = TTR("BlendSpace2D does not belong to an AnimationTree node.");
@@ -789,8 +791,8 @@ void AnimationNodeBlendSpace2DEditor::_notification(int p_what) {
             error = TTR("No triangles exist, so no blending can take place.");
         }
 
-        if (error != error_label->get_text()) {
-            error_label->set_text(error);
+        if (error != error_label->get_text_utf8()) {
+            error_label->set_text(StringName(error));
             if (!error.empty()) {
                 error_panel->show();
             } else {
@@ -819,7 +821,7 @@ void AnimationNodeBlendSpace2DEditor::_removed_from_graph() {
 
 void AnimationNodeBlendSpace2DEditor::_auto_triangles_toggled() {
 
-    undo_redo->create_action(TTR("Toggle Auto Triangles"));
+    undo_redo->create_action_ui(TTR("Toggle Auto Triangles"));
     undo_redo->add_do_method(blend_space.get(), "set_auto_triangles", auto_triangles->is_pressed());
     undo_redo->add_undo_method(blend_space.get(), "set_auto_triangles", blend_space->get_auto_triangles());
     undo_redo->add_do_method(this, "_update_space");
@@ -931,8 +933,8 @@ AnimationNodeBlendSpace2DEditor::AnimationNodeBlendSpace2DEditor() {
     snap_y = memnew(SpinBox);
     top_hb->add_child(snap_y);
     snap_y->set_prefix("y:");
-    snap_y->set_min(0.01);
-    snap_y->set_step(0.01);
+    snap_y->set_min(0.01f);
+    snap_y->set_step(0.01f);
     snap_y->set_max(1000);
 
     top_hb->add_child(memnew(VSeparator));
@@ -961,7 +963,7 @@ AnimationNodeBlendSpace2DEditor::AnimationNodeBlendSpace2DEditor() {
     open_editor = memnew(Button);
     edit_hb->add_child(open_editor);
     open_editor->set_text(TTR("Open Editor"));
-    open_editor->connect("pressed", this, "_open_editor", varray(),ObjectNS::CONNECT_DEFERRED);
+    open_editor->connect("pressed", this, "_open_editor", varray(),ObjectNS::CONNECT_QUEUED);
     edit_hb->hide();
     open_editor->hide();
 

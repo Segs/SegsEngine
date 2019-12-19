@@ -311,9 +311,9 @@ Error ImageLoaderTGA::load_image(ImageData &tgt_image, FileAccess *f, LoadParams
     return err;
 }
 
-void ImageLoaderTGA::get_recognized_extensions(Vector<String> *p_extensions) const {
+void ImageLoaderTGA::get_recognized_extensions(PODVector<se_string> &p_extensions) const {
 
-	p_extensions->push_back(String("tga"));
+    p_extensions.emplace_back("tga");
 }
 static int ccount=0;
 ImageLoaderTGA::ImageLoaderTGA()

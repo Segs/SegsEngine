@@ -77,7 +77,7 @@ void EditorRunNative::_notification(int p_what) {
 
                 Ref<EditorExportPlatform> eep = EditorExport::get_singleton()->get_export_platform(E.first);
                 MenuButton *mb = E.second;
-                int dc = eep->get_device_count();
+                int dc = eep->get_options_count();
 
                 if (dc == 0) {
                     mb->hide();
@@ -85,12 +85,12 @@ void EditorRunNative::_notification(int p_what) {
                     mb->get_popup()->clear();
                     mb->show();
                     if (dc == 1) {
-                        mb->set_tooltip(eep->get_device_name(0) + "\n\n" + StringUtils::strip_edges(eep->get_device_info(0)));
+                        mb->set_tooltip_utf8(eep->get_options_tooltip());
                     } else {
-                        mb->set_tooltip("Select device from the list");
+                        mb->set_tooltip_utf8("Select device from the list");
                         for (int i = 0; i < dc; i++) {
-                            mb->get_popup()->add_icon_item(get_icon("Play", "EditorIcons"), eep->get_device_name(i));
-                            mb->get_popup()->set_item_tooltip(mb->get_popup()->get_item_count() - 1, StringUtils::strip_edges(eep->get_device_info(i)));
+                            mb->get_popup()->add_icon_item(eep->get_option_icon(i), eep->get_option_label(i));
+                            mb->get_popup()->set_item_tooltip(mb->get_popup()->get_item_count() - 1, eep->get_option_tooltip(i));
                         }
                     }
                 }
@@ -113,7 +113,7 @@ void EditorRunNative::_run_native(int p_idx, int p_platform) {
     ERR_FAIL_COND(not eep)
 
     if (p_idx == -1) {
-        if (eep->get_device_count() == 1) {
+        if (eep->get_options_count() == 1) {
             menus[p_platform]->get_popup()->hide();
             p_idx = 0;
         } else {

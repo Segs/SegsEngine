@@ -216,7 +216,7 @@ QString genDesc(const GD_Invocable &inv)
     if(!inv.args.isEmpty()) {
         res+=",{";
         bool first=true;
-        for(auto arg : inv.args) {
+        for(const ArgDecl &arg : inv.args) {
             if(!first)
                 res+=',';
             first = false;

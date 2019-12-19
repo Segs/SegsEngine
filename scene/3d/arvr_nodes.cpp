@@ -62,17 +62,17 @@ void ARVRCamera::_notification(int p_what) {
     };
 };
 
-String ARVRCamera::get_configuration_warning() const {
+StringName ARVRCamera::get_configuration_warning() const {
     if (!is_visible() || !is_inside_tree())
-        return String();
+        return StringName();
 
     // must be child node of ARVROrigin!
     ARVROrigin *origin = object_cast<ARVROrigin>(get_parent());
     if (origin == nullptr) {
         return TTR("ARVRCamera must have an ARVROrigin node as its parent.");
-    };
+    }
 
-    return String();
+    return StringName();
 };
 
 Vector3 ARVRCamera::project_local_ray_normal(const Point2 &p_pos) const {
@@ -283,15 +283,15 @@ int ARVRController::get_controller_id() const {
     return controller_id;
 };
 
-String ARVRController::get_controller_name() const {
+StringName ARVRController::get_controller_name() const {
     // get our ARVRServer
     ARVRServer *arvr_server = ARVRServer::get_singleton();
-    ERR_FAIL_NULL_V(arvr_server, String());
+    ERR_FAIL_NULL_V(arvr_server, StringName());
 
     ARVRPositionalTracker *tracker = arvr_server->find_by_type_and_id(ARVRServer::TRACKER_CONTROLLER, controller_id);
     if (tracker == nullptr) {
-        return String("Not connected");
-    };
+        return StringName("Not connected");
+    }
 
     return tracker->get_name();
 };
@@ -367,26 +367,26 @@ ARVRPositionalTracker::TrackerHand ARVRController::get_hand() const {
     ARVRPositionalTracker *tracker = arvr_server->find_by_type_and_id(ARVRServer::TRACKER_CONTROLLER, controller_id);
     if (tracker == nullptr) {
         return ARVRPositionalTracker::TRACKER_HAND_UNKNOWN;
-    };
+    }
 
     return tracker->get_hand();
 };
 
-String ARVRController::get_configuration_warning() const {
+StringName ARVRController::get_configuration_warning() const {
     if (!is_visible() || !is_inside_tree())
-        return String();
+        return StringName();
 
     // must be child node of ARVROrigin!
     ARVROrigin *origin = object_cast<ARVROrigin>(get_parent());
     if (origin == nullptr) {
         return TTR("ARVRController must have an ARVROrigin node as its parent.");
-    };
+    }
 
     if (controller_id == 0) {
         return TTR("The controller ID must not be 0 or this controller won't be bound to an actual controller.");
-    };
+    }
 
-    return String();
+    return StringName();
 };
 
 ARVRController::ARVRController() {
@@ -482,15 +482,15 @@ Vector3 ARVRAnchor::get_size() const {
     return size;
 };
 
-String ARVRAnchor::get_anchor_name() const {
+StringName ARVRAnchor::get_anchor_name() const {
     // get our ARVRServer
     ARVRServer *arvr_server = ARVRServer::get_singleton();
-    ERR_FAIL_NULL_V(arvr_server, String());
+    ERR_FAIL_NULL_V(arvr_server, StringName());
 
     ARVRPositionalTracker *tracker = arvr_server->find_by_type_and_id(ARVRServer::TRACKER_ANCHOR, anchor_id);
     if (tracker == nullptr) {
-        return String("Not connected");
-    };
+        return StringName("Not connected");
+    }
 
     return tracker->get_name();
 };
@@ -499,21 +499,21 @@ bool ARVRAnchor::get_is_active() const {
     return is_active;
 };
 
-String ARVRAnchor::get_configuration_warning() const {
+StringName ARVRAnchor::get_configuration_warning() const {
     if (!is_visible() || !is_inside_tree())
-        return String();
+        return StringName();
 
     // must be child node of ARVROrigin!
     ARVROrigin *origin = object_cast<ARVROrigin>(get_parent());
     if (origin == nullptr) {
         return TTR("ARVRAnchor must have an ARVROrigin node as its parent.");
-    };
+    }
 
     if (anchor_id == 0) {
         return TTR("The anchor ID must not be 0 or this anchor won't be bound to an actual anchor.");
-    };
+    }
 
-    return String();
+    return StringName();
 };
 
 Plane ARVRAnchor::get_plane() const {
@@ -540,14 +540,14 @@ ARVRAnchor::~ARVRAnchor(){
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-String ARVROrigin::get_configuration_warning() const {
+StringName ARVROrigin::get_configuration_warning() const {
     if (!is_visible() || !is_inside_tree())
-        return String();
+        return StringName();
 
     if (tracked_camera == nullptr)
         return TTR("ARVROrigin requires an ARVRCamera child node.");
 
-    return String();
+    return StringName();
 };
 
 void ARVROrigin::_bind_methods() {

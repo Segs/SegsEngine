@@ -30,10 +30,11 @@
 
 #pragma once
 
+#include "core/se_string.h"
+#include "core/translation_helpers.h"
 #include "scene/gui/box_container.h"
 #include "scene/gui/line_edit.h"
 #include "scene/gui/scroll_container.h"
-#include "core/translation_helpers.h"
 
 class UndoRedo;
 
@@ -51,7 +52,7 @@ class EditorProperty : public Container {
     GDCLASS(EditorProperty,Container)
 
 private:
-    String label;
+    se_string label;
     int text_size;
     friend class EditorInspector;
     Object *object;
@@ -94,7 +95,7 @@ private:
     Control *label_reference;
     Control *bottom_editor;
 
-    mutable String tooltip_text;
+    mutable se_string tooltip_text;
 
 protected:
     void _notification(int p_what);
@@ -107,8 +108,8 @@ public:
 
     Size2 get_minimum_size() const override;
 
-    void set_label(const String &p_label);
-    String get_label() const;
+    void set_label(se_string_view p_label);
+    const se_string &get_label() const;
 
     void set_read_only(bool p_read_only);
     bool is_read_only() const;
@@ -156,9 +157,9 @@ public:
     float get_name_split_ratio() const;
 
     void set_object_and_property(Object *p_object, const StringName &p_property);
-    Control *make_custom_tooltip(const String &p_text) const override;
+    Control *make_custom_tooltip(se_string_view p_text) const override;
 
-    String get_tooltip_text() const;
+    const se_string &get_tooltip_text() const;
 
     void set_draw_top_bg(bool p_draw) { draw_top_bg = p_draw; }
 
@@ -173,8 +174,8 @@ class EditorInspectorPlugin : public RefCounted {
     friend class EditorInspector;
     struct AddedEditor {
         Control *property_editor;
-        Vector<String> properties;
-        String label;
+        Vector<se_string> properties;
+        se_string label;
     };
 
     List<AddedEditor> added_editors;
@@ -184,13 +185,13 @@ protected:
 
 public:
     void add_custom_control(Control *control);
-    void add_property_editor(const String &p_for_property, Control *p_prop);
-    void add_property_editor_for_multiple_properties(const String &p_label, const Vector<String> &p_properties, Control *p_prop);
+    void add_property_editor(se_string_view p_for_property, Control *p_prop);
+    void add_property_editor_for_multiple_properties(se_string_view p_label, const Vector<se_string> &p_properties, Control *p_prop);
 
     virtual bool can_handle(Object *p_object);
     virtual void parse_begin(Object *p_object);
-    virtual void parse_category(Object *p_object, const String &p_parse_category);
-    virtual bool parse_property(Object *p_object, VariantType p_type, const String &p_path, PropertyHint p_hint, const String &p_hint_text, int p_usage);
+    virtual void parse_category(Object *p_object, se_string_view p_parse_category);
+    virtual bool parse_property(Object *p_object, VariantType p_type, se_string_view p_path, PropertyHint p_hint, se_string_view p_hint_text, int p_usage);
     virtual void parse_end();
 };
 
@@ -199,9 +200,9 @@ class EditorInspectorCategory : public Control {
 
     friend class EditorInspector;
     Ref<Texture> icon;
-    String label;
+    se_string label;
     Color bg_color;
-    mutable String tooltip_text;
+    mutable se_string tooltip_text;
 
 protected:
     void _notification(int p_what);
@@ -209,9 +210,9 @@ protected:
 
 public:
     Size2 get_minimum_size() const override;
-    Control *make_custom_tooltip(const String &p_text) const override;
+    Control *make_custom_tooltip(se_string_view p_text) const override;
 
-    String get_tooltip_text() const;
+    const se_string &get_tooltip_text() const;
 
     EditorInspectorCategory();
 };
@@ -219,8 +220,8 @@ public:
 class EditorInspectorSection : public Container {
     GDCLASS(EditorInspectorSection,Container)
 
-    String label;
-    String section;
+    se_string label;
+    se_string section;
     Object *object;
     VBoxContainer *vbox;
     bool vbox_added; //optimization
@@ -237,7 +238,7 @@ protected:
 public:
     Size2 get_minimum_size() const override;
 
-    void setup(const String &p_section, const String &p_label, Object *p_object, const Color &p_bg_color, bool p_foldable);
+    void setup(se_string_view p_section, se_string_view p_label, Object *p_object, const Color &p_bg_color, bool p_foldable);
     VBoxContainer *get_vbox();
     void unfold();
     void fold();
@@ -291,35 +292,35 @@ class EditorInspector : public ScrollContainer {
     int property_focusable;
     int update_scroll_request;
 
-    Map<StringName, Map<StringName, String> > descr_cache;
-    Map<StringName, String> class_descr_cache;
+    Map<StringName, Map<StringName, se_string> > descr_cache;
+    Map<StringName, se_string> class_descr_cache;
     Set<StringName> restart_request_props;
 
     Map<ObjectID, int> scroll_cache;
 
-    String property_prefix; //used for sectioned inspector
-    String object_class;
+    se_string property_prefix; //used for sectioned inspector
+    StringName object_class;
 
-    void _edit_set(const String &p_name, const Variant &p_value, bool p_refresh_all, const String &p_changed_field);
+    void _edit_set(se_string_view p_name, const Variant &p_value, bool p_refresh_all, se_string_view p_changed_field);
 
-    void _property_changed(const String &p_path, const Variant &p_value, const String &p_name = "", bool changing = false);
-    void _property_changed_update_all(const String &p_path, const Variant &p_value, const String &p_name = "", bool p_changing = false);
-    void _multiple_properties_changed(const Vector<String>& p_paths, Array p_values);
-    void _property_keyed(const String &p_path, bool p_advance);
-    void _property_keyed_with_value(const String &p_path, const Variant &p_value, bool p_advance);
+    void _property_changed(se_string_view p_path, const Variant &p_value, se_string_view p_name = se_string_view(), bool changing = false);
+    void _property_changed_update_all(se_string_view p_path, const Variant &p_value, se_string_view p_name = {}, bool p_changing = false);
+    void _multiple_properties_changed(const Vector<se_string> &p_paths, Array p_values);
+    void _property_keyed(const StringName &p_path, bool p_advance);
+    void _property_keyed_with_value(se_string_view p_path, const Variant &p_value, bool p_advance);
 
-    void _property_checked(const String &p_path, bool p_checked);
+    void _property_checked(const StringName &p_path, bool p_checked);
 
-    void _resource_selected(const String &p_path, const RES& p_resource);
-    void _property_selected(const String &p_path, int p_focusable);
-    void _object_id_selected(const String &p_path, ObjectID p_id);
+    void _resource_selected(se_string_view p_path, const RES& p_resource);
+    void _property_selected(const StringName &p_path, int p_focusable);
+    void _object_id_selected(se_string_view p_path, ObjectID p_id);
 
     void _node_removed(Node *p_node);
 
-    void _changed_callback(Object *p_changed, const char *p_prop) override;
-    void _edit_request_change(Object *p_object, const String &p_prop);
+    void _changed_callback(Object *p_changed, StringName p_prop) override;
+    void _edit_request_change(Object *p_object, se_string_view p_prop);
 
-    void _filter_changed(const String &p_text);
+    void _filter_changed(se_string_view p_text);
     void _parse_added_editors(VBoxContainer *current_vbox, const Ref<EditorInspectorPlugin>& ped);
 
     void _vscroll_changed(double);
@@ -337,14 +338,14 @@ public:
     static void remove_inspector_plugin(const Ref<EditorInspectorPlugin> &p_plugin);
     static void cleanup_plugins();
 
-    static EditorProperty *instantiate_property_editor(Object *p_object, VariantType p_type, const String &p_path, PropertyHint p_hint, const String &p_hint_text, int p_usage);
+    static EditorProperty *instantiate_property_editor(Object *p_object, VariantType p_type, se_string_view p_path, PropertyHint p_hint, se_string_view p_hint_text, int p_usage);
 
     void set_undo_redo(UndoRedo *p_undo_redo);
 
-    String get_selected_path() const;
+    const StringName &get_selected_path() const;
 
     void update_tree();
-    void update_property(const String &p_prop);
+    void update_property(const StringName &p_prop);
 
     void refresh();
 
@@ -374,11 +375,11 @@ public:
     void set_scroll_offset(int p_offset);
     int get_scroll_offset() const;
 
-    void set_property_prefix(const String &p_prefix);
-    String get_property_prefix() const;
+    void set_property_prefix(const se_string &p_prefix);
+    const se_string &get_property_prefix() const;
 
-    void set_object_class(const String &p_class);
-    String get_object_class() const;
+    void set_object_class(const StringName &p_class);
+    const StringName &get_object_class() const;
 
     void set_sub_inspector(bool p_enable);
 

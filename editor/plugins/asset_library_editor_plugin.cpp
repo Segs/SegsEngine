@@ -36,6 +36,7 @@
 #include "core/io/image_loader.h"
 #include "core/method_bind.h"
 #include "core/object_db.h"
+#include "core/string_formatter.h"
 #include "core/translation_helpers.h"
 #include "core/version.h"
 #include "editor_node.h"
@@ -51,15 +52,15 @@ IMPL_GDCLASS(EditorAssetLibraryItemDownload)
 IMPL_GDCLASS(EditorAssetLibrary)
 IMPL_GDCLASS(AssetLibraryEditorPlugin)
 
-void EditorAssetLibraryItem::configure(const String &p_title, int p_asset_id, const String &p_category, int p_category_id, const String &p_author, int p_author_id, const String &p_cost) {
+void EditorAssetLibraryItem::configure(const StringName &p_title, int p_asset_id, se_string_view p_category, int p_category_id, se_string_view p_author, int p_author_id, se_string_view p_cost) {
 
-    title->set_text(p_title);
+    title->set_text(p_title.asCString());
     asset_id = p_asset_id;
     category->set_text(p_category);
     category_id = p_category_id;
     author->set_text(p_author);
     author_id = p_author_id;
-    price->set_text(p_cost);
+    price->set_text(StringName(p_cost));
 }
 
 void EditorAssetLibraryItem::set_image(int p_type, int p_index, const Ref<Texture> &p_image) {
@@ -223,7 +224,7 @@ void EditorAssetLibraryItemDescription::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("_preview_click"), &EditorAssetLibraryItemDescription::_preview_click);
 }
 
-void EditorAssetLibraryItemDescription::_link_click(const String &p_url) {
+void EditorAssetLibraryItemDescription::_link_click(se_string_view p_url) {
     ERR_FAIL_COND(!StringUtils::begins_with(p_url,"http"))
     OS::get_singleton()->shell_open(p_url);
 }
@@ -246,7 +247,10 @@ void EditorAssetLibraryItemDescription::_preview_click(int p_id) {
     }
 }
 
-void EditorAssetLibraryItemDescription::configure(const String &p_title, int p_asset_id, const String &p_category, int p_category_id, const String &p_author, int p_author_id, const String &p_cost, int p_version, const String &p_version_string, const String &p_description, const String &p_download_url, const String &p_browse_url, const String &p_sha256_hash) {
+void EditorAssetLibraryItemDescription::configure(const StringName &p_title, int p_asset_id, se_string_view p_category,
+        int p_category_id, se_string_view p_author, int p_author_id, se_string_view p_cost, int p_version,
+        se_string_view p_version_string, se_string_view p_description, se_string_view p_download_url,
+        se_string_view p_browse_url, se_string_view p_sha256_hash) {
 
     asset_id = p_asset_id;
     title = p_title;
@@ -254,17 +258,17 @@ void EditorAssetLibraryItemDescription::configure(const String &p_title, int p_a
     sha256 = p_sha256_hash;
     item->configure(p_title, p_asset_id, p_category, p_category_id, p_author, p_author_id, p_cost);
     description->clear();
-    description->add_text(TTR("Version:") + " " + p_version_string + "\n");
-    description->add_text(TTR("Contents:") + " ");
+    description->add_text(TTR("Version:").asString() + " " + StringUtils::from_utf8(p_version_string) + "\n");
+    description->add_text(TTR("Contents:").asString() + " ");
     description->push_meta(p_browse_url);
-    description->add_text(TTR("View Files"));
+    description->add_text(TTR("View Files").asString());
     description->pop();
-    description->add_text("\n" + TTR("Description:") + "\n\n");
+    description->add_text("\n" + TTR("Description:").asString() + "\n\n");
     description->append_bbcode(p_description);
     set_title(p_title);
 }
 
-void EditorAssetLibraryItemDescription::add_preview(int p_id, bool p_video, const String &p_url) {
+void EditorAssetLibraryItemDescription::add_preview(int p_id, bool p_video, se_string_view p_url) {
 
     Preview preview;
     preview.id = p_id;
@@ -333,10 +337,10 @@ EditorAssetLibraryItemDescription::EditorAssetLibraryItemDescription() {
 }
 ///////////////////////////////////////////////////////////////////////////////////
 
-void EditorAssetLibraryItemDownload::_http_download_completed(int p_status, int p_code, const PoolStringArray &headers, const PoolByteArray &p_data) {
+void EditorAssetLibraryItemDownload::_http_download_completed(int p_status, int p_code, const PoolSeStringArray &headers, const PoolByteArray &p_data) {
 
-    String error_text;
-
+    se_string error_text;
+    se_tmp_string<256,true> tmp(" " + host);
     switch (p_status) {
 
         case HTTPRequest::RESULT_CHUNKED_BODY_SIZE_MISMATCH:
@@ -347,15 +351,15 @@ void EditorAssetLibraryItemDownload::_http_download_completed(int p_status, int 
         } break;
         case HTTPRequest::RESULT_CANT_CONNECT:
         case HTTPRequest::RESULT_SSL_HANDSHAKE_ERROR: {
-            error_text = TTR("Can't connect to host:") + " " + host;
+            error_text = TTR("Can't connect to host:") + tmp;
             status->set_text(TTR("Can't connect."));
         } break;
         case HTTPRequest::RESULT_NO_RESPONSE: {
-            error_text = TTR("No response from host:") + " " + host;
+            error_text = TTR("No response from host:") + tmp;
             status->set_text(TTR("No response."));
         } break;
         case HTTPRequest::RESULT_CANT_RESOLVE: {
-            error_text = TTR("Can't resolve hostname:") + " " + host;
+            error_text = TTR("Can't resolve hostname:") + tmp;
             status->set_text(TTR("Can't resolve."));
         } break;
         case HTTPRequest::RESULT_REQUEST_FAILED: {
@@ -380,10 +384,10 @@ void EditorAssetLibraryItemDownload::_http_download_completed(int p_status, int 
                 error_text = TTR("Request failed, return code:") + " " + itos(p_code);
                 status->set_text(TTR("Failed:") + " " + itos(p_code));
             } else if (!sha256.empty()) {
-                String download_sha256 = FileAccess::get_sha256(download->get_download_file());
+                se_string download_sha256 = FileAccess::get_sha256(download->get_download_file());
                 if (sha256 != download_sha256) {
                     error_text = TTR("Bad download hash, assuming file has been tampered with.") + "\n";
-                    error_text += TTR("Expected:") + " " + sha256 + "\n" + TTR("Got:") + " " + download_sha256;
+                    error_text += FormatVE(TTR("Expected: %s\nGot: %s").asCString(),sha256.c_str(),download_sha256.c_str());
                     status->set_text(TTR("Failed sha256 hash check"));
                 }
             }
@@ -404,7 +408,7 @@ void EditorAssetLibraryItemDownload::_http_download_completed(int p_status, int 
     set_process(false);
 }
 
-void EditorAssetLibraryItemDownload::configure(const String &p_title, int p_asset_id, const Ref<Texture> &p_preview, const String &p_download_url, const String &p_sha256_hash) {
+void EditorAssetLibraryItemDownload::configure(const StringName &p_title, int p_asset_id, const Ref<Texture> &p_preview, se_string_view p_download_url, se_string_view p_sha256_hash) {
 
     title->set_text(p_title);
     icon->set_texture(p_preview);
@@ -440,10 +444,9 @@ void EditorAssetLibraryItemDownload::_notification(int p_what) {
 
             if (cstatus == HTTPClient::STATUS_BODY) {
                 if (download->get_body_size() > 0) {
-                    status->set_text(vformat(
-                            TTR("Downloading (%s / %s)..."),
-                            PathUtils::humanize_size(download->get_downloaded_bytes()),
-                            PathUtils::humanize_size(download->get_body_size())));
+                    status->set_text(StringName(FormatVE( TTR("Downloading (%s / %s)...").asCString(),
+                            PathUtils::humanize_size(download->get_downloaded_bytes()).c_str(),
+                            PathUtils::humanize_size(download->get_body_size()).c_str())));
                 } else {
                     // Total file size is unknown, so it cannot be displayed.
                     status->set_text(TTR("Downloading..."));
@@ -485,7 +488,7 @@ void EditorAssetLibraryItemDownload::_close() {
 
 void EditorAssetLibraryItemDownload::_install() {
 
-    String file = download->get_download_file();
+    const se_string &file(download->get_download_file());
 
     if (external_install) {
         emit_signal("install_asset", file, title->get_text());
@@ -665,12 +668,12 @@ const char *EditorAssetLibrary::sort_key[SORT_MAX] = {
 };
 
 const char *EditorAssetLibrary::sort_text[SORT_MAX] = {
-    "Recently Updated",
-    "Least Recently Updated",
-    "Name (A-Z)",
-    "Name (Z-A)",
-    "License (A-Z)", // "cost" stores the SPDX license name in the Godot Asset Library.
-    "License (Z-A)", // "cost" stores the SPDX license name in the Godot Asset Library.
+    TTRC("Recently Updated"),
+    TTRC("Least Recently Updated"),
+    TTRC("Name (A-Z)"),
+    TTRC("Name (Z-A)"),
+    TTRC("License (A-Z)"), // "cost" stores the SPDX license name in the Godot Asset Library.
+    TTRC("License (Z-A)"), // "cost" stores the SPDX license name in the Godot Asset Library.
 };
 
 const char *EditorAssetLibrary::support_key[SUPPORT_MAX] = {
@@ -711,7 +714,8 @@ void EditorAssetLibrary::_image_update(bool use_cache, bool final, const PoolByt
         PoolByteArray image_data = p_data;
 
         if (use_cache) {
-            String cache_filename_base = PathUtils::plus_file(EditorSettings::get_singleton()->get_cache_dir(),"assetimage_" + StringUtils::md5_text(image_queue[p_queue_id].image_url));
+            se_string cache_filename_base = PathUtils::plus_file(EditorSettings::get_singleton()->get_cache_dir(),
+                    se_string("assetimage_" + StringUtils::md5_text(image_queue[p_queue_id].image_url)));
 
             FileAccess *file = FileAccess::open(cache_filename_base + ".data", FileAccess::READ);
 
@@ -782,7 +786,8 @@ void EditorAssetLibrary::_image_update(bool use_cache, bool final, const PoolByt
     }
 }
 
-void EditorAssetLibrary::_image_request_completed(int p_status, int p_code, const PoolStringArray &headers, const PoolByteArray &p_data, int p_queue_id) {
+void EditorAssetLibrary::_image_request_completed(
+        int p_status, int p_code, const PoolVector<se_string> &headers, const PoolByteArray &p_data, int p_queue_id) {
 
     ERR_FAIL_COND(!image_queue.contains(p_queue_id))
 
@@ -790,9 +795,12 @@ void EditorAssetLibrary::_image_request_completed(int p_status, int p_code, cons
 
         if (p_code != HTTPClient::RESPONSE_NOT_MODIFIED) {
             for (int i = 0; i < headers.size(); i++) {
-                if (StringUtils::findn(headers[i],"ETag:") == 0) { // Save etag
-                    String cache_filename_base = PathUtils::plus_file(EditorSettings::get_singleton()->get_cache_dir(),"assetimage_" + StringUtils::md5_text(image_queue[p_queue_id].image_url));
-                    String new_etag = StringUtils::strip_edges(StringUtils::substr(headers[i],StringUtils::find(headers[i],":") + 1, headers[i].length()));
+                se_string_view hdr(headers[i]);
+                if (StringUtils::findn(hdr, "ETag:") == 0) { // Save etag
+                    se_string cache_filename_base = PathUtils::plus_file(EditorSettings::get_singleton()->get_cache_dir(),
+                            se_string("assetimage_" + StringUtils::md5_text(image_queue[p_queue_id].image_url)));
+                    se_string_view new_etag = StringUtils::strip_edges(StringUtils::substr(
+                            hdr, StringUtils::find(hdr, ":") + 1));
                     FileAccess *file;
 
                     file = FileAccess::open(cache_filename_base + ".etag", FileAccess::WRITE);
@@ -819,7 +827,7 @@ void EditorAssetLibrary::_image_request_completed(int p_status, int p_code, cons
         _image_update(p_code == HTTPClient::RESPONSE_NOT_MODIFIED, true, p_data, p_queue_id);
 
     } else {
-        WARN_PRINTS("Error getting image file from URL: " + image_queue[p_queue_id].image_url);
+        WARN_PRINT("Error getting image file from URL: " + image_queue[p_queue_id].image_url);
         Object *obj = ObjectDB::get_instance(image_queue[p_queue_id].target);
         if (obj) {
             obj->call("set_image", image_queue[p_queue_id].image_type, image_queue[p_queue_id].image_index, get_icon("FileBrokenBigThumb", "EditorIcons"));
@@ -838,11 +846,12 @@ void EditorAssetLibrary::_update_image_queue() {
     int current_images = 0;
 
     List<int> to_delete;
-    for (eastl::pair<const int,ImageQueue> &E : image_queue) {
+    for (eastl::pair<const int, ImageQueue> &E : image_queue) {
         if (!E.second.active && current_images < max_images) {
 
-            String cache_filename_base = PathUtils::plus_file(EditorSettings::get_singleton()->get_cache_dir(),"assetimage_" + StringUtils::md5_text(E.second.image_url));
-            Vector<String> headers;
+            se_string cache_filename_base = PathUtils::plus_file(EditorSettings::get_singleton()->get_cache_dir(),
+                    "assetimage_" + StringUtils::md5_text(E.second.image_url));
+            Vector<se_string> headers;
 
             if (FileAccess::exists(cache_filename_base + ".etag") && FileAccess::exists(cache_filename_base + ".data")) {
                 FileAccess *file = FileAccess::open(cache_filename_base + ".etag", FileAccess::READ);
@@ -872,7 +881,7 @@ void EditorAssetLibrary::_update_image_queue() {
     }
 }
 
-void EditorAssetLibrary::_request_image(ObjectID p_for, String p_image_url, ImageType p_type, int p_image_index) {
+void EditorAssetLibrary::_request_image(ObjectID p_for, se_string p_image_url, ImageType p_type, int p_image_index) {
 
     ImageQueue iq;
     iq.image_url = std::move(p_image_url);
@@ -896,7 +905,7 @@ void EditorAssetLibrary::_request_image(ObjectID p_for, String p_image_url, Imag
 }
 
 void EditorAssetLibrary::_repository_changed(int p_repository_id) {
-    host = repository->get_item_metadata(p_repository_id);
+    host = repository->get_item_metadata(p_repository_id).as<se_string>();
     if (templates_only) {
         _api_request("configure", REQUESTING_CONFIG, "?type=project");
     } else {
@@ -915,26 +924,26 @@ void EditorAssetLibrary::_rerun_search(int p_ignore) {
 
 void EditorAssetLibrary::_search(int p_page) {
 
-    String args;
+    se_string args;
 
     if (templates_only) {
         args += "?type=project&";
     } else {
         args += "?";
     }
-    args += String() + "sort=" + sort_key[sort->get_selected()];
+    args += se_string("sort=") + sort_key[sort->get_selected()];
 
     // We use the "branch" version, i.e. major.minor, as patch releases should be compatible
-    args += "&godot_version=" + String(VERSION_BRANCH);
+    args += "&godot_version=" + se_string(VERSION_BRANCH);
 
-    String support_list;
+    se_string support_list;
     for (int i = 0; i < SUPPORT_MAX; i++) {
         if (support->get_popup()->is_item_checked(i)) {
-            support_list += String(support_key[i]) + "+";
+            support_list += se_string(support_key[i]) + "+";
         }
     }
     if (!support_list.empty()) {
-        args += "&support=" + StringUtils::substr(support_list,0, support_list.length() - 1);
+        args += se_string("&support=") + StringUtils::substr(support_list,0, support_list.length() - 1);
     }
 
     if (categories->get_selected() > 0) {
@@ -947,8 +956,8 @@ void EditorAssetLibrary::_search(int p_page) {
         args += "&reverse=true";
     }
 
-    if (!filter->get_text().empty()) {
-        args += "&filter=" + StringUtils::http_escape(filter->get_text());
+    if (!filter->get_text_ui().isEmpty()) {
+        args += se_string("&filter=") + StringUtils::http_escape(filter->get_text());
     }
 
     if (p_page > 0) {
@@ -958,7 +967,7 @@ void EditorAssetLibrary::_search(int p_page) {
     _api_request("asset", REQUESTING_SEARCH, args);
 }
 
-void EditorAssetLibrary::_search_text_entered(const String &p_text) {
+void EditorAssetLibrary::_search_text_entered(se_string_view p_text) {
 
     _search();
 }
@@ -1007,7 +1016,7 @@ HBoxContainer *EditorAssetLibrary::_make_pages(int p_page, int p_page_count, int
         if (i == p_page) {
 
             Button *current = memnew(Button);
-            current->set_text(itos(i + 1));
+            current->set_text_utf8(itos(i + 1));
             current->set_disabled(true);
             current->set_focus_mode(Control::FOCUS_NONE);
 
@@ -1015,7 +1024,7 @@ HBoxContainer *EditorAssetLibrary::_make_pages(int p_page, int p_page_count, int
         } else {
 
             Button *current = memnew(Button);
-            current->set_text(itos(i + 1));
+            current->set_text_utf8(itos(i + 1));
             current->connect("pressed", this, "_search", varray(i));
 
             hbc->add_child(current);
@@ -1048,7 +1057,7 @@ HBoxContainer *EditorAssetLibrary::_make_pages(int p_page, int p_page_count, int
     return hbc;
 }
 
-void EditorAssetLibrary::_api_request(const String &p_request, RequestType p_request_type, const String &p_arguments) {
+void EditorAssetLibrary::_api_request(se_string_view p_request, RequestType p_request_type, se_string_view p_arguments) {
 
     if (requesting != REQUESTING_NONE) {
         request->cancel_request();
@@ -1060,22 +1069,22 @@ void EditorAssetLibrary::_api_request(const String &p_request, RequestType p_req
     request->request(host + "/" + p_request + p_arguments);
 }
 
-void EditorAssetLibrary::_http_request_completed(int p_status, int p_code, const PoolStringArray &headers, const PoolByteArray &p_data) {
+void EditorAssetLibrary::_http_request_completed(int p_status, int p_code, const PoolSeStringArray &headers, const PoolByteArray &p_data) {
 
-    String str;
+    se_string str;
 
     {
         int datalen = p_data.size();
         PoolByteArray::Read r = p_data.read();
-        str = StringUtils::from_utf8((const char *)r.ptr(), datalen);
+        str.assign((const char *)r.ptr(), datalen);
     }
 
     bool error_abort = true;
-
+    se_string ui_host_suffix(" " + host);
     switch (p_status) {
 
         case HTTPRequest::RESULT_CANT_RESOLVE: {
-            error_label->set_text(TTR("Can't resolve hostname:") + " " + host);
+            error_label->set_text(TTR("Can't resolve hostname:") + se_string_view(ui_host_suffix));
         } break;
         case HTTPRequest::RESULT_BODY_SIZE_LIMIT_EXCEEDED:
         case HTTPRequest::RESULT_CONNECTION_ERROR:
@@ -1084,13 +1093,13 @@ void EditorAssetLibrary::_http_request_completed(int p_status, int p_code, const
         } break;
         case HTTPRequest::RESULT_SSL_HANDSHAKE_ERROR:
         case HTTPRequest::RESULT_CANT_CONNECT: {
-            error_label->set_text(TTR("Can't connect to host:") + " " + host);
+            error_label->set_text(TTR("Can't connect to host:") + se_string_view(ui_host_suffix));
         } break;
         case HTTPRequest::RESULT_NO_RESPONSE: {
-            error_label->set_text(TTR("No response from host:") + " " + host);
+            error_label->set_text(TTR("No response from host:") + se_string_view(ui_host_suffix));
         } break;
         case HTTPRequest::RESULT_REQUEST_FAILED: {
-            error_label->set_text(TTR("Request failed, return code:") + " " + itos(p_code));
+            error_label->set_text(TTR("Request failed, return code:") + se_string_view(" " + itos(p_code)));
         } break;
         case HTTPRequest::RESULT_REDIRECT_LIMIT_REACHED: {
             error_label->set_text(TTR("Request failed, too many redirects"));
@@ -1098,7 +1107,7 @@ void EditorAssetLibrary::_http_request_completed(int p_status, int p_code, const
         } break;
         default: {
             if (p_code != 200) {
-                error_label->set_text(TTR("Request failed, return code:") + " " + itos(p_code));
+                error_label->set_text(TTR("Request failed, return code:") + se_string_view(" " + itos(p_code)));
             } else {
 
                 error_abort = false;
@@ -1114,7 +1123,7 @@ void EditorAssetLibrary::_http_request_completed(int p_status, int p_code, const
     Dictionary d;
     {
         Variant js;
-        String errs;
+        se_string errs;
         int errl;
         JSON::parse(str, js, errs, errl);
         d = js;
@@ -1135,7 +1144,7 @@ void EditorAssetLibrary::_http_request_completed(int p_status, int p_code, const
                     Dictionary cat = clist[i];
                     if (!cat.has("name") || !cat.has("id"))
                         continue;
-                    String name = cat["name"];
+                    StringName name = cat["name"];
                     int id = cat["id"];
                     categories->add_item(name);
                     categories->set_item_metadata(categories->get_item_count() - 1, id);
@@ -1148,8 +1157,11 @@ void EditorAssetLibrary::_http_request_completed(int p_status, int p_code, const
         case REQUESTING_SEARCH: {
 
             initial_loading = false;
-            // The loading text only needs to be displayed before the first page is loaded
+            // The loading text only needs to be displayed before the first page is loaded.
+            // Therefore, we don't need to show it again.
             library_loading->hide();
+
+            library_error->hide();
 
             if (asset_items) {
                 memdelete(asset_items);
@@ -1198,6 +1210,10 @@ void EditorAssetLibrary::_http_request_completed(int p_status, int p_code, const
             asset_bottom_page = _make_pages(page, pages, page_len, total_items, result.size());
             library_vb->add_child(asset_bottom_page);
 
+            if (result.empty()) {
+                library_error->set_text(FormatSN(TTR("No results for \"%s\".").asCString(), filter->get_text().c_str()));
+                library_error->show();
+            }
             for (int i = 0; i < result.size(); i++) {
 
                 Dictionary r = result[i];
@@ -1212,7 +1228,7 @@ void EditorAssetLibrary::_http_request_completed(int p_status, int p_code, const
 
                 EditorAssetLibraryItem *item = memnew(EditorAssetLibraryItem);
                 asset_items->add_child(item);
-                item->configure(r["title"], r["asset_id"], category_map[r["category_id"]], r["category_id"], r["author"], r["author_id"], r["cost"]);
+                item->configure(r["title"], r["asset_id"], category_map[r["category_id"]].as<se_string>(), r["category_id"], r["author"].as<se_string>(), r["author_id"], r["cost"].as<se_string>());
                 item->connect("asset_selected", this, "_select_asset");
                 item->connect("author_selected", this, "_select_author");
                 item->connect("category_selected", this, "_select_category");
@@ -1248,7 +1264,11 @@ void EditorAssetLibrary::_http_request_completed(int p_status, int p_code, const
             description->popup_centered_minsize();
             description->connect("confirmed", this, "_install_asset");
 
-            description->configure(r["title"], r["asset_id"], category_map[r["category_id"]], r["category_id"], r["author"], r["author_id"], r["cost"], r["version"], r["version_string"], r["description"], r["download_url"], r["browse_url"], r["download_hash"]);
+            description->configure(r["title"], r["asset_id"], category_map[r["category_id"]].as<se_string>(),
+                    r["category_id"], r["author"].as<se_string>(), r["author_id"], r["cost"].as<se_string>(), r["version"],
+                    r["version_string"].as<se_string>(), r["description"].as<se_string>(),
+                    r["download_url"].as<se_string>(), r["browse_url"].as<se_string>(),
+                    r["download_hash"].as<se_string>());
 
             if (r.has("icon_url") && r["icon_url"] != "") {
                 _request_image(description->get_instance_id(), r["icon_url"], IMAGE_QUEUE_ICON, 0);
@@ -1264,10 +1284,10 @@ void EditorAssetLibrary::_http_request_completed(int p_status, int p_code, const
                     ERR_CONTINUE(!p.has("type"));
                     ERR_CONTINUE(!p.has("link"));
 
-                    bool is_video = p.has("type") && String(p["type"]) == "video";
-                    String video_url;
+                    bool is_video = p.has("type") && se_string(p["type"]) == "video";
+                    se_string video_url;
                     if (is_video && p.has("link")) {
-                        video_url = p["link"];
+                        video_url = p["link"].as<se_string>();
                     }
 
                     description->add_preview(i, is_video, video_url);
@@ -1286,7 +1306,7 @@ void EditorAssetLibrary::_http_request_completed(int p_status, int p_code, const
     }
 }
 
-void EditorAssetLibrary::_asset_file_selected(const String &p_file) {
+void EditorAssetLibrary::_asset_file_selected(se_string_view p_file) {
 
     if (asset_installer) {
         memdelete(asset_installer);
@@ -1309,7 +1329,7 @@ void EditorAssetLibrary::_manage_plugins() {
     ProjectSettingsEditor::get_singleton()->set_plugins_page();
 }
 
-void EditorAssetLibrary::_install_external_asset(const String& p_zip_path, const String& p_title) {
+void EditorAssetLibrary::_install_external_asset(se_string_view p_zip_path, se_string_view p_title) {
 
     emit_signal("install_asset", p_zip_path, p_title);
 }
@@ -1386,7 +1406,7 @@ EditorAssetLibrary::EditorAssetLibrary(bool p_templates_only) {
     search_hb2->add_child(memnew(Label(TTR("Sort:") + " ")));
     sort = memnew(OptionButton);
     for (int i = 0; i < SORT_MAX; i++) {
-        sort->add_item(sort_text[i]);
+        sort->add_item(StringName(TTRGET(sort_text[i])));
     }
 
     search_hb2->add_child(sort);
@@ -1463,6 +1483,11 @@ EditorAssetLibrary::EditorAssetLibrary(bool p_templates_only) {
     library_loading->set_align(Label::ALIGN_CENTER);
     library_vb->add_child(library_loading);
 
+    library_error = memnew(Label);
+    library_error->set_align(Label::ALIGN_CENTER);
+    library_error->hide();
+    library_vb->add_child(library_error);
+
     asset_top_page = memnew(HBoxContainer);
     library_vb->add_child(asset_top_page);
 
@@ -1491,6 +1516,7 @@ EditorAssetLibrary::EditorAssetLibrary(bool p_templates_only) {
     error_label->add_color_override("color", get_color("error_color", "Editor"));
     error_hb->add_child(error_label);
     error_tr = memnew(TextureRect);
+    error_tr->set_v_size_flags(Control::SIZE_SHRINK_CENTER);
     error_hb->add_child(error_tr);
 
     description = nullptr;

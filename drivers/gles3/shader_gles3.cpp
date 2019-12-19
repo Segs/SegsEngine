@@ -137,24 +137,24 @@ void ShaderGLES3::unbind() {
     active = nullptr;
 }
 
-static void _display_error_with_code(const String &p_error, const Vector<const char *> &p_code) {
+static void _display_error_with_code(const se_string &p_error, const Vector<const char *> &p_code) {
 
     int line = 1;
-    String total_code;
+    se_string total_code;
 
     for (int i = 0; i < p_code.size(); i++) {
-        total_code += String(p_code[i]);
+        total_code += p_code[i];
     }
+    PODVector<se_string_view> lines;
+    se_string::split_ref(lines,total_code,'\n');
 
-    Vector<String> lines = StringUtils::split(total_code,"\n");
+    for (size_t j = 0; j < lines.size(); j++) {
 
-    for (int j = 0; j < lines.size(); j++) {
-
-        print_line(itos(line) + ": " + lines[j]);
+        print_line((::to_string(line) + ": " + lines[j]).c_str());
         line++;
     }
 
-    ERR_PRINT(p_error)
+    ERR_PRINT(p_error.c_str())
 }
 
 ShaderGLES3::Version *ShaderGLES3::get_current_version() {
@@ -198,7 +198,7 @@ ShaderGLES3::Version *ShaderGLES3::get_current_version() {
     Vector<const char *> strings;
     strings.push_back("#version 330\n");
 
-    for (int i = 0; i < custom_defines.size(); i++) {
+    for (size_t i = 0; i < custom_defines.size(); i++) {
 
         strings.push_back(custom_defines[i].data());
     }
@@ -214,10 +214,10 @@ ShaderGLES3::Version *ShaderGLES3::get_current_version() {
     }
 
     //keep them around during the function
-    CharString code_string;
-    CharString code_string2;
-    CharString code_globals;
-    CharString material_string;
+    se_string_view code_string;
+    se_string_view code_string2;
+    se_string_view code_globals;
+    se_string_view material_string;
 
     CustomCode *cc = nullptr;
 
@@ -254,21 +254,21 @@ ShaderGLES3::Version *ShaderGLES3::get_current_version() {
     strings.push_back(vertex_code0.data());
 
     if (cc) {
-        material_string = StringUtils::ascii(cc->uniforms);
+        material_string = cc->uniforms;
         strings.push_back(material_string.data());
     }
 
     strings.push_back(vertex_code1.data());
 
     if (cc) {
-        code_globals = StringUtils::ascii(cc->vertex_globals);
+        code_globals = cc->vertex_globals;
         strings.push_back(code_globals.data());
     }
 
     strings.push_back(vertex_code2.data());
 
     if (cc) {
-        code_string = StringUtils::ascii(cc->vertex);
+        code_string = cc->vertex;
         strings.push_back(code_string.data());
     }
 
@@ -312,7 +312,7 @@ ShaderGLES3::Version *ShaderGLES3::get_current_version() {
             ilogmem[iloglen] = 0;
             glGetShaderInfoLog(v.vert_id, iloglen, &iloglen, ilogmem);
 
-            String err_string = get_shader_name() + ": Vertex Program Compilation Failed:\n";
+            se_string err_string = se_string(get_shader_name()) + ": Vertex Program Compilation Failed:\n";
 
             err_string += ilogmem;
             _display_error_with_code(err_string, strings);
@@ -336,28 +336,28 @@ ShaderGLES3::Version *ShaderGLES3::get_current_version() {
 
     strings.push_back(fragment_code0.data());
     if (cc) {
-        material_string = StringUtils::ascii(cc->uniforms);
+        material_string = cc->uniforms;
         strings.push_back(material_string.data());
     }
 
     strings.push_back(fragment_code1.data());
 
     if (cc) {
-        code_globals = StringUtils::ascii(cc->fragment_globals);
+        code_globals = cc->fragment_globals;
         strings.push_back(code_globals.data());
     }
 
     strings.push_back(fragment_code2.data());
 
     if (cc) {
-        code_string = StringUtils::ascii(cc->light);
+        code_string = cc->light;
         strings.push_back(code_string.data());
     }
 
     strings.push_back(fragment_code3.data());
 
     if (cc) {
-        code_string2 = StringUtils::ascii(cc->fragment);
+        code_string2 = cc->fragment;
         strings.push_back(code_string2.data());
     }
 
@@ -400,11 +400,11 @@ ShaderGLES3::Version *ShaderGLES3::get_current_version() {
             ilogmem[iloglen] = 0;
             glGetShaderInfoLog(v.frag_id, iloglen, &iloglen, ilogmem);
 
-            String err_string = get_shader_name() + ": Fragment Program Compilation Failed:\n";
+            se_string err_string = se_string(get_shader_name()) + ": Fragment Program Compilation Failed:\n";
 
             err_string += ilogmem;
             _display_error_with_code(err_string, strings);
-            ERR_PRINT(StringUtils::ascii(err_string).data())
+            ERR_PRINT(err_string.c_str())
             memfree(ilogmem);
             glDeleteShader(v.frag_id);
             glDeleteShader(v.vert_id);
@@ -468,11 +468,11 @@ ShaderGLES3::Version *ShaderGLES3::get_current_version() {
         ilogmem[iloglen] = 0;
         glGetProgramInfoLog(v.id, iloglen, &iloglen, ilogmem);
 
-        String err_string = get_shader_name() + ": Program LINK FAILED:\n";
+        se_string err_string = se_string(get_shader_name()) + ": Program LINK FAILED:\n";
 
         err_string += ilogmem;
         _display_error_with_code(err_string, strings);
-        ERR_PRINT(StringUtils::ascii(err_string).data())
+        ERR_PRINT(err_string.c_str())
         Memory::free_static(ilogmem);
         glDeleteShader(v.frag_id);
         glDeleteShader(v.vert_id);
@@ -520,7 +520,7 @@ ShaderGLES3::Version *ShaderGLES3::get_current_version() {
         v.texture_uniform_locations.resize(cc->texture_uniforms.size());
         for (int i = 0; i < cc->texture_uniforms.size(); i++) {
 
-            v.texture_uniform_locations.write[i] = glGetUniformLocation(v.id, StringUtils::ascii(String(cc->texture_uniforms[i])).data());
+            v.texture_uniform_locations.write[i] = glGetUniformLocation(v.id, cc->texture_uniforms[i].asCString());
             glUniform1i(v.texture_uniform_locations[i], i + base_material_tex_index);
         }
     }
@@ -535,10 +535,10 @@ ShaderGLES3::Version *ShaderGLES3::get_current_version() {
     return &v;
 }
 
-GLint ShaderGLES3::get_uniform_location(const String &p_name) const {
+GLint ShaderGLES3::get_uniform_location(se_string_view p_name) const {
 
     ERR_FAIL_COND_V(!version, -1)
-    return glGetUniformLocation(version->id, StringUtils::ascii(p_name).data());
+    return glGetUniformLocation(version->id, p_name.data());
 }
 
 void ShaderGLES3::setup(const char **p_conditional_defines, int p_conditional_count, const char **p_uniform_names, int p_uniform_count, const AttributePair *p_attribute_pairs, int p_attribute_count, const TexUnitPair *p_texunit_pairs, int p_texunit_pair_count, const UBOPair *p_ubo_pairs, int p_ubo_pair_count, const Feedback *p_feedback, int p_feedback_count, const char *p_vertex_code, const char *p_fragment_code, int p_vertex_code_start, int p_fragment_code_start) {
@@ -565,33 +565,33 @@ void ShaderGLES3::setup(const char **p_conditional_defines, int p_conditional_co
 
     //split vertex and shader code (thank you, shader compiler programmers from you know what company).
     {
-        String globals_tag = "\nVERTEX_SHADER_GLOBALS";
-        String material_tag = "\nMATERIAL_UNIFORMS";
-        String code_tag = "\nVERTEX_SHADER_CODE";
-        String code = vertex_code;
-        int cpos = StringUtils::find(code,material_tag);
-        if (cpos == -1) {
-            vertex_code0 = StringUtils::ascii(code);
+        se_string globals_tag("\nVERTEX_SHADER_GLOBALS");
+        se_string material_tag("\nMATERIAL_UNIFORMS");
+        se_string code_tag("\nVERTEX_SHADER_CODE");
+        se_string code(vertex_code);
+        auto cpos = code.find(material_tag);
+        if (cpos == se_string::npos) {
+            vertex_code0 = code;
         } else {
-            vertex_code0 = StringUtils::ascii(StringUtils::substr(code,0, cpos));
-            code = StringUtils::substr(code,cpos + material_tag.length());
+            vertex_code0 = code.substr(0, cpos);
+            code = code.substr(cpos + material_tag.length());
 
-            cpos = StringUtils::find(code,globals_tag);
+            cpos = code.find(globals_tag);
 
-            if (cpos == -1) {
-                vertex_code1 = StringUtils::ascii(code);
+            if (cpos == se_string::npos) {
+                vertex_code1 = code;
             } else {
 
-                vertex_code1 = StringUtils::ascii(StringUtils::substr(code,0, cpos));
-                String code2 = StringUtils::substr(code,cpos + globals_tag.length());
+                vertex_code1 = code.substr(0, cpos);
+                se_string_view code2 = se_string_view(code).substr(cpos + globals_tag.length());
 
-                cpos = StringUtils::find(code2,code_tag);
-                if (cpos == -1) {
-                    vertex_code2 = StringUtils::ascii(code2);
+                cpos = code2.find(code_tag);
+                if (cpos == code2.npos) {
+                    vertex_code2 = code2;
                 } else {
 
-                    vertex_code2 = StringUtils::ascii(StringUtils::substr(code2,0, cpos));
-                    vertex_code3 = StringUtils::ascii(StringUtils::substr(code2,cpos + code_tag.length()));
+                    vertex_code2 = code2.substr(0, cpos);
+                    vertex_code3 = code2.substr(cpos + code_tag.length());
                 }
             }
         }
@@ -599,50 +599,50 @@ void ShaderGLES3::setup(const char **p_conditional_defines, int p_conditional_co
     glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &max_image_units);
 
     {
-        String globals_tag = "\nFRAGMENT_SHADER_GLOBALS";
-        String material_tag = "\nMATERIAL_UNIFORMS";
-        String code_tag = "\nFRAGMENT_SHADER_CODE";
-        String light_code_tag = "\nLIGHT_SHADER_CODE";
-        String code = fragment_code;
-        int cpos = StringUtils::find(code,material_tag);
-        if (cpos == -1) {
-            fragment_code0 = StringUtils::ascii(code);
+        se_string globals_tag("\nFRAGMENT_SHADER_GLOBALS");
+        se_string material_tag("\nMATERIAL_UNIFORMS");
+        se_string code_tag("\nFRAGMENT_SHADER_CODE");
+        se_string light_code_tag("\nLIGHT_SHADER_CODE");
+        se_string_view code(fragment_code);
+        auto cpos = code.find(material_tag);
+        if (cpos == code.npos) {
+            fragment_code0 = code;
             return;
         }
 
-        fragment_code0 = StringUtils::ascii(StringUtils::substr(code,0, cpos));
+        fragment_code0 = code.substr(0, cpos);
         //print_line("CODE0:\n"+String(fragment_code0.data()));
-        code = StringUtils::substr(code,cpos + material_tag.length());
-        cpos = StringUtils::find(code,globals_tag);
+        code = code.substr(cpos + material_tag.length());
+        cpos = code.find(globals_tag);
 
-        if (cpos == -1) {
-            fragment_code1 = StringUtils::ascii(code);
+        if (cpos == code.npos) {
+            fragment_code1 = code;
             return;
         }
 
-        fragment_code1 = StringUtils::ascii(StringUtils::substr(code,0, cpos));
+        fragment_code1 = code.substr(0, cpos);
         //print_line("CODE1:\n"+String(fragment_code1.data()));
 
-        String code2 = StringUtils::substr(code,cpos + globals_tag.length());
-        cpos = StringUtils::find(code2,light_code_tag);
+        se_string_view code2 = se_string_view(code).substr(cpos + globals_tag.length());
+        cpos = code2.find(light_code_tag);
 
-        if (cpos == -1) {
-            fragment_code2 = StringUtils::ascii(code2);
+        if (cpos == code2.npos) {
+            fragment_code2 = code2;
             return;
         }
-        fragment_code2 = StringUtils::ascii(StringUtils::substr(code2,0, cpos));
+        fragment_code2 = code2.substr(0, cpos);
         //print_line("CODE2:\n"+String(fragment_code2.data()));
 
-        String code3 = StringUtils::substr(code2,cpos + light_code_tag.length());
+        se_string_view code3 = code2.substr(cpos + light_code_tag.length());
 
-        cpos = StringUtils::find(code3,code_tag);
-        if (cpos == -1) {
-            fragment_code3 = StringUtils::ascii(code3);
+        cpos = code3.find(code_tag);
+        if (cpos == code3.npos) {
+            fragment_code3 = code3;
             return;
         }
-        fragment_code3 = StringUtils::ascii(StringUtils::substr(code3,0, cpos));
+        fragment_code3 = code3.substr(0, cpos);
         //print_line("CODE3:\n"+String(fragment_code3.data()));
-        fragment_code4 = StringUtils::ascii(StringUtils::substr(code3,cpos + code_tag.length()));
+        fragment_code4 = code3.substr(cpos + code_tag.length());
         //print_line("CODE4:\n"+String(fragment_code4.data()));
     }
 
@@ -689,7 +689,10 @@ uint32_t ShaderGLES3::create_custom_shader() {
     return last_custom_code++;
 }
 
-void ShaderGLES3::set_custom_shader_code(uint32_t p_code_id, const String &p_vertex, const String &p_vertex_globals, const String &p_fragment, const String &p_light, const String &p_fragment_globals, const String &p_uniforms, const Vector<StringName> &p_texture_uniforms, const Vector<CharString> &p_custom_defines) {
+void ShaderGLES3::set_custom_shader_code(uint32_t p_code_id, const se_string &p_vertex,
+        const se_string &p_vertex_globals, const se_string &p_fragment, const se_string &p_light,
+        const se_string &p_fragment_globals, const se_string &p_uniforms, const Vector<StringName> &p_texture_uniforms,
+        const Vector<se_string> &p_custom_defines) {
 
     ERR_FAIL_COND(!custom_code_map.contains(p_code_id))
     CustomCode *cc = &custom_code_map[p_code_id];

@@ -35,7 +35,8 @@
 #include "core/hashfuncs.h"
 #include "core/hash_map.h"
 #include "core/self_list.h"
-#include "core/ustring.h"
+#include "core/se_string.h"
+//#include "core/string_utils.inl"
 
 namespace std {
 class recursive_mutex;
@@ -47,7 +48,7 @@ class ResourceLoaderInterface;
 
 //used to track paths being loaded in a thread, avoids cyclic recursion
 struct LoadingMapKey {
-    String path;
+    se_string path;
     Thread::ID thread;
     bool operator==(const LoadingMapKey &p_key) const {
         return (thread == p_key.thread && path == p_key.path);
@@ -60,10 +61,10 @@ struct Hasher<LoadingMapKey> {
 
 
 
-using ResourceLoadErrorNotify = void (*)(void *, const String &);
-using DependencyErrorNotify = void (*)(void *, const String &, const String &, const String &);
-using ResourceLoaderImport = Error (*)(const String &);
-using ResourceLoadedCallback = void (*)(RES, const String &);
+using ResourceLoadErrorNotify = void (*)(void *, se_string_view);
+using DependencyErrorNotify = void (*)(void *, se_string_view, se_string_view, se_string_view);
+using ResourceLoaderImport = Error (*)(se_string_view);
+using ResourceLoadedCallback = void (*)(RES, se_string_view );
 
 class GODOT_EXPORT ResourceLoader {
 
@@ -80,10 +81,10 @@ class GODOT_EXPORT ResourceLoader {
     static void *dep_err_notify_ud;
     static DependencyErrorNotify dep_err_notify;
     static bool abort_on_missing_resource;
-    static HashMap<String, Vector<String> > translation_remaps;
-    static HashMap<String, String> path_remaps;
+    static HashMap<se_string, Vector<se_string> > translation_remaps;
+    static DefHashMap<se_string, se_string> path_remaps;
 
-    static String _path_remap(const String &p_path, bool *r_translation_remapped = nullptr);
+    static se_string _path_remap(se_string_view p_path, bool *r_translation_remapped = nullptr);
     friend class Resource;
 
     static SelfList<Resource>::List remapped_list;
@@ -91,49 +92,50 @@ class GODOT_EXPORT ResourceLoader {
     friend class ResourceFormatImporter;
     friend class ResourceInteractiveLoader;
     //internal load function
-    static RES _load(const String &p_path, const String &p_original_path, const String &p_type_hint, bool p_no_cache, Error *r_error);
+    static RES _load(se_string_view p_path, se_string_view p_original_path, se_string_view p_type_hint, bool p_no_cache, Error *r_error);
 
     static ResourceLoadedCallback _loaded_callback;
 
-    static Ref<ResourceFormatLoader> _find_custom_resource_format_loader(const String& path);
+    static Ref<ResourceFormatLoader> _find_custom_resource_format_loader(se_string_view path);
     static Mutex *loading_map_mutex;
 
     static HashMap<LoadingMapKey, int, Hasher<LoadingMapKey>> loading_map;
 
-    static bool _add_to_loading_map(const String &p_path);
-    static void _remove_from_loading_map(const String &p_path);
-    static void _remove_from_loading_map_and_thread(const String &p_path, Thread::ID p_thread);
+    static bool _add_to_loading_map(se_string_view p_path);
+    static void _remove_from_loading_map(se_string_view p_path);
+    static void _remove_from_loading_map_and_thread(se_string_view p_path, Thread::ID p_thread);
 
 public:
-    static Ref<ResourceInteractiveLoader> load_interactive(const String &p_path, const String &p_type_hint = String::null_val, bool p_no_cache = false, Error *r_error = nullptr);
-    static RES load(const String &p_path, const String &p_type_hint = String::null_val, bool p_no_cache = false, Error *r_error = nullptr);
-    static bool exists(const String &p_path, const String &p_type_hint = String::null_val);
+    static Ref<ResourceInteractiveLoader> load_interactive(se_string_view p_path, se_string_view p_type_hint = se_string_view(), bool p_no_cache = false, Error *r_error = nullptr);
+    static RES load(se_string_view p_path, se_string_view p_type_hint = se_string_view(), bool p_no_cache = false, Error *r_error = nullptr);
+    static bool exists(se_string_view p_path, se_string_view p_type_hint = se_string_view());
 
-    static void get_recognized_extensions_for_type(const String &p_type, ListPOD<String> *p_extensions);
+    static void get_recognized_extensions_for_type(se_string_view p_type, PODVector<se_string> &p_extensions);
     static void add_resource_format_loader(const Ref<ResourceFormatLoader>& p_format_loader, bool p_at_front = false);
     static void add_resource_format_loader(ResourceLoaderInterface *, bool p_at_front = false);
     static void remove_resource_format_loader(const ResourceLoaderInterface *p_format_loader);
     static void remove_resource_format_loader(const Ref<ResourceFormatLoader>& p_format_loader);
-    static String get_resource_type(const String &p_path);
-    static void get_dependencies(const String &p_path, ListPOD<String> *p_dependencies, bool p_add_types = false);
-    static Error rename_dependencies(const String &p_path, const DefMap<String, String> &p_map);
-    static bool is_import_valid(const String &p_path);
-    static String get_import_group_file(const String &p_path);
-    static bool is_imported(const String &p_path);
-    static int get_import_order(const String &p_path);
+    static se_string get_resource_type(se_string_view p_path);
+    static void get_dependencies(se_string_view p_path, ListPOD<se_string> *p_dependencies, bool p_add_types = false);
+    static Error rename_dependencies(se_string_view p_path, const DefMap<se_string, se_string> &p_map);
+    static bool is_import_valid(se_string_view p_path);
+    static se_string get_import_group_file(se_string_view p_path);
+    static bool is_imported(se_string_view p_path);
+    static int get_import_order(se_string_view p_path);
 
     static void set_timestamp_on_load(bool p_timestamp) { timestamp_on_load = p_timestamp; }
     static bool get_timestamp_on_load() { return timestamp_on_load; }
 
-    static void notify_load_error(const String &p_err) {
-        if (err_notify) err_notify(err_notify_ud, p_err);
+    static void notify_load_error(se_string_view p_err) {
+        if (err_notify)
+            err_notify(err_notify_ud, p_err);
     }
     static void set_error_notify_func(void *p_ud, ResourceLoadErrorNotify p_err_notify) {
         err_notify = p_err_notify;
         err_notify_ud = p_ud;
     }
 
-    static void notify_dependency_error(const String &p_path, const String &p_dependency, const String &p_type) {
+    static void notify_dependency_error(se_string_view p_path, se_string_view p_dependency, se_string_view p_type) {
         if (dep_err_notify) dep_err_notify(dep_err_notify_ud, p_path, p_dependency, p_type);
     }
     static void set_dependency_error_notify_func(void *p_ud, DependencyErrorNotify p_err_notify) {
@@ -144,8 +146,8 @@ public:
     static void set_abort_on_missing_resources(bool p_abort) { abort_on_missing_resource = p_abort; }
     static bool get_abort_on_missing_resources() { return abort_on_missing_resource; }
 
-    static String path_remap(const String &p_path);
-    static String import_remap(const String &p_path);
+    static se_string path_remap(se_string_view p_path);
+    static se_string import_remap(se_string_view p_path);
 
     static void load_path_remaps();
     static void clear_path_remaps();
@@ -157,8 +159,8 @@ public:
     static void set_load_callback(ResourceLoadedCallback p_callback);
     static ResourceLoaderImport import;
 
-    static bool add_custom_resource_format_loader(const String& script_path);
-    static void remove_custom_resource_format_loader(const String& script_path);
+    static bool add_custom_resource_format_loader(se_string_view script_path);
+    static void remove_custom_resource_format_loader(se_string_view script_path);
     static void add_custom_loaders();
     static void remove_custom_loaders();
 

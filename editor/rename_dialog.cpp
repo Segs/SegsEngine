@@ -31,6 +31,7 @@
 #include "rename_dialog.h"
 
 #include "core/method_bind.h"
+#include "core/string_formatter.h"
 #include "core/print_string.h"
 #include "editor_node.h"
 #include "editor_settings.h"
@@ -147,7 +148,7 @@ RenameDialog::RenameDialog(SceneTreeEditor *p_scene_tree_editor, UndoRedo *p_und
 
     but_insert_name = memnew(Button);
     but_insert_name->set_text("NAME");
-    but_insert_name->set_tooltip(String("${NAME}\n") + TTR("Node name"));
+    but_insert_name->set_tooltip("${NAME}\n" + TTR("Node name"));
     but_insert_name->set_focus_mode(FOCUS_NONE);
     but_insert_name->connect("pressed", this, "_insert_text", make_binds("${NAME}"));
     but_insert_name->set_h_size_flags(SIZE_EXPAND_FILL);
@@ -157,7 +158,7 @@ RenameDialog::RenameDialog(SceneTreeEditor *p_scene_tree_editor, UndoRedo *p_und
 
     but_insert_parent = memnew(Button);
     but_insert_parent->set_text("PARENT");
-    but_insert_parent->set_tooltip(String("${PARENT}\n") + TTR("Node's parent name, if available"));
+    but_insert_parent->set_tooltip("${PARENT}\n" + TTR("Node's parent name, if available"));
     but_insert_parent->set_focus_mode(FOCUS_NONE);
     but_insert_parent->connect("pressed", this, "_insert_text", make_binds("${PARENT}"));
     but_insert_parent->set_h_size_flags(SIZE_EXPAND_FILL);
@@ -167,7 +168,7 @@ RenameDialog::RenameDialog(SceneTreeEditor *p_scene_tree_editor, UndoRedo *p_und
 
     but_insert_type = memnew(Button);
     but_insert_type->set_text("TYPE");
-    but_insert_type->set_tooltip(String("${TYPE}\n") + TTR("Node type"));
+    but_insert_type->set_tooltip("${TYPE}\n" + TTR("Node type"));
     but_insert_type->set_focus_mode(FOCUS_NONE);
     but_insert_type->connect("pressed", this, "_insert_text", make_binds("${TYPE}"));
     but_insert_type->set_h_size_flags(SIZE_EXPAND_FILL);
@@ -177,7 +178,7 @@ RenameDialog::RenameDialog(SceneTreeEditor *p_scene_tree_editor, UndoRedo *p_und
 
     but_insert_scene = memnew(Button);
     but_insert_scene->set_text("SCENE");
-    but_insert_scene->set_tooltip(String("${SCENE}\n") + TTR("Current scene name"));
+    but_insert_scene->set_tooltip("${SCENE}\n" + TTR("Current scene name"));
     but_insert_scene->set_focus_mode(FOCUS_NONE);
     but_insert_scene->connect("pressed", this, "_insert_text", make_binds("${SCENE}"));
     but_insert_scene->set_h_size_flags(SIZE_EXPAND_FILL);
@@ -187,7 +188,7 @@ RenameDialog::RenameDialog(SceneTreeEditor *p_scene_tree_editor, UndoRedo *p_und
 
     but_insert_root = memnew(Button);
     but_insert_root->set_text("ROOT");
-    but_insert_root->set_tooltip(String("${ROOT}\n") + TTR("Root node name"));
+    but_insert_root->set_tooltip("${ROOT}\n" + TTR("Root node name"));
     but_insert_root->set_focus_mode(FOCUS_NONE);
     but_insert_root->connect("pressed", this, "_insert_text", make_binds("${ROOT}"));
     but_insert_root->set_h_size_flags(SIZE_EXPAND_FILL);
@@ -197,7 +198,7 @@ RenameDialog::RenameDialog(SceneTreeEditor *p_scene_tree_editor, UndoRedo *p_und
 
     but_insert_count = memnew(Button);
     but_insert_count->set_text("COUNTER");
-    but_insert_count->set_tooltip(String("${COUNTER}\n") + TTR("Sequential integer counter.\nCompare counter options."));
+    but_insert_count->set_tooltip("${COUNTER}\n" + TTR("Sequential integer counter.\nCompare counter options."));
     but_insert_count->set_focus_mode(FOCUS_NONE);
     but_insert_count->connect("pressed", this, "_insert_text", make_binds("${COUNTER}"));
     but_insert_count->set_h_size_flags(SIZE_EXPAND_FILL);
@@ -407,7 +408,7 @@ void RenameDialog::_update_preview_int(int new_value) {
     _update_preview();
 }
 
-void RenameDialog::_update_preview(const String& new_text) {
+void RenameDialog::_update_preview(se_string_view new_text) {
 
     if (lock_preview_update || preview_node == nullptr)
         return;
@@ -415,7 +416,7 @@ void RenameDialog::_update_preview(const String& new_text) {
     has_errors = false;
     add_error_handler(&eh);
 
-    String new_name = _apply_rename(preview_node, spn_count_start->get_value());
+    StringName new_name = _apply_rename(preview_node, spn_count_start->get_value());
 
     if (!has_errors) {
 
@@ -432,13 +433,13 @@ void RenameDialog::_update_preview(const String& new_text) {
     remove_error_handler(&eh);
 }
 
-String RenameDialog::_apply_rename(const Node *node, int count) {
+StringName RenameDialog::_apply_rename(const Node *node, int count) {
 
-    String search = lne_search->get_text();
-    String replace = lne_replace->get_text();
-    String prefix = lne_prefix->get_text();
-    String suffix = lne_suffix->get_text();
-    String new_name = node->get_name();
+    se_string search = lne_search->get_text();
+    se_string replace = lne_replace->get_text();
+    se_string prefix = lne_prefix->get_text();
+    se_string suffix = lne_suffix->get_text();
+    se_string new_name(node->get_name());
 
     if (cbut_substitute->is_pressed()) {
         search = _substitute(search, node, count);
@@ -451,7 +452,7 @@ String RenameDialog::_apply_rename(const Node *node, int count) {
 
         new_name = _regex(search, new_name, replace);
     } else {
-        new_name = StringUtils::replace(new_name,search, replace);
+        new_name.replace(search, replace);
     }
 
     new_name = prefix + new_name + suffix;
@@ -460,50 +461,52 @@ String RenameDialog::_apply_rename(const Node *node, int count) {
         new_name = _postprocess(new_name);
     }
 
-    return new_name;
+    return StringName(new_name);
 }
 
-String RenameDialog::_substitute(const String &subject, const Node *node, int count) {
-
-    String result = StringUtils::replace(subject,"${COUNTER}", vformat("%0" + itos(spn_count_padding->get_value()) + "d", count));
+se_string RenameDialog::_substitute(const se_string &subject, const Node *node, int count) {
+    char buffmt_val[16];
+    snprintf(buffmt_val,15,"%%0%dd",spn_count_padding->get_value());
+    se_string result = subject;
+    result.replace("${COUNTER}", FormatVE(buffmt_val,count));
 
     if (node) {
-        result = StringUtils::replace(result,"${NAME}", node->get_name());
-        result = StringUtils::replace(result,"${TYPE}", node->get_class());
+        result.replace("${NAME}", node->get_name());
+        result.replace("${TYPE}", node->get_class());
     }
 
     int current = EditorNode::get_singleton()->get_editor_data().get_edited_scene();
-    result = StringUtils::replace(result,"${SCENE}", EditorNode::get_singleton()->get_editor_data().get_scene_title(current));
+    result.replace("${SCENE}", EditorNode::get_singleton()->get_editor_data().get_scene_title(current).asCString());
 
     Node *root_node = SceneTree::get_singleton()->get_edited_scene_root();
     if (root_node) {
-        result = StringUtils::replace(result,"${ROOT}", root_node->get_name());
+        result.replace("${ROOT}", root_node->get_name());
     }
     if (node) {
         Node *parent_node = node->get_parent();
         if (parent_node) {
             if (node == root_node) {
                 // Can not substitute parent of root.
-                result = StringUtils::replace(result,"${PARENT}", "");
+                result.replace("${PARENT}", "");
             } else {
-                result = StringUtils::replace(result,"${PARENT}", parent_node->get_name());
+                result.replace("${PARENT}", parent_node->get_name());
             }
         }
     }
     return result;
 }
 
-void RenameDialog::_error_handler(void *p_self, const char *p_func, const char *p_file, int p_line, const char *p_error, const char *p_errorexp, ErrorHandlerType p_type) {
+void RenameDialog::_error_handler(void *p_self, se_string_view p_func, se_string_view p_file, int p_line, se_string_view p_error, se_string_view p_errorexp, ErrorHandlerType p_type) {
 
     RenameDialog *self = (RenameDialog *)p_self;
-    String source_file(p_file);
+    se_string_view source_file(p_file);
 
     // Only show first error that is related to "regex"
-    if (self->has_errors || StringUtils::find(source_file,"regex") < 0)
+    if (self->has_errors || StringUtils::contains(source_file,"regex"))
         return;
 
-    String err_str;
-    if (p_errorexp && p_errorexp[0]) {
+    se_string err_str;
+    if (not p_errorexp.empty()) {
         err_str = p_errorexp;
     } else {
         err_str = p_error;
@@ -512,47 +515,47 @@ void RenameDialog::_error_handler(void *p_self, const char *p_func, const char *
     self->has_errors = true;
     self->lbl_preview_title->set_text(TTR("Error"));
     self->lbl_preview->add_color_override("font_color", Color(1, 0.25f, 0, 1));
-    self->lbl_preview->set_text(err_str);
+    self->lbl_preview->set_text(StringName(err_str));
 }
 
-String RenameDialog::_regex(const String &pattern, const String &subject, const String &replacement) {
+se_string RenameDialog::_regex(const se_string &pattern, const se_string &subject, const se_string &replacement) {
 
     RegEx regex(pattern);
 
     return regex.sub(subject, replacement, true);
 }
 
-String RenameDialog::_postprocess(const String &subject) {
+se_string RenameDialog::_postprocess(const se_string &subject) {
 
     int style_id = opt_style->get_selected();
 
-    String result = subject;
+    se_string result = subject;
 
     if (style_id == 1) {
 
         // CamelCase to Under_Line
         result = StringUtils::camelcase_to_underscore(result,true);
-        result = _regex("_+", result, "_");
+        result = _regex(se_string("_+"), result, "_");
 
     } else if (style_id == 2) {
 
         // Under_Line to CamelCase
-        RegEx pattern("_+(.?)");
+        RegEx pattern(("_+(.?)"));
         Array matches = pattern.search_all(result);
 
         // _ name would become empty. Ignore
         if (!matches.empty() && result != "_") {
-            String buffer;
+            se_string buffer;
             int start = 0;
             int end = 0;
             for (int i = 0; i < matches.size(); ++i) {
                 start = ((Ref<RegExMatch>)matches[i])->get_start(1);
                 buffer += StringUtils::substr(result,end, start - end - 1);
-                buffer += StringUtils::to_upper(StringUtils::substr(result,start, 1));
+                buffer += StringUtils::char_uppercase(result[start]);
                 end = start + 1;
             }
             buffer += StringUtils::substr(result,end, result.size() - (end + 1));
-            result = StringUtils::capitalize(StringUtils::replace(buffer,"_", ""));
+            result = StringUtils::capitalize(buffer.replaced("_", ""));
         }
     }
 
@@ -576,10 +579,10 @@ void RenameDialog::_iterate_scene(const Node *node, const Array &selection, int 
 
     if (selection.contains(Variant(node))) {
 
-        String new_name = _apply_rename(node, *counter);
+        StringName new_name = _apply_rename(node, *counter);
 
         if (node->get_name() != new_name) {
-            Pair<NodePath, String> rename_item;
+            Pair<NodePath, StringName> rename_item;
             rename_item.first = node->get_path();
             rename_item.second = new_name;
             to_rename.push_back(rename_item);
@@ -617,16 +620,16 @@ void RenameDialog::rename() {
 
     if (undo_redo && !to_rename.empty()) {
 
-        undo_redo->create_action(TTR("Batch Rename"));
+        undo_redo->create_action_ui(TTR("Batch Rename"));
 
         // Make sure to iterate reversed so that child nodes will find parents.
         for (int i = to_rename.size() - 1; i >= 0; --i) {
 
             Node *n = root_node->get_node(to_rename[i].first);
-            const String &new_name = to_rename[i].second;
+            const StringName &new_name = to_rename[i].second;
 
             if (!n) {
-                ERR_PRINT("Skipping missing node: " + to_rename[i].first.get_concatenated_subnames());
+                ERR_PRINT("Skipping missing node: " + se_string(to_rename[i].first.get_concatenated_subnames()))
                 continue;
             }
 
@@ -670,7 +673,7 @@ bool RenameDialog::_is_main_field(LineEdit *line_edit) {
            (line_edit == lne_search || line_edit == lne_replace || line_edit == lne_prefix || line_edit == lne_suffix);
 }
 
-void RenameDialog::_insert_text(const String& text) {
+void RenameDialog::_insert_text(se_string_view text) {
 
     LineEdit *focus_owner = object_cast<LineEdit>(get_focus_owner());
 

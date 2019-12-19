@@ -45,7 +45,6 @@ namespace PNGDriverCommon {
 static bool check_error(const png_image &image) {
     const png_uint_32 failed = PNG_IMAGE_FAILED(image);
     if (failed & PNG_IMAGE_ERROR) {
-        ERR_EXPLAIN(image.message)
         return true;
     } else if (failed) {
 #ifdef TOOLS_ENABLED
@@ -69,7 +68,7 @@ Error png_to_image(const uint8_t *p_source, size_t p_size, ImageData &p_image) {
 
     // fetch image properties
     int success = png_image_begin_read_from_memory(&png_img, p_source, p_size);
-    ERR_FAIL_COND_V(check_error(png_img), ERR_FILE_CORRUPT)
+    ERR_FAIL_COND_V_MSG(check_error(png_img), ERR_FILE_CORRUPT, png_img.message);
     ERR_FAIL_COND_V(!success, ERR_FILE_CORRUPT)
 
     // flags to be masked out of input format to give target format
@@ -113,7 +112,7 @@ Error png_to_image(const uint8_t *p_source, size_t p_size, ImageData &p_image) {
 
     // read image data to buffer and release libpng resources
     success = png_image_finish_read(&png_img, nullptr, writer.ptr(), stride, nullptr);
-    ERR_FAIL_COND_V(check_error(png_img), ERR_FILE_CORRUPT)
+    ERR_FAIL_COND_V_MSG(check_error(png_img), ERR_FILE_CORRUPT, png_img.message);
     ERR_FAIL_COND_V(!success, ERR_FILE_CORRUPT)
 
     p_image.width = png_img.width;
@@ -164,7 +163,7 @@ Error image_to_png(const ImageData &source_image, PODVector<uint8_t> &p_buffer) 
         p_buffer.resize(buffer_offset + png_size_estimate);
         success = png_image_write_to_memory(&png_img, p_buffer.data() + buffer_offset,
                 &compressed_size, 0, reader.ptr(), 0, nullptr);
-        ERR_FAIL_COND_V(check_error(png_img), FAILED)
+        ERR_FAIL_COND_V_MSG(check_error(png_img), FAILED, png_img.message);
     }
     if (!success) {
 
@@ -176,7 +175,7 @@ Error image_to_png(const ImageData &source_image, PODVector<uint8_t> &p_buffer) 
 
         success = png_image_write_to_memory(&png_img, p_buffer.data()+buffer_offset,
                 &compressed_size, 0, reader.ptr(), 0, nullptr);
-        ERR_FAIL_COND_V(check_error(png_img), FAILED)
+        ERR_FAIL_COND_V_MSG(check_error(png_img), FAILED, png_img.message);
         ERR_FAIL_COND_V(!success, FAILED)
     }
 

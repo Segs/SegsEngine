@@ -22,14 +22,13 @@ foreach(tgt ${global_targets})
     include(windows/sources.cmake)
     # Sounds drivers
 
-
+    target_compile_definitions(${tgt}_drivers PRIVATE GLAD_ENABLED)
 
 
     list(APPEND drivers_sources "register_driver_types.cpp")
 
     target_link_libraries(${tgt}_drivers PRIVATE glad)
 
-    include(convex_decomp/sources.cmake)
     if(OPTION_${tgt}_ENABLE_MIDI)
         if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
             add_subdirectory(alsamidi)
@@ -56,11 +55,6 @@ foreach(tgt ${global_targets})
     target_sources(${tgt}_drivers PRIVATE ${drivers_sources})
 
     set_common_target_properties(${tgt}_drivers)
-    set_target_properties(${tgt}_drivers PROPERTIES COTIRE_ADD_UNITY_BUILD FALSE)
-    set_target_properties(${tgt}_drivers PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "${PROJECT_SOURCE_DIR}/core/precompiled.h")
-    if(ENABLE_COTIRE)
-        cotire(${tgt}_drivers)
-    endif()
     INSTALL (
         DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
         DESTINATION include/SegsEngine

@@ -766,14 +766,14 @@ void SurfaceTool::create_from(const Ref<Mesh> &p_existing, int p_surface) {
     material = p_existing->surface_get_material(p_surface);
 }
 
-void SurfaceTool::create_from_blend_shape(const Ref<Mesh> &p_existing, int p_surface, const String &p_blend_shape_name) {
+void SurfaceTool::create_from_blend_shape(const Ref<Mesh> &p_existing, int p_surface, StringName p_blend_shape_name) {
     clear();
     primitive = p_existing->surface_get_primitive_type(p_surface);
     Array arr = p_existing->surface_get_blend_shape_arrays(p_surface);
     Array blend_shape_names;
     int32_t shape_idx = -1;
     for (int32_t i = 0; i < p_existing->get_blend_shape_count(); i++) {
-        String name = p_existing->get_blend_shape_name(i);
+        StringName name = p_existing->get_blend_shape_name(i);
         if (name == p_blend_shape_name) {
             shape_idx = i;
             break;
@@ -851,7 +851,7 @@ void SurfaceTool::mikktGetPosition(const SMikkTSpaceContext *pContext, float fvP
     TangentGenerationContextUserData &triangle_data = *reinterpret_cast<TangentGenerationContextUserData *>(pContext->m_pUserData);
     Vector3 v;
     if (!triangle_data.indices.empty()) {
-        int index = triangle_data.indices[iFace * 3 + iVert];
+        size_t index = triangle_data.indices[iFace * 3 + iVert];
         if (index < triangle_data.vertices.size()) {
             v = triangle_data.vertices[index].vertex;
         }

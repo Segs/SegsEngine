@@ -172,7 +172,7 @@ void WindowDialog::_gui_input(const Ref<InputEvent> &p_event) {
             global_pos.y = MAX(global_pos.y, 0); // Ensure title bar stays visible.
 
             Rect2 rect = get_rect();
-            Size2 min_size = get_minimum_size();
+            Size2 min_size = get_combined_minimum_size();
 
             if (drag_type == DRAG_MOVE) {
                 rect.position = global_pos - drag_offset;
@@ -217,9 +217,9 @@ void WindowDialog::_notification(int p_what) {
             Color title_color = get_color("title_color", "WindowDialog");
             int title_height = get_constant("title_height", "WindowDialog");
             int font_height = title_font->get_height() - title_font->get_descent() * 2;
-            int x = (size.x - title_font->get_string_size(xl_title).x) / 2;
+            int x = (size.x - title_font->get_string_size_utf8(xl_title).x) / 2;
             int y = (-title_height + font_height) / 2;
-            title_font->draw(canvas, Point2(x, y), xl_title, title_color, size.x - panel->get_minimum_size().x);
+            title_font->draw(canvas, Point2(x, y), StringUtils::from_utf8(xl_title), title_color, size.x - panel->get_minimum_size().x);
         } break;
 
         case NOTIFICATION_THEME_CHANGED:
@@ -232,7 +232,7 @@ void WindowDialog::_notification(int p_what) {
         } break;
 
         case NOTIFICATION_TRANSLATION_CHANGED: {
-            String new_title = tr(title);
+            StringName new_title(tr(title));
             if (new_title != xl_title) {
                 xl_title = new_title;
                 minimum_size_changed();
@@ -249,15 +249,17 @@ void WindowDialog::_notification(int p_what) {
         } break;
 
 #ifdef TOOLS_ENABLED
-        case NOTIFICATION_POST_POPUP: {
-            if (get_tree() && Engine::get_singleton()->is_editor_hint() && EditorNode::get_singleton())
-                EditorNode::get_singleton()->dim_editor(true);
-        } break;
+    case NOTIFICATION_POST_POPUP: {
+        if (get_tree() && Engine::get_singleton()->is_editor_hint() && EditorNode::get_singleton()) {
+            was_editor_dimmed = EditorNode::get_singleton()->is_editor_dimmed();
+            EditorNode::get_singleton()->dim_editor(true);
+        }
+    } break;
 
-        case NOTIFICATION_POPUP_HIDE: {
-            if (get_tree() && Engine::get_singleton()->is_editor_hint() && EditorNode::get_singleton() && !get_viewport()->gui_has_modal_stack())
-                EditorNode::get_singleton()->dim_editor(false);
-        } break;
+    case NOTIFICATION_POPUP_HIDE: {
+        if (get_tree() && Engine::get_singleton()->is_editor_hint() && EditorNode::get_singleton() && !was_editor_dimmed)
+            EditorNode::get_singleton()->dim_editor(false);
+    } break;
 #endif
     }
 }
@@ -292,18 +294,17 @@ int WindowDialog::_drag_hit_test(const Point2 &pos) const {
 
     return drag_type;
 }
+void WindowDialog::set_title(const StringName &p_title) {
 
-void WindowDialog::set_title(const String &p_title) {
-
-    String new_title = tr(p_title);
+    StringName new_title = tr(p_title);
     if (title != p_title) {
         title = p_title;
-        xl_title = tr(p_title);
+        xl_title = new_title;
         minimum_size_changed();
         update();
     }
 }
-String WindowDialog::get_title() const {
+StringName WindowDialog::get_title() const {
 
     return title;
 }
@@ -320,7 +321,7 @@ Size2 WindowDialog::get_minimum_size() const {
     Ref<Font> font = get_font("title_font", "WindowDialog");
 
     const int button_width = close_button->get_combined_minimum_size().x;
-    const int title_width = font->get_string_size(xl_title).x;
+    const int title_width = font->get_string_size_utf8(xl_title).x;
     const int padding = button_width / 2;
     const int button_area = button_width + padding;
 
@@ -357,6 +358,9 @@ WindowDialog::WindowDialog() {
     close_button = memnew(TextureButton);
     add_child(close_button);
     close_button->connect("pressed", this, "_closed");
+#ifdef TOOLS_ENABLED
+    was_editor_dimmed = false;
+#endif
 }
 
 WindowDialog::~WindowDialog() {
@@ -368,7 +372,7 @@ void PopupDialog::_notification(int p_what) {
 
     if (p_what == NOTIFICATION_DRAW) {
         RID ci = get_canvas_item();
-        get_stylebox("panel", "PopupMenu")->draw(ci, Rect2(Point2(), get_size()));
+        get_stylebox("panel")->draw(ci, Rect2(Point2(), get_size()));
     }
 }
 
@@ -400,7 +404,7 @@ void AcceptDialog::_notification(int p_what) {
     }
 }
 
-void AcceptDialog::_builtin_text_entered(const String &p_text) {
+void AcceptDialog::_builtin_text_entered(se_string_view p_text) {
 
     _ok_pressed();
 }
@@ -417,17 +421,26 @@ void AcceptDialog::_close_pressed() {
     cancel_pressed();
 }
 
-String AcceptDialog::get_text() const {
+String AcceptDialog::get_text_ui() const {
 
-    return label->get_text();
+    return StringUtils::from_utf8(label->get_text());
 }
-void AcceptDialog::set_text(const String& p_text) {
+se_string AcceptDialog::get_text() const {
+
+    return label->get_text_utf8();
+}
+void AcceptDialog::set_text(const StringName & p_text) {
 
     label->set_text(p_text);
     minimum_size_changed();
     _update_child_rects();
 }
+void AcceptDialog::set_text_utf8(se_string_view p_text) {
 
+    label->set_text(StringName(p_text));
+    minimum_size_changed();
+    _update_child_rects();
+}
 void AcceptDialog::set_hide_on_ok(bool p_hide) {
 
     hide_on_ok = p_hide;
@@ -513,13 +526,13 @@ Size2 AcceptDialog::get_minimum_size() const {
     return minsize;
 }
 
-void AcceptDialog::_custom_action(const String &p_action) {
+void AcceptDialog::_custom_action(se_string_view p_action) {
 
     emit_signal("custom_action", p_action);
     custom_action(p_action);
 }
 
-Button *AcceptDialog::add_button(const String &p_text, bool p_right, const String &p_action) {
+Button *AcceptDialog::add_button(const StringName &p_text, bool p_right, se_string_view p_action) {
 
     Button *button = memnew(Button);
     button->set_text(p_text);
@@ -540,9 +553,9 @@ Button *AcceptDialog::add_button(const String &p_text, bool p_right, const Strin
     return button;
 }
 
-Button *AcceptDialog::add_cancel(const String &p_cancel) {
+Button *AcceptDialog::add_cancel(const StringName &p_cancel) {
 
-    String c = p_cancel;
+    StringName c = p_cancel;
     if (p_cancel.empty())
         c = RTR("Cancel");
     Button *b = swap_ok_cancel ? add_button(c, true) : add_button(c);

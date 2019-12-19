@@ -75,7 +75,7 @@ PhysicalBoneEditor::PhysicalBoneEditor(EditorNode *p_editor) :
     hide();
 }
 
-PhysicalBoneEditor::~PhysicalBoneEditor() {}
+PhysicalBoneEditor::~PhysicalBoneEditor() = default;
 
 void PhysicalBoneEditor::set_selected(PhysicalBone *p_pb) {
 

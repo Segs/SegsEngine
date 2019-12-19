@@ -46,15 +46,15 @@ Size2 SpinBox::get_minimum_size() const {
 
 void SpinBox::_value_changed(double) {
 
-    String value = StringUtils::num(get_value(), Math::range_step_decimals(get_step()));
+    se_string value(StringUtils::num(get_value(), Math::range_step_decimals(get_step())));
     if (!prefix.empty())
         value = prefix + " " + value;
     if (!suffix.empty())
         value += " " + suffix;
-    line_edit->set_text(value);
+    line_edit->set_text_utf8(value);
 }
 
-void SpinBox::_text_entered(const String &p_string) {
+void SpinBox::_text_entered(se_string_view p_string) {
     using namespace StringUtils;
     Ref<Expression> expr(make_ref_counted<Expression>());
     // Ignore the prefix and suffix in the expression
@@ -112,21 +112,20 @@ void SpinBox::_gui_input(const Ref<InputEvent> &p_event) {
 
             case BUTTON_LEFT: {
 
+                line_edit->grab_focus();
                 set_value(get_value() + (up ? get_step() : -get_step()));
 
                 range_click_timer->set_wait_time(0.6f);
                 range_click_timer->set_one_shot(true);
                 range_click_timer->start();
 
-                line_edit->grab_focus();
-
                 drag.allowed = true;
                 drag.capture_pos = mb->get_position();
             } break;
             case BUTTON_RIGHT: {
 
-                set_value((up ? get_max() : get_min()));
                 line_edit->grab_focus();
+                set_value((up ? get_max() : get_min()));
             } break;
             case BUTTON_WHEEL_UP: {
                 if (line_edit->has_focus()) {
@@ -215,6 +214,10 @@ void SpinBox::_notification(int p_what) {
 
         _adjust_width_for_icon(get_icon("updown"));
         _value_changed(0);
+    } else if (p_what == NOTIFICATION_THEME_CHANGED) {
+
+        call_deferred("minimum_size_changed");
+        get_line_edit()->call_deferred("minimum_size_changed");
     }
 }
 
@@ -228,24 +231,24 @@ LineEdit::Align SpinBox::get_align() const {
     return line_edit->get_align();
 }
 
-void SpinBox::set_suffix(const String &p_suffix) {
+void SpinBox::set_suffix(se_string p_suffix) {
 
     suffix = p_suffix;
     _value_changed(0);
 }
 
-String SpinBox::get_suffix() const {
+se_string SpinBox::get_suffix() const {
 
     return suffix;
 }
 
-void SpinBox::set_prefix(const String &p_prefix) {
+void SpinBox::set_prefix(se_string_view p_prefix) {
 
     prefix = p_prefix;
     _value_changed(0);
 }
 
-String SpinBox::get_prefix() const {
+se_string SpinBox::get_prefix() const {
 
     return prefix;
 }
@@ -292,8 +295,8 @@ SpinBox::SpinBox() {
     line_edit->set_anchors_and_margins_preset(Control::PRESET_WIDE);
     line_edit->set_mouse_filter(MOUSE_FILTER_PASS);
     //connect("value_changed",this,"_value_changed");
-    line_edit->connect("text_entered", this, "_text_entered", Vector<Variant>(), ObjectNS::CONNECT_DEFERRED);
-    line_edit->connect("focus_exited", this, "_line_edit_focus_exit", Vector<Variant>(), ObjectNS::CONNECT_DEFERRED);
+    line_edit->connect("text_entered", this, "_text_entered", Vector<Variant>(), ObjectNS::CONNECT_QUEUED);
+    line_edit->connect("focus_exited", this, "_line_edit_focus_exit", Vector<Variant>(), ObjectNS::CONNECT_QUEUED);
     line_edit->connect("gui_input", this, "_line_edit_input");
     drag.enabled = false;
 

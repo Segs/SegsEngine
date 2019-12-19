@@ -123,22 +123,22 @@ SoftBody::PinnedPoint SoftBody::PinnedPoint::operator=(const PinnedPoint &obj) {
 void SoftBody::_update_pickable() {
     if (!is_inside_tree())
         return;
-    bool pickable = ray_pickable && is_inside_tree() && is_visible_in_tree();
+    bool pickable = ray_pickable && is_visible_in_tree();
     PhysicsServer::get_singleton()->soft_body_set_ray_pickable(physics_rid, pickable);
 }
 
 bool SoftBody::_set(const StringName &p_name, const Variant &p_value) {
-    String name = p_name;
-    String which = StringUtils::get_slice(name,'/', 0);
 
-    if ("pinned_points" == which) {
+    se_string_view which = StringUtils::get_slice(p_name,'/', 0);
+
+    if (se_string_view("pinned_points") == which) {
 
         return _set_property_pinned_points_indices(p_value);
 
-    } else if ("attachments" == which) {
+    } else if (se_string_view("attachments") == which) {
 
-        int idx = StringUtils::to_int(StringUtils::get_slice(name,'/', 1));
-        String what = StringUtils::get_slice(name,'/', 2);
+        int idx = StringUtils::to_int(StringUtils::get_slice(p_name,'/', 1));
+        se_string_view what = StringUtils::get_slice(p_name,'/', 2);
 
         return _set_property_pinned_points_attachment(idx, what, p_value);
     }
@@ -147,10 +147,9 @@ bool SoftBody::_set(const StringName &p_name, const Variant &p_value) {
 }
 
 bool SoftBody::_get(const StringName &p_name, Variant &r_ret) const {
-    String name = p_name;
-    String which = StringUtils::get_slice(name,'/', 0);
+    se_string_view which = StringUtils::get_slice(p_name,'/', 0);
 
-    if ("pinned_points" == which) {
+    if (se_string_view("pinned_points") == which) {
         Array arr_ret;
         const int pinned_points_indices_size = pinned_points.size();
         PoolVector<PinnedPoint>::Read r = pinned_points.read();
@@ -163,10 +162,10 @@ bool SoftBody::_get(const StringName &p_name, Variant &r_ret) const {
         r_ret = arr_ret;
         return true;
 
-    } else if ("attachments" == which) {
+    } else if (se_string_view("attachments") == which) {
 
-        int idx = StringUtils::to_int(StringUtils::get_slice(name,'/', 1));
-        String what = StringUtils::get_slice(name,'/', 2);
+        int idx = StringUtils::to_int(StringUtils::get_slice(p_name,'/', 1));
+        se_string_view what = StringUtils::get_slice(p_name,'/', 2);
 
         return _get_property_pinned_points(idx, what, r_ret);
     }
@@ -181,9 +180,9 @@ void SoftBody::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
     p_list->push_back(PropertyInfo(VariantType::POOL_INT_ARRAY, "pinned_points"));
 
     for (int i = 0; i < pinned_points_indices_size; ++i) {
-        p_list->push_back(PropertyInfo(VariantType::INT, "attachments/" + itos(i) + "/point_index"));
-        p_list->push_back(PropertyInfo(VariantType::NODE_PATH, "attachments/" + itos(i) + "/spatial_attachment_path"));
-        p_list->push_back(PropertyInfo(VariantType::VECTOR3, "attachments/" + itos(i) + "/offset"));
+        p_list->push_back(PropertyInfo(VariantType::INT, StringName("attachments/" + itos(i) + "/point_index")));
+        p_list->push_back(PropertyInfo(VariantType::NODE_PATH, StringName("attachments/" + itos(i) + "/spatial_attachment_path")));
+        p_list->push_back(PropertyInfo(VariantType::VECTOR3, StringName("attachments/" + itos(i) + "/offset")));
     }
 }
 
@@ -216,16 +215,16 @@ bool SoftBody::_set_property_pinned_points_indices(const Array &p_indices) {
     return true;
 }
 
-bool SoftBody::_set_property_pinned_points_attachment(int p_item, const String &p_what, const Variant &p_value) {
+bool SoftBody::_set_property_pinned_points_attachment(int p_item, se_string_view p_what, const Variant &p_value) {
     if (pinned_points.size() <= p_item) {
         return false;
     }
 
-    if ("spatial_attachment_path" == p_what) {
+    if (se_string_view("spatial_attachment_path") == p_what) {
         PoolVector<PinnedPoint>::Write w = pinned_points.write();
         pin_point(w[p_item].point_index, true, p_value);
         _make_cache_dirty();
-    } else if ("offset" == p_what) {
+    } else if (se_string_view("offset") == p_what) {
         PoolVector<PinnedPoint>::Write w = pinned_points.write();
         w[p_item].offset = p_value;
     } else {
@@ -235,17 +234,17 @@ bool SoftBody::_set_property_pinned_points_attachment(int p_item, const String &
     return true;
 }
 
-bool SoftBody::_get_property_pinned_points(int p_item, const String &p_what, Variant &r_ret) const {
+bool SoftBody::_get_property_pinned_points(int p_item, se_string_view p_what, Variant &r_ret) const {
     if (pinned_points.size() <= p_item) {
         return false;
     }
     PoolVector<PinnedPoint>::Read r = pinned_points.read();
 
-    if ("point_index" == p_what) {
+    if (se_string_view("point_index") == p_what) {
         r_ret = r[p_item].point_index;
-    } else if ("spatial_attachment_path" == p_what) {
+    } else if (se_string_view("spatial_attachment_path") == p_what) {
         r_ret = r[p_item].spatial_attachment_path;
-    } else if ("offset" == p_what) {
+    } else if (se_string_view("offset") == p_what) {
         r_ret = r[p_item].offset;
     } else {
         return false;
@@ -254,7 +253,7 @@ bool SoftBody::_get_property_pinned_points(int p_item, const String &p_what, Var
     return true;
 }
 
-void SoftBody::_changed_callback(Object *p_changed, const char *p_prop) {
+void SoftBody::_changed_callback(Object *p_changed, StringName p_prop) {
     update_physics_server();
     _reset_points_offsets();
 #ifdef TOOLS_ENABLED
@@ -403,11 +402,13 @@ void SoftBody::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::REAL, "damping_coefficient", PROPERTY_HINT_RANGE, "0,1,0.01"), "set_damping_coefficient", "get_damping_coefficient");
     ADD_PROPERTY(PropertyInfo(VariantType::REAL, "drag_coefficient", PROPERTY_HINT_RANGE, "0,1,0.01"), "set_drag_coefficient", "get_drag_coefficient");
     ADD_PROPERTY(PropertyInfo(VariantType::REAL, "pose_matching_coefficient", PROPERTY_HINT_RANGE, "0,1,0.01"), "set_pose_matching_coefficient", "get_pose_matching_coefficient");
+
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "ray_pickable"), "set_ray_pickable", "is_ray_pickable");
 }
 
-String SoftBody::get_configuration_warning() const {
+StringName SoftBody::get_configuration_warning() const {
 
-    String warning = MeshInstance::get_configuration_warning();
+    se_string warning(MeshInstance::get_configuration_warning());
 
     if (not get_mesh()) {
         if (!warning.empty())
@@ -419,13 +420,13 @@ String SoftBody::get_configuration_warning() const {
     Transform t = get_transform();
     if ((ABS(t.basis.get_axis(0).length() - 1.0f) > 0.05f || ABS(t.basis.get_axis(1).length() - 1.0f) > 0.05f ||
                 ABS(t.basis.get_axis(2).length() - 1.0f) > 0.05f)) {
-        if (!warning.empty()) warning += "\n\n";
+        if (!warning.empty()) warning += ("\n\n");
 
         warning += TTR("Size changes to SoftBody will be overridden by the physics engine when running.\nChange the size "
                        "in children collision shapes instead.");
     }
 
-    return warning;
+    return StringName(warning);
 }
 
 void SoftBody::_draw_soft_mesh() {
@@ -460,16 +461,18 @@ void SoftBody::update_physics_server() {
 
         return;
     }
-
+    auto VS = VisualServer::get_singleton();
     if (get_mesh()) {
 
         become_mesh_owner();
         PhysicsServer::get_singleton()->soft_body_set_mesh(physics_rid, get_mesh());
-        VisualServer::get_singleton()->connect("frame_pre_draw", this, "_draw_soft_mesh");
+        VS->connect("frame_pre_draw", this, "_draw_soft_mesh");
     } else {
 
         PhysicsServer::get_singleton()->soft_body_set_mesh(physics_rid, REF());
-        VisualServer::get_singleton()->disconnect("frame_pre_draw", this, "_draw_soft_mesh");
+        if(VS->is_connected("frame_pre_draw", this, "_draw_soft_mesh")) {
+            VS->disconnect("frame_pre_draw", this, "_draw_soft_mesh");
+        }
     }
 }
 
@@ -706,7 +709,8 @@ SoftBody::SoftBody() :
         collision_mask(1),
         collision_layer(1),
         simulation_started(false),
-        pinned_points_cache_dirty(true) {
+        pinned_points_cache_dirty(true),
+        ray_pickable(true) {
 
     PhysicsServer::get_singleton()->body_attach_object_instance_id(physics_rid, get_instance_id());
     //set_notify_transform(true);

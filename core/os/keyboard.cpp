@@ -31,11 +31,11 @@
 #include "keyboard.h"
 
 #include "core/os/os.h"
-#include "core/ustring.h"
+#include "core/string_utils.h"
 
 struct _KeyCodeText {
     int code;
-    const char *text;
+    se_string_view text;
 };
 
 static const _KeyCodeText _keycodes[] = {
@@ -394,51 +394,47 @@ bool keycode_has_unicode(uint32_t p_keycode) {
     return true;
 }
 
-String keycode_get_string(uint32_t p_code) {
+se_string keycode_get_string(uint32_t p_code) {
 
-    String codestr;
+    se_string codestr;
     if (p_code & KEY_MASK_SHIFT) {
-        codestr += find_keycode_name(KEY_SHIFT);
-        codestr += "+";
+        codestr += se_string(find_keycode_name(KEY_SHIFT))+"+";
     }
     if (p_code & KEY_MASK_ALT) {
-        codestr += find_keycode_name(KEY_ALT);
-        codestr += "+";
+        codestr += se_string(find_keycode_name(KEY_ALT)) + "+";
     }
     if (p_code & KEY_MASK_CTRL) {
-        codestr += find_keycode_name(KEY_CONTROL);
-        codestr += "+";
+        codestr += se_string(find_keycode_name(KEY_CONTROL)) + "+";
     }
     if (p_code & KEY_MASK_META) {
-        codestr += find_keycode_name(KEY_META);
-        codestr += "+";
+        codestr += se_string(find_keycode_name(KEY_META)) + "+";
     }
 
     p_code &= KEY_CODE_MASK;
 
     const _KeyCodeText *kct = &_keycodes[0];
 
-    while (kct->text) {
+    while (!kct->text.empty()) {
 
         if (kct->code == (int)p_code) {
 
-            codestr += kct->text;
+            codestr += se_string(kct->text);
             return codestr;
         }
         kct++;
     }
 
-    codestr += CharType(p_code);
+    codestr.push_back(p_code);
 
     return codestr;
 }
 
-int find_keycode(const String &p_code) {
+int find_keycode(se_string_view p_code) {
 
     const _KeyCodeText *kct = &_keycodes[0];
 
-    while (kct->text) {
-		if (StringUtils::compare(p_code,kct->text,StringUtils::CaseInsensitive) == 0) {
+    while (!kct->text.empty()) {
+        if (StringUtils::compare(p_code,kct->text,StringUtils::CaseInsensitive) == 0) {
             return kct->code;
         }
         kct++;
@@ -451,10 +447,10 @@ const char *find_keycode_name(int p_keycode) {
 
     const _KeyCodeText *kct = &_keycodes[0];
 
-    while (kct->text) {
+    while (!kct->text.empty()) {
 
         if (kct->code == p_keycode) {
-            return kct->text;
+            return kct->text.data();
         }
         kct++;
     }
@@ -467,7 +463,7 @@ int keycode_get_count() {
     const _KeyCodeText *kct = &_keycodes[0];
 
     int count = 0;
-    while (kct->text) {
+    while (!kct->text.empty()) {
 
         count++;
         kct++;
@@ -480,5 +476,5 @@ int keycode_get_value_by_index(int p_index) {
 }
 
 const char *keycode_get_name_by_index(int p_index) {
-    return _keycodes[p_index].text;
+    return _keycodes[p_index].text.data();
 }

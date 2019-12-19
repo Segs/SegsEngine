@@ -51,7 +51,7 @@ class GDScriptCompiler {
         List<Map<StringName, int> > stack_id_stack;
         Map<StringName, int> stack_identifiers;
 
-        List<GDScriptFunction::StackDebug> stack_debug;
+        ListPOD<GDScriptFunction::StackDebug> stack_debug;
         List<Map<StringName, int> > block_identifier_stack;
         Map<StringName, int> block_identifiers;
 
@@ -137,7 +137,8 @@ class GDScriptCompiler {
     bool _is_class_member_property(CodeGen &codegen, const StringName &p_name);
     bool _is_class_member_property(GDScript *owner, const StringName &p_name);
 
-    void _set_error(const String &p_error, const GDScriptParser::Node *p_node);
+    void _set_error(se_string_view p_error, const GDScriptParser::Node *p_node);
+    void _set_error(const char *p_error, const GDScriptParser::Node *p_node);
 
     bool _create_unary_operator(CodeGen &codegen, const GDScriptParser::OperatorNode *on, Variant::Operator op, int p_stack_level);
     bool _create_binary_operator(CodeGen &codegen, const GDScriptParser::OperatorNode *on, Variant::Operator op, int p_stack_level, bool p_initializer = false);
@@ -154,12 +155,12 @@ class GDScriptCompiler {
     int err_line;
     int err_column;
     StringName source;
-    String error;
+    se_string error;
 
 public:
     Error compile(const GDScriptParser *p_parser, GDScript *p_script, bool p_keep_state = false);
 
-    String get_error() const;
+    const se_string &get_error() const;
     int get_error_line() const;
     int get_error_column() const;
 

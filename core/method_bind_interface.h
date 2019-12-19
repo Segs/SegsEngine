@@ -25,7 +25,6 @@ protected:
 
 #ifdef DEBUG_METHODS_ENABLED
     VariantType *argument_types=nullptr;
-    PODVector<StringName> arg_names;
 #endif
 #ifdef DEBUG_METHODS_ENABLED
     bool checkArgs(const Variant** p_args,int p_arg_count,bool (*const verifiers[])(const Variant &), int max_args, Variant::CallError& r_error)
@@ -46,8 +45,8 @@ protected:
         return true;
     }
 #endif
-    void _set_const(bool p_const);
-    void _set_returns(bool p_returns);
+    void _set_const(bool p_const) noexcept;
+    void _set_returns(bool p_returns) noexcept;
 #ifdef DEBUG_METHODS_ENABLED
     virtual PropertyInfo _gen_argument_type_info(int p_arg) const = 0;
     virtual GodotTypeInfo::Metadata do_get_argument_meta(int p_arg) const = 0;
@@ -86,10 +85,10 @@ public:
     PropertyInfo get_argument_info(int p_argument) const;
     PropertyInfo get_return_info() const;
 
-    void set_argument_names(const PODVector<StringName> &p_names); //set by class, db, can't be inferred otherwise
-    const PODVector<StringName> &get_argument_names() const;
+//    void set_argument_names(const PODVector<StringName> &p_names); //set by class, db, can't be inferred otherwise
+//    const PODVector<StringName> &get_argument_names() const;
 
-    GodotTypeInfo::Metadata get_argument_meta(int p_arg) const;
+    GodotTypeInfo::Metadata get_argument_meta(int p_arg) const  noexcept;
 
 #endif
     void set_hint_flags(uint32_t p_hint) { hint_flags = p_hint; }
@@ -132,20 +131,21 @@ protected:
 public:
 #ifdef DEBUG_METHODS_ENABLED
 
-    PropertyInfo _gen_argument_type_info(int p_arg) const override {
+    PropertyInfo _gen_argument_type_info(int p_arg) const noexcept override {
 
         if (p_arg < 0) {
             return arguments.return_val;
         } else if (p_arg < int(arguments.arguments.size())) {
             return arguments.arguments[p_arg];
         } else {
-            //TODO: use a simple char [32] buffer as conversion area.
-            return PropertyInfo(VariantType::NIL, StringUtils::to_utf8("arg_" + itos(p_arg)).data(),
+            char buf[32];
+            snprintf(buf,31,"arg_%d",p_arg);
+            return PropertyInfo(VariantType::NIL, buf,
                     PROPERTY_HINT_NONE, nullptr, PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_NIL_IS_VARIANT);
         }
     }
 
-    GodotTypeInfo::Metadata do_get_argument_meta(int) const override {
+    GodotTypeInfo::Metadata do_get_argument_meta(int) const noexcept override {
         return GodotTypeInfo::METADATA_NONE;
     }
 #endif
@@ -163,16 +163,16 @@ public:
         at[0] = p_info.return_val.type;
         if (!p_info.arguments.empty()) {
 
-            PODVector<StringName> names;
-            names.resize(p_info.arguments.size());
+//            PODVector<StringName> names;
+//            names.resize(p_info.arguments.size());
             int i=0;
             for (const PropertyInfo & pi : p_info.arguments) {
 
-                names[i] = pi.name;
+//                names[i] = pi.name;
                 at[++i] = pi.type;
             }
 
-            set_argument_names(names);
+            //set_argument_names(names);
         }
         argument_types = at;
         arguments = p_info;

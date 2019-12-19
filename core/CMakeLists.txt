@@ -1,40 +1,43 @@
-# Godot's own sources
+# Generate AES256 script encryption key
+add_custom_command(
+    COMMAND editor_to_header encryption ${CMAKE_CURRENT_BINARY_DIR}
+    OUTPUT  ${CMAKE_CURRENT_BINARY_DIR}/script_encryption_key.gen.cpp
+    DEPENDS editor_to_header
+    COMMENT "Generating controllers header"
+)
 
+update_version("")
+
+
+add_custom_command(
+    COMMAND editor_to_header license "${PROJECT_SOURCE_DIR}/COPYRIGHT.txt" "${PROJECT_SOURCE_DIR}/LICENSE.txt" ${CMAKE_CURRENT_BINARY_DIR}/license.gen.h
+    OUTPUT  ${CMAKE_CURRENT_BINARY_DIR}/license.gen.h
+    DEPENDS editor_to_header ${PROJECT_SOURCE_DIR}/COPYRIGHT.txt ${PROJECT_SOURCE_DIR}/LICENSE.txt
+    COMMENT "Generating license header"
+)
+add_custom_command(
+    COMMAND editor_to_header authors "${PROJECT_SOURCE_DIR}/AUTHORS.md" ${CMAKE_CURRENT_BINARY_DIR}/authors.gen.h
+    OUTPUT  ${CMAKE_CURRENT_BINARY_DIR}/authors.gen.h
+    DEPENDS editor_to_header ${PROJECT_SOURCE_DIR}/AUTHORS.md
+    COMMENT "Generating authors header"
+)
+add_custom_command(
+    COMMAND editor_to_header donors "${PROJECT_SOURCE_DIR}/DONORS.md" ${CMAKE_CURRENT_BINARY_DIR}/donors.gen.h
+    OUTPUT  ${CMAKE_CURRENT_BINARY_DIR}/donors.gen.h
+    DEPENDS editor_to_header ${PROJECT_SOURCE_DIR}/DONORS.md
+    COMMENT "Generating donors header"
+)
+
+# Godot's own sources
 set(core_sources
     bind/core_bind.cpp
     bind/core_bind.h
-    class_db.cpp
-    class_db.h
-    command_queue_mt.cpp
-    command_queue_mt.h
-    compressed_translation.cpp
-    compressed_translation.h
-    cowdata.cpp
-    cowdata.h
-    cowdata_impl.h
     crypto/crypto.cpp
     crypto/crypto.h
     crypto/crypto_core.cpp
     crypto/crypto_core.h
     crypto/hashing_context.cpp
     crypto/hashing_context.h
-    engine.cpp
-    engine.h
-    forward_decls.h
-    func_ref.cpp
-    func_ref.h
-    global_constants.cpp
-    global_constants.h
-    godot_export.h
-    hashfuncs.h
-    image.cpp
-    image.h
-    image_data.h
-    image_enum_casters.h
-    input_map.cpp
-    input_map.h
-    io/compression.cpp
-    io/compression.h
     io/config_file.cpp
     io/config_file.h
     io/file_access_buffered.cpp
@@ -58,10 +61,6 @@ set(core_sources
     io/image_saver.h
     io/ip.cpp
     io/ip.h
-    io/ip_address.cpp
-    io/ip_address.h
-    io/json.cpp
-    io/json.h
     io/marshalls.cpp
     io/marshalls.h
     io/multiplayer_api.cpp
@@ -97,57 +96,56 @@ set(core_sources
     io/translation_loader_po.h
     io/xml_parser.cpp
     io/xml_parser.h
-    io/zip_io.cpp
-    io/zip_io.h
     math/a_star.cpp
     math/a_star.h
-    math/aabb.cpp
-    math/aabb.h
-    math/audio_frame.cpp
-    math/audio_frame.h
-    math/basis.cpp
-    math/basis.h
     math/bsp_tree.cpp
     math/bsp_tree.h
-    math/camera_matrix.cpp
-    math/camera_matrix.h
-    math/delaunay.h
     math/disjoint_set.cpp
     math/disjoint_set.h
     math/expression.cpp
     math/expression.h
-    math/face3.cpp
-    math/face3.h
-    math/geometry.cpp
-    math/geometry.h
-    math/math_defs.h
-    math/math_fieldwise.cpp
-    math/math_fieldwise.h
-    math/math_funcs.cpp
-    math/math_funcs.h
     math/octree.h
-    math/plane.cpp
-    math/plane.h
-    math/quat.cpp
-    math/quat.h
-    math/quick_hull.cpp
-    math/quick_hull.h
     math/random_number_generator.cpp
     math/random_number_generator.h
-    math/rect2.cpp
-    math/rect2.h
-    math/transform.cpp
-    math/transform.h
-    math/transform_2d.cpp
-    math/transform_2d.h
     math/triangle_mesh.cpp
     math/triangle_mesh.h
-    math/triangulate.cpp
-    math/triangulate.h
-    math/vector2.cpp
-    math/vector2.h
-    math/vector3.cpp
-    math/vector3.h
+
+    os/alloc_wrapper.h
+    os/input.cpp
+    os/input.h
+    os/input_event.cpp
+    os/input_event.h
+    os/main_loop.cpp
+    os/main_loop.h
+    plugin_interfaces/ImageLoaderInterface.cpp
+    plugin_interfaces/ImageLoaderInterface.h
+    plugin_interfaces/PackSourceInterface.h
+    plugin_interfaces/PluginDeclarations.h
+    plugin_interfaces/ResourceImporterInterface.h
+    plugin_interfaces/ResourceLoaderInterface.h
+    plugin_interfaces/load_params.h
+
+    class_db.cpp
+    class_db.h
+    command_queue_mt.cpp
+    command_queue_mt.h
+    compressed_translation.cpp
+    compressed_translation.h
+    cowdata.cpp
+    cowdata.h
+    cowdata_impl.h
+    engine.cpp
+    engine.h
+    func_ref.cpp
+    func_ref.h
+    global_constants.cpp
+    global_constants.h
+    hashfuncs.h
+    image.cpp
+    image.h
+    image_enum_casters.h
+    input_map.cpp
+    input_map.h
     message_queue.cpp
     message_queue.h
     method_arg_casters.h
@@ -157,39 +155,11 @@ set(core_sources
     method_enum_caster.h
     method_info.h
     method_ptrcall.h
-    oa_hash_map.h
     object.cpp
     object.h
     object_db.h
-    os/alloc_wrapper.h
-    os/dir_access.cpp
-    os/dir_access.h
-    os/file_access.cpp
-    os/file_access.h
-    os/input.cpp
-    os/input.h
-    os/input_event.cpp
-    os/input_event.h
-    os/main_loop.cpp
-    os/main_loop.h
-    os/midi_driver.cpp
-    os/midi_driver.h
-    os/os.cpp
-    os/os.h
-    os/thread_dummy.cpp
-    os/thread_dummy.h
-    os/thread_safe.cpp
-    os/thread_safe.h
-    os/threaded_array_processor.h
     packed_data_container.cpp
     packed_data_container.h
-    plugin_interfaces/ImageLoaderInterface.cpp
-    plugin_interfaces/ImageLoaderInterface.h
-    plugin_interfaces/PackSourceInterface.h
-    plugin_interfaces/PluginDeclarations.h
-    plugin_interfaces/ResourceImporterInterface.h
-    plugin_interfaces/ResourceLoaderInterface.h
-    plugin_interfaces/load_params.h
     precompiled.h
     project_settings.cpp
     project_settings.h
@@ -203,22 +173,14 @@ set(core_sources
     resource.h
     rid.cpp
     rid.h
-    ring_buffer.h
     script_debugger_local.cpp
     script_debugger_local.h
-    script_debugger_remote.cpp
-    script_debugger_remote.h
     script_language.cpp
     script_language.h
-    service_interfaces/CoreInterface.h
-    string_builder.cpp
-    string_builder.h
-    timing_assert.h
     translation.cpp
     translation.h
     translation_helpers.h
     type_info.h
-    typedefs.h
     undo_redo.cpp
     undo_redo.h
     variant.cpp
@@ -227,26 +189,73 @@ set(core_sources
     variant_op.cpp
     variant_parser.cpp
     variant_parser.h
-    version.h
-    version_generated.gen.h
-    vmap.h
-    vset.h
 )
 
 configure_file(configuration.h.cmake configuration.h)
 #those files are common to all modes editor/projectmanager/client/server/etc.
 set(generic_core_sources
+    io/compression.cpp
+    io/compression.h
+    io/ip_address.cpp
+    io/ip_address.h
+    io/json.cpp
+    io/json.h
+    io/zip_io.cpp
+    io/zip_io.h
+
     io/logger.cpp
     io/logger.h
     rotated_file_loger.h
 
+    math/aabb.cpp
+    math/aabb.h
+    math/audio_frame.cpp
+    math/audio_frame.h
+    math/basis.cpp
+    math/basis.h
+    math/camera_matrix.cpp
+    math/camera_matrix.h
+    math/delaunay.h
+    math/face3.cpp
+    math/face3.h
+    math/geometry.cpp
+    math/geometry.h
+    math/math_defs.h
+    math/math_funcs.cpp
+    math/math_funcs.h
+    math/plane.cpp
+    math/plane.h
+    math/quat.cpp
+    math/quat.h
+    math/quick_hull.cpp
+    math/quick_hull.h
     math/random_pcg.cpp
     math/random_pcg.h
+    math/rect2.cpp
+    math/rect2.h
+    math/transform.cpp
+    math/transform.h
+    math/transform_2d.cpp
+    math/transform_2d.h
+    math/triangulate.cpp
+    math/triangulate.h
+    math/vector2.cpp
+    math/vector2.h
+    math/vector3.cpp
+    math/vector3.h
 
+    os/dir_access.cpp
+    os/dir_access.h
+    os/file_access.cpp
+    os/file_access.h
     os/keyboard.cpp
     os/keyboard.h
     os/memory.cpp
     os/memory.h
+    os/midi_driver.cpp
+    os/midi_driver.h
+    os/os.cpp
+    os/os.h
     os/mutex.cpp
     os/mutex.h
     os/rw_lock.cpp
@@ -255,6 +264,13 @@ set(generic_core_sources
     os/semaphore.h
     os/thread.cpp
     os/thread.h
+    os/thread_dummy.cpp
+    os/thread_dummy.h
+    os/thread_safe.cpp
+    os/thread_safe.h
+    os/threaded_array_processor.h
+
+    service_interfaces/CoreInterface.h
 
     array.cpp
     array.h
@@ -268,15 +284,22 @@ set(generic_core_sources
     error_list.h
     error_macros.cpp
     error_macros.h
+    forward_decls.h
+    godot_export.h
+    image_data.h
     node_path.cpp
     node_path.h
     print_string.cpp
     print_string.h
     safe_refcount.cpp
     safe_refcount.h
+    string_builder.cpp
+    string_builder.h
     string_formatter.h
     string_name.cpp
     string_name.h
+    timing_assert.h
+    typedefs.h
 
     property_info.cpp
     property_info.h
@@ -286,53 +309,35 @@ set(generic_core_sources
     list.h
     map.h
     ordered_hash_map.h
+    oa_hash_map.h
     pair.h
     pool_vector.cpp
     pool_vector.h
+    ring_buffer.h
     se_string.cpp
     se_string.h
     self_list.h
     set.h
     ustring.cpp
     ustring.h
+    string_utils.h
+    string_utils.inl
     vector.cpp
     vector.h
+    vmap.h
+    vset.h
 
     container_tools.h
     sort_array.h
-)
-list(APPEND core_sources configuration.h )
 
-# Generate AES256 script encryption key
-add_custom_command(
-    COMMAND editor_to_header encryption ${CMAKE_CURRENT_BINARY_DIR}
-    OUTPUT  ${CMAKE_CURRENT_BINARY_DIR}/script_encryption_key.gen.cpp
-    DEPENDS editor_to_header
-    COMMENT "Generating controllers header"
+    version.h
+    version_generated.gen.h
+    configuration.h
 )
-
-update_version("")
-
-
-add_custom_command(
-    COMMAND editor_to_header license "${PROJECT_SOURCE_DIR}/COPYRIGHT.txt" "${PROJECT_SOURCE_DIR}/LICENSE.txt" ${CMAKE_CURRENT_BINARY_DIR}/license.gen.h
-    OUTPUT  ${CMAKE_CURRENT_BINARY_DIR}/license.gen.h
-    DEPENDS editor_to_header ${PROJECT_SOURCE_DIR}/COPYRIGHT.txt ${PROJECT_SOURCE_DIR}/LICENSE.txt
-    COMMENT "Generating license header"
+set(tool_core_sources
+    math/math_fieldwise.cpp
+    math/math_fieldwise.h
 )
-add_custom_command(
-    COMMAND editor_to_header authors "${PROJECT_SOURCE_DIR}/AUTHORS.md" ${CMAKE_CURRENT_BINARY_DIR}/authors.gen.h
-    OUTPUT  ${CMAKE_CURRENT_BINARY_DIR}/authors.gen.h
-    DEPENDS editor_to_header ${PROJECT_SOURCE_DIR}/AUTHORS.md
-    COMMENT "Generating authors header"
-)
-add_custom_command(
-    COMMAND editor_to_header donors "${PROJECT_SOURCE_DIR}/DONORS.md" ${CMAKE_CURRENT_BINARY_DIR}/donors.gen.h
-    OUTPUT  ${CMAKE_CURRENT_BINARY_DIR}/donors.gen.h
-    DEPENDS editor_to_header ${PROJECT_SOURCE_DIR}/DONORS.md
-    COMMENT "Generating donors header"
-)
-
 
 list(APPEND core_sources ${CMAKE_CURRENT_BINARY_DIR}/license.gen.h)
 list(APPEND core_sources ${CMAKE_CURRENT_BINARY_DIR}/authors.gen.h)
@@ -344,7 +349,7 @@ add_subdirectory(crypto)
 
 add_library(se_core STATIC ${generic_core_sources})
 target_link_libraries(se_core PUBLIC core_service_interfaces Qt5::Core)
-target_link_libraries(se_core PRIVATE EASTL)
+target_link_libraries(se_core PRIVATE EASTL zstd_internal minizip thirdparty_misc )
 target_include_directories(se_core PUBLIC ${PROJECT_BINARY_DIR})
 set_common_target_properties(se_core)
 
@@ -352,18 +357,17 @@ set_common_target_properties(se_core)
 # Build it all as a library
 # Make binders
 foreach(tgt ${global_targets})
-    OPTION(OPTION_${tgt}_USE_PTRCALL "Use ptrcall in GDNative" ON)
+    OPTION(OPTION_${tgt}_USE_PTRCALL "Use ptrcall in GDNative" OFF)
 
     add_library(${tgt}_core STATIC
         ${CMAKE_CURRENT_BINARY_DIR}/script_encryption_key.gen.cpp
-        ${core_sources}
+        ${core_sources} ${tool_core_sources}
         service_interfaces/CoreInterface.h
     )
 
-    target_link_libraries(${tgt}_core PRIVATE core_plugin_interfaces ) # access to embedded resources
+    target_link_libraries(${tgt}_core PRIVATE core_plugin_interfaces )
     target_link_libraries(${tgt}_core PUBLIC se_core)
-    target_link_libraries(${tgt}_core PRIVATE zstd_internal thirdparty_misc minizip )
-    target_link_libraries(${tgt}_core PUBLIC EASTL_Import )
+    target_link_libraries(${tgt}_core PUBLIC EASTL_Import zlib_interface)
 
     target_link_libraries(${tgt}_engine PRIVATE EASTL )
     target_link_libraries(${tgt}_engine INTERFACE EASTL_Import )
@@ -390,9 +394,4 @@ foreach(tgt ${global_targets})
     )
 
     set_common_target_properties(${tgt}_core)
-    set_target_properties(${tgt}_core PROPERTIES COTIRE_ADD_UNITY_BUILD FALSE)
-    set_target_properties(${tgt}_core PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "${PROJECT_SOURCE_DIR}/core/precompiled.h")
-    if(ENABLE_COTIRE)
-        cotire(${tgt}_core)
-    endif()
 endforeach()

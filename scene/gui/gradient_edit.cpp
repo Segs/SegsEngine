@@ -280,11 +280,13 @@ void GradientEdit::_gui_input(const Ref<InputEvent> &p_event) {
 
             if (points[i].offset == newofs && i != grabbed) {
                 valid = false;
+                break;
             }
         }
 
-        if (!valid)
+        if (!valid || grabbed == -1) {
             return;
+        }
 
         points.write[grabbed].offset = newofs;
 

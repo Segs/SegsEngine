@@ -207,8 +207,8 @@ public:
     virtual void texture_set_size_override(RID p_texture, int p_width, int p_height, int p_depth_3d) = 0;
     virtual void texture_bind(RID p_texture, uint32_t p_texture_no) = 0;
 
-    virtual void texture_set_path(RID p_texture, const String &p_path) = 0;
-    virtual String texture_get_path(RID p_texture) const = 0;
+    virtual void texture_set_path(RID p_texture, se_string_view p_path) = 0;
+    virtual const se_string &texture_get_path(RID p_texture) const = 0;
 
     virtual void texture_set_shrink_all_x2_on_set_data(bool p_enable) = 0;
 
@@ -235,9 +235,9 @@ public:
 
     virtual RID shader_create() = 0;
 
-    virtual void shader_set_code(RID p_shader, const String &p_code) = 0;
-    virtual String shader_get_code(RID p_shader) const = 0;
-    virtual void shader_get_param_list(RID p_shader, ListPOD<PropertyInfo> *p_param_list) const = 0;
+    virtual void shader_set_code(RID p_shader, const se_string &p_code) = 0;
+    virtual se_string shader_get_code(RID p_shader) const = 0;
+    virtual void shader_get_param_list(RID p_shader, PODVector<PropertyInfo> *p_param_list) const = 0;
 
     virtual void shader_set_default_texture_param(RID p_shader, const StringName &p_name, RID p_texture) = 0;
     virtual RID shader_get_default_texture_param(RID p_shader, const StringName &p_name) const = 0;
@@ -577,7 +577,7 @@ public:
     virtual VS::InstanceType get_base_type(RID p_rid) const = 0;
     virtual bool free(RID p_rid) = 0;
 
-    virtual bool has_os_feature(const String &p_feature) const = 0;
+    virtual bool has_os_feature(const StringName &p_feature) const = 0;
 
     virtual void update_dirty_resources() = 0;
 

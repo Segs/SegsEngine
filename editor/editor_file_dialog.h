@@ -33,7 +33,7 @@
 #include "core/os/dir_access.h"
 #include "scene/gui/box_container.h"
 #include "scene/gui/dialogs.h"
-#include "scene/gui/item_list.h"
+//#include "scene/gui/item_list.h"
 #include "scene/gui/line_edit.h"
 #include "scene/gui/option_button.h"
 #include "scene/gui/separator.h"
@@ -43,6 +43,7 @@
 #include "core/translation_helpers.h"
 
 class DependencyRemoveDialog;
+class ItemList;
 
 class EditorFileDialog : public ConfirmationDialog {
 
@@ -68,7 +69,7 @@ public:
         MODE_SAVE_FILE
     };
 
-    using GetIconFunc = Ref<Texture> (*)(const String &);
+    using GetIconFunc = Ref<Texture> (*)(se_string_view);
     using RegisterFunc = void (*)(EditorFileDialog *);
 
     static GetIconFunc get_icon_func;
@@ -106,10 +107,11 @@ private:
     TextureRect *preview;
     VBoxContainer *preview_vb;
     HSplitContainer *list_hb;
+    HBoxContainer *file_box;
     LineEdit *file;
+    OptionButton *filter;
     AcceptDialog *mkdirerr;
     AcceptDialog *exterr;
-    OptionButton *filter;
     DirAccess *dir_access;
     ConfirmationDialog *confirm_save;
     DependencyRemoveDialog *remove_dialog;
@@ -127,11 +129,11 @@ private:
     ItemList *favorites;
     ItemList *recent;
 
-    Vector<String> local_history;
+    Vector<se_string> local_history;
     int local_history_pos;
     void _push_history();
 
-    Vector<String> filters;
+    PODVector<se_string> filters;
 
     bool preview_waiting;
     int preview_wheel_index;
@@ -167,8 +169,8 @@ private:
     void _item_menu_id_pressed(int p_option);
 
     void _select_drive(int p_idx);
-    void _dir_entered(String p_dir);
-    void _file_entered(const String &p_file);
+    void _dir_entered(se_string_view p_dir);
+    void _file_entered(se_string_view p_file);
     void _action_pressed();
     void _save_confirm_pressed();
     void _cancel_pressed();
@@ -189,9 +191,9 @@ private:
     void _save_to_recent();
     //callback function is callback(String p_path,Ref<Texture> preview,Variant udata) preview null if could not load
 
-    void _thumbnail_result(const String &p_path, const Ref<Texture> &p_preview, const Ref<Texture> &p_small_preview, const Variant &p_udata);
-    void _thumbnail_done(const String &p_path, const Ref<Texture> &p_preview, const Ref<Texture> &p_small_preview, const Variant &p_udata);
-    void _request_single_thumbnail(const String &p_path);
+    void _thumbnail_result(se_string_view p_path, const Ref<Texture> &p_preview, const Ref<Texture> &p_small_preview, const Variant &p_udata);
+    void _thumbnail_done(se_string_view p_path, const Ref<Texture> &p_preview, const Ref<Texture> &p_small_preview, const Variant &p_udata);
+    void _request_single_thumbnail(se_string_view p_path);
 
     void _unhandled_input(const Ref<InputEvent> &p_event);
 
@@ -203,17 +205,17 @@ protected:
     //bind helpers
 public:
     void clear_filters();
-    void add_filter(const String &p_filter);
+    void add_filter(se_string_view p_filter);
 
     void set_enable_multiple_selection(bool p_enable);
-    Vector<String> get_selected_files() const;
+    Vector<se_string> get_selected_files() const;
 
-    String get_current_dir() const;
-    String get_current_file() const;
-    String get_current_path() const;
-    void set_current_dir(const String &p_dir);
-    void set_current_file(const String &p_file);
-    void set_current_path(const String &p_path);
+    se_string get_current_dir() const;
+    se_string get_current_file() const;
+    se_string get_current_path() const;
+    void set_current_dir(se_string_view p_dir);
+    void set_current_file(se_string_view p_file);
+    void set_current_path(se_string_view p_path);
 
     void set_display_mode(DisplayMode p_mode);
     DisplayMode get_display_mode() const;
@@ -250,7 +252,7 @@ class EditorLineEditFileChooser : public HBoxContainer {
     LineEdit *line_edit;
     EditorFileDialog *dialog;
 
-    void _chosen(const String &p_text);
+    void _chosen(se_string_view p_text);
     void _browse();
 
 protected:

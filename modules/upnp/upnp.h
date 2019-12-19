@@ -38,86 +38,85 @@
 
 class UPNP : public RefCounted {
 
-	GDCLASS(UPNP,RefCounted)
+    GDCLASS(UPNP,RefCounted)
 
 private:
-	String discover_multicast_if;
-	int discover_local_port;
-	bool discover_ipv6;
+    se_string discover_multicast_if;
+    int discover_local_port;
+    bool discover_ipv6;
 
-	Vector<Ref<UPNPDevice> > devices;
+    PODVector<Ref<UPNPDevice> > devices;
 
-	bool is_common_device(const String &dev) const;
-	void add_device_to_list(UPNPDev *dev, UPNPDev *devlist);
-	void parse_igd(Ref<UPNPDevice> dev, UPNPDev *devlist);
-	char *load_description(const String &url, int *size, int *status_code) const;
+    bool is_common_device(se_string_view dev) const;
+    void add_device_to_list(UPNPDev *dev, UPNPDev *devlist);
+    void parse_igd(Ref<UPNPDevice> dev, UPNPDev *devlist);
+    char *load_description(const se_string &url, int *size, int *status_code) const;
 
 protected:
-	static void _bind_methods();
+    static void _bind_methods();
 
 public:
-	enum UPNPResult {
+    enum UPNPResult {
 
-		UPNP_RESULT_SUCCESS,
-		UPNP_RESULT_NOT_AUTHORIZED,
-		UPNP_RESULT_PORT_MAPPING_NOT_FOUND,
-		UPNP_RESULT_INCONSISTENT_PARAMETERS,
-		UPNP_RESULT_NO_SUCH_ENTRY_IN_ARRAY,
-		UPNP_RESULT_ACTION_FAILED,
-		UPNP_RESULT_SRC_IP_WILDCARD_NOT_PERMITTED,
-		UPNP_RESULT_EXT_PORT_WILDCARD_NOT_PERMITTED,
-		UPNP_RESULT_INT_PORT_WILDCARD_NOT_PERMITTED,
-		UPNP_RESULT_REMOTE_HOST_MUST_BE_WILDCARD,
-		UPNP_RESULT_EXT_PORT_MUST_BE_WILDCARD,
-		UPNP_RESULT_NO_PORT_MAPS_AVAILABLE,
-		UPNP_RESULT_CONFLICT_WITH_OTHER_MECHANISM,
-		UPNP_RESULT_CONFLICT_WITH_OTHER_MAPPING,
-		UPNP_RESULT_SAME_PORT_VALUES_REQUIRED,
-		UPNP_RESULT_ONLY_PERMANENT_LEASE_SUPPORTED,
-		UPNP_RESULT_INVALID_GATEWAY,
-		UPNP_RESULT_INVALID_PORT,
-		UPNP_RESULT_INVALID_PROTOCOL,
-		UPNP_RESULT_INVALID_DURATION,
-		UPNP_RESULT_INVALID_ARGS,
-		UPNP_RESULT_INVALID_RESPONSE,
-		UPNP_RESULT_INVALID_PARAM,
-		UPNP_RESULT_HTTP_ERROR,
-		UPNP_RESULT_SOCKET_ERROR,
-		UPNP_RESULT_MEM_ALLOC_ERROR,
-		UPNP_RESULT_NO_GATEWAY,
-		UPNP_RESULT_NO_DEVICES,
-		UPNP_RESULT_UNKNOWN_ERROR,
-	};
+        UPNP_RESULT_SUCCESS,
+        UPNP_RESULT_NOT_AUTHORIZED,
+        UPNP_RESULT_PORT_MAPPING_NOT_FOUND,
+        UPNP_RESULT_INCONSISTENT_PARAMETERS,
+        UPNP_RESULT_NO_SUCH_ENTRY_IN_ARRAY,
+        UPNP_RESULT_ACTION_FAILED,
+        UPNP_RESULT_SRC_IP_WILDCARD_NOT_PERMITTED,
+        UPNP_RESULT_EXT_PORT_WILDCARD_NOT_PERMITTED,
+        UPNP_RESULT_INT_PORT_WILDCARD_NOT_PERMITTED,
+        UPNP_RESULT_REMOTE_HOST_MUST_BE_WILDCARD,
+        UPNP_RESULT_EXT_PORT_MUST_BE_WILDCARD,
+        UPNP_RESULT_NO_PORT_MAPS_AVAILABLE,
+        UPNP_RESULT_CONFLICT_WITH_OTHER_MECHANISM,
+        UPNP_RESULT_CONFLICT_WITH_OTHER_MAPPING,
+        UPNP_RESULT_SAME_PORT_VALUES_REQUIRED,
+        UPNP_RESULT_ONLY_PERMANENT_LEASE_SUPPORTED,
+        UPNP_RESULT_INVALID_GATEWAY,
+        UPNP_RESULT_INVALID_PORT,
+        UPNP_RESULT_INVALID_PROTOCOL,
+        UPNP_RESULT_INVALID_DURATION,
+        UPNP_RESULT_INVALID_ARGS,
+        UPNP_RESULT_INVALID_RESPONSE,
+        UPNP_RESULT_INVALID_PARAM,
+        UPNP_RESULT_HTTP_ERROR,
+        UPNP_RESULT_SOCKET_ERROR,
+        UPNP_RESULT_MEM_ALLOC_ERROR,
+        UPNP_RESULT_NO_GATEWAY,
+        UPNP_RESULT_NO_DEVICES,
+        UPNP_RESULT_UNKNOWN_ERROR,
+    };
 
-	static int upnp_result(int in);
+    static int upnp_result(int in);
 
-	int get_device_count() const;
-	Ref<UPNPDevice> get_device(int index) const;
-	void add_device(Ref<UPNPDevice> device);
-	void set_device(int index, Ref<UPNPDevice> device);
-	void remove_device(int index);
-	void clear_devices();
+    int get_device_count() const;
+    Ref<UPNPDevice> get_device(int index) const;
+    void add_device(Ref<UPNPDevice> device);
+    void set_device(int index, Ref<UPNPDevice> device);
+    void remove_device(int index);
+    void clear_devices();
 
-	Ref<UPNPDevice> get_gateway() const;
+    Ref<UPNPDevice> get_gateway() const;
 
-	int discover(int timeout = 2000, int ttl = 2, const String &device_filter = "InternetGatewayDevice");
+    int discover(int timeout = 2000, int ttl = 2, se_string_view device_filter = "InternetGatewayDevice");
 
-	String query_external_address() const;
+    se_string query_external_address() const;
 
-	int add_port_mapping(int port, int port_internal = 0, String desc = "", String proto = "UDP", int duration = 0) const;
-	int delete_port_mapping(int port, String proto = "UDP") const;
+    int add_port_mapping(int port, int port_internal = 0, const se_string &desc = {}, const se_string &proto = "UDP", int duration = 0) const;
+    int delete_port_mapping(int port, se_string_view proto = "UDP") const;
 
-	void set_discover_multicast_if(const String &m_if);
-	String get_discover_multicast_if() const;
+    void set_discover_multicast_if(se_string_view m_if);
+    const se_string &get_discover_multicast_if() const;
 
-	void set_discover_local_port(int port);
-	int get_discover_local_port() const;
+    void set_discover_local_port(int port);
+    int get_discover_local_port() const;
 
-	void set_discover_ipv6(bool ipv6);
-	bool is_discover_ipv6() const;
+    void set_discover_ipv6(bool ipv6);
+    bool is_discover_ipv6() const;
 
-	UPNP();
-	~UPNP() override;
+    UPNP();
+    ~UPNP() override;
 };
 
-VARIANT_ENUM_CAST(UPNP::UPNPResult)

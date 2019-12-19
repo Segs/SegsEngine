@@ -67,11 +67,11 @@ public:
     /* misc */
 
     Plane operator-() const { return Plane(-normal, -d); }
-    bool is_almost_like(const Plane &p_plane) const;
+    bool is_equal_approx(const Plane &p_plane) const;
 
     _FORCE_INLINE_ bool operator==(const Plane &p_plane) const;
     _FORCE_INLINE_ bool operator!=(const Plane &p_plane) const;
-    operator String() const;
+    operator se_string() const;
 
     _FORCE_INLINE_ Plane() = default;
     _FORCE_INLINE_ Plane(real_t p_a, real_t p_b, real_t p_c, real_t p_d) :
@@ -123,10 +123,10 @@ Plane::Plane(const Vector3 &p_point1, const Vector3 &p_point2, const Vector3 &p_
 
 bool Plane::operator==(const Plane &p_plane) const {
 
-    return normal == p_plane.normal && Math::is_equal_approx(d, p_plane.d);
+    return normal == p_plane.normal && d == p_plane.d;
 }
 
 bool Plane::operator!=(const Plane &p_plane) const {
 
-    return normal != p_plane.normal || !Math::is_equal_approx(d, p_plane.d);
+    return normal != p_plane.normal || d != p_plane.d;
 }

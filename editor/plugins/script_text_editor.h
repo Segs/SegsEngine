@@ -46,7 +46,7 @@ class ConnectionInfoDialog : public AcceptDialog {
     void ok_pressed() override;
 
 public:
-    void popup_connections(const String& p_method, const Vector<Node *>& p_nodes);
+    void popup_connections(se_string_view p_method, const Vector<Node *>& p_nodes);
 
     ConnectionInfoDialog();
 };
@@ -59,12 +59,13 @@ class ScriptTextEditor : public ScriptEditorBase {
     RichTextLabel *warnings_panel;
 
     Ref<Script> script;
+    bool script_is_valid;
 
-    Vector<String> functions;
+    Vector<se_string> functions;
 
     List<Connection> missing_connections;
 
-    Vector<String> member_keywords;
+    Vector<se_string> member_keywords;
 
     HBoxContainer *edit_hb;
 
@@ -82,7 +83,7 @@ class ScriptTextEditor : public ScriptEditorBase {
     PopupPanel *color_panel;
     ColorPicker *color_picker;
     Vector2 color_position;
-    String color_args;
+    se_string color_args;
 
     void _update_member_keywords();
 
@@ -153,8 +154,8 @@ protected:
     void _update_bookmark_list();
     void _bookmark_item_pressed(int p_idx);
 
-    static void _code_complete_scripts(void *p_ud, const String &p_code, List<ScriptCodeCompletionOption> *r_options, bool &r_force);
-    void _code_complete_script(const String &p_code, List<ScriptCodeCompletionOption> *r_options, bool &r_force);
+    static void _code_complete_scripts(void *p_ud, const se_string &p_code, List<ScriptCodeCompletionOption> *r_options, bool &r_force);
+    void _code_complete_script(const se_string &p_code, List<ScriptCodeCompletionOption> *r_options, bool &r_force);
 
     void _load_theme_settings();
     void _set_theme_for_script();
@@ -165,7 +166,7 @@ protected:
     void _notification(int p_what);
     static void _bind_methods();
 
-    Map<String, SyntaxHighlighter *> highlighters;
+    Map<se_string, SyntaxHighlighter *> highlighters;
     void _change_syntax_highlighter(int p_idx);
 
     void _edit_option(int p_op);
@@ -175,9 +176,9 @@ protected:
     void _color_changed(const Color &p_color);
 
     void _goto_line(int p_line) { goto_line(p_line); }
-    void _lookup_symbol(const String &p_symbol, int p_row, int p_column);
+    void _lookup_symbol(const StringName &p_symbol, int p_row, int p_column);
 
-    void _lookup_connections(int p_row, const String &p_method);
+    void _lookup_connections(int p_row, se_string_view p_method);
 
     void _convert_case(CodeTextEditor::CaseStyle p_case);
 
@@ -194,9 +195,9 @@ public:
     void apply_code() override;
     RES get_edited_resource() const override;
     void set_edited_resource(const RES &p_res) override;
-    Vector<String> get_functions() override;
+    Vector<se_string> get_functions() override;
     void reload_text() override;
-    String get_name() override;
+    se_string get_name() override;
     Ref<Texture> get_icon() override;
     bool is_unsaved() override;
     Variant get_edit_state() override;
@@ -217,12 +218,12 @@ public:
     void reload(bool p_soft) override;
     void get_breakpoints(List<int> *p_breakpoints) override;
 
-    void add_callback(const String &p_function, PoolStringArray p_args) override;
+    void add_callback(const StringName &p_function, const PoolVector<se_string> &p_args) override;
     void update_settings() override;
 
     bool show_members_overview() override;
 
-    void set_tooltip_request_func(String p_method, Object *p_obj) override;
+    void set_tooltip_request_func(se_string_view p_method, Object *p_obj) override;
 
     void set_debugger_active(bool p_active) override;
 

@@ -1,7 +1,7 @@
 #pragma once
 
-#ifdef PTRCALL_ENABLED
 #include "core/type_info.h"
+#ifdef PTRCALL_ENABLED
 
 //TODO: SEGS: all enums are encoded as ints, try using underlying type helper here?
 
@@ -32,7 +32,7 @@
     struct VariantCaster<m_enum> {                                    \
                                                                       \
         static _FORCE_INLINE_ m_enum cast(const Variant &p_variant) { \
-            return (m_enum)p_variant.operator int();                  \
+            return (m_enum)p_variant.as<int>();                       \
         }                                                             \
     };
 

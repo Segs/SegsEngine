@@ -114,8 +114,8 @@ public:
 	void add_force(const Vector3 &p_force, const Vector3 &p_pos) override;
 	void add_torque(const Vector3 &p_torque) override;
 	void apply_central_impulse(const Vector3 &p_impulse) override;
-	void apply_impulse(const Vector3 &p_pos, const Vector3 &p_j) override;
-	void apply_torque_impulse(const Vector3 &p_j) override;
+    void apply_impulse(const Vector3 &p_pos, const Vector3 &p_impulse) override;
+	void apply_torque_impulse(const Vector3 &p_impulse) override;
 
 	void set_sleep_state(bool p_enable) override;
 	bool is_sleeping() const override;

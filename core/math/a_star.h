@@ -40,75 +40,55 @@
 
 	@author Juan Linietsky <reduzio@gmail.com>
 */
+struct AStarPoint;
 
-class AStar : public RefCounted {
+class GODOT_EXPORT AStar : public RefCounted {
 
     GDCLASS(AStar,RefCounted)
 
-	struct Point {
 
-		Point() :
-				neighbours(4u),
-				unlinked_neighbours(4u) {}
-		int id;
-		Vector3 pos;
-		real_t weight_scale;
-		bool enabled;
-		OAHashMap<int, Point *> neighbours;
-		OAHashMap<int, Point *> unlinked_neighbours;
+    struct Segment {
+        union {
+            struct {
+                int32_t u;
+                int32_t v;
+            };
+            uint64_t key;
+        };
 
-		// Used for pathfinding.
+        enum {
+            NONE = 0,
+            FORWARD = 1,
+            BACKWARD = 2,
+            BIDIRECTIONAL = FORWARD | BACKWARD
+        };
+        unsigned char direction;
 
-		Point *prev_point;
-		real_t g_score;
-		real_t f_score;
-		uint64_t open_pass;
-		uint64_t closed_pass;
-	};
-
-	struct SortPoints {
-		_FORCE_INLINE_ bool operator()(const Point *A, const Point *B) const { // Returns true when the Point A is worse than Point B.
-			if (A->f_score > B->f_score) {
-				return true;
-			} else if (A->f_score < B->f_score) {
-				return false;
-			} else {
-				return A->g_score < B->g_score; // If the f_costs are the same then prioritize the points that are further away from the start.
-			}
-		}
-	};
-
-	struct Segment {
-		union {
-			struct {
-				int32_t from;
-				int32_t to;
-			};
-			uint64_t key;
-		};
-
-		Point *from_point;
-		Point *to_point;
-
-		bool operator<(const Segment &p_s) const { return key < p_s.key; }
-		Segment() { key = 0; }
-		Segment(int p_from, int p_to) {
-			if (p_from > p_to) {
-				SWAP(p_from, p_to);
-			}
-
-			from = p_from;
-			to = p_to;
-		}
-	};
+        bool operator<(const Segment &p_s) const { return key < p_s.key; }
+        Segment() {
+            key = 0;
+            direction = NONE;
+        }
+        Segment(int p_from, int p_to) {
+            if (p_from < p_to) {
+                u = p_from;
+                v = p_to;
+                direction = FORWARD;
+            } else {
+                u = p_to;
+                v = p_from;
+                direction = BACKWARD;
+            }
+        }
+    };
 
 	int last_free_id;
 	uint64_t pass;
 
-	OAHashMap<int, Point *> points;
+    OAHashMap<int, AStarPoint *> points;
 	Set<Segment> segments;
 
-	bool _solve(Point *begin_point, Point *end_point);
+    bool _solve(AStarPoint *begin_point, AStarPoint *end_point);
 
 protected:
 	static void _bind_methods();
@@ -133,8 +113,8 @@ public:
 	bool is_point_disabled(int p_id) const;
 
 	void connect_points(int p_id, int p_with_id, bool bidirectional = true);
-	void disconnect_points(int p_id, int p_with_id);
-	bool are_points_connected(int p_id, int p_with_id) const;
+    void disconnect_points(int p_id, int p_with_id, bool bidirectional = true);
+    bool are_points_connected(int p_id, int p_with_id, bool bidirectional = true) const;
 
 	int get_point_count() const;
 	int get_point_capacity() const;
@@ -151,7 +131,7 @@ public:
 	~AStar() override;
 };
 
-class AStar2D : public RefCounted {
+class GODOT_EXPORT AStar2D : public RefCounted {
     GDCLASS(AStar2D,RefCounted)
 	AStar astar;
 

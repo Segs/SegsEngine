@@ -32,6 +32,7 @@
 #include "editor/editor_scale.h"
 #include "core/method_bind.h"
 #include "core/translation_helpers.h"
+#include "scene/gui/panel.h"
 
 IMPL_GDCLASS(StyleBoxPreview)
 IMPL_GDCLASS(EditorInspectorPluginStyleBox)
@@ -50,7 +51,7 @@ void EditorInspectorPluginStyleBox::parse_begin(Object *p_object) {
     preview->edit(sb);
     add_custom_control(preview);
 }
-bool EditorInspectorPluginStyleBox::parse_property(Object *p_object, VariantType p_type, const String &p_path, PropertyHint p_hint, const String &p_hint_text, int p_usage) {
+bool EditorInspectorPluginStyleBox::parse_property(Object *p_object, VariantType p_type, se_string_view p_path, PropertyHint p_hint, se_string_view p_hint_text, int p_usage) {
     return false; //do not want
 }
 void EditorInspectorPluginStyleBox::parse_end() {
@@ -71,21 +72,31 @@ void StyleBoxPreview::edit(const Ref<StyleBox> &p_stylebox) {
 void StyleBoxPreview::_sb_changed() {
 
     preview->update();
-    if (stylebox) {
-        Size2 ms = stylebox->get_minimum_size() * 4 / 3;
-        ms.height = MAX(ms.height, 150 * EDSCALE);
-        preview->set_custom_minimum_size(ms);
-    }
 }
 
+void StyleBoxPreview::_redraw() {
+    if (stylebox) {
+        Rect2 preview_rect = preview->get_rect();
+
+        // Re-adjust preview panel to fit all drawn content
+        Rect2 draw_rect = stylebox->get_draw_rect(preview_rect);
+        preview_rect.size -= draw_rect.size - preview_rect.size;
+        preview_rect.position -= draw_rect.position - preview_rect.position;
+
+        preview->draw_style_box(stylebox, preview_rect);
+    }
+}
 void StyleBoxPreview::_bind_methods() {
 
     MethodBinder::bind_method("_sb_changed", &StyleBoxPreview::_sb_changed);
+    MethodBinder::bind_method("_redraw", &StyleBoxPreview::_redraw);
 }
 
 StyleBoxPreview::StyleBoxPreview() {
-
-    preview = memnew(Panel);
+    preview = memnew(Control);
+    preview->set_custom_minimum_size(Size2(0, 150 * EDSCALE));
+    preview->set_clip_contents(true);
+    preview->connect("draw", this, "_redraw");
     add_margin_child(TTR("Preview:"), preview);
 }
 

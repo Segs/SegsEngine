@@ -407,7 +407,7 @@ void GraphEdit::_top_layer_input(const Ref<InputEvent> &p_ev) {
 
                             if (E->deref().from == gn->get_name() && E->deref().from_port == j) {
 
-                                Node *to = get_node((NodePath)String(E->deref().to));
+                                Node *to = get_node((NodePath)(E->deref().to));
                                 if (object_cast<GraphNode>(to)) {
 
                                     connecting_from = E->deref().to;
@@ -420,7 +420,7 @@ void GraphEdit::_top_layer_input(const Ref<InputEvent> &p_ev) {
                                     just_disconnected = true;
 
                                     emit_signal("disconnection_request", E->deref().from, E->deref().from_port, E->deref().to, E->deref().to_port);
-                                    to = get_node((NodePath)String(connecting_from)); // maybe it was erased
+                                    to = get_node((NodePath)connecting_from); // maybe it was erased
                                     if (object_cast<GraphNode>(to)) {
                                         connecting = true;
                                     }
@@ -454,7 +454,7 @@ void GraphEdit::_top_layer_input(const Ref<InputEvent> &p_ev) {
 
                             if (E->deref().to == gn->get_name() && E->deref().to_port == j) {
 
-                                Node *fr = get_node((NodePath)String(E->deref().from));
+                                Node *fr = get_node((NodePath)(E->deref().from));
                                 if (object_cast<GraphNode>(fr)) {
 
                                     connecting_from = E->deref().from;
@@ -467,7 +467,7 @@ void GraphEdit::_top_layer_input(const Ref<InputEvent> &p_ev) {
                                     just_disconnected = true;
 
                                     emit_signal("disconnection_request", E->deref().from, E->deref().from_port, E->deref().to, E->deref().to_port);
-                                    fr = get_node((NodePath)String(connecting_from)); // maybe it was erased
+                                    fr = get_node((NodePath)(connecting_from)); // maybe it was erased
                                     if (object_cast<GraphNode>(fr)) {
                                         connecting = true;
                                     }
@@ -544,9 +544,9 @@ void GraphEdit::_top_layer_input(const Ref<InputEvent> &p_ev) {
 
         if (connecting && connecting_target) {
 
-            String from = connecting_from;
+            StringName from = connecting_from;
             int from_slot = connecting_index;
-            String to = connecting_target_to;
+            StringName to = connecting_target_to;
             int to_slot = connecting_target_index;
 
             if (!connecting_out) {
@@ -557,7 +557,7 @@ void GraphEdit::_top_layer_input(const Ref<InputEvent> &p_ev) {
 
         } else if (!just_disconnected) {
 
-            String from = connecting_from;
+            StringName from = connecting_from;
             int from_slot = connecting_index;
             Vector2 ofs = Vector2(mb->get_position().x, mb->get_position().y);
 
@@ -824,8 +824,10 @@ void GraphEdit::_gui_input(const Ref<InputEvent> &p_ev) {
             if (gn && gn->is_selected()) {
 
                 Vector2 pos = (gn->get_drag_from() * zoom + drag_accum) / zoom;
-                if (is_using_snap()) {
-                    int snap = get_snap();
+                // Snapping can be toggled temporarily by holding down Ctrl.
+                // This is done here as to not toggle the grid when holding down Ctrl.
+                if (is_using_snap() ^ Input::get_singleton()->is_key_pressed(KEY_CONTROL)) {
+                    const int snap = get_snap();
                     pos = pos.snapped(Vector2(snap, snap));
                 }
 

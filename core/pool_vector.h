@@ -38,7 +38,6 @@
 
 #include <type_traits>
 
-class String;
 class Object;
 namespace std {
 class recursive_mutex;
@@ -326,7 +325,8 @@ public:
     }
 
     inline int size() const;
-    T get(int p_index) const;
+    inline bool empty() const;
+    const T & get(int p_index) const;
     void set(int p_index, const T &p_val);
     void push_back(const T &p_val);
     void append(const T &p_val) { push_back(p_val); }
@@ -341,8 +341,6 @@ public:
         for (int i = 0; i < ds; i++)
             w[bs + i] = r[i];
     }
-    // The following method is implemented in container_tools.h
-    String join(String delimiter);
     PoolVector<T> subarray(int p_from, int p_to) {
 
         if (p_from < 0) {
@@ -381,15 +379,14 @@ public:
 
         return OK;
     }
-
     bool is_locked() const { return alloc && alloc->lock > 0; }
 
-    inline T operator[](int p_index) const;
+    inline const T & operator[](int p_index) const;
 
     Error resize(int p_size);
 
     PoolVector & operator=(const PoolVector &p_pool_vector) { _reference(p_pool_vector); return *this; }
-    PoolVector & operator=(PoolVector &&p_pool_vector) {
+    PoolVector & operator=(PoolVector &&p_pool_vector) noexcept {
         if (this == &p_pool_vector || this->alloc==p_pool_vector.alloc)
         {
             return *this;
@@ -414,7 +411,13 @@ int PoolVector<T>::size() const {
 }
 
 template <class T>
-T PoolVector<T>::get(int p_index) const {
+bool PoolVector<T>::empty() const {
+
+    return alloc ? alloc->size == 0 : true;
+}
+
+template <class T>
+const T &PoolVector<T>::get(int p_index) const {
 
     return operator[](p_index);
 }
@@ -436,7 +439,7 @@ void PoolVector<T>::push_back(const T &p_val) {
 }
 
 template <class T>
-T PoolVector<T>::operator[](int p_index) const {
+const T & PoolVector<T>::operator[](int p_index) const {
 
     CRASH_BAD_INDEX(p_index, size())
 
@@ -488,11 +491,11 @@ Error PoolVector<T>::resize(int p_size) {
 
         Write w = write();
         if constexpr(std::is_base_of<Object, T>::value) {
-            for (int i = cur_elements; i < p_size; i++) {
+            for (int i = cur_elements; i < p_size; ++i) {
                 memnew_placement(&w[i], T);
             }
         } else {
-            for (int i = cur_elements; i < p_size; i++) {
+            for (int i = cur_elements; i < p_size; ++i) {
                 memnew_placement_basic(&w[i], T);
             }
         }
@@ -521,20 +524,18 @@ Error PoolVector<T>::resize(int p_size) {
 
 template <class T>
 void invert(PoolVector<T> &v) {
-    T temp;
     typename PoolVector<T>::Write w = v.write();
     int s = v.size();
     int half_s = s / 2;
 
     for (int i = 0; i < half_s; i++) {
-        temp = w[i];
+        T temp = w[i];
         w[i] = w[s - i - 1];
         w[s - i - 1] = temp;
     }
 }
 #ifndef __MINGW32__
-
-#endif
 GODOT_TEMPLATE_EXT_DECLARE(PoolVector<unsigned char>)
 GODOT_TEMPLATE_EXT_DECLARE(PoolVector<struct Vector2>)
 GODOT_TEMPLATE_EXT_DECLARE(PoolVector<struct Vector3>)
+#endif

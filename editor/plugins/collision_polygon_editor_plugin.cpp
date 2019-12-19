@@ -101,7 +101,7 @@ void Polygon3DEditor::_menu_option(int p_option) {
 
 void Polygon3DEditor::_wip_close() {
 
-    undo_redo->create_action(TTR("Create Polygon3D"));
+    undo_redo->create_action_ui(TTR("Create Polygon3D"));
     undo_redo->add_undo_method(node, "set_polygon", node->call("get_polygon"));
     undo_redo->add_do_method(node, "set_polygon", wip);
     undo_redo->add_do_method(this, "_polygon_draw");
@@ -122,7 +122,7 @@ bool Polygon3DEditor::forward_spatial_gui_input(Camera *p_camera, const Ref<Inpu
 
     Transform gt = node->get_global_transform();
     Transform gi = gt.affine_inverse();
-    float depth = _get_depth() * 0.5;
+    float depth = _get_depth() * 0.5f;
     Vector3 n = gt.basis.get_axis(2).normalized();
     Plane p(gt.origin + n * depth, n);
 
@@ -199,7 +199,7 @@ bool Polygon3DEditor::forward_spatial_gui_input(Camera *p_camera, const Ref<Inpu
 
                             if (poly.size() < 3) {
 
-                                undo_redo->create_action(TTR("Edit Poly"));
+                                undo_redo->create_action_ui(TTR("Edit Poly"));
                                 undo_redo->add_undo_method(node, "set_polygon", poly);
                                 poly.push_back(cpoint);
                                 undo_redo->add_do_method(node, "set_polygon", poly);
@@ -250,7 +250,7 @@ bool Polygon3DEditor::forward_spatial_gui_input(Camera *p_camera, const Ref<Inpu
 
                             int closest_idx = -1;
                             Vector2 closest_pos;
-                            real_t closest_dist = 1e10;
+                            real_t closest_dist = 1e10f;
                             for (int i = 0; i < poly.size(); i++) {
 
                                 Vector2 cp = p_camera->unproject_position(gt.xform(Vector3(poly[i].x, poly[i].y, depth)));
@@ -283,7 +283,7 @@ bool Polygon3DEditor::forward_spatial_gui_input(Camera *p_camera, const Ref<Inpu
 
                             ERR_FAIL_INDEX_V(edited_point, poly.size(), false);
                             poly.write[edited_point] = edited_point_pos;
-                            undo_redo->create_action(TTR("Edit Poly"));
+                            undo_redo->create_action_ui(TTR("Edit Poly"));
                             undo_redo->add_do_method(node, "set_polygon", poly);
                             undo_redo->add_undo_method(node, "set_polygon", pre_move_edit);
                             undo_redo->add_do_method(this, "_polygon_draw");
@@ -314,7 +314,7 @@ bool Polygon3DEditor::forward_spatial_gui_input(Camera *p_camera, const Ref<Inpu
 
                     if (closest_idx >= 0) {
 
-                        undo_redo->create_action(TTR("Edit Poly (Remove Point)"));
+                        undo_redo->create_action_ui(TTR("Edit Poly (Remove Point)"));
                         undo_redo->add_undo_method(node, "set_polygon", poly);
                         poly.remove(closest_idx);
                         undo_redo->add_do_method(node, "set_polygon", poly);
@@ -386,7 +386,7 @@ void Polygon3DEditor::_polygon_draw() {
     else
         poly = node->call("get_polygon");
 
-    float depth = _get_depth() * 0.5;
+    float depth = _get_depth() * 0.5f;
 
     imgeom->clear();
     imgeom->set_material_override(line_material);
@@ -398,7 +398,7 @@ void Polygon3DEditor::_polygon_draw() {
 
         Vector2 p, p2;
         p = i == edited_point ? edited_point_pos : poly[i];
-        if ((wip_active && i == poly.size() - 1) || (((i + 1) % poly.size()) == edited_point))
+        if (wip_active && i == poly.size() - 1 || (i + 1) % poly.size() == edited_point)
             p2 = edited_point_pos;
         else
             p2 = poly[(i + 1) % poly.size()];
@@ -485,7 +485,7 @@ void Polygon3DEditor::_polygon_draw() {
         PoolVector<Vector3>::Write w = va.write();
         for (int i = 0; i < poly.size(); i++) {
 
-            Vector2 p = (i == edited_point) ? edited_point_pos : poly[i];
+            Vector2 p = i == edited_point ? edited_point_pos : poly[i];
 
             Vector3 point = Vector3(p.x, p.y, depth);
             w[i] = point;

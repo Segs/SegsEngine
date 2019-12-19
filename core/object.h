@@ -37,9 +37,40 @@
 #include "core/forward_decls.h"
 #include "core/dictionary.h"
 
-/**
-@author Juan Linietsky <reduzio@gmail.com>
-*/
+class GODOT_EXPORT TypeInfo
+{
+public:
+    constexpr TypeInfo(const char *typeName, const TypeInfo *baseTypeInfo) :
+        /*type_(typeName),*/
+        typeName_(typeName),
+        baseTypeInfo_(baseTypeInfo) {}
+
+    //bool IsTypeOf(se_string_hash type) const;
+    constexpr bool IsTypeOf(const TypeInfo* typeInfo) const
+    {
+        const TypeInfo* current = this;
+        while (current)
+        {
+            if (current == typeInfo)
+                return true;
+
+            current = current->getBaseTypeInfo();
+        }
+        return false;
+    }
+    /// Check current type is type of specified class type.
+    template <typename T> bool isTypeOf() const { return IsTypeOf(T::get_type_info_static()); }
+
+    //se_string_hash GetType() const { return type_; }
+    constexpr const char *getTypeName() const { return typeName_; }
+    /// Return base type info.
+    constexpr const TypeInfo *getBaseTypeInfo() const { return baseTypeInfo_; }
+
+private:
+    //StringHash    type_;         //!< Type.
+    const char *    typeName_;     //!< Type name.
+    const TypeInfo *baseTypeInfo_; //!< Base class type info.
+};
 
 
 #define VARIANT_ARG_LIST const Variant &p_arg1 = Variant(), const Variant &p_arg2 = Variant(), const Variant &p_arg3 = Variant(), const Variant &p_arg4 = Variant(), const Variant &p_arg5 = Variant()
@@ -76,24 +107,26 @@ public:                                                             \
 private:
 
 #define GDCLASS(m_class,m_inherits)                                                                                    \
-    using SUPER_CLASS = m_inherits;                                                                                    \
+    using ClassName = m_class;                                                                                         \
+    using BaseClassName = m_inherits;                                                                                  \
+                                                                                                                       \
 private:                                                                                                               \
     mutable StringName _class_name;                                                                                    \
     friend class ClassDB;                                                                                              \
+    static constexpr TypeInfo typeInfoStatic {#m_class, BaseClassName::get_type_info_static()};              \
                                                                                                                        \
 public:                                                                                                                \
+    static constexpr const TypeInfo *get_type_info_static() { return &typeInfoStatic; }                                \
+    static constexpr const char *get_type_name_static() { return typeInfoStatic.getTypeName(); }                       \
+    const TypeInfo *get_type_info() const override { return &typeInfoStatic; }                                         \
     static bool initialize_class();                                                                                    \
-    const char *get_class() const override {                                                                           \
-        return #m_class;                                                                                               \
-    }                                                                                                                  \
     const StringName *_get_class_namev() const override {                                                              \
         if (!_class_name)                                                                                              \
             _class_name = StringName(#m_class);		                                                                   \
         return &_class_name;                                                                                           \
     }                                                                                                                  \
-    static _FORCE_INLINE_ void *get_class_ptr_static() {                                                               \
-        static int ptr;                                                                                                \
-        return &ptr;                                                                                                   \
+    static const void *get_class_ptr_static() {                                                                        \
+        return &typeInfoStatic;                                                                                        \
     }                                                                                                                  \
     static constexpr _FORCE_INLINE_ const char *get_class_static() {                                                   \
         return #m_class;				                                                                               \
@@ -102,14 +135,12 @@ public:                                                                         
         return StringName(#m_class);	                                                                               \
     }                                                                                                                  \
     static _FORCE_INLINE_ const char *get_parent_class_static() {                                                      \
-        return SUPER_CLASS::get_class_static();                                                                        \
+        return BaseClassName::get_class_static();                                                                        \
     }                                                                                                                  \
-    static void get_inheritance_list_static(DefList<String> *p_inheritance_list);                                      \
-    static String get_category_static();                                                                               \
     virtual bool is_class(const char *p_class) const override {                                                        \
-            return (0==strcmp(p_class,#m_class)) ? true : SUPER_CLASS::is_class(p_class); }                            \
+            return (0==strcmp(p_class,#m_class)) ? true : BaseClassName::is_class(p_class); }                            \
     virtual bool is_class_ptr(void *p_ptr) const override {                                                            \
-            return (p_ptr == get_class_ptr_static()) ? true : SUPER_CLASS::is_class_ptr(p_ptr); }                      \
+            return (p_ptr == get_class_ptr_static()) ? true : BaseClassName::is_class_ptr(p_ptr); }                      \
                                                                                                                        \
 protected:                                                                                                             \
     _FORCE_INLINE_ static void (*_get_bind_methods())() {                                                              \
@@ -117,25 +148,22 @@ protected:                                                                      
     }                                                                                                                  \
                                                                                                                        \
 protected:                                                                                                             \
-    bool _initialize_classv() override {                                                                               \
-        return initialize_class();                                                                                     \
-    }                                                                                                                  \
+    bool _initialize_classv() override { return initialize_class(); }                                                  \
     static constexpr _FORCE_INLINE_ bool (Object::*_get_get() )(const StringName &p_name, Variant &r_ret) const {      \
         return (bool (Object::*)(const StringName &, Variant &) const) & m_class::_get;                                \
     }                                                                                                                  \
     bool _getv(const StringName &p_name, Variant &r_ret) const override {                                              \
-        if (m_class::_get_get() != SUPER_CLASS::_get_get()) {                                                          \
-            if (_get(p_name, r_ret))                                                                                   \
-                return true;                                                                                           \
+        if (m_class::_get_get() != BaseClassName::_get_get()) {                                                          \
+            if (_get(p_name, r_ret)) return true;                                                                      \
         }                                                                                                              \
-        return SUPER_CLASS::_getv(p_name, r_ret);                                                                      \
+        return BaseClassName::_getv(p_name, r_ret);                                                                      \
     }                                                                                                                  \
     static constexpr _FORCE_INLINE_ bool (Object::*_get_set() )(const StringName &p_name, const Variant &p_property) { \
         return (bool (Object::*)(const StringName &, const Variant &)) & m_class::_set;                                \
     }                                                                                                                  \
     bool _setv(const StringName &p_name, const Variant &p_property) override {                                         \
-        if (SUPER_CLASS::_setv(p_name, p_property)) return true;                                                       \
-        if (m_class::_get_set() != SUPER_CLASS::_get_set()) {                                                          \
+        if (BaseClassName::_setv(p_name, p_property)) return true;                                                       \
+        if (m_class::_get_set() != BaseClassName::_get_set()) {                                                          \
             return _set(p_name, p_property);                                                                           \
         }                                                                                                              \
         return false;                                                                                                  \
@@ -155,51 +183,39 @@ private:
     bool m_class::initialize_class() {                                                                                 \
         static bool initialized = false;                                                                               \
         if (initialized) return false;                                                                                 \
-        SUPER_CLASS::initialize_class();                                                                               \
-        ClassDB::_add_class<m_class, SUPER_CLASS>();                                                                   \
-        if (m_class::_get_bind_methods() != SUPER_CLASS::_get_bind_methods()) _bind_methods();                         \
+        BaseClassName::initialize_class();                                                                               \
+        ClassDB::_add_class<m_class, BaseClassName>();                                                                   \
+        if (m_class::_get_bind_methods() != BaseClassName::_get_bind_methods()) _bind_methods();                         \
         initialized = true;                                                                                            \
         return true;                                                                                                   \
     }                                                                                                                  \
-    void m_class::get_inheritance_list_static(DefList<String> *p_inheritance_list) {                                   \
-        SUPER_CLASS::get_inheritance_list_static(p_inheritance_list);                                                  \
-        p_inheritance_list->push_back(QStringLiteral(#m_class));                                                       \
-    }                                                                                                                  \
-    String m_class::get_category_static() {                                                                            \
-        String category = SUPER_CLASS::get_category_static();                                                          \
-        if (_get_category != SUPER_CLASS::_get_category) {                                                             \
-            if (!category.empty()) category += '/';                                                                    \
-            category += _get_category();                                                                               \
-        }                                                                                                              \
-        return category;                                                                                               \
-    }                                                                                                                  \
     void m_class::_notificationv(int p_notification, bool p_reversed) {                                                \
-        if (!p_reversed) SUPER_CLASS::_notificationv(p_notification, p_reversed);                                      \
-        if (m_class::_get_notification() != SUPER_CLASS::_get_notification()) {                                        \
+        if (!p_reversed) BaseClassName::_notificationv(p_notification, p_reversed);                                      \
+        if (m_class::_get_notification() != BaseClassName::_get_notification()) {                                        \
             _notification(p_notification);                                                                             \
         }                                                                                                              \
-        if (p_reversed) SUPER_CLASS::_notificationv(p_notification, p_reversed);                                       \
+        if (p_reversed) BaseClassName::_notificationv(p_notification, p_reversed);                                       \
     }                                                                                                                  \
     void m_class::_get_property_listv(ListPOD<PropertyInfo> *p_list, bool p_reversed) const {                          \
         if (!p_reversed) {                                                                                             \
-            SUPER_CLASS::_get_property_listv(p_list, p_reversed);                                                      \
+            BaseClassName::_get_property_listv(p_list, p_reversed);                                                      \
         }                                                                                                              \
         p_list->push_back(PropertyInfo(                                                                                \
-                VariantType::NIL, get_class_static(), PROPERTY_HINT_NONE, nullptr, PROPERTY_USAGE_CATEGORY));          \
+                VariantType::NIL, get_class_static_name(), PROPERTY_HINT_NONE, nullptr, PROPERTY_USAGE_CATEGORY));     \
         if (!_is_gpl_reversed()) ClassDB::get_property_list(#m_class, p_list, true, this);                             \
-        if (m_class::_get_get_property_list() != SUPER_CLASS::_get_get_property_list()) {                              \
+        if (m_class::_get_get_property_list() != BaseClassName::_get_get_property_list()) {                              \
             _get_property_list(p_list);                                                                                \
         }                                                                                                              \
         if (_is_gpl_reversed()) ClassDB::get_property_list(#m_class, p_list, true, this);                              \
         if (p_reversed) {                                                                                              \
-            SUPER_CLASS::_get_property_listv(p_list, p_reversed);                                                      \
+            BaseClassName::_get_property_listv(p_list, p_reversed);                                                      \
         }                                                                                                              \
     }
 
 #define OBJ_CATEGORY(m_category)                                                                                       \
 protected:                                                                                                             \
     _FORCE_INLINE_ static const char * _get_category() { return m_category; }                                          \
-    _FORCE_INLINE_ static String _get_category_wrap();                                                                 \
+    _FORCE_INLINE_ static se_string _get_category_wrap();                                                              \
                                                                                                                        \
 private:
 
@@ -224,14 +240,15 @@ public:
     //! this function is used to check when something changed beyond a point, it's used mainly for generating previews
     virtual uint32_t get_edited_version() const =0;
 
-    virtual void editor_set_section_unfold(const String &p_section, bool p_unfolded)=0;
-    virtual bool editor_is_section_unfolded(const String &p_section) const = 0;
-    virtual const Set<String> &editor_get_section_folding() const =0;
+    virtual void editor_set_section_unfold(se_string_view p_section, bool p_unfolded)=0;
+    virtual bool editor_is_section_unfolded(se_string_view p_section) const = 0;
+    virtual const Set<se_string> &editor_get_section_folding() const =0;
     virtual void editor_clear_section_folding()=0;
     virtual ~IObjectTooling() = default;
 };
 
 class GODOT_EXPORT Object {
+    static constexpr TypeInfo typeInfoStatic = TypeInfo( "Object", nullptr);
 public:
 
     struct Connection {
@@ -281,14 +298,14 @@ private:
     bool _predelete();
     void _postinitialize();
 
-    void _add_user_signal(const String &p_name, const Array &p_args = Array());
+    void _add_user_signal(const StringName &p_name, const Array &p_args = Array());
     bool _has_user_signal(const StringName &p_name) const;
     Variant _emit_signal(const Variant **p_args, int p_argcount, Variant::CallError &r_error);
     Array _get_signal_list() const;
-    Array _get_signal_connection_list(const String &p_signal) const;
+    Array _get_signal_connection_list(StringName p_signal) const;
     Array _get_incoming_connections() const;
-    void _set_bind(const String &p_set, const Variant &p_value);
-    Variant _get_bind(const String &p_name) const;
+    void _set_bind(const StringName &p_set, const Variant &p_value);
+    Variant _get_bind(const StringName &p_name) const;
     void _set_indexed_bind(const NodePath &p_name, const Variant &p_value);
     Variant _get_indexed_bind(const NodePath &p_name) const;
 
@@ -327,7 +344,7 @@ protected:
 
     void cancel_delete();
 
-    virtual void _changed_callback(Object *p_changed, const char *p_prop);
+    virtual void _changed_callback(Object *p_changed, StringName p_prop);
 
     Variant _call_bind(const Variant **p_args, int p_argcount, Variant::CallError &r_error);
     Variant _call_deferred_bind(const Variant **p_args, int p_argcount, Variant::CallError &r_error);
@@ -338,7 +355,7 @@ protected:
         return &_class_name;
     }
 
-    PoolVector<String> _get_meta_list_bind() const;
+    PoolSeStringArray _get_meta_list_bind() const;
     Array _get_property_list_bind() const;
     Array _get_method_list_bind() const;
 
@@ -355,13 +372,12 @@ public: //should be protected, but bug in clang++
 
 public:
 #ifdef TOOLS_ENABLED
-    void _change_notify(const char *p_property = "");
+    void _change_notify(StringName p_property = "");
 #else
     void _change_notify(const char *p_what = "") {}
 #endif
-    static void *get_class_ptr_static() {
-        static int ptr;
-        return &ptr;
+    static const void *get_class_ptr_static() {
+        return get_type_info_static();
     }
 
     bool _is_gpl_reversed() const { return false; }
@@ -379,21 +395,20 @@ public:
     };
 
     /* TYPE API */
-    static void get_inheritance_list_static(DefList<String> *p_inheritance_list);
-
+    static constexpr const TypeInfo *get_type_info_static() { return &typeInfoStatic; }
     static constexpr const char * get_class_static() { return "Object"; }
     static StringName get_class_static_name() { return StringName("Object"); }
     static const char * get_parent_class_static() { return nullptr; }
-    static String get_category_static();
 
-    virtual const char *get_class() const { return "Object"; }
-    String wrap_get_class() const;
+    virtual const TypeInfo *get_type_info() const { return get_type_info_static(); }
+    virtual const char *get_class() const { return get_type_info()->getTypeName(); }
+    se_string wrap_get_class() const;
 
     virtual const char *get_save_class() const { return get_class(); } //class stored when saving
 
     virtual bool is_class(const char *p_class) const { return 0==strcmp(p_class,"Object"); }
-    bool wrap_is_class(const String &p_class) const;
-    virtual bool is_class_ptr(void *p_ptr) const { return get_class_ptr_static() == p_ptr; }
+    bool wrap_is_class(se_string_view p_class) const;
+    virtual bool is_class_ptr(void *p_ptr) const { return get_type_info_static() == p_ptr; }
 
     _FORCE_INLINE_ const StringName &get_class_name() const {
         if (!_class_ptr) {
@@ -427,7 +442,7 @@ public:
     void call_multilevel(const StringName &p_name, VARIANT_ARG_LIST); // C++ helper
 
     void notification(int p_notification, bool p_reversed = false);
-    String to_string();
+    se_string to_string();
 
     //used mainly by script, get and set all INCLUDING string
     virtual Variant getvar(const Variant &p_key, bool *r_valid = nullptr) const;
@@ -440,11 +455,11 @@ public:
 
     /* SCRIPT */
 
-    bool has_meta(const String &p_name) const;
-    void set_meta(const String &p_name, const Variant &p_value);
-    void remove_meta(const String &p_name);
-    Variant get_meta(const String &p_name) const;
-    void get_meta_list(ListPOD<String> *p_list) const;
+    bool has_meta(se_string_view p_name) const;
+    void set_meta(se_string_view p_name, const Variant &p_value);
+    void remove_meta(se_string_view p_name);
+    Variant get_meta(se_string_view p_name) const;
+    void get_meta_list(ListPOD<se_string> *p_list) const;
 
     IObjectTooling *get_tooling_interface() const;
 
@@ -475,8 +490,8 @@ public:
     VariantType get_static_property_type(const StringName &p_property, bool *r_valid = nullptr) const;
     VariantType get_static_property_type_indexed(const Vector<StringName> &p_path, bool *r_valid = nullptr) const;
 
-    virtual void get_translatable_strings(ListPOD<String> *p_strings) const;
-    virtual void get_argument_options(const StringName &p_function, int p_idx, ListPOD<String> *r_options) const;
+    virtual void get_translatable_strings(ListPOD<StringName> *p_strings) const;
+    virtual void get_argument_options(const StringName &p_function, int p_idx, ListPOD<se_string> *r_options) const;
 
     StringName tr(const StringName &p_message) const; // translate message (internationalization)
 
@@ -533,7 +548,7 @@ namespace ObjectNS
 {
     enum ConnectFlags : uint8_t {
 
-        CONNECT_DEFERRED = 1,
+        CONNECT_QUEUED = 1,
         CONNECT_PERSIST = 2, // hint for scene to save this connection
         CONNECT_ONESHOT = 4,
         CONNECT_REFERENCE_COUNTED = 8,

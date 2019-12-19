@@ -31,7 +31,7 @@
 #include "core/list.h"
 #include "core/os/main_loop.h"
 #include "core/print_string.h"
-#include "core/ustring.h"
+#include "core/se_string.h"
 
 #ifdef DEBUG_ENABLED
 
@@ -70,7 +70,7 @@ const char **tests_get_names() {
     return test_names;
 }
 
-MainLoop *test_main(const String& p_test, const ListPOD<String> &p_args) {
+MainLoop *test_main(const se_string& p_test, const ListPOD<se_string> &p_args) {
 
     if (p_test == "string") {
 

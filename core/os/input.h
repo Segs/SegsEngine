@@ -91,13 +91,13 @@ public:
     virtual float get_action_strength(const StringName &p_action) const = 0;
 
     virtual float get_joy_axis(int p_device, int p_axis) const = 0;
-    virtual String get_joy_name(int p_idx) = 0;
+    virtual StringName get_joy_name(int p_idx) = 0;
     virtual Array get_connected_joypads() = 0;
-    virtual void joy_connection_changed(int p_idx, bool p_connected, String p_name, String p_guid) = 0;
-    virtual void add_joy_mapping(String p_mapping, bool p_update_existing = false) = 0;
-    virtual void remove_joy_mapping(String p_guid) = 0;
+    virtual void joy_connection_changed(int p_idx, bool p_connected, StringName p_name, StringName p_guid) = 0;
+    virtual void add_joy_mapping(se_string_view p_mapping, bool p_update_existing = false) = 0;
+    virtual void remove_joy_mapping(StringName p_guid) = 0;
     virtual bool is_joy_known(int p_device) = 0;
-    virtual String get_joy_guid(int p_device) const = 0;
+    virtual StringName get_joy_guid(int p_device) const = 0;
     virtual Vector2 get_joy_vibration_strength(int p_device) = 0;
     virtual float get_joy_vibration_duration(int p_device) = 0;
     virtual uint64_t get_joy_vibration_timestamp(int p_device) = 0;
@@ -120,7 +120,7 @@ public:
     virtual void action_press(const StringName &p_action, float p_strength = 1.f) = 0;
     virtual void action_release(const StringName &p_action) = 0;
 
-    void get_argument_options(const StringName &p_function, int p_idx, ListPOD<String> *r_options) const override;
+    void get_argument_options(const StringName &p_function, int p_idx, ListPOD<se_string> *r_options) const override;
 
     virtual bool is_emulating_touch_from_mouse() const = 0;
     virtual bool is_emulating_mouse_from_touch() const = 0;
@@ -130,10 +130,10 @@ public:
     virtual CursorShape get_current_cursor_shape() const = 0;
     virtual void set_custom_mouse_cursor(const RES &p_cursor, CursorShape p_shape = CURSOR_ARROW, const Vector2 &p_hotspot = Vector2()) = 0;
 
-    virtual String get_joy_button_string(int p_button) = 0;
-    virtual String get_joy_axis_string(int p_axis) = 0;
-    virtual int get_joy_button_index_from_string(String p_button) = 0;
-    virtual int get_joy_axis_index_from_string(String p_axis) = 0;
+    virtual StringName get_joy_button_string(int p_button) = 0;
+    virtual StringName get_joy_axis_string(int p_axis) = 0;
+    virtual int get_joy_button_index_from_string(se_string_view p_button) = 0;
+    virtual int get_joy_axis_index_from_string(se_string_view p_axis) = 0;
 
     virtual void parse_input_event(const Ref<InputEvent> &p_event) = 0;
     virtual void accumulate_input_event(const Ref<InputEvent> &p_event) = 0;

@@ -87,7 +87,7 @@ class SpriteFramesEditor : public HSplitContainer {
 
     void _load_pressed();
     void _load_scene_pressed();
-    void _file_load_request(const PoolVector<String> &p_path, int p_at_pos = -1);
+    void _file_load_request(const PoolVector<se_string> &p_path, int p_at_pos = -1);
     void _copy_pressed();
     void _paste_pressed();
     void _empty_pressed();
@@ -115,7 +115,7 @@ class SpriteFramesEditor : public HSplitContainer {
     void drop_data_fw(const Point2 &p_point, const Variant &p_data, Control *p_from);
 
     void _open_sprite_sheet();
-    void _prepare_sprite_sheet(const String &p_file);
+    void _prepare_sprite_sheet(se_string_view p_file);
     void _sheet_preview_draw();
     void _sheet_spin_changed(double);
     void _sheet_preview_input(const Ref<InputEvent> &p_event);
@@ -143,7 +143,7 @@ class SpriteFramesEditorPlugin : public EditorPlugin {
     Button *button;
 
 public:
-    String get_name() const override { return "SpriteFrames"; }
+    se_string_view get_name() const override { return "SpriteFrames"; }
     bool has_main_screen() const override { return false; }
     void edit(Object *p_object) override;
     bool handles(Object *p_object) const override;

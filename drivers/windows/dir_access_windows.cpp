@@ -28,6 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
+#include "string_utils.inl"
 #if defined(WINDOWS_ENABLED)
 
 #include "dir_access_windows.h"
@@ -69,20 +70,21 @@ Error DirAccessWindows::list_dir_begin() {
     _cishidden = false;
 
     list_dir_end();
-    p->h = FindFirstFileExW((current_dir + "\\*").m_str.toStdWString().c_str(), FindExInfoStandard, &p->fu,
+    p->h = FindFirstFileExW(StringUtils::from_utf8(current_dir + "\\*").toStdWString().c_str(), FindExInfoStandard, &p->fu,
             FindExSearchNameMatch, nullptr, 0);
 
     return (p->h == INVALID_HANDLE_VALUE) ? ERR_CANT_OPEN : OK;
 }
 
-String DirAccessWindows::get_next() {
+se_string DirAccessWindows::get_next() {
 
-    if (p->h == INVALID_HANDLE_VALUE) return "";
+    if (p->h == INVALID_HANDLE_VALUE)
+        return se_string();
 
     _cisdir = (p->fu.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY);
     _cishidden = (p->fu.dwFileAttributes & FILE_ATTRIBUTE_HIDDEN);
     ;
-    String name = StringUtils::from_wchar(p->fu.cFileName);
+    se_string name = StringUtils::to_utf8(StringUtils::from_wchar(p->fu.cFileName));
 
     if (FindNextFileW(p->h, &p->fu) == 0) {
 
@@ -115,29 +117,28 @@ int DirAccessWindows::get_drive_count() {
 
     return drive_count;
 }
-String DirAccessWindows::get_drive(int p_drive) {
+se_string DirAccessWindows::get_drive(int p_drive) {
 
-    if (p_drive < 0 || p_drive >= drive_count) return "";
+    if (p_drive < 0 || p_drive >= drive_count) return se_string();
 
-    return String(drives[p_drive]) + ":";
+    return se_string(&drives[p_drive],1) + ":";
 }
 
-Error DirAccessWindows::change_dir(String p_dir)
+Error DirAccessWindows::change_dir(se_string_view _dir)
 {
-    p_dir = fix_path(p_dir);
+    se_string p_dir = fix_path(_dir);
 
     QString real_current_dir_name = QDir::currentPath();
-    QString prev_dir = real_current_dir_name;
 
-    QDir cur_dir(current_dir.m_str);
-    bool worked = cur_dir.cd(p_dir.m_str);
+    QDir cur_dir(StringUtils::from_utf8(current_dir));
+    bool worked = cur_dir.cd(StringUtils::from_utf8(p_dir));
 
-    String base = _get_root_path();
+    se_string base = _get_root_path();
     if (!base.empty()) {
 
         real_current_dir_name = cur_dir.path();
-        String new_dir = real_current_dir_name;
-        if (!new_dir.m_str.startsWith(base.m_str)) {
+        se_string new_dir = StringUtils::to_utf8(real_current_dir_name);
+        if (!StringUtils::begins_with(new_dir,base)) {
             worked = false;
         }
     }
@@ -145,37 +146,37 @@ Error DirAccessWindows::change_dir(String p_dir)
     if (worked) {
 
         real_current_dir_name = cur_dir.absolutePath();
-        current_dir = real_current_dir_name;
+        current_dir = StringUtils::to_utf8(real_current_dir_name);
     }
 
     return worked ? OK : ERR_INVALID_PARAMETER;
 }
 
-Error DirAccessWindows::make_dir(String p_dir) {
+Error DirAccessWindows::make_dir(se_string_view _dir) {
 
     GLOBAL_LOCK_FUNCTION
 
-    p_dir = fix_path(p_dir);
+    se_string p_dir = fix_path(_dir);
     if (PathUtils::is_rel_path(p_dir)) p_dir = PathUtils::plus_file(current_dir,p_dir);
 
-    QDir dir(p_dir.m_str);
+    QDir dir(StringUtils::from_utf8(p_dir));
     if (!dir.exists()) {
         return dir.mkdir(".") ? OK : ERR_CANT_CREATE;
     }
     return ERR_ALREADY_EXISTS;
 }
 
-String DirAccessWindows::get_current_dir() {
+se_string DirAccessWindows::get_current_dir() {
 
-    String base = _get_root_path();
+    se_string base = _get_root_path();
     if (base.empty()) return current_dir;
 
-    String bd = StringUtils::replace_first(current_dir,base, "");
+    se_string bd = StringUtils::replace_first(current_dir,base, "");
     if (StringUtils::begins_with(bd,"/")) return _get_root_string() + StringUtils::substr(bd,1, bd.length());
     return _get_root_string() + bd;
 }
 
-bool DirAccessWindows::file_exists(String p_file) {
+bool DirAccessWindows::file_exists(se_string_view p_file) {
 
     GLOBAL_LOCK_FUNCTION
 
@@ -184,11 +185,11 @@ bool DirAccessWindows::file_exists(String p_file) {
     p_file = fix_path(p_file);
 
     // StringUtils::replace(p_file,"/","\\");
-    QFileInfo fi(p_file.m_str);
+    QFileInfo fi(StringUtils::from_utf8(p_file));
     return fi.exists() && fi.isFile();
 }
 
-bool DirAccessWindows::dir_exists(String p_dir) {
+bool DirAccessWindows::dir_exists(se_string_view p_dir) {
 
     GLOBAL_LOCK_FUNCTION
 
@@ -196,11 +197,11 @@ bool DirAccessWindows::dir_exists(String p_dir) {
 
     p_dir = fix_path(p_dir);
 
-    QFileInfo fi(p_dir.m_str);
+    QFileInfo fi(StringUtils::from_utf8(p_dir));
     return fi.exists() && fi.isDir();
 }
 
-Error DirAccessWindows::rename(String p_path, String p_new_path) {
+Error DirAccessWindows::rename(se_string_view p_path, se_string_view p_new_path) {
 
     if (PathUtils::is_rel_path(p_path)) p_path = PathUtils::plus_file(get_current_dir(),p_path);
 
@@ -209,24 +210,25 @@ Error DirAccessWindows::rename(String p_path, String p_new_path) {
     if (PathUtils::is_rel_path(p_new_path)) p_new_path = PathUtils::plus_file(get_current_dir(),p_new_path);
 
     p_new_path = fix_path(p_new_path);
-    return QFile::rename(p_path.m_str, p_new_path.m_str) ? OK : FAILED;
+    return QFile::rename(StringUtils::from_utf8(p_path), StringUtils::from_utf8(p_new_path)) ? OK : FAILED;
 }
 
-Error DirAccessWindows::remove(String p_path) {
+Error DirAccessWindows::remove(se_string_view p_path) {
 
     if (PathUtils::is_rel_path(p_path)) p_path = PathUtils::plus_file(get_current_dir(),p_path);
 
     p_path = fix_path(p_path);
 
-    printf("erasing %s\n", qPrintable(p_path.m_str));
+    printf("erasing %.*s\n", p_path.length(),p_path.data());
 
-    QFileInfo fi(p_path.m_str);
+    QString str_path(StringUtils::from_utf8(p_path));
+    QFileInfo fi(str_path);
     if (!fi.exists())
         return FAILED;
     if (fi.isDir()) {
-        return QDir().rmdir(p_path.m_str) ? OK : FAILED;
+        return QDir().rmdir(str_path) ? OK : FAILED;
     }
-    return QFile::remove(p_path.m_str) ? OK : FAILED;
+    return QFile::remove(str_path) ? OK : FAILED;
 }
 /*
 
@@ -265,13 +267,13 @@ size_t DirAccessWindows::get_space_left() {
     return (size_t)bytes;
 }
 
-String DirAccessWindows::get_filesystem_type() const {
-    String path = fix_path(const_cast<DirAccessWindows *>(this)->get_current_dir());
+se_string DirAccessWindows::get_filesystem_type() const {
+    se_string path = fix_path(const_cast<DirAccessWindows *>(this)->get_current_dir());
     int unit_end = StringUtils::find(path,":");
-    ERR_FAIL_COND_V(unit_end == -1, String())
-    String unit = StringUtils::substr(path,0, unit_end + 1) + "\\";
-    QStorageInfo info(path.m_str);
-    return StringUtils::from_utf8(info.fileSystemType());
+    ERR_FAIL_COND_V(unit_end == -1, se_string())
+    se_string unit = se_string(StringUtils::substr(path,0, unit_end + 1)) + "\\";
+    QStorageInfo info(StringUtils::from_utf8(path));
+    return StringUtils::to_utf8(info.fileSystemType());
 }
 
 DirAccessWindows::DirAccessWindows() {

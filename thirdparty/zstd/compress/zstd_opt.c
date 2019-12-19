@@ -683,6 +683,7 @@ U32 ZSTD_insertBtAndGetAllMatches (
             matchLength += ZSTD_count(ip+matchLength, match+matchLength, iLimit);
         } else {
             match = dictBase + matchIndex;
+            assert(memcmp(match, ip, matchLength) == 0);  /* ensure early section of match is equal as expected */
             matchLength += ZSTD_count_2segments(ip+matchLength, match+matchLength, iLimit, dictEnd, prefixStart);
             if (matchIndex+matchLength >= dictLimit)
                 match = base + matchIndex;   /* prepare for match[matchLength] read */
@@ -1097,7 +1098,7 @@ _shortestPath:   /* cur, last_pos, best_mlen, best_off have to be set */
 
                     assert(anchor + llen <= iend);
                     ZSTD_updateStats(optStatePtr, llen, anchor, offCode, mlen);
-                    ZSTD_storeSeq(seqStore, llen, anchor, offCode, mlen-MINMATCH);
+                    ZSTD_storeSeq(seqStore, llen, anchor, iend, offCode, mlen-MINMATCH);
                     anchor += advance;
                     ip = anchor;
             }   }

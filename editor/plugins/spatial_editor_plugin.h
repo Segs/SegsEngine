@@ -30,7 +30,6 @@
 
 #pragma once
 
-#include "editor/editor_node.h"
 #include "editor/editor_plugin.h"
 #include "scene/3d/immediate_geometry.h"
 #include "scene/3d/light.h"
@@ -38,6 +37,7 @@
 #include "scene/gui/panel_container.h"
 #include "scene/gui/spin_box.h"
 #include "scene/3d/skeleton.h"
+#include "core/se_string.h"
 
 
 class Camera;
@@ -45,6 +45,13 @@ class SpatialEditor;
 class EditorSpatialGizmoPlugin;
 class ViewportContainer;
 class Environment;
+class AcceptDialog;
+class CheckBox;
+class Button;
+class OptionButton;
+class ConfirmationDialog;
+class VSplitContainer;
+class HSplitContainer;
 
 class EditorSpatialGizmo : public SpatialGizmo {
 
@@ -111,7 +118,7 @@ public:
     void add_solid_box(Ref<Material> &p_material, Vector3 p_size, Vector3 p_position = Vector3());
 
     virtual bool is_handle_highlighted(int p_idx) const;
-    virtual String get_handle_name(int p_idx) const;
+    virtual StringName get_handle_name(int p_idx) const;
     virtual Variant get_handle_value(int p_idx);
     virtual void set_handle(int p_idx, Camera *p_camera, const Point2 &p_point);
     virtual void commit_handle(int p_idx, const Variant &p_restore, bool p_cancel = false);
@@ -187,25 +194,25 @@ public:
 
 private:
     int index;
-    String name;
+    StringName name;
     void _menu_option(int p_option);
     Spatial *preview_node;
     AABB *preview_bounds;
-    Vector<String> selected_files;
+    Vector<se_string> selected_files;
     AcceptDialog *accept;
 
     Node *target_node;
     Point2 drop_pos;
 
     EditorNode *editor;
-    EditorData *editor_data;
+    class EditorData *editor_data;
     EditorSelection *editor_selection;
     UndoRedo *undo_redo;
 
     CheckBox *preview_camera;
     ViewportContainer *viewport_container;
 
-    MenuButton *view_menu;
+    class MenuButton *view_menu;
 
     Control *surface;
     Viewport *viewport;
@@ -341,11 +348,11 @@ private:
 
     RID move_gizmo_instance[3], move_plane_gizmo_instance[3], rotate_gizmo_instance[3], scale_gizmo_instance[3], scale_plane_gizmo_instance[3];
 
-    String last_message;
-    String message;
+    StringName last_message;
+    StringName message;
     float message_time;
 
-    void set_message(String p_message, float p_time = 5);
+    void set_message(StringName p_message, float p_time = 5);
 
     //
     void _update_camera(float p_interp_delta);
@@ -377,11 +384,11 @@ private:
     Point2i _get_warped_mouse_motion(const Ref<InputEventMouseMotion> &p_ev_mouse_motion) const;
 
     Vector3 _get_instance_position(const Point2 &p_pos) const;
-	static AABB _calculate_spatial_bounds(const Spatial *p_parent, bool p_exclude_toplevel_transform = true);
-    void _create_preview(const Vector<String> &files) const;
+    static AABB _calculate_spatial_bounds(const Spatial *p_parent, bool p_exclude_toplevel_transform = true);
+    void _create_preview(const Vector<se_string> &files) const;
     void _remove_preview();
-    bool _cyclical_dependency_exists(const String &p_target_scene_path, Node *p_desired_node);
-    bool _create_instance(Node *parent, String &path, const Point2 &p_point);
+    bool _cyclical_dependency_exists(se_string_view p_target_scene_path, Node *p_desired_node);
+    bool _create_instance(Node *parent, se_string_view path, const Point2 &p_point);
     void _perform_drop_data();
 
     bool can_drop_data_fw(const Point2 &p_point, const Variant &p_data, Control *p_from) const;
@@ -496,6 +503,7 @@ public:
 
         TOOL_OPT_LOCAL_COORDS,
         TOOL_OPT_USE_SNAP,
+        TOOL_OPT_OVERRIDE_CAMERA,
         TOOL_OPT_MAX
 
     };
@@ -561,6 +569,7 @@ private:
         MENU_TOOL_LIST_SELECT,
         MENU_TOOL_LOCAL_COORDS,
         MENU_TOOL_USE_SNAP,
+        MENU_TOOL_OVERRIDE_CAMERA,
         MENU_TRANSFORM_CONFIGURE_SNAP,
         MENU_TRANSFORM_DIALOG,
         MENU_VIEW_USE_1_VIEWPORT,
@@ -586,9 +595,6 @@ private:
     MenuButton *transform_menu;
     PopupMenu *gizmos_menu;
     MenuButton *view_menu;
-
-    ToolButton *lock_button;
-    ToolButton *unlock_button;
 
     AcceptDialog *accept;
 
@@ -617,13 +623,16 @@ private:
     void _menu_item_pressed(int p_option);
     void _menu_item_toggled(bool pressed, int p_option);
     void _menu_gizmo_toggled(int p_option);
+    void _update_camera_override_button(bool p_game_running);
+    void _update_camera_override_viewport(Object *p_viewport);
 
     HBoxContainer *hbc_menu;
 
     void _generate_selection_box();
     UndoRedo *undo_redo;
 
-    void _instance_scene();
+    int camera_override_viewport_id;
+
     void _init_indicators();
     void _update_gizmos_menu();
     void _update_gizmos_menu_theme();
@@ -679,7 +688,7 @@ public:
     bool is_gizmo_visible() const { return gizmo.visible; }
 
     ToolMode get_tool_mode() const { return tool_mode; }
-    bool are_local_coords_enabled() const { return tool_option_button[SpatialEditor::TOOL_OPT_LOCAL_COORDS]->is_pressed(); }
+    bool are_local_coords_enabled() const;
     bool is_snap_enabled() const { return snap_enabled ^ snap_key_enabled; }
     float get_translate_snap() const;
     float get_rotate_snap() const;
@@ -719,7 +728,7 @@ public:
     void set_can_preview(Camera *p_preview);
 
     SpatialEditorViewport *get_editor_viewport(int p_idx) {
-        ERR_FAIL_INDEX_V(p_idx, 4, nullptr);
+        ERR_FAIL_INDEX_V(p_idx, static_cast<int>(VIEWPORTS_COUNT), nullptr)
         return viewports[p_idx];
     }
 
@@ -747,7 +756,7 @@ public:
     void snap_cursor_to_plane(const Plane &p_plane);
 
     SpatialEditor *get_spatial_editor() { return spatial_editor; }
-    String get_name() const override { return "3D"; }
+    se_string_view get_name() const override { return "3D"; }
     bool has_main_screen() const override { return true; }
     void make_visible(bool p_visible) override;
     void edit(Object *p_object) override;
@@ -775,7 +784,7 @@ public:
 private:
     int current_state;
     List<EditorSpatialGizmo *> current_gizmos;
-    DefHashMap<String, Vector<Ref<SpatialMaterial> > > materials;
+    DefHashMap<se_string, Vector<Ref<SpatialMaterial> > > materials;
 
 protected:
     static void _bind_methods();
@@ -783,20 +792,20 @@ protected:
     virtual Ref<EditorSpatialGizmo> create_gizmo(Spatial *p_spatial);
 
 public:
-    void create_material(const String &p_name, const Color &p_color, bool p_billboard = false, bool p_on_top = false, bool p_use_vertex_color = false);
-    void create_icon_material(const String &p_name, const Ref<Texture> &p_texture, bool p_on_top = false, const Color &p_albedo = Color(1, 1, 1, 1));
-    void create_handle_material(const String &p_name, bool p_billboard = false);
-    void add_material(const String &p_name, const Ref<SpatialMaterial>& p_material);
+    void create_material(se_string_view p_name, const Color &p_color, bool p_billboard = false, bool p_on_top = false, bool p_use_vertex_color = false);
+    void create_icon_material(const se_string &p_name, const Ref<Texture> &p_texture, bool p_on_top = false, const Color &p_albedo = Color(1, 1, 1, 1));
+    void create_handle_material(const se_string &p_name, bool p_billboard = false);
+    void add_material(const se_string &p_name, const Ref<SpatialMaterial>& p_material);
 
-    Ref<SpatialMaterial> get_material(const String &p_name, const Ref<EditorSpatialGizmo> &p_gizmo = Ref<EditorSpatialGizmo>());
+    Ref<SpatialMaterial> get_material(const se_string &p_name, const Ref<EditorSpatialGizmo> &p_gizmo = Ref<EditorSpatialGizmo>());
 
-    virtual String get_name() const;
+    virtual se_string_view get_name() const;
     virtual int get_priority() const;
     virtual bool can_be_hidden() const;
     virtual bool is_selectable_when_hidden() const;
 
     virtual void redraw(EditorSpatialGizmo *p_gizmo);
-    virtual String get_handle_name(const EditorSpatialGizmo *p_gizmo, int p_idx) const;
+    virtual StringName get_handle_name(const EditorSpatialGizmo *p_gizmo, int p_idx) const;
     virtual Variant get_handle_value(EditorSpatialGizmo *p_gizmo, int p_idx) const;
     virtual void set_handle(EditorSpatialGizmo *p_gizmo, int p_idx, Camera *p_camera, const Point2 &p_point);
     virtual void commit_handle(EditorSpatialGizmo *p_gizmo, int p_idx, const Variant &p_restore, bool p_cancel = false);

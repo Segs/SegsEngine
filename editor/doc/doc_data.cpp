@@ -39,16 +39,17 @@
 #include "core/project_settings.h"
 #include "core/script_language.h"
 #include "core/version.h"
+#include "core/string_utils.h"
 #include "scene/resources/theme.h"
 
 #include "EASTL/sort.h"
 
 void DocData::merge_from(const DocData &p_data) {
 
-    for (eastl::pair<const String,ClassDoc> &E : class_list) {
+    for (eastl::pair<const StringName,ClassDoc> &E : class_list) {
 
         ClassDoc &c(E.second);
-        auto iter = p_data.class_list.find(c.name);
+        auto iter = p_data.class_list.find(StringName(c.name));
         if (iter==p_data.class_list.end())
             continue;
 
@@ -161,7 +162,7 @@ void DocData::merge_from(const DocData &p_data) {
 }
 
 void DocData::remove_from(const DocData &p_data) {
-    for (const eastl::pair<const String,ClassDoc> &E : p_data.class_list) {
+    for (const eastl::pair<const StringName,ClassDoc> &E : p_data.class_list) {
         if (class_list.contains(E.first))
             class_list.erase(E.first);
     }
@@ -244,9 +245,9 @@ void DocData::generate(bool p_basic_types) {
         Set<StringName> setters_getters;
 
         StringName name = classes[i];
-        String cname = name;
+        StringName cname(name);
         if (StringUtils::begins_with(cname,"_")) //proxy class
-            cname = StringUtils::substr(cname,1, strlen(name.asCString()));
+            cname = StringName(StringUtils::substr(cname,1, strlen(name.asCString())));
 
         class_list[cname] = ClassDoc();
         ClassDoc &c = class_list[cname];
@@ -313,14 +314,14 @@ void DocData::generate(bool p_basic_types) {
                         prop.type = retinfo.class_name;
                     } else if (retinfo.hint == PROPERTY_HINT_RESOURCE_TYPE) {
 
-                        prop.type = retinfo.hint_string;
+                        prop.type = StringName(retinfo.hint_string);
                     } else if (retinfo.type == VariantType::NIL && retinfo.usage & PROPERTY_USAGE_NIL_IS_VARIANT) {
 
                         prop.type = "Variant";
                     } else if (retinfo.type == VariantType::NIL) {
                         prop.type = "void";
                     } else {
-                        prop.type = Variant::get_type_name(retinfo.type);
+                        prop.type = Variant::interned_type_name(retinfo.type);
                     }
                     #endif
                 }
@@ -336,9 +337,9 @@ void DocData::generate(bool p_basic_types) {
             if (!found_type) {
 
                 if (E.type == VariantType::OBJECT && E.hint == PROPERTY_HINT_RESOURCE_TYPE)
-                    prop.type = E.hint_string;
+                    prop.type = StringName(E.hint_string);
                 else
-                    prop.type = Variant::get_type_name(E.type);
+                    prop.type = Variant::interned_type_name(E.type);
             }
 
             c.properties.push_back(prop);
@@ -350,14 +351,14 @@ void DocData::generate(bool p_basic_types) {
 
         for (const MethodInfo &E : method_list) {
 
-            if (E.name.empty() || (E.name.asCString()[0] == '_' && !(E.flags & METHOD_FLAG_VIRTUAL)))
+            if (E.name.empty() || E.name.asCString()[0] == '_' && !(E.flags & METHOD_FLAG_VIRTUAL))
                 continue; //hidden, don't count
 
             if (skip_setter_getter_methods && setters_getters.contains(E.name)) {
                 // Don't skip parametric setters and getters, i.e. method which require
                 // one or more parameters to define what property should be set or retrieved.
                 // E.g. CPUParticles::set_param(Parameter param, float value).
-                if (E.arguments.empty() /* getter */ || (E.arguments.size() == 1 && E.return_val.type == VariantType::NIL /* setter */)) {
+                if (E.arguments.empty() /* getter */ || E.arguments.size() == 1 && E.return_val.type == VariantType::NIL /* setter */) {
                     continue;
                 }
             }
@@ -371,11 +372,11 @@ void DocData::generate(bool p_basic_types) {
 
             if (E.flags & METHOD_FLAG_CONST) {
                 if (!method.qualifiers.empty())
-                    method.qualifiers += " ";
+                    method.qualifiers += ' ';
                 method.qualifiers += "const";
             } else if (E.flags & METHOD_FLAG_VARARG) {
                 if (!method.qualifiers.empty())
-                    method.qualifiers += " ";
+                    method.qualifiers += ' ';
                 method.qualifiers += "vararg";
             }
 
@@ -417,7 +418,7 @@ void DocData::generate(bool p_basic_types) {
                     ArgumentDoc argument;
                     argument.name = arginfo.name;
                     if (arginfo.type == VariantType::OBJECT && not arginfo.class_name.empty() ) {
-                        argument.type = arginfo.class_name.operator String();
+                        argument.type = arginfo.class_name;
                     } else {
                         argument.type = Variant::get_type_name(arginfo.type);
                     }
@@ -428,10 +429,10 @@ void DocData::generate(bool p_basic_types) {
             }
         }
 
-        ListPOD<String> constant_list;
+        ListPOD<se_string> constant_list;
         ClassDB::get_integer_constant_list(name, &constant_list, true);
 
-        for (const String & E : constant_list) {
+        for (const se_string & E : constant_list) {
 
             ConstantDoc constant;
             constant.name = E;
@@ -443,7 +444,7 @@ void DocData::generate(bool p_basic_types) {
         //theme stuff
 
         {
-            ListPOD<StringName> l;
+            PODVector<StringName> l;
             Theme::get_default()->get_constant_list(cname, &l);
             for (const StringName &E : l) {
 
@@ -509,7 +510,7 @@ void DocData::generate(bool p_basic_types) {
         if (VariantType(i) == VariantType::OBJECT)
             continue; //use the core type instead
 
-        String cname = Variant::get_type_name(VariantType(i));
+        StringName cname(Variant::get_type_name(VariantType(i)));
 
         class_list[cname] = ClassDoc();
         ClassDoc &c = class_list[cname];
@@ -530,9 +531,9 @@ void DocData::generate(bool p_basic_types) {
 
             method.name = mi.name;
 
-            for (int j = 0; j < mi.arguments.size(); j++) {
+            for (size_t j = 0; j < mi.arguments.size(); j++) {
 
-                PropertyInfo arginfo = mi.arguments[j];
+                PropertyInfo arginfo(mi.arguments[j]);
 
                 ArgumentDoc ad;
                 ad.name = arginfo.name;
@@ -544,7 +545,7 @@ void DocData::generate(bool p_basic_types) {
 
                 int defarg = mi.default_arguments.size() - mi.arguments.size() + j;
                 if (defarg >= 0)
-                    ad.default_value = mi.default_arguments[defarg];
+                    ad.default_value = mi.default_arguments[defarg].as<se_string>();
 
                 method.arguments.push_back(ad);
             }
@@ -565,7 +566,7 @@ void DocData::generate(bool p_basic_types) {
 
             PropertyDoc property;
             property.name = pi.name;
-            property.type = Variant::get_type_name(pi.type);
+            property.type = Variant::interned_type_name(pi.type);
             property.default_value = v.get(pi.name).get_construct_string();
 
             c.properties.push_back(property);
@@ -588,7 +589,7 @@ void DocData::generate(bool p_basic_types) {
 
     {
 
-        String cname = "@GlobalScope";
+        StringName cname("@GlobalScope");
         class_list[cname] = ClassDoc();
         ClassDoc &c = class_list[cname];
         c.name = cname;
@@ -612,11 +613,11 @@ void DocData::generate(bool p_basic_types) {
                 continue;
             }
             pd.name = s.name;
-            pd.type = s.ptr->get_class();
-            while (String(ClassDB::get_parent_class(pd.type)) != "Object")
+            pd.type = StringName(s.ptr->get_class());
+            while (ClassDB::get_parent_class(pd.type) != se_string_view("Object"))
                 pd.type = ClassDB::get_parent_class(pd.type);
             if (StringUtils::begins_with(pd.type,"_"))
-                pd.type = StringUtils::substr(pd.type,1, pd.type.length());
+                pd.type = StringName(StringUtils::substr(pd.type,1, se_string_view(pd.type).size()));
             c.properties.push_back(pd);
         }
     }
@@ -628,7 +629,7 @@ void DocData::generate(bool p_basic_types) {
         for (int i = 0; i < ScriptServer::get_language_count(); i++) {
 
             ScriptLanguage *lang = ScriptServer::get_language(i);
-            String cname = "@" + lang->get_name();
+            StringName cname = StringName(se_string("@") + lang->get_name());
             class_list[cname] = ClassDoc();
             ClassDoc &c = class_list[cname];
             c.name = cname;
@@ -645,13 +646,13 @@ void DocData::generate(bool p_basic_types) {
 
                 if (mi.flags & METHOD_FLAG_VARARG) {
                     if (!md.qualifiers.empty())
-                        md.qualifiers += " ";
+                        md.qualifiers += ' ';
                     md.qualifiers += "vararg";
                 }
 
                 return_doc_from_retinfo(md, mi.return_val);
 
-                for (int j = 0; j < mi.arguments.size(); j++) {
+                for (size_t j = 0; j < mi.arguments.size(); j++) {
 
                     ArgumentDoc ad;
                     argument_doc_from_arginfo(ad, mi.arguments[j]);
@@ -669,14 +670,14 @@ void DocData::generate(bool p_basic_types) {
                 c.methods.push_back(md);
             }
 
-            List<Pair<String, Variant> > cinfo;
+            List<Pair<se_string_view, Variant> > cinfo;
             lang->get_public_constants(&cinfo);
 
-            for (List<Pair<String, Variant> >::Element *E = cinfo.front(); E; E = E->next()) {
+            for (List<Pair<se_string_view, Variant> >::Element *E = cinfo.front(); E; E = E->next()) {
 
                 ConstantDoc cd;
                 cd.name = E->deref().first;
-                cd.value = E->deref().second;
+                cd.value = E->deref().second.as<se_string>();
                 c.constants.push_back(cd);
             }
         }
@@ -685,8 +686,8 @@ void DocData::generate(bool p_basic_types) {
 
 static Error _parse_methods(Ref<XMLParser> &parser, Vector<DocData::MethodDoc> &methods) {
 
-    String section = parser->get_node_name();
-    String element = StringUtils::substr(section,0, section.length() - 1);
+    const se_string section(parser->get_node_name());
+    se_string_view element = StringUtils::substr(section,0, section.length() - 1);
 
     while (parser->read() == OK) {
 
@@ -704,7 +705,7 @@ static Error _parse_methods(Ref<XMLParser> &parser, Vector<DocData::MethodDoc> &
 
                     if (parser->get_node_type() == XMLParser::NODE_ELEMENT) {
 
-                        String name = parser->get_node_name();
+                        const se_string & name(parser->get_node_name());
                         if (name == "return") {
 
                             ERR_FAIL_COND_V(!parser->has_attribute("type"), ERR_FILE_CORRUPT)
@@ -749,7 +750,7 @@ static Error _parse_methods(Ref<XMLParser> &parser, Vector<DocData::MethodDoc> &
     return OK;
 }
 
-Error DocData::load_classes(const String &p_dir) {
+Error DocData::load_classes(se_string_view p_dir) {
 
     Error err;
     DirAccessRef da = DirAccess::open(p_dir, &err);
@@ -758,8 +759,7 @@ Error DocData::load_classes(const String &p_dir) {
     }
 
     da->list_dir_begin();
-    String path;
-    path = da->get_next();
+    se_string path(da->get_next());
     while (!path.empty()) {
         if (!da->current_is_dir() && StringUtils::ends_with(path,"xml")) {
             Ref<XMLParser> parser(make_ref_counted<XMLParser>());
@@ -776,7 +776,7 @@ Error DocData::load_classes(const String &p_dir) {
 
     return OK;
 }
-Error DocData::erase_classes(const String &p_dir) {
+Error DocData::erase_classes(se_string_view p_dir) {
 
     Error err;
     DirAccessRef da = DirAccess::open(p_dir, &err);
@@ -784,11 +784,10 @@ Error DocData::erase_classes(const String &p_dir) {
         return err;
     }
 
-    List<String> to_erase;
+    List<se_string> to_erase;
 
     da->list_dir_begin();
-    String path;
-    path = da->get_next();
+    se_string path(da->get_next());
     while (!path.empty()) {
         if (!da->current_is_dir() && StringUtils::ends_with(path,"xml")) {
             to_erase.push_back(path);
@@ -820,13 +819,13 @@ Error DocData::_load(Ref<XMLParser> parser) {
         ERR_FAIL_COND_V(parser->get_node_name() != "class", ERR_FILE_CORRUPT)
 
         ERR_FAIL_COND_V(!parser->has_attribute("name"), ERR_FILE_CORRUPT)
-        String name = parser->get_attribute_value("name");
+        StringName name(parser->get_attribute_value("name"));
         class_list[name] = ClassDoc();
         ClassDoc &c = class_list[name];
 
         c.name = name;
         if (parser->has_attribute("inherits"))
-            c.inherits = parser->get_attribute_value("inherits");
+            c.inherits = StringName(parser->get_attribute_value("inherits"));
         if (parser->has_attribute("category"))
             c.category = parser->get_attribute_value("category");
 
@@ -834,7 +833,7 @@ Error DocData::_load(Ref<XMLParser> parser) {
 
             if (parser->get_node_type() == XMLParser::NODE_ELEMENT) {
 
-                String name2 = parser->get_node_name();
+                const se_string &name2 = parser->get_node_name();
 
                 if (name2 == "brief_description") {
 
@@ -851,15 +850,15 @@ Error DocData::_load(Ref<XMLParser> parser) {
 
                         if (parser->get_node_type() == XMLParser::NODE_ELEMENT) {
 
-                            String name3 = parser->get_node_name();
+                            const se_string &name3 = parser->get_node_name();
 
                             if (name3 == "link") {
 
                                 parser->read();
                                 if (parser->get_node_type() == XMLParser::NODE_TEXT)
-                                    c.tutorials.push_back(StringUtils::strip_edges(parser->get_node_data()));
+                                    c.tutorials.emplace_back(StringUtils::strip_edges(parser->get_node_data()));
                             } else {
-                                ERR_FAIL_V_MSG(ERR_FILE_CORRUPT, "Invalid tag in doc file: " + name3 + ".");
+                                ERR_FAIL_V_MSG(ERR_FILE_CORRUPT, "Invalid tag in doc file: " + name3 + ".")
                             }
                         } else if (parser->get_node_type() == XMLParser::NODE_ELEMENT_END && parser->get_node_name() == "tutorials")
                             break; // End of <tutorials>.
@@ -879,7 +878,7 @@ Error DocData::_load(Ref<XMLParser> parser) {
 
                         if (parser->get_node_type() == XMLParser::NODE_ELEMENT) {
 
-                            String name3 = parser->get_node_name();
+                            const se_string &name3 = parser->get_node_name();
 
                             if (name3 == "member") {
 
@@ -888,7 +887,7 @@ Error DocData::_load(Ref<XMLParser> parser) {
                                 ERR_FAIL_COND_V(!parser->has_attribute("name"), ERR_FILE_CORRUPT)
                                 prop2.name = parser->get_attribute_value("name");
                                 ERR_FAIL_COND_V(!parser->has_attribute("type"), ERR_FILE_CORRUPT)
-                                prop2.type = parser->get_attribute_value("type");
+                                prop2.type = StringName(parser->get_attribute_value("type"));
                                 if (parser->has_attribute("setter"))
                                     prop2.setter = parser->get_attribute_value("setter");
                                 if (parser->has_attribute("getter"))
@@ -902,7 +901,7 @@ Error DocData::_load(Ref<XMLParser> parser) {
                                 }
                                 c.properties.push_back(prop2);
                             } else {
-                                ERR_FAIL_V_MSG(ERR_FILE_CORRUPT, "Invalid tag in doc file: " + name3 + ".");
+                                ERR_FAIL_V_MSG(ERR_FILE_CORRUPT, "Invalid tag in doc file: " + name3 + ".")
                             }
 
                         } else if (parser->get_node_type() == XMLParser::NODE_ELEMENT_END && parser->get_node_name() == "members")
@@ -915,7 +914,7 @@ Error DocData::_load(Ref<XMLParser> parser) {
 
                         if (parser->get_node_type() == XMLParser::NODE_ELEMENT) {
 
-                            String name3 = parser->get_node_name();
+                            const se_string & name3 = parser->get_node_name();
 
                             if (name3 == "theme_item") {
 
@@ -924,7 +923,7 @@ Error DocData::_load(Ref<XMLParser> parser) {
                                 ERR_FAIL_COND_V(!parser->has_attribute("name"), ERR_FILE_CORRUPT)
                                 prop2.name = parser->get_attribute_value("name");
                                 ERR_FAIL_COND_V(!parser->has_attribute("type"), ERR_FILE_CORRUPT)
-                                prop2.type = parser->get_attribute_value("type");
+                                prop2.type = StringName(parser->get_attribute_value("type"));
                                 if (!parser->is_empty()) {
                                     parser->read();
                                     if (parser->get_node_type() == XMLParser::NODE_TEXT)
@@ -945,7 +944,7 @@ Error DocData::_load(Ref<XMLParser> parser) {
 
                         if (parser->get_node_type() == XMLParser::NODE_ELEMENT) {
 
-                            String name3 = parser->get_node_name();
+                            const se_string & name3 = parser->get_node_name();
 
                             if (name3 == "constant") {
 
@@ -984,23 +983,22 @@ Error DocData::_load(Ref<XMLParser> parser) {
     return OK;
 }
 
-static void _write_string(FileAccess *f, int p_tablevel, const String &p_string) {
+static void _write_string(FileAccess *f, int p_tablevel, se_string_view p_string) {
 
     if (p_string.empty())
         return;
-    String tab;
+    se_string tab;
     for (int i = 0; i < p_tablevel; i++)
         tab += "\t";
     f->store_string(tab + p_string + "\n");
 }
+Error DocData::save_classes(se_string_view p_default_path, const Map<StringName, se_string> &p_class_path) {
 
-Error DocData::save_classes(const String &p_default_path, const Map<String, String> &p_class_path) {
-
-    for (eastl::pair<const String,ClassDoc> &E : class_list) {
+    for (eastl::pair<const StringName,ClassDoc> &E : class_list) {
 
         ClassDoc &c(E.second);
 
-        String save_path;
+        se_string save_path;
         if (p_class_path.contains(c.name)) {
             save_path = p_class_path.at(c.name);
         } else {
@@ -1008,23 +1006,23 @@ Error DocData::save_classes(const String &p_default_path, const Map<String, Stri
         }
 
         Error err;
-        String save_file = PathUtils::plus_file(save_path,c.name + ".xml");
+        se_string save_file = PathUtils::plus_file(save_path,se_string(c.name) + ".xml");
         FileAccessRef f = FileAccess::open(save_file, FileAccess::WRITE, &err);
 
-        ERR_CONTINUE_MSG(err != OK, "Can't write doc file: " + save_file + ".");
+        ERR_CONTINUE_MSG(err != OK, "Can't write doc file: " + save_file + ".")
 
         _write_string(f, 0, R"(<?xml version="1.0" encoding="UTF-8" ?>)");
 
-        String header = "<class name=\"" + c.name + "\"";
+        se_string header = se_string("<class name=\"") + c.name + "\"";
         if (!c.inherits.empty())
-            header += " inherits=\"" + c.inherits + "\"";
+            header += se_string(" inherits=\"") + c.inherits + "\"";
 
-        String category = c.category;
+        se_string category = c.category;
         if (c.category.empty())
             category = "Core";
         header += " category=\"" + category + "\"";
-        header += String(" version=\"") + VERSION_NUMBER + "\"";
-        header += ">";
+        header += se_string(" version=\"") + VERSION_NUMBER + "\"";
+        header += '>';
         _write_string(f, 0, header);
         _write_string(f, 1, "<brief_description>");
         _write_string(f, 2, StringUtils::xml_escape(StringUtils::strip_edges(c.brief_description)));
@@ -1034,7 +1032,7 @@ Error DocData::save_classes(const String &p_default_path, const Map<String, Stri
         _write_string(f, 1, "</description>");
         _write_string(f, 1, "<tutorials>");
         for (int i = 0; i < c.tutorials.size(); i++) {
-            _write_string(f, 2, "<link>" + StringUtils::xml_escape(c.tutorials.get(i)) + "</link>");
+            _write_string(f, 2, "<link>" + StringUtils::xml_escape(c.tutorials[i]) + "</link>");
         }
         _write_string(f, 1, "</tutorials>");
         _write_string(f, 1, "<methods>");
@@ -1045,7 +1043,7 @@ Error DocData::save_classes(const String &p_default_path, const Map<String, Stri
 
             const MethodDoc &m = c.methods[i];
 
-            String qualifiers;
+            se_string qualifiers;
             if (!m.qualifiers.empty())
                 qualifiers += " qualifiers=\"" + StringUtils::xml_escape(m.qualifiers) + "\"";
 
@@ -1053,7 +1051,7 @@ Error DocData::save_classes(const String &p_default_path, const Map<String, Stri
 
             if (!m.return_type.empty()) {
 
-                String enum_text;
+                se_string enum_text;
                 if (!m.return_enum.empty()) {
                     enum_text = " enum=\"" + m.return_enum + "\"";
                 }
@@ -1065,7 +1063,7 @@ Error DocData::save_classes(const String &p_default_path, const Map<String, Stri
 
                 const ArgumentDoc &a = m.arguments[j];
 
-                String enum_text;
+                se_string enum_text;
                 if (!a.enumeration.empty()) {
                     enum_text = " enum=\"" + a.enumeration + "\"";
                 }
@@ -1099,7 +1097,7 @@ Error DocData::save_classes(const String &p_default_path, const Map<String, Stri
 
             for (int i = 0; i < c.properties.size(); i++) {
 
-                String additional_attributes;
+                se_string additional_attributes;
                 if (!c.properties[i].enumeration.empty()) {
                     additional_attributes += " enum=\"" + c.properties[i].enumeration + "\"";
                 }

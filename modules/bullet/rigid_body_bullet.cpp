@@ -37,8 +37,10 @@
 #include "godot_motion_state.h"
 #include "joint_bullet.h"
 #include "core/class_db.h"
+#include "core/string_utils.h"
 #include "core/property_info.h"
 #include "core/object_db.h"
+#include "core/list.h"
 
 #include <BulletCollision/CollisionDispatch/btGhostObject.h>
 #include <BulletCollision/CollisionShapes/btConvexPointCloudShape.h>
@@ -131,16 +133,16 @@ void BulletPhysicsDirectBodyState::add_torque(const Vector3 &p_torque) {
     body->apply_torque(p_torque);
 }
 
-void BulletPhysicsDirectBodyState::apply_central_impulse(const Vector3 &p_j) {
-    body->apply_central_impulse(p_j);
+void BulletPhysicsDirectBodyState::apply_central_impulse(const Vector3 &p_impulse) {
+    body->apply_central_impulse(p_impulse);
 }
 
-void BulletPhysicsDirectBodyState::apply_impulse(const Vector3 &p_pos, const Vector3 &p_j) {
-    body->apply_impulse(p_pos, p_j);
+void BulletPhysicsDirectBodyState::apply_impulse(const Vector3 &p_pos, const Vector3 &p_impulse) {
+    body->apply_impulse(p_pos, p_impulse);
 }
 
-void BulletPhysicsDirectBodyState::apply_torque_impulse(const Vector3 &p_j) {
-    body->apply_torque_impulse(p_j);
+void BulletPhysicsDirectBodyState::apply_torque_impulse(const Vector3 &p_impulse) {
+    body->apply_torque_impulse(p_impulse);
 }
 
 void BulletPhysicsDirectBodyState::set_sleep_state(bool p_enable) {
@@ -416,6 +418,8 @@ void RigidBodyBullet::on_collision_filters_change() {
     if (space) {
         space->reload_collision_filters(this);
     }
+
+    set_activation_state(true);
 }
 
 void RigidBodyBullet::on_collision_checker_start() {
@@ -476,7 +480,7 @@ void RigidBodyBullet::assert_no_constraints() {
 
 void RigidBodyBullet::set_activation_state(bool p_active) {
     if (p_active) {
-        btBody->setActivationState(ACTIVE_TAG);
+        btBody->activate();
     } else {
         btBody->setActivationState(WANTS_DEACTIVATION);
     }
@@ -518,7 +522,7 @@ void RigidBodyBullet::set_param(PhysicsServer::BodyParameter p_param, real_t p_v
             scratch_space_override_modificator();
             break;
         default:
-            WARN_PRINTS("Parameter " + itos(p_param) + " not supported by bullet. Value: " + itos(p_value));
+            WARN_PRINT("Parameter " + itos(p_param) + " not supported by bullet. Value: " + itos(p_value))
     }
 }
 
@@ -539,7 +543,7 @@ real_t RigidBodyBullet::get_param(PhysicsServer::BodyParameter p_param) const {
         case PhysicsServer::BODY_PARAM_GRAVITY_SCALE:
             return gravity_scale;
         default:
-            WARN_PRINTS("Parameter " + itos(p_param) + " not supported by bullet");
+            WARN_PRINT("Parameter " + itos(p_param) + " not supported by bullet")
             return 0;
     }
 }
@@ -622,7 +626,7 @@ Variant RigidBodyBullet::get_state(PhysicsServer::BodyState p_state) const {
         case PhysicsServer::BODY_STATE_CAN_SLEEP:
             return can_sleep;
         default:
-            WARN_PRINTS("This state " + itos(p_state) + " is not supported by Bullet");
+            WARN_PRINT("This state " + itos(p_state) + " is not supported by Bullet");
             return Variant();
     }
 }
@@ -823,7 +827,7 @@ void RigidBodyBullet::reload_shapes() {
     RigidCollisionObjectBullet::reload_shapes();
 
     const btScalar invMass = btBody->getInvMass();
-    const btScalar mass = invMass == 0 ? 0 : 1 / invMass;
+    const btScalar mass = invMass == 0.0f ? 0 : 1 / invMass;
 
     if (mainShape) {
         // inertia initialised zero here because some of bullet's collision
@@ -850,7 +854,7 @@ void RigidBodyBullet::on_enter_area(AreaBullet *p_area) {
     }
     for (int i = 0; i < areaWhereIamCount; ++i) {
 
-        if (NULL == areasWhereIam[i]) {
+        if (nullptr == areasWhereIam[i]) {
             // This area has the highest priority
             areasWhereIam.write[i] = p_area;
             break;
@@ -897,7 +901,7 @@ void RigidBodyBullet::on_exit_area(AreaBullet *p_area) {
         }
 
         --areaWhereIamCount;
-        areasWhereIam.write[areaWhereIamCount] = NULL; // Even if this is not required, I clear the last element to be safe
+        areasWhereIam.write[areaWhereIamCount] = nullptr; // Even if this is not required, I clear the last element to be safe
         if (PhysicsServer::AREA_SPACE_OVERRIDE_DISABLED != p_area->get_spOv_mode()) {
             scratch_space_override_modificator();
         }
@@ -923,7 +927,7 @@ void RigidBodyBullet::reload_space_override_modificator() {
 
         currentArea = areasWhereIam[i];
 
-        if (PhysicsServer::AREA_SPACE_OVERRIDE_DISABLED == currentArea->get_spOv_mode()) {
+        if (!currentArea || PhysicsServer::AREA_SPACE_OVERRIDE_DISABLED == currentArea->get_spOv_mode()) {
             continue;
         }
 

@@ -40,10 +40,14 @@
 #include "core/reference.h"
 #include "core/variant_parser.h"
 #include "core/translation_helpers.h"
+#include "core/se_string.h"
+#include "core/string_formatter.h"
+
+using namespace eastl;
 
 IMPL_GDCLASS(Expression)
-
-const char *Expression::func_name[Expression::FUNC_MAX] = {
+namespace {
+const se_string_view func_name[Expression::FUNC_MAX] = {
     "sin",
     "cos",
     "tan",
@@ -113,20 +117,20 @@ const char *Expression::func_name[Expression::FUNC_MAX] = {
     "bytes2var",
     "color_named",
 };
-
-Expression::BuiltinFunc Expression::find_function(const String &p_string) {
+} // end of anonymous namespace
+Expression::BuiltinFunc Expression::find_function(se_string_view p_string) {
 
     for (int i = 0; i < FUNC_MAX; i++) {
-        if (p_string == func_name[i])
+        if (func_name[i] == p_string)
             return BuiltinFunc(i);
     }
 
     return FUNC_MAX;
 }
 
-String Expression::get_func_name(BuiltinFunc p_func) {
+se_string_view Expression::get_func_name(BuiltinFunc p_func) {
 
-    ERR_FAIL_INDEX_V(p_func, FUNC_MAX, String())
+    ERR_FAIL_INDEX_V(p_func, FUNC_MAX, se_string_view())
     return func_name[p_func];
 }
 
@@ -221,12 +225,12 @@ int Expression::get_func_argument_count(BuiltinFunc p_func) {
         return;                                                          \
     }
 
-void Expression::exec_func(BuiltinFunc p_func, const Variant **p_inputs, Variant *r_return, Variant::CallError &r_error, String &r_error_str) {
+void Expression::exec_func(BuiltinFunc p_func, const Variant **p_inputs, Variant *r_return, Variant::CallError &r_error, se_string &r_error_str) {
     r_error.error = Variant::CallError::CALL_OK;
     switch (p_func) {
         case MATH_SIN: {
 
-            VALIDATE_ARG_NUM(0);
+            VALIDATE_ARG_NUM(0)
             *r_return = Math::sin(p_inputs[0]->as<double>());
         } break;
         case MATH_COS: {
@@ -321,7 +325,7 @@ void Expression::exec_func(BuiltinFunc p_func, const Variant **p_inputs, Variant
                 *r_return = ABS(i);
             } else if (p_inputs[0]->get_type() == VariantType::REAL) {
 
-                real_t r = *p_inputs[0];
+                real_t r = p_inputs[0]->as<float>();
                 *r_return = Math::abs(r);
             } else {
 
@@ -338,8 +342,8 @@ void Expression::exec_func(BuiltinFunc p_func, const Variant **p_inputs, Variant
                 *r_return = i < 0 ? -1 : (i > 0 ? +1 : 0);
             } else if (p_inputs[0]->get_type() == VariantType::REAL) {
 
-                real_t r = *p_inputs[0];
-                *r_return = r < 0.0 ? -1.0 : (r > 0.0 ? +1.0 : 0.0);
+                real_t r = p_inputs[0]->as<float>();
+                *r_return = r < 0.0f ? -1.0f : (r > 0.0f ? +1.0f : 0.0f);
             } else {
 
                 r_error.error = Variant::CallError::CALL_ERROR_INVALID_ARGUMENT;
@@ -426,23 +430,23 @@ void Expression::exec_func(BuiltinFunc p_func, const Variant **p_inputs, Variant
             *r_return = Math::range_lerp(p_inputs[0]->as<double>(), p_inputs[1]->as<double>(), p_inputs[2]->as<double>(), p_inputs[3]->as<double>(), p_inputs[4]->as<double>());
         } break;
         case MATH_SMOOTHSTEP: {
-            VALIDATE_ARG_NUM(0);
-            VALIDATE_ARG_NUM(1);
-            VALIDATE_ARG_NUM(2);
+            VALIDATE_ARG_NUM(0)
+            VALIDATE_ARG_NUM(1)
+            VALIDATE_ARG_NUM(2)
             *r_return = Math::smoothstep(p_inputs[0]->as<double>(), p_inputs[1]->as<double>(), p_inputs[2]->as<double>());
         } break;
         case MATH_MOVE_TOWARD: {
 
-            VALIDATE_ARG_NUM(0);
-            VALIDATE_ARG_NUM(1);
-            VALIDATE_ARG_NUM(2);
+            VALIDATE_ARG_NUM(0)
+            VALIDATE_ARG_NUM(1)
+            VALIDATE_ARG_NUM(2)
             *r_return = Math::move_toward(p_inputs[0]->as<double>(), p_inputs[1]->as<double>(), p_inputs[2]->as<double>());
         } break;
         case MATH_DECTIME: {
 
-            VALIDATE_ARG_NUM(0);
-            VALIDATE_ARG_NUM(1);
-            VALIDATE_ARG_NUM(2);
+            VALIDATE_ARG_NUM(0)
+            VALIDATE_ARG_NUM(1)
+            VALIDATE_ARG_NUM(2)
             *r_return = Math::dectime(p_inputs[0]->as<double>(), p_inputs[1]->as<double>(), p_inputs[2]->as<double>());
         } break;
         case MATH_RANDOMIZE: {
@@ -500,29 +504,29 @@ void Expression::exec_func(BuiltinFunc p_func, const Variant **p_inputs, Variant
             *r_return = Math::db2linear(p_inputs[0]->as<double>());
         } break;
         case MATH_POLAR2CARTESIAN: {
-            VALIDATE_ARG_NUM(0);
-            VALIDATE_ARG_NUM(1);
-            double r = *p_inputs[0];
-            double th = *p_inputs[1];
+            VALIDATE_ARG_NUM(0)
+            VALIDATE_ARG_NUM(1)
+            double r = p_inputs[0]->as<float>();
+            double th = p_inputs[1]->as<float>();
             *r_return = Vector2(r * Math::cos(th), r * Math::sin(th));
         } break;
         case MATH_CARTESIAN2POLAR: {
-            VALIDATE_ARG_NUM(0);
-            VALIDATE_ARG_NUM(1);
-            double x = *p_inputs[0];
-            double y = *p_inputs[1];
+            VALIDATE_ARG_NUM(0)
+            VALIDATE_ARG_NUM(1)
+            double x = p_inputs[0]->as<float>();
+            double y = p_inputs[1]->as<float>();
             *r_return = Vector2(Math::sqrt(x * x + y * y), Math::atan2(y, x));
         } break;
         case MATH_WRAP: {
-            VALIDATE_ARG_NUM(0);
-            VALIDATE_ARG_NUM(1);
-            VALIDATE_ARG_NUM(2);
+            VALIDATE_ARG_NUM(0)
+            VALIDATE_ARG_NUM(1)
+            VALIDATE_ARG_NUM(2)
             *r_return = Math::wrapi((int64_t)*p_inputs[0], (int64_t)*p_inputs[1], (int64_t)*p_inputs[2]);
         } break;
         case MATH_WRAPF: {
-            VALIDATE_ARG_NUM(0);
-            VALIDATE_ARG_NUM(1);
-            VALIDATE_ARG_NUM(2);
+            VALIDATE_ARG_NUM(0)
+            VALIDATE_ARG_NUM(1)
+            VALIDATE_ARG_NUM(2)
             *r_return = Math::wrapf(p_inputs[0]->as<double>(), p_inputs[1]->as<double>(), p_inputs[2]->as<double>());
         } break;
         case LOGIC_MAX: {
@@ -533,8 +537,8 @@ void Expression::exec_func(BuiltinFunc p_func, const Variant **p_inputs, Variant
                 int64_t b = *p_inputs[1];
                 *r_return = MAX(a, b);
             } else {
-                VALIDATE_ARG_NUM(0);
-                VALIDATE_ARG_NUM(1);
+                VALIDATE_ARG_NUM(0)
+                VALIDATE_ARG_NUM(1)
 
                 real_t a = p_inputs[0]->as<float>();
                 real_t b = p_inputs[1]->as<float>();
@@ -551,11 +555,11 @@ void Expression::exec_func(BuiltinFunc p_func, const Variant **p_inputs, Variant
                 int64_t b = *p_inputs[1];
                 *r_return = MIN(a, b);
             } else {
-                VALIDATE_ARG_NUM(0);
-                VALIDATE_ARG_NUM(1);
+                VALIDATE_ARG_NUM(0)
+                VALIDATE_ARG_NUM(1)
 
-                real_t a = *p_inputs[0];
-                real_t b = *p_inputs[1];
+                real_t a = p_inputs[0]->as<float>();
+                real_t b = p_inputs[1]->as<float>();
 
                 *r_return = MIN(a, b);
             }
@@ -569,20 +573,20 @@ void Expression::exec_func(BuiltinFunc p_func, const Variant **p_inputs, Variant
                 int64_t c = *p_inputs[2];
                 *r_return = CLAMP(a, b, c);
             } else {
-                VALIDATE_ARG_NUM(0);
-                VALIDATE_ARG_NUM(1);
-                VALIDATE_ARG_NUM(2);
+                VALIDATE_ARG_NUM(0)
+                VALIDATE_ARG_NUM(1)
+                VALIDATE_ARG_NUM(2)
 
-                real_t a = *p_inputs[0];
-                real_t b = *p_inputs[1];
-                real_t c = *p_inputs[2];
+                real_t a = p_inputs[0]->as<float>();
+                real_t b = p_inputs[1]->as<float>();
+                real_t c = p_inputs[2]->as<float>();
 
                 *r_return = CLAMP(a, b, c);
             }
         } break;
         case LOGIC_NEAREST_PO2: {
 
-            VALIDATE_ARG_NUM(0);
+            VALIDATE_ARG_NUM(0)
             int64_t num = *p_inputs[0];
             *r_return = next_power_of_2(num);
         } break;
@@ -642,7 +646,7 @@ void Expression::exec_func(BuiltinFunc p_func, const Variant **p_inputs, Variant
             Ref<FuncRef> fr(make_ref_counted<FuncRef>());
 
             fr->set_instance(*p_inputs[0]);
-            fr->set_function(*p_inputs[1]);
+            fr->set_function(p_inputs[1]->as<StringName>());
 
             *r_return = fr;
 
@@ -653,7 +657,7 @@ void Expression::exec_func(BuiltinFunc p_func, const Variant **p_inputs, Variant
             int type = *p_inputs[1];
             if (type < 0 || type >= int(VariantType::VARIANT_MAX)) {
 
-                r_error_str = RTR("Invalid type argument to convert(), use TYPE_* constants.");
+                r_error_str = RTR_utf8("Invalid type argument to convert(), use TYPE_* constants."_sv);
                 r_error.error = Variant::CallError::CALL_ERROR_INVALID_ARGUMENT;
                 r_error.argument = 0;
                 r_error.expected = VariantType::INT;
@@ -671,43 +675,44 @@ void Expression::exec_func(BuiltinFunc p_func, const Variant **p_inputs, Variant
         } break;
         case TYPE_EXISTS: {
 
-            *r_return = ClassDB::class_exists(*p_inputs[0]);
+            *r_return = ClassDB::class_exists(p_inputs[0]->as<StringName>());
 
         } break;
         case TEXT_CHAR: {
-
-            *r_return = String(p_inputs[0]->as<QChar>());
+            se_string res;
+            res.push_back(p_inputs[0]->as<int>());
+            *r_return = res;
 
         } break;
         case TEXT_STR: {
 
-            String str = p_inputs[0]->as<String>();
+            se_string str = p_inputs[0]->as<se_string>();
 
-            *r_return = str;
+            *r_return = Variant(str);
 
         } break;
         case TEXT_PRINT: {
 
-            String str(*p_inputs[0]);
+            se_string str(p_inputs[0]->as<se_string>());
             print_line(str);
 
         } break;
 
         case TEXT_PRINTERR: {
 
-            String str(*p_inputs[0]);
+            se_string str(p_inputs[0]->as<se_string>());
             print_error(str);
 
         } break;
         case TEXT_PRINTRAW: {
 
-            String str = *p_inputs[0];
+            se_string str(p_inputs[0]->as<se_string>());
             OS::get_singleton()->print(str);
 
         } break;
         case VAR_TO_STR: {
 
-            String vars;
+            se_string vars;
             VariantWriter::write_to_string(*p_inputs[0], vars);
             *r_return = vars;
         } break;
@@ -721,9 +726,9 @@ void Expression::exec_func(BuiltinFunc p_func, const Variant **p_inputs, Variant
                 return;
             }
 
-            VariantParser::Stream *ss=VariantParser::get_string_stream(*p_inputs[0]);
+            VariantParser::Stream *ss=VariantParser::get_string_stream(p_inputs[0]->as<se_string>());
 
-            String errs;
+            se_string errs;
             int line;
             Error err = VariantParser::parse(ss, *r_return, errs, line);
             VariantParser::release_stream(ss);
@@ -731,7 +736,7 @@ void Expression::exec_func(BuiltinFunc p_func, const Variant **p_inputs, Variant
                 r_error.error = Variant::CallError::CALL_ERROR_INVALID_ARGUMENT;
                 r_error.argument = 0;
                 r_error.expected = VariantType::STRING;
-                *r_return = String("Parse error at line " + itos(line) + ": " + errs);
+                *r_return = se_string("Parse error at line ") + itos(line) + ": " + errs;
                 return;
             }
 
@@ -774,7 +779,7 @@ void Expression::exec_func(BuiltinFunc p_func, const Variant **p_inputs, Variant
                 PoolByteArray::Read r = varr.read();
                 Error err = decode_variant(ret, r.ptr(), varr.size(), nullptr, allow_objects);
                 if (err != OK) {
-                    r_error_str = RTR("Not enough bytes for decoding bytes, or invalid format.");
+                    r_error_str = RTR_utf8("Not enough bytes for decoding bytes, or invalid format."_sv);
                     r_error.error = Variant::CallError::CALL_ERROR_INVALID_ARGUMENT;
                     r_error.argument = 0;
                     r_error.expected = VariantType::POOL_BYTE_ARRAY;
@@ -787,12 +792,12 @@ void Expression::exec_func(BuiltinFunc p_func, const Variant **p_inputs, Variant
         } break;
         case COLORN: {
 
-            VALIDATE_ARG_NUM(1);
+            VALIDATE_ARG_NUM(1)
 
-            Color color = Color::named(*p_inputs[0]);
-            color.a = *p_inputs[1];
+            Color color = Color::named(p_inputs[0]->as<se_string>());
+            color.a = p_inputs[1]->as<float>();
 
-            *r_return = String(color);
+            *r_return = se_string(color);
 
         } break;
         default: {
@@ -802,63 +807,63 @@ void Expression::exec_func(BuiltinFunc p_func, const Variant **p_inputs, Variant
 
 ////////
 
-static bool _is_number(CharType c) {
+static bool _is_number(char c) {
     return (c >= '0' && c <= '9');
 }
 
 Error Expression::_get_token(Token &r_token) {
 
     while (true) {
-#define GET_CHAR() (str_ofs >= expression.length() ? CharType(0) : expression[str_ofs++])
+#define GET_CHAR() (str_ofs >= expression.length() ? char(0) : expression[str_ofs++])
 
-        CharType cchar = GET_CHAR();
+        char cchar = GET_CHAR();
 
-        switch (cchar.toLatin1()) {
+        switch (cchar) {
 
             case 0: {
                 r_token.type = TK_EOF;
                 return OK;
-            };
+            }
             case '{': {
 
                 r_token.type = TK_CURLY_BRACKET_OPEN;
                 return OK;
-            };
+            }
             case '}': {
 
                 r_token.type = TK_CURLY_BRACKET_CLOSE;
                 return OK;
-            };
+            }
             case '[': {
 
                 r_token.type = TK_BRACKET_OPEN;
                 return OK;
-            };
+            }
             case ']': {
 
                 r_token.type = TK_BRACKET_CLOSE;
                 return OK;
-            };
+            }
             case '(': {
 
                 r_token.type = TK_PARENTHESIS_OPEN;
                 return OK;
-            };
+            }
             case ')': {
 
                 r_token.type = TK_PARENTHESIS_CLOSE;
                 return OK;
-            };
+            }
             case ',': {
 
                 r_token.type = TK_COMMA;
                 return OK;
-            };
+            }
             case ':': {
 
                 r_token.type = TK_COLON;
                 return OK;
-            };
+            }
             case '$': {
 
                 r_token.type = TK_INPUT;
@@ -870,14 +875,14 @@ Error Expression::_get_token(Token &r_token) {
                         return ERR_PARSE_ERROR;
                     }
                     index *= 10;
-                    index += expression[str_ofs].digitValue();
+                    index += expression[str_ofs]-'0';
                     str_ofs++;
 
                 } while (_is_number(expression[str_ofs]));
 
                 r_token.value = index;
                 return OK;
-            };
+            }
             case '=': {
 
                 cchar = GET_CHAR();
@@ -889,7 +894,7 @@ Error Expression::_get_token(Token &r_token) {
                     return ERR_PARSE_ERROR;
                 }
                 return OK;
-            };
+            }
             case '!': {
 
                 if (expression[str_ofs] == '=') {
@@ -899,7 +904,7 @@ Error Expression::_get_token(Token &r_token) {
                     r_token.type = TK_OP_NOT;
                 }
                 return OK;
-            };
+            }
             case '>': {
 
                 if (expression[str_ofs] == '=') {
@@ -912,7 +917,7 @@ Error Expression::_get_token(Token &r_token) {
                     r_token.type = TK_OP_GREATER;
                 }
                 return OK;
-            };
+            }
             case '<': {
 
                 if (expression[str_ofs] == '=') {
@@ -925,27 +930,27 @@ Error Expression::_get_token(Token &r_token) {
                     r_token.type = TK_OP_LESS;
                 }
                 return OK;
-            };
+            }
             case '+': {
                 r_token.type = TK_OP_ADD;
                 return OK;
-            };
+            }
             case '-': {
                 r_token.type = TK_OP_SUB;
                 return OK;
-            };
+            }
             case '/': {
                 r_token.type = TK_OP_DIV;
                 return OK;
-            };
+            }
             case '*': {
                 r_token.type = TK_OP_MUL;
                 return OK;
-            };
+            }
             case '%': {
                 r_token.type = TK_OP_MOD;
                 return OK;
-            };
+            }
             case '&': {
 
                 if (expression[str_ofs] == '&') {
@@ -955,7 +960,7 @@ Error Expression::_get_token(Token &r_token) {
                     r_token.type = TK_OP_BIT_AND;
                 }
                 return OK;
-            };
+            }
             case '|': {
 
                 if (expression[str_ofs] == '|') {
@@ -965,27 +970,27 @@ Error Expression::_get_token(Token &r_token) {
                     r_token.type = TK_OP_BIT_OR;
                 }
                 return OK;
-            };
+            }
             case '^': {
 
                 r_token.type = TK_OP_BIT_XOR;
 
                 return OK;
-            };
+            }
             case '~': {
 
                 r_token.type = TK_OP_BIT_INVERT;
 
                 return OK;
-            };
+            }
             case '"': {
 
-                String str;
+                se_string str;
                 while (true) {
 
-                    CharType ch = GET_CHAR();
+                    char ch = GET_CHAR();
 
-                    if (ch == nullptr) {
+                    if (ch == 0) {
                         _set_error("Unterminated String");
                         r_token.type = TK_ERROR;
                         return ERR_PARSE_ERROR;
@@ -994,15 +999,15 @@ Error Expression::_get_token(Token &r_token) {
                     } else if (ch == '\\') {
                         //escaped characters...
 
-                        CharType next = GET_CHAR();
-                        if (next.isNull()) {
+                        char next = GET_CHAR();
+                        if (next==0) {
                             _set_error("Unterminated String");
                             r_token.type = TK_ERROR;
                             return ERR_PARSE_ERROR;
                         }
-                        CharType res = 0;
+                        char res = 0;
 
-                        switch (next.digitValue()) {
+                        switch (next-'0') {
 
                             case 'b': res = 8; break;
                             case 't': res = 9; break;
@@ -1013,9 +1018,9 @@ Error Expression::_get_token(Token &r_token) {
                                 //hexnumbarh - oct is deprecated
                                 uint16_t accval=0;
                                 for (int j = 0; j < 4; j++) {
-                                    CharType c = GET_CHAR();
+                                    char c = GET_CHAR();
 
-                                    if (c == nullptr) {
+                                    if (c == 0) {
                                         _set_error("Unterminated String");
                                         r_token.type = TK_ERROR;
                                         return ERR_PARSE_ERROR;
@@ -1028,22 +1033,22 @@ Error Expression::_get_token(Token &r_token) {
                                     }
                                     uint16_t v;
                                     if (_is_number(c)) {
-                                        v = c.digitValue();
+                                        v = c-'0';
                                     } else if (c >= 'a' && c <= 'f') {
-                                        v = c.toLatin1() - 'a';
+                                        v = c - 'a';
                                         v += 10;
                                     } else if (c >= 'A' && c <= 'F') {
-                                        v = c.toLatin1() - 'A';
+                                        v = c - 'A';
                                         v += 10;
                                     } else {
-                                        ERR_PRINT("BUG");
+                                        ERR_PRINT("BUG")
                                         v = 0;
                                     }
 
                                     accval <<= 4;
                                     accval |= v;
                                 }
-                                res = QChar(accval);
+                                res = accval;
                             } break;
                             //case '\"': res='\"'; break;
                             //case '\\': res='\\'; break;
@@ -1073,11 +1078,11 @@ Error Expression::_get_token(Token &r_token) {
                     break;
                 }
 
-                CharType next_char = (str_ofs >= expression.length()) ? QChar(0) : expression[str_ofs];
+                char next_char = (str_ofs >= expression.length()) ? char(0) : expression[str_ofs];
                 if (_is_number(cchar) || (cchar == '.' && _is_number(next_char))) {
                     //a number
 
-                    String num;
+                    se_string num;
 #define READING_SIGN 0
 #define READING_INT 1
 #define READING_DEC 2
@@ -1085,7 +1090,7 @@ Error Expression::_get_token(Token &r_token) {
 #define READING_DONE 4
                     int reading = READING_INT;
 
-                    CharType c = cchar;
+                    char c = cchar;
                     bool exp_sign = false;
                     bool exp_beg = false;
                     bool is_float = false;
@@ -1137,7 +1142,7 @@ Error Expression::_get_token(Token &r_token) {
 
                         if (reading == READING_DONE)
                             break;
-                        num += {c};
+                        num += c;
                         c = GET_CHAR();
                     }
 
@@ -1153,12 +1158,12 @@ Error Expression::_get_token(Token &r_token) {
 
                 } else if ((cchar >= 'A' && cchar <= 'Z') || (cchar >= 'a' && cchar <= 'z') || cchar == '_') {
 
-                    String id;
+                    se_string id;
                     bool first = true;
 
                     while ((cchar >= 'A' && cchar <= 'Z') || (cchar >= 'a' && cchar <= 'z') || cchar == '_' || (!first && _is_number(cchar))) {
 
-                        id += {cchar};
+                        id += cchar;
                         cchar = GET_CHAR();
                         first = false;
                     }
@@ -1384,7 +1389,7 @@ Expression::ENode *Expression::_parse_expression() {
             } break;
             case TK_IDENTIFIER: {
 
-                String identifier = tk.value;
+                se_string identifier = tk.value.as<se_string>();
 
                 int cofs = str_ofs;
                 _get_token(tk);
@@ -1546,7 +1551,8 @@ Expression::ENode *Expression::_parse_expression() {
 
                 int expected_args = get_func_argument_count(bifunc->func);
                 if (bifunc->arguments.size() != expected_args) {
-                    _set_error("Builtin func '" + get_func_name(bifunc->func) + "' expects " + itos(expected_args) + " arguments.");
+                    assert(size_t(bifunc->func)<FUNC_MAX);
+                    _set_error(FormatVE("Builtin func '%s' expects %d arguments.",func_name[bifunc->func],expected_args).c_str());
                 }
 
                 expr = bifunc;
@@ -1614,7 +1620,7 @@ Expression::ENode *Expression::_parse_expression() {
                         return nullptr;
                     }
 
-                    StringName identifier = tk.value;
+                    StringName identifier = tk.value.as<StringName>();
 
                     int cofs = str_ofs;
                     _get_token(tk);
@@ -1791,7 +1797,7 @@ Expression::ENode *Expression::_parse_expression() {
                 case Variant::OP_OR: priority = 13; break;
 
                 default: {
-                    _set_error("Parser bug, invalid operator in expression: " + itos(expression[i].op));
+                    _set_error(FormatVE("Parser bug, invalid operator in expression: %d",expression[i].op).c_str());
                     return nullptr;
                 }
             }
@@ -1888,7 +1894,7 @@ bool Expression::_compile_expression() {
         root = nullptr;
     }
 
-    error_str = String();
+    error_str.clear();
     error_set = false;
     str_ofs = 0;
 
@@ -1907,14 +1913,14 @@ bool Expression::_compile_expression() {
     return false;
 }
 
-bool Expression::_execute(const Array &p_inputs, Object *p_instance, Expression::ENode *p_node, Variant &r_ret, String &r_error_str) {
+bool Expression::_execute(const Array &p_inputs, Object *p_instance, Expression::ENode *p_node, Variant &r_ret, se_string &r_error_str) {
 
     switch (p_node->type) {
         case Expression::ENode::TYPE_INPUT: {
 
             const Expression::InputNode *in = static_cast<const Expression::InputNode *>(p_node);
             if (in->index < 0 || in->index >= p_inputs.size()) {
-                r_error_str = vformat(RTR("Invalid input %i (not passed) in expression"), in->index);
+                r_error_str = FormatVE(RTR_utf8("Invalid input %i (not passed) in expression"_sv).c_str(), in->index);
                 return true;
             }
             r_ret = p_inputs[in->index];
@@ -1928,7 +1934,7 @@ bool Expression::_execute(const Array &p_inputs, Object *p_instance, Expression:
         case Expression::ENode::TYPE_SELF: {
 
             if (!p_instance) {
-                r_error_str = RTR("self can't be used because instance is null (not passed)");
+                r_error_str = RTR_utf8("self can't be used because instance is null (not passed)"_sv);
                 return true;
             }
             assert(!object_cast<RefCounted>(p_instance));// refcounted should be actually treated as such
@@ -1954,7 +1960,7 @@ bool Expression::_execute(const Array &p_inputs, Object *p_instance, Expression:
             bool valid = true;
             Variant::evaluate(op->op, a, b, r_ret, valid);
             if (!valid) {
-                r_error_str = vformat(RTR("Invalid operands to operator %s, %s and %s."), Variant::get_operator_name(op->op), Variant::get_type_name(a.get_type()), Variant::get_type_name(b.get_type()));
+                r_error_str = FormatVE(RTR_utf8("Invalid operands to operator %s, %s and %s."_sv).c_str(), Variant::get_operator_name(op->op), Variant::get_type_name(a.get_type()), Variant::get_type_name(b.get_type()));
                 return true;
             }
 
@@ -1977,7 +1983,7 @@ bool Expression::_execute(const Array &p_inputs, Object *p_instance, Expression:
             bool valid;
             r_ret = base.get(idx, &valid);
             if (!valid) {
-                r_error_str = vformat(RTR("Invalid index of type %s for base type %s"), Variant::get_type_name(idx.get_type()), Variant::get_type_name(base.get_type()));
+                r_error_str = FormatVE(RTR_utf8("Invalid index of type %s for base type %s"_sv).c_str(), Variant::get_type_name(idx.get_type()), Variant::get_type_name(base.get_type()));
                 return true;
             }
 
@@ -1994,7 +2000,7 @@ bool Expression::_execute(const Array &p_inputs, Object *p_instance, Expression:
             bool valid;
             r_ret = base.get_named(index->name, &valid);
             if (!valid) {
-                r_error_str = vformat(RTR("Invalid named index '%s' for base type %s"), String(index->name), Variant::get_type_name(base.get_type()));
+                r_error_str = FormatVE(RTR_utf8("Invalid named index '%s' for base type %s"_sv).c_str(), index->name.asCString(), Variant::get_type_name(base.get_type()));
                 return true;
             }
 
@@ -2063,7 +2069,7 @@ bool Expression::_execute(const Array &p_inputs, Object *p_instance, Expression:
             r_ret = Variant::construct(constructor->data_type, (const Variant **)argp.ptr(), argp.size(), ce);
 
             if (ce.error != Variant::CallError::CALL_OK) {
-                r_error_str = vformat(RTR("Invalid arguments to construct '%s'"), Variant::get_type_name(constructor->data_type));
+                r_error_str = FormatVE(RTR_utf8("Invalid arguments to construct '%s'"_sv).c_str(), Variant::get_type_name(constructor->data_type));
                 return true;
             }
 
@@ -2126,7 +2132,7 @@ bool Expression::_execute(const Array &p_inputs, Object *p_instance, Expression:
             r_ret = base.call(call->method, (const Variant **)argp.ptr(), argp.size(), ce);
 
             if (ce.error != Variant::CallError::CALL_OK) {
-                r_error_str = vformat(RTR("On call to '%s':"), String(call->method));
+                r_error_str = FormatVE(RTR_utf8("On call to '%s':"_sv).c_str(), call->method.asCString());
                 return true;
             }
 
@@ -2135,7 +2141,7 @@ bool Expression::_execute(const Array &p_inputs, Object *p_instance, Expression:
     return false;
 }
 
-Error Expression::parse(const String &p_expression, const Vector<String> &p_input_names) {
+Error Expression::parse(se_string_view p_expression, const Vector<se_string> &p_input_names) {
 
     if (nodes) {
         memdelete(nodes);
@@ -2143,7 +2149,7 @@ Error Expression::parse(const String &p_expression, const Vector<String> &p_inpu
         root = nullptr;
     }
 
-    error_str = String();
+    error_str.clear();
     error_set = false;
     str_ofs = 0;
     input_names = p_input_names;
@@ -2169,7 +2175,7 @@ Variant Expression::execute(const Array& p_inputs, Object *p_base, bool p_show_e
 
     execution_error = false;
     Variant output;
-    String error_txt;
+    se_string error_txt;
     bool err = _execute(p_inputs, p_base, root, output, error_txt);
     if (err) {
         execution_error = true;
@@ -2184,7 +2190,7 @@ bool Expression::has_execute_failed() const {
     return execution_error;
 }
 
-String Expression::get_error_text() const {
+const se_string & Expression::get_error_text() const {
     return error_str;
 }
 

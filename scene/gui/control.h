@@ -32,7 +32,7 @@
 
 #include "core/math/transform_2d.h"
 #include "core/hash_map.h"
-#include "core/ustring.h"
+#include "core/se_string.h"
 #include "core/rid.h"
 #include "scene/2d/canvas_item.h"
 
@@ -152,7 +152,7 @@ private:
         NodePath focus_prev;
         float margin[4];
         float anchor[4];
-        String tooltip;
+        StringName tooltip;
         List<Control *>::Element *MI; //modal item
         List<Control *>::Element *SI;
         List<Control *>::Element *RI;
@@ -221,7 +221,7 @@ private:
     void _compute_anchors(Rect2 p_rect, const float p_margins[4], float (&r_anchors)[4]);
 
     void _size_changed();
-    String _get_tooltip() const;
+    StringName _get_tooltip() const;
 
     void _override_changed();
 
@@ -438,9 +438,10 @@ public:
 
     /* TOOLTIP */
 
-    void set_tooltip(const String &p_tooltip);
-    virtual String get_tooltip(const Point2 &p_pos) const;
-    virtual Control *make_custom_tooltip(const String &p_text) const;
+    void set_tooltip_utf8(se_string_view p_tooltip);
+    void set_tooltip(const StringName &p_tooltip);
+    virtual StringName get_tooltip(const Point2 &p_pos) const;
+    virtual Control *make_custom_tooltip(se_string_view p_text) const;
 
     /* CURSOR */
 
@@ -472,8 +473,8 @@ public:
     void set_disable_visibility_clip(bool p_ignore);
     bool is_visibility_clip_disabled() const;
 
-    void get_argument_options(const StringName &p_function, int p_idx, ListPOD<String> *r_options) const override;
-    String get_configuration_warning() const override;
+    void get_argument_options(const StringName &p_function, int p_idx, ListPOD<se_string> *r_options) const override;
+    StringName get_configuration_warning() const override;
 
     Control();
     ~Control() override;

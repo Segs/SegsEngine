@@ -68,7 +68,7 @@ class EditorFileServer : public Object {
 	bool quit;
 	Command cmd;
 
-	String password;
+    se_string password;
 	int port;
 	bool active;
 

@@ -57,7 +57,7 @@ bool MeshInstance::_set(const StringName &p_name, const Variant &p_value) {
         return true;
     }
 
-    if (StringUtils::begins_with(p_name.operator String(),"material/")) {
+    if (StringUtils::begins_with(p_name,"material/")) {
         int idx = StringUtils::to_int(StringUtils::get_slice(p_name,'/', 1));
         if (idx >= materials.size() || idx < 0)
             return false;
@@ -80,7 +80,7 @@ bool MeshInstance::_get(const StringName &p_name, Variant &r_ret) const {
         return true;
     }
 
-    if (StringUtils::begins_with(p_name.operator String(),"material/")) {
+    if (StringUtils::begins_with(p_name,"material/")) {
         int idx = StringUtils::to_int(StringUtils::get_slice(p_name,'/', 1));
         if (idx >= materials.size() || idx < 0)
             return false;
@@ -92,7 +92,7 @@ bool MeshInstance::_get(const StringName &p_name, Variant &r_ret) const {
 
 void MeshInstance::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
 
-    List<String> ls;
+    List<StringName> ls;
     for (const eastl::pair<const StringName,BlendShapeTrack> &E : blend_shape_tracks) {
 
         ls.push_back(E.first);
@@ -100,13 +100,13 @@ void MeshInstance::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
 
     ls.sort();
 
-    for (List<String>::Element *E = ls.front(); E; E = E->next()) {
-        p_list->push_back(PropertyInfo(VariantType::REAL, String(E->deref()), PROPERTY_HINT_RANGE, "0,1,0.00001"));
+    for (List<StringName>::Element *E = ls.front(); E; E = E->next()) {
+        p_list->push_back(PropertyInfo(VariantType::REAL, E->deref(), PROPERTY_HINT_RANGE, "0,1,0.00001"));
     }
 
     if (mesh) {
         for (int i = 0; i < mesh->get_surface_count(); i++) {
-            p_list->push_back(PropertyInfo(VariantType::OBJECT, "material/" + itos(i), PROPERTY_HINT_RESOURCE_TYPE, "ShaderMaterial,SpatialMaterial"));
+            p_list->push_back(PropertyInfo(VariantType::OBJECT, StringName("material/" + itos(i)), PROPERTY_HINT_RESOURCE_TYPE, "ShaderMaterial,SpatialMaterial"));
         }
     }
 }
@@ -131,7 +131,7 @@ void MeshInstance::set_mesh(const Ref<Mesh> &p_mesh) {
             BlendShapeTrack mt;
             mt.idx = i;
             mt.value = 0;
-            blend_shape_tracks["blend_shapes/" + String(mesh->get_blend_shape_name(i))] = mt;
+            blend_shape_tracks[StringName("blend_shapes/" + se_string(mesh->get_blend_shape_name(i)))] = mt;
         }
 
         mesh->connect(CoreStringNames::get_singleton()->changed, this, SceneStringNames::get_singleton()->_mesh_changed);
@@ -159,10 +159,10 @@ void MeshInstance::_resolve_skeleton_path() {
     if (!skeleton_path.is_empty()) {
     Skeleton *skeleton = object_cast<Skeleton>(get_node(skeleton_path));
         if (skeleton) {
-            new_skin_reference = skeleton->register_skin(skin);
-            if (not skin) {
+            new_skin_reference = skeleton->register_skin(skin_internal);
+            if (not skin_internal) {
                 //a skin was created for us
-                skin = new_skin_reference->get_skin();
+                skin_internal = new_skin_reference->get_skin();
                 _change_notify();
             }
         }
@@ -178,6 +178,7 @@ void MeshInstance::_resolve_skeleton_path() {
 }
 
 void MeshInstance::set_skin(const Ref<Skin> &p_skin) {
+    skin_internal = p_skin;
     skin = p_skin;
     if (!is_inside_tree())
         return;
@@ -239,7 +240,7 @@ void MeshInstance::create_trimesh_collision() {
 
     StaticBody *static_body = object_cast<StaticBody>(create_trimesh_collision_node());
     ERR_FAIL_COND(!static_body)
-    static_body->set_name(String(get_name()) + "_col");
+    static_body->set_name(se_string(get_name()) + "_col");
 
     add_child(static_body);
     if (get_owner()) {
@@ -269,7 +270,7 @@ void MeshInstance::create_convex_collision() {
 
     StaticBody *static_body = object_cast<StaticBody>(create_convex_collision_node());
     ERR_FAIL_COND(!static_body)
-    static_body->set_name(String(get_name()) + "_col");
+    static_body->set_name(se_string(get_name()) + "_col");
 
     add_child(static_body);
     if (get_owner()) {

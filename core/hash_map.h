@@ -32,7 +32,7 @@
 
 #include "core/error_macros.h"
 
-#include "core/list.h"
+
 #include "core/math/math_funcs.h"
 #include "core/os/memory.h"
 #include "EASTL/unordered_map.h"
@@ -59,8 +59,8 @@ struct HashMapComparatorDefault;
  * times bigger than the hash table, table is resized to solve this condition. if RELATIONSHIP is zero, table is always MIN_HASH_TABLE_POWER.
  *
 */
-template <class TKey, class TData>
-using DefHashMap = eastl::unordered_map<TKey,TData,Hasher<TKey>,HashMapComparatorDefault<TKey>,wrap_allocator>;
+template <class TKey, class TData,class HashFunc=eastl::hash<TKey>>
+using DefHashMap = eastl::unordered_map<TKey,TData,HashFunc,HashMapComparatorDefault<TKey>,wrap_allocator>;
 
 template <class TKey, class TData, class Hasher = Hasher<TKey>,
         class Comparator = HashMapComparatorDefault<TKey>, uint8_t MIN_HASH_TABLE_POWER = 3, uint8_t RELATIONSHIP = 8>
@@ -120,7 +120,7 @@ private:
 
     void erase_hash_table() {
 
-        ERR_FAIL_COND_CMSG(elements, "Cannot erase hash table if there are still elements inside.")
+        ERR_FAIL_COND_MSG(elements, "Cannot erase hash table if there are still elements inside.")
 
         memdelete_arr(hash_table);
         hash_table = nullptr;
@@ -159,7 +159,7 @@ private:
             return;
 
         Element **new_hash_table = memnew_arr(Element *, ((uint64_t)1 << new_hash_table_power));
-        ERR_FAIL_COND_CMSG(!new_hash_table, "Out of memory.")
+        ERR_FAIL_COND_MSG(!new_hash_table, "Out of memory.")
 
         for (int i = 0; i < (1 << new_hash_table_power); i++) {
 
@@ -218,6 +218,7 @@ private:
         e->next = hash_table[index];
         e->hash = hash;
         e->pair.key = p_key;
+        e->pair.data = TData();
 
         hash_table[index] = e;
         elements++;
@@ -577,8 +578,8 @@ public:
             }
         }
     }
-
-    void get_key_list(ListPOD<TKey> &p_keys) const {
+    template<typename TGT>
+    void get_key_list(TGT &p_keys) const {
         if (unlikely(!hash_table))
             return;
         for (int i = 0; i < (1 << hash_table_power); i++) {

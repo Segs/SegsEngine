@@ -38,7 +38,7 @@
 #include "editor/service_interfaces/EditorServiceInterface.h"
 #include "scene/resources/texture.h"
 
-void ResourceImporterTexture::_texture_reimport_srgb(const StringName &p_tex_path) {
+void ResourceImporterTexture::_texture_reimport_srgb(StringName p_tex_path) {
 
     singleton->mutex->lock();
 
@@ -51,7 +51,7 @@ void ResourceImporterTexture::_texture_reimport_srgb(const StringName &p_tex_pat
     singleton->mutex->unlock();
 }
 
-void ResourceImporterTexture::_texture_reimport_3d(const StringName &p_tex_path) {
+void ResourceImporterTexture::_texture_reimport_3d(StringName p_tex_path) {
 
     singleton->mutex->lock();
 
@@ -64,7 +64,7 @@ void ResourceImporterTexture::_texture_reimport_3d(const StringName &p_tex_path)
     singleton->mutex->unlock();
 }
 
-void ResourceImporterTexture::_texture_reimport_normal(const StringName &p_tex_path) {
+void ResourceImporterTexture::_texture_reimport_normal(StringName p_tex_path) {
 
     singleton->mutex->lock();
 
@@ -77,7 +77,7 @@ void ResourceImporterTexture::_texture_reimport_normal(const StringName &p_tex_p
     singleton->mutex->unlock();
 }
 
-void ResourceImporterTexture::build_reconfigured_list(Vector<String> &to_reimport) {
+void ResourceImporterTexture::build_reconfigured_list(Vector<se_string> &to_reimport) {
 
     mutex->lock();
 
@@ -90,7 +90,7 @@ void ResourceImporterTexture::build_reconfigured_list(Vector<String> &to_reimpor
 
         Ref<ConfigFile> cf(make_ref_counted<ConfigFile>());
 
-        String src_path = String(E.first) + ".import";
+        se_string src_path = se_string(E.first) + ".import";
 
         Error err = cf->load(src_path);
         ERR_CONTINUE(err != OK)
@@ -117,7 +117,7 @@ void ResourceImporterTexture::build_reconfigured_list(Vector<String> &to_reimpor
 
         if (changed) {
             cf->save(src_path);
-            to_reimport.push_back(E.first);
+            to_reimport.push_back(se_string(E.first));
         }
     }
 
@@ -127,29 +127,29 @@ void ResourceImporterTexture::build_reconfigured_list(Vector<String> &to_reimpor
 
 }
 
-String ResourceImporterTexture::get_importer_name() const {
+StringName ResourceImporterTexture::get_importer_name() const {
 
     return "texture";
 }
 
-String ResourceImporterTexture::get_visible_name() const {
+StringName ResourceImporterTexture::get_visible_name() const {
 
     return "Texture";
 }
-void ResourceImporterTexture::get_recognized_extensions(Vector<String> *p_extensions) const {
+void ResourceImporterTexture::get_recognized_extensions(PODVector<se_string> &p_extensions) const {
 
     ImageLoader::get_recognized_extensions(p_extensions);
 }
-String ResourceImporterTexture::get_save_extension() const {
+StringName ResourceImporterTexture::get_save_extension() const {
     return "stex";
 }
 
-String ResourceImporterTexture::get_resource_type() const {
+StringName ResourceImporterTexture::get_resource_type() const {
 
     return "StreamTexture";
 }
 
-bool ResourceImporterTexture::get_option_visibility(const String &p_option, const Map<StringName, Variant> &p_options) const {
+bool ResourceImporterTexture::get_option_visibility(const StringName &p_option, const Map<StringName, Variant> &p_options) const {
 
     if (p_option == "compress/lossy_quality") {
         int compress_mode = int(p_options.at("compress/mode"));
@@ -177,7 +177,7 @@ bool ResourceImporterTexture::get_option_visibility(const String &p_option, cons
 int ResourceImporterTexture::get_preset_count() const {
     return 4;
 }
-String ResourceImporterTexture::get_preset_name(int p_idx) const {
+StringName ResourceImporterTexture::get_preset_name(int p_idx) const {
 
     static const char *preset_names[] = {
         "2D, Detect 3D",
@@ -186,7 +186,7 @@ String ResourceImporterTexture::get_preset_name(int p_idx) const {
         "3D"
     };
 
-    return preset_names[p_idx];
+    return StaticCString(preset_names[p_idx],true);
 }
 
 void ResourceImporterTexture::get_import_options(ListPOD<ImportOption> *r_options, int p_preset) const {
@@ -211,7 +211,7 @@ void ResourceImporterTexture::get_import_options(ListPOD<ImportOption> *r_option
     r_options->push_back(ImportOption(PropertyInfo(VariantType::REAL, "svg/scale", PROPERTY_HINT_RANGE, "0.001,100,0.001"), 1.0));
 }
 
-void ResourceImporterTexture::_save_stex(const Ref<Image> &p_image, const String &p_to_path, int p_compress_mode,
+void ResourceImporterTexture::_save_stex(const Ref<Image> &p_image, se_string_view p_to_path, int p_compress_mode,
         float p_lossy_quality, ImageCompressMode p_vram_compression, bool p_mipmaps, int p_texture_flags,
         bool p_streamable, bool p_detect_3d, bool p_detect_srgb, bool p_force_rgbe, bool p_detect_normal,
         bool p_force_normal, bool p_force_po2_for_compressed) {
@@ -368,7 +368,7 @@ void ResourceImporterTexture::_save_stex(const Ref<Image> &p_image, const String
     memdelete(f);
 }
 
-Error ResourceImporterTexture::import(const String &p_source_file, const String &p_save_path, const Map<StringName, Variant> &p_options, List<String> *r_platform_variants, List<String> *r_gen_files, Variant *r_metadata) {
+Error ResourceImporterTexture::import(se_string_view p_source_file, se_string_view p_save_path, const Map<StringName, Variant> &p_options, List<se_string> *r_platform_variants, List<se_string> *r_gen_files, Variant *r_metadata) {
 
     int compress_mode = p_options.at("compress/mode");
     float lossy = p_options.at("compress/lossy_quality");
@@ -490,7 +490,7 @@ Error ResourceImporterTexture::import(const String &p_source_file, const String 
         }
 
         if (can_bptc || can_s3tc) {
-            _save_stex(image, p_save_path + ".s3tc.stex", compress_mode, lossy, can_bptc ? ImageCompressMode::COMPRESS_BPTC : ImageCompressMode::COMPRESS_S3TC, mipmaps, tex_flags, stream, detect_3d, detect_srgb, force_rgbe, detect_normal, force_normal, false);
+            _save_stex(image, se_string(p_save_path) + ".s3tc.stex", compress_mode, lossy, can_bptc ? ImageCompressMode::COMPRESS_BPTC : ImageCompressMode::COMPRESS_S3TC, mipmaps, tex_flags, stream, detect_3d, detect_srgb, force_rgbe, detect_normal, force_normal, false);
             r_platform_variants->push_back("s3tc");
             formats_imported.push_back("s3tc");
             ok_on_pc = true;
@@ -498,20 +498,20 @@ Error ResourceImporterTexture::import(const String &p_source_file, const String 
 
         if (ProjectSettings::get_singleton()->get("rendering/vram_compression/import_etc2")) {
 
-            _save_stex(image, p_save_path + ".etc2.stex", compress_mode, lossy, ImageCompressMode::COMPRESS_ETC2, mipmaps, tex_flags, stream, detect_3d, detect_srgb, force_rgbe, detect_normal, force_normal, true);
+            _save_stex(image, se_string(p_save_path) + ".etc2.stex", compress_mode, lossy, ImageCompressMode::COMPRESS_ETC2, mipmaps, tex_flags, stream, detect_3d, detect_srgb, force_rgbe, detect_normal, force_normal, true);
             r_platform_variants->push_back("etc2");
             formats_imported.push_back("etc2");
         }
 
         if (ProjectSettings::get_singleton()->get("rendering/vram_compression/import_etc")) {
-            _save_stex(image, p_save_path + ".etc.stex", compress_mode, lossy, ImageCompressMode::COMPRESS_ETC, mipmaps, tex_flags, stream, detect_3d, detect_srgb, force_rgbe, detect_normal, force_normal, true);
+            _save_stex(image, se_string(p_save_path) + ".etc.stex", compress_mode, lossy, ImageCompressMode::COMPRESS_ETC, mipmaps, tex_flags, stream, detect_3d, detect_srgb, force_rgbe, detect_normal, force_normal, true);
             r_platform_variants->push_back("etc");
             formats_imported.push_back("etc");
         }
 
         if (ProjectSettings::get_singleton()->get("rendering/vram_compression/import_pvrtc")) {
 
-            _save_stex(image, p_save_path + ".pvrtc.stex", compress_mode, lossy, ImageCompressMode::COMPRESS_PVRTC4, mipmaps, tex_flags, stream, detect_3d, detect_srgb, force_rgbe, detect_normal, force_normal, true);
+            _save_stex(image, se_string(p_save_path) + ".pvrtc.stex", compress_mode, lossy, ImageCompressMode::COMPRESS_PVRTC4, mipmaps, tex_flags, stream, detect_3d, detect_srgb, force_rgbe, detect_normal, force_normal, true);
             r_platform_variants->push_back("pvrtc");
             formats_imported.push_back("pvrtc");
         }
@@ -522,7 +522,7 @@ Error ResourceImporterTexture::import(const String &p_source_file, const String 
         }
     } else {
         //import normally
-        _save_stex(image, p_save_path + ".stex", compress_mode, lossy, ImageCompressMode::COMPRESS_S3TC /*this is ignored */, mipmaps, tex_flags, stream, detect_3d, detect_srgb, force_rgbe, detect_normal, force_normal, false);
+        _save_stex(image, se_string(p_save_path) + ".stex", compress_mode, lossy, ImageCompressMode::COMPRESS_S3TC /*this is ignored */, mipmaps, tex_flags, stream, detect_3d, detect_srgb, force_rgbe, detect_normal, force_normal, false);
     }
 
     if (r_metadata) {
@@ -544,16 +544,16 @@ const char *ResourceImporterTexture::compression_formats[] = {
     "pvrtc",
     nullptr
 };
-String ResourceImporterTexture::get_import_settings_string() const {
+se_string ResourceImporterTexture::get_import_settings_string() const {
 
-    String s;
+    se_string s;
 
     int index = 0;
     while (compression_formats[index]) {
-        String setting_path = "rendering/vram_compression/import_" + String(compression_formats[index]);
-        bool test = ProjectSettings::get_singleton()->get(setting_path).as<bool>();
+        se_string setting_path = "rendering/vram_compression/import_" + se_string(compression_formats[index]);
+        bool test = ProjectSettings::get_singleton()->get(StringName(setting_path)).as<bool>();
         if (test) {
-            s += String(compression_formats[index]);
+            s += se_string(compression_formats[index]);
         }
         index++;
     }
@@ -561,7 +561,7 @@ String ResourceImporterTexture::get_import_settings_string() const {
     return s;
 }
 
-bool ResourceImporterTexture::are_import_settings_valid(const String &p_path) const {
+bool ResourceImporterTexture::are_import_settings_valid(se_string_view p_path) const {
 
     //will become invalid if formats are missing to import
     Dictionary metadata = ResourceFormatImporter::get_singleton()->get_resource_metadata(p_path);
@@ -583,8 +583,8 @@ bool ResourceImporterTexture::are_import_settings_valid(const String &p_path) co
     int index = 0;
     bool valid = true;
     while (compression_formats[index]) {
-        String setting_path = "rendering/vram_compression/import_" + String(compression_formats[index]);
-        bool test = ProjectSettings::get_singleton()->get(setting_path).as<bool>();
+        se_string setting_path = "rendering/vram_compression/import_" + se_string(compression_formats[index]);
+        bool test = ProjectSettings::get_singleton()->get(StringName(setting_path)).as<bool>();
         if (test) {
             if (formats_imported.find(compression_formats[index]) == -1) {
                 valid = false;

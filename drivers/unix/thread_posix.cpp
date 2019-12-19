@@ -74,7 +74,11 @@ void *ThreadPosix::thread_callback(void *userdata) {
     t->callback(t->user);
 
     ScriptServer::thread_exit();
+    void *value = pthread_getspecific(thread_id_key);
 
+    if (value)
+        memdelete(static_cast<ID *>(value));
+    pthread_setspecific(thread_id_key, nullptr);
     return nullptr;
 }
 
@@ -112,7 +116,7 @@ void ThreadPosix::wait_to_finish_func_posix(Thread *p_thread) {
     tp->pthread = 0;
 }
 
-Error ThreadPosix::set_name_func_posix(const String &p_name) {
+Error ThreadPosix::set_name_func_posix(se_string_view p_name) {
 
 #ifdef PTHREAD_NO_RENAME
     return ERR_UNAVAILABLE;
@@ -122,16 +126,16 @@ Error ThreadPosix::set_name_func_posix(const String &p_name) {
 #ifdef PTHREAD_RENAME_SELF
 
     // check if thread is the same as caller
-    int err = pthread_setname_np(StringUtils::to_utf8(p_name).get_data());
+    int err = pthread_setname_np(se_string(p_name).c_str());
 
 #else
 
     pthread_t running_thread = pthread_self();
 #ifdef PTHREAD_BSD_SET_NAME
-    pthread_set_name_np(running_thread, p_name.utf8().get_data());
+    pthread_set_name_np(running_thread, se_string(p_name).c_str());
     int err = 0; // Open/FreeBSD ignore errors in this function
 #else
-	int err = pthread_setname_np(running_thread, qPrintable(p_name.m_str));
+    int err = pthread_setname_np(running_thread, se_string(p_name).c_str());
 #endif // PTHREAD_BSD_SET_NAME
 
 #endif // PTHREAD_RENAME_SELF

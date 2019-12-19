@@ -34,9 +34,13 @@
 #include "core/os/input.h"
 #include "core/translation_helpers.h"
 #include "editor/editor_scale.h"
+#include "editor/editor_node.h"
 #include "editor/editor_settings.h"
 #include "editor/plugins/spatial_editor_plugin.h"
 #include "scene/3d/camera.h"
+#include "scene/gui/menu_button.h"
+#include "scene/gui/item_list.h"
+#include "scene/gui/slider.h"
 #include "scene/main/scene_tree.h"
 
 #include "core/math/geometry.h"
@@ -47,11 +51,8 @@ IMPL_GDCLASS(GridMapEditorPlugin)
 
 void GridMapEditor::_node_removed(Node *p_node) {
 
-    if (p_node == node) {
+    if (p_node == node)
         node = nullptr;
-        hide();
-        mesh_library_palette->hide();
-    }
 }
 
 void GridMapEditor::_configure() {
@@ -286,6 +287,7 @@ void GridMapEditor::_update_cursor_transform() {
     cursor_transform = Transform();
     cursor_transform.origin = cursor_origin;
     cursor_transform.basis.set_orthogonal_index(cursor_rot);
+    cursor_transform.basis *= node->get_cell_scale();
     cursor_transform = node->get_global_transform() * cursor_transform;
 
     if (cursor_instance.is_valid()) {
@@ -308,7 +310,7 @@ void GridMapEditor::_update_selection_transform() {
     }
 
     Transform xf;
-    xf.scale(Vector3(1, 1, 1) * (Vector3(1, 1, 1) + (selection.end - selection.begin)) * node->get_cell_size());
+    xf.scale((Vector3(1, 1, 1) + (selection.end - selection.begin)) * node->get_cell_size());
     xf.origin = selection.begin * node->get_cell_size();
 
     vs->instance_set_transform(selection_instance, node->get_global_transform() * xf);
@@ -360,7 +362,15 @@ void GridMapEditor::_set_selection(bool p_active, const Vector3 &p_begin, const 
     selection.click = p_begin;
     selection.current = p_end;
 
-    _update_selection_transform();
+    if (is_visible_in_tree()) {
+        _update_selection_transform();
+    }
+
+    options->get_popup()->set_item_disabled(options->get_popup()->get_item_index(MENU_OPTION_SELECTION_CLEAR), !selection.active);
+    options->get_popup()->set_item_disabled(options->get_popup()->get_item_index(MENU_OPTION_SELECTION_CUT), !selection.active);
+    options->get_popup()->set_item_disabled(options->get_popup()->get_item_index(MENU_OPTION_SELECTION_DUPLICATE), !selection.active);
+    options->get_popup()->set_item_disabled(options->get_popup()->get_item_index(MENU_OPTION_SELECTION_FILL), !selection.active);
+
 }
 
 bool GridMapEditor::do_input_action(Camera *p_camera, const Point2 &p_point, bool p_click) {
@@ -488,7 +498,7 @@ void GridMapEditor::_delete_selection() {
     if (!selection.active)
         return;
 
-    undo_redo->create_action(TTR("GridMap Delete Selection"));
+    undo_redo->create_action_ui(TTR("GridMap Delete Selection"));
     for (int i = selection.begin.x; i <= selection.end.x; i++) {
 
         for (int j = selection.begin.y; j <= selection.end.y; j++) {
@@ -510,7 +520,7 @@ void GridMapEditor::_fill_selection() {
     if (!selection.active)
         return;
 
-    undo_redo->create_action(TTR("GridMap Fill Selection"));
+    undo_redo->create_action_ui(TTR("GridMap Fill Selection"));
     for (int i = selection.begin.x; i <= selection.end.x; i++) {
 
         for (int j = selection.begin.y; j <= selection.end.y; j++) {
@@ -600,7 +610,7 @@ void GridMapEditor::_update_paste_indicator() {
 
         Basis item_rot;
         item_rot.set_orthogonal_index(item.orientation);
-        xf.basis = item_rot * xf.basis;
+        xf.basis = item_rot * xf.basis * node->get_cell_scale();
 
         VisualServer::get_singleton()->instance_set_transform(item.instance, node->get_global_transform() * xf);
     }
@@ -615,7 +625,7 @@ void GridMapEditor::_do_paste() {
     rot.set_orthogonal_index(paste_indicator.orientation);
 
     Vector3 ofs = paste_indicator.current - paste_indicator.click;
-    undo_redo->create_action(TTR("GridMap Paste Selection"));
+    undo_redo->create_action_ui(TTR("GridMap Paste Selection"));
 
     for (List<ClipboardItem>::Element *E = clipboard_items.front(); E; E = E->next()) {
 
@@ -704,7 +714,7 @@ bool GridMapEditor::forward_spatial_input_event(Camera *p_camera, const Ref<Inpu
             if ((mb->get_button_index() == BUTTON_RIGHT && input_action == INPUT_ERASE) || (mb->get_button_index() == BUTTON_LEFT && input_action == INPUT_PAINT)) {
 
                 if (!set_items.empty()) {
-                    undo_redo->create_action(TTR("GridMap Paint"));
+                    undo_redo->create_action_ui(TTR("GridMap Paint"));
                     for (List<SetItem>::Element *E = set_items.front(); E; E = E->next()) {
 
                         const SetItem &si = E->deref();
@@ -814,7 +824,7 @@ bool GridMapEditor::forward_spatial_input_event(Camera *p_camera, const Ref<Inpu
 
 struct _CGMEItemSort {
 
-    String name;
+    se_string name;
     int id;
     _FORCE_INLINE_ bool operator<(const _CGMEItemSort &r_it) const { return name < r_it.name; }
 };
@@ -837,7 +847,7 @@ void GridMapEditor::_set_display_mode(int p_mode) {
     update_palette();
 }
 
-void GridMapEditor::_text_changed(const String &p_text) {
+void GridMapEditor::_text_changed(se_string_view p_text) {
     update_palette();
 }
 
@@ -860,7 +870,7 @@ void GridMapEditor::_icon_size_changed(float p_value) {
 void GridMapEditor::update_palette() {
     int selected = mesh_library_palette->get_current();
 
-    float min_size = EDITOR_DEF("editors/grid_map/preview_size", 64);
+    float min_size = EDITOR_DEF(("editors/grid_map/preview_size"), 64);
     min_size *= EDSCALE;
 
     mesh_library_palette->clear();
@@ -881,7 +891,7 @@ void GridMapEditor::update_palette() {
 
     if (not mesh_library) {
         last_mesh_library = nullptr;
-        search_box->set_text("");
+        search_box->set_text(String());
         search_box->set_editable(false);
         info_message->show();
         return;
@@ -903,13 +913,13 @@ void GridMapEditor::update_palette() {
     }
     il.sort();
 
-    String filter = StringUtils::strip_edges(search_box->get_text());
+    se_string filter(StringUtils::strip_edges(se_string_view(StringUtils::to_utf8(search_box->get_text_ui()).data())));
 
     int item = 0;
 
     for (List<_CGMEItemSort>::Element *E = il.front(); E; E = E->next()) {
         int id = E->deref().id;
-        String name = mesh_library->get_item_name(id);
+        se_string name = mesh_library->get_item_name(id);
         Ref<Texture> preview = mesh_library->get_item_preview(id);
 
         if (name.empty()) {
@@ -919,12 +929,12 @@ void GridMapEditor::update_palette() {
         if (!filter.empty() && !StringUtils::is_subsequence_of(filter,name,StringUtils::CaseInsensitive))
             continue;
 
-        mesh_library_palette->add_item("");
+        mesh_library_palette->add_item(StringName());
         if (preview) {
             mesh_library_palette->set_item_icon(item, preview);
-            mesh_library_palette->set_item_tooltip(item, name);
+            mesh_library_palette->set_item_tooltip_utf8(item, name);
         }
-        mesh_library_palette->set_item_text(item, name);
+        mesh_library_palette->set_item_text(item, StringName(name));
         mesh_library_palette->set_item_metadata(item, id);
 
         item++;
@@ -938,9 +948,10 @@ void GridMapEditor::update_palette() {
 }
 
 void GridMapEditor::edit(GridMap *p_gridmap) {
+    if (!p_gridmap && node)
+        node->disconnect("cell_size_changed", this, "_draw_grids");
 
     node = p_gridmap;
-    VisualServer *vs = VisualServer::get_singleton();
 
     input_action = INPUT_NONE;
     selection.active = false;
@@ -966,75 +977,13 @@ void GridMapEditor::edit(GridMap *p_gridmap) {
 
     set_process(true);
 
-    Vector3 edited_floor = p_gridmap->has_meta("_editor_floor_") ? p_gridmap->get_meta("_editor_floor_") : Variant();
     clip_mode = p_gridmap->has_meta("_editor_clip_") ? ClipMode(p_gridmap->get_meta("_editor_clip_").operator int()) : CLIP_DISABLED;
 
-    for (int i = 0; i < 3; i++) {
-        if (vs->mesh_get_surface_count(grid[i]) > 0)
-            vs->mesh_remove_surface(grid[i], 0);
-        edit_floor[i] = edited_floor[i];
-    }
-
-    {
-
-        // Update grids.
-        indicator_mat = make_ref_counted<SpatialMaterial>();
-        indicator_mat->set_flag(SpatialMaterial::FLAG_UNSHADED, true);
-        indicator_mat->set_feature(SpatialMaterial::FEATURE_TRANSPARENT, true);
-        indicator_mat->set_flag(SpatialMaterial::FLAG_SRGB_VERTEX_COLOR, true);
-        indicator_mat->set_flag(SpatialMaterial::FLAG_ALBEDO_FROM_VERTEX_COLOR, true);
-        indicator_mat->set_albedo(Color(0.8f, 0.5f, 0.1f));
-
-        Vector<Vector3> grid_points[3];
-        Vector<Color> grid_colors[3];
-
-        float cell_size[3] = { p_gridmap->get_cell_size().x, p_gridmap->get_cell_size().y, p_gridmap->get_cell_size().z };
-
-        for (int i = 0; i < 3; i++) {
-
-            Vector3 axis;
-            axis[i] = 1;
-            Vector3 axis_n1;
-            axis_n1[(i + 1) % 3] = cell_size[(i + 1) % 3];
-            Vector3 axis_n2;
-            axis_n2[(i + 2) % 3] = cell_size[(i + 2) % 3];
-
-            for (int j = -GRID_CURSOR_SIZE; j <= GRID_CURSOR_SIZE; j++) {
-
-                for (int k = -GRID_CURSOR_SIZE; k <= GRID_CURSOR_SIZE; k++) {
-
-                    Vector3 p = axis_n1 * j + axis_n2 * k;
-                    float trans = Math::pow(MAX(0, 1.0 - (Vector2(j, k).length() / GRID_CURSOR_SIZE)), 2);
-
-                    Vector3 pj = axis_n1 * (j + 1) + axis_n2 * k;
-                    float transj = Math::pow(MAX(0, 1.0 - (Vector2(j + 1, k).length() / GRID_CURSOR_SIZE)), 2);
-
-                    Vector3 pk = axis_n1 * j + axis_n2 * (k + 1);
-                    float transk = Math::pow(MAX(0, 1.0 - (Vector2(j, k + 1).length() / GRID_CURSOR_SIZE)), 2);
-
-                    grid_points[i].push_back(p);
-                    grid_points[i].push_back(pk);
-                    grid_colors[i].push_back(Color(1, 1, 1, trans));
-                    grid_colors[i].push_back(Color(1, 1, 1, transk));
-
-                    grid_points[i].push_back(p);
-                    grid_points[i].push_back(pj);
-                    grid_colors[i].push_back(Color(1, 1, 1, trans));
-                    grid_colors[i].push_back(Color(1, 1, 1, transj));
-                }
-            }
-
-            Array d;
-            d.resize(VS::ARRAY_MAX);
-            d[VS::ARRAY_VERTEX] = grid_points[i];
-            d[VS::ARRAY_COLOR] = grid_colors[i];
-            VisualServer::get_singleton()->mesh_add_surface_from_arrays(grid[i], VS::PRIMITIVE_LINES, d);
-            VisualServer::get_singleton()->mesh_surface_set_material(grid[i], 0, indicator_mat->get_rid());
-        }
-    }
-
+    _draw_grids(node->get_cell_size());
     update_grid();
     _update_clip();
+
+    node->connect("cell_size_changed", this, "_draw_grids");
 }
 
 void GridMapEditor::_update_clip() {
@@ -1062,6 +1011,61 @@ void GridMapEditor::update_grid() {
     updating = true;
     floor->set_value(edit_floor[edit_axis]);
     updating = false;
+}
+
+void GridMapEditor::_draw_grids(const Vector3 &cell_size) {
+    Vector3 edited_floor = node->has_meta("_editor_floor_") ? node->get_meta("_editor_floor_") : Variant();
+    auto VS = VisualServer::get_singleton();
+    for (int i = 0; i < 3; i++) {
+        if (VS->mesh_get_surface_count(grid[i]) > 0)
+            VS->mesh_remove_surface(grid[i], 0);
+        edit_floor[i] = edited_floor[i];
+    }
+
+    Vector<Vector3> grid_points[3];
+    Vector<Color> grid_colors[3];
+
+    for (int i = 0; i < 3; i++) {
+
+        Vector3 axis;
+        axis[i] = 1;
+        Vector3 axis_n1;
+        axis_n1[(i + 1) % 3] = cell_size[(i + 1) % 3];
+        Vector3 axis_n2;
+        axis_n2[(i + 2) % 3] = cell_size[(i + 2) % 3];
+
+        for (int j = -GRID_CURSOR_SIZE; j <= GRID_CURSOR_SIZE; j++) {
+
+            for (int k = -GRID_CURSOR_SIZE; k <= GRID_CURSOR_SIZE; k++) {
+
+                Vector3 p = axis_n1 * j + axis_n2 * k;
+                float trans = Math::pow(MAX(0, 1.0 - (Vector2(j, k).length() / GRID_CURSOR_SIZE)), 2);
+
+                Vector3 pj = axis_n1 * (j + 1) + axis_n2 * k;
+                float transj = Math::pow(MAX(0, 1.0 - (Vector2(j + 1, k).length() / GRID_CURSOR_SIZE)), 2);
+
+                Vector3 pk = axis_n1 * j + axis_n2 * (k + 1);
+                float transk = Math::pow(MAX(0, 1.0 - (Vector2(j, k + 1).length() / GRID_CURSOR_SIZE)), 2);
+
+                grid_points[i].push_back(p);
+                grid_points[i].push_back(pk);
+                grid_colors[i].push_back(Color(1, 1, 1, trans));
+                grid_colors[i].push_back(Color(1, 1, 1, transk));
+
+                grid_points[i].push_back(p);
+                grid_points[i].push_back(pj);
+                grid_colors[i].push_back(Color(1, 1, 1, trans));
+                grid_colors[i].push_back(Color(1, 1, 1, transj));
+            }
+        }
+
+        Array d;
+        d.resize(VS::ARRAY_MAX);
+        d[VS::ARRAY_VERTEX] = grid_points[i];
+        d[VS::ARRAY_COLOR] = grid_colors[i];
+        VisualServer::get_singleton()->mesh_add_surface_from_arrays(grid[i], VisualServerEnums::PRIMITIVE_LINES, d);
+        VisualServer::get_singleton()->mesh_surface_set_material(grid[i], 0, indicator_mat->get_rid());
+    }
 }
 
 void GridMapEditor::_notification(int p_what) {
@@ -1202,6 +1206,7 @@ void GridMapEditor::_bind_methods() {
     MethodBinder::bind_method("_node_removed", &GridMapEditor::_node_removed);
 
     MethodBinder::bind_method(D_METHOD("_set_display_mode", {"mode"}), &GridMapEditor::_set_display_mode);
+    MethodBinder::bind_method("_draw_grids", &GridMapEditor::_draw_grids);
 }
 
 GridMapEditor::GridMapEditor(EditorNode *p_editor) {
@@ -1210,7 +1215,7 @@ GridMapEditor::GridMapEditor(EditorNode *p_editor) {
     editor = p_editor;
     undo_redo = p_editor->get_undo_redo();
 
-    int mw = EDITOR_DEF("editors/grid_map/palette_min_width", 230);
+    int mw = EDITOR_DEF(("editors/grid_map/palette_min_width"), 230);
     Control *ec = memnew(Control);
     ec->set_custom_minimum_size(Size2(mw, 0) * EDSCALE);
     add_child(ec);
@@ -1265,7 +1270,7 @@ GridMapEditor::GridMapEditor(EditorNode *p_editor) {
     options->get_popup()->add_item(TTR("Cursor Back Rotate Z"), MENU_OPTION_CURSOR_BACK_ROTATE_Z, KEY_MASK_SHIFT + KEY_D);
     options->get_popup()->add_item(TTR("Cursor Clear Rotation"), MENU_OPTION_CURSOR_CLEAR_ROTATION, KEY_W);
     options->get_popup()->add_separator();
-    options->get_popup()->add_check_item("Paste Selects", MENU_OPTION_PASTE_SELECTS);
+    options->get_popup()->add_check_item(("Paste Selects"), MENU_OPTION_PASTE_SELECTS);
     options->get_popup()->add_separator();
     options->get_popup()->add_item(TTR("Duplicate Selection"), MENU_OPTION_SELECTION_DUPLICATE, KEY_MASK_CTRL + KEY_C);
     options->get_popup()->add_item(TTR("Cut Selection"), MENU_OPTION_SELECTION_CUT, KEY_MASK_CTRL + KEY_X);
@@ -1286,7 +1291,7 @@ GridMapEditor::GridMapEditor(EditorNode *p_editor) {
     settings_pick_distance->set_max(10000.0f);
     settings_pick_distance->set_min(500.0f);
     settings_pick_distance->set_step(1.0f);
-    settings_pick_distance->set_value(EDITOR_DEF("editors/grid_map/pick_distance", 5000.0));
+    settings_pick_distance->set_value(EDITOR_DEF(("editors/grid_map/pick_distance"), 5000.0f));
     settings_vbc->add_margin_child(TTR("Pick Distance:"), settings_pick_distance);
 
     clip_mode = CLIP_DISABLED;
@@ -1326,7 +1331,7 @@ GridMapEditor::GridMapEditor(EditorNode *p_editor) {
     size_slider->connect("value_changed", this, "_icon_size_changed");
     add_child(size_slider);
 
-    EDITOR_DEF("editors/grid_map/preview_size", 64);
+    EDITOR_DEF(("editors/grid_map/preview_size"), 64);
 
     display_mode = DISPLAY_THUMBNAIL;
 
@@ -1339,6 +1344,7 @@ GridMapEditor::GridMapEditor(EditorNode *p_editor) {
     info_message->set_valign(Label::VALIGN_CENTER);
     info_message->set_align(Label::ALIGN_CENTER);
     info_message->set_autowrap(true);
+    info_message->set_custom_minimum_size(Size2(100 * EDSCALE, 0));
     info_message->set_anchors_and_margins_preset(PRESET_WIDE, PRESET_MODE_KEEP_SIZE, 8 * EDSCALE);
     mesh_library_palette->add_child(info_message);
     edit_axis = Vector3::AXIS_Y;
@@ -1473,9 +1479,16 @@ GridMapEditor::GridMapEditor(EditorNode *p_editor) {
         }
     }
 
-    selection.active = false;
+    _set_selection(false);
     updating = false;
     accumulated_floor_delta = 0.0;
+
+    indicator_mat = make_ref_counted<SpatialMaterial>();
+    indicator_mat->set_flag(SpatialMaterial::FLAG_UNSHADED, true);
+    indicator_mat->set_feature(SpatialMaterial::FEATURE_TRANSPARENT, true);
+    indicator_mat->set_flag(SpatialMaterial::FLAG_SRGB_VERTEX_COLOR, true);
+    indicator_mat->set_flag(SpatialMaterial::FLAG_ALBEDO_FROM_VERTEX_COLOR, true);
+    indicator_mat->set_albedo(Color(0.8f, 0.5, 0.1f));
 }
 
 GridMapEditor::~GridMapEditor() {
@@ -1549,7 +1562,7 @@ GridMapEditorPlugin::GridMapEditorPlugin(EditorNode *p_node) {
 
     editor = p_node;
 
-    EDITOR_DEF("editors/grid_map/editor_side", 1);
+    EDITOR_DEF(("editors/grid_map/editor_side"), 1);
     EditorSettings::get_singleton()->add_property_hint(PropertyInfo(VariantType::INT, "editors/grid_map/editor_side", PROPERTY_HINT_ENUM, "Left,Right"));
 
     grid_map_editor = memnew(GridMapEditor(editor));

@@ -32,6 +32,7 @@
 #include "core/method_bind.h"
 
 IMPL_GDCLASS(WebRTCPeerConnection)
+VARIANT_ENUM_CAST(WebRTCPeerConnection::ConnectionState);
 
 WebRTCPeerConnection *(*WebRTCPeerConnection::_create)() = nullptr;
 

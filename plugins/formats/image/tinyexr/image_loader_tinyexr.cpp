@@ -73,7 +73,7 @@ Error ImageLoaderTinyEXR::load_image(ImageData &p_image, FileAccess *f, LoadPara
     ret = ParseEXRHeaderFromMemory(&exr_header, &exr_version, w.ptr(), src_image_len, &err);
     if (ret != TINYEXR_SUCCESS) {
         if (err) {
-            ERR_PRINT(String(err))
+            ERR_PRINT(se_string(err))
         }
         return ERR_FILE_CORRUPT;
     }
@@ -89,7 +89,7 @@ Error ImageLoaderTinyEXR::load_image(ImageData &p_image, FileAccess *f, LoadPara
     ret = LoadEXRImageFromMemory(&exr_image, &exr_header, w.ptr(), src_image_len, &err);
     if (ret != TINYEXR_SUCCESS) {
         if (err) {
-            ERR_PRINT(String(err))
+            ERR_PRINT(se_string(err))
         }
         return ERR_FILE_CORRUPT;
     }
@@ -249,17 +249,17 @@ Error ImageLoaderTinyEXR::load_image(ImageData &p_image, FileAccess *f, LoadPara
     return OK;
 }
 
-void ImageLoaderTinyEXR::get_recognized_extensions(Vector<String> *p_extensions) const {
+void ImageLoaderTinyEXR::get_recognized_extensions(PODVector<se_string> &p_extensions) const {
 
-    p_extensions->push_back(String("exr"));
+    p_extensions.push_back("exr");
 }
 
 ImageLoaderTinyEXR::ImageLoaderTinyEXR() {
 }
 
-bool ImageLoaderTinyEXR::can_save(const String &extension)
+bool ImageLoaderTinyEXR::can_save(se_string_view extension)
 {
-    return "exr"==extension;
+    return se_string_view("exr")==extension;
 }
 
 Error ImageLoaderTinyEXR::save_image(const ImageData &p_image, PODVector<uint8_t> &tgt, SaveParams params)

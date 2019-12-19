@@ -36,11 +36,11 @@
 
 class TranslationLoaderPO : public ResourceFormatLoader {
 public:
-    static RES load_translation(FileAccess *f, Error *r_error, const String &p_path = String());
-    RES load(const String &p_path, const String &p_original_path = "", Error *r_error = nullptr) override;
-    void get_recognized_extensions(ListPOD<String> *p_extensions) const override;
-    bool handles_type(const String &p_type) const override;
-    String get_resource_type(const String &p_path) const override;
+    static RES load_translation(FileAccess *f, Error *r_error, se_string_view p_path = se_string_view());
+    RES load(se_string_view p_path, se_string_view p_original_path = se_string_view (), Error *r_error = nullptr) override;
+    void get_recognized_extensions(PODVector<se_string> &p_extensions) const override;
+    bool handles_type(se_string_view p_type) const override;
+    se_string get_resource_type(se_string_view p_path) const override;
 
     TranslationLoaderPO() = default;
 };

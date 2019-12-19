@@ -36,7 +36,7 @@
 #include "core/dictionary.h"
 #include "core/vector.h"
 
-class Engine {
+class GODOT_EXPORT Engine {
 
 public:
     struct Singleton {
@@ -74,7 +74,7 @@ private:
     static Engine *singleton;
 
 public:
-    GODOT_EXPORT static Engine *get_singleton();
+    static Engine *get_singleton();
 
     virtual void set_iterations_per_second(int p_ips);
     virtual int get_iterations_per_second() const;
@@ -104,9 +104,7 @@ public:
 
     void add_singleton(const Singleton &p_singleton);
     const PODVector<Singleton> &get_singletons() { return singletons; }
-    bool has_singleton(const String &p_name) const;
     bool has_singleton(const StringName &p_name) const;
-    Object *get_singleton_object(const String &p_name) const;
     Object *get_singleton_object(const StringName &p_name) const;
 
     _FORCE_INLINE_ bool get_use_pixel_snap() const { return _pixel_snap; }
@@ -124,7 +122,7 @@ public:
     Array get_copyright_info() const;
     Dictionary get_donor_info() const;
     Dictionary get_license_info() const;
-    String get_license_text() const;
+    se_string get_license_text() const;
 
     Engine();
     virtual ~Engine() = default;

@@ -33,6 +33,8 @@
 #include "core/color_names.inc"
 #include "core/container_tools.h"
 #include "core/core_string_names.h"
+#include "core/string_utils.h"
+#include "core/string_utils.inl"
 #include "core/crypto/crypto_core.h"
 #include "core/io/compression.h"
 #include "core/math/aabb.h"
@@ -50,8 +52,10 @@
 #include "core/object_db.h"
 #include "core/os/os.h"
 #include "core/script_language.h"
+#include "core/se_string.h"
 #include "core/vector.h"
 #include "core/rid.h"
+#include "core/container_tools.h"
 
 using VariantFunc = void (*)(Variant &, Variant &, const Variant **);
 using VariantConstructFunc = void (*)(Variant &, const Variant **);
@@ -251,20 +255,20 @@ struct _VariantCall {
     // built-in functions of localmem based types
 #define VCALL_SU_LOCALMEM0R(m_type, m_method) \
     static void _call_##m_type##_##m_method(Variant &r_ret, Variant &p_self, const Variant ** /*p_args*/) { \
-    r_ret = StringUtils::m_method(*reinterpret_cast<m_type *>(p_self._data._mem)); }
+    r_ret = Variant(StringUtils::m_method(*reinterpret_cast<se_string *>(p_self._data._mem))); }
 #define VCALL_SU_LOCALMEM1R(m_type, m_method) \
     static void _call_##m_type##_##m_method(Variant &r_ret, Variant &p_self, const Variant ** p_args) { \
-    r_ret = StringUtils::m_method(*reinterpret_cast<m_type *>(p_self._data._mem),*p_args[0]); }
+    r_ret = Variant(StringUtils::m_method(*reinterpret_cast<se_string *>(p_self._data._mem),*p_args[0])); }
 #define VCALL_SU_LOCALMEM2R(m_type, m_method) \
     static void _call_##m_type##_##m_method(Variant &r_ret, Variant &p_self, const Variant ** p_args) { \
-    r_ret = StringUtils::m_method(*reinterpret_cast<m_type *>(p_self._data._mem),*p_args[0],*p_args[1]); }
+    r_ret = Variant(StringUtils::m_method(*reinterpret_cast<se_string *>(p_self._data._mem),*p_args[0],*p_args[1])); }
 #define VCALL_SU_LOCALMEM2(m_type, m_method) \
     static void _call_##m_type##_##m_method(Variant &r_ret, Variant &p_self, const Variant ** p_args) { \
-    StringUtils::m_method(*reinterpret_cast<m_type *>(p_self._data._mem),*p_args[0],*p_args[1]); }
+    StringUtils::m_method(*reinterpret_cast<se_string *>(p_self._data._mem),*p_args[0],*p_args[1]); }
 
 #define VCALL_SU_LOCALMEM3R(m_type, m_method) \
     static void _call_##m_type##_##m_method(Variant &r_ret, Variant &p_self, const Variant ** p_args) { \
-    r_ret = StringUtils::m_method(*reinterpret_cast<m_type *>(p_self._data._mem),*p_args[0],*p_args[1],*p_args[2]); }
+    r_ret = Variant(StringUtils::m_method(*reinterpret_cast<se_string *>(p_self._data._mem),*p_args[0],*p_args[1],*p_args[2])); }
 #define VCALL_PU_LOCALMEM0R(m_type, m_method) \
     static void _call_##m_type##_##m_method(Variant &r_ret, Variant &p_self, const Variant ** /*p_args*/) { \
     r_ret = PathUtils::m_method(*reinterpret_cast<m_type *>(p_self._data._mem)); }
@@ -276,43 +280,80 @@ struct _VariantCall {
     r_ret = PathUtils::m_method(*p_args[0]); }
 
     static void _call_String_casecmp_to(Variant &r_ret, Variant &p_self, const Variant **p_args) {
-        r_ret = StringUtils::compare(*reinterpret_cast<String *>(p_self._data._mem),(*p_args[0]));
+        r_ret = StringUtils::compare(*reinterpret_cast<se_string *>(p_self._data._mem),(*p_args[0]).as<se_string>());
     }
     static void _call_String_nocasecmp_to(Variant &r_ret, Variant &p_self, const Variant **p_args) {
-        r_ret = StringUtils::compare(*reinterpret_cast<String *>(p_self._data._mem),(*p_args[0]),StringUtils::CaseInsensitive);
+        r_ret = StringUtils::compare(*reinterpret_cast<se_string *>(p_self._data._mem),(*p_args[0]).as<se_string>(),StringUtils::CaseInsensitive);
     }
     VCALL_LOCALMEM0R(String, length)
-    VCALL_SU_LOCALMEM3R(String, count)
-    VCALL_SU_LOCALMEM3R(String, countn)
+    static void _call_String_count(Variant &r_ret, Variant &p_self, const Variant ** p_args) {
+        r_ret = Variant(StringUtils::count(*reinterpret_cast<se_string *>(p_self._data._mem),p_args[0]->as<se_string>(),*p_args[1],*p_args[2]));
+    }
+    static void _call_String_countn(Variant &r_ret, Variant &p_self, const Variant ** p_args) {
+        r_ret = Variant(StringUtils::countn(*reinterpret_cast<se_string *>(p_self._data._mem),p_args[0]->as<se_string>(),*p_args[1],*p_args[2]));
+    }
     VCALL_SU_LOCALMEM2R(String, substr)
-    VCALL_SU_LOCALMEM2R(String, find)
-    VCALL_SU_LOCALMEM1R(String, find_last)
-    VCALL_SU_LOCALMEM2R(String, findn)
-    VCALL_SU_LOCALMEM2R(String, rfind)
-    VCALL_SU_LOCALMEM2R(String, rfindn)
-    VCALL_SU_LOCALMEM1R(String, match)
-    VCALL_SU_LOCALMEM1R(String, matchn)
-    VCALL_SU_LOCALMEM1R(String, begins_with)
-    VCALL_SU_LOCALMEM1R(String, ends_with)
-    VCALL_SU_LOCALMEM1R(String, is_subsequence_of)
-    VCALL_SU_LOCALMEM1R(String, is_subsequence_ofi)
-    VCALL_SU_LOCALMEM0R(String, bigrams)
-    VCALL_SU_LOCALMEM1R(String, similarity)
+    static void _call_String_find(Variant &r_ret, Variant &p_self, const Variant ** p_args) {
+        r_ret = Variant(StringUtils::find(*reinterpret_cast<se_string *>(p_self._data._mem),p_args[0]->as<se_string>(),*p_args[1]));
+    }
+    static void _call_String_find_last(Variant &r_ret, Variant &p_self, const Variant ** p_args) {
+        r_ret = Variant(StringUtils::find_last(*reinterpret_cast<se_string *>(p_self._data._mem),p_args[0]->as<se_string>()));
+    }
+    static void _call_String_findn(Variant &r_ret, Variant &p_self, const Variant ** p_args) {
+        r_ret = Variant(StringUtils::findn(*reinterpret_cast<se_string *>(p_self._data._mem),p_args[0]->as<se_string>(),*p_args[1]));
+    }
+    static void _call_String_rfind(Variant &r_ret, Variant &p_self, const Variant ** p_args) {
+        r_ret = Variant(StringUtils::rfind(*reinterpret_cast<se_string *>(p_self._data._mem),p_args[0]->as<se_string>(),*p_args[1]));
+    }
+    static void _call_String_rfindn(Variant &r_ret, Variant &p_self, const Variant ** p_args) {
+        r_ret = Variant(StringUtils::rfindn(*reinterpret_cast<se_string *>(p_self._data._mem),p_args[0]->as<se_string>(),*p_args[1]));
+    }
+    static void _call_String_match(Variant &r_ret, Variant &p_self, const Variant ** p_args) {
+        r_ret = Variant(StringUtils::match(*reinterpret_cast<se_string *>(p_self._data._mem),p_args[0]->as<se_string>()));
+    }
+    static void _call_String_matchn(Variant &r_ret, Variant &p_self, const Variant ** p_args) {
+        r_ret = Variant(StringUtils::matchn(*reinterpret_cast<se_string *>(p_self._data._mem),p_args[0]->as<se_string>()));
+    }
+    static void _call_String_begins_with(Variant &r_ret, Variant &p_self, const Variant ** p_args) {
+        r_ret = Variant(StringUtils::begins_with(*reinterpret_cast<se_string *>(p_self._data._mem),p_args[0]->as<se_string>()));
+    }
+    static void _call_String_ends_with(Variant &r_ret, Variant &p_self, const Variant ** p_args) {
+        r_ret = Variant(StringUtils::ends_with(*reinterpret_cast<se_string *>(p_self._data._mem),p_args[0]->as<se_string>()));
+    }
+    static void _call_String_is_subsequence_of(Variant &r_ret, Variant &p_self, const Variant ** p_args) {
+        r_ret = Variant(StringUtils::is_subsequence_of(*reinterpret_cast<se_string *>(p_self._data._mem),p_args[0]->as<se_string>()));
+    }
+    static void _call_String_is_subsequence_ofi(Variant &r_ret, Variant &p_self, const Variant ** p_args) {
+        r_ret = Variant(StringUtils::is_subsequence_ofi(*reinterpret_cast<se_string *>(p_self._data._mem),p_args[0]->as<se_string>()));
+    }
+//    VCALL_SU_LOCALMEM0R(String, bigrams)
+//    VCALL_SU_LOCALMEM1R(String, similarity)
 
     static void _call_String_format(Variant &r_ret, Variant &p_self, const Variant **p_args) {
-        r_ret = String(
-                StringUtils::format(*reinterpret_cast<String *>(p_self._data._mem),*p_args[0]));
+        r_ret = StringUtils::format(*reinterpret_cast<se_string *>(p_self._data._mem),*p_args[0]);
     }
     static void _call_String_replace(Variant &r_ret, Variant &p_self, const Variant **p_args) {
-        r_ret = StringUtils::replace(*reinterpret_cast<String *>(p_self._data._mem),p_args[0]->as<String>(), String(*p_args[1]));
+        r_ret = StringUtils::replace(*reinterpret_cast<se_string *>(p_self._data._mem),p_args[0]->as<se_string>(), p_args[1]->as<se_string>());
     }
-    VCALL_SU_LOCALMEM2R(String, replacen)
+    static void _call_String_replacen(Variant &r_ret, Variant &p_self, const Variant **p_args) {
+        r_ret = StringUtils::replacen(*reinterpret_cast<se_string *>(p_self._data._mem),p_args[0]->as<se_string>(), p_args[1]->as<se_string>());
+    }
     VCALL_SU_LOCALMEM1R(String, repeat)
-    VCALL_SU_LOCALMEM2R(String, insert)
+    static void _call_String_insert(Variant &r_ret, Variant &p_self, const Variant **p_args) {
+        r_ret = StringUtils::insert(*reinterpret_cast<se_string *>(p_self._data._mem),p_args[0]->as<int>(), p_args[1]->as<se_string>());
+    }
     VCALL_SU_LOCALMEM0R(String, capitalize)
-    VCALL_SU_LOCALMEM3R(String, split)
-    VCALL_SU_LOCALMEM3R(String, rsplit)
-    VCALL_SU_LOCALMEM2R(String, split_floats)
+    static void _call_String_split(Variant &r_ret, Variant &p_self, const Variant **p_args) {
+        Vector<se_string_view> parts(StringUtils::split(*reinterpret_cast<se_string *>(p_self._data._mem),p_args[0]->as<se_string>(), p_args[2]->as<bool>()));
+        r_ret = parts;
+    }
+    static void _call_String_rsplit(Variant &r_ret, Variant &p_self, const Variant **p_args) {
+        Vector<se_string_view> parts(StringUtils::rsplit(*reinterpret_cast<se_string *>(p_self._data._mem),p_args[0]->as<se_string>(), p_args[2]->as<bool>()));
+        r_ret = parts;
+    }
+    static void _call_String_split_floats(Variant &r_ret, Variant &p_self, const Variant **p_args) {
+        r_ret = (StringUtils::split_floats(*reinterpret_cast<se_string *>(p_self._data._mem),p_args[0]->as<se_string>()));
+    }
     VCALL_SU_LOCALMEM0R(String, to_upper)
     VCALL_SU_LOCALMEM0R(String, to_lower)
     VCALL_SU_LOCALMEM1R(String, left)
@@ -320,26 +361,45 @@ struct _VariantCall {
     VCALL_SU_LOCALMEM0R(String, dedent)
     VCALL_SU_LOCALMEM2R(String, strip_edges)
     VCALL_SU_LOCALMEM0R(String, strip_escapes)
-    VCALL_SU_LOCALMEM1R(String, lstrip)
-    VCALL_SU_LOCALMEM1R(String, rstrip)
-    VCALL_PU_LOCALMEM0R(String, get_extension)
-    VCALL_PU_LOCALMEM0R(String, get_basename)
-    VCALL_PU_LOCALMEM1R(String, plus_file)
-    VCALL_SU_LOCALMEM1R(String, ord_at)
+    static void _call_String_lstrip(Variant &r_ret, Variant &p_self, const Variant **p_args) {
+        r_ret = StringUtils::lstrip(*reinterpret_cast<se_string *>(p_self._data._mem),p_args[0]->as<se_string>());
+    }
+    static void _call_String_rstrip(Variant &r_ret, Variant &p_self, const Variant **p_args) {
+        r_ret = StringUtils::rstrip(*reinterpret_cast<se_string *>(p_self._data._mem),p_args[0]->as<se_string>());
+    }
+    //VCALL_SU_LOCALMEM1R(String, ord_at)
     VCALL_SU_LOCALMEM2(String, erase)
     VCALL_SU_LOCALMEM0R(String, hash)
-    VCALL_SU_LOCALMEM0R(String, md5_text)
-    VCALL_SU_LOCALMEM0R(String, sha1_text)
-    VCALL_SU_LOCALMEM0R(String, sha256_text)
+    static void _call_String_md5_text(Variant &r_ret, Variant &p_self, const Variant **) {
+        r_ret = se_string(StringUtils::md5_text(*reinterpret_cast<se_string *>(p_self._data._mem))); }
+    static void _call_String_sha1_text(Variant &r_ret, Variant &p_self, const Variant **) {
+        r_ret = se_string(StringUtils::sha1_text(*reinterpret_cast<se_string *>(p_self._data._mem))); }
+    static void _call_String_sha256_text(Variant &r_ret, Variant &p_self, const Variant **) {
+        r_ret = se_string(StringUtils::sha256_text(*reinterpret_cast<se_string *>(p_self._data._mem))); }
     VCALL_SU_LOCALMEM0R(String, md5_buffer)
     VCALL_SU_LOCALMEM0R(String, sha1_buffer)
     VCALL_SU_LOCALMEM0R(String, sha256_buffer)
-    VCALL_LOCALMEM0R(String, empty)
+    static void _call_String_empty(Variant &r_ret, Variant &p_self, const Variant **) {
+        r_ret = Variant(reinterpret_cast<se_string *>(p_self._data._mem)->empty()); }
+
     VCALL_SPU_LOCALMEM1R(String, humanize_size)
     VCALL_PU_LOCALMEM0R(String, is_abs_path)
     VCALL_PU_LOCALMEM0R(String, is_rel_path)
-    VCALL_PU_LOCALMEM0R(String, get_base_dir)
-    VCALL_PU_LOCALMEM0R(String, get_file)
+    static void _call_String_get_extension(Variant &r_ret, Variant &p_self, const Variant **p_args) {
+        r_ret = PathUtils::get_extension(*reinterpret_cast<se_string *>(p_self._data._mem));
+    }
+    static void _call_String_get_basename(Variant &r_ret, Variant &p_self, const Variant **p_args) {
+        r_ret = PathUtils::get_basename(*reinterpret_cast<se_string *>(p_self._data._mem));
+    }
+    static void _call_String_plus_file(Variant &r_ret, Variant &p_self, const Variant **p_args) {
+        r_ret = PathUtils::plus_file(*reinterpret_cast<se_string *>(p_self._data._mem),p_args[0]->as<se_string>());
+    }
+    static void _call_String_get_base_dir(Variant &r_ret, Variant &p_self, const Variant **p_args) {
+        r_ret = PathUtils::get_base_dir(*reinterpret_cast<se_string *>(p_self._data._mem));
+    }
+    static void _call_String_get_file(Variant &r_ret, Variant &p_self, const Variant **p_args) {
+        r_ret = PathUtils::get_file(*reinterpret_cast<se_string *>(p_self._data._mem));
+    }
     VCALL_SU_LOCALMEM0R(String, xml_escape)
     VCALL_SU_LOCALMEM0R(String, xml_unescape)
     VCALL_SU_LOCALMEM0R(String, http_escape)
@@ -361,17 +421,21 @@ struct _VariantCall {
     VCALL_SU_LOCALMEM0R(String, hex_to_int)
     VCALL_SU_LOCALMEM1R(String, pad_decimals)
     VCALL_SU_LOCALMEM1R(String, pad_zeros)
-    VCALL_SU_LOCALMEM1R(String, trim_prefix)
-    VCALL_SU_LOCALMEM1R(String, trim_suffix)
-
+    static void _call_String_trim_prefix(Variant &r_ret, Variant &p_self, const Variant **p_args) {
+        r_ret = StringUtils::trim_prefix(*reinterpret_cast<se_string *>(p_self._data._mem),p_args[0]->as<se_string>());
+    }
+    static void _call_String_trim_suffix(Variant &r_ret, Variant &p_self, const Variant **p_args) {
+        r_ret = StringUtils::trim_suffix(*reinterpret_cast<se_string *>(p_self._data._mem),p_args[0]->as<se_string>());
+    }
     static void _call_String_to_ascii(Variant &r_ret, Variant &p_self, const Variant **p_args) {
 
-        String *s = reinterpret_cast<String *>(p_self._data._mem);
+        se_string *s = reinterpret_cast<se_string *>(p_self._data._mem);
         if (s->empty()) {
             r_ret = PoolByteArray();
             return;
         }
-        CharString charstr = StringUtils::ascii(*s);
+        String tmp(String::fromUtf8(s->data(),s->size()));
+        CharString charstr(tmp.toLatin1());
 
         PoolByteArray retval;
         size_t len = charstr.length();
@@ -385,29 +449,28 @@ struct _VariantCall {
 
     static void _call_String_to_utf8(Variant &r_ret, Variant &p_self, const Variant **p_args) {
 
-        String *s = reinterpret_cast<String *>(p_self._data._mem);
+        se_string *s = reinterpret_cast<se_string *>(p_self._data._mem);
         if (s->empty()) {
             r_ret = PoolByteArray();
             return;
         }
-        CharString charstr = StringUtils::utf8(*s);
-
         PoolByteArray retval;
-        size_t len = charstr.length();
+        size_t len = s->length();
         retval.resize(len);
         PoolByteArray::Write w = retval.write();
-        memcpy(w.ptr(), charstr.data(), len);
+        memcpy(w.ptr(), s->data(), len);
         w.release();
 
         r_ret = retval;
     }
 
-    VCALL_LOCALMEM0R(Vector2, normalized)
-    VCALL_LOCALMEM0R(Vector2, length)
-    VCALL_LOCALMEM0R(Vector2, length_squared)
-    VCALL_LOCALMEM0R(Vector2, is_normalized)
     VCALL_LOCALMEM1R(Vector2, distance_to)
     VCALL_LOCALMEM1R(Vector2, distance_squared_to)
+    VCALL_LOCALMEM0R(Vector2, length)
+    VCALL_LOCALMEM0R(Vector2, length_squared)
+    VCALL_LOCALMEM0R(Vector2, normalized)
+    VCALL_LOCALMEM0R(Vector2, is_normalized)
+    VCALL_LOCALMEM1R(Vector2, is_equal_approx)
     VCALL_LOCALMEM1R(Vector2, posmod)
     VCALL_LOCALMEM1R(Vector2, posmodv)
     VCALL_LOCALMEM1R(Vector2, project)
@@ -436,24 +499,28 @@ struct _VariantCall {
     VCALL_LOCALMEM0R(Vector2, sign)
 
     VCALL_LOCALMEM0R(Rect2, get_area)
+    VCALL_LOCALMEM0R(Rect2, has_no_area)
+    VCALL_LOCALMEM1R(Rect2, has_point)
+    VCALL_LOCALMEM1R(Rect2, is_equal_approx)
     VCALL_LOCALMEM1R(Rect2, intersects)
     VCALL_LOCALMEM1R(Rect2, encloses)
-    VCALL_LOCALMEM0R(Rect2, has_no_area)
     VCALL_LOCALMEM1R(Rect2, clip)
     VCALL_LOCALMEM1R(Rect2, merge)
-    VCALL_LOCALMEM1R(Rect2, has_point)
+    VCALL_LOCALMEM1R(Rect2, expand)
     VCALL_LOCALMEM1R(Rect2, grow)
     VCALL_LOCALMEM2R(Rect2, grow_margin)
     VCALL_LOCALMEM4R(Rect2, grow_individual)
-    VCALL_LOCALMEM1R(Rect2, expand)
     VCALL_LOCALMEM0R(Rect2, abs)
 
     VCALL_LOCALMEM0R(Vector3, min_axis)
     VCALL_LOCALMEM0R(Vector3, max_axis)
+    VCALL_LOCALMEM1R(Vector3, distance_to)
+    VCALL_LOCALMEM1R(Vector3, distance_squared_to)
     VCALL_LOCALMEM0R(Vector3, length)
     VCALL_LOCALMEM0R(Vector3, length_squared)
-    VCALL_LOCALMEM0R(Vector3, is_normalized)
     VCALL_LOCALMEM0R(Vector3, normalized)
+    VCALL_LOCALMEM0R(Vector3, is_normalized)
+    VCALL_LOCALMEM1R(Vector3, is_equal_approx)
     VCALL_LOCALMEM0R(Vector3, inverse)
     VCALL_LOCALMEM1R(Vector3, snapped)
     VCALL_LOCALMEM2R(Vector3, rotated)
@@ -469,8 +536,6 @@ struct _VariantCall {
     VCALL_LOCALMEM0R(Vector3, floor)
     VCALL_LOCALMEM0R(Vector3, ceil)
     VCALL_LOCALMEM0R(Vector3, round)
-    VCALL_LOCALMEM1R(Vector3, distance_to)
-    VCALL_LOCALMEM1R(Vector3, distance_squared_to)
     VCALL_LOCALMEM1R(Vector3, posmod)
     VCALL_LOCALMEM1R(Vector3, posmodv)
     VCALL_LOCALMEM1R(Vector3, project)
@@ -484,6 +549,7 @@ struct _VariantCall {
     VCALL_LOCALMEM0R(Plane, normalized)
     VCALL_LOCALMEM0R(Plane, center)
     VCALL_LOCALMEM0R(Plane, get_any_point)
+    VCALL_LOCALMEM1R(Plane, is_equal_approx)
     VCALL_LOCALMEM1R(Plane, is_point_over)
     VCALL_LOCALMEM1R(Plane, distance_to)
     VCALL_LOCALMEM2R(Plane, has_point)
@@ -518,6 +584,7 @@ struct _VariantCall {
     VCALL_LOCALMEM0R(Quat, length_squared)
     VCALL_LOCALMEM0R(Quat, normalized)
     VCALL_LOCALMEM0R(Quat, is_normalized)
+    VCALL_LOCALMEM1R(Quat, is_equal_approx)
     VCALL_LOCALMEM0R(Quat, inverse)
     VCALL_LOCALMEM1R(Quat, dot)
     VCALL_LOCALMEM1R(Quat, xform)
@@ -543,6 +610,7 @@ struct _VariantCall {
     VCALL_LOCALMEM1R(Color, darkened)
     VCALL_LOCALMEM1R(Color, to_html)
     VCALL_LOCALMEM4R(Color, from_hsv)
+    VCALL_LOCALMEM1R(Color, is_equal_approx)
 
     VCALL_LOCALMEM0R(RID, get_id)
 
@@ -603,10 +671,10 @@ struct _VariantCall {
     static void _call_PoolByteArray_get_string_from_ascii(Variant &r_ret, Variant &p_self, const Variant **p_args) {
 
         PoolByteArray *ba = reinterpret_cast<PoolByteArray *>(p_self._data._mem);
-        String s;
+        se_string s;
         if (ba->size() > 0) {
             PoolByteArray::Read r = ba->read();
-            CharString cs;
+            se_string cs;
             cs.resize(ba->size() + 1);
             memcpy(cs.data(), r.ptr(), ba->size());
             cs[ba->size()] = 0;
@@ -619,10 +687,10 @@ struct _VariantCall {
     static void _call_PoolByteArray_get_string_from_utf8(Variant &r_ret, Variant &p_self, const Variant **p_args) {
 
         PoolByteArray *ba = reinterpret_cast<PoolByteArray *>(p_self._data._mem);
-        String s;
+        se_string s;
         if (ba->size() > 0) {
             PoolByteArray::Read r = ba->read();
-            s = StringUtils::from_utf8((const char *)r.ptr(), ba->size());
+            s = se_string((const char *)r.ptr(), ba->size());
         }
         r_ret = s;
     }
@@ -668,15 +736,16 @@ struct _VariantCall {
     static void _call_PoolByteArray_hex_encode(Variant &r_ret, Variant &p_self, const Variant **p_args) {
         PoolByteArray *ba = reinterpret_cast<PoolByteArray *>(p_self._data._mem);
         if (ba->size() == 0) {
-            r_ret = String();
+            r_ret = se_string();
             return;
         }
         PoolByteArray::Read r = ba->read();
-        String s = StringUtils::hex_encode_buffer(&r[0], ba->size());
+        se_string s(StringUtils::hex_encode_buffer(&r[0], ba->size()));
         r_ret = s;
     }
 
     VCALL_LOCALMEM0R(PoolByteArray, size)
+    VCALL_LOCALMEM0R(PoolByteArray, empty)
     VCALL_LOCALMEM2(PoolByteArray, set)
     VCALL_LOCALMEM1R(PoolByteArray, get)
     VCALL_LOCALMEM1(PoolByteArray, push_back)
@@ -691,6 +760,7 @@ struct _VariantCall {
     VCALL_LOCALMEM2R(PoolByteArray, subarray)
 
     VCALL_LOCALMEM0R(PoolIntArray, size)
+    VCALL_LOCALMEM0R(PoolIntArray, empty)
     VCALL_LOCALMEM2(PoolIntArray, set)
     VCALL_LOCALMEM1R(PoolIntArray, get)
     VCALL_LOCALMEM1(PoolIntArray, push_back)
@@ -703,6 +773,7 @@ struct _VariantCall {
         invert(*reinterpret_cast<PoolIntArray *>(p_self._data._mem)); }
 
     VCALL_LOCALMEM0R(PoolRealArray, size)
+    VCALL_LOCALMEM0R(PoolRealArray, empty)
     VCALL_LOCALMEM2(PoolRealArray, set)
     VCALL_LOCALMEM1R(PoolRealArray, get)
     VCALL_LOCALMEM1(PoolRealArray, push_back)
@@ -714,21 +785,34 @@ struct _VariantCall {
     static void _call_PoolRealArray_invert(Variant &r_ret, Variant &p_self, const Variant ** /*p_args*/) {
         invert(*reinterpret_cast<PoolRealArray *>(p_self._data._mem)); }
 
-    VCALL_LOCALMEM0R(PoolStringArray, size)
-    VCALL_LOCALMEM2(PoolStringArray, set)
-    VCALL_LOCALMEM1R(PoolStringArray, get)
-    VCALL_LOCALMEM1(PoolStringArray, push_back)
-    VCALL_LOCALMEM1(PoolStringArray, resize)
-    VCALL_LOCALMEM2R(PoolStringArray, insert)
-    VCALL_LOCALMEM1(PoolStringArray, remove)
-    VCALL_LOCALMEM1(PoolStringArray, append)
-    VCALL_LOCALMEM1(PoolStringArray, append_array)
-    static void _call_PoolStringArray_invert(Variant &r_ret, Variant &p_self, const Variant ** /*p_args*/) {
-        invert(*reinterpret_cast<PoolStringArray *>(p_self._data._mem)); }
+    VCALL_LOCALMEM0R(PoolSeStringArray, size)
+    VCALL_LOCALMEM0R(PoolSeStringArray, empty)
+    VCALL_LOCALMEM2(PoolSeStringArray, set)
+    VCALL_LOCALMEM1R(PoolSeStringArray, get)
+    VCALL_LOCALMEM1(PoolSeStringArray, push_back)
+    VCALL_LOCALMEM1(PoolSeStringArray, resize)
+    VCALL_LOCALMEM2R(PoolSeStringArray, insert)
+    VCALL_LOCALMEM1(PoolSeStringArray, remove)
+    VCALL_LOCALMEM1(PoolSeStringArray, append)
+    VCALL_LOCALMEM1(PoolSeStringArray, append_array)
+    static void _call_PoolSeStringArray_invert(Variant &r_ret, Variant &p_self, const Variant ** /*p_args*/) {
+        invert(*reinterpret_cast<PoolSeStringArray *>(p_self._data._mem)); }
 
-    VCALL_LOCALMEM1R(PoolStringArray, join)
+    static void _call_PoolSeStringArray_join(Variant &r_ret, Variant &p_self, const Variant **p_args) {
+        const PoolSeStringArray &lhs(*reinterpret_cast<PoolSeStringArray *>(p_self._data._mem));
+        se_string delimiter(*p_args[0]);
+        se_string rs;
+        int s = lhs.size();
+        auto r = lhs.read();
+        for (int i = 0; i < s; i++) {
+            rs += r[i] + delimiter;
+        }
+        StringUtils::erase(rs,rs.length() - delimiter.length(), delimiter.length());
+        r_ret = rs;
+    }
 
     VCALL_LOCALMEM0R(PoolVector2Array, size)
+    VCALL_LOCALMEM0R(PoolVector2Array, empty)
     VCALL_LOCALMEM2(PoolVector2Array, set)
     VCALL_LOCALMEM1R(PoolVector2Array, get)
     VCALL_LOCALMEM1(PoolVector2Array, push_back)
@@ -741,6 +825,7 @@ struct _VariantCall {
         invert(*reinterpret_cast<PoolVector2Array *>(p_self._data._mem)); }
 
     VCALL_LOCALMEM0R(PoolVector3Array, size)
+    VCALL_LOCALMEM0R(PoolVector3Array, empty)
     VCALL_LOCALMEM2(PoolVector3Array, set)
     VCALL_LOCALMEM1R(PoolVector3Array, get)
     VCALL_LOCALMEM1(PoolVector3Array, push_back)
@@ -753,6 +838,7 @@ struct _VariantCall {
         invert(*reinterpret_cast<PoolVector3Array *>(p_self._data._mem)); }
 
     VCALL_LOCALMEM0R(PoolColorArray, size)
+    VCALL_LOCALMEM0R(PoolColorArray, empty)
     VCALL_LOCALMEM2(PoolColorArray, set)
     VCALL_LOCALMEM1R(PoolColorArray, get)
     VCALL_LOCALMEM1(PoolColorArray, push_back)
@@ -792,6 +878,7 @@ struct _VariantCall {
     VCALL_PTR0R(AABB, get_area)
     VCALL_PTR0R(AABB, has_no_area)
     VCALL_PTR0R(AABB, has_no_surface)
+    VCALL_PTR1R(AABB, is_equal_approx)
     VCALL_PTR1R(AABB, intersects)
     VCALL_PTR1R(AABB, encloses)
     VCALL_PTR1R(AABB, merge)
@@ -820,6 +907,7 @@ struct _VariantCall {
     VCALL_PTR1R(Transform2D, scaled)
     VCALL_PTR1R(Transform2D, translated)
     VCALL_PTR2R(Transform2D, interpolate_with)
+    VCALL_PTR1R(Transform2D, is_equal_approx)
 
     static void _call_Transform2D_xform(Variant &r_ret, Variant &p_self, const Variant **p_args) {
         Transform2D *trn = reinterpret_cast<Transform2D *>(p_self._data._ptr);
@@ -901,7 +989,7 @@ struct _VariantCall {
     VCALL_PTR0R(Transform, orthonormalized)
     VCALL_PTR2R(Transform, looking_at)
     VCALL_PTR2R(Transform, interpolate_with)
-
+    VCALL_PTR1R(Transform, is_equal_approx)
     static void _call_Transform_xform(Variant &r_ret, Variant &p_self, const Variant **p_args) {
         Transform *trn = reinterpret_cast<Transform *>(p_self._data._ptr);
         switch (p_args[0]->type) {
@@ -953,13 +1041,13 @@ struct _VariantCall {
 
         int arg_count;
         Vector<VariantType> arg_types;
-        Vector<String> arg_names;
+        Vector<se_string> arg_names;
         VariantConstructFunc func;
     };
 
     struct ConstructFunc {
 
-        List<ConstructData> constructors;
+        PODVector<ConstructData> constructors;
     };
 
     static ConstructFunc *construct_funcs;
@@ -1045,7 +1133,7 @@ struct _VariantCall {
 
     static void Color_init3(Variant &r_ret, const Variant **p_args) {
 
-        r_ret = Color::html(*p_args[0]);
+        r_ret = Color::html(p_args[0]->as<se_string>());
     }
 
     static void Color_init4(Variant &r_ret, const Variant **p_args) {
@@ -1100,30 +1188,30 @@ struct _VariantCall {
         if (nullptr==p_name1)
             goto end;
         cd.arg_count++;
-        cd.arg_names.push_back(String(p_name1));
+        cd.arg_names.push_back((p_name1));
         cd.arg_types.push_back(p_type1);
 
         if (nullptr==p_name2)
             goto end;
         cd.arg_count++;
-        cd.arg_names.push_back(String(p_name2));
+        cd.arg_names.push_back((p_name2));
         cd.arg_types.push_back(p_type2);
 
         if (nullptr==p_name3)
             goto end;
         cd.arg_count++;
-        cd.arg_names.push_back(String(p_name3));
+        cd.arg_names.push_back((p_name3));
         cd.arg_types.push_back(p_type3);
 
         if (nullptr==p_name4)
             goto end;
         cd.arg_count++;
-        cd.arg_names.push_back(String(p_name4));
+        cd.arg_names.push_back((p_name4));
         cd.arg_types.push_back(p_type4);
 
     end:
 
-        construct_funcs[(int)p_type].constructors.push_back(cd);
+        construct_funcs[(int)p_type].constructors.emplace_back(cd);
     }
 
     struct ConstantData {
@@ -1224,7 +1312,7 @@ Variant Variant::construct(const VariantType p_type, const Variant **p_args, int
             case VariantType::INT: return 0;
             case VariantType::REAL: return 0.0f;
             case VariantType::STRING:
-                return String();
+                return se_string();
 
             // math types
             case VariantType::VECTOR2:
@@ -1252,37 +1340,12 @@ Variant Variant::construct(const VariantType p_type, const Variant **p_args, int
             case VariantType::POOL_BYTE_ARRAY: return PoolByteArray();
             case VariantType::POOL_INT_ARRAY: return PoolIntArray();
             case VariantType::POOL_REAL_ARRAY: return PoolRealArray();
-            case VariantType::POOL_STRING_ARRAY: return PoolStringArray();
+            case VariantType::POOL_STRING_ARRAY: return PoolSeStringArray();
             case VariantType::POOL_VECTOR2_ARRAY:
                 return Variant(PoolVector2Array()); // 25
             case VariantType::POOL_VECTOR3_ARRAY: return PoolVector3Array();
             case VariantType::POOL_COLOR_ARRAY: return PoolColorArray();
             default: return Variant();
-        }
-
-    } else if (p_argcount > 1) {
-
-        _VariantCall::ConstructFunc &c = _VariantCall::construct_funcs[(int)p_type];
-
-        for (List<_VariantCall::ConstructData>::Element *E = c.constructors.front(); E; E = E->next()) {
-            const _VariantCall::ConstructData &cd = E->deref();
-
-            if (cd.arg_count != p_argcount)
-                continue;
-
-            //validate parameters
-            for (int i = 0; i < cd.arg_count; i++) {
-                if (!Variant::can_convert(p_args[i]->type, cd.arg_types[i])) {
-                    r_error.error = Variant::CallError::CALL_ERROR_INVALID_ARGUMENT; //no such constructor
-                    r_error.argument = i;
-                    r_error.expected = cd.arg_types[i];
-                    return Variant();
-                }
-            }
-
-            Variant v;
-            cd.func(v, p_args);
-            return v;
         }
 
     } else if (p_argcount == 1 && p_args[0]->type == p_type) {
@@ -1305,7 +1368,7 @@ Variant Variant::construct(const VariantType p_type, const Variant **p_args, int
                 return real_t(*p_args[0]);
             }
             case VariantType::STRING: {
-                return String(*p_args[0]);
+                return se_string(*p_args[0]);
             }
             case VariantType::VECTOR2: {
                 return Vector2(*p_args[0]);
@@ -1321,7 +1384,7 @@ Variant Variant::construct(const VariantType p_type, const Variant **p_args, int
                 return (Transform(p_args[0]->operator Transform()));
 
             // misc types
-            case VariantType::COLOR: return p_args[0]->type == VariantType::STRING ? Color::html(*p_args[0]) : Color::hex(*p_args[0]);
+            case VariantType::COLOR: return p_args[0]->type == VariantType::STRING ? Color::html(p_args[0]->as<se_string>()) : Color::hex(*p_args[0]);
             case VariantType::NODE_PATH:
                 return (NodePath(p_args[0]->operator NodePath())); // 15
             case VariantType::_RID: return (RID(*p_args[0]));
@@ -1334,12 +1397,34 @@ Variant Variant::construct(const VariantType p_type, const Variant **p_args, int
             case VariantType::POOL_BYTE_ARRAY: return (PoolByteArray(*p_args[0]));
             case VariantType::POOL_INT_ARRAY: return (PoolIntArray(*p_args[0]));
             case VariantType::POOL_REAL_ARRAY: return (PoolRealArray(*p_args[0]));
-            case VariantType::POOL_STRING_ARRAY: return (PoolStringArray(*p_args[0]));
+            case VariantType::POOL_STRING_ARRAY: return (PoolSeStringArray(*p_args[0]));
             case VariantType::POOL_VECTOR2_ARRAY:
                 return Variant(PoolVector2Array(*p_args[0])); // 25
             case VariantType::POOL_VECTOR3_ARRAY: return (PoolVector3Array(*p_args[0]));
             case VariantType::POOL_COLOR_ARRAY: return (PoolColorArray(*p_args[0]));
             default: return Variant();
+        }
+    } else if (p_argcount >= 1) {
+
+        _VariantCall::ConstructFunc &c = _VariantCall::construct_funcs[int(p_type)];
+
+        for (const _VariantCall::ConstructData &cd : c.constructors) {
+            if (cd.arg_count != p_argcount)
+                continue;
+
+            //validate parameters
+            for (int i = 0; i < cd.arg_count; i++) {
+                if (!Variant::can_convert(p_args[i]->type, cd.arg_types[i])) {
+                    r_error.error = Variant::CallError::CALL_ERROR_INVALID_ARGUMENT; //no such constructor
+                    r_error.argument = i;
+                    r_error.expected = cd.arg_types[i];
+                    return Variant();
+                }
+            }
+
+            Variant v;
+            cd.func(v, p_args);
+            return v;
         }
     }
     r_error.error = Variant::CallError::CALL_ERROR_INVALID_METHOD; //no such constructor
@@ -1468,9 +1553,8 @@ void Variant::get_constructor_list(VariantType p_type, PODVector<MethodInfo> *p_
     ERR_FAIL_INDEX(int(p_type), int(VariantType::VARIANT_MAX))
 
     //custom constructors
-    for (const List<_VariantCall::ConstructData>::Element *E = _VariantCall::construct_funcs[(int)p_type].constructors.front(); E; E = E->next()) {
+    for (const _VariantCall::ConstructData &cd : _VariantCall::construct_funcs[(int)p_type].constructors) {
 
-        const _VariantCall::ConstructData &cd = E->deref();
         MethodInfo mi;
         mi.name = Variant::interned_type_name(p_type);
         mi.return_val.type = p_type;
@@ -1625,8 +1709,8 @@ void register_variant_methods() {
     ADDFUNC1R(STRING, BOOL, String, ends_with, STRING, "text")
     ADDFUNC1R(STRING, BOOL, String, is_subsequence_of, STRING, "text")
     ADDFUNC1R(STRING, BOOL, String, is_subsequence_ofi, STRING, "text")
-    ADDFUNC0R(STRING, POOL_STRING_ARRAY, String, bigrams)
-    ADDFUNC1R(STRING, REAL, String, similarity, STRING, "text")
+//    ADDFUNC0R(STRING, POOL_STRING_ARRAY, String, bigrams)
+//    ADDFUNC1R(STRING, REAL, String, similarity, STRING, "text")
 
     ADDFUNC1R(STRING, STRING, String, format, NIL, "values")
     ADDFUNC2R(STRING, STRING, String, replace, STRING, "what", STRING, "forwhat")
@@ -1650,7 +1734,7 @@ void register_variant_methods() {
     ADDFUNC0R(STRING, STRING, String, get_extension)
     ADDFUNC0R(STRING, STRING, String, get_basename)
     ADDFUNC1R(STRING, STRING, String, plus_file, STRING, "file")
-    ADDFUNC1R(STRING, INT, String, ord_at, INT, "at")
+    //ADDFUNC1R(STRING, INT, String, ord_at, INT, "at")
     ADDFUNC0R(STRING, STRING, String, dedent)
     ADDFUNC2(STRING, NIL, String, erase, INT, "position", INT, "chars")
     ADDFUNC0R(STRING, INT, String, hash)
@@ -1698,6 +1782,7 @@ void register_variant_methods() {
     ADDFUNC0R(VECTOR2, REAL, Vector2, angle)
     ADDFUNC0R(VECTOR2, REAL, Vector2, length_squared)
     ADDFUNC0R(VECTOR2, BOOL, Vector2, is_normalized)
+    ADDFUNC1R(VECTOR2, BOOL, Vector2, is_equal_approx, VECTOR2, "v");
     ADDFUNC1R(VECTOR2, VECTOR2, Vector2, direction_to, VECTOR2, "b")
     ADDFUNC1R(VECTOR2, REAL, Vector2, distance_to, VECTOR2, "to")
     ADDFUNC1R(VECTOR2, REAL, Vector2, distance_squared_to, VECTOR2, "to")
@@ -1733,6 +1818,7 @@ void register_variant_methods() {
     ADDFUNC1R(RECT2, RECT2, Rect2, clip, RECT2, "b")
     ADDFUNC1R(RECT2, RECT2, Rect2, merge, RECT2, "b")
     ADDFUNC1R(RECT2, BOOL, Rect2, has_point, VECTOR2, "point")
+    ADDFUNC1R(RECT2, BOOL, Rect2, is_equal_approx, RECT2, "rect")
     ADDFUNC1R(RECT2, RECT2, Rect2, grow, REAL, "by")
     ADDFUNC2R(RECT2, RECT2, Rect2, grow_margin, INT, "margin", REAL, "by")
     ADDFUNC4R(RECT2, RECT2, Rect2, grow_individual, REAL, "left", REAL, "top", REAL, "right", REAL, " bottom")
@@ -1744,6 +1830,7 @@ void register_variant_methods() {
     ADDFUNC0R(VECTOR3, REAL, Vector3, length)
     ADDFUNC0R(VECTOR3, REAL, Vector3, length_squared)
     ADDFUNC0R(VECTOR3, BOOL, Vector3, is_normalized)
+    ADDFUNC1R(VECTOR3, BOOL, Vector3, is_equal_approx, VECTOR3, "v");
     ADDFUNC0R(VECTOR3, VECTOR3, Vector3, normalized)
     ADDFUNC0R(VECTOR3, VECTOR3, Vector3, inverse)
     ADDFUNC1R(VECTOR3, VECTOR3, Vector3, snapped, VECTOR3, "by")
@@ -1775,6 +1862,7 @@ void register_variant_methods() {
     ADDFUNC0R(PLANE, PLANE, Plane, normalized)
     ADDFUNC0R(PLANE, VECTOR3, Plane, center)
     ADDFUNC0R(PLANE, VECTOR3, Plane, get_any_point)
+    ADDFUNC1R(PLANE, BOOL, Plane, is_equal_approx, PLANE, "plane")
     ADDFUNC1R(PLANE, BOOL, Plane, is_point_over, VECTOR3, "point")
     ADDFUNC1R(PLANE, REAL, Plane, distance_to, VECTOR3, "point")
     ADDFUNC2R(PLANE, BOOL, Plane, has_point, VECTOR3, "point", REAL, "epsilon", CMP_EPSILON)
@@ -1787,6 +1875,7 @@ void register_variant_methods() {
     ADDFUNC0R(QUAT, REAL, Quat, length_squared)
     ADDFUNC0R(QUAT, QUAT, Quat, normalized)
     ADDFUNC0R(QUAT, BOOL, Quat, is_normalized)
+    ADDFUNC1R(QUAT, BOOL, Quat, is_equal_approx, QUAT, "quat")
     ADDFUNC0R(QUAT, QUAT, Quat, inverse)
     ADDFUNC1R(QUAT, REAL, Quat, dot, QUAT, "b")
     ADDFUNC1R(QUAT, VECTOR3, Quat, xform, VECTOR3, "v")
@@ -1868,6 +1957,7 @@ void register_variant_methods() {
     ADDFUNC0R(ARRAY, NIL, Array, min)
 
     ADDFUNC0R(POOL_BYTE_ARRAY, INT, PoolByteArray, size)
+    ADDFUNC0R(POOL_BYTE_ARRAY, INT, PoolByteArray, empty)
     ADDFUNC2(POOL_BYTE_ARRAY, NIL, PoolByteArray, set, INT, "idx", INT, "byte")
     ADDFUNC1(POOL_BYTE_ARRAY, NIL, PoolByteArray, push_back, INT, "byte")
     ADDFUNC1(POOL_BYTE_ARRAY, NIL, PoolByteArray, append, INT, "byte")
@@ -1885,6 +1975,7 @@ void register_variant_methods() {
     ADDFUNC2R(POOL_BYTE_ARRAY, POOL_BYTE_ARRAY, PoolByteArray, decompress, INT, "buffer_size", INT, "compression_mode", {0})
 
     ADDFUNC0R(POOL_INT_ARRAY, INT, PoolIntArray, size)
+    ADDFUNC0R(POOL_INT_ARRAY, INT, PoolIntArray, empty)
     ADDFUNC2(POOL_INT_ARRAY, NIL, PoolIntArray, set, INT, "idx", INT, "integer")
     ADDFUNC1(POOL_INT_ARRAY, NIL, PoolIntArray, push_back, INT, "integer")
     ADDFUNC1(POOL_INT_ARRAY, NIL, PoolIntArray, append, INT, "integer")
@@ -1895,6 +1986,7 @@ void register_variant_methods() {
     ADDFUNC0(POOL_INT_ARRAY, NIL, PoolIntArray, invert)
 
     ADDFUNC0R(POOL_REAL_ARRAY, INT, PoolRealArray, size)
+    ADDFUNC0R(POOL_REAL_ARRAY, INT, PoolRealArray, empty)
     ADDFUNC2(POOL_REAL_ARRAY, NIL, PoolRealArray, set, INT, "idx", REAL, "value")
     ADDFUNC1(POOL_REAL_ARRAY, NIL, PoolRealArray, push_back, REAL, "value")
     ADDFUNC1(POOL_REAL_ARRAY, NIL, PoolRealArray, append, REAL, "value")
@@ -1904,18 +1996,20 @@ void register_variant_methods() {
     ADDFUNC1(POOL_REAL_ARRAY, NIL, PoolRealArray, resize, INT, "idx")
     ADDFUNC0(POOL_REAL_ARRAY, NIL, PoolRealArray, invert)
 
-    ADDFUNC0R(POOL_STRING_ARRAY, INT, PoolStringArray, size)
-    ADDFUNC2(POOL_STRING_ARRAY, NIL, PoolStringArray, set, INT, "idx", STRING, "string")
-    ADDFUNC1(POOL_STRING_ARRAY, NIL, PoolStringArray, push_back, STRING, "string")
-    ADDFUNC1(POOL_STRING_ARRAY, NIL, PoolStringArray, append, STRING, "string")
-    ADDFUNC1(POOL_STRING_ARRAY, NIL, PoolStringArray, append_array, POOL_STRING_ARRAY, "array")
-    ADDFUNC1(POOL_STRING_ARRAY, NIL, PoolStringArray, remove, INT, "idx")
-    ADDFUNC2R(POOL_STRING_ARRAY, INT, PoolStringArray, insert, INT, "idx", STRING, "string")
-    ADDFUNC1(POOL_STRING_ARRAY, NIL, PoolStringArray, resize, INT, "idx")
-    ADDFUNC0(POOL_STRING_ARRAY, NIL, PoolStringArray, invert)
-    ADDFUNC1(POOL_STRING_ARRAY, STRING, PoolStringArray, join, STRING, "delimiter")
+    ADDFUNC0R(POOL_STRING_ARRAY, INT, PoolSeStringArray, size)
+    ADDFUNC0R(POOL_STRING_ARRAY, INT, PoolSeStringArray, empty)
+    ADDFUNC2(POOL_STRING_ARRAY, NIL, PoolSeStringArray, set, INT, "idx", STRING, "string")
+    ADDFUNC1(POOL_STRING_ARRAY, NIL, PoolSeStringArray, push_back, STRING, "string")
+    ADDFUNC1(POOL_STRING_ARRAY, NIL, PoolSeStringArray, append, STRING, "string")
+    ADDFUNC1(POOL_STRING_ARRAY, NIL, PoolSeStringArray, append_array, POOL_STRING_ARRAY, "array")
+    ADDFUNC1(POOL_STRING_ARRAY, NIL, PoolSeStringArray, remove, INT, "idx")
+    ADDFUNC2R(POOL_STRING_ARRAY, INT, PoolSeStringArray, insert, INT, "idx", STRING, "string")
+    ADDFUNC1(POOL_STRING_ARRAY, NIL, PoolSeStringArray, resize, INT, "idx")
+    ADDFUNC0(POOL_STRING_ARRAY, NIL, PoolSeStringArray, invert)
+    ADDFUNC1(POOL_STRING_ARRAY, STRING, PoolSeStringArray, join, STRING, "delimiter")
 
     ADDFUNC0R(POOL_VECTOR2_ARRAY, INT, PoolVector2Array, size)
+    ADDFUNC0R(POOL_VECTOR2_ARRAY, INT, PoolVector2Array, empty)
     ADDFUNC2(POOL_VECTOR2_ARRAY, NIL, PoolVector2Array, set, INT, "idx", VECTOR2, "vector2")
     ADDFUNC1(POOL_VECTOR2_ARRAY, NIL, PoolVector2Array, push_back, VECTOR2, "vector2")
     ADDFUNC1(POOL_VECTOR2_ARRAY, NIL, PoolVector2Array, append, VECTOR2, "vector2")
@@ -1926,6 +2020,7 @@ void register_variant_methods() {
     ADDFUNC0(POOL_VECTOR2_ARRAY, NIL, PoolVector2Array, invert)
 
     ADDFUNC0R(POOL_VECTOR3_ARRAY, INT, PoolVector3Array, size)
+    ADDFUNC0R(POOL_VECTOR3_ARRAY, INT, PoolVector3Array, empty)
     ADDFUNC2(POOL_VECTOR3_ARRAY, NIL, PoolVector3Array, set, INT, "idx", VECTOR3, "vector3")
     ADDFUNC1(POOL_VECTOR3_ARRAY, NIL, PoolVector3Array, push_back, VECTOR3, "vector3")
     ADDFUNC1(POOL_VECTOR3_ARRAY, NIL, PoolVector3Array, append, VECTOR3, "vector3")
@@ -1936,6 +2031,7 @@ void register_variant_methods() {
     ADDFUNC0(POOL_VECTOR3_ARRAY, NIL, PoolVector3Array, invert)
 
     ADDFUNC0R(POOL_COLOR_ARRAY, INT, PoolColorArray, size)
+    ADDFUNC0R(POOL_COLOR_ARRAY, INT, PoolColorArray, empty)
     ADDFUNC2(POOL_COLOR_ARRAY, NIL, PoolColorArray, set, INT, "idx", COLOR, "color")
     ADDFUNC1(POOL_COLOR_ARRAY, NIL, PoolColorArray, push_back, COLOR, "color")
     ADDFUNC1(POOL_COLOR_ARRAY, NIL, PoolColorArray, append, COLOR, "color")
@@ -2006,7 +2102,7 @@ void register_variant_methods() {
     ADDFUNC0R(TRANSFORM, TRANSFORM, Transform, orthonormalized)
     ADDFUNC2R(TRANSFORM, TRANSFORM, Transform, rotated, VECTOR3, "axis", REAL, "phi")
     ADDFUNC1R(TRANSFORM, TRANSFORM, Transform, scaled, VECTOR3, "scale")
-    ADDFUNC1R(TRANSFORM, TRANSFORM, Transform, translated, VECTOR3, "ofs")
+    ADDFUNC1R(TRANSFORM, TRANSFORM, Transform, translated, VECTOR3, "offset")
     ADDFUNC2R(TRANSFORM, TRANSFORM, Transform, looking_at, VECTOR3, "target", VECTOR3, "up")
     ADDFUNC2R(TRANSFORM, TRANSFORM, Transform, interpolate_with, TRANSFORM, "transform", REAL, "weight")
     ADDFUNC1R(TRANSFORM, NIL, Transform, xform, NIL, "v")

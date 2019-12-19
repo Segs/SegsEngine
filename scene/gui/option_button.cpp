@@ -103,20 +103,20 @@ void OptionButton::pressed() {
     popup->popup();
 }
 
-void OptionButton::add_icon_item(const Ref<Texture> &p_icon, const String &p_label, int p_id) {
+void OptionButton::add_icon_item(const Ref<Texture> &p_icon, const StringName &p_label, int p_id) {
 
     popup->add_icon_radio_check_item(p_icon, p_label, p_id);
     if (popup->get_item_count() == 1)
         select(0);
 }
-void OptionButton::add_item(const String &p_label, int p_id) {
+void OptionButton::add_item(const StringName &p_label, int p_id) {
 
     popup->add_radio_check_item(p_label, p_id);
     if (popup->get_item_count() == 1)
         select(0);
 }
 
-void OptionButton::set_item_text(int p_idx, const String &p_text) {
+void OptionButton::set_item_text(int p_idx, const StringName &p_text) {
 
     popup->set_item_text(p_idx, p_text);
 
@@ -145,11 +145,13 @@ void OptionButton::set_item_disabled(int p_idx, bool p_disabled) {
     popup->set_item_disabled(p_idx, p_disabled);
 }
 
-String OptionButton::get_item_text(int p_idx) const {
-
+StringName OptionButton::get_item_text(int p_idx) const {
     return popup->get_item_text(p_idx);
 }
+se_string OptionButton::get_item_text_utf8(int p_idx) const {
 
+    return popup->get_item_text_utf8(p_idx);
+}
 Ref<Texture> OptionButton::get_item_icon(int p_idx) const {
 
     return popup->get_item_icon(p_idx);
@@ -277,7 +279,7 @@ void OptionButton::_set_items(const Array &p_items) {
 
     for (int i = 0; i < p_items.size(); i += 5) {
 
-        String text = p_items[i + 0];
+        StringName text = p_items[i + 0];
         Ref<Texture> icon = refFromRefPtr<Texture>(p_items[i + 1]);
         bool disabled = p_items[i + 2];
         int id = p_items[i + 3];
@@ -291,7 +293,7 @@ void OptionButton::_set_items(const Array &p_items) {
     }
 }
 
-void OptionButton::get_translatable_strings(ListPOD<String> *p_strings) const {
+void OptionButton::get_translatable_strings(ListPOD<StringName> *p_strings) const {
 
     popup->get_translatable_strings(p_strings);
 }

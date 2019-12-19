@@ -101,17 +101,6 @@ struct VariantCaster<char16_t> {
         return (char16_t)p_variant.operator int();
     }
 };
-#ifdef PTRCALL_ENABLED
-template <>
-struct PtrToArg<QChar> {
-    _FORCE_INLINE_ static QChar convert(const void *p_ptr) {
-        return QChar(*reinterpret_cast<const uint32_t *>(p_ptr));
-    }
-    _FORCE_INLINE_ static void encode(QChar p_val, const void *p_ptr) {
-        *(int *)p_ptr = p_val.unicode();
-    }
-};
-#endif
 
 
 template <class T>
@@ -147,7 +136,7 @@ struct visit_impl<0>
 {
     template <typename TS, typename F>
     static constexpr typename F::Result visit(int,const F & /*functor*/) {
-        assert(false);
+        CRASH_COND(true);
         return typename F::Result{};
     }
 };
@@ -180,7 +169,7 @@ struct ArgumentWrapper {
 struct GetPropertyType {
     using Result = PropertyInfo;
     template<class TS,int IDX>
-    Result static doit() {
+    Result static doit() noexcept {
         return GetTypeInfo<typename std::remove_cv<typename std::remove_reference<TS>::type>::type>::get_class_info();
     }
 };

@@ -200,16 +200,16 @@ public:
 	void remove_transition(const StringName &p_from, const StringName &p_to);
 
 	void set_start_node(const StringName &p_node);
-	String get_start_node() const;
+    StringName get_start_node() const;
 
 	void set_end_node(const StringName &p_node);
-	String get_end_node() const;
+    StringName get_end_node() const;
 
 	void set_graph_offset(const Vector2 &p_offset);
 	Vector2 get_graph_offset() const;
 
     float process(float p_time, bool p_seek) override;
-    String get_caption() const override;
+    se_string_view get_caption() const override;
 
     Ref<AnimationNode> get_child_by_name(const StringName &p_name) override;
 

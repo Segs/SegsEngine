@@ -42,14 +42,16 @@ struct DictionaryPrivate {
     OrderedHashMap<Variant, Variant, Hasher<Variant>, VariantComparator> variant_map;
 };
 
-void Dictionary::get_key_list(ListPOD<Variant> *p_keys) const {
-
+PODVector<Variant> Dictionary::get_key_list() const {
+    PODVector<Variant> res;
     if (_p->variant_map.empty())
-        return;
+        return {};
+    res.reserve(_p->variant_map.size());
 
     for (OrderedHashMap<Variant, Variant, Hasher<Variant>, VariantComparator>::Element E = _p->variant_map.front(); E; E = E.next()) {
-        p_keys->push_back(E.key());
+        res.emplace_back(E.key());
     }
+    return res;
 }
 
 Variant Dictionary::get_key_at_index(int p_index) const {
@@ -194,13 +196,9 @@ uint32_t Dictionary::hash() const {
 
     uint32_t h = hash_djb2_one_32(int(VariantType::DICTIONARY));
 
-    ListPOD<Variant> keys;
-    get_key_list(&keys);
-
-    for (const Variant &E : keys) {
-
-        h = hash_djb2_one_32(E.hash(), h);
-        h = hash_djb2_one_32(operator[](E).hash(), h);
+    for (OrderedHashMap<Variant, Variant, Hasher<Variant>, VariantComparator>::Element E = _p->variant_map.front(); E; E = E.next()) {
+        h = hash_djb2_one_32(E.key().hash(), h);
+        h = hash_djb2_one_32(E.value().hash(), h);
     }
 
     return h;
@@ -209,10 +207,10 @@ uint32_t Dictionary::hash() const {
 Array Dictionary::keys() const {
 
     Array varr;
-    varr.resize(size());
     if (_p->variant_map.empty())
         return varr;
 
+    varr.resize(size());
     int i = 0;
     for (OrderedHashMap<Variant, Variant, Hasher<Variant>, VariantComparator>::Element E = _p->variant_map.front(); E; E = E.next()) {
         varr[i] = E.key();
@@ -225,10 +223,10 @@ Array Dictionary::keys() const {
 Array Dictionary::values() const {
 
     Array varr;
-    varr.resize(size());
     if (_p->variant_map.empty())
         return varr;
 
+    varr.resize(size());
     int i = 0;
     for (OrderedHashMap<Variant, Variant, Hasher<Variant>, VariantComparator>::Element E = _p->variant_map.front(); E; E = E.next()) {
         varr[i] = E.get();
@@ -257,11 +255,8 @@ Dictionary Dictionary::duplicate(bool p_deep) const {
 
     Dictionary n;
 
-    ListPOD<Variant> keys;
-    get_key_list(&keys);
-
-    for (const Variant &E : keys) {
-        n[E] = p_deep ? operator[](E).duplicate(p_deep) : operator[](E);
+    for (OrderedHashMap<Variant, Variant, Hasher<Variant>, VariantComparator>::Element E = _p->variant_map.front(); E; E = E.next()) {
+        n[E.key()] = p_deep ? E.value().duplicate(true) : E.value();
     }
 
     return n;

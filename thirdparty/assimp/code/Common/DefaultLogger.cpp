@@ -121,7 +121,7 @@ LogStream* LogStream::createDefaultStream(aiDefaultLogStream    streams,
     };
 
     // For compilers without dead code path detection
-    return NULL;
+    return nullptr;
 }
 
 // ----------------------------------------------------------------------------------

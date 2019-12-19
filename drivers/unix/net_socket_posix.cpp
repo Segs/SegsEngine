@@ -30,6 +30,7 @@
 
 #include "net_socket_posix.h"
 #include "core/print_string.h"
+#include "core/string_utils.h"
 
 #if defined(UNIX_ENABLED)
 
@@ -70,6 +71,7 @@
 #define SOCK_CBUF(x) x
 #define SOCK_IOCTL ioctl
 #define SOCK_CLOSE ::close
+#define SOCK_CONNECT(p_sock, p_addr, p_addr_len) ::connect(p_sock, p_addr, p_addr_len)
 
 /* Windows */
 #elif defined(WINDOWS_ENABLED)
@@ -83,6 +85,9 @@
 #define SOCK_CBUF(x) (const char *)(x)
 #define SOCK_IOCTL ioctlsocket
 #define SOCK_CLOSE closesocket
+// connect is broken on windows under certain conditions, reasons unknown:
+// See https://github.com/godotengine/webrtc-native/issues/6
+#define SOCK_CONNECT(p_sock, p_addr, p_addr_len) ::WSAConnect(p_sock, p_addr, p_addr_len, NULL, NULL, NULL, NULL)
 
 // Workaround missing flag in MinGW
 #if defined(__MINGW32__) && !defined(SIO_UDP_NETRESET)
@@ -204,7 +209,7 @@ NetSocketPosix::NetError NetSocketPosix::_get_socket_error() {
         return ERR_NET_IN_PROGRESS;
     if (errno == EAGAIN || errno == EWOULDBLOCK)
         return ERR_NET_WOULD_BLOCK;
-    ERR_PRINT("Socket error: " + itos(errno));
+    ERR_PRINT("Socket error: " + ::to_string(errno))
     return ERR_NET_OTHER;
 #endif
 }
@@ -225,7 +230,7 @@ bool NetSocketPosix::_can_use_ip(const IP_Address &p_ip, const bool p_for_bind) 
     return !(_ip_type != IP::TYPE_ANY && !p_ip.is_wildcard() && _ip_type != type);
 }
 
-_FORCE_INLINE_ Error NetSocketPosix::_change_multicast_group(IP_Address p_ip, const String& p_if_name, bool p_add) {
+_FORCE_INLINE_ Error NetSocketPosix::_change_multicast_group(IP_Address p_ip, se_string_view p_if_name, bool p_add) {
 
     ERR_FAIL_COND_V(!is_open(), ERR_UNCONFIGURED)
     ERR_FAIL_COND_V(!_can_use_ip(p_ip, false), ERR_INVALID_PARAMETER)
@@ -238,11 +243,11 @@ _FORCE_INLINE_ Error NetSocketPosix::_change_multicast_group(IP_Address p_ip, co
 
     IP_Address if_ip;
     uint32_t if_v6id = 0;
-    Map<String, IP::Interface_Info> if_info;
+    Map<se_string, IP::Interface_Info> if_info;
     IP::get_singleton()->get_local_interfaces(&if_info);
-    for (eastl::pair<const String,IP::Interface_Info> &E : if_info) {
+    for (eastl::pair<const se_string,IP::Interface_Info> &E : if_info) {
         IP::Interface_Info &c = E.second;
-        if (c.name != p_if_name)
+        if (0!=p_if_name.compare(c.name))
             continue;
 
         if_v6id = (uint32_t)c.index;
@@ -329,9 +334,10 @@ Error NetSocketPosix::open(Type p_sock_type, IP::Type &ip_type) {
         set_ipv6_only_enabled(ip_type != IP::TYPE_ANY);
     }
 
-    if (protocol == IPPROTO_UDP && ip_type != IP::TYPE_IPV6) {
-        // Enable broadcasting for UDP sockets if it's not IPv6 only (IPv6 has no broadcast option).
-        set_broadcasting_enabled(true);
+    if (protocol == IPPROTO_UDP) {
+        // Make sure to disable broadcasting for UDP sockets.
+        // Depending on the OS, this option might or might not be enabled by default. Let's normalize it.
+        set_broadcasting_enabled(false);
     }
 
     _is_stream = p_sock_type == TYPE_TCP;
@@ -409,7 +415,7 @@ Error NetSocketPosix::connect_to_host(IP_Address p_host, uint16_t p_port) {
     struct sockaddr_storage addr;
     size_t addr_size = _set_addr_storage(&addr, p_host, p_port, _ip_type);
 
-    if (::connect(_sock, (struct sockaddr *)&addr, addr_size) != 0) {
+    if (SOCK_CONNECT(_sock, (struct sockaddr *)&addr, addr_size) != 0) {
 
         NetError err = _get_socket_error();
 
@@ -599,15 +605,18 @@ Error NetSocketPosix::sendto(const uint8_t *p_buffer, int p_len, int &r_sent, IP
     return OK;
 }
 
-void NetSocketPosix::set_broadcasting_enabled(bool p_enabled) {
-    ERR_FAIL_COND(!is_open())
+Error NetSocketPosix::set_broadcasting_enabled(bool p_enabled) {
+    ERR_FAIL_COND_V(!is_open(), ERR_UNCONFIGURED);
     // IPv6 has no broadcast support.
-    ERR_FAIL_COND(_ip_type == IP::TYPE_IPV6)
+    if (_ip_type == IP::TYPE_IPV6)
+        return ERR_UNAVAILABLE;
 
     int par = p_enabled ? 1 : 0;
     if (setsockopt(_sock, SOL_SOCKET, SO_BROADCAST, SOCK_CBUF(&par), sizeof(int)) != 0) {
         WARN_PRINT("Unable to change broadcast setting");
+        return FAILED;
     }
+    return OK;
 }
 
 void NetSocketPosix::set_blocking_enabled(bool p_enabled) {
@@ -703,10 +712,10 @@ Ref<NetSocket> NetSocketPosix::accept(IP_Address &r_ip, uint16_t &r_port) {
     return Ref<NetSocket>(ns);
 }
 
-Error NetSocketPosix::join_multicast_group(const IP_Address &p_multi_address, String p_if_name) {
+Error NetSocketPosix::join_multicast_group(const IP_Address &p_multi_address, se_string_view p_if_name) {
     return _change_multicast_group(p_multi_address, p_if_name, true);
 }
 
-Error NetSocketPosix::leave_multicast_group(const IP_Address &p_multi_address, String p_if_name) {
+Error NetSocketPosix::leave_multicast_group(const IP_Address &p_multi_address, se_string_view p_if_name) {
     return _change_multicast_group(p_multi_address, p_if_name, false);
 }

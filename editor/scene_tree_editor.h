@@ -83,7 +83,7 @@ class SceneTreeEditor : public Control {
     void _notification(int p_what);
     void _selected_changed();
     void _deselect_items();
-    void _rename_node(ObjectID p_node, const String &p_name);
+    void _rename_node(ObjectID p_node, se_string_view p_name);
 
     void _cell_collapsed(Object *p_obj);
 
@@ -174,7 +174,7 @@ class SceneTreeDialog : public ConfirmationDialog {
     void update_tree();
     void _select();
     void _cancel();
-    void _filter_changed(const String &p_filter);
+    void _filter_changed(se_string_view p_filter);
 
 protected:
     void _notification(int p_what);

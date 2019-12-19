@@ -46,11 +46,10 @@ SoftBodyBullet::SoftBodyBullet() :
         volume_stiffness(0.5),
         pressure_coefficient(0.),
         pose_matching_coefficient(0.),
-        damping_coefficient(0.01),
+        damping_coefficient(0.01f),
         drag_coefficient(0.) {}
 
-SoftBodyBullet::~SoftBodyBullet() {
-}
+SoftBodyBullet::~SoftBodyBullet() = default;
 
 void SoftBodyBullet::reload_body() {
     if (space) {

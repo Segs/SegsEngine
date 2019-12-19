@@ -30,7 +30,8 @@
 
 #include "ip_address.h"
 
-#include "core/ustring.h"
+#include "core/se_string.h"
+#include "core/string_utils.h"
 /*
 IP_Address::operator Variant() const {
 
@@ -40,18 +41,18 @@ IP_Address::operator Variant() const {
 #include <cstdio>
 #include <cstring>
 
-IP_Address::operator String() const {
+IP_Address::operator se_string() const {
 
     if (wildcard)
-        return "*";
+        return se_string("*");
 
     if (!valid)
         return "";
 
     if (is_ipv4())
         // IPv4 address mapped to IPv6
-        return itos(field8[12]) + "." + itos(field8[13]) + "." + itos(field8[14]) + "." + itos(field8[15]);
-    String ret;
+        return to_string(field8[12]) + "." + to_string(field8[13]) + "." + to_string(field8[14]) + "." + to_string(field8[15]);
+    se_string ret;
     for (int i = 0; i < 8; i++) {
         if (i > 0)
             ret = ret + ":";
@@ -62,28 +63,28 @@ IP_Address::operator String() const {
     return ret;
 }
 
-static void _parse_hex(const String &p_string, int p_start, uint8_t *p_dst) {
+static void _parse_hex(se_string_view p_string, int p_start, uint8_t *p_dst) {
 
     uint16_t ret = 0;
-    for (int i = p_start; i < p_start + 4; i++) {
+    for (size_t i = p_start; i < p_start + 4; i++) {
 
         if (i >= p_string.length()) {
             break;
         }
 
         int n = 0;
-        CharType c = p_string[i];
+        char c = p_string[i];
         if (c >= '0' && c <= '9') {
 
-            n = c.digitValue();
+            n = c-'0';
         } else if (c >= 'a' && c <= 'f') {
-            n = 10 + (c.toLatin1() - 'a');
+            n = 10 + (c - 'a');
         } else if (c >= 'A' && c <= 'F') {
-            n = 10 + (c.toLatin1() - 'A');
+            n = 10 + (c - 'A');
         } else if (c == ':') {
             break;
         } else {
-            ERR_FAIL_MSG("Invalid character in IPv6 address: " + p_string + ".");
+            ERR_FAIL_MSG("Invalid character in IPv6 address: " + se_string(p_string) + ".")
         }
         ret = ret << 4;
         ret += n;
@@ -93,7 +94,7 @@ static void _parse_hex(const String &p_string, int p_start, uint8_t *p_dst) {
     p_dst[1] = ret & 0xff;
 };
 
-void IP_Address::_parse_ipv6(const String &p_string) {
+void IP_Address::_parse_ipv6(se_string_view p_string) {
 
     static const int parts_total = 8;
     int parts[parts_total] = { 0 };
@@ -103,9 +104,9 @@ void IP_Address::_parse_ipv6(const String &p_string) {
     bool part_ipv4 = false;
     int parts_idx = 0;
 
-    for (int i = 0; i < p_string.length(); i++) {
+    for (size_t i = 0; i < p_string.length(); i++) {
 
-        CharType c = p_string[i];
+        char c = p_string[i];
         if (c == ':') {
 
             if (i == 0) {
@@ -127,7 +128,7 @@ void IP_Address::_parse_ipv6(const String &p_string) {
                 ++parts_count;
             }
         } else {
-            ERR_FAIL_MSG("Invalid character in IPv6 address: " + p_string + ".");
+            ERR_FAIL_MSG("Invalid character in IPv6 address: " + se_string(p_string) + ".")
         }
     }
 
@@ -155,17 +156,17 @@ void IP_Address::_parse_ipv6(const String &p_string) {
     }
 };
 
-void IP_Address::_parse_ipv4(const String &p_string, int p_start, uint8_t *p_ret) {
+void IP_Address::_parse_ipv4(se_string_view p_string, int p_start, uint8_t *p_ret) {
 
-    String ip;
+    se_string_view ip;
     if (p_start != 0) {
         ip = StringUtils::substr(p_string,p_start, p_string.length() - p_start);
     } else {
         ip = p_string;
     }
 
-    int slices = StringUtils::get_slice_count(ip,".");
-    ERR_FAIL_COND_MSG(slices != 4, "Invalid IP address string: " + ip + ".")
+    int slices = StringUtils::get_slice_count(ip,'.');
+    ERR_FAIL_COND_MSG(slices != 4, "Invalid IP address string: " + se_string(ip) + ".")
     for (int i = 0; i < 4; i++) {
         p_ret[i] = StringUtils::to_int(StringUtils::get_slice(ip,'.', i));
     }
@@ -206,11 +207,11 @@ void IP_Address::set_ipv6(const uint8_t *p_buf) {
         field8[i] = p_buf[i];
 }
 
-IP_Address::IP_Address(const String &p_string) {
-
+IP_Address::IP_Address(se_string_view _string) {
+    se_string_view p_string(_string);
     clear();
 
-    if (p_string == "*") {
+    if (0==p_string.compare("*")) {
         // Wildcard (not a valid IP)
         wildcard = true;
 
@@ -219,7 +220,7 @@ IP_Address::IP_Address(const String &p_string) {
         _parse_ipv6(p_string);
         valid = true;
 
-    } else if (StringUtils::get_slice_count(p_string,".") == 4) {
+    } else if (StringUtils::get_slice_count(p_string,'.') == 4) {
         // IPv4 (mapped to IPv6 internally)
         field16[5] = 0xffff;
         _parse_ipv4(p_string, 0, &field8[12]);

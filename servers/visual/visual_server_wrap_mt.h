@@ -98,8 +98,17 @@ public:
     FUNC3(texture_set_detect_srgb_callback, RID, TextureDetectCallback, void *)
     FUNC3(texture_set_detect_normal_callback, RID, TextureDetectCallback, void *)
 
-    FUNC2(texture_set_path, RID, const String &)
-    FUNC1RC(String, texture_get_path, RID)
+    FUNC2(texture_set_path, RID, se_string_view)
+    const se_string &texture_get_path(RID p1) const override {
+        if (Thread::get_caller_id() != server_thread) {
+            thread_local se_string ret;
+            command_queue.push_and_ret(server_name, &ServerName::texture_get_path, p1, &ret);
+            SYNC_DEBUG
+            return ret;
+        } else {
+            return server_name->texture_get_path(p1);
+        }
+    }
     FUNC1(texture_set_shrink_all_x2_on_set_data, bool)
     FUNC1(texture_debug_usage, DefList<TextureInfo> *)
 
@@ -118,10 +127,10 @@ public:
 
     FUNCRID(shader)
 
-    FUNC2(shader_set_code, RID, const String &)
-    FUNC1RC(String, shader_get_code, RID)
+    FUNC2(shader_set_code, RID, const se_string &)
+    FUNC1RC(se_string, shader_get_code, RID)
 
-    FUNC2SC(shader_get_param_list, RID, ListPOD<PropertyInfo> *)
+    FUNC2SC(shader_get_param_list, RID, PODVector<PropertyInfo> *)
 
     FUNC3(shader_set_default_texture_param, RID, const StringName &, RID)
     FUNC2RC(RID, shader_get_default_texture_param, RID, const StringName &)
@@ -343,6 +352,8 @@ public:
     FUNC2(particles_set_process_material, RID, RID)
     FUNC2(particles_set_fixed_fps, RID, int)
     FUNC2(particles_set_fractional_delta, RID, bool)
+    FUNC1R(bool, particles_is_inactive, RID)
+    FUNC1(particles_request_process, RID)
     FUNC1(particles_restart, RID)
 
     FUNC2(particles_set_draw_order, RID, VS::ParticlesDrawOrder)
@@ -518,7 +529,7 @@ public:
     FUNC11(canvas_item_add_nine_patch, RID, const Rect2 &, const Rect2 &, RID, const Vector2 &, const Vector2 &, VS::NinePatchAxisMode, VS::NinePatchAxisMode, bool, const Color &, RID)
     FUNC7(canvas_item_add_primitive, RID, const Vector<Point2> &, const Vector<Color> &, const Vector<Point2> &, RID, float, RID)
     FUNC7(canvas_item_add_polygon, RID, const Vector<Point2> &, const Vector<Color> &, const Vector<Point2> &, RID, RID, bool)
-    FUNC10(canvas_item_add_triangle_array, RID, const Vector<int> &, const Vector<Point2> &, const Vector<Color> &, const Vector<Point2> &, const Vector<int> &, const Vector<float> &, RID, int, RID)
+    FUNC11(canvas_item_add_triangle_array, RID, const Vector<int> &, const Vector<Point2> &, const Vector<Color> &, const Vector<Point2> &, const Vector<int> &, const Vector<float> &, RID, int, RID, bool)
     FUNC6(canvas_item_add_mesh, RID, const RID &, const Transform2D &, const Color &, RID, RID)
     FUNC4(canvas_item_add_multimesh, RID, RID, RID, RID)
     FUNC4(canvas_item_add_particles, RID, RID, RID, RID)
@@ -608,7 +619,7 @@ public:
     FUNC1(set_debug_generate_wireframes, bool)
 
     bool has_feature(VS::Features p_feature) const override { return visual_server->has_feature(p_feature); }
-    bool has_os_feature(const String &p_feature) const override { return visual_server->has_os_feature(p_feature); }
+    bool has_os_feature(const StringName &p_feature) const override { return visual_server->has_os_feature(p_feature); }
 
     FUNC1(call_set_use_vsync, bool)
 

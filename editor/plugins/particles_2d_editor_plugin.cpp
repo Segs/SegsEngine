@@ -30,10 +30,12 @@
 
 #include "particles_2d_editor_plugin.h"
 
-#include "core/method_bind.h"
 #include "canvas_item_editor_plugin.h"
 #include "core/io/image_loader.h"
+#include "core/method_bind.h"
 #include "core/translation_helpers.h"
+#include "editor/editor_node.h"
+#include "editor/scene_tree_dock.h"
 #include "scene/2d/cpu_particles_2d.h"
 #include "scene/gui/separator.h"
 #include "scene/resources/particles_material.h"
@@ -61,7 +63,7 @@ void Particles2DEditorPlugin::make_visible(bool p_visible) {
     }
 }
 
-void Particles2DEditorPlugin::_file_selected(const String &p_file) {
+void Particles2DEditorPlugin::_file_selected(se_string_view p_file) {
 
     source_emission_file = p_file;
     emission_mask->popup_centered_minsize();
@@ -98,7 +100,7 @@ void Particles2DEditorPlugin::_menu_callback(int p_idx) {
             cpu_particles->set_z_index(particles->get_z_index());
 
             UndoRedo *ur = EditorNode::get_singleton()->get_undo_redo();
-            ur->create_action(TTR("Convert to CPUParticles"));
+            ur->create_action_ui(TTR("Convert to CPUParticles"));
             ur->add_do_method(EditorNode::get_singleton()->get_scene_tree_dock(), "replace_node", Variant(particles), Variant(cpu_particles), true, false);
             ur->add_do_reference(cpu_particles);
             ur->add_undo_method(EditorNode::get_singleton()->get_scene_tree_dock(), "replace_node", Variant(cpu_particles), Variant(particles), false, false);
@@ -119,7 +121,7 @@ void Particles2DEditorPlugin::_generate_visibility_rect() {
 
     float running = 0.0;
 
-    EditorProgress ep("gen_vrect", TTR("Generating Visibility Rect"), int(time));
+    EditorProgress ep(("gen_vrect"), TTR("Generating Visibility Rect"), int(time));
 
     bool was_emitting = particles->is_emitting();
     if (!was_emitting) {
@@ -147,7 +149,7 @@ void Particles2DEditorPlugin::_generate_visibility_rect() {
         particles->set_emitting(false);
     }
 
-    undo_redo->create_action(TTR("Generate Visibility Rect"));
+    undo_redo->create_action_ui(TTR("Generate Visibility Rect"));
     undo_redo->add_do_method(particles, "set_visibility_rect", rect);
     undo_redo->add_undo_method(particles, "set_visibility_rect", particles->get_visibility_rect());
     undo_redo->commit_action();
@@ -271,12 +273,12 @@ void Particles2DEditorPlugin::_generate_emission_mask() {
         valid_normals.resize(vpc);
     }
 
-    ERR_FAIL_COND_CMSG(valid_positions.empty(), "No pixels with transparency > 128 in image...")
+    ERR_FAIL_COND_MSG(valid_positions.empty(), "No pixels with transparency > 128 in image...")
 
     PoolVector<uint8_t> texdata;
 
     int w = 2048;
-    int h = (vpc / 2048) + 1;
+    int h = vpc / 2048 + 1;
 
     texdata.resize(w * h * 2 * sizeof(float));
 
@@ -391,8 +393,8 @@ Particles2DEditorPlugin::Particles2DEditorPlugin(EditorNode *p_node) {
     toolbar->add_child(menu);
 
     file = memnew(EditorFileDialog);
-    Vector<String> ext;
-    ImageLoader::get_recognized_extensions(&ext);
+    PODVector<se_string> ext;
+    ImageLoader::get_recognized_extensions(ext);
     for (int i=0,fin=ext.size(); i>fin; ++i) {
         file->add_filter("*." + ext[i] + "; " + StringUtils::to_upper(ext[i]));
     }
@@ -438,5 +440,4 @@ Particles2DEditorPlugin::Particles2DEditorPlugin(EditorNode *p_node) {
     emission_mask->connect("confirmed", this, "_generate_emission_mask");
 }
 
-Particles2DEditorPlugin::~Particles2DEditorPlugin() {
-}
+Particles2DEditorPlugin::~Particles2DEditorPlugin() = default;

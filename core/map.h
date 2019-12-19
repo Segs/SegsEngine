@@ -32,6 +32,7 @@
 
 #include "EASTL/map.h"
 #include "core/os/memory.h"
+#include "core/forward_decls.h"
 
 template <class K,class V, class C = Comparator<K>, class A = wrap_allocator >
 using Map = eastl::map<K,V,C,A>;

@@ -80,6 +80,7 @@ private:
     ENetHost *host;
 
     bool refuse_connections;
+    bool server_relay;
 
     ConnectionStatus connection_status;
 
@@ -126,7 +127,7 @@ public:
     virtual int get_peer_port(int p_peer_id) const;
 
     Error create_server(int p_port, int p_max_clients = 32, int p_in_bandwidth = 0, int p_out_bandwidth = 0);
-    Error create_client(const String &p_address, int p_port, int p_in_bandwidth = 0, int p_out_bandwidth = 0, int p_client_port = 0);
+    Error create_client(se_string_view p_address, int p_port, int p_in_bandwidth = 0, int p_out_bandwidth = 0, int p_client_port = 0);
 
     void close_connection(uint32_t wait_usec = 100);
 
@@ -160,6 +161,8 @@ public:
     int get_channel_count() const;
     void set_always_ordered(bool p_ordered);
     bool is_always_ordered() const;
+    void set_server_relay_enabled(bool p_enabled);
+    bool is_server_relay_enabled() const;
 
     NetworkedMultiplayerENet();
     ~NetworkedMultiplayerENet() override;

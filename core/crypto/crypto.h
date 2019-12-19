@@ -37,7 +37,7 @@
 #include "core/io/resource_saver.h"
 
 class CryptoKey : public Resource {
-    GDCLASS(CryptoKey, Resource);
+    GDCLASS(CryptoKey, Resource)
 
 protected:
     static void _bind_methods();
@@ -45,12 +45,12 @@ protected:
 
 public:
     static CryptoKey *create();
-    virtual Error load(String p_path) = 0;
-    virtual Error save(String p_path) = 0;
+    virtual Error load(se_string_view p_path) = 0;
+    virtual Error save(se_string_view p_path) = 0;
 };
 
 class X509Certificate : public Resource {
-    GDCLASS(X509Certificate, Resource);
+    GDCLASS(X509Certificate, Resource)
 
 protected:
     static void _bind_methods();
@@ -58,26 +58,26 @@ protected:
 
 public:
     static X509Certificate *create();
-    virtual Error load(String p_path) = 0;
+    virtual Error load(se_string_view p_path) = 0;
     virtual Error load_from_memory(const uint8_t *p_buffer, int p_len) = 0;
-    virtual Error save(String p_path) = 0;
+    virtual Error save(se_string_view p_path) = 0;
 };
 
 class Crypto : public RefCounted {
-    GDCLASS(Crypto, RefCounted);
+    GDCLASS(Crypto, RefCounted)
 
 protected:
     static void _bind_methods();
     static Crypto *(*_create)();
-    static void (*_load_default_certificates)(String p_path);
+    static void (*_load_default_certificates)(se_string_view p_path);
 
 public:
     static Crypto *create();
-    static void load_default_certificates(String p_path);
+    static void load_default_certificates(se_string_view p_path);
 
     virtual PoolByteArray generate_random_bytes(int p_bytes);
     virtual Ref<CryptoKey> generate_rsa(int p_bytes);
-    virtual Ref<X509Certificate> generate_self_signed_certificate(Ref<CryptoKey> p_key, String p_issuer_name, String p_not_before, String p_not_after);
+    virtual Ref<X509Certificate> generate_self_signed_certificate(Ref<CryptoKey> p_key, se_string_view p_issuer_name, se_string_view p_not_before, se_string_view p_not_after);
 
     Crypto();
 };
@@ -86,17 +86,17 @@ class ResourceFormatLoaderCrypto : public ResourceFormatLoader {
     GDCLASS(ResourceFormatLoaderCrypto, ResourceFormatLoader)
 
 public:
-    RES load(const String &p_path, const String &p_original_path = String::null_val, Error *r_error = nullptr) override;
-    void get_recognized_extensions(ListPOD<String> *p_extensions) const override;
-    bool handles_type(const String &p_type) const override;
-    String get_resource_type(const String &p_path) const override;
+    RES load(se_string_view p_path, se_string_view p_original_path = se_string_view (), Error *r_error = nullptr) override;
+    void get_recognized_extensions(PODVector<se_string> &p_extensions) const override;
+    bool handles_type(se_string_view p_type) const override;
+    se_string get_resource_type(se_string_view p_path) const override;
 };
 
 class ResourceFormatSaverCrypto : public ResourceFormatSaver {
     GDCLASS(ResourceFormatSaverCrypto, ResourceFormatSaver)
 
 public:
-    Error save(const String &p_path, const RES &p_resource, uint32_t p_flags = 0) override;
-    void get_recognized_extensions(const RES &p_resource, Vector<String> *p_extensions) const override;
+    Error save(se_string_view p_path, const RES &p_resource, uint32_t p_flags = 0) override;
+    void get_recognized_extensions(const RES &p_resource, PODVector<se_string> &p_extensions) const override;
     bool recognize(const RES &p_resource) const override;
 };

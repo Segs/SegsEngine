@@ -38,7 +38,7 @@
 
 IMPL_GDCLASS(PropertySelector)
 
-void PropertySelector::_text_changed(const String &p_newtext) {
+void PropertySelector::_text_changed(se_string_view p_newtext) {
 
     _update_search();
 }
@@ -160,7 +160,7 @@ void PropertySelector::_update_search() {
                     memdelete(category); //old category was unused
                 }
                 category = search_options->create_item(root);
-                category->set_text(0, E.name);
+                category->set_text_utf8(0, E.name);
                 category->set_selectable(0, false);
 
                 Ref<Texture> icon;
@@ -176,18 +176,18 @@ void PropertySelector::_update_search() {
             if (!(E.usage & PROPERTY_USAGE_EDITOR) && !(E.usage & PROPERTY_USAGE_SCRIPT_VARIABLE))
                 continue;
 
-            if (!search_box->get_text().empty() && StringUtils::find(E.name,search_box->get_text()) == -1)
+            if (!search_box->get_text_ui().isEmpty() && not StringUtils::contains(E.name,search_box->get_text()))
                 continue;
 
             if (!type_filter.empty() && type_filter.find(E.type) == -1)
                 continue;
 
             TreeItem *item = search_options->create_item(category ? category : root);
-            item->set_text(0, E.name);
+            item->set_text_utf8(0, E.name);
             item->set_metadata(0, E.name);
             item->set_icon(0, type_icons[(int)E.type]);
 
-            if (!found && !search_box->get_text().empty() && StringUtils::find(E.name,search_box->get_text()) != -1) {
+            if (!found && !search_box->get_text_ui().isEmpty() && StringUtils::contains(E.name,search_box->get_text())) {
                 item->select(0);
                 found = true;
             }
@@ -218,7 +218,7 @@ void PropertySelector::_update_search() {
 
             StringName base(base_type);
             while (base) {
-                methods.push_back(MethodInfo("*" + base_type));
+                methods.push_back(MethodInfo((se_string("*") + base_type).c_str()));
                 ClassDB::get_method_list(base, &methods, true, true);
                 base = ClassDB::get_parent_class(base);
             }
@@ -235,50 +235,50 @@ void PropertySelector::_update_search() {
                     memdelete(category); //old category was unused
                 }
                 category = search_options->create_item(root);
-                category->set_text(0, StringUtils::replace_first(E.name,"*", ""));
+                category->set_text_utf8(0, StringUtils::replace_first(E.name,"*", ""));
                 category->set_selectable(0, false);
 
                 Ref<Texture> icon;
                 script_methods = false;
-                String rep = StringUtils::replace(E.name,"*", "");
+                se_string rep = StringUtils::replace(E.name,"*", "");
                 if (E.name == "*Script Methods") {
                     icon = get_icon("Script", "EditorIcons");
                     script_methods = true;
                 } else {
-                    icon = EditorNode::get_singleton()->get_class_icon(rep);
+                    icon = EditorNode::get_singleton()->get_class_icon(StringName(rep));
                 }
                 category->set_icon(0, icon);
 
                 continue;
             }
 
-            String name = StringUtils::get_slice(E.name,":", 0);
+            se_string_view name = StringUtils::get_slice(E.name,":", 0);
             if (!script_methods && StringUtils::begins_with(name,"_") && !(E.flags & METHOD_FLAG_VIRTUAL))
                 continue;
 
             if (virtuals_only && !(E.flags & METHOD_FLAG_VIRTUAL))
                 continue;
 
-            if (!virtuals_only && (E.flags & METHOD_FLAG_VIRTUAL))
+            if (!virtuals_only && E.flags & METHOD_FLAG_VIRTUAL)
                 continue;
 
-            if (!search_box->get_text().empty() && StringUtils::find(name,search_box->get_text()) == -1)
+            if (!search_box->get_text_ui().isEmpty() && not StringUtils::contains(name,search_box->get_text()))
                 continue;
 
             TreeItem *item = search_options->create_item(category ? category : root);
 
             MethodInfo mi = E;
 
-            String desc;
-            if (StringUtils::find(mi.name,":") != -1) {
-                desc = StringUtils::get_slice(mi.name,":", 1) + " ";
-                mi.name = StringUtils::get_slice(mi.name,":", 0);
+            se_string desc;
+            if (StringUtils::contains(mi.name,":")) {
+                desc = se_string(StringUtils::get_slice(mi.name,":", 1)) + " ";
+                mi.name = StringName(StringUtils::get_slice(mi.name,":", 0));
             } else if (mi.return_val.type != VariantType::NIL)
                 desc = Variant::get_type_name(mi.return_val.type);
             else
                 desc = "void ";
 
-            desc += " " + mi.name + " ( ";
+            desc += se_string(" ") + mi.name + " ( ";
 
             for (size_t i = 0; i < mi.arguments.size(); i++) {
 
@@ -287,11 +287,11 @@ void PropertySelector::_update_search() {
 
                 if (mi.arguments[i].type == VariantType::NIL)
                     desc += "var ";
-                else if (StringUtils::find(mi.arguments[i].name,":") != -1) {
-                    desc += StringUtils::get_slice(mi.arguments[i].name,":", 1) + " ";
-                    mi.arguments[i].name = StringUtils::get_slice(mi.arguments[i].name,":", 0);
+                else if (StringUtils::contains(mi.arguments[i].name,":")) {
+                    desc += se_string(StringUtils::get_slice(mi.arguments[i].name,":", 1)) + " ";
+                    mi.arguments[i].name = StringName(StringUtils::get_slice(mi.arguments[i].name,":", 0));
                 } else
-                    desc += String(Variant::get_type_name(mi.arguments[i].type)) + " ";
+                    desc += se_string(Variant::get_type_name(mi.arguments[i].type)) + " ";
 
                 desc += mi.arguments[i].name;
             }
@@ -304,11 +304,11 @@ void PropertySelector::_update_search() {
             if (E.flags & METHOD_FLAG_VIRTUAL)
                 desc += " virtual";
 
-            item->set_text(0, desc);
+            item->set_text_utf8(0, desc);
             item->set_metadata(0, name);
             item->set_selectable(0, true);
 
-            if (!found && !search_box->get_text().empty() && StringUtils::find(name,search_box->get_text()) != -1) {
+            if (!found && !search_box->get_text_ui().isEmpty() && StringUtils::contains(name,search_box->get_text())) {
                 item->select(0);
                 found = true;
             }
@@ -338,26 +338,26 @@ void PropertySelector::_item_selected() {
     TreeItem *item = search_options->get_selected();
     if (!item)
         return;
-    String name = item->get_metadata(0);
+    StringName name = item->get_metadata(0);
 
-    String class_type;
+    StringName class_type;
     if (type != VariantType::NIL) {
-        class_type = Variant::get_type_name(type);
+        class_type = Variant::interned_type_name(type);
 
     } else {
         class_type = base_type;
     }
 
     DocData *dd = EditorHelp::get_doc_data();
-    String text;
+    se_string text;
 
     if (properties) {
 
-        String at_class = class_type;
+        StringName at_class = class_type;
 
         while (!at_class.empty()) {
 
-            Map<String, DocData::ClassDoc>::iterator E = dd->class_list.find(at_class);
+            Map<StringName, DocData::ClassDoc>::iterator E = dd->class_list.find(at_class);
             if (E!=dd->class_list.end()) {
                 for (int i = 0; i < E->second.properties.size(); i++) {
                     if (E->second.properties[i].name == name) {
@@ -370,11 +370,11 @@ void PropertySelector::_item_selected() {
         }
     } else {
 
-        String at_class = class_type;
+        StringName at_class = class_type;
 
         while (!at_class.empty()) {
 
-            Map<String, DocData::ClassDoc>::iterator E = dd->class_list.find(at_class);
+            Map<StringName, DocData::ClassDoc>::iterator E = dd->class_list.find(at_class);
             if (E!=dd->class_list.end()) {
                 for (int i = 0; i < E->second.methods.size(); i++) {
                     if (E->second.methods[i].name == name) {
@@ -403,9 +403,9 @@ void PropertySelector::_notification(int p_what) {
     }
 }
 
-void PropertySelector::select_method_from_base_type(const String &p_base, const String &p_current, bool p_virtuals_only) {
+void PropertySelector::select_method_from_base_type(const StringName &p_base, const String &p_current, bool p_virtuals_only) {
 
-    base_type = StringUtils::to_utf8(p_base);
+    base_type = p_base;
     selected = p_current;
     type = VariantType::NIL;
     script = 0;
@@ -414,7 +414,7 @@ void PropertySelector::select_method_from_base_type(const String &p_base, const 
     virtuals_only = p_virtuals_only;
 
     popup_centered_ratio(0.6f);
-    search_box->set_text("");
+    search_box->set_text_utf8("");
     search_box->grab_focus();
     _update_search();
 }
@@ -422,7 +422,7 @@ void PropertySelector::select_method_from_base_type(const String &p_base, const 
 void PropertySelector::select_method_from_script(const Ref<Script> &p_script, const String &p_current) {
 
     ERR_FAIL_COND(not p_script)
-    base_type = StringUtils::to_utf8(p_script->get_instance_base_type());
+    base_type = p_script->get_instance_base_type();
     selected = p_current;
     type = VariantType::NIL;
     script = p_script->get_instance_id();
@@ -430,8 +430,8 @@ void PropertySelector::select_method_from_script(const Ref<Script> &p_script, co
     instance = nullptr;
     virtuals_only = false;
 
-    popup_centered_ratio(0.6);
-    search_box->set_text("");
+    popup_centered_ratio(0.6f);
+    search_box->set_text_utf8("");
     search_box->grab_focus();
     _update_search();
 }
@@ -447,14 +447,14 @@ void PropertySelector::select_method_from_basic_type(VariantType p_type, const S
     virtuals_only = false;
 
     popup_centered_ratio(0.6f);
-    search_box->set_text("");
+    search_box->set_text_utf8("");
     search_box->grab_focus();
     _update_search();
 }
 
 void PropertySelector::select_method_from_instance(Object *p_instance, const String &p_current) {
 
-    base_type = p_instance->get_class();
+    base_type = StringName(p_instance->get_class());
     selected = p_current;
     type = VariantType::NIL;
     script = 0;
@@ -468,14 +468,14 @@ void PropertySelector::select_method_from_instance(Object *p_instance, const Str
     virtuals_only = false;
 
     popup_centered_ratio(0.6f);
-    search_box->set_text("");
+    search_box->set_text_utf8("");
     search_box->grab_focus();
     _update_search();
 }
 
-void PropertySelector::select_property_from_base_type(const String &p_base, const String &p_current) {
+void PropertySelector::select_property_from_base_type(const StringName &p_base, const String &p_current) {
 
-    base_type = StringUtils::to_utf8(p_base);
+    base_type = p_base;
     selected = p_current;
     type = VariantType::NIL;
     script = 0;
@@ -484,7 +484,7 @@ void PropertySelector::select_property_from_base_type(const String &p_base, cons
     virtuals_only = false;
 
     popup_centered_ratio(0.6f);
-    search_box->set_text("");
+    search_box->set_text_utf8("");
     search_box->grab_focus();
     _update_search();
 }
@@ -493,7 +493,7 @@ void PropertySelector::select_property_from_script(const Ref<Script> &p_script, 
 
     ERR_FAIL_COND(not p_script)
 
-    base_type = StringUtils::to_utf8(p_script->get_instance_base_type());
+    base_type = p_script->get_instance_base_type();
     selected = p_current;
     type = VariantType::NIL;
     script = p_script->get_instance_id();
@@ -502,7 +502,7 @@ void PropertySelector::select_property_from_script(const Ref<Script> &p_script, 
     virtuals_only = false;
 
     popup_centered_ratio(0.6f);
-    search_box->set_text("");
+    search_box->set_text_utf8("");
     search_box->grab_focus();
     _update_search();
 }
@@ -519,7 +519,7 @@ void PropertySelector::select_property_from_basic_type(VariantType p_type, const
     virtuals_only = false;
 
     popup_centered_ratio(0.6f);
-    search_box->set_text("");
+    search_box->set_text_utf8("");
     search_box->grab_focus();
     _update_search();
 }
@@ -535,7 +535,7 @@ void PropertySelector::select_property_from_instance(Object *p_instance, const S
     virtuals_only = false;
 
     popup_centered_ratio(0.6f);
-    search_box->set_text("");
+    search_box->set_text_utf8("");
     search_box->grab_focus();
     _update_search();
 }

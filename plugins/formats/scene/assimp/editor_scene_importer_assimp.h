@@ -59,9 +59,6 @@ class EditorSceneImporterAssimp : public QObject, public EditorSceneImporterInte
     Q_OBJECT
 
 private:
-
-    const String ASSIMP_FBX_KEY = "_$AssimpFbx$";
-
     struct AssetImportAnimation {
         enum Interpolation {
             INTERP_LINEAR,
@@ -77,47 +74,33 @@ private:
         float weight;
     };
 
-    struct SkeletonHole { //nodes may be part of the skeleton by used by vertex
-        String name;
-        String parent;
-        Transform pose;
-        const aiNode *node;
-    };
-
-
-    void _calc_tangent_from_mesh(const aiMesh *ai_mesh, int i, int tri_index, int index, PoolColorArray::Write &w);
-    void _set_texture_mapping_mode(aiTextureMapMode *map_mode, Ref<Texture> texture);
-
-    Ref<Mesh> _generate_mesh_from_surface_indices(ImportState &state, const Vector<int> &p_surface_indices, const aiNode *assimp_node, Skeleton *p_skeleton = nullptr);
-
-    // utility for node creation
-    void attach_new_node(ImportState &state, Spatial *new_node, const aiNode *node, Node *parent_node, const String& Name, Transform &transform);
+    Ref<Mesh> _generate_mesh_from_surface_indices(ImportState &state, const Vector<int> &p_surface_indices,
+            const aiNode *assimp_node, Ref<Skin> &skin,
+            Skeleton *&skeleton_assigned);
     // simple object creation functions
-    void create_light(ImportState &state, RecursiveState &recursive_state);
-    void create_camera(ImportState &state, RecursiveState &recursive_state);
-    void create_bone(ImportState &state, RecursiveState &recursive_state);
+    Spatial *create_light(ImportState &state, const se_string &node_name, Transform &look_at_transform);
+    Spatial *create_camera(ImportState &state, const se_string &node_name, Transform &look_at_transform);
     // non recursive - linear so must not use recursive arguments
-    void create_mesh(ImportState &state, const aiNode *assimp_node, const String &node_name, Node *current_node, Node *parent_node, Transform node_transform);
+    MeshInstance * create_mesh(ImportState &state, const aiNode *assimp_node, const se_string &node_name, Node *active_node, Transform node_transform);
 
     // recursive node generator
-    void _generate_node(ImportState &state, Skeleton *skeleton, const aiNode *assimp_node, Node *parent_node);
-    // runs after _generate_node as it must then use pre-created godot skeleton.
-    void generate_mesh_phase_from_skeletal_mesh(ImportState &state);
-    void _insert_animation_track(ImportState &scene, const aiAnimation *assimp_anim, int p_track, int p_bake_fps, const Ref<Animation>& animation, float ticks_per_second, Skeleton *p_skeleton, const NodePath &p_path, const String &p_name);
+    void _generate_node(ImportState &state, const aiNode *assimp_node);
+    void _insert_animation_track(ImportState &scene, const aiAnimation *assimp_anim, int track_id,
+            int anim_fps, Ref<Animation> animation, float ticks_per_second,
+            Skeleton *skeleton, const NodePath &node_path,
+            const se_string &node_name, aiBone *track_bone);
 
     void _import_animation(ImportState &state, int p_animation_index, int p_bake_fps);
+    Node *get_node_by_name(ImportState &state, se_string_view name);
+    aiBone *get_bone_from_stack(ImportState &state, aiString name);
+    Spatial *_generate_scene(se_string_view p_path, aiScene *scene, const uint32_t p_flags, int p_bake_fps, const int32_t p_max_bone_weights);
 
-    Spatial *_generate_scene(const String &p_path, aiScene *scene, const uint32_t p_flags, int p_bake_fps, const int32_t p_max_bone_weights);
-
-    String _assimp_anim_string_to_string(const aiString &p_string) const;
-    String _assimp_raw_string_to_string(const aiString &p_string) const;
-    float _get_fbx_fps(int32_t time_mode, const aiScene *p_scene);
     template <class T>
     T _interpolate_track(const Vector<float> &p_times, const Vector<T> &p_values, float p_time, AssetImportAnimation::Interpolation p_interp);
-    void _register_project_setting_import(const String& generic, const String& import_setting_string, const Vector<String> &exts, Vector<String> *r_extensions, const bool p_enabled) const;
+    void _register_project_setting_import(se_string_view generic, se_string_view import_setting_string, const PODVector<se_string> &exts, PODVector<se_string> &r_extensions, const bool p_enabled) const;
 
     struct ImportFormat {
-        Vector<String> extensions;
+        PODVector<se_string> extensions;
         bool is_default;
     };
 
@@ -128,12 +111,16 @@ public:
     EditorSceneImporterAssimp();
     ~EditorSceneImporterAssimp() override;
 
-    void get_extensions(Vector<String> *r_extensions) const override;
+    void get_extensions(PODVector<se_string> &r_extensions) const override;
     uint32_t get_import_flags() const override;
-    Node *import_scene(const String &p_path, uint32_t p_flags, int p_bake_fps, Vector<String> *r_missing_deps, Error *r_err = nullptr) override;
+    Node *import_scene(se_string_view p_path, uint32_t p_flags, int p_bake_fps, PODVector<se_string> *r_missing_deps, Error *r_err = nullptr) override;
     Ref<Image> load_image(ImportState &state, const aiScene *p_scene, String p_path);
 
     // EditorSceneImporterInterface interface
 
-    Ref<Animation> import_animation(const String &p_path, uint32_t p_flags, int p_bake_fps) override;
+    Ref<Animation> import_animation(se_string_view p_path, uint32_t p_flags, int p_bake_fps) override;
+
+    static void RegenerateBoneStack(ImportState &state);
+
+    void RegenerateBoneStack(ImportState &state, aiMesh *mesh);
 };

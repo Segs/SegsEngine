@@ -42,30 +42,97 @@ void Theme::_emit_theme_changed() {
 
     emit_changed();
 }
+PoolVector<se_string> Theme::_get_icon_list(const se_string &p_type) const {
+    PoolVector<se_string> ilret;
+    PODVector<StringName> il;
+    get_icon_list(StringName(p_type), &il);
+    for (const StringName &E : il) {
+        ilret.push_back(se_string(E));
+    }
+    return ilret;
+}
 
+PoolVector<se_string> Theme::_get_stylebox_list(const se_string &p_type) const {
+    PoolVector<se_string> ilret;
+    PODVector<StringName> il;
+    get_stylebox_list(StringName(p_type), &il);
+    for (const StringName &E : il) {
+        ilret.push_back(se_string(E));
+    }
+    return ilret;
+}
+
+PoolVector<se_string> Theme::_get_stylebox_types() const {
+    PoolVector<se_string> ilret;
+    PODVector<StringName> il;
+    get_stylebox_types(&il);
+    for (const StringName &E : il) {
+        ilret.push_back(se_string(E));
+    }
+    return ilret;
+}
+
+PoolVector<se_string> Theme::_get_font_list(const se_string &p_type) const {
+    PoolVector<se_string> ilret;
+    PODVector<StringName> il;
+    get_font_list(StringName(p_type), &il);
+    for (const StringName &E : il) {
+        ilret.push_back(se_string(E));
+    }
+    return ilret;
+}
+
+PoolVector<se_string> Theme::_get_color_list(const se_string &p_type) const {
+    PoolVector<se_string> ilret;
+    PODVector<StringName> il;
+    get_color_list(StringName(p_type), &il);
+    for (const StringName &E : il) {
+        ilret.push_back(se_string(E));
+    }
+    return ilret;
+}
+
+PoolVector<se_string> Theme::_get_constant_list(const se_string &p_type) const {
+    PoolVector<se_string> ilret;
+    PODVector<StringName> il;
+    get_constant_list(StringName(p_type), &il);
+    for (const StringName &E : il) {
+        ilret.push_back(se_string(E));
+    }
+    return ilret;
+}
+
+PoolVector<se_string> Theme::_get_type_list(se_string_view p_type) const {
+    PoolVector<se_string> ilret;
+    PODVector<StringName> il;
+    get_type_list(&il);
+    for (const StringName &E : il) {
+        ilret.push_back(se_string(E));
+    }
+    return ilret;
+}
 bool Theme::_set(const StringName &p_name, const Variant &p_value) {
+    using namespace eastl;
 
-    String sname = p_name;
+    if (StringUtils::contains(p_name,'/') ) {
 
-    if (StringUtils::contains(sname,'/') ) {
+        se_string_view type = StringUtils::get_slice(p_name,'/', 1);
+        StringName node_type(StringUtils::get_slice(p_name,'/', 0));
+        StringName name(StringUtils::get_slice(p_name,'/', 2));
 
-        String type = StringUtils::get_slice(sname,'/', 1);
-        String node_type = StringUtils::get_slice(sname,'/', 0);
-        String name = StringUtils::get_slice(sname,'/', 2);
-
-        if (type == "icons") {
+        if (type == "icons"_sv) {
 
             set_icon(name, node_type, refFromRefPtr<Texture>(p_value));
-        } else if (type == "styles") {
+        } else if (type == "styles"_sv) {
 
             set_stylebox(name, node_type, refFromRefPtr<StyleBox>(p_value));
-        } else if (type == "fonts") {
+        } else if (type == "fonts"_sv) {
 
             set_font(name, node_type, refFromRefPtr<Font>(p_value));
-        } else if (type == "colors") {
+        } else if (type == "colors"_sv) {
 
             set_color(name, node_type, p_value);
-        } else if (type == "constants") {
+        } else if (type == "constants"_sv) {
 
             set_constant(name, node_type, p_value);
         } else
@@ -78,37 +145,36 @@ bool Theme::_set(const StringName &p_name, const Variant &p_value) {
 }
 
 bool Theme::_get(const StringName &p_name, Variant &r_ret) const {
+    using namespace eastl;
 
-    String sname = p_name;
+    if (StringUtils::contains(p_name,'/') ) {
 
-    if (StringUtils::contains(sname,'/') ) {
+        se_string_view type = StringUtils::get_slice(p_name,'/', 1);
+        StringName node_type(StringUtils::get_slice(p_name,'/', 0));
+        StringName name(StringUtils::get_slice(p_name,'/', 2));
 
-        String type = StringUtils::get_slice(sname,'/', 1);
-        String node_type = StringUtils::get_slice(sname,'/', 0);
-        String name = StringUtils::get_slice(sname,'/', 2);
-
-        if (type == "icons") {
+        if (type == "icons"_sv) {
 
             if (!has_icon(name, node_type))
                 r_ret = Ref<Texture>();
             else
                 r_ret = get_icon(name, node_type);
-        } else if (type == "styles") {
+        } else if (type == "styles"_sv) {
 
             if (!has_stylebox(name, node_type))
                 r_ret = Ref<StyleBox>();
             else
                 r_ret = get_stylebox(name, node_type);
-        } else if (type == "fonts") {
+        } else if (type == "fonts"_sv) {
 
             if (!has_font(name, node_type))
                 r_ret = Ref<Font>();
             else
                 r_ret = get_font(name, node_type);
-        } else if (type == "colors") {
+        } else if (type == "colors"_sv) {
 
             r_ret = get_color(name, node_type);
-        } else if (type == "constants") {
+        } else if (type == "constants"_sv) {
 
             r_ret = get_constant(name, node_type);
         } else
@@ -126,14 +192,12 @@ void Theme::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
 
     for(const eastl::pair<const StringName, DefHashMap<StringName, Ref<Texture> >> &kv : icon_map) {
         for(const auto &kv2 : kv.second) {
-            list.push_back(PropertyInfo(VariantType::OBJECT, String() + kv.first + "/icons/" + kv2.first,
+            list.push_back(PropertyInfo(VariantType::OBJECT, kv.first + "/icons/" + kv2.first,
                     PROPERTY_HINT_RESOURCE_TYPE, "Texture", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_STORE_IF_NULL));
         }
     }
     const StringName *key = nullptr;
     const StringName *key2 = nullptr;
-
-    key = nullptr;
 
     while ((key = style_map.next(key))) {
 
@@ -141,7 +205,7 @@ void Theme::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
 
         while ((key2 = style_map[*key].next(key2))) {
 
-            list.push_back(PropertyInfo(VariantType::OBJECT, String() + *key + "/styles/" + *key2, PROPERTY_HINT_RESOURCE_TYPE, "StyleBox", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_STORE_IF_NULL));
+            list.push_back(PropertyInfo(VariantType::OBJECT,  StringName(se_string(*key) + "/styles/" + *key2), PROPERTY_HINT_RESOURCE_TYPE, "StyleBox", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_STORE_IF_NULL));
         }
     }
 
@@ -153,7 +217,7 @@ void Theme::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
 
         while ((key2 = font_map[*key].next(key2))) {
 
-            list.push_back(PropertyInfo(VariantType::OBJECT, String() + *key + "/fonts/" + *key2, PROPERTY_HINT_RESOURCE_TYPE, "Font", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_STORE_IF_NULL));
+            list.push_back(PropertyInfo(VariantType::OBJECT,  StringName(se_string(*key) + "/fonts/" + *key2), PROPERTY_HINT_RESOURCE_TYPE, "Font", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_STORE_IF_NULL));
         }
     }
 
@@ -165,7 +229,7 @@ void Theme::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
 
         while ((key2 = color_map[*key].next(key2))) {
 
-            list.push_back(PropertyInfo(VariantType::COLOR, String() + *key + "/colors/" + *key2));
+            list.push_back(PropertyInfo(VariantType::COLOR, StringName(se_string(*key) + "/colors/" + *key2)));
         }
     }
 
@@ -177,7 +241,7 @@ void Theme::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
 
         while ((key2 = constant_map[*key].next(key2))) {
 
-            list.push_back(PropertyInfo(VariantType::INT, String() + *key + "/constants/" + *key2));
+            list.push_back(PropertyInfo(VariantType::INT, StringName(se_string(*key) + "/constants/" + *key2)));
         }
     }
 
@@ -186,6 +250,8 @@ void Theme::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
         p_list->push_back(E->deref());
     }
 }
+
+
 
 void Theme::set_default_theme_font(const Ref<Font> &p_default_font) {
 
@@ -302,13 +368,14 @@ void Theme::clear_icon(const StringName &p_name, const StringName &p_type) {
     emit_changed();
 }
 
-void Theme::get_icon_list(const StringName& p_type, ListPOD<StringName> *p_list) const {
+void Theme::get_icon_list(const StringName& p_type, PODVector<StringName> *p_list) const {
 
     if (!icon_map.contains(p_type))
         return;
+    const auto &vals(icon_map.at(p_type));
+    p_list->reserve(p_list->size()+vals.size());
 
-    for(const auto &key : icon_map.at(p_type)) {
-
+    for(const auto &key : vals) {
         p_list->push_back(key.first);
     }
 }
@@ -345,7 +412,7 @@ void Theme::clear_shader(const StringName &p_name, const StringName &p_type) {
     emit_changed();
 }
 
-void Theme::get_shader_list(const StringName &p_type, ListPOD<StringName> *p_list) const {
+void Theme::get_shader_list(const StringName &p_type, PODVector<StringName> *p_list) const {
     if (!shader_map.contains(p_type))
         return;
 
@@ -408,7 +475,7 @@ void Theme::clear_stylebox(const StringName &p_name, const StringName &p_type) {
     emit_changed();
 }
 
-void Theme::get_stylebox_list(const StringName& p_type, ListPOD<StringName> *p_list) const {
+void Theme::get_stylebox_list(const StringName& p_type, PODVector<StringName> *p_list) const {
 
     if (!style_map.contains(p_type))
         return;
@@ -421,7 +488,7 @@ void Theme::get_stylebox_list(const StringName& p_type, ListPOD<StringName> *p_l
     }
 }
 
-void Theme::get_stylebox_types(ListPOD<StringName> *p_list) const {
+void Theme::get_stylebox_types(PODVector<StringName> *p_list) const {
     const StringName *key = nullptr;
     while ((key = style_map.next(key))) {
         p_list->push_back(*key);
@@ -478,7 +545,7 @@ void Theme::clear_font(const StringName &p_name, const StringName &p_type) {
     emit_changed();
 }
 
-void Theme::get_font_list(const StringName& p_type, ListPOD<StringName> *p_list) const {
+void Theme::get_font_list(const StringName& p_type, PODVector<StringName> *p_list) const {
 
     if (!font_map.contains(p_type))
         return;
@@ -526,7 +593,7 @@ void Theme::clear_color(const StringName &p_name, const StringName &p_type) {
     emit_changed();
 }
 
-void Theme::get_color_list(const StringName& p_type, ListPOD<StringName> *p_list) const {
+void Theme::get_color_list(const StringName& p_type, PODVector<StringName> *p_list) const {
 
     if (!color_map.contains(p_type))
         return;
@@ -574,7 +641,7 @@ void Theme::clear_constant(const StringName &p_name, const StringName &p_type) {
     emit_changed();
 }
 
-void Theme::get_constant_list(const StringName& p_type, ListPOD<StringName> *p_list) const {
+void Theme::get_constant_list(const StringName& p_type, PODVector<StringName> *p_list) const {
 
     if (!constant_map.contains(p_type))
         return;
@@ -593,7 +660,8 @@ void Theme::clear() {
     {
         for(auto & kv : icon_map ) {
             for( auto &L : kv.second) {
-                L.second->disconnect("changed", this, "_emit_theme_changed");
+                if(L.second)
+                    L.second->disconnect("changed", this, "_emit_theme_changed");
             }
         }
     }
@@ -603,7 +671,9 @@ void Theme::clear() {
         while ((K = style_map.next(K))) {
             const StringName *L = nullptr;
             while ((L = style_map[*K].next(L))) {
-                style_map[*K][*L]->disconnect("changed", this, "_emit_theme_changed");
+                auto style(style_map[*K][*L]);
+                if(style)
+                    style->disconnect("changed", this, "_emit_theme_changed");
             }
         }
     }
@@ -613,7 +683,9 @@ void Theme::clear() {
         while ((K = font_map.next(K))) {
             const StringName *L = nullptr;
             while ((L = font_map[*K].next(L))) {
-                font_map[*K][*L]->disconnect("changed", this, "_emit_theme_changed");
+                auto font(font_map[*K][*L]);
+                if(font)
+                    font->disconnect("changed", this, "_emit_theme_changed");
             }
         }
     }
@@ -636,6 +708,11 @@ void Theme::copy_default_theme() {
 }
 
 void Theme::copy_theme(const Ref<Theme> &p_other) {
+
+    if (not p_other) {
+        clear();
+        return;
+    }
 
     //these need reconnecting, so add normally
     {
@@ -676,7 +753,7 @@ void Theme::copy_theme(const Ref<Theme> &p_other) {
     emit_changed();
 }
 
-void Theme::get_type_list(ListPOD<StringName> *p_list) const {
+void Theme::get_type_list(PODVector<StringName> *p_list) const {
 
     Set<StringName> types;
 

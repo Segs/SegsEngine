@@ -36,7 +36,7 @@
 
 IMPL_GDCLASS(CircleShape2D)
 
-bool CircleShape2D::_edit_is_selected_on_click(const Point2 &p_point, double p_tolerance) const {
+bool CircleShape2D::_edit_is_selected_on_click(const Point2 &p_point, float p_tolerance) const {
 
     return p_point.length() < get_radius() + p_tolerance;
 }

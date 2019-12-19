@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef ANIMATION_PLAYER_H
-#define ANIMATION_PLAYER_H
+#pragma once
 
 #include "scene/2d/node_2d.h"
 #include "scene/3d/skeleton.h"
@@ -189,7 +188,7 @@ private:
     float default_blend_time;
 
     struct AnimationData {
-        String name;
+        se_string name;
         StringName next;
         Vector<TrackNodeCache *> node_cache;
         Ref<Animation> animation;
@@ -200,7 +199,10 @@ private:
 
         StringName from;
         StringName to;
-        bool operator<(const BlendKey &bk) const { return from == bk.from ? String(to) < String(bk.to) : String(from) < String(bk.from); }
+        bool operator<(const BlendKey &bk) const {
+            return from == bk.from ? se_string_view(to) < se_string_view(bk.to) :
+                                     se_string_view(from) < se_string_view(bk.from);
+        }
     };
 
     Map<BlendKey, float> blend_times;
@@ -247,7 +249,7 @@ private:
     bool end_reached;
     bool end_notify;
 
-    String autoplay;
+    StringName autoplay;
     AnimationProcessMode animation_process_mode;
     AnimationMethodCallMode method_call_mode;
     bool processing;
@@ -267,14 +269,14 @@ private:
     void _stop_playing_caches();
 
     // bind helpers
-    PoolVector<String> _get_animation_list() const {
+    PoolVector<se_string> _get_animation_list() const {
 
-        ListPOD<StringName> animations;
+        PODVector<StringName> animations;
         get_animation_list(&animations);
-        PoolVector<String> ret;
+        PoolVector<se_string> ret;
         while (!animations.empty()) {
 
-            ret.push_back(animations.front());
+            ret.push_back(animations.front().asCString());
             animations.pop_front();
         }
         return ret;
@@ -305,7 +307,7 @@ public:
     void rename_animation(const StringName &p_name, const StringName &p_new_name);
     bool has_animation(const StringName &p_name) const;
     Ref<Animation> get_animation(const StringName &p_name) const;
-    void get_animation_list(ListPOD<StringName> *p_animations) const;
+    void get_animation_list(PODVector<StringName> *p_animations) const;
 
     void set_blend_time(const StringName &p_animation1, const StringName &p_animation2, float p_time);
     float get_blend_time(const StringName &p_animation1, const StringName &p_animation2) const;
@@ -319,14 +321,14 @@ public:
     void play(const StringName &p_name = StringName(), float p_custom_blend = -1, float p_custom_scale = 1.0, bool p_from_end = false);
     void play_backwards(const StringName &p_name = StringName(), float p_custom_blend = -1);
     void queue(const StringName &p_name);
-    PoolVector<String> get_queue();
+    PoolVector<se_string> get_queue();
     void clear_queue();
     void stop(bool p_reset = true);
     bool is_playing() const;
-    String get_current_animation() const;
-    void set_current_animation(const String &p_anim);
-    String get_assigned_animation() const;
-    void set_assigned_animation(const String &p_anim);
+    StringName get_current_animation() const;
+    void set_current_animation(const StringName &p_anim);
+    StringName get_assigned_animation() const;
+    void set_assigned_animation(const StringName &p_anim);
     void stop_all();
     void set_active(bool p_active);
     bool is_active() const;
@@ -336,8 +338,8 @@ public:
     float get_speed_scale() const;
     float get_playing_speed() const;
 
-    void set_autoplay(const String &p_name);
-    String get_autoplay() const;
+    void set_autoplay(se_string_view p_name);
+    StringName get_autoplay() const;
 
     void set_animation_process_mode(AnimationProcessMode p_mode);
     AnimationProcessMode get_animation_process_mode() const;
@@ -357,7 +359,7 @@ public:
 
     void clear_caches(); ///< must be called by hand if an animation was modified after added
 
-    void get_argument_options(const StringName &p_function, int p_idx, ListPOD<String> *r_options) const override;
+    void get_argument_options(const StringName &p_function, int p_idx, ListPOD<se_string> *r_options) const override;
 
 #ifdef TOOLS_ENABLED
     // These may be interesting for games, but are too dangerous for general use
@@ -368,6 +370,3 @@ public:
     AnimationPlayer();
     ~AnimationPlayer() override;
 };
-
-
-#endif

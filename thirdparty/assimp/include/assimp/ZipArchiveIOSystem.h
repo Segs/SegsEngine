@@ -45,9 +45,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *  @brief Implementation of IOSystem to read a ZIP file from another IOSystem
 */
 
+#pragma once
 #ifndef AI_ZIPARCHIVEIOSYSTEM_H_INC
 #define AI_ZIPARCHIVEIOSYSTEM_H_INC
 
+#ifdef __GNUC__
+#   pragma GCC system_header
+#endif
 #include <assimp/IOStream.hpp>
 #include <assimp/IOSystem.hpp>
 

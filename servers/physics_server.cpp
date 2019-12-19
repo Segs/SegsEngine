@@ -766,15 +766,15 @@ const StaticCString PhysicsServerManager::setting_property_name("physics/3d/phys
 
 void PhysicsServerManager::on_servers_changed() {
 
-    String physics_servers2("DEFAULT");
+    se_string physics_servers2("DEFAULT");
     for (int i = get_servers_count() - 1; 0 <= i; --i) {
-        physics_servers2 += "," + get_server_name(i);
+        physics_servers2 += "," + se_string(get_server_name(i));
     }
     ProjectSettings::get_singleton()->set_custom_property_info(setting_property_name,
             PropertyInfo(VariantType::STRING, StringName(setting_property_name), PROPERTY_HINT_ENUM, physics_servers2));
 }
 
-void PhysicsServerManager::register_server(const char *p_name, CreatePhysicsServerCallback p_creat_callback) {
+void PhysicsServerManager::register_server(const StringName &p_name, CreatePhysicsServerCallback p_creat_callback) {
 
     ERR_FAIL_COND(!p_creat_callback)
     ERR_FAIL_COND(find_server_id(p_name) != -1)
@@ -782,7 +782,7 @@ void PhysicsServerManager::register_server(const char *p_name, CreatePhysicsServ
     on_servers_changed();
 }
 
-void PhysicsServerManager::set_default_server(const String &p_name, int p_priority) {
+void PhysicsServerManager::set_default_server(const StringName &p_name, int p_priority) {
 
     const int id = find_server_id(p_name);
     ERR_FAIL_COND(id == -1 )// Not found
@@ -792,7 +792,7 @@ void PhysicsServerManager::set_default_server(const String &p_name, int p_priori
     }
 }
 
-int PhysicsServerManager::find_server_id(const String &p_name) {
+int PhysicsServerManager::find_server_id(const StringName &p_name) {
 
     for (int i = physics_servers.size() - 1; 0 <= i; --i) {
         if (p_name == physics_servers[i].name) {
@@ -806,8 +806,8 @@ int PhysicsServerManager::get_servers_count() {
     return physics_servers.size();
 }
 
-String PhysicsServerManager::get_server_name(int p_id) {
-    ERR_FAIL_INDEX_V(p_id, get_servers_count(), String())
+StringName PhysicsServerManager::get_server_name(int p_id) {
+    ERR_FAIL_INDEX_V(p_id, get_servers_count(), StringName())
     return physics_servers[p_id].name;
 }
 
@@ -816,13 +816,20 @@ PhysicsServer *PhysicsServerManager::new_default_server() {
     return physics_servers[default_server_id].create_callback();
 }
 
-PhysicsServer *PhysicsServerManager::new_server(const String &p_name) {
+PhysicsServer *PhysicsServerManager::new_server(const StringName &p_name) {
     int id = find_server_id(p_name);
     if (id == -1) {
         return nullptr;
     } else {
         return physics_servers[id].create_callback();
     }
+}
+
+void PhysicsServerManager::cleanup()
+{
+    physics_servers.clear();
+    default_server_id = -1;
+    default_server_priority = -1;
 }
 PhysicsServer * initialize_3d_physics() {
     PhysicsServer *physics_server = PhysicsServerManager::new_server(ProjectSettings::get_singleton()->get(PhysicsServerManager::setting_property_name));

@@ -122,7 +122,7 @@ bool include_file_in_legacygl_header(const QString &filename,LegacyGLHeaderStruc
             else
                 texunit = QString::number(texunitstr.toInt());
             QString uline;
-			uline = line.mid(0,line.toLower().indexOf("//"));
+            uline = line.mid(0,line.toLower().indexOf("//"));
             uline.replace("uniform", "");
             uline.replace("highp", "");
             uline.replace(";", "");
@@ -272,7 +272,7 @@ void build_legacygl_header(const QString &filename, const char *include, const c
     fd << "\n\n";
     fd << QString("#include \"%1\"\n\n\n").arg(include).toLocal8Bit();
     fd << QString("class %1 : public Shader%2 {\n\n").arg(out_file_class,class_suffix).toLocal8Bit();
-    fd << "\t virtual String get_shader_name() const { return \"" + out_file_class + "\"; }\n";
+    fd << "\t virtual const char *get_shader_name() const { return \"" + out_file_class + "\"; }\n";
 
     fd << "public:\n\n";
 
