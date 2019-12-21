@@ -229,12 +229,7 @@ void Color::set_hsv(float p_h, float p_s, float p_v, float p_alpha) {
     }
 }
 
-void Color::invert() {
 
-    r = 1.0f - r;
-    g = 1.0f - g;
-    b = 1.0f - b;
-}
 void Color::contrast() {
 
     r = Math::fmod(r + 0.5f, 1.0f);
@@ -313,18 +308,45 @@ static float _parse_col(se_string_view p_str, int p_ofs) {
     return ig;
 }
 
-Color Color::inverted() const {
-
-    Color c = *this;
-    c.invert();
-    return c;
-}
-
 Color Color::contrasted() const {
 
     Color c = *this;
     c.contrast();
     return c;
+}
+
+[[nodiscard]] uint32_t Color::to_rgbe9995() const {
+
+    const float pow2to9 = 512.0f;
+    const float B = 15.0f;
+    //const float Emax = 31.0f;
+    const float N = 9.0f;
+
+    float sharedexp = 65408.0f; //(( pow2to9  - 1.0f)/ pow2to9)*powf( 2.0f, 31.0f - 15.0f);
+
+    float cRed = MAX(0.0f, MIN(sharedexp, r));
+    float cGreen = MAX(0.0f, MIN(sharedexp, g));
+    float cBlue = MAX(0.0f, MIN(sharedexp, b));
+
+    float cMax = MAX(cRed, MAX(cGreen, cBlue));
+
+    // expp = MAX(-B - 1, log2(maxc)) + 1 + B
+
+    const float expp = MAX(-B - 1.0f, std::floor(Math::log(cMax) / float(Math_LN2))) + 1.0f + B;
+
+    float sMax = (float)std::floor((cMax / Math::pow(2.0f, expp - B - N)) + 0.5f);
+
+    float exps = expp + 1.0f;
+
+    if (0.0f <= sMax && sMax < pow2to9) {
+        exps = expp;
+    }
+
+    float sRed = Math::floor((cRed / std::pow(2.0f, exps - B - N)) + 0.5f);
+    float sGreen = Math::floor((cGreen / std::pow(2.0f, exps - B - N)) + 0.5f);
+    float sBlue = Math::floor((cBlue / std::pow(2.0f, exps - B - N)) + 0.5f);
+
+    return (uint32_t(Math::fast_ftoi(sRed)) & 0x1FF) | ((uint32_t(Math::fast_ftoi(sGreen)) & 0x1FF) << 9) | ((uint32_t(Math::fast_ftoi(sBlue)) & 0x1FF) << 18) | ((uint32_t(Math::fast_ftoi(exps)) & 0x1F) << 27);
 }
 
 Color Color::html(se_string_view p_color) {
@@ -436,7 +458,7 @@ se_string Color::to_html(bool p_alpha) const {
     return txt;
 }
 
-Color Color::from_hsv(float p_h, float p_s, float p_v, float p_a) const {
+Color Color::from_hsv(float p_h, float p_s, float p_v, float p_a) {
 
     p_h = Math::fmod(p_h * 360.0f, 360.0f);
     if (p_h < 0.0f)

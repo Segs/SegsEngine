@@ -580,7 +580,8 @@ void ConnectionsDock::_connect(const Connection& cToMake) {
     se_string translated_fmt(TTR("Connect '%s' to '%s'"));
     undo_redo->create_action(FormatVE(translated_fmt.c_str(), cToMake.signal.asCString(), cToMake.method.asCString()));
 
-    undo_redo->add_do_method(source, "connect", cToMake.signal, Variant(target), cToMake.method, cToMake.binds, cToMake.flags);
+    undo_redo->add_do_method(source, "connect", cToMake.signal, Variant(target), cToMake.method,
+            Variant::from(cToMake.binds), cToMake.flags);
     undo_redo->add_undo_method(source, "disconnect", cToMake.signal, Variant(target), cToMake.method);
     undo_redo->add_do_method(this, "update_tree");
     undo_redo->add_undo_method(this, "update_tree");
@@ -602,7 +603,7 @@ void ConnectionsDock::_disconnect(TreeItem &item) {
     undo_redo->create_action(FormatVE(translated_fmt.c_str(), c.signal.asCString(), c.method.asCString()));
 
     undo_redo->add_do_method(selectedNode, "disconnect", c.signal,Variant(c.target), c.method);
-    undo_redo->add_undo_method(selectedNode, "connect", c.signal, Variant(c.target), c.method, c.binds, c.flags);
+    undo_redo->add_undo_method(selectedNode, "connect", c.signal, Variant(c.target), c.method, Variant::from(c.binds), c.flags);
     undo_redo->add_do_method(this, "update_tree");
     undo_redo->add_undo_method(this, "update_tree");
     undo_redo->add_do_method(EditorNode::get_singleton()->get_scene_tree_dock()->get_tree_editor(), "update_tree"); // To force redraw of scene tree.
@@ -630,7 +631,7 @@ void ConnectionsDock::_disconnect_all() {
     while (child) {
         Connection c = child->get_metadata(0);
         undo_redo->add_do_method(selectedNode, "disconnect", c.signal, Variant(c.target), c.method);
-        undo_redo->add_undo_method(selectedNode, "connect", c.signal, Variant(c.target), c.method, c.binds, c.flags);
+        undo_redo->add_undo_method(selectedNode, "connect", c.signal, Variant(c.target), c.method, Variant::from(c.binds), c.flags);
         child = child->get_next();
     }
 

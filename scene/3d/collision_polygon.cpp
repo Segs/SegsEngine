@@ -49,7 +49,7 @@ void CollisionPolygon::_build_polygon() {
     if (polygon.empty())
         return;
 
-    Vector<Vector<Vector2> > decomp = Geometry::decompose_polygon_in_convex(polygon);
+    Vector<PODVector<Vector2> > decomp = Geometry::decompose_polygon_in_convex({polygon.ptr(),polygon.size()});
     if (decomp.empty())
         return;
 

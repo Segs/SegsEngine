@@ -1329,14 +1329,14 @@ public:
         GLuint array_id; // 0 means, unconfigured
         GLuint vertex_id; // 0 means, unconfigured
         GLuint index_id; // 0 means, unconfigured
-        PoolVector<Vector2> lines;
+        PODVector<Vector2> lines;
         int len;
     };
 
     RID_Owner<CanvasOccluder> canvas_occluder_owner;
 
     RID canvas_light_occluder_create() override;
-    void canvas_light_occluder_set_polylines(RID p_occluder, const PoolVector<Vector2> &p_lines) override;
+    void canvas_light_occluder_set_polylines(RID p_occluder, Span<const Vector2> p_lines) override;
 
     VS::InstanceType get_base_type(RID p_rid) const override;
 

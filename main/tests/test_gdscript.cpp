@@ -1038,10 +1038,10 @@ MainLoop *test(TestType p_type) {
 
     } else if (p_type == TEST_BYTECODE) {
 
-        Vector<uint8_t> buf2 = GDScriptTokenizerBuffer::parse_code_string(code);
+        PODVector<uint8_t> buf2 = GDScriptTokenizerBuffer::parse_code_string(code);
         se_string dst = se_string(PathUtils::get_basename(test)) + ".gdc";
         FileAccess *fw = FileAccess::open(dst, FileAccess::WRITE);
-        fw->store_buffer(buf2.ptr(), buf2.size());
+        fw->store_buffer(buf2.data(), buf2.size());
         memdelete(fw);
     }
 

@@ -463,7 +463,7 @@ void RasterizerCanvasGLES3::_draw_generic_indices(GLuint p_primitive, const int 
 
 #ifndef GLES_OVER_GL
     // Orphan the buffer to avoid CPU/GPU sync points caused by glBufferSubData
-    glBufferData(GL_ARRAY_BUFFER, data.polygon_buffer_size, NULL, GL_DYNAMIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, data.polygon_buffer_size, nullptr, GL_DYNAMIC_DRAW);
 #endif
 
     uint32_t buffer_ofs = 0;
@@ -516,7 +516,7 @@ void RasterizerCanvasGLES3::_draw_generic_indices(GLuint p_primitive, const int 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, data.polygon_index_buffer);
 #ifndef GLES_OVER_GL
     // Orphan the buffer to avoid CPU/GPU sync points caused by glBufferSubData
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, data.polygon_index_buffer_size, NULL, GL_DYNAMIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, data.polygon_index_buffer_size, nullptr, GL_DYNAMIC_DRAW);
 #endif
     glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, sizeof(int) * p_index_count, p_indices);
 
@@ -837,7 +837,7 @@ void RasterizerCanvasGLES3::_canvas_item_render_commands(Item *p_item, Item *cur
                 RasterizerStorageGLES3::Texture *texture = _bind_canvas_texture(primitive->texture, primitive->normal_map);
 
                 if (texture) {
-                    Size2 texpixel_size(1.0 / texture->width, 1.0 / texture->height);
+                    Size2 texpixel_size(1.0f / texture->width, 1.0f / texture->height);
                     state.canvas_shader.set_uniform(CanvasShaderGLES3::COLOR_TEXPIXEL_SIZE, texpixel_size);
                 }
                 if (primitive->colors.size() == 1 && primitive->points.size() > 1) {
@@ -864,11 +864,11 @@ void RasterizerCanvasGLES3::_canvas_item_render_commands(Item *p_item, Item *cur
                     state.canvas_shader.set_uniform(CanvasShaderGLES3::COLOR_TEXPIXEL_SIZE, texpixel_size);
                 }
 
-                _draw_polygon(polygon->indices.ptr(), polygon->count, polygon->points.size(), polygon->points.ptr(), polygon->uvs.ptr(), polygon->colors.ptr(), polygon->colors.size() == 1, polygon->bones.ptr(), polygon->weights.ptr());
+                _draw_polygon(polygon->indices.data(), polygon->count, polygon->points.size(), polygon->points.data(), polygon->uvs.ptr(), polygon->colors.ptr(), polygon->colors.size() == 1, polygon->bones.ptr(), polygon->weights.ptr());
 #ifdef GLES_OVER_GL
                 if (polygon->antialiased) {
                     glEnable(GL_LINE_SMOOTH);
-                    _draw_generic_indices(GL_LINE_STRIP, polygon->indices.ptr(), polygon->count, polygon->points.size(), polygon->points.ptr(), polygon->uvs.ptr(), polygon->colors.ptr(), polygon->colors.size() == 1);
+                    _draw_generic_indices(GL_LINE_STRIP, polygon->indices.data(), polygon->count, polygon->points.size(), polygon->points.data(), polygon->uvs.ptr(), polygon->colors.ptr(), polygon->colors.size() == 1);
                     glDisable(GL_LINE_SMOOTH);
                 }
 #endif
@@ -882,7 +882,7 @@ void RasterizerCanvasGLES3::_canvas_item_render_commands(Item *p_item, Item *cur
                 RasterizerStorageGLES3::Texture *texture = _bind_canvas_texture(mesh->texture, mesh->normal_map);
 
                 if (texture) {
-                    Size2 texpixel_size(1.0 / texture->width, 1.0 / texture->height);
+                    Size2 texpixel_size(1.0f / texture->width, 1.0f / texture->height);
                     state.canvas_shader.set_uniform(CanvasShaderGLES3::COLOR_TEXPIXEL_SIZE, texpixel_size);
                 }
 
@@ -933,7 +933,7 @@ void RasterizerCanvasGLES3::_canvas_item_render_commands(Item *p_item, Item *cur
                 _set_texture_rect_mode(false);
 
                 if (texture) {
-                    Size2 texpixel_size(1.0 / texture->width, 1.0 / texture->height);
+                    Size2 texpixel_size(1.0f / texture->width, 1.0f / texture->height);
                     state.canvas_shader.set_uniform(CanvasShaderGLES3::COLOR_TEXPIXEL_SIZE, texpixel_size);
                 }
 

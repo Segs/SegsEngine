@@ -528,7 +528,7 @@ void Polygon2DEditor::_uv_input(const Ref<InputEvent> &p_input) {
                             undo_redo->add_undo_method(node, "set_polygon", Variant(uv_create_poly_prev));
                             undo_redo->add_do_method(node, "set_internal_vertex_count", 0);
                             undo_redo->add_undo_method(node, "set_internal_vertex_count", uv_create_prev_internal_vertices);
-                            undo_redo->add_do_method(node, "set_vertex_colors", Vector<Color>());
+                            undo_redo->add_do_method(node, "set_vertex_colors", PODVector<Color>());
                             undo_redo->add_undo_method(node, "set_vertex_colors", uv_create_colors_prev);
                             undo_redo->add_do_method(node, "clear_bones");
                             undo_redo->add_undo_method(node, "_set_bones", uv_create_bones_prev);
@@ -700,7 +700,7 @@ void Polygon2DEditor::_uv_input(const Ref<InputEvent> &p_input) {
                                 polygons = polygons.duplicate(); //copy because its a reference
 
                                 //todo, could check whether it already exists?
-                                polygons.push_back(polygon_create);
+                                polygons.push_back(Variant::from(polygon_create));
                                 undo_redo->create_action_ui(TTR("Add Custom Polygon"));
                                 undo_redo->add_do_method(node, "set_polygons", polygons);
                                 undo_redo->add_undo_method(node, "set_polygons", node->get_polygons());
@@ -724,13 +724,13 @@ void Polygon2DEditor::_uv_input(const Ref<InputEvent> &p_input) {
                     int erase_index = -1;
                     for (int i = polygons.size() - 1; i >= 0; i--) {
                         PoolVector<int> points = polygons[i];
-                        Vector<Vector2> polys;
-                        polys.resize(points.size());
-                        for (int j = 0; j < polys.size(); j++) {
+                        FixedVector<Vector2,16,true> polys;
+                        polys.reserve(points.size());
+                        for (size_t j = 0; j < polys.size(); j++) {
                             int idx = points[j];
                             if (idx < 0 || idx >= points_prev.size())
                                 continue;
-                            polys.write[j] = mtx.xform(points_prev[idx]);
+                            polys.emplace_back(mtx.xform(points_prev[idx]));
                         }
 
                         if (Geometry::is_point_in_polygon(Vector2(mb->get_position().x, mb->get_position().y), polys)) {
@@ -1103,8 +1103,9 @@ void Polygon2DEditor::_uv_draw() {
 
     for (int i = 0; i < polygons.size(); i++) {
 
-        PoolVector<int> points = polygons[i];
-        Vector<Vector2> polypoints;
+        const PoolVector<int> &points(polygons[i]);
+        FixedVector<Vector2,16,true> polypoints;
+        polypoints.reserve(points.size());
         for (int j = 0; j < points.size(); j++) {
             int next = (j + 1) % points.size();
 
@@ -1112,7 +1113,7 @@ void Polygon2DEditor::_uv_draw() {
             int idx_next = points[next];
             if (idx < 0 || idx >= uvs.size())
                 continue;
-            polypoints.push_back(mtx.xform(uvs[idx]));
+            polypoints.emplace_back(mtx.xform(uvs[idx]));
 
             if (idx_next < 0 || idx_next >= uvs.size())
                 continue;

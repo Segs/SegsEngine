@@ -32,6 +32,7 @@
 
 #include "core/bind/core_bind.h"
 #include "core/core_string_names.h"
+#include "core/pool_vector.h"
 #include "core/string_utils.inl"
 #include "core/string_formatter.h"
 #include "core/io/file_access_network.h"
@@ -1031,7 +1032,7 @@ ProjectSettings::ProjectSettings() {
     GLOBAL_DEF("audio/default_bus_layout", "res://default_bus_layout.tres");
     custom_prop_info[StaticCString("audio/default_bus_layout")] = PropertyInfo(VariantType::STRING, "audio/default_bus_layout", PROPERTY_HINT_FILE, "*.tres");
 
-    PoolSeStringArray extensions = PoolSeStringArray();
+    PoolSeStringArray extensions;
     extensions.push_back("gd");
     if (Engine::get_singleton()->has_singleton("GodotSharp"))
         extensions.push_back("cs");

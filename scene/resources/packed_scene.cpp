@@ -1234,18 +1234,18 @@ Dictionary SceneState::get_bundled_scene() const {
 
         PoolVector<se_string>::Write r = rnames.write();
 
-        for (int i = 0; i < names.size(); i++)
+        for (size_t i = 0; i < names.size(); i++)
             r[i] = names[i];
     }
 
     Dictionary d;
     d["names"] = rnames;
-    d["variants"] = variants;
+    d["variants"] = Variant::from(variants);
 
-    Vector<int> rnodes;
+    PODVector<int> rnodes;
     d["node_count"] = nodes.size();
-
-    for (int i = 0; i < nodes.size(); i++) {
+    rnodes.reserve(nodes.size()*15);
+    for (size_t i = 0; i < nodes.size(); i++) {
 
         const NodeData &nd = nodes[i];
         rnodes.push_back(nd.parent);
@@ -1272,9 +1272,9 @@ Dictionary SceneState::get_bundled_scene() const {
 
     d["nodes"] = rnodes;
 
-    Vector<int> rconns;
+    PODVector<int> rconns;
     d["conn_count"] = connections.size();
-
+    rconns.reserve(connections.size()*12);
     for (int i = 0; i < connections.size(); i++) {
 
         const ConnectionData &cd = connections[i];

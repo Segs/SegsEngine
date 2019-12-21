@@ -34,9 +34,9 @@
 
 IMPL_GDCLASS(BoxShape)
 
-Vector<Vector3> BoxShape::get_debug_mesh_lines() {
+PODVector<Vector3> BoxShape::get_debug_mesh_lines() {
 
-    Vector<Vector3> lines;
+    PODVector<Vector3> lines;
     AABB aabb;
     aabb.position = -get_extents();
     aabb.size = aabb.position * -2;

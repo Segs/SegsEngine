@@ -35,6 +35,14 @@
 #include "core/reference.h"
 #include "core/object_db.h"
 #include "core/method_bind.h"
+#include "core/math/vector2.h"
+#include "core/math/transform.h"
+#include "core/math/transform_2d.h"
+#include "core/math/quat.h"
+#include "core/color.h"
+#include "core/rid.h"
+#include "core/pool_vector.h"
+
 #include "core/string_utils.inl"
 
 #include <climits>

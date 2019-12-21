@@ -594,7 +594,7 @@ inline void set_inner_corner_radius(const Rect2 style_rect, const Rect2 inner_re
     inner_corner_radius[3] = MAX(corner_radius[3] - rad, 0);
 }
 
-inline void draw_ring(Vector<Vector2> &verts, Vector<int> &indices, Vector<Color> &colors, const Rect2 style_rect, const int corner_radius[4],
+inline void draw_ring(PODVector<Vector2> &verts, PODVector<int> &indices, Vector<Color> &colors, const Rect2 style_rect, const int corner_radius[4],
         const Rect2 ring_rect, const int border_width[4], const Color &inner_color, const Color &outer_color, const int corner_detail, const bool fill_center = false) {
 
     int vert_offset = verts.size();
@@ -642,8 +642,8 @@ inline void draw_ring(Vector<Vector2> &verts, Vector<int> &indices, Vector<Color
                     color = outer_color;
                     corner_point = outer_points[corner_index];
                 }
-                float x = radius * (float)cos((double)corner_index * Math_PI / 2.0 + (double)detail / (double)adapted_corner_detail * Math_PI / 2.0 + Math_PI) + corner_point.x;
-                float y = radius * (float)sin((double)corner_index * Math_PI / 2.0 + (double)detail / (double)adapted_corner_detail * Math_PI / 2.0 + Math_PI) + corner_point.y;
+                float x = radius * (float)cos((float)corner_index * Math_PI / 2.0f + (float)detail / (float)adapted_corner_detail * Math_PI / 2.0f + Math_PI) + corner_point.x;
+                float y = radius * (float)sin((float)corner_index * Math_PI / 2.0f + (float)detail / (float)adapted_corner_detail * Math_PI / 2.0f + Math_PI) + corner_point.y;
                 verts.push_back(Vector2(x, y));
                 colors.push_back(color);
             }
@@ -733,7 +733,7 @@ void StyleBoxFlat::draw(RID p_canvas_item, const Rect2 &p_rect) const {
 
     Rect2 border_style_rect = style_rect;
     if (aa_on && !blend_on) {
-        float aa_size_grow = 0.5 * ((aa_size + 1) / 2);
+        float aa_size_grow = 0.5f * ((aa_size + 1) / 2);
         style_rect = style_rect.grow(-aa_size_grow);
         for (int i = 0; i < 4; i++) {
             if (border_width[i] > 0) {
@@ -758,8 +758,8 @@ void StyleBoxFlat::draw(RID p_canvas_item, const Rect2 &p_rect) const {
 
     Rect2 infill_rect = style_rect.grow_individual(-adapted_border[MARGIN_LEFT], -adapted_border[MARGIN_TOP], -adapted_border[MARGIN_RIGHT], -adapted_border[MARGIN_BOTTOM]);
 
-    Vector<Point2> verts;
-    Vector<int> indices;
+    PODVector<Point2> verts;
+    PODVector<int> indices;
     Vector<Color> colors;
     Vector<Point2> uvs;
 
@@ -861,7 +861,7 @@ void StyleBoxFlat::draw(RID p_canvas_item, const Rect2 &p_rect) const {
 }
 
 float StyleBoxFlat::get_style_margin(Margin p_margin) const {
-    ERR_FAIL_INDEX_V((int)p_margin, 4, 0.0);
+    ERR_FAIL_INDEX_V((int)p_margin, 4, 0.0f);
     return border_width[p_margin];
 }
 void StyleBoxFlat::_bind_methods() {

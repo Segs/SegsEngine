@@ -38,57 +38,57 @@ class CollisionObject2D;
 
 class CollisionPolygon2D : public Node2D {
 
-	GDCLASS(CollisionPolygon2D,Node2D)
+    GDCLASS(CollisionPolygon2D,Node2D)
 
 public:
-	enum BuildMode {
-		BUILD_SOLIDS,
-		BUILD_SEGMENTS,
-	};
+    enum BuildMode {
+        BUILD_SOLIDS,
+        BUILD_SEGMENTS,
+    };
 
 protected:
-	Rect2 aabb;
-	BuildMode build_mode;
-	Vector<Point2> polygon;
-	uint32_t owner_id;
-	CollisionObject2D *parent;
-	bool disabled;
-	bool one_way_collision;
-	float one_way_collision_margin;
+    Rect2 aabb;
+    BuildMode build_mode;
+    PODVector<Point2> polygon;
+    uint32_t owner_id;
+    CollisionObject2D *parent;
+    bool disabled;
+    bool one_way_collision;
+    float one_way_collision_margin;
 
-	Vector<Vector<Vector2> > _decompose_in_convex();
+    Vector<PODVector<Vector2> > _decompose_in_convex();
 
-	void _build_polygon();
+    void _build_polygon();
 
-	void _update_in_shape_owner(bool p_xform_only = false);
+    void _update_in_shape_owner(bool p_xform_only = false);
 
 protected:
-	void _notification(int p_what);
-	static void _bind_methods();
+    void _notification(int p_what);
+    static void _bind_methods();
 
 public:
-	void set_build_mode(BuildMode p_mode);
-	BuildMode get_build_mode() const;
+    void set_build_mode(BuildMode p_mode);
+    BuildMode get_build_mode() const;
 
-	void set_polygon(const Vector<Point2> &p_polygon);
-	Vector<Point2> get_polygon() const;
+    void set_polygon(const PODVector<Point2> &p_polygon);
+    const PODVector<Point2> &get_polygon() const { return polygon; }
 
-	Rect2 _edit_get_rect() const override;
-	bool _edit_use_rect() const override;
+    Rect2 _edit_get_rect() const override;
+    bool _edit_use_rect() const override;
     bool _edit_is_selected_on_click(const Point2 &p_point, float p_tolerance) const override;
 
     StringName get_configuration_warning() const override;
 
-	void set_disabled(bool p_disabled);
-	bool is_disabled() const;
+    void set_disabled(bool p_disabled);
+    bool is_disabled() const;
 
-	void set_one_way_collision(bool p_enable);
-	bool is_one_way_collision_enabled() const;
+    void set_one_way_collision(bool p_enable);
+    bool is_one_way_collision_enabled() const;
 
-	void set_one_way_collision_margin(float p_margin);
-	float get_one_way_collision_margin() const;
+    void set_one_way_collision_margin(float p_margin);
+    float get_one_way_collision_margin() const;
 
-	CollisionPolygon2D();
+    CollisionPolygon2D();
 };
 
 

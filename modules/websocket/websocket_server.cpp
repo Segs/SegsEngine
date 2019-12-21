@@ -31,6 +31,7 @@
 #include "websocket_server.h"
 #include "core/method_bind.h"
 #include "core/crypto/crypto.h"
+#include "core/io/ip_address.h"
 
 GDCINULL(WebSocketServer);
 IMPL_GDCLASS(WebSocketServer)

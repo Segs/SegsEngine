@@ -36,7 +36,9 @@
 #include "core/os/mutex.h"
 #include "core/os/os.h"
 #include "core/method_bind.h"
+#include "core/string_utils.inl"
 #include "servers/visual_server.h"
+
 #include <ft2build.h>
 #include FT_FREETYPE_H
 
@@ -51,12 +53,6 @@ IMPL_GDCLASS(DynamicFont)
 VARIANT_ENUM_CAST(DynamicFontData::Hinting);
 VARIANT_ENUM_CAST(DynamicFont::SpacingType);
 
-template<>
-struct Hasher<QChar> {
-    uint32_t operator()(QChar c) {
-        return Hasher<uint16_t>()(c.unicode());
-    }
-};
 static unsigned long _ft_stream_io(FT_Stream stream, unsigned long offset, unsigned char *buffer, unsigned long count);
 static void _ft_stream_close(FT_Stream stream);
 

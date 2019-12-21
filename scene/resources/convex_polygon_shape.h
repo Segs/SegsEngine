@@ -35,20 +35,20 @@
 
 class ConvexPolygonShape : public Shape {
 
-	GDCLASS(ConvexPolygonShape,Shape)
+    GDCLASS(ConvexPolygonShape,Shape)
 
-	PoolVector<Vector3> points;
+    PODVector<Vector3> points;
 
 protected:
-	static void _bind_methods();
+    static void _bind_methods();
 
-	void _update_shape() override;
+    void _update_shape() override;
 
-	Vector<Vector3> get_debug_mesh_lines() override;
+    PODVector<Vector3> get_debug_mesh_lines() override;
 
 public:
-	void set_points(const PoolVector<Vector3> &p_points);
-	PoolVector<Vector3> get_points() const;
+    void set_points(const PoolVector<Vector3> &p_points);
+    const PODVector<Vector3> &get_points() const { return points; }
 
-	ConvexPolygonShape();
+    ConvexPolygonShape();
 };

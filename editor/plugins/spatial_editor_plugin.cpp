@@ -4741,8 +4741,8 @@ void SpatialEditor::_init_indicators() {
         indicator_mat->set_flag(SpatialMaterial::FLAG_ALBEDO_FROM_VERTEX_COLOR, true);
         indicator_mat->set_flag(SpatialMaterial::FLAG_SRGB_VERTEX_COLOR, true);
 
-        Vector<Color> origin_colors;
-        Vector<Vector3> origin_points;
+        PODVector<Color> origin_colors;
+        PODVector<Vector3> origin_points;
 
         for (int i = 0; i < 3; i++) {
             Vector3 axis;

@@ -124,7 +124,7 @@ public:
         vts.push_back(Vector3(-1, -1, -1));
 
         Geometry::MeshData md;
-        Error err = QuickHull::build(vts, md);
+        Error err = QuickHull::build({vts.ptr(),vts.size()}, md);
         print_line("ERR: " + itos(err));
         test_cube = vs->mesh_create();
         vs->mesh_add_surface_from_mesh_data(test_cube, md);

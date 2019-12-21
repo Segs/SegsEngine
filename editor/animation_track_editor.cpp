@@ -240,13 +240,13 @@ public:
                     d_new["method"] = p_value;
                 } else if (name == "arg_count"_sv) {
 
-                    Vector<Variant> args = d_old["args"];
+                    Vector<Variant> args = d_old["args"].as<Vector<Variant>>();
                     args.resize(p_value);
-                    d_new["args"] = args;
+                    d_new["args"] = Variant::from(args);
                     change_notify_deserved = true;
                 } else if (StringUtils::begins_with(name,"args/")) {
 
-                    Vector<Variant> args = d_old["args"];
+                    Vector<Variant> args = d_old["args"].as<Vector<Variant>>();
                     int idx = StringUtils::to_int(StringUtils::get_slice(name,"/", 1));
                     ERR_FAIL_INDEX_V(idx, args.size(), false)
 
@@ -265,7 +265,7 @@ public:
                                 args.write[idx] = Variant::construct(t, nullptr, 0, err);
                             }
                             change_notify_deserved = true;
-                            d_new["args"] = args;
+                            d_new["args"] = Variant::from(args);
                         }
                     } else if (what == "value"_sv) {
 
@@ -276,7 +276,7 @@ public:
                         }
 
                         args.write[idx] = value;
-                        d_new["args"] = args;
+                        d_new["args"] = Variant::from(args);
                         mergeable = true;
                     }
                 }
@@ -485,7 +485,7 @@ public:
 
                 ERR_FAIL_COND_V(!d.has("args"), false)
 
-                Vector<Variant> args = d["args"];
+                Vector<Variant> args = d["args"].as<Vector<Variant>>();;
 
                 if (name == "arg_count"_sv) {
                     r_ret = args.size();
@@ -619,7 +619,7 @@ public:
 
                 Dictionary d = animation->track_get_key_value(track, key);
                 ERR_FAIL_COND(!d.has("args"))
-                Vector<Variant> args = d["args"];
+                Vector<Variant> args = d["args"].as<Vector<Variant>>();;
                 se_string vtypes;
                 for (int i = 0; i < (int)VariantType::VARIANT_MAX; i++) {
 
@@ -901,13 +901,13 @@ public:
                             d_new["method"] = p_value;
                         } else if (name == "arg_count"_sv) {
 
-                            Vector<Variant> args = d_old["args"];
+                            Vector<Variant> args = d_old["args"].as<Vector<Variant>>();
                             args.resize(p_value);
-                            d_new["args"] = args;
+                            d_new["args"] = Variant::from(args);
                             change_notify_deserved = true;
                         } else if (StringUtils::begins_with(name,"args/")) {
 
-                            Vector<Variant> args = d_old["args"];
+                            Vector<Variant> args = d_old["args"].as<Vector<Variant>>();
                             int idx = StringUtils::to_int(StringUtils::get_slice(name,"/", 1));
                             ERR_FAIL_INDEX_V(idx, args.size(), false);
 
@@ -926,7 +926,7 @@ public:
                                         args.write[idx] = Variant::construct(t, nullptr, 0, err);
                                     }
                                     change_notify_deserved = true;
-                                    d_new["args"] = args;
+                                    d_new["args"] = Variant::from(args);
                                 }
                             } else if (what == "value"_sv) {
 
@@ -937,7 +937,7 @@ public:
                                 }
 
                                 args.write[idx] = value;
-                                d_new["args"] = args;
+                                d_new["args"] = Variant::from(args);
                                 mergeable = true;
                             }
                         }
@@ -1140,7 +1140,7 @@ public:
 
                         ERR_FAIL_COND_V(!d.has("args"), false)
 
-                        Vector<Variant> args = d["args"];
+                        Vector<Variant> args = d["args"].as<Vector<Variant>>();
 
                         if (name == "arg_count"_sv) {
 
@@ -1317,7 +1317,7 @@ public:
 
                     Dictionary d = animation->track_get_key_value(first_track, first_key);
                     ERR_FAIL_COND(!d.has("args"))
-                    Vector<Variant> args = d["args"];
+                    Vector<Variant> args = d["args"].as<Vector<Variant>>();
                     se_string vtypes;
                     for (int i = 0; i < (int)VariantType::VARIANT_MAX; i++) {
 
@@ -2310,7 +2310,7 @@ void AnimationTrackEdit::draw_key(int p_index, float p_pixels_sec, int p_x, bool
         text += '(';
         Vector<Variant> args;
         if (d.has("args"))
-            args = d["args"];
+            args = d["args"].as<Vector<Variant>>();
         for (int i = 0; i < args.size(); i++) {
 
             if (i > 0)
@@ -2607,7 +2607,7 @@ StringName AnimationTrackEdit::get_tooltip(const Point2 &p_pos) const {
                     text += '(';
                     Vector<Variant> args;
                     if (d.has("args"))
-                        args = d["args"];
+                        args = d["args"].as<Vector<Variant>>();
                     for (int i = 0; i < args.size(); i++) {
 
                         if (i > 0)
@@ -4854,12 +4854,12 @@ void AnimationTrackEditor::_clear_key_edit() {
 
         bool go_back = false;
         if (EditorNode::get_singleton()->get_inspector()->get_edited_object() == key_edit) {
-            EditorNode::get_singleton()->push_item(NULL);
+            EditorNode::get_singleton()->push_item(nullptr);
             go_back = true;
         }
 
         memdelete(key_edit);
-        key_edit = NULL;
+        key_edit = nullptr;
 
         if (go_back) {
             EditorNode::get_singleton()->get_inspector_dock()->go_back();

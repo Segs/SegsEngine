@@ -7312,12 +7312,12 @@ RID RasterizerStorageGLES3::canvas_light_occluder_create() {
     return canvas_occluder_owner.make_rid(co);
 }
 
-void RasterizerStorageGLES3::canvas_light_occluder_set_polylines(RID p_occluder, const PoolVector<Vector2> &p_lines) {
+void RasterizerStorageGLES3::canvas_light_occluder_set_polylines(RID p_occluder, Span<const Vector2> p_lines) {
 
     CanvasOccluder *co = canvas_occluder_owner.get(p_occluder);
     ERR_FAIL_COND(!co)
 
-    co->lines = p_lines;
+    co->lines.assign(p_lines.begin(),p_lines.end());
 
     if (p_lines.size() != co->len) {
 
@@ -7343,26 +7343,24 @@ void RasterizerStorageGLES3::canvas_light_occluder_set_polylines(RID p_occluder,
         PoolVector<float>::Write vw = geometry.write();
         PoolVector<uint16_t>::Write iw = indices.write();
 
-        PoolVector<Vector2>::Read lr = p_lines.read();
-
         const int POLY_HEIGHT = 16384;
 
         for (int i = 0; i < lc / 2; i++) {
 
-            vw[i * 12 + 0] = lr[i * 2 + 0].x;
-            vw[i * 12 + 1] = lr[i * 2 + 0].y;
+            vw[i * 12 + 0] = p_lines[i * 2 + 0].x;
+            vw[i * 12 + 1] = p_lines[i * 2 + 0].y;
             vw[i * 12 + 2] = POLY_HEIGHT;
 
-            vw[i * 12 + 3] = lr[i * 2 + 1].x;
-            vw[i * 12 + 4] = lr[i * 2 + 1].y;
+            vw[i * 12 + 3] = p_lines[i * 2 + 1].x;
+            vw[i * 12 + 4] = p_lines[i * 2 + 1].y;
             vw[i * 12 + 5] = POLY_HEIGHT;
 
-            vw[i * 12 + 6] = lr[i * 2 + 1].x;
-            vw[i * 12 + 7] = lr[i * 2 + 1].y;
+            vw[i * 12 + 6] = p_lines[i * 2 + 1].x;
+            vw[i * 12 + 7] = p_lines[i * 2 + 1].y;
             vw[i * 12 + 8] = -POLY_HEIGHT;
 
-            vw[i * 12 + 9] = lr[i * 2 + 0].x;
-            vw[i * 12 + 10] = lr[i * 2 + 0].y;
+            vw[i * 12 + 9] = p_lines[i * 2 + 0].x;
+            vw[i * 12 + 10] = p_lines[i * 2 + 0].y;
             vw[i * 12 + 11] = -POLY_HEIGHT;
 
             iw[i * 6 + 0] = i * 4 + 0;

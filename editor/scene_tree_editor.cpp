@@ -850,7 +850,7 @@ bool SceneTreeEditor::get_display_foreign_nodes() const {
     return display_foreign;
 }
 
-void SceneTreeEditor::set_valid_types(const Vector<StringName> &p_valid) {
+void SceneTreeEditor::set_valid_types(const PODVector<StringName> &p_valid) {
     valid_types = p_valid;
 }
 
@@ -1074,7 +1074,7 @@ void SceneTreeEditor::drop_data_fw(const Point2 &p_point, const Variant &p_data,
         if (_is_script_type(StringName(ftype))) {
             emit_signal("script_dropped", files[0], np);
         } else {
-            emit_signal("files_dropped", Variant(files), np, section);
+            emit_signal("files_dropped", Variant::from(files), np, section);
         }
     }
 

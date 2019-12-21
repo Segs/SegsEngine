@@ -158,7 +158,7 @@ class EditorExportPlatform : public RefCounted {
     GDCLASS(EditorExportPlatform,RefCounted)
 
 public:
-    using EditorExportSaveFunction = Error (*)(void *, se_string_view, const Vector<uint8_t> &, int, int);
+    using EditorExportSaveFunction = Error (*)(void *, se_string_view, const PODVector<uint8_t> &, int, int);
     using EditorExportSaveSharedObject = Error (*)(void *, const SharedObject &);
 
 private:
@@ -171,8 +171,8 @@ private:
     void _export_find_dependencies(se_string_view p_path, Set<se_string> &p_paths);
 
     void gen_debug_flags(Vector<se_string> &r_flags, int p_flags);
-    static Error _save_pack_file(void *p_userdata, se_string_view p_path, const Vector<uint8_t> &p_data, int p_file, int p_total);
-    static Error _save_zip_file(void *p_userdata, se_string_view p_path, const Vector<uint8_t> &p_data, int p_file, int p_total);
+    static Error _save_pack_file(void *p_userdata, se_string_view p_path, const PODVector<uint8_t> &p_data, int p_file, int p_total);
+    static Error _save_zip_file(void *p_userdata, se_string_view p_path, const PODVector<uint8_t> &p_data, int p_file, int p_total);
 
     void _edit_files_with_filter(DirAccess *da, const Vector<se_string> &p_filters, Set<se_string> &r_list, bool exclude);
     void _edit_filter_list(Set<se_string> &r_list, se_string_view p_filter, bool exclude);
@@ -260,7 +260,7 @@ class EditorExportPlugin : public RefCounted {
     Vector<SharedObject> shared_objects;
     struct ExtraFile {
         se_string path;
-        Vector<uint8_t> data;
+        PODVector<uint8_t> data;
         bool remap;
     };
     Vector<ExtraFile> extra_files;
@@ -283,7 +283,7 @@ protected:
     void set_export_preset(const Ref<EditorExportPreset> &p_preset);
     Ref<EditorExportPreset> get_export_preset() const;
 
-    void add_file(se_string_view p_path, const Vector<uint8_t> &p_file, bool p_remap);
+    void add_file(se_string_view p_path, const PODVector<uint8_t> &p_file, bool p_remap);
     void add_shared_object(se_string_view p_path, const Vector<se_string> &tags);
 
     void skip();

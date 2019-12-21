@@ -36,41 +36,41 @@ IMPL_GDCLASS(Line2DEditorPlugin)
 
 Node2D *Line2DEditor::_get_node() const {
 
-	return node;
+    return node;
 }
 
 void Line2DEditor::_set_node(Node *p_line) {
 
-	node = object_cast<Line2D>(p_line);
+    node = object_cast<Line2D>(p_line);
 }
 
 bool Line2DEditor::_is_line() const {
 
-	return true;
+    return true;
 }
 
 Variant Line2DEditor::_get_polygon(int p_idx) const {
 
-	return _get_node()->get("points");
+    return _get_node()->get("points");
 }
 
-void Line2DEditor::_set_polygon(int p_idx, const Variant &p_polygon) const {
+void Line2DEditor::_set_polygon(int p_idx, const Vector<Vector2> &p_polygon) const {
 
-	_get_node()->set("points", p_polygon);
+    _get_node()->set("points", Variant::from(p_polygon));
 }
 
 void Line2DEditor::_action_set_polygon(int p_idx, const Variant &p_previous, const Variant &p_polygon) {
 
-	Node2D *node = _get_node();
-	undo_redo->add_do_method(node, "set_points", p_polygon);
-	undo_redo->add_undo_method(node, "set_points", p_previous);
+    Node2D *node = _get_node();
+    undo_redo->add_do_method(node, "set_points", p_polygon);
+    undo_redo->add_undo_method(node, "set_points", p_previous);
 }
 
 Line2DEditor::Line2DEditor(EditorNode *p_editor) :
-		AbstractPolygon2DEditor(p_editor) {
-	node = nullptr;
+        AbstractPolygon2DEditor(p_editor) {
+    node = nullptr;
 }
 
 Line2DEditorPlugin::Line2DEditorPlugin(EditorNode *p_node) :
-		AbstractPolygon2DEditorPlugin(p_node, memnew(Line2DEditor(p_node)), "Line2D") {
+        AbstractPolygon2DEditorPlugin(p_node, memnew(Line2DEditor(p_node)), "Line2D") {
 }

@@ -38,7 +38,7 @@
 class EditorAtlasPacker {
 public:
     struct Chart {
-        Vector<Vector2> vertices;
+        PODVector<Vector2> vertices;
         struct Face {
             int vertex[3];
         };

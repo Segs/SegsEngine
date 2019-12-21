@@ -39,17 +39,12 @@
 #include "servers/visual_server.h"
 #include "surface_tool.h"
 #include "core/method_bind.h"
-
+#include "scene/resources/mesh_enum_casters.h"
 #include <cstdlib>
 
 IMPL_GDCLASS(Mesh)
 IMPL_GDCLASS(ArrayMesh)
 RES_BASE_EXTENSION_IMPL(ArrayMesh,"mesh")
-
-VARIANT_ENUM_CAST(Mesh::ArrayType);
-VARIANT_ENUM_CAST(Mesh::ArrayFormat);
-VARIANT_ENUM_CAST(Mesh::PrimitiveType);
-VARIANT_ENUM_CAST(Mesh::BlendShapeMode);
 
 Mesh::ConvexDecompositionFunc Mesh::convex_composition_function = nullptr;
 
@@ -120,7 +115,7 @@ Ref<TriangleMesh> Mesh::generate_triangle_mesh() const {
     return triangle_mesh;
 }
 
-void Mesh::generate_debug_mesh_lines(Vector<Vector3> &r_lines) {
+void Mesh::generate_debug_mesh_lines(PODVector<Vector3> &r_lines) {
 
     if (!debug_lines.empty()) {
         r_lines = debug_lines;
@@ -142,16 +137,16 @@ void Mesh::generate_debug_mesh_lines(Vector<Vector3> &r_lines) {
     PoolVector<Vector3>::Read ver_r = vertices.read();
     for (int j = 0, x = 0, i = 0; i < triangles_num; j += 6, x += 3, ++i) {
         // Triangle line 1
-        debug_lines.write[j + 0] = ver_r[ind_r[x + 0]];
-        debug_lines.write[j + 1] = ver_r[ind_r[x + 1]];
+        debug_lines[j + 0] = ver_r[ind_r[x + 0]];
+        debug_lines[j + 1] = ver_r[ind_r[x + 1]];
 
         // Triangle line 2
-        debug_lines.write[j + 2] = ver_r[ind_r[x + 1]];
-        debug_lines.write[j + 3] = ver_r[ind_r[x + 2]];
+        debug_lines[j + 2] = ver_r[ind_r[x + 1]];
+        debug_lines[j + 3] = ver_r[ind_r[x + 2]];
 
         // Triangle line 3
-        debug_lines.write[j + 4] = ver_r[ind_r[x + 2]];
-        debug_lines.write[j + 5] = ver_r[ind_r[x + 0]];
+        debug_lines[j + 4] = ver_r[ind_r[x + 2]];
+        debug_lines[j + 5] = ver_r[ind_r[x + 0]];
     }
 
     r_lines = debug_lines;

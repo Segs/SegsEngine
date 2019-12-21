@@ -32,6 +32,7 @@
 
 #include "core/print_string.h"
 #include "core/method_bind.h"
+#include "core/pool_vector.h"
 #include "core/method_enum_caster.h"
 
 //#define DEBUG_XML
@@ -470,13 +471,13 @@ bool XMLParser::is_empty() const {
     return node_empty;
 }
 
-Error XMLParser::open_buffer(const Vector<uint8_t> &p_buffer) {
+Error XMLParser::open_buffer(const PoolVector<uint8_t> &p_buffer) {
 
     ERR_FAIL_COND_V(p_buffer.empty(), ERR_INVALID_DATA)
 
     length = p_buffer.size();
     data = memnew_arr(char, length + 1);
-    memcpy(data, p_buffer.ptr(), length);
+    memcpy(data, p_buffer.read().ptr(), length);
     data[length] = 0;
     P = data;
     return OK;

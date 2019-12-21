@@ -171,7 +171,7 @@ public:
         }
 
         ConstElement prev() const {
-            return ConstElement(list_element ? list_element->prev() : NULL);
+            return ConstElement(list_element ? list_element->prev() : nullptr);
         }
 
         _FORCE_INLINE_ bool operator==(const ConstElement &p_other) const {
@@ -223,7 +223,7 @@ public:
             (*list_element)->deref().second = p_value;
             return Element(*list_element);
         }
-        typename InternalList::Element *new_element = list.push_back(Pair<const K *, V>(NULL, p_value));
+        typename InternalList::Element *new_element = list.push_back(Pair<const K *, V>(nullptr, p_value));
         typename InternalMap::Element *e = map.set(p_key, new_element);
         new_element->deref().first = &e->key();
 

@@ -43,44 +43,39 @@ VARIANT_ENUM_CAST(OccluderPolygon2D::CullMode);
 
 Rect2 OccluderPolygon2D::_edit_get_rect() const {
 
-    if (rect_cache_dirty) {
-        if (closed) {
-            PoolVector<Vector2>::Read r = polygon.read();
-            item_rect = Rect2();
-            for (int i = 0; i < polygon.size(); i++) {
-                Vector2 pos = r[i];
-                if (i == 0)
-                    item_rect.position = pos;
-                else
-                    item_rect.expand_to(pos);
-            }
-            rect_cache_dirty = false;
-        } else {
-            if (polygon.size() == 0) {
-                item_rect = Rect2();
-            } else {
-                Vector2 d = Vector2(LINE_GRAB_WIDTH, LINE_GRAB_WIDTH);
-                item_rect = Rect2(polygon[0] - d, 2 * d);
-                for (int i = 1; i < polygon.size(); i++) {
-                    item_rect.expand_to(polygon[i] - d);
-                    item_rect.expand_to(polygon[i] + d);
-                }
-            }
+    if (likely(!rect_cache_dirty))
+        return item_rect;
+
+    rect_cache_dirty = false;
+
+    if (polygon.empty()) {
+        item_rect = Rect2();
+        return item_rect;
+    }
+    if (closed) {
+        item_rect.position = polygon.front();
+        for (Vector2 pos : polygon) {
+            item_rect.expand_to(pos);
+        }
+    } else {
+        Vector2 d = Vector2(LINE_GRAB_WIDTH, LINE_GRAB_WIDTH);
+        item_rect = Rect2(polygon[0] - d, 2 * d);
+        for (int i = 1; i < polygon.size(); i++) {
+            item_rect.expand_to(polygon[i] - d);
+            item_rect.expand_to(polygon[i] + d);
         }
     }
-
     return item_rect;
 }
 
 bool OccluderPolygon2D::_edit_is_selected_on_click(const Point2 &p_point, float p_tolerance) const {
 
     if (closed) {
-        return Geometry::is_point_in_polygon(p_point, Variant(polygon));
+        return Geometry::is_point_in_polygon(p_point, polygon);
     } else {
         const real_t d = LINE_GRAB_WIDTH / 2 + p_tolerance;
-        PoolVector<Vector2>::Read points = polygon.read();
         for (int i = 0; i < polygon.size() - 1; i++) {
-            Vector2 p = Geometry::get_closest_point_to_segment_2d(p_point, &points[i]);
+            Vector2 p = Geometry::get_closest_point_to_segment_2d(p_point, &polygon[i]);
             if (p.distance_to(p_point) <= d)
                 return true;
         }
@@ -89,18 +84,15 @@ bool OccluderPolygon2D::_edit_is_selected_on_click(const Point2 &p_point, float 
     }
 }
 
-void OccluderPolygon2D::set_polygon(const PoolVector<Vector2> &p_polygon) {
+void OccluderPolygon2D::set_polygon(const PODVector<Vector2> &p_polygon) {
 
     polygon = p_polygon;
     rect_cache_dirty = true;
-    VisualServer::get_singleton()->canvas_occluder_polygon_set_shape(occ_polygon, p_polygon, closed);
+    VisualServer::get_singleton()->canvas_occluder_polygon_set_shape(occ_polygon, polygon, closed);
     emit_changed();
 }
 
-PoolVector<Vector2> OccluderPolygon2D::get_polygon() const {
 
-    return polygon;
-}
 
 void OccluderPolygon2D::set_closed(bool p_closed) {
 
@@ -196,20 +188,18 @@ void LightOccluder2D::_notification(int p_what) {
 
             if (occluder_polygon) {
 
-                PoolVector<Vector2> poly = occluder_polygon->get_polygon();
+                const PODVector<Vector2> &poly = occluder_polygon->get_polygon();
 
                 if (poly.size()) {
                     if (occluder_polygon->is_closed()) {
                         Vector<Color> color;
-                        color.push_back(Color(0, 0, 0, 0.6));
-                        draw_polygon(Variant(poly), color);
+                        color.push_back(Color(0, 0, 0, 0.6f));
+                        draw_polygon(poly, color);
                     } else {
 
                         int ps = poly.size();
-                        PoolVector<Vector2>::Read r = poly.read();
                         for (int i = 0; i < ps - 1; i++) {
-
-                            draw_line(r[i], r[i + 1], Color(0, 0, 0, 0.6), 3);
+                            draw_line(poly[i], poly[i + 1], Color(0, 0, 0, 0.6f), 3);
                         }
                     }
                 }

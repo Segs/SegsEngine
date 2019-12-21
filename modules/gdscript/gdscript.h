@@ -192,7 +192,7 @@ public:
     Error load_source_code(se_string_view p_path);
     Error load_byte_code(se_string_view p_path);
 
-    Vector<uint8_t> get_as_byte_code() const;
+    PODVector<uint8_t> get_as_byte_code() const;
 
     bool get_property_default_value(const StringName &p_property, Variant &r_value) const override;
 
@@ -520,7 +520,7 @@ public:
     void get_recognized_extensions(PODVector<se_string> &p_extensions) const override;
     bool handles_type(se_string_view p_type) const override;
     se_string get_resource_type(se_string_view p_path) const override;
-    void get_dependencies(se_string_view p_path, ListPOD<se_string> *p_dependencies, bool p_add_types = false) override;
+    void get_dependencies(se_string_view p_path, PODVector<se_string> &p_dependencies, bool p_add_types = false) override;
 };
 
 class ResourceFormatSaverGDScript : public ResourceFormatSaver {

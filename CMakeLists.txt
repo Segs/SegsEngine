@@ -32,6 +32,8 @@ include(PluginSupport)
 
 ######################################
 
+option(USE_UNITY_BUILDS "Use unity builds" ON)
+set(DEFAULT_UNITY_BATCH_SIZE 80)
 set(global_targets "" CACHE INTERNAL "")
 
 function(define_target )
@@ -235,6 +237,16 @@ elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
     add_subdirectory(platform/windows)
 elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
     add_subdirectory(platform/osx)
+endif()
+foreach(FILE ${NO_UNITY_SOURCES})
+    set_source_files_properties(${FILE} PROPERTIES SKIP_UNITY_BUILD_INCLUSION ON)
+endforeach()
+
+if(USE_UNITY_BUILDS)
+    foreach(tgt ${global_targets})
+        set_target_properties(${tgt}_engine PROPERTIES UNITY_BUILD ON)
+        set_target_properties(${tgt}_engine PROPERTIES UNITY_BUILD_BATCH_SIZE ${DEFAULT_UNITY_BATCH_SIZE})
+    endforeach()
 endif()
 
 foreach(tgt ${global_targets})

@@ -30,6 +30,7 @@
 
 #include "concave_polygon_shape.h"
 
+#include "core/pool_vector.h"
 #include "servers/physics_server.h"
 #include "core/method_bind.h"
 
@@ -57,13 +58,13 @@ struct DrawEdge {
 };
 } // end of anonymous namespace
 
-Vector<Vector3> ConcavePolygonShape::get_debug_mesh_lines() {
+PODVector<Vector3> ConcavePolygonShape::get_debug_mesh_lines() {
 
     Set<DrawEdge> edges;
 
     PoolVector<Vector3> data = get_faces();
     int datalen = data.size();
-    ERR_FAIL_COND_V((datalen % 3) != 0, Vector<Vector3>())
+    ERR_FAIL_COND_V((datalen % 3) != 0, PODVector<Vector3>())
 
     PoolVector<Vector3>::Read r = data.read();
 
@@ -76,13 +77,13 @@ Vector<Vector3> ConcavePolygonShape::get_debug_mesh_lines() {
         }
     }
 
-    Vector<Vector3> points;
+    PODVector<Vector3> points;
     points.resize(edges.size() * 2);
     int idx = 0;
     for (const DrawEdge &E : edges) {
 
-        points.write[idx + 0] = E.a;
-        points.write[idx + 1] = E.b;
+        points[idx + 0] = E.a;
+        points[idx + 1] = E.b;
         idx += 2;
     }
 

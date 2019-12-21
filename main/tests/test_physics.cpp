@@ -159,7 +159,7 @@ protected:
 
         /* CAPSULE SHAPE */
 
-        PoolVector<Plane> capsule_planes = Geometry::build_capsule_planes(0.5, 0.7, 12, Vector3::AXIS_Z);
+        PoolVector<Plane> capsule_planes = Geometry::build_capsule_planes(0.5, 0.7f, 12, Vector3::AXIS_Z);
 
         RID capsule_mesh = vs->mesh_create();
         Geometry::MeshData capsule_data = Geometry::build_convex_mesh(capsule_planes);
@@ -176,7 +176,7 @@ protected:
 
         /* CONVEX SHAPE */
 
-        PoolVector<Plane> convex_planes = Geometry::build_cylinder_planes(0.5, 0.7, 5, Vector3::AXIS_Z);
+        PoolVector<Plane> convex_planes = Geometry::build_cylinder_planes(0.5, 0.7f, 5, Vector3::AXIS_Z);
 
         RID convex_mesh = vs->mesh_create();
         Geometry::MeshData convex_data = Geometry::build_convex_mesh(convex_planes);
@@ -186,7 +186,7 @@ protected:
         type_mesh_map[PhysicsServer::SHAPE_CONVEX_POLYGON] = convex_mesh;
 
         RID convex_shape = ps->shape_create(PhysicsServer::SHAPE_CONVEX_POLYGON);
-        ps->shape_set_data(convex_shape, convex_data.vertices);
+        ps->shape_set_data(convex_shape, Variant::from(convex_data.vertices));
         type_shape_map[PhysicsServer::SHAPE_CONVEX_POLYGON] = convex_shape;
     }
 
@@ -195,8 +195,8 @@ protected:
         VisualServer *vs = VisualServer::get_singleton();
         PhysicsServer *ps = PhysicsServer::get_singleton();
         RID trimesh_shape = ps->shape_create(PhysicsServer::SHAPE_CONCAVE_POLYGON);
-        ps->shape_set_data(trimesh_shape, p_faces);
-        p_faces = ps->shape_get_data(trimesh_shape); // optimized one
+        ps->shape_set_data(trimesh_shape, Variant::from(p_faces));
+        p_faces = ps->shape_get_data(trimesh_shape).as<Vector<Vector3>>(); // optimized one
         Vector<Vector3> normals; // for drawing
         for (int i = 0; i < p_faces.size() / 3; i++) {
 
@@ -209,8 +209,8 @@ protected:
         RID trimesh_mesh = vs->mesh_create();
         Array d;
         d.resize(VS::ARRAY_MAX);
-        d[VS::ARRAY_VERTEX] = p_faces;
-        d[VS::ARRAY_NORMAL] = normals;
+        d[VS::ARRAY_VERTEX] = Variant::from(p_faces);
+        d[VS::ARRAY_NORMAL] = Variant::from(normals);
         vs->mesh_add_surface_from_arrays(trimesh_mesh, VS::PRIMITIVE_TRIANGLES, d);
 
         RID triins = vs->instance_create2(trimesh_mesh, scenario);
@@ -236,7 +236,7 @@ protected:
 
             for (int j = 0; j < p_height; j++) {
 
-                grid.write[i].write[j] = 1.0 + Math::random(-p_cellheight, p_cellheight);
+                grid.write[i].write[j] = 1.0f + Math::random(-p_cellheight, p_cellheight);
             }
         }
 

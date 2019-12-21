@@ -62,7 +62,7 @@ Error AudioDriverALSA::init_device() {
         fprintf(stderr, "ALSA ERR: %s\n", snd_strerror(status)); \
         if (pcm_handle) {                                        \
             snd_pcm_close(pcm_handle);                           \
-            pcm_handle = NULL;                                   \
+            pcm_handle = nullptr;                                \
         }                                                        \
         ERR_FAIL_COND_V(m_cond, ERR_CANT_OPEN)                  \
     }

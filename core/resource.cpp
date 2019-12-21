@@ -29,6 +29,7 @@
 /*************************************************************************/
 
 #include "resource.h"
+#include "rid.h"
 
 #include "core/class_db.h"
 #include "core/core_string_names.h"
@@ -511,7 +512,7 @@ void ResourceCache::clear() {
 void ResourceCache::reload_externals() {
 
     /*
-    const String *K=NULL;
+    const String *K=nullptr;
     while ((K=resources.next(K))) {
         resources[*K]->reload_external_data();
     }

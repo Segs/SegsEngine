@@ -160,7 +160,7 @@ class TileMapEditor : public VBoxContainer {
 	List<TileData> copydata;
 
 	Map<Point2i, CellOp> undo_data;
-	Vector<int> invalid_cell;
+    static constexpr int invalid_cell[1] = {TileMap::INVALID_CELL};
 
 	void _pick_tile(const Point2 &p_pos);
 
@@ -197,7 +197,7 @@ class TileMapEditor : public VBoxContainer {
 	void _start_undo(se_string_view p_action);
 	void _finish_undo();
 	void _create_set_cell_undo_redo(const Vector2 &p_vec, const CellOp &p_cell_old, const CellOp &p_cell_new);
-	void _set_cell(const Point2i &p_pos, const Vector<int>& p_values, bool p_flip_h = false, bool p_flip_v = false, bool p_transpose = false, const Point2i &p_autotile_coord = Point2());
+	void _set_cell(const Point2i &p_pos, Span<const int> p_values, bool p_flip_h = false, bool p_flip_v = false, bool p_transpose = false, const Point2i &p_autotile_coord = Point2());
 
 	void _canvas_mouse_enter();
 	void _canvas_mouse_exit();

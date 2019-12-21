@@ -349,7 +349,7 @@ struct SignatureHelpOptions {
      * The characters that trigger signature help
      * automatically.
      */
-    Vector<String> triggerCharacters;
+    PoolVector<se_string> triggerCharacters;
 
     Dictionary to_json() {
         Dictionary dict;
@@ -413,7 +413,7 @@ struct ExecuteCommandOptions {
     /**
      * The commands to be executed on the server
      */
-    Vector<String> commands;
+    PoolVector<se_string> commands;
 
     Dictionary to_json() {
         Dictionary dict;
@@ -523,12 +523,12 @@ struct DocumentOnTypeFormattingOptions {
     /**
      * More trigger characters.
      */
-    Vector<se_string> moreTriggerCharacter;
+    PoolVector<se_string> moreTriggerCharacter;
 
     Dictionary to_json() {
         Dictionary dict;
         dict["firstTriggerCharacter"] = firstTriggerCharacter;
-        dict["moreTriggerCharacter"] = Variant(Vector<se_string>(moreTriggerCharacter));
+        dict["moreTriggerCharacter"] = moreTriggerCharacter;
         return dict;
     }
 };

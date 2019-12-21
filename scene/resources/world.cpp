@@ -163,7 +163,7 @@ struct SpatialIndexer {
 
             Camera *c = E.first;
 
-            Vector<Plane> planes = c->get_frustum();
+            Frustum planes = c->get_frustum();
 
             int culled = octree.cull_convex(planes, cull.ptrw(), cull.size());
 

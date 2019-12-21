@@ -92,7 +92,7 @@ int mainT(int argc, char *argv[]) {
 
 int main(int argc, char *argv[]) {
 #ifdef CRASH_HANDLER_EXCEPTION
-    godot_hinstance = GetModuleHandle(NULL);
+    godot_hinstance = GetModuleHandle(nullptr);
     __try {
         return mainT<OS_Windows>(argc,argv);
     } __except (CrashHandlerException(GetExceptionInformation())) {

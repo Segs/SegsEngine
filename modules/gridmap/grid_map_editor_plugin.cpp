@@ -31,6 +31,7 @@
 #include "grid_map_editor_plugin.h"
 
 #include "core/method_bind.h"
+#include "core/math/camera_matrix.h"
 #include "core/os/input.h"
 #include "core/translation_helpers.h"
 #include "editor/editor_scale.h"
@@ -390,7 +391,7 @@ bool GridMapEditor::do_input_action(Camera *p_camera, const Point2 &p_point, boo
     Vector3 from = camera->project_ray_origin(p_point);
     Vector3 normal = camera->project_ray_normal(p_point);
     Transform local_xform = node->get_global_transform().affine_inverse();
-    Vector<Plane> planes = camera->get_frustum();
+    Frustum planes = camera->get_frustum();
     from = local_xform.xform(from);
     normal = local_xform.basis.xform(normal).normalized();
 
@@ -404,9 +405,9 @@ bool GridMapEditor::do_input_action(Camera *p_camera, const Point2 &p_point, boo
 
     // Make sure the intersection is inside the frustum planes, to avoid
     // Painting on invisible regions.
-    for (int i = 0; i < planes.size(); i++) {
+    for (const Plane &pl : Span<const Plane>(planes)) {
 
-        Plane fp = local_xform.xform(planes[i]);
+        Plane fp = local_xform.xform(pl);
         if (fp.is_point_over(inters))
             return false;
     }
@@ -433,7 +434,7 @@ bool GridMapEditor::do_input_action(Camera *p_camera, const Point2 &p_point, boo
 
     if (cursor_instance.is_valid()) {
 
-        cursor_origin = (Vector3(cell[0], cell[1], cell[2]) + Vector3(0.5 * node->get_center_x(), 0.5 * node->get_center_y(), 0.5 * node->get_center_z())) * node->get_cell_size();
+        cursor_origin = (Vector3(cell[0], cell[1], cell[2]) + Vector3(0.5f * node->get_center_x(), 0.5f * node->get_center_y(), 0.5f * node->get_center_z())) * node->get_cell_size();
         cursor_visible = true;
 
         if (input_action == INPUT_SELECT || input_action == INPUT_PASTE) {
@@ -1022,8 +1023,8 @@ void GridMapEditor::_draw_grids(const Vector3 &cell_size) {
         edit_floor[i] = edited_floor[i];
     }
 
-    Vector<Vector3> grid_points[3];
-    Vector<Color> grid_colors[3];
+    PODVector<Vector3> grid_points[3];
+    PODVector<Color> grid_colors[3];
 
     for (int i = 0; i < 3; i++) {
 
@@ -1039,13 +1040,13 @@ void GridMapEditor::_draw_grids(const Vector3 &cell_size) {
             for (int k = -GRID_CURSOR_SIZE; k <= GRID_CURSOR_SIZE; k++) {
 
                 Vector3 p = axis_n1 * j + axis_n2 * k;
-                float trans = Math::pow(MAX(0, 1.0 - (Vector2(j, k).length() / GRID_CURSOR_SIZE)), 2);
+                float trans = Math::pow(MAX(0, 1.0f - (Vector2(j, k).length() / GRID_CURSOR_SIZE)), 2);
 
                 Vector3 pj = axis_n1 * (j + 1) + axis_n2 * k;
-                float transj = Math::pow(MAX(0, 1.0 - (Vector2(j + 1, k).length() / GRID_CURSOR_SIZE)), 2);
+                float transj = Math::pow(MAX(0, 1.0f - (Vector2(j + 1, k).length() / GRID_CURSOR_SIZE)), 2);
 
                 Vector3 pk = axis_n1 * j + axis_n2 * (k + 1);
-                float transk = Math::pow(MAX(0, 1.0 - (Vector2(j, k + 1).length() / GRID_CURSOR_SIZE)), 2);
+                float transk = Math::pow(MAX(0, 1.0f - (Vector2(j, k + 1).length() / GRID_CURSOR_SIZE)), 2);
 
                 grid_points[i].push_back(p);
                 grid_points[i].push_back(pk);

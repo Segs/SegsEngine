@@ -31,14 +31,16 @@
 #include "sphere_shape.h"
 #include "servers/physics_server.h"
 #include "core/method_bind.h"
+#include "core/math/vector2.h"
+
 
 IMPL_GDCLASS(SphereShape)
 
-Vector<Vector3> SphereShape::get_debug_mesh_lines() {
+PODVector<Vector3> SphereShape::get_debug_mesh_lines() {
 
     float r = get_radius();
 
-    Vector<Vector3> points;
+    PODVector<Vector3> points;
 
     for (int i = 0; i <= 360; i++) {
 

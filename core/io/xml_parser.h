@@ -112,7 +112,7 @@ public:
     Error seek(uint64_t p_pos);
 
     Error open(se_string_view p_path);
-    Error open_buffer(const Vector<uint8_t> &p_buffer);
+    Error open_buffer(const PoolVector<uint8_t> &p_buffer);
 
     void close();
 

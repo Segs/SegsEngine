@@ -238,14 +238,15 @@ void PathSpatialGizmo::redraw() {
     int v3s = v3a.size();
     if (v3s == 0)
         return;
-    Vector<Vector3> v3p;
+    PODVector<Vector3> v3p;
     PoolVector<Vector3>::Read r = v3a.read();
 
+    v3p.reserve((v3s - 1)*2);
     // BUG: the following won't work when v3s, avoid drawing as a temporary workaround.
     for (int i = 0; i < v3s - 1; i++) {
 
-        v3p.push_back(r[i]);
-        v3p.push_back(r[i + 1]);
+        v3p.emplace_back(r[i]);
+        v3p.emplace_back(r[i + 1]);
         //v3p.push_back(r[i]);
         //v3p.push_back(r[i]+Vector3(0,0.2,0));
     }

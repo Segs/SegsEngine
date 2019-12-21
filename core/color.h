@@ -88,9 +88,16 @@ struct GODOT_EXPORT Color {
     bool is_equal_approx(Color p_color) const {
         return Math::is_equal_approx(r, p_color.r) && Math::is_equal_approx(g, p_color.g) && Math::is_equal_approx(b, p_color.b) && Math::is_equal_approx(a, p_color.a);
     }
-    void invert();
+    void invert() {
+
+        r = 1.0f - r;
+        g = 1.0f - g;
+        b = 1.0f - b;
+    }
+    [[nodiscard]] constexpr Color inverted() const {
+        return Color(1.0f-r,1.0f-g,1.0f-b);
+    }
     void contrast();
-    [[nodiscard]] Color inverted() const;
     [[nodiscard]] Color contrasted() const;
 
     [[nodiscard]] _FORCE_INLINE_ Color linear_interpolate(const Color &p_b, float p_t) const {
@@ -121,39 +128,7 @@ struct GODOT_EXPORT Color {
         );
     }
 
-    [[nodiscard]] _FORCE_INLINE_ uint32_t to_rgbe9995() const {
-
-        const float pow2to9 = 512.0f;
-        const float B = 15.0f;
-        //const float Emax = 31.0f;
-        const float N = 9.0f;
-
-        float sharedexp = 65408.0f; //(( pow2to9  - 1.0f)/ pow2to9)*powf( 2.0f, 31.0f - 15.0f);
-
-        float cRed = MAX(0.0f, MIN(sharedexp, r));
-        float cGreen = MAX(0.0f, MIN(sharedexp, g));
-        float cBlue = MAX(0.0f, MIN(sharedexp, b));
-
-        float cMax = MAX(cRed, MAX(cGreen, cBlue));
-
-        // expp = MAX(-B - 1, log2(maxc)) + 1 + B
-
-        const float expp = MAX(-B - 1.0f, std::floor(Math::log(cMax) / float(Math_LN2))) + 1.0f + B;
-
-        float sMax = (float)std::floor((cMax / Math::pow(2.0f, expp - B - N)) + 0.5f);
-
-        float exps = expp + 1.0f;
-
-        if (0.0f <= sMax && sMax < pow2to9) {
-            exps = expp;
-        }
-
-        float sRed = Math::floor((cRed / std::pow(2.0f, exps - B - N)) + 0.5f);
-        float sGreen = Math::floor((cGreen / std::pow(2.0f, exps - B - N)) + 0.5f);
-        float sBlue = Math::floor((cBlue / std::pow(2.0f, exps - B - N)) + 0.5f);
-
-        return (uint32_t(Math::fast_ftoi(sRed)) & 0x1FF) | ((uint32_t(Math::fast_ftoi(sGreen)) & 0x1FF) << 9) | ((uint32_t(Math::fast_ftoi(sBlue)) & 0x1FF) << 18) | ((uint32_t(Math::fast_ftoi(exps)) & 0x1F) << 27);
-    }
+    [[nodiscard]] uint32_t to_rgbe9995() const;
 
     [[nodiscard]] _FORCE_INLINE_ Color blend(const Color &p_over) const {
 
@@ -192,7 +167,7 @@ struct GODOT_EXPORT Color {
     static bool html_is_valid(se_string_view p_color);
     static Color named(se_string_view p_name);
     [[nodiscard]] se_string to_html(bool p_alpha = true) const;
-    [[nodiscard]] Color from_hsv(float p_h, float p_s, float p_v, float p_a) const;
+    [[nodiscard]] static Color from_hsv(float p_h, float p_s, float p_v, float p_a);
     static Color from_rgbe9995(uint32_t p_rgbe);
 
     _FORCE_INLINE_ bool operator<(const Color &p_color) const; //used in set keys

@@ -29,7 +29,9 @@
 /*************************************************************************/
 
 #include "arvr_server.h"
+
 #include "arvr/arvr_interface.h"
+#include "arvr/arvr_enum_casters.h"
 #include "arvr/arvr_positional_tracker.h"
 #include "core/method_bind.h"
 #include "core/os/mutex.h"
@@ -37,8 +39,6 @@
 #include "core/project_settings.h"
 
 IMPL_GDCLASS(ARVRServer)
-VARIANT_ENUM_CAST(ARVRServer::TrackerType);
-VARIANT_ENUM_CAST(ARVRServer::RotationMode);
 
 ARVRServer *ARVRServer::singleton = nullptr;
 

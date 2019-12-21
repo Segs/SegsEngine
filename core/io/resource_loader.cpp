@@ -30,13 +30,12 @@
 
 #include "resource_loader.h"
 
+#include "core/pool_vector.h"
 #include "core/os/mutex.h"
-
-#include <utility>
-
 #include "core/io/resource_importer.h"
 #include "core/os/file_access.h"
 #include "core/os/os.h"
+#include "core/os/rw_lock.h"
 #include "core/print_string.h"
 #include "core/project_settings.h"
 #include "core/translation.h"
@@ -45,6 +44,9 @@
 #include "core/method_bind.h"
 #include "core/property_info.h"
 #include "core/plugin_interfaces/ResourceLoaderInterface.h"
+
+#include <utility>
+
 namespace {
 /**
  * @brief The ResourceFormatLoaderWrap class is meant as a wrapper for a plugin-based resource format loaders.
@@ -202,14 +204,7 @@ bool ResourceFormatLoader::exists(se_string_view p_path) const {
 void ResourceFormatLoader::get_recognized_extensions(PODVector<se_string> &p_extensions) const {
 
     if (get_script_instance() && get_script_instance()->has_method("get_recognized_extensions")) {
-        PoolSeStringArray exts = get_script_instance()->call("get_recognized_extensions");
-
-        {
-            PoolSeStringArray::Read r = exts.read();
-            for (int i = 0; i < exts.size(); ++i) {
-                p_extensions.push_back(r[i]);
-            }
-        }
+        p_extensions = get_script_instance()->call("get_recognized_extensions").as<PODVector<se_string>>();
     }
 }
 
@@ -221,7 +216,7 @@ RES ResourceFormatLoader::load(se_string_view p_path, se_string_view p_original_
         if (res.get_type() == VariantType::INT) {
 
             if (r_error)
-                *r_error = (Error)res.operator int64_t();
+                *r_error = (Error)res.as<int64_t>();
 
         } else {
 
@@ -254,17 +249,10 @@ RES ResourceFormatLoader::load(se_string_view p_path, se_string_view p_original_
     }
 }
 
-void ResourceFormatLoader::get_dependencies(se_string_view p_path, ListPOD<se_string> *p_dependencies, bool p_add_types) {
+void ResourceFormatLoader::get_dependencies(se_string_view p_path, PODVector<se_string> &p_dependencies, bool p_add_types) {
 
     if (get_script_instance() && get_script_instance()->has_method("get_dependencies")) {
-        PoolSeStringArray deps = get_script_instance()->call("get_dependencies", p_path, p_add_types);
-
-        {
-            PoolSeStringArray::Read r = deps.read();
-            for (int i = 0; i < deps.size(); ++i) {
-                p_dependencies->push_back(r[i]);
-            }
-        }
+        p_dependencies = get_script_instance()->call("get_dependencies", p_path, p_add_types).as<PODVector<se_string>>();
     }
 }
 
@@ -749,7 +737,7 @@ bool ResourceLoader::is_imported(se_string_view p_path) {
     return false; //not found
 }
 
-void ResourceLoader::get_dependencies(se_string_view p_path, ListPOD<se_string> *p_dependencies, bool p_add_types) {
+void ResourceLoader::get_dependencies(se_string_view p_path, PODVector<se_string> &p_dependencies, bool p_add_types) {
 
     se_string path = _path_remap(p_path);
 

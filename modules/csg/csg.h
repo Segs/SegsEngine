@@ -200,9 +200,7 @@ struct CSGBrushOperation {
     };
 
     struct PolyPoints {
-
         Vector<int> points;
-
         Vector<Vector<int> > holes;
     };
 

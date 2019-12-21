@@ -87,7 +87,7 @@
 #define SOCK_CLOSE closesocket
 // connect is broken on windows under certain conditions, reasons unknown:
 // See https://github.com/godotengine/webrtc-native/issues/6
-#define SOCK_CONNECT(p_sock, p_addr, p_addr_len) ::WSAConnect(p_sock, p_addr, p_addr_len, NULL, NULL, NULL, NULL)
+#define SOCK_CONNECT(p_sock, p_addr, p_addr_len) ::WSAConnect(p_sock, p_addr, p_addr_len, nullptr, nullptr, nullptr, nullptr)
 
 // Workaround missing flag in MinGW
 #if defined(__MINGW32__) && !defined(SIO_UDP_NETRESET)
@@ -444,15 +444,15 @@ Error NetSocketPosix::poll(PollType p_type, int p_timeout) const {
 #if defined(WINDOWS_ENABLED)
     bool ready = false;
     fd_set rd, wr, ex;
-    fd_set *rdp = NULL;
-    fd_set *wrp = NULL;
+    fd_set *rdp = nullptr;
+    fd_set *wrp = nullptr;
     FD_ZERO(&rd);
     FD_ZERO(&wr);
     FD_ZERO(&ex);
     FD_SET(_sock, &ex);
     struct timeval timeout = { p_timeout, 0 };
     // For blocking operation, pass NULL timeout pointer to select.
-    struct timeval *tp = NULL;
+    struct timeval *tp = nullptr;
     if (p_timeout >= 0) {
         //  If timeout is non-negative, we want to specify the timeout instead.
         tp = &timeout;

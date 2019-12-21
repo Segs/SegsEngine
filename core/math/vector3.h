@@ -98,7 +98,7 @@ struct GODOT_EXPORT Vector3 {
     Vector3 move_toward(const Vector3 &p_to, const real_t p_delta) const;
 
     _FORCE_INLINE_ Vector3 cross(const Vector3 &p_b) const;
-    _FORCE_INLINE_ real_t dot(const Vector3 &p_b) const;
+    constexpr _FORCE_INLINE_ real_t dot(const Vector3 &p_b) const;
     Basis outer(const Vector3 &p_b) const;
     Basis to_diagonal_matrix() const;
 
@@ -169,7 +169,7 @@ Vector3 Vector3::cross(const Vector3 &p_b) const {
     return ret;
 }
 
-real_t Vector3::dot(const Vector3 &p_b) const {
+constexpr real_t Vector3::dot(const Vector3 &p_b) const {
 
     return x * p_b.x + y * p_b.y + z * p_b.z;
 }

@@ -542,7 +542,7 @@ class EditorPropertyNodePath : public EditorProperty {
     NodePath base_hint;
     bool use_path_from_scene_root;
 
-    Vector<StringName> valid_types;
+    PODVector<StringName> valid_types;
     void _node_selected(const NodePath &p_path);
     void _node_assign();
     void _node_clear();
@@ -553,7 +553,7 @@ protected:
 
 public:
     void update_property() override;
-    void setup(const NodePath &p_base_hint, const Vector<StringName>& p_valid_types, bool p_use_path_from_scene_root = true);
+    void setup(const NodePath &p_base_hint, PODVector<StringName> &&p_valid_types, bool p_use_path_from_scene_root = true);
     EditorPropertyNodePath();
 };
 

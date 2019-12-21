@@ -103,7 +103,7 @@ void Polygon3DEditor::_wip_close() {
 
     undo_redo->create_action_ui(TTR("Create Polygon3D"));
     undo_redo->add_undo_method(node, "set_polygon", node->call("get_polygon"));
-    undo_redo->add_do_method(node, "set_polygon", wip);
+    undo_redo->add_do_method(node, "set_polygon", Variant::from(wip));
     undo_redo->add_do_method(this, "_polygon_draw");
     undo_redo->add_undo_method(this, "_polygon_draw");
     wip.clear();
@@ -147,7 +147,7 @@ bool Polygon3DEditor::forward_spatial_gui_input(Camera *p_camera, const Ref<Inpu
         //Let the snap happen when the point is being moved, instead.
         //cpoint = CanvasItemEditor::get_singleton()->snap_point(cpoint);
 
-        Vector<Vector2> poly = node->call("get_polygon");
+        Vector<Vector2> poly = node->call("get_polygon").as<Vector<Vector2>>();
 
         //first check if a point is to be added (segment split)
         real_t grab_threshold = EDITOR_GET("editors/poly_editor/point_grab_radius");
@@ -200,9 +200,9 @@ bool Polygon3DEditor::forward_spatial_gui_input(Camera *p_camera, const Ref<Inpu
                             if (poly.size() < 3) {
 
                                 undo_redo->create_action_ui(TTR("Edit Poly"));
-                                undo_redo->add_undo_method(node, "set_polygon", poly);
+                                undo_redo->add_undo_method(node, "set_polygon", Variant::from(poly));
                                 poly.push_back(cpoint);
-                                undo_redo->add_do_method(node, "set_polygon", poly);
+                                undo_redo->add_do_method(node, "set_polygon", Variant::from(poly));
                                 undo_redo->add_do_method(this, "_polygon_draw");
                                 undo_redo->add_undo_method(this, "_polygon_draw");
                                 undo_redo->commit_action();
@@ -238,7 +238,7 @@ bool Polygon3DEditor::forward_spatial_gui_input(Camera *p_camera, const Ref<Inpu
                                 poly.insert(closest_idx + 1, cpoint);
                                 edited_point = closest_idx + 1;
                                 edited_point_pos = cpoint;
-                                node->call("set_polygon", poly);
+                                node->call("set_polygon", Variant::from(poly));
                                 _polygon_draw();
                                 snap_ignore = true;
 
@@ -284,8 +284,8 @@ bool Polygon3DEditor::forward_spatial_gui_input(Camera *p_camera, const Ref<Inpu
                             ERR_FAIL_INDEX_V(edited_point, poly.size(), false);
                             poly.write[edited_point] = edited_point_pos;
                             undo_redo->create_action_ui(TTR("Edit Poly"));
-                            undo_redo->add_do_method(node, "set_polygon", poly);
-                            undo_redo->add_undo_method(node, "set_polygon", pre_move_edit);
+                            undo_redo->add_do_method(node, "set_polygon", Variant::from(poly));
+                            undo_redo->add_undo_method(node, "set_polygon", Variant::from(pre_move_edit));
                             undo_redo->add_do_method(this, "_polygon_draw");
                             undo_redo->add_undo_method(this, "_polygon_draw");
                             undo_redo->commit_action();
@@ -315,9 +315,9 @@ bool Polygon3DEditor::forward_spatial_gui_input(Camera *p_camera, const Ref<Inpu
                     if (closest_idx >= 0) {
 
                         undo_redo->create_action_ui(TTR("Edit Poly (Remove Point)"));
-                        undo_redo->add_undo_method(node, "set_polygon", poly);
+                        undo_redo->add_undo_method(node, "set_polygon", Variant::from(poly));
                         poly.remove(closest_idx);
-                        undo_redo->add_do_method(node, "set_polygon", poly);
+                        undo_redo->add_do_method(node, "set_polygon", Variant::from(poly));
                         undo_redo->add_do_method(this, "_polygon_draw");
                         undo_redo->add_undo_method(this, "_polygon_draw");
                         undo_redo->commit_action();
@@ -384,7 +384,7 @@ void Polygon3DEditor::_polygon_draw() {
     if (wip_active)
         poly = wip;
     else
-        poly = node->call("get_polygon");
+        poly = node->call("get_polygon").as<Vector<Vector2>>();
 
     float depth = _get_depth() * 0.5f;
 
@@ -502,7 +502,7 @@ void Polygon3DEditor::edit(Node *p_collision_polygon) {
 
         node = object_cast<Spatial>(p_collision_polygon);
         //Enable the pencil tool if the polygon is empty
-        if (Vector<Vector2>(node->call("get_polygon")).empty()) {
+        if (node->call("get_polygon").as<Vector<Vector2>>().empty()) {
             _menu_option(MODE_CREATE);
         }
         wip.clear();

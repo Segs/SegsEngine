@@ -572,7 +572,7 @@ public:
     /* LIGHT SHADOW MAPPING */
 
     virtual RID canvas_light_occluder_create() = 0;
-    virtual void canvas_light_occluder_set_polylines(RID p_occluder, const PoolVector<Vector2> &p_lines) = 0;
+    virtual void canvas_light_occluder_set_polylines(RID p_occluder, Span<const Vector2> p_lines) = 0;
 
     virtual VS::InstanceType get_base_type(RID p_rid) const = 0;
     virtual bool free(RID p_rid) = 0;
@@ -594,7 +594,7 @@ public:
     virtual ~RasterizerStorage() {}
 };
 
-class RasterizerCanvas {
+class GODOT_EXPORT RasterizerCanvas {
 public:
     enum CanvasRectFlags {
 
@@ -710,12 +710,12 @@ public:
         };
         struct CommandPolyLine : public Command {
 
-            bool antialiased;
-            bool multiline;
             Vector<Point2> triangles;
             Vector<Color> triangle_colors;
             Vector<Point2> lines;
             Vector<Color> line_colors;
+            bool antialiased;
+            bool multiline;
             CommandPolyLine() {
                 type = TYPE_POLYLINE;
                 antialiased = false;
@@ -772,8 +772,8 @@ public:
 
         struct CommandPolygon : public Command {
 
-            Vector<int> indices;
-            Vector<Point2> points;
+            PODVector<int> indices;
+            PODVector<Point2> points;
             Vector<Point2> uvs;
             Vector<Color> colors;
             Vector<int> bones;

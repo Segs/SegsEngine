@@ -101,7 +101,7 @@ bool AbstractPolygon2DEditor::_is_empty() const {
 
     for (int i = 0; i < n; i++) {
 
-        Vector<Vector2> vertices = _get_polygon(i);
+        Vector<Vector2> vertices = _get_polygon(i).as<Vector<Vector2>>();
 
         if (!vertices.empty())
             return false;
@@ -130,9 +130,9 @@ Variant AbstractPolygon2DEditor::_get_polygon(int p_idx) const {
     return _get_node()->get("polygon");
 }
 
-void AbstractPolygon2DEditor::_set_polygon(int p_idx, const Variant &p_polygon) const {
+void AbstractPolygon2DEditor::_set_polygon(int p_idx, const Vector<Vector2> &p_polygon) const {
 
-    _get_node()->set("polygon", p_polygon);
+    _get_node()->set("polygon", Variant::from(p_polygon));
 }
 
 void AbstractPolygon2DEditor::_action_set_polygon(int p_idx, const Variant &p_previous, const Variant &p_polygon) {
@@ -265,7 +265,7 @@ void AbstractPolygon2DEditor::_wip_close() {
     } else if (wip.size() >= (_is_line() ? 2 : 3)) {
 
         undo_redo->create_action_ui(TTR("Create Polygon"));
-        _action_add_polygon(wip);
+        _action_add_polygon(Variant::from(wip));
         if (_has_uv()) {
             undo_redo->add_do_method(_get_node(), "set_uv", Variant(PoolVector<Vector2>()));
             undo_redo->add_undo_method(_get_node(), "set_uv", _get_node()->get("uv"));
@@ -347,7 +347,7 @@ bool AbstractPolygon2DEditor::forward_gui_input(const Ref<InputEvent> &p_event) 
 
                     if (insert.valid()) {
 
-                        Vector<Vector2> vertices = _get_polygon(insert.polygon);
+                        PODVector<Vector2> vertices = _get_polygon(insert.polygon).as<PODVector<Vector2>>();
 
                         if (vertices.size() < (_is_line() ? 2 : 3)) {
 
@@ -359,7 +359,7 @@ bool AbstractPolygon2DEditor::forward_gui_input(const Ref<InputEvent> &p_event) 
                             return true;
                         } else {
 
-                            Vector<Vector2> vertices2 = _get_polygon(insert.polygon);
+                            Vector<Vector2> vertices2 = _get_polygon(insert.polygon).as<Vector<Vector2>>();
                             pre_move_edit = vertices2;
                             edited_point = PosVertex(insert.polygon, insert.vertex + 1, xform.affine_inverse().xform(insert.pos));
                             vertices2.insert(edited_point.vertex, edited_point.pos);
@@ -367,7 +367,7 @@ bool AbstractPolygon2DEditor::forward_gui_input(const Ref<InputEvent> &p_event) 
                             edge_point = PosVertex();
 
                             undo_redo->create_action_ui(TTR("Insert Point"));
-                            _action_set_polygon(insert.polygon, vertices2);
+                            _action_set_polygon(insert.polygon, Variant::from(vertices2));
                             _commit_action();
                             return true;
                         }
@@ -378,7 +378,7 @@ bool AbstractPolygon2DEditor::forward_gui_input(const Ref<InputEvent> &p_event) 
 
                         if (closest.valid()) {
 
-                            pre_move_edit = _get_polygon(closest.polygon);
+                            pre_move_edit = _get_polygon(closest.polygon).as<Vector<Vector2>>();
                             edited_point = PosVertex(closest, xform.affine_inverse().xform(closest.pos));
                             selected_point = closest;
                             edge_point = PosVertex();
@@ -395,12 +395,12 @@ bool AbstractPolygon2DEditor::forward_gui_input(const Ref<InputEvent> &p_event) 
 
                         //apply
 
-                        Vector<Vector2> vertices = _get_polygon(edited_point.polygon);
+                        PODVector<Vector2> vertices = _get_polygon(edited_point.polygon).as<PODVector<Vector2>>();
                         ERR_FAIL_INDEX_V(edited_point.vertex, vertices.size(), false);
-                        vertices.write[edited_point.vertex] = edited_point.pos - _get_offset(edited_point.polygon);
+                        vertices[edited_point.vertex] = edited_point.pos - _get_offset(edited_point.polygon);
 
                         undo_redo->create_action_ui(TTR("Edit Polygon"));
-                        _action_set_polygon(edited_point.polygon, pre_move_edit, vertices);
+                        _action_set_polygon(edited_point.polygon, Variant::from(pre_move_edit), vertices);
                         _commit_action();
 
                         edited_point = PosVertex();
@@ -438,7 +438,7 @@ bool AbstractPolygon2DEditor::forward_gui_input(const Ref<InputEvent> &p_event) 
                 if (_is_line()) {
 
                     // for lines, we don't have a wip mode, and we can undo each single add point.
-                    Vector<Vector2> vertices = _get_polygon(0);
+                    PODVector<Vector2> vertices = _get_polygon(0).as<PODVector<Vector2>>();
                     vertices.push_back(cpoint);
                     undo_redo->create_action_ui(TTR("Insert Point"));
                     _action_set_polygon(0, vertices);
@@ -506,7 +506,7 @@ bool AbstractPolygon2DEditor::forward_gui_input(const Ref<InputEvent> &p_event) 
 
             if (!wip_active) {
 
-                Vector<Vector2> vertices = _get_polygon(edited_point.polygon);
+                Vector<Vector2> vertices = _get_polygon(edited_point.polygon).as<Vector<Vector2>>();
                 ERR_FAIL_INDEX_V(edited_point.vertex, vertices.size(), false)
                 vertices.write[edited_point.vertex] = cpoint - _get_offset(edited_point.polygon);
                 _set_polygon(edited_point.polygon, vertices);
@@ -600,7 +600,7 @@ void AbstractPolygon2DEditor::forward_canvas_draw_over_viewport(Control *p_overl
 
         if (wip_active && j == edited_point.polygon) {
 
-            points = Variant(wip);
+            points = Variant::from(wip);
             offset = Vector2(0, 0);
         } else {
 

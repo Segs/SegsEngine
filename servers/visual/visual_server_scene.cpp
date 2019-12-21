@@ -836,7 +836,7 @@ Vector<ObjectID> VisualServerScene::instances_cull_convex(const Vector<Plane> &p
     int culled = 0;
     Instance *cull[1024];
 
-    culled = scenario->octree.cull_convex(p_convex, cull, 1024);
+    culled = scenario->octree.cull_convex({p_convex.ptr(),p_convex.size()}, cull, 1024);
 
     for (int i = 0; i < culled; i++) {
 
@@ -1330,7 +1330,7 @@ bool VisualServerScene::_light_instance_update_shadow(Instance *p_instance, cons
 
             if (depth_range_mode == VS::LIGHT_DIRECTIONAL_SHADOW_DEPTH_RANGE_OPTIMIZED) {
                 //optimize min/max
-                Vector<Plane> planes = p_cam_projection.get_projection_planes(p_cam_transform);
+                Frustum planes = p_cam_projection.get_projection_planes(p_cam_transform);
                 int cull_count = p_scenario->octree.cull_convex(planes, instance_shadow_cull_result, MAX_INSTANCE_CULL, VS::INSTANCE_GEOMETRY_MASK);
                 Plane base(p_cam_transform.origin, -p_cam_transform.basis.get_axis(2));
                 //check distance max and min
@@ -1384,7 +1384,7 @@ bool VisualServerScene::_light_instance_update_shadow(Instance *p_instance, cons
             distances[0] = min_distance;
             for (int i = 0; i < splits; i++) {
                 distances[i + 1] = min_distance + VSG::storage->light_get_param(p_instance->base, VS::LightParam(VS::LIGHT_PARAM_SHADOW_SPLIT_1_OFFSET + i)) * range;
-            };
+            }
 
             distances[splits] = max_distance;
 
@@ -1416,7 +1416,7 @@ bool VisualServerScene::_light_instance_update_shadow(Instance *p_instance, cons
 
                 Vector3 endpoints[8]; // frustum plane endpoints
                 bool res = camera_matrix.get_endpoints(p_cam_transform, endpoints);
-                ERR_CONTINUE(!res);
+                ERR_CONTINUE(!res)
 
                 // obtain the light frustm ranges (given endpoints)
 
@@ -1486,7 +1486,7 @@ bool VisualServerScene::_light_instance_update_shadow(Instance *p_instance, cons
                             radius = d;
                     }
 
-                    radius *= texture_size / (texture_size - 2.0); //add a texel by each side
+                    radius *= texture_size / (texture_size - 2.0f); //add a texel by each side
 
                     if (i == 0) {
                         first_radius = radius;
@@ -1505,7 +1505,7 @@ bool VisualServerScene::_light_instance_update_shadow(Instance *p_instance, cons
                         //this trick here is what stabilizes the shadow (make potential jaggies to not move)
                         //at the cost of some wasted resolution. Still the quality increase is very well worth it
 
-                        float unit = radius * 2.0 / texture_size;
+                        float unit = radius * 2.0f / texture_size;
 
                         x_max_cam = Math::stepify(x_max_cam, unit);
                         x_min_cam = Math::stepify(x_min_cam, unit);
@@ -1516,18 +1516,17 @@ bool VisualServerScene::_light_instance_update_shadow(Instance *p_instance, cons
 
                 //now that we now all ranges, we can proceed to make the light frustum planes, for culling octree
 
-                Vector<Plane> light_frustum_planes;
-                light_frustum_planes.resize(6);
+                Frustum light_frustum_planes;
 
                 //right/left
-                light_frustum_planes.write[0] = Plane(x_vec, x_max);
-                light_frustum_planes.write[1] = Plane(-x_vec, -x_min);
+                light_frustum_planes[0] = Plane(x_vec, x_max);
+                light_frustum_planes[1] = Plane(-x_vec, -x_min);
                 //top/bottom
-                light_frustum_planes.write[2] = Plane(y_vec, y_max);
-                light_frustum_planes.write[3] = Plane(-y_vec, -y_min);
+                light_frustum_planes[2] = Plane(y_vec, y_max);
+                light_frustum_planes[3] = Plane(-y_vec, -y_min);
                 //near/far
-                light_frustum_planes.write[4] = Plane(z_vec, z_max + 1e6);
-                light_frustum_planes.write[5] = Plane(-z_vec, -z_min); // z_min is ok, since casters further than far-light plane are not needed
+                light_frustum_planes[4] = Plane(z_vec, z_max + 1e6f);
+                light_frustum_planes[5] = Plane(-z_vec, -z_min); // z_min is ok, since casters further than far-light plane are not needed
 
                 int cull_count = p_scenario->octree.cull_convex(light_frustum_planes, instance_shadow_cull_result, MAX_INSTANCE_CULL, VS::INSTANCE_GEOMETRY_MASK);
 
@@ -1556,8 +1555,8 @@ bool VisualServerScene::_light_instance_update_shadow(Instance *p_instance, cons
                 {
 
                     CameraMatrix ortho_camera;
-                    real_t half_x = (x_max_cam - x_min_cam) * 0.5;
-                    real_t half_y = (y_max_cam - y_min_cam) * 0.5;
+                    real_t half_x = (x_max_cam - x_min_cam) * 0.5f;
+                    real_t half_y = (y_max_cam - y_min_cam) * 0.5f;
 
                     ortho_camera.set_orthogonal(-half_x, half_x, -half_y, half_y, 0, (z_max - z_min_cam));
 
@@ -1585,13 +1584,13 @@ bool VisualServerScene::_light_instance_update_shadow(Instance *p_instance, cons
                     float radius = VSG::storage->light_get_param(p_instance->base, VS::LIGHT_PARAM_RANGE);
 
                     float z = i == 0 ? -1 : 1;
-                    Vector<Plane> planes;
-                    planes.resize(5);
-                    planes.write[0] = light_transform.xform(Plane(Vector3(0, 0, z), radius));
-                    planes.write[1] = light_transform.xform(Plane(Vector3(1, 0, z).normalized(), radius));
-                    planes.write[2] = light_transform.xform(Plane(Vector3(-1, 0, z).normalized(), radius));
-                    planes.write[3] = light_transform.xform(Plane(Vector3(0, 1, z).normalized(), radius));
-                    planes.write[4] = light_transform.xform(Plane(Vector3(0, -1, z).normalized(), radius));
+                    Plane planes[5] = {
+                        light_transform.xform(Plane(Vector3(0, 0, z), radius)),
+                        light_transform.xform(Plane(Vector3(1, 0, z).normalized(), radius)),
+                        light_transform.xform(Plane(Vector3(-1, 0, z).normalized(), radius)),
+                        light_transform.xform(Plane(Vector3(0, 1, z).normalized(), radius)),
+                        light_transform.xform(Plane(Vector3(0, -1, z).normalized(), radius))
+                    };
 
                     int cull_count = p_scenario->octree.cull_convex(planes, instance_shadow_cull_result, MAX_INSTANCE_CULL, VS::INSTANCE_GEOMETRY_MASK);
                     Plane near_plane(light_transform.origin, light_transform.basis.get_axis(2) * z);
@@ -1645,7 +1644,7 @@ bool VisualServerScene::_light_instance_update_shadow(Instance *p_instance, cons
 
                     Transform xform = light_transform * Transform().looking_at(view_normals[i], view_up[i]);
 
-                    Vector<Plane> planes = cm.get_projection_planes(xform);
+                    Frustum planes = cm.get_projection_planes(xform);
 
                     int cull_count = p_scenario->octree.cull_convex(planes, instance_shadow_cull_result, MAX_INSTANCE_CULL, VS::INSTANCE_GEOMETRY_MASK);
 
@@ -1681,9 +1680,9 @@ bool VisualServerScene::_light_instance_update_shadow(Instance *p_instance, cons
             float angle = VSG::storage->light_get_param(p_instance->base, VS::LIGHT_PARAM_SPOT_ANGLE);
 
             CameraMatrix cm;
-            cm.set_perspective(angle * 2.0, 1.0, 0.01, radius);
+            cm.set_perspective(angle * 2.0f, 1.0, 0.01f, radius);
 
-            Vector<Plane> planes = cm.get_projection_planes(light_transform);
+            Frustum planes = cm.get_projection_planes(light_transform);
             int cull_count = p_scenario->octree.cull_convex(planes, instance_shadow_cull_result, MAX_INSTANCE_CULL, VS::INSTANCE_GEOMETRY_MASK);
 
             Plane near_plane(light_transform.origin, -light_transform.basis.get_axis(2));
@@ -1861,7 +1860,7 @@ void VisualServerScene::_prepare_scene(const Transform p_cam_transform, const Ca
 
     //rasterizer->set_camera(camera->transform, camera_matrix,ortho);
 
-    Vector<Plane> planes = p_cam_projection.get_projection_planes(p_cam_transform);
+    Frustum planes = p_cam_projection.get_projection_planes(p_cam_transform);
 
     Plane near_plane(p_cam_transform.origin, -p_cam_transform.basis.get_axis(2).normalized());
     float z_far = p_cam_projection.get_z_far();

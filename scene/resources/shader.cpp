@@ -185,9 +185,7 @@ RES ResourceFormatLoaderShader::load(se_string_view p_path, se_string_view p_ori
 
     Ref<Shader> shader(make_ref_counted<Shader>());
 
-    Vector<uint8_t> buffer = FileAccess::get_file_as_array(p_path);
-
-    se_string str((const char *)buffer.ptr(), buffer.size());
+    se_string str = FileAccess::get_file_as_string(p_path);
 
     shader->set_code(str);
 

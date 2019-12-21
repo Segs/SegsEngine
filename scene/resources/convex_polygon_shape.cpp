@@ -35,27 +35,26 @@
 
 IMPL_GDCLASS(ConvexPolygonShape)
 
-Vector<Vector3> ConvexPolygonShape::get_debug_mesh_lines() {
+PODVector<Vector3> ConvexPolygonShape::get_debug_mesh_lines() {
 
-    PoolVector<Vector3> points = get_points();
+    PODVector<Vector3> points = get_points();
 
     if (points.size() > 3) {
 
-        Vector<Vector3> varr = Variant(points);
         Geometry::MeshData md;
-        Error err = QuickHull::build(varr, md);
+        Error err = QuickHull::build(points, md);
         if (err == OK) {
-            Vector<Vector3> lines;
+            PODVector<Vector3> lines;
             lines.resize(md.edges.size() * 2);
             for (int i = 0; i < md.edges.size(); i++) {
-                lines.write[i * 2 + 0] = md.vertices[md.edges[i].a];
-                lines.write[i * 2 + 1] = md.vertices[md.edges[i].b];
+                lines[i * 2 + 0] = md.vertices[md.edges[i].a];
+                lines[i * 2 + 1] = md.vertices[md.edges[i].b];
             }
             return lines;
         }
     }
 
-    return Vector<Vector3>();
+    return PODVector<Vector3>();
 }
 
 void ConvexPolygonShape::_update_shape() {
@@ -65,16 +64,12 @@ void ConvexPolygonShape::_update_shape() {
 }
 
 void ConvexPolygonShape::set_points(const PoolVector<Vector3> &p_points) {
-
-    points = p_points;
+    auto rd(p_points.read());
+    points.assign(rd.ptr(),rd.ptr()+p_points.size());
     _update_shape();
     notify_change_to_owners();
 }
 
-PoolVector<Vector3> ConvexPolygonShape::get_points() const {
-
-    return points;
-}
 
 void ConvexPolygonShape::_bind_methods() {
 

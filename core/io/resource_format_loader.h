@@ -57,7 +57,7 @@ public:
     virtual bool recognize_path(se_string_view p_path, se_string_view p_for_type = se_string_view()) const;
     virtual bool handles_type(se_string_view p_type) const;
     virtual se_string get_resource_type(se_string_view p_path) const;
-    virtual void get_dependencies(se_string_view p_path, ListPOD<se_string> *p_dependencies, bool p_add_types = false);
+    virtual void get_dependencies(se_string_view p_path, PODVector<se_string> &p_dependencies, bool p_add_types = false);
     virtual Error rename_dependencies(se_string_view p_path, const DefMap<se_string, se_string> &p_map);
     virtual bool is_import_valid(se_string_view /*p_path*/) const { return true; }
     virtual bool is_imported(se_string_view /*p_path*/) const { return false; }

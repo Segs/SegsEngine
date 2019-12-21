@@ -369,9 +369,9 @@ bool LayeredTextureImpl::are_import_settings_valid(se_string_view p_path) const 
         return true; //do not care about non vram
     }
 
-    Vector<String> formats_imported;
+    PODVector<se_string> formats_imported;
     if (metadata.has("imported_formats")) {
-        formats_imported = metadata["imported_formats"];
+        formats_imported = metadata["imported_formats"].as<PODVector<se_string>>();
     }
 
     int index = 0;
@@ -380,7 +380,8 @@ bool LayeredTextureImpl::are_import_settings_valid(se_string_view p_path) const 
         StringName setting_path("rendering/vram_compression/import_" + se_string(compression_formats[index]));
         bool test = ProjectSettings::get_singleton()->get(setting_path).as<bool>();
         if (test) {
-            if (formats_imported.find(compression_formats[index]) == -1) {
+            auto iter = eastl::find(formats_imported.begin(),formats_imported.end(),compression_formats[index]);
+            if (iter==formats_imported.end()) {
                 valid = false;
                 break;
             }

@@ -31,7 +31,7 @@
 #pragma once
 
 #include "core/typedefs.h"
-#include "core/variant.h"
+#include "core/forward_decls.h"
 #include "core/error_list.h"
 
 /**
@@ -40,20 +40,20 @@
 
 class MIDIDriver {
 
-	static MIDIDriver *singleton;
+    static MIDIDriver *singleton;
     static uint8_t last_received_message;
 
 public:
-	static MIDIDriver *get_singleton();
-	void set_singleton();
+    static MIDIDriver *get_singleton();
+    void set_singleton();
 
-	virtual Error open() = 0;
-	virtual void close() = 0;
+    virtual Error open() = 0;
+    virtual void close() = 0;
 
-	virtual PoolSeStringArray get_connected_inputs();
+    virtual PoolVector<se_string> get_connected_inputs();
 
-	static void receive_input_packet(uint64_t timestamp, uint8_t *data, uint32_t length);
+    static void receive_input_packet(uint64_t timestamp, uint8_t *data, uint32_t length);
 
-	MIDIDriver();
+    MIDIDriver();
     virtual ~MIDIDriver() = default;
 };

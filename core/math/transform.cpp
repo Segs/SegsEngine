@@ -154,23 +154,6 @@ void Transform::scale_basis(const Vector3 &p_scale) {
     basis.scale(p_scale);
 }
 
-void Transform::translate(real_t p_tx, real_t p_ty, real_t p_tz) {
-    translate(Vector3(p_tx, p_ty, p_tz));
-}
-void Transform::translate(const Vector3 &p_translation) {
-
-    for (int i = 0; i < 3; i++) {
-        origin[i] += basis[i].dot(p_translation);
-    }
-}
-
-Transform Transform::translated(const Vector3 &p_translation) const {
-
-    Transform t = *this;
-    t.translate(p_translation);
-    return t;
-}
-
 void Transform::orthonormalize() {
 
     basis.orthonormalize();
@@ -215,7 +198,4 @@ Transform::operator se_string() const {
     return (se_string)basis + " - " + (se_string)origin;
 }
 
-Transform::Transform(real_t xx, real_t xy, real_t xz, real_t yx, real_t yy, real_t yz, real_t zx, real_t zy, real_t zz, real_t ox, real_t oy, real_t oz) {
-    basis = Basis(xx, xy, xz, yx, yy, yz, zx, zy, zz);
-    origin = Vector3(ox, oy, oz);
-}
+

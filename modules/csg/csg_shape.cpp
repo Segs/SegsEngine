@@ -1805,11 +1805,11 @@ CSGBrush *CSGPolygon::_build_brush() {
 
     Vector<Point2> final_polygon = polygon;
 
-    if (Triangulate::get_area(final_polygon) > 0) {
+    if (Triangulate::get_area({final_polygon.ptr(),final_polygon.size()}) > 0) {
         final_polygon.invert();
     }
 
-    Vector<int> triangles = Geometry::triangulate_polygon(final_polygon);
+    PODVector<int> triangles(Geometry::triangulate_polygon({final_polygon.ptr(),final_polygon.size()}));
 
     if (triangles.size() < 3)
         return nullptr;
@@ -2392,7 +2392,7 @@ CSGPolygon::Mode CSGPolygon::get_mode() const {
 }
 
 void CSGPolygon::set_depth(const float p_depth) {
-    ERR_FAIL_COND(p_depth < 0.001)
+    ERR_FAIL_COND(p_depth < 0.001f)
     depth = p_depth;
     _make_dirty();
     update_gizmo();
@@ -2412,7 +2412,7 @@ bool CSGPolygon::is_path_continuous_u() const {
 }
 
 void CSGPolygon::set_spin_degrees(const float p_spin_degrees) {
-    ERR_FAIL_COND(p_spin_degrees < 0.01 || p_spin_degrees > 360)
+    ERR_FAIL_COND(p_spin_degrees < 0.01f || p_spin_degrees > 360)
     spin_degrees = p_spin_degrees;
     _make_dirty();
     update_gizmo();

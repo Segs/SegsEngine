@@ -30,6 +30,8 @@
 
 #include "multimesh_instance.h"
 #include "core/method_bind.h"
+#include "core/pool_vector.h"
+#include "core/math/face3.h"
 
 IMPL_GDCLASS(MultiMeshInstance)
 

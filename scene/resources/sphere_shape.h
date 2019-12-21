@@ -35,21 +35,21 @@
 
 class SphereShape : public Shape {
 
-	GDCLASS(SphereShape,Shape)
+    GDCLASS(SphereShape,Shape)
 
     float radius;
 
 protected:
-	static void _bind_methods();
+    static void _bind_methods();
 
-	void _update_shape() override;
-	Vector<Vector3> get_debug_mesh_lines() override;
+    void _update_shape() override;
+    PODVector<Vector3> get_debug_mesh_lines() override;
 
 public:
-	void set_radius(float p_radius);
-	float get_radius() const;
+    void set_radius(float p_radius);
+    float get_radius() const;
 
-	SphereShape();
+    SphereShape();
 };
 
 #endif // SPHERE_SHAPE_H

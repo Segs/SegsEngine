@@ -722,7 +722,7 @@ ResourceInteractiveLoaderText::~ResourceInteractiveLoaderText() {
     memdelete(f);
 }
 
-void ResourceInteractiveLoaderText::get_dependencies(FileAccess *p_f, ListPOD<se_string> *p_dependencies, bool p_add_types) {
+void ResourceInteractiveLoaderText::get_dependencies(FileAccess *p_f, PODVector<se_string> &p_dependencies, bool p_add_types) {
 
     open(p_f);
     ignore_resource_parsing = true;
@@ -756,7 +756,7 @@ void ResourceInteractiveLoaderText::get_dependencies(FileAccess *p_f, ListPOD<se
             path += se_string("::") + type;
         }
 
-        p_dependencies->push_back(path);
+        p_dependencies.push_back(path);
 
         Error err = VariantParser::parse_tag(stream, lines, error_text, next_tag, &rp);
 
@@ -1215,8 +1215,8 @@ Error ResourceInteractiveLoaderText::save_as_binary(FileAccess *p_f, se_string_v
 
     wf->seek_end();
 
-    Vector<uint8_t> data = FileAccess::get_file_as_array(temp_file);
-    wf->store_buffer(data.ptr(), data.size());
+    PODVector<uint8_t> data = FileAccess::get_file_as_array(temp_file);
+    wf->store_buffer(data.data(), data.size());
     {
         DirAccessRef dar = DirAccess::open(PathUtils::get_base_dir(temp_file));
         dar->remove(temp_file);
@@ -1343,7 +1343,7 @@ se_string ResourceFormatLoaderText::get_resource_type(se_string_view p_path) con
     return r;
 }
 
-void ResourceFormatLoaderText::get_dependencies(se_string_view p_path, ListPOD<se_string> *p_dependencies, bool p_add_types) {
+void ResourceFormatLoaderText::get_dependencies(se_string_view p_path, PODVector<se_string> &p_dependencies, bool p_add_types) {
 
     FileAccess *f = FileAccess::open(p_path, FileAccess::READ);
     if (!f) {

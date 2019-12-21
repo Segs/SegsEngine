@@ -30,10 +30,10 @@
 
 #include "triangulate.h"
 
-real_t Triangulate::get_area(const Vector<Vector2> &contour) {
+real_t Triangulate::get_area(Span<const Vector2> contour) {
 
-    int n = contour.size();
-    const Vector2 *c = &contour[0];
+    auto n = contour.size();
+    const Vector2 *c = contour.data();
 
     real_t A = 0.0f;
 
@@ -82,10 +82,10 @@ bool Triangulate::is_inside_triangle(real_t Ax, real_t Ay,
     }
 };
 
-bool Triangulate::snip(const Vector<Vector2> &p_contour, int u, int v, int w, int n, const Vector<int> &V, bool relaxed) {
+bool Triangulate::snip(Span<const Vector2> p_contour, int u, int v, int w, int n, Span<const int> V, bool relaxed) {
     int p;
     real_t Ax, Ay, Bx, By, Cx, Cy, Px, Py;
-    const Vector2 *contour = &p_contour[0];
+    const Vector2 *contour = p_contour.data();
 
     Ax = contour[V[u]].x;
     Ay = contour[V[u]].y;
@@ -115,23 +115,24 @@ bool Triangulate::snip(const Vector<Vector2> &p_contour, int u, int v, int w, in
     return true;
 }
 
-bool Triangulate::triangulate(const Vector<Vector2> &contour, Vector<int> &result) {
+bool Triangulate::triangulate(Span<const Vector2> contour, PODVector<int> &result) {
     /* allocate and initialize list of Vertices in polygon */
 
     int n = contour.size();
-    if (n < 3) return false;
+    if (n < 3)
+        return false;
 
-    Vector<int> V;
+    FixedVector<int,16,true> V;
     V.resize(n);
 
     /* we want a counter-clockwise polygon in V */
 
     if (0.0f < get_area(contour))
         for (int v = 0; v < n; v++)
-            V.write[v] = v;
+            V[v] = v;
     else
         for (int v = 0; v < n; v++)
-            V.write[v] = (n - 1) - v;
+            V[v] = (n - 1) - v;
 
     bool relaxed = false;
 
@@ -182,7 +183,7 @@ bool Triangulate::triangulate(const Vector<Vector2> &contour, Vector<int> &resul
 
             /* remove v from remaining polygon */
             for (s = v, t = v + 1; t < nv; s++, t++)
-                V.write[s] = V[t];
+                V[s] = V[t];
 
             nv--;
 

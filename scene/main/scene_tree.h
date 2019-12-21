@@ -403,7 +403,7 @@ public:
     bool is_network_server() const;
     bool has_network_peer() const;
     int get_network_unique_id() const;
-    Vector<int> get_network_connected_peers() const;
+    PODVector<int> get_network_connected_peers() const;
     int get_rpc_sender_id() const;
 
     void set_refuse_new_network_connections(bool p_refuse);

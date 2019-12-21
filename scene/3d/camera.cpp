@@ -645,9 +645,9 @@ bool Camera::get_cull_mask_bit(int p_layer) const {
     return (layers & (1 << p_layer));
 }
 
-Vector<Plane> Camera::get_frustum() const {
+Frustum Camera::get_frustum() const {
 
-    ERR_FAIL_COND_V(!is_inside_world(), Vector<Plane>())
+    ERR_FAIL_COND_V(!is_inside_world(), Frustum())
 
     Size2 viewport_size = get_viewport()->get_visible_rect().size;
     CameraMatrix cm;
@@ -785,7 +785,7 @@ void ClippedCamera::_notification(int p_what) {
             }
 
             if (!all_equal) {
-                PhysicsServer::get_singleton()->shape_set_data(pyramid_shape, local_points);
+                PhysicsServer::get_singleton()->shape_set_data(pyramid_shape, Variant::from(local_points));
                 points = local_points;
             }
         }

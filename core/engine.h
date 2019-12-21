@@ -31,10 +31,10 @@
 #pragma once
 
 #include "core/list.h"
+#include "core/vector.h"
 #include "core/string_name.h"
 #include "core/map.h"
 #include "core/dictionary.h"
-#include "core/vector.h"
 
 class GODOT_EXPORT Engine {
 

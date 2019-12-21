@@ -29,17 +29,19 @@
 /*************************************************************************/
 
 #include "cylinder_shape.h"
+
 #include "servers/physics_server.h"
 #include "core/method_bind.h"
+#include "core/math/vector2.h"
 
 IMPL_GDCLASS(CylinderShape)
 
-Vector<Vector3> CylinderShape::get_debug_mesh_lines() {
+PODVector<Vector3> CylinderShape::get_debug_mesh_lines() {
 
     float radius = get_radius();
     float height = get_height();
-
-    Vector<Vector3> points;
+    Vector3 work_area[360*4 + 3*2];
+    size_t widx=0;
 
     Vector3 d(0, height * 0.5f, 0);
     for (int i = 0; i < 360; i++) {
@@ -49,20 +51,19 @@ Vector<Vector3> CylinderShape::get_debug_mesh_lines() {
         Point2 a = Vector2(Math::sin(ra), Math::cos(ra)) * radius;
         Point2 b = Vector2(Math::sin(rb), Math::cos(rb)) * radius;
 
-        points.push_back(Vector3(a.x, 0, a.y) + d);
-        points.push_back(Vector3(b.x, 0, b.y) + d);
+        work_area[widx++] = Vector3(a.x, 0, a.y) + d;
+        work_area[widx++] = Vector3(b.x, 0, b.y) + d;
 
-        points.push_back(Vector3(a.x, 0, a.y) - d);
-        points.push_back(Vector3(b.x, 0, b.y) - d);
+        work_area[widx++] = Vector3(a.x, 0, a.y) - d;
+        work_area[widx++] = Vector3(b.x, 0, b.y) - d;
 
         if (i % 90 == 0) {
 
-            points.push_back(Vector3(a.x, 0, a.y) + d);
-            points.push_back(Vector3(a.x, 0, a.y) - d);
+            work_area[widx++] = Vector3(a.x, 0, a.y) + d;
+            work_area[widx++] = Vector3(a.x, 0, a.y) - d;
         }
     }
-
-    return points;
+    return {work_area,work_area+widx};
 }
 
 void CylinderShape::_update_shape() {
@@ -82,10 +83,7 @@ void CylinderShape::set_radius(float p_radius) {
     _change_notify("radius");
 }
 
-float CylinderShape::get_radius() const {
 
-    return radius;
-}
 
 void CylinderShape::set_height(float p_height) {
 
@@ -95,10 +93,7 @@ void CylinderShape::set_height(float p_height) {
     _change_notify("height");
 }
 
-float CylinderShape::get_height() const {
 
-    return height;
-}
 
 void CylinderShape::_bind_methods() {
 

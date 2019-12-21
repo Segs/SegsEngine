@@ -940,7 +940,7 @@ GDScriptParser::Node *GDScriptParser::_parse_expression(Node *p_parent, bool p_s
             /*
             Node *subexpr=_parse_expression(op,p_static);
             if (!subexpr)
-                return NULL;
+                return nullptr;
             op->arguments.push_back(subexpr);
             expr=op;*/
 
@@ -8522,7 +8522,7 @@ Error GDScriptParser::_parse(se_string_view p_base_path) {
     return OK;
 }
 
-Error GDScriptParser::parse_bytecode(const Vector<uint8_t> &p_bytecode, se_string_view p_base_path, se_string_view p_self_path) {
+Error GDScriptParser::parse_bytecode(const PODVector<uint8_t> &p_bytecode, se_string_view p_base_path, se_string_view p_self_path) {
 
     clear();
 

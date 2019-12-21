@@ -39,22 +39,22 @@ http://www.flipcode.com/archives/Efficient_Polygon_Triangulation.shtml
 
 class GODOT_EXPORT Triangulate {
 public:
-	// triangulate a contour/polygon, places results in STL vector
-	// as series of triangles.
-	static bool triangulate(const Vector<Vector2> &contour, Vector<int> &result);
+    // triangulate a contour/polygon, places results in STL vector
+    // as series of triangles.
+    static bool triangulate(Span<const Vector2> contour, PODVector<int> &result);
 
-	// compute area of a contour/polygon
-	static real_t get_area(const Vector<Vector2> &contour);
+    // compute area of a contour/polygon
+    static real_t get_area(Span<const Vector2> contour);
 
-	// decide if point Px/Py is inside triangle defined by
-	// (Ax,Ay) (Bx,By) (Cx,Cy)
-	static bool is_inside_triangle(real_t Ax, real_t Ay,
-			real_t Bx, real_t By,
-			real_t Cx, real_t Cy,
-			real_t Px, real_t Py,
-			bool include_edges);
+    // decide if point Px/Py is inside triangle defined by
+    // (Ax,Ay) (Bx,By) (Cx,Cy)
+    static bool is_inside_triangle(real_t Ax, real_t Ay,
+            real_t Bx, real_t By,
+            real_t Cx, real_t Cy,
+            real_t Px, real_t Py,
+            bool include_edges);
 
 private:
-	static bool snip(const Vector<Vector2> &p_contour, int u, int v, int w, int n, const Vector<int> &V, bool relaxed);
+    static bool snip(Span<const Vector2> p_contour, int u, int v, int w, int n, Span<const int> V, bool relaxed);
 };
 

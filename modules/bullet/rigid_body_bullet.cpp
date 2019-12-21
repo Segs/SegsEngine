@@ -298,9 +298,9 @@ RigidBodyBullet::RigidBodyBullet() :
 
     areasWhereIam.resize(maxAreasWhereIam);
     for (int i = areasWhereIam.size() - 1; 0 <= i; --i) {
-        areasWhereIam.write[i] = NULL;
+        areasWhereIam.write[i] = nullptr;
     }
-    btBody->setSleepingThresholds(0.2, 0.2);
+    btBody->setSleepingThresholds(0.2f, 0.2f);
 
     prev_collision_traces = &collision_traces_1;
     curr_collision_traces = &collision_traces_2;

@@ -978,15 +978,15 @@ void CSGBrushOperation::_merge_poly(MeshMerge &mesh, int p_face_idx, const Build
 
     for (int i = 0; i < polys.size(); i++) {
 
-        Vector<Vector2> vertices;
+        FixedVector<Vector2,16,true> vertices;
         vertices.resize(polys[i].points.size());
-        for (int j = 0; j < vertices.size(); j++) {
-            vertices.write[j] = p_poly.points[polys[i].points[j]].point;
+        for (size_t j = 0; j < vertices.size(); j++) {
+            vertices[j] = p_poly.points[polys[i].points[j]].point;
         }
 
-        Vector<int> indices = Geometry::triangulate_polygon(vertices);
+        PODVector<int> indices(Geometry::triangulate_polygon(vertices));
 
-        for (int j = 0; j < indices.size(); j += 3) {
+        for (size_t j = 0; j < indices.size(); j += 3) {
 
             //obtain the vertex
 
@@ -1318,7 +1318,6 @@ void CSGBrushOperation::MeshMerge::add_face(const Vector3 &p_a, const Vector3 &p
 
         face.points[k] = indices[k];
         face.uvs[k] = src_uvs[k];
-        ;
     }
 
     faces.push_back(face);

@@ -23,22 +23,22 @@ macro(set_plugin_options )
         set(${tgt_name}_mode ${default_mode} CACHE STRING "How to integrate the given plugin into the build")
         set_property(CACHE ${tgt_name}_mode PROPERTY STRINGS ${pluginBuildTypes})
         if(${${tgt_name}_mode} STREQUAL "Static")
-            message("STATIC LINKING OF ${tgt_name}")
+            #message("STATIC LINKING OF ${tgt_name}")
             add_library(${tgt_name} STATIC)
             target_compile_definitions(${tgt_name} PRIVATE QT_STATICPLUGIN)
             # this is needed for plugin_registry.cpp includes
             target_link_libraries(${tgt_name} PUBLIC ${tgt}_core)
             set_common_target_properties(${tgt_name})
         elseif(${${tgt_name}_mode} STREQUAL "Shared")
-            message("DYNAMIC LINKING OF ${tgt_name}")
+            #message("DYNAMIC LINKING OF ${tgt_name}")
             add_library(${tgt_name} SHARED)
             set_target_properties(${tgt_name} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin/plugins)
             set_target_properties(${tgt_name} PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin/plugins)
             target_link_libraries(${tgt_name} PRIVATE ${tgt}_engine)
-			install(TARGETS ${tgt_name} EXPORT SegsEngine
-				LIBRARY DESTINATION plugins
-				RUNTIME DESTINATION plugins
-			)
+            install(TARGETS ${tgt_name} EXPORT SegsEngine
+                LIBRARY DESTINATION plugins
+                RUNTIME DESTINATION plugins
+            )
         else()
             continue()
         endif()

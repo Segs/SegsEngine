@@ -320,60 +320,14 @@ float CPUParticles::get_param_randomness(Parameter p_param) const {
     return randomness[p_param];
 }
 
-static void _adjust_curve_range(const Ref<Curve> &p_curve, float p_min, float p_max) {
-
-    Ref<Curve> curve = p_curve;
-    if (not curve)
-        return;
-
-    curve->ensure_default_setup(p_min, p_max);
-}
-
 void CPUParticles::set_param_curve(Parameter p_param, const Ref<Curve> &p_curve) {
 
     ERR_FAIL_INDEX(p_param, PARAM_MAX);
 
     curve_parameters[p_param] = p_curve;
-
-    switch (p_param) {
-        case PARAM_INITIAL_LINEAR_VELOCITY: {
-            //do none for this one
-        } break;
-        case PARAM_ANGULAR_VELOCITY: {
-            _adjust_curve_range(p_curve, -360, 360);
-        } break;
-        case PARAM_ORBIT_VELOCITY: {
-            _adjust_curve_range(p_curve, -500, 500);
-        } break;
-        case PARAM_LINEAR_ACCEL: {
-            _adjust_curve_range(p_curve, -200, 200);
-        } break;
-        case PARAM_RADIAL_ACCEL: {
-            _adjust_curve_range(p_curve, -200, 200);
-        } break;
-        case PARAM_TANGENTIAL_ACCEL: {
-            _adjust_curve_range(p_curve, -200, 200);
-        } break;
-        case PARAM_DAMPING: {
-            _adjust_curve_range(p_curve, 0, 100);
-        } break;
-        case PARAM_ANGLE: {
-            _adjust_curve_range(p_curve, -360, 360);
-        } break;
-        case PARAM_SCALE: {
-
-        } break;
-        case PARAM_HUE_VARIATION: {
-            _adjust_curve_range(p_curve, -1, 1);
-        } break;
-        case PARAM_ANIM_SPEED: {
-            _adjust_curve_range(p_curve, 0, 200);
-        } break;
-        case PARAM_ANIM_OFFSET: {
-        } break;
-        default: {
-        }
-    }
+    const CurveRange range_to_set = c_default_curve_ranges[p_param];
+    if(p_curve)
+        p_curve->ensure_default_setup(range_to_set.curve_min,range_to_set.curve_max);
 }
 Ref<Curve> CPUParticles::get_param_curve(Parameter p_param) const {
 
@@ -507,26 +461,6 @@ void CPUParticles::_validate_property(PropertyInfo &property) const {
     }
 }
 
-static uint32_t idhash(uint32_t x) {
-
-    x = ((x >> uint32_t(16)) ^ x) * uint32_t(0x45d9f3b);
-    x = ((x >> uint32_t(16)) ^ x) * uint32_t(0x45d9f3b);
-    x = (x >> uint32_t(16)) ^ x;
-    return x;
-}
-
-static float rand_from_seed(uint32_t &seed) {
-    int k;
-    int s = int(seed);
-    if (s == 0)
-        s = 305420679;
-    k = s / 127773;
-    s = 16807 * (s - k * 127773) - 2836 * k;
-    if (s < 0)
-        s += 2147483647;
-    seed = uint32_t(s);
-    return float(seed % uint32_t(65536)) / 65535.0f;
-}
 void CPUParticles::_update_internal() {
 
     if (particles.empty() == 0 || !is_visible_in_tree()) {
@@ -603,6 +537,7 @@ void CPUParticles::_update_internal() {
 }
 
 void CPUParticles::_particles_process(float p_delta) {
+    using namespace ParticleUtils;
 
     p_delta *= speed_scale;
 
@@ -645,18 +580,18 @@ void CPUParticles::_particles_process(float p_delta) {
         // original shader code, and we later multiply by lifetime to get the time.
         float restart_phase = float(i) / float(pcount);
 
-        if (randomness_ratio > 0.0) {
+        if (randomness_ratio > 0.0f) {
             uint32_t seed = cycle;
             if (restart_phase >= system_phase) {
                 seed -= uint32_t(1);
             }
             seed *= uint32_t(pcount);
             seed += uint32_t(i);
-            float random = float(idhash(seed) % uint32_t(65536)) / 65536.0;
-            restart_phase += randomness_ratio * random * 1.0 / float(pcount);
+            float random = float(idhash(seed) % uint32_t(65536)) / 65536.0f;
+            restart_phase += randomness_ratio * random * 1.0f / float(pcount);
         }
 
-        restart_phase *= (1.0 - explosiveness_ratio);
+        restart_phase *= (1.0f - explosiveness_ratio);
         float restart_time = restart_phase * lifetime;
         bool restart = false;
 
@@ -670,7 +605,7 @@ void CPUParticles::_particles_process(float p_delta) {
                 }
             }
 
-        } else if (local_delta > 0.0) {
+        } else if (local_delta > 0.0f) {
             if (restart_time >= prev_time) {
                 restart = true;
                 if (fractional_delta) {
@@ -685,7 +620,7 @@ void CPUParticles::_particles_process(float p_delta) {
             }
         }
 
-        if (p.time * (1.0 - explosiveness_ratio) > p.lifetime) {
+        if (p.time * (1.0f - explosiveness_ratio) > p.lifetime) {
             restart = true;
         }
 
@@ -720,17 +655,17 @@ void CPUParticles::_particles_process(float p_delta) {
             p.anim_offset_rand = Math::randf();
 
             if (flags[FLAG_DISABLE_Z]) {
-                float angle1_rad = Math::atan2(direction.y, direction.x) + (Math::randf() * 2.0 - 1.0) * Math_PI * spread / 180.0;
+                float angle1_rad = Math::atan2(direction.y, direction.x) + (Math::randf() * 2.0f - 1.0f) * Math_PI * spread / 180.0f;
                 Vector3 rot = Vector3(Math::cos(angle1_rad), Math::sin(angle1_rad), 0.0);
                 p.velocity = rot * parameters[PARAM_INITIAL_LINEAR_VELOCITY] * Math::lerp(1.0f, float(Math::randf()), randomness[PARAM_INITIAL_LINEAR_VELOCITY]);
             } else {
                 //initiate velocity spread in 3D
-                float angle1_rad = Math::atan2(direction.x, direction.z) + (Math::randf() * 2.0 - 1.0) * Math_PI * spread / 180.0;
-                float angle2_rad = Math::atan2(direction.y, Math::abs(direction.z)) + (Math::randf() * 2.0 - 1.0) * (1.0 - flatness) * Math_PI * spread / 180.0;
+                float angle1_rad = Math::atan2(direction.x, direction.z) + (Math::randf() * 2.0f - 1.0f) * Math_PI * spread / 180.0f;
+                float angle2_rad = Math::atan2(direction.y, Math::abs(direction.z)) + (Math::randf() * 2.0f - 1.0f) * (1.0f - flatness) * Math_PI * spread / 180.0f;
 
                 Vector3 direction_xz = Vector3(Math::sin(angle1_rad), 0, Math::cos(angle1_rad));
                 Vector3 direction_yz = Vector3(0, Math::sin(angle2_rad), Math::cos(angle2_rad));
-                direction_yz.z = direction_yz.z / MAX(0.0001, Math::sqrt(ABS(direction_yz.z))); //better uniform distribution
+                direction_yz.z = direction_yz.z / MAX(0.0001f, Math::sqrt(ABS(direction_yz.z))); //better uniform distribution
                 Vector3 direction = Vector3(direction_xz.x * direction_yz.z, direction_yz.y, direction_xz.z * direction_yz.z);
                 direction.normalize();
                 p.velocity = direction * parameters[PARAM_INITIAL_LINEAR_VELOCITY] * Math::lerp(1.0f, float(Math::randf()), randomness[PARAM_INITIAL_LINEAR_VELOCITY]);
@@ -742,7 +677,7 @@ void CPUParticles::_particles_process(float p_delta) {
             p.custom[2] = (parameters[PARAM_ANIM_OFFSET] + tex_anim_offset) * Math::lerp(1.0f, p.anim_offset_rand, randomness[PARAM_ANIM_OFFSET]); //animation offset (0-1)
             p.transform = Transform();
             p.time = 0;
-            p.lifetime = lifetime * (1.0 - Math::randf() * lifetime_randomness);
+            p.lifetime = lifetime * (1.0f - Math::randf() * lifetime_randomness);
             p.base_color = Color(1, 1, 1, 1);
 
             switch (emission_shape) {
@@ -750,8 +685,8 @@ void CPUParticles::_particles_process(float p_delta) {
                     //do none
                 } break;
                 case EMISSION_SHAPE_SPHERE: {
-                    float s = 2.0 * Math::randf() - 1.0, t = 2.0 * Math_PI * Math::randf();
-                    float radius = emission_sphere_radius * Math::sqrt(1.0 - s * s);
+                    float s = 2.0 * Math::randf() - 1.0f, t = 2.0f * Math_PI * Math::randf();
+                    float radius = emission_sphere_radius * Math::sqrt(1.0f - s * s);
                     p.transform.origin = Vector3(radius * Math::cos(t), radius * Math::sin(t), emission_sphere_radius * s);
                 } break;
                 case EMISSION_SHAPE_BOX: {
@@ -779,7 +714,7 @@ void CPUParticles::_particles_process(float p_delta) {
                             */
                         } else {
                             Vector3 normal = emission_normals.get(random_idx);
-                            Vector3 v0 = Math::abs(normal.z) < 0.999 ? Vector3(0.0, 0.0, 1.0) : Vector3(0, 1.0, 0.0);
+                            Vector3 v0 = Math::abs(normal.z) < 0.999f ? Vector3(0.0, 0.0, 1.0) : Vector3(0, 1.0, 0.0);
                             Vector3 tangent = v0.cross(normal).normalized();
                             Vector3 bitangent = tangent.cross(normal).normalized();
                             Basis m3;

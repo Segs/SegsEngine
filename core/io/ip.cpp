@@ -338,8 +338,8 @@ IP::IP() {
         resolver->thread = nullptr;
     }
 #else
-    resolver->sem = NULL;
-    resolver->thread = NULL;
+    resolver->sem = nullptr;
+    resolver->thread = nullptr;
 #endif
 }
 

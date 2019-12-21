@@ -159,10 +159,10 @@ Vector3 ARVRCamera::project_position(const Point2 &p_point, float p_z_depth) con
     return get_camera_transform().xform(p);
 };
 
-Vector<Plane> ARVRCamera::get_frustum() const {
+Frustum ARVRCamera::get_frustum() const {
     // get our ARVRServer
     ARVRServer *arvr_server = ARVRServer::get_singleton();
-    ERR_FAIL_NULL_V(arvr_server, Vector<Plane>());
+    ERR_FAIL_NULL_V(arvr_server, Frustum());
 
     Ref<ARVRInterface> arvr_interface = arvr_server->get_primary_interface();
     if (not arvr_interface) {
@@ -170,7 +170,7 @@ Vector<Plane> ARVRCamera::get_frustum() const {
         return Camera::get_frustum();
     }
 
-    ERR_FAIL_COND_V(!is_inside_world(), Vector<Plane>())
+    ERR_FAIL_COND_V(!is_inside_world(), Frustum())
 
     Size2 viewport_size = get_viewport()->get_visible_rect().size;
     CameraMatrix cm = arvr_interface->get_projection_for_eye(ARVRInterface::EYE_MONO, viewport_size.aspect(), get_znear(), get_zfar());

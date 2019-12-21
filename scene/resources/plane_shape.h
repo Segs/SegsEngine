@@ -35,19 +35,19 @@
 
 class PlaneShape : public Shape {
 
-	GDCLASS(PlaneShape,Shape)
+    GDCLASS(PlaneShape,Shape)
 
     Plane plane;
 
 protected:
-	static void _bind_methods();
-	void _update_shape() override;
+    static void _bind_methods();
+    void _update_shape() override;
 
-	Vector<Vector3> get_debug_mesh_lines() override;
+    PODVector<Vector3> get_debug_mesh_lines() override;
 
 public:
-	void set_plane(Plane p_plane);
-	Plane get_plane() const;
+    void set_plane(Plane p_plane);
+    Plane get_plane() const;
 
-	PlaneShape();
+    PlaneShape();
 };

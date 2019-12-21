@@ -184,7 +184,14 @@ struct WrapAlphaCompare
         return StringName::AlphCompare(a,b);
     }
 };
-
+struct SNSVComparer {
+    bool operator()(const StringName &s,se_string_view b) {
+        return se_string_view(s)<b;
+    }
+    bool operator()(se_string_view a,const StringName &b) {
+        return a<se_string_view(b);
+    }
+};
 namespace eastl {
 template <typename T> struct hash;
 template <>

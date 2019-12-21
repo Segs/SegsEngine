@@ -752,7 +752,7 @@ Error EditorExportPlatformOSX::export_project(const Ref<EditorExportPreset> &p_p
             if (err == OK) {
                 //add shared objects
                 for (int i = 0; i < shared_objects.size(); i++) {
-                    Vector<uint8_t> file = FileAccess::get_file_as_array(shared_objects[i].path);
+                    PODVector<uint8_t> file = FileAccess::get_file_as_array(shared_objects[i].path);
                     ERR_CONTINUE(file.empty())
 
                     zipOpenNewFileInZip(dst_pkg_zip,
@@ -766,7 +766,7 @@ Error EditorExportPlatformOSX::export_project(const Ref<EditorExportPreset> &p_p
                             Z_DEFLATED,
                             Z_DEFAULT_COMPRESSION);
 
-                    zipWriteInFileInZip(dst_pkg_zip, file.ptr(), file.size());
+                    zipWriteInFileInZip(dst_pkg_zip, file.data(), file.size());
                     zipCloseFileInZip(dst_pkg_zip);
                 }
             }

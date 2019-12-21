@@ -2144,7 +2144,7 @@ Rect2 Image::get_used_rect() const {
     for (int j = 0; j < height; j++) {
         for (int i = 0; i < width; i++) {
 
-            bool opaque = get_pixel(i, j).a > 0.99;
+            bool opaque = get_pixel(i, j).a > 0.99f;
             if (!opaque)
                 continue;
             if (i > maxx)
@@ -2386,10 +2386,10 @@ void Image::blend_rect_mask(const Ref<Image> &p_src, const Ref<Image> &p_mask, c
 
                 Color sc = img->get_pixel(src_x, src_y);
                 Color dc = get_pixel(dst_x, dst_y);
-                dc.r = (double)(sc.a * sc.r + dc.a * (1.0 - sc.a) * dc.r);
-                dc.g = (double)(sc.a * sc.g + dc.a * (1.0 - sc.a) * dc.g);
-                dc.b = (double)(sc.a * sc.b + dc.a * (1.0 - sc.a) * dc.b);
-                dc.a = (double)(sc.a + dc.a * (1.0 - sc.a));
+                dc.r = (double)(sc.a * sc.r + dc.a * (1.0f - sc.a) * dc.r);
+                dc.g = (double)(sc.a * sc.g + dc.a * (1.0f - sc.a) * dc.g);
+                dc.b = (double)(sc.a * sc.b + dc.a * (1.0f - sc.a) * dc.b);
+                dc.a = (double)(sc.a + dc.a * (1.0f - sc.a));
                 set_pixel(dst_x, dst_y, dc);
             }
         }
@@ -2539,8 +2539,8 @@ Color Image::get_pixel(int p_x, int p_y) const {
 #ifdef DEBUG_ENABLED
     ERR_FAIL_COND_V_MSG(!ptr, Color(), "Image must be locked with 'lock()' before using get_pixel().")
 
-    ERR_FAIL_INDEX_V(p_x, width, Color());
-    ERR_FAIL_INDEX_V(p_y, height, Color());
+    ERR_FAIL_INDEX_V(p_x, width, Color())
+    ERR_FAIL_INDEX_V(p_y, height, Color())
 
 #endif
 
@@ -2548,7 +2548,7 @@ Color Image::get_pixel(int p_x, int p_y) const {
 
     switch (format) {
         case FORMAT_L8: {
-            float l = ptr[ofs] / 255.0;
+            float l = ptr[ofs] / 255.0f;
             return Color(l, l, l, 1);
         }
         case FORMAT_LA8: {

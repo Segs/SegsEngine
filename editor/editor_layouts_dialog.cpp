@@ -99,12 +99,12 @@ void EditorLayoutsDialog::_post_popup() {
         return;
     }
 
-    List<se_string> layouts;
+    ListPOD<se_string> layouts;
     config.get_sections(&layouts);
 
-    for (List<se_string>::Element *E = layouts.front(); E; E = E->next()) {
+    for (const se_string &E : layouts) {
 
-        layout_names->add_item(StringName(**E));
+        layout_names->add_item(StringName(E));
     }
 }
 

@@ -134,7 +134,7 @@ public:
     void _server_disconnected();
 
     bool has_network_peer() const { return network_peer; }
-    Vector<int> get_network_connected_peers() const;
+    PODVector<int> get_network_connected_peers() const;
     int get_rpc_sender_id() const { return rpc_sender_id; }
     int get_network_unique_id() const;
     bool is_network_server() const;

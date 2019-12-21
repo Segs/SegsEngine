@@ -35,24 +35,24 @@
 
 class CylinderShape : public Shape {
 
-	GDCLASS(CylinderShape,Shape)
+    GDCLASS(CylinderShape,Shape)
 
     float radius;
-	float height;
+    float height;
 
 protected:
-	static void _bind_methods();
-	void _update_shape() override;
+    static void _bind_methods();
+    void _update_shape() override;
 
-	Vector<Vector3> get_debug_mesh_lines() override;
+    PODVector<Vector3> get_debug_mesh_lines() override;
 
 public:
-	void set_radius(float p_radius);
-	float get_radius() const;
-	void set_height(float p_height);
-	float get_height() const;
+    void set_radius(float p_radius);
+    float get_radius() const { return radius; }
+    void set_height(float p_height);
+    float get_height() const { return height; }
 
-	CylinderShape();
+    CylinderShape();
 };
 
 #endif // CYLINDER_SHAPE_H

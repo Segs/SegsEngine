@@ -30,6 +30,7 @@
 
 #include "multimesh_instance_2d.h"
 #include "core/method_bind.h"
+#include "core/math/aabb.h"
 
 IMPL_GDCLASS(MultiMeshInstance2D)
 

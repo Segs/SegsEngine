@@ -48,7 +48,7 @@
 
 template<class T>
 using PODVector = eastl::vector<T,wrap_allocator>;
-template<class T,int N,bool GROWING>
+template<class T,int N,bool GROWING=false>
 using FixedVector = eastl::fixed_vector<T,N,GROWING,wrap_allocator>;
 template <typename T>
 using Span = eastl::span<T,eastl::dynamic_extent>;
@@ -137,6 +137,12 @@ public:
         return *this;
     }
 
+    explicit Vector(Span<const T> p_from) {
+        resize(p_from.size());
+        if(p_from.size()!=0) {
+            eastl::copy(p_from.begin(),p_from.end(),ptrw());
+        }
+    }
     _FORCE_INLINE_ ~Vector() {}
 };
 

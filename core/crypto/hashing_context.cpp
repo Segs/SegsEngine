@@ -32,6 +32,7 @@
 
 #include "core/crypto/crypto_core.h"
 #include "core/method_bind.h"
+#include "core/pool_vector.h"
 
 VARIANT_ENUM_CAST(HashingContext::HashType);
 

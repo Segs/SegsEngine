@@ -35,8 +35,9 @@
 
 #include "thirdparty/misc/clipper.hpp"
 #include "thirdparty/misc/triangulator.h"
+#include "EASTL/sort.h"
 
-#define SCALE_FACTOR 100000.0 // Based on CMP_EPSILON.
+#define SCALE_FACTOR 100000.0f // Based on CMP_EPSILON.
 
 // This implementation is very inefficient, commenting unless bugs happen. See the other one.
 /*
@@ -88,15 +89,15 @@ void Geometry::MeshData::optimize_vertices() {
         edges.write[i].b = vtx_remap[b];
     }
 
-    Vector<Vector3> new_vertices;
+    PODVector<Vector3> new_vertices;
     new_vertices.resize(vtx_remap.size());
 
     for (int i = 0; i < vertices.size(); i++) {
 
         if (vtx_remap.contains(i))
-            new_vertices.write[vtx_remap[i]] = vertices[i];
+            new_vertices[vtx_remap[i]] = vertices[i];
     }
-    vertices = new_vertices;
+    vertices = eastl::move(new_vertices);
 }
 
 struct _FaceClassify {
@@ -685,8 +686,38 @@ constexpr int _MAX_LENGTH = 20;
     return wrapped_faces;
 }
 
-Vector<Vector<Vector2> > Geometry::decompose_polygon_in_convex(const Vector<Point2>& polygon) {
-    Vector<Vector<Vector2> > decomp;
+/// \returns points on the convex hull in counter-clockwise order.
+/// \note the last point in the returned list is the same as the first one.
+PODVector<Point2> Geometry::convex_hull_2d(Span<const Point2> _P) {
+    // since passed points are going to be sorted here, make a copy :(
+    PODVector<Point2> P(_P.begin(),_P.end());
+    size_t n = P.size(), k = 0;
+    PODVector<Point2> H;
+    H.resize(2 * n);
+
+    // Sort points lexicographically.
+    eastl::sort(P.begin(),P.end());
+
+    // Build lower hull.
+    for (size_t i = 0; i < n; ++i) {
+        while (k >= 2 && vec2_cross(H[k - 2], H[k - 1], P[i]) <= 0)
+            k--;
+        H[k++] = P[i];
+    }
+
+    // Build upper hull.
+    for (int i = int(n) - 2, t = k + 1; i >= 0; i--) {
+        while (k >= t && vec2_cross(H[k - 2], H[k - 1], P[i]) <= 0)
+            k--;
+        H[k++] = P[i];
+    }
+
+    H.resize(k);
+    return H;
+}
+
+Vector<PODVector<Vector2> > Geometry::decompose_polygon_in_convex(Span<const Point2> polygon) {
+    Vector<PODVector<Vector2> > decomp;
     eastl::list<TriangulatorPoly> in_poly, out_poly;
 
     TriangulatorPoly inp;
@@ -699,7 +730,7 @@ Vector<Vector<Vector2> > Geometry::decompose_polygon_in_convex(const Vector<Poin
     TriangulatorPartition tpart;
     if (tpart.ConvexPartition_HM(&in_poly, &out_poly) == 0) { // Failed.
         ERR_PRINT("Convex decomposing failed!")
-        return decomp;
+                return decomp;
     }
 
     decomp.resize(out_poly.size());
@@ -707,7 +738,7 @@ Vector<Vector<Vector2> > Geometry::decompose_polygon_in_convex(const Vector<Poin
     for (const TriangulatorPoly &tp : out_poly) {
 
         decomp.write[idx].resize(tp.GetNumPoints());
-        memcpy(decomp.write[idx].ptrw(),tp.GetPoints(),sizeof(Vector2)*tp.GetNumPoints());
+        memcpy(decomp.write[idx].data(),tp.GetPoints(),sizeof(Vector2)*tp.GetNumPoints());
 
         idx++;
     }
@@ -970,7 +1001,7 @@ struct _AtlasWorkRectResult {
     int max_h;
 };
 
-void Geometry::make_atlas(const Vector<Size2i> &p_rects, Vector<Point2i> &r_result, Size2i &r_size) {
+void Geometry::make_atlas(const Vector<Size2i> &p_rects, PODVector<Point2i> &r_result, Size2i &r_size) {
 
     // Super simple, almost brute force scanline stacking fitter.
     // It's pretty basic for now, but it tries to make sure that the aspect ratio of the
@@ -1072,13 +1103,13 @@ void Geometry::make_atlas(const Vector<Size2i> &p_rects, Vector<Point2i> &r_resu
 
     for (int i = 0; i < p_rects.size(); i++) {
 
-        r_result.write[results[best].result[i].idx] = results[best].result[i].p;
+        r_result[results[best].result[i].idx] = results[best].result[i].p;
     }
 
     r_size = Size2(results[best].max_w, results[best].max_h);
 }
 
-Vector<Vector<Point2> > Geometry::_polypaths_do_operation(PolyBooleanOperation p_op, const Vector<Point2> &p_polypath_a, const Vector<Point2> &p_polypath_b, bool is_a_open) {
+Vector<PODVector<Point2> > Geometry::_polypaths_do_operation(PolyBooleanOperation p_op, const Vector<Point2> &p_polypath_a, const Vector<Point2> &p_polypath_b, bool is_a_open) {
 
     using namespace ClipperLib;
 
@@ -1113,24 +1144,24 @@ Vector<Vector<Point2> > Geometry::_polypaths_do_operation(PolyBooleanOperation p
         clp.Execute(op, paths); // works on closed polygons only
     }
     // Have to scale points down now
-    Vector<Vector<Point2> > polypaths;
+    Vector<PODVector<Vector2> > polypaths;
 
     for (Paths::size_type i = 0; i < paths.size(); ++i) {
-        Vector<Vector2> polypath;
+        PODVector<Vector2> polypath;
 
         const Path &scaled_path = paths[i];
 
-        for (Paths::size_type j = 0; j < scaled_path.size(); ++j) {
-            polypath.push_back(Point2(
-                    static_cast<real_t>(scaled_path[j].X) / SCALE_FACTOR,
-                    static_cast<real_t>(scaled_path[j].Y) / SCALE_FACTOR));
+        for (IntPoint j : scaled_path) {
+            polypath.emplace_back(
+                    static_cast<real_t>(j.X) / SCALE_FACTOR,
+                    static_cast<real_t>(j.Y) / SCALE_FACTOR);
         }
-        polypaths.push_back(polypath);
+        polypaths.emplace_back(eastl::move(polypath));
     }
     return polypaths;
 }
 
-Vector<Vector<Point2> > Geometry::_polypath_offset(const Vector<Point2> &p_polypath, real_t p_delta, PolyJoinType p_join_type, PolyEndType p_end_type) {
+Vector<PODVector<Point2> > Geometry::_polypath_offset(const Vector<Point2> &p_polypath, real_t p_delta, PolyJoinType p_join_type, PolyEndType p_end_type) {
 
     using namespace ClipperLib;
 
@@ -1164,19 +1195,19 @@ Vector<Vector<Point2> > Geometry::_polypath_offset(const Vector<Point2> &p_polyp
     co.Execute(paths, p_delta * SCALE_FACTOR); // inflate/deflate
 
     // Have to scale points down now
-    Vector<Vector<Point2> > polypaths;
+    Vector<PODVector<Point2> > polypaths;
 
     for (Paths::size_type i = 0; i < paths.size(); ++i) {
-        Vector<Vector2> polypath;
+        PODVector<Vector2> polypath;
 
         const Path &scaled_path = paths[i];
 
-        for (Paths::size_type j = 0; j < scaled_path.size(); ++j) {
-            polypath.push_back(Point2(
-                    static_cast<real_t>(scaled_path[j].X) / SCALE_FACTOR,
-                    static_cast<real_t>(scaled_path[j].Y) / SCALE_FACTOR));
+        for (IntPoint j : scaled_path) {
+            polypath.emplace_back(
+                    static_cast<real_t>(j.X) / SCALE_FACTOR,
+                    static_cast<real_t>(j.Y) / SCALE_FACTOR);
         }
-        polypaths.push_back(polypath);
+        polypaths.emplace_back(eastl::move(polypath));
     }
     return polypaths;
 }

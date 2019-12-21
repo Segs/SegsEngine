@@ -47,6 +47,7 @@ class RID;
 class Array;
 class NodePath;
 class Dictionary;
+struct Frustum;
 struct Color;
 struct Vector2;
 struct Vector3;
@@ -167,6 +168,10 @@ private:
     } _data GCC_ALIGNED_8;
     void reference(const Variant &p_variant);
     void clear();
+    template<class T>
+    static Variant fromVector(Span<const T> v);
+    template<class T>
+    static Variant fromVectorBuiltin(Span<const T> v);
 
 public:
     static const Variant null_variant;
@@ -198,6 +203,8 @@ public:
     [[nodiscard]] T as() const {
         return (T)*this;
     }
+    template <typename T>
+    [[nodiscard]] PODVector<T> asVector() const;
     // Not a recursive loop, as<String>,as<float>,as<StringName> are specialized.
     operator String() const;
     operator se_string() const;
@@ -235,18 +242,6 @@ public:
     operator PoolVector<Color>() const;
     operator PoolVector<Plane>() const;
     operator PoolVector<Face3>() const;
-
-    operator Vector<Variant>() const;
-    operator Vector<uint8_t>() const;
-    operator Vector<int>() const;
-    operator Vector<real_t>() const;
-    operator Vector<String>() const;
-    operator Vector<StringName>() const;
-    operator Vector<Vector3>() const;
-    operator Vector<Color>() const;
-    operator Vector<RID>() const;
-    operator Vector<Vector2>() const;
-    operator Vector<Plane>() const;
 
     // some core type enums to convert to
     operator Margin() const;
@@ -301,31 +296,27 @@ public:
     Variant(const Array &p_array);
     Variant(const PoolVector<Plane> &p_array); // helper
     Variant(const PoolVector<uint8_t> &p_raw_array);
-    Variant(const PODVector<uint8_t> &p_raw_array);
     Variant(const PoolVector<int> &p_int_array);
-    Variant(const PODVector<int> &p_int_array);
     Variant(const PoolVector<real_t> &p_real_array);
     Variant(const PoolVector<String> &p_string_array);
     Variant(const PoolVector<se_string> &p_string_array);
     Variant(const PoolVector<Vector3> &p_vector3_array);
     Variant(const PoolVector<Color> &p_color_array);
     Variant(const PoolVector<Face3> &p_face_array);
-
-    Variant(const Vector<Variant> &p_array);
-    Variant(const Vector<uint8_t> &p_array);
-    Variant(const Vector<int> &p_array);
-    Variant(const Vector<real_t> &p_array);
-    Variant(const Vector<String> &p_array);
-    Variant(const Vector<se_string_view> &p_array);
-    explicit Variant(Vector<se_string> &&p_array);
-    explicit Variant(const Vector<se_string> &p_array);
-    Variant(const Vector<StringName> &p_array);
-    Variant(const Vector<Vector3> &p_array);
-    Variant(const Vector<Color> &p_array);
-    Variant(const Vector<Plane> &p_array); // helper
-    Variant(const Vector<RID> &p_array); // helper
-    Variant(const Vector<Vector2> &p_array); // helper
     explicit Variant(const PoolVector<Vector2> &p_vector2_array); // helper
+
+    Variant(const PODVector<uint8_t> &p_raw_array);
+    Variant(const PODVector<int> &p_int_array);
+    Variant(const PODVector<float> &);
+    Variant(const PODVector<Vector2> &);
+    Variant(const PODVector<Vector3> &);
+    Variant(const PODVector<Color> &);
+    Variant(const PODVector<Plane> &);
+
+    template<class T>
+    static Variant from(const T &v) {
+        return Variant(v);
+    }
 
     explicit Variant(const IP_Address &p_address);
 
@@ -502,10 +493,40 @@ template <> GODOT_EXPORT Transform Variant::as<Transform>() const;
 template <> GODOT_EXPORT Basis Variant::as<Basis>() const;
 template <> GODOT_EXPORT Quat Variant::as<Quat>() const;
 template <> GODOT_EXPORT PoolVector<se_string> Variant::as<PoolVector<se_string>>() const;
+template <> GODOT_EXPORT Vector<se_string> Variant::as<Vector<se_string>>() const;
 template <> GODOT_EXPORT PODVector<se_string> Variant::as<PODVector<se_string>>() const;
 template <> GODOT_EXPORT PODVector<uint8_t> Variant::as<PODVector<uint8_t>>() const;
-template <> GODOT_EXPORT PODVector<int> Variant::as<PODVector<int>>() const;
+template <> GODOT_EXPORT PODVector<int> Variant::asVector<int>() const;
+template <> GODOT_EXPORT PODVector<Plane> Variant::asVector<Plane>() const;
+
+// All `as` overloads returing a Span are restricted to no-conversion/no-allocation cases.
 template <> GODOT_EXPORT Span<const uint8_t> Variant::as<Span<const uint8_t>>() const;
-template <> GODOT_EXPORT Vector<se_string> Variant::as<Vector<se_string>>() const;
+template <> GODOT_EXPORT Span<const int> Variant::as<Span<const int>>() const;
+template <> GODOT_EXPORT Span<const Vector2> Variant::as<Span<const Vector2>>() const;
+template <> GODOT_EXPORT Span<const Vector3> Variant::as<Span<const Vector3>>() const;
 
+template <> GODOT_EXPORT Vector<uint8_t> Variant::as<Vector<uint8_t>>() const;
+template <> GODOT_EXPORT Vector<int> Variant::as<Vector<int>>() const;
+template <> GODOT_EXPORT Vector<float> Variant::as<Vector<float>>() const;
+template <> GODOT_EXPORT Vector<Variant> Variant::as<Vector<Variant>>() const;
+template <> GODOT_EXPORT Vector<Vector2> Variant::as<Vector<Vector2>>() const;
+template <> GODOT_EXPORT Vector<Vector3> Variant::as<Vector<Vector3>>() const;
+template <> GODOT_EXPORT Vector<RID> Variant::as<Vector<RID>>() const;
+template <> GODOT_EXPORT Vector<Color> Variant::as<Vector<Color>>() const;
 
+template <> GODOT_EXPORT Variant Variant::from(const Vector<uint8_t> &);
+template <> GODOT_EXPORT Variant Variant::from(const Vector<int> &);
+template <> GODOT_EXPORT Variant Variant::from(const Vector<float> &);
+template <> GODOT_EXPORT Variant Variant::from(const Vector<Variant> &);
+template <> GODOT_EXPORT Variant Variant::from(const Vector<se_string> &);
+template <> GODOT_EXPORT Variant Variant::from(const Vector<se_string_view> &);
+template <> GODOT_EXPORT Variant Variant::from(const Vector<Vector2> &);
+template <> GODOT_EXPORT Variant Variant::from(const Vector<Vector3> &);
+template <> GODOT_EXPORT Variant Variant::from(const Vector<Color> &);
+
+template <> GODOT_EXPORT Variant Variant::from(const Vector<Plane> &p_array);
+template <> GODOT_EXPORT Variant Variant::from(const Vector<RID> &p_array);
+
+template <> GODOT_EXPORT Variant Variant::from(const PODVector<se_string> &);
+template <> GODOT_EXPORT Variant Variant::from(const PODVector<StringName> &);
+template <> GODOT_EXPORT Variant Variant::from(const Frustum &p_array);

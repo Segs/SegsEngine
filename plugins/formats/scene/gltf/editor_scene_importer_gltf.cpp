@@ -132,7 +132,7 @@ Error EditorSceneImporterGLTF::_parse_glb(se_string_view p_path, GLTFState &stat
     ERR_FAIL_COND_V(chunk_type != 0x004E4942, ERR_PARSE_ERROR) //BIN
 
     state.glb_data.resize(chunk_length);
-    len = f->get_buffer(state.glb_data.ptrw(), chunk_length);
+    len = f->get_buffer(state.glb_data.data(), chunk_length);
     ERR_FAIL_COND_V(len != chunk_length, ERR_FILE_CORRUPT)
 
     return OK;
@@ -349,20 +349,21 @@ void EditorSceneImporterGLTF::_compute_node_heights(GLTFState &state) {
     }
 }
 
-static Vector<uint8_t> _parse_base64_uri(const se_string &uri) {
+static PODVector<uint8_t> _parse_base64_uri(const se_string &uri) {
 
-    int start = StringUtils::find(uri,",");
-    ERR_FAIL_COND_V(start == -1, Vector<uint8_t>())
+    auto start = StringUtils::find(uri,",");
+    ERR_FAIL_COND_V(start == se_string::npos, PODVector<uint8_t>())
 
     se_string substr(StringUtils::right(uri,start + 1));
 
     int strlen = substr.length();
 
-    Vector<uint8_t> buf;
+    PODVector<uint8_t> buf;
     buf.resize(strlen / 4 * 3 + 1 + 1);
 
     size_t len = 0;
-    ERR_FAIL_COND_V(CryptoCore::b64_decode(buf.ptrw(), buf.size(), &len, (unsigned char *)substr.data(), strlen) != OK, Vector<uint8_t>())
+    Error err=CryptoCore::b64_decode(buf.data(), buf.size(), &len, (unsigned char *)substr.data(), strlen);
+    ERR_FAIL_COND_V(err != OK, PODVector<uint8_t>())
 
     buf.resize(len);
 
@@ -375,33 +376,32 @@ Error EditorSceneImporterGLTF::_parse_buffers(GLTFState &state, se_string_view p
         return OK;
 
     const Array &buffers = state.json["buffers"];
+    if(buffers.size()!=0 && not state.glb_data.empty())
+    {
+        state.buffers.emplace_back(eastl::move(state.glb_data));
+    }
     for (GLTFBufferIndex i = 0; i < buffers.size(); i++) {
 
-        if (i == 0 && !state.glb_data.empty()) {
-            state.buffers.push_back(state.glb_data);
+        const Dictionary &buffer = buffers[i];
+        if (buffer.has("uri")) {
 
-        } else {
-            const Dictionary &buffer = buffers[i];
-            if (buffer.has("uri")) {
+            PODVector<uint8_t> buffer_data;
+            se_string uri = buffer["uri"];
 
-                Vector<uint8_t> buffer_data;
-                se_string uri = buffer["uri"];
+            if (StringUtils::findn(uri,"data:application/octet-stream;base64") == 0) {
+                //embedded data
+                buffer_data = _parse_base64_uri(uri);
+            } else {
 
-                if (StringUtils::findn(uri,"data:application/octet-stream;base64") == 0) {
-                    //embedded data
-                    buffer_data = _parse_base64_uri(uri);
-                } else {
-
-                    uri = StringUtils::replace(PathUtils::plus_file(p_base_path,uri),"\\", "/"); //fix for windows
-                    buffer_data = FileAccess::get_file_as_array(uri);
-                    ERR_FAIL_COND_V(buffer.empty(), ERR_PARSE_ERROR)
-                }
-
-                ERR_FAIL_COND_V(!buffer.has("byteLength"), ERR_PARSE_ERROR)
-                int byteLength = buffer["byteLength"];
-                ERR_FAIL_COND_V(byteLength < buffer_data.size(), ERR_PARSE_ERROR)
-                state.buffers.push_back(buffer_data);
+                uri = StringUtils::replace(PathUtils::plus_file(p_base_path,uri),"\\", "/"); //fix for windows
+                buffer_data = FileAccess::get_file_as_array(uri);
+                ERR_FAIL_COND_V(buffer.empty(), ERR_PARSE_ERROR)
             }
+
+            ERR_FAIL_COND_V(!buffer.has("byteLength"), ERR_PARSE_ERROR)
+            int byteLength = buffer["byteLength"];
+            ERR_FAIL_COND_V(byteLength < buffer_data.size(), ERR_PARSE_ERROR)
+            state.buffers.emplace_back(eastl::move(buffer_data));
         }
     }
 
@@ -579,8 +579,8 @@ Error EditorSceneImporterGLTF::_decode_buffer_view(GLTFState &state, double *dst
     ERR_FAIL_INDEX_V(bv.buffer, state.buffers.size(), ERR_PARSE_ERROR);
 
     const uint32_t offset = bv.byte_offset + byte_offset;
-    Vector<uint8_t> buffer = state.buffers[bv.buffer]; //copy on write, so no performance hit
-    const uint8_t *bufptr = buffer.ptr();
+    const PODVector<uint8_t> &buffer = state.buffers[bv.buffer]; //copy on write, so no performance hit
+    const uint8_t *bufptr = buffer.data();
 
     //use to debug
     print_verbose(se_string("glTF: type ") + _get_type_name(type) + " component type: " + _get_component_type_name(component_type) + " stride: " + itos(stride) + " amount " + itos(count));
@@ -767,76 +767,64 @@ Vector<double> EditorSceneImporterGLTF::_decode_accessor(GLTFState &state, const
     return dst_buffer;
 }
 
-PoolVector<int> EditorSceneImporterGLTF::_decode_accessor_as_ints(GLTFState &state, const GLTFAccessorIndex p_accessor, const bool p_for_vertex) {
+PODVector<int> EditorSceneImporterGLTF::_decode_accessor_as_ints(GLTFState &state, const GLTFAccessorIndex p_accessor, const bool p_for_vertex) {
 
     const Vector<double> attribs = _decode_accessor(state, p_accessor, p_for_vertex);
-    PoolVector<int> ret;
+    PODVector<int> ret;
     if (attribs.empty())
         return ret;
     const double *attribs_ptr = attribs.ptr();
     const int ret_size = attribs.size();
-    ret.resize(ret_size);
-    {
-        PoolVector<int>::Write w = ret.write();
-        for (int i = 0; i < ret_size; i++) {
-            w[i] = int(attribs_ptr[i]);
-        }
+    ret.reserve(ret_size);
+    for (int i = 0; i < ret_size; i++) {
+        ret.emplace_back(int(attribs_ptr[i]));
     }
     return ret;
 }
 
-PoolVector<float> EditorSceneImporterGLTF::_decode_accessor_as_floats(GLTFState &state, const GLTFAccessorIndex p_accessor, const bool p_for_vertex) {
+PODVector<float> EditorSceneImporterGLTF::_decode_accessor_as_floats(GLTFState &state, const GLTFAccessorIndex p_accessor, const bool p_for_vertex) {
 
     const Vector<double> attribs = _decode_accessor(state, p_accessor, p_for_vertex);
-    PoolVector<float> ret;
+    PODVector<float> ret;
     if (attribs.empty())
         return ret;
     const double *attribs_ptr = attribs.ptr();
     const int ret_size = attribs.size();
-    ret.resize(ret_size);
-    {
-        PoolVector<float>::Write w = ret.write();
-        for (int i = 0; i < ret_size; i++) {
-            w[i] = float(attribs_ptr[i]);
-        }
+    ret.reserve(ret_size);
+    for (int i = 0; i < ret_size; i++) {
+        ret.emplace_back(float(attribs_ptr[i]));
     }
     return ret;
 }
 
-PoolVector<Vector2> EditorSceneImporterGLTF::_decode_accessor_as_vec2(GLTFState &state, const GLTFAccessorIndex p_accessor, const bool p_for_vertex) {
+PODVector<Vector2> EditorSceneImporterGLTF::_decode_accessor_as_vec2(GLTFState &state, const GLTFAccessorIndex p_accessor, const bool p_for_vertex) {
 
     const Vector<double> attribs = _decode_accessor(state, p_accessor, p_for_vertex);
-    PoolVector<Vector2> ret;
+    PODVector<Vector2> ret;
     if (attribs.empty())
         return ret;
     ERR_FAIL_COND_V(attribs.size() % 2 != 0, ret)
     const double *attribs_ptr = attribs.ptr();
     const int ret_size = attribs.size() / 2;
-    ret.resize(ret_size);
-    {
-        PoolVector<Vector2>::Write w = ret.write();
-        for (int i = 0; i < ret_size; i++) {
-            w[i] = Vector2(attribs_ptr[i * 2 + 0], attribs_ptr[i * 2 + 1]);
-        }
+    ret.reserve(ret_size);
+    for (int i = 0; i < ret_size; i++) {
+        ret.emplace_back(attribs_ptr[i * 2 + 0], attribs_ptr[i * 2 + 1]);
     }
     return ret;
 }
 
-PoolVector<Vector3> EditorSceneImporterGLTF::_decode_accessor_as_vec3(GLTFState &state, const GLTFAccessorIndex p_accessor, const bool p_for_vertex) {
+PODVector<Vector3> EditorSceneImporterGLTF::_decode_accessor_as_vec3(GLTFState &state, const GLTFAccessorIndex p_accessor, const bool p_for_vertex) {
 
     const Vector<double> attribs = _decode_accessor(state, p_accessor, p_for_vertex);
-    PoolVector<Vector3> ret;
+    PODVector<Vector3> ret;
     if (attribs.empty())
         return ret;
     ERR_FAIL_COND_V(attribs.size() % 3 != 0, ret)
     const double *attribs_ptr = attribs.ptr();
     const int ret_size = attribs.size() / 3;
-    ret.resize(ret_size);
-    {
-        PoolVector<Vector3>::Write w = ret.write();
-        for (int i = 0; i < ret_size; i++) {
-            w[i] = Vector3(attribs_ptr[i * 3 + 0], attribs_ptr[i * 3 + 1], attribs_ptr[i * 3 + 2]);
-        }
+    ret.reserve(ret_size);
+    for (int i = 0; i < ret_size; i++) {
+        ret.emplace_back(attribs_ptr[i * 3 + 0], attribs_ptr[i * 3 + 1], attribs_ptr[i * 3 + 2]);
     }
     return ret;
 }
@@ -867,20 +855,18 @@ PoolVector<Color> EditorSceneImporterGLTF::_decode_accessor_as_color(GLTFState &
     }
     return ret;
 }
-Vector<Quat> EditorSceneImporterGLTF::_decode_accessor_as_quat(GLTFState &state, const GLTFAccessorIndex p_accessor, const bool p_for_vertex) {
+PODVector<Quat> EditorSceneImporterGLTF::_decode_accessor_as_quat(GLTFState &state, const GLTFAccessorIndex p_accessor, const bool p_for_vertex) {
 
     const Vector<double> attribs = _decode_accessor(state, p_accessor, p_for_vertex);
-    Vector<Quat> ret;
+    PODVector<Quat> ret;
     if (attribs.empty())
         return ret;
     ERR_FAIL_COND_V(attribs.size() % 4 != 0, ret)
     const double *attribs_ptr = attribs.ptr();
     const int ret_size = attribs.size() / 4;
-    ret.resize(ret_size);
-    {
-        for (int i = 0; i < ret_size; i++) {
-            ret.write[i] = Quat(attribs_ptr[i * 4 + 0], attribs_ptr[i * 4 + 1], attribs_ptr[i * 4 + 2], attribs_ptr[i * 4 + 3]).normalized();
-        }
+    ret.reserve(ret_size);
+    for (int i = 0; i < ret_size; i++) {
+        ret.emplace_back(Quat(attribs_ptr[i * 4 + 0], attribs_ptr[i * 4 + 1], attribs_ptr[i * 4 + 2], attribs_ptr[i * 4 + 3]).normalized());
     }
     return ret;
 }
@@ -1003,23 +989,21 @@ Error EditorSceneImporterGLTF::_parse_meshes(GLTFState &state) {
                 array[Mesh::ARRAY_BONES] = _decode_accessor_as_ints(state, a["JOINTS_0"], true);
             }
             if (a.has("WEIGHTS_0")) {
-                PoolVector<float> weights = _decode_accessor_as_floats(state, a["WEIGHTS_0"], true);
+                PODVector<float> weights = _decode_accessor_as_floats(state, a["WEIGHTS_0"], true);
                 { //gltf does not seem to normalize the weights for some reason..
                     int wc = weights.size();
-                    PoolVector<float>::Write w = weights.write();
-
 
                     for (int k = 0; k < wc; k += 4) {
                         float total = 0.0;
-                        total += w[k + 0];
-                        total += w[k + 1];
-                        total += w[k + 2];
-                        total += w[k + 3];
+                        total += weights[k + 0];
+                        total += weights[k + 1];
+                        total += weights[k + 2];
+                        total += weights[k + 3];
                         if (total > 0.0f) {
-                            w[k + 0] /= total;
-                            w[k + 1] /= total;
-                            w[k + 2] /= total;
-                            w[k + 3] /= total;
+                            weights[k + 0] /= total;
+                            weights[k + 1] /= total;
+                            weights[k + 2] /= total;
+                            weights[k + 3] /= total;
                         }
 
                     }
@@ -1029,15 +1013,14 @@ Error EditorSceneImporterGLTF::_parse_meshes(GLTFState &state) {
 
             if (p.has("indices")) {
 
-                PoolVector<int> indices = _decode_accessor_as_ints(state, p["indices"], false);
+                PODVector<int> indices = _decode_accessor_as_ints(state, p["indices"], false);
 
                 if (primitive == Mesh::PRIMITIVE_TRIANGLES) {
                     //swap around indices, convert ccw to cw for front face
-
                     const int is = indices.size();
-                    const PoolVector<int>::Write w = indices.write();
+                    ERR_FAIL_COND_V(is % 3 != 0,{})
                     for (int k = 0; k < is; k += 3) {
-                        SWAP(w[k + 1], w[k + 2]);
+                        SWAP(indices[k + 1], indices[k + 2]);
                     }
                 }
                 array[Mesh::ARRAY_INDEX] = indices;
@@ -1111,7 +1094,7 @@ Error EditorSceneImporterGLTF::_parse_meshes(GLTFState &state) {
                     array_copy[Mesh::ARRAY_INDEX] = Variant();
 
                     if (t.has("POSITION")) {
-                        PoolVector<Vector3> varr = _decode_accessor_as_vec3(state, t["POSITION"], true);
+                        PODVector<Vector3> varr(_decode_accessor_as_vec3(state, t["POSITION"], true));
                         const PoolVector<Vector3> src_varr = array[Mesh::ARRAY_VERTEX];
                         const int size = src_varr.size();
                         ERR_FAIL_COND_V(size == 0, ERR_PARSE_ERROR);
@@ -1120,21 +1103,19 @@ Error EditorSceneImporterGLTF::_parse_meshes(GLTFState &state) {
                             const int max_idx = varr.size();
                             varr.resize(size);
 
-                            const PoolVector<Vector3>::Write w_varr = varr.write();
-                            const PoolVector<Vector3>::Read r_varr = varr.read();
                             const PoolVector<Vector3>::Read r_src_varr = src_varr.read();
                             for (int l = 0; l < size; l++) {
                                 if (l < max_idx) {
-                                    w_varr[l] = r_varr[l] + r_src_varr[l];
+                                    varr[l] += r_src_varr[l];
                                 } else {
-                                    w_varr[l] = r_src_varr[l];
+                                    varr[l] = r_src_varr[l];
                                 }
                             }
                         }
                         array_copy[Mesh::ARRAY_VERTEX] = varr;
                     }
                     if (t.has("NORMAL")) {
-                        PoolVector<Vector3> narr = _decode_accessor_as_vec3(state, t["NORMAL"], true);
+                        PODVector<Vector3> narr = _decode_accessor_as_vec3(state, t["NORMAL"], true);
                         const PoolVector<Vector3> src_narr = array[Mesh::ARRAY_NORMAL];
                         int size = src_narr.size();
                         ERR_FAIL_COND_V(size == 0, ERR_PARSE_ERROR);
@@ -1142,21 +1123,19 @@ Error EditorSceneImporterGLTF::_parse_meshes(GLTFState &state) {
                             int max_idx = narr.size();
                             narr.resize(size);
 
-                            const PoolVector<Vector3>::Write w_narr = narr.write();
-                            const PoolVector<Vector3>::Read r_narr = narr.read();
                             const PoolVector<Vector3>::Read r_src_narr = src_narr.read();
                             for (int l = 0; l < size; l++) {
                                 if (l < max_idx) {
-                                    w_narr[l] = r_narr[l] + r_src_narr[l];
+                                    narr[l] += r_src_narr[l];
                                 } else {
-                                    w_narr[l] = r_src_narr[l];
+                                    narr[l] = r_src_narr[l];
                                 }
                             }
                         }
                         array_copy[Mesh::ARRAY_NORMAL] = narr;
                     }
                     if (t.has("TANGENT")) {
-                        const PoolVector<Vector3> tangents_v3 = _decode_accessor_as_vec3(state, t["TANGENT"], true);
+                        const PODVector<Vector3> tangents_v3 = _decode_accessor_as_vec3(state, t["TANGENT"], true);
                         const PoolVector<float> src_tangents = array[Mesh::ARRAY_TANGENT];
                         ERR_FAIL_COND_V(src_tangents.size() == 0, ERR_PARSE_ERROR);
                         PoolVector<float> tangents_v4;
@@ -1168,16 +1147,14 @@ Error EditorSceneImporterGLTF::_parse_meshes(GLTFState &state) {
                             int size4 = src_tangents.size();
                             tangents_v4.resize(size4);
                             const PoolVector<float>::Write w4 = tangents_v4.write();
-
-                            const PoolVector<Vector3>::Read r3 = tangents_v3.read();
                             const PoolVector<float>::Read r4 = src_tangents.read();
 
                             for (int l = 0; l < size4 / 4; l++) {
 
                                 if (l < max_idx) {
-                                    w4[l * 4 + 0] = r3[l].x + r4[l * 4 + 0];
-                                    w4[l * 4 + 1] = r3[l].y + r4[l * 4 + 1];
-                                    w4[l * 4 + 2] = r3[l].z + r4[l * 4 + 2];
+                                    w4[l * 4 + 0] = tangents_v3[l].x + r4[l * 4 + 0];
+                                    w4[l * 4 + 1] = tangents_v3[l].y + r4[l * 4 + 1];
+                                    w4[l * 4 + 2] = tangents_v3[l].z + r4[l * 4 + 2];
                                 } else {
                                     w4[l * 4 + 0] = r4[l * 4 + 0];
                                     w4[l * 4 + 1] = r4[l * 4 + 1];
@@ -1248,7 +1225,7 @@ Error EditorSceneImporterGLTF::_parse_images(GLTFState &state, se_string_view p_
             mimetype = d["mimeType"].as<se_string>();
         }
 
-        Vector<uint8_t> data;
+        PODVector<uint8_t> data;
         const uint8_t *data_ptr = nullptr;
         int data_size = 0;
 
@@ -1259,7 +1236,7 @@ Error EditorSceneImporterGLTF::_parse_images(GLTFState &state, se_string_view p_
                     StringUtils::findn(uri,"data:" + mimetype + ";base64") == 0) {
                 //embedded data
                 data = _parse_base64_uri(uri);
-                data_ptr = data.ptr();
+                data_ptr = data.data();
                 data_size = data.size();
             } else {
 
@@ -1893,12 +1870,12 @@ Error EditorSceneImporterGLTF::_determine_skeletons(GLTFState &state) {
             const GLTFNodeIndex node_i = skeleton.joints[i];
             GLTFNode *node = state.nodes[node_i];
 
-            ERR_FAIL_COND_V(!node->joint, ERR_PARSE_ERROR);
-            ERR_FAIL_COND_V(node->skeleton >= 0, ERR_PARSE_ERROR);
+            ERR_FAIL_COND_V(!node->joint, ERR_PARSE_ERROR)
+            ERR_FAIL_COND_V(node->skeleton >= 0, ERR_PARSE_ERROR)
             node->skeleton = skel_i;
         }
 
-        ERR_FAIL_COND_V(_determine_skeleton_roots(state, skel_i), ERR_PARSE_ERROR);
+        ERR_FAIL_COND_V(_determine_skeleton_roots(state, skel_i), ERR_PARSE_ERROR)
     }
 
     return OK;
@@ -2138,7 +2115,7 @@ Error EditorSceneImporterGLTF::_create_skeletons(GLTFState &state) {
         }
     }
 
-    ERR_FAIL_COND_V(_map_skin_joints_indices_to_skeleton_bone_indices(state), ERR_PARSE_ERROR);
+    ERR_FAIL_COND_V(_map_skin_joints_indices_to_skeleton_bone_indices(state), ERR_PARSE_ERROR)
 
     return OK;
 }
@@ -2361,24 +2338,24 @@ Error EditorSceneImporterGLTF::_parse_animations(GLTFState &state) {
                 }
             }
 
-            const PoolVector<float> times = _decode_accessor_as_floats(state, input, false);
+            const PODVector<float> times = _decode_accessor_as_floats(state, input, false);
             if (path == "translation") {
-                const PoolVector<Vector3> translations = _decode_accessor_as_vec3(state, output, false);
+                const PODVector<Vector3> translations = _decode_accessor_as_vec3(state, output, false);
                 track->translation_track.interpolation = interp;
-                track->translation_track.times = Variant(times); //convert via variant
-                track->translation_track.values = Variant(translations); //convert via variant
+                track->translation_track.times = times; //convert via variant
+                track->translation_track.values = translations; //convert via variant
             } else if (path == "rotation") {
-                const Vector<Quat> rotations = _decode_accessor_as_quat(state, output, false);
+                const PODVector<Quat> rotations = _decode_accessor_as_quat(state, output, false);
                 track->rotation_track.interpolation = interp;
-                track->rotation_track.times = Variant(times); //convert via variant
+                track->rotation_track.times = times; //convert via variant
                 track->rotation_track.values = rotations; //convert via variant
             } else if (path == "scale") {
-                const PoolVector<Vector3> scales = _decode_accessor_as_vec3(state, output, false);
+                const PODVector<Vector3> scales = _decode_accessor_as_vec3(state, output, false);
                 track->scale_track.interpolation = interp;
-                track->scale_track.times = Variant(times); //convert via variant
-                track->scale_track.values = Variant(scales); //convert via variant
+                track->scale_track.times = times; //convert via variant
+                track->scale_track.values = scales; //convert via variant
             } else if (path == "weights") {
-                const PoolVector<float> weights = _decode_accessor_as_floats(state, output, false);
+                const PODVector<float> weights = _decode_accessor_as_floats(state, output, false);
 
                 ERR_FAIL_INDEX_V(state.nodes[node]->mesh, state.meshes.size(), ERR_PARSE_ERROR);
                 const GLTFMesh *mesh = &state.meshes[state.nodes[node]->mesh];
@@ -2392,19 +2369,18 @@ Error EditorSceneImporterGLTF::_parse_animations(GLTFState &state) {
                         "Invalid weight data, expected " + itos(expected_value_count) + " weight values, got " +
                                 itos(weights.size()) + " instead.");
 
-                const int wlen = weights.size() / wc;
-                PoolVector<float>::Read r = weights.read();
+                const size_t wlen = weights.size() / wc;
                 for (int k = 0; k < wc; k++) { //separate tracks, having them together is not such a good idea
                     GLTFAnimation::Channel<float> cf;
                     cf.interpolation = interp;
-                    cf.times = Variant(times);
-                    Vector<float> wdata;
-                    wdata.resize(wlen);
-                    for (int l = 0; l < wlen; l++) {
-                        wdata.write[l] = r[l * wc + k];
+                    cf.times = times;
+                    PODVector<float> wdata;
+                    wdata.reserve(wlen);
+                    for (size_t l = 0; l < wlen; l++) {
+                        wdata.emplace_back(weights[l * wc + k]);
                     }
 
-                    cf.values = wdata;
+                    cf.values = eastl::move(wdata);
                     track->weight_tracks.write[k] = cf;
                 }
             } else {
@@ -2622,7 +2598,7 @@ struct EditorSceneImporterGLTFInterpolate<Quat> {
 };
 
 template <class T>
-T EditorSceneImporterGLTF::_interpolate_track(const Vector<float> &p_times, const Vector<T> &p_values, const float p_time, const GLTFAnimation::Interpolation p_interp) {
+T EditorSceneImporterGLTF::_interpolate_track(const PODVector<float> &p_times, const PODVector<T> &p_values, const float p_time, const GLTFAnimation::Interpolation p_interp) {
 
     //could use binary search, worth it?
     int idx = -1;

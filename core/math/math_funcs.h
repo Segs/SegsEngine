@@ -432,4 +432,18 @@ public:
         }
         return p_target;
     }
+    static _ALWAYS_INLINE_ real_t atan2fast(real_t y, real_t x) {
+        real_t coeff_1 = Math_PI / 4.0f;
+        real_t coeff_2 = 3.0f * coeff_1;
+        real_t abs_y = Math::abs(y);
+        real_t angle;
+        if (x >= 0.0f) {
+            real_t r = (x - abs_y) / (x + abs_y);
+            angle = coeff_1 - coeff_1 * r;
+        } else {
+            real_t r = (x + abs_y) / (abs_y - x);
+            angle = coeff_2 - coeff_1 * r;
+        }
+        return (y < 0.0f) ? -angle : angle;
+    }
 };

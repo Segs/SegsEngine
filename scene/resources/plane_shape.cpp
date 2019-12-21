@@ -35,10 +35,9 @@
 
 IMPL_GDCLASS(PlaneShape)
 
-Vector<Vector3> PlaneShape::get_debug_mesh_lines() {
+PODVector<Vector3> PlaneShape::get_debug_mesh_lines() {
 
     Plane p = get_plane();
-    Vector<Vector3> points;
 
     Vector3 n1 = p.get_any_perpendicular_normal();
     Vector3 n2 = p.normal.cross(n1).normalized();
@@ -50,18 +49,20 @@ Vector<Vector3> PlaneShape::get_debug_mesh_lines() {
         p.normal * p.d + n1 * -10.0 + n2 * 10.0,
     };
 
-    points.push_back(pface[0]);
-    points.push_back(pface[1]);
-    points.push_back(pface[1]);
-    points.push_back(pface[2]);
-    points.push_back(pface[2]);
-    points.push_back(pface[3]);
-    points.push_back(pface[3]);
-    points.push_back(pface[0]);
-    points.push_back(p.normal * p.d);
-    points.push_back(p.normal * p.d + p.normal * 3);
+    Vector3 points[10];
+    uint8_t widx=0;
+    points[widx++] = pface[0];
+    points[widx++] = pface[1];
+    points[widx++] = pface[1];
+    points[widx++] = pface[2];
+    points[widx++] = pface[2];
+    points[widx++] = pface[3];
+    points[widx++] = pface[3];
+    points[widx++] = pface[0];
+    points[widx++] = p.normal * p.d;
+    points[widx++] = p.normal * p.d + p.normal * 3;
 
-    return points;
+    return {points,points+widx};
 }
 
 void PlaneShape::_update_shape() {

@@ -255,20 +255,20 @@ struct _VariantCall {
     // built-in functions of localmem based types
 #define VCALL_SU_LOCALMEM0R(m_type, m_method) \
     static void _call_##m_type##_##m_method(Variant &r_ret, Variant &p_self, const Variant ** /*p_args*/) { \
-    r_ret = Variant(StringUtils::m_method(*reinterpret_cast<se_string *>(p_self._data._mem))); }
+    r_ret = Variant::from(StringUtils::m_method(*reinterpret_cast<se_string *>(p_self._data._mem))); }
 #define VCALL_SU_LOCALMEM1R(m_type, m_method) \
     static void _call_##m_type##_##m_method(Variant &r_ret, Variant &p_self, const Variant ** p_args) { \
-    r_ret = Variant(StringUtils::m_method(*reinterpret_cast<se_string *>(p_self._data._mem),*p_args[0])); }
+    r_ret = Variant::from(StringUtils::m_method(*reinterpret_cast<se_string *>(p_self._data._mem),*p_args[0])); }
 #define VCALL_SU_LOCALMEM2R(m_type, m_method) \
     static void _call_##m_type##_##m_method(Variant &r_ret, Variant &p_self, const Variant ** p_args) { \
-    r_ret = Variant(StringUtils::m_method(*reinterpret_cast<se_string *>(p_self._data._mem),*p_args[0],*p_args[1])); }
+    r_ret = Variant::from(StringUtils::m_method(*reinterpret_cast<se_string *>(p_self._data._mem),*p_args[0],*p_args[1])); }
 #define VCALL_SU_LOCALMEM2(m_type, m_method) \
     static void _call_##m_type##_##m_method(Variant &r_ret, Variant &p_self, const Variant ** p_args) { \
     StringUtils::m_method(*reinterpret_cast<se_string *>(p_self._data._mem),*p_args[0],*p_args[1]); }
 
 #define VCALL_SU_LOCALMEM3R(m_type, m_method) \
     static void _call_##m_type##_##m_method(Variant &r_ret, Variant &p_self, const Variant ** p_args) { \
-    r_ret = Variant(StringUtils::m_method(*reinterpret_cast<se_string *>(p_self._data._mem),*p_args[0],*p_args[1],*p_args[2])); }
+    r_ret = Variant::from(StringUtils::m_method(*reinterpret_cast<se_string *>(p_self._data._mem),*p_args[0],*p_args[1],*p_args[2])); }
 #define VCALL_PU_LOCALMEM0R(m_type, m_method) \
     static void _call_##m_type##_##m_method(Variant &r_ret, Variant &p_self, const Variant ** /*p_args*/) { \
     r_ret = PathUtils::m_method(*reinterpret_cast<m_type *>(p_self._data._mem)); }
@@ -345,14 +345,14 @@ struct _VariantCall {
     VCALL_SU_LOCALMEM0R(String, capitalize)
     static void _call_String_split(Variant &r_ret, Variant &p_self, const Variant **p_args) {
         Vector<se_string_view> parts(StringUtils::split(*reinterpret_cast<se_string *>(p_self._data._mem),p_args[0]->as<se_string>(), p_args[2]->as<bool>()));
-        r_ret = parts;
+        r_ret = Variant::from(parts);
     }
     static void _call_String_rsplit(Variant &r_ret, Variant &p_self, const Variant **p_args) {
         Vector<se_string_view> parts(StringUtils::rsplit(*reinterpret_cast<se_string *>(p_self._data._mem),p_args[0]->as<se_string>(), p_args[2]->as<bool>()));
-        r_ret = parts;
+        r_ret = Variant::from(parts);
     }
     static void _call_String_split_floats(Variant &r_ret, Variant &p_self, const Variant **p_args) {
-        r_ret = (StringUtils::split_floats(*reinterpret_cast<se_string *>(p_self._data._mem),p_args[0]->as<se_string>()));
+        r_ret = Variant::from(StringUtils::split_floats(*reinterpret_cast<se_string *>(p_self._data._mem),p_args[0]->as<se_string>()));
     }
     VCALL_SU_LOCALMEM0R(String, to_upper)
     VCALL_SU_LOCALMEM0R(String, to_lower)
@@ -1715,7 +1715,7 @@ void register_variant_methods() {
     ADDFUNC1R(STRING, STRING, String, format, NIL, "values")
     ADDFUNC2R(STRING, STRING, String, replace, STRING, "what", STRING, "forwhat")
     ADDFUNC2R(STRING, STRING, String, replacen, STRING, "what", STRING, "forwhat")
-    ADDFUNC1R(STRING, STRING, String, repeat, INT, "count", varray())
+    ADDFUNC1R(STRING, STRING, String, repeat, INT, "count")
     ADDFUNC2R(STRING, STRING, String, insert, INT, "position", STRING, "what")
     ADDFUNC0R(STRING, STRING, String, capitalize)
     ADDFUNC3R(STRING, POOL_STRING_ARRAY, String, split, STRING, "delimiter", BOOL, "allow_empty", INT, "maxsplit", true, 0)

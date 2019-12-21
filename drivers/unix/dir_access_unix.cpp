@@ -213,7 +213,7 @@ static void _get_drives(List<se_string> *list) {
         char strings[4096];
 
         while (getmntent_r(mtab, &mnt, strings, sizeof(strings))) {
-            if (mnt.mnt_dir != NULL && _filter_drive(&mnt)) {
+            if (mnt.mnt_dir != nullptr && _filter_drive(&mnt)) {
                 // Avoid duplicates
                 if (!list->find(mnt.mnt_dir)) {
                     list->push_back(mnt.mnt_dir);

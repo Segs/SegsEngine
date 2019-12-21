@@ -129,7 +129,7 @@ public:
 
     void open(FileAccess *p_f, bool p_skip_first_tag = false);
     se_string recognize(FileAccess *p_f);
-    void get_dependencies(FileAccess *p_f, ListPOD<se_string> *p_dependencies, bool p_add_types);
+    void get_dependencies(FileAccess *p_f, PODVector<se_string> &p_dependencies, bool p_add_types);
     Error rename_dependencies(FileAccess *p_f, se_string_view p_path, const Map<se_string, se_string> &p_map);
 
     Error save_as_binary(FileAccess *p_f, se_string_view p_path);
@@ -145,7 +145,7 @@ public:
     void get_recognized_extensions(PODVector<se_string> &p_extensions) const override;
     bool handles_type(se_string_view p_type) const override;
     se_string get_resource_type(se_string_view p_path) const override;
-    void get_dependencies(se_string_view p_path, ListPOD<se_string> *p_dependencies, bool p_add_types = false) override;
+    void get_dependencies(se_string_view p_path, PODVector<se_string> &p_dependencies, bool p_add_types = false) override;
     Error rename_dependencies(se_string_view p_path, const Map<se_string, se_string> &p_map) override;
 
     static Error convert_file_to_binary(se_string_view p_src_path, se_string_view p_dst_path);

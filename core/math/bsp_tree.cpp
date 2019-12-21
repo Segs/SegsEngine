@@ -38,545 +38,534 @@
 
 void BSP_Tree::from_aabb(const AABB &p_aabb) {
 
-	planes.clear();
+    planes.clear();
 
-	for (int i = 0; i < 3; i++) {
+    for (int i = 0; i < 3; i++) {
 
-		Vector3 n;
-		n[i] = 1;
-		planes.push_back(Plane(n, p_aabb.position[i] + p_aabb.size[i]));
-		planes.push_back(Plane(-n, -p_aabb.position[i]));
-	}
+        Vector3 n;
+        n[i] = 1;
+        planes.push_back(Plane(n, p_aabb.position[i] + p_aabb.size[i]));
+        planes.push_back(Plane(-n, -p_aabb.position[i]));
+    }
 
-	nodes.clear();
+    nodes.clear();
 
-	for (int i = 0; i < 6; i++) {
+    for (int i = 0; i < 6; i++) {
 
-		Node n;
-		n.plane = i;
-		n.under = (i == 0) ? UNDER_LEAF : i - 1;
-		n.over = OVER_LEAF;
-		nodes.push_back(n);
-	}
+        Node n;
+        n.plane = i;
+        n.under = (i == 0) ? UNDER_LEAF : i - 1;
+        n.over = OVER_LEAF;
+        nodes.push_back(n);
+    }
 
-	aabb = p_aabb;
-	error_radius = 0;
+    aabb = p_aabb;
+    error_radius = 0;
 }
 
-Vector<BSP_Tree::Node> BSP_Tree::get_nodes() const {
 
-	return nodes;
-}
-Vector<Plane> BSP_Tree::get_planes() const {
 
-	return planes;
-}
 
 AABB BSP_Tree::get_aabb() const {
 
-	return aabb;
+    return aabb;
 }
 
 int BSP_Tree::_get_points_inside(int p_node, const Vector3 *p_points, int *p_indices, const Vector3 &p_center, const Vector3 &p_half_extents, int p_indices_count) const {
 
-	const Node *node = &nodes[p_node];
-	const Plane &p = planes[node->plane];
+    const Node *node = &nodes[p_node];
+    const Plane &p = planes[node->plane];
 
-	Vector3 min(
-			(p.normal.x > 0) ? -p_half_extents.x : p_half_extents.x,
-			(p.normal.y > 0) ? -p_half_extents.y : p_half_extents.y,
-			(p.normal.z > 0) ? -p_half_extents.z : p_half_extents.z);
-	Vector3 max = -min;
-	max += p_center;
-	min += p_center;
+    Vector3 min(
+            (p.normal.x > 0) ? -p_half_extents.x : p_half_extents.x,
+            (p.normal.y > 0) ? -p_half_extents.y : p_half_extents.y,
+            (p.normal.z > 0) ? -p_half_extents.z : p_half_extents.z);
+    Vector3 max = -min;
+    max += p_center;
+    min += p_center;
 
-	real_t dist_min = p.distance_to(min);
-	real_t dist_max = p.distance_to(max);
+    real_t dist_min = p.distance_to(min);
+    real_t dist_max = p.distance_to(max);
 
-	if ((dist_min * dist_max) < CMP_EPSILON) { //intersection, test point by point
+    if ((dist_min * dist_max) < CMP_EPSILON) { //intersection, test point by point
 
-		int under_count = 0;
+        int under_count = 0;
 
-		//sort points, so the are under first, over last
-		for (int i = 0; i < p_indices_count; i++) {
+        //sort points, so the are under first, over last
+        for (int i = 0; i < p_indices_count; i++) {
 
-			int index = p_indices[i];
+            int index = p_indices[i];
 
-			if (p.is_point_over(p_points[index])) {
+            if (p.is_point_over(p_points[index])) {
 
-				// kind of slow (but cache friendly), should try something else,
-				// but this is a corner case most of the time
+                // kind of slow (but cache friendly), should try something else,
+                // but this is a corner case most of the time
 
-				for (int j = index; j < p_indices_count - 1; j++)
-					p_indices[j] = p_indices[j + 1];
+                for (int j = index; j < p_indices_count - 1; j++)
+                    p_indices[j] = p_indices[j + 1];
 
-				p_indices[p_indices_count - 1] = index;
+                p_indices[p_indices_count - 1] = index;
 
-			} else {
-				under_count++;
-			}
-		}
+            } else {
+                under_count++;
+            }
+        }
 
-		int total = 0;
+        int total = 0;
 
-		if (under_count > 0) {
-			if (node->under == UNDER_LEAF) {
-				total += under_count;
-			} else {
-				total += _get_points_inside(node->under, p_points, p_indices, p_center, p_half_extents, under_count);
-			}
-		}
+        if (under_count > 0) {
+            if (node->under == UNDER_LEAF) {
+                total += under_count;
+            } else {
+                total += _get_points_inside(node->under, p_points, p_indices, p_center, p_half_extents, under_count);
+            }
+        }
 
-		if (under_count != p_indices_count) {
-			if (node->over == OVER_LEAF) {
-				//total+=0 //if they are over an OVER_LEAF, they are outside the model
-			} else {
-				total += _get_points_inside(node->over, p_points, &p_indices[under_count], p_center, p_half_extents, p_indices_count - under_count);
-			}
-		}
+        if (under_count != p_indices_count) {
+            if (node->over == OVER_LEAF) {
+                //total+=0 //if they are over an OVER_LEAF, they are outside the model
+            } else {
+                total += _get_points_inside(node->over, p_points, &p_indices[under_count], p_center, p_half_extents, p_indices_count - under_count);
+            }
+        }
 
-		return total;
+        return total;
 
-	} else if (dist_min > 0) { //all points over plane
+    } else if (dist_min > 0) { //all points over plane
 
-		if (node->over == OVER_LEAF) {
+        if (node->over == OVER_LEAF) {
 
-			return 0; // all these points are not visible
-		}
+            return 0; // all these points are not visible
+        }
 
-		return _get_points_inside(node->over, p_points, p_indices, p_center, p_half_extents, p_indices_count);
-	} else { //all points behind plane
+        return _get_points_inside(node->over, p_points, p_indices, p_center, p_half_extents, p_indices_count);
+    } else { //all points behind plane
 
-		if (node->under == UNDER_LEAF) {
+        if (node->under == UNDER_LEAF) {
 
-			return p_indices_count; // all these points are visible
-		}
-		return _get_points_inside(node->under, p_points, p_indices, p_center, p_half_extents, p_indices_count);
-	}
+            return p_indices_count; // all these points are visible
+        }
+        return _get_points_inside(node->under, p_points, p_indices, p_center, p_half_extents, p_indices_count);
+    }
 }
 
 int BSP_Tree::get_points_inside(const Vector3 *p_points, int p_point_count) const {
 
-	if (nodes.empty())
-		return 0;
+    if (nodes.empty())
+        return 0;
 
 #if 1
-	//this version is easier to debug, and and MUCH faster in real world cases
+    //this version is easier to debug, and and MUCH faster in real world cases
 
-	int pass_count = 0;
-	const Node *nodesptr = &nodes[0];
-	const Plane *planesptr = &planes[0];
-	int node_count = nodes.size();
+    int pass_count = 0;
+    const Node *nodesptr = &nodes[0];
+    const Plane *planesptr = &planes[0];
+    int node_count = nodes.size();
 
-	if (node_count == 0) // no nodes!
-		return 0;
+    if (node_count == 0) // no nodes!
+        return 0;
 
-	for (int i = 0; i < p_point_count; i++) {
+    for (int i = 0; i < p_point_count; i++) {
 
-		const Vector3 &point = p_points[i];
-		if (!aabb.has_point(point)) {
-			continue;
-		}
+        const Vector3 &point = p_points[i];
+        if (!aabb.has_point(point)) {
+            continue;
+        }
 
-		int idx = node_count - 1;
+        int idx = node_count - 1;
 
-		bool pass = false;
+        bool pass = false;
 
-		while (true) {
+        while (true) {
 
-			if (idx == OVER_LEAF) {
-				pass = false;
-				break;
-			} else if (idx == UNDER_LEAF) {
-				pass = true;
-				break;
-			}
+            if (idx == OVER_LEAF) {
+                pass = false;
+                break;
+            } else if (idx == UNDER_LEAF) {
+                pass = true;
+                break;
+            }
 
 #ifdef DEBUG_ENABLED
-			int plane_count = planes.size();
-			uint16_t plane = nodesptr[idx].plane;
+            int plane_count = planes.size();
+            uint16_t plane = nodesptr[idx].plane;
             ERR_FAIL_UNSIGNED_INDEX_V(plane, plane_count, 0)
 #endif
 
-			idx = planesptr[nodesptr[idx].plane].is_point_over(point) ? nodes[idx].over : nodes[idx].under;
+            idx = planesptr[nodesptr[idx].plane].is_point_over(point) ? nodes[idx].over : nodes[idx].under;
 
 #ifdef DEBUG_ENABLED
 
             ERR_FAIL_COND_V(idx < MAX_NODES && idx >= node_count, 0)
 #endif
-		}
+        }
 
-		if (pass)
-			pass_count++;
-	}
+        if (pass)
+            pass_count++;
+    }
 
-	return pass_count;
+    return pass_count;
 
 #else
-	//this version scales better but it's slower for real world cases
+    //this version scales better but it's slower for real world cases
 
-	int *indices = (int *)alloca(p_point_count * sizeof(int));
-	AABB bounds;
+    int *indices = (int *)alloca(p_point_count * sizeof(int));
+    AABB bounds;
 
-	for (int i = 0; i < p_point_count; i++) {
+    for (int i = 0; i < p_point_count; i++) {
 
-		indices[i] = i;
-		if (i == 0)
-			bounds.pos = p_points[i];
-		else
-			bounds.expand_to(p_points[i]);
-	}
+        indices[i] = i;
+        if (i == 0)
+            bounds.pos = p_points[i];
+        else
+            bounds.expand_to(p_points[i]);
+    }
 
-	Vector3 half_extents = bounds.size / 2.0;
-	return _get_points_inside(nodes.size() + 1, p_points, indices, bounds.pos + half_extents, half_extents, p_point_count);
+    Vector3 half_extents = bounds.size / 2.0;
+    return _get_points_inside(nodes.size() + 1, p_points, indices, bounds.pos + half_extents, half_extents, p_point_count);
 #endif
 }
 
 bool BSP_Tree::point_is_inside(const Vector3 &p_point) const {
 
-	if (!aabb.has_point(p_point)) {
-		return false;
-	}
+    if (!aabb.has_point(p_point)) {
+        return false;
+    }
 
-	int node_count = nodes.size();
+    int node_count = nodes.size();
 
-	if (node_count == 0) // no nodes!
-		return false;
+    if (node_count == 0) // no nodes!
+        return false;
 
-	const Node *nodesptr = &nodes[0];
-	const Plane *planesptr = &planes[0];
+    const Node *nodesptr = &nodes[0];
+    const Plane *planesptr = &planes[0];
 
-	int idx = node_count - 1;
+    int idx = node_count - 1;
 
-	while (true) {
+    while (true) {
 
-		if (idx == OVER_LEAF) {
-			return false;
-		}
-		if (idx == UNDER_LEAF) {
+        if (idx == OVER_LEAF) {
+            return false;
+        }
+        if (idx == UNDER_LEAF) {
 
-			return true;
-		}
-
-#ifdef DEBUG_ENABLED
-		int plane_count = planes.size();
-		uint16_t plane = nodesptr[idx].plane;
-		ERR_FAIL_UNSIGNED_INDEX_V(plane, plane_count, false);
-#endif
-
-		bool over = planesptr[nodesptr[idx].plane].is_point_over(p_point);
-
-		idx = over ? nodes[idx].over : nodes[idx].under;
+            return true;
+        }
 
 #ifdef DEBUG_ENABLED
-		ERR_FAIL_COND_V(idx < MAX_NODES && idx >= node_count, false)
+        int plane_count = planes.size();
+        uint16_t plane = nodesptr[idx].plane;
+        ERR_FAIL_UNSIGNED_INDEX_V(plane, plane_count, false);
 #endif
-	}
+
+        bool over = planesptr[nodesptr[idx].plane].is_point_over(p_point);
+
+        idx = over ? nodes[idx].over : nodes[idx].under;
+
+#ifdef DEBUG_ENABLED
+        ERR_FAIL_COND_V(idx < MAX_NODES && idx >= node_count, false)
+#endif
+    }
 }
 
 static int _bsp_find_best_half_plane(const Face3 *p_faces, const Vector<int> &p_indices, real_t p_tolerance) {
 
-	int ic = p_indices.size();
-	const int *indices = p_indices.ptr();
+    int ic = p_indices.size();
+    const int *indices = p_indices.ptr();
 
-	int best_plane = -1;
-	real_t best_plane_cost = 1e20f;
+    int best_plane = -1;
+    real_t best_plane_cost = 1e20f;
 
-	// Loop to find the polygon that best divides the set.
+    // Loop to find the polygon that best divides the set.
 
-	for (int i = 0; i < ic; i++) {
+    for (int i = 0; i < ic; i++) {
 
-		const Face3 &f = p_faces[indices[i]];
-		Plane p = f.get_plane();
+        const Face3 &f = p_faces[indices[i]];
+        Plane p = f.get_plane();
 
-		int num_over = 0, num_under = 0, num_spanning = 0;
+        int num_over = 0, num_under = 0, num_spanning = 0;
 
-		for (int j = 0; j < ic; j++) {
+        for (int j = 0; j < ic; j++) {
 
-			if (i == j)
-				continue;
+            if (i == j)
+                continue;
 
-			const Face3 &g = p_faces[indices[j]];
-			int over = 0, under = 0;
+            const Face3 &g = p_faces[indices[j]];
+            int over = 0, under = 0;
 
-			for (int k = 0; k < 3; k++) {
+            for (int k = 0; k < 3; k++) {
 
-				real_t d = p.distance_to(g.vertex[j]);
+                real_t d = p.distance_to(g.vertex[j]);
 
-				if (Math::abs(d) > p_tolerance) {
+                if (Math::abs(d) > p_tolerance) {
 
-					if (d > 0)
-						over++;
-					else
-						under++;
-				}
-			}
+                    if (d > 0)
+                        over++;
+                    else
+                        under++;
+                }
+            }
 
-			if (over && under)
-				num_spanning++;
-			else if (over)
-				num_over++;
-			else
-				num_under++;
-		}
+            if (over && under)
+                num_spanning++;
+            else if (over)
+                num_over++;
+            else
+                num_under++;
+        }
 
-		//real_t split_cost = num_spanning / (real_t) face_count;
-		real_t relation = Math::abs(num_over - num_under) / (real_t)ic;
+        //real_t split_cost = num_spanning / (real_t) face_count;
+        real_t relation = Math::abs(num_over - num_under) / (real_t)ic;
 
-		// being honest, i never found a way to add split cost to the mix in a meaninguful way
-		// in this engine, also, will likely be ignored anyway
+        // being honest, i never found a way to add split cost to the mix in a meaninguful way
+        // in this engine, also, will likely be ignored anyway
 
-		real_t plane_cost = /*split_cost +*/ relation;
+        real_t plane_cost = /*split_cost +*/ relation;
 
-		//printf("plane %i, %i over, %i under, %i spanning, cost is %g\n",i,num_over,num_under,num_spanning,plane_cost);
-		if (plane_cost < best_plane_cost) {
+        //printf("plane %i, %i over, %i under, %i spanning, cost is %g\n",i,num_over,num_under,num_spanning,plane_cost);
+        if (plane_cost < best_plane_cost) {
 
-			best_plane = i;
-			best_plane_cost = plane_cost;
-		}
-	}
+            best_plane = i;
+            best_plane_cost = plane_cost;
+        }
+    }
 
-	return best_plane;
+    return best_plane;
 }
 
-static int _bsp_create_node(const Face3 *p_faces, const Vector<int> &p_indices, Vector<Plane> &p_planes, Vector<BSP_Tree::Node> &p_nodes, real_t p_tolerance) {
+static int _bsp_create_node(const Face3 *p_faces, const Vector<int> &p_indices, PODVector<Plane> &p_planes, PODVector<BSP_Tree::Node> &p_nodes, real_t p_tolerance) {
 
-	ERR_FAIL_COND_V(p_nodes.size() == BSP_Tree::MAX_NODES, -1)
+    ERR_FAIL_COND_V(p_nodes.size() == BSP_Tree::MAX_NODES, -1)
 
-	// should not reach here
-	ERR_FAIL_COND_V(p_indices.empty(), -1)
+    // should not reach here
+    ERR_FAIL_COND_V(p_indices.empty(), -1)
 
-	int ic = p_indices.size();
-	const int *indices = p_indices.ptr();
+    int ic = p_indices.size();
+    const int *indices = p_indices.ptr();
 
-	int divisor_idx = _bsp_find_best_half_plane(p_faces, p_indices, p_tolerance);
+    int divisor_idx = _bsp_find_best_half_plane(p_faces, p_indices, p_tolerance);
 
-	// returned error
-	ERR_FAIL_COND_V(divisor_idx < 0, -1)
+    // returned error
+    ERR_FAIL_COND_V(divisor_idx < 0, -1)
 
-	Vector<int> faces_over;
-	Vector<int> faces_under;
+    Vector<int> faces_over;
+    Vector<int> faces_under;
 
-	Plane divisor_plane = p_faces[indices[divisor_idx]].get_plane();
+    Plane divisor_plane = p_faces[indices[divisor_idx]].get_plane();
 
-	for (int i = 0; i < ic; i++) {
+    for (int i = 0; i < ic; i++) {
 
-		if (i == divisor_idx)
-			continue;
+        if (i == divisor_idx)
+            continue;
 
-		const Face3 &f = p_faces[indices[i]];
+        const Face3 &f = p_faces[indices[i]];
 
-		/*
+        /*
         if (f.get_plane().is_equal_approx(divisor_plane))
-			continue;
-		*/
+            continue;
+        */
 
-		int over_count = 0;
-		int under_count = 0;
+        int over_count = 0;
+        int under_count = 0;
 
-		for (int j = 0; j < 3; j++) {
+        for (int j = 0; j < 3; j++) {
 
-			real_t d = divisor_plane.distance_to(f.vertex[j]);
-			if (Math::abs(d) > p_tolerance) {
+            real_t d = divisor_plane.distance_to(f.vertex[j]);
+            if (Math::abs(d) > p_tolerance) {
 
-				if (d > 0)
-					over_count++;
-				else
-					under_count++;
-			}
-		}
+                if (d > 0)
+                    over_count++;
+                else
+                    under_count++;
+            }
+        }
 
-		if (over_count)
-			faces_over.push_back(indices[i]);
-		if (under_count)
-			faces_under.push_back(indices[i]);
-	}
+        if (over_count)
+            faces_over.push_back(indices[i]);
+        if (under_count)
+            faces_under.push_back(indices[i]);
+    }
 
-	uint16_t over_idx = BSP_Tree::OVER_LEAF, under_idx = BSP_Tree::UNDER_LEAF;
+    uint16_t over_idx = BSP_Tree::OVER_LEAF, under_idx = BSP_Tree::UNDER_LEAF;
 
-	if (!faces_over.empty()) { //have facess above?
+    if (!faces_over.empty()) { //have facess above?
 
-		int idx = _bsp_create_node(p_faces, faces_over, p_planes, p_nodes, p_tolerance);
-		if (idx >= 0)
-			over_idx = idx;
-	}
+        int idx = _bsp_create_node(p_faces, faces_over, p_planes, p_nodes, p_tolerance);
+        if (idx >= 0)
+            over_idx = idx;
+    }
 
-	if (!faces_under.empty()) { //have facess above?
+    if (!faces_under.empty()) { //have facess above?
 
-		int idx = _bsp_create_node(p_faces, faces_under, p_planes, p_nodes, p_tolerance);
-		if (idx >= 0)
-			under_idx = idx;
-	}
+        int idx = _bsp_create_node(p_faces, faces_under, p_planes, p_nodes, p_tolerance);
+        if (idx >= 0)
+            under_idx = idx;
+    }
 
-	/* Create the node */
+    /* Create the node */
 
-	// find existing divisor plane
-	int divisor_plane_idx = -1;
+    // find existing divisor plane
+    int divisor_plane_idx = -1;
 
-	for (int i = 0; i < p_planes.size(); i++) {
+    for (size_t i = 0; i < p_planes.size(); i++) {
 
-		if (p_planes[i].is_equal_approx(divisor_plane)) {
-			divisor_plane_idx = i;
-			break;
-		}
-	}
+        if (p_planes[i].is_equal_approx(divisor_plane)) {
+            divisor_plane_idx = i;
+            break;
+        }
+    }
 
-	if (divisor_plane_idx == -1) {
+    if (divisor_plane_idx == -1) {
 
-		ERR_FAIL_COND_V(p_planes.size() == BSP_Tree::MAX_PLANES, -1)
-		divisor_plane_idx = p_planes.size();
-		p_planes.push_back(divisor_plane);
-	}
+        ERR_FAIL_COND_V(p_planes.size() == BSP_Tree::MAX_PLANES, -1)
+        divisor_plane_idx = p_planes.size();
+        p_planes.push_back(divisor_plane);
+    }
 
-	BSP_Tree::Node node;
-	node.plane = divisor_plane_idx;
-	node.under = under_idx;
-	node.over = over_idx;
+    BSP_Tree::Node node;
+    node.plane = divisor_plane_idx;
+    node.under = under_idx;
+    node.over = over_idx;
 
-	p_nodes.push_back(node);
+    p_nodes.push_back(node);
 
-	return p_nodes.size() - 1;
+    return p_nodes.size() - 1;
 }
 
 BSP_Tree::operator Variant() const {
 
-	Dictionary d;
-	d["error_radius"] = error_radius;
+    Dictionary d;
+    d["error_radius"] = error_radius;
 
-	Vector<real_t> plane_values;
-	plane_values.resize(planes.size() * 4);
+    PODVector<real_t> plane_values;
+    plane_values.resize(planes.size() * 4);
 
-	for (int i = 0; i < planes.size(); i++) {
+    for (Plane p : planes) {
 
-		plane_values.write[i * 4 + 0] = planes[i].normal.x;
-		plane_values.write[i * 4 + 1] = planes[i].normal.y;
-		plane_values.write[i * 4 + 2] = planes[i].normal.z;
-		plane_values.write[i * 4 + 3] = planes[i].d;
-	}
+        plane_values.push_back(p.normal.x);
+        plane_values.push_back(p.normal.y);
+        plane_values.push_back(p.normal.z);
+        plane_values.push_back(p.d);
+    }
 
-	d["planes"] = plane_values;
+    d["planes"] = plane_values;
 
-	PoolVector<int> dst_nodes;
-	dst_nodes.resize(nodes.size() * 3);
+    PoolVector<int> dst_nodes;
+    dst_nodes.resize(nodes.size() * 3);
 
-	for (int i = 0; i < nodes.size(); i++) {
+    for (int i = 0; i < nodes.size(); i++) {
 
-		dst_nodes.set(i * 3 + 0, nodes[i].over);
-		dst_nodes.set(i * 3 + 1, nodes[i].under);
-		dst_nodes.set(i * 3 + 2, nodes[i].plane);
-	}
+        dst_nodes.set(i * 3 + 0, nodes[i].over);
+        dst_nodes.set(i * 3 + 1, nodes[i].under);
+        dst_nodes.set(i * 3 + 2, nodes[i].plane);
+    }
 
-	d["nodes"] = dst_nodes;
-	d["aabb"] = aabb;
+    d["nodes"] = dst_nodes;
+    d["aabb"] = aabb;
 
-	return Variant(d);
+    return Variant(d);
 }
 
 BSP_Tree::BSP_Tree() = default;
 
 BSP_Tree::BSP_Tree(const Variant &p_variant) {
 
-	Dictionary d = p_variant;
-	ERR_FAIL_COND(!d.has("nodes"))
-	ERR_FAIL_COND(!d.has("planes"))
-	ERR_FAIL_COND(!d.has("aabb"))
-	ERR_FAIL_COND(!d.has("error_radius"))
+    Dictionary d = p_variant;
+    ERR_FAIL_COND(!d.has("nodes"))
+    ERR_FAIL_COND(!d.has("planes"))
+    ERR_FAIL_COND(!d.has("aabb"))
+    ERR_FAIL_COND(!d.has("error_radius"))
 
-	PoolVector<int> src_nodes = d["nodes"];
-	ERR_FAIL_COND(src_nodes.size() % 3)
+    PoolVector<int> src_nodes = d["nodes"];
+    ERR_FAIL_COND(src_nodes.size() % 3)
 
     if (d["planes"].get_type() == VariantType::POOL_REAL_ARRAY) {
 
-		PoolVector<real_t> src_planes = d["planes"];
-		int plane_count = src_planes.size();
-		ERR_FAIL_COND(plane_count % 4)
-		planes.resize(plane_count / 4);
+        PoolVector<real_t> src_planes = d["planes"];
+        size_t plane_count = src_planes.size();
+        ERR_FAIL_COND(plane_count % 4)
+        planes.reserve(plane_count / 4);
 
-		if (plane_count) {
-			PoolVector<real_t>::Read r = src_planes.read();
-			for (int i = 0; i < plane_count / 4; i++) {
+        if (plane_count) {
+            PoolVector<real_t>::Read r = src_planes.read();
+            for (size_t i = 0; i < plane_count / 4; i++) {
+                planes.emplace_back(Vector3{ r[i * 4 + 0], r[i * 4 + 1], r[i * 4 + 2] }, r[i * 4 + 3]);
+            }
+        }
 
-				planes.write[i].normal.x = r[i * 4 + 0];
-				planes.write[i].normal.y = r[i * 4 + 1];
-				planes.write[i].normal.z = r[i * 4 + 2];
-				planes.write[i].d = r[i * 4 + 3];
-			}
-		}
+    } else {
 
-	} else {
-
-		planes = d["planes"];
-	}
+        planes = d["planes"].asVector<Plane>();
+    }
 
     error_radius = d["error"].as<float>();
-	aabb = d["aabb"];
+    aabb = d["aabb"];
 
-	//int node_count = src_nodes.size();
-	nodes.resize(src_nodes.size() / 3);
+    // int node_count = src_nodes.size();
+    nodes.resize(src_nodes.size() / 3);
 
-	PoolVector<int>::Read r = src_nodes.read();
+    PoolVector<int>::Read r = src_nodes.read();
 
-	for (int i = 0; i < nodes.size(); i++) {
+    for (int i = 0; i < nodes.size(); i++) {
 
-		nodes.write[i].over = r[i * 3 + 0];
-		nodes.write[i].under = r[i * 3 + 1];
-		nodes.write[i].plane = r[i * 3 + 2];
-	}
+        nodes[i].over = r[i * 3 + 0];
+        nodes[i].under = r[i * 3 + 1];
+        nodes[i].plane = r[i * 3 + 2];
+    }
 }
 
-BSP_Tree::BSP_Tree(const PoolVector<Face3> &p_faces, real_t p_error_radius) {
+BSP_Tree::BSP_Tree(Span<const Face3> p_faces, real_t p_error_radius) {
 
-	// compute aabb
+    // compute aabb
 
-	int face_count = p_faces.size();
-	PoolVector<Face3>::Read faces_r = p_faces.read();
-	const Face3 *facesptr = faces_r.ptr();
+    ptrdiff_t face_count = p_faces.size();
+    const Face3 *facesptr = p_faces.data();
 
-	bool first = true;
+    bool first = true;
 
-	Vector<int> indices;
+    Vector<int> indices;
 
-	for (int i = 0; i < face_count; i++) {
+    for (ptrdiff_t i = 0; i < face_count; i++) {
 
-		const Face3 &f = facesptr[i];
+        const Face3 &f = facesptr[i];
 
-		if (f.is_degenerate())
-			continue;
+        if (f.is_degenerate())
+            continue;
 
-		for (int j = 0; j < 3; j++) {
+        for (int j = 0; j < 3; j++) {
 
-			if (first) {
+            if (first) {
 
-				aabb.position = f.vertex[0];
-				first = false;
-			} else {
+                aabb.position = f.vertex[0];
+                first = false;
+            } else {
 
-				aabb.expand_to(f.vertex[j]);
-			}
-		}
+                aabb.expand_to(f.vertex[j]);
+            }
+        }
 
-		indices.push_back(i);
-	}
+        indices.push_back(i);
+    }
 
-	ERR_FAIL_COND(aabb.has_no_area())
+    ERR_FAIL_COND(aabb.has_no_area())
 
-	int top = _bsp_create_node(faces_r.ptr(), indices, planes, nodes, aabb.get_longest_axis_size() * 0.0001);
+    int top = _bsp_create_node(p_faces.data(), indices, planes, nodes, aabb.get_longest_axis_size() * 0.0001f);
 
-	if (top < 0) {
+    if (top < 0) {
 
-		nodes.clear();
-		planes.clear();
-		ERR_FAIL_COND(top < 0)
-	}
+        nodes.clear();
+        planes.clear();
+        ERR_FAIL_COND(top < 0)
+    }
 
-	error_radius = p_error_radius;
+    error_radius = p_error_radius;
 }
 
-BSP_Tree::BSP_Tree(const Vector<Node> &p_nodes, const Vector<Plane> &p_planes, const AABB &p_aabb, real_t p_error_radius) :
-		nodes(p_nodes),
-		planes(p_planes),
-		aabb(p_aabb),
-		error_radius(p_error_radius) {
+BSP_Tree::BSP_Tree(const PODVector<Node> &p_nodes, const PODVector<Plane> &p_planes, const AABB &p_aabb, real_t p_error_radius) :
+        nodes(p_nodes),
+        planes(p_planes),
+        aabb(p_aabb),
+        error_radius(p_error_radius) {
 }
 
 BSP_Tree::~BSP_Tree() = default;

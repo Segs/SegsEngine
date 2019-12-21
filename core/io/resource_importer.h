@@ -68,7 +68,7 @@ public:
     se_string get_resource_type(se_string_view p_path) const override;
     virtual Variant get_resource_metadata(se_string_view p_path) const;
     bool is_import_valid(se_string_view p_path) const override;
-    void get_dependencies(se_string_view p_path, ListPOD<se_string> *p_dependencies, bool p_add_types = false) override;
+    void get_dependencies(se_string_view p_path, PODVector<se_string> &p_dependencies, bool p_add_types = false) override;
     bool is_imported(se_string_view p_path) const override {
         return recognize_path(p_path);
     }

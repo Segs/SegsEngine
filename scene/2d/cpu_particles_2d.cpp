@@ -339,60 +339,14 @@ float CPUParticles2D::get_param_randomness(Parameter p_param) const {
     return randomness[p_param];
 }
 
-static void _adjust_curve_range(const Ref<Curve> &p_curve, float p_min, float p_max) {
-
-    Ref<Curve> curve = p_curve;
-    if (not curve)
-        return;
-
-    curve->ensure_default_setup(p_min, p_max);
-}
-
 void CPUParticles2D::set_param_curve(Parameter p_param, const Ref<Curve> &p_curve) {
 
     ERR_FAIL_INDEX(p_param, PARAM_MAX);
 
     curve_parameters[p_param] = p_curve;
-
-    switch (p_param) {
-        case PARAM_INITIAL_LINEAR_VELOCITY: {
-            //do none for this one
-        } break;
-        case PARAM_ANGULAR_VELOCITY: {
-            _adjust_curve_range(p_curve, -360, 360);
-        } break;
-        case PARAM_ORBIT_VELOCITY: {
-            _adjust_curve_range(p_curve, -500, 500);
-        } break;
-        case PARAM_LINEAR_ACCEL: {
-            _adjust_curve_range(p_curve, -200, 200);
-        } break;
-        case PARAM_RADIAL_ACCEL: {
-            _adjust_curve_range(p_curve, -200, 200);
-        } break;
-        case PARAM_TANGENTIAL_ACCEL: {
-            _adjust_curve_range(p_curve, -200, 200);
-        } break;
-        case PARAM_DAMPING: {
-            _adjust_curve_range(p_curve, 0, 100);
-        } break;
-        case PARAM_ANGLE: {
-            _adjust_curve_range(p_curve, -360, 360);
-        } break;
-        case PARAM_SCALE: {
-
-        } break;
-        case PARAM_HUE_VARIATION: {
-            _adjust_curve_range(p_curve, -1, 1);
-        } break;
-        case PARAM_ANIM_SPEED: {
-            _adjust_curve_range(p_curve, 0, 200);
-        } break;
-        case PARAM_ANIM_OFFSET: {
-        } break;
-        default: {
-        }
-    }
+    const CurveRange range_to_set = c_default_curve_ranges[p_param];
+    if(p_curve)
+        p_curve->ensure_default_setup(range_to_set.curve_min,range_to_set.curve_max);
 }
 Ref<Curve> CPUParticles2D::get_param_curve(Parameter p_param) const {
 
@@ -528,28 +482,8 @@ void CPUParticles2D::_validate_property(PropertyInfo &property) const {
     }
 }
 
-static uint32_t idhash(uint32_t x) {
-
-    x = ((x >> uint32_t(16)) ^ x) * uint32_t(0x45d9f3b);
-    x = ((x >> uint32_t(16)) ^ x) * uint32_t(0x45d9f3b);
-    x = (x >> uint32_t(16)) ^ x;
-    return x;
-}
-
-static float rand_from_seed(uint32_t &seed) {
-    int k;
-    int s = int(seed);
-    if (s == 0)
-        s = 305420679;
-    k = s / 127773;
-    s = 16807 * (s - k * 127773) - 2836 * k;
-    if (s < 0)
-        s += 2147483647;
-    seed = uint32_t(s);
-    return float(seed % uint32_t(65536)) / 65535.0;
-}
-
 void CPUParticles2D::_particles_process(float p_delta) {
+    using namespace ParticleUtils;
 
     p_delta *= speed_scale;
 
@@ -1500,3 +1434,4 @@ CPUParticles2D::~CPUParticles2D() {
     memdelete(update_mutex);
 #endif
 }
+
