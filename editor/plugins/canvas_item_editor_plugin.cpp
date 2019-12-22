@@ -673,7 +673,7 @@ void CanvasItemEditor::_get_bones_at_pos(const Point2 &p_pos, Vector<_SelectResu
             continue;
 
         // Check if the point is inside the Polygon2D
-        if (Geometry::is_point_in_polygon(screen_pos, bone_shape)) {
+        if (Geometry::is_point_in_polygon(screen_pos, {bone_shape.ptr(),bone_shape.size()})) {
             // Check if the item is already in the list
             bool duplicate = false;
             for (int i = 0; i < r_items.size(); i++) {
@@ -695,7 +695,7 @@ void CanvasItemEditor::_get_bones_at_pos(const Point2 &p_pos, Vector<_SelectResu
     }
 }
 
-bool CanvasItemEditor::_get_bone_shape(Vector<Vector2> *shape, Vector<Vector2> *outline_shape, eastl::pair<const BoneKey, BoneList> &bone) {
+bool CanvasItemEditor::_get_bone_shape(Vector<Vector2> *shape, PODVector<Vector2> *outline_shape, eastl::pair<const BoneKey, BoneList> &bone) {
     int bone_width = EditorSettings::get_singleton()->get("editors/2d/bone_width");
     int bone_outline_width = EditorSettings::get_singleton()->get("editors/2d/bone_outline_size");
 
@@ -3395,7 +3395,7 @@ void CanvasItemEditor::_draw_bones() {
         for (eastl::pair<const BoneKey,BoneList> &E : bone_list) {
 
             Vector<Vector2> bone_shape;
-            Vector<Vector2> bone_shape_outline;
+            PODVector<Vector2> bone_shape_outline;
             if (!_get_bone_shape(&bone_shape, &bone_shape_outline, E))
                 continue;
 
@@ -5325,8 +5325,8 @@ CanvasItemEditor::CanvasItemEditor(EditorNode *p_editor) {
     editor_selection->connect("selection_changed", this, "update");
     editor_selection->connect("selection_changed", this, "_selection_changed");
 
-    editor->call_deferred("connect", "play_pressed", Variant(this), "_update_override_camera_button", make_binds(true));
-    editor->call_deferred("connect", "stop_pressed", Variant(this), "_update_override_camera_button", make_binds(false));
+    editor->call_deferred("connect", "play_pressed", Variant(this), "_update_override_camera_button", Variant::from(make_binds(true)));
+    editor->call_deferred("connect", "stop_pressed", Variant(this), "_update_override_camera_button", Variant::from(make_binds(false)));
 
     hb = memnew(HBoxContainer);
     add_child(hb);

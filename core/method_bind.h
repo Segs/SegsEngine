@@ -37,6 +37,8 @@
 #include "core/method_arg_casters.h"
 #include "core/method_enum_caster.h"
 #include "core/type_info.h"
+#include "core/string_utils.h"
+#include "core/math/vector3.h"
 
 #include <cstdio>
 #include <type_traits>
@@ -202,19 +204,6 @@ protected:
                             *visit_at_ce<ArgumentWrapper, Args...>(Is, wrap))...);
         }
     }
-#ifdef PTRCALL_ENABLED
-    template<std::size_t... Is>
-    RESULT ptr_call(T *instance,const void** p_args, std::index_sequence<Is...>)
-    {
-        if constexpr(sizeof...(Args)==0)
-        {
-            (void)p_args;
-            return std::invoke((TFunction)method,instance);
-        }
-        else
-            return std::invoke((TFunction)method,instance,PtrToArg<typename std::tuple_element<Is,Params>::type>::convert(p_args[Is]) ...);
-    }
-#endif
     using Params = std::tuple<Args...>;
     // MethodBind interface
 public:
@@ -259,26 +248,14 @@ public:
         auto seq = std::index_sequence_for<Args...>();
         static_assert (seq.size()==sizeof... (Args) );
         if constexpr(!std::is_same_v<void,RESULT>) {
-            return Variant(converting_call(instance,p_args,p_arg_count,seq));
+            return Variant::from(converting_call(instance,p_args,p_arg_count,seq));
         }
         else
             converting_call(instance,p_args,p_arg_count,seq);
 
         return Variant::null_variant;
     }
-#ifdef PTRCALL_ENABLED
-    void ptrcall(Object*p_object,const void** p_args,void *r_ret) override {
-        T *instance=ObjectNS::cast_to<T>(p_object);
-        if constexpr(!std::is_same_v<void,RESULT>) {
-            PtrToArg<RESULT>::encode( ptr_call(instance,p_args,std::index_sequence_for<Args...>{}) ,r_ret) ;
-        }
-        else
-        {
-            (void)r_ret;
-            ptr_call(instance,p_args,std::index_sequence_for<Args...>{});
-        }
-    }
-#endif
+
     MethodBindVA (TFunction f) {
         method = (MethodNonconst)f; // casting away const-ness of a method
         instance_class_name = T::get_class_static();

@@ -70,8 +70,8 @@ int LightOccluder2DEditor::_get_polygon_count() const {
     Ref<OccluderPolygon2D> occluder = node->get_occluder_polygon();
     if (occluder)
         return occluder->get_polygon().size();
-    else
-        return 0;
+
+    return 0;
 }
 
 Variant LightOccluder2DEditor::_get_polygon(int p_idx) const {
@@ -80,13 +80,13 @@ Variant LightOccluder2DEditor::_get_polygon(int p_idx) const {
     if (occluder)
         return Variant(occluder->get_polygon());
     else
-        return Variant(Vector<Vector2>());
+        return Variant(PODVector<Vector2>());
 }
 
-void LightOccluder2DEditor::_set_polygon(int p_idx, const Variant &p_polygon) const {
+void LightOccluder2DEditor::_set_polygon(int p_idx, const Vector<Vector2> &p_polygon) const {
 
     Ref<OccluderPolygon2D> occluder = _ensure_occluder();
-    occluder->set_polygon(p_polygon);
+    occluder->set_polygon({p_polygon.ptr(),p_polygon.ptr()+p_polygon.size()});
 }
 
 void LightOccluder2DEditor::_action_set_polygon(int p_idx, const Variant &p_previous, const Variant &p_polygon) {

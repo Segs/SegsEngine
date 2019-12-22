@@ -33,6 +33,7 @@
 #include "core/method_bind.h"
 #include "core/io/resource_loader.h"
 #include "scene/resources/packed_scene.h"
+#include "core/pool_vector.h"
 
 IMPL_GDCLASS(InstancePlaceholder)
 

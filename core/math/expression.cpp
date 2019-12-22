@@ -31,6 +31,7 @@
 #include "expression.h"
 
 #include "core/class_db.h"
+#include "core/pool_vector.h"
 #include "core/func_ref.h"
 #include "core/io/marshalls.h"
 #include "core/math/math_funcs.h"
@@ -42,6 +43,7 @@
 #include "core/translation_helpers.h"
 #include "core/se_string.h"
 #include "core/string_formatter.h"
+#include "core/color.h"
 
 using namespace eastl;
 
@@ -2196,7 +2198,7 @@ const se_string & Expression::get_error_text() const {
 
 void Expression::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("parse", {"expression", "input_names"}), &Expression::parse, {DEFVAL(Vector<String>())});
+    MethodBinder::bind_method(D_METHOD("parse", {"expression", "input_names"}), &Expression::parse, {DEFVAL(PoolVector<se_string>())});
     MethodBinder::bind_method(D_METHOD("execute", {"inputs", "base_instance", "show_error"}), &Expression::execute, {DEFVAL(Array()), DEFVAL(Variant()), DEFVAL(true)});
     MethodBinder::bind_method(D_METHOD("has_execute_failed"), &Expression::has_execute_failed);
     MethodBinder::bind_method(D_METHOD("get_error_text"), &Expression::get_error_text);

@@ -348,6 +348,12 @@ add_subdirectory(service_interfaces)
 add_subdirectory(crypto)
 
 add_library(se_core STATIC ${generic_core_sources})
+#target_precompile_headers(se_core PRIVATE precompiled.h)
+if(USE_UNITY_BUILDS)
+    set_target_properties(se_core PROPERTIES UNITY_BUILD ON)
+    set_target_properties(se_core PROPERTIES UNITY_BUILD_BATCH_SIZE ${DEFAULT_UNITY_BATCH_SIZE})
+endif()
+
 target_link_libraries(se_core PUBLIC core_service_interfaces Qt5::Core)
 target_link_libraries(se_core PRIVATE EASTL zstd_internal minizip thirdparty_misc )
 target_include_directories(se_core PUBLIC ${PROJECT_BINARY_DIR})
@@ -380,11 +386,6 @@ foreach(tgt ${global_targets})
     )
 
     target_include_directories(${tgt}_core PRIVATE ${Qt5Core_PRIVATE_INCLUDE_DIRS})
-    if(OPTION_${tgt}_USE_PTRCALL)
-        target_compile_definitions(${tgt}_core PUBLIC PTRCALL_ENABLED)
-    endif()
-
-
     target_include_directories(${tgt}_core PUBLIC ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_BINARY_DIR}/..)
     target_include_directories(${tgt}_core PRIVATE ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/include)
 
@@ -394,4 +395,7 @@ foreach(tgt ${global_targets})
     )
 
     set_common_target_properties(${tgt}_core)
+#    set_target_properties(${tgt}_core PROPERTIES UNITY_BUILD ON)
+#    set_target_properties(${tgt}_core PROPERTIES UNITY_BUILD_BATCH_SIZE ${DEFAULT_UNITY_BATCH_SIZE})
+
 endforeach()

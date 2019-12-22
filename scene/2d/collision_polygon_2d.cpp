@@ -56,7 +56,7 @@ void CollisionPolygon2D::_build_polygon() {
 
         //here comes the sun, lalalala
         //decompose concave into multiple convex polygons and add them
-        Vector<Vector<Vector2> > decomp = _decompose_in_convex();
+        Vector<PODVector<Vector2> > decomp = _decompose_in_convex();
         for (int i = 0; i < decomp.size(); i++) {
             Ref<ConvexPolygonShape2D> convex(make_ref_counted<ConvexPolygonShape2D>());
             convex->set_points(decomp[i]);
@@ -83,8 +83,8 @@ void CollisionPolygon2D::_build_polygon() {
     }
 }
 
-Vector<Vector<Vector2> > CollisionPolygon2D::_decompose_in_convex() {
-    Vector<Vector<Vector2> > decomp = Geometry::decompose_polygon_in_convex(polygon);
+Vector<PODVector<Vector2> > CollisionPolygon2D::_decompose_in_convex() {
+    Vector<PODVector<Vector2> > decomp = Geometry::decompose_polygon_in_convex(polygon);
     return decomp;
 }
 
@@ -155,7 +155,7 @@ void CollisionPolygon2D::_notification(int p_what) {
 #define DEBUG_DECOMPOSE
 #if defined(TOOLS_ENABLED) && defined(DEBUG_DECOMPOSE)
 
-            Vector<Vector<Vector2> > decomp = _decompose_in_convex();
+            Vector<PODVector<Vector2> > decomp = _decompose_in_convex();
 
             Color c(0.4f, 0.9f, 0.1f);
             for (int i = 0; i < decomp.size(); i++) {
@@ -187,12 +187,12 @@ void CollisionPolygon2D::_notification(int p_what) {
     }
 }
 
-void CollisionPolygon2D::set_polygon(const Vector<Point2> &p_polygon) {
+void CollisionPolygon2D::set_polygon(const PODVector<Point2> &p_polygon) {
 
     polygon = p_polygon;
 
     {
-        for (int i = 0; i < polygon.size(); i++) {
+        for (size_t i = 0; i < polygon.size(); i++) {
             if (i == 0)
                 aabb = Rect2(polygon[i], Size2());
             else
@@ -214,10 +214,7 @@ void CollisionPolygon2D::set_polygon(const Vector<Point2> &p_polygon) {
     update_configuration_warning();
 }
 
-Vector<Point2> CollisionPolygon2D::get_polygon() const {
 
-    return polygon;
-}
 
 void CollisionPolygon2D::set_build_mode(BuildMode p_mode) {
 
@@ -244,7 +241,7 @@ bool CollisionPolygon2D::_edit_use_rect() const {
 
 bool CollisionPolygon2D::_edit_is_selected_on_click(const Point2 &p_point, float p_tolerance) const {
 
-    return Geometry::is_point_in_polygon(p_point, Variant(polygon));
+    return Geometry::is_point_in_polygon(p_point, polygon);
 }
 
 StringName CollisionPolygon2D::get_configuration_warning() const {

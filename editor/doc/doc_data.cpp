@@ -44,6 +44,17 @@
 
 #include "EASTL/sort.h"
 
+//NOTE: this function is also used in doc_dump.cpp
+void _write_string(FileAccess *f, int p_tablevel, se_string_view p_string) {
+
+    if (p_string.empty())
+        return;
+    se_string tab;
+    for (int i = 0; i < p_tablevel; i++)
+        tab += "\t";
+    f->store_string(tab + p_string + "\n");
+}
+
 void DocData::merge_from(const DocData &p_data) {
 
     for (eastl::pair<const StringName,ClassDoc> &E : class_list) {
@@ -983,15 +994,6 @@ Error DocData::_load(Ref<XMLParser> parser) {
     return OK;
 }
 
-static void _write_string(FileAccess *f, int p_tablevel, se_string_view p_string) {
-
-    if (p_string.empty())
-        return;
-    se_string tab;
-    for (int i = 0; i < p_tablevel; i++)
-        tab += "\t";
-    f->store_string(tab + p_string + "\n");
-}
 Error DocData::save_classes(se_string_view p_default_path, const Map<StringName, se_string> &p_class_path) {
 
     for (eastl::pair<const StringName,ClassDoc> &E : class_list) {
@@ -1187,9 +1189,9 @@ Error DocData::save_classes(se_string_view p_default_path, const Map<StringName,
 
 Error DocData::load_compressed(const uint8_t *p_data, int p_compressed_size, int p_uncompressed_size) {
 
-    Vector<uint8_t> data;
+    PoolVector<uint8_t> data;
     data.resize(p_uncompressed_size);
-    Compression::decompress(data.ptrw(), p_uncompressed_size, p_data, p_compressed_size, Compression::MODE_DEFLATE);
+    Compression::decompress(data.write().ptr(), p_uncompressed_size, p_data, p_compressed_size, Compression::MODE_DEFLATE);
     class_list.clear();
 
     Ref<XMLParser> parser(make_ref_counted<XMLParser>());

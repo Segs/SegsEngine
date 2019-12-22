@@ -161,17 +161,11 @@ public:
 
     /* create / set */
 
-    _FORCE_INLINE_ void set(real_t xx, real_t xy, real_t xz, real_t yx, real_t yy, real_t yz, real_t zx, real_t zy, real_t zz) {
+    constexpr _FORCE_INLINE_ void set(real_t xx, real_t xy, real_t xz, real_t yx, real_t yy, real_t yz, real_t zx, real_t zy, real_t zz) {
 
-        elements[0][0] = xx;
-        elements[0][1] = xy;
-        elements[0][2] = xz;
-        elements[1][0] = yx;
-        elements[1][1] = yy;
-        elements[1][2] = yz;
-        elements[2][0] = zx;
-        elements[2][1] = zy;
-        elements[2][2] = zz;
+        elements[0] = {xx,xy,xz};
+        elements[1] = {yx,yy,yz};
+        elements[2] = {zx,zy,zz};
     }
     _FORCE_INLINE_ void set(const Vector3 &p_x, const Vector3 &p_y, const Vector3 &p_z) {
 
@@ -216,7 +210,7 @@ public:
                 elements[0].z * m[0].y + elements[1].z * m[1].y + elements[2].z * m[2].y,
                 elements[0].z * m[0].z + elements[1].z * m[1].z + elements[2].z * m[2].z);
     }
-    Basis(real_t xx, real_t xy, real_t xz, real_t yx, real_t yy, real_t yz, real_t zx, real_t zy, real_t zz) {
+    constexpr Basis(real_t xx, real_t xy, real_t xz, real_t yx, real_t yy, real_t yz, real_t zx, real_t zy, real_t zz) {
 
         set(xx, xy, xz, yx, yy, yz, zx, zy, zz);
     }

@@ -217,7 +217,7 @@ void EditorNavigationMeshGenerator::_parse_geometry(Transform p_accumulated_tran
 
                     ConvexPolygonShape *convex_polygon = object_cast<ConvexPolygonShape>(s.get());
                     if (convex_polygon) {
-                        Vector<Vector3> varr = Variant(convex_polygon->get_points());
+                        const PODVector<Vector3> &varr(convex_polygon->get_points());
                         Geometry::MeshData md;
 
                         Error err = QuickHull::build(varr, md);

@@ -30,8 +30,9 @@
 
 #include "crypto.h"
 
-#include "core/engine.h"
 #include "core/list.h"
+#include "core/pool_vector.h"
+#include "core/engine.h"
 #include "core/io/compression.h"
 #include "core/method_bind.h"
 

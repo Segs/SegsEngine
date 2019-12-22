@@ -369,7 +369,7 @@ void GradientEdit::_notification(int p_what) {
         for (int i = 0; i < points.size(); i++) {
 
             Color col = points[i].color.contrasted();
-            col.a = 0.9;
+            col.a = 0.9f;
 
             draw_line(Vector2(points[i].offset * total_w, 0), Vector2(points[i].offset * total_w, h / 2), col);
             Rect2 rect = Rect2(points[i].offset * total_w - POINT_WIDTH / 2, h / 2, POINT_WIDTH, h / 2);
@@ -378,9 +378,9 @@ void GradientEdit::_notification(int p_what) {
             if (grabbed == i) {
                 rect = rect.grow(-1);
                 if (has_focus()) {
-                    draw_rect(rect, Color(1, 0, 0, 0.9), false);
+                    draw_rect(rect, Color(1, 0, 0, 0.9f), false);
                 } else {
-                    draw_rect(rect, Color(0.6, 0, 0, 0.9), false);
+                    draw_rect(rect, Color(0.6f, 0, 0, 0.9f), false);
                 }
 
                 rect = rect.grow(-1);
@@ -396,17 +396,17 @@ void GradientEdit::_notification(int p_what) {
         } else {
             //if no color selected draw grey color with 'X' on top.
             draw_rect(Rect2(total_w + SPACING, 0, h, h), Color(0.5, 0.5, 0.5, 1));
-            draw_line(Vector2(total_w + SPACING, 0), Vector2(total_w + SPACING + h, h), Color(1, 1, 1, 0.6));
-            draw_line(Vector2(total_w + SPACING, h), Vector2(total_w + SPACING + h, 0), Color(1, 1, 1, 0.6));
+            draw_line(Vector2(total_w + SPACING, 0), Vector2(total_w + SPACING + h, h), Color(1, 1, 1, 0.6f));
+            draw_line(Vector2(total_w + SPACING, h), Vector2(total_w + SPACING + h, 0), Color(1, 1, 1, 0.6f));
         }
 
         //Draw borders around color ramp if in focus
         if (has_focus()) {
-
-            draw_line(Vector2(-1, -1), Vector2(total_w + 1, -1), Color(1, 1, 1, 0.6));
-            draw_line(Vector2(total_w + 1, -1), Vector2(total_w + 1, h + 1), Color(1, 1, 1, 0.6));
-            draw_line(Vector2(total_w + 1, h + 1), Vector2(-1, h + 1), Color(1, 1, 1, 0.6));
-            draw_line(Vector2(-1, -1), Vector2(-1, h + 1), Color(1, 1, 1, 0.6));
+            Color ramp_color(1,1,1,0.6f);
+            draw_line(Vector2(-1, -1), Vector2(total_w + 1, -1), ramp_color);
+            draw_line(Vector2(total_w + 1, -1), Vector2(total_w + 1, h + 1), ramp_color);
+            draw_line(Vector2(total_w + 1, h + 1), Vector2(-1, h + 1), ramp_color);
+            draw_line(Vector2(-1, -1), Vector2(-1, h + 1), ramp_color);
         }
     }
 
@@ -420,11 +420,12 @@ void GradientEdit::_notification(int p_what) {
 
 void GradientEdit::_draw_checker(int x, int y, int w, int h) {
     //Draw it with polygon to insert UVs for scale
-    Vector<Vector2> backPoints;
-    backPoints.push_back(Vector2(x, y));
-    backPoints.push_back(Vector2(x, y + h));
-    backPoints.push_back(Vector2(x + w, y + h));
-    backPoints.push_back(Vector2(x + w, y));
+    Vector2 backPoints[4] {
+        Vector2(x, y),
+        Vector2(x, y + h),
+        Vector2(x + w, y + h),
+        Vector2(x + w, y)
+    };
     Vector<Color> colorPoints;
     colorPoints.push_back(Color(1, 1, 1, 1));
     colorPoints.push_back(Color(1, 1, 1, 1));

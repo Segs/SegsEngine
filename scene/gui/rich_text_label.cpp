@@ -148,10 +148,10 @@ struct ItemIndent : public RichTextItem {
     ItemIndent() { type = RichTextLabel::ITEM_INDENT; }
 };
 
-struct ItemList : public RichTextItem {
+struct RT_ItemList : public RichTextItem {
 
     RichTextLabel::ListType list_type;
-    ItemList() { type = RichTextLabel::ITEM_LIST; }
+    RT_ItemList() { type = RichTextLabel::ITEM_LIST; }
 };
 
 struct ItemNewline : public RichTextItem {
@@ -2068,7 +2068,7 @@ void RichTextLabel::push_list(ListType p_list) {
     ERR_FAIL_COND(current->type == ITEM_TABLE)
     ERR_FAIL_INDEX(p_list, 3);
 
-    ItemList *item = memnew(ItemList);
+    RT_ItemList *item = memnew(RT_ItemList);
 
     item->list_type = p_list;
     _add_item(item, true, true);

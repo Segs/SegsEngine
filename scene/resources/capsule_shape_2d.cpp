@@ -36,18 +36,18 @@
 
 IMPL_GDCLASS(CapsuleShape2D)
 
-Vector<Vector2> CapsuleShape2D::_get_points() const {
-
-    Vector<Vector2> points;
+PODVector<Vector2> CapsuleShape2D::_get_points() const {
+    Vector2 work_area[24 + 2];
+    size_t widx=0;
     for (int i = 0; i < 24; i++) {
         Vector2 ofs = Vector2(0, (i > 6 && i <= 18) ? -get_height() * 0.5f : get_height() * 0.5f);
 
-        points.push_back(Vector2(Math::sin(i * Math_PI * 2 / 24.0f), Math::cos(i * Math_PI * 2 / 24.0f)) * get_radius() + ofs);
+        work_area[widx++] = Vector2(Math::sin(i * Math_PI * 2 / 24.0f), Math::cos(i * Math_PI * 2 / 24.0f)) * get_radius() + ofs;
         if (i == 6 || i == 18)
-            points.push_back(Vector2(Math::sin(i * Math_PI * 2 / 24.0f), Math::cos(i * Math_PI * 2 / 24.0f)) * get_radius() - ofs);
+            work_area[widx++] = Vector2(Math::sin(i * Math_PI * 2 / 24.0f), Math::cos(i * Math_PI * 2 / 24.0f)) * get_radius() - ofs;
     }
 
-    return points;
+    return {work_area,work_area+widx};
 }
 
 bool CapsuleShape2D::_edit_is_selected_on_click(const Point2 &p_point, float p_tolerance) const {
@@ -67,10 +67,7 @@ void CapsuleShape2D::set_radius(real_t p_radius) {
     _update_shape();
 }
 
-real_t CapsuleShape2D::get_radius() const {
 
-    return radius;
-}
 
 void CapsuleShape2D::set_height(real_t p_height) {
 
@@ -79,24 +76,23 @@ void CapsuleShape2D::set_height(real_t p_height) {
 }
 
 real_t CapsuleShape2D::get_height() const {
-
     return height;
 }
 
 void CapsuleShape2D::draw(const RID &p_to_rid, const Color &p_color) {
 
-    Vector<Vector2> points = _get_points();
+    PODVector<Vector2> points = _get_points();
     Vector<Color> col;
-    col.push_back(p_color);
+    col.emplace_back(p_color);
     VisualServer::get_singleton()->canvas_item_add_polygon(p_to_rid, points, col);
 }
 
 Rect2 CapsuleShape2D::get_rect() const {
 
-    Vector2 he = Point2(get_radius(), get_radius() + get_height() * 0.5);
+    Vector2 he = Point2(get_radius(), get_radius() + get_height() * 0.5f);
     Rect2 rect;
     rect.position = -he;
-    rect.size = he * 2.0;
+    rect.size = he * 2.0f;
     return rect;
 }
 

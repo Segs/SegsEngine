@@ -85,7 +85,7 @@ struct QHRetFaceConnect {
 };
 } // end of anonymous namespace
 
-Error QuickHull::build(const Vector<Vector3> &p_points, Geometry::MeshData &r_mesh) {
+Error QuickHull::build(Span<const Vector3> p_points, Geometry::MeshData &r_mesh) {
 
     /* CREATE AABB VOLUME */
 
@@ -521,7 +521,7 @@ Error QuickHull::build(const Vector<Vector3> &p_points, Geometry::MeshData &r_me
         r_mesh.edges.write[idx++] = e;
     }
 
-    r_mesh.vertices = p_points;
+    r_mesh.vertices.assign(p_points.begin(),p_points.end());
 
     return OK;
 }

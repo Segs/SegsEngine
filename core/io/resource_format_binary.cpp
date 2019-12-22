@@ -761,12 +761,12 @@ se_string ResourceInteractiveLoaderBinary::get_unicode_string() {
     return (&str_buf[0]);
 }
 
-void ResourceInteractiveLoaderBinary::get_dependencies(FileAccess *p_f, ListPOD<se_string> *p_dependencies, bool p_add_types) {
+void ResourceInteractiveLoaderBinary::get_dependencies(FileAccess *p_f, PODVector<se_string> &p_dependencies, bool p_add_types) {
 
     open(p_f);
     if (error)
         return;
-
+    p_dependencies.reserve(p_dependencies.size()+external_resources.size());
     for (int i = 0; i < external_resources.size(); i++) {
 
         se_string dep = external_resources[i].path;
@@ -775,7 +775,7 @@ void ResourceInteractiveLoaderBinary::get_dependencies(FileAccess *p_f, ListPOD<
             dep += "::" + external_resources[i].type;
         }
 
-        p_dependencies->push_back(dep);
+        p_dependencies.push_back(dep);
     }
 }
 
@@ -974,7 +974,7 @@ bool ResourceFormatLoaderBinary::handles_type(se_string_view p_type) const {
     return true; //handles all
 }
 
-void ResourceFormatLoaderBinary::get_dependencies(se_string_view p_path, ListPOD<se_string> *p_dependencies, bool p_add_types) {
+void ResourceFormatLoaderBinary::get_dependencies(se_string_view p_path, PODVector<se_string> &p_dependencies, bool p_add_types) {
 
     FileAccess *f = FileAccess::open(p_path, FileAccess::READ);
     ERR_FAIL_COND_MSG(!f, "Cannot open file '" + se_string(p_path) + "'.")

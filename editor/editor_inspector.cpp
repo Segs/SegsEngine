@@ -1963,18 +1963,10 @@ void EditorInspector::_edit_request_change(Object *p_object, se_string_view p_pr
         pending.insert(p_property);
     }
 }
-struct Comparer {
-    bool operator()(const StringName &s,se_string_view b) {
-        return se_string_view(s)<b;
-    }
-    bool operator()(se_string_view a,const StringName &b) {
-        return a<se_string_view(b);
-    }
-};
 
 void EditorInspector::_edit_set(se_string_view p_name, const Variant &p_value, bool p_refresh_all, se_string_view p_changed_field) {
 
-    auto iter=editor_property_map.find_as(p_name,Comparer());
+    auto iter=editor_property_map.find_as(p_name,SNSVComparer());
     if (autoclear && editor_property_map.end()!=iter) {
         for (List<EditorProperty *>::Element *E = iter->second.front(); E; E = E->next()) {
             if (E->deref()->is_checkable()) {

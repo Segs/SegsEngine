@@ -239,7 +239,7 @@ struct SceneTreeDebugAccessor final : public ISceneTreeDebugAccessor{
         for (Set<Node *>::iterator F = E->second.begin(); F != E->second.end();) {
 
             Set<Node *>::iterator N = F;
-            N++;
+            ++N;
 
             Node *n = *F;
 
@@ -1664,7 +1664,7 @@ void SceneTree::add_current_scene(Node *p_current) {
 
 void SceneTree::drop_files(const Vector<se_string> &p_files, int p_from_screen) {
 
-    emit_signal("files_dropped", Variant(p_files), p_from_screen);
+    emit_signal("files_dropped", Variant::from(p_files), p_from_screen);
     MainLoop::drop_files(p_files, p_from_screen);
 }
 
@@ -1765,7 +1765,7 @@ int SceneTree::get_network_unique_id() const {
     return multiplayer->get_network_unique_id();
 }
 
-Vector<int> SceneTree::get_network_connected_peers() const {
+PODVector<int> SceneTree::get_network_connected_peers() const {
 
     return multiplayer->get_network_connected_peers();
 }

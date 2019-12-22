@@ -257,7 +257,7 @@ class EditorSceneImporterGLTF : public QObject, public EditorSceneImporterInterf
             perspective = true;
             fov_size = 65;
             zfar = 500;
-            znear = 0.1;
+            znear = 0.1f;
         }
     };
 
@@ -273,8 +273,8 @@ class EditorSceneImporterGLTF : public QObject, public EditorSceneImporterInterf
         template <class T>
         struct Channel {
             Interpolation interpolation;
-            Vector<float> times;
-            Vector<T> values;
+            PODVector<float> times;
+            PODVector<T> values;
         };
 
         struct Track {
@@ -295,10 +295,10 @@ class EditorSceneImporterGLTF : public QObject, public EditorSceneImporterInterf
         Dictionary json;
         int major_version;
         int minor_version;
-        Vector<uint8_t> glb_data;
+        PODVector<uint8_t> glb_data;
 
         Vector<GLTFNode *> nodes;
-        Vector<Vector<uint8_t> > buffers;
+        Vector<PODVector<uint8_t> > buffers;
         Vector<GLTFBufferView> buffer_views;
         Vector<GLTFAccessor> accessors;
 
@@ -349,12 +349,12 @@ class EditorSceneImporterGLTF : public QObject, public EditorSceneImporterInterf
     Error _decode_buffer_view(GLTFState &state, double *dst, const GLTFBufferViewIndex p_buffer_view, const int skip_every, const int skip_bytes, const int element_size, const int count, const GLTFType type, const int component_count, const int component_type, const int component_size, const bool normalized, const int byte_offset, const bool for_vertex);
 
     Vector<double> _decode_accessor(GLTFState &state, const GLTFAccessorIndex p_accessor, const bool p_for_vertex);
-    PoolVector<float> _decode_accessor_as_floats(GLTFState &state, const GLTFAccessorIndex p_accessor, const bool p_for_vertex);
-    PoolVector<int> _decode_accessor_as_ints(GLTFState &state, const GLTFAccessorIndex p_accessor, const bool p_for_vertex);
-    PoolVector<Vector2> _decode_accessor_as_vec2(GLTFState &state, const GLTFAccessorIndex p_accessor, const bool p_for_vertex);
-    PoolVector<Vector3> _decode_accessor_as_vec3(GLTFState &state, const GLTFAccessorIndex p_accessor, const bool p_for_vertex);
+    PODVector<float> _decode_accessor_as_floats(GLTFState &state, const GLTFAccessorIndex p_accessor, const bool p_for_vertex);
+    PODVector<int> _decode_accessor_as_ints(GLTFState &state, const GLTFAccessorIndex p_accessor, const bool p_for_vertex);
+    PODVector<Vector2> _decode_accessor_as_vec2(GLTFState &state, const GLTFAccessorIndex p_accessor, const bool p_for_vertex);
+    PODVector<Vector3> _decode_accessor_as_vec3(GLTFState &state, const GLTFAccessorIndex p_accessor, const bool p_for_vertex);
     PoolVector<Color> _decode_accessor_as_color(GLTFState &state, const GLTFAccessorIndex p_accessor, const bool p_for_vertex);
-    Vector<Quat> _decode_accessor_as_quat(GLTFState &state, const GLTFAccessorIndex p_accessor, const bool p_for_vertex);
+    PODVector<Quat> _decode_accessor_as_quat(GLTFState &state, const GLTFAccessorIndex p_accessor, const bool p_for_vertex);
     Vector<Transform2D> _decode_accessor_as_xform2d(GLTFState &state, const GLTFAccessorIndex p_accessor, const bool p_for_vertex);
     Vector<Basis> _decode_accessor_as_basis(GLTFState &state, const GLTFAccessorIndex p_accessor, const bool p_for_vertex);
     Vector<Transform> _decode_accessor_as_xform(GLTFState &state, const GLTFAccessorIndex p_accessor, const bool p_for_vertex);
@@ -400,7 +400,7 @@ class EditorSceneImporterGLTF : public QObject, public EditorSceneImporterInterf
     void _assign_scene_names(GLTFState &state);
 
     template <class T>
-    T _interpolate_track(const Vector<float> &p_times, const Vector<T> &p_values, const float p_time, const GLTFAnimation::Interpolation p_interp);
+    T _interpolate_track(const PODVector<float> &p_times, const PODVector<T> &p_values, const float p_time, const GLTFAnimation::Interpolation p_interp);
 
     void _import_animation(GLTFState &state, AnimationPlayer *ap, const GLTFAnimationIndex index, const int bake_fps);
 

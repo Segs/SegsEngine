@@ -283,15 +283,15 @@ bool ResourcePreloaderEditor::can_drop_data_fw(const Point2 &p_point, const Vari
     if (d.has("from") && (Object *)d["from"] == tree)
         return false;
 
-    if (String(d["type"]) == "resource" && d.has("resource")) {
+    if (d["type"].as<se_string>() == "resource" && d.has("resource")) {
         RES r(d["resource"]);
 
         return r;
     }
 
-    if (String(d["type"]) == "files") {
+    if (d["type"].as<se_string>() == "files") {
 
-        Vector<String> files = d["files"];
+        PoolVector<se_string> files(d["files"].as<PoolVector<se_string>>());
 
         return !files.empty();
     }
@@ -308,7 +308,7 @@ void ResourcePreloaderEditor::drop_data_fw(const Point2 &p_point, const Variant 
     if (!d.has("type"))
         return;
 
-    if (String(d["type"]) == "resource" && d.has("resource")) {
+    if (d["type"].as<se_string>() == "resource" && d.has("resource")) {
         RES r(d["resource"]);
 
         if (r) {
@@ -338,7 +338,7 @@ void ResourcePreloaderEditor::drop_data_fw(const Point2 &p_point, const Variant 
         }
     }
 
-    if (String(d["type"]) == "files") {
+    if (d["type"].as<se_string>() == "files") {
 
         Vector<se_string> files(d["files"].as<Vector<se_string>>());
 

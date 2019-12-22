@@ -1484,7 +1484,7 @@ void RasterizerSceneGLES3::_setup_geometry(RenderList::Element *e, const Transfo
                 glUnmapBuffer(GL_ARRAY_BUFFER);
 #else
                 particle_writer.release();
-                particle_array = NULL;
+                particle_array = nullptr;
                 {
                     PoolVector<RasterizerGLES3Particle>::Read r = particle_vector.read();
                     glBufferSubData(GL_ARRAY_BUFFER, 0, particles->amount * sizeof(RasterizerGLES3Particle), r.ptr());
@@ -4219,7 +4219,7 @@ void RasterizerSceneGLES3::render_scene(const Transform &p_cam_transform, const 
         _fill_render_list(p_cull_result, p_cull_count, true, false);
         render_list.sort_by_key(false);
         state.scene_shader.set_conditional(SceneShaderGLES3::RENDER_DEPTH, true);
-        _render_list(render_list.elements, render_list.element_count, p_cam_transform, p_cam_projection, NULL, false, false, true, false, false);
+        _render_list(render_list.elements, render_list.element_count, p_cam_transform, p_cam_projection, nullptr, false, false, true, false, false);
         state.scene_shader.set_conditional(SceneShaderGLES3::RENDER_DEPTH, false);
 
         glColorMask(1, 1, 1, 1);

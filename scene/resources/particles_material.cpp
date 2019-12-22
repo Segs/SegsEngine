@@ -791,71 +791,60 @@ float ParticlesMaterial::get_param_randomness(Parameter p_param) const {
     return randomness[p_param];
 }
 
-static void _adjust_curve_range(const Ref<Texture> &p_texture, float p_min, float p_max) {
-
-    Ref<CurveTexture> curve_tex = dynamic_ref_cast<CurveTexture>(p_texture);
-    if (not curve_tex)
-        return;
-
-    curve_tex->ensure_default_setup(p_min, p_max);
-}
-
 void ParticlesMaterial::set_param_texture(Parameter p_param, const Ref<Texture> &p_texture) {
 
     ERR_FAIL_INDEX(p_param, PARAM_MAX);
 
     tex_parameters[p_param] = p_texture;
-
+    const CurveRange range_to_set = c_default_curve_ranges[p_param];
+    StringName texture_slot_name;
     switch (p_param) {
         case PARAM_INITIAL_LINEAR_VELOCITY: {
             //do none for this one
         } break;
         case PARAM_ANGULAR_VELOCITY: {
-            VisualServer::get_singleton()->material_set_param(_get_material(), shader_names->angular_velocity_texture, p_texture);
-            _adjust_curve_range(p_texture, -360, 360);
+            texture_slot_name=shader_names->angular_velocity_texture;
         } break;
         case PARAM_ORBIT_VELOCITY: {
-            VisualServer::get_singleton()->material_set_param(_get_material(), shader_names->orbit_velocity_texture, p_texture);
-            _adjust_curve_range(p_texture, -500, 500);
+            texture_slot_name=shader_names->orbit_velocity_texture;
         } break;
         case PARAM_LINEAR_ACCEL: {
-            VisualServer::get_singleton()->material_set_param(_get_material(), shader_names->linear_accel_texture, p_texture);
-            _adjust_curve_range(p_texture, -200, 200);
+            texture_slot_name=shader_names->linear_accel_texture;
         } break;
         case PARAM_RADIAL_ACCEL: {
-            VisualServer::get_singleton()->material_set_param(_get_material(), shader_names->radial_accel_texture, p_texture);
-            _adjust_curve_range(p_texture, -200, 200);
+            texture_slot_name=shader_names->radial_accel_texture;
         } break;
         case PARAM_TANGENTIAL_ACCEL: {
-            VisualServer::get_singleton()->material_set_param(_get_material(), shader_names->tangent_accel_texture, p_texture);
-            _adjust_curve_range(p_texture, -200, 200);
+            texture_slot_name=shader_names->tangent_accel_texture;
         } break;
         case PARAM_DAMPING: {
-            VisualServer::get_singleton()->material_set_param(_get_material(), shader_names->damping_texture, p_texture);
-            _adjust_curve_range(p_texture, 0, 100);
+            texture_slot_name=shader_names->damping_texture;
         } break;
         case PARAM_ANGLE: {
-            VisualServer::get_singleton()->material_set_param(_get_material(), shader_names->angle_texture, p_texture);
-            _adjust_curve_range(p_texture, -360, 360);
+            texture_slot_name=shader_names->angle_texture;
         } break;
         case PARAM_SCALE: {
-            VisualServer::get_singleton()->material_set_param(_get_material(), shader_names->scale_texture, p_texture);
-            _adjust_curve_range(p_texture, 0, 1);
+            texture_slot_name=shader_names->scale_texture;
         } break;
         case PARAM_HUE_VARIATION: {
-            VisualServer::get_singleton()->material_set_param(_get_material(), shader_names->hue_variation_texture, p_texture);
-            _adjust_curve_range(p_texture, -1, 1);
+            texture_slot_name=shader_names->hue_variation_texture;
         } break;
         case PARAM_ANIM_SPEED: {
-            VisualServer::get_singleton()->material_set_param(_get_material(), shader_names->anim_speed_texture, p_texture);
-            _adjust_curve_range(p_texture, 0, 200);
+            texture_slot_name=shader_names->anim_speed_texture;
         } break;
         case PARAM_ANIM_OFFSET: {
-            VisualServer::get_singleton()->material_set_param(_get_material(), shader_names->anim_offset_texture, p_texture);
+            texture_slot_name=shader_names->anim_offset_texture;
         } break;
         case PARAM_MAX: break; // Can't happen, but silences warning
     }
-
+    if(texture_slot_name) {
+        VisualServer::get_singleton()->material_set_param(_get_material(), texture_slot_name, p_texture);
+    }
+    if(range_to_set.valid()) {
+        Ref<CurveTexture> curve_tex = dynamic_ref_cast<CurveTexture>(p_texture);
+        if(curve_tex)
+            curve_tex->ensure_default_setup(range_to_set.curve_min, range_to_set.curve_max);
+    }
     _queue_shader_change();
 }
 Ref<Texture> ParticlesMaterial::get_param_texture(Parameter p_param) const {
@@ -1025,7 +1014,7 @@ void ParticlesMaterial::set_gravity(const Vector3 &p_gravity) {
     gravity = p_gravity;
     Vector3 gset = gravity;
     if (gset == Vector3()) {
-        gset = Vector3(0, -0.000001, 0); //as gravity is used as upvector in some calculations
+        gset = Vector3(0, -0.000001f, 0); //as gravity is used as upvector in some calculations
     }
     VisualServer::get_singleton()->material_set_param(_get_material(), shader_names->gravity, gset);
 }

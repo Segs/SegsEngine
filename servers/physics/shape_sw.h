@@ -474,14 +474,14 @@ struct MotionShapeSW : public ShapeSW {
     MotionShapeSW() { configure(AABB()); }
 };
 
-struct _ShapeTestConvexBSPSW {
+//struct _ShapeTestConvexBSPSW {
 
-    const BSP_Tree *bsp;
-    const ShapeSW *shape;
-    Transform transform;
+//    const BSP_Tree *bsp;
+//    const ShapeSW *shape;
+//    Transform transform;
 
-    _FORCE_INLINE_ void project_range(const Vector3 &p_normal, real_t &r_min, real_t &r_max) const {
+//    _FORCE_INLINE_ void project_range(const Vector3 &p_normal, real_t &r_min, real_t &r_max) const {
 
-        shape->project_range(p_normal, transform, r_min, r_max);
-    }
-};
+//        shape->project_range(p_normal, transform, r_min, r_max);
+//    }
+//};

@@ -600,8 +600,8 @@ public:
     BIND8(canvas_item_add_texture_rect_region, RID, const Rect2 &, RID, const Rect2 &, const Color &, bool, RID, bool)
     BIND11(canvas_item_add_nine_patch, RID, const Rect2 &, const Rect2 &, RID, const Vector2 &, const Vector2 &, VS::NinePatchAxisMode, VS::NinePatchAxisMode, bool, const Color &, RID)
     BIND7(canvas_item_add_primitive, RID, const Vector<Point2> &, const Vector<Color> &, const Vector<Point2> &, RID, float, RID)
-    BIND7(canvas_item_add_polygon, RID, const Vector<Point2> &, const Vector<Color> &, const Vector<Point2> &, RID, RID, bool)
-    BIND11(canvas_item_add_triangle_array, RID, const Vector<int> &, const Vector<Point2> &, const Vector<Color> &, const Vector<Point2> &, const Vector<int> &, const Vector<float> &, RID, int, RID, bool)
+    BIND7(canvas_item_add_polygon, RID, Span<const Point2>, const Vector<Color> &, const Vector<Point2> &, RID, RID, bool)
+    BIND11(canvas_item_add_triangle_array, RID, Span<const int>, Span<const Point2>, const Vector<Color> &, const Vector<Point2> &, const Vector<int> &, const Vector<float> &, RID, int, RID, bool)
     BIND6(canvas_item_add_mesh, RID, const RID &, const Transform2D &, const Color &, RID, RID)
     BIND4(canvas_item_add_multimesh, RID, RID, RID, RID)
     BIND4(canvas_item_add_particles, RID, RID, RID, RID)
@@ -652,8 +652,8 @@ public:
     BIND2(canvas_light_occluder_set_light_mask, RID, int)
 
     BIND0R(RID, canvas_occluder_polygon_create)
-    BIND3(canvas_occluder_polygon_set_shape, RID, const PoolVector<Vector2> &, bool)
-    BIND2(canvas_occluder_polygon_set_shape_as_lines, RID, const PoolVector<Vector2> &)
+    BIND3(canvas_occluder_polygon_set_shape, RID, Span<const Vector2>, bool)
+    BIND2(canvas_occluder_polygon_set_shape_as_lines, RID, Span<const Vector2>)
 
     BIND2(canvas_occluder_polygon_set_cull_mode, RID, VS::CanvasOccluderPolygonCullMode)
 

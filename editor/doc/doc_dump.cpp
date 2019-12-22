@@ -39,13 +39,8 @@
 
 #include "EASTL/sort.h"
 
-static void _write_string(FileAccess *f, int p_tablevel, se_string_view p_string) {
+extern void _write_string(FileAccess *f, int p_tablevel, se_string_view p_string);
 
-    se_string tab;
-    for (int i = 0; i < p_tablevel; i++)
-        tab += '\t';
-    f->store_string(tab + p_string + "\n");
-}
 struct _ConstantSort {
 
     se_string name;

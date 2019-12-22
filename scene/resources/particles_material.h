@@ -42,7 +42,7 @@ class ParticlesMaterial : public Material {
 public:
     enum Parameter {
 
-        PARAM_INITIAL_LINEAR_VELOCITY,
+        PARAM_INITIAL_LINEAR_VELOCITY=0,
         PARAM_ANGULAR_VELOCITY,
         PARAM_ORBIT_VELOCITY,
         PARAM_LINEAR_ACCEL,
@@ -306,3 +306,47 @@ public:
     ParticlesMaterial();
     ~ParticlesMaterial() override;
 };
+struct CurveRange {
+    float curve_min,curve_max;
+    constexpr CurveRange(float mn,float mx) : curve_min(mn),curve_max(mx) {}
+    constexpr bool valid() const { return curve_min!=curve_max;}
+};
+
+
+constexpr CurveRange c_default_curve_ranges[ParticlesMaterial::PARAM_MAX]{
+    { 0.0f, 0.0f }, // PARAM_INITIAL_LINEAR_VELOCITY
+    { -360.0f, 360.0f }, // PARAM_ANGULAR_VELOCITY
+    { -500.0f, 500.0f }, // PARAM_ORBIT_VELOCITY
+    { -200.0f, 200.0f }, // PARAM_LINEAR_ACCEL
+    { -200.0f, 200.0f }, // PARAM_RADIAL_ACCEL
+    { -200.0f, 200.0f }, // PARAM_TANGENTIAL_ACCEL
+    { -0.0f, 100.0f }, // PARAM_DAMPING
+    { -360.0f, 360.0f }, // PARAM_ANGLE
+    { 0.0f, 1.0f }, // PARAM_SCALE
+    { -1.0f, 1.0f }, // PARAM_HUE_VARIATION
+    { 0.0f, 200.0f }, // PARAM_ANIM_SPEED
+    { 0.0f, 0.0f } // PARAM_ANIM_OFFSET
+};
+
+namespace ParticleUtils {
+// Functions usedby particle systems.
+constexpr inline uint32_t idhash(uint32_t x) {
+
+    x = ((x >> uint32_t(16)) ^ x) * uint32_t(0x45d9f3b);
+    x = ((x >> uint32_t(16)) ^ x) * uint32_t(0x45d9f3b);
+    x = (x >> uint32_t(16)) ^ x;
+    return x;
+}
+
+constexpr inline float rand_from_seed(uint32_t &seed) {
+    int s = int(seed);
+    if (s == 0)
+        s = 305420679;
+    int k = s / 127773;
+    s = 16807 * (s - k * 127773) - 2836 * k;
+    if (s < 0)
+        s += 2147483647;
+    seed = uint32_t(s);
+    return float(seed % uint32_t(65536)) / 65535.0f;
+}
+}

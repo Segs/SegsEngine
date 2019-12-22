@@ -76,10 +76,10 @@ SemaphoreWindows::SemaphoreWindows() {
 
 #ifdef UWP_ENABLED
 	semaphore = CreateSemaphoreEx(
-			NULL,
+            nullptr,
 			0,
 			0xFFFFFFF, //wathever
-			NULL,
+            nullptr,
 			0,
 			SEMAPHORE_ALL_ACCESS);
 #else

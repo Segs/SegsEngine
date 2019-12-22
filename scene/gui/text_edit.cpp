@@ -283,7 +283,7 @@ inline bool _is_symbol(CharType c) {
     return is_symbol(c);
 }
 
-static bool _is_text_char(CharType c) {
+static bool _te_is_text_char(CharType c) {
 
     return !is_symbol(c);
 }
@@ -2053,14 +2053,14 @@ void TextEdit::_consume_pair_symbol(CharType ch) {
     }
 
     if ((ch == '\'' || ch == '"') &&
-            cursor_get_column() > 0 && _is_text_char(m_priv->text[cursor.line][cursor_get_column() - 1]) && !_is_pair_right_symbol(m_priv->text[cursor.line][cursor_get_column()])) {
+            cursor_get_column() > 0 && _te_is_text_char(m_priv->text[cursor.line][cursor_get_column() - 1]) && !_is_pair_right_symbol(m_priv->text[cursor.line][cursor_get_column()])) {
         insert_text_at_cursor(QString::fromRawData(ch_single,1));
         cursor_set_column(cursor_position_to_move);
         return;
     }
 
     if (cursor_get_column() < m_priv->text[cursor.line].length()) {
-        if (_is_text_char(m_priv->text[cursor.line][cursor_get_column()])) {
+        if (_te_is_text_char(m_priv->text[cursor.line][cursor_get_column()])) {
             insert_text_at_cursor(QString::fromRawData(ch_single,1));
             cursor_set_column(cursor_position_to_move);
             return;
@@ -3256,14 +3256,14 @@ void TextEdit::_gui_input(const Ref<InputEvent> &p_gui_input) {
                     }
 
                     // Check if its a text char.
-                    bool only_char = (_is_text_char(m_priv->text[line][column - 1]) && !only_whitespace);
+                    bool only_char = (_te_is_text_char(m_priv->text[line][column - 1]) && !only_whitespace);
 
                     // If its not whitespace or char then symbol.
                     bool only_symbols = !(only_whitespace || only_char);
 
                     while (column > 0) {
                         bool is_whitespace = _is_whitespace(m_priv->text[line][column - 1]);
-                        bool is_text_char = _is_text_char(m_priv->text[line][column - 1]);
+                        bool is_text_char = _te_is_text_char(m_priv->text[line][column - 1]);
 
                         if (only_whitespace && !is_whitespace) {
                             break;
@@ -3344,7 +3344,7 @@ void TextEdit::_gui_input(const Ref<InputEvent> &p_gui_input) {
                         bool prev_char = false;
 
                         while (cc > 0) {
-                            bool ischar = _is_text_char(m_priv->text[cursor.line][cc - 1]);
+                            bool ischar = _te_is_text_char(m_priv->text[cursor.line][cc - 1]);
 
                             if (prev_char && !ischar)
                                 break;
@@ -3406,7 +3406,7 @@ void TextEdit::_gui_input(const Ref<InputEvent> &p_gui_input) {
                         bool prev_char = false;
 
                         while (cc < m_priv->text[cursor.line].length()) {
-                            bool ischar = _is_text_char(m_priv->text[cursor.line][cc]);
+                            bool ischar = _te_is_text_char(m_priv->text[cursor.line][cc]);
 
                             if (prev_char && !ischar)
                                 break;
@@ -3572,14 +3572,14 @@ void TextEdit::_gui_input(const Ref<InputEvent> &p_gui_input) {
                     }
 
                     // Check if its a text char.
-                    bool only_char = (_is_text_char(m_priv->text[line][column]) && !only_whitespace);
+                    bool only_char = (_te_is_text_char(m_priv->text[line][column]) && !only_whitespace);
 
                     // If its not whitespace or char then symbol.
                     bool only_symbols = !(only_whitespace || only_char);
 
                     while (column < curline_len) {
                         bool is_whitespace = _is_whitespace(m_priv->text[line][column]);
-                        bool is_text_char = _is_text_char(m_priv->text[line][column]);
+                        bool is_text_char = _te_is_text_char(m_priv->text[line][column]);
 
                         if (only_whitespace && !is_whitespace) {
                             break;
@@ -5593,7 +5593,7 @@ se_string TextEdit::get_word_under_cursor() const {
 
     int prev_cc = cursor.column;
     while (prev_cc > 0) {
-        bool is_char = _is_text_char(m_priv->text[cursor.line][prev_cc - 1]);
+        bool is_char = _te_is_text_char(m_priv->text[cursor.line][prev_cc - 1]);
         if (!is_char)
             break;
         --prev_cc;
@@ -5601,7 +5601,7 @@ se_string TextEdit::get_word_under_cursor() const {
 
     int next_cc = cursor.column;
     while (next_cc < m_priv->text[cursor.line].length()) {
-        bool is_char = _is_text_char(m_priv->text[cursor.line][next_cc]);
+        bool is_char = _te_is_text_char(m_priv->text[cursor.line][next_cc]);
         if (!is_char)
             break;
         ++next_cc;
@@ -5653,9 +5653,9 @@ int TextEdit::_get_column_pos_of_word(const String &p_key, const String &p_searc
             if (col != -1 && p_search_flags & SEARCH_WHOLE_WORDS) {
                 p_from_column = col;
 
-                if (col > 0 && _is_text_char(p_search[col - 1])) {
+                if (col > 0 && _te_is_text_char(p_search[col - 1])) {
                     col = -1;
-                } else if ((col + p_key.length()) < p_search.length() && _is_text_char(p_search[col + p_key.length()])) {
+                } else if ((col + p_key.length()) < p_search.length() && _te_is_text_char(p_search[col + p_key.length()])) {
                     col = -1;
                 }
             }
@@ -5761,9 +5761,9 @@ bool TextEdit::search(const String &p_key, uint32_t p_search_flags, int p_from_l
 
             if (pos != -1 && (p_search_flags & SEARCH_WHOLE_WORDS)) {
                 // Validate for whole words.
-                if (pos > 0 && _is_text_char(text_line[pos - 1]))
+                if (pos > 0 && _te_is_text_char(text_line[pos - 1]))
                     is_match = false;
-                else if (pos + p_key.length() < text_line.length() && _is_text_char(text_line[pos + p_key.length()]))
+                else if (pos + p_key.length() < text_line.length() && _te_is_text_char(text_line[pos + p_key.length()]))
                     is_match = false;
             }
 
@@ -7556,7 +7556,7 @@ Map<int, TextEdit::HighlighterInfo> TextEdit::PrivateData::_get_line_syntax_high
 
         color = cache.font_color;
 
-        bool is_char = _is_text_char(str[j]);
+        bool is_char = _te_is_text_char(str[j]);
         bool is_symbol = _is_symbol(str[j]);
         bool is_number = _is_number(str[j]);
 
@@ -7611,7 +7611,7 @@ Map<int, TextEdit::HighlighterInfo> TextEdit::PrivateData::_get_line_syntax_high
         if (in_region == -1 && !in_keyword && is_char && !prev_is_char) {
 
             int to = j;
-            while (to < str.length() && _is_text_char(str[to]))
+            while (to < str.length() && _te_is_text_char(str[to]))
                 to++;
 
             //uint32_t hash = StringUtils::hash(str.constData()+j, to - j);

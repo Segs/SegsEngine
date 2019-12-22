@@ -1589,14 +1589,14 @@ void TileSetEditor::_on_workspace_input(const Ref<InputEvent> &p_ie) {
                                     if (dragging_point >= 0) {
                                         dragging_point = -1;
 
-                                        Vector<Vector2> points;
-
+                                        PODVector<Vector2> points;
+                                        points.reserve(current_shape.size());
                                         for (int i = 0; i < current_shape.size(); i++) {
                                             Vector2 p = current_shape[i];
                                             if (tools[TOOL_GRID_SNAP]->is_pressed() || tools[SHAPE_KEEP_INSIDE_TILE]->is_pressed()) {
                                                 p = snap_point(p);
                                             }
-                                            points.push_back(p - shape_anchor);
+                                            points.emplace_back(p - shape_anchor);
                                         }
 
                                         undo_redo->create_action_ui(TTR("Edit Collision Polygon"));
@@ -1631,7 +1631,7 @@ void TileSetEditor::_on_workspace_input(const Ref<InputEvent> &p_ie) {
                                         dragging_point = -1;
 
                                         PoolVector<Vector2> polygon;
-                                        Vector<int> indices;
+                                        PODVector<int> indices;
                                         polygon.resize(current_shape.size());
                                         PoolVector<Vector2>::Write w = polygon.write();
 
@@ -1648,7 +1648,7 @@ void TileSetEditor::_on_workspace_input(const Ref<InputEvent> &p_ie) {
                                         undo_redo->add_do_method(edited_navigation_shape.get(), "clear_polygons");
                                         undo_redo->add_undo_method(edited_navigation_shape.get(), "clear_polygons");
                                         undo_redo->add_do_method(edited_navigation_shape.get(), "add_polygon", indices);
-                                        undo_redo->add_undo_method(edited_navigation_shape.get(), "add_polygon", edited_navigation_shape->get_polygon(0));
+                                        undo_redo->add_undo_method(edited_navigation_shape.get(), "add_polygon", Variant::from(edited_navigation_shape->get_polygon(0)));
                                         undo_redo->add_do_method(this, "_select_edited_shape_coord");
                                         undo_redo->add_undo_method(this, "_select_edited_shape_coord");
                                         undo_redo->commit_action();
@@ -1942,32 +1942,33 @@ void TileSetEditor::_on_grid_snap_toggled(bool p_val) {
     workspace->update();
 }
 
-Vector<Vector2> TileSetEditor::_get_collision_shape_points(const Ref<Shape2D> &p_shape) {
+PODVector<Vector2> TileSetEditor::_get_collision_shape_points(const Ref<Shape2D> &p_shape) {
     Ref<ConvexPolygonShape2D> convex = dynamic_ref_cast<ConvexPolygonShape2D>(p_shape);
     Ref<ConcavePolygonShape2D> concave = dynamic_ref_cast<ConcavePolygonShape2D>(p_shape);
     if (convex) {
         return convex->get_points();
     } else if (concave) {
-        Vector<Vector2> points;
+        PODVector<Vector2> points;
+        points.reserve(concave->get_segments().size()/2);
         for (int i = 0; i < concave->get_segments().size(); i += 2) {
             points.push_back(concave->get_segments()[i]);
         }
         return points;
     } else {
-        return Vector<Vector2>();
+        return PODVector<Vector2>();
     }
 }
 
-Vector<Vector2> TileSetEditor::_get_edited_shape_points() {
+PODVector<Vector2> TileSetEditor::_get_edited_shape_points() {
     return _get_collision_shape_points(edited_collision_shape);
 }
 
-void TileSetEditor::_set_edited_shape_points(const Vector<Vector2> &points) {
+void TileSetEditor::_set_edited_shape_points(const PODVector<Vector2> &points) {
     Ref<ConvexPolygonShape2D> convex = dynamic_ref_cast<ConvexPolygonShape2D>(edited_collision_shape);
     Ref<ConcavePolygonShape2D> concave = dynamic_ref_cast<ConcavePolygonShape2D>(edited_collision_shape);
     if (convex) {
-        undo_redo->add_do_method(convex.get(), "set_points", points);
-        undo_redo->add_undo_method(convex.get(), "set_points", _get_edited_shape_points());
+        undo_redo->add_do_method(convex.get(), "set_points", Variant::from(points));
+        undo_redo->add_undo_method(convex.get(), "set_points", Variant::from(_get_edited_shape_points()));
     } else if (concave) {
         PoolVector2Array segments;
         for (int i = 0; i < points.size() - 1; i++) {
@@ -2632,16 +2633,16 @@ void TileSetEditor::draw_polygon_shapes() {
                             c_border = Color(0.9f, 0.45f, 0.075f);
                         }
                     }
-                    Vector<Vector2> polygon;
+                    PODVector<Vector2> polygon;
                     Vector<Color> colors;
                     if (!creating_shape && shape == edited_collision_shape && current_shape.size() > 2) {
                         for (int j = 0; j < current_shape.size(); j++) {
-                            polygon.push_back(current_shape[j]);
+                            polygon.emplace_back(current_shape[j]);
                             colors.push_back(c_bg);
                         }
                     } else {
                         for (int j = 0; j < _get_collision_shape_points(shape).size(); j++) {
-                            polygon.push_back(_get_collision_shape_points(shape)[j] + anchor);
+                            polygon.emplace_back(_get_collision_shape_points(shape)[j] + anchor);
                             colors.push_back(c_bg);
                         }
                     }
@@ -2672,7 +2673,7 @@ void TileSetEditor::draw_polygon_shapes() {
                     Color c_bg = Color(0, 1, 1, 0.5);
                     Color c_border = Color(0, 1, 1);
 
-                    Vector<Vector2> polygon;
+                    PODVector<Vector2> polygon;
                     Vector<Color> colors;
                     Vector2 anchor = WORKSPACE_MARGIN;
                     anchor += tileset->tile_get_region(get_current_tile()).position;
@@ -2723,7 +2724,7 @@ void TileSetEditor::draw_polygon_shapes() {
                             c_bg = Color(0.9f, 0.7f, 0.07f, 0.5);
                             c_border = Color(0.9f, 0.7f, 0.07f, 1);
                         }
-                        Vector<Vector2> polygon;
+                        PODVector<Vector2> polygon;
                         Vector<Color> colors;
                         if (!creating_shape && shape == edited_occlusion_shape && current_shape.size() > 2) {
                             for (int j = 0; j < current_shape.size(); j++) {
@@ -2761,7 +2762,7 @@ void TileSetEditor::draw_polygon_shapes() {
                     Color c_bg = Color(0, 1, 1, 0.5);
                     Color c_border = Color(0, 1, 1);
 
-                    Vector<Vector2> polygon;
+                    PODVector<Vector2> polygon;
                     Vector<Color> colors;
                     Vector2 anchor = WORKSPACE_MARGIN;
                     anchor += tileset->tile_get_region(get_current_tile()).position;
@@ -2811,7 +2812,7 @@ void TileSetEditor::draw_polygon_shapes() {
                             c_bg = Color(0.9f, 0.7f, 0.07f, 0.5);
                             c_border = Color(0.9f, 0.7f, 0.07f, 1);
                         }
-                        Vector<Vector2> polygon;
+                        PODVector<Vector2> polygon;
                         Vector<Color> colors;
                         if (!creating_shape && shape == edited_navigation_shape && current_shape.size() > 2) {
                             for (int j = 0; j < current_shape.size(); j++) {
@@ -2829,7 +2830,7 @@ void TileSetEditor::draw_polygon_shapes() {
 
                         if (coord == edited_shape_coord) {
                             if (!creating_shape) {
-                                for (int j = 0; j < polygon.size() - 1; j++) {
+                                for (size_t j = 0; j < polygon.size() - 1; j++) {
                                     workspace->draw_line(polygon[j], polygon[j + 1], c_border, 1, true);
                                 }
                                 workspace->draw_line(polygon[polygon.size() - 1], polygon[0], c_border, 1, true);
@@ -2863,7 +2864,7 @@ void TileSetEditor::close_shape(const Vector2 &shape_anchor) {
         if (current_shape.size() >= 3) {
             Ref<ConvexPolygonShape2D> shape(make_ref_counted<ConvexPolygonShape2D>());
 
-            Vector<Vector2> points;
+            PODVector<Vector2> points;
             float p_total = 0;
 
             for (int i = 0; i < current_shape.size(); i++) {
@@ -2876,7 +2877,7 @@ void TileSetEditor::close_shape(const Vector2 &shape_anchor) {
             }
 
             if (p_total < 0)
-                points.invert();
+                eastl::reverse(points.begin(),points.end());
 
             shape->set_points(points);
 
@@ -2906,16 +2907,13 @@ void TileSetEditor::close_shape(const Vector2 &shape_anchor) {
     } else if (edit_mode == EDITMODE_OCCLUSION) {
         Ref<OccluderPolygon2D> shape(make_ref_counted<OccluderPolygon2D>());
 
-        PoolVector<Vector2> polygon;
+        PODVector<Vector2> polygon;
         polygon.resize(current_shape.size());
-        PoolVector<Vector2>::Write w = polygon.write();
 
         for (int i = 0; i < current_shape.size(); i++) {
-            w[i] = current_shape[i] - shape_anchor;
+            polygon[i] = current_shape[i] - shape_anchor;
         }
-
-        w.release();
-        shape->set_polygon(polygon);
+        shape->set_polygon(eastl::move(polygon));
 
         undo_redo->create_action_ui(TTR("Create Occlusion Polygon"));
         if (tileset->tile_get_tile_mode(get_current_tile()) == TileSet::AUTO_TILE || tileset->tile_get_tile_mode(get_current_tile()) == TileSet::ATLAS_TILE) {

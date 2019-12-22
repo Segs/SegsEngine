@@ -387,7 +387,7 @@ Variant ResourceFormatImporter::get_resource_metadata(se_string_view p_path) con
     return pat.metadata;
 }
 
-void ResourceFormatImporter::get_dependencies(se_string_view p_path, ListPOD<se_string> *p_dependencies, bool p_add_types) {
+void ResourceFormatImporter::get_dependencies(se_string_view p_path, PODVector<se_string> &p_dependencies, bool p_add_types) {
 
     PathAndType pat;
     Error err = _get_path_and_type(p_path, pat);

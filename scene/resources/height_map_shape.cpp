@@ -29,13 +29,15 @@
 /*************************************************************************/
 
 #include "height_map_shape.h"
+
 #include "servers/physics_server.h"
 #include "core/method_bind.h"
+#include "core/math/vector2.h"
 
 IMPL_GDCLASS(HeightMapShape)
 
-Vector<Vector3> HeightMapShape::get_debug_mesh_lines() {
-    Vector<Vector3> points;
+PODVector<Vector3> HeightMapShape::get_debug_mesh_lines() {
+    PODVector<Vector3> points;
 
     if ((map_width != 0) && (map_depth != 0)) {
 
@@ -60,19 +62,19 @@ Vector<Vector3> HeightMapShape::get_debug_mesh_lines() {
                 height.y = r[r_offset++];
 
                 if (w != map_width - 1) {
-                    points.write[w_offset++] = height;
-                    points.write[w_offset++] = Vector3(height.x + 1.0, r[r_offset], height.z);
+                    points[w_offset++] = height;
+                    points[w_offset++] = Vector3(height.x + 1.0f, r[r_offset], height.z);
                 }
 
                 if (d != map_depth - 1) {
-                    points.write[w_offset++] = height;
-                    points.write[w_offset++] = Vector3(height.x, r[r_offset + map_width - 1], height.z + 1.0);
+                    points[w_offset++] = height;
+                    points[w_offset++] = Vector3(height.x, r[r_offset + map_width - 1], height.z + 1.0f);
                 }
 
-                height.x += 1.0;
+                height.x += 1.0f;
             }
 
-            start.y += 1.0;
+            start.y += 1.0f;
         }
     }
 

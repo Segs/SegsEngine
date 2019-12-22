@@ -35,74 +35,74 @@
 
 class OccluderPolygon2D : public Resource {
 
-	GDCLASS(OccluderPolygon2D,Resource)
+    GDCLASS(OccluderPolygon2D,Resource)
 
 public:
-	enum CullMode {
-		CULL_DISABLED,
-		CULL_CLOCKWISE,
-		CULL_COUNTER_CLOCKWISE
-	};
+    enum CullMode {
+        CULL_DISABLED,
+        CULL_CLOCKWISE,
+        CULL_COUNTER_CLOCKWISE
+    };
 
 private:
-	RID occ_polygon;
-	PoolVector<Vector2> polygon;
-	bool closed;
-	CullMode cull;
+    RID occ_polygon;
+    PODVector<Vector2> polygon;
+    bool closed;
+    CullMode cull;
 
-	mutable Rect2 item_rect;
-	mutable bool rect_cache_dirty;
+    mutable Rect2 item_rect;
+    mutable bool rect_cache_dirty;
 
 protected:
-	static void _bind_methods();
+    static void _bind_methods();
 
 public:
-	virtual Rect2 _edit_get_rect() const;
+    virtual Rect2 _edit_get_rect() const;
     virtual bool _edit_is_selected_on_click(const Point2 &p_point, float p_tolerance) const;
 
-	void set_polygon(const PoolVector<Vector2> &p_polygon);
-	PoolVector<Vector2> get_polygon() const;
+    void set_polygon(const PODVector<Vector2> &p_polygon);
+    const PODVector<Vector2> &get_polygon() const { return polygon; }
 
-	void set_closed(bool p_closed);
-	bool is_closed() const;
+    void set_closed(bool p_closed);
+    bool is_closed() const;
 
-	void set_cull_mode(CullMode p_mode);
-	CullMode get_cull_mode() const;
+    void set_cull_mode(CullMode p_mode);
+    CullMode get_cull_mode() const;
 
-	RID get_rid() const override;
-	OccluderPolygon2D();
-	~OccluderPolygon2D() override;
+    RID get_rid() const override;
+    OccluderPolygon2D();
+    ~OccluderPolygon2D() override;
 };
 
 
 class LightOccluder2D : public Node2D {
-	GDCLASS(LightOccluder2D,Node2D)
+    GDCLASS(LightOccluder2D,Node2D)
 
-	RID occluder;
-	bool enabled;
-	int mask;
-	Ref<OccluderPolygon2D> occluder_polygon;
+    RID occluder;
+    bool enabled;
+    int mask;
+    Ref<OccluderPolygon2D> occluder_polygon;
 
-	void _poly_changed();
+    void _poly_changed();
 
 protected:
-	void _notification(int p_what);
-	static void _bind_methods();
+    void _notification(int p_what);
+    static void _bind_methods();
 
 public:
-	Rect2 _edit_get_rect() const override;
+    Rect2 _edit_get_rect() const override;
     bool _edit_is_selected_on_click(const Point2 &p_point, float p_tolerance) const override;
 
-	void set_occluder_polygon(const Ref<OccluderPolygon2D> &p_polygon);
-	Ref<OccluderPolygon2D> get_occluder_polygon() const;
+    void set_occluder_polygon(const Ref<OccluderPolygon2D> &p_polygon);
+    Ref<OccluderPolygon2D> get_occluder_polygon() const;
 
-	void set_occluder_light_mask(int p_mask);
-	int get_occluder_light_mask() const;
+    void set_occluder_light_mask(int p_mask);
+    int get_occluder_light_mask() const;
 
     StringName get_configuration_warning() const override;
 
-	LightOccluder2D();
-	~LightOccluder2D() override;
+    LightOccluder2D();
+    ~LightOccluder2D() override;
 };
 
 #endif // LIGHTOCCLUDER2D_H

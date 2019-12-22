@@ -45,7 +45,7 @@ class GODOT_EXPORT Mesh : public Resource {
     GDCLASS(Mesh,Resource)
 
     mutable Ref<TriangleMesh> triangle_mesh; //cached
-    mutable Vector<Vector3> debug_lines;
+    mutable PODVector<Vector3> debug_lines;
     Size2 lightmap_size_hint;
 
 protected:
@@ -135,7 +135,7 @@ public:
 
     PoolVector<Face3> get_faces() const;
     Ref<TriangleMesh> generate_triangle_mesh() const;
-    void generate_debug_mesh_lines(Vector<Vector3> &r_lines);
+    void generate_debug_mesh_lines(PODVector<Vector3> &r_lines);
     void generate_debug_mesh_indices(Vector<Vector3> &r_points);
 
     Ref<Shape> create_trimesh_shape() const;

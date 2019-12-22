@@ -327,11 +327,11 @@ void MeshInstance::create_debug_tangents() {
 
     for (int i = 0; i < mesh->get_surface_count(); i++) {
         Array arrays = mesh->surface_get_arrays(i);
-        Vector<Vector3> verts = arrays[Mesh::ARRAY_VERTEX];
-        Vector<Vector3> norms = arrays[Mesh::ARRAY_NORMAL];
+        Vector<Vector3> verts = arrays[Mesh::ARRAY_VERTEX].as<Vector<Vector3>>();
+        Vector<Vector3> norms = arrays[Mesh::ARRAY_NORMAL].as<Vector<Vector3>>();
         if (norms.empty())
             continue;
-        Vector<float> tangents = arrays[Mesh::ARRAY_TANGENT];
+        Vector<float> tangents = arrays[Mesh::ARRAY_TANGENT].as<Vector<float>>();
         if (tangents.empty())
             continue;
 
@@ -343,17 +343,17 @@ void MeshInstance::create_debug_tangents() {
 
             lines.push_back(v); //normal
             colors.push_back(Color(0, 0, 1)); //color
-            lines.push_back(v + n * 0.04); //normal
+            lines.push_back(v + n * 0.04f); //normal
             colors.push_back(Color(0, 0, 1)); //color
 
             lines.push_back(v); //tangent
             colors.push_back(Color(1, 0, 0)); //color
-            lines.push_back(v + t * 0.04); //tangent
+            lines.push_back(v + t * 0.04f); //tangent
             colors.push_back(Color(1, 0, 0)); //color
 
             lines.push_back(v); //binormal
             colors.push_back(Color(0, 1, 0)); //color
-            lines.push_back(v + b * 0.04); //binormal
+            lines.push_back(v + b * 0.04f); //binormal
             colors.push_back(Color(0, 1, 0)); //color
         }
     }
@@ -369,8 +369,8 @@ void MeshInstance::create_debug_tangents() {
         Ref<ArrayMesh> am(make_ref_counted<ArrayMesh>());
         Array a;
         a.resize(Mesh::ARRAY_MAX);
-        a[Mesh::ARRAY_VERTEX] = lines;
-        a[Mesh::ARRAY_COLOR] = colors;
+        a[Mesh::ARRAY_VERTEX] = Variant::from(lines);
+        a[Mesh::ARRAY_COLOR] = Variant::from(colors);
 
         am->add_surface_from_arrays(Mesh::PRIMITIVE_LINES, a);
         am->surface_set_material(0, sm);

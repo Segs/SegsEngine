@@ -76,7 +76,7 @@ bool NavigationPolygon::_edit_is_selected_on_click(const Point2 &p_point, float 
         const int outline_size = outline.size();
         if (outline_size < 3)
             continue;
-        if (Geometry::is_point_in_polygon(p_point, Variant(outline)))
+        if (Geometry::is_point_in_polygon(p_point, {outline.read().ptr(),outline.size()}))
             return true;
     }
     return false;
@@ -97,7 +97,7 @@ void NavigationPolygon::_set_polygons(const Array &p_array) {
 
     polygons.resize(p_array.size());
     for (int i = 0; i < p_array.size(); i++) {
-        polygons.write[i].indices = p_array[i];
+        polygons.write[i].indices = p_array[i].as<Vector<int>>();
     }
 }
 
@@ -106,7 +106,7 @@ Array NavigationPolygon::_get_polygons() const {
     Array ret;
     ret.resize(polygons.size());
     for (int i = 0; i < ret.size(); i++) {
-        ret[i] = polygons[i].indices;
+        ret[i] = Variant::from(polygons[i].indices);
     }
 
     return ret;
@@ -423,19 +423,19 @@ void NavigationPolygonInstance::_notification(int p_what) {
                     color = get_tree()->get_debug_navigation_disabled_color();
                 }
                 Vector<Color> colors;
-                Vector<Vector2> vertices;
-                vertices.resize(vsize);
+                PODVector<Vector2> vertices;
+                vertices.reserve(vsize);
                 colors.resize(vsize);
                 {
                     PoolVector<Vector2>::Read vr = verts.read();
                     for (int i = 0; i < vsize; i++) {
-                        vertices.write[i] = vr[i];
+                        vertices.emplace_back(vr[i]);
                         colors.write[i] = color;
                     }
                 }
 
-                Vector<int> indices;
-
+                PODVector<int> indices;
+                indices.reserve(navpoly->get_polygon_count()*2*3);
                 for (int i = 0; i < navpoly->get_polygon_count(); i++) {
                     Vector<int> polygon = navpoly->get_polygon(i);
 

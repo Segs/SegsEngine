@@ -33,3 +33,10 @@ template<>
 struct Hasher<String> {
     _FORCE_INLINE_ uint32_t operator()(const String &p_string) const { return StringUtils::hash(p_string); }
 };
+
+template<>
+struct Hasher<QChar> {
+    uint32_t operator()(QChar c) {
+        return Hasher<uint16_t>()(c.unicode());
+    }
+};

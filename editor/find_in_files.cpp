@@ -836,7 +836,7 @@ void FindInFilesPanel::apply_replaces_in_file(se_string_view fpath, const Vector
     // however that means either losing changes or losing replaces.
 
     FileAccess *f = FileAccess::open(fpath, FileAccess::READ);
-    ERR_FAIL_COND_MSG(f == NULL, se_string("Cannot open file from path '") + fpath + "'.");
+    ERR_FAIL_COND_MSG(f == nullptr, se_string("Cannot open file from path '") + fpath + "'.");
 
     se_string buffer;
     int current_line = 1;

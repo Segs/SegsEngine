@@ -389,13 +389,14 @@ void AnimationNodeBlendSpace2DEditor::_tool_switch(int p_tool) {
     making_triangle.clear();
 
     if (p_tool == 2) {
-        Vector<Vector2> points;
+        PODVector<Vector2> points;
+        points.reserve(blend_space->get_blend_point_count());
         for (int i = 0; i < blend_space->get_blend_point_count(); i++) {
-            points.push_back(blend_space->get_blend_point_position(i));
+            points.emplace_back(blend_space->get_blend_point_position(i));
         }
-        Vector<Delaunay2D::Triangle> tr = Delaunay2D::triangulate(Span<const Vector2>(points.ptr(),points.size()));
-        for (int i = 0; i < tr.size(); i++) {
-            blend_space->add_triangle(tr[i].points[0], tr[i].points[1], tr[i].points[2]);
+        PODVector<Delaunay2D::Triangle> tris = Delaunay2D::triangulate(points);
+        for (const Delaunay2D::Triangle & tr: tris) {
+            blend_space->add_triangle(tr.points[0], tr.points[1], tr.points[2]);
         }
     }
 

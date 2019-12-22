@@ -297,65 +297,6 @@ public:
     WeakRef() = default;
 };
 
-#ifdef PTRCALL_ENABLED
-template <class T>
-struct PtrToArg;
-
-template <class T>
-struct PtrToArg<Ref<T> > {
-
-    static Ref<T> convert(const void *p_ptr) {
-
-        return Ref<T>(const_cast<T *>(reinterpret_cast<const T *>(p_ptr)));
-    }
-
-    static void encode(const Ref<T> &p_val, void *p_ptr) {
-
-        *(Ref<RefCounted> *)p_ptr = p_val;
-    }
-};
-
-template <class T>
-struct PtrToArg<const Ref<T> &> {
-
-    static Ref<T> convert(const void *p_ptr) {
-
-        return Ref<T>((T *)p_ptr);
-    }
-    //TODO: added to allow const Ref<T> & return values, not tested.
-    static void encode(const Ref<T> &p_val, void *p_ptr) {
-
-        *(Ref<RefCounted> *)p_ptr = p_val;
-    }
-};
-
-//this is for RefPtr
-
-template <>
-struct PtrToArg<RefPtr> {
-
-    _FORCE_INLINE_ static RefPtr convert(const void *p_ptr) {
-
-        return Ref<RefCounted>(const_cast<RefCounted *>(reinterpret_cast<const RefCounted *>(p_ptr))).get_ref_ptr();
-    }
-
-    _FORCE_INLINE_ static void encode(const RefPtr &p_val, void *p_ptr) {
-
-        *(Ref<RefCounted> *)p_ptr = refFromRefPtr<RefCounted>(p_val);
-    }
-};
-
-template <>
-struct PtrToArg<const RefPtr &> {
-
-    _FORCE_INLINE_ static RefPtr convert(const void *p_ptr) {
-
-        return Ref<RefCounted>(const_cast<RefCounted *>(reinterpret_cast<const RefCounted *>(p_ptr))).get_ref_ptr();
-    }
-};
-
-#endif // PTRCALL_ENABLED
-
 #ifdef DEBUG_METHODS_ENABLED
 
 template <class T>

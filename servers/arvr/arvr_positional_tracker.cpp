@@ -29,13 +29,14 @@
 /*************************************************************************/
 
 #include "arvr_positional_tracker.h"
+
+#include "servers/arvr/arvr_enum_casters.h"
+
 #include "core/os/input.h"
 #include "core/os/mutex.h"
 #include "core/method_bind.h"
 
 IMPL_GDCLASS(ARVRPositionalTracker)
-//TODO: SEGS: ARVRServer::TrackerType used in another cpp
-VARIANT_ENUM_CAST(ARVRServer::TrackerType);
 
 void ARVRPositionalTracker::_bind_methods() {
     BIND_ENUM_CONSTANT(TRACKER_HAND_UNKNOWN)
@@ -73,7 +74,7 @@ void ARVRPositionalTracker::set_type(ARVRServer::TrackerType p_type) {
         hand = ARVRPositionalTracker::TRACKER_HAND_UNKNOWN;
 
         ARVRServer *arvr_server = ARVRServer::get_singleton();
-        ERR_FAIL_NULL(arvr_server);
+        ERR_FAIL_NULL(arvr_server)
 
         // get a tracker id for our type
         // note if this is a controller this will be 3 or higher but we may change it later.
@@ -130,9 +131,9 @@ void ARVRPositionalTracker::set_position(const Vector3 &p_position) {
     _THREAD_SAFE_METHOD_
 
     ARVRServer *arvr_server = ARVRServer::get_singleton();
-    ERR_FAIL_NULL(arvr_server);
+    ERR_FAIL_NULL(arvr_server)
     real_t world_scale = arvr_server->get_world_scale();
-    ERR_FAIL_COND(world_scale == 0)
+    ERR_FAIL_COND(world_scale == 0.f)
 
     tracks_position = true; // obviously we have this
     rw_position = p_position / world_scale;
@@ -142,7 +143,7 @@ Vector3 ARVRPositionalTracker::get_position() const {
     _THREAD_SAFE_METHOD_
 
     ARVRServer *arvr_server = ARVRServer::get_singleton();
-    ERR_FAIL_NULL_V(arvr_server, rw_position);
+    ERR_FAIL_NULL_V(arvr_server, rw_position)
     real_t world_scale = arvr_server->get_world_scale();
 
     return rw_position * world_scale;
@@ -179,7 +180,7 @@ ARVRPositionalTracker::TrackerHand ARVRPositionalTracker::get_hand() const {
 
 void ARVRPositionalTracker::set_hand(const ARVRPositionalTracker::TrackerHand p_hand) {
     ARVRServer *arvr_server = ARVRServer::get_singleton();
-    ERR_FAIL_NULL(arvr_server);
+    ERR_FAIL_NULL(arvr_server)
 
     if (hand != p_hand) {
         // we can only set this if we've previously set this to be a controller!!

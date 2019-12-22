@@ -31,42 +31,43 @@
 #include "capsule_shape.h"
 #include "servers/physics_server.h"
 #include "core/method_bind.h"
+#include "core/math/vector2.h"
 
 IMPL_GDCLASS(CapsuleShape)
 
-Vector<Vector3> CapsuleShape::get_debug_mesh_lines() {
+PODVector<Vector3> CapsuleShape::get_debug_mesh_lines() {
 
     float radius = get_radius();
     float height = get_height();
 
-    Vector<Vector3> points;
+    PODVector<Vector3> points;
 
-    Vector3 d(0, 0, height * 0.5);
+    Vector3 d(0, 0, height * 0.5f);
     for (int i = 0; i < 360; i++) {
 
         float ra = Math::deg2rad((float)i);
         float rb = Math::deg2rad((float)i + 1);
         Point2 a = Vector2(Math::sin(ra), Math::cos(ra)) * radius;
         Point2 b = Vector2(Math::sin(rb), Math::cos(rb)) * radius;
-
-        points.push_back(Vector3(a.x, a.y, 0) + d);
-        points.push_back(Vector3(b.x, b.y, 0) + d);
-
-        points.push_back(Vector3(a.x, a.y, 0) - d);
-        points.push_back(Vector3(b.x, b.y, 0) - d);
-
+        const Vector3 addme[] = {
+            Vector3(a.x, a.y, 0) + d,
+            Vector3(b.x, b.y, 0) + d,
+            Vector3(a.x, a.y, 0) - d,
+            Vector3(b.x, b.y, 0) - d,
+        };
+        points.insert(points.end(),eastl::begin(addme),eastl::end(addme));
         if (i % 90 == 0) {
 
-            points.push_back(Vector3(a.x, a.y, 0) + d);
-            points.push_back(Vector3(a.x, a.y, 0) - d);
+            points.emplace_back(addme[0]);
+            points.emplace_back(addme[2]);
         }
 
         Vector3 dud = i < 180 ? d : -d;
 
-        points.push_back(Vector3(0, a.y, a.x) + dud);
-        points.push_back(Vector3(0, b.y, b.x) + dud);
-        points.push_back(Vector3(a.y, 0, a.x) + dud);
-        points.push_back(Vector3(b.y, 0, b.x) + dud);
+        points.emplace_back(Vector3(0, a.y, a.x) + dud);
+        points.emplace_back(Vector3(0, b.y, b.x) + dud);
+        points.emplace_back(Vector3(a.y, 0, a.x) + dud);
+        points.emplace_back(Vector3(b.y, 0, b.x) + dud);
     }
 
     return points;

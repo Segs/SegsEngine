@@ -1398,8 +1398,8 @@ void EditorFileSystem::_save_late_updated_files() {
 
 Vector<se_string> EditorFileSystem::_get_dependencies(se_string_view p_path) {
 
-    ListPOD<se_string> deps;
-    ResourceLoader::get_dependencies(p_path, &deps);
+    PODVector<se_string> deps;
+    ResourceLoader::get_dependencies(p_path, deps);
 
     Vector<se_string> ret;
     for (const se_string &E : deps) {
@@ -2010,7 +2010,7 @@ void EditorFileSystem::reimport_files(const Vector<se_string> &p_files) {
         emit_signal("filesystem_changed");
     }
 
-    emit_signal("resources_reimported", Variant(p_files));
+    emit_signal("resources_reimported", Variant::from(p_files));
 }
 
 Error EditorFileSystem::_resource_import(se_string_view p_path) {

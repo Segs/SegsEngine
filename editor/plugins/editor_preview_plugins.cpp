@@ -488,7 +488,7 @@ EditorMaterialPreviewPlugin::~EditorMaterialPreviewPlugin() {
 
 ///////////////////////////////////////////////////////////////////////////
 
-static bool _is_text_char(CharType c) {
+static bool _epp_is_text_char(CharType c) {
 
     return c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z' || c >= '0' && c <= '9' || c == '_';
 }
@@ -559,17 +559,17 @@ Ref<Texture> EditorScriptPreviewPlugin::generate(const RES &p_from, const Size2 
                     //make symbol a little visible
                     color = symbol_color;
                     in_keyword = false;
-                } else if (!prev_is_text && _is_text_char(c)) {
+                } else if (!prev_is_text && _epp_is_text_char(c)) {
                     int pos = i;
 
-                    while (_is_text_char(code[pos])) {
+                    while (_epp_is_text_char(code[pos])) {
                         pos++;
                     }
                     se_string_view word = StringUtils::substr(code,i, pos - i);
                     if (keywords.contains_as(word))
                         in_keyword = true;
 
-                } else if (!_is_text_char(c)) {
+                } else if (!_epp_is_text_char(c)) {
                     in_keyword = false;
                 }
 
@@ -581,7 +581,7 @@ Ref<Texture> EditorScriptPreviewPlugin::generate(const RES &p_from, const Size2 
                 img->set_pixel(col, y0 + line * 2, bg_color.blend(ul));
                 img->set_pixel(col, y0 + line * 2 + 1, color);
 
-                prev_is_text = _is_text_char(c);
+                prev_is_text = _epp_is_text_char(c);
             }
         } else {
 

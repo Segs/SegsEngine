@@ -594,7 +594,7 @@ void AnimationNodeStateMachineEditor::_state_machine_draw() {
     bool playing = false;
     StringName current;
     StringName blend_from;
-    Vector<StringName> travel_path;
+    PODVector<StringName> travel_path;
 
     if (playback) {
         playing = playback->is_playing();
@@ -780,7 +780,7 @@ void AnimationNodeStateMachineEditor::_state_machine_draw() {
         //now scroll it to draw
         state_machine_draw->draw_style_box(sb, nr.node);
 
-        if (playing && (blend_from == name || current == name || travel_path.find(name) != -1)) {
+        if (playing && (blend_from == name || current == name || travel_path.contains(name))) {
             state_machine_draw->draw_style_box(playing_overlay, nr.node);
         }
 
@@ -1018,7 +1018,7 @@ void AnimationNodeStateMachineEditor::_notification(int p_what) {
         }
 
         bool same_travel_path = true;
-        Vector<StringName> tp;
+        PODVector<StringName> tp;
         bool is_playing = false;
         StringName current_node;
         StringName blend_from_node;

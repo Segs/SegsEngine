@@ -49,8 +49,8 @@ class FileAccessNetworkClient {
 
     struct BlockRequest {
 
-        int id;
         uint64_t offset;
+        int id;
         int size;
     };
 

@@ -2065,7 +2065,7 @@ void EditorPropertyNodePath::update_property() {
     assign->set_icon(EditorNode::get_singleton()->get_object_icon(target_node, "Node"));
 }
 
-void EditorPropertyNodePath::setup(const NodePath &p_base_hint, const Vector<StringName>& p_valid_types, bool p_use_path_from_scene_root) {
+void EditorPropertyNodePath::setup(const NodePath &p_base_hint, PODVector<StringName> &&p_valid_types, bool p_use_path_from_scene_root) {
 
     base_hint = p_base_hint;
     valid_types = p_valid_types;
@@ -2328,7 +2328,7 @@ void EditorPropertyResource::_menu_option(int p_which) {
 
                 if (!scene_tree) {
                     scene_tree = memnew(SceneTreeDialog);
-                    Vector<StringName> valid_types;
+                    PODVector<StringName> valid_types;
                     valid_types.push_back("Viewport");
                     scene_tree->get_scene_tree()->set_valid_types(valid_types);
                     scene_tree->get_scene_tree()->set_show_enabled_subscene(true);
@@ -3347,12 +3347,17 @@ bool EditorInspectorDefaultPlugin::parse_property(Object *p_object, VariantType 
 
             EditorPropertyNodePath *editor = memnew(EditorPropertyNodePath);
             if (p_hint == PROPERTY_HINT_NODE_PATH_TO_EDITED_NODE && !p_hint_text.empty()) {
-                editor->setup((NodePath)p_hint_text, Vector<StringName>(), p_usage & PROPERTY_USAGE_NODE_PATH_FROM_SCENE_ROOT);
+                editor->setup((NodePath)p_hint_text, {}, p_usage & PROPERTY_USAGE_NODE_PATH_FROM_SCENE_ROOT);
             }
             if (p_hint == PROPERTY_HINT_NODE_PATH_VALID_TYPES && !p_hint_text.empty()) {
-                Vector<se_string_view> types = StringUtils::split(p_hint_text,',', false);
-                Vector<StringName> sn = Variant(types); //convert via variant
-                editor->setup(NodePath(), sn, p_usage & PROPERTY_USAGE_NODE_PATH_FROM_SCENE_ROOT);
+                FixedVector<se_string_view,8,true> parts;
+                se_string::split_ref(parts,p_hint_text,',');
+                PODVector<StringName> sn;
+                sn.reserve(parts.size());
+
+                for(se_string_view s : parts)
+                    sn.emplace_back(s);
+                editor->setup(NodePath(), eastl::move(sn), p_usage & PROPERTY_USAGE_NODE_PATH_FROM_SCENE_ROOT);
             }
             add_property_editor(p_path, editor);
 

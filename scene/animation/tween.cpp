@@ -33,6 +33,13 @@
 #include "core/object_db.h"
 #include "core/string_formatter.h"
 #include "core/method_bind.h"
+#include "core/math/vector2.h"
+#include "core/math/vector3.h"
+#include "core/math/basis.h"
+#include "core/color.h"
+#include "core/math/quat.h"
+#include "core/math/transform.h"
+#include "core/math/transform_2d.h"
 
 IMPL_GDCLASS(Tween)
 VARIANT_ENUM_CAST(Tween::TweenProcessMode);
@@ -1703,3 +1710,4 @@ Tween::Tween() {
 
 Tween::~Tween() {
 }
+

@@ -80,8 +80,8 @@ private:
 
     struct TrackKey {
 
-        uint32_t id;
         StringName subpath_concatenated;
+        uint32_t id;
         int bone_idx;
 
         inline bool operator<(const TrackKey &p_right) const {

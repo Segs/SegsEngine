@@ -125,7 +125,7 @@ bool MainLoop::idle(float p_time) {
 void MainLoop::drop_files(const Vector<se_string> &p_files, int p_from_screen) {
 
     if (get_script_instance())
-        get_script_instance()->call("_drop_files", Variant(p_files), p_from_screen);
+        get_script_instance()->call("_drop_files", Variant::from(p_files), p_from_screen);
 }
 
 void MainLoop::global_menu_action(const Variant &p_id, const Variant &p_meta) {

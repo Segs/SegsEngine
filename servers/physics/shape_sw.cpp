@@ -36,9 +36,9 @@
 #include "core/math/quick_hull.h"
 #include "core/sort_array.h"
 
-#define _POINT_SNAP 0.001953125
-#define _EDGE_IS_VALID_SUPPORT_THRESHOLD 0.0002
-#define _FACE_IS_VALID_SUPPORT_THRESHOLD 0.9998
+static constexpr float _POINT_SNAP = 0.001953125f;
+static constexpr float _EDGE_IS_VALID_SUPPORT_THRESHOLD = 0.0002f;
+static constexpr float _FACE_IS_VALID_SUPPORT_THRESHOLD = 0.9998f;
 
 void ShapeSW::configure(const AABB &p_aabb) {
     aabb = p_aabb;
@@ -567,16 +567,16 @@ void CapsuleShapeSW::get_supports(const Vector3 &p_normal, int p_max, Vector3 *r
 
         r_amount = 2;
         r_supports[0] = n;
-        r_supports[0].z += height * 0.5;
+        r_supports[0].z += height * 0.5f;
         r_supports[1] = n;
-        r_supports[1].z -= height * 0.5;
+        r_supports[1].z -= height * 0.5f;
 
     } else {
 
         real_t h = (d > 0) ? height : -height;
 
         n *= radius;
-        n.z += h * 0.5;
+        n.z += h * 0.5f;
         r_amount = 1;
         *r_supports = n;
     }
@@ -585,7 +585,7 @@ void CapsuleShapeSW::get_supports(const Vector3 &p_normal, int p_max, Vector3 *r
 bool CapsuleShapeSW::intersect_segment(const Vector3 &p_begin, const Vector3 &p_end, Vector3 &r_result, Vector3 &r_normal) const {
 
     Vector3 norm = (p_end - p_begin).normalized();
-    real_t min_d = 1e20;
+    real_t min_d = 1e20f;
 
     Vector3 res, n;
     bool collision = false;
@@ -607,7 +607,7 @@ bool CapsuleShapeSW::intersect_segment(const Vector3 &p_begin, const Vector3 &p_
         }
     }
 
-    collided = Geometry::segment_intersects_sphere(p_begin, p_end, Vector3(0, 0, height * 0.5), radius, &auxres, &auxn);
+    collided = Geometry::segment_intersects_sphere(p_begin, p_end, Vector3(0, 0, height * 0.5f), radius, &auxres, &auxn);
 
     if (collided) {
         real_t d = norm.dot(auxres);
@@ -619,7 +619,7 @@ bool CapsuleShapeSW::intersect_segment(const Vector3 &p_begin, const Vector3 &p_
         }
     }
 
-    collided = Geometry::segment_intersects_sphere(p_begin, p_end, Vector3(0, 0, height * -0.5), radius, &auxres, &auxn);
+    collided = Geometry::segment_intersects_sphere(p_begin, p_end, Vector3(0, 0, height * -0.5f), radius, &auxres, &auxn);
 
     if (collided) {
         real_t d = norm.dot(auxres);
@@ -642,11 +642,11 @@ bool CapsuleShapeSW::intersect_segment(const Vector3 &p_begin, const Vector3 &p_
 
 bool CapsuleShapeSW::intersect_point(const Vector3 &p_point) const {
 
-    if (Math::abs(p_point.z) < height * 0.5) {
+    if (Math::abs(p_point.z) < height * 0.5f) {
         return Vector3(p_point.x, p_point.y, 0).length() < radius;
     } else {
         Vector3 p = p_point;
-        p.z = Math::abs(p.z) - height * 0.5;
+        p.z = Math::abs(p.z) - height * 0.5f;
         return p.length() < radius;
     }
 }
@@ -654,8 +654,8 @@ bool CapsuleShapeSW::intersect_point(const Vector3 &p_point) const {
 Vector3 CapsuleShapeSW::get_closest_point_to(const Vector3 &p_point) const {
 
     Vector3 s[2] = {
-        Vector3(0, 0, -height * 0.5),
-        Vector3(0, 0, height * 0.5),
+        Vector3(0, 0, -height * 0.5f),
+        Vector3(0, 0, height * 0.5f),
     };
 
     Vector3 p = Geometry::get_closest_point_to_segment(p_point, s);
@@ -672,9 +672,9 @@ Vector3 CapsuleShapeSW::get_moment_of_inertia(real_t p_mass) const {
     Vector3 extents = get_aabb().size * 0.5;
 
     return Vector3(
-            (p_mass / 3.0) * (extents.y * extents.y + extents.z * extents.z),
-            (p_mass / 3.0) * (extents.x * extents.x + extents.z * extents.z),
-            (p_mass / 3.0) * (extents.y * extents.y + extents.y * extents.y));
+            (p_mass / 3.0f) * (extents.y * extents.y + extents.z * extents.z),
+            (p_mass / 3.0f) * (extents.x * extents.x + extents.z * extents.z),
+            (p_mass / 3.0f) * (extents.y * extents.y + extents.y * extents.y));
 }
 
 void CapsuleShapeSW::_setup(real_t p_height, real_t p_radius) {
@@ -760,7 +760,7 @@ void ConvexPolygonShapeSW::get_supports(const Vector3 &p_normal, int p_max, Vect
     const Geometry::MeshData::Edge *edges = mesh.edges.ptr();
     int ec = mesh.edges.size();
 
-    const Vector3 *vertices = mesh.vertices.ptr();
+    const Vector3 *vertices = mesh.vertices.data();
     int vc = mesh.vertices.size();
 
     //find vertex first
@@ -827,7 +827,7 @@ bool ConvexPolygonShapeSW::intersect_segment(const Vector3 &p_begin, const Vecto
     const Geometry::MeshData::Face *faces = mesh.faces.ptr();
     int fc = mesh.faces.size();
 
-    const Vector3 *vertices = mesh.vertices.ptr();
+    const Vector3 *vertices = mesh.vertices.data();
 
     Vector3 n = p_end - p_begin;
     real_t min = 1e20;
@@ -880,7 +880,7 @@ Vector3 ConvexPolygonShapeSW::get_closest_point_to(const Vector3 &p_point) const
 
     const Geometry::MeshData::Face *faces = mesh.faces.ptr();
     int fc = mesh.faces.size();
-    const Vector3 *vertices = mesh.vertices.ptr();
+    const Vector3 *vertices = mesh.vertices.data();
 
     bool all_inside = true;
     for (int i = 0; i < fc; i++) {
@@ -943,14 +943,14 @@ Vector3 ConvexPolygonShapeSW::get_moment_of_inertia(real_t p_mass) const {
     Vector3 extents = get_aabb().size * 0.5;
 
     return Vector3(
-            (p_mass / 3.0) * (extents.y * extents.y + extents.z * extents.z),
-            (p_mass / 3.0) * (extents.x * extents.x + extents.z * extents.z),
-            (p_mass / 3.0) * (extents.y * extents.y + extents.y * extents.y));
+            (p_mass / 3.0f) * (extents.y * extents.y + extents.z * extents.z),
+            (p_mass / 3.0f) * (extents.x * extents.x + extents.z * extents.z),
+            (p_mass / 3.0f) * (extents.y * extents.y + extents.y * extents.y));
 }
 
 void ConvexPolygonShapeSW::_setup(const Vector<Vector3> &p_vertices) {
 
-    Error err = QuickHull::build(p_vertices, mesh);
+    Error err = QuickHull::build({p_vertices.ptr(),p_vertices.size()}, mesh);
     if (err != OK)
         ERR_PRINT("Failed to build QuickHull");
 
@@ -969,7 +969,7 @@ void ConvexPolygonShapeSW::_setup(const Vector<Vector3> &p_vertices) {
 
 void ConvexPolygonShapeSW::set_data(const Variant &p_data) {
 
-    _setup(p_data);
+    _setup(p_data.as<Vector<Vector3>>());
 }
 
 Variant ConvexPolygonShapeSW::get_data() const {

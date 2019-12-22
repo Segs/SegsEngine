@@ -33,6 +33,7 @@
 #include "core/math/basis.h"
 #include "core/math/camera_matrix.h"
 #include "core/math/math_funcs.h"
+#include "core/math/quat.h"
 #include "core/math/transform.h"
 #include "core/math/geometry.h"
 #include "core/os/file_access.h"

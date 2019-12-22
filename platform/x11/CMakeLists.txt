@@ -1,3 +1,4 @@
+
 set(common_x11
     context_gl_x11.cpp
     crash_handler_x11.cpp
@@ -7,15 +8,20 @@ set(common_x11
 find_package(OpenGL REQUIRED)
 
 foreach(tgt ${global_targets})
-    target_sources(${tgt}_engine PRIVATE
-        key_mapping_x11.cpp
-        joypad_linux.cpp
-        power_x11.cpp
-        detect_prime.cpp
-        context_gl_x11.cpp
-        crash_handler_x11.cpp
-        os_x11.cpp
+    set(sources
+        ${CMAKE_CURRENT_SOURCE_DIR}/key_mapping_x11.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/joypad_linux.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/power_x11.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/detect_prime.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/context_gl_x11.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/crash_handler_x11.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/os_x11.cpp
     )
+    target_sources(${tgt}_engine PRIVATE
+        ${sources}
+    )
+    set(NO_UNITY_SOURCES ${sources} PARENT_SCOPE)
+
     target_link_libraries(${tgt}_engine PRIVATE
         ${tgt}_modules ${tgt}_core
         ${X11_LIBRARIES} ${X11_Xcursor_LIB} ${X11_Xrender_LIB} Xinerama Xrandr X11 dl pthread Xi ${OPENGL_LIBRARIES}

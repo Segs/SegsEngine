@@ -322,18 +322,9 @@ void EditorHelp::_add_method(const DocData::MethodDoc &p_method, bool p_overview
     if (p_overview)
         class_desc->pop(); //cell
 }
-struct Comparer {
-    bool operator()(const StringName &s,se_string_view b) {
-        return se_string_view(s)<b;
-    }
-    bool operator()(se_string_view a,const StringName &b) {
-        return a<se_string_view(b);
-    }
-};
-
 Error EditorHelp::_goto_desc(se_string_view p_class, int p_vscr) {
 
-    if (!doc->class_list.contains_as(p_class,Comparer()))
+    if (!doc->class_list.contains_as(p_class,SNSVComparer()))
         return ERR_DOES_NOT_EXIST;
 
     select_locked = true;
@@ -1329,7 +1320,7 @@ static void _add_text_to_rt(se_string_view p_bbcode, RichTextLabel *p_rt) {
             p_rt->pop();
             pos = brk_end + 1;
 
-        } else if (doc->class_list.contains_as(tag,Comparer())) {
+        } else if (doc->class_list.contains_as(tag,SNSVComparer())) {
 
             p_rt->push_color(link_color);
             p_rt->push_meta(se_string("#") + tag);

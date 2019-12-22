@@ -175,7 +175,7 @@ StringName AnimationNodeStateMachinePlayback::get_current_node() const {
 StringName AnimationNodeStateMachinePlayback::get_blend_from_node() const {
     return fading_from;
 }
-Vector<StringName> AnimationNodeStateMachinePlayback::get_travel_path() const {
+const PODVector<StringName> &AnimationNodeStateMachinePlayback::get_travel_path() const {
     return path;
 }
 float AnimationNodeStateMachinePlayback::get_current_play_pos() const {
@@ -293,8 +293,7 @@ bool AnimationNodeStateMachinePlayback::_travel(AnimationNodeStateMachine *p_sta
         path.push_back(at);
         at = cost_map[at].prev;
     }
-
-    path.invert();
+    eastl::reverse(path.begin(),path.end());
 
     return true;
 }
@@ -480,7 +479,7 @@ float AnimationNodeStateMachinePlayback::process(AnimationNodeStateMachine *p_st
             }
 
             if (!path.empty()) { //if it came from path, remove path
-                path.remove(0);
+                path.pop_front();
             }
             current = next;
             if (switch_mode == AnimationNodeStateMachineTransition::SWITCH_MODE_SYNC) {

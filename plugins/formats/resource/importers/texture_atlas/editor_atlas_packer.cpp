@@ -99,7 +99,7 @@ void EditorAtlasPacker::chart_pack(Vector<Chart> &charts, int &r_width, int &r_h
 
         Rect2i aabb;
         int vertex_count = chart.vertices.size();
-        const Vector2 *vertices = chart.vertices.ptr();
+        const Vector2 *vertices = chart.vertices.data();
 
         for (int j = 0; j < vertex_count; j++) {
 

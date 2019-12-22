@@ -108,12 +108,11 @@ public:
 
 public:
     struct PropertySetGet {
-
-        int index;
         StringName setter;
         StringName getter;
         MethodBind *_setptr;
         MethodBind *_getptr;
+        int index;
         VariantType type;
     };
 

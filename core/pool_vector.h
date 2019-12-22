@@ -242,7 +242,7 @@ public:
 
     class Read : public Access {
     public:
-        _FORCE_INLINE_ const T &operator[](int p_index) const { return this->mem[p_index]; }
+        _FORCE_INLINE_ const T &operator[](uint32_t p_index) const { return this->mem[p_index]; }
         _FORCE_INLINE_ const T *ptr() const { return this->mem; }
 
         Read &operator=(const Read &p_read) {

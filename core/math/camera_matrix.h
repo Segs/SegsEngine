@@ -32,9 +32,17 @@
 
 #include "core/math/rect2.h"
 #include "core/math/transform.h"
+#include "core/vector.h"
 
 template <class T>
 class Vector;
+
+struct GODOT_EXPORT Frustum {
+    Plane planes[6];
+    operator Span<Plane>() { return planes; }
+    operator Span<const Plane>() const { return planes; }
+    Plane &operator[](int idx) { return planes[idx]; }
+};
 
 struct GODOT_EXPORT CameraMatrix {
 
@@ -72,7 +80,7 @@ struct GODOT_EXPORT CameraMatrix {
     real_t get_fov() const;
     bool is_orthogonal() const;
 
-    Vector<Plane> get_projection_planes(const Transform &p_transform) const;
+    Frustum get_projection_planes(const Transform &p_transform) const;
 
     bool get_endpoints(const Transform &p_transform, Vector3 *p_8points) const;
     void get_viewport_size(real_t &r_width, real_t &r_height) const;

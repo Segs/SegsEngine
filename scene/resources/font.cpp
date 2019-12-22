@@ -53,12 +53,6 @@ struct PtrToArg<CharType> {
     }
 };
 
-template<>
-struct Hasher<QChar> {
-    uint32_t operator()(QChar c) {
-        return Hasher<uint16_t>()(c.unicode());
-    }
-};
 
 void Font::draw_halign(RID p_canvas_item, const Point2 &p_pos, HAlign p_align, float p_width, const String &p_text, const Color &p_modulate, const Color &p_outline_modulate) const {
     float length = get_string_size(p_text).width;

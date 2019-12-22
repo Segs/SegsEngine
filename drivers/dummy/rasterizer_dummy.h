@@ -710,7 +710,7 @@ public:
     /* LIGHT SHADOW MAPPING */
 
     RID canvas_light_occluder_create() { return RID(); }
-    void canvas_light_occluder_set_polylines(RID p_occluder, const PoolVector<Vector2> &p_lines) {}
+    void canvas_light_occluder_set_polylines(RID p_occluder, Span<const Vector2> p_lines) override {}
 
     VS::InstanceType get_base_type(RID p_rid) const {
         if (mesh_owner.owns(p_rid)) {

@@ -3449,7 +3449,7 @@ Error GDScriptLanguage::lookup_code(se_string_view p_code, se_string_view p_symb
                         // We cannot determine the exact nature of the identifier here
                         // Otherwise these codes would work
                         StringName enumName = ClassDB::get_integer_constant_enum("@GlobalScope", p_symbol, true);
-                        if (enumName != NULL) {
+                        if (enumName != nullptr) {
                             r_result.type = ScriptLanguage::LookupResult::RESULT_CLASS_ENUM;
                             r_result.class_name = "@GlobalScope";
                             r_result.class_member = enumName;

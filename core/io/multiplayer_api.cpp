@@ -962,11 +962,12 @@ bool MultiplayerAPI::is_refusing_new_network_connections() const {
     return network_peer->is_refusing_new_connections();
 }
 
-Vector<int> MultiplayerAPI::get_network_connected_peers() const {
+PODVector<int> MultiplayerAPI::get_network_connected_peers() const {
 
-    ERR_FAIL_COND_V_MSG(not network_peer, Vector<int>(), "No network peer is assigned. Assume no peers are connected.")
+    ERR_FAIL_COND_V_MSG(not network_peer, PODVector<int>(), "No network peer is assigned. Assume no peers are connected.")
 
-    Vector<int> ret;
+    PODVector<int> ret;
+    ret.reserve(connected_peers.size());
     for (int E : connected_peers) {
         ret.push_back(E);
     }

@@ -157,7 +157,7 @@ class AnimationNodeStateMachineEditor : public AnimationTreeNodeEditorPlugin {
     bool last_active;
     StringName last_blend_from_node;
     StringName last_current_node;
-    Vector<StringName> last_travel_path;
+    PODVector<StringName> last_travel_path;
     float last_play_pos;
     float play_pos;
     float current_length;

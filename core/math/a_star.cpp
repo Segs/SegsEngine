@@ -32,6 +32,7 @@
 
 #include "core/math/geometry.h"
 #include "core/script_language.h"
+#include "core/pool_vector.h"
 #include "scene/scene_string_names.h"
 #include "core/method_bind.h"
 
@@ -272,14 +273,14 @@ Array AStar::get_points() {
     return point_list;
 }
 
-PoolVector<int> AStar::get_point_connections(int p_id) {
+PODVector<int> AStar::get_point_connections(int p_id) {
 
     AStarPoint *p;
     bool p_exists = points.lookup(p_id, p);
-    ERR_FAIL_COND_V(!p_exists, PoolVector<int>())
+    ERR_FAIL_COND_V(!p_exists, PODVector<int>())
 
-    PoolVector<int> point_list;
-
+    PODVector<int> point_list;
+    point_list.reserve(p->neighbours.get_num_elements());
     for (OAHashMap<int, AStarPoint *>::Iterator it = p->neighbours.iter(); it.valid; it = p->neighbours.next_iter(it)) {
         point_list.push_back((*it.key));
     }
@@ -663,7 +664,7 @@ bool AStar2D::has_point(int p_id) const {
     return astar.has_point(p_id);
 }
 
-PoolVector<int> AStar2D::get_point_connections(int p_id) {
+PODVector<int> AStar2D::get_point_connections(int p_id) {
     return astar.get_point_connections(p_id);
 }
 

@@ -56,7 +56,7 @@ public:
 	Vector3 project_local_ray_normal(const Point2 &p_pos) const override;
 	Point2 unproject_position(const Vector3 &p_pos) const override;
     Vector3 project_position(const Point2 &p_point, float p_z_depth) const override;
-	Vector<Plane> get_frustum() const override;
+	Frustum get_frustum() const override;
 
 	ARVRCamera();
 	~ARVRCamera() override;

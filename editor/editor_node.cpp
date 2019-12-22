@@ -2982,16 +2982,16 @@ void EditorNode::_update_addon_config() {
 
     if (_initializing_addons) return;
 
-    Vector<StringName> enabled_addons;
+    Vector<se_string_view> enabled_addons;
 
     for (eastl::pair<const StringName, EditorPlugin *> &E : plugin_addons) {
-        enabled_addons.push_back(E.first);
+        enabled_addons.emplace_back(E.first);
     }
 
     if (enabled_addons.empty()) {
         ProjectSettings::get_singleton()->set("editor_plugins/enabled", Variant());
     } else {
-        ProjectSettings::get_singleton()->set("editor_plugins/enabled", enabled_addons);
+        ProjectSettings::get_singleton()->set("editor_plugins/enabled", Variant::from(enabled_addons));
     }
 
     project_settings->queue_save();
@@ -4806,12 +4806,10 @@ void EditorNode::_update_layouts_menu() {
         return; // no config
     }
 
-    List<se_string> layouts;
+    ListPOD<se_string> layouts;
     config.get()->get_sections(&layouts);
     se_string default_name(TTR("Default"));
-    for (List<se_string>::Element *E = layouts.front(); E; E = E->next()) {
-
-        se_string layout = E->deref();
+    for (const se_string &layout : layouts) {
 
         if (layout == default_name) {
             editor_layouts->remove_item(editor_layouts->get_item_index(SETTINGS_LAYOUT_DEFAULT));
@@ -5299,7 +5297,7 @@ Variant EditorNode::drag_files_and_dirs(const Vector<se_string> &p_paths, Contro
 
     Dictionary drag_data;
     drag_data["type"] = has_folder ? "files_and_dirs" : "files";
-    drag_data["files"] = Variant(p_paths);
+    drag_data["files"] = Variant::from(p_paths);
     drag_data["from"] = Variant(p_from);
     return drag_data;
 }

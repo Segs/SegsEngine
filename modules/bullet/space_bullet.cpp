@@ -892,8 +892,8 @@ void SpaceBullet::update_gravity() {
 
 #include "scene/3d/immediate_geometry.h"
 
-static ImmediateGeometry *motionVec(NULL);
-static ImmediateGeometry *normalLine(NULL);
+static ImmediateGeometry *motionVec(nullptr);
+static ImmediateGeometry *normalLine(nullptr);
 static Ref<SpatialMaterial> red_mat;
 static Ref<SpatialMaterial> blue_mat;
 #endif
@@ -959,7 +959,7 @@ bool SpaceBullet::test_body_motion(RigidBodyBullet *p_body, const Transform &p_f
         Vector3 sup_line;
         B_TO_G(body_safe_position.getOrigin(), sup_line);
         motionVec->clear();
-        motionVec->begin(Mesh::PRIMITIVE_LINES, NULL);
+        motionVec->begin(Mesh::PRIMITIVE_LINES, nullptr);
         motionVec->add_vertex(sup_line);
         motionVec->add_vertex(sup_line + p_motion * 10);
         motionVec->end();
@@ -1036,7 +1036,7 @@ bool SpaceBullet::test_body_motion(RigidBodyBullet *p_body, const Transform &p_f
                 Vector3 sup_line2;
                 B_TO_G(motion, sup_line2);
                 normalLine->clear();
-                normalLine->begin(Mesh::PRIMITIVE_LINES, NULL);
+                normalLine->begin(Mesh::PRIMITIVE_LINES, nullptr);
                 normalLine->add_vertex(r_result->collision_point);
                 normalLine->add_vertex(r_result->collision_point + r_result->collision_normal * 10);
                 normalLine->end();

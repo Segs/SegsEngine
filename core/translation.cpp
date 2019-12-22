@@ -37,6 +37,7 @@
 #include "core/project_settings.h"
 #include "core/string_formatter.h"
 #include "core/method_bind.h"
+#include "core/pool_vector.h"
 
 IMPL_GDCLASS(Translation)
 IMPL_GDCLASS(TranslationServer)

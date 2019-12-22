@@ -637,18 +637,18 @@ void TileMap::update_dirty_quadrants() {
 
                             if (vsize > 2) {
                                 Vector<Color> colors;
-                                Vector<Vector2> vertices;
-                                vertices.resize(vsize);
+                                PODVector<Vector2> vertices;
+                                vertices.reserve(vsize);
                                 colors.resize(vsize);
                                 {
                                     PoolVector<Vector2>::Read vr = navigation_polygon_vertices.read();
+                                    vertices.assign(vr.ptr(),vr.ptr()+vsize);
                                     for (int j = 0; j < vsize; j++) {
-                                        vertices.write[j] = vr[j];
                                         colors.write[j] = debug_navigation_color;
                                     }
                                 }
 
-                                Vector<int> indices;
+                                PODVector<int> indices;
 
                                 for (int j = 0; j < navpoly->get_polygon_count(); j++) {
                                     Vector<int> polygon = navpoly->get_polygon(j);

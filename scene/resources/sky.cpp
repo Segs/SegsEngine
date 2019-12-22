@@ -183,7 +183,7 @@ Ref<Image> ProceduralSky::_generate_sky() {
         for (int i = 0; i < w; i++) {
 
             float u = float(i) / (w - 1);
-            float phi = u * 2.0 * Math_PI;
+            float phi = u * 2.0f * Math_PI;
 
             for (int j = 0; j < h; j++) {
 
@@ -191,9 +191,9 @@ Ref<Image> ProceduralSky::_generate_sky() {
                 float theta = v * Math_PI;
 
                 Vector3 normal(
-                        Math::sin(phi) * Math::sin(theta) * -1.0,
+                        Math::sin(phi) * Math::sin(theta) * -1.0f,
                         Math::cos(theta),
-                        Math::cos(phi) * Math::sin(theta) * -1.0);
+                        Math::cos(phi) * Math::sin(theta) * -1.0f);
 
                 normal.normalize();
 
@@ -204,14 +204,14 @@ Ref<Image> ProceduralSky::_generate_sky() {
                 if (normal.y < 0) {
                     //ground
 
-                    float c = (v_angle - (Math_PI * 0.5)) / (Math_PI * 0.5);
+                    float c = (v_angle - (Math_PI * 0.5f)) / (Math_PI * 0.5f);
                     color = ground_horizon_linear.linear_interpolate(ground_bottom_linear, Math::ease(c, ground_curve));
                     color.r *= ground_energy;
                     color.g *= ground_energy;
                     color.b *= ground_energy;
                 } else {
-                    float c = v_angle / (Math_PI * 0.5);
-                    color = sky_horizon_linear.linear_interpolate(sky_top_linear, Math::ease(1.0 - c, sky_curve));
+                    float c = v_angle / (Math_PI * 0.5f);
+                    color = sky_horizon_linear.linear_interpolate(sky_top_linear, Math::ease(1.0f - c, sky_curve));
                     color.r *= sky_energy;
                     color.g *= sky_energy;
                     color.b *= sky_energy;

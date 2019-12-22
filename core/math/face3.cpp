@@ -276,8 +276,8 @@ void Face3::project_range(const Vector3 &p_normal, const Transform &p_transform,
 
 void Face3::get_support(const Vector3 &p_normal, const Transform &p_transform, Vector3 *p_vertices, int *p_count, int p_max) const {
 
-#define _FACE_IS_VALID_SUPPORT_THRESHOLD 0.98f
-#define _EDGE_IS_VALID_SUPPORT_THRESHOLD 0.05f
+    constexpr float _FACE_IS_VALID_SUPPORT_THRESHOLD = 0.98f;
+    constexpr float _EDGE_IS_VALID_SUPPORT_THRESHOLD = 0.05f;
 
     if (p_max <= 0)
         return;

@@ -43,6 +43,7 @@
 #include "core/os/file_access.h"
 #include "core/os/mutex.h"
 #include "core/os/os.h"
+#include "core/pool_vector.h"
 #include "core/print_string.h"
 #include "core/project_settings.h"
 
@@ -729,14 +730,14 @@ void GDScript::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_as_byte_code"), &GDScript::get_as_byte_code);
 }
 
-Vector<uint8_t> GDScript::get_as_byte_code() const {
+PODVector<uint8_t> GDScript::get_as_byte_code() const {
 
     return GDScriptTokenizerBuffer::parse_code_string(source);
 };
 
 Error GDScript::load_byte_code(se_string_view p_path) {
 
-    Vector<uint8_t> bytecode;
+    PODVector<uint8_t> bytecode;
 
     if (StringUtils::ends_with(p_path,"gde")) {
 
@@ -762,7 +763,7 @@ Error GDScript::load_byte_code(se_string_view p_path) {
         }
 
         bytecode.resize(fae->get_len());
-        fae->get_buffer(bytecode.ptrw(), bytecode.size());
+        fae->get_buffer(bytecode.data(), bytecode.size());
         fae->close();
         memdelete(fae);
 
@@ -2136,7 +2137,7 @@ GDScriptLanguage::GDScriptLanguage() {
     _debug_parse_err_file = "";
 
 #ifdef NO_THREADS
-    lock = NULL;
+    lock = nullptr;
 #else
     lock = memnew(Mutex);
 #endif
@@ -2236,7 +2237,7 @@ se_string ResourceFormatLoaderGDScript::get_resource_type(se_string_view p_path)
     return {};
 }
 
-void ResourceFormatLoaderGDScript::get_dependencies(se_string_view p_path, ListPOD<se_string> *p_dependencies, bool p_add_types) {
+void ResourceFormatLoaderGDScript::get_dependencies(se_string_view p_path, PODVector<se_string> &p_dependencies, bool p_add_types) {
 
     FileAccessRef file = FileAccess::open(p_path, FileAccess::READ);
     ERR_FAIL_COND_MSG(!file, "Cannot open file '" + se_string(p_path) + "'.");
@@ -2252,7 +2253,7 @@ void ResourceFormatLoaderGDScript::get_dependencies(se_string_view p_path, ListP
     }
 
     for (const List<se_string>::Element *E = parser.get_dependencies().front(); E; E = E->next()) {
-        p_dependencies->push_back(E->deref());
+        p_dependencies.push_back(E->deref());
     }
 }
 

@@ -75,12 +75,11 @@ public:
         if (!StringUtils::ends_with(p_path,".gd") || script_mode == EditorExportPreset::MODE_SCRIPT_TEXT)
             return;
 
-        Vector<uint8_t> file = FileAccess::get_file_as_array(p_path);
-        if (file.empty())
+        PODVector<uint8_t> file_contents = FileAccess::get_file_as_array(p_path);
+        if (file_contents.empty())
             return;
 
-        se_string txt((const char *)file.ptr(), file.size());
-        file = GDScriptTokenizerBuffer::parse_code_string(txt);
+        PODVector<uint8_t> file = GDScriptTokenizerBuffer::parse_code_string({(const char *)file_contents.data(), file_contents.size()});
         se_string base_path(PathUtils::get_basename(p_path));
         if (!file.empty()) {
 
@@ -116,7 +115,7 @@ public:
                 Error err = fae->open_and_parse(fa, key, FileAccessEncrypted::MODE_WRITE_AES256);
 
                 if (err == OK) {
-                    fae->store_buffer(file.ptr(), file.size());
+                    fae->store_buffer(file.data(), file.size());
                 }
 
                 memdelete(fae);

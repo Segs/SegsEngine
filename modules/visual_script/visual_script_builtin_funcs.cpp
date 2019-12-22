@@ -37,6 +37,8 @@
 #include "core/method_bind.h"
 #include "core/os/os.h"
 #include "core/se_string.h"
+#include "core/color.h"
+#include "core/pool_vector.h"
 #include "core/ustring.h"
 #include "core/print_string.h"
 #include "core/reference.h"

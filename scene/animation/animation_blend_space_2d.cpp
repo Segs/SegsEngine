@@ -217,12 +217,12 @@ int AnimationNodeBlendSpace2D::get_triangle_point(int p_triangle, int p_point) {
 
     _update_triangles();
 
-    ERR_FAIL_INDEX_V(p_point, 3, -1);
-    ERR_FAIL_INDEX_V(p_triangle, triangles.size(), -1);
+    ERR_FAIL_INDEX_V(p_point, 3, -1)
+    ERR_FAIL_INDEX_V(p_triangle, triangles.size(), -1)
     return triangles[p_triangle].points[p_point];
 }
 void AnimationNodeBlendSpace2D::remove_triangle(int p_triangle) {
-    ERR_FAIL_INDEX(p_triangle, triangles.size());
+    ERR_FAIL_INDEX(p_triangle, triangles.size())
 
     triangles.remove(p_triangle);
 }
@@ -340,10 +340,10 @@ void AnimationNodeBlendSpace2D::_update_triangles() {
         points.write[i] = blend_points[i].position;
     }
 
-    Vector<Delaunay2D::Triangle> triangles = Delaunay2D::triangulate(Span<Vector2>(points.ptrw(),points.size()));
+    PODVector<Delaunay2D::Triangle> triangles = Delaunay2D::triangulate(Span<Vector2>(points.ptrw(),points.size()));
 
-    for (int i = 0; i < triangles.size(); i++) {
-        add_triangle(triangles[i].points[0], triangles[i].points[1], triangles[i].points[2]);
+    for (const Delaunay2D::Triangle & tri : triangles) {
+        add_triangle(tri.points[0], tri.points[1], tri.points[2]);
     }
     emit_signal("triangles_updated");
 }
@@ -416,7 +416,7 @@ void AnimationNodeBlendSpace2D::_blend_triangle(const Vector2 &p_pos, const Vect
     float d20 = v2.dot(v0);
     float d21 = v2.dot(v1);
     float denom = (d00 * d11 - d01 * d01);
-    if (denom == 0) {
+    if (denom == 0.0f) {
         r_weights[0] = 1;
         r_weights[1] = 0;
         r_weights[2] = 0;

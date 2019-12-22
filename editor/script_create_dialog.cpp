@@ -479,11 +479,11 @@ void ScriptCreateDialog::_update_script_templates(const se_string &p_extension) 
 
         PODVector<se_string> list = EditorSettings::get_singleton()->get_script_templates(p_extension, dirs[i]);
 
-        for (int j = 0; j < list.size(); j++) {
+        for (const se_string & entry : list) {
             ScriptTemplateInfo sinfo;
             sinfo.origin = ScriptOrigin(i);
             sinfo.dir = dirs[i];
-            sinfo.name = list[j];
+            sinfo.name = entry;
             sinfo.extension = p_extension;
             template_list.push_back(sinfo);
 

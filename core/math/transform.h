@@ -56,9 +56,19 @@ public:
     void scale(const Vector3 &p_scale);
     Transform scaled(const Vector3 &p_scale) const;
     void scale_basis(const Vector3 &p_scale);
-    void translate(real_t p_tx, real_t p_ty, real_t p_tz);
-    void translate(const Vector3 &p_translation);
-    Transform translated(const Vector3 &p_translation) const;
+    constexpr void translate(real_t p_tx, real_t p_ty, real_t p_tz) {
+        translate(Vector3(p_tx, p_ty, p_tz));
+    }
+    constexpr void translate(Vector3 p_translation) {
+        for (int i = 0; i < 3; i++) {
+            origin[i] += basis[i].dot(p_translation);
+        }
+    }
+    constexpr Transform translated(const Vector3 &p_translation) const {
+        Transform t(*this);
+        t.translate(p_translation);
+        return t;
+    }
 
     const Basis &get_basis() const { return basis; }
     void set_basis(const Basis &p_basis) { basis = p_basis; }
@@ -107,7 +117,14 @@ public:
 
     operator se_string() const;
 
-    Transform(real_t xx, real_t xy, real_t xz, real_t yx, real_t yy, real_t yz, real_t zx, real_t zy, real_t zz, real_t ox, real_t oy, real_t oz);
+    constexpr Transform(real_t xx, real_t xy, real_t xz,
+                        real_t yx, real_t yy, real_t yz,
+                        real_t zx, real_t zy, real_t zz,
+                        real_t ox, real_t oy, real_t oz) :
+    basis(xx, xy, xz, yx, yy, yz, zx, zy, zz),
+    origin(ox, oy, oz)
+    {
+    }
     constexpr Transform(const Basis &p_basis, const Vector3 &p_origin = Vector3()) :
         basis(p_basis),
         origin(p_origin) {

@@ -42,6 +42,7 @@
 #include "core/string_formatter.h"
 #include "core/translation.h"
 #include "core/hash_map.h"
+#include "core/pool_vector.h"
 #include "core/vmap.h"
 #include "core/method_bind.h"
 
@@ -457,7 +458,7 @@ Object::Connection::operator Variant() const {
     d["target"] = Variant(target);
     d["method"] = method;
     d["flags"] = flags;
-    d["binds"] = binds;
+    d["binds"] = Variant::from(binds);
     return d;
 }
 
@@ -494,7 +495,7 @@ Object::Connection::Connection(const Variant &p_variant) {
     if (d.has("flags"))
         flags = d["flags"];
     if (d.has("binds"))
-        binds = d["binds"];
+        binds = d["binds"].as<Vector<Variant>>();
 }
 
 bool Object::_predelete() {
@@ -1460,7 +1461,7 @@ Array Object::_get_signal_connection_list(StringName p_signal) const {
             rc["method"] = c.method;
             rc["source"] = Variant(c.source);
             rc["target"] = Variant(c.target);
-            rc["binds"] = c.binds;
+            rc["binds"] = Variant::from(c.binds);
             rc["flags"] = c.flags;
             ret.push_back(rc);
         }

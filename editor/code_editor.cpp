@@ -1372,7 +1372,7 @@ Variant CodeTextEditor::get_edit_state() {
         state["selection_to_column"] = text_editor->get_selection_to_column();
     }
 
-    state["folded_lines"] = text_editor->get_folded_lines();
+    state["folded_lines"] = Variant::from(text_editor->get_folded_lines());
     state["breakpoints"] = text_editor->get_breakpoints_array();
     state["bookmarks"] = text_editor->get_bookmarks_array();
 
@@ -1399,7 +1399,7 @@ void CodeTextEditor::set_edit_state(const Variant &p_state) {
     }
 
     if (state.has("folded_lines")) {
-        Vector<int> folded_lines = state["folded_lines"];
+        PoolVector<int> folded_lines = state["folded_lines"].as<PoolVector<int>>();
         for (int i = 0; i < folded_lines.size(); i++) {
             text_editor->fold_line(folded_lines[i]);
         }

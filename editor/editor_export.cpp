@@ -355,7 +355,7 @@ void EditorExportPlatform::gen_debug_flags(Vector<se_string> &r_flags, int p_fla
     }
 }
 
-Error EditorExportPlatform::_save_pack_file(void *p_userdata, se_string_view p_path, const Vector<uint8_t> &p_data, int p_file, int p_total) {
+Error EditorExportPlatform::_save_pack_file(void *p_userdata, se_string_view p_path, const PODVector<uint8_t> &p_data, int p_file, int p_total) {
 
     PackData *pd = (PackData *)p_userdata;
 
@@ -364,7 +364,7 @@ Error EditorExportPlatform::_save_pack_file(void *p_userdata, se_string_view p_p
     sd.ofs = pd->f->get_position();
     sd.size = p_data.size();
 
-    pd->f->store_buffer(p_data.ptr(), p_data.size());
+    pd->f->store_buffer(p_data.data(), p_data.size());
     int pad = _get_pad(PCK_PADDING, sd.size);
     for (int i = 0; i < pad; i++) {
         pd->f->store_8(0);
@@ -372,7 +372,7 @@ Error EditorExportPlatform::_save_pack_file(void *p_userdata, se_string_view p_p
 
     {
         unsigned char hash[16];
-        CryptoCore::md5(p_data.ptr(), p_data.size(), hash);
+        CryptoCore::md5(p_data.data(), p_data.size(), hash);
         sd.md5.resize(16);
         for (int i = 0; i < 16; i++) {
             sd.md5.write[i] = hash[i];
@@ -388,7 +388,7 @@ Error EditorExportPlatform::_save_pack_file(void *p_userdata, se_string_view p_p
     return OK;
 }
 
-Error EditorExportPlatform::_save_zip_file(void *p_userdata, se_string_view p_path, const Vector<uint8_t> &p_data, int p_file, int p_total) {
+Error EditorExportPlatform::_save_zip_file(void *p_userdata, se_string_view p_path, const PODVector<uint8_t> &p_data, int p_file, int p_total) {
 
     se_string path = StringUtils::replace_first(p_path,"res://", se_string());
 
@@ -407,7 +407,7 @@ Error EditorExportPlatform::_save_zip_file(void *p_userdata, se_string_view p_pa
             Z_DEFLATED,
             Z_DEFAULT_COMPRESSION);
 
-    zipWriteInFileInZip(zip, p_data.ptr(), p_data.size());
+    zipWriteInFileInZip(zip, p_data.data(), p_data.size());
     zipCloseFileInZip(zip);
 
     if (zd->ep->step(TTR("Storing File:") + " " + p_path, 2 + p_file * 100 / p_total, false)) {
@@ -567,7 +567,7 @@ Ref<EditorExportPreset> EditorExportPlugin::get_export_preset() const {
     return export_preset;
 }
 
-void EditorExportPlugin::add_file(se_string_view p_path, const Vector<uint8_t> &p_file, bool p_remap) {
+void EditorExportPlugin::add_file(se_string_view p_path, const PODVector<uint8_t> &p_file, bool p_remap) {
 
     ExtraFile ef;
     ef.data = p_file;
@@ -744,14 +744,12 @@ Error EditorExportPlatform::export_project_files(const Ref<EditorExportPreset> &
                 continue;
             }
 
-            List<se_string> remaps;
+            ListPOD<se_string> remaps;
             config->get_section_keys("remap", &remaps);
 
             Set<se_string> remap_features;
 
-            for (List<se_string>::Element *F = remaps.front(); F; F = F->next()) {
-
-                se_string remap = F->deref();
+            for (const se_string & remap : remaps) {
                 se_string_view feature = StringUtils::get_slice(remap,".", 1);
                 if (features.contains_as(feature)) {
                     remap_features.insert(feature);
@@ -764,19 +762,17 @@ Error EditorExportPlatform::export_project_files(const Ref<EditorExportPreset> &
 
             err = OK;
 
-            for (List<se_string>::Element *F = remaps.front(); F; F = F->next()) {
-
-                se_string remap = F->deref();
+            for (const se_string & remap : remaps) {
                 if (remap == "path") {
                     se_string remapped_path = config->get_value("remap", "path");
-                    Vector<uint8_t> array = FileAccess::get_file_as_array(remapped_path);
+                    PODVector<uint8_t> array = FileAccess::get_file_as_array(remapped_path);
                     err = p_func(p_udata, remapped_path, array, idx, total);
                 } else if (StringUtils::begins_with(remap,"path.")) {
                     se_string_view feature = StringUtils::get_slice(remap,".", 1);
 
                     if (remap_features.contains_as(feature)) {
                         se_string remapped_path = config->get_value("remap", remap);
-                        Vector<uint8_t> array = FileAccess::get_file_as_array(remapped_path);
+                        PODVector<uint8_t> array = FileAccess::get_file_as_array(remapped_path);
                         err = p_func(p_udata, remapped_path, array, idx, total);
                     }
                 }
@@ -787,7 +783,7 @@ Error EditorExportPlatform::export_project_files(const Ref<EditorExportPreset> &
             }
 
             //also save the .import file
-            Vector<uint8_t> array = FileAccess::get_file_as_array(path + ".import");
+            PODVector<uint8_t> array = FileAccess::get_file_as_array(path + ".import");
             err = p_func(p_udata, path + ".import", array, idx, total);
 
             if (err != OK) {
@@ -828,7 +824,7 @@ Error EditorExportPlatform::export_project_files(const Ref<EditorExportPreset> &
             }
             //just store it as it comes
             if (do_export) {
-                Vector<uint8_t> array = FileAccess::get_file_as_array(path);
+                PODVector<uint8_t> array = FileAccess::get_file_as_array(path);
                 p_func(p_udata, path, array, idx, total);
             }
         }
@@ -859,10 +855,10 @@ Error EditorExportPlatform::export_project_files(const Ref<EditorExportPreset> &
                 se_string from = path_remaps[i];
                 se_string to = path_remaps[i + 1];
                 se_string remap_file = "[remap]\n\npath=\"" + StringUtils::c_escape(to) + "\"\n";
-                Vector<uint8_t> new_file;
+                PODVector<uint8_t> new_file;
                 new_file.resize(remap_file.length());
                 for (size_t j = 0; j < remap_file.length(); j++) {
-                    new_file.write[j] = remap_file[j];
+                    new_file[j] = remap_file[j];
                 }
 
                 p_func(p_udata, from + ".remap", new_file, idx, total);
@@ -877,18 +873,18 @@ Error EditorExportPlatform::export_project_files(const Ref<EditorExportPreset> &
     se_string icon = ProjectSettings::get_singleton()->get("application/config/icon");
     se_string splash = ProjectSettings::get_singleton()->get("application/boot_splash/image");
     if (!icon.empty() && FileAccess::exists(icon)) {
-        Vector<uint8_t> array = FileAccess::get_file_as_array(icon);
+        PODVector<uint8_t> array = FileAccess::get_file_as_array(icon);
         p_func(p_udata, icon, array, idx, total);
     }
     if (!splash.empty() && FileAccess::exists(splash) && icon != splash) {
-        Vector<uint8_t> array = FileAccess::get_file_as_array(splash);
+        PODVector<uint8_t> array = FileAccess::get_file_as_array(splash);
         p_func(p_udata, splash, array, idx, total);
     }
 
     se_string config_file("project.binary");
     se_string engine_cfb = PathUtils::plus_file(EditorSettings::get_singleton()->get_cache_dir(),"tmp" + config_file);
     ProjectSettings::get_singleton()->save_custom(engine_cfb, custom_map, custom_list);
-    Vector<uint8_t> data = FileAccess::get_file_as_array(engine_cfb);
+    PODVector<uint8_t> data = FileAccess::get_file_as_array(engine_cfb);
     DirAccess::remove_file_or_error(engine_cfb);
 
     p_func(p_udata, "res://" + config_file, data, idx, total);
@@ -1175,12 +1171,12 @@ void EditorExport::_save() {
 
         if (save_files) {
             Vector<se_string> export_files = preset->get_files_to_export();
-            config->set_value(section, "export_files", Variant(eastl::move(export_files)));
+            config->set_value(section, "export_files", Variant::from(eastl::move(export_files)));
         }
         config->set_value(section, "include_filter", preset->get_include_filter());
         config->set_value(section, "exclude_filter", preset->get_exclude_filter());
         config->set_value(section, "export_path", preset->get_export_path());
-        config->set_value(section, "patch_list", Variant(preset->get_patches()));
+        config->set_value(section, "patch_list", Variant::from(preset->get_patches()));
         config->set_value(section, "script_export_mode", preset->get_script_export_mode());
         config->set_value(section, "script_encryption_key", Variant(preset->get_script_encryption_key()));
 
@@ -1377,15 +1373,15 @@ void EditorExport::load_config() {
 
         se_string option_section = "preset." + ::to_string(index) + ".options";
 
-        List<se_string> options;
+        ListPOD<se_string> options;
 
         config->get_section_keys(option_section, &options);
 
-        for (List<se_string>::Element *E = options.front(); E; E = E->next()) {
+        for (const se_string &E : options) {
 
-            Variant value = config->get_value(option_section, E->deref());
+            Variant value = config->get_value(option_section, E);
 
-            preset->set(StringName(E->deref()), value);
+            preset->set(StringName(E), value);
         }
 
         add_export_preset(preset);
@@ -1718,7 +1714,7 @@ void EditorExportTextSceneToBinaryPlugin::_export_file(se_string_view p_path, se
         DirAccess::remove_file_or_error(tmp_path);
         ERR_FAIL()
     }
-    Vector<uint8_t> data = FileAccess::get_file_as_array(tmp_path);
+    PODVector<uint8_t> data = FileAccess::get_file_as_array(tmp_path);
     if (data.empty()) {
         DirAccess::remove_file_or_error(tmp_path);
         ERR_FAIL()

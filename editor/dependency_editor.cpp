@@ -173,8 +173,8 @@ void DependencyEditor::_update_file() {
 
 void DependencyEditor::_update_list() {
 
-    ListPOD<se_string> deps;
-    ResourceLoader::get_dependencies(editing, &deps, true);
+    PODVector<se_string> deps;
+    ResourceLoader::get_dependencies(editing, deps, true);
 
     tree->clear();
     missing.clear();

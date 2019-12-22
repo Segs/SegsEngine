@@ -274,7 +274,7 @@ void NavigationMesh::_set_polygons(const Array &p_array) {
 
     polygons.resize(p_array.size());
     for (int i = 0; i < p_array.size(); i++) {
-        polygons.write[i].indices = p_array[i];
+        polygons.write[i].indices = p_array[i].as<Vector<int>>();
     }
     _change_notify();
 }
@@ -284,7 +284,7 @@ Array NavigationMesh::_get_polygons() const {
     Array ret;
     ret.resize(polygons.size());
     for (int i = 0; i < ret.size(); i++) {
-        ret[i] = polygons[i].indices;
+        ret[i] = Variant::from(polygons[i].indices);
     }
 
     return ret;

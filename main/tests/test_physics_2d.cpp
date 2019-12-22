@@ -296,7 +296,7 @@ protected:
         VisualServer *vs = VisualServer::get_singleton();
 
         RID concave = ps->concave_polygon_shape_create();
-        ps->shape_set_data(concave, p_points);
+        ps->shape_set_data(concave, Variant::from(p_points));
         RID body = ps->body_create();
         ps->body_set_mode(body, Physics2DServer::BODY_MODE_STATIC);
         ps->body_set_space(body, space);

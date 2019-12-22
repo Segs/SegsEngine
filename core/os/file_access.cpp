@@ -578,38 +578,36 @@ void FileAccess::store_buffer(const uint8_t *p_src, int p_length) {
         store_8(p_src[i]);
 }
 
-Vector<uint8_t> FileAccess::get_file_as_array(se_string_view p_path, Error *r_error) {
+PODVector<uint8_t> FileAccess::get_file_as_array(se_string_view p_path, Error *r_error) {
 
     FileAccess *f = FileAccess::open(p_path, READ, r_error);
     if (!f) {
         if (r_error) { // if error requested, do not throw error
-            return Vector<uint8_t>();
+            return PODVector<uint8_t>();
         }
-        ERR_FAIL_V_MSG(Vector<uint8_t>(), "Can't open file from path '" + se_string(p_path) + "'.")
+        ERR_FAIL_V_MSG(PODVector<uint8_t>(), "Can't open file from path '" + se_string(p_path) + "'.")
     }
-    Vector<uint8_t> data;
+    PODVector<uint8_t> data;
     data.resize(f->get_len());
-    f->get_buffer(data.ptrw(), data.size());
+    f->get_buffer(data.data(), data.size());
     memdelete(f);
     return data;
 }
 
 se_string FileAccess::get_file_as_string(se_string_view p_path, Error *r_error) {
 
-    Error err;
-    Vector<uint8_t> array = get_file_as_array(p_path, &err);
-    if (r_error) {
-        *r_error = err;
-    }
-    if (err != OK) {
-        if (r_error) {
-            return {};
+    FileAccess *f = FileAccess::open(p_path, READ, r_error);
+    if (!f) {
+        if (r_error) { // if error requested, do not throw error
+            return se_string();
         }
-        ERR_FAIL_V_MSG({}, "Can't get file as string from path '" + se_string(p_path) + "'.")
+        ERR_FAIL_V_MSG(se_string(), "Can't open file from path '" + se_string(p_path) + "'.")
     }
-
-    se_string ret((const char *)array.ptr(), array.size());
-    return ret;
+    se_string data;
+    data.resize(f->get_len());
+    f->get_buffer((uint8_t *)data.data(), data.size());
+    memdelete(f);
+    return data;
 }
 
 se_string FileAccess::get_md5(se_string_view p_file) {

@@ -35,13 +35,8 @@
 
 IMPL_GDCLASS(RayShape)
 
-Vector<Vector3> RayShape::get_debug_mesh_lines() {
-
-    Vector<Vector3> points;
-    points.push_back(Vector3());
-    points.push_back(Vector3(0, 0, get_length()));
-
-    return points;
+PODVector<Vector3> RayShape::get_debug_mesh_lines() {
+    return {Vector3(),Vector3(0, 0, get_length())};
 }
 
 void RayShape::_update_shape() {

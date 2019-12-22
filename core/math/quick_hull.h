@@ -36,5 +36,5 @@
 class QuickHull {
 public:
 	static uint32_t debug_stop_after;
-    static Error build(const Vector<Vector3> &p_points, Geometry::MeshData &r_mesh);
+    static Error build(Span<const Vector3> p_points, Geometry::MeshData &r_mesh);
 };

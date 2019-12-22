@@ -289,7 +289,7 @@ void NetworkedMultiplayerENet::poll() {
                         if (E.first == *id)
                             continue;
 
-                        ENetPacket *packet = enet_packet_create(NULL, 8, ENET_PACKET_FLAG_RELIABLE);
+                        ENetPacket *packet = enet_packet_create(nullptr, 8, ENET_PACKET_FLAG_RELIABLE);
                         encode_uint32(SYSMSG_REMOVE_PEER, &packet->data[0]);
                         encode_uint32(*id, &packet->data[4]);
                         enet_peer_send(E.second, SYSCH_CONFIG, packet);
@@ -315,7 +315,7 @@ void NetworkedMultiplayerENet::poll() {
                     switch (msg) {
                         case SYSMSG_ADD_PEER: {
 
-                            peer_map[id] = NULL;
+                            peer_map[id] = nullptr;
                             emit_signal("peer_connected", id);
 
                         } break;
@@ -760,7 +760,7 @@ IP_Address NetworkedMultiplayerENet::get_peer_address(int p_peer_id) const {
 
     ERR_FAIL_COND_V(!peer_map.contains(p_peer_id), IP_Address())
     ERR_FAIL_COND_V(!is_server() && p_peer_id != 1, IP_Address())
-    ERR_FAIL_COND_V(peer_map.at(p_peer_id) == NULL, IP_Address())
+    ERR_FAIL_COND_V(peer_map.at(p_peer_id) == nullptr, IP_Address())
 
     IP_Address out;
     out.set_ipv6((uint8_t *)&(peer_map.at(p_peer_id)->address.host));
@@ -772,7 +772,7 @@ int NetworkedMultiplayerENet::get_peer_port(int p_peer_id) const {
 
     ERR_FAIL_COND_V(!peer_map.contains(p_peer_id), 0)
     ERR_FAIL_COND_V(!is_server() && p_peer_id != 1, 0)
-    ERR_FAIL_COND_V(peer_map.at(p_peer_id,nullptr) == NULL, 0)
+    ERR_FAIL_COND_V(peer_map.at(p_peer_id,nullptr) == nullptr, 0)
     return peer_map.at(p_peer_id)->address.port;
 }
 

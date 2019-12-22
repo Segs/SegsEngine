@@ -346,17 +346,17 @@ void CSGShapeSpatialGizmoPlugin::redraw(EditorSpatialGizmo *p_gizmo) {
 
     PoolVector<Vector3> faces = cs->get_brush_faces();
 
-    Vector<Vector3> lines;
+    PODVector<Vector3> lines;
     lines.resize(faces.size() * 2);
     {
         PoolVector<Vector3>::Read r = faces.read();
 
-        for (int i = 0; i < lines.size(); i += 6) {
+        for (size_t i = 0; i < lines.size(); i += 6) {
             int f = i / 6;
             for (int j = 0; j < 3; j++) {
                 int j_n = (j + 1) % 3;
-                lines.write[i + j * 2 + 0] = r[f * 3 + j];
-                lines.write[i + j * 2 + 1] = r[f * 3 + j_n];
+                lines[i + j * 2 + 0] = r[f * 3 + j];
+                lines[i + j * 2 + 1] = r[f * 3 + j_n];
             }
         }
     }

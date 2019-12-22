@@ -662,7 +662,7 @@ public:
     const List<GDScriptWarning> &get_warnings() const { return warnings; }
 #endif // DEBUG_ENABLED
     Error parse(se_string_view p_code, se_string_view p_base_path = {}, bool p_just_validate = false, se_string_view p_self_path = {}, bool p_for_completion = false, Set<int> *r_safe_lines = nullptr, bool p_dependencies_only = false);
-    Error parse_bytecode(const Vector<uint8_t> &p_bytecode, se_string_view p_base_path = {}, se_string_view p_self_path = {});
+    Error parse_bytecode(const PODVector<uint8_t> &p_bytecode, se_string_view p_base_path = {}, se_string_view p_self_path = {});
 
     bool is_tool_script() const;
     const Node *get_parse_tree() const;

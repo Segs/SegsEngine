@@ -34,25 +34,25 @@
 #include "scene/resources/shape_2d.h"
 
 class ConvexPolygonShape2D : public Shape2D {
-	GDCLASS(ConvexPolygonShape2D,Shape2D)
+    GDCLASS(ConvexPolygonShape2D,Shape2D)
 
-	Vector<Vector2> points;
-	void _update_shape();
+    PODVector<Vector2> points;
+    void _update_shape();
 
 protected:
-	static void _bind_methods();
+    static void _bind_methods();
 
 public:
     bool _edit_is_selected_on_click(const Point2 &p_point, float p_tolerance) const override;
 
-	void set_point_cloud(const Vector<Vector2> &p_points);
-	void set_points(const Vector<Vector2> &p_points);
-	Vector<Vector2> get_points() const;
+    void set_point_cloud(Span<const Vector2> p_points);
+    void set_points(Span<const Vector2> p_points);
+    const PODVector<Vector2> &get_points() const;
 
-	void draw(const RID &p_to_rid, const Color &p_color) override;
-	Rect2 get_rect() const override;
+    void draw(const RID &p_to_rid, const Color &p_color) override;
+    Rect2 get_rect() const override;
 
-	ConvexPolygonShape2D();
+    ConvexPolygonShape2D();
 };
 
 #endif // CONVEX_POLYGON_SHAPE_2D_H

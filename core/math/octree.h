@@ -370,7 +370,7 @@ public:
     T *get(OctreeElementID p_id) const;
     int get_subindex(OctreeElementID p_id) const;
 
-    int cull_convex(const Vector<Plane> &p_convex, T **p_result_array, int p_result_max, uint32_t p_mask = 0xFFFFFFFF);
+    int cull_convex(Span<const Plane> p_convex, T **p_result_array, int p_result_max, uint32_t p_mask = 0xFFFFFFFF);
     int cull_aabb(const AABB &p_aabb, T **p_result_array, int p_result_max, int *p_subindex_array = nullptr, uint32_t p_mask = 0xFFFFFFFF);
     int cull_segment(const Vector3 &p_from, const Vector3 &p_to, T **p_result_array, int p_result_max, int *p_subindex_array = nullptr, uint32_t p_mask = 0xFFFFFFFF);
 
@@ -1280,7 +1280,7 @@ void Octree<T, use_pairs, AL>::_cull_point(Octant *p_octant, const Vector3 &p_po
 }
 
 template <class T, bool use_pairs, class AL>
-int Octree<T, use_pairs, AL>::cull_convex(const Vector<Plane> &p_convex, T **p_result_array, int p_result_max, uint32_t p_mask) {
+int Octree<T, use_pairs, AL>::cull_convex(Span<const Plane> p_convex, T **p_result_array, int p_result_max, uint32_t p_mask) {
 
     if (!root)
         return 0;
@@ -1288,7 +1288,7 @@ int Octree<T, use_pairs, AL>::cull_convex(const Vector<Plane> &p_convex, T **p_r
     int result_count = 0;
     pass++;
     _CullConvexData cdata;
-    cdata.planes = &p_convex[0];
+    cdata.planes = p_convex.data();
     cdata.plane_count = p_convex.size();
     cdata.result_array = p_result_array;
     cdata.result_max = p_result_max;

@@ -374,10 +374,8 @@ void RayCast::_update_debug_shape() {
     Array a;
     a.resize(Mesh::ARRAY_MAX);
 
-    Vector<Vector3> verts;
-    verts.push_back(Vector3());
-    verts.push_back(cast_to);
-    a[Mesh::ARRAY_VERTEX] = verts;
+    PODVector<Vector3> verts = {Vector3(0,0,0),cast_to};
+    a[Mesh::ARRAY_VERTEX] = Variant::from(verts);
 
     mesh->add_surface_from_arrays(Mesh::PRIMITIVE_LINES, a);
     mesh->surface_set_material(0, debug_material);

@@ -75,14 +75,13 @@ Rect2 CircleShape2D::get_rect() const {
 
 void CircleShape2D::draw(const RID &p_to_rid, const Color &p_color) {
 
-    Vector<Vector2> points;
+    Vector2 points[24];
     for (int i = 0; i < 24; i++) {
-
-        points.push_back(Vector2(Math::cos(i * Math_PI * 2 / 24.0), Math::sin(i * Math_PI * 2 / 24.0)) * get_radius());
+        points[i]= Vector2(Math::cos(i * Math_PI * 2 / 24.0f), Math::sin(i * Math_PI * 2 / 24.0f)) * get_radius();
     }
 
     Vector<Color> col;
-    col.push_back(p_color);
+    col.emplace_back(p_color);
     VisualServer::get_singleton()->canvas_item_add_polygon(p_to_rid, points, col);
 }
 

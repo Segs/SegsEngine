@@ -33,6 +33,7 @@
 
 #include "scene/scene_string_names.h"
 #include "core/method_bind.h"
+#include "core/pool_vector.h"
 
 #include "core/math/geometry.h"
 
@@ -1075,7 +1076,7 @@ void Animation::track_insert_key(int p_track, float p_time, const Variant &p_key
             k.time = p_time;
             k.transition = p_transition;
             k.method = d["method"];
-            k.params = d["args"];
+            k.params = d["args"].as<Vector<Variant>>();
 
             _insert(p_time, mt->methods, k);
 
@@ -1162,15 +1163,15 @@ int Animation::track_get_key_count(int p_track) const {
 
             AudioTrack *at = static_cast<AudioTrack *>(t);
             return at->values.size();
-        } break;
+        }
         case TYPE_ANIMATION: {
 
             AnimationTrack *at = static_cast<AnimationTrack *>(t);
             return at->values.size();
-        } break;
+        }
     }
 
-    ERR_FAIL_V(-1);
+    ERR_FAIL_V(-1)
 }
 
 Variant Animation::track_get_key_value(int p_track, int p_key_idx) const {
@@ -1191,24 +1192,23 @@ Variant Animation::track_get_key_value(int p_track, int p_key_idx) const {
             d["scale"] = tt->transforms[p_key_idx].value.scale;
 
             return d;
-        } break;
+        }
         case TYPE_VALUE: {
 
             ValueTrack *vt = static_cast<ValueTrack *>(t);
             ERR_FAIL_INDEX_V(p_key_idx, vt->values.size(), Variant());
             return vt->values[p_key_idx].value;
 
-        } break;
+        }
         case TYPE_METHOD: {
 
             MethodTrack *mt = static_cast<MethodTrack *>(t);
             ERR_FAIL_INDEX_V(p_key_idx, mt->methods.size(), Variant());
             Dictionary d;
             d["method"] = mt->methods[p_key_idx].method;
-            d["args"] = mt->methods[p_key_idx].params;
+            d["args"] = Variant::from(mt->methods[p_key_idx].params);
             return d;
-
-        } break;
+        }
         case TYPE_BEZIER: {
 
             BezierTrack *bt = static_cast<BezierTrack *>(t);
@@ -1223,7 +1223,7 @@ Variant Animation::track_get_key_value(int p_track, int p_key_idx) const {
             arr[4] = bt->values[p_key_idx].value.out_handle.y;
             return arr;
 
-        } break;
+        }
         case TYPE_AUDIO: {
 
             AudioTrack *at = static_cast<AudioTrack *>(t);
@@ -1235,7 +1235,7 @@ Variant Animation::track_get_key_value(int p_track, int p_key_idx) const {
             k["stream"] = at->values[p_key_idx].value.stream;
             return k;
 
-        } break;
+        }
         case TYPE_ANIMATION: {
 
             AnimationTrack *at = static_cast<AnimationTrack *>(t);
@@ -1243,7 +1243,7 @@ Variant Animation::track_get_key_value(int p_track, int p_key_idx) const {
 
             return at->values[p_key_idx].value;
 
-        } break;
+        }
     }
 
     ERR_FAIL_V(Variant());
@@ -1259,37 +1259,37 @@ float Animation::track_get_key_time(int p_track, int p_key_idx) const {
         case TYPE_TRANSFORM: {
 
             TransformTrack *tt = static_cast<TransformTrack *>(t);
-            ERR_FAIL_INDEX_V(p_key_idx, tt->transforms.size(), -1);
+            ERR_FAIL_INDEX_V(p_key_idx, tt->transforms.size(), -1)
             return tt->transforms[p_key_idx].time;
-        } break;
+        }
         case TYPE_VALUE: {
 
             ValueTrack *vt = static_cast<ValueTrack *>(t);
-            ERR_FAIL_INDEX_V(p_key_idx, vt->values.size(), -1);
+            ERR_FAIL_INDEX_V(p_key_idx, vt->values.size(), -1)
             return vt->values[p_key_idx].time;
 
-        } break;
+        }
         case TYPE_METHOD: {
 
             MethodTrack *mt = static_cast<MethodTrack *>(t);
-            ERR_FAIL_INDEX_V(p_key_idx, mt->methods.size(), -1);
+            ERR_FAIL_INDEX_V(p_key_idx, mt->methods.size(), -1)
             return mt->methods[p_key_idx].time;
 
-        } break;
+        }
         case TYPE_BEZIER: {
 
             BezierTrack *bt = static_cast<BezierTrack *>(t);
-            ERR_FAIL_INDEX_V(p_key_idx, bt->values.size(), -1);
+            ERR_FAIL_INDEX_V(p_key_idx, bt->values.size(), -1)
             return bt->values[p_key_idx].time;
 
-        } break;
+        }
         case TYPE_AUDIO: {
 
             AudioTrack *at = static_cast<AudioTrack *>(t);
-            ERR_FAIL_INDEX_V(p_key_idx, at->values.size(), -1);
+            ERR_FAIL_INDEX_V(p_key_idx, at->values.size(), -1)
             return at->values[p_key_idx].time;
 
-        } break;
+        }
         case TYPE_ANIMATION: {
 
             AnimationTrack *at = static_cast<AnimationTrack *>(t);
@@ -1458,7 +1458,7 @@ void Animation::track_set_key_value(int p_track, int p_key_idx, const Variant &p
             if (d.has("method"))
                 mt->methods.write[p_key_idx].method = d["method"];
             if (d.has("args"))
-                mt->methods.write[p_key_idx].params = d["args"];
+                mt->methods.write[p_key_idx].params = d["args"].as<Vector<Variant>>();
 
         } break;
         case TYPE_BEZIER: {

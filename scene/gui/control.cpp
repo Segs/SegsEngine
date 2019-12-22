@@ -47,6 +47,7 @@
 #include "scene/resources/theme.h"
 #include "scene/scene_string_names.h"
 #include "servers/visual_server.h"
+#include "scene/gui/control_enum_casters.h"
 
 #ifdef TOOLS_ENABLED
 #include "editor/editor_settings.h"
@@ -56,14 +57,6 @@
 #include "EASTL/sort.h"
 
 IMPL_GDCLASS(Control)
-VARIANT_ENUM_CAST(Control::FocusMode);
-VARIANT_ENUM_CAST(Control::SizeFlags);
-VARIANT_ENUM_CAST(Control::CursorShape);
-VARIANT_ENUM_CAST(Control::LayoutPreset);
-VARIANT_ENUM_CAST(Control::LayoutPresetMode);
-VARIANT_ENUM_CAST(Control::MouseFilter);
-VARIANT_ENUM_CAST(Control::GrowDirection);
-VARIANT_ENUM_CAST(Control::Anchor);
 
 Dictionary Control::_edit_get_state() const {
 

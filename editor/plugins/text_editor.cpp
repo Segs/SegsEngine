@@ -533,7 +533,7 @@ void TextEditor::_bind_methods() {
     MethodBinder::bind_method("_text_edit_gui_input", &TextEditor::_text_edit_gui_input);
 }
 
-static ScriptEditorBase *create_editor(const RES &p_resource) {
+static ScriptEditorBase *te_create_editor(const RES &p_resource) {
 
     if (dynamic_ref_cast<TextFile>(p_resource)) {
         return memnew(TextEditor);
@@ -543,7 +543,7 @@ static ScriptEditorBase *create_editor(const RES &p_resource) {
 
 void TextEditor::register_editor() {
 
-    ScriptEditor::register_create_script_editor_function(create_editor);
+    ScriptEditor::register_create_script_editor_function(te_create_editor);
 }
 
 void TextEditor::_text_edit_gui_input(const Ref<InputEvent> &ev) {

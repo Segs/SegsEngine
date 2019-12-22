@@ -99,10 +99,6 @@ public:
 
     Variant call(Object *p_object, const Variant **p_args, int p_arg_count, Variant::CallError &r_error);
 
-#ifdef PTRCALL_ENABLED
-    virtual void ptrcall(Object *p_object, const void **p_args, void *r_ret) = 0;
-#endif
-
     StringName get_name() const;
     void set_name(const StringName &p_name);
     _FORCE_INLINE_ int get_method_id() const { return method_id; }
@@ -179,12 +175,6 @@ public:
         arguments.return_val.usage |= PROPERTY_USAGE_NIL_IS_VARIANT;
 #endif
     }
-
-#ifdef PTRCALL_ENABLED
-    void ptrcall(Object * /*p_object*/, const void ** /*p_args*/, void * /*r_ret*/) override {
-        ERR_FAIL() //can't call
-    } //todo
-#endif
 
     void set_method(NativeCall p_method) { call_method = p_method; }
 

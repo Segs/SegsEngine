@@ -56,8 +56,8 @@ public:
     bool has_section(se_string_view p_section) const;
     bool has_section_key(se_string_view p_section, se_string_view p_key) const;
 
-    void get_sections(List<se_string> *r_sections) const;
-    void get_section_keys(se_string_view p_section, List<se_string> *r_keys) const;
+    void get_sections(ListPOD<se_string> *r_sections) const;
+    void get_section_keys(se_string_view p_section, ListPOD<se_string> *r_keys) const;
     void get_section_keys_utf8(se_string_view p_section, PODVector<se_string> &r_keys) const;
 
     void erase_section(se_string_view p_section);

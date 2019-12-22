@@ -1578,7 +1578,7 @@ se_string_view StringUtils::substr(se_string_view s,int p_from, size_t p_chars) 
     if(s.empty())
         return res;
     ssize_t count = static_cast<ssize_t>(p_chars);
-    if ((p_from + count) > s.length()) {
+    if ((p_from + count) > ssize_t(s.length())) {
 
         p_chars = s.length() - p_from;
     }
@@ -3159,7 +3159,7 @@ se_string StringUtils::pad_zeros(se_string_view src,int p_digits) {
     if (end == 0)
         return s;
 
-    int begin = 0;
+    size_t begin = 0;
 
     while (begin < end && (s[begin] < '0' || s[begin] > '9')) {
         begin++;
@@ -3168,7 +3168,7 @@ se_string StringUtils::pad_zeros(se_string_view src,int p_digits) {
     if (begin >= end)
         return s;
 
-    while (end - begin < p_digits) {
+    while (end - begin < size_t(p_digits)) {
 
         s = s.insert(begin, "0");
         end++;

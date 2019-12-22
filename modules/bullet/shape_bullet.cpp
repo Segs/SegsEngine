@@ -311,7 +311,7 @@ ConvexPolygonShapeBullet::ConvexPolygonShapeBullet() :
         ShapeBullet() {}
 
 void ConvexPolygonShapeBullet::set_data(const Variant &p_data) {
-    setup(p_data);
+    setup(p_data.as<Vector<Vector3>>());
 }
 
 void ConvexPolygonShapeBullet::get_vertices(Vector<Vector3> &out_vertices) {
@@ -326,7 +326,7 @@ Variant ConvexPolygonShapeBullet::get_data() const {
     ConvexPolygonShapeBullet *variable_self = const_cast<ConvexPolygonShapeBullet *>(this);
     Vector<Vector3> out_vertices;
     variable_self->get_vertices(out_vertices);
-    return out_vertices;
+    return Variant::from(out_vertices);
 }
 
 PhysicsServer::ShapeType ConvexPolygonShapeBullet::get_type() const {

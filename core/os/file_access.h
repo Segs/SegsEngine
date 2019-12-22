@@ -171,7 +171,7 @@ public:
     static se_string get_sha256(se_string_view p_file);
     static se_string get_multiple_md5(const PODVector<se_string> &p_file);
 
-    static Vector<uint8_t> get_file_as_array(se_string_view p_path, Error *r_error = nullptr);
+    static PODVector<uint8_t> get_file_as_array(se_string_view p_path, Error *r_error = nullptr);
     static se_string get_file_as_string(se_string_view p_path, Error *r_error = nullptr);
 
     template <class T>

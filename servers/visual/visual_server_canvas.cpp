@@ -751,7 +751,7 @@ void VisualServerCanvas::canvas_item_add_primitive(RID p_item, const Vector<Poin
     canvas_item->commands.push_back(prim);
 }
 
-void VisualServerCanvas::canvas_item_add_polygon(RID p_item, const Vector<Point2> &p_points, const Vector<Color> &p_colors, const Vector<Point2> &p_uvs, RID p_texture, RID p_normal_map, bool p_antialiased) {
+void VisualServerCanvas::canvas_item_add_polygon(RID p_item, Span<const Point2> p_points, const Vector<Color> &p_colors, const Vector<Point2> &p_uvs, RID p_texture, RID p_normal_map, bool p_antialiased) {
 
     Item *canvas_item = canvas_item_owner.getornull(p_item);
     ERR_FAIL_COND(!canvas_item)
@@ -763,14 +763,14 @@ void VisualServerCanvas::canvas_item_add_polygon(RID p_item, const Vector<Point2
     ERR_FAIL_COND(color_size != 0 && color_size != 1 && color_size != pointcount)
     ERR_FAIL_COND(uv_size != 0 && (uv_size != pointcount))
 #endif
-    Vector<int> indices = Geometry::triangulate_polygon(p_points);
+    PODVector<int> indices = Geometry::triangulate_polygon(p_points);
     ERR_FAIL_COND_MSG(indices.empty(), "Invalid polygon data, triangulation failed.")
 
     Item::CommandPolygon *polygon = memnew(Item::CommandPolygon);
     ERR_FAIL_COND(!polygon)
     polygon->texture = p_texture;
     polygon->normal_map = p_normal_map;
-    polygon->points = p_points;
+    polygon->points.assign(p_points.begin(),p_points.end());
     polygon->uvs = p_uvs;
     polygon->colors = p_colors;
     polygon->indices = indices;
@@ -781,44 +781,42 @@ void VisualServerCanvas::canvas_item_add_polygon(RID p_item, const Vector<Point2
     canvas_item->commands.push_back(polygon);
 }
 
-void VisualServerCanvas::canvas_item_add_triangle_array(RID p_item, const Vector<int> &p_indices, const Vector<Point2> &p_points, const Vector<Color> &p_colors, const Vector<Point2> &p_uvs, const Vector<int> &p_bones, const Vector<float> &p_weights, RID p_texture, int p_count, RID p_normal_map, bool p_antialiased) {
+void VisualServerCanvas::canvas_item_add_triangle_array(RID p_item, Span<const int> p_indices, Span<const Point2> p_points, const Vector<Color> &p_colors, const Vector<Point2> &p_uvs, const Vector<int> &p_bones, const Vector<float> &p_weights, RID p_texture, int p_count, RID p_normal_map, bool p_antialiased) {
 
     Item *canvas_item = canvas_item_owner.getornull(p_item);
     ERR_FAIL_COND(!canvas_item)
 
-    int vertex_count = p_points.size();
+    int vertex_count(p_points.size());
     ERR_FAIL_COND(vertex_count == 0)
     ERR_FAIL_COND(!p_colors.empty() && p_colors.size() != vertex_count && p_colors.size() != 1)
     ERR_FAIL_COND(!p_uvs.empty() && p_uvs.size() != vertex_count)
     ERR_FAIL_COND(!p_bones.empty() && p_bones.size() != vertex_count * 4)
     ERR_FAIL_COND(!p_weights.empty() && p_weights.size() != vertex_count * 4)
 
-    const Vector<int> &indices = p_indices;
-
     int count = p_count * 3;
 
-    if (indices.empty()) {
+    if (p_indices.empty()) {
 
         ERR_FAIL_COND(vertex_count % 3 != 0)
         if (p_count == -1)
             count = vertex_count;
     } else {
 
-        ERR_FAIL_COND(indices.size() % 3 != 0)
+        ERR_FAIL_COND(p_indices.size() % 3 != 0)
         if (p_count == -1)
-            count = indices.size();
+            count = p_indices.size();
     }
 
     Item::CommandPolygon *polygon = memnew(Item::CommandPolygon);
     ERR_FAIL_COND(!polygon)
     polygon->texture = p_texture;
     polygon->normal_map = p_normal_map;
-    polygon->points = p_points;
+    polygon->points.assign(p_points.begin(),p_points.end());
     polygon->uvs = p_uvs;
     polygon->colors = p_colors;
     polygon->bones = p_bones;
     polygon->weights = p_weights;
-    polygon->indices = indices;
+    polygon->indices.assign(p_indices.begin(),p_indices.end());
     polygon->count = count;
     polygon->antialiased = p_antialiased;
     canvas_item->rect_dirty = true;
@@ -1264,37 +1262,29 @@ RID VisualServerCanvas::canvas_occluder_polygon_create() {
     occluder_poly->occluder = VSG::storage->canvas_light_occluder_create();
     return canvas_light_occluder_polygon_owner.make_rid(occluder_poly);
 }
-void VisualServerCanvas::canvas_occluder_polygon_set_shape(RID p_occluder_polygon, const PoolVector<Vector2> &p_shape, bool p_closed) {
+void VisualServerCanvas::canvas_occluder_polygon_set_shape(RID p_occluder_polygon, Span<const Vector2> p_shape, bool p_closed) {
 
     if (p_shape.size() < 3) {
         canvas_occluder_polygon_set_shape_as_lines(p_occluder_polygon, p_shape);
         return;
     }
 
-    PoolVector<Vector2> lines;
-    int lc = p_shape.size() * 2;
+    PODVector<Vector2> lines;
+    const int lc = p_shape.size() * 2;
+    const int max = (lc / 2) - (p_closed ? 0 : 1);
 
-    lines.resize(lc - (p_closed ? 0 : 2));
-    {
-        PoolVector<Vector2>::Write w = lines.write();
-        PoolVector<Vector2>::Read r = p_shape.read();
+    lines.reserve(2*max);
 
-        int max = lc / 2;
-        if (!p_closed) {
-            max--;
-        }
-        for (int i = 0; i < max; i++) {
+    for (int i = 0; i < max; i++) {
 
-            Vector2 a = r[i];
-            Vector2 b = r[(i + 1) % (lc / 2)];
-            w[i * 2 + 0] = a;
-            w[i * 2 + 1] = b;
-        }
+        Vector2 a = p_shape[i];
+        Vector2 b = p_shape[(i + 1) % (lc / 2)];
+        lines.emplace_back(a);
+        lines.emplace_back(b);
     }
-
     canvas_occluder_polygon_set_shape_as_lines(p_occluder_polygon, lines);
 }
-void VisualServerCanvas::canvas_occluder_polygon_set_shape_as_lines(RID p_occluder_polygon, const PoolVector<Vector2> &p_shape) {
+void VisualServerCanvas::canvas_occluder_polygon_set_shape_as_lines(RID p_occluder_polygon, Span<const Vector2> p_shape) {
 
     LightOccluderPolygon *occluder_poly = canvas_light_occluder_polygon_owner.get(p_occluder_polygon);
     ERR_FAIL_COND(!occluder_poly)
@@ -1303,12 +1293,11 @@ void VisualServerCanvas::canvas_occluder_polygon_set_shape_as_lines(RID p_occlud
     int lc = p_shape.size();
     occluder_poly->aabb = Rect2();
     {
-        PoolVector<Vector2>::Read r = p_shape.read();
         for (int i = 0; i < lc; i++) {
             if (i == 0)
-                occluder_poly->aabb.position = r[i];
+                occluder_poly->aabb.position = p_shape[i];
             else
-                occluder_poly->aabb.expand_to(r[i]);
+                occluder_poly->aabb.expand_to(p_shape[i]);
         }
     }
 

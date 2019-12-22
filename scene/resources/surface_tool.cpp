@@ -31,13 +31,13 @@
 #include "surface_tool.h"
 #include "core/method_bind.h"
 #include "scene/resources/material.h"
+#include "scene/resources/mesh_enum_casters.h"
 
-#define _VERTEX_SNAP 0.0001f
-#define EQ_VERTEX_DIST 0.00001f
+constexpr float _VERTEX_SNAP = 0.0001f;
+constexpr float EQ_VERTEX_DIST = 0.00001f;
 
 IMPL_GDCLASS(SurfaceTool)
 //TODO: SEGS: Mesh::PrimitiveType is used here
-VARIANT_ENUM_CAST(Mesh::PrimitiveType);
 
 template<>
 struct Hasher<SurfaceTool::Vertex> {
@@ -240,7 +240,7 @@ void SurfaceTool::add_smooth_group(bool p_smooth) {
     }
 }
 
-void SurfaceTool::add_triangle_fan(const Vector<Vector3> &p_vertices, const Vector<Vector2> &p_uvs, const Vector<Color> &p_colors, const Vector<Vector2> &p_uv2s, const Vector<Vector3> &p_normals, const Vector<Plane> &p_tangents) {
+void SurfaceTool::add_triangle_fan(const Vector<Vector3> &p_vertices, const Vector<Vector2> &p_uvs, const Vector<Color> &p_colors, const Vector<Vector2> &p_uv2s, const Vector<Vector3> &p_normals, const PODVector<Plane> &p_tangents) {
     ERR_FAIL_COND(!begun)
     ERR_FAIL_COND(primitive != Mesh::PRIMITIVE_TRIANGLES)
     ERR_FAIL_COND(p_vertices.size() < 3)
@@ -1064,7 +1064,7 @@ void SurfaceTool::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("add_weights", {"weights"}), &SurfaceTool::add_weights);
     MethodBinder::bind_method(D_METHOD("add_smooth_group", {"smooth"}), &SurfaceTool::add_smooth_group);
 
-    MethodBinder::bind_method(D_METHOD("add_triangle_fan", {"vertices", "uvs", "colors", "uv2s", "normals", "tangents"}), &SurfaceTool::add_triangle_fan, {DEFVAL(Vector<Vector2>()), DEFVAL(Vector<Color>()), DEFVAL(Vector<Vector2>()), DEFVAL(Vector<Vector3>()), DEFVAL(Vector<Plane>())});
+    MethodBinder::bind_method(D_METHOD("add_triangle_fan", {"vertices", "uvs", "colors", "uv2s", "normals", "tangents"}), &SurfaceTool::add_triangle_fan, {DEFVAL(PODVector<Vector2>()), DEFVAL(PODVector<Color>()), DEFVAL(PODVector<Vector2>()), DEFVAL(PODVector<Vector3>()), DEFVAL(PODVector<Plane>())});
 
     MethodBinder::bind_method(D_METHOD("add_index", {"index"}), &SurfaceTool::add_index);
 

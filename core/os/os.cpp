@@ -50,7 +50,6 @@
 #include "EASTL/string_view.h"
 #include <QtCore/QStandardPaths>
 
-#include <cstdarg>
 #include <codecvt>
 
 using namespace eastl;
@@ -616,11 +615,14 @@ bool OS::has_feature(se_string_view p_feature) {
 
     if (p_feature == se_string_view(get_name()))
         return true;
-    if (sizeof(void *) == 8 && p_feature == "64"_sv) {
-        return true;
+    if constexpr(sizeof(void *) == 8) {
+        if (p_feature == "64"_sv) {
+            return true;
+        }
     }
-    if (sizeof(void *) == 4 && p_feature == "32"_sv) {
-        return true;
+    else if constexpr(sizeof(void *) == 4) {
+        if(p_feature == "32"_sv)
+            return true;
     }
 #if defined(__x86_64) || defined(__x86_64__) || defined(__amd64__)
     if (p_feature == "x86_64"_sv) {

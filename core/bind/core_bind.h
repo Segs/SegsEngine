@@ -64,7 +64,7 @@ public:
     INVOCABLE RES load(se_string_view p_path, se_string_view p_type_hint = se_string_view(), bool p_no_cache = false);
     INVOCABLE PoolSeStringArray get_recognized_extensions_for_type(se_string_view p_type);
     INVOCABLE void set_abort_on_missing_resources(bool p_abort);
-    INVOCABLE PoolSeStringArray get_dependencies(se_string_view p_path);
+    INVOCABLE PODVector<se_string> get_dependencies(se_string_view p_path);
     INVOCABLE bool has_cached(se_string_view p_path);
     INVOCABLE bool exists(se_string_view p_path, se_string_view p_type_hint = se_string_view());
 
@@ -395,17 +395,17 @@ public:
 
     PoolVector<Vector3> segment_intersects_sphere(const Vector3 &p_from, const Vector3 &p_to, const Vector3 &p_sphere_pos, real_t p_sphere_radius);
     PoolVector<Vector3> segment_intersects_cylinder(const Vector3 &p_from, const Vector3 &p_to, float p_height, float p_radius);
-    PoolVector<Vector3> segment_intersects_convex(const Vector3 &p_from, const Vector3 &p_to, const Vector<Plane> &p_planes);
+    PoolVector<Vector3> segment_intersects_convex(const Vector3 &p_from, const Vector3 &p_to, const PoolVector<Plane> &p_planes);
     bool is_point_in_circle(const Vector2 &p_point, const Vector2 &p_circle_pos, real_t p_circle_radius);
     real_t segment_intersects_circle(const Vector2 &p_from, const Vector2 &p_to, const Vector2 &p_circle_pos, real_t p_circle_radius);
     int get_uv84_normal_bit(const Vector3 &p_vector);
 
     bool is_polygon_clockwise(const Vector<Vector2> &p_polygon);
     bool is_point_in_polygon(const Point2 &p_point, const Vector<Vector2> &p_polygon);
-    Vector<int> triangulate_polygon(const Vector<Vector2> &p_polygon);
-    Vector<int> triangulate_delaunay_2d(const Vector<Vector2> &p_points);
-    Vector<Point2> convex_hull_2d(const Vector<Point2> &p_points);
-    Vector<Vector3> clip_polygon(const Vector<Vector3> &p_points, const Plane &p_plane);
+    PODVector<int> triangulate_polygon(Span<const Vector2> p_polygon);
+    PODVector<int> triangulate_delaunay_2d(Span<const Vector2> p_points);
+    PODVector<Point2> convex_hull_2d(Span<const Point2> p_points);
+    PODVector<Vector3> clip_polygon(Span<const Vector3> p_points, const Plane &p_plane);
 
     enum PolyBooleanOperation {
         OPERATION_UNION,

@@ -35,20 +35,21 @@
 #include "core/variant_parser.h"
 #include "core/method_bind.h"
 #include "core/string_utils.inl"
+#include "core/pool_vector.h"
 
 
 IMPL_GDCLASS(ConfigFile)
 
 PoolSeStringArray ConfigFile::_get_sections() const {
 
-    List<se_string> s;
+    ListPOD<se_string> s;
     get_sections(&s);
     PoolSeStringArray arr;
     arr.resize(s.size());
     int idx = 0;
-    for (const List<se_string>::Element *E = s.front(); E; E = E->next()) {
+    for (const se_string &E : s) {
 
-        arr.set(idx++, Variant(E->deref()));
+        arr.set(idx++, Variant(E));
     }
 
     return arr;
@@ -56,14 +57,14 @@ PoolSeStringArray ConfigFile::_get_sections() const {
 
 PoolSeStringArray ConfigFile::_get_section_keys(se_string_view p_section) const {
 
-    List<se_string> s;
+    ListPOD<se_string> s;
     get_section_keys(p_section, &s);
     PoolSeStringArray arr;
     arr.resize(s.size());
     int idx = 0;
-    for (const List<se_string>::Element *E = s.front(); E; E = E->next()) {
+    for (const se_string &E : s) {
 
-        arr.set(idx++, Variant(E->deref()));
+        arr.set(idx++, Variant(E));
     }
 
     return arr;
@@ -111,13 +112,13 @@ bool ConfigFile::has_section_key(se_string_view p_section, se_string_view p_key)
     return values[se_string(p_section)].has(se_string(p_key));
 }
 
-void ConfigFile::get_sections(List<se_string> *r_sections) const {
+void ConfigFile::get_sections(ListPOD<se_string> *r_sections) const {
 
     for (OrderedHashMap<se_string, OrderedHashMap<se_string, Variant> >::ConstElement E = values.front(); E; E = E.next()) {
         r_sections->push_back(E.key());
     }
 }
-void ConfigFile::get_section_keys(se_string_view _section, List<se_string> *r_keys) const {
+void ConfigFile::get_section_keys(se_string_view _section, ListPOD<se_string> *r_keys) const {
     const se_string p_section(_section);
     ERR_FAIL_COND_MSG(!values.has(p_section), "Cannont get keys from nonexistent section '" + p_section + "'.")
 

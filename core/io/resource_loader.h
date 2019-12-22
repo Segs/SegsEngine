@@ -116,7 +116,7 @@ public:
     static void remove_resource_format_loader(const ResourceLoaderInterface *p_format_loader);
     static void remove_resource_format_loader(const Ref<ResourceFormatLoader>& p_format_loader);
     static se_string get_resource_type(se_string_view p_path);
-    static void get_dependencies(se_string_view p_path, ListPOD<se_string> *p_dependencies, bool p_add_types = false);
+    static void get_dependencies(se_string_view p_path, PODVector<se_string> &p_dependencies, bool p_add_types = false);
     static Error rename_dependencies(se_string_view p_path, const DefMap<se_string, se_string> &p_map);
     static bool is_import_valid(se_string_view p_path);
     static se_string get_import_group_file(se_string_view p_path);

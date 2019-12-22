@@ -863,7 +863,7 @@ bool VisualShader::_set(const StringName &p_name, const Variant &p_value) {
         se_string index(StringUtils::get_slice(name,'/', 2));
         if (index == "connections") {
 
-            Vector<int> conns = p_value;
+            Vector<int> conns = p_value.as<Vector<int>>();
             if (conns.size() % 4 == 0) {
                 for (int i = 0; i < conns.size(); i += 4) {
                     connect_nodes_forced(type, conns[i + 0], conns[i + 1], conns[i + 2], conns[i + 3]);
@@ -930,7 +930,7 @@ bool VisualShader::_get(const StringName &p_name, Variant &r_ret) const {
         se_string index(StringUtils::get_slice(name,'/', 2));
         if (index == "connections") {
 
-            Vector<int> conns;
+            PODVector<int> conns;
             for (const List<Connection>::Element *E = graph[type].connections.front(); E; E = E->next()) {
                 conns.push_back(E->deref().from_node);
                 conns.push_back(E->deref().from_port);

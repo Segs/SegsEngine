@@ -61,9 +61,9 @@ void SpriteEditor::edit(Sprite *p_sprite) {
 
 #define PRECISION 10.0
 
-Vector<Vector2> expand(const Vector<Vector2> &points, const Rect2i &rect, float epsilon = 2.0) {
+PODVector<Vector2> expand(const PODVector<Vector2> &points, const Rect2i &rect, float epsilon = 2.0) {
     int size = points.size();
-    ERR_FAIL_COND_V(size < 2, Vector<Vector2>())
+    ERR_FAIL_COND_V(size < 2, PODVector<Vector2>())
 
     ClipperLib::Path subj;
     ClipperLib::PolyTree solution;
@@ -100,7 +100,7 @@ Vector<Vector2> expand(const Vector<Vector2> &points, const Rect2i &rect, float 
     cl.AddPath(clamp, ClipperLib::ptClip, true);
     cl.Execute(ClipperLib::ctIntersection, out);
 
-    Vector<Vector2> outPoints;
+    PODVector<Vector2> outPoints;
     ClipperLib::PolyNode *p2 = out.GetFirst();
     ERR_FAIL_COND_V(!p2, points)
 
@@ -209,7 +209,7 @@ void SpriteEditor::_update_mesh_data() {
 
     float epsilon = simplification->get_value();
 
-    Vector<Vector<Vector2> > lines = bm->clip_opaque_to_polygons(rect, epsilon);
+    Vector<PODVector<Vector2> > lines = bm->clip_opaque_to_polygons(rect, epsilon);
 
     uv_lines.clear();
 
@@ -245,7 +245,7 @@ void SpriteEditor::_update_mesh_data() {
                 computed_vertices.push_back(vtx);
             }
 
-            Vector<int> poly = Geometry::triangulate_polygon(lines[j]);
+            PODVector<int> poly = Geometry::triangulate_polygon(lines[j]);
 
             for (int i = 0; i < poly.size(); i += 3) {
                 for (int k = 0; k < 3; k++) {
@@ -269,12 +269,12 @@ void SpriteEditor::_update_mesh_data() {
         for (int pi = 0; pi < lines.size(); pi++) {
 
             Vector<Vector2> ol;
-            Vector<Vector2> col;
+            PODVector<Vector2> col;
 
             ol.resize(lines[pi].size());
-            col.resize(lines[pi].size());
+            col.reserve(lines[pi].size());
 
-            for (int i = 0; i < lines[pi].size(); i++) {
+            for (size_t i = 0; i < lines[pi].size(); i++) {
                 Vector2 vtx = lines[pi][i];
 
                 ol.write[i] = vtx;
@@ -290,7 +290,7 @@ void SpriteEditor::_update_mesh_data() {
                 if (node->is_centered())
                     vtx -= rect.size / 2.0;
 
-                col.write[i] = vtx;
+                col.emplace_back(vtx);
             }
 
             outline_lines.write[pi] = ol;
@@ -330,9 +330,9 @@ void SpriteEditor::_convert_to_mesh_2d_node() {
 
     Array a;
     a.resize(Mesh::ARRAY_MAX);
-    a[Mesh::ARRAY_VERTEX] = computed_vertices;
-    a[Mesh::ARRAY_TEX_UV] = computed_uv;
-    a[Mesh::ARRAY_INDEX] = computed_indices;
+    a[Mesh::ARRAY_VERTEX] = Variant::from(computed_vertices);
+    a[Mesh::ARRAY_TEX_UV] = Variant::from(computed_uv);
+    a[Mesh::ARRAY_INDEX] = Variant::from(computed_indices);
 
     mesh->add_surface_from_arrays(Mesh::PRIMITIVE_TRIANGLES, a, Array(), Mesh::ARRAY_FLAG_USE_2D_VERTICES);
 
@@ -377,7 +377,7 @@ void SpriteEditor::_convert_to_polygon_2d_node() {
 
     for (int i = 0; i < computed_outline_lines.size(); i++) {
 
-        Vector<Vector2> outline = computed_outline_lines[i];
+        const PODVector<Vector2> &outline = computed_outline_lines[i];
         Vector<Vector2> uv_outline = outline_lines[i];
 
         PoolIntArray pia;
@@ -417,10 +417,10 @@ void SpriteEditor::_create_collision_polygon_2d_node() {
 
     for (int i = 0; i < computed_outline_lines.size(); i++) {
 
-        Vector<Vector2> outline = computed_outline_lines[i];
+        PODVector<Vector2> outline = computed_outline_lines[i];
 
         CollisionPolygon2D *collision_polygon_2d_instance = memnew(CollisionPolygon2D);
-        collision_polygon_2d_instance->set_polygon(outline);
+        collision_polygon_2d_instance->set_polygon(eastl::move(outline));
 
         UndoRedo *ur = EditorNode::get_singleton()->get_undo_redo();
         ur->create_action_ui(TTR("Create CollisionPolygon2D Sibling"));
@@ -441,17 +441,11 @@ void SpriteEditor::_create_light_occluder_2d_node() {
 
     for (int i = 0; i < computed_outline_lines.size(); i++) {
 
-        Vector<Vector2> outline = computed_outline_lines[i];
+        PODVector<Vector2> outline = computed_outline_lines[i];
 
         Ref<OccluderPolygon2D> polygon(make_ref_counted<OccluderPolygon2D>());
 
-        PoolVector2Array a;
-        a.resize(outline.size());
-        PoolVector2Array::Write aw = a.write();
-        for (int io = 0; io < outline.size(); io++) {
-            aw[io] = outline[io];
-        }
-        polygon->set_polygon(a);
+        polygon->set_polygon(eastl::move(outline));
 
         LightOccluder2D *light_occluder_2d_instance = memnew(LightOccluder2D);
         light_occluder_2d_instance->set_occluder_polygon(polygon);
@@ -615,9 +609,9 @@ SpriteEditor::SpriteEditor() {
     HBoxContainer *hb = memnew(HBoxContainer);
     hb->add_child(memnew(Label(TTR("Simplification: "))));
     simplification = memnew(SpinBox);
-    simplification->set_min(0.01);
+    simplification->set_min(0.01f);
     simplification->set_max(10.00);
-    simplification->set_step(0.01);
+    simplification->set_step(0.01f);
     simplification->set_value(2);
     hb->add_child(simplification);
     hb->add_spacer();

@@ -376,15 +376,16 @@ void TextureProgress::_notification(int p_what) {
                                         pts.append(corners[i]);
                                 pts.sort();
                                 Vector<Point2> uvs;
-                                Vector<Point2> points;
+                                PODVector<Point2> points;
+                                points.reserve(pts.size()+1);
                                 uvs.push_back(get_relative_center());
-                                points.push_back(Point2(s.x * get_relative_center().x, s.y * get_relative_center().y));
+                                points.emplace_back(s.x * get_relative_center().x, s.y * get_relative_center().y);
                                 for (int i = 0; i < pts.size(); i++) {
                                     Point2 uv = unit_val_to_uv(pts[i]);
                                     if (uvs.find(uv) >= 0)
                                         continue;
                                     uvs.push_back(uv);
-                                    points.push_back(Point2(uv.x * s.x, uv.y * s.y));
+                                    points.emplace_back(uv.x * s.x, uv.y * s.y);
                                 }
                                 Vector<Color> colors;
                                 colors.push_back(tint_progress);
@@ -401,8 +402,8 @@ void TextureProgress::_notification(int p_what) {
                                 p.x *= get_relative_center().x;
                                 p.y *= get_relative_center().y;
                                 p = p.floor();
-                                draw_line(p - Point2(8, 0), p + Point2(8, 0), Color(0.9, 0.5, 0.5), 2);
-                                draw_line(p - Point2(0, 8), p + Point2(0, 8), Color(0.9, 0.5, 0.5), 2);
+                                draw_line(p - Point2(8, 0), p + Point2(8, 0), Color(0.9f, 0.5, 0.5), 2);
+                                draw_line(p - Point2(0, 8), p + Point2(0, 8), Color(0.9f, 0.5, 0.5), 2);
                             }
                         } break;
                         case FILL_BILINEAR_LEFT_AND_RIGHT: {

@@ -69,6 +69,26 @@ class SceneTreeEditor : public Control {
     bool connecting_signal;
 
     int blocked;
+    uint64_t last_hash;
+
+    bool can_rename;
+    bool can_open_instance;
+    bool updating_tree;
+    bool show_enabled_subscene;
+
+    void _renamed();
+    UndoRedo *undo_redo;
+
+    Set<Node *> marked;
+    bool marked_selectable;
+    bool marked_children_selectable;
+    bool display_foreign;
+    bool tree_dirty;
+    bool pending_test_update;
+    Timer *update_timer;
+
+    ListPOD<StringName> *script_types;
+    PODVector<StringName> valid_types;
 
     void _compute_hash(Node *p_node, uint64_t &hash);
 
@@ -87,22 +107,6 @@ class SceneTreeEditor : public Control {
 
     void _cell_collapsed(Object *p_obj);
 
-    uint64_t last_hash;
-
-    bool can_rename;
-    bool can_open_instance;
-    bool updating_tree;
-    bool show_enabled_subscene;
-
-    void _renamed();
-    UndoRedo *undo_redo;
-
-    Set<Node *> marked;
-    bool marked_selectable;
-    bool marked_children_selectable;
-    bool display_foreign;
-    bool tree_dirty;
-    bool pending_test_update;
     static void _bind_methods();
 
     void _cell_button_pressed(Object *p_item, int p_column, int p_id);
@@ -126,12 +130,7 @@ class SceneTreeEditor : public Control {
 
     void _warning_changed(Node *p_for_node);
 
-    Timer *update_timer;
-
-    ListPOD<StringName> *script_types;
     bool _is_script_type(const StringName &p_type) const;
-
-    Vector<StringName> valid_types;
 
 public:
     void set_filter(const String &p_filter);
@@ -149,7 +148,7 @@ public:
     void set_editor_selection(EditorSelection *p_selection);
 
     void set_show_enabled_subscene(bool p_show) { show_enabled_subscene = p_show; }
-    void set_valid_types(const Vector<StringName> &p_valid);
+    void set_valid_types(const PODVector<StringName> &p_valid);
 
     void update_tree() { _update_tree(); }
 

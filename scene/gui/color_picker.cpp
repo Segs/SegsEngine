@@ -420,11 +420,12 @@ void ColorPicker::_hsv_draw(int p_which, Control *c) {
     if (!c)
         return;
     if (p_which == 0) {
-        Vector<Point2> points;
-        points.push_back(Vector2());
-        points.push_back(Vector2(c->get_size().x, 0));
-        points.push_back(c->get_size());
-        points.push_back(Vector2(0, c->get_size().y));
+        Point2 points[4] {
+            Vector2(),
+            Vector2(c->get_size().x, 0),
+            c->get_size(),
+            Vector2(0, c->get_size().y)
+        };
         Vector<Color> colors;
         colors.push_back(Color(1, 1, 1, 1));
         colors.push_back(Color(1, 1, 1, 1));
@@ -432,20 +433,14 @@ void ColorPicker::_hsv_draw(int p_which, Control *c) {
         colors.push_back(Color(0, 0, 0, 1));
         c->draw_polygon(points, colors);
         Vector<Color> colors2;
-        Color col = color;
-        col.set_hsv(h, 1, 1);
-        col.a = 0;
-        colors2.push_back(col);
-        col.a = 1;
-        colors2.push_back(col);
-        col.set_hsv(h, 1, 0);
-        colors2.push_back(col);
-        col.a = 0;
-        colors2.push_back(col);
+        colors2.emplace_back(Color::from_hsv(h, 1, 1,0));
+        colors2.emplace_back(Color::from_hsv(h, 1, 1,1));
+        colors2.emplace_back(Color::from_hsv(h, 1, 0,1));
+        colors2.emplace_back(Color::from_hsv(h, 1, 0,0));
         c->draw_polygon(points, colors2);
         int x = CLAMP(c->get_size().x * s, 0, c->get_size().x);
         int y = CLAMP(c->get_size().y - c->get_size().y * v, 0, c->get_size().y);
-        col = color;
+        Color col = color;
         col.a = 1;
         c->draw_line(Point2(x, 0), Point2(x, c->get_size().y), col.inverted());
         c->draw_line(Point2(0, y), Point2(c->get_size().x, y), col.inverted());
@@ -453,7 +448,7 @@ void ColorPicker::_hsv_draw(int p_which, Control *c) {
     } else if (p_which == 1) {
         Ref<Texture> hue = get_icon("color_hue", "ColorPicker");
         c->draw_texture_rect(hue, Rect2(Point2(), c->get_size()));
-        int y = c->get_size().y - c->get_size().y * (1.0 - h);
+        int y = c->get_size().y - c->get_size().y * (1.0f - h);
         Color col = Color();
         col.set_hsv(h, 1, 1);
         c->draw_line(Point2(0, y), Point2(c->get_size().x, y), col.inverted());
@@ -627,7 +622,7 @@ void ColorPicker::_screen_pick_pressed() {
         screen->set_default_cursor_shape(CURSOR_POINTING_HAND);
         screen->connect("gui_input", this, "_screen_input");
         // It immediately toggles off in the first press otherwise.
-        screen->call_deferred("connect", "hide", Variant(btn_pick), "set_pressed", varray(false));
+        screen->call_deferred("connect", "hide", Variant(btn_pick), "set_pressed", Variant::from(varray(false)));
     }
     screen->raise();
     screen->show_modal();

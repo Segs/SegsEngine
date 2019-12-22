@@ -274,8 +274,8 @@ class GDScriptTokenizerBuffer : public GDScriptTokenizer {
     int token;
 
 public:
-    Error set_code_buffer(const Vector<uint8_t> &p_buffer);
-    static Vector<uint8_t> parse_code_string(se_string_view p_code);
+    Error set_code_buffer(const PODVector<uint8_t> &p_buffer);
+    static PODVector<uint8_t> parse_code_string(se_string_view p_code);
     Token get_token(int p_offset = 0) const override;
     StringName get_token_identifier(int p_offset = 0) const override;
     GDScriptFunctions::Function get_token_built_in_func(int p_offset = 0) const override;

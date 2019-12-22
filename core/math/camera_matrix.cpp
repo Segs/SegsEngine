@@ -263,7 +263,7 @@ void CameraMatrix::get_viewport_size(real_t &r_width, real_t &r_height) const {
 
 bool CameraMatrix::get_endpoints(const Transform &p_transform, Vector3 *p_8points) const {
 
-    Vector<Plane> planes = get_projection_planes(Transform());
+    Frustum planes = get_projection_planes(Transform());
     const Planes intersections[8][3] = {
         { PLANE_FAR, PLANE_LEFT, PLANE_TOP },
         { PLANE_FAR, PLANE_LEFT, PLANE_BOTTOM },
@@ -286,7 +286,7 @@ bool CameraMatrix::get_endpoints(const Transform &p_transform, Vector3 *p_8point
     return true;
 }
 
-Vector<Plane> CameraMatrix::get_projection_planes(const Transform &p_transform) const {
+Frustum CameraMatrix::get_projection_planes(const Transform &p_transform) const {
 
     /** Fast Plane Extraction from combined modelview/projection matrices.
      * References:
@@ -294,7 +294,7 @@ Vector<Plane> CameraMatrix::get_projection_planes(const Transform &p_transform) 
      * https://web.archive.org/web/20061020020112/http://www2.ravensoft.com/users/ggribb/plane%20extraction.pdf
      */
 
-    Vector<Plane> planes;
+    Frustum planes;
 
     const real_t *matrix = (const real_t *)this->matrix;
 
@@ -309,7 +309,7 @@ Vector<Plane> CameraMatrix::get_projection_planes(const Transform &p_transform) 
     new_plane.normal = -new_plane.normal;
     new_plane.normalize();
 
-    planes.push_back(p_transform.xform(new_plane));
+    planes[0] = p_transform.xform(new_plane);
 
     ///////--- Far Plane ---///////
     new_plane = Plane(matrix[3] - matrix[2],
@@ -320,7 +320,7 @@ Vector<Plane> CameraMatrix::get_projection_planes(const Transform &p_transform) 
     new_plane.normal = -new_plane.normal;
     new_plane.normalize();
 
-    planes.push_back(p_transform.xform(new_plane));
+    planes[1] = p_transform.xform(new_plane);
 
     ///////--- Left Plane ---///////
     new_plane = Plane(matrix[3] + matrix[0],
@@ -331,7 +331,7 @@ Vector<Plane> CameraMatrix::get_projection_planes(const Transform &p_transform) 
     new_plane.normal = -new_plane.normal;
     new_plane.normalize();
 
-    planes.push_back(p_transform.xform(new_plane));
+    planes[2] = p_transform.xform(new_plane);
 
     ///////--- Top Plane ---///////
     new_plane = Plane(matrix[3] - matrix[1],
@@ -342,7 +342,7 @@ Vector<Plane> CameraMatrix::get_projection_planes(const Transform &p_transform) 
     new_plane.normal = -new_plane.normal;
     new_plane.normalize();
 
-    planes.push_back(p_transform.xform(new_plane));
+    planes[3] = p_transform.xform(new_plane);
 
     ///////--- Right Plane ---///////
     new_plane = Plane(matrix[3] - matrix[0],
@@ -353,7 +353,7 @@ Vector<Plane> CameraMatrix::get_projection_planes(const Transform &p_transform) 
     new_plane.normal = -new_plane.normal;
     new_plane.normalize();
 
-    planes.push_back(p_transform.xform(new_plane));
+    planes[4] = p_transform.xform(new_plane);
 
     ///////--- Bottom Plane ---///////
     new_plane = Plane(matrix[3] + matrix[1],
@@ -364,7 +364,7 @@ Vector<Plane> CameraMatrix::get_projection_planes(const Transform &p_transform) 
     new_plane.normal = -new_plane.normal;
     new_plane.normalize();
 
-    planes.push_back(p_transform.xform(new_plane));
+    planes[5] = p_transform.xform(new_plane);
 
     return planes;
 }
@@ -445,7 +445,7 @@ void CameraMatrix::invert() {
         }
 
         /** Replace pivot by reciprocal (at last we can touch it). **/
-        matrix[k][k] = 1.0 / pvt_val;
+        matrix[k][k] = 1.0f / pvt_val;
     }
 
     /* That was most of the work, one final pass of row/column interchange */
