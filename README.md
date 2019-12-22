@@ -18,6 +18,16 @@ Synced with upstream up to godotengine/godot@c3ea4ea9b76d1bacde83f7b70af4638cf2f
 * Remove the death-like grip of gdscript on the engine internals, make it more optional.
 * Replace the message/signals with a saner c++ delegates/work queues and expose those to scripting languages.
 
+## Largest differences
+
+* String type has been split into utf8 based se_string and se_string_view and UI only String based on QString.
+* Many places in the codebase no longer use COW types (Vector), but use EASTL ones instead.
+* Some modules are hard-disabled ( gdnative,camera ), some will make a comback ( mono )
+* (TODO: fill this as we progress)
+
+Original README.md contents follow:
+==
+
 ## Godot Engine
 
 Homepage: https://godotengine.org

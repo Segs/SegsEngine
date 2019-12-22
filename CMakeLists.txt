@@ -33,7 +33,7 @@ include(PluginSupport)
 ######################################
 
 option(USE_UNITY_BUILDS "Use unity builds" ON)
-set(DEFAULT_UNITY_BATCH_SIZE 20)
+set(DEFAULT_UNITY_BATCH_SIZE 10)
 set(global_targets "" CACHE INTERNAL "")
 
 function(define_target )
@@ -245,7 +245,7 @@ endforeach()
 if(USE_UNITY_BUILDS)
     foreach(tgt ${global_targets})
         set_target_properties(${tgt}_engine PROPERTIES UNITY_BUILD ON)
-        set_target_properties(${tgt}_engine PROPERTIES UNITY_BUILD_BATCH_SIZE 20)
+        set_target_properties(${tgt}_engine PROPERTIES UNITY_BUILD_BATCH_SIZE ${DEFAULT_UNITY_BATCH_SIZE})
         if(MSVC)
             target_compile_options(${tgt}_engine PRIVATE /bigobj)
         endif()
