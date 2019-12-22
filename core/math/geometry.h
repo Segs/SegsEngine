@@ -185,7 +185,7 @@ public:
         return dP.length(); // Return the closest distance.
     }
 
-    static inline bool ray_intersects_triangle(const Vector3 &p_from, const Vector3 &p_dir, const Vector3 &p_v0, const Vector3 &p_v1, const Vector3 &p_v2, Vector3 *r_res = nullptr) {
+    static bool ray_intersects_triangle(const Vector3 &p_from, const Vector3 &p_dir, const Vector3 &p_v0, const Vector3 &p_v1, const Vector3 &p_v2, Vector3 *r_res = nullptr) {
         Vector3 e1 = p_v1 - p_v0;
         Vector3 e2 = p_v2 - p_v0;
         Vector3 h = p_dir.cross(e2);
@@ -220,7 +220,7 @@ public:
             return false;
     }
 
-    static inline bool segment_intersects_triangle(const Vector3 &p_from, const Vector3 &p_to, const Vector3 &p_v0, const Vector3 &p_v1, const Vector3 &p_v2, Vector3 *r_res = nullptr) {
+    static bool segment_intersects_triangle(const Vector3 &p_from, const Vector3 &p_to, const Vector3 &p_v0, const Vector3 &p_v1, const Vector3 &p_v2, Vector3 *r_res = nullptr) {
 
         Vector3 rel = p_to - p_from;
         Vector3 e1 = p_v1 - p_v0;
@@ -257,7 +257,7 @@ public:
         return false;
     }
 
-    static inline bool segment_intersects_sphere(const Vector3 &p_from, const Vector3 &p_to, const Vector3 &p_sphere_pos, real_t p_sphere_radius, Vector3 *r_res = nullptr, Vector3 *r_norm = nullptr) {
+    static bool segment_intersects_sphere(const Vector3 &p_from, const Vector3 &p_to, const Vector3 &p_sphere_pos, real_t p_sphere_radius, Vector3 *r_res = nullptr, Vector3 *r_norm = nullptr) {
 
         Vector3 sphere_pos = p_sphere_pos - p_from;
         Vector3 rel = (p_to - p_from);
@@ -293,7 +293,7 @@ public:
         return true;
     }
 
-    static inline bool segment_intersects_cylinder(const Vector3 &p_from, const Vector3 &p_to, real_t p_height, real_t p_radius, Vector3 *r_res = nullptr, Vector3 *r_norm = nullptr) {
+    static bool segment_intersects_cylinder(const Vector3 &p_from, const Vector3 &p_to, real_t p_height, real_t p_radius, Vector3 *r_res = nullptr, Vector3 *r_norm = nullptr) {
 
         Vector3 rel = (p_to - p_from);
         real_t rel_l = rel.length();
@@ -558,7 +558,7 @@ public:
         return true;
     }
 
-    static inline bool point_in_projected_triangle(const Vector3 &p_point, const Vector3 &p_v1, const Vector3 &p_v2, const Vector3 &p_v3) {
+    static bool point_in_projected_triangle(const Vector3 &p_point, const Vector3 &p_v1, const Vector3 &p_v2, const Vector3 &p_v3) {
 
         Vector3 face_n = (p_v1 - p_v3).cross(p_v1 - p_v2);
 
@@ -577,7 +577,7 @@ public:
         return face_n.dot(n3) >= 0;
     }
 
-    static inline bool triangle_sphere_intersection_test(const Vector3 *p_triangle, const Vector3 &p_normal, const Vector3 &p_sphere_pos, real_t p_sphere_radius, Vector3 &r_triangle_contact, Vector3 &r_sphere_contact) {
+    static bool triangle_sphere_intersection_test(const Vector3 *p_triangle, const Vector3 &p_normal, const Vector3 &p_sphere_pos, real_t p_sphere_radius, Vector3 &r_triangle_contact, Vector3 &r_sphere_contact) {
 
         real_t d = p_normal.dot(p_sphere_pos) - p_normal.dot(p_triangle[0]);
 
@@ -657,7 +657,7 @@ public:
         return false;
     }
 
-    static inline bool is_point_in_circle(const Vector2 &p_point, const Vector2 &p_circle_pos, real_t p_circle_radius) {
+    static bool is_point_in_circle(const Vector2 &p_point, const Vector2 &p_circle_pos, real_t p_circle_radius) {
 
         return p_point.distance_squared_to(p_circle_pos) <= p_circle_radius * p_circle_radius;
     }
@@ -691,14 +691,14 @@ public:
         return -1;
     }
 
-    static inline PODVector<Vector3> clip_polygon(Span<const Vector3> &polygon, const Plane &p_plane) {
+    static PODVector<Vector3> clip_polygon(Span<const Vector3> &polygon, const Plane &p_plane) {
 
         enum LocationCache {
             LOC_INSIDE = 1,
             LOC_BOUNDARY = 0,
             LOC_OUTSIDE = -1
         };
-        int poly_count = polygon.size();
+        size_t poly_count = polygon.size();
         if (poly_count == 0)
             return {};
 

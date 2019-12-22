@@ -91,7 +91,7 @@ endforeach()
 set_common_target_properties(edit_tools)
 if(USE_UNITY_BUILDS)
     set_target_properties(edit_tools PROPERTIES UNITY_BUILD ON)
-    set_target_properties(edit_tools PROPERTIES UNITY_BUILD_BATCH_SIZE ${DEFAULT_UNITY_BATCH_SIZE})
+    set_target_properties(edit_tools PROPERTIES UNITY_BUILD_BATCH_SIZE 10) # NOTE: this has been reduce to allow VS2017 to preperly create obj file.
 endif()
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${editor_sources})
 source_group(TREE ${PROJECT_SOURCE_DIR} FILES ${editor_3rdparty})

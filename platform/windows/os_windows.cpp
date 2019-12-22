@@ -28,15 +28,13 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-// Must include Winsock before windows.h (included by os_windows.h)
-#include "drivers/unix/net_socket_posix.h"
-
 #include "os_windows.h"
 
 #include "core/io/marshalls.h"
 #include "core/version_generated.gen.h"
 #include "core/string_utils.inl"
 #include "drivers/gles3/rasterizer_gles3.h"
+#include "drivers/unix/net_socket_posix.h"
 #include "drivers/windows/dir_access_windows.h"
 #include "drivers/windows/file_access_windows.h"
 #include "drivers/windows/rw_lock_windows.h"
@@ -417,7 +415,7 @@ LRESULT OS_Windows::WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
             UINT dwSize;
 
             GetRawInputData((HRAWINPUT)lParam, RID_INPUT, nullptr, &dwSize, sizeof(RAWINPUTHEADER));
-            LPBYTE lpb = new BYTE[dwSize];
+            LPBYTE lpb = new (std::nothrow) BYTE[dwSize];
             if (lpb == nullptr) {
                 return 0;
             }

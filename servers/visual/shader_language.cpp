@@ -289,7 +289,7 @@ ShaderLanguage::Token ShaderLanguage::_get_token() {
 
             case 0:
                 return _make_token(TK_EOF);
-            case 0xFF:
+            case char(0xFF):
                 return _make_token(TK_CURSOR); //for completion
             case '\t':
             case '\r':

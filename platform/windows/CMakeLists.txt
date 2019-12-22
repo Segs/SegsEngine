@@ -2,7 +2,7 @@
 find_package(OpenGL REQUIRED)
 
 foreach(tgt ${global_targets})
-    target_sources(${tgt}_engine PRIVATE
+    set(sources
         camera_win.cpp
         context_gl_windows.cpp
         crash_handler_windows.cpp
@@ -12,6 +12,9 @@ foreach(tgt ${global_targets})
         windows_terminal_logger.cpp
         os_windows.cpp
     )
+    target_sources(${tgt}_engine PRIVATE ${sources} )
+    set(NO_UNITY_SOURCES ${sources} PARENT_SCOPE)
+
     #target_sources(segs_${tgt} PRIVATE "godot_res.rc")
     target_link_libraries(${tgt}_engine PRIVATE ${tgt}_modules ${tgt}_core ${LIBRARIES} ${OPENGL_LIBRARIES})
 

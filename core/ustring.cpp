@@ -1578,7 +1578,7 @@ se_string_view StringUtils::substr(se_string_view s,int p_from, size_t p_chars) 
     if(s.empty())
         return res;
     ssize_t count = static_cast<ssize_t>(p_chars);
-    if ((p_from + count) > s.length()) {
+    if ((p_from + count) > ssize_t(s.length())) {
 
         p_chars = s.length() - p_from;
     }

@@ -161,7 +161,7 @@ public:
 };
 
 
-class CanvasItem : public Node {
+class GODOT_EXPORT CanvasItem : public Node {
 
     GDCLASS(CanvasItem,Node)
 

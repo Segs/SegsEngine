@@ -818,10 +818,6 @@ void SpatialMaterial::_update_shader() {
         code += "\talbedo_tex.rgb = mix(pow((albedo_tex.rgb + vec3(0.055)) * (1.0 / (1.0 + 0.055)),vec3(2.4)),albedo_tex.rgb.rgb * (1.0 / 12.92),lessThan(albedo_tex.rgb,vec3(0.04045)));\n";
     }
 
-    if (flags[FLAG_ALBEDO_TEXTURE_FORCE_SRGB]) {
-        code += "\talbedo_tex.rgb = mix(pow((albedo_tex.rgb + vec3(0.055)) * (1.0 / (1.0 + 0.055)),vec3(2.4)),albedo_tex.rgb.rgb * (1.0 / 12.92),lessThan(albedo_tex.rgb,vec3(0.04045)));\n";
-    }
-
     if (flags[FLAG_ALBEDO_FROM_VERTEX_COLOR]) {
         code += "\talbedo_tex *= COLOR;\n";
     }

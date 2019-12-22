@@ -111,18 +111,18 @@ private:
 
     struct TextOperation {
 
-        enum Type {
-            TYPE_NONE,
+        enum Type : uint8_t {
+            TYPE_NONE=0,
             TYPE_INSERT,
             TYPE_REMOVE
         };
 
-        Type type=TYPE_NONE;
+        String text;
         int from_line=0, from_column=0;
         int to_line=0, to_column=0;
-        String text;
         uint32_t prev_version=0;
         uint32_t version=0;
+        Type type=TYPE_NONE;
         bool chain_forward=false;
         bool chain_backward=false;
     };

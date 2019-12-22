@@ -28,26 +28,16 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef NET_SOCKET_UNIX_H
-#define NET_SOCKET_UNIX_H
+#pragma once
 
 #include "core/io/net_socket.h"
 
-#if defined(WINDOWS_ENABLED)
-#include <winsock2.h>
-#include <ws2tcpip.h>
-#define SOCKET_TYPE SOCKET
 
-#else
-#include <sys/socket.h>
-#define SOCKET_TYPE int
-
-#endif
-
+struct SOCKET_HOLDER;
 class NetSocketPosix : public NetSocket {
 
 private:
-    SOCKET_TYPE _sock;
+    SOCKET_HOLDER *_sock;
     IP::Type _ip_type;
     bool _is_stream;
 
@@ -59,7 +49,7 @@ private:
     };
 
     NetError _get_socket_error();
-    void _set_socket(SOCKET_TYPE p_sock, IP::Type p_ip_type, bool p_is_stream);
+    void _set_socket(SOCKET_HOLDER *p_sock, IP::Type p_ip_type, bool p_is_stream);
     _FORCE_INLINE_ Error _change_multicast_group(IP_Address p_ip, se_string_view p_if_name, bool p_add);
     _FORCE_INLINE_ void _set_close_exec_enabled(bool p_enabled);
 protected:
@@ -100,5 +90,3 @@ public:
     GODOT_EXPORT NetSocketPosix();
     GODOT_EXPORT ~NetSocketPosix() override;
 };
-
-#endif

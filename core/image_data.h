@@ -4,7 +4,7 @@
 
 struct ImageData
 {
-    enum Format  {
+    enum Format : uint8_t {
 
         FORMAT_L8=0, //luminance
         FORMAT_LA8, //luminance-alpha
@@ -50,8 +50,8 @@ struct ImageData
         MAX_HEIGHT = 16384 // force a limit somehow
     };
 
-    Format format;
     PoolVector<uint8_t> data;
     int width, height;
+    Format format;
     bool mipmaps;
 };

@@ -239,7 +239,7 @@ struct SceneTreeDebugAccessor final : public ISceneTreeDebugAccessor{
         for (Set<Node *>::iterator F = E->second.begin(); F != E->second.end();) {
 
             Set<Node *>::iterator N = F;
-            N++;
+            ++N;
 
             Node *n = *F;
 
