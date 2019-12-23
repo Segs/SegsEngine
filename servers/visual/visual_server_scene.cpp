@@ -33,6 +33,7 @@
 #include "visual_server_globals.h"
 #include "visual_server_raster.h"
 
+#include "core/external_profiler.h"
 #include "core/os/mutex.h"
 #include "core/os/os.h"
 #include <new>
@@ -1847,6 +1848,8 @@ void VisualServerScene::render_camera(Ref<ARVRInterface> &p_interface, ARVRInter
 };
 
 void VisualServerScene::_prepare_scene(const Transform p_cam_transform, const CameraMatrix &p_cam_projection, bool p_cam_orthogonal, RID p_force_environment, uint32_t p_visible_layers, RID p_scenario, RID p_shadow_atlas, RID p_reflection_probe) {
+    SCOPE_AUTONAMED
+
     // Note, in stereo rendering:
     // - p_cam_transform will be a transform in the middle of our two eyes
     // - p_cam_projection is a wider frustrum that encompasses both eyes
@@ -2173,6 +2176,7 @@ void VisualServerScene::_prepare_scene(const Transform p_cam_transform, const Ca
 }
 
 void VisualServerScene::_render_scene(const Transform p_cam_transform, const CameraMatrix &p_cam_projection, bool p_cam_orthogonal, RID p_force_environment, RID p_scenario, RID p_shadow_atlas, RID p_reflection_probe, int p_reflection_probe_pass) {
+    SCOPE_AUTONAMED
 
     Scenario *scenario = scenario_owner.getornull(p_scenario);
 
@@ -3457,6 +3461,8 @@ void VisualServerScene::_update_dirty_instance(Instance *p_instance) {
 }
 
 void VisualServerScene::update_dirty_instances() {
+
+   SCOPE_AUTONAMED
 
     VSG::storage->update_dirty_resources();
 

@@ -32,6 +32,7 @@
 
 #include "core/class_db.h"
 #include "core/crypto/crypto.h"
+#include "core/external_profiler.h"
 #include "core/input_map.h"
 #include "core/io/file_access_network.h"
 #include "core/io/file_access_pack.h"
@@ -2011,7 +2012,7 @@ static uint64_t physics_process_max = 0;
 static uint64_t idle_process_max = 0;
 
 bool Main::iteration() {
-
+    SCOPE_AUTONAMED;
     //for now do not error on this
     //ERR_FAIL_COND_V(iterating, false)
 

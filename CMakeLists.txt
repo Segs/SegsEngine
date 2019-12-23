@@ -25,6 +25,9 @@ cmake_policy(SET CMP0079 NEW)
 
 include(LocateQt5)
 find_package(Qt5 COMPONENTS Core REQUIRED)
+set(THREADS_PREFER_PTHREAD_FLAG ON)
+find_package(Threads REQUIRED)
+
 #find_package(Dotnet)
 include(GenerateExportHeader)
 include(Helpers)
@@ -33,6 +36,8 @@ include(PluginSupport)
 ######################################
 
 option(USE_UNITY_BUILDS "Use unity builds" ON)
+option(USE_TRACY_PROFILER "Embed a tracy profiler data collection client" ON)
+
 set(DEFAULT_UNITY_BATCH_SIZE 10)
 set(global_targets "" CACHE INTERNAL "")
 
@@ -72,8 +77,10 @@ define_per_target_option(DISABLE_3D "Disable 3D nodes for smaller executable" OF
 foreach(tgt ${global_targets})
     add_library(${tgt}_engine SHARED)
     target_link_libraries(${tgt}_engine PUBLIC Qt5::Core EASTL_Import)
-
     set_common_target_properties(${tgt}_engine)
+    if(USE_TRACY_PROFILER)
+        target_sources(${tgt}_engine PRIVATE thirdparty/tracy/TracyClient.cpp)
+    endif()
 
     add_executable(segs_${tgt} ${PROJECT_SOURCE_DIR}/executable/main.cpp)
     if(UNIX AND NOT APPLE)
@@ -83,6 +90,9 @@ foreach(tgt ${global_targets})
     set_target_properties(segs_${tgt} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin)
     target_compile_definitions(segs_${tgt} PRIVATE ${godot_${tgt}_DEFINES})
     target_include_directories(segs_${tgt} PRIVATE ${PROJECT_BINARY_DIR})
+    if(USE_TRACY_PROFILER)
+        target_sources(segs_${tgt} PRIVATE thirdparty/tracy/TracyClientDLL.cpp)
+    endif()
 endforeach()
 
 message(${global_targets})

@@ -7,6 +7,10 @@ macro(set_common_target_properties TARGET)
     )
     # always export symbols marked as such
     target_compile_definitions(${TARGET} PRIVATE GODOT_EXPORTS)
+    if(USE_TRACY_PROFILER)
+        target_compile_definitions(${TARGET} PRIVATE TRACY_ENABLE)
+        target_link_libraries(${TARGET} PUBLIC Threads::Threads)
+    endif()
 endmacro()
 
 # Function to wrap a given string into multiple lines at the given column position.

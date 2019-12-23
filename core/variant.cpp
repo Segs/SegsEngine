@@ -2400,7 +2400,8 @@ Variant::Variant(const PODVector<uint8_t> &p_raw_array) {
     type = VariantType::POOL_BYTE_ARRAY;
     PoolVector<uint8_t> to_add;
     to_add.resize(p_raw_array.size());
-    memcpy(to_add.write().ptr(),p_raw_array.data(),p_raw_array.size());
+    if(!p_raw_array.empty())
+        memcpy(to_add.write().ptr(),p_raw_array.data(),p_raw_array.size());
     static_assert (sizeof(PoolVector<uint8_t>)<=sizeof(_data));
     memnew_placement(_data._mem, PoolVector<uint8_t>(to_add));
 }
@@ -2415,7 +2416,8 @@ Variant::Variant(const PODVector<int> &p_raw_array) {
     type = VariantType::POOL_INT_ARRAY;
     PoolVector<int> to_add;
     to_add.resize(p_raw_array.size());
-    memcpy(to_add.write().ptr(),p_raw_array.data(),p_raw_array.size()*sizeof(int));
+    if(!p_raw_array.empty())
+        memcpy(to_add.write().ptr(),p_raw_array.data(),p_raw_array.size()*sizeof(int));
     static_assert (sizeof(PoolVector<uint8_t>)<=sizeof(_data));
     memnew_placement(_data._mem, PoolVector<int>(to_add));
 }

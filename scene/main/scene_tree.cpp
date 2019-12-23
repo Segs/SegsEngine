@@ -30,6 +30,7 @@
 
 #include "scene_tree.h"
 
+#include "core/external_profiler.h"
 #include "core/deque.h"
 #include "core/io/marshalls.h"
 #include "core/io/resource_loader.h"
@@ -852,7 +853,7 @@ void SceneTree::_update_font_oversampling(float p_ratio) {
 }
 
 bool SceneTree::idle(float p_time) {
-
+    SCOPE_AUTONAMED
     //print_line("ram: "+itos(OS::get_singleton()->get_static_memory_usage())+" sram: "+itos(OS::get_singleton()->get_dynamic_memory_usage()));
     //print_line("node count: "+itos(get_node_count()));
     //print_line("TEXTURE RAM: "+itos(VisualServer::get_singleton()->get_render_info(VS::INFO_TEXTURE_MEM_USED)));

@@ -36,7 +36,6 @@
 #include "core/project_settings.h"
 
 IMPL_GDCLASS(VisualServer)
-using namespace VS;
 VisualServer *VisualServer::singleton = nullptr;
 VisualServer *(*VisualServer::create_func)() = nullptr;
 
@@ -339,7 +338,7 @@ RID VisualServer::get_white_texture() {
     }
     Ref<Image> white(make_ref_counted<Image>(4, 4, 0, Image::FORMAT_RGB8, wt));
     white_texture = texture_create();
-    texture_allocate(white_texture, 4, 4, 0, Image::FORMAT_RGB8, TEXTURE_TYPE_2D);
+    texture_allocate(white_texture, 4, 4, 0, Image::FORMAT_RGB8, VS::TEXTURE_TYPE_2D);
     texture_set_data(white_texture, white);
     return white_texture;
 }
@@ -380,7 +379,7 @@ Error VisualServer::_surface_set_data(Array p_arrays, uint32_t p_format, uint32_
                     // setting vertices means regenerating the AABB
                     Rect2 aabb;
 
-                    if (p_format & ARRAY_COMPRESS_VERTEX) {
+                    if (p_format & VS::ARRAY_COMPRESS_VERTEX) {
 
                         for (int i = 0; i < p_vertex_array_len; i++) {
 
@@ -426,7 +425,7 @@ Error VisualServer::_surface_set_data(Array p_arrays, uint32_t p_format, uint32_
                     // setting vertices means regenerating the AABB
                     AABB aabb;
 
-                    if (p_format & ARRAY_COMPRESS_VERTEX) {
+                    if (p_format & VS::ARRAY_COMPRESS_VERTEX) {
 
                         for (int i = 0; i < p_vertex_array_len; i++) {
 
@@ -476,7 +475,7 @@ Error VisualServer::_surface_set_data(Array p_arrays, uint32_t p_format, uint32_
 
                 // setting vertices means regenerating the AABB
 
-                if (p_format & ARRAY_COMPRESS_NORMAL) {
+                if (p_format & VS::ARRAY_COMPRESS_NORMAL) {
 
                     for (int i = 0; i < p_vertex_array_len; i++) {
 
@@ -511,7 +510,7 @@ Error VisualServer::_surface_set_data(Array p_arrays, uint32_t p_format, uint32_
                 PoolVector<real_t>::Read read = array.read();
                 const real_t *src = read.ptr();
 
-                if (p_format & ARRAY_COMPRESS_TANGENT) {
+                if (p_format & VS::ARRAY_COMPRESS_TANGENT) {
 
                     for (int i = 0; i < p_vertex_array_len; i++) {
 
@@ -551,7 +550,7 @@ Error VisualServer::_surface_set_data(Array p_arrays, uint32_t p_format, uint32_
                 PoolVector<Color>::Read read = array.read();
                 const Color *src = read.ptr();
 
-                if (p_format & ARRAY_COMPRESS_COLOR) {
+                if (p_format & VS::ARRAY_COMPRESS_COLOR) {
 
                     for (int i = 0; i < p_vertex_array_len; i++) {
 
@@ -585,7 +584,7 @@ Error VisualServer::_surface_set_data(Array p_arrays, uint32_t p_format, uint32_
 
                 const Vector2 *src = read.ptr();
 
-                if (p_format & ARRAY_COMPRESS_TEX_UV) {
+                if (p_format & VS::ARRAY_COMPRESS_TEX_UV) {
 
                     for (int i = 0; i < p_vertex_array_len; i++) {
 
@@ -616,7 +615,7 @@ Error VisualServer::_surface_set_data(Array p_arrays, uint32_t p_format, uint32_
 
                 const Vector2 *src = read.ptr();
 
-                if (p_format & ARRAY_COMPRESS_TEX_UV2) {
+                if (p_format & VS::ARRAY_COMPRESS_TEX_UV2) {
 
                     for (int i = 0; i < p_vertex_array_len; i++) {
 
@@ -645,7 +644,7 @@ Error VisualServer::_surface_set_data(Array p_arrays, uint32_t p_format, uint32_
 
                 const real_t *src = read.ptr();
 
-                if (p_format & ARRAY_COMPRESS_WEIGHTS) {
+                if (p_format & VS::ARRAY_COMPRESS_WEIGHTS) {
 
                     for (int i = 0; i < p_vertex_array_len; i++) {
 
@@ -682,7 +681,7 @@ Error VisualServer::_surface_set_data(Array p_arrays, uint32_t p_format, uint32_
 
                 const int *src = read.ptr();
 
-                if (!(p_format & ARRAY_FLAG_USE_16_BIT_BONES)) {
+                if (!(p_format & VS::ARRAY_FLAG_USE_16_BIT_BONES)) {
 
                     for (int i = 0; i < p_vertex_array_len; i++) {
 
@@ -802,13 +801,13 @@ Error VisualServer::_surface_set_data(Array p_arrays, uint32_t p_format, uint32_
 }
 
 uint32_t VisualServer::mesh_surface_get_format_offset(uint32_t p_format, int p_vertex_len, int p_index_len, int p_array_index) const {
-    uint32_t offsets[ARRAY_MAX];
+    uint32_t offsets[VS::ARRAY_MAX];
     mesh_surface_make_offsets_from_format(p_format, p_vertex_len, p_index_len, offsets);
     return offsets[p_array_index];
 }
 
 uint32_t VisualServer::mesh_surface_get_format_stride(uint32_t p_format, int p_vertex_len, int p_index_len) const {
-    uint32_t offsets[ARRAY_MAX];
+    uint32_t offsets[VS::ARRAY_MAX];
     return mesh_surface_make_offsets_from_format(p_format, p_vertex_len, p_index_len, offsets);
 }
 
@@ -829,13 +828,13 @@ uint32_t VisualServer::mesh_surface_make_offsets_from_format(uint32_t p_format, 
 
             case VS::ARRAY_VERTEX: {
 
-                if (p_format & ARRAY_FLAG_USE_2D_VERTICES) {
+                if (p_format & VS::ARRAY_FLAG_USE_2D_VERTICES) {
                     elem_size = 2;
                 } else {
                     elem_size = 3;
                 }
 
-                if (p_format & ARRAY_COMPRESS_VERTEX) {
+                if (p_format & VS::ARRAY_COMPRESS_VERTEX) {
                     elem_size *= sizeof(int16_t);
                 } else {
                     elem_size *= sizeof(float);
@@ -848,7 +847,7 @@ uint32_t VisualServer::mesh_surface_make_offsets_from_format(uint32_t p_format, 
             } break;
             case VS::ARRAY_NORMAL: {
 
-                if (p_format & ARRAY_COMPRESS_NORMAL) {
+                if (p_format & VS::ARRAY_COMPRESS_NORMAL) {
                     elem_size = sizeof(uint32_t);
                 } else {
                     elem_size = sizeof(float) * 3;
@@ -857,7 +856,7 @@ uint32_t VisualServer::mesh_surface_make_offsets_from_format(uint32_t p_format, 
             } break;
 
             case VS::ARRAY_TANGENT: {
-                if (p_format & ARRAY_COMPRESS_TANGENT) {
+                if (p_format & VS::ARRAY_COMPRESS_TANGENT) {
                     elem_size = sizeof(uint32_t);
                 } else {
                     elem_size = sizeof(float) * 4;
@@ -866,14 +865,14 @@ uint32_t VisualServer::mesh_surface_make_offsets_from_format(uint32_t p_format, 
             } break;
             case VS::ARRAY_COLOR: {
 
-                if (p_format & ARRAY_COMPRESS_COLOR) {
+                if (p_format & VS::ARRAY_COMPRESS_COLOR) {
                     elem_size = sizeof(uint32_t);
                 } else {
                     elem_size = sizeof(float) * 4;
                 }
             } break;
             case VS::ARRAY_TEX_UV: {
-                if (p_format & ARRAY_COMPRESS_TEX_UV) {
+                if (p_format & VS::ARRAY_COMPRESS_TEX_UV) {
                     elem_size = sizeof(uint32_t);
                 } else {
                     elem_size = sizeof(float) * 2;
@@ -882,7 +881,7 @@ uint32_t VisualServer::mesh_surface_make_offsets_from_format(uint32_t p_format, 
             } break;
 
             case VS::ARRAY_TEX_UV2: {
-                if (p_format & ARRAY_COMPRESS_TEX_UV2) {
+                if (p_format & VS::ARRAY_COMPRESS_TEX_UV2) {
                     elem_size = sizeof(uint32_t);
                 } else {
                     elem_size = sizeof(float) * 2;
@@ -891,7 +890,7 @@ uint32_t VisualServer::mesh_surface_make_offsets_from_format(uint32_t p_format, 
             } break;
             case VS::ARRAY_WEIGHTS: {
 
-                if (p_format & ARRAY_COMPRESS_WEIGHTS) {
+                if (p_format & VS::ARRAY_COMPRESS_WEIGHTS) {
                     elem_size = sizeof(uint16_t) * 4;
                 } else {
                     elem_size = sizeof(float) * 4;
@@ -900,7 +899,7 @@ uint32_t VisualServer::mesh_surface_make_offsets_from_format(uint32_t p_format, 
             } break;
             case VS::ARRAY_BONES: {
 
-                if (p_format & ARRAY_FLAG_USE_16_BIT_BONES) {
+                if (p_format & VS::ARRAY_FLAG_USE_16_BIT_BONES) {
                     elem_size = sizeof(uint16_t) * 4;
                 } else {
                     elem_size = sizeof(uint32_t);
@@ -935,7 +934,7 @@ uint32_t VisualServer::mesh_surface_make_offsets_from_format(uint32_t p_format, 
     return total_elem_size;
 }
 
-void VisualServer::mesh_add_surface_from_arrays(RID p_mesh, PrimitiveType p_primitive, const Array &p_arrays, const Array &p_blend_shapes, uint32_t p_compress_format) {
+void VisualServer::mesh_add_surface_from_arrays(RID p_mesh, VS::PrimitiveType p_primitive, const Array &p_arrays, const Array &p_blend_shapes, uint32_t p_compress_format) {
 
     ERR_FAIL_INDEX(p_primitive, VS::PRIMITIVE_MAX);
     ERR_FAIL_COND(p_arrays.size() != VS::ARRAY_MAX)
@@ -1014,15 +1013,15 @@ void VisualServer::mesh_add_surface_from_arrays(RID p_mesh, PrimitiveType p_prim
                 Variant arr = p_arrays[0];
                 if (arr.get_type() == VariantType::POOL_VECTOR2_ARRAY) {
                     elem_size = 2;
-                    p_compress_format |= ARRAY_FLAG_USE_2D_VERTICES;
+                    p_compress_format |= VS::ARRAY_FLAG_USE_2D_VERTICES;
                 } else if (arr.get_type() == VariantType::POOL_VECTOR3_ARRAY) {
-                    p_compress_format &= ~ARRAY_FLAG_USE_2D_VERTICES;
+                    p_compress_format &= ~VS::ARRAY_FLAG_USE_2D_VERTICES;
                     elem_size = 3;
                 } else {
-                    elem_size = (p_compress_format & ARRAY_FLAG_USE_2D_VERTICES) ? 2 : 3;
+                    elem_size = (p_compress_format & VS::ARRAY_FLAG_USE_2D_VERTICES) ? 2 : 3;
                 }
 
-                if (p_compress_format & ARRAY_COMPRESS_VERTEX) {
+                if (p_compress_format & VS::ARRAY_COMPRESS_VERTEX) {
                     elem_size *= sizeof(int16_t);
                 } else {
                     elem_size *= sizeof(float);
@@ -1036,7 +1035,7 @@ void VisualServer::mesh_add_surface_from_arrays(RID p_mesh, PrimitiveType p_prim
             } break;
             case VS::ARRAY_NORMAL: {
 
-                if (p_compress_format & ARRAY_COMPRESS_NORMAL) {
+                if (p_compress_format & VS::ARRAY_COMPRESS_NORMAL) {
                     elem_size = sizeof(uint32_t);
                 } else {
                     elem_size = sizeof(float) * 3;
@@ -1045,7 +1044,7 @@ void VisualServer::mesh_add_surface_from_arrays(RID p_mesh, PrimitiveType p_prim
             } break;
 
             case VS::ARRAY_TANGENT: {
-                if (p_compress_format & ARRAY_COMPRESS_TANGENT) {
+                if (p_compress_format & VS::ARRAY_COMPRESS_TANGENT) {
                     elem_size = sizeof(uint32_t);
                 } else {
                     elem_size = sizeof(float) * 4;
@@ -1054,14 +1053,14 @@ void VisualServer::mesh_add_surface_from_arrays(RID p_mesh, PrimitiveType p_prim
             } break;
             case VS::ARRAY_COLOR: {
 
-                if (p_compress_format & ARRAY_COMPRESS_COLOR) {
+                if (p_compress_format & VS::ARRAY_COMPRESS_COLOR) {
                     elem_size = sizeof(uint32_t);
                 } else {
                     elem_size = sizeof(float) * 4;
                 }
             } break;
             case VS::ARRAY_TEX_UV: {
-                if (p_compress_format & ARRAY_COMPRESS_TEX_UV) {
+                if (p_compress_format & VS::ARRAY_COMPRESS_TEX_UV) {
                     elem_size = sizeof(uint32_t);
                 } else {
                     elem_size = sizeof(float) * 2;
@@ -1070,7 +1069,7 @@ void VisualServer::mesh_add_surface_from_arrays(RID p_mesh, PrimitiveType p_prim
             } break;
 
             case VS::ARRAY_TEX_UV2: {
-                if (p_compress_format & ARRAY_COMPRESS_TEX_UV2) {
+                if (p_compress_format & VS::ARRAY_COMPRESS_TEX_UV2) {
                     elem_size = sizeof(uint32_t);
                 } else {
                     elem_size = sizeof(float) * 2;
@@ -1079,7 +1078,7 @@ void VisualServer::mesh_add_surface_from_arrays(RID p_mesh, PrimitiveType p_prim
             } break;
             case VS::ARRAY_WEIGHTS: {
 
-                if (p_compress_format & ARRAY_COMPRESS_WEIGHTS) {
+                if (p_compress_format & VS::ARRAY_COMPRESS_WEIGHTS) {
                     elem_size = sizeof(uint16_t) * 4;
                 } else {
                     elem_size = sizeof(float) * 4;
@@ -1100,10 +1099,10 @@ void VisualServer::mesh_add_surface_from_arrays(RID p_mesh, PrimitiveType p_prim
                 }
 
                 if (max_bone > 255) {
-                    p_compress_format |= ARRAY_FLAG_USE_16_BIT_BONES;
+                    p_compress_format |= VS::ARRAY_FLAG_USE_16_BIT_BONES;
                     elem_size = sizeof(uint16_t) * 4;
                 } else {
-                    p_compress_format &= ~ARRAY_FLAG_USE_16_BIT_BONES;
+                    p_compress_format &= ~VS::ARRAY_FLAG_USE_16_BIT_BONES;
                     elem_size = sizeof(uint32_t);
                 }
 
@@ -1134,7 +1133,7 @@ void VisualServer::mesh_add_surface_from_arrays(RID p_mesh, PrimitiveType p_prim
         total_elem_size += elem_size;
     }
 
-    uint32_t mask = (1 << ARRAY_MAX) - 1;
+    uint32_t mask = (1 << VS::ARRAY_MAX) - 1;
     format |= (~mask) & p_compress_format; //make the full format
 
     int array_size = total_elem_size * array_len;
@@ -1162,7 +1161,7 @@ void VisualServer::mesh_add_surface_from_arrays(RID p_mesh, PrimitiveType p_prim
         PoolVector<uint8_t> noindex;
 
         AABB laabb;
-        Error err2 = _surface_set_data(p_blend_shapes[i], format & ~ARRAY_FORMAT_INDEX, offsets, total_elem_size, vertex_array_shape, array_len, noindex, 0, laabb, bone_aabb);
+        Error err2 = _surface_set_data(p_blend_shapes[i], format & ~VS::ARRAY_FORMAT_INDEX, offsets, total_elem_size, vertex_array_shape, array_len, noindex, 0, laabb, bone_aabb);
         aabb.merge_with(laabb);
         ERR_FAIL_COND_MSG(err2 != OK, "Invalid blend shape array format for surface.")
 
@@ -1174,7 +1173,7 @@ void VisualServer::mesh_add_surface_from_arrays(RID p_mesh, PrimitiveType p_prim
 
 Array VisualServer::_get_array_from_surface(uint32_t p_format, const PoolVector<uint8_t>& p_vertex_data, int p_vertex_len, const PoolVector<uint8_t>& p_index_data, int p_index_len) const {
 
-    uint32_t offsets[ARRAY_MAX];
+    uint32_t offsets[VS::ARRAY_MAX];
 
     int total_elem_size = 0;
 
@@ -1191,13 +1190,13 @@ Array VisualServer::_get_array_from_surface(uint32_t p_format, const PoolVector<
 
             case VS::ARRAY_VERTEX: {
 
-                if (p_format & ARRAY_FLAG_USE_2D_VERTICES) {
+                if (p_format & VS::ARRAY_FLAG_USE_2D_VERTICES) {
                     elem_size = 2;
                 } else {
                     elem_size = 3;
                 }
 
-                if (p_format & ARRAY_COMPRESS_VERTEX) {
+                if (p_format & VS::ARRAY_COMPRESS_VERTEX) {
                     elem_size *= sizeof(int16_t);
                 } else {
                     elem_size *= sizeof(float);
@@ -1210,7 +1209,7 @@ Array VisualServer::_get_array_from_surface(uint32_t p_format, const PoolVector<
             } break;
             case VS::ARRAY_NORMAL: {
 
-                if (p_format & ARRAY_COMPRESS_NORMAL) {
+                if (p_format & VS::ARRAY_COMPRESS_NORMAL) {
                     elem_size = sizeof(uint32_t);
                 } else {
                     elem_size = sizeof(float) * 3;
@@ -1219,7 +1218,7 @@ Array VisualServer::_get_array_from_surface(uint32_t p_format, const PoolVector<
             } break;
 
             case VS::ARRAY_TANGENT: {
-                if (p_format & ARRAY_COMPRESS_TANGENT) {
+                if (p_format & VS::ARRAY_COMPRESS_TANGENT) {
                     elem_size = sizeof(uint32_t);
                 } else {
                     elem_size = sizeof(float) * 4;
@@ -1228,14 +1227,14 @@ Array VisualServer::_get_array_from_surface(uint32_t p_format, const PoolVector<
             } break;
             case VS::ARRAY_COLOR: {
 
-                if (p_format & ARRAY_COMPRESS_COLOR) {
+                if (p_format & VS::ARRAY_COMPRESS_COLOR) {
                     elem_size = sizeof(uint32_t);
                 } else {
                     elem_size = sizeof(float) * 4;
                 }
             } break;
             case VS::ARRAY_TEX_UV: {
-                if (p_format & ARRAY_COMPRESS_TEX_UV) {
+                if (p_format & VS::ARRAY_COMPRESS_TEX_UV) {
                     elem_size = sizeof(uint32_t);
                 } else {
                     elem_size = sizeof(float) * 2;
@@ -1244,7 +1243,7 @@ Array VisualServer::_get_array_from_surface(uint32_t p_format, const PoolVector<
             } break;
 
             case VS::ARRAY_TEX_UV2: {
-                if (p_format & ARRAY_COMPRESS_TEX_UV2) {
+                if (p_format & VS::ARRAY_COMPRESS_TEX_UV2) {
                     elem_size = sizeof(uint32_t);
                 } else {
                     elem_size = sizeof(float) * 2;
@@ -1253,7 +1252,7 @@ Array VisualServer::_get_array_from_surface(uint32_t p_format, const PoolVector<
             } break;
             case VS::ARRAY_WEIGHTS: {
 
-                if (p_format & ARRAY_COMPRESS_WEIGHTS) {
+                if (p_format & VS::ARRAY_COMPRESS_WEIGHTS) {
                     elem_size = sizeof(uint16_t) * 4;
                 } else {
                     elem_size = sizeof(float) * 4;
@@ -1262,7 +1261,7 @@ Array VisualServer::_get_array_from_surface(uint32_t p_format, const PoolVector<
             } break;
             case VS::ARRAY_BONES: {
 
-                if (p_format & ARRAY_FLAG_USE_16_BIT_BONES) {
+                if (p_format & VS::ARRAY_FLAG_USE_16_BIT_BONES) {
                     elem_size = sizeof(uint16_t) * 4;
                 } else {
                     elem_size = sizeof(uint32_t);
@@ -1309,12 +1308,12 @@ Array VisualServer::_get_array_from_surface(uint32_t p_format, const PoolVector<
 
             case VS::ARRAY_VERTEX: {
 
-                if (p_format & ARRAY_FLAG_USE_2D_VERTICES) {
+                if (p_format & VS::ARRAY_FLAG_USE_2D_VERTICES) {
 
                     PoolVector<Vector2> arr_2d;
                     arr_2d.resize(p_vertex_len);
 
-                    if (p_format & ARRAY_COMPRESS_VERTEX) {
+                    if (p_format & VS::ARRAY_COMPRESS_VERTEX) {
 
                         PoolVector<Vector2>::Write w = arr_2d.write();
 
@@ -1340,7 +1339,7 @@ Array VisualServer::_get_array_from_surface(uint32_t p_format, const PoolVector<
                     PoolVector<Vector3> arr_3d;
                     arr_3d.resize(p_vertex_len);
 
-                    if (p_format & ARRAY_COMPRESS_VERTEX) {
+                    if (p_format & VS::ARRAY_COMPRESS_VERTEX) {
 
                         PoolVector<Vector3>::Write w = arr_3d.write();
 
@@ -1368,7 +1367,7 @@ Array VisualServer::_get_array_from_surface(uint32_t p_format, const PoolVector<
                 PoolVector<Vector3> arr;
                 arr.resize(p_vertex_len);
 
-                if (p_format & ARRAY_COMPRESS_NORMAL) {
+                if (p_format & VS::ARRAY_COMPRESS_NORMAL) {
 
                     PoolVector<Vector3>::Write w = arr.write();
                     const float multiplier = 1.f / 127.f;
@@ -1395,7 +1394,7 @@ Array VisualServer::_get_array_from_surface(uint32_t p_format, const PoolVector<
             case VS::ARRAY_TANGENT: {
                 PoolVector<float> arr;
                 arr.resize(p_vertex_len * 4);
-                if (p_format & ARRAY_COMPRESS_TANGENT) {
+                if (p_format & VS::ARRAY_COMPRESS_TANGENT) {
                     PoolVector<float>::Write w = arr.write();
 
                     for (int j = 0; j < p_vertex_len; j++) {
@@ -1425,7 +1424,7 @@ Array VisualServer::_get_array_from_surface(uint32_t p_format, const PoolVector<
                 PoolVector<Color> arr;
                 arr.resize(p_vertex_len);
 
-                if (p_format & ARRAY_COMPRESS_COLOR) {
+                if (p_format & VS::ARRAY_COMPRESS_COLOR) {
 
                     PoolVector<Color>::Write w = arr.write();
 
@@ -1451,7 +1450,7 @@ Array VisualServer::_get_array_from_surface(uint32_t p_format, const PoolVector<
                 PoolVector<Vector2> arr;
                 arr.resize(p_vertex_len);
 
-                if (p_format & ARRAY_COMPRESS_TEX_UV) {
+                if (p_format & VS::ARRAY_COMPRESS_TEX_UV) {
 
                     PoolVector<Vector2>::Write w = arr.write();
 
@@ -1478,7 +1477,7 @@ Array VisualServer::_get_array_from_surface(uint32_t p_format, const PoolVector<
                 PoolVector<Vector2> arr;
                 arr.resize(p_vertex_len);
 
-                if (p_format & ARRAY_COMPRESS_TEX_UV2) {
+                if (p_format & VS::ARRAY_COMPRESS_TEX_UV2) {
 
                     PoolVector<Vector2>::Write w = arr.write();
 
@@ -1505,7 +1504,7 @@ Array VisualServer::_get_array_from_surface(uint32_t p_format, const PoolVector<
 
                 PoolVector<float> arr;
                 arr.resize(p_vertex_len * 4);
-                if (p_format & ARRAY_COMPRESS_WEIGHTS) {
+                if (p_format & VS::ARRAY_COMPRESS_WEIGHTS) {
                     PoolVector<float>::Write w = arr.write();
 
                     for (int j = 0; j < p_vertex_len; j++) {
@@ -1534,7 +1533,7 @@ Array VisualServer::_get_array_from_surface(uint32_t p_format, const PoolVector<
 
                 PoolVector<int> arr;
                 arr.resize(p_vertex_len * 4);
-                if (p_format & ARRAY_FLAG_USE_16_BIT_BONES) {
+                if (p_format & VS::ARRAY_FLAG_USE_16_BIT_BONES) {
 
                     PoolVector<int>::Write w = arr.write();
 
@@ -1655,11 +1654,11 @@ void VisualServer::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("draw", {"swap_buffers", "frame_step"}), &VisualServer::draw, {DEFVAL(true), DEFVAL(0.0)});
 
     MethodBinder::bind_method(D_METHOD("texture_create"), &VisualServer::texture_create);
-    MethodBinder::bind_method(D_METHOD("texture_create_from_image", {"image", "flags"}), &VisualServer::texture_create_from_image, {DEFVAL(TEXTURE_FLAGS_DEFAULT)});
-    MethodBinder::bind_method(D_METHOD("texture_allocate", {"texture", "width", "height", "depth_3d", "format", "type", "flags"}), &VisualServer::texture_allocate, {DEFVAL(TEXTURE_FLAGS_DEFAULT)});
+    MethodBinder::bind_method(D_METHOD("texture_create_from_image", {"image", "flags"}), &VisualServer::texture_create_from_image, {DEFVAL(VS::TEXTURE_FLAGS_DEFAULT)});
+    MethodBinder::bind_method(D_METHOD("texture_allocate", {"texture", "width", "height", "depth_3d", "format", "type", "flags"}), &VisualServer::texture_allocate, {DEFVAL(VS::TEXTURE_FLAGS_DEFAULT)});
     MethodBinder::bind_method(D_METHOD("texture_set_data", {"texture", "image", "layer"}), &VisualServer::texture_set_data, {DEFVAL(0)});
     MethodBinder::bind_method(D_METHOD("texture_set_data_partial", {"texture", "image", "src_x", "src_y", "src_w", "src_h", "dst_x", "dst_y", "dst_mip", "layer"}), &VisualServer::texture_set_data_partial, {DEFVAL(0)});
-    MethodBinder::bind_method(D_METHOD("texture_get_data", {"texture", "cube_side"}), &VisualServer::texture_get_data, {DEFVAL(CUBEMAP_LEFT)});
+    MethodBinder::bind_method(D_METHOD("texture_get_data", {"texture", "cube_side"}), &VisualServer::texture_get_data, {DEFVAL(VS::CUBEMAP_LEFT)});
     MethodBinder::bind_method(D_METHOD("texture_set_flags", {"texture", "flags"}), &VisualServer::texture_set_flags);
     MethodBinder::bind_method(D_METHOD("texture_get_flags", {"texture"}), &VisualServer::texture_get_flags);
     MethodBinder::bind_method(D_METHOD("texture_get_format", {"texture"}), &VisualServer::texture_get_format);
@@ -1700,7 +1699,7 @@ void VisualServer::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("mesh_create"), &VisualServer::mesh_create);
     MethodBinder::bind_method(D_METHOD("mesh_surface_get_format_offset", {"format", "vertex_len", "index_len", "array_index"}), &VisualServer::mesh_surface_get_format_offset);
     MethodBinder::bind_method(D_METHOD("mesh_surface_get_format_stride", {"format", "vertex_len", "index_len"}), &VisualServer::mesh_surface_get_format_stride);
-    MethodBinder::bind_method(D_METHOD("mesh_add_surface_from_arrays", {"mesh", "primitive", "arrays", "blend_shapes", "compress_format"}), &VisualServer::mesh_add_surface_from_arrays, {DEFVAL(Array()), DEFVAL(ARRAY_COMPRESS_DEFAULT)});
+    MethodBinder::bind_method(D_METHOD("mesh_add_surface_from_arrays", {"mesh", "primitive", "arrays", "blend_shapes", "compress_format"}), &VisualServer::mesh_add_surface_from_arrays, {DEFVAL(Array()), DEFVAL(VS::ARRAY_COMPRESS_DEFAULT)});
     MethodBinder::bind_method(D_METHOD("mesh_set_blend_shape_count", {"mesh", "amount"}), &VisualServer::mesh_set_blend_shape_count);
     MethodBinder::bind_method(D_METHOD("mesh_get_blend_shape_count", {"mesh"}), &VisualServer::mesh_get_blend_shape_count);
     MethodBinder::bind_method(D_METHOD("mesh_set_blend_shape_mode", {"mesh", "mode"}), &VisualServer::mesh_set_blend_shape_mode);
@@ -1725,7 +1724,7 @@ void VisualServer::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("mesh_clear", {"mesh"}), &VisualServer::mesh_clear);
 
     MethodBinder::bind_method(D_METHOD("multimesh_create"), &VisualServer::multimesh_create);
-    MethodBinder::bind_method(D_METHOD("multimesh_allocate", {"multimesh", "instances", "transform_format", "color_format", "custom_data_format"}), &VisualServer::multimesh_allocate, {DEFVAL(MULTIMESH_CUSTOM_DATA_NONE)});
+    MethodBinder::bind_method(D_METHOD("multimesh_allocate", {"multimesh", "instances", "transform_format", "color_format", "custom_data_format"}), &VisualServer::multimesh_allocate, {DEFVAL(VS::MULTIMESH_CUSTOM_DATA_NONE)});
     MethodBinder::bind_method(D_METHOD("multimesh_get_instance_count", {"multimesh"}), &VisualServer::multimesh_get_instance_count);
     MethodBinder::bind_method(D_METHOD("multimesh_set_mesh", {"multimesh", "mesh"}), &VisualServer::multimesh_set_mesh);
     MethodBinder::bind_method(D_METHOD("multimesh_instance_set_transform", {"multimesh", "index", "transform"}), &VisualServer::multimesh_instance_set_transform);
@@ -1978,7 +1977,7 @@ void VisualServer::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("canvas_item_add_circle", {"item", "pos", "radius", "color"}), &VisualServer::canvas_item_add_circle);
     MethodBinder::bind_method(D_METHOD("canvas_item_add_texture_rect", {"item", "rect", "texture", "tile", "modulate", "transpose", "normal_map"}), &VisualServer::canvas_item_add_texture_rect, {DEFVAL(false), DEFVAL(Color(1, 1, 1)), DEFVAL(false), DEFVAL(RID())});
     MethodBinder::bind_method(D_METHOD("canvas_item_add_texture_rect_region", {"item", "rect", "texture", "src_rect", "modulate", "transpose", "normal_map", "clip_uv"}), &VisualServer::canvas_item_add_texture_rect_region, {DEFVAL(Color(1, 1, 1)), DEFVAL(false), DEFVAL(RID()), DEFVAL(true)});
-    MethodBinder::bind_method(D_METHOD("canvas_item_add_nine_patch", {"item", "rect", "source", "texture", "topleft", "bottomright", "x_axis_mode", "y_axis_mode", "draw_center", "modulate", "normal_map"}), &VisualServer::canvas_item_add_nine_patch, {DEFVAL(NINE_PATCH_STRETCH), DEFVAL(NINE_PATCH_STRETCH), DEFVAL(true), DEFVAL(Color(1, 1, 1)), DEFVAL(RID())});
+    MethodBinder::bind_method(D_METHOD("canvas_item_add_nine_patch", {"item", "rect", "source", "texture", "topleft", "bottomright", "x_axis_mode", "y_axis_mode", "draw_center", "modulate", "normal_map"}), &VisualServer::canvas_item_add_nine_patch, {DEFVAL(VS::NINE_PATCH_STRETCH), DEFVAL(VS::NINE_PATCH_STRETCH), DEFVAL(true), DEFVAL(Color(1, 1, 1)), DEFVAL(RID())});
     MethodBinder::bind_method(D_METHOD("canvas_item_add_primitive", {"item", "points", "colors", "uvs", "texture", "width", "normal_map"}), &VisualServer::canvas_item_add_primitive, {DEFVAL(1.0), DEFVAL(RID())});
     MethodBinder::bind_method(D_METHOD("canvas_item_add_polygon", {"item", "points", "colors", "uvs", "texture", "normal_map", "antialiased"}), &VisualServer::canvas_item_add_polygon, {DEFVAL(PODVector<Point2>()), DEFVAL(RID()), DEFVAL(RID()), DEFVAL(false)});
     MethodBinder::bind_method(D_METHOD("canvas_item_add_triangle_array", {"item", "indices", "points", "colors", "uvs", "bones", "weights", "texture", "count", "normal_map", "antialiased"}), &VisualServer::canvas_item_add_triangle_array, {DEFVAL(PODVector<Point2>()), DEFVAL(PODVector<int>()), DEFVAL(PODVector<float>()), DEFVAL(RID()), DEFVAL(-1), DEFVAL(RID()), DEFVAL(false)});
@@ -2055,258 +2054,258 @@ void VisualServer::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("has_os_feature", {"feature"}), &VisualServer::has_os_feature);
     MethodBinder::bind_method(D_METHOD("set_debug_generate_wireframes", {"generate"}), &VisualServer::set_debug_generate_wireframes);
 
-    BIND_CONSTANT(NO_INDEX_ARRAY);
-    BIND_CONSTANT(ARRAY_WEIGHTS_SIZE);
-    BIND_CONSTANT(CANVAS_ITEM_Z_MIN);
-    BIND_CONSTANT(CANVAS_ITEM_Z_MAX);
-    BIND_CONSTANT(MAX_GLOW_LEVELS);
-    BIND_CONSTANT(MAX_CURSORS);
-    BIND_CONSTANT(MATERIAL_RENDER_PRIORITY_MIN);
-    BIND_CONSTANT(MATERIAL_RENDER_PRIORITY_MAX);
+    BIND_CONSTANT(VS::NO_INDEX_ARRAY);
+    BIND_CONSTANT(VS::ARRAY_WEIGHTS_SIZE);
+    BIND_CONSTANT(VS::CANVAS_ITEM_Z_MIN);
+    BIND_CONSTANT(VS::CANVAS_ITEM_Z_MAX);
+    BIND_CONSTANT(VS::MAX_GLOW_LEVELS);
+    BIND_CONSTANT(VS::MAX_CURSORS);
+    BIND_CONSTANT(VS::MATERIAL_RENDER_PRIORITY_MIN);
+    BIND_CONSTANT(VS::MATERIAL_RENDER_PRIORITY_MAX);
 
-    BIND_ENUM_CONSTANT(CUBEMAP_LEFT)
-    BIND_ENUM_CONSTANT(CUBEMAP_RIGHT)
-    BIND_ENUM_CONSTANT(CUBEMAP_BOTTOM)
-    BIND_ENUM_CONSTANT(CUBEMAP_TOP)
-    BIND_ENUM_CONSTANT(CUBEMAP_FRONT)
-    BIND_ENUM_CONSTANT(CUBEMAP_BACK)
+    BIND_ENUM_CONSTANT(VS::CUBEMAP_LEFT)
+    BIND_ENUM_CONSTANT(VS::CUBEMAP_RIGHT)
+    BIND_ENUM_CONSTANT(VS::CUBEMAP_BOTTOM)
+    BIND_ENUM_CONSTANT(VS::CUBEMAP_TOP)
+    BIND_ENUM_CONSTANT(VS::CUBEMAP_FRONT)
+    BIND_ENUM_CONSTANT(VS::CUBEMAP_BACK)
 
-    BIND_ENUM_CONSTANT(TEXTURE_TYPE_2D)
-    BIND_ENUM_CONSTANT(TEXTURE_TYPE_CUBEMAP)
-    BIND_ENUM_CONSTANT(TEXTURE_TYPE_2D_ARRAY)
-    BIND_ENUM_CONSTANT(TEXTURE_TYPE_3D)
+    BIND_ENUM_CONSTANT(VS::TEXTURE_TYPE_2D)
+    BIND_ENUM_CONSTANT(VS::TEXTURE_TYPE_CUBEMAP)
+    BIND_ENUM_CONSTANT(VS::TEXTURE_TYPE_2D_ARRAY)
+    BIND_ENUM_CONSTANT(VS::TEXTURE_TYPE_3D)
 
-    BIND_ENUM_CONSTANT(TEXTURE_FLAG_MIPMAPS)
-    BIND_ENUM_CONSTANT(TEXTURE_FLAG_REPEAT)
-    BIND_ENUM_CONSTANT(TEXTURE_FLAG_FILTER)
-    BIND_ENUM_CONSTANT(TEXTURE_FLAG_ANISOTROPIC_FILTER)
-    BIND_ENUM_CONSTANT(TEXTURE_FLAG_CONVERT_TO_LINEAR)
-    BIND_ENUM_CONSTANT(TEXTURE_FLAG_MIRRORED_REPEAT)
-    BIND_ENUM_CONSTANT(TEXTURE_FLAG_USED_FOR_STREAMING)
-    BIND_ENUM_CONSTANT(TEXTURE_FLAGS_DEFAULT)
+    BIND_ENUM_CONSTANT(VS::TEXTURE_FLAG_MIPMAPS)
+    BIND_ENUM_CONSTANT(VS::TEXTURE_FLAG_REPEAT)
+    BIND_ENUM_CONSTANT(VS::TEXTURE_FLAG_FILTER)
+    BIND_ENUM_CONSTANT(VS::TEXTURE_FLAG_ANISOTROPIC_FILTER)
+    BIND_ENUM_CONSTANT(VS::TEXTURE_FLAG_CONVERT_TO_LINEAR)
+    BIND_ENUM_CONSTANT(VS::TEXTURE_FLAG_MIRRORED_REPEAT)
+    BIND_ENUM_CONSTANT(VS::TEXTURE_FLAG_USED_FOR_STREAMING)
+    BIND_ENUM_CONSTANT(VS::TEXTURE_FLAGS_DEFAULT)
 
-    BIND_ENUM_CONSTANT(SHADER_SPATIAL)
-    BIND_ENUM_CONSTANT(SHADER_CANVAS_ITEM)
-    BIND_ENUM_CONSTANT(SHADER_PARTICLES)
-    BIND_ENUM_CONSTANT(SHADER_MAX)
+    BIND_ENUM_CONSTANT(VS::SHADER_SPATIAL)
+    BIND_ENUM_CONSTANT(VS::SHADER_CANVAS_ITEM)
+    BIND_ENUM_CONSTANT(VS::SHADER_PARTICLES)
+    BIND_ENUM_CONSTANT(VS::SHADER_MAX)
 
-    BIND_ENUM_CONSTANT(ARRAY_VERTEX)
-    BIND_ENUM_CONSTANT(ARRAY_NORMAL)
-    BIND_ENUM_CONSTANT(ARRAY_TANGENT)
-    BIND_ENUM_CONSTANT(ARRAY_COLOR)
-    BIND_ENUM_CONSTANT(ARRAY_TEX_UV)
-    BIND_ENUM_CONSTANT(ARRAY_TEX_UV2)
-    BIND_ENUM_CONSTANT(ARRAY_BONES)
-    BIND_ENUM_CONSTANT(ARRAY_WEIGHTS)
-    BIND_ENUM_CONSTANT(ARRAY_INDEX)
-    BIND_ENUM_CONSTANT(ARRAY_MAX)
+    BIND_ENUM_CONSTANT(VS::ARRAY_VERTEX)
+    BIND_ENUM_CONSTANT(VS::ARRAY_NORMAL)
+    BIND_ENUM_CONSTANT(VS::ARRAY_TANGENT)
+    BIND_ENUM_CONSTANT(VS::ARRAY_COLOR)
+    BIND_ENUM_CONSTANT(VS::ARRAY_TEX_UV)
+    BIND_ENUM_CONSTANT(VS::ARRAY_TEX_UV2)
+    BIND_ENUM_CONSTANT(VS::ARRAY_BONES)
+    BIND_ENUM_CONSTANT(VS::ARRAY_WEIGHTS)
+    BIND_ENUM_CONSTANT(VS::ARRAY_INDEX)
+    BIND_ENUM_CONSTANT(VS::ARRAY_MAX)
 
-    BIND_ENUM_CONSTANT(ARRAY_FORMAT_VERTEX)
-    BIND_ENUM_CONSTANT(ARRAY_FORMAT_NORMAL)
-    BIND_ENUM_CONSTANT(ARRAY_FORMAT_TANGENT)
-    BIND_ENUM_CONSTANT(ARRAY_FORMAT_COLOR)
-    BIND_ENUM_CONSTANT(ARRAY_FORMAT_TEX_UV)
-    BIND_ENUM_CONSTANT(ARRAY_FORMAT_TEX_UV2)
-    BIND_ENUM_CONSTANT(ARRAY_FORMAT_BONES)
-    BIND_ENUM_CONSTANT(ARRAY_FORMAT_WEIGHTS)
-    BIND_ENUM_CONSTANT(ARRAY_FORMAT_INDEX)
-    BIND_ENUM_CONSTANT(ARRAY_COMPRESS_VERTEX)
-    BIND_ENUM_CONSTANT(ARRAY_COMPRESS_NORMAL)
-    BIND_ENUM_CONSTANT(ARRAY_COMPRESS_TANGENT)
-    BIND_ENUM_CONSTANT(ARRAY_COMPRESS_COLOR)
-    BIND_ENUM_CONSTANT(ARRAY_COMPRESS_TEX_UV)
-    BIND_ENUM_CONSTANT(ARRAY_COMPRESS_TEX_UV2)
-    BIND_ENUM_CONSTANT(ARRAY_COMPRESS_BONES)
-    BIND_ENUM_CONSTANT(ARRAY_COMPRESS_WEIGHTS)
-    BIND_ENUM_CONSTANT(ARRAY_COMPRESS_INDEX)
-    BIND_ENUM_CONSTANT(ARRAY_FLAG_USE_2D_VERTICES)
-    BIND_ENUM_CONSTANT(ARRAY_FLAG_USE_16_BIT_BONES)
-    BIND_ENUM_CONSTANT(ARRAY_COMPRESS_DEFAULT)
+    BIND_ENUM_CONSTANT(VS::ARRAY_FORMAT_VERTEX)
+    BIND_ENUM_CONSTANT(VS::ARRAY_FORMAT_NORMAL)
+    BIND_ENUM_CONSTANT(VS::ARRAY_FORMAT_TANGENT)
+    BIND_ENUM_CONSTANT(VS::ARRAY_FORMAT_COLOR)
+    BIND_ENUM_CONSTANT(VS::ARRAY_FORMAT_TEX_UV)
+    BIND_ENUM_CONSTANT(VS::ARRAY_FORMAT_TEX_UV2)
+    BIND_ENUM_CONSTANT(VS::ARRAY_FORMAT_BONES)
+    BIND_ENUM_CONSTANT(VS::ARRAY_FORMAT_WEIGHTS)
+    BIND_ENUM_CONSTANT(VS::ARRAY_FORMAT_INDEX)
+    BIND_ENUM_CONSTANT(VS::ARRAY_COMPRESS_VERTEX)
+    BIND_ENUM_CONSTANT(VS::ARRAY_COMPRESS_NORMAL)
+    BIND_ENUM_CONSTANT(VS::ARRAY_COMPRESS_TANGENT)
+    BIND_ENUM_CONSTANT(VS::ARRAY_COMPRESS_COLOR)
+    BIND_ENUM_CONSTANT(VS::ARRAY_COMPRESS_TEX_UV)
+    BIND_ENUM_CONSTANT(VS::ARRAY_COMPRESS_TEX_UV2)
+    BIND_ENUM_CONSTANT(VS::ARRAY_COMPRESS_BONES)
+    BIND_ENUM_CONSTANT(VS::ARRAY_COMPRESS_WEIGHTS)
+    BIND_ENUM_CONSTANT(VS::ARRAY_COMPRESS_INDEX)
+    BIND_ENUM_CONSTANT(VS::ARRAY_FLAG_USE_2D_VERTICES)
+    BIND_ENUM_CONSTANT(VS::ARRAY_FLAG_USE_16_BIT_BONES)
+    BIND_ENUM_CONSTANT(VS::ARRAY_COMPRESS_DEFAULT)
 
-    BIND_ENUM_CONSTANT(PRIMITIVE_POINTS)
-    BIND_ENUM_CONSTANT(PRIMITIVE_LINES)
-    BIND_ENUM_CONSTANT(PRIMITIVE_LINE_STRIP)
-    BIND_ENUM_CONSTANT(PRIMITIVE_LINE_LOOP)
-    BIND_ENUM_CONSTANT(PRIMITIVE_TRIANGLES)
-    BIND_ENUM_CONSTANT(PRIMITIVE_TRIANGLE_STRIP)
-    BIND_ENUM_CONSTANT(PRIMITIVE_TRIANGLE_FAN)
-    BIND_ENUM_CONSTANT(PRIMITIVE_MAX)
+    BIND_ENUM_CONSTANT(VS::PRIMITIVE_POINTS)
+    BIND_ENUM_CONSTANT(VS::PRIMITIVE_LINES)
+    BIND_ENUM_CONSTANT(VS::PRIMITIVE_LINE_STRIP)
+    BIND_ENUM_CONSTANT(VS::PRIMITIVE_LINE_LOOP)
+    BIND_ENUM_CONSTANT(VS::PRIMITIVE_TRIANGLES)
+    BIND_ENUM_CONSTANT(VS::PRIMITIVE_TRIANGLE_STRIP)
+    BIND_ENUM_CONSTANT(VS::PRIMITIVE_TRIANGLE_FAN)
+    BIND_ENUM_CONSTANT(VS::PRIMITIVE_MAX)
 
-    BIND_ENUM_CONSTANT(BLEND_SHAPE_MODE_NORMALIZED)
-    BIND_ENUM_CONSTANT(BLEND_SHAPE_MODE_RELATIVE)
+    BIND_ENUM_CONSTANT(VS::BLEND_SHAPE_MODE_NORMALIZED)
+    BIND_ENUM_CONSTANT(VS::BLEND_SHAPE_MODE_RELATIVE)
 
-    BIND_ENUM_CONSTANT(LIGHT_DIRECTIONAL)
-    BIND_ENUM_CONSTANT(LIGHT_OMNI)
-    BIND_ENUM_CONSTANT(LIGHT_SPOT)
+    BIND_ENUM_CONSTANT(VS::LIGHT_DIRECTIONAL)
+    BIND_ENUM_CONSTANT(VS::LIGHT_OMNI)
+    BIND_ENUM_CONSTANT(VS::LIGHT_SPOT)
 
-    BIND_ENUM_CONSTANT(LIGHT_PARAM_ENERGY)
-    BIND_ENUM_CONSTANT(LIGHT_PARAM_SPECULAR)
-    BIND_ENUM_CONSTANT(LIGHT_PARAM_RANGE)
-    BIND_ENUM_CONSTANT(LIGHT_PARAM_ATTENUATION)
-    BIND_ENUM_CONSTANT(LIGHT_PARAM_SPOT_ANGLE)
-    BIND_ENUM_CONSTANT(LIGHT_PARAM_SPOT_ATTENUATION)
-    BIND_ENUM_CONSTANT(LIGHT_PARAM_CONTACT_SHADOW_SIZE)
-    BIND_ENUM_CONSTANT(LIGHT_PARAM_SHADOW_MAX_DISTANCE)
-    BIND_ENUM_CONSTANT(LIGHT_PARAM_SHADOW_SPLIT_1_OFFSET)
-    BIND_ENUM_CONSTANT(LIGHT_PARAM_SHADOW_SPLIT_2_OFFSET)
-    BIND_ENUM_CONSTANT(LIGHT_PARAM_SHADOW_SPLIT_3_OFFSET)
-    BIND_ENUM_CONSTANT(LIGHT_PARAM_SHADOW_NORMAL_BIAS)
-    BIND_ENUM_CONSTANT(LIGHT_PARAM_SHADOW_BIAS)
-    BIND_ENUM_CONSTANT(LIGHT_PARAM_SHADOW_BIAS_SPLIT_SCALE)
-    BIND_ENUM_CONSTANT(LIGHT_PARAM_MAX)
+    BIND_ENUM_CONSTANT(VS::LIGHT_PARAM_ENERGY)
+    BIND_ENUM_CONSTANT(VS::LIGHT_PARAM_SPECULAR)
+    BIND_ENUM_CONSTANT(VS::LIGHT_PARAM_RANGE)
+    BIND_ENUM_CONSTANT(VS::LIGHT_PARAM_ATTENUATION)
+    BIND_ENUM_CONSTANT(VS::LIGHT_PARAM_SPOT_ANGLE)
+    BIND_ENUM_CONSTANT(VS::LIGHT_PARAM_SPOT_ATTENUATION)
+    BIND_ENUM_CONSTANT(VS::LIGHT_PARAM_CONTACT_SHADOW_SIZE)
+    BIND_ENUM_CONSTANT(VS::LIGHT_PARAM_SHADOW_MAX_DISTANCE)
+    BIND_ENUM_CONSTANT(VS::LIGHT_PARAM_SHADOW_SPLIT_1_OFFSET)
+    BIND_ENUM_CONSTANT(VS::LIGHT_PARAM_SHADOW_SPLIT_2_OFFSET)
+    BIND_ENUM_CONSTANT(VS::LIGHT_PARAM_SHADOW_SPLIT_3_OFFSET)
+    BIND_ENUM_CONSTANT(VS::LIGHT_PARAM_SHADOW_NORMAL_BIAS)
+    BIND_ENUM_CONSTANT(VS::LIGHT_PARAM_SHADOW_BIAS)
+    BIND_ENUM_CONSTANT(VS::LIGHT_PARAM_SHADOW_BIAS_SPLIT_SCALE)
+    BIND_ENUM_CONSTANT(VS::LIGHT_PARAM_MAX)
 
-    BIND_ENUM_CONSTANT(LIGHT_OMNI_SHADOW_DUAL_PARABOLOID)
-    BIND_ENUM_CONSTANT(LIGHT_OMNI_SHADOW_CUBE)
-    BIND_ENUM_CONSTANT(LIGHT_OMNI_SHADOW_DETAIL_VERTICAL)
-    BIND_ENUM_CONSTANT(LIGHT_OMNI_SHADOW_DETAIL_HORIZONTAL)
+    BIND_ENUM_CONSTANT(VS::LIGHT_OMNI_SHADOW_DUAL_PARABOLOID)
+    BIND_ENUM_CONSTANT(VS::LIGHT_OMNI_SHADOW_CUBE)
+    BIND_ENUM_CONSTANT(VS::LIGHT_OMNI_SHADOW_DETAIL_VERTICAL)
+    BIND_ENUM_CONSTANT(VS::LIGHT_OMNI_SHADOW_DETAIL_HORIZONTAL)
 
-    BIND_ENUM_CONSTANT(LIGHT_DIRECTIONAL_SHADOW_ORTHOGONAL)
-    BIND_ENUM_CONSTANT(LIGHT_DIRECTIONAL_SHADOW_PARALLEL_2_SPLITS)
-    BIND_ENUM_CONSTANT(LIGHT_DIRECTIONAL_SHADOW_PARALLEL_4_SPLITS)
-    BIND_ENUM_CONSTANT(LIGHT_DIRECTIONAL_SHADOW_DEPTH_RANGE_STABLE)
-    BIND_ENUM_CONSTANT(LIGHT_DIRECTIONAL_SHADOW_DEPTH_RANGE_OPTIMIZED)
+    BIND_ENUM_CONSTANT(VS::LIGHT_DIRECTIONAL_SHADOW_ORTHOGONAL)
+    BIND_ENUM_CONSTANT(VS::LIGHT_DIRECTIONAL_SHADOW_PARALLEL_2_SPLITS)
+    BIND_ENUM_CONSTANT(VS::LIGHT_DIRECTIONAL_SHADOW_PARALLEL_4_SPLITS)
+    BIND_ENUM_CONSTANT(VS::LIGHT_DIRECTIONAL_SHADOW_DEPTH_RANGE_STABLE)
+    BIND_ENUM_CONSTANT(VS::LIGHT_DIRECTIONAL_SHADOW_DEPTH_RANGE_OPTIMIZED)
 
-    BIND_ENUM_CONSTANT(VIEWPORT_UPDATE_DISABLED)
-    BIND_ENUM_CONSTANT(VIEWPORT_UPDATE_ONCE)
-    BIND_ENUM_CONSTANT(VIEWPORT_UPDATE_WHEN_VISIBLE)
-    BIND_ENUM_CONSTANT(VIEWPORT_UPDATE_ALWAYS)
+    BIND_ENUM_CONSTANT(VS::VIEWPORT_UPDATE_DISABLED)
+    BIND_ENUM_CONSTANT(VS::VIEWPORT_UPDATE_ONCE)
+    BIND_ENUM_CONSTANT(VS::VIEWPORT_UPDATE_WHEN_VISIBLE)
+    BIND_ENUM_CONSTANT(VS::VIEWPORT_UPDATE_ALWAYS)
 
-    BIND_ENUM_CONSTANT(VIEWPORT_CLEAR_ALWAYS)
-    BIND_ENUM_CONSTANT(VIEWPORT_CLEAR_NEVER)
-    BIND_ENUM_CONSTANT(VIEWPORT_CLEAR_ONLY_NEXT_FRAME)
+    BIND_ENUM_CONSTANT(VS::VIEWPORT_CLEAR_ALWAYS)
+    BIND_ENUM_CONSTANT(VS::VIEWPORT_CLEAR_NEVER)
+    BIND_ENUM_CONSTANT(VS::VIEWPORT_CLEAR_ONLY_NEXT_FRAME)
 
-    BIND_ENUM_CONSTANT(VIEWPORT_MSAA_DISABLED)
-    BIND_ENUM_CONSTANT(VIEWPORT_MSAA_2X)
-    BIND_ENUM_CONSTANT(VIEWPORT_MSAA_4X)
-    BIND_ENUM_CONSTANT(VIEWPORT_MSAA_8X)
-    BIND_ENUM_CONSTANT(VIEWPORT_MSAA_16X)
-    BIND_ENUM_CONSTANT(VIEWPORT_MSAA_EXT_2X)
-    BIND_ENUM_CONSTANT(VIEWPORT_MSAA_EXT_4X)
+    BIND_ENUM_CONSTANT(VS::VIEWPORT_MSAA_DISABLED)
+    BIND_ENUM_CONSTANT(VS::VIEWPORT_MSAA_2X)
+    BIND_ENUM_CONSTANT(VS::VIEWPORT_MSAA_4X)
+    BIND_ENUM_CONSTANT(VS::VIEWPORT_MSAA_8X)
+    BIND_ENUM_CONSTANT(VS::VIEWPORT_MSAA_16X)
+    BIND_ENUM_CONSTANT(VS::VIEWPORT_MSAA_EXT_2X)
+    BIND_ENUM_CONSTANT(VS::VIEWPORT_MSAA_EXT_4X)
 
-    BIND_ENUM_CONSTANT(VIEWPORT_USAGE_2D)
-    BIND_ENUM_CONSTANT(VIEWPORT_USAGE_2D_NO_SAMPLING)
-    BIND_ENUM_CONSTANT(VIEWPORT_USAGE_3D)
-    BIND_ENUM_CONSTANT(VIEWPORT_USAGE_3D_NO_EFFECTS)
+    BIND_ENUM_CONSTANT(VS::VIEWPORT_USAGE_2D)
+    BIND_ENUM_CONSTANT(VS::VIEWPORT_USAGE_2D_NO_SAMPLING)
+    BIND_ENUM_CONSTANT(VS::VIEWPORT_USAGE_3D)
+    BIND_ENUM_CONSTANT(VS::VIEWPORT_USAGE_3D_NO_EFFECTS)
 
-    BIND_ENUM_CONSTANT(VIEWPORT_RENDER_INFO_OBJECTS_IN_FRAME)
-    BIND_ENUM_CONSTANT(VIEWPORT_RENDER_INFO_VERTICES_IN_FRAME)
-    BIND_ENUM_CONSTANT(VIEWPORT_RENDER_INFO_MATERIAL_CHANGES_IN_FRAME)
-    BIND_ENUM_CONSTANT(VIEWPORT_RENDER_INFO_SHADER_CHANGES_IN_FRAME)
-    BIND_ENUM_CONSTANT(VIEWPORT_RENDER_INFO_SURFACE_CHANGES_IN_FRAME)
-    BIND_ENUM_CONSTANT(VIEWPORT_RENDER_INFO_DRAW_CALLS_IN_FRAME)
-    BIND_ENUM_CONSTANT(VIEWPORT_RENDER_INFO_MAX)
+    BIND_ENUM_CONSTANT(VS::VIEWPORT_RENDER_INFO_OBJECTS_IN_FRAME)
+    BIND_ENUM_CONSTANT(VS::VIEWPORT_RENDER_INFO_VERTICES_IN_FRAME)
+    BIND_ENUM_CONSTANT(VS::VIEWPORT_RENDER_INFO_MATERIAL_CHANGES_IN_FRAME)
+    BIND_ENUM_CONSTANT(VS::VIEWPORT_RENDER_INFO_SHADER_CHANGES_IN_FRAME)
+    BIND_ENUM_CONSTANT(VS::VIEWPORT_RENDER_INFO_SURFACE_CHANGES_IN_FRAME)
+    BIND_ENUM_CONSTANT(VS::VIEWPORT_RENDER_INFO_DRAW_CALLS_IN_FRAME)
+    BIND_ENUM_CONSTANT(VS::VIEWPORT_RENDER_INFO_MAX)
 
-    BIND_ENUM_CONSTANT(VIEWPORT_DEBUG_DRAW_DISABLED)
-    BIND_ENUM_CONSTANT(VIEWPORT_DEBUG_DRAW_UNSHADED)
-    BIND_ENUM_CONSTANT(VIEWPORT_DEBUG_DRAW_OVERDRAW)
-    BIND_ENUM_CONSTANT(VIEWPORT_DEBUG_DRAW_WIREFRAME)
+    BIND_ENUM_CONSTANT(VS::VIEWPORT_DEBUG_DRAW_DISABLED)
+    BIND_ENUM_CONSTANT(VS::VIEWPORT_DEBUG_DRAW_UNSHADED)
+    BIND_ENUM_CONSTANT(VS::VIEWPORT_DEBUG_DRAW_OVERDRAW)
+    BIND_ENUM_CONSTANT(VS::VIEWPORT_DEBUG_DRAW_WIREFRAME)
 
-    BIND_ENUM_CONSTANT(SCENARIO_DEBUG_DISABLED)
-    BIND_ENUM_CONSTANT(SCENARIO_DEBUG_WIREFRAME)
-    BIND_ENUM_CONSTANT(SCENARIO_DEBUG_OVERDRAW)
-    BIND_ENUM_CONSTANT(SCENARIO_DEBUG_SHADELESS)
+    BIND_ENUM_CONSTANT(VS::SCENARIO_DEBUG_DISABLED)
+    BIND_ENUM_CONSTANT(VS::SCENARIO_DEBUG_WIREFRAME)
+    BIND_ENUM_CONSTANT(VS::SCENARIO_DEBUG_OVERDRAW)
+    BIND_ENUM_CONSTANT(VS::SCENARIO_DEBUG_SHADELESS)
 
-    BIND_ENUM_CONSTANT(INSTANCE_NONE)
-    BIND_ENUM_CONSTANT(INSTANCE_MESH)
-    BIND_ENUM_CONSTANT(INSTANCE_MULTIMESH)
-    BIND_ENUM_CONSTANT(INSTANCE_IMMEDIATE)
-    BIND_ENUM_CONSTANT(INSTANCE_PARTICLES)
-    BIND_ENUM_CONSTANT(INSTANCE_LIGHT)
-    BIND_ENUM_CONSTANT(INSTANCE_REFLECTION_PROBE)
-    BIND_ENUM_CONSTANT(INSTANCE_GI_PROBE)
-    BIND_ENUM_CONSTANT(INSTANCE_LIGHTMAP_CAPTURE)
-    BIND_ENUM_CONSTANT(INSTANCE_MAX)
-    BIND_ENUM_CONSTANT(INSTANCE_GEOMETRY_MASK)
+    BIND_ENUM_CONSTANT(VS::INSTANCE_NONE)
+    BIND_ENUM_CONSTANT(VS::INSTANCE_MESH)
+    BIND_ENUM_CONSTANT(VS::INSTANCE_MULTIMESH)
+    BIND_ENUM_CONSTANT(VS::INSTANCE_IMMEDIATE)
+    BIND_ENUM_CONSTANT(VS::INSTANCE_PARTICLES)
+    BIND_ENUM_CONSTANT(VS::INSTANCE_LIGHT)
+    BIND_ENUM_CONSTANT(VS::INSTANCE_REFLECTION_PROBE)
+    BIND_ENUM_CONSTANT(VS::INSTANCE_GI_PROBE)
+    BIND_ENUM_CONSTANT(VS::INSTANCE_LIGHTMAP_CAPTURE)
+    BIND_ENUM_CONSTANT(VS::INSTANCE_MAX)
+    BIND_ENUM_CONSTANT(VS::INSTANCE_GEOMETRY_MASK)
 
-    BIND_ENUM_CONSTANT(INSTANCE_FLAG_USE_BAKED_LIGHT)
-    BIND_ENUM_CONSTANT(INSTANCE_FLAG_DRAW_NEXT_FRAME_IF_VISIBLE)
-    BIND_ENUM_CONSTANT(INSTANCE_FLAG_MAX)
+    BIND_ENUM_CONSTANT(VS::INSTANCE_FLAG_USE_BAKED_LIGHT)
+    BIND_ENUM_CONSTANT(VS::INSTANCE_FLAG_DRAW_NEXT_FRAME_IF_VISIBLE)
+    BIND_ENUM_CONSTANT(VS::INSTANCE_FLAG_MAX)
 
-    BIND_ENUM_CONSTANT(SHADOW_CASTING_SETTING_OFF)
-    BIND_ENUM_CONSTANT(SHADOW_CASTING_SETTING_ON)
-    BIND_ENUM_CONSTANT(SHADOW_CASTING_SETTING_DOUBLE_SIDED)
-    BIND_ENUM_CONSTANT(SHADOW_CASTING_SETTING_SHADOWS_ONLY)
+    BIND_ENUM_CONSTANT(VS::SHADOW_CASTING_SETTING_OFF)
+    BIND_ENUM_CONSTANT(VS::SHADOW_CASTING_SETTING_ON)
+    BIND_ENUM_CONSTANT(VS::SHADOW_CASTING_SETTING_DOUBLE_SIDED)
+    BIND_ENUM_CONSTANT(VS::SHADOW_CASTING_SETTING_SHADOWS_ONLY)
 
-    BIND_ENUM_CONSTANT(NINE_PATCH_STRETCH)
-    BIND_ENUM_CONSTANT(NINE_PATCH_TILE)
-    BIND_ENUM_CONSTANT(NINE_PATCH_TILE_FIT)
+    BIND_ENUM_CONSTANT(VS::NINE_PATCH_STRETCH)
+    BIND_ENUM_CONSTANT(VS::NINE_PATCH_TILE)
+    BIND_ENUM_CONSTANT(VS::NINE_PATCH_TILE_FIT)
 
-    BIND_ENUM_CONSTANT(CANVAS_LIGHT_MODE_ADD)
-    BIND_ENUM_CONSTANT(CANVAS_LIGHT_MODE_SUB)
-    BIND_ENUM_CONSTANT(CANVAS_LIGHT_MODE_MIX)
-    BIND_ENUM_CONSTANT(CANVAS_LIGHT_MODE_MASK)
+    BIND_ENUM_CONSTANT(VS::CANVAS_LIGHT_MODE_ADD)
+    BIND_ENUM_CONSTANT(VS::CANVAS_LIGHT_MODE_SUB)
+    BIND_ENUM_CONSTANT(VS::CANVAS_LIGHT_MODE_MIX)
+    BIND_ENUM_CONSTANT(VS::CANVAS_LIGHT_MODE_MASK)
 
-    BIND_ENUM_CONSTANT(CANVAS_LIGHT_FILTER_NONE)
-    BIND_ENUM_CONSTANT(CANVAS_LIGHT_FILTER_PCF3)
-    BIND_ENUM_CONSTANT(CANVAS_LIGHT_FILTER_PCF5)
-    BIND_ENUM_CONSTANT(CANVAS_LIGHT_FILTER_PCF7)
-    BIND_ENUM_CONSTANT(CANVAS_LIGHT_FILTER_PCF9)
-    BIND_ENUM_CONSTANT(CANVAS_LIGHT_FILTER_PCF13)
+    BIND_ENUM_CONSTANT(VS::CANVAS_LIGHT_FILTER_NONE)
+    BIND_ENUM_CONSTANT(VS::CANVAS_LIGHT_FILTER_PCF3)
+    BIND_ENUM_CONSTANT(VS::CANVAS_LIGHT_FILTER_PCF5)
+    BIND_ENUM_CONSTANT(VS::CANVAS_LIGHT_FILTER_PCF7)
+    BIND_ENUM_CONSTANT(VS::CANVAS_LIGHT_FILTER_PCF9)
+    BIND_ENUM_CONSTANT(VS::CANVAS_LIGHT_FILTER_PCF13)
 
-    BIND_ENUM_CONSTANT(CANVAS_OCCLUDER_POLYGON_CULL_DISABLED)
-    BIND_ENUM_CONSTANT(CANVAS_OCCLUDER_POLYGON_CULL_CLOCKWISE)
-    BIND_ENUM_CONSTANT(CANVAS_OCCLUDER_POLYGON_CULL_COUNTER_CLOCKWISE)
+    BIND_ENUM_CONSTANT(VS::CANVAS_OCCLUDER_POLYGON_CULL_DISABLED)
+    BIND_ENUM_CONSTANT(VS::CANVAS_OCCLUDER_POLYGON_CULL_CLOCKWISE)
+    BIND_ENUM_CONSTANT(VS::CANVAS_OCCLUDER_POLYGON_CULL_COUNTER_CLOCKWISE)
 
-    BIND_ENUM_CONSTANT(INFO_OBJECTS_IN_FRAME)
-    BIND_ENUM_CONSTANT(INFO_VERTICES_IN_FRAME)
-    BIND_ENUM_CONSTANT(INFO_MATERIAL_CHANGES_IN_FRAME)
-    BIND_ENUM_CONSTANT(INFO_SHADER_CHANGES_IN_FRAME)
-    BIND_ENUM_CONSTANT(INFO_SURFACE_CHANGES_IN_FRAME)
-    BIND_ENUM_CONSTANT(INFO_DRAW_CALLS_IN_FRAME)
-    BIND_ENUM_CONSTANT(INFO_USAGE_VIDEO_MEM_TOTAL)
-    BIND_ENUM_CONSTANT(INFO_VIDEO_MEM_USED)
-    BIND_ENUM_CONSTANT(INFO_TEXTURE_MEM_USED)
-    BIND_ENUM_CONSTANT(INFO_VERTEX_MEM_USED)
+    BIND_ENUM_CONSTANT(VS::INFO_OBJECTS_IN_FRAME)
+    BIND_ENUM_CONSTANT(VS::INFO_VERTICES_IN_FRAME)
+    BIND_ENUM_CONSTANT(VS::INFO_MATERIAL_CHANGES_IN_FRAME)
+    BIND_ENUM_CONSTANT(VS::INFO_SHADER_CHANGES_IN_FRAME)
+    BIND_ENUM_CONSTANT(VS::INFO_SURFACE_CHANGES_IN_FRAME)
+    BIND_ENUM_CONSTANT(VS::INFO_DRAW_CALLS_IN_FRAME)
+    BIND_ENUM_CONSTANT(VS::INFO_USAGE_VIDEO_MEM_TOTAL)
+    BIND_ENUM_CONSTANT(VS::INFO_VIDEO_MEM_USED)
+    BIND_ENUM_CONSTANT(VS::INFO_TEXTURE_MEM_USED)
+    BIND_ENUM_CONSTANT(VS::INFO_VERTEX_MEM_USED)
 
-    BIND_ENUM_CONSTANT(FEATURE_SHADERS)
-    BIND_ENUM_CONSTANT(FEATURE_MULTITHREADED)
+    BIND_ENUM_CONSTANT(VS::FEATURE_SHADERS)
+    BIND_ENUM_CONSTANT(VS::FEATURE_MULTITHREADED)
 
-    BIND_ENUM_CONSTANT(MULTIMESH_TRANSFORM_2D)
-    BIND_ENUM_CONSTANT(MULTIMESH_TRANSFORM_3D)
-    BIND_ENUM_CONSTANT(MULTIMESH_COLOR_NONE)
-    BIND_ENUM_CONSTANT(MULTIMESH_COLOR_8BIT)
-    BIND_ENUM_CONSTANT(MULTIMESH_COLOR_FLOAT)
-    BIND_ENUM_CONSTANT(MULTIMESH_CUSTOM_DATA_NONE)
-    BIND_ENUM_CONSTANT(MULTIMESH_CUSTOM_DATA_8BIT)
-    BIND_ENUM_CONSTANT(MULTIMESH_CUSTOM_DATA_FLOAT)
+    BIND_ENUM_CONSTANT(VS::MULTIMESH_TRANSFORM_2D)
+    BIND_ENUM_CONSTANT(VS::MULTIMESH_TRANSFORM_3D)
+    BIND_ENUM_CONSTANT(VS::MULTIMESH_COLOR_NONE)
+    BIND_ENUM_CONSTANT(VS::MULTIMESH_COLOR_8BIT)
+    BIND_ENUM_CONSTANT(VS::MULTIMESH_COLOR_FLOAT)
+    BIND_ENUM_CONSTANT(VS::MULTIMESH_CUSTOM_DATA_NONE)
+    BIND_ENUM_CONSTANT(VS::MULTIMESH_CUSTOM_DATA_8BIT)
+    BIND_ENUM_CONSTANT(VS::MULTIMESH_CUSTOM_DATA_FLOAT)
 
-    BIND_ENUM_CONSTANT(REFLECTION_PROBE_UPDATE_ONCE)
-    BIND_ENUM_CONSTANT(REFLECTION_PROBE_UPDATE_ALWAYS)
+    BIND_ENUM_CONSTANT(VS::REFLECTION_PROBE_UPDATE_ONCE)
+    BIND_ENUM_CONSTANT(VS::REFLECTION_PROBE_UPDATE_ALWAYS)
 
-    BIND_ENUM_CONSTANT(PARTICLES_DRAW_ORDER_INDEX)
-    BIND_ENUM_CONSTANT(PARTICLES_DRAW_ORDER_LIFETIME)
-    BIND_ENUM_CONSTANT(PARTICLES_DRAW_ORDER_VIEW_DEPTH)
+    BIND_ENUM_CONSTANT(VS::PARTICLES_DRAW_ORDER_INDEX)
+    BIND_ENUM_CONSTANT(VS::PARTICLES_DRAW_ORDER_LIFETIME)
+    BIND_ENUM_CONSTANT(VS::PARTICLES_DRAW_ORDER_VIEW_DEPTH)
 
-    BIND_ENUM_CONSTANT(ENV_BG_CLEAR_COLOR)
-    BIND_ENUM_CONSTANT(ENV_BG_COLOR)
-    BIND_ENUM_CONSTANT(ENV_BG_SKY)
-    BIND_ENUM_CONSTANT(ENV_BG_COLOR_SKY)
-    BIND_ENUM_CONSTANT(ENV_BG_CANVAS)
-    BIND_ENUM_CONSTANT(ENV_BG_KEEP)
-    BIND_ENUM_CONSTANT(ENV_BG_MAX)
+    BIND_ENUM_CONSTANT(VS::ENV_BG_CLEAR_COLOR)
+    BIND_ENUM_CONSTANT(VS::ENV_BG_COLOR)
+    BIND_ENUM_CONSTANT(VS::ENV_BG_SKY)
+    BIND_ENUM_CONSTANT(VS::ENV_BG_COLOR_SKY)
+    BIND_ENUM_CONSTANT(VS::ENV_BG_CANVAS)
+    BIND_ENUM_CONSTANT(VS::ENV_BG_KEEP)
+    BIND_ENUM_CONSTANT(VS::ENV_BG_MAX)
 
-    BIND_ENUM_CONSTANT(ENV_DOF_BLUR_QUALITY_LOW)
-    BIND_ENUM_CONSTANT(ENV_DOF_BLUR_QUALITY_MEDIUM)
-    BIND_ENUM_CONSTANT(ENV_DOF_BLUR_QUALITY_HIGH)
+    BIND_ENUM_CONSTANT(VS::ENV_DOF_BLUR_QUALITY_LOW)
+    BIND_ENUM_CONSTANT(VS::ENV_DOF_BLUR_QUALITY_MEDIUM)
+    BIND_ENUM_CONSTANT(VS::ENV_DOF_BLUR_QUALITY_HIGH)
 
-    BIND_ENUM_CONSTANT(GLOW_BLEND_MODE_ADDITIVE)
-    BIND_ENUM_CONSTANT(GLOW_BLEND_MODE_SCREEN)
-    BIND_ENUM_CONSTANT(GLOW_BLEND_MODE_SOFTLIGHT)
-    BIND_ENUM_CONSTANT(GLOW_BLEND_MODE_REPLACE)
+    BIND_ENUM_CONSTANT(VS::GLOW_BLEND_MODE_ADDITIVE)
+    BIND_ENUM_CONSTANT(VS::GLOW_BLEND_MODE_SCREEN)
+    BIND_ENUM_CONSTANT(VS::GLOW_BLEND_MODE_SOFTLIGHT)
+    BIND_ENUM_CONSTANT(VS::GLOW_BLEND_MODE_REPLACE)
 
-    BIND_ENUM_CONSTANT(ENV_TONE_MAPPER_LINEAR)
-    BIND_ENUM_CONSTANT(ENV_TONE_MAPPER_REINHARD)
-    BIND_ENUM_CONSTANT(ENV_TONE_MAPPER_FILMIC)
-    BIND_ENUM_CONSTANT(ENV_TONE_MAPPER_ACES)
+    BIND_ENUM_CONSTANT(VS::ENV_TONE_MAPPER_LINEAR)
+    BIND_ENUM_CONSTANT(VS::ENV_TONE_MAPPER_REINHARD)
+    BIND_ENUM_CONSTANT(VS::ENV_TONE_MAPPER_FILMIC)
+    BIND_ENUM_CONSTANT(VS::ENV_TONE_MAPPER_ACES)
 
-    BIND_ENUM_CONSTANT(ENV_SSAO_QUALITY_LOW)
-    BIND_ENUM_CONSTANT(ENV_SSAO_QUALITY_MEDIUM)
-    BIND_ENUM_CONSTANT(ENV_SSAO_QUALITY_HIGH)
+    BIND_ENUM_CONSTANT(VS::ENV_SSAO_QUALITY_LOW)
+    BIND_ENUM_CONSTANT(VS::ENV_SSAO_QUALITY_MEDIUM)
+    BIND_ENUM_CONSTANT(VS::ENV_SSAO_QUALITY_HIGH)
 
-    BIND_ENUM_CONSTANT(ENV_SSAO_BLUR_DISABLED)
-    BIND_ENUM_CONSTANT(ENV_SSAO_BLUR_1x1)
-    BIND_ENUM_CONSTANT(ENV_SSAO_BLUR_2x2)
-    BIND_ENUM_CONSTANT(ENV_SSAO_BLUR_3x3)
+    BIND_ENUM_CONSTANT(VS::ENV_SSAO_BLUR_DISABLED)
+    BIND_ENUM_CONSTANT(VS::ENV_SSAO_BLUR_1x1)
+    BIND_ENUM_CONSTANT(VS::ENV_SSAO_BLUR_2x2)
+    BIND_ENUM_CONSTANT(VS::ENV_SSAO_BLUR_3x3)
 
     ADD_SIGNAL(MethodInfo("frame_pre_draw"));
     ADD_SIGNAL(MethodInfo("frame_post_draw"));
@@ -2346,9 +2345,9 @@ void VisualServer::mesh_add_surface_from_mesh_data(RID p_mesh, const Geometry::M
 
     Array d;
     d.resize(VS::ARRAY_MAX);
-    d[ARRAY_VERTEX] = vertices;
-    d[ARRAY_NORMAL] = normals;
-    mesh_add_surface_from_arrays(p_mesh, PRIMITIVE_TRIANGLES, d);
+    d[VS::ARRAY_VERTEX] = vertices;
+    d[VS::ARRAY_NORMAL] = normals;
+    mesh_add_surface_from_arrays(p_mesh, VS::PRIMITIVE_TRIANGLES, d);
 }
 
 void VisualServer::mesh_add_surface_from_planes(RID p_mesh, const PoolVector<Plane> &p_planes) {

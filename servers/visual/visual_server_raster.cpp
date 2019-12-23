@@ -30,6 +30,7 @@
 
 #include "visual_server_raster.h"
 
+#include "core/external_profiler.h"
 #include "core/io/marshalls.h"
 #include "core/object_db.h"
 #include "core/os/os.h"
@@ -103,6 +104,7 @@ void VisualServerRaster::draw(bool p_swap_buffers, double frame_step) {
     changes = 0;
 
     VSG::rasterizer->begin_frame(frame_step);
+    PROFILER_STARTFRAME("viewport");
 
     VSG::scene->update_dirty_instances(); //update scene stuff
 
@@ -110,6 +112,7 @@ void VisualServerRaster::draw(bool p_swap_buffers, double frame_step) {
     VSG::scene->render_probes();
     _draw_margins();
     VSG::rasterizer->end_frame(p_swap_buffers);
+    PROFILER_ENDFRAME("viewport");
 
     while (frame_drawn_callbacks.front()) {
 

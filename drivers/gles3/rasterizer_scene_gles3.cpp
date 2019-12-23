@@ -31,6 +31,7 @@
 #include "rasterizer_scene_gles3.h"
 
 #include "core/math/math_funcs.h"
+#include "core/external_profiler.h"
 #include "core/os/os.h"
 #include "core/project_settings.h"
 #include "rasterizer_canvas_gles3.h"
@@ -1066,9 +1067,9 @@ void RasterizerSceneGLES3::gi_probe_instance_set_light_data(RID p_probe, RID p_b
         ERR_FAIL_COND(!gipd)
 
         gipi->tex_cache = gipd->tex_id;
-        gipi->cell_size_cache.x = 1.0 / gipd->width;
-        gipi->cell_size_cache.y = 1.0 / gipd->height;
-        gipi->cell_size_cache.z = 1.0 / gipd->depth;
+        gipi->cell_size_cache.x = 1.0f / gipd->width;
+        gipi->cell_size_cache.y = 1.0f / gipd->height;
+        gipi->cell_size_cache.z = 1.0f / gipd->depth;
     }
 }
 void RasterizerSceneGLES3::gi_probe_instance_set_transform_to_data(RID p_probe, const Transform &p_xform) {
@@ -1090,6 +1091,7 @@ void RasterizerSceneGLES3::gi_probe_instance_set_bounds(RID p_probe, const Vecto
 ////////////////////////////
 
 bool RasterizerSceneGLES3::_setup_material(RasterizerStorageGLES3::Material *p_material, bool p_depth_pass, bool p_alpha_pass) {
+    SCOPE_AUTONAMED
 
     /* this is handled outside
     if (p_material->shader->spatial.cull_mode == RasterizerStorageGLES3::Shader::Spatial::CULL_MODE_DISABLED) {
@@ -2813,6 +2815,7 @@ void RasterizerSceneGLES3::_setup_directional_light(int p_index, const Transform
 }
 
 void RasterizerSceneGLES3::_setup_lights(RID *p_light_cull_result, int p_light_cull_count, const Transform &p_camera_inverse_transform, const CameraMatrix &p_camera_projection, RID p_shadow_atlas) {
+    SCOPE_AUTONAMED
 
     state.omni_light_count = 0;
     state.spot_light_count = 0;
@@ -4118,6 +4121,7 @@ void RasterizerSceneGLES3::_post_process(Environment *env, const CameraMatrix &p
 }
 
 void RasterizerSceneGLES3::render_scene(const Transform &p_cam_transform, const CameraMatrix &p_cam_projection, bool p_cam_ortogonal, InstanceBase **p_cull_result, int p_cull_count, RID *p_light_cull_result, int p_light_cull_count, RID *p_reflection_probe_cull_result, int p_reflection_probe_cull_count, RID p_environment, RID p_shadow_atlas, RID p_reflection_atlas, RID p_reflection_probe, int p_reflection_probe_pass) {
+    SCOPE_AUTONAMED
 
     //first of all, make a new render pass
     render_pass++;

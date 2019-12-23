@@ -43,13 +43,13 @@ private:
     GDCLASS(CPUParticles,GeometryInstance)
 
 public:
-    enum DrawOrder {
-        DRAW_ORDER_INDEX,
+    enum DrawOrder : int8_t {
+        DRAW_ORDER_INDEX=0,
         DRAW_ORDER_LIFETIME,
         DRAW_ORDER_VIEW_DEPTH,
     };
 
-    enum Parameter {
+    enum Parameter : int8_t {
 
         PARAM_INITIAL_LINEAR_VELOCITY,
         PARAM_ANGULAR_VELOCITY,
@@ -66,14 +66,14 @@ public:
         PARAM_MAX
     };
 
-    enum Flags {
+    enum Flags : int8_t {
         FLAG_ALIGN_Y_TO_VELOCITY,
         FLAG_ROTATE_Y,
         FLAG_DISABLE_Z,
         FLAG_MAX
     };
 
-    enum EmissionShape {
+    enum EmissionShape : int8_t {
         EMISSION_SHAPE_POINT,
         EMISSION_SHAPE_SPHERE,
         EMISSION_SHAPE_BOX,
@@ -131,24 +131,20 @@ private:
     };
 
     //
+    Transform inv_emission_transform;
 
-    bool one_shot;
-
-    float lifetime;
     float pre_process_time;
     float explosiveness_ratio;
     float randomness_ratio;
     float lifetime_randomness;
     float speed_scale;
-    bool local_coords;
-    int fixed_fps;
-    bool fractional_delta;
-
-    Transform inv_emission_transform;
-
+    float lifetime;
+    int fixed_fps=0;
+    bool one_shot=false;
+    bool local_coords=false;
+    bool fractional_delta=false;
     volatile bool can_update;
-
-    DrawOrder draw_order;
+    DrawOrder draw_order = DrawOrder(0);
 
     Ref<Mesh> mesh;
 
