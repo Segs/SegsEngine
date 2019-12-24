@@ -34,14 +34,17 @@
 #include "core/math/transform.h"
 #include "core/vector.h"
 
-template <class T>
-class Vector;
-
 struct GODOT_EXPORT Frustum {
     Plane planes[6];
-    operator Span<Plane>() { return planes; }
-    operator Span<const Plane>() const { return planes; }
+    operator eastl::span<Plane,6>() { return planes; }
+    operator eastl::span<const Plane,6>() const { return planes; }
+    [[nodiscard]] Plane *begin() { return planes; }
+    [[nodiscard]] Plane *end() { return planes+6; }
     Plane &operator[](int idx) { return planes[idx]; }
+    // MSVC in conformance mode fails to resolve eastl::internal::HasSizeAndData<Frustum>::value to false, so we pretend we're a container :/
+    constexpr Plane *data() { return planes; }
+    constexpr const Plane *data() const { return planes; }
+    constexpr size_t size() const { return 6; }
 };
 
 struct GODOT_EXPORT CameraMatrix {

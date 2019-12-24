@@ -489,13 +489,14 @@ int main( int argc, char** argv )
             ImGui::SameLine( 0, ImGui::GetFontSize() * 2 );
             if( ImGui::Button( ICON_FA_FOLDER_OPEN " Open saved trace" ) && !loadThread.joinable() )
             {
-                QString fname=QFileDialog::getOpenFileName(nullptr,"Select a trace",QString(),"*.tracy");
-                QByteArray utf8_fname=fname.toUtf8();
-                if( not utf8_fname.isEmpty() )
+                QString fname = QFileDialog::getOpenFileName(nullptr, "Open second trace", "", "*.trace");
+                QByteArray fname_utf8 = fname.toUtf8();
+                const char* fn = fname_utf8.data();
+                if( !fname.isEmpty() )
                 {
                     try
                     {
-                        auto f = std::shared_ptr<tracy::FileRead>( tracy::FileRead::Open( utf8_fname.data() ) );
+                        auto f = std::shared_ptr<tracy::FileRead>( tracy::FileRead::Open( fn ) );
                         if( f )
                         {
                             loadThread = std::thread( [&view, f, &badVer, fixedWidth, smallFont, bigFont] {

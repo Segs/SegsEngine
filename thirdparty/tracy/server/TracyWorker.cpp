@@ -12,8 +12,8 @@
 #include <chrono>
 #include <string.h>
 #include <inttypes.h>
-
-#if ( defined _MSC_VER && _MSVC_LANG >= 201703L ) || __cplusplus >= 201703L
+//NOTE: SEGS default qtcreator mingw installation does not have tbb which are required under gcc to support parallelism ts
+#if ( defined _MSC_VER && _MSVC_LANG >= 201703L ) || __cplusplus >= 201703L && !defined(__MINGW32__)
 #  if __has_include(<execution>)
 #    include <execution>
 #  else
@@ -260,6 +260,120 @@ Worker::Worker( const char* addr, int port )
     m_threadNet = std::thread( [this] { SetThreadName( "Tracy Network" ); Network(); } );
 }
 
+Worker::Worker( const std::string& program, const std::vector<ImportEventTimeline>& timeline, const std::vector<ImportEventMessages>& messages )
+    : m_hasData( true )
+    , m_stream( nullptr )
+    , m_buffer( nullptr )
+    , m_traceVersion( CurrentVersion )
+    , m_captureProgram( program )
+    , m_captureTime( 0 )
+    , m_resolution( 0 )
+    , m_delay( 0 )
+    , m_pid( 0 )
+{
+    m_data.sourceLocationExpand.push_back( 0 );
+    m_data.localThreadCompress.InitZero();
+    m_data.callstackPayload.push_back( nullptr );
+
+    m_data.lastTime = 0;
+    if( !timeline.empty() )
+    {
+        m_data.lastTime = timeline.back().timestamp;
+    }
+    if( !messages.empty() )
+    {
+        if( m_data.lastTime < messages.back().timestamp ) m_data.lastTime = messages.back().timestamp;
+    }
+
+    for( auto& v : timeline )
+    {
+        if( !v.isEnd )
+        {
+            SourceLocation srcloc {
+                StringRef(),
+                StringRef( StringRef::Idx, StoreString( v.name.c_str(), v.name.size() ).idx ),
+                StringRef(),
+                0,
+                0
+            };
+            int key;
+            auto it = m_data.sourceLocationPayloadMap.find( &srcloc );
+            if( it == m_data.sourceLocationPayloadMap.end() )
+            {
+                auto slptr = m_slab.Alloc<SourceLocation>();
+                memcpy( slptr, &srcloc, sizeof( srcloc ) );
+                uint32_t idx = m_data.sourceLocationPayload.size();
+                m_data.sourceLocationPayloadMap.emplace( slptr, idx );
+                m_data.sourceLocationPayload.push_back( slptr );
+                key = -int16_t( idx + 1 );
+#ifndef TRACY_NO_STATISTICS
+                auto res = m_data.sourceLocationZones.emplace( key, SourceLocationZones() );
+                m_data.srclocZonesLast.first = key;
+                m_data.srclocZonesLast.second = &res.first->second;
+
+#else
+                auto res = m_data.sourceLocationZonesCnt.emplace( key, 0 );
+                m_data.srclocCntLast.first = key;
+                m_data.srclocCntLast.second = &res.first->second;
+#endif
+            }
+            else
+            {
+                key = -int16_t( it->second + 1 );
+            }
+
+            auto zone = AllocZoneEvent();
+            zone->SetStart( v.timestamp );
+            zone->SetEnd( -1 );
+            zone->SetSrcLoc( key );
+            zone->SetChild( -1 );
+
+            m_threadCtxData = NoticeThread( v.tid );
+            NewZone( zone, v.tid );
+        }
+        else
+        {
+            auto td = NoticeThread( v.tid );
+            td->zoneIdStack.back_and_pop();
+            auto& stack = td->stack;
+            auto zone = stack.back_and_pop();
+            zone->SetEnd( v.timestamp );
+        }
+    }
+
+    for( auto& v : messages )
+    {
+        auto msg = m_slab.Alloc<MessageData>();
+        msg->time = v.timestamp;
+        msg->ref = StringRef( StringRef::Type::Idx, StoreString( v.message.c_str(), v.message.size() ).idx );
+        msg->thread = CompressThread( v.tid );
+        msg->color = 0xFFFFFFFF;
+        msg->callstack.SetVal( 0 );
+        InsertMessageData( msg );
+    }
+
+    for( auto& t : m_threadMap )
+    {
+        char buf[64];
+        sprintf( buf, "%i", t.first );
+        AddThreadString( t.first, buf, strlen( buf ) );
+    }
+
+    m_data.framesBase = m_data.frames.Retrieve( 0, [this] ( uint64_t name ) {
+        auto fd = m_slab.AllocInit<FrameData>();
+        fd->name = name;
+        fd->continuous = 1;
+        return fd;
+    }, [this] ( uint64_t name ) {
+        assert( name == 0 );
+        char tmp[6] = "Frame";
+        HandleFrameName( name, tmp, 5 );
+    } );
+
+    m_data.framesBase->frames.push_back( FrameEvent{ 0, -1, -1 } );
+    m_data.framesBase->frames.push_back( FrameEvent{ 0, -1, -1 } );
+}
+
 Worker::Worker( FileRead& f, EventType::Type eventMask, bool bgTasks )
     : m_hasData( true )
     , m_stream( nullptr )
@@ -341,6 +455,36 @@ Worker::Worker( FileRead& f, EventType::Type eventMask, bool bgTasks )
         char tmp[1024];
         f.Read( tmp, sz );
         m_hostInfo = std::string( tmp, tmp+sz );
+    }
+
+    if( fileVer >= FileVersion( 0, 6, 2 ) )
+    {
+        f.Read( sz );
+        m_data.cpuTopology.reserve( sz );
+        for( uint64_t i=0; i<sz; i++ )
+        {
+            uint32_t packageId;
+            uint64_t psz;
+            f.Read2( packageId, psz );
+            auto& package = *m_data.cpuTopology.emplace( packageId, flat_hash_map<uint32_t, std::vector<uint32_t>> {} ).first;
+            package.second.reserve( psz );
+            for( uint64_t j=0; j<psz; j++ )
+            {
+                uint32_t coreId;
+                uint64_t csz;
+                f.Read2( coreId, csz );
+                auto& core = *package.second.emplace( coreId, std::vector<uint32_t> {} ).first;
+                core.second.reserve( csz );
+                for( uint64_t k=0; k<csz; k++ )
+                {
+                    uint32_t thread;
+                    f.Read( thread );
+                    core.second.emplace_back( thread );
+
+                    m_data.cpuTopologyMap.emplace( thread, CpuThreadTopology { packageId, coreId } );
+                }
+            }
+        }
     }
 
     f.Read( &m_data.crashEvent, sizeof( m_data.crashEvent ) );
@@ -2637,7 +2781,7 @@ void Worker::CheckThreadString( uint64_t id )
     m_data.threadNames.emplace( id, "???" );
     m_pendingThreads++;
 
-    Query( ServerQueryThreadString, id );
+    if( m_sock.IsValid() ) Query( ServerQueryThreadString, id );
 }
 
 void Worker::CheckExternalName( uint64_t id )
@@ -3238,6 +3382,9 @@ bool Worker::Process( const QueueItem& ev )
     case QueueType::ParamSetup:
         ProcessParamSetup( ev.paramSetup );
         break;
+    case QueueType::CpuTopology:
+        ProcessCpuTopology( ev.cpuTopology );
+        break;
     default:
         assert( false );
         break;
@@ -3631,7 +3778,22 @@ void Worker::ProcessZoneText( const QueueZoneText& ev )
     auto zone = stack.back();
     auto it = m_pendingCustomStrings.find( ev.text );
     assert( it != m_pendingCustomStrings.end() );
-    zone->text = StringIdx( it->second.idx );
+    if( !zone->text.Active() )
+    {
+        zone->text = StringIdx( it->second.idx );
+    }
+    else
+    {
+        const auto str0 = GetString( zone->text );
+        const auto str1 = it->second.ptr;
+        const auto len0 = strlen( str0 );
+        const auto len1 = strlen( str1 );
+        char* buf = (char*)alloca( len0+len1+1 );
+        memcpy( buf, str0, len0 );
+        buf[len0] = '\n';
+        memcpy( buf+len0+1, str1, len1 );
+        zone->text = StringIdx( StoreString( buf, len0+len1+1 ).idx );
+    }
     m_pendingCustomStrings.erase( it );
 }
 
@@ -4584,6 +4746,18 @@ void Worker::ProcessParamSetup( const QueueParamSetup& ev )
     m_params.push_back( Parameter { ev.idx, StringRef( StringRef::Ptr, ev.name ), bool( ev.isBool ), ev.val } );
 }
 
+void Worker::ProcessCpuTopology( const QueueCpuTopology& ev )
+{
+    auto package = m_data.cpuTopology.find( ev.package );
+    if( package == m_data.cpuTopology.end() ) package = m_data.cpuTopology.emplace( ev.package, flat_hash_map<uint32_t, std::vector<uint32_t>> {} ).first;
+    auto core = package->second.find( ev.core );
+    if( core == package->second.end() ) core = package->second.emplace( ev.core, std::vector<uint32_t> {} ).first;
+    core->second.emplace_back( ev.thread );
+
+    assert( m_data.cpuTopologyMap.find( ev.thread ) == m_data.cpuTopologyMap.end() );
+    m_data.cpuTopologyMap.emplace( ev.thread, CpuThreadTopology { ev.package, ev.core } );
+}
+
 void Worker::MemAllocChanged( int64_t time )
 {
     const auto val = (double)m_data.memory.usage;
@@ -5171,6 +5345,25 @@ void Worker::Write( FileWrite& f )
     f.Write( &sz, sizeof( sz ) );
     f.Write( m_hostInfo.c_str(), sz );
 
+    sz = m_data.cpuTopology.size();
+    f.Write( &sz, sizeof( sz ) );
+    for( auto& package : m_data.cpuTopology )
+    {
+        sz = package.second.size();
+        f.Write( &package.first, sizeof( package.first ) );
+        f.Write( &sz, sizeof( sz ) );
+        for( auto& core : package.second )
+        {
+            sz = core.second.size();
+            f.Write( &core.first, sizeof( core.first ) );
+            f.Write( &sz, sizeof( sz ) );
+            for( auto& thread : core.second )
+            {
+                f.Write( &thread, sizeof( thread ) );
+            }
+        }
+    }
+
     f.Write( &m_data.crashEvent, sizeof( m_data.crashEvent ) );
 
     sz = m_data.frames.Data().size();
@@ -5454,7 +5647,7 @@ void Worker::Write( FileWrite& f )
 
     sz = m_data.appInfo.size();
     f.Write( &sz, sizeof( sz ) );
-    f.Write( m_data.appInfo.data(), sizeof( m_data.appInfo[0] ) * sz );
+    if( sz != 0 ) f.Write( m_data.appInfo.data(), sizeof( m_data.appInfo[0] ) * sz );
 
     sz = m_data.frameImage.size();
     f.Write( &sz, sizeof( sz ) );
@@ -5686,6 +5879,13 @@ void Worker::SetParameter( size_t paramIdx, int32_t val )
     const auto idx = uint64_t( m_params[paramIdx].idx );
     const auto v = uint64_t( uint32_t( val ) );
     Query( ServerQueryParameter, ( idx << 32 ) | val );
+}
+
+const Worker::CpuThreadTopology* Worker::GetThreadTopology( uint32_t cpuThread ) const
+{
+    auto it = m_data.cpuTopologyMap.find( cpuThread );
+    if( it == m_data.cpuTopologyMap.end() ) return nullptr;
+    return &it->second;
 }
 
 }

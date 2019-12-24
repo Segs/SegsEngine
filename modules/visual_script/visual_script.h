@@ -574,9 +574,9 @@ public:
     void finish() override;
 
     /* EDITOR FUNCTIONS */
-    void get_reserved_words(List<se_string> *p_words) const override;
-    void get_comment_delimiters(List<se_string> *p_delimiters) const override;
-    void get_string_delimiters(List<se_string> *p_delimiters) const override;
+    void get_reserved_words(ListPOD<se_string> *p_words) const override;
+    void get_comment_delimiters(ListPOD<se_string> *p_delimiters) const override;
+    void get_string_delimiters(ListPOD<se_string> *p_delimiters) const override;
     Ref<Script> get_template(se_string_view p_class_name, se_string_view p_base_class_name) const override;
     bool is_using_templates() override;
     void make_template(se_string_view p_class_name, se_string_view p_base_class_name, Ref<Script> &p_script) override;

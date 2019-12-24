@@ -171,7 +171,7 @@ public:
     virtual VariantType get_property_type(const StringName &p_name, bool *r_is_valid = nullptr) const = 0;
 
     virtual Object *get_owner() { return nullptr; }
-    virtual void get_property_state(DefList<Pair<StringName, Variant> > &state);
+    virtual void get_property_state(ListPOD<Pair<StringName, Variant> > &state);
 
     virtual void get_method_list(PODVector<MethodInfo> *p_list) const = 0;
     [[nodiscard]] virtual bool has_method(const StringName &p_method) const = 0;
@@ -270,9 +270,9 @@ public:
         se_string message;
     };
 
-    virtual void get_reserved_words(DefList<se_string> *p_words) const = 0;
-    virtual void get_comment_delimiters(DefList<se_string> *p_delimiters) const = 0;
-    virtual void get_string_delimiters(DefList<se_string> *p_delimiters) const = 0;
+    virtual void get_reserved_words(ListPOD<se_string> *p_words) const = 0;
+    virtual void get_comment_delimiters(ListPOD<se_string> *p_delimiters) const = 0;
+    virtual void get_string_delimiters(ListPOD<se_string> *p_delimiters) const = 0;
     virtual Ref<Script> get_template(se_string_view p_class_name, se_string_view p_base_class_name) const = 0;
     virtual void make_template(se_string_view /*p_class_name*/, se_string_view /*p_base_class_name*/, Ref<Script> & /*p_script*/) {}
     virtual bool is_using_templates() { return false; }

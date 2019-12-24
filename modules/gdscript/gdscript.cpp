@@ -1640,7 +1640,7 @@ void GDScriptLanguage::reload_tool_script(const Ref<Script> &p_script, bool p_so
 
     //when someone asks you why dynamically typed languages are easier to write....
 
-    Map<Ref<GDScript>, Map<ObjectID, List<Pair<StringName, Variant> > > > to_reload;
+    Map<Ref<GDScript>, Map<ObjectID, ListPOD<Pair<StringName, Variant> > > > to_reload;
 
     //as scripts are going to be reloaded, must proceed without locking here
 
@@ -1653,21 +1653,21 @@ void GDScriptLanguage::reload_tool_script(const Ref<Script> &p_script, bool p_so
         if (!reload)
             continue;
 
-        to_reload.emplace(E->deref(), Map<ObjectID, List<Pair<StringName, Variant> > >());
+        to_reload.emplace(E->deref(), Map<ObjectID, ListPOD<Pair<StringName, Variant> > >());
 
         if (!p_soft_reload) {
 
             //save state and remove script from instances
-            Map<ObjectID, List<Pair<StringName, Variant> > > &map = to_reload[E->deref()];
+            Map<ObjectID, ListPOD<Pair<StringName, Variant> > > &map = to_reload[E->deref()];
 
             while (E->deref()->instances.begin()!=E->deref()->instances.end()) {
                 Object *obj = *E->deref()->instances.begin();
                 //save instance info
-                List<Pair<StringName, Variant> > state;
+                ListPOD<Pair<StringName, Variant> > state;
                 if (obj->get_script_instance()) {
 
                     obj->get_script_instance()->get_property_state(state);
-                    map[obj->get_instance_id()] = state;
+                    map[obj->get_instance_id()] = eastl::move(state);
                     obj->set_script(RefPtr());
                 }
             }
@@ -1681,8 +1681,8 @@ void GDScriptLanguage::reload_tool_script(const Ref<Script> &p_script, bool p_so
                 //save instance info
                 if (obj->get_script_instance()) {
 
-                    map.emplace(obj->get_instance_id(), List<Pair<StringName, Variant> >());
-                    List<Pair<StringName, Variant> > &state = map[obj->get_instance_id()];
+                    map.emplace(obj->get_instance_id(), ListPOD<Pair<StringName, Variant> >());
+                    ListPOD<Pair<StringName, Variant> > &state = map[obj->get_instance_id()];
                     obj->get_script_instance()->get_property_state(state);
                     obj->set_script(RefPtr());
                 } else {
@@ -1707,7 +1707,7 @@ void GDScriptLanguage::reload_tool_script(const Ref<Script> &p_script, bool p_so
         //restore state if saved
         for (auto &F : E.second) {
 
-            List<Pair<StringName, Variant> > &saved_state = F.second;
+            ListPOD<Pair<StringName, Variant> > &saved_state = F.second;
 
             Object *obj = ObjectDB::get_instance(F.first);
             if (!obj)
@@ -1731,12 +1731,12 @@ void GDScriptLanguage::reload_tool_script(const Ref<Script> &p_script, bool p_so
 
             if (script_instance->is_placeholder() && scr->is_placeholder_fallback_enabled()) {
                 PlaceHolderScriptInstance *placeholder = static_cast<PlaceHolderScriptInstance *>(script_instance);
-                for (List<Pair<StringName, Variant> >::Element *G = saved_state.front(); G; G = G->next()) {
-                    placeholder->property_set_fallback(G->deref().first, G->deref().second);
+                for (const Pair<StringName, Variant> &G : saved_state) {
+                    placeholder->property_set_fallback(G.first, G.second);
                 }
             } else {
-                for (List<Pair<StringName, Variant> >::Element *G = saved_state.front(); G; G = G->next()) {
-                    script_instance->set(G->deref().first, G->deref().second);
+                for (const Pair<StringName, Variant> &G : saved_state) {
+                    script_instance->set(G.first, G.second);
                 }
             }
 
@@ -1779,7 +1779,7 @@ void GDScriptLanguage::frame() {
 }
 
 /* EDITOR FUNCTIONS */
-void GDScriptLanguage::get_reserved_words(List<se_string> *p_words) const {
+void GDScriptLanguage::get_reserved_words(ListPOD<se_string> *p_words) const {
 
     static const char *_reserved_words[] = {
         // operators

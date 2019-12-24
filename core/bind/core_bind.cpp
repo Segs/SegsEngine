@@ -53,6 +53,7 @@
 #include "core/os/thread.h"
 #include "core/project_settings.h"
 #include "core/string_formatter.h"
+#include "EASTL/sort.h"
 
 VARIANT_ENUM_CAST(_ResourceSaver::SaverFlags);
 VARIANT_ENUM_CAST(_OS::VideoDriver);
@@ -970,36 +971,36 @@ struct _OSCoreBindImg {
 
 void _OS::print_all_textures_by_size() {
 
-    List<_OSCoreBindImg> imgs;
+    PODVector<_OSCoreBindImg> imgs;
     int total = 0;
     {
-        List<Ref<Resource> > rsrc;
+        ListPOD<Ref<Resource> > rsrc;
         ResourceCache::get_cached_resources(&rsrc);
+        imgs.reserve(rsrc.size());
 
-        for (List<Ref<Resource> >::Element *E = rsrc.front(); E; E = E->next()) {
+        for (const Ref<Resource> &E : rsrc) {
 
-            if (!E->deref()->is_class("ImageTexture"))
+            if (!E->is_class("ImageTexture"))
                 continue;
 
-            Size2 size = E->deref()->call("get_size");
-            int fmt = E->deref()->call("get_format");
+            Size2 size = E->call("get_size");
+            int fmt = E->call("get_format");
 
             _OSCoreBindImg img;
             img.size = size;
             img.fmt = fmt;
-            img.path = E->deref()->get_path();
+            img.path = E->get_path();
             img.vram = Image::get_image_data_size(img.size.width, img.size.height, Image::Format(img.fmt));
-            img.id = E->deref()->get_instance_id();
+            img.id = E->get_instance_id();
             total += img.vram;
             imgs.push_back(img);
         }
     }
+    eastl::sort(imgs.begin(), imgs.end());
 
-    imgs.sort();
+    for (const _OSCoreBindImg &E : imgs) {
 
-    for (List<_OSCoreBindImg>::Element *E = imgs.front(); E; E = E->next()) {
-
-        total -= E->deref().vram;
+        total -= E.vram;
     }
 }
 
@@ -1007,7 +1008,7 @@ void _OS::print_resources_by_type(const Vector<se_string> &p_types) {
 
     HashMap<se_string, int> type_count;
 
-    List<Ref<Resource> > rsrc;
+    ListPOD<Ref<Resource> > rsrc;
     ResourceCache::get_cached_resources(&rsrc);
 
     PODVector<se_string> converted_typenames;
@@ -1015,9 +1016,7 @@ void _OS::print_resources_by_type(const Vector<se_string> &p_types) {
     for (int i = 0; i < p_types.size(); i++) {
         converted_typenames.push_back(p_types[i]);
     }
-    for (List<Ref<Resource> >::Element *E = rsrc.front(); E; E = E->next()) {
-
-        Ref<Resource> r = E->deref();
+    for (const Ref<Resource> &r : rsrc) {
 
         bool found = false;
 

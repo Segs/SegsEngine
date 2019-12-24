@@ -454,5 +454,6 @@ set_property(TARGET glad PROPERTY POSITION_INDEPENDENT_CODE ON)
 set_common_target_properties(glad)
 
 if(USE_TRACY_PROFILER)
+    add_subdirectory(glfw)
     add_subdirectory(tracy)
 endif()

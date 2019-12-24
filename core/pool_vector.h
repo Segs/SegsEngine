@@ -387,7 +387,7 @@ public:
 
     PoolVector & operator=(const PoolVector &p_pool_vector) { _reference(p_pool_vector); return *this; }
     PoolVector & operator=(PoolVector &&p_pool_vector) noexcept {
-        if(this != &p_pool_vector)
+        if(this == &p_pool_vector)
             abort();
         pv_unreference();
         alloc=p_pool_vector.alloc;

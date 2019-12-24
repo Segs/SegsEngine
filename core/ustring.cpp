@@ -732,7 +732,7 @@ Vector<float> StringUtils::split_floats_mk(se_string_view str,se_string_view p_s
         }
 
         if (p_allow_empty || (end > from)) {
-            ret.push_back(StringUtils::to_double(str.data()+from));
+            ret.push_back(StringUtils::to_double(str.substr(from,end-from)));
         }
 
         if (end == len)
@@ -1736,7 +1736,7 @@ size_t StringUtils::findn(se_string_view s,se_string_view p_str, int p_from) {
 
     size_t src_len = p_str.length();
 
-    if (src_len == 0 || s.length() == 0)
+    if (src_len == 0 || s.empty() || src_len>s.length())
         return se_string::npos; // won't find anything!
 
     const char *srcd = s.data();

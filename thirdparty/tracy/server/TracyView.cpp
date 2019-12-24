@@ -1,5 +1,5 @@
 #ifdef _MSC_VER
-#  pragma warning( disable: 4267 )  // conversion from don't care to whatever, possible loss of data
+#  pragma warning( disable: 4267 )  // conversion from don't care to whatever, possible loss of data 
 #endif
 
 #ifdef __MINGW32__
@@ -982,10 +982,10 @@ bool View::DrawConnection()
 #endif
     {
 #ifdef TRACY_FILESELECTOR
-        QString fname=QFileDialog::getSaveFileName(nullptr,"Save the trace",QString(),"*.tracy");
-        QByteArray utf8_fname=fname.toUtf8();
-        const char *fn = utf8_fname.data();
-        if( not utf8_fname.isEmpty() )
+        QString fname = QFileDialog::getSaveFileName(nullptr,"Save trace","","*.trace");
+        QByteArray fname_utf8=fname.toUtf8();
+        const char* fn = fname_utf8.data();
+        if( !fname.isEmpty() )
 #else
         const char* fn = "trace.tracy";
 #endif
@@ -4639,6 +4639,7 @@ int View::DrawCpuData( int offset, double pxns, const ImVec2& wpos, bool hover, 
                     draw->AddLine( wpos + ImVec2( 0, offset+sty ), wpos + ImVec2( w, offset+sty ), 0x22DD88DD );
 
                     auto& cs = cpuData[i].cs;
+                    auto tt = m_worker.GetThreadTopology( i );
 
                     auto it = std::lower_bound( cs.begin(), cs.end(), std::max<int64_t>( 0, m_vd.zvStart ), [] ( const auto& l, const auto& r ) { return (uint64_t)l.End() < (uint64_t)r; } );
                     if( it != cs.end() )
@@ -4676,6 +4677,12 @@ int View::DrawCpuData( int offset, double pxns, const ImVec2& wpos, bool hover, 
                                 {
                                     ImGui::PopFont();
                                     ImGui::BeginTooltip();
+                                    if( tt )
+                                    {
+                                        TextFocused( "Package:", RealToString( tt->package, true ) );
+                                        ImGui::SameLine();
+                                        TextFocused( "Core:", RealToString( tt->core, true ) );
+                                    }
                                     TextFocused( "CPU:", RealToString( i, true ) );
                                     TextFocused( "Context switch regions:", RealToString( num, true ) );
                                     ImGui::Separator();
@@ -4781,6 +4788,12 @@ int View::DrawCpuData( int offset, double pxns, const ImVec2& wpos, bool hover, 
                                     m_drawThreadHighlight = thread;
                                     ImGui::PopFont();
                                     ImGui::BeginTooltip();
+                                    if( tt )
+                                    {
+                                        TextFocused( "Package:", RealToString( tt->package, true ) );
+                                        ImGui::SameLine();
+                                        TextFocused( "Core:", RealToString( tt->core, true ) );
+                                    }
                                     TextFocused( "CPU:", RealToString( i, true ) );
                                     if( local )
                                     {
@@ -4835,14 +4848,27 @@ int View::DrawCpuData( int offset, double pxns, const ImVec2& wpos, bool hover, 
                         }
                     }
 
-                    char buf[32];
-                    sprintf( buf, "CPU %i", i );
+                    char buf[64];
+                    if( tt )
+                    {
+                        sprintf( buf, "[%i:%i] CPU %i", tt->package, tt->core, i );
+                    }
+                    else
+                    {
+                        sprintf( buf, "CPU %i", i );
+                    }
                     const auto txtx = ImGui::CalcTextSize( buf ).x;
                     DrawTextContrast( draw, wpos + ImVec2( ty, offset-1 ), 0xFFDD88DD, buf );
                     if( hover && ImGui::IsMouseHoveringRect( wpos + ImVec2( 0, offset-1 ), wpos + ImVec2( sty + txtx, offset + sty - 1 ) ) )
                     {
                         ImGui::PopFont();
                         ImGui::BeginTooltip();
+                        if( tt )
+                        {
+                            TextFocused( "Package:", RealToString( tt->package, true ) );
+                            ImGui::SameLine();
+                            TextFocused( "Core:", RealToString( tt->core, true ) );
+                        }
                         TextFocused( "CPU:", RealToString( i, true ) );
                         TextFocused( "Context switch regions:", RealToString( cs.size(), true ) );
                         ImGui::EndTooltip();
@@ -5867,11 +5893,29 @@ void View::DrawZoneInfoWindow()
                             if( numCpus == 0 )
                             {
                                 ImGui::Text( "%i", i );
+                                auto tt = m_worker.GetThreadTopology( i );
+                                if( tt && ImGui::IsItemHovered() )
+                                {
+                                    ImGui::BeginTooltip();
+                                    TextFocused( "Package:", RealToString( tt->package, true ) );
+                                    ImGui::SameLine();
+                                    TextFocused( "Core:", RealToString( tt->core, true ) );
+                                    ImGui::EndTooltip();
+                                }
                                 break;
                             }
                             else
                             {
                                 ImGui::Text( "%i,", i );
+                                auto tt = m_worker.GetThreadTopology( i );
+                                if( tt && ImGui::IsItemHovered() )
+                                {
+                                    ImGui::BeginTooltip();
+                                    TextFocused( "Package:", RealToString( tt->package, true ) );
+                                    ImGui::SameLine();
+                                    TextFocused( "Core:", RealToString( tt->core, true ) );
+                                    ImGui::EndTooltip();
+                                }
                             }
                         }
                     }
@@ -5949,6 +5993,21 @@ void View::DrawZoneInfoWindow()
 #else
                             ImGui::Text( "%i -> %i", cpu0, cpu1 );
 #endif
+                            const auto tt0 = m_worker.GetThreadTopology( cpu0 );
+                            const auto tt1 = m_worker.GetThreadTopology( cpu1 );
+                            if( tt0 && tt1 )
+                            {
+                                if( tt0->package != tt1->package )
+                                {
+                                    ImGui::SameLine();
+                                    TextDisabledUnformatted( "P" );
+                                }
+                                else if( tt0->core != tt1->core )
+                                {
+                                    ImGui::SameLine();
+                                    TextDisabledUnformatted( "C" );
+                                }
+                            }
                         }
                         ImGui::NextColumn();
                         const char* desc;
@@ -9328,13 +9387,14 @@ void View::DrawCompare()
         if( ImGui::Button( "Open second trace" ) && !m_compare.loadThread.joinable() )
 #endif
         {
-            QString fname=QFileDialog::getOpenFileName(nullptr,"Select the second trace",QString(),"*.tracy");
-            QByteArray utf8_fname=fname.toUtf8();
-            if( not utf8_fname.isEmpty() )
+            QString fname = QFileDialog::getOpenFileName(nullptr, "Open second trace", "", "*.trace");
+            QByteArray fname_utf8 = fname.toUtf8();
+            const char* fn = fname_utf8.data();
+            if (!fname.isEmpty())
             {
                 try
                 {
-                    auto f = std::shared_ptr<tracy::FileRead>( tracy::FileRead::Open( utf8_fname.data() ) );
+                    auto f = std::shared_ptr<tracy::FileRead>( tracy::FileRead::Open( fn ) );
                     if( f )
                     {
                         m_compare.loadThread = std::thread( [this, f] {
@@ -11391,6 +11451,59 @@ void View::DrawInfo()
         ImGui::TreePop();
     }
 
+    auto& topology = m_worker.GetCpuTopology();
+    if( !topology.empty() )
+    {
+        if( ImGui::TreeNode( "CPU topology" ) )
+        {
+            std::vector<decltype(topology.begin())> tsort;
+            tsort.reserve( topology.size() );
+            for( auto it = topology.begin(); it != topology.end(); ++it ) tsort.emplace_back( it );
+            std::sort( tsort.begin(), tsort.end(), [] ( const auto& l, const auto& r ) { return l->first < r->first; } );
+            char buf[128];
+            for( auto& package : tsort )
+            {
+#ifdef TRACY_EXTENDED_FONT
+                sprintf( buf, ICON_FA_BOX " Package %i", package->first );
+#else
+                sprintf( buf, "Package %i", package->first );
+#endif
+                if( ImGui::TreeNodeEx( buf, ImGuiTreeNodeFlags_DefaultOpen ) )
+                {
+                    std::vector<decltype(package->second.begin())> csort;
+                    csort.reserve( package->second.size() );
+                    for( auto it = package->second.begin(); it != package->second.end(); ++it ) csort.emplace_back( it );
+                    std::sort( csort.begin(), csort.end(), [] ( const auto& l, const auto& r ) { return l->first < r->first; } );
+                    for( auto& core : csort )
+                    {
+#ifdef TRACY_EXTENDED_FONT
+                        sprintf( buf, ICON_FA_MICROCHIP " Core %i", core->first );
+#else
+                        sprintf( buf, "Core %i", core->first );
+#endif
+                        if( ImGui::TreeNodeEx( buf, ImGuiTreeNodeFlags_DefaultOpen ) )
+                        {
+                            ImGui::Indent();
+                            for( auto& thread : core->second )
+                            {
+#ifdef TRACY_EXTENDED_FONT
+                                sprintf( buf, ICON_FA_RANDOM " Thread %i", thread );
+#else
+                                sprintf( buf, "Thread %i", thread );
+#endif
+                                ImGui::TextUnformatted( buf );
+                            }
+                            ImGui::Unindent();
+                            ImGui::TreePop();
+                        }
+                    }
+                    ImGui::TreePop();
+                }
+            }
+            ImGui::TreePop();
+        }
+    }
+
     ImGui::Separator();
     TextFocused( "PID:", RealToString( m_worker.GetPid(), true ) );
     TextFocused( "Host info:", m_worker.GetHostInfo().c_str() );
@@ -11874,6 +11987,7 @@ void View::DrawCpuDataWindow()
         it->second.data.migrations += v.second.migrations;
     }
 
+    ImGui::SetNextWindowSize( ImVec2( 700, 800 ), ImGuiCond_FirstUseEver );
     ImGui::Begin( "CPU data", &m_showCpuDataWindow );
     TextFocused( "Tracked threads:", RealToString( ctd.size(), true ) );
     ImGui::SameLine();
@@ -14109,6 +14223,10 @@ void View::SetViewToLastFrames()
     else
     {
         m_vd.zvEnd = m_worker.GetFrameBegin( *m_frames, total - 1 );
+    }
+    if( m_vd.zvEnd == m_vd.zvStart )
+    {
+        m_vd.zvEnd = m_worker.GetLastTime();
     }
 }
 

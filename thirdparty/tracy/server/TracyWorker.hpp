@@ -86,6 +86,21 @@ struct LoadProgress
 class Worker
 {
 public:
+    struct ImportEventTimeline
+    {
+        uint64_t tid;
+        uint64_t timestamp;
+        std::string name;
+        bool isEnd;
+    };
+
+    struct ImportEventMessages
+    {
+        uint64_t tid;
+        uint64_t timestamp;
+        std::string message;
+    };
+
 #pragma pack( 1 )
     struct ZoneThreadData
     {
@@ -99,6 +114,12 @@ public:
 
     enum { ZoneThreadDataSize = sizeof( ZoneThreadData ) };
 #pragma pack()
+
+    struct CpuThreadTopology
+    {
+        uint32_t package;
+        uint32_t core;
+    };
 
 private:
     struct SourceLocationZones
@@ -219,15 +240,18 @@ private:
         uint64_t checkSrclocLast = 0;
         std::pair<uint64_t, uint16_t> shrinkSrclocLast = std::make_pair( std::numeric_limits<uint64_t>::max(), 0 );
 #ifndef TRACY_NO_STATISTICS
-        std::pair<uint16_t, SourceLocationZones*> srclocZonesLast = std::make_pair( std::numeric_limits<uint16_t>::max(), nullptr );
+        std::pair<uint16_t, SourceLocationZones*> srclocZonesLast = std::make_pair( 0, nullptr );
 #else
-        std::pair<uint16_t, uint64_t*> srclocCntLast = std::make_pair( std::numeric_limits<uint16_t>::max(), nullptr );
+        std::pair<uint16_t, uint64_t*> srclocCntLast = std::make_pair( 0, nullptr );
 #endif
 
 #ifndef TRACY_NO_STATISTICS
         Vector<ContextSwitchUsage> ctxUsage;
         bool ctxUsageReady = false;
 #endif
+
+        flat_hash_map<uint32_t, flat_hash_map<uint32_t, std::vector<uint32_t>>> cpuTopology;
+        flat_hash_map<uint32_t, CpuThreadTopology, nohash<uint32_t>> cpuTopologyMap;
     };
 
     struct MbpsBlock
@@ -287,6 +311,7 @@ public:
     };
 
     Worker( const char* addr, int port );
+    Worker( const std::string& program, const std::vector<ImportEventTimeline>& timeline, const std::vector<ImportEventMessages>& messages );
     Worker( FileRead& f, EventType::Type eventMask = EventType::All, bool bgTasks = true );
     ~Worker();
 
@@ -422,6 +447,9 @@ public:
     const Vector<Parameter>& GetParameters() const { return m_params; }
     void SetParameter( size_t paramIdx, int32_t val );
 
+    const decltype(DataBlock::cpuTopology)& GetCpuTopology() const { return m_data.cpuTopology; }
+    const CpuThreadTopology* GetThreadTopology( uint32_t cpuThread ) const;
+
 private:
     void Network();
     void Exec();
@@ -483,6 +511,7 @@ private:
     tracy_force_inline void ProcessThreadWakeup( const QueueThreadWakeup& ev );
     tracy_force_inline void ProcessTidToPid( const QueueTidToPid& ev );
     tracy_force_inline void ProcessParamSetup( const QueueParamSetup& ev );
+    tracy_force_inline void ProcessCpuTopology( const QueueCpuTopology& ev );
 
     tracy_force_inline ZoneEvent* AllocZoneEvent();
     tracy_force_inline void ProcessZoneBeginImpl( ZoneEvent* zone, const QueueZoneBegin& ev );

@@ -35,6 +35,7 @@
 #include "core/hashfuncs.h"
 #include "core/node_path.h"
 #include "core/dictionary.h"
+#include "core/list.h"
 #include "core/io/marshalls.h"
 #include "core/io/ip_address.h"
 #include "core/math/aabb.h"
@@ -1283,13 +1284,13 @@ template <> double Variant::as<double>() const {
 
 template<>
 String Variant::as<String>() const {
-    List<const void *> stack;
+    PODVector<const void *> stack;
 
     return StringUtils::from_utf8(stringify(stack));
 }
 template<>
 se_string Variant::as<se_string>() const {
-    List<const void *> stack;
+    PODVector<const void *> stack;
 
     return stringify(stack);
 }
@@ -1386,7 +1387,7 @@ struct _VariantStrPair {
 };
 
 
-se_string Variant::stringify(List<const void *> &stack) const {
+se_string Variant::stringify(PODVector<const void *> &stack) const {
     switch (type) {
 
         case VariantType::NIL: return ("Null");
@@ -1441,7 +1442,7 @@ se_string Variant::stringify(List<const void *> &stack) const {
         case VariantType::DICTIONARY: {
 
             const Dictionary &d = *reinterpret_cast<const Dictionary *>(_data._mem);
-            if (stack.find(d.id())) {
+            if (stack.contains(d.id())) {
                 return ("{...}");
             }
 
@@ -2337,7 +2338,7 @@ Variant Variant::fromVector(Span<const T> p_array) {
 }
 template<class T>
 Variant Variant::fromVectorBuiltin(Span<const T> p_array) {
-    static_assert(sizeof(_data._mem)>=sizeof(PoolVector<T>));
+    static_assert(sizeof(_data)>=sizeof(PoolVector<T>));
 
     Variant res;
     PoolVector<T> *plane_array = memnew_placement(res._data._mem, PoolVector<T>);

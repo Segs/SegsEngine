@@ -9,6 +9,8 @@ find_library(TBB_LIB tbb)
 #find_package(GLFW3)
 if(WIN32)
     set(PLATFORM_SOURCES
+		profiler/src/winmain.cpp
+		profiler/src/winmainArchDiscovery.cpp
     )
 else()
     set(PLATFORM_SOURCES
@@ -37,16 +39,19 @@ add_executable(tracy_profiler
     profiler/src/imgui_freetype.cpp
     profiler/src/imgui_impl_glfw.cpp
     profiler/src/imgui_impl_opengl3.cpp
-    profiler/src/main.cpp
     profiler/src/ResolvService.cpp
-    profiler/src/winmain.cpp
-    profiler/src/winmainArchDiscovery.cpp
     profiler/libs/gl3w/GL/gl3w.c
+	profiler/src/main.cpp
     ${PLATFORM_SOURCES}
 )
 target_link_libraries(tracy_profiler PRIVATE freetype ${OPENGL_LIBRARIES} ${CMAKE_DL_LIBS} Qt5::Widgets Threads::Threads glfw)
 if(TBB_LIB) # needed for libcpp + clang
     target_link_libraries(tracy_profiler PRIVATE ${TBB_LIB})
 endif()
+
 target_include_directories(tracy_profiler PRIVATE imgui profiler/libs/gl3w )
-target_compile_definitions(tracy_profiler PRIVATE  TRACY_FILESELECTOR TRACY_EXTENDED_FONT TRACY_ROOT_WINDOW IMGUI_IMPL_OPENGL_LOADER_GL3W)
+target_compile_definitions(tracy_profiler PRIVATE TRACY_FILESELECTOR TRACY_EXTENDED_FONT TRACY_ROOT_WINDOW IMGUI_IMPL_OPENGL_LOADER_GL3W)
+if(WIN32)
+	target_compile_definitions(tracy_profiler PRIVATE NDEBUG _CRT_SECURE_NO_DEPRECATE _CRT_NONSTDC_NO_DEPRECATE WIN32_LEAN_AND_MEAN NOMINMAX _USE_MATH_DEFINES)
+    target_link_libraries(tracy_profiler PRIVATE ws2_32 dbghelp)
+endif()

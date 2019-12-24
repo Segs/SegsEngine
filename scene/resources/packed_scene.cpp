@@ -220,7 +220,7 @@ Node *SceneState::instance(GenEditState p_edit_state) const {
                         //https://github.com/godotengine/godot/issues/2958
 
                         //store old state
-                        List<Pair<StringName, Variant> > old_state;
+                        ListPOD<Pair<StringName, Variant> > old_state;
                         if (node->get_script_instance()) {
                             node->get_script_instance()->get_property_state(old_state);
                         }
@@ -228,8 +228,8 @@ Node *SceneState::instance(GenEditState p_edit_state) const {
                         node->set(snames[nprops[j].name], props[nprops[j].value], &valid);
 
                         //restore old state for new script, if exists
-                        for (List<Pair<StringName, Variant> >::Element *E = old_state.front(); E; E = E->next()) {
-                            node->set(E->deref().first, E->deref().second);
+                        for (const Pair<StringName, Variant> &E : old_state) {
+                            node->set(E.first, E.second);
                         }
                     } else {
 

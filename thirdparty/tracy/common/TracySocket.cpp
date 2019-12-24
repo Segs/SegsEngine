@@ -62,6 +62,9 @@ void InitWinSock()
 }
 #endif
 
+
+enum { BufSize = 128 * 1024 };
+
 Socket::Socket()
     : m_buf( (char*)tracy_malloc( BufSize ) )
     , m_bufPtr( nullptr )
@@ -270,6 +273,11 @@ bool Socket::HasData()
     fd.events = POLLIN;
 
     return poll( &fd, 1, 0 ) > 0;
+}
+
+bool Socket::IsValid() const
+{
+    return m_sock >= 0;
 }
 
 

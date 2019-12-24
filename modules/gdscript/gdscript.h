@@ -131,7 +131,7 @@ class GDScript : public Script {
 
 #ifdef DEBUG_ENABLED
 
-    Map<ObjectID, List<Pair<StringName, Variant> > > pending_reload_state;
+    Map<ObjectID, ListPOD<Pair<StringName, Variant> > > pending_reload_state;
 
 #endif
 
@@ -450,9 +450,9 @@ public:
     void finish() override;
 
     /* EDITOR FUNCTIONS */
-    void get_reserved_words(List<se_string> *p_words) const override;
-    void get_comment_delimiters(List<se_string> *p_delimiters) const override;
-    void get_string_delimiters(List<se_string> *p_delimiters) const override;
+    void get_reserved_words(ListPOD<se_string> *p_words) const override;
+    void get_comment_delimiters(ListPOD<se_string> *p_delimiters) const override;
+    void get_string_delimiters(ListPOD<se_string> *p_delimiters) const override;
     virtual se_string _get_processed_template(se_string_view p_template, se_string_view p_base_class_name) const;
     Ref<Script> get_template(se_string_view p_class_name, se_string_view p_base_class_name) const override;
     bool is_using_templates() override;

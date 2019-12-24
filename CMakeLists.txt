@@ -11,6 +11,17 @@ set(CMAKE_INSTALL_PREFIX ${PROJECT_SOURCE_DIR}/../SegsEngine_installdir/)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+if(MSVC)
+    if (NOT (MSVC_VERSION LESS 1910))
+      add_compile_options (/permissive-)
+	  add_definitions(-D_CRT_SECURE_NO_WARNINGS)
+	  #add_compile_options (/diagnostics:caret)
+	  #add_compile_options (/sdl)
+	  #add_compile_options (/MP)
+	  #add_compile_options (/arch:AVX2)
+    endif()
+endif()
+
 include(CMakeParseArguments)
 
 SET(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake;${CMAKE_MODULE_PATH})

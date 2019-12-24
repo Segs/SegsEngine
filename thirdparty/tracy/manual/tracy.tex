@@ -716,7 +716,7 @@ $2560\times1440$ & 23~FPS & 3300~FPS
 
 To record a zone's\footnote{A \texttt{zone} represents the life-time of a special on-stack profiler variable. Typically it would exist for the duration of a whole scope of the profiled function, but you also can measure time spent in scopes of a for-loop, or an if-branch.} execution time add the \texttt{ZoneScoped} macro at the beginning of the scope you want to measure. This will automatically record function name, source file name and location. Optionally you may use the \texttt{ZoneScopedC(color)} macro to set a custom color for the zone. Note that the color value will be constant in the recording (don't try to parametrize it). You may also set a custom name for the zone, using the \texttt{ZoneScopedN(name)} macro. Color and name may be combined by using the \texttt{ZoneScopedNC(name, color)} macro.
 
-Use the \texttt{ZoneText(text, size)} macro to add a custom text string that will be displayed along the zone information (for example, name of the file you are opening).
+Use the \texttt{ZoneText(text, size)} macro to add a custom text string that will be displayed along the zone information (for example, name of the file you are opening). Multiple text strings can be attached to any single zone.
 
 If you want to set zone name on a per-call basis, you may do so using the \texttt{ZoneName(text, size)} macro. This name won't be used in the process of grouping the zones for statistical purposes (sections~\ref{statistics} and~\ref{findzone}).
 
@@ -1160,6 +1160,7 @@ To mark frames, as described in section~\ref{markingframes}, use the following m
 \end{itemize}
 
 \subsubsection{Zone markup}
+\label{czonemarkup}
 
 The following macros mark the beginning of a zone:
 
@@ -1177,6 +1178,7 @@ Unlike C++, there's no automatic destruction mechanism in C, so you will need to
 Zone text and name may be set by using the \texttt{TracyCZoneText(ctx, txt, size)} and \texttt{TracyCZoneName(ctx, txt, size)} macros. Make sure you are following the zone stack rules, as described in section~\ref{multizone}!
 
 \paragraph{Zone context data structure}
+\label{zonectx}
 
 In typical use cases the zone context data structure is hidden from your view, requiring only to specify its name for the \texttt{TracyCZone} and \texttt{TracyCZoneEnd} macros. However, it is possible to use it in advanced scenarios, for example if you want to start a zone in one function, then end it in another one. To do so you will need to forward the data structure either through a function parameter, or as a return value. To accomplish this you need to keep in mind the following rules:
 
@@ -1192,6 +1194,38 @@ In typical use cases the zone context data structure is hidden from your view, r
 Since all instrumentation using the C API has to be done by hand, it is possible to miss some code paths where a zone should be started or ended. Tracy will perform additional validation of instrumentation correctness to prevent bad profiling runs. Read section~\ref{instrumentationfailures} for more information.
 
 The validation comes with a performance cost though, which you may not want to pay. If you are \emph{completely sure} that the instrumentation is not broken in any way, you may use the \texttt{TRACY\_NO\_VERIFY} macro, which will disable the validation code.
+
+\paragraph{Allocated source locations}
+
+Sometimes you might want to provide your own source location data to a zone. For example, you may be integrating Tracy with another programming language, one where there are no guarantees about object lifetime, or how data structures will be laid out in the memory.
+
+To do so, you need to create an \emph{allocated source location}, by calling one of the following functions:
+
+\begin{itemize}
+\item \texttt{\_\_\_tracy\_alloc\_srcloc(uint32\_t line, const char* source, const char* function)}
+\item \texttt{\_\_\_tracy\_alloc\_srcloc\_name(uint32\_t line, const char* source, const char* function, const char* name, size\_t nameSz)}
+\end{itemize}
+
+Where \texttt{line} is line number in the \texttt{source} source file and \texttt{function} is the name of a function in which zone is created. Both \texttt{source} and \texttt{function} must be null-terminated strings. You may additionally specify an optional zone name, by providing it in the \texttt{name} variable, and specifying its size in \texttt{nameSz}. None of the provided text strings has to be kept in memory after source location is allocated.
+
+Both functions return an \texttt{uint64\_t} source location value, which then must be passed to one of the zone begin functions:
+
+\begin{itemize}
+\item \texttt{\_\_\_tracy\_emit\_zone\_begin\_alloc(srcloc, active)}
+\item \texttt{\_\_\_tracy\_emit\_zone\_begin\_alloc\_callstack(srcloc, depth, active)}
+\end{itemize}
+
+These functions return a \texttt{TracyCZoneCtx} context value, which must be handled, as described in sections~\ref{czonemarkup} and~\ref{zonectx}.
+
+The variable representing an allocated source location is of an opaque type. After it is passed to one of the zone begin functions, its value \emph{cannot be reused}. You must allocate a new source location for each zone begin event.
+
+\begin{bclogo}[
+noborder=true,
+couleur=black!5,
+logo=\bcbombe
+]{Important}
+Since you are directly calling the profiler functions here, you will need to take care of manually disabling the code, if the \texttt{TRACY\_ENABLE} macro is not defined.
+\end{bclogo}
 
 \subsubsection{Memory profiling}
 
@@ -1256,6 +1290,29 @@ logo=\bcattention
 \item Context switch data is retrieved using the kernel profiling facilities, which are not available to users with normal privilege level. To collect context switches you will need to elevate your rights to admin level, either by running the profiled program from the \texttt{root} account on Unix, or through the \emph{Run as administrator} option on Windows. On Android context switches will be collected if you have a rooted device (see section~\ref{androidlunacy} for additional information).
 \item Android context switch capture requires spawning an elevated process to read kernel data. While the standard \texttt{cat} utility can be used for this task, the CPU usage is not acceptable due to how the kernel handles blocking reads. As a workaround, Tracy will inject a specialized kernel data reader program at \texttt{/data/tracy\_systrace}, which has more acceptable resource requirements.
 \end{itemize}
+\end{bclogo}
+
+\subsubsection{CPU topology}
+\label{cputopology}
+
+Tracy may perform discovery of CPU topology data in order to provide further information about program performance characteristics. It is very useful when combined with context switches (section~\ref{contextswitches}).
+
+In essence, the topology information gives you context about what any given \emph{logical CPU} really is and how it relates to other logical CPUs. The topology hierarchy consists of packages, cores and threads.
+
+Packages contain cores and shared resources, such as memory controller, L3 cache, etc. A store-bought CPU is an example of a package. While you may think that multi-package configurations would be a domain of servers, they are actually quite common in the mobile devices world, with many platforms using the \emph{big.LITTLE} arrangement of two packages.
+
+Cores contain at least one thread and shared resources: execution units, L1 and L2 cache, etc.
+
+Threads (or \emph{logical CPUs}; not to be confused with program threads) are basically the processor instruction pipelines. A pipeline might become stalled, for example due to pending memory access, leaving core resources unused. To reduce this bottleneck, some CPUs may use simultaneous multithreading\footnote{Commonly known as Hyper-threading.}, in which more than one pipeline will be using a single physical core resources.
+
+Knowing which package and core any logical CPU belongs to enables many insights. For example, two threads scheduled to run on the same core will compete for shared execution units and cache, resulting in reduced performance. Or, a migration of a program thread from one core to another core will invalidate L1 and L2 cache, which is less costly than a migration from one package to another, which also invalidates L3 cache.
+
+\begin{bclogo}[
+noborder=true,
+couleur=black!5,
+logo=\bcbombe
+]{Important}
+In this manual, the word \emph{core} is typically used as a short term for \emph{logical CPU}. Do not confuse it with physical processor cores.
 \end{bclogo}
 
 \subsection{Trace parameters}
@@ -1764,7 +1821,7 @@ This label is only available if context switch data was collected. It is split i
 
 The CPU load graph is showing how much CPU resources were used at any given time during program execution. The green part of the graph represents threads belonging to the profiled application and the gray part of the graph shows all other programs running in the system.
 
-Each line in the thread execution display represents a separate CPU core. When a core is busy executing a thread, a zone will be drawn at the appropriate time. Zones are colored according to the following key:
+Each line in the thread execution display represents a separate logical CPU thread. If CPU topology data is available (see section~\ref{cputopology}), package and core assignment will be displayed in brackets, in addition to numerical processor identifier. When a core is busy executing a thread, a zone will be drawn at the appropriate time. Zones are colored according to the following key:
 
 \begin{itemize}
 \item \emph{Bright color} or \emph{orange} if dynamic thread colors are disabled -- Thread tracked by the profiler.
@@ -2175,6 +2232,8 @@ Open the \emph{Trace statistics} section to see information about the trace, suc
 
 There's also a section containing the selected frame set timing statistics and histogram\footnote{See section~\ref{findzone} for a description of the histogram. Note that there are subtle differences in the available functionality.}. As a convenience you can switch the active frame set here and limit the displayed frame statistics to the frame range visible on the screen.
 
+If CPU topology data is available (see section~\ref{cputopology}), you will be able to view the package, core and thread hierarchy.
+
 In this window you can view the information about the machine on which the profiled application was running. This includes the operating system, used compiler, CPU name, amount of total available RAM, etc. If application information was provided (see section~\ref{appinfo}), it will also be displayed here.
 
 If an application should crash during profiling (section~\ref{crashhandling}), the crash information will be displayed in this window. It provides you information about the thread that has crashed, the crash reason and the crash call stack (section~\ref{callstackwindow}).
@@ -2187,7 +2246,7 @@ The zone information window displays detailed information about a single zone. T
 \begin{itemize}
 \item Basic source location information: function name, source file location and the thread name.
 \item Timing information.
-\item If context switch capture was performed (section~\ref{contextswitches}) and a thread was suspended during zone execution, a list of wait regions will be displayed, with complete information about timing, CPU migrations and wait reasons. In some cases context switch data might be incomplete\footnote{For example, when a capture is ongoing and context switch information has not yet been received.}, in which case a warning message will be displayed.
+\item If context switch capture was performed (section~\ref{contextswitches}) and a thread was suspended during zone execution, a list of wait regions will be displayed, with complete information about timing, CPU migrations and wait reasons. If CPU topology data is available (section~\ref{cputopology}), zone migrations across cores will be marked with 'C', and migrations across packages -- with 'P'. In some cases context switch data might be incomplete\footnote{For example, when a capture is ongoing and context switch information has not yet been received.}, in which case a warning message will be displayed.
 \item Memory events list, both summarized and a list of individual allocation/free events (see section~\ref{memorywindow} for more information on the memory events list).
 \item List of messages that were logged in the zone's scope (including its children).
 \item Zone trace, taking into account the zone tree and call stack information (section~\ref{collectingcallstacks}), trying to reconstruct a combined zone + call stack trace\footnote{Reconstruction is only possible, if all zones have full call stack capture data available. In case where that's not available, an \emph{unknown frames} entry will be present.}. Captured zones are displayed as normal text, while functions that were not instrumented are dimmed. Hovering the \faMousePointer{}~mouse pointer over a zone will highlight it on the timeline view with a red outline. Clicking the \LMB{}~left mouse button on a zone will switch the zone info window to that zone. Clicking the \MMB{}~middle mouse button on a zone will zoom the timeline view to the zone's extent. Clicking the \RMB{}~right mouse button on a source file location will open the source file view window (if applicable, see section~\ref{sourceview}).
@@ -2313,6 +2372,22 @@ This window lists all annotations marked on the timeline. Each annotation is pre
 \label{figannlist}
 \end{figure}
 
+\section{Importing external profiling data}
+
+Tracy can import data generated by other profilers. This external data cannot be directly loaded, but must be converted first. Currently there's only support for converting chrome:tracing data, through the \texttt{import-chrome} utility.
+
+\begin{bclogo}[
+noborder=true,
+couleur=black!5,
+logo=\bcattention
+]{Limitations}
+\begin{itemize}
+\item Tracy is a single-process profiler. There is no differentiation between data coming from different pids.
+\item Tracy uses thread identifiers assigned by the operating system. This means that no two concurrent threads can have the same tid. Be aware that some external data formats may encourage usage of duplicated thread identifiers.
+\item The imported data may be severely limited, either by not mapping directly to the data structures used by Tracy, or by following undocumented practices.
+\end{itemize}
+\end{bclogo}
+
 \section{Configuration files}
 
 While the client part doesn't read or write anything to the disk (with the exception of accessing the \texttt{/proc} filesystem on Linux), the server part has to keep some persistent state. The naming conventions or internal data format of the files are not meant to be known by profiler users, but you may want to do a backup of the configuration, or move it to another machine.
@@ -2382,6 +2457,7 @@ The following libraries are included with and used by the Tracy Profiler:
 \begin{itemize}
 \item Dear ImGui -- \url{https://github.com/ocornut/imgui}
 \item ImGuiColorTextEdit -- \url{https://github.com/BalazsJako/ImGuiColorTextEdit}
+\item JSON for Modern C++ -- \url{https://github.com/nlohmann/json}
 \end{itemize}
 
 \item Apache license 2.0
