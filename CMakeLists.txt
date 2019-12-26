@@ -91,6 +91,11 @@ foreach(tgt ${global_targets})
     set_common_target_properties(${tgt}_engine)
     if(USE_TRACY_PROFILER)
         target_sources(${tgt}_engine PRIVATE thirdparty/tracy/TracyClient.cpp)
+        if(WIN32)
+            # under windows tracy client needs dbghelp as well
+            target_link_libraries(${tgt}_engine PRIVATE dbghelp)
+        endif()
+
     endif()
 
     add_executable(segs_${tgt} ${PROJECT_SOURCE_DIR}/executable/main.cpp)

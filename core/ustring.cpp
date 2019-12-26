@@ -46,11 +46,12 @@
 #include <QString>
 #include <QVector>
 #include <QCollator>
-#include <charconv>
 #include <cstdio>
 #include <cstdlib>
 #include <QFileInfo>
 #include <QTextBoundaryFinder>
+#include <charconv>
+
 using namespace eastl;
 const String s_null_ui_string;
 

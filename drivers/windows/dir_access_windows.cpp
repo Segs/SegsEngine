@@ -176,11 +176,12 @@ se_string DirAccessWindows::get_current_dir() {
     return _get_root_string() + bd;
 }
 
-bool DirAccessWindows::file_exists(se_string_view p_file) {
+bool DirAccessWindows::file_exists(se_string_view _file) {
 
     GLOBAL_LOCK_FUNCTION
-
-    if (!PathUtils::is_abs_path(p_file)) p_file = PathUtils::plus_file(get_current_dir(),p_file);
+    se_string p_file(_file);
+    if (!PathUtils::is_abs_path(p_file))
+        p_file = PathUtils::plus_file(get_current_dir(),p_file);
 
     p_file = fix_path(p_file);
 
@@ -189,11 +190,13 @@ bool DirAccessWindows::file_exists(se_string_view p_file) {
     return fi.exists() && fi.isFile();
 }
 
-bool DirAccessWindows::dir_exists(se_string_view p_dir) {
+bool DirAccessWindows::dir_exists(se_string_view _dir) {
 
     GLOBAL_LOCK_FUNCTION
 
-    if (PathUtils::is_rel_path(p_dir)) p_dir = PathUtils::plus_file(get_current_dir(),p_dir);
+    se_string p_dir(_dir);
+    if (PathUtils::is_rel_path(p_dir))
+        p_dir = PathUtils::plus_file(get_current_dir(),p_dir);
 
     p_dir = fix_path(p_dir);
 
@@ -201,9 +204,12 @@ bool DirAccessWindows::dir_exists(se_string_view p_dir) {
     return fi.exists() && fi.isDir();
 }
 
-Error DirAccessWindows::rename(se_string_view p_path, se_string_view p_new_path) {
+Error DirAccessWindows::rename(se_string_view _path, se_string_view _new_path) {
 
-    if (PathUtils::is_rel_path(p_path)) p_path = PathUtils::plus_file(get_current_dir(),p_path);
+    se_string p_path(_path);
+    se_string p_new_path(_new_path);
+    if (PathUtils::is_rel_path(p_path))
+        p_path = PathUtils::plus_file(get_current_dir(),p_path);
 
     p_path = fix_path(p_path);
 
@@ -213,7 +219,9 @@ Error DirAccessWindows::rename(se_string_view p_path, se_string_view p_new_path)
     return QFile::rename(StringUtils::from_utf8(p_path), StringUtils::from_utf8(p_new_path)) ? OK : FAILED;
 }
 
-Error DirAccessWindows::remove(se_string_view p_path) {
+Error DirAccessWindows::remove(se_string_view _path) {
+
+    se_string p_path(_path);
 
     if (PathUtils::is_rel_path(p_path)) p_path = PathUtils::plus_file(get_current_dir(),p_path);
 

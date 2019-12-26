@@ -1951,7 +1951,7 @@ void EditorFileSystem::reimport_files(const Vector<se_string> &p_files) {
     importing = true;
     EditorProgress pr(("reimport"), TTR("(Re)Importing Assets"), p_files.size());
 
-    Vector<ImportFile> files;
+    PODVector<ImportFile> files;
     Set<se_string> groups_to_reimport;
 
     for (int i = 0; i < p_files.size(); i++) {
@@ -1983,7 +1983,7 @@ void EditorFileSystem::reimport_files(const Vector<se_string> &p_files) {
         }
     }
 
-    files.sort();
+    eastl::sort(files.begin(),files.end());
 
     for (int i = 0; i < files.size(); i++) {
         pr.step(StringName(PathUtils::get_file(files[i].path)), i);

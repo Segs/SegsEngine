@@ -11,4 +11,6 @@ public:
     {
         set_3d(true);
     }
+
+    float get_priority() const override { return 13.0f; }
 };

@@ -340,14 +340,12 @@ se_string FileAccess::get_line() const {
     while (!eof_reached()) {
 
         if (c == '\n' || c == '\0') {
-            line.push_back(0);
             return line;
         } else if (c != '\r')
             line.push_back(c);
 
         c = get_8();
     }
-    line.push_back(0);
     return line;
 }
 

@@ -30,6 +30,7 @@
 
 // included first since os_x11.h pulls in xlib with it's stupid #define Bool
 #include <QCoreApplication>
+#include <qlogging.h>
 
 #include "version.h"
 #include "main/main.h"
@@ -61,9 +62,32 @@ static const char dummy[8] __attribute__((section("pck"), used)) = { 0 };
 #endif
 #endif
 
+/* NOTE: enable this to set breakpoints on qdebug messages.
+void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QString &lMessage)
+{
+    QString text;
+    switch (type)
+    {
+    case QtDebugMsg:
+        text = QString("Qt::Debug (%1:%2, %3): %4").arg(context.file).arg(context.line).arg(context.function).arg(lMessage.constData());
+        break;
 
+    case QtWarningMsg:
+        text = QString("Qt::Warning (%s:%u, %s): %1").arg(context.file).arg(context.line).arg(context.function).arg(lMessage.constData());
+        break;
+
+    case QtCriticalMsg:
+        text = QString("Qt::Critical (%s:%u, %s): %1").arg(context.file).arg(context.line).arg(context.function).arg(lMessage.constData());
+
+    case QtFatalMsg:
+        text = QString("Qt::Fatal (%s:%u, %s): %1").arg(context.file).arg(context.line).arg(context.function).arg(lMessage.constData());
+        abort();
+    }
+}
+*/
 int mainT(int argc, char *argv[]) {
 
+//    qInstallMessageHandler(myMessageOutput);
     QCoreApplication app(argc,argv);
     QCoreApplication::setApplicationName(VERSION_SHORT_NAME);
     QCoreApplication::setApplicationVersion(VERSION_BRANCH);

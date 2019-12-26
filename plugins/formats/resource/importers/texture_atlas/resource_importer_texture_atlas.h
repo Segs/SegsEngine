@@ -66,7 +66,7 @@ public:
     // ResourceImporterInterface interface
     // ResourceImporterInterface defaults
 public:
-    float get_priority() const override {return 1.0f;}
+    float get_priority() const override {return 10.0f;}
     int get_import_order() const override {return 0;}
     bool are_import_settings_valid(se_string_view /*p_path*/) const override { return true; }
     se_string get_import_settings_string() const override { return se_string(); }

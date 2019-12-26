@@ -160,7 +160,7 @@ void ResourceFormatImporter::get_recognized_extensions(PODVector<se_string> &p_e
     for (int i = 0; i < importers.size(); i++) {
         PODVector<se_string> local_exts;
         importers[i]->get_recognized_extensions(local_exts);
-        for (auto & ext : local_exts) {
+        for (const auto & ext : local_exts) {
             if (!found.contains(ext)) {
                 p_extensions.emplace_back(ext);
                 found.insert(ext);
@@ -170,10 +170,10 @@ void ResourceFormatImporter::get_recognized_extensions(PODVector<se_string> &p_e
     for (int i = 0; i < owned_importers.size(); i++) {
         PODVector<se_string> local_exts;
         owned_importers[i]->get_recognized_extensions(local_exts);
-        for (size_t j=0,fin=local_exts.size(); j<fin; ++j) {
-            if (!found.contains(local_exts[j])) {
-                p_extensions.emplace_back(local_exts[j]);
-                found.insert(local_exts[j]);
+        for (const auto & local_ext : local_exts) {
+            if (!found.contains(local_ext)) {
+                p_extensions.emplace_back(local_ext);
+                found.insert(local_ext);
             }
         }
     }
@@ -431,7 +431,7 @@ void ResourceFormatImporter::get_importers_for_extension(se_string_view p_extens
         owned_importers[i]->get_recognized_extensions(local_exts);
         for (size_t j=0,fin=local_exts.size(); j<fin; ++j) {
             if (StringUtils::to_lower(p_extension) == local_exts[j]) {
-                r_importers->push_back(owned_importers.write[i].get());
+                r_importers->push_back(owned_importers[i].get());
             }
         }
     }
@@ -442,22 +442,22 @@ ResourceImporterInterface *ResourceFormatImporter::get_importer_by_extension(se_
     ResourceImporterInterface *importer = nullptr;
     float priority = 0;
 
-    for (int i = 0; i < importers.size(); i++) {
+    for (ResourceImporterInterface *i : importers) {
 
         PODVector<se_string> local_exts;
-        importers[i]->get_recognized_extensions(local_exts);
-        for (size_t j=0,fin=local_exts.size(); j<fin; ++j) {
-            if (StringUtils::to_lower(p_extension) == local_exts[j] && importers[i]->get_priority() > priority) {
-                importer = importers[i];
-                priority = importers[i]->get_priority();
+        i->get_recognized_extensions(local_exts);
+        for (const se_string & local_ext : local_exts) {
+            if (StringUtils::to_lower(p_extension) == local_ext && i->get_priority() > priority) {
+                importer = i;
+                priority = i->get_priority();
             }
         }
     }
     for (int i = 0; i < owned_importers.size(); i++) {
         PODVector<se_string> local_exts;
         owned_importers[i]->get_recognized_extensions(local_exts);
-        for (size_t j=0,fin=local_exts.size(); j<fin; ++j) {
-            if (StringUtils::to_lower(p_extension) == local_exts[j] && importers[i]->get_priority() > priority) {
+        for (const se_string & local_ext : local_exts) {
+            if (StringUtils::to_lower(p_extension) == local_ext && importers[i]->get_priority() > priority) {
                 importer = const_cast<ResourceImporterInterface *>(static_cast<const ResourceImporterInterface *>(owned_importers[i].get()));
                 priority = owned_importers[i]->get_priority();
             }
