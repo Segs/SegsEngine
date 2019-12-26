@@ -911,7 +911,7 @@ void EditorNode::_get_scene_metadata(se_string_view p_file) {
     if (err != OK || !cf->has_section("editor_states")) return; // must not exist
 
     PODVector<se_string> esl;
-    cf->get_section_keys_utf8("editor_states", esl);
+    cf->get_section_keys("editor_states", &esl);
 
     Dictionary md;
     for (const se_string &E : esl) {
@@ -1542,7 +1542,7 @@ void EditorNode::_dialog_action(se_string_view p_file) {
 
             // erase
             PODVector<se_string> keys;
-            config->get_section_keys_utf8(file_str, keys);
+            config->get_section_keys(file_str, &keys);
             for (se_string &E : keys) {
                 config->set_value(file_str, E, Variant());
             }
@@ -4806,7 +4806,7 @@ void EditorNode::_update_layouts_menu() {
         return; // no config
     }
 
-    ListPOD<se_string> layouts;
+    PODVector<se_string> layouts;
     config.get()->get_sections(&layouts);
     se_string default_name(TTR("Default"));
     for (const se_string &layout : layouts) {

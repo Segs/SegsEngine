@@ -42,7 +42,7 @@ IMPL_GDCLASS(ConfigFile)
 
 PoolSeStringArray ConfigFile::_get_sections() const {
 
-    ListPOD<se_string> s;
+    PODVector<se_string> s;
     get_sections(&s);
     PoolSeStringArray arr;
     arr.resize(s.size());
@@ -57,7 +57,7 @@ PoolSeStringArray ConfigFile::_get_sections() const {
 
 PoolSeStringArray ConfigFile::_get_section_keys(se_string_view p_section) const {
 
-    ListPOD<se_string> s;
+    PODVector<se_string> s;
     get_section_keys(p_section, &s);
     PoolSeStringArray arr;
     arr.resize(s.size());
@@ -75,7 +75,7 @@ void ConfigFile::set_value(se_string_view _section, se_string_view _key, const V
     se_string p_key(_key);
     if (p_value.get_type() == VariantType::NIL) {
         //erase
-        if (!values.has(p_section))
+        if (!values.contains(p_section))
             return; // ?
         values[p_section].erase(p_key);
         if (values[p_section].empty()) {
@@ -83,8 +83,8 @@ void ConfigFile::set_value(se_string_view _section, se_string_view _key, const V
         }
 
     } else {
-        if (!values.has(p_section)) {
-            values[p_section] = OrderedHashMap<se_string, Variant>();
+        if (!values.contains(p_section)) {
+            values[p_section] = {};
         }
 
         values[p_section][p_key] = p_value;
@@ -93,46 +93,40 @@ void ConfigFile::set_value(se_string_view _section, se_string_view _key, const V
 Variant ConfigFile::get_value(se_string_view _section, se_string_view _key, const Variant& p_default) const {
     se_string p_section(_section);
     se_string p_key(_key);
-
-    if (!values.has(p_section) || !values[p_section].has(p_key)) {
+    auto iter_section = values.find(p_section);
+    if (iter_section==values.end()) {
         ERR_FAIL_COND_V_MSG(p_default.get_type() == VariantType::NIL, p_default, "Couldn't find the given section/key and no default was given.")
         return p_default;
     }
-    return values[p_section][p_key];
+    auto iter_key = iter_section->second.find(p_key);
+    if (iter_key==iter_section->second.end()) {
+        ERR_FAIL_COND_V_MSG(p_default.get_type() == VariantType::NIL, p_default, "Couldn't find the given section/key and no default was given.")
+        return p_default;
+    }
+    return iter_key->second;
 }
 
 bool ConfigFile::has_section(se_string_view _section) const {
 
-    return values.has(se_string(_section));
+    return values.contains_as(_section);
 }
 bool ConfigFile::has_section_key(se_string_view p_section, se_string_view p_key) const {
-
-    if (!values.has(se_string(p_section)))
+    auto iter=values.find_as(p_section);
+    if (iter==values.end())
         return false;
-    return values[se_string(p_section)].has(se_string(p_key));
+    return iter->second.contains_as(p_key);
 }
 
-void ConfigFile::get_sections(ListPOD<se_string> *r_sections) const {
-
-    for (OrderedHashMap<se_string, OrderedHashMap<se_string, Variant> >::ConstElement E = values.front(); E; E = E.next()) {
-        r_sections->push_back(E.key());
-    }
+void ConfigFile::get_sections(PODVector<se_string> *r_sections) const {
+    r_sections->push_back(values.keys());
 }
-void ConfigFile::get_section_keys(se_string_view _section, ListPOD<se_string> *r_keys) const {
+void ConfigFile::get_section_keys(se_string_view _section, PODVector<se_string> *r_keys) const {
     const se_string p_section(_section);
-    ERR_FAIL_COND_MSG(!values.has(p_section), "Cannont get keys from nonexistent section '" + p_section + "'.")
+    auto iter = values.find_as(_section);
 
-    for (OrderedHashMap<se_string, Variant>::ConstElement E = values[p_section].front(); E; E = E.next()) {
-        r_keys->push_back(E.key());
-    }
-}
-void ConfigFile::get_section_keys_utf8(se_string_view _section, PODVector<se_string> &r_keys) const {
-    const se_string p_section(_section);
-    ERR_FAIL_COND_MSG(!values.has(p_section), "Cannont get keys from nonexistent section '" + p_section + "'.")
-    r_keys.reserve(r_keys.size()+values.size());
-    for (OrderedHashMap<se_string, Variant>::ConstElement E = values[p_section].front(); E; E = E.next()) {
-        r_keys.push_back(E.key());
-    }
+    ERR_FAIL_COND_MSG(iter==values.end(), "Cannont get keys from nonexistent section '" + p_section + "'.")
+    auto keys = iter->second.keys();
+    r_keys->push_back(keys);
 }
 void ConfigFile::erase_section(se_string_view p_section) {
 
@@ -140,9 +134,10 @@ void ConfigFile::erase_section(se_string_view p_section) {
 }
 void ConfigFile::erase_section_key(se_string_view p_section, se_string_view p_key) {
 
-    ERR_FAIL_COND_MSG(!values.has(se_string(p_section)), "Cannot erase key from nonexistent section '" + se_string(p_section) + "'.")
+    auto iter=values.find_as(p_section);
+    ERR_FAIL_COND_MSG(iter==values.end(), "Cannot erase key from nonexistent section '" + se_string(p_section) + "'.")
 
-    values[se_string(p_section)].erase(se_string(p_key));
+    iter->second.erase_as(p_key);
 }
 
 Error ConfigFile::save(se_string_view p_path) {
@@ -198,17 +193,19 @@ Error ConfigFile::save_encrypted_pass(se_string_view p_path, se_string_view p_pa
 
 Error ConfigFile::_internal_save(FileAccess *file) {
 
-    for (OrderedHashMap<se_string, OrderedHashMap<se_string, Variant> >::Element E = values.front(); E; E = E.next()) {
+    bool first=true;
+    for (const eastl::pair<se_string, Map<se_string, Variant> > &E : values) {
 
-        if (E != values.front())
+        if (!first)
             file->store_string("\n");
-        file->store_string("[" + E.key() + "]\n\n");
+        first = false;
+        file->store_string("[" + E.first + "]\n\n");
 
-        for (OrderedHashMap<se_string, Variant>::Element F = E.get().front(); F; F = F.next()) {
+        for (const eastl::pair<se_string, Variant> &F : E.second) {
 
             se_string vstr;
-            VariantWriter::write_to_string(F.get(), vstr);
-            file->store_string(F.key() + "=" + vstr + "\n");
+            VariantWriter::write_to_string(F.second, vstr);
+            file->store_string(F.first + "=" + vstr + "\n");
         }
     }
 
@@ -276,7 +273,7 @@ Error ConfigFile::_internal_load(se_string_view p_path, FileAccess *f) {
     int lines = 0;
     se_string error_text;
 
-    se_string_view section;
+    se_string section;
 
     while (true) {
 

@@ -719,12 +719,12 @@ Vector<float> StringUtils::split_floats(se_string_view str,se_string_view p_spli
 
 //    return ret;
 //}
-Vector<float> StringUtils::split_floats_mk(se_string_view str,se_string_view p_splitters, bool p_allow_empty) {
+PODVector<float> StringUtils::split_floats_mk(se_string_view str,se_string_view p_splitters, bool p_allow_empty) {
 
-    Vector<float> ret;
+    PODVector<float> ret;
     size_t from = 0;
     size_t len = str.length();
-
+    ret.reserve(str.size()/8); // just a ballpark to reduce number of reallocations.
     while (true) {
 
         auto end = str.find_first_of(p_splitters,from);
@@ -735,52 +735,6 @@ Vector<float> StringUtils::split_floats_mk(se_string_view str,se_string_view p_s
         if (p_allow_empty || (end > from)) {
             ret.push_back(StringUtils::to_double(str.substr(from,end-from)));
         }
-
-        if (end == len)
-            break;
-
-        from = end + 1;
-    }
-
-    return ret;
-}
-Vector<int> StringUtils::split_ints(const String &str,const String &p_splitter, bool p_allow_empty) {
-
-    Vector<int> ret;
-    int from = 0;
-    int len = str.length();
-
-    while (true) {
-
-        int end = StringUtils::find(str,p_splitter, from);
-        if (end < 0)
-            end = len;
-        if (p_allow_empty || (end > from))
-            ret.push_back(StringUtils::to_int(str.constData()+from, end - from));
-
-        if (end == len)
-            break;
-
-        from = end + p_splitter.length();
-    }
-
-    return ret;
-}
-
-Vector<int> StringUtils::split_ints_mk(se_string_view str,se_string_view p_splitters, bool p_allow_empty) {
-
-    Vector<int> ret;
-    size_t from = 0;
-    size_t len = str.length();
-
-    while (true) {
-
-        auto end = str.find_first_of(p_splitters, from);
-        if (end == se_string::npos) {
-            end = len;
-        }
-        if (p_allow_empty || (end > from))
-            ret.push_back(StringUtils::to_int(str.data()+from, end - from));
 
         if (end == len)
             break;

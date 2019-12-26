@@ -105,7 +105,7 @@ Transform Collada::fix_transform(const Transform &p_transform) {
     //return state.matrix_fix * p_transform;
 }
 
-static Transform _read_transform_from_array(const Vector<float> &array, int ofs = 0) {
+static Transform _read_transform_from_array(const PODVector<float> &array, int ofs = 0) {
 
     Transform tr;
     // i wonder why collada matrices are transposed, given that's opposed to opengl..
@@ -191,9 +191,9 @@ Transform Collada::Node::get_global_transform() const {
         return default_transform;
 }
 
-Vector<float> Collada::AnimationTrack::get_value_at_time(float p_time) const {
+PODVector<float> Collada::AnimationTrack::get_value_at_time(float p_time) const {
 
-    ERR_FAIL_COND_V(keys.empty(), Vector<float>())
+    ERR_FAIL_COND_V(keys.empty(), PODVector<float>())
     int i = 0;
 
     for (i = 0; i < keys.size(); i++) {
@@ -221,35 +221,35 @@ Vector<float> Collada::AnimationTrack::get_value_at_time(float p_time) const {
 
                 Transform interp = c < 0.001 ? src : src.interpolate_with(dst, c);
 
-                Vector<float> ret;
+                PODVector<float> ret;
                 ret.resize(16);
                 Transform tr;
                 // i wonder why collada matrices are transposed, given that's opposed to opengl..
-                ret.write[0] = interp.basis.elements[0][0];
-                ret.write[1] = interp.basis.elements[0][1];
-                ret.write[2] = interp.basis.elements[0][2];
-                ret.write[4] = interp.basis.elements[1][0];
-                ret.write[5] = interp.basis.elements[1][1];
-                ret.write[6] = interp.basis.elements[1][2];
-                ret.write[8] = interp.basis.elements[2][0];
-                ret.write[9] = interp.basis.elements[2][1];
-                ret.write[10] = interp.basis.elements[2][2];
-                ret.write[3] = interp.origin.x;
-                ret.write[7] = interp.origin.y;
-                ret.write[11] = interp.origin.z;
-                ret.write[12] = 0;
-                ret.write[13] = 0;
-                ret.write[14] = 0;
-                ret.write[15] = 1;
+                ret[0] = interp.basis.elements[0][0];
+                ret[1] = interp.basis.elements[0][1];
+                ret[2] = interp.basis.elements[0][2];
+                ret[4] = interp.basis.elements[1][0];
+                ret[5] = interp.basis.elements[1][1];
+                ret[6] = interp.basis.elements[1][2];
+                ret[8] = interp.basis.elements[2][0];
+                ret[9] = interp.basis.elements[2][1];
+                ret[10] = interp.basis.elements[2][2];
+                ret[3] = interp.origin.x;
+                ret[7] = interp.origin.y;
+                ret[11] = interp.origin.z;
+                ret[12] = 0;
+                ret[13] = 0;
+                ret[14] = 0;
+                ret[15] = 1;
 
                 return ret;
             } else {
 
-                Vector<float> dest;
+                PODVector<float> dest;
                 dest.resize(keys[i].data.size());
                 for (int j = 0; j < dest.size(); j++) {
 
-                    dest.write[j] = keys[i].data[j] * c + keys[i - 1].data[j] * (1.0 - c);
+                    dest[j] = keys[i].data[j] * c + keys[i - 1].data[j] * (1.0 - c);
                 }
                 return dest;
                 //interpolate one by one
@@ -257,7 +257,7 @@ Vector<float> Collada::AnimationTrack::get_value_at_time(float p_time) const {
         } break;
     }
 
-    ERR_FAIL_V(Vector<float>());
+    ERR_FAIL_V(PODVector<float>());
 }
 
 void Collada::_parse_asset(XMLParser &parser) {
@@ -381,18 +381,14 @@ void Collada::_parse_material(XMLParser &parser) {
 }
 
 //! reads floats from inside of xml element until end of xml element
-Vector<float> Collada::_read_float_array(XMLParser &parser) {
+PODVector<float> Collada::_read_float_array(XMLParser &parser) {
 
     if (parser.is_empty())
-        return Vector<float>();
+        return PODVector<float>();
 
-    se_string splitters;
-    splitters.push_back(' ');
-    splitters.push_back('\n');
-    splitters.push_back('\r');
-    splitters.push_back('\t');
+    const char splitters[4] = {' ','\n','\r','\t'};
 
-    Vector<float> array;
+    PODVector<float> array;
     while (parser.read() == OK) {
         // TODO: check for comments inside the element
         // and ignore them.
@@ -400,7 +396,7 @@ Vector<float> Collada::_read_float_array(XMLParser &parser) {
         if (parser.get_node_type() == XMLParser::NODE_TEXT) {
             // parse float data
             se_string str = parser.get_node_data();
-            array = StringUtils::split_floats_mk(str,splitters, false);
+            array = StringUtils::split_floats_mk(str,se_string_view(splitters,4), false);
             //array=str.split_floats(" ",false);
         } else if (parser.get_node_type() == XMLParser::NODE_ELEMENT_END)
             break; // end parsing text
@@ -453,10 +449,10 @@ Transform Collada::_read_transform(XMLParser &parser) {
     }
 
     ERR_FAIL_COND_V(array.size() != 16, Transform())
-    Vector<float> farr;
+    PODVector<float> farr;
     farr.resize(16);
     for (int i = 0; i < 16; i++) {
-        farr.write[i] = StringUtils::to_double(array[i]);
+        farr[i] = StringUtils::to_double(array[i]);
     }
 
     return _read_transform_from_array(farr);
@@ -498,7 +494,7 @@ Variant Collada::_parse_param(XMLParser &parser) {
                 }
             } else if (parser.get_node_name() == "float2") {
 
-                Vector<float> v2 = _read_float_array(parser);
+                PODVector<float> v2 = _read_float_array(parser);
 
                 if (v2.size() >= 2) {
 
@@ -506,7 +502,7 @@ Variant Collada::_parse_param(XMLParser &parser) {
                 }
             } else if (parser.get_node_name() == "float3") {
 
-                Vector<float> v3 = _read_float_array(parser);
+                PODVector<float> v3 = _read_float_array(parser);
 
                 if (v3.size() >= 3) {
 
@@ -514,7 +510,7 @@ Variant Collada::_parse_param(XMLParser &parser) {
                 }
             } else if (parser.get_node_name() == "float4") {
 
-                Vector<float> v4 = _read_float_array(parser);
+                PODVector<float> v4 = _read_float_array(parser);
 
                 if (v4.size() >= 4) {
 
@@ -616,7 +612,7 @@ void Collada::_parse_effect_material(XMLParser &parser, Effect &effect, se_strin
 
                                     if (parser.get_node_name() == "color") {
 
-                                        Vector<float> colorarr = _read_float_array(parser);
+                                        PODVector<float> colorarr = _read_float_array(parser);
                                         COLLADA_PRINT("colorarr size: " + rtos(colorarr.size()));
 
                                         if (colorarr.size() >= 3) {
@@ -855,7 +851,7 @@ void Collada::_parse_light(XMLParser &parser) {
             } else if (name == "color") {
 
                 parser.read();
-                Vector<float> colorarr = _read_float_array(parser);
+                PODVector<float> colorarr = _read_float_array(parser);
                 COLLADA_PRINT("colorarr size: " + rtos(colorarr.size()));
 
                 if (colorarr.size() >= 4) {
@@ -935,7 +931,7 @@ void Collada::_parse_curve_geometry(XMLParser &parser, se_string p_id, se_string
                 // create a new array and read it.
                 if (curvedata.sources.contains(current_source)) {
 
-                    curvedata.sources[current_source].array = _read_float_array(parser);
+                    curvedata.sources[current_source].array = eastl::move(_read_float_array(parser));
                     COLLADA_PRINT("section: " + current_source + " read " + itos(curvedata.sources[current_source].array.size()) + " values.");
                 }
             } else if (section == "Name_array") {
@@ -1023,7 +1019,7 @@ void Collada::_parse_mesh_geometry(XMLParser &parser, se_string p_id, se_string 
                 // create a new array and read it.
                 if (meshdata.sources.contains(current_source)) {
 
-                    meshdata.sources[current_source].array = _read_float_array(parser);
+                    meshdata.sources[current_source].array = eastl::move(_read_float_array(parser));
                     COLLADA_PRINT("section: " + current_source + " read " + itos(meshdata.sources[current_source].array.size()) + " values.");
                 }
             } else if (section == "technique_common") {
@@ -1101,7 +1097,7 @@ void Collada::_parse_mesh_geometry(XMLParser &parser, se_string p_id, se_string 
 
                         } else if (parser.get_node_name() == "p") { //indices
 
-                            Vector<float> values = _read_float_array(parser);
+                            PODVector<float> values = _read_float_array(parser);
                             if (polygons) {
 
                                 ERR_CONTINUE(prim.vertex_size == 0);
@@ -1109,17 +1105,17 @@ void Collada::_parse_mesh_geometry(XMLParser &parser, se_string p_id, se_string 
                                 int from = prim.indices.size();
                                 prim.indices.resize(from + values.size());
                                 for (int i = 0; i < values.size(); i++)
-                                    prim.indices.write[from + i] = values[i];
+                                    prim.indices[from + i] = values[i];
 
                             } else if (prim.vertex_size > 0) {
-                                prim.indices = values;
+                                prim.indices = eastl::move(values);
                             }
 
                             COLLADA_PRINT("read " + itos(values.size()) + " index values");
 
                         } else if (parser.get_node_name() == "vcount") { // primitive
 
-                            Vector<float> values = _read_float_array(parser);
+                            PODVector<float> values = eastl::move(_read_float_array(parser));
                             prim.polygons = values;
                             COLLADA_PRINT("read " + itos(values.size()) + " polygon values");
                         }
@@ -1181,7 +1177,7 @@ void Collada::_parse_skin_controller(XMLParser &parser, se_string p_id) {
                 // create a new array and read it.
                 if (skindata.sources.contains(current_source)) {
 
-                    skindata.sources[current_source].array = _read_float_array(parser);
+                    skindata.sources[current_source].array = eastl::move(_read_float_array(parser));
                     COLLADA_PRINT("section: " + current_source + " read " + itos(skindata.sources[current_source].array.size()) + " values.");
                 }
             } else if (section == "Name_array" || section == "IDREF_array") {
@@ -1262,15 +1258,13 @@ void Collada::_parse_skin_controller(XMLParser &parser, se_string p_id) {
 
                         } else if (parser.get_node_name() == "v") { //indices
 
-                            Vector<float> values = _read_float_array(parser);
-                            weights.indices = values;
-                            COLLADA_PRINT("read " + itos(values.size()) + " index values");
+                            weights.indices = eastl::move(_read_float_array(parser));
+                            COLLADA_PRINT("read " + itos(weights.indices.size()) + " index values");
 
                         } else if (parser.get_node_name() == "vcount") { // weightsitive
 
-                            Vector<float> values = _read_float_array(parser);
-                            weights.sets = values;
-                            COLLADA_PRINT("read " + itos(values.size()) + " polygon values");
+                            weights.sets = eastl::move(_read_float_array(parser));
+                            COLLADA_PRINT("read " + itos(weights.sets.size()) + " polygon values");
                         }
                     } else if (parser.get_node_type() == XMLParser::NODE_ELEMENT_END && parser.get_node_name() == section)
                         break;
@@ -1621,8 +1615,7 @@ Collada::Node *Collada::_parse_visual_scene_node(XMLParser &parser) {
                 }
                 xf.op = Node::XForm::OP_TRANSLATE;
 
-                Vector<float> xlt = _read_float_array(parser);
-                xf.data = xlt;
+                xf.data = eastl::move(_read_float_array(parser));
                 xform_list.push_back(xf);
 
             } else if (section == "rotate") {
@@ -1632,8 +1625,7 @@ Collada::Node *Collada::_parse_visual_scene_node(XMLParser &parser) {
                 }
                 xf.op = Node::XForm::OP_ROTATE;
 
-                Vector<float> rot = _read_float_array(parser);
-                xf.data = rot;
+                xf.data = eastl::move(_read_float_array(parser));
 
                 xform_list.push_back(xf);
 
@@ -1645,9 +1637,7 @@ Collada::Node *Collada::_parse_visual_scene_node(XMLParser &parser) {
 
                 xf.op = Node::XForm::OP_SCALE;
 
-                Vector<float> scale = _read_float_array(parser);
-
-                xf.data = scale;
+                xf.data = eastl::move(_read_float_array(parser));
 
                 xform_list.push_back(xf);
 
@@ -1658,12 +1648,7 @@ Collada::Node *Collada::_parse_visual_scene_node(XMLParser &parser) {
                 }
                 xf.op = Node::XForm::OP_MATRIX;
 
-                Vector<float> matrix = _read_float_array(parser);
-
-                xf.data = matrix;
-                se_string mtx;
-                for (int i = 0; i < matrix.size(); i++)
-                    mtx += " " + rtos(matrix[i]);
+                xf.data = eastl::move(_read_float_array(parser));
 
                 xform_list.push_back(xf);
 
@@ -1673,11 +1658,7 @@ Collada::Node *Collada::_parse_visual_scene_node(XMLParser &parser) {
                     xf.id = parser.get_attribute_value("sid");
                 }
                 xf.op = Node::XForm::OP_VISIBILITY;
-
-                Vector<float> visible = _read_float_array(parser);
-
-                xf.data = visible;
-
+                xf.data = eastl::move(_read_float_array(parser));
                 xform_list.push_back(xf);
 
             } else if (section == "empty_draw_type") {
@@ -1778,7 +1759,7 @@ void Collada::_parse_animation(XMLParser &parser) {
         return;
     }
 
-    Map<se_string, Vector<float> > float_sources;
+    Map<se_string, PODVector<float> > float_sources;
     Map<se_string, Vector<se_string> > string_sources;
     Map<se_string, int> source_strides;
     Map<se_string, Map<se_string, se_string> > samplers;
@@ -1808,13 +1789,13 @@ void Collada::_parse_animation(XMLParser &parser) {
             } else if (name == "float_array") {
 
                 if (!current_source.empty()) {
-                    float_sources[current_source] = _read_float_array(parser);
+                    float_sources[current_source] = eastl::move(_read_float_array(parser));
                 }
 
             } else if (name == "Name_array") {
 
                 if (!current_source.empty()) {
-                    string_sources[current_source] = _read_string_array(parser);
+                    string_sources[current_source] = eastl::move(_read_string_array(parser));
                 }
             } else if (name == "accessor") {
 
@@ -1878,7 +1859,7 @@ void Collada::_parse_animation(XMLParser &parser) {
 
             se_string name = names[l];
 
-            Vector<float> &time_keys = float_sources[input_id];
+            PODVector<float> &time_keys = float_sources[input_id];
             int key_count = time_keys.size();
 
             AnimationTrack track; //begin crating track
@@ -1902,14 +1883,14 @@ void Collada::_parse_animation(XMLParser &parser) {
             ERR_CONTINUE(output_len == 0)
             ERR_CONTINUE(!float_sources.contains(output_id))
 
-            Vector<float> &output = float_sources[output_id];
+            PODVector<float> &output = float_sources[output_id];
 
             ERR_CONTINUE_MSG((output.size() / stride) != key_count, "Wrong number of keys in output.")
 
             for (int j = 0; j < key_count; j++) {
                 track.keys.write[j].data.resize(output_len);
                 for (int k = 0; k < output_len; k++)
-                    track.keys.write[j].data.write[k] = output[l + j * stride + k]; //super weird but should work:
+                    track.keys.write[j].data[k] = output[l + j * stride + k]; //super weird but should work:
             }
 
             if (sampler.contains("INTERPOLATION")) {
@@ -1931,13 +1912,13 @@ void Collada::_parse_animation(XMLParser &parser) {
                 //bezier control points..
                 se_string intangent_id = _uri_to_id(sampler["IN_TANGENT"]);
                 ERR_CONTINUE(!float_sources.contains(intangent_id));
-                Vector<float> &intangents = float_sources[intangent_id];
+                PODVector<float> &intangents = float_sources[intangent_id];
 
                 ERR_CONTINUE(intangents.size() != key_count * 2 * names.size());
 
                 se_string outangent_id = _uri_to_id(sampler["OUT_TANGENT"]);
                 ERR_CONTINUE(!float_sources.contains(outangent_id));
-                Vector<float> &outangents = float_sources[outangent_id];
+                PODVector<float> &outangents = float_sources[outangent_id];
                 ERR_CONTINUE(outangents.size() != key_count * 2 * names.size());
 
                 for (int j = 0; j < key_count; j++) {

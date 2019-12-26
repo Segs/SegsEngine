@@ -173,10 +173,6 @@ godot_array GDAPI godot_string_split_floats(const godot_string *p_self, const go
 godot_array GDAPI godot_string_split_floats_allows_empty(const godot_string *p_self, const godot_string *p_splitter);
 godot_array GDAPI godot_string_split_floats_mk(const godot_string *p_self, const godot_array *p_splitters);
 godot_array GDAPI godot_string_split_floats_mk_allows_empty(const godot_string *p_self, const godot_array *p_splitters);
-godot_array GDAPI godot_string_split_ints(const godot_string *p_self, const godot_string *p_splitter);
-godot_array GDAPI godot_string_split_ints_allows_empty(const godot_string *p_self, const godot_string *p_splitter);
-godot_array GDAPI godot_string_split_ints_mk(const godot_string *p_self, const godot_array *p_splitters);
-godot_array GDAPI godot_string_split_ints_mk_allows_empty(const godot_string *p_self, const godot_array *p_splitters);
 godot_array GDAPI godot_string_split_spaces(const godot_string *p_self);
 
 char16_t GDAPI godot_string_char_lowercase(char16_t p_char);

@@ -1208,14 +1208,14 @@ Error VariantParser::_parse_tag(Token &token, Stream *p_stream, int &line, se_st
 
         while (true) {
 
-            CharType c = p_stream->get_char();
+            char c = p_stream->get_char();
             if (p_stream->is_eof()) {
                 r_err_str = "Unexpected EOF while parsing simple tag";
                 return ERR_PARSE_ERROR;
             }
             if (c == ']')
                 break;
-            r_tag.name.push_back(c.unicode());
+            r_tag.name.push_back(c);
         }
 
         r_tag.name =StringUtils::strip_edges( r_tag.name);

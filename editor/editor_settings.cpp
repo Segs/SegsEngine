@@ -654,7 +654,7 @@ void EditorSettings::_load_defaults(const Ref<ConfigFile> &p_extra_config) {
     if (p_extra_config->has_section("presets")) {
 
         PODVector<se_string> keys;
-        p_extra_config->get_section_keys_utf8("presets", keys);
+        p_extra_config->get_section_keys("presets", &keys);
 
         for (const se_string &key : keys) {
 
@@ -1365,7 +1365,7 @@ void EditorSettings::load_text_editor_theme() {
     }
 
     PODVector<se_string> keys;
-    cf->get_section_keys_utf8("color_theme", keys);
+    cf->get_section_keys("color_theme", &keys);
 
     for (const se_string & key : keys) {
         se_string val = cf->get_value("color_theme", key);
