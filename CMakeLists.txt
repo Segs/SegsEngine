@@ -300,4 +300,6 @@ endif()
         NAMESPACE SegsEngine::
         DESTINATION cmake
     )
+    target_link_libraries(${tgt}_engine PRIVATE ${LIBRARIES})
+
 endforeach()
