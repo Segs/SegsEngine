@@ -3113,7 +3113,7 @@ void Animation::optimize(float p_allowed_linear_err, float p_allowed_angular_err
 
 Animation::Animation() {
 
-    step = 0.1;
+    step = 0.1f;
     loop = false;
     length = 1;
 }

@@ -31,6 +31,7 @@
 #include "resource_importer.h"
 
 #include "core/class_db.h"
+#include "core/io/config_file.h"
 #include "core/io/resource_loader.h"
 #include "core/os/os.h"
 #include "core/property_info.h"
@@ -47,80 +48,57 @@ bool ResourceFormatImporter::SortImporterByName::operator()(const ResourceImport
 }
 
 Error ResourceFormatImporter::_get_path_and_type(se_string_view p_path, PathAndType &r_path_and_type, bool *r_valid) const {
+    ConfigFile import_info;
+    bool path_found = false; //first match must have priority
 
-    Error err;
-    FileAccess *f = FileAccess::open(se_string(p_path) + ".import", FileAccess::READ, &err);
-
-    if (!f) {
+    Error err = import_info.load(se_string(p_path) + ".import");
+    if(err!=OK) {
         if (r_valid) {
             *r_valid = false;
         }
         return err;
     }
-
-    VariantParser::Stream *stream=VariantParser::get_file_stream(f);
-
-    se_string assign;
-    Variant value;
-    VariantParser::Tag next_tag;
-
     if (r_valid) {
         *r_valid = true;
     }
+    auto iter = import_info.all_values().find_as(se_string_view("remap"));
+    if(iter== import_info.all_values().end())
+        return ERR_FILE_CORRUPT;
 
-    int lines = 0;
-    se_string error_text;
-    bool path_found = false; //first match must have priority
-    while (true) {
-
-        assign = Variant().as<se_string>();
-        next_tag.fields.clear();
-        next_tag.name.clear();
-
-        err = VariantParser::parse_tag_assign_eof(stream, lines, error_text, next_tag, assign, value, nullptr, true);
-        if (err == ERR_FILE_EOF) {
-            VariantParser::release_stream(stream);
-            memdelete(f);
-            return OK;
-        } else if (err != OK) {
-            ERR_PRINT("ResourceFormatImporter::load - " + se_string(p_path) + ".import:" + ::to_string(lines) + " error: " + error_text)
-            VariantParser::release_stream(stream);
-            memdelete(f);
-            return err;
-        }
-
-        if (!assign.empty()) {
-            if (!path_found && StringUtils::begins_with(assign,"path.") && r_path_and_type.path.empty()) {
-                se_string_view feature(StringUtils::get_slice(assign,'.', 1));
-                if (OS::get_singleton()->has_feature(feature)) {
-                    r_path_and_type.path = value.as<se_string>();
-                    path_found = true; //first match must have priority
-                }
-
-            } else if (!path_found && assign == "path") {
-                r_path_and_type.path = value.as<se_string>();
+    PODVector<se_string> keys;
+    import_info.get_section_keys(se_string_view("remap"),&keys);
+    for(const auto &remap_kv : iter->second) {
+        if (!path_found && StringUtils::begins_with(remap_kv.first, "path.") && r_path_and_type.path.empty()) {
+            se_string_view feature(StringUtils::get_slice(remap_kv.first, '.', 1));
+            if (OS::get_singleton()->has_feature(feature)) {
+                r_path_and_type.path = remap_kv.second.as<se_string>();
                 path_found = true; //first match must have priority
-            } else if (assign == "type") {
-                r_path_and_type.type = value.as<se_string>();
-            } else if (assign == "importer") {
-                r_path_and_type.importer = value.as<se_string>();
-            } else if (assign == "group_file") {
-                r_path_and_type.group_file = value.as<se_string>();
-            } else if (assign == "metadata") {
-                r_path_and_type.metadata = value;
-            } else if (assign == "valid") {
-                if (r_valid) {
-                    *r_valid = value.as<bool>();
-                }
             }
 
-        } else if (next_tag.name != "remap") {
-            break;
         }
-    }
+        else if (!path_found && remap_kv.first == "path") {
+            r_path_and_type.path = remap_kv.second.as<se_string>();
+            path_found = true; //first match must have priority
+        }
+        else if (remap_kv.first == "type") {
+            r_path_and_type.type = remap_kv.second.as<se_string>();
+        }
+        else if (remap_kv.first == "importer") {
+            r_path_and_type.importer = remap_kv.second.as<se_string>();
+        }
+        else if (remap_kv.first == "group_file") {
+            r_path_and_type.group_file = remap_kv.second.as<se_string>();
+        }
+        else if (remap_kv.first == "metadata") {
+            r_path_and_type.metadata = remap_kv.second;
+        }
+        else if (remap_kv.first == "valid") {
+            if (r_valid) {
+                *r_valid = remap_kv.second.as<bool>();
+            }
+        }
 
-    VariantParser::release_stream(stream);
-    memdelete(f);
+    }
 
     if (r_path_and_type.path.empty() || r_path_and_type.type.empty()) {
         return ERR_FILE_CORRUPT;

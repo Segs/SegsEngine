@@ -436,7 +436,7 @@ public:
     ~PlaceHolderScriptInstance() override;
 };
 
-class ScriptDebugger {
+class GODOT_EXPORT ScriptDebugger {
 
     int lines_left;
     int depth;

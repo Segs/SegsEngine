@@ -140,7 +140,7 @@ const char *VariantParser::tk_name[TK_MAX] = {
 };
 
 Error VariantParser::get_token(Stream *p_stream, Token &r_token, int &line, se_string &r_err_str) {
-    static se_string tmp_str_buf; // static variable to prevent constat alloc/dealloc
+    eastl::fixed_string<char, 128, true> tmp_str_buf; // static variable to prevent constat alloc/dealloc
 
     while (true) {
 
@@ -240,7 +240,7 @@ Error VariantParser::get_token(Stream *p_stream, Token &r_token, int &line, se_s
                         r_token.type = TK_EOF;
                         return OK;
                     } else if ((ch >= '0' && ch <= '9') || (ch >= 'a' && ch <= 'f') || (ch >= 'A' && ch <= 'F')) {
-                        tmp_str_buf += ch;
+                        tmp_str_buf.push_back(ch);
 
                     } else {
                         p_stream->saved = ch;
@@ -442,7 +442,7 @@ Error VariantParser::get_token(Stream *p_stream, Token &r_token, int &line, se_s
                     p_stream->saved = cchar;
 
                     r_token.type = TK_IDENTIFIER;
-                    r_token.value = tmp_str_buf;
+                    r_token.value = Variant::from(se_string_view(tmp_str_buf));
                     return OK;
                 } else {
                     r_err_str = "Unexpected character.";
