@@ -50,8 +50,10 @@
 #include <cstdlib>
 #include <QFileInfo>
 #include <QTextBoundaryFinder>
+#ifndef __MINGW32__
 #include <charconv>
 
+#endif
 using namespace eastl;
 const String s_null_ui_string;
 
@@ -1070,7 +1072,12 @@ int StringUtils::hex_to_int(se_string_view s,bool p_with_prefix) {
     else
         to_convert = s;
     int res=0;
+#ifndef __MINGW32__
     auto conv_res = std::from_chars(to_convert.begin(),to_convert.end(),res,16);
+#else
+    se_string zeroterm(to_convert);
+    res = strtol(zeroterm.c_str(),nullptr,16);
+#endif
     return res;
 }
 int64_t StringUtils::hex_to_int64(const String &s,bool p_with_prefix) {
@@ -1100,7 +1107,12 @@ int64_t StringUtils::hex_to_int64(se_string_view s,bool p_with_prefix) {
     else
         to_convert = s;
     int64_t v;
+#ifndef __MINGW32__
     std::from_chars(to_convert.data(),to_convert.data()+to_convert.length(),v,16);
+#else
+    se_string zeroterm(to_convert);
+    v = strtoll(zeroterm.c_str(),nullptr,16);
+#endif
     return v;
 }
 int64_t StringUtils::bin_to_int64(const String &s,bool p_with_prefix) {
@@ -1130,7 +1142,12 @@ int64_t StringUtils::bin_to_int64(se_string_view s,bool p_with_prefix) {
     else
         to_convert = s;
     int64_t v;
+#ifndef __MINGW32__
     std::from_chars(to_convert.data(),to_convert.data()+to_convert.length(),v,2);
+#else
+    se_string zeroterm(to_convert);
+    v = strtoll(zeroterm.c_str(),nullptr,2);
+#endif
     return v;
 }
 int64_t StringUtils::to_int64(const String &s) {

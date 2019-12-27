@@ -926,7 +926,7 @@ void ScriptEditor::_file_dialog_action(se_string_view p_file) {
             memdelete(file);
             FALLTHROUGH;
         }
-        case FILE_OPEN: {
+        case ACT_FILE_OPEN: {
 
             PODVector<se_string> extensions;
             ResourceLoader::get_recognized_extensions_for_type("Script", extensions);
@@ -1022,10 +1022,10 @@ void ScriptEditor::_menu_option(int p_option) {
             file_dialog->popup_centered_ratio();
             file_dialog->set_title(TTR("New Text File..."));
         } break;
-        case FILE_OPEN: {
+        case ACT_FILE_OPEN: {
             file_dialog->set_mode(EditorFileDialog::MODE_OPEN_FILE);
             file_dialog->set_access(EditorFileDialog::ACCESS_FILESYSTEM);
-            file_dialog_option = FILE_OPEN;
+            file_dialog_option = ACT_FILE_OPEN;
 
             PODVector<se_string> extensions;
             ResourceLoader::get_recognized_extensions_for_type("Script", extensions);
@@ -3282,7 +3282,7 @@ ScriptEditor::ScriptEditor(EditorNode *p_editor) {
     file_menu->get_popup()->set_hide_on_window_lose_focus(true);
     file_menu->get_popup()->add_shortcut(ED_SHORTCUT("script_editor/new", TTR("New Script...")), FILE_NEW);
     file_menu->get_popup()->add_shortcut(ED_SHORTCUT("script_editor/new_textfile", TTR("New Text File...")), FILE_NEW_TEXTFILE);
-    file_menu->get_popup()->add_shortcut(ED_SHORTCUT("script_editor/open", TTR("Open...")), FILE_OPEN);
+    file_menu->get_popup()->add_shortcut(ED_SHORTCUT("script_editor/open", TTR("Open...")), ACT_FILE_OPEN);
     file_menu->get_popup()->add_shortcut(ED_SHORTCUT("script_editor/reopen_closed_script", TTR("Reopen Closed Script"), KEY_MASK_CMD | KEY_MASK_SHIFT | KEY_T), FILE_REOPEN_CLOSED);
     file_menu->get_popup()->add_submenu_item(TTR("Open Recent"), StringName("RecentScripts"), FILE_OPEN_RECENT);
 

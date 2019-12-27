@@ -130,6 +130,8 @@ foreach(tgt ${global_targets})
         set_target_properties(${tgt}_modules PROPERTIES UNITY_BUILD_BATCH_SIZE ${DEFAULT_UNITY_BATCH_SIZE})
         if(MSVC)
             target_compile_options(${tgt}_modules PRIVATE /bigobj)
+        elseif(MINGW)
+            target_compile_options(${tgt}_modules PRIVATE -Wa,-mbig-obj)
         endif()
     endif()
 
