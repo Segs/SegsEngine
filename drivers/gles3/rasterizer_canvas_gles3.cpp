@@ -29,13 +29,12 @@
 /*************************************************************************/
 
 #include "rasterizer_canvas_gles3.h"
-
 #include "core/os/os.h"
 #include "core/project_settings.h"
 #include "rasterizer_scene_gles3.h"
 #include "servers/visual/visual_server_raster.h"
 
-static _FORCE_INLINE_ void store_transform2d(const Transform2D &p_mtx, float *p_array) {
+static void store_transform2d(const Transform2D &p_mtx, float *p_array) {
 
     p_array[0] = p_mtx.elements[0][0];
     p_array[1] = p_mtx.elements[0][1];
@@ -55,7 +54,7 @@ static _FORCE_INLINE_ void store_transform2d(const Transform2D &p_mtx, float *p_
     p_array[15] = 1;
 }
 
-static _FORCE_INLINE_ void store_transform(const Transform &p_mtx, float *p_array) {
+static void store_transform(const Transform &p_mtx, float *p_array) {
     p_array[0] = p_mtx.basis.elements[0][0];
     p_array[1] = p_mtx.basis.elements[1][0];
     p_array[2] = p_mtx.basis.elements[2][0];
@@ -74,7 +73,7 @@ static _FORCE_INLINE_ void store_transform(const Transform &p_mtx, float *p_arra
     p_array[15] = 1;
 }
 
-static _FORCE_INLINE_ void store_camera(const CameraMatrix &p_mtx, float *p_array) {
+static void store_camera(const CameraMatrix &p_mtx, float *p_array) {
 
     for (int i = 0; i < 4; i++) {
         for (int j = 0; j < 4; j++) {
@@ -456,6 +455,7 @@ void RasterizerCanvasGLES3::_draw_generic(GLuint p_primitive, int p_vertex_count
     glBindVertexArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
+
 void RasterizerCanvasGLES3::_draw_generic_indices(GLuint p_primitive, const int *p_indices, int p_index_count, int p_vertex_count, const Vector2 *p_vertices, const Vector2 *p_uvs, const Color *p_colors, bool p_singlecolor) {
 
     glBindVertexArray(data.polygon_buffer_pointer_array);
@@ -528,6 +528,7 @@ void RasterizerCanvasGLES3::_draw_generic_indices(GLuint p_primitive, const int 
     glBindVertexArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
+
 void RasterizerCanvasGLES3::_draw_gui_primitive(int p_points, const Vector2 *p_vertices, const Color *p_colors, const Vector2 *p_uvs) {
 
     static const GLenum prim[5] = { GL_POINTS, GL_POINTS, GL_LINES, GL_TRIANGLES, GL_TRIANGLE_FAN };
@@ -591,7 +592,7 @@ void RasterizerCanvasGLES3::_draw_gui_primitive(int p_points, const Vector2 *p_v
     storage->frame.canvas_draw_commands++;
 }
 
-static const GLenum gl_primitive[] = {
+static constexpr const GLenum gl_primitive[] = {
     GL_POINTS,
     GL_LINES,
     GL_LINE_STRIP,
@@ -600,6 +601,455 @@ static const GLenum gl_primitive[] = {
     GL_TRIANGLE_STRIP,
     GL_TRIANGLE_FAN
 };
+
+void _render_line(RasterizerCanvasGLES3 *self,RasterizerCanvas::Item::CommandLine *line)
+{
+    self->_set_texture_rect_mode(false);
+
+    self->_bind_canvas_texture(RID(), RID());
+
+    glVertexAttrib4f(VS::ARRAY_COLOR, line->color.r, line->color.g, line->color.b, line->color.a);
+
+    if (line->width <= 1) {
+        Vector2 verts[2] = {
+            Vector2(line->from.x, line->from.y),
+            Vector2(line->to.x, line->to.y)
+        };
+        if (line->antialiased)
+            glEnable(GL_LINE_SMOOTH);
+        //glLineWidth(line->width);
+        self->_draw_gui_primitive(2, verts, nullptr, nullptr);
+
+        if (line->antialiased)
+            glDisable(GL_LINE_SMOOTH);
+    } else {
+        //thicker line
+
+        Vector2 t = (line->from - line->to).normalized().tangent() * line->width * 0.5;
+
+        Vector2 verts[4] = {
+            line->from - t,
+            line->from + t,
+            line->to + t,
+            line->to - t,
+        };
+
+        //glLineWidth(line->width);
+        self->_draw_gui_primitive(4, verts, nullptr, nullptr);
+        if (line->antialiased) {
+            glEnable(GL_LINE_SMOOTH);
+            for (int j = 0; j < 4; j++) {
+                Vector2 vertsl[2] = {
+                    verts[j],
+                    verts[(j + 1) % 4],
+                };
+                self->_draw_gui_primitive(2, vertsl, nullptr, nullptr);
+            }
+            glDisable(GL_LINE_SMOOTH);
+        }
+    }
+}
+
+void _render_poly_line(RasterizerCanvasGLES3 *self, RasterizerCanvas::Item::CommandPolyLine *pline)
+{
+    self->_set_texture_rect_mode(false);
+
+    self->_bind_canvas_texture(RID(), RID());
+
+    if (!pline->triangles.empty()) {
+
+        self->_draw_generic(GL_TRIANGLE_STRIP, pline->triangles.size(), pline->triangles.ptr(), nullptr, pline->triangle_colors.ptr(), pline->triangle_colors.size() == 1);
+        glEnable(GL_LINE_SMOOTH);
+        if (pline->multiline) {
+            //needs to be different
+        } else {
+            self->_draw_generic(GL_LINE_LOOP, pline->lines.size(), pline->lines.ptr(), nullptr, pline->line_colors.ptr(), pline->line_colors.size() == 1);
+        }
+        glDisable(GL_LINE_SMOOTH);
+    } else {
+
+        if (pline->antialiased)
+            glEnable(GL_LINE_SMOOTH);
+
+        if (pline->multiline) {
+            int todo = pline->lines.size() / 2;
+            int max_per_call = self->data.polygon_buffer_size / (sizeof(real_t) * 4);
+            int offset = 0;
+
+            while (todo) {
+                int to_draw = MIN(max_per_call, todo);
+                self->_draw_generic(GL_LINES, to_draw * 2, &pline->lines.ptr()[offset], nullptr, pline->line_colors.size() == 1 ? pline->line_colors.ptr() : &pline->line_colors.ptr()[offset], pline->line_colors.size() == 1);
+                todo -= to_draw;
+                offset += to_draw * 2;
+            }
+
+        } else {
+
+            self->_draw_generic(GL_LINE_STRIP, pline->lines.size(), pline->lines.ptr(), nullptr, pline->line_colors.ptr(), pline->line_colors.size() == 1);
+        }
+
+        if (pline->antialiased)
+            glDisable(GL_LINE_SMOOTH);
+    }
+}
+
+void RasterizerCanvasGLES3::_render_rect(RasterizerCanvas::Item::CommandRect *rect)
+{
+    _set_texture_rect_mode(true);
+
+    //set color
+    glVertexAttrib4f(VS::ARRAY_COLOR, rect->modulate.r, rect->modulate.g, rect->modulate.b, rect->modulate.a);
+
+    RasterizerStorageGLES3::Texture *texture = _bind_canvas_texture(rect->texture, rect->normal_map);
+
+    if (texture) {
+
+        bool untile = false;
+
+        if (rect->flags & CANVAS_RECT_TILE && !(texture->flags & VS::TEXTURE_FLAG_REPEAT)) {
+            glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+            glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+            untile = true;
+        }
+
+        Size2 texpixel_size(1.0f / texture->width, 1.0f / texture->height);
+        Rect2 src_rect = (rect->flags & CANVAS_RECT_REGION) ? Rect2(rect->source.position * texpixel_size, rect->source.size * texpixel_size) : Rect2(0, 0, 1, 1);
+        Rect2 dst_rect = Rect2(rect->rect.position, rect->rect.size);
+
+        if (dst_rect.size.width < 0) {
+            dst_rect.position.x += dst_rect.size.width;
+            dst_rect.size.width *= -1;
+        }
+        if (dst_rect.size.height < 0) {
+            dst_rect.position.y += dst_rect.size.height;
+            dst_rect.size.height *= -1;
+        }
+
+        if (rect->flags & CANVAS_RECT_FLIP_H) {
+            src_rect.size.x *= -1;
+        }
+
+        if (rect->flags & CANVAS_RECT_FLIP_V) {
+            src_rect.size.y *= -1;
+        }
+
+        if (rect->flags & CANVAS_RECT_TRANSPOSE) {
+            dst_rect.size.x *= -1; // Encoding in the dst_rect.z uniform
+        }
+
+        state.canvas_shader.set_uniform(CanvasShaderGLES3::COLOR_TEXPIXEL_SIZE, texpixel_size);
+
+        state.canvas_shader.set_uniform(CanvasShaderGLES3::DST_RECT, Color(dst_rect.position.x, dst_rect.position.y, dst_rect.size.x, dst_rect.size.y));
+        state.canvas_shader.set_uniform(CanvasShaderGLES3::SRC_RECT, Color(src_rect.position.x, src_rect.position.y, src_rect.size.x, src_rect.size.y));
+        state.canvas_shader.set_uniform(CanvasShaderGLES3::CLIP_RECT_UV, rect->flags & CANVAS_RECT_CLIP_UV);
+
+        glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+
+        if (untile) {
+            glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+            glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        }
+
+    } else {
+        Rect2 dst_rect = Rect2(rect->rect.position, rect->rect.size);
+
+        if (dst_rect.size.width < 0) {
+            dst_rect.position.x += dst_rect.size.width;
+            dst_rect.size.width *= -1;
+        }
+        if (dst_rect.size.height < 0) {
+            dst_rect.position.y += dst_rect.size.height;
+            dst_rect.size.height *= -1;
+        }
+
+        state.canvas_shader.set_uniform(CanvasShaderGLES3::DST_RECT, Color(dst_rect.position.x, dst_rect.position.y, dst_rect.size.x, dst_rect.size.y));
+        state.canvas_shader.set_uniform(CanvasShaderGLES3::SRC_RECT, Color(0, 0, 1, 1));
+        state.canvas_shader.set_uniform(CanvasShaderGLES3::CLIP_RECT_UV, false);
+        glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+    }
+
+    storage->frame.canvas_draw_commands++;
+}
+
+void RasterizerCanvasGLES3::_render_ninepatch(RasterizerCanvas::Item::CommandNinePatch *np)
+{
+    _set_texture_rect_mode(true, true);
+
+    glVertexAttrib4f(VS::ARRAY_COLOR, np->color.r, np->color.g, np->color.b, np->color.a);
+
+    RasterizerStorageGLES3::Texture *texture = _bind_canvas_texture(np->texture, np->normal_map);
+
+    Size2 texpixel_size;
+
+    if (!texture) {
+
+        texpixel_size = Size2(1, 1);
+
+        state.canvas_shader.set_uniform(CanvasShaderGLES3::SRC_RECT, Color(0, 0, 1, 1));
+
+    } else {
+
+        if (np->source != Rect2()) {
+            texpixel_size = Size2(1.0f / np->source.size.width, 1.0f / np->source.size.height);
+            state.canvas_shader.set_uniform(CanvasShaderGLES3::SRC_RECT, Color(np->source.position.x / texture->width, np->source.position.y / texture->height, np->source.size.x / texture->width, np->source.size.y / texture->height));
+        } else {
+            texpixel_size = Size2(1.0f / texture->width, 1.0f / texture->height);
+            state.canvas_shader.set_uniform(CanvasShaderGLES3::SRC_RECT, Color(0, 0, 1, 1));
+        }
+    }
+
+    state.canvas_shader.set_uniform(CanvasShaderGLES3::COLOR_TEXPIXEL_SIZE, texpixel_size);
+    state.canvas_shader.set_uniform(CanvasShaderGLES3::CLIP_RECT_UV, false);
+    state.canvas_shader.set_uniform(CanvasShaderGLES3::NP_REPEAT_H, int(np->axis_x));
+    state.canvas_shader.set_uniform(CanvasShaderGLES3::NP_REPEAT_V, int(np->axis_y));
+    state.canvas_shader.set_uniform(CanvasShaderGLES3::NP_DRAW_CENTER, np->draw_center);
+    state.canvas_shader.set_uniform(CanvasShaderGLES3::NP_MARGINS, Color(np->margin[MARGIN_LEFT], np->margin[MARGIN_TOP], np->margin[MARGIN_RIGHT], np->margin[MARGIN_BOTTOM]));
+    state.canvas_shader.set_uniform(CanvasShaderGLES3::DST_RECT, Color(np->rect.position.x, np->rect.position.y, np->rect.size.x, np->rect.size.y));
+
+    glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+
+    storage->frame.canvas_draw_commands++;
+}
+
+void _render_multimesh(RasterizerCanvasGLES3 *self,RasterizerCanvas::Item::CommandMultiMesh *mmesh)
+{
+    RasterizerStorageGLES3::MultiMesh *multi_mesh = self->storage->multimesh_owner.getornull(mmesh->multimesh);
+
+    if (!multi_mesh)
+        return ;
+
+    RasterizerStorageGLES3::Mesh *mesh_data = self->storage->mesh_owner.getornull(multi_mesh->mesh);
+
+    if (!mesh_data)
+        return ;
+
+    RasterizerStorageGLES3::Texture *texture = self->_bind_canvas_texture(mmesh->texture, mmesh->normal_map);
+
+    self->state.canvas_shader.set_conditional(CanvasShaderGLES3::USE_INSTANCE_CUSTOM, multi_mesh->custom_data_format != VS::MULTIMESH_CUSTOM_DATA_NONE);
+    self->state.canvas_shader.set_conditional(CanvasShaderGLES3::USE_INSTANCING, true);
+    //reset shader and force rebind
+    self->state.using_texture_rect = true;
+    self->_set_texture_rect_mode(false);
+
+    if (texture) {
+        Size2 texpixel_size(1.0f / texture->width, 1.0f / texture->height);
+        self->state.canvas_shader.set_uniform(CanvasShaderGLES3::COLOR_TEXPIXEL_SIZE, texpixel_size);
+    }
+
+    int amount = MIN(multi_mesh->size, multi_mesh->visible_instances);
+
+    if (amount == -1) {
+        amount = multi_mesh->size;
+    }
+
+    for (int j = 0; j < mesh_data->surfaces.size(); j++) {
+        RasterizerStorageGLES3::Surface *s = mesh_data->surfaces[j];
+        // materials are ignored in 2D meshes, could be added but many things (ie, lighting mode, reading from screen, etc) would break as they are not meant be set up at this point of drawing
+        glBindVertexArray(s->instancing_array_id);
+
+        glBindBuffer(GL_ARRAY_BUFFER, multi_mesh->buffer); //modify the buffer
+
+        int stride = (multi_mesh->xform_floats + multi_mesh->color_floats + multi_mesh->custom_data_floats) * 4;
+        glEnableVertexAttribArray(8);
+        glVertexAttribPointer(8, 4, GL_FLOAT, GL_FALSE, stride, CAST_INT_TO_UCHAR_PTR(0));
+        glVertexAttribDivisor(8, 1);
+        glEnableVertexAttribArray(9);
+        glVertexAttribPointer(9, 4, GL_FLOAT, GL_FALSE, stride, CAST_INT_TO_UCHAR_PTR(4 * 4));
+        glVertexAttribDivisor(9, 1);
+
+        int color_ofs;
+
+        if (multi_mesh->transform_format == VS::MULTIMESH_TRANSFORM_3D) {
+            glEnableVertexAttribArray(10);
+            glVertexAttribPointer(10, 4, GL_FLOAT, GL_FALSE, stride, CAST_INT_TO_UCHAR_PTR(8 * 4));
+            glVertexAttribDivisor(10, 1);
+            color_ofs = 12 * 4;
+        } else {
+            glDisableVertexAttribArray(10);
+            glVertexAttrib4f(10, 0, 0, 1, 0);
+            color_ofs = 8 * 4;
+        }
+
+        int custom_data_ofs = color_ofs;
+
+        switch (multi_mesh->color_format) {
+
+            case VS::MULTIMESH_COLOR_NONE: {
+                glDisableVertexAttribArray(11);
+                glVertexAttrib4f(11, 1, 1, 1, 1);
+            } break;
+            case VS::MULTIMESH_COLOR_8BIT: {
+                glEnableVertexAttribArray(11);
+                glVertexAttribPointer(11, 4, GL_UNSIGNED_BYTE, GL_TRUE, stride, CAST_INT_TO_UCHAR_PTR(color_ofs));
+                glVertexAttribDivisor(11, 1);
+                custom_data_ofs += 4;
+
+            } break;
+            case VS::MULTIMESH_COLOR_FLOAT: {
+                glEnableVertexAttribArray(11);
+                glVertexAttribPointer(11, 4, GL_FLOAT, GL_FALSE, stride, CAST_INT_TO_UCHAR_PTR(color_ofs));
+                glVertexAttribDivisor(11, 1);
+                custom_data_ofs += 4 * 4;
+            } break;
+        }
+
+        switch (multi_mesh->custom_data_format) {
+
+            case VS::MULTIMESH_CUSTOM_DATA_NONE: {
+                glDisableVertexAttribArray(12);
+                glVertexAttrib4f(12, 1, 1, 1, 1);
+            } break;
+            case VS::MULTIMESH_CUSTOM_DATA_8BIT: {
+                glEnableVertexAttribArray(12);
+                glVertexAttribPointer(12, 4, GL_UNSIGNED_BYTE, GL_TRUE, stride, CAST_INT_TO_UCHAR_PTR(custom_data_ofs));
+                glVertexAttribDivisor(12, 1);
+
+            } break;
+            case VS::MULTIMESH_CUSTOM_DATA_FLOAT: {
+                glEnableVertexAttribArray(12);
+                glVertexAttribPointer(12, 4, GL_FLOAT, GL_FALSE, stride, CAST_INT_TO_UCHAR_PTR(custom_data_ofs));
+                glVertexAttribDivisor(12, 1);
+            } break;
+        }
+
+        if (s->index_array_len) {
+            glDrawElementsInstanced(gl_primitive[s->primitive], s->index_array_len, (s->array_len >= (1 << 16)) ? GL_UNSIGNED_INT : GL_UNSIGNED_SHORT, nullptr, amount);
+        } else {
+            glDrawArraysInstanced(gl_primitive[s->primitive], 0, s->array_len, amount);
+        }
+
+        glBindVertexArray(0);
+    }
+
+    self->state.canvas_shader.set_conditional(CanvasShaderGLES3::USE_INSTANCE_CUSTOM, false);
+    self->state.canvas_shader.set_conditional(CanvasShaderGLES3::USE_INSTANCING, false);
+    self->state.using_texture_rect = true;
+    self->_set_texture_rect_mode(false);
+}
+
+void _render_particles(RasterizerCanvasGLES3 *self,RasterizerCanvas::Item::CommandParticles *particles_cmd)
+{
+    RasterizerStorageGLES3::Particles *particles = self->storage->particles_owner.getornull(particles_cmd->particles);
+    if (!particles)
+        return ;
+
+    if (particles->inactive && !particles->emitting)
+        return ;
+
+    glVertexAttrib4f(VS::ARRAY_COLOR, 1, 1, 1, 1); //not used, so keep white
+
+    VisualServerRaster::redraw_request();
+
+    self->storage->particles_request_process(particles_cmd->particles);
+    //enable instancing
+
+    self->state.canvas_shader.set_conditional(CanvasShaderGLES3::USE_INSTANCE_CUSTOM, true);
+    self->state.canvas_shader.set_conditional(CanvasShaderGLES3::USE_PARTICLES, true);
+    self->state.canvas_shader.set_conditional(CanvasShaderGLES3::USE_INSTANCING, true);
+    //reset shader and force rebind
+    self->state.using_texture_rect = true;
+    self->_set_texture_rect_mode(false);
+
+    RasterizerStorageGLES3::Texture *texture = self->_bind_canvas_texture(particles_cmd->texture, particles_cmd->normal_map);
+
+    if (texture) {
+        Size2 texpixel_size(1.0f / texture->width, 1.0f / texture->height);
+        self->state.canvas_shader.set_uniform(CanvasShaderGLES3::COLOR_TEXPIXEL_SIZE, texpixel_size);
+    } else {
+        self->state.canvas_shader.set_uniform(CanvasShaderGLES3::COLOR_TEXPIXEL_SIZE, Vector2(1.0f, 1.0f));
+    }
+
+    if (!particles->use_local_coords) {
+
+        Transform2D inv_xf;
+        inv_xf.set_axis(0, Vector2(particles->emission_transform.basis.get_axis(0).x, particles->emission_transform.basis.get_axis(0).y));
+        inv_xf.set_axis(1, Vector2(particles->emission_transform.basis.get_axis(1).x, particles->emission_transform.basis.get_axis(1).y));
+        inv_xf.set_origin(Vector2(particles->emission_transform.get_origin().x, particles->emission_transform.get_origin().y));
+        inv_xf.affine_invert();
+
+        self->state.canvas_shader.set_uniform(CanvasShaderGLES3::MODELVIEW_MATRIX, self->state.final_transform * inv_xf);
+    }
+
+    glBindVertexArray(self->data.particle_quad_array); //use particle quad array
+    glBindBuffer(GL_ARRAY_BUFFER, particles->particle_buffers[0]); //bind particle buffer
+
+    int stride = sizeof(float) * 4 * 6;
+
+    int amount = particles->amount;
+
+    if (particles->draw_order != VS::PARTICLES_DRAW_ORDER_LIFETIME) {
+
+        glEnableVertexAttribArray(8); //xform x
+        glVertexAttribPointer(8, 4, GL_FLOAT, GL_FALSE, stride, CAST_INT_TO_UCHAR_PTR(sizeof(float) * 4 * 3));
+        glVertexAttribDivisor(8, 1);
+        glEnableVertexAttribArray(9); //xform y
+        glVertexAttribPointer(9, 4, GL_FLOAT, GL_FALSE, stride, CAST_INT_TO_UCHAR_PTR(sizeof(float) * 4 * 4));
+        glVertexAttribDivisor(9, 1);
+        glEnableVertexAttribArray(10); //xform z
+        glVertexAttribPointer(10, 4, GL_FLOAT, GL_FALSE, stride, CAST_INT_TO_UCHAR_PTR(sizeof(float) * 4 * 5));
+        glVertexAttribDivisor(10, 1);
+        glEnableVertexAttribArray(11); //color
+        glVertexAttribPointer(11, 4, GL_FLOAT, GL_FALSE, stride, nullptr);
+        glVertexAttribDivisor(11, 1);
+        glEnableVertexAttribArray(12); //custom
+        glVertexAttribPointer(12, 4, GL_FLOAT, GL_FALSE, stride, CAST_INT_TO_UCHAR_PTR(sizeof(float) * 4 * 2));
+        glVertexAttribDivisor(12, 1);
+
+        glDrawArraysInstanced(GL_TRIANGLE_FAN, 0, 4, amount);
+    } else {
+        //split
+        int split = int(Math::ceil(particles->phase * particles->amount));
+
+        if (amount - split > 0) {
+            glEnableVertexAttribArray(8); //xform x
+            glVertexAttribPointer(8, 4, GL_FLOAT, GL_FALSE, stride, CAST_INT_TO_UCHAR_PTR(stride * split + sizeof(float) * 4 * 3));
+            glVertexAttribDivisor(8, 1);
+            glEnableVertexAttribArray(9); //xform y
+            glVertexAttribPointer(9, 4, GL_FLOAT, GL_FALSE, stride, CAST_INT_TO_UCHAR_PTR(stride * split + sizeof(float) * 4 * 4));
+            glVertexAttribDivisor(9, 1);
+            glEnableVertexAttribArray(10); //xform z
+            glVertexAttribPointer(10, 4, GL_FLOAT, GL_FALSE, stride, CAST_INT_TO_UCHAR_PTR(stride * split + sizeof(float) * 4 * 5));
+            glVertexAttribDivisor(10, 1);
+            glEnableVertexAttribArray(11); //color
+            glVertexAttribPointer(11, 4, GL_FLOAT, GL_FALSE, stride, CAST_INT_TO_UCHAR_PTR(stride * split + 0));
+            glVertexAttribDivisor(11, 1);
+            glEnableVertexAttribArray(12); //custom
+            glVertexAttribPointer(12, 4, GL_FLOAT, GL_FALSE, stride, CAST_INT_TO_UCHAR_PTR(stride * split + sizeof(float) * 4 * 2));
+            glVertexAttribDivisor(12, 1);
+
+            glDrawArraysInstanced(GL_TRIANGLE_FAN, 0, 4, amount - split);
+        }
+
+        if (split > 0) {
+            glEnableVertexAttribArray(8); //xform x
+            glVertexAttribPointer(8, 4, GL_FLOAT, GL_FALSE, stride, CAST_INT_TO_UCHAR_PTR(sizeof(float) * 4 * 3));
+            glVertexAttribDivisor(8, 1);
+            glEnableVertexAttribArray(9); //xform y
+            glVertexAttribPointer(9, 4, GL_FLOAT, GL_FALSE, stride, CAST_INT_TO_UCHAR_PTR(sizeof(float) * 4 * 4));
+            glVertexAttribDivisor(9, 1);
+            glEnableVertexAttribArray(10); //xform z
+            glVertexAttribPointer(10, 4, GL_FLOAT, GL_FALSE, stride, CAST_INT_TO_UCHAR_PTR(sizeof(float) * 4 * 5));
+            glVertexAttribDivisor(10, 1);
+            glEnableVertexAttribArray(11); //color
+            glVertexAttribPointer(11, 4, GL_FLOAT, GL_FALSE, stride, nullptr);
+            glVertexAttribDivisor(11, 1);
+            glEnableVertexAttribArray(12); //custom
+            glVertexAttribPointer(12, 4, GL_FLOAT, GL_FALSE, stride, CAST_INT_TO_UCHAR_PTR(sizeof(float) * 4 * 2));
+            glVertexAttribDivisor(12, 1);
+
+            glDrawArraysInstanced(GL_TRIANGLE_FAN, 0, 4, split);
+        }
+    }
+
+    glBindVertexArray(0);
+
+    self->state.canvas_shader.set_conditional(CanvasShaderGLES3::USE_INSTANCE_CUSTOM, false);
+    self->state.canvas_shader.set_conditional(CanvasShaderGLES3::USE_PARTICLES, false);
+    self->state.canvas_shader.set_conditional(CanvasShaderGLES3::USE_INSTANCING, false);
+    self->state.using_texture_rect = true;
+    self->_set_texture_rect_mode(false);
+    return;
+}
 
 void RasterizerCanvasGLES3::_canvas_item_render_commands(Item *p_item, Item *current_clip, bool &reclip) {
 
@@ -613,218 +1063,23 @@ void RasterizerCanvasGLES3::_canvas_item_render_commands(Item *p_item, Item *cur
         switch (c->type) {
             case Item::Command::TYPE_LINE: {
 
-                Item::CommandLine *line = static_cast<Item::CommandLine *>(c);
-                _set_texture_rect_mode(false);
-
-                _bind_canvas_texture(RID(), RID());
-
-                glVertexAttrib4f(VS::ARRAY_COLOR, line->color.r, line->color.g, line->color.b, line->color.a);
-
-                if (line->width <= 1) {
-                    Vector2 verts[2] = {
-                        Vector2(line->from.x, line->from.y),
-                        Vector2(line->to.x, line->to.y)
-                    };
-                    if (line->antialiased)
-                        glEnable(GL_LINE_SMOOTH);
-                    //glLineWidth(line->width);
-                    _draw_gui_primitive(2, verts, nullptr, nullptr);
-
-                    if (line->antialiased)
-                        glDisable(GL_LINE_SMOOTH);
-                } else {
-                    //thicker line
-
-                    Vector2 t = (line->from - line->to).normalized().tangent() * line->width * 0.5;
-
-                    Vector2 verts[4] = {
-                        line->from - t,
-                        line->from + t,
-                        line->to + t,
-                        line->to - t,
-                    };
-
-                    //glLineWidth(line->width);
-                    _draw_gui_primitive(4, verts, nullptr, nullptr);
-                    if (line->antialiased) {
-                        glEnable(GL_LINE_SMOOTH);
-                        for (int j = 0; j < 4; j++) {
-                            Vector2 vertsl[2] = {
-                                verts[j],
-                                verts[(j + 1) % 4],
-                            };
-                            _draw_gui_primitive(2, vertsl, nullptr, nullptr);
-                        }
-                        glDisable(GL_LINE_SMOOTH);
-                    }
-                }
+                _render_line(this,static_cast<Item::CommandLine *>(c));
 
             } break;
             case Item::Command::TYPE_POLYLINE: {
 
-                Item::CommandPolyLine *pline = static_cast<Item::CommandPolyLine *>(c);
-                _set_texture_rect_mode(false);
-
-                _bind_canvas_texture(RID(), RID());
-
-                if (!pline->triangles.empty()) {
-
-                    _draw_generic(GL_TRIANGLE_STRIP, pline->triangles.size(), pline->triangles.ptr(), nullptr, pline->triangle_colors.ptr(), pline->triangle_colors.size() == 1);
-                    glEnable(GL_LINE_SMOOTH);
-                    if (pline->multiline) {
-                        //needs to be different
-                    } else {
-                        _draw_generic(GL_LINE_LOOP, pline->lines.size(), pline->lines.ptr(), nullptr, pline->line_colors.ptr(), pline->line_colors.size() == 1);
-                    }
-                    glDisable(GL_LINE_SMOOTH);
-                } else {
-
-                    if (pline->antialiased)
-                        glEnable(GL_LINE_SMOOTH);
-
-                    if (pline->multiline) {
-                        int todo = pline->lines.size() / 2;
-                        int max_per_call = data.polygon_buffer_size / (sizeof(real_t) * 4);
-                        int offset = 0;
-
-                        while (todo) {
-                            int to_draw = MIN(max_per_call, todo);
-                            _draw_generic(GL_LINES, to_draw * 2, &pline->lines.ptr()[offset], nullptr, pline->line_colors.size() == 1 ? pline->line_colors.ptr() : &pline->line_colors.ptr()[offset], pline->line_colors.size() == 1);
-                            todo -= to_draw;
-                            offset += to_draw * 2;
-                        }
-
-                    } else {
-
-                        _draw_generic(GL_LINE_STRIP, pline->lines.size(), pline->lines.ptr(), nullptr, pline->line_colors.ptr(), pline->line_colors.size() == 1);
-                    }
-
-                    if (pline->antialiased)
-                        glDisable(GL_LINE_SMOOTH);
-                }
+                _render_poly_line(this,static_cast<Item::CommandPolyLine *>(c));
 
             } break;
             case Item::Command::TYPE_RECT: {
 
-                Item::CommandRect *rect = static_cast<Item::CommandRect *>(c);
-
-                _set_texture_rect_mode(true);
-
-                //set color
-                glVertexAttrib4f(VS::ARRAY_COLOR, rect->modulate.r, rect->modulate.g, rect->modulate.b, rect->modulate.a);
-
-                RasterizerStorageGLES3::Texture *texture = _bind_canvas_texture(rect->texture, rect->normal_map);
-
-                if (texture) {
-
-                    bool untile = false;
-
-                    if (rect->flags & CANVAS_RECT_TILE && !(texture->flags & VS::TEXTURE_FLAG_REPEAT)) {
-                        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-                        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-                        untile = true;
-                    }
-
-                    Size2 texpixel_size(1.0f / texture->width, 1.0f / texture->height);
-                    Rect2 src_rect = (rect->flags & CANVAS_RECT_REGION) ? Rect2(rect->source.position * texpixel_size, rect->source.size * texpixel_size) : Rect2(0, 0, 1, 1);
-                    Rect2 dst_rect = Rect2(rect->rect.position, rect->rect.size);
-
-                    if (dst_rect.size.width < 0) {
-                        dst_rect.position.x += dst_rect.size.width;
-                        dst_rect.size.width *= -1;
-                    }
-                    if (dst_rect.size.height < 0) {
-                        dst_rect.position.y += dst_rect.size.height;
-                        dst_rect.size.height *= -1;
-                    }
-
-                    if (rect->flags & CANVAS_RECT_FLIP_H) {
-                        src_rect.size.x *= -1;
-                    }
-
-                    if (rect->flags & CANVAS_RECT_FLIP_V) {
-                        src_rect.size.y *= -1;
-                    }
-
-                    if (rect->flags & CANVAS_RECT_TRANSPOSE) {
-                        dst_rect.size.x *= -1; // Encoding in the dst_rect.z uniform
-                    }
-
-                    state.canvas_shader.set_uniform(CanvasShaderGLES3::COLOR_TEXPIXEL_SIZE, texpixel_size);
-
-                    state.canvas_shader.set_uniform(CanvasShaderGLES3::DST_RECT, Color(dst_rect.position.x, dst_rect.position.y, dst_rect.size.x, dst_rect.size.y));
-                    state.canvas_shader.set_uniform(CanvasShaderGLES3::SRC_RECT, Color(src_rect.position.x, src_rect.position.y, src_rect.size.x, src_rect.size.y));
-                    state.canvas_shader.set_uniform(CanvasShaderGLES3::CLIP_RECT_UV, rect->flags & CANVAS_RECT_CLIP_UV);
-
-                    glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
-
-                    if (untile) {
-                        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-                        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-                    }
-
-                } else {
-                    Rect2 dst_rect = Rect2(rect->rect.position, rect->rect.size);
-
-                    if (dst_rect.size.width < 0) {
-                        dst_rect.position.x += dst_rect.size.width;
-                        dst_rect.size.width *= -1;
-                    }
-                    if (dst_rect.size.height < 0) {
-                        dst_rect.position.y += dst_rect.size.height;
-                        dst_rect.size.height *= -1;
-                    }
-
-                    state.canvas_shader.set_uniform(CanvasShaderGLES3::DST_RECT, Color(dst_rect.position.x, dst_rect.position.y, dst_rect.size.x, dst_rect.size.y));
-                    state.canvas_shader.set_uniform(CanvasShaderGLES3::SRC_RECT, Color(0, 0, 1, 1));
-                    state.canvas_shader.set_uniform(CanvasShaderGLES3::CLIP_RECT_UV, false);
-                    glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
-                }
-
-                storage->frame.canvas_draw_commands++;
+                _render_rect(static_cast<Item::CommandRect *>(c));
 
             } break;
 
             case Item::Command::TYPE_NINEPATCH: {
 
-                Item::CommandNinePatch *np = static_cast<Item::CommandNinePatch *>(c);
-
-                _set_texture_rect_mode(true, true);
-
-                glVertexAttrib4f(VS::ARRAY_COLOR, np->color.r, np->color.g, np->color.b, np->color.a);
-
-                RasterizerStorageGLES3::Texture *texture = _bind_canvas_texture(np->texture, np->normal_map);
-
-                Size2 texpixel_size;
-
-                if (!texture) {
-
-                    texpixel_size = Size2(1, 1);
-
-                    state.canvas_shader.set_uniform(CanvasShaderGLES3::SRC_RECT, Color(0, 0, 1, 1));
-
-                } else {
-
-                    if (np->source != Rect2()) {
-                        texpixel_size = Size2(1.0f / np->source.size.width, 1.0f / np->source.size.height);
-                        state.canvas_shader.set_uniform(CanvasShaderGLES3::SRC_RECT, Color(np->source.position.x / texture->width, np->source.position.y / texture->height, np->source.size.x / texture->width, np->source.size.y / texture->height));
-                    } else {
-                        texpixel_size = Size2(1.0f / texture->width, 1.0f / texture->height);
-                        state.canvas_shader.set_uniform(CanvasShaderGLES3::SRC_RECT, Color(0, 0, 1, 1));
-                    }
-                }
-
-                state.canvas_shader.set_uniform(CanvasShaderGLES3::COLOR_TEXPIXEL_SIZE, texpixel_size);
-                state.canvas_shader.set_uniform(CanvasShaderGLES3::CLIP_RECT_UV, false);
-                state.canvas_shader.set_uniform(CanvasShaderGLES3::NP_REPEAT_H, int(np->axis_x));
-                state.canvas_shader.set_uniform(CanvasShaderGLES3::NP_REPEAT_V, int(np->axis_y));
-                state.canvas_shader.set_uniform(CanvasShaderGLES3::NP_DRAW_CENTER, np->draw_center);
-                state.canvas_shader.set_uniform(CanvasShaderGLES3::NP_MARGINS, Color(np->margin[MARGIN_LEFT], np->margin[MARGIN_TOP], np->margin[MARGIN_RIGHT], np->margin[MARGIN_BOTTOM]));
-                state.canvas_shader.set_uniform(CanvasShaderGLES3::DST_RECT, Color(np->rect.position.x, np->rect.position.y, np->rect.size.x, np->rect.size.y));
-
-                glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
-
-                storage->frame.canvas_draw_commands++;
+                _render_ninepatch(static_cast<Item::CommandNinePatch *>(c));
             } break;
 
             case Item::Command::TYPE_PRIMITIVE: {
@@ -912,246 +1167,11 @@ void RasterizerCanvasGLES3::_canvas_item_render_commands(Item *p_item, Item *cur
             } break;
             case Item::Command::TYPE_MULTIMESH: {
 
-                Item::CommandMultiMesh *mmesh = static_cast<Item::CommandMultiMesh *>(c);
-
-                RasterizerStorageGLES3::MultiMesh *multi_mesh = storage->multimesh_owner.getornull(mmesh->multimesh);
-
-                if (!multi_mesh)
-                    break;
-
-                RasterizerStorageGLES3::Mesh *mesh_data = storage->mesh_owner.getornull(multi_mesh->mesh);
-
-                if (!mesh_data)
-                    break;
-
-                RasterizerStorageGLES3::Texture *texture = _bind_canvas_texture(mmesh->texture, mmesh->normal_map);
-
-                state.canvas_shader.set_conditional(CanvasShaderGLES3::USE_INSTANCE_CUSTOM, multi_mesh->custom_data_format != VS::MULTIMESH_CUSTOM_DATA_NONE);
-                state.canvas_shader.set_conditional(CanvasShaderGLES3::USE_INSTANCING, true);
-                //reset shader and force rebind
-                state.using_texture_rect = true;
-                _set_texture_rect_mode(false);
-
-                if (texture) {
-                    Size2 texpixel_size(1.0f / texture->width, 1.0f / texture->height);
-                    state.canvas_shader.set_uniform(CanvasShaderGLES3::COLOR_TEXPIXEL_SIZE, texpixel_size);
-                }
-
-                int amount = MIN(multi_mesh->size, multi_mesh->visible_instances);
-
-                if (amount == -1) {
-                    amount = multi_mesh->size;
-                }
-
-                for (int j = 0; j < mesh_data->surfaces.size(); j++) {
-                    RasterizerStorageGLES3::Surface *s = mesh_data->surfaces[j];
-                    // materials are ignored in 2D meshes, could be added but many things (ie, lighting mode, reading from screen, etc) would break as they are not meant be set up at this point of drawing
-                    glBindVertexArray(s->instancing_array_id);
-
-                    glBindBuffer(GL_ARRAY_BUFFER, multi_mesh->buffer); //modify the buffer
-
-                    int stride = (multi_mesh->xform_floats + multi_mesh->color_floats + multi_mesh->custom_data_floats) * 4;
-                    glEnableVertexAttribArray(8);
-                    glVertexAttribPointer(8, 4, GL_FLOAT, GL_FALSE, stride, CAST_INT_TO_UCHAR_PTR(0));
-                    glVertexAttribDivisor(8, 1);
-                    glEnableVertexAttribArray(9);
-                    glVertexAttribPointer(9, 4, GL_FLOAT, GL_FALSE, stride, CAST_INT_TO_UCHAR_PTR(4 * 4));
-                    glVertexAttribDivisor(9, 1);
-
-                    int color_ofs;
-
-                    if (multi_mesh->transform_format == VS::MULTIMESH_TRANSFORM_3D) {
-                        glEnableVertexAttribArray(10);
-                        glVertexAttribPointer(10, 4, GL_FLOAT, GL_FALSE, stride, CAST_INT_TO_UCHAR_PTR(8 * 4));
-                        glVertexAttribDivisor(10, 1);
-                        color_ofs = 12 * 4;
-                    } else {
-                        glDisableVertexAttribArray(10);
-                        glVertexAttrib4f(10, 0, 0, 1, 0);
-                        color_ofs = 8 * 4;
-                    }
-
-                    int custom_data_ofs = color_ofs;
-
-                    switch (multi_mesh->color_format) {
-
-                        case VS::MULTIMESH_COLOR_NONE: {
-                            glDisableVertexAttribArray(11);
-                            glVertexAttrib4f(11, 1, 1, 1, 1);
-                        } break;
-                        case VS::MULTIMESH_COLOR_8BIT: {
-                            glEnableVertexAttribArray(11);
-                            glVertexAttribPointer(11, 4, GL_UNSIGNED_BYTE, GL_TRUE, stride, CAST_INT_TO_UCHAR_PTR(color_ofs));
-                            glVertexAttribDivisor(11, 1);
-                            custom_data_ofs += 4;
-
-                        } break;
-                        case VS::MULTIMESH_COLOR_FLOAT: {
-                            glEnableVertexAttribArray(11);
-                            glVertexAttribPointer(11, 4, GL_FLOAT, GL_FALSE, stride, CAST_INT_TO_UCHAR_PTR(color_ofs));
-                            glVertexAttribDivisor(11, 1);
-                            custom_data_ofs += 4 * 4;
-                        } break;
-                    }
-
-                    switch (multi_mesh->custom_data_format) {
-
-                        case VS::MULTIMESH_CUSTOM_DATA_NONE: {
-                            glDisableVertexAttribArray(12);
-                            glVertexAttrib4f(12, 1, 1, 1, 1);
-                        } break;
-                        case VS::MULTIMESH_CUSTOM_DATA_8BIT: {
-                            glEnableVertexAttribArray(12);
-                            glVertexAttribPointer(12, 4, GL_UNSIGNED_BYTE, GL_TRUE, stride, CAST_INT_TO_UCHAR_PTR(custom_data_ofs));
-                            glVertexAttribDivisor(12, 1);
-
-                        } break;
-                        case VS::MULTIMESH_CUSTOM_DATA_FLOAT: {
-                            glEnableVertexAttribArray(12);
-                            glVertexAttribPointer(12, 4, GL_FLOAT, GL_FALSE, stride, CAST_INT_TO_UCHAR_PTR(custom_data_ofs));
-                            glVertexAttribDivisor(12, 1);
-                        } break;
-                    }
-
-                    if (s->index_array_len) {
-                        glDrawElementsInstanced(gl_primitive[s->primitive], s->index_array_len, (s->array_len >= (1 << 16)) ? GL_UNSIGNED_INT : GL_UNSIGNED_SHORT, nullptr, amount);
-                    } else {
-                        glDrawArraysInstanced(gl_primitive[s->primitive], 0, s->array_len, amount);
-                    }
-
-                    glBindVertexArray(0);
-                }
-
-                state.canvas_shader.set_conditional(CanvasShaderGLES3::USE_INSTANCE_CUSTOM, false);
-                state.canvas_shader.set_conditional(CanvasShaderGLES3::USE_INSTANCING, false);
-                state.using_texture_rect = true;
-                _set_texture_rect_mode(false);
+                _render_multimesh(this,static_cast<Item::CommandMultiMesh *>(c));
 
             } break;
             case Item::Command::TYPE_PARTICLES: {
-
-                Item::CommandParticles *particles_cmd = static_cast<Item::CommandParticles *>(c);
-
-                RasterizerStorageGLES3::Particles *particles = storage->particles_owner.getornull(particles_cmd->particles);
-                if (!particles)
-                    break;
-
-                if (particles->inactive && !particles->emitting)
-                    break;
-
-                glVertexAttrib4f(VS::ARRAY_COLOR, 1, 1, 1, 1); //not used, so keep white
-
-                VisualServerRaster::redraw_request();
-
-                storage->particles_request_process(particles_cmd->particles);
-                //enable instancing
-
-                state.canvas_shader.set_conditional(CanvasShaderGLES3::USE_INSTANCE_CUSTOM, true);
-                state.canvas_shader.set_conditional(CanvasShaderGLES3::USE_PARTICLES, true);
-                state.canvas_shader.set_conditional(CanvasShaderGLES3::USE_INSTANCING, true);
-                //reset shader and force rebind
-                state.using_texture_rect = true;
-                _set_texture_rect_mode(false);
-
-                RasterizerStorageGLES3::Texture *texture = _bind_canvas_texture(particles_cmd->texture, particles_cmd->normal_map);
-
-                if (texture) {
-                    Size2 texpixel_size(1.0 / texture->width, 1.0 / texture->height);
-                    state.canvas_shader.set_uniform(CanvasShaderGLES3::COLOR_TEXPIXEL_SIZE, texpixel_size);
-                } else {
-                    state.canvas_shader.set_uniform(CanvasShaderGLES3::COLOR_TEXPIXEL_SIZE, Vector2(1.0, 1.0));
-                }
-
-                if (!particles->use_local_coords) {
-
-                    Transform2D inv_xf;
-                    inv_xf.set_axis(0, Vector2(particles->emission_transform.basis.get_axis(0).x, particles->emission_transform.basis.get_axis(0).y));
-                    inv_xf.set_axis(1, Vector2(particles->emission_transform.basis.get_axis(1).x, particles->emission_transform.basis.get_axis(1).y));
-                    inv_xf.set_origin(Vector2(particles->emission_transform.get_origin().x, particles->emission_transform.get_origin().y));
-                    inv_xf.affine_invert();
-
-                    state.canvas_shader.set_uniform(CanvasShaderGLES3::MODELVIEW_MATRIX, state.final_transform * inv_xf);
-                }
-
-                glBindVertexArray(data.particle_quad_array); //use particle quad array
-                glBindBuffer(GL_ARRAY_BUFFER, particles->particle_buffers[0]); //bind particle buffer
-
-                int stride = sizeof(float) * 4 * 6;
-
-                int amount = particles->amount;
-
-                if (particles->draw_order != VS::PARTICLES_DRAW_ORDER_LIFETIME) {
-
-                    glEnableVertexAttribArray(8); //xform x
-                    glVertexAttribPointer(8, 4, GL_FLOAT, GL_FALSE, stride, CAST_INT_TO_UCHAR_PTR(sizeof(float) * 4 * 3));
-                    glVertexAttribDivisor(8, 1);
-                    glEnableVertexAttribArray(9); //xform y
-                    glVertexAttribPointer(9, 4, GL_FLOAT, GL_FALSE, stride, CAST_INT_TO_UCHAR_PTR(sizeof(float) * 4 * 4));
-                    glVertexAttribDivisor(9, 1);
-                    glEnableVertexAttribArray(10); //xform z
-                    glVertexAttribPointer(10, 4, GL_FLOAT, GL_FALSE, stride, CAST_INT_TO_UCHAR_PTR(sizeof(float) * 4 * 5));
-                    glVertexAttribDivisor(10, 1);
-                    glEnableVertexAttribArray(11); //color
-                    glVertexAttribPointer(11, 4, GL_FLOAT, GL_FALSE, stride, nullptr);
-                    glVertexAttribDivisor(11, 1);
-                    glEnableVertexAttribArray(12); //custom
-                    glVertexAttribPointer(12, 4, GL_FLOAT, GL_FALSE, stride, CAST_INT_TO_UCHAR_PTR(sizeof(float) * 4 * 2));
-                    glVertexAttribDivisor(12, 1);
-
-                    glDrawArraysInstanced(GL_TRIANGLE_FAN, 0, 4, amount);
-                } else {
-                    //split
-                    int split = int(Math::ceil(particles->phase * particles->amount));
-
-                    if (amount - split > 0) {
-                        glEnableVertexAttribArray(8); //xform x
-                        glVertexAttribPointer(8, 4, GL_FLOAT, GL_FALSE, stride, CAST_INT_TO_UCHAR_PTR(stride * split + sizeof(float) * 4 * 3));
-                        glVertexAttribDivisor(8, 1);
-                        glEnableVertexAttribArray(9); //xform y
-                        glVertexAttribPointer(9, 4, GL_FLOAT, GL_FALSE, stride, CAST_INT_TO_UCHAR_PTR(stride * split + sizeof(float) * 4 * 4));
-                        glVertexAttribDivisor(9, 1);
-                        glEnableVertexAttribArray(10); //xform z
-                        glVertexAttribPointer(10, 4, GL_FLOAT, GL_FALSE, stride, CAST_INT_TO_UCHAR_PTR(stride * split + sizeof(float) * 4 * 5));
-                        glVertexAttribDivisor(10, 1);
-                        glEnableVertexAttribArray(11); //color
-                        glVertexAttribPointer(11, 4, GL_FLOAT, GL_FALSE, stride, CAST_INT_TO_UCHAR_PTR(stride * split + 0));
-                        glVertexAttribDivisor(11, 1);
-                        glEnableVertexAttribArray(12); //custom
-                        glVertexAttribPointer(12, 4, GL_FLOAT, GL_FALSE, stride, CAST_INT_TO_UCHAR_PTR(stride * split + sizeof(float) * 4 * 2));
-                        glVertexAttribDivisor(12, 1);
-
-                        glDrawArraysInstanced(GL_TRIANGLE_FAN, 0, 4, amount - split);
-                    }
-
-                    if (split > 0) {
-                        glEnableVertexAttribArray(8); //xform x
-                        glVertexAttribPointer(8, 4, GL_FLOAT, GL_FALSE, stride, CAST_INT_TO_UCHAR_PTR(sizeof(float) * 4 * 3));
-                        glVertexAttribDivisor(8, 1);
-                        glEnableVertexAttribArray(9); //xform y
-                        glVertexAttribPointer(9, 4, GL_FLOAT, GL_FALSE, stride, CAST_INT_TO_UCHAR_PTR(sizeof(float) * 4 * 4));
-                        glVertexAttribDivisor(9, 1);
-                        glEnableVertexAttribArray(10); //xform z
-                        glVertexAttribPointer(10, 4, GL_FLOAT, GL_FALSE, stride, CAST_INT_TO_UCHAR_PTR(sizeof(float) * 4 * 5));
-                        glVertexAttribDivisor(10, 1);
-                        glEnableVertexAttribArray(11); //color
-                        glVertexAttribPointer(11, 4, GL_FLOAT, GL_FALSE, stride, nullptr);
-                        glVertexAttribDivisor(11, 1);
-                        glEnableVertexAttribArray(12); //custom
-                        glVertexAttribPointer(12, 4, GL_FLOAT, GL_FALSE, stride, CAST_INT_TO_UCHAR_PTR(sizeof(float) * 4 * 2));
-                        glVertexAttribDivisor(12, 1);
-
-                        glDrawArraysInstanced(GL_TRIANGLE_FAN, 0, 4, split);
-                    }
-                }
-
-                glBindVertexArray(0);
-
-                state.canvas_shader.set_conditional(CanvasShaderGLES3::USE_INSTANCE_CUSTOM, false);
-                state.canvas_shader.set_conditional(CanvasShaderGLES3::USE_PARTICLES, false);
-                state.canvas_shader.set_conditional(CanvasShaderGLES3::USE_INSTANCING, false);
-                state.using_texture_rect = true;
-                _set_texture_rect_mode(false);
-
+                _render_particles(this,static_cast<Item::CommandParticles *>(c));
             } break;
             case Item::Command::TYPE_CIRCLE: {
 
@@ -1897,6 +1917,7 @@ void RasterizerCanvasGLES3::canvas_light_shadow_buffer_update(RID p_buffer, cons
 
     glBindVertexArray(0);
 }
+
 void RasterizerCanvasGLES3::reset_canvas() {
 
     if (storage->frame.current_rt) {

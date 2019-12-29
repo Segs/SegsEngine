@@ -125,16 +125,19 @@ public:
     void canvas_begin() override;
     void canvas_end() override;
 
-    _FORCE_INLINE_ void _set_texture_rect_mode(bool p_enable, bool p_ninepatch = false);
-    _FORCE_INLINE_ RasterizerStorageGLES3::Texture *_bind_canvas_texture(const RID &p_texture, const RID &p_normal_map, bool p_force = false);
+    void _set_texture_rect_mode(bool p_enable, bool p_ninepatch = false);
+    RasterizerStorageGLES3::Texture *_bind_canvas_texture(const RID &p_texture, const RID &p_normal_map, bool p_force = false);
 
-    _FORCE_INLINE_ void _draw_gui_primitive(int p_points, const Vector2 *p_vertices, const Color *p_colors, const Vector2 *p_uvs);
-    _FORCE_INLINE_ void _draw_polygon(const int *p_indices, int p_index_count, int p_vertex_count, const Vector2 *p_vertices, const Vector2 *p_uvs, const Color *p_colors, bool p_singlecolor, const int *p_bones, const float *p_weights);
-    _FORCE_INLINE_ void _draw_generic(GLuint p_primitive, int p_vertex_count, const Vector2 *p_vertices, const Vector2 *p_uvs, const Color *p_colors, bool p_singlecolor);
-    _FORCE_INLINE_ void _draw_generic_indices(GLuint p_primitive, const int *p_indices, int p_index_count, int p_vertex_count, const Vector2 *p_vertices, const Vector2 *p_uvs, const Color *p_colors, bool p_singlecolor);
+    void _draw_gui_primitive(int p_points, const Vector2 *p_vertices, const Color *p_colors, const Vector2 *p_uvs);
+    void _draw_polygon(const int *p_indices, int p_index_count, int p_vertex_count, const Vector2 *p_vertices, const Vector2 *p_uvs, const Color *p_colors, bool p_singlecolor, const int *p_bones, const float *p_weights);
+    void _draw_generic(GLuint p_primitive, int p_vertex_count, const Vector2 *p_vertices, const Vector2 *p_uvs, const Color *p_colors, bool p_singlecolor);
+    void _draw_generic_indices(GLuint p_primitive, const int *p_indices, int p_index_count, int p_vertex_count, const Vector2 *p_vertices, const Vector2 *p_uvs, const Color *p_colors, bool p_singlecolor);
 
-    _FORCE_INLINE_ void _canvas_item_render_commands(Item *p_item, Item *current_clip, bool &reclip);
-    _FORCE_INLINE_ void _copy_texscreen(const Rect2 &p_rect);
+    void _render_rect(RasterizerCanvas::Item::CommandRect *rect);
+    void _render_ninepatch(RasterizerCanvas::Item::CommandNinePatch *np);
+
+    void _canvas_item_render_commands(Item *p_item, Item *current_clip, bool &reclip);
+    void _copy_texscreen(const Rect2 &p_rect);
 
     void canvas_render_items(Item *p_item_list, int p_z, const Color &p_modulate, Light *p_light, const Transform2D &p_transform) override;
     void canvas_debug_viewport_shadows(Light *p_lights_with_shadow) override;
