@@ -3044,4 +3044,24 @@ Node::~Node() {
     orphan_node_count--;
 }
 
+#ifdef TOOLS_ENABLED
+Node *_find_script_node(Node *p_edited_scene, Node *p_current_node, const Ref<Script> &script) {
+
+    if (p_edited_scene != p_current_node && p_current_node->get_owner() != p_edited_scene)
+        return nullptr;
+
+    Ref<Script> scr(refFromRefPtr<Script>(p_current_node->get_script()));
+
+    if (scr && scr == script)
+        return p_current_node;
+
+    for (int i = 0; i < p_current_node->get_child_count(); i++) {
+        Node *n = _find_script_node(p_edited_scene, p_current_node->get_child(i), script);
+        if (n)
+            return n;
+    }
+    return nullptr;
+}
+
+#endif
 ////////////////////////////////

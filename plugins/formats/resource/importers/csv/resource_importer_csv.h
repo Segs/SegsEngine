@@ -55,7 +55,7 @@ public:
 
     // ResourceImporterInterface defaults
 public:
-    float get_priority() const override {return 1.0f;}
+    float get_priority() const override {return 8.0f;}
     int get_import_order() const override {return 0;}
     StringName get_option_group_file() const override { return StringName(); }
     Error import_group_file(se_string_view /*p_group_file*/, const Map<se_string, Map<StringName, Variant> > & /*p_source_file_options*/, const Map<se_string, se_string> & /*p_base_paths*/) override {

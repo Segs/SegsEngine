@@ -80,7 +80,7 @@ public:
 	~VisualInstance() override;
 };
 
-class GeometryInstance : public VisualInstance {
+class GODOT_EXPORT GeometryInstance : public VisualInstance {
 
 	GDCLASS(GeometryInstance,VisualInstance)
 

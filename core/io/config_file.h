@@ -31,6 +31,7 @@
 #pragma once
 
 #include "core/ordered_hash_map.h"
+#include "core/map.h"
 #include "core/reference.h"
 
 class FileAccess;
@@ -39,7 +40,7 @@ class GODOT_EXPORT ConfigFile : public RefCounted {
 
     GDCLASS(ConfigFile, RefCounted)
 
-    OrderedHashMap<se_string, OrderedHashMap<se_string, Variant> > values;
+    Map<se_string, Map<se_string, Variant> > values;
 
     PoolSeStringArray _get_sections() const;
     PoolSeStringArray _get_section_keys(se_string_view p_section) const;
@@ -50,15 +51,15 @@ protected:
     static void _bind_methods();
 
 public:
+    const Map<se_string, Map<se_string, Variant> > &all_values() const { return values; }
     void set_value(se_string_view p_section, se_string_view p_key, const Variant &p_value);
     Variant get_value(se_string_view p_section, se_string_view p_key, const Variant& p_default = Variant()) const;
 
     bool has_section(se_string_view p_section) const;
     bool has_section_key(se_string_view p_section, se_string_view p_key) const;
 
-    void get_sections(ListPOD<se_string> *r_sections) const;
-    void get_section_keys(se_string_view p_section, ListPOD<se_string> *r_keys) const;
-    void get_section_keys_utf8(se_string_view p_section, PODVector<se_string> &r_keys) const;
+    void get_sections(PODVector<se_string> *r_sections) const;
+    void get_section_keys(se_string_view p_section, PODVector<se_string> *r_keys) const;
 
     void erase_section(se_string_view p_section);
     void erase_section_key(se_string_view p_section, se_string_view p_key);

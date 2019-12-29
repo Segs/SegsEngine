@@ -2458,11 +2458,11 @@ void VisualScriptLanguage::finish() {
 }
 
 /* EDITOR FUNCTIONS */
-void VisualScriptLanguage::get_reserved_words(List<se_string> *p_words) const {
+void VisualScriptLanguage::get_reserved_words(ListPOD<se_string> *p_words) const {
 }
-void VisualScriptLanguage::get_comment_delimiters(List<se_string> *p_delimiters) const {
+void VisualScriptLanguage::get_comment_delimiters(ListPOD<se_string> *p_delimiters) const {
 }
-void VisualScriptLanguage::get_string_delimiters(List<se_string> *p_delimiters) const {
+void VisualScriptLanguage::get_string_delimiters(ListPOD<se_string> *p_delimiters) const {
 }
 Ref<Script> VisualScriptLanguage::get_template(se_string_view p_class_name, se_string_view p_base_class_name) const {
 

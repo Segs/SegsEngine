@@ -1593,7 +1593,7 @@ Error EditorFileSystem::_reimport_group(se_string_view p_group_file, const Vecto
 
         if (config->has_section("params")) {
             PODVector<se_string> sk;
-            config->get_section_keys_utf8("params", sk);
+            config->get_section_keys("params", &sk);
             for (const se_string &param : sk) {
                 Variant value = config->get_value("params", param);
                 //override with whathever is in file
@@ -1736,7 +1736,7 @@ void EditorFileSystem::_reimport_file(const se_string &p_file) {
         if (err == OK) {
             if (cf->has_section("params")) {
                 PODVector<se_string> sk;
-                cf->get_section_keys_utf8("params", sk);
+                cf->get_section_keys("params", &sk);
                 for (const se_string &E : sk) {
                     params[StringName(E)] = cf->get_value("params", E);
                 }
@@ -1951,7 +1951,7 @@ void EditorFileSystem::reimport_files(const Vector<se_string> &p_files) {
     importing = true;
     EditorProgress pr(("reimport"), TTR("(Re)Importing Assets"), p_files.size());
 
-    Vector<ImportFile> files;
+    PODVector<ImportFile> files;
     Set<se_string> groups_to_reimport;
 
     for (int i = 0; i < p_files.size(); i++) {
@@ -1983,7 +1983,7 @@ void EditorFileSystem::reimport_files(const Vector<se_string> &p_files) {
         }
     }
 
-    files.sort();
+    eastl::sort(files.begin(),files.end());
 
     for (int i = 0; i < files.size(); i++) {
         pr.step(StringName(PathUtils::get_file(files[i].path)), i);
@@ -2050,7 +2050,7 @@ void EditorFileSystem::_move_group_files(EditorFileSystemDirectory *efd, se_stri
             }
 
             PODVector<se_string> sk;
-            config->get_section_keys_utf8("params", sk);
+            config->get_section_keys("params", &sk);
             for (const se_string & param : sk) {
                 //not very clean, but should work
                 se_string value = config->get_value("params", param);

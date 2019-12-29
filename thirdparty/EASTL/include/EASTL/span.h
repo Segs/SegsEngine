@@ -79,8 +79,8 @@ namespace eastl
 		//
 		template <typename Container>
 		using SfinaeForGenericContainers =
-		    enable_if_t<!is_same_v<Container, span> && !is_same_v<Container, array<value_type>> &&
-		                !is_array_v<Container> &&
+		    enable_if_t<!eastl::is_same_v<Container, span> && !eastl::is_same_v<Container, array<value_type>> &&
+		                !eastl::is_array_v<Container> &&
 		                Internal::HasSizeAndData<Container>::value &&
 		                is_convertible_v<remove_pointer_t<decltype(eastl::data(eastl::declval<Container>()))> (*)[], element_type (*)[]>>;
 

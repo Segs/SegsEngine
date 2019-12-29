@@ -32,6 +32,7 @@
 
 #include "core/safe_refcount.h"
 #include "core/error_macros.h"
+#include "core/external_profiler.h"
 
 #include <cstdio>
 #include <cstdlib>
@@ -76,7 +77,6 @@ void operator delete(void *p_mem, void *p_pointer, size_t check, const char *p_d
 uint64_t Memory::alloc_count = 0;
 
 void *Memory::alloc_static(size_t p_bytes, bool p_pad_align) {
-
 #ifdef DEBUG_ENABLED
     bool prepad = true;
 #else
@@ -89,6 +89,7 @@ void *Memory::alloc_static(size_t p_bytes, bool p_pad_align) {
 
     atomic_increment(&alloc_count);
 
+    TRACE_ALLOC(mem, p_bytes + (prepad ? PAD_ALIGN : 0));
     if (prepad) {
         uint64_t *s = (uint64_t *)mem;
         *s = p_bytes;
@@ -132,13 +133,15 @@ void *Memory::realloc_static(void *p_memory, size_t p_bytes, bool p_pad_align) {
         }
 #endif
 
+        TRACE_FREE(mem);
         if (p_bytes == 0) {
             free(mem);
             return nullptr;
         } else {
             *s = p_bytes;
-
             mem = (uint8_t *)realloc(mem, p_bytes + PAD_ALIGN);
+            TRACE_ALLOC(mem, p_bytes + PAD_ALIGN);
+
             assert(mem);
             if(unlikely(!mem))
                 return nullptr;
@@ -151,7 +154,9 @@ void *Memory::realloc_static(void *p_memory, size_t p_bytes, bool p_pad_align) {
         }
     } else {
 
+        TRACE_FREE(mem);
         mem = (uint8_t *)realloc(mem, p_bytes);
+        TRACE_ALLOC(mem, p_bytes);
         assert(mem != nullptr || p_bytes == 0);
         if(unlikely(mem == nullptr && p_bytes > 0))
             return nullptr;
@@ -189,6 +194,7 @@ void Memory::free_static(void *p_ptr, bool p_pad_align) {
 
         free(mem);
     }
+    TRACE_FREE(mem);
 }
 
 uint64_t Memory::get_mem_available() {

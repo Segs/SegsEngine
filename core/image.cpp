@@ -3250,7 +3250,7 @@ Error Image::_load_from_buffer(const uint8_t *p_array,int buffer_size, const cha
     ImageData d = ImageLoader::load_image(ext,p_array, buffer_size);
     ERR_FAIL_COND_V(d.data.size()==0, ERR_PARSE_ERROR)
 
-    create(std::move(d));
+    create(eastl::move(d));
 
     return OK;
 }

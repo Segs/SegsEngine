@@ -208,7 +208,7 @@ protected:
     // MethodBind interface
 public:
     MethodNonconst method;
-    constexpr static bool (*verifiers[sizeof...(Args)])(const Variant &) = {
+    constexpr static bool (*verifiers[sizeof...(Args)+1])(const Variant &) = { // +1 is here because vs2017 requires constexpr array of non-zero size
         VariantObjectClassChecker<Args>::check ...
     };
 #ifdef DEBUG_METHODS_ENABLED

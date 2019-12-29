@@ -1593,7 +1593,7 @@ void ColladaImport::create_animation(int p_clip, bool p_make_tracks_in_all_bones
                     continue;
                 }
 
-                Vector<float> data = at.get_value_at_time(snapshots[i]);
+                PODVector<float> data = at.get_value_at_time(snapshots[i]);
                 ERR_CONTINUE(data.empty())
 
                 Collada::Node::XForm &xf = cn->xform_list.write[xform_idx];
@@ -1602,12 +1602,12 @@ void ColladaImport::create_animation(int p_clip, bool p_make_tracks_in_all_bones
                     ERR_CONTINUE(data.size() != 1)
                     ERR_CONTINUE(xf.op != Collada::Node::XForm::OP_ROTATE)
                     ERR_CONTINUE(xf.data.size() < 4)
-                    xf.data.write[3] = data[0];
+                    xf.data[3] = data[0];
                 } else if (at.component == "X" || at.component == "Y" || at.component == "Z") {
                     int cn2 = at.component[0] - 'X';
                     ERR_CONTINUE(cn2 >= xf.data.size())
                     ERR_CONTINUE(data.size() > 1)
-                    xf.data.write[cn2] = data[0];
+                    xf.data[cn2] = data[0];
                 } else if (data.size() == xf.data.size()) {
                     xf.data = data;
                 } else {
@@ -1727,7 +1727,7 @@ void ColladaImport::create_animation(int p_clip, bool p_make_tracks_in_all_bones
 
                 float time = at.keys[j].time;
                 Variant value;
-                Vector<float> data = at.keys[j].data;
+                const PODVector<float> &data(at.keys[j].data);
                 if (data.size() == 1) {
                     //push a float
                     value = data[0];

@@ -106,9 +106,7 @@ enum Compare {
 [[nodiscard]] GODOT_EXPORT Vector<String> split_spaces(const String &str);
 //[[nodiscard]] GODOT_EXPORT Vector<float> split_floats(const String &str,const String &p_splitter, bool p_allow_empty = true);
 [[nodiscard]] GODOT_EXPORT Vector<float> split_floats(se_string_view str,se_string_view p_splitter, bool p_allow_empty = true);
-[[nodiscard]] GODOT_EXPORT Vector<float> split_floats_mk(se_string_view str,se_string_view split_chars, bool p_allow_empty = true);
-[[nodiscard]] GODOT_EXPORT Vector<int> split_ints(const String &str,const String &p_splitter, bool p_allow_empty = true);
-[[nodiscard]] GODOT_EXPORT Vector<int> split_ints_mk(se_string_view str,se_string_view split_chars, bool p_allow_empty = true);
+[[nodiscard]] GODOT_EXPORT PODVector<float> split_floats_mk(se_string_view str,se_string_view split_chars, bool p_allow_empty = true);
 [[nodiscard]] GODOT_EXPORT Vector<se_string_view> split_spaces(se_string_view str);
 [[nodiscard]] GODOT_EXPORT bool contains(const String &heystack,CharType c,Compare mode=CaseSensitive);
 [[nodiscard]] GODOT_EXPORT bool contains(const String &heystack,const String &needle,Compare mode=CaseSensitive);

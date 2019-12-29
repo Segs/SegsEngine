@@ -11,6 +11,17 @@ set(CMAKE_INSTALL_PREFIX ${PROJECT_SOURCE_DIR}/../SegsEngine_installdir/)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+if(MSVC)
+    if (NOT (MSVC_VERSION LESS 1910))
+      add_compile_options (/permissive-)
+	  add_definitions(-D_CRT_SECURE_NO_WARNINGS)
+	  #add_compile_options (/diagnostics:caret)
+	  #add_compile_options (/sdl)
+	  #add_compile_options (/MP)
+	  #add_compile_options (/arch:AVX2)
+    endif()
+endif()
+
 include(CMakeParseArguments)
 
 SET(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake;${CMAKE_MODULE_PATH})
@@ -25,6 +36,9 @@ cmake_policy(SET CMP0079 NEW)
 
 include(LocateQt5)
 find_package(Qt5 COMPONENTS Core REQUIRED)
+set(THREADS_PREFER_PTHREAD_FLAG ON)
+find_package(Threads REQUIRED)
+
 #find_package(Dotnet)
 include(GenerateExportHeader)
 include(Helpers)
@@ -33,7 +47,9 @@ include(PluginSupport)
 ######################################
 
 option(USE_UNITY_BUILDS "Use unity builds" ON)
-set(DEFAULT_UNITY_BATCH_SIZE 10)
+option(USE_TRACY_PROFILER "Embed a tracy profiler data collection client" ON)
+
+set(DEFAULT_UNITY_BATCH_SIZE 20)
 set(global_targets "" CACHE INTERNAL "")
 
 function(define_target )
@@ -72,8 +88,15 @@ define_per_target_option(DISABLE_3D "Disable 3D nodes for smaller executable" OF
 foreach(tgt ${global_targets})
     add_library(${tgt}_engine SHARED)
     target_link_libraries(${tgt}_engine PUBLIC Qt5::Core EASTL_Import)
-
     set_common_target_properties(${tgt}_engine)
+    if(USE_TRACY_PROFILER)
+        target_sources(${tgt}_engine PRIVATE thirdparty/tracy/TracyClient.cpp)
+        if(WIN32)
+            # under windows tracy client needs dbghelp as well
+            target_link_libraries(${tgt}_engine PRIVATE dbghelp)
+        endif()
+
+    endif()
 
     add_executable(segs_${tgt} ${PROJECT_SOURCE_DIR}/executable/main.cpp)
     if(UNIX AND NOT APPLE)
@@ -83,6 +106,9 @@ foreach(tgt ${global_targets})
     set_target_properties(segs_${tgt} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin)
     target_compile_definitions(segs_${tgt} PRIVATE ${godot_${tgt}_DEFINES})
     target_include_directories(segs_${tgt} PRIVATE ${PROJECT_BINARY_DIR})
+    if(USE_TRACY_PROFILER)
+        target_sources(segs_${tgt} PRIVATE thirdparty/tracy/TracyClientDLL.cpp)
+    endif()
 endforeach()
 
 message(${global_targets})
@@ -248,6 +274,8 @@ if(USE_UNITY_BUILDS)
         set_target_properties(${tgt}_engine PROPERTIES UNITY_BUILD_BATCH_SIZE ${DEFAULT_UNITY_BATCH_SIZE})
         if(MSVC)
             target_compile_options(${tgt}_engine PRIVATE /bigobj)
+        elseif(MINGW)
+            target_compile_options(${tgt}_engine PRIVATE -Wa,-mbig-obj)
         endif()
     endforeach()
 endif()
@@ -272,4 +300,6 @@ endif()
         NAMESPACE SegsEngine::
         DESTINATION cmake
     )
+    target_link_libraries(${tgt}_engine PRIVATE ${LIBRARIES})
+
 endforeach()

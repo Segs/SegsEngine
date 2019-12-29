@@ -17,12 +17,12 @@ extern const se_string null_se_string; // used to return 'null' string reference
 
 template<>
 struct Hasher<se_string> {
-    _FORCE_INLINE_ uint32_t operator()(const se_string &s) const { return eastl::string_hash<se_string>()(s); }
+    _FORCE_INLINE_ uint32_t operator()(const se_string &s) const { return uint32_t(eastl::string_hash<se_string>()(s)); }
 };
 namespace StringUtils {
 
 static inline uint32_t hash(se_string_view sv) {
-    return eastl::hash<se_string_view>()(sv);
+    return uint32_t(eastl::hash<se_string_view>()(sv));
 }
 }
 namespace eastl {

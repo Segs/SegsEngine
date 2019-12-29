@@ -44,7 +44,7 @@ template <class T, class A>
 class List;
 
 template <class T>
-using DefList = class List<T,DefaultAllocator>;
+using DefList = List<T,DefaultAllocator>;
 template<class T>
 using ListPOD = eastl::list<T,wrap_allocator>;
 template <class T>

@@ -212,7 +212,7 @@ void ImportDock::set_edit_multiple_paths(const Vector<se_string> &p_paths) {
         }
 
         PODVector<se_string> keys;
-        config->get_section_keys_utf8("params", keys);
+        config->get_section_keys("params", &keys);
 
         for (const se_string &E : keys) {
 

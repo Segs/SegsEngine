@@ -452,3 +452,8 @@ add_library(glad STATIC ${source_files})
 target_include_directories(glad PUBLIC ${PROJECT_SOURCE_DIR}/thirdparty/glad/)
 set_property(TARGET glad PROPERTY POSITION_INDEPENDENT_CODE ON)
 set_common_target_properties(glad)
+
+if(USE_TRACY_PROFILER)
+    add_subdirectory(glfw)
+    add_subdirectory(tracy)
+endif()

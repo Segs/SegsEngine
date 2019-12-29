@@ -289,12 +289,12 @@ void ScriptTextEditor::_set_theme_for_script() {
 
     TextEdit *text_edit = code_editor->get_text_edit();
 
-    List<se_string> keywords;
+    ListPOD<se_string> keywords;
     script->get_language()->get_reserved_words(&keywords);
 
-    for (List<se_string>::Element *E = keywords.front(); E; E = E->next()) {
+    for (const se_string &E : keywords) {
 
-        text_edit->add_keyword_color(E->deref(), colors_cache.keyword_color);
+        text_edit->add_keyword_color(E, colors_cache.keyword_color);
     }
 
     //colorize core types
@@ -360,12 +360,11 @@ void ScriptTextEditor::_set_theme_for_script() {
         }
     }
     //colorize comments
-    List<se_string> comments;
+    ListPOD<se_string> comments;
     script->get_language()->get_comment_delimiters(&comments);
 
-    for (List<se_string>::Element *E = comments.front(); E; E = E->next()) {
+    for (const se_string &comment : comments) {
 
-        se_string comment = E->deref();
         se_string_view beg = StringUtils::get_slice(comment," ", 0);
         se_string_view end = StringUtils::get_slice_count(comment,' ') > 1 ? StringUtils::get_slice(comment," ", 1) : se_string_view();
 
@@ -373,11 +372,10 @@ void ScriptTextEditor::_set_theme_for_script() {
     }
 
     //colorize strings
-    List<se_string> strings;
+    ListPOD<se_string> strings;
     script->get_language()->get_string_delimiters(&strings);
-    for (List<se_string>::Element *E = strings.front(); E; E = E->next()) {
+    for (const se_string &string : strings) {
 
-        se_string string = E->deref();
         se_string_view beg = StringUtils::get_slice(string," ", 0);
         se_string_view end = StringUtils::get_slice_count(string,' ') > 1 ? StringUtils::get_slice(string," ", 1) : se_string_view();
         text_edit->add_color_region(beg, end, colors_cache.string_color, end.empty());
@@ -1377,11 +1375,11 @@ void ScriptTextEditor::_edit_option_toggle_inline_comment() {
         return;
 
     se_string delimiter("#");
-    List<se_string> comment_delimiters;
+    ListPOD<se_string> comment_delimiters;
     script->get_language()->get_comment_delimiters(&comment_delimiters);
 
-    for (List<se_string>::Element *E = comment_delimiters.front(); E; E = E->next()) {
-        se_string_view script_delimiter = E->deref();
+    for (const se_string &E : comment_delimiters) {
+        se_string_view script_delimiter = E;
         if ( not StringUtils::contains(script_delimiter,' ')) {
             delimiter = script_delimiter;
             break;
@@ -1491,26 +1489,6 @@ bool ScriptTextEditor::can_drop_data_fw(const Point2 &p_point, const Variant &p_
     }
 
     return false;
-}
-
-
-static Node *_find_script_node(Node *p_edited_scene, Node *p_current_node, const Ref<Script> &script) {
-
-    if (p_edited_scene != p_current_node && p_current_node->get_owner() != p_edited_scene)
-        return nullptr;
-
-    Ref<Script> scr(refFromRefPtr<Script>(p_current_node->get_script()));
-
-    if (scr && scr == script)
-        return p_current_node;
-
-    for (int i = 0; i < p_current_node->get_child_count(); i++) {
-        Node *n = _find_script_node(p_edited_scene, p_current_node->get_child(i), script);
-        if (n)
-            return n;
-    }
-
-    return nullptr;
 }
 
 void ScriptTextEditor::drop_data_fw(const Point2 &p_point, const Variant &p_data, Control *p_from) {

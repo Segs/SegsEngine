@@ -35,6 +35,7 @@
 #include "core/hashfuncs.h"
 #include "core/node_path.h"
 #include "core/dictionary.h"
+#include "core/list.h"
 #include "core/io/marshalls.h"
 #include "core/io/ip_address.h"
 #include "core/math/aabb.h"
@@ -1283,13 +1284,13 @@ template <> double Variant::as<double>() const {
 
 template<>
 String Variant::as<String>() const {
-    List<const void *> stack;
+    PODVector<const void *> stack;
 
     return StringUtils::from_utf8(stringify(stack));
 }
 template<>
 se_string Variant::as<se_string>() const {
-    List<const void *> stack;
+    PODVector<const void *> stack;
 
     return stringify(stack);
 }
@@ -1386,7 +1387,7 @@ struct _VariantStrPair {
 };
 
 
-se_string Variant::stringify(List<const void *> &stack) const {
+se_string Variant::stringify(PODVector<const void *> &stack) const {
     switch (type) {
 
         case VariantType::NIL: return ("Null");
@@ -1441,7 +1442,7 @@ se_string Variant::stringify(List<const void *> &stack) const {
         case VariantType::DICTIONARY: {
 
             const Dictionary &d = *reinterpret_cast<const Dictionary *>(_data._mem);
-            if (stack.find(d.id())) {
+            if (stack.contains(d.id())) {
                 return ("{...}");
             }
 
@@ -2337,7 +2338,7 @@ Variant Variant::fromVector(Span<const T> p_array) {
 }
 template<class T>
 Variant Variant::fromVectorBuiltin(Span<const T> p_array) {
-    static_assert(sizeof(_data._mem)>=sizeof(PoolVector<T>));
+    static_assert(sizeof(_data)>=sizeof(PoolVector<T>));
 
     Variant res;
     PoolVector<T> *plane_array = memnew_placement(res._data._mem, PoolVector<T>);
@@ -2400,7 +2401,8 @@ Variant::Variant(const PODVector<uint8_t> &p_raw_array) {
     type = VariantType::POOL_BYTE_ARRAY;
     PoolVector<uint8_t> to_add;
     to_add.resize(p_raw_array.size());
-    memcpy(to_add.write().ptr(),p_raw_array.data(),p_raw_array.size());
+    if(!p_raw_array.empty())
+        memcpy(to_add.write().ptr(),p_raw_array.data(),p_raw_array.size());
     static_assert (sizeof(PoolVector<uint8_t>)<=sizeof(_data));
     memnew_placement(_data._mem, PoolVector<uint8_t>(to_add));
 }
@@ -2415,7 +2417,8 @@ Variant::Variant(const PODVector<int> &p_raw_array) {
     type = VariantType::POOL_INT_ARRAY;
     PoolVector<int> to_add;
     to_add.resize(p_raw_array.size());
-    memcpy(to_add.write().ptr(),p_raw_array.data(),p_raw_array.size()*sizeof(int));
+    if(!p_raw_array.empty())
+        memcpy(to_add.write().ptr(),p_raw_array.data(),p_raw_array.size()*sizeof(int));
     static_assert (sizeof(PoolVector<uint8_t>)<=sizeof(_data));
     memnew_placement(_data._mem, PoolVector<int>(to_add));
 }

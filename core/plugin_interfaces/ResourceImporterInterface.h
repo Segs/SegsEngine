@@ -8,7 +8,24 @@
 template <class T>
 class Vector;
 class EditorServiceInterface;
+/* NOTE: the orignal importer order was as follows:
+ * ResourceImporterTexture 14
+ * ResourceImporterLayeredTexture 3d -> array  13/12
+ * ResourceImporterImage
+ * ResourceImporterTextureAtlas 10
+ * ResourceImporterCSVTranslation 9
+ * ResourceImporterCSV 8
+ * ResourceImporterWAV 7
+ * ResourceImporterOBJ 6
+ * ResourceImporterScene
+ * EditorSceneImporterCollada
+ * EditorOBJImporter
+ * EditorSceneImporterGLTF
+ * EditorSceneImporterESCN
+ * ResourceImporterBitMap
 
+ This is simulated now by assigning the importers with correct priorities.
+*/
 class ResourceImporterInterface {
 protected:
     EditorServiceInterface *m_editor_interface;

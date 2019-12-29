@@ -911,7 +911,7 @@ void EditorNode::_get_scene_metadata(se_string_view p_file) {
     if (err != OK || !cf->has_section("editor_states")) return; // must not exist
 
     PODVector<se_string> esl;
-    cf->get_section_keys_utf8("editor_states", esl);
+    cf->get_section_keys("editor_states", &esl);
 
     Dictionary md;
     for (const se_string &E : esl) {
@@ -1192,12 +1192,12 @@ int EditorNode::_save_external_resources() {
 
     Set<Ref<Resource>> edited_subresources;
     int saved = 0;
-    List<Ref<Resource>> cached;
+    ListPOD<Ref<Resource>> cached;
     ResourceCache::get_cached_resources(&cached);
-    for (List<Ref<Resource>>::Element *E = cached.front(); E; E = E->next()) {
+    for (Ref<Resource> res : cached) {
 
-        Ref<Resource> res = E->deref();
-        if (!PathUtils::is_resource_file(res->get_path())) continue;
+        if (!PathUtils::is_resource_file(res->get_path()))
+            continue;
         // not only check if this resourec is edited, check contained subresources too
         if (_find_edited_resources(res, edited_subresources)) {
             ResourceSaver::save(res->get_path(), res, flg);
@@ -1542,7 +1542,7 @@ void EditorNode::_dialog_action(se_string_view p_file) {
 
             // erase
             PODVector<se_string> keys;
-            config->get_section_keys_utf8(file_str, keys);
+            config->get_section_keys(file_str, &keys);
             for (se_string &E : keys) {
                 config->set_value(file_str, E, Variant());
             }
@@ -4806,7 +4806,7 @@ void EditorNode::_update_layouts_menu() {
         return; // no config
     }
 
-    ListPOD<se_string> layouts;
+    PODVector<se_string> layouts;
     config.get()->get_sections(&layouts);
     se_string default_name(TTR("Default"));
     for (const se_string &layout : layouts) {
@@ -5421,20 +5421,20 @@ void EditorNode::reload_scene(se_string_view p_path) {
 
     // first of all, reload internal textures, materials, meshes, etc. as they might have changed on disk
 
-    List<Ref<Resource>> cached;
+    ListPOD<Ref<Resource>> cached;
     ResourceCache::get_cached_resources(&cached);
-    List<Ref<Resource>> to_clear; // clear internal resources from previous scene from being used
-    for (List<Ref<Resource>>::Element *E = cached.front(); E; E = E->next()) {
+    ListPOD<Ref<Resource>> to_clear; // clear internal resources from previous scene from being used
+    for (const Ref<Resource> &E : cached) {
 
         if (StringUtils::begins_with(
-                    E->deref()->get_path(), se_string(p_path) + "::")) { // subresources of existing scene
-            to_clear.push_back(E->deref());
+                    E->get_path(), se_string(p_path) + "::")) { // subresources of existing scene
+            to_clear.push_back(E);
         }
     }
 
     // so reload reloads everything, clear subresources of previous scene
     while (to_clear.front()) {
-        to_clear.front()->deref()->set_path({});
+        to_clear.front()->set_path({});
         to_clear.pop_front();
     }
 

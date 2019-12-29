@@ -50,16 +50,16 @@
 
 using namespace eastl;
 
-void GDScriptLanguage::get_comment_delimiters(List<se_string> *p_delimiters) const {
+void GDScriptLanguage::get_comment_delimiters(ListPOD<se_string> *p_delimiters) const {
 
-    p_delimiters->push_back("#");
+    p_delimiters->emplace_back("#");
 }
 
-void GDScriptLanguage::get_string_delimiters(List<se_string> *p_delimiters) const {
+void GDScriptLanguage::get_string_delimiters(ListPOD<se_string> *p_delimiters) const {
 
-    p_delimiters->push_back(("\" \""));
-    p_delimiters->push_back(("' '"));
-    p_delimiters->push_back((R"(""" """)"));
+    p_delimiters->emplace_back(("\" \""));
+    p_delimiters->emplace_back(("' '"));
+    p_delimiters->emplace_back((R"(""" """)"));
 }
 
 se_string GDScriptLanguage::_get_processed_template(se_string_view p_template, se_string_view p_base_class_name) const {

@@ -34,6 +34,7 @@
 #include "core/math/camera_matrix.h"
 #include "core/os/input.h"
 #include "core/translation_helpers.h"
+#include "core/vector.h"
 #include "editor/editor_scale.h"
 #include "editor/editor_node.h"
 #include "editor/editor_settings.h"
@@ -405,7 +406,7 @@ bool GridMapEditor::do_input_action(Camera *p_camera, const Point2 &p_point, boo
 
     // Make sure the intersection is inside the frustum planes, to avoid
     // Painting on invisible regions.
-    for (const Plane &pl : Span<const Plane>(planes)) {
+    for (const Plane &pl : planes) {
 
         Plane fp = local_xform.xform(pl);
         if (fp.is_point_over(inters))

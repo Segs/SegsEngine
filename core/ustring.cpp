@@ -46,11 +46,14 @@
 #include <QString>
 #include <QVector>
 #include <QCollator>
-#include <charconv>
 #include <cstdio>
 #include <cstdlib>
 #include <QFileInfo>
 #include <QTextBoundaryFinder>
+#ifndef __MINGW32__
+#include <charconv>
+
+#endif
 using namespace eastl;
 const String s_null_ui_string;
 
@@ -718,12 +721,12 @@ Vector<float> StringUtils::split_floats(se_string_view str,se_string_view p_spli
 
 //    return ret;
 //}
-Vector<float> StringUtils::split_floats_mk(se_string_view str,se_string_view p_splitters, bool p_allow_empty) {
+PODVector<float> StringUtils::split_floats_mk(se_string_view str,se_string_view p_splitters, bool p_allow_empty) {
 
-    Vector<float> ret;
+    PODVector<float> ret;
     size_t from = 0;
     size_t len = str.length();
-
+    ret.reserve(str.size()/8); // just a ballpark to reduce number of reallocations.
     while (true) {
 
         auto end = str.find_first_of(p_splitters,from);
@@ -732,54 +735,8 @@ Vector<float> StringUtils::split_floats_mk(se_string_view str,se_string_view p_s
         }
 
         if (p_allow_empty || (end > from)) {
-            ret.push_back(StringUtils::to_double(str.data()+from));
+            ret.push_back(StringUtils::to_double(str.substr(from,end-from)));
         }
-
-        if (end == len)
-            break;
-
-        from = end + 1;
-    }
-
-    return ret;
-}
-Vector<int> StringUtils::split_ints(const String &str,const String &p_splitter, bool p_allow_empty) {
-
-    Vector<int> ret;
-    int from = 0;
-    int len = str.length();
-
-    while (true) {
-
-        int end = StringUtils::find(str,p_splitter, from);
-        if (end < 0)
-            end = len;
-        if (p_allow_empty || (end > from))
-            ret.push_back(StringUtils::to_int(str.constData()+from, end - from));
-
-        if (end == len)
-            break;
-
-        from = end + p_splitter.length();
-    }
-
-    return ret;
-}
-
-Vector<int> StringUtils::split_ints_mk(se_string_view str,se_string_view p_splitters, bool p_allow_empty) {
-
-    Vector<int> ret;
-    size_t from = 0;
-    size_t len = str.length();
-
-    while (true) {
-
-        auto end = str.find_first_of(p_splitters, from);
-        if (end == se_string::npos) {
-            end = len;
-        }
-        if (p_allow_empty || (end > from))
-            ret.push_back(StringUtils::to_int(str.data()+from, end - from));
 
         if (end == len)
             break;
@@ -1115,7 +1072,12 @@ int StringUtils::hex_to_int(se_string_view s,bool p_with_prefix) {
     else
         to_convert = s;
     int res=0;
+#ifndef __MINGW32__
     auto conv_res = std::from_chars(to_convert.begin(),to_convert.end(),res,16);
+#else
+    se_string zeroterm(to_convert);
+    res = strtol(zeroterm.c_str(),nullptr,16);
+#endif
     return res;
 }
 int64_t StringUtils::hex_to_int64(const String &s,bool p_with_prefix) {
@@ -1145,7 +1107,12 @@ int64_t StringUtils::hex_to_int64(se_string_view s,bool p_with_prefix) {
     else
         to_convert = s;
     int64_t v;
+#ifndef __MINGW32__
     std::from_chars(to_convert.data(),to_convert.data()+to_convert.length(),v,16);
+#else
+    se_string zeroterm(to_convert);
+    v = strtoll(zeroterm.c_str(),nullptr,16);
+#endif
     return v;
 }
 int64_t StringUtils::bin_to_int64(const String &s,bool p_with_prefix) {
@@ -1175,7 +1142,12 @@ int64_t StringUtils::bin_to_int64(se_string_view s,bool p_with_prefix) {
     else
         to_convert = s;
     int64_t v;
+#ifndef __MINGW32__
     std::from_chars(to_convert.data(),to_convert.data()+to_convert.length(),v,2);
+#else
+    se_string zeroterm(to_convert);
+    v = strtoll(zeroterm.c_str(),nullptr,2);
+#endif
     return v;
 }
 int64_t StringUtils::to_int64(const String &s) {
@@ -1736,7 +1708,7 @@ size_t StringUtils::findn(se_string_view s,se_string_view p_str, int p_from) {
 
     size_t src_len = p_str.length();
 
-    if (src_len == 0 || s.length() == 0)
+    if (src_len == 0 || s.empty() || src_len>s.length())
         return se_string::npos; // won't find anything!
 
     const char *srcd = s.data();

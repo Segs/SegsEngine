@@ -177,6 +177,6 @@ public:
     static bool has(se_string_view p_path);
     static Resource *get(se_string_view p_path);
     static void dump(se_string_view p_file = nullptr, bool p_short = false);
-    static void get_cached_resources(DefList<Ref<Resource> > *p_resources);
+    static void get_cached_resources(ListPOD<Ref<Resource>> *p_resources);
     static int get_cached_resource_count();
 };

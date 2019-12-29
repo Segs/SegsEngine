@@ -4593,7 +4593,8 @@ Vector<String> TextEdit::get_wrap_rows_text(int p_line) const {
 
     while (col < line_text.length()) {
         CharType c = line_text[col];
-        int w = m_priv->text.get_char_width(c, line_text[col + 1], px + word_px);
+        CharType next_char = ((col+1)<line_text.size()) ? line_text[col] : CharType(0);
+        int w = m_priv->text.get_char_width(c, next_char, px + word_px);
 
         int indent_ofs = (cur_wrap_index != 0 ? tab_offset_px : 0);
 

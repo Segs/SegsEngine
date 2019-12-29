@@ -1510,7 +1510,7 @@ namespace Assimp {
 
                     const MatIndexArray& mats = geo.GetMaterialIndices();
 
-                    const size_t no_index_sentinel = std::numeric_limits<size_t>::max();
+                    constexpr size_t no_index_sentinel = std::numeric_limits<size_t>::max();
 
                     count_out_indices.clear();
                     index_out_indices.clear();

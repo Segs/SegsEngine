@@ -94,6 +94,8 @@ if(USE_UNITY_BUILDS)
     set_target_properties(edit_tools PROPERTIES UNITY_BUILD_BATCH_SIZE ${DEFAULT_UNITY_BATCH_SIZE}) # NOTE: this has been reduce to allow VS2017 to preperly create obj file.
     if(MSVC)
         target_compile_options(edit_tools PRIVATE /bigobj)
+    elseif(MINGW)
+        target_compile_options(edit_tools PRIVATE -Wa,-mbig-obj)
     endif()
 endif()
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${editor_sources})

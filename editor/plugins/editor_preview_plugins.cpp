@@ -508,14 +508,13 @@ Ref<Texture> EditorScriptPreviewPlugin::generate(const RES &p_from, const Size2 
     if (code.empty())
         return Ref<Texture>();
 
-    List<se_string> kwors;
+    ListPOD<se_string> kwors;
     scr->get_language()->get_reserved_words(&kwors);
 
     Set<se_string> keywords;
+    for (const se_string &E : kwors) {
 
-    for (List<se_string>::Element *E = kwors.front(); E; E = E->next()) {
-
-        keywords.insert(E->deref());
+        keywords.insert(E);
     }
 
     int line = 0;

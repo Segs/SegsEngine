@@ -38,11 +38,11 @@ class GODOT_EXPORT Basis {
 public:
     Vector3 elements[3];
 
-    _FORCE_INLINE_ const Vector3 &operator[](int axis) const {
+    _FORCE_INLINE_ constexpr const Vector3 &operator[](int axis) const {
 
         return elements[axis];
     }
-    _FORCE_INLINE_ Vector3 &operator[](int axis) {
+    _FORCE_INLINE_ constexpr Vector3 &operator[](int axis) {
 
         return elements[axis];
     }

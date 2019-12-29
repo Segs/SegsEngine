@@ -56,8 +56,8 @@ class GODOT_EXPORT ResourceFormatImporter : public ResourceFormatLoader {
         bool operator()(const ResourceImporterInterface *p_a, const ResourceImporterInterface *p_b) const;
     };
 
-    Vector<ResourceImporterInterface *> importers; // Importers provided by plugins, not owned by this class
-    Vector<Ref<ResourceImporter>> owned_importers; // Importers provided by scripts, co-owned by this class
+    PODVector<ResourceImporterInterface *> importers; // Importers provided by plugins, not owned by this class
+    PODVector<Ref<ResourceImporter>> owned_importers; // Importers provided by scripts, co-owned by this class
 public:
     static ResourceFormatImporter *get_singleton() { return singleton; }
     RES load(se_string_view p_path, se_string_view p_original_path = se_string_view(), Error *r_error = nullptr) override;
@@ -87,8 +87,8 @@ public:
     void add_importer(const Ref<ResourceImporter> &p_importer) {
         owned_importers.push_back(p_importer);
     }
-    void remove_importer(const Ref<ResourceImporter> &p_importer) { owned_importers.erase(p_importer); }
-    void remove_importer(ResourceImporterInterface *p_importer) { importers.erase(p_importer); }
+    void remove_importer(const Ref<ResourceImporter> &p_importer) { owned_importers.erase_first(p_importer); }
+    void remove_importer(ResourceImporterInterface *p_importer) { importers.erase_first(p_importer); }
 
     ResourceImporterInterface * get_importer_by_name(se_string_view p_name) const;
     ResourceImporterInterface * get_importer_by_extension(se_string_view p_extension) const;

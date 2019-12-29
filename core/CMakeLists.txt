@@ -284,6 +284,7 @@ set(generic_core_sources
     error_list.h
     error_macros.cpp
     error_macros.h
+    external_profiler.h
     forward_decls.h
     godot_export.h
     image_data.h

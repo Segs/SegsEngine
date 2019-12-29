@@ -137,7 +137,7 @@ class ScriptEditor : public PanelContainer {
     enum {
         FILE_NEW,
         FILE_NEW_TEXTFILE,
-        FILE_OPEN,
+        ACT_FILE_OPEN,
         FILE_REOPEN_CLOSED,
         FILE_OPEN_RECENT,
         FILE_SAVE,

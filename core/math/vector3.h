@@ -57,12 +57,12 @@ struct GODOT_EXPORT Vector3 {
         real_t coord[3];
     };
 
-    _FORCE_INLINE_ const real_t &operator[](int p_axis) const {
+    _FORCE_INLINE_ constexpr const real_t &operator[](int p_axis) const {
 
         return coord[p_axis];
     }
 
-    _FORCE_INLINE_ real_t &operator[](int p_axis) {
+    _FORCE_INLINE_ constexpr real_t &operator[](int p_axis) {
 
         return coord[p_axis];
     }

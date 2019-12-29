@@ -543,7 +543,7 @@ Resource *ResourceCache::get(se_string_view p_path) {
     return res;
 }
 
-void ResourceCache::get_cached_resources(List<Ref<Resource> > *p_resources) {
+void ResourceCache::get_cached_resources(ListPOD<Ref<Resource>> *p_resources) {
 
     lock->read_lock();
     for(eastl::pair<const se_string,Resource *> & e :cached_resources) {

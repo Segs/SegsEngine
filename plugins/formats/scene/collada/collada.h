@@ -155,7 +155,7 @@ public:
         se_string name;
         struct Source {
 
-            Vector<float> array;
+            PODVector<float> array;
             int stride;
         };
 
@@ -178,8 +178,8 @@ public:
 
             se_string material;
             Map<se_string, SourceRef> sources;
-            Vector<float> polygons;
-            Vector<float> indices;
+            PODVector<float> polygons;
+            PODVector<float> indices;
             int count;
             int vertex_size;
         };
@@ -203,7 +203,7 @@ public:
         struct Source {
 
             Vector<se_string> sarray;
-            Vector<float> array;
+            PODVector<float> array;
             int stride;
         };
 
@@ -226,11 +226,8 @@ public:
         struct Source {
 
             Vector<se_string> sarray; //maybe for names
-            Vector<float> array;
-            int stride;
-            Source() {
-                stride = 1;
-            }
+            PODVector<float> array;
+            int stride = 1;
         };
 
         Map<se_string, Source> sources;
@@ -250,8 +247,8 @@ public:
 
             se_string material;
             Map<se_string, SourceRef> sources;
-            Vector<float> sets;
-            Vector<float> indices;
+            PODVector<float> sets;
+            PODVector<float> indices;
             int count;
         } weights;
 
@@ -269,7 +266,7 @@ public:
 
             int stride;
             Vector<se_string> sarray; //maybe for names
-            Vector<float> array;
+            PODVector<float> array;
             Source() { stride = 1; }
         };
 
@@ -380,7 +377,7 @@ public:
 
             se_string id;
             Op op;
-            Vector<float> data;
+            PODVector<float> data;
         };
 
         Type type;
@@ -503,7 +500,7 @@ public:
             };
 
             float time;
-            Vector<float> data;
+            PODVector<float> data;
             Point2 in_tangent;
             Point2 out_tangent;
             InterpolationType interp_type;
@@ -511,7 +508,7 @@ public:
             Key() { interp_type = INTERP_LINEAR; }
         };
 
-        Vector<float> get_value_at_time(float p_time) const;
+        PODVector<float> get_value_at_time(float p_time) const;
 
         Vector<Key> keys;
 
@@ -626,7 +623,7 @@ private: // private stuff
     void _parse_library(XMLParser &parser);
 
     Variant _parse_param(XMLParser &parser);
-    Vector<float> _read_float_array(XMLParser &parser);
+    PODVector<float> _read_float_array(XMLParser &parser);
     Vector<se_string> _read_string_array(XMLParser &parser);
     Transform _read_transform(XMLParser &parser);
     se_string _read_empty_draw_type(XMLParser &parser);

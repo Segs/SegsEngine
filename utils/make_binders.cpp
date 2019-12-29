@@ -22,11 +22,11 @@ QString stripComments(QString src)
             i++;
             single_line = false;
         }
-        else if (multi_line>0 && src[i]=='*' && src[i+1]=='/') {
+        else if (multi_line && src[i]=='*' && src[i+1]=='/') {
             multi_line=false;
             ++i;
         }
-        else if(single_line || multi_line>0)
+        else if(single_line || multi_line)
         {
             continue; // skipped
         }

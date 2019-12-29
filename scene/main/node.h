@@ -411,3 +411,8 @@ public:
 };
 
 using NodeSet = eastl::set<Node *, Node::Comparator, wrap_allocator>;
+
+#ifdef TOOLS_ENABLED
+// Internal function used by a few editors
+Node *_find_script_node(Node *p_edited_scene, Node *p_current_node, const Ref<Script> &script);
+#endif

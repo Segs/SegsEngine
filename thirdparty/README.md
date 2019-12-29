@@ -127,6 +127,14 @@ The files we package are automatically generated.
 See the header of glad.c for instructions on how to generate them for
 the GLES version Godot targets.
 
+## glfw3
+
+- Upstream: https://github.com/glfw/glfw
+- Version: 3.3
+- License: zlib/libpng
+
+Stripped down by removing deps/examples/tests
+
 
 ## jpeg-compressor
 
@@ -463,6 +471,12 @@ comments and a patch is provided in the squish/ folder.
 Files extracted from upstream source:
 
 - `tinyexr.{cc,h}`
+
+## tracy
+
+- Upstream: https://bitbucket.org/wolfpld/tracy/src/master/
+- Version: 1032eb95d24e
+- License: BSD-3-Clause
 
 
 ## vhacd

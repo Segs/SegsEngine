@@ -1106,12 +1106,10 @@ void FileSystemDock::_try_duplicate_item(const FileOrFolder &p_item, const se_st
 void FileSystemDock::_update_resource_paths_after_move(const Map<se_string, se_string> &p_renames) const {
 
     // Rename all resources loaded, be it subresources or actual resources.
-    List<Ref<Resource> > cached;
+    ListPOD<Ref<Resource> > cached;
     ResourceCache::get_cached_resources(&cached);
 
-    for (List<Ref<Resource> >::Element *E = cached.front(); E; E = E->next()) {
-
-        Ref<Resource> r = E->deref();
+    for (Ref<Resource> r : cached) {
 
         se_string base_path = r->get_path();
         se_string extra_path;

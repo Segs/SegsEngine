@@ -424,7 +424,7 @@ public:
 
     [[nodiscard]] bool hash_compare(const Variant &p_variant) const;
     bool booleanize() const;
-    se_string stringify(DefList<const void *> &stack) const;
+    se_string stringify(PODVector<const void *> &stack) const;
 
     void static_assign(const Variant &p_variant);
     static void get_constructor_list(VariantType p_type, PODVector<MethodInfo> *p_list);
