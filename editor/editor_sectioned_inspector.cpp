@@ -31,6 +31,7 @@
 #include "editor_sectioned_inspector.h"
 #include "editor_scale.h"
 #include "core/object_db.h"
+#include "core/object_tooling.h"
 #include "core/method_bind.h"
 
 IMPL_GDCLASS(SectionedInspector)
@@ -123,12 +124,12 @@ public:
 
         section = p_section;
         allow_sub = p_allow_sub;
-        _change_notify();
+        Object_change_notify(this);
     }
 
     void set_edited(Object *p_edited) {
         edited = p_edited;
-        _change_notify();
+        Object_change_notify(this);
     }
 
     SectionedInspectorFilter() {

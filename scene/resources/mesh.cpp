@@ -866,7 +866,7 @@ void ArrayMesh::add_surface_from_arrays(PrimitiveType p_primitive, const Array &
     }
 
     clear_cache();
-    _change_notify();
+    Object_change_notify(this);
     emit_changed();
 }
 
@@ -940,7 +940,7 @@ void ArrayMesh::surface_remove(int p_idx) {
 
     clear_cache();
     _recompute_aabb();
-    _change_notify();
+    Object_change_notify(this);
     emit_changed();
 }
 
@@ -976,7 +976,7 @@ void ArrayMesh::surface_set_material(int p_idx, const Ref<Material> &p_material)
     surfaces.write[p_idx].material = p_material;
     VisualServer::get_singleton()->mesh_surface_set_material(mesh, p_idx, not p_material ? RID() : p_material->get_rid());
 
-    _change_notify("material");
+    Object_change_notify(this,"material");
     emit_changed();
 }
 
@@ -1047,7 +1047,7 @@ void ArrayMesh::add_surface_from_mesh_data(const Geometry::MeshData &p_mesh_data
     clear_cache();
 
     surfaces.push_back(s);
-    _change_notify();
+    Object_change_notify(this);
 
     emit_changed();
 }
@@ -1349,7 +1349,7 @@ void ArrayMesh::reload_from_file() {
 
     Resource::reload_from_file();
 
-    _change_notify();
+    Object_change_notify(this);
 }
 
 ArrayMesh::ArrayMesh() {

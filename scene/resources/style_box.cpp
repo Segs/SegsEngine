@@ -138,7 +138,7 @@ void StyleBoxTexture::set_texture(const Ref<Texture>& p_texture) {
     }
     emit_signal("texture_changed");
     emit_changed();
-    _change_notify("texture");
+    Object_change_notify(this,"texture");
 }
 
 Ref<Texture> StyleBoxTexture::get_texture() const {
@@ -171,7 +171,7 @@ void StyleBoxTexture::set_margin_size(Margin p_margin, float p_size) {
         "content_margin_right",
         "content_margin_bottom",
     };
-    _change_notify(StaticCString(margin_prop[p_margin],true));
+    Object_change_notify(this,StaticCString(margin_prop[p_margin],true));
 }
 float StyleBoxTexture::get_margin_size(Margin p_margin) const {
     ERR_FAIL_INDEX_V((int)p_margin, (int)MARGIN_MAX,0)

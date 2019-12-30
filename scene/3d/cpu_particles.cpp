@@ -37,6 +37,7 @@
 #include "scene/resources/mesh.h"
 #include "servers/visual_server.h"
 #include "core/method_bind.h"
+#include "core/object_tooling.h"
 #include "core/os/mutex.h"
 #include "core/translation_helpers.h"
 
@@ -360,7 +361,7 @@ void CPUParticles::set_particle_flag(Flags p_flag, bool p_enable) {
     ERR_FAIL_INDEX(p_flag, FLAG_MAX);
     flags[p_flag] = p_enable;
     if (p_flag == FLAG_DISABLE_Z) {
-        _change_notify();
+        Object_change_notify(this);
     }
 }
 
@@ -553,7 +554,7 @@ void CPUParticles::_particles_process(float p_delta) {
         cycle++;
         if (one_shot && cycle > 0) {
             set_emitting(false);
-            _change_notify();
+            Object_change_notify(this);
         }
     }
 
@@ -1452,7 +1453,6 @@ CPUParticles::CPUParticles() {
     VisualServer::get_singleton()->multimesh_set_visible_instances(multimesh, 0);
     set_base(multimesh);
 
-    set_emitting(true);
     set_one_shot(false);
     set_amount(8);
     set_lifetime(1);
@@ -1499,6 +1499,8 @@ CPUParticles::CPUParticles() {
     can_update = false;
 
     set_color(Color(1, 1, 1, 1));
+
+    set_emitting(true);
 
 
 }

@@ -30,8 +30,9 @@
 
 #include "array_property_edit.h"
 
-#include "core/object_db.h"
 #include "core/io/marshalls.h"
+#include "core/object_db.h"
+#include "core/object_tooling.h"
 #include "core/translation_helpers.h"
 #include "editor_node.h"
 #include "core/method_bind.h"
@@ -54,11 +55,11 @@ Variant ArrayPropertyEdit::get_array() const {
 }
 
 void ArrayPropertyEdit::_notif_change() {
-    _change_notify();
+    Object_change_notify(this);
 }
 void ArrayPropertyEdit::_notif_changev(StringName p_v) {
 
-    _change_notify(p_v);
+    Object_change_notify(this,p_v);
 }
 
 void ArrayPropertyEdit::_set_size(int p_size) {
@@ -128,7 +129,7 @@ bool ArrayPropertyEdit::_set(const StringName &p_name, const Variant &p_value) {
         }
         if (pn == "array/page") {
             page = p_value;
-            _change_notify();
+            Object_change_notify(this);
             return true;
         }
 

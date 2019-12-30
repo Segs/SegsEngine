@@ -33,6 +33,7 @@
 #include "navigation.h"
 #include "scene/main/scene_tree.h"
 #include "core/method_bind.h"
+#include "core/object_tooling.h"
 #include "core/translation_helpers.h"
 
 IMPL_GDCLASS(NavigationMesh)
@@ -82,7 +83,7 @@ int NavigationMesh::get_sample_partition_type() const {
 void NavigationMesh::set_parsed_geometry_type(int p_value) {
     ERR_FAIL_COND(p_value >= PARSED_GEOMETRY_MAX)
     parsed_geometry_type = static_cast<ParsedGeometryType>(p_value);
-    _change_notify();
+    Object_change_notify(this);
 }
 
 int NavigationMesh::get_parsed_geometry_type() const {
@@ -116,7 +117,7 @@ bool NavigationMesh::get_collision_mask_bit(int p_bit) const {
 void NavigationMesh::set_source_geometry_mode(int p_geometry_mode) {
     ERR_FAIL_INDEX(p_geometry_mode, SOURCE_GEOMETRY_MAX);
     source_geometry_mode = static_cast<SourceGeometryMode>(p_geometry_mode);
-    _change_notify();
+    Object_change_notify(this);
 }
 
 int NavigationMesh::get_source_geometry_mode() const {
@@ -262,7 +263,7 @@ bool NavigationMesh::get_filter_walkable_low_height_spans() const {
 void NavigationMesh::set_vertices(const PoolVector<Vector3> &p_vertices) {
 
     vertices = p_vertices;
-    _change_notify();
+    Object_change_notify(this);
 }
 
 PoolVector<Vector3> NavigationMesh::get_vertices() const {
@@ -276,7 +277,7 @@ void NavigationMesh::_set_polygons(const Array &p_array) {
     for (int i = 0; i < p_array.size(); i++) {
         polygons.write[i].indices = p_array[i].as<Vector<int>>();
     }
-    _change_notify();
+    Object_change_notify(this);
 }
 
 Array NavigationMesh::_get_polygons() const {
@@ -295,7 +296,7 @@ void NavigationMesh::add_polygon(const Vector<int> &p_polygon) {
     Polygon polygon;
     polygon.indices = p_polygon;
     polygons.push_back(polygon);
-    _change_notify();
+    Object_change_notify(this);
 }
 int NavigationMesh::get_polygon_count() const {
 
@@ -670,13 +671,13 @@ void NavigationMeshInstance::set_navigation_mesh(const Ref<NavigationMesh> &p_na
     }
 
     if (navmesh) {
-        navmesh->remove_change_receptor(this);
+        Object_remove_change_receptor(navmesh.get(),this);
     }
 
     navmesh = p_navmesh;
 
     if (navmesh) {
-        navmesh->add_change_receptor(this);
+        Object_add_change_receptor(navmesh.get(),this);
     }
 
     if (navigation && navmesh && enabled) {
@@ -744,5 +745,5 @@ NavigationMeshInstance::NavigationMeshInstance() {
 
 NavigationMeshInstance::~NavigationMeshInstance() {
     if (navmesh)
-        navmesh->remove_change_receptor(this);
+        Object_remove_change_receptor(navmesh.get(),this);
 }

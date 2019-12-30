@@ -45,52 +45,8 @@
 #include "core/pool_vector.h"
 #include "core/vmap.h"
 #include "core/method_bind.h"
+#include "core/object_tooling.h"
 
-#ifdef TOOLS_ENABLED
-struct ObjectToolingImpl final : public IObjectTooling {
-
-    bool _edited;
-    uint32_t _edited_version;
-    Set<se_string> editor_section_folding;
-
-    // IObjectTooling interface
-public:
-    void set_edited(bool p_edited,bool increment_version=true) final {
-        _edited = p_edited;
-        if(increment_version)
-            _edited_version++;
-    }
-    bool is_edited() const final {
-        return _edited;
-    }
-    uint32_t get_edited_version() const final {
-        return _edited_version;
-    }
-    void editor_set_section_unfold(se_string_view p_section, bool p_unfolded) final {
-        set_edited(true);
-        if (p_unfolded)
-            editor_section_folding.insert(p_section);
-        else {
-            auto iter=editor_section_folding.find_as(p_section);
-            if(iter!=editor_section_folding.end())
-                editor_section_folding.erase(iter);
-        }
-    }
-    bool editor_is_section_unfolded(se_string_view p_section) const final {
-        return editor_section_folding.contains_as(p_section);
-    }
-    const Set<se_string> &editor_get_section_folding() const final {
-        return editor_section_folding;
-    }
-    void editor_clear_section_folding() final {
-        editor_section_folding.clear();
-    }
-    ObjectToolingImpl() {
-        _edited = false;
-        _edited_version = 0;
-    }
-};
-#endif
 struct Object::Signal  {
 
     struct Target {
@@ -118,23 +74,22 @@ struct Object::Signal  {
     int lock;
     Signal() { lock = 0; }
 };
+
 struct Object::ObjectPrivate {
-#ifdef TOOLS_ENABLED
-    ObjectToolingImpl m_tooling;
-#endif
+    IObjectTooling *m_tooling;
     HashMap<StringName, Signal> signal_map;
-    Set<Object *> change_receptors;
     List<Connection> connections;
 
 #ifdef DEBUG_ENABLED
     SafeRefCount _lock_index;
 #endif
 
-    ObjectPrivate()
+    ObjectPrivate(Object *self)
     {
 #ifdef DEBUG_ENABLED
-    _lock_index.init(1);
+        _lock_index.init(1);
 #endif
+        m_tooling = create_tooling_for(self);
     }
     ~ObjectPrivate() {
         const StringName *S = nullptr;
@@ -162,9 +117,11 @@ struct Object::ObjectPrivate {
             Connection c = connections.front()->deref();
             c.source->_disconnect(c.signal, c.target, c.method, true);
         }
+        relase_tooling(m_tooling);
+        m_tooling = nullptr;
     }
     IObjectTooling *get_tooling() {
-        return &m_tooling;
+        return m_tooling;
     }
 };
 #ifdef DEBUG_ENABLED
@@ -527,9 +484,7 @@ bool Object::wrap_is_class(se_string_view p_class) const {
 
 void Object::set(const StringName &p_name, const Variant &p_value, bool *r_valid) {
 
-#ifdef TOOLS_ENABLED
-    private_data->get_tooling()->set_edited(true,false);
-#endif
+    Object_set_edited(this,true,false);
 
     if (script_instance) {
 
@@ -582,21 +537,9 @@ void Object::set(const StringName &p_name, const Variant &p_value, bool *r_valid
             return;
         }
     }
-
-#ifdef TOOLS_ENABLED
-    if (script_instance) {
-        bool valid;
-        script_instance->property_set_fallback(p_name, p_value, &valid);
-        if (valid) {
-            if (r_valid)
-                *r_valid = true;
-            return;
-        }
-    }
-#endif
-
+    bool res = Object_set_fallback(this,p_name,p_value);
     if (r_valid)
-        *r_valid = false;
+        *r_valid = res;
 }
 
 Variant Object::get(const StringName &p_name, bool *r_valid) const {
@@ -625,14 +568,10 @@ Variant Object::get(const StringName &p_name, bool *r_valid) const {
         ret = Variant(get_script());
         if (r_valid)
             *r_valid = true;
-        return ret;
-
     } else if (p_name == CoreStringNames::get_singleton()->_meta) {
         ret = metadata;
         if (r_valid)
             *r_valid = true;
-        return ret;
-
     } else {
         //something inside the object... :|
         bool success = _getv(p_name, ret);
@@ -652,23 +591,12 @@ Variant Object::get(const StringName &p_name, bool *r_valid) const {
                 return ret;
             }
         }
-
-#ifdef TOOLS_ENABLED
-        if (script_instance) {
-            bool valid;
-            ret = script_instance->property_get_fallback(p_name, &valid);
-            if (valid) {
-                if (r_valid)
-                    *r_valid = true;
-                return ret;
-            }
-        }
-#endif
-
+        bool valid=false;
+        ret = Object_get_fallback(this,p_name,valid);
         if (r_valid)
-            *r_valid = false;
-        return Variant();
+            *r_valid = valid;
     }
+    return ret;
 }
 
 void Object::set_indexed(const Vector<StringName> &p_names, const Variant &p_value, bool *r_valid) {
@@ -752,10 +680,8 @@ void Object::get_property_list(ListPOD<PropertyInfo> *p_list, bool p_reversed) c
 
     _get_property_listv(p_list, p_reversed);
 
-    if (!is_class("Script")) { // can still be set, but this is for userfriendlyness
-#ifdef TOOLS_ENABLED
-        p_list->push_back(PropertyInfo(VariantType::NIL, "Script", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_GROUP));
-#endif
+    if (!is_class("Script")) { // can still be set, but this is for userfriendliness
+        Object_add_tool_properties(p_list);
         p_list->push_back(PropertyInfo(VariantType::OBJECT, "script", PROPERTY_HINT_RESOURCE_TYPE, "Script", PROPERTY_USAGE_DEFAULT));
     }
     if (!metadata.empty()) {
@@ -1071,19 +997,9 @@ se_string Object::to_string() {
 void Object::_changed_callback(Object * /*p_changed*/, StringName /*p_prop*/) {
 }
 
-void Object::add_change_receptor(Object *p_receptor) {
-
-    private_data->change_receptors.insert(p_receptor);
-}
-
-void Object::remove_change_receptor(Object *p_receptor) {
-
-    private_data->change_receptors.erase(p_receptor);
-}
-
 void Object::property_list_changed_notify() {
 
-    _change_notify();
+    Object_change_notify(this);
 }
 
 void Object::cancel_delete() {
@@ -1125,7 +1041,7 @@ void Object::set_script(const RefPtr &p_script) {
         }
     }
 
-    _change_notify(); //scripts may add variables, so refresh is desired
+    Object_change_notify(this); //scripts may add variables, so refresh is desired
     emit_signal(CoreStringNames::get_singleton()->script_changed);
 }
 
@@ -1713,13 +1629,7 @@ bool Object::initialize_class() {
     initialized = true;
     return true;
 }
-void Object::_change_notify(StringName p_property) {
-#ifdef TOOLS_ENABLED
-    private_data->get_tooling()->set_edited(true,false);
-    for (Object *E : private_data->change_receptors)
-        E->_changed_callback(this, p_property);
-#endif
-}
+
 StringName Object::tr(const StringName &p_message) const {
 
     if (!_can_translate || !TranslationServer::get_singleton())
@@ -2027,7 +1937,7 @@ void Object::set_script_instance_binding(int p_script_language_index, void *p_da
 }
 
 Object::Object() {
-    private_data = memnew(ObjectPrivate);
+    private_data = memnew_args_basic(ObjectPrivate,this);
     _class_ptr = nullptr;
     _block_signals = false;
     _predelete_ok = 0;

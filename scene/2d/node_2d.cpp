@@ -54,10 +54,10 @@ void Node2D::_edit_set_state(const Dictionary &p_state) {
     _scale = p_state["scale"];
 
     _update_transform();
-    _change_notify("rotation");
-    _change_notify("rotation_degrees");
-    _change_notify("scale");
-    _change_notify("position");
+    Object_change_notify(this,"rotation");
+    Object_change_notify(this,"rotation_degrees");
+    Object_change_notify(this,"scale");
+    Object_change_notify(this,"position");
 }
 
 void Node2D::_edit_set_position(const Point2 &p_position) {
@@ -79,8 +79,8 @@ Size2 Node2D::_edit_get_scale() const {
 void Node2D::_edit_set_rotation(float p_rotation) {
     angle = p_rotation;
     _update_transform();
-    _change_notify("rotation");
-    _change_notify("rotation_degrees");
+    Object_change_notify(this,"rotation");
+    Object_change_notify(this,"rotation_degrees");
 }
 
 float Node2D::_edit_get_rotation() const {
@@ -119,8 +119,8 @@ void Node2D::_edit_set_rect(const Rect2 &p_edit_rect) {
     _scale *= new_scale;
 
     _update_transform();
-    _change_notify("scale");
-    _change_notify("position");
+    Object_change_notify(this,"scale");
+    Object_change_notify(this,"position");
 }
 
 void Node2D::_update_xform_values() {
@@ -150,7 +150,7 @@ void Node2D::set_position(const Point2 &p_pos) {
         ((Node2D *)this)->_update_xform_values();
     pos = p_pos;
     _update_transform();
-    _change_notify("position");
+    Object_change_notify(this,"position");
 }
 
 void Node2D::set_rotation(float p_radians) {
@@ -159,8 +159,8 @@ void Node2D::set_rotation(float p_radians) {
         ((Node2D *)this)->_update_xform_values();
     angle = p_radians;
     _update_transform();
-    _change_notify("rotation");
-    _change_notify("rotation_degrees");
+    Object_change_notify(this,"rotation");
+    Object_change_notify(this,"rotation_degrees");
 }
 
 void Node2D::set_rotation_degrees(float p_degrees) {
@@ -178,7 +178,7 @@ void Node2D::set_scale(const Size2 &p_scale) {
     if (_scale.y == 0)
         _scale.y = CMP_EPSILON;
     _update_transform();
-    _change_notify("scale");
+    Object_change_notify(this,"scale");
 }
 
 Point2 Node2D::get_position() const {
@@ -337,7 +337,7 @@ void Node2D::set_z_index(int p_z) {
     ERR_FAIL_COND(p_z > VS::CANVAS_ITEM_Z_MAX)
     z_index = p_z;
     VisualServer::get_singleton()->canvas_item_set_z_index(get_canvas_item(), z_index);
-    _change_notify("z_index");
+    Object_change_notify(this,"z_index");
 }
 
 void Node2D::set_z_as_relative(bool p_enabled) {

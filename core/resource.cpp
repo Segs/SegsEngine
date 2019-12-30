@@ -40,6 +40,7 @@
 #include "core/os/file_access.h"
 #include "core/script_language.h"
 #include "core/self_list.h"
+#include "core/object_tooling.h"
 //#include "core/ustring.h"
 //TODO: SEGS consider removing 'scene/main/node.h' include from core module
 #include "scene/main/node.h" //only so casting works
@@ -124,7 +125,7 @@ void Resource::set_path(se_string_view p_path, bool p_take_over) {
         ResourceCache::lock->write_unlock();
     }
 
-    _change_notify("resource_path");
+    Object_change_notify(this,"resource_path");
     _resource_path_changed();
 }
 
@@ -146,7 +147,7 @@ int Resource::get_subindex() const {
 void Resource::set_name(se_string_view p_name) {
 
     impl_data->name = p_name;
-    _change_notify("resource_name");
+    Object_change_notify(this,"resource_name");
 }
 const se_string &Resource::get_name() const {
 

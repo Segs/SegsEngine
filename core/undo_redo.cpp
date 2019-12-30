@@ -34,6 +34,7 @@
 #include "core/se_string.h"
 #include "core/object_db.h"
 #include "core/method_bind.h"
+#include "core/object_tooling.h"
 #include "EASTL/deque.h"
 
 template<class T>
@@ -158,12 +159,8 @@ struct UndoRedo::PrivateData
                                 "Error calling method from signal '" + se_string(op.name) + "': " +
                                 Variant::get_call_error_text(obj, op.name, (const Variant **)argptrs.ptr(), argc, ce))
                     }
-#ifdef TOOLS_ENABLED
-                    Resource *res = object_cast<Resource>(obj);
-                    if (res)
-                        res->get_tooling_interface()->set_edited(true);
 
-#endif
+                    Object_set_edited(obj,true);
 
                     if (method_callback) {
                         method_callback(method_callbck_ud, obj, op.name, VARIANT_ARGS_FROM_ARRAY(op.args));
@@ -172,11 +169,7 @@ struct UndoRedo::PrivateData
                 case Operation::TYPE_PROPERTY: {
 
                     obj->set(op.name, op.args[0]);
-    #ifdef TOOLS_ENABLED
-                    Resource *res = object_cast<Resource>(obj);
-                    if (res)
-                        res->get_tooling_interface()->set_edited(true);
-    #endif
+                    Object_set_edited(obj,true);
                     if (property_callback) {
                         property_callback(prop_callback_ud, obj, op.name, op.args[0]);
                     }

@@ -33,6 +33,7 @@
 #include "collision_shape.h"
 #include "core/method_bind.h"
 #include "core/core_string_names.h"
+#include "core/object_tooling.h"
 #include "physics_body.h"
 #include "scene/resources/material.h"
 #include "scene/scene_string_names.h"
@@ -145,7 +146,7 @@ void MeshInstance::set_mesh(const Ref<Mesh> &p_mesh) {
 
     update_gizmo();
 
-    _change_notify();
+    Object_change_notify(this);
 }
 Ref<Mesh> MeshInstance::get_mesh() const {
 
@@ -163,7 +164,7 @@ void MeshInstance::_resolve_skeleton_path() {
             if (not skin_internal) {
                 //a skin was created for us
                 skin_internal = new_skin_reference->get_skin();
-                _change_notify();
+                Object_change_notify(this);
             }
         }
     }

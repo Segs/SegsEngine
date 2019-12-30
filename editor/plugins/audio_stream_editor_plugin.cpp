@@ -34,6 +34,7 @@
 
 #include "core/io/resource_loader.h"
 #include "core/method_bind.h"
+#include "core/object_tooling.h"
 #include "core/project_settings.h"
 #include "editor/editor_settings.h"
 #include "servers/visual_server.h"
@@ -186,7 +187,7 @@ void AudioStreamEditor::_seek_to(real_t p_x) {
 void AudioStreamEditor::edit(const Ref<AudioStream>& p_stream) {
 
     if (stream)
-        stream->remove_change_receptor(this);
+        Object_remove_change_receptor(stream.get(),this);
 
     stream = p_stream;
     _player->set_stream(stream);
@@ -195,7 +196,7 @@ void AudioStreamEditor::edit(const Ref<AudioStream>& p_stream) {
     _duration_label->set_text(StringName(text));
 
     if (stream) {
-        stream->add_change_receptor(this);
+        Object_add_change_receptor(stream.get(),this);
         update();
     } else {
         hide();

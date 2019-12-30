@@ -31,6 +31,7 @@
 #include "connections_dialog.h"
 
 #include "core/method_bind.h"
+#include "core/object_tooling.h"
 #include "core/translation_helpers.h"
 #include "core/string_formatter.h"
 #include "editor_node.h"
@@ -106,7 +107,7 @@ public:
 
     void notify_changed() {
 
-        _change_notify();
+        Object_change_notify(this);
     }
 
     ConnectDialogBinds() {

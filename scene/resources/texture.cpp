@@ -42,6 +42,7 @@
 #include "core/io/resource_saver.h"
 #include "core/io/resource_loader.h"
 #include "core/method_bind.h"
+#include "core/object_tooling.h"
 #include "core/os/os.h"
 #include "core/plugin_interfaces/ImageLoaderInterface.h"
 #include "scene/resources/bit_map.h"
@@ -200,7 +201,7 @@ void ImageTexture::reload_from_file() {
         create_from_image(img, flags);
     } else {
         Resource::reload_from_file();
-        _change_notify();
+        Object_change_notify(this);
         emit_changed();
     }
 }
@@ -263,7 +264,7 @@ void ImageTexture::_reload_hook(const RID &p_hook) {
 
     VisualServer::get_singleton()->texture_set_data(texture, img);
 
-    _change_notify();
+    Object_change_notify(this);
     emit_changed();
 }
 
@@ -274,7 +275,7 @@ void ImageTexture::create(int p_width, int p_height, Image::Format p_format, uin
     format = p_format;
     w = p_width;
     h = p_height;
-    _change_notify();
+    Object_change_notify(this);
     emit_changed();
 }
 void ImageTexture::create_from_image(const Ref<Image> &p_image, uint32_t p_flags) {
@@ -287,7 +288,7 @@ void ImageTexture::create_from_image(const Ref<Image> &p_image, uint32_t p_flags
 
     VisualServer::get_singleton()->texture_allocate(texture, p_image->get_width(), p_image->get_height(), 0, p_image->get_format(), VS::TEXTURE_TYPE_2D, p_flags);
     VisualServer::get_singleton()->texture_set_data(texture, p_image);
-    _change_notify();
+    Object_change_notify(this);
     emit_changed();
 
     image_stored = true;
@@ -303,7 +304,7 @@ void ImageTexture::set_flags(uint32_t p_flags) {
         return; //uninitialized, do not set to texture
     }
     VisualServer::get_singleton()->texture_set_flags(texture, p_flags);
-    _change_notify("flags");
+    Object_change_notify(this,"flags");
     emit_changed();
 }
 
@@ -316,25 +317,14 @@ Image::Format ImageTexture::get_format() const {
 
     return format;
 }
-#ifndef DISABLE_DEPRECATED
-Error ImageTexture::load(se_string_view p_path) {
 
-    WARN_DEPRECATED
-    Ref<Image> img(make_ref_counted<Image>());
-    Error err = img->load(p_path);
-    if (err == OK) {
-        create_from_image(img);
-    }
-    return err;
-}
-#endif
 void ImageTexture::set_data(const Ref<Image> &p_image) {
 
     ERR_FAIL_COND(not p_image)
 
     VisualServer::get_singleton()->texture_set_data(texture, p_image);
 
-    _change_notify();
+    Object_change_notify(this);
     emit_changed();
 
     alpha_cache.reset(); //TODO: memory de-allocation
@@ -490,9 +480,6 @@ void ImageTexture::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("create", {"width", "height", "format", "flags"}), &ImageTexture::create, {DEFVAL(FLAGS_DEFAULT)});
     MethodBinder::bind_method(D_METHOD("create_from_image", {"image", "flags"}), &ImageTexture::create_from_image, {DEFVAL(FLAGS_DEFAULT)});
     MethodBinder::bind_method(D_METHOD("get_format"), &ImageTexture::get_format);
-#ifndef DISABLE_DEPRECATED
-    MethodBinder::bind_method(D_METHOD("load", {"path"}), &ImageTexture::load);
-#endif
     MethodBinder::bind_method(D_METHOD("set_data", {"image"}), &ImageTexture::set_data);
     MethodBinder::bind_method(D_METHOD("set_storage", {"mode"}), &ImageTexture::set_storage);
     MethodBinder::bind_method(D_METHOD("get_storage"), &ImageTexture::get_storage);
@@ -826,7 +813,7 @@ Error StreamTexture::load(se_string_view p_path) {
     m_impl_data->path_to_file = p_path;
     m_impl_data->format = image->get_format();
 
-    _change_notify();
+    Object_change_notify(this);
     emit_changed();
     return OK;
 }
@@ -918,7 +905,7 @@ bool StreamTexture::is_pixel_opaque(int p_x, int p_y) const {
 void StreamTexture::set_flags(uint32_t p_flags) {
     m_impl_data->flags = p_flags;
     VisualServer::get_singleton()->texture_set_flags(m_impl_data->texture, m_impl_data->flags);
-    _change_notify("flags");
+    Object_change_notify(this,"flags");
     emit_changed();
 }
 
@@ -1050,7 +1037,7 @@ void AtlasTexture::set_atlas(const Ref<Texture> &p_atlas) {
         return;
     atlas = p_atlas;
     emit_changed();
-    _change_notify("atlas");
+    Object_change_notify(this,"atlas");
 }
 Ref<Texture> AtlasTexture::get_atlas() const {
 
@@ -1063,7 +1050,7 @@ void AtlasTexture::set_region(const Rect2 &p_region) {
         return;
     region = p_region;
     emit_changed();
-    _change_notify("region");
+    Object_change_notify(this,"region");
 }
 
 Rect2 AtlasTexture::get_region() const {
@@ -1077,7 +1064,7 @@ void AtlasTexture::set_margin(const Rect2 &p_margin) {
         return;
     margin = p_margin;
     emit_changed();
-    _change_notify("margin");
+    Object_change_notify(this,"margin");
 }
 
 Rect2 AtlasTexture::get_margin() const {
@@ -1089,7 +1076,7 @@ void AtlasTexture::set_filter_clip(const bool p_enable) {
 
     filter_clip = p_enable;
     emit_changed();
-    _change_notify("filter_clip");
+    Object_change_notify(this,"filter_clip");
 }
 
 bool AtlasTexture::has_filter_clip() const {
@@ -2666,7 +2653,7 @@ Ref<Image> CameraTexture::get_data() const {
 
 void CameraTexture::set_camera_feed_id(int p_new_id) {
     camera_feed_id = p_new_id;
-    _change_notify();
+    Object_change_notify(this);
 }
 
 int CameraTexture::get_camera_feed_id() const {
@@ -2675,7 +2662,7 @@ int CameraTexture::get_camera_feed_id() const {
 
 void CameraTexture::set_which_feed(CameraServer::FeedImage p_which) {
     which_feed = p_which;
-    _change_notify();
+    Object_change_notify(this);
 }
 
 CameraServer::FeedImage CameraTexture::get_which_feed() const {
@@ -2686,7 +2673,7 @@ void CameraTexture::set_camera_active(bool p_active) {
     Ref<CameraFeed> feed = CameraServer::get_singleton()->get_feed_by_id(camera_feed_id);
     if (feed) {
         feed->set_active(p_active);
-        _change_notify();
+        Object_change_notify(this);
     }
 }
 

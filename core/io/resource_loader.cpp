@@ -36,6 +36,7 @@
 #include "core/os/file_access.h"
 #include "core/os/os.h"
 #include "core/os/rw_lock.h"
+#include "core/object_tooling.h"
 #include "core/print_string.h"
 #include "core/project_settings.h"
 #include "core/translation.h"
@@ -440,9 +441,9 @@ RES ResourceLoader::load(se_string_view p_path, se_string_view p_type_hint, bool
     if (xl_remapped)
         res->set_as_translation_remapped(true);
 
-#ifdef TOOLS_ENABLED
+    Object_set_edited(res.get(),false);
 
-    res->get_tooling_interface()->set_edited(false);
+#ifdef TOOLS_ENABLED
     if (timestamp_on_load) {
         uint64_t mt = FileAccess::get_modified_time(path);
         //printf("mt %s: %lli\n",remapped_path.utf8().get_data(),mt);

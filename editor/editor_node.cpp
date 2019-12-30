@@ -968,7 +968,7 @@ bool EditorNode::_find_and_save_resource(const RES &p_res, Map<RES, bool> &proce
     }
 
     bool changed = p_res->get_tooling_interface()->is_edited();
-    p_res->get_tooling_interface()->set_edited(false);
+    Object_set_edited(p_res.get(),false);
 
     bool subchanged = _find_and_save_edited_subresources(p_res.get(), processed, flags);
 
@@ -1208,8 +1208,8 @@ int EditorNode::_save_external_resources() {
     // clear later, because user may have put the same subresource in two different resources,
     // which will be shared until the next reload
 
-    for (Ref<Resource> res : edited_subresources) {
-        res->get_tooling_interface()->set_edited(false);
+    for (const Ref<Resource> &res : edited_subresources) {
+        Object_set_edited(res.get(),false);
     }
 
     return saved;
@@ -1500,7 +1500,7 @@ void EditorNode::_dialog_action(se_string_view p_file) {
             ObjectID current = editor_history.get_current();
             Object *current_obj = current > 0 ? ObjectDB::get_instance(current) : nullptr;
             ERR_FAIL_COND(!current_obj)
-            current_obj->_change_notify();
+            Object_change_notify(current_obj);
         } break;
         case SETTINGS_LAYOUT_SAVE: {
 

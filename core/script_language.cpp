@@ -32,6 +32,7 @@
 
 #include "core/core_string_names.h"
 #include "core/project_settings.h"
+#include "core/object_tooling.h"
 #include "core/method_bind.h"
 
 #include "EASTL/sort.h"
@@ -586,7 +587,7 @@ void PlaceHolderScriptInstance::update(const PODVector<PropertyInfo> &p_properti
 
     if (owner && owner->get_script_instance() == this) {
 
-        owner->_change_notify();
+        Object_change_notify(owner);
     }
     //change notify
 

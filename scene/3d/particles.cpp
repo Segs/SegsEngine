@@ -111,7 +111,7 @@ void Particles::set_visibility_aabb(const AABB &p_aabb) {
     visibility_aabb = p_aabb;
     VisualServer::get_singleton()->particles_set_custom_aabb(particles, visibility_aabb);
     update_gizmo();
-    _change_notify("visibility_aabb");
+    Object_change_notify(this,"visibility_aabb");
 }
 void Particles::set_use_local_coordinates(bool p_enable) {
 
@@ -198,7 +198,7 @@ void Particles::set_draw_passes(int p_count) {
     ERR_FAIL_COND(p_count < 1)
     draw_passes.resize(p_count);
     VisualServer::get_singleton()->particles_set_draw_passes(particles, p_count);
-    _change_notify();
+    Object_change_notify(this);
 }
 int Particles::get_draw_passes() const {
 
@@ -330,7 +330,7 @@ void Particles::_notification(int p_what) {
     if (p_what == NOTIFICATION_INTERNAL_PROCESS) {
 
         if (one_shot && !is_emitting()) {
-            _change_notify();
+            Object_change_notify(this);
             set_process_internal(false);
         }
     }

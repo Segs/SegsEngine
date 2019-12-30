@@ -34,6 +34,7 @@
 #include "core/engine.h"
 #include "core/math/camera_matrix.h"
 #include "core/method_bind.h"
+#include "core/object_tooling.h"
 #include "scene/main/scene_tree.h"
 #include "servers/physics_server.h"
 #include "scene/resources/world.h"
@@ -224,7 +225,7 @@ void Camera::set_projection(Camera::Projection p_mode) {
     if (p_mode == PROJECTION_PERSPECTIVE || p_mode == PROJECTION_ORTHOGONAL || p_mode == PROJECTION_FRUSTUM) {
         mode = p_mode;
         _update_camera_mode();
-        _change_notify();
+        Object_change_notify(this);
     }
 }
 
@@ -463,7 +464,7 @@ void Camera::set_keep_aspect_mode(KeepAspect p_aspect) {
     keep_aspect = p_aspect;
     VisualServer::get_singleton()->camera_set_use_vertical_aspect(camera, p_aspect == KEEP_WIDTH);
     _update_camera_mode();
-    _change_notify();
+    Object_change_notify(this);
 }
 
 Camera::KeepAspect Camera::get_keep_aspect_mode() const {
@@ -596,13 +597,13 @@ Camera::Projection Camera::get_projection() const {
 void Camera::set_fov(float p_fov) {
     fov = p_fov;
     _update_camera_mode();
-    _change_notify("fov");
+    Object_change_notify(this,"fov");
 }
 
 void Camera::set_size(float p_size) {
     size = p_size;
     _update_camera_mode();
-    _change_notify("size");
+    Object_change_notify(this,"size");
 }
 
 void Camera::set_znear(float p_znear) {

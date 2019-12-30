@@ -32,8 +32,10 @@
 
 #include "core/message_queue.h"
 #include "core/method_bind.h"
+#include "core/object_tooling.h"
 #include "core/os/input.h"
 #include "core/os/mutex.h"
+#include "core/object_tooling.h"
 #include "editor/animation_track_editor.h"
 #include "scene/main/canvas_layer.h"
 #include "scene/main/scene_tree.h"
@@ -242,7 +244,7 @@ CanvasItemMaterial::LightMode CanvasItemMaterial::get_light_mode() const {
 void CanvasItemMaterial::set_particles_animation(bool p_particles_anim) {
     particles_animation = p_particles_anim;
     _queue_shader_change();
-    _change_notify();
+    Object_change_notify(this);
 }
 
 bool CanvasItemMaterial::get_particles_animation() const {
@@ -437,7 +439,7 @@ void CanvasItem::show() {
         return;
 
     _propagate_visibility_changed(true);
-    _change_notify("visible");
+    Object_change_notify(this,"visible");
 }
 
 void CanvasItem::hide() {
@@ -452,7 +454,7 @@ void CanvasItem::hide() {
         return;
 
     _propagate_visibility_changed(false);
-    _change_notify("visible");
+    Object_change_notify(this,"visible");
 }
 
 CanvasItem *CanvasItem::current_item_drawn = nullptr;
@@ -1084,7 +1086,7 @@ void CanvasItem::set_material(const Ref<Material> &p_material) {
     if (material)
         rid = material->get_rid();
     VisualServer::get_singleton()->canvas_item_set_material(canvas_item, rid);
-    _change_notify(); //properties for material exposed
+    Object_change_notify(this); //properties for material exposed
 }
 
 void CanvasItem::set_use_parent_material(bool p_use_parent_material) {

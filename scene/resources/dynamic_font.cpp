@@ -32,6 +32,7 @@
 #include "dynamic_font.h"
 #include "font_serializers.h"
 
+#include "core/object_tooling.h"
 #include "core/os/file_access.h"
 #include "core/os/mutex.h"
 #include "core/os/os.h"
@@ -707,7 +708,7 @@ void DynamicFont::_reload_cache() {
     }
 
     emit_changed();
-    _change_notify();
+    Object_change_notify(this);
 }
 
 void DynamicFont::set_font_data(const Ref<DynamicFontData> &p_data) {
@@ -716,7 +717,7 @@ void DynamicFont::set_font_data(const Ref<DynamicFontData> &p_data) {
     _reload_cache();
 
     emit_changed();
-    _change_notify();
+    Object_change_notify(this);
 }
 
 Ref<DynamicFontData> DynamicFont::get_font_data() const {
@@ -754,7 +755,7 @@ void DynamicFont::set_outline_color(Color p_color) {
     if (p_color != outline_color) {
         outline_color = p_color;
         emit_changed();
-        _change_notify();
+        Object_change_notify(this);
     }
 }
 
@@ -842,7 +843,7 @@ void DynamicFont::set_spacing(int p_type, int p_value) {
     }
 
     emit_changed();
-    _change_notify();
+    Object_change_notify(this);
 }
 
 float DynamicFont::get_height() const {
@@ -922,9 +923,9 @@ void DynamicFont::add_fallback(const Ref<DynamicFontData> &p_data) {
     if (outline_cache_id.outline_size > 0)
         fallback_outline_data_at_size.push_back(fallbacks.write[fallbacks.size() - 1]->_get_dynamic_font_at_size(outline_cache_id));
 
-    _change_notify();
+    Object_change_notify(this);
     emit_changed();
-    _change_notify();
+    Object_change_notify(this);
 }
 
 int DynamicFont::get_fallback_count() const {
@@ -942,7 +943,7 @@ void DynamicFont::remove_fallback(int p_idx) {
     fallbacks.remove(p_idx);
     fallback_data_at_size.remove(p_idx);
     emit_changed();
-    _change_notify();
+    Object_change_notify(this);
 }
 
 bool DynamicFont::_set(const StringName &p_name, const Variant &p_value) {

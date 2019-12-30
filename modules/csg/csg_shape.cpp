@@ -32,6 +32,7 @@
 
 #include "core/hashfuncs.h"
 #include "core/method_bind.h"
+#include "core/object_tooling.h"
 #include "scene/3d/path.h"
 #include "scene/resources/mesh.h"
 #include "scene/resources/world.h"
@@ -86,7 +87,7 @@ void CSGShape::set_use_collision(bool p_enable) {
         root_collision_instance = RID();
         root_collision_shape.unref();
     }
-    _change_notify();
+    Object_change_notify(this);
 }
 
 bool CSGShape::is_using_collision() const {
@@ -1096,7 +1097,7 @@ void CSGSphere::set_radius(const float p_radius) {
     radius = p_radius;
     _make_dirty();
     update_gizmo();
-    _change_notify("radius");
+    Object_change_notify(this,"radius");
 }
 
 float CSGSphere::get_radius() const {
@@ -1281,7 +1282,7 @@ void CSGBox::set_width(const float p_width) {
     width = p_width;
     _make_dirty();
     update_gizmo();
-    _change_notify("width");
+    Object_change_notify(this,"width");
 }
 
 float CSGBox::get_width() const {
@@ -1292,7 +1293,7 @@ void CSGBox::set_height(const float p_height) {
     height = p_height;
     _make_dirty();
     update_gizmo();
-    _change_notify("height");
+    Object_change_notify(this,"height");
 }
 
 float CSGBox::get_height() const {
@@ -1303,7 +1304,7 @@ void CSGBox::set_depth(const float p_depth) {
     depth = p_depth;
     _make_dirty();
     update_gizmo();
-    _change_notify("depth");
+    Object_change_notify(this,"depth");
 }
 
 float CSGBox::get_depth() const {
@@ -1498,7 +1499,7 @@ void CSGCylinder::set_radius(const float p_radius) {
     radius = p_radius;
     _make_dirty();
     update_gizmo();
-    _change_notify("radius");
+    Object_change_notify(this,"radius");
 }
 
 float CSGCylinder::get_radius() const {
@@ -1509,7 +1510,7 @@ void CSGCylinder::set_height(const float p_height) {
     height = p_height;
     _make_dirty();
     update_gizmo();
-    _change_notify("height");
+    Object_change_notify(this,"height");
 }
 
 float CSGCylinder::get_height() const {
@@ -1725,7 +1726,7 @@ void CSGTorus::set_inner_radius(const float p_inner_radius) {
     inner_radius = p_inner_radius;
     _make_dirty();
     update_gizmo();
-    _change_notify("inner_radius");
+    Object_change_notify(this,"inner_radius");
 }
 
 float CSGTorus::get_inner_radius() const {
@@ -1736,7 +1737,7 @@ void CSGTorus::set_outer_radius(const float p_outer_radius) {
     outer_radius = p_outer_radius;
     _make_dirty();
     update_gizmo();
-    _change_notify("outer_radius");
+    Object_change_notify(this,"outer_radius");
 }
 
 float CSGTorus::get_outer_radius() const {
@@ -2384,7 +2385,7 @@ void CSGPolygon::set_mode(Mode p_mode) {
     mode = p_mode;
     _make_dirty();
     update_gizmo();
-    _change_notify();
+    Object_change_notify(this);
 }
 
 CSGPolygon::Mode CSGPolygon::get_mode() const {

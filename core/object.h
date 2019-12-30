@@ -37,6 +37,8 @@
 #include "core/forward_decls.h"
 #include "core/dictionary.h"
 
+class IObjectTooling;
+
 class GODOT_EXPORT TypeInfo
 {
 public:
@@ -233,20 +235,6 @@ private:
 class ScriptInstance;
 using ObjectID = uint64_t;
 
-class GODOT_EXPORT IObjectTooling {
-public:
-    virtual void set_edited(bool p_edited,bool increment_version=true)=0;
-    virtual bool is_edited() const = 0;
-    //! this function is used to check when something changed beyond a point, it's used mainly for generating previews
-    virtual uint32_t get_edited_version() const =0;
-
-    virtual void editor_set_section_unfold(se_string_view p_section, bool p_unfolded)=0;
-    virtual bool editor_is_section_unfolded(se_string_view p_section) const = 0;
-    virtual const Set<se_string> &editor_get_section_folding() const =0;
-    virtual void editor_clear_section_folding()=0;
-    virtual ~IObjectTooling() = default;
-};
-
 class GODOT_EXPORT Object {
     static constexpr TypeInfo typeInfoStatic = TypeInfo( "Object", nullptr);
 public:
@@ -274,6 +262,7 @@ private:
 #ifdef DEBUG_ENABLED
     friend struct _ObjectDebugLock;
 #endif
+    friend void GODOT_EXPORT Object_change_notify(Object *self,StringName p_property);
     friend bool GODOT_EXPORT predelete_handler(Object *);
     friend void GODOT_EXPORT postinitialize_handler(Object *);
 
@@ -371,11 +360,6 @@ public: //should be protected, but bug in clang++
     _FORCE_INLINE_ static void register_custom_data_to_otdb() {}
 
 public:
-#ifdef TOOLS_ENABLED
-    void _change_notify(StringName p_property = "");
-#else
-    void _change_notify(const char *p_what = "") {}
-#endif
     static const void *get_class_ptr_static() {
         return get_type_info_static();
     }
@@ -383,10 +367,8 @@ public:
     bool _is_gpl_reversed() const { return false; }
 
     _FORCE_INLINE_ ObjectID get_instance_id() const { return _instance_id; }
-    // this is used for editors
 
-    void add_change_receptor(Object *p_receptor);
-    void remove_change_receptor(Object *p_receptor);
+    // this is used for editors
 
     enum {
 

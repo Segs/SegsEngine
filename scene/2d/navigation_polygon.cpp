@@ -32,6 +32,7 @@
 
 #include "core/core_string_names.h"
 #include "core/method_bind.h"
+#include "core/object_tooling.h"
 #include "core/engine.h"
 #include "core/translation_helpers.h"
 #include "navigation_2d.h"
@@ -480,7 +481,7 @@ void NavigationPolygonInstance::set_navigation_polygon(const Ref<NavigationPolyg
         nav_id = navigation->navpoly_add(navpoly, get_relative_transform_to_parent(navigation), this);
     }
 
-    _change_notify("navpoly");
+    Object_change_notify(this,"navpoly");
     update_configuration_warning();
 }
 

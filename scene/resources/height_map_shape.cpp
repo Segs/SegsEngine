@@ -110,8 +110,8 @@ void HeightMapShape::set_map_width(int p_new) {
 
         _update_shape();
         notify_change_to_owners();
-        _change_notify("map_width");
-        _change_notify("map_data");
+        Object_change_notify(this,"map_width");
+        Object_change_notify(this,"map_data");
     }
 }
 
@@ -136,8 +136,8 @@ void HeightMapShape::set_map_depth(int p_new) {
 
         _update_shape();
         notify_change_to_owners();
-        _change_notify("map_depth");
-        _change_notify("map_data");
+        Object_change_notify(this,"map_depth");
+        Object_change_notify(this,"map_data");
     }
 }
 
@@ -172,7 +172,7 @@ void HeightMapShape::set_map_data(const PoolRealArray& p_new) {
 
     _update_shape();
     notify_change_to_owners();
-    _change_notify("map_data");
+    Object_change_notify(this,"map_data");
 }
 
 PoolRealArray HeightMapShape::get_map_data() const {

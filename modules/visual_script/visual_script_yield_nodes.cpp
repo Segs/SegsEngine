@@ -157,7 +157,7 @@ void VisualScriptYield::set_yield_mode(YieldMode p_mode) {
         return;
     yield_mode = p_mode;
     ports_changed_notify();
-    _change_notify();
+    Object_change_notify(this);
 }
 
 VisualScriptYield::YieldMode VisualScriptYield::get_yield_mode() {
@@ -345,7 +345,7 @@ void VisualScriptYieldSignal::set_base_type(const StringName &p_type) {
 
     base_type = p_type;
 
-    _change_notify();
+    Object_change_notify(this);
     ports_changed_notify();
 }
 
@@ -361,7 +361,7 @@ void VisualScriptYieldSignal::set_signal(const StringName &p_type) {
 
     signal = p_type;
 
-    _change_notify();
+    Object_change_notify(this);
     ports_changed_notify();
 }
 StringName VisualScriptYieldSignal::get_signal() const {
@@ -376,7 +376,7 @@ void VisualScriptYieldSignal::set_base_path(const NodePath &p_type) {
 
     base_path = p_type;
 
-    _change_notify();
+    Object_change_notify(this);
     ports_changed_notify();
 }
 
@@ -392,7 +392,7 @@ void VisualScriptYieldSignal::set_call_mode(CallMode p_mode) {
 
     call_mode = p_mode;
 
-    _change_notify();
+    Object_change_notify(this);
     ports_changed_notify();
 }
 

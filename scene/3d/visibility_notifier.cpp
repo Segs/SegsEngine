@@ -32,6 +32,7 @@
 
 #include "core/engine.h"
 #include "core/method_bind.h"
+#include "core/object_tooling.h"
 #include "scene/3d/camera.h"
 #include "scene/3d/physics_body.h"
 #include "scene/animation/animation_player.h"
@@ -77,7 +78,7 @@ void VisibilityNotifier::set_aabb(const AABB &p_aabb) {
         get_world()->_update_notifier(this, get_global_transform().xform(aabb));
     }
 
-    _change_notify("aabb");
+    Object_change_notify(this,"aabb");
     update_gizmo();
 }
 

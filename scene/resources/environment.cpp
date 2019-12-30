@@ -30,6 +30,7 @@
 
 #include "environment.h"
 
+#include "core/object_tooling.h"
 #include "core/project_settings.h"
 #include "servers/visual_server.h"
 #include "scene/resources/texture.h"
@@ -54,7 +55,7 @@ void Environment::set_background(BGMode p_bg) {
 
     bg_mode = p_bg;
     VisualServer::get_singleton()->environment_set_background(environment, VS::EnvironmentBG(p_bg));
-    _change_notify();
+    Object_change_notify(this);
 }
 
 void Environment::set_sky(const Ref<Sky> &p_sky) {
@@ -76,21 +77,21 @@ void Environment::set_sky_custom_fov(float p_scale) {
 void Environment::set_sky_orientation(const Basis &p_orientation) {
 
     bg_sky_orientation = p_orientation;
-    _change_notify("background_sky_rotation");
-    _change_notify("background_sky_rotation_degrees");
+    Object_change_notify(this,"background_sky_rotation");
+    Object_change_notify(this,"background_sky_rotation_degrees");
     VisualServer::get_singleton()->environment_set_sky_orientation(environment, bg_sky_orientation);
 }
 void Environment::set_sky_rotation(const Vector3 &p_euler_rad) {
 
     bg_sky_orientation.set_euler(p_euler_rad);
-    _change_notify("background_sky_orientation");
-    _change_notify("background_sky_rotation_degrees");
+    Object_change_notify(this,"background_sky_orientation");
+    Object_change_notify(this,"background_sky_rotation_degrees");
     VisualServer::get_singleton()->environment_set_sky_orientation(environment, bg_sky_orientation);
 }
 void Environment::set_sky_rotation_degrees(const Vector3 &p_euler_deg) {
 
     set_sky_rotation(p_euler_deg * Math_PI / 180.0);
-    _change_notify("background_sky_rotation");
+    Object_change_notify(this,"background_sky_rotation");
 }
 void Environment::set_bg_color(const Color &p_color) {
 
@@ -223,7 +224,7 @@ void Environment::set_tonemap_auto_exposure(bool p_enabled) {
 
     tonemap_auto_exposure = p_enabled;
     VisualServer::get_singleton()->environment_set_tonemap(environment, VS::EnvironmentToneMapper(tone_mapper), tonemap_exposure, tonemap_white, tonemap_auto_exposure, tonemap_auto_exposure_min, tonemap_auto_exposure_max, tonemap_auto_exposure_speed, tonemap_auto_exposure_grey);
-    _change_notify();
+    Object_change_notify(this);
 }
 bool Environment::get_tonemap_auto_exposure() const {
 
@@ -274,7 +275,7 @@ void Environment::set_adjustment_enable(bool p_enable) {
 
     adjustment_enabled = p_enable;
     VisualServer::get_singleton()->environment_set_adjustment(environment, adjustment_enabled, adjustment_brightness, adjustment_contrast, adjustment_saturation, adjustment_color_correction ? adjustment_color_correction->get_rid() : RID());
-    _change_notify();
+    Object_change_notify(this);
 }
 
 bool Environment::is_adjustment_enabled() const {
@@ -393,7 +394,7 @@ void Environment::set_ssr_enabled(bool p_enable) {
 
     ssr_enabled = p_enable;
     VisualServer::get_singleton()->environment_set_ssr(environment, ssr_enabled, ssr_max_steps, ssr_fade_in, ssr_fade_out, ssr_depth_tolerance, ssr_roughness);
-    _change_notify();
+    Object_change_notify(this);
 }
 
 bool Environment::is_ssr_enabled() const {
@@ -455,7 +456,7 @@ void Environment::set_ssao_enabled(bool p_enable) {
 
     ssao_enabled = p_enable;
     VisualServer::get_singleton()->environment_set_ssao(environment, ssao_enabled, ssao_radius, ssao_intensity, ssao_radius2, ssao_intensity2, ssao_bias, ssao_direct_light_affect, ssao_ao_channel_affect, ssao_color, VS::EnvironmentSSAOQuality(ssao_quality), VS::EnvironmentSSAOBlur(ssao_blur), ssao_edge_sharpness);
-    _change_notify();
+    Object_change_notify(this);
 }
 
 bool Environment::is_ssao_enabled() const {
@@ -581,7 +582,7 @@ void Environment::set_glow_enabled(bool p_enabled) {
 
     glow_enabled = p_enabled;
     VisualServer::get_singleton()->environment_set_glow(environment, glow_enabled, glow_levels, glow_intensity, glow_strength, glow_bloom, VS::EnvironmentGlowBlendMode(glow_blend_mode), glow_hdr_bleed_threshold, glow_hdr_bleed_threshold, glow_hdr_luminance_cap, glow_bicubic_upscale);
-    _change_notify();
+    Object_change_notify(this);
 }
 
 bool Environment::is_glow_enabled() const {
@@ -698,7 +699,7 @@ void Environment::set_dof_blur_far_enabled(bool p_enable) {
 
     dof_blur_far_enabled = p_enable;
     VisualServer::get_singleton()->environment_set_dof_blur_far(environment, dof_blur_far_enabled, dof_blur_far_distance, dof_blur_far_transition, dof_blur_far_amount, VS::EnvironmentDOFBlurQuality(dof_blur_far_quality));
-    _change_notify();
+    Object_change_notify(this);
 }
 
 bool Environment::is_dof_blur_far_enabled() const {
@@ -751,7 +752,7 @@ void Environment::set_dof_blur_near_enabled(bool p_enable) {
 
     dof_blur_near_enabled = p_enable;
     VisualServer::get_singleton()->environment_set_dof_blur_near(environment, dof_blur_near_enabled, dof_blur_near_distance, dof_blur_near_transition, dof_blur_near_amount, VS::EnvironmentDOFBlurQuality(dof_blur_near_quality));
-    _change_notify();
+    Object_change_notify(this);
 }
 
 bool Environment::is_dof_blur_near_enabled() const {
@@ -807,7 +808,7 @@ void Environment::set_fog_enabled(bool p_enabled) {
 
     fog_enabled = p_enabled;
     VisualServer::get_singleton()->environment_set_fog(environment, fog_enabled, fog_color, fog_sun_color, fog_sun_amount);
-    _change_notify();
+    Object_change_notify(this);
 }
 
 bool Environment::is_fog_enabled() const {

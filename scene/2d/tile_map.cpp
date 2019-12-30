@@ -186,7 +186,7 @@ void TileMap::set_tileset(const Ref<TileSet> &p_tileset) {
 
     if (tile_set) {
         tile_set->disconnect("changed", this, "_recreate_quadrants");
-        tile_set->remove_change_receptor(this);
+        Object_remove_change_receptor(tile_set.get(),this);
     }
 
     _clear_quadrants();
@@ -194,7 +194,7 @@ void TileMap::set_tileset(const Ref<TileSet> &p_tileset) {
 
     if (tile_set) {
         tile_set->connect("changed", this, "_recreate_quadrants");
-        tile_set->add_change_receptor(this);
+        Object_add_change_receptor(tile_set.get(),this);
     } else {
         clear();
     }
@@ -1378,7 +1378,7 @@ void TileMap::set_collision_use_parent(bool p_use_parent) {
     }
 
     _recreate_quadrants();
-    _change_notify();
+    Object_change_notify(this);
     update_configuration_warning();
 }
 
@@ -1985,7 +1985,7 @@ TileMap::TileMap() {
 TileMap::~TileMap() {
 
     if (tile_set)
-        tile_set->remove_change_receptor(this);
+        Object_remove_change_receptor(tile_set.get(),this);
 
     clear();
 }

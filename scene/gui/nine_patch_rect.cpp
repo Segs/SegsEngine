@@ -105,7 +105,7 @@ void NinePatchRect::set_texture(const Ref<Texture> &p_tex) {
     */
     minimum_size_changed();
     emit_signal("texture_changed");
-    _change_notify("texture");
+    Object_change_notify(this,"texture");
 }
 
 Ref<Texture> NinePatchRect::get_texture() const {
@@ -121,16 +121,16 @@ void NinePatchRect::set_patch_margin(Margin p_margin, int p_size) {
     minimum_size_changed();
     switch (p_margin) {
         case MARGIN_LEFT:
-            _change_notify("patch_margin_left");
+            Object_change_notify(this,"patch_margin_left");
             break;
         case MARGIN_TOP:
-            _change_notify("patch_margin_top");
+            Object_change_notify(this,"patch_margin_top");
             break;
         case MARGIN_RIGHT:
-            _change_notify("patch_margin_right");
+            Object_change_notify(this,"patch_margin_right");
             break;
         case MARGIN_BOTTOM:
-            _change_notify("patch_margin_bottom");
+            Object_change_notify(this,"patch_margin_bottom");
             break;
     }
 }
@@ -149,7 +149,7 @@ void NinePatchRect::set_region_rect(const Rect2 &p_region_rect) {
     region_rect = p_region_rect;
 
     item_rect_changed();
-    _change_notify("region_rect");
+    Object_change_notify(this,"region_rect");
 }
 
 Rect2 NinePatchRect::get_region_rect() const {

@@ -29,6 +29,7 @@
 /*************************************************************************/
 
 #include "audio_stream_player.h"
+#include "core/object_tooling.h"
 #include "core/method_bind.h"
 
 #include "core/engine.h"
@@ -370,7 +371,7 @@ void AudioStreamPlayer::_validate_property(PropertyInfo &property) const {
 
 void AudioStreamPlayer::_bus_layout_changed() {
 
-    _change_notify();
+    Object_change_notify(this);
 }
 
 Ref<AudioStreamPlayback> AudioStreamPlayer::get_stream_playback() {

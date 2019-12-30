@@ -29,6 +29,7 @@
 /*************************************************************************/
 
 #include "theme.h"
+#include "core/object_tooling.h"
 #include "core/os/file_access.h"
 #include "core/print_string.h"
 #include "core/method_bind.h"
@@ -268,7 +269,7 @@ void Theme::set_default_theme_font(const Ref<Font> &p_default_font) {
         default_theme_font->connect("changed", this, "_emit_theme_changed", varray(), ObjectNS::CONNECT_REFERENCE_COUNTED);
     }
 
-    _change_notify();
+    Object_change_notify(this);
     emit_changed();
 }
 
@@ -333,7 +334,7 @@ void Theme::set_icon(const StringName &p_name, const StringName &p_type, const R
     }
 
     if (new_value) {
-        _change_notify();
+        Object_change_notify(this);
         emit_changed();
     }
 }
@@ -364,7 +365,7 @@ void Theme::clear_icon(const StringName &p_name, const StringName &p_type) {
 
     icon_map[p_type].erase(p_name);
 
-    _change_notify();
+    Object_change_notify(this);
     emit_changed();
 }
 
@@ -386,7 +387,7 @@ void Theme::set_shader(const StringName &p_name, const StringName &p_type, const
     shader_map[p_type][p_name] = p_shader;
 
     if (new_value) {
-        _change_notify();
+        Object_change_notify(this);
         emit_changed();
     }
 }
@@ -408,7 +409,7 @@ void Theme::clear_shader(const StringName &p_name, const StringName &p_type) {
     ERR_FAIL_COND(!shader_map[p_type].contains(p_name))
 
     shader_map[p_type].erase(p_name);
-    _change_notify();
+    Object_change_notify(this);
     emit_changed();
 }
 
@@ -441,7 +442,7 @@ void Theme::set_stylebox(const StringName &p_name, const StringName &p_type, con
     }
 
     if (new_value)
-        _change_notify();
+        Object_change_notify(this);
     emit_changed();
 }
 
@@ -471,7 +472,7 @@ void Theme::clear_stylebox(const StringName &p_name, const StringName &p_type) {
 
     style_map[p_type].erase(p_name);
 
-    _change_notify();
+    Object_change_notify(this);
     emit_changed();
 }
 
@@ -512,7 +513,7 @@ void Theme::set_font(const StringName &p_name, const StringName &p_type, const R
     }
 
     if (new_value) {
-        _change_notify();
+        Object_change_notify(this);
         emit_changed();
     }
 }
@@ -541,7 +542,7 @@ void Theme::clear_font(const StringName &p_name, const StringName &p_type) {
     }
 
     font_map[p_type].erase(p_name);
-    _change_notify();
+    Object_change_notify(this);
     emit_changed();
 }
 
@@ -565,7 +566,7 @@ void Theme::set_color(const StringName &p_name, const StringName &p_type, const 
     color_map[p_type][p_name] = p_color;
 
     if (new_value) {
-        _change_notify();
+        Object_change_notify(this);
         emit_changed();
     }
 }
@@ -589,7 +590,7 @@ void Theme::clear_color(const StringName &p_name, const StringName &p_type) {
     ERR_FAIL_COND(!color_map[p_type].contains(p_name))
 
     color_map[p_type].erase(p_name);
-    _change_notify();
+    Object_change_notify(this);
     emit_changed();
 }
 
@@ -612,7 +613,7 @@ void Theme::set_constant(const StringName &p_name, const StringName &p_type, int
     constant_map[p_type][p_name] = p_constant;
 
     if (new_value) {
-        _change_notify();
+        Object_change_notify(this);
         emit_changed();
     }
 }
@@ -637,7 +638,7 @@ void Theme::clear_constant(const StringName &p_name, const StringName &p_type) {
     ERR_FAIL_COND(!constant_map[p_type].contains(p_name))
 
     constant_map[p_type].erase(p_name);
-    _change_notify();
+    Object_change_notify(this);
     emit_changed();
 }
 
@@ -697,7 +698,7 @@ void Theme::clear() {
     color_map.clear();
     constant_map.clear();
 
-    _change_notify();
+    Object_change_notify(this);
     emit_changed();
 }
 
@@ -749,7 +750,7 @@ void Theme::copy_theme(const Ref<Theme> &p_other) {
     constant_map = p_other->constant_map;
     shader_map = p_other->shader_map;
 
-    _change_notify();
+    Object_change_notify(this);
     emit_changed();
 }
 

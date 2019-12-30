@@ -31,6 +31,7 @@
 #include "noise_texture.h"
 
 #include "core/method_bind.h"
+#include "core/object_tooling.h"
 #include "core/core_string_names.h"
 #include "servers/visual_server.h"
 
@@ -220,7 +221,7 @@ void NoiseTexture::set_as_normalmap(bool p_as_normalmap) {
     if (p_as_normalmap == as_normalmap) return;
     as_normalmap = p_as_normalmap;
     _queue_update();
-    _change_notify();
+    Object_change_notify(this);
 }
 
 bool NoiseTexture::is_normalmap() {

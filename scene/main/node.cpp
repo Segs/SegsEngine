@@ -483,7 +483,7 @@ void Node::set_physics_process(bool p_process) {
     else
         remove_from_group("physics_process");
 
-    _change_notify("physics_process");
+    Object_change_notify(this,"physics_process");
 }
 
 bool Node::is_physics_processing() const {
@@ -503,7 +503,7 @@ void Node::set_physics_process_internal(bool p_process_internal) {
     else
         remove_from_group("physics_process_internal");
 
-    _change_notify("physics_process_internal");
+    Object_change_notify(this,"physics_process_internal");
 }
 
 bool Node::is_physics_processing_internal() const {
@@ -890,7 +890,7 @@ void Node::set_process(bool p_idle_process) {
     else
         remove_from_group("idle_process");
 
-    _change_notify("idle_process");
+    Object_change_notify(this,"idle_process");
 }
 
 bool Node::is_processing() const {
@@ -910,7 +910,7 @@ void Node::set_process_internal(bool p_idle_process_internal) {
     else
         remove_from_group("idle_process_internal");
 
-    _change_notify("idle_process_internal");
+    Object_change_notify(this,"idle_process_internal");
 }
 
 bool Node::is_processing_internal() const {

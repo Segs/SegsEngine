@@ -155,8 +155,8 @@ set(core_sources
     method_enum_caster.h
     method_info.h
     method_ptrcall.h
-    object.cpp
-    object.h
+    object_tooling.h
+    object_tooling.cpp
     object_db.h
     packed_data_container.cpp
     packed_data_container.h
@@ -302,6 +302,9 @@ set(generic_core_sources
     timing_assert.h
     typedefs.h
 
+    object.cpp
+    object.h
+
     property_info.cpp
     property_info.h
     typesystem_decls.h
@@ -349,6 +352,7 @@ add_subdirectory(service_interfaces)
 add_subdirectory(crypto)
 
 add_library(se_core STATIC ${generic_core_sources})
+set_target_properties(se_core PROPERTIES AUTOMOC TRUE)
 #target_precompile_headers(se_core PRIVATE precompiled.h)
 if(USE_UNITY_BUILDS)
     set_target_properties(se_core PROPERTIES UNITY_BUILD ON)
@@ -376,10 +380,13 @@ foreach(tgt ${global_targets})
     target_link_libraries(${tgt}_core PUBLIC se_core)
     target_link_libraries(${tgt}_core PUBLIC EASTL_Import zlib_interface)
 
+
+
     target_link_libraries(${tgt}_engine PRIVATE EASTL )
     target_link_libraries(${tgt}_engine INTERFACE EASTL_Import )
     target_link_libraries(${tgt}_engine PRIVATE minizip)
     target_link_libraries(${tgt}_engine INTERFACE minizip_interface)
+    set_target_properties(${tgt}_engine PROPERTIES AUTOMOC TRUE)
     INSTALL (
         DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
         DESTINATION include/SegsEngine

@@ -422,7 +422,7 @@ void Tabs::set_current_tab(int p_current) {
 
     current = p_current;
 
-    _change_notify("current_tab");
+    Object_change_notify(this,"current_tab");
     _update_cache();
     update();
 

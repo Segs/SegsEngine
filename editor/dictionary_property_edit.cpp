@@ -31,16 +31,17 @@
 #include "dictionary_property_edit.h"
 #include "core/method_bind.h"
 #include "core/object_db.h"
+#include "core/object_tooling.h"
 #include "editor_node.h"
 
 IMPL_GDCLASS(DictionaryPropertyEdit)
 
 void DictionaryPropertyEdit::_notif_change() {
-    _change_notify();
+    Object_change_notify(this);
 }
 
 void DictionaryPropertyEdit::_notif_changev(const se_string &p_v) {
-    _change_notify(StringName(p_v));
+    Object_change_notify(this,StringName(p_v));
 }
 
 void DictionaryPropertyEdit::_set_key(const Variant &p_old_key, const Variant &p_new_key) {

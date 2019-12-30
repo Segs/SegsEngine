@@ -32,6 +32,7 @@
 
 #include "core/method_bind.h"
 #include "core/io/resource_saver.h"
+#include "core/object_tooling.h"
 #include "core/os/keyboard.h"
 #include "core/project_settings.h"
 #include "core/string_formatter.h"
@@ -1083,12 +1084,12 @@ void EditorAudioBuses::_notification(int p_what) {
                     Ref<AudioEffect> effect = AudioServer::get_singleton()->get_bus_effect(i, j);
                     if (effect->get_tooling_interface()->is_edited()) {
                         edited = true;
-                        effect->get_tooling_interface()->set_edited(false);
+                        Object_set_edited(effect.get(),false);
                     }
                 }
             }
 
-            AudioServer::get_singleton()->get_tooling_interface()->set_edited(false);
+            Object_set_edited(AudioServer::get_singleton(),false);
 
             if (edited) {
                 save_timer->start();

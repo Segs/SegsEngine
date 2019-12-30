@@ -131,9 +131,6 @@ public:
     void set_flags(uint32_t p_flags) override;
     uint32_t get_flags() const override;
     Image::Format get_format() const;
-#ifndef DISABLE_DEPRECATED
-    Error load(se_string_view p_path);
-#endif
     void set_data(const Ref<Image> &p_image);
     Ref<Image> get_data() const override;
 

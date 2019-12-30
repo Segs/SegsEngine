@@ -30,6 +30,7 @@
 
 #include "audio_stream_player_3d.h"
 #include "core/engine.h"
+#include "core/object_tooling.h"
 #include "scene/3d/area.h"
 #include "scene/3d/camera.h"
 #include "scene/3d/listener.h"
@@ -807,7 +808,7 @@ void AudioStreamPlayer3D::_validate_property(PropertyInfo &property) const {
 
 void AudioStreamPlayer3D::_bus_layout_changed() {
 
-    _change_notify();
+    Object_change_notify(this);
 }
 
 void AudioStreamPlayer3D::set_max_distance(float p_metres) {
@@ -844,7 +845,7 @@ void AudioStreamPlayer3D::set_emission_angle(float p_angle) {
     ERR_FAIL_COND(p_angle < 0 || p_angle > 90)
     emission_angle = p_angle;
     update_gizmo();
-    _change_notify("emission_angle");
+    Object_change_notify(this,"emission_angle");
 }
 
 float AudioStreamPlayer3D::get_emission_angle() const {

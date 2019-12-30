@@ -38,6 +38,7 @@
 #include "core/project_settings.h"
 #include "core/string_utils.h"
 #include "core/script_language.h"
+#include "core/object_tooling.h"
 
 #include "scene/resources/texture.h"
 #include "EASTL/deque.h"
@@ -144,12 +145,10 @@ Error ResourceSaver::save(se_string_view p_path, const RES &p_resource, uint32_t
 
         if (err == OK) {
 
+            Object_set_edited(p_resource.get(),false);
 #ifdef TOOLS_ENABLED
-
-            p_resource->get_tooling_interface()->set_edited(false);
             if (timestamp_on_save) {
                 uint64_t mt = FileAccess::get_modified_time(p_path);
-
                 p_resource->set_last_modified_time(mt);
             }
 #endif

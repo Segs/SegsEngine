@@ -34,6 +34,7 @@
 #include "scene/scene_string_names.h"
 #include "scene/main/scene_tree.h"
 #include "core/method_bind.h"
+#include "core/object_tooling.h"
 #include "core/translation_helpers.h"
 
 #ifdef TOOLS_ENABLED
@@ -343,8 +344,8 @@ void PathFollow2D::set_offset(float p_offset) {
 
         _update_transform();
     }
-    _change_notify("offset");
-    _change_notify("unit_offset");
+    Object_change_notify(this,"offset");
+    Object_change_notify(this,"unit_offset");
 }
 
 void PathFollow2D::set_h_offset(float p_h_offset) {

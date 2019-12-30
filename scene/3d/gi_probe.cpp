@@ -35,6 +35,7 @@
 #include "mesh_instance.h"
 #include "voxel_light_baker.h"
 #include "core/method_bind.h"
+#include "core/object_tooling.h"
 #include "core/translation_helpers.h"
 #include "scene/main/scene_tree.h"
 
@@ -250,7 +251,7 @@ void GIProbe::set_extents(const Vector3 &p_extents) {
 
     extents = p_extents;
     update_gizmo();
-    _change_notify("extents");
+    Object_change_notify(this,"extents");
 }
 
 Vector3 GIProbe::get_extents() const {

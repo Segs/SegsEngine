@@ -55,7 +55,7 @@ public:
             values[p_name] = p_value;
             if (checking) {
                 checked.insert(p_name);
-                _change_notify(p_name);
+                Object_change_notify(this,p_name);
             }
             return true;
         }
@@ -89,7 +89,7 @@ public:
     }
 
     void update() {
-        _change_notify();
+        Object_change_notify(this);
     }
 
     ImportDockParameters() {

@@ -36,6 +36,7 @@
 #include "core/method_bind.h"
 #include "core/object.h"
 #include "core/object_db.h"
+#include "core/object_tooling.h"
 #include "core/script_language.h"
 #include "core/rid.h"
 #include "scene/scene_string_names.h"
@@ -552,8 +553,8 @@ void RigidBody::set_mass(real_t p_mass) {
 
     ERR_FAIL_COND(p_mass <= 0)
     mass = p_mass;
-    _change_notify("mass");
-    _change_notify("weight");
+    Object_change_notify(this,"mass");
+    Object_change_notify(this,"weight");
     PhysicsServer::get_singleton()->body_set_param(get_rid(), PhysicsServer::BODY_PARAM_MASS, mass);
 }
 real_t RigidBody::get_mass() const {
@@ -2356,8 +2357,8 @@ void PhysicalBone::set_joint_type(JointType p_joint_type) {
 
     _reload_joint();
 
+    Object_change_notify(this);
 #ifdef TOOLS_ENABLED
-    _change_notify();
     if (get_gizmo())
         get_gizmo()->redraw();
 #endif

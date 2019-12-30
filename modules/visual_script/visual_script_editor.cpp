@@ -34,10 +34,12 @@
 #include "core/method_bind.h"
 #include "core/object.h"
 #include "core/object_db.h"
+#include "core/object_tooling.h"
 #include "core/os/input.h"
 #include "core/os/keyboard.h"
 #include "core/script_language.h"
 #include "core/string_formatter.h"
+#include "core/object_tooling.h"
 #include "core/property_info.h"
 #include "core/se_string.h"
 #include "core/translation_helpers.h"
@@ -81,7 +83,7 @@ protected:
 
     void _sig_changed() {
 
-        _change_notify();
+        Object_change_notify(this);
         emit_signal("changed");
     }
 
@@ -199,7 +201,7 @@ public:
     void edit(const StringName &p_sig) {
 
         sig = p_sig;
-        _change_notify();
+        Object_change_notify(this);
     }
 
     VisualScriptEditorSignalEdit() { undo_redo = nullptr; }
@@ -225,12 +227,12 @@ protected:
 
     void _var_changed() {
 
-        _change_notify();
+        Object_change_notify(this);
         emit_signal("changed");
     }
     void _var_value_changed() {
 
-        _change_notify("value"); //so the whole tree is not redrawn, makes editing smoother in general
+        Object_change_notify(this,"value"); //so the whole tree is not redrawn, makes editing smoother in general
         emit_signal("changed");
     }
 
@@ -353,7 +355,7 @@ public:
     void edit(const StringName &p_var) {
 
         var = p_var;
-        _change_notify();
+        Object_change_notify(this);
     }
 
     VisualScriptEditorVariableEdit() { undo_redo = nullptr; }
@@ -2418,7 +2420,7 @@ void VisualScriptEditor::set_edited_resource(const RES &p_res) {
     if (!script->has_function(default_func)) // this is the supposed default function
     {
         script->add_function(default_func);
-        script->get_tooling_interface()->set_edited(true); //so that if a function was added it's saved
+        Object_set_edited(script.get(),true); //so that if a function was added it's saved
     }
 
     _update_graph();
@@ -2511,7 +2513,7 @@ void VisualScriptEditor::_center_on_node(const StringName &p_func, int p_id) {
         Vector2 new_scroll = gn->get_offset() - graph->get_size() * 0.5f + gn->get_size() * 0.5f;
         graph->set_scroll_ofs(new_scroll);
         script->set_function_scroll(p_func, new_scroll / EDSCALE);
-        script->get_tooling_interface()->set_edited(true);
+        Object_set_edited(script.get(),true);
     }
 }
 
@@ -3965,7 +3967,7 @@ void VisualScriptEditor::_graph_ofs_changed(const Vector2 &p_ofs) {
     // Just use the default func for all the properties that need to be handled for drawing rather than adding to the Visual Script Class
     if (script->has_function(default_func)) {
         script->set_function_scroll(default_func, graph->get_scroll_ofs() / EDSCALE);
-        script->get_tooling_interface()->set_edited(true);
+        Object_set_edited(script.get(),true);
     }
     updating_graph = false;
 }

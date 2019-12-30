@@ -241,7 +241,7 @@ void Button::set_text(const StringName &p_text) {
     text = p_text;
     xl_text = tr(p_text);
     update();
-    _change_notify("text");
+    Object_change_notify(this,"text");
     minimum_size_changed();
 }
 void Button::set_text_utf8(se_string_view p_text)
@@ -251,7 +251,7 @@ void Button::set_text_utf8(se_string_view p_text)
     text = StringName(p_text);
     xl_text = tr(text);
     update();
-    _change_notify("text");
+    Object_change_notify(this,"text");
     minimum_size_changed();
 
 }
@@ -267,7 +267,7 @@ void Button::set_icon(const Ref<Texture> &p_icon) {
         return;
     icon = p_icon;
     update();
-    _change_notify("icon");
+    Object_change_notify(this,"icon");
     minimum_size_changed();
 }
 
@@ -292,7 +292,7 @@ void Button::set_flat(bool p_flat) {
 
     flat = p_flat;
     update();
-    _change_notify("flat");
+    Object_change_notify(this,"flat");
 }
 
 bool Button::is_flat() const {

@@ -530,8 +530,8 @@ void RigidBody2D::set_mass(real_t p_mass) {
 
     ERR_FAIL_COND(p_mass <= 0)
     mass = p_mass;
-    _change_notify("mass");
-    _change_notify("weight");
+    Object_change_notify(this,"mass");
+    Object_change_notify(this,"weight");
     Physics2DServer::get_singleton()->body_set_param(get_rid(), Physics2DServer::BODY_PARAM_MASS, mass);
 }
 real_t RigidBody2D::get_mass() const {

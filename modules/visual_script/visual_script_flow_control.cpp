@@ -681,7 +681,7 @@ bool VisualScriptSwitch::_set(const StringName &p_name, const Variant &p_value) 
 
     if (p_name == "case_count") {
         case_values.resize(p_value);
-        _change_notify();
+        Object_change_notify(this);
         ports_changed_notify();
         return true;
     }
@@ -692,7 +692,7 @@ bool VisualScriptSwitch::_set(const StringName &p_name, const Variant &p_value) 
         ERR_FAIL_INDEX_V(idx, case_values.size(), false)
 
         case_values.write[idx].type = VariantType(int(p_value));
-        _change_notify();
+        Object_change_notify(this);
         ports_changed_notify();
 
         return true;
@@ -794,7 +794,7 @@ void VisualScriptTypeCast::set_base_type(const StringName &p_type) {
         return;
 
     base_type = p_type;
-    _change_notify();
+    Object_change_notify(this);
     ports_changed_notify();
 }
 
@@ -809,7 +809,7 @@ void VisualScriptTypeCast::set_base_script(se_string_view p_path) {
         return;
 
     script = p_path;
-    _change_notify();
+    Object_change_notify(this);
     ports_changed_notify();
 }
 const se_string &VisualScriptTypeCast::get_base_script() const {

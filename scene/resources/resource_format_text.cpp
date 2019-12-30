@@ -1689,9 +1689,7 @@ Error ResourceFormatSaverTextInstance::save(se_string_view p_path, const RES &p_
             }
 
             internal_resources[res] = idx;
-#ifdef TOOLS_ENABLED
-            res->get_tooling_interface()->set_edited(false);
-#endif
+            Object_set_edited(res.get(),false);
         }
 
         ListPOD<PropertyInfo> property_list;

@@ -36,6 +36,7 @@
 #include "scene/resources/surface_tool.h"
 #include "scene/main/scene_tree.h"
 #include "core/method_bind.h"
+#include "core/object_tooling.h"
 
 IMPL_GDCLASS(Light)
 IMPL_GDCLASS(DirectionalLight)
@@ -64,11 +65,11 @@ void Light::set_param(Param p_param, float p_value) {
         update_gizmo();
 
         if (p_param == PARAM_SPOT_ANGLE) {
-            _change_notify("spot_angle");
+            Object_change_notify(this,"spot_angle");
             update_configuration_warning();
         } else if (p_param == PARAM_RANGE) {
-            _change_notify("omni_range");
-            _change_notify("spot_range");
+            Object_change_notify(this,"omni_range");
+            Object_change_notify(this,"spot_range");
         }
     }
 }
@@ -201,7 +202,7 @@ void Light::_update_visibility() {
 
     VisualServer::get_singleton()->instance_set_visible(get_instance(), is_visible_in_tree() && editor_ok);
 
-    _change_notify("geometry/visible");
+    Object_change_notify(this,"geometry/visible");
 }
 
 void Light::_notification(int p_what) {

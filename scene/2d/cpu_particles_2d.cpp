@@ -31,6 +31,7 @@
 #include "cpu_particles_2d.h"
 
 #include "core/method_bind.h"
+#include "core/object_tooling.h"
 #include "core/os/mutex.h"
 #include "core/translation_helpers.h"
 #include "scene/2d/canvas_item.h"
@@ -388,7 +389,7 @@ bool CPUParticles2D::get_particle_flag(Flags p_flag) const {
 void CPUParticles2D::set_emission_shape(EmissionShape p_shape) {
 
     emission_shape = p_shape;
-    _change_notify();
+    Object_change_notify(this);
 }
 
 void CPUParticles2D::set_emission_sphere_radius(float p_radius) {
@@ -499,7 +500,7 @@ void CPUParticles2D::_particles_process(float p_delta) {
         cycle++;
         if (one_shot && cycle > 0) {
             set_emitting(false);
-            _change_notify();
+            Object_change_notify(this);
         }
     }
 

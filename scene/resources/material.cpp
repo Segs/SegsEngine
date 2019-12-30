@@ -229,7 +229,7 @@ void ShaderMaterial::set_shader(const Ref<Shader> &p_shader) {
     }
 
     VisualServer::get_singleton()->material_set_shader(_get_material(), rid);
-    _change_notify(); //properties for shader exposed
+    Object_change_notify(this); //properties for shader exposed
     emit_changed();
 }
 
@@ -249,7 +249,7 @@ Variant ShaderMaterial::get_shader_param(const StringName &p_param) const {
 }
 
 void ShaderMaterial::_shader_changed() {
-    _change_notify(); //update all properties
+    Object_change_notify(this); //update all properties
 }
 
 void ShaderMaterial::_bind_methods() {
@@ -1395,7 +1395,7 @@ void SpatialMaterial::set_flag(Flags p_flag, bool p_enabled) {
 
     flags[p_flag] = p_enabled;
     if ((p_flag == FLAG_USE_ALPHA_SCISSOR) || (p_flag == FLAG_UNSHADED) || (p_flag == FLAG_USE_SHADOW_TO_OPACITY)) {
-        _change_notify();
+        Object_change_notify(this);
     }
     _queue_shader_change();
 }
@@ -1413,7 +1413,7 @@ void SpatialMaterial::set_feature(Feature p_feature, bool p_enabled) {
         return;
 
     features[p_feature] = p_enabled;
-    _change_notify();
+    Object_change_notify(this);
     _queue_shader_change();
 }
 
@@ -1429,7 +1429,7 @@ void SpatialMaterial::set_texture(TextureParam p_param, const Ref<Texture> &p_te
     textures[p_param] = p_texture;
     RID rid = p_texture ? p_texture->get_rid() : RID();
     VisualServer::get_singleton()->material_set_param(_get_material(), shader_names->texture_names[p_param], rid);
-    _change_notify();
+    Object_change_notify(this);
     _queue_shader_change();
 }
 
@@ -1637,7 +1637,7 @@ void SpatialMaterial::set_billboard_mode(BillboardMode p_mode) {
 
     billboard_mode = p_mode;
     _queue_shader_change();
-    _change_notify();
+    Object_change_notify(this);
 }
 
 SpatialMaterial::BillboardMode SpatialMaterial::get_billboard_mode() const {
@@ -1681,7 +1681,7 @@ void SpatialMaterial::set_depth_deep_parallax(bool p_enable) {
 
     deep_parallax = p_enable;
     _queue_shader_change();
-    _change_notify();
+    Object_change_notify(this);
 }
 
 bool SpatialMaterial::is_depth_deep_parallax_enabled() const {
@@ -1734,7 +1734,7 @@ bool SpatialMaterial::get_depth_deep_parallax_flip_binormal() const {
 void SpatialMaterial::set_grow_enabled(bool p_enable) {
     grow_enabled = p_enable;
     _queue_shader_change();
-    _change_notify();
+    Object_change_notify(this);
 }
 
 bool SpatialMaterial::is_grow_enabled() const {
@@ -1866,7 +1866,7 @@ void SpatialMaterial::set_proximity_fade(bool p_enable) {
 
     proximity_fade_enabled = p_enable;
     _queue_shader_change();
-    _change_notify();
+    Object_change_notify(this);
 }
 
 bool SpatialMaterial::is_proximity_fade_enabled() const {
@@ -1888,7 +1888,7 @@ void SpatialMaterial::set_distance_fade(DistanceFadeMode p_mode) {
 
     distance_fade = p_mode;
     _queue_shader_change();
-    _change_notify();
+    Object_change_notify(this);
 }
 SpatialMaterial::DistanceFadeMode SpatialMaterial::get_distance_fade() const {
 

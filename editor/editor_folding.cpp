@@ -30,6 +30,7 @@
 
 #include "editor_folding.h"
 
+#include "core/object_tooling.h"
 #include "core/os/file_access.h"
 #include "core/pool_vector.h"
 #include "core/property_info.h"

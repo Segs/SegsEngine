@@ -119,7 +119,7 @@ void MeshLibrary::create_item(int p_item) {
     ERR_FAIL_COND(p_item < 0)
     ERR_FAIL_COND(item_map.contains(p_item))
     item_map[p_item] = Item();
-    _change_notify();
+    Object_change_notify(this);
 }
 
 void MeshLibrary::set_item_name(int p_item, se_string_view p_name) {
@@ -127,7 +127,7 @@ void MeshLibrary::set_item_name(int p_item, se_string_view p_name) {
     ERR_FAIL_COND(!item_map.contains(p_item))
     item_map[p_item].name = p_name;
     emit_changed();
-    _change_notify();
+    Object_change_notify(this);
 }
 
 void MeshLibrary::set_item_mesh(int p_item, const Ref<Mesh> &p_mesh) {
@@ -136,27 +136,27 @@ void MeshLibrary::set_item_mesh(int p_item, const Ref<Mesh> &p_mesh) {
     item_map[p_item].mesh = p_mesh;
     notify_change_to_owners();
     emit_changed();
-    _change_notify();
+    Object_change_notify(this);
 }
 
 void MeshLibrary::set_item_shapes(int p_item, const Vector<ShapeData> &p_shapes) {
 
     ERR_FAIL_COND(!item_map.contains(p_item))
     item_map[p_item].shapes = p_shapes;
-    _change_notify();
+    Object_change_notify(this);
     notify_change_to_owners();
     emit_changed();
-    _change_notify();
+    Object_change_notify(this);
 }
 
 void MeshLibrary::set_item_navmesh(int p_item, const Ref<NavigationMesh> &p_navmesh) {
 
     ERR_FAIL_COND(!item_map.contains(p_item))
     item_map[p_item].navmesh = p_navmesh;
-    _change_notify();
+    Object_change_notify(this);
     notify_change_to_owners();
     emit_changed();
-    _change_notify();
+    Object_change_notify(this);
 }
 
 void MeshLibrary::set_item_navmesh_transform(int p_item, const Transform &p_transform) {
@@ -165,7 +165,7 @@ void MeshLibrary::set_item_navmesh_transform(int p_item, const Transform &p_tran
     item_map[p_item].navmesh_transform = p_transform;
     notify_change_to_owners();
     emit_changed();
-    _change_notify();
+    Object_change_notify(this);
 }
 
 void MeshLibrary::set_item_preview(int p_item, const Ref<Texture> &p_preview) {
@@ -173,7 +173,7 @@ void MeshLibrary::set_item_preview(int p_item, const Ref<Texture> &p_preview) {
     ERR_FAIL_COND(!item_map.contains(p_item))
     item_map[p_item].preview = p_preview;
     emit_changed();
-    _change_notify();
+    Object_change_notify(this);
 }
 
 const se_string &MeshLibrary::get_item_name(int p_item) const {
@@ -226,7 +226,7 @@ void MeshLibrary::remove_item(int p_item) {
     ERR_FAIL_COND_MSG(!item_map.contains(p_item), "Requested for nonexistent MeshLibrary item '" + itos(p_item) + "'.");
     item_map.erase(p_item);
     notify_change_to_owners();
-    _change_notify();
+    Object_change_notify(this);
     emit_changed();
 }
 
@@ -234,7 +234,7 @@ void MeshLibrary::clear() {
 
     item_map.clear();
     notify_change_to_owners();
-    _change_notify();
+    Object_change_notify(this);
     emit_changed();
 }
 

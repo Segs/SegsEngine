@@ -33,6 +33,7 @@
 #include "core/core_string_names.h"
 #include "core/method_bind.h"
 #include "core/object_db.h"
+#include "core/object_tooling.h"
 #include "core/os/mutex.h"
 #include "core/os/os.h"
 #include "core/project_settings.h"
@@ -68,11 +69,9 @@ void VisualScriptNode::set_default_input_value(int p_port, const Variant &p_valu
 
     default_input_values[p_port] = p_value;
 
-#ifdef TOOLS_ENABLED
     for (VisualScript *E : scripts_used) {
-        E->get_tooling_interface()->set_edited(true);
+        Object_set_edited(E,true);
     }
-#endif
 }
 
 Variant VisualScriptNode::get_default_input_value(int p_port) const {
@@ -320,7 +319,7 @@ void VisualScript::_node_ports_changed(int p_id) {
     }
 
 #ifdef TOOLS_ENABLED
-    get_tooling_interface()->set_edited(true); //something changed, let's set as edited
+    Object_set_edited(this,true); //something changed, let's set as edited
     emit_signal("node_ports_changed", function, p_id);
 #endif
 }

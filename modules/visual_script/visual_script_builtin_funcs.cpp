@@ -678,7 +678,7 @@ void VisualScriptBuiltinFunc::set_func(BuiltinFunc p_which) {
 
     ERR_FAIL_INDEX(p_which, FUNC_MAX);
     func = p_which;
-    _change_notify();
+    Object_change_notify(this);
     ports_changed_notify();
 }
 

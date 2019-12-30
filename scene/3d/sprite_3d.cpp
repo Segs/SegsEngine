@@ -31,6 +31,7 @@
 #include "sprite_3d.h"
 #include "core/core_string_names.h"
 #include "core/method_bind.h"
+#include "core/object_tooling.h"
 #include "core/math/triangle_mesh.h"
 #include "core/translation_helpers.h"
 #include "scene/scene_string_names.h"
@@ -589,8 +590,8 @@ void Sprite3D::set_frame(int p_frame) {
 
     _queue_update();
 
-    _change_notify("frame");
-    _change_notify("frame_coords");
+    Object_change_notify(this,"frame");
+    Object_change_notify(this,"frame_coords");
     emit_signal(SceneStringNames::get_singleton()->frame_changed);
 }
 
@@ -615,7 +616,7 @@ void Sprite3D::set_vframes(int p_amount) {
     ERR_FAIL_COND(p_amount < 1)
     vframes = p_amount;
     _queue_update();
-    _change_notify();
+    Object_change_notify(this);
 }
 int Sprite3D::get_vframes() const {
 
@@ -627,7 +628,7 @@ void Sprite3D::set_hframes(int p_amount) {
     ERR_FAIL_COND(p_amount < 1)
     hframes = p_amount;
     _queue_update();
-    _change_notify();
+    Object_change_notify(this);
 }
 int Sprite3D::get_hframes() const {
 
@@ -939,7 +940,7 @@ void AnimatedSprite3D::_notification(int p_what) {
                     }
 
                     _queue_update();
-                    _change_notify("frame");
+                    Object_change_notify(this,"frame");
                 }
 
                 float to_process = MIN(timeout, remaining);
@@ -964,7 +965,7 @@ void AnimatedSprite3D::set_sprite_frames(const Ref<SpriteFrames> &p_frames) {
         set_frame(frame);
     }
 
-    _change_notify();
+    Object_change_notify(this);
     _reset_timeout();
     _queue_update();
     update_configuration_warning();
@@ -996,7 +997,7 @@ void AnimatedSprite3D::set_frame(int p_frame) {
     frame = p_frame;
     _reset_timeout();
     _queue_update();
-    _change_notify("frame");
+    Object_change_notify(this,"frame");
     emit_signal(SceneStringNames::get_singleton()->frame_changed);
 }
 int AnimatedSprite3D::get_frame() const {
@@ -1030,8 +1031,8 @@ Rect2 AnimatedSprite3D::get_item_rect() const {
 void AnimatedSprite3D::_res_changed() {
 
     set_frame(frame);
-    _change_notify("frame");
-    _change_notify("animation");
+    Object_change_notify(this,"frame");
+    Object_change_notify(this,"animation");
     _queue_update();
 }
 
@@ -1091,7 +1092,7 @@ void AnimatedSprite3D::set_animation(const StringName &p_animation) {
     animation = p_animation;
     _reset_timeout();
     set_frame(0);
-    _change_notify();
+    Object_change_notify(this);
     _queue_update();
 }
 StringName AnimatedSprite3D::get_animation() const {

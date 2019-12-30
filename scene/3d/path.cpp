@@ -340,8 +340,8 @@ void PathFollow::set_offset(float p_offset) {
 
         _update_transform();
     }
-    _change_notify("offset");
-    _change_notify("unit_offset");
+    Object_change_notify(this,"offset");
+    Object_change_notify(this,"unit_offset");
 }
 
 

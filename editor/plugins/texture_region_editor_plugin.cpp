@@ -33,6 +33,7 @@
 #include "core/method_bind.h"
 #include "core/core_string_names.h"
 #include "editor/editor_scale.h"
+#include "core/object_tooling.h"
 #include "core/os/input.h"
 #include "core/os/keyboard.h"
 #include "core/translation_helpers.h"
@@ -790,15 +791,15 @@ Sprite *TextureRegionEditor::get_sprite() {
 
 void TextureRegionEditor::edit(Object *p_obj) {
     if (node_sprite)
-        node_sprite->remove_change_receptor(this);
+        Object_remove_change_receptor(node_sprite, this);
     if (node_sprite_3d)
-        node_sprite_3d->remove_change_receptor(this);
+        Object_remove_change_receptor(node_sprite_3d, this);
     if (node_ninepatch)
-        node_ninepatch->remove_change_receptor(this);
+        Object_remove_change_receptor(node_ninepatch, this);
     if (obj_styleBox)
-        obj_styleBox->remove_change_receptor(this);
+        Object_remove_change_receptor(obj_styleBox.get(), this);
     if (atlas_tex)
-        atlas_tex->remove_change_receptor(this);
+        Object_remove_change_receptor(atlas_tex.get(), this);
     if (p_obj) {
         node_sprite = object_cast<Sprite>(p_obj);
         node_sprite_3d = object_cast<Sprite3D>(p_obj);
@@ -807,7 +808,7 @@ void TextureRegionEditor::edit(Object *p_obj) {
             obj_styleBox = Ref<StyleBoxTexture>(object_cast<StyleBoxTexture>(p_obj));
         if (object_cast<AtlasTexture>(p_obj))
             atlas_tex = Ref<AtlasTexture>(object_cast<AtlasTexture>(p_obj));
-        p_obj->add_change_receptor(this);
+        Object_add_change_receptor(p_obj,this);
         _edit_region();
     } else {
         node_sprite = nullptr;

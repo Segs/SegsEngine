@@ -34,6 +34,7 @@
 #include "core/io/marshalls.h"
 #include "core/method_bind.h"
 #include "core/object_db.h"
+#include "core/object_tooling.h"
 #include "core/project_settings.h"
 #include "core/string_formatter.h"
 #include "core/ustring.h"
@@ -119,7 +120,7 @@ public:
     }
 
     void update() {
-        _change_notify();
+        Object_change_notify(this);
     }
 
     ScriptEditorDebuggerVariables() = default;
@@ -197,10 +198,10 @@ public:
         prop_values.clear();
     }
     void update() {
-        _change_notify();
+        Object_change_notify(this);
     }
     void update_single(StringName p_prop) {
-        _change_notify(p_prop);
+        Object_change_notify(this,p_prop);
     }
 
     ScriptEditorDebuggerInspectedObject() {

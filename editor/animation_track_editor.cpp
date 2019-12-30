@@ -34,6 +34,7 @@
 
 #include "core/method_bind.h"
 #include "core/object_db.h"
+#include "core/object_tooling.h"
 #include "core/os/input.h"
 #include "core/os/keyboard.h"
 #include "core/string_formatter.h"
@@ -691,7 +692,7 @@ public:
 
     void notify_change() {
 
-        _change_notify();
+        Object_change_notify(this);
     }
 
     Node *get_root_path() {
@@ -700,7 +701,7 @@ public:
 
     void set_use_fps(bool p_enable) {
         use_fps = p_enable;
-        _change_notify();
+        Object_change_notify(this);
     }
 
     AnimationTrackKeyEdit() {
@@ -1383,7 +1384,7 @@ public:
 
     void notify_change() {
 
-        _change_notify();
+        Object_change_notify(this);
     }
 
     Node *get_root_path() {
@@ -1392,7 +1393,7 @@ public:
 
     void set_use_fps(bool p_enable) {
         use_fps = p_enable;
-        _change_notify();
+        Object_change_notify(this);
     }
 
     AnimationMultiTrackKeyEdit() {
