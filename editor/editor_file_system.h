@@ -52,7 +52,7 @@ class EditorFileSystemDirectory : public Object {
     bool verified; //used for checking changes
 
     EditorFileSystemDirectory *parent;
-    Vector<EditorFileSystemDirectory *> subdirs;
+    PODVector<EditorFileSystemDirectory *> subdirs;
 
     struct FileInfo {
         se_string file;
@@ -76,7 +76,7 @@ class EditorFileSystemDirectory : public Object {
 
     void sort_files();
 
-    Vector<FileInfo *> files;
+    PODVector<FileInfo *> files;
 
     static void _bind_methods();
 
@@ -91,6 +91,7 @@ public:
     int get_file_count() const;
     se_string get_file(int p_idx) const;
     se_string get_file_path(int p_idx) const;
+    se_string get_named_file_path(se_string_view file) const;
     StringName get_file_type(int p_idx) const;
     const Vector<se_string> &get_file_deps(int p_idx) const;
     bool get_file_import_is_valid(int p_idx) const;

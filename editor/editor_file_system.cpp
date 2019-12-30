@@ -57,13 +57,12 @@ EditorFileSystem *EditorFileSystem::singleton = nullptr;
 #define CACHE_FILE_NAME "filesystem_cache6"
 
 void EditorFileSystemDirectory::sort_files() {
-
-    files.sort_custom<FileInfoSort>();
+    eastl::sort(files.begin(),files.end());
 }
 
 int EditorFileSystemDirectory::find_file_index(se_string_view p_file) const {
 
-    for (int i = 0; i < files.size(); i++) {
+    for (size_t i = 0; i < files.size(); i++) {
         if (files[i]->file == p_file)
             return i;
     }
@@ -71,7 +70,7 @@ int EditorFileSystemDirectory::find_file_index(se_string_view p_file) const {
 }
 int EditorFileSystemDirectory::find_dir_index(se_string_view p_dir) const {
 
-    for (int i = 0; i < subdirs.size(); i++) {
+    for (size_t i = 0; i < subdirs.size(); i++) {
         if (subdirs[i]->name == p_dir)
             return i;
     }
@@ -117,6 +116,18 @@ se_string EditorFileSystemDirectory::get_path() const {
 se_string EditorFileSystemDirectory::get_file_path(int p_idx) const {
 
     se_string file(get_file(p_idx));
+    const EditorFileSystemDirectory *d = this;
+    while (d->parent) {
+        file = PathUtils::plus_file(d->name,file);
+        d = d->parent;
+    }
+
+    return "res://" + file;
+}
+
+se_string EditorFileSystemDirectory::get_named_file_path(se_string_view named_file) const
+{
+    se_string file(named_file);
     const EditorFileSystemDirectory *d = this;
     while (d->parent) {
         file = PathUtils::plus_file(d->name,file);
@@ -193,14 +204,12 @@ EditorFileSystemDirectory::EditorFileSystemDirectory() {
 
 EditorFileSystemDirectory::~EditorFileSystemDirectory() {
 
-    for (int i = 0; i < files.size(); i++) {
-
-        memdelete(files[i]);
+    for (FileInfo * f : files) {
+        memdelete(f);
     }
 
-    for (int i = 0; i < subdirs.size(); i++) {
-
-        memdelete(subdirs[i]);
+    for (EditorFileSystemDirectory * d : subdirs) {
+        memdelete(d);
     }
 }
 
@@ -281,20 +290,21 @@ void EditorFileSystem::_scan_mark_updates()
     se_string update_cache =
             PathUtils::plus_file(EditorSettings::get_singleton()->get_project_settings_dir(), "filesystem_update4");
 
-    if (FileAccess::exists(update_cache)) {
-        {
-            FileAccessRef f2 = FileAccess::open(update_cache, FileAccess::READ);
-            se_string l(StringUtils::strip_edges(f2->get_line()));
-            while (!l.empty()) {
+    if (!FileAccess::exists(update_cache))
+        return;
 
-                file_cache.erase(l); // erase cache for this, so it gets updated
-                l = StringUtils::strip_edges(f2->get_line());
-            }
+    {
+        FileAccessRef f2 = FileAccess::open(update_cache, FileAccess::READ);
+        se_string l(StringUtils::strip_edges(f2->get_line()));
+        while (!l.empty()) {
+
+            file_cache.erase(l); // erase cache for this, so it gets updated
+            l = StringUtils::strip_edges(f2->get_line());
         }
-
-        DirAccessRef d = DirAccess::create(DirAccess::ACCESS_FILESYSTEM);
-        d->remove(update_cache); // bye bye update cache
     }
+
+    DirAccessRef d = DirAccess::create(DirAccess::ACCESS_FILESYSTEM);
+    d->remove(update_cache); // bye bye update cache
 }
 
 void EditorFileSystem::_scan_filesystem() {
@@ -309,7 +319,7 @@ void EditorFileSystem::_scan_filesystem() {
 
     _scan_mark_updates();
 
-    EditorProgressBG scan_progress(("efs"), ("ScanFS"), 1000);
+    EditorProgressBG scan_progress("efs", "ScanFS", 1000);
 
     ScanProgress sp;
     sp.low = 0;
@@ -530,7 +540,7 @@ bool EditorFileSystem::_update_scan_actions() {
                 if (idx == ia.dir->subdirs.size()) {
                     ia.dir->subdirs.push_back(ia.new_dir);
                 } else {
-                    ia.dir->subdirs.insert(idx, ia.new_dir);
+                    ia.dir->subdirs.insert(ia.dir->subdirs.begin()+idx, ia.new_dir);
                 }
 
                 fs_changed = true;
@@ -538,7 +548,7 @@ bool EditorFileSystem::_update_scan_actions() {
             case ItemAction::ACTION_DIR_REMOVE: {
 
                 ERR_CONTINUE(!ia.dir->parent)
-                ia.dir->parent->subdirs.erase(ia.dir);
+                ia.dir->parent->subdirs.erase_first(ia.dir);
                 memdelete(ia.dir);
                 fs_changed = true;
             } break;
@@ -554,7 +564,7 @@ bool EditorFileSystem::_update_scan_actions() {
                 if (idx == ia.dir->files.size()) {
                     ia.dir->files.push_back(ia.new_file);
                 } else {
-                    ia.dir->files.insert(idx, ia.new_file);
+                    ia.dir->files.insert(ia.dir->files.begin()+idx, ia.new_file);
                 }
 
                 fs_changed = true;
@@ -566,7 +576,7 @@ bool EditorFileSystem::_update_scan_actions() {
                 ERR_CONTINUE(idx == -1)
                 _delete_internal_files(ia.dir->files[idx]->file);
                 memdelete(ia.dir->files[idx]);
-                ia.dir->files.remove(idx);
+                ia.dir->files.erase_at(idx);
 
                 fs_changed = true;
 
@@ -714,10 +724,11 @@ void EditorFileSystem::_scan_new_dir(EditorFileSystemDirectory *p_dir, DirAccess
     eastl::sort(files.begin(),files.end(),NaturalNoCaseComparator());
 
     int total = dirs.size() + files.size();
-    int idx = 0;
+    int idx = -1;
 
-    for (int i=0,fin=dirs.size(); i<fin; ++i,++idx) {
-        const se_string &entry(dirs[i]);
+    for (const se_string &entry : dirs) {
+        idx++;
+
         if (da->change_dir(entry) == OK) {
 
             se_string d = da->get_current_dir();
@@ -743,7 +754,7 @@ void EditorFileSystem::_scan_new_dir(EditorFileSystemDirectory *p_dir, DirAccess
                 if (idx2 == p_dir->subdirs.size()) {
                     p_dir->subdirs.push_back(efd);
                 } else {
-                    p_dir->subdirs.insert(idx2, efd);
+                    p_dir->subdirs.insert(p_dir->subdirs.begin()+idx2, efd);
                 }
 
                 da->change_dir("..");
@@ -754,8 +765,8 @@ void EditorFileSystem::_scan_new_dir(EditorFileSystemDirectory *p_dir, DirAccess
 
         p_progress.update(idx, total);
     }
-
-    for (int i=0,fin=files.size(); i<fin; ++i, ++idx) {
+    ResourceFormatImporter *rfi = ResourceFormatImporter::get_singleton();
+    for (size_t i=0,fin=files.size(); i<fin; ++i, ++idx) {
         const se_string &fname(files[i]);
 
         se_string ext = StringUtils::to_lower(PathUtils::get_extension(fname));
@@ -792,7 +803,7 @@ void EditorFileSystem::_scan_new_dir(EditorFileSystemDirectory *p_dir, DirAccess
                 fi->script_class_extends = fc->script_class_extends;
                 fi->script_class_icon_path = fc->script_class_icon_path;
 
-                if (revalidate_import_files && !ResourceFormatImporter::get_singleton()->are_import_settings_valid(path)) {
+                if (revalidate_import_files && !rfi->are_import_settings_valid(path)) {
                     ItemAction ia;
                     ia.action = ItemAction::ACTION_FILE_TEST_REIMPORT;
                     ia.dir = p_dir;
@@ -803,14 +814,15 @@ void EditorFileSystem::_scan_new_dir(EditorFileSystemDirectory *p_dir, DirAccess
                 if (fc->type.empty()) {
                     fi->type = StringName(ResourceLoader::get_resource_type(path));
                     fi->import_group_file = ResourceLoader::get_import_group_file(path);
-                    //there is also the chance that file type changed due to reimport, must probably check this somehow here (or kind of note it for next time in another file?)
+                    //there is also the chance that file type changed due to reimport, must probably check this somehow here
+                    //(or kind of note it for next time in another file?)
                     //note: I think this should not happen any longer..
                 }
 
             } else {
 
-                fi->type = StringName(ResourceFormatImporter::get_singleton()->get_resource_type(path));
-                fi->import_group_file = ResourceFormatImporter::get_singleton()->get_import_group_file(path);
+                fi->type = StringName(rfi->get_resource_type(path));
+                fi->import_group_file = rfi->get_import_group_file(path);
                 fi->script_class_name = _get_global_script_class(fi->type, path, &fi->script_class_extends, &fi->script_class_icon_path);
                 fi->modified_time = 0;
                 fi->import_modified_time = 0;
@@ -863,16 +875,13 @@ void EditorFileSystem::_scan_fs_changes(EditorFileSystemDirectory *p_dir, const 
         p_dir->modified_time = current_mtime;
         //ooooops, dir changed, see what's going on
 
-        //first mark everything as veryfied
+        //first mark everything as verified
 
-        for (int i = 0; i < p_dir->files.size(); i++) {
-
-            p_dir->files[i]->verified = false;
+        for (auto * fi : p_dir->files) {
+            fi->verified = false;
         }
-
-        for (int i = 0; i < p_dir->subdirs.size(); i++) {
-
-            p_dir->get_subdir(i)->verified = false;
+        for (auto * sd : p_dir->subdirs) {
+            sd->verified = false;
         }
 
         //then scan files and directories and check what's different
@@ -967,7 +976,7 @@ void EditorFileSystem::_scan_fs_changes(EditorFileSystemDirectory *p_dir, const 
         memdelete(da);
     }
 
-    for (int i = 0; i < p_dir->files.size(); i++) {
+    for (size_t i = 0; i < p_dir->files.size(); i++) {
 
         if (updated_dir && !p_dir->files[i]->verified) {
             //this file was removed, add action to remove it
@@ -1205,7 +1214,7 @@ void EditorFileSystem::_save_filesystem_cache(EditorFileSystemDirectory *p_dir, 
         return; //none
     p_file->store_line(FormatVE("::%s::%luz",p_dir->get_path().c_str(),p_dir->modified_time));
 
-    for (int i = 0; i < p_dir->files.size(); i++) {
+    for (size_t i = 0; i < p_dir->files.size(); i++) {
 
         if (!p_dir->files[i]->import_group_file.empty()) {
             group_file_cache.insert(p_dir->files[i]->import_group_file);
@@ -1225,7 +1234,7 @@ void EditorFileSystem::_save_filesystem_cache(EditorFileSystemDirectory *p_dir, 
         p_file->store_line(s);
     }
 
-    for (int i = 0; i < p_dir->subdirs.size(); i++) {
+    for (size_t i = 0; i < p_dir->subdirs.size(); i++) {
 
         _save_filesystem_cache(p_dir->subdirs[i], p_file);
     }
@@ -1285,7 +1294,7 @@ bool EditorFileSystem::_find_file(se_string_view p_file, EditorFileSystemDirecto
             if (idx2 == fs->get_subdir_count())
                 fs->subdirs.push_back(efsd);
             else
-                fs->subdirs.insert(idx2, efsd);
+                fs->subdirs.insert(fs->subdirs.begin()+idx2, efsd);
             fs = efsd;
         } else {
 
@@ -1430,22 +1439,20 @@ StringName EditorFileSystem::_get_global_script_class(
 }
 
 void EditorFileSystem::_scan_script_classes(EditorFileSystemDirectory *p_dir) {
-    int filecount = p_dir->files.size();
-    const EditorFileSystemDirectory::FileInfo *const *files = p_dir->files.ptr();
-    for (int i = 0; i < filecount; i++) {
-        if (files[i]->script_class_name.empty()) {
+    for (const EditorFileSystemDirectory::FileInfo * fi : p_dir->files) {
+        if (fi->script_class_name.empty()) {
             continue;
         }
 
         StringName lang;
         for (int j = 0; j < ScriptServer::get_language_count(); j++) {
-            if (ScriptServer::get_language(j)->handles_global_class_type(files[i]->type)) {
+            if (ScriptServer::get_language(j)->handles_global_class_type(fi->type)) {
                 lang = ScriptServer::get_language(j)->get_name();
             }
         }
-        ScriptServer::add_global_class(files[i]->script_class_name, files[i]->script_class_extends, lang, p_dir->get_file_path(i));
-        EditorNode::get_editor_data().script_class_set_icon_path(files[i]->script_class_name, files[i]->script_class_icon_path);
-        EditorNode::get_editor_data().script_class_set_name(files[i]->file, files[i]->script_class_name);
+        ScriptServer::add_global_class(fi->script_class_name, fi->script_class_extends, lang, p_dir->get_named_file_path(fi->file));
+        EditorNode::get_editor_data().script_class_set_icon_path(fi->script_class_name, fi->script_class_icon_path);
+        EditorNode::get_editor_data().script_class_set_name(fi->file, fi->script_class_name);
     }
     for (int i = 0; i < p_dir->get_subdir_count(); i++) {
         _scan_script_classes(p_dir->get_subdir(i));
@@ -1500,7 +1507,7 @@ void EditorFileSystem::update_file(se_string_view p_file) {
         _delete_internal_files(p_file);
         if (cpos != -1) { // Might've never been part of the editor file system (*.* files deleted in Open dialog).
             memdelete(fs->files[cpos]);
-            fs->files.remove(cpos);
+            fs->files.erase_at(cpos);
         }
 
         call_deferred("emit_signal", "filesystem_changed"); //update later
@@ -1517,7 +1524,7 @@ void EditorFileSystem::update_file(se_string_view p_file) {
         late_added_files.insert(p_file); //remember that it was added. This mean it will be scanned and imported on editor restart
         int idx = 0;
 
-        for (int i = 0; i < fs->files.size(); i++) {
+        for (size_t i = 0; i < fs->files.size(); i++) {
             if (p_file < fs->files[i]->file)
                 break;
             idx++;
@@ -1532,7 +1539,7 @@ void EditorFileSystem::update_file(se_string_view p_file) {
             fs->files.push_back(fi);
         } else {
 
-            fs->files.insert(idx, fi);
+            fs->files.insert(fs->files.begin()+idx, fi);
         }
         cpos = idx;
     } else {
@@ -1921,11 +1928,9 @@ void EditorFileSystem::_reimport_file(const se_string &p_file) {
 
 void EditorFileSystem::_find_group_files(EditorFileSystemDirectory *efd, Map<se_string, Vector<se_string> > &group_files, Set<se_string> &groups_to_reimport) {
 
-    int fc = efd->files.size();
-    const EditorFileSystemDirectory::FileInfo *const *files = efd->files.ptr();
-    for (int i = 0; i < fc; i++) {
-        if (groups_to_reimport.contains(files[i]->import_group_file)) {
-            group_files[files[i]->import_group_file].push_back(efd->get_file_path(i));
+    for (EditorFileSystemDirectory::FileInfo * fi : efd->files) {
+        if (groups_to_reimport.contains(fi->import_group_file)) {
+            group_files[fi->import_group_file].push_back(efd->get_named_file_path(fi->file));
         }
     }
 
@@ -1979,7 +1984,7 @@ void EditorFileSystem::reimport_files(const Vector<se_string> &p_files) {
         int cpos = -1;
         if (_find_file(p_files[i], &fs, cpos)) {
 
-            fs->files.write[cpos]->import_group_file = group_file;
+            fs->files[cpos]->import_group_file = group_file;
         }
     }
 
@@ -2030,16 +2035,14 @@ bool EditorFileSystem::is_group_file(se_string_view p_path) const {
 
 void EditorFileSystem::_move_group_files(EditorFileSystemDirectory *efd, se_string_view p_group_file, se_string_view p_new_location) {
 
-    int fc = efd->files.size();
-    EditorFileSystemDirectory::FileInfo *const *files = efd->files.ptrw();
-    for (int i = 0; i < fc; i++) {
+    for (EditorFileSystemDirectory::FileInfo * fi : efd->files) {
 
-        if (files[i]->import_group_file == p_group_file) {
+        if (fi->import_group_file == p_group_file) {
 
-            files[i]->import_group_file = p_new_location;
+            fi->import_group_file = p_new_location;
 
             Ref<ConfigFile> config(make_ref_counted<ConfigFile>());
-            se_string path = efd->get_file_path(i) + ".import";
+            se_string path = efd->get_named_file_path(fi->file) + ".import";
             Error err = config->load(path);
             if (err != OK) {
                 continue;
