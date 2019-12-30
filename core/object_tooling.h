@@ -7,6 +7,7 @@ class Object;
 class IObjectTooling;
 class Variant;
 struct PropertyInfo;
+class RefPtr;
 
 // Internal tooling helpers.
 #ifdef TOOLS_ENABLED
@@ -20,6 +21,9 @@ struct PropertyInfo;
     void Object_add_tool_properties(ListPOD<PropertyInfo> *p_list);
     IObjectTooling * create_tooling_for(Object *self);
     void relase_tooling(IObjectTooling *);
+    bool Object_script_signal_validate(RefPtr self);
+    bool Object_allow_disconnect(uint32_t f);
+    void Object_add_tooling_methods();
 #else
     inline constexpr void Object_change_notify(Object * /*self*/,se_string_view /*p_what*/ = {}) {}
     inline constexpr IObjectTooling * GODOT_EXPORT create_tooling_for(Object * /*self*/) { return nullptr; }
@@ -30,6 +34,9 @@ struct PropertyInfo;
     inline constexpr bool Object_set_fallback(Object *self,const StringName &p_name,const Variant &p_value) {return false;}
     inline constexpr Variant Object_get_fallback(const Object *self, const StringName &p_name, bool &r_valid) { r_valid=false; return {};}
     inline constexpr void Object_add_tool_properties(ListPOD<PropertyInfo> *) {}
+    inline constexpr bool Object_script_signal_validate(RefPtr self) { return false; }
+    inline constexpr bool Object_allow_disconnect(ObjectNS::ConnectFlags f) { return true; }
+    inline constexpr void Object_add_tooling_methods() {}
 #endif
 
 class GODOT_EXPORT IObjectTooling {

@@ -1,18 +1,23 @@
 #include "core/object_tooling.h"
-#include "core/object.h"
-#include "core/set.h"
-#include "core/os/memory.h"
-#include "core/se_string.h"
-#include "core/script_language.h"
-#include "core/property_info.h"
+
+#include "core/class_db.h"
+#include "core/engine.h"
 #include "core/list.h"
+#include "core/method_info.h"
+#include "core/object.h"
+#include "core/os/memory.h"
+#include "core/property_info.h"
+#include "core/script_language.h"
+#include "core/se_string.h"
+#include "core/set.h"
+
 #ifdef TOOLS_ENABLED
 struct ObjectToolingImpl final : public IObjectTooling {
 
-    bool _edited;
-    uint32_t _edited_version;
     Set<se_string> editor_section_folding;
     Set<Object *> change_receptors;
+    uint32_t _edited_version;
+    bool _edited;
 
     // IObjectTooling interface
 public:
@@ -91,8 +96,8 @@ bool Object_set_fallback(Object *self,const StringName &p_name,const Variant &p_
     auto si = self->get_script_instance();
     if (si) {
         si->property_set_fallback(p_name, p_value, &valid);
-        return valid;
     }
+    return valid;
 }
 
 Variant Object_get_fallback(const Object *self,const StringName &p_name,bool &r_valid)
@@ -110,9 +115,38 @@ Variant Object_get_fallback(const Object *self,const StringName &p_name,bool &r_
     r_valid=false;
     return ret;
 }
-#endif
 
 void Object_add_tool_properties(ListPOD<PropertyInfo> *p_list)
 {
     p_list->push_back(PropertyInfo(VariantType::NIL, "Script", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_GROUP));
 }
+
+bool Object_script_signal_validate(RefPtr script)
+{
+    //allow connecting signals anyway if script is invalid, see issue #17070
+    if (!refFromRefPtr<Script>(script)->is_valid()) {
+        return true;
+    }
+    return false;
+}
+
+bool Object_allow_disconnect(uint32_t f) {
+    if ((f & ObjectNS::CONNECT_PERSIST) && Engine::get_singleton()->is_editor_hint()) {
+        // this signal was connected from the editor, and is being edited. just don't disconnect for now
+        return false;
+    }
+    return true;
+}
+
+void Object_add_tooling_methods()
+{
+    MethodInfo miget("_get", PropertyInfo(VariantType::STRING, "property"));
+    miget.return_val.name = "Variant";
+    miget.return_val.usage |= PROPERTY_USAGE_NIL_IS_VARIANT;
+    ClassDB::add_virtual_method(Object::get_class_static_name(), miget);
+
+    MethodInfo plget(VariantType::ARRAY,"_get_property_list");
+    ClassDB::add_virtual_method(Object::get_class_static_name(), plget);
+}
+
+#endif

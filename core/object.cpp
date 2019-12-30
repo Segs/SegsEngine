@@ -1137,11 +1137,7 @@ void Object::get_meta_list(ListPOD<se_string> *p_list) const {
 
 IObjectTooling *Object::get_tooling_interface() const
 {
-#ifdef TOOLS_ENABLED
     return private_data->get_tooling();
-#else
-    return nullptr;
-#endif
 }
 
 void Object::add_user_signal(const MethodInfo &p_signal) {
@@ -1280,12 +1276,7 @@ Error Object::emit_signal(const StringName &p_name, const Variant **p_args, int 
         }
 
         bool disconnect = c.flags & ObjectNS::CONNECT_ONESHOT;
-#ifdef TOOLS_ENABLED
-        if (disconnect && (c.flags & ObjectNS::CONNECT_PERSIST) && Engine::get_singleton()->is_editor_hint()) {
-            //this signal was connected from the editor, and is being edited. just don't disconnect for now
-            disconnect = false;
-        }
-#endif
+        disconnect &= Object_allow_disconnect(c.flags);
         if (disconnect) {
 
             _ObjectSignalDisconnectData dd;
@@ -1489,14 +1480,7 @@ Error Object::connect(const StringName &p_signal, Object *p_to_object, const Str
             if (refFromRefPtr<Script>(script)->has_script_signal(p_signal)) {
                 signal_is_valid = true;
             }
-#ifdef TOOLS_ENABLED
-            else {
-                //allow connecting signals anyway if script is invalid, see issue #17070
-                if (!refFromRefPtr<Script>(script)->is_valid()) {
-                    signal_is_valid = true;
-                }
-            }
-#endif
+            signal_is_valid |= Object_script_signal_validate(script);
         }
         {
             if (unlikely(!signal_is_valid)) {
@@ -1774,18 +1758,9 @@ void Object::_bind_methods() {
 
     BIND_VMETHOD(MethodInfo("_notification", PropertyInfo(VariantType::INT, "what")))
     BIND_VMETHOD(MethodInfo(VariantType::BOOL, "_set", PropertyInfo(VariantType::STRING, "property"), PropertyInfo(VariantType::NIL, "value")))
-#ifdef TOOLS_ENABLED
-    MethodInfo miget("_get", PropertyInfo(VariantType::STRING, "property"));
-    miget.return_val.name = "Variant";
-    miget.return_val.usage |= PROPERTY_USAGE_NIL_IS_VARIANT;
-    BIND_VMETHOD(miget)
 
-    MethodInfo plget("_get_property_list");
+    Object_add_tooling_methods();
 
-    plget.return_val.type = VariantType::ARRAY;
-    BIND_VMETHOD(plget)
-
-#endif
     BIND_VMETHOD(MethodInfo("_init"))
     BIND_VMETHOD(MethodInfo(VariantType::STRING, "_to_string"))
 
