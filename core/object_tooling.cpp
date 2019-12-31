@@ -42,10 +42,10 @@ public:
                 editor_section_folding.erase(iter);
         }
     }
-    bool editor_is_section_unfolded(se_string_view p_section) const final {
+    [[nodiscard]] bool editor_is_section_unfolded(se_string_view p_section) const final {
         return editor_section_folding.contains_as(p_section);
     }
-    const Set<se_string> &editor_get_section_folding() const final {
+    [[nodiscard]] const Set<se_string> &editor_get_section_folding() const final {
         return editor_section_folding;
     }
     void editor_clear_section_folding() final {
