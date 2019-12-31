@@ -76,6 +76,12 @@ void OptionButton::_notification(int p_what) {
             Point2 ofs(size.width - arrow->get_width() - get_constant("arrow_margin"), int(Math::abs((size.height - arrow->get_height()) / 2)));
             arrow->draw(ci, ofs, clr);
         } break;
+        case NOTIFICATION_THEME_CHANGED: {
+
+            if (has_icon("arrow")) {
+                _set_internal_margin(MARGIN_RIGHT, Control::get_icon("arrow")->get_width());
+            }
+        } break;
         case NOTIFICATION_VISIBILITY_CHANGED: {
 
             if (!is_visible_in_tree()) {
@@ -332,7 +338,7 @@ void OptionButton::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("_get_items"), &OptionButton::_get_items);
 
     ADD_PROPERTY(PropertyInfo(VariantType::ARRAY, "items", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "_set_items", "_get_items");
-    // "selected" property must come after "items", otherwise GH-10213 occurs
+    // "selected" property must come after "items", otherwise GH-10213 occurs.
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "selected"), "_select_int", "get_selected");
     ADD_SIGNAL(MethodInfo("item_selected", PropertyInfo(VariantType::INT, "id")));
     ADD_SIGNAL(MethodInfo("item_focused", PropertyInfo(VariantType::INT, "id")));
@@ -344,7 +350,9 @@ OptionButton::OptionButton() {
     set_toggle_mode(true);
     set_text_align(ALIGN_LEFT);
     set_action_mode(ACTION_MODE_BUTTON_PRESS);
-
+    if (has_icon("arrow")) {
+        _set_internal_margin(MARGIN_RIGHT, Control::get_icon("arrow")->get_width());
+    }
     popup = memnew(PopupMenu);
     popup->hide();
     add_child(popup);

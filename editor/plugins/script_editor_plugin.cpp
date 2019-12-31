@@ -1006,7 +1006,17 @@ Array ScriptEditor::_get_open_scripts() const {
     return ret;
 }
 
+bool ScriptEditor::toggle_scripts_panel() {
+    list_split->set_visible(!list_split->is_visible());
+    return list_split->is_visible();
+}
+
+bool ScriptEditor::is_scripts_panel_toggled() {
+    return list_split->is_visible();
+}
+
 void ScriptEditor::_menu_option(int p_option) {
+    ScriptEditorBase *current = _get_current_editor();
 
     switch (p_option) {
         case FILE_NEW: {
@@ -1146,11 +1156,18 @@ void ScriptEditor::_menu_option(int p_option) {
             debug_menu->get_popup()->set_item_checked(debug_menu->get_popup()->get_item_index(DEBUG_WITH_EXTERNAL_EDITOR), debug_with_external_editor);
         } break;
         case TOGGLE_SCRIPTS_PANEL: {
-            list_split->set_visible(!list_split->is_visible());
+        if (current) {
+            ScriptTextEditor *editor = object_cast<ScriptTextEditor>(current);
+            toggle_scripts_panel();
+            if (editor) {
+                editor->update_toggle_scripts_button();
+            }
+        } else {
+            toggle_scripts_panel();
         }
     }
+    }
 
-    ScriptEditorBase *current = _get_current_editor();
     if (current) {
 
         switch (p_option) {
@@ -1269,12 +1286,15 @@ void ScriptEditor::_menu_option(int p_option) {
                 _copy_script_path();
             } break;
             case SHOW_IN_FILE_SYSTEM: {
-                RES script(current->get_edited_resource());
-                FileSystemDock *file_system_dock = EditorNode::get_singleton()->get_filesystem_dock();
-                file_system_dock->navigate_to_path(script->get_path());
-                // Ensure that the FileSystem dock is visible.
-                TabContainer *tab_container = (TabContainer *)file_system_dock->get_parent_control();
-                tab_container->set_current_tab(file_system_dock->get_position_in_parent());
+                const RES script = current->get_edited_resource();
+                const se_string path = script->get_path();
+                if (!path.empty()) {
+                    FileSystemDock *file_system_dock = EditorNode::get_singleton()->get_filesystem_dock();
+                    file_system_dock->navigate_to_path(path);
+                    // Ensure that the FileSystem dock is visible.
+                    TabContainer *tab_container = (TabContainer *)file_system_dock->get_parent_control();
+                    tab_container->set_current_tab(file_system_dock->get_position_in_parent());
+                }
             } break;
             case CLOSE_DOCS: {
                 _close_docs_tab();

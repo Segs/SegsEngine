@@ -833,24 +833,25 @@ PoolVector<Color> EditorSceneImporterGLTF::_decode_accessor_as_color(GLTFState &
 
     const Vector<double> attribs = _decode_accessor(state, p_accessor, p_for_vertex);
     PoolVector<Color> ret;
-    if (attribs.empty())
+
+    if (attribs.size() == 0)
         return ret;
+
     const int type = state.accessors[p_accessor].type;
-    ERR_FAIL_COND_V(!(type == TYPE_VEC3 || type == TYPE_VEC4), ret)
-    int components;
-    if (type == TYPE_VEC3) {
-        components = 3;
-    } else { // TYPE_VEC4
-        components = 4;
+    ERR_FAIL_COND_V(!(type == TYPE_VEC3 || type == TYPE_VEC4), ret);
+    int vec_len = 3;
+    if (type == TYPE_VEC4) {
+        vec_len = 4;
     }
-    ERR_FAIL_COND_V(attribs.size() % components != 0, ret)
+
+    ERR_FAIL_COND_V(attribs.size() % vec_len != 0, ret);
     const double *attribs_ptr = attribs.ptr();
-    const int ret_size = attribs.size() / components;
+    const int ret_size = attribs.size() / vec_len;
     ret.resize(ret_size);
     {
         PoolVector<Color>::Write w = ret.write();
         for (int i = 0; i < ret_size; i++) {
-            w[i] = Color(attribs_ptr[i * 4 + 0], attribs_ptr[i * 4 + 1], attribs_ptr[i * 4 + 2], components == 4 ? attribs_ptr[i * 4 + 3] : 1.0);
+            w[i] = Color(attribs_ptr[i * vec_len + 0], attribs_ptr[i * vec_len + 1], attribs_ptr[i * vec_len + 2], vec_len == 4 ? attribs_ptr[i * 4 + 3] : 1.0);
         }
     }
     return ret;

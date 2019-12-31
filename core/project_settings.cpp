@@ -779,10 +779,7 @@ Error ProjectSettings::_save_settings_text(se_string_view p_file, const Map<se_s
 
             se_string vstr;
             VariantWriter::write_to_string(value, vstr);
-            if (StringUtils::contains(F,' '))
-                file->store_string(StringUtils::quote(F) + "=" + vstr + "\n");
-            else
-                file->store_string(F + "=" + vstr + "\n");
+            file->store_string(StringUtils::property_name_encode(F) + "=" + vstr + "\n");
         }
     }
 

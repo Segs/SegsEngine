@@ -91,6 +91,7 @@ enum Compare {
 [[nodiscard]] GODOT_EXPORT se_string c_escape_multiline(se_string_view src);
 [[nodiscard]] GODOT_EXPORT se_string c_unescape(se_string_view src);
 [[nodiscard]] GODOT_EXPORT se_string json_escape(se_string_view src);
+[[nodiscard]] GODOT_EXPORT se_string property_name_encode(se_string_view str);
 
 [[nodiscard]] GODOT_EXPORT bool is_subsequence_of(const String &str,const String &p_string, Compare mode=CaseSensitive);
 [[nodiscard]] GODOT_EXPORT bool is_subsequence_of(se_string_view str,se_string_view p_string, Compare mode=CaseSensitive);

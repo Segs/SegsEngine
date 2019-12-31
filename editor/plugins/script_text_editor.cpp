@@ -973,7 +973,11 @@ void ScriptTextEditor::_lookup_symbol(const StringName & p_symbol, int p_row, in
         }
     }
 }
-
+void ScriptTextEditor::update_toggle_scripts_button() {
+    if (code_editor != nullptr) {
+        code_editor->update_toggle_scripts_button();
+    }
+}
 void ScriptTextEditor::_update_connected_methods() {
     TextEdit *text_edit = code_editor->get_text_edit();
     text_edit->clear_info_icons();
@@ -1310,6 +1314,7 @@ void ScriptTextEditor::_edit_option(int p_op) {
             if (line >= bpoints[bpoints.size() - 1]) {
                 tx->unfold_line(bpoints[0]);
                 tx->cursor_set_line(bpoints[0]);
+                tx->center_viewport_to_cursor();
             } else {
                 for (List<int>::Element *E = bpoints.front(); E; E = E->next()) {
                     int bline = E->deref();
@@ -1336,6 +1341,7 @@ void ScriptTextEditor::_edit_option(int p_op) {
             if (line <= bpoints[0]) {
                 tx->unfold_line(bpoints[bpoints.size() - 1]);
                 tx->cursor_set_line(bpoints[bpoints.size() - 1]);
+                tx->center_viewport_to_cursor();
             } else {
                 for (List<int>::Element *E = bpoints.back(); E; E = E->prev()) {
                     int bline = E->deref();
@@ -1751,6 +1757,7 @@ ScriptTextEditor::ScriptTextEditor() {
     code_editor->get_text_edit()->connect("symbol_lookup", this, "_lookup_symbol");
     code_editor->get_text_edit()->connect("info_clicked", this, "_lookup_connections");
     code_editor->set_v_size_flags(SIZE_EXPAND_FILL);
+    code_editor->show_toggle_scripts_button();
 
     warnings_panel = memnew(RichTextLabel);
     editor_box->add_child(warnings_panel);

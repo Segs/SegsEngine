@@ -33,6 +33,7 @@
 
 #include "core/method_bind.h"
 #include "core/os/keyboard.h"
+#include "editor/editor_scale.h"
 #include "editor_node.h"
 
 IMPL_GDCLASS(EditorHelpSearch)
@@ -276,7 +277,7 @@ EditorHelpSearch::EditorHelpSearch() {
     vbox->add_child(hbox);
 
     search_box = memnew(LineEdit);
-    search_box->set_custom_minimum_size(Size2(200, 0));
+    search_box->set_custom_minimum_size(Size2(200, 0) * EDSCALE);
     search_box->set_h_size_flags(SIZE_EXPAND_FILL);
     search_box->connect("gui_input", this, "_search_box_gui_input");
     search_box->connect("text_changed", this, "_search_box_text_changed");
@@ -299,7 +300,7 @@ EditorHelpSearch::EditorHelpSearch() {
     hbox->add_child(hierarchy_button);
 
     filter_combo = memnew(OptionButton);
-    filter_combo->set_custom_minimum_size(Size2(200, 0));
+    filter_combo->set_custom_minimum_size(Size2(200, 0) * EDSCALE);
     filter_combo->set_stretch_ratio(0); // Fixed width.
     filter_combo->add_item(TTR("Display All"), SEARCH_FLAG_ALL);
     filter_combo->add_separator();
@@ -319,8 +320,8 @@ EditorHelpSearch::EditorHelpSearch() {
     results_tree->set_column_title(0, TTR("Name"));
     results_tree->set_column_title(1, TTR("Member Type"));
     results_tree->set_column_expand(1, false);
-    results_tree->set_column_min_width(1, 150);
-    results_tree->set_custom_minimum_size(Size2(0, 100));
+    results_tree->set_column_min_width(1, 150 * EDSCALE);
+    results_tree->set_custom_minimum_size(Size2(0, 100) * EDSCALE);
     results_tree->set_hide_root(true);
     results_tree->set_select_mode(Tree::SELECT_ROW);
     results_tree->connect("item_activated", this, "_confirmed");

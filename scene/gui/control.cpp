@@ -2272,7 +2272,7 @@ void Control::set_theme(const Ref<Theme> &p_theme) {
     }
 
     if (data.theme) {
-        data.theme->connect("changed", this, "_theme_changed");
+        data.theme->connect("changed", this, "_theme_changed", varray(), ObjectNS::CONNECT_QUEUED);
     }
 }
 

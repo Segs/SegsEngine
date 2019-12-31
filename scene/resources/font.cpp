@@ -395,9 +395,9 @@ int BitmapFont::get_texture_count() const {
 
 Ref<Texture> BitmapFont::get_texture(int p_idx) const {
 
-    ERR_FAIL_INDEX_V(p_idx, textures.size(), Ref<Texture>());
+    ERR_FAIL_INDEX_V(p_idx, textures.size(), Ref<Texture>())
     return textures[p_idx];
-};
+}
 
 int BitmapFont::get_character_count() const {
 
@@ -413,19 +413,19 @@ Vector<CharType> BitmapFont::get_char_keys() const {
     while ((ct = char_map.next(ct))) {
 
         chars.write[count++] = *ct;
-    };
+    }
 
     return chars;
-};
+}
 
 BitmapFont::Character BitmapFont::get_character(CharType p_char) const {
 
     if (!char_map.contains(p_char)) {
         ERR_FAIL_V(Character());
-    };
+    }
 
     return char_map[p_char];
-};
+}
 
 void BitmapFont::add_char(CharType p_char, int p_texture_idx, const Rect2 &p_rect, const Size2 &p_align, float p_advance) {
 
@@ -524,7 +524,8 @@ Size2 Font::get_string_size_utf8(se_string_view p_string) const {
     a.push_back(QChar(0)); // sentinel 0
     int l = p_string.length();
     for (int i = 0; i < l; i++) {
-        res.x += get_char_size(a[i], a[i + 1]).width;
+        CharType next_char = (i+1)<l ? a[i+1] : CharType(0);
+        res.x += get_char_size(a[i], next_char).width;
     }
 
     return res;

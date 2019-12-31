@@ -3333,7 +3333,8 @@ bool StringUtils::is_valid_float(se_string_view str) {
 }
 se_string PathUtils::path_to_file(se_string_view base,se_string_view p_path) {
 
-    se_string src = get_base_dir(PathUtils::from_native_path(base));
+    // Don't get base dir for src, this is expected to be a dir already.
+    se_string src = PathUtils::from_native_path(base);
     se_string dst = get_base_dir(PathUtils::from_native_path(p_path));
     se_string rel = path_to(src,dst);
     if (rel == dst) // failed
@@ -3341,7 +3342,6 @@ se_string PathUtils::path_to_file(se_string_view base,se_string_view p_path) {
 
     return se_string(rel) + PathUtils::get_file(p_path);
 }
-
 //String PathUtils::path_to(const String &str,String p_path) {
 
 //    QString src = PathUtils::from_native_path(str);
@@ -4224,6 +4224,17 @@ void StringUtils::Inplace::replace(String &str, const String &p_key, const Strin
 }
 int StringUtils::char_length(const String &str) {
     return str.size();
+}
+se_string StringUtils::property_name_encode(se_string_view str) {
+    // Escape and quote strings with extended ASCII or further Unicode characters
+    // as well as '"', '=' or ' ' (32)
+    for (char c : str) {
+        if (c == '=' || c == '"' || c < 33 || c > 126) {
+            return "\"" + c_escape_multiline(str) + "\"";
+        }
+    }
+    // Keep as is
+    return se_string(str);
 }
 namespace PathUtils {
 String from_native_path(const String &p) {

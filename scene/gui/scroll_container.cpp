@@ -243,7 +243,13 @@ void ScrollContainer::_update_scrollbar_position() {
 
 void ScrollContainer::_ensure_focused_visible(Control *p_control) {
 
+    if (!follow_focus) {
+        return;
+    }
+
     if (is_a_parent_of(p_control)) {
+        Rect2 global_rect = get_global_rect();
+        Rect2 other_rect = p_control->get_global_rect();
         float right_margin = 0;
         if (v_scroll->is_visible()) {
             right_margin += v_scroll->get_size().x;
@@ -253,8 +259,10 @@ void ScrollContainer::_ensure_focused_visible(Control *p_control) {
             bottom_margin += h_scroll->get_size().y;
         }
 
-        set_v_scroll(MAX(MIN(p_control->get_begin().y, get_v_scroll()), p_control->get_end().y - get_size().y + bottom_margin));
-        set_h_scroll(MAX(MIN(p_control->get_begin().x, get_h_scroll()), p_control->get_end().x - get_size().x + right_margin));
+        float diff = MAX(MIN(other_rect.position.y, global_rect.position.y), other_rect.position.y + other_rect.size.y - global_rect.size.y + bottom_margin);
+        set_v_scroll(get_v_scroll() + (diff - global_rect.position.y));
+        diff = MAX(MIN(other_rect.position.x, global_rect.position.x), other_rect.position.x + other_rect.size.x - global_rect.size.x + right_margin);
+        set_h_scroll(get_h_scroll() + (diff - global_rect.position.x));
     }
 }
 
@@ -508,6 +516,14 @@ void ScrollContainer::set_deadzone(int p_deadzone) {
     deadzone = p_deadzone;
 }
 
+bool ScrollContainer::is_following_focus() const {
+    return follow_focus;
+}
+
+void ScrollContainer::set_follow_focus(bool p_follow) {
+    follow_focus = p_follow;
+}
+
 StringName ScrollContainer::get_configuration_warning() const {
 
     int found = 0;
@@ -558,12 +574,17 @@ void ScrollContainer::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_v_scroll"), &ScrollContainer::get_v_scroll);
     MethodBinder::bind_method(D_METHOD("set_deadzone", {"deadzone"}), &ScrollContainer::set_deadzone);
     MethodBinder::bind_method(D_METHOD("get_deadzone"), &ScrollContainer::get_deadzone);
+    MethodBinder::bind_method(D_METHOD("set_follow_focus", {"enabled"}), &ScrollContainer::set_follow_focus);
+    MethodBinder::bind_method(D_METHOD("is_following_focus"), &ScrollContainer::is_following_focus);
+
 
     MethodBinder::bind_method(D_METHOD("get_h_scrollbar"), &ScrollContainer::get_h_scrollbar);
     MethodBinder::bind_method(D_METHOD("get_v_scrollbar"), &ScrollContainer::get_v_scrollbar);
 
     ADD_SIGNAL(MethodInfo("scroll_started"));
     ADD_SIGNAL(MethodInfo("scroll_ended"));
+
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "follow_focus"), "set_follow_focus", "is_following_focus");
 
     ADD_GROUP("Scroll", "scroll_");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "scroll_horizontal_enabled"), "set_enable_h_scroll", "is_h_scroll_enabled");
@@ -596,6 +617,7 @@ ScrollContainer::ScrollContainer() {
     scroll_v = true;
 
     deadzone = GLOBAL_GET("gui/common/default_scroll_deadzone");
+    follow_focus = false;
 
     set_clip_contents(true);
 };

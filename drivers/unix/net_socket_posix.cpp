@@ -208,7 +208,7 @@ NetSocketPosix::~NetSocketPosix() {
 #pragma GCC diagnostic ignored "-Wlogical-op"
 #endif
 
-NetSocketPosix::NetError NetSocketPosix::_get_socket_error() {
+NetSocketPosix::NetError NetSocketPosix::_get_socket_error() const {
 #if defined(WINDOWS_ENABLED)
     int err = WSAGetLastError();
 
@@ -218,7 +218,7 @@ NetSocketPosix::NetError NetSocketPosix::_get_socket_error() {
         return ERR_NET_IN_PROGRESS;
     if (err == WSAEWOULDBLOCK)
         return ERR_NET_WOULD_BLOCK;
-    ERR_PRINT("Socket error: " + itos(err));
+    print_verbose("Socket error: " + itos(err));
     return ERR_NET_OTHER;
 #else
     if (errno == EISCONN)
@@ -227,7 +227,7 @@ NetSocketPosix::NetError NetSocketPosix::_get_socket_error() {
         return ERR_NET_IN_PROGRESS;
     if (errno == EAGAIN || errno == EWOULDBLOCK)
         return ERR_NET_WOULD_BLOCK;
-    ERR_PRINT("Socket error: " + ::to_string(errno))
+    print_verbose("Socket error: " + ::to_string(errno));
     return ERR_NET_OTHER;
 #endif
 }
@@ -409,8 +409,10 @@ Error NetSocketPosix::bind(IP_Address p_addr, uint16_t p_port) {
     size_t addr_size = _set_addr_storage(&addr, p_addr, p_port, _ip_type);
 
     if (::bind(_sock->sock, (struct sockaddr *)&addr, addr_size) != 0) {
+        _get_socket_error();
+        print_verbose("Failed to bind socket.");
         close();
-        ERR_FAIL_V(ERR_UNAVAILABLE);
+        return ERR_UNAVAILABLE;
     }
 
     return OK;
@@ -420,10 +422,11 @@ Error NetSocketPosix::listen(int p_max_pending) {
     ERR_FAIL_COND_V(!is_open(), ERR_UNCONFIGURED)
 
     if (::listen(_sock->sock, p_max_pending) != 0) {
-
+        _get_socket_error();
+        print_verbose("Failed to listen from socket.");
         close();
-        ERR_FAIL_V(FAILED);
-    };
+        return FAILED;
+    }
 
     return OK;
 }
@@ -449,7 +452,7 @@ Error NetSocketPosix::connect_to_host(IP_Address p_host, uint16_t p_port) {
             case ERR_NET_IN_PROGRESS:
                 return ERR_BUSY;
             default:
-                ERR_PRINT("Connection to remote host failed!");
+                print_verbose("Connection to remote host failed!");
                 close();
                 return FAILED;
         }
@@ -496,12 +499,18 @@ Error NetSocketPosix::poll(PollType p_type, int p_timeout) const {
     }
     int ret = select(1, rdp, wrp, &ex, tp);
 
-    ERR_FAIL_COND_V(ret == SOCKET_ERROR, FAILED)
+    if (ret == SOCKET_ERROR) {
+        return FAILED;
+    }
 
     if (ret == 0)
         return ERR_BUSY;
 
-    ERR_FAIL_COND_V(FD_ISSET(_sock->sock, &ex), FAILED)
+    if (FD_ISSET(_sock, &ex)) {
+        _get_socket_error();
+        print_verbose("Exception when polling socket.");
+        return FAILED;
+    }
 
     if (rdp && FD_ISSET(_sock->sock, rdp))
         ready = true;
@@ -528,8 +537,11 @@ Error NetSocketPosix::poll(PollType p_type, int p_timeout) const {
 
     int ret = ::poll(&pfd, 1, p_timeout);
 
-    ERR_FAIL_COND_V(ret < 0, FAILED)
-    ERR_FAIL_COND_V(pfd.revents & POLLERR, FAILED)
+    if (ret < 0 || pfd.revents & POLLERR) {
+        _get_socket_error();
+        print_verbose("Error when polling socket.");
+        return FAILED;
+    }
 
     if (ret == 0)
         return ERR_BUSY;
@@ -707,11 +719,15 @@ bool NetSocketPosix::is_open() const {
 
 int NetSocketPosix::get_available_bytes() const {
 
-    ERR_FAIL_COND_V(_sock->sock == SOCK_EMPTY, -1)
+    ERR_FAIL_COND_V(!is_open(), -1);
 
     unsigned long len;
     int ret = SOCK_IOCTL(_sock->sock, FIONREAD, &len);
-    ERR_FAIL_COND_V(ret == -1, 0)
+    if (ret == -1) {
+        _get_socket_error();
+        print_verbose("Error when checking available bytes on socket.");
+        return -1;
+    }
     return len;
 }
 
@@ -723,8 +739,11 @@ Ref<NetSocket> NetSocketPosix::accept(IP_Address &r_ip, uint16_t &r_port) {
     struct sockaddr_storage their_addr;
     socklen_t size = sizeof(their_addr);
     auto fd = ::accept(_sock->sock, (struct sockaddr *)&their_addr, &size);
-    ERR_FAIL_COND_V(fd == SOCK_EMPTY, out)
-
+    if (fd == SOCK_EMPTY) {
+        _get_socket_error();
+        print_verbose("Error when accepting socket connection.");
+        return out;
+    }
     _set_ip_port(&their_addr, r_ip, r_port);
 
     NetSocketPosix *ns = memnew(NetSocketPosix);

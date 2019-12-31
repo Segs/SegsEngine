@@ -52,6 +52,9 @@ class ScrollContainer : public Container {
     Vector2 last_drag_accum;
     float last_drag_time;
     float time_since_motion;
+
+    int deadzone;
+
     bool drag_touching;
     bool drag_touching_deaccel;
     bool click_handled;
@@ -59,8 +62,7 @@ class ScrollContainer : public Container {
 
     bool scroll_h;
     bool scroll_v;
-
-    int deadzone;
+    bool follow_focus;
 
     void _cancel_drag();
 
@@ -91,6 +93,9 @@ public:
 
     int get_deadzone() const;
     void set_deadzone(int p_deadzone);
+
+    bool is_following_focus() const;
+    void set_follow_focus(bool p_follow);
 
     HScrollBar *get_h_scrollbar();
     VScrollBar *get_v_scrollbar();

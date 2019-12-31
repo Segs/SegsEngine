@@ -617,24 +617,11 @@ Ref<Theme> create_editor_theme(const Ref<Theme>& p_theme) {
     theme->set_color("icon_color_pressed", "Button", icon_color_pressed);
 
     // OptionButton
-    Ref<StyleBoxFlat> style_option_button_normal = dynamic_ref_cast<StyleBoxFlat>(style_widget->duplicate());
-    Ref<StyleBoxFlat> style_option_button_hover = dynamic_ref_cast<StyleBoxFlat>(style_widget_hover->duplicate());
-    Ref<StyleBoxFlat> style_option_button_pressed = dynamic_ref_cast<StyleBoxFlat>(style_widget_pressed->duplicate());
-    Ref<StyleBoxFlat> style_option_button_focus = dynamic_ref_cast<StyleBoxFlat>(style_widget_focus->duplicate());
-    Ref<StyleBoxFlat> style_option_button_disabled = dynamic_ref_cast<StyleBoxFlat>(style_widget_disabled->duplicate());
-
-    int option_button_arrow_margin = theme->get_icon("GuiOptionArrow", "EditorIcons")->get_size().width + (default_margin_size + 4) * EDSCALE;
-    style_option_button_normal->set_default_margin(MARGIN_RIGHT, option_button_arrow_margin);
-    style_option_button_hover->set_default_margin(MARGIN_RIGHT, option_button_arrow_margin);
-    style_option_button_pressed->set_default_margin(MARGIN_RIGHT, option_button_arrow_margin);
-    style_option_button_focus->set_default_margin(MARGIN_RIGHT, option_button_arrow_margin);
-    style_option_button_disabled->set_default_margin(MARGIN_RIGHT, option_button_arrow_margin);
-
-    theme->set_stylebox("normal", "OptionButton", style_option_button_normal);
-    theme->set_stylebox("hover", "OptionButton", style_option_button_hover);
-    theme->set_stylebox("pressed", "OptionButton", style_option_button_pressed);
-    theme->set_stylebox("focus", "OptionButton", style_option_button_focus);
-    theme->set_stylebox("disabled", "OptionButton", style_option_button_disabled);
+    theme->set_stylebox("normal", "OptionButton", style_widget);
+    theme->set_stylebox("hover", "OptionButton", style_widget_hover);
+    theme->set_stylebox("pressed", "OptionButton", style_widget_pressed);
+    theme->set_stylebox("focus", "OptionButton", style_widget_focus);
+    theme->set_stylebox("disabled", "OptionButton", style_widget_disabled);
 
     theme->set_color("font_color", "OptionButton", font_color);
     theme->set_color("font_color_hover", "OptionButton", font_color_hl);
@@ -890,6 +877,7 @@ Ref<Theme> create_editor_theme(const Ref<Theme>& p_theme) {
     theme->set_stylebox("normal", "LineEdit", style_widget);
     theme->set_stylebox("focus", "LineEdit", style_widget_focus);
     theme->set_stylebox("read_only", "LineEdit", style_widget_disabled);
+    theme->set_icon("clear", "LineEdit", theme->get_icon("GuiClose", "EditorIcons"));
     theme->set_color("read_only", "LineEdit", font_color_disabled);
     theme->set_color("font_color", "LineEdit", font_color);
     theme->set_color("font_color_selected", "LineEdit", mono_color);
@@ -1135,6 +1123,9 @@ Ref<Theme> create_editor_theme(const Ref<Theme>& p_theme) {
 
     // FileDialog
     theme->set_icon("folder", "FileDialog", theme->get_icon("Folder", "EditorIcons"));
+    theme->set_icon("parent_folder", "FileDialog", theme->get_icon("ArrowUp", "EditorIcons"));
+    theme->set_icon("reload", "FileDialog", theme->get_icon("Reload", "EditorIcons"));
+    theme->set_icon("toggle_hidden", "FileDialog", theme->get_icon("GuiVisibilityVisible", "EditorIcons"));
     // Use a different color for folder icons to make them easier to distinguish from files.
     // On a light theme, the icon will be dark, so we need to lighten it before blending it with the accent color.
     theme->set_color("folder_icon_modulate", "FileDialog", (dark_theme ? Color(1, 1, 1) : Color(4.25f, 4.25f, 4.25f)).linear_interpolate(accent_color, 0.7f));

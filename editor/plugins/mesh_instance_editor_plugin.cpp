@@ -450,10 +450,10 @@ MeshInstanceEditor::MeshInstanceEditor() {
     //outline_dialog->set_child_rect(outline_dialog_vbc);
 
     outline_size = memnew(SpinBox);
-    outline_size->set_min(0.001);
+    outline_size->set_min(0.001f);
     outline_size->set_max(1024);
-    outline_size->set_step(0.001);
-    outline_size->set_value(0.05);
+    outline_size->set_step(0.001f);
+    outline_size->set_value(0.05f);
     outline_dialog_vbc->add_margin_child(TTR("Outline Size:"), outline_size);
 
     add_child(outline_dialog);
@@ -463,7 +463,7 @@ MeshInstanceEditor::MeshInstanceEditor() {
     add_child(err_dialog);
 
     debug_uv_dialog = memnew(AcceptDialog);
-    debug_uv_dialog->set_title("UV Channel Debug");
+    debug_uv_dialog->set_title(TTR("UV Channel Debug"));
     add_child(debug_uv_dialog);
     debug_uv = memnew(Control);
     debug_uv->set_custom_minimum_size(Size2(600, 600) * EDSCALE);

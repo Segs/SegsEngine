@@ -247,7 +247,7 @@ void MeshLibraryEditor::_menu_cbk(int p_option) {
         } break;
         case MENU_OPTION_UPDATE_FROM_SCENE: {
 
-            cd->set_text(StringName("Update from existing scene?:\n" + se_string(mesh_library->get_meta("_editor_source_scene"))));
+            cd->set_text(StringName(TTR("Update from existing scene?:\n") + se_string(mesh_library->get_meta("_editor_source_scene"))));
             cd->popup_centered(Size2(500, 60));
         } break;
     }
@@ -278,7 +278,7 @@ MeshLibraryEditor::MeshLibraryEditor(EditorNode *p_editor) {
     menu = memnew(MenuButton);
     SpatialEditor::get_singleton()->add_control_to_menu_panel(menu);
     menu->set_position(Point2(1, 1));
-    menu->set_text("Mesh Library");
+    menu->set_text(TTR("Mesh Library"));
     menu->set_icon(EditorNode::get_singleton()->get_gui_base()->get_icon("MeshLibrary", "EditorIcons"));
     menu->get_popup()->add_item(TTR("Add Item"), MENU_OPTION_ADD_ITEM);
     menu->get_popup()->add_item(TTR("Remove Selected Item"), MENU_OPTION_REMOVE_ITEM);
