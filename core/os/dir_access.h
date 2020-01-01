@@ -120,7 +120,7 @@ public:
 
 struct DirAccessRef {
 
-    _FORCE_INLINE_ DirAccess *operator->() {
+    DirAccess *operator->() {
 
         return f;
     }

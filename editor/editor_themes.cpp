@@ -89,7 +89,7 @@ static Ref<StyleBoxLine> make_line_stylebox(Color p_color, int p_thickness = 1, 
     return style;
 }
 
-Ref<ImageTexture> editor_generate_icon(const QString &resource_path,bool p_convert_color, float p_scale = EDSCALE, bool p_force_filter = false) {
+static Ref<ImageTexture> editor_generate_icon(const QString &resource_path,bool p_convert_color, float p_scale = EDSCALE, bool p_force_filter = false) {
 
     Ref<ImageTexture> icon(make_ref_counted<ImageTexture>());
     Ref<Image> img(make_ref_counted<Image>());
@@ -385,27 +385,31 @@ Ref<Theme> create_editor_theme(const Ref<Theme>& p_theme) {
     const Color separator_color = Color(mono_color.r, mono_color.g, mono_color.b, 0.1f);
 
     const Color highlight_color = Color(mono_color.r, mono_color.g, mono_color.b, 0.2f);
+    const Theme::ThemeColor generic_colors[] = {
+        {"accent_color", "Editor", accent_color },
+        {"highlight_color", "Editor", highlight_color },
+        {"base_color", "Editor", base_color },
+        {"dark_color_1", "Editor", dark_color_1 },
+        {"dark_color_2", "Editor", dark_color_2 },
+        {"dark_color_3", "Editor", dark_color_3 },
+        {"contrast_color_1", "Editor", contrast_color_1 },
+        {"contrast_color_2", "Editor", contrast_color_2 },
+        {"box_selection_fill_color", "Editor", accent_color * Color(1, 1, 1, 0.3f) },
+        {"box_selection_stroke_color", "Editor", accent_color * Color(1, 1, 1, 0.8f) },
 
-    theme->set_color("accent_color", "Editor", accent_color);
-    theme->set_color("highlight_color", "Editor", highlight_color);
-    theme->set_color("base_color", "Editor", base_color);
-    theme->set_color("dark_color_1", "Editor", dark_color_1);
-    theme->set_color("dark_color_2", "Editor", dark_color_2);
-    theme->set_color("dark_color_3", "Editor", dark_color_3);
-    theme->set_color("contrast_color_1", "Editor", contrast_color_1);
-    theme->set_color("contrast_color_2", "Editor", contrast_color_2);
-    theme->set_color("box_selection_fill_color", "Editor", accent_color * Color(1, 1, 1, 0.3f));
-    theme->set_color("box_selection_stroke_color", "Editor", accent_color * Color(1, 1, 1, 0.8f));
+        {"axis_x_color", "Editor", Color(0.96f, 0.20f, 0.32f) },
+        {"axis_y_color", "Editor", Color(0.53f, 0.84f, 0.01f) },
+        {"axis_z_color", "Editor", Color(0.16f, 0.55f, 0.96f) },
 
-    theme->set_color("axis_x_color", "Editor", Color(0.96f, 0.20f, 0.32f));
-    theme->set_color("axis_y_color", "Editor", Color(0.53f, 0.84f, 0.01f));
-    theme->set_color("axis_z_color", "Editor", Color(0.16f, 0.55f, 0.96f));
+        {"font_color", "Editor", font_color },
+        {"highlighted_font_color", "Editor", font_color_hl },
+        {"disabled_font_color", "Editor", font_color_disabled },
 
-    theme->set_color("font_color", "Editor", font_color);
-    theme->set_color("highlighted_font_color", "Editor", font_color_hl);
-    theme->set_color("disabled_font_color", "Editor", font_color_disabled);
+        {"mono_color", "Editor", mono_color },
 
-    theme->set_color("mono_color", "Editor", mono_color);
+    };
+
+    theme->set_colors(generic_colors);
 
     Color success_color = Color(0.45f, 0.95f, 0.5f);
     Color warning_color = Color(1, 0.87f, 0.4f);
@@ -690,14 +694,19 @@ Ref<Theme> create_editor_theme(const Ref<Theme>& p_theme) {
     theme->set_color("font_color_hover", "PopupMenu", font_color_hl);
     theme->set_color("font_color_accel", "PopupMenu", font_color_disabled);
     theme->set_color("font_color_disabled", "PopupMenu", font_color_disabled);
-    theme->set_icon("checked", "PopupMenu", theme->get_icon("GuiChecked", "EditorIcons"));
-    theme->set_icon("unchecked", "PopupMenu", theme->get_icon("GuiUnchecked", "EditorIcons"));
-    theme->set_icon("radio_checked", "PopupMenu", theme->get_icon("GuiRadioChecked", "EditorIcons"));
-    theme->set_icon("radio_unchecked", "PopupMenu", theme->get_icon("GuiRadioUnchecked", "EditorIcons"));
-    theme->set_icon("submenu", "PopupMenu", theme->get_icon("ArrowRight", "EditorIcons"));
-    theme->set_icon("visibility_hidden", "PopupMenu", theme->get_icon("GuiVisibilityHidden", "EditorIcons"));
-    theme->set_icon("visibility_visible", "PopupMenu", theme->get_icon("GuiVisibilityVisible", "EditorIcons"));
-    theme->set_icon("visibility_xray", "PopupMenu", theme->get_icon("GuiVisibilityXray", "EditorIcons"));
+
+    const Theme::ThemeIcon popup_icons[] = {
+        {"checked","GuiChecked","EditorIcons"},
+        {"unchecked","GuiUnchecked","EditorIcons"},
+        {"radio_checked","GuiRadioChecked","EditorIcons"},
+        {"radio_unchecked","GuiRadioUnchecked","EditorIcons"},
+        {"submenu","ArrowRight","EditorIcons"},
+        {"visibility_hidden","GuiVisibilityHidden","EditorIcons"},
+        {"visibility_visible","GuiVisibilityVisible","EditorIcons"},
+        {"visibility_xray","GuiVisibilityXray","EditorIcons"}
+    };
+
+    theme->set_icons(popup_icons,"PopupMenu");
     theme->set_constant("vseparation", "PopupMenu", (extra_spacing + default_margin_size + 1) * EDSCALE);
 
     Ref<StyleBoxFlat> sub_inspector_bg = make_flat_stylebox(dark_color_1.linear_interpolate(accent_color, 0.08f), 2, 0, 2, 2);
@@ -719,31 +728,45 @@ Ref<Theme> create_editor_theme(const Ref<Theme>& p_theme) {
     const Color guide_color = Color(mono_color.r, mono_color.g, mono_color.b, 0.05f);
     Color relationship_line_color = Color(mono_color.r, mono_color.g, mono_color.b, relationship_line_opacity);
     // Tree
-    theme->set_icon("checked", "Tree", theme->get_icon("GuiChecked", "EditorIcons"));
-    theme->set_icon("unchecked", "Tree", theme->get_icon("GuiUnchecked", "EditorIcons"));
-    theme->set_icon("arrow", "Tree", theme->get_icon("GuiTreeArrowDown", "EditorIcons"));
-    theme->set_icon("arrow_collapsed", "Tree", theme->get_icon("GuiTreeArrowRight", "EditorIcons"));
-    theme->set_icon("updown", "Tree", theme->get_icon("GuiTreeUpdown", "EditorIcons"));
-    theme->set_icon("select_arrow", "Tree", theme->get_icon("GuiDropdown", "EditorIcons"));
+    const Theme::ThemeIcon tree_icons[] = {
+        {"checked", "GuiChecked", "EditorIcons" },
+        {"unchecked", "GuiUnchecked", "EditorIcons" },
+        {"arrow", "GuiTreeArrowDown", "EditorIcons" },
+        {"arrow_collapsed", "GuiTreeArrowRight", "EditorIcons" },
+        {"updown", "GuiTreeUpdown", "EditorIcons" },
+        {"select_arrow", "GuiDropdown", "EditorIcons" },
+
+    };
+
     theme->set_stylebox("bg_focus", "Tree", style_focus);
     theme->set_stylebox("custom_button", "Tree", make_empty_stylebox());
     theme->set_stylebox("custom_button_pressed", "Tree", make_empty_stylebox());
     theme->set_stylebox("custom_button_hover", "Tree", style_widget);
-    theme->set_color("custom_button_font_highlight", "Tree", font_color_hl);
-    theme->set_color("font_color", "Tree", font_color);
-    theme->set_color("font_color_selected", "Tree", mono_color);
-    theme->set_color("title_button_color", "Tree", font_color);
-    theme->set_color("guide_color", "Tree", guide_color);
-    theme->set_color("relationship_line_color", "Tree", relationship_line_color);
-    theme->set_color("drop_position_color", "Tree", accent_color);
-    theme->set_constant("vseparation", "Tree", (extra_spacing + default_margin_size) * EDSCALE);
-    theme->set_constant("hseparation", "Tree", (extra_spacing + default_margin_size) * EDSCALE);
-    theme->set_constant("item_margin", "Tree", 3 * default_margin_size * EDSCALE);
-    theme->set_constant("button_margin", "Tree", default_margin_size * EDSCALE);
-    theme->set_constant("draw_relationship_lines", "Tree", relationship_line_opacity >= 0.01f);
-    theme->set_constant("draw_guides", "Tree", relationship_line_opacity < 0.01f);
-    theme->set_constant("scroll_border", "Tree", 40 * EDSCALE);
-    theme->set_constant("scroll_speed", "Tree", 12);
+
+    const Theme::ThemeColor tree_colors[] = {
+        {"custom_button_font_highlight", "Tree", font_color_hl },
+        {"font_color", "Tree", font_color },
+        {"font_color_selected", "Tree", mono_color },
+        {"title_button_color", "Tree", font_color },
+        {"guide_color", "Tree", guide_color },
+        {"relationship_line_color", "Tree", relationship_line_color },
+        {"drop_position_color", "Tree", accent_color },
+    };
+
+    const Theme::ThemeConstant tree_constants[] = {
+        {"vseparation", "Tree", (extra_spacing + default_margin_size) * EDSCALE},
+        {"hseparation", "Tree", (extra_spacing + default_margin_size) * EDSCALE},
+        {"item_margin", "Tree", 3 * default_margin_size * EDSCALE},
+        {"button_margin", "Tree", default_margin_size * EDSCALE},
+        {"draw_relationship_lines", "Tree", relationship_line_opacity >= 0.01f},
+        {"draw_guides", "Tree", relationship_line_opacity < 0.01f},
+        {"scroll_border", "Tree", 40 * EDSCALE},
+        {"scroll_speed", "Tree", 12},
+    };
+
+    theme->set_icons(tree_icons, "Tree");
+    theme->set_colors(tree_colors);
+    theme->set_constants(tree_constants);
 
     Ref<StyleBoxFlat> style_tree_btn = dynamic_ref_cast<StyleBoxFlat>(style_default->duplicate());
     style_tree_btn->set_bg_color(contrast_color_1);
@@ -820,21 +843,27 @@ Ref<Theme> create_editor_theme(const Ref<Theme>& p_theme) {
     theme->set_color("font_color_bg", "TabContainer", font_color_disabled);
     theme->set_color("font_color_fg", "Tabs", font_color);
     theme->set_color("font_color_bg", "Tabs", font_color_disabled);
-    theme->set_icon("menu", "TabContainer", theme->get_icon("GuiTabMenu", "EditorIcons"));
-    theme->set_icon("menu_highlight", "TabContainer", theme->get_icon("GuiTabMenuHl", "EditorIcons"));
     theme->set_stylebox("SceneTabFG", "EditorStyles", style_tab_selected);
     theme->set_stylebox("SceneTabBG", "EditorStyles", style_tab_unselected);
-    theme->set_icon("close", "Tabs", theme->get_icon("GuiClose", "EditorIcons"));
     theme->set_stylebox("button_pressed", "Tabs", style_menu);
     theme->set_stylebox("button", "Tabs", style_menu);
-    theme->set_icon("increment", "TabContainer", theme->get_icon("GuiScrollArrowRight", "EditorIcons"));
-    theme->set_icon("decrement", "TabContainer", theme->get_icon("GuiScrollArrowLeft", "EditorIcons"));
-    theme->set_icon("increment", "Tabs", theme->get_icon("GuiScrollArrowRight", "EditorIcons"));
-    theme->set_icon("decrement", "Tabs", theme->get_icon("GuiScrollArrowLeft", "EditorIcons"));
-    theme->set_icon("increment_highlight", "Tabs", theme->get_icon("GuiScrollArrowRightHl", "EditorIcons"));
-    theme->set_icon("decrement_highlight", "Tabs", theme->get_icon("GuiScrollArrowLeftHl", "EditorIcons"));
-    theme->set_icon("increment_highlight", "TabContainer", theme->get_icon("GuiScrollArrowRightHl", "EditorIcons"));
-    theme->set_icon("decrement_highlight", "TabContainer", theme->get_icon("GuiScrollArrowLeftHl", "EditorIcons"));
+    const Theme::ThemeIcon tab_icons[] = {
+        {"close", "GuiClose", "EditorIcons" },
+        {"increment", "GuiScrollArrowRight", "EditorIcons" },
+        {"decrement", "GuiScrollArrowLeft", "EditorIcons" },
+        {"increment_highlight", "GuiScrollArrowRightHl", "EditorIcons" },
+        {"decrement_highlight", "GuiScrollArrowLeftHl", "EditorIcons" },
+    };
+    const Theme::ThemeIcon tab_container_icons[] = {
+        {"menu", "GuiTabMenu", "EditorIcons" },
+        {"menu_highlight", "GuiTabMenuHl", "EditorIcons" },
+        {"increment", "GuiScrollArrowRight", "EditorIcons" },
+        {"decrement", "GuiScrollArrowLeft", "EditorIcons" },
+        {"increment_highlight", "GuiScrollArrowRightHl", "EditorIcons" },
+        {"decrement_highlight", "GuiScrollArrowLeftHl", "EditorIcons" },
+    };
+    theme->set_icons(tab_icons,"Tabs");
+    theme->set_icons(tab_container_icons,"TabContainer");
     theme->set_constant("hseparation", "Tabs", 4 * EDSCALE);
 
     // Content of each tab
@@ -878,13 +907,17 @@ Ref<Theme> create_editor_theme(const Ref<Theme>& p_theme) {
     theme->set_stylebox("focus", "LineEdit", style_widget_focus);
     theme->set_stylebox("read_only", "LineEdit", style_widget_disabled);
     theme->set_icon("clear", "LineEdit", theme->get_icon("GuiClose", "EditorIcons"));
-    theme->set_color("read_only", "LineEdit", font_color_disabled);
-    theme->set_color("font_color", "LineEdit", font_color);
-    theme->set_color("font_color_selected", "LineEdit", mono_color);
-    theme->set_color("cursor_color", "LineEdit", font_color);
-    theme->set_color("selection_color", "LineEdit", font_color_selection);
-    theme->set_color("clear_button_color", "LineEdit", font_color);
-    theme->set_color("clear_button_color_pressed", "LineEdit", accent_color);
+    const Theme::ThemeColor line_edit_colors[] = {
+        {"read_only", "LineEdit", font_color_disabled },
+        {"font_color", "LineEdit", font_color },
+        {"font_color_selected", "LineEdit", mono_color },
+        {"cursor_color", "LineEdit", font_color },
+        {"selection_color", "LineEdit", font_color_selection },
+        {"clear_button_color", "LineEdit", font_color },
+        {"clear_button_color_pressed", "LineEdit", accent_color },
+
+    };
+    theme->set_colors(line_edit_colors);
 
     // TextEdit
     theme->set_stylebox("normal", "TextEdit", style_widget);
@@ -910,16 +943,18 @@ Ref<Theme> create_editor_theme(const Ref<Theme>& p_theme) {
     theme->set_constant("separation", "VSplitContainer", default_margin_size * 2 * EDSCALE);
 
     // Containers
-    theme->set_constant("separation", "BoxContainer", default_margin_size * EDSCALE);
-    theme->set_constant("separation", "HBoxContainer", default_margin_size * EDSCALE);
-    theme->set_constant("separation", "VBoxContainer", default_margin_size * EDSCALE);
-    theme->set_constant("margin_left", "MarginContainer", 0);
-    theme->set_constant("margin_top", "MarginContainer", 0);
-    theme->set_constant("margin_right", "MarginContainer", 0);
-    theme->set_constant("margin_bottom", "MarginContainer", 0);
-    theme->set_constant("hseparation", "GridContainer", default_margin_size * EDSCALE);
-    theme->set_constant("vseparation", "GridContainer", default_margin_size * EDSCALE);
-
+    const Theme::ThemeConstant container_constants[] = {
+        {"separation", "BoxContainer", default_margin_size * EDSCALE},
+        {"separation", "HBoxContainer", default_margin_size * EDSCALE},
+        {"separation", "VBoxContainer", default_margin_size * EDSCALE},
+        {"margin_left", "MarginContainer", 0},
+        {"margin_top", "MarginContainer", 0},
+        {"margin_right", "MarginContainer", 0},
+        {"margin_bottom", "MarginContainer", 0},
+        {"hseparation", "GridContainer", default_margin_size * EDSCALE},
+        {"vseparation", "GridContainer", default_margin_size * EDSCALE}
+    };
+    theme->set_constants(container_constants);
     // WindowDialog
     Ref<StyleBoxFlat> style_window = dynamic_ref_cast<StyleBoxFlat>(style_popup->duplicate());
     style_window->set_border_color(tab_color);
@@ -1106,13 +1141,15 @@ Ref<Theme> create_editor_theme(const Ref<Theme>& p_theme) {
     default_node_color.a = 0.7f;
     theme->set_color("close_color", "GraphNode", default_node_color);
     theme->set_color("resizer_color", "GraphNode", default_node_color);
-
-    theme->set_constant("port_offset", "GraphNode", 14 * EDSCALE);
-    theme->set_constant("title_h_offset", "GraphNode", -16 * EDSCALE);
-    theme->set_constant("title_offset", "GraphNode", 20 * EDSCALE);
-    theme->set_constant("close_h_offset", "GraphNode", 20 * EDSCALE);
-    theme->set_constant("close_offset", "GraphNode", 20 * EDSCALE);
-    theme->set_constant("separation", "GraphNode", 1 * EDSCALE);
+    const Theme::ThemeConstant graph_node_constants[] = {
+        {"port_offset", "GraphNode", int(14 * EDSCALE)},
+        {"title_h_offset", "GraphNode", int(-16 * EDSCALE)},
+        {"title_offset", "GraphNode", int(20 * EDSCALE)},
+        {"close_h_offset", "GraphNode", int(20 * EDSCALE)},
+        {"close_offset", "GraphNode", int(20 * EDSCALE)},
+        {"separation", "GraphNode", int(1 * EDSCALE)},
+    };
+    theme->set_constants(graph_node_constants);
 
     theme->set_icon("close", "GraphNode", theme->get_icon("GuiCloseCustomizable", "EditorIcons"));
     theme->set_icon("resizer", "GraphNode", theme->get_icon("GuiResizer", "EditorIcons"));

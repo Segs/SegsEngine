@@ -240,8 +240,8 @@ private:
     VSplitContainer *center_split;
 
     // To access those easily by index
-    Vector<VSplitContainer *> vsplits;
-    Vector<HSplitContainer *> hsplits;
+    FixedVector<VSplitContainer *,4,true> vsplits;
+    FixedVector<HSplitContainer *,4,true> hsplits;
 
     // Main tabs
 

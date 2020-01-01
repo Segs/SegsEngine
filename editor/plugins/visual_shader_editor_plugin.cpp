@@ -2105,7 +2105,7 @@ Variant VisualShaderEditor::get_drag_data_fw(const Point2 &p_point, Control *p_f
             return Variant();
 
         int id = it->get_meta("id");
-        AddOption op = add_options[id];
+        const AddOption &op = add_options[id];
 
         Dictionary d;
         d["id"] = id;

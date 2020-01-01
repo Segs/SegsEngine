@@ -111,7 +111,7 @@ private:
         data = p_image.data;
     }
 
-    _FORCE_INLINE_ void _get_mipmap_offset_and_size(int p_mipmap, int &r_offset, int &r_width, int &r_height) const; //get where the mipmap begins in data
+    void _get_mipmap_offset_and_size(int p_mipmap, int &r_offset, int &r_width, int &r_height) const; //get where the mipmap begins in data
 
     bool _can_modify(Format p_format) const;
 

@@ -57,14 +57,14 @@ VARIANT_ENUM_CAST(ObjectNS::ConnectFlags);
 
 template <typename T>
 struct VariantObjectClassChecker {
-    static _FORCE_INLINE_ bool check(const Variant &) {
+    static bool check(const Variant &) {
         return true;
     }
 };
 
 template <>
 struct VariantObjectClassChecker<Node *> {
-    static _FORCE_INLINE_ bool check(const Variant &p_variant) {
+    static bool check(const Variant &p_variant) {
         Object *obj = (Object *)p_variant;
         Node *node = (Node *)p_variant;
         return node || !obj;
@@ -73,7 +73,7 @@ struct VariantObjectClassChecker<Node *> {
 
 template <>
 struct VariantObjectClassChecker<Control *> {
-    static _FORCE_INLINE_ bool check(const Variant &p_variant) {
+    static bool check(const Variant &p_variant) {
         Object *obj = p_variant;
         Control *control = p_variant;
         return control || !obj;
@@ -99,7 +99,7 @@ VARIANT_ENUM_CAST(Variant::Operator)
 
 template <>
 struct VariantCaster<char16_t> {
-    static _FORCE_INLINE_ char16_t cast(const Variant &p_variant) {
+    static char16_t cast(const Variant &p_variant) {
         return (char16_t)p_variant.operator int();
     }
 };

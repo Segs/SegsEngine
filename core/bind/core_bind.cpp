@@ -1009,7 +1009,7 @@ void _OS::print_all_textures_by_size() {
 
 void _OS::print_resources_by_type(const Vector<se_string> &p_types) {
 
-    HashMap<se_string, int> type_count;
+    DefHashMap<se_string, int> type_count;
 
     ListPOD<Ref<Resource> > rsrc;
     ResourceCache::get_cached_resources(&rsrc);

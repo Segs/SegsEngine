@@ -61,7 +61,14 @@ using VariantFunc = void (*)(Variant &, Variant &, const Variant **);
 using VariantConstructFunc = void (*)(Variant &, const Variant **);
 
 struct _VariantCall {
-
+    struct Arg {
+        const char * name;
+        VariantType type;
+        constexpr Arg(VariantType p_type, const char *p_name) :
+            name(p_name),
+            type(p_type) { }
+        constexpr Arg() : name(nullptr),type(VariantType::NIL) {}
+    };
     static void Vector3_dot(Variant &r_ret, Variant &p_self, const Variant **p_args) {
 
         r_ret = reinterpret_cast<Vector3 *>(p_self._data._mem)->dot(*reinterpret_cast<const Vector3 *>(p_args[0]->_data._mem));
@@ -70,17 +77,32 @@ struct _VariantCall {
     struct FuncData {
 
         int arg_count;
-        PODVector<Variant> default_args;
-        Vector<VariantType> arg_types;
-        Vector<StringName> arg_names;
+        FixedVector<Variant,5> default_args;
+        FixedVector<VariantType,5> arg_types;
+        se_string_view arg_names[5] = {};
         VariantType return_type;
 
         bool _const;
         bool returns;
 
         VariantFunc func;
-
-        _FORCE_INLINE_ bool verify_arguments(const Variant **p_args, Variant::CallError &r_error) {
+        FuncData() = default;
+        constexpr FuncData(bool p_const, VariantType p_return, bool p_has_return, VariantFunc p_func, const
+            std::initializer_list<Variant> p_defaultarg, std::initializer_list<const Arg> p_argtype1) : func(p_func), default_args(p_defaultarg),_const(p_const),returns(p_has_return),return_type(p_return),arg_count(p_argtype1.size()) {
+            int idx=0;
+            for(const Arg & a : p_argtype1) {
+                if(a.name) {
+                    arg_types.push_back(a.type);
+#ifdef DEBUG_ENABLED
+                    arg_names[idx] = a.name;
+#endif
+                }
+                else
+                    break;
+                ++idx;
+            }
+        }
+        bool verify_arguments(const Variant **p_args, Variant::CallError &r_error) {
 
             if (arg_count == 0)
                 return true;
@@ -101,7 +123,7 @@ struct _VariantCall {
             return true;
         }
 
-        _FORCE_INLINE_ void call(Variant &r_ret, Variant &p_self, const Variant **p_args, int p_argcount, Variant::CallError &r_error) {
+        void call(Variant &r_ret, Variant &p_self, const Variant **p_args, int p_argcount, Variant::CallError &r_error) {
 #ifdef DEBUG_ENABLED
             if (p_argcount > arg_count) {
                 r_error.error = Variant::CallError::CALL_ERROR_TOO_MANY_ARGUMENTS;
@@ -142,6 +164,12 @@ struct _VariantCall {
         }
     };
 
+    struct VariantFuncDef {
+        VariantType type;
+        StaticCString method;
+        FuncData func_def;
+    };
+
     struct TypeFunc {
 
         Map<StringName, FuncData> functions;
@@ -149,15 +177,7 @@ struct _VariantCall {
 
     static TypeFunc *type_funcs;
 
-    struct Arg {
-        StringName name;
-        VariantType type;
-        Arg() { type = VariantType::NIL; }
-        Arg(VariantType p_type, const StringName &p_name) :
-                name(p_name),
-                type(p_type) {
-        }
-    };
+
 
     //void addfunc(VariantType p_type, const StringName& p_name,VariantFunc p_func);
 
@@ -166,6 +186,16 @@ struct _VariantCall {
 #ifdef DEBUG_ENABLED
         type_funcs[(int)p_type].functions[p_name].returns = true;
 #endif
+    }
+    static void addfunc_span(bool p_const, VariantType p_type, VariantType p_return, bool p_has_return, const StringName &p_name, VariantFunc p_func, const
+        std::initializer_list<Variant> p_defaultarg, std::initializer_list<const Arg> p_args) {
+        FuncData funcdata(p_const,p_return,p_has_return,p_func,p_defaultarg,p_args);
+        type_funcs[(int)p_type].functions[p_name] = funcdata;
+    }
+    static void addfunc_span(Span<const VariantFuncDef> funcs) {
+        for(const VariantFuncDef &fdef : funcs) {
+            type_funcs[(int)fdef.type].functions[fdef.method] = fdef.func_def;
+        }
     }
 
     static void addfunc(bool p_const, VariantType p_type, VariantType p_return, bool p_has_return, const StringName &p_name, VariantFunc p_func, const
@@ -177,11 +207,11 @@ struct _VariantCall {
         funcdata._const = p_const;
         funcdata.returns = p_has_return;
         funcdata.return_type = p_return;
-
+        int idx = 0;
         if (p_argtype1.name) {
             funcdata.arg_types.push_back(p_argtype1.type);
 #ifdef DEBUG_ENABLED
-            funcdata.arg_names.push_back(p_argtype1.name);
+            funcdata.arg_names[idx++] = p_argtype1.name;
 #endif
 
         } else
@@ -190,7 +220,7 @@ struct _VariantCall {
         if (p_argtype2.name) {
             funcdata.arg_types.push_back(p_argtype2.type);
 #ifdef DEBUG_ENABLED
-            funcdata.arg_names.push_back(p_argtype2.name);
+            funcdata.arg_names[idx++] = p_argtype2.name;
 #endif
 
         } else
@@ -199,7 +229,7 @@ struct _VariantCall {
         if (p_argtype3.name) {
             funcdata.arg_types.push_back(p_argtype3.type);
 #ifdef DEBUG_ENABLED
-            funcdata.arg_names.push_back(p_argtype3.name);
+            funcdata.arg_names[idx++] = p_argtype3.name;
 #endif
 
         } else
@@ -208,7 +238,7 @@ struct _VariantCall {
         if (p_argtype4.name) {
             funcdata.arg_types.push_back(p_argtype4.type);
 #ifdef DEBUG_ENABLED
-            funcdata.arg_names.push_back(p_argtype4.name);
+            funcdata.arg_names[idx++] = p_argtype4.name;
 #endif
         } else
             goto end;
@@ -216,7 +246,7 @@ struct _VariantCall {
         if (p_argtype5.name) {
             funcdata.arg_types.push_back(p_argtype5.type);
 #ifdef DEBUG_ENABLED
-            funcdata.arg_names.push_back(p_argtype5.name);
+            funcdata.arg_names[idx++] = p_argtype5.name;
 #endif
         } else
             goto end;
@@ -1452,13 +1482,13 @@ bool Variant::has_method(const StringName &p_method) const {
     return tf.functions.contains(p_method);
 }
 
-Vector<VariantType> Variant::get_method_argument_types(VariantType p_type, const StringName &p_method) {
+Span<const VariantType> Variant::get_method_argument_types(VariantType p_type, const StringName &p_method) {
 
     const _VariantCall::TypeFunc &tf = _VariantCall::type_funcs[(int)p_type];
 
     const Map<StringName, _VariantCall::FuncData>::const_iterator E = tf.functions.find(p_method);
     if (E==tf.functions.end())
-        return Vector<VariantType>();
+        return {};
 
     return E->second.arg_types;
 }
@@ -1474,15 +1504,15 @@ bool Variant::is_method_const(VariantType p_type, const StringName &p_method) {
     return E->second._const;
 }
 
-Vector<StringName> Variant::get_method_argument_names(VariantType p_type, const StringName &p_method) {
+Span<const se_string_view> Variant::get_method_argument_names(VariantType p_type, const StringName &p_method) {
 
     const _VariantCall::TypeFunc &tf = _VariantCall::type_funcs[(int)p_type];
 
     const Map<StringName, _VariantCall::FuncData>::const_iterator E = tf.functions.find(p_method);
     if (E==tf.functions.end())
-        return Vector<StringName>();
+        return {};
 
-    return E->second.arg_names;
+    return Span<const se_string_view>(E->second.arg_names, ptrdiff_t(E->second.arg_count));
 }
 
 VariantType Variant::get_method_return_type(VariantType p_type, const StringName &p_method, bool *r_has_return) {
@@ -1500,12 +1530,12 @@ VariantType Variant::get_method_return_type(VariantType p_type, const StringName
 }
 static const PODVector<Variant> s_empty;
 
-const PODVector<Variant> &Variant::get_method_default_arguments(VariantType p_type, const StringName &p_method) {
+Span<const Variant> Variant::get_method_default_arguments(VariantType p_type, const StringName &p_method) {
     const _VariantCall::TypeFunc &tf = _VariantCall::type_funcs[(int)p_type];
 
     const Map<StringName, _VariantCall::FuncData>::const_iterator E = tf.functions.find(p_method);
     if (E==tf.functions.end())
-        return s_empty;
+        return {};
 
     return E->second.default_args;
 }
@@ -1530,12 +1560,12 @@ void Variant::get_method_list(PODVector<MethodInfo> *p_list) const {
             PropertyInfo pi;
             pi.type = fd.arg_types[i];
 #ifdef DEBUG_ENABLED
-            pi.name = fd.arg_names[i];
+            pi.name = StaticCString(fd.arg_names[i].data(),true);
 #endif
             mi.arguments.push_back(pi);
         }
 
-        mi.default_arguments = fd.default_args;
+        mi.default_arguments.assign(fd.default_args.begin(), fd.default_args.end());
         PropertyInfo ret;
 #ifdef DEBUG_ENABLED
         ret.type = fd.return_type;
@@ -1637,13 +1667,41 @@ Variant Variant::get_constant_value(VariantType p_type, const StringName &p_valu
 
     return E->second;
 }
+static const _VariantCall::VariantFuncDef StringFunctions[] = {
+    {VariantType::STRING,StaticCString("casecmp_to"),_VariantCall::FuncData(true,VariantType::INT,true,VCALL(String,casecmp_to),{},{ _VariantCall::Arg(VariantType::STRING, "to") } ) },
+    {VariantType::STRING,StaticCString("nocasecmp_to"),_VariantCall::FuncData(true,VariantType::INT,true,VCALL(String,nocasecmp_to),{},{ _VariantCall::Arg(VariantType::STRING, "to") }) },
+    {VariantType::STRING,StaticCString("length"),_VariantCall::FuncData(true,VariantType::INT,true,VCALL(String,length),{},{}) },
+    {VariantType::STRING,StaticCString("substr"),_VariantCall::FuncData(true,VariantType::STRING,true,VCALL(String,substr),{-1},{ _VariantCall::Arg(VariantType::INT, "from"), _VariantCall::Arg(VariantType::INT, "len") }) },
+    {VariantType::STRING,StaticCString("find"),_VariantCall::FuncData(true,VariantType::INT,true,VCALL(String,find),{0},{ {VariantType::STRING, "what"}, {VariantType::INT, "from"}}) },
+    {VariantType::STRING,StaticCString("findn"),_VariantCall::FuncData(true,VariantType::INT,true,VCALL(String,findn),{0},{ {VariantType::STRING, "what"}, {VariantType::INT, "from"}}) },
+    {VariantType::STRING,StaticCString("rfind"),_VariantCall::FuncData(true,VariantType::INT,true,VCALL(String,rfind),{-1},{ {VariantType::STRING, "what"}, {VariantType::INT, "from"}}) },
+    {VariantType::STRING,StaticCString("rfindn"),_VariantCall::FuncData(true,VariantType::INT,true,VCALL(String,rfindn),{-1},{ {VariantType::STRING, "what"}, {VariantType::INT, "from"}}) },
+    {VariantType::STRING,StaticCString("count"),_VariantCall::FuncData(true,VariantType::INT,true,VCALL(String,count),{0,0},{ {VariantType::STRING, "what"}, {VariantType::INT, "from"}, {VariantType::INT, "to"}}) },
+    {VariantType::STRING,StaticCString("countn"),_VariantCall::FuncData(true,VariantType::INT,true,VCALL(String,countn),{0,0},{ {VariantType::STRING, "what"}, {VariantType::INT, "from"}, {VariantType::INT, "to"}}) },
+    {VariantType::STRING,StaticCString("find_last"),_VariantCall::FuncData(true,VariantType::INT,true,VCALL(String,find_last),{},{ {VariantType::STRING, "what"}}) },
 
+    {VariantType::STRING,StaticCString("match"),_VariantCall::FuncData(true,VariantType::BOOL,true,VCALL(String,match),{},{ {VariantType::STRING, "expr"}}) },
+    {VariantType::STRING,StaticCString("matchn"),_VariantCall::FuncData(true,VariantType::BOOL,true,VCALL(String,matchn),{},{ {VariantType::STRING, "expr"}}) },
+    {VariantType::STRING,StaticCString("begins_with"),_VariantCall::FuncData(true,VariantType::BOOL,true,VCALL(String,begins_with),{},{ {VariantType::STRING, "text"}}) },
+    {VariantType::STRING,StaticCString("ends_with"),_VariantCall::FuncData(true,VariantType::BOOL,true,VCALL(String,ends_with),{},{ {VariantType::STRING, "text"}}) },
+    {VariantType::STRING,StaticCString("is_subsequence_of"),_VariantCall::FuncData(true,VariantType::BOOL,true,VCALL(String,is_subsequence_of),{},{ {VariantType::STRING, "text"}}) },
+    {VariantType::STRING,StaticCString("is_subsequence_ofi"),_VariantCall::FuncData(true,VariantType::BOOL,true,VCALL(String,is_subsequence_ofi),{},{ {VariantType::STRING, "text"}}) },
+
+
+    {VariantType::STRING,StaticCString("format"),_VariantCall::FuncData(true,VariantType::STRING,true,VCALL(String,format),{},{ {VariantType::NIL, "values"}}) },
+    {VariantType::STRING,StaticCString("replace"),_VariantCall::FuncData(true,VariantType::STRING,true,VCALL(String,replace),{},{ {VariantType::STRING, "what"},{VariantType::STRING, "forwhat"}}) },
+    {VariantType::STRING,StaticCString("replacen"),_VariantCall::FuncData(true,VariantType::STRING,true,VCALL(String,replacen),{},{ {VariantType::STRING, "what"},{VariantType::STRING, "forwhat"}}) },
+
+};
 void register_variant_methods() {
 
     _VariantCall::type_funcs = memnew_arr(_VariantCall::TypeFunc, int(VariantType::VARIANT_MAX));
 
     _VariantCall::construct_funcs = memnew_arr(_VariantCall::ConstructFunc, int(VariantType::VARIANT_MAX));
     _VariantCall::constant_data = memnew_arr(_VariantCall::ConstantData, int(VariantType::VARIANT_MAX));
+
+#define ADDFUNCSR(m_vtype, m_ret, m_class, m_method,m_arg_span, ...) \
+    _VariantCall::addfunc_span(true, VariantType::m_vtype, VariantType::m_ret, true, StringName(#m_method), VCALL(m_class, m_method), {__VA_ARGS__},m_arg_span);
 
 #define ADDFUNC0R(m_vtype, m_ret, m_class, m_method) \
     _VariantCall::addfunc(true, VariantType::m_vtype, VariantType::m_ret, true, StringName(#m_method), VCALL(m_class, m_method), {});
@@ -1689,32 +1747,14 @@ void register_variant_methods() {
 #define ADDFUNC4NC(m_vtype, m_ret, m_class, m_method, m_arg1, m_argname1, m_arg2, m_argname2, m_arg3, m_argname3, m_arg4, m_argname4, ...) \
     _VariantCall::addfunc(false, VariantType::m_vtype, VariantType::m_ret, false, StringName(#m_method), VCALL(m_class, m_method), {__VA_ARGS__}, _VariantCall::Arg(VariantType::m_arg1, (m_argname1)), _VariantCall::Arg(VariantType::m_arg2, (m_argname2)), _VariantCall::Arg(VariantType::m_arg3, (m_argname3)), _VariantCall::Arg(VariantType::m_arg4, (m_argname4)));
 
+
+    _VariantCall::addfunc_span(StringFunctions);
+    
     /* STRING */
-    ADDFUNC1R(STRING, INT, String, casecmp_to, STRING, "to")
-    ADDFUNC1R(STRING, INT, String, nocasecmp_to, STRING, "to")
-    ADDFUNC0R(STRING, INT, String, length)
-    ADDFUNC2R(STRING, STRING, String, substr, INT, "from", INT, "len", {-1})
 
-    ADDFUNC2R(STRING, INT, String, find, STRING, "what", INT, "from", {0})
-    ADDFUNC3R(STRING, INT, String, count, STRING, "what", INT, "from", INT, "to", 0, 0)
-    ADDFUNC3R(STRING, INT, String, countn, STRING, "what", INT, "from", INT, "to", 0, 0)
-
-    ADDFUNC1R(STRING, INT, String, find_last, STRING, "what")
-    ADDFUNC2R(STRING, INT, String, findn, STRING, "what", INT, "from", {0})
-    ADDFUNC2R(STRING, INT, String, rfind, STRING, "what", INT, "from", {-1})
-    ADDFUNC2R(STRING, INT, String, rfindn, STRING, "what", INT, "from", {-1})
-    ADDFUNC1R(STRING, BOOL, String, match, STRING, "expr")
-    ADDFUNC1R(STRING, BOOL, String, matchn, STRING, "expr")
-    ADDFUNC1R(STRING, BOOL, String, begins_with, STRING, "text")
-    ADDFUNC1R(STRING, BOOL, String, ends_with, STRING, "text")
-    ADDFUNC1R(STRING, BOOL, String, is_subsequence_of, STRING, "text")
-    ADDFUNC1R(STRING, BOOL, String, is_subsequence_ofi, STRING, "text")
 //    ADDFUNC0R(STRING, POOL_STRING_ARRAY, String, bigrams)
 //    ADDFUNC1R(STRING, REAL, String, similarity, STRING, "text")
 
-    ADDFUNC1R(STRING, STRING, String, format, NIL, "values")
-    ADDFUNC2R(STRING, STRING, String, replace, STRING, "what", STRING, "forwhat")
-    ADDFUNC2R(STRING, STRING, String, replacen, STRING, "what", STRING, "forwhat")
     ADDFUNC1R(STRING, STRING, String, repeat, INT, "count")
     ADDFUNC2R(STRING, STRING, String, insert, INT, "position", STRING, "what")
     ADDFUNC0R(STRING, STRING, String, capitalize)

@@ -35,6 +35,7 @@
 #include "core/hashfuncs.h"
 #include "core/variant.h"
 #include "core/set.h"
+#include "core/list.h"
 
 #include "EASTL/vector.h"
 
@@ -121,8 +122,8 @@ public:
         APIType api;
         ClassInfo *inherits_ptr;
         DefHashMap<StringName, MethodBind *> method_map;
-        HashMap<StringName, int> constant_map;
-        HashMap<StringName, ListPOD<StringName> > enum_map;
+        DefHashMap<StringName, int> constant_map;
+        DefHashMap<StringName, ListPOD<StringName> > enum_map;
         HashMap<StringName, MethodInfo> signal_map;
         PODVector<PropertyInfo> property_list;
 #ifdef DEBUG_METHODS_ENABLED

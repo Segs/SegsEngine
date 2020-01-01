@@ -179,9 +179,9 @@ ClassDB::APIType ClassDB::get_api_type(const StringName &p_class) {
 
 uint64_t ClassDB::get_api_hash(APIType p_api) {
 
+    using class_iter = DefHashMap<StringName, ClassInfo>::iterator;
     RWLockRead _rw_lockr_(lock);
 #ifdef DEBUG_METHODS_ENABLED
-    using class_iter = DefHashMap<StringName, ClassInfo>::iterator;
     uint64_t hash = hash_djb2_one_64(Hasher<const char *>()(VERSION_FULL_CONFIG));
     // TODO: bunch of copiers are made here, the containers should just hold pointers/const references to objects ?
     PODVector<class_iter> entries;
@@ -195,9 +195,9 @@ uint64_t ClassDB::get_api_hash(APIType p_api) {
             [](class_iter a, class_iter b) -> bool { return StringName::AlphCompare(a->first, b->first); });
     // must be alphabetically sorted for hash to compute
     PODVector<StringName> snames;
-    const StringName *k = nullptr;
+    const StringName *k;
 
-    for (auto iter : entries) {
+    for (const auto &iter : entries) {
 
         ClassInfo &t = iter->second;
         if (t.api != p_api || !t.exposed)
@@ -208,7 +208,8 @@ uint64_t ClassDB::get_api_hash(APIType p_api) {
         { // methods
 
             snames.clear();
-            k = nullptr;
+            snames.reserve(t.method_map.size());
+
             for(const auto & v : t.method_map) {
                 snames.push_back(v.first);
             }
@@ -248,9 +249,9 @@ uint64_t ClassDB::get_api_hash(APIType p_api) {
 
             k = nullptr;
 
-            while ((k = t.constant_map.next(k))) {
+            for(const auto &k : t.constant_map) {
 
-                snames.push_back(*k);
+                snames.emplace_back(k.first);
             }
             eastl::stable_sort(snames.begin(), snames.end(), StringName::AlphCompare);
 
@@ -513,15 +514,9 @@ void ClassDB::bind_integer_constant(
         }
         StringName interned_enum_name(enum_name);
 
-        ListPOD<StringName> *constants_list = type->enum_map.getptr(interned_enum_name);
+        ListPOD<StringName> &constants_list = type->enum_map[interned_enum_name];
 
-        if (constants_list) {
-            constants_list->push_back(p_name);
-        } else {
-            ListPOD<StringName> new_list {p_name};
-
-            type->enum_map[interned_enum_name] = new_list;
-        }
+        constants_list.push_back(p_name);
     }
 
 #ifdef DEBUG_METHODS_ENABLED
@@ -566,11 +561,11 @@ int ClassDB::get_integer_constant(const StringName &p_class, const StringName &p
     ClassInfo *type = iter!=classes.end() ? &iter->second : nullptr;
     while (type) {
 
-        int *constant = type->constant_map.getptr(p_name);
-        if (constant) {
+        auto iter = type->constant_map.find(p_name);
+        if (iter!= type->constant_map.end()) {
 
             if (p_success) *p_success = true;
-            return *constant;
+            return iter->second;
         }
 
         type = type->inherits_ptr;
@@ -592,10 +587,9 @@ StringName ClassDB::get_integer_constant_enum(
     while (type) {
 
         const StringName *k = nullptr;
-        while ((k = type->enum_map.next(k))) {
-
-            ListPOD<StringName> &constants_list = type->enum_map.get(*k);
-            if (constants_list.contains(p_name)) return *k;
+        for(const auto &entry : type->enum_map) {
+            if(entry.second.contains(p_name))
+                return entry.first;
         }
 
         if (p_no_inheritance) break;
@@ -615,9 +609,8 @@ void ClassDB::get_enum_list(const StringName &p_class, ListPOD<StringName> *p_en
     ClassInfo *type = iter!=classes.end() ? &iter->second : nullptr;
     while (type) {
 
-        const StringName *k = nullptr;
-        while ((k = type->enum_map.next(k))) {
-            p_enums->push_back(*k);
+        for (const auto &entry : type->enum_map) {
+            p_enums->push_back(entry.first);
         }
 
         if (p_no_inheritance) break;
@@ -636,10 +629,10 @@ void ClassDB::get_enum_constants(
     ClassInfo *type = iter!=classes.end() ? &iter->second : nullptr;
     while (type) {
 
-        const ListPOD<StringName> *constants = type->enum_map.getptr(p_enum);
+        auto enum_iter = type->enum_map.find(p_enum);
 
-        if (constants) {
-            for (const StringName &name : *constants) {
+        if (enum_iter!=type->enum_map.end()) {
+            for (const StringName &name : enum_iter->second) {
                 p_constants->push_back(name);
             }
         }
@@ -910,11 +903,10 @@ bool ClassDB::get_property(Object *p_object, const StringName &p_property, Varia
             }
             return true;
         }
+        auto iter = check->constant_map.find(p_property);
+        if (iter!= check->constant_map.end()) {
 
-        const int *c = check->constant_map.getptr(p_property);
-        if (c) {
-
-            r_value = *c;
+            r_value = iter->second;
             return true;
         }
 

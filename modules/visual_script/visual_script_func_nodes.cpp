@@ -125,7 +125,7 @@ StringName VisualScriptFunctionCall::_get_base_type() const {
 int VisualScriptFunctionCall::get_input_value_port_count() const {
 
     if (call_mode == CALL_MODE_BASIC_TYPE) {
-        Vector<VariantType> types = Variant::get_method_argument_types(basic_type, function);
+        Span<const VariantType> types = Variant::get_method_argument_types(basic_type, function);
         return types.size() + (rpc_call_mode >= RPC_RELIABLE_TO_ID ? 1 : 0) + 1;
 
     } else {
@@ -195,9 +195,9 @@ PropertyInfo VisualScriptFunctionCall::get_input_value_port_info(int p_idx) cons
 
     if (call_mode == CALL_MODE_BASIC_TYPE) {
 
-        Vector<StringName> names = Variant::get_method_argument_names(basic_type, function);
-        Vector<VariantType> types = Variant::get_method_argument_types(basic_type, function);
-        return PropertyInfo(types[p_idx], names[p_idx]);
+        Span<const se_string_view> names = Variant::get_method_argument_names(basic_type, function);
+        Span<const VariantType> types = Variant::get_method_argument_types(basic_type, function);
+        return PropertyInfo(types[p_idx], StaticCString(names[p_idx].data(),true));
 
     } else {
 

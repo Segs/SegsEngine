@@ -194,7 +194,7 @@ private:
 
     int max_image_units;
 
-    _FORCE_INLINE_ void _set_uniform_variant(GLint p_uniform, const Variant &p_value) {
+    void _set_uniform_variant(GLint p_uniform, const Variant &p_value) {
 
         if (p_uniform < 0)
             return; // do none

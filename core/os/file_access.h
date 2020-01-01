@@ -186,7 +186,7 @@ public:
 
 struct FileAccessRef {
 
-    _FORCE_INLINE_ FileAccess *operator->() {
+    FileAccess *operator->() {
         return f;
     }
 

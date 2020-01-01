@@ -98,13 +98,13 @@ Array convert_property_vector(const PODVector<PropertyInfo> *p_list);
 
 #define REVERSE_GET_PROPERTY_LIST                                  \
 public:                                                            \
-    _FORCE_INLINE_ bool _is_gpl_reversed() const { return true; }; \
+    constexpr bool _is_gpl_reversed() const { return true; }; \
                                                                    \
 private:
 
 #define UNREVERSE_GET_PROPERTY_LIST                                 \
 public:                                                             \
-    _FORCE_INLINE_ bool _is_gpl_reversed() const { return false; }; \
+    constexpr bool _is_gpl_reversed() const { return false; }; \
                                                                     \
 private:
 
@@ -130,13 +130,13 @@ public:                                                                         
     static const void *get_class_ptr_static() {                                                                        \
         return &typeInfoStatic;                                                                                        \
     }                                                                                                                  \
-    static constexpr _FORCE_INLINE_ const char *get_class_static() {                                                   \
+    static constexpr const char *get_class_static() {                                                   \
         return #m_class;				                                                                               \
     }                                                                                                                  \
-    static _FORCE_INLINE_ StringName get_class_static_name() {                                                         \
+    static StringName get_class_static_name() {                                                         \
         return StringName(#m_class);	                                                                               \
     }                                                                                                                  \
-    static _FORCE_INLINE_ const char *get_parent_class_static() {                                                      \
+    static const char *get_parent_class_static() {                                                      \
         return BaseClassName::get_class_static();                                                                        \
     }                                                                                                                  \
     virtual bool is_class(const char *p_class) const override {                                                        \
@@ -145,13 +145,13 @@ public:                                                                         
             return (p_ptr == get_class_ptr_static()) ? true : BaseClassName::is_class_ptr(p_ptr); }                      \
                                                                                                                        \
 protected:                                                                                                             \
-    _FORCE_INLINE_ static void (*_get_bind_methods())() {                                                              \
+    static void (*_get_bind_methods())() {                                                              \
         return &m_class::_bind_methods;                                                                                \
     }                                                                                                                  \
                                                                                                                        \
 protected:                                                                                                             \
     bool _initialize_classv() override { return initialize_class(); }                                                  \
-    static constexpr _FORCE_INLINE_ bool (Object::*_get_get() )(const StringName &p_name, Variant &r_ret) const {      \
+    static constexpr bool (Object::*_get_get() )(const StringName &p_name, Variant &r_ret) const {      \
         return (bool (Object::*)(const StringName &, Variant &) const) & m_class::_get;                                \
     }                                                                                                                  \
     bool _getv(const StringName &p_name, Variant &r_ret) const override {                                              \
@@ -160,7 +160,7 @@ protected:                                                                      
         }                                                                                                              \
         return BaseClassName::_getv(p_name, r_ret);                                                                      \
     }                                                                                                                  \
-    static constexpr _FORCE_INLINE_ bool (Object::*_get_set() )(const StringName &p_name, const Variant &p_property) { \
+    static constexpr bool (Object::*_get_set() )(const StringName &p_name, const Variant &p_property) { \
         return (bool (Object::*)(const StringName &, const Variant &)) & m_class::_set;                                \
     }                                                                                                                  \
     bool _setv(const StringName &p_name, const Variant &p_property) override {                                         \
@@ -170,11 +170,11 @@ protected:                                                                      
         }                                                                                                              \
         return false;                                                                                                  \
     }                                                                                                                  \
-    _FORCE_INLINE_ void (Object::*_get_get_property_list() const)(ListPOD<PropertyInfo> * p_list) const {              \
+    void (Object::*_get_get_property_list() const)(ListPOD<PropertyInfo> * p_list) const {              \
         return (void (Object::*)(ListPOD<PropertyInfo> *) const) & m_class::_get_property_list;                        \
     }                                                                                                                  \
     void _get_property_listv(ListPOD<PropertyInfo> *p_list, bool p_reversed) const override;                           \
-    _FORCE_INLINE_ void (Object::*_get_notification() const)(int) {                                                    \
+    void (Object::*_get_notification() const)(int) {                                                    \
         return (void (Object::*)(int)) & m_class::_notification;                                                       \
     }                                                                                                                  \
     void _notificationv(int p_notification, bool p_reversed) override;                                                 \
@@ -216,7 +216,7 @@ private:
 
 #define OBJ_CATEGORY(m_category)                                                                                       \
 protected:                                                                                                             \
-    _FORCE_INLINE_ static const char * _get_category() { return m_category; }                                          \
+    static constexpr const char * _get_category() { return m_category; }                                          \
     _FORCE_INLINE_ static se_string _get_category_wrap();                                                              \
                                                                                                                        \
 private:
@@ -357,7 +357,7 @@ protected:
 
 public: //should be protected, but bug in clang++
     static bool initialize_class();
-    _FORCE_INLINE_ static void register_custom_data_to_otdb() {}
+    static void register_custom_data_to_otdb() {}
 
 public:
     static const void *get_class_ptr_static() {
@@ -366,7 +366,7 @@ public:
 
     bool _is_gpl_reversed() const { return false; }
 
-    _FORCE_INLINE_ ObjectID get_instance_id() const { return _instance_id; }
+    ObjectID get_instance_id() const { return _instance_id; }
 
     // this is used for editors
 
@@ -480,8 +480,8 @@ public:
     bool is_queued_for_deletion() const;
     void deleteLater() { _is_queued_for_deletion = true; }
 
-    _FORCE_INLINE_ void set_message_translation(bool p_enable) { _can_translate = p_enable; }
-    _FORCE_INLINE_ bool can_translate_messages() const { return _can_translate; }
+    void set_message_translation(bool p_enable) { _can_translate = p_enable; }
+    bool can_translate_messages() const { return _can_translate; }
 
 
     //used by script languages to store binding data

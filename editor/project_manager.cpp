@@ -1022,7 +1022,7 @@ public:
             control = nullptr;
         }
 
-        _FORCE_INLINE_ bool operator==(const Item &l) const {
+        bool operator==(const Item &l) const {
             return project_key == l.project_key;
         }
     };
@@ -1080,7 +1080,7 @@ struct ProjectListComparator {
     ProjectListFilter::FilterOption order_option;
 
     // operator<
-    _FORCE_INLINE_ bool operator()(const ProjectList::Item &a, const ProjectList::Item &b) const {
+    bool operator()(const ProjectList::Item &a, const ProjectList::Item &b) const {
         if (a.favorite && !b.favorite) {
             return true;
         }

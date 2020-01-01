@@ -44,7 +44,11 @@ struct StaticCString {
     const char *ptr;
     template<std::size_t N>
     constexpr explicit StaticCString(char const (&s)[N]) : ptr(s) {}
-    StaticCString(const char *v,bool /*force*/) : ptr(v) {}
+    constexpr StaticCString(const char *v,bool /*force*/) : ptr(v) {}
+    constexpr StaticCString() : ptr(nullptr) {}
+    constexpr StaticCString(StaticCString &&) = default;
+    constexpr StaticCString(const StaticCString &) = default;
+    constexpr operator bool() const { return ptr!=nullptr;}
 };
 
 class GODOT_EXPORT StringName {
@@ -90,17 +94,17 @@ public:
     bool operator!=(se_string_view p_name) const {
         return !(operator==(p_name));
     }
-    _FORCE_INLINE_ bool operator<(const StringName &p_name) const {
+    bool operator<(const StringName &p_name) const {
         return _data < p_name._data;
     }
-    _FORCE_INLINE_ bool operator==(const StringName &p_name) const {
+    bool operator==(const StringName &p_name) const {
         // the real magic of all this mess happens here.
         // this is why path comparisons are very fast
         return _data == p_name._data;
     }
     [[nodiscard]] uint32_t hash() const;
 
-    _FORCE_INLINE_ const void *data_unique_pointer() const {
+    const void *data_unique_pointer() const {
         return (void *)_data;
     }
     bool operator!=(const StringName &p_name) const;

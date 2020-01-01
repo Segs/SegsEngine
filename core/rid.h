@@ -70,21 +70,21 @@ class GODOT_EXPORT RID {
     mutable RID_Data *_data = nullptr;
 
 public:
-    _FORCE_INLINE_ RID_Data *get_data() const { return _data; }
+    RID_Data *get_data() const { return _data; }
 
-    _FORCE_INLINE_ bool operator==(RID p_rid) const {
+    constexpr bool operator==(RID p_rid) const {
 
         return _data == p_rid._data;
     }
-    _FORCE_INLINE_ bool operator<(RID p_rid) const {
+    bool operator<(RID p_rid) const {
 
         return _data < p_rid._data;
     }
-    _FORCE_INLINE_ bool operator<=(RID p_rid) const {
+    bool operator<=(RID p_rid) const {
 
         return _data <= p_rid._data;
     }
-    _FORCE_INLINE_ bool operator>(RID p_rid) const {
+    bool operator>(RID p_rid) const {
 
         return _data > p_rid._data;
     }
@@ -168,7 +168,7 @@ public:
         return rid;
     }
 
-    _FORCE_INLINE_ T *get(const RID &p_rid) {
+    T *get(const RID &p_rid) {
 
 #ifdef DEBUG_ENABLED
 
@@ -189,7 +189,7 @@ public:
         return static_cast<T *>(p_rid.get_data());
     }
 
-    _FORCE_INLINE_ T *getptr(const RID &p_rid) {
+    T *getptr(const RID &p_rid) {
 
         return static_cast<T *>(p_rid.get_data());
     }

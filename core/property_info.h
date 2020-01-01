@@ -16,7 +16,7 @@ public:
     PropertyHint hint = PROPERTY_HINT_NONE;
     uint32_t usage = PROPERTY_USAGE_DEFAULT;
 
-    _FORCE_INLINE_ PropertyInfo with_added_usage(int p_fl) const {
+    PropertyInfo with_added_usage(int p_fl) const {
         PropertyInfo pi = *this;
         pi.usage |= p_fl;
         return pi;

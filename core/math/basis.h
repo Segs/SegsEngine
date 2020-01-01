@@ -38,11 +38,11 @@ class GODOT_EXPORT Basis {
 public:
     Vector3 elements[3];
 
-    _FORCE_INLINE_ constexpr const Vector3 &operator[](int axis) const {
+    constexpr const Vector3 &operator[](int axis) const {
 
         return elements[axis];
     }
-    _FORCE_INLINE_ constexpr Vector3 &operator[](int axis) {
+    constexpr Vector3 &operator[](int axis) {
 
         return elements[axis];
     }
@@ -57,11 +57,11 @@ public:
 
     void from_z(const Vector3 &p_z);
 
-    _FORCE_INLINE_ Vector3 get_axis(int p_axis) const {
+    Vector3 get_axis(int p_axis) const {
         // get actual basis axis (elements is transposed for performance)
         return Vector3(elements[0][p_axis], elements[1][p_axis], elements[2][p_axis]);
     }
-    _FORCE_INLINE_ void set_axis(int p_axis, const Vector3 &p_value) {
+    void set_axis(int p_axis, const Vector3 &p_value) {
         // get actual basis axis (elements is transposed for performance)
         elements[0][p_axis] = p_value.x;
         elements[1][p_axis] = p_value.y;
@@ -117,13 +117,13 @@ public:
     void set_quat_scale(const Quat &p_quat, const Vector3 &p_scale);
 
     // transposed dot products
-    _FORCE_INLINE_ real_t tdotx(const Vector3 &v) const {
+    real_t tdotx(const Vector3 &v) const {
         return elements[0][0] * v[0] + elements[1][0] * v[1] + elements[2][0] * v[2];
     }
-    _FORCE_INLINE_ real_t tdoty(const Vector3 &v) const {
+    real_t tdoty(const Vector3 &v) const {
         return elements[0][1] * v[0] + elements[1][1] * v[1] + elements[2][1] * v[2];
     }
-    _FORCE_INLINE_ real_t tdotz(const Vector3 &v) const {
+    real_t tdotz(const Vector3 &v) const {
         return elements[0][2] * v[0] + elements[1][2] * v[1] + elements[2][2] * v[2];
     }
 
@@ -186,13 +186,13 @@ public:
         return Vector3(elements[0][0], elements[1][1], elements[2][2]);
     }
 
-    _FORCE_INLINE_ void set_row(int i, const Vector3 &p_row) {
+    void set_row(int i, const Vector3 &p_row) {
         elements[i][0] = p_row.x;
         elements[i][1] = p_row.y;
         elements[i][2] = p_row.z;
     }
 
-    _FORCE_INLINE_ void set_zero() {
+    void set_zero() {
         elements[0].zero();
         elements[1].zero();
         elements[2].zero();

@@ -57,6 +57,7 @@
 #include "core/message_queue.h"
 #include "core/method_bind.h"
 #include "core/object_db.h"
+#include "core/object_tooling.h"
 #include "core/os/file_access.h"
 #include "core/os/input.h"
 #include "core/os/keyboard.h"
@@ -5950,45 +5951,33 @@ EditorNode::EditorNode() {
     {
         int display_scale = EditorSettings::get_singleton()->get("interface/editor/display_scale");
         float custom_display_scale = EditorSettings::get_singleton()->get("interface/editor/custom_display_scale");
-
+        float selected_scale = custom_display_scale;
         switch (display_scale) {
             case 0: {
                 // Try applying a suitable display scale automatically
                 const int screen = OS::get_singleton()->get_current_screen();
-                editor_set_scale(OS::get_singleton()->get_screen_dpi(screen) >= 192 &&
+                selected_scale = OS::get_singleton()->get_screen_dpi(screen) >= 192 &&
                                                  OS::get_singleton()->get_screen_size(screen).x > 2000 ?
                                          2.0 :
-                                         1.0);
+                                         1.0;
             } break;
 
-            case 1: {
-                editor_set_scale(0.75);
-            } break;
+            case 1: selected_scale =0.75f; break;
 
-            case 2: {
-                editor_set_scale(1.0);
-            } break;
+            case 2: selected_scale = 1.0f; break;
 
-            case 3: {
-                editor_set_scale(1.25);
-            } break;
+            case 3: selected_scale = 1.25f; break;
 
-            case 4: {
-                editor_set_scale(1.5);
-            } break;
+            case 4: selected_scale = 1.5f; break;
 
-            case 5: {
-                editor_set_scale(1.75);
-            } break;
+            case 5: selected_scale = 1.75f; break;
 
-            case 6: {
-                editor_set_scale(2.0);
-            } break;
+            case 6: selected_scale = 2.0f; break;
 
-            default: {
-                editor_set_scale(custom_display_scale);
-            } break;
+            default: break;
         }
+        editor_set_scale(selected_scale);
+
     }
     // Define a minimum window size to prevent UI elements from overlapping or being cut off
     OS::get_singleton()->set_min_window_size(Size2(1024, 600) * EDSCALE);
@@ -6827,7 +6816,7 @@ EditorNode::EditorNode() {
     default_layout->set_value(docks_section, "dock_4", "FileSystem");
     default_layout->set_value(docks_section, "dock_5", "Inspector,Node");
 
-    for (int i = 0; i < vsplits.size(); i++)
+    for (size_t i = 0; i < vsplits.size(); i++)
         default_layout->set_value(docks_section, "dock_split_" + ::to_string(i + 1), 0);
     default_layout->set_value(docks_section, "dock_hsplit_1", 0);
     default_layout->set_value(docks_section, "dock_hsplit_2", 70 * EDSCALE);

@@ -7102,7 +7102,7 @@ GDScriptParser::DataType GDScriptParser::_reduce_function_call_type(const Operat
                     }
 
                     default_args_count = Variant::get_method_default_arguments(base_type.builtin_type, callee_name).size();
-                    const Vector<VariantType> &var_arg_types = Variant::get_method_argument_types(base_type.builtin_type, callee_name);
+                    Span<const VariantType> var_arg_types = Variant::get_method_argument_types(base_type.builtin_type, callee_name);
 
                     for (int i = 0; i < var_arg_types.size(); i++) {
                         DataType argtype;

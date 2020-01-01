@@ -10,8 +10,10 @@ class Array;
 using CharType = QChar;
 using CharString = QByteArray;
 
+
 namespace StringUtils
 {
+
 enum Compare {
     CaseSensitive=0,
     CaseInsensitive,
@@ -19,7 +21,6 @@ enum Compare {
 };
 //! length in codepoints, not bytes
 [[nodiscard]] int char_length(const String &str);
-
 [[nodiscard]] GODOT_EXPORT double to_double(se_string_view p_str);
 [[nodiscard]] inline float to_float(se_string_view str) { return float(to_double(str)); }
 [[nodiscard]] GODOT_EXPORT int hex_to_int(const String &str,bool p_with_prefix = true);

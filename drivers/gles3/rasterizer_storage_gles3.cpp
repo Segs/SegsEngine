@@ -1786,11 +1786,7 @@ void RasterizerStorageGLES3::sky_set_texture(RID p_sky, RID p_panorama, int p_ra
 
         int size = p_radiance_size;
 
-        int lod = 0;
-
         int mipmaps = 6;
-
-        int mm_level = mipmaps;
 
         bool use_float = config.framebuffer_half_float_supported;
 
@@ -1803,8 +1799,8 @@ void RasterizerStorageGLES3::sky_set_texture(RID p_sky, RID p_panorama, int p_ra
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, mipmaps - 1);
 
-        lod = 0;
-        mm_level = mipmaps;
+        int lod = 0;
+        int mm_level = mipmaps;
 
         size = p_radiance_size;
 
@@ -1924,7 +1920,7 @@ se_string RasterizerStorageGLES3::shader_get_code(RID p_shader) const {
 }
 
 void RasterizerStorageGLES3::_update_shader(Shader *p_shader) const {
-
+    using namespace eastl;
     _shader_dirty_list.remove(&p_shader->dirty_list);
 
     p_shader->valid = false;
@@ -1948,7 +1944,7 @@ void RasterizerStorageGLES3::_update_shader(Shader *p_shader) const {
             p_shader->canvas_item.uses_screen_uv = false;
             p_shader->canvas_item.uses_time = false;
 
-            shaders.actions_canvas.render_mode_values["blend_add"] = Pair<int *, int>(&p_shader->canvas_item.blend_mode, Shader::CanvasItem::BLEND_MODE_ADD);
+            shaders.actions_canvas.render_mode_values[StringName("blend_add")] = Pair<int *, int>(&p_shader->canvas_item.blend_mode, Shader::CanvasItem::BLEND_MODE_ADD);
             shaders.actions_canvas.render_mode_values["blend_mix"] = Pair<int *, int>(&p_shader->canvas_item.blend_mode, Shader::CanvasItem::BLEND_MODE_MIX);
             shaders.actions_canvas.render_mode_values["blend_sub"] = Pair<int *, int>(&p_shader->canvas_item.blend_mode, Shader::CanvasItem::BLEND_MODE_SUB);
             shaders.actions_canvas.render_mode_values["blend_mul"] = Pair<int *, int>(&p_shader->canvas_item.blend_mode, Shader::CanvasItem::BLEND_MODE_MUL);
@@ -1987,7 +1983,7 @@ void RasterizerStorageGLES3::_update_shader(Shader *p_shader) const {
             p_shader->spatial.writes_modelview_or_projection = false;
             p_shader->spatial.uses_world_coordinates = false;
 
-            shaders.actions_scene.render_mode_values["blend_add"] = Pair<int *, int>(&p_shader->spatial.blend_mode, Shader::Spatial::BLEND_MODE_ADD);
+            shaders.actions_scene.render_mode_values[StringName("blend_add")] = Pair<int *, int>(&p_shader->spatial.blend_mode, Shader::Spatial::BLEND_MODE_ADD);
             shaders.actions_scene.render_mode_values["blend_mix"] = Pair<int *, int>(&p_shader->spatial.blend_mode, Shader::Spatial::BLEND_MODE_MIX);
             shaders.actions_scene.render_mode_values["blend_sub"] = Pair<int *, int>(&p_shader->spatial.blend_mode, Shader::Spatial::BLEND_MODE_SUB);
             shaders.actions_scene.render_mode_values["blend_mul"] = Pair<int *, int>(&p_shader->spatial.blend_mode, Shader::Spatial::BLEND_MODE_MUL);
@@ -2377,7 +2373,7 @@ void RasterizerStorageGLES3::material_set_render_priority(RID p_material, int pr
     material->render_priority = priority;
 }
 
-_FORCE_INLINE_ static void _fill_std140_variant_ubo_value(ShaderLanguage::DataType type, const Variant &value, uint8_t *data, bool p_linear_color) {
+static void _fill_std140_variant_ubo_value(ShaderLanguage::DataType type, const Variant &value, uint8_t *data, bool p_linear_color) {
     switch (type) {
         case ShaderLanguage::TYPE_BOOL: {
 
@@ -2635,7 +2631,7 @@ _FORCE_INLINE_ static void _fill_std140_variant_ubo_value(ShaderLanguage::DataTy
     }
 }
 
-_FORCE_INLINE_ static void _fill_std140_ubo_value(ShaderLanguage::DataType type, const PODVector<ShaderLanguage::ConstantNode::Value> &value, uint8_t *data) {
+static void _fill_std140_ubo_value(ShaderLanguage::DataType type, const PODVector<ShaderLanguage::ConstantNode::Value> &value, uint8_t *data) {
 
     switch (type) {
         case ShaderLanguage::TYPE_BOOL: {
@@ -2804,7 +2800,7 @@ _FORCE_INLINE_ static void _fill_std140_ubo_value(ShaderLanguage::DataType type,
     }
 }
 
-_FORCE_INLINE_ static void _fill_std140_ubo_empty(ShaderLanguage::DataType type, uint8_t *data) {
+static void _fill_std140_ubo_empty(ShaderLanguage::DataType type, uint8_t *data) {
 
     switch (type) {
 
