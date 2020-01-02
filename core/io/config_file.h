@@ -53,7 +53,7 @@ protected:
 public:
     const Map<se_string, Map<se_string, Variant> > &all_values() const { return values; }
     void set_value(se_string_view p_section, se_string_view p_key, const Variant &p_value);
-    Variant get_value(se_string_view p_section, se_string_view p_key, const Variant& p_default = Variant()) const;
+    Variant get_value(se_string_view p_section, se_string_view p_key, const Variant& p_default = Variant::null_variant) const;
 
     bool has_section(se_string_view p_section) const;
     bool has_section_key(se_string_view p_section, se_string_view p_key) const;
