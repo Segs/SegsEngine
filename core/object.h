@@ -75,7 +75,7 @@ private:
 };
 
 
-#define VARIANT_ARG_LIST const Variant &p_arg1 = Variant(), const Variant &p_arg2 = Variant(), const Variant &p_arg3 = Variant(), const Variant &p_arg4 = Variant(), const Variant &p_arg5 = Variant()
+#define VARIANT_ARG_LIST const Variant &p_arg1 = Variant::null_variant, const Variant &p_arg2 = Variant::null_variant, const Variant &p_arg3 = Variant::null_variant, const Variant &p_arg4 = Variant::null_variant, const Variant &p_arg5 = Variant::null_variant
 #define VARIANT_ARG_PASS p_arg1, p_arg2, p_arg3, p_arg4, p_arg5
 #define VARIANT_ARG_DECLARE const Variant &p_arg1, const Variant &p_arg2, const Variant &p_arg3, const Variant &p_arg4, const Variant &p_arg5
 #define VARIANT_ARG_MAX 5

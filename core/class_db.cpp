@@ -1081,12 +1081,12 @@ MethodBind *ClassDB::bind_methodfi(uint32_t p_flags, MethodBind *p_bind, const c
 
     type->method_map[mdname] = p_bind;
 
-    Vector<Variant> defvals;
+    PODVector<Variant> defvals;
 
-    defvals.resize(def_vals.size());
+    defvals.reserve(def_vals.size());
     for (size_t i = 0; i < def_vals.size(); i++) {
 
-        defvals.write[i] = def_vals.begin()[def_vals.size() - i - 1];
+        defvals.emplace_back(def_vals.begin()[def_vals.size() - i - 1]);
     }
 
     p_bind->set_default_arguments(defvals);

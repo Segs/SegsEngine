@@ -147,7 +147,7 @@ public:
 
     struct ClassNode : public Node {
 
-        Vector<StringName> extends_class;
+        PODVector<StringName> extends_class;
         DataType base_type;
         se_string icon_path;
         StringName name;
@@ -184,16 +184,16 @@ public:
             int line;
         };
 
-        Vector<ClassNode *> subclasses;
-        Vector<Member> variables;
+        PODVector<ClassNode *> subclasses;
+        PODVector<Member> variables;
         Map<StringName, Constant> constant_expressions;
-        Vector<FunctionNode *> functions;
-        Vector<FunctionNode *> static_functions;
-        Vector<Signal> _signals;
+        PODVector<FunctionNode *> functions;
+        PODVector<FunctionNode *> static_functions;
+        PODVector<Signal> _signals;
         BlockNode *initializer;
         BlockNode *ready;
         ClassNode *owner;
-        //Vector<Node*> initializers;
+        //PODVector<Node*> initializers;
         int end_line;
 
         ClassNode() {
@@ -214,12 +214,12 @@ public:
         bool has_unreachable_code;
         StringName name;
         DataType return_type;
-        Vector<StringName> arguments;
-        Vector<DataType> argument_types;
-        Vector<Node *> default_values;
+        PODVector<StringName> arguments;
+        PODVector<DataType> argument_types;
+        PODVector<Node *> default_values;
         BlockNode *body;
 #ifdef DEBUG_ENABLED
-        Vector<int> arguments_usage;
+        PODVector<int> arguments_usage;
 #endif // DEBUG_ENABLED
 
         DataType get_datatype() const override { return return_type; }
@@ -310,7 +310,7 @@ public:
 
     struct ArrayNode : public Node {
 
-        Vector<Node *> elements;
+        PODVector<Node *> elements;
         DataType datatype;
         DataType get_datatype() const override { return datatype; }
         void set_datatype(const DataType &p_datatype) override { datatype = p_datatype; }
@@ -330,7 +330,7 @@ public:
             Node *value;
         };
 
-        Vector<Pair> elements;
+        PODVector<Pair> elements;
         DataType datatype;
         DataType get_datatype() const override { return datatype; }
         void set_datatype(const DataType &p_datatype) override { datatype = p_datatype; }
@@ -401,7 +401,7 @@ public:
 
         Operator op;
 
-        Vector<Node *> arguments;
+        PODVector<Node *> arguments;
         DataType datatype;
         DataType get_datatype() const override { return datatype; }
         void set_datatype(const DataType &p_datatype) override { datatype = p_datatype; }
@@ -424,24 +424,24 @@ public:
         Node *constant;
         StringName bind;
         Map<ConstantNode *, PatternNode *> dictionary;
-        Vector<PatternNode *> array;
+        PODVector<PatternNode *> array;
     };
 
     struct PatternBranchNode : public Node {
-        Vector<PatternNode *> patterns;
+        PODVector<PatternNode *> patterns;
         BlockNode *body;
     };
 
     struct MatchNode : public Node {
         Node *val_to_match;
-        Vector<PatternBranchNode *> branches;
+        PODVector<PatternBranchNode *> branches;
 
         struct CompiledPatternBranch {
             Node *compiled_pattern;
             BlockNode *body;
         };
 
-        Vector<CompiledPatternBranch> compiled_pattern_branches;
+        PODVector<CompiledPatternBranch> compiled_pattern_branches;
     };
 
     struct ControlFlowNode : public Node {
@@ -456,7 +456,7 @@ public:
         };
 
         CFType cf_type;
-        Vector<Node *> arguments;
+        PODVector<Node *> arguments;
         BlockNode *body;
         BlockNode *body_else;
 
@@ -603,7 +603,7 @@ private:
 #endif // DEBUG_ENABLED
     bool _recover_from_completion();
 
-    bool _parse_arguments(Node *p_parent, Vector<Node *> &p_args, bool p_static, bool p_can_codecomplete = false, bool p_parsing_constant = false);
+    bool _parse_arguments(Node *p_parent, PODVector<Node *> &p_args, bool p_static, bool p_can_codecomplete = false, bool p_parsing_constant = false);
     bool _enter_indent_block(BlockNode *p_block = nullptr);
     bool _parse_newline();
     Node *_parse_expression(Node *p_parent, bool p_static, bool p_allow_assign = false, bool p_parsing_constant = false);
@@ -611,7 +611,7 @@ private:
     Node *_parse_and_reduce_expression(Node *p_parent, bool p_static, bool p_reduce_const = false, bool p_allow_assign = false);
 
     PatternNode *_parse_pattern(bool p_static);
-    void _parse_pattern_block(BlockNode *p_block, Vector<PatternBranchNode *> &p_branches, bool p_static);
+    void _parse_pattern_block(BlockNode *p_block, PODVector<PatternBranchNode *> &p_branches, bool p_static);
     void _transform_match_statment(MatchNode *p_match_statement);
     void _generate_pattern(PatternNode *p_pattern, Node *p_node_to_match, Node *&p_resulting_node, Map<StringName, Node *> &p_bindings);
 

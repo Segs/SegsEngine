@@ -12,7 +12,7 @@ class MethodBind {
     int method_id;
     uint32_t hint_flags;
     StringName name;
-    Vector<Variant> default_arguments;
+    PODVector<Variant> default_arguments;
     int default_argument_count;
     int argument_count;
     template<class T, class RESULT,typename ...Args>
@@ -54,7 +54,7 @@ protected:
     void set_argument_count(int p_count) { argument_count = p_count; }
     virtual Variant do_call(Object *p_object, const Variant **p_args, int p_arg_count, Variant::CallError &r_error)=0;
 public:
-    const Vector<Variant> &get_default_arguments() const { return default_arguments; }
+    const PODVector<Variant> &get_default_arguments() const { return default_arguments; }
     _FORCE_INLINE_ int get_default_argument_count() const { return default_argument_count; }
 
     _FORCE_INLINE_ bool has_default_argument(int p_arg) const {
@@ -106,7 +106,7 @@ public:
     _FORCE_INLINE_ bool has_return() const { return _returns; }
     _FORCE_INLINE_ bool is_vararg() const { return _is_vararg; }
 
-    void set_default_arguments(const Vector<Variant> &p_defargs);
+    void set_default_arguments(const PODVector<Variant> &p_defargs);
 
     MethodBind();
     virtual ~MethodBind();
@@ -220,7 +220,7 @@ struct MethodBinder {
     }
 
     template <class M>
-    static MethodBind *bind_vararg_method(const StringName &p_name, M p_method, const MethodInfo &p_info = MethodInfo(), const Vector<Variant> &p_default_args = null_variant_vec) {
+    static MethodBind *bind_vararg_method(const StringName &p_name, M p_method, const MethodInfo &p_info = MethodInfo(), const PODVector<Variant> &p_default_args = {}) {
 
         GLOBAL_LOCK_FUNCTION
 

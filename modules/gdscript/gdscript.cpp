@@ -1897,7 +1897,7 @@ StringName GDScriptLanguage::get_global_class_name(se_string_view p_path, se_str
                             subclass = nullptr;
                             break;
                         } else {
-                            Vector<StringName> extend_classes = subclass->extends_class;
+                            PODVector<StringName> extend_classes(subclass->extends_class);
 
                             FileAccessRef subfile = FileAccess::open(subclass->extends_file.asCString(), FileAccess::READ);
                             if (!subfile) {
@@ -1926,8 +1926,8 @@ StringName GDScriptLanguage::get_global_class_name(se_string_view p_path, se_str
                                 bool found = false;
                                 for (int i = 0; i < subclass->subclasses.size(); i++) {
                                     const GDScriptParser::ClassNode *inner_class = subclass->subclasses[i];
-                                    if (inner_class->name == extend_classes[0]) {
-                                        extend_classes.remove(0);
+                                    if (inner_class->name == extend_classes.front()) {
+                                        extend_classes.pop_front();
                                         found = true;
                                         subclass = inner_class;
                                         break;

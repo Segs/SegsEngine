@@ -151,7 +151,7 @@ struct ArgumentWrapper {
     using Result = const Variant *;
     const Variant **provided_args=nullptr;
     const int p_arg_count=0;
-    const Vector<Variant> &default_args={};
+    const PODVector<Variant> &default_args={};
 
     template<class TS,int IDX>
     Result doit() const {

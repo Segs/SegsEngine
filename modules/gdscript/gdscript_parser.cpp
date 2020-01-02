@@ -151,7 +151,7 @@ bool GDScriptParser::_enter_indent_block(BlockNode *p_block) {
     }
 }
 
-bool GDScriptParser::_parse_arguments(Node *p_parent, Vector<Node *> &p_args, bool p_static, bool p_can_codecomplete, bool p_parsing_constant) {
+bool GDScriptParser::_parse_arguments(Node *p_parent, PODVector<Node *> &p_args, bool p_static, bool p_can_codecomplete, bool p_parsing_constant) {
 
     if (tokenizer->get_token() == GDScriptTokenizer::TK_PARENTHESIS_CLOSE) {
         tokenizer->advance();
@@ -882,7 +882,7 @@ GDScriptParser::Node *GDScriptParser::_parse_expression(Node *p_parent, bool p_s
             if (!bfn) {
 #ifdef DEBUG_ENABLED
                 if (current_function) {
-                    int arg_idx = current_function->arguments.find(identifier);
+                    int arg_idx = current_function->arguments.index_of(identifier);
                     if (arg_idx != -1) {
                         switch (tokenizer->get_token()) {
                             case GDScriptTokenizer::TK_OP_ASSIGN_ADD:
@@ -899,7 +899,7 @@ GDScriptParser::Node *GDScriptParser::_parse_expression(Node *p_parent, bool p_s
                                 // Assignment is not really usage
                             } break;
                             default: {
-                                current_function->arguments_usage.write[arg_idx] = current_function->arguments_usage[arg_idx] + 1;
+                                current_function->arguments_usage[arg_idx] = current_function->arguments_usage[arg_idx] + 1;
                             }
                         }
                     }
@@ -1658,7 +1658,7 @@ GDScriptParser::Node *GDScriptParser::_reduce_expression(Node *p_node, bool p_to
 
             for (int i = 0; i < an->elements.size(); i++) {
 
-                an->elements.write[i] = _reduce_expression(an->elements[i], p_to_const);
+                an->elements[i] = _reduce_expression(an->elements[i], p_to_const);
                 if (an->elements[i]->type != Node::TYPE_CONSTANT)
                     all_constants = false;
             }
@@ -1686,13 +1686,13 @@ GDScriptParser::Node *GDScriptParser::_reduce_expression(Node *p_node, bool p_to
             DictionaryNode *dn = static_cast<DictionaryNode *>(p_node);
             bool all_constants = true;
 
-            for (int i = 0; i < dn->elements.size(); i++) {
+            for (auto & element : dn->elements) {
 
-                dn->elements.write[i].key = _reduce_expression(dn->elements[i].key, p_to_const);
-                if (dn->elements[i].key->type != Node::TYPE_CONSTANT)
+                element.key = _reduce_expression(element.key, p_to_const);
+                if (element.key->type != Node::TYPE_CONSTANT)
                     all_constants = false;
-                dn->elements.write[i].value = _reduce_expression(dn->elements[i].value, p_to_const);
-                if (dn->elements[i].value->type != Node::TYPE_CONSTANT)
+                element.value = _reduce_expression(element.value, p_to_const);
+                if (element.value->type != Node::TYPE_CONSTANT)
                     all_constants = false;
             }
 
@@ -1701,9 +1701,9 @@ GDScriptParser::Node *GDScriptParser::_reduce_expression(Node *p_node, bool p_to
 
                 ConstantNode *cn = alloc_node<ConstantNode>();
                 Dictionary dict;
-                for (int i = 0; i < dn->elements.size(); i++) {
-                    ConstantNode *key_c = static_cast<ConstantNode *>(dn->elements[i].key);
-                    ConstantNode *value_c = static_cast<ConstantNode *>(dn->elements[i].value);
+                for (auto & element : dn->elements) {
+                    ConstantNode *key_c = static_cast<ConstantNode *>(element.key);
+                    ConstantNode *value_c = static_cast<ConstantNode *>(element.value);
 
                     dict[key_c->value] = value_c->value;
                 }
@@ -1724,7 +1724,7 @@ GDScriptParser::Node *GDScriptParser::_reduce_expression(Node *p_node, bool p_to
 
             for (int i = 0; i < op->arguments.size(); i++) {
 
-                op->arguments.write[i] = _reduce_expression(op->arguments[i], p_to_const);
+                op->arguments[i] = _reduce_expression(op->arguments[i], p_to_const);
                 if (op->arguments[i]->type != Node::TYPE_CONSTANT) {
                     all_constants = false;
                     last_not_constant = i;
@@ -2250,7 +2250,7 @@ GDScriptParser::PatternNode *GDScriptParser::_parse_pattern(bool p_static) {
     return pattern;
 }
 
-void GDScriptParser::_parse_pattern_block(BlockNode *p_block, Vector<PatternBranchNode *> &p_branches, bool p_static) {
+void GDScriptParser::_parse_pattern_block(BlockNode *p_block, PODVector<PatternBranchNode *> &p_branches, bool p_static) {
     IndentLevel current_level = indent_level.back()->deref();
 
     p_block->has_return = true;
@@ -3115,8 +3115,8 @@ void GDScriptParser::_parse_block(BlockNode *p_block, bool p_static) {
                     if (op->op == OperatorNode::OP_CALL && op->arguments[0]->type == Node::TYPE_BUILT_IN_FUNCTION && static_cast<BuiltInFunctionNode *>(op->arguments[0])->function == GDScriptFunctions::GEN_RANGE) {
                         //iterating a range, so see if range() can be optimized without allocating memory, by replacing it by vectors (which can work as iterable too!)
 
-                        Vector<Node *> args;
-                        Vector<double> constants;
+                        PODVector<Node *> args;
+                        PODVector<double> constants;
 
                         bool constant = false;
 
@@ -3315,7 +3315,7 @@ void GDScriptParser::_parse_block(BlockNode *p_block, bool p_static) {
                     }
                 tokenizer->advance();
 
-                Vector<Node *> args;
+                PODVector<Node *> args;
                 const bool result = _parse_arguments(p_block, args, p_static);
                 if (!result) {
                     return;
@@ -3789,11 +3789,11 @@ void GDScriptParser::_parse_class(ClassNode *p_class) {
 
                 tokenizer->advance();
 
-                Vector<StringName> arguments;
-                Vector<DataType> argument_types;
-                Vector<Node *> default_values;
+                PODVector<StringName> arguments;
+                PODVector<DataType> argument_types;
+                PODVector<Node *> default_values;
 #ifdef DEBUG_ENABLED
-                Vector<int> arguments_usage;
+                PODVector<int> arguments_usage;
 #endif // DEBUG_ENABLED
 
                 int fnline = tokenizer->get_token_line();
@@ -5654,8 +5654,9 @@ bool GDScriptParser::_parse_type(DataType &r_type, bool p_can_be_void) {
 GDScriptParser::DataType GDScriptParser::_resolve_type(const DataType &p_source, int p_line) {
     if (!p_source.has_type) return p_source;
     if (p_source.kind != DataType::UNRESOLVED) return p_source;
+    FixedVector<se_string_view,16,true> full_name;
+    se_string::split_ref(full_name,p_source.native_type,'.');
 
-    Vector<se_string_view> full_name = StringUtils::split(p_source.native_type,'.', false);
     int name_part = 0;
 
     DataType result;
@@ -6305,7 +6306,7 @@ GDScriptParser::DataType GDScriptParser::_reduce_node_type(Node *p_node) {
                 // It's a special id just for the match statetement, ignore
                 break;
             } else if (current_function && current_function->arguments.find(id->name) >= 0) {
-                int idx = current_function->arguments.find(id->name);
+                int idx = current_function->arguments.index_of(id->name);
                 node_type = current_function->argument_types[idx];
             } else {
                 node_type = _reduce_identifier_type(nullptr, id->name, id->line, false);
@@ -6585,7 +6586,7 @@ GDScriptParser::DataType GDScriptParser::_reduce_node_type(Node *p_node) {
                             id->name = cn->value.operator StringName();
 
                             op->op = OperatorNode::OP_INDEX_NAMED;
-                            op->arguments.write[1] = id;
+                            op->arguments[1] = id;
 
                             return _reduce_node_type(op);
                         }
@@ -6961,10 +6962,10 @@ GDScriptParser::DataType GDScriptParser::_reduce_function_call_type(const Operat
             // Built-in constructor, special case
             TypeNode *tn = static_cast<TypeNode *>(p_call->arguments[0]);
 
-            Vector<DataType> par_types;
-            par_types.resize(p_call->arguments.size() - 1);
+            PODVector<DataType> par_types;
+            par_types.reserve(p_call->arguments.size() - 1);
             for (int i = 1; i < p_call->arguments.size(); i++) {
-                par_types.write[i - 1] = _reduce_node_type(p_call->arguments[i]);
+                par_types.emplace_back(_reduce_node_type(p_call->arguments[i]));
             }
 
             if (error_set) return DataType();
@@ -7192,7 +7193,7 @@ GDScriptParser::DataType GDScriptParser::_reduce_function_call_type(const Operat
                 StringName emitted = sig->value.get_type() == VariantType::STRING ? sig->value.as<StringName>() : StringName();
                 for (int i = 0; i < current_class->_signals.size(); i++) {
                     if (current_class->_signals[i].name == emitted) {
-                        current_class->_signals.write[i].emissions += 1;
+                        current_class->_signals[i].emissions += 1;
                         break;
                     }
                 }
@@ -7272,7 +7273,7 @@ bool GDScriptParser::_get_member_type(const DataType &p_base_type, const StringN
             for (int i = 0; i < base->variables.size(); i++) {
                 if (base->variables[i].identifier == p_member) {
                     r_member_type = base->variables[i].data_type;
-                    base->variables.write[i].usages += 1;
+                    base->variables[i].usages += 1;
                     return true;
                 }
             }
@@ -7677,7 +7678,7 @@ void GDScriptParser::_check_class_level_types(ClassNode *p_class) {
 
     // Class variables
     for (int i = 0; i < p_class->variables.size(); i++) {
-        ClassNode::Member &v = p_class->variables.write[i];
+        ClassNode::Member &v = p_class->variables[i];
 
         DataType tmp;
         if (_get_member_type(p_class->base_type, v.identifier, tmp)) {
@@ -7721,7 +7722,7 @@ void GDScriptParser::_check_class_level_types(ClassNode *p_class) {
                     convert_call->arguments.push_back(tgt_type);
 
                     v.expression = convert_call;
-                    v.initial_assignment->arguments.write[1] = convert_call;
+                    v.initial_assignment->arguments[1] = convert_call;
                 }
             }
 
@@ -7837,7 +7838,7 @@ void GDScriptParser::_check_function_types(FunctionNode *p_function) {
     int defaults_ofs = p_function->arguments.size() - p_function->default_values.size();
     for (int i = 0; i < p_function->arguments.size(); i++) {
         if (i < defaults_ofs) {
-            p_function->argument_types.write[i] = _resolve_type(p_function->argument_types[i], p_function->line);
+            p_function->argument_types[i] = _resolve_type(p_function->argument_types[i], p_function->line);
         } else {
             if (p_function->default_values[i - defaults_ofs]->type != Node::TYPE_OPERATOR) {
                 _set_error("Parser bug: invalid argument default value.", p_function->line, p_function->column);
@@ -7855,7 +7856,7 @@ void GDScriptParser::_check_function_types(FunctionNode *p_function) {
 
             if (p_function->argument_types[i].infer_type) {
                 def_type.is_constant = false;
-                p_function->argument_types.write[i] = def_type;
+                p_function->argument_types[i] = def_type;
             } else {
                 p_function->return_type = _resolve_type(p_function->return_type, p_function->line);
 
@@ -8092,7 +8093,7 @@ void GDScriptParser::_check_block_types(BlockNode *p_block) {
                             convert_call->arguments.push_back(tgt_type);
 
                             lv->assign = convert_call;
-                            lv->assign_op->arguments.write[1] = convert_call;
+                            lv->assign_op->arguments[1] = convert_call;
 #ifdef DEBUG_ENABLED
                             if (lv->datatype.builtin_type == VariantType::INT && assign_type.builtin_type == VariantType::REAL) {
                                 _add_warning(GDScriptWarning::NARROWING_CONVERSION, lv->line);
@@ -8225,7 +8226,7 @@ void GDScriptParser::_check_block_types(BlockNode *p_block) {
                                     convert_call->arguments.push_back(op->arguments[1]);
                                     convert_call->arguments.push_back(tgt_type);
 
-                                    op->arguments.write[1] = convert_call;
+                                    op->arguments[1] = convert_call;
 
                                     type_match = true; // Since we are converting, the type is matching
                                 }

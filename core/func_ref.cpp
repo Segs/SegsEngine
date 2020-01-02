@@ -88,8 +88,7 @@ void FuncRef::_bind_methods() {
     {
         MethodInfo mi;
         mi.name = "call_func";
-        Vector<Variant> defargs;
-		MethodBinder::bind_vararg_method(StaticCString("call_func"), &FuncRef::call_func, mi, defargs);
+		MethodBinder::bind_vararg_method(StaticCString("call_func"), &FuncRef::call_func, mi);
     }
 
     MethodBinder::bind_method(D_METHOD("call_funcv", {"arg_array"}), &FuncRef::call_funcv);
