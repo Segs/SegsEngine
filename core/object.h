@@ -459,7 +459,7 @@ public:
     int get_persistent_signal_connection_count() const;
     void get_signals_connected_to_this(ListPOD<Connection> *p_connections) const;
 
-    Error connect(const StringName &p_signal, Object *p_to_object, const StringName &p_to_method, const Vector<Variant> &p_binds = Vector<Variant>(), uint32_t p_flags = 0);
+    Error connect(const StringName &p_signal, Object *p_to_object, const StringName &p_to_method, const Vector<Variant> &p_binds = null_variant_vec, uint32_t p_flags = 0);
     void disconnect(const StringName &p_signal, Object *p_to_object, const StringName &p_to_method);
     bool is_connected(const StringName &p_signal, Object *p_to_object, const StringName &p_to_method) const;
 

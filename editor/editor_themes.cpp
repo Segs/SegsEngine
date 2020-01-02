@@ -754,13 +754,13 @@ Ref<Theme> create_editor_theme(const Ref<Theme>& p_theme) {
     };
 
     const Theme::ThemeConstant tree_constants[] = {
-        {"vseparation", "Tree", (extra_spacing + default_margin_size) * EDSCALE},
-        {"hseparation", "Tree", (extra_spacing + default_margin_size) * EDSCALE},
-        {"item_margin", "Tree", 3 * default_margin_size * EDSCALE},
-        {"button_margin", "Tree", default_margin_size * EDSCALE},
+        {"vseparation", "Tree", int((extra_spacing + default_margin_size) * EDSCALE)},
+        {"hseparation", "Tree", int((extra_spacing + default_margin_size) * EDSCALE)},
+        {"item_margin", "Tree", int(3 * default_margin_size * EDSCALE)},
+        {"button_margin", "Tree", int(default_margin_size * EDSCALE)},
         {"draw_relationship_lines", "Tree", relationship_line_opacity >= 0.01f},
         {"draw_guides", "Tree", relationship_line_opacity < 0.01f},
-        {"scroll_border", "Tree", 40 * EDSCALE},
+        {"scroll_border", "Tree", int(40 * EDSCALE)},
         {"scroll_speed", "Tree", 12},
     };
 
@@ -944,15 +944,15 @@ Ref<Theme> create_editor_theme(const Ref<Theme>& p_theme) {
 
     // Containers
     const Theme::ThemeConstant container_constants[] = {
-        {"separation", "BoxContainer", default_margin_size * EDSCALE},
-        {"separation", "HBoxContainer", default_margin_size * EDSCALE},
-        {"separation", "VBoxContainer", default_margin_size * EDSCALE},
+        {"separation", "BoxContainer", int(default_margin_size * EDSCALE)},
+        {"separation", "HBoxContainer", int(default_margin_size * EDSCALE)},
+        {"separation", "VBoxContainer", int(default_margin_size * EDSCALE)},
         {"margin_left", "MarginContainer", 0},
         {"margin_top", "MarginContainer", 0},
         {"margin_right", "MarginContainer", 0},
         {"margin_bottom", "MarginContainer", 0},
-        {"hseparation", "GridContainer", default_margin_size * EDSCALE},
-        {"vseparation", "GridContainer", default_margin_size * EDSCALE}
+        {"hseparation", "GridContainer", int(default_margin_size * EDSCALE)},
+        {"vseparation", "GridContainer", int(default_margin_size * EDSCALE)}
     };
     theme->set_constants(container_constants);
     // WindowDialog

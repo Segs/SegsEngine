@@ -4101,14 +4101,6 @@ se_string_view StringUtils::unquote(se_string_view str) {
     return str.substr(1, str.length() - 2);
 }
 #ifdef TOOLS_ENABLED
-String TTR(const String &p_text) {
-
-    if (TranslationServer::get_singleton()) {
-        return String(TranslationServer::get_singleton()->tool_translate(StringName(qPrintable(p_text))));
-    }
-
-    return p_text;
-}
 StringName TTR(se_string_view p_text) {
 
     if (TranslationServer::get_singleton()) {

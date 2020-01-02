@@ -180,14 +180,14 @@ class VisualShaderEditor : public VBoxContainer {
 //        }
     };
 
-    Vector<AddOption> add_options;
+    PODVector<AddOption> add_options;
     int texture_node_option_idx;
-	int custom_node_option_idx;
+    int custom_node_option_idx;
     PODVector<se_string_view> keyword_list;
 
     void _draw_color_over_button(Object *obj, Color p_color);
 
-	void _add_custom_node(se_string_view p_path);
+    void _add_custom_node(se_string_view p_path);
     void _add_texture_node(se_string_view p_path);
     VisualShaderNode *_add_node(int p_idx, int p_op_idx = -1);
     void _update_options_menu();
@@ -230,15 +230,15 @@ class VisualShaderEditor : public VBoxContainer {
 
     void _port_name_focus_out(Object *line_edit, int p_node_id, int p_port_id, bool p_output);
 
-    void _dup_copy_nodes(int p_type, List<int> &r_nodes, Set<int> &r_excluded);
+    void _dup_copy_nodes(int p_type, PODVector<int> &r_nodes, Set<int> &r_excluded);
     void _dup_update_excluded(int p_type, Set<int> &r_excluded);
-    void _dup_paste_nodes(int p_type, int p_pasted_type, List<int> &r_nodes, Set<int> &r_excluded, const Vector2 &p_offset, bool p_select);
+    void _dup_paste_nodes(int p_type, int p_pasted_type, PODVector<int> &r_nodes, Set<int> &r_excluded, const Vector2 &p_offset, bool p_select);
 
     void _duplicate_nodes();
 
     Vector2 selection_center;
     int copy_type; // shader type
-    List<int> copy_nodes_buffer;
+    PODVector<int> copy_nodes_buffer;
     Set<int> copy_nodes_excluded_buffer;
 
     void _clear_buffer();
@@ -289,7 +289,7 @@ protected:
     static void _bind_methods();
 
 public:
-	void update_custom_nodes();
+    void update_custom_nodes();
     void add_plugin(const Ref<VisualShaderNodePlugin> &p_plugin);
     void remove_plugin(const Ref<VisualShaderNodePlugin> &p_plugin);
 

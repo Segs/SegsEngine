@@ -20,7 +20,7 @@ StringName TTR(se_string_view);
 
 #else
 
-#define TTR(m_value) (String())
+#define TTR(m_value) (m_value)
 #define TTRC(m_value) (m_value)
 #define TTRGET(m_value) (m_value)
 

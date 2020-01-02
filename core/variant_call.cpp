@@ -76,31 +76,34 @@ struct _VariantCall {
 
     struct FuncData {
 
-        int arg_count;
-        FixedVector<Variant,5> default_args;
-        FixedVector<VariantType,5> arg_types;
+        uint8_t arg_count=0;
+        uint8_t def_count=0;
+        Variant default_args[5] = {};
+        VariantType arg_types[5] = {VariantType::NIL};
         se_string_view arg_names[5] = {};
         VariantType return_type;
 
         bool _const;
         bool returns;
-
         VariantFunc func;
+
         FuncData() = default;
         constexpr FuncData(bool p_const, VariantType p_return, bool p_has_return, VariantFunc p_func, const
-            std::initializer_list<Variant> p_defaultarg, std::initializer_list<const Arg> p_argtype1) : func(p_func), default_args(p_defaultarg),_const(p_const),returns(p_has_return),return_type(p_return),arg_count(p_argtype1.size()) {
-            int idx=0;
+            std::initializer_list<Variant> p_defaultarg, std::initializer_list<const Arg> p_argtype1) : func(p_func), _const(p_const),returns(p_has_return),return_type(p_return),arg_count(p_argtype1.size()) {
+
             for(const Arg & a : p_argtype1) {
                 if(a.name) {
-                    arg_types.push_back(a.type);
+                    arg_types[arg_count] = a.type;
 #ifdef DEBUG_ENABLED
-                    arg_names[idx] = a.name;
+                    arg_names[arg_count] = a.name;
 #endif
                 }
                 else
                     break;
-                ++idx;
+                ++arg_count;
             }
+            for(const Variant & v : p_defaultarg)
+                default_args[def_count++] = v;
         }
         bool verify_arguments(const Variant **p_args, Variant::CallError &r_error) {
 
@@ -132,7 +135,7 @@ struct _VariantCall {
             } else
 #endif
                     if (p_argcount < arg_count) {
-                int def_argcount = default_args.size();
+                int def_argcount = def_count;
 #ifdef DEBUG_ENABLED
                 if (p_argcount < (arg_count - def_argcount)) {
                     r_error.error = Variant::CallError::CALL_ERROR_TOO_FEW_ARGUMENTS;
@@ -203,57 +206,30 @@ struct _VariantCall {
 
         FuncData funcdata;
         funcdata.func = p_func;
-        funcdata.default_args = p_defaultarg;
+        for(const Variant & v : p_defaultarg)
+            funcdata.default_args[funcdata.def_count++] = v;
         funcdata._const = p_const;
         funcdata.returns = p_has_return;
         funcdata.return_type = p_return;
         int idx = 0;
-        if (p_argtype1.name) {
-            funcdata.arg_types.push_back(p_argtype1.type);
-#ifdef DEBUG_ENABLED
-            funcdata.arg_names[idx++] = p_argtype1.name;
-#endif
-
-        } else
-            goto end;
-
-        if (p_argtype2.name) {
-            funcdata.arg_types.push_back(p_argtype2.type);
-#ifdef DEBUG_ENABLED
-            funcdata.arg_names[idx++] = p_argtype2.name;
-#endif
-
-        } else
-            goto end;
-
-        if (p_argtype3.name) {
-            funcdata.arg_types.push_back(p_argtype3.type);
-#ifdef DEBUG_ENABLED
-            funcdata.arg_names[idx++] = p_argtype3.name;
-#endif
-
-        } else
-            goto end;
-
-        if (p_argtype4.name) {
-            funcdata.arg_types.push_back(p_argtype4.type);
-#ifdef DEBUG_ENABLED
-            funcdata.arg_names[idx++] = p_argtype4.name;
-#endif
-        } else
-            goto end;
-
-        if (p_argtype5.name) {
-            funcdata.arg_types.push_back(p_argtype5.type);
-#ifdef DEBUG_ENABLED
-            funcdata.arg_names[idx++] = p_argtype5.name;
-#endif
-        } else
-            goto end;
-
-    end:
-
-        funcdata.arg_count = funcdata.arg_types.size();
+        const Arg *argtypes[5] = {
+            &p_argtype1,
+            &p_argtype2,
+            &p_argtype3,
+            &p_argtype4,
+            &p_argtype5,
+        };
+        for(int i=0; i<5; ++i) {
+            if (argtypes[i]->name) {
+                funcdata.arg_types[i] = argtypes[i]->type;
+    #ifdef DEBUG_ENABLED
+                funcdata.arg_names[i] = argtypes[i]->name;
+    #endif
+                idx++;
+            } else
+                break;
+        }
+        funcdata.arg_count = idx;
         type_funcs[(int)p_type].functions[p_name] = funcdata;
     }
 
@@ -1555,7 +1531,7 @@ void Variant::get_method_list(PODVector<MethodInfo> *p_list) const {
             mi.flags |= METHOD_FLAG_CONST;
         }
 
-        for (int i = 0; i < fd.arg_types.size(); i++) {
+        for (int i = 0; i < fd.arg_count; i++) {
 
             PropertyInfo pi;
             pi.type = fd.arg_types[i];
@@ -1565,7 +1541,7 @@ void Variant::get_method_list(PODVector<MethodInfo> *p_list) const {
             mi.arguments.push_back(pi);
         }
 
-        mi.default_arguments.assign(fd.default_args.begin(), fd.default_args.end());
+        mi.default_arguments.assign(fd.default_args, fd.default_args+fd.def_count);
         PropertyInfo ret;
 #ifdef DEBUG_ENABLED
         ret.type = fd.return_type;
@@ -1749,7 +1725,7 @@ void register_variant_methods() {
 
 
     _VariantCall::addfunc_span(StringFunctions);
-    
+
     /* STRING */
 
 //    ADDFUNC0R(STRING, POOL_STRING_ARRAY, String, bigrams)
