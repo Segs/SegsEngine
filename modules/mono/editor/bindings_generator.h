@@ -180,7 +180,7 @@ class BindingsGenerator {
 		 * Identifier name for this type.
 		 * Also used to format [c_out].
 		 */
-		String name;
+        se_string name;
 		StringName cname;
 
 		/**
@@ -191,7 +191,7 @@ class BindingsGenerator {
 		/**
 		 * Name of the C# class
 		 */
-		String proxy_name;
+        StringName proxy_name;
 
 		ClassDB::APIType api_type;
 
@@ -238,7 +238,7 @@ class BindingsGenerator {
 		 * %0: [c_type] of the parameter
 		 * %1: name of the parameter
 		 */
-		String c_in;
+        se_string c_in;
 
 		/**
 		 * Determines the expression that will be passed as argument to ptrcall.
@@ -247,7 +247,7 @@ class BindingsGenerator {
 		 * Formatting elements:
 		 * %0 or %s: name of the parameter
 		 */
-		String c_arg_in;
+        se_string c_arg_in;
 
 		/**
 		 * One or more statements that determine how a variable of this type is returned from a function.
@@ -265,7 +265,7 @@ class BindingsGenerator {
 		 * %2: [name] of the return type
 		 * %3: name of the parameter that must be assigned the return value
 		 */
-		String c_out;
+        se_string c_out;
 
 		/**
 		 * The actual expected type, as seen (in most cases) in Variant copy constructors
@@ -279,19 +279,19 @@ class BindingsGenerator {
 		 * int: int64_t (because ptrcall only supports int64_t and uint64_t)
 		 * Reference types override this for the type of the return variable: Ref<Reference>
 		 */
-		String c_type;
+        se_string c_type;
 
 		/**
 		 * Determines the type used for parameters in function signatures.
 		 */
-		String c_type_in;
+        se_string c_type_in;
 
 		/**
 		 * Determines the return type used for function signatures.
 		 * Also used to construct a default value to return in case of errors,
 		 * and to format [c_out].
 		 */
-		String c_type_out;
+        se_string c_type_out;
 
 		// --- C# INTERFACE ---
 
@@ -301,7 +301,7 @@ class BindingsGenerator {
 		 * Formatting elements:
 		 * %0 or %s: name of the parameter
 		 */
-		String cs_in;
+        se_string cs_in;
 
 		/**
 		 * One or more statements that determine how a variable of this type is returned from a method.
@@ -312,23 +312,23 @@ class BindingsGenerator {
 		 * %2: [cs_type] of the return type
 		 * %3: [im_type_out] of the return type
 		 */
-		String cs_out;
+        se_string cs_out;
 
 		/**
 		 * Type used for method signatures, both for parameters and the return type.
 		 * Same as [proxy_name] except for variable arguments (VarArg) and collections (which include the namespace).
 		 */
-		String cs_type;
+        se_string cs_type;
 
 		/**
 		 * Type used for parameters of internal call methods.
 		 */
-		String im_type_in;
+        se_string im_type_in;
 
 		/**
 		 * Type used for the return type of internal call methods.
 		 */
-		String im_type_out;
+        se_string im_type_out;
 
 		const DocData::ClassDoc *class_doc;
 
@@ -338,9 +338,9 @@ class BindingsGenerator {
 		List<MethodInterface> methods;
 
 		const MethodInterface *find_method_by_name(const StringName &p_cname) const {
-			for (const List<MethodInterface>::Element *E = methods.front(); E; E = E->next()) {
-				if (E->get().cname == p_cname)
-					return &E->get();
+            for (const List<MethodInterface>::Element *E = methods.front(); E; E = E->next()) {
+                if (E->deref().cname == p_cname)
+                    return &E->deref();
 			}
 
 			return NULL;
@@ -348,8 +348,8 @@ class BindingsGenerator {
 
 		const PropertyInterface *find_property_by_name(const StringName &p_cname) const {
 			for (const List<PropertyInterface>::Element *E = properties.front(); E; E = E->next()) {
-				if (E->get().cname == p_cname)
-					return &E->get();
+                if (E->deref().cname == p_cname)
+                    return &E->deref();
 			}
 
 			return NULL;
@@ -357,8 +357,8 @@ class BindingsGenerator {
 
 		const PropertyInterface *find_property_by_proxy_name(const String &p_proxy_name) const {
 			for (const List<PropertyInterface>::Element *E = properties.front(); E; E = E->next()) {
-				if (E->get().proxy_name == p_proxy_name)
-					return &E->get();
+                if (E->deref().proxy_name == p_proxy_name)
+                    return &E->deref();
 			}
 
 			return NULL;
@@ -366,17 +366,17 @@ class BindingsGenerator {
 
 	private:
 		static void _init_value_type(TypeInterface &itype) {
-			itype.proxy_name = itype.name;
+            itype.proxy_name = StringName(itype.name);
 
 			itype.c_type = itype.name;
 			itype.cs_type = itype.proxy_name;
 			itype.im_type_in = "ref " + itype.proxy_name;
 			itype.im_type_out = itype.proxy_name;
-			itype.class_doc = &EditorHelp::get_doc_data()->class_list[itype.proxy_name];
+            itype.class_doc = &EditorHelp::get_doc_data()->class_list[itype.proxy_name];
 		}
 
 	public:
-		static TypeInterface create_value_type(const String &p_name) {
+        static TypeInterface create_value_type(const se_string &p_name) {
 			TypeInterface itype;
 			itype.name = p_name;
 			itype.cname = StringName(p_name);
@@ -386,7 +386,7 @@ class BindingsGenerator {
 
 		static TypeInterface create_value_type(const StringName &p_name) {
 			TypeInterface itype;
-			itype.name = p_name.operator String();
+            itype.name = p_name;
 			itype.cname = p_name;
 			_init_value_type(itype);
 			return itype;
@@ -397,7 +397,7 @@ class BindingsGenerator {
 
 			itype.name = p_cname;
 			itype.cname = p_cname;
-			itype.proxy_name = itype.name.begins_with("_") ? itype.name.substr(1, itype.name.length()) : itype.name;
+            itype.proxy_name = StringName(StringUtils::begins_with(itype.name,"_") ? itype.name.substr(1, itype.name.length()) : itype.name);
 			itype.api_type = p_api_type;
 			itype.is_object_type = true;
 			itype.class_doc = &EditorHelp::get_doc_data()->class_list[itype.proxy_name];
@@ -408,7 +408,7 @@ class BindingsGenerator {
 		static void create_placeholder_type(TypeInterface &r_itype, const StringName &p_cname) {
 			r_itype.name = p_cname;
 			r_itype.cname = p_cname;
-			r_itype.proxy_name = r_itype.name;
+            r_itype.proxy_name =p_cname;
 
 			r_itype.c_type = r_itype.name;
 			r_itype.c_type_in = "MonoObject*";
@@ -539,28 +539,28 @@ class BindingsGenerator {
 		StringName type_double;
 
 		NameCache() {
-			type_void = StaticCString::create("void");
-			type_Array = StaticCString::create("Array");
-			type_Dictionary = StaticCString::create("Dictionary");
-			type_Variant = StaticCString::create("Variant");
-			type_VarArg = StaticCString::create("VarArg");
-			type_Object = StaticCString::create("Object");
-			type_Reference = StaticCString::create("Reference");
-			type_RID = StaticCString::create("RID");
-			type_String = StaticCString::create("String");
-			type_at_GlobalScope = StaticCString::create("@GlobalScope");
-			enum_Error = StaticCString::create("Error");
+            type_void = StaticCString("void");
+            type_Array = StaticCString("Array");
+            type_Dictionary = StaticCString("Dictionary");
+            type_Variant = StaticCString("Variant");
+            type_VarArg = StaticCString("VarArg");
+            type_Object = StaticCString("Object");
+            type_Reference = StaticCString("Reference");
+            type_RID = StaticCString("RID");
+            type_String = StaticCString("String");
+            type_at_GlobalScope = StaticCString("@GlobalScope");
+            enum_Error = StaticCString("Error");
 
-			type_sbyte = StaticCString::create("sbyte");
-			type_short = StaticCString::create("short");
-			type_int = StaticCString::create("int");
-			type_long = StaticCString::create("long");
-			type_byte = StaticCString::create("byte");
-			type_ushort = StaticCString::create("ushort");
-			type_uint = StaticCString::create("uint");
-			type_ulong = StaticCString::create("ulong");
-			type_float = StaticCString::create("float");
-			type_double = StaticCString::create("double");
+            type_sbyte = StaticCString("sbyte");
+            type_short = StaticCString("short");
+            type_int = StaticCString("int");
+            type_long = StaticCString("long");
+            type_byte = StaticCString("byte");
+            type_ushort = StaticCString("ushort");
+            type_uint = StaticCString("uint");
+            type_ulong = StaticCString("ulong");
+            type_float = StaticCString("float");
+            type_double = StaticCString("double");
 		}
 
 	private:
@@ -573,7 +573,7 @@ class BindingsGenerator {
 	const List<InternalCall>::Element *find_icall_by_name(const String &p_name, const List<InternalCall> &p_list) {
 		const List<InternalCall>::Element *it = p_list.front();
 		while (it) {
-			if (it->get().name == p_name) return it;
+            if (it->deref().name == p_name) return it;
 			it = it->next();
 		}
 		return NULL;
@@ -581,14 +581,14 @@ class BindingsGenerator {
 
 	const ConstantInterface *find_constant_by_name(const String &p_name, const List<ConstantInterface> &p_constants) const {
 		for (const List<ConstantInterface>::Element *E = p_constants.front(); E; E = E->next()) {
-			if (E->get().name == p_name)
-				return &E->get();
+            if (E->deref().name == p_name)
+                return &E->deref();
 		}
 
 		return NULL;
 	}
 
-	inline String get_unique_sig(const TypeInterface &p_type) {
+    inline se_string get_unique_sig(const TypeInterface &p_type) {
 		if (p_type.is_reference)
 			return "Ref";
 		else if (p_type.is_object_type)

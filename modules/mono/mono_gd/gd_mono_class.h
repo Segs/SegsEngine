@@ -34,6 +34,7 @@
 #include <mono/metadata/debug-helpers.h>
 
 #include "core/map.h"
+#include "core/hashfuncs.h"
 #include "core/ustring.h"
 
 #include "gd_mono_field.h"
@@ -47,9 +48,9 @@ class GDMonoClass {
 		struct Hasher {
 			static _FORCE_INLINE_ uint32_t hash(const MethodKey &p_key) {
 				uint32_t hash = 0;
-
+                ::Hasher<int> inth;
 				GDMonoUtils::hash_combine(hash, p_key.name.hash());
-				GDMonoUtils::hash_combine(hash, HashMapHasherDefault::hash(p_key.params_count));
+                GDMonoUtils::hash_combine(hash, inth(p_key.params_count));
 
 				return hash;
 			}

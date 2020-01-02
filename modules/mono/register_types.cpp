@@ -31,22 +31,18 @@
 #include "register_types.h"
 
 #include "core/engine.h"
+#include "core/class_db.h"
 
-#if 0
 #include "csharp_script.h"
-
-CSharpLanguage *script_language_cs = NULL;
+CSharpLanguage *script_language_cs = nullptr;
 Ref<ResourceFormatLoaderCSharpScript> resource_loader_cs;
 Ref<ResourceFormatSaverCSharpScript> resource_saver_cs;
 
-_GodotSharp *_godotsharp = NULL;
-#endif
+_GodotSharp *_godotsharp = nullptr;
 void register_mono_types() {
-#if 0
 	ClassDB::register_class<CSharpScript>();
-
-	_godotsharp = memnew(_GodotSharp);
-
+#if 0
+    _godotsharp = memnew(_GodotSharp);
 	ClassDB::register_class<_GodotSharp>();
 	Engine::get_singleton()->add_singleton(Engine::Singleton("GodotSharp", _GodotSharp::get_singleton()));
 

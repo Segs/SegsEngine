@@ -1,8 +1,13 @@
-set(source_files register_types.cpp register_types.h)
+set(source_files
+    register_types.cpp register_types.h
+    csharp_script.cpp
+    )
 #file(GLOB source_files "*.cpp" )
 #file(GLOB header_files "*.h" )
 #file(GLOB qrc_files "*.qrc" )
 #find_package( Mono )
+include(FindPkgConfig)  # we don't need the pkg-config path on OS X, but we need other macros in this file
+pkg_check_modules(MONO REQUIRED IMPORTED_TARGET mono-2)
 
 foreach(tgt ${global_targets})
     add_library(${tgt}_module_mono STATIC)
@@ -22,6 +27,7 @@ foreach(tgt ${global_targets})
     target_sources(${tgt}_module_mono PRIVATE ${source_files} ${header_files} ${qrc_files})
     target_link_libraries(${tgt}_module_mono PRIVATE ${tgt}_core)
     set_target_properties(${tgt}_module_mono PROPERTIES AUTORCC ON)
+    target_link_libraries(${tgt}_module_mono PRIVATE PkgConfig::MONO)
     set_common_target_properties(${tgt}_module_mono)
 
 endforeach()

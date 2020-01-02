@@ -1355,3 +1355,19 @@ _GodotSharp::~_GodotSharp() {
 
     singleton = NULL;
 }
+#ifdef DEBUG_METHODS_ENABLED
+
+uint64_t GDMono::get_api_core_hash() {
+    if (api_core_hash == 0)
+        api_core_hash = ClassDB::get_api_hash(ClassDB::API_CORE);
+    return api_core_hash;
+}
+
+#ifdef TOOLS_ENABLED
+uint64_t GDMono::get_api_editor_hash() {
+    if (api_editor_hash == 0)
+        api_editor_hash = ClassDB::get_api_hash(ClassDB::API_EDITOR);
+    return api_editor_hash;
+}
+#endif // TOOLS_ENABLED
+#endif // DEBUG_METHODS_ENABLED
