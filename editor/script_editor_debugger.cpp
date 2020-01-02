@@ -59,6 +59,7 @@
 #include "scene/gui/tab_container.h"
 #include "scene/gui/texture_button.h"
 #include "scene/gui/tree.h"
+#include "scene/resources/font.h"
 #include "scene/resources/packed_scene.h"
 #include "scene/resources/style_box.h"
 

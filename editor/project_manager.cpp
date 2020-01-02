@@ -56,6 +56,7 @@
 #include "scene/gui/texture_rect.h"
 #include "scene/gui/tool_button.h"
 #include "scene/main/scene_tree.h"
+#include "scene/resources/font.h"
 
 static inline se_string get_project_key_from_path(se_string_view dir) {
     return se_string(dir).replaced("/", "::");

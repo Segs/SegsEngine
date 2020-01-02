@@ -34,6 +34,7 @@
 #include "core/vmap.h"
 #include "core/string_formatter.h"
 #include "core/translation_helpers.h"
+#include "core/object_tooling.h"
 #include "scene/resources/shader_enum_casters.h"
 #include "servers/visual/shader_types.h"
 #include "core/string_utils.inl"

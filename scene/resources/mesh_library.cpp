@@ -31,6 +31,7 @@
 #include "mesh_library.h"
 #include "scene/resources/texture.h"
 #include "core/method_bind.h"
+#include "core/object_tooling.h"
 #include "core/engine.h"
 
 IMPL_GDCLASS(MeshLibrary)

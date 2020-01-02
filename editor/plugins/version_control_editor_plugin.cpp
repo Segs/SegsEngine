@@ -35,6 +35,7 @@
 #include "editor/editor_node.h"
 #include "editor/editor_scale.h"
 #include "core/method_bind.h"
+#include "scene/resources/font.h"
 
 VersionControlEditorPlugin *VersionControlEditorPlugin::singleton = nullptr;
 

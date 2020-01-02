@@ -2,6 +2,7 @@
 #include "core/ustring.h"
 #include "core/math/vector2.h"
 #include "core/math/vector3.h"
+#include "core/variant.h"
 
 template class EXPORT_TEMPLATE_DEFINE(GODOT_EXPORT) eastl::vector<uint8_t,wrap_allocator>;
 

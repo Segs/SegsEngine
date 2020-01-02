@@ -29,9 +29,11 @@
 /*************************************************************************/
 
 #include "visual_script_expression.h"
-#include "core/string_formatter.h"
+
 #include "core/class_db.h"
+#include "core/object_tooling.h"
 #include "core/se_string.h"
+#include "core/string_formatter.h"
 #include "core/string_utils.inl"
 
 IMPL_GDCLASS(VisualScriptExpression)

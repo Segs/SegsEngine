@@ -386,7 +386,6 @@ foreach(tgt ${global_targets})
     target_link_libraries(${tgt}_engine INTERFACE EASTL_Import )
     target_link_libraries(${tgt}_engine PRIVATE minizip)
     target_link_libraries(${tgt}_engine INTERFACE minizip_interface)
-    set_target_properties(${tgt}_engine PROPERTIES AUTOMOC TRUE)
     INSTALL (
         DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
         DESTINATION include/SegsEngine

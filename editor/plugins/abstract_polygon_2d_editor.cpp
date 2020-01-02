@@ -31,12 +31,13 @@
 #include "abstract_polygon_2d_editor.h"
 
 #include "canvas_item_editor_plugin.h"
-#include "editor/editor_node.h"
-#include "editor/plugins/canvas_item_editor_plugin.h"
 #include "core/method_bind.h"
 #include "core/os/keyboard.h"
 #include "core/translation_helpers.h"
+#include "editor/editor_node.h"
 #include "editor/editor_scale.h"
+#include "editor/plugins/canvas_item_editor_plugin.h"
+#include "scene/resources/font.h"
 
 #include "scene/main/scene_tree.h"
 

@@ -33,6 +33,7 @@
 #include "core/translation.h"
 #include "line_edit.h"
 #include "core/method_bind.h"
+#include "scene/resources/font.h"
 #include "scene/resources/style_box.h"
 
 

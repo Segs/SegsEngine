@@ -52,6 +52,7 @@
 #include "scene/gui/tool_button.h"
 #include "scene/main/scene_tree.h"
 #include "scene/main/viewport.h"
+#include "scene/resources/font.h"
 #include "scene/resources/style_box.h"
 #include "servers/audio/audio_stream.h"
 

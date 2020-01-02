@@ -56,6 +56,7 @@
 #include "scene/3d/camera.h"
 #include "scene/main/viewport.h"
 #include "scene/resources/theme.h"
+#include "scene/resources/font.h"
 
 
 namespace TestGUI {

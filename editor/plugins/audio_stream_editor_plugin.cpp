@@ -38,6 +38,7 @@
 #include "core/project_settings.h"
 #include "editor/editor_settings.h"
 #include "servers/visual_server.h"
+#include "scene/resources/font.h"
 
 
 IMPL_GDCLASS(AudioStreamEditor)

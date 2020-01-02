@@ -44,6 +44,7 @@
 #include "scene/gui/menu_button.h"
 #include "scene/gui/panel.h"
 #include "scene/main/viewport.h"
+#include "scene/resources/font.h"
 #include "scene/resources/style_box.h"
 
 IMPL_GDCLASS(AnimationNodeStateMachineEditor)

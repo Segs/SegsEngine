@@ -30,6 +30,7 @@
 
 #include "particles.h"
 
+#include "core/object_tooling.h"
 #include "core/os/os.h"
 #include "scene/resources/particles_material.h"
 #include "scene/resources/mesh.h"

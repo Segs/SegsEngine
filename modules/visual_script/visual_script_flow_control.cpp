@@ -32,6 +32,7 @@
 
 #include "core/io/resource_loader.h"
 #include "core/method_bind.h"
+#include "core/object_tooling.h"
 #include "core/os/keyboard.h"
 #include "core/project_settings.h"
 #include "core/translation_helpers.h"

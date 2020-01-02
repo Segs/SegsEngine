@@ -91,6 +91,8 @@ define_per_target_option(DISABLE_3D "Disable 3D nodes for smaller executable" OF
 foreach(tgt ${global_targets})
     add_library(${tgt}_engine SHARED)
     target_link_libraries(${tgt}_engine PUBLIC Qt5::Core EASTL_Import)
+    set_target_properties(${tgt}_engine PROPERTIES AUTOMOC TRUE)
+
     set_common_target_properties(${tgt}_engine)
     if(USE_TRACY_PROFILER)
         target_sources(${tgt}_engine PRIVATE thirdparty/tracy/TracyClient.cpp)

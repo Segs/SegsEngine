@@ -35,6 +35,7 @@
 #include "core/io/marshalls.h"
 #include "core/math/math_funcs.h"
 #include "core/method_bind.h"
+#include "core/object_tooling.h"
 #include "core/os/os.h"
 #include "core/se_string.h"
 #include "core/color.h"

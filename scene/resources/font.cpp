@@ -33,6 +33,7 @@
 
 #include "core/io/resource_loader.h"
 #include "core/os/file_access.h"
+#include "core/hashfuncs.h"
 #include "core/method_bind.h"
 #include "servers/visual_server.h"
 #include "core/se_string.h"
@@ -155,20 +156,19 @@ PoolVector<int> BitmapFont::_get_chars() const {
 
     const CharType *key = nullptr;
 
-    while ((key = char_map.next(key))) {
+    for(const auto &v  : char_map) {
 
-        const Character *c = char_map.getptr(*key);
-        ERR_FAIL_COND_V(!c, PoolVector<int>())
+        const Character &c = v.second;
         chars.push_back(key->unicode());
-        chars.push_back(c->texture_idx);
-        chars.push_back(c->rect.position.x);
-        chars.push_back(c->rect.position.y);
+        chars.push_back(c.texture_idx);
+        chars.push_back(c.rect.position.x);
+        chars.push_back(c.rect.position.y);
 
-        chars.push_back(c->rect.size.x);
-        chars.push_back(c->rect.size.y);
-        chars.push_back(c->h_align);
-        chars.push_back(c->v_align);
-        chars.push_back(c->advance);
+        chars.push_back(c.rect.size.x);
+        chars.push_back(c.rect.size.y);
+        chars.push_back(c.h_align);
+        chars.push_back(c.v_align);
+        chars.push_back(c.advance);
     }
 
     return chars;
@@ -408,23 +408,22 @@ Vector<CharType> BitmapFont::get_char_keys() const {
 
     Vector<CharType> chars;
     chars.resize(char_map.size());
-    const CharType *ct = nullptr;
     int count = 0;
-    while ((ct = char_map.next(ct))) {
+    for(const auto &v  : char_map) {
 
-        chars.write[count++] = *ct;
+        chars.write[count++] = v.first;
     }
 
     return chars;
 }
 
 BitmapFont::Character BitmapFont::get_character(CharType p_char) const {
-
-    if (!char_map.contains(p_char)) {
+    auto iter = char_map.find(p_char.unicode());
+    if (iter==char_map.end()) {
         ERR_FAIL_V(Character());
     }
 
-    return char_map[p_char];
+    return iter->second;
 }
 
 void BitmapFont::add_char(CharType p_char, int p_texture_idx, const Rect2 &p_rect, const Size2 &p_align, float p_advance) {
@@ -439,7 +438,7 @@ void BitmapFont::add_char(CharType p_char, int p_texture_idx, const Rect2 &p_rec
     c.advance = p_advance;
     c.h_align = p_align.x;
 
-    char_map[p_char] = c;
+    char_map[p_char.unicode()] = c;
 }
 
 void BitmapFont::add_kerning_pair(CharType p_A, CharType p_B, int p_kerning) {
@@ -580,21 +579,21 @@ Ref<BitmapFont> BitmapFont::get_fallback() const {
 
 float BitmapFont::draw_char(RID p_canvas_item, const Point2 &p_pos, CharType p_char, CharType p_next, const Color &p_modulate, bool p_outline) const {
 
-    const Character *c = char_map.getptr(p_char);
+    auto c = char_map.find(p_char.unicode());
 
-    if (!c) {
+    if (c==char_map.end()) {
         if (fallback)
             return fallback->draw_char(p_canvas_item, p_pos, p_char, p_next, p_modulate, p_outline);
         return 0;
     }
 
-    ERR_FAIL_COND_V(c->texture_idx < -1 || c->texture_idx >= textures.size(), 0)
-    if (!p_outline && c->texture_idx != -1) {
+    ERR_FAIL_COND_V(c->second.texture_idx < -1 || c->second.texture_idx >= textures.size(), 0)
+    if (!p_outline && c->second.texture_idx != -1) {
         Point2 cpos = p_pos;
-        cpos.x += c->h_align;
+        cpos.x += c->second.h_align;
         cpos.y -= ascent;
-        cpos.y += c->v_align;
-        VisualServer::get_singleton()->canvas_item_add_texture_rect_region(p_canvas_item, Rect2(cpos, c->rect.size), textures[c->texture_idx]->get_rid(), c->rect, p_modulate, false, RID(), false);
+        cpos.y += c->second.v_align;
+        VisualServer::get_singleton()->canvas_item_add_texture_rect_region(p_canvas_item, Rect2(cpos, c->second.rect.size), textures[c->second.texture_idx]->get_rid(), c->second.rect, p_modulate, false, RID(), false);
     }
 
     return get_char_size(p_char, p_next).width;
@@ -602,15 +601,15 @@ float BitmapFont::draw_char(RID p_canvas_item, const Point2 &p_pos, CharType p_c
 
 Size2 BitmapFont::get_char_size(CharType p_char, CharType p_next) const {
 
-    const Character *c = char_map.getptr(p_char);
+    auto c = char_map.find(p_char.unicode());
 
-    if (!c) {
+    if (c==char_map.end()) {
         if (fallback)
             return fallback->get_char_size(p_char, p_next);
         return Size2();
     }
 
-    Size2 ret(c->advance, c->rect.size.y);
+    Size2 ret(c->second.advance, c->second.rect.size.y);
 
     if (!p_next.isNull()) {
 

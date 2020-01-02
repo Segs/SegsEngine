@@ -37,6 +37,7 @@
 #include "core/io/resource_loader.h"
 #include "core/project_settings.h"
 #include "editor/editor_settings.h"
+#include "scene/resources/font.h"
 
 IMPL_GDCLASS(TextureEditor)
 IMPL_GDCLASS(EditorInspectorPluginTexture)

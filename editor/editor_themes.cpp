@@ -39,6 +39,7 @@
 #include "core/print_string.h"
 #include "core/string_utils.inl"
 #include "plugins/formats/image/svg/image_loader_svg.h"
+#include "scene/resources/font.h"
 
 #include <QDir>
 #include <QDirIterator>

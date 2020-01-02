@@ -32,6 +32,7 @@
 #include "core/method_bind.h"
 #include "core/core_string_names.h"
 #include "core/os/os.h"
+#include "core/object_tooling.h"
 #include "scene/main/viewport.h"
 #include "scene/scene_string_names.h"
 

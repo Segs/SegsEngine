@@ -156,6 +156,7 @@
 #include "main/main.h"
 #include "scene/gui/tabs.h"
 #include "scene/main/scene_tree.h"
+#include "scene/resources/font.h"
 #include "scene/resources/packed_scene.h"
 #include "servers/physics_2d_server.h"
 

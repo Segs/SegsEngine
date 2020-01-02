@@ -36,7 +36,6 @@
 #include "scene/gui/popup_menu.h"
 #include "scene/gui/scroll_bar.h"
 #include "scene/main/timer.h"
-#include "scene/resources/font.h"
 #include "core/ustring.h"
 #include <utility>
 

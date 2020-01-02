@@ -33,6 +33,7 @@
 
 #include "core/method_bind.h"
 #include "core/object_db.h"
+#include "core/object_tooling.h"
 #include "core/string_formatter.h"
 #include "editor/scene_tree_dock.h"
 #include "editor/create_dialog.h"
@@ -46,6 +47,7 @@
 #include "scene/gui/color_picker.h"
 #include "scene/main/scene_tree.h"
 #include "scene/main/viewport.h"
+#include "scene/resources/font.h"
 #include "scene/resources/style_box.h"
 
 #include <QList>

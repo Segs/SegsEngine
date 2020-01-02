@@ -33,6 +33,7 @@
 #include "core/os/file_access.h"
 #include "core/print_string.h"
 #include "core/method_bind.h"
+#include "scene/resources/font.h"
 
 #include <cassert>
 

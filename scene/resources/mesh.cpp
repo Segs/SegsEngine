@@ -30,6 +30,7 @@
 
 #include "mesh.h"
 
+#include "core/object_tooling.h"
 #include "core/pair.h"
 #include "core/map.h"
 #include "scene/resources/concave_polygon_shape.h"

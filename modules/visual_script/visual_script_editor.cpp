@@ -51,6 +51,7 @@
 #include "scene/main/viewport.h"
 #include "scene/resources/style_box.h"
 #include "scene/resources/theme.h"
+#include "scene/resources/font.h"
 #include "visual_script_expression.h"
 #include "visual_script_flow_control.h"
 #include "visual_script_func_nodes.h"

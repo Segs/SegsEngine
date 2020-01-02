@@ -40,6 +40,7 @@
 #include "scene/2d/sprite.h"
 #include "scene/3d/sprite_3d.h"
 #include "scene/animation/animation_player.h"
+#include "scene/resources/font.h"
 #include "servers/audio/audio_stream.h"
 #include "servers/visual_server.h"
 

@@ -41,6 +41,7 @@
 #include "core/method_bind.h"
 #include "core/se_string.h"
 #include "scene/gui/rich_text_label.h"
+#include "scene/resources/font.h"
 #include "scene/resources/style_box.h"
 
 using namespace eastl;

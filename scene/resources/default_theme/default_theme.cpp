@@ -34,6 +34,7 @@
 
 #include "core/os/os.h"
 #include "theme_data.h"
+#include "scene/resources/font.h"
 
 #include "font_hidpi.inc"
 #include "font_lodpi.inc"

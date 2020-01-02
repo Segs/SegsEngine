@@ -40,6 +40,7 @@
 #include "editor/editor_scale.h"
 #include "scene/gui/item_list.h"
 #include "scene/gui/rich_text_label.h"
+#include "scene/resources/font.h"
 
 IMPL_GDCLASS(EditorAbout)
 

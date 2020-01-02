@@ -43,6 +43,7 @@
 #include "scene/2d/sprite.h"
 #include "scene/gui/item_list.h"
 #include "scene/main/scene_tree.h"
+#include "scene/resources/font.h"
 #include "scene/resources/style_box.h"
 
 IMPL_GDCLASS(TileSetEditor)

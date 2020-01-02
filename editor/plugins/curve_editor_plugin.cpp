@@ -38,6 +38,7 @@
 #include "core/translation_helpers.h"
 #include "editor/editor_scale.h"
 #include "scene/gui/spin_box.h"
+#include "scene/resources/font.h"
 #include "scene/resources/style_box.h"
 
 IMPL_GDCLASS(CurveEditor)

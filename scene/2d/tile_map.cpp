@@ -33,6 +33,7 @@
 #include "collision_object_2d.h"
 #include "core/method_bind.h"
 #include "core/io/marshalls.h"
+#include "core/object_tooling.h"
 #include "core/os/os.h"
 #include "core/print_string.h"
 #include "core/translation_helpers.h"

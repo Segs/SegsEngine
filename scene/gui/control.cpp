@@ -48,6 +48,7 @@
 #include "scene/scene_string_names.h"
 #include "servers/visual_server.h"
 #include "scene/gui/control_enum_casters.h"
+#include "scene/resources/font.h"
 
 #ifdef TOOLS_ENABLED
 #include "editor/editor_settings.h"

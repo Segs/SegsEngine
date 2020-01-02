@@ -49,6 +49,7 @@
 #include "scene/main/viewport.h"
 #include "scene/resources/visual_shader_nodes.h"
 #include "servers/visual/shader_types.h"
+#include "scene/resources/font.h"
 #include "scene/resources/style_box.h"
 
 IMPL_GDCLASS(VisualShaderNodePlugin)

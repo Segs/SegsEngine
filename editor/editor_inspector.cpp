@@ -40,6 +40,7 @@
 #include "core/method_bind.h"
 #include "core/object_tooling.h"
 #include "scene/main/scene_tree.h"
+#include "scene/resources/font.h"
 #include "scene/resources/style_box.h"
 
 IMPL_GDCLASS(EditorProperty)

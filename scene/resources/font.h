@@ -34,6 +34,8 @@
 #include "core/hash_map.h"
 #include "core/resource.h"
 #include "scene/resources/texture.h"
+#include "core/forward_decls.h"
+#include "core/hashfuncs.h"
 #include <QChar>
 
 class Font : public Resource {
@@ -145,7 +147,7 @@ public:
     };
 
 private:
-    HashMap<CharType, Character> char_map;
+    DefHashMap<uint16_t, Character> char_map;
     Map<KerningPairKey, int> kerning_map;
 
     float height;

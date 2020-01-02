@@ -36,6 +36,7 @@
 #include "scene/resources/texture.h"
 #include "core/class_db.h"
 #include "core/method_enum_caster.h"
+#include "core/object_tooling.h"
 #include "core/os/mutex.h"
 
 IMPL_GDCLASS(Material)

@@ -32,11 +32,12 @@
 
 #include "core/io/resource_loader.h"
 #include "core/resource.h"
-#include "scene/resources/font.h"
 #include "scene/resources/shader.h"
 #include "scene/resources/style_box.h"
 #include "scene/resources/texture.h"
 #include "core/hash_map.h"
+
+class Font;
 
 class Theme : public Resource {
 
