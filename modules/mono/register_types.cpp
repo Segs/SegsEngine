@@ -32,6 +32,7 @@
 
 #include "core/engine.h"
 
+#if 0
 #include "csharp_script.h"
 
 CSharpLanguage *script_language_cs = NULL;
@@ -39,8 +40,9 @@ Ref<ResourceFormatLoaderCSharpScript> resource_loader_cs;
 Ref<ResourceFormatSaverCSharpScript> resource_saver_cs;
 
 _GodotSharp *_godotsharp = NULL;
-
+#endif
 void register_mono_types() {
+#if 0
 	ClassDB::register_class<CSharpScript>();
 
 	_godotsharp = memnew(_GodotSharp);
@@ -57,10 +59,12 @@ void register_mono_types() {
 
 	resource_saver_cs.instance();
 	ResourceSaver::add_resource_format_saver(resource_saver_cs);
+#endif
 }
 
 void unregister_mono_types() {
-	ScriptServer::unregister_language(script_language_cs);
+#if 0
+    ScriptServer::unregister_language(script_language_cs);
 
 	if (script_language_cs)
 		memdelete(script_language_cs);
@@ -73,4 +77,5 @@ void unregister_mono_types() {
 
 	if (_godotsharp)
 		memdelete(_godotsharp);
+#endif
 }
