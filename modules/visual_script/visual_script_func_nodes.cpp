@@ -2408,7 +2408,7 @@ void VisualScriptEmitSignal::_validate_property(PropertyInfo &property) const {
     if (property.name == "signal") {
         property.hint = PROPERTY_HINT_ENUM;
 
-        Vector<StringName> sigs;
+        PODVector<StringName> sigs;
 
         Ref<VisualScript> vs = get_visual_script();
         if (vs) {

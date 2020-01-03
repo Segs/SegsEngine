@@ -243,12 +243,12 @@ Vector2 VisualScript::get_function_scroll(const StringName &p_name) const {
     return functions.at(p_name).scroll;
 }
 
-void VisualScript::get_function_list(Vector<StringName> *r_functions) const {
+void VisualScript::get_function_list(PODVector<StringName> *r_functions) const {
 
     for (const eastl::pair<const StringName,Function> &E : functions) {
         r_functions->push_back(E.first);
     }
-    eastl::sort(r_functions->ptrw(),r_functions->ptrw()+r_functions->size(),StringName::AlphCompare);
+    eastl::sort(r_functions->begin(),r_functions->end(),StringName::AlphCompare);
 }
 
 int VisualScript::get_function_node_id(const StringName &p_name) const {
@@ -703,12 +703,12 @@ Dictionary VisualScript::_get_variable_info(const StringName &p_name) const {
     return d;
 }
 
-void VisualScript::get_variable_list(Vector<StringName> *r_variables) const {
+void VisualScript::get_variable_list(PODVector<StringName> *r_variables) const {
 
     for (const eastl::pair<const StringName,Variable> &E : variables) {
         r_variables->push_back(E.first);
     }
-    eastl::sort(r_variables->ptrw(),r_variables->ptrw()+r_variables->size(),StringName::AlphCompare);
+    eastl::sort(r_variables->begin(),r_variables->end(),StringName::AlphCompare);
 }
 
 void VisualScript::set_instance_base_type(const StringName &p_type) {
@@ -740,7 +740,7 @@ void VisualScript::add_custom_signal(const StringName &p_name) {
     ERR_FAIL_COND(!StringUtils::is_valid_identifier((p_name)))
     ERR_FAIL_COND(custom_signals.contains(p_name))
 
-    custom_signals[p_name] = Vector<Argument>();
+    custom_signals[p_name].clear();
 }
 
 bool VisualScript::has_custom_signal(const StringName &p_name) const {
@@ -764,7 +764,7 @@ void VisualScript::custom_signal_set_argument_type(const StringName &p_func, int
     ERR_FAIL_COND(instances.size())
     ERR_FAIL_COND(!custom_signals.contains(p_func))
     ERR_FAIL_INDEX(p_argidx, custom_signals[p_func].size())
-    custom_signals[p_func].write[p_argidx].type = p_type;
+    custom_signals[p_func][p_argidx].type = p_type;
 }
 VariantType VisualScript::custom_signal_get_argument_type(const StringName &p_func, int p_argidx) const {
 
@@ -776,7 +776,7 @@ void VisualScript::custom_signal_set_argument_name(const StringName &p_func, int
     ERR_FAIL_COND(instances.size())
     ERR_FAIL_COND(!custom_signals.contains(p_func))
     ERR_FAIL_INDEX(p_argidx, custom_signals[p_func].size())
-    custom_signals[p_func].write[p_argidx].name = p_name;
+    custom_signals[p_func][p_argidx].name = p_name;
 }
 se_string_view VisualScript::custom_signal_get_argument_name(const StringName &p_func, int p_argidx) const {
 
@@ -789,7 +789,7 @@ void VisualScript::custom_signal_remove_argument(const StringName &p_func, int p
     ERR_FAIL_COND(instances.size())
     ERR_FAIL_COND(!custom_signals.contains(p_func))
     ERR_FAIL_INDEX(p_argidx, custom_signals[p_func].size())
-    custom_signals[p_func].remove(p_argidx);
+    custom_signals[p_func].erase_at(p_argidx);
 }
 
 int VisualScript::custom_signal_get_argument_count(const StringName &p_func) const {
@@ -804,7 +804,7 @@ void VisualScript::custom_signal_swap_argument(const StringName &p_func, int p_a
     ERR_FAIL_INDEX(p_argidx, custom_signals[p_func].size());
     ERR_FAIL_INDEX(p_with_argidx, custom_signals[p_func].size());
 
-    SWAP(custom_signals[p_func].write[p_argidx], custom_signals[p_func].write[p_with_argidx]);
+    SWAP(custom_signals[p_func][p_argidx], custom_signals[p_func][p_with_argidx]);
 }
 void VisualScript::remove_custom_signal(const StringName &p_name) {
 
@@ -830,12 +830,12 @@ void VisualScript::rename_custom_signal(const StringName &p_name, const StringNa
     custom_signals.erase(p_name);
 }
 
-void VisualScript::get_custom_signal_list(Vector<StringName> *r_custom_signals) const {
+void VisualScript::get_custom_signal_list(PODVector<StringName> *r_custom_signals) const {
 
-    for (const eastl::pair<const StringName,Vector<Argument> > &E : custom_signals) {
+    for (const eastl::pair<const StringName,PODVector<Argument> > &E : custom_signals) {
         r_custom_signals->push_back(E.first);
     }
-    eastl::sort(r_custom_signals->ptrw(),r_custom_signals->ptrw()+r_custom_signals->size(),StringName::AlphCompare);
+    eastl::sort(r_custom_signals->begin(),r_custom_signals->end(),StringName::AlphCompare);
 }
 
 int VisualScript::get_available_id() const {
@@ -987,7 +987,7 @@ bool VisualScript::has_script_signal(const StringName &p_signal) const {
 
 void VisualScript::get_script_signal_list(ListPOD<MethodInfo> *r_signals) const {
 
-    for (const eastl::pair<const StringName,Vector<Argument> > &E : custom_signals) {
+    for (const eastl::pair<const StringName,PODVector<Argument> > &E : custom_signals) {
 
         MethodInfo mi;
         mi.name = E.first;
@@ -1069,7 +1069,7 @@ MethodInfo VisualScript::get_method_info(const StringName &p_method) const {
 
 void VisualScript::get_script_property_list(ListPOD<PropertyInfo> *p_list) const {
 
-    Vector<StringName> vars;
+    PODVector<StringName> vars;
     get_variable_list(&vars);
 
     for (int i=0,fin=vars.size(); i<fin; ++i) {
@@ -1230,7 +1230,7 @@ Dictionary VisualScript::_get_data() const {
     d["variables"] = vars;
 
     Array sigs;
-    for (const eastl::pair<const StringName,Vector<Argument> > &E : custom_signals) {
+    for (const eastl::pair<const StringName,PODVector<Argument> > &E : custom_signals) {
 
         Dictionary cs;
         cs["name"] = E.first;
@@ -2669,7 +2669,7 @@ void VisualScriptLanguage::debug_get_stack_level_members(int p_level, ListPOD<se
     if (not vs)
         return;
 
-    Vector<StringName> vars;
+    PODVector<StringName> vars;
     vs->get_variable_list(&vars);
     for (int i=0,fin=vars.size(); i<fin; ++i) {
         Variant v;

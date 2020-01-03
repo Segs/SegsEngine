@@ -447,7 +447,7 @@ void VisualScriptEditor::_update_graph_connections() {
 
     graph->clear_connections();
 
-    Vector<StringName> funcs;
+    PODVector<StringName> funcs;
     script->get_function_list(&funcs);
 
     if (funcs.size() <= 0) {
@@ -511,7 +511,7 @@ void VisualScriptEditor::_update_graph(int p_only_id) {
         }
     }
 
-    Vector<StringName> funcs;
+    PODVector<StringName> funcs;
     script->get_function_list(&funcs);
 
     if (funcs.size() <= 0) {
@@ -957,7 +957,7 @@ void VisualScriptEditor::_update_members() {
     functions->add_button(0, Control::get_icon("Add", "EditorIcons"), 0, false, TTR("Create a new function."));
     functions->set_custom_color(0, Control::get_color("mono_color", "Editor"));
 
-    Vector<StringName> func_names;
+    PODVector<StringName> func_names;
     script->get_function_list(&func_names);
     for(int fi=0; fi<func_names.size(); ++fi) {
 
@@ -1010,7 +1010,7 @@ void VisualScriptEditor::_update_members() {
         Control::get_icon("PoolColorArray", "EditorIcons")
     };
 
-    Vector<StringName> var_names;
+    PODVector<StringName> var_names;
     script->get_variable_list(&var_names);
     for(int fi=0; fi<var_names.size(); ++fi) {
         TreeItem *ti = members->create_item(variables);
@@ -1033,7 +1033,7 @@ void VisualScriptEditor::_update_members() {
     _signals->add_button(0, Control::get_icon("Add", "EditorIcons"), -1, false, TTR("Create a new signal."));
     _signals->set_custom_color(0, Control::get_color("mono_color", "Editor"));
 
-    Vector<StringName> signal_names;
+    PODVector<StringName> signal_names;
     script->get_custom_signal_list(&signal_names);
     for(int fi=0; fi<signal_names.size(); ++fi) {
         TreeItem *ti = members->create_item(_signals);
@@ -1135,7 +1135,7 @@ void VisualScriptEditor::_member_edited() {
         }
 
         // also fix all function calls
-        Vector<StringName> flst;
+        PODVector<StringName> flst;
         script->get_function_list(&flst);
         for(int fi=0; fi<flst.size(); ++fi) {
             List<int> lst;
@@ -1540,7 +1540,7 @@ Vector2 VisualScriptEditor::_get_available_pos(bool centered, Vector2 ofs) const
 
     while (true) {
         bool exists = false;
-        Vector<StringName> all_fn;
+        PODVector<StringName> all_fn;
         script->get_function_list(&all_fn);
         for (int fi=0; fi<all_fn.size(); ++fi) {
             StringName curr_fn = all_fn[fi];
@@ -1817,7 +1817,7 @@ void VisualScriptEditor::_rename_function(const StringName &name, const StringNa
     }
 
     // also fix all function calls
-    Vector<StringName> flst;
+    PODVector<StringName> flst;
     script->get_function_list(&flst);
     for (int i=0; i<flst.size(); ++i) {
         List<int> lst;
@@ -2525,7 +2525,7 @@ void VisualScriptEditor::goto_line(int p_line, bool p_with_error) {
     if (p_with_error)
         error_line = p_line;
 
-    Vector<StringName> functions;
+    PODVector<StringName> functions;
     script->get_function_list(&functions);
     for (int i=0; i<functions.size(); ++i) {
 
@@ -2574,7 +2574,7 @@ void VisualScriptEditor::reload(bool p_soft) {
 
 void VisualScriptEditor::get_breakpoints(List<int> *p_breakpoints) {
 
-    Vector<StringName> functions;
+    PODVector<StringName> functions;
     script->get_function_list(&functions);
     for (int i=0; i<functions.size(); ++i) {
 
@@ -2746,7 +2746,7 @@ void VisualScriptEditor::_move_node(const StringName &p_func, int p_id, const Ve
 
 StringName VisualScriptEditor::_get_function_of_node(int p_id) const {
 
-    Vector<StringName> funcs;
+    PODVector<StringName> funcs;
     script->get_function_list(&funcs);
     for (int fi=0; fi<funcs.size(); ++fi) {
         if (script->has_node(funcs[fi], p_id)) {
@@ -3325,7 +3325,7 @@ VisualScriptNode::TypeGuess VisualScriptEditor::_guess_output_type(int p_port_ac
         return tg;
     }
 
-    Vector<VisualScriptNode::TypeGuess> in_guesses;
+    PODVector<VisualScriptNode::TypeGuess> in_guesses;
 
     for (int i = 0; i < node->get_input_value_port_count(); i++) {
         PropertyInfo pi = node->get_input_value_port_info(i);
@@ -3359,7 +3359,7 @@ VisualScriptNode::TypeGuess VisualScriptEditor::_guess_output_type(int p_port_ac
         in_guesses.push_back(g);
     }
 
-    return node->guess_output_type(in_guesses.ptrw(), p_port_action_output);
+    return node->guess_output_type(in_guesses.data(), p_port_action_output);
 }
 
 void VisualScriptEditor::_port_action_menu(int p_option, const StringName &func) {
@@ -4122,7 +4122,7 @@ void VisualScriptEditor::_menu_option(int p_what) {
             Set<Vector2> existing_positions;
 
             {
-                Vector<StringName> functions;
+                PODVector<StringName> functions;
                 script->get_function_list(&functions);
                 for (int F=0; F<functions.size(); ++F) {
                     List<int> nodes;

@@ -251,7 +251,7 @@ private:
 
     Map<StringName, Function> functions;
     Map<StringName, Variable> variables;
-    Map<StringName, Vector<Argument> > custom_signals;
+    Map<StringName, PODVector<Argument> > custom_signals;
 
     Map<Object *, VisualScriptInstance *> instances;
 
@@ -283,7 +283,7 @@ public:
     void rename_function(const StringName &p_name, const StringName &p_new_name);
     void set_function_scroll(const StringName &p_name, const Vector2 &p_scroll);
     Vector2 get_function_scroll(const StringName &p_name) const;
-    void get_function_list(Vector<StringName> *r_functions) const;
+    void get_function_list(PODVector<StringName> *r_functions) const;
     int get_function_node_id(const StringName &p_name) const;
     void set_tool_enabled(bool p_enabled);
 
@@ -316,7 +316,7 @@ public:
     PropertyInfo get_variable_info(const StringName &p_name) const;
     void set_variable_export(const StringName &p_name, bool p_export);
     bool get_variable_export(const StringName &p_name) const;
-    void get_variable_list(Vector<StringName> *r_variables) const;
+    void get_variable_list(PODVector<StringName> *r_variables) const;
     void rename_variable(const StringName &p_name, const StringName &p_new_name);
 
     void add_custom_signal(const StringName &p_name);
@@ -333,7 +333,7 @@ public:
     void rename_custom_signal(const StringName &p_name, const StringName &p_new_name);
     Set<int> get_output_sequence_ports_connected(se_string_view edited_func, int from_node);
 
-    void get_custom_signal_list(Vector<StringName> *r_custom_signals) const;
+    void get_custom_signal_list(PODVector<StringName> *r_custom_signals) const;
 
     int get_available_id() const;
 

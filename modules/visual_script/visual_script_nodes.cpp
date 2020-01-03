@@ -1,4 +1,4 @@
-﻿/*************************************************************************/
+/*************************************************************************/
 /*  visual_script_nodes.cpp                                              */
 /*************************************************************************/
 /*                       This file is part of:                           */
@@ -1297,7 +1297,7 @@ void VisualScriptVariableGet::_validate_property(PropertyInfo &property) const {
 
     if (property.name == "var_name" && get_visual_script()) {
         Ref<VisualScript> vs = get_visual_script();
-        Vector<StringName> vars;
+        PODVector<StringName> vars;
         vs->get_variable_list(&vars);
 
         se_string vhint;
@@ -1421,7 +1421,7 @@ void VisualScriptVariableSet::_validate_property(PropertyInfo &property) const {
 
     if (property.name == "var_name" && get_visual_script()) {
         Ref<VisualScript> vs = get_visual_script();
-        Vector<StringName> vars;
+        PODVector<StringName> vars;
         vs->get_variable_list(&vars);
 
         se_string vhint;
@@ -4037,7 +4037,7 @@ Array VisualScriptDeconstruct::_get_elem_cache() const {
 class VisualScriptNodeInstanceDeconstruct : public VisualScriptNodeInstance {
 public:
     VisualScriptInstance *instance;
-    Vector<StringName> outputs;
+    PODVector<StringName> outputs;
 
     //virtual int get_working_memory_size() const { return 0; }
 
@@ -4065,7 +4065,7 @@ VisualScriptNodeInstance *VisualScriptDeconstruct::instance(VisualScriptInstance
     instance->instance = p_instance;
     instance->outputs.resize(elements.size());
     for (int i = 0; i < elements.size(); i++) {
-        instance->outputs.write[i] = elements[i].name;
+        instance->outputs[i] = elements[i].name;
     }
 
     return instance;
