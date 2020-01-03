@@ -2375,6 +2375,21 @@ Variant Variant::from(const PODVector<se_string> &p_array) {
     return fromVectorBuiltin<se_string>(p_array);
 }
 template<>
+Variant Variant::from(const PODVector<se_string_view> &p_array) {
+    Variant res;
+    PoolVector<se_string> *plane_array = memnew_placement(res._data._mem, PoolVector<se_string>);
+    res.type = getBulitinArrayType(*plane_array);
+
+    int len = p_array.size();
+    plane_array->resize(len);
+    typename PoolVector<se_string>::Write w = plane_array->write();
+    const se_string_view *r = p_array.data();
+
+    for (int i = 0; i < len; i++)
+        w[i] = r[i];
+    return res;
+}
+template<>
 Variant Variant::from(const PODVector<StringName> &p_array) {
     Variant res;
     PoolVector<se_string> *plane_array = memnew_placement(res._data._mem, PoolVector<se_string>);

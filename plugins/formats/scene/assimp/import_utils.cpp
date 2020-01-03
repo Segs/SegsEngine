@@ -81,7 +81,7 @@ void AssimpUtils::find_texture_path(const se_string &r_p_path, se_string &r_path
     PODVector<se_string> exts;
     ImageLoader::get_recognized_extensions(exts);
 
-    Vector<se_string_view> split_path = StringUtils::split(get_basename(r_path),'*');
+    PODVector<se_string_view> split_path = StringUtils::split(get_basename(r_path),'*');
     if (split_path.size() == 2) {
         r_found = true;
         return;
@@ -126,7 +126,7 @@ Ref<Image> AssimpUtils::load_image(ImportState &state, const aiScene *p_scene, s
         return match->second;
     }
 
-    Vector<se_string_view> split_path = StringUtils::split(get_basename(p_path),'*');
+    PODVector<se_string_view> split_path = StringUtils::split(get_basename(p_path),'*');
     if (split_path.size() == 2) {
         size_t texture_idx = StringUtils::to_int(split_path[1]);
         ERR_FAIL_COND_V(texture_idx >= p_scene->mNumTextures, Ref<Image>())

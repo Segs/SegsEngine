@@ -540,7 +540,7 @@ void EditorExportPlatform::_edit_filter_list(Set<se_string> &r_list, se_string_v
 
     if (p_filter.empty())
         return;
-    Vector<se_string_view > split = StringUtils::split(p_filter,',');
+    PODVector<se_string_view > split = StringUtils::split(p_filter,',');
     Vector<se_string> filters;
     for (int i = 0; i < split.size(); i++) {
         se_string_view  f =StringUtils::strip_edges( split[i]);
@@ -642,9 +642,9 @@ EditorExportPlatform::FeatureContainers EditorExportPlatform::get_feature_contai
 
     if (!p_preset->get_custom_features().empty()) {
 
-        Vector<se_string_view> tmp_custom_list = StringUtils::split(p_preset->get_custom_features(),',');
+        PODVector<se_string_view> tmp_custom_list = StringUtils::split(p_preset->get_custom_features(),',');
 
-        for (int i = 0; i < tmp_custom_list.size(); i++) {
+        for (size_t i = 0; i < tmp_custom_list.size(); i++) {
             se_string_view f =StringUtils::strip_edges( tmp_custom_list[i]);
             if (!f.empty()) {
                 result.features.emplace(f);
@@ -834,11 +834,11 @@ Error EditorExportPlatform::export_project_files(const Ref<EditorExportPreset> &
 
     //save config!
 
-    Vector<se_string> custom_list;
+    PODVector<se_string> custom_list;
 
     if (!p_preset->get_custom_features().empty()) {
 
-        Vector<se_string_view> tmp_custom_list = StringUtils::split(p_preset->get_custom_features(),',');
+        PODVector<se_string_view> tmp_custom_list = StringUtils::split(p_preset->get_custom_features(),',');
 
         for (int i = 0; i < tmp_custom_list.size(); i++) {
             se_string_view f =StringUtils::strip_edges( tmp_custom_list[i]);

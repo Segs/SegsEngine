@@ -257,7 +257,7 @@ StringName ScriptServer::get_global_class_native_base(const StringName &p_class)
     }
     return base;
 }
-void ScriptServer::get_global_class_list(Vector<StringName> *r_global_classes) {
+void ScriptServer::get_global_class_list(PODVector<StringName> *r_global_classes) {
     const StringName *K = nullptr;
     PODVector<StringName> classes;
     classes.reserve(classes.size());
@@ -270,10 +270,10 @@ void ScriptServer::get_global_class_list(Vector<StringName> *r_global_classes) {
     }
 }
 void ScriptServer::save_global_classes() {
-    Vector<StringName> gc;
+    PODVector<StringName> gc;
     get_global_class_list(&gc);
     Array gcarr;
-    for (int i=0,fin=gc.size(); i<fin; ++i) {
+    for (size_t i=0,fin=gc.size(); i<fin; ++i) {
         Dictionary d;
         d["class"] = gc[i];
         d["language"] = global_classes[gc[i]].language;

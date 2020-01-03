@@ -268,10 +268,10 @@ bool BSP_Tree::point_is_inside(const Vector3 &p_point) const {
     }
 }
 
-static int _bsp_find_best_half_plane(const Face3 *p_faces, const Vector<int> &p_indices, real_t p_tolerance) {
+static int _bsp_find_best_half_plane(const Face3 *p_faces, const PODVector<int> &p_indices, real_t p_tolerance) {
 
     int ic = p_indices.size();
-    const int *indices = p_indices.ptr();
+    const int *indices = p_indices.data();
 
     int best_plane = -1;
     real_t best_plane_cost = 1e20f;
@@ -333,7 +333,7 @@ static int _bsp_find_best_half_plane(const Face3 *p_faces, const Vector<int> &p_
     return best_plane;
 }
 
-static int _bsp_create_node(const Face3 *p_faces, const Vector<int> &p_indices, PODVector<Plane> &p_planes, PODVector<BSP_Tree::Node> &p_nodes, real_t p_tolerance) {
+static int _bsp_create_node(const Face3 *p_faces, const PODVector<int> &p_indices, PODVector<Plane> &p_planes, PODVector<BSP_Tree::Node> &p_nodes, real_t p_tolerance) {
 
     ERR_FAIL_COND_V(p_nodes.size() == BSP_Tree::MAX_NODES, -1)
 
@@ -341,15 +341,15 @@ static int _bsp_create_node(const Face3 *p_faces, const Vector<int> &p_indices, 
     ERR_FAIL_COND_V(p_indices.empty(), -1)
 
     int ic = p_indices.size();
-    const int *indices = p_indices.ptr();
+    const int *indices = p_indices.data();
 
     int divisor_idx = _bsp_find_best_half_plane(p_faces, p_indices, p_tolerance);
 
     // returned error
     ERR_FAIL_COND_V(divisor_idx < 0, -1)
 
-    Vector<int> faces_over;
-    Vector<int> faces_under;
+    PODVector<int> faces_over;
+    PODVector<int> faces_under;
 
     Plane divisor_plane = p_faces[indices[divisor_idx]].get_plane();
 
@@ -523,8 +523,8 @@ BSP_Tree::BSP_Tree(Span<const Face3> p_faces, real_t p_error_radius) {
 
     bool first = true;
 
-    Vector<int> indices;
-
+    PODVector<int> indices;
+    indices.reserve(face_count);
     for (ptrdiff_t i = 0; i < face_count; i++) {
 
         const Face3 &f = facesptr[i];

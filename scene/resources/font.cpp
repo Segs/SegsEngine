@@ -206,6 +206,7 @@ PoolVector<int> BitmapFont::_get_kernings() const {
 void BitmapFont::_set_textures(const Vector<Variant> &p_textures) {
 
     textures.clear();
+    textures.reserve(p_textures.size());
     for (int i = 0; i < p_textures.size(); i++) {
         Ref<Texture> tex = refFromRefPtr<Texture>(p_textures[i]);
         ERR_CONTINUE(not tex)
@@ -404,14 +405,14 @@ int BitmapFont::get_character_count() const {
     return char_map.size();
 };
 
-Vector<CharType> BitmapFont::get_char_keys() const {
+PODVector<CharType> BitmapFont::get_char_keys() const {
 
-    Vector<CharType> chars;
-    chars.resize(char_map.size());
+    PODVector<CharType> chars;
+    chars.reserve(char_map.size());
     int count = 0;
     for(const auto &v  : char_map) {
 
-        chars.write[count++] = v.first;
+        chars.push_back(v.first);
     }
 
     return chars;
@@ -456,14 +457,13 @@ void BitmapFont::add_kerning_pair(CharType p_A, CharType p_B, int p_kerning) {
     }
 }
 
-Vector<BitmapFont::KerningPairKey> BitmapFont::get_kerning_pair_keys() const {
+PODVector<BitmapFont::KerningPairKey> BitmapFont::get_kerning_pair_keys() const {
 
-    Vector<BitmapFont::KerningPairKey> ret;
-    ret.resize(kerning_map.size());
-    int i = 0;
+    PODVector<BitmapFont::KerningPairKey> ret;
+    ret.reserve(kerning_map.size());
 
     for (const eastl::pair<const KerningPairKey,int> &E : kerning_map) {
-        ret.write[i++] = E.first;
+        ret.emplace_back(E.first);
     }
 
     return ret;
@@ -540,17 +540,16 @@ Size2 Font::get_wordwrap_string_size(const String &p_string, float p_width) cons
     float line_w = 0;
     float h = 0;
     float space_w = get_char_size(' ').width;
-    Vector<String> lines = StringUtils::split(p_string,'\n');
-    for (int i = 0; i < lines.size(); i++) {
+    PODVector<String> lines = StringUtils::split(p_string,'\n');
+    for (const String &t : lines) {
         h += get_height();
-        String t = lines[i];
         line_w = 0;
-        Vector<String> words = StringUtils::split(t,' ');
-        for (int j = 0; j < words.size(); j++) {
-            line_w += get_string_size(words[j]).x;
+        PODVector<String> words = StringUtils::split(t,' ');
+        for (const String &word : words) {
+            line_w += get_string_size(word).x;
             if (line_w > p_width) {
                 h += get_height();
-                line_w = get_string_size(words[j]).x;
+                line_w = get_string_size(word).x;
             } else {
                 line_w += space_w;
             }

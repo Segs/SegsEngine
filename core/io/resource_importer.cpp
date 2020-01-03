@@ -393,7 +393,7 @@ ResourceImporterInterface *ResourceFormatImporter::get_importer_by_name(se_strin
     return nullptr;
 }
 
-void ResourceFormatImporter::get_importers_for_extension(se_string_view p_extension, Vector<ResourceImporterInterface *> *r_importers) {
+void ResourceFormatImporter::get_importers_for_extension(se_string_view p_extension, PODVector<ResourceImporterInterface *> *r_importers) {
 
     for (int i = 0; i < importers.size(); i++) {
         PODVector<se_string> local_exts;

@@ -6305,8 +6305,8 @@ GDScriptParser::DataType GDScriptParser::_reduce_node_type(Node *p_node) {
             } else if (id->name == "#match_value") {
                 // It's a special id just for the match statetement, ignore
                 break;
-            } else if (current_function && current_function->arguments.find(id->name) >= 0) {
-                int idx = current_function->arguments.index_of(id->name);
+            } else if (current_function && current_function->arguments.contains(id->name)) {
+                size_t idx = current_function->arguments.index_of(id->name);
                 node_type = current_function->argument_types[idx];
             } else {
                 node_type = _reduce_identifier_type(nullptr, id->name, id->line, false);

@@ -2440,7 +2440,7 @@ static void _fill_std140_variant_ubo_value(ShaderLanguage::DataType type, const 
 
             PoolVector<int>::Read r = iv.read();
 
-            for (int i = 0; i < 3; i++) {
+            for (uint32_t i = 0; i < 3; i++) {
                 if (i < s)
                     gui[i] = r[i];
                 else
@@ -3281,17 +3281,14 @@ void RasterizerStorageGLES3::mesh_add_surface(RID p_mesh, uint32_t p_format, VS:
     surface->mesh = mesh;
     surface->format = p_format;
     surface->skeleton_bone_aabb = p_bone_aabbs;
-    surface->skeleton_bone_used.resize(surface->skeleton_bone_aabb.size());
+    surface->skeleton_bone_used.resize(surface->skeleton_bone_aabb.size(),false); // mark all unused
     surface->aabb = p_aabb;
     surface->max_bone = p_bone_aabbs.size();
     surface->total_data_size += surface->array_byte_size + surface->index_array_byte_size;
 
     for (int i = 0; i < surface->skeleton_bone_used.size(); i++) {
-        if (surface->skeleton_bone_aabb[i].size.x < 0 || surface->skeleton_bone_aabb[i].size.y < 0 || surface->skeleton_bone_aabb[i].size.z < 0) {
-            surface->skeleton_bone_used.write[i] = false;
-        } else {
-            surface->skeleton_bone_used.write[i] = true;
-        }
+        if (surface->skeleton_bone_aabb[i].size.x >= 0 && surface->skeleton_bone_aabb[i].size.y >= 0 && surface->skeleton_bone_aabb[i].size.z >= 0)
+            surface->skeleton_bone_used[i] = true;
     }
 
     for (int i = 0; i < VS::ARRAY_MAX; i++) {
@@ -3686,7 +3683,7 @@ Vector<PoolVector<uint8_t> > RasterizerStorageGLES3::mesh_surface_get_blend_shap
 
     Vector<PoolVector<uint8_t> > bsarr;
 
-    for (int i = 0; i < mesh->surfaces[p_surface]->blend_shapes.size(); i++) {
+    for (size_t i = 0; i < mesh->surfaces[p_surface]->blend_shapes.size(); i++) {
 
         PoolVector<uint8_t> ret;
         ret.resize(mesh->surfaces[p_surface]->array_byte_size);
@@ -3748,7 +3745,7 @@ void RasterizerStorageGLES3::mesh_remove_surface(RID p_mesh, int p_surface) {
 
     memdelete(surface);
 
-    mesh->surfaces.remove(p_surface);
+    mesh->surfaces.erase_at(p_surface);
 
     mesh->instance_change_notify(true, true);
 }
@@ -3802,7 +3799,7 @@ AABB RasterizerStorageGLES3::mesh_get_aabb(RID p_mesh, RID p_skeleton) const {
 
                 int bs = mesh->surfaces[i]->skeleton_bone_aabb.size();
                 const AABB *skbones = mesh->surfaces[i]->skeleton_bone_aabb.ptr();
-                const bool *skused = mesh->surfaces[i]->skeleton_bone_used.ptr();
+                const bool *skused = mesh->surfaces[i]->skeleton_bone_used.data();
 
                 int sbs = sk->size;
                 ERR_CONTINUE(bs > sbs);

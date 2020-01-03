@@ -121,11 +121,11 @@ void ImportDock::set_edit_path(se_string_view p_path) {
 
     _update_options(config);
 
-    Vector<ResourceImporterInterface *> importers;
+    PODVector<ResourceImporterInterface *> importers;
     ResourceFormatImporter::get_singleton()->get_importers_for_extension(PathUtils::get_extension(p_path), &importers);
     ListPOD<Pair<StringName, StringName> > importer_names;
 
-    for (int i=0,fin=importers.size(); i<fin; ++i) {
+    for (size_t i=0,fin=importers.size(); i<fin; ++i) {
         importer_names.push_back(Pair<StringName, StringName>(importers[i]->get_visible_name(), importers[i]->get_importer_name()));
     }
 
@@ -266,7 +266,7 @@ void ImportDock::set_edit_multiple_paths(const Vector<se_string> &p_paths) {
 
     params->update();
 
-    Vector<ResourceImporterInterface * > importers;
+    PODVector<ResourceImporterInterface * > importers;
     ResourceFormatImporter::get_singleton()->get_importers_for_extension(PathUtils::get_extension(p_paths[0]), &importers);
     ListPOD<Pair<StringName, StringName> > importer_names;
 

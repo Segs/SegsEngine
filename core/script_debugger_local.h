@@ -41,7 +41,7 @@ class GODOT_EXPORT ScriptDebuggerLocal : public ScriptDebugger {
     se_string target_function;
     Map<se_string, se_string> options;
 
-    Vector<ScriptLanguage::ProfilingInfo> pinfo;
+    PODVector<ScriptLanguage::ProfilingInfo> pinfo;
 
     Pair<se_string, int> to_breakpoint(const se_string &p_line);
     void print_variables(const ListPOD<se_string> &names, const List<Variant> &values, se_string_view variable_prefix);
@@ -49,7 +49,7 @@ class GODOT_EXPORT ScriptDebuggerLocal : public ScriptDebugger {
 public:
     void debug(ScriptLanguage *p_script, bool p_can_continue, bool p_is_error_breakpoint) override;
     void send_message(const se_string &p_message, const Array &p_args) override;
-    void send_error(se_string_view p_func, se_string_view p_file, int p_line, se_string_view p_err, se_string_view p_descr, ErrorHandlerType p_type, const Vector<ScriptLanguage::StackInfo> &p_stack_info) override;
+    void send_error(se_string_view p_func, se_string_view p_file, int p_line, se_string_view p_err, se_string_view p_descr, ErrorHandlerType p_type, const PODVector<ScriptLanguage::StackInfo> &p_stack_info) override;
 
     bool is_profiling() const override { return profiling; }
     void add_profiling_frame_data(const StringName &p_name, const Array &p_data) override {}

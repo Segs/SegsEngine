@@ -110,7 +110,7 @@ bool ClassDB::is_parent_class(const StringName &p_class, const StringName &p_inh
 
     return false;
 }
-void ClassDB::get_class_list(Vector<StringName> *p_classes) {
+void ClassDB::get_class_list(PODVector<StringName> *p_classes) {
 
     RWLockRead _rw_lockr_(lock);
 
@@ -118,8 +118,7 @@ void ClassDB::get_class_list(Vector<StringName> *p_classes) {
 
         p_classes->push_back(k.first);
     }
-
-    p_classes->sort();
+    eastl::sort(p_classes->begin(),p_classes->end());
 }
 
 void ClassDB::get_inheriters_from_class(const StringName &p_class, ListPOD<StringName> *p_classes) {

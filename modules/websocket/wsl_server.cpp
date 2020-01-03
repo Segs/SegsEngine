@@ -47,11 +47,11 @@ WSLServer::PendingPeer::PendingPeer() {
 }
 
 bool WSLServer::PendingPeer::_parse_request(const PoolVector<se_string> &p_protocols) {
-    Vector<se_string_view> psa = StringUtils::split(se_string_view((const char *)req_buf),"\r\n");
+    PODVector<se_string_view> psa = StringUtils::split(se_string_view((const char *)req_buf),"\r\n");
     int len = psa.size();
     ERR_FAIL_COND_V_MSG(len < 4, false, "Not enough response headers, got: " + itos(len) + ", expected >= 4.")
 
-    Vector<se_string_view> req = StringUtils::split(psa[0]," ", false);
+    PODVector<se_string_view> req = StringUtils::split(psa[0]," ", false);
     ERR_FAIL_COND_V_MSG(req.size() < 2, false, "Invalid protocol or status code.")
 
     // Wrong protocol
@@ -59,7 +59,7 @@ bool WSLServer::PendingPeer::_parse_request(const PoolVector<se_string> &p_proto
 
     Map<se_string, se_string> headers;
     for (int i = 1; i < len; i++) {
-        Vector<se_string_view> header = StringUtils::split(psa[i],":", false, 1);
+        PODVector<se_string_view> header = StringUtils::split(psa[i],":", false, 1);
         ERR_FAIL_COND_V_MSG(header.size() != 2, false, se_string("Invalid header -> ") + psa[i])
         se_string name = StringUtils::to_lower(header[0]);
         se_string_view value =StringUtils::strip_edges( header[1]);
@@ -81,7 +81,7 @@ bool WSLServer::PendingPeer::_parse_request(const PoolVector<se_string> &p_proto
 #undef _WSL_CHECK
     key = headers["sec-websocket-key"];
     if (headers.contains("sec-websocket-protocol")) {
-        Vector<se_string_view> protos = StringUtils::split(headers["sec-websocket-protocol"],",");
+        PODVector<se_string_view> protos = StringUtils::split(headers["sec-websocket-protocol"],",");
         for (int i = 0; i < protos.size(); i++) {
             auto proto = StringUtils::strip_edges(protos[i]);
             // Check if we have the given protocol

@@ -49,7 +49,12 @@ class ResourceInteractiveLoaderBinary : public ResourceInteractiveLoader {
         uint64_t offset;
     };
 
-    bool translation_remapped = false;
+    Map<se_string, se_string> remaps;
+    PODVector<char> str_buf;
+    PODVector<StringName> string_map;
+    PODVector<IntResource> internal_resources;
+    PODVector<ExtResource> external_resources;
+    ListPOD<RES> resource_cache;
     se_string local_path;
     se_string res_path;
     se_string type;
@@ -57,19 +62,11 @@ class ResourceInteractiveLoaderBinary : public ResourceInteractiveLoader {
     uint32_t ver_format;
     FileAccess *f=nullptr;
     uint64_t importmd_ofs;
-    Vector<char> str_buf;
-    List<RES> resource_cache;
-    //Map<int,StringName> string_map;
-    Vector<StringName> string_map;
-    StringName _get_string();
-    Vector<IntResource> internal_resources;
-    Map<se_string, se_string> remaps;
     Error error = OK;
     int stage = 0;
+    bool translation_remapped = false;
 
-    Vector<ExtResource> external_resources;
-
-
+    StringName _get_string();
     se_string get_unicode_string();
     void _advance_padding(uint32_t p_len);
 
@@ -125,7 +122,7 @@ class ResourceFormatSaverBinaryInstance {
 
     Map<NonPersistentKey, RES> non_persistent_map;
     Map<StringName, int> string_map;
-    Vector<StringName> strings;
+    PODVector<StringName> strings;
 
     Map<RES, int> external_resources;
     ListPOD<RES> saved_resources;

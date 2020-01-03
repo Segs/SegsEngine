@@ -257,7 +257,7 @@ void SectionedInspector::update_category_list() {
         if (sp == se_string::npos)
             p_name = "global/" + p_name;
 
-        Vector<se_string_view> sectionarr = StringUtils::split(p_name,'/');
+        PODVector<se_string_view> sectionarr = StringUtils::split(p_name,'/');
         se_string metasection;
 
         if (!filter.empty() && !StringUtils::is_subsequence_of(filter,StringUtils::capitalize(sectionarr[sectionarr.size() - 1]),StringUtils::CaseInsensitive))

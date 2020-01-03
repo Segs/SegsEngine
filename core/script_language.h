@@ -90,7 +90,7 @@ public:
     static se_string_view get_global_class_path(const StringName &p_class);
     static StringName get_global_class_base(se_string_view p_class);
     static StringName get_global_class_native_base(const StringName &p_class);
-    static void get_global_class_list(Vector<StringName> *r_global_classes);
+    static void get_global_class_list(PODVector<StringName> *r_global_classes);
     static void save_global_classes();
 
     static void init_languages();
@@ -346,7 +346,7 @@ public:
         int line;
     };
 
-    virtual Vector<StackInfo> debug_get_current_stack_info() { return Vector<StackInfo>(); }
+    virtual PODVector<StackInfo> debug_get_current_stack_info() { return PODVector<StackInfo>(); }
 
     virtual void reload_all_scripts() = 0;
     virtual void reload_tool_script(const Ref<Script> &p_script, bool p_soft_reload) = 0;
@@ -471,7 +471,7 @@ public:
     ScriptLanguage *get_break_language() const;
 
     virtual void send_message(const se_string &p_message, const Array &p_args) = 0;
-    virtual void send_error(se_string_view p_func, se_string_view p_file, int p_line, se_string_view p_err, se_string_view p_descr, ErrorHandlerType p_type, const Vector<ScriptLanguage::StackInfo> &p_stack_info) = 0;
+    virtual void send_error(se_string_view p_func, se_string_view p_file, int p_line, se_string_view p_err, se_string_view p_descr, ErrorHandlerType p_type, const PODVector<ScriptLanguage::StackInfo> &p_stack_info) = 0;
 
     virtual bool is_remote() const { return false; }
     virtual void request_quit() {}

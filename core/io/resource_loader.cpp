@@ -821,10 +821,10 @@ se_string ResourceLoader::_path_remap(se_string_view p_path, bool *r_translation
         ERR_FAIL_COND_V_MSG(locale.length() < 2, new_path, "Could not remap path '" + p_path + "' for translation as configured locale '" + locale + "' is invalid.")
         se_string lang(TranslationServer::get_language_code(locale));
 
-        Vector<se_string> &res_remaps = *translation_remaps.getptr(new_path);
+        PODVector<se_string> &res_remaps = translation_remaps[new_path];
         bool near_match = false;
 
-        for (int i = 0; i < res_remaps.size(); i++) {
+        for (size_t i = 0; i < res_remaps.size(); i++) {
             auto split = res_remaps[i].rfind(':');
             if (split == se_string::npos) {
                 continue;
@@ -951,10 +951,10 @@ void ResourceLoader::load_translation_remaps() {
     for(const Variant &E : keys ) {
 
         Array langs = remaps[E];
-        Vector<se_string> lang_remaps;
-        lang_remaps.resize(langs.size());
+        PODVector<se_string> lang_remaps;
+        lang_remaps.reserve(langs.size());
         for (int i = 0; i < langs.size(); i++) {
-            lang_remaps.write[i] = langs[i].as<se_string>();
+            lang_remaps.emplace_back(langs[i].as<se_string>());
         }
 
         translation_remaps[E.as<se_string>()] = lang_remaps;
@@ -1038,10 +1038,10 @@ void ResourceLoader::add_custom_loaders() {
 
     StringName custom_loader_base_class = ResourceFormatLoader::get_class_static_name();
 
-    Vector<StringName> global_classes;
+    PODVector<StringName> global_classes;
     ScriptServer::get_global_class_list(&global_classes);
 
-    for (int i=0, fin = global_classes.size(); i<fin; ++i) {
+    for (size_t i=0, fin = global_classes.size(); i<fin; ++i) {
 
         StringName class_name = global_classes[i];
         StringName base_class = ScriptServer::get_global_class_native_base(class_name);
@@ -1055,7 +1055,7 @@ void ResourceLoader::add_custom_loaders() {
 
 void ResourceLoader::remove_custom_loaders() {
 
-    Vector<Ref<ResourceFormatLoader> > custom_loaders;
+    PODVector<Ref<ResourceFormatLoader> > custom_loaders;
     for (int i = 0; i < loader_count; ++i) {
         if (loader[i]->get_script_instance()) {
             custom_loaders.push_back(loader[i]);
@@ -1101,7 +1101,7 @@ bool ResourceLoader::abort_on_missing_resource = true;
 bool ResourceLoader::timestamp_on_load = false;
 
 SelfList<Resource>::List ResourceLoader::remapped_list;
-HashMap<se_string, Vector<se_string> > ResourceLoader::translation_remaps;
+DefHashMap<se_string, PODVector<se_string> > ResourceLoader::translation_remaps;
 DefHashMap<se_string, se_string> ResourceLoader::path_remaps;
 
 ResourceLoaderImport ResourceLoader::import = nullptr;

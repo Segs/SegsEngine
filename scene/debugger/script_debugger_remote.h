@@ -175,7 +175,7 @@ public:
     void request_quit() override;
 
     void send_message(const se_string &p_message, const Array &p_args) override;
-    void send_error(se_string_view p_func, se_string_view p_file, int p_line, se_string_view p_err, se_string_view p_descr, ErrorHandlerType p_type, const Vector<ScriptLanguage::StackInfo> &p_stack_info) override;
+    void send_error(se_string_view p_func, se_string_view p_file, int p_line, se_string_view p_err, se_string_view p_descr, ErrorHandlerType p_type, const PODVector<ScriptLanguage::StackInfo> &p_stack_info) override;
 
     void set_multiplayer(const Ref<MultiplayerAPI> &p_multiplayer) override;
 

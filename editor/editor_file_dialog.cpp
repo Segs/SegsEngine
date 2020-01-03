@@ -702,7 +702,7 @@ void EditorFileDialog::update_file_name() {
         se_string filter_str = filters[idx];
         se_string file_str = file->get_text();
         se_string base_name(PathUtils::get_basename(file_str));
-        Vector<se_string_view> filter_substr = StringUtils::split(filter_str,';');
+        PODVector<se_string_view> filter_substr = StringUtils::split(filter_str,';');
         if (filter_substr.size() >= 2) {
             file_str = base_name + "." + StringUtils::to_lower(StringUtils::strip_edges(filter_substr[1]));
         } else {

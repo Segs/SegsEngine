@@ -186,10 +186,10 @@ void TreeItem::set_text(int p_column, const StringName& p_text) {
 
     if (cells[p_column].mode == TreeItem::CELL_MODE_RANGE) {
 
-        Vector<se_string_view> strings = StringUtils::split(p_text,',');
+        PODVector<se_string_view> strings = StringUtils::split(p_text,',');
         cells.write[p_column].min = INT_MAX;
         cells.write[p_column].max = INT_MIN;
-        for (int i = 0; i < strings.size(); i++) {
+        for (size_t i = 0; i < strings.size(); i++) {
             int value = i;
             if (!StringUtils::get_slice(strings[i],':', 1).empty()) {
                 value = StringUtils::to_int(StringUtils::get_slice(strings[i],':', 1));
@@ -1365,8 +1365,8 @@ int Tree::draw_item(const Point2i &p_pos, const Point2 &p_draw_ofs, const Size2 
                         int option = (int)p_item->cells[i].val;
 
                         se_string s(RTR("(Other)"));
-                        Vector<se_string_view> strings = StringUtils::split(p_item->cells[i].text,',');
-                        for (int j = 0; j < strings.size(); j++) {
+                        PODVector<se_string_view> strings = StringUtils::split(p_item->cells[i].text,',');
+                        for (size_t j = 0; j < strings.size(); j++) {
                             int value = j;
                             if (!StringUtils::get_slice(strings[j],':', 1).empty()) {
                                 value = StringUtils::to_int(StringUtils::get_slice(strings[j],':', 1));

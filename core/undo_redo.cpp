@@ -139,7 +139,7 @@ struct UndoRedo::PrivateData
 
                 case Operation::TYPE_METHOD: {
 
-                    Vector<const Variant *> argptrs;
+                    PODVector<const Variant *> argptrs;
                     argptrs.resize(VARIANT_ARG_MAX);
                     int argc = 0;
 
@@ -147,17 +147,17 @@ struct UndoRedo::PrivateData
                         if (op.args[i].get_type() == VariantType::NIL) {
                             break;
                         }
-                        argptrs.write[i] = &op.args[i];
+                        argptrs[i] = &op.args[i];
                         argc++;
                     }
                     argptrs.resize(argc);
 
                     Variant::CallError ce;
-                    obj->call(op.name, (const Variant **)argptrs.ptr(), argc, ce);
+                    obj->call(op.name, (const Variant **)argptrs.data(), argc, ce);
                     if (ce.error != Variant::CallError::CALL_OK) {
                         ERR_PRINT(
                                 "Error calling method from signal '" + se_string(op.name) + "': " +
-                                Variant::get_call_error_text(obj, op.name, (const Variant **)argptrs.ptr(), argc, ce))
+                                Variant::get_call_error_text(obj, op.name, (const Variant **)argptrs.data(), argc, ce))
                     }
 
                     Object_set_edited(obj,true);

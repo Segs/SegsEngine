@@ -67,10 +67,10 @@ public:
     Error save(se_string_view p_path);
     Error load(se_string_view p_path);
 
-    Error load_encrypted(se_string_view p_path, const Vector<uint8_t> &p_key);
+    Error load_encrypted(se_string_view p_path, const PODVector<uint8_t> &p_key);
     Error load_encrypted_pass(se_string_view p_path, se_string_view p_pass);
 
-    Error save_encrypted(se_string_view p_path, const Vector<uint8_t> &p_key);
+    Error save_encrypted(se_string_view p_path, const PODVector<uint8_t> &p_key);
     Error save_encrypted_pass(se_string_view p_path, se_string_view p_pass);
 
     ConfigFile();

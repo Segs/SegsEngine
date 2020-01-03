@@ -2439,8 +2439,8 @@ class VisualScriptNodeInstanceEmitSignal : public VisualScriptNodeInstance {
 public:
     VisualScriptEmitSignal *node;
     VisualScriptInstance *instance;
-    int argcount;
     StringName name;
+    int argcount;
 
     //virtual int get_working_memory_size() const { return 0; }
     //virtual bool is_output_port_unsequenced(int p_idx) const { return false; }
@@ -2471,7 +2471,7 @@ VisualScriptEmitSignal::VisualScriptEmitSignal() {
 
 static Ref<VisualScriptNode> create_basic_type_call_node(se_string_view p_name) {
 
-    Vector<se_string_view > path = StringUtils::split(p_name,'/');
+    PODVector<se_string_view > path = StringUtils::split(p_name,'/');
     ERR_FAIL_COND_V(path.size() < 4, Ref<VisualScriptNode>())
     se_string_view  base_type = path[2];
     se_string_view  method = path[3];

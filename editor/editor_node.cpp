@@ -4622,7 +4622,7 @@ void EditorNode::_load_docks_from_config(Ref<ConfigFile> p_layout, se_string_vie
 
         if (!p_layout->has_section_key(p_section, "dock_" + ::to_string(i + 1))) continue;
         se_string dock_names = p_layout->get_value(p_section, "dock_" + ::to_string(i + 1)).as<se_string>();
-        Vector<se_string_view> names = StringUtils::split(dock_names, ',');
+        PODVector<se_string_view> names = StringUtils::split(dock_names, ',');
 
         for (int j = 0; j < names.size(); j++) {
 

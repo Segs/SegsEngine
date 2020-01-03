@@ -1057,7 +1057,7 @@ void ScriptEditorDebugger::_parse_message(const se_string &p_msg, const Array &p
                 item.signature = profiler_signature[signature];
 
                 se_string_view name = profiler_signature[signature];
-                Vector<se_string_view> strings = StringUtils::split(name,"::");
+                PODVector<se_string_view> strings = StringUtils::split(name,"::");
                 if (strings.size() == 3) {
                     item.name = strings[2];
                     item.script = strings[0];

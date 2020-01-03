@@ -383,7 +383,7 @@ bool AStar::_solve(AStarPoint *begin_point, AStarPoint *end_point) {
 
     bool found_route = false;
 
-    Vector<AStarPoint *> open_list;
+    PODVector<AStarPoint *> open_list;
     SortArray<AStarPoint *, SortPoints> sorter;
 
     begin_point->g_score = 0;
@@ -399,8 +399,8 @@ bool AStar::_solve(AStarPoint *begin_point, AStarPoint *end_point) {
             break;
         }
 
-        sorter.pop_heap(0, open_list.size(), open_list.ptrw()); // Remove the current point from the open list
-        open_list.remove(open_list.size() - 1);
+        sorter.pop_heap(0, open_list.size(), open_list.data()); // Remove the current point from the open list
+        open_list.pop_back();
         p->closed_pass = pass; // Mark the point as closed
 
         for (OAHashMap<int, AStarPoint *>::Iterator it = p->neighbours.iter(); it.valid; it = p->neighbours.next_iter(it)) {
@@ -428,9 +428,9 @@ bool AStar::_solve(AStarPoint *begin_point, AStarPoint *end_point) {
             e->f_score = e->g_score + _estimate_cost(e->id, end_point->id);
 
             if (new_point) { // The position of the new points is already known.
-                sorter.push_heap(0, open_list.size() - 1, 0, e, open_list.ptrw());
+                sorter.push_heap(0, open_list.size() - 1, 0, e, open_list.data());
             } else {
-                sorter.push_heap(0, open_list.find(e), 0, e, open_list.ptrw());
+                sorter.push_heap(0, open_list.index_of(e), 0, e, open_list.data());
             }
         }
     }

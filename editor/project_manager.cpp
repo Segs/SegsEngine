@@ -459,7 +459,7 @@ private:
                 ProjectSettings::CustomMap edited_settings;
                 edited_settings["application/config/name"] = project_name->get_text();
 
-                if (current->save_custom(PathUtils::plus_file(dir2,"project.godot"), edited_settings, Vector<se_string>(), true) != OK) {
+                if (current->save_custom(PathUtils::plus_file(dir2,"project.godot"), edited_settings) != OK) {
                     set_message(TTR("Couldn't edit project.godot in project path."), MESSAGE_ERROR);
                 }
             }
@@ -494,7 +494,7 @@ private:
                     initial_settings["application/config/icon"] = "res://icon.png";
                     initial_settings["rendering/environment/default_environment"] = "res://default_env.tres";
 
-                    if (ProjectSettings::get_singleton()->save_custom(PathUtils::plus_file(dir,"project.godot"), initial_settings, Vector<se_string>(), false) != OK) {
+                    if (ProjectSettings::get_singleton()->save_custom(PathUtils::plus_file(dir,"project.godot"), initial_settings, {}, false) != OK) {
                         set_message(TTR("Couldn't create project.godot in project path."), MESSAGE_ERROR);
                     } else {
                         ResourceSaver::save(PathUtils::plus_file(dir,"icon.png"), get_icon("DefaultProjectIcon", "EditorIcons"));
@@ -2607,7 +2607,7 @@ ProjectManager::ProjectManager() {
     language_btn->set_flat(true);
     language_btn->set_focus_mode(Control::FOCUS_NONE);
 
-    Vector<se_string_view> editor_languages;
+    PODVector<se_string_view> editor_languages;
     ListPOD<PropertyInfo> editor_settings_properties;
     EditorSettings::get_singleton()->get_property_list(&editor_settings_properties);
     for (const PropertyInfo &pi : editor_settings_properties) {
@@ -2616,7 +2616,7 @@ ProjectManager::ProjectManager() {
         }
     }
     se_string current_lang = EditorSettings::get_singleton()->get("interface/editor/editor_language");
-    for (int i = 0; i < editor_languages.size(); i++) {
+    for (size_t i = 0; i < editor_languages.size(); i++) {
         se_string_view lang = editor_languages[i];
         se_string lang_name = TranslationServer::get_singleton()->get_locale_name(lang);
         language_btn->add_item(StringName(lang_name + " [" + lang + "]"), i);

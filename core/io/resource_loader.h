@@ -81,7 +81,7 @@ class GODOT_EXPORT ResourceLoader {
     static void *dep_err_notify_ud;
     static DependencyErrorNotify dep_err_notify;
     static bool abort_on_missing_resource;
-    static HashMap<se_string, Vector<se_string> > translation_remaps;
+    static DefHashMap<se_string, PODVector<se_string> > translation_remaps;
     static DefHashMap<se_string, se_string> path_remaps;
 
     static se_string _path_remap(se_string_view p_path, bool *r_translation_remapped = nullptr);

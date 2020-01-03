@@ -2544,12 +2544,12 @@ Error RichTextLabel::append_bbcode(se_string_view p_bbcode) {
             tag_stack.push_front(("font"));
 
         } else if (begins_with(tag,"fade")) {
-            Vector<se_string_view> tags = split(tag,' ', false);
+            PODVector<se_string_view> tags = split(tag,' ', false);
             int startIndex = 0;
             int length = 10;
 
             if (tags.size() > 1) {
-                tags.remove(0);
+                tags.pop_front();
                 for (int i = 0; i < tags.size(); i++) {
                     se_string_view expr = tags[i];
                     if (begins_with(expr,"start=")) {
@@ -2566,12 +2566,12 @@ Error RichTextLabel::append_bbcode(se_string_view p_bbcode) {
             pos = brk_end + 1;
             tag_stack.push_front("fade");
         } else if (begins_with(tag,"shake")) {
-            Vector<se_string_view> tags = split(tag,' ', false);
+            PODVector<se_string_view> tags = split(tag,' ', false);
             int strength = 5;
             float rate = 20.0f;
 
             if (tags.size() > 1) {
-                tags.remove(0);
+                tags.pop_front();
                 for (int i = 0; i < tags.size(); i++) {
                     se_string_view expr = tags[i];
                     if (begins_with(expr,"level=")) {
@@ -2589,12 +2589,12 @@ Error RichTextLabel::append_bbcode(se_string_view p_bbcode) {
             tag_stack.push_front("shake");
             set_process_internal(true);
         } else if (begins_with(tag, "wave")) {
-            Vector<se_string_view> tags = split(tag, ' ', false);
+            PODVector<se_string_view> tags = split(tag, ' ', false);
             float amplitude = 20.0f;
             float period = 5.0f;
 
             if (tags.size() > 1) {
-                tags.remove(0);
+                tags.pop_front();
                 for (int i = 0; i < tags.size(); i++) {
                     auto expr = tags[i];
                     if (begins_with(expr, "amp=")) {
@@ -2617,7 +2617,7 @@ Error RichTextLabel::append_bbcode(se_string_view p_bbcode) {
             float frequency = 1.0f;
 
             if (tags.size() > 1) {
-                tags.remove(0);
+                tags.pop_front();
                 for (int i = 0; i < tags.size(); i++) {
                     auto expr = tags[i];
                     if (begins_with(expr, "radius=")) {
@@ -2641,7 +2641,7 @@ Error RichTextLabel::append_bbcode(se_string_view p_bbcode) {
             float frequency = 1.0f;
 
             if (tags.size() > 1) {
-                tags.remove(0);
+                tags.pop_front();
                 for (int i = 0; i < tags.size(); i++) {
                     auto expr = tags[i];
                     if (begins_with(expr, "sat=")) {
@@ -2668,7 +2668,7 @@ Error RichTextLabel::append_bbcode(se_string_view p_bbcode) {
                 pos = brk_pos + 1;
             } else {
                 auto identifier = expr_v[0];
-                expr_v.remove(0);
+                expr_v.pop_front();
                 PoolVector<se_string> expr;
                 for(int i=0; i<expr_v.size();++i)
                     expr.push_back(se_string(expr_v[i]));
@@ -3120,13 +3120,13 @@ Dictionary RichTextLabel::parse_expressions_for_values(const PoolVector<se_strin
         se_string_view expression = p_expressions[i];
 
         Array a = Array();
-        Vector<se_string_view> parts = split(expression, '=', true);
+        PODVector<se_string_view> parts = split(expression, '=', true);
         se_string_view key = parts[0];
         if (parts.size() != 2) {
             return d;
         }
 
-        Vector<se_string_view> values = split(parts[1],',', false);
+        PODVector<se_string_view> values = split(parts[1],',', false);
 
         for (int j = 0; j < values.size(); j++) {
 

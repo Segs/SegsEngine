@@ -116,15 +116,15 @@ public:
     static BuiltinFunc find_function(se_string_view p_string);
 
 private:
-    struct Input {
+//    struct Input {
 
-        VariantType type=VariantType::NIL;
-        se_string name;
+//        VariantType type=VariantType::NIL;
+//        se_string name;
 
-        Input() = default;
-    };
+//        Input() = default;
+//    };
 
-    Vector<Input> inputs;
+//    PODVector<Input> inputs;
     VariantType output_type = VariantType::NIL;
 
     se_string expression;
@@ -289,7 +289,7 @@ private:
 
     struct ConstructorNode : public ENode {
         VariantType data_type;
-        Vector<ENode *> arguments;
+        PODVector<ENode *> arguments;
 
         ConstructorNode() {
             type = TYPE_CONSTRUCTOR;
@@ -299,7 +299,7 @@ private:
     struct CallNode : public ENode {
         ENode *base;
         StringName method;
-        Vector<ENode *> arguments;
+        PODVector<ENode *> arguments;
 
         CallNode() {
             type = TYPE_CALL;
@@ -307,14 +307,14 @@ private:
     };
 
     struct ArrayNode : public ENode {
-        Vector<ENode *> array;
+        PODVector<ENode *> array;
         ArrayNode() {
             type = TYPE_ARRAY;
         }
     };
 
     struct DictionaryNode : public ENode {
-        Vector<ENode *> dict;
+        PODVector<ENode *> dict;
         DictionaryNode() {
             type = TYPE_DICTIONARY;
         }

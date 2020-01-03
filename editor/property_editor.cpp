@@ -443,10 +443,10 @@ bool CustomPropertyEditor::edit(Object *p_owner, se_string_view p_name, VariantT
 
             } else if (hint == PROPERTY_HINT_ENUM) {
 
-                Vector<se_string_view> options = StringUtils::split(hint_text,',');
+                PODVector<se_string_view> options = StringUtils::split(hint_text,',');
                 int current_val = 0;
                 for (int i = 0; i < options.size(); i++) {
-                    Vector<se_string_view> text_split = StringUtils::split(options[i],':');
+                    PODVector<se_string_view> text_split = StringUtils::split(options[i],':');
                     if (text_split.size() != 1)
                         current_val = StringUtils::to_int(text_split[1]);
                     menu->add_item(StringName(text_split[0]));
@@ -525,7 +525,7 @@ bool CustomPropertyEditor::edit(Object *p_owner, se_string_view p_name, VariantT
                 easing_draw->show();
                 set_size(Size2(200, 150) * EDSCALE);
             } else if (hint == PROPERTY_HINT_FLAGS) {
-                Vector<se_string_view> flags = StringUtils::split(hint_text,',');
+                PODVector<se_string_view> flags = StringUtils::split(hint_text,',');
                 for (int i = 0; i < flags.size(); i++) {
                     se_string_view flag = flags[i];
                     if (flag.empty())
@@ -566,7 +566,7 @@ bool CustomPropertyEditor::edit(Object *p_owner, se_string_view p_name, VariantT
                 config_action_buttons(names);
             } else if (hint == PROPERTY_HINT_ENUM) {
 
-                Vector<se_string_view> options = StringUtils::split(hint_text,',');
+                PODVector<se_string_view> options = StringUtils::split(hint_text,',');
                 for (int i = 0; i < options.size(); i++) {
                     menu->add_item(StringName(options[i]), i);
                 }
@@ -1286,7 +1286,7 @@ void CustomPropertyEditor::_action_pressed(int p_which) {
                     file->clear_filters();
 
                     if (!hint_text.empty()) {
-                        Vector<se_string_view> extensions = StringUtils::split(hint_text,',');
+                        PODVector<se_string_view> extensions = StringUtils::split(hint_text,',');
                         for (int i = 0; i < extensions.size(); i++) {
 
                             se_string filter(extensions[i]);

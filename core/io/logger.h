@@ -71,10 +71,10 @@ public:
 };
 
 class CompositeLogger : public Logger {
-    Vector<Logger *> loggers;
+    PODVector<Logger *> loggers;
 
 public:
-    GODOT_EXPORT CompositeLogger(const Vector<Logger *>& p_loggers);
+    GODOT_EXPORT CompositeLogger(PODVector<Logger *> && p_loggers);
 
     GODOT_EXPORT void logv(se_string_view p_msg, bool p_err) override;
     GODOT_EXPORT void log_error(se_string_view p_function, se_string_view p_file, int p_line, se_string_view p_code, se_string_view p_rationale, ErrorType p_type = ERR_ERROR) override;

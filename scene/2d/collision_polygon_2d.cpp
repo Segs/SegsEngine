@@ -56,8 +56,8 @@ void CollisionPolygon2D::_build_polygon() {
 
         //here comes the sun, lalalala
         //decompose concave into multiple convex polygons and add them
-        Vector<PODVector<Vector2> > decomp = _decompose_in_convex();
-        for (int i = 0; i < decomp.size(); i++) {
+        PODVector<PODVector<Vector2> > decomp = _decompose_in_convex();
+        for (size_t i = 0; i < decomp.size(); i++) {
             Ref<ConvexPolygonShape2D> convex(make_ref_counted<ConvexPolygonShape2D>());
             convex->set_points(decomp[i]);
             parent->shape_owner_add_shape(owner_id, convex);
@@ -71,7 +71,7 @@ void CollisionPolygon2D::_build_polygon() {
         segments.resize(polygon.size() * 2);
         PoolVector<Vector2>::Write w = segments.write();
 
-        for (int i = 0; i < polygon.size(); i++) {
+        for (size_t i = 0; i < polygon.size(); i++) {
             w[(i << 1) + 0] = polygon[i];
             w[(i << 1) + 1] = polygon[(i + 1) % polygon.size()];
         }
@@ -83,8 +83,8 @@ void CollisionPolygon2D::_build_polygon() {
     }
 }
 
-Vector<PODVector<Vector2> > CollisionPolygon2D::_decompose_in_convex() {
-    Vector<PODVector<Vector2> > decomp = Geometry::decompose_polygon_in_convex(polygon);
+PODVector<PODVector<Vector2> > CollisionPolygon2D::_decompose_in_convex() {
+    PODVector<PODVector<Vector2> > decomp = Geometry::decompose_polygon_in_convex(polygon);
     return decomp;
 }
 
@@ -155,7 +155,7 @@ void CollisionPolygon2D::_notification(int p_what) {
 #define DEBUG_DECOMPOSE
 #if defined(TOOLS_ENABLED) && defined(DEBUG_DECOMPOSE)
 
-            Vector<PODVector<Vector2> > decomp = _decompose_in_convex();
+            PODVector<PODVector<Vector2> > decomp = _decompose_in_convex();
 
             Color c(0.4f, 0.9f, 0.1f);
             for (int i = 0; i < decomp.size(); i++) {

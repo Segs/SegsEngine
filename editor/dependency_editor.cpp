@@ -100,17 +100,17 @@ void DependencyEditor::_fix_and_find(EditorFileSystemDirectory *efsd, Map<se_str
             se_string current = StringUtils::replace_first(path,"res://", se_string());
             se_string lost = StringUtils::replace_first(E.first,"res://", se_string());
 
-            Vector<se_string_view> existingv = StringUtils::split(existing,'/');
-            existingv.invert();
-            Vector<se_string_view> currentv = StringUtils::split(current,'/');
-            currentv.invert();
-            Vector<se_string_view> lostv = StringUtils::split(lost,'/');
-            lostv.invert();
+            PODVector<se_string_view> existingv = StringUtils::split(existing,'/');
+            PODVector<se_string_view> currentv = StringUtils::split(current,'/');
+            PODVector<se_string_view> lostv = StringUtils::split(lost,'/');
+            eastl::reverse(existingv.begin(),existingv.end());
+            eastl::reverse(currentv.begin(),currentv.end());
+            eastl::reverse(lostv.begin(),lostv.end());
 
             int existing_score = 0;
             int current_score = 0;
 
-            for (int j = 0; j < lostv.size(); j++) {
+            for (size_t j = 0; j < lostv.size(); j++) {
 
                 if (j < existingv.size() && lostv[j] == existingv[j]) {
                     existing_score++;

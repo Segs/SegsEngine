@@ -324,10 +324,10 @@ void ScriptTextEditor::_set_theme_for_script() {
     text_edit->add_keyword_color("PoolColorArray", basetype_color);
 
     //colorize engine types
-    Vector<StringName> types;
+    PODVector<StringName> types;
     ClassDB::get_class_list(&types);
 
-    for (int i=0,fin=types.size(); i<fin; ++i) {
+    for (size_t i=0,fin=types.size(); i<fin; ++i) {
 
         se_string_view n(types[i].asCString());
         if (StringUtils::begins_with(n,"_"))
@@ -337,10 +337,10 @@ void ScriptTextEditor::_set_theme_for_script() {
     }
     _update_member_keywords();
     //colorize user types
-    Vector<StringName> global_classes;
+    PODVector<StringName> global_classes;
     ScriptServer::get_global_class_list(&global_classes);
 
-    for (int i=0; i<global_classes.size(); ++i) {
+    for (size_t i=0; i<global_classes.size(); ++i) {
 
         text_edit->add_keyword_color(global_classes[i].asCString(), colors_cache.usertype_color);
     }
@@ -1170,7 +1170,7 @@ void ScriptTextEditor::_edit_option(int p_op) {
                 end = tx->get_line_count() - 1;
             }
             scr->get_language()->auto_indent_code(text, begin, end);
-            Vector<se_string_view> lines = StringUtils::split(text,'\n');
+            PODVector<se_string_view> lines = StringUtils::split(text,'\n');
             for (int i = begin; i <= end; ++i) {
                 tx->set_line(i, lines[i]);
             }
@@ -1208,10 +1208,10 @@ void ScriptTextEditor::_edit_option(int p_op) {
         case EDIT_EVALUATE: {
 
             Expression expression;
-            Vector<se_string_view> lines = StringUtils::split(code_editor->get_text_edit()->get_selection_text(),'\n');
+            PODVector<se_string_view> lines = StringUtils::split(code_editor->get_text_edit()->get_selection_text(),'\n');
             PODVector<se_string> results;
 
-            for (int i = 0; i < lines.size(); i++) {
+            for (size_t i = 0; i < lines.size(); i++) {
                 se_string_view line = lines[i];
                 //extract the whitespace at the beginning
                 se_string_view whitespace = StringUtils::substr(line,0, line.size() - StringUtils::strip_edges(line,true, false).size());
@@ -1659,7 +1659,7 @@ void ScriptTextEditor::_text_edit_gui_input(const Ref<InputEvent> &ev) {
                 color_args = StringUtils::substr(line, begin, end - begin);
                 se_string stripped = StringUtils::replace(
                         StringUtils::replace(StringUtils::replace(color_args, " ", ""), "(", ""), ")", "");
-                Vector<float> color = StringUtils::split_floats(stripped, ",");
+                PODVector<float> color = StringUtils::split_floats(stripped, ",");
                 if (color.size() > 2) {
                     float alpha = color.size() > 3 ? color[3] : 1.0f;
                     color_picker->set_pick_color(Color(color[0], color[1], color[2], alpha));

@@ -890,7 +890,7 @@ void EditorHelp::_update_doc() {
                 se_string_view cval=constants[i].value;
                 if (StringUtils::begins_with(cval,"Color(") && StringUtils::ends_with(cval,")")) {
                     se_string stripped = StringUtils::replace(StringUtils::replace(StringUtils::replace(cval," ", ""),"Color(", ""),")", "");
-                    Vector<float> color = StringUtils::split_floats(stripped,",");
+                    PODVector<float> color = StringUtils::split_floats(stripped,",");
                     if (color.size() >= 3) {
                         class_desc->push_color(Color(color[0], color[1], color[2]));
                         static const CharType prefix[3] = { 0x25CF /* filled circle */, ' ', 0 };

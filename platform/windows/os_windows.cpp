@@ -1052,7 +1052,7 @@ LRESULT OS_Windows::WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
 
             int fcount = DragQueryFileW(hDropInfo, 0xFFFFFFFF, nullptr, 0);
 
-            Vector<se_string> files;
+            PODVector<se_string> files;
 
             for (int i = 0; i < fcount; i++) {
 

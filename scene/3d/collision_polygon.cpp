@@ -49,22 +49,22 @@ void CollisionPolygon::_build_polygon() {
     if (polygon.empty())
         return;
 
-    Vector<PODVector<Vector2> > decomp = Geometry::decompose_polygon_in_convex({polygon.ptr(),polygon.size()});
+    PODVector<PODVector<Vector2> > decomp = Geometry::decompose_polygon_in_convex({polygon.ptr(),polygon.size()});
     if (decomp.empty())
         return;
 
     //here comes the sun, lalalala
     //decompose concave into multiple convex polygons and add them
 
-    for (int i = 0; i < decomp.size(); i++) {
+    for (size_t i = 0; i < decomp.size(); i++) {
         Ref<ConvexPolygonShape> convex(make_ref_counted<ConvexPolygonShape>());
         PoolVector<Vector3> cp;
-        int cs = decomp[i].size();
+        size_t cs = decomp[i].size();
         cp.resize(cs * 2);
         {
             PoolVector<Vector3>::Write w = cp.write();
             int idx = 0;
-            for (int j = 0; j < cs; j++) {
+            for (size_t j = 0; j < cs; j++) {
 
                 Vector2 d = decomp[i][j];
                 w[idx++] = Vector3(d.x, d.y, depth * 0.5f);

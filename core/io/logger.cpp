@@ -217,7 +217,7 @@ void StdLogger::logv(se_string_view p_format, bool p_err) {
 
 StdLogger::~StdLogger() = default;
 
-CompositeLogger::CompositeLogger(const Vector<Logger *>& p_loggers) :
+CompositeLogger::CompositeLogger(PODVector<Logger *> && p_loggers) :
         loggers(p_loggers) {
 }
 

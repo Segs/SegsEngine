@@ -51,7 +51,7 @@ struct ImageData;
 //TODO: SEGS - convert ImageLoader to singelton, so we can have a single initialization point at which to register plugin resolver
 class GODOT_EXPORT ImageLoader {
 
-    static Vector<ImageFormatLoader *> loader;
+    static PODVector<ImageFormatLoader *> loader;
     friend class ResourceFormatLoaderImage;
 
 protected:
@@ -65,7 +65,7 @@ public:
     static void add_image_format_loader(ImageFormatLoader *p_loader);
     static void remove_image_format_loader(ImageFormatLoader *p_loader);
 
-    static const Vector<ImageFormatLoader *> &get_image_format_loaders();
+    static const PODVector<ImageFormatLoader *> &get_image_format_loaders();
 
     static void cleanup();
 };

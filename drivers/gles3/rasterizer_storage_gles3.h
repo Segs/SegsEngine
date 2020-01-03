@@ -574,8 +574,8 @@ public:
 
         Attrib attribs[VS::ARRAY_MAX];
         Vector<AABB> skeleton_bone_aabb;
-        Vector<bool> skeleton_bone_used;
-        Vector<BlendShape> blend_shapes;
+        PODVector<bool> skeleton_bone_used;
+        PODVector<BlendShape> blend_shapes;
 
         AABB aabb;
         Mesh *mesh;
@@ -638,7 +638,7 @@ public:
     struct Mesh : public GeometryOwner {
 
         bool active;
-        Vector<Surface *> surfaces;
+        PODVector<Surface *> surfaces;
         int blend_shape_count;
         VS::BlendShapeMode blend_shape_mode;
         AABB custom_aabb;

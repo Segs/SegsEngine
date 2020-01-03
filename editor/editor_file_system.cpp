@@ -247,14 +247,14 @@ void EditorFileSystem::_scan_from_cache()
         if (l.empty()) continue;
 
         if (StringUtils::begins_with(l, "::")) {
-            Vector<se_string_view> split = StringUtils::split(l, "::");
+            PODVector<se_string_view> split = StringUtils::split(l, "::");
             ERR_CONTINUE(split.size() != 3)
             se_string_view name = split[1];
 
             cpath = name;
 
         } else {
-            Vector<se_string_view> split = StringUtils::split(l, "::");
+            PODVector<se_string_view> split = StringUtils::split(l, "::");
             ERR_CONTINUE(split.size() != 8)
             se_string name = PathUtils::plus_file(cpath, split[0]);
 
@@ -270,7 +270,7 @@ void EditorFileSystem::_scan_from_cache()
 
             se_string_view deps = StringUtils::strip_edges(split[7]);
             if (deps.length()) {
-                Vector<se_string_view> dp = StringUtils::split(deps, "<>");
+                PODVector<se_string_view> dp = StringUtils::split(deps, "<>");
                 for (int i = 0; i < dp.size(); i++) {
                     se_string_view path = dp[i];
                     fc.deps.emplace_back(path);
@@ -1253,7 +1253,7 @@ bool EditorFileSystem::_find_file(se_string_view p_file, EditorFileSystemDirecto
     f = StringUtils::substr(f,6, f.length());
     f = PathUtils::from_native_path(f);
 
-    Vector<se_string_view> path = StringUtils::split(f,'/');
+    PODVector<se_string_view> path = StringUtils::split(f,'/');
 
     if (path.empty())
         return false;
@@ -1366,14 +1366,14 @@ EditorFileSystemDirectory *EditorFileSystem::get_filesystem_path(se_string_view 
     if (StringUtils::ends_with(f,"/"))
         f = StringUtils::substr(f,0, f.length() - 1);
 
-    Vector<se_string_view> path = StringUtils::split(f,'/');
+    PODVector<se_string_view> path = StringUtils::split(f,'/');
 
     if (path.empty())
         return nullptr;
 
     EditorFileSystemDirectory *fs = filesystem;
 
-    for (int i = 0; i < path.size(); i++) {
+    for (size_t i = 0; i < path.size(); i++) {
 
         int idx = -1;
         for (int j = 0; j < fs->get_subdir_count(); j++) {

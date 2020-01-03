@@ -816,10 +816,10 @@ void ResourceImporterScene::_filter_tracks(Node *scene, se_string_view p_text) {
     AnimationPlayer *anim = object_cast<AnimationPlayer>(n);
     ERR_FAIL_COND(!anim)
 
-    Vector<se_string_view> strings = StringUtils::split(p_text, '\n');
-    for (int i = 0; i < strings.size(); i++) {
+    PODVector<se_string_view> strings = StringUtils::split(p_text, '\n');
+    for (se_string_view &sv : strings) {
 
-        strings.write[i] = StringUtils::strip_edges(strings[i]);
+        sv = StringUtils::strip_edges(sv);
     }
 
     PODVector<StringName> anim_names;
@@ -843,11 +843,11 @@ void ResourceImporterScene::_filter_tracks(Node *scene, se_string_view p_text) {
                 }
                 keep_local.clear();
 
-                Vector<se_string_view> filters =
+                PODVector<se_string_view> filters =
                         StringUtils::split(StringUtils::substr(strings[i], 1, strings[i].length()), ',');
-                for (int j = 0; j < filters.size(); j++) {
+                for (se_string_view val : filters) {
 
-                    se_string_view fname = StringUtils::strip_edges(filters[j]);
+                    se_string_view fname = StringUtils::strip_edges(val);
                     if (fname.empty()) continue;
                     int fc = fname[0];
                     bool plus;

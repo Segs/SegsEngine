@@ -42,6 +42,7 @@
 #include "editor_scale.h"
 #include "editor_settings.h"
 #include "scene/gui/box_container.h"
+#include "EASTL/sort.h"
 
 IMPL_GDCLASS(CreateDialog)
 
@@ -50,7 +51,7 @@ void CreateDialog::popup_create(bool p_dont_clear, bool p_replace_mode, const St
     type_list.clear();
     ClassDB::get_class_list(&type_list);
     ScriptServer::get_global_class_list(&type_list);
-    type_list.sort_custom<WrapAlphaCompare>();
+    eastl::sort(type_list.begin(),type_list.end(),WrapAlphaCompare());
 
     recent->clear();
 

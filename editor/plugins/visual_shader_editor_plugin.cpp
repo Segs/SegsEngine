@@ -227,7 +227,7 @@ void VisualShaderEditor::update_custom_nodes() {
         return;
     }
     clear_custom_types();
-    Vector<StringName> class_list;
+    PODVector<StringName> class_list;
     ScriptServer::get_global_class_list(&class_list);
     DefMap<se_string,AddInfo> added;
     for (int i = 0; i < class_list.size(); i++) {
@@ -3153,7 +3153,7 @@ void EditorPropertyShaderMode::update_property() {
     options->select(which);
 }
 
-void EditorPropertyShaderMode::setup(const Vector<se_string_view> &p_options) {
+void EditorPropertyShaderMode::setup(const PODVector<se_string_view> &p_options) {
     for (int i = 0; i < p_options.size(); i++) {
         options->add_item(StringName(p_options[i]), i);
     }
@@ -3189,7 +3189,7 @@ bool EditorInspectorShaderModePlugin::parse_property(Object *p_object, VariantTy
     if (p_path == se_string_view("mode") && p_object->is_class("VisualShader") && p_type == VariantType::INT) {
 
         EditorPropertyShaderMode *editor = memnew(EditorPropertyShaderMode);
-        Vector<se_string_view> options = StringUtils::split(p_hint_text,',');
+        PODVector<se_string_view> options = StringUtils::split(p_hint_text,',');
         editor->setup(options);
         add_property_editor(p_path, editor);
 

@@ -609,10 +609,10 @@ Error GDScript::reload(bool p_keep_state) {
         }
     }
 #ifdef DEBUG_ENABLED
+    PODVector<ScriptLanguage::StackInfo> si;
     for (const List<GDScriptWarning>::Element *E = parser.get_warnings().front(); E; E = E->next()) {
         const GDScriptWarning &warning = E->deref();
         if (ScriptDebugger::get_singleton()) {
-            Vector<ScriptLanguage::StackInfo> si;
             ScriptDebugger::get_singleton()->send_error({}, get_path(), warning.line, warning.get_name(), warning.get_message(), ERR_HANDLER_WARNING, si);
         }
     }
@@ -1413,9 +1413,9 @@ void GDScriptLanguage::init() {
 
     //populate native classes
 
-    Vector<StringName> class_list;
+    PODVector<StringName> class_list;
     ClassDB::get_class_list(&class_list);
-    for (int i=0,fin=class_list.size(); i<fin; ++i) {
+    for (size_t i=0,fin=class_list.size(); i<fin; ++i) {
 
         StringName n = class_list[i];
         se_string_view s(n);

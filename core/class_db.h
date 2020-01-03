@@ -221,7 +221,7 @@ public:
     }
     static bool bind_helper(MethodBind *bind,const char * instance_type,const StringName &p_name);
 
-    static void get_class_list(Vector<StringName> *p_classes);
+    static void get_class_list(PODVector<StringName> *p_classes);
     static void get_inheriters_from_class(const StringName &p_class, ListPOD<StringName> *p_classes);
     static void get_direct_inheriters_from_class(const StringName &p_class, ListPOD<StringName> *p_classes);
     static StringName get_parent_class_nocheck(const StringName &p_class);

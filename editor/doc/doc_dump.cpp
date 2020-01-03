@@ -73,10 +73,9 @@ static se_string _escape_string(se_string_view p_str) {
 }
 void DocDump::dump(se_string_view p_file) {
 
-    Vector<StringName> class_list;
+    PODVector<StringName> class_list;
     ClassDB::get_class_list(&class_list);
-
-    class_list.sort_custom<WrapAlphaCompare>();
+    eastl::sort(class_list.begin(),class_list.end(),WrapAlphaCompare());
 
     FileAccess *f = FileAccess::open(p_file, FileAccess::WRITE);
 

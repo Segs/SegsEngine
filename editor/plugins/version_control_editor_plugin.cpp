@@ -364,7 +364,7 @@ void VersionControlEditorPlugin::register_editor() {
 
 void VersionControlEditorPlugin::fetch_available_vcs_addon_names() {
 
-    Vector<StringName> global_classes;
+    PODVector<StringName> global_classes;
     ScriptServer::get_global_class_list(&global_classes);
 
     for (int i = 0; i != global_classes.size(); i++) {

@@ -345,16 +345,12 @@ void VisualScriptPropertySelector::get_visual_node_names(se_string_view root_fil
         if (!StringUtils::begins_with(E->deref(),root_filter)) {
             continue;
         }
-        Vector<se_string_view> path = StringUtils::split(E->deref(),'/');
+        PODVector<se_string_view> path = StringUtils::split(E->deref(),'/');
         // check if the name has the filter
         bool in_filter = false;
-        Vector<se_string_view> tx_filters = StringUtils::split(search_box->get_text(),' ');
-        for (int i = 0; i < tx_filters.size(); i++) {
-            if (tx_filters[i].empty()) {
-                in_filter = true;
-            } else {
-                in_filter = false;
-            }
+        PODVector<se_string_view> tx_filters = StringUtils::split(search_box->get_text(),' ');
+        for (size_t i = 0; i < tx_filters.size(); i++) {
+            in_filter = tx_filters[i].empty();
             if (StringUtils::contains(E->deref(),tx_filters[i])) {
                 in_filter = true;
                 break;
@@ -482,7 +478,7 @@ void VisualScriptPropertySelector::_item_selected() {
     Map<StringName, DocData::ClassDoc>::iterator T = dd->class_list.find(class_type);
     if (T!=dd->class_list.end()) {
         for (int i = 0; i < T->second.methods.size(); i++) {
-            Vector<se_string_view> functions = StringUtils::rsplit(name,"/", false, 1);
+            PODVector<se_string_view> functions = StringUtils::rsplit(name,"/", false, 1);
             if (T->second.methods[i].name == functions[functions.size() - 1]) {
                 text = T->second.methods[i].description;
             }

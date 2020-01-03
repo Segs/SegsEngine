@@ -47,6 +47,7 @@
 #include "core/variant_parser.h"
 #include "core/method_bind.h"
 
+#include "EASTL/sort.h"
 #include <zlib.h>
 
 IMPL_GDCLASS(ProjectSettings)
@@ -162,7 +163,7 @@ bool ProjectSettings::_set(const StringName &p_name, const Variant &p_value) {
 
         if (p_name == CoreStringNames::get_singleton()->_custom_features) {
             se_string val_str(p_value);
-            Vector<se_string_view> custom_feature_array = StringUtils::split(val_str,',');
+            PODVector<se_string_view> custom_feature_array = StringUtils::split(val_str,',');
             for (int i = 0; i < custom_feature_array.size(); i++) {
 
                 custom_features.insert(custom_feature_array[i]);
@@ -171,12 +172,12 @@ bool ProjectSettings::_set(const StringName &p_name, const Variant &p_value) {
         }
 
         if (!disable_feature_overrides) {
-            int dot = StringUtils::find(p_name,".");
-            if (dot != -1) {
-                Vector<se_string_view> s = StringUtils::split(p_name,'.');
+            auto dot = StringUtils::find(p_name,".");
+            if (dot != se_string::npos) {
+                PODVector<se_string_view> s = StringUtils::split(p_name,'.');
 
                 bool override_valid = false;
-                for (int i = 1; i < s.size(); i++) {
+                for (size_t i = 1; i < s.size(); i++) {
                     se_string_view feature =StringUtils::strip_edges( s[i]);
                     if (OS::get_singleton()->has_feature(feature) || custom_features.contains_as(feature)) {
                         override_valid = true;
@@ -794,7 +795,7 @@ Error ProjectSettings::_save_custom_bnd(se_string_view p_file) { // add other pa
     return save_custom(p_file);
 };
 
-Error ProjectSettings::save_custom(se_string_view p_path, const CustomMap &p_custom, const Vector<se_string> &p_custom_features, bool p_merge_with_current) {
+Error ProjectSettings::save_custom(se_string_view p_path, const CustomMap &p_custom, const PODVector<se_string> &p_custom_features, bool p_merge_with_current) {
 
     ERR_FAIL_COND_V_MSG(p_path.empty(), ERR_INVALID_PARAMETER, "Project settings save path cannot be empty.")
 
@@ -843,9 +844,9 @@ Error ProjectSettings::save_custom(se_string_view p_path, const CustomMap &p_cus
         se_string category = E.name.asCString();
         se_string name = E.name.asCString();
 
-        int div = StringUtils::find(category,"/");
+        auto div = StringUtils::find(category,"/");
 
-        if (div < 0)
+        if (div == se_string::npos )
             category = "";
         else {
 
@@ -857,7 +858,7 @@ Error ProjectSettings::save_custom(se_string_view p_path, const CustomMap &p_cus
 
     se_string custom_features;
 
-    for (int i = 0; i < p_custom_features.size(); i++) {
+    for (size_t i = 0; i < p_custom_features.size(); i++) {
         if (i > 0)
             custom_features += ',';
 
@@ -888,11 +889,11 @@ Variant _GLOBAL_DEF(const StringName &p_var, const Variant &p_default, bool p_re
     ProjectSettings::get_singleton()->set_restart_if_changed(p_var, p_restart_if_changed);
     return ret;
 }
-Vector<se_string> ProjectSettings::get_optimizer_presets() const {
+PODVector<se_string> ProjectSettings::get_optimizer_presets() const {
 
     ListPOD<PropertyInfo> pi;
     ProjectSettings::get_singleton()->get_property_list(&pi);
-    Vector<se_string> names;
+    PODVector<se_string> names;
 
     for(const PropertyInfo &E : pi ) {
 
@@ -900,8 +901,7 @@ Vector<se_string> ProjectSettings::get_optimizer_presets() const {
             continue;
         names.push_back(se_string(StringUtils::get_slice(E.name,'/', 1)));
     }
-
-    names.sort();
+    eastl::sort(names.begin(),names.end());
 
     return names;
 }

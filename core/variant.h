@@ -532,5 +532,6 @@ template <> GODOT_EXPORT Variant Variant::from(const Vector<Plane> &p_array);
 template <> GODOT_EXPORT Variant Variant::from(const Vector<RID> &p_array);
 
 template <> GODOT_EXPORT Variant Variant::from(const PODVector<se_string> &);
+template <> GODOT_EXPORT Variant Variant::from(const PODVector<se_string_view> &);
 template <> GODOT_EXPORT Variant Variant::from(const PODVector<StringName> &);
 template <> GODOT_EXPORT Variant Variant::from(const Frustum &p_array);

@@ -725,8 +725,8 @@ InputDefault::InputDefault() {
     se_string env_mapping(env_var);
     if (!env_mapping.empty()) {
 
-        Vector<se_string_view> entries = StringUtils::split(env_mapping,'\n');
-        for (int i = 0; i < entries.size(); i++) {
+        PODVector<se_string_view> entries = StringUtils::split(env_mapping,'\n');
+        for (size_t i = 0; i < entries.size(); i++) {
             if (entries[i].empty())
                 continue;
             parse_mapping(entries[i]);
@@ -993,7 +993,7 @@ void InputDefault::parse_mapping(se_string_view p_mapping) {
     for (int i = 0; i < HAT_MAX; ++i)
         mapping.hat[i].index = 1024 + i;
 
-    Vector<se_string_view> entry = StringUtils::split(p_mapping,',');
+    PODVector<se_string_view> entry = StringUtils::split(p_mapping,',');
     if (entry.size() < 2) {
         return;
     }
@@ -1055,9 +1055,9 @@ void InputDefault::add_joy_mapping(se_string_view p_mapping, bool p_update_exist
     parse_mapping(p_mapping);
     if (!p_update_existing)
         return;
+    assert(StringUtils::get_slice(p_mapping,',')>0);
+    StringName uid(StringUtils::get_slice(p_mapping,',',0));
 
-    Vector<se_string_view> entry = StringUtils::split(p_mapping,',');
-    StringName uid(entry[0]);
     for (eastl::pair<const int, Joypad> & e : joy_names) {
         if (uid == e.second.uid) {
             e.second.mapping = map_db.size() - 1;

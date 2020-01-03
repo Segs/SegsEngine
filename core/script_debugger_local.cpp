@@ -261,7 +261,7 @@ void ScriptDebuggerLocal::debug(ScriptLanguage *p_script, bool p_can_continue, b
 
 void ScriptDebuggerLocal::print_variables(const ListPOD<se_string> &names, const List<Variant> &values, se_string_view variable_prefix) {
 
-    Vector<se_string_view> value_lines;
+    PODVector<se_string_view> value_lines;
     const List<Variant>::Element *V = values.front();
     for (const se_string &E : names) {
 
@@ -273,7 +273,7 @@ void ScriptDebuggerLocal::print_variables(const ListPOD<se_string> &names, const
 
             print_line(E + ":");
             value_lines = StringUtils::split(value,'\n');
-            for (int i = 0; i < value_lines.size(); ++i) {
+            for (size_t i = 0; i < value_lines.size(); ++i) {
                 print_line(se_string(variable_prefix) + value_lines[i]);
             }
         }
@@ -328,11 +328,11 @@ void ScriptDebuggerLocal::idle_poll() {
 
     int ofs = 0;
     for (int i = 0; i < ScriptServer::get_language_count(); i++) {
-        ofs += ScriptServer::get_language(i)->profiling_get_frame_data(&pinfo.write[ofs], pinfo.size() - ofs);
+        ofs += ScriptServer::get_language(i)->profiling_get_frame_data(&pinfo[ofs], pinfo.size() - ofs);
     }
 
     SortArray<ScriptLanguage::ProfilingInfo, _ScriptDebuggerLocalProfileInfoSort> sort;
-    sort.sort(pinfo.ptrw(), ofs);
+    sort.sort(pinfo.data(), ofs);
 
     //falta el frame time
 
@@ -380,11 +380,11 @@ void ScriptDebuggerLocal::profiling_end() {
     int ofs = 0;
 
     for (int i = 0; i < ScriptServer::get_language_count(); i++) {
-        ofs += ScriptServer::get_language(i)->profiling_get_accumulated_data(&pinfo.write[ofs], pinfo.size() - ofs);
+        ofs += ScriptServer::get_language(i)->profiling_get_accumulated_data(&pinfo[ofs], pinfo.size() - ofs);
     }
 
     SortArray<ScriptLanguage::ProfilingInfo, _ScriptDebuggerLocalProfileInfoSort> sort;
-    sort.sort(pinfo.ptrw(), ofs);
+    sort.sort(pinfo.data(), ofs);
 
     uint64_t total_us = 0;
     for (int i = 0; i < ofs; i++) {
@@ -413,7 +413,7 @@ void ScriptDebuggerLocal::send_message(const se_string &p_message, const Array &
     // print_line("MESSAGE: '" + p_message + "' - " + se_string(Variant(p_args)));
 }
 
-void ScriptDebuggerLocal::send_error(se_string_view p_func, se_string_view p_file, int p_line, se_string_view p_err, se_string_view p_descr, ErrorHandlerType p_type, const Vector<ScriptLanguage::StackInfo> &p_stack_info) {
+void ScriptDebuggerLocal::send_error(se_string_view p_func, se_string_view p_file, int p_line, se_string_view p_err, se_string_view p_descr, ErrorHandlerType p_type, const PODVector<ScriptLanguage::StackInfo> &p_stack_info) {
 
     print_line(se_string("ERROR: '") + (p_descr.empty() ? p_err : p_descr) + "'");
 }

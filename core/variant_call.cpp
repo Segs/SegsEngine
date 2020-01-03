@@ -88,8 +88,9 @@ struct _VariantCall {
         VariantFunc func;
 
         FuncData() = default;
-        constexpr FuncData(bool p_const, VariantType p_return, bool p_has_return, VariantFunc p_func, const
-            std::initializer_list<Variant> p_defaultarg, std::initializer_list<const Arg> p_argtype1) : func(p_func), _const(p_const),returns(p_has_return),return_type(p_return),arg_count(p_argtype1.size()) {
+        constexpr FuncData(bool p_const, VariantType p_return, bool p_has_return, VariantFunc p_func,
+                const std::initializer_list<Variant> p_defaultarg, std::initializer_list<const Arg> p_argtype1) :
+                return_type(p_return), _const(p_const), returns(p_has_return), func(p_func) {
 
             for(const Arg & a : p_argtype1) {
                 if(a.name) {
@@ -350,11 +351,11 @@ struct _VariantCall {
     }
     VCALL_SU_LOCALMEM0R(String, capitalize)
     static void _call_String_split(Variant &r_ret, Variant &p_self, const Variant **p_args) {
-        Vector<se_string_view> parts(StringUtils::split(*reinterpret_cast<se_string *>(p_self._data._mem),p_args[0]->as<se_string>(), p_args[2]->as<bool>()));
+        PODVector<se_string_view> parts(StringUtils::split(*reinterpret_cast<se_string *>(p_self._data._mem),p_args[0]->as<se_string>(), p_args[2]->as<bool>()));
         r_ret = Variant::from(parts);
     }
     static void _call_String_rsplit(Variant &r_ret, Variant &p_self, const Variant **p_args) {
-        Vector<se_string_view> parts(StringUtils::rsplit(*reinterpret_cast<se_string *>(p_self._data._mem),p_args[0]->as<se_string>(), p_args[2]->as<bool>()));
+        PODVector<se_string_view> parts(StringUtils::rsplit(*reinterpret_cast<se_string *>(p_self._data._mem),p_args[0]->as<se_string>(), p_args[2]->as<bool>()));
         r_ret = Variant::from(parts);
     }
     static void _call_String_split_floats(Variant &r_ret, Variant &p_self, const Variant **p_args) {

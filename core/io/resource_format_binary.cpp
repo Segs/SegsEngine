@@ -833,11 +833,10 @@ void ResourceInteractiveLoaderBinary::open(FileAccess *p_f) {
         f->get_32(); //skip a few reserved fields
 
     uint32_t string_table_size = f->get_32();
-    string_map.resize(string_table_size);
+    string_map.reserve(string_table_size);
     for (uint32_t i = 0; i < string_table_size; i++) {
 
-        StringName s(get_unicode_string());
-        string_map.write[i] = s;
+        string_map.emplace_back(get_unicode_string());
     }
 
     print_bl("strings: " + itos(string_table_size));

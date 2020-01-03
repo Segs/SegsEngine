@@ -340,7 +340,7 @@ protected:
     static void _bind_methods();
 
 public:
-    void setup(const Vector<se_string_view> &p_options);
+    void setup(const PODVector<se_string_view> &p_options);
     void update_property() override;
     void set_option_button_clip(bool p_enable);
     EditorPropertyShaderMode();

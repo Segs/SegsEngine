@@ -225,7 +225,7 @@ void ProjectExportDialog::_edit_preset(int p_index) {
     name->set_text_utf8(current->get_name());
 
     List<se_string> extension_list = current->get_platform()->get_binary_extensions(current);
-    Vector<se_string_view> extension_vector;
+    PODVector<se_string_view> extension_vector;
     for (int i = 0; i < extension_list.size(); i++) {
         extension_vector.push_back("*." + extension_list[i]);
     }
@@ -275,7 +275,7 @@ void ProjectExportDialog::_edit_preset(int p_index) {
 
         if (!error.empty()) {
 
-            Vector<se_string_view> items = StringUtils::split(error,'\n', false);
+            PODVector<se_string_view> items = StringUtils::split(error,'\n', false);
             error = "";
             for (int i = 0; i < items.size(); i++) {
                 if (i > 0)
@@ -344,7 +344,7 @@ void ProjectExportDialog::_update_feature_list() {
     current->get_platform()->get_preset_features(current, &features);
 
     se_string custom = current->get_custom_features();
-    Vector<se_string_view> custom_list = StringUtils::split(custom,',');
+    PODVector<se_string_view> custom_list = StringUtils::split(custom,',');
     for (int i = 0; i < custom_list.size(); i++) {
         se_string_view f =StringUtils::strip_edges( custom_list[i]);
         if (!f.empty()) {

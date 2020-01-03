@@ -463,7 +463,7 @@ Error Main::setup(bool p_second_phase) {
     se_string remotefs;
     se_string remotefs_pass;
 
-    Vector<se_string_view> breakpoints;
+    PODVector<se_string_view> breakpoints;
     bool use_custom_res = true;
     bool force_res = false;
     bool saw_vsync_via_compositor_override = false;
@@ -947,9 +947,8 @@ Error Main::setup(bool p_second_phase) {
     if (script_debugger) {
         //there is a debugger, parse breakpoints
 
-        for (int i = 0; i < breakpoints.size(); i++) {
+        for (se_string_view bp : breakpoints) {
 
-            se_string_view bp(breakpoints[i]);
             auto sp = StringUtils::find_last(bp,':');
             ERR_CONTINUE_MSG(sp == se_string::npos, "Invalid breakpoint: '" + bp + "', expected file:line format.")
 

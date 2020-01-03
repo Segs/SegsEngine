@@ -116,9 +116,8 @@ void OS::_set_logger(CompositeLogger *p_logger) {
 
 void OS::add_logger(Logger *p_logger) {
     if (!_logger) {
-        Vector<Logger *> loggers;
-        loggers.push_back(p_logger);
-        _logger = memnew(CompositeLogger(loggers));
+        PODVector<Logger *> loggers {p_logger};
+        _logger = memnew(CompositeLogger(eastl::move(loggers)));
     } else {
         _logger->add_logger(p_logger);
     }
@@ -386,7 +385,7 @@ Error OS::shell_open(se_string_view p_uri) {
 };
 
 // implement these with the canvas?
-Error OS::dialog_show(String p_title, String p_description, Vector<String> p_buttons, Object *p_obj, const StringName & p_callback) {
+Error OS::dialog_show(String p_title, String p_description, const PODVector<String> p_buttons, Object *p_obj, const StringName & p_callback) {
     using namespace StringUtils;
     while (true) {
 

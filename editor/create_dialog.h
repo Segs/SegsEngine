@@ -56,7 +56,7 @@ class CreateDialog : public ConfirmationDialog {
     StringName base_type;
     StringName preferred_search_result_type;
     EditorHelpBit *help_bit;
-    Vector<StringName> type_list;
+    PODVector<StringName> type_list;
     Set<StringName> type_blacklist;
 
     void _item_selected();

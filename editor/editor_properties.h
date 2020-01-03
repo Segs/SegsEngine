@@ -106,7 +106,7 @@ protected:
     static void _bind_methods();
 
 public:
-    void setup(const Vector<se_string_view> &p_options);
+    void setup(const PODVector<se_string_view> &p_options);
     void update_property() override;
     EditorPropertyTextEnum();
 };
@@ -131,7 +131,7 @@ protected:
     void _notification(int p_what);
 
 public:
-    void setup(const Vector<se_string_view> &p_extensions, bool p_folder, bool p_global);
+    void setup(const PODVector<se_string_view> &p_extensions, bool p_folder, bool p_global);
     void set_save_mode();
     void update_property() override;
     EditorPropertyPath();
@@ -217,7 +217,7 @@ protected:
     static void _bind_methods();
 
 public:
-    void setup(const Vector<se_string_view> &p_options);
+    void setup(const PODVector<se_string_view> &p_options);
     void update_property() override;
     void set_option_button_clip(bool p_enable);
     EditorPropertyEnum();
@@ -236,7 +236,7 @@ protected:
     static void _bind_methods();
 
 public:
-    void setup(const Vector<se_string_view> &p_options);
+    void setup(const PODVector<se_string_view> &p_options);
     void update_property() override;
     EditorPropertyFlags();
 };

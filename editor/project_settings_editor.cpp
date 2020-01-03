@@ -1036,7 +1036,7 @@ void ProjectSettingsEditor::_copy_to_platform_about_to_show() {
         }
 
         se_string custom = EditorExport::get_singleton()->get_export_preset(i)->get_custom_features();
-        Vector<se_string_view> custom_list = StringUtils::split(custom,',');
+        PODVector<se_string_view> custom_list = StringUtils::split(custom,',');
         for (int j = 0; j < custom_list.size(); j++) {
             se_string f(StringUtils::strip_edges( custom_list[j]));
             if (!f.empty()) {

@@ -950,7 +950,7 @@ Error VariantParser::parse_value(Token &token, Variant &value, Stream *p_stream,
                 return ERR_PARSE_ERROR;
             }
 
-            Vector<String> cs;
+            PODVector<String> cs;
 
             bool first = true;
             while (true) {

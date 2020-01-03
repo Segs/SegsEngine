@@ -1091,10 +1091,10 @@ void TileSet::_decompose_convex_shape(Ref<Shape2D> p_shape) {
     Ref<ConvexPolygonShape2D> convex = dynamic_ref_cast<ConvexPolygonShape2D>(p_shape);
     if (not convex)
         return;
-    Vector<PODVector<Vector2> > decomp = Geometry::decompose_polygon_in_convex(convex->get_points());
+    PODVector<PODVector<Vector2> > decomp = Geometry::decompose_polygon_in_convex(convex->get_points());
     if (decomp.size() > 1) {
         Array sub_shapes;
-        for (int i = 0; i < decomp.size(); i++) {
+        for (size_t i = 0; i < decomp.size(); i++) {
             Ref<ConvexPolygonShape2D> _convex(make_ref_counted<ConvexPolygonShape2D>());
             _convex->set_points(decomp[i]);
             sub_shapes.append(_convex);

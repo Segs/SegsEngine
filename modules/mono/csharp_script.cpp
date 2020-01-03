@@ -541,10 +541,10 @@ String CSharpLanguage::debug_get_stack_level_source(int p_level) const {
 	return String();
 }
 
-Vector<ScriptLanguage::StackInfo> CSharpLanguage::debug_get_current_stack_info() {
+PODVector<ScriptLanguage::StackInfo> CSharpLanguage::debug_get_current_stack_info() {
 
 #ifdef DEBUG_ENABLED
-	_TLS_RECURSION_GUARD_V_(Vector<StackInfo>());
+        _TLS_RECURSION_GUARD_V_(PODVector<StackInfo>());
 
 	if (!gdmono->is_runtime_initialized() || !GDMono::get_singleton()->get_core_api_assembly() || !GDMonoCache::cached_data.corlib_cache_updated)
 		return Vector<StackInfo>();
@@ -556,7 +556,7 @@ Vector<ScriptLanguage::StackInfo> CSharpLanguage::debug_get_current_stack_info()
 
 	CACHED_METHOD(System_Diagnostics_StackTrace, ctor_bool)->invoke_raw(stack_trace, ctor_args);
 
-	Vector<StackInfo> si;
+        PODVector<StackInfo> si;
 	si = stack_trace_get_info(stack_trace);
 
 	return si;

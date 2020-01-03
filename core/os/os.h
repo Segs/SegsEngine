@@ -484,7 +484,7 @@ public:
 
     virtual bool can_use_threads() const;
 
-    virtual Error dialog_show(String p_title, String p_description, Vector<String> p_buttons, Object *p_obj, const StringName &p_callback);
+    virtual Error dialog_show(String p_title, String p_description, const PODVector<String> p_buttons, Object *p_obj, const StringName &p_callback);
     virtual Error dialog_input_text(const String &p_title, const String &p_description, const String &p_partial, Object *p_obj, const StringName &p_callback);
 
     enum LatinKeyboardVariant {

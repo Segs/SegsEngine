@@ -327,7 +327,7 @@ void EditorExportPlatformOSX::_fix_plist(const Ref<EditorExportPreset> &p_preset
 
     se_string strnew;
     se_string str((const char *)plist.ptr(), plist.size());
-    Vector<se_string_view> lines = StringUtils::split(str,'\n');
+    PODVector<se_string_view> lines = StringUtils::split(str,'\n');
     const std::pair<const char*,se_string> replacements[] = {
         {"$binary", se_string(p_binary)},
         {"$name", se_string(p_binary)},
