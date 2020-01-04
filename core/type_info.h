@@ -197,6 +197,14 @@ struct GetTypeInfo<Span<const int>> {
         return PropertyInfo(VARIANT_TYPE, StringName());
     }
 };
+template <>
+struct GetTypeInfo<Span<const float>> {
+    constexpr static const VariantType VARIANT_TYPE = VariantType::POOL_REAL_ARRAY;
+    constexpr static const GodotTypeInfo::Metadata METADATA = GodotTypeInfo::METADATA_NONE;
+    static inline PropertyInfo get_class_info() {
+        return PropertyInfo(VARIANT_TYPE, StringName());
+    }
+};
 
 MAKE_GENERIC_SPAN_INFO(Plane)
 MAKE_GENERIC_SPAN_INFO(Vector2)

@@ -344,8 +344,8 @@ private:
     EditorQuickOpen *quick_run;
 
     HBoxContainer *main_editor_button_vb;
-    Vector<ToolButton *> main_editor_buttons;
-    Vector<EditorPlugin *> editor_table;
+    PODVector<ToolButton *> main_editor_buttons;
+    PODVector<EditorPlugin *> editor_table;
 
     AudioStreamPreviewGenerator *preview_gen;
     ProgressDialog *progress_dialog;
@@ -400,7 +400,7 @@ private:
     uint64_t update_spinner_step_frame;
     int update_spinner_step;
 
-    Vector<EditorPlugin *> editor_plugins;
+    PODVector<EditorPlugin *> editor_plugins;
     EditorPlugin *editor_plugin_screen;
     EditorPluginList *editor_plugins_over;
     EditorPluginList *editor_plugins_force_over;
@@ -422,7 +422,7 @@ private:
         ToolButton *button;
     };
 
-    Vector<BottomPanelItem> bottom_panel_items;
+    PODVector<BottomPanelItem> bottom_panel_items;
 
     PanelContainer *bottom_panel;
     HBoxContainer *bottom_panel_hb;
@@ -464,7 +464,7 @@ private:
     void _on_plugin_ready(Object *p_script, const StringName &p_activate_name);
 
     void _fs_changed();
-    void _resources_reimported(const Vector<se_string> &p_resources);
+    void _resources_reimported(const PODVector<se_string> &p_resources);
     void _sources_changed(bool p_exist);
 
     void _node_renamed();
@@ -492,7 +492,7 @@ private:
     void _instance_request(const Vector<se_string> &p_files);
 
     void _display_top_editors(bool p_display);
-    void _set_top_editors(const Vector<EditorPlugin *>& p_editor_plugins_over);
+    void _set_top_editors(PODVector<EditorPlugin *> &&p_editor_plugins_over);
     void _set_editing_top_editors(Object *p_current_object);
 
     void _quick_opened();
@@ -563,12 +563,20 @@ private:
         se_string password;
 
     } export_defer;
-
-    bool disable_progress_dialog;
+    enum {
+        MAX_INIT_CALLBACKS = 128,
+        MAX_BUILD_CALLBACKS = 128
+    };
 
     static EditorNode *singleton;
-
-    static Vector<EditorNodeInitCallback> _init_callbacks;
+    static PODVector<EditorNodeInitCallback> _init_callbacks;
+    static int plugin_init_callback_count;
+    static EditorPluginInitializeCallback plugin_init_callbacks[MAX_INIT_CALLBACKS];
+    static int build_callback_count;
+    static EditorBuildCallback build_callbacks[MAX_BUILD_CALLBACKS];
+    bool disable_progress_dialog;
+    bool restoring_scenes;
+    PODVector<Ref<EditorResourceConversionPlugin> > resource_conversion_plugins;
 
     bool _find_scene_in_use(Node *p_node, se_string_view p_path) const;
 
@@ -600,7 +608,7 @@ private:
     void _update_dock_slots_visibility();
     void _dock_tab_changed(int p_tab);
 
-    bool restoring_scenes;
+
     void _save_open_scenes_to_config(Ref<ConfigFile> p_layout, se_string_view p_section);
     void _load_open_scenes_from_config(Ref<ConfigFile> p_layout, se_string_view p_section);
 
@@ -615,26 +623,17 @@ private:
 
     void _toggle_distraction_free_mode();
 
-    enum {
-        MAX_INIT_CALLBACKS = 128,
-        MAX_BUILD_CALLBACKS = 128
-    };
 
     void _inherit_imported(se_string_view p_action);
     void _open_imported();
 
-    static int plugin_init_callback_count;
-    static EditorPluginInitializeCallback plugin_init_callbacks[MAX_INIT_CALLBACKS];
     void _save_default_environment();
 
-    static int build_callback_count;
-    static EditorBuildCallback build_callbacks[MAX_BUILD_CALLBACKS];
 
     void _license_tree_selected();
 
     void _update_update_spinner();
 
-    Vector<Ref<EditorResourceConversionPlugin> > resource_conversion_plugins;
 
     PrintHandlerList print_handler;
     static void _print_handler(void *p_this, const se_string &p_string, bool p_error);
@@ -883,14 +882,14 @@ struct EditorProgress {
 
 class EditorPluginList : public Object {
 private:
-    Vector<EditorPlugin *> plugins_list;
+    PODVector<EditorPlugin *> plugins_list;
 
 public:
-    void set_plugins_list(const Vector<EditorPlugin *>& p_plugins_list) {
-        plugins_list = p_plugins_list;
+    void set_plugins_list(PODVector<EditorPlugin *> && p_plugins_list) {
+        plugins_list = eastl::move(p_plugins_list);
     }
 
-    Vector<EditorPlugin *> &get_plugins_list() {
+    PODVector<EditorPlugin *> &get_plugins_list() {
         return plugins_list;
     }
 

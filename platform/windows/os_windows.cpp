@@ -3274,9 +3274,8 @@ OS_Windows::OS_Windows(HINSTANCE _hInstance) {
     AudioDriverManager::add_driver(&driver_xaudio2);
 #endif
 
-    Vector<Logger *> loggers;
-    loggers.push_back(memnew(WindowsTerminalLogger));
-    _set_logger(memnew(CompositeLogger(loggers)));
+    PODVector<Logger *> loggers { memnew(WindowsTerminalLogger) };
+    _set_logger(memnew_args(CompositeLogger,eastl::move(loggers)));
 }
 
 OS_Windows::~OS_Windows() {

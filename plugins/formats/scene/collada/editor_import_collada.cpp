@@ -918,20 +918,20 @@ Error ColladaImport::_create_mesh_surfaces(bool p_optimize, Ref<ArrayMesh> &p_me
                 }
 
                 if (has_weights) {
-                    Vector<float> weights;
-                    Vector<int> bones;
+                    PODVector<float> weights;
+                    PODVector<int> bones;
                     weights.resize(VS::ARRAY_WEIGHTS_SIZE);
                     bones.resize(VS::ARRAY_WEIGHTS_SIZE);
                     //float sum=0.0;
                     for (int l = 0; l < VS::ARRAY_WEIGHTS_SIZE; l++) {
                         if (l < vertex_array[k].weights.size()) {
-                            weights.write[l] = vertex_array[k].weights[l].weight;
-                            bones.write[l] = vertex_array[k].weights[l].bone_idx;
+                            weights[l] = vertex_array[k].weights[l].weight;
+                            bones[l] = vertex_array[k].weights[l].bone_idx;
                             //sum += vertex_array[k].weights[l].weight;
                         } else {
 
-                            weights.write[l] = 0;
-                            bones.write[l] = 0;
+                            weights[l] = 0;
+                            bones[l] = 0;
                         }
                     }
 

@@ -763,9 +763,8 @@ OS::OS() {
 
     has_server_feature_callback = nullptr;
 
-    Vector<Logger *> loggers;
-    loggers.push_back(memnew(StdLogger));
-    _set_logger(memnew(CompositeLogger(loggers)));
+    PODVector<Logger *> loggers { memnew(StdLogger) };
+    _set_logger(memnew_args(CompositeLogger,eastl::move(loggers)));
 }
 
 OS::~OS() {

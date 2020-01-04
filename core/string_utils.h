@@ -41,8 +41,6 @@ enum Compare {
 [[nodiscard]] GODOT_EXPORT se_string md5(const uint8_t *p_md5);
 [[nodiscard]] GODOT_EXPORT se_string hex_encode_buffer(const uint8_t *p_buffer, int p_len);
 
-//[[nodiscard]] GODOT_EXPORT float similarity(const String &lhs,const String &p_string);
-//[[nodiscard]] GODOT_EXPORT Vector<String> bigrams(const String &str);
 [[nodiscard]] GODOT_EXPORT float similarity(se_string_view lhs,se_string_view p_string);
 [[nodiscard]] GODOT_EXPORT PODVector<se_string_view> bigrams(se_string_view str);
 [[nodiscard]] GODOT_EXPORT int compare(const String &lhs,const String &rhs,Compare case_sensitive=CaseSensitive);
@@ -146,7 +144,7 @@ static inline uint32_t hash(const CharType *p_cstr) {
     return hash_djb2((const uint16_t *)p_cstr);
 }
 static inline uint32_t hash(const char *p_cstr, int p_len) {
-    return eastl::hash<se_string_view>()(se_string_view(p_cstr,p_len));
+    return uint32_t(eastl::hash<se_string_view>()(se_string_view(p_cstr,p_len)));
 }
 static inline uint32_t hash(const char *p_cstr) {
     return eastl::hash<se_string_view>()(se_string_view(p_cstr));

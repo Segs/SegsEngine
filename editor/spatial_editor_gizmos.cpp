@@ -1675,17 +1675,15 @@ void SkeletonSpatialGizmoPlugin::redraw(EditorSpatialGizmo *p_gizmo) {
     Vector<Transform> grests;
     grests.resize(skel->get_bone_count());
 
-    Vector<int> bones;
-    Vector<float> weights;
-    bones.resize(4);
-    weights.resize(4);
+    int bones[4];
+    float weights[4];
 
     for (int i = 0; i < 4; i++) {
-        bones.write[i] = 0;
-        weights.write[i] = 0;
+        bones[i] = 0;
+        weights[i] = 0;
     }
 
-    weights.write[0] = 1;
+    weights[0] = 1;
 
     Color bonecolor = Color(1.0, 0.4f, 0.4f, 0.3f);
     Color rootcolor = Color(0.4f, 1.0, 0.4f, 0.1f);
@@ -1720,7 +1718,7 @@ void SkeletonSpatialGizmoPlugin::redraw(EditorSpatialGizmo *p_gizmo) {
             int pointidx = 0;
             for (int j = 0; j < 3; j++) {
 
-                bones.write[0] = parent;
+                bones[0] = parent;
                 surface_tool->add_bones(bones);
                 surface_tool->add_weights(weights);
                 surface_tool->add_color(rootcolor);
@@ -1748,7 +1746,7 @@ void SkeletonSpatialGizmoPlugin::redraw(EditorSpatialGizmo *p_gizmo) {
                     Vector3 point = v0 + d * dist * 0.2f;
                     point += axis * dist * 0.1f;
 
-                    bones.write[0] = parent;
+                    bones[0] = parent;
                     surface_tool->add_bones(bones);
                     surface_tool->add_weights(weights);
                     surface_tool->add_color(bonecolor);
@@ -1759,13 +1757,13 @@ void SkeletonSpatialGizmoPlugin::redraw(EditorSpatialGizmo *p_gizmo) {
                     surface_tool->add_color(bonecolor);
                     surface_tool->add_vertex(point);
 
-                    bones.write[0] = parent;
+                    bones[0] = parent;
                     surface_tool->add_bones(bones);
                     surface_tool->add_weights(weights);
                     surface_tool->add_color(bonecolor);
                     surface_tool->add_vertex(point);
 
-                    bones.write[0] = i;
+                    bones[0] = i;
                     surface_tool->add_bones(bones);
                     surface_tool->add_weights(weights);
                     surface_tool->add_color(bonecolor);
@@ -1777,7 +1775,7 @@ void SkeletonSpatialGizmoPlugin::redraw(EditorSpatialGizmo *p_gizmo) {
             SWAP(points[1], points[2]);
             for (int j = 0; j < 4; j++) {
 
-                bones.write[0] = parent;
+                bones[0] = parent;
                 surface_tool->add_bones(bones);
                 surface_tool->add_weights(weights);
                 surface_tool->add_color(bonecolor);
@@ -1803,7 +1801,7 @@ void SkeletonSpatialGizmoPlugin::redraw(EditorSpatialGizmo *p_gizmo) {
         } else {
 
             grests.write[i] = skel->get_bone_rest(i);
-            bones.write[0] = i;
+            bones[0] = i;
         }
         /*
         Transform  t = grests[i];

@@ -2171,7 +2171,7 @@ bool Expression::_execute(const Array &p_inputs, Object *p_instance, Expression:
     return false;
 }
 
-Error Expression::parse(se_string_view p_expression, const Vector<se_string> &p_input_names) {
+Error Expression::parse(se_string_view p_expression, const PODVector<se_string> &p_input_names) {
 
     if (nodes) {
         memdelete(nodes);

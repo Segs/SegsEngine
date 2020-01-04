@@ -93,7 +93,7 @@ private:
     HashMap<NodePath, PathSentCache> path_send_cache;
     Map<int, PathGetCache> path_get_cache;
     int last_send_cache_id;
-    Vector<uint8_t> packet_cache;
+    PODVector<uint8_t> packet_cache;
     Node *root_node;
     bool allow_object_decoding = false;
 

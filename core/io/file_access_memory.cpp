@@ -34,12 +34,12 @@
 
 #include "core/project_settings.h"
 
-static Map<se_string, Vector<uint8_t> > *files = nullptr;
+static Map<se_string, PODVector<uint8_t> > *files = nullptr;
 
-void FileAccessMemory::register_file(se_string_view p_name, const Vector<uint8_t>& p_data) {
+void FileAccessMemory::register_file(se_string_view p_name, const PODVector<uint8_t>& p_data) {
 
     if (!files) {
-        files = memnew((Map<se_string, Vector<uint8_t> >));
+        files = memnew((Map<se_string, PODVector<uint8_t> >));
     }
 
     se_string name;
@@ -88,10 +88,10 @@ Error FileAccessMemory::_open(se_string_view p_path, int p_mode_flags) {
     se_string name = fix_path(p_path);
     //name = DirAccess::normalize_path(name);
 
-    Map<se_string, Vector<uint8_t> >::iterator E = files->find(name);
+    Map<se_string, PODVector<uint8_t> >::iterator E = files->find(name);
     ERR_FAIL_COND_V_MSG(E==files->end(), ERR_FILE_NOT_FOUND, "Can't find file '" + se_string(p_path) + "'.")
 
-    data = E->second.ptrw();
+    data = E->second.data();
     length = E->second.size();
     pos = 0;
 

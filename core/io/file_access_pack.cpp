@@ -36,16 +36,16 @@
 
 Error PackedData::add_pack(se_string_view p_path, bool p_replace_files) {
 
-    for (int i = 0; i < sources.size(); i++) {
+    for (auto & source : sources) {
 
-        if (sources[i]->try_open_pack(p_path, p_replace_files)) {
+        if (source->try_open_pack(p_path, p_replace_files)) {
 
             return OK;
         }
     }
 
     return ERR_FILE_UNRECOGNIZED;
-};
+}
 
 void PackedData::add_path(se_string_view pkg_path, se_string_view path, uint64_t ofs, uint64_t size, const uint8_t *p_md5, PackSourceInterface *p_src, bool p_replace_files) {
 

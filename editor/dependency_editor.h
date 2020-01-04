@@ -150,7 +150,7 @@ private:
     void custom_action(se_string_view) override;
 
 public:
-    void show(Mode p_mode, se_string_view p_for_file, const Vector<se_string> &report);
+    void show(Mode p_mode, se_string_view p_for_file, const PODVector<se_string> &report);
     DependencyErrorDialog();
 };
 

@@ -293,7 +293,7 @@ public:
     Ref<VisualScriptNode> get_node(const StringName &p_func, int p_id) const;
     void set_node_position(const StringName &p_func, int p_id, const Point2 &p_pos);
     Point2 get_node_position(const StringName &p_func, int p_id) const;
-    void get_node_list(const StringName &p_func, List<int> *r_nodes) const;
+    void get_node_list(const StringName &p_func, PODVector<int> *r_nodes) const;
 
     void sequence_connect(const StringName &p_func, int p_from_node, int p_from_output, int p_to_node);
     void sequence_disconnect(const StringName &p_func, int p_from_node, int p_from_output, int p_to_node);

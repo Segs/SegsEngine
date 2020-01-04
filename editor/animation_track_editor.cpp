@@ -3256,14 +3256,14 @@ AnimationTrackEditGroup::AnimationTrackEditGroup() {
 
 void AnimationTrackEditor::add_track_edit_plugin(const Ref<AnimationTrackEditPlugin> &p_plugin) {
 
-    if (track_edit_plugins.find(p_plugin) != -1)
+    if ( track_edit_plugins.contains(p_plugin) )
         return;
     track_edit_plugins.push_back(p_plugin);
 }
 
 void AnimationTrackEditor::remove_track_edit_plugin(const Ref<AnimationTrackEditPlugin> &p_plugin) {
 
-    track_edit_plugins.erase(p_plugin);
+    track_edit_plugins.erase_first(p_plugin);
 }
 
 void AnimationTrackEditor::set_animation(const Ref<Animation> &p_anim) {
@@ -4175,7 +4175,7 @@ void AnimationTrackEditor::_update_tracks() {
                     }
 
                     for (int j = 0; j < track_edit_plugins.size(); j++) {
-                        track_edit = track_edit_plugins.write[j]->create_value_track_edit(object, pinfo.type, pinfo.name, pinfo.hint, pinfo.hint_string, pinfo.usage);
+                        track_edit = track_edit_plugins[j]->create_value_track_edit(object, pinfo.type, pinfo.name, pinfo.hint, pinfo.hint_string, pinfo.usage);
                         if (track_edit) {
                             break;
                         }
@@ -4186,7 +4186,7 @@ void AnimationTrackEditor::_update_tracks() {
         if (animation->track_get_type(i) == Animation::TYPE_AUDIO) {
 
             for (int j = 0; j < track_edit_plugins.size(); j++) {
-                track_edit = track_edit_plugins.write[j]->create_audio_track_edit();
+                track_edit = track_edit_plugins[j]->create_audio_track_edit();
                 if (track_edit) {
                     break;
                 }
@@ -4203,7 +4203,7 @@ void AnimationTrackEditor::_update_tracks() {
 
             if (node && object_cast<AnimationPlayer>(node)) {
                 for (int j = 0; j < track_edit_plugins.size(); j++) {
-                    track_edit = track_edit_plugins.write[j]->create_animation_track_edit(node);
+                    track_edit = track_edit_plugins[j]->create_animation_track_edit(node);
                     if (track_edit) {
                         break;
                     }
@@ -5369,14 +5369,15 @@ void AnimationTrackEditor::_edit_menu_pressed(int p_option) {
                         }
                         tc.loop_wrap = animation->track_get_interpolation_loop_wrap(idx);
                         tc.enabled = animation->track_is_enabled(idx);
+                        tc.keys.reserve(animation->track_get_key_count(idx));
                         for (int i = 0; i < animation->track_get_key_count(idx); i++) {
                             TrackClipboard::Key k;
                             k.time = animation->track_get_key_time(idx, i);
                             k.value = animation->track_get_key_value(idx, i);
                             k.transition = animation->track_get_key_transition(idx, i);
-                            tc.keys.push_back(k);
+                            tc.keys.emplace_back(k);
                         }
-                        track_clipboard.push_back(tc);
+                        track_clipboard.emplace_back(eastl::move(tc));
                     }
                     it = it->get_next();
                 }

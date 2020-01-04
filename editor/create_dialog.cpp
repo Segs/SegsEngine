@@ -432,7 +432,7 @@ void CreateDialog::_update_search() {
         to_select->select(0);
         search_options->scroll_to_item(to_select);
         favorite->set_disabled(false);
-        favorite->set_pressed(favorite_list.find(to_select->get_text(0)) != -1);
+        favorite->set_pressed(favorite_list.contains(to_select->get_text(0)));
     }
 
     get_ok()->set_disabled(root->get_children() == nullptr);
@@ -566,7 +566,7 @@ void CreateDialog::_item_selected() {
     StringName name(item->get_text(0));
 
     favorite->set_disabled(false);
-    favorite->set_pressed(favorite_list.find(se_string(name)) != -1);
+    favorite->set_pressed(favorite_list.contains(se_string(name)));
 
     if (!EditorHelp::get_doc_data()->class_list.contains(name)) return;
 
@@ -582,11 +582,11 @@ void CreateDialog::_favorite_toggled() {
 
     se_string name = item->get_text(0);
 
-    if (favorite_list.find(name) == -1) {
+    if (!favorite_list.contains(name)) {
         favorite_list.push_back(name);
         favorite->set_pressed(true);
     } else {
-        favorite_list.erase(name);
+        favorite_list.erase_first(name);
         favorite->set_pressed(false);
     }
 
@@ -697,13 +697,15 @@ void CreateDialog::drop_data_fw(const Point2 &p_point, const Variant &p_data, Co
     se_string drop_at = ti->get_text(0);
     int ds = favorites->get_drop_section_at_position(p_point);
 
-    int drop_idx = favorite_list.find(drop_at);
-    if (drop_idx < 0) return;
+    auto drop_idx = favorite_list.index_of(drop_at);
+    if (drop_idx >= favorite_list.size())
+        return;
 
     se_string type = d["class"];
 
-    int from_idx = favorite_list.find(type);
-    if (from_idx < 0) return;
+    auto from_idx = favorite_list.index_of(type);
+    if (from_idx >= favorite_list.size())
+        return;
 
     if (drop_idx == from_idx) {
         ds = -1; // cause it will be gone
@@ -711,15 +713,15 @@ void CreateDialog::drop_data_fw(const Point2 &p_point, const Variant &p_data, Co
         drop_idx--;
     }
 
-    favorite_list.remove(from_idx);
+    favorite_list.erase_at(from_idx);
 
     if (ds < 0) {
-        favorite_list.insert(drop_idx, type);
+        favorite_list.insert_at(drop_idx, type);
     } else {
         if (drop_idx >= favorite_list.size() - 1) {
             favorite_list.push_back(type);
         } else {
-            favorite_list.insert(drop_idx + 1, type);
+            favorite_list.insert_at(drop_idx + 1, type);
         }
     }
 

@@ -210,7 +210,7 @@ void Particles::set_draw_pass_mesh(int p_pass, const Ref<Mesh> &p_mesh) {
 
     ERR_FAIL_INDEX(p_pass, draw_passes.size());
 
-    draw_passes.write[p_pass] = p_mesh;
+    draw_passes[p_pass] = p_mesh;
 
     RID mesh_rid;
     if (p_mesh)
@@ -253,16 +253,17 @@ StringName Particles::get_configuration_warning() const {
     bool meshes_found = false;
     bool anim_material_found = false;
 
-    for (int i = 0; i < draw_passes.size(); i++) {
-        if (draw_passes[i]) {
-            meshes_found = true;
-            for (int j = 0; j < draw_passes[i]->get_surface_count(); j++) {
-                anim_material_found = object_cast<ShaderMaterial>(draw_passes[i]->surface_get_material(j).get()) != nullptr;
-                SpatialMaterial *spat = object_cast<SpatialMaterial>(draw_passes[i]->surface_get_material(j).get());
-                anim_material_found = anim_material_found || (spat && spat->get_billboard_mode() == SpatialMaterial::BILLBOARD_PARTICLES);
-            }
-            if (anim_material_found) break;
+    for (const Ref<Mesh> & pass : draw_passes) {
+        if (!pass)
+            continue;
+        Mesh *m = pass.get();
+        meshes_found = true;
+        for (int j = 0; j < m->get_surface_count(); j++) {
+            anim_material_found = object_cast<ShaderMaterial>(m->surface_get_material(j).get()) != nullptr;
+            SpatialMaterial *spat = object_cast<SpatialMaterial>(m->surface_get_material(j).get());
+            anim_material_found = anim_material_found || (spat && spat->get_billboard_mode() == SpatialMaterial::BILLBOARD_PARTICLES);
         }
+        if (anim_material_found) break;
     }
 
     anim_material_found = anim_material_found || object_cast<ShaderMaterial>(get_material_override().get()) != nullptr;

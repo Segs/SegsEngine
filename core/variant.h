@@ -506,6 +506,7 @@ template <> GODOT_EXPORT PODVector<Plane> Variant::asVector<Plane>() const;
 // All `as` overloads returing a Span are restricted to no-conversion/no-allocation cases.
 template <> GODOT_EXPORT Span<const uint8_t> Variant::as<Span<const uint8_t>>() const;
 template <> GODOT_EXPORT Span<const int> Variant::as<Span<const int>>() const;
+template <> GODOT_EXPORT Span<const float> Variant::as<Span<const float>>() const;
 template <> GODOT_EXPORT Span<const Vector2> Variant::as<Span<const Vector2>>() const;
 template <> GODOT_EXPORT Span<const Vector3> Variant::as<Span<const Vector3>>() const;
 

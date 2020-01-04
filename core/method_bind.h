@@ -157,7 +157,7 @@ struct ArgumentWrapper {
     Result doit() const {
         if(IDX>=p_arg_count)
         {
-            int def_idx = default_args.size() - IDX - 1;
+            size_t def_idx = default_args.size() - IDX - 1;
             if (def_idx < 0 || def_idx >= default_args.size())
                 return &Variant::null_variant;
             else

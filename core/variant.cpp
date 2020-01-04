@@ -1872,6 +1872,13 @@ Span<const int> Variant::as<Span<const int>>() const {
     return Span<const int>(tmp->read().ptr(),tmp->size());
 }
 template<>
+Span<const float> Variant::as<Span<const float>>() const {
+    ERR_FAIL_COND_V(type != VariantType::POOL_REAL_ARRAY, Span<const float>())
+
+    auto tmp = reinterpret_cast<const PoolVector<float> *>(_data._mem);
+    return Span<const float>(tmp->read().ptr(), tmp->size());
+}
+template<>
 Span<const Vector2> Variant::as<Span<const Vector2>>() const {
     ERR_FAIL_COND_V(type != VariantType::POOL_VECTOR2_ARRAY, Span<const Vector2>())
 

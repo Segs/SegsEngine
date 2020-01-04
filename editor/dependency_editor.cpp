@@ -599,7 +599,7 @@ DependencyRemoveDialog::DependencyRemoveDialog() {
 
 //////////////
 
-void DependencyErrorDialog::show(Mode p_mode, se_string_view p_for_file, const Vector<se_string> &report) {
+void DependencyErrorDialog::show(Mode p_mode, se_string_view p_for_file, const PODVector<se_string> &report) {
 
     mode = p_mode;
     for_file = p_for_file;

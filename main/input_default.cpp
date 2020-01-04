@@ -1055,7 +1055,7 @@ void InputDefault::add_joy_mapping(se_string_view p_mapping, bool p_update_exist
     parse_mapping(p_mapping);
     if (!p_update_existing)
         return;
-    assert(StringUtils::get_slice(p_mapping,',')>0);
+    assert(StringUtils::get_slice_count(p_mapping,',')>0);
     StringName uid(StringUtils::get_slice(p_mapping,',',0));
 
     for (eastl::pair<const int, Joypad> & e : joy_names) {

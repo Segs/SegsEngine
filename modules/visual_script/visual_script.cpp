@@ -439,7 +439,7 @@ Point2 VisualScript::get_node_position(const StringName &p_func, int p_id) const
     return func.nodes.at(p_id).pos;
 }
 
-void VisualScript::get_node_list(const StringName &p_func, List<int> *r_nodes) const {
+void VisualScript::get_node_list(const StringName &p_func, PODVector<int> *r_nodes) const {
 
     ERR_FAIL_COND(!functions.contains(p_func))
     const Function &func = functions.at(p_func);

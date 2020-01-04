@@ -125,9 +125,9 @@ CommandQueueMT::~CommandQueueMT() {
     if (sync)
         memdelete(sync);
     memdelete(mutex);
-    for (int i = 0; i < SYNC_SEMAPHORES; i++) {
+    for (auto & sync_sem : sync_sems) {
 
-        memdelete(sync_sems[i].sem);
+        memdelete(sync_sem.sem);
     }
     memfree(command_mem);
 }

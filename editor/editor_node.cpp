@@ -610,7 +610,7 @@ void EditorNode::_fs_changed() {
     }
 }
 
-void EditorNode::_resources_reimported(const Vector<se_string> &p_resources) {
+void EditorNode::_resources_reimported(const PODVector<se_string> &p_resources) {
 
     List<se_string> scenes; // will load later
     int current_tab = scene_tabs->get_current_tab();
@@ -709,7 +709,7 @@ Error EditorNode::load_resource(se_string_view p_resource, bool p_ignore_broken_
     if (dependency_errors.end() != iter) {
 
         // current_option = -1;
-        Vector<se_string> errors;
+        PODVector<se_string> errors;
         for (const se_string &E : iter->second) {
 
             errors.push_back(E);
@@ -1615,7 +1615,7 @@ bool EditorNode::_is_class_editor_disabled_by_feature_profile(const StringName &
 
 void EditorNode::edit_item(Object *p_object) {
 
-    Vector<EditorPlugin *> sub_plugins;
+    PODVector<EditorPlugin *> sub_plugins;
 
     if (p_object) {
         if (_is_class_editor_disabled_by_feature_profile(p_object->get_class_name())) {
@@ -1624,27 +1624,26 @@ void EditorNode::edit_item(Object *p_object) {
         sub_plugins = editor_data.get_subeditors(p_object);
     }
 
-    if (!sub_plugins.empty()) {
-
-        bool same = true;
-        if (sub_plugins.size() == editor_plugins_over->get_plugins_list().size()) {
-            for (int i = 0; i < sub_plugins.size(); i++) {
-                if (sub_plugins[i] != editor_plugins_over->get_plugins_list()[i]) {
-                    same = false;
-                }
-            }
-        } else {
-            same = false;
-        }
-        if (!same) {
-            _display_top_editors(false);
-            _set_top_editors(sub_plugins);
-        }
-        _set_editing_top_editors(p_object);
-        _display_top_editors(true);
-    } else {
+    if (sub_plugins.empty()) {
         hide_top_editors();
+        return;
     }
+    bool same = true;
+    if (sub_plugins.size() == editor_plugins_over->get_plugins_list().size()) {
+        for (int i = 0; i < sub_plugins.size(); i++) {
+            if (sub_plugins[i] != editor_plugins_over->get_plugins_list()[i]) {
+                same = false;
+            }
+        }
+    } else {
+        same = false;
+    }
+    if (!same) {
+        _display_top_editors(false);
+        _set_top_editors(eastl::move(sub_plugins));
+    }
+    _set_editing_top_editors(p_object);
+    _display_top_editors(true);
 }
 
 void EditorNode::push_item(Object *p_object, se_string_view p_property, bool p_inspector_only) {
@@ -1693,8 +1692,8 @@ void EditorNode::_display_top_editors(bool p_display) {
     editor_plugins_over->make_visible(p_display);
 }
 
-void EditorNode::_set_top_editors(const Vector<EditorPlugin *> &p_editor_plugins_over) {
-    editor_plugins_over->set_plugins_list(p_editor_plugins_over);
+void EditorNode::_set_top_editors(PODVector<EditorPlugin *> &&p_editor_plugins_over) {
+    editor_plugins_over->set_plugins_list(eastl::move(p_editor_plugins_over));
 }
 
 void EditorNode::_set_editing_top_editors(Object *p_current_object) {
@@ -1890,7 +1889,7 @@ void EditorNode::_edit_current() {
             }
         }
 
-        Vector<EditorPlugin *> sub_plugins;
+        PODVector<EditorPlugin *> sub_plugins;
 
         if (!_is_class_editor_disabled_by_feature_profile(current_obj->get_class_name())) {
             sub_plugins = editor_data.get_subeditors(current_obj);
@@ -1899,7 +1898,7 @@ void EditorNode::_edit_current() {
         if (!sub_plugins.empty()) {
             _display_top_editors(false);
 
-            _set_top_editors(sub_plugins);
+            _set_top_editors(eastl::move(sub_plugins));
             _set_editing_top_editors(current_obj);
             _display_top_editors(true);
         } else if (!editor_plugins_over->get_plugins_list().empty()) {
@@ -2971,18 +2970,18 @@ void EditorNode::remove_editor_plugin(EditorPlugin *p_editor, bool p_config_chan
                 }
 
                 memdelete(singleton->main_editor_buttons[i]);
-                singleton->main_editor_buttons.remove(i);
+                singleton->main_editor_buttons.erase_at(i);
 
                 break;
             }
         }
 
-        singleton->editor_table.erase(p_editor);
+        singleton->editor_table.erase_first(p_editor);
     }
     p_editor->make_visible(false);
     p_editor->clear();
     if (p_config_changed) p_editor->disable_plugin();
-    singleton->editor_plugins_over->get_plugins_list().erase(p_editor);
+    singleton->editor_plugins_over->get_plugins_list().erase_first(p_editor);
     singleton->remove_child(p_editor);
     singleton->editor_data.remove_editor_plugin(p_editor);
     singleton->get_editor_plugins_force_input_forwarding()->remove_plugin(p_editor);
@@ -3371,7 +3370,7 @@ Error EditorNode::load_scene(se_string_view p_scene, bool p_ignore_broken_deps, 
     if (!p_ignore_broken_deps && dependency_errors.contains(lpath)) {
 
         current_option = -1;
-        Vector<se_string> errors;
+        PODVector<se_string> errors;
         for (const se_string &E : dependency_errors[lpath]) {
 
             errors.emplace_back(E);
@@ -4206,7 +4205,7 @@ void EditorNode::_editor_file_dialog_unregister(EditorFileDialog *p_dialog) {
     singleton->editor_file_dialogs.erase(p_dialog);
 }
 
-Vector<EditorNodeInitCallback> EditorNode::_init_callbacks;
+PODVector<EditorNodeInitCallback> EditorNode::_init_callbacks;
 
 Error EditorNode::export_preset(
         se_string_view p_preset, se_string_view p_path, bool p_debug, se_string_view p_password, bool p_quit_after) {
@@ -5069,7 +5068,7 @@ void EditorNode::raise_bottom_panel_item(Control *p_item) {
 
         if (bottom_panel_items[i].control == p_item) {
             bottom_panel_items[i].button->raise();
-            SWAP(bottom_panel_items.write[i], bottom_panel_items.write[bottom_panel_items.size() - 1]);
+            SWAP(bottom_panel_items[i], bottom_panel_items[bottom_panel_items.size() - 1]);
             break;
         }
     }
@@ -5091,7 +5090,7 @@ void EditorNode::remove_bottom_panel_item(Control *p_item) {
             bottom_panel_vb->remove_child(bottom_panel_items[i].control);
             bottom_panel_hb_editors->remove_child(bottom_panel_items[i].button);
             memdelete(bottom_panel_items[i].button);
-            bottom_panel_items.remove(i);
+            bottom_panel_items.erase_at(i);
             break;
         }
     }
@@ -5572,7 +5571,7 @@ void EditorNode::add_resource_conversion_plugin(const Ref<EditorResourceConversi
 }
 
 void EditorNode::remove_resource_conversion_plugin(const Ref<EditorResourceConversionPlugin> &p_plugin) {
-    resource_conversion_plugins.erase(p_plugin);
+    resource_conversion_plugins.erase_first(p_plugin);
 }
 
 Vector<Ref<EditorResourceConversionPlugin>> EditorNode::find_resource_conversion_plugin(
@@ -7302,7 +7301,7 @@ void EditorPluginList::add_plugin(EditorPlugin *p_plugin) {
 }
 
 void EditorPluginList::remove_plugin(EditorPlugin *p_plugin) {
-    plugins_list.erase(p_plugin);
+    plugins_list.erase_first(p_plugin);
 }
 
 bool EditorPluginList::empty() {

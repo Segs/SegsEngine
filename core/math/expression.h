@@ -322,7 +322,7 @@ private:
 
     struct BuiltinFuncNode : public ENode {
         BuiltinFunc func;
-        Vector<ENode *> arguments;
+        PODVector<ENode *> arguments;
         BuiltinFuncNode() {
             type = TYPE_BUILTIN_FUNC;
         }
@@ -339,7 +339,7 @@ private:
     ENode *root = nullptr;
     ENode *nodes = nullptr;
 
-    Vector<se_string> input_names;
+    PODVector<se_string> input_names;
 
     bool execution_error=false;
     bool _execute(const Array &p_inputs, Object *p_instance, Expression::ENode *p_node, Variant &r_ret, se_string &r_error_str);
@@ -348,7 +348,7 @@ protected:
     static void _bind_methods();
 
 public:
-    Error parse(se_string_view p_expression, const Vector<se_string> &p_input_names = {});
+    Error parse(se_string_view p_expression, const PODVector<se_string> &p_input_names = {});
     Variant execute(const Array& p_inputs, Object *p_base = nullptr, bool p_show_error = true);
     bool has_execute_failed() const;
     const se_string &get_error_text() const;
