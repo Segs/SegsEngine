@@ -156,9 +156,9 @@ void FileAccessNetworkClient::_thread_func() {
                 int64_t offset = get_64();
                 uint32_t len = get_32();
 
-                Vector<uint8_t> block;
+                PODVector<uint8_t> block; // TODO: replace with Temporary-allocated vector
                 block.resize(len);
-                client->get_data(block.ptrw(), len);
+                client->get_data(block.data(), len);
 
                 if (fa) //may have been queued
                     fa->_set_block(offset, block);
@@ -257,7 +257,7 @@ FileAccessNetworkClient::~FileAccessNetworkClient() {
     memdelete(sem);
 }
 
-void FileAccessNetwork::_set_block(int p_offset, const Vector<uint8_t> &p_block) {
+void FileAccessNetwork::_set_block(int p_offset, const PODVector<uint8_t> &p_block) {
 
     int page = p_offset / page_size;
     ERR_FAIL_INDEX(page, pages.size())
@@ -446,7 +446,7 @@ int FileAccessNetwork::get_buffer(uint8_t *p_dst, int p_length) const {
                 buffer_mutex->unlock();
             }
 
-            buff = pages.write[page].buffer.ptrw();
+            buff = pages.write[page].buffer.data();
             last_page_buff = buff;
             last_page = page;
         }

@@ -702,7 +702,7 @@ void EditorFileDialog::update_file_name() {
         se_string filter_str = filters[idx];
         se_string file_str = file->get_text();
         se_string base_name(PathUtils::get_basename(file_str));
-        Vector<se_string_view> filter_substr = StringUtils::split(filter_str,';');
+        PODVector<se_string_view> filter_substr = StringUtils::split(filter_str,';');
         if (filter_substr.size() >= 2) {
             file_str = base_name + "." + StringUtils::to_lower(StringUtils::strip_edges(filter_substr[1]));
         } else {
@@ -970,6 +970,8 @@ se_string EditorFileDialog::get_current_path() const {
 }
 void EditorFileDialog::set_current_dir(se_string_view p_dir) {
 
+    if (PathUtils::is_rel_path(p_dir))
+        dir_access->change_dir(OS::get_singleton()->get_resource_dir());
     dir_access->change_dir(p_dir);
     update_dir();
     invalidate();

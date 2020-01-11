@@ -111,7 +111,7 @@ class FileAccessNetwork : public FileAccess {
     struct Page {
         int activity;
         bool queued;
-        Vector<uint8_t> buffer;
+        PODVector<uint8_t> buffer;
         Page() {
             activity = 0;
             queued = false;
@@ -126,7 +126,7 @@ class FileAccessNetwork : public FileAccess {
     friend class FileAccessNetworkClient;
     void _queue_page(int p_page) const;
     void _respond(size_t p_len, Error p_status);
-    void _set_block(int p_offset, const Vector<uint8_t> &p_block);
+    void _set_block(int p_offset, const PODVector<uint8_t> &p_block);
 
 public:
     enum Command {

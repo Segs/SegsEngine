@@ -76,7 +76,7 @@ void PlaneShape::set_plane(Plane p_plane) {
     plane = p_plane;
     _update_shape();
     notify_change_to_owners();
-    _change_notify("plane");
+    Object_change_notify(this,"plane");
 }
 
 Plane PlaneShape::get_plane() const {

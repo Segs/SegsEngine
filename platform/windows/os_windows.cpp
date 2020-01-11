@@ -1052,7 +1052,7 @@ LRESULT OS_Windows::WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
 
             int fcount = DragQueryFileW(hDropInfo, 0xFFFFFFFF, nullptr, 0);
 
-            Vector<se_string> files;
+            PODVector<se_string> files;
 
             for (int i = 0; i < fcount; i++) {
 
@@ -3274,9 +3274,8 @@ OS_Windows::OS_Windows(HINSTANCE _hInstance) {
     AudioDriverManager::add_driver(&driver_xaudio2);
 #endif
 
-    Vector<Logger *> loggers;
-    loggers.push_back(memnew(WindowsTerminalLogger));
-    _set_logger(memnew(CompositeLogger(loggers)));
+    PODVector<Logger *> loggers { memnew(WindowsTerminalLogger) };
+    _set_logger(memnew_args(CompositeLogger,eastl::move(loggers)));
 }
 
 OS_Windows::~OS_Windows() {

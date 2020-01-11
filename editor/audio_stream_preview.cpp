@@ -153,8 +153,8 @@ void AudioStreamPreviewGenerator::_preview_thread(void *p_preview) {
             uint8_t pfrom = CLAMP((min * 0.5 + 0.5) * 255, 0, 255);
             uint8_t pto = CLAMP((max * 0.5 + 0.5) * 255, 0, 255);
 
-            preview->preview->preview.write[(ofs_write + i) * 2 + 0] = pfrom;
-            preview->preview->preview.write[(ofs_write + i) * 2 + 1] = pto;
+            preview->preview->preview[(ofs_write + i) * 2 + 0] = pfrom;
+            preview->preview->preview[(ofs_write + i) * 2 + 1] = pto;
         }
 
         frames_todo -= to_read;
@@ -190,15 +190,9 @@ Ref<AudioStreamPreview> AudioStreamPreviewGenerator::generate_preview(const Ref<
 
     int frames = AudioServer::get_singleton()->get_mix_rate() * len_s;
 
-    Vector<uint8_t> maxmin;
+    PODVector<uint8_t> maxmin;
     int pw = frames / 20;
-    maxmin.resize(pw * 2);
-    {
-        uint8_t *ptr = maxmin.ptrw();
-        for (int i = 0; i < pw * 2; i++) {
-            ptr[i] = 127;
-        }
-    }
+    maxmin.resize(pw * 2,127);
 
     preview->preview = make_ref_counted<AudioStreamPreview>();
     preview->preview->preview = maxmin;

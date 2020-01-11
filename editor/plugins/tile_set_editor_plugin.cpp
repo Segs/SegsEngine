@@ -33,6 +33,7 @@
 #include "core/method_bind.h"
 #include "core/os/input.h"
 #include "core/os/keyboard.h"
+#include "core/object_tooling.h"
 #include "core/string_formatter.h"
 #include "core/translation_helpers.h"
 #include "editor/editor_file_system.h"
@@ -42,6 +43,7 @@
 #include "scene/2d/sprite.h"
 #include "scene/gui/item_list.h"
 #include "scene/main/scene_tree.h"
+#include "scene/resources/font.h"
 #include "scene/resources/style_box.h"
 
 IMPL_GDCLASS(TileSetEditor)
@@ -51,7 +53,7 @@ IMPL_GDCLASS(TileSetEditorPlugin)
 void TileSetEditor::edit(const Ref<TileSet> &p_tileset) {
 
     tileset = p_tileset;
-    tileset->add_change_receptor(this);
+    Object_add_change_receptor(tileset.get(),this);
 
     texture_list->clear();
     texture_map.clear();
@@ -1813,7 +1815,7 @@ void TileSetEditor::_on_tool_clicked(int p_tool) {
             _update_toggle_shape_button();
             workspace->update();
             workspace_container->update();
-            helper->_change_notify("");
+            Object_change_notify(helper,"");
         }
     } else if (p_tool == SELECT_NEXT) {
         _select_next_shape();
@@ -2242,7 +2244,7 @@ void TileSetEditor::_select_next_shape() {
         }
         workspace->update();
         workspace_container->update();
-        helper->_change_notify("");
+        Object_change_notify(helper,"");
     }
 }
 
@@ -2304,7 +2306,7 @@ void TileSetEditor::_select_previous_shape() {
         }
         workspace->update();
         workspace_container->update();
-        helper->_change_notify("");
+        Object_change_notify(helper,"");
     }
 }
 
@@ -2957,7 +2959,7 @@ void TileSetEditor::close_shape(const Vector2 &shape_anchor) {
         undo_redo->add_undo_method(this, "_select_edited_shape_coord");
         undo_redo->commit_action();
     }
-    tileset->_change_notify("");
+    Object_change_notify(tileset.get());
 }
 
 void TileSetEditor::select_coord(const Vector2 &coord) {
@@ -3052,7 +3054,7 @@ void TileSetEditor::select_coord(const Vector2 &coord) {
     }
     workspace->update();
     workspace_container->update();
-    helper->_change_notify("");
+    Object_change_notify(helper,"");
 }
 
 Vector2 TileSetEditor::snap_point(const Vector2 &point) {
@@ -3141,7 +3143,7 @@ void TileSetEditor::update_texture_list() {
         workspace_overlay->update();
     }
     update_texture_list_icon();
-    helper->_change_notify("");
+    Object_change_notify(helper,"");
 }
 
 void TileSetEditor::update_texture_list_icon() {
@@ -3301,7 +3303,7 @@ int TileSetEditor::get_current_tile() const {
 void TileSetEditor::set_current_tile(int p_id) {
     if (current_tile != p_id) {
         current_tile = p_id;
-        helper->_change_notify("");
+        Object_change_notify(helper,"");
         select_coord(Vector2(0, 0));
         update_workspace_tile_mode();
         if (p_id == -1) {
@@ -3326,7 +3328,7 @@ void TilesetEditorContext::set_tileset(const Ref<TileSet> &p_tileset) {
 
 void TilesetEditorContext::set_snap_options_visible(bool p_visible) {
     snap_options_visible = p_visible;
-    _change_notify("");
+    Object_change_notify(this,"");
 }
 
 bool TilesetEditorContext::_set(const StringName &p_name, const Variant &p_value) {
@@ -3362,7 +3364,7 @@ bool TilesetEditorContext::_set(const StringName &p_name, const Variant &p_value
             tileset->set(StringName(StringUtils::num(tileset_editor->get_current_tile(), 0) + "/" + name2), p_value, &v);
         }
         if (v) {
-            tileset->_change_notify("");
+            Object_change_notify(tileset.get());
             tileset_editor->workspace->update();
             tileset_editor->workspace_overlay->update();
         }

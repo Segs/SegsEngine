@@ -58,6 +58,7 @@
 #include "scene/main/scene_tree.h"
 #include "scene/main/viewport.h"
 #include "scene/resources/packed_scene.h"
+#include "scene/resources/font.h"
 #include "scene/resources/style_box.h"
 #include "scene/resources/theme.h"
 

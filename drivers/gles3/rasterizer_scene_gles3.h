@@ -654,8 +654,7 @@ public:
         //should eventually be replaced by radix
 
         struct SortByKey {
-
-            _FORCE_INLINE_ bool operator()(const Element *A, const Element *B) const {
+            constexpr bool operator()(const Element *A, const Element *B) const {
                 return A->sort_key < B->sort_key;
             }
         };
@@ -758,16 +757,16 @@ public:
 
     _FORCE_INLINE_ void _set_cull(bool p_front, bool p_disabled, bool p_reverse_cull);
 
-    _FORCE_INLINE_ bool _setup_material(RasterizerStorageGLES3::Material *p_material, bool p_depth_pass, bool p_alpha_pass);
-    _FORCE_INLINE_ void _setup_geometry(RenderList::Element *e, const Transform &p_view_transform);
-    _FORCE_INLINE_ void _render_geometry(RenderList::Element *e);
-    _FORCE_INLINE_ void _setup_light(RenderList::Element *e, const Transform &p_view_transform);
+    bool _setup_material(RasterizerStorageGLES3::Material *p_material, bool p_depth_pass, bool p_alpha_pass);
+    void _setup_geometry(RenderList::Element *e, const Transform &p_view_transform);
+    void _render_geometry(RenderList::Element *e);
+    void _setup_light(RenderList::Element *e, const Transform &p_view_transform);
 
     void _render_list(RenderList::Element **p_elements, int p_element_count, const Transform &p_view_transform, const CameraMatrix &p_projection, RasterizerStorageGLES3::Sky *p_sky, bool p_reverse_cull, bool p_alpha_pass, bool p_shadow, bool p_directional_add, bool p_directional_shadows);
 
-    _FORCE_INLINE_ void _add_geometry(RasterizerStorageGLES3::Geometry *p_geometry, InstanceBase *p_instance, RasterizerStorageGLES3::GeometryOwner *p_owner, int p_material, bool p_depth_pass, bool p_shadow_pass);
+    void _add_geometry(RasterizerStorageGLES3::Geometry *p_geometry, InstanceBase *p_instance, RasterizerStorageGLES3::GeometryOwner *p_owner, int p_material, bool p_depth_pass, bool p_shadow_pass);
 
-    _FORCE_INLINE_ void _add_geometry_with_material(RasterizerStorageGLES3::Geometry *p_geometry, InstanceBase *p_instance, RasterizerStorageGLES3::GeometryOwner *p_owner, RasterizerStorageGLES3::Material *p_material, bool p_depth_pass, bool p_shadow_pass);
+    void _add_geometry_with_material(RasterizerStorageGLES3::Geometry *p_geometry, InstanceBase *p_instance, RasterizerStorageGLES3::GeometryOwner *p_owner, RasterizerStorageGLES3::Material *p_material, bool p_depth_pass, bool p_shadow_pass);
 
     void _draw_sky(RasterizerStorageGLES3::Sky *p_sky, const CameraMatrix &p_projection, const Transform &p_transform, bool p_vflip, float p_custom_fov, float p_energy, const Basis &p_sky_orientation);
 

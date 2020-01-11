@@ -207,7 +207,7 @@ SOURCE_GROUP(CApi FILES ${CApi_SRCS})
 # if this variable is set to FALSE, the user can manually enable importers by setting
 # ASSIMP_BUILD_XXX_IMPORTER to TRUE for each importer
 
-SET(ASSIMP_BUILD_ALL_IMPORTERS_BY_DEFAULT FALSE)
+OPTION(ASSIMP_BUILD_ALL_IMPORTERS_BY_DEFAULT "default value of all ASSIMP_BUILD_XXX_IMPORTER values" FALSE)
 
 # macro to add the CMake Option ADD_ASSIMP_IMPORTER_<name> which enables compile of loader
 # this way selective loaders can be compiled (reduces filesize + compile time)
@@ -236,7 +236,7 @@ ENDMACRO()
 # if this variable is set to FALSE, the user can manually enable exporters by setting
 # ASSIMP_BUILD_XXX_EXPORTER to TRUE for each exporter
 
-SET(ASSIMP_BUILD_ALL_EXPORTERS_BY_DEFAULT FALSE)
+OPTION(ASSIMP_BUILD_ALL_EXPORTERS_BY_DEFAULT "default value of all ASSIMP_BUILD_XXX_EXPORTER values" FALSE)
 
 # macro to add the CMake Option ADD_ASSIMP_IMPORTER_<name> which enables compile of loader
 # this way selective loaders can be compiled (reduces filesize + compile time)
@@ -441,6 +441,16 @@ ADD_ASSIMP_IMPORTER( MDL
   MDL/MDLLoader.cpp
   MDL/MDLLoader.h
   MDL/MDLMaterialLoader.cpp
+  MDL/HalfLife/HalfLifeMDLBaseHeader.h
+  MDL/HalfLife/HL1FileData.h
+  MDL/HalfLife/HL1MDLLoader.cpp
+  MDL/HalfLife/HL1MDLLoader.h
+  MDL/HalfLife/HL1ImportDefinitions.h
+  MDL/HalfLife/HL1ImportSettings.h
+  MDL/HalfLife/HL1MeshTrivert.h
+  MDL/HalfLife/LogFunctions.h
+  MDL/HalfLife/UniqueNameGenerator.cpp
+  MDL/HalfLife/UniqueNameGenerator.h
 )
 
 SET( MaterialSystem_SRCS
@@ -1047,6 +1057,8 @@ MESSAGE(STATUS "Disabled importer formats:${ASSIMP_IMPORTERS_DISABLED}")
 
 MESSAGE(STATUS "Enabled exporter formats:${ASSIMP_EXPORTERS_ENABLED}")
 MESSAGE(STATUS "Disabled exporter formats:${ASSIMP_EXPORTERS_DISABLED}")
+
+SOURCE_GROUP( include\\assimp    FILES ${PUBLIC_HEADERS} )
 
 SET( assimp_src
   # Assimp Files

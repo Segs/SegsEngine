@@ -1738,7 +1738,7 @@ void LineEdit::_text_changed() {
 
 void LineEdit::_emit_text_change() {
     emit_signal("text_changed", StringUtils::to_utf8(m_priv->text));
-    _change_notify("text");
+    Object_change_notify(this,"text");
     text_changed_dirty = false;
 }
 

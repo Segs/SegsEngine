@@ -186,7 +186,7 @@ private:
     }
 
     /* I want to have only one function.. */
-    _FORCE_INLINE_ const Element *get_element(const TKey &p_key) const {
+    const Element *get_element(const TKey &p_key) const {
 
         uint32_t hash = Hasher()(p_key);
         uint32_t index = hash & ((1 << hash_table_power) - 1);

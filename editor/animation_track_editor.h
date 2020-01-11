@@ -309,8 +309,8 @@ class AnimationTrackEditor : public VBoxContainer {
     void _show_imported_anim_warning() const;
 
     void _snap_mode_changed(int p_mode);
-    Vector<AnimationTrackEdit *> track_edits;
-    Vector<AnimationTrackEditGroup *> groups;
+    PODVector<AnimationTrackEdit *> track_edits;
+    PODVector<AnimationTrackEditGroup *> groups;
 
     bool animation_changing_awaiting_update;
     void _animation_update();
@@ -422,7 +422,7 @@ class AnimationTrackEditor : public VBoxContainer {
     Rect2 box_select_rect;
     void _scroll_input(const Ref<InputEvent> &p_event);
 
-    Vector<Ref<AnimationTrackEditPlugin> > track_edit_plugins;
+    PODVector<Ref<AnimationTrackEditPlugin> > track_edit_plugins;
 
     void _cancel_bezier_edit();
     void _bezier_edit(int p_for_track);
@@ -474,10 +474,10 @@ class AnimationTrackEditor : public VBoxContainer {
             float transition;
             Variant value;
         };
-        Vector<Key> keys;
+        PODVector<Key> keys;
     };
 
-    Vector<TrackClipboard> track_clipboard;
+    PODVector<TrackClipboard> track_clipboard;
 
     void _insert_animation_key(const NodePath& p_path, const Variant &p_value);
 

@@ -49,8 +49,8 @@ struct Hasher<SurfaceTool::Vertex> {
         h = hash_djb2_buffer((const uint8_t *)&p_vtx.uv, sizeof(real_t) * 2, h);
         h = hash_djb2_buffer((const uint8_t *)&p_vtx.uv2, sizeof(real_t) * 2, h);
         h = hash_djb2_buffer((const uint8_t *)&p_vtx.color, sizeof(real_t) * 4, h);
-        h = hash_djb2_buffer((const uint8_t *)p_vtx.bones.ptr(), p_vtx.bones.size() * sizeof(int), h);
-        h = hash_djb2_buffer((const uint8_t *)p_vtx.weights.ptr(), p_vtx.weights.size() * sizeof(float), h);
+        h = hash_djb2_buffer((const uint8_t *)p_vtx.bones.data(), p_vtx.bones.size() * sizeof(int), h);
+        h = hash_djb2_buffer((const uint8_t *)p_vtx.weights.data(), p_vtx.weights.size() * sizeof(float), h);
         return h;
     }
 };
@@ -151,11 +151,11 @@ void SurfaceTool::add_vertex(const Vector3 &p_vertex) {
 
             for (int i = 0; i < expected_vertices; i++) {
                 if (total > 0) {
-                    vtx.weights.write[i] = weights[i].weight / total;
+                    vtx.weights[i] = weights[i].weight / total;
                 } else {
-                    vtx.weights.write[i] = 0;
+                    vtx.weights[i] = 0;
                 }
-                vtx.bones.write[i] = weights[i].index;
+                vtx.bones[i] = weights[i].index;
             }
         }
     }
@@ -211,22 +211,22 @@ void SurfaceTool::add_uv2(const Vector2 &p_uv2) {
     last_uv2 = p_uv2;
 }
 
-void SurfaceTool::add_bones(const Vector<int> &p_bones) {
+void SurfaceTool::add_bones(Span<const int> p_bones) {
 
     ERR_FAIL_COND(!begun)
     ERR_FAIL_COND(!first && !(format & Mesh::ARRAY_FORMAT_BONES))
 
     format |= Mesh::ARRAY_FORMAT_BONES;
-    last_bones = p_bones;
+    last_bones.assign(p_bones.begin(),p_bones.end());
 }
 
-void SurfaceTool::add_weights(const Vector<float> &p_weights) {
+void SurfaceTool::add_weights(Span<const float> p_weights) {
 
     ERR_FAIL_COND(!begun)
     ERR_FAIL_COND(!first && !(format & Mesh::ARRAY_FORMAT_WEIGHTS))
 
     format |= Mesh::ARRAY_FORMAT_WEIGHTS;
-    last_weights = p_weights;
+    last_weights.assign(p_weights.begin(), p_weights.end());
 }
 
 void SurfaceTool::add_smooth_group(bool p_smooth) {
@@ -548,17 +548,17 @@ Vector<SurfaceTool::Vertex> SurfaceTool::create_vertex_array_from_triangle_array
     int lformat = 0;
 
     PoolVector<Vector3>::Read rv;
-    if (varr.size()) {
+    if (!varr.empty()) {
         lformat |= VS::ARRAY_FORMAT_VERTEX;
         rv = varr.read();
     }
     PoolVector<Vector3>::Read rn;
-    if (narr.size()) {
+    if (!narr.empty()) {
         lformat |= VS::ARRAY_FORMAT_NORMAL;
         rn = narr.read();
     }
     PoolVector<float>::Read rt;
-    if (tarr.size()) {
+    if (!tarr.empty()) {
         lformat |= VS::ARRAY_FORMAT_TANGENT;
         rt = tarr.read();
     }
@@ -569,7 +569,7 @@ Vector<SurfaceTool::Vertex> SurfaceTool::create_vertex_array_from_triangle_array
     }
 
     PoolVector<Vector2>::Read ruv;
-    if (uvarr.size()) {
+    if (!uvarr.empty()) {
         lformat |= VS::ARRAY_FORMAT_TEX_UV;
         ruv = uvarr.read();
     }
@@ -591,47 +591,58 @@ Vector<SurfaceTool::Vertex> SurfaceTool::create_vertex_array_from_triangle_array
         lformat |= VS::ARRAY_FORMAT_WEIGHTS;
         rw = warr.read();
     }
-
-    for (int i = 0; i < vc; i++) {
-
-        Vertex v;
-        if (lformat & VS::ARRAY_FORMAT_VERTEX)
-            v.vertex = varr[i];
-        if (lformat & VS::ARRAY_FORMAT_NORMAL)
-            v.normal = narr[i];
-        if (lformat & VS::ARRAY_FORMAT_TANGENT) {
+    ret.resize(vc);
+    Vertex *tgt = ret.ptrw();
+    if (lformat & VS::ARRAY_FORMAT_VERTEX)
+        for (int i = 0; i < vc; i++) {
+            tgt[i].vertex = varr[i];
+        }
+    if (lformat & VS::ARRAY_FORMAT_NORMAL)
+        for (int i = 0; i < vc; i++) {
+            tgt[i].normal = narr[i];
+        }
+    if (lformat & VS::ARRAY_FORMAT_TANGENT) {
+        for (int i = 0; i < vc; i++) {
             Plane p(tarr[i * 4 + 0], tarr[i * 4 + 1], tarr[i * 4 + 2], tarr[i * 4 + 3]);
-            v.tangent = p.normal;
-            v.binormal = p.normal.cross(v.tangent).normalized() * p.d;
+            tgt[i].tangent = p.normal;
+            tgt[i].binormal = p.normal.cross(p.normal).normalized() * p.d;
         }
-        if (lformat & VS::ARRAY_FORMAT_COLOR)
-            v.color = carr[i];
-        if (lformat & VS::ARRAY_FORMAT_TEX_UV)
-            v.uv = uvarr[i];
-        if (lformat & VS::ARRAY_FORMAT_TEX_UV2)
-            v.uv2 = uv2arr[i];
-        if (lformat & VS::ARRAY_FORMAT_BONES) {
-            Vector<int> b;
-            b.resize(4);
-            b.write[0] = barr[i * 4 + 0];
-            b.write[1] = barr[i * 4 + 1];
-            b.write[2] = barr[i * 4 + 2];
-            b.write[3] = barr[i * 4 + 3];
-            v.bones = b;
-        }
-        if (lformat & VS::ARRAY_FORMAT_WEIGHTS) {
-            Vector<float> w;
-            w.resize(4);
-            w.write[0] = warr[i * 4 + 0];
-            w.write[1] = warr[i * 4 + 1];
-            w.write[2] = warr[i * 4 + 2];
-            w.write[3] = warr[i * 4 + 3];
-            v.weights = w;
-        }
-
-        ret.push_back(v);
     }
+    if (lformat & VS::ARRAY_FORMAT_COLOR)
+        for (int i = 0; i < vc; i++) {
+            tgt[i].color = carr[i];
+        }
+    if (lformat & VS::ARRAY_FORMAT_TEX_UV)
+        for (int i = 0; i < vc; i++) {
+            tgt[i].uv = uvarr[i];
+        }
+    if (lformat & VS::ARRAY_FORMAT_TEX_UV2)
+        for (int i = 0; i < vc; i++) {
+            tgt[i].uv2 = uv2arr[i];
+        }
 
+    if (lformat & VS::ARRAY_FORMAT_BONES) {
+        for (int i = 0; i < vc; i++) {
+            int b[4] = {
+                barr[i * 4 + 0],
+                barr[i * 4 + 1],
+                barr[i * 4 + 2],
+                barr[i * 4 + 3]
+            };
+            tgt[i].bones.assign(eastl::begin(b), eastl::end(b));
+        }
+    }
+    if (lformat & VS::ARRAY_FORMAT_WEIGHTS) {
+        for (int i = 0; i < vc; i++) {
+            float w[4]{
+                warr[i * 4 + 0],
+                warr[i * 4 + 1],
+                warr[i * 4 + 2],
+                warr[i * 4 + 3],
+            };
+            tgt[i].weights.assign(eastl::begin(w), eastl::end(w));
+        }
+    }
     return ret;
 }
 
@@ -716,22 +727,22 @@ void SurfaceTool::_create_list_from_arrays(Array arr, PODVector<Vertex> *r_verte
         if (lformat & VS::ARRAY_FORMAT_TEX_UV2)
             v.uv2 = uv2arr[i];
         if (lformat & VS::ARRAY_FORMAT_BONES) {
-            Vector<int> b;
-            b.resize(4);
-            b.write[0] = barr[i * 4 + 0];
-            b.write[1] = barr[i * 4 + 1];
-            b.write[2] = barr[i * 4 + 2];
-            b.write[3] = barr[i * 4 + 3];
-            v.bones = b;
+            int b[4] = {
+                barr[i * 4 + 0],
+                barr[i * 4 + 1],
+                barr[i * 4 + 2],
+                barr[i * 4 + 3]
+            };
+            v.bones.assign(eastl::begin(b),eastl::end(b));
         }
         if (lformat & VS::ARRAY_FORMAT_WEIGHTS) {
-            Vector<float> w;
-            w.resize(4);
-            w.write[0] = warr[i * 4 + 0];
-            w.write[1] = warr[i * 4 + 1];
-            w.write[2] = warr[i * 4 + 2];
-            w.write[3] = warr[i * 4 + 3];
-            v.weights = w;
+            float w[4] {
+                warr[i * 4 + 0],
+                warr[i * 4 + 1],
+                warr[i * 4 + 2],
+                warr[i * 4 + 3],
+            };
+            v.weights.assign(eastl::begin(w),eastl::end(w));
         }
 
         r_vertex->push_back(v);

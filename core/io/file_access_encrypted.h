@@ -49,7 +49,7 @@ private:
     FileAccess *file;
     size_t base;
     size_t length;
-    Vector<uint8_t> data;
+    PODVector<uint8_t> data;
     mutable int pos;
     mutable bool eofed;
 

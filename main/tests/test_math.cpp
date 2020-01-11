@@ -517,11 +517,11 @@ MainLoop *test() {
 
     {
 
-        Vector<int> hashes;
-        Vector<StringName> tl;
+        PODVector<int> hashes;
+        PODVector<StringName> tl;
         ClassDB::get_class_list(&tl);
 
-        for (int i=0,fin=tl.size(); i<fin; ++i) {
+        for (size_t i=0,fin=tl.size(); i<fin; ++i) {
 
             PODVector<uint8_t> m5b = StringUtils::md5_buffer(tl[i].asCString());
             hashes.push_back(hashes.size());

@@ -37,6 +37,7 @@
 #include "editor/editor_scale.h"
 #include "scene/gui/progress_bar.h"
 #include "scene/gui/color_picker.h"
+#include "scene/resources/font.h"
 
 #include "EASTL/sort.h"
 IMPL_GDCLASS(ThemeEditor)
@@ -914,7 +915,7 @@ ThemeEditorPlugin::ThemeEditorPlugin(EditorNode *p_node) {
 
     editor = p_node;
     theme_editor = memnew(ThemeEditor);
-    theme_editor->set_custom_minimum_size(Size2(0, 200));
+    theme_editor->set_custom_minimum_size(Size2(0, 200) * EDSCALE);
 
     button = editor->add_bottom_panel_item(TTR("Theme"), theme_editor);
     button->hide();

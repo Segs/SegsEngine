@@ -31,6 +31,7 @@
 #include "multimesh_instance_2d.h"
 #include "core/method_bind.h"
 #include "core/math/aabb.h"
+#include "core/object_tooling.h"
 
 IMPL_GDCLASS(MultiMeshInstance2D)
 
@@ -79,7 +80,7 @@ void MultiMeshInstance2D::set_texture(const Ref<Texture> &p_texture) {
     texture = p_texture;
     update();
     emit_signal("texture_changed");
-    _change_notify("texture");
+    Object_change_notify(this,"texture");
 }
 
 Ref<Texture> MultiMeshInstance2D::get_texture() const {

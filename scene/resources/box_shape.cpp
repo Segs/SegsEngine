@@ -62,7 +62,7 @@ void BoxShape::set_extents(const Vector3 &p_extents) {
     extents = p_extents;
     _update_shape();
     notify_change_to_owners();
-    _change_notify("extents");
+    Object_change_notify(this,"extents");
 }
 
 Vector3 BoxShape::get_extents() const {

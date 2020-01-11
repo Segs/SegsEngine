@@ -33,6 +33,7 @@
 
 #include "core/method_bind.h"
 #include "core/object_db.h"
+#include "core/object_tooling.h"
 #include "core/string_formatter.h"
 #include "editor/scene_tree_dock.h"
 #include "editor/create_dialog.h"
@@ -46,6 +47,7 @@
 #include "scene/gui/color_picker.h"
 #include "scene/main/scene_tree.h"
 #include "scene/main/viewport.h"
+#include "scene/resources/font.h"
 #include "scene/resources/style_box.h"
 
 #include <QList>
@@ -231,7 +233,7 @@ void EditorPropertyTextEnum::update_property() {
     }
 }
 
-void EditorPropertyTextEnum::setup(const Vector<se_string_view> &p_options) {
+void EditorPropertyTextEnum::setup(const PODVector<se_string_view> &p_options) {
     for (int i = 0; i < p_options.size(); i++) {
         options->add_item(StringName(p_options[i]), i);
     }
@@ -301,12 +303,11 @@ void EditorPropertyPath::update_property() {
     path->set_tooltip(full_path);
 }
 
-void EditorPropertyPath::setup(const Vector<se_string_view> &p_extensions, bool p_folder, bool p_global) {
+void EditorPropertyPath::setup(const PODVector<se_string_view> &p_extensions, bool p_folder, bool p_global) {
     extensions.reserve(p_extensions.size());
-    auto rd = p_extensions.ptr();
 
-    for(int i=0; i<p_extensions.size(); ++i)
-        extensions.emplace_back(rd[i]);
+    for(se_string_view sv : p_extensions)
+        extensions.emplace_back(sv);
 
     folder = p_folder;
     global = p_global;
@@ -551,11 +552,11 @@ void EditorPropertyEnum::update_property() {
     }
 }
 
-void EditorPropertyEnum::setup(const Vector<se_string_view> &p_options) {
+void EditorPropertyEnum::setup(const PODVector<se_string_view> &p_options) {
 
     int64_t current_val = 0;
     for (int i = 0; i < p_options.size(); i++) {
-        Vector<se_string_view> text_split = StringUtils::split(p_options[i],':');
+        PODVector<se_string_view> text_split = StringUtils::split(p_options[i],':');
         if (text_split.size() != 1)
             current_val = StringUtils::to_int64(text_split[1]);
         options->add_item(StringName(text_split[0]));
@@ -614,7 +615,7 @@ void EditorPropertyFlags::update_property() {
     }
 }
 
-void EditorPropertyFlags::setup(const Vector<se_string_view> &p_options) {
+void EditorPropertyFlags::setup(const PODVector<se_string_view> &p_options) {
     ERR_FAIL_COND(flags.size())
 
     bool first = true;
@@ -2439,9 +2440,9 @@ void EditorPropertyResource::_update_menu_items() {
             for(const StringName &E : inheritors)
                 valid_inheritors.insert(E);
 
-            Vector<StringName> global_classes;
+            PODVector<StringName> global_classes;
             ScriptServer::get_global_class_list(&global_classes);
-            for(int i=0,fin=global_classes.size(); i<fin; ++i) {
+            for(size_t i=0,fin=global_classes.size(); i<fin; ++i) {
                 if (EditorNode::get_editor_data().script_class_is_parent(global_classes[i], base_type)) {
                     valid_inheritors.insert(global_classes[i]);
                 }
@@ -2993,13 +2994,13 @@ bool EditorInspectorDefaultPlugin::parse_property(Object *p_object, VariantType 
 
             if (p_hint == PROPERTY_HINT_ENUM) {
                 EditorPropertyEnum *editor = memnew(EditorPropertyEnum);
-                Vector<se_string_view> options = StringUtils::split(p_hint_text,',');
+                PODVector<se_string_view> options = StringUtils::split(p_hint_text,',');
                 editor->setup(options);
                 add_property_editor(p_path, editor);
 
             } else if (p_hint == PROPERTY_HINT_FLAGS) {
                 EditorPropertyFlags *editor = memnew(EditorPropertyFlags);
-                Vector<se_string_view> options = StringUtils::split(p_hint_text,',');
+                PODVector<se_string_view> options = StringUtils::split(p_hint_text,',');
                 editor->setup(options);
                 add_property_editor(p_path, editor);
 
@@ -3068,7 +3069,7 @@ bool EditorInspectorDefaultPlugin::parse_property(Object *p_object, VariantType 
                 EditorPropertyEasing *editor = memnew(EditorPropertyEasing);
                 bool full = true;
                 bool flip = false;
-                Vector<se_string_view> hints = StringUtils::split(p_hint_text,',');
+                PODVector<se_string_view> hints = StringUtils::split(p_hint_text,',');
                 for (int i = 0; i < hints.size(); i++) {
                     se_string_view h =StringUtils::strip_edges( hints[i]);
                     if (h == se_string_view("attenuation")) {
@@ -3119,7 +3120,7 @@ bool EditorInspectorDefaultPlugin::parse_property(Object *p_object, VariantType 
 
             if (p_hint == PROPERTY_HINT_ENUM) {
                 EditorPropertyTextEnum *editor = memnew(EditorPropertyTextEnum);
-                Vector<se_string_view> options = StringUtils::split(p_hint_text,',');
+                PODVector<se_string_view> options = StringUtils::split(p_hint_text,',');
                 editor->setup(options);
                 add_property_editor(p_path, editor);
             } else if (p_hint == PROPERTY_HINT_MULTILINE_TEXT) {
@@ -3131,7 +3132,7 @@ bool EditorInspectorDefaultPlugin::parse_property(Object *p_object, VariantType 
                 add_property_editor(p_path, editor);
             } else if (p_hint == PROPERTY_HINT_DIR || p_hint == PROPERTY_HINT_FILE || p_hint == PROPERTY_HINT_SAVE_FILE || p_hint == PROPERTY_HINT_GLOBAL_DIR || p_hint == PROPERTY_HINT_GLOBAL_FILE) {
 
-                Vector<se_string_view> extensions = StringUtils::split(p_hint_text,',');
+                PODVector<se_string_view> extensions = StringUtils::split(p_hint_text,',');
                 bool global = p_hint == PROPERTY_HINT_GLOBAL_DIR || p_hint == PROPERTY_HINT_GLOBAL_FILE;
                 bool folder = p_hint == PROPERTY_HINT_DIR || p_hint == PROPERTY_HINT_GLOBAL_DIR;
                 bool save = p_hint == PROPERTY_HINT_SAVE_FILE;

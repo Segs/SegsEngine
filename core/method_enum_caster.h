@@ -6,7 +6,7 @@
     template <>                                                       \
     struct VariantCaster<m_enum> {                                    \
                                                                       \
-        static _FORCE_INLINE_ m_enum cast(const Variant &p_variant) { \
+        static m_enum cast(const Variant &p_variant) { \
             return (m_enum)p_variant.as<int>();                       \
         }                                                             \
     };

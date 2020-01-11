@@ -410,8 +410,7 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
     GD_ERR_BREAK((ip + m_space) > _code_size)
 
 #define GET_VARIANT_PTR(m_v, m_code_ofs)                                                       \
-    Variant *m_v;                                                                              \
-    m_v = _get_variant(_code_ptr[ip + m_code_ofs], p_instance, script, self, stack, err_text); \
+    Variant *m_v = _get_variant(_code_ptr[ip + m_code_ofs], p_instance, script, self, stack, err_text); \
     if (unlikely(!m_v))                                                                        \
         OPCODE_BREAK;
 

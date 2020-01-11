@@ -32,6 +32,7 @@
 #include "editor_node.h"
 #include "editor_resource_preview.h"
 #include "core/method_bind.h"
+#include "core/object_tooling.h"
 #include "core/string_formatter.h"
 #include "core/project_settings.h"
 #include "scene/resources/style_box.h"
@@ -55,7 +56,7 @@ public:
             values[p_name] = p_value;
             if (checking) {
                 checked.insert(p_name);
-                _change_notify(p_name);
+                Object_change_notify(this,p_name);
             }
             return true;
         }
@@ -89,7 +90,7 @@ public:
     }
 
     void update() {
-        _change_notify();
+        Object_change_notify(this);
     }
 
     ImportDockParameters() {
@@ -120,11 +121,11 @@ void ImportDock::set_edit_path(se_string_view p_path) {
 
     _update_options(config);
 
-    Vector<ResourceImporterInterface *> importers;
+    PODVector<ResourceImporterInterface *> importers;
     ResourceFormatImporter::get_singleton()->get_importers_for_extension(PathUtils::get_extension(p_path), &importers);
     ListPOD<Pair<StringName, StringName> > importer_names;
 
-    for (int i=0,fin=importers.size(); i<fin; ++i) {
+    for (size_t i=0,fin=importers.size(); i<fin; ++i) {
         importer_names.push_back(Pair<StringName, StringName>(importers[i]->get_visible_name(), importers[i]->get_importer_name()));
     }
 
@@ -265,7 +266,7 @@ void ImportDock::set_edit_multiple_paths(const Vector<se_string> &p_paths) {
 
     params->update();
 
-    Vector<ResourceImporterInterface * > importers;
+    PODVector<ResourceImporterInterface * > importers;
     ResourceFormatImporter::get_singleton()->get_importers_for_extension(PathUtils::get_extension(p_paths[0]), &importers);
     ListPOD<Pair<StringName, StringName> > importer_names;
 

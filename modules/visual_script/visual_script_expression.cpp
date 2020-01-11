@@ -29,9 +29,11 @@
 /*************************************************************************/
 
 #include "visual_script_expression.h"
-#include "core/string_formatter.h"
+
 #include "core/class_db.h"
+#include "core/object_tooling.h"
 #include "core/se_string.h"
+#include "core/string_formatter.h"
 #include "core/string_utils.inl"
 
 IMPL_GDCLASS(VisualScriptExpression)
@@ -71,7 +73,7 @@ bool VisualScriptExpression::_set(const StringName &p_name, const Variant &p_val
         }
         expression_dirty = true;
         ports_changed_notify();
-        _change_notify();
+        Object_change_notify(this);
         return true;
     }
 

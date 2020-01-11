@@ -31,6 +31,7 @@
 #include "primitive_meshes.h"
 #include "servers/visual_server.h"
 #include "core/method_bind.h"
+#include "core/object_tooling.h"
 #include "scene/resources/material.h"
 
 IMPL_GDCLASS(PrimitiveMesh)
@@ -228,7 +229,7 @@ void PrimitiveMesh::set_material(const Ref<Material> &p_material) {
     if (!pending_request) {
         // just apply it, else it'll happen when _update is called.
         VisualServer::get_singleton()->mesh_surface_set_material(mesh, 0, not material ? RID() : material->get_rid());
-        _change_notify();
+        Object_change_notify(this);
         emit_changed();
     }
 }

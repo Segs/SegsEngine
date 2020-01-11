@@ -32,6 +32,7 @@
 
 #include "core/io/resource_loader.h"
 #include "core/method_bind.h"
+#include "core/object_tooling.h"
 #include "core/translation_helpers.h"
 #include "core/string_formatter.h"
 #include "editor/editor_scale.h"
@@ -159,7 +160,7 @@ int ItemListOptionButtonPlugin::get_flags() const {
 void ItemListOptionButtonPlugin::add_item() {
 
     ob->add_item(StringName(FormatVE(TTR("Item %d").asCString(), ob->get_item_count())));
-    _change_notify();
+    Object_change_notify(this);
 }
 
 int ItemListOptionButtonPlugin::get_item_count() const {
@@ -170,7 +171,7 @@ int ItemListOptionButtonPlugin::get_item_count() const {
 void ItemListOptionButtonPlugin::erase(int p_idx) {
 
     ob->remove_item(p_idx);
-    _change_notify();
+    Object_change_notify(this);
 }
 
 ItemListOptionButtonPlugin::ItemListOptionButtonPlugin() {
@@ -201,7 +202,7 @@ int ItemListPopupMenuPlugin::get_flags() const {
 void ItemListPopupMenuPlugin::add_item() {
 
     pp->add_item(StringName(FormatVE(TTR("Item %d").asCString(), pp->get_item_count())));
-    _change_notify();
+    Object_change_notify(this);
 }
 
 int ItemListPopupMenuPlugin::get_item_count() const {
@@ -212,7 +213,7 @@ int ItemListPopupMenuPlugin::get_item_count() const {
 void ItemListPopupMenuPlugin::erase(int p_idx) {
 
     pp->remove_item(p_idx);
-    _change_notify();
+    Object_change_notify(this);
 }
 
 ItemListPopupMenuPlugin::ItemListPopupMenuPlugin() {
@@ -251,7 +252,7 @@ bool ItemListItemListPlugin::is_item_enabled(int p_idx) const { return !pp->is_i
 
 void ItemListItemListPlugin::add_item() {
     pp->add_item(StringName(FormatVE(TTR("Item %d").asCString(), pp->get_item_count())));
-    _change_notify();
+    Object_change_notify(this);
 }
 
 int ItemListItemListPlugin::get_item_count() const {
@@ -262,7 +263,7 @@ int ItemListItemListPlugin::get_item_count() const {
 void ItemListItemListPlugin::erase(int p_idx) {
 
     pp->remove_item(p_idx);
-    _change_notify();
+    Object_change_notify(this);
 }
 
 ItemListItemListPlugin::ItemListItemListPlugin() {

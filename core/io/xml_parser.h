@@ -80,7 +80,7 @@ private:
         se_string value;
     };
 
-    Vector<Attribute> attributes;
+    PODVector<Attribute> attributes;
 
     se_string _replace_special_characters(const se_string &origstr);
     bool _set_text(char *start, char *end);

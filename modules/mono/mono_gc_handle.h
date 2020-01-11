@@ -35,9 +35,9 @@
 
 #include "core/reference.h"
 
-class MonoGCHandle : public Reference {
+class MonoGCHandle : public RefCounted {
 
-	GDCLASS(MonoGCHandle, Reference);
+    GDCLASS(MonoGCHandle, RefCounted);
 
 	bool released;
 	bool weak;
@@ -57,12 +57,12 @@ public:
 	static Ref<MonoGCHandle> create_strong(MonoObject *p_object);
 	static Ref<MonoGCHandle> create_weak(MonoObject *p_object);
 
-	_FORCE_INLINE_ bool is_released() { return released; }
-	_FORCE_INLINE_ bool is_weak() { return weak; }
+    bool is_released() { return released; }
+    bool is_weak() { return weak; }
 
-	_FORCE_INLINE_ MonoObject *get_target() const { return released ? NULL : mono_gchandle_get_target(handle); }
+    MonoObject *get_target() const { return released ? NULL : mono_gchandle_get_target(handle); }
 
-	_FORCE_INLINE_ void set_handle(uint32_t p_handle, HandleType p_handle_type) {
+    void set_handle(uint32_t p_handle, HandleType p_handle_type) {
 		released = false;
 		weak = p_handle_type == WEAK_HANDLE;
 		handle = p_handle;

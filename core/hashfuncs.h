@@ -185,54 +185,54 @@ static inline uint64_t make_uint64_t(T p_in) {
     return _u._u64;
 }
 template <class T> struct Hasher {
-    _FORCE_INLINE_ uint32_t operator()(const T &val) const { return val.hash(); }
+    uint32_t operator()(const T &val) const { return val.hash(); }
 };
 template <typename Key>
 using HashType = typename std::conditional<std::is_enum<Key>::value, Hasher<typename std::underlying_type<Key>::type>,
         Hasher<Key>>::type;
 
 template <> struct Hasher<const char *> {
-    _FORCE_INLINE_ uint32_t operator()(const char *p_cstr) const { return uint32_t(eastl::hash<se_string_view>()(se_string_view(p_cstr))); }
+    uint32_t operator()(const char *p_cstr) const { return uint32_t(eastl::hash<se_string_view>()(se_string_view(p_cstr))); }
 };
 template <> struct Hasher<uint64_t> {
-    _FORCE_INLINE_ uint32_t operator()(const uint64_t p_int) const { return hash_one_uint64(p_int); }
+    uint32_t operator()(const uint64_t p_int) const { return hash_one_uint64(p_int); }
 };
 
 template <> struct Hasher<int64_t> {
-    _FORCE_INLINE_ uint32_t operator()(const int64_t p_int) const { return Hasher<uint64_t>()(uint64_t(p_int)); }
+    uint32_t operator()(const int64_t p_int) const { return Hasher<uint64_t>()(uint64_t(p_int)); }
 };
 template <> struct Hasher<float> {
-    _FORCE_INLINE_ uint32_t operator()(const float p_float) const { return hash_djb2_one_float(p_float); }
+    uint32_t operator()(const float p_float) const { return hash_djb2_one_float(p_float); }
 };
 template <> struct Hasher<double> {
-    _FORCE_INLINE_ uint32_t operator()(const double p_double) const { return hash_djb2_one_float(p_double); }
+    uint32_t operator()(const double p_double) const { return hash_djb2_one_float(p_double); }
 };
 template <> struct Hasher<uint32_t> {
-    _FORCE_INLINE_ uint32_t operator()(const uint32_t p_int) const { return p_int; }
+    uint32_t operator()(const uint32_t p_int) const { return p_int; }
 };
 template <> struct Hasher<int32_t> {
-    _FORCE_INLINE_ uint32_t operator()(const int32_t p_int) const { return (uint32_t)p_int; }
+    uint32_t operator()(const int32_t p_int) const { return (uint32_t)p_int; }
 };
 template <> struct Hasher<uint16_t> {
-    _FORCE_INLINE_ uint32_t operator()(const uint16_t p_int) const { return p_int; }
+    uint32_t operator()(const uint16_t p_int) const { return p_int; }
 };
 template <> struct Hasher<int16_t> {
-    _FORCE_INLINE_ uint32_t operator()(const int16_t p_int) const { return (uint32_t)p_int; }
+    uint32_t operator()(const int16_t p_int) const { return (uint32_t)p_int; }
 };
 template <> struct Hasher<uint8_t> {
-    _FORCE_INLINE_ uint32_t operator()(const uint8_t p_int) const { return p_int; }
+    uint32_t operator()(const uint8_t p_int) const { return p_int; }
 };
 template <> struct Hasher<int8_t> {
-    _FORCE_INLINE_ uint32_t operator()(const int8_t p_int) const { return (uint32_t)p_int; }
+    uint32_t operator()(const int8_t p_int) const { return (uint32_t)p_int; }
 };
 template <> struct Hasher<char16_t> {
-    _FORCE_INLINE_ uint32_t operator()(const char16_t p_wchar) const { return (uint32_t)p_wchar; }
+    uint32_t operator()(const char16_t p_wchar) const { return (uint32_t)p_wchar; }
 };
 template <> struct Hasher<StringName> {
-    _FORCE_INLINE_ uint32_t operator()(const StringName &p_string_name) const { return p_string_name.hash(); }
+    uint32_t operator()(const StringName &p_string_name) const { return p_string_name.hash(); }
 };
 template <> struct Hasher<NodePath> {
-    _FORCE_INLINE_ uint32_t operator()(const NodePath &p_path) const { return p_path.hash(); }
+    uint32_t operator()(const NodePath &p_path) const { return p_path.hash(); }
 };
 
 template <typename T>

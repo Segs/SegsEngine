@@ -32,6 +32,7 @@
 #include "core/method_bind.h"
 #include "core/core_string_names.h"
 #include "core/os/os.h"
+#include "core/object_tooling.h"
 #include "scene/main/viewport.h"
 #include "scene/scene_string_names.h"
 
@@ -148,7 +149,7 @@ void Sprite::set_texture(const Ref<Texture> &p_texture) {
     update();
     emit_signal("texture_changed");
     item_rect_changed();
-    _change_notify("texture");
+    Object_change_notify(this,"texture");
 }
 
 void Sprite::set_normal_map(const Ref<Texture> &p_texture) {
@@ -184,7 +185,7 @@ void Sprite::set_offset(const Point2 &p_offset) {
     offset = p_offset;
     update();
     item_rect_changed();
-    _change_notify("offset");
+    Object_change_notify(this,"offset");
 }
 Point2 Sprite::get_offset() const {
 
@@ -235,7 +236,7 @@ void Sprite::set_region_rect(const Rect2 &p_region_rect) {
     if (region)
         item_rect_changed();
 
-    _change_notify("region_rect");
+    Object_change_notify(this,"region_rect");
 }
 
 Rect2 Sprite::get_region_rect() const {
@@ -261,8 +262,8 @@ void Sprite::set_frame(int p_frame) {
 
     frame = p_frame;
 
-    _change_notify("frame");
-    _change_notify("frame_coords");
+    Object_change_notify(this,"frame");
+    Object_change_notify(this,"frame_coords");
     emit_signal(SceneStringNames::get_singleton()->frame_changed);
 }
 
@@ -288,7 +289,7 @@ void Sprite::set_vframes(int p_amount) {
     vframes = p_amount;
     update();
     item_rect_changed();
-    _change_notify();
+    Object_change_notify(this);
 }
 int Sprite::get_vframes() const {
 
@@ -301,7 +302,7 @@ void Sprite::set_hframes(int p_amount) {
     hframes = p_amount;
     update();
     item_rect_changed();
-    _change_notify();
+    Object_change_notify(this);
 }
 int Sprite::get_hframes() const {
 

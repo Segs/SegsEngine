@@ -310,12 +310,12 @@ class CharBuffer {
     }
 
 public:
-    _FORCE_INLINE_ CharBuffer() :
+    CharBuffer() :
             buffer(stack_buffer),
             capacity(sizeof(stack_buffer) / sizeof(char)) {
     }
 
-    _FORCE_INLINE_ void push_back(char c) {
+    void push_back(char c) {
 
         if (written >= capacity) {
 
@@ -325,7 +325,7 @@ public:
         buffer[written++] = c;
     }
 
-    _FORCE_INLINE_ const char *get_data() const {
+    const char *get_data() const {
 
         return buffer;
     }

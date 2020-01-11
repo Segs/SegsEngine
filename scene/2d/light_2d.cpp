@@ -34,6 +34,7 @@
 #include "scene/main/scene_tree.h"
 #include "core/engine.h"
 #include "core/method_bind.h"
+#include "core/object_tooling.h"
 #include "core/translation_helpers.h"
 
 IMPL_GDCLASS(Light2D)
@@ -151,7 +152,7 @@ void Light2D::set_texture_offset(const Vector2 &p_offset) {
     texture_offset = p_offset;
     VisualServer::get_singleton()->canvas_light_set_texture_offset(canvas_light, texture_offset);
     item_rect_changed();
-    _change_notify("offset");
+    Object_change_notify(this,"offset");
 }
 
 Vector2 Light2D::get_texture_offset() const {

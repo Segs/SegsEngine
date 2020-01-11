@@ -53,7 +53,7 @@ protected:
 public:
     const Map<se_string, Map<se_string, Variant> > &all_values() const { return values; }
     void set_value(se_string_view p_section, se_string_view p_key, const Variant &p_value);
-    Variant get_value(se_string_view p_section, se_string_view p_key, const Variant& p_default = Variant()) const;
+    Variant get_value(se_string_view p_section, se_string_view p_key, const Variant& p_default = Variant::null_variant) const;
 
     bool has_section(se_string_view p_section) const;
     bool has_section_key(se_string_view p_section, se_string_view p_key) const;
@@ -67,10 +67,10 @@ public:
     Error save(se_string_view p_path);
     Error load(se_string_view p_path);
 
-    Error load_encrypted(se_string_view p_path, const Vector<uint8_t> &p_key);
+    Error load_encrypted(se_string_view p_path, const PODVector<uint8_t> &p_key);
     Error load_encrypted_pass(se_string_view p_path, se_string_view p_pass);
 
-    Error save_encrypted(se_string_view p_path, const Vector<uint8_t> &p_key);
+    Error save_encrypted(se_string_view p_path, const PODVector<uint8_t> &p_key);
     Error save_encrypted_pass(se_string_view p_path, se_string_view p_pass);
 
     ConfigFile();

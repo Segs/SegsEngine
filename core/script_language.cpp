@@ -32,6 +32,7 @@
 
 #include "core/core_string_names.h"
 #include "core/project_settings.h"
+#include "core/object_tooling.h"
 #include "core/method_bind.h"
 
 #include "EASTL/sort.h"
@@ -256,7 +257,7 @@ StringName ScriptServer::get_global_class_native_base(const StringName &p_class)
     }
     return base;
 }
-void ScriptServer::get_global_class_list(Vector<StringName> *r_global_classes) {
+void ScriptServer::get_global_class_list(PODVector<StringName> *r_global_classes) {
     const StringName *K = nullptr;
     PODVector<StringName> classes;
     classes.reserve(classes.size());
@@ -269,10 +270,10 @@ void ScriptServer::get_global_class_list(Vector<StringName> *r_global_classes) {
     }
 }
 void ScriptServer::save_global_classes() {
-    Vector<StringName> gc;
+    PODVector<StringName> gc;
     get_global_class_list(&gc);
     Array gcarr;
-    for (int i=0,fin=gc.size(); i<fin; ++i) {
+    for (size_t i=0,fin=gc.size(); i<fin; ++i) {
         Dictionary d;
         d["class"] = gc[i];
         d["language"] = global_classes[gc[i]].language;
@@ -586,7 +587,7 @@ void PlaceHolderScriptInstance::update(const PODVector<PropertyInfo> &p_properti
 
     if (owner && owner->get_script_instance() == this) {
 
-        owner->_change_notify();
+        Object_change_notify(owner);
     }
     //change notify
 

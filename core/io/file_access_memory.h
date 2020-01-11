@@ -41,7 +41,7 @@ class FileAccessMemory : public FileAccess {
     static FileAccess *create();
 
 public:
-    static void register_file(se_string_view p_name, const Vector<uint8_t>& p_data);
+    static void register_file(se_string_view p_name, const PODVector<uint8_t> &p_data);
     static void cleanup();
 
     virtual Error open_custom(const uint8_t *p_data, int p_len); ///< open a file

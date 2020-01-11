@@ -242,8 +242,8 @@ public:
 
     class Read : public Access {
     public:
-        _FORCE_INLINE_ const T &operator[](uint32_t p_index) const { return this->mem[p_index]; }
-        _FORCE_INLINE_ const T *ptr() const { return this->mem; }
+        const T &operator[](uint32_t p_index) const { return this->mem[p_index]; }
+        const T *ptr() const { return this->mem; }
 
         Read &operator=(const Read &p_read) {
             if (this->alloc == p_read.alloc)
@@ -262,8 +262,8 @@ public:
 
     class Write : public Access {
     public:
-        _FORCE_INLINE_ T &operator[](int p_index) const { return this->mem[p_index]; }
-        _FORCE_INLINE_ T *ptr() const { return this->mem; }
+        T &operator[](int p_index) const { return this->mem[p_index]; }
+        T *ptr() const { return this->mem; }
 
         Write &operator=(const Write &p_read) {
             if (this->alloc == p_read.alloc)

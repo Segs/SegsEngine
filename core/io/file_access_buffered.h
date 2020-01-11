@@ -61,7 +61,7 @@ protected:
 
     mutable struct Cache {
 
-        Vector<uint8_t> buffer;
+        PODVector<uint8_t> buffer;
         int offset;
     } cache;
 

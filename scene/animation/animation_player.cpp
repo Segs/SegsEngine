@@ -33,6 +33,7 @@
 #include "core/engine.h"
 #include "core/method_bind.h"
 #include "core/message_queue.h"
+#include "core/object_tooling.h"
 #include "scene/scene_string_names.h"
 #include "servers/audio/audio_stream.h"
 
@@ -997,7 +998,7 @@ Error AnimationPlayer::add_animation(const StringName &p_name, const Ref<Animati
     }
 
     _ref_anim(p_animation);
-    _change_notify();
+    Object_change_notify(this);
     return OK;
 }
 
@@ -1010,7 +1011,7 @@ void AnimationPlayer::remove_animation(const StringName &p_name) {
     animation_set.erase(p_name);
 
     clear_caches();
-    _change_notify();
+    Object_change_notify(this);
 }
 
 void AnimationPlayer::_ref_anim(const Ref<Animation> &p_anim) {
@@ -1072,7 +1073,7 @@ void AnimationPlayer::rename_animation(const StringName &p_name, const StringNam
         autoplay = p_new_name;
 
     clear_caches();
-    _change_notify();
+    Object_change_notify(this);
 }
 
 bool AnimationPlayer::has_animation(const StringName &p_name) const {

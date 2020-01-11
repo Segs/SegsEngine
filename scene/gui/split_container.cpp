@@ -108,7 +108,7 @@ void SplitContainer::_resort() {
         middle_sep += clamped_split_offset;
         if (should_clamp_split_offset) {
             split_offset = clamped_split_offset;
-            _change_notify("split_offset");
+            Object_change_notify(this,"split_offset");
             should_clamp_split_offset = false;
         }
     }

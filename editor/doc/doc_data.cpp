@@ -245,9 +245,9 @@ static Variant get_documentation_default_value(const StringName &p_class_name, c
 
 void DocData::generate(bool p_basic_types) {
 
-    Vector<StringName> classes;
+    PODVector<StringName> classes;
     ClassDB::get_class_list(&classes);
-    classes.sort_custom<WrapAlphaCompare>();
+    eastl::sort(classes.begin(),classes.end(),WrapAlphaCompare());
 
     bool skip_setter_getter_methods = true;
 

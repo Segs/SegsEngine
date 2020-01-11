@@ -30,6 +30,7 @@
 
 #include "particles.h"
 
+#include "core/object_tooling.h"
 #include "core/os/os.h"
 #include "scene/resources/particles_material.h"
 #include "scene/resources/mesh.h"
@@ -111,7 +112,7 @@ void Particles::set_visibility_aabb(const AABB &p_aabb) {
     visibility_aabb = p_aabb;
     VisualServer::get_singleton()->particles_set_custom_aabb(particles, visibility_aabb);
     update_gizmo();
-    _change_notify("visibility_aabb");
+    Object_change_notify(this,"visibility_aabb");
 }
 void Particles::set_use_local_coordinates(bool p_enable) {
 
@@ -198,7 +199,7 @@ void Particles::set_draw_passes(int p_count) {
     ERR_FAIL_COND(p_count < 1)
     draw_passes.resize(p_count);
     VisualServer::get_singleton()->particles_set_draw_passes(particles, p_count);
-    _change_notify();
+    Object_change_notify(this);
 }
 int Particles::get_draw_passes() const {
 
@@ -209,7 +210,7 @@ void Particles::set_draw_pass_mesh(int p_pass, const Ref<Mesh> &p_mesh) {
 
     ERR_FAIL_INDEX(p_pass, draw_passes.size());
 
-    draw_passes.write[p_pass] = p_mesh;
+    draw_passes[p_pass] = p_mesh;
 
     RID mesh_rid;
     if (p_mesh)
@@ -252,16 +253,17 @@ StringName Particles::get_configuration_warning() const {
     bool meshes_found = false;
     bool anim_material_found = false;
 
-    for (int i = 0; i < draw_passes.size(); i++) {
-        if (draw_passes[i]) {
-            meshes_found = true;
-            for (int j = 0; j < draw_passes[i]->get_surface_count(); j++) {
-                anim_material_found = object_cast<ShaderMaterial>(draw_passes[i]->surface_get_material(j).get()) != nullptr;
-                SpatialMaterial *spat = object_cast<SpatialMaterial>(draw_passes[i]->surface_get_material(j).get());
-                anim_material_found = anim_material_found || (spat && spat->get_billboard_mode() == SpatialMaterial::BILLBOARD_PARTICLES);
-            }
-            if (anim_material_found) break;
+    for (const Ref<Mesh> & pass : draw_passes) {
+        if (!pass)
+            continue;
+        Mesh *m = pass.get();
+        meshes_found = true;
+        for (int j = 0; j < m->get_surface_count(); j++) {
+            anim_material_found = object_cast<ShaderMaterial>(m->surface_get_material(j).get()) != nullptr;
+            SpatialMaterial *spat = object_cast<SpatialMaterial>(m->surface_get_material(j).get());
+            anim_material_found = anim_material_found || (spat && spat->get_billboard_mode() == SpatialMaterial::BILLBOARD_PARTICLES);
         }
+        if (anim_material_found) break;
     }
 
     anim_material_found = anim_material_found || object_cast<ShaderMaterial>(get_material_override().get()) != nullptr;
@@ -330,7 +332,7 @@ void Particles::_notification(int p_what) {
     if (p_what == NOTIFICATION_INTERNAL_PROCESS) {
 
         if (one_shot && !is_emitting()) {
-            _change_notify();
+            Object_change_notify(this);
             set_process_internal(false);
         }
     }

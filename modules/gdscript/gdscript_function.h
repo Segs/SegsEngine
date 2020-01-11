@@ -202,8 +202,8 @@ private:
 
     ListPOD<StackDebug> stack_debug;
 
-    _FORCE_INLINE_ Variant *_get_variant(int p_address, GDScriptInstance *p_instance, GDScript *p_script, Variant &self, Variant *p_stack, se_string &r_error) const;
-    _FORCE_INLINE_ se_string _get_call_error(const Variant::CallError &p_err, se_string_view p_where, const Variant **argptrs) const;
+    Variant *_get_variant(int p_address, GDScriptInstance *p_instance, GDScript *p_script, Variant &self, Variant *p_stack, se_string &r_error) const;
+    se_string _get_call_error(const Variant::CallError &p_err, se_string_view p_where, const Variant **argptrs) const;
 
     friend class GDScriptLanguage;
 
@@ -243,7 +243,7 @@ public:
         Variant result;
     };
 
-    _FORCE_INLINE_ bool is_static() const { return _static; }
+    bool is_static() const { return _static; }
 
     const int *get_code() const; //used for debug
     int get_code_size() const;
@@ -260,7 +260,7 @@ public:
 
     void debug_get_stack_member_state(int p_line, List<Pair<StringName, int> > *r_stackvars) const;
 
-    _FORCE_INLINE_ bool is_empty() const { return _code_size == 0; }
+    bool is_empty() const { return _code_size == 0; }
 
     int get_argument_count() const { return _argument_count; }
     StringName get_argument_name(int p_idx) const {
@@ -278,7 +278,7 @@ public:
 
     Variant call(GDScriptInstance *p_instance, const Variant **p_args, int p_argcount, Variant::CallError &r_err, CallState *p_state = nullptr);
 
-    _FORCE_INLINE_ MultiplayerAPI_RPCMode get_rpc_mode() const { return rpc_mode; }
+    MultiplayerAPI_RPCMode get_rpc_mode() const { return rpc_mode; }
     GDScriptFunction();
     ~GDScriptFunction();
 };

@@ -54,12 +54,12 @@ class EditorHistory {
 
     struct History {
 
-        Vector<Obj> path;
+        PODVector<Obj> path;
         int level;
     };
     friend class EditorData;
 
-    Vector<History> history;
+    PODVector<History> history;
     int current;
 
     //Vector<EditorPlugin*> editor_plugins;
@@ -119,7 +119,7 @@ public:
         se_string path;
         Dictionary editor_states;
         List<Node *> selection;
-        Vector<EditorHistory::History> history_stored;
+        PODVector<EditorHistory::History> history_stored;
         int history_current;
         Dictionary custom_state;
         uint64_t version;
@@ -152,7 +152,7 @@ private:
 public:
     EditorPlugin *get_editor(Object *p_object);
     EditorPlugin *get_subeditor(Object *p_object);
-    Vector<EditorPlugin *> get_subeditors(Object *p_object);
+    PODVector<EditorPlugin *> get_subeditors(Object *p_object);
     EditorPlugin *get_editor(se_string_view p_name);
 
     void copy_object_params(Object *p_object);

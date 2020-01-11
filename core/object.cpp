@@ -45,52 +45,8 @@
 #include "core/pool_vector.h"
 #include "core/vmap.h"
 #include "core/method_bind.h"
+#include "core/object_tooling.h"
 
-#ifdef TOOLS_ENABLED
-struct ObjectToolingImpl final : public IObjectTooling {
-
-    bool _edited;
-    uint32_t _edited_version;
-    Set<se_string> editor_section_folding;
-
-    // IObjectTooling interface
-public:
-    void set_edited(bool p_edited,bool increment_version=true) final {
-        _edited = p_edited;
-        if(increment_version)
-            _edited_version++;
-    }
-    bool is_edited() const final {
-        return _edited;
-    }
-    uint32_t get_edited_version() const final {
-        return _edited_version;
-    }
-    void editor_set_section_unfold(se_string_view p_section, bool p_unfolded) final {
-        set_edited(true);
-        if (p_unfolded)
-            editor_section_folding.insert(p_section);
-        else {
-            auto iter=editor_section_folding.find_as(p_section);
-            if(iter!=editor_section_folding.end())
-                editor_section_folding.erase(iter);
-        }
-    }
-    bool editor_is_section_unfolded(se_string_view p_section) const final {
-        return editor_section_folding.contains_as(p_section);
-    }
-    const Set<se_string> &editor_get_section_folding() const final {
-        return editor_section_folding;
-    }
-    void editor_clear_section_folding() final {
-        editor_section_folding.clear();
-    }
-    ObjectToolingImpl() {
-        _edited = false;
-        _edited_version = 0;
-    }
-};
-#endif
 struct Object::Signal  {
 
     struct Target {
@@ -118,23 +74,22 @@ struct Object::Signal  {
     int lock;
     Signal() { lock = 0; }
 };
+
 struct Object::ObjectPrivate {
-#ifdef TOOLS_ENABLED
-    ObjectToolingImpl m_tooling;
-#endif
+    IObjectTooling *m_tooling;
     HashMap<StringName, Signal> signal_map;
-    Set<Object *> change_receptors;
     List<Connection> connections;
 
 #ifdef DEBUG_ENABLED
     SafeRefCount _lock_index;
 #endif
 
-    ObjectPrivate()
+    ObjectPrivate(Object *self)
     {
 #ifdef DEBUG_ENABLED
-    _lock_index.init(1);
+        _lock_index.init(1);
 #endif
+        m_tooling = create_tooling_for(self);
     }
     ~ObjectPrivate() {
         const StringName *S = nullptr;
@@ -142,8 +97,12 @@ struct Object::ObjectPrivate {
         while ((S = signal_map.next(nullptr))) {
 
             Signal *s = &signal_map[*S];
-
-            ERR_CONTINUE_MSG(s->lock > 0, "Attempt to delete an object in the middle of a signal emission from it.")
+            if (s->lock > 0) {
+                //@todo this may need to actually reach the debugger prioritarily somehow because it may crash before
+                ERR_PRINT("Object was freed or unreferenced while signal '" + se_string(*S) +
+                          "' is being emitted from it. Try connecting to the signal using 'CONNECT_DEFERRED' flag, or use queue_free() "
+                          "to free the object (if this object is a Node) to avoid this error and potential crashes.");
+            }
 
             //brute force disconnect for performance
             const VMap<Signal::Target, Signal::Slot>::Pair *slot_list = s->slot_map.get_array();
@@ -162,9 +121,11 @@ struct Object::ObjectPrivate {
             Connection c = connections.front()->deref();
             c.source->_disconnect(c.signal, c.target, c.method, true);
         }
+        relase_tooling(m_tooling);
+        m_tooling = nullptr;
     }
     IObjectTooling *get_tooling() {
-        return &m_tooling;
+        return m_tooling;
     }
 };
 #ifdef DEBUG_ENABLED
@@ -527,9 +488,7 @@ bool Object::wrap_is_class(se_string_view p_class) const {
 
 void Object::set(const StringName &p_name, const Variant &p_value, bool *r_valid) {
 
-#ifdef TOOLS_ENABLED
-    private_data->get_tooling()->set_edited(true,false);
-#endif
+    Object_set_edited(this,true,false);
 
     if (script_instance) {
 
@@ -582,21 +541,9 @@ void Object::set(const StringName &p_name, const Variant &p_value, bool *r_valid
             return;
         }
     }
-
-#ifdef TOOLS_ENABLED
-    if (script_instance) {
-        bool valid;
-        script_instance->property_set_fallback(p_name, p_value, &valid);
-        if (valid) {
-            if (r_valid)
-                *r_valid = true;
-            return;
-        }
-    }
-#endif
-
+    bool res = Object_set_fallback(this,p_name,p_value);
     if (r_valid)
-        *r_valid = false;
+        *r_valid = res;
 }
 
 Variant Object::get(const StringName &p_name, bool *r_valid) const {
@@ -625,14 +572,10 @@ Variant Object::get(const StringName &p_name, bool *r_valid) const {
         ret = Variant(get_script());
         if (r_valid)
             *r_valid = true;
-        return ret;
-
     } else if (p_name == CoreStringNames::get_singleton()->_meta) {
         ret = metadata;
         if (r_valid)
             *r_valid = true;
-        return ret;
-
     } else {
         //something inside the object... :|
         bool success = _getv(p_name, ret);
@@ -652,23 +595,12 @@ Variant Object::get(const StringName &p_name, bool *r_valid) const {
                 return ret;
             }
         }
-
-#ifdef TOOLS_ENABLED
-        if (script_instance) {
-            bool valid;
-            ret = script_instance->property_get_fallback(p_name, &valid);
-            if (valid) {
-                if (r_valid)
-                    *r_valid = true;
-                return ret;
-            }
-        }
-#endif
-
+        bool valid=false;
+        ret = Object_get_fallback(this,p_name,valid);
         if (r_valid)
-            *r_valid = false;
-        return Variant();
+            *r_valid = valid;
     }
+    return ret;
 }
 
 void Object::set_indexed(const Vector<StringName> &p_names, const Variant &p_value, bool *r_valid) {
@@ -752,10 +684,8 @@ void Object::get_property_list(ListPOD<PropertyInfo> *p_list, bool p_reversed) c
 
     _get_property_listv(p_list, p_reversed);
 
-    if (!is_class("Script")) { // can still be set, but this is for userfriendlyness
-#ifdef TOOLS_ENABLED
-        p_list->push_back(PropertyInfo(VariantType::NIL, "Script", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_GROUP));
-#endif
+    if (!is_class("Script")) { // can still be set, but this is for userfriendliness
+        Object_add_tool_properties(p_list);
         p_list->push_back(PropertyInfo(VariantType::OBJECT, "script", PROPERTY_HINT_RESOURCE_TYPE, "Script", PROPERTY_USAGE_DEFAULT));
     }
     if (!metadata.empty()) {
@@ -1071,19 +1001,9 @@ se_string Object::to_string() {
 void Object::_changed_callback(Object * /*p_changed*/, StringName /*p_prop*/) {
 }
 
-void Object::add_change_receptor(Object *p_receptor) {
-
-    private_data->change_receptors.insert(p_receptor);
-}
-
-void Object::remove_change_receptor(Object *p_receptor) {
-
-    private_data->change_receptors.erase(p_receptor);
-}
-
 void Object::property_list_changed_notify() {
 
-    _change_notify();
+    Object_change_notify(this);
 }
 
 void Object::cancel_delete() {
@@ -1125,7 +1045,7 @@ void Object::set_script(const RefPtr &p_script) {
         }
     }
 
-    _change_notify(); //scripts may add variables, so refresh is desired
+    Object_change_notify(this); //scripts may add variables, so refresh is desired
     emit_signal(CoreStringNames::get_singleton()->script_changed);
 }
 
@@ -1221,11 +1141,7 @@ void Object::get_meta_list(ListPOD<se_string> *p_list) const {
 
 IObjectTooling *Object::get_tooling_interface() const
 {
-#ifdef TOOLS_ENABLED
     return private_data->get_tooling();
-#else
-    return nullptr;
-#endif
 }
 
 void Object::add_user_signal(const MethodInfo &p_signal) {
@@ -1346,7 +1262,9 @@ Error Object::emit_signal(const StringName &p_name, const Variant **p_args, int 
             MessageQueue::get_singleton()->push_call(target->get_instance_id(), c.method, args, argc, true);
         } else {
             Variant::CallError ce;
+            s->lock++;
             target->call(c.method, args, argc, ce);
+            s->lock--;
 
             if (ce.error != Variant::CallError::CALL_OK) {
 #ifdef DEBUG_ENABLED
@@ -1364,12 +1282,7 @@ Error Object::emit_signal(const StringName &p_name, const Variant **p_args, int 
         }
 
         bool disconnect = c.flags & ObjectNS::CONNECT_ONESHOT;
-#ifdef TOOLS_ENABLED
-        if (disconnect && (c.flags & ObjectNS::CONNECT_PERSIST) && Engine::get_singleton()->is_editor_hint()) {
-            //this signal was connected from the editor, and is being edited. just don't disconnect for now
-            disconnect = false;
-        }
-#endif
+        disconnect &= Object_allow_disconnect(c.flags);
         if (disconnect) {
 
             _ObjectSignalDisconnectData dd;
@@ -1573,14 +1486,7 @@ Error Object::connect(const StringName &p_signal, Object *p_to_object, const Str
             if (refFromRefPtr<Script>(script)->has_script_signal(p_signal)) {
                 signal_is_valid = true;
             }
-#ifdef TOOLS_ENABLED
-            else {
-                //allow connecting signals anyway if script is invalid, see issue #17070
-                if (!refFromRefPtr<Script>(script)->is_valid()) {
-                    signal_is_valid = true;
-                }
-            }
-#endif
+            signal_is_valid |= Object_script_signal_validate(script);
         }
         {
             if (unlikely(!signal_is_valid)) {
@@ -1658,7 +1564,10 @@ void Object::_disconnect(const StringName &p_signal, Object *p_to_object, const 
     Signal *s = private_data->signal_map.getptr(p_signal);
     ERR_FAIL_COND_MSG(!s, "Nonexistent signal: " + se_string(p_signal) + ".")
 
-    ERR_FAIL_COND_MSG(s->lock > 0, "Attempt to disconnect signal '" + se_string(p_signal) + "' while emitting (locks: " + ::to_string(s->lock) + ").")
+    ERR_FAIL_COND_MSG(
+            s->lock > 0, "Attempt to disconnect signal '" + se_string(p_signal) +
+                                 "' while in emission callback. Use CONNECT_DEFERRED (to be able to safely disconnect) or "
+                                 "CONNECT_ONESHOT (for automatic disconnection) as connection flags.");
 
     Signal::Target target(p_to_object->get_instance_id(), p_to_method);
 
@@ -1713,13 +1622,7 @@ bool Object::initialize_class() {
     initialized = true;
     return true;
 }
-void Object::_change_notify(StringName p_property) {
-#ifdef TOOLS_ENABLED
-    private_data->get_tooling()->set_edited(true,false);
-    for (Object *E : private_data->change_receptors)
-        E->_changed_callback(this, p_property);
-#endif
-}
+
 StringName Object::tr(const StringName &p_message) const {
 
     if (!_can_translate || !TranslationServer::get_singleton())
@@ -1864,18 +1767,9 @@ void Object::_bind_methods() {
 
     BIND_VMETHOD(MethodInfo("_notification", PropertyInfo(VariantType::INT, "what")))
     BIND_VMETHOD(MethodInfo(VariantType::BOOL, "_set", PropertyInfo(VariantType::STRING, "property"), PropertyInfo(VariantType::NIL, "value")))
-#ifdef TOOLS_ENABLED
-    MethodInfo miget("_get", PropertyInfo(VariantType::STRING, "property"));
-    miget.return_val.name = "Variant";
-    miget.return_val.usage |= PROPERTY_USAGE_NIL_IS_VARIANT;
-    BIND_VMETHOD(miget)
 
-    MethodInfo plget("_get_property_list");
+    Object_add_tooling_methods();
 
-    plget.return_val.type = VariantType::ARRAY;
-    BIND_VMETHOD(plget)
-
-#endif
     BIND_VMETHOD(MethodInfo("_init"))
     BIND_VMETHOD(MethodInfo(VariantType::STRING, "_to_string"))
 
@@ -2027,7 +1921,7 @@ void Object::set_script_instance_binding(int p_script_language_index, void *p_da
 }
 
 Object::Object() {
-    private_data = memnew(ObjectPrivate);
+    private_data = memnew_args_basic(ObjectPrivate,this);
     _class_ptr = nullptr;
     _block_signals = false;
     _predelete_ok = 0;

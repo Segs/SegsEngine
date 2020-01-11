@@ -232,7 +232,7 @@ Dictionary GDScriptTextDocument::resolve(const Dictionary &p_params) {
 
         se_string query = data;
 
-        Vector<se_string_view> param_symbols = StringUtils::split(query,(SYMBOL_SEPERATOR), false);
+        PODVector<se_string_view> param_symbols = StringUtils::split(query,(SYMBOL_SEPERATOR), false);
 
         if (param_symbols.size() >= 2) {
 

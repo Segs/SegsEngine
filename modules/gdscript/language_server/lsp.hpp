@@ -1605,12 +1605,12 @@ inline se_string marked_documentation(se_string_view p_bbcode) {
     using namespace StringUtils;
     se_string markdown(strip_edges(p_bbcode));
 
-    Vector<se_string_view> lines = split(markdown,'\n');
+    PODVector<se_string_view> lines = split(markdown,'\n');
     bool in_code_block = false;
     int code_block_indent = -1;
 
     markdown = "";
-    for (int i = 0; i < lines.size(); i++) {
+    for (size_t i = 0; i < lines.size(); i++) {
         se_string line(lines[i]);
         auto block_start = find(line,"[codeblock]");
         if (block_start != se_string_view::npos) {

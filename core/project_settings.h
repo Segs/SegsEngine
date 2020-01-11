@@ -137,12 +137,12 @@ public:
 
     Error setup(se_string_view p_path, se_string_view p_main_pack, bool p_upwards = false);
 
-    Error save_custom(se_string_view p_path = {}, const CustomMap &p_custom = CustomMap(), const Vector<se_string> &p_custom_features = {}, bool p_merge_with_current = true);
+    Error save_custom(se_string_view p_path = {}, const CustomMap &p_custom = CustomMap(), const PODVector<se_string> &p_custom_features = {}, bool p_merge_with_current = true);
     Error save();
     void set_custom_property_info(const StringName &p_prop, const PropertyInfo &p_info);
     const Map<StringName, PropertyInfo> &get_custom_property_info() const;
 
-    Vector<se_string> get_optimizer_presets() const;
+    PODVector<se_string> get_optimizer_presets() const;
 
     const ListPOD<se_string> &get_input_presets() const { return input_presets; }
 

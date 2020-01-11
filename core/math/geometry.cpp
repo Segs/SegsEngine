@@ -43,7 +43,7 @@
 /*
 bool Geometry::is_point_in_polygon(const Vector2 &p_point, const Vector<Vector2> &p_polygon) {
 
-    Vector<int> indices = Geometry::triangulate_polygon(p_polygon);
+    PODVector<int> indices = Geometry::triangulate_polygon(p_polygon);
     for (int j = 0; j + 3 <= indices.size(); j += 3) {
         int i1 = indices[j], i2 = indices[j + 1], i3 = indices[j + 2];
         if (Geometry::is_point_in_triangle(p_point, p_polygon[i1], p_polygon[i2], p_polygon[i3]))
@@ -716,8 +716,8 @@ PODVector<Point2> Geometry::convex_hull_2d(Span<const Point2> _P) {
     return H;
 }
 
-Vector<PODVector<Vector2> > Geometry::decompose_polygon_in_convex(Span<const Point2> polygon) {
-    Vector<PODVector<Vector2> > decomp;
+PODVector<PODVector<Vector2> > Geometry::decompose_polygon_in_convex(Span<const Point2> polygon) {
+    PODVector<PODVector<Vector2> > decomp;
     eastl::list<TriangulatorPoly> in_poly, out_poly;
 
     TriangulatorPoly inp;
@@ -737,8 +737,8 @@ Vector<PODVector<Vector2> > Geometry::decompose_polygon_in_convex(Span<const Poi
     int idx = 0;
     for (const TriangulatorPoly &tp : out_poly) {
 
-        decomp.write[idx].resize(tp.GetNumPoints());
-        memcpy(decomp.write[idx].data(),tp.GetPoints(),sizeof(Vector2)*tp.GetNumPoints());
+        decomp[idx].resize(tp.GetNumPoints());
+        memcpy(decomp[idx].data(),tp.GetPoints(),sizeof(Vector2)*tp.GetNumPoints());
 
         idx++;
     }
@@ -765,7 +765,7 @@ Geometry::MeshData Geometry::build_convex_mesh(const PoolVector<Plane> &p_planes
         Vector3 right = p.normal.cross(ref).normalized();
         Vector3 up = p.normal.cross(right).normalized();
 
-        Vector<Vector3> vertices;
+        PODVector<Vector3> vertices;
 
         Vector3 center = p.get_any_point();
         // make a quad clockwise
@@ -779,7 +779,7 @@ Geometry::MeshData Geometry::build_convex_mesh(const PoolVector<Plane> &p_planes
             if (j == i)
                 continue;
 
-            Vector<Vector3> new_vertices;
+            PODVector<Vector3> new_vertices;
             Plane clip = p_planes[j];
 
             if (clip.normal.dot(p.normal) > 0.95f)
@@ -996,12 +996,12 @@ struct _AtlasWorkRect {
 
 struct _AtlasWorkRectResult {
 
-    Vector<_AtlasWorkRect> result;
+    PODVector<_AtlasWorkRect> result;
     int max_w;
     int max_h;
 };
 
-void Geometry::make_atlas(const Vector<Size2i> &p_rects, PODVector<Point2i> &r_result, Size2i &r_size) {
+void Geometry::make_atlas(const PODVector<Size2i> &p_rects, PODVector<Point2i> &r_result, Size2i &r_size) {
 
     // Super simple, almost brute force scanline stacking fitter.
     // It's pretty basic for now, but it tries to make sure that the aspect ratio of the
@@ -1013,16 +1013,16 @@ void Geometry::make_atlas(const Vector<Size2i> &p_rects, PODVector<Point2i> &r_r
 
     ERR_FAIL_COND(p_rects.empty())
 
-    Vector<_AtlasWorkRect> wrects;
+    PODVector<_AtlasWorkRect> wrects;
     wrects.resize(p_rects.size());
     for (int i = 0; i < p_rects.size(); i++) {
-        wrects.write[i].s = p_rects[i];
-        wrects.write[i].idx = i;
+        wrects[i].s = p_rects[i];
+        wrects[i].idx = i;
     }
-    wrects.sort();
+    eastl::sort(wrects.begin(),wrects.end());
     int widest = wrects[0].s.width;
 
-    Vector<_AtlasWorkRectResult> results;
+    PODVector<_AtlasWorkRectResult> results;
 
     for (int i = 0; i <= 12; i++) {
 
@@ -1032,10 +1032,8 @@ void Geometry::make_atlas(const Vector<Size2i> &p_rects, PODVector<Point2i> &r_r
         if (w < widest)
             continue;
 
-        Vector<int> hmax;
-        hmax.resize(w);
-        for (int j = 0; j < w; j++)
-            hmax.write[j] = 0;
+        PODVector<int> hmax;
+        hmax.resize(w,0);
 
         //place them
         int ofs = 0;
@@ -1054,8 +1052,8 @@ void Geometry::make_atlas(const Vector<Size2i> &p_rects, PODVector<Point2i> &r_r
                     from_y = hmax[ofs + k];
             }
 
-            wrects.write[j].p.x = ofs;
-            wrects.write[j].p.y = from_y;
+            wrects[j].p.x = ofs;
+            wrects[j].p.y = from_y;
             int end_h = from_y + wrects[j].s.height;
             int end_w = ofs + wrects[j].s.width;
             if (ofs == 0)
@@ -1063,7 +1061,7 @@ void Geometry::make_atlas(const Vector<Size2i> &p_rects, PODVector<Point2i> &r_r
 
             for (int k = 0; k < wrects[j].s.width; k++) {
 
-                hmax.write[ofs + k] = end_h;
+                hmax[ofs + k] = end_h;
             }
 
             if (end_h > max_h)
@@ -1109,7 +1107,7 @@ void Geometry::make_atlas(const Vector<Size2i> &p_rects, PODVector<Point2i> &r_r
     r_size = Size2(results[best].max_w, results[best].max_h);
 }
 
-Vector<PODVector<Point2> > Geometry::_polypaths_do_operation(PolyBooleanOperation p_op, const Vector<Point2> &p_polypath_a, const Vector<Point2> &p_polypath_b, bool is_a_open) {
+PODVector<PODVector<Point2> > Geometry::_polypaths_do_operation(PolyBooleanOperation p_op, const Vector<Point2> &p_polypath_a, const Vector<Point2> &p_polypath_b, bool is_a_open) {
 
     using namespace ClipperLib;
 
@@ -1144,7 +1142,7 @@ Vector<PODVector<Point2> > Geometry::_polypaths_do_operation(PolyBooleanOperatio
         clp.Execute(op, paths); // works on closed polygons only
     }
     // Have to scale points down now
-    Vector<PODVector<Vector2> > polypaths;
+    PODVector<PODVector<Vector2> > polypaths;
 
     for (Paths::size_type i = 0; i < paths.size(); ++i) {
         PODVector<Vector2> polypath;
@@ -1161,7 +1159,7 @@ Vector<PODVector<Point2> > Geometry::_polypaths_do_operation(PolyBooleanOperatio
     return polypaths;
 }
 
-Vector<PODVector<Point2> > Geometry::_polypath_offset(const Vector<Point2> &p_polypath, real_t p_delta, PolyJoinType p_join_type, PolyEndType p_end_type) {
+PODVector<PODVector<Point2> > Geometry::_polypath_offset(const Vector<Point2> &p_polypath, real_t p_delta, PolyJoinType p_join_type, PolyEndType p_end_type) {
 
     using namespace ClipperLib;
 
@@ -1195,7 +1193,7 @@ Vector<PODVector<Point2> > Geometry::_polypath_offset(const Vector<Point2> &p_po
     co.Execute(paths, p_delta * SCALE_FACTOR); // inflate/deflate
 
     // Have to scale points down now
-    Vector<PODVector<Point2> > polypaths;
+    PODVector<PODVector<Point2> > polypaths;
 
     for (Paths::size_type i = 0; i < paths.size(); ++i) {
         PODVector<Vector2> polypath;

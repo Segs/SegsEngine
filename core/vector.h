@@ -52,6 +52,7 @@ template<class T,int N,bool GROWING=false>
 using FixedVector = eastl::fixed_vector<T,N,GROWING,wrap_allocator>;
 template <typename T>
 using Span = eastl::span<T,eastl::dynamic_extent>;
+class Variant;
 
 template <class T>
 class VectorWriteProxy {
@@ -181,8 +182,9 @@ extern template class EXPORT_TEMPLATE_DECLARE(GODOT_EXPORT) eastl::vector<class 
 extern template class EXPORT_TEMPLATE_DECLARE(GODOT_EXPORT) eastl::vector<uint8_t,wrap_allocator>;
 extern template class EXPORT_TEMPLATE_DECLARE(GODOT_EXPORT) eastl::vector<class Variant,wrap_allocator>;
 extern template class EXPORT_TEMPLATE_DECLARE(GODOT_EXPORT) eastl::vector<struct PropertyInfo,wrap_allocator>;
-
 extern template class EXPORT_TEMPLATE_DECLARE(GODOT_EXPORT) Vector<String>;
-extern template class EXPORT_TEMPLATE_DECLARE(GODOT_EXPORT) Vector<struct Vector2>;
-extern template class EXPORT_TEMPLATE_DECLARE(GODOT_EXPORT) Vector<struct Vector3>;
+extern template class EXPORT_TEMPLATE_DECLARE(GODOT_EXPORT) Vector<Variant>;
+extern template class EXPORT_TEMPLATE_DECLARE(GODOT_EXPORT) eastl::vector<struct Vector2>;
+extern template class EXPORT_TEMPLATE_DECLARE(GODOT_EXPORT) eastl::vector<struct Vector3>;
 #endif
+extern const Vector<Variant> null_variant_vec;

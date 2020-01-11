@@ -131,7 +131,7 @@ class VisualScriptEditor : public ScriptEditorBase {
         String name;
         VariantType ret;
         bool ret_variant;
-        Vector<Pair<VariantType, String> > args;
+        PODVector<Pair<VariantType, String> > args;
     };
 
     HashMap<StringName, Ref<StyleBox> > node_styles;

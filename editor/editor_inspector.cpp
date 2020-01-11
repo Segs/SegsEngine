@@ -38,7 +38,9 @@
 #include "scene/resources/packed_scene.h"
 #include "scene/gui/rich_text_label.h"
 #include "core/method_bind.h"
+#include "core/object_tooling.h"
 #include "scene/main/scene_tree.h"
+#include "scene/resources/font.h"
 #include "scene/resources/style_box.h"
 
 IMPL_GDCLASS(EditorProperty)
@@ -1827,7 +1829,7 @@ void EditorInspector::edit(Object *p_object) {
     if (object) {
 
         _clear();
-        object->remove_change_receptor(this);
+        Object_remove_change_receptor(object,this);
     }
 
     object = p_object;
@@ -1837,7 +1839,7 @@ void EditorInspector::edit(Object *p_object) {
         if (scroll_cache.contains(object->get_instance_id())) { //if exists, set something else
             update_scroll_request = scroll_cache[object->get_instance_id()]; //done this way because wait until full size is accommodated
         }
-        object->add_change_receptor(this);
+        Object_add_change_receptor(object,this);
         update_tree();
     }
 }

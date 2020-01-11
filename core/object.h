@@ -37,6 +37,8 @@
 #include "core/forward_decls.h"
 #include "core/dictionary.h"
 
+class IObjectTooling;
+
 class GODOT_EXPORT TypeInfo
 {
 public:
@@ -73,7 +75,7 @@ private:
 };
 
 
-#define VARIANT_ARG_LIST const Variant &p_arg1 = Variant(), const Variant &p_arg2 = Variant(), const Variant &p_arg3 = Variant(), const Variant &p_arg4 = Variant(), const Variant &p_arg5 = Variant()
+#define VARIANT_ARG_LIST const Variant &p_arg1 = Variant::null_variant, const Variant &p_arg2 = Variant::null_variant, const Variant &p_arg3 = Variant::null_variant, const Variant &p_arg4 = Variant::null_variant, const Variant &p_arg5 = Variant::null_variant
 #define VARIANT_ARG_PASS p_arg1, p_arg2, p_arg3, p_arg4, p_arg5
 #define VARIANT_ARG_DECLARE const Variant &p_arg1, const Variant &p_arg2, const Variant &p_arg3, const Variant &p_arg4, const Variant &p_arg5
 #define VARIANT_ARG_MAX 5
@@ -96,13 +98,13 @@ Array convert_property_vector(const PODVector<PropertyInfo> *p_list);
 
 #define REVERSE_GET_PROPERTY_LIST                                  \
 public:                                                            \
-    _FORCE_INLINE_ bool _is_gpl_reversed() const { return true; }; \
+    constexpr bool _is_gpl_reversed() const { return true; }; \
                                                                    \
 private:
 
 #define UNREVERSE_GET_PROPERTY_LIST                                 \
 public:                                                             \
-    _FORCE_INLINE_ bool _is_gpl_reversed() const { return false; }; \
+    constexpr bool _is_gpl_reversed() const { return false; }; \
                                                                     \
 private:
 
@@ -128,13 +130,13 @@ public:                                                                         
     static const void *get_class_ptr_static() {                                                                        \
         return &typeInfoStatic;                                                                                        \
     }                                                                                                                  \
-    static constexpr _FORCE_INLINE_ const char *get_class_static() {                                                   \
+    static constexpr const char *get_class_static() {                                                   \
         return #m_class;				                                                                               \
     }                                                                                                                  \
-    static _FORCE_INLINE_ StringName get_class_static_name() {                                                         \
+    static StringName get_class_static_name() {                                                         \
         return StringName(#m_class);	                                                                               \
     }                                                                                                                  \
-    static _FORCE_INLINE_ const char *get_parent_class_static() {                                                      \
+    static const char *get_parent_class_static() {                                                      \
         return BaseClassName::get_class_static();                                                                        \
     }                                                                                                                  \
     virtual bool is_class(const char *p_class) const override {                                                        \
@@ -143,13 +145,13 @@ public:                                                                         
             return (p_ptr == get_class_ptr_static()) ? true : BaseClassName::is_class_ptr(p_ptr); }                      \
                                                                                                                        \
 protected:                                                                                                             \
-    _FORCE_INLINE_ static void (*_get_bind_methods())() {                                                              \
+    static void (*_get_bind_methods())() {                                                              \
         return &m_class::_bind_methods;                                                                                \
     }                                                                                                                  \
                                                                                                                        \
 protected:                                                                                                             \
     bool _initialize_classv() override { return initialize_class(); }                                                  \
-    static constexpr _FORCE_INLINE_ bool (Object::*_get_get() )(const StringName &p_name, Variant &r_ret) const {      \
+    static constexpr bool (Object::*_get_get() )(const StringName &p_name, Variant &r_ret) const {      \
         return (bool (Object::*)(const StringName &, Variant &) const) & m_class::_get;                                \
     }                                                                                                                  \
     bool _getv(const StringName &p_name, Variant &r_ret) const override {                                              \
@@ -158,7 +160,7 @@ protected:                                                                      
         }                                                                                                              \
         return BaseClassName::_getv(p_name, r_ret);                                                                      \
     }                                                                                                                  \
-    static constexpr _FORCE_INLINE_ bool (Object::*_get_set() )(const StringName &p_name, const Variant &p_property) { \
+    static constexpr bool (Object::*_get_set() )(const StringName &p_name, const Variant &p_property) { \
         return (bool (Object::*)(const StringName &, const Variant &)) & m_class::_set;                                \
     }                                                                                                                  \
     bool _setv(const StringName &p_name, const Variant &p_property) override {                                         \
@@ -168,11 +170,11 @@ protected:                                                                      
         }                                                                                                              \
         return false;                                                                                                  \
     }                                                                                                                  \
-    _FORCE_INLINE_ void (Object::*_get_get_property_list() const)(ListPOD<PropertyInfo> * p_list) const {              \
+    void (Object::*_get_get_property_list() const)(ListPOD<PropertyInfo> * p_list) const {              \
         return (void (Object::*)(ListPOD<PropertyInfo> *) const) & m_class::_get_property_list;                        \
     }                                                                                                                  \
     void _get_property_listv(ListPOD<PropertyInfo> *p_list, bool p_reversed) const override;                           \
-    _FORCE_INLINE_ void (Object::*_get_notification() const)(int) {                                                    \
+    void (Object::*_get_notification() const)(int) {                                                    \
         return (void (Object::*)(int)) & m_class::_notification;                                                       \
     }                                                                                                                  \
     void _notificationv(int p_notification, bool p_reversed) override;                                                 \
@@ -214,7 +216,7 @@ private:
 
 #define OBJ_CATEGORY(m_category)                                                                                       \
 protected:                                                                                                             \
-    _FORCE_INLINE_ static const char * _get_category() { return m_category; }                                          \
+    static constexpr const char * _get_category() { return m_category; }                                          \
     _FORCE_INLINE_ static se_string _get_category_wrap();                                                              \
                                                                                                                        \
 private:
@@ -232,20 +234,6 @@ private:
 
 class ScriptInstance;
 using ObjectID = uint64_t;
-
-class GODOT_EXPORT IObjectTooling {
-public:
-    virtual void set_edited(bool p_edited,bool increment_version=true)=0;
-    virtual bool is_edited() const = 0;
-    //! this function is used to check when something changed beyond a point, it's used mainly for generating previews
-    virtual uint32_t get_edited_version() const =0;
-
-    virtual void editor_set_section_unfold(se_string_view p_section, bool p_unfolded)=0;
-    virtual bool editor_is_section_unfolded(se_string_view p_section) const = 0;
-    virtual const Set<se_string> &editor_get_section_folding() const =0;
-    virtual void editor_clear_section_folding()=0;
-    virtual ~IObjectTooling() = default;
-};
 
 class GODOT_EXPORT Object {
     static constexpr TypeInfo typeInfoStatic = TypeInfo( "Object", nullptr);
@@ -274,6 +262,7 @@ private:
 #ifdef DEBUG_ENABLED
     friend struct _ObjectDebugLock;
 #endif
+    friend void Object_change_notify(Object *self,StringName p_property);
     friend bool GODOT_EXPORT predelete_handler(Object *);
     friend void GODOT_EXPORT postinitialize_handler(Object *);
 
@@ -368,25 +357,18 @@ protected:
 
 public: //should be protected, but bug in clang++
     static bool initialize_class();
-    _FORCE_INLINE_ static void register_custom_data_to_otdb() {}
+    static void register_custom_data_to_otdb() {}
 
 public:
-#ifdef TOOLS_ENABLED
-    void _change_notify(StringName p_property = "");
-#else
-    void _change_notify(const char *p_what = "") {}
-#endif
     static const void *get_class_ptr_static() {
         return get_type_info_static();
     }
 
     bool _is_gpl_reversed() const { return false; }
 
-    _FORCE_INLINE_ ObjectID get_instance_id() const { return _instance_id; }
-    // this is used for editors
+    ObjectID get_instance_id() const { return _instance_id; }
 
-    void add_change_receptor(Object *p_receptor);
-    void remove_change_receptor(Object *p_receptor);
+    // this is used for editors
 
     enum {
 
@@ -477,7 +459,7 @@ public:
     int get_persistent_signal_connection_count() const;
     void get_signals_connected_to_this(ListPOD<Connection> *p_connections) const;
 
-    Error connect(const StringName &p_signal, Object *p_to_object, const StringName &p_to_method, const Vector<Variant> &p_binds = Vector<Variant>(), uint32_t p_flags = 0);
+    Error connect(const StringName &p_signal, Object *p_to_object, const StringName &p_to_method, const Vector<Variant> &p_binds = null_variant_vec, uint32_t p_flags = 0);
     void disconnect(const StringName &p_signal, Object *p_to_object, const StringName &p_to_method);
     bool is_connected(const StringName &p_signal, Object *p_to_object, const StringName &p_to_method) const;
 
@@ -498,8 +480,8 @@ public:
     bool is_queued_for_deletion() const;
     void deleteLater() { _is_queued_for_deletion = true; }
 
-    _FORCE_INLINE_ void set_message_translation(bool p_enable) { _can_translate = p_enable; }
-    _FORCE_INLINE_ bool can_translate_messages() const { return _can_translate; }
+    void set_message_translation(bool p_enable) { _can_translate = p_enable; }
+    bool can_translate_messages() const { return _can_translate; }
 
 
     //used by script languages to store binding data

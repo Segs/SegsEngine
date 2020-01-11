@@ -106,7 +106,7 @@ Variant MethodBind::call(Object *p_object, const Variant **p_args, int p_arg_cou
 #endif
     return do_call(p_object,p_args,p_arg_count,r_error);
 }
-void MethodBind::set_default_arguments(const Vector<Variant> &p_defargs) {
+void MethodBind::set_default_arguments(const PODVector<Variant> &p_defargs) {
     default_arguments = p_defargs;
     default_argument_count = default_arguments.size();
 }

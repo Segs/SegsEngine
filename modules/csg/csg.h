@@ -53,8 +53,8 @@ struct CSGBrush {
         int material;
     };
 
-    Vector<Face> faces;
-    Vector<Ref<Material> > materials;
+    PODVector<Face> faces;
+    PODVector<Ref<Material> > materials;
 
     void _regen_face_aabbs();
     //create a brush from faces
@@ -140,7 +140,7 @@ struct CSGBrushOperation {
 
         OAHashMap<VertexKey, int> snap_cache;
 
-        Vector<Vector3> points;
+        PODVector<Vector3> points;
 
         struct Face {
             bool from_b;
@@ -152,7 +152,7 @@ struct CSGBrushOperation {
             int material_idx;
         };
 
-        Vector<Face> faces;
+        PODVector<Face> faces;
 
         Map<Ref<Material>, int> materials;
 
@@ -176,7 +176,7 @@ struct CSGBrushOperation {
             Vector2 uv;
         };
 
-        Vector<Point> points;
+        PODVector<Point> points;
 
         struct Edge {
             bool outer;
@@ -186,7 +186,7 @@ struct CSGBrushOperation {
             }
         };
 
-        Vector<Edge> edges;
+        PODVector<Edge> edges;
         Ref<Material> material;
         bool smooth;
         bool invert;
@@ -200,8 +200,8 @@ struct CSGBrushOperation {
     };
 
     struct PolyPoints {
-        Vector<int> points;
-        Vector<Vector<int> > holes;
+        PODVector<int> points;
+        PODVector<PODVector<int> > holes;
     };
 
     struct EdgeSort {
@@ -221,8 +221,8 @@ struct CSGBrushOperation {
         Map<int, BuildPoly> build_polys_B;
     };
 
-    void _add_poly_points(const BuildPoly &p_poly, int p_edge, int p_from_point, int p_to_point, const Vector<Vector<int> > &vertex_process, Vector<bool> &edge_process, Vector<PolyPoints> &r_poly);
-    void _add_poly_outline(const BuildPoly &p_poly, int p_from_point, int p_to_point, const Vector<Vector<int> > &vertex_process, Vector<int> &r_outline);
+    void _add_poly_points(const BuildPoly &p_poly, int p_edge, int p_from_point, int p_to_point, const PODVector<PODVector<int> > &vertex_process, PODVector<bool> &edge_process, PODVector<PolyPoints> &r_poly);
+    void _add_poly_outline(const BuildPoly &p_poly, int p_from_point, int p_to_point, const PODVector<PODVector<int> > &vertex_process, PODVector<int> &r_outline);
     void _merge_poly(MeshMerge &mesh, int p_face_idx, const BuildPoly &p_poly, bool p_from_b);
 
     void _collision_callback(const CSGBrush *A, int p_face_a, Map<int, BuildPoly> &build_polys_a, const CSGBrush *B, int p_face_b, Map<int, BuildPoly> &build_polys_b, MeshMerge &mesh_merge);

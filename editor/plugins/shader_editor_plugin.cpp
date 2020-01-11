@@ -33,6 +33,7 @@
 #include "core/io/resource_loader.h"
 #include "core/io/resource_saver.h"
 #include "core/method_bind.h"
+#include "core/object_tooling.h"
 #include "core/os/keyboard.h"
 #include "core/os/os.h"
 #include "core/translation_helpers.h"
@@ -491,7 +492,7 @@ void ShaderEditor::apply_shaders() {
         se_string editor_code = shader_editor->get_text_edit()->get_text_utf8();
         if (shader_code != editor_code) {
             shader->set_code(editor_code);
-            shader->get_tooling_interface()->set_edited(true);
+            Object_set_edited(shader.get(),true);
         }
     }
 }

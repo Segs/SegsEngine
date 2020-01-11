@@ -32,6 +32,7 @@
 
 #include "canvas_item_editor_plugin.h"
 #include "core/method_bind.h"
+#include "core/object_tooling.h"
 #include "scene/resources/capsule_shape_2d.h"
 #include "scene/resources/circle_shape_2d.h"
 #include "scene/resources/concave_polygon_shape_2d.h"
@@ -211,7 +212,7 @@ void CollisionShape2DEditor::set_handle(int idx, Point2 &p_point) {
 
         } break;
     }
-    node->get_shape()->_change_notify();
+    Object_change_notify(node->get_shape().get());
 }
 
 void CollisionShape2DEditor::commit_handle(int idx, Variant &p_org) {

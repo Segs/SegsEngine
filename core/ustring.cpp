@@ -429,9 +429,9 @@ se_string_view StringUtils::get_slice(se_string_view str,char p_splitter, int p_
        return StringUtils::substr(str,prev);
     return se_string_view();
 }
-Vector<String> StringUtils::split_spaces(const String &str) {
+PODVector<String> StringUtils::split_spaces(const String &str) {
 
-    Vector<String> ret;
+    PODVector<String> ret;
     int from = 0;
     int i = 0;
     int len = str.length();
@@ -462,9 +462,9 @@ Vector<String> StringUtils::split_spaces(const String &str) {
 
     return ret;
 }
-Vector<se_string_view> StringUtils::split_spaces(se_string_view str) {
+PODVector<se_string_view> StringUtils::split_spaces(se_string_view str) {
 
-    Vector<se_string_view> ret;
+    PODVector<se_string_view> ret;
     int from = 0;
     int i = 0;
     int len = str.length();
@@ -495,9 +495,9 @@ Vector<se_string_view> StringUtils::split_spaces(se_string_view str) {
 
     return ret;
 }
-Vector<String> StringUtils::split(const String &str,const String &p_splitter, bool p_allow_empty, int p_maxsplit) {
+PODVector<String> StringUtils::split(const String &str,const String &p_splitter, bool p_allow_empty, int p_maxsplit) {
 
-    Vector<String> ret;
+    PODVector<String> ret;
     int from = 0;
     int len = str.length();
 
@@ -530,21 +530,21 @@ Vector<String> StringUtils::split(const String &str,const String &p_splitter, bo
 
     return ret;
 }
-Vector<String> StringUtils::split(const String &str,const CharType p_splitter, bool p_allow_empty) {
-    Vector<String> ret;
+PODVector<String> StringUtils::split(const String &str,const CharType p_splitter, bool p_allow_empty) {
+    PODVector<String> ret;
     auto val = str.splitRef(p_splitter,p_allow_empty ? QString::KeepEmptyParts : QString::SkipEmptyParts);
     ret.resize(val.size());
     for(int i=0,fin=val.size(); i<fin; ++i)
-        ret.write[i] = val[i].toString();
+        ret[i] = val[i].toString();
     return ret;
 }
-Vector<se_string_view> StringUtils::split(se_string_view str,char p_splitter, bool p_allow_empty) {
-    Vector<se_string_view> ret;
+PODVector<se_string_view> StringUtils::split(se_string_view str,char p_splitter, bool p_allow_empty) {
+    PODVector<se_string_view> ret;
     se_string::split_ref(ret,str,p_splitter,p_allow_empty);
     return ret;
 }
-Vector<se_string_view> StringUtils::split(se_string_view str,se_string_view p_splitter, bool p_allow_empty,int p_maxsplit) {
-    Vector<se_string_view> ret;
+PODVector<se_string_view> StringUtils::split(se_string_view str,se_string_view p_splitter, bool p_allow_empty,int p_maxsplit) {
+    PODVector<se_string_view> ret;
     size_t from = 0;
     size_t len = str.length();
 
@@ -577,9 +577,9 @@ Vector<se_string_view> StringUtils::split(se_string_view str,se_string_view p_sp
 
     return ret;
 }
-Vector<String> StringUtils::rsplit(const String &str,const String &p_splitter, bool p_allow_empty, int p_maxsplit) {
+PODVector<String> StringUtils::rsplit(const String &str,const String &p_splitter, bool p_allow_empty, int p_maxsplit) {
 
-    Vector<String> ret;
+    PODVector<String> ret;
     const int len = str.length();
     int remaining_len = len;
 
@@ -608,13 +608,12 @@ Vector<String> StringUtils::rsplit(const String &str,const String &p_splitter, b
 
         remaining_len = left_edge;
     }
-
-    ret.invert();
+    eastl::reverse(ret.begin(),ret.end());
     return ret;
 }
-Vector<se_string_view> StringUtils::rsplit(se_string_view str,se_string_view p_splitter, bool p_allow_empty, int p_maxsplit) {
+PODVector<se_string_view> StringUtils::rsplit(se_string_view str,se_string_view p_splitter, bool p_allow_empty, int p_maxsplit) {
 
-    Vector<se_string_view> ret;
+    PODVector<se_string_view> ret;
     const size_t len = str.length();
     const size_t split_len = p_splitter.size();
     size_t remaining_len = len;
@@ -645,7 +644,8 @@ Vector<se_string_view> StringUtils::rsplit(se_string_view str,se_string_view p_s
         remaining_len = left_edge;
     }
 
-    ret.invert();
+    eastl::reverse(ret.begin(),ret.end());
+
     return ret;
 }
 //Vector<float> StringUtils::split_floats(const String &str,const String &p_splitter, bool p_allow_empty) {
@@ -670,9 +670,9 @@ Vector<se_string_view> StringUtils::rsplit(se_string_view str,se_string_view p_s
 
 //    return ret;
 //}
-Vector<float> StringUtils::split_floats(se_string_view str,se_string_view p_splitter, bool p_allow_empty) {
+PODVector<float> StringUtils::split_floats(se_string_view str,se_string_view p_splitter, bool p_allow_empty) {
 
-    Vector<float> ret;
+    PODVector<float> ret;
     int from = 0;
     int len = str.length();
 
@@ -747,7 +747,7 @@ PODVector<float> StringUtils::split_floats_mk(se_string_view str,se_string_view 
     return ret;
 }
 
-String StringUtils::join(const String &str,const Vector<String> &parts) {
+String StringUtils::join(const String &str,const PODVector<String> &parts) {
     String ret;
     for (int i = 0; i < parts.size(); ++i) {
         if (i > 0) {
@@ -1477,52 +1477,26 @@ PODVector<uint8_t> StringUtils::md5_buffer(se_string_view cs) {
     return ret;
 };
 
-Vector<uint8_t> StringUtils::sha1_buffer(const String &str) {
+PODVector<uint8_t> StringUtils::sha1_buffer(const String &str) {
     se_string cs = StringUtils::to_utf8(str);
-    unsigned char hash[20];
-    CryptoCore::sha1((unsigned char *)cs.data(), cs.length(), hash);
-
-    Vector<uint8_t> ret;
-    ret.resize(20);
-    for (int i = 0; i < 20; i++) {
-        ret.write[i] = hash[i];
-    }
-
+    PODVector<uint8_t> ret(20,0);
+    CryptoCore::sha1((unsigned char *)cs.data(), cs.length(), ret.data());
     return ret;
 }
-Vector<uint8_t> StringUtils::sha1_buffer(se_string_view cs) {
-    unsigned char hash[20];
-    CryptoCore::sha1((unsigned char *)cs.data(), cs.length(), hash);
-
-    Vector<uint8_t> ret;
-    ret.resize(20);
-    for (int i = 0; i < 20; i++) {
-        ret.write[i] = hash[i];
-    }
-
+PODVector<uint8_t> StringUtils::sha1_buffer(se_string_view cs) {
+    PODVector<uint8_t> ret(20,0);
+    CryptoCore::sha1((unsigned char *)cs.data(), cs.length(), ret.data());
     return ret;
 }
-Vector<uint8_t> StringUtils::sha256_buffer(const String &str)  {
+PODVector<uint8_t> StringUtils::sha256_buffer(const String &str)  {
     se_string cs = StringUtils::to_utf8(str);
-    unsigned char hash[32];
-    CryptoCore::sha256((unsigned char *)cs.data(), cs.length(), hash);
-
-    Vector<uint8_t> ret;
-    ret.resize(32);
-    for (int i = 0; i < 32; i++) {
-        ret.write[i] = hash[i];
-    }
+    PODVector<uint8_t> ret(32,0);
+    CryptoCore::sha256((unsigned char *)cs.data(), cs.length(), ret.data());
     return ret;
 }
-Vector<uint8_t> StringUtils::sha256_buffer(se_string_view str)  {
-    unsigned char hash[32];
-    CryptoCore::sha256((unsigned char *)str.data(), str.length(), hash);
-
-    Vector<uint8_t> ret;
-    ret.resize(32);
-    for (int i = 0; i < 32; i++) {
-        ret.write[i] = hash[i];
-    }
+PODVector<uint8_t> StringUtils::sha256_buffer(se_string_view str)  {
+    PODVector<uint8_t> ret(32,0);
+    CryptoCore::sha256((unsigned char *)str.data(), str.length(), ret.data());
     return ret;
 }
 String StringUtils::insert(const String &s,int p_at_pos, const String &p_string) {
@@ -1590,7 +1564,7 @@ size_t StringUtils::find(se_string_view s,char c, size_t p_from) {
     return s.find(c,p_from);
 }
 
-static int findmk(const String &s,const Vector<String> &p_keys, int p_from, int *r_key) {
+static int findmk(const String &s,const PODVector<String> &p_keys, int p_from, int *r_key) {
 
     if (p_from < 0)
         return -1;
@@ -1902,58 +1876,58 @@ int StringUtils::countn(se_string_view s,se_string_view p_string, int p_from, in
 
     return str_count(s,p_string, p_from, p_to, true);
 }
-Vector<String> StringUtils::bigrams(const String &str) {
-    int n_pairs = str.length() - 1;
-    Vector<String> b;
-    if (n_pairs <= 0) {
-        return b;
-    }
-    b.resize(n_pairs);
-    for (int i = 0; i < n_pairs; i++) {
-        b.write[i] = StringUtils::substr(str,i, 2);
-    }
-    return b;
-}
+//Vector<String> StringUtils::bigrams(const String &str) {
+//    int n_pairs = str.length() - 1;
+//    Vector<String> b;
+//    if (n_pairs <= 0) {
+//        return b;
+//    }
+//    b.resize(n_pairs);
+//    for (int i = 0; i < n_pairs; i++) {
+//        b.write[i] = StringUtils::substr(str,i, 2);
+//    }
+//    return b;
+//}
 
 // Similarity according to Sorensen-Dice coefficient
-float StringUtils::similarity(const String &lhs,const String &p_string) {
-    if (lhs==p_string) {
-        // Equal strings are totally similar
-        return 1.0f;
-    }
-    if (lhs.length() < 2 || p_string.length() < 2) {
-        // No way to calculate similarity without a single bigram
-        return 0.0f;
-    }
+//float StringUtils::similarity(const String &lhs,const String &p_string) {
+//    if (lhs==p_string) {
+//        // Equal strings are totally similar
+//        return 1.0f;
+//    }
+//    if (lhs.length() < 2 || p_string.length() < 2) {
+//        // No way to calculate similarity without a single bigram
+//        return 0.0f;
+//    }
 
-    Vector<String> src_bigrams = StringUtils::bigrams(lhs);
-    Vector<String> tgt_bigrams = StringUtils::bigrams(p_string);
+//    Vector<String> src_bigrams = StringUtils::bigrams(lhs);
+//    Vector<String> tgt_bigrams = StringUtils::bigrams(p_string);
 
-    int src_size = src_bigrams.size();
-    int tgt_size = tgt_bigrams.size();
+//    int src_size = src_bigrams.size();
+//    int tgt_size = tgt_bigrams.size();
 
-    float sum = src_size + tgt_size;
-    float inter = 0;
-    for (int i = 0; i < src_size; i++) {
-        for (int j = 0; j < tgt_size; j++) {
-            if (src_bigrams[i] == tgt_bigrams[j]) {
-                inter++;
-                break;
-            }
-        }
-    }
+//    float sum = src_size + tgt_size;
+//    float inter = 0;
+//    for (int i = 0; i < src_size; i++) {
+//        for (int j = 0; j < tgt_size; j++) {
+//            if (src_bigrams[i] == tgt_bigrams[j]) {
+//                inter++;
+//                break;
+//            }
+//        }
+//    }
 
-    return (2.0f * inter) / sum;
-}
-Vector<se_string_view> StringUtils::bigrams(se_string_view str) {
+//    return (2.0f * inter) / sum;
+//}
+PODVector<se_string_view> StringUtils::bigrams(se_string_view str) {
     int n_pairs = str.length() - 1;
-    Vector<se_string_view> b;
+    PODVector<se_string_view> b;
     if (n_pairs <= 0) {
         return b;
     }
     b.resize(n_pairs);
     for (int i = 0; i < n_pairs; i++) {
-        b.write[i] = StringUtils::substr(str,i, 2);
+        b[i] = StringUtils::substr(str,i, 2);
     }
     return b;
 }
@@ -1969,8 +1943,8 @@ float StringUtils::similarity(se_string_view lhs,se_string_view p_string) {
         return 0.0f;
     }
 
-    Vector<se_string_view> src_bigrams = StringUtils::bigrams(lhs);
-    Vector<se_string_view> tgt_bigrams = StringUtils::bigrams(p_string);
+    PODVector<se_string_view> src_bigrams = StringUtils::bigrams(lhs);
+    PODVector<se_string_view> tgt_bigrams = StringUtils::bigrams(p_string);
 
     int src_size = src_bigrams.size();
     int tgt_size = tgt_bigrams.size();
@@ -3333,7 +3307,8 @@ bool StringUtils::is_valid_float(se_string_view str) {
 }
 se_string PathUtils::path_to_file(se_string_view base,se_string_view p_path) {
 
-    se_string src = get_base_dir(PathUtils::from_native_path(base));
+    // Don't get base dir for src, this is expected to be a dir already.
+    se_string src = PathUtils::from_native_path(base);
     se_string dst = get_base_dir(PathUtils::from_native_path(p_path));
     se_string rel = path_to(src,dst);
     if (rel == dst) // failed
@@ -3341,7 +3316,6 @@ se_string PathUtils::path_to_file(se_string_view base,se_string_view p_path) {
 
     return se_string(rel) + PathUtils::get_file(p_path);
 }
-
 //String PathUtils::path_to(const String &str,String p_path) {
 
 //    QString src = PathUtils::from_native_path(str);
@@ -4101,14 +4075,6 @@ se_string_view StringUtils::unquote(se_string_view str) {
     return str.substr(1, str.length() - 2);
 }
 #ifdef TOOLS_ENABLED
-String TTR(const String &p_text) {
-
-    if (TranslationServer::get_singleton()) {
-        return String(TranslationServer::get_singleton()->tool_translate(StringName(qPrintable(p_text))));
-    }
-
-    return p_text;
-}
 StringName TTR(se_string_view p_text) {
 
     if (TranslationServer::get_singleton()) {
@@ -4224,6 +4190,17 @@ void StringUtils::Inplace::replace(String &str, const String &p_key, const Strin
 }
 int StringUtils::char_length(const String &str) {
     return str.size();
+}
+se_string StringUtils::property_name_encode(se_string_view str) {
+    // Escape and quote strings with extended ASCII or further Unicode characters
+    // as well as '"', '=' or ' ' (32)
+    for (char c : str) {
+        if (c == '=' || c == '"' || c < 33 || c > 126) {
+            return "\"" + c_escape_multiline(str) + "\"";
+        }
+    }
+    // Keep as is
+    return se_string(str);
 }
 namespace PathUtils {
 String from_native_path(const String &p) {

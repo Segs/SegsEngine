@@ -34,6 +34,8 @@
 #include "core/hash_map.h"
 #include "core/resource.h"
 #include "scene/resources/texture.h"
+#include "core/forward_decls.h"
+#include "core/hashfuncs.h"
 #include <QChar>
 
 class Font : public Resource {
@@ -83,7 +85,7 @@ class FontDrawer {
         Color modulate;
     };
 
-    Vector<PendingDraw> pending_draws;
+    PODVector<PendingDraw> pending_draws;
 
 public:
     FontDrawer(const Ref<Font> &p_font, const Color &p_outline_color) :
@@ -114,7 +116,7 @@ class BitmapFont : public Font {
 
     RES_BASE_EXTENSION("font")
 
-    Vector<Ref<Texture> > textures;
+    PODVector<Ref<Texture> > textures;
 
 public:
     struct Character {
@@ -145,7 +147,7 @@ public:
     };
 
 private:
-    HashMap<CharType, Character> char_map;
+    DefHashMap<uint16_t, Character> char_map;
     Map<KerningPairKey, int> kerning_map;
 
     float height;
@@ -178,7 +180,7 @@ public:
     void add_char(CharType p_char, int p_texture_idx, const Rect2 &p_rect, const Size2 &p_align, float p_advance = -1);
 
     int get_character_count() const;
-    Vector<CharType> get_char_keys() const;
+    PODVector<CharType> get_char_keys() const;
     Character get_character(CharType p_char) const;
 
     int get_texture_count() const;
@@ -186,7 +188,7 @@ public:
 
     void add_kerning_pair(CharType p_A, CharType p_B, int p_kerning);
     int get_kerning_pair(CharType p_A, CharType p_B) const;
-    Vector<KerningPairKey> get_kerning_pair_keys() const;
+    PODVector<KerningPairKey> get_kerning_pair_keys() const;
 
     Size2 get_char_size(CharType p_char, CharType p_next = 0) const override;
 

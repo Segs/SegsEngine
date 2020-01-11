@@ -35,6 +35,7 @@
 #include "core/io/marshalls.h"
 #include "core/math/math_funcs.h"
 #include "core/method_bind.h"
+#include "core/object_tooling.h"
 #include "core/os/os.h"
 #include "core/se_string.h"
 #include "core/color.h"
@@ -678,7 +679,7 @@ void VisualScriptBuiltinFunc::set_func(BuiltinFunc p_which) {
 
     ERR_FAIL_INDEX(p_which, FUNC_MAX);
     func = p_which;
-    _change_notify();
+    Object_change_notify(this);
     ports_changed_notify();
 }
 

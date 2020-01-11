@@ -66,14 +66,14 @@ void EditorHistory::cleanup_history() {
                 fail = true;
             } else {
                 //after level, clip
-                history.write[i].path.resize(j);
+                history[i].path.resize(j);
             }
 
             break;
         }
 
         if (fail) {
-            history.remove(i);
+            history.erase_at(i);
             i--;
         }
     }
@@ -104,14 +104,14 @@ void EditorHistory::_add_object(ObjectID p_object, se_string_view p_property, in
 
     if (!p_property.empty() && has_prev) {
         //add a sub property
-        History &pr = history.write[current];
+        History &pr = history[current];
         h = pr;
         h.path.resize(h.level + 1);
         h.path.push_back(o);
         h.level++;
     } else if (p_level_change != -1 && has_prev) {
         //add a sub property
-        History &pr = history.write[current];
+        History &pr = history[current];
         h = pr;
         ERR_FAIL_INDEX(p_level_change, h.path.size());
         h.level = p_level_change;
@@ -210,7 +210,7 @@ ObjectID EditorHistory::get_current() {
     if (current < 0 || current >= history.size())
         return 0;
 
-    History &h = history.write[current];
+    History &h = history[current];
     Object *obj = ObjectDB::get_instance(h.path[h.level].object);
     if (!obj)
         return 0;
@@ -288,8 +288,8 @@ EditorPlugin *EditorData::get_subeditor(Object *p_object) {
     return nullptr;
 }
 
-Vector<EditorPlugin *> EditorData::get_subeditors(Object *p_object) {
-    Vector<EditorPlugin *> sub_plugins;
+PODVector<EditorPlugin *> EditorData::get_subeditors(Object *p_object) {
+    PODVector<EditorPlugin *> sub_plugins;
     for (int i = 0; i < editor_plugins.size(); i++) {
         if (!editor_plugins[i]->has_main_screen() && editor_plugins[i]->handles(p_object)) {
             sub_plugins.push_back(editor_plugins[i]);

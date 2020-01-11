@@ -609,10 +609,10 @@ Error GDScript::reload(bool p_keep_state) {
         }
     }
 #ifdef DEBUG_ENABLED
+    PODVector<ScriptLanguage::StackInfo> si;
     for (const List<GDScriptWarning>::Element *E = parser.get_warnings().front(); E; E = E->next()) {
         const GDScriptWarning &warning = E->deref();
         if (ScriptDebugger::get_singleton()) {
-            Vector<ScriptLanguage::StackInfo> si;
             ScriptDebugger::get_singleton()->send_error({}, get_path(), warning.line, warning.get_name(), warning.get_message(), ERR_HANDLER_WARNING, si);
         }
     }
@@ -1413,9 +1413,9 @@ void GDScriptLanguage::init() {
 
     //populate native classes
 
-    Vector<StringName> class_list;
+    PODVector<StringName> class_list;
     ClassDB::get_class_list(&class_list);
-    for (int i=0,fin=class_list.size(); i<fin; ++i) {
+    for (size_t i=0,fin=class_list.size(); i<fin; ++i) {
 
         StringName n = class_list[i];
         se_string_view s(n);
@@ -1897,7 +1897,7 @@ StringName GDScriptLanguage::get_global_class_name(se_string_view p_path, se_str
                             subclass = nullptr;
                             break;
                         } else {
-                            Vector<StringName> extend_classes = subclass->extends_class;
+                            PODVector<StringName> extend_classes(subclass->extends_class);
 
                             FileAccessRef subfile = FileAccess::open(subclass->extends_file.asCString(), FileAccess::READ);
                             if (!subfile) {
@@ -1926,8 +1926,8 @@ StringName GDScriptLanguage::get_global_class_name(se_string_view p_path, se_str
                                 bool found = false;
                                 for (int i = 0; i < subclass->subclasses.size(); i++) {
                                     const GDScriptParser::ClassNode *inner_class = subclass->subclasses[i];
-                                    if (inner_class->name == extend_classes[0]) {
-                                        extend_classes.remove(0);
+                                    if (inner_class->name == extend_classes.front()) {
+                                        extend_classes.pop_front();
                                         found = true;
                                         subclass = inner_class;
                                         break;

@@ -76,7 +76,7 @@ static Error _parse_material_library(se_string_view p_path, Map<se_string, Ref<S
         } else if (StringUtils::begins_with(l,"Kd ")) {
             //normal
             ERR_FAIL_COND_V(not current, ERR_FILE_CORRUPT)
-            Vector<se_string_view> v = StringUtils::split(l," ", false);
+            PODVector<se_string_view> v = StringUtils::split(l," ", false);
             ERR_FAIL_COND_V(v.size() < 4, ERR_INVALID_DATA)
             Color c = current->get_albedo();
             c.r = StringUtils::to_float(v[1]);
@@ -86,7 +86,7 @@ static Error _parse_material_library(se_string_view p_path, Map<se_string, Ref<S
         } else if (StringUtils::begins_with(l,"Ks ")) {
             //normal
             ERR_FAIL_COND_V(not current, ERR_FILE_CORRUPT)
-            Vector<se_string_view> v = StringUtils::split(l," ", false);
+            PODVector<se_string_view> v = StringUtils::split(l," ", false);
             ERR_FAIL_COND_V(v.size() < 4, ERR_INVALID_DATA)
             float r = StringUtils::to_float(v[1]);
             float g = StringUtils::to_float(v[2]);
@@ -96,14 +96,14 @@ static Error _parse_material_library(se_string_view p_path, Map<se_string, Ref<S
         } else if (StringUtils::begins_with(l,"Ns ")) {
             //normal
             ERR_FAIL_COND_V(not current, ERR_FILE_CORRUPT)
-            Vector<se_string_view> v = StringUtils::split(l," ", false);
+            PODVector<se_string_view> v = StringUtils::split(l," ", false);
             ERR_FAIL_COND_V(v.size() != 2, ERR_INVALID_DATA)
             float s = StringUtils::to_float(v[1]);
             current->set_metallic((1000.0f - s) / 1000.0f);
         } else if (StringUtils::begins_with(l,"d ")) {
             //normal
             ERR_FAIL_COND_V(not current, ERR_FILE_CORRUPT)
-            Vector<se_string_view> v = StringUtils::split(l," ", false);
+            PODVector<se_string_view> v = StringUtils::split(l," ", false);
             ERR_FAIL_COND_V(v.size() != 2, ERR_INVALID_DATA)
             float d = StringUtils::to_float(v[1]);
             Color c = current->get_albedo();
@@ -115,7 +115,7 @@ static Error _parse_material_library(se_string_view p_path, Map<se_string, Ref<S
         } else if (StringUtils::begins_with(l,"Tr ")) {
             //normal
             ERR_FAIL_COND_V(not current, ERR_FILE_CORRUPT)
-            Vector<se_string_view> v = StringUtils::split(l," ", false);
+            PODVector<se_string_view> v = StringUtils::split(l," ", false);
             ERR_FAIL_COND_V(v.size() != 2, ERR_INVALID_DATA)
             float d = StringUtils::to_float(v[1]);
             Color c = current->get_albedo();
@@ -250,7 +250,7 @@ static Error _parse_obj(se_string_view p_path, List<Ref<Mesh>> &r_meshes, bool p
 
         if (StringUtils::begins_with(l,"v ")) {
             //vertex
-            Vector<se_string_view> v = StringUtils::split(l," ", false);
+            PODVector<se_string_view> v = StringUtils::split(l," ", false);
             ERR_FAIL_COND_V(v.size() < 4, ERR_FILE_CORRUPT)
             Vector3 vtx;
             vtx.x = StringUtils::to_float(v[1]) * scale_mesh.x;
@@ -259,7 +259,7 @@ static Error _parse_obj(se_string_view p_path, List<Ref<Mesh>> &r_meshes, bool p
             vertices.push_back(vtx);
         } else if (StringUtils::begins_with(l,"vt ")) {
             //uv
-            Vector<se_string_view> v = StringUtils::split(l," ", false);
+            PODVector<se_string_view> v = StringUtils::split(l," ", false);
             ERR_FAIL_COND_V(v.size() < 3, ERR_FILE_CORRUPT)
             Vector2 uv;
             uv.x = StringUtils::to_float(v[1]);
@@ -268,7 +268,7 @@ static Error _parse_obj(se_string_view p_path, List<Ref<Mesh>> &r_meshes, bool p
 
         } else if (StringUtils::begins_with(l,"vn ")) {
             //normal
-            Vector<se_string_view> v = StringUtils::split(l," ", false);
+            PODVector<se_string_view> v = StringUtils::split(l," ", false);
             ERR_FAIL_COND_V(v.size() < 4, ERR_FILE_CORRUPT)
             Vector3 nrm;
             nrm.x = StringUtils::to_float(v[1]);
@@ -278,18 +278,18 @@ static Error _parse_obj(se_string_view p_path, List<Ref<Mesh>> &r_meshes, bool p
         } else if (StringUtils::begins_with(l,"f ")) {
             //vertex
 
-            Vector<se_string_view> v = StringUtils::split(l," ", false);
+            PODVector<se_string_view> v = StringUtils::split(l," ", false);
             ERR_FAIL_COND_V(v.size() < 4, ERR_FILE_CORRUPT)
 
             //not very fast, could be sped up
 
-            Vector<se_string_view> face[3];
+            PODVector<se_string_view> face[3];
             face[0] = StringUtils::split(v[1],"/");
             face[1] = StringUtils::split(v[2],"/");
             ERR_FAIL_COND_V(face[0].empty(), ERR_FILE_CORRUPT)
 
             ERR_FAIL_COND_V(face[0].size() != face[1].size(), ERR_FILE_CORRUPT)
-            for (int i = 2; i < v.size() - 1; i++) {
+            for (size_t i = 2; i < v.size() - 1; i++) {
 
                 face[2] = StringUtils::split(v[i + 1],"/");
 

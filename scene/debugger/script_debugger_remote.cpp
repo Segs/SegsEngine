@@ -473,7 +473,7 @@ void ScriptDebuggerRemote::_err_handler(void *ud, se_string_view p_func, se_stri
     if (p_type == ERR_HANDLER_SCRIPT)
         return; //ignore script errors, those go through debugger
 
-    Vector<ScriptLanguage::StackInfo> si;
+    PODVector<ScriptLanguage::StackInfo> si;
 
     for (int i = 0; i < ScriptServer::get_language_count(); i++) {
         si = ScriptServer::get_language(i)->debug_get_current_stack_info();
@@ -726,8 +726,8 @@ void ScriptDebuggerRemote::_set_object_property(ObjectID p_id, const se_string &
     //TODO: SEGS: fix this madness..
     se_string_view prop_name = p_property;
     if (StringUtils::begins_with(p_property,"Members/")) {
-        Vector<se_string_view> ss = StringUtils::split(p_property,'/');
-        prop_name = ss[ss.size() - 1];
+        auto last_slash = StringUtils::rfind(p_property,'/');
+        prop_name = p_property.substr(last_slash+1);
     }
 
     obj->set(StringName(prop_name), p_value);
@@ -1027,7 +1027,7 @@ void ScriptDebuggerRemote::send_message(const se_string &p_message, const Array 
     mutex->unlock();
 }
 
-void ScriptDebuggerRemote::send_error(se_string_view p_func, se_string_view p_file, int p_line, se_string_view p_err, se_string_view p_descr, ErrorHandlerType p_type, const Vector<ScriptLanguage::StackInfo> &p_stack_info) {
+void ScriptDebuggerRemote::send_error(se_string_view p_func, se_string_view p_file, int p_line, se_string_view p_err, se_string_view p_descr, ErrorHandlerType p_type, const PODVector<ScriptLanguage::StackInfo> &p_stack_info) {
 
     OutputError oe;
     oe.error = p_err;

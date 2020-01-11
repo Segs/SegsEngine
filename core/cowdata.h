@@ -78,16 +78,16 @@ public:
         return _get_data();
     }
 
-    _FORCE_INLINE_ const T *ptr() const {
+    const T *ptr() const {
         return _get_data();
     }
 
     _FORCE_INLINE_ int size() const;
 
-    _FORCE_INLINE_ void clear() { resize(0); }
-    _FORCE_INLINE_ bool empty() const noexcept { return _ptr == nullptr; }
+    void clear() { resize(0); }
+    bool empty() const noexcept { return _ptr == nullptr; }
 
-    _FORCE_INLINE_ void set(int p_index, const T &p_elem) {
+    void set(int p_index, const T &p_elem) {
 
         CRASH_BAD_INDEX(p_index, size())
         _copy_on_write();

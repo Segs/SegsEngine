@@ -33,6 +33,7 @@
 #include "core/os/os.h"
 #include "scene/scene_string_names.h"
 #include "core/method_bind.h"
+#include "core/object_tooling.h"
 #include "core/translation_helpers.h"
 #include "core/string_formatter.h"
 #include "EASTL/sort.h"
@@ -431,7 +432,7 @@ void AnimatedSprite::_notification(int p_what) {
                     }
 
                     update();
-                    _change_notify("frame");
+                    Object_change_notify(this,"frame");
                     emit_signal(SceneStringNames::get_singleton()->frame_changed);
                 }
 
@@ -494,7 +495,7 @@ void AnimatedSprite::set_sprite_frames(const Ref<SpriteFrames> &p_frames) {
         set_frame(frame);
     }
 
-    _change_notify();
+    Object_change_notify(this);
     _reset_timeout();
     update();
     update_configuration_warning();
@@ -526,7 +527,7 @@ void AnimatedSprite::set_frame(int p_frame) {
     frame = p_frame;
     _reset_timeout();
     update();
-    _change_notify("frame");
+    Object_change_notify(this,"frame");
     emit_signal(SceneStringNames::get_singleton()->frame_changed);
 }
 int AnimatedSprite::get_frame() const {
@@ -567,7 +568,7 @@ void AnimatedSprite::set_offset(const Point2 &p_offset) {
     offset = p_offset;
     update();
     item_rect_changed();
-    _change_notify("offset");
+    Object_change_notify(this,"offset");
 }
 Point2 AnimatedSprite::get_offset() const {
 
@@ -597,8 +598,8 @@ bool AnimatedSprite::is_flipped_v() const {
 void AnimatedSprite::_res_changed() {
 
     set_frame(frame);
-    _change_notify("frame");
-    _change_notify("animation");
+    Object_change_notify(this,"frame");
+    Object_change_notify(this,"animation");
     update();
 }
 
@@ -669,7 +670,7 @@ void AnimatedSprite::set_animation(const StringName &p_animation) {
     animation = p_animation;
     _reset_timeout();
     set_frame(0);
-    _change_notify();
+    Object_change_notify(this);
     update();
 }
 StringName AnimatedSprite::get_animation() const {

@@ -34,6 +34,7 @@
 #include "core/io/marshalls.h"
 #include "core/method_bind.h"
 #include "core/object_db.h"
+#include "core/object_tooling.h"
 #include "core/project_settings.h"
 #include "core/string_formatter.h"
 #include "core/ustring.h"
@@ -58,6 +59,7 @@
 #include "scene/gui/tab_container.h"
 #include "scene/gui/texture_button.h"
 #include "scene/gui/tree.h"
+#include "scene/resources/font.h"
 #include "scene/resources/packed_scene.h"
 #include "scene/resources/style_box.h"
 
@@ -119,7 +121,7 @@ public:
     }
 
     void update() {
-        _change_notify();
+        Object_change_notify(this);
     }
 
     ScriptEditorDebuggerVariables() = default;
@@ -197,10 +199,10 @@ public:
         prop_values.clear();
     }
     void update() {
-        _change_notify();
+        Object_change_notify(this);
     }
     void update_single(StringName p_prop) {
-        _change_notify(p_prop);
+        Object_change_notify(this,p_prop);
     }
 
     ScriptEditorDebuggerInspectedObject() {
@@ -1055,7 +1057,7 @@ void ScriptEditorDebugger::_parse_message(const se_string &p_msg, const Array &p
                 item.signature = profiler_signature[signature];
 
                 se_string_view name = profiler_signature[signature];
-                Vector<se_string_view> strings = StringUtils::split(name,"::");
+                PODVector<se_string_view> strings = StringUtils::split(name,"::");
                 if (strings.size() == 3) {
                     item.name = strings[2];
                     item.script = strings[0];

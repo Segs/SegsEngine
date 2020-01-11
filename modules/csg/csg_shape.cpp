@@ -32,6 +32,7 @@
 
 #include "core/hashfuncs.h"
 #include "core/method_bind.h"
+#include "core/object_tooling.h"
 #include "scene/3d/path.h"
 #include "scene/resources/mesh.h"
 #include "scene/resources/world.h"
@@ -86,7 +87,7 @@ void CSGShape::set_use_collision(bool p_enable) {
         root_collision_instance = RID();
         root_collision_shape.unref();
     }
-    _change_notify();
+    Object_change_notify(this);
 }
 
 bool CSGShape::is_using_collision() const {
@@ -316,11 +317,8 @@ void CSGShape::_update_shape() {
 
     OAHashMap<Vector3, Vector3> vec_map;
 
-    Vector<int> face_count;
-    face_count.resize(n->materials.size() + 1);
-    for (int i = 0; i < face_count.size(); i++) {
-        face_count.write[i] = 0;
-    }
+    PODVector<int> face_count;
+    face_count.resize(n->materials.size() + 1,0);
 
     for (int i = 0; i < n->faces.size(); i++) {
         int mat = n->faces[i].material;
@@ -342,33 +340,33 @@ void CSGShape::_update_shape() {
             }
         }
 
-        face_count.write[idx]++;
+        face_count[idx]++;
     }
 
-    Vector<ShapeUpdateSurface> surfaces;
+    PODVector<ShapeUpdateSurface> surfaces;
 
     surfaces.resize(face_count.size());
 
     //create arrays
     for (int i = 0; i < surfaces.size(); i++) {
 
-        surfaces.write[i].vertices.resize(face_count[i] * 3);
-        surfaces.write[i].normals.resize(face_count[i] * 3);
-        surfaces.write[i].uvs.resize(face_count[i] * 3);
+        surfaces[i].vertices.resize(face_count[i] * 3);
+        surfaces[i].normals.resize(face_count[i] * 3);
+        surfaces[i].uvs.resize(face_count[i] * 3);
         if (calculate_tangents) {
-            surfaces.write[i].tans.resize(face_count[i] * 3 * 4);
+            surfaces[i].tans.resize(face_count[i] * 3 * 4);
         }
-        surfaces.write[i].last_added = 0;
+        surfaces[i].last_added = 0;
 
         if (i != surfaces.size() - 1) {
-            surfaces.write[i].material = n->materials[i];
+            surfaces[i].material = n->materials[i];
         }
 
-        surfaces.write[i].verticesw = surfaces.write[i].vertices.write();
-        surfaces.write[i].normalsw = surfaces.write[i].normals.write();
-        surfaces.write[i].uvsw = surfaces.write[i].uvs.write();
+        surfaces[i].verticesw = surfaces[i].vertices.write();
+        surfaces[i].normalsw = surfaces[i].normals.write();
+        surfaces[i].uvsw = surfaces[i].uvs.write();
         if (calculate_tangents) {
-            surfaces.write[i].tansw = surfaces.write[i].tans.write();
+            surfaces[i].tansw = surfaces[i].tans.write();
         }
     }
 
@@ -439,7 +437,7 @@ void CSGShape::_update_shape() {
                 }
             }
 
-            surfaces.write[idx].last_added += 3;
+            surfaces[idx].last_added += 3;
         }
     }
 
@@ -461,15 +459,15 @@ void CSGShape::_update_shape() {
 
             SMikkTSpaceContext msc;
             msc.m_pInterface = &mkif;
-            msc.m_pUserData = &surfaces.write[i];
+            msc.m_pUserData = &surfaces[i];
             have_tangents = genTangSpaceDefault(&msc);
         }
 
         // unset write access
-        surfaces.write[i].verticesw.release();
-        surfaces.write[i].normalsw.release();
-        surfaces.write[i].uvsw.release();
-        surfaces.write[i].tansw.release();
+        surfaces[i].verticesw.release();
+        surfaces[i].normalsw.release();
+        surfaces[i].uvsw.release();
+        surfaces[i].tansw.release();
 
         if (surfaces[i].last_added == 0)
             continue;
@@ -1096,7 +1094,7 @@ void CSGSphere::set_radius(const float p_radius) {
     radius = p_radius;
     _make_dirty();
     update_gizmo();
-    _change_notify("radius");
+    Object_change_notify(this,"radius");
 }
 
 float CSGSphere::get_radius() const {
@@ -1281,7 +1279,7 @@ void CSGBox::set_width(const float p_width) {
     width = p_width;
     _make_dirty();
     update_gizmo();
-    _change_notify("width");
+    Object_change_notify(this,"width");
 }
 
 float CSGBox::get_width() const {
@@ -1292,7 +1290,7 @@ void CSGBox::set_height(const float p_height) {
     height = p_height;
     _make_dirty();
     update_gizmo();
-    _change_notify("height");
+    Object_change_notify(this,"height");
 }
 
 float CSGBox::get_height() const {
@@ -1303,7 +1301,7 @@ void CSGBox::set_depth(const float p_depth) {
     depth = p_depth;
     _make_dirty();
     update_gizmo();
-    _change_notify("depth");
+    Object_change_notify(this,"depth");
 }
 
 float CSGBox::get_depth() const {
@@ -1498,7 +1496,7 @@ void CSGCylinder::set_radius(const float p_radius) {
     radius = p_radius;
     _make_dirty();
     update_gizmo();
-    _change_notify("radius");
+    Object_change_notify(this,"radius");
 }
 
 float CSGCylinder::get_radius() const {
@@ -1509,7 +1507,7 @@ void CSGCylinder::set_height(const float p_height) {
     height = p_height;
     _make_dirty();
     update_gizmo();
-    _change_notify("height");
+    Object_change_notify(this,"height");
 }
 
 float CSGCylinder::get_height() const {
@@ -1725,7 +1723,7 @@ void CSGTorus::set_inner_radius(const float p_inner_radius) {
     inner_radius = p_inner_radius;
     _make_dirty();
     update_gizmo();
-    _change_notify("inner_radius");
+    Object_change_notify(this,"inner_radius");
 }
 
 float CSGTorus::get_inner_radius() const {
@@ -1736,7 +1734,7 @@ void CSGTorus::set_outer_radius(const float p_outer_radius) {
     outer_radius = p_outer_radius;
     _make_dirty();
     update_gizmo();
-    _change_notify("outer_radius");
+    Object_change_notify(this,"outer_radius");
 }
 
 float CSGTorus::get_outer_radius() const {
@@ -1803,13 +1801,13 @@ CSGBrush *CSGPolygon::_build_brush() {
     if (polygon.size() < 3)
         return nullptr;
 
-    Vector<Point2> final_polygon = polygon;
+    PODVector<Point2> final_polygon = polygon;
 
-    if (Triangulate::get_area({final_polygon.ptr(),final_polygon.size()}) > 0) {
-        final_polygon.invert();
+    if (Triangulate::get_area(final_polygon) > 0) {
+        eastl::reverse(final_polygon.begin(),final_polygon.end());
     }
 
-    PODVector<int> triangles(Geometry::triangulate_polygon({final_polygon.ptr(),final_polygon.size()}));
+    PODVector<int> triangles(Geometry::triangulate_polygon(final_polygon));
 
     if (triangles.size() < 3)
         return nullptr;
@@ -2370,13 +2368,13 @@ void CSGPolygon::_bind_methods() {
     BIND_ENUM_CONSTANT(PATH_ROTATION_PATH_FOLLOW)
 }
 
-void CSGPolygon::set_polygon(const Vector<Vector2> &p_polygon) {
+void CSGPolygon::set_polygon(const PODVector<Vector2> &p_polygon) {
     polygon = p_polygon;
     _make_dirty();
     update_gizmo();
 }
 
-Vector<Vector2> CSGPolygon::get_polygon() const {
+const PODVector<Vector2> &CSGPolygon::get_polygon() const {
     return polygon;
 }
 
@@ -2384,7 +2382,7 @@ void CSGPolygon::set_mode(Mode p_mode) {
     mode = p_mode;
     _make_dirty();
     update_gizmo();
-    _change_notify();
+    Object_change_notify(this);
 }
 
 CSGPolygon::Mode CSGPolygon::get_mode() const {

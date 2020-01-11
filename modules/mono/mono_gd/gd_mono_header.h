@@ -28,10 +28,9 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef GD_MONO_HEADER_H
-#define GD_MONO_HEADER_H
+#pragma once
 
-#include "core/int_types.h"
+//#include "core/int_types.h"
 
 #ifdef WIN32
 #define GD_MONO_STDCALL __stdcall
@@ -48,5 +47,3 @@ class GDMonoProperty;
 class IMonoClassMember;
 
 #include "managed_type.h"
-
-#endif // GD_MONO_HEADER_H

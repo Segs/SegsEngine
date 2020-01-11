@@ -32,6 +32,7 @@
 #include "dynamic_font.h"
 #include "font_serializers.h"
 
+#include "core/object_tooling.h"
 #include "core/os/file_access.h"
 #include "core/os/mutex.h"
 #include "core/os/os.h"
@@ -79,7 +80,7 @@ struct DynamicFontAtSize::ImplData
 
             //fit character in char texture
 
-            CharTexture &tex = fa->textures.write[tex_pos.index];
+            CharTexture &tex = fa->textures[tex_pos.index];
 
         {
             PoolVector<uint8_t>::Write wr = tex.imgdata.write();
@@ -133,7 +134,7 @@ struct DynamicFontAtSize::ImplData
         // update height array
 
         for (int k = tex_pos.x; k < tex_pos.x + mw; k++) {
-            tex.offsets.write[k] = tex_pos.y + mh;
+            tex.offsets[k] = tex_pos.y + mh;
         }
 
         Character chr;
@@ -223,7 +224,7 @@ DynamicFontData::~DynamicFontData() {
 }
 
 ////////////////////
-HashMap<se_string, Vector<uint8_t> > DynamicFontAtSize::_fontdata;
+HashMap<se_string, PODVector<uint8_t> > DynamicFontAtSize::_fontdata;
 
 Error DynamicFontAtSize::_load() {
 
@@ -236,7 +237,7 @@ Error DynamicFontAtSize::_load() {
         // cache font only once for each font->font_path
         if (_fontdata.contains(font->font_path)) {
 
-            font->set_font_ptr(_fontdata[font->font_path].ptr(), _fontdata[font->font_path].size());
+            font->set_font_ptr(_fontdata[font->font_path].data(), _fontdata[font->font_path].size());
 
         } else {
 
@@ -244,11 +245,12 @@ Error DynamicFontAtSize::_load() {
             ERR_FAIL_COND_V(!f, ERR_CANT_OPEN)
 
             size_t len = f->get_len();
-            _fontdata[font->font_path] = Vector<uint8_t>();
-            Vector<uint8_t> &fontdata = _fontdata[font->font_path];
+            PODVector<uint8_t> &fontdata = _fontdata[font->font_path];
+            fontdata.clear();
             fontdata.resize(len);
-            f->get_buffer(fontdata.ptrw(), len);
-            font->set_font_ptr(fontdata.ptr(), len);
+            fontdata.shrink_to_fit();
+            f->get_buffer(fontdata.data(), len);
+            font->set_font_ptr(fontdata.data(), len);
             f->close();
         }
     }
@@ -349,7 +351,7 @@ float DynamicFontAtSize::get_descent() const {
     return descent;
 }
 
-const Pair<const DynamicFontAtSize::Character *, DynamicFontAtSize *> DynamicFontAtSize::_find_char_with_font(CharType p_char, const Vector<Ref<DynamicFontAtSize> > &p_fallbacks) const {
+const Pair<const DynamicFontAtSize::Character *, DynamicFontAtSize *> DynamicFontAtSize::_find_char_with_font(CharType p_char, const PODVector<Ref<DynamicFontAtSize> > &p_fallbacks) const {
     const Character *chr = char_map.getptr(p_char);
     ERR_FAIL_COND_V(!chr, (Pair<const Character *, DynamicFontAtSize *>(NULL, NULL)))
 
@@ -381,7 +383,7 @@ const Pair<const DynamicFontAtSize::Character *, DynamicFontAtSize *> DynamicFon
     return Pair<const Character *, DynamicFontAtSize *>(chr, const_cast<DynamicFontAtSize *>(this));
 }
 
-Size2 DynamicFontAtSize::get_char_size(CharType p_char, CharType p_next, const Vector<Ref<DynamicFontAtSize> > &p_fallbacks) const {
+Size2 DynamicFontAtSize::get_char_size(CharType p_char, CharType p_next, const PODVector<Ref<DynamicFontAtSize> > &p_fallbacks) const {
 
     if (!valid)
         return Size2(1, 1);
@@ -404,13 +406,13 @@ void DynamicFontAtSize::set_texture_flags(uint32_t p_flags) {
 
     texture_flags = p_flags;
     for (int i = 0; i < textures.size(); i++) {
-        Ref<ImageTexture> &tex = textures.write[i].texture;
+        Ref<ImageTexture> &tex = textures[i].texture;
         if (tex)
             tex->set_flags(p_flags);
     }
 }
 
-float DynamicFontAtSize::draw_char(RID p_canvas_item, const Point2 &p_pos, CharType p_char, CharType p_next, const Color &p_modulate, const Vector<Ref<DynamicFontAtSize> > &p_fallbacks, bool p_advance_only) const {
+float DynamicFontAtSize::draw_char(RID p_canvas_item, const Point2 &p_pos, CharType p_char, const Color &p_modulate, const PODVector<Ref<DynamicFontAtSize> > &p_fallbacks, bool p_advance_only) const {
 
     if (!valid)
         return 0;
@@ -550,9 +552,7 @@ DynamicFontAtSize::TexturePosition DynamicFontAtSize::_find_texture_pos_for_glyp
                 w[i] = 0;
             }
         }
-        tex.offsets.resize(texsize);
-        for (int i = 0; i < texsize; i++) //zero offsets
-            tex.offsets.write[i] = 0;
+        tex.offsets.resize(texsize,0); //zero offsets
 
         textures.push_back(tex);
         ret.index = textures.size() - 1;
@@ -573,7 +573,7 @@ DynamicFontAtSize::Character DynamicFontAtSize::_make_outline_char(CharType p_ch
     if (FT_Stroker_New(m_impl->library, &stroker) != 0)
         return ret;
 
-    FT_Stroker_Set(stroker, (int)(id.outline_size * oversampling * 64.0), FT_STROKER_LINECAP_BUTT, FT_STROKER_LINEJOIN_ROUND, 0);
+    FT_Stroker_Set(stroker, (int)(id.outline_size * oversampling * 64.0f), FT_STROKER_LINECAP_BUTT, FT_STROKER_LINEJOIN_ROUND, 0);
     FT_Glyph glyph;
     FT_BitmapGlyph glyph_bitmap;
 
@@ -585,7 +585,7 @@ DynamicFontAtSize::Character DynamicFontAtSize::_make_outline_char(CharType p_ch
         goto cleanup_glyph;
 
     glyph_bitmap = (FT_BitmapGlyph)glyph;
-    ret = m_impl->_bitmap_to_character(this,glyph_bitmap->bitmap, glyph_bitmap->top, glyph_bitmap->left, glyph->advance.x / 65536.0);
+    ret = m_impl->_bitmap_to_character(this,glyph_bitmap->bitmap, glyph_bitmap->top, glyph_bitmap->left, glyph->advance.x / 65536.0f);
 
 cleanup_glyph:
     FT_Done_Glyph(glyph);
@@ -635,7 +635,7 @@ void DynamicFontAtSize::_update_char(CharType p_char) {
     } else {
         error = FT_Render_Glyph(m_impl->face->glyph, font->antialiased ? FT_RENDER_MODE_NORMAL : FT_RENDER_MODE_MONO);
         if (!error)
-            character = m_impl->_bitmap_to_character(this,slot->bitmap, slot->bitmap_top, slot->bitmap_left, slot->advance.x / 64.0);
+            character = m_impl->_bitmap_to_character(this,slot->bitmap, slot->bitmap_top, slot->bitmap_left, slot->advance.x / 64.0f);
     }
 
     char_map[p_char] = character;
@@ -701,13 +701,13 @@ void DynamicFont::_reload_cache() {
     }
 
     for (int i = 0; i < fallbacks.size(); i++) {
-        fallback_data_at_size.write[i] = fallbacks.write[i]->_get_dynamic_font_at_size(cache_id);
+        fallback_data_at_size[i] = fallbacks[i]->_get_dynamic_font_at_size(cache_id);
         if (outline_cache_id.outline_size > 0)
-            fallback_outline_data_at_size.write[i] = fallbacks.write[i]->_get_dynamic_font_at_size(outline_cache_id);
+            fallback_outline_data_at_size[i] = fallbacks[i]->_get_dynamic_font_at_size(outline_cache_id);
     }
 
     emit_changed();
-    _change_notify();
+    Object_change_notify(this);
 }
 
 void DynamicFont::set_font_data(const Ref<DynamicFontData> &p_data) {
@@ -716,7 +716,7 @@ void DynamicFont::set_font_data(const Ref<DynamicFontData> &p_data) {
     _reload_cache();
 
     emit_changed();
-    _change_notify();
+    Object_change_notify(this);
 }
 
 Ref<DynamicFontData> DynamicFont::get_font_data() const {
@@ -754,7 +754,7 @@ void DynamicFont::set_outline_color(Color p_color) {
     if (p_color != outline_color) {
         outline_color = p_color;
         emit_changed();
-        _change_notify();
+        Object_change_notify(this);
     }
 }
 
@@ -842,7 +842,7 @@ void DynamicFont::set_spacing(int p_type, int p_value) {
     }
 
     emit_changed();
-    _change_notify();
+    Object_change_notify(this);
 }
 
 float DynamicFont::get_height() const {
@@ -898,33 +898,33 @@ float DynamicFont::draw_char(RID p_canvas_item, const Point2 &p_pos, CharType p_
     if (not font_at_size)
         return 0;
 
-    const Vector<Ref<DynamicFontAtSize> > &fallbacks = p_outline && outline_cache_id.outline_size > 0 ? fallback_outline_data_at_size : fallback_data_at_size;
+    const PODVector<Ref<DynamicFontAtSize> > &fallbacks = p_outline && outline_cache_id.outline_size > 0 ? fallback_outline_data_at_size : fallback_data_at_size;
     Color color = p_outline && outline_cache_id.outline_size > 0 ? p_modulate * outline_color : p_modulate;
 
     // If requested outline draw, but no outline is present, simply return advance without drawing anything
     bool advance_only = p_outline && outline_cache_id.outline_size == 0;
-    return font_at_size->draw_char(p_canvas_item, p_pos, p_char, p_next, color, fallbacks, advance_only) + spacing_char;
+    return font_at_size->draw_char(p_canvas_item, p_pos, p_char, color, fallbacks, advance_only) + spacing_char;
 }
 
 void DynamicFont::set_fallback(int p_idx, const Ref<DynamicFontData> &p_data) {
 
     ERR_FAIL_COND(not p_data)
     ERR_FAIL_INDEX(p_idx, fallbacks.size())
-    fallbacks.write[p_idx] = p_data;
-    fallback_data_at_size.write[p_idx] = fallbacks.write[p_idx]->_get_dynamic_font_at_size(cache_id);
+    fallbacks[p_idx] = p_data;
+    fallback_data_at_size[p_idx] = fallbacks[p_idx]->_get_dynamic_font_at_size(cache_id);
 }
 
 void DynamicFont::add_fallback(const Ref<DynamicFontData> &p_data) {
 
     ERR_FAIL_COND(not p_data)
     fallbacks.push_back(p_data);
-    fallback_data_at_size.push_back(fallbacks.write[fallbacks.size() - 1]->_get_dynamic_font_at_size(cache_id)); //const..
+    fallback_data_at_size.push_back(fallbacks[fallbacks.size() - 1]->_get_dynamic_font_at_size(cache_id)); //const..
     if (outline_cache_id.outline_size > 0)
-        fallback_outline_data_at_size.push_back(fallbacks.write[fallbacks.size() - 1]->_get_dynamic_font_at_size(outline_cache_id));
+        fallback_outline_data_at_size.push_back(fallbacks[fallbacks.size() - 1]->_get_dynamic_font_at_size(outline_cache_id));
 
-    _change_notify();
+    Object_change_notify(this);
     emit_changed();
-    _change_notify();
+    Object_change_notify(this);
 }
 
 int DynamicFont::get_fallback_count() const {
@@ -939,10 +939,10 @@ Ref<DynamicFontData> DynamicFont::get_fallback(int p_idx) const {
 void DynamicFont::remove_fallback(int p_idx) {
 
     ERR_FAIL_INDEX(p_idx, fallbacks.size())
-    fallbacks.remove(p_idx);
-    fallback_data_at_size.remove(p_idx);
+    fallbacks.erase_at(p_idx);
+    fallback_data_at_size.erase_at(p_idx);
     emit_changed();
-    _change_notify();
+    Object_change_notify(this);
 }
 
 bool DynamicFont::_set(const StringName &p_name, const Variant &p_value) {
@@ -1103,10 +1103,10 @@ void DynamicFont::update_oversampling() {
 
             for (int i = 0; i < E->self()->fallback_data_at_size.size(); i++) {
                 if (E->self()->fallback_data_at_size[i]) {
-                    E->self()->fallback_data_at_size.write[i]->update_oversampling();
+                    E->self()->fallback_data_at_size[i]->update_oversampling();
 
                     if (E->self()->has_outline() && E->self()->fallback_outline_data_at_size[i]) {
-                        E->self()->fallback_outline_data_at_size.write[i]->update_oversampling();
+                        E->self()->fallback_outline_data_at_size[i]->update_oversampling();
                     }
                 }
             }

@@ -209,7 +209,7 @@ void GridMap::set_mesh_library(const Ref<MeshLibrary> &p_mesh_library) {
         mesh_library->register_owner(this);
 
     _recreate_octant_data();
-    _change_notify("mesh_library");
+    Object_change_notify(this,"mesh_library");
 }
 
 Ref<MeshLibrary> GridMap::get_mesh_library() const {
@@ -737,7 +737,7 @@ void GridMap::_update_visibility() {
     if (!is_inside_tree())
         return;
 
-    _change_notify("visible");
+    Object_change_notify(this,"visible");
 
     for (eastl::pair<const OctantKey,Octant *> &e : octant_map) {
         Octant *octant = e.second;

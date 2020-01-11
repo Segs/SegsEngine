@@ -697,6 +697,9 @@ int _OS::get_exit_code() const {
 
 void _OS::set_exit_code(int p_code) {
 
+    if (p_code < 0 || p_code > 125) {
+        WARN_PRINT("For portability reasons, the exit code should be set between 0 and 125 (inclusive).")
+    }
     OS::get_singleton()->set_exit_code(p_code);
 }
 
@@ -1006,7 +1009,7 @@ void _OS::print_all_textures_by_size() {
 
 void _OS::print_resources_by_type(const Vector<se_string> &p_types) {
 
-    HashMap<se_string, int> type_count;
+    DefHashMap<se_string, int> type_count;
 
     ListPOD<Ref<Resource> > rsrc;
     ResourceCache::get_cached_resources(&rsrc);
@@ -1652,7 +1655,7 @@ PODVector<Vector3> _Geometry::clip_polygon(Span<const Vector3> p_points, const P
 
 Array _Geometry::merge_polygons_2d(const Vector<Vector2> &p_polygon_a, const Vector<Vector2> &p_polygon_b) {
 
-    Vector<PODVector<Point2> > polys = Geometry::merge_polygons_2d(p_polygon_a, p_polygon_b);
+    PODVector<PODVector<Point2> > polys(Geometry::merge_polygons_2d(p_polygon_a, p_polygon_b));
 
     Array ret;
 
@@ -1664,7 +1667,7 @@ Array _Geometry::merge_polygons_2d(const Vector<Vector2> &p_polygon_a, const Vec
 
 Array _Geometry::clip_polygons_2d(const Vector<Vector2> &p_polygon_a, const Vector<Vector2> &p_polygon_b) {
 
-    Vector<PODVector<Point2> > polys = Geometry::clip_polygons_2d(p_polygon_a, p_polygon_b);
+    PODVector<PODVector<Point2> > polys(Geometry::clip_polygons_2d(p_polygon_a, p_polygon_b));
 
     Array ret;
 
@@ -1676,7 +1679,7 @@ Array _Geometry::clip_polygons_2d(const Vector<Vector2> &p_polygon_a, const Vect
 
 Array _Geometry::intersect_polygons_2d(const Vector<Vector2> &p_polygon_a, const Vector<Vector2> &p_polygon_b) {
 
-    Vector<PODVector<Point2> > polys = Geometry::intersect_polygons_2d(p_polygon_a, p_polygon_b);
+    PODVector<PODVector<Point2> > polys(Geometry::intersect_polygons_2d(p_polygon_a, p_polygon_b));
 
     Array ret;
 
@@ -1688,7 +1691,7 @@ Array _Geometry::intersect_polygons_2d(const Vector<Vector2> &p_polygon_a, const
 
 Array _Geometry::exclude_polygons_2d(const Vector<Vector2> &p_polygon_a, const Vector<Vector2> &p_polygon_b) {
 
-    Vector<PODVector<Point2> > polys = Geometry::exclude_polygons_2d(p_polygon_a, p_polygon_b);
+    PODVector<PODVector<Point2> > polys(Geometry::exclude_polygons_2d(p_polygon_a, p_polygon_b));
 
     Array ret;
 
@@ -1700,7 +1703,7 @@ Array _Geometry::exclude_polygons_2d(const Vector<Vector2> &p_polygon_a, const V
 
 Array _Geometry::clip_polyline_with_polygon_2d(const Vector<Vector2> &p_polyline, const Vector<Vector2> &p_polygon) {
 
-    Vector<PODVector<Point2> > polys = Geometry::clip_polyline_with_polygon_2d(p_polyline, p_polygon);
+    PODVector<PODVector<Point2> > polys(Geometry::clip_polyline_with_polygon_2d(p_polyline, p_polygon));
 
     Array ret;
 
@@ -1712,11 +1715,11 @@ Array _Geometry::clip_polyline_with_polygon_2d(const Vector<Vector2> &p_polyline
 
 Array _Geometry::intersect_polyline_with_polygon_2d(const Vector<Vector2> &p_polyline, const Vector<Vector2> &p_polygon) {
 
-    Vector<PODVector<Point2> > polys = Geometry::intersect_polyline_with_polygon_2d(p_polyline, p_polygon);
+    PODVector<PODVector<Point2> > polys(Geometry::intersect_polyline_with_polygon_2d(p_polyline, p_polygon));
 
     Array ret;
 
-    for (int i = 0; i < polys.size(); ++i) {
+    for (size_t i = 0; i < polys.size(); ++i) {
         ret.push_back(polys[i]);
     }
     return ret;
@@ -1724,11 +1727,11 @@ Array _Geometry::intersect_polyline_with_polygon_2d(const Vector<Vector2> &p_pol
 
 Array _Geometry::offset_polygon_2d(const Vector<Vector2> &p_polygon, real_t p_delta, PolyJoinType p_join_type) {
 
-    Vector<PODVector<Point2> > polys = Geometry::offset_polygon_2d(p_polygon, p_delta, Geometry::PolyJoinType(p_join_type));
+    PODVector<PODVector<Point2> > polys(Geometry::offset_polygon_2d(p_polygon, p_delta, Geometry::PolyJoinType(p_join_type)));
 
     Array ret;
 
-    for (int i = 0; i < polys.size(); ++i) {
+    for (size_t i = 0; i < polys.size(); ++i) {
         ret.push_back(polys[i]);
     }
     return ret;
@@ -1736,11 +1739,11 @@ Array _Geometry::offset_polygon_2d(const Vector<Vector2> &p_polygon, real_t p_de
 
 Array _Geometry::offset_polyline_2d(const Vector<Vector2> &p_polygon, real_t p_delta, PolyJoinType p_join_type, PolyEndType p_end_type) {
 
-    Vector<PODVector<Point2> > polys = Geometry::offset_polyline_2d(p_polygon, p_delta, Geometry::PolyJoinType(p_join_type), Geometry::PolyEndType(p_end_type));
+    PODVector<PODVector<Point2> > polys(Geometry::offset_polyline_2d(p_polygon, p_delta, Geometry::PolyJoinType(p_join_type), Geometry::PolyEndType(p_end_type)));
 
     Array ret;
 
-    for (int i = 0; i < polys.size(); ++i) {
+    for (size_t i = 0; i < polys.size(); ++i) {
         ret.push_back(polys[i]);
     }
     return ret;
@@ -1750,7 +1753,7 @@ Dictionary _Geometry::make_atlas(const Vector<Size2> &p_rects) {
 
     Dictionary ret;
 
-    Vector<Size2i> rects;
+    PODVector<Size2i> rects;
     for (int i = 0; i < p_rects.size(); i++) {
 
         rects.push_back(p_rects[i]);
@@ -2798,13 +2801,13 @@ _Thread::~_Thread() {
 
 PoolSeStringArray _ClassDB::get_class_list() const {
 
-    Vector<StringName> classes;
+    PODVector<StringName> classes;
     ClassDB::get_class_list(&classes);
 
     PoolSeStringArray ret;
     ret.resize(classes.size());
     int idx = 0;
-    for (int i=0,fin=classes.size(); i<fin; ++i) {
+    for (size_t i=0,fin=classes.size(); i<fin; ++i) {
         ret.set(idx++, se_string(classes[i]));
     }
 

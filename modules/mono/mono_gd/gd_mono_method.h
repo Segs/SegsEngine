@@ -35,6 +35,8 @@
 #include "gd_mono_header.h"
 #include "i_mono_class_member.h"
 
+#include "core/method_info.h"
+
 class GDMonoMethod : public IMonoClassMember {
 
 	StringName name;

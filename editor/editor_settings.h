@@ -58,7 +58,7 @@ public:
         se_string description;
         bool installs;
         se_string script;
-        Vector<String> install_files;
+        PODVector<se_string> install_files;
     };
 
 private:

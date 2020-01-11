@@ -41,6 +41,7 @@
 #include "editor/editor_settings.h"
 #include "scene/gui/split_container.h"
 #include "scene/gui/item_list.h"
+#include "scene/resources/font.h"
 
 IMPL_GDCLASS(TileMapEditor)
 IMPL_GDCLASS(TileMapEditorPlugin)

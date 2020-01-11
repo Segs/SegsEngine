@@ -175,7 +175,7 @@ ImageFormatLoader *ImageLoader::recognize(se_string_view p_extension) {
     return nullptr;
 }
 
-Vector<ImageFormatLoader *> ImageLoader::loader;
+PODVector<ImageFormatLoader *> ImageLoader::loader;
 
 void ImageLoader::add_image_format_loader(ImageFormatLoader *p_loader) {
 
@@ -184,10 +184,10 @@ void ImageLoader::add_image_format_loader(ImageFormatLoader *p_loader) {
 
 void ImageLoader::remove_image_format_loader(ImageFormatLoader *p_loader) {
 
-    loader.erase(p_loader);
+    loader.erase_first(p_loader);
 }
 
-const Vector<ImageFormatLoader *> &ImageLoader::get_image_format_loaders() {
+const PODVector<ImageFormatLoader *> &ImageLoader::get_image_format_loaders() {
     register_plugin_resolver();
 
     return loader;

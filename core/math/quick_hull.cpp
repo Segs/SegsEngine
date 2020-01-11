@@ -62,7 +62,7 @@ struct QHFace {
 
     Plane plane;
     uint32_t vertices[3];
-    Vector<int> points_over;
+    PODVector<int> points_over;
 
     bool operator<(const QHFace &p_face) const {
 
@@ -103,17 +103,15 @@ Error QuickHull::build(Span<const Vector3> p_points, Geometry::MeshData &r_mesh)
         return ERR_CANT_CREATE;
     }
 
-    Vector<bool> valid_points;
-    valid_points.resize(p_points.size());
+    PODVector<bool> valid_points;
+    valid_points.resize(p_points.size(),false);
     Set<Vector3> valid_cache;
 
-    for (int i = 0; i < p_points.size(); i++) {
+    for (size_t i = 0; i < valid_points.size(); i++) {
 
         Vector3 sp = p_points[i].snapped(Vector3(0.0001f, 0.0001f, 0.0001f));
-        if (valid_cache.contains(sp)) {
-            valid_points.write[i] = false;
-        } else {
-            valid_points.write[i] = true;
+        if (!valid_cache.contains(sp)) {
+            valid_points[i] = true;
             valid_cache.insert(sp);
         }
     }

@@ -1473,7 +1473,7 @@ void ItemList::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_item_icon", {"idx", "icon"}), &ItemList::set_item_icon);
     MethodBinder::bind_method(D_METHOD("get_item_icon", {"idx"}), &ItemList::get_item_icon);
 
-    MethodBinder::bind_method(D_METHOD("set_item_icon_transposed", {"idx", "rect"}), &ItemList::set_item_icon_transposed);
+    MethodBinder::bind_method(D_METHOD("set_item_icon_transposed", {"idx", "transposed"}), &ItemList::set_item_icon_transposed);
     MethodBinder::bind_method(D_METHOD("is_item_icon_transposed", {"idx"}), &ItemList::is_item_icon_transposed);
 
     MethodBinder::bind_method(D_METHOD("set_item_icon_region", {"idx", "rect"}), &ItemList::set_item_icon_region);
@@ -1570,12 +1570,12 @@ void ItemList::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "select_mode", PROPERTY_HINT_ENUM, "Single,Multi"), "set_select_mode", "get_select_mode");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "allow_reselect"), "set_allow_reselect", "get_allow_reselect");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "allow_rmb_select"), "set_allow_rmb_select", "get_allow_rmb_select");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "max_text_lines"), "set_max_text_lines", "get_max_text_lines");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "max_text_lines", PROPERTY_HINT_RANGE, "1,10,1,or_greater"), "set_max_text_lines", "get_max_text_lines");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "auto_height"), "set_auto_height", "has_auto_height");
     ADD_GROUP("Columns", "");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "max_columns"), "set_max_columns", "get_max_columns");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "max_columns", PROPERTY_HINT_RANGE, "0,10,1,or_greater"), "set_max_columns", "get_max_columns");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "same_column_width"), "set_same_column_width", "is_same_column_width");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "fixed_column_width"), "set_fixed_column_width", "get_fixed_column_width");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "fixed_column_width", PROPERTY_HINT_RANGE, "0,100,1,or_greater"), "set_fixed_column_width", "get_fixed_column_width");
     ADD_GROUP("Icon", "");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "icon_mode", PROPERTY_HINT_ENUM, "Top,Left"), "set_icon_mode", "get_icon_mode");
     ADD_PROPERTY(PropertyInfo(VariantType::REAL, "icon_scale"), "set_icon_scale", "get_icon_scale");

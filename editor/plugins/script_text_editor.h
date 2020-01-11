@@ -191,6 +191,7 @@ public:
 
     void add_syntax_highlighter(SyntaxHighlighter *p_highlighter) override;
     void set_syntax_highlighter(SyntaxHighlighter *p_highlighter) override;
+    void update_toggle_scripts_button();
 
     void apply_code() override;
     RES get_edited_resource() const override;

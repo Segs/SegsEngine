@@ -155,17 +155,17 @@ void FileAccessCompressed::close() {
             f->store_32(0); //compressed sizes, will update later
         }
 
-        Vector<int> block_sizes;
+        PODVector<int> block_sizes;
         for (int i = 0; i < bc; i++) {
 
             int bl = i == (bc - 1) ? write_max % block_size : block_size;
             uint8_t *bp = &write_ptr[i * block_size];
 
-            Vector<uint8_t> cblock;
+            PODVector<uint8_t> cblock;
             cblock.resize(Compression::get_max_compressed_buffer_size(bl, cmode));
-            int s = Compression::compress(cblock.ptrw(), bp, bl, cmode);
+            int s = Compression::compress(cblock.data(), bp, bl, cmode);
 
-            f->store_buffer(cblock.ptr(), s);
+            f->store_buffer(cblock.data(), s);
             block_sizes.push_back(s);
         }
 

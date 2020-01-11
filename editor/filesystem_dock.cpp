@@ -135,6 +135,11 @@ bool FileSystemDock::_create_tree(TreeItem *p_parent, EditorFileSystemDirectory 
             udata.push_back(Variant(file_item));
             EditorResourcePreview::get_singleton()->queue_resource_preview(file_metadata, this, "_tree_thumbnail_done", udata);
         }
+    } else if (display_mode == DISPLAY_MODE_SPLIT) {
+        if (PathUtils::get_base_dir(lpath) == PathUtils::get_base_dir(path)) {
+            subdirectory_item->select(0);
+            subdirectory_item->set_as_cursor(0);
+        }
     }
 
     if (searched_string.length() > 0) {
@@ -1797,8 +1802,8 @@ void FileSystemDock::_file_option(int p_option, const Vector<se_string> &p_selec
             if (!StringUtils::ends_with(fpath,"/")) {
                 fpath = PathUtils::get_base_dir(fpath);
             }
-            make_script_dialog_text->config(se_string("Node"), PathUtils::plus_file(fpath,"new_script.gd"), false);
-            make_script_dialog_text->popup_centered(Size2(300, 300) * EDSCALE);
+            make_script_dialog->config(se_string("Node"), PathUtils::plus_file(fpath,"new_script.gd"), false);
+            make_script_dialog->popup_centered(Size2(300, 300) * EDSCALE);
         } break;
 
         case FILE_COPY_PATH: {
@@ -2744,9 +2749,9 @@ FileSystemDock::FileSystemDock(EditorNode *p_editor) {
     make_scene_dialog->register_text_enter(make_scene_dialog_text);
     make_scene_dialog->connect("confirmed", this, "_make_scene_confirm");
 
-    make_script_dialog_text = memnew(ScriptCreateDialog);
-    make_script_dialog_text->set_title(TTR("Create Script"));
-    add_child(make_script_dialog_text);
+    make_script_dialog = memnew(ScriptCreateDialog);
+    make_script_dialog->set_title(TTR("Create Script"));
+    add_child(make_script_dialog);
 
     new_resource_dialog = memnew(CreateDialog);
     add_child(new_resource_dialog);

@@ -88,11 +88,6 @@ private:
             a = b = 0;
         }
 
-        PathMD5(const Vector<uint8_t> &p_buf) {
-            assert(p_buf.size()>=16);
-            a = *((uint64_t *)&p_buf[0]);
-            b = *((uint64_t *)&p_buf[8]);
-        }
         PathMD5(const PODVector<uint8_t> &p_buf) {
             assert(p_buf.size()>=16);
             a = *((uint64_t *)&p_buf[0]);
@@ -103,7 +98,7 @@ private:
 
     Map<PathMD5, PackedDataFile> files;
 
-    Vector<PackSourceInterface *> sources;
+    PODVector<PackSourceInterface *> sources;
 
     PackedDir *root;
     //Map<String,PackedDir*> dirs;

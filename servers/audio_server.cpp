@@ -36,6 +36,7 @@
 #include "core/os/file_access.h"
 #include "core/os/mutex.h"
 #include "core/os/os.h"
+#include "core/object_tooling.h"
 #include "core/project_settings.h"
 #include "core/script_language.h"
 #include "scene/resources/audio_stream_sample.h"
@@ -45,7 +46,7 @@
 using namespace eastl; // for string view suffic
 #ifdef TOOLS_ENABLED
 
-#define MARK_EDITED get_tooling_interface()->set_edited(true);
+#define MARK_EDITED Object_set_edited(this,true);
 
 #else
 
@@ -526,7 +527,7 @@ void AudioServer::set_bus_count(int p_count) {
     ERR_FAIL_COND(p_count < 1)
     ERR_FAIL_INDEX(p_count, 256);
 
-    MARK_EDITED
+    Object_set_edited(this,true);
 
     lock();
     int cb = buses.size();
@@ -591,7 +592,7 @@ void AudioServer::remove_bus(int p_index) {
     ERR_FAIL_INDEX(p_index, buses.size());
     ERR_FAIL_COND(p_index == 0)
 
-    MARK_EDITED
+    Object_set_edited(this,true);
 
     lock();
     bus_map.erase(buses[p_index]->name);
@@ -604,7 +605,7 @@ void AudioServer::remove_bus(int p_index) {
 
 void AudioServer::add_bus(int p_at_pos) {
 
-    MARK_EDITED
+    Object_set_edited(this,true);
 
     if (p_at_pos >= buses.size()) {
         p_at_pos = -1;
@@ -662,7 +663,7 @@ void AudioServer::move_bus(int p_bus, int p_to_pos) {
     ERR_FAIL_COND(p_bus < 1 || p_bus >= buses.size())
     ERR_FAIL_COND(p_to_pos != -1 && (p_to_pos < 1 || p_to_pos > buses.size()))
 
-    MARK_EDITED
+    Object_set_edited(this,true);
 
     if (p_bus == p_to_pos)
         return;
@@ -692,7 +693,7 @@ void AudioServer::set_bus_name(int p_bus, const StringName &p_name) {
     if (p_bus == 0 && p_name != se_string_view("Master"))
         return; //bus 0 is always master
 
-    MARK_EDITED
+    Object_set_edited(this,true);
 
     lock();
 
@@ -748,7 +749,7 @@ void AudioServer::set_bus_volume_db(int p_bus, float p_volume_db) {
 
     ERR_FAIL_INDEX(p_bus, buses.size());
 
-    MARK_EDITED
+    Object_set_edited(this,true);
 
     buses[p_bus]->volume_db = p_volume_db;
 }
@@ -768,7 +769,7 @@ void AudioServer::set_bus_send(int p_bus, const StringName &p_send) {
 
     ERR_FAIL_INDEX(p_bus, buses.size());
 
-    MARK_EDITED
+    Object_set_edited(this,true);
 
     buses[p_bus]->send = p_send;
 }
@@ -783,7 +784,7 @@ void AudioServer::set_bus_solo(int p_bus, bool p_enable) {
 
     ERR_FAIL_INDEX(p_bus, buses.size());
 
-    MARK_EDITED
+    Object_set_edited(this,true);
 
     buses[p_bus]->solo = p_enable;
 }
@@ -799,7 +800,7 @@ void AudioServer::set_bus_mute(int p_bus, bool p_enable) {
 
     ERR_FAIL_INDEX(p_bus, buses.size());
 
-    MARK_EDITED
+    Object_set_edited(this,true);
 
     buses[p_bus]->mute = p_enable;
 }
@@ -814,7 +815,7 @@ void AudioServer::set_bus_bypass_effects(int p_bus, bool p_enable) {
 
     ERR_FAIL_INDEX(p_bus, buses.size());
 
-    MARK_EDITED
+    Object_set_edited(this,true);
 
     buses[p_bus]->bypass = p_enable;
 }
@@ -845,7 +846,7 @@ void AudioServer::add_bus_effect(int p_bus, const Ref<AudioEffect> &p_effect, in
     ERR_FAIL_COND(not p_effect)
     ERR_FAIL_INDEX(p_bus, buses.size());
 
-    MARK_EDITED
+    Object_set_edited(this,true);
 
     lock();
 
@@ -872,7 +873,7 @@ void AudioServer::remove_bus_effect(int p_bus, int p_effect) {
 
     ERR_FAIL_INDEX(p_bus, buses.size());
 
-    MARK_EDITED
+    Object_set_edited(this,true);
 
     lock();
 
@@ -912,7 +913,7 @@ void AudioServer::swap_bus_effects(int p_bus, int p_effect, int p_by_effect) {
     ERR_FAIL_INDEX(p_effect, buses[p_bus]->effects.size());
     ERR_FAIL_INDEX(p_by_effect, buses[p_bus]->effects.size());
 
-    MARK_EDITED
+    Object_set_edited(this,true);
 
     lock();
     SWAP(buses.write[p_bus]->effects.write[p_effect], buses.write[p_bus]->effects.write[p_by_effect]);
@@ -925,7 +926,7 @@ void AudioServer::set_bus_effect_enabled(int p_bus, int p_effect, bool p_enabled
     ERR_FAIL_INDEX(p_bus, buses.size());
     ERR_FAIL_INDEX(p_effect, buses[p_bus]->effects.size());
 
-    MARK_EDITED
+    Object_set_edited(this,true);
 
     buses.write[p_bus]->effects.write[p_effect].enabled = p_enabled;
 }
@@ -1000,9 +1001,7 @@ void AudioServer::init() {
     if (AudioDriver::get_singleton())
         AudioDriver::get_singleton()->start();
 
-#ifdef TOOLS_ENABLED
-    get_tooling_interface()->set_edited(false); //avoid editors from thinking this was edited
-#endif
+    Object_set_edited(this,false); //avoid editors from thinking this was edited
 
     GLOBAL_DEF_RST("audio/video_delay_compensation_ms", 0);
 }
@@ -1269,9 +1268,7 @@ void AudioServer::set_bus_layout(const Ref<AudioBusLayout> &p_bus_layout) {
         }
         _update_bus_effects(i);
     }
-#ifdef TOOLS_ENABLED
-    get_tooling_interface()->set_edited(false);
-#endif
+    Object_set_edited(this,false);
     unlock();
 }
 

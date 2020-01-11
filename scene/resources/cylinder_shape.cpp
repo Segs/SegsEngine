@@ -80,7 +80,7 @@ void CylinderShape::set_radius(float p_radius) {
     radius = p_radius;
     _update_shape();
     notify_change_to_owners();
-    _change_notify("radius");
+    Object_change_notify(this,"radius");
 }
 
 
@@ -90,7 +90,7 @@ void CylinderShape::set_height(float p_height) {
     height = p_height;
     _update_shape();
     notify_change_to_owners();
-    _change_notify("height");
+    Object_change_notify(this,"height");
 }
 
 

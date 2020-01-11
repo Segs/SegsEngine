@@ -105,7 +105,7 @@ public:
     void debug_get_globals(List<se_string_view> *p_locals, List<Variant> *p_values, int p_max_subitems = -1, int p_max_depth = -1) override;
     String debug_parse_stack_level_expression(int p_level, const String &p_expression, int p_max_subitems = -1, int p_max_depth = -1) override;
 
-    // virtual Vector<StackInfo> debug_get_current_stack_info() { return Vector<StackInfo>(); }
+    // virtual PODVector<StackInfo> debug_get_current_stack_info() { return PODVector<StackInfo>(); }
 
     void reload_all_scripts() override;
     void reload_tool_script(const Ref<Script> &p_script, bool p_soft_reload) override;

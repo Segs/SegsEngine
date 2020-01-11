@@ -38,6 +38,7 @@
 #include "core/project_settings.h"
 #include "core/string_utils.h"
 #include "core/script_language.h"
+#include "core/object_tooling.h"
 
 #include "scene/resources/texture.h"
 #include "EASTL/deque.h"
@@ -144,12 +145,10 @@ Error ResourceSaver::save(se_string_view p_path, const RES &p_resource, uint32_t
 
         if (err == OK) {
 
+            Object_set_edited(p_resource.get(),false);
 #ifdef TOOLS_ENABLED
-
-            p_resource->get_tooling_interface()->set_edited(false);
             if (timestamp_on_save) {
                 uint64_t mt = FileAccess::get_modified_time(p_path);
-
                 p_resource->set_last_modified_time(mt);
             }
 #endif
@@ -254,10 +253,10 @@ void ResourceSaver::add_custom_savers() {
 
     StringName custom_saver_base_class(ResourceFormatSaver::get_class_static_name());
 
-    Vector<StringName> global_classes;
+    PODVector<StringName> global_classes;
     ScriptServer::get_global_class_list(&global_classes);
 
-    for (int i=0, fin = global_classes.size(); i<fin; ++i) {
+    for (size_t i=0, fin = global_classes.size(); i<fin; ++i) {
 
         StringName class_name = global_classes[i];
         StringName base_class = ScriptServer::get_global_class_native_base(class_name);
@@ -271,7 +270,7 @@ void ResourceSaver::add_custom_savers() {
 
 void ResourceSaver::remove_custom_savers() {
 
-    Vector<Ref<ResourceFormatSaver> > custom_savers;
+    PODVector<Ref<ResourceFormatSaver> > custom_savers;
     for (const Ref<ResourceFormatSaver> & s : saver) {
         if (s->get_script_instance()) {
             custom_savers.push_back(s);

@@ -483,7 +483,7 @@ void Node::set_physics_process(bool p_process) {
     else
         remove_from_group("physics_process");
 
-    _change_notify("physics_process");
+    Object_change_notify(this,"physics_process");
 }
 
 bool Node::is_physics_processing() const {
@@ -503,7 +503,7 @@ void Node::set_physics_process_internal(bool p_process_internal) {
     else
         remove_from_group("physics_process_internal");
 
-    _change_notify("physics_process_internal");
+    Object_change_notify(this,"physics_process_internal");
 }
 
 bool Node::is_physics_processing_internal() const {
@@ -890,7 +890,7 @@ void Node::set_process(bool p_idle_process) {
     else
         remove_from_group("idle_process");
 
-    _change_notify("idle_process");
+    Object_change_notify(this,"idle_process");
 }
 
 bool Node::is_processing() const {
@@ -910,7 +910,7 @@ void Node::set_process_internal(bool p_idle_process_internal) {
     else
         remove_from_group("idle_process_internal");
 
-    _change_notify("idle_process_internal");
+    Object_change_notify(this,"idle_process_internal");
 }
 
 bool Node::is_processing_internal() const {
@@ -1014,11 +1014,11 @@ void Node::_set_name_nocheck(const StringName &p_name) {
 }
 
 const char *Node::invalid_character(". : @ / \"");
-
+//TODO: SEGS: validate_node_name should do what it's named after, not modify the passed name
 bool Node::_validate_node_name(se_string &p_name) {
     se_string name = p_name;
-    Vector<se_string_view> chars = StringUtils::split(Node::invalid_character,' ');
-    for (int i = 0; i < chars.size(); i++) {
+    PODVector<se_string_view> chars = StringUtils::split(Node::invalid_character,' ');
+    for (size_t i = 0; i < chars.size(); i++) {
         name = StringUtils::replace(name,chars[i], se_string());
     }
     bool is_valid = name == p_name;

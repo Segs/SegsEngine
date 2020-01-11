@@ -389,7 +389,7 @@ const lsp::DocumentSymbol *GDScriptWorkspace::resolve_symbol(const lsp::TextDocu
     if (const ExtendGDScriptParser *parser = get_parse_result(path)) {
 
         se_string_view symbol_identifier = p_symbol_name;
-        Vector<se_string_view> identifier_parts = StringUtils::split(symbol_identifier,'(');
+        PODVector<se_string_view> identifier_parts = StringUtils::split(symbol_identifier,'(');
         if (identifier_parts.size()) {
             symbol_identifier = identifier_parts[0];
         }

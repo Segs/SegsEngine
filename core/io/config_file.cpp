@@ -154,7 +154,7 @@ Error ConfigFile::save(se_string_view p_path) {
     return _internal_save(file);
 }
 
-Error ConfigFile::save_encrypted(se_string_view p_path, const Vector<uint8_t> &p_key) {
+Error ConfigFile::save_encrypted(se_string_view p_path, const PODVector<uint8_t> &p_key) {
 
     Error err;
     FileAccess *f = FileAccess::open(p_path, FileAccess::WRITE, &err);
@@ -163,7 +163,7 @@ Error ConfigFile::save_encrypted(se_string_view p_path, const Vector<uint8_t> &p
         return err;
 
     FileAccessEncrypted *fae = memnew(FileAccessEncrypted);
-    err = fae->open_and_parse(f, {p_key.ptr(),p_key.size()}, FileAccessEncrypted::MODE_WRITE_AES256);
+    err = fae->open_and_parse(f, p_key, FileAccessEncrypted::MODE_WRITE_AES256);
     if (err) {
         memdelete(fae);
         memdelete(f);
@@ -225,7 +225,7 @@ Error ConfigFile::load(se_string_view p_path) {
     return _internal_load(p_path, f);
 }
 
-Error ConfigFile::load_encrypted(se_string_view p_path, const Vector<uint8_t> &p_key) {
+Error ConfigFile::load_encrypted(se_string_view p_path, const PODVector<uint8_t> &p_key) {
 
     Error err;
     FileAccess *f = FileAccess::open(p_path, FileAccess::READ, &err);
@@ -234,7 +234,7 @@ Error ConfigFile::load_encrypted(se_string_view p_path, const Vector<uint8_t> &p
         return err;
 
     FileAccessEncrypted *fae = memnew(FileAccessEncrypted);
-    err = fae->open_and_parse(f, {p_key.ptr(),p_key.size()}, FileAccessEncrypted::MODE_READ);
+    err = fae->open_and_parse(f, p_key, FileAccessEncrypted::MODE_READ);
     if (err) {
         memdelete(fae);
         memdelete(f);

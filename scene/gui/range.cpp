@@ -52,7 +52,7 @@ void Range::_value_changed_notify() {
     _value_changed(shared->val);
     emit_signal("value_changed", shared->val);
     update();
-    _change_notify("value");
+    Object_change_notify(this,"value");
 }
 
 void Range::Shared::emit_value_changed() {
@@ -68,7 +68,7 @@ void Range::_changed_notify(StringName p_what) {
 
     emit_signal("changed");
     update();
-    _change_notify(p_what);
+    Object_change_notify(this,p_what);
 }
 
 void Range::Shared::emit_changed(StringName p_what) {

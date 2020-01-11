@@ -43,6 +43,7 @@
 #include "core/string_utils.h"
 #include "core/rid.h"
 #include "core/version.h"
+#include "core/object_tooling.h"
 
 #include "EASTL/sort.h"
 //#define print_bl(m_what) print_line(m_what)
@@ -699,9 +700,7 @@ Error ResourceInteractiveLoaderBinary::poll() {
         res->set(name, value);
     }
 
-#ifdef TOOLS_ENABLED
-    res->get_tooling_interface()->set_edited(false);
-#endif
+    Object_set_edited(res.get(),false);
     stage++;
 
     resource_cache.push_back(res);
@@ -834,11 +833,10 @@ void ResourceInteractiveLoaderBinary::open(FileAccess *p_f) {
         f->get_32(); //skip a few reserved fields
 
     uint32_t string_table_size = f->get_32();
-    string_map.resize(string_table_size);
+    string_map.reserve(string_table_size);
     for (uint32_t i = 0; i < string_table_size; i++) {
 
-        StringName s(get_unicode_string());
-        string_map.write[i] = s;
+        string_map.emplace_back(get_unicode_string());
     }
 
     print_bl("strings: " + itos(string_table_size));
@@ -1842,9 +1840,7 @@ Error ResourceFormatSaverBinaryInstance::save(se_string_view p_path, const RES &
             if (takeover_paths) {
                 r->set_path(se_string(p_path) + "::" + ::to_string(r->get_subindex()), true);
             }
-#ifdef TOOLS_ENABLED
-            r->get_tooling_interface()->set_edited(false);
-#endif
+            Object_set_edited(r.get(),false);
         } else {
             save_unicode_string(f, r->get_path()); //actual external
         }

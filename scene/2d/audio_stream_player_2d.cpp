@@ -31,6 +31,7 @@
 #include "audio_stream_player_2d.h"
 
 #include "core/engine.h"
+#include "core/object_tooling.h"
 #include "scene/2d/area_2d.h"
 #include "scene/main/viewport.h"
 #include "core/method_bind.h"
@@ -423,7 +424,7 @@ void AudioStreamPlayer2D::_validate_property(PropertyInfo &property) const {
 
 void AudioStreamPlayer2D::_bus_layout_changed() {
 
-    _change_notify();
+    Object_change_notify(this);
 }
 
 void AudioStreamPlayer2D::set_max_distance(float p_pixels) {

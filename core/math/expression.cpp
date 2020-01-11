@@ -109,6 +109,7 @@ const se_string_view func_name[Expression::FUNC_MAX] = {
     "typeof",
     "type_exists",
     "char",
+    "ord",
     "str",
     "print",
     "printerr",
@@ -175,6 +176,7 @@ int Expression::get_func_argument_count(BuiltinFunc p_func) {
         case OBJ_WEAKREF:
         case TYPE_OF:
         case TEXT_CHAR:
+        case TEXT_ORD:
         case TEXT_STR:
         case TEXT_PRINT:
         case TEXT_PRINTERR:
@@ -684,6 +686,32 @@ void Expression::exec_func(BuiltinFunc p_func, const Variant **p_inputs, Variant
             se_string res;
             res.push_back(p_inputs[0]->as<int>());
             *r_return = res;
+
+        } break;
+        case TEXT_ORD: {
+
+            if (p_inputs[0]->get_type() != VariantType::STRING) {
+
+                r_error.error = Variant::CallError::CALL_ERROR_INVALID_ARGUMENT;
+                r_error.argument = 0;
+                r_error.expected = VariantType::STRING;
+
+                return;
+            }
+
+            se_string str = p_inputs[0]->as<se_string>();
+
+            if (str.length() != 1) {
+
+                r_error_str = RTR("Expected a string of length 1 (a character).");
+                r_error.error = Variant::CallError::CALL_ERROR_INVALID_ARGUMENT;
+                r_error.argument = 0;
+                r_error.expected = VariantType::STRING;
+
+                return;
+            }
+
+            *r_return = str[0];
 
         } break;
         case TEXT_STR: {
@@ -2051,8 +2079,8 @@ bool Expression::_execute(const Array &p_inputs, Object *p_instance, Expression:
 
             const Expression::ConstructorNode *constructor = static_cast<const Expression::ConstructorNode *>(p_node);
 
-            Vector<Variant> arr;
-            Vector<const Variant *> argp;
+            PODVector<Variant> arr;
+            PODVector<const Variant *> argp;
             arr.resize(constructor->arguments.size());
             argp.resize(constructor->arguments.size());
 
@@ -2063,12 +2091,12 @@ bool Expression::_execute(const Array &p_inputs, Object *p_instance, Expression:
 
                 if (ret)
                     return true;
-                arr.write[i] = value;
-                argp.write[i] = &arr[i];
+                arr[i] = value;
+                argp[i] = &arr[i];
             }
 
             Variant::CallError ce;
-            r_ret = Variant::construct(constructor->data_type, (const Variant **)argp.ptr(), argp.size(), ce);
+            r_ret = Variant::construct(constructor->data_type, (const Variant **)argp.data(), argp.size(), ce);
 
             if (ce.error != Variant::CallError::CALL_OK) {
                 r_error_str = FormatVE(RTR_utf8("Invalid arguments to construct '%s'"_sv).c_str(), Variant::get_type_name(constructor->data_type));
@@ -2080,8 +2108,8 @@ bool Expression::_execute(const Array &p_inputs, Object *p_instance, Expression:
 
             const Expression::BuiltinFuncNode *bifunc = static_cast<const Expression::BuiltinFuncNode *>(p_node);
 
-            Vector<Variant> arr;
-            Vector<const Variant *> argp;
+            PODVector<Variant> arr;
+            PODVector<const Variant *> argp;
             arr.resize(bifunc->arguments.size());
             argp.resize(bifunc->arguments.size());
 
@@ -2091,12 +2119,12 @@ bool Expression::_execute(const Array &p_inputs, Object *p_instance, Expression:
                 bool ret = _execute(p_inputs, p_instance, bifunc->arguments[i], value, r_error_str);
                 if (ret)
                     return true;
-                arr.write[i] = value;
-                argp.write[i] = &arr[i];
+                arr[i] = value;
+                argp[i] = &arr[i];
             }
 
             Variant::CallError ce;
-            exec_func(bifunc->func, (const Variant **)argp.ptr(), &r_ret, ce, r_error_str);
+            exec_func(bifunc->func, (const Variant **)argp.data(), &r_ret, ce, r_error_str);
 
             if (ce.error != Variant::CallError::CALL_OK) {
                 r_error_str = "Builtin Call Failed. " + r_error_str;
@@ -2114,8 +2142,8 @@ bool Expression::_execute(const Array &p_inputs, Object *p_instance, Expression:
             if (ret)
                 return true;
 
-            Vector<Variant> arr;
-            Vector<const Variant *> argp;
+            PODVector<Variant> arr;
+            PODVector<const Variant *> argp;
             arr.resize(call->arguments.size());
             argp.resize(call->arguments.size());
 
@@ -2126,12 +2154,12 @@ bool Expression::_execute(const Array &p_inputs, Object *p_instance, Expression:
 
                 if (ret)
                     return true;
-                arr.write[i] = value;
-                argp.write[i] = &arr[i];
+                arr[i] = value;
+                argp[i] = &arr[i];
             }
 
             Variant::CallError ce;
-            r_ret = base.call(call->method, (const Variant **)argp.ptr(), argp.size(), ce);
+            r_ret = base.call(call->method, (const Variant **)argp.data(), argp.size(), ce);
 
             if (ce.error != Variant::CallError::CALL_OK) {
                 r_error_str = FormatVE(RTR_utf8("On call to '%s':"_sv).c_str(), call->method.asCString());
@@ -2143,7 +2171,7 @@ bool Expression::_execute(const Array &p_inputs, Object *p_instance, Expression:
     return false;
 }
 
-Error Expression::parse(se_string_view p_expression, const Vector<se_string> &p_input_names) {
+Error Expression::parse(se_string_view p_expression, const PODVector<se_string> &p_input_names) {
 
     if (nodes) {
         memdelete(nodes);

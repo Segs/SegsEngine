@@ -851,7 +851,7 @@ void EditorAssetLibrary::_update_image_queue() {
 
             se_string cache_filename_base = PathUtils::plus_file(EditorSettings::get_singleton()->get_cache_dir(),
                     "assetimage_" + StringUtils::md5_text(E.second.image_url));
-            Vector<se_string> headers;
+            PODVector<se_string> headers;
 
             if (FileAccess::exists(cache_filename_base + ".etag") && FileAccess::exists(cache_filename_base + ".data")) {
                 FileAccess *file = FileAccess::open(cache_filename_base + ".etag", FileAccess::READ);

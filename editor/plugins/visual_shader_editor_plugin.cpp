@@ -49,6 +49,7 @@
 #include "scene/main/viewport.h"
 #include "scene/resources/visual_shader_nodes.h"
 #include "servers/visual/shader_types.h"
+#include "scene/resources/font.h"
 #include "scene/resources/style_box.h"
 
 IMPL_GDCLASS(VisualShaderNodePlugin)
@@ -124,11 +125,13 @@ void VisualShaderEditor::remove_plugin(const Ref<VisualShaderNodePlugin> &p_plug
 }
 
 void VisualShaderEditor::clear_custom_types() {
-    for (int i = 0; i < add_options.size(); i++) {
-        if (add_options[i].is_custom) {
-            add_options.remove(i);
-            i--;
+    for(auto iter = add_options.begin(); iter!=add_options.end(); ) {
+        if (iter->is_custom) {
+            iter=add_options.erase(iter);
         }
+        else
+            ++iter;
+
     }
 }
 
@@ -162,7 +165,7 @@ void VisualShaderEditor::add_custom_type(const StringName &p_name, const Ref<Scr
                 }
             } else {
                 if (begin) {
-                    add_options.insert(i, ao);
+                    add_options.insert_at(i, ao);
                     return;
                 }
             }
@@ -224,7 +227,7 @@ void VisualShaderEditor::update_custom_nodes() {
         return;
     }
     clear_custom_types();
-    Vector<StringName> class_list;
+    PODVector<StringName> class_list;
     ScriptServer::get_global_class_list(&class_list);
     DefMap<se_string,AddInfo> added;
     for (int i = 0; i < class_list.size(); i++) {
@@ -1750,7 +1753,7 @@ void VisualShaderEditor::_dup_update_excluded(int p_type, Set<int> &r_excluded) 
     }
 }
 
-void VisualShaderEditor::_dup_copy_nodes(int p_type, List<int> &r_nodes, Set<int> &r_excluded) {
+void VisualShaderEditor::_dup_copy_nodes(int p_type, PODVector<int> &r_nodes, Set<int> &r_excluded) {
 
     VisualShader::Type type = (VisualShader::Type)p_type;
 
@@ -1780,7 +1783,7 @@ void VisualShaderEditor::_dup_copy_nodes(int p_type, List<int> &r_nodes, Set<int
     selection_center /= (float)r_nodes.size();
 }
 
-void VisualShaderEditor::_dup_paste_nodes(int p_type, int p_pasted_type, List<int> &r_nodes, Set<int> &r_excluded, const Vector2 &p_offset, bool p_select) {
+void VisualShaderEditor::_dup_paste_nodes(int p_type, int p_pasted_type, PODVector<int> &r_nodes, Set<int> &r_excluded, const Vector2 &p_offset, bool p_select) {
 
     VisualShader::Type type = (VisualShader::Type)p_type;
     VisualShader::Type pasted_type = (VisualShader::Type)p_pasted_type;
@@ -1790,10 +1793,10 @@ void VisualShaderEditor::_dup_paste_nodes(int p_type, int p_pasted_type, List<in
     Map<int, int> connection_remap;
     Set<int> unsupported_set;
 
-    for (List<int>::Element *E = r_nodes.front(); E; E = E->next()) {
+    for (int E : r_nodes) {
 
-        connection_remap[E->deref()] = id_from;
-        Ref<VisualShaderNode> node = visual_shader->get_node(pasted_type, E->deref());
+        connection_remap[E] = id_from;
+        Ref<VisualShaderNode> node = visual_shader->get_node(pasted_type, E);
 
         bool unsupported = false;
         for (int i = 0; i < add_options.size(); i++) {
@@ -1805,13 +1808,13 @@ void VisualShaderEditor::_dup_paste_nodes(int p_type, int p_pasted_type, List<in
             }
         }
         if (unsupported) {
-            unsupported_set.insert(E->deref());
+            unsupported_set.insert(E);
             continue;
         }
 
         Ref<VisualShaderNode> dupli = dynamic_ref_cast<VisualShaderNode>(node->duplicate());
 
-        undo_redo->add_do_method(visual_shader.get(), "add_node", type, dupli, visual_shader->get_node_position(pasted_type, E->deref()) + p_offset, id_from);
+        undo_redo->add_do_method(visual_shader.get(), "add_node", type, dupli, visual_shader->get_node_position(pasted_type, E) + p_offset, id_from);
         undo_redo->add_undo_method(visual_shader.get(), "remove_node", type, id_from);
 
         // duplicate size, inputs and outputs if node is group
@@ -1873,7 +1876,7 @@ void VisualShaderEditor::_duplicate_nodes() {
 
     int type = edit_type->get_selected();
 
-    List<int> nodes;
+    PODVector<int> nodes;
     Set<int> excluded;
 
     _dup_copy_nodes(type, nodes, excluded);
@@ -2105,7 +2108,7 @@ Variant VisualShaderEditor::get_drag_data_fw(const Point2 &p_point, Control *p_f
             return Variant();
 
         int id = it->get_meta("id");
-        AddOption op = add_options[id];
+        const AddOption &op = add_options[id];
 
         Dictionary d;
         d["id"] = id;
@@ -3150,7 +3153,7 @@ void EditorPropertyShaderMode::update_property() {
     options->select(which);
 }
 
-void EditorPropertyShaderMode::setup(const Vector<se_string_view> &p_options) {
+void EditorPropertyShaderMode::setup(const PODVector<se_string_view> &p_options) {
     for (int i = 0; i < p_options.size(); i++) {
         options->add_item(StringName(p_options[i]), i);
     }
@@ -3186,7 +3189,7 @@ bool EditorInspectorShaderModePlugin::parse_property(Object *p_object, VariantTy
     if (p_path == se_string_view("mode") && p_object->is_class("VisualShader") && p_type == VariantType::INT) {
 
         EditorPropertyShaderMode *editor = memnew(EditorPropertyShaderMode);
-        Vector<se_string_view> options = StringUtils::split(p_hint_text,',');
+        PODVector<se_string_view> options = StringUtils::split(p_hint_text,',');
         editor->setup(options);
         add_property_editor(p_path, editor);
 

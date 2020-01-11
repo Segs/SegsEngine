@@ -30,6 +30,7 @@
 
 #include "editor_properties_array_dict.h"
 
+#include "core/object_tooling.h"
 #include "core/io/marshalls.h"
 #include "core/method_bind.h"
 #include "scene/resources/style_box.h"

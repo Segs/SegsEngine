@@ -1786,11 +1786,7 @@ void RasterizerStorageGLES3::sky_set_texture(RID p_sky, RID p_panorama, int p_ra
 
         int size = p_radiance_size;
 
-        int lod = 0;
-
         int mipmaps = 6;
-
-        int mm_level = mipmaps;
 
         bool use_float = config.framebuffer_half_float_supported;
 
@@ -1803,8 +1799,8 @@ void RasterizerStorageGLES3::sky_set_texture(RID p_sky, RID p_panorama, int p_ra
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, mipmaps - 1);
 
-        lod = 0;
-        mm_level = mipmaps;
+        int lod = 0;
+        int mm_level = mipmaps;
 
         size = p_radiance_size;
 
@@ -1924,7 +1920,7 @@ se_string RasterizerStorageGLES3::shader_get_code(RID p_shader) const {
 }
 
 void RasterizerStorageGLES3::_update_shader(Shader *p_shader) const {
-
+    using namespace eastl;
     _shader_dirty_list.remove(&p_shader->dirty_list);
 
     p_shader->valid = false;
@@ -1948,7 +1944,7 @@ void RasterizerStorageGLES3::_update_shader(Shader *p_shader) const {
             p_shader->canvas_item.uses_screen_uv = false;
             p_shader->canvas_item.uses_time = false;
 
-            shaders.actions_canvas.render_mode_values["blend_add"] = Pair<int *, int>(&p_shader->canvas_item.blend_mode, Shader::CanvasItem::BLEND_MODE_ADD);
+            shaders.actions_canvas.render_mode_values[StringName("blend_add")] = Pair<int *, int>(&p_shader->canvas_item.blend_mode, Shader::CanvasItem::BLEND_MODE_ADD);
             shaders.actions_canvas.render_mode_values["blend_mix"] = Pair<int *, int>(&p_shader->canvas_item.blend_mode, Shader::CanvasItem::BLEND_MODE_MIX);
             shaders.actions_canvas.render_mode_values["blend_sub"] = Pair<int *, int>(&p_shader->canvas_item.blend_mode, Shader::CanvasItem::BLEND_MODE_SUB);
             shaders.actions_canvas.render_mode_values["blend_mul"] = Pair<int *, int>(&p_shader->canvas_item.blend_mode, Shader::CanvasItem::BLEND_MODE_MUL);
@@ -1987,7 +1983,7 @@ void RasterizerStorageGLES3::_update_shader(Shader *p_shader) const {
             p_shader->spatial.writes_modelview_or_projection = false;
             p_shader->spatial.uses_world_coordinates = false;
 
-            shaders.actions_scene.render_mode_values["blend_add"] = Pair<int *, int>(&p_shader->spatial.blend_mode, Shader::Spatial::BLEND_MODE_ADD);
+            shaders.actions_scene.render_mode_values[StringName("blend_add")] = Pair<int *, int>(&p_shader->spatial.blend_mode, Shader::Spatial::BLEND_MODE_ADD);
             shaders.actions_scene.render_mode_values["blend_mix"] = Pair<int *, int>(&p_shader->spatial.blend_mode, Shader::Spatial::BLEND_MODE_MIX);
             shaders.actions_scene.render_mode_values["blend_sub"] = Pair<int *, int>(&p_shader->spatial.blend_mode, Shader::Spatial::BLEND_MODE_SUB);
             shaders.actions_scene.render_mode_values["blend_mul"] = Pair<int *, int>(&p_shader->spatial.blend_mode, Shader::Spatial::BLEND_MODE_MUL);
@@ -2377,7 +2373,7 @@ void RasterizerStorageGLES3::material_set_render_priority(RID p_material, int pr
     material->render_priority = priority;
 }
 
-_FORCE_INLINE_ static void _fill_std140_variant_ubo_value(ShaderLanguage::DataType type, const Variant &value, uint8_t *data, bool p_linear_color) {
+static void _fill_std140_variant_ubo_value(ShaderLanguage::DataType type, const Variant &value, uint8_t *data, bool p_linear_color) {
     switch (type) {
         case ShaderLanguage::TYPE_BOOL: {
 
@@ -2444,7 +2440,7 @@ _FORCE_INLINE_ static void _fill_std140_variant_ubo_value(ShaderLanguage::DataTy
 
             PoolVector<int>::Read r = iv.read();
 
-            for (int i = 0; i < 3; i++) {
+            for (uint32_t i = 0; i < 3; i++) {
                 if (i < s)
                     gui[i] = r[i];
                 else
@@ -2635,7 +2631,7 @@ _FORCE_INLINE_ static void _fill_std140_variant_ubo_value(ShaderLanguage::DataTy
     }
 }
 
-_FORCE_INLINE_ static void _fill_std140_ubo_value(ShaderLanguage::DataType type, const PODVector<ShaderLanguage::ConstantNode::Value> &value, uint8_t *data) {
+static void _fill_std140_ubo_value(ShaderLanguage::DataType type, const PODVector<ShaderLanguage::ConstantNode::Value> &value, uint8_t *data) {
 
     switch (type) {
         case ShaderLanguage::TYPE_BOOL: {
@@ -2804,7 +2800,7 @@ _FORCE_INLINE_ static void _fill_std140_ubo_value(ShaderLanguage::DataType type,
     }
 }
 
-_FORCE_INLINE_ static void _fill_std140_ubo_empty(ShaderLanguage::DataType type, uint8_t *data) {
+static void _fill_std140_ubo_empty(ShaderLanguage::DataType type, uint8_t *data) {
 
     switch (type) {
 
@@ -3285,17 +3281,14 @@ void RasterizerStorageGLES3::mesh_add_surface(RID p_mesh, uint32_t p_format, VS:
     surface->mesh = mesh;
     surface->format = p_format;
     surface->skeleton_bone_aabb = p_bone_aabbs;
-    surface->skeleton_bone_used.resize(surface->skeleton_bone_aabb.size());
+    surface->skeleton_bone_used.resize(surface->skeleton_bone_aabb.size(),false); // mark all unused
     surface->aabb = p_aabb;
     surface->max_bone = p_bone_aabbs.size();
     surface->total_data_size += surface->array_byte_size + surface->index_array_byte_size;
 
     for (int i = 0; i < surface->skeleton_bone_used.size(); i++) {
-        if (surface->skeleton_bone_aabb[i].size.x < 0 || surface->skeleton_bone_aabb[i].size.y < 0 || surface->skeleton_bone_aabb[i].size.z < 0) {
-            surface->skeleton_bone_used.write[i] = false;
-        } else {
-            surface->skeleton_bone_used.write[i] = true;
-        }
+        if (surface->skeleton_bone_aabb[i].size.x >= 0 && surface->skeleton_bone_aabb[i].size.y >= 0 && surface->skeleton_bone_aabb[i].size.z >= 0)
+            surface->skeleton_bone_used[i] = true;
     }
 
     for (int i = 0; i < VS::ARRAY_MAX; i++) {
@@ -3690,7 +3683,7 @@ Vector<PoolVector<uint8_t> > RasterizerStorageGLES3::mesh_surface_get_blend_shap
 
     Vector<PoolVector<uint8_t> > bsarr;
 
-    for (int i = 0; i < mesh->surfaces[p_surface]->blend_shapes.size(); i++) {
+    for (size_t i = 0; i < mesh->surfaces[p_surface]->blend_shapes.size(); i++) {
 
         PoolVector<uint8_t> ret;
         ret.resize(mesh->surfaces[p_surface]->array_byte_size);
@@ -3752,7 +3745,7 @@ void RasterizerStorageGLES3::mesh_remove_surface(RID p_mesh, int p_surface) {
 
     memdelete(surface);
 
-    mesh->surfaces.remove(p_surface);
+    mesh->surfaces.erase_at(p_surface);
 
     mesh->instance_change_notify(true, true);
 }
@@ -3806,7 +3799,7 @@ AABB RasterizerStorageGLES3::mesh_get_aabb(RID p_mesh, RID p_skeleton) const {
 
                 int bs = mesh->surfaces[i]->skeleton_bone_aabb.size();
                 const AABB *skbones = mesh->surfaces[i]->skeleton_bone_aabb.ptr();
-                const bool *skused = mesh->surfaces[i]->skeleton_bone_used.ptr();
+                const bool *skused = mesh->surfaces[i]->skeleton_bone_used.data();
 
                 int sbs = sk->size;
                 ERR_CONTINUE(bs > sbs);
@@ -4140,6 +4133,7 @@ void RasterizerStorageGLES3::multimesh_allocate(RID p_multimesh, int p_instances
     if (multimesh->buffer) {
         glDeleteBuffers(1, &multimesh->buffer);
         multimesh->data.resize(0);
+        multimesh->buffer = 0;
     }
 
     multimesh->size = p_instances;

@@ -36,16 +36,16 @@
 
 Error PackedData::add_pack(se_string_view p_path, bool p_replace_files) {
 
-    for (int i = 0; i < sources.size(); i++) {
+    for (auto & source : sources) {
 
-        if (sources[i]->try_open_pack(p_path, p_replace_files)) {
+        if (source->try_open_pack(p_path, p_replace_files)) {
 
             return OK;
         }
     }
 
     return ERR_FILE_UNRECOGNIZED;
-};
+}
 
 void PackedData::add_path(se_string_view pkg_path, se_string_view path, uint64_t ofs, uint64_t size, const uint8_t *p_md5, PackSourceInterface *p_src, bool p_replace_files) {
 
@@ -72,7 +72,7 @@ void PackedData::add_path(se_string_view pkg_path, se_string_view path, uint64_t
 
         if (StringUtils::contains(p,'/')) { //in a subdir
 
-            Vector<se_string_view> ds = StringUtils::split(PathUtils::get_base_dir(p),'/');
+            PODVector<se_string_view> ds = StringUtils::split(PathUtils::get_base_dir(p),'/');
 
             for (int j = 0; j < ds.size(); j++) {
                 auto iter =  cd->subdirs.find_as<se_string_view>(ds[j]);
@@ -109,7 +109,7 @@ void PackedData::add_pack_source(PackSourceInterface *p_source) {
 void PackedData::remove_pack_source(PackSourceInterface *p_source)
 {
     if (p_source != nullptr) {
-        sources.erase(p_source);
+        sources.erase_first(p_source);
     }
 
 };
@@ -220,7 +220,7 @@ Error DirAccessPack::change_dir(se_string_view p_dir) {
         absolute = true;
     }
 
-    Vector<se_string_view> paths = StringUtils::split(nd,'/');
+    PODVector<se_string_view> paths = StringUtils::split(nd,'/');
 
     PackedData::PackedDir *pd;
 

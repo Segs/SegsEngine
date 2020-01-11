@@ -35,6 +35,7 @@
 #include "core/object_db.h"
 #include "core/os/os.h"
 #include "core/rid.h"
+#include "core/object_tooling.h"
 #include "core/translation_helpers.h"
 #include "scene/3d/collision_object.h"
 #include "scene/3d/physics_body.h"
@@ -268,8 +269,8 @@ void SoftBody::_notification(int p_what) {
         case NOTIFICATION_ENTER_WORLD: {
 
             if (Engine::get_singleton()->is_editor_hint()) {
-
-                add_change_receptor(this);
+                //TODO: SEGS: change receptor
+                Object_add_change_receptor(this,this);
             }
 
             RID space = get_world()->get_space();

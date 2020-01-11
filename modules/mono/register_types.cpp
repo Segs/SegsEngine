@@ -31,20 +31,18 @@
 #include "register_types.h"
 
 #include "core/engine.h"
+#include "core/class_db.h"
 
 #include "csharp_script.h"
-
-CSharpLanguage *script_language_cs = NULL;
+CSharpLanguage *script_language_cs = nullptr;
 Ref<ResourceFormatLoaderCSharpScript> resource_loader_cs;
 Ref<ResourceFormatSaverCSharpScript> resource_saver_cs;
 
-_GodotSharp *_godotsharp = NULL;
-
+_GodotSharp *_godotsharp = nullptr;
 void register_mono_types() {
 	ClassDB::register_class<CSharpScript>();
-
-	_godotsharp = memnew(_GodotSharp);
-
+#if 0
+    _godotsharp = memnew(_GodotSharp);
 	ClassDB::register_class<_GodotSharp>();
 	Engine::get_singleton()->add_singleton(Engine::Singleton("GodotSharp", _GodotSharp::get_singleton()));
 
@@ -57,10 +55,12 @@ void register_mono_types() {
 
 	resource_saver_cs.instance();
 	ResourceSaver::add_resource_format_saver(resource_saver_cs);
+#endif
 }
 
 void unregister_mono_types() {
-	ScriptServer::unregister_language(script_language_cs);
+#if 0
+    ScriptServer::unregister_language(script_language_cs);
 
 	if (script_language_cs)
 		memdelete(script_language_cs);
@@ -73,4 +73,5 @@ void unregister_mono_types() {
 
 	if (_godotsharp)
 		memdelete(_godotsharp);
+#endif
 }

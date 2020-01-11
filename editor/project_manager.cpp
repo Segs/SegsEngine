@@ -56,6 +56,7 @@
 #include "scene/gui/texture_rect.h"
 #include "scene/gui/tool_button.h"
 #include "scene/main/scene_tree.h"
+#include "scene/resources/font.h"
 
 static inline se_string get_project_key_from_path(se_string_view dir) {
     return se_string(dir).replaced("/", "::");
@@ -458,7 +459,7 @@ private:
                 ProjectSettings::CustomMap edited_settings;
                 edited_settings["application/config/name"] = project_name->get_text();
 
-                if (current->save_custom(PathUtils::plus_file(dir2,"project.godot"), edited_settings, Vector<se_string>(), true) != OK) {
+                if (current->save_custom(PathUtils::plus_file(dir2,"project.godot"), edited_settings) != OK) {
                     set_message(TTR("Couldn't edit project.godot in project path."), MESSAGE_ERROR);
                 }
             }
@@ -493,7 +494,7 @@ private:
                     initial_settings["application/config/icon"] = "res://icon.png";
                     initial_settings["rendering/environment/default_environment"] = "res://default_env.tres";
 
-                    if (ProjectSettings::get_singleton()->save_custom(PathUtils::plus_file(dir,"project.godot"), initial_settings, Vector<se_string>(), false) != OK) {
+                    if (ProjectSettings::get_singleton()->save_custom(PathUtils::plus_file(dir,"project.godot"), initial_settings, {}, false) != OK) {
                         set_message(TTR("Couldn't create project.godot in project path."), MESSAGE_ERROR);
                     } else {
                         ResourceSaver::save(PathUtils::plus_file(dir,"icon.png"), get_icon("DefaultProjectIcon", "EditorIcons"));
@@ -1022,7 +1023,7 @@ public:
             control = nullptr;
         }
 
-        _FORCE_INLINE_ bool operator==(const Item &l) const {
+        bool operator==(const Item &l) const {
             return project_key == l.project_key;
         }
     };
@@ -1080,7 +1081,7 @@ struct ProjectListComparator {
     ProjectListFilter::FilterOption order_option;
 
     // operator<
-    _FORCE_INLINE_ bool operator()(const ProjectList::Item &a, const ProjectList::Item &b) const {
+    bool operator()(const ProjectList::Item &a, const ProjectList::Item &b) const {
         if (a.favorite && !b.favorite) {
             return true;
         }
@@ -1419,9 +1420,7 @@ void ProjectList::sort_projects() {
 
     for (int i = 0; i < _projects.size(); ++i) {
         Item &item = _projects.write[i];
-        if (item.control->is_visible()) {
-            item.control->get_parent()->move_child(item.control, i);
-        }
+        item.control->get_parent()->move_child(item.control, i);
     }
 
     // Rewind the coroutine because order of projects changed
@@ -2608,7 +2607,7 @@ ProjectManager::ProjectManager() {
     language_btn->set_flat(true);
     language_btn->set_focus_mode(Control::FOCUS_NONE);
 
-    Vector<se_string_view> editor_languages;
+    PODVector<se_string_view> editor_languages;
     ListPOD<PropertyInfo> editor_settings_properties;
     EditorSettings::get_singleton()->get_property_list(&editor_settings_properties);
     for (const PropertyInfo &pi : editor_settings_properties) {
@@ -2617,7 +2616,7 @@ ProjectManager::ProjectManager() {
         }
     }
     se_string current_lang = EditorSettings::get_singleton()->get("interface/editor/editor_language");
-    for (int i = 0; i < editor_languages.size(); i++) {
+    for (size_t i = 0; i < editor_languages.size(); i++) {
         se_string_view lang = editor_languages[i];
         se_string lang_name = TranslationServer::get_singleton()->get_locale_name(lang);
         language_btn->add_item(StringName(lang_name + " [" + lang + "]"), i);

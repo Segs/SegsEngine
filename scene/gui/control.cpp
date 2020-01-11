@@ -48,6 +48,7 @@
 #include "scene/scene_string_names.h"
 #include "servers/visual_server.h"
 #include "scene/gui/control_enum_casters.h"
+#include "scene/resources/font.h"
 
 #ifdef TOOLS_ENABLED
 #include "editor/editor_settings.h"
@@ -1443,10 +1444,10 @@ void Control::set_anchor(Margin p_margin, float p_anchor, bool p_keep_margin, bo
     }
 
     update();
-    _change_notify("anchor_left");
-    _change_notify("anchor_right");
-    _change_notify("anchor_top");
-    _change_notify("anchor_bottom");
+    Object_change_notify(this,"anchor_left");
+    Object_change_notify(this,"anchor_right");
+    Object_change_notify(this,"anchor_top");
+    Object_change_notify(this,"anchor_bottom");
 }
 
 void Control::_set_anchor(Margin p_margin, float p_anchor) {
@@ -1714,12 +1715,12 @@ float Control::get_anchor(Margin p_margin) const {
 void Control::_change_notify_margins() {
 
     // this avoids sending the whole object data again on a change
-    _change_notify("margin_left");
-    _change_notify("margin_top");
-    _change_notify("margin_right");
-    _change_notify("margin_bottom");
-    _change_notify("rect_position");
-    _change_notify("rect_size");
+    Object_change_notify(this,"margin_left");
+    Object_change_notify(this,"margin_top");
+    Object_change_notify(this,"margin_right");
+    Object_change_notify(this,"margin_bottom");
+    Object_change_notify(this,"rect_position");
+    Object_change_notify(this,"rect_size");
 }
 
 void Control::set_margin(Margin p_margin, float p_value) {
@@ -1805,10 +1806,10 @@ void Control::_set_position(const Size2 &p_point) {
 void Control::set_position(const Size2 &p_point, bool p_keep_margins) {
     if (p_keep_margins) {
         _compute_anchors(Rect2(p_point, data.size_cache), data.margin, data.anchor);
-        _change_notify("anchor_left");
-        _change_notify("anchor_right");
-        _change_notify("anchor_top");
-        _change_notify("anchor_bottom");
+        Object_change_notify(this,"anchor_left");
+        Object_change_notify(this,"anchor_right");
+        Object_change_notify(this,"anchor_top");
+        Object_change_notify(this,"anchor_bottom");
     } else {
         _compute_margins(Rect2(p_point, data.size_cache), data.anchor, data.margin);
     }
@@ -1830,10 +1831,10 @@ void Control::set_size(const Size2 &p_size, bool p_keep_margins) {
 
     if (p_keep_margins) {
         _compute_anchors(Rect2(data.pos_cache, new_size), data.margin, data.anchor);
-        _change_notify("anchor_left");
-        _change_notify("anchor_right");
-        _change_notify("anchor_top");
-        _change_notify("anchor_bottom");
+        Object_change_notify(this,"anchor_left");
+        Object_change_notify(this,"anchor_right");
+        Object_change_notify(this,"anchor_top");
+        Object_change_notify(this,"anchor_bottom");
     } else {
         _compute_margins(Rect2(data.pos_cache, new_size), data.anchor, data.margin);
     }
@@ -2272,7 +2273,7 @@ void Control::set_theme(const Ref<Theme> &p_theme) {
     }
 
     if (data.theme) {
-        data.theme->connect("changed", this, "_theme_changed");
+        data.theme->connect("changed", this, "_theme_changed", varray(), ObjectNS::CONNECT_QUEUED);
     }
 }
 
@@ -2625,7 +2626,7 @@ void Control::set_rotation(float p_radians) {
     data.rotation = p_radians;
     update();
     _notify_transform();
-    _change_notify("rect_rotation");
+    Object_change_notify(this,"rect_rotation");
 }
 
 float Control::get_rotation() const {
@@ -2652,7 +2653,7 @@ void Control::set_pivot_offset(const Vector2 &p_pivot) {
     data.pivot_offset = p_pivot;
     update();
     _notify_transform();
-    _change_notify("rect_pivot_offset");
+    Object_change_notify(this,"rect_pivot_offset");
 }
 
 Vector2 Control::get_pivot_offset() const {

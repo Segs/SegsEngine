@@ -30,6 +30,7 @@
 
 #include "mesh_instance_2d.h"
 #include "core/method_bind.h"
+#include "core/object_tooling.h"
 #include "scene/resources/mesh.h"
 
 IMPL_GDCLASS(MeshInstance2D)
@@ -79,7 +80,7 @@ void MeshInstance2D::set_texture(const Ref<Texture> &p_texture) {
     texture = p_texture;
     update();
     emit_signal("texture_changed");
-    _change_notify("texture");
+    Object_change_notify(this,"texture");
 }
 
 void MeshInstance2D::set_normal_map(const Ref<Texture> &p_texture) {

@@ -30,6 +30,7 @@
 
 #include "reflection_probe.h"
 #include "core/method_bind.h"
+#include "core/object_tooling.h"
 
 IMPL_GDCLASS(ReflectionProbe)
 VARIANT_ENUM_CAST(ReflectionProbe::UpdateMode);
@@ -97,13 +98,13 @@ void ReflectionProbe::set_extents(const Vector3 &p_extents) {
 
         if (extents[i] - 0.01 < ABS(origin_offset[i])) {
             origin_offset[i] = SGN(origin_offset[i]) * (extents[i] - 0.01);
-            _change_notify("origin_offset");
+            Object_change_notify(this,"origin_offset");
         }
     }
 
     VisualServer::get_singleton()->reflection_probe_set_extents(probe, extents);
     VisualServer::get_singleton()->reflection_probe_set_origin_offset(probe, origin_offset);
-    _change_notify("extents");
+    Object_change_notify(this,"extents");
     update_gizmo();
 }
 Vector3 ReflectionProbe::get_extents() const {
@@ -124,7 +125,7 @@ void ReflectionProbe::set_origin_offset(const Vector3 &p_extents) {
     VisualServer::get_singleton()->reflection_probe_set_extents(probe, extents);
     VisualServer::get_singleton()->reflection_probe_set_origin_offset(probe, origin_offset);
 
-    _change_notify("origin_offset");
+    Object_change_notify(this,"origin_offset");
     update_gizmo();
 }
 Vector3 ReflectionProbe::get_origin_offset() const {
@@ -146,7 +147,7 @@ void ReflectionProbe::set_as_interior(bool p_enable) {
 
     interior = p_enable;
     VisualServer::get_singleton()->reflection_probe_set_as_interior(probe, interior);
-    _change_notify();
+    Object_change_notify(this);
 }
 
 bool ReflectionProbe::is_set_as_interior() const {

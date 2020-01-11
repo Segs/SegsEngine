@@ -35,6 +35,7 @@
 #include "core/method_info.h"
 #include "core/method_bind.h"
 #include "core/method_enum_caster.h"
+#include "core/object_tooling.h"
 #include "core/os/os.h"
 #include "core/string_formatter.h"
 #include "core/translation_helpers.h"
@@ -124,7 +125,7 @@ StringName VisualScriptFunctionCall::_get_base_type() const {
 int VisualScriptFunctionCall::get_input_value_port_count() const {
 
     if (call_mode == CALL_MODE_BASIC_TYPE) {
-        Vector<VariantType> types = Variant::get_method_argument_types(basic_type, function);
+        Span<const VariantType> types = Variant::get_method_argument_types(basic_type, function);
         return types.size() + (rpc_call_mode >= RPC_RELIABLE_TO_ID ? 1 : 0) + 1;
 
     } else {
@@ -194,9 +195,9 @@ PropertyInfo VisualScriptFunctionCall::get_input_value_port_info(int p_idx) cons
 
     if (call_mode == CALL_MODE_BASIC_TYPE) {
 
-        Vector<StringName> names = Variant::get_method_argument_names(basic_type, function);
-        Vector<VariantType> types = Variant::get_method_argument_types(basic_type, function);
-        return PropertyInfo(types[p_idx], names[p_idx]);
+        Span<const se_string_view> names = Variant::get_method_argument_names(basic_type, function);
+        Span<const VariantType> types = Variant::get_method_argument_types(basic_type, function);
+        return PropertyInfo(types[p_idx], StaticCString(names[p_idx].data(),true));
 
     } else {
 
@@ -297,7 +298,7 @@ void VisualScriptFunctionCall::set_basic_type(VariantType p_type) {
         return;
     basic_type = p_type;
 
-    _change_notify();
+    Object_change_notify(this);
     ports_changed_notify();
 }
 
@@ -312,7 +313,7 @@ void VisualScriptFunctionCall::set_base_type(const StringName &p_type) {
         return;
 
     base_type = p_type;
-    _change_notify();
+    Object_change_notify(this);
     ports_changed_notify();
 }
 
@@ -327,7 +328,7 @@ void VisualScriptFunctionCall::set_base_script(se_string_view p_path) {
         return;
 
     base_script = p_path;
-    _change_notify();
+    Object_change_notify(this);
     ports_changed_notify();
 }
 
@@ -347,7 +348,7 @@ void VisualScriptFunctionCall::set_singleton(const StringName &p_type) {
         base_type = obj->get_class_name();
     }
 
-    _change_notify();
+    Object_change_notify(this);
     ports_changed_notify();
 }
 
@@ -453,7 +454,7 @@ void VisualScriptFunctionCall::set_function(const StringName &p_type) {
         _update_method_cache();
     }
 
-    _change_notify();
+    Object_change_notify(this);
     ports_changed_notify();
 }
 StringName VisualScriptFunctionCall::get_function() const {
@@ -467,7 +468,7 @@ void VisualScriptFunctionCall::set_base_path(const NodePath &p_type) {
         return;
 
     base_path = p_type;
-    _change_notify();
+    Object_change_notify(this);
     ports_changed_notify();
 }
 
@@ -482,7 +483,7 @@ void VisualScriptFunctionCall::set_call_mode(CallMode p_mode) {
         return;
 
     call_mode = p_mode;
-    _change_notify();
+    Object_change_notify(this);
     ports_changed_notify();
 }
 VisualScriptFunctionCall::CallMode VisualScriptFunctionCall::get_call_mode() const {
@@ -505,7 +506,7 @@ void VisualScriptFunctionCall::set_rpc_call_mode(VisualScriptFunctionCall::RPCCa
         return;
     rpc_call_mode = p_mode;
     ports_changed_notify();
-    _change_notify();
+    Object_change_notify(this);
 }
 
 VisualScriptFunctionCall::RPCCallMode VisualScriptFunctionCall::get_rpc_call_mode() const {
@@ -1125,7 +1126,7 @@ void VisualScriptPropertySet::set_basic_type(VariantType p_type) {
         return;
     basic_type = p_type;
 
-    _change_notify();
+        Object_change_notify(this);
     _update_base_type();
     ports_changed_notify();
 }
@@ -1141,7 +1142,7 @@ void VisualScriptPropertySet::set_base_type(const StringName &p_type) {
         return;
 
     base_type = p_type;
-    _change_notify();
+    Object_change_notify(this);
     ports_changed_notify();
 }
 
@@ -1156,7 +1157,7 @@ void VisualScriptPropertySet::set_base_script(se_string_view p_path) {
         return;
 
     base_script = p_path;
-    _change_notify();
+    Object_change_notify(this);
     ports_changed_notify();
 }
 
@@ -1264,7 +1265,7 @@ void VisualScriptPropertySet::set_property(const StringName &p_type) {
     property = p_type;
     index = StringName();
     _update_cache();
-    _change_notify();
+    Object_change_notify(this);
     ports_changed_notify();
 }
 StringName VisualScriptPropertySet::get_property() const {
@@ -1279,7 +1280,7 @@ void VisualScriptPropertySet::set_base_path(const NodePath &p_type) {
 
     base_path = p_type;
     _update_base_type();
-    _change_notify();
+    Object_change_notify(this);
     ports_changed_notify();
 }
 
@@ -1295,7 +1296,7 @@ void VisualScriptPropertySet::set_call_mode(CallMode p_mode) {
 
     call_mode = p_mode;
     _update_base_type();
-    _change_notify();
+    Object_change_notify(this);
     ports_changed_notify();
 }
 VisualScriptPropertySet::CallMode VisualScriptPropertySet::get_call_mode() const {
@@ -1318,7 +1319,7 @@ void VisualScriptPropertySet::set_index(const StringName &p_type) {
         return;
     index = p_type;
     _update_cache();
-    _change_notify();
+    Object_change_notify(this);
     ports_changed_notify();
 }
 
@@ -1335,7 +1336,7 @@ void VisualScriptPropertySet::set_assign_op(AssignOp p_op) {
 
     assign_op = p_op;
     _update_cache();
-    _change_notify();
+    Object_change_notify(this);
     ports_changed_notify();
 }
 
@@ -1857,7 +1858,7 @@ void VisualScriptPropertyGet::set_base_type(const StringName &p_type) {
         return;
 
     base_type = p_type;
-    _change_notify();
+    Object_change_notify(this);
     ports_changed_notify();
 }
 
@@ -1872,7 +1873,7 @@ void VisualScriptPropertyGet::set_base_script(se_string_view p_path) {
         return;
 
     base_script = p_path;
-    _change_notify();
+    Object_change_notify(this);
     ports_changed_notify();
 }
 
@@ -1980,7 +1981,7 @@ void VisualScriptPropertyGet::set_property(const StringName &p_type) {
     property = p_type;
 
     _update_cache();
-    _change_notify();
+    Object_change_notify(this);
     ports_changed_notify();
 }
 StringName VisualScriptPropertyGet::get_property() const {
@@ -1994,7 +1995,7 @@ void VisualScriptPropertyGet::set_base_path(const NodePath &p_type) {
         return;
 
     base_path = p_type;
-    _change_notify();
+    Object_change_notify(this);
     _update_base_type();
     ports_changed_notify();
 }
@@ -2010,7 +2011,7 @@ void VisualScriptPropertyGet::set_call_mode(CallMode p_mode) {
         return;
 
     call_mode = p_mode;
-    _change_notify();
+    Object_change_notify(this);
     _update_base_type();
     ports_changed_notify();
 }
@@ -2025,7 +2026,7 @@ void VisualScriptPropertyGet::set_basic_type(VariantType p_type) {
         return;
     basic_type = p_type;
 
-    _change_notify();
+    Object_change_notify(this);
     ports_changed_notify();
 }
 
@@ -2049,7 +2050,7 @@ void VisualScriptPropertyGet::set_index(const StringName &p_type) {
         return;
     index = p_type;
     _update_cache();
-    _change_notify();
+    Object_change_notify(this);
     ports_changed_notify();
 }
 
@@ -2394,7 +2395,7 @@ void VisualScriptEmitSignal::set_signal(const StringName &p_type) {
 
     name = p_type;
 
-    _change_notify();
+    Object_change_notify(this);
     ports_changed_notify();
 }
 StringName VisualScriptEmitSignal::get_signal() const {
@@ -2407,7 +2408,7 @@ void VisualScriptEmitSignal::_validate_property(PropertyInfo &property) const {
     if (property.name == "signal") {
         property.hint = PROPERTY_HINT_ENUM;
 
-        Vector<StringName> sigs;
+        PODVector<StringName> sigs;
 
         Ref<VisualScript> vs = get_visual_script();
         if (vs) {
@@ -2438,8 +2439,8 @@ class VisualScriptNodeInstanceEmitSignal : public VisualScriptNodeInstance {
 public:
     VisualScriptEmitSignal *node;
     VisualScriptInstance *instance;
-    int argcount;
     StringName name;
+    int argcount;
 
     //virtual int get_working_memory_size() const { return 0; }
     //virtual bool is_output_port_unsequenced(int p_idx) const { return false; }
@@ -2470,7 +2471,7 @@ VisualScriptEmitSignal::VisualScriptEmitSignal() {
 
 static Ref<VisualScriptNode> create_basic_type_call_node(se_string_view p_name) {
 
-    Vector<se_string_view > path = StringUtils::split(p_name,'/');
+    PODVector<se_string_view > path = StringUtils::split(p_name,'/');
     ERR_FAIL_COND_V(path.size() < 4, Ref<VisualScriptNode>())
     se_string_view  base_type = path[2];
     se_string_view  method = path[3];

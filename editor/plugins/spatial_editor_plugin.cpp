@@ -60,6 +60,7 @@
 #include "scene/3d/visual_instance.h"
 #include "scene/gui/viewport_container.h"
 #include "scene/main/scene_tree.h"
+#include "scene/resources/font.h"
 #include "scene/resources/packed_scene.h"
 #include "scene/resources/style_box.h"
 #include "scene/resources/surface_tool.h"
@@ -322,6 +323,7 @@ ObjectID SpatialEditorViewport::_select_ray(const Point2 &p_pos, bool p_append, 
 
     Vector3 ray = _get_ray(p_pos);
     Vector3 pos = _get_ray_pos(p_pos);
+    Vector2 shrinked_pos = p_pos / viewport_container->get_stretch_shrink();
 
     Vector<ObjectID> instances = VisualServer::get_singleton()->instances_cull_ray(pos, ray, get_tree()->get_root()->get_world()->get_scenario());
     Set<Ref<EditorSpatialGizmo> > found_gizmos;
@@ -329,7 +331,7 @@ ObjectID SpatialEditorViewport::_select_ray(const Point2 &p_pos, bool p_append, 
     Node *edited_scene = get_tree()->get_edited_scene_root();
     ObjectID closest = 0;
     Node *item = nullptr;
-    float closest_dist = 1e20;
+    float closest_dist = 1e20f;
     int selected_handle = -1;
 
     for (int i = 0; i < instances.size(); i++) {
@@ -350,7 +352,7 @@ ObjectID SpatialEditorViewport::_select_ray(const Point2 &p_pos, bool p_append, 
         Vector3 normal;
 
         int handle = -1;
-        bool inters = seg->intersect_ray(camera, p_pos, point, normal, &handle, p_alt_select);
+        bool inters = seg->intersect_ray(camera, shrinked_pos, point, normal, &handle, p_alt_select);
 
         if (!inters)
             continue;

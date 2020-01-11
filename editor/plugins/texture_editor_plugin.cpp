@@ -32,10 +32,12 @@
 
 #include "scene/resources/curve_texture.h"
 
+#include "core/object_tooling.h"
 #include "core/method_bind.h"
 #include "core/io/resource_loader.h"
 #include "core/project_settings.h"
 #include "editor/editor_settings.h"
+#include "scene/resources/font.h"
 
 IMPL_GDCLASS(TextureEditor)
 IMPL_GDCLASS(EditorInspectorPluginTexture)
@@ -120,12 +122,12 @@ void TextureEditor::_changed_callback(Object *p_changed, StringName p_prop) {
 void TextureEditor::edit(const Ref<Texture>& p_texture) {
 
     if (texture)
-        texture->remove_change_receptor(this);
+        Object_remove_change_receptor(texture.get(),this);
 
     texture = p_texture;
 
     if (texture) {
-        texture->add_change_receptor(this);
+        Object_add_change_receptor(texture.get(),this);
         update();
     } else {
         hide();
@@ -144,7 +146,7 @@ TextureEditor::TextureEditor() {
 
 TextureEditor::~TextureEditor() {
     if (texture) {
-        texture->remove_change_receptor(this);
+        Object_remove_change_receptor(texture.get(),this);
     }
 }
 //

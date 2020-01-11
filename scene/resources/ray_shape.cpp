@@ -53,7 +53,7 @@ void RayShape::set_length(float p_length) {
     length = p_length;
     _update_shape();
     notify_change_to_owners();
-    _change_notify("length");
+    Object_change_notify(this,"length");
 }
 
 float RayShape::get_length() const {
@@ -66,7 +66,7 @@ void RayShape::set_slips_on_slope(bool p_active) {
     slips_on_slope = p_active;
     _update_shape();
     notify_change_to_owners();
-    _change_notify("slips_on_slope");
+    Object_change_notify(this,"slips_on_slope");
 }
 
 bool RayShape::get_slips_on_slope() const {
@@ -94,6 +94,6 @@ RayShape::RayShape() :
     /* Code copied from setters to prevent the use of uninitialized variables */
     _update_shape();
     notify_change_to_owners();
-    _change_notify("length");
-    _change_notify("slips_on_slope");
+    Object_change_notify(this,"length");
+    Object_change_notify(this,"slips_on_slope");
 }

@@ -31,6 +31,7 @@
 #include "resource_format_text.h"
 
 #include "core/io/resource_format_binary.h"
+#include "core/object_tooling.h"
 #include "core/os/dir_access.h"
 #include "core/project_settings.h"
 #include "core/print_string.h"
@@ -1511,20 +1512,6 @@ void ResourceFormatSaverTextInstance::_find_resources(const Variant &p_variant, 
     }
 }
 
-static se_string _valprop(const se_string &p_name) {
-
-    // Escape and quote strings with extended ASCII or further Unicode characters
-    // as well as '"', '=' or ' ' (32)
-    const char *cstr = p_name.c_str();
-    for (int i = 0; 0!=cstr[i]; i++) {
-        if (cstr[i] == '=' || cstr[i] == '"' || cstr[i] < 33 || cstr[i] > 126) {
-            return "\"" + StringUtils::c_escape_multiline(p_name) + "\"";
-        }
-    }
-    // Keep as is
-    return p_name;
-}
-
 Error ResourceFormatSaverTextInstance::save(se_string_view p_path, const RES &p_resource, uint32_t p_flags) {
 
     if (StringUtils::ends_with(p_path,".tscn")) {
@@ -1689,9 +1676,7 @@ Error ResourceFormatSaverTextInstance::save(se_string_view p_path, const RES &p_
             }
 
             internal_resources[res] = idx;
-#ifdef TOOLS_ENABLED
-            res->get_tooling_interface()->set_edited(false);
-#endif
+            Object_set_edited(res.get(),false);
         }
 
         ListPOD<PropertyInfo> property_list;
@@ -1727,7 +1712,7 @@ Error ResourceFormatSaverTextInstance::save(se_string_view p_path, const RES &p_
 
                 se_string vars;
                 VariantWriter::write_to_string(value, vars, _write_resources, this);
-                f->store_string(_valprop(se_string(name.asCString())) + " = " + vars + "\n");
+                f->store_string(StringUtils::property_name_encode(se_string(name.asCString())) + " = " + vars + "\n");
             }
         }
 
@@ -1799,7 +1784,7 @@ Error ResourceFormatSaverTextInstance::save(se_string_view p_path, const RES &p_
                 se_string vars;
                 VariantWriter::write_to_string(state->get_node_property_value(i, j), vars, _write_resources, this);
 
-                f->store_string(_valprop((state->get_node_property_name(i, j)).asCString()) + " = " + vars + "\n");
+                f->store_string(StringUtils::property_name_encode((state->get_node_property_name(i, j)).asCString()) + " = " + vars + "\n");
             }
 
             if (i < state->get_node_count() - 1)

@@ -33,6 +33,7 @@
 #include "animation_blend_tree.h"
 #include "core/method_bind.h"
 #include "core/object_db.h"
+#include "core/object_tooling.h"
 #include "core/engine.h"
 #include "core/string_formatter.h"
 #include "core/script_language.h"
@@ -1471,7 +1472,7 @@ void AnimationTree::_update_properties() {
 
     properties_dirty = false;
 
-    _change_notify();
+    Object_change_notify(this);
 }
 
 bool AnimationTree::_set(const StringName &p_name, const Variant &p_value) {
@@ -1481,9 +1482,7 @@ bool AnimationTree::_set(const StringName &p_name, const Variant &p_value) {
 
     if (property_map.contains(p_name)) {
         property_map[p_name] = p_value;
-#ifdef TOOLS_ENABLED
-        _change_notify(p_name);
-#endif
+        Object_change_notify(this,p_name);
         return true;
     }
 

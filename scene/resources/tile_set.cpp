@@ -385,14 +385,14 @@ void TileSet::create_tile(int p_id) {
     ERR_FAIL_COND(tile_map.contains(p_id))
     tile_map[p_id] = TileData();
     tile_map[p_id].autotile_data = AutotileData();
-    _change_notify("");
+    Object_change_notify(this,"");
     emit_changed();
 }
 
 void TileSet::autotile_set_bitmask_mode(int p_id, BitmaskMode p_mode) {
     ERR_FAIL_COND(!tile_map.contains(p_id))
     tile_map[p_id].autotile_data.bitmask_mode = p_mode;
-    _change_notify("");
+    Object_change_notify(this,"");
     emit_changed();
 }
 
@@ -407,7 +407,7 @@ void TileSet::tile_set_texture(int p_id, const Ref<Texture> &p_texture) {
     ERR_FAIL_COND(!tile_map.contains(p_id))
     tile_map[p_id].texture = p_texture;
     emit_changed();
-    _change_notify("texture");
+    Object_change_notify(this,"texture");
 }
 
 Ref<Texture> TileSet::tile_get_texture(int p_id) const {
@@ -447,7 +447,7 @@ void TileSet::tile_set_modulate(int p_id, const Color &p_modulate) {
     ERR_FAIL_COND(!tile_map.contains(p_id))
     tile_map[p_id].modulate = p_modulate;
     emit_changed();
-    _change_notify("modulate");
+    Object_change_notify(this,"modulate");
 }
 
 Color TileSet::tile_get_modulate(int p_id) const {
@@ -474,7 +474,7 @@ void TileSet::tile_set_region(int p_id, const Rect2 &p_region) {
     ERR_FAIL_COND(!tile_map.contains(p_id))
     tile_map[p_id].region = p_region;
     emit_changed();
-    _change_notify("region");
+    Object_change_notify(this,"region");
 }
 
 Rect2 TileSet::tile_get_region(int p_id) const {
@@ -487,7 +487,7 @@ void TileSet::tile_set_tile_mode(int p_id, TileMode p_tile_mode) {
     ERR_FAIL_COND(!tile_map.contains(p_id))
     tile_map[p_id].tile_mode = p_tile_mode;
     emit_changed();
-    _change_notify("tile_mode");
+    Object_change_notify(this,"tile_mode");
 }
 
 TileSet::TileMode TileSet::tile_get_tile_mode(int p_id) const {
@@ -727,7 +727,7 @@ void TileSet::tile_set_name(int p_id, se_string_view p_name) {
     ERR_FAIL_COND(!tile_map.contains(p_id))
     tile_map[p_id].name = p_name;
     emit_changed();
-    _change_notify("name");
+    Object_change_notify(this,"name");
 }
 
 const se_string &TileSet::tile_get_name(int p_id) const {
@@ -1091,10 +1091,10 @@ void TileSet::_decompose_convex_shape(Ref<Shape2D> p_shape) {
     Ref<ConvexPolygonShape2D> convex = dynamic_ref_cast<ConvexPolygonShape2D>(p_shape);
     if (not convex)
         return;
-    Vector<PODVector<Vector2> > decomp = Geometry::decompose_polygon_in_convex(convex->get_points());
+    PODVector<PODVector<Vector2> > decomp = Geometry::decompose_polygon_in_convex(convex->get_points());
     if (decomp.size() > 1) {
         Array sub_shapes;
-        for (int i = 0; i < decomp.size(); i++) {
+        for (size_t i = 0; i < decomp.size(); i++) {
             Ref<ConvexPolygonShape2D> _convex(make_ref_counted<ConvexPolygonShape2D>());
             _convex->set_points(decomp[i]);
             sub_shapes.append(_convex);
@@ -1137,7 +1137,7 @@ void TileSet::remove_tile(int p_id) {
 
     ERR_FAIL_COND(!tile_map.contains(p_id))
     tile_map.erase(p_id);
-    _change_notify("");
+    Object_change_notify(this,"");
     emit_changed();
 }
 
@@ -1162,7 +1162,7 @@ int TileSet::find_tile_by_name(se_string_view p_name) const {
 void TileSet::clear() {
 
     tile_map.clear();
-    _change_notify("");
+    Object_change_notify(this,"");
     emit_changed();
 }
 

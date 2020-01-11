@@ -89,7 +89,7 @@ void VisibilityNotifier2D::set_rect(const Rect2 &p_rect) {
         }
     }
 
-    _change_notify("rect");
+    Object_change_notify(this,"rect");
 }
 
 Rect2 VisibilityNotifier2D::_edit_get_rect() const {

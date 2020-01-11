@@ -594,7 +594,7 @@ void Label::set_visible_characters(int p_amount) {
     if (get_total_character_count() > 0) {
         percent_visible = (float)p_amount / (float)total_char_cache;
     }
-    _change_notify("percent_visible");
+    Object_change_notify(this,"percent_visible");
     update();
 }
 
@@ -615,7 +615,7 @@ void Label::set_percent_visible(float p_percent) {
         visible_chars = get_total_character_count() * p_percent;
         percent_visible = p_percent;
     }
-    _change_notify("visible_chars");
+    Object_change_notify(this,"visible_chars");
     update();
 }
 

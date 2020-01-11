@@ -248,7 +248,7 @@ public:
     operator Orientation() const;
 
     operator IP_Address() const;
-    //NOTE: Code below is convoluted to prevent implcit bool conversions from all bool convertible types.
+    //NOTE: Code below is convoluted to prevent implicit bool conversions from all bool convertible types.
     template<class T ,
                class = typename std::enable_if<std::is_same<bool,T>::value>::type >
     Variant(T p_bool) {
@@ -396,10 +396,10 @@ public:
 
     void get_method_list(PODVector<MethodInfo> *p_list) const;
     bool has_method(const StringName &p_method) const;
-    static Vector<VariantType> get_method_argument_types(VariantType p_type, const StringName &p_method);
-    static const PODVector<Variant> &get_method_default_arguments(VariantType p_type, const StringName &p_method);
+    static Span<const VariantType> get_method_argument_types(VariantType p_type, const StringName &p_method);
+    static Span<const Variant> get_method_default_arguments(VariantType p_type, const StringName &p_method);
     static VariantType get_method_return_type(VariantType p_type, const StringName &p_method, bool *r_has_return = nullptr);
-    static Vector<StringName> get_method_argument_names(VariantType p_type, const StringName &p_method);
+    static Span<const se_string_view> get_method_argument_names(VariantType p_type, const StringName &p_method);
     static bool is_method_const(VariantType p_type, const StringName &p_method);
 
     void set_named(const StringName &p_index, const Variant &p_value, bool *r_valid = nullptr);
@@ -440,7 +440,11 @@ public:
 
     Variant &operator=(const Variant &p_variant); // only this is enough for all the other types
     Variant(const Variant &p_variant);
-    constexpr _FORCE_INLINE_ Variant() : type(VariantType::NIL) {}
+    constexpr Variant(Variant && oth) : type(oth.type),_data(oth._data) {
+        oth.type = VariantType::NIL;
+        //NOTE: oth._data is not cleared here since setting type to NIL should suffice.
+    }
+    constexpr Variant() : type(VariantType::NIL) {}
     _FORCE_INLINE_ ~Variant() {
         if (type != VariantType::NIL) clear();
     }
@@ -502,6 +506,7 @@ template <> GODOT_EXPORT PODVector<Plane> Variant::asVector<Plane>() const;
 // All `as` overloads returing a Span are restricted to no-conversion/no-allocation cases.
 template <> GODOT_EXPORT Span<const uint8_t> Variant::as<Span<const uint8_t>>() const;
 template <> GODOT_EXPORT Span<const int> Variant::as<Span<const int>>() const;
+template <> GODOT_EXPORT Span<const float> Variant::as<Span<const float>>() const;
 template <> GODOT_EXPORT Span<const Vector2> Variant::as<Span<const Vector2>>() const;
 template <> GODOT_EXPORT Span<const Vector3> Variant::as<Span<const Vector3>>() const;
 
@@ -528,5 +533,6 @@ template <> GODOT_EXPORT Variant Variant::from(const Vector<Plane> &p_array);
 template <> GODOT_EXPORT Variant Variant::from(const Vector<RID> &p_array);
 
 template <> GODOT_EXPORT Variant Variant::from(const PODVector<se_string> &);
+template <> GODOT_EXPORT Variant Variant::from(const PODVector<se_string_view> &);
 template <> GODOT_EXPORT Variant Variant::from(const PODVector<StringName> &);
 template <> GODOT_EXPORT Variant Variant::from(const Frustum &p_array);

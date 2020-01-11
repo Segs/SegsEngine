@@ -170,10 +170,10 @@ private:
     bool handshaking;
     bool head_request;
 
-    Vector<uint8_t> response_str;
+    PODVector<uint8_t> response_str;
 
     bool chunked;
-    Vector<uint8_t> chunk;
+    PODVector<uint8_t> chunk;
     int chunk_left;
     bool chunk_trailer_part;
     int body_size;
@@ -184,7 +184,7 @@ private:
     Ref<StreamPeer> connection;
 
     int response_num;
-    Vector<se_string> response_headers;
+    PODVector<se_string> response_headers;
     int read_chunk_size;
 
     Error _get_http_data(uint8_t *p_buffer, int p_bytes, int &r_received);
@@ -204,8 +204,8 @@ public:
     void set_connection(const Ref<StreamPeer> &p_connection);
     Ref<StreamPeer> get_connection() const;
 
-    Error request_raw(Method p_method, se_string_view p_url, const Vector<se_string> &p_headers, const PoolVector<uint8_t> &p_body);
-    Error request(Method p_method, se_string_view p_url, const Vector<se_string> &p_headers, const se_string &p_body = {});
+    Error request_raw(Method p_method, se_string_view p_url, const PODVector<se_string> &p_headers, const PoolVector<uint8_t> &p_body);
+    Error request(Method p_method, se_string_view p_url, const PODVector<se_string> &p_headers, const se_string &p_body = {});
 
     void close();
 

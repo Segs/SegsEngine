@@ -10,8 +10,10 @@ class Array;
 using CharType = QChar;
 using CharString = QByteArray;
 
+
 namespace StringUtils
 {
+
 enum Compare {
     CaseSensitive=0,
     CaseInsensitive,
@@ -19,7 +21,6 @@ enum Compare {
 };
 //! length in codepoints, not bytes
 [[nodiscard]] int char_length(const String &str);
-
 [[nodiscard]] GODOT_EXPORT double to_double(se_string_view p_str);
 [[nodiscard]] inline float to_float(se_string_view str) { return float(to_double(str)); }
 [[nodiscard]] GODOT_EXPORT int hex_to_int(const String &str,bool p_with_prefix = true);
@@ -40,10 +41,8 @@ enum Compare {
 [[nodiscard]] GODOT_EXPORT se_string md5(const uint8_t *p_md5);
 [[nodiscard]] GODOT_EXPORT se_string hex_encode_buffer(const uint8_t *p_buffer, int p_len);
 
-[[nodiscard]] GODOT_EXPORT float similarity(const String &lhs,const String &p_string);
-[[nodiscard]] GODOT_EXPORT Vector<String> bigrams(const String &str);
 [[nodiscard]] GODOT_EXPORT float similarity(se_string_view lhs,se_string_view p_string);
-[[nodiscard]] GODOT_EXPORT Vector<se_string_view> bigrams(se_string_view str);
+[[nodiscard]] GODOT_EXPORT PODVector<se_string_view> bigrams(se_string_view str);
 [[nodiscard]] GODOT_EXPORT int compare(const String &lhs,const String &rhs,Compare case_sensitive=CaseSensitive);
 [[nodiscard]] GODOT_EXPORT int compare(se_string_view lhs,se_string_view rhs,Compare case_sensitive=CaseSensitive);
 [[nodiscard]] GODOT_EXPORT String percent_encode(const String &src);
@@ -58,11 +57,11 @@ enum Compare {
 [[nodiscard]] GODOT_EXPORT se_string sha256_text(se_string_view str);
 //[[nodiscard]] GODOT_EXPORT se_string sha256_text(const String &str);
 [[nodiscard]] GODOT_EXPORT PODVector<uint8_t> md5_buffer(se_string_view str);
-[[nodiscard]] GODOT_EXPORT Vector<uint8_t> sha1_buffer(const String &str);
-[[nodiscard]] GODOT_EXPORT Vector<uint8_t> sha256_buffer(const String &str);
+[[nodiscard]] GODOT_EXPORT PODVector<uint8_t> sha1_buffer(const String &str);
+[[nodiscard]] GODOT_EXPORT PODVector<uint8_t> sha256_buffer(const String &str);
 
-[[nodiscard]] GODOT_EXPORT Vector<uint8_t> sha1_buffer(se_string_view str);
-[[nodiscard]] GODOT_EXPORT Vector<uint8_t> sha256_buffer(se_string_view str);
+[[nodiscard]] GODOT_EXPORT PODVector<uint8_t> sha1_buffer(se_string_view str);
+[[nodiscard]] GODOT_EXPORT PODVector<uint8_t> sha256_buffer(se_string_view str);
 
 [[nodiscard]] GODOT_EXPORT CharType char_uppercase(CharType p_char);
 [[nodiscard]] GODOT_EXPORT CharType char_lowercase(CharType p_char);
@@ -91,23 +90,24 @@ enum Compare {
 [[nodiscard]] GODOT_EXPORT se_string c_escape_multiline(se_string_view src);
 [[nodiscard]] GODOT_EXPORT se_string c_unescape(se_string_view src);
 [[nodiscard]] GODOT_EXPORT se_string json_escape(se_string_view src);
+[[nodiscard]] GODOT_EXPORT se_string property_name_encode(se_string_view str);
 
 [[nodiscard]] GODOT_EXPORT bool is_subsequence_of(const String &str,const String &p_string, Compare mode=CaseSensitive);
 [[nodiscard]] GODOT_EXPORT bool is_subsequence_of(se_string_view str,se_string_view p_string, Compare mode=CaseSensitive);
 
-[[nodiscard]] GODOT_EXPORT String join(const String &str, const Vector<String> &parts);
+[[nodiscard]] GODOT_EXPORT String join(const String &str, const PODVector<String> &parts);
 [[nodiscard]] GODOT_EXPORT String repeat(const String &str,int p_count);
-[[nodiscard]] GODOT_EXPORT Vector<String> rsplit(const String &str,const String &p_splitter, bool p_allow_empty = true, int p_maxsplit = 0);
-[[nodiscard]] GODOT_EXPORT Vector<se_string_view> rsplit(se_string_view str,se_string_view p_splitter, bool p_allow_empty = true, int p_maxsplit = 0);
-[[nodiscard]] GODOT_EXPORT Vector<String> split(const String &str,CharType p_splitter, bool p_allow_empty = true);
-[[nodiscard]] GODOT_EXPORT Vector<String> split(const String &str,const String &p_splitter, bool p_allow_empty = true, int p_maxsplit = 0);
-[[nodiscard]] GODOT_EXPORT Vector<se_string_view> split(se_string_view str,se_string_view p_splitter, bool p_allow_empty = true, int p_maxsplit = 0);
-[[nodiscard]] GODOT_EXPORT Vector<se_string_view> split(se_string_view str,char p_splitter, bool p_allow_empty = true);
-[[nodiscard]] GODOT_EXPORT Vector<String> split_spaces(const String &str);
-//[[nodiscard]] GODOT_EXPORT Vector<float> split_floats(const String &str,const String &p_splitter, bool p_allow_empty = true);
-[[nodiscard]] GODOT_EXPORT Vector<float> split_floats(se_string_view str,se_string_view p_splitter, bool p_allow_empty = true);
+[[nodiscard]] GODOT_EXPORT PODVector<String> rsplit(const String &str,const String &p_splitter, bool p_allow_empty = true, int p_maxsplit = 0);
+[[nodiscard]] GODOT_EXPORT PODVector<se_string_view> rsplit(se_string_view str,se_string_view p_splitter, bool p_allow_empty = true, int p_maxsplit = 0);
+[[nodiscard]] GODOT_EXPORT PODVector<String> split(const String &str,CharType p_splitter, bool p_allow_empty = true);
+[[nodiscard]] GODOT_EXPORT PODVector<String> split(const String &str,const String &p_splitter, bool p_allow_empty = true, int p_maxsplit = 0);
+[[nodiscard]] GODOT_EXPORT PODVector<se_string_view> split(se_string_view str,se_string_view p_splitter, bool p_allow_empty = true, int p_maxsplit = 0);
+[[nodiscard]] GODOT_EXPORT PODVector<se_string_view> split(se_string_view str,char p_splitter, bool p_allow_empty = true);
+[[nodiscard]] GODOT_EXPORT PODVector<String> split_spaces(const String &str);
+//[[nodiscard]] GODOT_EXPORT PODVector<float> split_floats(const String &str,const String &p_splitter, bool p_allow_empty = true);
+[[nodiscard]] GODOT_EXPORT PODVector<float> split_floats(se_string_view str,se_string_view p_splitter, bool p_allow_empty = true);
 [[nodiscard]] GODOT_EXPORT PODVector<float> split_floats_mk(se_string_view str,se_string_view split_chars, bool p_allow_empty = true);
-[[nodiscard]] GODOT_EXPORT Vector<se_string_view> split_spaces(se_string_view str);
+[[nodiscard]] GODOT_EXPORT PODVector<se_string_view> split_spaces(se_string_view str);
 [[nodiscard]] GODOT_EXPORT bool contains(const String &heystack,CharType c,Compare mode=CaseSensitive);
 [[nodiscard]] GODOT_EXPORT bool contains(const String &heystack,const String &needle,Compare mode=CaseSensitive);
 [[nodiscard]] GODOT_EXPORT bool contains(const String &heystack, se_string_view needle,Compare mode=CaseSensitive);
@@ -144,7 +144,7 @@ static inline uint32_t hash(const CharType *p_cstr) {
     return hash_djb2((const uint16_t *)p_cstr);
 }
 static inline uint32_t hash(const char *p_cstr, int p_len) {
-    return eastl::hash<se_string_view>()(se_string_view(p_cstr,p_len));
+    return uint32_t(eastl::hash<se_string_view>()(se_string_view(p_cstr,p_len)));
 }
 static inline uint32_t hash(const char *p_cstr) {
     return eastl::hash<se_string_view>()(se_string_view(p_cstr));

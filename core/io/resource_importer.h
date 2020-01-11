@@ -93,7 +93,7 @@ public:
     ResourceImporterInterface * get_importer_by_name(se_string_view p_name) const;
     ResourceImporterInterface * get_importer_by_extension(se_string_view p_extension) const;
 
-    void get_importers_for_extension(se_string_view p_extension, Vector<ResourceImporterInterface *> *r_importers);
+    void get_importers_for_extension(se_string_view p_extension, PODVector<ResourceImporterInterface *> *r_importers);
 
     bool are_import_settings_valid(se_string_view p_path) const;
     se_string get_import_settings_hash() const;

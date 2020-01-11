@@ -31,6 +31,7 @@
 #include "visual_instance.h"
 
 #include "core/method_bind.h"
+#include "core/object_tooling.h"
 #include "scene/scene_string_names.h"
 #include "servers/visual_server.h"
 #include "scene/resources/world.h"
@@ -52,7 +53,7 @@ void VisualInstance::_update_visibility() {
     if (!is_inside_tree())
         return;
 
-    _change_notify("visible");
+    Object_change_notify(this,"visible");
     VisualServer::get_singleton()->instance_set_visible(get_instance(), is_visible_in_tree());
 }
 

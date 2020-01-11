@@ -81,8 +81,8 @@ class PacketPeerStream : public PacketPeer {
 
 	mutable Ref<StreamPeer> peer;
 	mutable RingBuffer<uint8_t> ring_buffer;
-	mutable Vector<uint8_t> input_buffer;
-	mutable Vector<uint8_t> output_buffer;
+    mutable PODVector<uint8_t> input_buffer;
+    mutable PODVector<uint8_t> output_buffer;
 
 	Error _poll_buffer() const;
 

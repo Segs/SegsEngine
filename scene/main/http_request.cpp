@@ -50,33 +50,33 @@ VARIANT_ENUM_CAST(HTTPClient::Status);
 namespace {
 struct HTTPRequestData
 {
-    bool requesting;
+    PODVector<se_string> headers;
+    PoolByteArray body;
+    PoolVector<se_string> response_headers;
     se_string request_string;
     se_string url;
-    int port;
-    Vector<se_string> headers;
-    bool validate_ssl;
-    bool use_ssl;
-    HTTPClient::Method method;
     se_string request_data;
-    bool request_sent;
-    Ref<HTTPClient> client;
-    PoolByteArray body;
-    std::atomic<bool> use_threads;
-    bool got_response;
-    int response_code;
-    PoolVector<se_string> response_headers;
     se_string download_to_file;
+    Ref<HTTPClient> client;
     FileAccess *file;
-    int body_len;
+    Thread *thread;
     std::atomic<int> downloaded;
+    int port;
+    int response_code;
+    int body_len;
     int body_size_limit;
     int redirections;
     int max_redirects;
     int timeout;
+    HTTPClient::Method method;
+    std::atomic<bool> use_threads;
     std::atomic<bool> thread_done;
     std::atomic<bool> thread_request_quit;
-    Thread *thread;
+    bool requesting;
+    bool validate_ssl;
+    bool use_ssl;
+    bool request_sent;
+    bool got_response;
 };
 void initialize(HTTPRequestData &d) {
     d.thread = nullptr;
@@ -397,7 +397,7 @@ void HTTPRequest::_redirect_request(se_string_view /*p_new_url*/) {
 }
 
 #define IMPLD() ((HTTPRequestData*)m_impl)
-Error HTTPRequest::request(se_string_view p_url, const Vector<se_string> &p_custom_headers, bool p_ssl_validate_domain, HTTPClient::Method p_method, se_string_view p_request_data) {
+Error HTTPRequest::request(se_string_view p_url, const PODVector<se_string> &p_custom_headers, bool p_ssl_validate_domain, HTTPClient::Method p_method, se_string_view p_request_data) {
 
     ERR_FAIL_COND_V(!is_inside_tree(), ERR_UNCONFIGURED)
     ERR_FAIL_COND_V_MSG(IMPLD()->requesting, ERR_BUSY, "HTTPRequest is processing a request. Wait for completion or cancel it before attempting a new one.")

@@ -2227,9 +2227,9 @@ static void _find_identifiers(const GDScriptCompletionContext &p_context, bool p
     }
 
     // Named scripts
-    Vector<StringName> named_scripts;
+    PODVector<StringName> named_scripts;
     ScriptServer::get_global_class_list(&named_scripts);
-    for (int i=0,fin=named_scripts.size(); i<fin; ++i) {
+    for (size_t i=0,fin=named_scripts.size(); i<fin; ++i) {
         ScriptCodeCompletionOption option(named_scripts[i].asCString(), ScriptCodeCompletionOption::KIND_CLASS);
         r_result.emplace(option.display, option);
     }
@@ -2862,9 +2862,9 @@ Error GDScriptLanguage::complete_code(const se_string &p_code, se_string_view p_
                 }
             }
 
-            Vector<StringName> native_classes;
+            PODVector<StringName> native_classes;
             ClassDB::get_class_list(&native_classes);
-            for (int i=0,fin=native_classes.size(); i<fin; ++i) {
+            for (size_t i=0,fin=native_classes.size(); i<fin; ++i) {
                 se_string_view class_name = native_classes[i].asCString();
                 if (StringUtils::begins_with(class_name,"_")) {
                     class_name = StringUtils::right(class_name,1);
@@ -2877,9 +2877,9 @@ Error GDScriptLanguage::complete_code(const se_string &p_code, se_string_view p_
             }
 
             // Named scripts
-            Vector<StringName> named_scripts;
+            PODVector<StringName> named_scripts;
             ScriptServer::get_global_class_list(&named_scripts);
-            for (int i=0,fin=named_scripts.size(); i<fin; ++i) {
+            for (size_t i=0,fin=named_scripts.size(); i<fin; ++i) {
                 ScriptCodeCompletionOption option(named_scripts[i].asCString(), ScriptCodeCompletionOption::KIND_CLASS);
                 options.emplace(option.display, option);
             }

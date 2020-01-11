@@ -32,6 +32,7 @@
 
 #include "core/method_bind.h"
 #include "core/os/os.h"
+#include "core/object_tooling.h"
 #include "core/translation_helpers.h"
 #include "scene/main/scene_tree.h"
 #include "scene/resources/particles_material.h"
@@ -109,7 +110,7 @@ void Particles2D::set_visibility_rect(const Rect2 &p_visibility_rect) {
 
     VisualServer::get_singleton()->particles_set_custom_aabb(particles, aabb);
 
-    _change_notify("visibility_rect");
+    Object_change_notify(this,"visibility_rect");
     update();
 }
 void Particles2D::set_use_local_coordinates(bool p_enable) {
@@ -334,7 +335,7 @@ void Particles2D::_notification(int p_what) {
     if (p_what == NOTIFICATION_INTERNAL_PROCESS) {
 
         if (one_shot && !is_emitting()) {
-            _change_notify();
+            Object_change_notify(this);
             set_process_internal(false);
         }
     }

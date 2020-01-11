@@ -57,6 +57,7 @@
 #include "core/message_queue.h"
 #include "core/method_bind.h"
 #include "core/object_db.h"
+#include "core/object_tooling.h"
 #include "core/os/file_access.h"
 #include "core/os/input.h"
 #include "core/os/keyboard.h"
@@ -155,6 +156,7 @@
 #include "main/main.h"
 #include "scene/gui/tabs.h"
 #include "scene/main/scene_tree.h"
+#include "scene/resources/font.h"
 #include "scene/resources/packed_scene.h"
 #include "servers/physics_2d_server.h"
 
@@ -575,11 +577,13 @@ void EditorNode::_fs_changed() {
         if (not preset) {
             se_string errstr = "Unknown export preset: " + export_defer.preset;
             ERR_PRINT(errstr)
+            OS::get_singleton()->set_exit_code(EXIT_FAILURE);
         } else {
             Ref<EditorExportPlatform> platform = preset->get_platform();
             if (not platform) {
                 se_string errstr = "Preset \"" + export_defer.preset + "\" doesn't have a platform.";
                 ERR_PRINT(errstr)
+                OS::get_singleton()->set_exit_code(EXIT_FAILURE);
             } else {
                 // ensures export_project does not loop infinitely, because notifications may
                 // come during the export
@@ -597,6 +601,7 @@ void EditorNode::_fs_changed() {
                 }
                 if (err != OK) {
                     ERR_PRINT(FormatVE(TTR("Project export failed with error code %d.").asCString(), (int)err))
+                    OS::get_singleton()->set_exit_code(EXIT_FAILURE);
                 }
             }
         }
@@ -605,7 +610,7 @@ void EditorNode::_fs_changed() {
     }
 }
 
-void EditorNode::_resources_reimported(const Vector<se_string> &p_resources) {
+void EditorNode::_resources_reimported(const PODVector<se_string> &p_resources) {
 
     List<se_string> scenes; // will load later
     int current_tab = scene_tabs->get_current_tab();
@@ -704,7 +709,7 @@ Error EditorNode::load_resource(se_string_view p_resource, bool p_ignore_broken_
     if (dependency_errors.end() != iter) {
 
         // current_option = -1;
-        Vector<se_string> errors;
+        PODVector<se_string> errors;
         for (const se_string &E : iter->second) {
 
             errors.push_back(E);
@@ -968,7 +973,7 @@ bool EditorNode::_find_and_save_resource(const RES &p_res, Map<RES, bool> &proce
     }
 
     bool changed = p_res->get_tooling_interface()->is_edited();
-    p_res->get_tooling_interface()->set_edited(false);
+    Object_set_edited(p_res.get(),false);
 
     bool subchanged = _find_and_save_edited_subresources(p_res.get(), processed, flags);
 
@@ -1064,73 +1069,78 @@ void EditorNode::_find_node_types(Node *p_node, int &count_2d, int &count_3d) {
 void EditorNode::_save_scene_with_preview(se_string_view p_file, int p_idx) {
 
     EditorProgress save(("save"), TTR("Saving Scene"), 4);
-    save.step(TTR("Analyzing"), 0);
+    if (editor_data.get_edited_scene_root() != nullptr) {
+        save.step(TTR("Analyzing"), 0);
 
-    int c2d = 0;
-    int c3d = 0;
-    _find_node_types(editor_data.get_edited_scene_root(), c2d, c3d);
+        int c2d = 0;
+        int c3d = 0;
+        _find_node_types(editor_data.get_edited_scene_root(), c2d, c3d);
 
-    bool is2d;
-    if (c3d < c2d) {
-        is2d = true;
-    } else {
-        is2d = false;
-    }
-    save.step(TTR("Creating Thumbnail"), 1);
-    // current view?
-
-    Ref<Image> img;
-    if (is2d) {
-        img = scene_root->get_texture()->get_data();
-    } else {
-        img = SpatialEditor::get_singleton()->get_editor_viewport(0)->get_viewport_node()->get_texture()->get_data();
-    }
-
-    if (img) {
-
-        img = dynamic_ref_cast<Image>(img->duplicate());
-
-        save.step(TTR("Creating Thumbnail"), 2);
-        save.step(TTR("Creating Thumbnail"), 3);
-
-        int preview_size = EditorSettings::get_singleton()->get("filesystem/file_dialog/thumbnail_size");
-        preview_size *= EDSCALE;
-
-        // consider a square region
-        int vp_size = MIN(img->get_width(), img->get_height());
-        int x = (img->get_width() - vp_size) / 2;
-        int y = (img->get_height() - vp_size) / 2;
-
-        if (vp_size < preview_size) {
-            // just square it.
-            img->crop_from_point(x, y, vp_size, vp_size);
+        bool is2d;
+        if (c3d < c2d) {
+            is2d = true;
         } else {
-            int ratio = vp_size / preview_size;
-            int size = preview_size * MAX(1, ratio / 2);
-
-            x = (img->get_width() - size) / 2;
-            y = (img->get_height() - size) / 2;
-
-            img->crop_from_point(x, y, size, size);
-            img->resize(preview_size, preview_size, Image::INTERPOLATE_LANCZOS);
+            is2d = false;
         }
-        img->convert(Image::FORMAT_RGB8);
+        save.step(TTR("Creating Thumbnail"), 1);
+        // current view?
 
-        img->flip_y();
+        Ref<Image> img;
+        if (is2d) {
+            img = scene_root->get_texture()->get_data();
+        } else {
+            img = SpatialEditor::get_singleton()
+                          ->get_editor_viewport(0)
+                          ->get_viewport_node()
+                          ->get_texture()
+                          ->get_data();
+        }
 
-        // save thumbnail directly, as thumbnailer may not update due to actual scene not changing md5
-        const se_string &temp_path = EditorSettings::get_singleton()->get_cache_dir();
-        se_string cache_base(StringUtils::md5_text(ProjectSettings::get_singleton()->globalize_path(p_file)));
-        cache_base = PathUtils::plus_file(temp_path, "resthumb-" + cache_base);
+        if (img) {
 
-        // does not have it, try to load a cached thumbnail
+            img = dynamic_ref_cast<Image>(img->duplicate());
 
-        se_string file = cache_base + ".png";
+            save.step(TTR("Creating Thumbnail"), 2);
+            save.step(TTR("Creating Thumbnail"), 3);
 
-        post_process_preview(img);
-        img->save_png(file);
+            int preview_size = EditorSettings::get_singleton()->get("filesystem/file_dialog/thumbnail_size");
+            preview_size *= EDSCALE;
+
+            // consider a square region
+            int vp_size = MIN(img->get_width(), img->get_height());
+            int x = (img->get_width() - vp_size) / 2;
+            int y = (img->get_height() - vp_size) / 2;
+
+            if (vp_size < preview_size) {
+                // just square it.
+                img->crop_from_point(x, y, vp_size, vp_size);
+            } else {
+                int ratio = vp_size / preview_size;
+                int size = preview_size * MAX(1, ratio / 2);
+
+                x = (img->get_width() - size) / 2;
+                y = (img->get_height() - size) / 2;
+
+                img->crop_from_point(x, y, size, size);
+                img->resize(preview_size, preview_size, Image::INTERPOLATE_LANCZOS);
+            }
+            img->convert(Image::FORMAT_RGB8);
+
+            img->flip_y();
+
+            // save thumbnail directly, as thumbnailer may not update due to actual scene not changing md5
+            const se_string &temp_path = EditorSettings::get_singleton()->get_cache_dir();
+            se_string cache_base(StringUtils::md5_text(ProjectSettings::get_singleton()->globalize_path(p_file)));
+            cache_base = PathUtils::plus_file(temp_path, "resthumb-" + cache_base);
+
+            // does not have it, try to load a cached thumbnail
+
+            se_string file = cache_base + ".png";
+
+            post_process_preview(img);
+            img->save_png(file);
+        }
     }
-
     save.step(TTR("Saving Scene"), 4);
     _save_scene(p_file, p_idx);
     EditorResourcePreview::get_singleton()->check_for_invalidation(p_file);
@@ -1208,8 +1218,8 @@ int EditorNode::_save_external_resources() {
     // clear later, because user may have put the same subresource in two different resources,
     // which will be shared until the next reload
 
-    for (Ref<Resource> res : edited_subresources) {
-        res->get_tooling_interface()->set_edited(false);
+    for (const Ref<Resource> &res : edited_subresources) {
+        Object_set_edited(res.get(),false);
     }
 
     return saved;
@@ -1500,7 +1510,7 @@ void EditorNode::_dialog_action(se_string_view p_file) {
             ObjectID current = editor_history.get_current();
             Object *current_obj = current > 0 ? ObjectDB::get_instance(current) : nullptr;
             ERR_FAIL_COND(!current_obj)
-            current_obj->_change_notify();
+            Object_change_notify(current_obj);
         } break;
         case SETTINGS_LAYOUT_SAVE: {
 
@@ -1605,7 +1615,7 @@ bool EditorNode::_is_class_editor_disabled_by_feature_profile(const StringName &
 
 void EditorNode::edit_item(Object *p_object) {
 
-    Vector<EditorPlugin *> sub_plugins;
+    PODVector<EditorPlugin *> sub_plugins;
 
     if (p_object) {
         if (_is_class_editor_disabled_by_feature_profile(p_object->get_class_name())) {
@@ -1614,27 +1624,26 @@ void EditorNode::edit_item(Object *p_object) {
         sub_plugins = editor_data.get_subeditors(p_object);
     }
 
-    if (!sub_plugins.empty()) {
-
-        bool same = true;
-        if (sub_plugins.size() == editor_plugins_over->get_plugins_list().size()) {
-            for (int i = 0; i < sub_plugins.size(); i++) {
-                if (sub_plugins[i] != editor_plugins_over->get_plugins_list()[i]) {
-                    same = false;
-                }
-            }
-        } else {
-            same = false;
-        }
-        if (!same) {
-            _display_top_editors(false);
-            _set_top_editors(sub_plugins);
-        }
-        _set_editing_top_editors(p_object);
-        _display_top_editors(true);
-    } else {
+    if (sub_plugins.empty()) {
         hide_top_editors();
+        return;
     }
+    bool same = true;
+    if (sub_plugins.size() == editor_plugins_over->get_plugins_list().size()) {
+        for (int i = 0; i < sub_plugins.size(); i++) {
+            if (sub_plugins[i] != editor_plugins_over->get_plugins_list()[i]) {
+                same = false;
+            }
+        }
+    } else {
+        same = false;
+    }
+    if (!same) {
+        _display_top_editors(false);
+        _set_top_editors(eastl::move(sub_plugins));
+    }
+    _set_editing_top_editors(p_object);
+    _display_top_editors(true);
 }
 
 void EditorNode::push_item(Object *p_object, se_string_view p_property, bool p_inspector_only) {
@@ -1683,8 +1692,8 @@ void EditorNode::_display_top_editors(bool p_display) {
     editor_plugins_over->make_visible(p_display);
 }
 
-void EditorNode::_set_top_editors(const Vector<EditorPlugin *> &p_editor_plugins_over) {
-    editor_plugins_over->set_plugins_list(p_editor_plugins_over);
+void EditorNode::_set_top_editors(PODVector<EditorPlugin *> &&p_editor_plugins_over) {
+    editor_plugins_over->set_plugins_list(eastl::move(p_editor_plugins_over));
 }
 
 void EditorNode::_set_editing_top_editors(Object *p_current_object) {
@@ -1880,7 +1889,7 @@ void EditorNode::_edit_current() {
             }
         }
 
-        Vector<EditorPlugin *> sub_plugins;
+        PODVector<EditorPlugin *> sub_plugins;
 
         if (!_is_class_editor_disabled_by_feature_profile(current_obj->get_class_name())) {
             sub_plugins = editor_data.get_subeditors(current_obj);
@@ -1889,7 +1898,7 @@ void EditorNode::_edit_current() {
         if (!sub_plugins.empty()) {
             _display_top_editors(false);
 
-            _set_top_editors(sub_plugins);
+            _set_top_editors(eastl::move(sub_plugins));
             _set_editing_top_editors(current_obj);
             _display_top_editors(true);
         } else if (!editor_plugins_over->get_plugins_list().empty()) {
@@ -2961,18 +2970,18 @@ void EditorNode::remove_editor_plugin(EditorPlugin *p_editor, bool p_config_chan
                 }
 
                 memdelete(singleton->main_editor_buttons[i]);
-                singleton->main_editor_buttons.remove(i);
+                singleton->main_editor_buttons.erase_at(i);
 
                 break;
             }
         }
 
-        singleton->editor_table.erase(p_editor);
+        singleton->editor_table.erase_first(p_editor);
     }
     p_editor->make_visible(false);
     p_editor->clear();
     if (p_config_changed) p_editor->disable_plugin();
-    singleton->editor_plugins_over->get_plugins_list().erase(p_editor);
+    singleton->editor_plugins_over->get_plugins_list().erase_first(p_editor);
     singleton->remove_child(p_editor);
     singleton->editor_data.remove_editor_plugin(p_editor);
     singleton->get_editor_plugins_force_input_forwarding()->remove_plugin(p_editor);
@@ -3361,7 +3370,7 @@ Error EditorNode::load_scene(se_string_view p_scene, bool p_ignore_broken_deps, 
     if (!p_ignore_broken_deps && dependency_errors.contains(lpath)) {
 
         current_option = -1;
-        Vector<se_string> errors;
+        PODVector<se_string> errors;
         for (const se_string &E : dependency_errors[lpath]) {
 
             errors.emplace_back(E);
@@ -4196,7 +4205,7 @@ void EditorNode::_editor_file_dialog_unregister(EditorFileDialog *p_dialog) {
     singleton->editor_file_dialogs.erase(p_dialog);
 }
 
-Vector<EditorNodeInitCallback> EditorNode::_init_callbacks;
+PODVector<EditorNodeInitCallback> EditorNode::_init_callbacks;
 
 Error EditorNode::export_preset(
         se_string_view p_preset, se_string_view p_path, bool p_debug, se_string_view p_password, bool p_quit_after) {
@@ -4612,7 +4621,7 @@ void EditorNode::_load_docks_from_config(Ref<ConfigFile> p_layout, se_string_vie
 
         if (!p_layout->has_section_key(p_section, "dock_" + ::to_string(i + 1))) continue;
         se_string dock_names = p_layout->get_value(p_section, "dock_" + ::to_string(i + 1)).as<se_string>();
-        Vector<se_string_view> names = StringUtils::split(dock_names, ',');
+        PODVector<se_string_view> names = StringUtils::split(dock_names, ',');
 
         for (int j = 0; j < names.size(); j++) {
 
@@ -5059,7 +5068,7 @@ void EditorNode::raise_bottom_panel_item(Control *p_item) {
 
         if (bottom_panel_items[i].control == p_item) {
             bottom_panel_items[i].button->raise();
-            SWAP(bottom_panel_items.write[i], bottom_panel_items.write[bottom_panel_items.size() - 1]);
+            SWAP(bottom_panel_items[i], bottom_panel_items[bottom_panel_items.size() - 1]);
             break;
         }
     }
@@ -5081,7 +5090,7 @@ void EditorNode::remove_bottom_panel_item(Control *p_item) {
             bottom_panel_vb->remove_child(bottom_panel_items[i].control);
             bottom_panel_hb_editors->remove_child(bottom_panel_items[i].button);
             memdelete(bottom_panel_items[i].button);
-            bottom_panel_items.remove(i);
+            bottom_panel_items.erase_at(i);
             break;
         }
     }
@@ -5562,7 +5571,7 @@ void EditorNode::add_resource_conversion_plugin(const Ref<EditorResourceConversi
 }
 
 void EditorNode::remove_resource_conversion_plugin(const Ref<EditorResourceConversionPlugin> &p_plugin) {
-    resource_conversion_plugins.erase(p_plugin);
+    resource_conversion_plugins.erase_first(p_plugin);
 }
 
 Vector<Ref<EditorResourceConversionPlugin>> EditorNode::find_resource_conversion_plugin(
@@ -5942,45 +5951,33 @@ EditorNode::EditorNode() {
     {
         int display_scale = EditorSettings::get_singleton()->get("interface/editor/display_scale");
         float custom_display_scale = EditorSettings::get_singleton()->get("interface/editor/custom_display_scale");
-
+        float selected_scale = custom_display_scale;
         switch (display_scale) {
             case 0: {
                 // Try applying a suitable display scale automatically
                 const int screen = OS::get_singleton()->get_current_screen();
-                editor_set_scale(OS::get_singleton()->get_screen_dpi(screen) >= 192 &&
+                selected_scale = OS::get_singleton()->get_screen_dpi(screen) >= 192 &&
                                                  OS::get_singleton()->get_screen_size(screen).x > 2000 ?
                                          2.0 :
-                                         1.0);
+                                         1.0;
             } break;
 
-            case 1: {
-                editor_set_scale(0.75);
-            } break;
+            case 1: selected_scale =0.75f; break;
 
-            case 2: {
-                editor_set_scale(1.0);
-            } break;
+            case 2: selected_scale = 1.0f; break;
 
-            case 3: {
-                editor_set_scale(1.25);
-            } break;
+            case 3: selected_scale = 1.25f; break;
 
-            case 4: {
-                editor_set_scale(1.5);
-            } break;
+            case 4: selected_scale = 1.5f; break;
 
-            case 5: {
-                editor_set_scale(1.75);
-            } break;
+            case 5: selected_scale = 1.75f; break;
 
-            case 6: {
-                editor_set_scale(2.0);
-            } break;
+            case 6: selected_scale = 2.0f; break;
 
-            default: {
-                editor_set_scale(custom_display_scale);
-            } break;
+            default: break;
         }
+        editor_set_scale(selected_scale);
+
     }
     // Define a minimum window size to prevent UI elements from overlapping or being cut off
     OS::get_singleton()->set_min_window_size(Size2(1024, 600) * EDSCALE);
@@ -6205,6 +6202,7 @@ EditorNode::EditorNode() {
     Label *dock_label = memnew(Label);
     dock_label->set_text(TTR("Dock Position"));
     dock_label->set_h_size_flags(Control::SIZE_EXPAND_FILL);
+    dock_label->set_align(Label::ALIGN_CENTER);
     dock_hb->add_child(dock_label);
 
     dock_tab_move_right = memnew(ToolButton);
@@ -6818,7 +6816,7 @@ EditorNode::EditorNode() {
     default_layout->set_value(docks_section, "dock_4", "FileSystem");
     default_layout->set_value(docks_section, "dock_5", "Inspector,Node");
 
-    for (int i = 0; i < vsplits.size(); i++)
+    for (size_t i = 0; i < vsplits.size(); i++)
         default_layout->set_value(docks_section, "dock_split_" + ::to_string(i + 1), 0);
     default_layout->set_value(docks_section, "dock_hsplit_1", 0);
     default_layout->set_value(docks_section, "dock_hsplit_2", 70 * EDSCALE);
@@ -7303,7 +7301,7 @@ void EditorPluginList::add_plugin(EditorPlugin *p_plugin) {
 }
 
 void EditorPluginList::remove_plugin(EditorPlugin *p_plugin) {
-    plugins_list.erase(p_plugin);
+    plugins_list.erase_first(p_plugin);
 }
 
 bool EditorPluginList::empty() {

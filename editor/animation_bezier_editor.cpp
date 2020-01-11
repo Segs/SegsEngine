@@ -33,6 +33,7 @@
 #include "editor/editor_node.h"
 #include "core/method_bind.h"
 #include "core/translation_helpers.h"
+#include "scene/resources/font.h"
 
 IMPL_GDCLASS(AnimationBezierTrackEdit)
 

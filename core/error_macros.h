@@ -398,15 +398,6 @@ GODOT_EXPORT void _err_print_index_error(se_string_view p_function, se_string_vi
         }                                                                                      \
     }
 
-#define WARN_DEPRECATED                                                                                                                                   \
-    {                                                                                                                                                     \
-        static volatile bool warning_shown = false;                                                                                                       \
-        if (!warning_shown) {                                                                                                                             \
-            _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "This method has been deprecated and will be removed in the future", {},ERR_HANDLER_WARNING); \
-            warning_shown = true;                                                                                                                         \
-        }                                                                                                                                                 \
-    }
-
 #define WARN_DEPRECATED_MSG(m_msg)                                                                                                                               \
     {                                                                                                                                                            \
         static volatile bool warning_shown = false;                                                                                                              \

@@ -419,7 +419,7 @@ void GraphNode::set_title(se_string_view _title) {
         return;
     title = _title;
     update();
-    _change_notify("title");
+    Object_change_notify(this,"title");
     minimum_size_changed();
 }
 

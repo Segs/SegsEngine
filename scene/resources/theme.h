@@ -32,11 +32,12 @@
 
 #include "core/io/resource_loader.h"
 #include "core/resource.h"
-#include "scene/resources/font.h"
 #include "scene/resources/shader.h"
 #include "scene/resources/style_box.h"
 #include "scene/resources/texture.h"
 #include "core/hash_map.h"
+
+class Font;
 
 class Theme : public Resource {
 
@@ -47,11 +48,11 @@ class Theme : public Resource {
     void _emit_theme_changed();
 
     DefHashMap<StringName, DefHashMap<StringName, Ref<Texture> > > icon_map;
-    HashMap<StringName, HashMap<StringName, Ref<StyleBox> > > style_map;
-    HashMap<StringName, HashMap<StringName, Ref<Font> > > font_map;
-    HashMap<StringName, HashMap<StringName, Ref<Shader> > > shader_map;
-    HashMap<StringName, HashMap<StringName, Color> > color_map;
-    HashMap<StringName, HashMap<StringName, int> > constant_map;
+    DefHashMap<StringName, DefHashMap<StringName, Ref<StyleBox> > > style_map;
+    DefHashMap<StringName, DefHashMap<StringName, Ref<Font> > > font_map;
+    DefHashMap<StringName, DefHashMap<StringName, Ref<Shader> > > shader_map;
+    DefHashMap<StringName, DefHashMap<StringName, Color> > color_map;
+    DefHashMap<StringName, DefHashMap<StringName, int> > constant_map;
 
 protected:
     bool _set(const StringName &p_name, const Variant &p_value);
@@ -77,6 +78,21 @@ protected:
     static void _bind_methods();
 
 public:
+    struct ThemeConstant {
+        const char *name;
+        const char *type;
+        int value;
+    };
+    struct ThemeIcon {
+        const char *name;
+        const char *icon_name;
+        const char *icon_type;
+    };
+    struct ThemeColor {
+        const char *name;
+        const char *type;
+        Color color;
+    };
     static Ref<Theme> get_default();
     static void set_default(const Ref<Theme> &p_default);
 
@@ -90,6 +106,7 @@ public:
     void set_default_theme_font(const Ref<Font> &p_default_font);
     Ref<Font> get_default_theme_font() const;
 
+    void set_icons(Span<const ThemeIcon> icon_defs, const StringName &p_type);
     void set_icon(const StringName &p_name, const StringName &p_type, const Ref<Texture> &p_icon);
     Ref<Texture> get_icon(const StringName &p_name, const StringName &p_type) const;
     bool has_icon(const StringName &p_name, const StringName &p_type) const;
@@ -115,12 +132,15 @@ public:
     void clear_font(const StringName &p_name, const StringName &p_type);
     void get_font_list(const StringName& p_type, PODVector<StringName> *p_list) const;
 
+    void set_colors(Span<const ThemeColor> colors);
     void set_color(const StringName &p_name, const StringName &p_type, const Color &p_color);
     Color get_color(const StringName &p_name, const StringName &p_type) const;
     bool has_color(const StringName &p_name, const StringName &p_type) const;
     void clear_color(const StringName &p_name, const StringName &p_type);
     void get_color_list(const StringName& p_type, PODVector<StringName> *p_list) const;
 
+
+    void set_constants(Span<const ThemeConstant> vals);
     void set_constant(const StringName &p_name, const StringName &p_type, int p_constant);
     int get_constant(const StringName &p_name, const StringName &p_type) const;
     bool has_constant(const StringName &p_name, const StringName &p_type) const;

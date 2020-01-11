@@ -50,8 +50,8 @@ public:
         Vector3 tangent;
         Vector2 uv;
         Vector2 uv2;
-        Vector<int> bones;
-        Vector<float> weights;
+        PODVector<int> bones;
+        PODVector<float> weights;
 
         bool operator==(const Vertex &p_vertex) const;
 
@@ -82,8 +82,8 @@ private:
     Vector3 last_normal;
     Vector2 last_uv;
     Vector2 last_uv2;
-    Vector<int> last_bones;
-    Vector<float> last_weights;
+    PODVector<int> last_bones;
+    PODVector<float> last_weights;
     Plane last_tangent;
 
     void _create_list_from_arrays(Array arr, PODVector<Vertex> *r_vertex, PODVector<int> *r_index, int &lformat);
@@ -110,8 +110,8 @@ public:
     void add_tangent(const Plane &p_tangent);
     void add_uv(const Vector2 &p_uv);
     void add_uv2(const Vector2 &p_uv2);
-    void add_bones(const Vector<int> &p_bones);
-    void add_weights(const Vector<float> &p_weights);
+    void add_bones(Span<const int> p_bones);
+    void add_weights(Span<const float> p_weights);
     void add_smooth_group(bool p_smooth);
 
     void add_triangle_fan(const Vector<Vector3> &p_vertices, const Vector<Vector2> &p_uvs = Vector<Vector2>(), const Vector<Color> &p_colors = Vector<Color>(), const Vector<Vector2> &p_uv2s = Vector<Vector2>(), const Vector<Vector3> &p_normals = Vector<Vector3>(), const PODVector<Plane> &p_tangents = PODVector<Plane>());

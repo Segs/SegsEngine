@@ -1663,7 +1663,7 @@ void SceneTree::add_current_scene(Node *p_current) {
     root->add_child(p_current);
 }
 
-void SceneTree::drop_files(const Vector<se_string> &p_files, int p_from_screen) {
+void SceneTree::drop_files(const PODVector<se_string> &p_files, int p_from_screen) {
 
     emit_signal("files_dropped", Variant::from(p_files), p_from_screen);
     MainLoop::drop_files(p_files, p_from_screen);

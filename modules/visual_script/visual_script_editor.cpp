@@ -34,10 +34,12 @@
 #include "core/method_bind.h"
 #include "core/object.h"
 #include "core/object_db.h"
+#include "core/object_tooling.h"
 #include "core/os/input.h"
 #include "core/os/keyboard.h"
 #include "core/script_language.h"
 #include "core/string_formatter.h"
+#include "core/object_tooling.h"
 #include "core/property_info.h"
 #include "core/se_string.h"
 #include "core/translation_helpers.h"
@@ -49,6 +51,7 @@
 #include "scene/main/viewport.h"
 #include "scene/resources/style_box.h"
 #include "scene/resources/theme.h"
+#include "scene/resources/font.h"
 #include "visual_script_expression.h"
 #include "visual_script_flow_control.h"
 #include "visual_script_func_nodes.h"
@@ -81,7 +84,7 @@ protected:
 
     void _sig_changed() {
 
-        _change_notify();
+        Object_change_notify(this);
         emit_signal("changed");
     }
 
@@ -199,7 +202,7 @@ public:
     void edit(const StringName &p_sig) {
 
         sig = p_sig;
-        _change_notify();
+        Object_change_notify(this);
     }
 
     VisualScriptEditorSignalEdit() { undo_redo = nullptr; }
@@ -225,12 +228,12 @@ protected:
 
     void _var_changed() {
 
-        _change_notify();
+        Object_change_notify(this);
         emit_signal("changed");
     }
     void _var_value_changed() {
 
-        _change_notify("value"); //so the whole tree is not redrawn, makes editing smoother in general
+        Object_change_notify(this,"value"); //so the whole tree is not redrawn, makes editing smoother in general
         emit_signal("changed");
     }
 
@@ -353,7 +356,7 @@ public:
     void edit(const StringName &p_var) {
 
         var = p_var;
-        _change_notify();
+        Object_change_notify(this);
     }
 
     VisualScriptEditorVariableEdit() { undo_redo = nullptr; }
@@ -444,10 +447,10 @@ void VisualScriptEditor::_update_graph_connections() {
 
     graph->clear_connections();
 
-    Vector<StringName> funcs;
+    PODVector<StringName> funcs;
     script->get_function_list(&funcs);
 
-    if (funcs.size() <= 0) {
+    if (funcs.empty()) {
         updating_graph = false;
         return;
     }
@@ -487,7 +490,6 @@ void VisualScriptEditor::_update_graph(int p_only_id) {
 
     if (updating_graph)
         return;
-
     updating_graph = true;
 
     //byebye all nodes
@@ -508,10 +510,10 @@ void VisualScriptEditor::_update_graph(int p_only_id) {
         }
     }
 
-    Vector<StringName> funcs;
+    PODVector<StringName> funcs;
     script->get_function_list(&funcs);
 
-    if (funcs.size() <= 0) {
+    if (funcs.empty()) {
         graph->hide();
         select_func_text->show();
         updating_graph = false;
@@ -553,35 +555,36 @@ void VisualScriptEditor::_update_graph(int p_only_id) {
 
     Ref<Texture> seq_port = Control::get_icon("VisualShaderPort", "EditorIcons");
 
-    for (int fi =0; fi<funcs.size(); ++fi) { // loop through all the functions
+    for (const StringName &fnname : funcs ) { // loop through all the functions
 
-        List<int> ids;
-        script->get_node_list(funcs[fi], &ids);
+        PODVector<int> ids;
+        script->get_node_list(fnname, &ids);
         StringName editor_icons = "EditorIcons";
 
-        for (List<int>::Element *E = ids.front(); E; E = E->next()) {
+        for (int E : ids)
+        {
 
-            if (p_only_id >= 0 && p_only_id != E->deref())
+            if (p_only_id >= 0 && p_only_id != E)
                 continue;
+            Ref<VisualScriptNode> node(script->get_node(fnname, E));
 
-            Ref<VisualScriptNode> node = script->get_node(funcs[fi], E->deref());
-            Vector2 pos = script->get_node_position(funcs[fi], E->deref());
+            Vector2 pos = script->get_node_position(fnname, E);
 
             GraphNode *gnode = memnew(GraphNode);
             gnode->set_title(node->get_caption());
             gnode->set_offset(pos * EDSCALE);
-            if (error_line == E->deref()) {
+            if (error_line == E) {
                 gnode->set_overlay(GraphNode::OVERLAY_POSITION);
             } else if (node->is_breakpoint()) {
                 gnode->set_overlay(GraphNode::OVERLAY_BREAKPOINT);
             }
-
+            auto def_args(varray(E));
             gnode->set_meta("__vnode", node);
-            gnode->set_name(itos(E->deref()));
-            gnode->connect("dragged", this, "_node_moved", varray(E->deref()));
-            gnode->connect("close_request", this, "_remove_node", varray(E->deref()), ObjectNS::CONNECT_QUEUED);
+            gnode->set_name(itos(E));
+            gnode->connect("dragged", this, "_node_moved", def_args);
+            gnode->connect("close_request", this, "_remove_node", def_args, ObjectNS::CONNECT_QUEUED);
 
-            if (E->deref() != script->get_function_node_id(funcs[fi])) {
+            if (E != script->get_function_node_id(fnname)) {
                 //function can't be erased
                 gnode->set_show_close_button(true);
             }
@@ -597,7 +600,7 @@ void VisualScriptEditor::_update_graph(int p_only_id) {
                     Button *btn = memnew(Button);
                     btn->set_text("Add Input Port");
                     hbnc->add_child(btn);
-                    btn->connect("pressed", this, "_add_input_port", varray(E->deref()));
+                    btn->connect("pressed", this, "_add_input_port", def_args);
                 }
                 if (nd_list->is_output_port_editable()) {
                     if (nd_list->is_input_port_editable())
@@ -606,7 +609,7 @@ void VisualScriptEditor::_update_graph(int p_only_id) {
                     Button *btn = memnew(Button);
                     btn->set_text("Add Output Port");
                     hbnc->add_child(btn);
-                    btn->connect("pressed", this, "_add_output_port", varray(E->deref()));
+                    btn->connect("pressed", this, "_add_output_port", def_args);
                 }
                 gnode->add_child(hbnc);
             } else if (object_cast<VisualScriptExpression>(node.get())) {
@@ -616,7 +619,7 @@ void VisualScriptEditor::_update_graph(int p_only_id) {
                 line_edit->set_expand_to_text_length(true);
                 line_edit->add_font_override("font", get_font("source", "EditorFonts"));
                 gnode->add_child(line_edit);
-                line_edit->connect("text_changed", this, "_expression_text_changed", varray(E->deref()));
+                line_edit->connect("text_changed", this, "_expression_text_changed", def_args);
             } else {
                 se_string text(node->get_text());
                 if (!text.empty()) {
@@ -627,12 +630,13 @@ void VisualScriptEditor::_update_graph(int p_only_id) {
                 }
             }
 
+
             if (object_cast<VisualScriptComment>(node.get())) {
                 Ref<VisualScriptComment> vsc = dynamic_ref_cast<VisualScriptComment>(node);
                 gnode->set_comment(true);
                 gnode->set_resizable(true);
                 gnode->set_custom_minimum_size(vsc->get_size() * EDSCALE);
-                gnode->connect("resize_request", this, "_comment_node_resized", varray(E->deref()));
+                gnode->connect("resize_request", this, "_comment_node_resized", def_args);
             }
 
             if (node_styles.contains(StringName(node->get_category()))) {
@@ -742,8 +746,8 @@ void VisualScriptEditor::_update_graph(int p_only_id) {
                             name_box->set_custom_minimum_size(Size2(60 * EDSCALE, 0));
                             name_box->set_text_utf8(left_name);
                             name_box->set_expand_to_text_length(true);
-                            name_box->connect("resized", this, "_update_node_size", varray(E->deref()));
-                            name_box->connect("focus_exited", this, "_port_name_focus_out", varray(Variant(name_box), E->deref(), i, true));
+                            name_box->connect("resized", this, "_update_node_size", def_args);
+                            name_box->connect("focus_exited", this, "_port_name_focus_out", varray(Variant(name_box), E, i, true));
                         } else {
                             hbc->add_child(memnew(Label(left_name)));
                         }
@@ -756,18 +760,18 @@ void VisualScriptEditor::_update_graph(int p_only_id) {
                             opbtn->select((int8_t)left_type);
                             opbtn->set_custom_minimum_size(Size2(100 * EDSCALE, 0));
                             hbc->add_child(opbtn);
-                            opbtn->connect("item_selected", this, "_change_port_type", varray(E->deref(), i, true), ObjectNS::CONNECT_QUEUED);
+                            opbtn->connect("item_selected", this, "_change_port_type", varray(E, i, true), ObjectNS::CONNECT_QUEUED);
                         }
 
                         Button *rmbtn = memnew(Button);
                         rmbtn->set_icon(EditorNode::get_singleton()->get_gui_base()->get_icon("Remove", "EditorIcons"));
                         hbc->add_child(rmbtn);
-                        rmbtn->connect("pressed", this, "_remove_input_port", varray(E->deref(), i), ObjectNS::CONNECT_QUEUED);
+                        rmbtn->connect("pressed", this, "_remove_input_port", varray(E, i), ObjectNS::CONNECT_QUEUED);
                     } else {
                         hbc->add_child(memnew(Label(left_name)));
                     }
 
-                    if (left_type != VariantType::NIL && !script->is_input_value_port_connected(funcs[fi], E->deref(), i)) {
+                    if (left_type != VariantType::NIL && !script->is_input_value_port_connected(fnname, E, i)) {
 
                         PropertyInfo pi = node->get_input_value_port_info(i);
                         Button *button = memnew(Button);
@@ -798,7 +802,7 @@ void VisualScriptEditor::_update_graph(int p_only_id) {
 
                             button->set_text(value);
                         }
-                        button->connect("pressed", this, "_default_value_edited", varray(Variant(button), E->deref(), i));
+                        button->connect("pressed", this, "_default_value_edited", varray(Variant(button), E, i));
                         hbc2->add_child(button);
                     }
                 } else {
@@ -824,7 +828,7 @@ void VisualScriptEditor::_update_graph(int p_only_id) {
                         Button *rmbtn = memnew(Button);
                         rmbtn->set_icon(EditorNode::get_singleton()->get_gui_base()->get_icon("Remove", "EditorIcons"));
                         hbc->add_child(rmbtn);
-                        rmbtn->connect("pressed", this, "_remove_output_port", varray(E->deref(), i), ObjectNS::CONNECT_QUEUED);
+                        rmbtn->connect("pressed", this, "_remove_output_port", varray(E, i), ObjectNS::CONNECT_QUEUED);
 
                         if (nd_list->is_output_port_type_editable()) {
                             OptionButton *opbtn = memnew(OptionButton);
@@ -834,7 +838,7 @@ void VisualScriptEditor::_update_graph(int p_only_id) {
                             opbtn->select((int8_t)right_type);
                             opbtn->set_custom_minimum_size(Size2(100 * EDSCALE, 0));
                             hbc->add_child(opbtn);
-                            opbtn->connect("item_selected", this, "_change_port_type", varray(E->deref(), i, false), ObjectNS::CONNECT_QUEUED);
+                            opbtn->connect("item_selected", this, "_change_port_type", varray(E, i, false), ObjectNS::CONNECT_QUEUED);
                         }
 
                         if (nd_list->is_output_port_name_editable()) {
@@ -843,8 +847,8 @@ void VisualScriptEditor::_update_graph(int p_only_id) {
                             name_box->set_custom_minimum_size(Size2(60 * EDSCALE, 0));
                             name_box->set_text_utf8(right_name);
                             name_box->set_expand_to_text_length(true);
-                            name_box->connect("resized", this, "_update_node_size", varray(E->deref()));
-                            name_box->connect("focus_exited", this, "_port_name_focus_out", varray(Variant(name_box), E->deref(), i, false));
+                            name_box->connect("resized", this, "_update_node_size", def_args);
+                            name_box->connect("focus_exited", this, "_port_name_focus_out", varray(Variant(name_box), E, i, false));
                         } else {
                             hbc->add_child(memnew(Label(right_name)));
                         }
@@ -875,7 +879,6 @@ void VisualScriptEditor::_update_graph(int p_only_id) {
 
                 slot_idx++;
             }
-
             graph->add_child(gnode);
 
             if (gnode->is_comment()) {
@@ -954,7 +957,7 @@ void VisualScriptEditor::_update_members() {
     functions->add_button(0, Control::get_icon("Add", "EditorIcons"), 0, false, TTR("Create a new function."));
     functions->set_custom_color(0, Control::get_color("mono_color", "Editor"));
 
-    Vector<StringName> func_names;
+    PODVector<StringName> func_names;
     script->get_function_list(&func_names);
     for(int fi=0; fi<func_names.size(); ++fi) {
 
@@ -1007,7 +1010,7 @@ void VisualScriptEditor::_update_members() {
         Control::get_icon("PoolColorArray", "EditorIcons")
     };
 
-    Vector<StringName> var_names;
+    PODVector<StringName> var_names;
     script->get_variable_list(&var_names);
     for(int fi=0; fi<var_names.size(); ++fi) {
         TreeItem *ti = members->create_item(variables);
@@ -1030,7 +1033,7 @@ void VisualScriptEditor::_update_members() {
     _signals->add_button(0, Control::get_icon("Add", "EditorIcons"), -1, false, TTR("Create a new signal."));
     _signals->set_custom_color(0, Control::get_color("mono_color", "Editor"));
 
-    Vector<StringName> signal_names;
+    PODVector<StringName> signal_names;
     script->get_custom_signal_list(&signal_names);
     for(int fi=0; fi<signal_names.size(); ++fi) {
         TreeItem *ti = members->create_item(_signals);
@@ -1132,13 +1135,13 @@ void VisualScriptEditor::_member_edited() {
         }
 
         // also fix all function calls
-        Vector<StringName> flst;
+        PODVector<StringName> flst;
         script->get_function_list(&flst);
         for(int fi=0; fi<flst.size(); ++fi) {
-            List<int> lst;
+            PODVector<int> lst;
             script->get_node_list(flst[fi], &lst);
-            for (List<int>::Element *F = lst.front(); F; F = F->next()) {
-                Ref<VisualScriptFunctionCall> fncall = dynamic_ref_cast<VisualScriptFunctionCall>(script->get_node(flst[fi], F->deref()));
+            for (int F : lst) {
+                Ref<VisualScriptFunctionCall> fncall = dynamic_ref_cast<VisualScriptFunctionCall>(script->get_node(flst[fi], F));
                 if (not fncall)
                     continue;
                 if (fncall->get_function() == name) {
@@ -1537,14 +1540,14 @@ Vector2 VisualScriptEditor::_get_available_pos(bool centered, Vector2 ofs) const
 
     while (true) {
         bool exists = false;
-        Vector<StringName> all_fn;
+        PODVector<StringName> all_fn;
         script->get_function_list(&all_fn);
         for (int fi=0; fi<all_fn.size(); ++fi) {
             StringName curr_fn = all_fn[fi];
-            List<int> existing;
+            PODVector<int> existing;
             script->get_node_list(curr_fn, &existing);
-            for (List<int>::Element *E = existing.front(); E; E = E->next()) {
-                Point2 pos = script->get_node_position(curr_fn, E->deref());
+            for (int E : existing) {
+                Point2 pos = script->get_node_position(curr_fn, E);
                 if (pos.distance_to(ofs) < 50) {
                     ofs += Vector2(graph->get_snap(), graph->get_snap());
                     exists = true;
@@ -1708,7 +1711,7 @@ void VisualScriptEditor::_on_nodes_duplicate() {
         }
     }
 
-    if (to_select.size()) {
+    if (!to_select.empty()) {
         EditorNode::get_singleton()->push_item(script->get_node(default_func, *to_select.begin()).get());
     }
 }
@@ -1814,13 +1817,13 @@ void VisualScriptEditor::_rename_function(const StringName &name, const StringNa
     }
 
     // also fix all function calls
-    Vector<StringName> flst;
+    PODVector<StringName> flst;
     script->get_function_list(&flst);
     for (int i=0; i<flst.size(); ++i) {
-        List<int> lst;
+        PODVector<int> lst;
         script->get_node_list(flst[i], &lst);
-        for (List<int>::Element *F = lst.front(); F; F = F->next()) {
-            Ref<VisualScriptFunctionCall> fncall = dynamic_ref_cast<VisualScriptFunctionCall>(script->get_node(flst[i], F->deref()));
+        for (int F : lst) {
+            Ref<VisualScriptFunctionCall> fncall = dynamic_ref_cast<VisualScriptFunctionCall>(script->get_node(flst[i], F));
             if (not fncall)
                 continue;
             if (fncall->get_function() == name) {
@@ -2127,7 +2130,7 @@ void VisualScriptEditor::drop_data_fw(const Point2 &p_point, const Variant &p_da
         List<int> new_ids;
         int new_id = script->get_available_id();
 
-        if (files.size()) {
+        if (!files.empty()) {
             undo_redo->create_action_ui(TTR("Add Preload Node"));
 
             for (int i = 0; i < files.size(); i++) {
@@ -2418,7 +2421,7 @@ void VisualScriptEditor::set_edited_resource(const RES &p_res) {
     if (!script->has_function(default_func)) // this is the supposed default function
     {
         script->add_function(default_func);
-        script->get_tooling_interface()->set_edited(true); //so that if a function was added it's saved
+        Object_set_edited(script.get(),true); //so that if a function was added it's saved
     }
 
     _update_graph();
@@ -2442,7 +2445,7 @@ se_string VisualScriptEditor::get_name() {
         if (is_unsaved()) {
             name += ("(*)");
         }
-    } else if (script->get_name() != "")
+    } else if (!script->get_name().empty())
         name = script->get_name();
     else
         name = se_string(script->get_class()) + "(" + itos(script->get_instance_id()) + ")";
@@ -2511,7 +2514,7 @@ void VisualScriptEditor::_center_on_node(const StringName &p_func, int p_id) {
         Vector2 new_scroll = gn->get_offset() - graph->get_size() * 0.5f + gn->get_size() * 0.5f;
         graph->set_scroll_ofs(new_scroll);
         script->set_function_scroll(p_func, new_scroll / EDSCALE);
-        script->get_tooling_interface()->set_edited(true);
+        Object_set_edited(script.get(),true);
     }
 }
 
@@ -2522,7 +2525,7 @@ void VisualScriptEditor::goto_line(int p_line, bool p_with_error) {
     if (p_with_error)
         error_line = p_line;
 
-    Vector<StringName> functions;
+    PODVector<StringName> functions;
     script->get_function_list(&functions);
     for (int i=0; i<functions.size(); ++i) {
 
@@ -2571,17 +2574,17 @@ void VisualScriptEditor::reload(bool p_soft) {
 
 void VisualScriptEditor::get_breakpoints(List<int> *p_breakpoints) {
 
-    Vector<StringName> functions;
+    PODVector<StringName> functions;
     script->get_function_list(&functions);
     for (int i=0; i<functions.size(); ++i) {
 
-        List<int> nodes;
+        PODVector<int> nodes;
         script->get_node_list(functions[i], &nodes);
-        for (List<int>::Element *F = nodes.front(); F; F = F->next()) {
+        for (int F : nodes) {
 
-            Ref<VisualScriptNode> vsn = script->get_node(functions[i], F->deref());
+            Ref<VisualScriptNode> vsn = script->get_node(functions[i], F);
             if (vsn->is_breakpoint()) {
-                p_breakpoints->push_back(F->deref() - 1); //subtract 1 because breakpoints in text start from zero
+                p_breakpoints->push_back(F - 1); //subtract 1 because breakpoints in text start from zero
             }
         }
     }
@@ -2743,7 +2746,7 @@ void VisualScriptEditor::_move_node(const StringName &p_func, int p_id, const Ve
 
 StringName VisualScriptEditor::_get_function_of_node(int p_id) const {
 
-    Vector<StringName> funcs;
+    PODVector<StringName> funcs;
     script->get_function_list(&funcs);
     for (int fi=0; fi<funcs.size(); ++fi) {
         if (script->has_node(funcs[fi], p_id)) {
@@ -3098,7 +3101,7 @@ void VisualScriptEditor::_move_nodes_with_rescan(const StringName &p_func_from, 
             for (auto E : seqcons[conn]) {
                 if (seen.contains(conn) && seen[conn].contains(E.first)) {
                     if (0==--size) {
-                        if (stack.size() > 0) {
+                        if (!stack.empty()) {
                             conn = stack.back()->deref();
                             stack.pop_back();
                             break;
@@ -3119,7 +3122,7 @@ void VisualScriptEditor::_move_nodes_with_rescan(const StringName &p_func_from, 
                 nodes_to_move.insert(conn);
                 break;
             }
-            if (!seqcons.contains(conn) && stack.size() > 0) {
+            if (!seqcons.contains(conn) && !stack.empty()) {
                 conn = stack.back()->deref();
                 stack.pop_back();
             }
@@ -3147,14 +3150,14 @@ void VisualScriptEditor::_move_nodes_with_rescan(const StringName &p_func_from, 
         Set<int> nodes_to_be_added;
         for (int id : nodes_to_move) {
             HashMap<int, Set<int> > seen;
-            List<int> stack;
+            PODVector<int> stack;
             while (connections.contains(id)) {
                 int size = connections[id].size();
                 for (eastl::pair<const int, Pair<int, int>> &E : connections[id]) {
                     if (seen.contains(id) && seen[id].contains(E.first)) {
                         if (--size == 0) {
-                            if (stack.size() > 0) {
-                                id = stack.back()->deref();
+                            if (!stack.empty()) {
+                                id = stack.back();
                                 stack.pop_back();
                                 break;
                             }
@@ -3166,8 +3169,8 @@ void VisualScriptEditor::_move_nodes_with_rescan(const StringName &p_func_from, 
 
                     if (sequence_connections.contains(E.second.first)) {
                         if (!nodes_to_move.contains(E.second.first)) {
-                            if (stack.size() > 0) {
-                                id = stack.back()->deref();
+                            if (!stack.empty()) {
+                                id = stack.back();
                                 stack.pop_back();
                                 break;
                             }
@@ -3187,8 +3190,8 @@ void VisualScriptEditor::_move_nodes_with_rescan(const StringName &p_func_from, 
                     nodes_to_be_added.insert(id);
                     break;
                 }
-                if (!connections.contains(id) && stack.size() > 0) {
-                    id = stack.back()->deref();
+                if (!connections.contains(id) && !stack.empty()) {
+                    id = stack.back();
                     stack.pop_back();
                 }
             }
@@ -3199,8 +3202,8 @@ void VisualScriptEditor::_move_nodes_with_rescan(const StringName &p_func_from, 
     }
 
     // * this is primarily for the sake of the having proper undo
-    List<VisualScript::SequenceConnection> seqext;
-    List<VisualScript::DataConnection> dataext;
+    PODVector<VisualScript::SequenceConnection> seqext;
+    PODVector<VisualScript::DataConnection> dataext;
 
     List<VisualScript::SequenceConnection> seq_connections;
     script->get_sequence_connection_list(p_func_from, &seq_connections);
@@ -3262,11 +3265,11 @@ void VisualScriptEditor::_move_nodes_with_rescan(const StringName &p_func_from, 
     }
 
     // this to have proper undo operations
-    for (List<VisualScript::SequenceConnection>::Element *E = seqext.front(); E; E = E->next()) {
-        undo_redo->add_undo_method(script.get(), "sequence_connect", p_func_from, E->deref().from_node, E->deref().from_output, E->deref().to_node);
+    for (VisualScript::SequenceConnection E : seqext) {
+        undo_redo->add_undo_method(script.get(), "sequence_connect", p_func_from, E.from_node, E.from_output, E.to_node);
     }
-    for (List<VisualScript::DataConnection>::Element *E = dataext.front(); E; E = E->next()) {
-        undo_redo->add_undo_method(script.get(), "data_connect", p_func_from, E->deref().from_node, E->deref().from_port, E->deref().to_node, E->deref().to_port);
+    for (VisualScript::DataConnection E : dataext) {
+        undo_redo->add_undo_method(script.get(), "data_connect", p_func_from, E.from_node, E.from_port, E.to_node, E.to_port);
     }
     // this doesn't need do methods as they are handled by the subsequent do calls implicitly
 
@@ -3322,7 +3325,7 @@ VisualScriptNode::TypeGuess VisualScriptEditor::_guess_output_type(int p_port_ac
         return tg;
     }
 
-    Vector<VisualScriptNode::TypeGuess> in_guesses;
+    PODVector<VisualScriptNode::TypeGuess> in_guesses;
 
     for (int i = 0; i < node->get_input_value_port_count(); i++) {
         PropertyInfo pi = node->get_input_value_port_info(i);
@@ -3356,7 +3359,7 @@ VisualScriptNode::TypeGuess VisualScriptEditor::_guess_output_type(int p_port_ac
         in_guesses.push_back(g);
     }
 
-    return node->guess_output_type(in_guesses.ptrw(), p_port_action_output);
+    return node->guess_output_type(in_guesses.data(), p_port_action_output);
 }
 
 void VisualScriptEditor::_port_action_menu(int p_option, const StringName &func) {
@@ -3965,7 +3968,7 @@ void VisualScriptEditor::_graph_ofs_changed(const Vector2 &p_ofs) {
     // Just use the default func for all the properties that need to be handled for drawing rather than adding to the Visual Script Class
     if (script->has_function(default_func)) {
         script->set_function_scroll(default_func, graph->get_scroll_ofs() / EDSCALE);
-        script->get_tooling_interface()->set_edited(true);
+        Object_set_edited(script.get(),true);
     }
     updating_graph = false;
 }
@@ -4002,7 +4005,6 @@ void VisualScriptEditor::_comment_node_resized(const Vector2 &p_new_size, int p_
 }
 
 void VisualScriptEditor::_menu_option(int p_what) {
-
     switch (p_what) {
         case EDIT_DELETE_NODES: {
             _on_nodes_delete();
@@ -4119,13 +4121,13 @@ void VisualScriptEditor::_menu_option(int p_what) {
             Set<Vector2> existing_positions;
 
             {
-                Vector<StringName> functions;
+                PODVector<StringName> functions;
                 script->get_function_list(&functions);
                 for (int F=0; F<functions.size(); ++F) {
-                    List<int> nodes;
+                    PODVector<int> nodes;
                     script->get_node_list(functions[F], &nodes);
-                    for (List<int>::Element *E = nodes.front(); E; E = E->next()) {
-                        Vector2 pos = script->get_node_position(functions[F], E->deref()).snapped(Vector2(2, 2));
+                    for (int E : nodes) {
+                        Vector2 pos = script->get_node_position(functions[F], E).snapped(Vector2(2, 2));
                         existing_positions.insert(pos);
                     }
                 }
@@ -4511,10 +4513,10 @@ void VisualScriptEditor::_member_option(int p_option) {
                 undo_redo->create_action_ui(TTR("Remove Function"));
                 undo_redo->add_do_method(script.get(), "remove_function", name);
                 undo_redo->add_undo_method(script.get(), "add_function", name);
-                List<int> nodes;
+                PODVector<int> nodes;
                 script->get_node_list(name, &nodes);
-                for (List<int>::Element *E = nodes.front(); E; E = E->next()) {
-                    undo_redo->add_undo_method(script.get(), "add_node", name, E->deref(), script->get_node(name, E->deref()), script->get_node_position(name, E->deref()));
+                for (int E : nodes) {
+                    undo_redo->add_undo_method(script.get(), "add_node", name, E, script->get_node(name, E), script->get_node_position(name, E));
                 }
 
                 List<VisualScript::SequenceConnection> seq_connections;
@@ -4768,6 +4770,7 @@ VisualScriptEditor::VisualScriptEditor() {
     // Add Function Dialog.
     VBoxContainer *function_vb = memnew(VBoxContainer);
     function_vb->set_v_size_flags(SIZE_EXPAND_FILL);
+    function_vb->set_custom_minimum_size(Size2(450, 300) * EDSCALE);
 
     HBoxContainer *func_name_hbox = memnew(HBoxContainer);
     function_vb->add_child(func_name_hbox);
@@ -4802,7 +4805,6 @@ VisualScriptEditor::VisualScriptEditor() {
     func_input_scroll->add_child(func_input_vbox);
 
     function_create_dialog = memnew(ConfirmationDialog);
-    function_create_dialog->set_custom_minimum_size(Size2(450 * EDSCALE, 300));
     function_create_dialog->set_v_size_flags(SIZE_EXPAND_FILL);
     function_create_dialog->set_title(TTR("Create Function"));
     function_create_dialog->add_child(function_vb);

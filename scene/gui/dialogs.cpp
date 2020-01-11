@@ -33,6 +33,7 @@
 #include "core/translation.h"
 #include "line_edit.h"
 #include "core/method_bind.h"
+#include "scene/resources/font.h"
 #include "scene/resources/style_box.h"
 
 
@@ -462,7 +463,9 @@ bool AcceptDialog::has_autowrap() {
 void AcceptDialog::register_text_enter(Node *p_line_edit) {
 
     ERR_FAIL_NULL(p_line_edit)
-    p_line_edit->connect("text_entered", this, "_builtin_text_entered");
+    LineEdit *line_edit = object_cast<LineEdit>(p_line_edit);
+    if (line_edit)
+        line_edit->connect("text_entered", this, "_builtin_text_entered");
 }
 
 void AcceptDialog::_update_child_rects() {

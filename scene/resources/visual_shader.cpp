@@ -34,6 +34,7 @@
 #include "core/vmap.h"
 #include "core/string_formatter.h"
 #include "core/translation_helpers.h"
+#include "core/object_tooling.h"
 #include "scene/resources/shader_enum_casters.h"
 #include "servers/visual/shader_types.h"
 #include "core/string_utils.inl"
@@ -601,7 +602,7 @@ void VisualShader::set_mode(ShaderMode p_mode) {
     }
 
     _queue_update();
-    _change_notify();
+    Object_change_notify(this);
 }
 
 void VisualShader::set_graph_offset(const Vector2 &p_offset) {
@@ -2034,13 +2035,13 @@ void VisualShaderNodeGroupBase::set_inputs(const se_string &p_inputs) {
 
     inputs = p_inputs;
 
-    Vector<se_string_view> input_strings = StringUtils::split(inputs,';', false);
+    PODVector<se_string_view> input_strings = StringUtils::split(inputs,';', false);
 
     int input_port_count = input_strings.size();
 
     for (int i = 0; i < input_port_count; i++) {
 
-        Vector<se_string_view> arr = StringUtils::split(input_strings[i],',');
+        PODVector<se_string_view> arr = StringUtils::split(input_strings[i],',');
         ERR_FAIL_COND(arr.size() != 3)
 
         int port_idx = StringUtils::to_int(arr[0]);
@@ -2067,13 +2068,13 @@ void VisualShaderNodeGroupBase::set_outputs(const se_string &p_outputs) {
 
     outputs = p_outputs;
 
-    Vector<se_string_view> output_strings = StringUtils::split(outputs,';', false);
+    PODVector<se_string_view> output_strings = StringUtils::split(outputs,';', false);
 
     int output_port_count = output_strings.size();
 
     for (int i = 0; i < output_port_count; i++) {
 
-        Vector<se_string_view> arr = StringUtils::split(output_strings[i],',');
+        PODVector<se_string_view> arr = StringUtils::split(output_strings[i],',');
         ERR_FAIL_COND(arr.size() != 3)
 
         int port_idx = StringUtils::to_int(arr[0]);
@@ -2111,7 +2112,7 @@ bool VisualShaderNodeGroupBase::is_valid_port_name(const se_string &p_name) cons
 void VisualShaderNodeGroupBase::add_input_port(int p_id, int p_type, const se_string &p_name) {
 
     se_string str = itos(p_id) + "," + itos(p_type) + "," + p_name + ";";
-    Vector<se_string_view> inputs_strings = StringUtils::split(inputs,';', false);
+    PODVector<se_string_view> inputs_strings = StringUtils::split(inputs,';', false);
     int index = 0;
     if (p_id < inputs_strings.size()) {
         for (int i = 0; i < inputs_strings.size(); i++) {
@@ -2149,11 +2150,11 @@ void VisualShaderNodeGroupBase::remove_input_port(int p_id) {
 
     ERR_FAIL_COND(!has_input_port(p_id))
 
-    Vector<se_string_view> inputs_strings = StringUtils::split(inputs,';', false);
+    PODVector<se_string_view> inputs_strings = StringUtils::split(inputs,';', false);
     int count = 0;
     int index = 0;
     for (int i = 0; i < inputs_strings.size(); i++) {
-        Vector<se_string_view> arr = StringUtils::split(inputs_strings[i],',');
+        PODVector<se_string_view> arr = StringUtils::split(inputs_strings[i],',');
         if (StringUtils::to_int(arr[0]) == p_id) {
             count = inputs_strings[i].size();
             break;
@@ -2220,16 +2221,16 @@ void VisualShaderNodeGroupBase::remove_output_port(int p_id) {
 
     ERR_FAIL_COND(!has_output_port(p_id))
 
-    Vector<se_string_view> outputs_strings = StringUtils::split(outputs,';', false);
+    PODVector<se_string_view> outputs_strings = StringUtils::split(outputs,';', false);
     int count = 0;
     int index = 0;
-    for (int i = 0; i < outputs_strings.size(); i++) {
-        Vector<se_string_view> arr = StringUtils::split(outputs_strings[i],',');
+    for (se_string_view output : outputs_strings) {
+        PODVector<se_string_view> arr = StringUtils::split(output,',');
         if (StringUtils::to_int(arr[0]) == p_id) {
-            count = outputs_strings[i].size();
+            count = output.size();
             break;
         }
-        index += outputs_strings[i].size();
+        index += output.size();
     }
     StringUtils::erase(outputs,index, count);
 
@@ -2265,11 +2266,11 @@ void VisualShaderNodeGroupBase::set_input_port_type(int p_id, int p_type) {
     if (input_ports[p_id].type == p_type)
         return;
 
-    Vector<se_string_view> inputs_strings = StringUtils::split(inputs,';', false);
+    PODVector<se_string_view> inputs_strings = StringUtils::split(inputs,';', false);
     int count = 0;
     int index = 0;
     for (int i = 0; i < inputs_strings.size(); i++) {
-        Vector<se_string_view> arr = StringUtils::split(inputs_strings[i],',');
+        PODVector<se_string_view> arr = StringUtils::split(inputs_strings[i],',');
         ERR_FAIL_COND(arr.size() != 3)
         if (StringUtils::to_int(arr[0]) == p_id) {
             index += arr[0].size();
@@ -2299,11 +2300,11 @@ void VisualShaderNodeGroupBase::set_input_port_name(int p_id, const se_string &p
     if (input_ports[p_id].name == p_name)
         return;
 
-    Vector<se_string_view> inputs_strings = StringUtils::split(inputs,';', false);
+    PODVector<se_string_view> inputs_strings = StringUtils::split(inputs,';', false);
     int count = 0;
     int index = 0;
     for (int i = 0; i < inputs_strings.size(); i++) {
-        Vector<se_string_view> arr = StringUtils::split(inputs_strings[i],',');
+        PODVector<se_string_view> arr = StringUtils::split(inputs_strings[i],',');
         if (StringUtils::to_int(arr[0]) == p_id) {
             index += arr[0].size() + arr[1].size();
             count = arr[2].size() - 1;
@@ -2332,11 +2333,11 @@ void VisualShaderNodeGroupBase::set_output_port_type(int p_id, int p_type) {
     if (output_ports[p_id].type == p_type)
         return;
 
-    Vector<se_string_view> output_strings = StringUtils::split(outputs,';', false);
+    PODVector<se_string_view> output_strings = StringUtils::split(outputs,';', false);
     int count = 0;
     int index = 0;
     for (int i = 0; i < output_strings.size(); i++) {
-        Vector<se_string_view> arr = StringUtils::split(output_strings[i],',');
+        PODVector<se_string_view> arr = StringUtils::split(output_strings[i],',');
         if (StringUtils::to_int(arr[0]) == p_id) {
             index += arr[0].size();
             count = arr[1].size() - 1;
@@ -2365,11 +2366,11 @@ void VisualShaderNodeGroupBase::set_output_port_name(int p_id, const se_string &
     if (output_ports[p_id].name == p_name)
         return;
 
-    Vector<se_string_view> output_strings = StringUtils::split(outputs,';', false);
+    PODVector<se_string_view> output_strings = StringUtils::split(outputs,';', false);
     int count = 0;
     int index = 0;
     for (int i = 0; i < output_strings.size(); i++) {
-        Vector<se_string_view> arr = StringUtils::split(output_strings[i],',');
+        PODVector<se_string_view> arr = StringUtils::split(output_strings[i],',');
         if (StringUtils::to_int(arr[0]) == p_id) {
             index += arr[0].size() + arr[1].size();
             count = arr[2].size() - 1;
@@ -2409,14 +2410,14 @@ Control *VisualShaderNodeGroupBase::get_control(int p_index) {
 
 void VisualShaderNodeGroupBase::_apply_port_changes() {
 
-    Vector<se_string_view> inputs_strings = StringUtils::split(inputs,';', false);
-    Vector<se_string_view> outputs_strings = StringUtils::split(outputs,';', false);
+    PODVector<se_string_view> inputs_strings = StringUtils::split(inputs,';', false);
+    PODVector<se_string_view> outputs_strings = StringUtils::split(outputs,';', false);
 
     clear_input_ports();
     clear_output_ports();
 
     for (int i = 0; i < inputs_strings.size(); i++) {
-        Vector<se_string_view> arr = StringUtils::split(inputs_strings[i],',');
+        PODVector<se_string_view> arr = StringUtils::split(inputs_strings[i],',');
         ERR_FAIL_COND(arr.size() != 3)
         Port port;
         port.type = (PortType)StringUtils::to_int(arr[1]);
@@ -2424,7 +2425,7 @@ void VisualShaderNodeGroupBase::_apply_port_changes() {
         input_ports[i] = port;
     }
     for (int i = 0; i < outputs_strings.size(); i++) {
-        Vector<se_string_view> arr = StringUtils::split(outputs_strings[i],',');
+        PODVector<se_string_view> arr = StringUtils::split(outputs_strings[i],',');
         ERR_FAIL_COND(arr.size() != 3)
         Port port;
         port.type = (PortType)StringUtils::to_int(arr[1]);

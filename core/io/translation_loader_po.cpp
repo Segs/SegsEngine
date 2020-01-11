@@ -159,12 +159,12 @@ RES TranslationLoaderPO::load_translation(FileAccess *f, Error *r_error, se_stri
 
     ERR_FAIL_COND_V_MSG(config.empty(), RES(), "No config found in file: " + se_string(p_path) + ".")
 
-    Vector<se_string_view> configs = StringUtils::split(config,'\n');
-    for (int i = 0; i < configs.size(); i++) {
+    PODVector<se_string_view> configs = StringUtils::split(config,'\n');
+    for (size_t i = 0; i < configs.size(); i++) {
 
         se_string_view c =StringUtils::strip_edges( configs[i]);
-        int p = StringUtils::find(c,":");
-        if (p == -1)
+        auto p = StringUtils::find(c,":");
+        if (p == se_string::npos)
             continue;
         se_string_view prop = StringUtils::strip_edges(StringUtils::substr(c,0, p));
         se_string_view value = StringUtils::strip_edges(StringUtils::substr(c,p + 1, c.length()));

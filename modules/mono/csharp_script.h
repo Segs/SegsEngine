@@ -48,7 +48,7 @@
 class CSharpScript;
 class CSharpInstance;
 class CSharpLanguage;
-
+enum MultiplayerAPI_RPCMode : int8_t;
 #ifdef NO_SAFE_CAST
 template <typename TScriptInstance, typename TScriptLanguage>
 TScriptInstance *cast_script_instance(ScriptInstance *p_inst) {
@@ -107,7 +107,7 @@ class CSharpScript : public Script {
 
 	struct Argument {
 		String name;
-		Variant::Type type;
+        VariantType type;
 	};
 
 	Map<StringName, Vector<Argument> > _signals;
@@ -135,7 +135,7 @@ class CSharpScript : public Script {
 	bool _update_exports();
 #ifdef TOOLS_ENABLED
 	bool _get_member_export(IMonoClassMember *p_member, bool p_inspect_export, PropertyInfo &r_prop_info, bool &r_exported);
-	static int _try_get_member_export_hint(IMonoClassMember *p_member, ManagedType p_type, Variant::Type p_variant_type, bool p_allow_generics, PropertyHint &r_hint, String &r_hint_string);
+    static int _try_get_member_export_hint(IMonoClassMember *p_member, ManagedType p_type, VariantType p_variant_type, bool p_allow_generics, PropertyHint &r_hint, String &r_hint_string);
 #endif
 
 	CSharpInstance *_create_instance(const Variant **p_args, int p_argcount, Object *p_owner, bool p_isref, Variant::CallError &r_error);
@@ -156,39 +156,39 @@ protected:
 	void _get_property_list(List<PropertyInfo> *p_properties) const;
 
 public:
-	virtual bool can_instance() const;
-	virtual StringName get_instance_base_type() const;
-	virtual ScriptInstance *instance_create(Object *p_this);
-	virtual PlaceHolderScriptInstance *placeholder_instance_create(Object *p_this);
-	virtual bool instance_has(const Object *p_this) const;
+    bool can_instance() const override;
+    StringName get_instance_base_type() const override;
+    ScriptInstance *instance_create(Object *p_this) override;
+    PlaceHolderScriptInstance *placeholder_instance_create(Object *p_this) override;
+    bool instance_has(const Object *p_this) const override;
 
-	virtual bool has_source_code() const;
-	virtual String get_source_code() const;
-	virtual void set_source_code(const String &p_code);
+    virtual bool has_source_code() const override;
+    se_string_view get_source_code() const override;
+    void set_source_code(se_string p_code) override;
 
-	virtual Error reload(bool p_keep_state = false);
+    Error reload(bool p_keep_state = false) override;
 
-	virtual bool has_script_signal(const StringName &p_signal) const;
-	virtual void get_script_signal_list(List<MethodInfo> *r_signals) const;
+    bool has_script_signal(const StringName &p_signal) const override;
+    void get_script_signal_list(ListPOD<MethodInfo> *r_signals) const override;
 
-	virtual bool get_property_default_value(const StringName &p_property, Variant &r_value) const;
-	virtual void get_script_property_list(List<PropertyInfo> *p_list) const;
-	virtual void update_exports();
+    bool get_property_default_value(const StringName &p_property, Variant &r_value) const override;
+    void get_script_property_list(ListPOD<PropertyInfo> *p_list) const override;
+    void update_exports() override;
 
-	virtual bool is_tool() const { return tool; }
-	virtual bool is_valid() const { return valid; }
+    bool is_tool() const override { return tool; }
+    bool is_valid() const override { return valid; }
 
-	virtual Ref<Script> get_base_script() const;
-	virtual ScriptLanguage *get_language() const;
+    Ref<Script> get_base_script() const override;
+    ScriptLanguage *get_language() const override;
 
-	virtual void get_script_method_list(List<MethodInfo> *p_list) const;
-	bool has_method(const StringName &p_method) const;
-	MethodInfo get_method_info(const StringName &p_method) const;
+    void get_script_method_list(PODVector<MethodInfo> *p_list) const override;
+    bool has_method(const StringName &p_method) const override;
+    MethodInfo get_method_info(const StringName &p_method) const override;
 
-	virtual int get_member_line(const StringName &p_member) const;
+    int get_member_line(const StringName &p_member) const override;
 
 #ifdef TOOLS_ENABLED
-	virtual bool is_placeholder_fallback_enabled() const { return placeholder_fallback_enabled; }
+    bool is_placeholder_fallback_enabled() const override { return placeholder_fallback_enabled; }
 #endif
 
 	Error load_source_code(const String &p_path);
@@ -232,7 +232,7 @@ class CSharpInstance : public ScriptInstance {
 
 	void _call_multilevel(MonoObject *p_mono_object, const StringName &p_method, const Variant **p_args, int p_argcount);
 
-	MultiplayerAPI::RPCMode _member_get_rpc_mode(IMonoClassMember *p_member) const;
+    MultiplayerAPI_RPCMode _member_get_rpc_mode(IMonoClassMember *p_member) const;
 
 	void get_properties_state_for_reloading(List<Pair<StringName, Variant> > &r_state);
 
@@ -241,18 +241,18 @@ public:
 
 	_FORCE_INLINE_ bool is_destructing_script_instance() { return destructing_script_instance; }
 
-	virtual Object *get_owner();
+    Object *get_owner() override;
 
-	virtual bool set(const StringName &p_name, const Variant &p_value);
-	virtual bool get(const StringName &p_name, Variant &r_ret) const;
-	virtual void get_property_list(List<PropertyInfo> *p_properties) const;
-	virtual Variant::Type get_property_type(const StringName &p_name, bool *r_is_valid) const;
+    bool set(const StringName &p_name, const Variant &p_value) override;
+    bool get(const StringName &p_name, Variant &r_ret) const override;
+    void get_property_list(ListPOD<PropertyInfo> *p_properties) const override;
+    VariantType get_property_type(const StringName &p_name, bool *r_is_valid) const override;
 
-	/* TODO */ virtual void get_method_list(List<MethodInfo> *p_list) const {}
-	virtual bool has_method(const StringName &p_method) const;
-	virtual Variant call(const StringName &p_method, const Variant **p_args, int p_argcount, Variant::CallError &r_error);
-	virtual void call_multilevel(const StringName &p_method, const Variant **p_args, int p_argcount);
-	virtual void call_multilevel_reversed(const StringName &p_method, const Variant **p_args, int p_argcount);
+    /* TODO */ void get_method_list(PODVector<MethodInfo> *p_list) const override {}
+    bool has_method(const StringName &p_method) const override;
+    Variant call(const StringName &p_method, const Variant **p_args, int p_argcount, Variant::CallError &r_error) override;
+    void call_multilevel(const StringName &p_method, const Variant **p_args, int p_argcount) override;
+    void call_multilevel_reversed(const StringName &p_method, const Variant **p_args, int p_argcount) override;
 
 	void mono_object_disposed(MonoObject *p_obj);
 
@@ -265,13 +265,13 @@ public:
 	virtual void refcount_incremented();
 	virtual bool refcount_decremented();
 
-	virtual MultiplayerAPI::RPCMode get_rpc_mode(const StringName &p_method) const;
-	virtual MultiplayerAPI::RPCMode get_rset_mode(const StringName &p_variable) const;
+    virtual MultiplayerAPI_RPCMode get_rpc_mode(const StringName &p_method) const;
+    virtual MultiplayerAPI_RPCMode get_rset_mode(const StringName &p_variable) const;
 
 	virtual void notification(int p_notification);
 	void _call_notification(int p_notification);
 
-	virtual String to_string(bool *r_valid);
+    virtual se_string to_string(bool *r_valid);
 
 	virtual Ref<Script> get_script() const;
 
@@ -380,12 +380,12 @@ public:
 		return scripts_metadata;
 	}
 
-	virtual String get_name() const;
+    virtual StringName get_name() const;
 
 	/* LANGUAGE FUNCTIONS */
-	virtual String get_type() const;
-	virtual String get_extension() const;
-	virtual Error execute_file(const String &p_path);
+    virtual se_string get_type() const;
+    virtual se_string get_extension() const;
+    virtual Error execute_file(se_string_view p_path);
 	virtual void init();
 	virtual void finish();
 
@@ -408,16 +408,16 @@ public:
 	/* TODO */ virtual void add_global_constant(const StringName &p_variable, const Variant &p_value) {}
 
 	/* DEBUGGER FUNCTIONS */
-	virtual String debug_get_error() const;
+    virtual const se_string &debug_get_error() const;
 	virtual int debug_get_stack_level_count() const;
 	virtual int debug_get_stack_level_line(int p_level) const;
-	virtual String debug_get_stack_level_function(int p_level) const;
-	virtual String debug_get_stack_level_source(int p_level) const;
+    virtual se_string debug_get_stack_level_function(int p_level) const;
+    virtual se_string debug_get_stack_level_source(int p_level) const;
 	/* TODO */ virtual void debug_get_stack_level_locals(int p_level, List<String> *p_locals, List<Variant> *p_values, int p_max_subitems, int p_max_depth) {}
 	/* TODO */ virtual void debug_get_stack_level_members(int p_level, List<String> *p_members, List<Variant> *p_values, int p_max_subitems, int p_max_depth) {}
 	/* TODO */ virtual void debug_get_globals(List<String> *p_locals, List<Variant> *p_values, int p_max_subitems, int p_max_depth) {}
 	/* TODO */ virtual String debug_parse_stack_level_expression(int p_level, const String &p_expression, int p_max_subitems, int p_max_depth) { return ""; }
-	virtual Vector<StackInfo> debug_get_current_stack_info();
+    virtual PODVector<StackInfo> debug_get_current_stack_info();
 
 	/* PROFILING FUNCTIONS */
 	/* TODO */ virtual void profiling_start() {}
@@ -451,7 +451,7 @@ public:
 	virtual void refcount_incremented_instance_binding(Object *p_object);
 	virtual bool refcount_decremented_instance_binding(Object *p_object);
 
-	Map<Object *, CSharpScriptBinding>::Element *insert_script_binding(Object *p_object, const CSharpScriptBinding &p_script_binding);
+    Map<Object *, CSharpScriptBinding>::iterator insert_script_binding(Object *p_object, const CSharpScriptBinding &p_script_binding);
 	bool setup_csharp_script_binding(CSharpScriptBinding &r_script_binding, Object *p_object);
 
 #ifdef DEBUG_ENABLED

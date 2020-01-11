@@ -97,6 +97,7 @@ public:
         TYPE_OF,
         TYPE_EXISTS,
         TEXT_CHAR,
+        TEXT_ORD,
         TEXT_STR,
         TEXT_PRINT,
         TEXT_PRINTERR,
@@ -115,15 +116,15 @@ public:
     static BuiltinFunc find_function(se_string_view p_string);
 
 private:
-    struct Input {
+//    struct Input {
 
-        VariantType type=VariantType::NIL;
-        se_string name;
+//        VariantType type=VariantType::NIL;
+//        se_string name;
 
-        Input() = default;
-    };
+//        Input() = default;
+//    };
 
-    Vector<Input> inputs;
+//    PODVector<Input> inputs;
     VariantType output_type = VariantType::NIL;
 
     se_string expression;
@@ -288,7 +289,7 @@ private:
 
     struct ConstructorNode : public ENode {
         VariantType data_type;
-        Vector<ENode *> arguments;
+        PODVector<ENode *> arguments;
 
         ConstructorNode() {
             type = TYPE_CONSTRUCTOR;
@@ -298,7 +299,7 @@ private:
     struct CallNode : public ENode {
         ENode *base;
         StringName method;
-        Vector<ENode *> arguments;
+        PODVector<ENode *> arguments;
 
         CallNode() {
             type = TYPE_CALL;
@@ -306,14 +307,14 @@ private:
     };
 
     struct ArrayNode : public ENode {
-        Vector<ENode *> array;
+        PODVector<ENode *> array;
         ArrayNode() {
             type = TYPE_ARRAY;
         }
     };
 
     struct DictionaryNode : public ENode {
-        Vector<ENode *> dict;
+        PODVector<ENode *> dict;
         DictionaryNode() {
             type = TYPE_DICTIONARY;
         }
@@ -321,7 +322,7 @@ private:
 
     struct BuiltinFuncNode : public ENode {
         BuiltinFunc func;
-        Vector<ENode *> arguments;
+        PODVector<ENode *> arguments;
         BuiltinFuncNode() {
             type = TYPE_BUILTIN_FUNC;
         }
@@ -338,7 +339,7 @@ private:
     ENode *root = nullptr;
     ENode *nodes = nullptr;
 
-    Vector<se_string> input_names;
+    PODVector<se_string> input_names;
 
     bool execution_error=false;
     bool _execute(const Array &p_inputs, Object *p_instance, Expression::ENode *p_node, Variant &r_ret, se_string &r_error_str);
@@ -347,7 +348,7 @@ protected:
     static void _bind_methods();
 
 public:
-    Error parse(se_string_view p_expression, const Vector<se_string> &p_input_names = {});
+    Error parse(se_string_view p_expression, const PODVector<se_string> &p_input_names = {});
     Variant execute(const Array& p_inputs, Object *p_base = nullptr, bool p_show_error = true);
     bool has_execute_failed() const;
     const se_string &get_error_text() const;

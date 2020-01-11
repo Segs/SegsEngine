@@ -36,6 +36,7 @@
 #include "editor_node.h"
 #include "editor_settings.h"
 #include "editor_themes.h"
+#include "editor_scale.h"
 #include "modules/regex/regex.h"
 #include "plugins/script_editor_plugin.h"
 #include "scene/gui/control.h"
@@ -111,7 +112,7 @@ RenameDialog::RenameDialog(SceneTreeEditor *p_scene_tree_editor, UndoRedo *p_und
 
     // -- Feature Tabs
 
-    const int feature_min_height = 160;
+    const int feature_min_height = 160 * EDSCALE;
 
     Ref<Theme> collapse_theme = create_editor_theme();
     collapse_theme->set_icon("checked", "CheckBox", collapse_theme->get_icon("GuiTreeArrowDown", "EditorIcons"));

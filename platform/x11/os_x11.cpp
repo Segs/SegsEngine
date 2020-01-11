@@ -2516,8 +2516,8 @@ void OS_X11::process_xevents() {
                     Property p = read_property(x11_display, x11_window, XInternAtom(x11_display, "PRIMARY", 0));
                     FixedVector<se_string,16,true> parts;
                     se_string::split_ref(parts,(const char *)p.data,"\n");
-                    Vector<se_string> files;
-                    for (int i = 0; i < files.size(); i++) {
+                    PODVector<se_string> files;
+                    for (int i = 0; i < parts.size(); i++) {
                         files.emplace_back(StringUtils::strip_edges(StringUtils::http_unescape(StringUtils::replace(parts[i],"file://", ""))));
                     }
                     main_loop->drop_files(files);
@@ -2938,7 +2938,7 @@ void OS_X11::alert(se_string_view _alert, se_string_view _title) {
     const se_string p_alert(_alert);
     const se_string p_title(_title);
     se_string path = get_environment("PATH");
-    Vector<se_string_view> path_elems = StringUtils::split(path,':', false);
+    PODVector<se_string_view> path_elems = StringUtils::split(path,':', false);
     se_string program;
 
     for (int i = 0; i < path_elems.size(); i++) {
@@ -3294,7 +3294,7 @@ OS::LatinKeyboardVariant OS_X11::get_latin_keyboard_variant() const {
     char *layout = XGetAtomName(x11_display, xkbdesc->names->symbols);
     ERR_FAIL_COND_V(!layout, LATIN_KEYBOARD_QWERTY)
 
-    Vector<se_string_view> info = StringUtils::split(layout,'+');
+    PODVector<se_string_view> info = StringUtils::split(layout,'+');
     ERR_FAIL_INDEX_V(1, info.size(), LATIN_KEYBOARD_QWERTY)
 
     if (StringUtils::contains(info[1],"colemak")) {

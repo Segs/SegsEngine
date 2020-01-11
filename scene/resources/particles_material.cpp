@@ -30,6 +30,7 @@
 
 #include "particles_material.h"
 
+#include "core/object_tooling.h"
 #include "scene/resources/curve_texture.h"
 #include "servers/visual_server.h"
 #include "core/method_bind.h"
@@ -870,7 +871,7 @@ void ParticlesMaterial::set_color_ramp(const Ref<Texture> &p_texture) {
     color_ramp = p_texture;
     VisualServer::get_singleton()->material_set_param(_get_material(), shader_names->color_ramp, p_texture);
     _queue_shader_change();
-    _change_notify();
+    Object_change_notify(this);
 }
 
 Ref<Texture> ParticlesMaterial::get_color_ramp() const {
@@ -883,7 +884,7 @@ void ParticlesMaterial::set_flag(Flags p_flag, bool p_enable) {
     flags[p_flag] = p_enable;
     _queue_shader_change();
     if (p_flag == FLAG_DISABLE_Z) {
-        _change_notify();
+        Object_change_notify(this);
     }
 }
 
@@ -895,7 +896,7 @@ bool ParticlesMaterial::get_flag(Flags p_flag) const {
 void ParticlesMaterial::set_emission_shape(EmissionShape p_shape) {
 
     emission_shape = p_shape;
-    _change_notify();
+    Object_change_notify(this);
     _queue_shader_change();
 }
 

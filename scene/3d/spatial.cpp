@@ -33,6 +33,7 @@
 #include "core/engine.h"
 #include "core/message_queue.h"
 #include "core/method_bind.h"
+#include "core/object_tooling.h"
 #include "core/script_language.h"
 #include "scene/main/scene_tree.h"
 #include "scene/main/viewport.h"
@@ -238,10 +239,10 @@ void Spatial::set_transform(const Transform &p_transform) {
 
     data.local_transform = p_transform;
     data.dirty |= DIRTY_VECTORS;
-    _change_notify("translation");
-    _change_notify("rotation");
-    _change_notify("rotation_degrees");
-    _change_notify("scale");
+    Object_change_notify(this,"translation");
+    Object_change_notify(this,"rotation");
+    Object_change_notify(this,"rotation_degrees");
+    Object_change_notify(this,"scale");
     _propagate_transform_changed(this);
     if (data.notify_local_transform) {
         notification(NOTIFICATION_LOCAL_TRANSFORM_CHANGED);
@@ -327,7 +328,7 @@ Transform Spatial::get_relative_transform(const Node *p_parent) const {
 void Spatial::set_translation(const Vector3 &p_translation) {
 
     data.local_transform.origin = p_translation;
-    _change_notify("transform");
+    Object_change_notify(this,"transform");
     _propagate_transform_changed(this);
     if (data.notify_local_transform) {
         notification(NOTIFICATION_LOCAL_TRANSFORM_CHANGED);
@@ -343,7 +344,7 @@ void Spatial::set_rotation(const Vector3 &p_euler_rad) {
 
     data.rotation = p_euler_rad;
     data.dirty |= DIRTY_LOCAL;
-    _change_notify("transform");
+    Object_change_notify(this,"transform");
     _propagate_transform_changed(this);
     if (data.notify_local_transform) {
         notification(NOTIFICATION_LOCAL_TRANSFORM_CHANGED);
@@ -364,7 +365,7 @@ void Spatial::set_scale(const Vector3 &p_scale) {
 
     data.scale = p_scale;
     data.dirty |= DIRTY_LOCAL;
-    _change_notify("transform");
+    Object_change_notify(this,"transform");
     _propagate_transform_changed(this);
     if (data.notify_local_transform) {
         notification(NOTIFICATION_LOCAL_TRANSFORM_CHANGED);
@@ -524,7 +525,7 @@ void Spatial::_propagate_visibility_changed() {
 
     notification(NOTIFICATION_VISIBILITY_CHANGED);
     emit_signal(SceneStringNames::get_singleton()->visibility_changed);
-    _change_notify("visible");
+    Object_change_notify(this,"visible");
 #ifdef TOOLS_ENABLED
     if (data.gizmo)
         _update_gizmo();
