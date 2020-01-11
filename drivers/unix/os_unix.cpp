@@ -534,9 +534,9 @@ void UnixTerminalLogger::log_error(se_string_view p_function, se_string_view p_f
 UnixTerminalLogger::~UnixTerminalLogger() {}
 
 OS_Unix::OS_Unix() {
-    Vector<Logger *> loggers;
+    PODVector<Logger *> loggers;
     loggers.push_back(memnew(UnixTerminalLogger));
-    _set_logger(memnew(CompositeLogger(loggers)));
+    _set_logger(memnew_args(CompositeLogger,eastl::move(loggers)));
 }
 
 #endif
