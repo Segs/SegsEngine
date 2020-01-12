@@ -6,7 +6,7 @@
 /*                      https://godotengine.org                          */
 /*************************************************************************/
 /* Copyright (c) 2007-2019 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md)    */
+/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md).   */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -377,6 +377,7 @@ CanvasItemMaterial::~CanvasItemMaterial() {
 
 ///////////////////////////////////////////////////////////////////
 
+#ifdef TOOLS_ENABLED
 bool CanvasItem::_edit_is_selected_on_click(const Point2 &p_point, float p_tolerance) const {
     if (_edit_use_rect()) {
         return _edit_get_rect().has_point(p_point);
@@ -387,6 +388,7 @@ bool CanvasItem::_edit_is_selected_on_click(const Point2 &p_point, float p_toler
 Transform2D CanvasItem::_edit_get_transform() const {
     return Transform2D(_edit_get_rotation(), _edit_get_position() + _edit_get_pivot());
 }
+#endif
 bool CanvasItem::is_visible_in_tree() const {
 
     if (!is_inside_tree())
@@ -1152,7 +1154,7 @@ void CanvasItem::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("_update_callback"), &CanvasItem::_update_callback);
     MethodBinder::bind_method(D_METHOD("_edit_set_state", {"state"}), &CanvasItem::_edit_set_state);
     MethodBinder::bind_method(D_METHOD("_edit_get_state"), &CanvasItem::_edit_get_state);
-
+#ifdef TOOLS_ENABLED
     MethodBinder::bind_method(D_METHOD("_edit_set_position", {"position"}), &CanvasItem::_edit_set_position);
     MethodBinder::bind_method(D_METHOD("_edit_get_position"), &CanvasItem::_edit_get_position);
     MethodBinder::bind_method(D_METHOD("_edit_set_scale", {"scale"}), &CanvasItem::_edit_set_scale);
@@ -1167,6 +1169,7 @@ void CanvasItem::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("_edit_get_pivot"), &CanvasItem::_edit_get_pivot);
     MethodBinder::bind_method(D_METHOD("_edit_use_pivot"), &CanvasItem::_edit_use_pivot);
     MethodBinder::bind_method(D_METHOD("_edit_get_transform"), &CanvasItem::_edit_get_transform);
+#endif
 
     MethodBinder::bind_method(D_METHOD("get_canvas_item"), &CanvasItem::get_canvas_item);
 

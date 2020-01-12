@@ -6,7 +6,7 @@
 /*                      https://godotengine.org                          */
 /*************************************************************************/
 /* Copyright (c) 2007-2019 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md)    */
+/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md).   */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -35,6 +35,7 @@
 #include "core/method_bind.h"
 #include "core/crypto/crypto_core.h"
 #include "core/io/config_file.h"
+#include "core/io/file_access_pack.h" // PACK_HEADER_MAGIC, PACK_FORMAT_VERSION
 #include "core/io/resource_loader.h"
 #include "core/io/resource_saver.h"
 #include "core/io/zip_io.h"
@@ -958,11 +959,11 @@ Error EditorExportPlatform::save_pack(const Ref<EditorExportPreset> &p_preset, s
 
     int64_t pck_start_pos = f->get_position();
 
-    f->store_32(0x43504447); //GDPC
-    f->store_32(1); //pack version
+    f->store_32(PACK_HEADER_MAGIC); //GDPC
+    f->store_32(PACK_FORMAT_VERSION); //pack version
     f->store_32(VERSION_MAJOR);
     f->store_32(VERSION_MINOR);
-    f->store_32(0); //hmph
+    f->store_32(VERSION_PATCH);
     for (int i = 0; i < 16; i++) {
         //reserved
         f->store_32(0);
@@ -1037,7 +1038,7 @@ Error EditorExportPlatform::save_pack(const Ref<EditorExportPreset> &p_preset, s
 
         int64_t pck_size = f->get_position() - pck_start_pos;
         f->store_64(pck_size);
-        f->store_32(0x43504447); //GDPC
+        f->store_32(PACK_HEADER_MAGIC);
 
         if (r_embedded_size) {
             *r_embedded_size = f->get_position() - embed_pos;
@@ -1469,41 +1470,29 @@ Ref<Texture> EditorExportPlatformPC::get_logo() const {
 bool EditorExportPlatformPC::can_export(const Ref<EditorExportPreset> &p_preset, se_string &r_error, bool &r_missing_templates) const {
 
     se_string err;
-    bool valid = true;
+    bool valid = false;
+
+    // Look for export templates (first official, and if defined custom templates).
+
     bool use64 = p_preset->get("binary_format/64_bits");
+    bool dvalid = exists_export_template(use64 ? debug_file_64 : debug_file_32, &err);
+    bool rvalid = exists_export_template(use64 ? release_file_64 : release_file_32, &err);
 
-    if (use64 && (!exists_export_template(debug_file_64, &err) || !exists_export_template(release_file_64, &err))) {
-        valid = false;
+    if (p_preset->get("custom_template/debug") != "") {
+        dvalid = FileAccess::exists(p_preset->get("custom_template/debug").as<se_string>());
+        if (!dvalid) {
+            err += TTR("Custom debug template not found.") + "\n";
+        }
     }
-
-    if (!use64 && (!exists_export_template(debug_file_32, &err) || !exists_export_template(release_file_32, &err))) {
-        valid = false;
-    }
-
-    se_string custom_debug_binary = p_preset->get("custom_template/debug");
-    se_string custom_release_binary = p_preset->get("custom_template/release");
-
-    if (custom_debug_binary.empty() && custom_release_binary.empty()) {
-        if (!err.empty())
-            r_error = err;
-        r_missing_templates = !valid;
-        return valid;
-    }
-
-    bool dvalid = true;
-    bool rvalid = true;
-
-    if (!FileAccess::exists(custom_debug_binary)) {
-        dvalid = false;
-        err += TTR("Custom debug template not found.") + "\n";
-    }
-
-    if (!FileAccess::exists(custom_release_binary)) {
-        rvalid = false;
-        err += TTR("Custom release template not found.") + "\n";
+    if (p_preset->get("custom_template/release") != "") {
+        rvalid = FileAccess::exists(p_preset->get("custom_template/release").as<se_string>());
+        if (!rvalid) {
+            err += TTR("Custom release template not found.") + "\n";
+        }
     }
 
     valid = dvalid || rvalid;
+    r_missing_templates = !valid;
 
     if (!err.empty())
         r_error = err;
@@ -1584,7 +1573,7 @@ Error EditorExportPlatformPC::export_project(const Ref<EditorExportPreset> &p_pr
 
             if (embedded_size >= 0x100000000 && !p_preset->get("binary_format/64_bits")) {
                 EditorNode::get_singleton()->show_warning(TTR("On 32-bit exports the embedded PCK cannot be bigger than 4 GiB."));
-                return ERR_UNAVAILABLE;
+                return ERR_INVALID_PARAMETER;
             }
 
             FixUpEmbeddedPckFunc fixup_func = get_fixup_embedded_pck_func();

@@ -6,7 +6,7 @@
 /*                      https://godotengine.org                          */
 /*************************************************************************/
 /* Copyright (c) 2007-2019 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md)    */
+/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md).   */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -36,6 +36,7 @@
 #include "core/method_bind.h"
 #include "core/object_tooling.h"
 #include "core/project_settings.h"
+#include "editor/editor_scale.h"
 #include "editor/editor_settings.h"
 #include "servers/visual_server.h"
 #include "scene/resources/font.h"
@@ -217,7 +218,7 @@ void AudioStreamEditor::_bind_methods() {
 
 AudioStreamEditor::AudioStreamEditor() {
 
-    set_custom_minimum_size(Size2(1, 100));
+    set_custom_minimum_size(Size2(1, 100)*EDSCALE);
     _current = 0;
     _dragging = false;
 

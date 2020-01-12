@@ -6,7 +6,7 @@
 /*                      https://godotengine.org                          */
 /*************************************************************************/
 /* Copyright (c) 2007-2019 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md)    */
+/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md).   */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -782,14 +782,8 @@ void GraphEdit::_top_layer_draw() {
     }
 
     if (box_selecting) {
-        top_layer->draw_rect(
-                box_selecting_rect,
-                get_color("box_selection_fill_color", "Editor"));
-
-        top_layer->draw_rect(
-                box_selecting_rect,
-                get_color("box_selection_stroke_color", "Editor"),
-                false);
+        top_layer->draw_rect(box_selecting_rect, get_color("selection_fill"));
+        top_layer->draw_rect(box_selecting_rect, get_color("selection_stroke"), false);
     }
 }
 

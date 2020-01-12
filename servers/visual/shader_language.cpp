@@ -6,7 +6,7 @@
 /*                      https://godotengine.org                          */
 /*************************************************************************/
 /* Copyright (c) 2007-2019 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md)    */
+/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md).   */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -541,8 +541,10 @@ ShaderLanguage::Token ShaderLanguage::_get_token() {
                     CharType last_char = str[str.length() - 1];
 
                     if (hexa_found) {
-                        //hex integers eg."0xFF" or "0x12AB", etc - NOT supported yet
-                        return _make_token(TK_ERROR, "Invalid (hexadecimal) numeric constant - Not supported");
+                        //integer(hex)
+                        if (str.size() > 11 || !StringUtils::is_valid_hex_number(str,true)) { // > 0xFFFFFFFF
+                            return _make_token(TK_ERROR, "Invalid (hexadecimal) numeric constant");
+                        }
                     } else if (period_found || exponent_found || float_suffix_found) {
                         //floats
                         if (period_found) {
@@ -591,7 +593,11 @@ ShaderLanguage::Token ShaderLanguage::_get_token() {
                     else
                         tk.type = TK_INT_CONSTANT;
 
-                    tk.constant = StringUtils::to_double(str); //won't work with hex
+                    if (hexa_found) {
+                        tk.constant = (double)StringUtils::hex_to_int64(str,true);
+                    } else {
+                        tk.constant = StringUtils::to_double(str);
+                    }
                     tk.line = tk_line;
 
                     return tk;
@@ -4478,8 +4484,12 @@ Error ShaderLanguage::_parse_block(BlockNode *p_block, const Map<StringName, Bui
             }
 
             p_block->statements.push_back(flow);
-            if (p_block->block_type == BlockNode::BLOCK_TYPE_CASE || p_block->block_type == BlockNode::BLOCK_TYPE_DEFAULT) {
-                return OK;
+            BlockNode *block = p_block;
+            while (block) {
+                if (block->block_type == BlockNode::BLOCK_TYPE_CASE || block->block_type == BlockNode::BLOCK_TYPE_DEFAULT) {
+                    return OK;
+                }
+                block = block->parent_block;
             }
         } else if (tk.type == TK_CF_DISCARD) {
 
@@ -4527,8 +4537,12 @@ Error ShaderLanguage::_parse_block(BlockNode *p_block, const Map<StringName, Bui
             }
 
             p_block->statements.push_back(flow);
-            if (p_block->block_type == BlockNode::BLOCK_TYPE_CASE || p_block->block_type == BlockNode::BLOCK_TYPE_DEFAULT) {
-                return OK;
+            BlockNode *block = p_block;
+            while (block) {
+                if (block->block_type == BlockNode::BLOCK_TYPE_CASE || block->block_type == BlockNode::BLOCK_TYPE_DEFAULT) {
+                    return OK;
+                }
+                block = block->parent_block;
             }
         } else if (tk.type == TK_CF_CONTINUE) {
 

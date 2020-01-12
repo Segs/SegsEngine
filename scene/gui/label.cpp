@@ -6,7 +6,7 @@
 /*                      https://godotengine.org                          */
 /*************************************************************************/
 /* Copyright (c) 2007-2019 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md)    */
+/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md).   */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -42,10 +42,15 @@ VARIANT_ENUM_CAST(Label::Align);
 VARIANT_ENUM_CAST(Label::VAlign);
 
 void Label::set_autowrap(bool p_autowrap) {
-
+    if (autowrap == p_autowrap) {
+        return;
+    }
     autowrap = p_autowrap;
     word_cache_dirty = true;
     update();
+    if (clip) {
+        minimum_size_changed();
+    }
 }
 bool Label::has_autowrap() const {
 
@@ -112,8 +117,7 @@ void Label::_notification(int p_what) {
 
         int lines_visible = (size.y + line_spacing) / font_h;
 
-        // ceiling to ensure autowrapping does not cut text
-        int space_w = Math::ceil(font->get_char_size(' ').width);
+        real_t space_w = font->get_char_size(' ').width;
         int chars_total = 0;
 
         int vbegin = 0, vsep = 0;
@@ -234,6 +238,7 @@ void Label::_notification(int p_what) {
                     return;
                 }
                 if (from->space_count) {
+                    chars_total += from->space_count;
                     /* spacing */
                     x_ofs += space_w * from->space_count;
                     if (can_fill && align == ALIGN_FILL && spaces) {
@@ -321,8 +326,8 @@ Size2 Label::get_minimum_size() const {
 int Label::get_longest_line_width() const {
 
     Ref<Font> font = get_font("font");
-    int max_line_width = 0;
-    int line_width = 0;
+    real_t max_line_width = 0;
+    real_t line_width = 0;
     String xltext(StringUtils::from_utf8(xl_text));
     for (int i = 0; i < xltext.size(); i++) {
 
@@ -339,19 +344,18 @@ int Label::get_longest_line_width() const {
                 line_width = 0;
             }
         } else {
-
+            CharType next = ((i+1)<xltext.size()) ? xltext[i + 1] : CharType(0);
             // ceiling to ensure autowrapping does not cut text
-            if((i+1)<xltext.size()) {
-                int char_width = Math::ceil(font->get_char_size(current, xltext[i + 1]).width);
-                line_width += char_width;
-            }
+            real_t char_width = font->get_char_size(current, next).width;
+            line_width += char_width;
         }
     }
 
     if (line_width > max_line_width)
         max_line_width = line_width;
 
-    return max_line_width;
+    // ceiling to ensure autowrapping does not cut text
+    return Math::ceil(max_line_width);
 }
 
 int Label::get_line_count() const {
@@ -399,12 +403,11 @@ void Label::regenerate_word_cache() {
 
     Ref<Font> font = get_font("font");
 
-    int current_word_size = 0;
+    real_t current_word_size = 0;
     int word_pos = 0;
-    int line_width = 0;
+    real_t line_width = 0;
     int space_count = 0;
-    // ceiling to ensure autowrapping does not cut text
-    int space_width = Math::ceil(font->get_char_size(' ').width);
+    real_t space_width = font->get_char_size(' ').width;
     int line_spacing = get_constant("line_spacing");
     line_count = 1;
     total_char_cache = 0;
@@ -425,7 +428,7 @@ void Label::regenerate_word_cache() {
         bool separatable = (current >= 0x2E08 && current <= 0xFAFF) || (current >= 0xFE30 && current <= 0xFE4F);
         //current>=33 && (current < 65||current >90) && (current<97||current>122) && (current<48||current>57);
         bool insert_newline = false;
-        int char_width = 0;
+        real_t char_width = 0;
 
         if (current < 33) {
 
@@ -467,7 +470,7 @@ void Label::regenerate_word_cache() {
                 word_pos = i;
             }
             // ceiling to ensure autowrapping does not cut text
-            char_width = Math::ceil(font->get_char_size(current, next).width);
+            char_width = font->get_char_size(current, next).width;
             current_word_size += char_width;
             line_width += char_width;
             total_char_cache++;

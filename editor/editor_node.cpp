@@ -6,7 +6,7 @@
 /*                      https://godotengine.org                          */
 /*************************************************************************/
 /* Copyright (c) 2007-2019 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md)    */
+/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md).   */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -550,62 +550,78 @@ void EditorNode::_resources_changed(const PoolVector<se_string> &p_resources) {
         }
     }
 }
-
 void EditorNode::_fs_changed() {
 
-    for (FileDialog *E : file_dialogs) {
+    for (FileDialog *fd : file_dialogs) {
 
-        E->invalidate();
+        fd->invalidate();
     }
 
-    for (EditorFileDialog *E : editor_file_dialogs) {
-
-        E->invalidate();
+    for (EditorFileDialog *fd : editor_file_dialogs) {
+        fd->invalidate();
     }
 
     _mark_unsaved_scenes();
 
-    if (!export_defer.preset.empty() && !EditorFileSystem::get_singleton()->is_scanning()) {
+    // FIXME: Move this to a cleaner location, it's hacky to do this is _fs_changed.
+    se_string export_error;
+    if (export_defer.preset != "" && !EditorFileSystem::get_singleton()->is_scanning()) {
+        se_string preset_name = export_defer.preset;
+        // Ensures export_project does not loop infinitely, because notifications may
+        // come during the export.
+        export_defer.preset = "";
         Ref<EditorExportPreset> preset;
         for (int i = 0; i < EditorExport::get_singleton()->get_export_preset_count(); ++i) {
             preset = EditorExport::get_singleton()->get_export_preset(i);
-            if (preset->get_name() == export_defer.preset) {
+            if (preset->get_name() == preset_name) {
                 break;
             }
             preset.unref();
         }
-        if (not preset) {
-            se_string errstr = "Unknown export preset: " + export_defer.preset;
-            ERR_PRINT(errstr)
-            OS::get_singleton()->set_exit_code(EXIT_FAILURE);
+        if (!preset) {
+            export_error = vformat("Invalid export preset name: %s.", preset_name);
         } else {
             Ref<EditorExportPlatform> platform = preset->get_platform();
-            if (not platform) {
-                se_string errstr = "Preset \"" + export_defer.preset + "\" doesn't have a platform.";
-                ERR_PRINT(errstr)
-                OS::get_singleton()->set_exit_code(EXIT_FAILURE);
+            if (!platform) {
+                export_error = vformat("Export preset '%s' doesn't have a matching platform.", preset_name);
             } else {
-                // ensures export_project does not loop infinitely, because notifications may
-                // come during the export
-                export_defer.preset = "";
                 Error err = OK;
-                if (StringUtils::ends_with(export_defer.path, ".pck") ||
-                        StringUtils::ends_with(export_defer.path, ".zip")) {
-                    if (StringUtils::ends_with(export_defer.path, ".zip")) {
+                if (export_defer.pack_only) { // Only export .pck or .zip data pack.
+                    if (export_defer.path.ends_with(".zip")) {
                         err = platform->export_zip(preset, export_defer.debug, export_defer.path);
-                    } else if (StringUtils::ends_with(export_defer.path, ".pck")) {
+                    } else if (export_defer.path.ends_with(".pck")) {
                         err = platform->export_pack(preset, export_defer.debug, export_defer.path);
                     }
-                } else {
-                    err = platform->export_project(preset, export_defer.debug, export_defer.path);
+                } else { // Normal project export.
+                    se_string config_error;
+                    bool missing_templates;
+                    if (!platform->can_export(preset, config_error, missing_templates)) {
+                        ERR_PRINT(FormatVE("Cannot export project with preset '%s' due to configuration errors:\n%s", preset_name.c_str(), config_error.c_str()));
+                        err = missing_templates ? ERR_FILE_NOT_FOUND : ERR_UNCONFIGURED;
+                    } else {
+                        err = platform->export_project(preset, export_defer.debug, export_defer.path);
+                    }
                 }
-                if (err != OK) {
-                    ERR_PRINT(FormatVE(TTR("Project export failed with error code %d.").asCString(), (int)err))
-                    OS::get_singleton()->set_exit_code(EXIT_FAILURE);
+                switch (err) {
+                    case OK:
+                        break;
+                    case ERR_FILE_NOT_FOUND:
+                        export_error = vformat("Project export failed for preset '%s', the export template appears to be missing.", preset_name);
+                        break;
+                    case ERR_FILE_BAD_PATH:
+                        export_error = vformat("Project export failed for preset '%s', the target path '%s' appears to be invalid.", preset_name, export_defer.path);
+                        break;
+                    default:
+                        export_error = vformat("Project export failed with error code %d for preset '%s'.", (int)err, preset_name);
+                        break;
                 }
             }
         }
 
+        if (!export_error.empty()) {
+            ERR_PRINT(export_error);
+            OS::get_singleton()->set_exit_code(EXIT_FAILURE);
+        }
         _exit_editor();
     }
 }
@@ -4207,13 +4223,12 @@ void EditorNode::_editor_file_dialog_unregister(EditorFileDialog *p_dialog) {
 
 PODVector<EditorNodeInitCallback> EditorNode::_init_callbacks;
 
-Error EditorNode::export_preset(
-        se_string_view p_preset, se_string_view p_path, bool p_debug, se_string_view p_password, bool p_quit_after) {
+Error EditorNode::export_preset(se_string_view p_preset, se_string_view p_path, bool p_debug, bool p_pack_only) {
 
     export_defer.preset = p_preset;
     export_defer.path = p_path;
     export_defer.debug = p_debug;
-    export_defer.password = p_password;
+    export_defer.pack_only = p_pack_only;
     disable_progress_dialog = true;
     return OK;
 }
@@ -6921,12 +6936,6 @@ EditorNode::EditorNode() {
     gui_base->add_child(file);
     file->set_current_dir("res://");
 
-    file_export = memnew(EditorFileDialog);
-    file_export->set_access(EditorFileDialog::ACCESS_FILESYSTEM);
-    gui_base->add_child(file_export);
-    file_export->set_title(TTR("Export Project"));
-    file_export->connect("file_selected", this, "_dialog_action");
-
     file_export_lib = memnew(EditorFileDialog);
     file_export_lib->set_title(TTR("Export Library"));
     file_export_lib->set_mode(EditorFileDialog::MODE_SAVE_FILE);
@@ -6936,11 +6945,6 @@ EditorNode::EditorNode() {
     file_export_lib_merge->set_pressed(true);
     file_export_lib->get_vbox()->add_child(file_export_lib_merge);
     gui_base->add_child(file_export_lib);
-
-    file_export_password = memnew(LineEdit);
-    file_export_password->set_secret(true);
-    file_export_password->set_editable(false);
-    file_export->get_vbox()->add_margin_child(TTR("Password:"), file_export_password);
 
     file_script = memnew(EditorFileDialog);
     file_script->set_title(TTR("Open & Run a Script"));

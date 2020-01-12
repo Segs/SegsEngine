@@ -6,7 +6,7 @@
 /*                      https://godotengine.org                          */
 /*************************************************************************/
 /* Copyright (c) 2007-2019 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md)    */
+/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md).   */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -40,8 +40,10 @@ void TextureRect::_notification(int p_what) {
 
     if (p_what == NOTIFICATION_DRAW) {
 
-        if (not texture)
+        if (not texture) {
             return;
+        }
+
         assert(0!=strcmp(texture->get_class(),"Object"));
         Size2 size;
         Point2 offset;
@@ -89,11 +91,11 @@ void TextureRect::_notification(int p_what) {
                 size = get_size();
 
                 Size2 tex_size = texture->get_size();
-                Size2 scaleSize(size.width / tex_size.width, size.height / tex_size.height);
-                float scale = scaleSize.width > scaleSize.height ? scaleSize.width : scaleSize.height;
-                Size2 scaledTexSize = tex_size * scale;
+                Size2 scale_size(size.width / tex_size.width, size.height / tex_size.height);
+                float scale = scale_size.width > scale_size.height ? scale_size.width : scale_size.height;
+                Size2 scaled_tex_size = tex_size * scale;
 
-                region.position = ((scaledTexSize - size) / scale).abs() / 2.0f;
+                region.position = ((scaled_tex_size - size) / scale).abs() / 2.0f;
                 region.size = size / scale;
             } break;
         }
@@ -113,10 +115,11 @@ void TextureRect::_notification(int p_what) {
 
 Size2 TextureRect::get_minimum_size() const {
 
-    if (!expand && texture)
+    if (!expand && texture) {
         return texture->get_size();
-    else
+    } else {
         return Size2();
+    }
 }
 void TextureRect::_bind_methods() {
 

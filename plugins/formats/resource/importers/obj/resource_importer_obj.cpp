@@ -6,7 +6,7 @@
 /*                      https://godotengine.org                          */
 /*************************************************************************/
 /* Copyright (c) 2007-2019 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md)    */
+/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md).   */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -212,7 +212,7 @@ static Error _parse_material_library(se_string_view p_path, Map<se_string, Ref<S
 }
 
 static Error _parse_obj(se_string_view p_path, List<Ref<Mesh>> &r_meshes, bool p_single_mesh, bool p_generate_tangents,
-        bool p_optimize, Vector3 p_scale_mesh, PODVector<se_string> *r_missing_deps) {
+        bool p_optimize, Vector3 p_scale_mesh, Vector3 p_offset_mesh, PODVector<se_string> *r_missing_deps) {
 
     FileAccessRef f = FileAccess::open(p_path, FileAccess::READ);
     ERR_FAIL_COND_V_MSG(!f, ERR_CANT_OPEN, vformat("Couldn't open OBJ file '%s', it may not exist or not be readable.", p_path))
@@ -221,6 +221,8 @@ static Error _parse_obj(se_string_view p_path, List<Ref<Mesh>> &r_meshes, bool p
 
     bool generate_tangents = p_generate_tangents;
     Vector3 scale_mesh = p_scale_mesh;
+    Vector3 offset_mesh = p_offset_mesh;
+
     int mesh_flags = p_optimize ? Mesh::ARRAY_COMPRESS_DEFAULT : 0;
 
     Vector<Vector3> vertices;
@@ -253,9 +255,9 @@ static Error _parse_obj(se_string_view p_path, List<Ref<Mesh>> &r_meshes, bool p
             PODVector<se_string_view> v = StringUtils::split(l," ", false);
             ERR_FAIL_COND_V(v.size() < 4, ERR_FILE_CORRUPT)
             Vector3 vtx;
-            vtx.x = StringUtils::to_float(v[1]) * scale_mesh.x;
-            vtx.y = StringUtils::to_float(v[2]) * scale_mesh.y;
-            vtx.z = StringUtils::to_float(v[3]) * scale_mesh.z;
+            vtx.x = StringUtils::to_float(v[1]) * scale_mesh.x + offset_mesh.x;
+            vtx.y = StringUtils::to_float(v[2]) * scale_mesh.y + offset_mesh.y;
+            vtx.z = StringUtils::to_float(v[3]) * scale_mesh.z + offset_mesh.z;
             vertices.push_back(vtx);
         } else if (StringUtils::begins_with(l,"vt ")) {
             //uv
@@ -429,7 +431,8 @@ Node *ResourceImporterOBJ::import_scene(se_string_view p_path, uint32_t p_flags,
 
     List<Ref<Mesh> > meshes;
 
-    Error err = _parse_obj(p_path, meshes, false, p_flags & IMPORT_GENERATE_TANGENT_ARRAYS, p_flags & IMPORT_USE_COMPRESSION, Vector3(1, 1, 1), r_missing_deps);
+    Error err = _parse_obj(p_path, meshes, false, p_flags &IMPORT_GENERATE_TANGENT_ARRAYS, p_flags &IMPORT_USE_COMPRESSION,
+            Vector3(1, 1, 1), Vector3(0, 0, 0), r_missing_deps);
 
     if (err != OK) {
         if (r_err) {
@@ -495,9 +498,10 @@ StringName ResourceImporterOBJ::get_preset_name(int /*p_idx*/) const {
 
 void ResourceImporterOBJ::get_import_options(ListPOD<ImportOption> *r_options, int p_preset) const {
 
-    r_options->push_back(ImportOption(PropertyInfo(VariantType::BOOL, "generate_tangents"), true));
-    r_options->push_back(ImportOption(PropertyInfo(VariantType::VECTOR3, "scale_mesh"), Vector3(1, 1, 1)));
-    r_options->push_back(ImportOption(PropertyInfo(VariantType::BOOL, "optimize_mesh"), true));
+    r_options->emplace_back(PropertyInfo(VariantType::BOOL, "generate_tangents"), true);
+    r_options->emplace_back(PropertyInfo(VariantType::VECTOR3, "scale_mesh"), Vector3(1, 1, 1));
+    r_options->emplace_back(PropertyInfo(VariantType::VECTOR3, "offset_mesh"), Vector3(0, 0, 0));
+    r_options->emplace_back(PropertyInfo(VariantType::BOOL, "optimize_mesh"), true);
 }
 bool ResourceImporterOBJ::get_option_visibility(const StringName &p_option, const Map<StringName, Variant> &p_options) const {
 
@@ -509,7 +513,7 @@ Error ResourceImporterOBJ::import(se_string_view p_source_file, se_string_view p
     List<Ref<Mesh> > meshes;
 
     Error err = _parse_obj(p_source_file, meshes, true, p_options.at("generate_tangents").as<bool>(),
-            p_options.at("optimize_mesh").as<bool>(), p_options.at("scale_mesh"), nullptr);
+            p_options.at("optimize_mesh").as<bool>(), p_options.at("scale_mesh"),p_options.at("offset_mesh"), nullptr);
 
     ERR_FAIL_COND_V(err != OK, err)
     ERR_FAIL_COND_V(meshes.size() != 1, ERR_BUG)

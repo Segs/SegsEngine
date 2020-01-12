@@ -6,7 +6,7 @@
 /*                      https://godotengine.org                          */
 /*************************************************************************/
 /* Copyright (c) 2007-2019 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md)    */
+/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md).   */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -27,6 +27,7 @@
 /* TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE     */
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
+#pragma once
 
 #include "version_generated.gen.h"
 
@@ -38,18 +39,18 @@
 // forward-compatible.
 // Example: "3.1"
 #define VERSION_BRANCH "" _MKSTR(VERSION_MAJOR) "." _MKSTR(VERSION_MINOR)
-#ifdef VERSION_PATCH
+#if VERSION_PATCH
 // Example: "3.1.4"
 #define VERSION_NUMBER "" VERSION_BRANCH "." _MKSTR(VERSION_PATCH)
+#else // patch is 0, we don't include it in the "pretty" version number.
+// Example: "3.1" instead of "3.1.0"
+#define VERSION_NUMBER "" VERSION_BRANCH
+#endif // VERSION_PATCH
+
 // Version number encoded as hexadecimal int with one byte for each number,
 // for easy comparison from code.
 // Example: 3.1.4 will be 0x030104, making comparison easy from script.
 #define VERSION_HEX 0x10000 * VERSION_MAJOR + 0x100 * VERSION_MINOR + VERSION_PATCH
-#else
-// Example: "3.1"
-#define VERSION_NUMBER "" VERSION_BRANCH
-#define VERSION_HEX 0x10000 * VERSION_MAJOR + 0x100 * VERSION_MINOR
-#endif // VERSION_PATCH
 
 // Describes the full configuration of that Godot version, including the version number,
 // the status (beta, stable, etc.) and potential module-specific features (e.g. mono).

@@ -6,7 +6,7 @@
 /*                      https://godotengine.org                          */
 /*************************************************************************/
 /* Copyright (c) 2007-2019 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md)    */
+/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md).   */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -777,6 +777,10 @@ void EditorSceneImporterAssimp::_import_animation(ImportState &state, int p_anim
     animation->set_name(name);
     animation->set_length(anim->mDuration / ticks_per_second);
 
+    if (name.starts_with("loop") || name.ends_with("loop") || name.starts_with("cycle") || name.ends_with("cycle")) {
+        animation->set_loop(true);
+    }
+
     // generate bone stack for animation import
     RegenerateBoneStack(state);
 
@@ -789,9 +793,9 @@ void EditorSceneImporterAssimp::_import_animation(ImportState &state, int p_anim
             continue; //do not bother
         }
 
-        Skeleton *skeleton = NULL;
+        Skeleton *skeleton = nullptr;
         NodePath node_path;
-        aiBone *bone = NULL;
+        aiBone *bone = nullptr;
 
         // Import skeleton bone animation for this track
         // Any bone will do, no point in processing more than just what is in the skeleton

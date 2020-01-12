@@ -6,7 +6,7 @@
 /*                      https://godotengine.org                          */
 /*************************************************************************/
 /* Copyright (c) 2007-2019 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md)    */
+/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md).   */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -306,6 +306,8 @@ void MultiplayerAPI::set_root_node(Node *p_node) {
 void MultiplayerAPI::set_network_peer(const Ref<NetworkedMultiplayerPeer> &p_peer) {
 
     if (p_peer == network_peer) return; // Nothing to do
+    ERR_FAIL_COND_MSG(p_peer && p_peer->get_connection_status() == NetworkedMultiplayerPeer::CONNECTION_DISCONNECTED,
+            "Supplied NetworkedMultiplayerPeer must be connecting or connected.")
 
     if (network_peer) {
         network_peer->disconnect("peer_connected", this, "_add_peer");
@@ -317,8 +319,6 @@ void MultiplayerAPI::set_network_peer(const Ref<NetworkedMultiplayerPeer> &p_pee
     }
 
     network_peer = p_peer;
-
-    ERR_FAIL_COND_MSG(p_peer && p_peer->get_connection_status() == NetworkedMultiplayerPeer::CONNECTION_DISCONNECTED, "Supplied NetworkedNetworkPeer must be connecting or connected.")
 
     if (network_peer) {
         network_peer->connect("peer_connected", this, "_add_peer");

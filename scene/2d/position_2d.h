@@ -6,7 +6,7 @@
 /*                      https://godotengine.org                          */
 /*************************************************************************/
 /* Copyright (c) 2007-2019 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md)    */
+/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md).   */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -35,22 +35,24 @@
 
 class Position2D : public Node2D {
 
-	GDCLASS(Position2D,Node2D)
+    GDCLASS(Position2D,Node2D)
 
-	void _draw_cross();
+    void _draw_cross();
 
 protected:
-	void _notification(int p_what);
-	static void _bind_methods();
+    void _notification(int p_what);
+    static void _bind_methods();
 
 public:
-	Rect2 _edit_get_rect() const override;
-	bool _edit_use_rect() const override;
+#ifdef TOOLS_ENABLED
+    Rect2 _edit_get_rect() const override;
+    bool _edit_use_rect() const override;
+#endif
 
-	void set_gizmo_extents(float p_extents);
-	float get_gizmo_extents() const;
+    void set_gizmo_extents(float p_extents);
+    float get_gizmo_extents() const;
 
-	Position2D();
+    Position2D();
 };
 
 #endif // POSITION_2D_H

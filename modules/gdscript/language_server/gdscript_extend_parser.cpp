@@ -6,7 +6,7 @@
 /*                      https://godotengine.org                          */
 /*************************************************************************/
 /* Copyright (c) 2007-2019 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md)    */
+/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md).   */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -523,7 +523,50 @@ const lsp::DocumentSymbol *ExtendGDScriptParser::search_symbol_defined_at_line(i
     }
     return ret;
 }
+Error ExtendGDScriptParser::get_left_function_call(const lsp::Position &p_position, lsp::Position &r_func_pos, int &r_arg_index) const {
 
+    ERR_FAIL_INDEX_V(p_position.line, lines.size(), ERR_INVALID_PARAMETER);
+
+    int bracket_stack = 0;
+    int index = 0;
+
+    bool found = false;
+    for (int l = p_position.line; l >= 0; --l) {
+        se_string line = lines[l];
+        int c = line.length() - 1;
+        if (l == p_position.line) {
+            c = MIN(c, p_position.character - 1);
+        }
+
+        while (c >= 0) {
+            const char character = line[c];
+            if (character == ')') {
+                ++bracket_stack;
+            } else if (character == '(') {
+                --bracket_stack;
+                if (bracket_stack < 0) {
+                    found = true;
+                }
+            }
+            if (bracket_stack <= 0 && character == ',') {
+                ++index;
+            }
+            --c;
+            if (found) {
+                r_func_pos.character = c;
+                break;
+            }
+        }
+
+        if (found) {
+            r_func_pos.line = l;
+            r_arg_index = index;
+            return OK;
+        }
+    }
+
+    return ERR_METHOD_NOT_FOUND;
+}
 const lsp::DocumentSymbol *ExtendGDScriptParser::get_symbol_defined_at_line(int p_line) const {
     if (p_line <= 0) {
         return &class_symbol;

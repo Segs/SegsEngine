@@ -6,7 +6,7 @@
 /*                      https://godotengine.org                          */
 /*************************************************************************/
 /* Copyright (c) 2007-2019 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md)    */
+/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md).   */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -36,75 +36,76 @@
 class Viewport;
 class VisibilityNotifier2D : public Node2D {
 
-	GDCLASS(VisibilityNotifier2D,Node2D)
+    GDCLASS(VisibilityNotifier2D,Node2D)
 
-	Set<Viewport *> viewports;
+    Set<Viewport *> viewports;
 
-	Rect2 rect;
+    Rect2 rect;
 
 protected:
-	friend struct SpatialIndexer2D;
+    friend struct SpatialIndexer2D;
 
-	void _enter_viewport(Viewport *p_viewport);
-	void _exit_viewport(Viewport *p_viewport);
+    void _enter_viewport(Viewport *p_viewport);
+    void _exit_viewport(Viewport *p_viewport);
 
-	virtual void _screen_enter() {}
-	virtual void _screen_exit() {}
+    virtual void _screen_enter() {}
+    virtual void _screen_exit() {}
 
-	void _notification(int p_what);
-	static void _bind_methods();
+    void _notification(int p_what);
+    static void _bind_methods();
 
 public:
-	Rect2 _edit_get_rect() const override;
-	bool _edit_use_rect() const override;
+#ifdef TOOLS_ENABLED
+    Rect2 _edit_get_rect() const override;
+    bool _edit_use_rect() const override;
+#endif
+    void set_rect(const Rect2 &p_rect);
+    Rect2 get_rect() const;
 
-	void set_rect(const Rect2 &p_rect);
-	Rect2 get_rect() const;
+    bool is_on_screen() const;
 
-	bool is_on_screen() const;
-
-	VisibilityNotifier2D();
+    VisibilityNotifier2D();
 };
 
 class VisibilityEnabler2D : public VisibilityNotifier2D {
 
-	GDCLASS(VisibilityEnabler2D,VisibilityNotifier2D)
+    GDCLASS(VisibilityEnabler2D,VisibilityNotifier2D)
 
 public:
-	enum Enabler {
-		ENABLER_PAUSE_ANIMATIONS,
-		ENABLER_FREEZE_BODIES,
-		ENABLER_PAUSE_PARTICLES,
-		ENABLER_PARENT_PROCESS,
-		ENABLER_PARENT_PHYSICS_PROCESS,
-		ENABLER_PAUSE_ANIMATED_SPRITES,
-		ENABLER_MAX
-	};
+    enum Enabler {
+        ENABLER_PAUSE_ANIMATIONS,
+        ENABLER_FREEZE_BODIES,
+        ENABLER_PAUSE_PARTICLES,
+        ENABLER_PARENT_PROCESS,
+        ENABLER_PARENT_PHYSICS_PROCESS,
+        ENABLER_PAUSE_ANIMATED_SPRITES,
+        ENABLER_MAX
+    };
 
 protected:
-	void _screen_enter() override;
-	void _screen_exit() override;
+    void _screen_enter() override;
+    void _screen_exit() override;
 
-	bool visible;
+    bool visible;
 
-	void _find_nodes(Node *p_node);
+    void _find_nodes(Node *p_node);
 
-	Map<Node *, Variant> nodes;
-	void _node_removed(Node *p_node);
-	bool enabler[ENABLER_MAX];
+    Map<Node *, Variant> nodes;
+    void _node_removed(Node *p_node);
+    bool enabler[ENABLER_MAX];
 
-	void _change_node_state(Node *p_node, bool p_enabled);
+    void _change_node_state(Node *p_node, bool p_enabled);
 
-	void _notification(int p_what);
-	static void _bind_methods();
+    void _notification(int p_what);
+    static void _bind_methods();
 
 public:
-	void set_enabler(Enabler p_enabler, bool p_enable);
-	bool is_enabler_enabled(Enabler p_enabler) const;
+    void set_enabler(Enabler p_enabler, bool p_enable);
+    bool is_enabler_enabled(Enabler p_enabler) const;
 
     StringName get_configuration_warning() const override;
 
-	VisibilityEnabler2D();
+    VisibilityEnabler2D();
 };
 
 

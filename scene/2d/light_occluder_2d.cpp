@@ -6,7 +6,7 @@
 /*                      https://godotengine.org                          */
 /*************************************************************************/
 /* Copyright (c) 2007-2019 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md)    */
+/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md).   */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -41,6 +41,7 @@ IMPL_GDCLASS(OccluderPolygon2D)
 IMPL_GDCLASS(LightOccluder2D)
 VARIANT_ENUM_CAST(OccluderPolygon2D::CullMode);
 
+#ifdef TOOLS_ENABLED
 Rect2 OccluderPolygon2D::_edit_get_rect() const {
 
     if (likely(!rect_cache_dirty))
@@ -83,6 +84,7 @@ bool OccluderPolygon2D::_edit_is_selected_on_click(const Point2 &p_point, float 
         return false;
     }
 }
+#endif
 
 void OccluderPolygon2D::set_polygon(const PODVector<Vector2> &p_polygon) {
 
@@ -212,7 +214,7 @@ void LightOccluder2D::_notification(int p_what) {
         VisualServer::get_singleton()->canvas_light_occluder_attach_to_canvas(occluder, RID());
     }
 }
-
+#ifdef TOOLS_ENABLED
 Rect2 LightOccluder2D::_edit_get_rect() const {
 
     return occluder_polygon ? occluder_polygon->_edit_get_rect() : Rect2();
@@ -222,7 +224,7 @@ bool LightOccluder2D::_edit_is_selected_on_click(const Point2 &p_point, float p_
 
     return occluder_polygon ? occluder_polygon->_edit_is_selected_on_click(p_point, p_tolerance) : false;
 }
-
+#endif
 void LightOccluder2D::set_occluder_polygon(const Ref<OccluderPolygon2D> &p_polygon) {
 
 #ifdef DEBUG_ENABLED

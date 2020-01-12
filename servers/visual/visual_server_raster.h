@@ -6,7 +6,7 @@
 /*                      https://godotengine.org                          */
 /*************************************************************************/
 /* Copyright (c) 2007-2019 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md)    */
+/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md).   */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -601,7 +601,7 @@ public:
     BIND11(canvas_item_add_nine_patch, RID, const Rect2 &, const Rect2 &, RID, const Vector2 &, const Vector2 &, VS::NinePatchAxisMode, VS::NinePatchAxisMode, bool, const Color &, RID)
     BIND7(canvas_item_add_primitive, RID, const Vector<Point2> &, const Vector<Color> &, const Vector<Point2> &, RID, float, RID)
     BIND7(canvas_item_add_polygon, RID, Span<const Point2>, const Vector<Color> &, const Vector<Point2> &, RID, RID, bool)
-    BIND11(canvas_item_add_triangle_array, RID, Span<const int>, Span<const Point2>, const Vector<Color> &, const Vector<Point2> &, const Vector<int> &, const Vector<float> &, RID, int, RID, bool)
+    BIND12(canvas_item_add_triangle_array, RID, Span<const int>, Span<const Point2>, const Vector<Color> &, const Vector<Point2> &, const Vector<int> &, const Vector<float> &, RID, int, RID, bool,bool)
     BIND6(canvas_item_add_mesh, RID, const RID &, const Transform2D &, const Color &, RID, RID)
     BIND4(canvas_item_add_multimesh, RID, RID, RID, RID)
     BIND4(canvas_item_add_particles, RID, RID, RID, RID)
@@ -679,6 +679,8 @@ public:
     /* STATUS INFORMATION */
 
     int get_render_info(VS::RenderInfo p_info) override;
+    const char * get_video_adapter_name() const override;
+    const char * get_video_adapter_vendor() const override;
 
     RID get_test_cube() override;
 

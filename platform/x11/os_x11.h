@@ -6,7 +6,7 @@
 /*                      https://godotengine.org                          */
 /*************************************************************************/
 /* Copyright (c) 2007-2019 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md)    */
+/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md).   */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -157,6 +157,7 @@ class OS_X11 : public OS_Unix {
 
     bool force_quit;
     bool minimized;
+    bool window_focused;
     bool window_has_focus;
     bool do_mouse_warp;
 
@@ -277,6 +278,7 @@ public:
     bool is_window_maximized() const override;
     void set_window_always_on_top(bool p_enabled) override;
     bool is_window_always_on_top() const override;
+    bool is_window_focused() const override;
     void request_attention() override;
 
     void set_borderless_window(bool p_borderless) override;

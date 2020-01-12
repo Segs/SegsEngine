@@ -6,7 +6,7 @@
 /*                      https://godotengine.org                          */
 /*************************************************************************/
 /* Copyright (c) 2007-2019 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md)    */
+/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md).   */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -38,14 +38,7 @@ IMPL_GDCLASS(Position2D)
 
 const float DEFAULT_GIZMO_EXTENTS = 10.0;
 
-void Position2D::_draw_cross() {
-
-    float extents = get_gizmo_extents();
-	// Colors taken from `axis_x_color` and `axis_y_color` (defined in `editor/editor_themes.cpp`)
-	draw_line(Point2(-extents, 0), Point2(+extents, 0), Color(0.96f, 0.20f, 0.32f));
-	draw_line(Point2(0, -extents), Point2(0, +extents), Color(0.53f, 0.84f, 0.01f));
-}
-
+#ifdef TOOLS_ENABLED
 Rect2 Position2D::_edit_get_rect() const {
 
     float extents = get_gizmo_extents();
@@ -55,7 +48,15 @@ Rect2 Position2D::_edit_get_rect() const {
 bool Position2D::_edit_use_rect() const {
     return false;
 }
+#endif
 
+void Position2D::_draw_cross() {
+
+    float extents = get_gizmo_extents();
+    // Colors taken from `axis_x_color` and `axis_y_color` (defined in `editor/editor_themes.cpp`)
+    draw_line(Point2(-extents, 0), Point2(+extents, 0), Color(0.96f, 0.20f, 0.32f));
+    draw_line(Point2(0, -extents), Point2(0, +extents), Color(0.53f, 0.84f, 0.01f));
+}
 void Position2D::_notification(int p_what) {
 
     switch (p_what) {

@@ -6,7 +6,7 @@
 /*                      https://godotengine.org                          */
 /*************************************************************************/
 /* Copyright (c) 2007-2019 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md)    */
+/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md).   */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -7311,6 +7311,11 @@ void TextEdit::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("is_smooth_scroll_enabled"), &TextEdit::is_smooth_scroll_enabled);
     MethodBinder::bind_method(D_METHOD("set_v_scroll_speed", {"speed"}), &TextEdit::set_v_scroll_speed);
     MethodBinder::bind_method(D_METHOD("get_v_scroll_speed"), &TextEdit::get_v_scroll_speed);
+    MethodBinder::bind_method(D_METHOD("set_v_scroll", {"value"}), &TextEdit::set_v_scroll);
+    MethodBinder::bind_method(D_METHOD("get_v_scroll"), &TextEdit::get_v_scroll);
+    MethodBinder::bind_method(D_METHOD("set_h_scroll", {"value"}), &TextEdit::set_h_scroll);
+    MethodBinder::bind_method(D_METHOD("get_h_scroll"), &TextEdit::get_h_scroll);
+
 
     MethodBinder::bind_method(D_METHOD("add_keyword_color", {"keyword", "color"}), &TextEdit::add_keyword_color);
     MethodBinder::bind_method(D_METHOD("has_keyword_color", {"keyword"}), &TextEdit::has_keyword_color_utf8);
@@ -7345,6 +7350,9 @@ void TextEdit::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::REAL, "v_scroll_speed"), "set_v_scroll_speed", "get_v_scroll_speed");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "hiding_enabled"), "set_hiding_enabled", "is_hiding_enabled");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "wrap_enabled"), "set_wrap_enabled", "is_wrap_enabled");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "scroll_vertical"), "set_v_scroll", "get_v_scroll");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "scroll_horizontal"), "set_h_scroll", "get_h_scroll");
+
     ADD_GROUP("Minimap", "minimap_");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "minimap_draw"), "draw_minimap", "is_drawing_minimap");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "minimap_width"), "set_minimap_width", "get_minimap_width");

@@ -6,7 +6,7 @@
 /*                      https://godotengine.org                          */
 /*************************************************************************/
 /* Copyright (c) 2007-2019 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md)    */
+/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md).   */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -261,7 +261,9 @@ bool SpinBox::is_editable() const {
 
     return line_edit->is_editable();
 }
-
+void SpinBox::apply() {
+    _text_entered(line_edit->get_text());
+}
 void SpinBox::_bind_methods() {
 
     //MethodBinder::bind_method(D_METHOD("_value_changed"),&SpinBox::_value_changed);
@@ -275,6 +277,7 @@ void SpinBox::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_prefix"), &SpinBox::get_prefix);
     MethodBinder::bind_method(D_METHOD("set_editable", {"editable"}), &SpinBox::set_editable);
     MethodBinder::bind_method(D_METHOD("is_editable"), &SpinBox::is_editable);
+    MethodBinder::bind_method(D_METHOD("apply"), &SpinBox::apply);
     MethodBinder::bind_method(D_METHOD("_line_edit_focus_exit"), &SpinBox::_line_edit_focus_exit);
     MethodBinder::bind_method(D_METHOD("get_line_edit"), &SpinBox::get_line_edit);
     MethodBinder::bind_method(D_METHOD("_line_edit_input"), &SpinBox::_line_edit_input);
@@ -295,8 +298,8 @@ SpinBox::SpinBox() {
     line_edit->set_anchors_and_margins_preset(Control::PRESET_WIDE);
     line_edit->set_mouse_filter(MOUSE_FILTER_PASS);
     //connect("value_changed",this,"_value_changed");
-    line_edit->connect("text_entered", this, "_text_entered", Vector<Variant>(), ObjectNS::CONNECT_QUEUED);
-    line_edit->connect("focus_exited", this, "_line_edit_focus_exit", Vector<Variant>(), ObjectNS::CONNECT_QUEUED);
+    line_edit->connect("text_entered", this, "_text_entered", null_variant_pvec, ObjectNS::CONNECT_QUEUED);
+    line_edit->connect("focus_exited", this, "_line_edit_focus_exit", null_variant_pvec, ObjectNS::CONNECT_QUEUED);
     line_edit->connect("gui_input", this, "_line_edit_input");
     drag.enabled = false;
 

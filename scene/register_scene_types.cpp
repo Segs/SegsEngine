@@ -6,7 +6,7 @@
 /*                      https://godotengine.org                          */
 /*************************************************************************/
 /* Copyright (c) 2007-2019 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md)    */
+/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md).   */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -725,14 +725,36 @@ void register_scene_types() {
 
     /* REGISTER 3D */
 
-	ClassDB::register_class<Skin>();
-	ClassDB::register_virtual_class<SkinReference>();
+    ClassDB::register_class<Skin>();
+    ClassDB::register_virtual_class<SkinReference>();
 
     ClassDB::register_class<Spatial>();
     ClassDB::register_virtual_class<SpatialGizmo>();
     ClassDB::register_class<Skeleton>();
     ClassDB::register_class<AnimationPlayer>();
     ClassDB::register_class<Tween>();
+
+    ClassDB::register_class<AnimationTreePlayer>();
+    ClassDB::register_class<AnimationTree>();
+    ClassDB::register_class<AnimationNode>();
+    ClassDB::register_class<AnimationRootNode>();
+    ClassDB::register_class<AnimationNodeBlendTree>();
+    ClassDB::register_class<AnimationNodeBlendSpace1D>();
+    ClassDB::register_class<AnimationNodeBlendSpace2D>();
+    ClassDB::register_class<AnimationNodeStateMachine>();
+    ClassDB::register_class<AnimationNodeStateMachinePlayback>();
+
+    ClassDB::register_class<AnimationNodeStateMachineTransition>();
+    ClassDB::register_class<AnimationNodeOutput>();
+    ClassDB::register_class<AnimationNodeOneShot>();
+    ClassDB::register_class<AnimationNodeAnimation>();
+    ClassDB::register_class<AnimationNodeAdd2>();
+    ClassDB::register_class<AnimationNodeAdd3>();
+    ClassDB::register_class<AnimationNodeBlend2>();
+    ClassDB::register_class<AnimationNodeBlend3>();
+    ClassDB::register_class<AnimationNodeTimeScale>();
+    ClassDB::register_class<AnimationNodeTimeSeek>();
+    ClassDB::register_class<AnimationNodeTransition>();
 
     OS::get_singleton()->yield(); //may take time to init
 
@@ -761,7 +783,6 @@ void register_scene_types() {
     ClassDB::register_class<GIProbeData>();
     ClassDB::register_class<BakedLightmap>();
     ClassDB::register_class<BakedLightmapData>();
-    ClassDB::register_class<AnimationTreePlayer>();
     ClassDB::register_class<Particles>();
     ClassDB::register_class<CPUParticles>();
     ClassDB::register_class<Position3D>();
@@ -772,26 +793,7 @@ void register_scene_types() {
     ClassDB::register_class<RootMotionView>();
     ClassDB::set_class_enabled("RootMotionView", false); //disabled by default, enabled by editor
 
-    ClassDB::register_class<AnimationTree>();
-    ClassDB::register_class<AnimationNode>();
-    ClassDB::register_class<AnimationRootNode>();
-    ClassDB::register_class<AnimationNodeBlendTree>();
-    ClassDB::register_class<AnimationNodeBlendSpace1D>();
-    ClassDB::register_class<AnimationNodeBlendSpace2D>();
-    ClassDB::register_class<AnimationNodeStateMachine>();
-    ClassDB::register_class<AnimationNodeStateMachinePlayback>();
 
-    ClassDB::register_class<AnimationNodeStateMachineTransition>();
-    ClassDB::register_class<AnimationNodeOutput>();
-    ClassDB::register_class<AnimationNodeOneShot>();
-    ClassDB::register_class<AnimationNodeAnimation>();
-    ClassDB::register_class<AnimationNodeAdd2>();
-    ClassDB::register_class<AnimationNodeAdd3>();
-    ClassDB::register_class<AnimationNodeBlend2>();
-    ClassDB::register_class<AnimationNodeBlend3>();
-    ClassDB::register_class<AnimationNodeTimeScale>();
-    ClassDB::register_class<AnimationNodeTimeSeek>();
-    ClassDB::register_class<AnimationNodeTransition>();
 
     OS::get_singleton()->yield(); //may take time to init
 

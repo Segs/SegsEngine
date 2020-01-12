@@ -6,7 +6,7 @@
 /*                      https://godotengine.org                          */
 /*************************************************************************/
 /* Copyright (c) 2007-2019 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md)    */
+/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md).   */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -54,7 +54,7 @@ void BackBufferCopy::_update_copy_mode() {
         } break;
     }
 }
-
+#ifdef TOOLS_ENABLED
 Rect2 BackBufferCopy::_edit_get_rect() const {
 
     return rect;
@@ -63,6 +63,7 @@ Rect2 BackBufferCopy::_edit_get_rect() const {
 bool BackBufferCopy::_edit_use_rect() const {
     return true;
 }
+#endif
 
 Rect2 BackBufferCopy::get_anchorable_rect() const {
 

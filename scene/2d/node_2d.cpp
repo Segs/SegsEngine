@@ -6,7 +6,7 @@
 /*                      https://godotengine.org                          */
 /*************************************************************************/
 /* Copyright (c) 2007-2019 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md)    */
+/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md).   */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -38,6 +38,7 @@
 
 IMPL_GDCLASS(Node2D)
 
+#ifdef TOOLS_ENABLED
 Dictionary Node2D::_edit_get_state() const {
 
     Dictionary state;
@@ -97,16 +98,16 @@ void Node2D::_edit_set_rect(const Rect2 &p_edit_rect) {
     Rect2 r = _edit_get_rect();
 
     Vector2 zero_offset;
-    if (r.size.x != 0)
+    if (r.size.x != 0.0f)
         zero_offset.x = -r.position.x / r.size.x;
-    if (r.size.y != 0)
+    if (r.size.y != 0.0f)
         zero_offset.y = -r.position.y / r.size.y;
 
     Size2 new_scale(1, 1);
 
-    if (r.size.x != 0)
+    if (r.size.x != 0.0f)
         new_scale.x = p_edit_rect.size.x / r.size.x;
-    if (r.size.y != 0)
+    if (r.size.y != 0.0f)
         new_scale.y = p_edit_rect.size.y / r.size.y;
 
     Point2 new_pos = p_edit_rect.position + p_edit_rect.size * zero_offset;
@@ -122,6 +123,7 @@ void Node2D::_edit_set_rect(const Rect2 &p_edit_rect) {
     Object_change_notify(this,"scale");
     Object_change_notify(this,"position");
 }
+#endif
 
 void Node2D::_update_xform_values() {
 

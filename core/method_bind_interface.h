@@ -151,7 +151,7 @@ public:
         return (instance->*call_method)(p_args, p_arg_count, r_error);
     }
 
-    void set_method_info(const MethodInfo &p_info) {
+    void set_method_info(const MethodInfo &p_info, bool p_return_nil_is_variant) {
 
         set_argument_count(static_cast<int>(p_info.arguments.size()));
 #ifdef DEBUG_METHODS_ENABLED
@@ -172,7 +172,9 @@ public:
         }
         argument_types = at;
         arguments = p_info;
-        arguments.return_val.usage |= PROPERTY_USAGE_NIL_IS_VARIANT;
+        if (p_return_nil_is_variant) {
+            arguments.return_val.usage |= PROPERTY_USAGE_NIL_IS_VARIANT;
+        }
 #endif
     }
 
@@ -220,11 +222,12 @@ struct MethodBinder {
     }
 
     template <class M>
-    static MethodBind *bind_vararg_method(const StringName &p_name, M p_method, const MethodInfo &p_info = MethodInfo(), const PODVector<Variant> &p_default_args = {}) {
+    static MethodBind *bind_vararg_method(const StringName &p_name, M p_method, const MethodInfo &p_info = MethodInfo(),
+            const PODVector<Variant> &p_default_args = {}, bool p_return_nil_is_variant = true) {
 
         GLOBAL_LOCK_FUNCTION
 
-        MethodBind *bind = create_vararg_method_bind(p_method, p_info);
+        MethodBind *bind = create_vararg_method_bind(p_method, p_info, p_return_nil_is_variant);
         ERR_FAIL_COND_V(!bind, nullptr)
 
         bind->set_name(p_name);

@@ -5,8 +5,6 @@
 #include "core/io/file_access_pack.h"
 #include "core/version.h"
 
-#define PACK_VERSION 1
-
 class FileAccessPack : public FileAccess {
 
     PackedDataFile pf;
@@ -185,16 +183,14 @@ bool PackedSourcePCK::try_open_pack(se_string_view p_path, bool p_replace_files)
     if (!f)
         return false;
 
-    //printf("try open %ls!\n", p_path.c_str());
-
     uint32_t magic = f->get_32();
 
-    if (magic != 0x43504447) {
+    if (magic != PACK_HEADER_MAGIC) {
         //maybe at the end.... self contained exe
         f->seek_end();
         f->seek(f->get_position() - 4);
         magic = f->get_32();
-        if (magic != 0x43504447) {
+        if (magic != PACK_HEADER_MAGIC) {
 
             f->close();
             memdelete(f);
@@ -206,7 +202,7 @@ bool PackedSourcePCK::try_open_pack(se_string_view p_path, bool p_replace_files)
         f->seek(f->get_position() - ds - 8);
 
         magic = f->get_32();
-        if (magic != 0x43504447) {
+        if (magic != PACK_HEADER_MAGIC) {
 
             f->close();
             memdelete(f);
@@ -217,11 +213,11 @@ bool PackedSourcePCK::try_open_pack(se_string_view p_path, bool p_replace_files)
     uint32_t version = f->get_32();
     uint32_t ver_major = f->get_32();
     uint32_t ver_minor = f->get_32();
-    f->get_32(); // ver_rev
+    f->get_32(); // patch number, not used for validation.
     uint32_t major,minor,patch;
     getCoreInterface()->fillVersion(major,minor,patch);
 
-    if (version != PACK_VERSION) {
+    if (version != PACK_FORMAT_VERSION) {
         f->close();
         memdelete(f);
         ERR_FAIL_V_MSG(false, "Pack version unsupported: " + itos(version) + ".")

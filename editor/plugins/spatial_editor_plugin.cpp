@@ -6,7 +6,7 @@
 /*                      https://godotengine.org                          */
 /*************************************************************************/
 /* Copyright (c) 2007-2019 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md)    */
+/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md).   */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -5630,7 +5630,7 @@ SpatialEditor::SpatialEditor(EditorNode *p_editor) {
     hbc_menu = memnew(HBoxContainer);
     vbc->add_child(hbc_menu);
 
-    Vector<Variant> button_binds;
+    PODVector<Variant> button_binds;
     button_binds.resize(1);
     String sct;
 
@@ -5639,8 +5639,7 @@ SpatialEditor::SpatialEditor(EditorNode *p_editor) {
     tool_button[TOOL_MODE_SELECT]->set_toggle_mode(true);
     tool_button[TOOL_MODE_SELECT]->set_flat(true);
     tool_button[TOOL_MODE_SELECT]->set_pressed(true);
-    button_binds.write[0] = MENU_TOOL_SELECT;
-    tool_button[TOOL_MODE_SELECT]->connect("pressed", this, "_menu_item_pressed", button_binds);
+    tool_button[TOOL_MODE_SELECT]->connect("pressed", this, "_menu_item_pressed", { Variant(MENU_TOOL_SELECT) });
     tool_button[TOOL_MODE_SELECT]->set_shortcut(ED_SHORTCUT("spatial_editor/tool_select", TTR("Select Mode"), KEY_Q));
     tool_button[TOOL_MODE_SELECT]->set_tooltip(StringName(se_string(keycode_get_string(KEY_MASK_CMD)) + TTR("Drag: Rotate\nAlt+Drag: Move\nAlt+RMB: Depth list selection")));
 
@@ -5650,15 +5649,14 @@ SpatialEditor::SpatialEditor(EditorNode *p_editor) {
     hbc_menu->add_child(tool_button[TOOL_MODE_MOVE]);
     tool_button[TOOL_MODE_MOVE]->set_toggle_mode(true);
     tool_button[TOOL_MODE_MOVE]->set_flat(true);
-    button_binds.write[0] = MENU_TOOL_MOVE;
-    tool_button[TOOL_MODE_MOVE]->connect("pressed", this, "_menu_item_pressed", button_binds);
+    tool_button[TOOL_MODE_MOVE]->connect("pressed", this, "_menu_item_pressed", { Variant(MENU_TOOL_MOVE) });
     tool_button[TOOL_MODE_MOVE]->set_shortcut(ED_SHORTCUT("spatial_editor/tool_move", TTR("Move Mode"), KEY_W));
 
     tool_button[TOOL_MODE_ROTATE] = memnew(ToolButton);
     hbc_menu->add_child(tool_button[TOOL_MODE_ROTATE]);
     tool_button[TOOL_MODE_ROTATE]->set_toggle_mode(true);
     tool_button[TOOL_MODE_ROTATE]->set_flat(true);
-    button_binds.write[0] = MENU_TOOL_ROTATE;
+    button_binds[0] = MENU_TOOL_ROTATE;
     tool_button[TOOL_MODE_ROTATE]->connect("pressed", this, "_menu_item_pressed", button_binds);
     tool_button[TOOL_MODE_ROTATE]->set_shortcut(ED_SHORTCUT("spatial_editor/tool_rotate", TTR("Rotate Mode"), KEY_E));
 
@@ -5666,7 +5664,7 @@ SpatialEditor::SpatialEditor(EditorNode *p_editor) {
     hbc_menu->add_child(tool_button[TOOL_MODE_SCALE]);
     tool_button[TOOL_MODE_SCALE]->set_toggle_mode(true);
     tool_button[TOOL_MODE_SCALE]->set_flat(true);
-    button_binds.write[0] = MENU_TOOL_SCALE;
+    button_binds[0] = MENU_TOOL_SCALE;
     tool_button[TOOL_MODE_SCALE]->connect("pressed", this, "_menu_item_pressed", button_binds);
     tool_button[TOOL_MODE_SCALE]->set_shortcut(ED_SHORTCUT("spatial_editor/tool_scale", TTR("Scale Mode"), KEY_R));
 
@@ -5676,31 +5674,31 @@ SpatialEditor::SpatialEditor(EditorNode *p_editor) {
     hbc_menu->add_child(tool_button[TOOL_MODE_LIST_SELECT]);
     tool_button[TOOL_MODE_LIST_SELECT]->set_toggle_mode(true);
     tool_button[TOOL_MODE_LIST_SELECT]->set_flat(true);
-    button_binds.write[0] = MENU_TOOL_LIST_SELECT;
+    button_binds[0] = MENU_TOOL_LIST_SELECT;
     tool_button[TOOL_MODE_LIST_SELECT]->connect("pressed", this, "_menu_item_pressed", button_binds);
     tool_button[TOOL_MODE_LIST_SELECT]->set_tooltip(TTR("Show a list of all objects at the position clicked\n(same as Alt+RMB in select mode)."));
 
     tool_button[TOOL_LOCK_SELECTED] = memnew(ToolButton);
     hbc_menu->add_child(tool_button[TOOL_LOCK_SELECTED]);
-    button_binds.write[0] = MENU_LOCK_SELECTED;
+    button_binds[0] = MENU_LOCK_SELECTED;
     tool_button[TOOL_LOCK_SELECTED]->connect("pressed", this, "_menu_item_pressed", button_binds);
     tool_button[TOOL_LOCK_SELECTED]->set_tooltip(TTR("Lock the selected object in place (can't be moved)."));
 
     tool_button[TOOL_UNLOCK_SELECTED] = memnew(ToolButton);
     hbc_menu->add_child(tool_button[TOOL_UNLOCK_SELECTED]);
-    button_binds.write[0] = MENU_UNLOCK_SELECTED;
+    button_binds[0] = MENU_UNLOCK_SELECTED;
     tool_button[TOOL_UNLOCK_SELECTED]->connect("pressed", this, "_menu_item_pressed", button_binds);
     tool_button[TOOL_UNLOCK_SELECTED]->set_tooltip(TTR("Unlock the selected object (can be moved)."));
 
     tool_button[TOOL_GROUP_SELECTED] = memnew(ToolButton);
     hbc_menu->add_child(tool_button[TOOL_GROUP_SELECTED]);
-    button_binds.write[0] = MENU_GROUP_SELECTED;
+    button_binds[0] = MENU_GROUP_SELECTED;
     tool_button[TOOL_GROUP_SELECTED]->connect("pressed", this, "_menu_item_pressed", button_binds);
     tool_button[TOOL_GROUP_SELECTED]->set_tooltip(TTR("Makes sure the object's children are not selectable."));
 
     tool_button[TOOL_UNGROUP_SELECTED] = memnew(ToolButton);
     hbc_menu->add_child(tool_button[TOOL_UNGROUP_SELECTED]);
-    button_binds.write[0] = MENU_UNGROUP_SELECTED;
+    button_binds[0] = MENU_UNGROUP_SELECTED;
     tool_button[TOOL_UNGROUP_SELECTED]->connect("pressed", this, "_menu_item_pressed", button_binds);
     tool_button[TOOL_UNGROUP_SELECTED]->set_tooltip(TTR("Restores the object's children's ability to be selected."));
 
@@ -5710,7 +5708,7 @@ SpatialEditor::SpatialEditor(EditorNode *p_editor) {
     hbc_menu->add_child(tool_option_button[TOOL_OPT_LOCAL_COORDS]);
     tool_option_button[TOOL_OPT_LOCAL_COORDS]->set_toggle_mode(true);
     tool_option_button[TOOL_OPT_LOCAL_COORDS]->set_flat(true);
-    button_binds.write[0] = MENU_TOOL_LOCAL_COORDS;
+    button_binds[0] = MENU_TOOL_LOCAL_COORDS;
     tool_option_button[TOOL_OPT_LOCAL_COORDS]->connect("toggled", this, "_menu_item_toggled", button_binds);
     tool_option_button[TOOL_OPT_LOCAL_COORDS]->set_shortcut(ED_SHORTCUT("spatial_editor/local_coords", TTR("Use Local Space"), KEY_T));
 
@@ -5718,7 +5716,7 @@ SpatialEditor::SpatialEditor(EditorNode *p_editor) {
     hbc_menu->add_child(tool_option_button[TOOL_OPT_USE_SNAP]);
     tool_option_button[TOOL_OPT_USE_SNAP]->set_toggle_mode(true);
     tool_option_button[TOOL_OPT_USE_SNAP]->set_flat(true);
-    button_binds.write[0] = MENU_TOOL_USE_SNAP;
+    button_binds[0] = MENU_TOOL_USE_SNAP;
     tool_option_button[TOOL_OPT_USE_SNAP]->connect("toggled", this, "_menu_item_toggled", button_binds);
     tool_option_button[TOOL_OPT_USE_SNAP]->set_shortcut(ED_SHORTCUT("spatial_editor/snap", TTR("Use Snap"), KEY_Y));
 
@@ -5729,7 +5727,7 @@ SpatialEditor::SpatialEditor(EditorNode *p_editor) {
     tool_option_button[TOOL_OPT_OVERRIDE_CAMERA]->set_toggle_mode(true);
     tool_option_button[TOOL_OPT_OVERRIDE_CAMERA]->set_flat(true);
     tool_option_button[TOOL_OPT_OVERRIDE_CAMERA]->set_disabled(true);
-    button_binds.write[0] = MENU_TOOL_OVERRIDE_CAMERA;
+    button_binds[0] = MENU_TOOL_OVERRIDE_CAMERA;
     tool_option_button[TOOL_OPT_OVERRIDE_CAMERA]->connect("toggled", this, "_menu_item_toggled", button_binds);
     _update_camera_override_button(false);
 
@@ -6160,6 +6158,8 @@ void EditorSpatialGizmoPlugin::create_icon_material(const se_string &p_name, con
         icon->set_albedo(color);
 
         icon->set_flag(SpatialMaterial::FLAG_UNSHADED, true);
+        icon->set_flag(SpatialMaterial::FLAG_ALBEDO_FROM_VERTEX_COLOR, true);
+        icon->set_flag(SpatialMaterial::FLAG_SRGB_VERTEX_COLOR, true);
         icon->set_cull_mode(SpatialMaterial::CULL_DISABLED);
         icon->set_depth_draw_mode(SpatialMaterial::DEPTH_DRAW_DISABLED);
         icon->set_feature(SpatialMaterial::FEATURE_TRANSPARENT, true);

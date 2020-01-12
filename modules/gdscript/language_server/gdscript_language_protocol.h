@@ -6,7 +6,7 @@
 /*                      https://godotengine.org                          */
 /*************************************************************************/
 /* Copyright (c) 2007-2019 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md)    */
+/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md).   */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -71,10 +71,10 @@ protected:
     void initialized(const Variant &p_params);
 
 public:
-    _FORCE_INLINE_ static GDScriptLanguageProtocol *get_singleton() { return singleton; }
-    _FORCE_INLINE_ Ref<GDScriptWorkspace> get_workspace() { return workspace; }
-    _FORCE_INLINE_ Ref<GDScriptTextDocument> get_text_document() { return text_document; }
-    _FORCE_INLINE_ bool is_initialized() const { return _initialized; }
+    static GDScriptLanguageProtocol *get_singleton() { return singleton; }
+    Ref<GDScriptWorkspace> get_workspace() { return workspace; }
+    Ref<GDScriptTextDocument> get_text_document() { return text_document; }
+    bool is_initialized() const { return _initialized; }
 
     void poll();
     Error start(int p_port);

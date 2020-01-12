@@ -6,7 +6,7 @@
 /*                      https://godotengine.org                          */
 /*************************************************************************/
 /* Copyright (c) 2007-2019 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md)    */
+/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md).   */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -41,6 +41,8 @@ IMPL_GDCLASS(SpriteFrames)
 IMPL_GDCLASS(AnimatedSprite)
 
 #define NORMAL_SUFFIX "_normal"
+
+#ifdef TOOLS_ENABLED
 
 Dictionary AnimatedSprite::_edit_get_state() const {
     Dictionary state = Node2D::_edit_get_state();
@@ -79,6 +81,7 @@ bool AnimatedSprite::_edit_use_rect() const {
         t = frames->get_frame(animation, frame);
     return t;
 }
+#endif
 
 Rect2 AnimatedSprite::get_anchorable_rect() const {
     return _get_rect();

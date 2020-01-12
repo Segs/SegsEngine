@@ -11,7 +11,7 @@
 ## bullet
 
 - Upstream: https://github.com/bulletphysics/bullet3
-- Version: git (5ec8339, 2019)
+- Version: 2.89
 - License: zlib
 
 Files extracted from upstream source:
@@ -46,7 +46,7 @@ Files extracted from upstream source:
 ## enet
 
 - Upstream: http://enet.bespin.org
-- Version: 1.3.13
+- Version: 1.3.14 (0eaf48e, 2019)
 - License: MIT
 
 Files extracted from upstream source:
@@ -512,15 +512,13 @@ File extracted from upstream release tarball:
 ## xatlas
 
 - Upstream: https://github.com/jpcy/xatlas
-- Version: git (b4b5426, 2019)
+- Version: git (e12ea82, 2019)
 - License: MIT
 
 Files extracted from upstream source:
 
 - `xatlas.{cpp,h}`
-
-Note: License is marked as Public Domain in the files, but it was
-later clarified upstream to MIT license.
+- `LICENSE`
 
 
 ## zlib

@@ -6,7 +6,7 @@
 /*                      https://godotengine.org                          */
 /*************************************************************************/
 /* Copyright (c) 2007-2019 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md)    */
+/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md).   */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -231,7 +231,7 @@ void EditorSpatialGizmo::add_mesh(const Ref<ArrayMesh> &p_mesh, bool p_billboard
     instances.push_back(ins);
 }
 
-void EditorSpatialGizmo::add_lines(const PODVector<Vector3> &p_lines, const Ref<Material> &p_material, bool p_billboard) {
+void EditorSpatialGizmo::add_lines(const PODVector<Vector3> &p_lines, const Ref<Material> &p_material, bool p_billboard, const Color &p_modulate) {
 
     if (p_lines.empty()) {
         return;
@@ -255,6 +255,7 @@ void EditorSpatialGizmo::add_lines(const PODVector<Vector3> &p_lines, const Ref<
                 w[i] = Color(1, 1, 1, 0.8f);
             else
                 w[i] = Color(1, 1, 1, 0.2f);
+            w[i] *=  p_modulate;
         }
     }
 
@@ -284,7 +285,7 @@ void EditorSpatialGizmo::add_lines(const PODVector<Vector3> &p_lines, const Ref<
     instances.push_back(ins);
 }
 
-void EditorSpatialGizmo::add_unscaled_billboard(const Ref<Material> &p_material, float p_scale) {
+void EditorSpatialGizmo::add_unscaled_billboard(const Ref<Material> &p_material, float p_scale, const Color &p_modulate) {
 
     ERR_FAIL_COND(!spatial_node)
     Instance ins;
@@ -302,12 +303,20 @@ void EditorSpatialGizmo::add_unscaled_billboard(const Ref<Material> &p_material,
         Vector2(1, 1),
         Vector2(0, 1),
     };
+    PODVector<Color> colors = {
+        p_modulate,
+        p_modulate,
+        p_modulate,
+        p_modulate
+    };
 
     Ref<ArrayMesh> mesh(make_ref_counted<ArrayMesh>());
     Array a;
     a.resize(Mesh::ARRAY_MAX);
     a[Mesh::ARRAY_VERTEX] = vs;
     a[Mesh::ARRAY_TEX_UV] = uv;
+    a[Mesh::ARRAY_COLOR] = colors;
+
     mesh->add_surface_from_arrays(Mesh::PRIMITIVE_TRIANGLE_FAN, a);
     mesh->surface_set_material(0, p_material);
 
@@ -763,11 +772,11 @@ void EditorSpatialGizmo::set_plugin(EditorSpatialGizmoPlugin *p_plugin) {
 
 void EditorSpatialGizmo::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("add_lines", {"lines", "material", "billboard"}), &EditorSpatialGizmo::add_lines, {DEFVAL(false)});
+    MethodBinder::bind_method(D_METHOD("add_lines", {"lines", "material", "billboard","modulate"}), &EditorSpatialGizmo::add_lines, {DEFVAL(false),DEFVAL(Color(1, 1, 1))});
     MethodBinder::bind_method(D_METHOD("add_mesh", {"mesh", "billboard", "skeleton", "material"}), &EditorSpatialGizmo::add_mesh, {DEFVAL(false), DEFVAL(Ref<SkinReference>()), DEFVAL(Variant())});
     MethodBinder::bind_method(D_METHOD("add_collision_segments", {"segments"}), &EditorSpatialGizmo::add_collision_segments);
     MethodBinder::bind_method(D_METHOD("add_collision_triangles", {"triangles"}), &EditorSpatialGizmo::add_collision_triangles);
-    MethodBinder::bind_method(D_METHOD("add_unscaled_billboard", {"material", "default_scale"}), &EditorSpatialGizmo::add_unscaled_billboard, {DEFVAL(1)});
+    MethodBinder::bind_method(D_METHOD("add_unscaled_billboard", {"material", "default_scale","modulate"}), &EditorSpatialGizmo::add_unscaled_billboard, {DEFVAL(1),DEFVAL(Color(1, 1, 1))});
     MethodBinder::bind_method(D_METHOD("add_handles", {"handles", "material", "billboard", "secondary"}), &EditorSpatialGizmo::add_handles, {DEFVAL(false), DEFVAL(false)});
     MethodBinder::bind_method(D_METHOD("set_spatial_node", {"node"}), &EditorSpatialGizmo::_set_spatial_node);
     MethodBinder::bind_method(D_METHOD("get_spatial_node"), &EditorSpatialGizmo::get_spatial_node);
@@ -820,9 +829,10 @@ LightSpatialGizmoPlugin::LightSpatialGizmoPlugin() {
 
     Color gizmo_color = EDITOR_DEF("editors/3d_gizmos/gizmo_colors/light", Color(1, 1, 0.7f));
 
-    create_material("lines_primary", gizmo_color);
-    create_material("lines_secondary", gizmo_color * Color(1, 1, 1, 0.35f));
-    create_material("lines_billboard", gizmo_color, true);
+    // Enable vertex colors for the materials below as the gizmo color depends on the light color.
+    create_material("lines_primary", Color(1, 1, 1), false, false, true);
+    create_material("lines_secondary", Color(1, 1, 1, 0.35f), false, false, true);
+    create_material("lines_billboard", Color(1, 1, 1), true, false, true);
 
     create_icon_material("light_directional_icon", SpatialEditor::get_singleton()->get_icon("GizmoDirectionalLight", "EditorIcons"));
     create_icon_material("light_omni_icon", SpatialEditor::get_singleton()->get_icon("GizmoLight", "EditorIcons"));
@@ -969,6 +979,10 @@ void LightSpatialGizmoPlugin::redraw(EditorSpatialGizmo *p_gizmo) {
 
     Light *light = object_cast<Light>(p_gizmo->get_spatial_node());
 
+    Color color = light->get_color();
+    // Make the gizmo color as bright as possible for better visibility
+    color.set_hsv(color.get_h(), color.get_s(), 1);
+
     p_gizmo->clear();
     Ref<EditorSpatialGizmo> ref_gizmo(p_gizmo);
 
@@ -1006,8 +1020,8 @@ void LightSpatialGizmoPlugin::redraw(EditorSpatialGizmo *p_gizmo) {
             }
         }
 
-        p_gizmo->add_lines(lines, material);
-        p_gizmo->add_unscaled_billboard(icon, 0.05f);
+        p_gizmo->add_lines(lines, material, false, color);
+        p_gizmo->add_unscaled_billboard(icon, 0.05f, color);
     }
 
     if (object_cast<OmniLight>(light)) {
@@ -1047,9 +1061,9 @@ void LightSpatialGizmoPlugin::redraw(EditorSpatialGizmo *p_gizmo) {
             points_billboard.push_back(Vector3(b.x, b.y, 0));
         }
 
-        p_gizmo->add_lines(points, lines_material, true);
-        p_gizmo->add_lines(points_billboard, lines_billboard_material, true);
-        p_gizmo->add_unscaled_billboard(icon, 0.05f);
+        p_gizmo->add_lines(points, lines_material, true, color);
+        p_gizmo->add_lines(points_billboard, lines_billboard_material, true, color);
+        p_gizmo->add_unscaled_billboard(icon, 0.05f, color);
 
         Vector<Vector3> handles;
         handles.push_back(Vector3(r, 0, 0));
@@ -1091,8 +1105,8 @@ void LightSpatialGizmoPlugin::redraw(EditorSpatialGizmo *p_gizmo) {
         points_primary.push_back(Vector3(0, 0, -r));
         points_primary.push_back(Vector3());
 
-        p_gizmo->add_lines(points_primary, material_primary);
-        p_gizmo->add_lines(points_secondary, material_secondary);
+        p_gizmo->add_lines(points_primary, material_primary, false, color);
+        p_gizmo->add_lines(points_secondary, material_secondary, false, color);
 
         constexpr float ra = 16 * Math_PI * 2.0f / 64.0f;
         const Point2 a = Vector2(Math::sin(ra), Math::cos(ra)) * w;
@@ -1102,7 +1116,7 @@ void LightSpatialGizmoPlugin::redraw(EditorSpatialGizmo *p_gizmo) {
         handles.push_back(Vector3(a.x, a.y, -d));
 
         p_gizmo->add_handles(handles, get_material("handles"));
-        p_gizmo->add_unscaled_billboard(icon, 0.05f);
+        p_gizmo->add_unscaled_billboard(icon, 0.05f,color);
     }
 }
 
@@ -1317,7 +1331,7 @@ void CameraSpatialGizmoPlugin::set_handle(EditorSpatialGizmo *p_gizmo, int p_idx
     if (camera->get_projection() == Camera::PROJECTION_PERSPECTIVE) {
         Transform gt2 = camera->get_global_transform();
         float a = _find_closest_angle_to_half_pi_arc(s[0], s[1], 1.0, gt2);
-        camera->set("fov", a * 2.0f);
+        camera->set("fov", CLAMP(a * 2.0f, 1, 179));
     } else {
 
         Vector3 ra, rb;
@@ -1327,8 +1341,7 @@ void CameraSpatialGizmoPlugin::set_handle(EditorSpatialGizmo *p_gizmo, int p_idx
             d = Math::stepify(d, SpatialEditor::get_singleton()->get_translate_snap());
         }
 
-        if (d < 0)
-            d = 0;
+        d = CLAMP(d, 0.1, 16384);
 
         camera->set("size", d);
     }

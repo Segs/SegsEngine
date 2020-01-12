@@ -6,7 +6,7 @@
 /*                      https://godotengine.org                          */
 /*************************************************************************/
 /* Copyright (c) 2007-2019 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md)    */
+/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md).   */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -2037,54 +2037,55 @@ MethodInfo GDScriptFunctions::get_info(Function p_func) {
             MethodInfo mi("hash", PropertyInfo(VariantType::NIL, "var", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_NIL_IS_VARIANT));
             mi.return_val.type = VariantType::INT;
             return mi;
-        } break;
+        }
         case COLOR8: {
 
             MethodInfo mi("Color8", PropertyInfo(VariantType::INT, "r8"), PropertyInfo(VariantType::INT, "g8"), PropertyInfo(VariantType::INT, "b8"), PropertyInfo(VariantType::INT, "a8"));
             mi.default_arguments.push_back(255);
             mi.return_val.type = VariantType::COLOR;
             return mi;
-        } break;
+        }
         case COLORN: {
 
             MethodInfo mi("ColorN", PropertyInfo(VariantType::STRING, "name"), PropertyInfo(VariantType::REAL, "alpha"));
             mi.default_arguments.push_back(1.0f);
             mi.return_val.type = VariantType::COLOR;
             return mi;
-        } break;
+        }
 
         case PRINT_STACK: {
             MethodInfo mi("print_stack");
             mi.return_val.type = VariantType::NIL;
             return mi;
-        } break;
+        }
         case GET_STACK: {
             MethodInfo mi("get_stack");
             mi.return_val.type = VariantType::ARRAY;
             return mi;
-        } break;
+        }
 
         case INSTANCE_FROM_ID: {
             MethodInfo mi("instance_from_id", PropertyInfo(VariantType::INT, "instance_id"));
             mi.return_val.type = VariantType::OBJECT;
             return mi;
-        } break;
+        }
         case LEN: {
             MethodInfo mi("len", PropertyInfo(VariantType::NIL, "var", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_NIL_IS_VARIANT));
             mi.return_val.type = VariantType::INT;
             return mi;
-        } break;
+        }
         case IS_INSTANCE_VALID: {
             MethodInfo mi("is_instance_valid", PropertyInfo(VariantType::OBJECT, "instance"));
             mi.return_val.type = VariantType::BOOL;
             return mi;
-        } break;
-        case FUNC_MAX: {
+        }
+        default: {
 
             ERR_FAIL_V(MethodInfo());
         } break;
     }
 #endif
-
-    return MethodInfo();
+    MethodInfo mi;
+    mi.return_val.usage |= PROPERTY_USAGE_NIL_IS_VARIANT;
+    return mi;
 }

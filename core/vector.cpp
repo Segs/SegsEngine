@@ -12,3 +12,4 @@ template class EXPORT_TEMPLATE_DEFINE(GODOT_EXPORT) eastl::vector<struct Vector2
 template class EXPORT_TEMPLATE_DEFINE(GODOT_EXPORT) eastl::vector<struct Vector3>;
 
 const Vector<Variant> null_variant_vec;
+const PODVector<Variant> null_variant_pvec;

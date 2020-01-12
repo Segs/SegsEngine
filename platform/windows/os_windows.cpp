@@ -6,7 +6,7 @@
 /*                      https://godotengine.org                          */
 /*************************************************************************/
 /* Copyright (c) 2007-2019 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md)    */
+/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md).   */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -345,12 +345,14 @@ LRESULT OS_Windows::WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
             if (LOWORD(wParam) == WA_ACTIVE || LOWORD(wParam) == WA_CLICKACTIVE) {
 
                 main_loop->notification(MainLoop::NOTIFICATION_WM_FOCUS_IN);
+                window_focused = true;
                 alt_mem = false;
                 control_mem = false;
                 shift_mem = false;
             } else { // WM_INACTIVE
                 input->release_pressed_events();
                 main_loop->notification(MainLoop::NOTIFICATION_WM_FOCUS_OUT);
+                window_focused = false;
                 alt_mem = false;
             }
 
@@ -2054,7 +2056,9 @@ void OS_Windows::set_window_always_on_top(bool p_enabled) {
 bool OS_Windows::is_window_always_on_top() const {
     return video_mode.always_on_top;
 }
-
+bool OS_Windows::is_window_focused() const {
+    return window_focused;
+}
 void OS_Windows::set_console_visible(bool p_enabled) {
     if (console_visible == p_enabled)
         return;
@@ -3249,6 +3253,7 @@ OS_Windows::OS_Windows(HINSTANCE _hInstance) {
     meta_mem = false;
     minimized = false;
     was_maximized = false;
+    window_focused = true;
     console_visible = IsWindowVisible(GetConsoleWindow());
 
     //Note: Functions for pen input, available on Windows 8+

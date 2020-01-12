@@ -6,7 +6,7 @@
 /*                      https://godotengine.org                          */
 /*************************************************************************/
 /* Copyright (c) 2007-2019 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md)    */
+/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md).   */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -35,83 +35,87 @@
 
 class NavigationPolygon : public Resource {
 
-	GDCLASS(NavigationPolygon,Resource)
+    GDCLASS(NavigationPolygon,Resource)
 
-	PoolVector<Vector2> vertices;
-	struct Polygon {
-		Vector<int> indices;
-	};
-	Vector<Polygon> polygons;
-	Vector<PoolVector<Vector2> > outlines;
+    PoolVector<Vector2> vertices;
+    struct Polygon {
+        Vector<int> indices;
+    };
+    Vector<Polygon> polygons;
+    Vector<PoolVector<Vector2> > outlines;
 
-	mutable Rect2 item_rect;
-	mutable bool rect_cache_dirty;
+    mutable Rect2 item_rect;
+    mutable bool rect_cache_dirty;
 
 protected:
-	static void _bind_methods();
+    static void _bind_methods();
 
-	void _set_polygons(const Array &p_array);
-	Array _get_polygons() const;
+    void _set_polygons(const Array &p_array);
+    Array _get_polygons() const;
 
-	void _set_outlines(const Array &p_array);
-	Array _get_outlines() const;
+    void _set_outlines(const Array &p_array);
+    Array _get_outlines() const;
 
 public:
-	Rect2 _edit_get_rect() const;
+#ifdef TOOLS_ENABLED
+    Rect2 _edit_get_rect() const;
     bool _edit_is_selected_on_click(const Point2 &p_point, float p_tolerance) const;
+#endif
 
-	void set_vertices(const PoolVector<Vector2> &p_vertices);
-	PoolVector<Vector2> get_vertices() const;
+    void set_vertices(const PoolVector<Vector2> &p_vertices);
+    PoolVector<Vector2> get_vertices() const;
 
-	void add_polygon(const Vector<int> &p_polygon);
-	int get_polygon_count() const;
+    void add_polygon(const Vector<int> &p_polygon);
+    int get_polygon_count() const;
 
-	void add_outline(const PoolVector<Vector2> &p_outline);
-	void add_outline_at_index(const PoolVector<Vector2> &p_outline, int p_index);
-	void set_outline(int p_idx, const PoolVector<Vector2> &p_outline);
-	PoolVector<Vector2> get_outline(int p_idx) const;
-	void remove_outline(int p_idx);
-	int get_outline_count() const;
+    void add_outline(const PoolVector<Vector2> &p_outline);
+    void add_outline_at_index(const PoolVector<Vector2> &p_outline, int p_index);
+    void set_outline(int p_idx, const PoolVector<Vector2> &p_outline);
+    PoolVector<Vector2> get_outline(int p_idx) const;
+    void remove_outline(int p_idx);
+    int get_outline_count() const;
 
-	void clear_outlines();
-	void make_polygons_from_outlines();
+    void clear_outlines();
+    void make_polygons_from_outlines();
 
-	Vector<int> get_polygon(int p_idx);
-	void clear_polygons();
+    Vector<int> get_polygon(int p_idx);
+    void clear_polygons();
 
-	NavigationPolygon();
+    NavigationPolygon();
 };
 
 class Navigation2D;
 
 class NavigationPolygonInstance : public Node2D {
 
-	GDCLASS(NavigationPolygonInstance,Node2D)
+    GDCLASS(NavigationPolygonInstance,Node2D)
 
-	bool enabled;
-	int nav_id;
-	Navigation2D *navigation;
-	Ref<NavigationPolygon> navpoly;
+    bool enabled;
+    int nav_id;
+    Navigation2D *navigation;
+    Ref<NavigationPolygon> navpoly;
 
-	void _navpoly_changed();
+    void _navpoly_changed();
 
 protected:
-	void _notification(int p_what);
-	static void _bind_methods();
+    void _notification(int p_what);
+    static void _bind_methods();
 
 public:
-	Rect2 _edit_get_rect() const override;
+#ifdef TOOLS_ENABLED
+    Rect2 _edit_get_rect() const override;
     bool _edit_is_selected_on_click(const Point2 &p_point, float p_tolerance) const override;
+#endif
 
-	void set_enabled(bool p_enabled);
-	bool is_enabled() const;
+    void set_enabled(bool p_enabled);
+    bool is_enabled() const;
 
-	void set_navigation_polygon(const Ref<NavigationPolygon> &p_navpoly);
-	Ref<NavigationPolygon> get_navigation_polygon() const;
+    void set_navigation_polygon(const Ref<NavigationPolygon> &p_navpoly);
+    Ref<NavigationPolygon> get_navigation_polygon() const;
 
     StringName get_configuration_warning() const override;
 
-	NavigationPolygonInstance();
+    NavigationPolygonInstance();
 };
 
 #endif // NAVIGATIONPOLYGON_H

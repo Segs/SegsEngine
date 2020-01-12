@@ -6,7 +6,7 @@
 /*                      https://godotengine.org                          */
 /*************************************************************************/
 /* Copyright (c) 2007-2019 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md)    */
+/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md).   */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -1020,8 +1020,8 @@ void ScriptEditor::_menu_option(int p_option) {
 
     switch (p_option) {
         case FILE_NEW: {
-            script_create_dialog->config("Node", "new_script");
-            script_create_dialog->popup_centered(Size2(300, 300) * EDSCALE);
+            script_create_dialog->config("Node", "new_script",false,false);
+            script_create_dialog->popup_centered();
         } break;
         case FILE_NEW_TEXTFILE: {
             file_dialog->set_mode(EditorFileDialog::MODE_SAVE_FILE);

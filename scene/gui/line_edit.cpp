@@ -6,7 +6,7 @@
 /*                      https://godotengine.org                          */
 /*************************************************************************/
 /* Copyright (c) 2007-2019 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md)    */
+/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md).   */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -640,8 +640,11 @@ void LineEdit::_gui_input(const Ref<InputEvent>& p_event) {
 
                     if (editable) {
                         selection_delete();
+                        int prev_len = m_priv->text.length();
                         append_at_cursor(StringUtils::to_utf8(String(k->get_unicode())));
-                        _text_changed();
+                        if(prev_len!=m_priv->text.length()) {
+                            _text_changed();
+                        }
                         accept_event();
                     }
 
@@ -1044,11 +1047,12 @@ void LineEdit::paste_text() {
 
     if (!paste_buffer.empty()) {
 
+        int prev_len = m_priv->text.length();
         if (selection.enabled) selection_delete();
         append_at_cursor(paste_buffer);
 
         if (!text_changed_dirty) {
-            if (is_inside_tree()) {
+            if (is_inside_tree() && m_priv->text.length()!=prev_len) {
                 MessageQueue::get_singleton()->push_call(this, "_text_changed");
             }
             text_changed_dirty = true;
@@ -1252,7 +1256,7 @@ void LineEdit::delete_char() {
 
     set_cursor_position(get_cursor_position() - 1);
     if (align == ALIGN_CENTER || align == ALIGN_RIGHT) {
-        m_priv->window_pos = CLAMP(m_priv->window_pos - 1, 0, m_priv->text.length() - 1);
+        m_priv->window_pos = CLAMP(m_priv->window_pos - 1, 0, MAX(0,m_priv->text.length() - 1));
     }
     _text_changed();
 }
@@ -1281,7 +1285,7 @@ void LineEdit::delete_text(int p_from_column, int p_to_column) {
         m_priv->window_pos = cursor_pos;
     }
     if (align == ALIGN_CENTER || align == ALIGN_RIGHT) {
-        m_priv->window_pos = CLAMP(m_priv->window_pos - (p_to_column - p_from_column), 0, m_priv->text.length() - 1);
+        m_priv->window_pos = CLAMP(m_priv->window_pos - (p_to_column - p_from_column), 0, MAX(0,m_priv->text.length() - 1));
     }
     if (!text_changed_dirty) {
         if (is_inside_tree()) {
@@ -1435,6 +1439,8 @@ void LineEdit::append_at_cursor(se_string_view _text) {
         String post = StringUtils::substr(m_priv->text,cursor_pos, m_priv->text.length() - cursor_pos);
         m_priv->text = pre + p_text + post;
         set_cursor_position(cursor_pos + p_text.length());
+    } else {
+        emit_signal("text_change_rejected");
     }
 }
 
@@ -1826,6 +1832,7 @@ void LineEdit::_bind_methods() {
 
     ADD_SIGNAL(MethodInfo("text_changed", PropertyInfo(VariantType::STRING, "new_text")));
     ADD_SIGNAL(MethodInfo("text_entered", PropertyInfo(VariantType::STRING, "new_text")));
+    ADD_SIGNAL(MethodInfo("text_change_rejected"));
 
     BIND_ENUM_CONSTANT(ALIGN_LEFT)
     BIND_ENUM_CONSTANT(ALIGN_CENTER)

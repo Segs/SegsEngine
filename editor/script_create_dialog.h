@@ -6,7 +6,7 @@
 /*                      https://godotengine.org                          */
 /*************************************************************************/
 /* Copyright (c) 2007-2019 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md)    */
+/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md).   */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -44,6 +44,17 @@ class CreateDialog;
 class ScriptCreateDialog : public ConfirmationDialog {
     GDCLASS(ScriptCreateDialog,ConfirmationDialog)
 
+    enum ScriptOrigin {
+        SCRIPT_ORIGIN_PROJECT,
+        SCRIPT_ORIGIN_EDITOR,
+    };
+    struct ScriptTemplateInfo {
+        int id;
+        ScriptOrigin origin;
+        se_string dir;
+        se_string name;
+        se_string extension;
+    };
     LineEdit *class_name;
     Label *error_label;
     Label *path_error_label;
@@ -57,14 +68,19 @@ class ScriptCreateDialog : public ConfirmationDialog {
     Button *path_button;
     EditorFileDialog *file_browse;
     CheckBox *internal;
-    Label *internal_label;
     VBoxContainer *path_vb;
     AcceptDialog *alert;
     CreateDialog *select_class;
+    se_string initial_bp;
+    se_string script_template;
+    Vector<ScriptTemplateInfo> template_list;
+    Map<se_string, Vector<int> > template_overrides; // name : indices
+    se_string base_type;
+    int current_language;
+    int default_language;
     bool path_valid;
     bool create_new;
     bool is_browsing_parent;
-    se_string initial_bp;
     bool is_new_script_created;
     bool is_path_valid;
     bool has_named_classes;
@@ -74,26 +90,10 @@ class ScriptCreateDialog : public ConfirmationDialog {
     bool is_class_name_valid;
     bool is_built_in;
     bool built_in_enabled;
-    int current_language;
-    int default_language;
+    bool load_enabled;
     bool re_check_path;
-    enum ScriptOrigin {
-        SCRIPT_ORIGIN_PROJECT,
-        SCRIPT_ORIGIN_EDITOR,
-    };
-    struct ScriptTemplateInfo {
-        int id;
-        ScriptOrigin origin;
-        se_string dir;
-        se_string name;
-        se_string extension;
-    };
-    se_string script_template;
-    Vector<ScriptTemplateInfo> template_list;
-    Map<se_string, Vector<int> > template_overrides; // name : indices
 
     void _update_script_templates(const se_string &p_extension);
-    se_string base_type;
 
     void _path_hbox_sorted();
     bool _can_be_built_in();
@@ -123,7 +123,7 @@ protected:
     static void _bind_methods();
 
 public:
-    void config(se_string_view p_base_name, se_string_view p_base_path, bool p_built_in_enabled = true);
+    void config(se_string_view p_base_name, se_string_view p_base_path, bool p_built_in_enabled = true, bool p_load_enabled=true);
     void set_inheritance_base_type(const StringName &p_base);
     ScriptCreateDialog();
 };

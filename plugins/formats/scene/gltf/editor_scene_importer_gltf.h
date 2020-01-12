@@ -6,7 +6,7 @@
 /*                      https://godotengine.org                          */
 /*************************************************************************/
 /* Copyright (c) 2007-2019 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md)    */
+/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md).   */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -151,33 +151,20 @@ class EditorSceneImporterGLTF : public QObject, public EditorSceneImporterInterf
 
     struct GLTFAccessor {
 
-        GLTFBufferViewIndex buffer_view;
-        int byte_offset;
-        int component_type;
-        bool normalized;
-        int count;
-        GLTFType type;
-        float min;
-        float max;
-        int sparse_count;
-        int sparse_indices_buffer_view;
-        int sparse_indices_byte_offset;
+        GLTFBufferViewIndex buffer_view=0;
+        int byte_offset=0;
+        int component_type=0;
+        bool normalized=false;
+        int count=0;
+        GLTFType type=TYPE_SCALAR;
+        float min=0;
+        float max=0;
+        int sparse_count=0;
+        int sparse_indices_buffer_view=0;
+        int sparse_indices_byte_offset=0;
         int sparse_indices_component_type;
-        int sparse_values_buffer_view;
-        int sparse_values_byte_offset;
-
-        GLTFAccessor() {
-            buffer_view = 0;
-            byte_offset = 0;
-            component_type = 0;
-            normalized = false;
-            count = 0;
-            min = 0;
-            max = 0;
-            sparse_count = 0;
-            sparse_indices_byte_offset = 0;
-            sparse_values_byte_offset = 0;
-        }
+        int sparse_values_buffer_view=0;
+        int sparse_values_byte_offset=0;
     };
     struct GLTFTexture {
         GLTFImageIndex src_image;
@@ -288,6 +275,7 @@ class EditorSceneImporterGLTF : public QObject, public EditorSceneImporterInterf
         se_string name;
 
         Map<int, Track> tracks;
+        bool loop = false;
     };
 
     struct GLTFState {

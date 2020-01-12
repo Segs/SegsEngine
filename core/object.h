@@ -6,7 +6,7 @@
 /*                      https://godotengine.org                          */
 /*************************************************************************/
 /* Copyright (c) 2007-2019 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md)    */
+/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md).   */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -241,7 +241,7 @@ public:
 
     struct Connection {
 
-        Vector<Variant> binds;
+        PODVector<Variant> binds;
         StringName signal;
         StringName method;
         Object *source = nullptr;
@@ -459,7 +459,8 @@ public:
     int get_persistent_signal_connection_count() const;
     void get_signals_connected_to_this(ListPOD<Connection> *p_connections) const;
 
-    Error connect(const StringName &p_signal, Object *p_to_object, const StringName &p_to_method, const Vector<Variant> &p_binds = null_variant_vec, uint32_t p_flags = 0);
+    Error connect(const StringName &p_signal, Object *p_to_object, const StringName &p_to_method, const PODVector<Variant> &p_binds =
+        null_variant_pvec, uint32_t p_flags = 0);
     void disconnect(const StringName &p_signal, Object *p_to_object, const StringName &p_to_method);
     bool is_connected(const StringName &p_signal, Object *p_to_object, const StringName &p_to_method) const;
 

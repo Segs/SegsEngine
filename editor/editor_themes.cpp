@@ -6,7 +6,7 @@
 /*                      https://godotengine.org                          */
 /*************************************************************************/
 /* Copyright (c) 2007-2019 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md)    */
+/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md).   */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -1077,6 +1077,9 @@ Ref<Theme> create_editor_theme(const Ref<Theme>& p_theme) {
         theme->set_color("grid_major", "GraphEdit", Color(0.0f, 0.0f, 0.0f, 0.15f));
         theme->set_color("grid_minor", "GraphEdit", Color(0.0f, 0.0f, 0.0f, 0.07f));
     }
+    theme->set_color("selection_fill", "GraphEdit", theme->get_color("box_selection_fill_color", "Editor"));
+    theme->set_color("selection_stroke", "GraphEdit", theme->get_color("box_selection_stroke_color", "Editor"));
+
     theme->set_color("activity", "GraphEdit", accent_color);
     theme->set_icon("minus", "GraphEdit", theme->get_icon("ZoomLess", "EditorIcons"));
     theme->set_icon("more", "GraphEdit", theme->get_icon("ZoomMore", "EditorIcons"));

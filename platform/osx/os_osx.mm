@@ -6,7 +6,7 @@
 /*                      https://godotengine.org                          */
 /*************************************************************************/
 /* Copyright (c) 2007-2019 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md)    */
+/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md).   */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -405,8 +405,6 @@ static CVReturn DisplayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeSt
 }
 
 - (void)windowDidBecomeKey:(NSNotification *)notification {
-    //_GodotInputWindowFocus(window, GL_TRUE);
-    //_GodotPlatformSetCursorMode(window, window->cursorMode);
 
     if (OS_OSX::singleton->get_main_loop()) {
         get_mouse_pos(
@@ -416,25 +414,28 @@ static CVReturn DisplayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeSt
 
         OS_OSX::singleton->get_main_loop()->notification(MainLoop::NOTIFICATION_WM_FOCUS_IN);
     }
+    OS_OSX::singleton->window_focused = true;
 }
 
 - (void)windowDidResignKey:(NSNotification *)notification {
-    //_GodotInputWindowFocus(window, GL_FALSE);
-    //_GodotPlatformSetCursorMode(window, Godot_CURSOR_NORMAL);
     if (OS_OSX::singleton->get_main_loop())
         OS_OSX::singleton->get_main_loop()->notification(MainLoop::NOTIFICATION_WM_FOCUS_OUT);
+
+    OS_OSX::singleton->window_focused = false;
 }
 
 - (void)windowDidMiniaturize:(NSNotification *)notification {
     OS_OSX::singleton->wm_minimized(true);
     if (OS_OSX::singleton->get_main_loop())
         OS_OSX::singleton->get_main_loop()->notification(MainLoop::NOTIFICATION_WM_FOCUS_OUT);
+    OS_OSX::singleton->window_focused = false;
 };
 
 - (void)windowDidDeminiaturize:(NSNotification *)notification {
     OS_OSX::singleton->wm_minimized(false);
     if (OS_OSX::singleton->get_main_loop())
         OS_OSX::singleton->get_main_loop()->notification(MainLoop::NOTIFICATION_WM_FOCUS_IN);
+    OS_OSX::singleton->window_focused = true;
 };
 
 @end
@@ -3008,6 +3009,7 @@ OS_OSX::OS_OSX(void *) {
     window_size = Vector2(1024, 600);
     zoomed = false;
     resizable = false;
+    window_focused = true;
 
     Vector<Logger *> loggers;
     loggers.push_back(memnew(OSXTerminalLogger));

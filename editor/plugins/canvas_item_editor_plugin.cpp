@@ -6,7 +6,7 @@
 /*                      https://godotengine.org                          */
 /*************************************************************************/
 /* Copyright (c) 2007-2019 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md)    */
+/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md).   */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -286,9 +286,11 @@ void CanvasItemEditor::_snap_if_closer_point(
         real_t rotation,
         float p_radius) {
     Transform2D rot_trans = Transform2D(rotation, Point2());
-    p_value = rot_trans.inverse().xform(p_value);
-    p_target_value = rot_trans.inverse().xform(p_target_value);
-    r_current_snap = rot_trans.inverse().xform(r_current_snap);
+    Transform2D rot_trans_inv = rot_trans.inverse();
+
+    p_value = rot_trans_inv.xform(p_value);
+    p_target_value = rot_trans_inv.xform(p_target_value);
+    r_current_snap = rot_trans_inv.xform(r_current_snap);
 
     _snap_if_closer_float(
             p_value.x,
@@ -990,209 +992,230 @@ bool CanvasItemEditor::_gui_input_rulers_and_guides(const Ref<InputEvent> &p_eve
     Ref<InputEventMouseMotion> m = dynamic_ref_cast<InputEventMouseMotion>(p_event);
 
     if (drag_type == DRAG_NONE) {
-        if (show_guides && show_rulers && EditorNode::get_singleton()->get_edited_scene()) {
-            Transform2D xform = viewport_scrollable->get_transform() * transform;
-            // Retrieve the guide lists
-            Array vguides;
-            if (EditorNode::get_singleton()->get_edited_scene()->has_meta("_edit_vertical_guides_")) {
-                vguides = EditorNode::get_singleton()->get_edited_scene()->get_meta("_edit_vertical_guides_");
-            }
-            Array hguides;
-            if (EditorNode::get_singleton()->get_edited_scene()->has_meta("_edit_horizontal_guides_")) {
-                hguides = EditorNode::get_singleton()->get_edited_scene()->get_meta("_edit_horizontal_guides_");
+        if (!show_guides || !show_rulers || !EditorNode::get_singleton()->get_edited_scene()) {
+            return false;
+        }
+        Transform2D xform = viewport_scrollable->get_transform() * transform;
+        // Retrieve the guide lists
+        Array vguides;
+        if (EditorNode::get_singleton()->get_edited_scene()->has_meta("_edit_vertical_guides_")) {
+            vguides = EditorNode::get_singleton()->get_edited_scene()->get_meta("_edit_vertical_guides_");
+        }
+        Array hguides;
+        if (EditorNode::get_singleton()->get_edited_scene()->has_meta("_edit_horizontal_guides_")) {
+            hguides = EditorNode::get_singleton()->get_edited_scene()->get_meta("_edit_horizontal_guides_");
+        }
+
+        // Hover over guides
+        float minimum = 1e20f;
+        is_hovering_h_guide = false;
+        is_hovering_v_guide = false;
+
+        if (m && m->get_position().x < RULER_WIDTH) {
+            // Check if we are hovering an existing horizontal guide
+            for (int i = 0; i < hguides.size(); i++) {
+                if (ABS(xform.xform(Point2(0, hguides[i])).y - m->get_position().y) < MIN(minimum, 8)) {
+                    is_hovering_h_guide = true;
+                    is_hovering_v_guide = false;
+                    break;
+                }
             }
 
-            // Hover over guides
-            float minimum = 1e20f;
-            is_hovering_h_guide = false;
-            is_hovering_v_guide = false;
+        } else if (m && m->get_position().y < RULER_WIDTH) {
+            // Check if we are hovering an existing vertical guide
+            for (int i = 0; i < vguides.size(); i++) {
+                if (ABS(xform.xform(Point2(vguides[i], 0)).x - m->get_position().x) < MIN(minimum, 8)) {
+                    is_hovering_v_guide = true;
+                    is_hovering_h_guide = false;
+                    break;
+                }
+            }
+        }
 
-            if (m && m->get_position().x < RULER_WIDTH) {
-                // Check if we are hovering an existing horizontal guide
+        // Start dragging a guide
+        if (b && b->get_button_index() == BUTTON_LEFT && b->is_pressed()) {
+
+            // Press button
+            if (b->get_position().x < RULER_WIDTH && b->get_position().y < RULER_WIDTH) {
+                // Drag a new double guide
+                drag_type = DRAG_DOUBLE_GUIDE;
+                dragged_guide_index = -1;
+                return true;
+            } else if (b->get_position().x < RULER_WIDTH) {
+                // Check if we drag an existing horizontal guide
+                dragged_guide_index = -1;
                 for (int i = 0; i < hguides.size(); i++) {
-                    if (ABS(xform.xform(Point2(0, hguides[i])).y - m->get_position().y) < MIN(minimum, 8)) {
-                        is_hovering_h_guide = true;
-                        is_hovering_v_guide = false;
-                        break;
+                    if (ABS(xform.xform(Point2(0, hguides[i])).y - b->get_position().y) < MIN(minimum, 8)) {
+                        dragged_guide_index = i;
                     }
                 }
 
-            } else if (m && m->get_position().y < RULER_WIDTH) {
-                // Check if we are hovering an existing vertical guide
+                if (dragged_guide_index >= 0) {
+                    // Drag an existing horizontal guide
+                    drag_type = DRAG_H_GUIDE;
+                } else {
+                    // Drag a new vertical guide
+                    drag_type = DRAG_V_GUIDE;
+                }
+                return true;
+            } else if (b->get_position().y < RULER_WIDTH) {
+                // Check if we drag an existing vertical guide
+                dragged_guide_index = -1;
                 for (int i = 0; i < vguides.size(); i++) {
-                    if (ABS(xform.xform(Point2(vguides[i], 0)).x - m->get_position().x) < MIN(minimum, 8)) {
-                        is_hovering_v_guide = true;
-                        is_hovering_h_guide = false;
-                        break;
+                    if (ABS(xform.xform(Point2(vguides[i], 0)).x - b->get_position().x) < MIN(minimum, 8)) {
+                        dragged_guide_index = i;
                     }
+                }
+
+                if (dragged_guide_index >= 0) {
+                    // Drag an existing vertical guide
+                    drag_type = DRAG_V_GUIDE;
+                } else {
+                    // Drag a new vertical guide
+                    drag_type = DRAG_H_GUIDE;
+                }
+                drag_from = xform.affine_inverse().xform(b->get_position());
+                return true;
+            }
+        }
+        return false;
+    }
+
+    if (drag_type != DRAG_DOUBLE_GUIDE && drag_type != DRAG_V_GUIDE && drag_type != DRAG_H_GUIDE)
+        return false;
+    // Move the guide
+    if (m) {
+        Transform2D xform = viewport_scrollable->get_transform() * transform;
+        drag_to = xform.affine_inverse().xform(m->get_position());
+
+        dragged_guide_pos = xform.xform(snap_point(drag_to, SNAP_GRID | SNAP_PIXEL | SNAP_OTHER_NODES));
+        viewport->update();
+        return true;
+    }
+
+    // Release confirms the guide move
+    if (!b || b->get_button_index() != BUTTON_LEFT || b->is_pressed())
+        return false;
+
+    if (show_guides && EditorNode::get_singleton()->get_edited_scene()) {
+        Transform2D xform = viewport_scrollable->get_transform() * transform;
+
+        // Retrieve the guide lists
+        Array vguides;
+        if (EditorNode::get_singleton()->get_edited_scene()->has_meta("_edit_vertical_guides_")) {
+            vguides = EditorNode::get_singleton()->get_edited_scene()->get_meta("_edit_vertical_guides_");
+        }
+        Array hguides;
+        if (EditorNode::get_singleton()->get_edited_scene()->has_meta("_edit_horizontal_guides_")) {
+            hguides = EditorNode::get_singleton()->get_edited_scene()->get_meta("_edit_horizontal_guides_");
+        }
+
+        Point2 edited = snap_point(xform.affine_inverse().xform(b->get_position()),
+                SNAP_GRID | SNAP_PIXEL | SNAP_OTHER_NODES);
+        if (drag_type == DRAG_V_GUIDE) {
+            Array prev_vguides = vguides.duplicate();
+            if (b->get_position().x > RULER_WIDTH) {
+                // Adds a new vertical guide
+                if (dragged_guide_index >= 0) {
+                    vguides[dragged_guide_index] = edited.x;
+                    undo_redo->create_action_ui(TTR("Move Vertical Guide"));
+                    undo_redo->add_do_method(EditorNode::get_singleton()->get_edited_scene(), "set_meta",
+                            "_edit_vertical_guides_", vguides);
+                    undo_redo->add_undo_method(EditorNode::get_singleton()->get_edited_scene(), "set_meta",
+                            "_edit_vertical_guides_", prev_vguides);
+                    undo_redo->add_undo_method(viewport, "update");
+                    undo_redo->commit_action();
+                } else {
+                    vguides.push_back(edited.x);
+                    undo_redo->create_action_ui(TTR("Create Vertical Guide"));
+                    undo_redo->add_do_method(EditorNode::get_singleton()->get_edited_scene(), "set_meta",
+                            "_edit_vertical_guides_", vguides);
+                    undo_redo->add_undo_method(EditorNode::get_singleton()->get_edited_scene(), "set_meta",
+                            "_edit_vertical_guides_", prev_vguides);
+                    undo_redo->add_undo_method(viewport, "update");
+                    undo_redo->commit_action();
+                }
+            } else {
+                if (dragged_guide_index >= 0) {
+                    vguides.remove(dragged_guide_index);
+                    undo_redo->create_action_ui(TTR("Remove Vertical Guide"));
+                    if (vguides.empty()) {
+                        undo_redo->add_do_method(EditorNode::get_singleton()->get_edited_scene(), "remove_meta",
+                                "_edit_vertical_guides_");
+                    } else {
+                        undo_redo->add_do_method(EditorNode::get_singleton()->get_edited_scene(), "set_meta",
+                                "_edit_vertical_guides_", vguides);
+                    }
+                    undo_redo->add_undo_method(EditorNode::get_singleton()->get_edited_scene(), "set_meta",
+                            "_edit_vertical_guides_", prev_vguides);
+                    undo_redo->add_undo_method(viewport, "update");
+                    undo_redo->commit_action();
                 }
             }
-
-            // Start dragging a guide
-            if (b && b->get_button_index() == BUTTON_LEFT && b->is_pressed()) {
-
-                // Press button
-                if (b->get_position().x < RULER_WIDTH && b->get_position().y < RULER_WIDTH) {
-                    // Drag a new double guide
-                    drag_type = DRAG_DOUBLE_GUIDE;
-                    dragged_guide_index = -1;
-                    return true;
-                } else if (b->get_position().x < RULER_WIDTH) {
-                    // Check if we drag an existing horizontal guide
-                    dragged_guide_index = -1;
-                    for (int i = 0; i < hguides.size(); i++) {
-                        if (ABS(xform.xform(Point2(0, hguides[i])).y - b->get_position().y) < MIN(minimum, 8)) {
-                            dragged_guide_index = i;
-                        }
-                    }
-
-                    if (dragged_guide_index >= 0) {
-                        // Drag an existing horizontal guide
-                        drag_type = DRAG_H_GUIDE;
-                    } else {
-                        // Drag a new vertical guide
-                        drag_type = DRAG_V_GUIDE;
-                    }
-                    return true;
-                } else if (b->get_position().y < RULER_WIDTH) {
-                    // Check if we drag an existing vertical guide
-                    dragged_guide_index = -1;
-                    for (int i = 0; i < vguides.size(); i++) {
-                        if (ABS(xform.xform(Point2(vguides[i], 0)).x - b->get_position().x) < MIN(minimum, 8)) {
-                            dragged_guide_index = i;
-                        }
-                    }
-
-                    if (dragged_guide_index >= 0) {
-                        // Drag an existing vertical guide
-                        drag_type = DRAG_V_GUIDE;
-                    } else {
-                        // Drag a new vertical guide
-                        drag_type = DRAG_H_GUIDE;
-                    }
-                    drag_from = xform.affine_inverse().xform(b->get_position());
-                    return true;
+        } else if (drag_type == DRAG_H_GUIDE) {
+            Array prev_hguides = hguides.duplicate();
+            if (b->get_position().y > RULER_WIDTH) {
+                // Adds a new horizontal guide
+                if (dragged_guide_index >= 0) {
+                    hguides[dragged_guide_index] = edited.y;
+                    undo_redo->create_action_ui(TTR("Move Horizontal Guide"));
+                    undo_redo->add_do_method(EditorNode::get_singleton()->get_edited_scene(), "set_meta",
+                            "_edit_horizontal_guides_", hguides);
+                    undo_redo->add_undo_method(EditorNode::get_singleton()->get_edited_scene(), "set_meta",
+                            "_edit_horizontal_guides_", prev_hguides);
+                    undo_redo->add_undo_method(viewport, "update");
+                    undo_redo->commit_action();
+                } else {
+                    hguides.push_back(edited.y);
+                    undo_redo->create_action_ui(TTR("Create Horizontal Guide"));
+                    undo_redo->add_do_method(EditorNode::get_singleton()->get_edited_scene(), "set_meta",
+                            "_edit_horizontal_guides_", hguides);
+                    undo_redo->add_undo_method(EditorNode::get_singleton()->get_edited_scene(), "set_meta",
+                            "_edit_horizontal_guides_", prev_hguides);
+                    undo_redo->add_undo_method(viewport, "update");
+                    undo_redo->commit_action();
                 }
+            } else {
+                if (dragged_guide_index >= 0) {
+                    hguides.remove(dragged_guide_index);
+                    undo_redo->create_action_ui(TTR("Remove Horizontal Guide"));
+                    if (hguides.empty()) {
+                        undo_redo->add_do_method(EditorNode::get_singleton()->get_edited_scene(), "remove_meta",
+                                "_edit_horizontal_guides_");
+                    } else {
+                        undo_redo->add_do_method(EditorNode::get_singleton()->get_edited_scene(), "set_meta",
+                                "_edit_horizontal_guides_", hguides);
+                    }
+                    undo_redo->add_undo_method(EditorNode::get_singleton()->get_edited_scene(), "set_meta",
+                            "_edit_horizontal_guides_", prev_hguides);
+                    undo_redo->add_undo_method(viewport, "update");
+                    undo_redo->commit_action();
+                }
+            }
+        } else if (drag_type == DRAG_DOUBLE_GUIDE) {
+            Array prev_hguides = hguides.duplicate();
+            Array prev_vguides = vguides.duplicate();
+            if (b->get_position().x > RULER_WIDTH && b->get_position().y > RULER_WIDTH) {
+                // Adds a new horizontal guide a new vertical guide
+                vguides.push_back(edited.x);
+                hguides.push_back(edited.y);
+                undo_redo->create_action_ui(TTR("Create Horizontal and Vertical Guides"));
+                undo_redo->add_do_method(EditorNode::get_singleton()->get_edited_scene(), "set_meta",
+                        "_edit_vertical_guides_", vguides);
+                undo_redo->add_do_method(EditorNode::get_singleton()->get_edited_scene(), "set_meta",
+                        "_edit_horizontal_guides_", hguides);
+                undo_redo->add_undo_method(EditorNode::get_singleton()->get_edited_scene(), "set_meta",
+                        "_edit_vertical_guides_", prev_vguides);
+                undo_redo->add_undo_method(EditorNode::get_singleton()->get_edited_scene(), "set_meta",
+                        "_edit_horizontal_guides_", prev_hguides);
+                undo_redo->add_undo_method(viewport, "update");
+                undo_redo->commit_action();
             }
         }
     }
-
-    if (drag_type == DRAG_DOUBLE_GUIDE || drag_type == DRAG_V_GUIDE || drag_type == DRAG_H_GUIDE) {
-        // Move the guide
-        if (m) {
-            Transform2D xform = viewport_scrollable->get_transform() * transform;
-            drag_to = xform.affine_inverse().xform(m->get_position());
-
-            dragged_guide_pos = xform.xform(snap_point(drag_to, SNAP_GRID | SNAP_PIXEL | SNAP_OTHER_NODES));
-            viewport->update();
-            return true;
-        }
-
-        // Release confirms the guide move
-        if (b && b->get_button_index() == BUTTON_LEFT && !b->is_pressed()) {
-            if (show_guides && EditorNode::get_singleton()->get_edited_scene()) {
-                Transform2D xform = viewport_scrollable->get_transform() * transform;
-
-                // Retrieve the guide lists
-                Array vguides;
-                if (EditorNode::get_singleton()->get_edited_scene()->has_meta("_edit_vertical_guides_")) {
-                    vguides = EditorNode::get_singleton()->get_edited_scene()->get_meta("_edit_vertical_guides_");
-                }
-                Array hguides;
-                if (EditorNode::get_singleton()->get_edited_scene()->has_meta("_edit_horizontal_guides_")) {
-                    hguides = EditorNode::get_singleton()->get_edited_scene()->get_meta("_edit_horizontal_guides_");
-                }
-
-                Point2 edited = snap_point(xform.affine_inverse().xform(b->get_position()), SNAP_GRID | SNAP_PIXEL | SNAP_OTHER_NODES);
-                if (drag_type == DRAG_V_GUIDE) {
-                    Array prev_vguides = vguides.duplicate();
-                    if (b->get_position().x > RULER_WIDTH) {
-                        // Adds a new vertical guide
-                        if (dragged_guide_index >= 0) {
-                            vguides[dragged_guide_index] = edited.x;
-                            undo_redo->create_action_ui(TTR("Move Vertical Guide"));
-                            undo_redo->add_do_method(EditorNode::get_singleton()->get_edited_scene(), "set_meta", "_edit_vertical_guides_", vguides);
-                            undo_redo->add_undo_method(EditorNode::get_singleton()->get_edited_scene(), "set_meta", "_edit_vertical_guides_", prev_vguides);
-                            undo_redo->add_undo_method(viewport, "update");
-                            undo_redo->commit_action();
-                        } else {
-                            vguides.push_back(edited.x);
-                            undo_redo->create_action_ui(TTR("Create Vertical Guide"));
-                            undo_redo->add_do_method(EditorNode::get_singleton()->get_edited_scene(), "set_meta", "_edit_vertical_guides_", vguides);
-                            undo_redo->add_undo_method(EditorNode::get_singleton()->get_edited_scene(), "set_meta", "_edit_vertical_guides_", prev_vguides);
-                            undo_redo->add_undo_method(viewport, "update");
-                            undo_redo->commit_action();
-                        }
-                    } else {
-                        if (dragged_guide_index >= 0) {
-                            vguides.remove(dragged_guide_index);
-                            undo_redo->create_action_ui(TTR("Remove Vertical Guide"));
-                            if (vguides.empty()) {
-                                undo_redo->add_do_method(EditorNode::get_singleton()->get_edited_scene(), "remove_meta", "_edit_vertical_guides_");
-                            } else {
-                                undo_redo->add_do_method(EditorNode::get_singleton()->get_edited_scene(), "set_meta", "_edit_vertical_guides_", vguides);
-                            }
-                            undo_redo->add_undo_method(EditorNode::get_singleton()->get_edited_scene(), "set_meta", "_edit_vertical_guides_", prev_vguides);
-                            undo_redo->add_undo_method(viewport, "update");
-                            undo_redo->commit_action();
-                        }
-                    }
-                } else if (drag_type == DRAG_H_GUIDE) {
-                    Array prev_hguides = hguides.duplicate();
-                    if (b->get_position().y > RULER_WIDTH) {
-                        // Adds a new horizontal guide
-                        if (dragged_guide_index >= 0) {
-                            hguides[dragged_guide_index] = edited.y;
-                            undo_redo->create_action_ui(TTR("Move Horizontal Guide"));
-                            undo_redo->add_do_method(EditorNode::get_singleton()->get_edited_scene(), "set_meta", "_edit_horizontal_guides_", hguides);
-                            undo_redo->add_undo_method(EditorNode::get_singleton()->get_edited_scene(), "set_meta", "_edit_horizontal_guides_", prev_hguides);
-                            undo_redo->add_undo_method(viewport, "update");
-                            undo_redo->commit_action();
-                        } else {
-                            hguides.push_back(edited.y);
-                            undo_redo->create_action_ui(TTR("Create Horizontal Guide"));
-                            undo_redo->add_do_method(EditorNode::get_singleton()->get_edited_scene(), "set_meta", "_edit_horizontal_guides_", hguides);
-                            undo_redo->add_undo_method(EditorNode::get_singleton()->get_edited_scene(), "set_meta", "_edit_horizontal_guides_", prev_hguides);
-                            undo_redo->add_undo_method(viewport, "update");
-                            undo_redo->commit_action();
-                        }
-                    } else {
-                        if (dragged_guide_index >= 0) {
-                            hguides.remove(dragged_guide_index);
-                            undo_redo->create_action_ui(TTR("Remove Horizontal Guide"));
-                            if (hguides.empty()) {
-                                undo_redo->add_do_method(EditorNode::get_singleton()->get_edited_scene(), "remove_meta", "_edit_horizontal_guides_");
-                            } else {
-                                undo_redo->add_do_method(EditorNode::get_singleton()->get_edited_scene(), "set_meta", "_edit_horizontal_guides_", hguides);
-                            }
-                            undo_redo->add_undo_method(EditorNode::get_singleton()->get_edited_scene(), "set_meta", "_edit_horizontal_guides_", prev_hguides);
-                            undo_redo->add_undo_method(viewport, "update");
-                            undo_redo->commit_action();
-                        }
-                    }
-                } else if (drag_type == DRAG_DOUBLE_GUIDE) {
-                    Array prev_hguides = hguides.duplicate();
-                    Array prev_vguides = vguides.duplicate();
-                    if (b->get_position().x > RULER_WIDTH && b->get_position().y > RULER_WIDTH) {
-                        // Adds a new horizontal guide a new vertical guide
-                        vguides.push_back(edited.x);
-                        hguides.push_back(edited.y);
-                        undo_redo->create_action_ui(TTR("Create Horizontal and Vertical Guides"));
-                        undo_redo->add_do_method(EditorNode::get_singleton()->get_edited_scene(), "set_meta", "_edit_vertical_guides_", vguides);
-                        undo_redo->add_do_method(EditorNode::get_singleton()->get_edited_scene(), "set_meta", "_edit_horizontal_guides_", hguides);
-                        undo_redo->add_undo_method(EditorNode::get_singleton()->get_edited_scene(), "set_meta", "_edit_vertical_guides_", prev_vguides);
-                        undo_redo->add_undo_method(EditorNode::get_singleton()->get_edited_scene(), "set_meta", "_edit_horizontal_guides_", prev_hguides);
-                        undo_redo->add_undo_method(viewport, "update");
-                        undo_redo->commit_action();
-                    }
-                }
-            }
-            drag_type = DRAG_NONE;
-            viewport->update();
-            return true;
-        }
-    }
-    return false;
+    drag_type = DRAG_NONE;
+    viewport->update();
+    return true;
 }
 
 bool CanvasItemEditor::_gui_input_zoom_or_pan(const Ref<InputEvent> &p_event, bool p_already_accepted) {
@@ -3697,124 +3720,128 @@ void CanvasItemEditor::set_current_tool(Tool p_tool) {
     _button_tool_select(p_tool);
 }
 
-void CanvasItemEditor::_notification(int p_what) {
+void CanvasItemEditor::_process_physics_notification()
+{
+    EditorNode::get_singleton()->get_scene_root()->set_snap_controls_to_pixels(GLOBAL_GET("gui/common/snap_controls_to_pixels"));
 
-    if (p_what == NOTIFICATION_PHYSICS_PROCESS) {
-        EditorNode::get_singleton()->get_scene_root()->set_snap_controls_to_pixels(GLOBAL_GET("gui/common/snap_controls_to_pixels"));
+    bool has_container_parents = false;
+    int nb_control = 0;
+    int nb_having_pivot = 0;
 
-        bool has_container_parents = false;
-        int nb_control = 0;
-        int nb_having_pivot = 0;
+    // Update the viewport if the canvas_item changes
+    List<CanvasItem *> selection = _get_edited_canvas_items(true);
+    for (List<CanvasItem *>::Element *E = selection.front(); E; E = E->next()) {
+        CanvasItem *canvas_item = E->deref();
+        CanvasItemEditorSelectedItem *se = editor_selection->get_node_editor_data<CanvasItemEditorSelectedItem>(canvas_item);
 
-        // Update the viewport if the canvas_item changes
-        List<CanvasItem *> selection = _get_edited_canvas_items(true);
-        for (List<CanvasItem *>::Element *E = selection.front(); E; E = E->next()) {
-            CanvasItem *canvas_item = E->deref();
-            CanvasItemEditorSelectedItem *se = editor_selection->get_node_editor_data<CanvasItemEditorSelectedItem>(canvas_item);
-
-            Rect2 rect;
-            if (canvas_item->_edit_use_rect()) {
-                rect = canvas_item->_edit_get_rect();
-            } else {
-                rect = Rect2();
-            }
-            Transform2D xform = canvas_item->get_transform();
-
-            if (rect != se->prev_rect || xform != se->prev_xform) {
-                viewport->update();
-                se->prev_rect = rect;
-                se->prev_xform = xform;
-            }
-
-            Control *control = object_cast<Control>(canvas_item);
-            if (control) {
-                float anchors[4];
-                Vector2 pivot;
-
-                pivot = control->get_pivot_offset();
-                anchors[MARGIN_LEFT] = control->get_anchor(MARGIN_LEFT);
-                anchors[MARGIN_RIGHT] = control->get_anchor(MARGIN_RIGHT);
-                anchors[MARGIN_TOP] = control->get_anchor(MARGIN_TOP);
-                anchors[MARGIN_BOTTOM] = control->get_anchor(MARGIN_BOTTOM);
-
-                if (pivot != se->prev_pivot || anchors[MARGIN_LEFT] != se->prev_anchors[MARGIN_LEFT] || anchors[MARGIN_RIGHT] != se->prev_anchors[MARGIN_RIGHT] || anchors[MARGIN_TOP] != se->prev_anchors[MARGIN_TOP] || anchors[MARGIN_BOTTOM] != se->prev_anchors[MARGIN_BOTTOM]) {
-                    se->prev_pivot = pivot;
-                    se->prev_anchors[MARGIN_LEFT] = anchors[MARGIN_LEFT];
-                    se->prev_anchors[MARGIN_RIGHT] = anchors[MARGIN_RIGHT];
-                    se->prev_anchors[MARGIN_TOP] = anchors[MARGIN_TOP];
-                    se->prev_anchors[MARGIN_BOTTOM] = anchors[MARGIN_BOTTOM];
-                    viewport->update();
-                }
-                nb_control++;
-
-                if (object_cast<Container>(control->get_parent())) {
-                    has_container_parents = true;
-                }
-            }
-
-            if (canvas_item->_edit_use_pivot()) {
-                nb_having_pivot++;
-            }
-        }
-
-        // Activate / Deactivate the pivot tool
-        pivot_button->set_disabled(nb_having_pivot == 0);
-
-        // Show / Hide the layout and anchors mode buttons
-        if (nb_control > 0 && nb_control == selection.size()) {
-            presets_menu->set_visible(true);
-            anchor_mode_button->set_visible(true);
-
-            // Disable if the selected node is child of a container
-            if (has_container_parents) {
-                presets_menu->set_disabled(true);
-                presets_menu->set_tooltip(TTR("Children of containers have their anchors and margins values overridden by their parent."));
-                anchor_mode_button->set_disabled(true);
-                anchor_mode_button->set_tooltip(TTR("Children of containers have their anchors and margins values overridden by their parent."));
-            } else {
-                presets_menu->set_disabled(false);
-                presets_menu->set_tooltip(TTR("Presets for the anchors and margins values of a Control node."));
-                anchor_mode_button->set_disabled(false);
-                anchor_mode_button->set_tooltip(TTR("When active, moving Control nodes changes their anchors instead of their margins."));
-            }
+        Rect2 rect;
+        if (canvas_item->_edit_use_rect()) {
+            rect = canvas_item->_edit_get_rect();
         } else {
-            presets_menu->set_visible(false);
-            anchor_mode_button->set_visible(false);
+            rect = Rect2();
+        }
+        Transform2D xform = canvas_item->get_transform();
+
+        if (rect != se->prev_rect || xform != se->prev_xform) {
+            viewport->update();
+            se->prev_rect = rect;
+            se->prev_xform = xform;
         }
 
-        // Update the viewport if bones changes
-        for (eastl::pair<const BoneKey,BoneList> &E : bone_list) {
+        Control *control = object_cast<Control>(canvas_item);
+        if (control) {
+            float anchors[4];
+            Vector2 pivot;
 
-            Object *b = ObjectDB::get_instance(E.first.from);
-            if (!b) {
+            pivot = control->get_pivot_offset();
+            anchors[MARGIN_LEFT] = control->get_anchor(MARGIN_LEFT);
+            anchors[MARGIN_RIGHT] = control->get_anchor(MARGIN_RIGHT);
+            anchors[MARGIN_TOP] = control->get_anchor(MARGIN_TOP);
+            anchors[MARGIN_BOTTOM] = control->get_anchor(MARGIN_BOTTOM);
 
-                viewport->update();
-                break;
-            }
-
-            Node2D *b2 = object_cast<Node2D>(b);
-            if (!b2 || !b2->is_inside_tree()) {
-                continue;
-            }
-
-            Transform2D global_xform = b2->get_global_transform();
-
-            if (global_xform != E.second.xform) {
-
-                E.second.xform = global_xform;
+            if (pivot != se->prev_pivot || anchors[MARGIN_LEFT] != se->prev_anchors[MARGIN_LEFT] || anchors[MARGIN_RIGHT] != se->prev_anchors[MARGIN_RIGHT] || anchors[MARGIN_TOP] != se->prev_anchors[MARGIN_TOP] || anchors[MARGIN_BOTTOM] != se->prev_anchors[MARGIN_BOTTOM]) {
+                se->prev_pivot = pivot;
+                se->prev_anchors[MARGIN_LEFT] = anchors[MARGIN_LEFT];
+                se->prev_anchors[MARGIN_RIGHT] = anchors[MARGIN_RIGHT];
+                se->prev_anchors[MARGIN_TOP] = anchors[MARGIN_TOP];
+                se->prev_anchors[MARGIN_BOTTOM] = anchors[MARGIN_BOTTOM];
                 viewport->update();
             }
+            nb_control++;
 
-            Bone2D *bone = object_cast<Bone2D>(b);
-            if (bone && bone->get_default_length() != E.second.length) {
-
-                E.second.length = bone->get_default_length();
-                viewport->update();
+            if (object_cast<Container>(control->get_parent())) {
+                has_container_parents = true;
             }
+        }
+
+        if (canvas_item->_edit_use_pivot()) {
+            nb_having_pivot++;
         }
     }
 
-    if (p_what == NOTIFICATION_ENTER_TREE) {
+    // Activate / Deactivate the pivot tool
+    pivot_button->set_disabled(nb_having_pivot == 0);
+
+    // Show / Hide the layout and anchors mode buttons
+    if (nb_control > 0 && nb_control == selection.size()) {
+        presets_menu->set_visible(true);
+        anchor_mode_button->set_visible(true);
+
+        // Disable if the selected node is child of a container
+        if (has_container_parents) {
+            presets_menu->set_disabled(true);
+            presets_menu->set_tooltip(TTR("Children of containers have their anchors and margins values overridden by their parent."));
+            anchor_mode_button->set_disabled(true);
+            anchor_mode_button->set_tooltip(TTR("Children of containers have their anchors and margins values overridden by their parent."));
+        } else {
+            presets_menu->set_disabled(false);
+            presets_menu->set_tooltip(TTR("Presets for the anchors and margins values of a Control node."));
+            anchor_mode_button->set_disabled(false);
+            anchor_mode_button->set_tooltip(TTR("When active, moving Control nodes changes their anchors instead of their margins."));
+        }
+    } else {
+        presets_menu->set_visible(false);
+        anchor_mode_button->set_visible(false);
+    }
+
+    // Update the viewport if bones changes
+    for (eastl::pair<const BoneKey,BoneList> &E : bone_list) {
+
+        Object *b = ObjectDB::get_instance(E.first.from);
+        if (!b) {
+
+            viewport->update();
+            break;
+        }
+
+        Node2D *b2 = object_cast<Node2D>(b);
+        if (!b2 || !b2->is_inside_tree()) {
+            continue;
+        }
+
+        Transform2D global_xform = b2->get_global_transform();
+
+        if (global_xform != E.second.xform) {
+
+            E.second.xform = global_xform;
+            viewport->update();
+        }
+
+        Bone2D *bone = object_cast<Bone2D>(b);
+        if (bone && bone->get_default_length() != E.second.length) {
+
+            E.second.length = bone->get_default_length();
+            viewport->update();
+        }
+    }
+}
+
+void CanvasItemEditor::_notification(int p_what) {
+
+    if (p_what == NOTIFICATION_PHYSICS_PROCESS) {
+        _process_physics_notification();
+    }
+    else if (p_what == NOTIFICATION_ENTER_TREE) {
 
         select_sb->set_texture(get_icon("EditorRect2D", "EditorIcons"));
         for (int i = 0; i < 4; i++) {
@@ -3832,12 +3859,12 @@ void CanvasItemEditor::_notification(int p_what) {
         select_sb->set_texture(get_icon("EditorRect2D", "EditorIcons"));
     }
 
-    if (p_what == NOTIFICATION_EXIT_TREE) {
+    else if (p_what == NOTIFICATION_EXIT_TREE) {
         get_tree()->disconnect("node_added", this, "_tree_changed");
         get_tree()->disconnect("node_removed", this, "_tree_changed");
     }
 
-    if (p_what == NOTIFICATION_ENTER_TREE || p_what == EditorSettings::NOTIFICATION_EDITOR_SETTINGS_CHANGED) {
+    else if (p_what == NOTIFICATION_ENTER_TREE || p_what == EditorSettings::NOTIFICATION_EDITOR_SETTINGS_CHANGED) {
         select_button->set_icon(get_icon("ToolSelect", "EditorIcons"));
         list_select_button->set_icon(get_icon("ListSelect", "EditorIcons"));
         move_button->set_icon(get_icon("ToolMove", "EditorIcons"));
@@ -4240,11 +4267,13 @@ void CanvasItemEditor::_zoom_on_position(float p_zoom, Point2 p_position) {
 
 void CanvasItemEditor::_update_zoom_label() {
     se_string zoom_text;
+    // The zoom level displayed is relative to the editor scale
+    // (like in most image editors).
     if (zoom >= 10) {
-        // Don't show a decimal when the zoom level is higher than 1000 %
-        zoom_text = rtos(Math::round(zoom * 100)) + " %";
+        // Don't show a decimal when the zoom level is higher than 1000 %.
+        zoom_text = rtos(Math::round((zoom / EDSCALE) * 100)) + " %";
     } else {
-        zoom_text = rtos(Math::stepify(zoom * 100, 0.1f)) + " %";
+        zoom_text = rtos(Math::stepify((zoom / EDSCALE) * 100, 0.1f)) + " %";
     }
 
     zoom_reset->set_text_utf8(zoom_text);
@@ -4255,7 +4284,7 @@ void CanvasItemEditor::_button_zoom_minus() {
 }
 
 void CanvasItemEditor::_button_zoom_reset() {
-    _zoom_on_position(1.0, viewport_scrollable->get_size() / 2.0);
+    _zoom_on_position(1.0 * EDSCALE, viewport_scrollable->get_size() / 2.0);
 }
 
 void CanvasItemEditor::_button_zoom_plus() {
@@ -5019,7 +5048,8 @@ void CanvasItemEditor::_bind_methods() {
 Dictionary CanvasItemEditor::get_state() const {
 
     Dictionary state;
-    state["zoom"] = zoom;
+    // Take the editor scale into account.
+    state["zoom"] = zoom/EDSCALE;
     state["ofs"] = view_offset;
     state["grid_offset"] = grid_offset;
     state["grid_step"] = grid_step;
@@ -5056,7 +5086,9 @@ void CanvasItemEditor::set_state(const Dictionary &p_state) {
     bool update_scrollbars = false;
     Dictionary state = p_state;
     if (state.has("zoom")) {
-        zoom = p_state["zoom"];
+        // Compensate the editor scale, so that the editor scale can be changed
+        // and the zoom level will still be the same (relative to the editor scale).
+        zoom = float(p_state["zoom"]) * EDSCALE;
         _update_zoom_label();
     }
 
@@ -5272,11 +5304,11 @@ CanvasItemEditor::CanvasItemEditor(EditorNode *p_editor) {
     show_rulers = true;
     show_guides = true;
     show_edit_locks = true;
-    zoom = 1;
+    zoom = 1.0f/EDSCALE;
     view_offset = Point2(-150 - RULER_WIDTH, -95 - RULER_WIDTH);
     previous_update_view_offset = view_offset; // Moves the view a little bit to the left so that (0,0) is visible. The values a relative to a 16/10 screen
     grid_offset = Point2();
-    grid_step = Point2(10, 10);
+    grid_step = Point2(8, 8);
     primary_grid_steps = 8; // A power-of-two value works better as a default
     grid_step_multiplier = 0;
     snap_rotation_offset = 0;
@@ -5326,8 +5358,8 @@ CanvasItemEditor::CanvasItemEditor(EditorNode *p_editor) {
     editor_selection->connect("selection_changed", this, "update");
     editor_selection->connect("selection_changed", this, "_selection_changed");
 
-    editor->call_deferred("connect", "play_pressed", Variant(this), "_update_override_camera_button", Variant::from(make_binds(true)));
-    editor->call_deferred("connect", "stop_pressed", Variant(this), "_update_override_camera_button", Variant::from(make_binds(false)));
+    editor->call_deferred("connect", "play_pressed", Variant(this), "_update_override_camera_button", Variant::fromVector(Span<const Variant>(make_binds(true))));
+    editor->call_deferred("connect", "stop_pressed", Variant(this), "_update_override_camera_button", Variant::fromVector(Span<const Variant>(make_binds(false))));
 
     hb = memnew(HBoxContainer);
     add_child(hb);
@@ -6038,54 +6070,53 @@ bool CanvasItemEditorViewport::can_drop_data(const Point2 &p_point, const Varian
     using namespace eastl;
 
     Dictionary d = p_data;
-    if (d.has("type")) {
-        if (String(d["type"]) == "files") {
-            Vector<se_string> files = d["files"].as<Vector<se_string>>();
-            bool can_instance = false;
-            for (int i = 0; i < files.size(); i++) { // check if dragged files contain resource or scene can be created at least once
-                RES res(ResourceLoader::load(files[i]));
-                if (not res) {
-                    continue;
-                }
-                se_string_view type(res->get_class());
-                if (type == "PackedScene"_sv) {
-                    Ref<PackedScene> sdata(dynamic_ref_cast<PackedScene>(res));
-                    Node *instanced_scene = sdata->instance(PackedScene::GEN_EDIT_STATE_INSTANCE);
-                    if (!instanced_scene) {
-                        continue;
-                    }
-                    memdelete(instanced_scene);
-                } else if (type == "Texture"_sv ||
-                           type == "ImageTexture"_sv ||
-                           type == "ViewportTexture"_sv ||
-                           type == "CurveTexture"_sv ||
-                           type == "GradientTexture"_sv ||
-                           type == "StreamTexture"_sv ||
-                           type == "AtlasTexture"_sv ||
-                           type == "LargeTexture"_sv) {
-                    Ref<Texture> texture(dynamic_ref_cast<Texture>(res));
-                    if (not texture) {
-                        continue;
-                    }
-                } else {
-                    continue;
-                }
-                can_instance = true;
-                break;
-            }
-            if (can_instance) {
-                if (!preview_node->get_parent()) { // create preview only once
-                    _create_preview(files);
-                }
-                Transform2D trans = canvas_item_editor->get_canvas_transform();
-                preview_node->set_position((p_point - trans.get_origin()) / trans.get_scale().x);
-                label->set_text(StringName(FormatVE(TTR("Adding %s...").asCString(), default_type.asCString())));
-            }
-            return can_instance;
-        }
+    if (!d.has("type") || String(d["type"]) != "files") {
+        label->hide();
+        return false;
     }
-    label->hide();
-    return false;
+
+    Vector<se_string> files = d["files"].as<Vector<se_string>>();
+    bool can_instance = false;
+    for (int i = 0; i < files.size(); i++) { // check if dragged files contain resource or scene can be created at least once
+        RES res(ResourceLoader::load(files[i]));
+        if (not res) {
+            continue;
+        }
+        se_string_view type(res->get_class());
+        if (type == "PackedScene"_sv) {
+            Ref<PackedScene> sdata(dynamic_ref_cast<PackedScene>(res));
+            Node *instanced_scene = sdata->instance(PackedScene::GEN_EDIT_STATE_INSTANCE);
+            if (!instanced_scene) {
+                continue;
+            }
+            memdelete(instanced_scene);
+        } else if (type == "Texture"_sv ||
+                   type == "ImageTexture"_sv ||
+                   type == "ViewportTexture"_sv ||
+                   type == "CurveTexture"_sv ||
+                   type == "GradientTexture"_sv ||
+                   type == "StreamTexture"_sv ||
+                   type == "AtlasTexture"_sv ||
+                   type == "LargeTexture"_sv) {
+            Ref<Texture> texture(dynamic_ref_cast<Texture>(res));
+            if (not texture) {
+                continue;
+            }
+        } else {
+            continue;
+        }
+        can_instance = true;
+        break;
+    }
+    if (can_instance) {
+        if (!preview_node->get_parent()) { // create preview only once
+            _create_preview(files);
+        }
+        Transform2D trans = canvas_item_editor->get_canvas_transform();
+        preview_node->set_position((p_point - trans.get_origin()) / trans.get_scale().x);
+        label->set_text(StringName(FormatVE(TTR("Adding %s...").asCString(), default_type.asCString())));
+    }
+    return can_instance;
 }
 
 void CanvasItemEditorViewport::_show_resource_type_selector() {

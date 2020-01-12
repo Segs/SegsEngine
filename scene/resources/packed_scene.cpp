@@ -6,7 +6,7 @@
 /*                      https://godotengine.org                          */
 /*************************************************************************/
 /* Copyright (c) 2007-2019 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md)    */
+/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md).   */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -54,7 +54,7 @@ struct SVCompare
 };
 
 
-#define PACK_VERSION 2
+#define PACKED_SCENE_VERSION 2
 
 IMPL_GDCLASS(SceneState)
 IMPL_GDCLASS(PackedScene)
@@ -343,11 +343,11 @@ Node *SceneState::instance(GenEditState p_edit_state) const {
         if (!cfrom || !cto)
             continue;
 
-        Vector<Variant> binds;
+        PODVector<Variant> binds;
         if (!c.binds.empty()) {
             binds.resize(c.binds.size());
             for (int j = 0; j < c.binds.size(); j++)
-                binds.write[j] = props[c.binds[j]];
+                binds[j] = props[c.binds[j]];
         }
 
         cfrom->connect(snames[c.signal], cto, snames[c.method], binds, ObjectNS::CONNECT_PERSIST | c.flags);
@@ -1121,7 +1121,15 @@ void SceneState::set_bundled_scene(const Dictionary &p_dictionary) {
     if (p_dictionary.has("version"))
         version = p_dictionary["version"];
 
-    ERR_FAIL_COND_MSG(version > PACK_VERSION, "Save format version too new.")
+    ERR_FAIL_COND_MSG(version > PACKED_SCENE_VERSION, "Save format version too new.");
+
+    const int node_count = p_dictionary["node_count"];
+    const PoolVector<int> snodes = p_dictionary["nodes"];
+    ERR_FAIL_COND(snodes.size() < node_count)
+
+    const int conn_count = p_dictionary["conn_count"];
+    const PoolVector<int> sconns = p_dictionary["conns"];
+    ERR_FAIL_COND(sconns.size() < conn_count)
 
     PoolVector<se_string> snames = p_dictionary["names"].as<PoolVector<se_string>>();
     if (snames.size()) {
@@ -1147,8 +1155,8 @@ void SceneState::set_bundled_scene(const Dictionary &p_dictionary) {
         variants.clear();
     }
 
-    nodes.resize(p_dictionary["node_count"]);
-    if (!nodes.empty()) {
+    nodes.resize(node_count);
+    if (node_count) {
         PoolVector<int> snodes = p_dictionary["nodes"];
         PoolVector<int>::Read r = snodes.read();
         int idx = 0;
@@ -1175,15 +1183,13 @@ void SceneState::set_bundled_scene(const Dictionary &p_dictionary) {
         }
     }
 
-    connections.resize(p_dictionary["conn_count"]);
-    int cc = connections.size();
-
-    if (cc) {
+    connections.resize(conn_count);
+    if (conn_count) {
 
         PoolVector<int> sconns = p_dictionary["conns"];
         PoolVector<int>::Read r = sconns.read();
         int idx = 0;
-        for (int i = 0; i < cc; i++) {
+        for (int i = 0; i < conn_count; i++) {
             ConnectionData &cd = connections.write[i];
             cd.from = r[idx++];
             cd.to = r[idx++];
@@ -1307,9 +1313,7 @@ Dictionary SceneState::get_bundled_scene() const {
         d["base_scene"] = base_scene_idx;
     }
 
-    d["version"] = PACK_VERSION;
-
-    //d["path"]=path;
+    d["version"] = PACKED_SCENE_VERSION;
 
     return d;
 }
