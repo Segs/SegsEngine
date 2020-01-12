@@ -6,7 +6,7 @@
 /*                      https://godotengine.org                          */
 /*************************************************************************/
 /* Copyright (c) 2007-2019 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md)    */
+/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md).   */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -43,19 +43,7 @@ VARIANT_ENUM_CAST(Line2D::LineJointMode)
 VARIANT_ENUM_CAST(Line2D::LineCapMode)
 VARIANT_ENUM_CAST(Line2D::LineTextureMode)
 
-Line2D::Line2D() {
-    _joint_mode = LINE_JOINT_SHARP;
-    _begin_cap_mode = LINE_CAP_NONE;
-    _end_cap_mode = LINE_CAP_NONE;
-    _width = 10;
-    _default_color = Color(0.4f, 0.5f, 1);
-    _texture_mode = LINE_TEXTURE_NONE;
-    _sharp_limit = 2.f;
-    _round_precision = 8;
-    _antialiased = false;
-
-}
-
+#ifdef TOOLS_ENABLED
 Rect2 Line2D::_edit_get_rect() const {
 
     if (_points.size() == 0)
@@ -84,6 +72,20 @@ bool Line2D::_edit_is_selected_on_click(const Point2 &p_point, float p_tolerance
     }
 
     return false;
+}
+#endif
+
+Line2D::Line2D() {
+    _joint_mode = LINE_JOINT_SHARP;
+    _begin_cap_mode = LINE_CAP_NONE;
+    _end_cap_mode = LINE_CAP_NONE;
+    _width = 10;
+    _default_color = Color(0.4f, 0.5f, 1);
+    _texture_mode = LINE_TEXTURE_NONE;
+    _sharp_limit = 2.f;
+    _round_precision = 8;
+    _antialiased = false;
+
 }
 
 void Line2D::set_points(const PoolVector<Vector2> &p_points) {
@@ -322,7 +324,7 @@ void Line2D::_draw() {
                 lb.colors,
                 lb.uvs, Vector<int>(), Vector<float>(),
                 texture_rid, -1, RID(),
-                _antialiased);
+                _antialiased,true);
 
     // DEBUG
     // Draw wireframe

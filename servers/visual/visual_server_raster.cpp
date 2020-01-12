@@ -6,7 +6,7 @@
 /*                      https://godotengine.org                          */
 /*************************************************************************/
 /* Copyright (c) 2007-2019 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md)    */
+/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md).   */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -156,7 +156,15 @@ int VisualServerRaster::get_render_info(VS::RenderInfo p_info) {
 
     return VSG::storage->get_render_info(p_info);
 }
+const char *VisualServerRaster::get_video_adapter_name() const {
 
+    return VSG::storage->get_video_adapter_name();
+}
+
+const char *VisualServerRaster::get_video_adapter_vendor() const {
+
+    return VSG::storage->get_video_adapter_vendor();
+}
 /* TESTING */
 
 void VisualServerRaster::set_boot_image(const Ref<Image> &p_image, const Color &p_color, bool p_scale, bool p_use_filter) {

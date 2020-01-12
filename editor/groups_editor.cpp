@@ -6,7 +6,7 @@
 /*                      https://godotengine.org                          */
 /*************************************************************************/
 /* Copyright (c) 2007-2019 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md)    */
+/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md).   */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -222,7 +222,7 @@ void GroupDialog::_group_renamed() {
         return;
     }
 
-    se_string name(StringUtils::strip_edges(renamed_group->get_text(0)));
+    const se_string name(StringUtils::strip_edges(renamed_group->get_text(0)));
     for (TreeItem *E = groups_root->get_children(); E; E = E->get_next()) {
         if (E != renamed_group && E->get_text(0) == name) {
             renamed_group->set_text(0, selected_group);
@@ -238,6 +238,8 @@ void GroupDialog::_group_renamed() {
         error->popup_centered();
         return;
     }
+
+    renamed_group->set_text_utf8(0, name); // Spaces trimmed.
 
     undo_redo->create_action_ui(TTR("Rename Group"));
 
@@ -260,8 +262,8 @@ void GroupDialog::_group_renamed() {
         undo_redo->add_undo_method(this, "_delete_group_item", selected_group);
     }
 
-    undo_redo->add_do_method(this, "_rename_group_item", selected_group, renamed_group->get_text(0));
-    undo_redo->add_undo_method(this, "_rename_group_item", renamed_group->get_text(0), selected_group);
+    undo_redo->add_do_method(this, "_rename_group_item", selected_group, name);
+    undo_redo->add_undo_method(this, "_rename_group_item", name, selected_group);
     undo_redo->add_do_method(this, "_group_selected");
     undo_redo->add_undo_method(this, "_group_selected");
     undo_redo->add_do_method(this, "emit_signal", "group_edited");
@@ -556,8 +558,8 @@ void GroupsEditor::_add_group(se_string_view p_group) {
     if (!node)
         return;
 
-    StringName name(group_name->get_text());
-    if (StringUtils::strip_edges(name).empty())
+    const StringName name(StringUtils::strip_edges(group_name->get_text()));
+    if (name.empty())
         return;
 
     if (node->is_in_group(name))

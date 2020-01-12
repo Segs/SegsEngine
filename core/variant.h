@@ -6,7 +6,7 @@
 /*                      https://godotengine.org                          */
 /*************************************************************************/
 /* Copyright (c) 2007-2019 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md)    */
+/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md).   */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -34,6 +34,7 @@
 #include "core/math/math_defs.h"
 #include "core/forward_decls.h"
 #include "core/ref_ptr.h"
+#include "core/vector.h"
 
 #include <cstdint>
 #include <type_traits>
@@ -168,10 +169,6 @@ private:
     } _data GCC_ALIGNED_8;
     void reference(const Variant &p_variant);
     void clear();
-    template<class T>
-    static Variant fromVector(Span<const T> v);
-    template<class T>
-    static Variant fromVectorBuiltin(Span<const T> v);
 
 public:
     static const Variant null_variant;
@@ -317,6 +314,10 @@ public:
     static Variant from(const T &v) {
         return Variant(v);
     }
+    template<class T>
+    static Variant fromVector(Span<const T> v);
+    template<class T>
+    static Variant fromVectorBuiltin(Span<const T> v);
 
     explicit Variant(const IP_Address &p_address);
 
@@ -453,12 +454,12 @@ static constexpr int longest_variant_type_name=16;
 //! Fill correctly sized char buffer with all variant names
 void fill_with_all_variant_types(const char *nillname, char (&s)[7+(longest_variant_type_name+1)*int8_t(VariantType::VARIANT_MAX)]);
 
-Vector<Variant> varray();
-Vector<Variant> varray(const Variant &p_arg1);
-Vector<Variant> varray(const Variant &p_arg1, const Variant &p_arg2);
-Vector<Variant> varray(const Variant &p_arg1, const Variant &p_arg2, const Variant &p_arg3);
-Vector<Variant> varray(const Variant &p_arg1, const Variant &p_arg2, const Variant &p_arg3, const Variant &p_arg4);
-Vector<Variant> varray(const Variant &p_arg1, const Variant &p_arg2, const Variant &p_arg3, const Variant &p_arg4, const Variant &p_arg5);
+PODVector<Variant> varray(std::initializer_list<Variant> v = {});
+inline PODVector<Variant> varray(const Variant &p_arg1) { return varray({p_arg1}); }
+inline PODVector<Variant> varray(const Variant &p_arg1, const Variant &p_arg2) { return varray({ p_arg1,p_arg2 }); }
+inline PODVector<Variant> varray(const Variant &p_arg1, const Variant &p_arg2, const Variant &p_arg3) { return varray({ p_arg1,p_arg2,p_arg3 }); }
+inline PODVector<Variant> varray(const Variant &p_arg1, const Variant &p_arg2, const Variant &p_arg3, const Variant &p_arg4) { return varray({ p_arg1,p_arg2,p_arg3,p_arg4 }); }
+inline PODVector<Variant> varray(const Variant &p_arg1, const Variant &p_arg2, const Variant &p_arg3, const Variant &p_arg4, const Variant &p_arg5) { return varray({ p_arg1,p_arg2,p_arg3,p_arg4,p_arg5 }); }
 
 template<>
 struct Hasher<Variant> {

@@ -6,7 +6,7 @@
 /*                      https://godotengine.org                          */
 /*************************************************************************/
 /* Copyright (c) 2007-2019 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md)    */
+/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md).   */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -106,11 +106,11 @@ struct VariantCaster<char16_t> {
 
 
 template <class T>
-MethodBind *create_vararg_method_bind(Variant (T::*p_method)(const Variant **, int, Variant::CallError &), const MethodInfo &p_info) {
+MethodBind *create_vararg_method_bind(Variant (T::*p_method)(const Variant **, int, Variant::CallError &), const MethodInfo &p_info, bool p_return_nil_is_variant) {
 
     MethodBindVarArg<T> *a = memnew((MethodBindVarArg<T>));
     a->set_method(p_method);
-    a->set_method_info(p_info);
+    a->set_method_info(p_info,p_return_nil_is_variant);
     return a;
 }
 

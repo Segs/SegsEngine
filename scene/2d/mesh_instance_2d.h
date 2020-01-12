@@ -6,7 +6,7 @@
 /*                      https://godotengine.org                          */
 /*************************************************************************/
 /* Copyright (c) 2007-2019 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md)    */
+/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md).   */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -34,30 +34,31 @@
 #include "scene/2d/node_2d.h"
 
 class MeshInstance2D : public Node2D {
-	GDCLASS(MeshInstance2D,Node2D)
+    GDCLASS(MeshInstance2D,Node2D)
 
-	Ref<Mesh> mesh;
+    Ref<Mesh> mesh;
 
-	Ref<Texture> texture;
-	Ref<Texture> normal_map;
+    Ref<Texture> texture;
+    Ref<Texture> normal_map;
 
 protected:
-	void _notification(int p_what);
-	static void _bind_methods();
+    void _notification(int p_what);
+    static void _bind_methods();
 
 public:
-	void set_mesh(const Ref<Mesh> &p_mesh);
-	Ref<Mesh> get_mesh() const;
+#ifdef TOOLS_ENABLED
+    Rect2 _edit_get_rect() const override;
+#endif
+    void set_mesh(const Ref<Mesh> &p_mesh);
+    Ref<Mesh> get_mesh() const;
 
-	void set_texture(const Ref<Texture> &p_texture);
-	Ref<Texture> get_texture() const;
+    void set_texture(const Ref<Texture> &p_texture);
+    Ref<Texture> get_texture() const;
 
-	void set_normal_map(const Ref<Texture> &p_texture);
-	Ref<Texture> get_normal_map() const;
+    void set_normal_map(const Ref<Texture> &p_texture);
+    Ref<Texture> get_normal_map() const;
 
-	Rect2 _edit_get_rect() const override;
-
-	MeshInstance2D();
+    MeshInstance2D();
 };
 
 #endif // MESH_INSTANCE_2D_H

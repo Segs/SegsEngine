@@ -6,7 +6,7 @@
 /*                      https://godotengine.org                          */
 /*************************************************************************/
 /* Copyright (c) 2007-2019 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md)    */
+/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md).   */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -121,6 +121,7 @@ public:
 
         APIType api;
         ClassInfo *inherits_ptr;
+        const void *class_ptr;
         DefHashMap<StringName, MethodBind *> method_map;
         DefHashMap<StringName, int> constant_map;
         DefHashMap<StringName, ListPOD<StringName> > enum_map;
@@ -186,8 +187,10 @@ public:
         T::initialize_class();
         auto iter = classes.find(T::get_class_static_name());
         ERR_FAIL_COND(iter==classes.end())
-        iter->second.creation_func = &creator<T>;
-        iter->second.exposed = true;
+        ClassInfo &ci(iter->second);
+        ci.creation_func = &creator<T>;
+        ci.exposed = true;
+        ci.class_ptr = T::get_class_ptr_static();
         T::register_custom_data_to_otdb();
     }
 
@@ -198,7 +201,9 @@ public:
         T::initialize_class();
         auto iter = classes.find(T::get_class_static_name());
         ERR_FAIL_COND(iter==classes.end())
-        iter->second.exposed = true;
+        ClassInfo &ci(iter->second);
+        ci.exposed = true;
+        ci.class_ptr = T::get_class_ptr_static();
         //nothing
     }
 
@@ -215,8 +220,10 @@ public:
         T::initialize_class();
         auto iter = classes.find(T::get_class_static_name());
         ERR_FAIL_COND(iter==classes.end())
-        iter->second.creation_func = &_create_ptr_func<T>;
-        iter->second.exposed = true;
+        ClassInfo &ci(iter->second);
+        ci.exposed = true;
+        ci.class_ptr = T::get_class_ptr_static();
+        ci.creation_func = &_create_ptr_func<T>;
         T::register_custom_data_to_otdb();
     }
     static bool bind_helper(MethodBind *bind,const char * instance_type,const StringName &p_name);

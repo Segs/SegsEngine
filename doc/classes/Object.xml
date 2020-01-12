@@ -99,12 +99,12 @@
 			</description>
 		</method>
 		<method name="call_deferred" qualifiers="vararg">
-			<return type="Variant">
+			<return type="void">
 			</return>
 			<argument index="0" name="method" type="String">
 			</argument>
 			<description>
-				Calls the [code]method[/code] on the object during idle time and returns the result. This method supports a variable number of arguments, so parameters are passed as a comma separated list. Example:
+				Calls the [code]method[/code] on the object during idle time. This method supports a variable number of arguments, so parameters are passed as a comma separated list. Example:
 				[codeblock]
 				call_deferred("set", "position", Vector2(42.0, 0.0))
 				[/codeblock]
@@ -178,7 +178,7 @@
 			</description>
 		</method>
 		<method name="emit_signal" qualifiers="vararg">
-			<return type="Variant">
+			<return type="void">
 			</return>
 			<argument index="0" name="signal" type="String">
 			</argument>
@@ -203,7 +203,7 @@
 			<argument index="0" name="property" type="String">
 			</argument>
 			<description>
-				Returns the [Variant] value of the given [code]property[/code].
+				Returns the [Variant] value of the given [code]property[/code]. If the [code]property[/code] doesn't exist, this will return [code]null[/code].
 			</description>
 		</method>
 		<method name="get_class" qualifiers="const">
@@ -460,6 +460,7 @@
 			</argument>
 			<description>
 				Assigns a script to the object. Each object can have a single script assigned to it, which are used to extend its functionality.
+				If the object already had a script, the previous script instance will be freed and its variables and state will be lost. The new script's [method _init] method will be called.
 			</description>
 		</method>
 		<method name="to_string">

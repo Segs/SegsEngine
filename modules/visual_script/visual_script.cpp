@@ -6,7 +6,7 @@
 /*                      https://godotengine.org                          */
 /*************************************************************************/
 /* Copyright (c) 2007-2019 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md)    */
+/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md).   */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -2366,7 +2366,7 @@ Variant VisualScriptFunctionState::_signal_callback(const Variant **p_args, int 
 
 void VisualScriptFunctionState::connect_to_signal(Object *p_obj, se_string_view p_signal, Array p_binds) {
 
-    Vector<Variant> binds;
+    PODVector<Variant> binds;
     for (int i = 0; i < p_binds.size(); i++) {
         binds.push_back(p_binds[i]);
     }
@@ -2375,7 +2375,7 @@ void VisualScriptFunctionState::connect_to_signal(Object *p_obj, se_string_view 
 }
 void VisualScriptFunctionState::connect_to_signal_sv(Object *p_obj, se_string_view p_signal, Array p_binds) {
 
-    Vector<Variant> binds;
+    PODVector<Variant> binds;
     for (int i = 0; i < p_binds.size(); i++) {
         binds.push_back(p_binds[i]);
     }

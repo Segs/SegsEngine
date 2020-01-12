@@ -6,7 +6,7 @@
 /*                      https://godotengine.org                          */
 /*************************************************************************/
 /* Copyright (c) 2007-2019 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md)    */
+/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md).   */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -72,14 +72,14 @@ class ConnectDialogBinds : public Object {
     GDCLASS(ConnectDialogBinds,Object)
 
 public:
-    Vector<Variant> params;
+    PODVector<Variant> params;
 
     bool _set(const StringName &p_name, const Variant &p_value) {
 
         if (StringUtils::begins_with(p_name,"bind/")) {
             int which = StringUtils::to_int(StringUtils::get_slice(p_name,"/", 1)) - 1;
             ERR_FAIL_INDEX_V(which, params.size(), false);
-            params.write[which] = p_value;
+            params[which] = p_value;
         } else
             return false;
 
@@ -206,7 +206,7 @@ void ConnectDialog::_remove_bind() {
     int idx = StringUtils::to_int(StringUtils::get_slice(st,"/", 1)) - 1;
 
     ERR_FAIL_INDEX(idx, cdbinds->params.size())
-    cdbinds->params.remove(idx);
+    cdbinds->params.erase_at(idx);
     cdbinds->notify_changed();
 }
 
@@ -261,7 +261,7 @@ void ConnectDialog::set_dst_method(const StringName &p_method) {
     dst_method->set_text_utf8(p_method);
 }
 
-Vector<Variant> ConnectDialog::get_binds() const {
+const PODVector<Variant> &ConnectDialog::get_binds() const {
 
     return cdbinds->params;
 }
@@ -582,7 +582,7 @@ void ConnectionsDock::_connect(const Connection& cToMake) {
     undo_redo->create_action(FormatVE(translated_fmt.c_str(), cToMake.signal.asCString(), cToMake.method.asCString()));
 
     undo_redo->add_do_method(source, "connect", cToMake.signal, Variant(target), cToMake.method,
-            Variant::from(cToMake.binds), cToMake.flags);
+            Variant::fromVector(Span<const Variant>(cToMake.binds)), cToMake.flags);
     undo_redo->add_undo_method(source, "disconnect", cToMake.signal, Variant(target), cToMake.method);
     undo_redo->add_do_method(this, "update_tree");
     undo_redo->add_undo_method(this, "update_tree");
@@ -604,7 +604,7 @@ void ConnectionsDock::_disconnect(TreeItem &item) {
     undo_redo->create_action(FormatVE(translated_fmt.c_str(), c.signal.asCString(), c.method.asCString()));
 
     undo_redo->add_do_method(selectedNode, "disconnect", c.signal,Variant(c.target), c.method);
-    undo_redo->add_undo_method(selectedNode, "connect", c.signal, Variant(c.target), c.method, Variant::from(c.binds), c.flags);
+    undo_redo->add_undo_method(selectedNode, "connect", c.signal, Variant(c.target), c.method, Variant::fromVector(Span<const Variant>(c.binds)), c.flags);
     undo_redo->add_do_method(this, "update_tree");
     undo_redo->add_undo_method(this, "update_tree");
     undo_redo->add_do_method(EditorNode::get_singleton()->get_scene_tree_dock()->get_tree_editor(), "update_tree"); // To force redraw of scene tree.
@@ -632,7 +632,7 @@ void ConnectionsDock::_disconnect_all() {
     while (child) {
         Connection c = child->get_metadata(0);
         undo_redo->add_do_method(selectedNode, "disconnect", c.signal, Variant(c.target), c.method);
-        undo_redo->add_undo_method(selectedNode, "connect", c.signal, Variant(c.target), c.method, Variant::from(c.binds), c.flags);
+        undo_redo->add_undo_method(selectedNode, "connect", c.signal, Variant(c.target), c.method, Variant::fromVector(Span<const Variant>(c.binds)), c.flags);
         child = child->get_next();
     }
 

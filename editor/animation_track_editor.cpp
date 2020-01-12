@@ -6,7 +6,7 @@
 /*                      https://godotengine.org                          */
 /*************************************************************************/
 /* Copyright (c) 2007-2019 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md)    */
+/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md).   */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -3801,8 +3801,9 @@ void AnimationTrackEditor::insert_value_key(se_string_view p_property, const Var
                 value = p_value; //all good
             } else {
                 se_string tpath(animation->track_get_path(i));
-                if (NodePath(PathUtils::get_basename(tpath)) == np) {
-                    se_string_view subindex = PathUtils::get_extension(tpath);
+                auto index = tpath.rfind(':');
+                if (NodePath(tpath.substr(0, index + 1)) == np) {
+                    auto subindex = se_string_view(tpath).substr(index + 1, tpath.length() - index);
                     value = p_value.get(subindex);
                 } else {
                     continue;

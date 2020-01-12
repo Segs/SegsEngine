@@ -6,7 +6,7 @@
 /*                      https://godotengine.org                          */
 /*************************************************************************/
 /* Copyright (c) 2007-2019 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md)    */
+/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md).   */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -679,15 +679,15 @@ bool GridMapEditor::forward_spatial_input_event(Camera *p_camera, const Ref<Inpu
             if ((nav_scheme == SpatialEditorViewport::NAVIGATION_MAYA || nav_scheme == SpatialEditorViewport::NAVIGATION_MODO) && mb->get_alt()) {
                 input_action = INPUT_NONE;
             } else if (mb->get_button_index() == BUTTON_LEFT) {
-
+                bool can_edit = (node && node->get_mesh_library());
                 if (input_action == INPUT_PASTE) {
                     _do_paste();
                     input_action = INPUT_NONE;
                     _update_paste_indicator();
-                } else if (mb->get_shift()) {
+                } else if (mb->get_shift() && can_edit) {
                     input_action = INPUT_SELECT;
                     last_selection = selection;
-                } else if (mb->get_command()) {
+                } else if (mb->get_command() && can_edit) {
                     input_action = INPUT_PICK;
                 } else {
                     input_action = INPUT_PAINT;

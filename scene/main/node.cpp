@@ -6,7 +6,7 @@
 /*                      https://godotengine.org                          */
 /*************************************************************************/
 /* Copyright (c) 2007-2019 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md)    */
+/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md).   */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -2519,34 +2519,34 @@ void Node::_replace_connections_target(Node *p_new_target) {
     }
 }
 
-Vector<Variant> Node::make_binds(VARIANT_ARG_DECLARE) {
+PODVector<Variant> Node::make_binds(VARIANT_ARG_DECLARE) {
 
-    Vector<Variant> ret;
+    PODVector<Variant> ret;
 
     if (p_arg1.get_type() == VariantType::NIL)
         return ret;
 
-    ret.push_back(p_arg1);
+    ret.emplace_back(p_arg1);
 
     if (p_arg2.get_type() == VariantType::NIL)
         return ret;
 
-    ret.push_back(p_arg2);
+    ret.emplace_back(p_arg2);
 
     if (p_arg3.get_type() == VariantType::NIL)
         return ret;
 
-    ret.push_back(p_arg3);
+    ret.emplace_back(p_arg3);
 
     if (p_arg4.get_type() == VariantType::NIL)
         return ret;
 
-    ret.push_back(p_arg4);
+    ret.emplace_back(p_arg4);
 
     if (p_arg5.get_type() == VariantType::NIL)
         return ret;
 
-    ret.push_back(p_arg5);
+    ret.emplace_back(p_arg5);
 
     return ret;
 }
@@ -2760,7 +2760,8 @@ void Node::clear_internal_tree_resource_paths() {
 
 StringName Node::get_configuration_warning() const {
 
-    if (get_script_instance() && get_script_instance()->has_method("_get_configuration_warning")) {
+    if (get_script_instance() && get_script_instance()->get_script() &&
+            get_script_instance()->has_method("_get_configuration_warning")) {
         return get_script_instance()->call("_get_configuration_warning");
     }
     return StringName();

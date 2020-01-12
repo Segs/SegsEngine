@@ -6,7 +6,7 @@
 /*                      https://godotengine.org                          */
 /*************************************************************************/
 /* Copyright (c) 2007-2019 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md)    */
+/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md).   */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -30,6 +30,7 @@
 
 #include "viewport.h"
 
+#include "core/core_string_names.h"
 #include "core/method_bind.h"
 #include "core/object_db.h"
 #include "core/os/input.h"
@@ -272,7 +273,26 @@ void Viewport::_collision_object_input_event(CollisionObject *p_object, Camera *
     physics_last_camera_transform = camera_transform;
     physics_last_id = id;
 }
+void Viewport::_own_world_changed() {
+    ERR_FAIL_COND(not world)
+    ERR_FAIL_COND(not own_world)
 
+    if (is_inside_tree()) {
+        _propagate_exit_world(this);
+    }
+
+    own_world = dynamic_ref_cast<World>(world->duplicate());
+
+    if (is_inside_tree()) {
+        _propagate_enter_world(this);
+    }
+
+    if (is_inside_tree()) {
+        VisualServer::get_singleton()->viewport_set_scenario(viewport, find_world()->get_scenario());
+    }
+
+    _update_listener();
+}
 void Viewport::_notification(int p_what) {
 
     switch (p_what) {
@@ -1124,7 +1144,18 @@ void Viewport::set_world(const Ref<World> &p_world) {
     if (is_inside_tree())
         _propagate_exit_world(this);
 
+    if (own_world && world) {
+        world->disconnect(CoreStringNames::get_singleton()->changed, this, "_own_world_changed");
+    }
     world = p_world;
+    if (own_world) {
+        if (world) {
+            own_world = dynamic_ref_cast<World>(world->duplicate());
+            world->connect(CoreStringNames::get_singleton()->changed, this, "_own_world_changed");
+        } else {
+            own_world = Ref<World>(memnew(World));
+        }
+    }
 
     if (is_inside_tree())
         _propagate_enter_world(this);
@@ -2838,10 +2869,19 @@ void Viewport::set_use_own_world(bool p_world) {
     if (is_inside_tree())
         _propagate_exit_world(this);
 
-    if (!p_world)
-        own_world.reset();
-    else
-        own_world = make_ref_counted<World>();
+    if (!p_world) {
+        own_world = Ref<World>();
+        if (world) {
+            world->disconnect(CoreStringNames::get_singleton()->changed, this, "_own_world_changed");
+        }
+    } else {
+        if (world) {
+            own_world = dynamic_ref_cast<World>(world->duplicate());
+            world->connect(CoreStringNames::get_singleton()->changed, this, "_own_world_changed");
+        } else {
+            own_world = make_ref_counted<World>();
+        }
+    }
 
     if (is_inside_tree())
         _propagate_enter_world(this);
@@ -3189,6 +3229,8 @@ void Viewport::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("is_handling_input_locally"), &Viewport::is_handling_input_locally);
 
     MethodBinder::bind_method(D_METHOD("_subwindow_visibility_changed"), &Viewport::_subwindow_visibility_changed);
+
+    MethodBinder::bind_method(D_METHOD("_own_world_changed"), &Viewport::_own_world_changed);
 
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "arvr"), "set_use_arvr", "use_arvr");
 

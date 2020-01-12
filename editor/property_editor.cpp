@@ -6,7 +6,7 @@
 /*                      https://godotengine.org                          */
 /*************************************************************************/
 /* Copyright (c) 2007-2019 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md)    */
+/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md).   */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -1980,9 +1980,7 @@ CustomPropertyEditor::CustomPropertyEditor() {
         action_buttons[i] = memnew(Button);
         action_buttons[i]->hide();
         add_child(action_buttons[i]);
-        Vector<Variant> binds;
-        binds.push_back(i);
-        action_buttons[i]->connect("pressed", this, "_action_pressed", binds);
+        action_buttons[i]->connect("pressed", this, "_action_pressed", {i});
         action_buttons[i]->set_flat(true);
     }
 

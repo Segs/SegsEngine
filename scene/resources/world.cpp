@@ -6,7 +6,7 @@
 /*                      https://godotengine.org                          */
 /*************************************************************************/
 /* Copyright (c) 2007-2019 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md)    */
+/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md).   */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -273,9 +273,13 @@ RID World::get_scenario() const {
 }
 
 void World::set_environment(const Ref<Environment> &p_environment) {
-
+    if (environment == p_environment) {
+        return;
+    }
     environment = p_environment;
     VisualServer::get_singleton()->scenario_set_environment(scenario, environment ? environment->get_rid() : RID());
+
+    emit_changed();
 }
 
 Ref<Environment> World::get_environment() const {
@@ -284,9 +288,14 @@ Ref<Environment> World::get_environment() const {
 }
 
 void World::set_fallback_environment(const Ref<Environment> &p_environment) {
+    if (fallback_environment == p_environment) {
+        return;
+    }
 
     fallback_environment = p_environment;
     VisualServer::get_singleton()->scenario_set_fallback_environment(scenario, fallback_environment ? fallback_environment->get_rid() : RID());
+
+    emit_changed();
 }
 
 Ref<Environment> World::get_fallback_environment() const {

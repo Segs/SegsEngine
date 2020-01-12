@@ -6,7 +6,7 @@
 /*                      https://godotengine.org                          */
 /*************************************************************************/
 /* Copyright (c) 2007-2019 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md)    */
+/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md).   */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -256,6 +256,11 @@ Error GDScriptWorkspace::initialize() {
             bool arg_default_value_started = false;
             for (int j = 0; j < data.arguments.size(); j++) {
                 const DocData::ArgumentDoc &arg = data.arguments[j];
+                lsp::DocumentSymbol symbol_arg;
+                symbol_arg.name = arg.name;
+                symbol_arg.kind = lsp::SymbolKind::Variable;
+                symbol_arg.detail = arg.type;
+
                 if (!arg_default_value_started && !arg.default_value.empty()) {
                     arg_default_value_started = true;
                 }
@@ -267,6 +272,7 @@ Error GDScriptWorkspace::initialize() {
                     arg_str += (", ");
                 }
                 params += arg_str;
+                symbol.children.emplace_back(eastl::move(symbol_arg));
             }
             if (StringUtils::contains(data.qualifiers,"vararg")) {
                 params += (params.empty() ? "..." : ", ...");
@@ -442,7 +448,7 @@ const lsp::DocumentSymbol *GDScriptWorkspace::resolve_symbol(const lsp::TextDocu
     return symbol;
 }
 
-void GDScriptWorkspace::resolve_related_symbols(const lsp::TextDocumentPositionParams &p_doc_pos, List<const lsp::DocumentSymbol *> &r_list) {
+void GDScriptWorkspace::resolve_related_symbols(const lsp::TextDocumentPositionParams &p_doc_pos, ListPOD<const lsp::DocumentSymbol *> &r_list) {
 
     se_string path = get_file_path(p_doc_pos.textDocument.uri);
     if (const ExtendGDScriptParser *parser = get_parse_result(path)) {
@@ -513,7 +519,47 @@ Dictionary GDScriptWorkspace::generate_script_api(se_string_view p_path) {
     }
     return api;
 }
+Error GDScriptWorkspace::resolve_signature(const lsp::TextDocumentPositionParams &p_doc_pos, lsp::SignatureHelp &r_signature) {
+    if (const ExtendGDScriptParser *parser = get_parse_result(get_file_path(p_doc_pos.textDocument.uri))) {
 
+        lsp::TextDocumentPositionParams text_pos;
+        text_pos.textDocument = p_doc_pos.textDocument;
+
+        if (parser->get_left_function_call(p_doc_pos.position, text_pos.position, r_signature.activeParameter) == OK) {
+
+            ListPOD<const lsp::DocumentSymbol *> symbols;
+
+            if (const lsp::DocumentSymbol *symbol = resolve_symbol(text_pos)) {
+                symbols.push_back(symbol);
+            } else if (GDScriptLanguageProtocol::get_singleton()->is_smart_resolve_enabled()) {
+                GDScriptLanguageProtocol::get_singleton()->get_workspace()->resolve_related_symbols(text_pos, symbols);
+            }
+
+            for (const lsp::DocumentSymbol *symbol : symbols) {
+                if (symbol->kind == lsp::SymbolKind::Method || symbol->kind == lsp::SymbolKind::Function) {
+
+                    lsp::SignatureInformation signature_info;
+                    signature_info.label = symbol->detail;
+                    signature_info.documentation = symbol->render();
+
+                    for (int i = 0; i < symbol->children.size(); i++) {
+                        const lsp::DocumentSymbol &arg = symbol->children[i];
+                        lsp::ParameterInformation arg_info;
+                        arg_info.label = arg.name;
+                        signature_info.parameters.push_back(arg_info);
+                    }
+                    r_signature.signatures.push_back(signature_info);
+                    break;
+                }
+            }
+
+            if (r_signature.signatures.size()) {
+                return OK;
+            }
+        }
+    }
+    return ERR_METHOD_NOT_FOUND;
+}
 GDScriptWorkspace::GDScriptWorkspace() {
     ProjectSettings::get_singleton()->get_resource_path();
 }

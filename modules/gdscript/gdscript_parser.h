@@ -6,7 +6,7 @@
 /*                      https://godotengine.org                          */
 /*************************************************************************/
 /* Copyright (c) 2007-2019 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md)    */
+/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md).   */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -574,9 +574,9 @@ private:
     se_string base_path;
     se_string self_path;
 
-    ClassNode *current_class;
-    FunctionNode *current_function;
-    BlockNode *current_block;
+    ClassNode *current_class = nullptr;
+    FunctionNode *current_function=nullptr;
+    BlockNode *current_block = nullptr;
 
     bool _get_completable_identifier(CompletionType p_type, StringName &identifier);
     void _make_completable_call(int p_arg);

@@ -6,7 +6,7 @@
 /*                      https://godotengine.org                          */
 /*************************************************************************/
 /* Copyright (c) 2007-2019 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md)    */
+/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md).   */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -1766,7 +1766,6 @@ void SceneTreeDock::_script_created(const Ref<Script>& p_script) {
 
 void SceneTreeDock::_script_creation_closed() {
     script_create_dialog->disconnect("script_created", this, "_script_created");
-    script_create_dialog->disconnect("popup_hide", this, "_script_creation_closed");
 }
 
 void SceneTreeDock::_toggle_editable_children_from_selection() {
@@ -2642,7 +2641,7 @@ void SceneTreeDock::attach_script_to_selected(bool p_extend) {
     }
 
     script_create_dialog->connect("script_created", this, "_script_created");
-    script_create_dialog->connect("popup_hide", this, "_script_creation_closed");
+    script_create_dialog->connect("popup_hide", this, "_script_creation_closed", null_variant_pvec, ObjectNS::CONNECT_ONESHOT);
     script_create_dialog->set_inheritance_base_type("Node");
     script_create_dialog->config(inherits, path);
     script_create_dialog->popup_centered();

@@ -6,7 +6,7 @@
 /*                      https://godotengine.org                          */
 /*************************************************************************/
 /* Copyright (c) 2007-2019 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md)    */
+/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md).   */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -38,6 +38,20 @@
 
 IMPL_GDCLASS(TouchScreenButton)
 VARIANT_ENUM_CAST(TouchScreenButton::VisibilityMode);
+
+#ifdef TOOLS_ENABLED
+Rect2 TouchScreenButton::_edit_get_rect() const {
+    if (not texture) {
+        return CanvasItem::_edit_get_rect();
+    }
+
+    return Rect2(Size2(), texture->get_size());
+}
+
+bool TouchScreenButton::_edit_use_rect() const {
+    return texture;
+}
+#endif
 
 void TouchScreenButton::set_texture(const Ref<Texture> &p_texture) {
 
@@ -140,7 +154,8 @@ void TouchScreenButton::_notification(int p_what) {
                 return;
             if (shape) {
                 Color draw_col = get_tree()->get_debug_collisions_color();
-                Vector2 pos = shape_centered ? _edit_get_rect().size * 0.5f : Vector2();
+                Vector2 size = not texture ? shape->get_rect().size : texture->get_size();
+                Vector2 pos = shape_centered ? size * 0.5f : Vector2();
                 draw_set_transform_matrix(get_canvas_transform().translated(pos));
                 shape->draw(get_canvas_item(), draw_col);
             }
@@ -258,7 +273,6 @@ void TouchScreenButton::_input(const Ref<InputEvent> &p_event) {
 bool TouchScreenButton::_is_point_inside(const Point2 &p_point) {
 
     Point2 coord = (get_global_transform_with_canvas()).affine_inverse().xform(p_point);
-    Rect2 item_rect = _edit_get_rect();
 
     bool touched = false;
     bool check_rect = true;
@@ -266,7 +280,7 @@ bool TouchScreenButton::_is_point_inside(const Point2 &p_point) {
     if (shape) {
 
         check_rect = false;
-        Transform2D xform = shape_centered ? Transform2D().translated(item_rect.size * 0.5f) : Transform2D();
+        Transform2D xform = shape_centered ? Transform2D().translated(shape->get_rect().size * 0.5f) : Transform2D();
         touched = shape->collide(xform, unit_rect, Transform2D(0, coord + Vector2(0.5, 0.5)));
     }
 
@@ -282,7 +296,7 @@ bool TouchScreenButton::_is_point_inside(const Point2 &p_point) {
 
     if (!touched && check_rect) {
         if (texture)
-            touched = item_rect.has_point(coord);
+            touched = Rect2(Size2(), texture->get_size()).has_point(coord);
     }
 
     return touched;
@@ -325,18 +339,6 @@ void TouchScreenButton::_release(bool p_exiting_tree) {
         emit_signal("released");
         update();
     }
-}
-
-Rect2 TouchScreenButton::_edit_get_rect() const {
-    if (not texture) {
-        return CanvasItem::_edit_get_rect();
-    }
-
-    return Rect2(Size2(), texture->get_size());
-}
-
-bool TouchScreenButton::_edit_use_rect() const {
-    return texture;
 }
 
 Rect2 TouchScreenButton::get_anchorable_rect() const {

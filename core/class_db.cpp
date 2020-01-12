@@ -6,7 +6,7 @@
 /*                      https://godotengine.org                          */
 /*************************************************************************/
 /* Copyright (c) 2007-2019 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md)    */
+/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md).   */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -210,6 +210,14 @@ uint64_t ClassDB::get_api_hash(APIType p_api) {
             snames.reserve(t.method_map.size());
 
             for(const auto & v : t.method_map) {
+                const char *name = v.first.asCString();
+
+                ERR_CONTINUE(name==nullptr);
+
+                if (name[0] == '_')
+                    continue; // Ignore non-virtual methods that start with an underscore
+
+
                 snames.push_back(v.first);
             }
 

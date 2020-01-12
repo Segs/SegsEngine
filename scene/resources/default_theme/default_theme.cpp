@@ -6,7 +6,7 @@
 /*                      https://godotengine.org                          */
 /*************************************************************************/
 /* Copyright (c) 2007-2019 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md)    */
+/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md).   */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -182,7 +182,7 @@ void fill_default_theme(Ref<Theme> &theme, const Ref<Font> &default_font, const 
     Color control_font_color_lower = Color(0.63f, 0.63f, 0.63f);
     Color control_font_color_low = Color(0.69f, 0.69f, 0.69f);
     Color control_font_color_hover = Color(0.94f, 0.94f, 0.94f);
-    Color control_font_color_disabled = Color(0.9f, 0.9f, 0.9f, 0.2);
+    Color control_font_color_disabled = Color(0.9f, 0.9f, 0.9f, 0.2f);
     Color control_font_color_pressed = Color(1.0f, 1.0f, 1.0f);
     Color font_color_selection = Color(0.49f, 0.49f, 0.49f);
 
@@ -849,6 +849,9 @@ void fill_default_theme(Ref<Theme> &theme, const Ref<Font> &default_font, const 
     theme->set_color("grid_minor", "GraphEdit", Color(1, 1, 1, 0.05f));
     theme->set_color("grid_major", "GraphEdit", Color(1, 1, 1, 0.2f));
     theme->set_color("activity", "GraphEdit", Color(1, 1, 1));
+    theme->set_color("selection_fill", "GraphEdit", Color(1, 1, 1, 0.3f));
+    theme->set_color("selection_stroke", "GraphEdit", Color(1, 1, 1, 0.8f));
+
     theme->set_constant("bezier_len_pos", "GraphEdit", 80 * scale);
     theme->set_constant("bezier_len_neg", "GraphEdit", 160 * scale);
 

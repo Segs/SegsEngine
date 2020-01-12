@@ -6,7 +6,7 @@
 /*                      https://godotengine.org                          */
 /*************************************************************************/
 /* Copyright (c) 2007-2019 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md)    */
+/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md).   */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -67,7 +67,7 @@ void CreateDialog::popup_create(bool p_dont_clear, bool p_replace_mode, const St
             se_string l(StringUtils::strip_edges(f->get_line()));
             StringName name(StringUtils::split(l, ' ')[0]);
 
-            if (ClassDB::class_exists(name) || ScriptServer::is_global_class(name)) {
+            if ((ClassDB::class_exists(name) || ScriptServer::is_global_class(name)) && !_is_class_disabled_by_feature_profile(name)) {
                 TreeItem *ti = recent->create_item(root);
                 ti->set_text_utf8(0, l);
                 ti->set_icon(0, EditorNode::get_singleton()->get_class_icon(StringName(l), StringName(base_type)));
@@ -284,17 +284,7 @@ bool CreateDialog::_is_class_disabled_by_feature_profile(const StringName &p_cla
         return false;
     }
 
-    StringName class_name = p_class;
-
-    while (class_name != StringName()) {
-
-        if (profile->is_class_disabled(class_name)) {
-            return true;
-        }
-        class_name = ClassDB::get_parent_class_nocheck(class_name);
-    }
-
-    return false;
+    return profile->is_class_disabled(p_class);
 }
 
 void CreateDialog::select_type(const StringName &p_type) {
@@ -618,7 +608,8 @@ void CreateDialog::_update_favorite_list() {
     for (int i = 0; i < favorite_list.size(); i++) {
         const se_string &l = favorite_list[i];
         StringName name(StringUtils::split(l, ' ')[0]);
-        if (!(ClassDB::class_exists(name) || ScriptServer::is_global_class(name))) continue;
+        if (!((ClassDB::class_exists(name) || ScriptServer::is_global_class(name)) && !_is_class_disabled_by_feature_profile(name)))
+            continue;
         TreeItem *ti = favorites->create_item(root);
         ti->set_text_utf8(0, l);
         ti->set_icon(0, EditorNode::get_singleton()->get_class_icon(StringName(l), base_type));

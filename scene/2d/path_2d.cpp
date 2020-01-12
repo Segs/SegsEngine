@@ -6,7 +6,7 @@
 /*                      https://godotengine.org                          */
 /*************************************************************************/
 /* Copyright (c) 2007-2019 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md)    */
+/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md).   */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -43,7 +43,7 @@
 
 IMPL_GDCLASS(Path2D)
 IMPL_GDCLASS(PathFollow2D)
-
+#ifdef TOOLS_ENABLED
 Rect2 Path2D::_edit_get_rect() const {
 
     if (not curve || curve->get_point_count() == 0)
@@ -55,7 +55,7 @@ Rect2 Path2D::_edit_get_rect() const {
 
         for (int j = 0; j <= 8; j++) {
 
-            real_t frac = j / 8.0;
+            real_t frac = j / 8.0f;
             Vector2 p = curve->interpolate(i, frac);
             aabb.expand_to(p);
         }
@@ -79,7 +79,7 @@ bool Path2D::_edit_is_selected_on_click(const Point2 &p_point, float p_tolerance
         s[0] = curve->get_point_position(i);
 
         for (int j = 1; j <= 8; j++) {
-            real_t frac = j / 8.0;
+            real_t frac = j / 8.0f;
             s[1] = curve->interpolate(i, frac);
 
             Vector2 p = Geometry::get_closest_point_to_segment_2d(p_point, s);
@@ -92,6 +92,7 @@ bool Path2D::_edit_is_selected_on_click(const Point2 &p_point, float p_tolerance
 
     return false;
 }
+#endif
 
 void Path2D::_notification(int p_what) {
 

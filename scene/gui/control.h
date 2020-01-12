@@ -6,7 +6,7 @@
 /*                      https://godotengine.org                          */
 /*************************************************************************/
 /* Copyright (c) 2007-2019 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md)    */
+/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md).   */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -269,6 +269,7 @@ public:
     };
 
     /* EDITOR */
+#ifdef TOOLS_ENABLED
     Dictionary _edit_get_state() const override;
     void _edit_set_state(const Dictionary &p_state) override;
 
@@ -291,6 +292,7 @@ public:
     bool _edit_use_pivot() const override;
 
     Size2 _edit_get_minimum_size() const override;
+#endif
 
     void accept_event();
 

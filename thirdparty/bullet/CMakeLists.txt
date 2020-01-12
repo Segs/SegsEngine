@@ -115,6 +115,8 @@ set(bullet2_src
     BulletDynamics/ConstraintSolver/btHingeConstraint.cpp
     BulletDynamics/ConstraintSolver/btPoint2PointConstraint.cpp
     BulletDynamics/ConstraintSolver/btSequentialImpulseConstraintSolver.cpp
+    BulletDynamics/ConstraintSolver/btSequentialImpulseConstraintSolverMt.cpp
+    BulletDynamics/ConstraintSolver/btBatchedConstraints.cpp
     BulletDynamics/ConstraintSolver/btNNCGConstraintSolver.cpp
     BulletDynamics/ConstraintSolver/btSliderConstraint.cpp
     BulletDynamics/ConstraintSolver/btSolve2LinearConstraint.cpp
@@ -129,15 +131,17 @@ set(bullet2_src
     BulletDynamics/Vehicle/btRaycastVehicle.cpp
     BulletDynamics/Vehicle/btWheelInfo.cpp
     BulletDynamics/Featherstone/btMultiBody.cpp
+    BulletDynamics/Featherstone/btMultiBodyConstraint.cpp
     BulletDynamics/Featherstone/btMultiBodyConstraintSolver.cpp
     BulletDynamics/Featherstone/btMultiBodyDynamicsWorld.cpp
-    BulletDynamics/Featherstone/btMultiBodyJointLimitConstraint.cpp
-    BulletDynamics/Featherstone/btMultiBodyConstraint.cpp
-    BulletDynamics/Featherstone/btMultiBodyPoint2Point.cpp
     BulletDynamics/Featherstone/btMultiBodyFixedConstraint.cpp
-    BulletDynamics/Featherstone/btMultiBodySliderConstraint.cpp
-    BulletDynamics/Featherstone/btMultiBodyJointMotor.cpp
     BulletDynamics/Featherstone/btMultiBodyGearConstraint.cpp
+    BulletDynamics/Featherstone/btMultiBodyJointLimitConstraint.cpp
+    BulletDynamics/Featherstone/btMultiBodyJointMotor.cpp
+    BulletDynamics/Featherstone/btMultiBodyMLCPConstraintSolver.cpp
+    BulletDynamics/Featherstone/btMultiBodyPoint2Point.cpp
+    BulletDynamics/Featherstone/btMultiBodySliderConstraint.cpp
+    BulletDynamics/Featherstone/btMultiBodySphericalJointMotor.cpp
     BulletDynamics/MLCPSolvers/btDantzigLCP.cpp
     BulletDynamics/MLCPSolvers/btMLCPSolver.cpp
     BulletDynamics/MLCPSolvers/btLemkeAlgorithm.cpp
@@ -158,6 +162,12 @@ set(bullet2_src
     BulletSoftBody/btSoftMultiBodyDynamicsWorld.cpp
     BulletSoftBody/btSoftSoftCollisionAlgorithm.cpp
     BulletSoftBody/btDefaultSoftBodySolver.cpp
+    BulletSoftBody/btDeformableBackwardEulerObjective.cpp
+    BulletSoftBody/btDeformableBodySolver.cpp
+    BulletSoftBody/btDeformableMultiBodyConstraintSolver.cpp
+    BulletSoftBody/btDeformableContactProjection.cpp
+    BulletSoftBody/btDeformableMultiBodyDynamicsWorld.cpp
+    BulletSoftBody/btDeformableContactConstraint.cpp
 
     # clew
     clew/clew.c
@@ -173,6 +183,9 @@ set(bullet2_src
     LinearMath/btSerializer64.cpp
     LinearMath/btThreads.cpp
     LinearMath/btVector3.cpp
+    LinearMath/TaskScheduler/btTaskScheduler.cpp
+    LinearMath/TaskScheduler/btThreadSupportPosix.cpp
+    LinearMath/TaskScheduler/btThreadSupportWin32.cpp
 )
 add_library(bullet STATIC ${bullet2_src})
 target_include_directories(bullet PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})

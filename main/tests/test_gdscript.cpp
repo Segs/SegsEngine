@@ -6,7 +6,7 @@
 /*                      https://godotengine.org                          */
 /*************************************************************************/
 /* Copyright (c) 2007-2019 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md)    */
+/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md).   */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -665,6 +665,30 @@ static void _disassemble_class(const Ref<GDScript> &p_class, const Vector<se_str
                     txt += DADDR(1);
                     txt += "= false";
                     incr += 2;
+
+                } break;
+                case GDScriptFunction::OPCODE_ASSIGN_TYPED_BUILTIN: {
+
+                    txt += " assign typed builtin (";
+                    txt += Variant::get_type_name((VariantType)code[ip + 1]);
+                    txt += ") ";
+                    txt += DADDR(2);
+                    txt += " = ";
+                    txt += DADDR(3);
+                    incr += 4;
+
+                } break;
+                case GDScriptFunction::OPCODE_ASSIGN_TYPED_NATIVE: {
+                    Variant className = func.get_constant(code[ip + 1]);
+                    GDScriptNativeClass *nc = object_cast<GDScriptNativeClass>(className.as<Object *>());
+
+                    txt += " assign typed native (";
+                    txt += nc->get_name().asCString();
+                    txt += ") ";
+                    txt += DADDR(2);
+                    txt += " = ";
+                    txt += DADDR(3);
+                    incr += 4;
 
                 } break;
                 case GDScriptFunction::OPCODE_CAST_TO_SCRIPT: {

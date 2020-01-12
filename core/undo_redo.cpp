@@ -6,7 +6,7 @@
 /*                      https://godotengine.org                          */
 /*************************************************************************/
 /* Copyright (c) 2007-2019 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md)    */
+/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md).   */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -599,7 +599,7 @@ void UndoRedo::_bind_methods() {
         mi.arguments.push_back(PropertyInfo(VariantType::OBJECT, "object"));
         mi.arguments.push_back(PropertyInfo(VariantType::STRING, "method"));
 
-        MethodBinder::bind_vararg_method("add_do_method", &UndoRedo::_add_do_method, mi);
+        MethodBinder::bind_vararg_method("add_do_method", &UndoRedo::_add_do_method, mi,null_variant_pvec,false);
     }
 
     {
@@ -608,7 +608,7 @@ void UndoRedo::_bind_methods() {
         mi.arguments.push_back(PropertyInfo(VariantType::OBJECT, "object"));
         mi.arguments.push_back(PropertyInfo(VariantType::STRING, "method"));
 
-        MethodBinder::bind_vararg_method("add_undo_method", &UndoRedo::_add_undo_method, mi);
+        MethodBinder::bind_vararg_method("add_undo_method", &UndoRedo::_add_undo_method, mi,null_variant_pvec,false);
     }
 
     MethodBinder::bind_method(D_METHOD("add_do_property", {"object", "property", "value"}), &UndoRedo::add_do_property);

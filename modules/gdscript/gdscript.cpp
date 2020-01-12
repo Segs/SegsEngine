@@ -6,7 +6,7 @@
 /*                      https://godotengine.org                          */
 /*************************************************************************/
 /* Copyright (c) 2007-2019 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md)    */
+/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md).   */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -2063,6 +2063,9 @@ se_string GDScriptWarning::get_message() const {
             CHECK_SYMBOLS(2)
             return "The '" + symbols[0] + "' keyword is deprecated and will be removed in a future release, please replace its uses by '" + symbols[1] + "'.";
         }
+        case STANDALONE_TERNARY: {
+            return "Standalone ternary conditional operator: the return value is being discarded.";
+        }
         case WARNING_MAX: break; // Can't happen, but silences warning
     }
     ERR_FAIL_V_MSG(se_string(), se_string("Invalid GDScript warning code: ") + get_name_from_code(code) + ".")
@@ -2104,6 +2107,7 @@ const char *GDScriptWarning::get_name_from_code(Code p_code) {
         "UNSAFE_CAST",
         "UNSAFE_CALL_ARGUMENT",
         "DEPRECATED_KEYWORD",
+        "STANDALONE_TERNARY",
         nullptr
     };
 

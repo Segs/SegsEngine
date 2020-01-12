@@ -6,7 +6,7 @@
 /*                      https://godotengine.org                          */
 /*************************************************************************/
 /* Copyright (c) 2007-2019 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md)    */
+/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md).   */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -59,6 +59,7 @@
 
 IMPL_GDCLASS(Control)
 
+#ifdef TOOLS_ENABLED
 Dictionary Control::_edit_get_state() const {
 
     Dictionary s;
@@ -166,7 +167,12 @@ Point2 Control::_edit_get_pivot() const {
 bool Control::_edit_use_pivot() const {
     return true;
 }
+Size2 Control::_edit_get_minimum_size() const {
 
+    return get_combined_minimum_size();
+}
+
+#endif // TOOLS_ENABLED
 void Control::set_custom_minimum_size(const Size2 &p_custom) {
 
     if (p_custom == data.custom_minimum_size)
@@ -203,11 +209,6 @@ Size2 Control::get_combined_minimum_size() const {
         const_cast<Control *>(this)->_update_minimum_size_cache();
     }
     return data.minimum_size_cache;
-}
-
-Size2 Control::_edit_get_minimum_size() const {
-
-    return get_combined_minimum_size();
 }
 
 Transform2D Control::_get_internal_transform() const {
@@ -1885,7 +1886,7 @@ void Control::add_icon_override(const StringName &p_name, const Ref<Texture> &p_
     } else {
         data.icon_override[p_name] = p_icon;
         if (data.icon_override[p_name]) {
-            data.icon_override[p_name]->connect("changed", this, "_override_changed", Vector<Variant>(), ObjectNS::CONNECT_REFERENCE_COUNTED);
+            data.icon_override[p_name]->connect("changed", this, "_override_changed", null_variant_pvec, ObjectNS::CONNECT_REFERENCE_COUNTED);
         }
     }
     notification(NOTIFICATION_THEME_CHANGED);
@@ -1903,7 +1904,7 @@ void Control::add_shader_override(const StringName &p_name, const Ref<Shader> &p
     } else {
         data.shader_override[p_name] = p_shader;
         if (data.shader_override[p_name]) {
-            data.shader_override[p_name]->connect("changed", this, "_override_changed", Vector<Variant>(), ObjectNS::CONNECT_REFERENCE_COUNTED);
+            data.shader_override[p_name]->connect("changed", this, "_override_changed", null_variant_pvec, ObjectNS::CONNECT_REFERENCE_COUNTED);
         }
     }
     notification(NOTIFICATION_THEME_CHANGED);
@@ -1920,7 +1921,7 @@ void Control::add_style_override(const StringName &p_name, const Ref<StyleBox> &
     } else {
         data.style_override[p_name] = p_style;
         if (data.style_override[p_name]) {
-            data.style_override[p_name]->connect("changed", this, "_override_changed", Vector<Variant>(), ObjectNS::CONNECT_REFERENCE_COUNTED);
+            data.style_override[p_name]->connect("changed", this, "_override_changed", null_variant_pvec, ObjectNS::CONNECT_REFERENCE_COUNTED);
         }
     }
     notification(NOTIFICATION_THEME_CHANGED);
@@ -1938,7 +1939,7 @@ void Control::add_font_override(const StringName &p_name, const Ref<Font> &p_fon
     } else {
         data.font_override[p_name] = p_font;
         if (data.font_override[p_name]) {
-            data.font_override[p_name]->connect("changed", this, "_override_changed", Vector<Variant>(), ObjectNS::CONNECT_REFERENCE_COUNTED);
+            data.font_override[p_name]->connect("changed", this, "_override_changed", null_variant_pvec, ObjectNS::CONNECT_REFERENCE_COUNTED);
         }
     }
     notification(NOTIFICATION_THEME_CHANGED);

@@ -6,7 +6,7 @@
 /*                      https://godotengine.org                          */
 /*************************************************************************/
 /* Copyright (c) 2007-2019 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md)    */
+/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md).   */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -419,13 +419,15 @@ Object::Connection::operator Variant() const {
     d["target"] = Variant(target);
     d["method"] = method;
     d["flags"] = flags;
-    d["binds"] = Variant::from(binds);
+    d["binds"] = Variant::fromVector(Span<const Variant>(binds));
     return d;
 }
 
 bool Object::Connection::operator<(const Connection &p_conn) const {
 
-    if (source == p_conn.source) {
+    if (source != p_conn.source) {
+        return source < p_conn.source;
+    } else {
 
         if (signal == p_conn.signal) {
 
@@ -438,8 +440,6 @@ bool Object::Connection::operator<(const Connection &p_conn) const {
             }
         } else
             return signal < p_conn.signal;
-    } else {
-        return source < p_conn.source;
     }
 }
 Object::Connection::Connection(const Variant &p_variant) {
@@ -456,7 +456,7 @@ Object::Connection::Connection(const Variant &p_variant) {
     if (d.has("flags"))
         flags = d["flags"];
     if (d.has("binds"))
-        binds = d["binds"].as<Vector<Variant>>();
+        binds = d["binds"].as<PODVector<Variant>>();
 }
 
 bool Object::_predelete() {
@@ -1374,7 +1374,7 @@ Array Object::_get_signal_connection_list(StringName p_signal) const {
             rc["method"] = c.method;
             rc["source"] = Variant(c.source);
             rc["target"] = Variant(c.target);
-            rc["binds"] = Variant::from(c.binds);
+            rc["binds"] = Variant::fromVector(Span<const Variant>(c.binds));
             rc["flags"] = c.flags;
             ret.push_back(rc);
         }
@@ -1473,7 +1473,7 @@ void Object::get_signals_connected_to_this(ListPOD<Connection> *p_connections) c
     }
 }
 
-Error Object::connect(const StringName &p_signal, Object *p_to_object, const StringName &p_to_method, const Vector<Variant> &p_binds, uint32_t p_flags) {
+Error Object::connect(const StringName &p_signal, Object *p_to_object, const StringName &p_to_method, const PODVector<Variant> &p_binds, uint32_t p_flags) {
 
     ERR_FAIL_NULL_V(p_to_object, ERR_INVALID_PARAMETER)
 
@@ -1562,12 +1562,13 @@ void Object::_disconnect(const StringName &p_signal, Object *p_to_object, const 
 
     ERR_FAIL_NULL(p_to_object)
     Signal *s = private_data->signal_map.getptr(p_signal);
-    ERR_FAIL_COND_MSG(!s, "Nonexistent signal: " + se_string(p_signal) + ".")
+    ERR_FAIL_COND_MSG(!s, FormatVE("Nonexistent signal '%s' in %s.",p_signal.asCString(),to_string().c_str()))
 
-    ERR_FAIL_COND_MSG(
-            s->lock > 0, "Attempt to disconnect signal '" + se_string(p_signal) +
-                                 "' while in emission callback. Use CONNECT_DEFERRED (to be able to safely disconnect) or "
-                                 "CONNECT_ONESHOT (for automatic disconnection) as connection flags.");
+    ERR_FAIL_COND_MSG(s->lock > 0,
+            FormatVE("Attempt to disconnect %s signal '%s' while in emission callback '%s' (in "
+                     "target %s). Use CONNECT_DEFERRED (to be able to safely disconnect) or "
+                     "CONNECT_ONESHOT (for automatic disconnection) as connection flags.",
+                    to_string().c_str(), p_signal.asCString(), p_to_method.asCString(), p_to_object->to_string().c_str()));
 
     Signal::Target target(p_to_object->get_instance_id(), p_to_method);
 
@@ -1718,7 +1719,7 @@ void Object::_bind_methods() {
         mi.name = "emit_signal";
         mi.arguments.push_back(PropertyInfo(VariantType::STRING, "signal"));
 
-        MethodBinder::bind_vararg_method("emit_signal", &Object::_emit_signal, mi);
+        MethodBinder::bind_vararg_method("emit_signal", &Object::_emit_signal, mi, null_variant_pvec, false);
     }
 
     {
@@ -1734,7 +1735,7 @@ void Object::_bind_methods() {
         mi.name = "call_deferred";
         mi.arguments.push_back(PropertyInfo(VariantType::STRING, "method"));
 
-        MethodBinder::bind_vararg_method("call_deferred", &Object::_call_deferred_bind, mi);
+        MethodBinder::bind_vararg_method("call_deferred", &Object::_call_deferred_bind, mi, null_variant_pvec, false);
     }
 
     MethodBinder::bind_method(D_METHOD("set_deferred", {"property", "value"}), &Object::set_deferred);

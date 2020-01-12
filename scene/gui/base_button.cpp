@@ -6,7 +6,7 @@
 /*                      https://godotengine.org                          */
 /*************************************************************************/
 /* Copyright (c) 2007-2019 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md)    */
+/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md).   */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -175,15 +175,23 @@ void BaseButton::on_action_event(Ref<InputEvent> p_event) {
                 _pressed();
             }
         } else {
-            if (!p_event->is_pressed()) {
+            if ((p_event->is_pressed() && action_mode == ACTION_MODE_BUTTON_PRESS) || (!p_event->is_pressed() && action_mode == ACTION_MODE_BUTTON_RELEASE)) {
                 _pressed();
             }
         }
     }
 
-    if (!p_event->is_pressed()) { // pressed state should be correct with button_up signal
+    if (!p_event->is_pressed()) {
+        Ref<InputEventMouseButton> mouse_button(dynamic_ref_cast<InputEventMouseButton>(p_event));
+        if (mouse_button) {
+            if (!has_point(mouse_button->get_position())) {
+                status.hovering = false;
+            }
+        }
+        // pressed state should be correct with button_up signal
         emit_signal("button_up");
         status.press_attempt = false;
+        status.pressing_inside = false;
     }
 
     update();

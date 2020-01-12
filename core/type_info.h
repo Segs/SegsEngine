@@ -6,7 +6,7 @@
 /*                      https://godotengine.org                          */
 /*************************************************************************/
 /* Copyright (c) 2007-2019 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md)    */
+/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md).   */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -288,6 +288,7 @@ MAKE_TEMPLATE_TYPE_INFO(PODVector, Vector2, VariantType::POOL_VECTOR2_ARRAY)
 MAKE_TEMPLATE_TYPE_INFO(PODVector, Vector3, VariantType::POOL_VECTOR3_ARRAY)
 MAKE_TEMPLATE_TYPE_INFO(PODVector, Color, VariantType::POOL_COLOR_ARRAY)
 
+MAKE_TEMPLATE_TYPE_INFO(PODVector, Variant, VariantType::ARRAY)
 MAKE_TEMPLATE_TYPE_INFO(PODVector, Plane, VariantType::ARRAY)
 
 

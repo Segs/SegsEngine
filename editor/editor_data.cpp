@@ -6,7 +6,7 @@
 /*                      https://godotengine.org                          */
 /*************************************************************************/
 /* Copyright (c) 2007-2019 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md)    */
+/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md).   */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -318,7 +318,7 @@ void EditorData::copy_object_params(Object *p_object) {
 
     for (const PropertyInfo &E : pinfo) {
 
-        if (!(E.usage & PROPERTY_USAGE_EDITOR))
+        if (!(E.usage & PROPERTY_USAGE_EDITOR) || E.name == se_string_view("script") || E.name == se_string_view("scripts"))
             continue;
 
         PropertyData pd;

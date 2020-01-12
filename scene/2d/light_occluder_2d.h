@@ -6,7 +6,7 @@
 /*                      https://godotengine.org                          */
 /*************************************************************************/
 /* Copyright (c) 2007-2019 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md)    */
+/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md).   */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -57,9 +57,10 @@ protected:
     static void _bind_methods();
 
 public:
+#ifdef TOOLS_ENABLED
     virtual Rect2 _edit_get_rect() const;
     virtual bool _edit_is_selected_on_click(const Point2 &p_point, float p_tolerance) const;
-
+#endif
     void set_polygon(const PODVector<Vector2> &p_polygon);
     const PODVector<Vector2> &get_polygon() const { return polygon; }
 
@@ -90,9 +91,10 @@ protected:
     static void _bind_methods();
 
 public:
+#ifdef TOOLS_ENABLED
     Rect2 _edit_get_rect() const override;
     bool _edit_is_selected_on_click(const Point2 &p_point, float p_tolerance) const override;
-
+#endif
     void set_occluder_polygon(const Ref<OccluderPolygon2D> &p_polygon);
     Ref<OccluderPolygon2D> get_occluder_polygon() const;
 

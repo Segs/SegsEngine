@@ -6,7 +6,7 @@
 /*                      https://godotengine.org                          */
 /*************************************************************************/
 /* Copyright (c) 2007-2019 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md)    */
+/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md).   */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -90,7 +90,7 @@ public:
     void set_dst_node(Node *p_node);
     StringName get_dst_method_name() const;
     void set_dst_method(const StringName &p_method);
-    Vector<Variant> get_binds() const;
+    const PODVector<Variant> &get_binds() const;
 
     bool get_deferred() const;
     bool get_oneshot() const;

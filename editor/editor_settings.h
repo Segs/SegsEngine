@@ -6,7 +6,7 @@
 /*                      https://godotengine.org                          */
 /*************************************************************************/
 /* Copyright (c) 2007-2019 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md)    */
+/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md).   */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -198,9 +198,12 @@ public:
 #define EDITOR_DEF(m_var, m_val) _EDITOR_DEF(StringName(m_var), Variant(m_val))
 #define EDITOR_DEF_RST(m_var, m_val) _EDITOR_DEF(StringName(m_var), Variant(m_val), true)
 Variant _EDITOR_DEF(const StringName &p_setting, const Variant &p_default, bool p_restart_if_changed = false);
-
 #define EDITOR_GET(m_var) _EDITOR_GET(m_var)
 Variant _EDITOR_GET(const StringName &p_setting);
+template<class T>
+inline T EditorGet(const StringName &p_setting) {
+    return _EDITOR_GET(p_setting).as<T>();
+}
 
 #define ED_IS_SHORTCUT(p_name, p_ev) (EditorSettings::get_singleton()->is_shortcut(p_name, p_ev))
 Ref<ShortCut> ED_SHORTCUT(se_string_view p_path, const StringName &p_name, uint32_t p_keycode = 0);

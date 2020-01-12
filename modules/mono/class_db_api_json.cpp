@@ -6,7 +6,7 @@
 /*                      https://godotengine.org                          */
 /*************************************************************************/
 /* Copyright (c) 2007-2019 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md)    */
+/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md).   */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -38,209 +38,215 @@
 #include "core/version.h"
 
 void class_db_api_to_json(const String &p_output_file, ClassDB::APIType p_api) {
-	Dictionary classes_dict;
+    Dictionary classes_dict;
 
-	List<StringName> names;
+    List<StringName> names;
 
-	const StringName *k = NULL;
+    const StringName *k = nullptr;
 
-	while ((k = ClassDB::classes.next(k))) {
+    while ((k = ClassDB::classes.next(k))) {
 
-		names.push_back(*k);
-	}
-	//must be alphabetically sorted for hash to compute
-	names.sort_custom<StringName::AlphCompare>();
+        names.push_back(*k);
+    }
+    //must be alphabetically sorted for hash to compute
+    names.sort_custom<StringName::AlphCompare>();
 
-	for (List<StringName>::Element *E = names.front(); E; E = E->next()) {
+    for (List<StringName>::Element *E = names.front(); E; E = E->next()) {
 
-		ClassDB::ClassInfo *t = ClassDB::classes.getptr(E->get());
-		ERR_FAIL_COND(!t);
-		if (t->api != p_api || !t->exposed)
-			continue;
+        ClassDB::ClassInfo *t = ClassDB::classes.getptr(E->get());
+        ERR_FAIL_COND(!t);
+        if (t->api != p_api || !t->exposed)
+            continue;
 
-		Dictionary class_dict;
-		classes_dict[t->name] = class_dict;
+        Dictionary class_dict;
+        classes_dict[t->name] = class_dict;
 
-		class_dict["inherits"] = t->inherits;
+        class_dict["inherits"] = t->inherits;
 
-		{ //methods
+        { //methods
 
-			List<StringName> snames;
+            List<StringName> snames;
 
-			k = NULL;
+            k = nullptr;
 
-			while ((k = t->method_map.next(k))) {
+            while (k = t->method_map.next(k)) {
+                auto name = k->as<se_string>();
 
-				snames.push_back(*k);
-			}
+                ERR_CONTINUE(name.empty());
 
-			snames.sort_custom<StringName::AlphCompare>();
+                if (name[0] == '_')
+                    continue; // Ignore non-virtual methods that start with an underscore
 
-			Array methods;
+                snames.push_back(*k);
+            }
 
-			for (List<StringName>::Element *F = snames.front(); F; F = F->next()) {
-				Dictionary method_dict;
-				methods.push_back(method_dict);
+            snames.sort_custom<StringName::AlphCompare>();
 
-				MethodBind *mb = t->method_map[F->get()];
-				method_dict["name"] = mb->get_name();
-				method_dict["argument_count"] = mb->get_argument_count();
-				method_dict["return_type"] = mb->get_argument_type(-1);
+            Array methods;
 
-				Array arguments;
-				method_dict["arguments"] = arguments;
+            for (List<StringName>::Element *F = snames.front(); F; F = F->next()) {
+                Dictionary method_dict;
+                methods.push_back(method_dict);
 
-				for (int i = 0; i < mb->get_argument_count(); i++) {
-					Dictionary argument_dict;
-					arguments.push_back(argument_dict);
-					const PropertyInfo info = mb->get_argument_info(i);
-					argument_dict["type"] = info.type;
-					argument_dict["name"] = info.name;
-					argument_dict["hint"] = info.hint;
-					argument_dict["hint_string"] = info.hint_string;
-				}
+                MethodBind *mb = t->method_map[F->get()];
+                method_dict["name"] = mb->get_name();
+                method_dict["argument_count"] = mb->get_argument_count();
+                method_dict["return_type"] = mb->get_argument_type(-1);
 
-				method_dict["default_argument_count"] = mb->get_default_argument_count();
+                Array arguments;
+                method_dict["arguments"] = arguments;
 
-				Array default_arguments;
-				method_dict["default_arguments"] = default_arguments;
+                for (int i = 0; i < mb->get_argument_count(); i++) {
+                    Dictionary argument_dict;
+                    arguments.push_back(argument_dict);
+                    const PropertyInfo info = mb->get_argument_info(i);
+                    argument_dict["type"] = info.type;
+                    argument_dict["name"] = info.name;
+                    argument_dict["hint"] = info.hint;
+                    argument_dict["hint_string"] = info.hint_string;
+                }
 
-				for (int i = 0; i < mb->get_default_argument_count(); i++) {
-					Dictionary default_argument_dict;
-					default_arguments.push_back(default_argument_dict);
-					//hash should not change, i hope for tis
-					Variant da = mb->get_default_argument(i);
-					default_argument_dict["value"] = da;
-				}
+                method_dict["default_argument_count"] = mb->get_default_argument_count();
 
-				method_dict["hint_flags"] = mb->get_hint_flags();
-			}
+                Array default_arguments;
+                method_dict["default_arguments"] = default_arguments;
 
-			if (!methods.empty()) {
-				class_dict["methods"] = methods;
-			}
-		}
+                for (int i = 0; i < mb->get_default_argument_count(); i++) {
+                    Dictionary default_argument_dict;
+                    default_arguments.push_back(default_argument_dict);
+                    //hash should not change, i hope for tis
+                    Variant da = mb->get_default_argument(i);
+                    default_argument_dict["value"] = da;
+                }
 
-		{ //constants
+                method_dict["hint_flags"] = mb->get_hint_flags();
+            }
 
-			List<StringName> snames;
+            if (!methods.empty()) {
+                class_dict["methods"] = methods;
+            }
+        }
 
-			k = NULL;
+        { //constants
 
-			while ((k = t->constant_map.next(k))) {
+            List<StringName> snames;
 
-				snames.push_back(*k);
-			}
+            k = NULL;
 
-			snames.sort_custom<StringName::AlphCompare>();
+            while ((k = t->constant_map.next(k))) {
 
-			Array constants;
+                snames.push_back(*k);
+            }
 
-			for (List<StringName>::Element *F = snames.front(); F; F = F->next()) {
-				Dictionary constant_dict;
-				constants.push_back(constant_dict);
+            snames.sort_custom<StringName::AlphCompare>();
 
-				constant_dict["name"] = F->get();
-				constant_dict["value"] = t->constant_map[F->get()];
-			}
+            Array constants;
 
-			if (!constants.empty()) {
-				class_dict["constants"] = constants;
-			}
-		}
+            for (List<StringName>::Element *F = snames.front(); F; F = F->next()) {
+                Dictionary constant_dict;
+                constants.push_back(constant_dict);
 
-		{ //signals
+                constant_dict["name"] = F->get();
+                constant_dict["value"] = t->constant_map[F->get()];
+            }
 
-			List<StringName> snames;
+            if (!constants.empty()) {
+                class_dict["constants"] = constants;
+            }
+        }
 
-			k = NULL;
+        { //signals
 
-			while ((k = t->signal_map.next(k))) {
+            List<StringName> snames;
 
-				snames.push_back(*k);
-			}
+            k = NULL;
 
-			snames.sort_custom<StringName::AlphCompare>();
+            while ((k = t->signal_map.next(k))) {
 
-			Array signals;
+                snames.push_back(*k);
+            }
 
-			for (List<StringName>::Element *F = snames.front(); F; F = F->next()) {
-				Dictionary signal_dict;
-				signals.push_back(signal_dict);
+            snames.sort_custom<StringName::AlphCompare>();
 
-				MethodInfo &mi = t->signal_map[F->get()];
-				signal_dict["name"] = F->get();
+            Array signals;
 
-				Array arguments;
-				signal_dict["arguments"] = arguments;
-				for (int i = 0; i < mi.arguments.size(); i++) {
-					Dictionary argument_dict;
-					arguments.push_back(argument_dict);
-					argument_dict["type"] = mi.arguments[i].type;
-				}
-			}
+            for (List<StringName>::Element *F = snames.front(); F; F = F->next()) {
+                Dictionary signal_dict;
+                signals.push_back(signal_dict);
 
-			if (!signals.empty()) {
-				class_dict["signals"] = signals;
-			}
-		}
+                MethodInfo &mi = t->signal_map[F->get()];
+                signal_dict["name"] = F->get();
 
-		{ //properties
+                Array arguments;
+                signal_dict["arguments"] = arguments;
+                for (int i = 0; i < mi.arguments.size(); i++) {
+                    Dictionary argument_dict;
+                    arguments.push_back(argument_dict);
+                    argument_dict["type"] = mi.arguments[i].type;
+                }
+            }
 
-			List<StringName> snames;
+            if (!signals.empty()) {
+                class_dict["signals"] = signals;
+            }
+        }
 
-			k = NULL;
+        { //properties
 
-			while ((k = t->property_setget.next(k))) {
+            List<StringName> snames;
 
-				snames.push_back(*k);
-			}
+            k = NULL;
 
-			snames.sort_custom<StringName::AlphCompare>();
+            while ((k = t->property_setget.next(k))) {
 
-			Array properties;
+                snames.push_back(*k);
+            }
 
-			for (List<StringName>::Element *F = snames.front(); F; F = F->next()) {
-				Dictionary property_dict;
-				properties.push_back(property_dict);
+            snames.sort_custom<StringName::AlphCompare>();
 
-				ClassDB::PropertySetGet *psg = t->property_setget.getptr(F->get());
+            Array properties;
 
-				property_dict["name"] = F->get();
-				property_dict["setter"] = psg->setter;
-				property_dict["getter"] = psg->getter;
-			}
+            for (List<StringName>::Element *F = snames.front(); F; F = F->next()) {
+                Dictionary property_dict;
+                properties.push_back(property_dict);
 
-			if (!properties.empty()) {
-				class_dict["property_setget"] = properties;
-			}
-		}
+                ClassDB::PropertySetGet *psg = t->property_setget.getptr(F->get());
 
-		Array property_list;
+                property_dict["name"] = F->get();
+                property_dict["setter"] = psg->setter;
+                property_dict["getter"] = psg->getter;
+            }
 
-		//property list
-		for (List<PropertyInfo>::Element *F = t->property_list.front(); F; F = F->next()) {
-			Dictionary property_dict;
-			property_list.push_back(property_dict);
+            if (!properties.empty()) {
+                class_dict["property_setget"] = properties;
+            }
+        }
 
-			property_dict["name"] = F->get().name;
-			property_dict["type"] = F->get().type;
-			property_dict["hint"] = F->get().hint;
-			property_dict["hint_string"] = F->get().hint_string;
-			property_dict["usage"] = F->get().usage;
-		}
+        Array property_list;
 
-		if (!property_list.empty()) {
-			class_dict["property_list"] = property_list;
-		}
-	}
+        //property list
+        for (List<PropertyInfo>::Element *F = t->property_list.front(); F; F = F->next()) {
+            Dictionary property_dict;
+            property_list.push_back(property_dict);
 
-	FileAccessRef f = FileAccess::open(p_output_file, FileAccess::WRITE);
-	ERR_FAIL_COND_MSG(!f, "Cannot open file '" + p_output_file + "'.");
-	f->store_string(JSON::print(classes_dict, /*indent: */ "\t"));
-	f->close();
+            property_dict["name"] = F->get().name;
+            property_dict["type"] = F->get().type;
+            property_dict["hint"] = F->get().hint;
+            property_dict["hint_string"] = F->get().hint_string;
+            property_dict["usage"] = F->get().usage;
+        }
 
-	print_line(String() + "ClassDB API JSON written to: " + ProjectSettings::get_singleton()->globalize_path(p_output_file));
+        if (!property_list.empty()) {
+            class_dict["property_list"] = property_list;
+        }
+    }
+
+    FileAccessRef f = FileAccess::open(p_output_file, FileAccess::WRITE);
+    ERR_FAIL_COND_MSG(!f, "Cannot open file '" + p_output_file + "'.");
+    f->store_string(JSON::print(classes_dict, /*indent: */ "\t"));
+    f->close();
+
+    print_line(String() + "ClassDB API JSON written to: " + ProjectSettings::get_singleton()->globalize_path(p_output_file));
 }
 
 #endif // DEBUG_METHODS_ENABLED

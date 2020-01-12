@@ -6,7 +6,7 @@
 /*                      https://godotengine.org                          */
 /*************************************************************************/
 /* Copyright (c) 2007-2019 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md)    */
+/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md).   */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -3157,52 +3157,6 @@ bool Variant::is_ref() const {
     return type == VariantType::OBJECT && !_get_obj().ref.is_null();
 }
 
-Vector<Variant> varray() {
-
-    return Vector<Variant>();
-}
-
-Vector<Variant> varray(const Variant &p_arg1) {
-
-    Vector<Variant> v;
-    v.push_back(p_arg1);
-    return v;
-}
-Vector<Variant> varray(const Variant &p_arg1, const Variant &p_arg2) {
-
-    Vector<Variant> v;
-    v.push_back(p_arg1);
-    v.push_back(p_arg2);
-    return v;
-}
-Vector<Variant> varray(const Variant &p_arg1, const Variant &p_arg2, const Variant &p_arg3) {
-
-    Vector<Variant> v;
-    v.push_back(p_arg1);
-    v.push_back(p_arg2);
-    v.push_back(p_arg3);
-    return v;
-}
-Vector<Variant> varray(const Variant &p_arg1, const Variant &p_arg2, const Variant &p_arg3, const Variant &p_arg4) {
-
-    Vector<Variant> v;
-    v.push_back(p_arg1);
-    v.push_back(p_arg2);
-    v.push_back(p_arg3);
-    v.push_back(p_arg4);
-    return v;
-}
-
-Vector<Variant> varray(const Variant &p_arg1, const Variant &p_arg2, const Variant &p_arg3, const Variant &p_arg4, const Variant &p_arg5) {
-
-    Vector<Variant> v;
-    v.push_back(p_arg1);
-    v.push_back(p_arg2);
-    v.push_back(p_arg3);
-    v.push_back(p_arg4);
-    v.push_back(p_arg5);
-    return v;
-}
 
 void Variant::static_assign(const Variant &p_variant) {
 }
@@ -3349,4 +3303,8 @@ void fill_with_all_variant_types(const char *nillname,char (&s)[7+(longest_varia
         write_idx+=sprintf(s+write_idx,",%s",Variant::get_type_name(VariantType(i)));
     }
 
+}
+
+PODVector<Variant> varray(std::initializer_list<Variant> v) {
+    return v;
 }

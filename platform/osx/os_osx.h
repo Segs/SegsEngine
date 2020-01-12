@@ -6,7 +6,7 @@
 /*                      https://godotengine.org                          */
 /*************************************************************************/
 /* Copyright (c) 2007-2019 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md)    */
+/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md).   */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -124,6 +124,7 @@ public:
     bool maximized;
     bool zoomed;
     bool resizable;
+    bool window_focused;
 
     Size2 window_size;
     Rect2 restore_rect;
@@ -221,77 +222,78 @@ public:
 
     virtual MainLoop *get_main_loop() const;
 
-    virtual String get_godot_dir_name() const;
+    String get_godot_dir_name() const override;
 
-    virtual bool can_draw() const;
+    bool can_draw() const override;
 
-    virtual void set_clipboard(const String &p_text);
-    virtual se_string get_clipboard() const;
+    void set_clipboard(se_string_view p_text) override;
+    se_string get_clipboard() const override;
 
-    virtual void release_rendering_thread();
-    virtual void make_rendering_thread();
-    virtual void swap_buffers();
+    void release_rendering_thread() override;
+    void make_rendering_thread() override;
+    void swap_buffers() override;
 
     Error shell_open(String p_uri);
     void push_input(const Ref<InputEvent> &p_event);
 
-    String get_locale() const;
+    const char * get_locale() const override;
 
-    virtual void set_video_mode(const VideoMode &p_video_mode, int p_screen = 0);
-    virtual VideoMode get_video_mode(int p_screen = 0) const;
-    virtual void get_fullscreen_mode_list(List<VideoMode> *p_list, int p_screen = 0) const;
+    void set_video_mode(const VideoMode &p_video_mode, int p_screen = 0) override;
+    VideoMode get_video_mode(int p_screen = 0) const override;
+    void get_fullscreen_mode_list(List<VideoMode> *p_list, int p_screen = 0) const override;
 
-    virtual String get_executable_path() const;
+    se_string get_executable_path() const override;
 
-    virtual LatinKeyboardVariant get_latin_keyboard_variant() const;
+    LatinKeyboardVariant get_latin_keyboard_variant() const override;
 
-    virtual void move_window_to_foreground();
+    void move_window_to_foreground() override;
 
-    virtual int get_screen_count() const;
-    virtual int get_current_screen() const;
-    virtual void set_current_screen(int p_screen);
-    virtual Point2 get_screen_position(int p_screen = -1) const;
-    virtual Size2 get_screen_size(int p_screen = -1) const;
-    virtual int get_screen_dpi(int p_screen = -1) const;
+    int get_screen_count() const override;
+    int get_current_screen() const override;
+    void set_current_screen(int p_screen) override;
+    Point2 get_screen_position(int p_screen = -1) const override;
+    Size2 get_screen_size(int p_screen = -1) const override;
+    int get_screen_dpi(int p_screen = -1) const override;
 
-    virtual Point2 get_window_position() const;
-    virtual void set_window_position(const Point2 &p_position);
-    virtual Size2 get_max_window_size() const;
-    virtual Size2 get_min_window_size() const;
-    virtual void set_min_window_size(const Size2 p_size);
-    virtual void set_max_window_size(const Size2 p_size);
-    virtual void set_window_size(const Size2 p_size);
-    virtual void set_window_fullscreen(bool p_enabled);
-    virtual bool is_window_fullscreen() const;
-    virtual void set_window_resizable(bool p_enabled);
-    virtual bool is_window_resizable() const;
-    virtual void set_window_minimized(bool p_enabled);
-    virtual bool is_window_minimized() const;
-    virtual void set_window_maximized(bool p_enabled);
-    virtual bool is_window_maximized() const;
-    virtual void set_window_always_on_top(bool p_enabled);
-    virtual bool is_window_always_on_top() const;
-    virtual void request_attention();
-    virtual StringName get_joy_guid(int p_device) const;
+    Point2 get_window_position() const override;
+    void set_window_position(const Point2 &p_position) override;
+    Size2 get_max_window_size() const override;
+    Size2 get_min_window_size() const override;
+    void set_min_window_size(const Size2 p_size) override;
+    void set_max_window_size(const Size2 p_size) override;
+    void set_window_size(const Size2 p_size) override;
+    void set_window_fullscreen(bool p_enabled) override;
+    bool is_window_fullscreen() const override;
+    void set_window_resizable(bool p_enabled) override;
+    bool is_window_resizable() const override;
+    void set_window_minimized(bool p_enabled) override;
+    bool is_window_minimized() const override;
+    void set_window_maximized(bool p_enabled) override;
+    bool is_window_maximized() const override;
+    void set_window_always_on_top(bool p_enabled) override;
+    bool is_window_always_on_top() const override;
+    bool is_window_focused() const override;
+    void request_attention() override;
+    StringName get_joy_guid(int p_device) const override;
 
-    virtual void set_borderless_window(bool p_borderless);
-    virtual bool get_borderless_window();
+    void set_borderless_window(bool p_borderless) override;
+    bool get_borderless_window() override;
 
-    virtual bool get_window_per_pixel_transparency_enabled() const;
-    virtual void set_window_per_pixel_transparency_enabled(bool p_enabled);
+    bool get_window_per_pixel_transparency_enabled() const override;
+    void set_window_per_pixel_transparency_enabled(bool p_enabled) override;
 
-    virtual void set_ime_active(const bool p_active);
-    virtual void set_ime_position(const Point2 &p_pos);
-    virtual Point2 get_ime_selection() const;
-    virtual String get_ime_text() const;
+    void set_ime_active(const bool p_active) override;
+    void set_ime_position(const Point2 &p_pos) override;
+    Point2 get_ime_selection() const override;
+    se_string get_ime_text() const override;
 
-    virtual OS::PowerState get_power_state();
-    virtual int get_power_seconds_left();
-    virtual int get_power_percent_left();
+    OS::PowerState get_power_state() override;
+    int get_power_seconds_left() override;
+    int get_power_percent_left() override;
 
-    virtual bool _check_internal_feature_support(const String &p_feature);
+    bool _check_internal_feature_support(se_string_view p_feature) override;
 
-    virtual void _set_use_vsync(bool p_enable);
+    void _set_use_vsync(bool p_enable) override;
     //virtual bool is_vsync_enabled() const;
 
     void run();

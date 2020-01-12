@@ -6,7 +6,7 @@
 /*                      https://godotengine.org                          */
 /*************************************************************************/
 /* Copyright (c) 2007-2019 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md)    */
+/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md).   */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -85,6 +85,7 @@ Ref<TriangleMesh> Mesh::generate_triangle_mesh() const {
             continue;
 
         Array a = surface_get_arrays(i);
+        ERR_FAIL_COND_V(a.empty(), Ref<TriangleMesh>())
 
         int vc = surface_get_array_len(i);
         PoolVector<Vector3> vertices = a[ARRAY_VERTEX];
@@ -244,6 +245,7 @@ Ref<Shape> Mesh::create_convex_shape() const {
     for (int i = 0; i < get_surface_count(); i++) {
 
         Array a = surface_get_arrays(i);
+        ERR_FAIL_COND_V(a.empty(), Ref<ConvexPolygonShape>())
         PoolVector<Vector3> v = a[ARRAY_VERTEX];
         vertices.append_array(v);
     }
@@ -283,6 +285,7 @@ Ref<Mesh> Mesh::create_outline(float p_margin) const {
             continue;
 
         Array a = surface_get_arrays(i);
+        ERR_FAIL_COND_V(a.empty(), Ref<ArrayMesh>());
 
         if (i == 0) {
             arrays = a;
@@ -388,6 +391,7 @@ Ref<Mesh> Mesh::create_outline(float p_margin) const {
         PoolVector<Vector3>::Write r = vertices.write();
 
         if (indices.size()) {
+            ERR_FAIL_COND_V(indices.size() % 3 != 0, Ref<ArrayMesh>());
             vc = indices.size();
             ir = indices.write();
             has_indices = true;

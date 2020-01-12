@@ -6,7 +6,7 @@
 /*                      https://godotengine.org                          */
 /*************************************************************************/
 /* Copyright (c) 2007-2019 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md)    */
+/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md).   */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -324,18 +324,13 @@ private:
     ExportTemplateManager *export_template_manager;
     EditorFeatureProfileManager *feature_profile_manager;
     EditorFileDialog *file_templates;
-    EditorFileDialog *file_export;
     EditorFileDialog *file_export_lib;
     EditorFileDialog *file_script;
     CheckBox *file_export_lib_merge;
-    LineEdit *file_export_password;
     String current_path;
     MenuButton *update_spinner;
 
     se_string defer_load_scene;
-    se_string defer_export;
-    se_string defer_export_platform;
-    bool defer_export_debug;
     Node *_last_instanced_scene;
 
     EditorLog *log;
@@ -560,8 +555,7 @@ private:
         se_string preset;
         se_string path;
         bool debug;
-        se_string password;
-
+        bool pack_only;
     } export_defer;
     enum {
         MAX_INIT_CALLBACKS = 128,
@@ -782,7 +776,7 @@ public:
 
     void _copy_warning(se_string_view p_str);
 
-    Error export_preset(se_string_view p_preset, se_string_view p_path, bool p_debug, se_string_view p_password, bool p_quit_after = false);
+    Error export_preset(se_string_view p_preset, se_string_view p_path, bool p_debug, bool p_pack_only);
 
     static void register_editor_types();
     static void unregister_editor_types();

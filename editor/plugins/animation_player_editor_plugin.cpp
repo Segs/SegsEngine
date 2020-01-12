@@ -6,7 +6,7 @@
 /*                      https://godotengine.org                          */
 /*************************************************************************/
 /* Copyright (c) 2007-2019 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md)    */
+/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md).   */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -1761,11 +1761,11 @@ AnimationPlayerEditor::AnimationPlayerEditor(EditorNode *p_editor, AnimationPlay
     play_bw_from->connect("pressed", this, "_play_bw_from_pressed");
     stop->connect("pressed", this, "_stop_pressed");
 
-    animation->connect("item_selected", this, "_animation_selected", Vector<Variant>(), true);
+    animation->connect("item_selected", this, "_animation_selected", null_variant_pvec, true);
 
     file->connect("file_selected", this, "_dialog_action");
-    frame->connect("value_changed", this, "_seek_value_changed", Vector<Variant>(), true);
-    scale->connect("text_entered", this, "_scale_changed", Vector<Variant>(), true);
+    frame->connect("value_changed", this, "_seek_value_changed", null_variant_pvec, true);
+    scale->connect("text_entered", this, "_scale_changed", null_variant_pvec, true);
 
     renaming = false;
     last_active = false;

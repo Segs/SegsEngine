@@ -6,7 +6,7 @@
 /*                      https://godotengine.org                          */
 /*************************************************************************/
 /* Copyright (c) 2007-2019 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md)    */
+/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md).   */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -298,8 +298,10 @@ void Main::print_help(const se_string &p_binary) {
     OS::get_singleton()->print("  -s, --script <script>            Run a script.\n");
     OS::get_singleton()->print("  --check-only                     Only parse for errors and quit (use with --script).\n");
 #ifdef TOOLS_ENABLED
-    OS::get_singleton()->print("  --export <target> <path>         Export the project using the given export target. Export only main pack if path ends with .pck or .zip. <path> is relative to the project directory.\n");
-    OS::get_singleton()->print("  --export-debug <target> <path>   Like --export, but use debug template.\n");
+    OS::get_singleton()->print("  --export <preset> <path>         Export the project using the given preset and matching release template. The preset name should match one defined in export_presets.cfg.\n");
+    OS::get_singleton()->print("                                   <path> should be absolute or relative to the project directory, and include the filename for the binary (e.g. 'builds/game.exe'). The target directory should exist.\n");
+    OS::get_singleton()->print("  --export-debug <preset> <path>   Same as --export, but using the debug template.\n");
+    OS::get_singleton()->print("  --export-pack <preset> <path>    Same as --export, but only export the game pack for the given preset. The <path> extension determines whether it will be in PCK or ZIP format.\n");
     OS::get_singleton()->print("  --doctool <path>                 Dump the engine API reference to the given <path> in XML format, merging if existing files are found.\n");
     OS::get_singleton()->print("  --no-docbase                     Disallow dumping the base types (used with --doctool).\n");
     OS::get_singleton()->print("  --build-solutions                Build the scripting solutions (e.g. for C# projects).\n");
@@ -723,7 +725,7 @@ Error Main::setup(bool p_second_phase) {
             // We still pass it to the main arguments since the argument handling itself is not done in this function
             main_args.push_back(*I);
 #endif
-        } else if (*I == "--export" || *I == "--export-debug") { // Export project
+        } else if (*I == "--export" || *I == "--export-debug" || *I == "--export-pack") { // Export project
 
             editor = true;
             main_args.push_back(*I);
@@ -859,7 +861,12 @@ Error Main::setup(bool p_second_phase) {
 
         I = N;
     }
-
+#ifdef TOOLS_ENABLED
+    if (editor && project_manager) {
+        OS::get_singleton()->print("Error: Command line arguments implied opening both editor and project manager, which is not possible. Aborting.\n");
+        goto error;
+    }
+#endif
     // Network file system needs to be configured before globals, since globals are based on the
     // 'project.godot' file which will only be available through the network if this is enabled
     FileAccessNetwork::configure();
@@ -987,7 +994,7 @@ Error Main::setup(bool p_second_phase) {
         }
     }
 
-    if (!project_manager) {
+    if (!project_manager && !editor) {
         // Determine if the project manager should be requested
         project_manager = main_args.empty() && !found_project;
     }
@@ -1093,7 +1100,7 @@ Error Main::setup(bool p_second_phase) {
         // window compositor ("--enable-vsync-via-compositor" or
         // "--disable-vsync-via-compositor") was present then it overrides the
         // project setting.
-        video_mode.vsync_via_compositor = GLOBAL_DEF("display/window/vsync/vsync_via_compositor", false);
+        video_mode.vsync_via_compositor = GLOBAL_DEF("display/window/vsync/vsync_via_compositor", true);
     }
 
     OS::get_singleton()->_vsync_via_compositor = video_mode.vsync_via_compositor;
@@ -1469,15 +1476,17 @@ bool Main::start() {
     bool hasicon = false;
     se_string doc_tool;
     List<se_string> removal_docs;
-#ifdef TOOLS_ENABLED
-    bool doc_base = true;
-#endif
+    se_string positional_arg;
     se_string game_path;
     se_string script;
     se_string test;
+    bool check_only = false;
+#ifdef TOOLS_ENABLED
+    bool doc_base = true;
     se_string _export_preset;
     bool export_debug = false;
-    bool check_only = false;
+    bool export_pack_only = false;
+#endif
 
     main_timer_sync.init(OS::get_singleton()->get_ticks_usec());
 
@@ -1498,8 +1507,20 @@ bool Main::start() {
         } else if (*i == "-p" || *i == "--project-manager") {
             project_manager = true;
 #endif
-        } else if (i->length() && (*i)[0] != '-' && game_path.empty()) {
-            game_path = *i;
+        } else if (i->length() && i->at(0) != '-' && positional_arg == "") {
+            positional_arg = *i;
+
+            if (StringUtils::ends_with(positional_arg,".scn") ||
+                StringUtils::ends_with(positional_arg,".tscn") ||
+                StringUtils::ends_with(positional_arg,".escn")) {
+                // Only consider the positional argument to be a scene path if it ends with
+                // a file extension associated with Godot scenes. This makes it possible
+                // for projects to parse command-line arguments for custom CLI arguments
+                // or other file extensions without trouble. This can be used to implement
+                // "drag-and-drop onto executable" logic, which can prove helpful
+                // for non-game applications.
+                game_path = positional_arg;
+            }
         }
         //parameters that have an argument to the right
         else if (has_next) {
@@ -1520,8 +1541,12 @@ bool Main::start() {
                     _export_preset = *next;
             } else if (*i == "--export-debug") {
                 editor = true; //needs editor
-                    _export_preset = *next;
+                _export_preset = *next;
                 export_debug = true;
+            } else if (*i == "--export-pack") {
+                editor = true;
+                _export_preset = *next;
+                export_pack_only = true;
 #endif
             } else {
                 // The parameter does not match anything known, don't skip the next argument
@@ -1586,20 +1611,15 @@ bool Main::start() {
 
         return false;
     }
-
-#endif
-
-    if (!_export_preset.empty()) {
-        if (game_path.empty()) {
-            se_string err("Command line param ");
-            err += export_debug ? "--export-debug" : "--export";
-            err += " passed but no destination path given.\n";
+    if (not _export_preset.empty()) {
+        if (positional_arg.empty()) {
+            se_string err = "Command line includes export parameter option, but no destination path was given.\n";
             err += "Please specify the binary's file path to export to. Aborting export.";
-            ERR_PRINT(err)
+            ERR_PRINT(err);
             return false;
         }
     }
-
+#endif
     if (script.empty() && game_path.empty() && !se_string(GLOBAL_DEF("application/run/main_scene", "")).empty()) {
         game_path = (se_string)GLOBAL_DEF("application/run/main_scene", "");
     }
@@ -1782,13 +1802,9 @@ bool Main::start() {
             editor_node = memnew(EditorNode);
             sml->get_root()->add_child(editor_node);
 
-            //root_node->set_editor(editor);
-            //startup editor
-
             if (!_export_preset.empty()) {
-
-                editor_node->export_preset(_export_preset, game_path, export_debug, StringName(), true);
-                game_path = ""; //no load anything
+                editor_node->export_preset(_export_preset, positional_arg, export_debug, export_pack_only);
+                game_path = ""; // Do not load anything.
             }
         }
 #endif

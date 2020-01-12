@@ -6,7 +6,7 @@
 /*                      https://godotengine.org                          */
 /*************************************************************************/
 /* Copyright (c) 2007-2019 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md)    */
+/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md).   */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -106,7 +106,7 @@ class DynamicFontAtSize : public RefCounted {
     GDCLASS(DynamicFontAtSize, RefCounted)
 
     _THREAD_SAFE_CLASS_
-    
+
     struct ImplData;
     ImplData *m_impl;
     friend struct ImplData;
@@ -181,7 +181,7 @@ public:
 
     Size2 get_char_size(CharType p_char, CharType p_next, const PODVector<Ref<DynamicFontAtSize> > &p_fallbacks) const;
 
-    float draw_char(RID p_canvas_item, const Point2 &p_pos, CharType p_char, const Color &p_modulate, const PODVector<Ref<DynamicFontAtSize> > &p_fallbacks, bool p_advance_only = false) const;
+    float draw_char(RID p_canvas_item, const Point2 &p_pos, CharType p_char, const Color &p_modulate, const PODVector<Ref<DynamicFontAtSize> > &p_fallbacks, bool p_advance_only = false, bool p_outline=false) const;
 
     void set_texture_flags(uint32_t p_flags);
     void update_oversampling();

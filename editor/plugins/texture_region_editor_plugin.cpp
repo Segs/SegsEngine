@@ -6,7 +6,7 @@
 /*                      https://godotengine.org                          */
 /*************************************************************************/
 /* Copyright (c) 2007-2019 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md)    */
+/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md).   */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -79,12 +79,12 @@ void TextureRegionEditor::_region_draw() {
     VisualServer::get_singleton()->canvas_item_add_set_transform(edit_draw->get_canvas_item(), Transform2D());
 
     if (snap_mode == SNAP_GRID) {
-        Color grid_color = Color(1.0, 1.0, 1.0, 0.15);
+        Color grid_color = Color(1.0, 1.0, 1.0, 0.15f);
         Size2 s = edit_draw->get_size();
         int last_cell = 0;
 
-        if (snap_step.x != 0) {
-            if (snap_separation.x == 0)
+        if (snap_step.x != 0.0f) {
+            if (snap_separation.x == 0.0f)
                 for (int i = 0; i < s.width; i++) {
                     int cell = Math::fast_ftoi(Math::floor((mtx.affine_inverse().xform(Vector2(i, 0)).x - snap_offset.x) / snap_step.x));
                     if (i == 0)
@@ -142,14 +142,21 @@ void TextureRegionEditor::_region_draw() {
 
     Ref<Texture> select_handle = get_icon("EditorHandle", "EditorIcons");
 
-    Rect2 scroll_rect;
+    Rect2 scroll_rect(Point2(), base_tex->get_size());
 
-    Vector2 endpoints[4] = {
-        mtx.basis_xform(rect.position),
-        mtx.basis_xform(rect.position + Vector2(rect.size.x, 0)),
-        mtx.basis_xform(rect.position + rect.size),
-        mtx.basis_xform(rect.position + Vector2(0, rect.size.y))
+    const Vector2 raw_endpoints[4] = {
+        rect.position,
+        rect.position + Vector2(rect.size.x, 0),
+        rect.position + rect.size,
+        rect.position + Vector2(0, rect.size.y)
     };
+    const Vector2 endpoints[4] = {
+        mtx.basis_xform(raw_endpoints[0]),
+        mtx.basis_xform(raw_endpoints[1]),
+        mtx.basis_xform(raw_endpoints[2]),
+        mtx.basis_xform(raw_endpoints[3])
+    };
+
     Color color = get_color("mono_color", "Editor");
     for (int i = 0; i < 4; i++) {
 
@@ -170,31 +177,32 @@ void TextureRegionEditor::_region_draw() {
         if (snap_mode != SNAP_AUTOSLICE)
             edit_draw->draw_texture(select_handle, (endpoints[i] + ofs - select_handle->get_size() / 2).floor() - draw_ofs * draw_zoom);
 
-        scroll_rect.expand_to(endpoints[i]);
+        scroll_rect.expand_to(raw_endpoints[i]);
     }
 
-    scroll_rect.position -= edit_draw->get_size();
-    scroll_rect.size += edit_draw->get_size() * 2.0;
+    const Size2 scroll_margin = edit_draw->get_size() / draw_zoom;
+    scroll_rect.position -= scroll_margin;
+    scroll_rect.size += scroll_margin * 2;
 
     updating_scroll = true;
     hscroll->set_min(scroll_rect.position.x);
     hscroll->set_max(scroll_rect.position.x + scroll_rect.size.x);
-    if (ABS(scroll_rect.position.x - (scroll_rect.position.x + scroll_rect.size.x)) <= edit_draw->get_size().x) {
+    if (ABS(scroll_rect.position.x - (scroll_rect.position.x + scroll_rect.size.x)) <= scroll_margin.x) {
         hscroll->hide();
     } else {
         hscroll->show();
-        hscroll->set_page(edit_draw->get_size().x);
+        hscroll->set_page(scroll_margin.x);
         hscroll->set_value(draw_ofs.x);
     }
 
     vscroll->set_min(scroll_rect.position.y);
     vscroll->set_max(scroll_rect.position.y + scroll_rect.size.y);
-    if (ABS(scroll_rect.position.y - (scroll_rect.position.y + scroll_rect.size.y)) <= edit_draw->get_size().y) {
+    if (ABS(scroll_rect.position.y - (scroll_rect.position.y + scroll_rect.size.y)) <= scroll_margin.y) {
         vscroll->hide();
         draw_ofs.y = scroll_rect.position.y;
     } else {
         vscroll->show();
-        vscroll->set_page(edit_draw->get_size().y);
+        vscroll->set_page(scroll_margin.y);
         vscroll->set_value(draw_ofs.y);
     }
     updating_scroll = false;
@@ -232,15 +240,19 @@ void TextureRegionEditor::_region_input(const Ref<InputEvent> &p_input) {
     mtx.elements[2] = -draw_ofs * draw_zoom;
     mtx.scale_basis(Vector2(draw_zoom, draw_zoom));
 
-    Vector2 endpoints[8] = {
-        mtx.xform(rect.position) + Vector2(-4, -4),
-        mtx.xform(rect.position + Vector2(rect.size.x / 2, 0)) + Vector2(0, -4),
-        mtx.xform(rect.position + Vector2(rect.size.x, 0)) + Vector2(4, -4),
-        mtx.xform(rect.position + Vector2(rect.size.x, rect.size.y / 2)) + Vector2(4, 0),
-        mtx.xform(rect.position + rect.size) + Vector2(4, 4),
-        mtx.xform(rect.position + Vector2(rect.size.x / 2, rect.size.y)) + Vector2(0, 4),
-        mtx.xform(rect.position + Vector2(0, rect.size.y)) + Vector2(-4, 4),
-        mtx.xform(rect.position + Vector2(0, rect.size.y / 2)) + Vector2(-4, 0)
+    const real_t handle_radius = 8 * EDSCALE;
+    const real_t handle_offset = 4 * EDSCALE;
+
+    // Position of selection handles.
+    const Vector2 endpoints[8] = {
+        mtx.xform(rect.position) + Vector2(-handle_offset, -handle_offset),
+        mtx.xform(rect.position + Vector2(rect.size.x / 2, 0)) + Vector2(0, -handle_offset),
+        mtx.xform(rect.position + Vector2(rect.size.x, 0)) + Vector2(handle_offset, -handle_offset),
+        mtx.xform(rect.position + Vector2(rect.size.x, rect.size.y / 2)) + Vector2(handle_offset, 0),
+        mtx.xform(rect.position + rect.size) + Vector2(handle_offset, handle_offset),
+        mtx.xform(rect.position + Vector2(rect.size.x / 2, rect.size.y)) + Vector2(0, handle_offset),
+        mtx.xform(rect.position + Vector2(0, rect.size.y)) + Vector2(-handle_offset, handle_offset),
+        mtx.xform(rect.position + Vector2(0, rect.size.y / 2)) + Vector2(-handle_offset, 0)
     };
 
     Ref<InputEventMouseButton> mb = dynamic_ref_cast<InputEventMouseButton>(p_input);
@@ -353,7 +365,7 @@ void TextureRegionEditor::_region_input(const Ref<InputEvent> &p_input) {
 
                     for (int i = 0; i < 8; i++) {
                         Vector2 tuv = endpoints[i];
-                        if (tuv.distance_to(Vector2(mb->get_position().x, mb->get_position().y)) < 8) {
+                        if (tuv.distance_to(Vector2(mb->get_position().x, mb->get_position().y)) < handle_radius) {
                             drag_index = i;
                         }
                     }

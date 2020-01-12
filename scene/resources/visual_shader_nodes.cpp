@@ -6,7 +6,7 @@
 /*                      https://godotengine.org                          */
 /*************************************************************************/
 /* Copyright (c) 2007-2019 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md)    */
+/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md).   */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -3638,12 +3638,33 @@ StringName VisualShaderNodeFresnel::get_output_port_name(int p_port) const {
 }
 
 se_string VisualShaderNodeFresnel::generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const se_string *p_input_vars, const se_string *p_output_vars, bool p_for_preview) const {
-    return "\t" + p_output_vars[0] + " = " + p_input_vars[2] + " ? (pow(clamp(dot(" + p_input_vars[0] + ", " + p_input_vars[1] + "), 0.0, 1.0), " + p_input_vars[3] + ")) : (pow(1.0 - clamp(dot(" + p_input_vars[0] + ", " + p_input_vars[1] + "), 0.0, 1.0), " + p_input_vars[3] + "));";
+
+    se_string normal;
+    se_string view;
+    if (p_input_vars[0].empty()) {
+        normal = "NORMAL";
+    } else {
+        normal = p_input_vars[0];
+    }
+    if (p_input_vars[1].empty()) {
+        view = "VIEW";
+    } else {
+        view = p_input_vars[1];
+    }
+
+    return "\t" + p_output_vars[0] + " = " + p_input_vars[2] + " ? (pow(clamp(dot(" + normal + ", " + view + "), 0.0, 1.0), " + p_input_vars[3] + ")) : (pow(1.0 - clamp(dot(" + normal + ", " + view + "), 0.0, 1.0), " + p_input_vars[3] + "));";
+}
+
+StringName VisualShaderNodeFresnel::get_input_port_default_hint(int p_port) const {
+    if (p_port == 0) {
+        return "default";
+    } else if (p_port == 1) {
+        return "default";
+    }
+    return StringName();
 }
 
 VisualShaderNodeFresnel::VisualShaderNodeFresnel() {
-    set_input_port_default_value(0, Vector3(0.0, 0.0, 0.0));
-    set_input_port_default_value(1, Vector3(0.0, 0.0, 0.0));
     set_input_port_default_value(2, false);
     set_input_port_default_value(3, 1.0);
 }

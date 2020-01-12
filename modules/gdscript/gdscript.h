@@ -6,7 +6,7 @@
 /*                      https://godotengine.org                          */
 /*************************************************************************/
 /* Copyright (c) 2007-2019 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md)    */
+/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md).   */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -303,6 +303,7 @@ struct GDScriptWarning {
         UNSAFE_CAST, // Cast used in an unknown type
         UNSAFE_CALL_ARGUMENT, // Function call argument is of a supertype of the require argument
         DEPRECATED_KEYWORD, // The keyword is deprecated and should be replaced
+        STANDALONE_TERNARY, // Return value of ternary expression is discarded
         WARNING_MAX,
     } code;
     Vector<se_string> symbols;

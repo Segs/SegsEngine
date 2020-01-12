@@ -6,7 +6,7 @@
 /*                      https://godotengine.org                          */
 /*************************************************************************/
 /* Copyright (c) 2007-2019 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md)    */
+/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md).   */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -97,6 +97,8 @@ bool FileSystemDock::_create_tree(TreeItem *p_parent, EditorFileSystemDirectory 
 
     // Create all items for the files in the subdirectory.
     if (display_mode == DISPLAY_MODE_TREE_ONLY) {
+        se_string main_scene = ProjectSettings::get_singleton()->get("application/run/main_scene");
+
         for (int i = 0; i < p_dir->get_file_count(); i++) {
 
             StringName file_type(p_dir->get_file_type(i));
@@ -126,7 +128,6 @@ bool FileSystemDock::_create_tree(TreeItem *p_parent, EditorFileSystemDirectory 
                 file_item->select(0);
                 file_item->set_as_cursor(0);
             }
-            se_string main_scene = ProjectSettings::get_singleton()->get("application/run/main_scene");
             if (main_scene == file_metadata) {
                 file_item->set_custom_color(0, get_color("accent_color", "Editor"));
             }
@@ -776,6 +777,7 @@ void FileSystemDock::_update_file_list(bool p_keep_selection) {
     }
 
     // Fills the ItemList control node from the FileInfos.
+    se_string main_scene = ProjectSettings::get_singleton()->get("application/run/main_scene");
     StringName oi("Object");
     for (List<FileInfo>::Element *E = filelist.front(); E; E = E->next()) {
         FileInfo *finfo = &E->deref();
@@ -811,7 +813,9 @@ void FileSystemDock::_update_file_list(bool p_keep_selection) {
             item_index = files->get_item_count() - 1;
             files->set_item_metadata(item_index, fpath);
         }
-
+        if (fpath == main_scene) {
+            files->set_item_custom_fg_color(item_index, get_color("accent_color", "Editor"));
+        }
         // Generate the preview.
         if (!finfo->import_broken) {
             Array udata;
@@ -1631,6 +1635,7 @@ void FileSystemDock::_file_option(int p_option, const Vector<se_string> &p_selec
                 ProjectSettings::get_singleton()->set("application/run/main_scene", p_selected[0]);
                 ProjectSettings::get_singleton()->save();
                 _update_tree(_compute_uncollapsed_paths());
+                _update_file_list(true);
             }
         } break;
         case FILE_INSTANCE: {
@@ -1802,8 +1807,8 @@ void FileSystemDock::_file_option(int p_option, const Vector<se_string> &p_selec
             if (!StringUtils::ends_with(fpath,"/")) {
                 fpath = PathUtils::get_base_dir(fpath);
             }
-            make_script_dialog->config(se_string("Node"), PathUtils::plus_file(fpath,"new_script.gd"), false);
-            make_script_dialog->popup_centered(Size2(300, 300) * EDSCALE);
+            make_script_dialog->config(se_string("Node"), PathUtils::plus_file(fpath,"new_script.gd"), false, false);
+            make_script_dialog->popup_centered();
         } break;
 
         case FILE_COPY_PATH: {

@@ -6,7 +6,7 @@
 /*                      https://godotengine.org                          */
 /*************************************************************************/
 /* Copyright (c) 2007-2019 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md)    */
+/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md).   */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -41,6 +41,7 @@ IMPL_GDCLASS(Light2D)
 VARIANT_ENUM_CAST(Light2D::Mode);
 VARIANT_ENUM_CAST(Light2D::ShadowFilter);
 
+#ifdef TOOLS_ENABLED
 Dictionary Light2D::_edit_get_state() const {
     Dictionary state = Node2D::_edit_get_state();
     state["offset"] = get_texture_offset();
@@ -76,6 +77,7 @@ Rect2 Light2D::_edit_get_rect() const {
 bool Light2D::_edit_use_rect() const {
     return texture;
 }
+#endif
 
 Rect2 Light2D::get_anchorable_rect() const {
     if (not texture)
