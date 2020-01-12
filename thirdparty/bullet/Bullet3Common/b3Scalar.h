@@ -46,7 +46,6 @@ inline int b3GetVersion()
 #define B3_ATTRIBUTE_ALIGNED64(a)   a __attribute__((aligned(64)))
 #define B3_ATTRIBUTE_ALIGNED128(a)  a __attribute__((aligned(128)))
 #elif ( defined(_MSC_VER) && _MSC_VER < 1300 )
-
 #define B3_FORCE_INLINE inline
 #define B3_ATTRIBUTE_ALIGNED16(a) a
 #define B3_ATTRIBUTE_ALIGNED64(a) a
@@ -72,6 +71,8 @@ inline int b3GetVersion()
 
 #if (defined(_WIN32) && (_MSC_VER) && _MSC_VER >= 1400) && (!defined(B3_USE_DOUBLE_PRECISION))
 #if (defined(_M_IX86) || defined(_M_X64))
+
+
 #ifdef __clang__
 //#define B3_NO_SIMD_OPERATOR_OVERLOADS
 #define B3_DISABLE_SSE
@@ -80,6 +81,7 @@ inline int b3GetVersion()
 #ifndef B3_DISABLE_SSE
 #define B3_USE_SSE
 #endif //B3_DISABLE_SSE
+
 #ifdef B3_USE_SSE
 //B3_USE_SSE_IN_API is disabled under Windows by default, because
 //it makes it harder to integrate Bullet into your application under Windows
@@ -295,7 +297,6 @@ static int b3NanMask = 0x7F800001;
 static int b3InfinityMask = 0x7F800000;
 #define B3_INFINITY_MASK (*(float *)&b3InfinityMask)
 #endif
-
 #ifndef B3_NO_SIMD_OPERATOR_OVERLOADS
 inline __m128 operator+(const __m128 A, const __m128 B)
 {
@@ -311,7 +312,6 @@ inline __m128 operator*(const __m128 A, const __m128 B)
 {
 	return _mm_mul_ps(A, B);
 }
-
 #endif //B3_NO_SIMD_OPERATOR_OVERLOADS
 #define b3CastfTo128i(a) (_mm_castps_si128(a))
 #define b3CastfTo128d(a) (_mm_castps_pd(a))
