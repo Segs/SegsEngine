@@ -44,7 +44,7 @@ class DisjointSet {
     struct Element {
         T object;
         Element *parent = nullptr;
-        int rank = 0;
+        int elem_rank = 0;
     };
 
     using MapT = Map<T, Element *>;
@@ -114,14 +114,14 @@ void DisjointSet<T, C, AL>::create_union(T a, T b) {
         return;
 
     // Not in the same set, merge
-    if (x_root->rank < y_root->rank) {
+    if (x_root->elem_rank < y_root->elem_rank) {
         SWAP(x_root, y_root);
     }
 
     // Merge y_root into x_root
     y_root->parent = x_root;
-    if (x_root->rank == y_root->rank) {
-        ++x_root->rank;
+    if (x_root->elem_rank == y_root->elem_rank) {
+        ++x_root->elem_rank;
     }
 }
 

@@ -38,7 +38,7 @@
 
 namespace
 {
-struct ImagePluginResolver : public ResolverInterface
+struct ImageLoadPluginResolver : public ResolverInterface
 {
     bool new_plugin_detected(QObject * ob) override {
         bool res=false;
@@ -78,7 +78,7 @@ void ImageLoader::register_plugin_resolver()
 {
     static bool registered=false;
     if(!registered) {
-        add_plugin_resolver(new ImagePluginResolver);
+        add_plugin_resolver(new ImageLoadPluginResolver);
         registered = true;
     }
 }

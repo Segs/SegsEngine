@@ -34,7 +34,7 @@
 #include "core/method_bind.h"
 #include "scene/main/node.h"
 #include "core/script_language.h"
-
+#include "core/io/networked_multiplayer_peer_enum_casters.h"
 #ifdef DEBUG_ENABLED
 #include "core/object_db.h"
 #include "core/os/os.h"
@@ -45,8 +45,6 @@
 IMPL_GDCLASS(MultiplayerAPI)
 
 VARIANT_ENUM_CAST(MultiplayerAPI_RPCMode);
-//TODO: SEGS: duplicated instantiation
-VARIANT_ENUM_CAST(NetworkedMultiplayerPeer::TransferMode)
 
 
 //! @warning MultiplayerAPI::DebugData methods are called with nullptr `this` in builds without defined `DEBUG_ENABLED`

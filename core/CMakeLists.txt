@@ -69,6 +69,7 @@ set(core_sources
     io/net_socket.h
     io/networked_multiplayer_peer.cpp
     io/networked_multiplayer_peer.h
+    io/networked_multiplayer_peer_enum_casters.h
     io/packet_peer.cpp
     io/packet_peer.h
     io/packet_peer_udp.cpp
@@ -404,5 +405,16 @@ foreach(tgt ${global_targets})
     set_common_target_properties(${tgt}_core)
 #    set_target_properties(${tgt}_core PROPERTIES UNITY_BUILD ON)
 #    set_target_properties(${tgt}_core PROPERTIES UNITY_BUILD_BATCH_SIZE ${DEFAULT_UNITY_BATCH_SIZE})
+if(USE_PRECOMPILED_HEADERS)
+    target_precompile_headers(${tgt}_core
+      PRIVATE
+      "$<$<COMPILE_LANGUAGE:C>:<stddef.h$<ANGLE-R>>" # had to add this, otherwise the generated c-header was buggy
+      $<$<COMPILE_LANGUAGE:CXX>:core/precompiled.h>
+    )
+endif()
+if(USE_UNITY_BUILDS)
+    set_target_properties(${tgt}_core PROPERTIES UNITY_BUILD ON)
+    set_target_properties(${tgt}_core PROPERTIES UNITY_BUILD_BATCH_SIZE ${DEFAULT_UNITY_BATCH_SIZE})
+endif()
 
 endforeach()

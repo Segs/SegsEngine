@@ -50,6 +50,7 @@ include(PluginSupport)
 ######################################
 
 option(USE_UNITY_BUILDS "Use unity builds" ON)
+option(USE_PRECOMPILED_HEADERS "Use precompiled headers" ON)
 option(USE_TRACY_PROFILER "Embed a tracy profiler data collection client" ON)
 
 set(DEFAULT_UNITY_BATCH_SIZE 20)
@@ -282,6 +283,11 @@ if(USE_UNITY_BUILDS)
         elseif(MINGW)
             target_compile_options(${tgt}_engine PRIVATE -Wa,-mbig-obj)
         endif()
+    endforeach()
+endif()
+if(USE_PRECOMPILED_HEADERS)
+    foreach(tgt ${global_targets})
+        target_precompile_headers(${tgt}_engine REUSE_FROM ${tgt}_core)
     endforeach()
 endif()
 

@@ -7,7 +7,7 @@ add_subdirectory(bullet)
 add_subdirectory(zlib)
 
 
-add_library(thirdparty_misc OBJECT
+add_library(thirdparty_misc STATIC
     # Add required thirdparty code. Header paths are hardcoded, we don't need to append
     # to the include path (saves a few chars on the compiler invocation for touchy MSVC...)
         # C sources

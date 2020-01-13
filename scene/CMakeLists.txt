@@ -5,10 +5,9 @@ foreach(tgt ${global_targets})
     target_sources(${tgt}_engine PRIVATE
         ${source_files} ${header_files}
         "${PROJECT_SOURCE_DIR}/thirdparty/misc/easing_equations.cpp"
-        "${PROJECT_SOURCE_DIR}/thirdparty/misc/mikktspace.c"
     )
 
-    target_link_libraries(${tgt}_engine PRIVATE ${tgt}_modules)
+    target_link_libraries(${tgt}_engine PRIVATE ${tgt}_modules thirdparty_misc)
     # NOTE: this makes feetype a hard dependency, maybe a module should provide an implementation hiding ?
     target_link_libraries(${tgt}_engine PRIVATE freetype)
     target_include_directories(${tgt}_engine PRIVATE ${PROJECT_SOURCE_DIR}/thirdparty/misc/)
