@@ -164,6 +164,7 @@ public:
 class GODOT_EXPORT CanvasItem : public Node {
 
     GDCLASS(CanvasItem,Node)
+    Q_GADGET
 
 public:
     enum BlendMode {
@@ -208,11 +209,11 @@ private:
     mutable Transform2D global_transform;
     mutable bool global_invalid;
 
-    void _toplevel_raise_self();
+    Q_INVOKABLE void _toplevel_raise_self();
 
     void _propagate_visibility_changed(bool p_visible);
 
-    void _update_callback();
+    Q_INVOKABLE void _update_callback();
 
     void _enter_canvas();
     void _exit_canvas();
@@ -225,7 +226,7 @@ private:
     static CanvasItem *current_item_drawn;
 
 protected:
-    _FORCE_INLINE_ void _notify_transform() {
+    void _notify_transform() {
         if (!is_inside_tree()) return;
         _notify_transform(this);
         if (!block_transform_notify && notify_local_transform) notification(NOTIFICATION_LOCAL_TRANSFORM_CHANGED);

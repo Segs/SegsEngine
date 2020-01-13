@@ -1345,7 +1345,6 @@ void Object::_add_user_signal(const StringName &p_name, const Array &p_args) {
 }
 
 Array Object::_get_signal_list() const {
-
     ListPOD<MethodInfo> signal_list;
     get_signal_list(&signal_list);
 
@@ -1689,6 +1688,18 @@ void Object::clear_internal_resource_paths() {
 }
 
 void Object::_bind_methods() {
+    //    const auto &mo = Object::staticMetaObject;
+    //    for(int enum_idx = 0; enum_idx < mo.enumeratorCount(); ++enum_idx) {
+    //        const QMetaEnum &me(mo.enumerator(enum_idx));
+    //        for(int i=0; i<me.keyCount(); ++i)
+    //        {
+    //            ClassDB::bind_integer_constant(get_class_static_name(), StaticCString(me.name(),true), StaticCString(me.key(i),true), me.value(i));
+    //        }
+    //    }
+    //    for(int prop_idx = 0; prop_idx< mo.propertyCount(); ++prop_idx) {
+    //        const QMetaProperty &prop(mo.property(prop_idx));
+
+    //    }
 
     MethodBinder::bind_method(D_METHOD("get_class"), &Object::wrap_get_class);
     MethodBinder::bind_method(D_METHOD("is_class", {"class"}), &Object::wrap_is_class);

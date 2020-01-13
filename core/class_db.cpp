@@ -659,12 +659,12 @@ void ClassDB::add_signal(StringName p_class, const MethodInfo &p_signal) {
     ERR_FAIL_COND(iter==classes.end())
     ClassInfo *type = &iter->second;
 
-    StringName sname = p_signal.name;
+    const StringName &sname = p_signal.name;
 
 #ifdef DEBUG_METHODS_ENABLED
     ClassInfo *check = type;
     while (check) {
-        ERR_FAIL_COND_MSG(check->signal_map.contains(sname), "Class '" + se_string(p_class) + "' already has signal '" + se_string(sname) + "'.")
+        ERR_FAIL_COND_MSG(check->signal_map.contains(sname), "Class '" + se_string(p_class) + "' already has signal '" + se_string_view(sname) + "'.")
         check = check->inherits_ptr;
     }
 #endif
@@ -1108,8 +1108,9 @@ void ClassDB::add_virtual_method(const StringName &p_class, const MethodInfo &p_
 
 #ifdef DEBUG_METHODS_ENABLED
     MethodInfo mi = p_method;
-    if (p_virtual) mi.flags |= METHOD_FLAG_VIRTUAL;
-    classes[p_class].virtual_methods.push_back(mi);
+    if (p_virtual)
+        mi.flags |= METHOD_FLAG_VIRTUAL;
+    classes[p_class].virtual_methods.emplace_back(mi);
 
 #endif
 }
