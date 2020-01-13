@@ -191,6 +191,7 @@ public:
         }
     }
 };
+//Q_DECLARE_SMART_POINTER_METATYPE(Ref)
 template <typename T, typename U>
 bool operator==(Ref<T> const& lhs, Ref<U> const& rhs)
 {

@@ -45,8 +45,9 @@
 //TODO: SEGS consider removing 'scene/main/node.h' include from core module
 #include "scene/main/node.h" //only so casting works
 #include "core/method_bind.h"
-
+#include <QMetaProperty>
 #include <cstdio>
+
 namespace {
     DefHashMap<se_string, Resource *> cached_resources;
 
@@ -448,10 +449,30 @@ int Resource::get_id_for_path(se_string_view p_path) const {
     }
 }
 #endif
-se_string Resource::_get_category_wrap() {
-    return se_string(_get_category());
+VariantType fromQVariantType(QVariant::Type t) {
+    switch(t) {
+    case QVariant::Invalid:
+        return VariantType::NIL;
+    case QVariant::Bool:
+        return VariantType::BOOL;
+    case QVariant::Int:
+        return VariantType::INT;
+    case QVariant::UInt:
+        return VariantType::INT;
+    case QVariant::LongLong:
+        return VariantType::INT;
+    case QVariant::ULongLong:
+        return VariantType::INT;
+    case QVariant::Double:
+        return VariantType::REAL;
+    case QVariant::Char:
+        return VariantType::INT;
+    default:
+        ERR_FAIL_V_MSG(VariantType::NIL,"No known variant->qvariant conversion");
+    }
 }
-
+//TODO: this is here only because Object is not an QObject yet
+void Resource::changed() {}
 void Resource::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_path", {"path"}), &Resource::_set_path);
     MethodBinder::bind_method(D_METHOD("take_over_path", {"path"}), &Resource::_take_over_path);
@@ -465,8 +486,27 @@ void Resource::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("setup_local_to_scene"), &Resource::setup_local_to_scene);
 
     MethodBinder::bind_method(D_METHOD("duplicate", {"subresources"}), &Resource::duplicate, {DEFVAL(false)});
-    ADD_SIGNAL(MethodInfo("changed"));
+    const auto &mo = Resource::staticMetaObject;
+    for(int i=0; i<mo.methodCount(); ++i) {
+        const auto &method(mo.method(i));
+        if(method.methodType()==QMetaMethod::Signal) {
+            const char *z=method.typeName();
+            printf("%s",z);
+            ADD_SIGNAL(MethodInfo(method.name().constData()));
+        }
+    }
     ADD_GROUP("Resource", "resource_");
+    //    for(int enum_idx = 0; enum_idx < mo.enumeratorCount(); ++enum_idx) {
+    //        const QMetaEnum &me(mo.enumerator(enum_idx));
+    //        for(int i=0; i<me.keyCount(); ++i)
+    //        {
+    //            ClassDB::bind_integer_constant(get_class_static_name(), StaticCString(me.name(),true), StaticCString(me.key(i),true), me.value(i));
+    //        }
+    //    }
+//    for(int prop_idx = 0; prop_idx< mo.propertyCount(); ++prop_idx) {
+//        const QMetaProperty &prop(mo.property(prop_idx));
+//        //PropertyInfo pi(fromQVariantType(prop.type()), prop.name(), "set_local_to_scene", "is_local_to_scene");
+//    }
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "resource_local_to_scene"), "set_local_to_scene", "is_local_to_scene");
     ADD_PROPERTY(PropertyInfo(VariantType::STRING, "resource_path", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_EDITOR), "set_path", "get_path");
     ADD_PROPERTY(PropertyInfo(VariantType::STRING, "resource_name"), "set_name", "get_name");

@@ -1152,9 +1152,9 @@ void CanvasItem::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("_toplevel_raise_self"), &CanvasItem::_toplevel_raise_self);
     MethodBinder::bind_method(D_METHOD("_update_callback"), &CanvasItem::_update_callback);
+#ifdef TOOLS_ENABLED
     MethodBinder::bind_method(D_METHOD("_edit_set_state", {"state"}), &CanvasItem::_edit_set_state);
     MethodBinder::bind_method(D_METHOD("_edit_get_state"), &CanvasItem::_edit_get_state);
-#ifdef TOOLS_ENABLED
     MethodBinder::bind_method(D_METHOD("_edit_set_position", {"position"}), &CanvasItem::_edit_set_position);
     MethodBinder::bind_method(D_METHOD("_edit_get_position"), &CanvasItem::_edit_get_position);
     MethodBinder::bind_method(D_METHOD("_edit_set_scale", {"scale"}), &CanvasItem::_edit_set_scale);

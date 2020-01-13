@@ -396,6 +396,7 @@ foreach(tgt ${global_targets})
     target_include_directories(${tgt}_core PRIVATE ${Qt5Core_PRIVATE_INCLUDE_DIRS})
     target_include_directories(${tgt}_core PUBLIC ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_BINARY_DIR}/..)
     target_include_directories(${tgt}_core PRIVATE ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/include)
+    set_target_properties(${tgt}_core PROPERTIES AUTOMOC TRUE)
 
     target_include_directories(${tgt}_engine INTERFACE
         $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}>

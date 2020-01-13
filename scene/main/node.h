@@ -48,7 +48,8 @@ enum MultiplayerAPI_RPCMode : int8_t;
 class GODOT_EXPORT Node : public Object {
 
     GDCLASS(Node,Object)
-
+    Q_GADGET
+    Q_CLASSINFO("Category","Nodes")
     OBJ_CATEGORY("Nodes")
 
 public:

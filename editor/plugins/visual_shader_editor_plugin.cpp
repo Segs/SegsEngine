@@ -230,7 +230,7 @@ void VisualShaderEditor::update_custom_nodes() {
     PODVector<StringName> class_list;
     ScriptServer::get_global_class_list(&class_list);
     DefMap<se_string,AddInfo> added;
-    for (int i = 0; i < class_list.size(); i++) {
+    for (size_t i = 0; i < class_list.size(); i++) {
         if (ScriptServer::get_global_class_native_base(class_list[i]) == "VisualShaderNodeCustom") {
 
             se_string_view script_path = ScriptServer::get_global_class_path(class_list[i]);

@@ -37,6 +37,8 @@
 #include "core/forward_decls.h"
 #include "core/dictionary.h"
 
+#include <QObject>
+
 class IObjectTooling;
 
 class GODOT_EXPORT TypeInfo
@@ -216,8 +218,7 @@ private:
 
 #define OBJ_CATEGORY(m_category)                                                                                       \
 protected:                                                                                                             \
-    static constexpr const char * _get_category() { return m_category; }                                          \
-    _FORCE_INLINE_ static se_string _get_category_wrap();                                                              \
+    static constexpr const char * _get_category() { return m_category; }                                               \
                                                                                                                        \
 private:
 
@@ -236,6 +237,11 @@ class ScriptInstance;
 using ObjectID = uint64_t;
 
 class GODOT_EXPORT Object {
+    Q_GADGET
+    // Non-copyable
+
+    Q_DISABLE_COPY(Object)
+    //Q_PROPERTY(RefPtr script READ get_script WRITE set_script)
     static constexpr TypeInfo typeInfoStatic = TypeInfo( "Object", nullptr);
 public:
 
@@ -315,19 +321,19 @@ protected:
     void _get_property_list(ListPOD<PropertyInfo> * /*p_list*/) const {}
     void _notification(int /*p_notification*/){}
 
-    _FORCE_INLINE_ static void (*_get_bind_methods())() {
+    static void (*_get_bind_methods())() {
         return &Object::_bind_methods;
     }
-    static constexpr _FORCE_INLINE_ bool (Object::*_get_get() )(const StringName &p_name, Variant &r_ret) const {
+    static constexpr bool (Object::*_get_get() )(const StringName &p_name, Variant &r_ret) const {
         return &Object::_get;
     }
-    _FORCE_INLINE_ bool (Object::*_get_set() const)(const StringName &p_name, const Variant &p_property) {
+    bool (Object::*_get_set() const)(const StringName &p_name, const Variant &p_property) {
         return &Object::_set;
     }
-    _FORCE_INLINE_ void (Object::*_get_get_property_list() const)(ListPOD<PropertyInfo> *p_list) const {
+    void (Object::*_get_get_property_list() const)(ListPOD<PropertyInfo> *p_list) const {
         return &Object::_get_property_list;
     }
-    _FORCE_INLINE_ void (Object::*_get_notification() const)(int) {
+    void (Object::*_get_notification() const)(int) {
         return &Object::_notification;
     }
 
@@ -432,8 +438,8 @@ public:
 
     /* SCRIPT */
 
-    void set_script(const RefPtr &p_script);
-    RefPtr get_script() const;
+    Q_INVOKABLE void set_script(const RefPtr &p_script);
+    Q_INVOKABLE RefPtr get_script() const;
 
     /* SCRIPT */
 
@@ -495,9 +501,7 @@ public:
     Object();
     virtual ~Object();
 
-    // Non-copyable
-    void operator=(const Object &/*p_rval*/) = delete;
-    Object(const Object &) = delete;
+    Object(Object &&) = default;
 };
 
 template <class T>
@@ -529,6 +533,7 @@ const T *object_cast(const Object *p_object) {
 }
 namespace ObjectNS
 {
+    Q_NAMESPACE
     enum ConnectFlags : uint8_t {
 
         CONNECT_QUEUED = 1,
@@ -536,6 +541,7 @@ namespace ObjectNS
         CONNECT_ONESHOT = 4,
         CONNECT_REFERENCE_COUNTED = 8,
     };
+    Q_ENUM_NS(ConnectFlags)
     template<class T>
     T* cast_to(::Object *f) {
         return object_cast<T>(f);
