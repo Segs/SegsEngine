@@ -1,9 +1,11 @@
 #pragma once
 
+#include "core/forward_decls.h"
+#include "core/os/memory.h"
 #include <EASTL/vector.h>
 #include <EASTL/string.h>
 //#define QT_RESTRICTED_CAST_FROM_ASCII
-#include <QString>
+#include <QObject>
 
 #ifdef USE_PRECOMPILED_HEADERS
 #if 0

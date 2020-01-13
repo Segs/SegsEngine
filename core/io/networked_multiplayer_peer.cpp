@@ -30,13 +30,9 @@
 
 #include "networked_multiplayer_peer.h"
 #include "core/method_bind.h"
-#include "core/method_arg_casters.h"
-#include "core/method_enum_caster.h"
+#include "core/io/networked_multiplayer_peer_enum_casters.h"
 
 IMPL_GDCLASS(NetworkedMultiplayerPeer)
-
-VARIANT_ENUM_CAST(NetworkedMultiplayerPeer::TransferMode)
-VARIANT_ENUM_CAST(NetworkedMultiplayerPeer::ConnectionStatus)
 
 void NetworkedMultiplayerPeer::_bind_methods() {
 
