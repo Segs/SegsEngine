@@ -46,7 +46,7 @@ class StringBuilder {
     PODVector<int32_t> appended_strings;
 
 public:
-    StringBuilder &append(const se_string &p_string);
+    StringBuilder &append(se_string_view p_string);
     StringBuilder &append(const char *p_cstring);
 
     _FORCE_INLINE_ StringBuilder &operator+(const se_string &p_string) {

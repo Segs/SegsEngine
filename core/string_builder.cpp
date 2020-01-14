@@ -32,12 +32,12 @@
 #include "core/se_string.h"
 #include <cstring>
 
-StringBuilder &StringBuilder::append(const se_string &p_string) {
+StringBuilder &StringBuilder::append(se_string_view p_string) {
 
     if (p_string.empty())
         return *this;
 
-    strings.push_back(p_string);
+    strings.push_back(se_string(p_string));
     appended_strings.push_back(-1);
 
     string_length += p_string.length();

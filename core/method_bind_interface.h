@@ -229,7 +229,6 @@ struct MethodBinder {
 
         MethodBind *bind = create_vararg_method_bind(p_method, p_info, p_return_nil_is_variant);
         ERR_FAIL_COND_V(!bind, nullptr)
-
         bind->set_name(p_name);
         bind->set_default_arguments(p_default_args);
 

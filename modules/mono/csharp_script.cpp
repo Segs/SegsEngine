@@ -33,6 +33,8 @@
 #include <mono/metadata/threads.h>
 
 #include "core/io/json.h"
+#include "core/method_bind_interface.h"
+#include "core/method_bind.h"
 #include "core/object_db.h"
 #include "core/os/file_access.h"
 #include "core/os/os.h"
@@ -62,6 +64,7 @@
 #include "utils/mutex_utils.h"
 #include "utils/string_utils.h"
 #include "utils/thread_local.h"
+
 
 #define CACHED_STRING_NAME(m_var) (CSharpLanguage::get_singleton()->get_string_names().m_var)
 
@@ -966,8 +969,7 @@ void CSharpLanguage::reload_assemblies(bool p_soft_reload) {
         to_reload_state.push_back(script);
     }
 
-    for (List<Ref<CSharpScript> >::Element *E = to_reload_state.front(); E; E = E->next()) {
-        Ref<CSharpScript> script = E->deref();
+    for (const Ref<CSharpScript> &script : to_reload_state) {
 
         for (ObjectID obj_id : script->pending_reload_instances) {
             Object *obj = ObjectDB::get_instance(obj_id);
@@ -977,14 +979,14 @@ void CSharpLanguage::reload_assemblies(bool p_soft_reload) {
                 continue;
             }
 
-            ERR_CONTINUE(!obj->get_script_instance());
+            ERR_CONTINUE(!obj->get_script_instance())
 
             // TODO: Restore serialized state
 
             CSharpScript::StateBackup &state_backup = script->pending_reload_state[obj_id];
 
-            for (List<Pair<StringName, Variant> >::Element *G = state_backup.properties.front(); G; G = G->next()) {
-                obj->get_script_instance()->set(G->deref().first, G->deref().second);
+            for (const Pair<StringName, Variant> &G : state_backup.properties) {
+                obj->get_script_instance()->set(G.first, G.second);
             }
 
             // Call OnAfterDeserialization
@@ -1290,24 +1292,28 @@ void *CSharpLanguage::alloc_instance_binding_data(Object *p_object) {
 
     auto itermatch = script_bindings.find(p_object);
     if (itermatch!=script_bindings.end())
-        return (void *)&itermatch->second;
+        return itermatch.mpNode;
 
     CSharpScriptBinding script_binding;
 
     if (!setup_csharp_script_binding(script_binding, p_object))
         return nullptr;
 
-    return (void *)&insert_script_binding(p_object, script_binding)->second;
+    return insert_script_binding(p_object, script_binding).mpNode;
 }
 
 Map<Object *, CSharpScriptBinding>::iterator CSharpLanguage::insert_script_binding(Object *p_object, const CSharpScriptBinding &p_script_binding) {
 
     return script_bindings.emplace(p_object, p_script_binding).first;
 }
-
+static Map<Object *, CSharpScriptBinding>::iterator from_binding(void *p_data) {
+    Map<Object *, CSharpScriptBinding>::iterator data;// = (Map<Object *, CSharpScriptBinding>::iterator)p_data;
+    data.mpNode = (Map<Object *, CSharpScriptBinding>::iterator::node_type *)p_data;
+    return data;
+}
 void CSharpLanguage::free_instance_binding_data(void *p_data) {
 
-    if (GDMono::get_singleton() == NULL) {
+    if (GDMono::get_singleton() == nullptr) {
 #ifdef DEBUG_ENABLED
         CRASH_COND(!script_bindings.empty());
 #endif
@@ -1321,16 +1327,15 @@ void CSharpLanguage::free_instance_binding_data(void *p_data) {
     {
         SCOPED_MUTEX_LOCK(language_bind_mutex);
 
-        Map<Object *, CSharpScriptBinding>::Element *data = (Map<Object *, CSharpScriptBinding>::Element *)p_data;
-
-        CSharpScriptBinding &script_binding = data->value();
+        auto data = from_binding(p_data);
+        CSharpScriptBinding &script_binding = data->second;
 
         if (script_binding.inited) {
             // Set the native instance field to IntPtr.Zero, if not yet garbage collected.
             // This is done to avoid trying to dispose the native instance from Dispose(bool).
             MonoObject *mono_object = script_binding.gchandle->get_target();
             if (mono_object) {
-                CACHED_FIELD(GodotObject, ptr)->set_value_raw(mono_object, NULL);
+                CACHED_FIELD(GodotObject, ptr)->set_value_raw(mono_object, nullptr);
             }
         }
 
@@ -1343,13 +1348,13 @@ void CSharpLanguage::refcount_incremented_instance_binding(Object *p_object) {
     RefCounted *ref_owner = object_cast<RefCounted>(p_object);
 
 #ifdef DEBUG_ENABLED
-    CRASH_COND(!ref_owner);
+    CRASH_COND(!ref_owner)
 #endif
 
     void *data = p_object->get_script_instance_binding(get_language_index());
-    CRASH_COND(!data);
+    CRASH_COND(!data)
 
-    CSharpScriptBinding &script_binding = ((Map<Object *, CSharpScriptBinding>::Element *)data)->get();
+    CSharpScriptBinding &script_binding = from_binding(data)->second;
     Ref<MonoGCHandle> &gchandle = script_binding.gchandle;
 
     if (!script_binding.inited)
@@ -1382,7 +1387,7 @@ bool CSharpLanguage::refcount_decremented_instance_binding(Object *p_object) {
     void *data = p_object->get_script_instance_binding(get_language_index());
     CRASH_COND(!data);
 
-    CSharpScriptBinding &script_binding = ((Map<Object *, CSharpScriptBinding>::Element *)data)->get();
+    CSharpScriptBinding &script_binding = from_binding(data)->second;
     Ref<MonoGCHandle> &gchandle = script_binding.gchandle;
 
     int refcount = ref_owner->reference_get_count();
@@ -1415,7 +1420,7 @@ CSharpInstance *CSharpInstance::create_for_managed_type(Object *p_owner, CSharpS
 
     RefCounted *ref = object_cast<RefCounted>(p_owner);
 
-    instance->base_ref = ref != NULL;
+    instance->base_ref = ref != nullptr;
     instance->script = Ref<CSharpScript>(p_script);
     instance->owner = p_owner;
     instance->gchandle = p_gchandle;
@@ -1757,7 +1762,7 @@ bool CSharpInstance::_unreference_owner_unsafe() {
 
 MonoObject *CSharpInstance::_internal_new_managed() {
 #ifdef DEBUG_ENABLED
-    CRASH_COND(!gchandle);
+    CRASH_COND(!gchandle)
 #endif
 
     // Search the constructor first, to fail with an error if it's not found before allocating anything else.
@@ -1778,7 +1783,7 @@ MonoObject *CSharpInstance::_internal_new_managed() {
 
         bool die = _unreference_owner_unsafe();
         // Not ok for the owner to die here. If there is a situation where this can happen, it will be considered a bug.
-        CRASH_COND(die == true);
+        CRASH_COND(die == true)
 
         owner = nullptr;
 
@@ -1794,7 +1799,7 @@ MonoObject *CSharpInstance::_internal_new_managed() {
     CACHED_FIELD(GodotObject, ptr)->set_value_raw(mono_object, owner);
 
     // Construct
-    ctor->invoke_raw(mono_object, NULL);
+    ctor->invoke_raw(mono_object, nullptr);
 
     return mono_object;
 }
@@ -1802,8 +1807,8 @@ MonoObject *CSharpInstance::_internal_new_managed() {
 void CSharpInstance::mono_object_disposed(MonoObject *p_obj) {
 
 #ifdef DEBUG_ENABLED
-    CRASH_COND(base_ref);
-    CRASH_COND(!gchandle);
+    CRASH_COND(base_ref)
+    CRASH_COND(!gchandle)
 #endif
     CSharpLanguage::get_singleton()->release_script_gchandle(p_obj, gchandle);
 }
@@ -1811,8 +1816,8 @@ void CSharpInstance::mono_object_disposed(MonoObject *p_obj) {
 void CSharpInstance::mono_object_disposed_baseref(MonoObject *p_obj, bool p_is_finalizer, bool &r_delete_owner, bool &r_remove_script_instance) {
 
 #ifdef DEBUG_ENABLED
-    CRASH_COND(!base_ref);
-    CRASH_COND(!gchandle);
+    CRASH_COND(!base_ref)
+    CRASH_COND(!gchandle)
 #endif
 
     r_remove_script_instance = false;
@@ -1845,8 +1850,8 @@ void CSharpInstance::mono_object_disposed_baseref(MonoObject *p_obj, bool p_is_f
 void CSharpInstance::refcount_incremented() {
 
 #ifdef DEBUG_ENABLED
-    CRASH_COND(!base_ref);
-    CRASH_COND(owner == NULL);
+    CRASH_COND(!base_ref)
+    CRASH_COND(owner == nullptr)
 #endif
 
     RefCounted *ref_owner = object_cast<RefCounted>(owner);
@@ -1866,8 +1871,8 @@ void CSharpInstance::refcount_incremented() {
 bool CSharpInstance::refcount_decremented() {
 
 #ifdef DEBUG_ENABLED
-    CRASH_COND(!base_ref);
-    CRASH_COND(owner == NULL);
+    CRASH_COND(!base_ref)
+    CRASH_COND(owner == nullptr)
 #endif
 
     RefCounted *ref_owner = object_cast<RefCounted>(owner);
@@ -1972,7 +1977,7 @@ void CSharpInstance::notification(int p_notification) {
         _call_notification(p_notification);
 
         MonoObject *mono_object = get_mono_object();
-        ERR_FAIL_NULL(mono_object);
+        ERR_FAIL_NULL(mono_object)
 
         MonoException *exc = nullptr;
         GDMonoUtils::dispose(mono_object, &exc);
@@ -1990,7 +1995,7 @@ void CSharpInstance::notification(int p_notification) {
 void CSharpInstance::_call_notification(int p_notification) {
 
     MonoObject *mono_object = get_mono_object();
-    ERR_FAIL_NULL(mono_object);
+    ERR_FAIL_NULL(mono_object)
 
     // Custom version of _call_multilevel, optimized for _notification
 
@@ -2015,7 +2020,7 @@ void CSharpInstance::_call_notification(int p_notification) {
 se_string CSharpInstance::to_string(bool *r_valid) {
     MonoObject *mono_object = get_mono_object();
 
-    if (mono_object == NULL) {
+    if (mono_object == nullptr) {
         if (r_valid)
             *r_valid = false;
         return se_string();
@@ -2031,7 +2036,7 @@ se_string CSharpInstance::to_string(bool *r_valid) {
         return se_string();
     }
 
-    if (result == NULL) {
+    if (result == nullptr) {
         if (r_valid)
             *r_valid = false;
         return se_string();
@@ -2051,7 +2056,7 @@ ScriptLanguage *CSharpInstance::get_language() {
 }
 
 CSharpInstance::CSharpInstance() :
-        owner(NULL),
+        owner(nullptr),
         base_ref(false),
         ref_dying(false),
         unsafe_referenced(false),
@@ -2074,7 +2079,7 @@ CSharpInstance::~CSharpInstance() {
             MonoObject *mono_object = gchandle->get_target();
 
             if (mono_object) {
-                MonoException *exc = NULL;
+                MonoException *exc = nullptr;
                 GDMonoUtils::dispose(mono_object, &exc);
 
                 if (exc) {
@@ -2093,26 +2098,26 @@ CSharpInstance::~CSharpInstance() {
         // Transfer ownership to an "instance binding"
 
         void *data = owner->get_script_instance_binding(CSharpLanguage::get_singleton()->get_language_index());
-        CRASH_COND(data == NULL);
+        CRASH_COND(data == nullptr)
 
-        CSharpScriptBinding &script_binding = ((Map<Object *, CSharpScriptBinding>::Element *)data)->get();
+        CSharpScriptBinding &script_binding = from_binding(data)->second;
 
         if (!script_binding.inited) {
-            SCOPED_MUTEX_LOCK(CSharpLanguage::get_singleton()->get_language_bind_mutex());
+            SCOPED_MUTEX_LOCK(CSharpLanguage::get_singleton()->get_language_bind_mutex())
 
             if (!script_binding.inited) { // Other thread may have set it up
                 // Already had a binding that needs to be setup
                 CSharpLanguage::get_singleton()->setup_csharp_script_binding(script_binding, owner);
-                CRASH_COND(!script_binding.inited);
+                CRASH_COND(!script_binding.inited)
             }
         }
 
         bool die = _unreference_owner_unsafe();
-        CRASH_COND(die == true); // The "instance binding" should be holding a reference
+        CRASH_COND(die == true) // The "instance binding" should be holding a reference
     }
 
     if (script && owner) {
-        SCOPED_MUTEX_LOCK(CSharpLanguage::get_singleton()->script_instances_mutex);
+        SCOPED_MUTEX_LOCK(CSharpLanguage::get_singleton()->script_instances_mutex)
 
 #ifdef DEBUG_ENABLED
         // CSharpInstance must not be created unless it's going to be added to the list for sure
@@ -2620,7 +2625,7 @@ void CSharpScript::_resource_path_changed() {
     se_string path = get_path();
 
     if (!path.empty()) {
-        name = get_path().get_file().get_basename();
+        name = StringName(PathUtils::get_basename(PathUtils::get_file(get_path())));
     }
 }
 
@@ -2654,14 +2659,14 @@ void CSharpScript::_get_property_list(List<PropertyInfo> *p_properties) const {
 
 void CSharpScript::_bind_methods() {
 
-    ClassDB::bind_vararg_method(METHOD_FLAGS_DEFAULT, "new", &CSharpScript::_new, MethodInfo("new"));
+    MethodBinder::bind_vararg_method("new", &CSharpScript::_new, MethodInfo("new"));
 }
 
 Ref<CSharpScript> CSharpScript::create_for_managed_type(GDMonoClass *p_class, GDMonoClass *p_native) {
 
     // This method should not fail, only assertions allowed
 
-    CRASH_COND(p_class == NULL);
+    CRASH_COND(p_class == nullptr)
 
     // TODO OPTIMIZE: Cache the 'CSharpScript' associated with this 'p_class' instead of allocating a new one every time
     Ref<CSharpScript> script(memnew(CSharpScript));
@@ -2675,13 +2680,13 @@ void CSharpScript::initialize_for_managed_type(Ref<CSharpScript> p_script, GDMon
 
     // This method should not fail, only assertions allowed
 
-    CRASH_COND(p_class == NULL);
+    CRASH_COND(p_class == nullptr)
 
     p_script->name = p_class->get_name();
     p_script->script_class = p_class;
     p_script->native = p_native;
 
-    CRASH_COND(p_script->native == NULL);
+    CRASH_COND(p_script->native == nullptr)
 
     GDMonoClass *base = p_script->script_class->get_parent_class();
 
@@ -2741,7 +2746,7 @@ bool CSharpScript::can_instance() const {
     if (Engine::get_singleton()->is_editor_hint()) {
 
         // Hack to lower the risk of attached scripts not being added to the C# project
-        if (!get_path().empty() && get_path().find("::") == -1) { // Ignore if built-in script. Can happen if the file is deleted...
+        if (!get_path().empty() && !get_path().contains("::")) { // Ignore if built-in script. Can happen if the file is deleted...
             if (_create_project_solution_if_needed()) {
                 CSharpProject::add_item(GodotSharpDirs::get_project_csproj_path(),
                         "Compile",
@@ -2763,7 +2768,7 @@ bool CSharpScript::can_instance() const {
     // For tool scripts, this will never fire if the class is not found. That's because we
     // don't know if it's a tool script if we can't find the class to access the attributes.
     if (extra_cond && !script_class) {
-        if (GDMono::get_singleton()->get_project_assembly() == NULL) {
+        if (GDMono::get_singleton()->get_project_assembly() == nullptr) {
             // The project assembly is not loaded
             ERR_FAIL_V_MSG(NULL, "Cannot instance script because the project assembly is not loaded. Script: '" + get_path() + "'.");
         } else {
@@ -2789,13 +2794,13 @@ CSharpInstance *CSharpScript::_create_instance(const Variant **p_args, int p_arg
 
     // Search the constructor first, to fail with an error if it's not found before allocating anything else.
     GDMonoMethod *ctor = script_class->get_method(CACHED_STRING_NAME(dotctor), p_argcount);
-    if (ctor == NULL) {
+    if (ctor == nullptr) {
         ERR_FAIL_COND_V_MSG(p_argcount == 0, NULL,
                 "Cannot create script instance. The class '" + script_class->get_full_name() +
                         "' does not define a parameterless constructor." +
                         (get_path().empty() ? se_string() : " Path: '" + get_path() + "'."));
 
-        ERR_FAIL_V_MSG(NULL, "Constructor not found.");
+        ERR_FAIL_V_MSG(NULL, "Constructor not found.")
     }
 
     Ref<RefCounted> ref;
@@ -2807,13 +2812,13 @@ CSharpInstance *CSharpScript::_create_instance(const Variant **p_args, int p_arg
     // If the object had a script instance binding, dispose it before adding the CSharpInstance
     if (p_owner->has_script_instance_binding(CSharpLanguage::get_singleton()->get_language_index())) {
         void *data = p_owner->get_script_instance_binding(CSharpLanguage::get_singleton()->get_language_index());
-        CRASH_COND(data == NULL);
+        CRASH_COND(data == nullptr)
 
-        CSharpScriptBinding &script_binding = ((Map<Object *, CSharpScriptBinding>::Element *)data)->get();
+        CSharpScriptBinding &script_binding = from_binding(data)->second;
         if (script_binding.inited && script_binding.gchandle) {
             MonoObject *mono_object = script_binding.gchandle->get_target();
             if (mono_object) {
-                MonoException *exc = NULL;
+                MonoException *exc = nullptr;
                 GDMonoUtils::dispose(mono_object, &exc);
 
                 if (exc) {
@@ -2838,15 +2843,15 @@ CSharpInstance *CSharpScript::_create_instance(const Variant **p_args, int p_arg
     if (!mono_object) {
         // Important to clear this before destroying the script instance here
         instance->script = Ref<CSharpScript>();
-        instance->owner = NULL;
+        instance->owner = nullptr;
 
         bool die = instance->_unreference_owner_unsafe();
         // Not ok for the owner to die here. If there is a situation where this can happen, it will be considered a bug.
-        CRASH_COND(die == true);
+        CRASH_COND(die == true)
 
-        p_owner->set_script_instance(NULL);
+        p_owner->set_script_instance(nullptr);
         r_error.error = Variant::CallError::CALL_ERROR_INSTANCE_IS_NULL;
-        ERR_FAIL_V_MSG(NULL, "Failed to allocate memory for the object.");
+        ERR_FAIL_V_MSG(NULL, "Failed to allocate memory for the object.")
     }
 
     // Tie managed to unmanaged
@@ -2856,7 +2861,7 @@ CSharpInstance *CSharpScript::_create_instance(const Variant **p_args, int p_arg
         instance->_reference_owner_unsafe(); // Here, after assigning the gchandle (for the refcount_incremented callback)
 
     {
-        SCOPED_MUTEX_LOCK(CSharpLanguage::get_singleton()->script_instances_mutex);
+        SCOPED_MUTEX_LOCK(CSharpLanguage::get_singleton()->script_instances_mutex)
         instances.insert(instance->owner);
     }
 
@@ -2881,7 +2886,7 @@ Variant CSharpScript::_new(const Variant **p_args, int p_argcount, Variant::Call
     r_error.error = Variant::CallError::CALL_OK;
     REF ref;
 
-    ERR_FAIL_NULL_V(native, Variant());
+    ERR_FAIL_NULL_V(native, Variant())
 
     Object *owner = ClassDB::instance(StringName(NATIVE_GDMONOCLASS_NAME(native)));
 
@@ -2890,7 +2895,7 @@ Variant CSharpScript::_new(const Variant **p_args, int p_argcount, Variant::Call
         ref = REF(r);
     }
 
-    CSharpInstance *instance = _create_instance(p_args, p_argcount, owner, r != NULL, r_error);
+    CSharpInstance *instance = _create_instance(p_args, p_argcount, owner, r != nullptr, r_error);
     if (!instance) {
         if (!ref) {
             memdelete(owner); //no owner, sorry
@@ -2908,7 +2913,7 @@ Variant CSharpScript::_new(const Variant **p_args, int p_argcount, Variant::Call
 ScriptInstance *CSharpScript::instance_create(Object *p_this) {
 
 #ifdef DEBUG_ENABLED
-    CRASH_COND(!valid);
+    CRASH_COND(!valid)
 #endif
 
     if (native) {
@@ -2919,14 +2924,14 @@ ScriptInstance *CSharpScript::instance_create(Object *p_this) {
                         se_string("Script inherits from native type '") + native_name +
                                 "', so it can't be instanced in object of type: '" + p_this->get_class() + "'");
             }
-            ERR_FAIL_V_MSG(NULL, se_string("Script inherits from native type '") + native_name +
+            ERR_FAIL_V_MSG(nullptr, se_string("Script inherits from native type '") + native_name +
                                          "', so it can't be instanced in object of type: '" + p_this->get_class() +
-                                         "'.");
+                                         "'.")
         }
     }
 
     Variant::CallError unchecked_error;
-    return _create_instance(NULL, 0, p_this, object_cast<RefCounted>(p_this) != NULL, unchecked_error);
+    return _create_instance(nullptr, 0, p_this, object_cast<RefCounted>(p_this) != nullptr, unchecked_error);
 }
 
 PlaceHolderScriptInstance *CSharpScript::placeholder_instance_create(Object *p_this) {
@@ -2944,7 +2949,7 @@ PlaceHolderScriptInstance *CSharpScript::placeholder_instance_create(Object *p_t
 bool CSharpScript::instance_has(const Object *p_this) const {
 
     SCOPED_MUTEX_LOCK(CSharpLanguage::get_singleton()->script_instances_mutex);
-    return instances.contains((Object *)p_this);
+    return instances.contains(const_cast<Object *>(p_this));
 }
 
 bool CSharpScript::has_source_code() const {
@@ -3010,11 +3015,11 @@ Error CSharpScript::reload(bool p_keep_state) {
 
     bool has_instances;
     {
-        SCOPED_MUTEX_LOCK(CSharpLanguage::get_singleton()->script_instances_mutex);
+        SCOPED_MUTEX_LOCK(CSharpLanguage::get_singleton()->script_instances_mutex)
         has_instances = instances.size();
     }
 
-    ERR_FAIL_COND_V(!p_keep_state && has_instances, ERR_ALREADY_IN_USE);
+    ERR_FAIL_COND_V(!p_keep_state && has_instances, ERR_ALREADY_IN_USE)
 
     GDMonoAssembly *project_assembly = GDMono::get_singleton()->get_project_assembly();
 
@@ -3029,7 +3034,7 @@ Error CSharpScript::reload(bool p_keep_state) {
             GDMonoClass *klass = project_assembly->get_class(*namespace_, *class_name);
             if (klass) {
                 bool obj_type = CACHED_CLASS(GodotObject)->is_assignable_from(klass);
-                ERR_FAIL_COND_V(!obj_type, ERR_BUG);
+                ERR_FAIL_COND_V(!obj_type, ERR_BUG)
                 script_class = klass;
             }
         } else {
@@ -3037,7 +3042,7 @@ Error CSharpScript::reload(bool p_keep_state) {
             script_class = project_assembly->get_object_derived_class(name);
         }
 
-        valid = script_class != NULL;
+        valid = script_class != nullptr;
 
         if (script_class) {
 #ifdef DEBUG_ENABLED
@@ -3059,7 +3064,7 @@ Error CSharpScript::reload(bool p_keep_state) {
 
             native = GDMonoUtils::get_class_native_base(script_class);
 
-            CRASH_COND(native == NULL);
+            CRASH_COND(native == nullptr)
 
             GDMonoClass *base_class = script_class->get_parent_class();
 
@@ -3178,7 +3183,7 @@ Error CSharpScript::load_source_code(se_string_view p_path) {
             ferr == ERR_INVALID_DATA ?
                     "Script '" + p_path + "' contains invalid unicode (UTF-8), so it was not loaded."
                                           " Please ensure that scripts are saved in valid UTF-8 unicode." :
-                    "Failed to read file: '" + p_path + "'.");
+                    "Failed to read file: '" + p_path + "'.")
 
 #ifdef TOOLS_ENABLED
     source_changed_cache = true;
@@ -3209,7 +3214,7 @@ CSharpScript::CSharpScript() :
 
 #ifdef DEBUG_ENABLED
     {
-        SCOPED_MUTEX_LOCK(CSharpLanguage::get_singleton()->script_instances_mutex);
+        SCOPED_MUTEX_LOCK(CSharpLanguage::get_singleton()->script_instances_mutex)
         CSharpLanguage::get_singleton()->script_list.add(&this->script_list);
     }
 #endif
@@ -3218,7 +3223,7 @@ CSharpScript::CSharpScript() :
 CSharpScript::~CSharpScript() {
 
 #ifdef DEBUG_ENABLED
-    SCOPED_MUTEX_LOCK(CSharpLanguage::get_singleton()->script_instances_mutex);
+    SCOPED_MUTEX_LOCK(CSharpLanguage::get_singleton()->script_instances_mutex)
     CSharpLanguage::get_singleton()->script_list.remove(&this->script_list);
 #endif
 }
@@ -3238,7 +3243,7 @@ RES ResourceFormatLoaderCSharpScript::load(se_string_view p_path, se_string_view
 
 #if defined(DEBUG_ENABLED) || defined(TOOLS_ENABLED)
     Error err = script->load_source_code(p_path);
-    ERR_FAIL_COND_V_MSG(err != OK, RES(), "Cannot load C# script file '" + p_path + "'.");
+    ERR_FAIL_COND_V_MSG(err != OK, RES(), "Cannot load C# script file '" + p_path + "'.")
 #endif
 
     script->set_path(p_original_path);
@@ -3254,9 +3259,9 @@ RES ResourceFormatLoaderCSharpScript::load(se_string_view p_path, se_string_view
 
 #ifdef TOOLS_ENABLED
     MonoDomain *domain = mono_domain_get();
-    if (Engine::get_singleton()->is_editor_hint() && domain == NULL) {
+    if (Engine::get_singleton()->is_editor_hint() && domain == nullptr) {
 
-        CRASH_COND(Thread::get_caller_id() == Thread::get_main_id());
+        CRASH_COND(Thread::get_caller_id() == Thread::get_main_id())
 
         // Thread is not attached, but we will make an exception in this case
         // because this may be called by one of the editor's worker threads.
@@ -3264,7 +3269,7 @@ RES ResourceFormatLoaderCSharpScript::load(se_string_view p_path, se_string_view
 
         if (domain) {
             MonoThread *mono_thread = mono_thread_attach(domain);
-            CRASH_COND(mono_thread == NULL);
+            CRASH_COND(mono_thread == nullptr)
             script->reload();
             mono_thread_detach(mono_thread);
         }
@@ -3300,8 +3305,8 @@ se_string ResourceFormatLoaderCSharpScript::get_resource_type(se_string_view p_p
 
 Error ResourceFormatSaverCSharpScript::save(se_string_view p_path, const RES &p_resource, uint32_t p_flags) {
 
-    Ref<CSharpScript> sqscr = p_resource;
-    ERR_FAIL_COND_V(!sqscr, ERR_INVALID_PARAMETER);
+    Ref<CSharpScript> sqscr = dynamic_ref_cast<CSharpScript>(p_resource);
+    ERR_FAIL_COND_V(!sqscr, ERR_INVALID_PARAMETER)
 
     se_string_view source = sqscr->get_source_code();
 
@@ -3321,7 +3326,7 @@ Error ResourceFormatSaverCSharpScript::save(se_string_view p_path, const RES &p_
 
     Error err;
     FileAccess *file = FileAccess::open(p_path, FileAccess::WRITE, &err);
-    ERR_FAIL_COND_V_MSG(err != OK, err, "Cannot save C# script file '" + p_path + "'.");
+    ERR_FAIL_COND_V_MSG(err != OK, err, "Cannot save C# script file '" + p_path + "'.")
 
     file->store_string(source);
 
@@ -3335,7 +3340,7 @@ Error ResourceFormatSaverCSharpScript::save(se_string_view p_path, const RES &p_
 
 #ifdef TOOLS_ENABLED
     if (ScriptServer::is_reload_scripts_on_save_enabled()) {
-        CSharpLanguage::get_singleton()->reload_tool_script(p_resource, false);
+        CSharpLanguage::get_singleton()->reload_tool_script(sqscr, false);
     }
 #endif
 

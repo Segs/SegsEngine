@@ -46,20 +46,20 @@ void tie_managed_to_unmanaged(MonoObject *managed, Object *unmanaged) {
 
 	// This method should not fail
 
-	CRASH_COND(!unmanaged);
+    CRASH_COND(!unmanaged)
 
 	// All mono objects created from the managed world (e.g.: 'new Player()')
 	// need to have a CSharpScript in order for their methods to be callable from the unmanaged side
 
-	Reference *ref = object_cast<RefCounted>(unmanaged);
+    RefCounted *ref = object_cast<RefCounted>(unmanaged);
 
 	GDMonoClass *klass = GDMonoUtils::get_object_class(managed);
 
-	CRASH_COND(!klass);
+    CRASH_COND(!klass)
 
 	GDMonoClass *native = GDMonoUtils::get_class_native_base(klass);
 
-	CRASH_COND(native == NULL);
+    CRASH_COND(native == nullptr)
 
 	if (native == klass) {
 		// If it's just a wrapper Godot class and not a custom inheriting class, then attach a
@@ -71,7 +71,7 @@ void tie_managed_to_unmanaged(MonoObject *managed, Object *unmanaged) {
 		CSharpScriptBinding script_binding;
 
 		script_binding.inited = true;
-		script_binding.type_name = NATIVE_GDMONOCLASS_NAME(klass);
+        script_binding.type_name = StringName(NATIVE_GDMONOCLASS_NAME(klass));
 		script_binding.wrapper_class = klass;
 		script_binding.gchandle = ref ? MonoGCHandle::create_weak(managed) : MonoGCHandle::create_strong(managed);
 		script_binding.owner = unmanaged;
@@ -87,7 +87,7 @@ void tie_managed_to_unmanaged(MonoObject *managed, Object *unmanaged) {
 		}
 
 		// The object was just created, no script instance binding should have been attached
-		CRASH_COND(unmanaged->has_script_instance_binding(CSharpLanguage::get_singleton()->get_language_index()));
+        CRASH_COND(unmanaged->has_script_instance_binding(CSharpLanguage::get_singleton()->get_language_index()))
 
 		void *data = (void *)CSharpLanguage::get_singleton()->insert_script_binding(unmanaged, script_binding);
 
@@ -101,9 +101,9 @@ void tie_managed_to_unmanaged(MonoObject *managed, Object *unmanaged) {
 
 	Ref<CSharpScript> script = CSharpScript::create_for_managed_type(klass, native);
 
-	CRASH_COND(script.is_null());
+    CRASH_COND(!script)
 
-	ScriptInstance *si = CSharpInstance::create_for_managed_type(unmanaged, script.ptr(), gchandle);
+    ScriptInstance *si = CSharpInstance::create_for_managed_type(unmanaged, script.get(), gchandle);
 
 	unmanaged->set_script_and_instance(script.get_ref_ptr(), si);
 }
@@ -113,8 +113,8 @@ void unhandled_exception(MonoException *p_exc) {
 
 	if (GDMono::get_singleton()->get_unhandled_exception_policy() == GDMono::POLICY_TERMINATE_APP) {
 		// Too bad 'mono_invoke_unhandled_exception_hook' is not exposed to embedders
-		GDMono::unhandled_exception_hook((MonoObject *)p_exc, NULL);
-		GD_UNREACHABLE();
+        GDMono::unhandled_exception_hook((MonoObject *)p_exc, nullptr);
+        GD_UNREACHABLE()
 	} else {
 #ifdef DEBUG_ENABLED
 		GDMonoUtils::debug_send_unhandled_exception_error((MonoException *)p_exc);

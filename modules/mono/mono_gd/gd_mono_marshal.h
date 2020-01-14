@@ -34,6 +34,11 @@
 #include "core/se_string.h"
 #include "core/math/vector2.h"
 #include "core/math/vector3.h"
+#include "core/math/transform_2d.h"
+#include "core/math/transform.h"
+#include "core/math/basis.h"
+#include "core/math/quat.h"
+#include "core/color.h"
 #include "gd_mono.h"
 #include "gd_mono_utils.h"
 
@@ -94,6 +99,9 @@ _FORCE_INLINE_ MonoString *mono_from_utf16_string(const String &p_string) {
 
 _FORCE_INLINE_ MonoString *mono_string_from_godot(const String &p_string) {
     return mono_from_utf16_string(p_string);
+}
+_FORCE_INLINE_ MonoString *mono_string_from_godot(const se_string &p_string) {
+    return mono_from_utf8_string(p_string);
 }
 
 // Variant

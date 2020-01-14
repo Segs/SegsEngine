@@ -2,9 +2,15 @@
 #    register_types.cpp register_types.h
 #    csharp_script.cpp
 #    )
+add_custom_command(
+    COMMAND editor_to_header mono ${CMAKE_CURRENT_SOURCE_DIR}/glue/GodotSharp ${CMAKE_CURRENT_BINARY_DIR}/glue/cs_glue_files.gen.h ${CMAKE_CURRENT_BINARY_DIR}/glue/cs_glue_version.gen.h
+    OUTPUT  ${CMAKE_CURRENT_BINARY_DIR}/glue/cs_glue_version.gen.h
+    DEPENDS editor_to_header
+    COMMENT "Generating mono glue helpers"
+)
 file(GLOB_RECURSE source_files "*.cpp" )
 file(GLOB_RECURSE header_files "*.h" )
-#file(GLOB qrc_files "*.qrc" )
+file(GLOB qrc_files "*.qrc" )
 #find_package( Mono )
 include(FindPkgConfig)  # we don't need the pkg-config path on OS X, but we need other macros in this file
 pkg_check_modules(MONO REQUIRED IMPORTED_TARGET mono-2)
@@ -26,7 +32,8 @@ foreach(tgt ${global_targets})
 #    endif()
 #TODO: only set hot reload on non-release builds
     target_compile_definitions(${tgt}_module_mono PRIVATE GD_MONO_HOT_RELOAD)
-    target_sources(${tgt}_module_mono PRIVATE ${source_files} ${header_files} ${qrc_files})
+    target_sources(${tgt}_module_mono PRIVATE ${source_files} ${header_files} ${qrc_files} ${CMAKE_CURRENT_BINARY_DIR}/glue/cs_glue_version.gen.h)
+    target_include_directories(${tgt}_module_mono PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
     target_link_libraries(${tgt}_module_mono PRIVATE ${tgt}_core)
     set_target_properties(${tgt}_module_mono PROPERTIES AUTORCC ON)
     target_link_libraries(${tgt}_module_mono PRIVATE PkgConfig::MONO)

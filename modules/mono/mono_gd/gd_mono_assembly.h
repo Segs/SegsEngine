@@ -86,7 +86,7 @@ class GDMonoAssembly {
 
     static bool no_search;
     static bool in_preload;
-    static Vector<String> search_dirs;
+    static Vector<se_string> search_dirs;
 
     static void assembly_load_hook(MonoAssembly *assembly, void *user_data);
     static MonoAssembly *assembly_search_hook(MonoAssemblyName *aname, void *user_data);
@@ -97,8 +97,8 @@ class GDMonoAssembly {
     static MonoAssembly *_search_hook(MonoAssemblyName *aname, void *user_data, bool refonly);
     static MonoAssembly *_preload_hook(MonoAssemblyName *aname, char **assemblies_path, void *user_data, bool refonly);
 
-    static GDMonoAssembly *_load_assembly_from(const String &p_name, const String &p_path, bool p_refonly);
-    static GDMonoAssembly *_load_assembly_search(const String &p_name, const Vector<String> &p_search_dirs, bool p_refonly);
+    static GDMonoAssembly *_load_assembly_from(se_string_view p_name, se_string_view p_path, bool p_refonly);
+    static GDMonoAssembly *_load_assembly_search(se_string_view p_name, const Vector<se_string> &p_search_dirs, bool p_refonly);
     static void _wrap_mono_assembly(MonoAssembly *assembly);
 
     friend class GDMono;
@@ -122,13 +122,13 @@ public:
 
     GDMonoClass *get_object_derived_class(const StringName &p_class);
 
-    static String find_assembly(const String &p_name);
+    static se_string find_assembly(const se_string &p_name);
 
-    static void fill_search_dirs(Vector<String> &r_search_dirs, const String &p_custom_config = String(), const String &p_custom_bcl_dir = String());
+    static void fill_search_dirs(Vector<se_string> &r_search_dirs, se_string_view p_custom_config = se_string_view(), se_string_view p_custom_bcl_dir = se_string_view());
 
-    static GDMonoAssembly *load_from(const String &p_name, const String &p_path, bool p_refonly);
+    static GDMonoAssembly *load_from(se_string_view p_name, se_string_view p_path, bool p_refonly);
 
-    GDMonoAssembly(const String &p_name, const String &p_path = String());
+    GDMonoAssembly(se_string_view p_name, se_string_view p_path = se_string_view());
     ~GDMonoAssembly();
 };
 

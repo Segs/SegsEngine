@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef GD_MONO_H
-#define GD_MONO_H
+#pragma once
 
 #include "core/io/config_file.h"
 
@@ -105,7 +104,7 @@ private:
 	MonoDomain *root_domain;
 	MonoDomain *scripts_domain;
 
-	HashMap<uint32_t, HashMap<String, GDMonoAssembly *> > assemblies;
+    HashMap<uint32_t, HashMap<se_string, GDMonoAssembly *> > assemblies;
 
 	GDMonoAssembly *corlib_assembly;
 	GDMonoAssembly *project_assembly;
@@ -201,21 +200,21 @@ public:
 
 	// Do not use these, unless you know what you're doing
 	void add_assembly(uint32_t p_domain_id, GDMonoAssembly *p_assembly);
-	GDMonoAssembly **get_loaded_assembly(const String &p_name);
+	GDMonoAssembly **get_loaded_assembly(se_string_view p_name);
 
-	_FORCE_INLINE_ bool is_runtime_initialized() const { return runtime_initialized && !mono_runtime_is_shutting_down() /* stays true after shutdown finished */; }
+    bool is_runtime_initialized() const { return runtime_initialized && !mono_runtime_is_shutting_down() /* stays true after shutdown finished */; }
 
-	_FORCE_INLINE_ bool is_finalizing_scripts_domain() { return finalizing_scripts_domain; }
+    bool is_finalizing_scripts_domain() { return finalizing_scripts_domain; }
 
-	_FORCE_INLINE_ MonoDomain *get_scripts_domain() { return scripts_domain; }
+    MonoDomain *get_scripts_domain() { return scripts_domain; }
 
-	_FORCE_INLINE_ GDMonoAssembly *get_corlib_assembly() const { return corlib_assembly; }
-	_FORCE_INLINE_ GDMonoAssembly *get_core_api_assembly() const { return core_api_assembly.assembly; }
-	_FORCE_INLINE_ GDMonoAssembly *get_project_assembly() const { return project_assembly; }
+    GDMonoAssembly *get_corlib_assembly() const { return corlib_assembly; }
+    GDMonoAssembly *get_core_api_assembly() const { return core_api_assembly.assembly; }
+    GDMonoAssembly *get_project_assembly() const { return project_assembly; }
 #ifdef TOOLS_ENABLED
-	_FORCE_INLINE_ GDMonoAssembly *get_editor_api_assembly() const { return editor_api_assembly.assembly; }
-	_FORCE_INLINE_ GDMonoAssembly *get_tools_assembly() const { return tools_assembly; }
-	_FORCE_INLINE_ GDMonoAssembly *get_tools_project_editor_assembly() const { return tools_project_editor_assembly; }
+    GDMonoAssembly *get_editor_api_assembly() const { return editor_api_assembly.assembly; }
+    GDMonoAssembly *get_tools_assembly() const { return tools_assembly; }
+    GDMonoAssembly *get_tools_project_editor_assembly() const { return tools_project_editor_assembly; }
 #endif
 
 #if defined(WINDOWS_ENABLED) && defined(TOOLS_ENABLED)
@@ -229,9 +228,9 @@ public:
 	Error reload_scripts_domain();
 #endif
 
-	bool load_assembly(const String &p_name, GDMonoAssembly **r_assembly, bool p_refonly = false);
-	bool load_assembly(const String &p_name, MonoAssemblyName *p_aname, GDMonoAssembly **r_assembly, bool p_refonly = false);
-	bool load_assembly_from(const String &p_name, const String &p_path, GDMonoAssembly **r_assembly, bool p_refonly = false);
+	bool load_assembly(const se_string &p_name, GDMonoAssembly **r_assembly, bool p_refonly = false);
+	bool load_assembly(const se_string &p_name, MonoAssemblyName *p_aname, GDMonoAssembly **r_assembly, bool p_refonly = false);
+	bool load_assembly_from(se_string_view p_name, const se_string &p_path, GDMonoAssembly **r_assembly, bool p_refonly = false);
 
 	Error finalize_and_unload_domain(MonoDomain *p_domain);
 
@@ -326,5 +325,3 @@ public:
 	_GodotSharp();
 	~_GodotSharp();
 };
-
-#endif // GD_MONO_H

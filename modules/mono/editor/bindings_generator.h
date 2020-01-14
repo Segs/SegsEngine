@@ -43,14 +43,14 @@
 class BindingsGenerator {
 
     struct ConstantInterface {
-        String name;
-        String proxy_name;
+        se_string name;
+        se_string proxy_name;
         int value;
         const DocData::ConstantDoc *const_doc;
 
         ConstantInterface() {}
 
-        ConstantInterface(const String &p_name, const String &p_proxy_name, int p_value) {
+        ConstantInterface(const se_string &p_name, const se_string &p_proxy_name, int p_value) {
             name = p_name;
             proxy_name = p_proxy_name;
             value = p_value;
@@ -74,7 +74,7 @@ class BindingsGenerator {
 
     struct PropertyInterface {
         StringName cname;
-        String proxy_name;
+        se_string proxy_name;
         int index;
 
         StringName setter;
@@ -106,8 +106,8 @@ class BindingsGenerator {
 
         TypeReference type;
 
-        String name;
-        String default_argument;
+        se_string name;
+        se_string default_argument;
         DefaultParamMode def_param_mode;
 
         ArgumentInterface() {
@@ -116,13 +116,13 @@ class BindingsGenerator {
     };
 
     struct MethodInterface {
-        String name;
+        se_string name;
         StringName cname;
 
         /**
          * Name of the C# method
          */
-        String proxy_name;
+        se_string proxy_name;
 
         /**
          * [TypeInterface::name] of the return type
@@ -159,7 +159,7 @@ class BindingsGenerator {
         const DocData::MethodDoc *method_doc;
 
         bool is_deprecated;
-        String deprecation_message;
+        se_string deprecation_message;
 
         void add_argument(const ArgumentInterface &argument) {
             arguments.push_back(argument);
@@ -334,7 +334,7 @@ class BindingsGenerator {
 
         List<ConstantInterface> constants;
         List<EnumInterface> enums;
-        List<PropertyInterface> properties;
+        ListPOD<PropertyInterface> properties;
         List<MethodInterface> methods;
 
         const MethodInterface *find_method_by_name(const StringName &p_cname) const {
@@ -347,18 +347,18 @@ class BindingsGenerator {
         }
 
         const PropertyInterface *find_property_by_name(const StringName &p_cname) const {
-            for (const List<PropertyInterface>::Element *E = properties.front(); E; E = E->next()) {
-                if (E->deref().cname == p_cname)
-                    return &E->deref();
+            for (const PropertyInterface &E : properties) {
+                if (E.cname == p_cname)
+                    return &E;
             }
 
             return NULL;
         }
 
-        const PropertyInterface *find_property_by_proxy_name(const String &p_proxy_name) const {
-            for (const List<PropertyInterface>::Element *E = properties.front(); E; E = E->next()) {
-                if (E->deref().proxy_name == p_proxy_name)
-                    return &E->deref();
+        const PropertyInterface *find_property_by_proxy_name(const se_string &p_proxy_name) const {
+            for (const PropertyInterface &E : properties) {
+                if (E.proxy_name == p_proxy_name)
+                    return &E;
             }
 
             return NULL;
@@ -461,15 +461,15 @@ class BindingsGenerator {
     };
 
     struct InternalCall {
-        String name;
-        String im_type_out; // Return type for the C# method declaration. Also used as companion of [unique_siq]
-        String im_sig; // Signature for the C# method declaration
-        String unique_sig; // Unique signature to avoid duplicates in containers
+        se_string name;
+        se_string im_type_out; // Return type for the C# method declaration. Also used as companion of [unique_siq]
+        se_string im_sig; // Signature for the C# method declaration
+        se_string unique_sig; // Unique signature to avoid duplicates in containers
         bool editor_only;
 
         InternalCall() {}
 
-        InternalCall(const String &p_name, const String &p_im_type_out, const String &p_im_sig = String(), const String &p_unique_sig = String()) {
+        InternalCall(const se_string &p_name, const se_string &p_im_type_out, const se_string &p_im_sig = se_string(), const se_string &p_unique_sig = se_string()) {
             name = p_name;
             im_type_out = p_im_type_out;
             im_sig = p_im_sig;
@@ -477,7 +477,7 @@ class BindingsGenerator {
             editor_only = false;
         }
 
-        InternalCall(ClassDB::APIType api_type, const String &p_name, const String &p_im_type_out, const String &p_im_sig = String(), const String &p_unique_sig = String()) {
+        InternalCall(ClassDB::APIType api_type, const se_string &p_name, const se_string &p_im_type_out, const se_string &p_im_sig = se_string(), const se_string &p_unique_sig = se_string()) {
             name = p_name;
             im_type_out = p_im_type_out;
             im_sig = p_im_sig;
@@ -510,7 +510,7 @@ class BindingsGenerator {
     List<InternalCall> core_custom_icalls;
     List<InternalCall> editor_custom_icalls;
 
-    Map<StringName, List<StringName> > blacklisted_methods;
+    Map<StringName, ListPOD<StringName> > blacklisted_methods;
 
     void _initialize_blacklisted_methods();
 
@@ -523,7 +523,7 @@ class BindingsGenerator {
         StringName type_Object;
         StringName type_Reference;
         StringName type_RID;
-        StringName type_String;
+        StringName type_se_string;
         StringName type_at_GlobalScope;
         StringName enum_Error;
 
@@ -547,7 +547,7 @@ class BindingsGenerator {
             type_Object = StaticCString("Object");
             type_Reference = StaticCString("Reference");
             type_RID = StaticCString("RID");
-            type_String = StaticCString("String");
+            type_se_string = StaticCString("se_string");
             type_at_GlobalScope = StaticCString("@GlobalScope");
             enum_Error = StaticCString("Error");
 
@@ -570,22 +570,22 @@ class BindingsGenerator {
 
     NameCache name_cache;
 
-    const List<InternalCall>::Element *find_icall_by_name(const String &p_name, const List<InternalCall> &p_list) {
+    const List<InternalCall>::Element *find_icall_by_name(const se_string &p_name, const List<InternalCall> &p_list) {
         const List<InternalCall>::Element *it = p_list.front();
         while (it) {
             if (it->deref().name == p_name) return it;
             it = it->next();
         }
-        return NULL;
+        return nullptr;
     }
 
-    const ConstantInterface *find_constant_by_name(const String &p_name, const List<ConstantInterface> &p_constants) const {
+    const ConstantInterface *find_constant_by_name(se_string_view p_name, const List<ConstantInterface> &p_constants) const {
         for (const List<ConstantInterface>::Element *E = p_constants.front(); E; E = E->next()) {
             if (E->deref().name == p_name)
                 return &E->deref();
         }
 
-        return NULL;
+        return nullptr;
     }
 
     inline se_string get_unique_sig(const TypeInterface &p_type) {
@@ -599,7 +599,7 @@ class BindingsGenerator {
         return p_type.name;
     }
 
-    String bbcode_to_xml(const String &p_bbcode, const TypeInterface *p_itype);
+    se_string bbcode_to_xml(se_string_view p_bbcode, const TypeInterface *p_itype);
 
     int _determine_enum_prefix(const EnumInterface &p_ienum);
     void _apply_prefix_to_enum_constants(EnumInterface &p_ienum, int p_prefix_length);
@@ -619,7 +619,7 @@ class BindingsGenerator {
 
     void _populate_global_constants();
 
-    Error _generate_cs_type(const TypeInterface &itype, const String &p_output_file);
+    Error _generate_cs_type(const TypeInterface &itype, se_string_view p_output_file);
 
     Error _generate_cs_property(const TypeInterface &p_itype, const PropertyInterface &p_iprop, StringBuilder &p_output);
     Error _generate_cs_method(const TypeInterface &p_itype, const MethodInterface &p_imethod, int &p_method_bind_count, StringBuilder &p_output);
@@ -628,17 +628,17 @@ class BindingsGenerator {
 
     Error _generate_glue_method(const TypeInterface &p_itype, const MethodInterface &p_imethod, StringBuilder &p_output);
 
-    Error _save_file(const String &p_path, const StringBuilder &p_content);
+    Error _save_file(se_string_view p_path, const StringBuilder &p_content);
 
     void _log(const char *p_format, ...) _PRINTF_FORMAT_ATTRIBUTE_2_3;
 
     void _initialize();
 
 public:
-    Error generate_cs_core_project(const String &p_proj_dir);
-    Error generate_cs_editor_project(const String &p_proj_dir);
-    Error generate_cs_api(const String &p_output_dir);
-    Error generate_glue(const String &p_output_dir);
+    Error generate_cs_core_project(se_string_view p_proj_dir);
+    Error generate_cs_editor_project(const se_string &p_proj_dir);
+    Error generate_cs_api(se_string_view p_output_dir);
+    Error generate_glue(se_string_view p_output_dir);
 
     _FORCE_INLINE_ bool is_log_print_enabled() { return log_print_enabled; }
     _FORCE_INLINE_ void set_log_print_enabled(bool p_enabled) { log_print_enabled = p_enabled; }
