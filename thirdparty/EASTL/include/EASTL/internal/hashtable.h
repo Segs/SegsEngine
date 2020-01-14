@@ -1190,6 +1190,14 @@ namespace eastl
                 result.emplace_back(mExtractKey(elem));
             return result;
         }
+        template<typename CONTAINER>
+        void keys_into(CONTAINER &c) const
+        {
+            eastl::vector<key_type> result{};
+            result.reserve(size());
+                for (const auto& elem : *this)
+                result.emplace_back(mExtractKey(elem));
+        }
 #endif
 
     protected:

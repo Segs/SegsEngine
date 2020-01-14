@@ -63,7 +63,12 @@
 //}
 
 #endif
-
+struct ClassInfoImpl {
+    DefHashMap<StringName, MethodInfo> signal_map;
+};
+static DefHashMap<StringName, MethodInfo> &class_signal_map(ClassDB::ClassInfo &ci) {
+    return ((ClassInfoImpl *)ci.m_impl)->signal_map;
+}
 ClassDB::APIType ClassDB::current_api = API_CORE;
 
 void ClassDB::set_current_api(APIType p_api) {
@@ -81,7 +86,7 @@ DefHashMap<StringName, StringName> ClassDB::resource_base_extensions;
 HashMap<StringName, StringName> ClassDB::compat_classes;
 
 ClassDB::ClassInfo::ClassInfo() {
-
+    m_impl = memnew(ClassInfoImpl);
     api = API_NONE;
     creation_func = nullptr;
     inherits_ptr = nullptr;
@@ -94,6 +99,7 @@ ClassDB::ClassInfo::~ClassInfo() {
         memdelete(entry.second);
     }
     method_map.clear();
+    memdelete((ClassInfoImpl *)m_impl);
 }
 
 bool ClassDB::is_parent_class(const StringName &p_class, const StringName &p_inherits) {
@@ -271,19 +277,15 @@ uint64_t ClassDB::get_api_hash(APIType p_api) {
 
         { // signals
 
-            snames.clear();
+
             k = nullptr;
-
-            while ((k = t.signal_map.next(k))) {
-
-                snames.push_back(*k);
-            }
-
+            snames.clear();
+            t.class_signal_map().keys_into(snames);
             eastl::stable_sort(snames.begin(), snames.end(), StringName::AlphCompare);
 
             for (StringName &sn : snames) {
 
-                MethodInfo &mi = t.signal_map[sn];
+                MethodInfo &mi = class_signal_map(t)[sn];
                 hash = hash_djb2_one_64(sn.hash(), hash);
                 for (const PropertyInfo & argument : mi.arguments) {
                     hash = hash_djb2_one_64(uint64_t(argument.type), hash);
@@ -296,22 +298,17 @@ uint64_t ClassDB::get_api_hash(APIType p_api) {
             snames.clear();
 
             k = nullptr;
-
-            while ((k = t.property_setget.next(k))) {
-
-                snames.push_back(*k);
-            }
+            t.property_setget.keys_into(snames);
 
             eastl::stable_sort(snames.begin(), snames.end(), StringName::AlphCompare);
 
             for (StringName &sn : snames) {
 
-                PropertySetGet *psg = t.property_setget.getptr(sn);
-                ERR_FAIL_COND_V(!psg, 0)
+                PropertySetGet &psg(t.property_setget[sn]);
 
                 hash = hash_djb2_one_64(sn.hash(), hash);
-                hash = hash_djb2_one_64(psg->setter.hash(), hash);
-                hash = hash_djb2_one_64(psg->getter.hash(), hash);
+                hash = hash_djb2_one_64(psg.setter.hash(), hash);
+                hash = hash_djb2_one_64(psg.getter.hash(), hash);
             }
         }
 
@@ -664,12 +661,12 @@ void ClassDB::add_signal(StringName p_class, const MethodInfo &p_signal) {
 #ifdef DEBUG_METHODS_ENABLED
     ClassInfo *check = type;
     while (check) {
-        ERR_FAIL_COND_MSG(check->signal_map.contains(sname), "Class '" + se_string(p_class) + "' already has signal '" + se_string_view(sname) + "'.")
+        ERR_FAIL_COND_MSG(class_signal_map(*check).contains(sname), "Class '" + se_string(p_class) + "' already has signal '" + se_string_view(sname) + "'.")
         check = check->inherits_ptr;
     }
 #endif
 
-    type->signal_map[sname] = p_signal;
+    class_signal_map(*type)[sname] = p_signal;
 }
 
 void ClassDB::get_signal_list(StringName p_class, ListPOD<MethodInfo> *p_signals, bool p_no_inheritance) {
@@ -684,11 +681,7 @@ void ClassDB::get_signal_list(StringName p_class, ListPOD<MethodInfo> *p_signals
 
     while (check) {
 
-        const StringName *S = nullptr;
-        while ((S = check->signal_map.next(S))) {
-
-            p_signals->push_back(check->signal_map[*S]);
-        }
+        class_signal_map(*check).keys_into(*p_signals);
 
         if (p_no_inheritance)
             return;
@@ -704,7 +697,7 @@ bool ClassDB::has_signal(StringName p_class, StringName p_signal) {
     ClassInfo *type = iter!=classes.end() ? &iter->second : nullptr;
     ClassInfo *check = type;
     while (check) {
-        if (check->signal_map.contains(p_signal))
+        if (class_signal_map(*check).contains(p_signal))
             return true;
         check = check->inherits_ptr;
     }
@@ -719,9 +712,9 @@ bool ClassDB::get_signal(StringName p_class, StringName p_signal, MethodInfo *r_
     ClassInfo *type = iter!=classes.end() ? &iter->second : nullptr;
     ClassInfo *check = type;
     while (check) {
-        if (check->signal_map.contains(p_signal)) {
+        if (class_signal_map(*check).contains(p_signal)) {
             if (r_signal) {
-                *r_signal = check->signal_map[p_signal];
+                *r_signal = class_signal_map(*check)[p_signal];
             }
             return true;
         }
@@ -841,10 +834,10 @@ bool ClassDB::set_property(Object *p_object, const StringName &p_property, const
     ClassInfo *type = iter!=classes.end() ? &iter->second : nullptr;
     ClassInfo *check = type;
     while (check) {
-        const PropertySetGet *psg = check->property_setget.getptr(p_property);
-        if (psg) {
-
-            if (!psg->setter) {
+        auto iter = check->property_setget.find(p_property);
+        if (iter!=check->property_setget.end()) {
+            const PropertySetGet &psg(iter->second);
+            if (!psg.setter) {
                 if (r_valid)
                     *r_valid = false;
                 return true; // return true but do nothing
@@ -852,22 +845,22 @@ bool ClassDB::set_property(Object *p_object, const StringName &p_property, const
 
             Variant::CallError ce;
 
-            if (psg->index >= 0) {
-                Variant index = psg->index;
+            if (psg.index >= 0) {
+                Variant index = psg.index;
                 const Variant *arg[2] = { &index, &p_value };
-                // p_object->call(psg->setter,arg,2,ce);
-                if (psg->_setptr) {
-                    psg->_setptr->call(p_object, arg, 2, ce);
+                // p_object->call(psg.setter,arg,2,ce);
+                if (psg._setptr) {
+                    psg._setptr->call(p_object, arg, 2, ce);
                 } else {
-                    p_object->call(psg->setter, arg, 2, ce);
+                    p_object->call(psg.setter, arg, 2, ce);
                 }
 
             } else {
                 const Variant *arg[1] = { &p_value };
-                if (psg->_setptr) {
-                    psg->_setptr->call(p_object, arg, 1, ce);
+                if (psg._setptr) {
+                    psg._setptr->call(p_object, arg, 1, ce);
                 } else {
-                    p_object->call(psg->setter, arg, 1, ce);
+                    p_object->call(psg.setter, arg, 1, ce);
                 }
             }
 
@@ -888,24 +881,25 @@ bool ClassDB::get_property(Object *p_object, const StringName &p_property, Varia
     ClassInfo *type = iter!=classes.end() ? &iter->second : nullptr;
     ClassInfo *check = type;
     while (check) {
-        const PropertySetGet *psg = check->property_setget.getptr(p_property);
-        if (psg) {
-            if (!psg->getter) return true; // return true but do nothing
+        auto iter2 = check->property_setget.find(p_property);
+        if (iter2!=check->property_setget.end()) {
+            const PropertySetGet &psg(iter2->second);
+            if (!psg.getter) return true; // return true but do nothing
 
-            if (psg->index >= 0) {
-                Variant index = psg->index;
+            if (psg.index >= 0) {
+                Variant index = psg.index;
                 const Variant *arg[1] = { &index };
                 Variant::CallError ce;
-                r_value = p_object->call(psg->getter, arg, 1, ce);
+                r_value = p_object->call(psg.getter, arg, 1, ce);
 
             } else {
 
                 Variant::CallError ce;
-                if (psg->_getptr) {
+                if (psg._getptr) {
 
-                    r_value = psg->_getptr->call(p_object, nullptr, 0, ce);
+                    r_value = psg._getptr->call(p_object, nullptr, 0, ce);
                 } else {
-                    r_value = p_object->call(psg->getter, nullptr, 0, ce);
+                    r_value = p_object->call(psg.getter, nullptr, 0, ce);
                 }
             }
             return true;
@@ -929,12 +923,12 @@ int ClassDB::get_property_index(const StringName &p_class, const StringName &p_p
     ClassInfo *type = iter!=classes.end() ? &iter->second : nullptr;
     ClassInfo *check = type;
     while (check) {
-        const PropertySetGet *psg = check->property_setget.getptr(p_property);
-        if (psg) {
-
+        auto iter2 = check->property_setget.find(p_property);
+        if (iter2!=check->property_setget.end()) {
+            const PropertySetGet &psg(iter2->second);
             if (r_is_valid) *r_is_valid = true;
 
-            return psg->index;
+            return psg.index;
         }
 
         check = check->inherits_ptr;
@@ -950,12 +944,13 @@ VariantType ClassDB::get_property_type(const StringName &p_class, const StringNa
     ClassInfo *type = iter!=classes.end() ? &iter->second : nullptr;
     ClassInfo *check = type;
     while (check) {
-        const PropertySetGet *psg = check->property_setget.getptr(p_property);
-        if (psg) {
+        auto iter2 = check->property_setget.find(p_property);
+        if (iter2!=check->property_setget.end()) {
+            const PropertySetGet &psg(iter2->second);
 
             if (r_is_valid) *r_is_valid = true;
 
-            return psg->type;
+            return psg.type;
         }
 
         check = check->inherits_ptr;
@@ -971,10 +966,11 @@ StringName ClassDB::get_property_setter(StringName p_class, const StringName &p_
     ClassInfo *type = iter!=classes.end() ? &iter->second : nullptr;
     ClassInfo *check = type;
     while (check) {
-        const PropertySetGet *psg = check->property_setget.getptr(p_property);
-        if (psg) {
+        auto iter2 = check->property_setget.find(p_property);
+        if (iter2!=check->property_setget.end()) {
+            const PropertySetGet &psg(iter2->second);
 
-            return psg->setter;
+            return psg.setter;
         }
 
         check = check->inherits_ptr;
@@ -989,10 +985,10 @@ StringName ClassDB::get_property_getter(StringName p_class, const StringName &p_
     ClassInfo *type = iter!=classes.end() ? &iter->second : nullptr;
     ClassInfo *check = type;
     while (check) {
-        const PropertySetGet *psg = check->property_setget.getptr(p_property);
-        if (psg) {
-
-            return psg->getter;
+        auto iter2 = check->property_setget.find(p_property);
+        if (iter2!=check->property_setget.end()) {
+            const PropertySetGet &psg(iter2->second);
+            return psg.getter;
         }
 
         check = check->inherits_ptr;

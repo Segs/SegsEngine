@@ -118,14 +118,13 @@ public:
     };
 
     struct ClassInfo {
-
+        void *m_impl=nullptr;
         APIType api;
         ClassInfo *inherits_ptr;
         const void *class_ptr;
         DefHashMap<StringName, MethodBind *> method_map;
         DefHashMap<StringName, int> constant_map;
         DefHashMap<StringName, ListPOD<StringName> > enum_map;
-        HashMap<StringName, MethodInfo> signal_map;
         PODVector<PropertyInfo> property_list;
 #ifdef DEBUG_METHODS_ENABLED
         PODVector<StringName> constant_order;
@@ -134,12 +133,13 @@ public:
         PODVector<MethodInfo> virtual_methods;
         StringName category;
 #endif
-        HashMap<StringName, PropertySetGet> property_setget;
+        DefHashMap<StringName, PropertySetGet> property_setget;
 
         StringName inherits;
         StringName name;
         bool disabled;
         bool exposed;
+        DefHashMap<StringName, MethodInfo> &class_signal_map();
         Object *(*creation_func)();
         ClassInfo();
         ~ClassInfo();

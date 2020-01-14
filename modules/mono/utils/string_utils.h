@@ -39,12 +39,12 @@
 String sformat(const String &p_text, const Variant &p1 = Variant(), const Variant &p2 = Variant(), const Variant &p3 = Variant(), const Variant &p4 = Variant(), const Variant &p5 = Variant());
 
 #ifdef TOOLS_ENABLED
-bool is_csharp_keyword(const String &p_name);
+bool is_csharp_keyword(se_string_view p_name);
 
-String escape_csharp_keyword(const String &p_name);
+se_string escape_csharp_keyword(se_string_view p_name);
 #endif
 
-Error read_all_file_utf8(const String &p_path, String &r_content);
+Error read_all_file_utf8(se_string_view p_path, se_string &r_content);
 
 #if defined(__GNUC__)
 #define _PRINTF_FORMAT_ATTRIBUTE_1_0 __attribute__((format(printf, 1, 0)))

@@ -34,26 +34,29 @@
 
 #include "core/io/json.h"
 #include "core/os/file_access.h"
+#include "core/print_string.h"
 #include "core/project_settings.h"
 #include "core/version.h"
+#include "EASTL/sort.h"
 
-void class_db_api_to_json(const String &p_output_file, ClassDB::APIType p_api) {
+#include "core/method_bind_interface.h"
+
+void class_db_api_to_json(se_string_view p_output_file, ClassDB::APIType p_api) {
     Dictionary classes_dict;
 
-    List<StringName> names;
+    ListPOD<StringName> names;
 
-    const StringName *k = nullptr;
+    for(const eastl::pair<const StringName, ClassDB::ClassInfo> &k : ClassDB::classes) {
 
-    while ((k = ClassDB::classes.next(k))) {
-
-        names.push_back(*k);
+        names.emplace_back(k.first);
     }
     //must be alphabetically sorted for hash to compute
-    names.sort_custom<StringName::AlphCompare>();
 
-    for (List<StringName>::Element *E = names.front(); E; E = E->next()) {
+    names.sort(WrapAlphaCompare());
 
-        ClassDB::ClassInfo *t = ClassDB::classes.getptr(E->get());
+    for (const StringName &E : names) {
+
+        ClassDB::ClassInfo *t = &ClassDB::classes.find(E)->second;
         ERR_FAIL_COND(!t);
         if (t->api != p_api || !t->exposed)
             continue;
@@ -65,30 +68,28 @@ void class_db_api_to_json(const String &p_output_file, ClassDB::APIType p_api) {
 
         { //methods
 
-            List<StringName> snames;
+            ListPOD<StringName> snames;
 
-            k = nullptr;
+            for(const eastl::pair<StringName, MethodBind *> &ck : t->method_map) {
 
-            while (k = t->method_map.next(k)) {
-                auto name = k->as<se_string>();
+                ERR_CONTINUE(ck.first.empty());
 
-                ERR_CONTINUE(name.empty());
-
+                se_string_view name(ck.first);
                 if (name[0] == '_')
                     continue; // Ignore non-virtual methods that start with an underscore
 
-                snames.push_back(*k);
+                snames.push_back(ck.first);
             }
 
-            snames.sort_custom<StringName::AlphCompare>();
+            snames.sort(WrapAlphaCompare());
 
             Array methods;
 
-            for (List<StringName>::Element *F = snames.front(); F; F = F->next()) {
+            for (const StringName &F : snames) {
                 Dictionary method_dict;
                 methods.push_back(method_dict);
 
-                MethodBind *mb = t->method_map[F->get()];
+                MethodBind *mb = t->method_map[F];
                 method_dict["name"] = mb->get_name();
                 method_dict["argument_count"] = mb->get_argument_count();
                 method_dict["return_type"] = mb->get_argument_type(-1);
@@ -129,25 +130,23 @@ void class_db_api_to_json(const String &p_output_file, ClassDB::APIType p_api) {
 
         { //constants
 
-            List<StringName> snames;
+            ListPOD<StringName> snames;
 
-            k = NULL;
+            for(const auto &k : t->constant_map) {
 
-            while ((k = t->constant_map.next(k))) {
-
-                snames.push_back(*k);
+                snames.push_back(k.first);
             }
 
-            snames.sort_custom<StringName::AlphCompare>();
+            snames.sort(WrapAlphaCompare());
 
             Array constants;
 
-            for (List<StringName>::Element *F = snames.front(); F; F = F->next()) {
+            for (const StringName &F : snames) {
                 Dictionary constant_dict;
                 constants.push_back(constant_dict);
 
-                constant_dict["name"] = F->get();
-                constant_dict["value"] = t->constant_map[F->get()];
+                constant_dict["name"] = F;
+                constant_dict["value"] = t->constant_map[F];
             }
 
             if (!constants.empty()) {
@@ -157,25 +156,19 @@ void class_db_api_to_json(const String &p_output_file, ClassDB::APIType p_api) {
 
         { //signals
 
-            List<StringName> snames;
+            PODVector<StringName> snames;
+            auto &signal_map(t->class_signal_map());
+            signal_map.keys_into(snames);
+            eastl::sort(snames.begin(),snames.end(),WrapAlphaCompare());
 
-            k = NULL;
+            Array used_signals;
 
-            while ((k = t->signal_map.next(k))) {
-
-                snames.push_back(*k);
-            }
-
-            snames.sort_custom<StringName::AlphCompare>();
-
-            Array signals;
-
-            for (List<StringName>::Element *F = snames.front(); F; F = F->next()) {
+            for (const StringName &F : snames) {
                 Dictionary signal_dict;
-                signals.push_back(signal_dict);
+                used_signals.push_back(signal_dict);
 
-                MethodInfo &mi = t->signal_map[F->get()];
-                signal_dict["name"] = F->get();
+                MethodInfo &mi = signal_map[F];
+                signal_dict["name"] = F;
 
                 Array arguments;
                 signal_dict["arguments"] = arguments;
@@ -186,33 +179,26 @@ void class_db_api_to_json(const String &p_output_file, ClassDB::APIType p_api) {
                 }
             }
 
-            if (!signals.empty()) {
-                class_dict["signals"] = signals;
+            if (!used_signals.empty()) {
+                class_dict["signals"] = used_signals;
             }
         }
 
         { //properties
 
-            List<StringName> snames;
-
-            k = NULL;
-
-            while ((k = t->property_setget.next(k))) {
-
-                snames.push_back(*k);
-            }
-
-            snames.sort_custom<StringName::AlphCompare>();
+            PODVector<StringName> snames;
+            t->property_setget.keys_into(snames);
+            eastl::sort(snames.begin(),snames.end(),WrapAlphaCompare());
 
             Array properties;
 
-            for (List<StringName>::Element *F = snames.front(); F; F = F->next()) {
+            for (const StringName &F : snames) {
                 Dictionary property_dict;
                 properties.push_back(property_dict);
 
-                ClassDB::PropertySetGet *psg = t->property_setget.getptr(F->get());
+                ClassDB::PropertySetGet *psg = &t->property_setget[F];
 
-                property_dict["name"] = F->get();
+                property_dict["name"] = F;
                 property_dict["setter"] = psg->setter;
                 property_dict["getter"] = psg->getter;
             }
@@ -225,15 +211,15 @@ void class_db_api_to_json(const String &p_output_file, ClassDB::APIType p_api) {
         Array property_list;
 
         //property list
-        for (List<PropertyInfo>::Element *F = t->property_list.front(); F; F = F->next()) {
+        for (const PropertyInfo &F : t->property_list) {
             Dictionary property_dict;
             property_list.push_back(property_dict);
 
-            property_dict["name"] = F->get().name;
-            property_dict["type"] = F->get().type;
-            property_dict["hint"] = F->get().hint;
-            property_dict["hint_string"] = F->get().hint_string;
-            property_dict["usage"] = F->get().usage;
+            property_dict["name"] = F.name;
+            property_dict["type"] = F.type;
+            property_dict["hint"] = F.hint;
+            property_dict["hint_string"] = F.hint_string;
+            property_dict["usage"] = F.usage;
         }
 
         if (!property_list.empty()) {
@@ -242,11 +228,11 @@ void class_db_api_to_json(const String &p_output_file, ClassDB::APIType p_api) {
     }
 
     FileAccessRef f = FileAccess::open(p_output_file, FileAccess::WRITE);
-    ERR_FAIL_COND_MSG(!f, "Cannot open file '" + p_output_file + "'.");
+    ERR_FAIL_COND_MSG(!f, "Cannot open file '" + p_output_file + "'.")
     f->store_string(JSON::print(classes_dict, /*indent: */ "\t"));
     f->close();
 
-    print_line(String() + "ClassDB API JSON written to: " + ProjectSettings::get_singleton()->globalize_path(p_output_file));
+    print_line(se_string() + "ClassDB API JSON written to: " + ProjectSettings::get_singleton()->globalize_path(p_output_file));
 }
 
 #endif // DEBUG_METHODS_ENABLED
