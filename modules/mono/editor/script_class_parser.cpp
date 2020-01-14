@@ -67,46 +67,46 @@ ScriptClassParser::Token ScriptClassParser::get_token() {
 				line++;
 				idx++;
 				break;
-			};
+            }
 			case 0: {
 				return TK_EOF;
 			} break;
 			case '{': {
 				idx++;
 				return TK_CURLY_BRACKET_OPEN;
-			};
+            }
 			case '}': {
 				idx++;
 				return TK_CURLY_BRACKET_CLOSE;
-			};
+            }
 			case '[': {
 				idx++;
 				return TK_BRACKET_OPEN;
-			};
+            }
 			case ']': {
 				idx++;
 				return TK_BRACKET_CLOSE;
-			};
+            }
 			case '<': {
 				idx++;
 				return TK_OP_LESS;
-			};
+            }
 			case '>': {
 				idx++;
 				return TK_OP_GREATER;
-			};
+            }
 			case ':': {
 				idx++;
 				return TK_COLON;
-			};
+            }
 			case ',': {
 				idx++;
 				return TK_COMMA;
-			};
+            }
 			case '.': {
 				idx++;
 				return TK_PERIOD;
-			};
+            }
 			case '#': {
 				//compiler directive
 				while (code[idx] != '\n' && code[idx] != 0) {

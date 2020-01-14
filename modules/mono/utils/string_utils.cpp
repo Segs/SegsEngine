@@ -40,7 +40,7 @@
 
 namespace {
 
-int sfind(const String &p_text, int p_from) {
+int sfind(const se_string &p_text, int p_from) {
     if (p_from < 0)
         return -1;
 
@@ -50,7 +50,7 @@ int sfind(const String &p_text, int p_from) {
     if (len == 0)
         return -1;
 
-    const CharType *src = p_text.data();
+    const char *src = p_text.data();
 
     for (int i = p_from; i <= (len - src_len); i++) {
         bool found = true;
@@ -65,7 +65,7 @@ int sfind(const String &p_text, int p_from) {
                     found = src[read_pos] == '%';
                     break;
                 case 1: {
-                    CharType c = src[read_pos];
+                    char c = src[read_pos];
                     found = src[read_pos] == 's' || (c >= '0' && c <= '4');
                     break;
                 }
@@ -86,7 +86,7 @@ int sfind(const String &p_text, int p_from) {
 }
 } // namespace
 
-String sformat(const String &p_text, const Variant &p1, const Variant &p2, const Variant &p3, const Variant &p4, const Variant &p5) {
+se_string sformat(const se_string &p_text, const Variant &p1, const Variant &p2, const Variant &p3, const Variant &p4, const Variant &p5) {
     if (p_text.length() < 2)
         return p_text;
 
@@ -112,19 +112,19 @@ String sformat(const String &p_text, const Variant &p1, const Variant &p2, const
         }
     }
 
-    String new_string;
+    se_string new_string;
 
     int findex = 0;
     int search_from = 0;
     int result = 0;
 
     while ((result = sfind(p_text, search_from)) >= 0) {
-        CharType c = p_text[result + 1];
+        char c = p_text[result + 1];
 
         int req_index = (c == 's' ? findex++ : c - '0');
 
         new_string += p_text.substr(search_from, result - search_from);
-        new_string += args[req_index].operator String();
+        new_string += args[req_index].as<se_string>();
         search_from = result + 2;
     }
 

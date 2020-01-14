@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/mono">
+        <file>icons/icon_c_sharp_script.svg</file>
+    </qresource>
+</RCC>

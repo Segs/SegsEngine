@@ -189,7 +189,7 @@ void godot_icall_BindingsGenerator_SetLogPrintEnabled(BindingsGenerator p_handle
 }
 
 int32_t godot_icall_BindingsGenerator_GenerateCsApi(BindingsGenerator *p_handle, MonoString *p_output_dir) {
-	String output_dir = GDMonoMarshal::mono_string_to_godot(p_output_dir);
+    se_string output_dir = GDMonoMarshal::mono_string_to_godot(p_output_dir);
 	return p_handle->generate_cs_api(output_dir);
 }
 

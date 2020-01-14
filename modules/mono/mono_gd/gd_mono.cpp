@@ -40,6 +40,7 @@
 #include "core/os/dir_access.h"
 #include "core/os/file_access.h"
 #include "core/os/os.h"
+#include "core/print_string.h"
 #include "core/os/thread.h"
 #include "core/project_settings.h"
 
@@ -491,14 +492,14 @@ void GDMono::add_assembly(uint32_t p_domain_id, GDMonoAssembly *p_assembly) {
     assemblies[p_domain_id][p_assembly->get_name()] = p_assembly;
 }
 
-GDMonoAssembly **GDMono::get_loaded_assembly(const String &p_name) {
+GDMonoAssembly **GDMono::get_loaded_assembly(se_string_view  p_name) {
 
     MonoDomain *domain = mono_domain_get();
     uint32_t domain_id = domain ? mono_domain_get_id(domain) : 0;
     return assemblies[domain_id].getptr(p_name);
 }
 
-bool GDMono::load_assembly(const String &p_name, GDMonoAssembly **r_assembly, bool p_refonly) {
+bool GDMono::load_assembly(const se_string &p_name, GDMonoAssembly **r_assembly, bool p_refonly) {
 
     CRASH_COND(!r_assembly);
 
@@ -510,7 +511,7 @@ bool GDMono::load_assembly(const String &p_name, GDMonoAssembly **r_assembly, bo
     return result;
 }
 
-bool GDMono::load_assembly(const String &p_name, MonoAssemblyName *p_aname, GDMonoAssembly **r_assembly, bool p_refonly) {
+bool GDMono::load_assembly(const se_string &p_name, MonoAssemblyName *p_aname, GDMonoAssembly **r_assembly, bool p_refonly) {
 
     CRASH_COND(!r_assembly);
 
@@ -538,7 +539,7 @@ bool GDMono::load_assembly(const String &p_name, MonoAssemblyName *p_aname, GDMo
     return true;
 }
 
-bool GDMono::load_assembly_from(const String &p_name, const String &p_path, GDMonoAssembly **r_assembly, bool p_refonly) {
+bool GDMono::load_assembly_from(se_string_view p_name, const se_string &p_path, GDMonoAssembly **r_assembly, bool p_refonly) {
 
     CRASH_COND(!r_assembly);
 

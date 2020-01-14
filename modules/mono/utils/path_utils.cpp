@@ -50,17 +50,17 @@
 
 namespace path {
 
-String find_executable(const String &p_name) {
+se_string find_executable(se_string_view p_name) {
 #ifdef WINDOWS_ENABLED
 	Vector<String> exts = OS::get_singleton()->get_environment("PATHEXT").split(ENV_PATH_SEP, false);
 #endif
-	Vector<String> env_path = OS::get_singleton()->get_environment("PATH").split(ENV_PATH_SEP, false);
+    PODVector<se_string> env_path = OS::get_singleton()->get_environment("PATH").split(ENV_PATH_SEP, false);
 
 	if (env_path.empty())
-		return String();
+        return se_string();
 
 	for (int i = 0; i < env_path.size(); i++) {
-		String p = path::join(env_path[i], p_name);
+        se_string p = path::join(env_path[i], p_name);
 
 #ifdef WINDOWS_ENABLED
 		for (int j = 0; j < exts.size(); j++) {
@@ -75,10 +75,10 @@ String find_executable(const String &p_name) {
 #endif
 	}
 
-	return String();
+    return se_string();
 }
 
-String cwd() {
+se_string cwd() {
 #ifdef WINDOWS_ENABLED
 	const DWORD expected_size = ::GetCurrentDirectoryW(0, NULL);
 
@@ -97,19 +97,19 @@ String cwd() {
 	if (result.parse_utf8(buffer))
 		return ".";
 
-	return result.simplify_path();
+    return PathUtils::simplify_path(result);
 #endif
 }
 
-String abspath(const String &p_path) {
-	if (p_path.is_abs_path()) {
-		return p_path.simplify_path();
+se_string abspath(se_string_view p_path) {
+    if (PathUtils::is_abs_path(p_path)) {
+        return PathUtils::simplify_path(p_path);
 	} else {
-		return path::join(path::cwd(), p_path).simplify_path();
+        return PathUtils::simplify_path(path::join(path::cwd(), p_path));
 	}
 }
 
-String realpath(const String &p_path) {
+se_string realpath(se_string_view p_path) {
 #ifdef WINDOWS_ENABLED
 	// Open file without read/write access
 	HANDLE hFile = ::CreateFileW(p_path.c_str(), 0,
@@ -133,60 +133,56 @@ String realpath(const String &p_path) {
 	::CloseHandle(hFile);
 	return buffer.simplify_path();
 #elif UNIX_ENABLED
-	char *resolved_path = ::realpath(p_path.utf8().get_data(), NULL);
+    se_string res(p_path);
+    char *resolved_path = ::realpath(res.data(), nullptr);
 
 	if (!resolved_path)
-		return p_path;
-
-	String result;
-	bool parse_ok = result.parse_utf8(resolved_path);
+        return res;
+    res = resolved_path;
 	::free(resolved_path);
 
-	if (parse_ok)
-		return p_path;
-
-	return result.simplify_path();
+    return res;
 #endif
 }
 
-String join(const String &p_a, const String &p_b) {
+se_string join(se_string_view p_a, se_string_view p_b) {
 	if (p_a.empty())
-		return p_b;
+        return se_string(p_b);
 
 	const CharType a_last = p_a[p_a.length() - 1];
 	if ((a_last == '/' || a_last == '\\') ||
 			(p_b.size() > 0 && (p_b[0] == '/' || p_b[0] == '\\'))) {
-		return p_a + p_b;
+        return se_string(p_a) + p_b;
 	}
 
-	return p_a + "/" + p_b;
+    return se_string(p_a) + "/" + p_b;
 }
 
-String join(const String &p_a, const String &p_b, const String &p_c) {
+se_string join(se_string_view p_a, se_string_view p_b, se_string_view p_c) {
 	return path::join(path::join(p_a, p_b), p_c);
 }
 
-String join(const String &p_a, const String &p_b, const String &p_c, const String &p_d) {
+se_string join(se_string_view p_a, se_string_view p_b, se_string_view p_c, se_string_view p_d) {
 	return path::join(path::join(path::join(p_a, p_b), p_c), p_d);
 }
 
-String relative_to_impl(const String &p_path, const String &p_relative_to) {
+se_string relative_to_impl(se_string_view p_path, se_string_view p_relative_to) {
 	// This function assumes arguments are normalized and absolute paths
 
-	if (p_path.begins_with(p_relative_to)) {
-		return p_path.substr(p_relative_to.length() + 1);
+    if (p_path.starts_with(p_relative_to)) {
+        return se_string(p_path.substr(p_relative_to.length() + 1));
 	} else {
-		String base_dir = p_relative_to.get_base_dir();
+        se_string_view base_dir = PathUtils::get_base_dir(p_relative_to);
 
 		if (base_dir.length() <= 2 && (base_dir.empty() || base_dir.ends_with(":")))
-			return p_path;
+            return se_string(p_path);
 
-		return String("..").plus_file(relative_to_impl(p_path, base_dir));
+        return PathUtils::plus_file("..",relative_to_impl(p_path, base_dir));
 	}
 }
 
 #ifdef WINDOWS_ENABLED
-String get_drive_letter(const String &p_norm_path) {
+String get_drive_letter(se_string_view p_norm_path) {
 	int idx = p_norm_path.find(":/");
 	if (idx != -1 && idx < p_norm_path.find("/"))
 		return p_norm_path.substr(0, idx + 1);
@@ -194,9 +190,9 @@ String get_drive_letter(const String &p_norm_path) {
 }
 #endif
 
-String relative_to(const String &p_path, const String &p_relative_to) {
-	String relative_to_abs_norm = abspath(p_relative_to);
-	String path_abs_norm = abspath(p_path);
+se_string relative_to(se_string_view p_path, se_string_view p_relative_to) {
+    se_string relative_to_abs_norm = abspath(p_relative_to);
+    se_string path_abs_norm = abspath(p_path);
 
 #ifdef WINDOWS_ENABLED
 	if (get_drive_letter(relative_to_abs_norm) != get_drive_letter(path_abs_norm)) {
