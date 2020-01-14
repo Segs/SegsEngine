@@ -107,7 +107,7 @@ MonoObject *unmanaged_get_managed(Object *unmanaged) {
 	gchandle->set_handle(MonoGCHandle::new_strong_handle(mono_object), MonoGCHandle::STRONG_HANDLE);
 
 	// Tie managed to unmanaged
-	Reference *ref = Object::cast_to<Reference>(unmanaged);
+	Reference *ref = object_cast<RefCounted>(unmanaged);
 
 	if (ref) {
 		// Unsafe refcount increment. The managed instance also counts as a reference.

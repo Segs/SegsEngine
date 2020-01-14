@@ -35,7 +35,7 @@
 
 namespace CSharpProject {
 
-void add_item(const String &p_project_path, const String &p_item_type, const String &p_include);
+void add_item(se_string_view p_project_path, const StringName &p_item_type, se_string_view p_include);
 
 } // namespace CSharpProject
 
