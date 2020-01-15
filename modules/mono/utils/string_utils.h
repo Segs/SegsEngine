@@ -54,8 +54,8 @@ Error read_all_file_utf8(se_string_view p_path, se_string &r_content);
 #define _PRINTF_FORMAT_ATTRIBUTE_1_2
 #endif
 
-String str_format(const char *p_format, ...) _PRINTF_FORMAT_ATTRIBUTE_1_2;
-String str_format(const char *p_format, va_list p_list) _PRINTF_FORMAT_ATTRIBUTE_1_0;
+se_string str_format(const char *p_format, ...) _PRINTF_FORMAT_ATTRIBUTE_1_2;
+se_string str_format(const char *p_format, va_list p_list) _PRINTF_FORMAT_ATTRIBUTE_1_0;
 char *str_format_new(const char *p_format, ...) _PRINTF_FORMAT_ATTRIBUTE_1_2;
 char *str_format_new(const char *p_format, va_list p_list) _PRINTF_FORMAT_ATTRIBUTE_1_0;
 
