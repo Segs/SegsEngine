@@ -33,6 +33,7 @@
 #include "gd_mono.h"
 #include "gd_mono_cache.h"
 #include "gd_mono_class.h"
+#include "core/pool_vector.h"
 
 namespace GDMonoMarshal {
 
@@ -735,7 +736,7 @@ Variant mono_object_to_variant_impl(MonoObject *p_obj, const ManagedType &p_type
             return unbox<double>(p_obj);
 
         case MONO_TYPE_STRING: {
-            if (p_obj == NULL)
+            if (p_obj == nullptr)
                 return Variant(); // NIL
             return mono_string_to_godot_not_null((MonoString *)p_obj);
         } break;
@@ -819,7 +820,7 @@ Variant mono_object_to_variant_impl(MonoObject *p_obj, const ManagedType &p_type
             if (CACHED_CLASS(GodotObject)->is_assignable_from(type_class)) {
                 Object *ptr = unbox<Object *>(CACHED_FIELD(GodotObject, ptr)->get_value(p_obj));
                 if (ptr != NULL) {
-                    Reference *ref = object_cast<RefCounted>(ptr);
+                    RefCounted *ref = object_cast<RefCounted>(ptr);
                     return ref ? Variant(Ref<RefCounted>(ref)) : Variant(ptr);
                 }
                 return Variant();

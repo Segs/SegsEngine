@@ -1374,7 +1374,7 @@ Error BindingsGenerator::_generate_cs_type(const TypeInterface &itype, se_string
     }
 
     if (is_derived_type && itype.is_instantiable) {
-        InternalCall ctor_icall = InternalCall(itype.api_type, ctor_method, "IntPtr", itype.proxy_name + " obj");
+        InternalCall ctor_icall = InternalCall(itype.api_type, ctor_method, "IntPtr", se_string(itype.proxy_name) + " obj");
 
         if (!find_icall_by_name(ctor_icall.name, custom_icalls))
             custom_icalls.push_back(ctor_icall);
@@ -1783,7 +1783,7 @@ Error BindingsGenerator::generate_glue(se_string_view p_output_dir) {
         }
 
         if (is_derived_type && itype.is_instantiable) {
-            InternalCall ctor_icall = InternalCall(itype.api_type, ctor_method, "IntPtr", itype.proxy_name + " obj");
+            InternalCall ctor_icall = InternalCall(itype.api_type, ctor_method, "IntPtr", se_string(itype.proxy_name) + " obj");
 
             if (!find_icall_by_name(ctor_icall.name, custom_icalls))
                 custom_icalls.push_back(ctor_icall);
@@ -2203,9 +2203,9 @@ bool BindingsGenerator::_populate_object_type_interfaces() {
 
     PODVector<StringName> class_list;
     ClassDB::get_class_list(&class_list);
-    class_list.sort_custom<StringName::AlphCompare>();
+    eastl::sort(class_list.begin(),class_list.end(),WrapAlphaCompare());
 
-    while (class_list.size()) {
+    while (!class_list.empty()) {
         StringName type_cname = class_list.front();
 
         ClassDB::APIType api_type = ClassDB::get_api_type(type_cname);
@@ -2216,24 +2216,24 @@ bool BindingsGenerator::_populate_object_type_interfaces() {
         }
 
         if (!ClassDB::is_class_exposed(type_cname)) {
-            _log("Ignoring type '%s' because it's not exposed\n", se_string(type_cname).utf8().get_data());
+            _log("Ignoring type '%s' because it's not exposed\n", se_string(type_cname).c_str());
             class_list.pop_front();
             continue;
         }
 
         if (!ClassDB::is_class_enabled(type_cname)) {
-            _log("Ignoring type '%s' because it's not enabled\n", se_string(type_cname).utf8().get_data());
+            _log("Ignoring type '%s' because it's not enabled\n", se_string(type_cname).c_str());
             class_list.pop_front();
             continue;
         }
 
-        ClassDB::ClassInfo *class_info = ClassDB::classes.getptr(type_cname);
+        auto class_iter = ClassDB::classes.find(type_cname);
 
         TypeInterface itype = TypeInterface::create_object_type(type_cname, api_type);
 
         itype.base_name = ClassDB::get_parent_class(type_cname);
         itype.is_singleton = Engine::get_singleton()->has_singleton(itype.proxy_name);
-        itype.is_instantiable = class_info->creation_func && !itype.is_singleton;
+        itype.is_instantiable = class_iter->second.creation_func && !itype.is_singleton;
         itype.is_reference = ClassDB::is_parent_class(type_cname, name_cache.type_Reference);
         itype.memory_own = itype.is_reference;
 
@@ -2257,8 +2257,7 @@ bool BindingsGenerator::_populate_object_type_interfaces() {
 
         Map<StringName, StringName> accessor_methods;
 
-        for (const List<PropertyInfo>::Element *E = property_list.front(); E; E = E->next()) {
-            const PropertyInfo &property = E->get();
+        for (const PropertyInfo &property : property_list) {
 
             if (property.usage & PROPERTY_USAGE_GROUP || property.usage & PROPERTY_USAGE_CATEGORY)
                 continue;
@@ -2282,7 +2281,7 @@ bool BindingsGenerator::_populate_object_type_interfaces() {
             // Prevent the property and its enclosing type from sharing the same name
             if (iprop.proxy_name == itype.proxy_name) {
                 _log("Name of property '%s' is ambiguous with the name of its enclosing class '%s'. Renaming property to '%s_'\n",
-                        iprop.proxy_name.utf8().get_data(), itype.proxy_name.utf8().get_data(), iprop.proxy_name.utf8().get_data());
+                        iprop.proxy_name.c_str(), itype.proxy_name.asCString(), iprop.proxy_name.c_str());
 
                 iprop.proxy_name += "_";
             }
@@ -2436,7 +2435,7 @@ bool BindingsGenerator::_populate_object_type_interfaces() {
             // Prevent the method and its enclosing type from sharing the same name
             if (imethod.proxy_name == itype.proxy_name) {
                 _log("Name of method '%s' is ambiguous with the name of its enclosing class '%s'. Renaming method to '%s_'\n",
-                        imethod.proxy_name.utf8().get_data(), itype.proxy_name.utf8().get_data(), imethod.proxy_name.utf8().get_data());
+                        imethod.proxy_name.c_str(), itype.proxy_name.asCString(), imethod.proxy_name.c_str());
 
                 imethod.proxy_name += "_";
             }
@@ -2461,8 +2460,7 @@ bool BindingsGenerator::_populate_object_type_interfaces() {
             }
 
             if (!imethod.is_virtual && imethod.name[0] == '_') {
-                for (const List<PropertyInterface>::Element *F = itype.properties.front(); F; F = F->next()) {
-                    const PropertyInterface &iprop = F->get();
+                for (const PropertyInterface &iprop : itype.properties) {
 
                     if (iprop.setter == imethod.name || iprop.getter == imethod.name) {
                         imethod.is_internal = true;
@@ -2480,30 +2478,29 @@ bool BindingsGenerator::_populate_object_type_interfaces() {
         ListPOD<se_string> constants;
         ClassDB::get_integer_constant_list(type_cname, &constants, true);
 
-        const HashMap<StringName, ListPOD<StringName> > &enum_map = class_info->enum_map;
-        const StringName *k = NULL;
+        const DefHashMap<StringName, ListPOD<StringName> > &enum_map = class_iter->second.enum_map;
+        const StringName *k = nullptr;
 
-        while ((k = enum_map.next(k))) {
-            StringName enum_proxy_cname = *k;
-            se_string enum_proxy_name = enum_proxy_cname.operator se_string();
-            if (itype.find_property_by_proxy_name(enum_proxy_cname)) {
+        for(const auto &F: enum_map) {
+            StringName enum_proxy_cname = F.first;
+            se_string enum_proxy_name(enum_proxy_cname);
+            if (itype.find_property_by_proxy_name(enum_proxy_name)) {
                 // We have several conflicts between enums and PascalCase properties,
                 // so we append 'Enum' to the enum name in those cases.
                 enum_proxy_name += "Enum";
                 enum_proxy_cname = StringName(enum_proxy_name);
             }
             EnumInterface ienum(enum_proxy_cname);
-            const List<StringName> &enum_constants = enum_map.get(*k);
-            for (const List<StringName>::Element *E = enum_constants.front(); E; E = E->next()) {
-                const StringName &constant_cname = E->get();
-                se_string constant_name = constant_cname.operator se_string();
-                int *value = class_info->constant_map.getptr(constant_cname);
-                ERR_FAIL_NULL_V(value, false);
-                constants.erase(constant_name);
+            const ListPOD<StringName> &enum_constants = F.second;
+            for (const StringName &constant_cname : enum_constants) {
+                se_string constant_name(constant_cname);
+                auto value = class_iter->second.constant_map.find(constant_cname);
+                ERR_FAIL_COND_V(value==class_iter->second.constant_map.end(), false)
+                constants.remove(constant_name);
 
-                ConstantInterface iconstant(constant_name, snake_to_pascal_case(constant_name, true), *value);
+                ConstantInterface iconstant(constant_name, snake_to_pascal_case(constant_name, true), value->second);
 
-                iconstant.const_doc = NULL;
+                iconstant.const_doc = nullptr;
                 for (int i = 0; i < itype.class_doc->constants.size(); i++) {
                     const DocData::ConstantDoc &const_doc = itype.class_doc->constants[i];
 
@@ -2528,15 +2525,14 @@ bool BindingsGenerator::_populate_object_type_interfaces() {
             enum_itype.cname = StringName(enum_itype.name);
             enum_itype.proxy_name = itype.proxy_name + "." + enum_proxy_name;
             TypeInterface::postsetup_enum_type(enum_itype);
-            enum_types.insert(enum_itype.cname, enum_itype);
+            enum_types.emplace(enum_itype.cname, enum_itype);
         }
 
-        for (const List<se_string>::Element *E = constants.front(); E; E = E->next()) {
-            const se_string &constant_name = E->get();
-            int *value = class_info->constant_map.getptr(StringName(E->get()));
-            ERR_FAIL_NULL_V(value, false);
+        for (const se_string &constant_name : constants) {
+            auto value = class_iter->second.constant_map.find(StringName(constant_name));
+            ERR_FAIL_COND_V(value==class_iter->second.constant_map.end(), false)
 
-            ConstantInterface iconstant(constant_name, snake_to_pascal_case(constant_name, true), *value);
+            ConstantInterface iconstant(constant_name, snake_to_pascal_case(constant_name, true), value->second);
 
             iconstant.const_doc = nullptr;
             for (int i = 0; i < itype.class_doc->constants.size(); i++) {
@@ -2793,7 +2789,7 @@ void BindingsGenerator::_populate_builtin_type_interfaces() {
         // double
         itype = TypeInterface();
         itype.name = "double";
-        itype.cname = itype.name;
+        itype.cname = StringName(itype.name);
         itype.proxy_name = "double";
         {
             itype.c_in = "\t%0 %1_in = (%0)*%1;\n";
@@ -2816,7 +2812,7 @@ void BindingsGenerator::_populate_builtin_type_interfaces() {
     // se_string
     itype = TypeInterface();
     itype.name = "se_string";
-    itype.cname = itype.name;
+    itype.cname = StringName(itype.name);
     itype.proxy_name = "string";
     itype.c_in = "\t%0 %1_in = " C_METHOD_MONOSTR_TO_GODOT "(%1);\n";
     itype.c_out = "\treturn " C_METHOD_MONOSTR_FROM_GODOT "(%1);\n";
@@ -2832,7 +2828,7 @@ void BindingsGenerator::_populate_builtin_type_interfaces() {
     // NodePath
     itype = TypeInterface();
     itype.name = "NodePath";
-    itype.cname = itype.name;
+    itype.cname = StringName(itype.name);
     itype.proxy_name = "NodePath";
     itype.c_out = "\treturn memnew(NodePath(%1));\n";
     itype.c_type = itype.name;
@@ -2848,10 +2844,10 @@ void BindingsGenerator::_populate_builtin_type_interfaces() {
     // RID
     itype = TypeInterface();
     itype.name = "RID";
-    itype.cname = itype.name;
+    itype.cname = StringName(itype.name);
     itype.proxy_name = "RID";
     itype.c_out = "\treturn memnew(RID(%1));\n";
-    itype.c_type = itype.name;
+    itype.c_type = StringName(itype.name);
     itype.c_type_in = itype.c_type + "*";
     itype.c_type_out = itype.c_type + "*";
     itype.cs_type = itype.proxy_name;
@@ -2864,7 +2860,7 @@ void BindingsGenerator::_populate_builtin_type_interfaces() {
     // Variant
     itype = TypeInterface();
     itype.name = "Variant";
-    itype.cname = itype.name;
+    itype.cname = StringName(itype.name);
     itype.proxy_name = "object";
     itype.c_in = "\t%0 %1_in = " C_METHOD_MANAGED_TO_VARIANT "(%1);\n";
     itype.c_out = "\treturn " C_METHOD_MANAGED_FROM_VARIANT "(%1);\n";
@@ -2880,7 +2876,7 @@ void BindingsGenerator::_populate_builtin_type_interfaces() {
     // VarArg (fictitious type to represent variable arguments)
     itype = TypeInterface();
     itype.name = "VarArg";
-    itype.cname = itype.name;
+    itype.cname = StringName(itype.name);
     itype.proxy_name = "object[]";
     itype.c_in = "\t%0 %1_in = " C_METHOD_MONOARRAY_TO(Array) "(%1);\n";
     itype.c_arg_in = "&%s_in";
@@ -2894,7 +2890,7 @@ void BindingsGenerator::_populate_builtin_type_interfaces() {
     {                                                                         \
         itype = TypeInterface();                                              \
         itype.name = #m_name;                                                 \
-        itype.cname = itype.name;                                             \
+        itype.cname = StringName(itype.name);                                             \
         itype.proxy_name = #m_proxy_t "[]";                                   \
         itype.c_in = "\t%0 %1_in = " C_METHOD_MONOARRAY_TO(m_type) "(%1);\n"; \
         itype.c_out = "\treturn " C_METHOD_MONOARRAY_FROM(m_type) "(%1);\n";  \
@@ -2910,28 +2906,28 @@ void BindingsGenerator::_populate_builtin_type_interfaces() {
 
 #define INSERT_ARRAY(m_type, m_proxy_t) INSERT_ARRAY_FULL(m_type, m_type, m_proxy_t)
 
-    INSERT_ARRAY(PoolIntArray, int);
-    INSERT_ARRAY_FULL(PoolByteArray, PoolByteArray, byte);
+    INSERT_ARRAY(PoolIntArray, int)
+    INSERT_ARRAY_FULL(PoolByteArray, PoolByteArray, byte)
 
 #ifdef REAL_T_IS_DOUBLE
-    INSERT_ARRAY(PoolRealArray, double);
+    INSERT_ARRAY(PoolRealArray, double)
 #else
-    INSERT_ARRAY(PoolRealArray, float);
+    INSERT_ARRAY(PoolRealArray, float)
 #endif
 
-    INSERT_ARRAY(PoolStringArray, string);
+    INSERT_ARRAY(PoolStringArray, string)
 
-    INSERT_ARRAY(PoolColorArray, Color);
-    INSERT_ARRAY(PoolVector2Array, Vector2);
-    INSERT_ARRAY(PoolVector3Array, Vector3);
+    INSERT_ARRAY(PoolColorArray, Color)
+    INSERT_ARRAY(PoolVector2Array, Vector2)
+    INSERT_ARRAY(PoolVector3Array, Vector3)
 
 #undef INSERT_ARRAY
 
     // Array
     itype = TypeInterface();
     itype.name = "Array";
-    itype.cname = itype.name;
-    itype.proxy_name = itype.name;
+    itype.cname = StringName(itype.name);
+    itype.proxy_name = StringName(itype.name);
     itype.c_out = "\treturn memnew(Array(%1));\n";
     itype.c_type = itype.name;
     itype.c_type_in = itype.c_type + "*";
@@ -2946,8 +2942,8 @@ void BindingsGenerator::_populate_builtin_type_interfaces() {
     // Dictionary
     itype = TypeInterface();
     itype.name = "Dictionary";
-    itype.cname = itype.name;
-    itype.proxy_name = itype.name;
+    itype.cname = StringName(itype.name);
+    itype.proxy_name = StringName(itype.name);
     itype.c_out = "\treturn memnew(Dictionary(%1));\n";
     itype.c_type = itype.name;
     itype.c_type_in = itype.c_type + "*";
@@ -2962,8 +2958,8 @@ void BindingsGenerator::_populate_builtin_type_interfaces() {
     // void (fictitious type to represent the return type of methods that do not return anything)
     itype = TypeInterface();
     itype.name = "void";
-    itype.cname = itype.name;
-    itype.proxy_name = itype.name;
+    itype.cname = StringName(itype.name);
+    itype.proxy_name = StringName(itype.name);
     itype.c_type = itype.name;
     itype.c_type_in = itype.c_type;
     itype.c_type_out = itype.c_type;
@@ -2976,19 +2972,19 @@ void BindingsGenerator::_populate_builtin_type_interfaces() {
 void BindingsGenerator::_populate_global_constants() {
 
     int global_constants_count = GlobalConstants::get_global_constant_count();
-
+    auto *dd=EditorHelp::get_doc_data();
     if (global_constants_count > 0) {
-        Map<se_string, DocData::ClassDoc>::Element *match = EditorHelp::get_doc_data()->class_list.find("@GlobalScope");
+        Map<StringName, DocData::ClassDoc>::iterator match = dd->class_list.find("@GlobalScope");
 
-        CRASH_COND_MSG(!match, "Could not find '@GlobalScope' in DocData.");
+        CRASH_COND_MSG(match==dd->class_list.end(), "Could not find '@GlobalScope' in DocData.")
 
-        const DocData::ClassDoc &global_scope_doc = match->value();
+        const DocData::ClassDoc &global_scope_doc = match->second;
 
         for (int i = 0; i < global_constants_count; i++) {
 
             se_string constant_name = GlobalConstants::get_global_constant_name(i);
 
-            const DocData::ConstantDoc *const_doc = NULL;
+            const DocData::ConstantDoc *const_doc = nullptr;
             for (int j = 0; j < global_scope_doc.constants.size(); j++) {
                 const DocData::ConstantDoc &curr_const_doc = global_scope_doc.constants[j];
 
@@ -3023,11 +3019,11 @@ void BindingsGenerator::_populate_global_constants() {
 
             TypeInterface enum_itype;
             enum_itype.is_enum = true;
-            enum_itype.name = ienum.cname.operator se_string();
+            enum_itype.name = ienum.cname;
             enum_itype.cname = ienum.cname;
-            enum_itype.proxy_name = enum_itype.name;
+            enum_itype.proxy_name = StringName(enum_itype.name);
             TypeInterface::postsetup_enum_type(enum_itype);
-            enum_types.insert(enum_itype.cname, enum_itype);
+            enum_types.emplace(enum_itype.cname, enum_itype);
 
             int prefix_length = _determine_enum_prefix(ienum);
 
@@ -3045,16 +3041,16 @@ void BindingsGenerator::_populate_global_constants() {
     }
 
     // HARDCODED
-    List<StringName> hardcoded_enums;
+    PODVector<StringName> hardcoded_enums;
     hardcoded_enums.push_back("Vector3.Axis");
-    for (List<StringName>::Element *E = hardcoded_enums.front(); E; E = E->next()) {
+    for (const StringName &E : hardcoded_enums) {
         // These enums are not generated and must be written manually (e.g.: Vector3.Axis)
         // Here, we assume core types do not begin with underscore
         TypeInterface enum_itype;
         enum_itype.is_enum = true;
-        enum_itype.name = E->get().operator se_string();
-        enum_itype.cname = E->get();
-        enum_itype.proxy_name = enum_itype.name;
+        enum_itype.name = E;
+        enum_itype.cname = E;
+        enum_itype.proxy_name = E;
         TypeInterface::postsetup_enum_type(enum_itype);
         enum_types.emplace(enum_itype.cname, enum_itype);
     }
@@ -3073,7 +3069,7 @@ void BindingsGenerator::_log(const char *p_format, ...) {
         va_list list;
 
         va_start(list, p_format);
-        OS::get_singleton()->print("%s", str_format(p_format, list).utf8().get_data());
+        OS::get_singleton()->print(str_format(p_format, list).c_str());
         va_end(list);
     }
 }
@@ -3109,9 +3105,9 @@ void BindingsGenerator::_initialize() {
 void BindingsGenerator::handle_cmdline_args(const ListPOD<se_string> &p_cmdline_args) {
 
     const int NUM_OPTIONS = 2;
-    se_string generate_all_glue_option = "--generate-mono-glue";
-    se_string generate_cs_glue_option = "--generate-mono-cs-glue";
-    se_string generate_cpp_glue_option = "--generate-mono-cpp-glue";
+    const se_string generate_all_glue_option = "--generate-mono-glue";
+    const se_string generate_cs_glue_option = "--generate-mono-cs-glue";
+    const se_string generate_cpp_glue_option = "--generate-mono-cpp-glue";
 
     se_string glue_dir_path;
     se_string cs_dir_path;
@@ -3119,45 +3115,45 @@ void BindingsGenerator::handle_cmdline_args(const ListPOD<se_string> &p_cmdline_
 
     int options_left = NUM_OPTIONS;
 
-    const List<se_string>::Element *elem = p_cmdline_args.front();
+    for(auto elem=p_cmdline_args.begin(),fin=p_cmdline_args.end(); elem!=fin; ) {
+        if(!options_left)
+            break;
+        if (*elem == generate_all_glue_option) {
+            auto path_elem = ++elem;
 
-    while (elem && options_left) {
-        if (elem->get() == generate_all_glue_option) {
-            const List<se_string>::Element *path_elem = elem->next();
-
-            if (path_elem) {
-                glue_dir_path = path_elem->get();
-                elem = elem->next();
+            if (path_elem!=fin) {
+                glue_dir_path = *path_elem;
+                ++elem;
             } else {
                 ERR_PRINT(generate_all_glue_option + ": No output directory specified (expected path to '{GODOT_ROOT}/modules/mono/glue').");
             }
 
             --options_left;
-        } else if (elem->get() == generate_cs_glue_option) {
-            const List<se_string>::Element *path_elem = elem->next();
+        } else if (*elem == generate_cs_glue_option) {
+            const auto path_elem = ++elem;
 
-            if (path_elem) {
-                cs_dir_path = path_elem->get();
-                elem = elem->next();
+            if (path_elem!=fin) {
+                cs_dir_path = *path_elem;
+                ++elem;
             } else {
                 ERR_PRINT(generate_cs_glue_option + ": No output directory specified.");
             }
 
             --options_left;
-        } else if (elem->get() == generate_cpp_glue_option) {
-            const List<se_string>::Element *path_elem = elem->next();
+        } else if (*elem == generate_cpp_glue_option) {
+            const auto path_elem = ++elem;
 
-            if (path_elem) {
-                cpp_dir_path = path_elem->get();
-                elem = elem->next();
+            if (path_elem!=fin) {
+                cpp_dir_path = *path_elem;
+                ++elem;
             } else {
                 ERR_PRINT(generate_cpp_glue_option + ": No output directory specified.");
             }
 
             --options_left;
         }
-
-        elem = elem->next();
+        else
+            ++elem;
     }
 
     if (glue_dir_path.length() || cs_dir_path.length() || cpp_dir_path.length()) {
@@ -3173,7 +3169,7 @@ void BindingsGenerator::handle_cmdline_args(const ListPOD<se_string> &p_cmdline_
             if (bindings_generator.generate_glue(glue_dir_path) != OK)
                 ERR_PRINT(generate_all_glue_option + ": Failed to generate the C++ glue.");
 
-            if (bindings_generator.generate_cs_api(glue_dir_path.plus_file(API_SOLUTION_NAME)) != OK)
+            if (bindings_generator.generate_cs_api(PathUtils::plus_file(glue_dir_path,API_SOLUTION_NAME)) != OK)
                 ERR_PRINT(generate_all_glue_option + ": Failed to generate the C# API.");
         }
 

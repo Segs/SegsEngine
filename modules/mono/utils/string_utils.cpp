@@ -160,7 +160,7 @@ keywords = {
 bool is_csharp_keyword(se_string_view p_name) {
     using namespace eastl;
     // Reserved keywords
-    keywords.find(p_name);
+    return keywords.contains(p_name);
 }
 
 se_string escape_csharp_keyword(se_string_view p_name) {
@@ -172,7 +172,7 @@ Error read_all_file_utf8(se_string_view p_path, se_string &r_content) {
 
     Error err;
     se_string res = FileAccess::get_file_as_string(p_path,&err);
-    ERR_FAIL_COND_V_MSG(err != OK, err, "Cannot open file '" + p_path + "'.");
+    ERR_FAIL_COND_V_MSG(err != OK, err, "Cannot open file '" + p_path + "'.")
 
     r_content = res;
     return OK;
@@ -180,11 +180,11 @@ Error read_all_file_utf8(se_string_view p_path, se_string &r_content) {
 
 // TODO: Move to variadic templates once we upgrade to C++11
 
-String str_format(const char *p_format, ...) {
+se_string str_format(const char *p_format, ...) {
     va_list list;
 
     va_start(list, p_format);
-    String res = str_format(p_format, list);
+    se_string res = str_format(p_format, list);
     va_end(list);
 
     return res;
@@ -208,10 +208,10 @@ String str_format(const char *p_format, ...) {
 #define gd_vscprintf(m_format, m_args_copy) vsnprintf(NULL, 0, p_format, m_args_copy)
 #endif
 
-String str_format(const char *p_format, va_list p_list) {
+se_string str_format(const char *p_format, va_list p_list) {
     char *buffer = str_format_new(p_format, p_list);
 
-    String res(buffer);
+    se_string res(buffer);
     memdelete_arr(buffer);
 
     return res;
