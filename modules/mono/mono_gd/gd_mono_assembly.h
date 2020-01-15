@@ -78,7 +78,7 @@ class GDMonoAssembly {
     se_string path;
     uint64_t modified_time;
 
-    HashMap<ClassKey, GDMonoClass *, ClassKey::Hasher> cached_classes;
+    DefHashMap<ClassKey, GDMonoClass *, ClassKey::Hasher> cached_classes;
     Map<MonoClass *, GDMonoClass *> cached_raw;
 
     bool gdobject_class_cache_updated;

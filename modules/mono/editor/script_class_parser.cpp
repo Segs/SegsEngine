@@ -32,6 +32,7 @@
 
 #include "core/map.h"
 #include "core/os/os.h"
+#include "core/string_formatter.h"
 
 #include "../utils/string_utils.h"
 
@@ -155,7 +156,7 @@ ScriptClassParser::Token ScriptClassParser::get_token() {
 
                 CharType begin_str = code[idx];
                 idx++;
-                String tk_string = String();
+                se_string tk_string;
                 while (true) {
                     if (code[idx] == 0) {
                         error_str = "Unterminated String";
@@ -178,7 +179,7 @@ ScriptClassParser::Token ScriptClassParser::get_token() {
                             error = true;
                             return TK_ERROR;
                         }
-                        CharType res = 0;
+                        char res = 0;
 
                         switch (next) {
                             case 'b': res = 8; break;
@@ -218,21 +219,21 @@ ScriptClassParser::Token ScriptClassParser::get_token() {
                 }
 
                 if ((code[idx] >= 33 && code[idx] <= 47) || (code[idx] >= 58 && code[idx] <= 63) || (code[idx] >= 91 && code[idx] <= 94) || code[idx] == 96 || (code[idx] >= 123 && code[idx] <= 127)) {
-                    value = String::chr(code[idx]);
+                    value = se_string({code[idx]});
                     idx++;
                     return TK_SYMBOL;
                 }
 
                 if (code[idx] == '-' || (code[idx] >= '0' && code[idx] <= '9')) {
                     //a number
-                    const CharType *rptr;
-                    double number = String::to_double(&code[idx], &rptr);
+                    char *rptr;
+                    double number = StringUtils::to_double(&code[idx], &rptr);
                     idx += (rptr - &code[idx]);
                     value = number;
                     return TK_NUMBER;
 
                 } else if ((code[idx] == '@' && code[idx + 1] != '"') || code[idx] == '_' || (code[idx] >= 'A' && code[idx] <= 'Z') || (code[idx] >= 'a' && code[idx] <= 'z') || code[idx] > 127) {
-                    String id;
+                    se_string id;
 
                     id += code[idx];
                     idx++;
@@ -260,7 +261,7 @@ ScriptClassParser::Token ScriptClassParser::get_token() {
 Error ScriptClassParser::_skip_generic_type_params() {
 
     Token tk;
-
+    se_string value_str = value.as<se_string>();
     while (true) {
         tk = get_token();
 
@@ -269,8 +270,8 @@ Error ScriptClassParser::_skip_generic_type_params() {
             // Type specifications can end with "?" to denote nullable types, such as IList<int?>
             if (tk == TK_SYMBOL) {
                 tk = get_token();
-                if (value.operator String() != "?") {
-                    error_str = "Expected " + get_token_name(TK_IDENTIFIER) + ", found unexpected symbol '" + value + "'";
+                if (value_str != "?") {
+                    error_str = "Expected " + get_token_name(TK_IDENTIFIER) + ", found unexpected symbol '" + value_str + "'";
                     error = true;
                     return ERR_PARSE_ERROR;
                 }
@@ -324,7 +325,7 @@ Error ScriptClassParser::_skip_generic_type_params() {
     }
 }
 
-Error ScriptClassParser::_parse_type_full_name(String &r_full_name) {
+Error ScriptClassParser::_parse_type_full_name(se_string &r_full_name) {
 
     Token tk = get_token();
 
@@ -334,7 +335,7 @@ Error ScriptClassParser::_parse_type_full_name(String &r_full_name) {
         return ERR_PARSE_ERROR;
     }
 
-    r_full_name += String(value);
+    r_full_name += se_string(value);
 
     if (code[idx] == '<') {
         idx++;
@@ -357,9 +358,9 @@ Error ScriptClassParser::_parse_type_full_name(String &r_full_name) {
     return _parse_type_full_name(r_full_name);
 }
 
-Error ScriptClassParser::_parse_class_base(Vector<String> &r_base) {
+Error ScriptClassParser::_parse_class_base(PODVector<se_string> &r_base) {
 
-    String name;
+    se_string name;
 
     Error err = _parse_type_full_name(name);
     if (err)
@@ -371,7 +372,7 @@ Error ScriptClassParser::_parse_class_base(Vector<String> &r_base) {
         err = _parse_class_base(r_base);
         if (err)
             return err;
-    } else if (tk == TK_IDENTIFIER && String(value) == "where") {
+    } else if (tk == TK_IDENTIFIER && se_string(value) == "where") {
         err = _parse_type_constraints();
         if (err) {
             return err;
@@ -409,7 +410,7 @@ Error ScriptClassParser::_parse_type_constraints() {
     while (true) {
         tk = get_token();
         if (tk == TK_IDENTIFIER) {
-            if (String(value) == "where") {
+            if (se_string(value) == "where") {
                 return _parse_type_constraints();
             }
 
@@ -434,11 +435,11 @@ Error ScriptClassParser::_parse_type_constraints() {
 
         if (tk == TK_COMMA) {
             continue;
-        } else if (tk == TK_IDENTIFIER && String(value) == "where") {
+        } else if (tk == TK_IDENTIFIER && se_string(value) == "where") {
             return _parse_type_constraints();
-        } else if (tk == TK_SYMBOL && String(value) == "(") {
+        } else if (tk == TK_SYMBOL && se_string(value) == "(") {
             tk = get_token();
-            if (tk != TK_SYMBOL || String(value) != ")") {
+            if (tk != TK_SYMBOL || se_string(value) != ")") {
                 error_str = "Unexpected token: " + get_token_name(tk);
                 error = true;
                 return ERR_PARSE_ERROR;
@@ -513,11 +514,11 @@ Error ScriptClassParser::parse(const se_string &p_code) {
 
                 ClassDecl class_decl;
 
-                for (Map<int, NameDecl>::Element *E = name_stack.front(); E; E = E->next()) {
-                    const NameDecl &name_decl = E->value();
+                for (auto &E : name_stack) {
+                    const NameDecl &name_decl = E.second;
 
                     if (name_decl.type == NameDecl::NAMESPACE_DECL) {
-                        if (E != name_stack.front())
+                        if (&E != &(*name_stack.begin()))
                             class_decl.namespace_ += ".";
                         class_decl.namespace_ += name_decl.name;
                     } else {
@@ -582,7 +583,7 @@ Error ScriptClassParser::parse(const se_string &p_code) {
                         if (full_name.length())
                             full_name += ".";
                         full_name += class_decl.name;
-                        OS::get_singleton()->print("Ignoring generic class declaration: %s\n", full_name.utf8().get_data());
+                        OS::get_singleton()->print(FormatVE("Ignoring generic class declaration: %s\n", full_name.c_str()));
                     }
                 }
             }
@@ -639,7 +640,7 @@ Error ScriptClassParser::parse_file(se_string_view p_filepath) {
             ferr == ERR_INVALID_DATA ?
                     "File '" + p_filepath + "' contains invalid unicode (UTF-8), so it was not loaded."
                                             " Please ensure that scripts are saved in valid UTF-8 unicode." :
-                    "Failed to read file: '" + p_filepath + "'.");
+                    "Failed to read file: '" + p_filepath + "'.")
 
     return parse(source);
 }

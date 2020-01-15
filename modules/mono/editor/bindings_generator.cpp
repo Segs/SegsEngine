@@ -2901,7 +2901,7 @@ void BindingsGenerator::_populate_builtin_type_interfaces() {
         itype.cs_type = itype.proxy_name;                                     \
         itype.im_type_in = itype.proxy_name;                                  \
         itype.im_type_out = itype.proxy_name;                                 \
-        builtin_types.emplace(itype.name, itype);                              \
+        builtin_types.emplace(StringName(itype.name), itype);                 \
     }
 
 #define INSERT_ARRAY(m_type, m_proxy_t) INSERT_ARRAY_FULL(m_type, m_type, m_proxy_t)

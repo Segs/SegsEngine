@@ -5,6 +5,7 @@
 
 namespace StringUtils {
 GODOT_EXPORT double to_double(const CharType *p_str, const CharType **r_end = nullptr);
+GODOT_EXPORT double to_double(const char *p_str, char **r_end = nullptr);
 [[nodiscard]] inline bool is_subsequence_ofi(const String &str,const String &p_string) {
     return is_subsequence_of(str,p_string, CaseInsensitive);
 }

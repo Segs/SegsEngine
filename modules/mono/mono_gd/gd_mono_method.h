@@ -82,10 +82,10 @@ public:
 	MonoObject *invoke(MonoObject *p_object, MonoException **r_exc = NULL);
 	MonoObject *invoke_raw(MonoObject *p_object, void **p_params, MonoException **r_exc = NULL);
 
-	String get_full_name(bool p_signature = false) const;
-	String get_full_name_no_class() const;
-	String get_ret_type_full_name() const;
-	String get_signature_desc(bool p_namespaces = false) const;
+    se_string get_full_name(bool p_signature = false) const;
+    se_string get_full_name_no_class() const;
+    se_string get_ret_type_full_name() const;
+    se_string get_signature_desc(bool p_namespaces = false) const;
 
 	void get_parameter_names(Vector<StringName> &names) const;
 	void get_parameter_types(Vector<ManagedType> &types) const;

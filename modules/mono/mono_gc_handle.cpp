@@ -54,12 +54,12 @@ void MonoGCHandle::free_handle(uint32_t p_gchandle) {
 
 Ref<MonoGCHandle> MonoGCHandle::create_strong(MonoObject *p_object) {
 
-	return memnew(MonoGCHandle(new_strong_handle(p_object), STRONG_HANDLE));
+    return make_ref_counted<MonoGCHandle>(new_strong_handle(p_object), STRONG_HANDLE);
 }
 
 Ref<MonoGCHandle> MonoGCHandle::create_weak(MonoObject *p_object) {
 
-	return memnew(MonoGCHandle(new_weak_handle(p_object), WEAK_HANDLE));
+    return make_ref_counted<MonoGCHandle>(new_weak_handle(p_object), WEAK_HANDLE);
 }
 
 void MonoGCHandle::release() {

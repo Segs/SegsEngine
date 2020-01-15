@@ -153,21 +153,21 @@ void GDMonoClass::fetch_methods_with_godot_api_checks(GDMonoClass *p_native_base
     if (methods_fetched)
         return;
 
-    void *iter = NULL;
-    MonoMethod *raw_method = NULL;
-    while ((raw_method = mono_class_get_methods(get_mono_ptr(), &iter)) != NULL) {
-        StringName name = mono_method_get_name(raw_method);
+    void *iter = nullptr;
+    MonoMethod *raw_method = nullptr;
+    while ((raw_method = mono_class_get_methods(get_mono_ptr(), &iter)) != nullptr) {
+        StringName name(mono_method_get_name(raw_method));
 
         // get_method implicitly fetches methods and adds them to this->methods
         GDMonoMethod *method = get_method(raw_method, name);
-        ERR_CONTINUE(!method);
+        ERR_CONTINUE(!method)
 
         if (method->get_name() != name) {
 
 #ifdef DEBUG_ENABLED
-            String fullname = method->get_ret_type_full_name() + " " + name + "(" + method->get_signature_desc(true) + ")";
-            WARN_PRINTS("Method '" + fullname + "' is hidden by Godot API method. Should be '" +
-                        method->get_full_name_no_class() + "'. In class '" + namespace_name + "." + class_name + "'.");
+            se_string fullname = method->get_ret_type_full_name() + " " + name + "(" + method->get_signature_desc(true) + ")";
+            WARN_PRINT("Method '" + fullname + "' is hidden by Godot API method. Should be '" +
+                        method->get_full_name_no_class() + "'. In class '" + namespace_name + "." + class_name + "'.")
 #endif
             continue;
         }
@@ -184,9 +184,9 @@ void GDMonoClass::fetch_methods_with_godot_api_checks(GDMonoClass *p_native_base
 
                 if (m && m->get_name() != name) {
                     // found
-                    String fullname = m->get_ret_type_full_name() + " " + name + "(" + m->get_signature_desc(true) + ")";
-                    WARN_PRINTS("Method '" + fullname + "' should be '" + m->get_full_name_no_class() +
-                                "'. In class '" + namespace_name + "." + class_name + "'.");
+                    se_string fullname = m->get_ret_type_full_name() + " " + name + "(" + m->get_signature_desc(true) + ")";
+                    WARN_PRINT("Method '" + fullname + "' should be '" + m->get_full_name_no_class() +
+                                "'. In class '" + namespace_name + "." + class_name + "'.")
                     break;
                 }
 
@@ -217,15 +217,15 @@ void GDMonoClass::fetch_methods_with_godot_api_checks(GDMonoClass *p_native_base
 
                 MonoObject *attr = base_method->get_attribute(CACHED_CLASS(GodotMethodAttribute));
 
-                StringName godot_method_name = CACHED_FIELD(GodotMethodAttribute, methodName)->get_string_value(attr);
+                StringName godot_method_name(CACHED_FIELD(GodotMethodAttribute, methodName)->get_string_value(attr));
 #ifdef DEBUG_ENABLED
-                CRASH_COND(godot_method_name == StringName());
+                CRASH_COND(godot_method_name == StringName())
 #endif
                 MethodKey key = MethodKey(godot_method_name, method->get_parameters_count());
-                GDMonoMethod **existing_method = methods.getptr(key);
-                if (existing_method)
-                    memdelete(*existing_method); // Must delete old one
-                methods.set(key, method);
+                auto existing_method = methods.find(key);
+                if (existing_method!=methods.end())
+                    memdelete(existing_method->second); // Must delete old one
+                methods[key] = method;
 
                 break;
             }
@@ -242,21 +242,21 @@ void GDMonoClass::fetch_methods_with_godot_api_checks(GDMonoClass *p_native_base
 
 GDMonoMethod *GDMonoClass::get_fetched_method_unknown_params(const StringName &p_name) {
 
-    ERR_FAIL_COND_V(!methods_fetched, NULL);
+    ERR_FAIL_COND_V(!methods_fetched, NULL)
 
-    const MethodKey *k = NULL;
+    const MethodKey *k = nullptr;
 
     while ((k = methods.next(k))) {
         if (k->name == p_name)
             return methods.get(*k);
     }
 
-    return NULL;
+    return nullptr;
 }
 
 bool GDMonoClass::has_fetched_method_unknown_params(const StringName &p_name) {
 
-    return get_fetched_method_unknown_params(p_name) != NULL;
+    return get_fetched_method_unknown_params(p_name) != nullptr;
 }
 
 bool GDMonoClass::implements_interface(GDMonoClass *p_interface) {
@@ -268,24 +268,24 @@ GDMonoMethod *GDMonoClass::get_method(const StringName &p_name, int p_params_cou
 
     MethodKey key = MethodKey(p_name, p_params_count);
 
-    GDMonoMethod **match = methods.getptr(key);
+    auto match = methods.find(key);
 
-    if (match)
-        return *match;
+    if (match!=methods.end())
+        return match->second;
 
     if (methods_fetched)
-        return NULL;
+        return nullptr;
 
-    MonoMethod *raw_method = mono_class_get_method_from_name(mono_class, String(p_name).utf8().get_data(), p_params_count);
+    MonoMethod *raw_method = mono_class_get_method_from_name(mono_class, p_name.asCString(), p_params_count);
 
     if (raw_method) {
         GDMonoMethod *method = memnew(GDMonoMethod(p_name, raw_method));
-        methods.set(key, method);
+        methods[key] = method;
 
         return method;
     }
 
-    return NULL;
+    return nullptr;
 }
 
 GDMonoMethod *GDMonoClass::get_method(MonoMethod *p_raw_method) {
@@ -293,7 +293,7 @@ GDMonoMethod *GDMonoClass::get_method(MonoMethod *p_raw_method) {
     MonoMethodSignature *sig = mono_method_signature(p_raw_method);
 
     int params_count = mono_signature_get_param_count(sig);
-    StringName method_name = mono_method_get_name(p_raw_method);
+    StringName method_name(mono_method_get_name(p_raw_method));
 
     return get_method(p_raw_method, method_name, params_count);
 }
@@ -307,7 +307,7 @@ GDMonoMethod *GDMonoClass::get_method(MonoMethod *p_raw_method, const StringName
 
 GDMonoMethod *GDMonoClass::get_method(MonoMethod *p_raw_method, const StringName &p_name, int p_params_count) {
 
-    ERR_FAIL_NULL_V(p_raw_method, NULL);
+    ERR_FAIL_NULL_V(p_raw_method, NULL)
 
     MethodKey key = MethodKey(p_name, p_params_count);
 
@@ -322,37 +322,37 @@ GDMonoMethod *GDMonoClass::get_method(MonoMethod *p_raw_method, const StringName
     return method;
 }
 
-GDMonoMethod *GDMonoClass::get_method_with_desc(const String &p_description, bool p_include_namespace) {
+GDMonoMethod *GDMonoClass::get_method_with_desc(const se_string &p_description, bool p_include_namespace) {
 
-    MonoMethodDesc *desc = mono_method_desc_new(p_description.utf8().get_data(), p_include_namespace);
+    MonoMethodDesc *desc = mono_method_desc_new(p_description.c_str(), p_include_namespace);
     MonoMethod *method = mono_method_desc_search_in_class(desc, mono_class);
     mono_method_desc_free(desc);
 
-    ERR_FAIL_COND_V(mono_method_get_class(method) != mono_class, NULL);
+    ERR_FAIL_COND_V(mono_method_get_class(method) != mono_class, NULL)
 
     return get_method(method);
 }
 
 GDMonoField *GDMonoClass::get_field(const StringName &p_name) {
 
-    Map<StringName, GDMonoField *>::Element *result = fields.find(p_name);
+    Map<StringName, GDMonoField *>::iterator result = fields.find(p_name);
 
-    if (result)
-        return result->value();
+    if (result!=fields.end())
+        return result->second;
 
     if (fields_fetched)
-        return NULL;
+        return nullptr;
 
-    MonoClassField *raw_field = mono_class_get_field_from_name(mono_class, String(p_name).utf8().get_data());
+    MonoClassField *raw_field = mono_class_get_field_from_name(mono_class, p_name.asCString());
 
     if (raw_field) {
         GDMonoField *field = memnew(GDMonoField(raw_field, this));
-        fields.insert(p_name, field);
+        fields.emplace(p_name, field);
 
         return field;
     }
 
-    return NULL;
+    return nullptr;
 }
 
 const Vector<GDMonoField *> &GDMonoClass::get_all_fields() {
@@ -360,18 +360,18 @@ const Vector<GDMonoField *> &GDMonoClass::get_all_fields() {
     if (fields_fetched)
         return fields_list;
 
-    void *iter = NULL;
-    MonoClassField *raw_field = NULL;
-    while ((raw_field = mono_class_get_fields(mono_class, &iter)) != NULL) {
-        StringName name = mono_field_get_name(raw_field);
+    void *iter = nullptr;
+    MonoClassField *raw_field = nullptr;
+    while ((raw_field = mono_class_get_fields(mono_class, &iter)) != nullptr) {
+        StringName name(mono_field_get_name(raw_field));
 
-        Map<StringName, GDMonoField *>::Element *match = fields.find(name);
+        Map<StringName, GDMonoField *>::iterator match = fields.find(name);
 
-        if (match) {
-            fields_list.push_back(match->get());
+        if (match!=fields.end()) {
+            fields_list.push_back(match->second);
         } else {
             GDMonoField *field = memnew(GDMonoField(raw_field, this));
-            fields.insert(name, field);
+            fields.emplace(name, field);
             fields_list.push_back(field);
         }
     }
@@ -383,24 +383,24 @@ const Vector<GDMonoField *> &GDMonoClass::get_all_fields() {
 
 GDMonoProperty *GDMonoClass::get_property(const StringName &p_name) {
 
-    Map<StringName, GDMonoProperty *>::Element *result = properties.find(p_name);
+    Map<StringName, GDMonoProperty *>::iterator result = properties.find(p_name);
 
-    if (result)
-        return result->value();
+    if (result!=properties.end())
+        return result->second;
 
     if (properties_fetched)
-        return NULL;
+        return nullptr;
 
-    MonoProperty *raw_property = mono_class_get_property_from_name(mono_class, String(p_name).utf8().get_data());
+    MonoProperty *raw_property = mono_class_get_property_from_name(mono_class, p_name.asCString());
 
     if (raw_property) {
         GDMonoProperty *property = memnew(GDMonoProperty(raw_property, this));
-        properties.insert(p_name, property);
+        properties.emplace(p_name, property);
 
         return property;
     }
 
-    return NULL;
+    return nullptr;
 }
 
 const Vector<GDMonoProperty *> &GDMonoClass::get_all_properties() {
@@ -408,18 +408,18 @@ const Vector<GDMonoProperty *> &GDMonoClass::get_all_properties() {
     if (properties_fetched)
         return properties_list;
 
-    void *iter = NULL;
-    MonoProperty *raw_property = NULL;
-    while ((raw_property = mono_class_get_properties(mono_class, &iter)) != NULL) {
-        StringName name = mono_property_get_name(raw_property);
+    void *iter = nullptr;
+    MonoProperty *raw_property = nullptr;
+    while ((raw_property = mono_class_get_properties(mono_class, &iter)) != nullptr) {
+        StringName name(mono_property_get_name(raw_property));
 
-        Map<StringName, GDMonoProperty *>::Element *match = properties.find(name);
+        Map<StringName, GDMonoProperty *>::iterator match = properties.find(name);
 
-        if (match) {
-            properties_list.push_back(match->get());
+        if (match!=properties.end()) {
+            properties_list.push_back(match->second);
         } else {
             GDMonoProperty *property = memnew(GDMonoProperty(raw_property, this));
-            properties.insert(name, property);
+            properties.emplace(name, property);
             properties_list.push_back(property);
         }
     }
@@ -433,19 +433,19 @@ const Vector<GDMonoClass *> &GDMonoClass::get_all_delegates() {
     if (delegates_fetched)
         return delegates_list;
 
-    void *iter = NULL;
-    MonoClass *raw_class = NULL;
-    while ((raw_class = mono_class_get_nested_types(mono_class, &iter)) != NULL) {
+    void *iter = nullptr;
+    MonoClass *raw_class = nullptr;
+    while ((raw_class = mono_class_get_nested_types(mono_class, &iter)) != nullptr) {
         if (mono_class_is_delegate(raw_class)) {
-            StringName name = mono_class_get_name(raw_class);
+            StringName name(mono_class_get_name(raw_class));
 
-            Map<StringName, GDMonoClass *>::Element *match = delegates.find(name);
+            Map<StringName, GDMonoClass *>::iterator match = delegates.find(name);
 
-            if (match) {
-                delegates_list.push_back(match->get());
+            if (match!=delegates.end()) {
+                delegates_list.push_back(match->second);
             } else {
-                GDMonoClass *delegate = memnew(GDMonoClass(mono_class_get_namespace(raw_class), mono_class_get_name(raw_class), raw_class, assembly));
-                delegates.insert(name, delegate);
+                GDMonoClass *delegate = memnew(GDMonoClass(StringName(mono_class_get_namespace(raw_class)), StringName(mono_class_get_name(raw_class)), raw_class, assembly));
+                delegates.emplace(name, delegate);
                 delegates_list.push_back(delegate);
             }
         }
@@ -459,10 +459,10 @@ const Vector<GDMonoClass *> &GDMonoClass::get_all_delegates() {
 const Vector<GDMonoMethod *> &GDMonoClass::get_all_methods() {
 
     if (!method_list_fetched) {
-        void *iter = NULL;
-        MonoMethod *raw_method = NULL;
-        while ((raw_method = mono_class_get_methods(get_mono_ptr(), &iter)) != NULL) {
-            method_list.push_back(memnew(GDMonoMethod(mono_method_get_name(raw_method), raw_method)));
+        void *iter = nullptr;
+        MonoMethod *raw_method = nullptr;
+        while ((raw_method = mono_class_get_methods(get_mono_ptr(), &iter)) != nullptr) {
+            method_list.push_back(memnew(GDMonoMethod(StringName(mono_method_get_name(raw_method)), raw_method)));
         }
 
         method_list_fetched = true;
@@ -479,7 +479,7 @@ GDMonoClass::GDMonoClass(const StringName &p_namespace, const StringName &p_name
     assembly = p_assembly;
 
     attrs_fetched = false;
-    attributes = NULL;
+    attributes = nullptr;
 
     methods_fetched = false;
     method_list_fetched = false;
@@ -494,12 +494,12 @@ GDMonoClass::~GDMonoClass() {
         mono_custom_attrs_free(attributes);
     }
 
-    for (Map<StringName, GDMonoField *>::Element *E = fields.front(); E; E = E->next()) {
-        memdelete(E->value());
+    for (auto & E : fields) {
+        memdelete(E.second);
     }
 
-    for (Map<StringName, GDMonoProperty *>::Element *E = properties.front(); E; E = E->next()) {
-        memdelete(E->value());
+    for (auto &E : properties) {
+        memdelete(E.second);
     }
 
     {

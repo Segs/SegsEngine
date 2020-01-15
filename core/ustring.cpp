@@ -1403,8 +1403,12 @@ done:
 double StringUtils::to_double(se_string_view p_str) {
     return QByteArray::fromRawData(p_str.data(),p_str.size()).toDouble();
 }
+double StringUtils::to_double(const char *p_str, char ** r_end) {
+    return strtod(p_str,r_end);
+}
 
 double StringUtils::to_double(const CharType *p_str, const CharType **r_end) {
+
     return built_in_strtod(p_str, r_end);
 }
 

@@ -22,6 +22,7 @@ enum Compare {
 //! length in codepoints, not bytes
 [[nodiscard]] int char_length(const String &str);
 [[nodiscard]] GODOT_EXPORT double to_double(se_string_view p_str);
+[[nodiscard]] GODOT_EXPORT double to_double(const char *p_str, char ** r_end);
 [[nodiscard]] inline float to_float(se_string_view str) { return float(to_double(str)); }
 [[nodiscard]] GODOT_EXPORT int hex_to_int(const String &str,bool p_with_prefix = true);
 [[nodiscard]] GODOT_EXPORT int hex_to_int(se_string_view s,bool p_with_prefix=true);

@@ -31,6 +31,8 @@
 #include "gd_mono_field.h"
 
 #include <mono/metadata/attrdefs.h>
+#include "core/pool_vector.h"
+#include "core/rid.h"
 
 #include "gd_mono_cache.h"
 #include "gd_mono_class.h"
@@ -50,7 +52,7 @@ void GDMonoField::set_value_from_variant(MonoObject *p_object, const Variant &p_
 
 #define SET_FROM_ARRAY(m_type)                                                                   \
     {                                                                                            \
-        MonoArray *managed = GDMonoMarshal::m_type##_to_mono_array(p_value.operator ::m_type()); \
+        MonoArray *managed = GDMonoMarshal::m_type##_to_mono_array(p_value.as<::m_type>()); \
         mono_field_set_value(p_object, mono_field, managed);                                     \
     }
 
@@ -105,17 +107,17 @@ void GDMonoField::set_value_from_variant(MonoObject *p_object, const Variant &p_
         } break;
 
         case MONO_TYPE_R8: {
-            double val = p_value.operator double();
+            double val = p_value.as<double>();
             mono_field_set_value(p_object, mono_field, &val);
         } break;
 
     case MONO_TYPE_STRING: {
-        if (p_value.get_type() == Variant::NIL) {
+        if (p_value.get_type() == VariantType::NIL) {
             // Otherwise, Variant -> String would return the string "Null"
-            MonoString *mono_string = NULL;
+            MonoString *mono_string = nullptr;
             mono_field_set_value(p_object, mono_field, mono_string);
         } else {
-            MonoString *mono_string = GDMonoMarshal::mono_string_from_godot(p_value);
+            MonoString *mono_string = GDMonoMarshal::mono_string_from_godot(p_value.as<se_string>());
             mono_field_set_value(p_object, mono_field, mono_string);
         }
     } break;
@@ -124,52 +126,52 @@ void GDMonoField::set_value_from_variant(MonoObject *p_object, const Variant &p_
             GDMonoClass *tclass = type.type_class;
 
             if (tclass == CACHED_CLASS(Vector2)) {
-                SET_FROM_STRUCT(Vector2);
+                SET_FROM_STRUCT(Vector2)
                 break;
             }
 
             if (tclass == CACHED_CLASS(Rect2)) {
-                SET_FROM_STRUCT(Rect2);
+                SET_FROM_STRUCT(Rect2)
                 break;
             }
 
             if (tclass == CACHED_CLASS(Transform2D)) {
-                SET_FROM_STRUCT(Transform2D);
+                SET_FROM_STRUCT(Transform2D)
                 break;
             }
 
             if (tclass == CACHED_CLASS(Vector3)) {
-                SET_FROM_STRUCT(Vector3);
+                SET_FROM_STRUCT(Vector3)
                 break;
             }
 
             if (tclass == CACHED_CLASS(Basis)) {
-                SET_FROM_STRUCT(Basis);
+                SET_FROM_STRUCT(Basis)
                 break;
             }
 
             if (tclass == CACHED_CLASS(Quat)) {
-                SET_FROM_STRUCT(Quat);
+                SET_FROM_STRUCT(Quat)
                 break;
             }
 
             if (tclass == CACHED_CLASS(Transform)) {
-                SET_FROM_STRUCT(Transform);
+                SET_FROM_STRUCT(Transform)
                 break;
             }
 
             if (tclass == CACHED_CLASS(AABB)) {
-                SET_FROM_STRUCT(AABB);
+                SET_FROM_STRUCT(AABB)
                 break;
             }
 
             if (tclass == CACHED_CLASS(Color)) {
-                SET_FROM_STRUCT(Color);
+                SET_FROM_STRUCT(Color)
                 break;
             }
 
             if (tclass == CACHED_CLASS(Plane)) {
-                SET_FROM_STRUCT(Plane);
+                SET_FROM_STRUCT(Plane)
                 break;
             }
 
@@ -281,7 +283,7 @@ void GDMonoField::set_value_from_variant(MonoObject *p_object, const Variant &p_
                 break;
             }
 
-            ERR_FAIL_MSG("Attempted to convert Variant to a managed array of unmarshallable element type.");
+            ERR_FAIL_MSG("Attempted to convert Variant to a managed array of unmarshallable element type.")
         } break;
 
         case MONO_TYPE_CLASS: {
@@ -301,7 +303,7 @@ void GDMonoField::set_value_from_variant(MonoObject *p_object, const Variant &p_
             }
 
             if (CACHED_CLASS(RID) == type_class) {
-                MonoObject *managed = GDMonoUtils::create_managed_from(p_value.operator RID());
+                MonoObject *managed = GDMonoUtils::create_managed_from(p_value.as<RID>());
                 mono_field_set_value(p_object, mono_field, managed);
                 break;
             }
@@ -362,15 +364,15 @@ void GDMonoField::set_value_from_variant(MonoObject *p_object, const Variant &p_
         case MONO_TYPE_OBJECT: {
             // Variant
             switch (p_value.get_type()) {
-                case Variant::BOOL: {
+                case VariantType::BOOL: {
                     MonoBoolean val = p_value.operator bool();
                     mono_field_set_value(p_object, mono_field, &val);
                 } break;
-                case Variant::INT: {
+                case VariantType::INT: {
                     int32_t val = p_value.operator signed int();
                     mono_field_set_value(p_object, mono_field, &val);
                 } break;
-                case Variant::REAL: {
+                case VariantType::REAL: {
 #ifdef REAL_T_IS_DOUBLE
                     double val = p_value.operator double();
                     mono_field_set_value(p_object, mono_field, &val);
@@ -379,81 +381,81 @@ void GDMonoField::set_value_from_variant(MonoObject *p_object, const Variant &p_
                     mono_field_set_value(p_object, mono_field, &val);
 #endif
                 } break;
-                case Variant::STRING: {
-                    MonoString *mono_string = GDMonoMarshal::mono_string_from_godot(p_value);
+                case VariantType::STRING: {
+                    MonoString *mono_string = GDMonoMarshal::mono_string_from_godot(p_value.as<se_string>());
                     mono_field_set_value(p_object, mono_field, mono_string);
                 } break;
-                case Variant::VECTOR2: {
+                case VariantType::VECTOR2: {
                     SET_FROM_STRUCT(Vector2);
                 } break;
-                case Variant::RECT2: {
+                case VariantType::RECT2: {
                     SET_FROM_STRUCT(Rect2);
                 } break;
-                case Variant::VECTOR3: {
+                case VariantType::VECTOR3: {
                     SET_FROM_STRUCT(Vector3);
                 } break;
-                case Variant::TRANSFORM2D: {
+                case VariantType::TRANSFORM2D: {
                     SET_FROM_STRUCT(Transform2D);
                 } break;
-                case Variant::PLANE: {
+                case VariantType::PLANE: {
                     SET_FROM_STRUCT(Plane);
                 } break;
-                case Variant::QUAT: {
+                case VariantType::QUAT: {
                     SET_FROM_STRUCT(Quat);
                 } break;
-                case Variant::AABB: {
+                case VariantType::AABB: {
                     SET_FROM_STRUCT(AABB);
                 } break;
-                case Variant::BASIS: {
+                case VariantType::BASIS: {
                     SET_FROM_STRUCT(Basis);
                 } break;
-                case Variant::TRANSFORM: {
+                case VariantType::TRANSFORM: {
                     SET_FROM_STRUCT(Transform);
                 } break;
-                case Variant::COLOR: {
+                case VariantType::COLOR: {
                     SET_FROM_STRUCT(Color);
                 } break;
-                case Variant::NODE_PATH: {
+                case VariantType::NODE_PATH: {
                     MonoObject *managed = GDMonoUtils::create_managed_from(p_value.operator NodePath());
                     mono_field_set_value(p_object, mono_field, managed);
                 } break;
-                case Variant::_RID: {
+                case VariantType::_RID: {
                     MonoObject *managed = GDMonoUtils::create_managed_from(p_value.operator RID());
                     mono_field_set_value(p_object, mono_field, managed);
                 } break;
-                case Variant::OBJECT: {
+                case VariantType::OBJECT: {
                     MonoObject *managed = GDMonoUtils::unmanaged_get_managed(p_value.operator Object *());
                     mono_field_set_value(p_object, mono_field, managed);
                     break;
                 }
-                case Variant::DICTIONARY: {
+                case VariantType::DICTIONARY: {
                     MonoObject *managed = GDMonoUtils::create_managed_from(p_value.operator Dictionary(), CACHED_CLASS(Dictionary));
                     mono_field_set_value(p_object, mono_field, managed);
                 } break;
-                case Variant::ARRAY: {
+                case VariantType::ARRAY: {
                     MonoObject *managed = GDMonoUtils::create_managed_from(p_value.operator Array(), CACHED_CLASS(Array));
                     mono_field_set_value(p_object, mono_field, managed);
                 } break;
-                case Variant::POOL_BYTE_ARRAY: {
+                case VariantType::POOL_BYTE_ARRAY: {
                     SET_FROM_ARRAY(PoolByteArray);
                 } break;
-                case Variant::POOL_INT_ARRAY: {
+                case VariantType::POOL_INT_ARRAY: {
                     SET_FROM_ARRAY(PoolIntArray);
                 } break;
-                case Variant::POOL_REAL_ARRAY: {
+                case VariantType::POOL_REAL_ARRAY: {
                     SET_FROM_ARRAY(PoolRealArray);
                 } break;
-                case Variant::POOL_STRING_ARRAY: {
-                    SET_FROM_ARRAY(PoolStringArray);
+                case VariantType::POOL_STRING_ARRAY: {
+                    SET_FROM_ARRAY(PoolStringArray)
                 } break;
-                case Variant::POOL_VECTOR2_ARRAY: {
-                    SET_FROM_ARRAY(PoolVector2Array);
+                case VariantType::POOL_VECTOR2_ARRAY: {
+                    SET_FROM_ARRAY(PoolVector2Array)
                 } break;
-                case Variant::POOL_VECTOR3_ARRAY: {
-                    SET_FROM_ARRAY(PoolVector3Array);
+                case VariantType::POOL_VECTOR3_ARRAY: {
+                    SET_FROM_ARRAY(PoolVector3Array)
                 } break;
-                case Variant::POOL_COLOR_ARRAY: {
-                    SET_FROM_ARRAY(PoolColorArray);
+                case VariantType::POOL_COLOR_ARRAY: {
+                    SET_FROM_ARRAY(PoolColorArray)
                 } break;
                 default: break;
             }
@@ -512,7 +514,7 @@ void GDMonoField::set_value_from_variant(MonoObject *p_object, const Variant &p_
         } break;
 
         default: {
-            ERR_PRINTS("Attempted to set the value of a field of unexpected type encoding: " + itos(type.type_encoding) + ".");
+            ERR_PRINT("Attempted to set the value of a field of unexpected type encoding: " + itos(type.type_encoding) + ".");
         } break;
     }
 
@@ -584,21 +586,21 @@ IMonoClassMember::Visibility GDMonoField::get_visibility() {
         case MONO_FIELD_ATTR_PUBLIC:
             return IMonoClassMember::PUBLIC;
         default:
-            ERR_FAIL_V(IMonoClassMember::PRIVATE);
+            ERR_FAIL_V(IMonoClassMember::PRIVATE)
     }
 }
 
 GDMonoField::GDMonoField(MonoClassField *p_mono_field, GDMonoClass *p_owner) {
     owner = p_owner;
     mono_field = p_mono_field;
-    name = mono_field_get_name(mono_field);
+    name = StringName(mono_field_get_name(mono_field));
     MonoType *field_type = mono_field_get_type(mono_field);
     type.type_encoding = mono_type_get_type(field_type);
     MonoClass *field_type_class = mono_class_from_mono_type(field_type);
     type.type_class = GDMono::get_singleton()->get_class(field_type_class);
 
     attrs_fetched = false;
-    attributes = NULL;
+    attributes = nullptr;
 }
 
 GDMonoField::~GDMonoField() {

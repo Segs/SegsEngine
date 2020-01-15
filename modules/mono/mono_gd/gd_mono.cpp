@@ -39,6 +39,7 @@
 
 #include "core/os/dir_access.h"
 #include "core/os/file_access.h"
+#include "core/method_bind.h"
 #include "core/method_bind_interface.h"
 #include "core/os/os.h"
 #include "core/print_string.h"
