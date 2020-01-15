@@ -93,8 +93,8 @@ private:
 
     Error _skip_generic_type_params();
 
-    Error _parse_type_full_name(String &r_full_name);
-    Error _parse_class_base(Vector<String> &r_base);
+    Error _parse_type_full_name(se_string &r_full_name);
+    Error _parse_class_base(PODVector<se_string> &r_base);
     Error _parse_type_constraints();
     Error _parse_namespace_name(se_string &r_name, int &r_curly_stack);
 

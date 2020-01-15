@@ -46,7 +46,7 @@
 class GDMonoClass {
     struct MethodKey {
         struct Hasher {
-            static _FORCE_INLINE_ uint32_t hash(const MethodKey &p_key) {
+            uint32_t operator()(const MethodKey &p_key) {
                 uint32_t hash = 0;
                 ::Hasher<int> inth;
                 GDMonoUtils::hash_combine(hash, p_key.name.hash());
@@ -83,7 +83,7 @@ class GDMonoClass {
     // This contains both the original method names and remapped method names from the native Godot identifiers to the C# functions.
     // Most method-related functions refer to this and it's possible this is unintuitive for outside users; this may be a prime location for refactoring or renaming.
     bool methods_fetched;
-    HashMap<MethodKey, GDMonoMethod *, MethodKey::Hasher> methods;
+    DefHashMap<MethodKey, GDMonoMethod *, MethodKey::Hasher> methods;
 
     bool method_list_fetched;
     Vector<GDMonoMethod *> method_list;
@@ -143,7 +143,7 @@ public:
     GDMonoMethod *get_method(MonoMethod *p_raw_method);
     GDMonoMethod *get_method(MonoMethod *p_raw_method, const StringName &p_name);
     GDMonoMethod *get_method(MonoMethod *p_raw_method, const StringName &p_name, int p_params_count);
-    GDMonoMethod *get_method_with_desc(const String &p_description, bool p_include_namespace);
+    GDMonoMethod *get_method_with_desc(const se_string &p_description, bool p_include_namespace);
 
     GDMonoField *get_field(const StringName &p_name);
     const Vector<GDMonoField *> &get_all_fields();

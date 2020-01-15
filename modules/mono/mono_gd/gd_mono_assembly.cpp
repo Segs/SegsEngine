@@ -414,10 +414,10 @@ GDMonoClass *GDMonoAssembly::get_class(const StringName &p_namespace, const Stri
 
 	ClassKey key(p_namespace, p_name);
 
-	GDMonoClass **match = cached_classes.getptr(key);
+    auto match = cached_classes.find(key);
 
-	if (match)
-		return *match;
+    if (match!=cached_classes.end())
+        return match->second;
 
     MonoClass *mono_class = mono_class_from_name(image, p_namespace.asCString(), p_name.asCString());
 
