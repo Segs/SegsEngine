@@ -46,7 +46,7 @@
 class GDMonoClass {
     struct MethodKey {
         struct Hasher {
-            uint32_t operator()(const MethodKey &p_key) {
+            uint32_t operator()(const MethodKey &p_key) const {
                 uint32_t hash = 0;
                 ::Hasher<int> inth;
                 GDMonoUtils::hash_combine(hash, p_key.name.hash());

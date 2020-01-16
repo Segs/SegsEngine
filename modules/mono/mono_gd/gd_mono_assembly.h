@@ -51,6 +51,14 @@ class GDMonoAssembly {
 
                 return hash;
             }
+            uint32_t operator()(const ClassKey &p_key) const {
+                uint32_t hash = 0;
+
+                GDMonoUtils::hash_combine(hash, p_key.namespace_name.hash());
+                GDMonoUtils::hash_combine(hash, p_key.class_name.hash());
+
+                return hash;
+            }
         };
 
         _FORCE_INLINE_ bool operator==(const ClassKey &p_a) const {
