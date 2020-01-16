@@ -371,7 +371,7 @@ se_string BindingsGenerator::bbcode_to_xml(se_string_view p_bbcode, const TypeIn
                     enum_match = enum_types.find(target_cname);
                 }
 
-                if (enum_types.end()==enum_match) {
+                if (enum_types.end()!=enum_match) {
                     const TypeInterface &target_enum_itype = enum_match->second;
 
                     xml_output.append("<see cref=\"" BINDINGS_NAMESPACE ".");
@@ -413,8 +413,8 @@ se_string BindingsGenerator::bbcode_to_xml(se_string_view p_bbcode, const TypeIn
                         // Try to find as global enum constant
                         const EnumInterface *target_ienum = nullptr;
 
-                        for (const List<EnumInterface>::Element *E = global_enums.front(); E; E = E->next()) {
-                            target_ienum = &E->deref();
+                        for (const EnumInterface &E : global_enums) {
+                            target_ienum = &E;
                             target_iconst = find_constant_by_name(target_name, target_ienum->constants);
                             if (target_iconst)
                                 break;
@@ -451,8 +451,8 @@ se_string BindingsGenerator::bbcode_to_xml(se_string_view p_bbcode, const TypeIn
                         // Try to find as enum constant in the current class
                         const EnumInterface *target_ienum = nullptr;
 
-                        for (const List<EnumInterface>::Element *E = target_itype->enums.front(); E; E = E->next()) {
-                            target_ienum = &E->deref();
+                        for (const EnumInterface &E : target_itype->enums) {
+                            target_ienum = &E;
                             target_iconst = find_constant_by_name(target_name, target_ienum->constants);
                             if (target_iconst)
                                 break;
@@ -637,15 +637,14 @@ int BindingsGenerator::_determine_enum_prefix(const EnumInterface &p_ienum) {
 
     CRASH_COND(p_ienum.constants.empty());
 
-    const ConstantInterface &front_iconstant = p_ienum.constants.front()->deref();
+    const ConstantInterface &front_iconstant = p_ienum.constants.front();
     auto front_parts = front_iconstant.name.split("_", /* p_allow_empty: */ true);
     int candidate_len = front_parts.size() - 1;
 
     if (candidate_len == 0)
         return 0;
 
-    for (const List<ConstantInterface>::Element *E = p_ienum.constants.front()->next(); E; E = E->next()) {
-        const ConstantInterface &iconstant = E->deref();
+    for (const ConstantInterface &iconstant : p_ienum.constants) {
 
         auto parts = iconstant.name.split("_", /* p_allow_empty: */ true);
 
@@ -670,10 +669,8 @@ int BindingsGenerator::_determine_enum_prefix(const EnumInterface &p_ienum) {
 void BindingsGenerator::_apply_prefix_to_enum_constants(BindingsGenerator::EnumInterface &p_ienum, int p_prefix_length) {
 
     if (p_prefix_length > 0) {
-        for (List<ConstantInterface>::Element *E = p_ienum.constants.front(); E; E = E->next()) {
+        for (ConstantInterface &curr_const : p_ienum.constants) {
             int curr_prefix_length = p_prefix_length;
-
-            ConstantInterface &curr_const = E->deref();
 
             se_string constant_name = curr_const.name;
 
@@ -705,8 +702,7 @@ void BindingsGenerator::_apply_prefix_to_enum_constants(BindingsGenerator::EnumI
 
 void BindingsGenerator::_generate_method_icalls(const TypeInterface &p_itype) {
 
-    for (const List<MethodInterface>::Element *E = p_itype.methods.front(); E; E = E->next()) {
-        const MethodInterface &imethod = E->deref();
+    for (const MethodInterface &imethod : p_itype.methods) {
 
         if (imethod.is_virtual)
             continue;
@@ -755,15 +751,15 @@ void BindingsGenerator::_generate_method_icalls(const TypeInterface &p_itype) {
 
         InternalCall im_icall = InternalCall(p_itype.api_type, icall_method, im_type_out, im_sig, im_unique_sig);
 
-        List<InternalCall>::Element *match = method_icalls.find(im_icall);
+        auto iter_match = eastl::find(method_icalls.begin(),method_icalls.end(),im_icall);
 
-        if (match) {
+        if (iter_match!=method_icalls.end()) {
             if (p_itype.api_type != ClassDB::API_EDITOR)
-                match->deref().editor_only = false;
-            method_icalls_map.emplace(&E->deref(), &match->deref());
+                iter_match->editor_only = false;
+            method_icalls_map.emplace(&imethod, &(*iter_match));
         } else {
-            List<InternalCall>::Element *added = method_icalls.push_back(im_icall);
-            method_icalls_map.emplace(&E->deref(), &added->deref());
+            method_icalls.push_back(im_icall);
+            method_icalls_map.emplace(&imethod, &method_icalls.back());
         }
     }
 }
@@ -778,8 +774,7 @@ void BindingsGenerator::_generate_global_constants(StringBuilder &p_output) {
     p_output.append("namespace " BINDINGS_NAMESPACE "\n" OPEN_BLOCK);
     p_output.append(INDENT1 "public static partial class " BINDINGS_GLOBAL_SCOPE_CLASS "\n" INDENT1 "{");
 
-    for (const List<ConstantInterface>::Element *E = global_constants.front(); E; E = E->next()) {
-        const ConstantInterface &iconstant = E->deref();
+    for (const ConstantInterface &iconstant : global_constants) {
 
         if (iconstant.const_doc && iconstant.const_doc->description.size()) {
             se_string xml_summary = bbcode_to_xml(fix_doc_description(iconstant.const_doc->description), nullptr);
@@ -788,7 +783,7 @@ void BindingsGenerator::_generate_global_constants(StringBuilder &p_output) {
             if (summary_lines.size()) {
                 p_output.append(MEMBER_BEGIN "/// <summary>\n");
 
-                for (int i = 0; i < summary_lines.size(); i++) {
+                for (size_t i = 0; i < summary_lines.size(); i++) {
                     p_output.append(INDENT2 "/// ");
                     p_output.append(summary_lines[i]);
                     p_output.append("\n");
@@ -812,16 +807,15 @@ void BindingsGenerator::_generate_global_constants(StringBuilder &p_output) {
 
     // Enums
 
-    for (List<EnumInterface>::Element *E = global_enums.front(); E; E = E->next()) {
-        const EnumInterface &ienum = E->deref();
+    for (const EnumInterface &ienum : global_enums) {
 
-        CRASH_COND(ienum.constants.empty());
+        CRASH_COND(ienum.constants.empty())
 
-        se_string enum_proxy_name(ienum.cname);
+        se_string_view enum_proxy_name(ienum.cname);
 
         bool enum_in_static_class = false;
 
-        if (enum_proxy_name.find(".") > 0) {
+        if (enum_proxy_name.contains(".")) {
             enum_in_static_class = true;
             se_string_view enum_class_name = StringUtils::get_slice(enum_proxy_name,'.', 0);
             enum_proxy_name = StringUtils::get_slice(enum_proxy_name,'.', 1);
@@ -840,8 +834,7 @@ void BindingsGenerator::_generate_global_constants(StringBuilder &p_output) {
         p_output.append(enum_proxy_name);
         p_output.append("\n" INDENT1 OPEN_BLOCK);
 
-        for (const List<ConstantInterface>::Element *F = ienum.constants.front(); F; F = F->next()) {
-            const ConstantInterface &iconstant = F->deref();
+        for (const ConstantInterface &iconstant : ienum.constants) {
 
             if (iconstant.const_doc && iconstant.const_doc->description.size()) {
                 se_string xml_summary = bbcode_to_xml(fix_doc_description(iconstant.const_doc->description), nullptr);
@@ -864,7 +857,7 @@ void BindingsGenerator::_generate_global_constants(StringBuilder &p_output) {
             p_output.append(iconstant.proxy_name);
             p_output.append(" = ");
             p_output.append(itos(iconstant.value));
-            p_output.append(F != ienum.constants.back() ? ",\n" : "\n");
+            p_output.append(&iconstant != &ienum.constants.back() ? ",\n" : "\n");
         }
 
         p_output.append(INDENT1 CLOSE_BLOCK);
@@ -955,10 +948,10 @@ Error BindingsGenerator::generate_cs_core_project(se_string_view p_proj_dir) {
         cs_icalls_content.append(m_icall.im_sig + ");\n");                                       \
     }
 
-    for (const List<InternalCall>::Element *E = core_custom_icalls.front(); E; E = E->next())
-        ADD_INTERNAL_CALL(E->deref());
-    for (const List<InternalCall>::Element *E = method_icalls.front(); E; E = E->next())
-        ADD_INTERNAL_CALL(E->deref());
+    for (const InternalCall &E : core_custom_icalls)
+        ADD_INTERNAL_CALL(E)
+    for (const InternalCall &E : method_icalls)
+        ADD_INTERNAL_CALL(E)
 
 #undef ADD_INTERNAL_CALL
 
@@ -1057,10 +1050,10 @@ Error BindingsGenerator::generate_cs_editor_project(const se_string &p_proj_dir)
         cs_icalls_content.append(m_icall.im_sig + ");\n");                                  \
     }
 
-    for (const List<InternalCall>::Element *E = editor_custom_icalls.front(); E; E = E->next())
-        ADD_INTERNAL_CALL(E->deref());
-    for (const List<InternalCall>::Element *E = method_icalls.front(); E; E = E->next())
-        ADD_INTERNAL_CALL(E->deref());
+    for (const InternalCall &E : editor_custom_icalls)
+        ADD_INTERNAL_CALL(E)
+    for (const InternalCall &E : method_icalls)
+        ADD_INTERNAL_CALL(E)
 
 #undef ADD_INTERNAL_CALL
 
@@ -1151,14 +1144,14 @@ Error BindingsGenerator::_generate_cs_type(const TypeInterface &itype, se_string
 
     if (!is_derived_type) {
         // Some Godot.Object assertions
-        CRASH_COND(itype.cname != name_cache.type_Object);
-        CRASH_COND(!itype.is_instantiable);
-        CRASH_COND(itype.api_type != ClassDB::API_CORE);
-        CRASH_COND(itype.is_reference);
-        CRASH_COND(itype.is_singleton);
+        CRASH_COND(itype.cname != name_cache.type_Object)
+        CRASH_COND(!itype.is_instantiable)
+        CRASH_COND(itype.api_type != ClassDB::API_CORE)
+        CRASH_COND(itype.is_reference)
+        CRASH_COND(itype.is_singleton)
     }
 
-    List<InternalCall> &custom_icalls = itype.api_type == ClassDB::API_EDITOR ? editor_custom_icalls : core_custom_icalls;
+    ListPOD<InternalCall> &custom_icalls = itype.api_type == ClassDB::API_EDITOR ? editor_custom_icalls : core_custom_icalls;
 
     _log("Generating %s.cs...\n", itype.proxy_name.asCString());
 
@@ -1223,8 +1216,7 @@ Error BindingsGenerator::_generate_cs_type(const TypeInterface &itype, se_string
 
         // Add constants
 
-        for (const List<ConstantInterface>::Element *E = itype.constants.front(); E; E = E->next()) {
-            const ConstantInterface &iconstant = E->deref();
+        for (const ConstantInterface &iconstant : itype.constants) {
 
             if (iconstant.const_doc && iconstant.const_doc->description.size()) {
                 se_string xml_summary = bbcode_to_xml(fix_doc_description(iconstant.const_doc->description), &itype);
@@ -1255,8 +1247,7 @@ Error BindingsGenerator::_generate_cs_type(const TypeInterface &itype, se_string
 
         // Add enums
 
-        for (const List<EnumInterface>::Element *E = itype.enums.front(); E; E = E->next()) {
-            const EnumInterface &ienum = E->deref();
+        for (const EnumInterface &ienum : itype.enums) {
 
             ERR_FAIL_COND_V(ienum.constants.empty(), ERR_BUG);
 
@@ -1264,8 +1255,7 @@ Error BindingsGenerator::_generate_cs_type(const TypeInterface &itype, se_string
             output.append(ienum.cname);
             output.append(MEMBER_BEGIN OPEN_BLOCK);
 
-            for (const List<ConstantInterface>::Element *F = ienum.constants.front(); F; F = F->next()) {
-                const ConstantInterface &iconstant = F->deref();
+            for (const ConstantInterface &iconstant : ienum.constants) {
 
                 if (iconstant.const_doc && iconstant.const_doc->description.size()) {
                     se_string xml_summary = bbcode_to_xml(fix_doc_description(iconstant.const_doc->description), &itype);
@@ -1274,7 +1264,7 @@ Error BindingsGenerator::_generate_cs_type(const TypeInterface &itype, se_string
                     if (summary_lines.size()) {
                         output.append(INDENT3 "/// <summary>\n");
 
-                        for (int i = 0; i < summary_lines.size(); i++) {
+                        for (size_t i = 0; i < summary_lines.size(); i++) {
                             output.append(INDENT3 "/// ");
                             output.append(summary_lines[i]);
                             output.append("\n");
@@ -1288,7 +1278,7 @@ Error BindingsGenerator::_generate_cs_type(const TypeInterface &itype, se_string
                 output.append(iconstant.proxy_name);
                 output.append(" = ");
                 output.append(itos(iconstant.value));
-                output.append(F != ienum.constants.back() ? ",\n" : "\n");
+                output.append(&iconstant != &ienum.constants.back() ? ",\n" : "\n");
             }
 
             output.append(INDENT2 CLOSE_BLOCK);
@@ -1359,8 +1349,8 @@ Error BindingsGenerator::_generate_cs_type(const TypeInterface &itype, se_string
     }
 
     int method_bind_count = 0;
-    for (const List<MethodInterface>::Element *E = itype.methods.front(); E; E = E->next()) {
-        const MethodInterface &imethod = E->deref();
+    for (const MethodInterface &imethod : itype.methods) {
+
         Error method_err = _generate_cs_method(itype, imethod, method_bind_count, output);
         ERR_FAIL_COND_V_MSG(method_err != OK, method_err,
                 "Failed to generate method '" + imethod.name + "' for class '" + itype.name + "'.");
@@ -1369,14 +1359,14 @@ Error BindingsGenerator::_generate_cs_type(const TypeInterface &itype, se_string
     if (itype.is_singleton) {
         InternalCall singleton_icall = InternalCall(itype.api_type, ICALL_PREFIX + itype.name + SINGLETON_ICALL_SUFFIX, "IntPtr");
 
-        if (!find_icall_by_name(singleton_icall.name, custom_icalls))
+        if (!has_named_icall(singleton_icall.name, custom_icalls))
             custom_icalls.push_back(singleton_icall);
     }
 
     if (is_derived_type && itype.is_instantiable) {
         InternalCall ctor_icall = InternalCall(itype.api_type, ctor_method, "IntPtr", se_string(itype.proxy_name) + " obj");
 
-        if (!find_icall_by_name(ctor_icall.name, custom_icalls))
+        if (!has_named_icall(ctor_icall.name, custom_icalls))
             custom_icalls.push_back(ctor_icall);
     }
 
@@ -1748,21 +1738,20 @@ Error BindingsGenerator::generate_glue(se_string_view p_output_dir) {
 
         if (!is_derived_type) {
             // Some Object assertions
-            CRASH_COND(itype.cname != name_cache.type_Object);
-            CRASH_COND(!itype.is_instantiable);
-            CRASH_COND(itype.api_type != ClassDB::API_CORE);
-            CRASH_COND(itype.is_reference);
-            CRASH_COND(itype.is_singleton);
+            CRASH_COND(itype.cname != name_cache.type_Object)
+            CRASH_COND(!itype.is_instantiable)
+            CRASH_COND(itype.api_type != ClassDB::API_CORE)
+            CRASH_COND(itype.is_reference)
+            CRASH_COND(itype.is_singleton)
         }
 
-        List<InternalCall> &custom_icalls = itype.api_type == ClassDB::API_EDITOR ? editor_custom_icalls : core_custom_icalls;
+        ListPOD<InternalCall> &custom_icalls = itype.api_type == ClassDB::API_EDITOR ? editor_custom_icalls : core_custom_icalls;
 
         OS::get_singleton()->print(FormatVE("Generating %s...\n", itype.name.c_str()));
 
         se_string ctor_method(ICALL_PREFIX + itype.proxy_name + "_Ctor"); // Used only for derived types
 
-        for (const List<MethodInterface>::Element *E = itype.methods.front(); E; E = E->next()) {
-            const MethodInterface &imethod = E->deref();
+        for (const MethodInterface &imethod : itype.methods) {
             Error method_err = _generate_glue_method(itype, imethod, output);
             ERR_FAIL_COND_V_MSG(method_err != OK, method_err,
                     "Failed to generate method '" + imethod.name + "' for class '" + itype.name + "'.");
@@ -1772,7 +1761,7 @@ Error BindingsGenerator::generate_glue(se_string_view p_output_dir) {
             se_string singleton_icall_name = ICALL_PREFIX + itype.name + SINGLETON_ICALL_SUFFIX;
             InternalCall singleton_icall = InternalCall(itype.api_type, singleton_icall_name, "IntPtr");
 
-            if (!find_icall_by_name(singleton_icall.name, custom_icalls))
+            if (!has_named_icall(singleton_icall.name, custom_icalls))
                 custom_icalls.push_back(singleton_icall);
 
             output.append("Object* ");
@@ -1785,7 +1774,7 @@ Error BindingsGenerator::generate_glue(se_string_view p_output_dir) {
         if (is_derived_type && itype.is_instantiable) {
             InternalCall ctor_icall = InternalCall(itype.api_type, ctor_method, "IntPtr", se_string(itype.proxy_name) + " obj");
 
-            if (!find_icall_by_name(ctor_icall.name, custom_icalls))
+            if (!has_named_icall(ctor_icall.name, custom_icalls))
                 custom_icalls.push_back(ctor_icall);
 
             output.append("Object* ");
@@ -1831,21 +1820,21 @@ Error BindingsGenerator::generate_glue(se_string_view p_output_dir) {
     }
 
     bool tools_sequence = false;
-    for (const List<InternalCall>::Element *E = core_custom_icalls.front(); E; E = E->next()) {
+    for (const InternalCall &E : core_custom_icalls) {
 
         if (tools_sequence) {
-            if (!E->deref().editor_only) {
+            if (!E.editor_only) {
                 tools_sequence = false;
                 output.append("#endif\n");
             }
         } else {
-            if (E->deref().editor_only) {
+            if (E.editor_only) {
                 output.append("#ifdef TOOLS_ENABLED\n");
                 tools_sequence = true;
             }
         }
 
-        ADD_INTERNAL_CALL_REGISTRATION(E->deref());
+        ADD_INTERNAL_CALL_REGISTRATION(E)
     }
 
     if (tools_sequence) {
@@ -1854,24 +1843,24 @@ Error BindingsGenerator::generate_glue(se_string_view p_output_dir) {
     }
 
     output.append("#ifdef TOOLS_ENABLED\n");
-    for (const List<InternalCall>::Element *E = editor_custom_icalls.front(); E; E = E->next())
-        ADD_INTERNAL_CALL_REGISTRATION(E->deref());
+    for (const InternalCall &E : editor_custom_icalls)
+        ADD_INTERNAL_CALL_REGISTRATION(E)
     output.append("#endif // TOOLS_ENABLED\n");
 
-    for (const List<InternalCall>::Element *E = method_icalls.front(); E; E = E->next()) {
+    for (const InternalCall &E : method_icalls) {
         if (tools_sequence) {
-            if (!E->deref().editor_only) {
+            if (!E.editor_only) {
                 tools_sequence = false;
                 output.append("#endif\n");
             }
         } else {
-            if (E->deref().editor_only) {
+            if (E.editor_only) {
                 output.append("#ifdef TOOLS_ENABLED\n");
                 tools_sequence = true;
             }
         }
 
-        ADD_INTERNAL_CALL_REGISTRATION(E->deref());
+        ADD_INTERNAL_CALL_REGISTRATION(E)
     }
 
     if (tools_sequence) {
@@ -1971,7 +1960,7 @@ Error BindingsGenerator::_generate_glue_method(const BindingsGenerator::TypeInte
     const InternalCall *im_icall = match->second;
     se_string icall_method = im_icall->name;
 
-    if (!generated_icall_funcs.find(im_icall)) {
+    if (!generated_icall_funcs.contains(im_icall)) {
         generated_icall_funcs.push_back(im_icall);
 
         if (im_icall->editor_only)
@@ -2360,7 +2349,7 @@ bool BindingsGenerator::_populate_object_type_interfaces() {
             } else if (return_info.type == VariantType::INT && return_info.usage & PROPERTY_USAGE_CLASS_IS_ENUM) {
                 imethod.return_type.cname = return_info.class_name;
                 imethod.return_type.is_enum = true;
-            } else if (return_info.class_name != StringName()) {
+            } else if (!return_info.class_name.empty()) {
                 imethod.return_type.cname = return_info.class_name;
                 if (!imethod.is_virtual && ClassDB::is_parent_class(return_info.class_name, name_cache.type_Reference) && return_info.hint != PROPERTY_HINT_RESOURCE_TYPE) {
                     /* clang-format off */
@@ -2479,8 +2468,6 @@ bool BindingsGenerator::_populate_object_type_interfaces() {
         ClassDB::get_integer_constant_list(type_cname, &constants, true);
 
         const DefHashMap<StringName, ListPOD<StringName> > &enum_map = class_iter->second.enum_map;
-        const StringName *k = nullptr;
-
         for(const auto &F: enum_map) {
             StringName enum_proxy_cname = F.first;
             se_string enum_proxy_name(enum_proxy_cname);
@@ -2521,7 +2508,7 @@ bool BindingsGenerator::_populate_object_type_interfaces() {
 
             TypeInterface enum_itype;
             enum_itype.is_enum = true;
-            enum_itype.name = itype.name + "." + se_string(*k);
+            enum_itype.name = itype.name + "." + se_string(F.first);
             enum_itype.cname = StringName(enum_itype.name);
             enum_itype.proxy_name = itype.proxy_name + "." + enum_proxy_name;
             TypeInterface::postsetup_enum_type(enum_itype);
@@ -3002,9 +2989,9 @@ void BindingsGenerator::_populate_global_constants() {
 
             if (enum_name != StringName()) {
                 EnumInterface ienum(enum_name);
-                List<EnumInterface>::Element *enum_match = global_enums.find(ienum);
-                if (enum_match) {
-                    enum_match->deref().constants.push_back(iconstant);
+                auto enum_match = global_enums.find(ienum);
+                if (enum_match!=global_enums.end()) {
+                    enum_match->constants.push_back(iconstant);
                 } else {
                     ienum.constants.push_back(iconstant);
                     global_enums.push_back(ienum);
@@ -3014,8 +3001,7 @@ void BindingsGenerator::_populate_global_constants() {
             }
         }
 
-        for (List<EnumInterface>::Element *E = global_enums.front(); E; E = E->next()) {
-            EnumInterface &ienum = E->deref();
+        for (EnumInterface &ienum : global_enums) {
 
             TypeInterface enum_itype;
             enum_itype.is_enum = true;

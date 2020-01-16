@@ -59,7 +59,7 @@ class BindingsGenerator {
 
     struct EnumInterface {
         StringName cname;
-        List<ConstantInterface> constants;
+        ListPOD<ConstantInterface> constants;
 
         _FORCE_INLINE_ bool operator==(const EnumInterface &p_ienum) const {
             return p_ienum.cname == cname;
@@ -332,15 +332,15 @@ class BindingsGenerator {
 
         const DocData::ClassDoc *class_doc;
 
-        List<ConstantInterface> constants;
-        List<EnumInterface> enums;
+        ListPOD<ConstantInterface> constants;
+        ListPOD<EnumInterface> enums;
         ListPOD<PropertyInterface> properties;
-        List<MethodInterface> methods;
+        ListPOD<MethodInterface> methods;
 
         const MethodInterface *find_method_by_name(const StringName &p_cname) const {
-            for (const List<MethodInterface>::Element *E = methods.front(); E; E = E->next()) {
-                if (E->deref().cname == p_cname)
-                    return &E->deref();
+            for (const MethodInterface &E : methods) {
+                if (E.cname == p_cname)
+                    return &E;
             }
 
             return NULL;
@@ -499,16 +499,16 @@ class BindingsGenerator {
     Map<StringName, TypeInterface> builtin_types;
     Map<StringName, TypeInterface> enum_types;
 
-    List<EnumInterface> global_enums;
-    List<ConstantInterface> global_constants;
+    PODVector<EnumInterface> global_enums;
+    ListPOD<ConstantInterface> global_constants;
 
-    List<InternalCall> method_icalls;
+    ListPOD<InternalCall> method_icalls;
     Map<const MethodInterface *, const InternalCall *> method_icalls_map;
 
-    List<const InternalCall *> generated_icall_funcs;
+    ListPOD<const InternalCall *> generated_icall_funcs;
 
-    List<InternalCall> core_custom_icalls;
-    List<InternalCall> editor_custom_icalls;
+    ListPOD<InternalCall> core_custom_icalls;
+    ListPOD<InternalCall> editor_custom_icalls;
 
     Map<StringName, ListPOD<StringName> > blacklisted_methods;
 
@@ -570,19 +570,18 @@ class BindingsGenerator {
 
     NameCache name_cache;
 
-    const List<InternalCall>::Element *find_icall_by_name(const se_string &p_name, const List<InternalCall> &p_list) {
-        const List<InternalCall>::Element *it = p_list.front();
-        while (it) {
-            if (it->deref().name == p_name) return it;
-            it = it->next();
+    bool has_named_icall(const se_string &p_name, const ListPOD<InternalCall> &p_list) {
+        for (const InternalCall &E : p_list) {
+            if (E.name == p_name)
+                return true;
         }
-        return nullptr;
+        return false;
     }
 
-    const ConstantInterface *find_constant_by_name(se_string_view p_name, const List<ConstantInterface> &p_constants) const {
-        for (const List<ConstantInterface>::Element *E = p_constants.front(); E; E = E->next()) {
-            if (E->deref().name == p_name)
-                return &E->deref();
+    const ConstantInterface *find_constant_by_name(se_string_view p_name, const ListPOD<ConstantInterface> &p_constants) const {
+        for (const ConstantInterface &E : p_constants) {
+            if (E.name == p_name)
+                return &E;
         }
 
         return nullptr;
