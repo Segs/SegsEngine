@@ -104,10 +104,10 @@ MonoObject *create_managed_from(const RID &p_from);
 MonoObject *create_managed_from(const Array &p_from, GDMonoClass *p_class);
 MonoObject *create_managed_from(const Dictionary &p_from, GDMonoClass *p_class);
 
-MonoDomain *create_domain(const String &p_friendly_name);
+MonoDomain *create_domain(const se_string &p_friendly_name);
 
-String get_exception_name_and_message(MonoException *p_exc);
-void set_exception_message(MonoException *p_exc, String message);
+se_string get_exception_name_and_message(MonoException *p_exc);
+void set_exception_message(MonoException *p_exc, const se_string &message);
 
 void debug_print_unhandled_exception(MonoException *p_exc);
 void debug_send_unhandled_exception_error(MonoException *p_exc);

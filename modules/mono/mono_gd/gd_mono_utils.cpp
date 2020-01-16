@@ -36,6 +36,8 @@
 #include "core/os/os.h"
 #include "core/project_settings.h"
 #include "core/reference.h"
+#include "core/class_db.h"
+#include "core/print_string.h"
 
 #ifdef TOOLS_ENABLED
 #include "editor/script_editor_debugger.h"
@@ -69,9 +71,10 @@ MonoObject *unmanaged_get_managed(Object *unmanaged) {
 
 	void *data = unmanaged->get_script_instance_binding(CSharpLanguage::get_singleton()->get_language_index());
 
-	ERR_FAIL_NULL_V(data, NULL);
-
-	CSharpScriptBinding &script_binding = ((Map<Object *, CSharpScriptBinding>::Element *)data)->value();
+    ERR_FAIL_NULL_V(data, nullptr)
+    Map<Object *, CSharpScriptBinding>::iterator iter;
+    iter.mpNode = (Map<Object *, CSharpScriptBinding>::iterator::node_type *)data;
+    CSharpScriptBinding &script_binding = iter->second;
 
 	if (!script_binding.inited) {
 		SCOPED_MUTEX_LOCK(CSharpLanguage::get_singleton()->get_language_bind_mutex());
@@ -80,12 +83,12 @@ MonoObject *unmanaged_get_managed(Object *unmanaged) {
 			// Already had a binding that needs to be setup
 			CSharpLanguage::get_singleton()->setup_csharp_script_binding(script_binding, unmanaged);
 
-			ERR_FAIL_COND_V(!script_binding.inited, NULL);
+            ERR_FAIL_COND_V(!script_binding.inited, nullptr)
 		}
 	}
 
 	Ref<MonoGCHandle> &gchandle = script_binding.gchandle;
-	ERR_FAIL_COND_V(gchandle.is_null(), NULL);
+    ERR_FAIL_COND_V(!gchandle, nullptr)
 
 	MonoObject *target = gchandle->get_target();
 
@@ -98,16 +101,16 @@ MonoObject *unmanaged_get_managed(Object *unmanaged) {
 
 #ifdef DEBUG_ENABLED
 	CRASH_COND(script_binding.type_name == StringName());
-	CRASH_COND(script_binding.wrapper_class == NULL);
+    CRASH_COND(script_binding.wrapper_class == nullptr);
 #endif
 
 	MonoObject *mono_object = GDMonoUtils::create_managed_for_godot_object(script_binding.wrapper_class, script_binding.type_name, unmanaged);
-	ERR_FAIL_NULL_V(mono_object, NULL);
+    ERR_FAIL_NULL_V(mono_object, nullptr)
 
 	gchandle->set_handle(MonoGCHandle::new_strong_handle(mono_object), MonoGCHandle::STRONG_HANDLE);
 
 	// Tie managed to unmanaged
-	Reference *ref = object_cast<RefCounted>(unmanaged);
+    RefCounted *ref = object_cast<RefCounted>(unmanaged);
 
 	if (ref) {
 		// Unsafe refcount increment. The managed instance also counts as a reference.
@@ -152,12 +155,12 @@ GDMonoClass *get_object_class(MonoObject *p_object) {
 }
 
 GDMonoClass *type_get_proxy_class(const StringName &p_type) {
-	String class_name = p_type;
+    se_string class_name(p_type);
 
 	if (class_name[0] == '_')
 		class_name = class_name.substr(1, class_name.length());
 
-	GDMonoClass *klass = GDMono::get_singleton()->get_core_api_assembly()->get_class(BINDINGS_NAMESPACE, class_name);
+    GDMonoClass *klass = GDMono::get_singleton()->get_core_api_assembly()->get_class(BINDINGS_NAMESPACE, StringName(class_name));
 
 	if (klass && klass->is_static()) {
 		// A static class means this is a Godot singleton class. If an instance is needed we use Godot.Object.
@@ -166,7 +169,7 @@ GDMonoClass *type_get_proxy_class(const StringName &p_type) {
 
 #ifdef TOOLS_ENABLED
 	if (!klass) {
-		return GDMono::get_singleton()->get_editor_api_assembly()->get_class(BINDINGS_NAMESPACE, class_name);
+        return GDMono::get_singleton()->get_editor_api_assembly()->get_class(BINDINGS_NAMESPACE, StringName(class_name));
 	}
 #endif
 
@@ -184,18 +187,18 @@ GDMonoClass *get_class_native_base(GDMonoClass *p_class) {
 		if (assembly == GDMono::get_singleton()->get_editor_api_assembly())
 			return klass;
 #endif
-	} while ((klass = klass->get_parent_class()) != NULL);
+    } while ((klass = klass->get_parent_class()) != nullptr);
 
-	return NULL;
+    return nullptr;
 }
 
 MonoObject *create_managed_for_godot_object(GDMonoClass *p_class, const StringName &p_native, Object *p_object) {
 	bool parent_is_object_class = ClassDB::is_parent_class(p_object->get_class_name(), p_native);
-	ERR_FAIL_COND_V_MSG(!parent_is_object_class, NULL,
-			"Type inherits from native type '" + p_native + "', so it can't be instanced in object of type: '" + p_object->get_class() + "'.");
+    ERR_FAIL_COND_V_MSG(!parent_is_object_class, nullptr,
+            "Type inherits from native type '" + p_native + "', so it can't be instanced in object of type: '" + p_object->get_class() + "'.")
 
 	MonoObject *mono_object = mono_object_new(mono_domain_get(), p_class->get_mono_ptr());
-	ERR_FAIL_NULL_V(mono_object, NULL);
+    ERR_FAIL_NULL_V(mono_object, nullptr)
 
 	CACHED_FIELD(GodotObject, ptr)->set_value_raw(mono_object, p_object);
 
@@ -261,15 +264,15 @@ MonoObject *create_managed_from(const Array &p_from, GDMonoClass *p_class) {
 
 MonoObject *create_managed_from(const Dictionary &p_from, GDMonoClass *p_class) {
 	MonoObject *mono_object = mono_object_new(mono_domain_get(), p_class->get_mono_ptr());
-	ERR_FAIL_NULL_V(mono_object, NULL);
+    ERR_FAIL_NULL_V(mono_object, nullptr);
 
 	// Search constructor that takes a pointer as parameter
 	MonoMethod *m;
-	void *iter = NULL;
+    void *iter = nullptr;
 	while ((m = mono_class_get_methods(p_class->get_mono_ptr(), &iter))) {
 		if (strcmp(mono_method_get_name(m), ".ctor") == 0) {
 			MonoMethodSignature *sig = mono_method_signature(m);
-			void *front = NULL;
+            void *front = nullptr;
 			if (mono_signature_get_param_count(sig) == 1 &&
 					mono_class_from_mono_type(mono_signature_get_params(sig, &front)) == CACHED_CLASS(IntPtr)->get_mono_ptr()) {
 				break;
@@ -277,22 +280,22 @@ MonoObject *create_managed_from(const Dictionary &p_from, GDMonoClass *p_class) 
 		}
 	}
 
-	CRASH_COND(m == NULL);
+    CRASH_COND(m == nullptr);
 
 	Dictionary *new_dict = memnew(Dictionary(p_from));
 	void *args[1] = { &new_dict };
 
-	MonoException *exc = NULL;
+    MonoException *exc = nullptr;
 	GDMonoUtils::runtime_invoke(m, mono_object, args, &exc);
 	UNHANDLED_EXCEPTION(exc);
 
 	return mono_object;
 }
 
-MonoDomain *create_domain(const String &p_friendly_name) {
+MonoDomain *create_domain(const se_string & p_friendly_name) {
 	print_verbose("Mono: Creating domain '" + p_friendly_name + "'...");
 
-	MonoDomain *domain = mono_domain_create_appdomain((char *)p_friendly_name.utf8().get_data(), NULL);
+    MonoDomain *domain = mono_domain_create_appdomain((char *)p_friendly_name.c_str(), nullptr);
 
 	if (domain) {
 		// Workaround to avoid this exception:
@@ -304,8 +307,8 @@ MonoDomain *create_domain(const String &p_friendly_name) {
 	return domain;
 }
 
-String get_exception_name_and_message(MonoException *p_exc) {
-	String res;
+se_string get_exception_name_and_message(MonoException *p_exc) {
+    se_string res;
 
 	MonoClass *klass = mono_object_get_class((MonoObject *)p_exc);
 	MonoType *type = mono_class_get_type(klass);
@@ -317,18 +320,18 @@ String get_exception_name_and_message(MonoException *p_exc) {
 	res += ": ";
 
 	MonoProperty *prop = mono_class_get_property_from_name(klass, "Message");
-	MonoString *msg = (MonoString *)property_get_value(prop, (MonoObject *)p_exc, NULL, NULL);
+    MonoString *msg = (MonoString *)property_get_value(prop, (MonoObject *)p_exc, nullptr, nullptr);
 	res += GDMonoMarshal::mono_string_to_godot(msg);
 
 	return res;
 }
 
-void set_exception_message(MonoException *p_exc, String message) {
+void set_exception_message(MonoException *p_exc, const se_string & message) {
 	MonoClass *klass = mono_object_get_class((MonoObject *)p_exc);
 	MonoProperty *prop = mono_class_get_property_from_name(klass, "Message");
 	MonoString *msg = GDMonoMarshal::mono_string_from_godot(message);
 	void *params[1] = { msg };
-	property_set_value(prop, (MonoObject *)p_exc, params, NULL);
+    property_set_value(prop, (MonoObject *)p_exc, params, nullptr);
 }
 
 void debug_print_unhandled_exception(MonoException *p_exc) {
@@ -341,7 +344,7 @@ void debug_send_unhandled_exception_error(MonoException *p_exc) {
 	if (!ScriptDebugger::get_singleton()) {
 #ifdef TOOLS_ENABLED
 		if (Engine::get_singleton()->is_editor_hint()) {
-			ERR_PRINTS(GDMonoUtils::get_exception_name_and_message(p_exc));
+            ERR_PRINT(GDMonoUtils::get_exception_name_and_message(p_exc))
 		}
 #endif
 		return;
@@ -350,21 +353,21 @@ void debug_send_unhandled_exception_error(MonoException *p_exc) {
 	_TLS_RECURSION_GUARD_;
 
 	ScriptLanguage::StackInfo separator;
-	separator.file = String();
+    separator.file.clear();
 	separator.func = "--- " + RTR("End of inner exception stack trace") + " ---";
 	separator.line = 0;
 
-	Vector<ScriptLanguage::StackInfo> si;
-	String exc_msg;
+    PODVector<ScriptLanguage::StackInfo> si;
+    se_string exc_msg;
 
-	while (p_exc != NULL) {
+    while (p_exc != nullptr) {
 		GDMonoClass *st_klass = CACHED_CLASS(System_Diagnostics_StackTrace);
 		MonoObject *stack_trace = mono_object_new(mono_domain_get(), st_klass->get_mono_ptr());
 
 		MonoBoolean need_file_info = true;
 		void *ctor_args[2] = { p_exc, &need_file_info };
 
-		MonoException *unexpected_exc = NULL;
+        MonoException *unexpected_exc = nullptr;
 		CACHED_METHOD(System_Diagnostics_StackTrace, ctor_Exception_bool)->invoke_raw(stack_trace, ctor_args, &unexpected_exc);
 
 		if (unexpected_exc) {
@@ -372,30 +375,30 @@ void debug_send_unhandled_exception_error(MonoException *p_exc) {
 			return;
 		}
 
-		Vector<ScriptLanguage::StackInfo> _si;
-		if (stack_trace != NULL) {
+        PODVector<ScriptLanguage::StackInfo> _si;
+        if (stack_trace != nullptr) {
 			_si = CSharpLanguage::get_singleton()->stack_trace_get_info(stack_trace);
 			for (int i = _si.size() - 1; i >= 0; i--)
-				si.insert(0, _si[i]);
+                si.push_front(_si[i]);
 		}
 
 		exc_msg += (exc_msg.length() > 0 ? " ---> " : "") + GDMonoUtils::get_exception_name_and_message(p_exc);
 
 		GDMonoClass *exc_class = GDMono::get_singleton()->get_class(mono_get_exception_class());
 		GDMonoProperty *inner_exc_prop = exc_class->get_property("InnerException");
-		CRASH_COND(inner_exc_prop == NULL);
+        CRASH_COND(inner_exc_prop == NULL)
 
 		MonoObject *inner_exc = inner_exc_prop->get_value((MonoObject *)p_exc);
-		if (inner_exc != NULL)
-			si.insert(0, separator);
+        if (inner_exc != nullptr)
+            si.push_front(separator);
 
 		p_exc = (MonoException *)inner_exc;
 	}
 
-	String file = si.size() ? si[0].file : __FILE__;
-	String func = si.size() ? si[0].func : FUNCTION_STR;
+    se_string file = si.size() ? si[0].file : __FILE__;
+    se_string func = si.size() ? si[0].func : FUNCTION_STR;
 	int line = si.size() ? si[0].line : __LINE__;
-	String error_msg = "Unhandled exception";
+    se_string error_msg = "Unhandled exception";
 
 	ScriptDebugger::get_singleton()->send_error(func, file, line, error_msg, exc_msg, ERR_HANDLER_ERROR, si);
 #endif
@@ -418,7 +421,7 @@ void set_pending_exception(MonoException *p_exc) {
 	}
 
 	if (!mono_runtime_set_pending_exception(p_exc, false)) {
-		ERR_PRINTS("Exception thrown from managed code, but it could not be set as pending:");
+        ERR_PRINT("Exception thrown from managed code, but it could not be set as pending:")
 		GDMonoUtils::debug_print_unhandled_exception(p_exc);
 	}
 #endif
@@ -428,36 +431,36 @@ _THREAD_LOCAL_(int)
 current_invoke_count = 0;
 
 MonoObject *runtime_invoke(MonoMethod *p_method, void *p_obj, void **p_params, MonoException **r_exc) {
-	GD_MONO_BEGIN_RUNTIME_INVOKE;
+    GD_MONO_BEGIN_RUNTIME_INVOKE
 	MonoObject *ret = mono_runtime_invoke(p_method, p_obj, p_params, (MonoObject **)r_exc);
-	GD_MONO_END_RUNTIME_INVOKE;
+    GD_MONO_END_RUNTIME_INVOKE
 	return ret;
 }
 
 MonoObject *runtime_invoke_array(MonoMethod *p_method, void *p_obj, MonoArray *p_params, MonoException **r_exc) {
-	GD_MONO_BEGIN_RUNTIME_INVOKE;
+    GD_MONO_BEGIN_RUNTIME_INVOKE
 	MonoObject *ret = mono_runtime_invoke_array(p_method, p_obj, p_params, (MonoObject **)r_exc);
-	GD_MONO_END_RUNTIME_INVOKE;
+    GD_MONO_END_RUNTIME_INVOKE
 	return ret;
 }
 
 MonoString *object_to_string(MonoObject *p_obj, MonoException **r_exc) {
-	GD_MONO_BEGIN_RUNTIME_INVOKE;
+    GD_MONO_BEGIN_RUNTIME_INVOKE
 	MonoString *ret = mono_object_to_string(p_obj, (MonoObject **)r_exc);
-	GD_MONO_END_RUNTIME_INVOKE;
+    GD_MONO_END_RUNTIME_INVOKE
 	return ret;
 }
 
 void property_set_value(MonoProperty *p_prop, void *p_obj, void **p_params, MonoException **r_exc) {
-	GD_MONO_BEGIN_RUNTIME_INVOKE;
+    GD_MONO_BEGIN_RUNTIME_INVOKE
 	mono_property_set_value(p_prop, p_obj, p_params, (MonoObject **)r_exc);
-	GD_MONO_END_RUNTIME_INVOKE;
+    GD_MONO_END_RUNTIME_INVOKE
 }
 
 MonoObject *property_get_value(MonoProperty *p_prop, void *p_obj, void **p_params, MonoException **r_exc) {
-	GD_MONO_BEGIN_RUNTIME_INVOKE;
+    GD_MONO_BEGIN_RUNTIME_INVOKE
 	MonoObject *ret = mono_property_get_value(p_prop, p_obj, p_params, (MonoObject **)r_exc);
-	GD_MONO_END_RUNTIME_INVOKE;
+    GD_MONO_END_RUNTIME_INVOKE
 	return ret;
 }
 

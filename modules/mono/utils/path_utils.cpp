@@ -90,12 +90,10 @@ se_string cwd() {
 	return buffer.simplify_path();
 #else
 	char buffer[PATH_MAX];
-	if (::getcwd(buffer, sizeof(buffer)) == NULL)
+    if (::getcwd(buffer, sizeof(buffer)) == nullptr)
 		return ".";
 
-	String result;
-	if (result.parse_utf8(buffer))
-		return ".";
+    se_string result(buffer);
 
     return PathUtils::simplify_path(result);
 #endif
