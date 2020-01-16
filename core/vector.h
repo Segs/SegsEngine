@@ -182,7 +182,7 @@ extern template class EXPORT_TEMPLATE_DECLARE(GODOT_EXPORT) eastl::vector<class 
 extern template class EXPORT_TEMPLATE_DECLARE(GODOT_EXPORT) eastl::vector<uint8_t,wrap_allocator>;
 extern template class EXPORT_TEMPLATE_DECLARE(GODOT_EXPORT) eastl::vector<class Variant,wrap_allocator>;
 extern template class EXPORT_TEMPLATE_DECLARE(GODOT_EXPORT) eastl::vector<struct PropertyInfo,wrap_allocator>;
-extern template class EXPORT_TEMPLATE_DECLARE(GODOT_EXPORT) Vector<String>;
+extern template class EXPORT_TEMPLATE_DECLARE(GODOT_EXPORT) Vector<UIString>;
 extern template class EXPORT_TEMPLATE_DECLARE(GODOT_EXPORT) Vector<Variant>;
 extern template class EXPORT_TEMPLATE_DECLARE(GODOT_EXPORT) eastl::vector<struct Vector2>;
 extern template class EXPORT_TEMPLATE_DECLARE(GODOT_EXPORT) eastl::vector<struct Vector3>;

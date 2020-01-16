@@ -115,8 +115,8 @@ protected:
     static void _bind_methods();
 
 public:
-    String get_search_text() const;
-    String get_replace_text() const;
+    UIString get_search_text() const;
+    UIString get_replace_text() const;
 
     bool is_case_sensitive() const;
     bool is_whole_words() const;

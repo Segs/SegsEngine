@@ -59,7 +59,7 @@ public:
     int get_run_mode() const;
     void set_run_mode(int p_run_mode);
 
-    void set_custom_arguments(const String &p_arguments);
+    void set_custom_arguments(const UIString &p_arguments);
     se_string get_custom_arguments() const;
 
     void popup_run_settings();

@@ -114,7 +114,7 @@ void EditorPropertyText::_text_changed(se_string_view p_string) {
 }
 
 void EditorPropertyText::update_property() {
-    String s = get_edited_object()->get(get_edited_property());
+    UIString s = get_edited_object()->get(get_edited_property());
     updating = true;
     text->set_text(s);
     text->set_editable(!is_read_only());
@@ -170,7 +170,7 @@ void EditorPropertyMultilineText::_open_big_text() {
 }
 
 void EditorPropertyMultilineText::update_property() {
-    String t = get_edited_object()->get(get_edited_property());
+    UIString t = get_edited_object()->get(get_edited_property());
     text->set_text(t);
     if (big_text && big_text->is_visible_in_tree()) {
         big_text->set_text(t);
@@ -418,7 +418,7 @@ void EditorPropertyMember::_property_select() {
         add_child(selector);
     }
 
-    String current = get_edited_object()->get(get_edited_property());
+    UIString current = get_edited_object()->get(get_edited_property());
 
     if (hint == MEMBER_METHOD_OF_VARIANT_TYPE) {
 
@@ -2827,7 +2827,7 @@ bool EditorPropertyResource::_is_drop_valid(const Dictionary &p_drag_data) const
     StringName allowed_type = base_type;
 
     Dictionary drag_data = p_drag_data;
-    if (drag_data.has("type") && String(drag_data["type"]) == "resource") {
+    if (drag_data.has("type") && UIString(drag_data["type"]) == "resource") {
         RES res(drag_data["resource"]);
         for (int i = 0; i <StringUtils::get_slice_count( allowed_type,','); i++) {
             StringName at(StringUtils::strip_edges(StringUtils::get_slice(allowed_type,',', i)));
@@ -2837,7 +2837,7 @@ bool EditorPropertyResource::_is_drop_valid(const Dictionary &p_drag_data) const
         }
     }
 
-    if (drag_data.has("type") && String(drag_data["type"]) == "files") {
+    if (drag_data.has("type") && UIString(drag_data["type"]) == "files") {
 
         Vector<se_string> files = drag_data["files"].as<Vector<se_string>>();
 
@@ -2869,7 +2869,7 @@ void EditorPropertyResource::drop_data_fw(const Point2 &p_point, const Variant &
     ERR_FAIL_COND(!_is_drop_valid(p_data))
 
     Dictionary drag_data = p_data;
-    if (drag_data.has("type") && String(drag_data["type"]) == "resource") {
+    if (drag_data.has("type") && UIString(drag_data["type"]) == "resource") {
         RES res(drag_data["resource"]);
         if (res) {
             emit_changed(get_edited_property(), res);
@@ -2878,7 +2878,7 @@ void EditorPropertyResource::drop_data_fw(const Point2 &p_point, const Variant &
         }
     }
 
-    if (drag_data.has("type") && String(drag_data["type"]) == "files") {
+    if (drag_data.has("type") && UIString(drag_data["type"]) == "files") {
 
         Vector<se_string> files = drag_data["files"].as<Vector<se_string>>();
 

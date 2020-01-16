@@ -37,7 +37,7 @@
 
 #include "EASTL/string_view.h"
 
-using String = class QString;
+using UIString = class QString;
 
 struct StaticCString {
 
@@ -121,18 +121,18 @@ public:
     }
 
     StringName& operator=(const StringName &p_name);
-    explicit operator String() const;
+    explicit operator UIString() const;
     operator se_string_view() const
     {
         return se_string_view(asCString());
     }
 
-    String asString() const;
+    UIString asString() const;
     const char *asCString() const noexcept;
 
     static StringName search(const char *p_name);
 
-    static StringName search(const String &p_name);
+    static StringName search(const UIString &p_name);
 
     static bool AlphCompare(const StringName &l, const StringName &r);
 

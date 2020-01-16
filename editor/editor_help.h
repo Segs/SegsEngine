@@ -53,7 +53,7 @@ class FindBar : public HBoxContainer {
     ToolButton *find_next;
     Label *matches_label;
     TextureButton *hide_button;
-    String prev_search;
+    UIString prev_search;
 
     RichTextLabel *rich_text_label;
 

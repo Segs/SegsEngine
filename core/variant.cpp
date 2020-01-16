@@ -1283,7 +1283,7 @@ template <> double Variant::as<double>() const {
 }
 
 template<>
-String Variant::as<String>() const {
+UIString Variant::as<UIString>() const {
     PODVector<const void *> stack;
 
     return StringUtils::from_utf8(stringify(stack));
@@ -2058,10 +2058,10 @@ Vector<real_t> Variant::as<Vector<real_t>>() const {
     return asInternalVector<real_t>(*this);
 }
 template<>
-Vector<String> Variant::as<Vector<String>>() const {
+Vector<UIString> Variant::as<Vector<UIString>>() const {
 
     PoolVector<se_string> from = operator PoolVector<se_string>();
-    Vector<String> to;
+    Vector<UIString> to;
     int len = from.size();
     to.resize(len);
     for (int i = 0; i < len; i++) {
@@ -2140,7 +2140,7 @@ Variant::Variant(const se_string &p_string) {
 Variant::Variant(const CharType *p_wstring) {
 
     type = VariantType::STRING;
-    memnew_placement(_data._mem, se_string(StringUtils::to_utf8(String(p_wstring)).data()));
+    memnew_placement(_data._mem, se_string(StringUtils::to_utf8(UIString(p_wstring)).data()));
 }
 Variant::Variant(const Vector3 &p_vector3) {
 
@@ -2449,7 +2449,7 @@ Variant::Variant(const PoolVector<real_t> &p_real_array) {
     type = VariantType::POOL_REAL_ARRAY;
     memnew_placement(_data._mem, PoolVector<real_t>(p_real_array));
 }
-Variant::Variant(const PoolVector<String> &p_string_array) {
+Variant::Variant(const PoolVector<UIString> &p_string_array) {
     static_assert(sizeof(_data._mem)>=sizeof(PoolVector<se_string>));
 
     type = VariantType::POOL_STRING_ARRAY;
@@ -3213,7 +3213,7 @@ Variant Variant::call(const StringName &p_method, VARIANT_ARG_DECLARE) {
     return ret;
 }
 
-void Variant::construct_from_string(const String &p_string, Variant &r_value, ObjectConstruct p_obj_construct, void *p_construct_ud) {
+void Variant::construct_from_string(const UIString &p_string, Variant &r_value, ObjectConstruct p_obj_construct, void *p_construct_ud) {
 
     r_value = Variant();
 }

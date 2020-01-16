@@ -671,7 +671,7 @@ Variant CreateDialog::get_drag_data_fw(const Point2 &p_point, Control *p_from) {
 bool CreateDialog::can_drop_data_fw(const Point2 &p_point, const Variant &p_data, Control *p_from) const {
 
     Dictionary d = p_data;
-    if (d.has("type") && String(d["type"]) == "create_favorite_drag") {
+    if (d.has("type") && UIString(d["type"]) == "create_favorite_drag") {
         favorites->set_drop_mode_flags(Tree::DROP_MODE_INBETWEEN);
         return true;
     }

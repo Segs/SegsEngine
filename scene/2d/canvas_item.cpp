@@ -949,7 +949,7 @@ void CanvasItem::draw_multimesh(const Ref<MultiMesh> &p_multimesh, const Ref<Tex
     VisualServer::get_singleton()->canvas_item_add_multimesh(canvas_item, p_multimesh->get_rid(), texture_rid, normal_map_rid);
 }
 
-void CanvasItem::draw_string(const Ref<Font> &p_font, const Point2 &p_pos, const String &p_text, const Color &p_modulate, int p_clip_w) {
+void CanvasItem::draw_string(const Ref<Font> &p_font, const Point2 &p_pos, const UIString &p_text, const Color &p_modulate, int p_clip_w) {
 
     ERR_FAIL_COND_MSG(!drawing, "Drawing is only allowed inside NOTIFICATION_DRAW, _draw() function or 'draw' signal.")
 

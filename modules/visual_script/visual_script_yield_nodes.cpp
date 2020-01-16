@@ -563,7 +563,7 @@ VisualScriptYieldSignal::VisualScriptYieldSignal() {
 }
 
 template <VisualScriptYieldSignal::CallMode cmode>
-static Ref<VisualScriptNode> create_yield_signal_node(const String &p_name) {
+static Ref<VisualScriptNode> create_yield_signal_node(const UIString &p_name) {
 
     Ref<VisualScriptYieldSignal> node(make_ref_counted<VisualScriptYieldSignal>());
     node->set_call_mode(cmode);

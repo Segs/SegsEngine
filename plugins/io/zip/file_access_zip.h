@@ -70,7 +70,7 @@ public:
 	void close_handle(unzFile p_file) const;
     unzFile get_file_handle(se_string_view p_file) const;
 
-	Error add_package(String p_name);
+	Error add_package(UIString p_name);
 
     bool file_exists(se_string_view p_name) const;
 

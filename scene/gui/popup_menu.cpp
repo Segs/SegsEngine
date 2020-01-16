@@ -404,7 +404,7 @@ void PopupMenu::_gui_input(const Ref<InputEvent> &p_event) {
         if (diff > max_interval) {
             search_string = "";
         }
-        se_string r=StringUtils::to_utf8(String(k->get_unicode()));
+        se_string r=StringUtils::to_utf8(UIString(k->get_unicode()));
         //TODO: strange logic here, only add the character to search string if the search string is not that character
         if (r != search_string)
             search_string += r;

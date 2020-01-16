@@ -114,7 +114,7 @@ public:
     void get_extensions(PODVector<se_string> &r_extensions) const override;
     uint32_t get_import_flags() const override;
     Node *import_scene(se_string_view p_path, uint32_t p_flags, int p_bake_fps, PODVector<se_string> *r_missing_deps, Error *r_err = nullptr) override;
-    Ref<Image> load_image(ImportState &state, const aiScene *p_scene, String p_path);
+    Ref<Image> load_image(ImportState &state, const aiScene *p_scene, UIString p_path);
 
     // EditorSceneImporterInterface interface
 

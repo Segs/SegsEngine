@@ -146,7 +146,7 @@ bool ScriptCreateDialog::_validate_parent(se_string_view p_string) {
     return ClassDB::class_exists(StringName(p_string)) || ScriptServer::is_global_class(StringName(p_string));
 }
 
-bool ScriptCreateDialog::_validate_class(const String &p_string) {
+bool ScriptCreateDialog::_validate_class(const UIString &p_string) {
 
     if (p_string.length() == 0)
         return false;

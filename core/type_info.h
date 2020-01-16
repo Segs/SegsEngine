@@ -130,7 +130,7 @@ MAKE_TYPE_INFO_WITH_META(QChar, VariantType::INT, GodotTypeInfo::METADATA_INT_IS
 MAKE_TYPE_INFO_WITH_META(float, VariantType::REAL, GodotTypeInfo::METADATA_REAL_IS_FLOAT)
 MAKE_TYPE_INFO_WITH_META(double, VariantType::REAL, GodotTypeInfo::METADATA_REAL_IS_DOUBLE)
 
-MAKE_TYPE_INFO(String, VariantType::STRING)
+MAKE_TYPE_INFO(UIString, VariantType::STRING)
 MAKE_TYPE_INFO(se_string, VariantType::STRING)
 MAKE_TYPE_INFO(se_string_view, VariantType::STRING)
 MAKE_TYPE_INFO(Vector2, VariantType::VECTOR2)

@@ -385,14 +385,14 @@ Error OS::shell_open(se_string_view p_uri) {
 };
 
 // implement these with the canvas?
-Error OS::dialog_show(String p_title, String p_description, const PODVector<String> p_buttons, Object *p_obj, const StringName & p_callback) {
+Error OS::dialog_show(UIString p_title, UIString p_description, const PODVector<UIString> p_buttons, Object *p_obj, const StringName & p_callback) {
     using namespace StringUtils;
     while (true) {
 
-        print(qPrintable(String("%1\n--------\n%2\n").arg(p_title,p_description)));
+        print(qPrintable(UIString("%1\n--------\n%2\n").arg(p_title,p_description)));
         for (int i = 0; i < p_buttons.size(); i++) {
             if (i > 0) print(se_string_view(", "));
-            print(qPrintable(String("%1=%2").arg(i + 1).arg(p_buttons[i])));
+            print(qPrintable(UIString("%1=%2").arg(i + 1).arg(p_buttons[i])));
         }
         print(se_string_view("\n"));
         se_string res(StringUtils::strip_edges(get_stdin_string()));
@@ -408,7 +408,7 @@ Error OS::dialog_show(String p_title, String p_description, const PODVector<Stri
     return OK;
 };
 
-Error OS::dialog_input_text(const String &p_title, const String &p_description, const String &p_partial, Object *p_obj, const StringName &p_callback) {
+Error OS::dialog_input_text(const UIString &p_title, const UIString &p_description, const UIString &p_partial, Object *p_obj, const StringName &p_callback) {
 
     ERR_FAIL_COND_V(!p_obj, FAILED)
     ERR_FAIL_COND_V(p_callback.empty(), FAILED)

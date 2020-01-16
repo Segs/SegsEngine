@@ -169,7 +169,7 @@ void VisualScriptPropertySelector::_update_search() {
                 StringName get_text(StringUtils::capitalize(get_text_raw));
                 se_string set_text_raw = FormatVE(TTR("Set %s").asCString(), F.name.asCString());
                 StringName set_text(StringUtils::capitalize(set_text_raw));
-                String input = StringUtils::capitalize(search_box->get_text_ui());
+                UIString input = StringUtils::capitalize(search_box->get_text_ui());
 
                 if (input.isEmpty() || StringUtils::findn(StringUtils::from_utf8(get_text_raw), input) != -1 ||
                         StringUtils::findn(StringUtils::from_utf8(get_text), input) != -1) {
@@ -296,7 +296,7 @@ void VisualScriptPropertySelector::_update_search() {
     }
 
     if (seq_connect && !visual_script_generic) {
-        String text = search_box->get_text_ui();
+        UIString text = search_box->get_text_ui();
         create_visualscript_item(StringName("VisualScriptCondition"), root, text, ("Condition"));
         create_visualscript_item(StringName("VisualScriptSwitch"), root, text, ("Switch"));
         create_visualscript_item(StringName("VisualScriptSequence"), root, text, ("Sequence"));
@@ -320,7 +320,7 @@ void VisualScriptPropertySelector::_update_search() {
     get_ok()->set_disabled(root->get_children() == nullptr);
 }
 
-void VisualScriptPropertySelector::create_visualscript_item(StringName name, TreeItem *const root, const String &search_input, const StringName &text) {
+void VisualScriptPropertySelector::create_visualscript_item(StringName name, TreeItem *const root, const UIString &search_input, const StringName &text) {
     if (search_input.isEmpty() || StringUtils::contains(StringUtils::from_utf8(text),search_input,StringUtils::CaseInsensitive)) {
         TreeItem *item = search_options->create_item(root);
         item->set_text(0, text);
@@ -530,7 +530,7 @@ void VisualScriptPropertySelector::_notification(int p_what) {
     }
 }
 
-void VisualScriptPropertySelector::select_method_from_base_type(se_string_view p_base, const String &p_current, const bool p_virtuals_only, const bool p_connecting, bool clear_text) {
+void VisualScriptPropertySelector::select_method_from_base_type(se_string_view p_base, const UIString &p_current, const bool p_virtuals_only, const bool p_connecting, bool clear_text) {
 
     base_type = p_base;
     selected = p_current;
@@ -555,7 +555,7 @@ void VisualScriptPropertySelector::set_type_filter(const Vector<VariantType> &p_
     type_filter = p_type_filter;
 }
 
-void VisualScriptPropertySelector::select_from_base_type(se_string_view p_base, const String &p_current, bool p_virtuals_only, bool p_seq_connect, const bool p_connecting, bool clear_text) {
+void VisualScriptPropertySelector::select_from_base_type(se_string_view p_base, const UIString &p_current, bool p_virtuals_only, bool p_seq_connect, const bool p_connecting, bool clear_text) {
 
     base_type = p_base;
     selected = p_current;
@@ -578,7 +578,7 @@ void VisualScriptPropertySelector::select_from_base_type(se_string_view p_base, 
     _update_search();
 }
 
-void VisualScriptPropertySelector::select_from_script(const Ref<Script> &p_script, const String &p_current, const bool p_connecting, bool clear_text) {
+void VisualScriptPropertySelector::select_from_script(const Ref<Script> &p_script, const UIString &p_current, const bool p_connecting, bool clear_text) {
     ERR_FAIL_COND(not p_script);
 
     base_type = p_script->get_instance_base_type().asCString();
@@ -602,7 +602,7 @@ void VisualScriptPropertySelector::select_from_script(const Ref<Script> &p_scrip
     _update_search();
 }
 
-void VisualScriptPropertySelector::select_from_basic_type(VariantType p_type, const String &p_current, const bool p_connecting, bool clear_text) {
+void VisualScriptPropertySelector::select_from_basic_type(VariantType p_type, const UIString &p_current, const bool p_connecting, bool clear_text) {
     ERR_FAIL_COND(p_type == VariantType::NIL)
     base_type = "";
     selected = p_current;
@@ -625,7 +625,7 @@ void VisualScriptPropertySelector::select_from_basic_type(VariantType p_type, co
     _update_search();
 }
 
-void VisualScriptPropertySelector::select_from_action(se_string_view p_type, const String &p_current, const bool p_connecting, bool clear_text) {
+void VisualScriptPropertySelector::select_from_action(se_string_view p_type, const UIString &p_current, const bool p_connecting, bool clear_text) {
     base_type = p_type;
     selected = p_current;
     type = VariantType::NIL;
@@ -647,7 +647,7 @@ void VisualScriptPropertySelector::select_from_action(se_string_view p_type, con
     _update_search();
 }
 
-void VisualScriptPropertySelector::select_from_instance(Object *p_instance, const String &p_current, const bool p_connecting, se_string_view p_basetype, bool clear_text) {
+void VisualScriptPropertySelector::select_from_instance(Object *p_instance, const UIString &p_current, const bool p_connecting, se_string_view p_basetype, bool clear_text) {
     base_type = p_basetype;
     selected = p_current;
     type = VariantType::NIL;

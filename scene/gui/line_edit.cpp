@@ -53,9 +53,9 @@
 IMPL_GDCLASS(LineEdit)
 
 struct LineEdit::PrivateData {
-    String undo_text;
-    String text;
-    String ime_text;
+    UIString undo_text;
+    UIString text;
+    UIString ime_text;
     int cached_width;
     int window_pos;
 
@@ -64,7 +64,7 @@ struct LineEdit::PrivateData {
         int cursor_pos;
         int window_pos;
         int cached_width;
-        String text;
+        UIString text;
     };
     List<TextOperation> undo_stack;
     List<TextOperation>::Element *undo_stack_pos;
@@ -641,7 +641,7 @@ void LineEdit::_gui_input(const Ref<InputEvent>& p_event) {
                     if (editable) {
                         selection_delete();
                         int prev_len = m_priv->text.length();
-                        append_at_cursor(StringUtils::to_utf8(String(k->get_unicode())));
+                        append_at_cursor(StringUtils::to_utf8(UIString(k->get_unicode())));
                         if(prev_len!=m_priv->text.length()) {
                             _text_changed();
                         }
@@ -675,7 +675,7 @@ LineEdit::Align LineEdit::get_align() const {
 Variant LineEdit::get_drag_data(const Point2 &p_point) {
 
     if (selection.drag_attempt && selection.enabled) {
-        String t = StringUtils::substr(m_priv->text,selection.begin, selection.end - selection.begin);
+        UIString t = StringUtils::substr(m_priv->text,selection.begin, selection.end - selection.begin);
         Label *l = memnew(Label);
         l->set_text(StringName(StringUtils::to_utf8(t)));
         set_drag_preview(l);
@@ -826,7 +826,7 @@ void LineEdit::_notification(int p_what) {
             Color font_color_selected = get_color("font_color_selected");
             Color cursor_color = get_color("cursor_color");
 
-            const String t = using_placeholder ? StringUtils::from_utf8(placeholder_translated) : m_priv->text;
+            const UIString t = using_placeholder ? StringUtils::from_utf8(placeholder_translated) : m_priv->text;
             // Draw placeholder color.
             if (using_placeholder)
                 font_color.a *= placeholder_alpha;
@@ -1295,7 +1295,7 @@ void LineEdit::delete_text(int p_from_column, int p_to_column) {
     }
 }
 
-void LineEdit::set_text(const String& p_text) {
+void LineEdit::set_text(const UIString& p_text) {
 
     clear_internal();
     append_at_cursor(StringUtils::to_utf8(p_text));
@@ -1317,7 +1317,7 @@ void LineEdit::clear() {
     _text_changed();
 }
 
-const String &LineEdit::get_text_ui() const {
+const UIString &LineEdit::get_text_ui() const {
 
     return m_priv->text;
 }
@@ -1424,7 +1424,7 @@ void LineEdit::set_window_pos(int p_pos) {
 
 void LineEdit::append_at_cursor(se_string_view _text) {
 
-    String p_text(StringUtils::from_utf8(_text));
+    UIString p_text(StringUtils::from_utf8(_text));
     if ((max_length <= 0) || (m_priv->text.length() + p_text.length() <= max_length)) {
 
         Ref<Font> font = get_font("font");
@@ -1435,8 +1435,8 @@ void LineEdit::append_at_cursor(se_string_view _text) {
             m_priv->cached_width = 0;
         }
 
-        String pre = StringUtils::substr(m_priv->text,0, cursor_pos);
-        String post = StringUtils::substr(m_priv->text,cursor_pos, m_priv->text.length() - cursor_pos);
+        UIString pre = StringUtils::substr(m_priv->text,0, cursor_pos);
+        UIString post = StringUtils::substr(m_priv->text,cursor_pos, m_priv->text.length() - cursor_pos);
         m_priv->text = pre + p_text + post;
         set_cursor_position(cursor_pos + p_text.length());
     } else {
@@ -1753,7 +1753,7 @@ void LineEdit::update_placeholder_width() {
         Ref<Font> font = get_font("font");
         cached_placeholder_width = 0;
         if (font != nullptr) {
-            String ph_ui_string(placeholder_translated.asString());
+            UIString ph_ui_string(placeholder_translated.asString());
             for (int i = 0; i < ph_ui_string.length(); i++) {
                 cached_placeholder_width += font->get_char_size(ph_ui_string[i]).width;
             }

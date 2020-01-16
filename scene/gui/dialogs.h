@@ -144,7 +144,7 @@ public:
     void set_text(const StringName &p_text);
     void set_text_utf8(se_string_view p_text);
     se_string get_text() const;
-    String get_text_ui() const;
+    UIString get_text_ui() const;
 
     void set_autowrap(bool p_autowrap);
     bool has_autowrap();

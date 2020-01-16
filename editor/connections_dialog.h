@@ -98,7 +98,7 @@ public:
 
     void init(const Connection& c, bool bEdit = false);
 
-    void popup_dialog(const String &p_for_signal);
+    void popup_dialog(const UIString &p_for_signal);
     ConnectDialog();
     ~ConnectDialog() override;
 };

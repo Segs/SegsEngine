@@ -95,7 +95,7 @@ public:
 
         bool use_texture_array_environment;
 
-        Set<String> extensions;
+        Set<UIString> extensions;
 
         bool keep_original_textures;
 

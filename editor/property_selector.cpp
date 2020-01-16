@@ -403,7 +403,7 @@ void PropertySelector::_notification(int p_what) {
     }
 }
 
-void PropertySelector::select_method_from_base_type(const StringName &p_base, const String &p_current, bool p_virtuals_only) {
+void PropertySelector::select_method_from_base_type(const StringName &p_base, const UIString &p_current, bool p_virtuals_only) {
 
     base_type = p_base;
     selected = p_current;
@@ -419,7 +419,7 @@ void PropertySelector::select_method_from_base_type(const StringName &p_base, co
     _update_search();
 }
 
-void PropertySelector::select_method_from_script(const Ref<Script> &p_script, const String &p_current) {
+void PropertySelector::select_method_from_script(const Ref<Script> &p_script, const UIString &p_current) {
 
     ERR_FAIL_COND(not p_script)
     base_type = p_script->get_instance_base_type();
@@ -435,7 +435,7 @@ void PropertySelector::select_method_from_script(const Ref<Script> &p_script, co
     search_box->grab_focus();
     _update_search();
 }
-void PropertySelector::select_method_from_basic_type(VariantType p_type, const String &p_current) {
+void PropertySelector::select_method_from_basic_type(VariantType p_type, const UIString &p_current) {
 
     ERR_FAIL_COND(p_type == VariantType::NIL)
     base_type = "";
@@ -452,7 +452,7 @@ void PropertySelector::select_method_from_basic_type(VariantType p_type, const S
     _update_search();
 }
 
-void PropertySelector::select_method_from_instance(Object *p_instance, const String &p_current) {
+void PropertySelector::select_method_from_instance(Object *p_instance, const UIString &p_current) {
 
     base_type = StringName(p_instance->get_class());
     selected = p_current;
@@ -473,7 +473,7 @@ void PropertySelector::select_method_from_instance(Object *p_instance, const Str
     _update_search();
 }
 
-void PropertySelector::select_property_from_base_type(const StringName &p_base, const String &p_current) {
+void PropertySelector::select_property_from_base_type(const StringName &p_base, const UIString &p_current) {
 
     base_type = p_base;
     selected = p_current;
@@ -489,7 +489,7 @@ void PropertySelector::select_property_from_base_type(const StringName &p_base, 
     _update_search();
 }
 
-void PropertySelector::select_property_from_script(const Ref<Script> &p_script, const String &p_current) {
+void PropertySelector::select_property_from_script(const Ref<Script> &p_script, const UIString &p_current) {
 
     ERR_FAIL_COND(not p_script)
 
@@ -507,7 +507,7 @@ void PropertySelector::select_property_from_script(const Ref<Script> &p_script, 
     _update_search();
 }
 
-void PropertySelector::select_property_from_basic_type(VariantType p_type, const String &p_current) {
+void PropertySelector::select_property_from_basic_type(VariantType p_type, const UIString &p_current) {
 
     ERR_FAIL_COND(p_type == VariantType::NIL)
     base_type = "";
@@ -524,7 +524,7 @@ void PropertySelector::select_property_from_basic_type(VariantType p_type, const
     _update_search();
 }
 
-void PropertySelector::select_property_from_instance(Object *p_instance, const String &p_current) {
+void PropertySelector::select_property_from_instance(Object *p_instance, const UIString &p_current) {
 
     base_type = "";
     selected = p_current;

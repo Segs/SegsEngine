@@ -156,7 +156,7 @@ void VersionControlEditorPlugin::_send_commit_msg() {
 
         EditorVCSInterface::get_singleton()->commit(msg);
 
-        commit_message->set_text(String());
+        commit_message->set_text(UIString());
         version_control_dock_button->set_pressed(false);
     } else {
 
@@ -299,7 +299,7 @@ void VersionControlEditorPlugin::_display_file_diff(se_string_view p_file_path) 
             diff->push_color(EditorNode::get_singleton()->get_gui_base()->get_color("font_color", "Label"));
         }
 
-        diff->add_text((String)line_result["content"]);
+        diff->add_text((UIString)line_result["content"]);
 
         diff->pop();
     }

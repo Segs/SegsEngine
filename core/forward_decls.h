@@ -66,5 +66,5 @@ template <class TKey, class TData, class Hasher = Hasher<TKey>,
         class Comparator = HashMapComparatorDefault<TKey> >
 using BaseHashMap = HashMap<TKey,TData,Hasher,Comparator,3,8>;
 
-using String = class QString;
+using UIString = class QString;
 

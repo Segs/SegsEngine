@@ -83,7 +83,7 @@ protected:
     void _set_logger(CompositeLogger *p_logger);
 
 public:
-    using ImeCallback = void (*)(void *, String, Point2);
+    using ImeCallback = void (*)(void *, UIString, Point2);
     using HasServerFeatureCallback = bool (*)(se_string_view);
 
     enum PowerState {
@@ -485,8 +485,8 @@ public:
 
     virtual bool can_use_threads() const;
 
-    virtual Error dialog_show(String p_title, String p_description, const PODVector<String> p_buttons, Object *p_obj, const StringName &p_callback);
-    virtual Error dialog_input_text(const String &p_title, const String &p_description, const String &p_partial, Object *p_obj, const StringName &p_callback);
+    virtual Error dialog_show(UIString p_title, UIString p_description, const PODVector<UIString> p_buttons, Object *p_obj, const StringName &p_callback);
+    virtual Error dialog_input_text(const UIString &p_title, const UIString &p_description, const UIString &p_partial, Object *p_obj, const StringName &p_callback);
 
     enum LatinKeyboardVariant {
         LATIN_KEYBOARD_QWERTY,

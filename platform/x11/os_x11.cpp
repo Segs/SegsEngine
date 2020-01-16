@@ -1780,7 +1780,7 @@ void OS_X11::handle_key_event(XKeyEvent *p_event, bool p_echo) {
             if (keycode >= 'a' && keycode <= 'z')
                 keycode -= 'a' - 'A';
 
-            String tmp = StringUtils::from_utf8(utf8string, utf8bytes);
+            UIString tmp = StringUtils::from_utf8(utf8string, utf8bytes);
             for (int i = 0; i < tmp.length(); i++) {
                 Ref<InputEventKey> k(make_ref_counted<InputEventKey>());
                 if (keycode == 0 && tmp[i] == nullptr) {
@@ -1993,7 +1993,7 @@ static Atom pick_target_from_list(Display *p_display, Atom *p_list, int p_count)
 
         Atom atom = p_list[i];
 
-        if (atom != None && String(XGetAtomName(p_display, atom)) == target_type)
+        if (atom != None && UIString(XGetAtomName(p_display, atom)) == target_type)
             return atom;
     }
     return None;
@@ -2002,13 +2002,13 @@ static Atom pick_target_from_list(Display *p_display, Atom *p_list, int p_count)
 static Atom pick_target_from_atoms(Display *p_disp, Atom p_t1, Atom p_t2, Atom p_t3) {
 
     static const char *target_type = "text/uri-list";
-    if (p_t1 != None && String(XGetAtomName(p_disp, p_t1)) == target_type)
+    if (p_t1 != None && UIString(XGetAtomName(p_disp, p_t1)) == target_type)
         return p_t1;
 
-    if (p_t2 != None && String(XGetAtomName(p_disp, p_t2)) == target_type)
+    if (p_t2 != None && UIString(XGetAtomName(p_disp, p_t2)) == target_type)
         return p_t2;
 
-    if (p_t3 != None && String(XGetAtomName(p_disp, p_t3)) == target_type)
+    if (p_t3 != None && UIString(XGetAtomName(p_disp, p_t3)) == target_type)
         return p_t3;
 
     return None;

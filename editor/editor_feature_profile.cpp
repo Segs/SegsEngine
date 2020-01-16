@@ -247,9 +247,9 @@ Error EditorFeatureProfile::load_from_file(se_string_view p_path) {
         Array disabled_features_arr = json["disabled_features"];
         for (int i = 0; i < FEATURE_MAX; i++) {
             bool found = false;
-            String f(feature_identifiers[i]);
+            UIString f(feature_identifiers[i]);
             for (int j = 0; j < disabled_features_arr.size(); j++) {
-                String fd = disabled_features_arr[j];
+                UIString fd = disabled_features_arr[j];
                 if (fd == f) {
                     found = true;
                     break;

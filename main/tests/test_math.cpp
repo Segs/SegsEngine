@@ -316,7 +316,7 @@ public:
                     }
                 }
 
-            } else if (tk == TK_IDENTIFIER && String(value) == "namespace") {
+            } else if (tk == TK_IDENTIFIER && UIString(value) == "namespace") {
                 se_string name;
                 int at_level = curly_stack;
                 while (true) {

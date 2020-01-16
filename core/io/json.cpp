@@ -182,7 +182,7 @@ Error JSON::_get_token(const CharType *p_str, int &index, int p_len, Token &r_to
             case '"': {
 
                 index++;
-                String str;
+                UIString str;
                 while (true) {
                     if (p_str[index] == nullptr) {
                         r_err_str = "Unterminated String";
@@ -285,7 +285,7 @@ Error JSON::_get_token(const CharType *p_str, int &index, int p_len, Token &r_to
 
                 } else if ((p_str[index] >= 'A' && p_str[index] <= 'Z') || (p_str[index] >= 'a' && p_str[index] <= 'z')) {
 
-                    String id;
+                    UIString id;
 
                     while ((p_str[index] >= 'A' && p_str[index] <= 'Z') || (p_str[index] >= 'a' && p_str[index] <= 'z')) {
 
@@ -463,13 +463,13 @@ Error JSON::_parse_object(Dictionary &object, const CharType *p_str, int &index,
 }
 
 Error JSON::parse(const se_string &p_json, Variant &r_ret, se_string &r_err_str, int &r_err_line) {
-    String enc(String::fromUtf8(p_json.c_str()));
+    UIString enc(UIString::fromUtf8(p_json.c_str()));
     const CharType *str = enc.constData();
     int idx = 0;
     int len = p_json.length();
     Token token;
     r_err_line = 0;
-    String aux_key;
+    UIString aux_key;
 
     Error err = _get_token(str, idx, len, token, r_err_line, r_err_str);
     if (err)

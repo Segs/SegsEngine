@@ -306,7 +306,7 @@ Error DirAccessUnix::change_dir(se_string_view _dir) {
     se_string p_dir = fix_path(_dir);
 
     // prev_dir is the directory we are changing out of
-    String prev_dir;
+    UIString prev_dir;
     char real_current_dir_name[2048];
     ERR_FAIL_COND_V(getcwd(real_current_dir_name, 2048) == nullptr, ERR_BUG)
     if (StringUtils::parse_utf8(prev_dir,real_current_dir_name))

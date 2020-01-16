@@ -53,7 +53,7 @@ class ScriptEditorQuickOpen : public ConfirmationDialog {
 
     LineEdit *search_box;
     Tree *search_options;
-    String function;
+    UIString function;
 
     void _update_search();
 
@@ -376,7 +376,7 @@ class ScriptEditor : public PanelContainer {
     void _make_script_list_context_menu();
 
     void _help_search(se_string_view p_text);
-    void _help_index(String p_text);
+    void _help_index(UIString p_text);
 
     void _history_forward();
     void _history_back();

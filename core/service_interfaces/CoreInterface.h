@@ -5,7 +5,7 @@
 #include <cstdint>
 
 class FileAccess;
-using String = class QString;
+using UIString = class QString;
 
 /** This interface is used by the infrastructure plugins to interact with the engine core
  * For now main usages revolve around error/progress reporting and image memory allocations

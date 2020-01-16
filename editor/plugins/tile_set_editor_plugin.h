@@ -178,7 +178,7 @@ class TileSetEditor : public HSplitContainer {
     Variant get_drag_data_fw(const Point2 &p_point, Control *p_from);
     bool can_drop_data_fw(const Point2 &p_point, const Variant &p_data, Control *p_from) const;
     void drop_data_fw(const Point2 &p_point, const Variant &p_data, Control *p_from);
-    void _file_load_request(const PoolVector<String> &p_path, int p_at_pos = -1);
+    void _file_load_request(const PoolVector<UIString> &p_path, int p_at_pos = -1);
 
 protected:
     static void _bind_methods();

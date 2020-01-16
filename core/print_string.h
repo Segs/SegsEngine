@@ -32,9 +32,9 @@
 #include "core/godot_export.h"
 #include "core/forward_decls.h"
 
-using String = class QString;
+using UIString = class QString;
 
-extern void (*_print_func)(String);
+extern void (*_print_func)(UIString);
 
 using PrintHandlerFunc = void (*)(void *, const se_string &, bool);
 

@@ -950,7 +950,7 @@ Error VariantParser::parse_value(Token &token, Variant &value, Stream *p_stream,
                 return ERR_PARSE_ERROR;
             }
 
-            PODVector<String> cs;
+            PODVector<UIString> cs;
 
             bool first = true;
             while (true) {
@@ -976,14 +976,14 @@ Error VariantParser::parse_value(Token &token, Variant &value, Stream *p_stream,
                 }
 
                 first = false;
-                cs.push_back(token.value.as<String>());
+                cs.push_back(token.value.as<UIString>());
             }
 
-            PoolVector<String> arr;
+            PoolVector<UIString> arr;
             {
                 int len = cs.size();
                 arr.resize(len);
-                PoolVector<String>::Write w = arr.write();
+                PoolVector<UIString>::Write w = arr.write();
                 for (int i = 0; i < len; i++) {
                     w[i] = cs[i];
                 }

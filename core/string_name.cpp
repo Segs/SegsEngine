@@ -191,15 +191,15 @@ bool StringName::operator!=(const StringName &p_name) const {
     return _data != p_name._data;
 }
 
-StringName::operator String() const {
+StringName::operator UIString() const {
 
     if (!_data||!_data->cname)
-        return String();
+        return UIString();
 
-    return String::fromUtf8(_data->get_name());
+    return UIString::fromUtf8(_data->get_name());
 }
 
-String StringName::asString() const { return (String)*this; }
+UIString StringName::asString() const { return (UIString)*this; }
 
 const char *StringName::asCString() const noexcept
 {

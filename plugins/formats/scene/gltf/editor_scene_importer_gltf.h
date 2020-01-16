@@ -332,7 +332,7 @@ class EditorSceneImporterGLTF : public QObject, public EditorSceneImporterInterf
     void _compute_node_heights(GLTFState &state);
     Error _parse_buffers(GLTFState &state, se_string_view p_base_path);
     Error _parse_buffer_views(GLTFState &state);
-    GLTFType _get_type_from_str(const String &p_string);
+    GLTFType _get_type_from_str(const UIString &p_string);
     Error _parse_accessors(GLTFState &state);
     Error _decode_buffer_view(GLTFState &state, double *dst, const GLTFBufferViewIndex p_buffer_view, const int skip_every, const int skip_bytes, const int element_size, const int count, const GLTFType type, const int component_count, const int component_type, const int component_size, const bool normalized, const int byte_offset, const bool for_vertex);
 

@@ -766,7 +766,7 @@ Error decode_variant(Variant &r_variant, const uint8_t *p_buffer, int p_len, int
     return OK;
 }
 
-static void _encode_string(const String &p_string, uint8_t *&buf, int &r_len) {
+static void _encode_string(const UIString &p_string, uint8_t *&buf, int &r_len) {
 
     se_string utf8 = StringUtils::to_utf8(p_string);
 
@@ -951,7 +951,7 @@ Error encode_variant(const Variant &p_variant, uint8_t *r_buffer, int &r_len, bo
         } break;
         case VariantType::STRING: {
 
-            _encode_string(p_variant.as<String>(), buf, r_len);
+            _encode_string(p_variant.as<UIString>(), buf, r_len);
 
         } break;
 

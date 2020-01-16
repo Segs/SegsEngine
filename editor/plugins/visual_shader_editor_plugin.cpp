@@ -313,11 +313,11 @@ void VisualShaderEditor::_update_options_menu() {
     TreeItem *category = nullptr;
     TreeItem *sub_category = nullptr;
 
-    String filter = StringUtils::strip_edges(node_filter->get_text_ui());
+    UIString filter = StringUtils::strip_edges(node_filter->get_text_ui());
     bool use_filter = !filter.isEmpty();
 
-    Vector<String> categories;
-    Vector<String> sub_categories;
+    Vector<UIString> categories;
+    Vector<UIString> sub_categories;
 
     int item_count = 0;
     int item_count2 = 0;

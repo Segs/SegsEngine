@@ -354,7 +354,7 @@ void ScriptTextEditor::_set_theme_for_script() {
             continue;
         }
         StringName sn(s);
-        String path = ProjectSettings::get_singleton()->get(sn);
+        UIString path = ProjectSettings::get_singleton()->get(sn);
         if (StringUtils::begins_with(path,'*')) {
             text_edit->add_keyword_color(StringUtils::get_slice(sn.asCString(),'/', 1), colors_cache.usertype_color);
         }
@@ -394,8 +394,9 @@ void ScriptTextEditor::_warning_clicked(const Variant& p_line) {
     if (p_line.get_type() == VariantType::INT) {
         code_editor->get_text_edit()->cursor_set_line(p_line.operator int64_t());
     } else if (p_line.get_type() == VariantType::DICTIONARY) {
-        Dictionary meta = p_line.operator Dictionary();
-        code_editor->get_text_edit()->insert_at("# warning-ignore:" + meta["code"].operator String(), meta["line"].operator int64_t() - 1);
+        Dictionary meta = p_line.as<Dictionary>();
+        code_editor->get_text_edit()->insert_at(StringUtils::from_utf8("# warning-ignore:" + meta["code"].as<se_string>()),
+                meta["line"].as<int64_t>() - 1);
         _validate_script();
     }
 }
@@ -1486,10 +1487,10 @@ Variant ScriptTextEditor::get_drag_data_fw(const Point2 &p_point, Control *p_fro
 bool ScriptTextEditor::can_drop_data_fw(const Point2 &p_point, const Variant &p_data, Control *p_from) const {
 
     Dictionary d = p_data;
-    if (d.has("type") && (String(d["type"]) == "resource" ||
-                                 String(d["type"]) == "files" ||
-                                 String(d["type"]) == "nodes" ||
-                                 String(d["type"]) == "files_and_dirs")) {
+    if (d.has("type") && (UIString(d["type"]) == "resource" ||
+                                 UIString(d["type"]) == "files" ||
+                                 UIString(d["type"]) == "nodes" ||
+                                 UIString(d["type"]) == "files_and_dirs")) {
 
         return true;
     }
@@ -1505,7 +1506,7 @@ void ScriptTextEditor::drop_data_fw(const Point2 &p_point, const Variant &p_data
     int row, col;
     te->_get_mouse_pos(p_point, row, col);
 
-    if (d.has("type") && String(d["type"]) == "resource") {
+    if (d.has("type") && UIString(d["type"]) == "resource") {
 
         Ref<Resource> res(d["resource"]);
         if (not res) {
@@ -1522,7 +1523,7 @@ void ScriptTextEditor::drop_data_fw(const Point2 &p_point, const Variant &p_data
         te->insert_text_at_cursor(StringUtils::from_utf8(res->get_path()));
     }
 
-    if (d.has("type") && (String(d["type"]) == "files" || String(d["type"]) == "files_and_dirs")) {
+    if (d.has("type") && (UIString(d["type"]) == "files" || UIString(d["type"]) == "files_and_dirs")) {
 
         Array files = d["files"];
 
@@ -1539,7 +1540,7 @@ void ScriptTextEditor::drop_data_fw(const Point2 &p_point, const Variant &p_data
         te->insert_text_at_cursor(StringUtils::from_utf8(text_to_drop));
     }
 
-    if (d.has("type") && String(d["type"]) == "nodes") {
+    if (d.has("type") && UIString(d["type"]) == "nodes") {
 
         Node *sn = _find_script_node(get_tree()->get_edited_scene_root(), get_tree()->get_edited_scene_root(), script);
 
@@ -1681,9 +1682,9 @@ void ScriptTextEditor::_color_changed(const Color &p_color) {
         new_args = FormatVE("(%f, %f, %f, %f)",p_color.r,p_color.g,p_color.b,p_color.a);
     }
 
-    String line = StringUtils::from_utf8(code_editor->get_text_edit()->get_line(color_position.x));
+    UIString line = StringUtils::from_utf8(code_editor->get_text_edit()->get_line(color_position.x));
     int color_args_pos = StringUtils::find(line,StringUtils::from_utf8(color_args), color_position.y);
-    String line_with_replaced_args = line;
+    UIString line_with_replaced_args = line;
     StringUtils::erase(line_with_replaced_args,color_args_pos, color_args.length());
     line_with_replaced_args = StringUtils::insert(line_with_replaced_args,color_args_pos, StringUtils::from_utf8(new_args));
 

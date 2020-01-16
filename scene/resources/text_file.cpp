@@ -71,7 +71,7 @@ Error TextFile::load_text(se_string_view p_path) {
     ERR_FAIL_COND_V(r != len, ERR_CANT_OPEN)
     w[len] = 0;
 
-    String s = StringUtils::from_utf8((const char *)w.ptr());
+    UIString s = StringUtils::from_utf8((const char *)w.ptr());
     ERR_FAIL_COND_V_MSG(s.isEmpty(), ERR_INVALID_DATA, "Script '" + p_path + "' contains invalid unicode (UTF-8), so it was not loaded. Please ensure that scripts are saved in valid UTF-8 unicode.")
     text = (const char *)w.ptr();
     path = p_path;

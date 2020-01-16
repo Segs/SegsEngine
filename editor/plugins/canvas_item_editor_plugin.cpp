@@ -2549,7 +2549,7 @@ void CanvasItemEditor::_gui_input_viewport(const Ref<InputEvent> &p_event) {
     }
 }
 
-void CanvasItemEditor::_draw_text_at_position(Point2 p_position, const String& p_string, Margin p_side) {
+void CanvasItemEditor::_draw_text_at_position(Point2 p_position, const UIString& p_string, Margin p_side) {
     Color color = get_color("font_color", "Editor");
     color.a = 0.8f;
     Ref<Font> font = get_font("font", "Label");
@@ -6070,7 +6070,7 @@ bool CanvasItemEditorViewport::can_drop_data(const Point2 &p_point, const Varian
     using namespace eastl;
 
     Dictionary d = p_data;
-    if (!d.has("type") || String(d["type"]) != "files") {
+    if (!d.has("type") || UIString(d["type"]) != "files") {
         label->hide();
         return false;
     }
@@ -6149,7 +6149,7 @@ void CanvasItemEditorViewport::drop_data(const Point2 &p_point, const Variant &p
 
     selected_files.clear();
     Dictionary d = p_data;
-    if (d.has("type") && String(d["type"]) == "files") {
+    if (d.has("type") && UIString(d["type"]) == "files") {
         selected_files = d["files"].as<Vector<se_string>>();
     }
     if (selected_files.empty())

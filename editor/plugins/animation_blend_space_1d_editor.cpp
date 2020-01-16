@@ -229,7 +229,7 @@ void AnimationNodeBlendSpace1DEditor::_blend_space_draw() {
         float x = point;
 
         blend_space_draw->draw_line(Point2(x, s.height - 1), Point2(x, s.height - 5 * EDSCALE), linecolor);
-        blend_space_draw->draw_string(font, Point2(x + 2 * EDSCALE, s.height - 2 * EDSCALE - font->get_height() + font->get_ascent()), String("0"), linecolor);
+        blend_space_draw->draw_string(font, Point2(x + 2 * EDSCALE, s.height - 2 * EDSCALE - font->get_height() + font->get_ascent()), UIString("0"), linecolor);
         blend_space_draw->draw_line(Point2(x, s.height - 5 * EDSCALE), Point2(x, 0), linecolor_soft);
     }
 

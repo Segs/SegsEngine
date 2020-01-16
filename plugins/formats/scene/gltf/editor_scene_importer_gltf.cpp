@@ -162,7 +162,7 @@ static Transform _arr_to_xform(const Array &p_array) {
 
 se_string EditorSceneImporterGLTF::_sanitize_scene_name(const se_string &name) {
     QRegularExpression regex("([^a-zA-Z0-9_ -]+)");
-    String p_name = QString::fromUtf8(name.c_str()).replace(regex,"");
+    UIString p_name = QString::fromUtf8(name.c_str()).replace(regex,"");
     return StringUtils::to_utf8(p_name);
 }
 
@@ -193,7 +193,7 @@ se_string EditorSceneImporterGLTF::_sanitize_bone_name(const se_string &name) {
     se_string p_name = StringUtils::camelcase_to_underscore(name,true);
 
     QRegularExpression pattern_del("([^a-zA-Z0-9_ ])+");
-    QString val(String::fromUtf8(name.c_str()));
+    QString val(UIString::fromUtf8(name.c_str()));
     val.remove(pattern_del);
 
     QRegularExpression pattern_nospace(" +");
@@ -446,7 +446,7 @@ Error EditorSceneImporterGLTF::_parse_buffer_views(GLTFState &state) {
     return OK;
 }
 
-EditorSceneImporterGLTF::GLTFType EditorSceneImporterGLTF::_get_type_from_str(const String &p_string) {
+EditorSceneImporterGLTF::GLTFType EditorSceneImporterGLTF::_get_type_from_str(const UIString &p_string) {
 
     if (p_string == "SCALAR")
         return TYPE_SCALAR;
@@ -1449,7 +1449,7 @@ Error EditorSceneImporterGLTF::_parse_materials(GLTFState &state) {
         }
 
         if (d.has("alphaMode")) {
-            const String &am = d["alphaMode"];
+            const UIString &am = d["alphaMode"];
             if (am == "BLEND") {
                 material->set_feature(SpatialMaterial::FEATURE_TRANSPARENT, true);
                 material->set_depth_draw_mode(SpatialMaterial::DEPTH_DRAW_ALPHA_OPAQUE_PREPASS);
@@ -2233,7 +2233,7 @@ Error EditorSceneImporterGLTF::_parse_cameras(GLTFState &state) {
 
         GLTFCamera camera;
         ERR_FAIL_COND_V(!d.has("type"), ERR_PARSE_ERROR);
-        const String &type = d["type"];
+        const UIString &type = d["type"];
         if (type == "orthographic") {
 
             camera.perspective = false;

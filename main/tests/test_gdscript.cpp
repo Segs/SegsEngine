@@ -470,7 +470,7 @@ static void _parser_show_class(const GDScriptParser::ClassNode *p_class, int p_i
 
     for (int i = 0; i < p_class->functions.size(); i++) {
 
-        if (String(p_class->functions[i]->name) == "_init") {
+        if (se_string_view(p_class->functions[i]->name) == se_string_view("_init")) {
             _parser_show_function(p_class->functions[i], p_indent, p_class->initializer);
         } else
             _parser_show_function(p_class->functions[i], p_indent);

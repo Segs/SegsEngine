@@ -468,7 +468,7 @@ private:
 
     void _unhandled_key_input(const Ref<InputEvent> &p_ev);
 
-    void _draw_text_at_position(Point2 p_position, const String& p_string, Margin p_side);
+    void _draw_text_at_position(Point2 p_position, const UIString& p_string, Margin p_side);
     void _draw_margin_at_position(int p_value, Point2 p_position, Margin p_side);
     void _draw_percentage_at_position(float p_value, Point2 p_position, Margin p_side);
     void _draw_straight_line(Point2 p_from, Point2 p_to, Color p_color);

@@ -205,7 +205,7 @@ bool TileSetEditor::can_drop_data_fw(const Point2 &p_point, const Variant &p_dat
     if (d.has("from") && (Object *)d["from"] == texture_list)
         return false;
 
-    if (String(d["type"]) == "resource" && d.has("resource")) {
+    if (UIString(d["type"]) == "resource" && d.has("resource")) {
         RES r(d["resource"]);
 
         Ref<Texture> texture = dynamic_ref_cast<Texture>(r);
@@ -216,7 +216,7 @@ bool TileSetEditor::can_drop_data_fw(const Point2 &p_point, const Variant &p_dat
         }
     }
 
-    if (String(d["type"]) == "files") {
+    if (UIString(d["type"]) == "files") {
 
         Vector<se_string> files = d["files"].as<Vector<se_string>>();
 
@@ -247,7 +247,7 @@ void TileSetEditor::drop_data_fw(const Point2 &p_point, const Variant &p_data, C
     if (!d.has("type"))
         return;
 
-    if (String(d["type"]) == "resource" && d.has("resource")) {
+    if (UIString(d["type"]) == "resource" && d.has("resource")) {
         RES r(d["resource"]);
 
         Ref<Texture> texture = dynamic_ref_cast<Texture>(r);
@@ -262,7 +262,7 @@ void TileSetEditor::drop_data_fw(const Point2 &p_point, const Variant &p_data, C
         }
     }
 
-    if (String(d["type"]) == "files") {
+    if (UIString(d["type"]) == "files") {
 
         PoolVector<se_string> files = d["files"].as<PoolVector<se_string>>();
 
@@ -1166,7 +1166,7 @@ void TileSetEditor::_on_workspace_overlay_draw() {
                 c = COLOR_AUTOTILE;
             else if (tileset->tile_get_tile_mode(t_id) == TileSet::ATLAS_TILE)
                 c = COLOR_ATLAS;
-            String tile_id_name = String("%1: %2").arg(t_id).arg(StringUtils::from_utf8(tileset->tile_get_name(t_id)));
+            UIString tile_id_name = UIString("%1: %2").arg(t_id).arg(StringUtils::from_utf8(tileset->tile_get_name(t_id)));
             Ref<Font> font = get_font("font", "Label");
             region.set_size(font->get_string_size(tile_id_name));
             workspace_overlay->draw_rect(region, c);

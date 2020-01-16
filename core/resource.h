@@ -68,7 +68,7 @@ public:
     virtual uint64_t get_import_last_modified_time() const = 0;
 
     virtual void set_import_path(se_string_view p_path) = 0;
-    virtual String get_import_path() const = 0;
+    virtual UIString get_import_path() const = 0;
     virtual ~IResourceTooling() = default;
 };
 

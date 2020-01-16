@@ -893,7 +893,7 @@ void GridMapEditor::update_palette() {
 
     if (not mesh_library) {
         last_mesh_library = nullptr;
-        search_box->set_text(String());
+        search_box->set_text(UIString());
         search_box->set_editable(false);
         info_message->show();
         return;

@@ -6,6 +6,7 @@
 #include "EASTL/fixed_string.h"
 
 using se_string = eastl::basic_string<char,wrap_allocator>;
+
 template<int node_count, bool bEnableOverflow = true>
 using se_tmp_string = eastl::fixed_string<char,node_count,bEnableOverflow,wrap_allocator>;
 

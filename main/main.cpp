@@ -1163,7 +1163,7 @@ Error Main::setup(bool p_second_phase) {
     }
 
     {
-        String orientation = GLOBAL_DEF("display/window/handheld/orientation", "landscape");
+        UIString orientation = GLOBAL_DEF("display/window/handheld/orientation", "landscape");
 
         if (orientation == "portrait")
             OS::get_singleton()->set_screen_orientation(OS::SCREEN_PORTRAIT);
@@ -1812,8 +1812,8 @@ bool Main::start() {
         if (!editor && !project_manager) {
             //standard helpers that can be changed from main config
 
-            String stretch_mode = GLOBAL_DEF("display/window/stretch/mode", "disabled");
-            String stretch_aspect = GLOBAL_DEF("display/window/stretch/aspect", "ignore");
+            UIString stretch_mode = GLOBAL_DEF("display/window/stretch/mode", "disabled");
+            UIString stretch_aspect = GLOBAL_DEF("display/window/stretch/aspect", "ignore");
             Size2i stretch_size = Size2(GLOBAL_DEF("display/window/size/width", 0), GLOBAL_DEF("display/window/size/height", 0));
             real_t stretch_shrink = GLOBAL_DEF("display/window/stretch/shrink", 1.0);
 

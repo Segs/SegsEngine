@@ -338,7 +338,7 @@ Variant CustomPropertyEditor::get_variant() const {
     return v;
 }
 
-String CustomPropertyEditor::get_name() const {
+UIString CustomPropertyEditor::get_name() const {
 
     return name;
 }
@@ -1523,7 +1523,7 @@ void CustomPropertyEditor::_draw_easing() {
         prev = h;
     }
 
-    f->draw(ci, Point2(10, 10 + f->get_ascent()), String::number(exp,'g',2), color);
+    f->draw(ci, Point2(10, 10 + f->get_ascent()), UIString::number(exp,'g',2), color);
 }
 
 void CustomPropertyEditor::_text_edit_changed() {

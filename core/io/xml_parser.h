@@ -68,7 +68,7 @@ private:
     char *data;
     char *P;
     uint64_t length;
-    void unescape(String &p_str);
+    void unescape(UIString &p_str);
     PODVector<se_string_view> special_characters;
     se_string node_name;
     bool node_empty;

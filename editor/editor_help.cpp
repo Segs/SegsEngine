@@ -894,7 +894,7 @@ void EditorHelp::_update_doc() {
                     if (color.size() >= 3) {
                         class_desc->push_color(Color(color[0], color[1], color[2]));
                         static const CharType prefix[3] = { 0x25CF /* filled circle */, ' ', 0 };
-                        class_desc->add_text(String(prefix));
+                        class_desc->add_text(UIString(prefix));
                         class_desc->pop();
                     }
                 }
@@ -1769,7 +1769,7 @@ bool FindBar::search_prev() {
 
 bool FindBar::_search(bool p_search_previous) {
 
-    String stext = search_text->get_text_ui();
+    UIString stext = search_text->get_text_ui();
     bool keep = prev_search == stext;
 
     bool ret = rich_text_label->search(stext, keep, p_search_previous);
@@ -1793,10 +1793,10 @@ void FindBar::_update_results_count() {
 
     results_count = 0;
 
-    String searched = search_text->get_text_ui();
+    UIString searched = search_text->get_text_ui();
     if (searched.isEmpty()) return;
 
-    String full_text = StringUtils::from_utf8(rich_text_label->get_text());
+    UIString full_text = StringUtils::from_utf8(rich_text_label->get_text());
 
     int from_pos = 0;
 

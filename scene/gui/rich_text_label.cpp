@@ -269,7 +269,7 @@ struct ItemCustomFX : public RichTextItemFX {
 
 struct ItemText : public RichTextItem {
 
-    String text;
+    UIString text;
     ItemText() { type = RichTextLabel::ITEM_TEXT; }
 };
 
@@ -1389,7 +1389,7 @@ void RichTextLabel::_gui_input(const Ref<InputEvent>& p_event) {
 
                 if (item && item->type == ITEM_TEXT) {
 
-                    String itext = static_cast<ItemText *>(item)->text;
+                    UIString itext = static_cast<ItemText *>(item)->text;
 
                     int beg, end;
                     if (select_word(itext, line, beg, end)) {
@@ -1806,7 +1806,7 @@ void RichTextLabel::add_text_utf8(se_string_view p_text) {
     add_text(StringUtils::from_utf8(p_text));
 }
 
-void RichTextLabel::add_text(const String &p_text) {
+void RichTextLabel::add_text(const UIString &p_text) {
 
     if (current->type == ITEM_TABLE)
         return; //can't add anything here
@@ -1816,7 +1816,7 @@ void RichTextLabel::add_text(const String &p_text) {
     while (pos < p_text.length()) {
 
         int end = StringUtils::find(p_text,"\n", pos);
-        String line;
+        UIString line;
         bool eol = false;
         if (end == -1) {
 
@@ -2732,7 +2732,7 @@ void RichTextLabel::set_selection_enabled(bool p_enabled) {
     }
 }
 
-bool RichTextLabel::search(const String &p_string, bool p_from_selection, bool p_search_previous) {
+bool RichTextLabel::search(const UIString &p_string, bool p_from_selection, bool p_search_previous) {
 
     ERR_FAIL_COND_V(!selection.enabled, false)
     RichTextItem *it = main;
@@ -2796,7 +2796,7 @@ void RichTextLabel::selection_copy() {
     if (!selection.active || !selection.enabled)
         return;
 
-    String text;
+    UIString text;
 
     RichTextItem *item = selection.from;
 
@@ -2804,7 +2804,7 @@ void RichTextLabel::selection_copy() {
 
         if (item->type == ITEM_TEXT) {
 
-            String itext = static_cast<ItemText *>(item)->text;
+            UIString itext = static_cast<ItemText *>(item)->text;
             if (item == selection.from && item == selection.to) {
                 text += StringUtils::substr(itext,selection.from_char, selection.to_char - selection.from_char + 1);
             } else if (item == selection.from) {
@@ -2862,7 +2862,7 @@ bool RichTextLabel::is_using_bbcode() const {
 }
 
 se_string RichTextLabel::get_text() {
-    String text;
+    UIString text;
     RichTextItem *it = main;
     while (it) {
         if (it->type == ITEM_TEXT) {
@@ -2878,7 +2878,7 @@ se_string RichTextLabel::get_text() {
     return StringUtils::to_utf8(text);
 }
 
-void RichTextLabel::set_text(const String &p_string) {
+void RichTextLabel::set_text(const UIString &p_string) {
     clear();
     add_text(p_string);
 }

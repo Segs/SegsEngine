@@ -291,14 +291,14 @@ se_string mono_to_utf8_string(MonoString *p_mono_string) {
     return ret;
 }
 
-String mono_to_utf16_string(MonoString *p_mono_string) {
+UIString mono_to_utf16_string(MonoString *p_mono_string) {
     int len = mono_string_length(p_mono_string);
-    String ret;
+    UIString ret;
 
     if (len == 0)
         return ret;
 
-    return String::fromUtf16(mono_string_chars(p_mono_string),len);
+    return UIString::fromUtf16(mono_string_chars(p_mono_string),len);
 }
 
 MonoObject *variant_to_mono_object(const Variant *p_var) {
@@ -368,7 +368,7 @@ MonoObject *variant_to_mono_object(const Variant *p_var, const ManagedType &p_ty
         case MONO_TYPE_STRING: {
             if (p_var->get_type() == VariantType::NIL)
                 return nullptr; // Otherwise, Variant -> String would return the string "Null"
-            return (MonoObject *)mono_string_from_godot(p_var->operator String());
+            return (MonoObject *)mono_string_from_godot(p_var->as<se_string>());
         } break;
 
         case MONO_TYPE_VALUETYPE: {
@@ -579,7 +579,7 @@ MonoObject *variant_to_mono_object(const Variant *p_var, const ManagedType &p_ty
 #endif
                 }
                 case VariantType::STRING:
-                    return (MonoObject *)mono_string_from_godot(p_var->operator String());
+                    return (MonoObject *)mono_string_from_godot(p_var->as<se_string>());
                 case VariantType::VECTOR2: {
                     GDMonoMarshal::M_Vector2 from = MARSHALLED_OUT(Vector2, p_var->operator ::Vector2());
                     return mono_value_box(mono_domain_get(), CACHED_CLASS_RAW(Vector2), &from);

@@ -104,27 +104,27 @@ bool VisualScriptExpression::_set(const StringName &p_name, const Variant &p_val
 
 bool VisualScriptExpression::_get(const StringName &p_name, Variant &r_ret) const {
 
-    if (String(p_name) == "expression") {
+    if (UIString(p_name) == "expression") {
         r_ret = expression;
         return true;
     }
 
-    if (String(p_name) == "out_type") {
+    if (UIString(p_name) == "out_type") {
         r_ret = output_type;
         return true;
     }
 
-    if (String(p_name) == "sequenced") {
+    if (UIString(p_name) == "sequenced") {
         r_ret = sequenced;
         return true;
     }
 
-    if (String(p_name) == "input_count") {
+    if (UIString(p_name) == "input_count") {
         r_ret = inputs.size();
         return true;
     }
 
-    if (StringUtils::begins_with(String(p_name),"input_")) {
+    if (StringUtils::begins_with(UIString(p_name),"input_")) {
 
         int idx = StringUtils::to_int(StringUtils::get_slice(StringUtils::get_slice(p_name,'_', 1),'/', 0));
         ERR_FAIL_INDEX_V(idx, inputs.size(), false)

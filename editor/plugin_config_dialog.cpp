@@ -44,7 +44,7 @@ IMPL_GDCLASS(PluginConfigDialog)
 void PluginConfigDialog::_clear_fields() {
     name_edit->set_text_utf8("");
     subfolder_edit->set_text_utf8("");
-    desc_edit->set_text(String());
+    desc_edit->set_text(UIString());
     author_edit->set_text_utf8("");
     version_edit->set_text_utf8("");
     script_edit->set_text_utf8("");

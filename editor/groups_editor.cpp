@@ -607,7 +607,7 @@ void GroupsEditor::_remove_group(Object *p_item, int p_column, int p_id) {
 struct _GroupInfoComparator {
 
     bool operator()(const Node::GroupInfo &p_a, const Node::GroupInfo &p_b) const {
-        return p_a.name.operator String() < p_b.name.operator String();
+        return se_string_view(p_a.name) < se_string_view(p_b.name);
     }
 };
 

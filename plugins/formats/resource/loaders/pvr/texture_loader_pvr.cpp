@@ -557,7 +557,7 @@ RES ResourceFormatPVR::load(se_string_view p_path, se_string_view p_original_pat
     f->seek(f->get_position() + 20); // bpp, rmask, gmask, bmask, amask
     uint8_t pvrid[5] = { 0, 0, 0, 0, 0 };
     f->get_buffer(pvrid, 4);
-    ERR_FAIL_COND_V(String((char *)pvrid) != "PVR!", RES())
+    ERR_FAIL_COND_V(UIString((char *)pvrid) != "PVR!", RES())
     f->get_32(); // surfcount
 
     /*

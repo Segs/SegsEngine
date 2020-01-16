@@ -124,7 +124,7 @@ void EditorLog::add_message_utf8(se_string_view p_msg, MessageType p_type) {
     if (restore)
         log->pop();
 }
-void EditorLog::add_message(const String &p_msg, MessageType p_type) {
+void EditorLog::add_message(const UIString &p_msg, MessageType p_type) {
 
     log->add_newline();
 
@@ -207,7 +207,7 @@ EditorLog::EditorLog() {
     log->set_v_size_flags(SIZE_EXPAND_FILL);
     log->set_h_size_flags(SIZE_EXPAND_FILL);
     vb->add_child(log);
-    add_message(String(VERSION_FULL_NAME " (c) 2007-2019 Juan Linietsky, Ariel Manzur & Godot Contributors."));
+    add_message(UIString(VERSION_FULL_NAME " (c) 2007-2019 Juan Linietsky, Ariel Manzur & Godot Contributors."));
 
     eh.errfunc = _error_handler;
     eh.userdata = this;

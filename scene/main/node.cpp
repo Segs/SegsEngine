@@ -1089,7 +1089,7 @@ void Node::_validate_child_name(Node *p_child, bool p_force_human_readable) {
 
         bool unique = true;
 
-        if (p_child->data->name == StringName() || p_child->data->name.operator String()[0] == '@') {
+        if (p_child->data->name.empty() || se_string_view(p_child->data->name)[0] == '@') {
             //new unique name must be assigned
             unique = false;
         } else {

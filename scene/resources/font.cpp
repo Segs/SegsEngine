@@ -55,7 +55,7 @@ struct PtrToArg<CharType> {
 };
 
 
-void Font::draw_halign(RID p_canvas_item, const Point2 &p_pos, HAlign p_align, float p_width, const String &p_text, const Color &p_modulate, const Color &p_outline_modulate) const {
+void Font::draw_halign(RID p_canvas_item, const Point2 &p_pos, HAlign p_align, float p_width, const UIString &p_text, const Color &p_modulate, const Color &p_outline_modulate) const {
     float length = get_string_size(p_text).width;
     if (length >= p_width) {
         draw(p_canvas_item, p_pos, p_text, p_modulate, p_width, p_outline_modulate);
@@ -82,7 +82,7 @@ void Font::draw_halign(RID p_canvas_item, const Point2 &p_pos, HAlign p_align, f
 void Font::draw_halign_utf8(RID p_canvas_item, const Point2 &p_pos, HAlign p_align, float p_width, se_string_view p_text, const Color &p_modulate, const Color &p_outline_modulate) const {
     draw_halign(p_canvas_item, p_pos, p_align, p_width, StringUtils::from_utf8(p_text), p_modulate, p_outline_modulate);
 }
-void Font::draw(RID p_canvas_item, const Point2 &p_pos, const String &p_text, const Color &p_modulate, int p_clip_w, const Color &p_outline_modulate) const {
+void Font::draw(RID p_canvas_item, const Point2 &p_pos, const UIString &p_text, const Color &p_modulate, int p_clip_w, const Color &p_outline_modulate) const {
     Vector2 ofs;
 
     int chars_drawn = 0;
@@ -499,7 +499,7 @@ void BitmapFont::clear() {
     distance_field_hint = false;
 }
 
-Size2 Font::get_string_size(const String &p_string) const {
+Size2 Font::get_string_size(const UIString &p_string) const {
 
     float w = 0;
 
@@ -529,7 +529,7 @@ Size2 Font::get_string_size_utf8(se_string_view p_string) const {
 
     return res;
 }
-Size2 Font::get_wordwrap_string_size(const String &p_string, float p_width) const {
+Size2 Font::get_wordwrap_string_size(const UIString &p_string, float p_width) const {
 
     ERR_FAIL_COND_V(p_width <= 0, Vector2(0, get_height()))
 
@@ -540,12 +540,12 @@ Size2 Font::get_wordwrap_string_size(const String &p_string, float p_width) cons
     float line_w = 0;
     float h = 0;
     float space_w = get_char_size(' ').width;
-    PODVector<String> lines = StringUtils::split(p_string,'\n');
-    for (const String &t : lines) {
+    PODVector<UIString> lines = StringUtils::split(p_string,'\n');
+    for (const UIString &t : lines) {
         h += get_height();
         line_w = 0;
-        PODVector<String> words = StringUtils::split(t,' ');
-        for (const String &word : words) {
+        PODVector<UIString> words = StringUtils::split(t,' ');
+        for (const UIString &word : words) {
             line_w += get_string_size(word).x;
             if (line_w > p_width) {
                 h += get_height();

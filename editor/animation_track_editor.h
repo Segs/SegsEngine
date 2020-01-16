@@ -244,7 +244,7 @@ class AnimationTrackEditGroup : public Control {
     GDCLASS(AnimationTrackEditGroup,Control)
 
     Ref<Texture> icon;
-    String node_name;
+    UIString node_name;
     NodePath node;
     Node *root;
     AnimationTimelineEdit *timeline;
@@ -256,7 +256,7 @@ protected:
     void _notification(int p_what);
 
 public:
-    void set_type_and_name(const Ref<Texture> &p_type, const String &p_name, const NodePath &p_node);
+    void set_type_and_name(const Ref<Texture> &p_type, const UIString &p_name, const NodePath &p_node);
     Size2 get_minimum_size() const override;
     void set_timeline(AnimationTimelineEdit *p_timeline);
     void set_root(Node *p_root);

@@ -51,7 +51,7 @@ class PropertySelector : public ConfirmationDialog {
     EditorHelpBit *help_bit;
 
     bool properties;
-    String selected;
+    UIString selected;
     VariantType type;
     StringName base_type;
     ObjectID script;
@@ -67,15 +67,15 @@ protected:
     static void _bind_methods();
 
 public:
-    void select_method_from_base_type(const StringName &p_base, const String &p_current = String(), bool p_virtuals_only = false);
-    void select_method_from_script(const Ref<Script> &p_script, const String &p_current = String());
-    void select_method_from_basic_type(VariantType p_type, const String &p_current = String());
-    void select_method_from_instance(Object *p_instance, const String &p_current = String());
+    void select_method_from_base_type(const StringName &p_base, const UIString &p_current = UIString(), bool p_virtuals_only = false);
+    void select_method_from_script(const Ref<Script> &p_script, const UIString &p_current = UIString());
+    void select_method_from_basic_type(VariantType p_type, const UIString &p_current = UIString());
+    void select_method_from_instance(Object *p_instance, const UIString &p_current = UIString());
 
-    void select_property_from_base_type(const StringName &p_base, const String &p_current = String());
-    void select_property_from_script(const Ref<Script> &p_script, const String &p_current = String());
-    void select_property_from_basic_type(VariantType p_type, const String &p_current = String());
-    void select_property_from_instance(Object *p_instance, const String &p_current = String());
+    void select_property_from_base_type(const StringName &p_base, const UIString &p_current = UIString());
+    void select_property_from_script(const Ref<Script> &p_script, const UIString &p_current = UIString());
+    void select_property_from_basic_type(VariantType p_type, const UIString &p_current = UIString());
+    void select_property_from_instance(Object *p_instance, const UIString &p_current = UIString());
 
     void set_type_filter(const Vector<VariantType> &p_type_filter);
 

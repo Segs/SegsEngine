@@ -242,7 +242,7 @@ protected:
         if (var == StringName())
             return false;
 
-        if (String(p_name) == "value") {
+        if (UIString(p_name) == "value") {
             undo_redo->create_action_ui(TTR("Set Variable Default Value"));
             Variant current = script->get_variable_default_value(var);
             undo_redo->add_do_method(script.get(), "set_variable_default_value", var, p_value);
@@ -255,7 +255,7 @@ protected:
 
         Dictionary d = script->call("get_variable_info", var);
 
-        if (String(p_name) == "type") {
+        if (UIString(p_name) == "type") {
 
             Dictionary dc = d.duplicate();
             dc["type"] = p_value;
@@ -268,7 +268,7 @@ protected:
             return true;
         }
 
-        if (String(p_name) == "hint") {
+        if (UIString(p_name) == "hint") {
 
             Dictionary dc = d.duplicate();
             dc["hint"] = p_value;
@@ -281,7 +281,7 @@ protected:
             return true;
         }
 
-        if (String(p_name) == "hint_string") {
+        if (UIString(p_name) == "hint_string") {
 
             Dictionary dc = d.duplicate();
             dc["hint_string"] = p_value;
@@ -294,7 +294,7 @@ protected:
             return true;
         }
 
-        if (String(p_name) == "export") {
+        if (UIString(p_name) == "export") {
             script->set_variable_export(var, p_value);
             EditorNode::get_singleton()->get_inspector()->update_tree();
             return true;
@@ -308,27 +308,27 @@ protected:
         if (var == StringName())
             return false;
 
-        if (String(p_name) == "value") {
+        if (UIString(p_name) == "value") {
             r_ret = script->get_variable_default_value(var);
             return true;
         }
 
         PropertyInfo pinfo = script->get_variable_info(var);
 
-        if (String(p_name) == "type") {
+        if (UIString(p_name) == "type") {
             r_ret = pinfo.type;
             return true;
         }
-        if (String(p_name) == "hint") {
+        if (UIString(p_name) == "hint") {
             r_ret = pinfo.hint;
             return true;
         }
-        if (String(p_name) == "hint_string") {
+        if (UIString(p_name) == "hint_string") {
             r_ret = pinfo.hint_string;
             return true;
         }
 
-        if (String(p_name) == "export") {
+        if (UIString(p_name) == "export") {
             r_ret = script->get_variable_export(var);
             return true;
         }
@@ -924,7 +924,7 @@ void VisualScriptEditor::_port_name_focus_out(const Node *p_name_box, int p_id, 
     if (not vsn)
         return;
 
-    String text;
+    UIString text;
 
     if (object_cast<LineEdit>(p_name_box))
         text = object_cast<LineEdit>(p_name_box)->get_text_ui();
@@ -1313,7 +1313,7 @@ void VisualScriptEditor::_member_button(Object *p_item, int p_column, int p_butt
 
             if (p_button == 1) {
                 new_virtual_method_select->select_method_from_base_type(
-                        script->get_instance_base_type().asCString(), String(), true);
+                        script->get_instance_base_type().asCString(), UIString(), true);
 
                 return;
             } else if (p_button == 0) {
@@ -1902,16 +1902,16 @@ bool VisualScriptEditor::can_drop_data_fw(const Point2 &p_point, const Variant &
 
         Dictionary d = p_data;
         if (d.has("type") &&
-                (String(d["type"]) == "visual_script_node_drag" ||
-                        String(d["type"]) == "visual_script_function_drag" ||
-                        String(d["type"]) == "visual_script_variable_drag" ||
-                        String(d["type"]) == "visual_script_signal_drag" ||
-                        String(d["type"]) == "obj_property" ||
-                        String(d["type"]) == "resource" ||
-                        String(d["type"]) == "files" ||
-                        String(d["type"]) == "nodes")) {
+                (UIString(d["type"]) == "visual_script_node_drag" ||
+                        UIString(d["type"]) == "visual_script_function_drag" ||
+                        UIString(d["type"]) == "visual_script_variable_drag" ||
+                        UIString(d["type"]) == "visual_script_signal_drag" ||
+                        UIString(d["type"]) == "obj_property" ||
+                        UIString(d["type"]) == "resource" ||
+                        UIString(d["type"]) == "files" ||
+                        UIString(d["type"]) == "nodes")) {
 
-            if (String(d["type"]) == "obj_property") {
+            if (UIString(d["type"]) == "obj_property") {
 
 #ifdef OSX_ENABLED
                 const_cast<VisualScriptEditor *>(this)->_show_hint(vformat(TTR("Hold %s to drop a Getter. Hold Shift to drop a generic signature."), find_keycode_name(KEY_META)));
@@ -1920,7 +1920,7 @@ bool VisualScriptEditor::can_drop_data_fw(const Point2 &p_point, const Variant &
 #endif
             }
 
-            if (String(d["type"]) == "nodes") {
+            if (UIString(d["type"]) == "nodes") {
 
 #ifdef OSX_ENABLED
                 const_cast<VisualScriptEditor *>(this)->_show_hint(vformat(TTR("Hold %s to drop a simple reference to the node."), find_keycode_name(KEY_META)));
@@ -1929,7 +1929,7 @@ bool VisualScriptEditor::can_drop_data_fw(const Point2 &p_point, const Variant &
 #endif
             }
 
-            if (String(d["type"]) == "visual_script_variable_drag") {
+            if (UIString(d["type"]) == "visual_script_variable_drag") {
 
 #ifdef OSX_ENABLED
                 const_cast<VisualScriptEditor *>(this)->_show_hint(vformat(TTR("Hold %s to drop a Variable Setter."), find_keycode_name(KEY_META)));
@@ -1957,8 +1957,8 @@ void VisualScriptEditor::drop_data_fw(const Point2 &p_point, const Variant &p_da
         return;
     }
 
-    if (String(d["type"]) == "visual_script_node_drag") {
-        if (!d.has("node_type") || String(d["node_type"]) == "Null") {
+    if (UIString(d["type"]) == "visual_script_node_drag") {
+        if (!d.has("node_type") || UIString(d["node_type"]) == "Null") {
             return;
         }
 
@@ -1980,7 +1980,7 @@ void VisualScriptEditor::drop_data_fw(const Point2 &p_point, const Variant &p_da
         }
     }
 
-    if (String(d["type"]) == "visual_script_variable_drag") {
+    if (UIString(d["type"]) == "visual_script_variable_drag") {
 
 #ifdef OSX_ENABLED
         bool use_set = Input::get_singleton()->is_key_pressed(KEY_META);
@@ -2023,7 +2023,7 @@ void VisualScriptEditor::drop_data_fw(const Point2 &p_point, const Variant &p_da
         }
     }
 
-    if (String(d["type"]) == "visual_script_function_drag") {
+    if (UIString(d["type"]) == "visual_script_function_drag") {
 
         Vector2 ofs = graph->get_scroll_ofs() + p_point;
         if (graph->is_using_snap()) {
@@ -2055,7 +2055,7 @@ void VisualScriptEditor::drop_data_fw(const Point2 &p_point, const Variant &p_da
         }
     }
 
-    if (String(d["type"]) == "visual_script_signal_drag") {
+    if (UIString(d["type"]) == "visual_script_signal_drag") {
 
         Vector2 ofs = graph->get_scroll_ofs() + p_point;
         if (graph->is_using_snap()) {
@@ -2085,7 +2085,7 @@ void VisualScriptEditor::drop_data_fw(const Point2 &p_point, const Variant &p_da
         }
     }
 
-    if (String(d["type"]) == "resource") {
+    if (UIString(d["type"]) == "resource") {
 
         Vector2 ofs = graph->get_scroll_ofs() + p_point;
         if (graph->is_using_snap()) {
@@ -2115,7 +2115,7 @@ void VisualScriptEditor::drop_data_fw(const Point2 &p_point, const Variant &p_da
         }
     }
 
-    if (String(d["type"]) == "files") {
+    if (UIString(d["type"]) == "files") {
 
         Vector2 ofs = graph->get_scroll_ofs() + p_point;
         if (graph->is_using_snap()) {
@@ -2165,7 +2165,7 @@ void VisualScriptEditor::drop_data_fw(const Point2 &p_point, const Variant &p_da
         }
     }
 
-    if (String(d["type"]) == "nodes") {
+    if (UIString(d["type"]) == "nodes") {
 
         Node *sn = _find_script_node(get_tree()->get_edited_scene_root(), get_tree()->get_edited_scene_root(), script);
 
@@ -2235,7 +2235,7 @@ void VisualScriptEditor::drop_data_fw(const Point2 &p_point, const Variant &p_da
         undo_redo->commit_action();
     }
 
-    if (String(d["type"]) == "obj_property") {
+    if (UIString(d["type"]) == "obj_property") {
 
         Node *sn = _find_script_node(get_tree()->get_edited_scene_root(), get_tree()->get_edited_scene_root(), script);
 

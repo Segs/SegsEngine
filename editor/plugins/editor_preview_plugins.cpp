@@ -852,7 +852,7 @@ Ref<Texture> EditorFontPreviewPlugin::generate_from_path(se_string_view p_path, 
     }
     sampled_font->set_size(50);
 
-    String sampled_text = "Abg";
+    UIString sampled_text = "Abg";
 
     Vector2 size = sampled_font->get_string_size(sampled_text);
 

@@ -128,10 +128,10 @@ class VisualScriptEditor : public ScriptEditorBase {
     CreateDialog *select_base_type;
 
     struct VirtualInMenu {
-        String name;
+        UIString name;
         VariantType ret;
         bool ret_variant;
-        PODVector<Pair<VariantType, String> > args;
+        PODVector<Pair<VariantType, UIString> > args;
     };
 
     HashMap<StringName, Ref<StyleBox> > node_styles;
@@ -191,7 +191,7 @@ class VisualScriptEditor : public ScriptEditorBase {
     void _node_selected(Node *p_node);
     void _center_on_node(const StringName &p_func, int p_id);
 
-    void _node_filter_changed(const String &p_text);
+    void _node_filter_changed(const UIString &p_text);
     void _change_base_type_callback();
     void _change_base_type();
     void _toggle_tool_script();
