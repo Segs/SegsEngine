@@ -85,6 +85,11 @@ DefHashMap<StringName, ClassDB::ClassInfo> ClassDB::classes;
 DefHashMap<StringName, StringName> ClassDB::resource_base_extensions;
 HashMap<StringName, StringName> ClassDB::compat_classes;
 
+DefHashMap<StringName, MethodInfo> &ClassDB::ClassInfo::class_signal_map()
+{
+    return ((ClassInfoImpl *)m_impl)->signal_map;
+}
+
 ClassDB::ClassInfo::ClassInfo() {
     m_impl = memnew(ClassInfoImpl);
     api = API_NONE;

@@ -40,6 +40,7 @@
 #include "core/os/os.h"
 #include "core/os/thread.h"
 #include "core/project_settings.h"
+#include "core/property_info.h"
 #include "core/io/multiplayer_api.h"
 
 #ifdef TOOLS_ENABLED
@@ -67,6 +68,8 @@
 
 
 #define CACHED_STRING_NAME(m_var) (CSharpLanguage::get_singleton()->get_string_names().m_var)
+
+IMPL_GDCLASS(CSharpScript)
 
 #ifdef TOOLS_ENABLED
 static bool _create_project_solution_if_needed() {
@@ -2652,7 +2655,7 @@ bool CSharpScript::_set(const StringName &p_name, const Variant &p_value) {
     return false;
 }
 
-void CSharpScript::_get_property_list(List<PropertyInfo> *p_properties) const {
+void CSharpScript::_get_property_list(ListPOD<PropertyInfo> *p_properties) const {
 
     p_properties->push_back(PropertyInfo(VariantType::STRING, CSharpLanguage::singleton->string_names._script_source, PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
 }

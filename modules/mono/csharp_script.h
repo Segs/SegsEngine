@@ -34,6 +34,7 @@
 #include "core/io/resource_saver.h"
 #include "core/script_language.h"
 #include "core/self_list.h"
+#include "core/list.h"
 
 #include "mono_gc_handle.h"
 #include "mono_gd/gd_mono.h"
@@ -152,7 +153,7 @@ protected:
     virtual void _resource_path_changed();
     bool _get(const StringName &p_name, Variant &r_ret) const;
     bool _set(const StringName &p_name, const Variant &p_value);
-    void _get_property_list(List<PropertyInfo> *p_properties) const;
+    void _get_property_list(ListPOD<PropertyInfo> *p_properties) const;
 
 public:
     bool can_instance() const override;
@@ -350,12 +351,12 @@ public:
     _FORCE_INLINE_ int get_language_index() { return lang_idx; }
     void set_language_index(int p_idx);
 
-    _FORCE_INLINE_ const StringNameCache &get_string_names() { return string_names; }
+    const StringNameCache &get_string_names() { return string_names; }
 
-    _FORCE_INLINE_ static CSharpLanguage *get_singleton() { return singleton; }
+    static CSharpLanguage *get_singleton() { return singleton; }
 
 #ifdef TOOLS_ENABLED
-    _FORCE_INLINE_ EditorPlugin *get_godotsharp_editor() const { return godotsharp_editor; }
+    EditorPlugin *get_godotsharp_editor() const { return godotsharp_editor; }
 #endif
 
     static void release_script_gchandle(Ref<MonoGCHandle> &p_gchandle);
