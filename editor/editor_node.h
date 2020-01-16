@@ -327,7 +327,7 @@ private:
     EditorFileDialog *file_export_lib;
     EditorFileDialog *file_script;
     CheckBox *file_export_lib_merge;
-    String current_path;
+    UIString current_path;
     MenuButton *update_spinner;
 
     se_string defer_load_scene;
@@ -385,7 +385,7 @@ private:
     uint64_t saved_version;
     uint64_t last_checked_version;
     bool unsaved_cache;
-    String open_navigate;
+    UIString open_navigate;
     bool changing_scene;
     bool waiting_for_first_scan;
 
@@ -496,15 +496,15 @@ private:
     void _run(bool p_current = false, se_string_view p_custom = se_string_view());
 
     void _save_optimized();
-    void _import_action(const String &p_action);
-    void _import(const String &p_file);
+    void _import_action(const UIString &p_action);
+    void _import(const UIString &p_file);
     void _add_to_recent_scenes(se_string_view p_scene);
     void _update_recent_scenes();
     void _open_recent_scene(int p_idx);
     void _global_menu_action(const Variant &p_id, const Variant &p_meta);
     void _dropped_files(const Vector<se_string> &p_files, int p_screen);
     void _add_dropped_files_recursive(const Vector<se_string> &p_files, se_string_view to_path);
-    String _recent_scene;
+    UIString _recent_scene;
 
     void _exit_editor();
 
@@ -516,7 +516,7 @@ private:
 
     bool has_main_screen() const { return true; }
 
-    String import_reload_fn;
+    UIString import_reload_fn;
 
     Set<FileDialog *> file_dialogs;
     Set<EditorFileDialog *> editor_file_dialogs;

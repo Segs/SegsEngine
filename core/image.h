@@ -55,10 +55,10 @@ enum class ImageCompressSource : int8_t {
     COMPRESS_SOURCE_LAYERED,
 };
 
-using SavePNGFunc = Error (*)(const String &, const Ref<Image> &);
+using SavePNGFunc = Error (*)(const UIString &, const Ref<Image> &);
 using ImageMemLoadFunc = ImageData (*)(const uint8_t *, int);
 
-using SaveEXRFunc = Error (*)(const String &, const Ref<Image> &, bool);
+using SaveEXRFunc = Error (*)(const UIString &, const Ref<Image> &, bool);
 
 class GODOT_EXPORT Image : public Resource, public ImageData {
     GDCLASS(Image, Resource)

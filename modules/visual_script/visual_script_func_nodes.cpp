@@ -939,7 +939,7 @@ VisualScriptFunctionCall::VisualScriptFunctionCall() {
 }
 
 template <VisualScriptFunctionCall::CallMode cmode>
-static Ref<VisualScriptNode> create_function_call_node(const String &p_name) {
+static Ref<VisualScriptNode> create_function_call_node(const UIString &p_name) {
 
     Ref<VisualScriptFunctionCall> node(make_ref_counted<VisualScriptFunctionCall>());
     node->set_call_mode(cmode);
@@ -1706,7 +1706,7 @@ VisualScriptPropertySet::VisualScriptPropertySet() {
 }
 
 template <VisualScriptPropertySet::CallMode cmode>
-static Ref<VisualScriptNode> create_property_set_node(const String &p_name) {
+static Ref<VisualScriptNode> create_property_set_node(const UIString &p_name) {
 
     Ref<VisualScriptPropertySet> node(make_ref_counted<VisualScriptPropertySet>());
     node->set_call_mode(cmode);
@@ -2318,7 +2318,7 @@ VisualScriptPropertyGet::VisualScriptPropertyGet() {
 }
 
 template <VisualScriptPropertyGet::CallMode cmode>
-static Ref<VisualScriptNode> create_property_get_node(const String &p_name) {
+static Ref<VisualScriptNode> create_property_get_node(const UIString &p_name) {
 
     Ref<VisualScriptPropertyGet> node(make_ref_counted<VisualScriptPropertyGet>());
     node->set_call_mode(cmode);

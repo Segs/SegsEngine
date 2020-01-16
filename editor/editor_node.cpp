@@ -2309,12 +2309,12 @@ void EditorNode::_menu_option_confirm(int p_option, bool p_confirmed) {
         case EDIT_UNDO: {
 
             if (Input::get_singleton()->get_mouse_button_mask() & 0x7) {
-                log->add_message(String("Can't undo while mouse buttons are pressed."), EditorLog::MSG_TYPE_EDITOR);
+                log->add_message(UIString("Can't undo while mouse buttons are pressed."), EditorLog::MSG_TYPE_EDITOR);
             } else {
                 se_string action(editor_data.get_undo_redo().get_current_action_name());
 
                 if (!editor_data.get_undo_redo().undo()) {
-                    log->add_message(String("Nothing to undo."), EditorLog::MSG_TYPE_EDITOR);
+                    log->add_message(UIString("Nothing to undo."), EditorLog::MSG_TYPE_EDITOR);
                 } else if (!action.empty()) {
                     log->add_message_utf8("Undo: " + action, EditorLog::MSG_TYPE_EDITOR);
                 }
@@ -2323,10 +2323,10 @@ void EditorNode::_menu_option_confirm(int p_option, bool p_confirmed) {
         case EDIT_REDO: {
 
             if (Input::get_singleton()->get_mouse_button_mask() & 0x7) {
-                log->add_message(String("Can't redo while mouse buttons are pressed."), EditorLog::MSG_TYPE_EDITOR);
+                log->add_message(UIString("Can't redo while mouse buttons are pressed."), EditorLog::MSG_TYPE_EDITOR);
             } else {
                 if (!editor_data.get_undo_redo().redo()) {
-                    log->add_message(String("Nothing to redo."), EditorLog::MSG_TYPE_EDITOR);
+                    log->add_message(UIString("Nothing to redo."), EditorLog::MSG_TYPE_EDITOR);
                 } else {
                     se_string action(editor_data.get_undo_redo().get_current_action_name());
                     log->add_message(StringUtils::from_utf8("Redo: " + action), EditorLog::MSG_TYPE_EDITOR);
@@ -3087,7 +3087,7 @@ void EditorNode::set_addon_plugin_enabled(const StringName &p_addon, bool p_enab
         }
 
         // Plugin init scripts must inherit from EditorPlugin and be tools.
-        if (String(script->get_instance_base_type()) != "EditorPlugin") {
+        if (UIString(script->get_instance_base_type()) != "EditorPlugin") {
             show_warning(FormatSN(
                     TTR("Unable to load addon script from path: '%s' Base type is not EditorPlugin.").asCString(), script_path.c_str()));
             return;
@@ -4119,7 +4119,7 @@ Ref<Texture> EditorNode::get_class_icon(const StringName &p_class, const StringN
 void EditorNode::progress_add_task(const StringName &p_task, const StringName &p_label, int p_steps, bool p_can_cancel) {
 
     if (singleton->disable_progress_dialog) {
-        print_line(String("\t%1: begin: %2 steps: %3").arg(StringUtils::from_utf8(p_task), p_label.asCString()).arg(p_steps).toUtf8().constData());
+        print_line(UIString("\t%1: begin: %2 steps: %3").arg(StringUtils::from_utf8(p_task), p_label.asCString()).arg(p_steps).toUtf8().constData());
     } else {
         singleton->progress_dialog->add_task(p_task, p_label, p_steps, p_can_cancel);
     }
@@ -4128,7 +4128,7 @@ void EditorNode::progress_add_task(const StringName &p_task, const StringName &p
 bool EditorNode::progress_task_step(const StringName &p_task, const StringName &p_state, int p_step, bool p_force_refresh) {
 
     if (singleton->disable_progress_dialog) {
-        print_line(String("\t%1: step %2: %3")
+        print_line(UIString("\t%1: step %2: %3")
                            .arg(StringUtils::from_utf8(p_task))
                            .arg(p_step)
                            .arg(StringUtils::from_utf8(p_state))

@@ -80,7 +80,7 @@ bool EditorSettings::_set_only(const StringName &p_name, const Variant &p_value)
 
     _THREAD_SAFE_METHOD_
 
-    if (p_name.operator String() == "shortcuts") {
+    if (se_string_view(p_name) == se_string_view("shortcuts")) {
 
         Array arr = p_value;
         ERR_FAIL_COND_V(!arr.empty() && arr.size() & 1, true)
@@ -984,7 +984,7 @@ fail:
 
 void EditorSettings::setup_language() {
 
-    String lang = get("interface/editor/editor_language");
+    UIString lang = get("interface/editor/editor_language");
     if (lang == "en")
         return; //none to do
 

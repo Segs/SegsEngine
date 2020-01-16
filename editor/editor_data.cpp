@@ -731,12 +731,12 @@ uint64_t EditorData::get_scene_version(int p_idx) const {
     return edited_scene[p_idx].version;
 }
 
-String EditorData::get_scene_type(int p_idx) const {
+UIString EditorData::get_scene_type(int p_idx) const {
 
-    ERR_FAIL_INDEX_V(p_idx, edited_scene.size(), String())
+    ERR_FAIL_INDEX_V(p_idx, edited_scene.size(), UIString())
     if (!edited_scene[p_idx].root)
-        return String();
-    return String(edited_scene[p_idx].root->get_class());
+        return UIString();
+    return UIString(edited_scene[p_idx].root->get_class());
 }
 void EditorData::move_edited_scene_to_index(int p_idx) {
 

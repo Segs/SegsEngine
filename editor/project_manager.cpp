@@ -216,7 +216,7 @@ private:
                         char fname[16384];
                         ret = unzGetCurrentFileInfo(pkg, &info, fname, 16384, nullptr, 0, nullptr, 0);
 
-                        if (StringUtils::ends_with(String(fname),"project.godot")) {
+                        if (StringUtils::ends_with(UIString(fname),"project.godot")) {
                             break;
                         }
 
@@ -2718,7 +2718,7 @@ void ProjectListFilter::_search_text_changed(se_string_view p_newtext) {
     emit_signal("filter_changed");
 }
 
-String ProjectListFilter::get_search_term() {
+UIString ProjectListFilter::get_search_term() {
     return StringUtils::strip_edges(search_box->get_text_ui());
 }
 se_string ProjectListFilter::get_search_term_utf8() const {

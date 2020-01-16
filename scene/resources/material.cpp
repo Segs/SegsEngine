@@ -280,8 +280,8 @@ void ShaderMaterial::get_argument_options(const StringName &p_function, int p_id
     const char * quote_style = "\"";
 #endif
 
-    String f = p_function.operator String();
-    if ((f == "get_shader_param" || f == "set_shader_param") && p_idx == 0) {
+    se_string_view f(p_function);
+    if ((f == se_string_view("get_shader_param") || f == se_string_view("set_shader_param")) && p_idx == 0) {
 
         if (shader) {
             ListPOD<PropertyInfo> pl;

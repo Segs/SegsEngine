@@ -1392,7 +1392,7 @@ void SpatialEditorViewport::_sinput(const Ref<InputEvent> &p_event) {
                         Vector3 motion_snapped = motion;
                         motion_snapped.snap(Vector3(snap, snap, snap));
                         // This might not be necessary anymore after issue #288 is solved (in 4.0?).
-                        set_message(StringName(StringUtils::to_utf8(TTR("Scaling: ").asString() + String("(%1, %2, %3")
+                        set_message(StringName(StringUtils::to_utf8(TTR("Scaling: ").asString() + UIString("(%1, %2, %3")
                                     .arg(motion_snapped.x, snap_step_decimals)
                                     .arg(motion_snapped.y, snap_step_decimals)
                                     .arg(motion_snapped.z, snap_step_decimals))));
@@ -1519,7 +1519,7 @@ void SpatialEditorViewport::_sinput(const Ref<InputEvent> &p_event) {
                         }
                         Vector3 motion_snapped = motion;
                         motion_snapped.snap(Vector3(snap, snap, snap));
-                        set_message(TTR("Translating: ") + StringUtils::to_utf8(String("(%1, %2, %3)")
+                        set_message(TTR("Translating: ") + StringUtils::to_utf8(UIString("(%1, %2, %3)")
                                     .arg(motion_snapped.x, snap_step_decimals)
                                     .arg(motion_snapped.y, snap_step_decimals)
                                     .arg(motion_snapped.z, snap_step_decimals)));
@@ -2420,7 +2420,7 @@ void SpatialEditorViewport::_draw() {
     if (message_time > 0) {
         Ref<Font> font = get_font("font", "Label");
         Point2 msgpos = Point2(5, get_size().y - 20);
-        String msg(message.asString());
+        UIString msg(message.asString());
         font->draw(ci, msgpos + Point2(1, 1), msg, Color(0, 0, 0, 0.8f));
         font->draw(ci, msgpos + Point2(-1, -1), msg, Color(0, 0, 0, 0.8f));
         font->draw(ci, msgpos, msg, Color(1, 1, 1, 1));
@@ -3434,7 +3434,7 @@ bool SpatialEditorViewport::can_drop_data_fw(const Point2 &p_point, const Varian
 
     if (!preview_node->is_inside_tree()) {
         Dictionary d = p_data;
-        if (d.has("type") && String(d["type"]) == "files") {
+        if (d.has("type") && UIString(d["type"]) == "files") {
             Vector<se_string> files(d["files"].as<Vector<se_string>>());
 
             PODVector<se_string> scene_extensions;
@@ -3497,7 +3497,7 @@ void SpatialEditorViewport::drop_data_fw(const Point2 &p_point, const Variant &p
 
     selected_files.clear();
     Dictionary d = p_data;
-    if (d.has("type") && String(d["type"]) == "files") {
+    if (d.has("type") && UIString(d["type"]) == "files") {
         selected_files = d["files"].as<Vector<se_string>>();
     }
 
@@ -5632,7 +5632,7 @@ SpatialEditor::SpatialEditor(EditorNode *p_editor) {
 
     PODVector<Variant> button_binds;
     button_binds.resize(1);
-    String sct;
+    UIString sct;
 
     tool_button[TOOL_MODE_SELECT] = memnew(ToolButton);
     hbc_menu->add_child(tool_button[TOOL_MODE_SELECT]);

@@ -1077,7 +1077,7 @@ void EditorFileSystem::_thread_func_sources(void *_userdata) {
     efs->scanning_changes_done = true;
 }
 
-void EditorFileSystem::get_changed_sources(ListPOD<String> *r_changed) {
+void EditorFileSystem::get_changed_sources(ListPOD<UIString> *r_changed) {
 
     *r_changed = sources_changed;
 }

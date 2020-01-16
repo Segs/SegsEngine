@@ -318,7 +318,7 @@ void ConnectDialog::init(const Connection& c, bool bEdit) {
     bEditMode = bEdit;
 }
 
-void ConnectDialog::popup_dialog(const String &p_for_signal) {
+void ConnectDialog::popup_dialog(const UIString &p_for_signal) {
 
     from_signal->set_text(p_for_signal);
     error_label->add_color_override("font_color", get_color("error_color", "Editor"));

@@ -38,7 +38,7 @@
 
 #include <type_traits>
 
-using String = class QString;
+using UIString = class QString;
 
 /**
  * Hashing functions

@@ -2798,7 +2798,7 @@ void BindingsGenerator::_populate_builtin_type_interfaces() {
 
     // se_string
     itype = TypeInterface();
-    itype.name = "se_string";
+    itype.name = "String";
     itype.cname = StringName(itype.name);
     itype.proxy_name = "string";
     itype.c_in = "\t%0 %1_in = " C_METHOD_MONOSTR_TO_GODOT "(%1);\n";

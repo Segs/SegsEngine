@@ -1650,7 +1650,7 @@ void AnimationTimelineEdit::_notification(int p_what) {
                     if (frame != prev_frame && i >= prev_frame_ofs) {
 
                         draw_line(Point2(get_name_limit() + i, 0), Point2(get_name_limit() + i, h), linecolor, Math::round(EDSCALE));
-                        String num(String::number(frame));
+                        UIString num(UIString::number(frame));
                         draw_string(font, Point2(get_name_limit() + i + 3 * EDSCALE, (h - font->get_height()) / 2 + font->get_ascent()).floor(), num, sub ? color_time_dec : color_time_sec, zoomw - i);
                         prev_frame_ofs = i + font->get_string_size(num).x + 5 * EDSCALE;
                     }
@@ -2938,7 +2938,7 @@ bool AnimationTrackEdit::can_drop_data(const Point2 &p_point, const Variant &p_d
         return false;
     }
 
-    String type = d["type"];
+    UIString type = d["type"];
     if (type != "animation_track") {
         return false;
     }
@@ -2970,7 +2970,7 @@ void AnimationTrackEdit::drop_data(const Point2 &p_point, const Variant &p_data)
         return;
     }
 
-    String type = d["type"];
+    UIString type = d["type"];
     if (type != "animation_track") {
         return;
     }
@@ -3213,7 +3213,7 @@ void AnimationTrackEditGroup::_notification(int p_what) {
     }
 }
 
-void AnimationTrackEditGroup::set_type_and_name(const Ref<Texture> &p_type, const String &p_name, const NodePath &p_node) {
+void AnimationTrackEditGroup::set_type_and_name(const Ref<Texture> &p_type, const UIString &p_name, const NodePath &p_node) {
     icon = p_type;
     node_name = p_name;
     node = p_node;

@@ -641,7 +641,7 @@ private:
         tk_line = p_pos.tk_line;
     }
 
-    void _set_error_ui(const String &p_str);
+    void _set_error_ui(const UIString &p_str);
     void _set_error(se_string_view p_str);
 
     static const char *token_names[TK_MAX];

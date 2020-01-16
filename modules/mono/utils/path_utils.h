@@ -40,7 +40,7 @@ se_string join(se_string_view p_a, se_string_view p_b);
 se_string join(se_string_view p_a, se_string_view p_b, se_string_view p_c);
 se_string join(se_string_view p_a, se_string_view p_b, se_string_view p_c, se_string_view p_d);
 
-se_string find_executable(const String &p_name);
+se_string find_executable(const UIString &p_name);
 
 /// Returns a normalized absolute path to the current working directory
 se_string cwd();

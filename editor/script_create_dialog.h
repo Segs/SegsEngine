@@ -102,7 +102,7 @@ class ScriptCreateDialog : public ConfirmationDialog {
     void _lang_changed(int l = 0);
     void _built_in_pressed();
     bool _validate_parent(se_string_view p_string);
-    bool _validate_class(const String &p_string);
+    bool _validate_class(const UIString &p_string);
     StringName _validate_path(se_string_view p_path, bool p_file_must_exist);
     void _class_name_changed(se_string_view p_name);
     void _parent_name_changed(se_string_view p_parent);

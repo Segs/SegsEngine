@@ -151,7 +151,7 @@ void FindReplaceBar::_unhandled_input(const Ref<InputEvent> &p_event) {
 bool FindReplaceBar::_search(uint32_t p_flags, int p_from_line, int p_from_col) {
 
     int line, col;
-    String text = get_search_text();
+    UIString text = get_search_text();
 
     bool found = text_edit->search(text, p_flags, p_from_line, p_from_col, line, col);
 
@@ -176,7 +176,7 @@ bool FindReplaceBar::_search(uint32_t p_flags, int p_from_line, int p_from_col) 
         results_count = 0;
         result_line = -1;
         result_col = -1;
-        text_edit->set_search_text(String());
+        text_edit->set_search_text(UIString());
         text_edit->set_search_flags(p_flags);
         text_edit->set_current_search_result(line, col);
     }
@@ -224,7 +224,7 @@ void FindReplaceBar::_replace_all() {
     text_edit->cursor_set_line(0);
     text_edit->cursor_set_column(0);
 
-    String replace_text = get_replace_text();
+    UIString replace_text = get_replace_text();
     int search_text_len = get_search_text().length();
 
     int rc = 0;
@@ -306,10 +306,10 @@ void FindReplaceBar::_update_results_count() {
 
     results_count = 0;
 
-    String searched = get_search_text();
+    UIString searched = get_search_text();
     if (searched.isEmpty()) return;
 
-    String full_text = StringUtils::from_utf8(text_edit->get_text());
+    UIString full_text = StringUtils::from_utf8(text_edit->get_text());
 
     int from_pos = 0;
 
@@ -363,7 +363,7 @@ bool FindReplaceBar::search_prev() {
         popup_search(true);
 
     uint32_t flags = 0;
-    String text = get_search_text();
+    UIString text = get_search_text();
 
     if (is_whole_words())
         flags |= TextEdit::SEARCH_WHOLE_WORDS;
@@ -396,7 +396,7 @@ bool FindReplaceBar::search_next() {
         popup_search(true);
 
     uint32_t flags = 0;
-    String text;
+    UIString text;
     if (replace_all_mode)
         text = get_replace_text();
     else
@@ -428,7 +428,7 @@ void FindReplaceBar::_hide_bar() {
     if (replace_text->has_focus() || search_text->has_focus())
         text_edit->grab_focus();
 
-    text_edit->set_search_text(String());
+    text_edit->set_search_text(UIString());
     result_line = -1;
     result_col = -1;
     hide();
@@ -527,12 +527,12 @@ void FindReplaceBar::_replace_text_entered(se_string_view p_text) {
     }
 }
 
-String FindReplaceBar::get_search_text() const {
+UIString FindReplaceBar::get_search_text() const {
 
     return search_text->get_text_ui();
 }
 
-String FindReplaceBar::get_replace_text() const {
+UIString FindReplaceBar::get_replace_text() const {
 
     return replace_text->get_text_ui();
 }
@@ -772,7 +772,7 @@ void CodeTextEditor::_reset_zoom() {
 
 void CodeTextEditor::_line_col_changed() {
 
-    String line = StringUtils::from_utf8(text_editor->get_line(text_editor->cursor_get_line()));
+    UIString line = StringUtils::from_utf8(text_editor->get_line(text_editor->cursor_get_line()));
 
     int positional_column = 0;
     for (int i = 0; i < text_editor->cursor_get_column(); i++) {
@@ -921,7 +921,7 @@ void CodeTextEditor::update_editor_settings() {
 void CodeTextEditor::trim_trailing_whitespace() {
     bool trimed_whitespace = false;
     for (int i = 0; i < text_editor->get_line_count(); i++) {
-        String line = StringUtils::from_utf8(text_editor->get_line(i));
+        UIString line = StringUtils::from_utf8(text_editor->get_line(i));
         if (StringUtils::ends_with(line," ") || StringUtils::ends_with(line,"\t")) {
 
             if (!trimed_whitespace) {
@@ -949,7 +949,7 @@ void CodeTextEditor::trim_trailing_whitespace() {
 void CodeTextEditor::insert_final_newline() {
     int final_line = text_editor->get_line_count() - 1;
 
-    String line = StringUtils::from_utf8(text_editor->get_line(final_line));
+    UIString line = StringUtils::from_utf8(text_editor->get_line(final_line));
 
     //length 0 means it's already an empty line,
     //no need to add a newline
@@ -966,7 +966,7 @@ void CodeTextEditor::insert_final_newline() {
 
 void CodeTextEditor::convert_indent_to_spaces() {
     int indent_size = EditorSettings::get_singleton()->get("text_editor/indent/size");
-    String indent;
+    UIString indent;
 
     for (int i = 0; i < indent_size; i++) {
         indent += ' ';
@@ -977,7 +977,7 @@ void CodeTextEditor::convert_indent_to_spaces() {
 
     bool changed_indentation = false;
     for (int i = 0; i < text_editor->get_line_count(); i++) {
-        String line = StringUtils::from_utf8(text_editor->get_line(i));
+        UIString line = StringUtils::from_utf8(text_editor->get_line(i));
 
         if (line.length() <= 0) {
             continue;
@@ -1017,7 +1017,7 @@ void CodeTextEditor::convert_indent_to_tabs() {
 
     bool changed_indentation = false;
     for (int i = 0; i < text_editor->get_line_count(); i++) {
-        String line = StringUtils::from_utf8(text_editor->get_line(i));
+        UIString line = StringUtils::from_utf8(text_editor->get_line(i));
 
         if (line.length() <= 0) {
             continue;
@@ -1075,7 +1075,7 @@ void CodeTextEditor::convert_case(CaseStyle p_case) {
             len = end_col;
         if (i == begin)
             len -= begin_col;
-        String new_line = StringUtils::from_utf8(StringUtils::substr(text_editor->get_line(i),i == begin ? begin_col : 0, len));
+        UIString new_line = StringUtils::from_utf8(StringUtils::substr(text_editor->get_line(i),i == begin ? begin_col : 0, len));
 
         switch (p_case) {
             case UPPER: {
@@ -1220,7 +1220,7 @@ void CodeTextEditor::clone_lines_down() {
     int to_column = 0;
     int cursor_new_line = to_line + 1;
     int cursor_new_column = text_editor->cursor_get_column();
-    String new_text = "\n" + StringUtils::from_utf8(text_editor->get_line(from_line));
+    UIString new_text = "\n" + StringUtils::from_utf8(text_editor->get_line(from_line));
     bool selection_active = false;
 
     text_editor->cursor_set_column(text_editor->get_line(from_line).length());
@@ -1258,7 +1258,7 @@ void CodeTextEditor::clone_lines_down() {
 
 void CodeTextEditor::toggle_inline_comment(se_string_view delimiter) {
     text_editor->begin_complex_operation();
-    String ui_delimiter(StringUtils::from_utf8(delimiter));
+    UIString ui_delimiter(StringUtils::from_utf8(delimiter));
     if (text_editor->is_selection_active()) {
         int begin = text_editor->get_selection_from_line();
         int end = text_editor->get_selection_to_line();
@@ -1279,7 +1279,7 @@ void CodeTextEditor::toggle_inline_comment(se_string_view delimiter) {
             }
         }
         for (int i = begin; i <= end; i++) {
-            String line_text = StringUtils::from_utf8(text_editor->get_line(i));
+            UIString line_text = StringUtils::from_utf8(text_editor->get_line(i));
 
             if (StringUtils::strip_edges(line_text).isEmpty()) {
                 line_text = ui_delimiter;
@@ -1311,7 +1311,7 @@ void CodeTextEditor::toggle_inline_comment(se_string_view delimiter) {
 
     } else {
         int begin = text_editor->cursor_get_line();
-        String line_text = StringUtils::from_utf8(text_editor->get_line(begin));
+        UIString line_text = StringUtils::from_utf8(text_editor->get_line(begin));
         int delimiter_length = delimiter.length();
 
         int col = text_editor->cursor_get_column();
@@ -1750,12 +1750,12 @@ CodeTextEditor::CodeTextEditor() {
     text_editor->connect("cursor_changed", this, "_line_col_changed");
     text_editor->connect("text_changed", this, "_text_changed");
     text_editor->connect("request_completion", this, "_complete_request");
-    Vector<String> cs;
-    cs.push_back(String("."));
-    cs.push_back(String(","));
-    cs.push_back(String("("));
-    cs.push_back(String("="));
-    cs.push_back(String("$"));
+    Vector<UIString> cs;
+    cs.push_back(UIString("."));
+    cs.push_back(UIString(","));
+    cs.push_back(UIString("("));
+    cs.push_back(UIString("="));
+    cs.push_back(UIString("$"));
     text_editor->set_completion(true, cs);
     idle->connect("timeout", this, "_text_changed_idle_timeout");
 

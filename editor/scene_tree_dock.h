@@ -223,7 +223,7 @@ class SceneTreeDock : public VBoxContainer {
     void _perform_instance_scenes(const Vector<se_string> &p_files, Node *parent, int p_pos);
     void _replace_with_branch_scene(se_string_view p_file, Node *base);
 
-    void _file_selected(String p_file);
+    void _file_selected(UIString p_file);
 
     void _remote_tree_selected();
     void _local_tree_selected();
@@ -241,8 +241,8 @@ protected:
     static void _bind_methods();
 
 public:
-    String get_filter();
-    void set_filter(const String &p_filter);
+    UIString get_filter();
+    void set_filter(const UIString &p_filter);
 
     void _focus_node();
 

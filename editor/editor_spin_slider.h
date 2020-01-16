@@ -87,7 +87,7 @@ protected:
 public:
     StringName get_tooltip(const Point2 &p_pos) const override;
 
-    String get_text_value() const;
+    UIString get_text_value() const;
     void set_label(se_string_view p_label);
     const se_string & get_label() const;
 

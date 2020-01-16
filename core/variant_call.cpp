@@ -57,6 +57,9 @@
 #include "core/rid.h"
 #include "core/container_tools.h"
 
+
+using String = se_string;
+
 using VariantFunc = void (*)(Variant &, Variant &, const Variant **);
 using VariantConstructFunc = void (*)(Variant &, const Variant **);
 
@@ -292,7 +295,8 @@ struct _VariantCall {
     static void _call_String_nocasecmp_to(Variant &r_ret, Variant &p_self, const Variant **p_args) {
         r_ret = StringUtils::compare(*reinterpret_cast<se_string *>(p_self._data._mem),(*p_args[0]).as<se_string>(),StringUtils::CaseInsensitive);
     }
-    VCALL_LOCALMEM0R(String, length)
+    static void _call_String_length(Variant &r_ret, Variant &p_self, const Variant ** /*p_args*/) {
+        r_ret = reinterpret_cast<se_string *>(p_self._data._mem)->length(); }
     static void _call_String_count(Variant &r_ret, Variant &p_self, const Variant ** p_args) {
         r_ret = Variant(StringUtils::count(*reinterpret_cast<se_string *>(p_self._data._mem),p_args[0]->as<se_string>(),*p_args[1],*p_args[2]));
     }
@@ -441,7 +445,7 @@ struct _VariantCall {
             r_ret = PoolByteArray();
             return;
         }
-        String tmp(String::fromUtf8(s->data(),s->size()));
+        UIString tmp(UIString::fromUtf8(s->data(),s->size()));
         CharString charstr(tmp.toLatin1());
 
         PoolByteArray retval;

@@ -583,7 +583,7 @@ void ScriptEditor::_open_recent_script(int p_idx) {
 
 void ScriptEditor::_show_error_dialog(se_string_view p_path) {
 
-    String translated(TTR("Can't open '%.*s'. The file could have been moved or deleted."));
+    UIString translated(TTR("Can't open '%.*s'. The file could have been moved or deleted."));
     error_dialog->set_text(StringName(FormatVE(StringUtils::to_utf8(translated).data(), p_path.size(),p_path.data())));
     error_dialog->popup_centered_minsize();
 }
@@ -1911,7 +1911,7 @@ void ScriptEditor::_update_script_names() {
 
             se_string name(eh->get_class());
             Ref<Texture> icon = get_icon("Help", "EditorIcons");
-            se_string tooltip = qPrintable(String(TTR("%1 Class Reference")).arg(name.c_str()));
+            se_string tooltip = qPrintable(UIString(TTR("%1 Class Reference")).arg(name.c_str()));
 
             _ScriptEditorItemData sd;
             sd.icon = icon;

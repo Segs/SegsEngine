@@ -96,7 +96,7 @@ class CustomPropertyEditor : public Popup {
     SceneTreeDialog *scene_tree;
     EditorFileDialog *file;
     ConfirmationDialog *error;
-    String name;
+    UIString name;
     VariantType type;
     Variant v;
     PODVector<se_string_view> field_names;
@@ -165,7 +165,7 @@ public:
     void hide_menu();
 
     Variant get_variant() const;
-    String get_name() const;
+    UIString get_name() const;
 
     void set_read_only(bool p_read_only) { read_only = p_read_only; }
 

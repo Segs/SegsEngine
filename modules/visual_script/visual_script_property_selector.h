@@ -43,7 +43,7 @@ class VisualScriptPropertySelector : public ConfirmationDialog {
 
     void _update_search();
 
-    void create_visualscript_item(StringName name, TreeItem *const root, const String &search_input, const StringName &text);
+    void create_visualscript_item(StringName name, TreeItem *const root, const UIString &search_input, const StringName &text);
 
     void get_visual_node_names(se_string_view root_filter, const Set<se_string> &p_modifiers, bool &found, TreeItem *const root, LineEdit *const search_box);
 
@@ -57,7 +57,7 @@ class VisualScriptPropertySelector : public ConfirmationDialog {
     bool properties;
     bool visual_script_generic;
     bool connecting;
-    String selected;
+    UIString selected;
     VariantType type;
     se_string base_type;
     ObjectID script;
@@ -74,12 +74,12 @@ protected:
     static void _bind_methods();
 
 public:
-    void select_method_from_base_type(se_string_view p_base, const String &p_current = String(), const bool p_virtuals_only = false, const bool p_connecting = true, bool clear_text = true);
-    void select_from_base_type(se_string_view p_base, const String &p_current = String(), bool p_virtuals_only = false, bool p_seq_connect = false, const bool p_connecting = true, bool clear_text = true);
-    void select_from_script(const Ref<Script> &p_script, const String &p_current = String(), const bool p_connecting = true, bool clear_text = true);
-    void select_from_basic_type(VariantType p_type, const String &p_current = String(), const bool p_connecting = true, bool clear_text = true);
-    void select_from_action(se_string_view p_type, const String &p_current = String(), const bool p_connecting = true, bool clear_text = true);
-    void select_from_instance(Object *p_instance, const String &p_current = String(), const bool p_connecting = true, se_string_view p_basetype = {}, bool clear_text = true);
+    void select_method_from_base_type(se_string_view p_base, const UIString &p_current = UIString(), const bool p_virtuals_only = false, const bool p_connecting = true, bool clear_text = true);
+    void select_from_base_type(se_string_view p_base, const UIString &p_current = UIString(), bool p_virtuals_only = false, bool p_seq_connect = false, const bool p_connecting = true, bool clear_text = true);
+    void select_from_script(const Ref<Script> &p_script, const UIString &p_current = UIString(), const bool p_connecting = true, bool clear_text = true);
+    void select_from_basic_type(VariantType p_type, const UIString &p_current = UIString(), const bool p_connecting = true, bool clear_text = true);
+    void select_from_action(se_string_view p_type, const UIString &p_current = UIString(), const bool p_connecting = true, bool clear_text = true);
+    void select_from_instance(Object *p_instance, const UIString &p_current = UIString(), const bool p_connecting = true, se_string_view p_basetype = {}, bool clear_text = true);
     void select_from_visual_script(se_string_view p_base, const bool p_connecting = true, bool clear_text = true);
 
     void show_window(float p_screen_ratio);

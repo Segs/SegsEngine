@@ -502,7 +502,7 @@ Error EditorExportPlatformOSX::export_project(const Ref<EditorExportPreset> &p_p
     zipFile dst_pkg_zip = nullptr;
     DirAccess *tmp_app_path = nullptr;
 
-    String export_format(use_dmg() && StringUtils::ends_with(p_path,"dmg") ? "dmg" : "zip");
+    UIString export_format(use_dmg() && StringUtils::ends_with(p_path,"dmg") ? "dmg" : "zip");
     if (export_format == "dmg") {
         // We're on OSX so we can export to DMG, but first we create our application bundle
         tmp_app_path_name = PathUtils::plus_file(EditorSettings::get_singleton()->get_cache_dir(),pkg_name + ".app");

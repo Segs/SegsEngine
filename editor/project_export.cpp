@@ -688,7 +688,7 @@ bool ProjectExportDialog::can_drop_data_fw(const Point2 &p_point, const Variant 
 
     if (p_from == presets) {
         Dictionary d = p_data;
-        if (!d.has("type") || String(d["type"]) != "export_preset")
+        if (!d.has("type") || UIString(d["type"]) != "export_preset")
             return false;
 
         if (presets->get_item_at_position(p_point, true) < 0 && !presets->is_pos_at_end_of_items(p_point))
@@ -696,7 +696,7 @@ bool ProjectExportDialog::can_drop_data_fw(const Point2 &p_point, const Variant 
     } else if (p_from == patches) {
 
         Dictionary d = p_data;
-        if (!d.has("type") || String(d["type"]) != "export_patch")
+        if (!d.has("type") || UIString(d["type"]) != "export_patch")
             return false;
 
         patches->set_drop_mode_flags(Tree::DROP_MODE_ON_ITEM);
@@ -745,7 +745,7 @@ void ProjectExportDialog::drop_data_fw(const Point2 &p_point, const Variant &p_d
     } else if (p_from == patches) {
 
         Dictionary d = p_data;
-        if (!d.has("type") || String(d["type"]) != "export_patch")
+        if (!d.has("type") || UIString(d["type"]) != "export_patch")
             return;
 
         int from_pos = d["patch"];

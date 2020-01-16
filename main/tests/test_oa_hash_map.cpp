@@ -83,13 +83,13 @@ MainLoop *test() {
 
     // iteration
     {
-        OAHashMap<String, int> map;
+        OAHashMap<UIString, int> map;
 
-        map.set(String("Hello"), 1);
-        map.set(String("World"), 2);
-        map.set(String("Godot rocks"), 42);
+        map.set(UIString("Hello"), 1);
+        map.set(UIString("World"), 2);
+        map.set(UIString("Godot rocks"), 42);
 
-        for (OAHashMap<String, int>::Iterator it = map.iter(); it.valid; it = map.next_iter(it)) {
+        for (OAHashMap<UIString, int>::Iterator it = map.iter(); it.valid; it = map.next_iter(it)) {
             OS::get_singleton()->print(FormatVE("map[\"%s\"] = %d\n",qPrintable(*it.key),*it.value));
         }
     }

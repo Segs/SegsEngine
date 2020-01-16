@@ -1166,7 +1166,7 @@ void ProjectSettingsEditor::_copy_to_platform(int p_which) {
     undo_redo->commit_action();
 }
 
-void ProjectSettingsEditor::add_translation(const String &p_translation) {
+void ProjectSettingsEditor::add_translation(const UIString &p_translation) {
 
     _translation_add(StringUtils::to_utf8(p_translation));
 }

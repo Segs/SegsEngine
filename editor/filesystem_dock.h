@@ -211,8 +211,8 @@ private:
 
     void _file_deleted(const se_string& p_file);
     void _folder_deleted(const se_string& p_folder);
-    void _files_moved(String p_old_file, String p_new_file);
-    void _folder_moved(String p_old_folder, String p_new_folder);
+    void _files_moved(UIString p_old_file, UIString p_new_file);
+    void _folder_moved(UIString p_old_folder, UIString p_new_folder);
 
     void _resource_created() const;
     void _make_dir_confirm();

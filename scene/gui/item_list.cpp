@@ -1162,7 +1162,7 @@ void ItemList::_notification(int p_what) {
                 if (items[i].disabled)
                     modulate.a *= 0.5f;
 
-                String item_text(items[i].text.asString());
+                UIString item_text(items[i].text.asString());
                 if (icon_mode == ICON_MODE_TOP && max_text_lines > 0) {
                     int ss = item_text.length();
                     float ofs = 0;

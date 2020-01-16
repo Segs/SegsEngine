@@ -2463,7 +2463,7 @@ void Tree::_gui_input(Ref<InputEvent> p_event) {
 
         if (k->get_unicode() > 0) {
 
-            _do_incr_search(StringUtils::to_utf8(String(k->get_unicode())));
+            _do_incr_search(StringUtils::to_utf8(UIString(k->get_unicode())));
             accept_event();
 
             return;

@@ -553,7 +553,7 @@ Error ScriptClassParser::parse(const se_string &p_code) {
                         Error err = _skip_generic_type_params();
                         if (err)
                             return err;
-                    } else if (tk == TK_IDENTIFIER && String(value) == "where") {
+                    } else if (tk == TK_IDENTIFIER && UIString(value) == "where") {
                         Error err = _parse_type_constraints();
                         if (err) {
                             return err;

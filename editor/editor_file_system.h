@@ -210,7 +210,7 @@ class EditorFileSystem : public Node {
 
     static void _thread_func_sources(void *_userdata);
 
-    ListPOD<String> sources_changed;
+    ListPOD<UIString> sources_changed;
     ListPOD<ItemAction> scan_actions;
 
     bool _update_scan_actions();
@@ -266,7 +266,7 @@ public:
     float get_scanning_progress() const;
     void scan();
     void scan_changes();
-    void get_changed_sources(ListPOD<String> *r_changed);
+    void get_changed_sources(ListPOD<UIString> *r_changed);
     void update_file(se_string_view p_file);
 
     EditorFileSystemDirectory *get_filesystem_path(se_string_view p_path);

@@ -1145,7 +1145,7 @@ void VisualScriptBuiltinFunc::exec_func(BuiltinFunc p_func, const Variant **p_in
         } break;
         case VisualScriptBuiltinFunc::TEXT_CHAR: {
 
-            *r_return = StringUtils::to_utf8(String(QChar(p_inputs[0]->as<unsigned int>())));
+            *r_return = StringUtils::to_utf8(UIString(QChar(p_inputs[0]->as<unsigned int>())));
 
         } break;
         case VisualScriptBuiltinFunc::TEXT_ORD: {
@@ -1194,7 +1194,7 @@ void VisualScriptBuiltinFunc::exec_func(BuiltinFunc p_func, const Variant **p_in
         } break;
         case VisualScriptBuiltinFunc::TEXT_PRINTRAW: {
 
-            String str = *p_inputs[0];
+            UIString str = *p_inputs[0];
             OS::get_singleton()->print(StringUtils::to_utf8(str).data());
 
         } break;

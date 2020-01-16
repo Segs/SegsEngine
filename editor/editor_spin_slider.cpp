@@ -43,7 +43,7 @@ StringName EditorSpinSlider::get_tooltip(const Point2 &p_pos) const {
     return StringName(StringUtils::num(get_value()));
 }
 
-String EditorSpinSlider::get_text_value() const {
+UIString EditorSpinSlider::get_text_value() const {
     return StringUtils::from_utf8(StringUtils::num(get_value(), Math::range_step_decimals(get_step())));
 }
 
@@ -210,7 +210,7 @@ void EditorSpinSlider::_notification(int p_what) {
             number_width -= updown->get_width();
         }
 
-        String numstr = get_text_value();
+        UIString numstr = get_text_value();
 
         int vofs = (get_size().height - font->get_height()) / 2 + font->get_ascent();
 

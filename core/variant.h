@@ -43,7 +43,7 @@ class RefPtr;
 class Object;
 class Node; // helper
 class Control; // helper
-using String = class QString;
+using UIString = class QString;
 class RID;
 class Array;
 class NodePath;
@@ -72,7 +72,7 @@ template <class T> struct Hasher;
 using PoolByteArray = PoolVector<uint8_t>;
 using PoolIntArray = PoolVector<int>;
 using PoolRealArray = PoolVector<real_t>;
-using PoolStringArray = PoolVector<String>;
+using PoolStringArray = PoolVector<UIString>;
 using PoolSeStringArray = PoolVector<se_string>;
 using PoolVector2Array = PoolVector<Vector2>;
 using PoolVector3Array = PoolVector<Vector3>;
@@ -203,7 +203,7 @@ public:
     template <typename T>
     [[nodiscard]] PODVector<T> asVector() const;
     // Not a recursive loop, as<String>,as<float>,as<StringName> are specialized.
-    operator String() const;
+    operator UIString() const;
     operator se_string() const;
     operator float() const;
     operator StringName() const;
@@ -295,7 +295,7 @@ public:
     Variant(const PoolVector<uint8_t> &p_raw_array);
     Variant(const PoolVector<int> &p_int_array);
     Variant(const PoolVector<real_t> &p_real_array);
-    Variant(const PoolVector<String> &p_string_array);
+    Variant(const PoolVector<UIString> &p_string_array);
     Variant(const PoolVector<se_string> &p_string_array);
     Variant(const PoolVector<Vector3> &p_vector3_array);
     Variant(const PoolVector<Color> &p_color_array);
@@ -433,11 +433,11 @@ public:
     static bool has_constant(VariantType p_type, const StringName &p_value);
     static Variant get_constant_value(VariantType p_type, const StringName &p_value, bool *r_valid = nullptr);
 
-    using ObjectDeConstruct = String (*)(const Variant &, void *);
-    using ObjectConstruct = void (*)(const String &, void *, Variant &);
+    using ObjectDeConstruct = UIString (*)(const Variant &, void *);
+    using ObjectConstruct = void (*)(const UIString &, void *, Variant &);
 
     [[nodiscard]] se_string get_construct_string() const;
-    static void construct_from_string(const String &p_string, Variant &r_value, ObjectConstruct p_obj_construct = nullptr, void *p_construct_ud = nullptr);
+    static void construct_from_string(const UIString &p_string, Variant &r_value, ObjectConstruct p_obj_construct = nullptr, void *p_construct_ud = nullptr);
 
     Variant &operator=(const Variant &p_variant); // only this is enough for all the other types
     Variant(const Variant &p_variant);
@@ -485,7 +485,7 @@ const Variant::ObjData &Variant::_get_obj() const {
 
 GODOT_EXPORT se_string vformat(se_string_view p_text, const Variant &p1 = Variant(), const Variant &p2 = Variant(), const Variant &p3 = Variant(), const Variant &p4 = Variant(), const Variant &p5 = Variant());
 
-template <> GODOT_EXPORT String Variant::as<String>() const;
+template <> GODOT_EXPORT UIString Variant::as<UIString>() const;
 template <> GODOT_EXPORT se_string Variant::as<se_string>() const;
 template <> GODOT_EXPORT se_string_view Variant::as<se_string_view>() const;
 template <> GODOT_EXPORT StringName Variant::as<StringName>() const;

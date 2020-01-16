@@ -1240,7 +1240,7 @@ Ref<Theme> create_editor_theme(const Ref<Theme>& p_theme) {
     const Color search_result_border_color = Color(0.41f, 0.61f, 0.91f, 0.38f);
 
     EditorSettings *setting = EditorSettings::get_singleton();
-    String text_editor_color_theme = setting->get("text_editor/theme/color_theme");
+    UIString text_editor_color_theme = setting->get("text_editor/theme/color_theme");
     if (text_editor_color_theme == "Adaptive") {
         setting->set_initial_value("text_editor/highlighting/symbol_color", symbol_color, true);
         setting->set_initial_value("text_editor/highlighting/keyword_color", keyword_color, true);

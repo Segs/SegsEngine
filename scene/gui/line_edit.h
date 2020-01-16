@@ -166,9 +166,9 @@ public:
 
     void delete_char();
     void delete_text(int p_from_column, int p_to_column);
-    void set_text(const String& p_text);
+    void set_text(const UIString& p_text);
     void set_text_utf8(se_string_view p_text);
-    const String &get_text_ui() const;
+    const UIString &get_text_ui() const;
     se_string get_text() const;
     void set_placeholder(StringName p_text);
     StringName get_placeholder() const;

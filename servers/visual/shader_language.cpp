@@ -2097,7 +2097,7 @@ bool ShaderLanguage::_validate_function_call(BlockNode *p_block, OperatorNode *p
                     int outarg_idx = 0;
                     while (builtin_func_out_args[outarg_idx].name) {
 
-                        if (String(name) == builtin_func_out_args[outarg_idx].name) {
+                        if (UIString(name) == builtin_func_out_args[outarg_idx].name) {
                             int arg_idx = builtin_func_out_args[outarg_idx].argument;
 
                             if (arg_idx < argcount) {
@@ -2545,7 +2545,7 @@ void ShaderLanguage::get_builtin_funcs(PODVector<se_string> *r_keywords) {
     }
 }
 
-void ShaderLanguage::_set_error_ui(const String &p_str) {
+void ShaderLanguage::_set_error_ui(const UIString &p_str) {
     if (error_set)
         return;
 

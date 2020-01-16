@@ -328,7 +328,7 @@ int Label::get_longest_line_width() const {
     Ref<Font> font = get_font("font");
     real_t max_line_width = 0;
     real_t line_width = 0;
-    String xltext(StringUtils::from_utf8(xl_text));
+    UIString xltext(StringUtils::from_utf8(xl_text));
     for (int i = 0; i < xltext.size(); i++) {
 
         CharType current = xltext[i];
@@ -413,7 +413,7 @@ void Label::regenerate_word_cache() {
     total_char_cache = 0;
 
     WordCache *last = nullptr;
-    String xltext(StringUtils::from_utf8(xl_text));
+    UIString xltext(StringUtils::from_utf8(xl_text));
 
     for (int i = 0; i <= xltext.length(); i++) {
 

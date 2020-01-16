@@ -36,7 +36,7 @@
 #include "core/se_string.h"
 #include "core/map.h"
 
-using String = class QString;
+using UIString = class QString;
 
 class VariantParser {
 public:

@@ -76,7 +76,7 @@ bool try_get_dictionary_key_value_types(const ManagedType &p_dictionary_type, Ma
 // String
 
 se_string mono_to_utf8_string(MonoString *p_mono_string);
-String mono_to_utf16_string(MonoString *p_mono_string);
+UIString mono_to_utf16_string(MonoString *p_mono_string);
 
 _FORCE_INLINE_ se_string mono_string_to_godot_not_null(MonoString *p_mono_string) {
     return mono_to_utf8_string(p_mono_string);
@@ -93,11 +93,11 @@ _FORCE_INLINE_ MonoString *mono_from_utf8_string(const se_string &p_string) {
     return mono_string_new(mono_domain_get(), p_string.c_str());
 }
 
-_FORCE_INLINE_ MonoString *mono_from_utf16_string(const String &p_string) {
+_FORCE_INLINE_ MonoString *mono_from_utf16_string(const UIString &p_string) {
     return mono_string_from_utf16((mono_unichar2 *)p_string.data());
 }
 
-_FORCE_INLINE_ MonoString *mono_string_from_godot(const String &p_string) {
+_FORCE_INLINE_ MonoString *mono_string_from_godot(const UIString &p_string) {
     return mono_from_utf16_string(p_string);
 }
 _FORCE_INLINE_ MonoString *mono_string_from_godot(const se_string &p_string) {

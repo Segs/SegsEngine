@@ -971,14 +971,14 @@ bool AnimationTrackEditTypeAudio::can_drop_data(const Point2 &p_point, const Var
     if (p_point.x > get_timeline()->get_name_limit() && p_point.x < get_size().width - get_timeline()->get_buttons_width()) {
 
         Dictionary drag_data = p_data;
-        if (drag_data.has("type") && String(drag_data["type"]) == "resource") {
+        if (drag_data.has("type") && UIString(drag_data["type"]) == "resource") {
             Ref<AudioStream> res(drag_data["resource"]);
             if (res) {
                 return true;
             }
         }
 
-        if (drag_data.has("type") && String(drag_data["type"]) == "files") {
+        if (drag_data.has("type") && UIString(drag_data["type"]) == "files") {
 
             PoolVector<se_string> files = drag_data["files"].as<PoolVector<se_string>>();
 
@@ -1000,9 +1000,9 @@ void AnimationTrackEditTypeAudio::drop_data(const Point2 &p_point, const Variant
 
         Ref<AudioStream> stream;
         Dictionary drag_data = p_data;
-        if (drag_data.has("type") && String(drag_data["type"]) == "resource") {
+        if (drag_data.has("type") && UIString(drag_data["type"]) == "resource") {
             stream = refFromVariant<AudioStream>(drag_data["resource"]);
-        } else if (drag_data.has("type") && String(drag_data["type"]) == "files") {
+        } else if (drag_data.has("type") && UIString(drag_data["type"]) == "files") {
 
             PoolVector<se_string> files = drag_data["files"].as<PoolVector<se_string>>();
 

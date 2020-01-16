@@ -171,7 +171,7 @@ protected:
     }
 
 public:
-    String type_name;
+    UIString type_name;
     ObjectID remote_object_id;
     List<PropertyInfo> prop_list;
     Map<StringName, Variant> prop_values;
@@ -437,7 +437,7 @@ void ScriptEditorDebugger::_scene_tree_request() {
 /// |-E
 ///
 int ScriptEditorDebugger::_update_scene_tree(TreeItem *parent, const Array &nodes, int current_index) {
-    String filter = EditorNode::get_singleton()->get_scene_tree_dock()->get_filter();
+    UIString filter = EditorNode::get_singleton()->get_scene_tree_dock()->get_filter();
     StringName item_text = nodes[current_index + 1];
     StringName item_type = nodes[current_index + 2];
     bool keep = StringUtils::is_subsequence_of(filter,item_text.asString(),StringUtils::CaseInsensitive);
@@ -576,7 +576,7 @@ void ScriptEditorDebugger::_parse_message(const se_string &p_msg, const Array &p
         ScriptEditorDebuggerInspectedObject *debugObj = nullptr;
 
         ObjectID id = p_data[0];
-        String type = p_data[1];
+        UIString type = p_data[1];
         Array properties = p_data[2];
 
         if (remote_objects.contains(id)) {
@@ -796,7 +796,7 @@ void ScriptEditorDebugger::_parse_message(const se_string &p_msg, const Array &p
         //OUT
         for (int i = 0; i < p_data.size(); i++) {
 
-            String t = p_data[i];
+            UIString t = p_data[i];
             //LOG
             if (!EditorNode::get_log()->is_visible()) {
                 if (EditorNode::get_singleton()->are_bottom_panels_hidden()) {
@@ -859,7 +859,7 @@ void ScriptEditorDebugger::_parse_message(const se_string &p_msg, const Array &p
         time_vals.push_back(err[3]);
         bool e;
         se_string time = StringUtils::sprintf("%d:%02d:%02d:%03d",time_vals, &e);
-        String txt = err[8].is_zero() ? String(err[7]) : String(err[8]);
+        UIString txt = err[8].is_zero() ? UIString(err[7]) : UIString(err[8]);
 
         // Rest of the error data.
         se_string method = err[4];
@@ -1117,7 +1117,7 @@ void ScriptEditorDebugger::_set_reason_text(const StringName &p_reason, MessageT
             reason->add_color_override("font_color", get_color("success_color", "Editor"));
     }
     reason->set_text(p_reason);
-    String wrapped(StringUtils::word_wrap(p_reason.asString(),80));
+    UIString wrapped(StringUtils::word_wrap(p_reason.asString(),80));
     reason->set_tooltip(StringName(StringUtils::to_utf8(wrapped)));
 }
 
@@ -1320,7 +1320,7 @@ void ScriptEditorDebugger::_notification(int p_what) {
                     if (not connection)
                         break;
 
-                    EditorNode::get_log()->add_message(String("--- Debugging process started ---"), EditorLog::MSG_TYPE_EDITOR);
+                    EditorNode::get_log()->add_message(UIString("--- Debugging process started ---"), EditorLog::MSG_TYPE_EDITOR);
 
                     ppeer->set_stream_peer(connection);
 
@@ -1487,7 +1487,7 @@ void ScriptEditorDebugger::start() {
 
     int remote_port = (int)EditorSettings::get_singleton()->get("network/debug/remote_port");
     if (server->listen(remote_port) != OK) {
-        EditorNode::get_log()->add_message(String("Error listening on port %1").arg(remote_port), EditorLog::MSG_TYPE_ERROR);
+        EditorNode::get_log()->add_message(UIString("Error listening on port %1").arg(remote_port), EditorLog::MSG_TYPE_ERROR);
         return;
     }
 
@@ -1519,7 +1519,7 @@ void ScriptEditorDebugger::stop() {
     ppeer->set_stream_peer(Ref<StreamPeer>());
 
     if (connection) {
-        EditorNode::get_log()->add_message(String("--- Debugging process stopped ---"), EditorLog::MSG_TYPE_EDITOR);
+        EditorNode::get_log()->add_message(UIString("--- Debugging process stopped ---"), EditorLog::MSG_TYPE_EDITOR);
         connection.unref();
 
         reason->set_text("");

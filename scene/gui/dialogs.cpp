@@ -422,7 +422,7 @@ void AcceptDialog::_close_pressed() {
     cancel_pressed();
 }
 
-String AcceptDialog::get_text_ui() const {
+UIString AcceptDialog::get_text_ui() const {
 
     return StringUtils::from_utf8(label->get_text());
 }

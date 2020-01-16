@@ -32,7 +32,7 @@
 
 #include "core/plugin_interfaces/PluginDeclarations.h"
 
-using String = class QString;
+using UIString = class QString;
 
 extern "C" {
 struct NSVGimage;

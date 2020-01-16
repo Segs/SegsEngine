@@ -57,7 +57,7 @@ protected:
 
 public:
 	void set_current(const Set<Node *> &p_selection);
-	String get_selected_type();
+	UIString get_selected_type();
 
 	ReparentDialog();
 	~ReparentDialog() override;

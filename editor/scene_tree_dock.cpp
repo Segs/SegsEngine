@@ -2574,12 +2574,12 @@ void SceneTreeDock::_filter_changed(se_string_view p_filter) {
     scene_tree->set_filter(StringUtils::from_utf8(p_filter));
 }
 
-String SceneTreeDock::get_filter() {
+UIString SceneTreeDock::get_filter() {
 
     return filter->get_text_ui();
 }
 
-void SceneTreeDock::set_filter(const String &p_filter) {
+void SceneTreeDock::set_filter(const UIString &p_filter) {
 
     filter->set_text(p_filter);
     scene_tree->set_filter(p_filter);

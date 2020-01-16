@@ -94,7 +94,7 @@ private:
     VScrollBar *scroll_bar;
 
     uint64_t search_time_msec;
-    String search_string;
+    UIString search_string;
 
     int current_columns;
     int fixed_column_width;

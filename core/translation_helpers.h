@@ -2,9 +2,9 @@
 
 #include "core/forward_decls.h"
 
-using String = class QString;
+using UIString = class QString;
 namespace StringUtils {
-    [[nodiscard]] se_string to_utf8(const String &s);
+    [[nodiscard]] se_string to_utf8(const UIString &s);
 }
 //tool translate
 #ifdef TOOLS_ENABLED

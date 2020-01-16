@@ -740,7 +740,7 @@ ThemeEditor::ThemeEditor() {
     le->set_editable(false);
     second_vb->add_child(le);
     TextEdit *te = memnew(TextEdit);
-    te->set_text(String("TextEdit"));
+    te->set_text(UIString("TextEdit"));
     te->set_custom_minimum_size(Size2(0, 100) * EDSCALE);
     second_vb->add_child(te);
     second_vb->add_child(memnew(SpinBox));

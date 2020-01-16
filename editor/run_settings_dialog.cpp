@@ -39,7 +39,7 @@ void RunSettingsDialog::popup_run_settings() {
     popup_centered(Size2(300, 150));
 }
 
-void RunSettingsDialog::set_custom_arguments(const String &p_arguments) {
+void RunSettingsDialog::set_custom_arguments(const UIString &p_arguments) {
 
     arguments->set_text(p_arguments);
 }

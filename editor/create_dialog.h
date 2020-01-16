@@ -77,7 +77,7 @@ class CreateDialog : public ConfirmationDialog {
     void _confirmed();
     void _text_changed(se_string_view p_newtext);
 
-    Ref<Texture> _get_editor_icon(const String &p_type) const;
+    Ref<Texture> _get_editor_icon(const UIString &p_type) const;
 
     void add_type(const StringName &p_type, HashMap<StringName, TreeItem *> &p_types, TreeItem *p_root, TreeItem **to_select);
 

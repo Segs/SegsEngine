@@ -133,7 +133,7 @@ void SceneTreeEditor::_cell_button_pressed(Object *p_item, int p_column, int p_i
         undo_redo->commit_action();
     } else if (p_id == BUTTON_WARNING) {
 
-        String config_err(n->get_configuration_warning());
+        UIString config_err(n->get_configuration_warning());
         if (config_err.isEmpty())
             return;
         config_err = StringUtils::word_wrap(config_err,80);
@@ -405,7 +405,7 @@ bool SceneTreeEditor::_add_nodes(Node *p_node, TreeItem *p_parent) {
         item->set_as_cursor(0);
     }
 
-    bool keep = StringUtils::is_subsequence_of(filter,String(p_node->get_name()),StringUtils::CaseInsensitive);
+    bool keep = StringUtils::is_subsequence_of(filter,UIString(p_node->get_name()),StringUtils::CaseInsensitive);
 
     for (int i = 0; i < p_node->get_child_count(); i++) {
 
@@ -829,13 +829,13 @@ void SceneTreeEditor::set_marked(Node *p_marked, bool p_selectable, bool p_child
     set_marked(s, p_selectable, p_children_selectable);
 }
 
-void SceneTreeEditor::set_filter(const String &p_filter) {
+void SceneTreeEditor::set_filter(const UIString &p_filter) {
 
     filter = p_filter;
     _update_tree();
 }
 
-String SceneTreeEditor::get_filter() const {
+UIString SceneTreeEditor::get_filter() const {
 
     return filter;
 }
@@ -1005,7 +1005,7 @@ bool SceneTreeEditor::can_drop_data_fw(const Point2 &p_point, const Variant &p_d
     if (section < -1 || section == -1 && !item->get_parent())
         return false;
 
-    if (String(d["type"]) == "files") {
+    if (UIString(d["type"]) == "files") {
 
         Vector<se_string> files = d["files"].as<Vector<se_string>>();
 
@@ -1029,7 +1029,7 @@ bool SceneTreeEditor::can_drop_data_fw(const Point2 &p_point, const Variant &p_d
         return true;
     }
 
-    if (String(d["type"]) == "script_list_element") {
+    if (UIString(d["type"]) == "script_list_element") {
         ScriptEditorBase *se = object_cast<ScriptEditorBase>(d["script_list_element"]);
         if (se) {
             se_string sp = se->get_edited_resource()->get_path();
@@ -1040,7 +1040,7 @@ bool SceneTreeEditor::can_drop_data_fw(const Point2 &p_point, const Variant &p_d
         }
     }
 
-    return String(d["type"]) == "nodes";
+    return UIString(d["type"]) == "nodes";
 }
 void SceneTreeEditor::drop_data_fw(const Point2 &p_point, const Variant &p_data, Control *p_from) {
 
@@ -1061,12 +1061,12 @@ void SceneTreeEditor::drop_data_fw(const Point2 &p_point, const Variant &p_data,
 
     Dictionary d = p_data;
 
-    if (String(d["type"]) == "nodes") {
+    if (UIString(d["type"]) == "nodes") {
         Array nodes = d["nodes"];
         emit_signal("nodes_rearranged", nodes, np, section);
     }
 
-    if (String(d["type"]) == "files") {
+    if (UIString(d["type"]) == "files") {
 
         Vector<se_string> files = d["files"].as<Vector<se_string>>();
 
@@ -1078,7 +1078,7 @@ void SceneTreeEditor::drop_data_fw(const Point2 &p_point, const Variant &p_data,
         }
     }
 
-    if (String(d["type"]) == "script_list_element") {
+    if (UIString(d["type"]) == "script_list_element") {
         ScriptEditorBase *se = object_cast<ScriptEditorBase>(d["script_list_element"]);
         if (se) {
             se_string sp = se->get_edited_resource()->get_path();

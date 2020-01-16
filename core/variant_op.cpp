@@ -162,7 +162,7 @@ Variant::operator bool() const {
     return booleanize();
 }
 
-Variant::operator String() const { return as<String>(); }
+Variant::operator UIString() const { return as<UIString>(); }
 Variant::operator se_string() const { return as<se_string>(); }
 
 Variant::operator float() const { return as<float>(); }

@@ -102,7 +102,7 @@ class ProjectManager : public Control {
     void _load_recent_projects();
     void _on_project_created(se_string_view dir);
     void _on_projects_updated();
-    void _update_scroll_position(const String &dir);
+    void _update_scroll_position(const UIString &dir);
     void _scan_dir(se_string_view path, List<se_string> *r_projects);
 
     void _install_project(se_string_view p_zip_path, se_string_view p_title);
@@ -155,7 +155,7 @@ public:
     void add_filter_option();
     void add_search_box();
     void set_filter_size(int h_size);
-    String get_search_term();
+    UIString get_search_term();
     se_string get_search_term_utf8() const;
     FilterOption get_filter_option();
     void set_filter_option(FilterOption);

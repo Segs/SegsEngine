@@ -948,7 +948,7 @@ void ResourceInteractiveLoaderText::open(FileAccess *p_f, bool p_skip_first_tag)
     rp.userdata = this;
 }
 
-static void bs_save_unicode_string(FileAccess *f, const String &p_string, bool p_bit_on_len = false) {
+static void bs_save_unicode_string(FileAccess *f, const UIString &p_string, bool p_bit_on_len = false) {
 
     se_string utf8 = StringUtils::to_utf8(p_string);
     if (p_bit_on_len) {
@@ -1029,8 +1029,8 @@ Error ResourceInteractiveLoaderText::save_as_binary(FileAccess *p_f, se_string_v
             return error;
         }
 
-        String path = next_tag.fields["path"];
-        String type = next_tag.fields["type"];
+        UIString path = next_tag.fields["path"];
+        UIString type = next_tag.fields["type"];
         int index = next_tag.fields["id"];
 
         bs_save_unicode_string(wf.f, type);
