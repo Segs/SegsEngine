@@ -264,7 +264,7 @@ void GDMonoField::set_value_from_variant(MonoObject *p_object, const Variant &p_
             }
 
             if (array_type->eklass == CACHED_CLASS_RAW(String)) {
-                SET_FROM_ARRAY(PoolStringArray);
+                SET_FROM_ARRAY(PoolSeStringArray);
                 break;
             }
 
@@ -446,7 +446,7 @@ void GDMonoField::set_value_from_variant(MonoObject *p_object, const Variant &p_
                     SET_FROM_ARRAY(PoolRealArray);
                 } break;
                 case VariantType::POOL_STRING_ARRAY: {
-                    SET_FROM_ARRAY(PoolStringArray)
+                    SET_FROM_ARRAY(PoolSeStringArray)
                 } break;
                 case VariantType::POOL_VECTOR2_ARRAY: {
                     SET_FROM_ARRAY(PoolVector2Array)

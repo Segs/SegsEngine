@@ -244,11 +244,9 @@ GDMonoMethod *GDMonoClass::get_fetched_method_unknown_params(const StringName &p
 
     ERR_FAIL_COND_V(!methods_fetched, NULL)
 
-    const MethodKey *k = nullptr;
-
-    while ((k = methods.next(k))) {
-        if (k->name == p_name)
-            return methods.get(*k);
+    for(auto & E : methods) {
+        if (E.second->name == p_name)
+            return E.second;
     }
 
     return nullptr;
@@ -311,13 +309,13 @@ GDMonoMethod *GDMonoClass::get_method(MonoMethod *p_raw_method, const StringName
 
     MethodKey key = MethodKey(p_name, p_params_count);
 
-    GDMonoMethod **match = methods.getptr(key);
+    auto match = methods.find(key);
 
-    if (match)
-        return *match;
+    if (match!=methods.end())
+        return match->second;
 
     GDMonoMethod *method = memnew(GDMonoMethod(p_name, p_raw_method));
-    methods.set(key, method);
+    methods[key] = method;
 
     return method;
 }
@@ -512,9 +510,8 @@ GDMonoClass::~GDMonoClass() {
         Vector<GDMonoMethod *> deleted_methods;
         deleted_methods.resize(methods.size());
 
-        const MethodKey *k = NULL;
-        while ((k = methods.next(k))) {
-            GDMonoMethod *method = methods.get(*k);
+        for( auto & k : methods) {
+            GDMonoMethod *method = k.second;
 
             if (method) {
                 for (int i = 0; i < offset; i++) {
