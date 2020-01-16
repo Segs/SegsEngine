@@ -32,7 +32,7 @@
 #define GD_MONO_LOG_H
 
 #include <mono/utils/mono-logger.h>
-
+#include "core/se_string.h"
 #include "core/typedefs.h"
 
 #if !defined(JAVASCRIPT_ENABLED)
@@ -45,10 +45,10 @@ class GDMonoLog {
 	int log_level_id;
 
 	FileAccess *log_file;
-	String log_file_path;
+    se_string log_file_path;
 
-	bool _try_create_logs_dir(const String &p_logs_dir);
-	void _delete_old_log_files(const String &p_logs_dir);
+    bool _try_create_logs_dir(se_string_view p_logs_dir);
+    void _delete_old_log_files(se_string_view p_logs_dir);
 
 	static void mono_log_callback(const char *log_domain, const char *log_level, const char *message, mono_bool fatal, void *user_data);
 #endif

@@ -148,7 +148,7 @@ class CSharpScript : public Script {
 protected:
     static void _bind_methods();
 
-    Variant call(const StringName &p_method, const Variant **p_args, int p_argcount, Variant::CallError &r_error);
+    Variant call(const StringName &p_method, const Variant **p_args, int p_argcount, Variant::CallError &r_error) override;
     virtual void _resource_path_changed();
     bool _get(const StringName &p_name, Variant &r_ret) const;
     bool _set(const StringName &p_name, const Variant &p_value);

@@ -40,7 +40,7 @@
 GDMonoProperty::GDMonoProperty(MonoProperty *p_mono_property, GDMonoClass *p_owner) {
 	owner = p_owner;
 	mono_property = p_mono_property;
-	name = mono_property_get_name(mono_property);
+    name = StringName(mono_property_get_name(mono_property));
 
 	MonoMethod *prop_method = mono_property_get_get_method(mono_property);
 
@@ -193,7 +193,7 @@ int GDMonoProperty::get_int_value(MonoObject *p_object) {
 	return GDMonoMarshal::unbox<int32_t>(get_value(p_object));
 }
 
-String GDMonoProperty::get_string_value(MonoObject *p_object) {
+se_string GDMonoProperty::get_string_value(MonoObject *p_object) {
 	MonoObject *val = get_value(p_object);
 	return GDMonoMarshal::mono_string_to_godot((MonoString *)val);
 }
