@@ -500,7 +500,10 @@ GDMonoAssembly **GDMono::get_loaded_assembly(se_string_view  p_name) {
 
     MonoDomain *domain = mono_domain_get();
     int32_t domain_id = domain ? mono_domain_get_id(domain) : 0;
-    return &assemblies[domain_id][se_string(p_name)];
+    auto iter = assemblies[domain_id].find_as(p_name);
+    if(iter==assemblies[domain_id].end())
+        return nullptr;
+    return &iter->second;
 }
 
 bool GDMono::load_assembly(const se_string &p_name, GDMonoAssembly **r_assembly, bool p_refonly) {

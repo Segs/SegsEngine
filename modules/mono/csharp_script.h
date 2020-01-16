@@ -403,7 +403,7 @@ public:
     Script *create_script() const override;
     bool has_named_classes() const override;
     bool supports_builtin_mode() const override;
-    /* TODO? */ virtual int find_function(const String &p_function, const String &p_code) const { return -1; }
+    /* TODO? */ int find_function(se_string_view p_function, se_string_view p_code) const override { return -1; }
     se_string make_function(const se_string &p_class, const StringName &p_name, const PoolVector<se_string> &p_args) const override;
     se_string _get_indentation() const;
     /* TODO? */ void auto_indent_code(se_string &p_code, int p_from_line, int p_to_line) const override {}
