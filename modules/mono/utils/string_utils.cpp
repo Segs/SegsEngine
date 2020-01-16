@@ -135,30 +135,36 @@ se_string sformat(const se_string &p_text, const Variant &p1, const Variant &p2,
 
 #ifdef TOOLS_ENABLED
 
-static const eastl::vector_set<se_string_view,eastl::less<se_string_view>,EASTLAllocatorType,eastl::fixed_vector<se_string_view,79,false>>
-keywords = {
-           "abstract" ,"as" ,"base" ,"bool" ,
-           "break" ,"byte" ,"case" ,"catch" ,
-           "char" ,"checked" ,"class" ,"const" ,
-           "continue" ,"decimal" ,"default" ,"delegate" ,
-           "do" ,"double" ,"else" ,"enum" ,
-           "event" ,"explicit" ,"extern" ,"false" ,
-           "finally" ,"fixed" ,"float" ,"for" ,
-           "forech" ,"goto" ,"if" ,"implicit" ,
-           "in" ,"int" ,"interface" ,"internal" ,
-           "is" ,"lock" ,"long" ,"namespace" ,
-           "new" ,"null" ,"object" ,"operator" ,
-           "out" ,"override" ,"params" ,"private" ,
-           "protected" ,"public" ,"readonly" ,"ref" ,
-           "return" ,"sbyte" ,"sealed" ,"short" ,
-           "sizeof" ,"stackalloc" ,"static" ,"string" ,
-           "struct" ,"switch" ,"this" ,"throw" ,
-           "true" ,"try" ,"typeof" ,"uint" ,"ulong" ,
-           "unchecked" ,"unsafe" ,"ushort" ,"using" ,
-           "virtual" ,"volatile" ,"void" ,"while"
-};
 bool is_csharp_keyword(se_string_view p_name) {
     using namespace eastl;
+    static eastl::vector_set<se_string_view,eastl::less<se_string_view>,EASTLAllocatorType,eastl::fixed_vector<se_string_view,79,false>>
+    keywords;
+    static bool initialized=false;
+    if(!initialized){
+        constexpr const char *kwords[] = {
+            "abstract" ,"as" ,"base" ,"bool" ,
+            "break" ,"byte" ,"case" ,"catch" ,
+            "char" ,"checked" ,"class" ,"const" ,
+            "continue" ,"decimal" ,"default" ,"delegate" ,
+            "do" ,"double" ,"else" ,"enum" ,
+            "event" ,"explicit" ,"extern" ,"false" ,
+            "finally" ,"fixed" ,"float" ,"for" ,
+            "forech" ,"goto" ,"if" ,"implicit" ,
+            "in" ,"int" ,"interface" ,"internal" ,
+            "is" ,"lock" ,"long" ,"namespace" ,
+            "new" ,"null" ,"object" ,"operator" ,
+            "out" ,"override" ,"params" ,"private" ,
+            "protected" ,"public" ,"readonly" ,"ref" ,
+            "return" ,"sbyte" ,"sealed" ,"short" ,
+            "sizeof" ,"stackalloc" ,"static" ,"string" ,
+            "struct" ,"switch" ,"this" ,"throw" ,
+            "true" ,"try" ,"typeof" ,"uint" ,"ulong" ,
+            "unchecked" ,"unsafe" ,"ushort" ,"using" ,
+            "virtual" ,"volatile" ,"void" ,"while"
+        };
+        for(const char *c : kwords)
+            keywords.emplace(c);
+    }
     // Reserved keywords
     return keywords.contains(p_name);
 }

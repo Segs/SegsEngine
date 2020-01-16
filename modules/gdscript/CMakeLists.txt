@@ -5,7 +5,10 @@ file(GLOB qrc_files "*.qrc" )
 foreach(tgt ${global_targets})
     add_library(${tgt}_module_gdscript STATIC)
     if(OPTION_TOOLS)
-        list(APPEND source_files ${CMAKE_CURRENT_SOURCE_DIR}/editor/gdscript_highlighter.cpp ${CMAKE_CURRENT_SOURCE_DIR}/editor/gdscript_highlighter.h)
+        list(APPEND source_files
+            ${CMAKE_CURRENT_SOURCE_DIR}/editor/gdscript_highlighter.cpp
+            ${CMAKE_CURRENT_SOURCE_DIR}/editor/gdscript_highlighter.h
+        )
     endif()
     # Those two modules are required for the language server protocol
     if(MODULE_${tgt}_JSONRPC_ENABLE AND MODULE_${tgt}_WEBSOCKET_ENABLE)

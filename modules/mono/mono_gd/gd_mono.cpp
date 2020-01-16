@@ -69,6 +69,8 @@
 
 GDMono *GDMono::singleton = nullptr;
 
+IMPL_GDCLASS(_GodotSharp)
+
 namespace {
 
 #if defined(JAVASCRIPT_ENABLED)

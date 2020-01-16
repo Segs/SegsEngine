@@ -32,6 +32,7 @@
 
 #include "csharp_script.h"
 #include "core/class_db.h"
+#include "core/method_bind.h"
 #include "core/method_bind_interface.h"
 #include "core/object_db.h"
 #include "mono_gd/gd_mono_cache.h"
@@ -48,69 +49,69 @@ Error connect_signal_awaiter(Object *p_source, const se_string &p_signal, Object
 
     Ref<SignalAwaiterHandle> sa_con(make_ref_counted<SignalAwaiterHandle>(p_awaiter));
 #ifdef DEBUG_ENABLED
-	sa_con->set_connection_target(p_target);
+    sa_con->set_connection_target(p_target);
 #endif
 
     PODVector<Variant> binds;
-	binds.push_back(sa_con);
+    binds.push_back(sa_con);
 
     Error err = p_source->connect(StringName(p_signal), sa_con.get(),
-			CSharpLanguage::get_singleton()->get_string_names()._signal_callback,
+            CSharpLanguage::get_singleton()->get_string_names()._signal_callback,
             binds, ObjectNS::CONNECT_ONESHOT);
 
-	if (err != OK) {
-		// Set it as completed to prevent it from calling the failure callback when released.
-		// The awaiter will be aware of the failure by checking the returned error.
-		sa_con->set_completed(true);
-	}
+    if (err != OK) {
+        // Set it as completed to prevent it from calling the failure callback when released.
+        // The awaiter will be aware of the failure by checking the returned error.
+        sa_con->set_completed(true);
+    }
 
-	return err;
+    return err;
 }
 } // namespace SignalAwaiterUtils
 
 Variant SignalAwaiterHandle::_signal_callback(const Variant **p_args, int p_argcount, Variant::CallError &r_error) {
 
 #ifdef DEBUG_ENABLED
-	ERR_FAIL_COND_V_MSG(conn_target_id && !ObjectDB::get_instance(conn_target_id), Variant(),
+    ERR_FAIL_COND_V_MSG(conn_target_id && !ObjectDB::get_instance(conn_target_id), Variant(),
             "Resumed after await, but class instance is gone.")
 #endif
 
-	if (p_argcount < 1) {
-		r_error.error = Variant::CallError::CALL_ERROR_TOO_FEW_ARGUMENTS;
-		r_error.argument = 1;
-		return Variant();
-	}
+    if (p_argcount < 1) {
+        r_error.error = Variant::CallError::CALL_ERROR_TOO_FEW_ARGUMENTS;
+        r_error.argument = 1;
+        return Variant();
+    }
 
     Ref<SignalAwaiterHandle> self = refFromRefPtr<SignalAwaiterHandle>(p_args[p_argcount - 1]->as<RefPtr>());
 
     if (not self) {
-		r_error.error = Variant::CallError::CALL_ERROR_INVALID_ARGUMENT;
-		r_error.argument = p_argcount - 1;
+        r_error.error = Variant::CallError::CALL_ERROR_INVALID_ARGUMENT;
+        r_error.argument = p_argcount - 1;
         r_error.expected = VariantType::OBJECT;
-		return Variant();
-	}
+        return Variant();
+    }
 
-	set_completed(true);
+    set_completed(true);
 
-	int signal_argc = p_argcount - 1;
-	MonoArray *signal_args = mono_array_new(mono_domain_get(), CACHED_CLASS_RAW(MonoObject), signal_argc);
+    int signal_argc = p_argcount - 1;
+    MonoArray *signal_args = mono_array_new(mono_domain_get(), CACHED_CLASS_RAW(MonoObject), signal_argc);
 
-	for (int i = 0; i < signal_argc; i++) {
-		MonoObject *boxed = GDMonoMarshal::variant_to_mono_object(*p_args[i]);
-		mono_array_setref(signal_args, i, boxed);
-	}
+    for (int i = 0; i < signal_argc; i++) {
+        MonoObject *boxed = GDMonoMarshal::variant_to_mono_object(*p_args[i]);
+        mono_array_setref(signal_args, i, boxed);
+    }
 
     MonoException *exc = nullptr;
     GD_MONO_BEGIN_RUNTIME_INVOKE
-	CACHED_METHOD_THUNK(SignalAwaiter, SignalCallback).invoke(get_target(), signal_args, &exc);
+    CACHED_METHOD_THUNK(SignalAwaiter, SignalCallback).invoke(get_target(), signal_args, &exc);
     GD_MONO_END_RUNTIME_INVOKE
 
-	if (exc) {
-		GDMonoUtils::set_pending_exception(exc);
-		ERR_FAIL_V(Variant());
-	}
+    if (exc) {
+        GDMonoUtils::set_pending_exception(exc);
+        ERR_FAIL_V(Variant());
+    }
 
-	return Variant();
+    return Variant();
 }
 
 void SignalAwaiterHandle::_bind_methods() {
@@ -119,28 +120,28 @@ void SignalAwaiterHandle::_bind_methods() {
 }
 
 SignalAwaiterHandle::SignalAwaiterHandle(MonoObject *p_managed) :
-		MonoGCHandle(MonoGCHandle::new_strong_handle(p_managed), STRONG_HANDLE) {
+        MonoGCHandle(MonoGCHandle::new_strong_handle(p_managed), STRONG_HANDLE) {
 
 #ifdef DEBUG_ENABLED
-	conn_target_id = 0;
+    conn_target_id = 0;
 #endif
 }
 
 SignalAwaiterHandle::~SignalAwaiterHandle() {
 
-	if (!completed) {
-		MonoObject *awaiter = get_target();
+    if (!completed) {
+        MonoObject *awaiter = get_target();
 
-		if (awaiter) {
+        if (awaiter) {
             MonoException *exc = nullptr;
             GD_MONO_BEGIN_RUNTIME_INVOKE
-			CACHED_METHOD_THUNK(SignalAwaiter, FailureCallback).invoke(awaiter, &exc);
+            CACHED_METHOD_THUNK(SignalAwaiter, FailureCallback).invoke(awaiter, &exc);
             GD_MONO_END_RUNTIME_INVOKE
 
-			if (exc) {
-				GDMonoUtils::set_pending_exception(exc);
+            if (exc) {
+                GDMonoUtils::set_pending_exception(exc);
                 ERR_FAIL()
-			}
-		}
-	}
+            }
+        }
+    }
 }

@@ -31,25 +31,29 @@
 #include "mono_gc_handle.h"
 
 #include "mono_gd/gd_mono.h"
+#include "core/class_db.h"
+#include "core/property_info.h"
+
+IMPL_GDCLASS(MonoGCHandle)
 
 uint32_t MonoGCHandle::new_strong_handle(MonoObject *p_object) {
 
-	return mono_gchandle_new(p_object, /* pinned: */ false);
+    return mono_gchandle_new(p_object, /* pinned: */ false);
 }
 
 uint32_t MonoGCHandle::new_strong_handle_pinned(MonoObject *p_object) {
 
-	return mono_gchandle_new(p_object, /* pinned: */ true);
+    return mono_gchandle_new(p_object, /* pinned: */ true);
 }
 
 uint32_t MonoGCHandle::new_weak_handle(MonoObject *p_object) {
 
-	return mono_gchandle_new_weakref(p_object, /* track_resurrection: */ false);
+    return mono_gchandle_new_weakref(p_object, /* track_resurrection: */ false);
 }
 
 void MonoGCHandle::free_handle(uint32_t p_gchandle) {
 
-	mono_gchandle_free(p_gchandle);
+    mono_gchandle_free(p_gchandle);
 }
 
 Ref<MonoGCHandle> MonoGCHandle::create_strong(MonoObject *p_object) {
@@ -65,23 +69,23 @@ Ref<MonoGCHandle> MonoGCHandle::create_weak(MonoObject *p_object) {
 void MonoGCHandle::release() {
 
 #ifdef DEBUG_ENABLED
-	CRASH_COND(!released && GDMono::get_singleton() == NULL);
+    CRASH_COND(!released && GDMono::get_singleton() == NULL);
 #endif
 
-	if (!released && GDMono::get_singleton()->is_runtime_initialized()) {
-		free_handle(handle);
-		released = true;
-	}
+    if (!released && GDMono::get_singleton()->is_runtime_initialized()) {
+        free_handle(handle);
+        released = true;
+    }
 }
 
 MonoGCHandle::MonoGCHandle(uint32_t p_handle, HandleType p_handle_type) {
 
-	released = false;
-	weak = p_handle_type == WEAK_HANDLE;
-	handle = p_handle;
+    released = false;
+    weak = p_handle_type == WEAK_HANDLE;
+    handle = p_handle;
 }
 
 MonoGCHandle::~MonoGCHandle() {
 
-	release();
+    release();
 }
