@@ -346,8 +346,8 @@ Error decode_variant(Variant &r_variant, const uint8_t *p_buffer, int p_len, int
             if (strlen & 0x80000000) {
                 //new format
                 ERR_FAIL_COND_V(len < 12, ERR_INVALID_DATA)
-                Vector<StringName> names;
-                Vector<StringName> subnames;
+                PODVector<StringName> names;
+                PODVector<StringName> subnames;
 
                 uint32_t namecount = strlen &= 0x7FFFFFFF;
                 uint32_t subnamecount = decode_uint32(buf + 4);
@@ -377,7 +377,7 @@ Error decode_variant(Variant &r_variant, const uint8_t *p_buffer, int p_len, int
                         subnames.push_back(sname);
                 }
 
-                r_variant = NodePath(names, subnames, flags & 1);
+                r_variant = NodePath(eastl::move(names), eastl::move(subnames), flags & 1);
 
             } else {
                 //old format, just a string

@@ -207,7 +207,7 @@ class SceneTreeDock : public VBoxContainer {
     void _update_script_button();
     Node *_get_selection_group_tail(Node *p_node, List<Node *> p_list);
 
-    void _fill_path_renames(Vector<StringName> base_path, Vector<StringName> new_base_path, Node *p_node, List<Pair<NodePath, NodePath> > *p_renames);
+    void _fill_path_renames(PODVector<StringName> base_path, PODVector<StringName> new_base_path, Node *p_node, List<Pair<NodePath, NodePath> > *p_renames);
 
     void _normalize_drop(Node *&to_node, int &to_pos, int p_type);
 

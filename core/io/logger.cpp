@@ -41,8 +41,6 @@
 
 #include <cstdio>
 
-GODOT_TEMPLATE_EXT_DEFINE(Vector<Logger *>)
-
 #if defined(MINGW_ENABLED) || defined(_MSC_VER)
 //#define sprintf sprintf_s
 #endif

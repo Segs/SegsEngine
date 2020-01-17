@@ -1123,14 +1123,14 @@ void GDScriptFunctions::call(Function p_func, const Variant **p_args, int p_arg_
                     }
 
                     GDScript *p = base.get();
-                    Vector<StringName> sname;
+                    PODVector<StringName> sname;
 
                     while (p->_owner) {
 
                         sname.push_back(p->name);
                         p = p->_owner;
                     }
-                    sname.invert();
+                    eastl::reverse(sname.begin(),sname.end());
 
                     if (!PathUtils::is_resource_file(p->path)) {
                         r_error.error = Variant::CallError::CALL_ERROR_INVALID_ARGUMENT;
@@ -1143,7 +1143,7 @@ void GDScriptFunctions::call(Function p_func, const Variant **p_args, int p_arg_
                         return;
                     }
 
-                    NodePath cp(sname, Vector<StringName>(), false);
+                    NodePath cp(eastl::move(sname), eastl::move(PODVector<StringName>()), false);
 
                     Dictionary d;
                     d["@subpath"] = cp;

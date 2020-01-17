@@ -35,7 +35,6 @@
 #include <cstdarg>
 
 class QChar;
-GODOT_TEMPLATE_EXT_DECLARE(Vector<class Logger *>)
 
 class GODOT_EXPORT Logger {
 protected:

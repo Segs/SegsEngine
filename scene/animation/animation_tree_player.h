@@ -102,7 +102,7 @@ private:
         Spatial *spatial;
         Skeleton *skeleton;
         int bone_idx;
-        Vector<StringName> subpath;
+        PODVector<StringName> subpath;
 
         Vector3 loc;
         Quat rot;

@@ -603,7 +603,7 @@ Variant Object::get(const StringName &p_name, bool *r_valid) const {
     return ret;
 }
 
-void Object::set_indexed(const Vector<StringName> &p_names, const Variant &p_value, bool *r_valid) {
+void Object::set_indexed(const PODVector<StringName> &p_names, const Variant &p_value, bool *r_valid) {
     if (p_names.empty()) {
         if (r_valid)
             *r_valid = false;
@@ -654,7 +654,7 @@ void Object::set_indexed(const Vector<StringName> &p_names, const Variant &p_val
     ERR_FAIL_COND(!value_stack.empty())
 }
 
-Variant Object::get_indexed(const Vector<StringName> &p_names, bool *r_valid) const {
+Variant Object::get_indexed(const PODVector<StringName> &p_names, bool *r_valid) const {
     if (p_names.empty()) {
         if (r_valid)
             *r_valid = false;
@@ -1851,7 +1851,7 @@ VariantType Object::get_static_property_type(const StringName &p_property, bool 
     return VariantType::NIL;
 }
 
-VariantType Object::get_static_property_type_indexed(const Vector<StringName> &p_path, bool *r_valid) const {
+VariantType Object::get_static_property_type_indexed(const PODVector<StringName> &p_path, bool *r_valid) const {
 
     if (p_path.size() == 0) {
         if (r_valid)
@@ -1872,7 +1872,7 @@ VariantType Object::get_static_property_type_indexed(const Vector<StringName> &p
     Variant::CallError ce;
     Variant check = Variant::construct(t, nullptr, 0, ce);
 
-    for (int i = 1; i < p_path.size(); i++) {
+    for (size_t i = 1; i < p_path.size(); i++) {
         if (check.get_type() == VariantType::OBJECT || check.get_type() == VariantType::DICTIONARY || check.get_type() == VariantType::ARRAY) {
             // We cannot be sure about the type of properties this types can have
             if (r_valid)
