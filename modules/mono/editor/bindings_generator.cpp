@@ -378,7 +378,7 @@ String BindingsGenerator::bbcode_to_xml(se_string_view p_bbcode, const TypeInter
                     xml_output.append(target_enum_itype.proxy_name); // Includes nesting class if any
                     xml_output.append("\"/>");
                 } else {
-                    ERR_PRINT("Cannot resolve enum reference in documentation: '" + link_target + "'.");
+                    ERR_PRINT("Cannot resolve enum reference in documentation: '" + link_target + "'.")
 
                     xml_output.append("<c>");
                     xml_output.append(link_target);
@@ -716,8 +716,8 @@ void BindingsGenerator::_generate_method_icalls(const TypeInterface &p_itype) {
 
         // Get arguments information
         int i = 0;
-        for (const List<ArgumentInterface>::Element *F = imethod.arguments.front(); F; F = F->next()) {
-            const TypeInterface *arg_type = _get_type_or_placeholder(F->deref().type);
+        for (const ArgumentInterface &F : imethod.arguments) {
+            const TypeInterface *arg_type = _get_type_or_placeholder(F.type);
 
             im_sig += ", ";
             im_sig += arg_type->im_type_in;
@@ -1417,10 +1417,10 @@ Error BindingsGenerator::_generate_cs_property(const BindingsGenerator::TypeInte
     }
 
     if (getter && setter) {
-        ERR_FAIL_COND_V(getter->return_type.cname != setter->arguments.back()->deref().type.cname, ERR_BUG);
+        ERR_FAIL_COND_V(getter->return_type.cname != setter->arguments.back().type.cname, ERR_BUG)
     }
 
-    const TypeReference &proptype_name = getter ? getter->return_type : setter->arguments.back()->deref().type;
+    const TypeReference &proptype_name = getter ? getter->return_type : setter->arguments.back().type;
 
     const TypeInterface *prop_itype = _get_type_or_null(proptype_name);
     ERR_FAIL_NULL_V(prop_itype, ERR_BUG); // Property type not found
@@ -1429,7 +1429,7 @@ Error BindingsGenerator::_generate_cs_property(const BindingsGenerator::TypeInte
         String xml_summary = bbcode_to_xml(fix_doc_description(p_iprop.prop_doc->description), &p_itype);
         PODVector<String> summary_lines = xml_summary.length() ? xml_summary.split('\n') : PODVector<String>();
 
-        if (summary_lines.size()) {
+        if (!summary_lines.empty()) {
             p_output.append(MEMBER_BEGIN "/// <summary>\n");
 
             for (int i = 0; i < summary_lines.size(); i++) {
@@ -1463,11 +1463,11 @@ Error BindingsGenerator::_generate_cs_property(const BindingsGenerator::TypeInte
         p_output.append("return ");
         p_output.append(getter->proxy_name + "(");
         if (p_iprop.index != -1) {
-            const ArgumentInterface &idx_arg = getter->arguments.front()->deref();
+            const ArgumentInterface &idx_arg = getter->arguments.front();
             if (idx_arg.type.cname != name_cache.type_int) {
                 // Assume the index parameter is an enum
                 const TypeInterface *idx_arg_type = _get_type_or_null(idx_arg.type);
-                CRASH_COND(idx_arg_type == NULL);
+                CRASH_COND(idx_arg_type == nullptr)
                 p_output.append("(" + idx_arg_type->proxy_name + ")" + itos(p_iprop.index));
             } else {
                 p_output.append(itos(p_iprop.index));
@@ -1491,7 +1491,7 @@ Error BindingsGenerator::_generate_cs_property(const BindingsGenerator::TypeInte
 
         p_output.append(setter->proxy_name + "(");
         if (p_iprop.index != -1) {
-            const ArgumentInterface &idx_arg = setter->arguments.front()->deref();
+            const ArgumentInterface &idx_arg = setter->arguments.front();
             if (idx_arg.type.cname != name_cache.type_int) {
                 // Assume the index parameter is an enum
                 const TypeInterface *idx_arg_type = _get_type_or_null(idx_arg.type);
@@ -1529,14 +1529,14 @@ Error BindingsGenerator::_generate_cs_method(const BindingsGenerator::TypeInterf
     StringBuilder default_args_doc;
 
     // Retrieve information from the arguments
-    for (const List<ArgumentInterface>::Element *F = p_imethod.arguments.front(); F; F = F->next()) {
-        const ArgumentInterface &iarg = F->deref();
+    for (const ArgumentInterface &iarg : p_imethod.arguments) {
+
         const TypeInterface *arg_type = _get_type_or_placeholder(iarg.type);
 
         // Add the current arguments to the signature
         // If the argument has a default value which is not a constant, we will make it Nullable
         {
-            if (F != p_imethod.arguments.front())
+            if (&iarg != &p_imethod.arguments.front())
                 arguments_sig += ", ";
 
             if (iarg.def_param_mode == ArgumentInterface::NULLABLE_VAL)
@@ -1677,9 +1677,9 @@ Error BindingsGenerator::_generate_cs_method(const BindingsGenerator::TypeInterf
             p_output.append(p_imethod.name);
             p_output.append("\"");
 
-            for (const List<ArgumentInterface>::Element *F = p_imethod.arguments.front(); F; F = F->next()) {
+            for (const ArgumentInterface &F : p_imethod.arguments) {
                 p_output.append(", ");
-                p_output.append(F->deref().name);
+                p_output.append(F.name);
             }
 
             p_output.append(");\n" CLOSE_BLOCK_L2);
@@ -1916,8 +1916,7 @@ Error BindingsGenerator::_generate_glue_method(const BindingsGenerator::TypeInte
 
     // Get arguments information
     int i = 0;
-    for (const List<ArgumentInterface>::Element *F = p_imethod.arguments.front(); F; F = F->next()) {
-        const ArgumentInterface &iarg = F->deref();
+    for (const ArgumentInterface &iarg : p_imethod.arguments) {
         const TypeInterface *arg_type = _get_type_or_placeholder(iarg.type);
 
         String c_param_name = "arg" + itos(i + 1);

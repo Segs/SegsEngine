@@ -200,7 +200,7 @@ namespace Godot
         internal extern static object godot_icall_GD_bytes2var(byte[] bytes, bool allow_objects);
 
         [MethodImpl(MethodImplOptions.InternalCall)]
-        internal extern static object godot_icall_GD_convert(object what, Variant.Type type);
+        internal extern static object godot_icall_GD_convert(object what, VariantType type);
 
         [MethodImpl(MethodImplOptions.InternalCall)]
         internal extern static int godot_icall_GD_hash(object var);

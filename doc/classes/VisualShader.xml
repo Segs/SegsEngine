@@ -161,7 +161,7 @@
 		<method name="set_mode">
 			<return type="void">
 			</return>
-			<argument index="0" name="mode" type="int" enum="Shader.Mode">
+			<argument index="0" name="mode" type="int" enum="ShaderMode">
 			</argument>
 			<description>
 			</description>

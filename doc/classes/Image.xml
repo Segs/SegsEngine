@@ -83,14 +83,14 @@
 		<method name="compress">
 			<return type="int" enum="Error">
 			</return>
-			<argument index="0" name="mode" type="int" enum="Image.CompressMode">
+			<argument index="0" name="mode" type="int" enum="ImageCompressMode">
 			</argument>
-			<argument index="1" name="source" type="int" enum="Image.CompressSource">
+			<argument index="1" name="source" type="int" enum="ImageCompressSource">
 			</argument>
 			<argument index="2" name="lossy_quality" type="float">
 			</argument>
 			<description>
-				Compresses the image to use less memory. Can not directly access pixel data while the image is compressed. Returns error if the chosen compression mode is not available. See [enum CompressMode] and [enum CompressSource] constants.
+				Compresses the image to use less memory. Can not directly access pixel data while the image is compressed. Returns error if the chosen compression mode is not available. See [enum ImageCompressMode] and [enum ImageCompressSource] constants.
 			</description>
 		</method>
 		<method name="convert">
@@ -658,11 +658,11 @@
 		</constant>
 		<constant name="COMPRESS_ETC2" value="4" enum="CompressMode">
 		</constant>
-		<constant name="COMPRESS_SOURCE_GENERIC" value="0" enum="CompressSource">
+		<constant name="COMPRESS_SOURCE_GENERIC" value="0" enum="ImageCompressSource">
 		</constant>
-		<constant name="COMPRESS_SOURCE_SRGB" value="1" enum="CompressSource">
+		<constant name="COMPRESS_SOURCE_SRGB" value="1" enum="ImageCompressSource">
 		</constant>
-		<constant name="COMPRESS_SOURCE_NORMAL" value="2" enum="CompressSource">
+		<constant name="COMPRESS_SOURCE_NORMAL" value="2" enum="ImageCompressSource">
 		</constant>
 	</constants>
 </class>
