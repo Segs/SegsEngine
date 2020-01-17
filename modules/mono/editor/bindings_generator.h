@@ -154,7 +154,7 @@ class BindingsGenerator {
          */
         bool is_internal;
 
-        List<ArgumentInterface> arguments;
+        ListPOD<ArgumentInterface> arguments;
 
         const DocData::MethodDoc *method_doc;
 

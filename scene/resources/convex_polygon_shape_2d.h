@@ -47,7 +47,7 @@ public:
 
     void set_point_cloud(Span<const Vector2> p_points);
     void set_points(Span<const Vector2> p_points);
-    const PODVector<Vector2> &get_points() const;
+    Span<const Vector2> get_points() const;
 
     void draw(const RID &p_to_rid, const Color &p_color) override;
     Rect2 get_rect() const override;

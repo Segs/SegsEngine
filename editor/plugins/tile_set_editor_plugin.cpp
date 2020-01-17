@@ -1948,7 +1948,8 @@ PODVector<Vector2> TileSetEditor::_get_collision_shape_points(const Ref<Shape2D>
     Ref<ConvexPolygonShape2D> convex = dynamic_ref_cast<ConvexPolygonShape2D>(p_shape);
     Ref<ConcavePolygonShape2D> concave = dynamic_ref_cast<ConcavePolygonShape2D>(p_shape);
     if (convex) {
-        return convex->get_points();
+        auto span=convex->get_points();
+        return PODVector<Vector2>(span.begin(),span.end());
     } else if (concave) {
         PODVector<Vector2> points;
         points.reserve(concave->get_segments().size()/2);

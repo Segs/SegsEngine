@@ -66,7 +66,7 @@ void ConvexPolygonShape2D::set_points(Span<const Vector2> p_points) {
     _update_shape();
 }
 
-const PODVector<Vector2> &ConvexPolygonShape2D::get_points() const {
+Span<const Vector2> ConvexPolygonShape2D::get_points() const {
 
     return points;
 }

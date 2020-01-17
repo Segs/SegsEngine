@@ -2378,6 +2378,10 @@ Variant Variant::from(const Vector<Vector2> &p_array) {
     return fromVectorBuiltin<Vector2>({p_array.ptr(),p_array.size()});
 }
 template<>
+Variant Variant::from(const Span<const Vector2> &p_array) {
+    return fromVectorBuiltin<Vector2>({p_array.data(),p_array.size()});
+}
+template<>
 Variant Variant::from(const PODVector<String> &p_array) {
     return fromVectorBuiltin<String>(p_array);
 }

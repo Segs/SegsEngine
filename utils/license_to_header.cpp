@@ -664,7 +664,7 @@ bool collect_and_pack_docs(QStringList args)
     g.write("/* THIS FILE IS GENERATED DO NOT EDIT */\n");
     g.write("#ifndef _DOC_DATA_RAW_H\n");
     g.write("#define _DOC_DATA_RAW_H\n");
-    g.write(qPrintable("static const int _doc_data_compressed_size = " + QString::number(buf.size()) + ";\n"));
+    g.write(qPrintable("static const int _doc_data_compressed_size = " + QString::number(compressed.size()) + ";\n"));
     g.write(qPrintable("static const int _doc_data_uncompressed_size = " + QString::number(decomp_size) + ";\n"));
     g.write("static const unsigned char _doc_data_compressed[] = {\n");
     byteArrayToHexInFile(compressed,g);
