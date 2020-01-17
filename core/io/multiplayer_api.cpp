@@ -97,7 +97,7 @@ public:
             return;
         profiler_frame_data.emplace(p_node, ProfilingInfo());
         profiler_frame_data[p_node].node = p_node;
-        profiler_frame_data[p_node].node_path = (se_string)object_cast<Node>(ObjectDB::get_instance(p_node))->get_path();
+        profiler_frame_data[p_node].node_path = (String)object_cast<Node>(ObjectDB::get_instance(p_node))->get_path();
         profiler_frame_data[p_node].incoming_rpc = 0;
         profiler_frame_data[p_node].incoming_rset = 0;
         profiler_frame_data[p_node].outgoing_rpc = 0;
@@ -412,7 +412,7 @@ Node *MultiplayerAPI::_process_get_node(int p_from, const uint8_t *p_packet, int
         node = root_node->get_node(np);
 
         if (!node)
-            ERR_PRINT("Failed to get path from RPC: " + se_string(np) + ".")
+            ERR_PRINT("Failed to get path from RPC: " + String(np) + ".")
     } else {
         // Use cached path.
         uint32_t id = target;
@@ -428,7 +428,7 @@ Node *MultiplayerAPI::_process_get_node(int p_from, const uint8_t *p_packet, int
 
         node = root_node->get_node(ni->path);
         if (!node)
-            ERR_PRINT("Failed to get cached path from RPC: " + se_string(ni->path) + ".")
+            ERR_PRINT("Failed to get cached path from RPC: " + String(ni->path) + ".")
     }
     return node;
 }
@@ -447,8 +447,8 @@ void MultiplayerAPI::_process_rpc(Node *p_node, const StringName &p_name, int p_
     }
 
     bool can_call = _can_call_mode(p_node, rpc_mode, p_from);
-    ERR_FAIL_COND_MSG(!can_call, "RPC '" + se_string(p_name) + "' is not allowed on node " +
-                                         (se_string)p_node->get_path() + " from: " + ::to_string(p_from) +
+    ERR_FAIL_COND_MSG(!can_call, "RPC '" + String(p_name) + "' is not allowed on node " +
+                                         (String)p_node->get_path() + " from: " + ::to_string(p_from) +
                                          ". Mode is " + ::to_string((int)rpc_mode) + ", master is " +
                                          ::to_string(p_node->get_network_master()) + ".")
 
@@ -478,7 +478,7 @@ void MultiplayerAPI::_process_rpc(Node *p_node, const StringName &p_name, int p_
 
     p_node->call(p_name, (const Variant **)argp.ptr(), argc, ce);
     if (ce.error != Variant::CallError::CALL_OK) {
-        se_string error = Variant::get_call_error_text(p_node, p_name, (const Variant **)argp.ptr(), argc, ce);
+        String error = Variant::get_call_error_text(p_node, p_name, (const Variant **)argp.ptr(), argc, ce);
         error = "RPC - " + error;
         ERR_PRINT(error)
     }
@@ -498,7 +498,7 @@ void MultiplayerAPI::_process_rset(Node *p_node, const StringName &p_name, int p
     }
 
     bool can_call = _can_call_mode(p_node, rset_mode, p_from);
-    ERR_FAIL_COND_MSG(!can_call, "RSET '" + se_string(p_name) + "' is not allowed on node " + (se_string)p_node->get_path() +
+    ERR_FAIL_COND_MSG(!can_call, "RSET '" + String(p_name) + "' is not allowed on node " + (String)p_node->get_path() +
                                          " from: " + ::to_string(p_from) + ". Mode is " + ::to_string((int)rset_mode) +
                                          ", master is " + ::to_string(p_node->get_network_master()) + ".")
 
@@ -511,7 +511,7 @@ void MultiplayerAPI::_process_rset(Node *p_node, const StringName &p_name, int p
 
     p_node->set(p_name, value, &valid);
     if (!valid) {
-        se_string error = "Error setting remote property '" + se_string(p_name) + "', not found in object of type " + p_node->get_class() + ".";
+        String error = "Error setting remote property '" + String(p_name) + "', not found in object of type " + p_node->get_class() + ".";
         ERR_PRINT(error)
     }
 }
@@ -536,7 +536,7 @@ void MultiplayerAPI::_process_simplify_path(int p_from, const uint8_t *p_packet,
     path_get_cache[p_from].nodes[id] = ni;
 
     // Encode path to send ack.
-    se_string pname(path);
+    String pname(path);
     int len = encode_cstring(pname.data(), nullptr);
 
     Vector<uint8_t> packet;
@@ -596,7 +596,7 @@ bool MultiplayerAPI::_send_confirm_path(const NodePath& p_path, PathSentCache *p
     for (int peer : peers_to_add) {
 
         // Encode function name.
-        se_string pname(p_path);
+        String pname(p_path);
         int len = encode_cstring(pname.data(), nullptr);
 
         Vector<uint8_t> packet;
@@ -662,7 +662,7 @@ void MultiplayerAPI::_send_rpc(Node *p_from, int p_to, bool p_unreliable, bool p
     ofs += 4;
 
     // Encode function name.
-    se_string name(p_name);
+    String name(p_name);
     int len = encode_cstring(name.data(), nullptr);
     MAKE_ROOM(ofs + len)
     encode_cstring(name.data(), &packet_cache[ofs]);
@@ -707,7 +707,7 @@ void MultiplayerAPI::_send_rpc(Node *p_from, int p_to, bool p_unreliable, bool p
         // Not all verified path, so send one by one.
 
         // Append path at the end, since we will need it for some packets.
-        se_string pname(from_path);
+        String pname(from_path);
         int path_len = encode_cstring(pname.data(), nullptr);
         MAKE_ROOM(ofs + path_len)
         encode_cstring(pname.data(), &(packet_cache[ofs]));
@@ -815,7 +815,7 @@ void MultiplayerAPI::rpcp(Node *p_node, int p_peer_id, bool p_unreliable, const 
         p_node->call(p_method, p_arg, p_argcount, ce);
         rpc_sender_id = temp_id;
         if (ce.error != Variant::CallError::CALL_OK) {
-            se_string error = Variant::get_call_error_text(p_node, p_method, p_arg, p_argcount, ce);
+            String error = Variant::get_call_error_text(p_node, p_method, p_arg, p_argcount, ce);
             error = "rpc() aborted in local call:  - " + error + ".";
             ERR_PRINT(error)
             return;
@@ -830,14 +830,14 @@ void MultiplayerAPI::rpcp(Node *p_node, int p_peer_id, bool p_unreliable, const 
         p_node->get_script_instance()->call(p_method, p_arg, p_argcount, ce);
         rpc_sender_id = temp_id;
         if (ce.error != Variant::CallError::CALL_OK) {
-            se_string error = Variant::get_call_error_text(p_node, p_method, p_arg, p_argcount, ce);
+            String error = Variant::get_call_error_text(p_node, p_method, p_arg, p_argcount, ce);
             error = "rpc() aborted in script local call:  - " + error + ".";
             ERR_PRINT(error)
             return;
         }
     }
 
-    ERR_FAIL_COND_MSG(skip_rpc && !(call_local_native || call_local_script), "RPC '" + se_string(p_method) + "' on yourself is not allowed by selected mode.")
+    ERR_FAIL_COND_MSG(skip_rpc && !(call_local_native || call_local_script), "RPC '" + String(p_method) + "' on yourself is not allowed by selected mode.")
 }
 
 void MultiplayerAPI::rsetp(Node *p_node, int p_peer_id, bool p_unreliable, const StringName &p_property, const Variant &p_value) {
@@ -868,7 +868,7 @@ void MultiplayerAPI::rsetp(Node *p_node, int p_peer_id, bool p_unreliable, const
             rpc_sender_id = temp_id;
 
             if (!valid) {
-                se_string error = "rset() aborted in local set, property not found:  - " + se_string(p_property) + ".";
+                String error = "rset() aborted in local set, property not found:  - " + String(p_property) + ".";
                 ERR_PRINT(error)
                 return;
             }
@@ -886,7 +886,7 @@ void MultiplayerAPI::rsetp(Node *p_node, int p_peer_id, bool p_unreliable, const
                 rpc_sender_id = temp_id;
 
                 if (!valid) {
-                    se_string error = "rset() aborted in local script set, property not found:  - " + se_string(p_property) + ".";
+                    String error = "rset() aborted in local script set, property not found:  - " + String(p_property) + ".";
                     ERR_PRINT(error)
                     return;
                 }
@@ -895,7 +895,7 @@ void MultiplayerAPI::rsetp(Node *p_node, int p_peer_id, bool p_unreliable, const
     }
 
     if (skip_rset) {
-        ERR_FAIL_COND_MSG(!set_local, "RSET for '" + se_string(p_property) + "' on yourself is not allowed by selected mode.")
+        ERR_FAIL_COND_MSG(!set_local, "RSET for '" + String(p_property) + "' on yourself is not allowed by selected mode.")
         return;
     }
     m_debug_data->record_outgoing_rset(p_node);

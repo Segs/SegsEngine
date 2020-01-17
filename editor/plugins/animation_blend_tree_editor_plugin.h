@@ -46,11 +46,11 @@ class AnimationNodeBlendTreeEditor : public AnimationTreeNodeEditorPlugin {
 
     GDCLASS(AnimationNodeBlendTreeEditor,AnimationTreeNodeEditorPlugin)
     struct AddOption {
-        se_string name;
-        se_string type;
+        String name;
+        String type;
         Ref<Script> script;
         AddOption() = default;
-        AddOption(se_string p_name, se_string p_type) :
+        AddOption(String p_name, String p_type) :
                 name(std::move(p_name)),
                 type(std::move(p_type)) {
         }

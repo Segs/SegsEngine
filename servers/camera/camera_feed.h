@@ -67,7 +67,7 @@ private:
     int base_height;
 
 protected:
-    se_string name; // name of our camera feed
+    String name; // name of our camera feed
     FeedDataType datatype; // type of texture data stored
     FeedPosition position; // position of camera on the device
     Transform2D transform; // display transform
@@ -82,7 +82,7 @@ public:
     bool is_active() const;
     void set_active(bool p_is_active);
 
-    se_string get_name() const;
+    String get_name() const;
     void set_name(se_string_view p_name);
 
     int get_base_width() const;

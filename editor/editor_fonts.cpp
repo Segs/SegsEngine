@@ -152,7 +152,7 @@ void editor_register_fonts(const Ref<Theme>& p_theme) {
             break;
     }
 
-    se_string custom_font_path = EditorSettings::get_singleton()->get("interface/editor/main_font");
+    String custom_font_path = EditorSettings::get_singleton()->get("interface/editor/main_font");
     Ref<DynamicFontData> CustomFont;
     if (custom_font_path.length() > 0 && dir->file_exists(custom_font_path)) {
         CustomFont = make_ref_counted<DynamicFontData>();
@@ -166,7 +166,7 @@ void editor_register_fonts(const Ref<Theme>& p_theme) {
 
     /* Custom Bold font */
 
-    se_string custom_font_path_bold = EditorSettings::get_singleton()->get("interface/editor/main_font_bold");
+    String custom_font_path_bold = EditorSettings::get_singleton()->get("interface/editor/main_font_bold");
     Ref<DynamicFontData> CustomFontBold;
     if (custom_font_path_bold.length() > 0 && dir->file_exists(custom_font_path_bold)) {
         CustomFontBold = make_ref_counted<DynamicFontData>();
@@ -180,7 +180,7 @@ void editor_register_fonts(const Ref<Theme>& p_theme) {
 
     /* Custom source code font */
 
-    se_string custom_font_path_source = EditorSettings::get_singleton()->get("interface/editor/code_font");
+    String custom_font_path_source = EditorSettings::get_singleton()->get("interface/editor/code_font");
     Ref<DynamicFontData> CustomFontSource;
     if (custom_font_path_source.length() > 0 && dir->file_exists(custom_font_path_source)) {
         CustomFontSource = make_ref_counted<DynamicFontData>();

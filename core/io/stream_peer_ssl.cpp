@@ -64,7 +64,7 @@ void StreamPeerSSL::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("poll"), &StreamPeerSSL::poll);
     MethodBinder::bind_method(D_METHOD("accept_stream", {"stream", "private_key", "certificate", "chain"}), &StreamPeerSSL::accept_stream, {DEFVAL(Ref<X509Certificate>())});
-    MethodBinder::bind_method(D_METHOD("connect_to_stream", {"stream", "validate_certs", "for_hostname", "valid_certificate"}), &StreamPeerSSL::connect_to_stream, {DEFVAL(false), DEFVAL(se_string()), DEFVAL(Ref<X509Certificate>())});
+    MethodBinder::bind_method(D_METHOD("connect_to_stream", {"stream", "validate_certs", "for_hostname", "valid_certificate"}), &StreamPeerSSL::connect_to_stream, {DEFVAL(false), DEFVAL(String()), DEFVAL(Ref<X509Certificate>())});
     MethodBinder::bind_method(D_METHOD("get_status"), &StreamPeerSSL::get_status);
     MethodBinder::bind_method(D_METHOD("disconnect_from_stream"), &StreamPeerSSL::disconnect_from_stream);
     MethodBinder::bind_method(D_METHOD("set_blocking_handshake_enabled", {"enabled"}), &StreamPeerSSL::set_blocking_handshake_enabled);

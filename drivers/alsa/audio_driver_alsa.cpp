@@ -79,7 +79,7 @@ Error AudioDriverALSA::init_device() {
         if (pos != -1) {
             device = StringUtils::substr(device,0, pos);
         }
-        status = snd_pcm_open(&pcm_handle, se_string(device).c_str(), SND_PCM_STREAM_PLAYBACK, SND_PCM_NONBLOCK);
+        status = snd_pcm_open(&pcm_handle, String(device).c_str(), SND_PCM_STREAM_PLAYBACK, SND_PCM_NONBLOCK);
     }
 
     ERR_FAIL_COND_V(status < 0, ERR_CANT_OPEN)
@@ -206,7 +206,7 @@ void AudioDriverALSA::thread_func(void *p_udata) {
             } else {
                 wrote = snd_pcm_recover(ad->pcm_handle, wrote, 0);
                 if (wrote < 0) {
-                    ERR_PRINT("ALSA: Failed and can't recover: " + se_string(snd_strerror(wrote)));
+                    ERR_PRINT("ALSA: Failed and can't recover: " + String(snd_strerror(wrote)));
                     ad->active = false;
                     ad->exit_thread = true;
                 }
@@ -271,7 +271,7 @@ Array AudioDriverALSA::get_device_list() {
 
         if (name != nullptr && !strncmp(name, "plughw", 6)) {
             if (desc) {
-                list.push_back(se_string(name) + ";" + desc);
+                list.push_back(String(name) + ";" + desc);
             } else {
                 list.push_back(name);
             }

@@ -128,15 +128,15 @@ private:
 
     struct CustomCode {
 
-        se_string vertex;
-        se_string vertex_globals;
-        se_string fragment;
-        se_string fragment_globals;
-        se_string light;
-        se_string uniforms;
+        String vertex;
+        String vertex_globals;
+        String fragment;
+        String fragment_globals;
+        String light;
+        String uniforms;
         uint32_t version;
         Vector<StringName> texture_uniforms;
-        Vector<se_string> custom_defines;
+        Vector<String> custom_defines;
         Set<uint32_t> versions;
     };
 
@@ -173,18 +173,18 @@ private:
     const Feedback *feedbacks;
     const char *vertex_code;
     const char *fragment_code;
-    se_string fragment_code0;
-    se_string fragment_code1;
-    se_string fragment_code2;
-    se_string fragment_code3;
-    se_string fragment_code4;
+    String fragment_code0;
+    String fragment_code1;
+    String fragment_code2;
+    String fragment_code3;
+    String fragment_code4;
 
-    se_string vertex_code0;
-    se_string vertex_code1;
-    se_string vertex_code2;
-    se_string vertex_code3;
+    String vertex_code0;
+    String vertex_code1;
+    String vertex_code2;
+    String vertex_code3;
 
-    PODVector<se_string> custom_defines;
+    PODVector<String> custom_defines;
 
     int base_material_tex_index;
 
@@ -322,9 +322,9 @@ public:
     void clear_caches();
 
     uint32_t create_custom_shader();
-    void set_custom_shader_code(uint32_t p_code_id, const se_string &p_vertex, const se_string &p_vertex_globals,
-            const se_string &p_fragment, const se_string &p_light, const se_string &p_fragment_globals, const se_string &p_uniforms,
-            const Vector<StringName> &p_texture_uniforms, const Vector<se_string> &p_custom_defines);
+    void set_custom_shader_code(uint32_t p_code_id, const String &p_vertex, const String &p_vertex_globals,
+            const String &p_fragment, const String &p_light, const String &p_fragment_globals, const String &p_uniforms,
+            const Vector<StringName> &p_texture_uniforms, const Vector<String> &p_custom_defines);
     void set_custom_shader(uint32_t p_code_id);
     void free_custom_shader(uint32_t p_code_id);
 
@@ -368,7 +368,7 @@ public:
 
     void set_base_material_tex_index(int p_idx);
 
-    void add_custom_define(const se_string &p_define) {
+    void add_custom_define(const String &p_define) {
         custom_defines.emplace_back(p_define);
     }
 

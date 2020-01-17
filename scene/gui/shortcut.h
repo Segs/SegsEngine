@@ -48,7 +48,7 @@ public:
 	bool is_shortcut(const Ref<InputEvent> &p_event) const;
 	bool is_valid() const;
 
-	se_string get_as_text() const;
+	String get_as_text() const;
 
 	ShortCut();
 };

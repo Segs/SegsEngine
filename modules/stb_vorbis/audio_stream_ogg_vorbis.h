@@ -101,7 +101,7 @@ public:
     float get_loop_offset() const;
 
     Ref<AudioStreamPlayback> instance_playback() override;
-    se_string get_stream_name() const override;
+    String get_stream_name() const override;
 
     void set_data(const PoolVector<uint8_t> &p_data);
     PoolVector<uint8_t> get_data() const;

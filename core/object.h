@@ -390,7 +390,7 @@ public:
 
     virtual const TypeInfo *get_type_info() const { return get_type_info_static(); }
     virtual const char *get_class() const { return get_type_info()->getTypeName(); }
-    se_string wrap_get_class() const;
+    String wrap_get_class() const;
 
     virtual const char *get_save_class() const { return get_class(); } //class stored when saving
 
@@ -430,7 +430,7 @@ public:
     void call_multilevel(const StringName &p_name, VARIANT_ARG_LIST); // C++ helper
 
     void notification(int p_notification, bool p_reversed = false);
-    se_string to_string();
+    String to_string();
 
     //used mainly by script, get and set all INCLUDING string
     virtual Variant getvar(const Variant &p_key, bool *r_valid = nullptr) const;
@@ -447,7 +447,7 @@ public:
     void set_meta(se_string_view p_name, const Variant &p_value);
     void remove_meta(se_string_view p_name);
     Variant get_meta(se_string_view p_name) const;
-    void get_meta_list(ListPOD<se_string> *p_list) const;
+    void get_meta_list(ListPOD<String> *p_list) const;
 
     IObjectTooling *get_tooling_interface() const;
 
@@ -480,7 +480,7 @@ public:
     VariantType get_static_property_type_indexed(const Vector<StringName> &p_path, bool *r_valid = nullptr) const;
 
     virtual void get_translatable_strings(ListPOD<StringName> *p_strings) const;
-    virtual void get_argument_options(const StringName &p_function, int p_idx, ListPOD<se_string> *r_options) const;
+    virtual void get_argument_options(const StringName &p_function, int p_idx, ListPOD<String> *r_options) const;
 
     StringName tr(const StringName &p_message) const; // translate message (internationalization)
 

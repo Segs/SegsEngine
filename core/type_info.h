@@ -131,7 +131,7 @@ MAKE_TYPE_INFO_WITH_META(float, VariantType::REAL, GodotTypeInfo::METADATA_REAL_
 MAKE_TYPE_INFO_WITH_META(double, VariantType::REAL, GodotTypeInfo::METADATA_REAL_IS_DOUBLE)
 
 MAKE_TYPE_INFO(UIString, VariantType::STRING)
-MAKE_TYPE_INFO(se_string, VariantType::STRING)
+MAKE_TYPE_INFO(String, VariantType::STRING)
 MAKE_TYPE_INFO(se_string_view, VariantType::STRING)
 MAKE_TYPE_INFO(Vector2, VariantType::VECTOR2)
 MAKE_TYPE_INFO(Rect2, VariantType::RECT2)
@@ -151,7 +151,7 @@ MAKE_TYPE_INFO(PoolByteArray, VariantType::POOL_BYTE_ARRAY)
 MAKE_TYPE_INFO(PoolIntArray, VariantType::POOL_INT_ARRAY)
 MAKE_TYPE_INFO(PoolRealArray, VariantType::POOL_REAL_ARRAY)
 MAKE_TYPE_INFO(PoolStringArray, VariantType::POOL_STRING_ARRAY)
-MAKE_TYPE_INFO(PoolVector<se_string>, VariantType::POOL_STRING_ARRAY)
+MAKE_TYPE_INFO(PoolVector<String>, VariantType::POOL_STRING_ARRAY)
 MAKE_TYPE_INFO(PoolVector2Array, VariantType::POOL_VECTOR2_ARRAY)
 MAKE_TYPE_INFO(PoolVector3Array, VariantType::POOL_VECTOR3_ARRAY)
 MAKE_TYPE_INFO(PoolColorArray, VariantType::POOL_COLOR_ARRAY)
@@ -274,7 +274,7 @@ struct GetTypeInfo<const Variant &> {
 MAKE_TEMPLATE_TYPE_INFO(Vector, uint8_t, VariantType::POOL_BYTE_ARRAY)
 MAKE_TEMPLATE_TYPE_INFO(Vector, int, VariantType::POOL_INT_ARRAY)
 MAKE_TEMPLATE_TYPE_INFO(Vector, float, VariantType::POOL_REAL_ARRAY)
-MAKE_TEMPLATE_TYPE_INFO(Vector, se_string, VariantType::POOL_STRING_ARRAY)
+MAKE_TEMPLATE_TYPE_INFO(Vector, String, VariantType::POOL_STRING_ARRAY)
 MAKE_TEMPLATE_TYPE_INFO(Vector, Vector2, VariantType::POOL_VECTOR2_ARRAY)
 MAKE_TEMPLATE_TYPE_INFO(Vector, Vector3, VariantType::POOL_VECTOR3_ARRAY)
 MAKE_TEMPLATE_TYPE_INFO(Vector, Color, VariantType::POOL_COLOR_ARRAY)
@@ -282,7 +282,7 @@ MAKE_TEMPLATE_TYPE_INFO(Vector, Color, VariantType::POOL_COLOR_ARRAY)
 MAKE_TEMPLATE_TYPE_INFO(PODVector, uint8_t, VariantType::POOL_BYTE_ARRAY)
 MAKE_TEMPLATE_TYPE_INFO(PODVector, int, VariantType::POOL_INT_ARRAY)
 MAKE_TEMPLATE_TYPE_INFO(PODVector, float, VariantType::POOL_REAL_ARRAY)
-MAKE_TEMPLATE_TYPE_INFO(PODVector, se_string, VariantType::POOL_STRING_ARRAY)
+MAKE_TEMPLATE_TYPE_INFO(PODVector, String, VariantType::POOL_STRING_ARRAY)
 MAKE_TEMPLATE_TYPE_INFO(PODVector, StringName, VariantType::POOL_STRING_ARRAY)
 MAKE_TEMPLATE_TYPE_INFO(PODVector, Vector2, VariantType::POOL_VECTOR2_ARRAY)
 MAKE_TEMPLATE_TYPE_INFO(PODVector, Vector3, VariantType::POOL_VECTOR3_ARRAY)
@@ -345,7 +345,7 @@ struct GetTypeInfo<const T *, typename EnableIf<TypeInherits<Object, T>::value>:
 template <typename T>
 inline StringName __constant_get_enum_name(T /*param*/, const char *p_constant) {
     if (GetTypeInfo<T>::VARIANT_TYPE == VariantType::NIL)
-        ERR_PRINT(se_string("Missing VARIANT_ENUM_CAST for constant's enum: ") + p_constant)
+        ERR_PRINT(String("Missing VARIANT_ENUM_CAST for constant's enum: ") + p_constant)
     return GetTypeInfo<T>::get_class_info().class_name;
 }
 

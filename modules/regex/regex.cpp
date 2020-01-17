@@ -68,7 +68,7 @@ int RegExMatch::_find(const Variant &p_name) const {
     return -1;
 }
 
-se_string RegExMatch::get_subject() const {
+String RegExMatch::get_subject() const {
 
     return subject;
 }
@@ -102,7 +102,7 @@ Array RegExMatch::get_strings() const {
         int start = data[i].start;
 
         if (start == -1) {
-            result.append(se_string());
+            result.append(String());
             continue;
         }
 
@@ -114,21 +114,21 @@ Array RegExMatch::get_strings() const {
     return result;
 }
 
-se_string RegExMatch::get_string(const Variant &p_name) const {
+String RegExMatch::get_string(const Variant &p_name) const {
 
     int id = _find(p_name);
 
     if (id < 0)
-        return se_string();
+        return String();
 
     int start = data[id].start;
 
     if (start == -1)
-        return se_string();
+        return String();
 
     int length = data[id].end - start;
 
-    return se_string(StringUtils::substr(subject,start, length));
+    return String(StringUtils::substr(subject,start, length));
 }
 
 int RegExMatch::get_start(const Variant &p_name) const {
@@ -178,7 +178,7 @@ void RegEx::clear() {
     }
 }
 
-Error RegEx::compile(const se_string &p_pattern) {
+Error RegEx::compile(const String &p_pattern) {
 
     pattern = p_pattern;
     clear();
@@ -198,14 +198,14 @@ Error RegEx::compile(const se_string &p_pattern) {
     if (!code) {
         PCRE2_UCHAR8 buf[256];
         pcre2_get_error_message_8(err, buf, 256);
-        se_string message = FormatVE("%d: %s",offset,buf);
+        String message = FormatVE("%d: %s",offset,buf);
         ERR_PRINT(message.c_str())
         return FAILED;
     }
     return OK;
 }
 
-Ref<RegExMatch> RegEx::search(const se_string &p_subject, int p_offset, int p_end) const {
+Ref<RegExMatch> RegEx::search(const String &p_subject, int p_offset, int p_end) const {
 
     ERR_FAIL_COND_V(!is_valid(), Ref<RegExMatch>())
 
@@ -258,7 +258,7 @@ Ref<RegExMatch> RegEx::search(const se_string &p_subject, int p_offset, int p_en
         char id = table[i * entry_size];
         if (result->data[id].start == -1)
             continue;
-        se_string name(&table[i * entry_size + 1]);
+        String name(&table[i * entry_size + 1]);
         if (result->names.contains(name))
             continue;
 
@@ -268,7 +268,7 @@ Ref<RegExMatch> RegEx::search(const se_string &p_subject, int p_offset, int p_en
     return result;
 }
 
-Array RegEx::search_all(const se_string &p_subject, int p_offset, int p_end) const {
+Array RegEx::search_all(const String &p_subject, int p_offset, int p_end) const {
 
     int last_end = -1;
     Array result;
@@ -283,9 +283,9 @@ Array RegEx::search_all(const se_string &p_subject, int p_offset, int p_end) con
     return result;
 }
 
-se_string RegEx::sub(const se_string &p_subject, const se_string &p_replacement, bool p_all, int p_offset, int p_end) const {
+String RegEx::sub(const String &p_subject, const String &p_replacement, bool p_all, int p_offset, int p_end) const {
 
-    ERR_FAIL_COND_V(!is_valid(), se_string())
+    ERR_FAIL_COND_V(!is_valid(), String())
 
     // safety_zone is the number of chars we allocate in addition to the number of chars expected in order to
     // guard against the PCRE API writing one additional \0 at the end. PCRE's API docs are unclear on whether
@@ -326,9 +326,9 @@ se_string RegEx::sub(const se_string &p_subject, const se_string &p_replacement,
     pcre2_match_context_free_8(mctx);
 
     if (res < 0)
-        return se_string();
+        return String();
 
-    return se_string(output.ptr(), olength);
+    return String(output.ptr(), olength);
 }
 
 bool RegEx::is_valid() const {
@@ -336,7 +336,7 @@ bool RegEx::is_valid() const {
     return (code != nullptr);
 }
 
-se_string RegEx::get_pattern() const {
+String RegEx::get_pattern() const {
 
     return pattern;
 }
@@ -382,7 +382,7 @@ RegEx::RegEx() {
     code = nullptr;
 }
 
-RegEx::RegEx(const se_string &p_pattern) {
+RegEx::RegEx(const String &p_pattern) {
     general_ctx = pcre2_general_context_create_8(&_regex_malloc, &_regex_free, nullptr);
     code = nullptr;
     compile(p_pattern);

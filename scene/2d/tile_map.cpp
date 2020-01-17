@@ -588,7 +588,7 @@ void TileMap::update_dirty_quadrants() {
                                     _add_shape(shape_idx, q, convex, shapes[j], xform, Vector2(E->first.x, E->first.y));
 #ifdef DEBUG_ENABLED
                                 } else {
-                                    print_error(se_string("The TileSet assigned to the TileMap ") + get_name() + " has an invalid convex shape.");
+                                    print_error(String("The TileSet assigned to the TileMap ") + get_name() + " has an invalid convex shape.");
 #endif
                                 }
                             }
@@ -1793,7 +1793,7 @@ bool TileMap::get_clip_uv() const {
 
 StringName TileMap::get_configuration_warning() const {
 
-    se_string warning(Node2D::get_configuration_warning());
+    String warning(Node2D::get_configuration_warning());
 
     if (use_parent && !collision_parent) {
         if (!warning.empty()) {

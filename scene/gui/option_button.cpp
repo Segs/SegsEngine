@@ -154,7 +154,7 @@ void OptionButton::set_item_disabled(int p_idx, bool p_disabled) {
 StringName OptionButton::get_item_text(int p_idx) const {
     return popup->get_item_text(p_idx);
 }
-se_string OptionButton::get_item_text_utf8(int p_idx) const {
+String OptionButton::get_item_text_utf8(int p_idx) const {
 
     return popup->get_item_text_utf8(p_idx);
 }

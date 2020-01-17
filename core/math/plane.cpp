@@ -160,7 +160,7 @@ bool Plane::is_equal_approx(const Plane &p_plane) const {
     return normal.is_equal_approx(p_plane.normal) && Math::is_equal_approx(d, p_plane.d);
 }
 
-Plane::operator se_string() const {
+Plane::operator String() const {
 
-    return (se_string)normal + ", " + rtos(d);
+    return (String)normal + ", " + rtos(d);
 }

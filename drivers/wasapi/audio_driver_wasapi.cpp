@@ -478,7 +478,7 @@ Array AudioDriverWASAPI::get_device_list() {
 }
 
 se_string_view  AudioDriverWASAPI::get_device() {
-    thread_local se_string name;
+    thread_local String name;
     lock();
     name = audio_output.device_name;
     unlock();
@@ -854,10 +854,10 @@ Array AudioDriverWASAPI::capture_get_device_list() {
     return audio_device_get_list(true);
 }
 
-se_string AudioDriverWASAPI::capture_get_device() {
+String AudioDriverWASAPI::capture_get_device() {
 
     lock();
-    se_string name = audio_input.device_name;
+    String name = audio_input.device_name;
     unlock();
 
     return name;

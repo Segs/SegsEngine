@@ -100,7 +100,7 @@ Error FileAccessWindows::_open(se_string_view p_path, int p_mode_flags) {
         WIN32_FIND_DATAW d;
         HANDLE f = FindFirstFileW(stored.c_str(), &d);
         if (f != INVALID_HANDLE_VALUE) {
-            se_string fname = StringUtils::to_utf8(StringUtils::from_wchar(d.cFileName));
+            String fname = StringUtils::to_utf8(StringUtils::from_wchar(d.cFileName));
             if (!fname.empty()) {
 
                 se_string_view base_file = PathUtils::get_file(path);
@@ -190,11 +190,11 @@ void FileAccessWindows::close() {
     ERR_FAIL_COND_MSG(rename_error, "Safe save failed. This may be a permissions problem, but also may happen because you are running a paranoid antivirus. If this is the case, please switch to Windows Defender or disable the 'safe save' option in editor settings. This makes it work, but increases the risk of file corruption in a crash.")
 }
 
-const se_string &FileAccessWindows::get_path() const {
+const String &FileAccessWindows::get_path() const {
     return path_src;
 }
 
-const se_string &FileAccessWindows::get_path_absolute() const {
+const String &FileAccessWindows::get_path_absolute() const {
     return path;
 }
 
@@ -320,7 +320,7 @@ bool FileAccessWindows::file_exists(se_string_view p_name) {
 
     FILE *g;
     //printf("opening file %s\n", p_fname.c_str());
-    se_string filename = fix_path(p_name);
+    String filename = fix_path(p_name);
     _wfopen_s(&g, StringUtils::from_utf8(filename).toStdWString().c_str(), L"rb");
     if (g == nullptr) {
 
@@ -334,7 +334,7 @@ bool FileAccessWindows::file_exists(se_string_view p_name) {
 
 uint64_t FileAccessWindows::_get_modified_time(se_string_view p_file) {
 
-    se_string file = fix_path(p_file);
+    String file = fix_path(p_file);
     if (StringUtils::ends_with(file,"/") && file != "/")
         file = StringUtils::substr(file,0, file.length() - 1);
 

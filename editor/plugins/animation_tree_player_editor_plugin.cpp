@@ -245,7 +245,7 @@ void AnimationTreePlayerEditor::_master_anim_menu_item(int p_item) {
         _edit_filters();
     else {
 
-        se_string str = master_anim_popup->get_item_text_utf8(p_item);
+        String str = master_anim_popup->get_item_text_utf8(p_item);
         anim_tree->animation_node_set_master_animation(edited_node, str);
     }
     update();
@@ -532,7 +532,7 @@ void AnimationTreePlayerEditor::_draw_node(const StringName &p_node) {
         for (int i = 0; i < inputs; i++) {
 
             slot_icon->draw(ci, ofs + Point2(-slot_icon->get_width(), icon_h_ofs));
-            se_string text;
+            String text;
             switch (type) {
 
                 case AnimationTreePlayer::NODE_TIMESCALE:
@@ -585,7 +585,7 @@ void AnimationTreePlayerEditor::_draw_node(const StringName &p_node) {
         case AnimationTreePlayer::NODE_ANIMATION: {
 
             Ref<Animation> anim = anim_tree->animation_node_get_animation(p_node);
-            se_string text;
+            String text;
             if (!anim_tree->animation_node_get_master_animation(p_node).empty())
                 text = anim_tree->animation_node_get_master_animation(p_node);
             else if (not anim)
@@ -1084,7 +1084,7 @@ StringName AnimationTreePlayerEditor::_add_node(int p_item) {
         "transition"
     };
 
-    se_string name;
+    String name;
     int idx = 1;
 
     while (true) {
@@ -1115,7 +1115,7 @@ void AnimationTreePlayerEditor::_file_dialog_selected(se_string_view p_path) {
     switch (file_op) {
 
         case MENU_IMPORT_ANIMATIONS: {
-            Vector<se_string> files = file_dialog->get_selected_files();
+            Vector<String> files = file_dialog->get_selected_files();
 
             for (int i = 0; i < files.size(); i++) {
 
@@ -1154,7 +1154,7 @@ Size2 AnimationTreePlayerEditor::get_minimum_size() const {
     return Size2(10, 200);
 }
 
-void AnimationTreePlayerEditor::_find_paths_for_filter(const StringName &p_node, Set<se_string> &paths) {
+void AnimationTreePlayerEditor::_find_paths_for_filter(const StringName &p_node, Set<String> &paths) {
 
     ERR_FAIL_COND(!anim_tree->node_exists(p_node))
 
@@ -1172,7 +1172,7 @@ void AnimationTreePlayerEditor::_find_paths_for_filter(const StringName &p_node,
         if (anim) {
 
             for (int i = 0; i < anim->get_track_count(); i++) {
-                paths.insert((se_string)anim->track_get_path(i));
+                paths.insert((String)anim->track_get_path(i));
             }
         }
     }
@@ -1198,19 +1198,19 @@ void AnimationTreePlayerEditor::_edit_filters() {
     filter_dialog->popup_centered_ratio();
     filter->clear();
 
-    Set<se_string> npb;
+    Set<String> npb;
     _find_paths_for_filter(edited_node, npb);
 
     TreeItem *root = filter->create_item();
     filter->set_hide_root(true);
-    Map<se_string, TreeItem *> pm;
+    Map<String, TreeItem *> pm;
 
     Node *base = anim_tree->get_node(anim_tree->get_base_path());
 
-    for (const se_string &E : npb) {
+    for (const String &E : npb) {
 
         TreeItem *parent = root;
-        se_string descr = E;
+        String descr = E;
         if (base) {
             NodePath np(E);
 
@@ -1228,7 +1228,7 @@ void AnimationTreePlayerEditor::_edit_filters() {
                         //
                         if (bparent != -1) {
 
-                            se_string bpn = se_string(skelbase) + ":" + s->get_bone_name(bparent);
+                            String bpn = String(skelbase) + ":" + s->get_bone_name(bparent);
                             if (pm.contains(bpn)) {
                                 parent = pm[bpn];
                                 descr = np.get_subname(0);

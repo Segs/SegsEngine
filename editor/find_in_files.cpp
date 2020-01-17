@@ -66,14 +66,14 @@ static bool is_text_char(CharType c) {
     return c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z' || c >= '0' && c <= '9' || c == '_';
 }
 
-static bool find_next(const se_string &line, const se_string& pattern, int from, bool match_case, bool whole_words, int &out_begin, int &out_end) {
+static bool find_next(const String &line, const String& pattern, int from, bool match_case, bool whole_words, int &out_begin, int &out_end) {
 
     int end = from;
 
     while (true) {
         auto begin = match_case ? StringUtils::find(line,pattern, end) : StringUtils::findn(line,pattern, end);
 
-        if (begin == se_string::npos)
+        if (begin == String::npos)
             return false;
 
         end = begin + pattern.length();
@@ -100,7 +100,7 @@ FindInFiles::FindInFiles() {
     _match_case = true;
 }
 
-void FindInFiles::set_search_text(se_string p_pattern) {
+void FindInFiles::set_search_text(String p_pattern) {
     _pattern = std::move(p_pattern);
 }
 
@@ -116,7 +116,7 @@ void FindInFiles::set_folder(se_string_view folder) {
     _root_dir = folder;
 }
 
-void FindInFiles::set_filter(const Set<se_string> &exts) {
+void FindInFiles::set_filter(const Set<String> &exts) {
     _extension_filter = exts;
 }
 
@@ -140,7 +140,7 @@ void FindInFiles::start() {
 
     // Init search
     _current_dir = "";
-    PoolVector<se_string> init_folder;
+    PoolVector<String> init_folder;
     init_folder.append(_root_dir);
     _folders_stack.clear();
     _folders_stack.push_back(init_folder);
@@ -181,12 +181,12 @@ void FindInFiles::_iterate() {
         if (folders_to_scan.size() != 0) {
             // Scan one folder below
 
-            se_string folder_name = folders_to_scan[folders_to_scan.size() - 1];
+            String folder_name = folders_to_scan[folders_to_scan.size() - 1];
             pop_back(folders_to_scan);
 
             _current_dir = PathUtils::plus_file(_current_dir,folder_name);
 
-            PoolVector<se_string> sub_dirs;
+            PoolVector<String> sub_dirs;
             _scan_dir("res://" + _current_dir, sub_dirs);
 
             _folders_stack.push_back(sub_dirs);
@@ -207,7 +207,7 @@ void FindInFiles::_iterate() {
 
         // Then scan files
 
-        se_string fpath = _files_to_scan[_files_to_scan.size() - 1];
+        String fpath = _files_to_scan[_files_to_scan.size() - 1];
         pop_back(_files_to_scan);
         _scan_file(fpath);
 
@@ -227,18 +227,18 @@ float FindInFiles::get_progress() const {
     return 0;
 }
 
-void FindInFiles::_scan_dir(se_string_view path, PoolVector<se_string> &out_folders) {
+void FindInFiles::_scan_dir(se_string_view path, PoolVector<String> &out_folders) {
 
     DirAccessRef dir = DirAccess::open(path);
     if (!dir) {
-        print_verbose(se_string("Cannot open directory! ") + path);
+        print_verbose(String("Cannot open directory! ") + path);
         return;
     }
 
     dir->list_dir_begin();
 
     for (int i = 0; i < 1000; ++i) {
-        se_string file(dir->get_next());
+        String file(dir->get_next());
 
         if (file.empty())
             break;
@@ -263,7 +263,7 @@ void FindInFiles::_scan_file(se_string_view fpath) {
 
     FileAccessRef  f = FileAccess::open(fpath, FileAccess::READ);
     if (!f) {
-        print_verbose(se_string("Cannot open file ") + fpath);
+        print_verbose(String("Cannot open file ") + fpath);
         return;
     }
 
@@ -277,7 +277,7 @@ void FindInFiles::_scan_file(se_string_view fpath) {
         int begin = 0;
         int end = 0;
 
-        se_string line = f->get_line();
+        String line = f->get_line();
 
         while (find_next(line, _pattern, end, _match_case, _whole_words, begin, end)) {
             emit_signal(StaticCString(SIGNAL_RESULT_FOUND,true), fpath, line_number, begin, end, line);
@@ -396,9 +396,9 @@ void FindInFilesDialog::set_search_text(se_string_view text) {
     _on_search_text_modified(text);
 }
 
-se_string FindInFilesDialog::get_search_text() const {
-    se_string text(_search_text_line_edit->get_text());
-    return se_string(StringUtils::strip_edges( text));
+String FindInFilesDialog::get_search_text() const {
+    String text(_search_text_line_edit->get_text());
+    return String(StringUtils::strip_edges( text));
 }
 
 bool FindInFilesDialog::is_match_case() const {
@@ -409,14 +409,14 @@ bool FindInFilesDialog::is_whole_words() const {
     return _whole_words_checkbox->is_pressed();
 }
 
-se_string FindInFilesDialog::get_folder() const {
-    se_string text(_folder_line_edit->get_text());
-    return se_string(StringUtils::strip_edges( text));
+String FindInFilesDialog::get_folder() const {
+    String text(_folder_line_edit->get_text());
+    return String(StringUtils::strip_edges( text));
 }
 
-Set<se_string> FindInFilesDialog::get_filter() const {
+Set<String> FindInFilesDialog::get_filter() const {
     // could check the _filters_preferences but it might not have been generated yet.
-    Set<se_string> filters;
+    Set<String> filters;
     for (int i = 0; i < _filters_container->get_child_count(); ++i) {
         CheckBox *cb = (CheckBox *)_filters_container->get_child(i);
         if (cb->is_pressed()) {
@@ -641,10 +641,10 @@ void FindInFilesPanel::_notification(int p_what) {
     }
 }
 
-void FindInFilesPanel::_on_result_found(se_string_view fpath, int line_number, int begin, int end, const se_string& text) {
+void FindInFilesPanel::_on_result_found(se_string_view fpath, int line_number, int begin, int end, const String& text) {
 
     TreeItem *file_item;
-    Map<se_string, TreeItem *>::iterator E = _file_items.find_as(fpath);
+    Map<String, TreeItem *>::iterator E = _file_items.find_as(fpath);
 
     if (E == _file_items.end()) {
         file_item = _results_display->create_item();
@@ -655,7 +655,7 @@ void FindInFilesPanel::_on_result_found(se_string_view fpath, int line_number, i
         // so we override their width so they can expand to full width
         file_item->set_expand_right(0, true);
 
-        _file_items[se_string(fpath)] = file_item;
+        _file_items[String(fpath)] = file_item;
 
     } else {
         file_item = E->second;
@@ -751,7 +751,7 @@ void FindInFilesPanel::_on_result_selected() {
     Result r = E->second;
 
     TreeItem *file_item = item->get_parent();
-    se_string fpath = file_item->get_metadata(0);
+    String fpath = file_item->get_metadata(0);
 
     emit_signal(StaticCString(SIGNAL_RESULT_SELECTED,true), fpath, r.line_number, r.begin, r.end);
 }
@@ -762,14 +762,14 @@ void FindInFilesPanel::_on_replace_text_changed(se_string_view text) {
 
 void FindInFilesPanel::_on_replace_all_clicked() {
 
-    se_string replace_text = get_replace_text();
+    String replace_text = get_replace_text();
 
-    PoolVector<se_string> modified_files;
+    PoolVector<String> modified_files;
 
-    for (eastl::pair<const se_string,TreeItem *> &E : _file_items) {
+    for (eastl::pair<const String,TreeItem *> &E : _file_items) {
 
         TreeItem *file_item = E.second;
-        se_string fpath = file_item->get_metadata(0);
+        String fpath = file_item->get_metadata(0);
 
         Vector<Result> locations;
         for (TreeItem *item = file_item->get_children(); item; item = item->get_next()) {
@@ -798,7 +798,7 @@ void FindInFilesPanel::_on_replace_all_clicked() {
 // Same as get_line, but preserves line ending characters
 class ConservativeGetLine {
 public:
-    se_string get_line(FileAccess *f) {
+    String get_line(FileAccess *f) {
 
         _line_buffer.clear();
 
@@ -827,7 +827,7 @@ public:
     }
 
 private:
-    se_string _line_buffer;
+    String _line_buffer;
 };
 
 void FindInFilesPanel::apply_replaces_in_file(se_string_view fpath, const Vector<Result> &locations, se_string_view new_text) {
@@ -837,15 +837,15 @@ void FindInFilesPanel::apply_replaces_in_file(se_string_view fpath, const Vector
     // however that means either losing changes or losing replaces.
 
     FileAccess *f = FileAccess::open(fpath, FileAccess::READ);
-    ERR_FAIL_COND_MSG(f == nullptr, se_string("Cannot open file from path '") + fpath + "'.");
+    ERR_FAIL_COND_MSG(f == nullptr, String("Cannot open file from path '") + fpath + "'.");
 
-    se_string buffer;
+    String buffer;
     int current_line = 1;
 
     ConservativeGetLine conservative;
 
-    se_string line = conservative.get_line(f);
-    se_string search_text = _finder->get_search_text();
+    String line = conservative.get_line(f);
+    String search_text = _finder->get_search_text();
 
     int offset = 0;
 
@@ -870,7 +870,7 @@ void FindInFilesPanel::apply_replaces_in_file(se_string_view fpath, const Vector
             continue;
         }
 
-        line = se_string(StringUtils::left(line,repl_begin)) + new_text + StringUtils::right(line,repl_end);
+        line = String(StringUtils::left(line,repl_begin)) + new_text + StringUtils::right(line,repl_end);
         // keep an offset in case there are successive replaces in the same line
         offset += new_text.length() - (repl_end - repl_begin);
     }
@@ -884,15 +884,15 @@ void FindInFilesPanel::apply_replaces_in_file(se_string_view fpath, const Vector
     // Now the modified contents are in the buffer, rewrite the file with our changes
 
     Error err = f->reopen(fpath, FileAccess::WRITE);
-    ERR_FAIL_COND_MSG(err != OK, "Cannot create file in path '" + se_string(fpath) + "'.")
+    ERR_FAIL_COND_MSG(err != OK, "Cannot create file in path '" + String(fpath) + "'.")
 
     f->store_string(buffer);
 
     f->close();
 }
 
-se_string FindInFilesPanel::get_replace_text() {
-    return se_string(StringUtils::strip_edges(_replace_line_edit->get_text()));
+String FindInFilesPanel::get_replace_text() {
+    return String(StringUtils::strip_edges(_replace_line_edit->get_text()));
 }
 
 void FindInFilesPanel::update_replace_buttons() {

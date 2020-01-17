@@ -59,15 +59,15 @@ ProjectSettings *ProjectSettings::get_singleton() {
     return singleton;
 }
 
-const se_string & ProjectSettings::get_resource_path() const {
+const String & ProjectSettings::get_resource_path() const {
 
     return resource_path;
 };
 
-se_string ProjectSettings::localize_path(se_string_view p_path) const {
+String ProjectSettings::localize_path(se_string_view p_path) const {
 
     if (resource_path.empty())
-        return se_string(p_path); //not initialized yet
+        return String(p_path); //not initialized yet
 
     if (StringUtils::begins_with(p_path,"res://") || StringUtils::begins_with(p_path,"user://") ||
             (PathUtils::is_abs_path(p_path) && !StringUtils::begins_with(p_path,resource_path)))
@@ -75,11 +75,11 @@ se_string ProjectSettings::localize_path(se_string_view p_path) const {
 
     DirAccess *dir = DirAccess::create(DirAccess::ACCESS_FILESYSTEM);
 
-    se_string path = PathUtils::simplify_path(PathUtils::from_native_path(p_path));
+    String path = PathUtils::simplify_path(PathUtils::from_native_path(p_path));
 
     if (dir->change_dir(path) == OK) {
 
-        se_string cwd = dir->get_current_dir();
+        String cwd = dir->get_current_dir();
         cwd = PathUtils::from_native_path(cwd);
 
         memdelete(dir);
@@ -90,14 +90,14 @@ se_string ProjectSettings::localize_path(se_string_view p_path) const {
         // different folder (e.g. "/my/project" as resource_path would be contained in
         // "/my/project_data", even though the latter is not part of res://.
         // `plus_file("")` is an easy way to ensure we have a trailing '/'.
-        const se_string res_path = PathUtils::plus_file(resource_path,"");
+        const String res_path = PathUtils::plus_file(resource_path,"");
 
         // DirAccess::get_current_dir() is not guaranteed to return a path that with a trailing '/',
         // so we must make sure we have it as well in order to compare with 'res_path'.
         cwd = PathUtils::plus_file(cwd,"");
 
         if (!StringUtils::begins_with(cwd,res_path)) {
-            return se_string(p_path);
+            return String(p_path);
         }
 
         return StringUtils::replace_first(cwd,res_path, "res://");
@@ -106,15 +106,15 @@ se_string ProjectSettings::localize_path(se_string_view p_path) const {
         memdelete(dir);
 
         size_t sep = StringUtils::find_last(path,"/");
-        if (sep == se_string::npos) {
+        if (sep == String::npos) {
             return "res://" + path;
         }
 
         se_string_view parent = StringUtils::substr(path,0, sep);
 
-        se_string plocal = localize_path(parent);
+        String plocal = localize_path(parent);
         if (plocal.empty()) {
-            return se_string();
+            return String();
         }
         // Only strip the starting '/' from 'path' if its parent ('plocal') ends with '/'
         if (plocal.back() == '/') {
@@ -127,16 +127,16 @@ se_string ProjectSettings::localize_path(se_string_view p_path) const {
 
 void ProjectSettings::set_initial_value(const StringName &p_name, const Variant &p_value) {
 
-    ERR_FAIL_COND_MSG(!props.contains(p_name), "Request for nonexistent project setting: " + se_string(p_name) + ".")
+    ERR_FAIL_COND_MSG(!props.contains(p_name), "Request for nonexistent project setting: " + String(p_name) + ".")
     props[p_name].initial = p_value;
 }
 void ProjectSettings::set_restart_if_changed(const StringName &p_name, bool p_restart) {
 
-    ERR_FAIL_COND_MSG(!props.contains(p_name), "Request for nonexistent project setting: " + se_string(p_name) + ".")
+    ERR_FAIL_COND_MSG(!props.contains(p_name), "Request for nonexistent project setting: " + String(p_name) + ".")
     props[p_name].restart_if_changed = p_restart;
 }
 
-se_string ProjectSettings::globalize_path(se_string_view p_path) const {
+String ProjectSettings::globalize_path(se_string_view p_path) const {
 
     if (StringUtils::begins_with(p_path,"res://")) {
 
@@ -147,7 +147,7 @@ se_string ProjectSettings::globalize_path(se_string_view p_path) const {
         return StringUtils::replace(p_path,"res://", "");
     } else if (StringUtils::begins_with(p_path,"user://")) {
 
-        se_string data_dir = OS::get_singleton()->get_user_data_dir();
+        String data_dir = OS::get_singleton()->get_user_data_dir();
         if (!data_dir.empty()) {
 
             return StringUtils::replace(p_path,"user:/", data_dir);
@@ -155,7 +155,7 @@ se_string ProjectSettings::globalize_path(se_string_view p_path) const {
         return StringUtils::replace(p_path,"user://", "");
     }
 
-    return se_string(p_path);
+    return String(p_path);
 }
 
 bool ProjectSettings::_set(const StringName &p_name, const Variant &p_value) {
@@ -167,7 +167,7 @@ bool ProjectSettings::_set(const StringName &p_name, const Variant &p_value) {
     else {
 
         if (p_name == CoreStringNames::get_singleton()->_custom_features) {
-            se_string val_str(p_value);
+            String val_str(p_value);
             PODVector<se_string_view> custom_feature_array = StringUtils::split(val_str,',');
             for (int i = 0; i < custom_feature_array.size(); i++) {
 
@@ -178,7 +178,7 @@ bool ProjectSettings::_set(const StringName &p_name, const Variant &p_value) {
 
         if (!disable_feature_overrides) {
             auto dot = StringUtils::find(p_name,".");
-            if (dot != se_string::npos) {
+            if (dot != String::npos) {
                 PODVector<se_string_view> s = StringUtils::split(p_name,'.');
 
                 bool override_valid = false;
@@ -217,7 +217,7 @@ bool ProjectSettings::_get(const StringName &p_name, Variant &r_ret) const {
         name = feature_overrides.at(name);
     }
     if (!props.contains(name)) {
-        WARN_PRINT("Property not found: " + se_string(name))
+        WARN_PRINT("Property not found: " + String(name))
         return false;
     }
     r_ret = props.at(name).variant;
@@ -267,7 +267,7 @@ void ProjectSettings::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
 
         StringName prop_info_name = E.name;
         size_t dot = StringUtils::find(prop_info_name,".");
-        if (dot != se_string::npos)
+        if (dot != String::npos)
             prop_info_name = StringName(se_string_view(prop_info_name).substr(0, dot));
 
         if (custom_prop_info.contains(prop_info_name)) {
@@ -352,7 +352,7 @@ Error ProjectSettings::_setup(se_string_view p_path, se_string_view p_main_pack,
     if (!p_main_pack.empty()) {
 
         bool ok = _load_resource_pack(p_main_pack);
-        ERR_FAIL_COND_V_MSG(!ok, ERR_CANT_OPEN, "Cannot open resource pack '" + se_string(p_main_pack) + "'.")
+        ERR_FAIL_COND_V_MSG(!ok, ERR_CANT_OPEN, "Cannot open resource pack '" + String(p_main_pack) + "'.")
 
         Error err = _load_settings_text_or_binary("res://project.godot", "res://project.binary");
         if (err == OK) {
@@ -363,7 +363,7 @@ Error ProjectSettings::_setup(se_string_view p_path, se_string_view p_main_pack,
         return err;
     }
 
-    se_string exec_path = OS::get_singleton()->get_executable_path();
+    String exec_path = OS::get_singleton()->get_executable_path();
 
     if (!exec_path.empty()) {
         // Attempt with exec_name.pck
@@ -376,9 +376,9 @@ Error ProjectSettings::_setup(se_string_view p_path, se_string_view p_main_pack,
 
         bool found = false;
 
-        se_string  exec_dir = PathUtils::get_base_dir(exec_path);
-        se_string exec_filename(PathUtils::get_file(exec_path));
-        se_string exec_basename(PathUtils::get_basename(exec_filename));
+        String  exec_dir = PathUtils::get_base_dir(exec_path);
+        String exec_filename(PathUtils::get_file(exec_path));
+        String exec_basename(PathUtils::get_basename(exec_filename));
 
         // Try to load data pack at the location of the executable
         // As mentioned above, we have two potential names to attempt
@@ -445,11 +445,11 @@ Error ProjectSettings::_setup(se_string_view p_path, se_string_view p_main_pack,
     // or, if requested (`p_upwards`) in parent directories.
 
     DirAccess *d = DirAccess::create(DirAccess::ACCESS_FILESYSTEM);
-    ERR_FAIL_COND_V_MSG(!d, ERR_CANT_CREATE, "Cannot create DirAccess for path '" + se_string(p_path) + "'.")
+    ERR_FAIL_COND_V_MSG(!d, ERR_CANT_CREATE, "Cannot create DirAccess for path '" + String(p_path) + "'.")
     d->change_dir(p_path);
 
-    se_string current_dir = d->get_current_dir();
-    se_string candidate = current_dir;
+    String current_dir = d->get_current_dir();
+    String candidate = current_dir;
     bool found = false;
     Error err;
 
@@ -490,7 +490,7 @@ Error ProjectSettings::_setup(se_string_view p_path, se_string_view p_main_pack,
 Error ProjectSettings::setup(se_string_view p_path, se_string_view p_main_pack, bool p_upwards) {
     Error err = _setup(p_path, p_main_pack, p_upwards);
     if (err == OK) {
-        se_string custom_settings = GLOBAL_DEF("application/config/project_settings_override", "");
+        String custom_settings = GLOBAL_DEF("application/config/project_settings_override", "");
         if (!custom_settings.empty()) {
             _load_settings_text(custom_settings);
         }
@@ -536,7 +536,7 @@ Error ProjectSettings::_load_settings_binary(se_string_view p_path) {
         cs.resize(slen + 1);
         cs[slen] = 0;
         f->get_buffer((uint8_t *)cs.data(), slen);
-        se_string key(cs.data());
+        String key(cs.data());
 
         uint32_t vlen = f->get_32();
         Vector<uint8_t> d;
@@ -566,18 +566,18 @@ Error ProjectSettings::_load_settings_text(se_string_view p_path) {
 
     VariantParser::Stream *stream = VariantParser::get_file_stream(f);
 
-    se_string assign;
+    String assign;
     Variant value;
     VariantParser::Tag next_tag;
 
     int lines = 0;
-    se_string error_text;
-    se_string section;
+    String error_text;
+    String section;
     int config_version = 0;
 
     while (true) {
 
-        assign = Variant().as<se_string>();
+        assign = Variant().as<String>();
         next_tag.fields.clear();
         next_tag.name.clear();
 
@@ -590,7 +590,7 @@ Error ProjectSettings::_load_settings_text(se_string_view p_path) {
             _convert_to_last_version(config_version);
             return OK;
         } else if (err != OK) {
-            ERR_PRINTF("Error parsing %s at line %d: %s File might be corrupted.",se_string(p_path).c_str(),lines,error_text.c_str())
+            ERR_PRINTF("Error parsing %s at line %d: %s File might be corrupted.",String(p_path).c_str(),lines,error_text.c_str())
             VariantParser::release_stream(stream);
             memdelete(f);
             return err;
@@ -605,7 +605,7 @@ Error ProjectSettings::_load_settings_text(se_string_view p_path) {
                     ERR_FAIL_V_MSG(ERR_FILE_CANT_OPEN,
                             FormatVE("Can't open project at '%s', its `config_version` (%d) is from a more recent and "
                                     "incompatible version of the engine. Expected config version: %d.",
-                                    se_string(p_path).c_str(), config_version, CONFIG_VERSION))
+                                    String(p_path).c_str(), config_version, CONFIG_VERSION))
                 }
             } else {
                 if (section.empty()) {
@@ -628,7 +628,7 @@ Error ProjectSettings::_load_settings_text_or_binary(se_string_view p_text_path,
         return OK;
     } else if (err_text != ERR_FILE_NOT_FOUND) {
         // If the text-based file exists but can't be loaded, we want to know it
-        ERR_PRINT("Couldn't load file '" + se_string(p_text_path) + "', error code " + ::to_string(err_text) + ".")
+        ERR_PRINT("Couldn't load file '" + String(p_text_path) + "', error code " + ::to_string(err_text) + ".")
         return err_text;
     }
 
@@ -639,18 +639,18 @@ Error ProjectSettings::_load_settings_text_or_binary(se_string_view p_text_path,
 
 int ProjectSettings::get_order(const StringName &p_name) const {
 
-    ERR_FAIL_COND_V_MSG(!props.contains(p_name), -1, "Request for nonexistent project setting: " + se_string(p_name) + ".")
+    ERR_FAIL_COND_V_MSG(!props.contains(p_name), -1, "Request for nonexistent project setting: " + String(p_name) + ".")
     return props.at(p_name).order;
 }
 
 void ProjectSettings::set_order(const StringName &p_name, int p_order) {
 
-    ERR_FAIL_COND_MSG(!props.contains(p_name), "Request for nonexistent project setting: " + se_string(p_name) + ".")
+    ERR_FAIL_COND_MSG(!props.contains(p_name), "Request for nonexistent project setting: " + String(p_name) + ".")
     props[p_name].order = p_order;
 }
 
 void ProjectSettings::set_builtin_order(const StringName &p_name) {
-    ERR_FAIL_COND_MSG(!props.contains(p_name), "Request for nonexistent project setting: " + se_string(p_name) + ".")
+    ERR_FAIL_COND_MSG(!props.contains(p_name), "Request for nonexistent project setting: " + String(p_name) + ".")
     if (props[p_name].order >= NO_BUILTIN_ORDER_BASE) {
         props[p_name].order = last_builtin_order++;
     }
@@ -658,7 +658,7 @@ void ProjectSettings::set_builtin_order(const StringName &p_name) {
 
 void ProjectSettings::clear(const StringName &p_name) {
 
-    ERR_FAIL_COND_MSG(!props.contains(p_name), "Request for nonexistent project setting: " + se_string(p_name) + ".")
+    ERR_FAIL_COND_MSG(!props.contains(p_name), "Request for nonexistent project setting: " + String(p_name) + ".")
     props.erase(p_name);
 }
 
@@ -667,18 +667,18 @@ Error ProjectSettings::save() {
     return save_custom(PathUtils::plus_file(get_resource_path(),"project.godot"));
 }
 
-Error ProjectSettings::_save_settings_binary(se_string_view p_file, const Map<se_string, ListPOD<se_string> > &props, const CustomMap &p_custom, const se_string &p_custom_features) {
+Error ProjectSettings::_save_settings_binary(se_string_view p_file, const Map<String, ListPOD<String> > &props, const CustomMap &p_custom, const String &p_custom_features) {
 
     Error err;
     FileAccess *file = FileAccess::open(p_file, FileAccess::WRITE, &err);
-    ERR_FAIL_COND_V_MSG(err != OK, err, "Couldn't save project.binary at " + se_string(p_file) + ".")
+    ERR_FAIL_COND_V_MSG(err != OK, err, "Couldn't save project.binary at " + String(p_file) + ".")
 
     uint8_t hdr[4] = { 'E', 'C', 'F', 'G' };
     file->store_buffer(hdr, 4);
 
     int count = 0;
 
-    for (const eastl::pair<const se_string,ListPOD<se_string> > &E : props) {
+    for (const eastl::pair<const String,ListPOD<String> > &E : props) {
 
         count += E.second.size();
     }
@@ -686,7 +686,7 @@ Error ProjectSettings::_save_settings_binary(se_string_view p_file, const Map<se
     if (!p_custom_features.empty()) {
         file->store_32(count + 1);
         //store how many properties are saved, add one for custom featuers, which must always go first
-        se_string key(CoreStringNames::get_singleton()->_custom_features);
+        String key(CoreStringNames::get_singleton()->_custom_features);
         file->store_32(key.length());
         file->store_string(key);
 
@@ -712,9 +712,9 @@ Error ProjectSettings::_save_settings_binary(se_string_view p_file, const Map<se
         file->store_32(count); //store how many properties are saved
     }
 
-    for (const eastl::pair<const se_string,ListPOD<se_string> > &E : props) {
+    for (const eastl::pair<const String,ListPOD<String> > &E : props) {
 
-        for(se_string key : E.second ) {
+        for(String key : E.second ) {
             if (!E.first.empty())
                 key = E.first + "/" + key;
             Variant value;
@@ -751,12 +751,12 @@ Error ProjectSettings::_save_settings_binary(se_string_view p_file, const Map<se
     return OK;
 }
 
-Error ProjectSettings::_save_settings_text(se_string_view p_file, const Map<se_string, ListPOD<se_string> > &props, const CustomMap &p_custom, const se_string &p_custom_features) {
+Error ProjectSettings::_save_settings_text(se_string_view p_file, const Map<String, ListPOD<String> > &props, const CustomMap &p_custom, const String &p_custom_features) {
 
     Error err;
     FileAccess *file = FileAccess::open(p_file, FileAccess::WRITE, &err);
 
-    ERR_FAIL_COND_V_MSG(err != OK, err, "Couldn't save project.godot - " + se_string(p_file) + ".")
+    ERR_FAIL_COND_V_MSG(err != OK, err, "Couldn't save project.godot - " + String(p_file) + ".")
 
     file->store_line(("; Engine configuration file."));
     file->store_line(("; It's best edited using the editor UI and not directly,"));
@@ -772,16 +772,16 @@ Error ProjectSettings::_save_settings_text(se_string_view p_file, const Map<se_s
         file->store_string("custom_features=\"" + p_custom_features + "\"\n");
     file->store_string(("\n"));
 
-    for (Map<se_string, ListPOD<se_string> >::const_iterator E = props.begin(); E!=props.end(); ++E) {
+    for (Map<String, ListPOD<String> >::const_iterator E = props.begin(); E!=props.end(); ++E) {
 
         if (E != props.begin())
             file->store_string("\n");
 
         if (!E->first.empty())
             file->store_string("[" + E->first + "]\n\n");
-        for (const se_string &F : E->second) {
+        for (const String &F : E->second) {
 
-            se_string key = F;
+            String key = F;
             if (!E->first.empty())
                 key = E->first + "/" + key;
             Variant value;
@@ -791,7 +791,7 @@ Error ProjectSettings::_save_settings_text(se_string_view p_file, const Map<se_s
             else
                 value = get(keyname);
 
-            se_string vstr;
+            String vstr;
             VariantWriter::write_to_string(value, vstr);
             file->store_string(StringUtils::property_name_encode(F) + "=" + vstr + "\n");
         }
@@ -808,7 +808,7 @@ Error ProjectSettings::_save_custom_bnd(se_string_view p_file) { // add other pa
     return save_custom(p_file);
 };
 
-Error ProjectSettings::save_custom(se_string_view p_path, const CustomMap &p_custom, const PODVector<se_string> &p_custom_features, bool p_merge_with_current) {
+Error ProjectSettings::save_custom(se_string_view p_path, const CustomMap &p_custom, const PODVector<String> &p_custom_features, bool p_merge_with_current) {
 
     ERR_FAIL_COND_V_MSG(p_path.empty(), ERR_INVALID_PARAMETER, "Project settings save path cannot be empty.")
 
@@ -850,16 +850,16 @@ Error ProjectSettings::save_custom(se_string_view p_path, const CustomMap &p_cus
         vclist.insert(vc);
     }
 
-    Map<se_string, ListPOD<se_string> > props;
+    Map<String, ListPOD<String> > props;
 
     for (const _VCSort &E : vclist) {
 
-        se_string category = E.name.asCString();
-        se_string name = E.name.asCString();
+        String category = E.name.asCString();
+        String name = E.name.asCString();
 
         auto div = StringUtils::find(category,"/");
 
-        if (div == se_string::npos )
+        if (div == String::npos )
             category = "";
         else {
 
@@ -869,13 +869,13 @@ Error ProjectSettings::save_custom(se_string_view p_path, const CustomMap &p_cus
         props[category].push_back(name);
     }
 
-    se_string custom_features;
+    String custom_features;
 
     for (size_t i = 0; i < p_custom_features.size(); i++) {
         if (i > 0)
             custom_features += ',';
 
-        se_string f =StringUtils::replace(StringUtils::strip_edges( p_custom_features[i]),"\"", "");
+        String f =StringUtils::replace(StringUtils::strip_edges( p_custom_features[i]),"\"", "");
         custom_features += f;
     }
 
@@ -885,7 +885,7 @@ Error ProjectSettings::save_custom(se_string_view p_path, const CustomMap &p_cus
         return _save_settings_binary(p_path, props, p_custom, custom_features);
     else {
 
-        ERR_FAIL_V_MSG(ERR_FILE_UNRECOGNIZED, "Unknown config file format: " + se_string(p_path) + ".")
+        ERR_FAIL_V_MSG(ERR_FILE_UNRECOGNIZED, "Unknown config file format: " + String(p_path) + ".")
     }
 }
 
@@ -902,17 +902,17 @@ Variant _GLOBAL_DEF(const StringName &p_var, const Variant &p_default, bool p_re
     ProjectSettings::get_singleton()->set_restart_if_changed(p_var, p_restart_if_changed);
     return ret;
 }
-PODVector<se_string> ProjectSettings::get_optimizer_presets() const {
+PODVector<String> ProjectSettings::get_optimizer_presets() const {
 
     ListPOD<PropertyInfo> pi;
     ProjectSettings::get_singleton()->get_property_list(&pi);
-    PODVector<se_string> names;
+    PODVector<String> names;
 
     for(const PropertyInfo &E : pi ) {
 
         if (!StringUtils::begins_with(E.name,"optimizer_presets/"))
             continue;
-        names.push_back(se_string(StringUtils::get_slice(E.name,'/', 1)));
+        names.push_back(String(StringUtils::get_slice(E.name,'/', 1)));
     }
     eastl::sort(names.begin(),names.end());
 
@@ -933,7 +933,7 @@ void ProjectSettings::_add_property_info_bind(const Dictionary &p_info) {
     if (p_info.has("hint"))
         pinfo.hint = PropertyHint(p_info["hint"].operator int());
     if (p_info.has("hint_string"))
-        pinfo.hint_string = p_info["hint_string"].as<se_string>();
+        pinfo.hint_string = p_info["hint_string"].as<String>();
 
     set_custom_property_info(StringName(pinfo.name), pinfo);
 }

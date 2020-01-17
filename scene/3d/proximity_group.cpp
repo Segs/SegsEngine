@@ -84,7 +84,7 @@ void ProximityGroup::update_groups() {
 
 void ProximityGroup::add_groups(int *p_cell, StringName p_base, int p_depth) {
 
-    p_base = StringName(p_base + se_string("|"));
+    p_base = StringName(p_base + String("|"));
     if (grid_radius[p_depth] == 0) {
 
         if (p_depth == 2) {

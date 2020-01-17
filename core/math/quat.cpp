@@ -230,7 +230,7 @@ Quat Quat::cubic_slerp(const Quat &q, const Quat &prep, const Quat &postq, const
     return sp.slerpni(sq, t2);
 }
 
-Quat::operator se_string() const {
+Quat::operator String() const {
 
     return FormatVE("%f, %f, %f, %f",x,y,z,w);
 }

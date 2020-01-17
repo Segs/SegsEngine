@@ -103,14 +103,14 @@ class ProjectManager : public Control {
     void _on_project_created(se_string_view dir);
     void _on_projects_updated();
     void _update_scroll_position(const UIString &dir);
-    void _scan_dir(se_string_view path, List<se_string> *r_projects);
+    void _scan_dir(se_string_view path, List<String> *r_projects);
 
     void _install_project(se_string_view p_zip_path, se_string_view p_title);
 
     void _dim_window();
     void _unhandled_input(const Ref<InputEvent> &p_ev);
-    void _files_dropped(const PoolVector<se_string> &p_files, int p_screen);
-    void _scan_multiple_folders(PoolVector<se_string> p_files);
+    void _files_dropped(const PoolVector<String> &p_files, int p_screen);
+    void _scan_multiple_folders(PoolVector<String> p_files);
 
     void _on_order_option_changed();
     void _on_filter_option_changed();
@@ -151,12 +151,12 @@ protected:
     static void _bind_methods();
 
 public:
-    void _setup_filters(Vector<se_string> options);
+    void _setup_filters(Vector<String> options);
     void add_filter_option();
     void add_search_box();
     void set_filter_size(int h_size);
     UIString get_search_term();
-    se_string get_search_term_utf8() const;
+    String get_search_term_utf8() const;
     FilterOption get_filter_option();
     void set_filter_option(FilterOption);
     ProjectListFilter();

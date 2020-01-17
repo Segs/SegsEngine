@@ -1079,9 +1079,9 @@ void NativeScriptLanguage::init() {
 
 #if defined(TOOLS_ENABLED) && defined(DEBUG_METHODS_ENABLED)
 
-    const ListPOD<se_string> &args(OS::get_singleton()->get_cmdline_args());
+    const ListPOD<String> &args(OS::get_singleton()->get_cmdline_args());
 
-    ListPOD<se_string>::const_iterator E = eastl::find(args.begin(),args.end(),"--gdnative-generate-json-api");
+    ListPOD<String>::const_iterator E = eastl::find(args.begin(),args.end(),"--gdnative-generate-json-api");
 
     if (E!=args.end() && (++E != args.end())) {
         if (generate_c_api(*E) != OK) {
@@ -1139,13 +1139,13 @@ int NativeScriptLanguage::find_function(const String &p_function, const String &
 String NativeScriptLanguage::make_function(const String &p_class, const String &p_name, const PoolStringArray &p_args) const {
     return String();
 }
-void NativeScriptLanguage::auto_indent_code(se_string &p_code, int p_from_line, int p_to_line) const {
+void NativeScriptLanguage::auto_indent_code(String &p_code, int p_from_line, int p_to_line) const {
 }
 void NativeScriptLanguage::add_global_constant(const StringName &p_variable, const Variant &p_value) {
 }
 
 // Debugging stuff here. Not used for now.
-const se_string &NativeScriptLanguage::debug_get_error() const {
+const String &NativeScriptLanguage::debug_get_error() const {
     return String();
 }
 int NativeScriptLanguage::debug_get_stack_level_count() const {
@@ -1746,7 +1746,7 @@ RES ResourceFormatLoaderNativeScript::load(const String &p_path, const String &p
     return ResourceFormatLoaderText::singleton->load(p_path, p_original_path, r_error);
 }
 
-void ResourceFormatLoaderNativeScript::get_recognized_extensions(PODVector<se_string> &p_extensions) const {
+void ResourceFormatLoaderNativeScript::get_recognized_extensions(PODVector<String> &p_extensions) const {
     p_extensions->push_back(String("gdns"));
 }
 

@@ -69,7 +69,7 @@ class CPUParticles2DEditorPlugin : public EditorPlugin {
     OptionButton *emission_mask_mode;
     CheckBox *emission_colors;
 
-    se_string source_emission_file;
+    String source_emission_file;
 
     UndoRedo *undo_redo;
     void _file_selected(se_string_view p_file);

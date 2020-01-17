@@ -62,7 +62,7 @@ void MeshLibraryEditor::_menu_confirm() {
             mesh_library->remove_item(to_erase);
         } break;
         case MENU_OPTION_UPDATE_FROM_SCENE: {
-            se_string existing = mesh_library->get_meta("_editor_source_scene");
+            String existing = mesh_library->get_meta("_editor_source_scene");
             ERR_FAIL_COND(existing.empty())
             _import_scene_cbk(existing);
 
@@ -207,7 +207,7 @@ void MeshLibraryEditor::_import_scene_cbk(se_string_view p_str) {
     ERR_FAIL_COND(not ps)
     Node *scene = ps->instance();
 
-    ERR_FAIL_COND_MSG(!scene, "Cannot create an instance from PackedScene '" + se_string(p_str) + "'.")
+    ERR_FAIL_COND_MSG(!scene, "Cannot create an instance from PackedScene '" + String(p_str) + "'.")
 
     _import_scene(scene, mesh_library, option == MENU_OPTION_UPDATE_FROM_SCENE);
 
@@ -233,7 +233,7 @@ void MeshLibraryEditor::_menu_cbk(int p_option) {
         } break;
         case MENU_OPTION_REMOVE_ITEM: {
 
-            se_string p(editor->get_inspector()->get_selected_path());
+            String p(editor->get_inspector()->get_selected_path());
             if (StringUtils::begins_with(p,"/MeshLibrary/item") && StringUtils::get_slice_count(p,'/') >= 3) {
 
                 to_erase = StringUtils::to_int(StringUtils::get_slice(p,'/', 3));
@@ -247,7 +247,7 @@ void MeshLibraryEditor::_menu_cbk(int p_option) {
         } break;
         case MENU_OPTION_UPDATE_FROM_SCENE: {
 
-            cd->set_text(StringName(TTR("Update from existing scene?:\n") + se_string(mesh_library->get_meta("_editor_source_scene"))));
+            cd->set_text(StringName(TTR("Update from existing scene?:\n") + String(mesh_library->get_meta("_editor_source_scene"))));
             cd->popup_centered(Size2(500, 60));
         } break;
     }
@@ -265,11 +265,11 @@ MeshLibraryEditor::MeshLibraryEditor(EditorNode *p_editor) {
     file = memnew(EditorFileDialog);
     file->set_mode(EditorFileDialog::MODE_OPEN_FILE);
     //not for now?
-    PODVector<se_string> extensions;
+    PODVector<String> extensions;
     ResourceLoader::get_recognized_extensions_for_type("PackedScene", extensions);
     file->clear_filters();
     file->set_title(TTR("Import Scene"));
-    for (const se_string & ext : extensions) {
+    for (const String & ext : extensions) {
         file->add_filter("*." + ext + " ; " + StringUtils::to_upper(ext));
     }
     add_child(file);

@@ -79,7 +79,7 @@ protected:
 
 public:
     void set_edit_path(se_string_view p_path);
-    void set_edit_multiple_paths(const Vector<se_string> &p_paths);
+    void set_edit_multiple_paths(const Vector<String> &p_paths);
     void initialize_import_options() const;
     void clear();
 

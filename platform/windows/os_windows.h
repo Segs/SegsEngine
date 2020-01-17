@@ -277,7 +277,7 @@ public:
     LRESULT WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
     void alert(se_string_view p_alert, se_string_view p_title = "ALERT!") override;
-    se_string get_stdin_string(bool p_block) override;
+    String get_stdin_string(bool p_block) override;
 
     void set_mouse_mode(MouseMode p_mode) override;
     MouseMode get_mouse_mode() const;
@@ -339,7 +339,7 @@ public:
 
     MainLoop *get_main_loop() const override;
 
-    se_string get_name() const override;
+    String get_name() const override;
 
     Date get_date(bool utc) const override;
     Time get_time(bool utc) const override;
@@ -354,26 +354,26 @@ public:
     void delay_usec(uint32_t p_usec) const override;
     uint64_t get_ticks_usec() const override;
 
-    Error execute(se_string_view p_path, const ListPOD<se_string> &p_arguments, bool p_blocking, ProcessID *r_child_id = nullptr, se_string *r_pipe = nullptr, int *r_exitcode = nullptr, bool read_stderr = false, Mutex *p_pipe_mutex = nullptr) override;
+    Error execute(se_string_view p_path, const ListPOD<String> &p_arguments, bool p_blocking, ProcessID *r_child_id = nullptr, String *r_pipe = nullptr, int *r_exitcode = nullptr, bool read_stderr = false, Mutex *p_pipe_mutex = nullptr) override;
     Error kill(const ProcessID &p_pid) override;
     int get_process_id() const override;
 
     bool has_environment(se_string_view p_var) const override;
-    se_string get_environment(se_string_view p_var) const override;
+    String get_environment(se_string_view p_var) const override;
     bool set_environment(se_string_view p_var, se_string_view p_value) const override;
 
     void set_clipboard(se_string_view p_text) override;
-    se_string get_clipboard() const override;
+    String get_clipboard() const override;
 
     void set_cursor_shape(CursorShape p_shape) override;
     CursorShape get_cursor_shape() const override;
     void set_custom_mouse_cursor(const RES &p_cursor, CursorShape p_shape, const Vector2 &p_hotspot) override;
     void GetMaskBitmaps(HBITMAP hSourceBitmap, COLORREF clrTransparent, OUT HBITMAP &hAndMaskBitmap, OUT HBITMAP &hXorMaskBitmap);
 
-    void set_native_icon(const se_string &p_filename) override;
+    void set_native_icon(const String &p_filename) override;
     void set_icon(const Ref<Image> &p_icon) override;
 
-    se_string get_executable_path() const override;
+    String get_executable_path() const override;
 
     const char *get_locale() const override;
 
@@ -384,9 +384,9 @@ public:
     void enable_for_stealing_focus(ProcessID pid) override;
     void move_window_to_foreground() override;
 
-    se_string get_godot_dir_name() const override;
+    String get_godot_dir_name() const override;
 
-    se_string get_user_data_dir() const override;
+    String get_user_data_dir() const override;
 
     void set_ime_active(const bool p_active) override;
     void set_ime_position(const Point2 &p_pos) override;

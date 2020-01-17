@@ -45,23 +45,23 @@ public:
             STRUCT_DECL
         };
 
-        se_string name;
+        String name;
         Type type;
     };
 
     struct ClassDecl {
-        se_string name;
-        se_string namespace_;
-        PODVector<se_string> base;
+        String name;
+        String namespace_;
+        PODVector<String> base;
         bool nested;
         bool has_script_attr;
     };
 
 private:
-    se_string code;
+    String code;
     int idx;
     int line;
-    se_string error_str;
+    String error_str;
     bool error;
     Variant value;
 
@@ -87,22 +87,22 @@ private:
     };
 
     static const char *token_names[TK_MAX];
-    static se_string get_token_name(Token p_token);
+    static String get_token_name(Token p_token);
 
     Token get_token();
 
     Error _skip_generic_type_params();
 
-    Error _parse_type_full_name(se_string &r_full_name);
-    Error _parse_class_base(PODVector<se_string> &r_base);
+    Error _parse_type_full_name(String &r_full_name);
+    Error _parse_class_base(PODVector<String> &r_base);
     Error _parse_type_constraints();
-    Error _parse_namespace_name(se_string &r_name, int &r_curly_stack);
+    Error _parse_namespace_name(String &r_name, int &r_curly_stack);
 
 public:
-    Error parse(const se_string &p_code);
+    Error parse(const String &p_code);
     Error parse_file(se_string_view p_filepath);
 
-    const se_string &get_error() {
+    const String &get_error() {
         return error_str;
     }
 

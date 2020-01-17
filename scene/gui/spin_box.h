@@ -46,8 +46,8 @@ class SpinBox : public Range {
 
     void _text_entered(se_string_view p_string);
     void _value_changed(double) override;
-    se_string prefix;
-    se_string suffix;
+    String prefix;
+    String suffix;
 
     void _line_edit_input(const Ref<InputEvent> &p_event);
 
@@ -81,11 +81,11 @@ public:
     void set_editable(bool p_editable);
     bool is_editable() const;
 
-    void set_suffix(se_string p_suffix);
-    se_string get_suffix() const;
+    void set_suffix(String p_suffix);
+    String get_suffix() const;
 
     void set_prefix(se_string_view p_prefix);
-    se_string get_prefix() const;
+    String get_prefix() const;
 
     void apply();
 

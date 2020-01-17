@@ -178,7 +178,7 @@ bool FileAccessUnix::is_open() const {
 
 
 
-const se_string &FileAccessUnix::get_path_absolute() const {
+const String &FileAccessUnix::get_path_absolute() const {
 
     return path;
 }
@@ -278,7 +278,7 @@ bool FileAccessUnix::file_exists(se_string_view p_path) {
 
     int err;
     struct stat st;
-    se_string filename(fix_path(p_path));
+    String filename(fix_path(p_path));
 
     // Does the name exist at all?
     err = stat(filename.c_str(), &st);
@@ -306,33 +306,33 @@ bool FileAccessUnix::file_exists(se_string_view p_path) {
 
 uint64_t FileAccessUnix::_get_modified_time(se_string_view p_file) {
 
-    se_string file(fix_path(p_file));
+    String file(fix_path(p_file));
     struct stat flags;
     int err = stat(file.c_str(), &flags);
 
     if (!err) {
         return flags.st_mtime;
     } else {
-        ERR_FAIL_V_MSG(0, "Failed to get modified time for: " + se_string(p_file) + ".")
+        ERR_FAIL_V_MSG(0, "Failed to get modified time for: " + String(p_file) + ".")
     }
 }
 
 uint32_t FileAccessUnix::_get_unix_permissions(se_string_view p_file) {
 
-    se_string file(fix_path(p_file));
+    String file(fix_path(p_file));
     struct stat flags;
     int err = stat(file.c_str(), &flags);
 
     if (!err) {
         return flags.st_mode & 0x7FF; //only permissions
     } else {
-        ERR_FAIL_V_MSG(0, "Failed to get unix permissions for: " + se_string(p_file) + ".")
+        ERR_FAIL_V_MSG(0, "Failed to get unix permissions for: " + String(p_file) + ".")
     }
 }
 
 Error FileAccessUnix::_set_unix_permissions(se_string_view p_file, uint32_t p_permissions) {
 
-    se_string file(fix_path(p_file));
+    String file(fix_path(p_file));
 
     int err = chmod(file.c_str(), p_permissions);
     if (!err) {

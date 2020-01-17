@@ -50,8 +50,8 @@ protected:
 
 public:
     uint32_t get_import_flags() const override;
-    void get_extensions(PODVector<se_string> &r_extensions) const override;
-    Node *import_scene(se_string_view p_path, uint32_t p_flags, int p_bake_fps, PODVector<se_string> *r_missing_deps, Error *r_err = nullptr) override;
+    void get_extensions(PODVector<String> &r_extensions) const override;
+    Node *import_scene(se_string_view p_path, uint32_t p_flags, int p_bake_fps, PODVector<String> *r_missing_deps, Error *r_err = nullptr) override;
     Ref<Animation> import_animation(se_string_view p_path, uint32_t p_flags, int p_bake_fps) override;
 
     EditorSceneImporter() {}
@@ -61,15 +61,15 @@ class EditorScenePostImport : public RefCounted {
 
     GDCLASS(EditorScenePostImport,RefCounted)
 
-    se_string source_folder;
-    se_string source_file;
+    String source_folder;
+    String source_file;
 
 protected:
     static void _bind_methods();
 
 public:
-    const se_string &get_source_folder() const;
-    const se_string &get_source_file() const;
+    const String &get_source_folder() const;
+    const String &get_source_file() const;
     virtual Node *post_import(Node *p_scene);
     virtual void init(se_string_view p_source_folder, se_string_view p_source_file);
     EditorScenePostImport();
@@ -117,7 +117,7 @@ public:
 
     StringName get_importer_name() const override;
     StringName get_visible_name() const override;
-    void get_recognized_extensions(PODVector<se_string> &p_extensions) const override;
+    void get_recognized_extensions(PODVector<String> &p_extensions) const override;
     StringName get_save_extension() const override;
     StringName get_resource_type() const override;
 
@@ -135,11 +135,11 @@ public:
     Node *_fix_node(Node *p_node, Node *p_root, Map<Ref<Mesh>, DefList<Ref<Shape> > > &collision_map, LightBakeMode p_light_bake_mode);
 
     void _create_clips(Node *scene, const Array &p_clips, bool p_bake_all);
-    void _filter_anim_tracks(const Ref<Animation>& anim, Set<se_string> &keep);
+    void _filter_anim_tracks(const Ref<Animation>& anim, Set<String> &keep);
     void _filter_tracks(Node *scene, se_string_view p_text);
     void _optimize_animations(Node *scene, float p_max_lin_error, float p_max_ang_error, float p_max_angle);
 
-    Error import(se_string_view p_source_file, se_string_view p_save_path, const Map<StringName, Variant> &p_options, DefList<se_string> *r_platform_variants, DefList<se_string> *r_gen_files = nullptr, Variant *r_metadata = nullptr) override;
+    Error import(se_string_view p_source_file, se_string_view p_save_path, const Map<StringName, Variant> &p_options, DefList<String> *r_platform_variants, DefList<String> *r_gen_files = nullptr, Variant *r_metadata = nullptr) override;
 
     Node *import_scene_from_other_importer(EditorSceneImporter *p_exception, se_string_view p_path, uint32_t p_flags, int p_bake_fps);
     Ref<Animation> import_animation_from_other_importer(EditorSceneImporter *p_exception, se_string_view p_path, uint32_t p_flags, int p_bake_fps);
@@ -151,7 +151,7 @@ class EditorSceneImporterESCN : public EditorSceneImporterInterface {
 
 public:
     uint32_t get_import_flags() const override;
-    void get_extensions(PODVector<se_string> &r_extensions) const override;
-    Node *import_scene(se_string_view p_path, uint32_t p_flags, int p_bake_fps, PODVector<se_string> *r_missing_deps, Error *r_err = nullptr) override;
+    void get_extensions(PODVector<String> &r_extensions) const override;
+    Node *import_scene(se_string_view p_path, uint32_t p_flags, int p_bake_fps, PODVector<String> *r_missing_deps, Error *r_err = nullptr) override;
     Ref<Animation> import_animation(se_string_view p_path, uint32_t p_flags, int p_bake_fps) override;
 };

@@ -274,11 +274,11 @@ void ArrayPropertyEdit::edit(Object *p_obj, const StringName &p_prop, se_string_
 
     if (!p_hint_string.empty()) {
         auto hint_subtype_separator = StringUtils::find(p_hint_string,":");
-        if (hint_subtype_separator != se_string::npos) {
+        if (hint_subtype_separator != String::npos) {
             se_string_view subtype_string = StringUtils::substr(p_hint_string,0, hint_subtype_separator);
 
             auto slash_pos = StringUtils::find(subtype_string,"/");
-            if (slash_pos != se_string::npos) {
+            if (slash_pos != String::npos) {
                 subtype_hint = PropertyHint(StringUtils::to_int(StringUtils::substr(subtype_string,slash_pos + 1, subtype_string.size() - slash_pos - 1)));
                 subtype_string = StringUtils::substr(subtype_string,0, slash_pos);
             }

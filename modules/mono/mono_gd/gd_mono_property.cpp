@@ -193,7 +193,7 @@ int GDMonoProperty::get_int_value(MonoObject *p_object) {
 	return GDMonoMarshal::unbox<int32_t>(get_value(p_object));
 }
 
-se_string GDMonoProperty::get_string_value(MonoObject *p_object) {
+String GDMonoProperty::get_string_value(MonoObject *p_object) {
 	MonoObject *val = get_value(p_object);
 	return GDMonoMarshal::mono_string_to_godot((MonoString *)val);
 }

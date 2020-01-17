@@ -67,8 +67,8 @@ private:
 
         Ref<Texture> icon;
         Rect2i icon_region;
-        se_string text;
-        se_string suffix;
+        String text;
+        String suffix;
         double min, max, step, val;
         int icon_max_w;
         bool expr;
@@ -184,11 +184,11 @@ public:
 
     void set_text_utf8(int p_column, se_string_view p_text);
     void set_text(int p_column, const StringName &p_text);
-    se_string get_text_ui(int p_column) const;
-    se_string get_text(int p_column) const;
+    String get_text_ui(int p_column) const;
+    String get_text(int p_column) const;
 
-    void set_suffix(int p_column, se_string p_suffix);
-    se_string get_suffix(int p_column) const;
+    void set_suffix(int p_column, String p_suffix);
+    String get_suffix(int p_column) const;
 
     void set_icon(int p_column, const Ref<Texture> &p_icon);
     Ref<Texture> get_icon(int p_column) const;
@@ -378,7 +378,7 @@ private:
     int draw_item(const Point2i &p_pos, const Point2 &p_draw_ofs, const Size2 &p_draw_size, TreeItem *p_item);
     void select_single_item(TreeItem *p_selected, TreeItem *p_current, int p_col, TreeItem *p_prev = nullptr, bool *r_in_range = nullptr, bool p_force_deselect = false);
     int propagate_mouse_event(const Point2i &p_pos, int x_ofs, int y_ofs, bool p_doubleclick, TreeItem *p_item, int p_button, const Ref<InputEventWithModifiers> &p_mod);
-    void text_editor_enter(const se_string &p_text);
+    void text_editor_enter(const String &p_text);
     void _text_editor_modal_close();
     void value_editor_changed(double p_value);
 
@@ -475,9 +475,9 @@ private:
     Rect2 search_item_rect(TreeItem *p_from, TreeItem *p_item);
     //Rect2 get_item_rect(TreeItem *p_item);
     uint64_t last_keypress;
-    se_string incr_search;
+    String incr_search;
     bool cursor_can_exit_tree;
-    void _do_incr_search(const se_string &p_add);
+    void _do_incr_search(const String &p_add);
 
     TreeItem *_search_item_text(TreeItem *p_at, se_string_view p_find, int *r_col, bool p_selectable, bool p_backwards = false);
 

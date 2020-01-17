@@ -816,7 +816,7 @@ StringName RigidBody::get_configuration_warning() const {
 
     Transform t = get_transform();
 
-    se_string warning(CollisionObject::get_configuration_warning());
+    String warning(CollisionObject::get_configuration_warning());
 
     if ((get_mode() == MODE_RIGID || get_mode() == MODE_CHARACTER) && (ABS(t.basis.get_axis(0).length() - 1.0) > 0.05 || ABS(t.basis.get_axis(1).length() - 1.0) > 0.05 || ABS(t.basis.get_axis(2).length() - 1.0) > 0.05)) {
         if (!warning.empty()) {
@@ -1764,7 +1764,7 @@ bool PhysicalBone::SixDOFJointData::_set(const StringName &p_name, const Variant
         return true;
     }
 
-    se_string path(p_name);
+    String path(p_name);
 
     Vector3::Axis axis;
     {
@@ -1972,7 +1972,7 @@ bool PhysicalBone::SixDOFJointData::_get(const StringName &p_name, Variant &r_re
 void PhysicalBone::SixDOFJointData::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
     const char * axis_names[] = { "x", "y", "z" };
     for (int i = 0; i < 3; ++i) {
-        se_string prefix(se_string("joint_constraints/") + axis_names[i]);
+        String prefix(String("joint_constraints/") + axis_names[i]);
         p_list->push_back(PropertyInfo(VariantType::BOOL, StringName(prefix + "/linear_limit_enabled")));
         p_list->push_back(PropertyInfo(VariantType::REAL, StringName(prefix + "/linear_limit_upper")));
         p_list->push_back(PropertyInfo(VariantType::REAL, StringName(prefix + "/linear_limit_lower")));
@@ -1999,7 +1999,7 @@ void PhysicalBone::SixDOFJointData::_get_property_list(ListPOD<PropertyInfo> *p_
 
 bool PhysicalBone::_set(const StringName &p_name, const Variant &p_value) {
     if (p_name == "bone_name") {
-        set_bone_name(p_value.as<se_string>());
+        set_bone_name(p_value.as<String>());
         return true;
     }
 
@@ -2035,7 +2035,7 @@ void PhysicalBone::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
 
     if (parent) {
 
-        se_string names;
+        String names;
         for (int i = 0; i < parent->get_bone_count(); i++) {
             if (i > 0)
                 names += ',';

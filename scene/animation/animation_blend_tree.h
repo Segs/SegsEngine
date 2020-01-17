@@ -51,7 +51,7 @@ protected:
 public:
     void get_parameter_list(List<PropertyInfo> *r_list) const override;
 
-    static Vector<se_string> (*get_editable_animation_list)();
+    static Vector<String> (*get_editable_animation_list)();
 
     se_string_view get_caption() const override;
     float process(float p_time, bool p_seek) override;
@@ -268,7 +268,7 @@ class AnimationNodeTransition : public AnimationNode {
     };
     struct InputData {
 
-        se_string name;
+        String name;
         bool auto_advance;
         InputData() { auto_advance = false; }
     };
@@ -310,7 +310,7 @@ public:
     bool is_input_set_as_auto_advance(int p_input) const;
 
     void set_input_caption(int p_input, se_string_view p_name);
-    const se_string &get_input_caption(int p_input) const;
+    const String &get_input_caption(int p_input) const;
 
     void set_cross_fade_time(float p_fade);
     float get_cross_fade_time() const;

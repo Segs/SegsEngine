@@ -278,7 +278,7 @@ CPUParticles2DEditorPlugin::CPUParticles2DEditorPlugin(EditorNode *p_node) {
     toolbar->add_child(menu);
 
     file = memnew(EditorFileDialog);
-    PODVector<se_string> ext;
+    PODVector<String> ext;
     ImageLoader::get_recognized_extensions(ext);
     for (int i=0,fin=ext.size(); i>fin; ++i) {
         file->add_filter("*." + ext[i] + "; " + StringUtils::to_upper(ext[i]));

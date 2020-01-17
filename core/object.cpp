@@ -99,7 +99,7 @@ struct Object::ObjectPrivate {
             Signal *s = &signal_map[*S];
             if (s->lock > 0) {
                 //@todo this may need to actually reach the debugger prioritarily somehow because it may crash before
-                ERR_PRINT("Object was freed or unreferenced while signal '" + se_string(*S) +
+                ERR_PRINT("Object was freed or unreferenced while signal '" + String(*S) +
                           "' is being emitted from it. Try connecting to the signal using 'CONNECT_DEFERRED' flag, or use queue_free() "
                           "to free the object (if this object is a Node) to avoid this error and potential crashes.");
             }
@@ -181,7 +181,7 @@ PropertyInfo PropertyInfo::from_dict(const Dictionary &p_dict) {
 
     if (p_dict.has("hint_string"))
 
-        pi.hint_string = p_dict["hint_string"].as<se_string>();
+        pi.hint_string = p_dict["hint_string"].as<String>();
 
     if (p_dict.has("usage"))
         pi.usage = p_dict["usage"];
@@ -478,12 +478,12 @@ void Object::_postinitialize() {
     notification(NOTIFICATION_POSTINITIALIZE);
 }
 
-se_string Object::wrap_get_class() const {
-    return se_string(get_class());
+String Object::wrap_get_class() const {
+    return String(get_class());
 }
 
 bool Object::wrap_is_class(se_string_view p_class) const {
-    return is_class(se_string(p_class).c_str());
+    return is_class(String(p_class).c_str());
 }
 
 void Object::set(const StringName &p_name, const Variant &p_value, bool *r_valid) {
@@ -761,19 +761,19 @@ static void _test_call_error(const StringName &p_func, const Variant::CallError 
         case Variant::CallError::CALL_ERROR_INVALID_METHOD: break;
         case Variant::CallError::CALL_ERROR_INVALID_ARGUMENT: {
 
-            ERR_FAIL_MSG("Error calling function: " + se_string(p_func) + " - Invalid type for argument " +
+            ERR_FAIL_MSG("Error calling function: " + String(p_func) + " - Invalid type for argument " +
                          itos(error.argument) + ", expected " + Variant::get_type_name(error.expected) + ".")
             break;
         }
         case Variant::CallError::CALL_ERROR_TOO_MANY_ARGUMENTS: {
 
-            ERR_FAIL_MSG("Error calling function: " + se_string(p_func) + " - Too many arguments, expected " +
+            ERR_FAIL_MSG("Error calling function: " + String(p_func) + " - Too many arguments, expected " +
                          itos(error.argument) + ".")
             break;
         }
         case Variant::CallError::CALL_ERROR_TOO_FEW_ARGUMENTS: {
 
-            ERR_FAIL_MSG("Error calling function: " + se_string(p_func) + " - Too few arguments, expected " +
+            ERR_FAIL_MSG("Error calling function: " + String(p_func) + " - Too few arguments, expected " +
                          itos(error.argument) + ".")
             break;
         }
@@ -988,10 +988,10 @@ void Object::notification(int p_notification, bool p_reversed) {
     }
 }
 
-se_string Object::to_string() {
+String Object::to_string() {
     if (script_instance) {
         bool valid;
-        se_string ret = script_instance->to_string(&valid);
+        String ret = script_instance->to_string(&valid);
         if (valid)
             return ret;
     }
@@ -1125,17 +1125,17 @@ PoolSeStringArray Object::_get_meta_list_bind() const {
     PODVector<Variant> keys(metadata.get_key_list());
     for(const Variant &E : keys ) {
 
-        _metaret.push_back(E.as<se_string>());
+        _metaret.push_back(E.as<String>());
     }
 
     return _metaret;
 }
-void Object::get_meta_list(ListPOD<se_string> *p_list) const {
+void Object::get_meta_list(ListPOD<String> *p_list) const {
 
     PODVector<Variant> keys(metadata.get_key_list());
     for(const Variant &E : keys ) {
 
-        p_list->push_back(E.as<se_string>());
+        p_list->push_back(E.as<String>());
     }
 }
 
@@ -1147,8 +1147,8 @@ IObjectTooling *Object::get_tooling_interface() const
 void Object::add_user_signal(const MethodInfo &p_signal) {
 
     ERR_FAIL_COND_MSG(p_signal.name.empty(), "Signal name cannot be empty.")
-    ERR_FAIL_COND_MSG(ClassDB::has_signal(get_class_name(), p_signal.name), "User signal's name conflicts with a built-in signal of '" + se_string(get_class_name()) + "'.")
-    ERR_FAIL_COND_MSG(private_data->signal_map.contains(p_signal.name), "Trying to add already existing signal '" + se_string(p_signal.name) + "'.")
+    ERR_FAIL_COND_MSG(ClassDB::has_signal(get_class_name(), p_signal.name), "User signal's name conflicts with a built-in signal of '" + String(get_class_name()) + "'.")
+    ERR_FAIL_COND_MSG(private_data->signal_map.contains(p_signal.name), "Trying to add already existing signal '" + String(p_signal.name) + "'.")
     Signal s;
     s.user = p_signal;
     private_data->signal_map[p_signal.name] = s;
@@ -1207,7 +1207,7 @@ Error Object::emit_signal(const StringName &p_name, const Variant **p_args, int 
         bool signal_is_valid = ClassDB::has_signal(get_class_name(), p_name);
         //check in script
         ERR_FAIL_COND_V_MSG(!signal_is_valid && !script.is_null() && !refFromRefPtr<Script>(script)->has_script_signal(p_name),
-                ERR_UNAVAILABLE, "Can't emit non-existing signal " + se_string("\"") + p_name + "\".")
+                ERR_UNAVAILABLE, "Can't emit non-existing signal " + String("\"") + p_name + "\".")
 #endif
         //not connected? just return
         return ERR_UNAVAILABLE;
@@ -1274,7 +1274,7 @@ Error Object::emit_signal(const StringName &p_name, const Variant **p_args, int 
                 if (ce.error == Variant::CallError::CALL_ERROR_INVALID_METHOD && !ClassDB::class_exists(target->get_class_name())) {
                     // most likely object is not initialized yet, do not throw error.
                 } else {
-                    ERR_PRINT("Error calling method from signal '" + se_string(p_name) +
+                    ERR_PRINT("Error calling method from signal '" + String(p_name) +
                                "': " + Variant::get_call_error_text(target, c.method, args, argc, ce) + ".")
                     err = ERR_METHOD_NOT_FOUND;
                 }
@@ -1489,7 +1489,7 @@ Error Object::connect(const StringName &p_signal, Object *p_to_object, const Str
         }
         {
             if (unlikely(!signal_is_valid)) {
-                se_string msg("In Object of type '" + se_string(get_class()) + "': Attempt to connect nonexistent signal '" + p_signal +
+                String msg("In Object of type '" + String(get_class()) + "': Attempt to connect nonexistent signal '" + p_signal +
                             "' to method '" + p_to_object->get_class() + "." + p_to_method + "'.");
                 _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "Condition ' !signal_is_valid ' is true. returned: " _STR(ERR_INVALID_PARAMETER),msg);
                 return ERR_INVALID_PARAMETER;
@@ -1507,7 +1507,7 @@ Error Object::connect(const StringName &p_signal, Object *p_to_object, const Str
             return OK;
         } else {
             ERR_FAIL_V_MSG(ERR_INVALID_PARAMETER,
-                    "Signal '" + se_string(p_signal) + "' is already connected to given method '" + p_to_method + "' in that object.")
+                    "Signal '" + String(p_signal) + "' is already connected to given method '" + p_to_method + "' in that object.")
         }
     }
 
@@ -1543,7 +1543,7 @@ bool Object::is_connected(const StringName &p_signal, Object *p_to_object, const
         if (!script.is_null() && refFromRefPtr<Script>(script)->has_script_signal(p_signal))
             return false;
 
-        ERR_FAIL_V_MSG(false, "Nonexistent signal: " + se_string(p_signal) + ".")
+        ERR_FAIL_V_MSG(false, "Nonexistent signal: " + String(p_signal) + ".")
     }
 
     Signal::Target target(p_to_object->get_instance_id(), p_to_method);
@@ -1572,7 +1572,7 @@ void Object::_disconnect(const StringName &p_signal, Object *p_to_object, const 
     Signal::Target target(p_to_object->get_instance_id(), p_to_method);
 
     ERR_FAIL_COND_MSG(!s->slot_map.has(target),
-            "Disconnecting nonexistent signal '" + se_string(p_signal) + "', slot: " + ::to_string(target._id) + ":" + target.method + ".")
+            "Disconnecting nonexistent signal '" + String(p_signal) + "', slot: " + ::to_string(target._id) + ":" + target.method + ".")
 
     Signal::Slot *slot = &s->slot_map[target];
 
@@ -2029,7 +2029,7 @@ void ObjectDB::debug_objects(DebugFunc p_func) {
     rw_lock->read_unlock();
 }
 
-void Object::get_argument_options(const StringName & /*p_function*/, int /*p_idx*/, ListPOD<se_string> * /*r_options*/) const {
+void Object::get_argument_options(const StringName & /*p_function*/, int /*p_idx*/, ListPOD<String> * /*r_options*/) const {
 }
 
 int ObjectDB::get_object_count() {
@@ -2058,12 +2058,12 @@ void ObjectDB::cleanup() {
             const ObjectID *K = nullptr;
             while ((K = instances.next(K))) {
 
-                se_string node_name;
+                String node_name;
                 if (instances[*K]->is_class("Node"))
-                    node_name = " - Node name: " + instances[*K]->call("get_name").as<se_string>();
+                    node_name = " - Node name: " + instances[*K]->call("get_name").as<String>();
                 if (instances[*K]->is_class("Resource"))
-                    node_name = " - Resource name: " + instances[*K]->call("get_name").as<se_string>() +
-                                " Path: " + instances[*K]->call("get_path").as<se_string>();
+                    node_name = " - Resource name: " + instances[*K]->call("get_name").as<String>() +
+                                " Path: " + instances[*K]->call("get_path").as<String>();
                 print_line(FormatVE("Leaked instance: %s:%zu%s",instances[*K]->get_class(),*K,node_name.c_str()));
             }
         }

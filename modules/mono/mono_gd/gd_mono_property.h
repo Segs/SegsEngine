@@ -71,7 +71,7 @@ public:
 
 	bool get_bool_value(MonoObject *p_object);
 	int get_int_value(MonoObject *p_object);
-    se_string get_string_value(MonoObject *p_object);
+    String get_string_value(MonoObject *p_object);
 
 	GDMonoProperty(MonoProperty *p_mono_property, GDMonoClass *p_owner);
 	~GDMonoProperty();

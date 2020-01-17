@@ -599,9 +599,9 @@ bool Basis::operator!=(const Basis &p_matrix) const {
     return (!(*this == p_matrix));
 }
 
-Basis::operator se_string() const {
+Basis::operator String() const {
 
-    se_string mtx;
+    String mtx;
     for (int i = 0; i < 3; i++) {
 
         for (int j = 0; j < 3; j++) {

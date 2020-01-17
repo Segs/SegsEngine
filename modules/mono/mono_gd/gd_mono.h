@@ -74,7 +74,7 @@ struct Version {
     static Version get_from_loaded_assembly(GDMonoAssembly *p_api_assembly, Type p_api_type);
 };
 
-se_string to_string(Type p_type);
+String to_string(Type p_type);
 } // namespace ApiAssemblyInfo
 
 class GDMono {
@@ -104,7 +104,7 @@ private:
     MonoDomain *root_domain;
     MonoDomain *scripts_domain;
 
-    DefHashMap<int32_t, DefHashMap<se_string, GDMonoAssembly *> > assemblies;
+    DefHashMap<int32_t, DefHashMap<String, GDMonoAssembly *> > assemblies;
 
     GDMonoAssembly *corlib_assembly;
     GDMonoAssembly *project_assembly;
@@ -162,7 +162,7 @@ private:
 #endif
 
     void add_mono_shared_libs_dir_to_path();
-    void determine_mono_dirs(se_string &r_assembly_rootdir, se_string &r_config_dir);
+    void determine_mono_dirs(String &r_assembly_rootdir, String &r_config_dir);
 
 protected:
     static GDMono *singleton;
@@ -189,7 +189,7 @@ public:
 
 #ifdef TOOLS_ENABLED
     bool copy_prebuilt_api_assembly(ApiAssemblyInfo::Type p_api_type, se_string_view p_config);
-    se_string update_api_assemblies_from_prebuilt(se_string_view p_config, const bool *p_core_api_out_of_sync = NULL, const bool *p_editor_api_out_of_sync = NULL);
+    String update_api_assemblies_from_prebuilt(se_string_view p_config, const bool *p_core_api_out_of_sync = NULL, const bool *p_editor_api_out_of_sync = NULL);
 #endif
 
     static GDMono *get_singleton() { return singleton; }
@@ -228,9 +228,9 @@ public:
     Error reload_scripts_domain();
 #endif
 
-    bool load_assembly(const se_string &p_name, GDMonoAssembly **r_assembly, bool p_refonly = false);
-    bool load_assembly(const se_string &p_name, MonoAssemblyName *p_aname, GDMonoAssembly **r_assembly, bool p_refonly = false);
-    bool load_assembly_from(se_string_view p_name, const se_string &p_path, GDMonoAssembly **r_assembly, bool p_refonly = false);
+    bool load_assembly(const String &p_name, GDMonoAssembly **r_assembly, bool p_refonly = false);
+    bool load_assembly(const String &p_name, MonoAssemblyName *p_aname, GDMonoAssembly **r_assembly, bool p_refonly = false);
+    bool load_assembly_from(se_string_view p_name, const String &p_path, GDMonoAssembly **r_assembly, bool p_refonly = false);
 
     Error finalize_and_unload_domain(MonoDomain *p_domain);
 

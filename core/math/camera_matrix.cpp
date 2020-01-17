@@ -535,12 +535,12 @@ void CameraMatrix::set_light_atlas_rect(const Rect2 &p_rect) {
     m[15] = 1.0;
 }
 
-CameraMatrix::operator se_string() const {
+CameraMatrix::operator String() const {
 
-    se_string str;
+    String str;
     for (int i = 0; i < 4; i++)
         for (int j = 0; j < 4; j++)
-            str += se_string((j > 0) ? ", " : "\n") + rtos(matrix[i][j]);
+            str += String((j > 0) ? ", " : "\n") + rtos(matrix[i][j]);
 
     return str;
 }

@@ -44,15 +44,15 @@
 
 IMPL_GDCLASS(PopupMenu)
 
-se_string PopupMenu::_get_accel_text(int p_item) const {
+String PopupMenu::_get_accel_text(int p_item) const {
 
-    ERR_FAIL_INDEX_V(p_item, items.size(), se_string())
+    ERR_FAIL_INDEX_V(p_item, items.size(), String())
 
     if (items[p_item].shortcut)
         return items[p_item].shortcut->get_as_text();
     else if (items[p_item].accel)
         return keycode_get_string(items[p_item].accel);
-    return se_string();
+    return String();
 }
 
 Size2 PopupMenu::get_minimum_size() const {
@@ -157,9 +157,9 @@ int PopupMenu::_get_mouse_over(const Point2 &p_over) const {
 void PopupMenu::_activate_submenu(int over) {
 
     Node *n = get_node((NodePath)items[over].submenu);
-    ERR_FAIL_COND_MSG(!n, se_string("Item subnode does not exist: ") + items[over].submenu + ".")
+    ERR_FAIL_COND_MSG(!n, String("Item subnode does not exist: ") + items[over].submenu + ".")
     Popup *pm = object_cast<Popup>(n);
-    ERR_FAIL_COND_MSG(!pm, se_string("Item subnode is not a Popup: ") + items[over].submenu + ".")
+    ERR_FAIL_COND_MSG(!pm, String("Item subnode is not a Popup: ") + items[over].submenu + ".")
     if (pm->is_visible_in_tree())
         return; //already visible!
 
@@ -404,7 +404,7 @@ void PopupMenu::_gui_input(const Ref<InputEvent> &p_event) {
         if (diff > max_interval) {
             search_string = "";
         }
-        se_string r=StringUtils::to_utf8(UIString(k->get_unicode()));
+        String r=StringUtils::to_utf8(UIString(k->get_unicode()));
         //TODO: strange logic here, only add the character to search string if the search string is not that character
         if (r != search_string)
             search_string += r;
@@ -584,7 +584,7 @@ void PopupMenu::_notification(int p_what) {
 
                 if (items[i].accel || (items[i].shortcut && items[i].shortcut->is_valid())) {
                     //accelerator
-                    se_string text2 = _get_accel_text(i);
+                    String text2 = _get_accel_text(i);
                     item_ofs.x = size.width - style->get_margin(MARGIN_RIGHT) - font->get_string_size_utf8(text2).width;
                     font->draw_utf8(ci, item_ofs + Point2(0, Math::floor((h - font_h) / 2.0f)), text2, i == mouse_over ? font_color_hover : font_color_accel);
                 }
@@ -925,10 +925,10 @@ StringName PopupMenu::get_item_text(int p_idx) const {
     ERR_FAIL_INDEX_V(p_idx, items.size(), StringName());
     return items[p_idx].text;
 }
-se_string PopupMenu::get_item_text_utf8(int p_idx) const {
+String PopupMenu::get_item_text_utf8(int p_idx) const {
 
     ERR_FAIL_INDEX_V(p_idx, items.size(), {});
-    return se_string(items[p_idx].text);
+    return String(items[p_idx].text);
 }
 int PopupMenu::get_item_idx_from_text_utf8(se_string_view text) const {
 

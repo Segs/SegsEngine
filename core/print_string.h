@@ -36,7 +36,7 @@ using UIString = class QString;
 
 extern void (*_print_func)(UIString);
 
-using PrintHandlerFunc = void (*)(void *, const se_string &, bool);
+using PrintHandlerFunc = void (*)(void *, const String &, bool);
 
 struct PrintHandlerList {
 

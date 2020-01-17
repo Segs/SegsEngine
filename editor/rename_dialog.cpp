@@ -436,11 +436,11 @@ void RenameDialog::_update_preview(se_string_view new_text) {
 
 StringName RenameDialog::_apply_rename(const Node *node, int count) {
 
-    se_string search = lne_search->get_text();
-    se_string replace = lne_replace->get_text();
-    se_string prefix = lne_prefix->get_text();
-    se_string suffix = lne_suffix->get_text();
-    se_string new_name(node->get_name());
+    String search = lne_search->get_text();
+    String replace = lne_replace->get_text();
+    String prefix = lne_prefix->get_text();
+    String suffix = lne_suffix->get_text();
+    String new_name(node->get_name());
 
     if (cbut_substitute->is_pressed()) {
         search = _substitute(search, node, count);
@@ -465,10 +465,10 @@ StringName RenameDialog::_apply_rename(const Node *node, int count) {
     return StringName(new_name);
 }
 
-se_string RenameDialog::_substitute(const se_string &subject, const Node *node, int count) {
+String RenameDialog::_substitute(const String &subject, const Node *node, int count) {
     char buffmt_val[16];
     snprintf(buffmt_val,15,"%%0%dd",spn_count_padding->get_value());
-    se_string result = subject;
+    String result = subject;
     result.replace("${COUNTER}", FormatVE(buffmt_val,count));
 
     if (node) {
@@ -506,7 +506,7 @@ void RenameDialog::_error_handler(void *p_self, se_string_view p_func, se_string
     if (self->has_errors || StringUtils::contains(source_file,"regex"))
         return;
 
-    se_string err_str;
+    String err_str;
     if (not p_errorexp.empty()) {
         err_str = p_errorexp;
     } else {
@@ -519,24 +519,24 @@ void RenameDialog::_error_handler(void *p_self, se_string_view p_func, se_string
     self->lbl_preview->set_text(StringName(err_str));
 }
 
-se_string RenameDialog::_regex(const se_string &pattern, const se_string &subject, const se_string &replacement) {
+String RenameDialog::_regex(const String &pattern, const String &subject, const String &replacement) {
 
     RegEx regex(pattern);
 
     return regex.sub(subject, replacement, true);
 }
 
-se_string RenameDialog::_postprocess(const se_string &subject) {
+String RenameDialog::_postprocess(const String &subject) {
 
     int style_id = opt_style->get_selected();
 
-    se_string result = subject;
+    String result = subject;
 
     if (style_id == 1) {
 
         // CamelCase to Under_Line
         result = StringUtils::camelcase_to_underscore(result,true);
-        result = _regex(se_string("_+"), result, "_");
+        result = _regex(String("_+"), result, "_");
 
     } else if (style_id == 2) {
 
@@ -546,7 +546,7 @@ se_string RenameDialog::_postprocess(const se_string &subject) {
 
         // _ name would become empty. Ignore
         if (!matches.empty() && result != "_") {
-            se_string buffer;
+            String buffer;
             int start = 0;
             int end = 0;
             for (int i = 0; i < matches.size(); ++i) {
@@ -630,7 +630,7 @@ void RenameDialog::rename() {
             const StringName &new_name = to_rename[i].second;
 
             if (!n) {
-                ERR_PRINT("Skipping missing node: " + se_string(to_rename[i].first.get_concatenated_subnames()))
+                ERR_PRINT("Skipping missing node: " + String(to_rename[i].first.get_concatenated_subnames()))
                 continue;
             }
 

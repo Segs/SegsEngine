@@ -559,7 +559,7 @@ Path2DEditor::Path2DEditor(EditorNode *p_editor) {
     curve_edit->set_icon(EditorNode::get_singleton()->get_gui_base()->get_icon("CurveEdit", "EditorIcons"));
     curve_edit->set_toggle_mode(true);
     curve_edit->set_focus_mode(Control::FOCUS_NONE);
-    curve_edit->set_tooltip(TTR("Select Points") + "\n" + TTR("Shift+Drag: Select Control Points") + "\n" + se_string(keycode_get_string(KEY_MASK_CMD)) + TTR("Click: Add Point") + "\n" + TTR("Left Click: Split Segment (in curve)") + "\n" + TTR("Right Click: Delete Point"));
+    curve_edit->set_tooltip(TTR("Select Points") + "\n" + TTR("Shift+Drag: Select Control Points") + "\n" + String(keycode_get_string(KEY_MASK_CMD)) + TTR("Click: Add Point") + "\n" + TTR("Left Click: Split Segment (in curve)") + "\n" + TTR("Right Click: Delete Point"));
     curve_edit->connect("pressed", this, "_mode_selected", varray(MODE_EDIT));
     base_hb->add_child(curve_edit);
     curve_edit_curve = memnew(ToolButton);

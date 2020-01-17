@@ -40,7 +40,7 @@ class GODOT_EXPORT ConfigFile : public RefCounted {
 
     GDCLASS(ConfigFile, RefCounted)
 
-    Map<se_string, Map<se_string, Variant> > values;
+    Map<String, Map<String, Variant> > values;
 
     PoolSeStringArray _get_sections() const;
     PoolSeStringArray _get_section_keys(se_string_view p_section) const;
@@ -51,15 +51,15 @@ protected:
     static void _bind_methods();
 
 public:
-    const Map<se_string, Map<se_string, Variant> > &all_values() const { return values; }
+    const Map<String, Map<String, Variant> > &all_values() const { return values; }
     void set_value(se_string_view p_section, se_string_view p_key, const Variant &p_value);
     Variant get_value(se_string_view p_section, se_string_view p_key, const Variant& p_default = Variant::null_variant) const;
 
     bool has_section(se_string_view p_section) const;
     bool has_section_key(se_string_view p_section, se_string_view p_key) const;
 
-    void get_sections(PODVector<se_string> *r_sections) const;
-    void get_section_keys(se_string_view p_section, PODVector<se_string> *r_keys) const;
+    void get_sections(PODVector<String> *r_sections) const;
+    void get_section_keys(se_string_view p_section, PODVector<String> *r_keys) const;
 
     void erase_section(se_string_view p_section);
     void erase_section_key(se_string_view p_section, se_string_view p_key);

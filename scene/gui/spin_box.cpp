@@ -46,7 +46,7 @@ Size2 SpinBox::get_minimum_size() const {
 
 void SpinBox::_value_changed(double) {
 
-    se_string value(StringUtils::num(get_value(), Math::range_step_decimals(get_step())));
+    String value(StringUtils::num(get_value(), Math::range_step_decimals(get_step())));
     if (!prefix.empty())
         value = prefix + " " + value;
     if (!suffix.empty())
@@ -231,13 +231,13 @@ LineEdit::Align SpinBox::get_align() const {
     return line_edit->get_align();
 }
 
-void SpinBox::set_suffix(se_string p_suffix) {
+void SpinBox::set_suffix(String p_suffix) {
 
     suffix = p_suffix;
     _value_changed(0);
 }
 
-se_string SpinBox::get_suffix() const {
+String SpinBox::get_suffix() const {
 
     return suffix;
 }
@@ -248,7 +248,7 @@ void SpinBox::set_prefix(se_string_view p_prefix) {
     _value_changed(0);
 }
 
-se_string SpinBox::get_prefix() const {
+String SpinBox::get_prefix() const {
 
     return prefix;
 }

@@ -46,7 +46,7 @@ WebSocketServer::~WebSocketServer() {
 void WebSocketServer::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("is_listening"), &WebSocketServer::is_listening);
-    MethodBinder::bind_method(D_METHOD("listen", {"port", "protocols", "gd_mp_api"}), &WebSocketServer::listen, {DEFVAL(PoolVector<se_string>()), DEFVAL(false)});
+    MethodBinder::bind_method(D_METHOD("listen", {"port", "protocols", "gd_mp_api"}), &WebSocketServer::listen, {DEFVAL(PoolVector<String>()), DEFVAL(false)});
     MethodBinder::bind_method(D_METHOD("stop"), &WebSocketServer::stop);
     MethodBinder::bind_method(D_METHOD("has_peer", {"id"}), &WebSocketServer::has_peer);
     MethodBinder::bind_method(D_METHOD("get_peer_address", {"id"}), &WebSocketServer::get_peer_address);

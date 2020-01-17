@@ -40,31 +40,31 @@
 
 namespace GodotSharpExport {
 
-se_string get_assemblyref_name(MonoImage *p_image, int index) {
+String get_assemblyref_name(MonoImage *p_image, int index) {
 	const MonoTableInfo *table_info = mono_image_get_table_info(p_image, MONO_TABLE_ASSEMBLYREF);
 
 	uint32_t cols[MONO_ASSEMBLYREF_SIZE];
 
 	mono_metadata_decode_row(table_info, index, cols, MONO_ASSEMBLYREF_SIZE);
 
-    return se_string(mono_metadata_string_heap(p_image, cols[MONO_ASSEMBLYREF_NAME]));
+    return String(mono_metadata_string_heap(p_image, cols[MONO_ASSEMBLYREF_NAME]));
 }
 
-Error get_assembly_dependencies(GDMonoAssembly *p_assembly, const Vector<se_string> &p_search_dirs, Dictionary &r_dependencies) {
+Error get_assembly_dependencies(GDMonoAssembly *p_assembly, const Vector<String> &p_search_dirs, Dictionary &r_dependencies) {
 	MonoImage *image = p_assembly->get_image();
 
 	for (int i = 0; i < mono_image_get_table_rows(image, MONO_TABLE_ASSEMBLYREF); i++) {
-        se_string ref_name = get_assemblyref_name(image, i);
+        String ref_name = get_assemblyref_name(image, i);
 
 		if (r_dependencies.has(ref_name))
 			continue;
 
         GDMonoAssembly *ref_assembly = nullptr;
-        se_string path;
+        String path;
 		bool has_extension = ref_name.ends_with(".dll") || ref_name.ends_with(".exe");
 
 		for (int j = 0; j < p_search_dirs.size(); j++) {
-            const se_string &search_dir = p_search_dirs[j];
+            const String &search_dir = p_search_dirs[j];
 
 			if (has_extension) {
                 path = PathUtils::plus_file(search_dir,ref_name);
@@ -109,12 +109,12 @@ Error get_exported_assembly_dependencies(const Dictionary &p_initial_dependencie
 
 	_GDMONO_SCOPE_DOMAIN_(export_domain);
 
-    Vector<se_string> search_dirs;
+    Vector<String> search_dirs;
 	GDMonoAssembly::fill_search_dirs(search_dirs, p_build_config, p_custom_bcl_dir);
 
 	for (const Variant *key = p_initial_dependencies.next(); key; key = p_initial_dependencies.next(key)) {
-        se_string assembly_name = *key;
-        se_string assembly_path = p_initial_dependencies[*key];
+        String assembly_name = *key;
+        String assembly_path = p_initial_dependencies[*key];
 
         GDMonoAssembly *assembly = nullptr;
 		bool load_success = GDMono::get_singleton()->load_assembly_from(assembly_name, assembly_path, &assembly, /* refonly: */ true);

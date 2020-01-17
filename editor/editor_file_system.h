@@ -47,7 +47,7 @@ class EditorFileSystemDirectory : public Object {
 
     GDCLASS(EditorFileSystemDirectory,Object)
 
-    se_string name;
+    String name;
     uint64_t modified_time;
     bool verified; //used for checking changes
 
@@ -55,17 +55,17 @@ class EditorFileSystemDirectory : public Object {
     PODVector<EditorFileSystemDirectory *> subdirs;
 
     struct FileInfo {
-        se_string file;
+        String file;
         StringName type;
         uint64_t modified_time;
         uint64_t import_modified_time;
         bool import_valid;
-        se_string import_group_file;
-        Vector<se_string> deps;
+        String import_group_file;
+        Vector<String> deps;
         bool verified; //used for checking changes
         StringName script_class_name;
         StringName script_class_extends;
-        se_string script_class_icon_path;
+        String script_class_icon_path;
     };
 
     struct FileInfoSort {
@@ -83,21 +83,21 @@ class EditorFileSystemDirectory : public Object {
     friend class EditorFileSystem;
 
 public:
-    const se_string &get_name();
-    se_string get_path() const;
+    const String &get_name();
+    String get_path() const;
 
     int get_subdir_count() const;
     EditorFileSystemDirectory *get_subdir(int p_idx);
     int get_file_count() const;
-    se_string get_file(int p_idx) const;
-    se_string get_file_path(int p_idx) const;
-    se_string get_named_file_path(se_string_view file) const;
+    String get_file(int p_idx) const;
+    String get_file_path(int p_idx) const;
+    String get_named_file_path(se_string_view file) const;
     StringName get_file_type(int p_idx) const;
-    const Vector<se_string> &get_file_deps(int p_idx) const;
+    const Vector<String> &get_file_deps(int p_idx) const;
     bool get_file_import_is_valid(int p_idx) const;
     StringName get_file_script_class_name(int p_idx) const; //used for scripts
     StringName get_file_script_class_extends(int p_idx) const; //used for scripts
-    const se_string &get_file_script_class_icon_path(int p_idx) const; //used for scripts
+    const String &get_file_script_class_icon_path(int p_idx) const; //used for scripts
 
     EditorFileSystemDirectory *get_parent();
 
@@ -128,7 +128,7 @@ class EditorFileSystem : public Node {
 
         Action action;
         EditorFileSystemDirectory *dir;
-        se_string file;
+        String file;
         EditorFileSystemDirectory *new_dir;
         EditorFileSystemDirectory::FileInfo *new_file;
 
@@ -151,13 +151,13 @@ class EditorFileSystem : public Node {
     bool importing;
     bool first_scan;
     float scan_total;
-    se_string filesystem_settings_version_for_import;
+    String filesystem_settings_version_for_import;
     bool revalidate_import_files;
 
     void _scan_filesystem();
 
-    Set<se_string> late_added_files; //keep track of files that were added, these will be re-scanned
-    Set<se_string> late_update_files;
+    Set<String> late_added_files; //keep track of files that were added, these will be re-scanned
+    Set<String> late_update_files;
 
     void _save_late_updated_files();
 
@@ -168,18 +168,18 @@ class EditorFileSystem : public Node {
     /* Used for reading the filesystem cache file */
     struct FileCache {
 
-        se_string type;
+        String type;
         uint64_t modification_time;
         uint64_t import_modification_time;
-        Vector<se_string> deps;
+        Vector<String> deps;
         bool import_valid;
-        se_string import_group_file;
+        String import_group_file;
         StringName script_class_name;
         StringName script_class_extends;
-        se_string script_class_icon_path;
+        String script_class_icon_path;
     };
 
-    HashMap<se_string, FileCache> file_cache;
+    HashMap<String, FileCache> file_cache;
 
     struct ScanProgress {
 
@@ -199,8 +199,8 @@ class EditorFileSystem : public Node {
 
     void _delete_internal_files(se_string_view p_file);
 
-    Set<se_string> valid_extensions;
-    Set<se_string> import_extensions;
+    Set<String> valid_extensions;
+    Set<String> import_extensions;
 
     void _scan_new_dir(EditorFileSystemDirectory *p_dir, DirAccess *da, const ScanProgress &p_progress);
 
@@ -217,17 +217,17 @@ class EditorFileSystem : public Node {
 
     void _update_extensions();
 
-    void _reimport_file(const se_string &p_file);
-    Error _reimport_group(se_string_view p_group_file, const Vector<se_string> &p_files);
+    void _reimport_file(const String &p_file);
+    Error _reimport_group(se_string_view p_group_file, const Vector<String> &p_files);
 
     bool _test_for_reimport(se_string_view p_path, bool p_only_imported_files);
 
     bool reimport_on_missing_imported_files;
 
-    Vector<se_string> _get_dependencies(se_string_view p_path);
+    Vector<String> _get_dependencies(se_string_view p_path);
 
     struct ImportFile {
-        se_string path;
+        String path;
         int order;
         bool operator<(const ImportFile &p_if) const {
             return order < p_if.order;
@@ -238,17 +238,17 @@ class EditorFileSystem : public Node {
     volatile bool update_script_classes_queued;
     void _queue_update_script_classes();
 
-    StringName _get_global_script_class(se_string_view p_type, se_string_view p_path, StringName *r_extends, se_string *r_icon_path) const;
+    StringName _get_global_script_class(se_string_view p_type, se_string_view p_path, StringName *r_extends, String *r_icon_path) const;
 
     static Error _resource_import(se_string_view p_path);
 
     bool using_fat32_or_exfat; // Workaround for projects in FAT32 or exFAT filesystem (pendrives, most of the time)
 
-    void _find_group_files(EditorFileSystemDirectory *efd, DefMap<se_string, Vector<se_string> > &group_files, Set<se_string> &groups_to_reimport);
+    void _find_group_files(EditorFileSystemDirectory *efd, DefMap<String, Vector<String> > &group_files, Set<String> &groups_to_reimport);
 
     void _move_group_files(EditorFileSystemDirectory *efd, se_string_view p_group_file, se_string_view p_new_location);
 
-    Set<se_string> group_file_cache;
+    Set<String> group_file_cache;
 
 protected:
     void _notification(int p_what);
@@ -270,10 +270,10 @@ public:
     void update_file(se_string_view p_file);
 
     EditorFileSystemDirectory *get_filesystem_path(se_string_view p_path);
-    se_string get_file_type(se_string_view p_file) const;
+    String get_file_type(se_string_view p_file) const;
     EditorFileSystemDirectory *find_file(se_string_view p_file, int *r_index) const;
 
-    void reimport_files(const Vector<se_string> &p_files);
+    void reimport_files(const Vector<String> &p_files);
 
     void update_script_classes();
 

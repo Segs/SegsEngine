@@ -227,7 +227,7 @@ public:
     bool can_draw() const override;
 
     void set_clipboard(se_string_view p_text) override;
-    se_string get_clipboard() const override;
+    String get_clipboard() const override;
 
     void release_rendering_thread() override;
     void make_rendering_thread() override;
@@ -242,7 +242,7 @@ public:
     VideoMode get_video_mode(int p_screen = 0) const override;
     void get_fullscreen_mode_list(List<VideoMode> *p_list, int p_screen = 0) const override;
 
-    se_string get_executable_path() const override;
+    String get_executable_path() const override;
 
     LatinKeyboardVariant get_latin_keyboard_variant() const override;
 
@@ -285,7 +285,7 @@ public:
     void set_ime_active(const bool p_active) override;
     void set_ime_position(const Point2 &p_pos) override;
     Point2 get_ime_selection() const override;
-    se_string get_ime_text() const override;
+    String get_ime_text() const override;
 
     OS::PowerState get_power_state() override;
     int get_power_seconds_left() override;
@@ -304,7 +304,7 @@ public:
     void disable_crash_handler();
     bool is_disable_crash_handler() const;
 
-    virtual Error move_to_trash(const se_string &p_path);
+    virtual Error move_to_trash(const String &p_path);
 
     void force_process_input();
 

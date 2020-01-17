@@ -76,7 +76,7 @@ class ProgressDialog : public Popup {
 
     struct Task {
 
-        se_string task;
+        String task;
         VBoxContainer *vb;
         ProgressBar *progress;
         Label *state;

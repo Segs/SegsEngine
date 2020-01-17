@@ -426,7 +426,7 @@ UIString AcceptDialog::get_text_ui() const {
 
     return StringUtils::from_utf8(label->get_text());
 }
-se_string AcceptDialog::get_text() const {
+String AcceptDialog::get_text() const {
 
     return label->get_text_utf8();
 }

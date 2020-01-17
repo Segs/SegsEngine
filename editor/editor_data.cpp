@@ -243,7 +243,7 @@ ObjectID EditorHistory::get_path_object(int p_index) const {
     return obj->get_instance_id();
 }
 
-se_string EditorHistory::get_path_property(int p_index) const {
+String EditorHistory::get_path_property(int p_index) const {
 
     if (current < 0 || current >= history.size())
         return null_se_string;
@@ -328,7 +328,7 @@ void EditorData::copy_object_params(Object *p_object) {
     }
 }
 
-void EditorData::get_editor_breakpoints(List<se_string> *p_breakpoints) {
+void EditorData::get_editor_breakpoints(List<String> *p_breakpoints) {
 
     for (int i = 0; i < editor_plugins.size(); i++) {
 
@@ -362,7 +362,7 @@ void EditorData::set_editor_states(const Dictionary &p_states) {
 
     for (const Variant & k : keys) {
 
-        se_string name = k;
+        String name = k;
         int idx = -1;
         for (int i = 0; i < editor_plugins.size(); i++) {
 
@@ -580,7 +580,7 @@ void EditorData::remove_scene(int p_idx) {
     edited_scene.remove(p_idx);
 }
 
-bool EditorData::_find_updated_instances(Node *p_root, Node *p_node, Set<se_string> &checked_paths) {
+bool EditorData::_find_updated_instances(Node *p_root, Node *p_node, Set<String> &checked_paths) {
 
     /*
     if (p_root!=p_node && p_node->get_owner()!=p_root && !p_root->is_editable_instance(p_node->get_owner()))
@@ -596,7 +596,7 @@ bool EditorData::_find_updated_instances(Node *p_root, Node *p_node, Set<se_stri
     }
 
     if (ss) {
-        se_string path = ss->get_path();
+        String path = ss->get_path();
 
         if (!checked_paths.contains(path)) {
 
@@ -625,7 +625,7 @@ bool EditorData::check_and_update_scene(int p_idx) {
     if (!edited_scene[p_idx].root)
         return false;
 
-    Set<se_string> checked_scenes;
+    Set<String> checked_scenes;
 
     bool must_reload = _find_updated_instances(edited_scene[p_idx].root, edited_scene[p_idx].root, checked_scenes);
 
@@ -772,7 +772,7 @@ StringName EditorData::get_scene_title(int p_idx) const {
     if (edited_scene[p_idx].root->get_filename().empty())
         return TTR("[unsaved]");
     bool show_ext = EDITOR_DEF("interface/scene_tabs/show_extension", false);
-    se_string name(PathUtils::get_file(edited_scene[p_idx].root->get_filename()));
+    String name(PathUtils::get_file(edited_scene[p_idx].root->get_filename()));
     if (!show_ext) {
         name = PathUtils::get_basename(name);
     }
@@ -789,15 +789,15 @@ void EditorData::set_scene_path(int p_idx, se_string_view p_path) {
     edited_scene[p_idx].root->set_filename(p_path);
 }
 
-se_string EditorData::get_scene_path(int p_idx) const {
+String EditorData::get_scene_path(int p_idx) const {
 
-    ERR_FAIL_INDEX_V(p_idx, edited_scene.size(), se_string());
+    ERR_FAIL_INDEX_V(p_idx, edited_scene.size(), String());
 
     if (edited_scene[p_idx].root) {
         if (edited_scene[p_idx].root->get_filename().empty())
             edited_scene[p_idx].root->set_filename(edited_scene[p_idx].path);
         else
-            return se_string(edited_scene[p_idx].root->get_filename());
+            return String(edited_scene[p_idx].root->get_filename());
     }
 
     return edited_scene[p_idx].path;
@@ -927,17 +927,17 @@ void EditorData::script_class_set_icon_path(const StringName & p_class, se_strin
     _script_class_icon_paths[p_class] = p_icon_path;
 }
 
-se_string EditorData::script_class_get_icon_path(const StringName &p_class) const {
+String EditorData::script_class_get_icon_path(const StringName &p_class) const {
     if (!ScriptServer::is_global_class(p_class))
-        return se_string();
+        return String();
 
     StringName current(p_class);
-    se_string ret = _script_class_icon_paths.at(p_class,se_string());
+    String ret = _script_class_icon_paths.at(p_class,String());
     while (ret.empty()) {
         current = script_class_get_base(StringName(current));
         if (!ScriptServer::is_global_class(current))
-            return se_string();
-        ret = _script_class_icon_paths.at(current,se_string());
+            return String();
+        ret = _script_class_icon_paths.at(current,String());
     }
 
     return ret;
@@ -951,7 +951,7 @@ StringName EditorData::script_class_get_name(se_string_view p_path) const {
 }
 
 void EditorData::script_class_set_name(se_string_view p_path, const StringName &p_class) {
-    _script_class_file_to_path[se_string(p_path)] = p_class;
+    _script_class_file_to_path[String(p_path)] = p_class;
 }
 
 void EditorData::script_class_save_icon_paths() {
@@ -973,8 +973,8 @@ void EditorData::script_class_load_icon_paths() {
         PODVector<Variant> keys(d.get_key_list());
 
         for (const Variant &E : keys) {
-            StringName name(E.as<se_string>());
-            _script_class_icon_paths[name] = d[name].as<se_string>();
+            StringName name(E.as<String>());
+            _script_class_icon_paths[name] = d[name].as<String>();
 
             script_class_set_name(ScriptServer::get_global_class_path(name), name);
         }

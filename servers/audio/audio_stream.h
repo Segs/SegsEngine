@@ -90,7 +90,7 @@ protected:
 
 public:
     virtual Ref<AudioStreamPlayback> instance_playback() = 0;
-    virtual se_string get_stream_name() const = 0;
+    virtual String get_stream_name() const = 0;
 
     virtual float get_length() const = 0; //if supported, otherwise return 0
 };
@@ -112,7 +112,7 @@ protected:
 
 public:
     Ref<AudioStreamPlayback> instance_playback() override;
-    se_string get_stream_name() const override;
+    String get_stream_name() const override;
 
     float get_length() const override; //if supported, otherwise return 0
 
@@ -175,7 +175,7 @@ public:
     float get_random_pitch() const;
 
     Ref<AudioStreamPlayback> instance_playback() override;
-    se_string get_stream_name() const override;
+    String get_stream_name() const override;
 
     float get_length() const override; //if supported, otherwise return 0
 

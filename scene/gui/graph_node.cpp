@@ -108,7 +108,7 @@ void GraphNode::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
         if (!c || c->is_set_as_toplevel())
             continue;
 
-        se_string base = "slot/" + itos(idx) + "/";
+        String base = "slot/" + itos(idx) + "/";
 
         p_list->push_back(PropertyInfo(VariantType::BOOL, StringName(base + "left_enabled")));
         p_list->push_back(PropertyInfo(VariantType::INT, StringName(base + "left_type")));
@@ -423,7 +423,7 @@ void GraphNode::set_title(se_string_view _title) {
     minimum_size_changed();
 }
 
-se_string GraphNode::get_title() const {
+String GraphNode::get_title() const {
 
     return title;
 }

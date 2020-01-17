@@ -54,23 +54,23 @@ class DirAccessWindows : public DirAccess {
 	char drives[MAX_DRIVES]; // a-z:
 	int drive_count;
 
-    se_string current_dir;
+    String current_dir;
 
 	bool _cisdir;
 	bool _cishidden;
 
 public:
 	Error list_dir_begin() override; ///< This starts dir listing
-	se_string get_next() override;
+	String get_next() override;
 	bool current_is_dir() const override;
 	bool current_is_hidden() const override;
 	void list_dir_end() override; ///<
 
 	int get_drive_count() override;
-	se_string get_drive(int p_drive) override;
+	String get_drive(int p_drive) override;
 
 	Error change_dir(se_string_view p_dir) override; ///< can be relative or absolute, return false on success
-    se_string get_current_dir() override; ///< return current dir location
+    String get_current_dir() override; ///< return current dir location
 
 	bool file_exists(se_string_view p_file) override;
 	bool dir_exists(se_string_view p_dir) override;
@@ -83,7 +83,7 @@ public:
 	//virtual FileType get_file_type() const;
 	size_t get_space_left() override;
 
-    se_string get_filesystem_type() const override;
+    String get_filesystem_type() const override;
 
 	DirAccessWindows();
 	~DirAccessWindows();

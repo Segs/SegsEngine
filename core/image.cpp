@@ -149,7 +149,7 @@ struct CodecPluginResolver : public ResolverInterface
         bool res=false;
         auto interface = qobject_cast<ImageCodecInterface *>(ob);
         if(interface) {
-            print_line(se_string("Adding image codec plugin:")+ob->metaObject()->className());
+            print_line(String("Adding image codec plugin:")+ob->metaObject()->className());
             PODVector<int> modes;
             interface->fill_modes(modes);
             for(int m : modes)
@@ -161,7 +161,7 @@ struct CodecPluginResolver : public ResolverInterface
     void plugin_removed(QObject * ob)  final  {
         auto interface = qobject_cast<ImageCodecInterface *>(ob);
         if(interface) {
-            print_line(se_string("Removing image codec plugin:")+ob->metaObject()->className());
+            print_line(String("Removing image codec plugin:")+ob->metaObject()->className());
             PODVector<int> modes;
             interface->fill_modes(modes);
             for(int m : modes)
@@ -2020,7 +2020,7 @@ Image::AlphaMode Image::detect_alpha() const {
 Error Image::load(se_string_view p_path) {
 #ifdef DEBUG_ENABLED
     if (StringUtils::begins_with(p_path,"res://") && ResourceLoader::exists(p_path)) {
-        WARN_PRINT("Loaded resource as image file, this will not work on export: '" + se_string(p_path) + "'. Instead, import the image file as an Image resource and load it normally as a resource.");
+        WARN_PRINT("Loaded resource as image file, this will not work on export: '" + String(p_path) + "'. Instead, import the image file as an Image resource and load it normally as a resource.");
     }
 #endif
     return ImageLoader::load_image(p_path, Ref<Image>(this));
@@ -2491,7 +2491,7 @@ void Image::_set_data(const Dictionary &p_data) {
 
     int dwidth = p_data["width"];
     int dheight = p_data["height"];
-    se_string dformat = p_data["format"].as<se_string>();
+    String dformat = p_data["format"].as<String>();
     bool dmipmaps = p_data["mipmaps"].as<bool>();
     PoolVector<uint8_t> ddata = p_data["data"];
     Format ddformat = FORMAT_MAX;

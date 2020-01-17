@@ -50,13 +50,13 @@ VARIANT_ENUM_CAST(HTTPClient::Status);
 namespace {
 struct HTTPRequestData
 {
-    PODVector<se_string> headers;
+    PODVector<String> headers;
     PoolByteArray body;
-    PoolVector<se_string> response_headers;
-    se_string request_string;
-    se_string url;
-    se_string request_data;
-    se_string download_to_file;
+    PoolVector<String> response_headers;
+    String request_string;
+    String url;
+    String request_data;
+    String download_to_file;
     Ref<HTTPClient> client;
     FileAccess *file;
     Thread *thread;
@@ -119,7 +119,7 @@ Error _parse_url(HTTPRequestData &impl,se_string_view p_url) {
     impl.downloaded = 0;
     impl.redirections = 0;
 
-    se_string url_lower(StringUtils::to_lower(impl.url));
+    String url_lower(StringUtils::to_lower(impl.url));
     if (StringUtils::begins_with(url_lower,"http://")) {
         impl.url = StringUtils::substr(impl.url,7);
     } else if (StringUtils::begins_with(url_lower,"https://")) {
@@ -162,11 +162,11 @@ bool _handle_response(HTTPRequestData &impl,HTTPRequest *tgt,bool *ret_value) {
 
     impl.got_response = true;
     impl.response_code = impl.client->get_response_code();
-    List<se_string> rheaders;
+    List<String> rheaders;
     impl.client->get_response_headers(&rheaders);
     impl.response_headers.resize(0);
     impl.downloaded = 0;
-    for (List<se_string>::Element *E = rheaders.front(); E; E = E->next()) {
+    for (List<String>::Element *E = rheaders.front(); E; E = E->next()) {
         impl.response_headers.push_back(E->deref());
     }
 
@@ -180,9 +180,9 @@ bool _handle_response(HTTPRequestData &impl,HTTPRequest *tgt,bool *ret_value) {
             return true;
         }
 
-        se_string new_request;
+        String new_request;
 
-        for (List<se_string>::Element *E = rheaders.front(); E; E = E->next()) {
+        for (List<String>::Element *E = rheaders.front(); E; E = E->next()) {
             if (StringUtils::contains(StringUtils::to_lower(E->deref()),"location: ") ) {
                 new_request = (strip_edges(substr(E->deref(),9))).data();
             }
@@ -397,7 +397,7 @@ void HTTPRequest::_redirect_request(se_string_view /*p_new_url*/) {
 }
 
 #define IMPLD() ((HTTPRequestData*)m_impl)
-Error HTTPRequest::request(se_string_view p_url, const PODVector<se_string> &p_custom_headers, bool p_ssl_validate_domain, HTTPClient::Method p_method, se_string_view p_request_data) {
+Error HTTPRequest::request(se_string_view p_url, const PODVector<String> &p_custom_headers, bool p_ssl_validate_domain, HTTPClient::Method p_method, se_string_view p_request_data) {
 
     ERR_FAIL_COND_V(!is_inside_tree(), ERR_UNCONFIGURED)
     ERR_FAIL_COND_V_MSG(IMPLD()->requesting, ERR_BUSY, "HTTPRequest is processing a request. Wait for completion or cancel it before attempting a new one.")
@@ -528,7 +528,7 @@ void HTTPRequest::set_download_file(se_string_view p_file) {
     IMPLD()->download_to_file = p_file;
 }
 
-const se_string &HTTPRequest::get_download_file() const {
+const String &HTTPRequest::get_download_file() const {
 
     return IMPLD()->download_to_file;
 }

@@ -148,7 +148,7 @@ RES ResourceLoaderCoHTexture::load(se_string_view p_path, se_string_view p_origi
         ERR_FAIL_V_MSG(RES(), "Invalid or unsupported texture file '" + p_path + "'.")
 
     int name_bytes = hdr.header_size - sizeof(TexFileHdr);
-    se_string data;
+    String data;
     data.resize(name_bytes);
 
     if (name_bytes != f->get_buffer((uint8_t *)data.data(), name_bytes))
@@ -499,7 +499,7 @@ RES ResourceLoaderCoHTexture::load(se_string_view p_path, se_string_view p_origi
     return texture;
 }
 
-void ResourceLoaderCoHTexture::get_recognized_extensions(PODVector<se_string> &p_extensions) const {
+void ResourceLoaderCoHTexture::get_recognized_extensions(PODVector<String> &p_extensions) const {
 
     p_extensions.push_back("texture");
 }
@@ -509,7 +509,7 @@ bool ResourceLoaderCoHTexture::handles_type(se_string_view p_type) const {
     return ClassDB::is_parent_class(StringName(p_type), "Texture");
 }
 
-se_string ResourceLoaderCoHTexture::get_resource_type(se_string_view p_path) const {
+String ResourceLoaderCoHTexture::get_resource_type(se_string_view p_path) const {
 
     if (StringUtils::to_lower(PathUtils::get_extension(p_path)) == "texture")
         return "ImageTexture";

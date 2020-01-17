@@ -99,9 +99,9 @@ public:
     FUNC3(texture_set_detect_normal_callback, RID, TextureDetectCallback, void *)
 
     FUNC2(texture_set_path, RID, se_string_view)
-    const se_string &texture_get_path(RID p1) const override {
+    const String &texture_get_path(RID p1) const override {
         if (Thread::get_caller_id() != server_thread) {
-            thread_local se_string ret;
+            thread_local String ret;
             command_queue.push_and_ret(server_name, &ServerName::texture_get_path, p1, &ret);
             SYNC_DEBUG
             return ret;
@@ -127,8 +127,8 @@ public:
 
     FUNCRID(shader)
 
-    FUNC2(shader_set_code, RID, const se_string &)
-    FUNC1RC(se_string, shader_get_code, RID)
+    FUNC2(shader_set_code, RID, const String &)
+    FUNC1RC(String, shader_get_code, RID)
 
     FUNC2SC(shader_get_param_list, RID, PODVector<PropertyInfo> *)
 

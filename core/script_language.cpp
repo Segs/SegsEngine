@@ -173,7 +173,7 @@ void ScriptServer::init_languages() {
                 Dictionary c = script_classes[i];
                 if (!c.has("class") || !c.has("language") || !c.has("path") || !c.has("base"))
                     continue;
-                add_global_class(c["class"], c["base"], c["language"], c["path"].as<se_string>());
+                add_global_class(c["class"], c["base"], c["language"], c["path"].as<String>());
             }
         }
     }
@@ -407,9 +407,9 @@ bool ScriptDebugger::is_breakpoint_line(int p_line) const {
     return breakpoints.contains(p_line);
 }
 
-se_string ScriptDebugger::breakpoint_find_source(se_string_view p_source) const {
+String ScriptDebugger::breakpoint_find_source(se_string_view p_source) const {
 
-    return se_string(p_source);
+    return String(p_source);
 }
 
 void ScriptDebugger::clear_breakpoints() {

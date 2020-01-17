@@ -163,7 +163,7 @@ String PluginScriptLanguage::make_function(const String &p_class, const String &
     return String();
 }
 
-Error PluginScriptLanguage::complete_code(const se_string &p_code, const String &p_path, Object *p_owner, List<ScriptCodeCompletionOption> *r_options, bool &r_force, String &r_call_hint) {
+Error PluginScriptLanguage::complete_code(const String &p_code, const String &p_path, Object *p_owner, List<ScriptCodeCompletionOption> *r_options, bool &r_force, String &r_call_hint) {
     if (_desc.complete_code) {
         Array options;
         String tmpstr(p_code);
@@ -184,7 +184,7 @@ Error PluginScriptLanguage::complete_code(const se_string &p_code, const String 
     return ERR_UNAVAILABLE;
 }
 
-void PluginScriptLanguage::auto_indent_code(se_string &p_code, int p_from_line, int p_to_line) const {
+void PluginScriptLanguage::auto_indent_code(String &p_code, int p_from_line, int p_to_line) const {
     if (_desc.auto_indent_code) {
         _desc.auto_indent_code(_data, (godot_string *)&p_code, p_from_line, p_to_line);
     }
@@ -296,7 +296,7 @@ void PluginScriptLanguage::frame() {
 
 /* DEBUGGER FUNCTIONS */
 
-const se_string &PluginScriptLanguage::debug_get_error() const {
+const String &PluginScriptLanguage::debug_get_error() const {
     if (_desc.debug_get_error) {
         godot_string tmp = _desc.debug_get_error(_data);
         String ret = *(String *)&tmp;
@@ -330,7 +330,7 @@ String PluginScriptLanguage::debug_get_stack_level_function(int p_level) const {
     return String("Nothing");
 }
 
-se_string PluginScriptLanguage::debug_get_stack_level_source(int p_level) const {
+String PluginScriptLanguage::debug_get_stack_level_source(int p_level) const {
     if (_desc.debug_get_stack_level_source) {
         godot_string tmp = _desc.debug_get_stack_level_source(_data, p_level);
         String ret = *(String *)&tmp;

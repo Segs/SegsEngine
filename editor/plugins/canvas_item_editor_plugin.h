@@ -310,7 +310,7 @@ private:
 
         Point2 position;
         Ref<Texture> icon;
-        se_string name;
+        String name;
     };
     Vector<_HoverResult> hovering_results;
 
@@ -683,7 +683,7 @@ class CanvasItemEditorViewport : public Control {
     StringName default_type;
     Vector<StringName> types;
 
-    Vector<se_string> selected_files;
+    Vector<String> selected_files;
     Node *target_node;
     Point2 drop_pos;
 
@@ -704,7 +704,7 @@ class CanvasItemEditorViewport : public Control {
     void _on_change_type_confirmed();
     void _on_change_type_closed();
 
-    void _create_preview(const Vector<se_string> &files) const;
+    void _create_preview(const Vector<String> &files) const;
     void _remove_preview();
 
     bool _cyclical_dependency_exists(se_string_view p_target_scene_path, Node *p_desired_node);

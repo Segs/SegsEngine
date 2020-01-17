@@ -139,7 +139,7 @@ class ConnectionsDock : public VBoxContainer {
     PopupMenu *slot_menu;
     UndoRedo *undo_redo;
 
-    Map<StringName, Map<StringName, se_string> > descr_cache;
+    Map<StringName, Map<StringName, String> > descr_cache;
 
     void _make_or_edit_connection();
     void _connect(const Connection& cToMake);

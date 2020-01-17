@@ -61,7 +61,7 @@ struct UndoRedo::PrivateData
     };
 
     struct Action {
-        se_string name;
+        String name;
         Deque<Operation> do_ops;
         Deque<Operation> undo_ops;
         uint64_t last_tick;
@@ -156,7 +156,7 @@ struct UndoRedo::PrivateData
                     obj->call(op.name, (const Variant **)argptrs.data(), argc, ce);
                     if (ce.error != Variant::CallError::CALL_OK) {
                         ERR_PRINT(
-                                "Error calling method from signal '" + se_string(op.name) + "': " +
+                                "Error calling method from signal '" + String(op.name) + "': " +
                                 Variant::get_call_error_text(obj, op.name, (const Variant **)argptrs.data(), argc, ce))
                     }
 
@@ -535,7 +535,7 @@ Variant UndoRedo::_add_do_method(const Variant **p_args, int p_argcount, Variant
     r_error.error = Variant::CallError::CALL_OK;
 
     Object *object = *p_args[0];
-    se_string method = *p_args[1];
+    String method = *p_args[1];
 
     Variant v[VARIANT_ARG_MAX];
 
@@ -573,7 +573,7 @@ Variant UndoRedo::_add_undo_method(const Variant **p_args, int p_argcount, Varia
     r_error.error = Variant::CallError::CALL_OK;
 
     Object *object = *p_args[0];
-    se_string method = *p_args[1];
+    String method = *p_args[1];
 
     Variant v[VARIANT_ARG_MAX];
 

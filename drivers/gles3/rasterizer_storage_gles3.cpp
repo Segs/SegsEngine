@@ -1364,7 +1364,7 @@ void RasterizerStorageGLES3::texture_set_path(RID p_texture, se_string_view p_pa
     texture->path = p_path;
 }
 
-const se_string &RasterizerStorageGLES3::texture_get_path(RID p_texture) const {
+const String &RasterizerStorageGLES3::texture_get_path(RID p_texture) const {
 
     Texture *texture = texture_owner.get(p_texture);
     ERR_FAIL_COND_V(!texture, null_se_string)
@@ -1871,14 +1871,14 @@ void RasterizerStorageGLES3::_shader_make_dirty(Shader *p_shader) {
     _shader_dirty_list.add(&p_shader->dirty_list);
 }
 
-void RasterizerStorageGLES3::shader_set_code(RID p_shader, const se_string &p_code) {
+void RasterizerStorageGLES3::shader_set_code(RID p_shader, const String &p_code) {
 
     Shader *shader = shader_owner.get(p_shader);
     ERR_FAIL_COND(!shader)
 
     shader->code = p_code;
 
-    se_string mode_string = ShaderLanguage::get_shader_type(p_code);
+    String mode_string = ShaderLanguage::get_shader_type(p_code);
     VS::ShaderMode mode;
 
     if (mode_string == "canvas_item")
@@ -1911,10 +1911,10 @@ void RasterizerStorageGLES3::shader_set_code(RID p_shader, const se_string &p_co
 
     _shader_make_dirty(shader);
 }
-se_string RasterizerStorageGLES3::shader_get_code(RID p_shader) const {
+String RasterizerStorageGLES3::shader_get_code(RID p_shader) const {
 
     const Shader *shader = shader_owner.get(p_shader);
-    ERR_FAIL_COND_V(!shader, se_string())
+    ERR_FAIL_COND_V(!shader, String())
 
     return shader->code;
 }
@@ -7980,7 +7980,7 @@ void RasterizerStorageGLES3::initialize() {
 
     config.force_vertex_shading = GLOBAL_GET("rendering/quality/shading/force_vertex_shading");
 
-    se_string renderer = (const char *)glGetString(GL_RENDERER);
+    String renderer = (const char *)glGetString(GL_RENDERER);
 
     config.use_depth_prepass = bool(GLOBAL_GET("rendering/quality/depth_prepass/enable"));
 //    if (config.use_depth_prepass) {

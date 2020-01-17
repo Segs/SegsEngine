@@ -194,11 +194,11 @@ NodePath &NodePath::operator=(const NodePath &p_path) {
 bool NodePath::empty() const noexcept {
     return !data || (data->path.empty() && data->subpath.empty());
 }
-se_string NodePath::asString() const {
+String NodePath::asString() const {
     if (!data)
-        return se_string();
+        return String();
 
-    se_string ret;
+    String ret;
     if (data->absolute)
         ret = "/";
 
@@ -211,13 +211,13 @@ se_string NodePath::asString() const {
 
     for (int i = 0; i < data->subpath.size(); i++) {
 
-        ret += se_string(":") + data->subpath[i].asCString();
+        ret += String(":") + data->subpath[i].asCString();
     }
 
     return ret;
 }
 
-NodePath::operator se_string() const {
+NodePath::operator String() const {
     return asString();
 }
 
@@ -250,10 +250,10 @@ StringName NodePath::get_concatenated_subnames() const {
 
     if (!data->concatenated_subpath) {
         int spc = data->subpath.size();
-        se_string concatenated;
+        String concatenated;
         const StringName *ssn = data->subpath.ptr();
         for (int i = 0; i < spc; i++) {
-            concatenated += i == 0 ? ssn[i].asCString() : se_string(":") + ssn[i];
+            concatenated += i == 0 ? ssn[i].asCString() : String(":") + ssn[i];
         }
         data->concatenated_subpath = StringName(concatenated);
     }
@@ -308,10 +308,10 @@ NodePath NodePath::get_as_property_path() const {
     } else {
         Vector<StringName> new_path = data->subpath;
 
-        se_string initial_subname(data->path[0]);
+        String initial_subname(data->path[0]);
 
         for (int i = 1; i < data->path.size(); i++) {
-            initial_subname += "/" + se_string(data->path[i].asCString());
+            initial_subname += "/" + String(data->path[i].asCString());
         }
         new_path.insert(0, StringName(initial_subname));
 
@@ -387,7 +387,7 @@ NodePath::NodePath(se_string_view p_path) {
     if (p_path.length() == 0)
         return;
 
-    se_string path(p_path);
+    String path(p_path);
     Vector<StringName> subpath;
 
     bool absolute = (path[0] == '/');
@@ -396,7 +396,7 @@ NodePath::NodePath(se_string_view p_path) {
     int slices = 0;
     auto subpath_pos = StringUtils::find(path,":");
 
-    if (subpath_pos != se_string::npos) {
+    if (subpath_pos != String::npos) {
 
         int from = subpath_pos + 1;
 
@@ -408,7 +408,7 @@ NodePath::NodePath(se_string_view p_path) {
                 if (str.empty()) {
                     if (path[i]==0) continue; // Allow end-of-path :
 
-                    ERR_FAIL_MSG("Invalid NodePath '" + se_string(p_path) + "'.")
+                    ERR_FAIL_MSG("Invalid NodePath '" + String(p_path) + "'.")
                 }
                 subpath.push_back(StringName(str));
 

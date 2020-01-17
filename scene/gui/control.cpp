@@ -343,7 +343,7 @@ void Control::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
     {
         PODVector<StringName> names;
         theme->get_icon_list(get_class_name(), &names);
-        se_string basename("custom_icons/");
+        String basename("custom_icons/");
         for (const StringName &E : names) {
 
             uint32_t hint = PROPERTY_USAGE_EDITOR | PROPERTY_USAGE_CHECKABLE;
@@ -356,7 +356,7 @@ void Control::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
     {
         PODVector<StringName> names;
         theme->get_shader_list(get_class_name(), &names);
-        se_string basename("custom_shaders/");
+        String basename("custom_shaders/");
         for (const StringName &E : names) {
 
             uint32_t hint = PROPERTY_USAGE_EDITOR | PROPERTY_USAGE_CHECKABLE;
@@ -369,7 +369,7 @@ void Control::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
     {
         PODVector<StringName> names;
         theme->get_stylebox_list(get_class_name(), &names);
-        se_string basename("custom_styles/");
+        String basename("custom_styles/");
         for (const StringName &E : names) {
 
             uint32_t hint = PROPERTY_USAGE_EDITOR | PROPERTY_USAGE_CHECKABLE;
@@ -382,7 +382,7 @@ void Control::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
     {
         PODVector<StringName> names;
         theme->get_font_list(get_class_name(), &names);
-        se_string basename("custom_fonts/");
+        String basename("custom_fonts/");
         for (const StringName &E : names) {
 
             uint32_t hint = PROPERTY_USAGE_EDITOR | PROPERTY_USAGE_CHECKABLE;
@@ -395,7 +395,7 @@ void Control::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
     {
         PODVector<StringName> names;
         theme->get_color_list(get_class_name(), &names);
-        se_string basename("custom_colors/");
+        String basename("custom_colors/");
         for (const StringName &E : names) {
 
             uint32_t hint = PROPERTY_USAGE_EDITOR | PROPERTY_USAGE_CHECKABLE;
@@ -408,7 +408,7 @@ void Control::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
     {
         PODVector<StringName> names;
         theme->get_constant_list(get_class_name(), &names);
-        se_string basename("custom_constants/");
+        String basename("custom_constants/");
         for (const StringName &E : names) {
 
             uint32_t hint = PROPERTY_USAGE_EDITOR | PROPERTY_USAGE_CHECKABLE;
@@ -2376,7 +2376,7 @@ Control *Control::_get_focus_neighbour(Margin p_margin, int p_count) {
         Node *n = get_node(data.focus_neighbour[p_margin]);
         if (n) {
             c = object_cast<Control>(n);
-            ERR_FAIL_COND_V_MSG(!c, nullptr, se_string("Neighbor focus node is not a control: ") + n->get_name() + ".")
+            ERR_FAIL_COND_V_MSG(!c, nullptr, String("Neighbor focus node is not a control: ") + n->get_name() + ".")
         } else {
             return nullptr;
         }
@@ -2715,7 +2715,7 @@ bool Control::is_visibility_clip_disabled() const {
 }
 
 
-void Control::get_argument_options(const StringName &p_function, int p_idx, ListPOD<se_string> *r_options) const {
+void Control::get_argument_options(const StringName &p_function, int p_idx, ListPOD<String> *r_options) const {
     using namespace eastl;
 #ifdef TOOLS_ENABLED
     const char * quote_style(EDITOR_DEF("text_editor/completion/use_single_quotes", 0) ? "'" : "\"");
@@ -2739,13 +2739,13 @@ void Control::get_argument_options(const StringName &p_function, int p_idx, List
         }
         eastl::sort(sn.begin(),sn.end(),WrapAlphaCompare());
         for (const StringName &E : sn) {
-            r_options->push_back(quote_style + se_string(E.asCString()) + quote_style);
+            r_options->push_back(quote_style + String(E.asCString()) + quote_style);
         }
     }
 }
 
 StringName Control::get_configuration_warning() const {
-    se_string warning(CanvasItem::get_configuration_warning());
+    String warning(CanvasItem::get_configuration_warning());
 
     if (data.mouse_filter == MOUSE_FILTER_IGNORE && !data.tooltip.empty()) {
         if (!warning.empty()) {

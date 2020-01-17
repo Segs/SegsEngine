@@ -36,7 +36,7 @@
 #include "gd_mono_cache.h"
 #include "gd_mono_marshal.h"
 
-se_string GDMonoClass::get_full_name(MonoClass *p_mono_class) {
+String GDMonoClass::get_full_name(MonoClass *p_mono_class) {
     // mono_type_get_full_name is not exposed to embedders, but this seems to do the job
     MonoReflectionType *type_obj = mono_type_get_object(mono_domain_get(), get_mono_type(p_mono_class));
 
@@ -51,7 +51,7 @@ MonoType *GDMonoClass::get_mono_type(MonoClass *p_mono_class) {
     return mono_class_get_type(p_mono_class);
 }
 
-se_string GDMonoClass::get_full_name() const {
+String GDMonoClass::get_full_name() const {
     return get_full_name(mono_class);
 }
 
@@ -165,7 +165,7 @@ void GDMonoClass::fetch_methods_with_godot_api_checks(GDMonoClass *p_native_base
         if (method->get_name() != name) {
 
 #ifdef DEBUG_ENABLED
-            se_string fullname = method->get_ret_type_full_name() + " " + name + "(" + method->get_signature_desc(true) + ")";
+            String fullname = method->get_ret_type_full_name() + " " + name + "(" + method->get_signature_desc(true) + ")";
             WARN_PRINT("Method '" + fullname + "' is hidden by Godot API method. Should be '" +
                         method->get_full_name_no_class() + "'. In class '" + namespace_name + "." + class_name + "'.")
 #endif
@@ -184,7 +184,7 @@ void GDMonoClass::fetch_methods_with_godot_api_checks(GDMonoClass *p_native_base
 
                 if (m && m->get_name() != name) {
                     // found
-                    se_string fullname = m->get_ret_type_full_name() + " " + name + "(" + m->get_signature_desc(true) + ")";
+                    String fullname = m->get_ret_type_full_name() + " " + name + "(" + m->get_signature_desc(true) + ")";
                     WARN_PRINT("Method '" + fullname + "' should be '" + m->get_full_name_no_class() +
                                 "'. In class '" + namespace_name + "." + class_name + "'.")
                     break;
@@ -320,7 +320,7 @@ GDMonoMethod *GDMonoClass::get_method(MonoMethod *p_raw_method, const StringName
     return method;
 }
 
-GDMonoMethod *GDMonoClass::get_method_with_desc(const se_string &p_description, bool p_include_namespace) {
+GDMonoMethod *GDMonoClass::get_method_with_desc(const String &p_description, bool p_include_namespace) {
 
     MonoMethodDesc *desc = mono_method_desc_new(p_description.c_str(), p_include_namespace);
     MonoMethod *method = mono_method_desc_search_in_class(desc, mono_class);

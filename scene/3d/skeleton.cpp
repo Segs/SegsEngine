@@ -79,7 +79,7 @@ bool Skeleton::_set(const StringName &p_path, const Variant &p_value) {
 
     if (which == bones.size() && what == se_string_view("name")) {
 
-        add_bone(p_value.as<se_string>());
+        add_bone(p_value.as<String>());
         return true;
     }
 
@@ -158,7 +158,7 @@ void Skeleton::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
 
     for (int i = 0; i < bones.size(); i++) {
 
-        se_string prep = "bones/" + itos(i) + "/";
+        String prep = "bones/" + itos(i) + "/";
         p_list->push_back(PropertyInfo(VariantType::STRING, StringName(prep + "name")));
         p_list->push_back(PropertyInfo(VariantType::INT, StringName(prep + "parent"), PROPERTY_HINT_RANGE, "-1," + itos(bones.size() - 1) + ",1"));
         p_list->push_back(PropertyInfo(VariantType::TRANSFORM, StringName(prep + "rest")));
@@ -383,7 +383,7 @@ int Skeleton::find_bone(se_string_view p_name) const {
 
     return -1;
 }
-const se_string &Skeleton::get_bone_name(int p_bone) const {
+const String &Skeleton::get_bone_name(int p_bone) const {
 
     ERR_FAIL_INDEX_V(p_bone, bones.size(), null_se_string)
 
@@ -700,7 +700,7 @@ void Skeleton::physical_bones_start_simulation_on(const Array &p_bones) {
         int c = 0;
         for (int i = sim_bones.size() - 1; 0 <= i; --i) {
             if (VariantType::STRING == p_bones.get(i).get_type()) {
-                int bone_id = find_bone(p_bones.get(i).as<se_string>());
+                int bone_id = find_bone(p_bones.get(i).as<String>());
                 if (bone_id != -1)
                     sim_bones.write[c++] = bone_id;
             }

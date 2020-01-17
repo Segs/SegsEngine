@@ -175,7 +175,7 @@ void ScriptDebuggerRemote::debug(ScriptLanguage *p_script, bool p_can_continue, 
             ERR_CONTINUE(cmd.empty())
             ERR_CONTINUE(cmd[0].get_type() != VariantType::STRING)
 
-            se_string command = cmd[0].as<se_string>();
+            String command = cmd[0].as<String>();
 
             if (command == "get_stack_dump") {
 
@@ -201,7 +201,7 @@ void ScriptDebuggerRemote::debug(ScriptLanguage *p_script, bool p_can_continue, 
                 ERR_CONTINUE(cmd.size() != 1)
                 int lv = cmd[0];
 
-                ListPOD<se_string> members;
+                ListPOD<String> members;
                 List<Variant> member_vals;
                 if (ScriptInstance *inst = p_script->debug_get_stack_level_instance(lv)) {
                     members.push_back("self");
@@ -211,12 +211,12 @@ void ScriptDebuggerRemote::debug(ScriptLanguage *p_script, bool p_can_continue, 
                 p_script->debug_get_stack_level_members(lv, &members, &member_vals);
                 ERR_CONTINUE(members.size() != member_vals.size())
 
-                ListPOD<se_string> locals;
+                ListPOD<String> locals;
                 List<Variant> local_vals;
                 p_script->debug_get_stack_level_locals(lv, &locals, &local_vals);
                 ERR_CONTINUE(locals.size() != local_vals.size())
 
-                ListPOD<se_string> globals;
+                ListPOD<String> globals;
                 List<Variant> globals_vals;
                 p_script->debug_get_globals(&globals, &globals_vals);
                 ERR_CONTINUE(globals.size() != globals_vals.size())
@@ -489,13 +489,13 @@ bool ScriptDebuggerRemote::_parse_live_edit(const Array &p_command) {
 
 #ifdef DEBUG_ENABLED
 
-    se_string cmdstr = p_command[0];
+    String cmdstr = p_command[0];
     if (!scene_tree || !StringUtils::begins_with(cmdstr,"live_"))
         return false;
 
     if (cmdstr == "live_set_root") {
 
-        scene_tree->debug()->_live_edit_root_func(p_command[1], p_command[2].as<se_string>());
+        scene_tree->debug()->_live_edit_root_func(p_command[1], p_command[2].as<String>());
 
     } else if (cmdstr == "live_node_path") {
 
@@ -503,11 +503,11 @@ bool ScriptDebuggerRemote::_parse_live_edit(const Array &p_command) {
 
     } else if (cmdstr == "live_res_path") {
 
-        scene_tree->debug()->_live_edit_res_path_func(p_command[1].as<se_string>(), p_command[2]);
+        scene_tree->debug()->_live_edit_res_path_func(p_command[1].as<String>(), p_command[2]);
 
     } else if (cmdstr == "live_node_prop_res") {
 
-        scene_tree->debug()->_live_edit_node_set_res_func(p_command[1], p_command[2], p_command[3].as<se_string>());
+        scene_tree->debug()->_live_edit_node_set_res_func(p_command[1], p_command[2], p_command[3].as<String>());
 
     } else if (cmdstr == "live_node_prop") {
 
@@ -515,7 +515,7 @@ bool ScriptDebuggerRemote::_parse_live_edit(const Array &p_command) {
 
     } else if (cmdstr == "live_res_prop_res") {
 
-        scene_tree->debug()->_live_edit_res_set_res_func(p_command[1], p_command[2], p_command[3].as<se_string>());
+        scene_tree->debug()->_live_edit_res_set_res_func(p_command[1], p_command[2], p_command[3].as<String>());
 
     } else if (cmdstr == "live_res_prop") {
 
@@ -535,7 +535,7 @@ bool ScriptDebuggerRemote::_parse_live_edit(const Array &p_command) {
 
     } else if (cmdstr == "live_instance_node") {
 
-        scene_tree->debug()->_live_edit_instance_node_func(p_command[1], p_command[2].as<se_string>(), p_command[3]);
+        scene_tree->debug()->_live_edit_instance_node_func(p_command[1], p_command[2].as<String>(), p_command[3]);
 
     } else if (cmdstr == "live_remove_node") {
 
@@ -608,9 +608,9 @@ if (ScriptInstance *si = obj->get_script_instance()) {
             for (const StringName &E : sm.second) {
                 Variant m;
                 if (si->get(E, m)) {
-                    se_string script_path(sm.first == si->get_script().get() ?
-                                                  se_string() :
-                                                  se_string(PathUtils::get_file(sm.first->get_path())) + "/");
+                    String script_path(sm.first == si->get_script().get() ?
+                                                  String() :
+                                                  String(PathUtils::get_file(sm.first->get_path())) + "/");
                     PropertyInfo pi(
                             m.get_type(), StringName("Members/" + script_path + E.asCString()));
                     properties.push_back(PropertyDesc(pi, m));
@@ -620,12 +620,12 @@ if (ScriptInstance *si = obj->get_script_instance()) {
 
         for (const auto &sc : constants) {
             for (const eastl::pair<const StringName, Variant> &E : sc.second) {
-                se_string script_path(sc.first == si->get_script().get() ?
-                                             se_string() :
-                                             se_string(PathUtils::get_file(sc.first->get_path())) + "/");
+                String script_path(sc.first == si->get_script().get() ?
+                                             String() :
+                                             String(PathUtils::get_file(sc.first->get_path())) + "/");
                 if (E.second.get_type() == VariantType::OBJECT) {
                     Variant id = ((Object *)E.second)->get_instance_id();
-                    PropertyInfo pi(id.get_type(), StringName("Constants/" + se_string(E.first)), PROPERTY_HINT_OBJECT_ID, "Object");
+                    PropertyInfo pi(id.get_type(), StringName("Constants/" + String(E.first)), PROPERTY_HINT_OBJECT_ID, "Object");
                     properties.push_back(PropertyDesc(pi, id));
                 } else {
                     PropertyInfo pi(E.second.get_type(), StringName("Constants/" + script_path + E.first.asCString()));
@@ -655,10 +655,10 @@ if (ScriptInstance *si = obj->get_script_instance()) {
             for (eastl::pair<const StringName,Variant> &E : constants) {
                 if (E.second.get_type() == VariantType::OBJECT) {
                     Variant id = ((Object *)E.second)->get_instance_id();
-                    PropertyInfo pi(id.get_type(), StringName("Constants/" + se_string(E.first)), PROPERTY_HINT_OBJECT_ID, "Object");
+                    PropertyInfo pi(id.get_type(), StringName("Constants/" + String(E.first)), PROPERTY_HINT_OBJECT_ID, "Object");
                     properties.push_front(PropertyDesc(pi, E.second));
                 } else {
-                    PropertyInfo pi(E.second.get_type(), StringName("Constants/" + se_string(E.first)));
+                    PropertyInfo pi(E.second.get_type(), StringName("Constants/" + String(E.first)));
                     properties.push_front(PropertyDesc(pi, E.second));
                 }
             }
@@ -718,7 +718,7 @@ if (ScriptInstance *si = obj->get_script_instance()) {
     packet_peer_stream->put_var(send_props);
 }
 
-void ScriptDebuggerRemote::_set_object_property(ObjectID p_id, const se_string &p_property, const Variant &p_value) {
+void ScriptDebuggerRemote::_set_object_property(ObjectID p_id, const String &p_property, const Variant &p_value) {
 
     Object *obj = ObjectDB::get_instance(p_id);
     if (!obj)
@@ -755,7 +755,7 @@ void ScriptDebuggerRemote::_poll_events() {
         ERR_CONTINUE(cmd.empty())
         ERR_CONTINUE(cmd[0].get_type() != VariantType::STRING)
 
-        se_string command = cmd[0];
+        String command = cmd[0];
         //cmd.remove(0);
 
         if (command == "break") {
@@ -1010,7 +1010,7 @@ void ScriptDebuggerRemote::_send_network_bandwidth_usage() {
     packet_peer_stream->put_var(outgoing_bandwidth);
 }
 
-void ScriptDebuggerRemote::send_message(const se_string &p_message, const Array &p_args) {
+void ScriptDebuggerRemote::send_message(const String &p_message, const Array &p_args) {
 
     mutex->lock();
     if (!locking && tcp_client->is_connected_to_host()) {
@@ -1092,7 +1092,7 @@ void ScriptDebuggerRemote::send_error(se_string_view p_func, se_string_view p_fi
     mutex->unlock();
 }
 
-void ScriptDebuggerRemote::_print_handler(void *p_this, const se_string &p_string, bool /*p_error*/) {
+void ScriptDebuggerRemote::_print_handler(void *p_this, const String &p_string, bool /*p_error*/) {
 
     ScriptDebuggerRemote *sdr = (ScriptDebuggerRemote *)p_this;
 
@@ -1105,7 +1105,7 @@ void ScriptDebuggerRemote::_print_handler(void *p_this, const se_string &p_strin
         sdr->msec_count = 0;
     }
 
-    se_string s = p_string;
+    String s = p_string;
     int allowed_chars = MIN(MAX(sdr->max_cps - sdr->char_count, 0), s.length());
 
     if (allowed_chars == 0)

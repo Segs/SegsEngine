@@ -14,7 +14,7 @@
 #ifdef TOOLS_ENABLED
 struct ObjectToolingImpl final : public IObjectTooling {
 
-    Set<se_string> editor_section_folding;
+    Set<String> editor_section_folding;
     Set<Object *> change_receptors;
     uint32_t _edited_version;
     bool _edited;
@@ -45,7 +45,7 @@ public:
     [[nodiscard]] bool editor_is_section_unfolded(se_string_view p_section) const final {
         return editor_section_folding.contains_as(p_section);
     }
-    [[nodiscard]] const Set<se_string> &editor_get_section_folding() const final {
+    [[nodiscard]] const Set<String> &editor_get_section_folding() const final {
         return editor_section_folding;
     }
     void editor_clear_section_folding() final {

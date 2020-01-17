@@ -887,12 +887,12 @@ void SpatialEditorViewport::_list_select(Ref<InputEventMouseButton> b) {
 
             Ref<Texture> icon = EditorNode::get_singleton()->get_object_icon(spat, "Node");
 
-            se_string node_path = "/" + se_string(root_name) + "/" + se_string(root_path.rel_path_to(spat->get_path()));
+            String node_path = "/" + String(root_name) + "/" + String(root_path.rel_path_to(spat->get_path()));
 
             selection_menu->add_item(spat->get_name());
             selection_menu->set_item_icon(i, icon);
             selection_menu->set_item_metadata(i, node_path);
-            selection_menu->set_item_tooltip(i, StringName(se_string(spat->get_name()) + "\nType: " + spat->get_class() + "\nPath: " + node_path));
+            selection_menu->set_item_tooltip(i, StringName(String(spat->get_name()) + "\nType: " + spat->get_class() + "\nPath: " + node_path));
         }
 
         selection_menu->set_global_position(b->get_global_position());
@@ -2282,7 +2282,7 @@ void SpatialEditorViewport::_notification(int p_what) {
         }
 
         if (show_info) {
-            se_string text;
+            String text;
             text += FormatVE("X: %.1f\n",current_camera->get_translation().x);
             text += FormatVE("Y: %.1f\n",current_camera->get_translation().y);
             text += FormatVE("Z: %.1f\n",current_camera->get_translation().z);
@@ -2302,7 +2302,7 @@ void SpatialEditorViewport::_notification(int p_what) {
         fps_label->set_visible(show_fps);
 
         if (show_fps) {
-            se_string text;
+            String text;
             const float temp_fps = Engine::get_singleton()->get_frames_per_second();
             text += TTR(FormatVE("FPS: %d (%.2f ms)", int(temp_fps), 1000.0f / temp_fps));
             fps_label->set_text(StringName(text));
@@ -3280,9 +3280,9 @@ AABB SpatialEditorViewport::_calculate_spatial_bounds(const Spatial *p_parent, b
     return bounds;
 }
 
-void SpatialEditorViewport::_create_preview(const Vector<se_string> &files) const {
+void SpatialEditorViewport::_create_preview(const Vector<String> &files) const {
     for (int i = 0; i < files.size(); i++) {
-        const se_string &path = files[i];
+        const String &path = files[i];
         RES res(ResourceLoader::load(path));
         ERR_CONTINUE(not res)
         Ref<PackedScene> scene = dynamic_ref_cast<PackedScene>(res);
@@ -3375,10 +3375,10 @@ bool SpatialEditorViewport::_create_instance(Node *parent, se_string_view path, 
     editor_data->get_undo_redo().add_do_reference(instanced_scene);
     editor_data->get_undo_redo().add_undo_method(parent, "remove_child", Variant(instanced_scene));
 
-    se_string new_name = parent->validate_child_name(instanced_scene);
+    String new_name = parent->validate_child_name(instanced_scene);
     ScriptEditorDebugger *sed = ScriptEditor::get_singleton()->get_debugger();
     editor_data->get_undo_redo().add_do_method(sed, "live_debug_instance_node", editor->get_edited_scene()->get_path_to(parent), path, new_name);
-    editor_data->get_undo_redo().add_undo_method(sed, "live_debug_remove_node", NodePath(se_string(editor->get_edited_scene()->get_path_to(parent)) + "/" + new_name));
+    editor_data->get_undo_redo().add_undo_method(sed, "live_debug_remove_node", NodePath(String(editor->get_edited_scene()->get_path_to(parent)) + "/" + new_name));
 
     Transform global_transform;
     Spatial *parent_spatial = object_cast<Spatial>(parent);
@@ -3395,12 +3395,12 @@ bool SpatialEditorViewport::_create_instance(Node *parent, se_string_view path, 
 void SpatialEditorViewport::_perform_drop_data() {
     _remove_preview();
 
-    Vector<se_string> error_files;
+    Vector<String> error_files;
 
     editor_data->get_undo_redo().create_action_ui(TTR("Create Node"));
 
     for (int i = 0; i < selected_files.size(); i++) {
-        const se_string &path = selected_files[i];
+        const String &path = selected_files[i];
         RES res(ResourceLoader::load(path));
         if (not res) {
             continue;
@@ -3418,9 +3418,9 @@ void SpatialEditorViewport::_perform_drop_data() {
     editor_data->get_undo_redo().commit_action();
 
     if (!error_files.empty()) {
-        se_string files_str;
+        String files_str;
         for (int i = 0; i < error_files.size(); i++) {
-            files_str += se_string(PathUtils::get_basename(PathUtils::get_file(error_files[i]))) + ",";
+            files_str += String(PathUtils::get_basename(PathUtils::get_file(error_files[i]))) + ",";
         }
         files_str = StringUtils::substr(files_str,0, files_str.length() - 1);
         accept->set_text(FormatSN(TTR("Error instancing scene from %s").asCString(), files_str.c_str()));
@@ -3435,16 +3435,16 @@ bool SpatialEditorViewport::can_drop_data_fw(const Point2 &p_point, const Varian
     if (!preview_node->is_inside_tree()) {
         Dictionary d = p_data;
         if (d.has("type") && UIString(d["type"]) == "files") {
-            Vector<se_string> files(d["files"].as<Vector<se_string>>());
+            Vector<String> files(d["files"].as<Vector<String>>());
 
-            PODVector<se_string> scene_extensions;
+            PODVector<String> scene_extensions;
             ResourceLoader::get_recognized_extensions_for_type("PackedScene", scene_extensions);
-            PODVector<se_string> mesh_extensions;
+            PODVector<String> mesh_extensions;
             ResourceLoader::get_recognized_extensions_for_type("Mesh", mesh_extensions);
             eastl::fixed_hash_set<se_string_view,64,16> fast_check;
-            for(const se_string &s : scene_extensions)
+            for(const String &s : scene_extensions)
                 fast_check.emplace(s);
-            for(const se_string &s : mesh_extensions)
+            for(const String &s : mesh_extensions)
                 fast_check.emplace(s);
             for (int i = 0; i < files.size(); i++) {
                 if (fast_check.contains(PathUtils::get_extension(files[i]))) {
@@ -3498,7 +3498,7 @@ void SpatialEditorViewport::drop_data_fw(const Point2 &p_point, const Variant &p
     selected_files.clear();
     Dictionary d = p_data;
     if (d.has("type") && UIString(d["type"]) == "files") {
-        selected_files = d["files"].as<Vector<se_string>>();
+        selected_files = d["files"].as<Vector<String>>();
     }
 
     List<Node *> list = editor->get_editor_selection()->get_selected_node_list();
@@ -3587,7 +3587,7 @@ SpatialEditorViewport::SpatialEditorViewport(SpatialEditor *p_spatial_editor, Ed
     view_menu->get_popup()->add_shortcut(ED_GET_SHORTCUT("spatial_editor/front_view"), VIEW_FRONT);
     view_menu->get_popup()->add_shortcut(ED_GET_SHORTCUT("spatial_editor/rear_view"), VIEW_REAR);
     view_menu->get_popup()->add_separator();
-    se_string switch_shortcut = " (" + ED_GET_SHORTCUT("spatial_editor/switch_perspective_orthogonal")->get_as_text() + ")";
+    String switch_shortcut = " (" + ED_GET_SHORTCUT("spatial_editor/switch_perspective_orthogonal")->get_as_text() + ")";
     view_menu->get_popup()->add_radio_check_item(TTR("Perspective") + switch_shortcut, VIEW_PERSPECTIVE);
     view_menu->get_popup()->add_radio_check_item(TTR("Orthogonal") + switch_shortcut, VIEW_ORTHOGONAL);
     view_menu->get_popup()->set_item_checked(view_menu->get_popup()->get_item_index(VIEW_PERSPECTIVE), true);
@@ -4325,7 +4325,7 @@ void SpatialEditor::set_state(const Dictionary &p_state) {
             if (!gizmo_plugins_by_name[j]->can_be_hidden()) continue;
             int state = EditorSpatialGizmoPlugin::VISIBLE;
             for (const Variant &k :keys) {
-                if (gizmo_plugins_by_name.write[j]->get_name() == se_string_view(k.as<se_string>())) {
+                if (gizmo_plugins_by_name.write[j]->get_name() == se_string_view(k.as<String>())) {
                     state = gizmos_status[k];
                     break;
                 }
@@ -5641,7 +5641,7 @@ SpatialEditor::SpatialEditor(EditorNode *p_editor) {
     tool_button[TOOL_MODE_SELECT]->set_pressed(true);
     tool_button[TOOL_MODE_SELECT]->connect("pressed", this, "_menu_item_pressed", { Variant(MENU_TOOL_SELECT) });
     tool_button[TOOL_MODE_SELECT]->set_shortcut(ED_SHORTCUT("spatial_editor/tool_select", TTR("Select Mode"), KEY_Q));
-    tool_button[TOOL_MODE_SELECT]->set_tooltip(StringName(se_string(keycode_get_string(KEY_MASK_CMD)) + TTR("Drag: Rotate\nAlt+Drag: Move\nAlt+RMB: Depth list selection")));
+    tool_button[TOOL_MODE_SELECT]->set_tooltip(StringName(String(keycode_get_string(KEY_MASK_CMD)) + TTR("Drag: Rotate\nAlt+Drag: Move\nAlt+RMB: Depth list selection")));
 
     hbc_menu->add_child(memnew(VSeparator));
 
@@ -6134,10 +6134,10 @@ void EditorSpatialGizmoPlugin::create_material(se_string_view p_name, const Colo
         mats.push_back(material);
     }
 
-    materials[se_string(p_name)] = mats;
+    materials[String(p_name)] = mats;
 }
 
-void EditorSpatialGizmoPlugin::create_icon_material(const se_string &p_name, const Ref<Texture> &p_texture, bool p_on_top, const Color &p_albedo) {
+void EditorSpatialGizmoPlugin::create_icon_material(const String &p_name, const Ref<Texture> &p_texture, bool p_on_top, const Color &p_albedo) {
 
     Color instanced_color = EDITOR_DEF("editors/3d_gizmos/gizmo_colors/instanced", Color(0.7f, 0.7f, 0.7f, 0.6f));
 
@@ -6178,7 +6178,7 @@ void EditorSpatialGizmoPlugin::create_icon_material(const se_string &p_name, con
     materials[p_name] = icons;
 }
 
-void EditorSpatialGizmoPlugin::create_handle_material(const se_string &p_name, bool p_billboard) {
+void EditorSpatialGizmoPlugin::create_handle_material(const String &p_name, bool p_billboard) {
     Ref<SpatialMaterial> handle_material(make_ref_counted<SpatialMaterial>());
 
     handle_material->set_flag(SpatialMaterial::FLAG_UNSHADED, true);
@@ -6200,12 +6200,12 @@ void EditorSpatialGizmoPlugin::create_handle_material(const se_string &p_name, b
     materials[p_name].push_back(handle_material);
 }
 
-void EditorSpatialGizmoPlugin::add_material(const se_string &p_name, const Ref<SpatialMaterial>& p_material) {
+void EditorSpatialGizmoPlugin::add_material(const String &p_name, const Ref<SpatialMaterial>& p_material) {
     materials[p_name] = Vector<Ref<SpatialMaterial> >();
     materials[p_name].push_back(p_material);
 }
 
-Ref<SpatialMaterial> EditorSpatialGizmoPlugin::get_material(const se_string &p_name, const Ref<EditorSpatialGizmo> &p_gizmo) {
+Ref<SpatialMaterial> EditorSpatialGizmoPlugin::get_material(const String &p_name, const Ref<EditorSpatialGizmo> &p_gizmo) {
     ERR_FAIL_COND_V(!materials.contains(p_name), Ref<SpatialMaterial>())
     ERR_FAIL_COND_V(materials[p_name].empty(), Ref<SpatialMaterial>())
 
@@ -6224,7 +6224,7 @@ se_string_view EditorSpatialGizmoPlugin::get_name() const {
     thread_local char buf[512];
     buf[0]=0;
     if (get_script_instance() && get_script_instance()->has_method("get_name")) {
-        strncpy(buf,get_script_instance()->call("get_name").as<se_string>().c_str(),511);
+        strncpy(buf,get_script_instance()->call("get_name").as<String>().c_str(),511);
     }
     else
         strncpy(buf,TTR("Nameless gizmo").asCString(),511);

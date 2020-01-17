@@ -43,7 +43,7 @@ void LinkButton::set_text(se_string_view p_text)
     minimum_size_changed();
 }
 
-const se_string & LinkButton::get_text() const {
+const String & LinkButton::get_text() const {
     return text;
 }
 

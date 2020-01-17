@@ -156,7 +156,7 @@ void ParticlesMaterial::_update_shader() {
 
     //must create a shader!
 
-    se_string code = "shader_type particles;\n";
+    String code = "shader_type particles;\n";
 
     code += "uniform vec3 direction;\n";
     code += "uniform float spread;\n";

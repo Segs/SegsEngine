@@ -53,7 +53,7 @@ class AnimationNodeBlendSpace1D : public AnimationRootNode {
 
     float snap;
 
-    se_string value_label;
+    String value_label;
 
     void _add_blend_point(int p_index, const Ref<AnimationRootNode> &p_node);
 
@@ -90,7 +90,7 @@ public:
     float get_snap() const;
 
     void set_value_label(se_string_view p_label);
-    const se_string &get_value_label() const;
+    const String &get_value_label() const;
 
     float process(float p_time, bool p_seek) override;
     se_string_view get_caption() const override;

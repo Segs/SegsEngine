@@ -41,7 +41,7 @@ class VisualScriptExpression : public VisualScriptNode {
     struct Input {
 
         VariantType type;
-        se_string name;
+        String name;
 
         Input() { type = VariantType::NIL; }
     };
@@ -49,7 +49,7 @@ class VisualScriptExpression : public VisualScriptNode {
     Vector<Input> inputs;
     VariantType output_type;
 
-    se_string expression;
+    String expression;
 
     bool sequenced;
     size_t str_ofs;
@@ -114,7 +114,7 @@ class VisualScriptExpression : public VisualScriptNode {
 
     Error _get_token(Token &r_token);
 
-    se_string error_str;
+    String error_str;
     bool error_set;
 
     struct ENode {
@@ -278,7 +278,7 @@ public:
     PropertyInfo get_output_value_port_info(int p_idx) const override;
 
     se_string_view get_caption() const override;
-    se_string get_text() const override;
+    String get_text() const override;
     const char *get_category() const override { return "operators"; }
 
     VisualScriptNodeInstance *instance(VisualScriptInstance *p_instance) override;

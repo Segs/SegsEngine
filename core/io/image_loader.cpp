@@ -44,7 +44,7 @@ struct ImageLoadPluginResolver : public ResolverInterface
         bool res=false;
         auto image_loader_interface = qobject_cast<ImageFormatLoader *>(ob);
         if (image_loader_interface) {
-            print_line(se_string("Adding image loader:")+ob->metaObject()->className());
+            print_line(String("Adding image loader:")+ob->metaObject()->className());
             ImageLoader::add_image_format_loader(image_loader_interface);
             res=true;
         }
@@ -53,7 +53,7 @@ struct ImageLoadPluginResolver : public ResolverInterface
     void plugin_removed(QObject * ob)  override  {
         auto image_loader_interface = qobject_cast<ImageFormatLoader *>(ob);
         if(image_loader_interface) {
-            print_line(se_string("Removing image loader:")+ob->metaObject()->className());
+            print_line(String("Removing image loader:")+ob->metaObject()->className());
             ImageLoader::remove_image_format_loader(image_loader_interface);
         }
     }
@@ -62,9 +62,9 @@ struct ImageLoadPluginResolver : public ResolverInterface
 
 bool loader_recognizes(const ImageFormatLoader *ldr,se_string_view p_extension) {
 
-    PODVector<se_string> extensions;
+    PODVector<String> extensions;
     ldr->get_recognized_extensions(extensions);
-    for (const se_string & e : extensions) {
+    for (const String & e : extensions) {
 
         if (StringUtils::compare(e,p_extension,StringUtils::CaseInsensitive) == 0)
             return true;
@@ -93,12 +93,12 @@ Error ImageLoader::load_image(se_string_view p_file, const Ref<Image> &p_image, 
         Error err;
         f = FileAccess::open(p_file, FileAccess::READ, &err);
         if (!f) {
-            ERR_PRINT("Error opening file '" + se_string(p_file)+"'.")
+            ERR_PRINT("Error opening file '" + String(p_file)+"'.")
             return err;
         }
     }
 
-    se_string extension(PathUtils::get_extension(p_file));
+    String extension(PathUtils::get_extension(p_file));
 
     for (int i = 0; i < loader.size(); i++) {
 
@@ -107,7 +107,7 @@ Error ImageLoader::load_image(se_string_view p_file, const Ref<Image> &p_image, 
         ImageData result_data;
         Error err = loader[i]->load_image(result_data, f, params);
         if (err != OK) {
-            ERR_PRINT("Error loading image: " + se_string(p_file))
+            ERR_PRINT("Error loading image: " + String(p_file))
         }
         else
             p_image->create(std::move(result_data));
@@ -150,11 +150,11 @@ ImageData ImageLoader::load_image(se_string_view extension, const uint8_t *data,
 
     }
     if(!loader_found)
-        ERR_PRINT("No loader found for file with extension:"+se_string(extension))
+        ERR_PRINT("No loader found for file with extension:"+String(extension))
     return result_data;
 }
 
-void ImageLoader::get_recognized_extensions(PODVector<se_string> &p_extensions) {
+void ImageLoader::get_recognized_extensions(PODVector<String> &p_extensions) {
     register_plugin_resolver();
 
     for (int i = 0; i < loader.size(); i++) {
@@ -224,7 +224,7 @@ RES ResourceFormatLoaderImage::load(se_string_view p_path, se_string_view p_orig
         ERR_FAIL_V(RES())
     }
 
-    se_string extension = f->get_pascal_string();
+    String extension = f->get_pascal_string();
 
     int idx = -1;
 
@@ -265,7 +265,7 @@ RES ResourceFormatLoaderImage::load(se_string_view p_path, se_string_view p_orig
     return image;
 }
 
-void ResourceFormatLoaderImage::get_recognized_extensions(PODVector<se_string> &p_extensions) const {
+void ResourceFormatLoaderImage::get_recognized_extensions(PODVector<String> &p_extensions) const {
 
     p_extensions.push_back("image");
 }
@@ -275,7 +275,7 @@ bool ResourceFormatLoaderImage::handles_type(se_string_view p_type) const {
     return p_type == se_string_view("Image");
 }
 
-se_string ResourceFormatLoaderImage::get_resource_type(se_string_view p_path) const {
+String ResourceFormatLoaderImage::get_resource_type(se_string_view p_path) const {
 
-    return StringUtils::to_lower(PathUtils::get_extension(p_path)) == "image" ? "Image" : se_string();
+    return StringUtils::to_lower(PathUtils::get_extension(p_path)) == "image" ? "Image" : String();
 }

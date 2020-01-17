@@ -67,13 +67,13 @@ protected:
 
     Ref<Font> default_theme_font;
 
-    PoolVector<se_string> _get_icon_list(const se_string &p_type) const;
-    PoolVector<se_string> _get_stylebox_list(const se_string &p_type) const;
-    PoolVector<se_string> _get_stylebox_types() const;
-    PoolVector<se_string> _get_font_list(const se_string &p_type) const;
-    PoolVector<se_string> _get_color_list(const se_string &p_type) const;
-    PoolVector<se_string> _get_constant_list(const se_string &p_type) const;
-    PoolVector<se_string> _get_type_list(se_string_view p_type) const;
+    PoolVector<String> _get_icon_list(const String &p_type) const;
+    PoolVector<String> _get_stylebox_list(const String &p_type) const;
+    PoolVector<String> _get_stylebox_types() const;
+    PoolVector<String> _get_font_list(const String &p_type) const;
+    PoolVector<String> _get_color_list(const String &p_type) const;
+    PoolVector<String> _get_constant_list(const String &p_type) const;
+    PoolVector<String> _get_type_list(se_string_view p_type) const;
 
     static void _bind_methods();
 

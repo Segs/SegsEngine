@@ -152,7 +152,7 @@ private:
     friend class SceneTreeEditor;
 #endif
     static const char *invalid_character;
-    static bool _validate_node_name(se_string &p_name);
+    static bool _validate_node_name(String &p_name);
 
 protected:
     void _block() { blocked++; }
@@ -279,7 +279,7 @@ public:
     se_string_view get_filename() const;
 
     void set_editor_description(se_string_view p_editor_description);
-    se_string get_editor_description() const;
+    String get_editor_description() const;
 
     void set_editable_instance(Node *p_node, bool p_editable);
     bool is_editable_instance(const Node *p_node) const;
@@ -351,7 +351,7 @@ public:
     static void print_stray_nodes();
 
 #ifdef TOOLS_ENABLED
-    se_string validate_child_name(Node *p_child);
+    String validate_child_name(Node *p_child);
 #endif
 
     void queue_delete();
@@ -367,7 +367,7 @@ public:
 
     bool is_owned_by_parent() const;
 
-    void get_argument_options(const StringName &p_function, int p_idx, ListPOD<se_string> *r_options) const override;
+    void get_argument_options(const StringName &p_function, int p_idx, ListPOD<String> *r_options) const override;
 
     void clear_internal_tree_resource_paths();
 

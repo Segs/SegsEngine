@@ -73,7 +73,7 @@ void EditorPropertyRootMotion::_node_assign() {
         return;
     }
 
-    Set<se_string> paths;
+    Set<String> paths;
     {
         PODVector<StringName> animations;
         player->get_animation_list(&animations);
@@ -90,13 +90,13 @@ void EditorPropertyRootMotion::_node_assign() {
     filters->clear();
     TreeItem *root = filters->create_item();
 
-    Map<se_string, TreeItem *> parenthood;
+    Map<String, TreeItem *> parenthood;
 
-    for (const se_string &E : paths) {
+    for (const String &E : paths) {
 
         NodePath path(E);
         TreeItem *ti = nullptr;
-        se_string accum;
+        String accum;
         for (int i = 0; i < path.get_name_count(); i++) {
             StringName name = path.get_name(i);
             if (!accum.empty()) {
@@ -134,14 +134,14 @@ void EditorPropertyRootMotion::_node_assign() {
 
         if (path.get_subname_count()) {
 
-            se_string concat(path.get_concatenated_subnames());
+            String concat(path.get_concatenated_subnames());
 
             Skeleton *skeleton = object_cast<Skeleton>(node);
             if (skeleton && skeleton->find_bone(concat) != -1) {
                 //path in skeleton
-                const se_string &bone = concat;
+                const String &bone = concat;
                 int idx = skeleton->find_bone(bone);
-                List<se_string> bone_path;
+                List<String> bone_path;
                 while (idx != -1) {
                     bone_path.push_front(skeleton->get_bone_name(idx));
                     idx = skeleton->get_bone_parent(idx);
@@ -211,7 +211,7 @@ void EditorPropertyRootMotion::update_property() {
 
     NodePath p = get_edited_object()->get(get_edited_property());
 
-    assign->set_tooltip_utf8((se_string)p);
+    assign->set_tooltip_utf8((String)p);
     if (p == NodePath()) {
         assign->set_icon(Ref<Texture>());
         assign->set_text(TTR("Assign..."));
@@ -231,7 +231,7 @@ void EditorPropertyRootMotion::update_property() {
 
     if (!base_node || !base_node->has_node(p)) {
         assign->set_icon(Ref<Texture>());
-        assign->set_text_utf8((se_string)p);
+        assign->set_text_utf8((String)p);
         return;
     }
 

@@ -61,7 +61,7 @@ Ref<AudioStreamPlayback> AudioStreamGenerator::instance_playback() {
     playback->buffer.clear();
     return playback;
 }
-se_string AudioStreamGenerator::get_stream_name() const {
+String AudioStreamGenerator::get_stream_name() const {
 
     return "UserFeed";
 }

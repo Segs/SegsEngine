@@ -99,7 +99,7 @@ class SceneState : public RefCounted {
     Error _parse_node(Node *p_owner, Node *p_node, int p_parent_idx, Map<StringName, int> &name_map, HashMap<Variant, int, Hasher<Variant>, VariantComparator> &variant_map, Map<Node *, int> &node_map, Map<Node *, int> &nodepath_map);
     Error _parse_connections(Node *p_owner, Node *p_node, Map<StringName, int> &name_map, HashMap<Variant, int, Hasher<Variant>, VariantComparator> &variant_map, Map<Node *, int> &node_map, Map<Node *, int> &nodepath_map);
 
-    se_string path;
+    String path;
 
     uint64_t last_modified_time;
 
@@ -107,7 +107,7 @@ class SceneState : public RefCounted {
 
     static bool disable_placeholders;
 
-    PoolVector<se_string> _get_node_groups(int p_idx) const;
+    PoolVector<String> _get_node_groups(int p_idx) const;
 
     int _find_base_scene_node_remap_key(int p_idx) const;
 
@@ -141,7 +141,7 @@ public:
     Error pack(Node *p_scene);
 
     void set_path(se_string_view p_path);
-    const se_string &get_path() const;
+    const String &get_path() const;
 
     void clear();
 
@@ -156,7 +156,7 @@ public:
     NodePath get_node_path(int p_idx, bool p_for_parent = false) const;
     NodePath get_node_owner_path(int p_idx) const;
     Ref<PackedScene> get_node_instance(int p_idx) const;
-    se_string get_node_instance_placeholder(int p_idx) const;
+    String get_node_instance_placeholder(int p_idx) const;
     bool is_node_instance_placeholder(int p_idx) const;
     Vector<StringName> get_node_groups(int p_idx) const;
     int get_node_index(int p_idx) const;

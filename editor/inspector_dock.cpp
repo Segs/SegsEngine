@@ -152,11 +152,11 @@ void InspectorDock::_new_resource() {
 void InspectorDock::_load_resource(se_string_view p_type) {
     load_resource_dialog->set_mode(EditorFileDialog::MODE_OPEN_FILE);
 
-    PODVector<se_string> extensions;
+    PODVector<String> extensions;
     ResourceLoader::get_recognized_extensions_for_type(p_type, extensions);
 
     load_resource_dialog->clear_filters();
-    for (const se_string &ext : extensions) {
+    for (const String &ext : extensions) {
         load_resource_dialog->add_filter("*." + ext + " ; " + StringUtils::to_upper(ext));
     }
 
@@ -244,7 +244,7 @@ void InspectorDock::_prepare_history() {
             icon = base_icon;
         }
 
-        se_string text;
+        String text;
         if (object_cast<Resource>(obj)) {
             Resource *r = object_cast<Resource>(obj);
             if (PathUtils::is_resource_file(r->get_path()))
@@ -257,7 +257,7 @@ void InspectorDock::_prepare_history() {
         } else if (object_cast<Node>(obj)) {
             text = object_cast<Node>(obj)->get_name();
         } else if (obj->is_class("ScriptEditorDebuggerInspectedObject")) {
-            text = obj->call("get_title").as<se_string>();
+            text = obj->call("get_title").as<String>();
         } else {
             text = obj->get_class();
         }

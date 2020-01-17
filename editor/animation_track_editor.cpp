@@ -597,7 +597,7 @@ public:
                 } else {
 
                     PropertyHint hint = PROPERTY_HINT_NONE;
-                    se_string hint_string;
+                    String hint_string;
 
                     if (v.get_type() == VariantType::OBJECT) {
                         //could actually check the object property if exists..? yes i will!
@@ -622,7 +622,7 @@ public:
                 Dictionary d = animation->track_get_key_value(track, key);
                 ERR_FAIL_COND(!d.has("args"))
                 Vector<Variant> args = d["args"].as<Vector<Variant>>();;
-                se_string vtypes;
+                String vtypes;
                 for (int i = 0; i < (int)VariantType::VARIANT_MAX; i++) {
 
                     if (i > 0)
@@ -654,7 +654,7 @@ public:
             } break;
             case Animation::TYPE_ANIMATION: {
 
-                se_string animations;
+                String animations;
 
                 if (root_path && root_path->has_node(animation->track_get_path(track))) {
 
@@ -662,7 +662,7 @@ public:
                     if (ap) {
                         PODVector<StringName> anims;
                         ap->get_animation_list(&anims);
-                        animations = se_string::joined(anims,",");
+                        animations = String::joined(anims,",");
                     }
                 }
 
@@ -1294,7 +1294,7 @@ public:
                     } else {
 
                         PropertyHint hint = PROPERTY_HINT_NONE;
-                        se_string hint_string;
+                        String hint_string;
 
                         if (v.get_type() == VariantType::OBJECT) {
                             //could actually check the object property if exists..? yes i will!
@@ -1320,7 +1320,7 @@ public:
                     Dictionary d = animation->track_get_key_value(first_track, first_key);
                     ERR_FAIL_COND(!d.has("args"))
                     Vector<Variant> args = d["args"].as<Vector<Variant>>();
-                    se_string vtypes;
+                    String vtypes;
                     for (int i = 0; i < (int)VariantType::VARIANT_MAX; i++) {
 
                         if (i > 0)
@@ -1352,7 +1352,7 @@ public:
                     if (key_ofs_map.size() > 1)
                         break;
 
-                    se_string animations;
+                    String animations;
                     PODVector<StringName> anims;
 
                     if (root_path && root_path->has_node(animation->track_get_path(first_track))) {
@@ -1363,7 +1363,7 @@ public:
                         }
                     }
                     anims.push_back(StringName("[stop]"));
-                    animations = se_string::joined(anims,",");
+                    animations = String::joined(anims,",");
 
                     p_list->push_back(PropertyInfo(VariantType::STRING, "animation", PROPERTY_HINT_ENUM, animations));
                 } break;
@@ -1983,7 +1983,7 @@ void AnimationTrackEdit::_notification(int p_what) {
                 node = root->get_node(path);
             }
 
-            se_string text;
+            String text;
             Color text_color = color;
             if (node && EditorNode::get_singleton()->get_editor_selection()->is_selected(node)) {
                 text_color = get_color("accent_color", "Editor");
@@ -2014,7 +2014,7 @@ void AnimationTrackEdit::_notification(int p_what) {
             } else {
                 icon_cache = type_icon;
 
-                text = (se_string)path;
+                text = (String)path;
             }
 
             path_cache = text;
@@ -2305,10 +2305,10 @@ void AnimationTrackEdit::draw_key(int p_index, float p_pixels_sec, int p_x, bool
         color.a = 0.5;
 
         Dictionary d = animation->track_get_key_value(track, p_index);
-        se_string text;
+        String text;
 
         if (d.has("method"))
-            text += d["method"].as<se_string>();
+            text += d["method"].as<String>();
         text += '(';
         Vector<Variant> args;
         if (d.has("args"))
@@ -2317,7 +2317,7 @@ void AnimationTrackEdit::draw_key(int p_index, float p_pixels_sec, int p_x, bool
 
             if (i > 0)
                 text += ", ";
-            text += args[i].as<se_string>();
+            text += args[i].as<String>();
         }
         text += ")";
 
@@ -2521,7 +2521,7 @@ StringName AnimationTrackEdit::get_tooltip(const Point2 &p_pos) const {
 
     // Don't overlap track keys if they start at 0.
     if (path_rect.has_point(p_pos + Size2(type_icon->get_width(), 0))) {
-        return StringName((se_string)animation->track_get_path(track));
+        return StringName((String)animation->track_get_path(track));
     }
 
     if (update_mode_rect.has_point(p_pos)) {
@@ -2575,28 +2575,28 @@ StringName AnimationTrackEdit::get_tooltip(const Point2 &p_pos) const {
 
         if (key_idx != -1) {
 
-            se_string text(TTR("Time (s): ") + rtos(animation->track_get_key_time(track, key_idx)) + "\n");
+            String text(TTR("Time (s): ") + rtos(animation->track_get_key_time(track, key_idx)) + "\n");
             switch (animation->track_get_type(track)) {
 
                 case Animation::TYPE_TRANSFORM: {
 
                     Dictionary d = animation->track_get_key_value(track, key_idx);
                     if (d.has("location"))
-                        text += "Pos: " + se_string(d["location"]) + "\n";
+                        text += "Pos: " + String(d["location"]) + "\n";
                     if (d.has("rotation"))
-                        text += "Rot: " + se_string(d["rotation"]) + "\n";
+                        text += "Rot: " + String(d["rotation"]) + "\n";
                     if (d.has("scale"))
-                        text += "Scale: " + se_string(d["scale"]) + "\n";
+                        text += "Scale: " + String(d["scale"]) + "\n";
                 } break;
                 case Animation::TYPE_VALUE: {
 
                     const Variant &v = animation->track_get_key_value(track, key_idx);
-                    text += se_string("Type: ") + Variant::get_type_name(v.get_type()) + "\n";
+                    text += String("Type: ") + Variant::get_type_name(v.get_type()) + "\n";
                     VariantType valid_type = VariantType::NIL;
                     if (!_is_value_key_valid(v, valid_type)) {
-                        text += "Value: " + se_string(v) + "  (Invalid, expected type: " + Variant::interned_type_name(valid_type) + ")\n";
+                        text += "Value: " + String(v) + "  (Invalid, expected type: " + Variant::interned_type_name(valid_type) + ")\n";
                     } else {
-                        text += "Value: " + se_string(v) + "\n";
+                        text += "Value: " + String(v) + "\n";
                     }
                     text += "Easing: " + rtos(animation->track_get_key_transition(track, key_idx));
 
@@ -2605,7 +2605,7 @@ StringName AnimationTrackEdit::get_tooltip(const Point2 &p_pos) const {
 
                     Dictionary d = animation->track_get_key_value(track, key_idx);
                     if (d.has("method"))
-                        text += se_string(d["method"]);
+                        text += String(d["method"]);
                     text += '(';
                     Vector<Variant> args;
                     if (d.has("args"))
@@ -2614,9 +2614,9 @@ StringName AnimationTrackEdit::get_tooltip(const Point2 &p_pos) const {
 
                         if (i > 0)
                             text += ", ";
-                        text += se_string(args[i]);
+                        text += String(args[i]);
                     }
-                    text += se_string(")\n");
+                    text += String(")\n");
 
                 } break;
                 case Animation::TYPE_BEZIER: {
@@ -2624,13 +2624,13 @@ StringName AnimationTrackEdit::get_tooltip(const Point2 &p_pos) const {
                     float h = animation->bezier_track_get_key_value(track, key_idx);
                     text += "Value: " + rtos(h) + "\n";
                     Vector2 ih = animation->bezier_track_get_key_in_handle(track, key_idx);
-                    text += "In-Handle: " + (se_string)ih + "\n";
+                    text += "In-Handle: " + (String)ih + "\n";
                     Vector2 oh = animation->bezier_track_get_key_out_handle(track, key_idx);
-                    text += "Out-Handle: " + (se_string)oh + "\n";
+                    text += "Out-Handle: " + (String)oh + "\n";
                 } break;
                 case Animation::TYPE_AUDIO: {
 
-                    se_string stream_name("null");
+                    String stream_name("null");
                     RES stream(animation->audio_track_get_key_stream(track, key_idx));
                     if (stream) {
                         if (PathUtils::is_resource_file(stream->get_path())) {
@@ -2651,7 +2651,7 @@ StringName AnimationTrackEdit::get_tooltip(const Point2 &p_pos) const {
                 case Animation::TYPE_ANIMATION: {
 
                     StringName name = animation->animation_track_get_key_animation(track, key_idx);
-                    text += se_string("Animation Clip: ") + name + "\n";
+                    text += String("Animation Clip: ") + name + "\n";
                 } break;
             }
             return StringName(text);
@@ -2865,7 +2865,7 @@ void AnimationTrackEdit::_gui_input(const Ref<InputEvent> &p_event) {
             path->connect("text_entered", this, "_path_entered");
         }
 
-        path->set_text_utf8((se_string)animation->track_get_path(track));
+        path->set_text_utf8((String)animation->track_get_path(track));
         Vector2 theme_ofs = path->get_stylebox("normal", "LineEdit")->get_offset();
         path->set_position(get_global_position() + path_rect.position - theme_ofs);
         path->set_size(path_rect.size);
@@ -2916,7 +2916,7 @@ Variant AnimationTrackEdit::get_drag_data(const Point2 &p_point) {
 
     Dictionary drag_data;
     drag_data["type"] = "animation_track";
-    se_string base_path(animation->track_get_path(track));
+    String base_path(animation->track_get_path(track));
     base_path = StringUtils::get_slice(base_path,":", 0); // Remove sub-path.
     drag_data["group"] = base_path;
     drag_data["index"] = track;
@@ -2945,9 +2945,9 @@ bool AnimationTrackEdit::can_drop_data(const Point2 &p_point, const Variant &p_d
 
     // Don't allow moving tracks outside their groups.
     if (get_editor()->is_grouping_tracks()) {
-        se_string base_path(animation->track_get_path(track));
+        String base_path(animation->track_get_path(track));
         base_path = StringUtils::get_slice(base_path,":", 0); // Remove sub-path.
-        if (se_string(d["group"]) != base_path) {
+        if (String(d["group"]) != base_path) {
             return false;
         }
     }
@@ -2977,9 +2977,9 @@ void AnimationTrackEdit::drop_data(const Point2 &p_point, const Variant &p_data)
 
     // Don't allow moving tracks outside their groups.
     if (get_editor()->is_grouping_tracks()) {
-        se_string base_path(animation->track_get_path(track));
+        String base_path(animation->track_get_path(track));
         base_path = StringUtils::get_slice(base_path,":", 0); // Remove sub-path.
-        if (se_string(d["group"]) != base_path) {
+        if (String(d["group"]) != base_path) {
             return;
         }
     }
@@ -3576,9 +3576,9 @@ void AnimationTrackEditor::insert_transform_key(Spatial *p_node, se_string_view 
 
     ERR_FAIL_COND(!root)
     //let's build a node path
-    se_string path(root->get_path_to(p_node));
+    String path(root->get_path_to(p_node));
     if (!p_sub.empty())
-        path += se_string(":") + p_sub;
+        path += String(":") + p_sub;
 
     NodePath np = (NodePath)path;
 
@@ -3602,7 +3602,7 @@ void AnimationTrackEditor::insert_transform_key(Spatial *p_node, se_string_view 
     id.track_idx = track_idx;
     id.value = p_xform;
     id.type = Animation::TYPE_TRANSFORM;
-    id.query = se_string("node '") + p_node->get_name() + "'";
+    id.query = String("node '") + p_node->get_name() + "'";
     id.advance = false;
 
     //dialog insert
@@ -3612,12 +3612,12 @@ void AnimationTrackEditor::insert_transform_key(Spatial *p_node, se_string_view 
 
 void AnimationTrackEditor::_insert_animation_key(const NodePath& p_path, const Variant &p_value) {
 
-    se_string path(p_path);
+    String path(p_path);
 
     //animation property is a special case, always creates an animation track
     for (int i = 0; i < animation->get_track_count(); i++) {
 
-        se_string np(animation->track_get_path(i));
+        String np(animation->track_get_path(i));
 
         if (path == np && animation->track_get_type(i) == Animation::TYPE_ANIMATION) {
             //exists
@@ -3652,7 +3652,7 @@ void AnimationTrackEditor::insert_node_value_key(Node *p_node, se_string_view p_
 
     Node *node = p_node;
 
-    se_string path(root->get_path_to(node));
+    String path(root->get_path_to(node));
 
     if (object_cast<AnimationPlayer>(node) && p_property == se_string_view("current_animation")) {
         if (node == AnimationPlayerEditor::singleton->get_player()) {
@@ -3666,12 +3666,12 @@ void AnimationTrackEditor::insert_node_value_key(Node *p_node, se_string_view p_
     EditorHistory *history = EditorNode::get_singleton()->get_editor_history();
     for (int i = 1; i < history->get_path_size(); i++) {
 
-        se_string prop = history->get_path_property(i);
+        String prop = history->get_path_property(i);
         ERR_FAIL_COND(prop.empty())
         path += ":" + prop;
     }
 
-    path += se_string(":") + p_property;
+    path += String(":") + p_property;
 
     NodePath np(path);
 
@@ -3690,7 +3690,7 @@ void AnimationTrackEditor::insert_node_value_key(Node *p_node, se_string_view p_
             id.track_idx = i;
             id.value = p_value;
             id.type = Animation::TYPE_VALUE;
-            id.query = se_string("property '") + p_property + "'";
+            id.query = String("property '") + p_property + "'";
             id.advance = false;
             //dialog insert
             _query_insert(id);
@@ -3698,14 +3698,14 @@ void AnimationTrackEditor::insert_node_value_key(Node *p_node, se_string_view p_
         } else if (animation->track_get_type(i) == Animation::TYPE_BEZIER) {
 
             Variant value;
-            se_string track_path = (se_string)animation->track_get_path(i);
-            if (track_path == (se_string)np) {
+            String track_path = (String)animation->track_get_path(i);
+            if (track_path == (String)np) {
                 value = p_value; //all good
             } else {
                 auto sep = StringUtils::find_last(track_path,':');
-                if (sep != se_string::npos) {
+                if (sep != String::npos) {
                     se_string_view base_path = StringUtils::substr(track_path,0, sep);
-                    if ((se_string)np == base_path) {
+                    if ((String)np == base_path) {
                         se_string_view value_name = StringUtils::substr(track_path,sep + 1);
                         value = p_value.get(value_name);
                     } else
@@ -3719,7 +3719,7 @@ void AnimationTrackEditor::insert_node_value_key(Node *p_node, se_string_view p_
             id.track_idx = i;
             id.value = value;
             id.type = Animation::TYPE_BEZIER;
-            id.query = "property '" + se_string(p_property) + "'";
+            id.query = "property '" + String(p_property) + "'";
             id.advance = false;
             //dialog insert
             _query_insert(id);
@@ -3734,7 +3734,7 @@ void AnimationTrackEditor::insert_node_value_key(Node *p_node, se_string_view p_
     id.track_idx = -1;
     id.value = p_value;
     id.type = Animation::TYPE_VALUE;
-    id.query = "property '" + se_string(p_property) + "'";
+    id.query = "property '" + String(p_property) + "'";
     id.advance = false;
     //dialog insert
     _query_insert(id);
@@ -3752,7 +3752,7 @@ void AnimationTrackEditor::insert_value_key(se_string_view p_property, const Var
 
     Node *node = object_cast<Node>(obj);
 
-    se_string path(root->get_path_to(node));
+    String path(root->get_path_to(node));
 
     if (object_cast<AnimationPlayer>(node) && p_property == se_string_view("current_animation")) {
         if (node == AnimationPlayerEditor::singleton->get_player()) {
@@ -3765,12 +3765,12 @@ void AnimationTrackEditor::insert_value_key(se_string_view p_property, const Var
 
     for (int i = 1; i < history->get_path_size(); i++) {
 
-        se_string prop = history->get_path_property(i);
+        String prop = history->get_path_property(i);
         ERR_FAIL_COND(prop.empty())
         path += ":" + prop;
     }
 
-    path += se_string(":") + p_property;
+    path += String(":") + p_property;
 
     NodePath np(path);
 
@@ -3789,7 +3789,7 @@ void AnimationTrackEditor::insert_value_key(se_string_view p_property, const Var
             id.track_idx = i;
             id.value = p_value;
             id.type = Animation::TYPE_VALUE;
-            id.query = se_string("property '") + p_property + "'";
+            id.query = String("property '") + p_property + "'";
             id.advance = p_advance;
             //dialog insert
             _query_insert(id);
@@ -3800,7 +3800,7 @@ void AnimationTrackEditor::insert_value_key(se_string_view p_property, const Var
             if (animation->track_get_path(i) == np) {
                 value = p_value; //all good
             } else {
-                se_string tpath(animation->track_get_path(i));
+                String tpath(animation->track_get_path(i));
                 auto index = tpath.rfind(':');
                 if (NodePath(tpath.substr(0, index + 1)) == np) {
                     auto subindex = se_string_view(tpath).substr(index + 1, tpath.length() - index);
@@ -3815,7 +3815,7 @@ void AnimationTrackEditor::insert_value_key(se_string_view p_property, const Var
             id.track_idx = i;
             id.value = value;
             id.type = Animation::TYPE_BEZIER;
-            id.query = se_string("property '") + p_property + "'";
+            id.query = String("property '") + p_property + "'";
             id.advance = p_advance;
             //dialog insert
             _query_insert(id);
@@ -3829,7 +3829,7 @@ void AnimationTrackEditor::insert_value_key(se_string_view p_property, const Var
         id.track_idx = -1;
         id.value = p_value;
         id.type = Animation::TYPE_VALUE;
-        id.query = se_string("property '") + p_property + "'";
+        id.query = String("property '") + p_property + "'";
         id.advance = p_advance;
         //dialog insert
         _query_insert(id);
@@ -3981,7 +3981,7 @@ int AnimationTrackEditor::_confirm_insert(InsertData p_id, int p_last_track, boo
                 InsertData id = p_id;
                 id.type = Animation::TYPE_BEZIER;
                     id.value = p_id.value.get(StringUtils::substr(subindices[i],1, subindices[i].length()));
-                    id.path = NodePath(se_string(p_id.path.get_sname().asCString()) + subindices[i]);
+                    id.path = NodePath(String(p_id.path.get_sname().asCString()) + subindices[i]);
                 _confirm_insert(id, p_last_track + i);
             }
 
@@ -4130,7 +4130,7 @@ void AnimationTrackEditor::_update_tracks() {
     if (not animation)
         return;
 
-    Map<se_string, VBoxContainer *> group_sort;
+    Map<String, VBoxContainer *> group_sort;
 
     bool use_grouping = !view_group->is_pressed();
     bool use_filter = selected_filter->is_pressed();
@@ -4220,20 +4220,20 @@ void AnimationTrackEditor::_update_tracks() {
         track_edits.push_back(track_edit);
 
         if (use_grouping) {
-            se_string base_path(animation->track_get_path(i));
+            String base_path(animation->track_get_path(i));
             base_path = StringUtils::get_slice(base_path,":", 0); // Remove sub-path.
 
             if (!group_sort.contains(base_path)) {
                 AnimationTrackEditGroup *g = memnew(AnimationTrackEditGroup);
                 Ref<Texture> icon = get_icon("Node", "EditorIcons");
-                se_string name = base_path;
-                se_string tooltip;
+                String name = base_path;
+                String tooltip;
                 if (root && root->has_node((NodePath)base_path)) {
                     Node *n = root->get_node((NodePath)base_path);
                     if (n) {
                         icon = EditorNode::get_singleton()->get_object_icon(n, "Node");
                         name = n->get_name();
-                        tooltip = (se_string)root->get_path_to(n);
+                        tooltip = (String)root->get_path_to(n);
                     }
                 }
 
@@ -4542,7 +4542,7 @@ void AnimationTrackEditor::_add_track(int p_type) {
 
 void AnimationTrackEditor::_new_track_property_selected(se_string_view p_name) {
 
-    se_string full_path = se_string(adding_track_path) + ":" + p_name;
+    String full_path = String(adding_track_path) + ":" + p_name;
 
     if (adding_track_type == Animation::TYPE_VALUE) {
 
@@ -5303,7 +5303,7 @@ void AnimationTrackEditor::_edit_menu_pressed(int p_option) {
                     node = root->get_node(path);
                 }
 
-                se_string text;
+                String text;
                 Ref<Texture> icon = get_icon("Node", "EditorIcons");
                 if (node) {
                     if (has_icon(node->get_class_name(), "EditorIcons")) {

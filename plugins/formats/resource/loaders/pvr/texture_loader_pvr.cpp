@@ -649,7 +649,7 @@ RES ResourceFormatPVR::load(se_string_view p_path, se_string_view p_original_pat
     return texture;
 }
 
-void ResourceFormatPVR::get_recognized_extensions(PODVector<se_string> &p_extensions) const {
+void ResourceFormatPVR::get_recognized_extensions(PODVector<String> &p_extensions) const {
 
     p_extensions.push_back("pvr");
 }
@@ -657,7 +657,7 @@ bool ResourceFormatPVR::handles_type(se_string_view p_type) const {
 
     return ClassDB::is_parent_class(StringName(p_type), "Texture");
 }
-se_string ResourceFormatPVR::get_resource_type(se_string_view p_path) const {
+String ResourceFormatPVR::get_resource_type(se_string_view p_path) const {
 
     if (StringUtils::to_lower(PathUtils::get_extension(p_path)) == "pvr")
         return "Texture";

@@ -382,7 +382,7 @@ void TileMapEditor::_sbox_input(const Ref<InputEvent> &p_ie) {
 namespace {
 struct _PaletteEntry {
     int id;
-    se_string name;
+    String name;
 
     bool operator<(const _PaletteEntry &p_rhs) const {
         return name < p_rhs.name;
@@ -437,14 +437,14 @@ void TileMapEditor::_update_palette() {
     manual_palette->set_fixed_icon_size(Size2(min_size, min_size));
     manual_palette->set_same_column_width(true);
 
-    se_string filter_text=search_box->get_text();
+    String filter_text=search_box->get_text();
     se_string_view filter = StringUtils::strip_edges(filter_text);
 
     Vector<_PaletteEntry> entries;
 
     for (List<int>::Element *E = tiles.front(); E; E = E->next()) {
 
-        se_string name = tileset->tile_get_name(E->deref());
+        String name = tileset->tile_get_name(E->deref());
 
         if (!name.empty()) {
             if (show_tile_ids) {
@@ -1254,7 +1254,7 @@ bool TileMapEditor::forward_gui_input(const Ref<InputEvent> &p_event) {
         }
 
         int tile_under = node->get_cell(over_tile.x, over_tile.y);
-        se_string tile_name("none");
+        String tile_name("none");
 
         if (node->get_tileset()->has_tile(tile_under))
             tile_name = node->get_tileset()->tile_get_name(tile_under);

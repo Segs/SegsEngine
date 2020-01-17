@@ -55,12 +55,12 @@ public:
 
 private:
 	struct Package {
-        se_string filename;
+        String filename;
 		unzFile zfile;
 	};
 	Vector<Package> packages;
 
-    Map<se_string, File> files;
+    Map<String, File> files;
 
 	static ZipArchive *instance;
 

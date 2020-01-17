@@ -101,7 +101,7 @@ RES ResourceFormatPKM::load(se_string_view p_path, se_string_view p_original_pat
     return texture;
 }
 
-void ResourceFormatPKM::get_recognized_extensions(PODVector<se_string> &p_extensions) const {
+void ResourceFormatPKM::get_recognized_extensions(PODVector<String> &p_extensions) const {
 
     p_extensions.push_back("pkm");
 }
@@ -111,7 +111,7 @@ bool ResourceFormatPKM::handles_type(se_string_view p_type) const {
     return ClassDB::is_parent_class(StringName(p_type), "Texture");
 }
 
-se_string ResourceFormatPKM::get_resource_type(se_string_view p_path) const {
+String ResourceFormatPKM::get_resource_type(se_string_view p_path) const {
 
     if (StringUtils::to_lower(PathUtils::get_extension(p_path)) == "pkm")
         return "ImageTexture";

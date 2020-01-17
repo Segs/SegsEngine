@@ -131,7 +131,7 @@ void VersionControlEditorPlugin::_initialize_vcs() {
     EditorVCSInterface::set_singleton(vcs_interface);
     EditorFileSystem::get_singleton()->connect("filesystem_changed", this, "_refresh_stage_area");
 
-    se_string res_dir = OS::get_singleton()->get_resource_dir();
+    String res_dir = OS::get_singleton()->get_resource_dir();
     ERR_FAIL_COND_MSG(!EditorVCSInterface::get_singleton()->initialize(res_dir), "VCS was not initialized")
 
     _refresh_stage_area();
@@ -139,7 +139,7 @@ void VersionControlEditorPlugin::_initialize_vcs() {
 
 void VersionControlEditorPlugin::_send_commit_msg() {
 
-    se_string msg = commit_message->get_text_utf8();
+    String msg = commit_message->get_text_utf8();
     if (msg.empty()) {
 
         commit_status->set_text(TTR("No commit message was provided"));
@@ -176,15 +176,15 @@ void VersionControlEditorPlugin::_refresh_stage_area() {
         clear_stage_area();
 
         Dictionary modified_file_paths = EditorVCSInterface::get_singleton()->get_modified_files_data();
-        se_string file_path;
+        String file_path;
         for (int i = 0; i < modified_file_paths.size(); i++) {
 
-            file_path = modified_file_paths.get_key_at_index(i).as<se_string>();
+            file_path = modified_file_paths.get_key_at_index(i).as<String>();
             TreeItem *found = stage_files->search_item_text(file_path, nullptr, true);
             if (!found) {
 
                 ChangeType change_index = (ChangeType)(int)modified_file_paths.get_value_at_index(i);
-                se_string change_text = file_path + " (" + change_type_to_strings[change_index] + ")";
+                String change_text = file_path + " (" + change_type_to_strings[change_index] + ")";
                 Color &change_color = change_type_to_color[change_index];
                 TreeItem *new_item = stage_files->create_item(stage_files->get_root());
                 new_item->set_cell_mode(0, TreeItem::CELL_MODE_CHECK);
@@ -224,12 +224,12 @@ void VersionControlEditorPlugin::_stage_selected() {
 
             if (file_entry->is_checked(0)) {
 
-                EditorVCSInterface::get_singleton()->stage_file(file_entry->get_metadata(0).as<se_string>());
+                EditorVCSInterface::get_singleton()->stage_file(file_entry->get_metadata(0).as<String>());
                 file_entry->set_icon_modulate(0, EditorNode::get_singleton()->get_gui_base()->get_color("success_color", "Editor"));
                 staged_files_count++;
             } else {
 
-                EditorVCSInterface::get_singleton()->unstage_file(file_entry->get_metadata(0).as<se_string>());
+                EditorVCSInterface::get_singleton()->unstage_file(file_entry->get_metadata(0).as<String>());
                 file_entry->set_icon_modulate(0, EditorNode::get_singleton()->get_gui_base()->get_color("error_color", "Editor"));
             }
 
@@ -255,7 +255,7 @@ void VersionControlEditorPlugin::_stage_all() {
         TreeItem *file_entry = root->get_children();
         while (file_entry) {
 
-            EditorVCSInterface::get_singleton()->stage_file(file_entry->get_metadata(0).as<se_string>());
+            EditorVCSInterface::get_singleton()->stage_file(file_entry->get_metadata(0).as<String>());
             file_entry->set_icon_modulate(0, EditorNode::get_singleton()->get_gui_base()->get_color("success_color", "Editor"));
             file_entry->set_checked(0, true);
             staged_files_count++;
@@ -271,7 +271,7 @@ void VersionControlEditorPlugin::_view_file_diff() {
 
     version_control_dock_button->set_pressed(true);
 
-    se_string file_path = stage_files->get_selected()->get_metadata(0).as<se_string>();
+    String file_path = stage_files->get_selected()->get_metadata(0).as<String>();
 
     _display_file_diff(file_path);
 }
@@ -308,7 +308,7 @@ void VersionControlEditorPlugin::_display_file_diff(se_string_view p_file_path) 
 
 void VersionControlEditorPlugin::_refresh_file_diff() {
 
-    se_string open_file(diff_file_name->get_text());
+    String open_file(diff_file_name->get_text());
     if (!open_file.empty()) {
 
         _display_file_diff(diff_file_name->get_text());
@@ -337,7 +337,7 @@ void VersionControlEditorPlugin::_update_stage_status() {
 
 void VersionControlEditorPlugin::_update_commit_status() {
 
-    se_string status;
+    String status;
     if (staged_files_count == 1) {
 
         status = "Committed 1 file";
@@ -404,9 +404,9 @@ bool VersionControlEditorPlugin::is_vcs_initialized() const {
     return EditorVCSInterface::get_singleton() ? EditorVCSInterface::get_singleton()->is_vcs_initialized() : false;
 }
 
-const se_string VersionControlEditorPlugin::get_vcs_name() const {
+const String VersionControlEditorPlugin::get_vcs_name() const {
 
-    return EditorVCSInterface::get_singleton() ? EditorVCSInterface::get_singleton()->get_vcs_name() : se_string();
+    return EditorVCSInterface::get_singleton() ? EditorVCSInterface::get_singleton()->get_vcs_name() : String();
 }
 
 VersionControlEditorPlugin::VersionControlEditorPlugin() {

@@ -52,7 +52,7 @@ public:
     };
 
     struct Input {
-        se_string name;
+        String name;
     };
 
     Vector<Input> inputs;
@@ -79,7 +79,7 @@ public:
         bool valid;
         AnimationPlayer *player;
         AnimationTree *tree;
-        se_string invalid_reasons;
+        String invalid_reasons;
         uint64_t last_pass;
     };
 
@@ -106,7 +106,7 @@ protected:
     void blend_animation(const StringName &p_animation, float p_time, float p_delta, bool p_seeked, float p_blend);
     float blend_node(const StringName &p_sub_path, const Ref<AnimationNode>& p_node, float p_time, bool p_seek, float p_blend, FilterAction p_filter = FILTER_IGNORE, bool p_optimize = true);
     float blend_input(int p_input, float p_time, bool p_seek, float p_blend, FilterAction p_filter = FILTER_IGNORE, bool p_optimize = true);
-    void make_invalid(const se_string &p_reason);
+    void make_invalid(const String &p_reason);
 
     static void _bind_methods();
 
@@ -132,9 +132,9 @@ public:
     virtual se_string_view get_caption() const;
 
     int get_input_count() const;
-    se_string get_input_name(int p_input);
+    String get_input_name(int p_input);
 
-    void add_input(const se_string &p_name);
+    void add_input(const String &p_name);
     void set_input_name(int p_input, se_string_view p_name);
     void remove_input(int p_index);
 
@@ -323,7 +323,7 @@ public:
     StringName get_configuration_warning() const override;
 
     bool is_state_invalid() const;
-    se_string get_invalid_state_reason() const;
+    String get_invalid_state_reason() const;
 
     void set_root_motion_track(const NodePath &p_track);
     NodePath get_root_motion_track() const;

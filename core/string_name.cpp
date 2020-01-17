@@ -133,7 +133,7 @@ void StringName::cleanup() {
                 _Data *d = _table[i];
                 lost_strings++;
                 if (OS::get_singleton()->is_stdout_verbose()) {
-                    print_line(se_string("Orphan StringName: ") + d->get_name());
+                    print_line(String("Orphan StringName: ") + d->get_name());
                 }
 
                 _table[i] = _table[i]->next;
@@ -446,5 +446,5 @@ bool StringName::AlphCompare(const StringName &l, const StringName &r) {
 }
 
 StringName operator+(StringName v, se_string_view sv) {
-    return StringName(se_string(v)+sv);
+    return StringName(String(v)+sv);
 }

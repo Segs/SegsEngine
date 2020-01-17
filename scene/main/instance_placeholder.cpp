@@ -74,7 +74,7 @@ void InstancePlaceholder::set_instance_path(se_string_view p_name) {
     path = p_name;
 }
 
-const se_string &InstancePlaceholder::get_instance_path() const {
+const String &InstancePlaceholder::get_instance_path() const {
 
     return path;
 }
@@ -124,7 +124,7 @@ void InstancePlaceholder::replace_by_instance(const Ref<PackedScene> &p_custom_s
 Dictionary InstancePlaceholder::get_stored_values(bool p_with_order) {
 
     Dictionary ret;
-    PoolVector<se_string> order;
+    PoolVector<String> order;
 
     for (List<PropSet>::Element *E = stored_values.front(); E; E = E->next()) {
         ret[E->deref().name] = E->deref().value;

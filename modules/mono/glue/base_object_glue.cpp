@@ -154,7 +154,7 @@ MonoObject *godot_icall_Object_weakref(Object *p_obj) {
 }
 
 Error godot_icall_SignalAwaiter_connect(Object *p_source, MonoString *p_signal, Object *p_target, MonoObject *p_awaiter) {
-    se_string signal = GDMonoMarshal::mono_string_to_godot(p_signal);
+    String signal = GDMonoMarshal::mono_string_to_godot(p_signal);
 	return SignalAwaiterUtils::connect_signal_awaiter(p_source, signal, p_target, p_awaiter);
 }
 

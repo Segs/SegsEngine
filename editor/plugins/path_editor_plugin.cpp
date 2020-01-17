@@ -583,7 +583,7 @@ PathEditorPlugin::PathEditorPlugin(EditorNode *p_node) {
     curve_edit->hide();
     curve_edit->set_focus_mode(Control::FOCUS_NONE);
     curve_edit->set_tooltip(TTR("Select Points") + "\n" + TTR("Shift+Drag: Select Control Points") + "\n" +
-                            se_string(keycode_get_string(KEY_MASK_CMD)) + TTR("Click: Add Point") + "\n" +
+                            String(keycode_get_string(KEY_MASK_CMD)) + TTR("Click: Add Point") + "\n" +
                             TTR("Right Click: Delete Point"));
     SpatialEditor::get_singleton()->add_control_to_menu_panel(curve_edit);
     curve_create = memnew(ToolButton);

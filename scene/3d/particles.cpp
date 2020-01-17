@@ -248,7 +248,7 @@ bool Particles::get_fractional_delta() const {
 
 StringName Particles::get_configuration_warning() const {
 
-    se_string warnings;
+    String warnings;
 
     bool meshes_found = false;
     bool anim_material_found = false;

@@ -55,7 +55,7 @@
 using namespace eastl;
 
 namespace {
-static se_string s_os_machine_id;
+static String s_os_machine_id;
 eastl::fixed_hash_set<se_string_view,16,4,true> s_dynamic_features;
 } // end of anonymous namespace
 
@@ -70,11 +70,11 @@ uint32_t OS::get_ticks_msec() const {
     return get_ticks_usec() / 1000;
 }
 
-se_string OS::get_iso_date_time(bool local) const {
+String OS::get_iso_date_time(bool local) const {
     OS::Date date = get_date(local);
     OS::Time time = get_time(local);
 
-    se_string timezone;
+    String timezone;
     if (!local) {
         TimeZoneInfo zone = get_time_zone_info();
         if (zone.bias >= 0) {
@@ -173,21 +173,21 @@ void OS::set_clipboard(se_string_view p_text) {
 
     _local_clipboard = p_text;
 }
-se_string OS::get_clipboard() const {
+String OS::get_clipboard() const {
 
     return _local_clipboard;
 }
 
-se_string OS::get_executable_path() const {
+String OS::get_executable_path() const {
 
     return _execpath;
 }
 
-Error OS::execute_utf8(se_string_view p_path, const PODVector<se_string> &p_arguments, bool p_blocking,
-        OS::ProcessID *r_child_id, se_string *r_pipe, int *r_exitcode, bool read_stderr, Mutex *p_pipe_mutex) {
+Error OS::execute_utf8(se_string_view p_path, const PODVector<String> &p_arguments, bool p_blocking,
+        OS::ProcessID *r_child_id, String *r_pipe, int *r_exitcode, bool read_stderr, Mutex *p_pipe_mutex) {
     //TODO: SEGS: use QProcess ?
-    ListPOD<se_string> converted_args;
-    for(se_string a : p_arguments)
+    ListPOD<String> converted_args;
+    for(String a : p_arguments)
         converted_args.emplace_back(std::move(a));
     return execute(p_path,converted_args,p_blocking,r_child_id,r_pipe,r_exitcode,read_stderr,p_pipe_mutex);
 }
@@ -220,7 +220,7 @@ static void _OS_printres(Object *p_obj) {
     if (!res)
         return;
 
-    se_string str = FormatVE("%uz%s:%s - %s",res->get_instance_id(),res->get_class(),res->get_name().c_str(),res->get_path().c_str());
+    String str = FormatVE("%uz%s:%s - %s",res->get_instance_id(),res->get_class(),res->get_name().c_str(),res->get_path().c_str());
     if (_OSPRF)
         _OSPRF->store_line(str);
     else
@@ -232,7 +232,7 @@ bool OS::has_virtual_keyboard() const {
     return false;
 }
 
-void OS::show_virtual_keyboard(const se_string &p_existing_text, const Rect2 &p_screen_rect) {
+void OS::show_virtual_keyboard(const String &p_existing_text, const Rect2 &p_screen_rect) {
 }
 
 void OS::hide_virtual_keyboard() {
@@ -261,7 +261,7 @@ void OS::print_all_resources(se_string_view p_to_file) {
         _OSPRF = FileAccess::open(p_to_file, FileAccess::WRITE, &err);
         if (err != OK) {
             _OSPRF = nullptr;
-            ERR_FAIL_MSG("Can't print all resources to file: " + se_string(p_to_file) + ".")
+            ERR_FAIL_MSG("Can't print all resources to file: " + String(p_to_file) + ".")
         }
     }
 
@@ -310,11 +310,11 @@ const char *OS::get_locale() const {
 }
 
 // Helper function to ensure that a dir name/path will be valid on the OS
-se_string OS::get_safe_dir_name(se_string_view p_dir_name, bool p_allow_dir_separator) const {
+String OS::get_safe_dir_name(se_string_view p_dir_name, bool p_allow_dir_separator) const {
 
     constexpr char invalid_chars[7] = {':','*','?', '\\', '<','>','|'};
 
-    se_string safe_dir_name(StringUtils::strip_edges(PathUtils::from_native_path(p_dir_name)));
+    String safe_dir_name(StringUtils::strip_edges(PathUtils::from_native_path(p_dir_name)));
     for (char s  : invalid_chars) {
         safe_dir_name.replace(s, '-');
     }
@@ -330,41 +330,41 @@ se_string OS::get_safe_dir_name(se_string_view p_dir_name, bool p_allow_dir_sepa
 // Path to data, config, cache, etc. OS-specific folders
 
 // Get properly capitalized engine name for system paths
-se_string OS::get_godot_dir_name() const {
+String OS::get_godot_dir_name() const {
 
     // Default to lowercase, so only override when different case is needed
     return StringUtils::to_lower(se_string_view(VERSION_SHORT_NAME));
 }
 
 // OS equivalent of XDG_DATA_HOME
-se_string OS::get_data_path() const {
+String OS::get_data_path() const {
     return qPrintable(QStandardPaths::standardLocations(QStandardPaths::AppDataLocation).front());
 }
 
 // OS equivalent of XDG_CONFIG_HOME
-se_string OS::get_config_path() const {
+String OS::get_config_path() const {
     return qPrintable(QStandardPaths::standardLocations(QStandardPaths::AppConfigLocation).front());
 }
 
 // OS equivalent of XDG_CACHE_HOME
-se_string OS::get_cache_path() const {
+String OS::get_cache_path() const {
     return qPrintable(QStandardPaths::standardLocations(QStandardPaths::CacheLocation).front());
 }
 
 // OS specific path for user://
-se_string OS::get_user_data_dir() const {
+String OS::get_user_data_dir() const {
 
     return ".";
 };
 
 // Absolute path to res://
-se_string OS::get_resource_dir() const {
+String OS::get_resource_dir() const {
 
     return ProjectSettings::get_singleton()->get_resource_path();
 }
 
 // Access system-specific dirs like Documents, Downloads, etc.
-se_string OS::get_system_dir(SystemDir p_dir) {
+String OS::get_system_dir(SystemDir p_dir) {
     QStandardPaths::StandardLocation translated = QStandardPaths::DocumentsLocation;
     switch (p_dir) {
         case SYSTEM_DIR_DESKTOP: translated = QStandardPaths::DesktopLocation; break;
@@ -395,7 +395,7 @@ Error OS::dialog_show(UIString p_title, UIString p_description, const PODVector<
             print(qPrintable(UIString("%1=%2").arg(i + 1).arg(p_buttons[i])));
         }
         print(se_string_view("\n"));
-        se_string res(StringUtils::strip_edges(get_stdin_string()));
+        String res(StringUtils::strip_edges(get_stdin_string()));
         if (!is_numeric(res))
             continue;
         int n = to_int(res);
@@ -414,7 +414,7 @@ Error OS::dialog_input_text(const UIString &p_title, const UIString &p_descripti
     ERR_FAIL_COND_V(p_callback.empty(), FAILED)
     print(FormatVE("%s\n---------\n%s\n[%s]:\n",qPrintable(p_title), qPrintable(p_description), qPrintable(p_partial)));
 
-    se_string res(StringUtils::strip_edges(get_stdin_string()));
+    String res(StringUtils::strip_edges(get_stdin_string()));
     bool success = true;
     if (res.empty()) {
         res = StringUtils::to_utf8(p_partial).data();
@@ -470,7 +470,7 @@ OS::ScreenOrientation OS::get_screen_orientation() const {
 
 void OS::_ensure_user_data_dir() {
 
-    se_string dd(get_user_data_dir());
+    String dd(get_user_data_dir());
     DirAccess *da = DirAccess::open(dd);
     if (da) {
         memdelete(da);
@@ -484,18 +484,18 @@ void OS::_ensure_user_data_dir() {
     memdelete(da);
 }
 
-void OS::set_native_icon(const se_string &p_filename) {
+void OS::set_native_icon(const String &p_filename) {
 }
 
 void OS::set_icon(const Ref<Image> &p_icon) {
 }
 
-se_string OS::get_model_name() const {
+String OS::get_model_name() const {
 
-    return se_string("GenericDevice");
+    return String("GenericDevice");
 }
 
-void OS::set_cmdline(se_string_view p_execpath, const ListPOD<se_string> &p_args) {
+void OS::set_cmdline(se_string_view p_execpath, const ListPOD<String> &p_args) {
 
     _execpath = p_execpath;
     _cmdline = p_args;
@@ -510,7 +510,7 @@ void OS::make_rendering_thread() {
 void OS::swap_buffers() {
 }
 
-const se_string &OS::get_unique_id() const {
+const String &OS::get_unique_id() const {
     if(s_os_machine_id.empty())
         s_os_machine_id = QSysInfo::machineUniqueId().data();
     return s_os_machine_id;
@@ -704,7 +704,7 @@ const char *OS::get_audio_driver_name(int p_driver) const {
     return AudioDriverManager::get_driver(p_driver)->get_name();
 }
 
-void OS::set_restart_on_exit(bool p_restart, const ListPOD<se_string> &p_restart_arguments) {
+void OS::set_restart_on_exit(bool p_restart, const ListPOD<String> &p_restart_arguments) {
     restart_on_exit = p_restart;
     restart_commandline = p_restart_arguments;
 }
@@ -713,13 +713,13 @@ bool OS::is_restart_on_exit_set() const {
     return restart_on_exit;
 }
 
-ListPOD<se_string> OS::get_restart_on_exit_arguments() const {
+ListPOD<String> OS::get_restart_on_exit_arguments() const {
     return restart_commandline;
 }
 
-PoolVector<se_string> OS::get_granted_permissions() const { return PoolVector<se_string>(); }
+PoolVector<String> OS::get_granted_permissions() const { return PoolVector<String>(); }
 
-PoolVector<se_string> OS::get_connected_midi_inputs() {
+PoolVector<String> OS::get_connected_midi_inputs() {
 
     if (MIDIDriver::get_singleton())
         return MIDIDriver::get_singleton()->get_connected_inputs();

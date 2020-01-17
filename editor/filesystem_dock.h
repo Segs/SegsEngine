@@ -102,7 +102,7 @@ private:
     VBoxContainer *file_list_vb;
 
     EditorNode *editor;
-    Set<se_string> favorites;
+    Set<String> favorites;
 
     Button *button_toggle_display_mode;
     Button *button_reload;
@@ -113,8 +113,8 @@ private:
     LineEdit *tree_search_box;
     LineEdit *file_list_search_box;
 
-    se_string searched_string;
-    Vector<se_string> uncollapsed_paths_before_search;
+    String searched_string;
+    Vector<String> uncollapsed_paths_before_search;
 
     TextureRect *search_icon;
     HBoxContainer *path_hb;
@@ -147,7 +147,7 @@ private:
 
     class FileOrFolder {
     public:
-        se_string path;
+        String path;
         bool is_file=false;
 
         FileOrFolder() :
@@ -159,13 +159,13 @@ private:
     FileOrFolder to_rename;
     FileOrFolder to_duplicate;
     Vector<FileOrFolder> to_move;
-    se_string to_move_path;
+    String to_move_path;
 
-    Vector<se_string> history;
+    Vector<String> history;
     int history_pos;
     int history_max_size;
 
-    se_string path;
+    String path;
 
     bool initialized;
 
@@ -176,9 +176,9 @@ private:
     bool import_dock_needs_update;
 
     Ref<Texture> _get_tree_item_icon(EditorFileSystemDirectory *p_dir, int p_idx);
-    bool _create_tree(TreeItem *p_parent, EditorFileSystemDirectory *p_dir, Vector<se_string> &uncollapsed_paths, bool p_select_in_favorites, bool p_unfold_path=false);
-    Vector<se_string> _compute_uncollapsed_paths();
-    void _update_tree(const Vector<se_string> &p_uncollapsed_paths = Vector<se_string>(), bool p_uncollapse_root = false, bool p_select_in_favorites = false, bool p_unfold_path=false);
+    bool _create_tree(TreeItem *p_parent, EditorFileSystemDirectory *p_dir, Vector<String> &uncollapsed_paths, bool p_select_in_favorites, bool p_unfold_path=false);
+    Vector<String> _compute_uncollapsed_paths();
+    void _update_tree(const Vector<String> &p_uncollapsed_paths = Vector<String>(), bool p_uncollapse_root = false, bool p_select_in_favorites = false, bool p_unfold_path=false);
     void _navigate_to_path(se_string_view p_path, bool p_select_in_favorites = false);
 
     void _file_list_gui_input(const Ref<InputEvent>& p_event);
@@ -199,18 +199,18 @@ private:
 
     void _update_import_dock();
 
-    void _get_all_items_in_dir(EditorFileSystemDirectory *efsd, Vector<se_string> &files, Vector<se_string> &folders) const;
-    void _find_remaps(EditorFileSystemDirectory *efsd, const Map<se_string, se_string> &renames, Vector<se_string> &to_remaps) const;
-    void _try_move_item(const FileOrFolder &p_item, se_string_view p_new_path, Map<se_string, se_string> &p_file_renames, Map<se_string, se_string> &p_folder_renames);
-    void _try_duplicate_item(const FileOrFolder &p_item, const se_string &p_new_path) const;
-    void _update_dependencies_after_move(const Map<se_string, se_string> &p_renames) const;
-    void _update_resource_paths_after_move(const Map<se_string, se_string> &p_renames) const;
-    void _save_scenes_after_move(const Map<se_string, se_string> &p_renames) const;
-    void _update_favorites_list_after_move(const Map<se_string, se_string> &p_files_renames, const Map<se_string, se_string> &p_folders_renames) const;
-    void _update_project_settings_after_move(const Map<se_string, se_string> &p_renames) const;
+    void _get_all_items_in_dir(EditorFileSystemDirectory *efsd, Vector<String> &files, Vector<String> &folders) const;
+    void _find_remaps(EditorFileSystemDirectory *efsd, const Map<String, String> &renames, Vector<String> &to_remaps) const;
+    void _try_move_item(const FileOrFolder &p_item, se_string_view p_new_path, Map<String, String> &p_file_renames, Map<String, String> &p_folder_renames);
+    void _try_duplicate_item(const FileOrFolder &p_item, const String &p_new_path) const;
+    void _update_dependencies_after_move(const Map<String, String> &p_renames) const;
+    void _update_resource_paths_after_move(const Map<String, String> &p_renames) const;
+    void _save_scenes_after_move(const Map<String, String> &p_renames) const;
+    void _update_favorites_list_after_move(const Map<String, String> &p_files_renames, const Map<String, String> &p_folders_renames) const;
+    void _update_project_settings_after_move(const Map<String, String> &p_renames) const;
 
-    void _file_deleted(const se_string& p_file);
-    void _folder_deleted(const se_string& p_folder);
+    void _file_deleted(const String& p_file);
+    void _folder_deleted(const String& p_folder);
     void _files_moved(UIString p_old_file, UIString p_new_file);
     void _folder_moved(UIString p_old_folder, UIString p_new_folder);
 
@@ -225,7 +225,7 @@ private:
 
     void _tree_rmb_option(int p_option);
     void _file_list_rmb_option(int p_option);
-    void _file_option(int p_option, const Vector<se_string> &p_selected);
+    void _file_option(int p_option, const Vector<String> &p_selected);
 
     void _fw_history();
     void _bw_history();
@@ -237,9 +237,9 @@ private:
 
     void _toggle_split_mode(bool p_active);
 
-    void _search_changed(const se_string &p_text, const Control *p_from);
+    void _search_changed(const String &p_text, const Control *p_from);
 
-    void _file_and_folders_fill_popup(PopupMenu *p_popup, const Vector<se_string>& p_paths, bool p_display_path_dependent_options = true);
+    void _file_and_folders_fill_popup(PopupMenu *p_popup, const Vector<String>& p_paths, bool p_display_path_dependent_options = true);
     void _tree_rmb_select(const Vector2 &p_pos);
     void _tree_rmb_empty(const Vector2 &p_pos);
     void _file_list_rmb_select(int p_item, const Vector2 &p_pos);
@@ -247,10 +247,10 @@ private:
     void _tree_empty_selected();
 
     struct FileInfo {
-        se_string name;
-        se_string path;
+        String name;
+        String path;
         StringName type;
-        Vector<se_string> sources;
+        Vector<String> sources;
         bool import_broken;
 
         bool operator<(const FileInfo &fi) const {
@@ -265,7 +265,7 @@ private:
     Variant get_drag_data_fw(const Point2 &p_point, Control *p_from);
     bool can_drop_data_fw(const Point2 &p_point, const Variant &p_data, Control *p_from) const;
     void drop_data_fw(const Point2 &p_point, const Variant &p_data, Control *p_from);
-    void _get_drag_target_folder(se_string &target, bool &target_favorites, const Point2 &p_point, Control *p_from) const;
+    void _get_drag_target_folder(String &target, bool &target_favorites, const Point2 &p_point, Control *p_from) const;
 
     void _preview_invalidated(se_string_view p_path);
     void _file_list_thumbnail_done(se_string_view p_path, const Ref<Texture> &p_preview, const Ref<Texture> &p_small_preview, const Variant &p_udata);
@@ -273,25 +273,25 @@ private:
 
     void _update_display_mode(bool p_force = false);
 
-    Vector<se_string> _tree_get_selected(bool remove_self_inclusion = true);
+    Vector<String> _tree_get_selected(bool remove_self_inclusion = true);
 
     bool _is_file_type_disabled_by_feature_profile(const StringName &p_class);
 
     void _feature_profile_changed();
-    Vector<se_string> _remove_self_included_paths(Vector<se_string> selected_strings);
+    Vector<String> _remove_self_included_paths(Vector<String> selected_strings);
 
 protected:
     void _notification(int p_what);
     static void _bind_methods();
 
 public:
-    se_string get_selected_path() const;
+    String get_selected_path() const;
 
-    const se_string &get_current_path() const;
+    const String &get_current_path() const;
     void navigate_to_path(se_string_view p_path);
     void focus_on_filter();
 
-    void fix_dependencies(const se_string &p_for_file);
+    void fix_dependencies(const String &p_for_file);
 
     int get_split_offset() { return split_box->get_split_offset(); }
     void set_split_offset(int p_offset) { split_box->set_split_offset(p_offset); }

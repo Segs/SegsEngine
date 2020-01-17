@@ -51,14 +51,14 @@ public:
     struct Plugin {
 
         EditorPlugin *instance;
-        se_string path;
-        se_string name;
-        se_string author;
-        se_string version;
-        se_string description;
+        String path;
+        String name;
+        String author;
+        String version;
+        String description;
         bool installs;
-        se_string script;
-        PODVector<se_string> install_files;
+        String script;
+        PODVector<String> install_files;
     };
 
 private:
@@ -86,17 +86,17 @@ private:
     int last_order;
 
     Ref<Resource> clipboard;
-    Map<se_string, Ref<ShortCut> > shortcuts;
+    Map<String, Ref<ShortCut> > shortcuts;
 
-    se_string resource_path;
-    se_string settings_dir;
-    se_string data_dir;
-    se_string cache_dir;
-    se_string config_file_path;
-    se_string project_config_dir;
+    String resource_path;
+    String settings_dir;
+    String data_dir;
+    String cache_dir;
+    String config_file_path;
+    String project_config_dir;
 
-    Vector<se_string> favorites;
-    Vector<se_string> recent_dirs;
+    Vector<String> favorites;
+    Vector<String> recent_dirs;
 
     bool save_changed_setting;
     bool optimize_save; //do not save stuff that came from config but was not set from engine
@@ -151,23 +151,23 @@ public:
     void set_resource_clipboard(const Ref<Resource> &p_resource) { clipboard = p_resource; }
     Ref<Resource> get_resource_clipboard() const { return clipboard; }
 
-    const se_string &get_data_dir() const;
-    se_string get_templates_dir() const;
-    const se_string &get_settings_dir() const;
-    se_string get_project_settings_dir() const;
-    se_string get_text_editor_themes_dir() const;
-    se_string get_script_templates_dir() const;
-    se_string get_project_script_templates_dir() const;
-    const se_string &get_cache_dir() const;
-    se_string get_feature_profiles_dir() const;
+    const String &get_data_dir() const;
+    String get_templates_dir() const;
+    const String &get_settings_dir() const;
+    String get_project_settings_dir() const;
+    String get_text_editor_themes_dir() const;
+    String get_script_templates_dir() const;
+    String get_project_script_templates_dir() const;
+    const String &get_cache_dir() const;
+    String get_feature_profiles_dir() const;
 
     void set_project_metadata(se_string_view p_section, se_string_view p_key, const Variant& p_data);
     Variant get_project_metadata(se_string_view p_section, se_string_view p_key, const Variant& p_default) const;
 
-    void set_favorites(const Vector<se_string> &p_favorites);
-    const Vector<se_string> &get_favorites() const;
-    void set_recent_dirs(const Vector<se_string> &p_recent_dirs);
-    const Vector<se_string> &get_recent_dirs() const;
+    void set_favorites(const Vector<String> &p_favorites);
+    const Vector<String> &get_favorites() const;
+    void set_recent_dirs(const Vector<String> &p_recent_dirs);
+    const Vector<String> &get_recent_dirs() const;
     void load_favorites();
 
     bool is_dark_theme();
@@ -179,13 +179,13 @@ public:
     bool save_text_editor_theme_as(se_string_view p_file);
     bool is_default_text_editor_theme();
 
-    PODVector<se_string> get_script_templates(se_string_view p_extension, se_string_view p_custom_path = {});
-    se_string get_editor_layouts_config() const;
+    PODVector<String> get_script_templates(se_string_view p_extension, se_string_view p_custom_path = {});
+    String get_editor_layouts_config() const;
 
     void add_shortcut(se_string_view p_name, Ref<ShortCut> &p_shortcut);
     bool is_shortcut(se_string_view p_name, const Ref<InputEvent> &p_event) const;
     Ref<ShortCut> get_shortcut(se_string_view p_name) const;
-    void get_shortcut_list(List<se_string> *r_shortcuts);
+    void get_shortcut_list(List<String> *r_shortcuts);
 
     void notify_changes();
 

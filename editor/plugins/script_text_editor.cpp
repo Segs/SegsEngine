@@ -116,19 +116,19 @@ ConnectionInfoDialog::ConnectionInfoDialog() {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Vector<se_string> ScriptTextEditor::get_functions() {
+Vector<String> ScriptTextEditor::get_functions() {
 
-    se_string errortxt;
+    String errortxt;
     int line = -1, col;
     TextEdit *te = code_editor->get_text_edit();
-    se_string text(te->get_text_utf8());
-    List<se_string> fnc;
+    String text(te->get_text_utf8());
+    List<String> fnc;
 
     if (script->get_language()->validate(text, line, col, errortxt, script->get_path(), &fnc)) {
 
         //if valid rewrite functions to latest
         functions.clear();
-        for (List<se_string>::Element *E = fnc.front(); E; E = E->next()) {
+        for (List<String>::Element *E = fnc.front(); E; E = E->next()) {
 
             functions.push_back(E->deref());
         }
@@ -188,10 +188,10 @@ void ScriptTextEditor::_update_member_keywords() {
         code_editor->get_text_edit()->add_member_keyword(name, member_variable_color);
     }
 
-    ListPOD<se_string> clist;
+    ListPOD<String> clist;
     ClassDB::get_integer_constant_list(instance_base, &clist);
 
-    for(const se_string & E : clist) {
+    for(const String & E : clist) {
 
         code_editor->get_text_edit()->add_member_keyword(E, member_variable_color);
     }
@@ -289,10 +289,10 @@ void ScriptTextEditor::_set_theme_for_script() {
 
     TextEdit *text_edit = code_editor->get_text_edit();
 
-    ListPOD<se_string> keywords;
+    ListPOD<String> keywords;
     script->get_language()->get_reserved_words(&keywords);
 
-    for (const se_string &E : keywords) {
+    for (const String &E : keywords) {
 
         text_edit->add_keyword_color(E, colors_cache.keyword_color);
     }
@@ -360,10 +360,10 @@ void ScriptTextEditor::_set_theme_for_script() {
         }
     }
     //colorize comments
-    ListPOD<se_string> comments;
+    ListPOD<String> comments;
     script->get_language()->get_comment_delimiters(&comments);
 
-    for (const se_string &comment : comments) {
+    for (const String &comment : comments) {
 
         se_string_view beg = StringUtils::get_slice(comment," ", 0);
         se_string_view end = StringUtils::get_slice_count(comment,' ') > 1 ? StringUtils::get_slice(comment," ", 1) : se_string_view();
@@ -372,9 +372,9 @@ void ScriptTextEditor::_set_theme_for_script() {
     }
 
     //colorize strings
-    ListPOD<se_string> strings;
+    ListPOD<String> strings;
     script->get_language()->get_string_delimiters(&strings);
-    for (const se_string &string : strings) {
+    for (const String &string : strings) {
 
         se_string_view beg = StringUtils::get_slice(string," ", 0);
         se_string_view end = StringUtils::get_slice_count(string,' ') > 1 ? StringUtils::get_slice(string," ", 1) : se_string_view();
@@ -395,7 +395,7 @@ void ScriptTextEditor::_warning_clicked(const Variant& p_line) {
         code_editor->get_text_edit()->cursor_set_line(p_line.operator int64_t());
     } else if (p_line.get_type() == VariantType::DICTIONARY) {
         Dictionary meta = p_line.as<Dictionary>();
-        code_editor->get_text_edit()->insert_at(StringUtils::from_utf8("# warning-ignore:" + meta["code"].as<se_string>()),
+        code_editor->get_text_edit()->insert_at(StringUtils::from_utf8("# warning-ignore:" + meta["code"].as<String>()),
                 meta["line"].as<int64_t>() - 1);
         _validate_script();
     }
@@ -431,15 +431,15 @@ void ScriptTextEditor::_notification(int p_what) {
     }
 }
 
-void ScriptTextEditor::add_callback(const StringName &p_function, const PoolVector<se_string> &p_args) {
+void ScriptTextEditor::add_callback(const StringName &p_function, const PoolVector<String> &p_args) {
 
-    se_string code = code_editor->get_text_edit()->get_text_utf8();
+    String code = code_editor->get_text_edit()->get_text_utf8();
     int pos = script->get_language()->find_function(p_function, code);
     if (pos == -1) {
         //does not exist
         code_editor->get_text_edit()->deselect();
         pos = code_editor->get_text_edit()->get_line_count() + 2;
-        se_string func = script->get_language()->make_function("", p_function, p_args);
+        String func = script->get_language()->make_function("", p_function, p_args);
         //code=code+func;
         code_editor->get_text_edit()->cursor_set_line(pos + 1);
         code_editor->get_text_edit()->cursor_set_column(1000000); //none shall be that big
@@ -539,8 +539,8 @@ void ScriptTextEditor::ensure_focus() {
     code_editor->get_text_edit()->grab_focus();
 }
 
-se_string ScriptTextEditor::get_name() {
-    se_string name;
+String ScriptTextEditor::get_name() {
+    String name;
     //TODO: use PathUtils::is_internal_path ?
     if (not PathUtils::is_internal_path(script->get_path())) {
         name = PathUtils::get_file(script->get_path());
@@ -550,7 +550,7 @@ se_string ScriptTextEditor::get_name() {
     } else if (!script->get_name().empty())
         name = script->get_name();
     else
-        name = se_string(script->get_class()) + "(" + itos(script->get_instance_id()) + ")";
+        name = String(script->get_class()) + "(" + itos(script->get_instance_id()) + ")";
 
     return name;
 }
@@ -566,17 +566,17 @@ Ref<Texture> ScriptTextEditor::get_icon() {
 
 void ScriptTextEditor::_validate_script() {
 
-    se_string errortxt;
+    String errortxt;
     int line = -1, col;
     TextEdit *te = code_editor->get_text_edit();
 
-    se_string text = te->get_text_utf8();
-    List<se_string> fnc;
+    String text = te->get_text_utf8();
+    List<String> fnc;
     Set<int> safe_lines;
     List<ScriptLanguage::Warning> warnings;
 
     if (!script->get_language()->validate(text, line, col, errortxt, script->get_path(), &fnc, &warnings, &safe_lines)) {
-        se_string error_text = "error(" + itos(line) + "," + itos(col) + "): " + errortxt;
+        String error_text = "error(" + itos(line) + "," + itos(col) + "): " + errortxt;
         code_editor->set_error(StringName(error_text));
         code_editor->set_error_pos(line - 1, col - 1);
         script_is_valid = false;
@@ -590,7 +590,7 @@ void ScriptTextEditor::_validate_script() {
         }
 
         functions.clear();
-        for (List<se_string>::Element *E = fnc.front(); E; E = E->next()) {
+        for (List<String>::Element *E = fnc.front(); E; E = E->next()) {
 
             functions.push_back(E->deref());
         }
@@ -609,9 +609,9 @@ void ScriptTextEditor::_validate_script() {
             for (List<Connection>::Element *E = missing_connections.front(); E; E = E->next()) {
                 Connection connection = E->deref();
 
-                se_string base_path(base->get_name());
-                se_string source_path = base == connection.source ? base_path : base_path + "/" + se_string(base->get_path_to(object_cast<Node>(connection.source)));
-                se_string target_path = base == connection.target ? base_path : base_path + "/" + se_string(base->get_path_to(object_cast<Node>(connection.target)));
+                String base_path(base->get_name());
+                String source_path = base == connection.source ? base_path : base_path + "/" + String(base->get_path_to(object_cast<Node>(connection.source)));
+                String target_path = base == connection.target ? base_path : base_path + "/" + String(base->get_path_to(object_cast<Node>(connection.target)));
 
                 warnings_panel->push_cell();
                 warnings_panel->push_color(warnings_panel->get_color("warning_color", "Editor"));
@@ -700,7 +700,7 @@ void ScriptTextEditor::_update_bookmark_list() {
     bookmarks_menu->add_separator();
 
     for (int i = 0; i < bookmark_list.size(); i++) {
-        se_string line(StringUtils::strip_edges(code_editor->get_text_edit()->get_line(bookmark_list[i])));
+        String line(StringUtils::strip_edges(code_editor->get_text_edit()->get_line(bookmark_list[i])));
         // Limit the size of the line if too big.
         if (line.length() > 50) {
             line = StringUtils::substr(line,0, 50);
@@ -801,29 +801,29 @@ void ScriptEditor::_update_modified_scripts_for_external_editor(const Ref<Script
 
         if (last_date != date) {
 
-            Ref<Script> rel_script = dynamic_ref_cast<Script>(ResourceLoader::load(script->get_path(), se_string(script->get_class()), true));
+            Ref<Script> rel_script = dynamic_ref_cast<Script>(ResourceLoader::load(script->get_path(), String(script->get_class()), true));
             ERR_CONTINUE(not rel_script)
-            script->set_source_code(se_string(rel_script->get_source_code()));
+            script->set_source_code(String(rel_script->get_source_code()));
             script->set_last_modified_time(rel_script->get_last_modified_time());
             script->update_exports();
         }
     }
 }
 
-void ScriptTextEditor::_code_complete_scripts(void *p_ud, const se_string &p_code, List<ScriptCodeCompletionOption> *r_options, bool &r_force) {
+void ScriptTextEditor::_code_complete_scripts(void *p_ud, const String &p_code, List<ScriptCodeCompletionOption> *r_options, bool &r_force) {
 
     ScriptTextEditor *ste = (ScriptTextEditor *)p_ud;
     ste->_code_complete_script(p_code, r_options, r_force);
 }
 
-void ScriptTextEditor::_code_complete_script(const se_string &p_code, List<ScriptCodeCompletionOption> *r_options, bool &r_force) {
+void ScriptTextEditor::_code_complete_script(const String &p_code, List<ScriptCodeCompletionOption> *r_options, bool &r_force) {
 
     if (color_panel->is_visible_in_tree()) return;
     Node *base = get_tree()->get_edited_scene_root();
     if (base) {
         base = _find_node_for_script(base, base, script);
     }
-    se_string hint;
+    String hint;
     Error err = script->get_language()->complete_code(p_code, script->get_path(), base, r_options, r_force, hint);
     if (err == OK) {
         code_editor->get_text_edit()->set_code_hint(hint);
@@ -848,7 +848,7 @@ void ScriptTextEditor::_update_breakpoint_list() {
     breakpoints_menu->add_separator();
 
     for (int i = 0; i < breakpoint_list.size(); i++) {
-        se_string line(StringUtils::strip_edges(code_editor->get_text_edit()->get_line(breakpoint_list[i])));
+        String line(StringUtils::strip_edges(code_editor->get_text_edit()->get_line(breakpoint_list[i])));
         // Limit the size of the line if too big.
         if (line.length() > 50) {
             line = StringUtils::substr(line,0, 50);
@@ -886,10 +886,10 @@ void ScriptTextEditor::_lookup_symbol(const StringName & p_symbol, int p_row, in
     if (ScriptServer::is_global_class(p_symbol)) {
         EditorNode::get_singleton()->load_resource(ScriptServer::get_global_class_path(p_symbol));
     } else if (PathUtils::is_resource_file(p_symbol)) {
-        PODVector<se_string> scene_extensions;
+        PODVector<String> scene_extensions;
         ResourceLoader::get_recognized_extensions_for_type(("PackedScene"), scene_extensions);
 
-        if (scene_extensions.contains(se_string(PathUtils::get_extension(p_symbol)))) {
+        if (scene_extensions.contains(String(PathUtils::get_extension(p_symbol)))) {
             EditorNode::get_singleton()->load_scene(p_symbol);
         } else {
             EditorNode::get_singleton()->load_resource(p_symbol);
@@ -1152,7 +1152,7 @@ void ScriptTextEditor::_edit_option(int p_op) {
         } break;
         case EDIT_AUTO_INDENT: {
 
-            se_string text(tx->get_text_utf8());
+            String text(tx->get_text_utf8());
             Ref<Script> scr = script;
             if (not scr)
                 return;
@@ -1210,7 +1210,7 @@ void ScriptTextEditor::_edit_option(int p_op) {
 
             Expression expression;
             PODVector<se_string_view> lines = StringUtils::split(code_editor->get_text_edit()->get_selection_text(),'\n');
-            PODVector<se_string> results;
+            PODVector<String> results;
 
             for (size_t i = 0; i < lines.size(); i++) {
                 se_string_view line = lines[i];
@@ -1220,7 +1220,7 @@ void ScriptTextEditor::_edit_option(int p_op) {
                 if (expression.parse(line) == OK) {
                     Variant result = expression.execute(Array(), Variant(), false);
                     if (expression.get_error_text().empty()) {
-                        results.push_back(se_string(whitespace)+result.get_construct_string());
+                        results.push_back(String(whitespace)+result.get_construct_string());
                     } else {
                         results.emplace_back(line);
                     }
@@ -1230,7 +1230,7 @@ void ScriptTextEditor::_edit_option(int p_op) {
             }
 
             code_editor->get_text_edit()->begin_complex_operation(); //prevents creating a two-step undo
-            code_editor->get_text_edit()->insert_text_at_cursor(StringUtils::from_utf8(se_string::joined(results,"\n")));
+            code_editor->get_text_edit()->insert_text_at_cursor(StringUtils::from_utf8(String::joined(results,"\n")));
             code_editor->get_text_edit()->end_complex_operation();
         } break;
         case SEARCH_FIND: {
@@ -1251,7 +1251,7 @@ void ScriptTextEditor::_edit_option(int p_op) {
         } break;
         case SEARCH_IN_FILES: {
 
-            se_string selected_text = code_editor->get_text_edit()->get_selection_text();
+            String selected_text = code_editor->get_text_edit()->get_selection_text();
 
             // Yep, because it doesn't make sense to instance this dialog for every single script open...
             // So this will be delegated to the ScriptEditor.
@@ -1358,7 +1358,7 @@ void ScriptTextEditor::_edit_option(int p_op) {
         } break;
         case HELP_CONTEXTUAL: {
 
-            se_string text = tx->get_selection_text();
+            String text = tx->get_selection_text();
             if (text.empty())
                 text = tx->get_word_under_cursor();
             if (!text.empty()) {
@@ -1367,7 +1367,7 @@ void ScriptTextEditor::_edit_option(int p_op) {
         } break;
         case LOOKUP_SYMBOL: {
 
-            se_string text = tx->get_word_under_cursor();
+            String text = tx->get_word_under_cursor();
             if (text.empty())
                 text = tx->get_selection_text();
             if (!text.empty()) {
@@ -1381,11 +1381,11 @@ void ScriptTextEditor::_edit_option_toggle_inline_comment() {
     if (not script)
         return;
 
-    se_string delimiter("#");
-    ListPOD<se_string> comment_delimiters;
+    String delimiter("#");
+    ListPOD<String> comment_delimiters;
     script->get_language()->get_comment_delimiters(&comment_delimiters);
 
-    for (const se_string &E : comment_delimiters) {
+    for (const String &E : comment_delimiters) {
         se_string_view script_delimiter = E;
         if ( not StringUtils::contains(script_delimiter,' ')) {
             delimiter = script_delimiter;
@@ -1411,7 +1411,7 @@ void ScriptTextEditor::set_syntax_highlighter(SyntaxHighlighter *p_highlighter) 
 }
 
 void ScriptTextEditor::_change_syntax_highlighter(int p_idx) {
-    Map<se_string, SyntaxHighlighter *>::iterator el = highlighters.begin();
+    Map<String, SyntaxHighlighter *>::iterator el = highlighters.begin();
     for( ;el != highlighters.end(); ++el) {
         highlighter_menu->set_item_checked(highlighter_menu->get_item_idx_from_text(StringName(el->first)), false);
     }
@@ -1527,12 +1527,12 @@ void ScriptTextEditor::drop_data_fw(const Point2 &p_point, const Variant &p_data
 
         Array files = d["files"];
 
-        se_string text_to_drop;
+        String text_to_drop;
         for (int i = 0; i < files.size(); i++) {
 
             if (i > 0)
                 text_to_drop += ",";
-            text_to_drop += "\"" + StringUtils::c_escape(files[i].as<se_string>()) + "\"";
+            text_to_drop += "\"" + StringUtils::c_escape(files[i].as<String>()) + "\"";
         }
 
         te->cursor_set_line(row);
@@ -1550,7 +1550,7 @@ void ScriptTextEditor::drop_data_fw(const Point2 &p_point, const Variant &p_data
         }
 
         Array nodes = d["nodes"];
-        se_string text_to_drop;
+        String text_to_drop;
         for (int i = 0; i < nodes.size(); i++) {
 
             if (i > 0)
@@ -1562,7 +1562,7 @@ void ScriptTextEditor::drop_data_fw(const Point2 &p_point, const Variant &p_data
                 continue;
             }
 
-            se_string path(sn->get_path_to(node));
+            String path(sn->get_path_to(node));
             text_to_drop += "\"" + StringUtils::c_escape(path) + "\"";
         }
 
@@ -1614,7 +1614,7 @@ void ScriptTextEditor::_text_edit_gui_input(const Ref<InputEvent> &ev) {
             }
         }
 
-        se_string word_at_pos = tx->get_word_at_pos(local_pos);
+        String word_at_pos = tx->get_word_at_pos(local_pos);
         if (word_at_pos.empty()) word_at_pos = tx->get_word_under_cursor();
         if (word_at_pos.empty()) word_at_pos = tx->get_selection_text();
 
@@ -1639,7 +1639,7 @@ void ScriptTextEditor::_text_edit_gui_input(const Ref<InputEvent> &ev) {
         }
 
         if (has_color) {
-            se_string line = tx->get_line(row);
+            String line = tx->get_line(row);
             color_position.x = row;
             color_position.y = col;
 
@@ -1658,7 +1658,7 @@ void ScriptTextEditor::_text_edit_gui_input(const Ref<InputEvent> &ev) {
             }
             if (valid) {
                 color_args = StringUtils::substr(line, begin, end - begin);
-                se_string stripped = StringUtils::replace(
+                String stripped = StringUtils::replace(
                         StringUtils::replace(StringUtils::replace(color_args, " ", ""), "(", ""), ")", "");
                 PODVector<float> color = StringUtils::split_floats(stripped, ",");
                 if (color.size() > 2) {
@@ -1675,7 +1675,7 @@ void ScriptTextEditor::_text_edit_gui_input(const Ref<InputEvent> &ev) {
 }
 
 void ScriptTextEditor::_color_changed(const Color &p_color) {
-    se_string new_args;
+    String new_args;
     if (p_color.a == 1.0f) {
         new_args = FormatVE("(%f, %f, %f)",p_color.r,p_color.g,p_color.b);
     } else {
@@ -1846,7 +1846,7 @@ ScriptTextEditor::ScriptTextEditor() {
     convert_case->add_shortcut(ED_SHORTCUT("script_text_editor/capitalize", TTR("Capitalize"), KEY_MASK_SHIFT | KEY_F6), EDIT_CAPITALIZE);
     convert_case->connect("id_pressed", this, "_edit_option");
 
-    highlighters[se_string(TTR("Standard"))] = nullptr;
+    highlighters[String(TTR("Standard"))] = nullptr;
     highlighter_menu = memnew(PopupMenu);
     highlighter_menu->set_name("highlighter_menu");
     edit_menu->get_popup()->add_child(highlighter_menu);
@@ -1911,7 +1911,7 @@ ScriptTextEditor::ScriptTextEditor() {
 }
 
 ScriptTextEditor::~ScriptTextEditor() {
-    for (eastl::pair<const se_string,SyntaxHighlighter *> &E : highlighters) {
+    for (eastl::pair<const String,SyntaxHighlighter *> &E : highlighters) {
         if (E.second != nullptr) {
             memdelete(E.second);
         }

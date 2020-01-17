@@ -354,7 +354,7 @@ bool BakedLightmap::_bake_time(void *ud, float p_secs, float p_progress) {
 
 BakedLightmap::BakeError BakedLightmap::bake(Node *p_from_node, bool p_create_visual_debug) {
 
-    se_string save_path;
+    String save_path;
 
     if (StringUtils::begins_with(image_path, "res://")) {
         save_path = image_path;
@@ -470,19 +470,19 @@ BakedLightmap::BakeError BakedLightmap::bake(Node *p_from_node, bool p_create_vi
 
     baker.end_bake();
 
-    Set<se_string> used_mesh_names;
+    Set<String> used_mesh_names;
 
     pmc = 0;
     for (List<PlotMesh>::Element *E = mesh_list.front(); E; E = E->next()) {
 
-        se_string mesh_name = E->deref().mesh->get_name();
+        String mesh_name = E->deref().mesh->get_name();
         if (mesh_name.empty() || StringUtils::contains(mesh_name, ":") || StringUtils::contains(mesh_name, "/") ) {
             mesh_name = "LightMap";
         }
 
         if (used_mesh_names.contains(mesh_name)) {
             int idx = 2;
-            se_string base = mesh_name;
+            String base = mesh_name;
             while (true) {
                 mesh_name = base + itos(idx);
                 if (!used_mesh_names.contains(mesh_name)) break;
@@ -563,7 +563,7 @@ BakedLightmap::BakeError BakedLightmap::bake(Node *p_from_node, bool p_create_vi
                 tex_flags |= Texture::FLAG_CONVERT_TO_LINEAR;
             }
 
-            se_string image_path = PathUtils::plus_file(save_path, mesh_name);
+            String image_path = PathUtils::plus_file(save_path, mesh_name);
             Ref<Texture> texture;
 
             if (ResourceLoader::import) {
@@ -794,7 +794,7 @@ void BakedLightmap::set_image_path(se_string_view p_path) {
     image_path = p_path;
 }
 
-const se_string &BakedLightmap::get_image_path() const {
+const String &BakedLightmap::get_image_path() const {
     return image_path;
 }
 

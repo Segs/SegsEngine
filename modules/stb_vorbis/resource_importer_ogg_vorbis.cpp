@@ -46,7 +46,7 @@ StringName ResourceImporterOGGVorbis::get_visible_name() const {
 
     return ("OGGVorbis");
 }
-void ResourceImporterOGGVorbis::get_recognized_extensions(PODVector<se_string> &p_extensions) const {
+void ResourceImporterOGGVorbis::get_recognized_extensions(PODVector<String> &p_extensions) const {
 
     p_extensions.push_back("ogg");
 }
@@ -79,14 +79,14 @@ void ResourceImporterOGGVorbis::get_import_options(ListPOD<ImportOption> *r_opti
     r_options->push_back(ImportOption(PropertyInfo(VariantType::REAL, "loop_offset"), 0));
 }
 
-Error ResourceImporterOGGVorbis::import(se_string_view p_source_file, se_string_view p_save_path, const Map<StringName, Variant> &p_options, List<se_string> *r_platform_variants, List<se_string> *r_gen_files, Variant *r_metadata) {
+Error ResourceImporterOGGVorbis::import(se_string_view p_source_file, se_string_view p_save_path, const Map<StringName, Variant> &p_options, List<String> *r_platform_variants, List<String> *r_gen_files, Variant *r_metadata) {
 
     bool loop = p_options.at("loop");
     float loop_offset = p_options.at("loop_offset");
 
     FileAccess *f = FileAccess::open(p_source_file, FileAccess::READ);
 
-    ERR_FAIL_COND_V_MSG(!f, ERR_CANT_OPEN, "Cannot open file '" + se_string(p_source_file) + "'.")
+    ERR_FAIL_COND_V_MSG(!f, ERR_CANT_OPEN, "Cannot open file '" + String(p_source_file) + "'.")
 
     int len = int(f->get_len());
 
@@ -105,7 +105,7 @@ Error ResourceImporterOGGVorbis::import(se_string_view p_source_file, se_string_
     ogg_stream->set_loop(loop);
     ogg_stream->set_loop_offset(loop_offset);
 
-    return ResourceSaver::save(se_string(p_save_path) + ".oggstr", ogg_stream);
+    return ResourceSaver::save(String(p_save_path) + ".oggstr", ogg_stream);
 }
 
 ResourceImporterOGGVorbis::ResourceImporterOGGVorbis() {

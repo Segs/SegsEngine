@@ -69,8 +69,8 @@ protected:
     Vector2 max_space;
     Vector2 min_space;
     Vector2 snap;
-    se_string x_label;
-    se_string y_label;
+    String x_label;
+    String y_label;
     BlendMode blend_mode;
 
     void _add_blend_point(int p_index, const Ref<AnimationRootNode> &p_node);
@@ -121,10 +121,10 @@ public:
     Vector2 get_snap() const;
 
     void set_x_label(se_string_view p_label);
-    const se_string &get_x_label() const;
+    const String &get_x_label() const;
 
     void set_y_label(se_string_view p_label);
-    const se_string &get_y_label() const;
+    const String &get_y_label() const;
 
     float process(float p_time, bool p_seek) override;
     se_string_view get_caption() const override;

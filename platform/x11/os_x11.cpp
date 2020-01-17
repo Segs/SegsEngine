@@ -94,7 +94,7 @@
 namespace  {
 static const double abs_resolution_mult = 10000.0;
 static const double abs_resolution_range_mult = 10.0;
-static se_string machine_id;
+static String machine_id;
 }
 
 void OS_X11::initialize_core() {
@@ -254,10 +254,10 @@ Error OS_X11::initialize(const VideoMode &p_desired, int p_video_driver, int p_a
         if (getenv("LD_LIBRARY_PATH")) {
             se_string_view ld_library_path(getenv("LD_LIBRARY_PATH"));
             FixedVector<se_string_view,32,true> libraries;
-            se_string::split_ref(libraries,ld_library_path,':');
+            String::split_ref(libraries,ld_library_path,':');
 
             for (se_string_view path : libraries) {
-                se_string libpath(path);
+                String libpath(path);
                 if (FileAccess::exists(libpath + "/libGL.so.1") ||
                         FileAccess::exists(libpath + "/libGL.so")) {
 
@@ -500,7 +500,7 @@ Error OS_X11::initialize(const VideoMode &p_desired, int p_video_driver, int p_a
         if (img[i]) {
             cursors[i] = XcursorImageLoadCursor(x11_display, img[i]);
         } else {
-            print_verbose("Failed loading custom cursor: " + se_string(cursor_file[i]));
+            print_verbose("Failed loading custom cursor: " + String(cursor_file[i]));
         }
     }
 
@@ -671,7 +671,7 @@ bool OS_X11::refresh_device_info() {
         }
         if (direct_touch) {
             xi.touch_devices.push_back(dev->deviceid);
-            print_verbose("XInput: Using touch device: " + se_string(dev->name));
+            print_verbose("XInput: Using touch device: " + String(dev->name));
         }
         if (absolute_mode) {
             // If no resolution was reported, use the min/max ranges.
@@ -683,7 +683,7 @@ bool OS_X11::refresh_device_info() {
             }
 
             xi.absolute_devices[dev->deviceid] = Vector2(abs_resolution_mult / resolution_x, abs_resolution_mult / resolution_y);
-            print_verbose("XInput: Absolute pointing device: " + se_string(dev->name));
+            print_verbose("XInput: Absolute pointing device: " + String(dev->name));
         }
         if (pressure_resolution <= 0) {
             pressure_resolution = (pressure_max - pressure_min);
@@ -2518,9 +2518,9 @@ void OS_X11::process_xevents() {
                 if (event.xselection.target == requested) {
 
                     Property p = read_property(x11_display, x11_window, XInternAtom(x11_display, "PRIMARY", 0));
-                    FixedVector<se_string,16,true> parts;
-                    se_string::split_ref(parts,(const char *)p.data,"\n");
-                    PODVector<se_string> files;
+                    FixedVector<String,16,true> parts;
+                    String::split_ref(parts,(const char *)p.data,"\n");
+                    PODVector<String> files;
                     for (int i = 0; i < parts.size(); i++) {
                         files.emplace_back(StringUtils::strip_edges(StringUtils::http_unescape(StringUtils::replace(parts[i],"file://", ""))));
                     }
@@ -2659,9 +2659,9 @@ void OS_X11::set_clipboard(se_string_view p_text) {
     XSetSelectionOwner(x11_display, XInternAtom(x11_display, "CLIPBOARD", 0), x11_window, CurrentTime);
 };
 
-static se_string _get_clipboard_impl(Atom p_source, Window x11_window, ::Display *x11_display, se_string_view p_internal_clipboard, Atom target) {
+static String _get_clipboard_impl(Atom p_source, Window x11_window, ::Display *x11_display, se_string_view p_internal_clipboard, Atom target) {
 
-    se_string ret;
+    String ret;
 
     Atom type;
     Atom selection = XA_PRIMARY;
@@ -2672,7 +2672,7 @@ static se_string _get_clipboard_impl(Atom p_source, Window x11_window, ::Display
 
     if (Sown == x11_window) {
 
-        return se_string(p_internal_clipboard);
+        return String(p_internal_clipboard);
     }
 
     if (Sown != None) {
@@ -2706,7 +2706,7 @@ static se_string _get_clipboard_impl(Atom p_source, Window x11_window, ::Display
                     AnyPropertyType, &type, &format,
                     &len, &dummy, &data);
             if (result == Success) {
-                ret = se_string((const char *)data);
+                ret = String((const char *)data);
             } else
                 printf("FAIL\n");
             XFree(data);
@@ -2716,8 +2716,8 @@ static se_string _get_clipboard_impl(Atom p_source, Window x11_window, ::Display
     return ret;
 }
 
-static se_string _get_clipboard(Atom p_source, Window x11_window, ::Display *x11_display, se_string_view p_internal_clipboard) {
-    se_string ret;
+static String _get_clipboard(Atom p_source, Window x11_window, ::Display *x11_display, se_string_view p_internal_clipboard) {
+    String ret;
     Atom utf8_atom = XInternAtom(x11_display, "UTF8_STRING", True);
     if (utf8_atom != None) {
         ret = _get_clipboard_impl(p_source, x11_window, x11_display, p_internal_clipboard, utf8_atom);
@@ -2728,9 +2728,9 @@ static se_string _get_clipboard(Atom p_source, Window x11_window, ::Display *x11
     return ret;
 }
 
-se_string OS_X11::get_clipboard() const {
+String OS_X11::get_clipboard() const {
 
-    se_string ret;
+    String ret;
     ret = _get_clipboard(XInternAtom(x11_display, "CLIPBOARD", 0), x11_window, x11_display, OS::get_clipboard());
 
     if (ret.empty()) {
@@ -2740,7 +2740,7 @@ se_string OS_X11::get_clipboard() const {
     return ret;
 }
 
-se_string OS_X11::get_name() const {
+String OS_X11::get_name() const {
 
     return ("X11");
 }
@@ -2748,7 +2748,7 @@ se_string OS_X11::get_name() const {
 Error OS_X11::shell_open(se_string_view p_uri) {
 
     Error ok;
-    ListPOD<se_string> args;
+    ListPOD<String> args;
     args.emplace_back(p_uri);
     ok = execute(("xdg-open"), args, false);
     if (ok == OK)
@@ -2939,15 +2939,15 @@ void OS_X11::swap_buffers() {
 
 void OS_X11::alert(se_string_view _alert, se_string_view _title) {
     const char *message_programs[] = { "zenity", "kdialog", "Xdialog", "xmessage" };
-    const se_string p_alert(_alert);
-    const se_string p_title(_title);
-    se_string path = get_environment("PATH");
+    const String p_alert(_alert);
+    const String p_title(_title);
+    String path = get_environment("PATH");
     PODVector<se_string_view> path_elems = StringUtils::split(path,':', false);
-    se_string program;
+    String program;
 
     for (int i = 0; i < path_elems.size(); i++) {
         for (uint64_t k = 0; k < sizeof(message_programs) / sizeof(char *); k++) {
-            se_string tested_path(PathUtils::plus_file(path_elems[i],message_programs[k]));
+            String tested_path(PathUtils::plus_file(path_elems[i],message_programs[k]));
 
             if (FileAccess::exists(tested_path)) {
                 program = tested_path;
@@ -2959,7 +2959,7 @@ void OS_X11::alert(se_string_view _alert, se_string_view _title) {
             break;
     }
 
-    ListPOD<se_string> args;
+    ListPOD<String> args;
 
     if (StringUtils::ends_with(program,"zenity")) {
         args.push_back(("--error"));
@@ -3155,9 +3155,9 @@ void OS_X11::set_context(int p_context) {
                 break;
         }
 
-        se_string class_str;
+        String class_str;
         if (p_context == CONTEXT_ENGINE) {
-            se_string config_name = GLOBAL_GET("application/config/name");
+            String config_name = GLOBAL_GET("application/config/name");
             if (config_name.empty()) {
                 class_str = "Godot_Engine";
             } else {
@@ -3195,9 +3195,9 @@ bool OS_X11::is_disable_crash_handler() const {
     return crash_handler.is_disabled();
 }
 
-static se_string get_mountpoint(se_string_view p_path) {
+static String get_mountpoint(se_string_view p_path) {
     struct stat s;
-    if (stat(se_string(p_path).c_str(), &s)) {
+    if (stat(String(p_path).c_str(), &s)) {
         return null_se_string;
     }
 
@@ -3224,12 +3224,12 @@ static se_string get_mountpoint(se_string_view p_path) {
 }
 
 Error OS_X11::move_to_trash(se_string_view p_path) {
-    se_string  trash_can;
-    se_string  mnt = get_mountpoint(p_path);
+    String  trash_can;
+    String  mnt = get_mountpoint(p_path);
 
     // If there is a directory "[Mountpoint]/.Trash-[UID]/files", use it as the trash can.
     if (!mnt.empty()) {
-        se_string path(mnt + "/.Trash-" + itos(getuid()) + "/files");
+        String path(mnt + "/.Trash-" + itos(getuid()) + "/files");
         struct stat s;
         if (!stat(path.c_str(), &s)) {
             trash_can = path;
@@ -3240,7 +3240,7 @@ Error OS_X11::move_to_trash(se_string_view p_path) {
     if (trash_can.empty()) {
         char *dhome = getenv("XDG_DATA_HOME");
         if (dhome) {
-            trash_can = se_string(dhome) + "/Trash/files";
+            trash_can = String(dhome) + "/Trash/files";
         }
     }
 
@@ -3248,7 +3248,7 @@ Error OS_X11::move_to_trash(se_string_view p_path) {
     if (trash_can.empty()) {
         char *home = getenv("HOME");
         if (home) {
-            trash_can = se_string(home) + "/.local/share/Trash/files";
+            trash_can = String(home) + "/.local/share/Trash/files";
         }
     }
 
@@ -3271,7 +3271,7 @@ Error OS_X11::move_to_trash(se_string_view p_path) {
 
     // The trash can is successfully created, now move the given resource to it.
     // Do not use DirAccess:rename() because it can't move files across multiple mountpoints.
-    ListPOD<se_string> mv_args;
+    ListPOD<String> mv_args;
     mv_args.emplace_back(p_path);
     mv_args.push_back(trash_can);
     int retval;

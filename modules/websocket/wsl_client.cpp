@@ -78,7 +78,7 @@ void WSLClient::_do_handshake() {
             int l = _resp_pos;
             if (l > 3 && r[l] == '\n' && r[l - 1] == '\r' && r[l - 2] == '\n' && r[l - 3] == '\r') {
                 r[l - 3] = '\0';
-                se_string protocol;
+                String protocol;
                 // Response is over, verify headers and create peer.
                 if (!_verify_headers(protocol)) {
                     disconnect_from_host();
@@ -101,8 +101,8 @@ void WSLClient::_do_handshake() {
     }
 }
 
-bool WSLClient::_verify_headers(se_string &r_protocol) {
-    se_string s((char *)_resp_buf);
+bool WSLClient::_verify_headers(String &r_protocol) {
+    String s((char *)_resp_buf);
     PODVector<se_string_view> psa = StringUtils::split(s,"\r\n");
     int len = psa.size();
     ERR_FAIL_COND_V_MSG(len < 4, false, "Not enough response headers, got: " + itos(len) + ", expected >= 4.")
@@ -113,11 +113,11 @@ bool WSLClient::_verify_headers(se_string &r_protocol) {
     // Wrong protocol
     ERR_FAIL_COND_V_MSG(req[0] != "HTTP/1.1"_sv || req[1] != "101"_sv, false, "Invalid protocol or status code.")
 
-    Map<se_string, se_string> headers;
+    Map<String, String> headers;
     for (int i = 1; i < len; i++) {
         PODVector<se_string_view> header = StringUtils::split(psa[i],":", false, 1);
-        ERR_FAIL_COND_V_MSG(header.size() != 2, false, se_string("Invalid header -> ") + psa[i] + ".")
-        se_string name = StringUtils::to_lower(header[0]);
+        ERR_FAIL_COND_V_MSG(header.size() != 2, false, String("Invalid header -> ") + psa[i] + ".")
+        String name = StringUtils::to_lower(header[0]);
         se_string_view value = StringUtils::strip_edges( header[1]);
         if (headers.contains(name))
             headers[name].append(",").append(value);
@@ -127,10 +127,10 @@ bool WSLClient::_verify_headers(se_string &r_protocol) {
 
 #define _WSL_CHECK(NAME, VALUE)                                                         \
     ERR_FAIL_COND_V_MSG(!headers.contains(NAME) || StringUtils::to_lower(headers[NAME]) != VALUE, false, \
-            "Missing or invalid header '" + se_string(NAME) + "'. Expected value '" + VALUE + "'.");
+            "Missing or invalid header '" + String(NAME) + "'. Expected value '" + VALUE + "'.");
 #define _WSL_CHECK_NC(NAME, VALUE)                                           \
     ERR_FAIL_COND_V_MSG(!headers.contains(NAME) || headers[NAME] != VALUE, false, \
-            "Missing or invalid header '" + se_string(NAME) + "'. Expected value '" + VALUE + "'.");
+            "Missing or invalid header '" + String(NAME) + "'. Expected value '" + VALUE + "'.");
     _WSL_CHECK("connection", "upgrade")
     _WSL_CHECK("upgrade", "websocket")
     _WSL_CHECK_NC("sec-websocket-accept", WSLPeer::compute_key_response(_key))
@@ -156,7 +156,7 @@ bool WSLClient::_verify_headers(se_string &r_protocol) {
 }
 
 Error WSLClient::connect_to_host(se_string_view p_host, se_string_view p_path, uint16_t p_port, bool p_ssl,
-        const PoolVector<se_string> &p_protocols, const PoolVector<se_string> &p_custom_headers) {
+        const PoolVector<String> &p_protocols, const PoolVector<String> &p_custom_headers) {
 
     ERR_FAIL_COND_V(_connection, ERR_ALREADY_IN_USE)
 
@@ -171,7 +171,7 @@ Error WSLClient::connect_to_host(se_string_view p_host, se_string_view p_path, u
 
     ERR_FAIL_COND_V(!addr.is_valid(), ERR_INVALID_PARAMETER)
 
-    se_string port;
+    String port;
     if ((p_port != 80 && !p_ssl) || (p_port != 443 && p_ssl)) {
         port = ":" + ::to_string(p_port);
     }
@@ -195,8 +195,8 @@ Error WSLClient::connect_to_host(se_string_view p_host, se_string_view p_path, u
 
     _key = WSLPeer::generate_key();
     // TODO custom extra headers (allow overriding this too?)
-    se_string request = se_string("GET ") + p_path + " HTTP/1.1\r\n";
-    request += se_string("Host: ") + p_host + port + "\r\n";
+    String request = String("GET ") + p_path + " HTTP/1.1\r\n";
+    request += String("Host: ") + p_host + port + "\r\n";
     request += "Upgrade: websocket\r\n";
     request += "Connection: Upgrade\r\n";
     request += "Sec-WebSocket-Key: " + _key + "\r\n";

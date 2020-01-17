@@ -486,7 +486,7 @@ OmniLight::OmniLight() :
 }
 
 StringName SpotLight::get_configuration_warning() const {
-    se_string warning(Light::get_configuration_warning());
+    String warning(Light::get_configuration_warning());
 
     if (has_shadow() && get_param(PARAM_SPOT_ANGLE) >= 90.0f) {
         if (!warning.empty()) {

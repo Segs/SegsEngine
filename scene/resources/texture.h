@@ -206,7 +206,7 @@ public:
     uint32_t get_flags() const override;
     Image::Format get_format() const;
     Error load(se_string_view p_path);
-    se_string get_load_path() const;
+    String get_load_path() const;
 
     int get_width() const override;
     int get_height() const override;

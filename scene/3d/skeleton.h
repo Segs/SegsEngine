@@ -73,7 +73,7 @@ private:
 
     struct Bone {
 
-        se_string name;
+        String name;
 
         bool enabled;
         int parent;
@@ -155,7 +155,7 @@ public:
     // skeleton creation api
     void add_bone(se_string_view p_name);
     int find_bone(se_string_view p_name) const;
-    const se_string &get_bone_name(int p_bone) const;
+    const String &get_bone_name(int p_bone) const;
 
     bool is_bone_parent_of(int p_bone_id, int p_parent_bone_id) const;
 

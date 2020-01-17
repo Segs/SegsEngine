@@ -188,7 +188,7 @@ private:
     float default_blend_time;
 
     struct AnimationData {
-        se_string name;
+        String name;
         StringName next;
         Vector<TrackNodeCache *> node_cache;
         Ref<Animation> animation;
@@ -269,11 +269,11 @@ private:
     void _stop_playing_caches();
 
     // bind helpers
-    PoolVector<se_string> _get_animation_list() const {
+    PoolVector<String> _get_animation_list() const {
 
         PODVector<StringName> animations;
         get_animation_list(&animations);
-        PoolVector<se_string> ret;
+        PoolVector<String> ret;
         while (!animations.empty()) {
 
             ret.push_back(animations.front().asCString());
@@ -321,7 +321,7 @@ public:
     void play(const StringName &p_name = StringName(), float p_custom_blend = -1, float p_custom_scale = 1.0, bool p_from_end = false);
     void play_backwards(const StringName &p_name = StringName(), float p_custom_blend = -1);
     void queue(const StringName &p_name);
-    PoolVector<se_string> get_queue();
+    PoolVector<String> get_queue();
     void clear_queue();
     void stop(bool p_reset = true);
     bool is_playing() const;
@@ -359,7 +359,7 @@ public:
 
     void clear_caches(); ///< must be called by hand if an animation was modified after added
 
-    void get_argument_options(const StringName &p_function, int p_idx, ListPOD<se_string> *r_options) const override;
+    void get_argument_options(const StringName &p_function, int p_idx, ListPOD<String> *r_options) const override;
 
 #ifdef TOOLS_ENABLED
     // These may be interesting for games, but are too dangerous for general use

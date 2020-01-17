@@ -159,7 +159,7 @@ class AnimationTrackEdit : public Control {
     void _zoom_changed();
 
     Ref<Texture> icon_cache;
-    se_string path_cache;
+    String path_cache;
 
     void _menu_selected(int p_index);
 
@@ -350,7 +350,7 @@ class AnimationTrackEditor : public VBoxContainer {
         NodePath path;
         int track_idx;
         Variant value;
-        se_string query;
+        String query;
         bool advance;
     }; /* insert_data;*/
 

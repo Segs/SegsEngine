@@ -50,17 +50,17 @@ uint32_t ResourceImporterOBJ::get_import_flags() const {
     return IMPORT_SCENE;
 }
 
-static Error _parse_material_library(se_string_view p_path, Map<se_string, Ref<SpatialMaterial> > &material_map, PODVector<se_string> *r_missing_deps) {
+static Error _parse_material_library(se_string_view p_path, Map<String, Ref<SpatialMaterial> > &material_map, PODVector<String> *r_missing_deps) {
 
     FileAccessRef f = FileAccess::open(p_path, FileAccess::READ);
     ERR_FAIL_COND_V_MSG(!f, ERR_CANT_OPEN, vformat("Couldn't open MTL file '%s', it may not exist or not be readable.", p_path))
 
     Ref<SpatialMaterial> current;
-    se_string current_name;
-    se_string base_path = PathUtils::get_base_dir(p_path);
+    String current_name;
+    String base_path = PathUtils::get_base_dir(p_path);
     while (true) {
 
-        se_string l(StringUtils::strip_edges(f->get_line()));
+        String l(StringUtils::strip_edges(f->get_line()));
 
         if (StringUtils::begins_with(l,"newmtl ")) {
             //vertex
@@ -133,8 +133,8 @@ static Error _parse_material_library(se_string_view p_path, Map<se_string, Ref<S
             //normal
             ERR_FAIL_COND_V(not current, ERR_FILE_CORRUPT)
 
-            se_string p(StringUtils::strip_edges(StringUtils::replace(StringUtils::replace(l,"map_Kd", ""),"\\", "/")));
-            se_string path;
+            String p(StringUtils::strip_edges(StringUtils::replace(StringUtils::replace(l,"map_Kd", ""),"\\", "/")));
+            String path;
             if (PathUtils::is_abs_path(p)) {
                 path = p;
             } else {
@@ -153,8 +153,8 @@ static Error _parse_material_library(se_string_view p_path, Map<se_string, Ref<S
             //normal
             ERR_FAIL_COND_V(not current, ERR_FILE_CORRUPT)
 
-            se_string p(StringUtils::strip_edges(StringUtils::replace(StringUtils::replace(l,"map_Ks", ""),"\\", "/")));
-            se_string path;
+            String p(StringUtils::strip_edges(StringUtils::replace(StringUtils::replace(l,"map_Ks", ""),"\\", "/")));
+            String path;
             if (PathUtils::is_abs_path(p)) {
                 path = p;
             } else {
@@ -173,8 +173,8 @@ static Error _parse_material_library(se_string_view p_path, Map<se_string, Ref<S
             //normal
             ERR_FAIL_COND_V(not current, ERR_FILE_CORRUPT)
 
-            se_string p(StringUtils::strip_edges(StringUtils::replace(StringUtils::replace(l,"map_Ns", ""),"\\", "/")));
-            se_string path;
+            String p(StringUtils::strip_edges(StringUtils::replace(StringUtils::replace(l,"map_Ns", ""),"\\", "/")));
+            String path;
             if (PathUtils::is_abs_path(p)) {
                 path = p;
             } else {
@@ -192,8 +192,8 @@ static Error _parse_material_library(se_string_view p_path, Map<se_string, Ref<S
             //normal
             ERR_FAIL_COND_V(not current, ERR_FILE_CORRUPT)
 
-            se_string p(StringUtils::strip_edges(StringUtils::replace(StringUtils::replace(l,"map_bump", ""),"\\", "/")));
-            se_string path = PathUtils::plus_file(base_path,p);
+            String p(StringUtils::strip_edges(StringUtils::replace(StringUtils::replace(l,"map_bump", ""),"\\", "/")));
+            String path = PathUtils::plus_file(base_path,p);
 
             Ref<Texture> texture(dynamic_ref_cast<Texture>(ResourceLoader::load(path)));
 
@@ -212,7 +212,7 @@ static Error _parse_material_library(se_string_view p_path, Map<se_string, Ref<S
 }
 
 static Error _parse_obj(se_string_view p_path, List<Ref<Mesh>> &r_meshes, bool p_single_mesh, bool p_generate_tangents,
-        bool p_optimize, Vector3 p_scale_mesh, Vector3 p_offset_mesh, PODVector<se_string> *r_missing_deps) {
+        bool p_optimize, Vector3 p_scale_mesh, Vector3 p_offset_mesh, PODVector<String> *r_missing_deps) {
 
     FileAccessRef f = FileAccess::open(p_path, FileAccess::READ);
     ERR_FAIL_COND_V_MSG(!f, ERR_CANT_OPEN, vformat("Couldn't open OBJ file '%s', it may not exist or not be readable.", p_path))
@@ -228,22 +228,22 @@ static Error _parse_obj(se_string_view p_path, List<Ref<Mesh>> &r_meshes, bool p
     Vector<Vector3> vertices;
     Vector<Vector3> normals;
     Vector<Vector2> uvs;
-    se_string name;
+    String name;
 
-    Map<se_string, Map<se_string, Ref<SpatialMaterial> > > material_map;
+    Map<String, Map<String, Ref<SpatialMaterial> > > material_map;
 
     Ref<SurfaceTool> surf_tool(make_ref_counted<SurfaceTool>());
     surf_tool->begin(Mesh::PRIMITIVE_TRIANGLES);
 
-    se_string current_material_library;
-    se_string current_material;
-    se_string current_group;
+    String current_material_library;
+    String current_material;
+    String current_group;
 
     while (true) {
 
-        se_string l(StringUtils::strip_edges(f->get_line()));
+        String l(StringUtils::strip_edges(f->get_line()));
         while (l.length() && l[l.length() - 1] == '\\') {
-            se_string add(StringUtils::strip_edges(f->get_line()));
+            String add(StringUtils::strip_edges(f->get_line()));
             l += add;
             if (add.empty()) {
                 break;
@@ -406,7 +406,7 @@ static Error _parse_obj(se_string_view p_path, List<Ref<Mesh>> &r_meshes, bool p
 
             current_material_library = StringUtils::strip_edges(StringUtils::replace(l,"mtllib", ""));
             if (!material_map.contains(current_material_library)) {
-                Map<se_string, Ref<SpatialMaterial> > lib;
+                Map<String, Ref<SpatialMaterial> > lib;
                 Error err = _parse_material_library(current_material_library, lib, r_missing_deps);
                 if (err == ERR_CANT_OPEN) {
                     se_string_view dir = PathUtils::get_base_dir(p_path);
@@ -427,7 +427,7 @@ static Error _parse_obj(se_string_view p_path, List<Ref<Mesh>> &r_meshes, bool p
     return OK;
 }
 
-Node *ResourceImporterOBJ::import_scene(se_string_view p_path, uint32_t p_flags, int p_bake_fps, PODVector<se_string> *r_missing_deps, Error *r_err) {
+Node *ResourceImporterOBJ::import_scene(se_string_view p_path, uint32_t p_flags, int p_bake_fps, PODVector<String> *r_missing_deps, Error *r_err) {
 
     List<Ref<Mesh> > meshes;
 
@@ -463,7 +463,7 @@ Ref<Animation> ResourceImporterOBJ::import_animation(se_string_view p_path, uint
     return Ref<Animation>();
 }
 
-void ResourceImporterOBJ::get_extensions(PODVector<se_string> &r_extensions) const {
+void ResourceImporterOBJ::get_extensions(PODVector<String> &r_extensions) const {
 
     r_extensions.push_back("obj");
 }
@@ -478,7 +478,7 @@ StringName ResourceImporterOBJ::get_importer_name() const {
 StringName ResourceImporterOBJ::get_visible_name() const {
     return "OBJ As Mesh";
 }
-void ResourceImporterOBJ::get_recognized_extensions(PODVector<se_string> &p_extensions) const {
+void ResourceImporterOBJ::get_recognized_extensions(PODVector<String> &p_extensions) const {
 
     p_extensions.push_back("obj");
 }
@@ -508,7 +508,7 @@ bool ResourceImporterOBJ::get_option_visibility(const StringName &p_option, cons
     return true;
 }
 
-Error ResourceImporterOBJ::import(se_string_view p_source_file, se_string_view p_save_path, const Map<StringName, Variant> &p_options, List<se_string> *r_platform_variants, List<se_string> *r_gen_files, Variant *r_metadata) {
+Error ResourceImporterOBJ::import(se_string_view p_source_file, se_string_view p_save_path, const Map<StringName, Variant> &p_options, List<String> *r_platform_variants, List<String> *r_gen_files, Variant *r_metadata) {
 
     List<Ref<Mesh> > meshes;
 
@@ -518,7 +518,7 @@ Error ResourceImporterOBJ::import(se_string_view p_source_file, se_string_view p
     ERR_FAIL_COND_V(err != OK, err)
     ERR_FAIL_COND_V(meshes.size() != 1, ERR_BUG)
 
-    se_string save_path = se_string(p_save_path) + ".mesh";
+    String save_path = String(p_save_path) + ".mesh";
 
     err = ResourceSaver::save(save_path, meshes.front()->deref());
 

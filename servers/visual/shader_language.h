@@ -563,7 +563,7 @@ public:
     };
 
     static const char *get_operator_text(Operator p_op);
-    static se_string get_token_text(const Token& p_token);
+    static String get_token_text(const Token& p_token);
 
     static bool is_token_datatype(TokenType p_type);
     static bool is_token_variable_datatype(TokenType p_type);
@@ -585,7 +585,7 @@ public:
     static Variant constant_value_to_variant(const PODVector<ConstantNode::Value> &p_value, DataType p_type, ShaderLanguage::ShaderNode::Uniform::Hint p_hint = ShaderLanguage::ShaderNode::Uniform::HINT_NONE);
 
     static void get_keyword_list(PODVector<se_string_view> *r_keywords);
-    static void get_builtin_funcs(PODVector<se_string> *r_keywords);
+    static void get_builtin_funcs(PODVector<String> *r_keywords);
 
     struct BuiltInInfo {
         DataType type;
@@ -615,10 +615,10 @@ private:
     static const KeyWord keyword_list[];
 
     bool error_set;
-    se_string error_str;
+    String error_str;
     int error_line;
 
-    se_string code;
+    String code;
     int char_idx;
     int tk_line;
 
@@ -663,7 +663,7 @@ private:
 
     bool _find_identifier(const BlockNode *p_block, const Map<StringName, BuiltInInfo> &p_builtin_types, const StringName &p_identifier, DataType *r_data_type = nullptr, IdentifierType *r_type = nullptr, bool *r_is_const = nullptr, int *r_array_size = nullptr);
     bool _is_operator_assign(Operator p_op) const;
-    bool _validate_assign(Node *p_node, const Map<StringName, BuiltInInfo> &p_builtin_types, se_string *r_message = nullptr);
+    bool _validate_assign(Node *p_node, const Map<StringName, BuiltInInfo> &p_builtin_types, String *r_message = nullptr);
     bool _validate_operator(OperatorNode *p_op, DataType *r_ret_type = nullptr);
 
     enum SubClassTag {
@@ -714,19 +714,19 @@ public:
 
     void clear();
 
-    static se_string get_shader_type(const se_string &p_code);
-    Error compile(const se_string &p_code, const Map<StringName, FunctionInfo> &p_functions, const Vector<StringName> &p_render_modes, const Set<StringName> &p_shader_types);
-    Error complete(const se_string &p_code, const Map<StringName, FunctionInfo> &p_functions, const Vector<StringName> &p_render_modes, const Set<StringName> &p_shader_types, List<ScriptCodeCompletionOption> *r_options, se_string &r_call_hint);
+    static String get_shader_type(const String &p_code);
+    Error compile(const String &p_code, const Map<StringName, FunctionInfo> &p_functions, const Vector<StringName> &p_render_modes, const Set<StringName> &p_shader_types);
+    Error complete(const String &p_code, const Map<StringName, FunctionInfo> &p_functions, const Vector<StringName> &p_render_modes, const Set<StringName> &p_shader_types, List<ScriptCodeCompletionOption> *r_options, String &r_call_hint);
 
-    const se_string &get_error_text();
+    const String &get_error_text();
     int get_error_line();
 
     ShaderNode *get_shader();
 
-    se_string token_debug(const se_string &p_code);
+    String token_debug(const String &p_code);
 
     ShaderLanguage();
     ~ShaderLanguage();
 protected:
-    se_string _get_shader_type_list(const Set<StringName> &p_shader_types) const;
+    String _get_shader_type_list(const Set<StringName> &p_shader_types) const;
 };

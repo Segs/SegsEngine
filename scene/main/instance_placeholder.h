@@ -40,7 +40,7 @@ class InstancePlaceholder : public Node {
 
     GDCLASS(InstancePlaceholder,Node)
 
-    se_string path;
+    String path;
     struct PropSet {
         StringName name;
         Variant value;
@@ -57,7 +57,7 @@ protected:
 
 public:
     void set_instance_path(se_string_view p_name);
-    const se_string &get_instance_path() const;
+    const String &get_instance_path() const;
 
     Dictionary get_stored_values(bool p_with_order = false);
 

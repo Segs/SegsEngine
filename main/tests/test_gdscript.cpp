@@ -48,9 +48,9 @@
 
 namespace TestGDScript {
 
-static void _print_indent(int p_ident, const se_string &p_text) {
+static void _print_indent(int p_ident, const String &p_text) {
 
-    se_string txt;
+    String txt;
     for (int i = 0; i < p_ident; i++) {
         txt += '\t';
     }
@@ -58,16 +58,16 @@ static void _print_indent(int p_ident, const se_string &p_text) {
     print_line(txt + p_text);
 }
 
-static se_string _parser_extends(const GDScriptParser::ClassNode *p_class) {
+static String _parser_extends(const GDScriptParser::ClassNode *p_class) {
 
-    se_string txt("extends ");
+    String txt("extends ");
     if (!p_class->extends_file.empty()) {
-        txt += "\"" + se_string(p_class->extends_file) + "\"";
+        txt += "\"" + String(p_class->extends_file) + "\"";
         if (!p_class->extends_class.empty())
-            txt += se_string(".");
+            txt += String(".");
     }
 
-    for (int i = 0; i < p_class->extends_class.size(); i++) {
+    for (size_t i = 0; i < p_class->extends_class.size(); i++) {
 
         if (i != 0)
             txt += '.';
@@ -78,9 +78,9 @@ static se_string _parser_extends(const GDScriptParser::ClassNode *p_class) {
     return txt;
 }
 
-static se_string _parser_expr(const GDScriptParser::Node *p_expr) {
+static String _parser_expr(const GDScriptParser::Node *p_expr) {
 
-    se_string txt;
+    String txt;
     switch (p_expr->type) {
 
         case GDScriptParser::Node::TYPE_IDENTIFIER: {
@@ -91,9 +91,9 @@ static se_string _parser_expr(const GDScriptParser::Node *p_expr) {
         case GDScriptParser::Node::TYPE_CONSTANT: {
             const GDScriptParser::ConstantNode *c_node = static_cast<const GDScriptParser::ConstantNode *>(p_expr);
             if (c_node->value.get_type() == VariantType::STRING)
-                txt = "\"" + se_string(c_node->value) + "\"";
+                txt = "\"" + String(c_node->value) + "\"";
             else
-                txt = c_node->value.as<se_string>();
+                txt = c_node->value.as<String>();
 
         } break;
         case GDScriptParser::Node::TYPE_SELF: {
@@ -135,8 +135,8 @@ static se_string _parser_expr(const GDScriptParser::Node *p_expr) {
                     FALLTHROUGH;
                 case GDScriptParser::OperatorNode::OP_CALL: {
 
-                    ERR_FAIL_COND_V(c_node->arguments.empty(), se_string())
-                    se_string func_name;
+                    ERR_FAIL_COND_V(c_node->arguments.empty(), String())
+                    String func_name;
                     const GDScriptParser::Node *nfunc = c_node->arguments[0];
                     int arg_ofs = 0;
                     if (nfunc->type == GDScriptParser::Node::TYPE_BUILT_IN_FUNCTION) {
@@ -151,9 +151,9 @@ static se_string _parser_expr(const GDScriptParser::Node *p_expr) {
                         arg_ofs = 1;
                     } else {
 
-                        ERR_FAIL_COND_V(c_node->arguments.size() < 2, se_string())
+                        ERR_FAIL_COND_V(c_node->arguments.size() < 2, String())
                         nfunc = c_node->arguments[1];
-                        ERR_FAIL_COND_V(nfunc->type != GDScriptParser::Node::TYPE_IDENTIFIER, se_string())
+                        ERR_FAIL_COND_V(nfunc->type != GDScriptParser::Node::TYPE_IDENTIFIER, String())
 
                         if (c_node->arguments[0]->type != GDScriptParser::Node::TYPE_SELF)
                             func_name = _parser_expr(c_node->arguments[0]) + ".";
@@ -177,7 +177,7 @@ static se_string _parser_expr(const GDScriptParser::Node *p_expr) {
                 } break;
                 case GDScriptParser::OperatorNode::OP_INDEX: {
 
-                    ERR_FAIL_COND_V(c_node->arguments.size() != 2, se_string())
+                    ERR_FAIL_COND_V(c_node->arguments.size() != 2, String())
 
                     //index with []
                     txt = _parser_expr(c_node->arguments[0]) + "[" + _parser_expr(c_node->arguments[1]) + "]";
@@ -185,7 +185,7 @@ static se_string _parser_expr(const GDScriptParser::Node *p_expr) {
                 } break;
                 case GDScriptParser::OperatorNode::OP_INDEX_NAMED: {
 
-                    ERR_FAIL_COND_V(c_node->arguments.size() != 2, se_string())
+                    ERR_FAIL_COND_V(c_node->arguments.size() != 2, String())
 
                     txt = _parser_expr(c_node->arguments[0]) + "." + _parser_expr(c_node->arguments[1]);
 
@@ -305,7 +305,7 @@ static se_string _parser_expr(const GDScriptParser::Node *p_expr) {
         } break;
         default: {
 
-            ERR_FAIL_V_MSG(se_string(), "Parser bug at " + itos(p_expr->line) + ", invalid expression type: " + itos(p_expr->type))
+            ERR_FAIL_V_MSG(String(), "Parser bug at " + itos(p_expr->line) + ", invalid expression type: " + itos(p_expr->type))
         }
     }
 
@@ -328,7 +328,7 @@ static void _parser_show_block(const GDScriptParser::BlockNode *p_block, int p_i
                     case GDScriptParser::ControlFlowNode::CF_IF: {
 
                         ERR_FAIL_COND(cf_node->arguments.size() != 1)
-                        se_string txt = FormatVE("if %s:",_parser_expr(cf_node->arguments[0]).c_str());
+                        String txt = FormatVE("if %s:",_parser_expr(cf_node->arguments[0]).c_str());
                         _print_indent(p_indent, txt);
                         ERR_FAIL_COND(!cf_node->body)
                         _parser_show_block(cf_node->body, p_indent + 1);
@@ -340,7 +340,7 @@ static void _parser_show_block(const GDScriptParser::BlockNode *p_block, int p_i
                     } break;
                     case GDScriptParser::ControlFlowNode::CF_FOR: {
                         ERR_FAIL_COND(cf_node->arguments.size() != 2)
-                        se_string txt;
+                        String txt;
                         txt = FormatVE("for %s in %s:",_parser_expr(cf_node->arguments[0]).c_str(),_parser_expr(cf_node->arguments[1]).c_str());
                         _print_indent(p_indent, txt);
                         ERR_FAIL_COND(!cf_node->body)
@@ -350,7 +350,7 @@ static void _parser_show_block(const GDScriptParser::BlockNode *p_block, int p_i
                     case GDScriptParser::ControlFlowNode::CF_WHILE: {
 
                         ERR_FAIL_COND(cf_node->arguments.size() != 1)
-                        se_string txt;
+                        String txt;
                         txt += "while " + _parser_expr(cf_node->arguments[0]) + ':';
                         _print_indent(p_indent, txt);
                         ERR_FAIL_COND(!cf_node->body)
@@ -381,7 +381,7 @@ static void _parser_show_block(const GDScriptParser::BlockNode *p_block, int p_i
             case GDScriptParser::Node::TYPE_LOCAL_VAR: {
 
                 const GDScriptParser::LocalVarNode *lv_node = static_cast<const GDScriptParser::LocalVarNode *>(statement);
-                _print_indent(p_indent, "var " + se_string(lv_node->name));
+                _print_indent(p_indent, "var " + String(lv_node->name));
             } break;
             default: {
                 //expression i guess
@@ -393,7 +393,7 @@ static void _parser_show_block(const GDScriptParser::BlockNode *p_block, int p_i
 
 static void _parser_show_function(const GDScriptParser::FunctionNode *p_func, int p_indent, GDScriptParser::BlockNode *p_initializer = nullptr) {
 
-    se_string txt;
+    String txt;
     if (p_func->_static)
         txt = "static ";
     txt += "func ";
@@ -439,7 +439,7 @@ static void _parser_show_class(const GDScriptParser::ClassNode *p_class, int p_i
     for (int i = 0; i < p_class->subclasses.size(); i++) {
 
         const GDScriptParser::ClassNode *subclass = p_class->subclasses[i];
-        se_string line = se_string("class ") + subclass->name;
+        String line = String("class ") + subclass->name;
         if (!subclass->extends_file.empty() || !subclass->extends_class.empty())
             line += " " + _parser_extends(subclass);
         line += ':';
@@ -450,14 +450,14 @@ static void _parser_show_class(const GDScriptParser::ClassNode *p_class, int p_i
 
     for (auto &E : p_class->constant_expressions) {
         const GDScriptParser::ClassNode::Constant &constant = E.second;
-        _print_indent(p_indent, "const " + se_string(E.first) + "=" + _parser_expr(constant.expression));
+        _print_indent(p_indent, "const " + String(E.first) + "=" + _parser_expr(constant.expression));
     }
 
     for (int i = 0; i < p_class->variables.size(); i++) {
 
         const GDScriptParser::ClassNode::Member &m = p_class->variables[i];
 
-        _print_indent(p_indent, "var " + se_string(m.identifier));
+        _print_indent(p_indent, "var " + String(m.identifier));
     }
 
     print_line("\n");
@@ -480,7 +480,7 @@ static void _parser_show_class(const GDScriptParser::ClassNode *p_class, int p_i
     print_line("\n");
 }
 
-static se_string _disassemble_addr(const Ref<GDScript> &p_script, const GDScriptFunction &func, int p_addr) {
+static String _disassemble_addr(const Ref<GDScript> &p_script, const GDScriptFunction &func, int p_addr) {
 
     int addr = p_addr & GDScriptFunction::ADDR_MASK;
 
@@ -494,20 +494,20 @@ static se_string _disassemble_addr(const Ref<GDScript> &p_script, const GDScript
         }
         case GDScriptFunction::ADDR_TYPE_MEMBER: {
 
-            return se_string("member(") + p_script->debug_get_member_by_index(addr).asCString() + ")";
+            return String("member(") + p_script->debug_get_member_by_index(addr).asCString() + ")";
         }
         case GDScriptFunction::ADDR_TYPE_CLASS_CONSTANT: {
 
-            return se_string("class_const(") + func.get_global_name(addr).asCString() + ")";
+            return String("class_const(") + func.get_global_name(addr).asCString() + ")";
         }
         case GDScriptFunction::ADDR_TYPE_LOCAL_CONSTANT: {
 
             Variant v = func.get_constant(addr);
 
-            se_string txt(v);
+            String txt(v);
             if (v.get_type() == VariantType::STRING || v.get_type() == VariantType::NODE_PATH)
                 txt = "\"" + txt + "\"";
-            return se_string("const(") + txt + ")";
+            return String("const(") + txt + ")";
         }
         case GDScriptFunction::ADDR_TYPE_STACK: {
 
@@ -519,7 +519,7 @@ static se_string _disassemble_addr(const Ref<GDScript> &p_script, const GDScript
         }
         case GDScriptFunction::ADDR_TYPE_GLOBAL: {
 
-            return se_string("global(") + func.get_global_name(addr).asCString() + ")";
+            return String("global(") + func.get_global_name(addr).asCString() + ")";
         }
         case GDScriptFunction::ADDR_TYPE_NIL: {
             return "nil";
@@ -538,7 +538,7 @@ static void _disassemble_class(const Ref<GDScript> &p_class, const Vector<se_str
         const GDScriptFunction &func = *E.second;
         const int *code = func.get_code();
         int codelen = func.get_code_size();
-        se_string defargs;
+        String defargs;
         if (func.get_default_argument_count()) {
             defargs = "defarg at: ";
             for (int i = 0; i < func.get_default_argument_count(); i++) {
@@ -549,14 +549,14 @@ static void _disassemble_class(const Ref<GDScript> &p_class, const Vector<se_str
             }
             defargs += ' ';
         }
-        print_line("== function " + se_string(func.get_name()) + "() :: stack size: " + itos(func.get_max_stack_size()) + " " + defargs + "==");
+        print_line("== function " + String(func.get_name()) + "() :: stack size: " + itos(func.get_max_stack_size()) + " " + defargs + "==");
 
 #define DADDR(m_ip) (_disassemble_addr(p_class, func, code[ip + m_ip]))
 
         for (int ip = 0; ip < codelen;) {
 
             int incr = 0;
-            se_string txt = to_string(ip) + " ";
+            String txt = to_string(ip) + " ";
 
             switch (code[ip]) {
 
@@ -565,7 +565,7 @@ static void _disassemble_class(const Ref<GDScript> &p_class, const Vector<se_str
                     int op = code[ip + 1];
                     txt += " op ";
 
-                    se_string opname = Variant::get_operator_name(Variant::Operator(op));
+                    String opname = Variant::get_operator_name(Variant::Operator(op));
 
                     txt += DADDR(4);
                     txt += " = ";
@@ -934,13 +934,13 @@ static void _disassemble_class(const Ref<GDScript> &p_class, const Vector<se_str
 
 MainLoop *test(TestType p_type) {
 
-    const ListPOD<se_string> &cmdlargs(OS::get_singleton()->get_cmdline_args());
+    const ListPOD<String> &cmdlargs(OS::get_singleton()->get_cmdline_args());
 
     if (cmdlargs.empty()) {
         return nullptr;
     }
 
-    const se_string &test(cmdlargs.back());
+    const String &test(cmdlargs.back());
     if (!StringUtils::ends_with(test,".gd") && !StringUtils::ends_with(test,".gdc")) {
         print_line("This test expects a path to a GDScript file as its last parameter. Got: " + test);
         return nullptr;
@@ -976,15 +976,15 @@ MainLoop *test(TestType p_type) {
         int line = -1;
         while (tk.get_token() != GDScriptTokenizer::TK_EOF) {
 
-            se_string text;
+            String text;
             if (tk.get_token() == GDScriptTokenizer::TK_IDENTIFIER)
-                text = se_string("'") + tk.get_token_identifier() + "' (identifier)";
+                text = String("'") + tk.get_token_identifier() + "' (identifier)";
             else if (tk.get_token() == GDScriptTokenizer::TK_CONSTANT) {
                 const Variant &c = tk.get_token_constant();
                 if (c.get_type() == VariantType::STRING)
-                    text = "\"" + se_string(c) + "\"";
+                    text = "\"" + String(c) + "\"";
                 else
-                    text = se_string(c);
+                    text = String(c);
 
                 text = text + " (" + Variant::get_type_name(c.get_type()) + " constant)";
             } else if (tk.get_token() == GDScriptTokenizer::TK_ERROR)
@@ -992,7 +992,7 @@ MainLoop *test(TestType p_type) {
             else if (tk.get_token() == GDScriptTokenizer::TK_NEWLINE)
                 text = FormatVE("newline (%d) + indent: %d",tk.get_token_line(),tk.get_token_line_indent());
             else if (tk.get_token() == GDScriptTokenizer::TK_BUILT_IN_FUNC)
-                text = "'" + se_string(GDScriptFunctions::get_func_name(tk.get_token_built_in_func())) + "' (built-in function)";
+                text = "'" + String(GDScriptFunctions::get_func_name(tk.get_token_built_in_func())) + "' (built-in function)";
             else
                 text = tk.get_token_name(tk.get_token());
 
@@ -1063,7 +1063,7 @@ MainLoop *test(TestType p_type) {
     } else if (p_type == TEST_BYTECODE) {
 
         PODVector<uint8_t> buf2 = GDScriptTokenizerBuffer::parse_code_string(code);
-        se_string dst = se_string(PathUtils::get_basename(test)) + ".gdc";
+        String dst = String(PathUtils::get_basename(test)) + ".gdc";
         FileAccess *fw = FileAccess::open(dst, FileAccess::WRITE);
         fw->store_buffer(buf2.data(), buf2.size());
         memdelete(fw);

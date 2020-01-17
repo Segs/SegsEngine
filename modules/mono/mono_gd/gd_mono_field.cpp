@@ -117,7 +117,7 @@ void GDMonoField::set_value_from_variant(MonoObject *p_object, const Variant &p_
             MonoString *mono_string = nullptr;
             mono_field_set_value(p_object, mono_field, mono_string);
         } else {
-            MonoString *mono_string = GDMonoMarshal::mono_string_from_godot(p_value.as<se_string>());
+            MonoString *mono_string = GDMonoMarshal::mono_string_from_godot(p_value.as<String>());
             mono_field_set_value(p_object, mono_field, mono_string);
         }
     } break;
@@ -382,7 +382,7 @@ void GDMonoField::set_value_from_variant(MonoObject *p_object, const Variant &p_
 #endif
                 } break;
                 case VariantType::STRING: {
-                    MonoString *mono_string = GDMonoMarshal::mono_string_from_godot(p_value.as<se_string>());
+                    MonoString *mono_string = GDMonoMarshal::mono_string_from_godot(p_value.as<String>());
                     mono_field_set_value(p_object, mono_field, mono_string);
                 } break;
                 case VariantType::VECTOR2: {
@@ -534,7 +534,7 @@ int GDMonoField::get_int_value(MonoObject *p_object) {
     return GDMonoMarshal::unbox<int32_t>(get_value(p_object));
 }
 
-se_string GDMonoField::get_string_value(MonoObject *p_object) {
+String GDMonoField::get_string_value(MonoObject *p_object) {
     MonoObject *val = get_value(p_object);
     return GDMonoMarshal::mono_string_to_godot((MonoString *)val);
 }

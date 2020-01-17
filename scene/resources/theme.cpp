@@ -44,72 +44,72 @@ void Theme::_emit_theme_changed() {
 
     emit_changed();
 }
-PoolVector<se_string> Theme::_get_icon_list(const se_string &p_type) const {
-    PoolVector<se_string> ilret;
+PoolVector<String> Theme::_get_icon_list(const String &p_type) const {
+    PoolVector<String> ilret;
     PODVector<StringName> il;
     get_icon_list(StringName(p_type), &il);
     for (const StringName &E : il) {
-        ilret.push_back(se_string(E));
+        ilret.push_back(String(E));
     }
     return ilret;
 }
 
-PoolVector<se_string> Theme::_get_stylebox_list(const se_string &p_type) const {
-    PoolVector<se_string> ilret;
+PoolVector<String> Theme::_get_stylebox_list(const String &p_type) const {
+    PoolVector<String> ilret;
     PODVector<StringName> il;
     get_stylebox_list(StringName(p_type), &il);
     for (const StringName &E : il) {
-        ilret.push_back(se_string(E));
+        ilret.push_back(String(E));
     }
     return ilret;
 }
 
-PoolVector<se_string> Theme::_get_stylebox_types() const {
-    PoolVector<se_string> ilret;
+PoolVector<String> Theme::_get_stylebox_types() const {
+    PoolVector<String> ilret;
     PODVector<StringName> il;
     get_stylebox_types(&il);
     for (const StringName &E : il) {
-        ilret.push_back(se_string(E));
+        ilret.push_back(String(E));
     }
     return ilret;
 }
 
-PoolVector<se_string> Theme::_get_font_list(const se_string &p_type) const {
-    PoolVector<se_string> ilret;
+PoolVector<String> Theme::_get_font_list(const String &p_type) const {
+    PoolVector<String> ilret;
     PODVector<StringName> il;
     get_font_list(StringName(p_type), &il);
     for (const StringName &E : il) {
-        ilret.push_back(se_string(E));
+        ilret.push_back(String(E));
     }
     return ilret;
 }
 
-PoolVector<se_string> Theme::_get_color_list(const se_string &p_type) const {
-    PoolVector<se_string> ilret;
+PoolVector<String> Theme::_get_color_list(const String &p_type) const {
+    PoolVector<String> ilret;
     PODVector<StringName> il;
     get_color_list(StringName(p_type), &il);
     for (const StringName &E : il) {
-        ilret.push_back(se_string(E));
+        ilret.push_back(String(E));
     }
     return ilret;
 }
 
-PoolVector<se_string> Theme::_get_constant_list(const se_string &p_type) const {
-    PoolVector<se_string> ilret;
+PoolVector<String> Theme::_get_constant_list(const String &p_type) const {
+    PoolVector<String> ilret;
     PODVector<StringName> il;
     get_constant_list(StringName(p_type), &il);
     for (const StringName &E : il) {
-        ilret.push_back(se_string(E));
+        ilret.push_back(String(E));
     }
     return ilret;
 }
 
-PoolVector<se_string> Theme::_get_type_list(se_string_view p_type) const {
-    PoolVector<se_string> ilret;
+PoolVector<String> Theme::_get_type_list(se_string_view p_type) const {
+    PoolVector<String> ilret;
     PODVector<StringName> il;
     get_type_list(&il);
     for (const StringName &E : il) {
-        ilret.push_back(se_string(E));
+        ilret.push_back(String(E));
     }
     return ilret;
 }
@@ -203,7 +203,7 @@ void Theme::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
 
         for (const auto &f : e.second) {
 
-            list.push_back(PropertyInfo(VariantType::OBJECT,  StringName(se_string(e.first) + "/styles/" + f.first), PROPERTY_HINT_RESOURCE_TYPE, "StyleBox", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_STORE_IF_NULL));
+            list.push_back(PropertyInfo(VariantType::OBJECT,  StringName(String(e.first) + "/styles/" + f.first), PROPERTY_HINT_RESOURCE_TYPE, "StyleBox", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_STORE_IF_NULL));
         }
     }
 
@@ -211,7 +211,7 @@ void Theme::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
 
         for (const auto &f : e.second) {
 
-            list.push_back(PropertyInfo(VariantType::OBJECT,  StringName(se_string(e.first) + "/fonts/" + f.first), PROPERTY_HINT_RESOURCE_TYPE, "Font", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_STORE_IF_NULL));
+            list.push_back(PropertyInfo(VariantType::OBJECT,  StringName(String(e.first) + "/fonts/" + f.first), PROPERTY_HINT_RESOURCE_TYPE, "Font", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_STORE_IF_NULL));
         }
     }
 
@@ -219,14 +219,14 @@ void Theme::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
 
         for(const auto &f : e.second) {
 
-            list.push_back(PropertyInfo(VariantType::COLOR, StringName(se_string(e.first) + "/colors/" + f.first)));
+            list.push_back(PropertyInfo(VariantType::COLOR, StringName(String(e.first) + "/colors/" + f.first)));
         }
     }
 
     for(const auto &e : constant_map) {
         for(const auto &f : e.second) {
 
-            list.push_back(PropertyInfo(VariantType::INT, StringName(se_string(f.first) + "/constants/" + f.first)));
+            list.push_back(PropertyInfo(VariantType::INT, StringName(String(f.first) + "/constants/" + f.first)));
         }
     }
 

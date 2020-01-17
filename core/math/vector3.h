@@ -151,7 +151,7 @@ struct GODOT_EXPORT Vector3 {
     _FORCE_INLINE_ bool operator>(const Vector3 &p_v) const;
     _FORCE_INLINE_ bool operator>=(const Vector3 &p_v) const;
 
-    operator se_string() const;
+    operator String() const;
 
     _FORCE_INLINE_ constexpr Vector3() : x(0),y(0),z(0) {}
     _FORCE_INLINE_ constexpr Vector3(real_t p_x, real_t p_y, real_t p_z) : x(p_x),y(p_y),z(p_z) {

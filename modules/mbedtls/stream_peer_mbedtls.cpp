@@ -116,7 +116,7 @@ Error StreamPeerMbedTLS::connect_to_stream(Ref<StreamPeer> p_base, bool p_valida
 
     Error err = ssl_ctx->init_client(MBEDTLS_SSL_TRANSPORT_STREAM, authmode, dynamic_ref_cast<X509CertificateMbedTLS>(p_ca_certs));
     ERR_FAIL_COND_V(err != OK, err)
-    se_string zterm(p_for_hostname);
+    String zterm(p_for_hostname);
     mbedtls_ssl_set_hostname(ssl_ctx->get_context(), zterm.c_str());
     mbedtls_ssl_set_bio(ssl_ctx->get_context(), this, bio_send, bio_recv, nullptr);
 

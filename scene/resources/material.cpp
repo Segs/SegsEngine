@@ -272,7 +272,7 @@ void ShaderMaterial::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "shader", PROPERTY_HINT_RESOURCE_TYPE, "Shader"), "set_shader", "get_shader");
 }
 
-void ShaderMaterial::get_argument_options(const StringName &p_function, int p_idx, ListPOD<se_string> *r_options) const {
+void ShaderMaterial::get_argument_options(const StringName &p_function, int p_idx, ListPOD<String> *r_options) const {
 
 #ifdef TOOLS_ENABLED
     const char * quote_style(EDITOR_DEF("text_editor/completion/use_single_quotes", 0) ? "'" : "\"");
@@ -441,7 +441,7 @@ void SpatialMaterial::_update_shader() {
 
     //must create a shader!
 
-    se_string code("shader_type spatial;\nrender_mode ");
+    String code("shader_type spatial;\nrender_mode ");
     switch (blend_mode) {
         case BLEND_MODE_MIX: code += "blend_mix"; break;
         case BLEND_MODE_ADD: code += "blend_add"; break;
@@ -1029,12 +1029,12 @@ void SpatialMaterial::_update_shader() {
         bool triplanar = (flags[FLAG_UV1_USE_TRIPLANAR] && detail_uv == DETAIL_UV_1) || (flags[FLAG_UV2_USE_TRIPLANAR] && detail_uv == DETAIL_UV_2);
 
         if (triplanar) {
-            se_string tp_uv = detail_uv == DETAIL_UV_1 ? "uv1" : "uv2";
+            String tp_uv = detail_uv == DETAIL_UV_1 ? "uv1" : "uv2";
             code += "\tvec4 detail_tex = triplanar_texture(texture_detail_albedo," + tp_uv + "_power_normal," + tp_uv + "_triplanar_pos);\n";
             code += "\tvec4 detail_norm_tex = triplanar_texture(texture_detail_normal," + tp_uv + "_power_normal," + tp_uv + "_triplanar_pos);\n";
 
         } else {
-            se_string det_uv = detail_uv == DETAIL_UV_1 ? "base_uv" : "base_uv2";
+            String det_uv = detail_uv == DETAIL_UV_1 ? "base_uv" : "base_uv2";
             code += "\tvec4 detail_tex = texture(texture_detail_albedo," + det_uv + ");\n";
             code += "\tvec4 detail_norm_tex = texture(texture_detail_normal," + det_uv + ");\n";
         }
@@ -1456,7 +1456,7 @@ Ref<Texture> SpatialMaterial::get_texture_by_name(const StringName& p_name) cons
 }
 
 void SpatialMaterial::_validate_feature(se_string_view text, Feature feature, PropertyInfo &property) const {
-    if (StringUtils::begins_with(property.name,text) && property.name != StringName(se_string(text) + "_enabled") && !features[feature]) {
+    if (StringUtils::begins_with(property.name,text) && property.name != StringName(String(text) + "_enabled") && !features[feature]) {
         property.usage = 0;
     }
 }

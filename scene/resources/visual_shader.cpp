@@ -82,16 +82,16 @@ bool VisualShaderNode::is_port_separator(int /*p_index*/) const {
 Vector<VisualShader::DefaultTextureParam> VisualShaderNode::get_default_texture_parameters(VisualShader::Type p_type, int p_id) const {
     return Vector<VisualShader::DefaultTextureParam>();
 }
-se_string VisualShaderNode::generate_global(ShaderMode p_mode, VisualShader::Type p_type, int p_id) const {
-    return se_string();
+String VisualShaderNode::generate_global(ShaderMode p_mode, VisualShader::Type p_type, int p_id) const {
+    return String();
 }
 
-se_string VisualShaderNode::generate_global_per_node(ShaderMode p_mode, VisualShader::Type p_type, int p_id) const {
-    return se_string();
+String VisualShaderNode::generate_global_per_node(ShaderMode p_mode, VisualShader::Type p_type, int p_id) const {
+    return String();
 }
 
-se_string VisualShaderNode::generate_global_per_func(ShaderMode p_mode, VisualShader::Type p_type, int p_id) const {
-    return se_string();
+String VisualShaderNode::generate_global_per_func(ShaderMode p_mode, VisualShader::Type p_type, int p_id) const {
+    return String();
 }
 
 Vector<StringName> VisualShaderNode::get_editable_properties() const {
@@ -203,9 +203,9 @@ void VisualShaderNodeCustom::update_ports() {
 se_string_view VisualShaderNodeCustom::get_caption() const {
     ERR_FAIL_COND_V(!get_script_instance(), null_se_string)
     if (get_script_instance()->has_method("_get_name")) {
-        return get_script_instance()->call("_get_name").as<se_string>();
+        return get_script_instance()->call("_get_name").as<String>();
     }
-    return se_string("Unnamed");
+    return String("Unnamed");
 }
 
 int VisualShaderNodeCustom::get_input_port_count() const {
@@ -236,10 +236,10 @@ StringName VisualShaderNodeCustom::get_output_port_name(int p_port) const {
     return output_ports[p_port].name;
 }
 
-se_string VisualShaderNodeCustom::generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const se_string *p_input_vars, const se_string *p_output_vars, bool p_for_preview) const {
+String VisualShaderNodeCustom::generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const String *p_input_vars, const String *p_output_vars, bool p_for_preview) const {
 
-    ERR_FAIL_COND_V(!get_script_instance(), se_string())
-    ERR_FAIL_COND_V(!get_script_instance()->has_method("_get_code"), se_string())
+    ERR_FAIL_COND_V(!get_script_instance(), String())
+    ERR_FAIL_COND_V(!get_script_instance()->has_method("_get_code"), String())
     Array input_vars;
     for (int i = 0; i < get_input_port_count(); i++) {
         input_vars.push_back(p_input_vars[i]);
@@ -248,14 +248,14 @@ se_string VisualShaderNodeCustom::generate_code(ShaderMode p_mode, VisualShader:
     for (int i = 0; i < get_output_port_count(); i++) {
         output_vars.push_back(p_output_vars[i]);
     }
-    se_string code("\t{\n");
-    se_string _code = (se_string)get_script_instance()->call("_get_code", input_vars, output_vars, (int)p_mode, (int)p_type);
+    String code("\t{\n");
+    String _code = (String)get_script_instance()->call("_get_code", input_vars, output_vars, (int)p_mode, (int)p_type);
     bool nend =StringUtils::ends_with( _code,"\n");
-    _code = StringUtils::insert(_code,0, se_string("\t\t"));
+    _code = StringUtils::insert(_code,0, String("\t\t"));
     _code = StringUtils::replace(_code,"\n", "\n\t\t");
     code += _code;
     if (!nend) {
-        code += se_string("\n\t}");
+        code += String("\n\t}");
     } else {
         StringUtils::erase(code,code.size() - 1,1);
         code += '}';
@@ -263,15 +263,15 @@ se_string VisualShaderNodeCustom::generate_code(ShaderMode p_mode, VisualShader:
     return code;
 }
 
-se_string VisualShaderNodeCustom::generate_global_per_node(ShaderMode p_mode, VisualShader::Type p_type, int p_id) const {
-    ERR_FAIL_COND_V(!get_script_instance(), se_string())
+String VisualShaderNodeCustom::generate_global_per_node(ShaderMode p_mode, VisualShader::Type p_type, int p_id) const {
+    ERR_FAIL_COND_V(!get_script_instance(), String())
     if (get_script_instance()->has_method("_get_global_code")) {
-        se_string code = se_string("// ") + get_caption() + "\n";
-        code += (se_string)get_script_instance()->call("_get_global_code", (int)p_mode);
+        String code = String("// ") + get_caption() + "\n";
+        code += (String)get_script_instance()->call("_get_global_code", (int)p_mode);
         code += '\n';
         return code;
     }
-    return se_string();
+    return String();
 }
 
 void VisualShaderNodeCustom::_bind_methods() {
@@ -308,7 +308,7 @@ void VisualShader::add_node(Type p_type, const Ref<VisualShaderNode> &p_node, co
 
     Ref<VisualShaderNodeUniform> uniform = dynamic_ref_cast<VisualShaderNodeUniform>(n.node);
     if (uniform) {
-        se_string valid_name = validate_uniform_name(uniform->get_uniform_name(), uniform);
+        String valid_name = validate_uniform_name(uniform->get_uniform_name(), uniform);
         uniform->set_uniform_name(StringName(valid_name));
     }
 
@@ -621,12 +621,12 @@ bool VisualShader::is_text_shader() const {
     return false;
 }
 
-se_string VisualShader::generate_preview_shader(Type p_type, int p_node, int p_port, Vector<DefaultTextureParam> &default_tex_params) const {
+String VisualShader::generate_preview_shader(Type p_type, int p_node, int p_port, Vector<DefaultTextureParam> &default_tex_params) const {
 
     Ref<VisualShaderNode> node = get_node(p_type, p_node);
-    ERR_FAIL_COND_V(not node, se_string())
-    ERR_FAIL_COND_V(p_port < 0 || p_port >= node->get_output_port_count(), se_string())
-    ERR_FAIL_COND_V(node->get_output_port_type(p_port) == VisualShaderNode::PORT_TYPE_TRANSFORM, se_string())
+    ERR_FAIL_COND_V(not node, String())
+    ERR_FAIL_COND_V(p_port < 0 || p_port >= node->get_output_port_count(), String())
+    ERR_FAIL_COND_V(node->get_output_port_type(p_port) == VisualShaderNode::PORT_TYPE_TRANSFORM, String())
 
     StringBuilder global_code;
     StringBuilder global_code_per_node;
@@ -634,15 +634,15 @@ se_string VisualShader::generate_preview_shader(Type p_type, int p_node, int p_p
     StringBuilder code;
     Set<StringName> classes;
 
-    global_code += se_string() + "shader_type canvas_item;\n";
+    global_code += String() + "shader_type canvas_item;\n";
 
-    se_string global_expressions;
+    String global_expressions;
     for (int i = 0, index = 0; i < TYPE_MAX; i++) {
         for (const eastl::pair<const int, Node> &E : graph[i].nodes) {
             Ref<VisualShaderNodeGlobalExpression> global_expression(dynamic_ref_cast<VisualShaderNodeGlobalExpression>(E.second.node));
             if (global_expression) {
 
-                se_string expr;
+                String expr;
                 expr += "// " + global_expression->get_caption() + ":" + itos(index++) + "\n";
                 expr += global_expression->generate_global(get_mode(), Type(i), -1);
                 expr =StringUtils::replace(expr,"\n", "\n\t");
@@ -677,7 +677,7 @@ se_string VisualShader::generate_preview_shader(Type p_type, int p_node, int p_p
 
     Set<int> processed;
     Error err = _write_node(p_type, global_code, global_code_per_node, global_code_per_func, code, default_tex_params, input_connections, output_connections, p_node, processed, true, classes);
-    ERR_FAIL_COND_V(err != OK, se_string())
+    ERR_FAIL_COND_V(err != OK, String())
 
     if (node->get_output_port_type(p_port) == VisualShaderNode::PORT_TYPE_SCALAR) {
         code += "\tCOLOR.rgb = vec3( n_out" + itos(p_node) + "p" + itos(p_port) + " );\n";
@@ -690,7 +690,7 @@ se_string VisualShader::generate_preview_shader(Type p_type, int p_node, int p_p
 
     //set code secretly
     global_code += "\n\n";
-    se_string final_code(global_code);
+    String final_code(global_code);
     final_code += global_code_per_node;
     final_code += code;
     return final_code;
@@ -700,8 +700,8 @@ se_string VisualShader::generate_preview_shader(Type p_type, int p_node, int p_p
 
 #define IS_SYMBOL_CHAR(m_d) (((m_d) >= 'a' && (m_d) <= 'z') || ((m_d) >= 'A' && (m_d) <= 'Z') || ((m_d) >= '0' && (m_d) <= '9') || (m_d) == '_')
 
-se_string VisualShader::validate_port_name(se_string_view p_name, const List<StringName> &p_input_ports, const List<StringName> &p_output_ports) const {
-    se_string name(p_name);
+String VisualShader::validate_port_name(se_string_view p_name, const List<StringName> &p_input_ports, const List<StringName> &p_output_ports) const {
+    String name(p_name);
 
     while (name.length() && !IS_INITIAL_CHAR(name[0])) {
         name = StringUtils::substr(name,1, name.length() - 1);
@@ -709,7 +709,7 @@ se_string VisualShader::validate_port_name(se_string_view p_name, const List<Str
 
     if (!name.empty()) {
 
-        se_string valid_name;
+        String valid_name;
 
         for (size_t i = 0; i < name.length(); i++) {
             if (IS_SYMBOL_CHAR(name[i])) {
@@ -722,7 +722,7 @@ se_string VisualShader::validate_port_name(se_string_view p_name, const List<Str
         name = valid_name;
     }
 
-    se_string valid_name = name;
+    String valid_name = name;
     bool is_equal = false;
 
     for (int i = 0; i < p_input_ports.size(); i++) {
@@ -742,21 +742,21 @@ se_string VisualShader::validate_port_name(se_string_view p_name, const List<Str
     }
 
     if (is_equal) {
-        name = se_string();
+        name = String();
     }
 
     return name;
 }
 
-se_string VisualShader::validate_uniform_name(se_string_view p_name, const Ref<VisualShaderNodeUniform> &p_uniform) const {
+String VisualShader::validate_uniform_name(se_string_view p_name, const Ref<VisualShaderNodeUniform> &p_uniform) const {
 
-    se_string name(p_name); //validate name first
+    String name(p_name); //validate name first
     while (name.length() && !IS_INITIAL_CHAR(name[0])) {
         name = StringUtils::substr(name,1, name.length() - 1);
     }
     if (!name.empty()) {
 
-        se_string valid_name;
+        String valid_name;
 
         for (size_t i = 0; i < name.length(); i++) {
             if (IS_SYMBOL_CHAR(name[i])) {
@@ -800,7 +800,7 @@ se_string VisualShader::validate_uniform_name(se_string_view p_name, const Ref<V
             while (name.length() && name[name.length() - 1] >= '0' && name[name.length() - 1] <= '9') {
                 name = StringUtils::substr(name,0, name.length() - 1);
             }
-            ERR_FAIL_COND_V(name.empty(), se_string())
+            ERR_FAIL_COND_V(name.empty(), String())
             name += itos(attempt);
         } else {
             break;
@@ -842,7 +842,7 @@ bool VisualShader::_set(const StringName &p_name, const Variant &p_value) {
         _queue_update();
         return true;
     } else if (StringUtils::begins_with(name,"modes/")) {
-        se_string mode(StringUtils::get_slice(name,'/', 1));
+        String mode(StringUtils::get_slice(name,'/', 1));
         int value = p_value;
         if (value == 0) {
             modes.erase(mode); //means it's default anyway, so don't store it
@@ -852,7 +852,7 @@ bool VisualShader::_set(const StringName &p_name, const Variant &p_value) {
         _queue_update();
         return true;
     } else if (StringUtils::begins_with(name,"nodes/")) {
-        se_string typestr(StringUtils::get_slice(name,'/', 1));
+        String typestr(StringUtils::get_slice(name,'/', 1));
         Type type = TYPE_VERTEX;
         for (int i = 0; i < TYPE_MAX; i++) {
             if (typestr == type_string[i]) {
@@ -861,7 +861,7 @@ bool VisualShader::_set(const StringName &p_name, const Variant &p_value) {
             }
         }
 
-        se_string index(StringUtils::get_slice(name,'/', 2));
+        String index(StringUtils::get_slice(name,'/', 2));
         if (index == "connections") {
 
             Vector<int> conns = p_value.as<Vector<int>>();
@@ -919,7 +919,7 @@ bool VisualShader::_get(const StringName &p_name, Variant &r_ret) const {
         }
         return true;
     } else if (StringUtils::begins_with(name,"nodes/")) {
-        se_string typestr(StringUtils::get_slice(name,'/', 1));
+        String typestr(StringUtils::get_slice(name,'/', 1));
         Type type = TYPE_VERTEX;
         for (int i = 0; i < TYPE_MAX; i++) {
             if (typestr == type_string[i]) {
@@ -928,7 +928,7 @@ bool VisualShader::_get(const StringName &p_name, Variant &r_ret) const {
             }
         }
 
-        se_string index(StringUtils::get_slice(name,'/', 2));
+        String index(StringUtils::get_slice(name,'/', 2));
         if (index == "connections") {
 
             PODVector<int> conns;
@@ -974,8 +974,8 @@ void VisualShader::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
     p_list->push_back(PropertyInfo(VariantType::INT, "mode", PROPERTY_HINT_ENUM, "Spatial,CanvasItem,Particles"));
     //render modes
 
-    Map<se_string, se_string> blend_mode_enums;
-    Set<se_string> toggles;
+    Map<String, String> blend_mode_enums;
+    Set<String> toggles;
 
     for (int i = 0; i < ShaderTypes::get_singleton()->get_modes(VS::ShaderMode(shader_mode)).size(); i++) {
 
@@ -984,8 +984,8 @@ void VisualShader::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
         bool in_enum = false;
         while (render_mode_enums[idx].string) {
             if (StringUtils::begins_with(mode,render_mode_enums[idx].string)) {
-                se_string begin(render_mode_enums[idx].string);
-                se_string option = StringUtils::replace_first(mode,begin + '_', se_string());
+                String begin(render_mode_enums[idx].string);
+                String option = StringUtils::replace_first(mode,begin + '_', String());
                 if (!blend_mode_enums.contains(begin)) {
                     blend_mode_enums[begin] = option;
                 } else {
@@ -1002,19 +1002,19 @@ void VisualShader::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
         }
     }
 
-    for (eastl::pair<const se_string,se_string> &E : blend_mode_enums) {
+    for (eastl::pair<const String,String> &E : blend_mode_enums) {
 
         p_list->push_back(PropertyInfo(VariantType::INT, StringName("modes/" + E.first), PROPERTY_HINT_ENUM, E.second));
     }
 
-    for (const se_string &E : toggles) {
+    for (const String &E : toggles) {
         p_list->push_back(PropertyInfo(VariantType::BOOL, StringName("flags/" + E)));
     }
 
     for (int i = 0; i < TYPE_MAX; i++) {
         for (auto &E : graph[i].nodes) {
 
-            StringName prop_name("nodes/" + se_string(type_string[i])+"/" + itos(E.first));
+            StringName prop_name("nodes/" + String(type_string[i])+"/" + itos(E.first));
 
             if (E.first != NODE_ID_OUTPUT) {
 
@@ -1060,11 +1060,11 @@ Error VisualShader::_write_node(Type type, StringBuilder &global_code, StringBui
 
     // then this node
 
-    code += se_string("// ") + vsnode->get_caption() + ":" + itos(node) + "\n";
-    Vector<se_string> input_vars;
+    code += String("// ") + vsnode->get_caption() + ":" + itos(node) + "\n";
+    Vector<String> input_vars;
 
     input_vars.resize(vsnode->get_input_port_count());
-    se_string *inputs = input_vars.ptrw();
+    String *inputs = input_vars.ptrw();
 
     for (int i = 0; i < input_count; i++) {
         ConnectionKey ck;
@@ -1079,14 +1079,14 @@ Error VisualShader::_write_node(Type type, StringBuilder &global_code, StringBui
             VisualShaderNode::PortType in_type = vsnode->get_input_port_type(i);
             VisualShaderNode::PortType out_type = graph[type].nodes.at(from_node).node->get_output_port_type(from_port);
 
-            se_string src_var = "n_out" + itos(from_node) + "p" + itos(from_port);
+            String src_var = "n_out" + itos(from_node) + "p" + itos(from_port);
 
             if (in_type == VisualShaderNode::PORT_TYPE_SAMPLER && out_type == VisualShaderNode::PORT_TYPE_SAMPLER) {
                 VisualShaderNode *ptr = const_cast<VisualShaderNode *>(graph[type].nodes.at(from_node).node.get());
                 if (ptr->has_method("get_input_real_name")) {
-                    inputs[i] = ptr->call("get_input_real_name").as<se_string>();
+                    inputs[i] = ptr->call("get_input_real_name").as<String>();
                 } else if (ptr->has_method("get_uniform_name")) {
-                    inputs[i] = ptr->call("get_uniform_name").as<se_string>();
+                    inputs[i] = ptr->call("get_uniform_name").as<String>();
                 } else {
                     inputs[i] = "";
                 }
@@ -1137,18 +1137,18 @@ Error VisualShader::_write_node(Type type, StringBuilder &global_code, StringBui
     }
 
     int output_count = vsnode->get_output_port_count();
-    Vector<se_string> output_vars;
+    Vector<String> output_vars;
     output_vars.resize(vsnode->get_output_port_count());
-    se_string *outputs = output_vars.ptrw();
+    String *outputs = output_vars.ptrw();
 
     for (int i = 0; i < output_count; i++) {
 
         outputs[i] = "n_out" + itos(node) + "p" + itos(i);
         switch (vsnode->get_output_port_type(i)) {
-            case VisualShaderNode::PORT_TYPE_SCALAR: code += se_string() + "\tfloat " + outputs[i] + ";\n"; break;
-            case VisualShaderNode::PORT_TYPE_VECTOR: code += se_string() + "\tvec3 " + outputs[i] + ";\n"; break;
-            case VisualShaderNode::PORT_TYPE_BOOLEAN: code += se_string() + "\tbool " + outputs[i] + ";\n"; break;
-            case VisualShaderNode::PORT_TYPE_TRANSFORM: code += se_string() + "\tmat4 " + outputs[i] + ";\n"; break;
+            case VisualShaderNode::PORT_TYPE_SCALAR: code += String() + "\tfloat " + outputs[i] + ";\n"; break;
+            case VisualShaderNode::PORT_TYPE_VECTOR: code += String() + "\tvec3 " + outputs[i] + ";\n"; break;
+            case VisualShaderNode::PORT_TYPE_BOOLEAN: code += String() + "\tbool " + outputs[i] + ";\n"; break;
+            case VisualShaderNode::PORT_TYPE_TRANSFORM: code += String() + "\tmat4 " + outputs[i] + ";\n"; break;
             default: {
             }
         }
@@ -1202,9 +1202,9 @@ void VisualShader::_update_shader() const {
     List<int> insertion_pos;
     static constexpr const char *shader_mode_str[] = { "spatial", "canvas_item", "particles" };
 
-    global_code += se_string() + "shader_type " + shader_mode_str[int(shader_mode)] + ";\n";
+    global_code += String() + "shader_type " + shader_mode_str[int(shader_mode)] + ";\n";
 
-    se_string render_mode;
+    String render_mode;
 
     {
         //fill render mode enums
@@ -1222,7 +1222,7 @@ void VisualShader::_update_shader() const {
                         if (StringUtils::begins_with(mode,render_mode_enums[idx].string)) {
                             if (count == which) {
                                 if (!render_mode.empty()) {
-                                    render_mode += se_string(", ");
+                                    render_mode += String(", ");
                                 }
                                 render_mode += mode;
                                 break;
@@ -1241,7 +1241,7 @@ void VisualShader::_update_shader() const {
             StringName mode = ShaderTypes::get_singleton()->get_modes(VS::ShaderMode(shader_mode))[i];
             if (flags.contains(mode)) {
                 if (!render_mode.empty()) {
-                    render_mode += se_string(", ");
+                    render_mode += String(", ");
                 }
                 render_mode += mode;
             }
@@ -1255,13 +1255,13 @@ void VisualShader::_update_shader() const {
 
     static const char *func_name[TYPE_MAX] = { "vertex", "fragment", "light" };
 
-    se_string global_expressions;
+    String global_expressions;
     for (int i = 0, index = 0; i < TYPE_MAX; i++) {
         for (auto &E : graph[i].nodes) {
             Ref<VisualShaderNodeGlobalExpression> global_expression(dynamic_ref_cast<VisualShaderNodeGlobalExpression>(E.second.node));
             if (global_expression) {
 
-                se_string expr;
+                String expr;
                 expr += "// " + global_expression->get_caption() + ":" + itos(index++) + "\n";
                 expr += global_expression->generate_global(get_mode(), Type(i), -1);
                 expr =StringUtils::replace(expr,"\n", "\n\t");
@@ -1291,7 +1291,7 @@ void VisualShader::_update_shader() const {
             input_connections.insert(to_key, E);
         }
 
-        code += "\nvoid " + se_string(func_name[i]) + "() {\n";
+        code += "\nvoid " + String(func_name[i]) + "() {\n";
 
         Set<int> processed;
         Error err = _write_node(Type(i), global_code, global_code_per_node, global_code_per_func, code, default_tex_params, input_connections, output_connections, NODE_ID_OUTPUT, processed, false, classes);
@@ -1303,10 +1303,10 @@ void VisualShader::_update_shader() const {
 
     //set code secretly
     global_code += "\n\n";
-    se_string final_code = global_code;
+    String final_code = global_code;
     final_code += global_code_per_node;
     final_code += global_expressions;
-    se_string tcode = code;
+    String tcode = code;
     for (int i = 0; i < TYPE_MAX; i++) {
         tcode = StringUtils::insert(tcode,insertion_pos[i], global_code_per_func[Type(i)].as_string());
     }
@@ -1623,7 +1623,7 @@ se_string_view VisualShaderNodeInput::get_caption() const {
     return "Input";
 }
 
-se_string VisualShaderNodeInput::generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const se_string *p_input_vars, const se_string *p_output_vars, bool p_for_preview) const {
+String VisualShaderNodeInput::generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const String *p_input_vars, const String *p_output_vars, bool p_for_preview) const {
 
     if (get_output_port_type(0) == PORT_TYPE_SAMPLER) {
         return "";
@@ -1631,7 +1631,7 @@ se_string VisualShaderNodeInput::generate_code(ShaderMode p_mode, VisualShader::
     if (p_for_preview) {
         int idx = 0;
 
-        se_string code;
+        String code;
 
         while (preview_ports[idx].mode != ShaderMode::MAX) {
             if (preview_ports[idx].mode == shader_mode && preview_ports[idx].shader_type == shader_type && preview_ports[idx].name == input_name) {
@@ -1665,7 +1665,7 @@ se_string VisualShaderNodeInput::generate_code(ShaderMode p_mode, VisualShader::
     } else {
         int idx = 0;
 
-        se_string code;
+        String code;
 
         while (ports[idx].mode != ShaderMode::MAX) {
             if (ports[idx].mode == shader_mode && ports[idx].shader_type == shader_type && ports[idx].name == input_name) {
@@ -1695,13 +1695,13 @@ void VisualShaderNodeInput::set_input_name(StringName p_name) {
 StringName VisualShaderNodeInput::get_input_name() const {
     return input_name;
 }
-se_string VisualShaderNodeInput::get_input_real_name() const {
+String VisualShaderNodeInput::get_input_real_name() const {
 
     int idx = 0;
 
     while (ports[idx].mode != ShaderMode::MAX) {
         if (ports[idx].mode == shader_mode && ports[idx].shader_type == shader_type && ports[idx].name == input_name) {
-            return se_string(ports[idx].string);
+            return String(ports[idx].string);
         }
         idx++;
     }
@@ -1773,7 +1773,7 @@ StringName VisualShaderNodeInput::get_input_index_name(int p_index) const {
 void VisualShaderNodeInput::_validate_property(PropertyInfo &property) const {
 
     if (property.name == "input_name") {
-        se_string port_list;
+        String port_list;
 
         int idx = 0;
 
@@ -1923,7 +1923,7 @@ StringName VisualShaderNodeOutput::get_input_port_name(int p_port) const {
     while (ports[idx].mode != ShaderMode::MAX) {
         if (ports[idx].mode == shader_mode && ports[idx].shader_type == shader_type) {
             if (count == p_port) {
-                return StringName(StringUtils::capitalize(se_string(ports[idx].name)));
+                return StringName(StringUtils::capitalize(String(ports[idx].name)));
             }
             count++;
         }
@@ -1961,17 +1961,17 @@ se_string_view VisualShaderNodeOutput::get_caption() const {
     return "Output";
 }
 
-se_string VisualShaderNodeOutput::generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const se_string *p_input_vars, const se_string *p_output_vars, bool p_for_preview) const {
+String VisualShaderNodeOutput::generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const String *p_input_vars, const String *p_output_vars, bool p_for_preview) const {
 
     int idx = 0;
     int count = 0;
 
-    se_string code;
+    String code;
     while (ports[idx].mode != ShaderMode::MAX) {
         if (ports[idx].mode == shader_mode && ports[idx].shader_type == shader_type) {
 
             if (!p_input_vars[count].empty()) {
-                se_string s(ports[idx].string);
+                String s(ports[idx].string);
                 if (StringUtils::contains(s,':')) {
                     code += "\t" + StringUtils::get_slice(s,':', 0) + " = " + p_input_vars[count] + "." + StringUtils::get_slice(s,':', 1) + ";\n";
                 } else {
@@ -2026,7 +2026,7 @@ Vector2 VisualShaderNodeGroupBase::get_size() const {
     return size;
 }
 
-void VisualShaderNodeGroupBase::set_inputs(const se_string &p_inputs) {
+void VisualShaderNodeGroupBase::set_inputs(const String &p_inputs) {
 
     if (inputs == p_inputs)
         return;
@@ -2055,11 +2055,11 @@ void VisualShaderNodeGroupBase::set_inputs(const se_string &p_inputs) {
     }
 }
 
-se_string VisualShaderNodeGroupBase::get_inputs() const {
+String VisualShaderNodeGroupBase::get_inputs() const {
     return inputs;
 }
 
-void VisualShaderNodeGroupBase::set_outputs(const se_string &p_outputs) {
+void VisualShaderNodeGroupBase::set_outputs(const String &p_outputs) {
 
     if (outputs == p_outputs)
         return;
@@ -2088,11 +2088,11 @@ void VisualShaderNodeGroupBase::set_outputs(const se_string &p_outputs) {
     }
 }
 
-se_string VisualShaderNodeGroupBase::get_outputs() const {
+String VisualShaderNodeGroupBase::get_outputs() const {
     return outputs;
 }
 
-bool VisualShaderNodeGroupBase::is_valid_port_name(const se_string &p_name) const {
+bool VisualShaderNodeGroupBase::is_valid_port_name(const String &p_name) const {
     if (!StringUtils::is_valid_identifier(p_name)) {
         return false;
     }
@@ -2109,9 +2109,9 @@ bool VisualShaderNodeGroupBase::is_valid_port_name(const se_string &p_name) cons
     return true;
 }
 
-void VisualShaderNodeGroupBase::add_input_port(int p_id, int p_type, const se_string &p_name) {
+void VisualShaderNodeGroupBase::add_input_port(int p_id, int p_type, const String &p_name) {
 
-    se_string str = itos(p_id) + "," + itos(p_type) + "," + p_name + ";";
+    String str = itos(p_id) + "," + itos(p_type) + "," + p_name + ";";
     PODVector<se_string_view> inputs_strings = StringUtils::split(inputs,';', false);
     int index = 0;
     if (p_id < inputs_strings.size()) {
@@ -2179,11 +2179,11 @@ bool VisualShaderNodeGroupBase::has_input_port(int p_id) const {
     return input_ports.contains(p_id);
 }
 
-void VisualShaderNodeGroupBase::add_output_port(int p_id, int p_type, const se_string &p_name) {
+void VisualShaderNodeGroupBase::add_output_port(int p_id, int p_type, const String &p_name) {
 
     FixedVector<se_string_view,16,true> outputs_strings;
-    se_string str = itos(p_id) + "," + itos(p_type) + "," + p_name + ";";
-    se_string::split_ref(outputs_strings,outputs,';');
+    String str = itos(p_id) + "," + itos(p_type) + "," + p_name + ";";
+    String::split_ref(outputs_strings,outputs,';');
     int index = 0;
     if (p_id < outputs_strings.size()) {
         for (size_t i = 0; i < outputs_strings.size(); i++) {
@@ -2197,7 +2197,7 @@ void VisualShaderNodeGroupBase::add_output_port(int p_id, int p_type, const se_s
         outputs += str;
     }
     outputs_strings.clear();
-    se_string::split_ref(outputs_strings,outputs,';');
+    String::split_ref(outputs_strings,outputs,';');
     index = 0;
 
     for (size_t i = 0; i < outputs_strings.size(); i++) {
@@ -2292,7 +2292,7 @@ VisualShaderNodeGroupBase::PortType VisualShaderNodeGroupBase::get_input_port_ty
     return input_ports.at(p_id).type;
 }
 
-void VisualShaderNodeGroupBase::set_input_port_name(int p_id, const se_string &p_name) {
+void VisualShaderNodeGroupBase::set_input_port_name(int p_id, const String &p_name) {
 
     ERR_FAIL_COND(!has_input_port(p_id))
     ERR_FAIL_COND(!is_valid_port_name(p_name))
@@ -2358,7 +2358,7 @@ VisualShaderNodeGroupBase::PortType VisualShaderNodeGroupBase::get_output_port_t
     return output_ports.at(p_id).type;
 }
 
-void VisualShaderNodeGroupBase::set_output_port_name(int p_id, const se_string &p_name) {
+void VisualShaderNodeGroupBase::set_output_port_name(int p_id, const String &p_name) {
 
     ERR_FAIL_COND(!has_output_port(p_id))
     ERR_FAIL_COND(!is_valid_port_name(p_name))
@@ -2484,8 +2484,8 @@ void VisualShaderNodeGroupBase::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "editable"), "set_editable", "is_editable");
 }
 
-se_string VisualShaderNodeGroupBase::generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const se_string *p_input_vars, const se_string *p_output_vars, bool p_for_preview) const {
-    return se_string();
+String VisualShaderNodeGroupBase::generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const String *p_input_vars, const String *p_output_vars, bool p_for_preview) const {
+    return String();
 }
 
 VisualShaderNodeGroupBase::VisualShaderNodeGroupBase() {
@@ -2498,10 +2498,10 @@ VisualShaderNodeGroupBase::VisualShaderNodeGroupBase() {
 ////////////// Expression
 
 se_string_view VisualShaderNodeExpression::get_caption() const {
-    return se_string("Expression");
+    return String("Expression");
 }
 
-void VisualShaderNodeExpression::set_expression(const se_string &p_expression) {
+void VisualShaderNodeExpression::set_expression(const String &p_expression) {
     expression = p_expression;
 }
 
@@ -2509,18 +2509,18 @@ void VisualShaderNodeExpression::build() {
     emit_changed();
 }
 
-se_string VisualShaderNodeExpression::get_expression() const {
+String VisualShaderNodeExpression::get_expression() const {
     return expression;
 }
 static const char *pre_symbols[] = { "\t", ",", ";", "{", "[", "]", "(", " ", "-", "*", "/", "+", "=", "&", "|", "!" };
 static const char *post_symbols[] = { "\t", "\n", ",", ";", "}", "[", "]", ")", " ", ".", "-", "*", "/", "+", "=", "&",
     "|", "!" };
 
-se_string VisualShaderNodeExpression::generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const se_string *p_input_vars, const se_string *p_output_vars, bool p_for_preview) const {
+String VisualShaderNodeExpression::generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const String *p_input_vars, const String *p_output_vars, bool p_for_preview) const {
 
-    se_string _expression = expression;
+    String _expression = expression;
 
-    _expression = StringUtils::insert(_expression,0, se_string("\n"));
+    _expression = StringUtils::insert(_expression,0, String("\n"));
     _expression =StringUtils::replace(_expression,"\n", "\n\t\t");
 
     for (int i = 0; i < get_input_port_count(); i++) {
@@ -2542,11 +2542,11 @@ se_string VisualShaderNodeExpression::generate_code(ShaderMode p_mode, VisualSha
         }
     }
 
-    se_string output_initializer;
+    String output_initializer;
 
     for (int i = 0; i < get_output_port_count(); i++) {
         int port_type = get_output_port_type(i);
-        se_string tk;
+        String tk;
         switch (port_type) {
             case PORT_TYPE_SCALAR:
                 tk = "0.0";
@@ -2566,11 +2566,11 @@ se_string VisualShaderNodeExpression::generate_code(ShaderMode p_mode, VisualSha
         output_initializer += "\t" + p_output_vars[i] + "=" + tk + ";\n";
     }
 
-    se_string code;
+    String code;
     code += output_initializer;
-    code += se_string("\t{");
+    code += String("\t{");
     code += _expression;
-    code += se_string("\n\t}");
+    code += String("\n\t}");
 
     return code;
 }
@@ -2593,10 +2593,10 @@ VisualShaderNodeExpression::VisualShaderNodeExpression() {
 ////////////// Global Expression
 
 se_string_view VisualShaderNodeGlobalExpression::get_caption() const {
-    return se_string("GlobalExpression");
+    return String("GlobalExpression");
 }
 
-se_string VisualShaderNodeGlobalExpression::generate_global(ShaderMode p_mode, VisualShader::Type p_type, int p_id) const {
+String VisualShaderNodeGlobalExpression::generate_global(ShaderMode p_mode, VisualShader::Type p_type, int p_id) const {
     return expression;
 }
 

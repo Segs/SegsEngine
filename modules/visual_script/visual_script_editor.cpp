@@ -143,7 +143,7 @@ protected:
             if (what == se_string_view("name")) {
 
                 se_string_view old_name(script->custom_signal_get_argument_name(sig, idx));
-                se_string new_name = p_value;
+                String new_name = p_value;
                 undo_redo->create_action_ui(TTR("Change Argument name"));
                 undo_redo->add_do_method(script.get(), "custom_signal_set_argument_name", sig, idx, new_name);
                 undo_redo->add_undo_method(script.get(), "custom_signal_set_argument_name", sig, idx, old_name);
@@ -187,9 +187,9 @@ protected:
             return;
 
         p_list->push_back(PropertyInfo(VariantType::INT, "argument_count", PROPERTY_HINT_RANGE, "0,256"));
-        se_string argt("Variant");
+        String argt("Variant");
         for (int i = 1; i < (int)VariantType::VARIANT_MAX; i++) {
-            argt += se_string(",") + Variant::get_type_name(VariantType(i));
+            argt += String(",") + Variant::get_type_name(VariantType(i));
         }
 
         for (int i = 0; i < script->custom_signal_get_argument_count(sig); i++) {
@@ -340,9 +340,9 @@ protected:
         if (var == StringName())
             return;
 
-        se_string argt("Variant");
+        String argt("Variant");
         for (int i = 1; i < (int)VariantType::VARIANT_MAX; i++) {
-            argt += se_string(",") + Variant::get_type_name(VariantType(i));
+            argt += String(",") + Variant::get_type_name(VariantType(i));
         }
         p_list->push_back(PropertyInfo(VariantType::INT, "type", PROPERTY_HINT_ENUM, argt.c_str()));
         p_list->push_back(PropertyInfo(script->get_variable_info(var).type, "value", script->get_variable_info(var).hint, StringName(script->get_variable_info(var).hint_string), PROPERTY_USAGE_DEFAULT));
@@ -621,7 +621,7 @@ void VisualScriptEditor::_update_graph(int p_only_id) {
                 gnode->add_child(line_edit);
                 line_edit->connect("text_changed", this, "_expression_text_changed", def_args);
             } else {
-                se_string text(node->get_text());
+                String text(node->get_text());
                 if (!text.empty()) {
                     has_gnode_text = true;
                     Label *label = memnew(Label);
@@ -1017,7 +1017,7 @@ void VisualScriptEditor::_update_members() {
 
         ti->set_text_utf8(0, var_names[fi]);
         Variant var = script->get_variable_default_value(var_names[fi]);
-        ti->set_suffix(0, "= " + se_string(var));
+        ti->set_suffix(0, "= " + String(var));
         ti->set_icon(0, type_icons[(int8_t)script->get_variable_info(var_names[fi]).type]);
 
         ti->set_selectable(0, true);
@@ -1089,8 +1089,8 @@ void VisualScriptEditor::_member_edited() {
     TreeItem *ti = members->get_edited();
     ERR_FAIL_COND(!ti)
 
-    se_string str_name = ti->get_metadata(0);
-    se_string str_new_name = ti->get_text(0);
+    String str_name = ti->get_metadata(0);
+    String str_new_name = ti->get_text(0);
 
     if (str_name == str_new_name)
         return;
@@ -1099,7 +1099,7 @@ void VisualScriptEditor::_member_edited() {
 
     if (!StringUtils::is_valid_identifier(new_name)) {
 
-        EditorNode::get_singleton()->show_warning(StringName(se_string(TTR("Name is not a valid identifier:")) + " " + new_name));
+        EditorNode::get_singleton()->show_warning(StringName(String(TTR("Name is not a valid identifier:")) + " " + new_name));
         updating_members = true;
         ti->set_text_utf8(0, name);
         updating_members = false;
@@ -1108,7 +1108,7 @@ void VisualScriptEditor::_member_edited() {
 
     if (script->has_function(new_name) || script->has_variable(new_name) || script->has_custom_signal(new_name)) {
 
-        EditorNode::get_singleton()->show_warning(StringName(se_string(TTR("Name already in use by another func/var/signal:")) + " " + new_name));
+        EditorNode::get_singleton()->show_warning(StringName(String(TTR("Name already in use by another func/var/signal:")) + " " + new_name));
         updating_members = true;
         ti->set_text_utf8(0, name);
         updating_members = false;
@@ -1205,7 +1205,7 @@ void VisualScriptEditor::_create_function_dialog() {
 }
 
 void VisualScriptEditor::_create_function() {
-    se_string name(_validate_name(func_name_box->get_text_ui().isEmpty() ? "new_func" : func_name_box->get_text()));
+    String name(_validate_name(func_name_box->get_text_ui().isEmpty() ? "new_func" : func_name_box->get_text()));
     selected = StringName(name);
     Vector2 ofs = _get_available_pos();
 
@@ -1318,7 +1318,7 @@ void VisualScriptEditor::_member_button(Object *p_item, int p_column, int p_butt
                 return;
             } else if (p_button == 0) {
 
-                se_string name(_validate_name("new_function"));
+                String name(_validate_name("new_function"));
                 selected = StringName(name);
                 Vector2 ofs = _get_available_pos();
 
@@ -1345,7 +1345,7 @@ void VisualScriptEditor::_member_button(Object *p_item, int p_column, int p_butt
 
         if (ti == root->get_children()->get_next()) {
             //add variable
-            se_string name(_validate_name("new_variable"));
+            String name(_validate_name("new_variable"));
             selected = StringName(name);
 
             undo_redo->create_action_ui(TTR("Add Variable"));
@@ -1361,7 +1361,7 @@ void VisualScriptEditor::_member_button(Object *p_item, int p_column, int p_butt
 
         if (ti == root->get_children()->get_next()->get_next()) {
             //add variable
-            se_string name(_validate_name("new_signal"));
+            String name(_validate_name("new_signal"));
             selected = StringName(name);
 
             undo_redo->create_action_ui(TTR("Add Signal"));
@@ -1563,7 +1563,7 @@ Vector2 VisualScriptEditor::_get_available_pos(bool centered, Vector2 ofs) const
     return ofs;
 }
 
-se_string VisualScriptEditor::_validate_name(se_string_view p_name) const {
+String VisualScriptEditor::_validate_name(se_string_view p_name) const {
 
     StringName valid(p_name.data());
 
@@ -1574,7 +1574,7 @@ se_string VisualScriptEditor::_validate_name(se_string_view p_name) const {
 
         if (exists) {
             counter++;
-            valid = StringName(se_string(p_name) + "_" + ::to_string(counter));
+            valid = StringName(String(p_name) + "_" + ::to_string(counter));
             continue;
         }
 
@@ -1793,13 +1793,13 @@ void VisualScriptEditor::_rename_function(const StringName &name, const StringNa
 
     if (!StringUtils::is_valid_identifier(new_name)) {
 
-        EditorNode::get_singleton()->show_warning(StringName(se_string(TTR("Name is not a valid identifier:")) + " " + new_name));
+        EditorNode::get_singleton()->show_warning(StringName(String(TTR("Name is not a valid identifier:")) + " " + new_name));
         return;
     }
 
     if (script->has_function(new_name) || script->has_variable(new_name) || script->has_custom_signal(new_name)) {
 
-        EditorNode::get_singleton()->show_warning(StringName(se_string(TTR("Name already in use by another func/var/signal:")) + " " + new_name));
+        EditorNode::get_singleton()->show_warning(StringName(String(TTR("Name already in use by another func/var/signal:")) + " " + new_name));
         return;
     }
 
@@ -1863,7 +1863,7 @@ Variant VisualScriptEditor::get_drag_data_fw(const Point2 &p_point, Control *p_f
         if (!it)
             return Variant();
 
-        se_string type = it->get_metadata(0);
+        String type = it->get_metadata(0);
 
         if (type.empty())
             return Variant();
@@ -2135,7 +2135,7 @@ void VisualScriptEditor::drop_data_fw(const Point2 &p_point, const Variant &p_da
 
             for (int i = 0; i < files.size(); i++) {
 
-                Ref<Resource> res(ResourceLoader::load(files[i].as<se_string>()));
+                Ref<Resource> res(ResourceLoader::load(files[i].as<String>()));
                 if (not res)
                     continue;
 
@@ -2428,7 +2428,7 @@ void VisualScriptEditor::set_edited_resource(const RES &p_res) {
     _update_members();
 }
 
-Vector<se_string> VisualScriptEditor::get_functions() {
+Vector<String> VisualScriptEditor::get_functions() {
 
     return {};
 }
@@ -2436,9 +2436,9 @@ Vector<se_string> VisualScriptEditor::get_functions() {
 void VisualScriptEditor::reload_text() {
 }
 
-se_string VisualScriptEditor::get_name() {
+String VisualScriptEditor::get_name() {
 
-    se_string name;
+    String name;
 
     if (!StringUtils::contains(script->get_path(),("local://")) && StringUtils::contains(script->get_path(),("::"))) {
         name = PathUtils::get_file(script->get_path());
@@ -2448,7 +2448,7 @@ se_string VisualScriptEditor::get_name() {
     } else if (!script->get_name().empty())
         name = script->get_name();
     else
-        name = se_string(script->get_class()) + "(" + itos(script->get_instance_id()) + ")";
+        name = String(script->get_class()) + "(" + itos(script->get_instance_id()) + ")";
 
     return name;
 }
@@ -2590,7 +2590,7 @@ void VisualScriptEditor::get_breakpoints(List<int> *p_breakpoints) {
     }
 }
 
-void VisualScriptEditor::add_callback(const StringName & p_function, const PoolVector<se_string> &p_args) {
+void VisualScriptEditor::add_callback(const StringName & p_function, const PoolVector<String> &p_args) {
 
     if (script->has_function((p_function))) {
         _update_members();
@@ -3385,7 +3385,7 @@ void VisualScriptEditor::_port_action_menu(int p_option, const StringName &func)
             } else {
                 n->set_base_type("Object");
             }
-            se_string type_string;
+            String type_string;
             if (script->get_node(func, port_action_node)->get_output_value_port_count() > 0) {
                 type_string = script->get_node(func, port_action_node)->get_output_value_port_info(port_action_output).hint_string;
             }
@@ -3416,7 +3416,7 @@ void VisualScriptEditor::_port_action_menu(int p_option, const StringName &func)
                 property_info = script->get_node(func, port_action_node)->get_output_value_port_info(port_action_output);
             }
             if (tg.type == VariantType::OBJECT) {
-                se_string action;
+                String action;
                 if (property_info.type == VariantType::OBJECT && not property_info.hint_string.empty()) {
                     action = property_info.hint_string;
                 }
@@ -3462,7 +3462,7 @@ void VisualScriptEditor::connect_data(Ref<VisualScriptNode> vnode_old, Ref<Visua
     undo_redo->commit_action();
 }
 
-void VisualScriptEditor::_selected_connect_node(const se_string &p_text, se_string_view p_category, const bool p_connecting) {
+void VisualScriptEditor::_selected_connect_node(const String &p_text, se_string_view p_category, const bool p_connecting) {
 
     Vector2 ofs = graph->get_scroll_ofs() + port_action_pos;
     if (graph->is_using_snap()) {
@@ -3806,7 +3806,7 @@ void VisualScriptEditor::_cancel_connect_node() {
     port_action_new_node = -1;
 }
 
-int VisualScriptEditor::_create_new_node_from_name(const se_string &p_text, const Vector2 &p_point, const StringName &p_func) {
+int VisualScriptEditor::_create_new_node_from_name(const String &p_text, const Vector2 &p_point, const StringName &p_func) {
 
     StringName func = default_func;
     if (p_func != StringName())
@@ -4047,7 +4047,7 @@ void VisualScriptEditor::_menu_option(int p_what) {
             clipboard->data_connections.clear();
             clipboard->sequence_connections.clear();
 
-            Set<se_string> funcs;
+            Set<String> funcs;
             for (int i = 0; i < graph->get_child_count(); i++) {
                 GraphNode *gn = object_cast<GraphNode>(graph->get_child(i));
                 if (gn) {
@@ -4072,7 +4072,7 @@ void VisualScriptEditor::_menu_option(int p_what) {
             if (clipboard->nodes.empty())
                 break;
 
-            for (const se_string &F : funcs) {
+            for (const String &F : funcs) {
                 List<VisualScript::SequenceConnection> sequence_connections;
 
                 script->get_sequence_connection_list(StringName(F), &sequence_connections);
@@ -4322,7 +4322,7 @@ void VisualScriptEditor::_menu_option(int p_what) {
                 }
             }
 
-            se_string new_fn(_validate_name("new_function"));
+            String new_fn(_validate_name("new_function"));
 
             Vector2 ofs = _get_available_pos(false, script->get_node_position(function, start_node) - Vector2(80, 150));
 
@@ -4950,12 +4950,12 @@ void VisualScriptEditor::register_editor() {
 Ref<VisualScriptNode> _VisualScriptEditor::create_node_custom(se_string_view p_name) {
 
     Ref<VisualScriptCustomNode> node(make_ref_counted<VisualScriptCustomNode>());
-    node->set_script(singleton->custom_nodes[se_string(p_name)]);
+    node->set_script(singleton->custom_nodes[String(p_name)]);
     return node;
 }
 
 _VisualScriptEditor *_VisualScriptEditor::singleton = nullptr;
-Map<se_string, RefPtr> _VisualScriptEditor::custom_nodes;
+Map<String, RefPtr> _VisualScriptEditor::custom_nodes;
 
 _VisualScriptEditor::_VisualScriptEditor() {
     singleton = this;
@@ -4966,14 +4966,14 @@ _VisualScriptEditor::~_VisualScriptEditor() {
 }
 
 void _VisualScriptEditor::add_custom_node(se_string_view p_name, se_string_view p_category, const Ref<Script> &p_script) {
-    se_string node_name = se_string("custom/") + p_category + "/" + p_name;
+    String node_name = String("custom/") + p_category + "/" + p_name;
     custom_nodes.emplace(node_name, p_script.get_ref_ptr());
     VisualScriptLanguage::singleton->add_register_func(node_name, &_VisualScriptEditor::create_node_custom);
     emit_signal("custom_nodes_updated");
 }
 
 void _VisualScriptEditor::remove_custom_node(se_string_view p_name, se_string_view p_category) {
-    se_string node_name = se_string("custom/") + p_category + "/" + p_name;
+    String node_name = String("custom/") + p_category + "/" + p_name;
     custom_nodes.erase(node_name);
     VisualScriptLanguage::singleton->remove_register_func(node_name);
     emit_signal("custom_nodes_updated");

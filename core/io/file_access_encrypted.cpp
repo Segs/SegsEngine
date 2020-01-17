@@ -105,7 +105,7 @@ Error FileAccessEncrypted::open_and_parse(FileAccess *p_base, Span<const uint8_t
 
 Error FileAccessEncrypted::open_and_parse_password(FileAccess *p_base, se_string_view p_key, Mode p_mode) {
 
-    se_string cs = StringUtils::md5_text(p_key);
+    String cs = StringUtils::md5_text(p_key);
     ERR_FAIL_COND_V(cs.length() != 32, ERR_INVALID_PARAMETER)
     uint8_t key[32];
     memcpy(key,cs.c_str(),32);
@@ -170,7 +170,7 @@ bool FileAccessEncrypted::is_open() const {
 
     return file != nullptr;
 }
-const se_string &FileAccessEncrypted::get_path() const {
+const String &FileAccessEncrypted::get_path() const {
 
     if (file)
         return file->get_path();
@@ -178,7 +178,7 @@ const se_string &FileAccessEncrypted::get_path() const {
         return null_se_string;
 }
 
-const se_string &FileAccessEncrypted::get_path_absolute() const {
+const String &FileAccessEncrypted::get_path_absolute() const {
 
     if (file)
         return file->get_path_absolute();

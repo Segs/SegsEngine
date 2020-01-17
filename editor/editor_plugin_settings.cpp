@@ -69,14 +69,14 @@ void EditorPluginSettings::update_plugins() {
 
     da->list_dir_begin();
 
-    se_string d = da->get_next();
+    String d = da->get_next();
 
-    Vector<se_string> plugins;
+    Vector<String> plugins;
 
     while (!d.empty()) {
 
         bool dir = da->current_is_dir();
-        se_string path = "res://addons/" + d + "/plugin.cfg";
+        String path = "res://addons/" + d + "/plugin.cfg";
 
         if (dir && FileAccess::exists(path)) {
 
@@ -94,7 +94,7 @@ void EditorPluginSettings::update_plugins() {
     for (int i = 0; i < plugins.size(); i++) {
 
         Ref<ConfigFile> cf(make_ref_counted<ConfigFile>());
-        se_string path = "res://addons/" + plugins[i] + "/plugin.cfg";
+        String path = "res://addons/" + plugins[i] + "/plugin.cfg";
 
         Error err2 = cf->load(path);
 
@@ -198,7 +198,7 @@ void EditorPluginSettings::_cell_button_pressed(Object *p_item, int p_column, in
         return;
     if (p_id == BUTTON_PLUGIN_EDIT) {
         if (p_column == 4) {
-            se_string dir = item->get_metadata(0);
+            String dir = item->get_metadata(0);
             plugin_config_dialog->config("res://addons/" + dir + "/plugin.cfg");
             plugin_config_dialog->popup_centered();
         }
@@ -216,7 +216,7 @@ void EditorPluginSettings::_bind_methods() {
 EditorPluginSettings::EditorPluginSettings() {
 
     plugin_config_dialog = memnew(PluginConfigDialog);
-    plugin_config_dialog->config(se_string());
+    plugin_config_dialog->config(String());
     add_child(plugin_config_dialog);
 
     HBoxContainer *title_hb = memnew(HBoxContainer);

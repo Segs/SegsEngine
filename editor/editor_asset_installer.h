@@ -38,9 +38,9 @@ class EditorAssetInstaller : public ConfirmationDialog {
     GDCLASS(EditorAssetInstaller,ConfirmationDialog)
 
     Tree *tree;
-    se_string package_path;
+    String package_path;
     AcceptDialog *error;
-    Map<se_string, TreeItem *> status_map;
+    Map<String, TreeItem *> status_map;
     bool updating;
     void _update_subitems(TreeItem *p_item, bool p_check, bool p_first = false);
     void _item_edited();

@@ -57,7 +57,7 @@ StringName ResourceImporterTextureAtlas::get_visible_name() const {
 
     return "TextureAtlas";
 }
-void ResourceImporterTextureAtlas::get_recognized_extensions(PODVector<se_string> &p_extensions) const {
+void ResourceImporterTextureAtlas::get_recognized_extensions(PODVector<String> &p_extensions) const {
 
     ImageLoader::get_recognized_extensions(p_extensions);
 }
@@ -94,7 +94,7 @@ StringName ResourceImporterTextureAtlas::get_option_group_file() const {
     return "atlas_file";
 }
 
-Error ResourceImporterTextureAtlas::import(se_string_view p_source_file, se_string_view p_save_path, const Map<StringName, Variant> &p_options, List<se_string> *r_platform_variants, List<se_string> *r_gen_files, Variant *r_metadata) {
+Error ResourceImporterTextureAtlas::import(se_string_view p_source_file, se_string_view p_save_path, const Map<StringName, Variant> &p_options, List<String> *r_platform_variants, List<String> *r_gen_files, Variant *r_metadata) {
 
     /* If this happens, it's because the atlas_file field was not filled, so just import a broken texture */
 
@@ -105,7 +105,7 @@ Error ResourceImporterTextureAtlas::import(se_string_view p_source_file, se_stri
 
     broken_texture->create_from_image(broken);
 
-    se_string target_file = se_string(p_save_path) + ".tex";
+    String target_file = String(p_save_path) + ".tex";
 
     ResourceSaver::save(target_file, RES(broken_texture));
 
@@ -202,7 +202,7 @@ static void _plot_triangle(Vector2 *vertices, const Vector2 &p_offset, bool p_tr
     }
 }
 
-Error ResourceImporterTextureAtlas::import_group_file(se_string_view p_group_file, const Map<se_string, Map<StringName, Variant> > &p_source_file_options, const Map<se_string, se_string> &p_base_paths) {
+Error ResourceImporterTextureAtlas::import_group_file(se_string_view p_group_file, const Map<String, Map<StringName, Variant> > &p_source_file_options, const Map<String, String> &p_base_paths) {
 
     ERR_FAIL_COND_V(p_source_file_options.empty(), ERR_BUG) //should never happen
 
@@ -212,10 +212,10 @@ Error ResourceImporterTextureAtlas::import_group_file(se_string_view p_group_fil
     pack_data_files.resize(p_source_file_options.size());
 
     int idx = -1;
-    for (const eastl::pair<const se_string, Map<StringName, Variant> > &E : p_source_file_options) {
+    for (const eastl::pair<const String, Map<StringName, Variant> > &E : p_source_file_options) {
         ++idx;
         PackData &pack_data = pack_data_files.write[idx];
-        const se_string &source(E.first);
+        const String &source(E.first);
         const Map<StringName, Variant> &options(E.second);
 
         Ref<Image> image(make_ref_counted<Image>());
@@ -337,7 +337,7 @@ Error ResourceImporterTextureAtlas::import_group_file(se_string_view p_group_fil
 
     //save the images
     idx = -1;
-    for (const eastl::pair<const se_string, Map<StringName, Variant> > &E : p_source_file_options) {
+    for (const eastl::pair<const String, Map<StringName, Variant> > &E : p_source_file_options) {
         ++idx;
         PackData &pack_data = pack_data_files.write[idx];
 
@@ -410,7 +410,7 @@ Error ResourceImporterTextureAtlas::import_group_file(se_string_view p_group_fil
             //mesh
         }
 
-        se_string save_path(p_base_paths.at(E.first) + ".res");
+        String save_path(p_base_paths.at(E.first) + ".res");
         ResourceSaver::save(save_path, Ref<Resource>(texture));
     }
 

@@ -242,7 +242,7 @@ bool PackedSourcePCK::try_open_pack(se_string_view p_path, bool p_replace_files)
         f->get_buffer((uint8_t *)cs.data(), sl);
         cs[sl] = 0;
 
-        se_string path(cs.data());
+        String path(cs.data());
 
         uint64_t ofs = f->get_64();
         uint64_t size = f->get_64();

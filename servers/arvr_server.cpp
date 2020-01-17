@@ -180,7 +180,7 @@ void ARVRServer::remove_interface(const Ref<ARVRInterface> &p_interface) {
 
     ERR_FAIL_COND(idx == -1)
 
-    print_verbose(se_string("ARVR: Removed interface") + p_interface->get_name());
+    print_verbose(String("ARVR: Removed interface") + p_interface->get_name());
 
     emit_signal("interface_removed", p_interface->get_name());
     interfaces.remove(idx);
@@ -322,7 +322,7 @@ Ref<ARVRInterface> ARVRServer::get_primary_interface() const {
 void ARVRServer::set_primary_interface(const Ref<ARVRInterface> &p_primary_interface) {
     primary_interface = p_primary_interface;
 
-    print_verbose(se_string("ARVR: Primary interface set to: ") + primary_interface->get_name());
+    print_verbose(String("ARVR: Primary interface set to: ") + primary_interface->get_name());
 };
 
 void ARVRServer::clear_primary_interface_if(const Ref<ARVRInterface> &p_primary_interface) {

@@ -702,7 +702,7 @@ void LineEdit::drop_data(const Point2 &p_point, const Variant &p_data) {
 
         StringUtils::erase(m_priv->text,selection.begin, selected);
 
-        append_at_cursor(p_data.as<se_string>());
+        append_at_cursor(p_data.as<String>());
         selection.begin = cursor_pos - selected;
         selection.end = cursor_pos;
     }
@@ -1043,7 +1043,7 @@ void LineEdit::cut_text() {
 void LineEdit::paste_text() {
 
     // Strip escape characters like \n and \t as they can't be displayed on LineEdit.
-    se_string paste_buffer = StringUtils::strip_escapes(OS::get_singleton()->get_clipboard());
+    String paste_buffer = StringUtils::strip_escapes(OS::get_singleton()->get_clipboard());
 
     if (!paste_buffer.empty()) {
 
@@ -1322,7 +1322,7 @@ const UIString &LineEdit::get_text_ui() const {
     return m_priv->text;
 }
 
-se_string LineEdit::get_text() const
+String LineEdit::get_text() const
 {
     return StringUtils::to_utf8(m_priv->text);
 }
@@ -1575,7 +1575,7 @@ bool LineEdit::is_secret() const {
     return pass;
 }
 
-void LineEdit::set_secret_character(const se_string &p_string) {
+void LineEdit::set_secret_character(const String &p_string) {
 
     // An empty string as the secret character would crash the engine
     // It also wouldn't make sense to use multiple characters as the secret character
@@ -1585,7 +1585,7 @@ void LineEdit::set_secret_character(const se_string &p_string) {
     update();
 }
 
-const se_string &LineEdit::get_secret_character() const {
+const String &LineEdit::get_secret_character() const {
     return secret_character;
 }
 

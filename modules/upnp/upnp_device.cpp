@@ -38,7 +38,7 @@
 IMPL_GDCLASS(UPNPDevice)
 VARIANT_ENUM_CAST(UPNPDevice::IGDStatus)
 
-se_string UPNPDevice::query_external_address() const {
+String UPNPDevice::query_external_address() const {
     ERR_FAIL_COND_V(!is_valid_gateway(), null_se_string)
 
     char addr[16];
@@ -49,10 +49,10 @@ se_string UPNPDevice::query_external_address() const {
 
     ERR_FAIL_COND_V(i != UPNPCOMMAND_SUCCESS, null_se_string)
 
-    return se_string(addr);
+    return String(addr);
 }
 
-int UPNPDevice::add_port_mapping(int port, int port_internal, const se_string &desc, const se_string &proto, int duration) const {
+int UPNPDevice::add_port_mapping(int port, int port_internal, const String &desc, const String &proto, int duration) const {
     ERR_FAIL_COND_V(!is_valid_gateway(), UPNP::UPNP_RESULT_INVALID_GATEWAY)
     ERR_FAIL_COND_V(port < 1 || port > 65535, UPNP::UPNP_RESULT_INVALID_PORT)
     ERR_FAIL_COND_V(port_internal < 0 || port_internal > 65535, UPNP::UPNP_RESULT_INVALID_PORT) // Needs to allow 0 because 0 signifies "use external port as internal port"
@@ -96,43 +96,43 @@ int UPNPDevice::delete_port_mapping(int port, se_string_view proto) const {
     return UPNP::UPNP_RESULT_SUCCESS;
 }
 
-void UPNPDevice::set_description_url(se_string url) {
+void UPNPDevice::set_description_url(String url) {
     description_url = url;
 }
 
-const se_string &UPNPDevice::get_description_url() const {
+const String &UPNPDevice::get_description_url() const {
     return description_url;
 }
 
-void UPNPDevice::set_service_type(se_string type) {
+void UPNPDevice::set_service_type(String type) {
     service_type = type;
 }
 
-const se_string &UPNPDevice::get_service_type() const {
+const String &UPNPDevice::get_service_type() const {
     return service_type;
 }
 
-void UPNPDevice::set_igd_control_url(se_string url) {
+void UPNPDevice::set_igd_control_url(String url) {
     igd_control_url = url;
 }
 
-const se_string &UPNPDevice::get_igd_control_url() const {
+const String &UPNPDevice::get_igd_control_url() const {
     return igd_control_url;
 }
 
-void UPNPDevice::set_igd_service_type(se_string type) {
+void UPNPDevice::set_igd_service_type(String type) {
     igd_service_type = type;
 }
 
-const se_string & UPNPDevice::get_igd_service_type() const {
+const String & UPNPDevice::get_igd_service_type() const {
     return igd_service_type;
 }
 
-void UPNPDevice::set_igd_our_addr(se_string addr) {
+void UPNPDevice::set_igd_our_addr(String addr) {
     igd_our_addr = addr;
 }
 
-const se_string &UPNPDevice::get_igd_our_addr() const {
+const String &UPNPDevice::get_igd_our_addr() const {
     return igd_our_addr;
 }
 

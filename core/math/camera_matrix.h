@@ -96,7 +96,7 @@ struct GODOT_EXPORT CameraMatrix {
     Plane xform4(const Plane &p_vec4) const;
     _FORCE_INLINE_ Vector3 xform(const Vector3 &p_vec3) const;
 
-    operator se_string() const;
+    operator String() const;
 
     void scale_translate_to_fit(const AABB &p_aabb);
     void make_scale(const Vector3 &p_scale);

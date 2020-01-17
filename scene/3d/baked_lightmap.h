@@ -125,7 +125,7 @@ private:
     BakeQuality bake_quality;
     BakeMode bake_mode;
     bool hdr;
-    se_string image_path;
+    String image_path;
 
     Ref<BakedLightmapData> light_data;
 
@@ -153,7 +153,7 @@ private:
     static bool _bake_time(void *ud, float p_secs, float p_progress);
 
     struct BakeTimeData {
-        se_string text;
+        String text;
         int pass;
         uint64_t last_step;
     };
@@ -198,7 +198,7 @@ public:
     bool is_hdr() const;
 
     void set_image_path(se_string_view p_path);
-    const se_string &get_image_path() const;
+    const String &get_image_path() const;
 
     AABB get_aabb() const override;
     PoolVector<Face3> get_faces(uint32_t p_usage_flags) const override;

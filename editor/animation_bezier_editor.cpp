@@ -270,9 +270,9 @@ void AnimationBezierTrackEdit::_notification(int p_what) {
         close_icon_rect.size = close_icon->get_size();
         draw_texture(close_icon, close_icon_rect.position);
 
-        se_string base_path(animation->track_get_path(track));
+        String base_path(animation->track_get_path(track));
         auto end = StringUtils::find(base_path,":");
-        if (end != se_string::npos) {
+        if (end != String::npos) {
             base_path = StringUtils::substr(base_path,0, end + 1);
         }
 
@@ -289,7 +289,7 @@ void AnimationBezierTrackEdit::_notification(int p_what) {
                 node = root->get_node(path);
             }
 
-            se_string text;
+            String text;
 
             int h = font->get_height();
 
@@ -324,10 +324,10 @@ void AnimationBezierTrackEdit::_notification(int p_what) {
         for (int i = 0; i < animation->get_track_count(); i++) {
             if (animation->track_get_type(i) != Animation::TYPE_BEZIER)
                 continue;
-            se_string path(animation->track_get_path(i));
+            String path(animation->track_get_path(i));
             if (!StringUtils::begins_with(path,base_path))
                 continue; //another node
-            path = StringUtils::replace_first(path,base_path, se_string());
+            path = StringUtils::replace_first(path,base_path, String());
 
             Color cc = color;
             Rect2 rect = Rect2(margin, vofs, limit - margin - hsep, font->get_height() + vsep);

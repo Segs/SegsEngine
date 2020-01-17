@@ -10,7 +10,7 @@ class FileAccess;
  * it acts as a simple file logger.
  */
 class RotatedFileLogger : public Logger {
-    se_string base_path;
+    String base_path;
     int max_files;
 
     FileAccess *file;
@@ -21,7 +21,7 @@ class RotatedFileLogger : public Logger {
     void rotate_file();
 
 public:
-    RotatedFileLogger(const se_string &p_base_path, int p_max_files = 10);
+    RotatedFileLogger(const String &p_base_path, int p_max_files = 10);
 
     void logv(se_string_view p_msg, bool p_err) override;
     ~RotatedFileLogger() override;

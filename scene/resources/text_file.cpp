@@ -45,7 +45,7 @@ bool TextFile::has_text() const {
 
 
 
-void TextFile::set_text(const se_string &p_code) {
+void TextFile::set_text(const String &p_code) {
     text = p_code;
 }
 

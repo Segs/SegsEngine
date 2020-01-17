@@ -101,7 +101,7 @@ class CustomPropertyEditor : public Popup {
     Variant v;
     PODVector<se_string_view> field_names;
     int hint;
-    se_string hint_text;
+    String hint_text;
     LineEdit *value_editor[MAX_VALUE_EDITORS];
     int focused_value_editor;
     Label *value_label[MAX_VALUE_EDITORS];

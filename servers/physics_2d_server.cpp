@@ -827,9 +827,9 @@ const StaticCString Physics2DServerManager::setting_property_name("physics/2d/ph
 
 void Physics2DServerManager::on_servers_changed() {
 
-    se_string physics_servers("DEFAULT");
+    String physics_servers("DEFAULT");
     for (int i = get_servers_count() - 1; 0 <= i; --i) {
-        physics_servers+= ',' + se_string(get_server_name(i));
+        physics_servers+= ',' + String(get_server_name(i));
     }
     ProjectSettings::get_singleton()->set_custom_property_info(setting_property_name,
             PropertyInfo(VariantType::STRING, StringName(setting_property_name), PROPERTY_HINT_ENUM, physics_servers));

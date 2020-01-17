@@ -51,7 +51,7 @@ StringName ResourceImporterWAV::get_visible_name() const {
 
     return StringName("Microsoft WAV");
 }
-void ResourceImporterWAV::get_recognized_extensions(PODVector<se_string> &p_extensions) const {
+void ResourceImporterWAV::get_recognized_extensions(PODVector<String> &p_extensions) const {
 
     p_extensions.emplace_back("wav");
 }
@@ -93,14 +93,14 @@ void ResourceImporterWAV::get_import_options(ListPOD<ImportOption> *r_options, i
     r_options->push_back(ImportOption(PropertyInfo(VariantType::INT, "compress/mode", PROPERTY_HINT_ENUM, "Disabled,RAM (Ima-ADPCM)"), 0));
 }
 
-Error ResourceImporterWAV::import(se_string_view p_source_file, se_string_view p_save_path, const Map<StringName, Variant> &p_options, List<se_string> *r_platform_variants, List<se_string> *r_gen_files, Variant *r_metadata) {
+Error ResourceImporterWAV::import(se_string_view p_source_file, se_string_view p_save_path, const Map<StringName, Variant> &p_options, List<String> *r_platform_variants, List<String> *r_gen_files, Variant *r_metadata) {
 
     /* STEP 1, READ WAVE FILE */
 
     Error err;
     FileAccess *file = FileAccess::open(p_source_file, FileAccess::READ, &err);
 
-    ERR_FAIL_COND_V_MSG(err != OK, ERR_CANT_OPEN, se_string("Cannot open file '") + p_source_file + "'.")
+    ERR_FAIL_COND_V_MSG(err != OK, ERR_CANT_OPEN, String("Cannot open file '") + p_source_file + "'.")
 
     /* CHECK RIFF */
     char riff[5];
@@ -535,7 +535,7 @@ Error ResourceImporterWAV::import(se_string_view p_source_file, se_string_view p
     sample->set_loop_end(loop_end);
     sample->set_stereo(format_channels == 2);
 
-    ResourceSaver::save(se_string(p_save_path) + ".sample", sample);
+    ResourceSaver::save(String(p_save_path) + ".sample", sample);
 
     return OK;
 }

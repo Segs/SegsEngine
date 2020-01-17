@@ -49,13 +49,13 @@ void EditorAutoloadSettings::_notification(int p_what) {
 
     if (p_what == NOTIFICATION_ENTER_TREE) {
 
-        PODVector<se_string> afn;
+        PODVector<String> afn;
         ResourceLoader::get_recognized_extensions_for_type("Script", afn);
         ResourceLoader::get_recognized_extensions_for_type("PackedScene", afn);
 
         EditorFileDialog *file_dialog = autoload_add_path->get_file_dialog();
 
-        for (const se_string &E : afn) {
+        for (const String &E : afn) {
 
             file_dialog->add_filter("*." + E);
         }
@@ -69,7 +69,7 @@ void EditorAutoloadSettings::_notification(int p_what) {
     }
 }
 
-bool EditorAutoloadSettings::_autoload_name_is_valid(const StringName &p_name, se_string *r_error) {
+bool EditorAutoloadSettings::_autoload_name_is_valid(const StringName &p_name, String *r_error) {
 
     if (!StringUtils::is_valid_identifier(p_name)) {
         if (r_error)
@@ -104,9 +104,9 @@ bool EditorAutoloadSettings::_autoload_name_is_valid(const StringName &p_name, s
     }
 
     for (int i = 0; i < ScriptServer::get_language_count(); i++) {
-        ListPOD<se_string> keywords;
+        ListPOD<String> keywords;
         ScriptServer::get_language(i)->get_reserved_words(&keywords);
-        for (const se_string &E : keywords) {
+        for (const String &E : keywords) {
             if (E == p_name) {
                 if (r_error)
                     *r_error = TTR("Invalid name.") + "\n" + TTR("Keyword cannot be used as an autoload name.");
@@ -148,13 +148,13 @@ void EditorAutoloadSettings::_autoload_edited() {
     UndoRedo *undo_redo = EditorNode::get_undo_redo();
 
     if (column == 0) {
-        se_string name = ti->get_text(0);
+        String name = ti->get_text(0);
         se_string_view old_name = StringUtils::get_slice(selected_autoload,"/", 1);
 
         if (name == old_name)
             return;
 
-        se_string error;
+        String error;
         if (!_autoload_name_is_valid(StringName(name), &error)) {
             ti->set_text_utf8(0, old_name);
             EditorNode::get_singleton()->show_warning(StringName(error));
@@ -172,7 +172,7 @@ void EditorAutoloadSettings::_autoload_edited() {
         name = "autoload/" + name;
 
         int order = ProjectSettings::get_singleton()->get_order(StringName(selected_autoload));
-        se_string path = ProjectSettings::get_singleton()->get(StringName(selected_autoload));
+        String path = ProjectSettings::get_singleton()->get(StringName(selected_autoload));
 
         undo_redo->create_action_ui(TTR("Rename Autoload"));
 
@@ -200,7 +200,7 @@ void EditorAutoloadSettings::_autoload_edited() {
         StringName base("autoload/" + ti->get_text(0));
 
         int order = ProjectSettings::get_singleton()->get_order(base);
-        se_string path = ProjectSettings::get_singleton()->get(base);
+        String path = ProjectSettings::get_singleton()->get(base);
 
         if (StringUtils::begins_with(path,"*"))
             path = StringUtils::substr(path,1, path.length());
@@ -322,7 +322,7 @@ void EditorAutoloadSettings::_autoload_file_callback(se_string_view p_path) {
 
 Node *EditorAutoloadSettings::_create_autoload(se_string_view p_path) {
     RES res(ResourceLoader::load(p_path));
-    ERR_FAIL_COND_V_MSG(not res, nullptr, se_string("Can't autoload: ") + p_path + ".")
+    ERR_FAIL_COND_V_MSG(not res, nullptr, String("Can't autoload: ") + p_path + ".")
     Node *n = nullptr;
     if (res->is_class("PackedScene")) {
         Ref<PackedScene> ps = dynamic_ref_cast<PackedScene>(res);
@@ -331,17 +331,17 @@ Node *EditorAutoloadSettings::_create_autoload(se_string_view p_path) {
         Ref<Script> s = dynamic_ref_cast<Script>(res);
         StringName ibt = s->get_instance_base_type();
         bool valid_type = ClassDB::is_parent_class(ibt, "Node");
-        ERR_FAIL_COND_V_MSG(!valid_type, nullptr, se_string("Script does not inherit a Node: ") + p_path + ".")
+        ERR_FAIL_COND_V_MSG(!valid_type, nullptr, String("Script does not inherit a Node: ") + p_path + ".")
 
         Object *obj = ClassDB::instance(ibt);
 
-        ERR_FAIL_COND_V_MSG(obj == nullptr, nullptr, "Cannot instance script for autoload, expected 'Node' inheritance, got: " + se_string(ibt) + ".")
+        ERR_FAIL_COND_V_MSG(obj == nullptr, nullptr, "Cannot instance script for autoload, expected 'Node' inheritance, got: " + String(ibt) + ".")
 
         n = object_cast<Node>(obj);
         n->set_script(s.get_ref_ptr());
     }
 
-    ERR_FAIL_COND_V_MSG(!n, nullptr, se_string("Path in autoload not a node or script: ") + p_path + ".")
+    ERR_FAIL_COND_V_MSG(!n, nullptr, String("Path in autoload not a node or script: ") + p_path + ".")
 
     return n;
 }
@@ -374,8 +374,8 @@ void EditorAutoloadSettings::update_autoload() {
         if (!StringUtils::begins_with(pi.name,"autoload/"))
             continue;
 
-        se_string name(StringUtils::get_slice(pi.name,"/", 1));
-        se_string path = ProjectSettings::get_singleton()->get(pi.name);
+        String name(StringUtils::get_slice(pi.name,"/", 1));
+        String path = ProjectSettings::get_singleton()->get(pi.name);
 
         if (name.empty())
             continue;
@@ -496,7 +496,7 @@ Variant EditorAutoloadSettings::get_drag_data_fw(const Point2 &p_point, Control 
     if (autoload_cache.size() <= 1)
         return false;
 
-    PoolVector<se_string> autoloads;
+    PoolVector<String> autoloads;
 
     TreeItem *next = tree->get_next_selected(nullptr);
 
@@ -564,7 +564,7 @@ void EditorAutoloadSettings::drop_data_fw(const Point2 &p_point, const Variant &
     if (section < -1)
         return;
 
-    se_string name;
+    String name;
     bool move_to_back = false;
 
     if (section < 0) {
@@ -587,7 +587,7 @@ void EditorAutoloadSettings::drop_data_fw(const Point2 &p_point, const Variant &
     }
 
     Dictionary drop_data = p_data;
-    PoolVector<se_string> autoloads = drop_data["autoloads"].as<PoolVector<se_string>>();
+    PoolVector<String> autoloads = drop_data["autoloads"].as<PoolVector<String>>();
 
     Vector<int> orders;
     orders.resize(autoload_cache.size());
@@ -623,8 +623,8 @@ void EditorAutoloadSettings::drop_data_fw(const Point2 &p_point, const Variant &
     i = 0;
 
     for (List<AutoLoadInfo>::Element *F = autoload_cache.front(); F; F = F->next()) {
-        undo_redo->add_do_method(ProjectSettings::get_singleton(), "set_order", se_string("autoload/") + F->deref().name, orders[i++]);
-        undo_redo->add_undo_method(ProjectSettings::get_singleton(), "set_order", se_string("autoload/") + F->deref().name, F->deref().order);
+        undo_redo->add_do_method(ProjectSettings::get_singleton(), "set_order", String("autoload/") + F->deref().name, orders[i++]);
+        undo_redo->add_undo_method(ProjectSettings::get_singleton(), "set_order", String("autoload/") + F->deref().name, F->deref().order);
     }
 
     orders.clear();
@@ -640,9 +640,9 @@ void EditorAutoloadSettings::drop_data_fw(const Point2 &p_point, const Variant &
 
 bool EditorAutoloadSettings::autoload_add(const StringName &p_name, se_string_view p_path) {
 
-    se_string name(p_name);
+    String name(p_name);
 
-    se_string error;
+    String error;
     if (!_autoload_name_is_valid(p_name, &error)) {
         EditorNode::get_singleton()->show_warning(StringName(error));
         return false;
@@ -665,7 +665,7 @@ bool EditorAutoloadSettings::autoload_add(const StringName &p_name, se_string_vi
 
     undo_redo->create_action_ui(TTR("Add AutoLoad"));
     // Singleton autoloads are represented with a leading "*" in their path.
-    undo_redo->add_do_property(ProjectSettings::get_singleton(), name, se_string("*") + path);
+    undo_redo->add_do_property(ProjectSettings::get_singleton(), name, String("*") + path);
 
     if (ProjectSettings::get_singleton()->has_setting(StringName(name))) {
         undo_redo->add_undo_property(ProjectSettings::get_singleton(), name, ProjectSettings::get_singleton()->get(StringName(name)));
@@ -686,7 +686,7 @@ bool EditorAutoloadSettings::autoload_add(const StringName &p_name, se_string_vi
 
 void EditorAutoloadSettings::autoload_remove(const StringName &p_name) {
 
-    StringName name(se_string("autoload/") + p_name);
+    StringName name(String("autoload/") + p_name);
 
     UndoRedo *undo_redo = EditorNode::get_undo_redo();
 
@@ -741,8 +741,8 @@ EditorAutoloadSettings::EditorAutoloadSettings() {
         if (!StringUtils::begins_with(pi.name,"autoload/"))
             continue;
 
-        se_string name(StringUtils::get_slice(pi.name,"/", 1));
-        se_string path = ProjectSettings::get_singleton()->get(pi.name);
+        String name(StringUtils::get_slice(pi.name,"/", 1));
+        String path = ProjectSettings::get_singleton()->get(pi.name);
 
         if (name.empty())
             continue;

@@ -124,7 +124,7 @@ Ref<AudioStreamPlayback> AudioStreamMicrophone::instance_playback() {
     return playback;
 }
 
-se_string AudioStreamMicrophone::get_stream_name() const {
+String AudioStreamMicrophone::get_stream_name() const {
 
     //if (audio_stream.is_valid()) {
     //return "Random: " + audio_stream->get_name();
@@ -180,7 +180,7 @@ void AudioStreamPlaybackMicrophone::_mix_internal(AudioFrame *p_buffer, int p_fr
 
 #ifdef DEBUG_ENABLED
     if (capture_ofs > capture_position && (int)(capture_ofs - capture_position) < (p_frames * 2)) {
-        print_verbose(se_string(get_class_name()) + " buffer underrun: capture_position=" + itos(capture_position) + " capture_ofs=" + itos(capture_ofs) + " capture_size=" + itos(capture_size));
+        print_verbose(String(get_class_name()) + " buffer underrun: capture_position=" + itos(capture_position) + " capture_ofs=" + itos(capture_ofs) + " capture_size=" + itos(capture_size));
     }
 #endif
 
@@ -283,7 +283,7 @@ Ref<AudioStreamPlayback> AudioStreamRandomPitch::instance_playback() {
     return playback;
 }
 
-se_string AudioStreamRandomPitch::get_stream_name() const {
+String AudioStreamRandomPitch::get_stream_name() const {
 
     if (audio_stream) {
         return "Random: " + audio_stream->get_name();

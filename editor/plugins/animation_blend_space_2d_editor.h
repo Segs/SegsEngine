@@ -97,7 +97,7 @@ class AnimationNodeBlendSpace2DEditor : public AnimationTreeNodeEditorPlugin {
 
 	PopupMenu *menu;
 	PopupMenu *animations_menu;
-    Vector<se_string> animations_to_add;
+    Vector<String> animations_to_add;
 	Vector2 add_point_pos;
 	Vector<Vector2> points;
 

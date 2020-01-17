@@ -104,10 +104,10 @@ class GDMonoClass {
     GDMonoClass(const StringName &p_namespace, const StringName &p_name, MonoClass *p_class, GDMonoAssembly *p_assembly);
 
 public:
-    static se_string get_full_name(MonoClass *p_mono_class);
+    static String get_full_name(MonoClass *p_mono_class);
     static MonoType *get_mono_type(MonoClass *p_mono_class);
 
-    se_string get_full_name() const;
+    String get_full_name() const;
     MonoType *get_mono_type();
 
     uint32_t get_flags() const;
@@ -143,7 +143,7 @@ public:
     GDMonoMethod *get_method(MonoMethod *p_raw_method);
     GDMonoMethod *get_method(MonoMethod *p_raw_method, const StringName &p_name);
     GDMonoMethod *get_method(MonoMethod *p_raw_method, const StringName &p_name, int p_params_count);
-    GDMonoMethod *get_method_with_desc(const se_string &p_description, bool p_include_namespace);
+    GDMonoMethod *get_method_with_desc(const String &p_description, bool p_include_namespace);
 
     GDMonoField *get_field(const StringName &p_name);
     const Vector<GDMonoField *> &get_all_fields();

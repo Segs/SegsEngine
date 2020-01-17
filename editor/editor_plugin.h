@@ -76,8 +76,8 @@ public:
     ScriptEditor *get_script_editor();
 
     void select_file(se_string_view p_file);
-    se_string get_selected_path() const;
-    const se_string &get_current_path() const;
+    String get_selected_path() const;
+    const String &get_current_path() const;
 
     void inspect_object(Object *p_obj, se_string_view p_for_property = se_string_view());
 
@@ -117,7 +117,7 @@ class EditorPlugin : public Node {
     bool input_event_forwarding_always_enabled;
     bool force_draw_over_forwarding_enabled;
 
-    se_string last_main_screen_name;
+    String last_main_screen_name;
 
 protected:
     static void _bind_methods();
@@ -198,7 +198,7 @@ public:
     virtual void clear(); // clear any temporary data in the editor, reset it (likely new scene or load another scene)
     virtual void save_external_data(); // if editor references external resources/scenes, save them
     virtual void apply_changes(); // if changes are pending in editor, apply them
-    virtual void get_breakpoints(List<se_string> *p_breakpoints);
+    virtual void get_breakpoints(List<String> *p_breakpoints);
     virtual bool get_remove_list(List<Node *> *p_list);
     virtual void set_window_layout(Ref<ConfigFile> p_layout);
     virtual void get_window_layout(Ref<ConfigFile> p_layout);

@@ -39,7 +39,7 @@ class ResourceImporterOGGVorbis : public ResourceImporter {
 public:
     StringName get_importer_name() const override;
     StringName get_visible_name() const override;
-    void get_recognized_extensions(PODVector<se_string> &p_extensions) const override;
+    void get_recognized_extensions(PODVector<String> &p_extensions) const override;
     StringName get_save_extension() const override;
     StringName get_resource_type() const override;
 
@@ -50,7 +50,7 @@ public:
     bool get_option_visibility(const StringName &p_option, const Map<StringName, Variant> &p_options) const override;
 
     Error import(se_string_view p_source_file, se_string_view p_save_path, const Map<StringName, Variant> &p_options,
-            List<se_string> *r_platform_variants, List<se_string> *r_gen_files = nullptr, Variant *r_metadata = nullptr) override;
+            List<String> *r_platform_variants, List<String> *r_gen_files = nullptr, Variant *r_metadata = nullptr) override;
 
     ResourceImporterOGGVorbis();
 };

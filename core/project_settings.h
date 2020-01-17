@@ -76,13 +76,13 @@ protected:
     int last_order;
     int last_builtin_order;
     Map<StringName, VariantContainer> props;
-    se_string resource_path;
+    String resource_path;
     Map<StringName, PropertyInfo> custom_prop_info;
     bool disable_feature_overrides;
     bool using_datapack;
-    ListPOD<se_string> input_presets;
+    ListPOD<String> input_presets;
 
-    Set<se_string> custom_features;
+    Set<String> custom_features;
     Map<StringName, StringName> feature_overrides;
 
     bool _set(const StringName &p_name, const Variant &p_value);
@@ -95,8 +95,8 @@ protected:
     Error _load_settings_binary(se_string_view p_path);
     Error _load_settings_text_or_binary(se_string_view p_text_path, se_string_view p_bin_path);
 
-    Error _save_settings_text(se_string_view p_file, const Map<se_string, ListPOD<se_string> > &props, const CustomMap &p_custom = CustomMap(), const se_string &p_custom_features = {});
-    Error _save_settings_binary(se_string_view p_file, const Map<se_string, ListPOD<se_string> > &props, const CustomMap &p_custom = CustomMap(), const se_string &p_custom_features = {});
+    Error _save_settings_text(se_string_view p_file, const Map<String, ListPOD<String> > &props, const CustomMap &p_custom = CustomMap(), const String &p_custom_features = {});
+    Error _save_settings_binary(se_string_view p_file, const Map<String, ListPOD<String> > &props, const CustomMap &p_custom = CustomMap(), const String &p_custom_features = {});
 
     Error _save_custom_bnd(se_string_view p_file);
 
@@ -118,15 +118,15 @@ public:
     Variant get_setting(const StringName &p_setting) const;
 
     bool has_setting(const StringName &p_var) const;
-    se_string localize_path(se_string_view p_path) const;
-    se_string globalize_path(se_string_view p_path) const;
+    String localize_path(se_string_view p_path) const;
+    String globalize_path(se_string_view p_path) const;
 
     void set_initial_value(const StringName &p_name, const Variant &p_value);
     void set_restart_if_changed(const StringName &p_name, bool p_restart);
     bool property_can_revert(se_string_view p_name);
     Variant property_get_revert(se_string_view p_name);
 
-    const se_string &get_resource_path() const;
+    const String &get_resource_path() const;
 
     static ProjectSettings *get_singleton();
 
@@ -137,14 +137,14 @@ public:
 
     Error setup(se_string_view p_path, se_string_view p_main_pack, bool p_upwards = false);
 
-    Error save_custom(se_string_view p_path = {}, const CustomMap &p_custom = CustomMap(), const PODVector<se_string> &p_custom_features = {}, bool p_merge_with_current = true);
+    Error save_custom(se_string_view p_path = {}, const CustomMap &p_custom = CustomMap(), const PODVector<String> &p_custom_features = {}, bool p_merge_with_current = true);
     Error save();
     void set_custom_property_info(const StringName &p_prop, const PropertyInfo &p_info);
     const Map<StringName, PropertyInfo> &get_custom_property_info() const;
 
-    PODVector<se_string> get_optimizer_presets() const;
+    PODVector<String> get_optimizer_presets() const;
 
-    const ListPOD<se_string> &get_input_presets() const { return input_presets; }
+    const ListPOD<String> &get_input_presets() const { return input_presets; }
 
     void set_disable_feature_overrides(bool p_disable);
 

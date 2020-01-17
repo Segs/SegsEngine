@@ -116,7 +116,7 @@ Node *SceneState::instance(GenEditState p_edit_state) const {
 #ifdef DEBUG_ENABLED
             if (!nparent && (n.parent & FLAG_ID_IS_PATH)) {
 
-                WARN_PRINT("Parent path '" + (se_string)node_paths[n.parent & FLAG_MASK] + "' for node '" + snames[n.name] + "' has vanished when instancing: '" + (se_string)get_path() + "'.")
+                WARN_PRINT("Parent path '" + (String)node_paths[n.parent & FLAG_MASK] + "' for node '" + snames[n.name] + "' has vanished when instancing: '" + (String)get_path() + "'.")
             }
 #endif
             parent = nparent;
@@ -138,7 +138,7 @@ Node *SceneState::instance(GenEditState p_edit_state) const {
             //instance a scene into this node
             if (n.instance & FLAG_INSTANCE_IS_PLACEHOLDER) {
 
-                se_string path = props[n.instance & FLAG_MASK];
+                String path = props[n.instance & FLAG_MASK];
                 if (disable_placeholders) {
 
                     Ref<PackedScene> sdata = dynamic_ref_cast<PackedScene>(ResourceLoader::load(path, "PackedScene"));
@@ -164,7 +164,7 @@ Node *SceneState::instance(GenEditState p_edit_state) const {
                 node = parent->_get_child_by_name(snames[n.name]);
 #ifdef DEBUG_ENABLED
                 if (!node) {
-                    WARN_PRINT("Node '" + (se_string)ret_nodes[0]->get_path_to(parent) + "/" + snames[n.name] + "' was modified from inside an instance, but it has vanished.")
+                    WARN_PRINT("Node '" + (String)ret_nodes[0]->get_path_to(parent) + "/" + snames[n.name] + "' was modified from inside an instance, but it has vanished.")
                 }
 #endif
             }
@@ -893,7 +893,7 @@ Error SceneState::pack(Node *p_scene) {
 
     //if using scene inheritance, pack the scene it inherits from
     if (scene->get_scene_inherited_state()) {
-        se_string path = scene->get_scene_inherited_state()->get_path();
+        String path = scene->get_scene_inherited_state()->get_path();
         Ref<PackedScene> instance = dynamic_ref_cast<PackedScene>(ResourceLoader::load(path));
         if (instance) {
 
@@ -943,7 +943,7 @@ void SceneState::set_path(se_string_view p_path) {
     path = p_path;
 }
 
-const se_string &SceneState::get_path() const {
+const String &SceneState::get_path() const {
 
     return path;
 }
@@ -1131,12 +1131,12 @@ void SceneState::set_bundled_scene(const Dictionary &p_dictionary) {
     const PoolVector<int> sconns = p_dictionary["conns"];
     ERR_FAIL_COND(sconns.size() < conn_count)
 
-    PoolVector<se_string> snames = p_dictionary["names"].as<PoolVector<se_string>>();
+    PoolVector<String> snames = p_dictionary["names"].as<PoolVector<String>>();
     if (snames.size()) {
 
         int namecount = snames.size();
         names.resize(namecount);
-        PoolVector<se_string>::Read r = snames.read();
+        PoolVector<String>::Read r = snames.read();
         for (size_t i = 0; i < names.size(); i++)
             names[i] = StringName(r[i]);
     }
@@ -1233,12 +1233,12 @@ void SceneState::set_bundled_scene(const Dictionary &p_dictionary) {
 
 Dictionary SceneState::get_bundled_scene() const {
 
-    PoolVector<se_string> rnames;
+    PoolVector<String> rnames;
     rnames.resize(names.size());
 
     if (!names.empty()) {
 
-        PoolVector<se_string>::Write r = rnames.write();
+        PoolVector<String>::Write r = rnames.write();
 
         for (size_t i = 0; i < names.size(); i++)
             r[i] = names[i];
@@ -1367,15 +1367,15 @@ Ref<PackedScene> SceneState::get_node_instance(int p_idx) const {
     return Ref<PackedScene>();
 }
 
-se_string SceneState::get_node_instance_placeholder(int p_idx) const {
+String SceneState::get_node_instance_placeholder(int p_idx) const {
 
-    ERR_FAIL_INDEX_V(p_idx, nodes.size(), se_string());
+    ERR_FAIL_INDEX_V(p_idx, nodes.size(), String());
 
     if (nodes[p_idx].instance >= 0 && (nodes[p_idx].instance & FLAG_INSTANCE_IS_PLACEHOLDER)) {
         return variants[nodes[p_idx].instance & FLAG_MASK];
     }
 
-    return se_string();
+    return String();
 }
 
 Vector<StringName> SceneState::get_node_groups(int p_idx) const {
@@ -1640,10 +1640,10 @@ void SceneState::add_editable_instance(const NodePath &p_path) {
     editable_instances.push_back(p_path);
 }
 
-PoolVector<se_string> SceneState::_get_node_groups(int p_idx) const {
+PoolVector<String> SceneState::_get_node_groups(int p_idx) const {
 
     Vector<StringName> groups = get_node_groups(p_idx);
-    PoolVector<se_string> ret;
+    PoolVector<String> ret;
 
     for (int i = 0; i < groups.size(); i++)
         ret.push_back(groups[i].asCString());

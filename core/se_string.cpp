@@ -2,7 +2,7 @@
 
 template class EXPORT_TEMPLATE_DEFINE(GODOT_EXPORT) eastl::basic_string<char, wrap_allocator>;
 
-const se_string null_se_string;
+const String null_se_string;
 
 int Vsnprintf8(char* pDestination, size_t n, const char* pFormat, va_list arguments)
 {

@@ -803,7 +803,7 @@ void CodeTextEditor::_code_complete_timer_timeout() {
 void CodeTextEditor::_complete_request() {
 
     List<ScriptCodeCompletionOption> entries;
-    se_string ctext = text_editor->get_text_for_completion_utf8();
+    String ctext = text_editor->get_text_for_completion_utf8();
     _code_complete_script(ctext, &entries);
     bool forced = false;
     if (code_complete_func) {

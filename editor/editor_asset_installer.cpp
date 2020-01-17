@@ -68,7 +68,7 @@ void EditorAssetInstaller::_item_edited() {
     if (!item)
         return;
 
-    se_string path = item->get_metadata(0);
+    String path = item->get_metadata(0);
 
     updating = true;
     if (path.empty()) { //a dir
@@ -87,7 +87,7 @@ void EditorAssetInstaller::_item_edited() {
 void EditorAssetInstaller::open(se_string_view p_path, int p_depth) {
 
     package_path = p_path;
-    Set<se_string> files_sorted;
+    Set<String> files_sorted;
 
     FileAccess *src_f = nullptr;
     zlib_filefunc_def io = zipio_create_io_from_file(&src_f);
@@ -108,7 +108,7 @@ void EditorAssetInstaller::open(se_string_view p_path, int p_depth) {
         char fname[16384];
         unzGetCurrentFileInfo(pkg, &info, fname, 16384, nullptr, 0, nullptr, 0);
 
-        se_string name(fname);
+        String name(fname);
         files_sorted.insert(name);
 
         ret = unzGoToNextFile(pkg);
@@ -138,11 +138,11 @@ void EditorAssetInstaller::open(se_string_view p_path, int p_depth) {
     root->set_icon(0, get_icon("folder", "FileDialog"));
     root->set_text(0, "res://");
     root->set_editable(0, true);
-    Map<se_string, TreeItem *> dir_map;
+    Map<String, TreeItem *> dir_map;
 
-    for (const se_string &E : files_sorted) {
+    for (const String &E : files_sorted) {
 
-        se_string path = E;
+        String path = E;
         int depth = p_depth;
         bool skip = false;
         while (depth > 0) {
@@ -172,7 +172,7 @@ void EditorAssetInstaller::open(se_string_view p_path, int p_depth) {
         if (pp == -1) {
             parent = root;
         } else {
-            se_string ppath(StringUtils::substr(path,0, pp));
+            String ppath(StringUtils::substr(path,0, pp));
             ERR_CONTINUE(!dir_map.contains(ppath))
             parent = dir_map[ppath];
         }
@@ -183,12 +183,12 @@ void EditorAssetInstaller::open(se_string_view p_path, int p_depth) {
         ti->set_editable(0, true);
         if (isdir) {
             dir_map[path] = ti;
-            ti->set_text_utf8(0, se_string(PathUtils::get_file(path)) + "/");
+            ti->set_text_utf8(0, String(PathUtils::get_file(path)) + "/");
             ti->set_icon(0, get_icon("folder", "FileDialog"));
             ti->set_metadata(0, se_string_view());
         } else {
-            se_string file(PathUtils::get_file(path));
-            se_string extension(StringUtils::to_lower(PathUtils::get_extension(file)));
+            String file(PathUtils::get_file(path));
+            String extension(StringUtils::to_lower(PathUtils::get_extension(file)));
             if (extension_guess.contains(extension)) {
                 ti->set_icon(0, extension_guess[extension]);
             } else {
@@ -196,7 +196,7 @@ void EditorAssetInstaller::open(se_string_view p_path, int p_depth) {
             }
             ti->set_text_utf8(0, file);
 
-            se_string res_path = "res://" + path;
+            String res_path = "res://" + path;
             if (FileAccess::exists(res_path)) {
                 ti->set_custom_color(0, get_color("error_color", "Editor"));
                 ti->set_tooltip(0, StringName(res_path + " (Already Exists)"));
@@ -228,7 +228,7 @@ void EditorAssetInstaller::ok_pressed() {
 
     int ret = unzGoToFirstFile(pkg);
 
-    Vector<se_string> failed_files;
+    Vector<String> failed_files;
 
     ProgressDialog::get_singleton()->add_task("uncompress", TTR("Uncompressing Assets"), status_map.size());
 
@@ -240,14 +240,14 @@ void EditorAssetInstaller::ok_pressed() {
         char fname[16384];
         ret = unzGetCurrentFileInfo(pkg, &info, fname, 16384, nullptr, 0, nullptr, 0);
 
-        se_string name(fname);
+        String name(fname);
 
         if (status_map.contains(name) && status_map[name]->is_checked(0)) {
 
-            se_string path = status_map[name]->get_metadata(0);
+            String path = status_map[name]->get_metadata(0);
             if (path.empty()) { // a dir
 
-                se_string dirpath;
+                String dirpath;
                 TreeItem *t = status_map[name];
                 while (t) {
                     dirpath = t->get_text(0) + dirpath;
@@ -292,7 +292,7 @@ void EditorAssetInstaller::ok_pressed() {
     unzClose(pkg);
 
     if (!failed_files.empty()) {
-        se_string msg("The following files failed extraction from package:\n\n");
+        String msg("The following files failed extraction from package:\n\n");
         for (int i = 0; i < failed_files.size(); i++) {
 
             if (i > 15) {

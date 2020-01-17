@@ -172,7 +172,7 @@ void EditorExportPlatformWindows::get_export_options(List<ExportOption> *r_optio
 }
 
 void EditorExportPlatformWindows::_rcedit_add_data(const Ref<EditorExportPreset> &p_preset, se_string_view p_path) {
-    se_string rcedit_path = EditorSettings::get_singleton()->get("export/windows/rcedit");
+    String rcedit_path = EditorSettings::get_singleton()->get("export/windows/rcedit");
 
     if (rcedit_path.empty()) {
         return;
@@ -185,7 +185,7 @@ void EditorExportPlatformWindows::_rcedit_add_data(const Ref<EditorExportPreset>
 
 #ifndef WINDOWS_ENABLED
     // On non-Windows we need WINE to run rcedit
-    se_string wine_path = EditorSettings::get_singleton()->get("export/windows/wine");
+    String wine_path = EditorSettings::get_singleton()->get("export/windows/wine");
 
     if (not wine_path.empty() && !FileAccess::exists(wine_path)) {
         ERR_PRINT("Could not find wine executable at " + wine_path + ", no icon or app information data will be included.")
@@ -197,17 +197,17 @@ void EditorExportPlatformWindows::_rcedit_add_data(const Ref<EditorExportPreset>
     }
 #endif
 
-    se_string icon_path = ProjectSettings::get_singleton()->globalize_path(p_preset->get("application/icon").as<se_string>());
-    se_string file_verion = p_preset->get("application/file_version");
-    se_string product_version = p_preset->get("application/product_version");
-    se_string company_name = p_preset->get("application/company_name");
-    se_string product_name = p_preset->get("application/product_name");
-    se_string file_description = p_preset->get("application/file_description");
-    se_string copyright = p_preset->get("application/copyright");
-    se_string trademarks = p_preset->get("application/trademarks");
-    se_string comments = p_preset->get("application/comments");
+    String icon_path = ProjectSettings::get_singleton()->globalize_path(p_preset->get("application/icon").as<String>());
+    String file_verion = p_preset->get("application/file_version");
+    String product_version = p_preset->get("application/product_version");
+    String company_name = p_preset->get("application/company_name");
+    String product_name = p_preset->get("application/product_name");
+    String file_description = p_preset->get("application/file_description");
+    String copyright = p_preset->get("application/copyright");
+    String trademarks = p_preset->get("application/trademarks");
+    String comments = p_preset->get("application/comments");
 
-    ListPOD<se_string> args;
+    ListPOD<String> args;
     args.emplace_back(p_path);
     if (!icon_path.empty()) {
         args.push_back(("--set-icon"));
@@ -257,10 +257,10 @@ void EditorExportPlatformWindows::_rcedit_add_data(const Ref<EditorExportPreset>
 }
 
 Error EditorExportPlatformWindows::_code_sign(const Ref<EditorExportPreset> &p_preset, se_string_view p_path) {
-    ListPOD<se_string> args;
+    ListPOD<String> args;
 
 #ifdef WINDOWS_ENABLED
-    se_string signtool_path = EditorSettings::get_singleton()->get("export/windows/signtool");
+    String signtool_path = EditorSettings::get_singleton()->get("export/windows/signtool");
     if (not signtool_path.empty() && !FileAccess::exists(signtool_path)) {
         ERR_PRINT("Could not find signtool executable at " + signtool_path + ", aborting.");
         return ERR_FILE_NOT_FOUND;
@@ -269,7 +269,7 @@ Error EditorExportPlatformWindows::_code_sign(const Ref<EditorExportPreset> &p_p
         signtool_path = "signtool"; // try to run signtool from PATH
     }
 #else
-    se_string signtool_path = EditorSettings::get_singleton()->get("export/windows/osslsigncode");
+    String signtool_path = EditorSettings::get_singleton()->get("export/windows/osslsigncode");
     if (not signtool_path.empty() && !FileAccess::exists(signtool_path)) {
         ERR_PRINT("Could not find osslsigncode executable at " + signtool_path + ", aborting.")
         return ERR_FILE_NOT_FOUND;
@@ -371,9 +371,9 @@ Error EditorExportPlatformWindows::_code_sign(const Ref<EditorExportPreset> &p_p
     }
 
     //user options
-    PoolVector<se_string> user_args(p_preset->get("codesign/custom_options").as<PoolVector<se_string>>());
+    PoolVector<String> user_args(p_preset->get("codesign/custom_options").as<PoolVector<String>>());
     for (int i = 0; i < user_args.size(); i++) {
-        se_string user_arg(StringUtils::strip_edges(user_args[i]));
+        String user_arg(StringUtils::strip_edges(user_args[i]));
         if (!user_arg.empty()) {
             args.emplace_back(eastl::move(user_arg));
         }
@@ -388,11 +388,11 @@ Error EditorExportPlatformWindows::_code_sign(const Ref<EditorExportPreset> &p_p
     args.emplace_back(p_path);
 #endif
 
-    se_string str;
+    String str;
     Error err = OS::get_singleton()->execute(signtool_path, args, true, nullptr, &str, nullptr, true);
     ERR_FAIL_COND_V(err != OK, err)
 
-    print_line("codesign (" + se_string(p_path) + "): " + str);
+    print_line("codesign (" + String(p_path) + "): " + str);
 #ifndef WINDOWS_ENABLED
     if (StringUtils::contains(str,"SignTool Error")) {
 #else

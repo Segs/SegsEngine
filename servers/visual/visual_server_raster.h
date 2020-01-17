@@ -162,7 +162,7 @@ public:
     BIND3(texture_set_detect_normal_callback, RID, TextureDetectCallback, void *)
 
     BIND2(texture_set_path, RID, se_string_view)
-    BIND1RC(const se_string &, texture_get_path, RID)
+    BIND1RC(const String &, texture_get_path, RID)
     BIND1(texture_set_shrink_all_x2_on_set_data, bool)
     BIND1(texture_debug_usage, List<TextureInfo> *)
 
@@ -181,8 +181,8 @@ public:
 
     BIND0R(RID, shader_create)
 
-    BIND2(shader_set_code, RID, const se_string &)
-    BIND1RC(se_string, shader_get_code, RID)
+    BIND2(shader_set_code, RID, const String &)
+    BIND1RC(String, shader_get_code, RID)
 
     BIND2C(shader_get_param_list, RID, PODVector<PropertyInfo> *)
 

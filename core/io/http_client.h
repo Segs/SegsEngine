@@ -163,7 +163,7 @@ private:
     Status status;
     IP::ResolverID resolving;
     int conn_port;
-    se_string conn_host;
+    String conn_host;
     bool ssl;
     bool ssl_verify_host;
     bool blocking;
@@ -184,7 +184,7 @@ private:
     Ref<StreamPeer> connection;
 
     int response_num;
-    PODVector<se_string> response_headers;
+    PODVector<String> response_headers;
     int read_chunk_size;
 
     Error _get_http_data(uint8_t *p_buffer, int p_bytes, int &r_received);
@@ -193,19 +193,19 @@ private:
 #include "platform/javascript/http_client.h.inc"
 #endif
 
-    PoolVector<se_string> _get_response_headers();
+    PoolVector<String> _get_response_headers();
     Dictionary _get_response_headers_as_dictionary();
 
     static void _bind_methods();
 
 public:
-    Error connect_to_host(const se_string &p_host, int p_port = -1, bool p_ssl = false, bool p_verify_host = true);
+    Error connect_to_host(const String &p_host, int p_port = -1, bool p_ssl = false, bool p_verify_host = true);
 
     void set_connection(const Ref<StreamPeer> &p_connection);
     Ref<StreamPeer> get_connection() const;
 
-    Error request_raw(Method p_method, se_string_view p_url, const PODVector<se_string> &p_headers, const PoolVector<uint8_t> &p_body);
-    Error request(Method p_method, se_string_view p_url, const PODVector<se_string> &p_headers, const se_string &p_body = {});
+    Error request_raw(Method p_method, se_string_view p_url, const PODVector<String> &p_headers, const PoolVector<uint8_t> &p_body);
+    Error request(Method p_method, se_string_view p_url, const PODVector<String> &p_headers, const String &p_body = {});
 
     void close();
 
@@ -214,7 +214,7 @@ public:
     bool has_response() const;
     bool is_response_chunked() const;
     int get_response_code() const;
-    Error get_response_headers(List<se_string> *r_response);
+    Error get_response_headers(List<String> *r_response);
     int get_response_body_length() const;
 
     PoolByteArray read_response_body_chunk(); // Can't get body as partial text because of most encodings UTF8, gzip, etc.
@@ -227,7 +227,7 @@ public:
 
     Error poll();
 
-    se_string query_string_from_dict(const Dictionary &p_dict);
+    String query_string_from_dict(const Dictionary &p_dict);
 
     HTTPClient();
     ~HTTPClient() override;

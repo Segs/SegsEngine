@@ -48,7 +48,7 @@ public:
 
     virtual void editor_set_section_unfold(se_string_view p_section, bool p_unfolded)=0;
     virtual bool editor_is_section_unfolded(se_string_view p_section) const = 0;
-    virtual const Set<se_string> &editor_get_section_folding() const =0;
+    virtual const Set<String> &editor_get_section_folding() const =0;
     virtual void editor_clear_section_folding()=0;
     virtual ~IObjectTooling() = default;
 private:

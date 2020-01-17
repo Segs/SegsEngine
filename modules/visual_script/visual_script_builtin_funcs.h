@@ -112,7 +112,7 @@ public:
 
     static int get_func_argument_count(BuiltinFunc p_func);
     static se_string_view get_func_name(BuiltinFunc p_func);
-    static void exec_func(BuiltinFunc p_func, const Variant **p_inputs, Variant *r_return, Variant::CallError &r_error, se_string &r_error_str);
+    static void exec_func(BuiltinFunc p_func, const Variant **p_inputs, Variant *r_return, Variant::CallError &r_error, String &r_error_str);
     static BuiltinFunc find_function(se_string_view p_string);
 
 private:

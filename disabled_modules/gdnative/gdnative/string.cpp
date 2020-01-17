@@ -32,7 +32,7 @@
 
 #include "core/string_name.h"
 #include "core/ustring.h"
-#include "core/se_string.h"
+#include "core/String.h"
 #include "core/string_utils.h"
 #include "core/variant.h"
 #include "core/vector.h"
@@ -64,14 +64,14 @@ void GDAPI godot_char_string_destroy(godot_char_string *p_cs) {
 }
 
 void GDAPI godot_string_new(godot_string *r_dest) {
-    se_string *dest = (se_string *)r_dest;
-    memnew_placement(dest, se_string);
+    String *dest = (String *)r_dest;
+    memnew_placement(dest, String);
 }
 
 void GDAPI godot_string_new_copy(godot_string *r_dest, const godot_string *p_src) {
-    se_string *dest = (se_string *)r_dest;
-    const se_string *src = (const se_string *)p_src;
-    memnew_placement(dest, se_string(*src));
+    String *dest = (String *)r_dest;
+    const String *src = (const String *)p_src;
+    memnew_placement(dest, String(*src));
 }
 
 void GDAPI godot_string_new_with_wide_string(godot_string *r_dest, const char16_t *p_contents, const int p_size) {
@@ -323,46 +323,46 @@ godot_bool GDAPI godot_string_is_numeric(const godot_string *p_self) {
 }
 
 godot_bool GDAPI godot_string_is_subsequence_of(const godot_string *p_self, const godot_string *p_string) {
-    const se_string *self = (const se_string *)p_self;
-    const se_string *string = (const se_string *)p_string;
+    const String *self = (const String *)p_self;
+    const String *string = (const String *)p_string;
 
     return StringUtils::is_subsequence_of(*self,*string);
 }
 
 godot_bool GDAPI godot_string_is_subsequence_ofi(const godot_string *p_self, const godot_string *p_string) {
-    const se_string *self = (const se_string *)p_self;
-    const se_string *string = (const se_string *)p_string;
+    const String *self = (const String *)p_self;
+    const String *string = (const String *)p_string;
 
     return StringUtils::is_subsequence_of(String(*self),String(*string),StringUtils::CaseInsensitive);
 }
 
 godot_string GDAPI godot_string_lpad(const godot_string *p_self, godot_int p_min_length) {
-    const se_string *self = (const se_string *)p_self;
+    const String *self = (const String *)p_self;
     godot_string result;
-    memnew_placement(&result, se_string(StringUtils::lpad(*self,p_min_length)));
+    memnew_placement(&result, String(StringUtils::lpad(*self,p_min_length)));
 
     return result;
 }
 
 godot_string GDAPI godot_string_lpad_with_custom_character(const godot_string *p_self, godot_int p_min_length, const godot_string *p_character) {
-    const se_string *self = (const se_string *)p_self;
-    const se_string *character = (const se_string *)p_character;
+    const String *self = (const String *)p_self;
+    const String *character = (const String *)p_character;
     godot_string result;
-    memnew_placement(&result, se_string(StringUtils::lpad(*self,p_min_length, character->front())));
+    memnew_placement(&result, String(StringUtils::lpad(*self,p_min_length, character->front())));
 
     return result;
 }
 
 godot_bool GDAPI godot_string_match(const godot_string *p_self, const godot_string *p_wildcard) {
-    const se_string *self = (const se_string *)p_self;
-    const se_string *wildcard = (const se_string *)p_wildcard;
+    const String *self = (const String *)p_self;
+    const String *wildcard = (const String *)p_wildcard;
 
     return StringUtils::match(*self,*wildcard);
 }
 
 godot_bool GDAPI godot_string_matchn(const godot_string *p_self, const godot_string *p_wildcard) {
-    const se_string *self = (const se_string *)p_self;
-    const se_string *wildcard = (const se_string *)p_wildcard;
+    const String *self = (const String *)p_self;
+    const String *wildcard = (const String *)p_wildcard;
 
     return StringUtils::match(*self,*wildcard,StringUtils::CaseInsensitive);
 }
@@ -499,10 +499,10 @@ godot_string GDAPI godot_string_rpad(const godot_string *p_self, godot_int p_min
 }
 
 godot_string GDAPI godot_string_rpad_with_custom_character(const godot_string *p_self, godot_int p_min_length, const godot_string *p_character) {
-    const se_string *self = (const se_string *)p_self;
-    const se_string *character = (const se_string *)p_character;
+    const String *self = (const String *)p_self;
+    const String *character = (const String *)p_character;
     godot_string result;
-    memnew_placement(&result, se_string(StringUtils::rpad(*self,p_min_length, character->front())));
+    memnew_placement(&result, String(StringUtils::rpad(*self,p_min_length, character->front())));
 
     return result;
 }
@@ -699,9 +699,9 @@ godot_array GDAPI godot_string_split_floats_allows_empty(const godot_string *p_s
 }
 
 godot_array GDAPI godot_string_split_floats_mk(const godot_string *p_self, const godot_array *p_splitters) {
-    const se_string *self = (const se_string *)p_self;
+    const String *self = (const String *)p_self;
 
-    se_string splitters;
+    String splitters;
     Array *splitter_proxy = (Array *)p_splitters;
     splitters.resize(splitter_proxy->size());
     for (int i = 0; i < splitter_proxy->size(); i++) {
@@ -722,7 +722,7 @@ godot_array GDAPI godot_string_split_floats_mk(const godot_string *p_self, const
 }
 
 godot_array GDAPI godot_string_split_floats_mk_allows_empty(const godot_string *p_self, const godot_array *p_splitters) {
-    const se_string *self = (const se_string *)p_self;
+    const String *self = (const String *)p_self;
 
     Vector<String> splitters;
     Array *splitter_proxy = (Array *)p_splitters;

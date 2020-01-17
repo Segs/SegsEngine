@@ -42,7 +42,7 @@ class VisualScriptFunction : public VisualScriptNode {
         StringName name;
         VariantType type;
         PropertyHint hint;
-        se_string hint_string;
+        String hint_string;
     };
 
     Vector<Argument> arguments;
@@ -70,7 +70,7 @@ public:
     PropertyInfo get_output_value_port_info(int p_idx) const override;
 
     se_string_view get_caption() const override;
-    se_string get_text() const override;
+    String get_text() const override;
     const char *get_category() const override { return "flow_control"; }
 
     void add_argument(VariantType p_type, const StringName &p_name, int p_index = -1, const PropertyHint p_hint = PROPERTY_HINT_NONE, se_string_view p_hint_string = {});
@@ -157,7 +157,7 @@ public:
     PropertyInfo get_output_value_port_info(int p_idx) const override;
 
     se_string_view get_caption() const override = 0;
-    se_string get_text() const override = 0;
+    String get_text() const override = 0;
     const char *get_category() const override = 0;
 
     void add_input_data_port(VariantType p_type, const StringName &p_name, int p_index = -1);
@@ -193,7 +193,7 @@ public:
     PropertyInfo get_output_value_port_info(int p_idx) const override;
 
     se_string_view get_caption() const override;
-    se_string get_text() const override;
+    String get_text() const override;
     const char *get_category() const override { return "functions"; }
 
     VisualScriptNodeInstance *instance(VisualScriptInstance *p_instance) override;
@@ -260,7 +260,7 @@ public:
     PropertyInfo get_output_value_port_info(int p_idx) const override;
 
     se_string_view get_caption() const override;
-    se_string get_text() const override;
+    String get_text() const override;
     const char *get_category() const override { return "operators"; }
 
     void set_typed(VariantType p_op);
@@ -555,7 +555,7 @@ public:
     PropertyInfo get_output_value_port_info(int p_idx) const override;
 
     se_string_view get_caption() const override;
-    se_string get_text() const override;
+    String get_text() const override;
     const char *get_category() const override { return "constants"; }
 
     void set_basic_type_constant(const StringName &p_which);
@@ -725,7 +725,7 @@ class VisualScriptResourcePath : public VisualScriptNode {
     GDCLASS(VisualScriptResourcePath,VisualScriptNode)
 
 
-    se_string path;
+    String path;
 
 protected:
     static void _bind_methods();
@@ -746,7 +746,7 @@ public:
     const char *get_category() const override { return "data"; }
 
     void set_resource_path(se_string_view p_path);
-    const se_string &get_resource_path();
+    const String &get_resource_path();
 
     VisualScriptNodeInstance *instance(VisualScriptInstance *p_instance) override;
 
@@ -820,7 +820,7 @@ public:
     PropertyInfo get_output_value_port_info(int p_idx) const override;
 
     se_string_view get_caption() const override;
-    se_string get_text() const override;
+    String get_text() const override;
     const char *get_category() const override;
 
     VisualScriptNodeInstance *instance(VisualScriptInstance *p_instance) override;
@@ -852,7 +852,7 @@ public:
     PropertyInfo get_output_value_port_info(int p_idx) const override;
 
     se_string_view get_caption() const override;
-    se_string get_text() const override;
+    String get_text() const override;
     const char *get_category() const override;
 
     VisualScriptNodeInstance *instance(VisualScriptInstance *p_instance) override;
@@ -865,8 +865,8 @@ class VisualScriptComment : public VisualScriptNode {
     GDCLASS(VisualScriptComment,VisualScriptNode)
 
 
-    se_string title;
-    se_string description;
+    String title;
+    String description;
     Size2 size;
 
 protected:
@@ -885,14 +885,14 @@ public:
     PropertyInfo get_output_value_port_info(int p_idx) const override;
 
     se_string_view get_caption() const override;
-    se_string get_text() const override;
+    String get_text() const override;
     const char *get_category() const override;
 
-    void set_title(const se_string &p_title);
-    const se_string &get_title() const;
+    void set_title(const String &p_title);
+    const String &get_title() const;
 
-    void set_description(const se_string &p_description);
-    const se_string &get_description() const;
+    void set_description(const String &p_description);
+    const String &get_description() const;
 
     void set_size(const Size2 &p_size);
     Size2 get_size() const;
@@ -1000,7 +1000,7 @@ public:
     PropertyInfo get_output_value_port_info(int p_idx) const override;
 
     se_string_view get_caption() const override;
-    se_string get_text() const override;
+    String get_text() const override;
     const char *get_category() const override;
 
     void set_var_name(const StringName &p_name);

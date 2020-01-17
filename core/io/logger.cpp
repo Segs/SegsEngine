@@ -111,8 +111,8 @@ void RotatedFileLogger::clear_old_backups() const {
     }
 
     da->list_dir_begin();
-    se_string f = da->get_next();
-    Set<se_string> backups;
+    String f = da->get_next();
+    Set<String> backups;
     while (!f.empty()) {
         if (!da->current_is_dir() && StringUtils::begins_with(f, basename) && PathUtils::get_extension(f) == extension &&
                 se_string_view(f) != PathUtils::get_file(base_path)) {
@@ -126,7 +126,7 @@ void RotatedFileLogger::clear_old_backups() const {
         // since backups are appended with timestamp and Set iterates them in sorted order,
         // first backups are the oldest
         int to_delete = backups.size() - max_backups;
-        for (const se_string &E : backups) {
+        for (const String &E : backups) {
             if(to_delete--<=0)
                 break;
             da->remove(E);
@@ -146,7 +146,7 @@ void RotatedFileLogger::rotate_file() {
             OS::Time time = OS::get_singleton()->get_time();
             sprintf(timestamp, "-%04d-%02d-%02d-%02d-%02d-%02d", date.year, date.month, date.day, time.hour, time.min, time.sec);
 
-            se_string backup_name = se_string(PathUtils::get_basename(base_path)) + timestamp;
+            String backup_name = String(PathUtils::get_basename(base_path)) + timestamp;
             if (!PathUtils::get_extension(base_path).empty()) {
                 backup_name.push_back('.');
                 backup_name.append(PathUtils::get_extension(base_path));
@@ -170,7 +170,7 @@ void RotatedFileLogger::rotate_file() {
     file = FileAccess::open(base_path, FileAccess::WRITE);
 }
 
-RotatedFileLogger::RotatedFileLogger(const se_string &p_base_path, int p_max_files) :
+RotatedFileLogger::RotatedFileLogger(const String &p_base_path, int p_max_files) :
         base_path(PathUtils::simplify_path(p_base_path)),
         max_files(p_max_files > 0 ? p_max_files : 1),
         file(nullptr) {

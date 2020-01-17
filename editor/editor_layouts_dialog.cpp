@@ -99,10 +99,10 @@ void EditorLayoutsDialog::_post_popup() {
         return;
     }
 
-    PODVector<se_string> layouts;
+    PODVector<String> layouts;
     config.get_sections(&layouts);
 
-    for (const se_string &E : layouts) {
+    for (const String &E : layouts) {
 
         layout_names->add_item(StringName(E));
     }

@@ -43,9 +43,9 @@ private:
 public:
     Error load_image(ImageData &p_image, FileAccess *f, LoadParams params={}) override;
     Error load_image(ImageData &p_image, const uint8_t *data, int size, LoadParams params={}) override;
-    void get_recognized_extensions(PODVector<se_string> &p_extensions) const override;
+    void get_recognized_extensions(PODVector<String> &p_extensions) const override;
 
-    void get_saved_extensions(PODVector<se_string> &p_extensions) const override {
+    void get_saved_extensions(PODVector<String> &p_extensions) const override {
         this->get_recognized_extensions(p_extensions);
     }
     Error save_image(const ImageData &p_image, PODVector<uint8_t> &tgt, SaveParams params) override;

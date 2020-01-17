@@ -40,8 +40,8 @@ class ArrayPropertyEdit : public RefCounted {
     int page;
     ObjectID obj;
     StringName property;
-    se_string vtypes;
-    se_string subtype_hint_string;
+    String vtypes;
+    String subtype_hint_string;
     PropertyHint subtype_hint;
     VariantType subtype;
     Variant get_array() const;

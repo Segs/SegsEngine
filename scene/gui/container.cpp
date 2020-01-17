@@ -175,7 +175,7 @@ void Container::_notification(int p_what) {
 
 StringName Container::get_configuration_warning() const {
 
-    se_string warning(Control::get_configuration_warning());
+    String warning(Control::get_configuration_warning());
 
     if (strcmp(get_class(),"Container")==0 && get_script().is_null()) {
         if (!warning.empty()) {

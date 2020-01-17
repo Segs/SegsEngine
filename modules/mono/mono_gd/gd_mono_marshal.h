@@ -75,21 +75,21 @@ bool try_get_dictionary_key_value_types(const ManagedType &p_dictionary_type, Ma
 
 // String
 
-se_string mono_to_utf8_string(MonoString *p_mono_string);
+String mono_to_utf8_string(MonoString *p_mono_string);
 UIString mono_to_utf16_string(MonoString *p_mono_string);
 
-_FORCE_INLINE_ se_string mono_string_to_godot_not_null(MonoString *p_mono_string) {
+_FORCE_INLINE_ String mono_string_to_godot_not_null(MonoString *p_mono_string) {
     return mono_to_utf8_string(p_mono_string);
 }
 
-_FORCE_INLINE_ se_string mono_string_to_godot(MonoString *p_mono_string) {
+_FORCE_INLINE_ String mono_string_to_godot(MonoString *p_mono_string) {
     if (p_mono_string == NULL)
-        return se_string();
+        return String();
 
     return mono_string_to_godot_not_null(p_mono_string);
 }
 
-_FORCE_INLINE_ MonoString *mono_from_utf8_string(const se_string &p_string) {
+_FORCE_INLINE_ MonoString *mono_from_utf8_string(const String &p_string) {
     return mono_string_new(mono_domain_get(), p_string.c_str());
 }
 
@@ -100,7 +100,7 @@ _FORCE_INLINE_ MonoString *mono_from_utf16_string(const UIString &p_string) {
 _FORCE_INLINE_ MonoString *mono_string_from_godot(const UIString &p_string) {
     return mono_from_utf16_string(p_string);
 }
-_FORCE_INLINE_ MonoString *mono_string_from_godot(const se_string &p_string) {
+_FORCE_INLINE_ MonoString *mono_string_from_godot(const String &p_string) {
     return mono_from_utf8_string(p_string);
 }
 
@@ -123,7 +123,7 @@ Variant mono_object_to_variant_no_err(MonoObject *p_obj, const ManagedType &p_ty
 
 /// Tries to convert the MonoObject* to Variant and then convert the Variant to String.
 /// If the MonoObject* cannot be converted to Variant, then 'ToString()' is called instead.
-se_string mono_object_to_variant_string(MonoObject *p_obj, MonoException **r_exc);
+String mono_object_to_variant_string(MonoObject *p_obj, MonoException **r_exc);
 
 // Array
 

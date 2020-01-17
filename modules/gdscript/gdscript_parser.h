@@ -66,7 +66,7 @@ public:
         Ref<Script> script_type;
         ClassNode *class_type;
 
-        se_string to_string() const;
+        String to_string() const;
 
         bool operator==(const DataType &other) const {
             if (!has_type || !other.has_type) {
@@ -149,7 +149,7 @@ public:
 
         PODVector<StringName> extends_class;
         DataType base_type;
-        se_string icon_path;
+        String icon_path;
         StringName name;
         StringName extends_file;
         bool tool;
@@ -533,12 +533,12 @@ private:
     bool for_completion;
     int parenthesis;
     bool error_set;
-    se_string error;
+    String error;
     int error_line;
     int error_column;
     bool check_types;
     bool dependencies_only;
-    List<se_string> dependencies;
+    List<String> dependencies;
 #ifdef DEBUG_ENABLED
     Set<int> *safe_lines;
 #endif // DEBUG_ENABLED
@@ -571,8 +571,8 @@ private:
 
     List<IndentLevel> indent_level;
 
-    se_string base_path;
-    se_string self_path;
+    String base_path;
+    String self_path;
 
     ClassNode *current_class = nullptr;
     FunctionNode *current_function=nullptr;
@@ -655,7 +655,7 @@ private:
 
 public:
     bool has_error() const;
-    const se_string &get_error() const;
+    const String &get_error() const;
     int get_error_line() const;
     int get_error_column() const;
 #ifdef DEBUG_ENABLED
@@ -680,7 +680,7 @@ public:
     int get_completion_argument_index();
     int get_completion_identifier_is_function();
 
-    const List<se_string> &get_dependencies() const { return dependencies; }
+    const List<String> &get_dependencies() const { return dependencies; }
 
     void clear();
     GDScriptParser();

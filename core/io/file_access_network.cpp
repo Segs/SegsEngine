@@ -191,7 +191,7 @@ void FileAccessNetworkClient::_thread_func(void *s) {
     self->_thread_func();
 }
 
-Error FileAccessNetworkClient::connect(const se_string &p_host, int p_port, const se_string &p_password) {
+Error FileAccessNetworkClient::connect(const String &p_host, int p_port, const String &p_password) {
 
     IP_Address ip;
 
@@ -201,9 +201,9 @@ Error FileAccessNetworkClient::connect(const se_string &p_host, int p_port, cons
         ip = IP::get_singleton()->resolve_hostname(p_host);
     }
 
-    DEBUG_PRINT("IP: " + se_string(ip) + " port " + ::to_string(p_port));
+    DEBUG_PRINT("IP: " + String(ip) + " port " + ::to_string(p_port));
     Error err = client->connect_to_host(ip, p_port);
-    ERR_FAIL_COND_V_MSG(err != OK, err, FormatVE("Cannot connect to host with IP: %s and port: %d",se_string(ip).c_str(),p_port))
+    ERR_FAIL_COND_V_MSG(err != OK, err, FormatVE("Cannot connect to host with IP: %s and port: %d",String(ip).c_str(),p_port))
     while (client->get_status() == StreamPeerTCP::STATUS_CONNECTING) {
         //DEBUG_PRINT("trying to connect....");
         OS::get_singleton()->delay_usec(1000);
@@ -213,7 +213,7 @@ Error FileAccessNetworkClient::connect(const se_string &p_host, int p_port, cons
         return ERR_CANT_CONNECT;
     }
 
-    se_string cs = p_password;
+    String cs = p_password;
     put_32(cs.length());
     client->put_data((const uint8_t *)cs.data(), cs.length());
 

@@ -40,7 +40,7 @@
 
 namespace {
 
-int sfind(const se_string &p_text, int p_from) {
+int sfind(const String &p_text, int p_from) {
     if (p_from < 0)
         return -1;
 
@@ -86,7 +86,7 @@ int sfind(const se_string &p_text, int p_from) {
 }
 } // namespace
 
-se_string sformat(const se_string &p_text, const Variant &p1, const Variant &p2, const Variant &p3, const Variant &p4, const Variant &p5) {
+String sformat(const String &p_text, const Variant &p1, const Variant &p2, const Variant &p3, const Variant &p4, const Variant &p5) {
     if (p_text.length() < 2)
         return p_text;
 
@@ -112,7 +112,7 @@ se_string sformat(const se_string &p_text, const Variant &p1, const Variant &p2,
         }
     }
 
-    se_string new_string;
+    String new_string;
 
     int findex = 0;
     int search_from = 0;
@@ -124,7 +124,7 @@ se_string sformat(const se_string &p_text, const Variant &p1, const Variant &p2,
         int req_index = (c == 's' ? findex++ : c - '0');
 
         new_string += p_text.substr(search_from, result - search_from);
-        new_string += args[req_index].as<se_string>();
+        new_string += args[req_index].as<String>();
         search_from = result + 2;
     }
 
@@ -169,15 +169,15 @@ bool is_csharp_keyword(se_string_view p_name) {
     return keywords.contains(p_name);
 }
 
-se_string escape_csharp_keyword(se_string_view p_name) {
-    return is_csharp_keyword(p_name) ? se_string("@") + p_name : se_string(p_name);
+String escape_csharp_keyword(se_string_view p_name) {
+    return is_csharp_keyword(p_name) ? String("@") + p_name : String(p_name);
 }
 #endif
 
-Error read_all_file_utf8(se_string_view p_path, se_string &r_content) {
+Error read_all_file_utf8(se_string_view p_path, String &r_content) {
 
     Error err;
-    se_string res = FileAccess::get_file_as_string(p_path,&err);
+    String res = FileAccess::get_file_as_string(p_path,&err);
     ERR_FAIL_COND_V_MSG(err != OK, err, "Cannot open file '" + p_path + "'.")
 
     r_content = res;
@@ -186,11 +186,11 @@ Error read_all_file_utf8(se_string_view p_path, se_string &r_content) {
 
 // TODO: Move to variadic templates once we upgrade to C++11
 
-se_string str_format(const char *p_format, ...) {
+String str_format(const char *p_format, ...) {
     va_list list;
 
     va_start(list, p_format);
-    se_string res = str_format(p_format, list);
+    String res = str_format(p_format, list);
     va_end(list);
 
     return res;
@@ -214,10 +214,10 @@ se_string str_format(const char *p_format, ...) {
 #define gd_vscprintf(m_format, m_args_copy) vsnprintf(NULL, 0, p_format, m_args_copy)
 #endif
 
-se_string str_format(const char *p_format, va_list p_list) {
+String str_format(const char *p_format, va_list p_list) {
     char *buffer = str_format_new(p_format, p_list);
 
-    se_string res(buffer);
+    String res(buffer);
     memdelete_arr(buffer);
 
     return res;

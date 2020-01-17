@@ -229,7 +229,7 @@ int Expression::get_func_argument_count(BuiltinFunc p_func) {
         return;                                                          \
     }
 
-void Expression::exec_func(BuiltinFunc p_func, const Variant **p_inputs, Variant *r_return, Variant::CallError &r_error, se_string &r_error_str) {
+void Expression::exec_func(BuiltinFunc p_func, const Variant **p_inputs, Variant *r_return, Variant::CallError &r_error, String &r_error_str) {
     r_error.error = Variant::CallError::CALL_OK;
     switch (p_func) {
         case MATH_SIN: {
@@ -683,7 +683,7 @@ void Expression::exec_func(BuiltinFunc p_func, const Variant **p_inputs, Variant
 
         } break;
         case TEXT_CHAR: {
-            se_string res;
+            String res;
             res.push_back(p_inputs[0]->as<int>());
             *r_return = res;
 
@@ -699,7 +699,7 @@ void Expression::exec_func(BuiltinFunc p_func, const Variant **p_inputs, Variant
                 return;
             }
 
-            se_string str = p_inputs[0]->as<se_string>();
+            String str = p_inputs[0]->as<String>();
 
             if (str.length() != 1) {
 
@@ -716,33 +716,33 @@ void Expression::exec_func(BuiltinFunc p_func, const Variant **p_inputs, Variant
         } break;
         case TEXT_STR: {
 
-            se_string str = p_inputs[0]->as<se_string>();
+            String str = p_inputs[0]->as<String>();
 
             *r_return = Variant(str);
 
         } break;
         case TEXT_PRINT: {
 
-            se_string str(p_inputs[0]->as<se_string>());
+            String str(p_inputs[0]->as<String>());
             print_line(str);
 
         } break;
 
         case TEXT_PRINTERR: {
 
-            se_string str(p_inputs[0]->as<se_string>());
+            String str(p_inputs[0]->as<String>());
             print_error(str);
 
         } break;
         case TEXT_PRINTRAW: {
 
-            se_string str(p_inputs[0]->as<se_string>());
+            String str(p_inputs[0]->as<String>());
             OS::get_singleton()->print(str);
 
         } break;
         case VAR_TO_STR: {
 
-            se_string vars;
+            String vars;
             VariantWriter::write_to_string(*p_inputs[0], vars);
             *r_return = vars;
         } break;
@@ -756,9 +756,9 @@ void Expression::exec_func(BuiltinFunc p_func, const Variant **p_inputs, Variant
                 return;
             }
 
-            VariantParser::Stream *ss=VariantParser::get_string_stream(p_inputs[0]->as<se_string>());
+            VariantParser::Stream *ss=VariantParser::get_string_stream(p_inputs[0]->as<String>());
 
-            se_string errs;
+            String errs;
             int line;
             Error err = VariantParser::parse(ss, *r_return, errs, line);
             VariantParser::release_stream(ss);
@@ -766,7 +766,7 @@ void Expression::exec_func(BuiltinFunc p_func, const Variant **p_inputs, Variant
                 r_error.error = Variant::CallError::CALL_ERROR_INVALID_ARGUMENT;
                 r_error.argument = 0;
                 r_error.expected = VariantType::STRING;
-                *r_return = se_string("Parse error at line ") + itos(line) + ": " + errs;
+                *r_return = String("Parse error at line ") + itos(line) + ": " + errs;
                 return;
             }
 
@@ -824,10 +824,10 @@ void Expression::exec_func(BuiltinFunc p_func, const Variant **p_inputs, Variant
 
             VALIDATE_ARG_NUM(1)
 
-            Color color = Color::named(p_inputs[0]->as<se_string>());
+            Color color = Color::named(p_inputs[0]->as<String>());
             color.a = p_inputs[1]->as<float>();
 
-            *r_return = se_string(color);
+            *r_return = String(color);
 
         } break;
         default: {
@@ -1015,7 +1015,7 @@ Error Expression::_get_token(Token &r_token) {
             }
             case '"': {
 
-                se_string str;
+                String str;
                 while (true) {
 
                     char ch = GET_CHAR();
@@ -1112,7 +1112,7 @@ Error Expression::_get_token(Token &r_token) {
                 if (_is_number(cchar) || (cchar == '.' && _is_number(next_char))) {
                     //a number
 
-                    se_string num;
+                    String num;
 #define READING_SIGN 0
 #define READING_INT 1
 #define READING_DEC 2
@@ -1188,7 +1188,7 @@ Error Expression::_get_token(Token &r_token) {
 
                 } else if ((cchar >= 'A' && cchar <= 'Z') || (cchar >= 'a' && cchar <= 'z') || cchar == '_') {
 
-                    se_string id;
+                    String id;
                     bool first = true;
 
                     while ((cchar >= 'A' && cchar <= 'Z') || (cchar >= 'a' && cchar <= 'z') || cchar == '_' || (!first && _is_number(cchar))) {
@@ -1419,7 +1419,7 @@ Expression::ENode *Expression::_parse_expression() {
             } break;
             case TK_IDENTIFIER: {
 
-                se_string identifier = tk.value.as<se_string>();
+                String identifier = tk.value.as<String>();
 
                 int cofs = str_ofs;
                 _get_token(tk);
@@ -1943,7 +1943,7 @@ bool Expression::_compile_expression() {
     return false;
 }
 
-bool Expression::_execute(const Array &p_inputs, Object *p_instance, Expression::ENode *p_node, Variant &r_ret, se_string &r_error_str) {
+bool Expression::_execute(const Array &p_inputs, Object *p_instance, Expression::ENode *p_node, Variant &r_ret, String &r_error_str) {
 
     switch (p_node->type) {
         case Expression::ENode::TYPE_INPUT: {
@@ -2171,7 +2171,7 @@ bool Expression::_execute(const Array &p_inputs, Object *p_instance, Expression:
     return false;
 }
 
-Error Expression::parse(se_string_view p_expression, const PODVector<se_string> &p_input_names) {
+Error Expression::parse(se_string_view p_expression, const PODVector<String> &p_input_names) {
 
     if (nodes) {
         memdelete(nodes);
@@ -2205,7 +2205,7 @@ Variant Expression::execute(const Array& p_inputs, Object *p_base, bool p_show_e
 
     execution_error = false;
     Variant output;
-    se_string error_txt;
+    String error_txt;
     bool err = _execute(p_inputs, p_base, root, output, error_txt);
     if (err) {
         execution_error = true;
@@ -2220,13 +2220,13 @@ bool Expression::has_execute_failed() const {
     return execution_error;
 }
 
-const se_string & Expression::get_error_text() const {
+const String & Expression::get_error_text() const {
     return error_str;
 }
 
 void Expression::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("parse", {"expression", "input_names"}), &Expression::parse, {DEFVAL(PoolVector<se_string>())});
+    MethodBinder::bind_method(D_METHOD("parse", {"expression", "input_names"}), &Expression::parse, {DEFVAL(PoolVector<String>())});
     MethodBinder::bind_method(D_METHOD("execute", {"inputs", "base_instance", "show_error"}), &Expression::execute, {DEFVAL(Array()), DEFVAL(Variant()), DEFVAL(true)});
     MethodBinder::bind_method(D_METHOD("has_execute_failed"), &Expression::has_execute_failed);
     MethodBinder::bind_method(D_METHOD("get_error_text"), &Expression::get_error_text);

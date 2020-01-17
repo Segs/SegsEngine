@@ -61,8 +61,8 @@ public:
     void close() override; ///< close a file
     bool is_open() const override; ///< true when file is open
 
-    const se_string &get_path() const override; /// returns the path for the current open file
-    const se_string &get_path_absolute() const override; /// returns the absolute path for the current open file
+    const String &get_path() const override; /// returns the path for the current open file
+    const String &get_path_absolute() const override; /// returns the absolute path for the current open file
 
     void seek(size_t p_position) override; ///< seek to a given position
     void seek_end(int64_t p_position = 0) override; ///< seek from the end of file

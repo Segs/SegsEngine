@@ -766,9 +766,9 @@ const StaticCString PhysicsServerManager::setting_property_name("physics/3d/phys
 
 void PhysicsServerManager::on_servers_changed() {
 
-    se_string physics_servers2("DEFAULT");
+    String physics_servers2("DEFAULT");
     for (int i = get_servers_count() - 1; 0 <= i; --i) {
-        physics_servers2 += "," + se_string(get_server_name(i));
+        physics_servers2 += "," + String(get_server_name(i));
     }
     ProjectSettings::get_singleton()->set_custom_property_info(setting_property_name,
             PropertyInfo(VariantType::STRING, StringName(setting_property_name), PROPERTY_HINT_ENUM, physics_servers2));

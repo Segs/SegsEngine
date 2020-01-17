@@ -97,13 +97,13 @@ static BOOL CALLBACK _MonitorEnumProcSize(HMONITOR hMonitor, HDC hdcMonitor, LPR
 }
 
 #ifdef DEBUG_ENABLED
-static se_string format_error_message(DWORD id) {
+static String format_error_message(DWORD id) {
 
     LPWSTR messageBuffer = nullptr;
     size_t size = FormatMessageW(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
             nullptr, id, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPWSTR)&messageBuffer, 0, nullptr);
 
-    se_string msg = "Error " + itos(id) + ": " + StringUtils::to_utf8(StringUtils::from_wchar(messageBuffer, size));
+    String msg = "Error " + itos(id) + ": " + StringUtils::to_utf8(StringUtils::from_wchar(messageBuffer, size));
 
     LocalFree(messageBuffer);
 
@@ -1054,7 +1054,7 @@ LRESULT OS_Windows::WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
 
             int fcount = DragQueryFileW(hDropInfo, 0xFFFFFFFF, nullptr, 0);
 
-            PODVector<se_string> files;
+            PODVector<String> files;
 
             for (int i = 0; i < fcount; i++) {
 
@@ -1515,7 +1515,7 @@ void OS_Windows::set_clipboard(se_string_view p_text) {
 
     // Convert LF line endings to CRLF in clipboard content
     // Otherwise, line endings won't be visible when pasted in other software
-    se_string text = StringUtils::replace(p_text,"\n", "\r\n");
+    String text = StringUtils::replace(p_text,"\n", "\r\n");
 
     if (!OpenClipboard(hWnd)) {
         ERR_FAIL_MSG("Unable to open clipboard.");
@@ -1545,9 +1545,9 @@ void OS_Windows::set_clipboard(se_string_view p_text) {
     CloseClipboard();
 };
 
-se_string OS_Windows::get_clipboard() const {
+String OS_Windows::get_clipboard() const {
 
-    se_string ret;
+    String ret;
     if (!OpenClipboard(hWnd)) {
         ERR_FAIL_V_MSG("", "Unable to open clipboard.")
     }
@@ -2197,7 +2197,7 @@ void OS_Windows::_update_window_style(bool p_repaint, bool p_maximized) {
 
 Error OS_Windows::open_dynamic_library(se_string_view p_path, void *&p_library_handle, bool p_also_set_library_path) {
 
-    se_string path(p_path);
+    String path(p_path);
 
     if (!FileAccess::exists(path)) {
         //this code exists so gdnative can load .dll files from within the executable path
@@ -2236,7 +2236,7 @@ Error OS_Windows::close_dynamic_library(void *p_library_handle) {
 }
 
 Error OS_Windows::get_dynamic_library_symbol_handle(void *p_library_handle, se_string_view p_name, void *&p_symbol_handle, bool p_optional) {
-    p_symbol_handle = (void *)GetProcAddress((HMODULE)p_library_handle, se_string(p_name).c_str());
+    p_symbol_handle = (void *)GetProcAddress((HMODULE)p_library_handle, String(p_name).c_str());
     if (!p_symbol_handle) {
         if (!p_optional) {
             ERR_FAIL_V_MSG(ERR_CANT_RESOLVE, "Can't resolve symbol " + p_name + ", error: " + StringUtils::num(GetLastError()) + ".");
@@ -2258,7 +2258,7 @@ void OS_Windows::request_attention() {
     FlashWindowEx(&info);
 }
 
-se_string OS_Windows::get_name() const {
+String OS_Windows::get_name() const {
 
     return "Windows";
 }
@@ -2638,13 +2638,13 @@ void OS_Windows::GetMaskBitmaps(HBITMAP hSourceBitmap, COLORREF clrTransparent, 
     DeleteDC(hMainDC);
 }
 
-Error OS_Windows::execute(se_string_view p_path, const ListPOD<se_string> &p_arguments, bool p_blocking, ProcessID *r_child_id, se_string *r_pipe, int *r_exitcode, bool read_stderr, Mutex *p_pipe_mutex) {
+Error OS_Windows::execute(se_string_view p_path, const ListPOD<String> &p_arguments, bool p_blocking, ProcessID *r_child_id, String *r_pipe, int *r_exitcode, bool read_stderr, Mutex *p_pipe_mutex) {
 
     if (p_blocking && r_pipe) {
 
-        se_string argss = se_string("\"\"") + p_path + "\"";
+        String argss = String("\"\"") + p_path + "\"";
 
-        for (const se_string &E : p_arguments) {
+        for (const String &E : p_arguments) {
 
             argss += " \"" + E + "\"";
         }
@@ -2678,9 +2678,9 @@ Error OS_Windows::execute(se_string_view p_path, const ListPOD<se_string> &p_arg
         return OK;
     }
 
-    se_string cmdline = se_string("\"") + p_path + "\"";
+    String cmdline = String("\"") + p_path + "\"";
 
-    for(const se_string &arg : p_arguments) {
+    for(const String &arg : p_arguments) {
         cmdline += " \"" + arg + "\"";
     }
 
@@ -2740,14 +2740,14 @@ Error OS_Windows::set_cwd(se_string_view p_cwd) {
     return OK;
 }
 
-se_string OS_Windows::get_executable_path() const {
+String OS_Windows::get_executable_path() const {
 
     wchar_t bufname[4096];
     GetModuleFileNameW(nullptr, bufname, 4096);
     return StringUtils::to_utf8(QString::fromWCharArray(bufname));
 }
 
-void OS_Windows::set_native_icon(const se_string &p_filename) {
+void OS_Windows::set_native_icon(const String &p_filename) {
 
     FileAccess *f = FileAccess::open(p_filename, FileAccess::READ);
     ERR_FAIL_COND_MSG(!f, "Cannot open file with icon '" + p_filename + "'.");
@@ -2906,7 +2906,7 @@ bool OS_Windows::has_environment(se_string_view p_var) const {
 #endif
 };
 
-se_string OS_Windows::get_environment(se_string_view p_var) const {
+String OS_Windows::get_environment(se_string_view p_var) const {
 
     wchar_t wval[0x7fff]; // MSDN says 32767 char is the maximum
     int wlen = GetEnvironmentVariableW(qUtf16Printable(StringUtils::from_utf8(p_var)), wval, 0x7fff);
@@ -2921,14 +2921,14 @@ bool OS_Windows::set_environment(se_string_view p_var, se_string_view p_value) c
     return (bool)SetEnvironmentVariableW(qUtf16Printable(StringUtils::from_utf8(p_var)), qUtf16Printable(StringUtils::from_utf8(p_value)));
 }
 
-se_string OS_Windows::get_stdin_string(bool p_block) {
+String OS_Windows::get_stdin_string(bool p_block) {
 
     if (p_block) {
         char buff[1024];
         return fgets(buff, 1024, stdin);
     };
 
-    return se_string();
+    return String();
 }
 
 void OS_Windows::enable_for_stealing_focus(ProcessID pid) {
@@ -3107,21 +3107,21 @@ MainLoop *OS_Windows::get_main_loop() const {
 }
 
 // Get properly capitalized engine name for system paths
-se_string OS_Windows::get_godot_dir_name() const {
+String OS_Windows::get_godot_dir_name() const {
 
     return StringUtils::capitalize(se_string_view(VERSION_SHORT_NAME));
 }
 
-se_string OS_Windows::get_user_data_dir() const {
+String OS_Windows::get_user_data_dir() const {
 
-    se_string appname = get_safe_dir_name(ProjectSettings::get_singleton()->get("application/config/name").as<se_string>());
+    String appname = get_safe_dir_name(ProjectSettings::get_singleton()->get("application/config/name").as<String>());
     if (appname.empty())
         return ProjectSettings::get_singleton()->get_resource_path();
 
     bool use_custom_dir = ProjectSettings::get_singleton()->get("application/config/use_custom_user_dir");
     if (use_custom_dir) {
-        se_string custom_dir = get_safe_dir_name(
-                ProjectSettings::get_singleton()->get("application/config/custom_user_dir_name").as<se_string>(), true);
+        String custom_dir = get_safe_dir_name(
+                ProjectSettings::get_singleton()->get("application/config/custom_user_dir_name").as<String>(), true);
         if (custom_dir.empty()) {
             custom_dir = appname;
         }

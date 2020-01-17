@@ -44,7 +44,7 @@ bool TileSet::_set(const StringName &p_name, const Variant &p_value) {
     using namespace eastl;
 
     auto slash = StringUtils::find(p_name,"/");
-    if (slash == se_string::npos)
+    if (slash == String::npos)
         return false;
 
     int id = StringUtils::to_int(p_name.asCString(), slash);
@@ -54,7 +54,7 @@ bool TileSet::_set(const StringName &p_name, const Variant &p_value) {
     se_string_view what(StringUtils::substr(p_name,slash + 1));
 
     if (what == "name"_sv)
-        tile_set_name(id, p_value.as<se_string>());
+        tile_set_name(id, p_value.as<String>());
     else if (what == "texture"_sv)
         tile_set_texture(id, refFromRefPtr<Texture>(p_value));
     else if (what == "normal_map"_sv)
@@ -224,7 +224,7 @@ bool TileSet::_get(const StringName &p_name, Variant &r_ret) const {
 
     StringName n(p_name);
     auto slash = StringUtils::find(p_name,"/");
-    if (slash == se_string::npos)
+    if (slash == String::npos)
         return false;
     int id = StringUtils::to_int(StringUtils::substr(n,0,slash));
 
@@ -339,7 +339,7 @@ void TileSet::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
     for (const eastl::pair<const int,TileData> &E : tile_map) {
 
         int id = E.first;
-        se_string pre = itos(id) + "/";
+        String pre = itos(id) + "/";
         p_list->push_back(PropertyInfo(VariantType::STRING, StringName(pre + "name")));
         p_list->push_back(PropertyInfo(VariantType::OBJECT, StringName(pre + "texture"), PROPERTY_HINT_RESOURCE_TYPE, "Texture"));
         p_list->push_back(PropertyInfo(VariantType::OBJECT, StringName(pre + "normal_map"), PROPERTY_HINT_RESOURCE_TYPE, "Texture"));
@@ -730,7 +730,7 @@ void TileSet::tile_set_name(int p_id, se_string_view p_name) {
     Object_change_notify(this,"name");
 }
 
-const se_string &TileSet::tile_get_name(int p_id) const {
+const String &TileSet::tile_get_name(int p_id) const {
 
     ERR_FAIL_COND_V(!tile_map.contains(p_id), null_se_string)
     return tile_map.at(p_id).name;

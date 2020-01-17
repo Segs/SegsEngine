@@ -54,7 +54,7 @@ const char *ScriptClassParser::token_names[ScriptClassParser::TK_MAX] = {
     "Error"
 };
 
-se_string ScriptClassParser::get_token_name(ScriptClassParser::Token p_token) {
+String ScriptClassParser::get_token_name(ScriptClassParser::Token p_token) {
 
     ERR_FAIL_INDEX_V(p_token, TK_MAX, "<error>")
     return token_names[p_token];
@@ -156,7 +156,7 @@ ScriptClassParser::Token ScriptClassParser::get_token() {
 
                 CharType begin_str = code[idx];
                 idx++;
-                se_string tk_string;
+                String tk_string;
                 while (true) {
                     if (code[idx] == 0) {
                         error_str = "Unterminated String";
@@ -219,7 +219,7 @@ ScriptClassParser::Token ScriptClassParser::get_token() {
                 }
 
                 if ((code[idx] >= 33 && code[idx] <= 47) || (code[idx] >= 58 && code[idx] <= 63) || (code[idx] >= 91 && code[idx] <= 94) || code[idx] == 96 || (code[idx] >= 123 && code[idx] <= 127)) {
-                    value = se_string({code[idx]});
+                    value = String({code[idx]});
                     idx++;
                     return TK_SYMBOL;
                 }
@@ -233,7 +233,7 @@ ScriptClassParser::Token ScriptClassParser::get_token() {
                     return TK_NUMBER;
 
                 } else if ((code[idx] == '@' && code[idx + 1] != '"') || code[idx] == '_' || (code[idx] >= 'A' && code[idx] <= 'Z') || (code[idx] >= 'a' && code[idx] <= 'z') || code[idx] > 127) {
-                    se_string id;
+                    String id;
 
                     id += code[idx];
                     idx++;
@@ -261,7 +261,7 @@ ScriptClassParser::Token ScriptClassParser::get_token() {
 Error ScriptClassParser::_skip_generic_type_params() {
 
     Token tk;
-    se_string value_str = value.as<se_string>();
+    String value_str = value.as<String>();
     while (true) {
         tk = get_token();
 
@@ -325,7 +325,7 @@ Error ScriptClassParser::_skip_generic_type_params() {
     }
 }
 
-Error ScriptClassParser::_parse_type_full_name(se_string &r_full_name) {
+Error ScriptClassParser::_parse_type_full_name(String &r_full_name) {
 
     Token tk = get_token();
 
@@ -335,7 +335,7 @@ Error ScriptClassParser::_parse_type_full_name(se_string &r_full_name) {
         return ERR_PARSE_ERROR;
     }
 
-    r_full_name += se_string(value);
+    r_full_name += String(value);
 
     if (code[idx] == '<') {
         idx++;
@@ -358,9 +358,9 @@ Error ScriptClassParser::_parse_type_full_name(se_string &r_full_name) {
     return _parse_type_full_name(r_full_name);
 }
 
-Error ScriptClassParser::_parse_class_base(PODVector<se_string> &r_base) {
+Error ScriptClassParser::_parse_class_base(PODVector<String> &r_base) {
 
-    se_string name;
+    String name;
 
     Error err = _parse_type_full_name(name);
     if (err)
@@ -372,7 +372,7 @@ Error ScriptClassParser::_parse_class_base(PODVector<se_string> &r_base) {
         err = _parse_class_base(r_base);
         if (err)
             return err;
-    } else if (tk == TK_IDENTIFIER && se_string(value) == "where") {
+    } else if (tk == TK_IDENTIFIER && String(value) == "where") {
         err = _parse_type_constraints();
         if (err) {
             return err;
@@ -410,7 +410,7 @@ Error ScriptClassParser::_parse_type_constraints() {
     while (true) {
         tk = get_token();
         if (tk == TK_IDENTIFIER) {
-            if (se_string(value) == "where") {
+            if (String(value) == "where") {
                 return _parse_type_constraints();
             }
 
@@ -435,11 +435,11 @@ Error ScriptClassParser::_parse_type_constraints() {
 
         if (tk == TK_COMMA) {
             continue;
-        } else if (tk == TK_IDENTIFIER && se_string(value) == "where") {
+        } else if (tk == TK_IDENTIFIER && String(value) == "where") {
             return _parse_type_constraints();
-        } else if (tk == TK_SYMBOL && se_string(value) == "(") {
+        } else if (tk == TK_SYMBOL && String(value) == "(") {
             tk = get_token();
-            if (tk != TK_SYMBOL || se_string(value) != ")") {
+            if (tk != TK_SYMBOL || String(value) != ")") {
                 error_str = "Unexpected token: " + get_token_name(tk);
                 error = true;
                 return ERR_PARSE_ERROR;
@@ -458,12 +458,12 @@ Error ScriptClassParser::_parse_type_constraints() {
     }
 }
 
-Error ScriptClassParser::_parse_namespace_name(se_string &r_name, int &r_curly_stack) {
+Error ScriptClassParser::_parse_namespace_name(String &r_name, int &r_curly_stack) {
 
     Token tk = get_token();
 
     if (tk == TK_IDENTIFIER) {
-        r_name += se_string(value);
+        r_name += String(value);
     } else {
         error_str = "Unexpected token: " + get_token_name(tk);
         error = true;
@@ -485,7 +485,7 @@ Error ScriptClassParser::_parse_namespace_name(se_string &r_name, int &r_curly_s
     }
 }
 
-Error ScriptClassParser::parse(const se_string &p_code) {
+Error ScriptClassParser::parse(const String &p_code) {
 
     code = p_code;
     idx = 0;
@@ -502,14 +502,14 @@ Error ScriptClassParser::parse(const se_string &p_code) {
     int type_curly_stack = 0;
 
     while (!error && tk != TK_EOF) {
-        se_string identifier = value;
+        String identifier = value;
         if (tk == TK_IDENTIFIER && (identifier == "class" || identifier == "struct")) {
             bool is_class = identifier == "class";
 
             tk = get_token();
 
             if (tk == TK_IDENTIFIER) {
-                se_string name = value;
+                String name = value;
                 int at_level = curly_stack;
 
                 ClassDecl class_decl;
@@ -579,7 +579,7 @@ Error ScriptClassParser::parse(const se_string &p_code) {
                     if (!generic) { // no generics, thanks
                         classes.push_back(class_decl);
                     } else if (OS::get_singleton()->is_stdout_verbose()) {
-                        se_string full_name = class_decl.namespace_;
+                        String full_name = class_decl.namespace_;
                         if (full_name.length())
                             full_name += ".";
                         full_name += class_decl.name;
@@ -594,7 +594,7 @@ Error ScriptClassParser::parse(const se_string &p_code) {
                 return ERR_PARSE_ERROR;
             }
 
-            se_string name;
+            String name;
             int at_level = curly_stack;
 
             Error err = _parse_namespace_name(name, curly_stack);
@@ -632,7 +632,7 @@ Error ScriptClassParser::parse(const se_string &p_code) {
 
 Error ScriptClassParser::parse_file(se_string_view p_filepath) {
 
-    se_string source;
+    String source;
 
     Error ferr = read_all_file_utf8(p_filepath, source);
 

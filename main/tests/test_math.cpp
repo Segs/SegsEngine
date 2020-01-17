@@ -54,14 +54,14 @@ namespace TestMath {
 
 class GetClassAndNamespace {
 
-    se_string code;
+    String code;
     int idx;
     int line;
-    se_string error_str;
+    String error_str;
     bool error;
     Variant value;
 
-    se_string class_name;
+    String class_name;
 
     enum Token {
         TK_BRACKET_OPEN,
@@ -180,7 +180,7 @@ class GetClassAndNamespace {
 
                     CharType begin_str = code[idx];
                     idx++;
-                    se_string tk_string;
+                    String tk_string;
                     while (true) {
                         if (code[idx] == 0) {
                             error_str = "Unterminated String";
@@ -257,7 +257,7 @@ class GetClassAndNamespace {
 
                     } else if ((code[idx] >= 'A' && code[idx] <= 'Z') || (code[idx] >= 'a' && code[idx] <= 'z') || code[idx] > 127) {
 
-                        se_string id;
+                        String id;
 
                         while ((code[idx] >= 'A' && code[idx] <= 'Z') || (code[idx] >= 'a' && code[idx] <= 'z') || code[idx] > 127) {
 
@@ -278,51 +278,51 @@ class GetClassAndNamespace {
     }
 
 public:
-    Error parse(const se_string &p_code, const se_string &p_known_class_name = {}) {
+    Error parse(const String &p_code, const String &p_known_class_name = {}) {
 
         code = p_code;
         idx = 0;
         line = 0;
-        error_str = se_string();
+        error_str = String();
         error = false;
         value = Variant();
-        class_name = se_string();
+        class_name = String();
 
         bool use_next_class = false;
         Token tk = get_token();
 
-        Map<int, se_string> namespace_stack;
+        Map<int, String> namespace_stack;
         int curly_stack = 0;
 
         while (!error || tk != TK_EOF) {
 
             if (tk == TK_BRACKET_OPEN) {
                 tk = get_token();
-                if (tk == TK_IDENTIFIER && se_string(value) == "ScriptClass") {
+                if (tk == TK_IDENTIFIER && String(value) == "ScriptClass") {
                     if (get_token() == TK_BRACKET_CLOSE) {
                         use_next_class = true;
                     }
                 }
-            } else if (tk == TK_IDENTIFIER && se_string(value) == "class") {
+            } else if (tk == TK_IDENTIFIER && String(value) == "class") {
                 tk = get_token();
                 if (tk == TK_IDENTIFIER) {
-                    se_string name = value;
+                    String name = value;
                     if (use_next_class || p_known_class_name == name) {
-                        for (eastl::pair<const int,se_string> &E : namespace_stack) {
+                        for (eastl::pair<const int,String> &E : namespace_stack) {
                             class_name += E.second + ".";
                         }
-                        class_name += se_string(value);
+                        class_name += String(value);
                         break;
                     }
                 }
 
             } else if (tk == TK_IDENTIFIER && UIString(value) == "namespace") {
-                se_string name;
+                String name;
                 int at_level = curly_stack;
                 while (true) {
                     tk = get_token();
                     if (tk == TK_IDENTIFIER) {
-                        name += se_string(value);
+                        name += String(value);
                     }
 
                     tk = get_token();
@@ -358,11 +358,11 @@ public:
         return OK;
     }
 
-    se_string get_error() {
+    String get_error() {
         return error_str;
     }
 
-    se_string get_class() {
+    String get_class() {
         return class_name;
     }
 };
@@ -373,9 +373,9 @@ void test_vec(Plane p_vec) {
     cm.set_perspective(45, 1, 0, 100);
     Plane v0 = cm.xform4(p_vec);
 
-    print_line("out: " + (se_string)v0);
+    print_line("out: " + (String)v0);
     v0.normal.z = (v0.d / 100.0f * 2.0f - 1.0f) * v0.d;
-    print_line("out_F: " + (se_string)v0);
+    print_line("out_F: " + (String)v0);
 }
 
 uint32_t ihash(uint32_t a) {
@@ -452,7 +452,7 @@ MainLoop *test() {
         float gd = gb * mb;
         float bd = bb * mb;
 
-        print_line("RGBE: " + (se_string)Color(rd, gd, bd));
+        print_line("RGBE: " + (String)Color(rd, gd, bd));
     }
 
     print_line("Dvectors: " + itos(MemoryPool::allocs_used));
@@ -483,14 +483,14 @@ MainLoop *test() {
     print_line("later Mem used: " + itos(MemoryPool::total_memory));
     print_line("Mlater Ax mem used: " + itos(MemoryPool::max_memory));
 
-    const ListPOD<se_string> &cmdlargs(OS::get_singleton()->get_cmdline_args());
+    const ListPOD<String> &cmdlargs(OS::get_singleton()->get_cmdline_args());
 
     if (cmdlargs.empty()) {
         //try editor!
         return nullptr;
     }
 
-    se_string test = cmdlargs.back();
+    String test = cmdlargs.back();
     if (test == "math") {
         // Not a file name but the test name, abort.
         // FIXME: This test is ugly as heck, needs fixing :)
@@ -506,7 +506,7 @@ MainLoop *test() {
     fa->get_buffer(buf.ptrw(), flen);
     buf.write[flen] = 0;
 
-    se_string code((const char *)&buf[0]);
+    String code((const char *)&buf[0]);
 
     GetClassAndNamespace getclass;
     if (getclass.parse(code)) {
@@ -579,17 +579,17 @@ MainLoop *test() {
         Basis m3 = m.inverse() * m2;
         Quat q3 = (q.inverse() * q2); //.normalized();
 
-        print_line((se_string)Quat(m3));
-        print_line((se_string)q3);
+        print_line((String)Quat(m3));
+        print_line((String)q3);
 
-        print_line("before v: " + (se_string)v + " a: " + rtos(a));
+        print_line("before v: " + (String)v + " a: " + rtos(a));
         q.get_axis_angle(v, a);
-        print_line("after v: " + (se_string)v + " a: " + rtos(a));
+        print_line("after v: " + (String)v + " a: " + rtos(a));
     }
 
-    se_string ret;
+    String ret;
 
-    ListPOD<se_string> args;
+    ListPOD<String> args;
     args.push_back("-l");
     Error err = OS::get_singleton()->execute("/bin/ls", args, true, nullptr, &ret);
     print_line("error: " + itos(err));
@@ -601,7 +601,7 @@ MainLoop *test() {
     m3.rotate(Vector3(0, 0, 1), 212);
     Basis m32;
     m32.set_euler(m3.get_euler());
-    print_line("ELEULEEEEEEEEEEEEEEEEEER: " + (se_string)m3.get_euler() + " vs " + (se_string)m32.get_euler());
+    print_line("ELEULEEEEEEEEEEEEEEEEEER: " + (String)m3.get_euler() + " vs " + (String)m32.get_euler());
 
     {
         Dictionary d;
@@ -612,63 +612,63 @@ MainLoop *test() {
 
     print_line("inters: " + rtos(Geometry::segment_intersects_circle(Vector2(-5, 0), Vector2(-2, 0), Vector2(), 1.0)));
 
-    print_line("cross: " + (se_string)Vector3(1, 2, 3).cross(Vector3(4, 5, 7)));
+    print_line("cross: " + (String)Vector3(1, 2, 3).cross(Vector3(4, 5, 7)));
     print_line("dot: " + rtos(Vector3(1, 2, 3).dot(Vector3(4, 5, 7))));
-    print_line("abs: " + (se_string)Vector3(-1, 2, -3).abs());
+    print_line("abs: " + (String)Vector3(-1, 2, -3).abs());
     print_line("distance_to: " + rtos(Vector3(1, 2, 3).distance_to(Vector3(4, 5, 7))));
     print_line("distance_squared_to: " + rtos(Vector3(1, 2, 3).distance_squared_to(Vector3(4, 5, 7))));
-    print_line("plus: " + (se_string)(Vector3(1, 2, 3) + Vector3(Vector3(4, 5, 7))));
-    print_line("minus: " + (se_string)(Vector3(1, 2, 3) - Vector3(Vector3(4, 5, 7))));
-    print_line("mul: " + (se_string)(Vector3(1, 2, 3) * Vector3(Vector3(4, 5, 7))));
-    print_line("div: " + (se_string)(Vector3(1, 2, 3) / Vector3(Vector3(4, 5, 7))));
-    print_line("mul scalar: " + (se_string)(Vector3(1, 2, 3) * 2));
-    print_line("premul scalar: " + (se_string)(2 * Vector3(1, 2, 3)));
-    print_line("div scalar: " + (se_string)(Vector3(1, 2, 3) / 3.0));
+    print_line("plus: " + (String)(Vector3(1, 2, 3) + Vector3(Vector3(4, 5, 7))));
+    print_line("minus: " + (String)(Vector3(1, 2, 3) - Vector3(Vector3(4, 5, 7))));
+    print_line("mul: " + (String)(Vector3(1, 2, 3) * Vector3(Vector3(4, 5, 7))));
+    print_line("div: " + (String)(Vector3(1, 2, 3) / Vector3(Vector3(4, 5, 7))));
+    print_line("mul scalar: " + (String)(Vector3(1, 2, 3) * 2));
+    print_line("premul scalar: " + (String)(2 * Vector3(1, 2, 3)));
+    print_line("div scalar: " + (String)(Vector3(1, 2, 3) / 3.0));
     print_line("length: " + rtos(Vector3(1, 2, 3).length()));
     print_line("length squared: " + rtos(Vector3(1, 2, 3).length_squared()));
-    print_line("normalized: " + (se_string)Vector3(1, 2, 3).normalized());
-    print_line("inverse: " + (se_string)Vector3(1, 2, 3).inverse());
+    print_line("normalized: " + (String)Vector3(1, 2, 3).normalized());
+    print_line("inverse: " + (String)Vector3(1, 2, 3).inverse());
 
     {
         Vector3 v(4, 5, 7);
         v.normalize();
-        print_line("normalize: " + (se_string)v);
+        print_line("normalize: " + (String)v);
     }
 
     {
         Vector3 v(4, 5, 7);
         v += Vector3(1, 2, 3);
-        print_line("+=: " + (se_string)v);
+        print_line("+=: " + (String)v);
     }
 
     {
         Vector3 v(4, 5, 7);
         v -= Vector3(1, 2, 3);
-        print_line("-=: " + (se_string)v);
+        print_line("-=: " + (String)v);
     }
 
     {
         Vector3 v(4, 5, 7);
         v *= Vector3(1, 2, 3);
-        print_line("*=: " + (se_string)v);
+        print_line("*=: " + (String)v);
     }
 
     {
         Vector3 v(4, 5, 7);
         v /= Vector3(1, 2, 3);
-        print_line("/=: " + (se_string)v);
+        print_line("/=: " + (String)v);
     }
 
     {
         Vector3 v(4, 5, 7);
         v *= 2.0;
-        print_line("scalar *=: " + (se_string)v);
+        print_line("scalar *=: " + (String)v);
     }
 
     {
         Vector3 v(4, 5, 7);
         v /= 2.0;
-        print_line("scalar /=: " + (se_string)v);
+        print_line("scalar /=: " + (String)v);
     }
 
     return nullptr;

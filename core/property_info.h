@@ -10,7 +10,7 @@ class Dictionary;
 struct GODOT_EXPORT PropertyInfo {
 public:
     StringName name;
-    se_string hint_string;
+    String hint_string;
     StringName class_name; // for classes
     VariantType type = VariantType(0);
     PropertyHint hint = PROPERTY_HINT_NONE;
@@ -47,7 +47,7 @@ public:
 //            const char *p_hint_string = nullptr, uint32_t p_usage = PROPERTY_USAGE_DEFAULT,
 //            const StringName &p_class_name = StringName()) :
 //            name(p_name),
-//            hint_string(p_hint_string ? p_hint_string : se_string()),
+//            hint_string(p_hint_string ? p_hint_string : String()),
 //            type(p_type),
 //            hint(p_hint),
 //            usage(p_usage) {

@@ -82,8 +82,8 @@ class GDMonoAssembly {
     bool refonly;
     bool loaded;
 
-    se_string name;
-    se_string path;
+    String name;
+    String path;
     uint64_t modified_time;
 
     DefHashMap<ClassKey, GDMonoClass *, ClassKey::Hasher> cached_classes;
@@ -94,7 +94,7 @@ class GDMonoAssembly {
 
     static bool no_search;
     static bool in_preload;
-    static Vector<se_string> search_dirs;
+    static Vector<String> search_dirs;
 
     static void assembly_load_hook(MonoAssembly *assembly, void *user_data);
     static MonoAssembly *assembly_search_hook(MonoAssemblyName *aname, void *user_data);
@@ -106,7 +106,7 @@ class GDMonoAssembly {
     static MonoAssembly *_preload_hook(MonoAssemblyName *aname, char **assemblies_path, void *user_data, bool refonly);
 
     static GDMonoAssembly *_load_assembly_from(se_string_view p_name, se_string_view p_path, bool p_refonly);
-    static GDMonoAssembly *_load_assembly_search(se_string_view p_name, const Vector<se_string> &p_search_dirs, bool p_refonly);
+    static GDMonoAssembly *_load_assembly_search(se_string_view p_name, const Vector<String> &p_search_dirs, bool p_refonly);
     static void _wrap_mono_assembly(MonoAssembly *assembly);
 
     friend class GDMono;
@@ -121,8 +121,8 @@ public:
     _FORCE_INLINE_ bool is_loaded() const { return loaded; }
     _FORCE_INLINE_ MonoImage *get_image() const { return image; }
     _FORCE_INLINE_ MonoAssembly *get_assembly() const { return assembly; }
-    _FORCE_INLINE_ se_string get_name() const { return name; }
-    _FORCE_INLINE_ se_string get_path() const { return path; }
+    _FORCE_INLINE_ String get_name() const { return name; }
+    _FORCE_INLINE_ String get_path() const { return path; }
     _FORCE_INLINE_ uint64_t get_modified_time() const { return modified_time; }
 
     GDMonoClass *get_class(const StringName &p_namespace, const StringName &p_name);
@@ -130,9 +130,9 @@ public:
 
     GDMonoClass *get_object_derived_class(const StringName &p_class);
 
-    static se_string find_assembly(const se_string &p_name);
+    static String find_assembly(const String &p_name);
 
-    static void fill_search_dirs(Vector<se_string> &r_search_dirs, se_string_view p_custom_config = se_string_view(), se_string_view p_custom_bcl_dir = se_string_view());
+    static void fill_search_dirs(Vector<String> &r_search_dirs, se_string_view p_custom_config = se_string_view(), se_string_view p_custom_bcl_dir = se_string_view());
 
     static GDMonoAssembly *load_from(se_string_view p_name, se_string_view p_path, bool p_refonly);
 

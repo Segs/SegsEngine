@@ -46,11 +46,11 @@ void EditorLog::_error_handler(void *p_self, se_string_view p_func, se_string_vi
     if (self->current != Thread::get_caller_id())
         return;
 
-    se_string err_str;
+    String err_str;
     if (not p_errorexp.empty()) {
         err_str = p_errorexp;
     } else {
-        err_str = se_string(p_file) + ":" + itos(p_line) + " - " + p_error;
+        err_str = String(p_file) + ":" + itos(p_line) + " - " + p_error;
     }
     auto level = MSG_TYPE_WARNING;
     if (p_type != ERR_HANDLER_WARNING)

@@ -38,15 +38,15 @@ class TextFile : public Resource {
 	GDCLASS(TextFile,Resource)
 
 private:
-    se_string text;
-    se_string path;
+    String text;
+    String path;
 
 public:
 	virtual bool has_text() const;
-    virtual const se_string & get_text() const {
+    virtual const String & get_text() const {
         return text;
     }
-    virtual void set_text(const se_string &p_code);
+    virtual void set_text(const String &p_code);
 	void reload_from_file() override;
 
 	void set_file_path(se_string_view p_path) { path = p_path; }

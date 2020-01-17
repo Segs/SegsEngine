@@ -137,14 +137,14 @@ EditorAbout::EditorAbout() {
     _logo = memnew(TextureRect);
     hbc->add_child(_logo);
 
-    se_string hash = se_string(VERSION_HASH);
+    String hash = String(VERSION_HASH);
     if (not hash.empty())
         hash = "." + StringUtils::left(hash,9);
 
     Label *about_text = memnew(Label);
     about_text->set_v_size_flags(Control::SIZE_SHRINK_CENTER);
     about_text->set_text(StringName(VERSION_FULL_NAME + hash +
-                         se_string("\n\xc2\xa9 2007-2019 Juan Linietsky, Ariel Manzur.\n\xc2\xa9 2014-2019 ") +
+                         String("\n\xc2\xa9 2007-2019 Juan Linietsky, Ariel Manzur.\n\xc2\xa9 2014-2019 ") +
                          TTR("Godot Engine contributors") + "\n"));
     hbc->add_child(about_text);
 
@@ -217,28 +217,28 @@ EditorAbout::EditorAbout() {
     TreeItem *tpl_ti_lc = _tpl_tree->create_item(root);
     tpl_ti_lc->set_text(0, TTR("Licenses"));
     tpl_ti_lc->set_selectable(0, false);
-    se_string long_text;
+    String long_text;
     for (int component_index = 0; component_index < COPYRIGHT_INFO_COUNT; component_index++) {
 
         const ComponentCopyright &component = COPYRIGHT_INFO[component_index];
         TreeItem *ti = _tpl_tree->create_item(tpl_ti_tp);
-        se_string component_name(component.name);
+        String component_name(component.name);
         ti->set_text_utf8(0, component_name);
-        se_string text = component_name + "\n";
+        String text = component_name + "\n";
         long_text += "- " + component_name + "\n";
         for (int part_index = 0; part_index < component.part_count; part_index++) {
             const ComponentCopyrightPart &part = component.parts[part_index];
             text += "\n    Files:";
             for (int file_num = 0; file_num < part.file_count; file_num++) {
-                text += "\n        " + se_string(part.files[file_num]);
+                text += "\n        " + String(part.files[file_num]);
             }
-            se_string copyright;
+            String copyright;
             for (int copyright_index = 0; copyright_index < part.copyright_count; copyright_index++) {
-                copyright += se_string("\n    \xc2\xa9 ") + part.copyright_statements[copyright_index];
+                copyright += String("\n    \xc2\xa9 ") + part.copyright_statements[copyright_index];
             }
             text += copyright;
             long_text += copyright;
-            se_string license = "\n    License: " + se_string(part.license) + "\n";
+            String license = "\n    License: " + String(part.license) + "\n";
             text += license;
             long_text += license + "\n";
         }
@@ -247,12 +247,12 @@ EditorAbout::EditorAbout() {
     for (int i = 0; i < LICENSE_COUNT; i++) {
 
         TreeItem *ti = _tpl_tree->create_item(tpl_ti_lc);
-        se_string licensename = se_string(LICENSE_NAMES[i]);
+        String licensename = String(LICENSE_NAMES[i]);
         ti->set_text_utf8(0, licensename);
         long_text += "- " + licensename + "\n\n";
-        se_string licensebody = se_string(LICENSE_BODIES[i]);
+        String licensebody = String(LICENSE_BODIES[i]);
         ti->set_metadata(0, licensebody);
-        long_text += se_string("    ") + StringUtils::replace(licensebody,"\n", "\n    ") + "\n\n";
+        long_text += String("    ") + StringUtils::replace(licensebody,"\n", "\n    ") + "\n\n";
     }
     tpl_ti_all->set_metadata(0, long_text);
     tpl_hbc->add_child(_tpl_tree);

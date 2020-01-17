@@ -74,8 +74,8 @@ public:
         }
     };
 
-    static se_string compute_key_response(se_string_view p_key);
-    static se_string generate_key();
+    static String compute_key_response(se_string_view p_key);
+    static String generate_key();
 
 private:
     static bool _wsl_poll(struct PeerData *p_data);
@@ -92,7 +92,7 @@ private:
 
 public:
     int close_code;
-    se_string close_reason;
+    String close_reason;
     void poll(); // Used by client and server.
 
     int get_available_packet_count() const override;

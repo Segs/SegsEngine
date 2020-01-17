@@ -261,7 +261,7 @@ Ref<Resource> SpatialMaterialConversionPlugin::convert(const Ref<Resource> &p_re
 
     Ref<Shader> shader(make_ref_counted<Shader>());
 
-    se_string code(VisualServer::get_singleton()->shader_get_code(mat->get_shader_rid()));
+    String code(VisualServer::get_singleton()->shader_get_code(mat->get_shader_rid()));
 
     shader->set_code(code);
 
@@ -305,7 +305,7 @@ Ref<Resource> ParticlesMaterialConversionPlugin::convert(const Ref<Resource> &p_
 
     Ref<Shader> shader(make_ref_counted<Shader>());
 
-    se_string code(VisualServer::get_singleton()->shader_get_code(mat->get_shader_rid()));
+    String code(VisualServer::get_singleton()->shader_get_code(mat->get_shader_rid()));
 
     shader->set_code(code);
 
@@ -341,7 +341,7 @@ Ref<Resource> CanvasItemMaterialConversionPlugin::convert(const Ref<Resource> &p
 
     Ref<Shader> shader(make_ref_counted<Shader>());
 
-    se_string code(VisualServer::get_singleton()->shader_get_code(mat->get_shader_rid()));
+    String code(VisualServer::get_singleton()->shader_get_code(mat->get_shader_rid()));
 
     shader->set_code(code);
 

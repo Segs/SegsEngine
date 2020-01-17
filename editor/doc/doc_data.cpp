@@ -49,7 +49,7 @@ void _write_string(FileAccess *f, int p_tablevel, se_string_view p_string) {
 
     if (p_string.empty())
         return;
-    se_string tab;
+    String tab;
     for (int i = 0; i < p_tablevel; i++)
         tab += "\t";
     f->store_string(tab + p_string + "\n");
@@ -440,10 +440,10 @@ void DocData::generate(bool p_basic_types) {
             }
         }
 
-        ListPOD<se_string> constant_list;
+        ListPOD<String> constant_list;
         ClassDB::get_integer_constant_list(name, &constant_list, true);
 
-        for (const se_string & E : constant_list) {
+        for (const String & E : constant_list) {
 
             ConstantDoc constant;
             constant.name = E;
@@ -556,7 +556,7 @@ void DocData::generate(bool p_basic_types) {
 
                 int defarg = mi.default_arguments.size() - mi.arguments.size() + j;
                 if (defarg >= 0)
-                    ad.default_value = mi.default_arguments[defarg].as<se_string>();
+                    ad.default_value = mi.default_arguments[defarg].as<String>();
 
                 method.arguments.push_back(ad);
             }
@@ -640,7 +640,7 @@ void DocData::generate(bool p_basic_types) {
         for (int i = 0; i < ScriptServer::get_language_count(); i++) {
 
             ScriptLanguage *lang = ScriptServer::get_language(i);
-            StringName cname = StringName(se_string("@") + lang->get_name());
+            StringName cname = StringName(String("@") + lang->get_name());
             class_list[cname] = ClassDoc();
             ClassDoc &c = class_list[cname];
             c.name = cname;
@@ -688,7 +688,7 @@ void DocData::generate(bool p_basic_types) {
 
                 ConstantDoc cd;
                 cd.name = E->deref().first;
-                cd.value = E->deref().second.as<se_string>();
+                cd.value = E->deref().second.as<String>();
                 c.constants.push_back(cd);
             }
         }
@@ -697,7 +697,7 @@ void DocData::generate(bool p_basic_types) {
 
 static Error _parse_methods(Ref<XMLParser> &parser, Vector<DocData::MethodDoc> &methods) {
 
-    const se_string section(parser->get_node_name());
+    const String section(parser->get_node_name());
     se_string_view element = StringUtils::substr(section,0, section.length() - 1);
 
     while (parser->read() == OK) {
@@ -716,7 +716,7 @@ static Error _parse_methods(Ref<XMLParser> &parser, Vector<DocData::MethodDoc> &
 
                     if (parser->get_node_type() == XMLParser::NODE_ELEMENT) {
 
-                        const se_string & name(parser->get_node_name());
+                        const String & name(parser->get_node_name());
                         if (name == "return") {
 
                             ERR_FAIL_COND_V(!parser->has_attribute("type"), ERR_FILE_CORRUPT)
@@ -770,7 +770,7 @@ Error DocData::load_classes(se_string_view p_dir) {
     }
 
     da->list_dir_begin();
-    se_string path(da->get_next());
+    String path(da->get_next());
     while (!path.empty()) {
         if (!da->current_is_dir() && StringUtils::ends_with(path,"xml")) {
             Ref<XMLParser> parser(make_ref_counted<XMLParser>());
@@ -795,10 +795,10 @@ Error DocData::erase_classes(se_string_view p_dir) {
         return err;
     }
 
-    List<se_string> to_erase;
+    List<String> to_erase;
 
     da->list_dir_begin();
-    se_string path(da->get_next());
+    String path(da->get_next());
     while (!path.empty()) {
         if (!da->current_is_dir() && StringUtils::ends_with(path,"xml")) {
             to_erase.push_back(path);
@@ -844,7 +844,7 @@ Error DocData::_load(Ref<XMLParser> parser) {
 
             if (parser->get_node_type() == XMLParser::NODE_ELEMENT) {
 
-                const se_string &name2 = parser->get_node_name();
+                const String &name2 = parser->get_node_name();
 
                 if (name2 == "brief_description") {
 
@@ -861,7 +861,7 @@ Error DocData::_load(Ref<XMLParser> parser) {
 
                         if (parser->get_node_type() == XMLParser::NODE_ELEMENT) {
 
-                            const se_string &name3 = parser->get_node_name();
+                            const String &name3 = parser->get_node_name();
 
                             if (name3 == "link") {
 
@@ -889,7 +889,7 @@ Error DocData::_load(Ref<XMLParser> parser) {
 
                         if (parser->get_node_type() == XMLParser::NODE_ELEMENT) {
 
-                            const se_string &name3 = parser->get_node_name();
+                            const String &name3 = parser->get_node_name();
 
                             if (name3 == "member") {
 
@@ -925,7 +925,7 @@ Error DocData::_load(Ref<XMLParser> parser) {
 
                         if (parser->get_node_type() == XMLParser::NODE_ELEMENT) {
 
-                            const se_string & name3 = parser->get_node_name();
+                            const String & name3 = parser->get_node_name();
 
                             if (name3 == "theme_item") {
 
@@ -955,7 +955,7 @@ Error DocData::_load(Ref<XMLParser> parser) {
 
                         if (parser->get_node_type() == XMLParser::NODE_ELEMENT) {
 
-                            const se_string & name3 = parser->get_node_name();
+                            const String & name3 = parser->get_node_name();
 
                             if (name3 == "constant") {
 
@@ -994,13 +994,13 @@ Error DocData::_load(Ref<XMLParser> parser) {
     return OK;
 }
 
-Error DocData::save_classes(se_string_view p_default_path, const Map<StringName, se_string> &p_class_path) {
+Error DocData::save_classes(se_string_view p_default_path, const Map<StringName, String> &p_class_path) {
 
     for (eastl::pair<const StringName,ClassDoc> &E : class_list) {
 
         ClassDoc &c(E.second);
 
-        se_string save_path;
+        String save_path;
         if (p_class_path.contains(c.name)) {
             save_path = p_class_path.at(c.name);
         } else {
@@ -1008,22 +1008,22 @@ Error DocData::save_classes(se_string_view p_default_path, const Map<StringName,
         }
 
         Error err;
-        se_string save_file = PathUtils::plus_file(save_path,se_string(c.name) + ".xml");
+        String save_file = PathUtils::plus_file(save_path,String(c.name) + ".xml");
         FileAccessRef f = FileAccess::open(save_file, FileAccess::WRITE, &err);
 
         ERR_CONTINUE_MSG(err != OK, "Can't write doc file: " + save_file + ".")
 
         _write_string(f, 0, R"(<?xml version="1.0" encoding="UTF-8" ?>)");
 
-        se_string header = se_string("<class name=\"") + c.name + "\"";
+        String header = String("<class name=\"") + c.name + "\"";
         if (!c.inherits.empty())
-            header += se_string(" inherits=\"") + c.inherits + "\"";
+            header += String(" inherits=\"") + c.inherits + "\"";
 
-        se_string category = c.category;
+        String category = c.category;
         if (c.category.empty())
             category = "Core";
         header += " category=\"" + category + "\"";
-        header += se_string(" version=\"") + VERSION_NUMBER + "\"";
+        header += String(" version=\"") + VERSION_NUMBER + "\"";
         header += '>';
         _write_string(f, 0, header);
         _write_string(f, 1, "<brief_description>");
@@ -1045,7 +1045,7 @@ Error DocData::save_classes(se_string_view p_default_path, const Map<StringName,
 
             const MethodDoc &m = c.methods[i];
 
-            se_string qualifiers;
+            String qualifiers;
             if (!m.qualifiers.empty())
                 qualifiers += " qualifiers=\"" + StringUtils::xml_escape(m.qualifiers) + "\"";
 
@@ -1053,7 +1053,7 @@ Error DocData::save_classes(se_string_view p_default_path, const Map<StringName,
 
             if (!m.return_type.empty()) {
 
-                se_string enum_text;
+                String enum_text;
                 if (!m.return_enum.empty()) {
                     enum_text = " enum=\"" + m.return_enum + "\"";
                 }
@@ -1065,7 +1065,7 @@ Error DocData::save_classes(se_string_view p_default_path, const Map<StringName,
 
                 const ArgumentDoc &a = m.arguments[j];
 
-                se_string enum_text;
+                String enum_text;
                 if (!a.enumeration.empty()) {
                     enum_text = " enum=\"" + a.enumeration + "\"";
                 }
@@ -1099,7 +1099,7 @@ Error DocData::save_classes(se_string_view p_default_path, const Map<StringName,
 
             for (int i = 0; i < c.properties.size(); i++) {
 
-                se_string additional_attributes;
+                String additional_attributes;
                 if (!c.properties[i].enumeration.empty()) {
                     additional_attributes += " enum=\"" + c.properties[i].enumeration + "\"";
                 }

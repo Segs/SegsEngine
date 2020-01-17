@@ -40,7 +40,7 @@ void ResourcePreloader::_set_resources(const Array &p_data) {
     resources.clear();
 
     ERR_FAIL_COND(p_data.size() != 2)
-    PoolVector<se_string> names = p_data[0].as<PoolVector<se_string>>();
+    PoolVector<String> names = p_data[0].as<PoolVector<String>>();
     Array resdata = p_data[1];
 
     ERR_FAIL_COND(names.size() != resdata.size())
@@ -58,7 +58,7 @@ void ResourcePreloader::_set_resources(const Array &p_data) {
 
 Array ResourcePreloader::_get_resources() const {
 
-    PoolVector<se_string> names;
+    PoolVector<String> names;
     Array arr;
     arr.resize(resources.size());
     names.resize(resources.size());
@@ -134,9 +134,9 @@ RES ResourcePreloader::get_resource(const StringName &p_name) const {
     return resources.at(p_name);
 }
 
-PoolVector<se_string> ResourcePreloader::_get_resource_list() const {
+PoolVector<String> ResourcePreloader::_get_resource_list() const {
 
-    PoolVector<se_string> res;
+    PoolVector<String> res;
     res.resize(resources.size());
     int i = 0;
     for (const eastl::pair<const StringName,RES> &E : resources) {

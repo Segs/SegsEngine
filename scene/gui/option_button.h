@@ -67,7 +67,7 @@ public:
     void set_item_disabled(int p_idx, bool p_disabled);
 
     StringName get_item_text(int p_idx) const;
-    se_string get_item_text_utf8(int p_idx) const;
+    String get_item_text_utf8(int p_idx) const;
     Ref<Texture> get_item_icon(int p_idx) const;
     int get_item_id(int p_idx) const;
     int get_item_index(int p_id) const;

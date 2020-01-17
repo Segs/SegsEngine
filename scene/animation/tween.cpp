@@ -1244,7 +1244,7 @@ bool Tween::_build_interpolation(InterpolateType p_interpolation_type, Object *p
         // Check that the object actually contains the given property
         bool prop_valid = false;
         p_object->get_indexed(p_property->get_subnames(), &prop_valid);
-        ERR_FAIL_COND_V_MSG(!prop_valid, false, se_string("Tween target object has no property named: ") + p_property->get_concatenated_subnames() + ".")
+        ERR_FAIL_COND_V_MSG(!prop_valid, false, String("Tween target object has no property named: ") + p_property->get_concatenated_subnames() + ".")
 
         data.key = p_property->get_subnames();
         data.concatenated_key = p_property->get_concatenated_subnames();
@@ -1253,7 +1253,7 @@ bool Tween::_build_interpolation(InterpolateType p_interpolation_type, Object *p
     // Is the method defined?
     if (p_method) {
         // Does the object even have the requested method?
-        ERR_FAIL_COND_V_MSG(!p_object->has_method(*p_method), false, se_string("Tween target object has no method named: ") + *p_method + ".")
+        ERR_FAIL_COND_V_MSG(!p_object->has_method(*p_method), false, String("Tween target object has no method named: ") + *p_method + ".")
 
         data.key.push_back(*p_method);
         data.concatenated_key = *p_method;
@@ -1322,7 +1322,7 @@ bool Tween::interpolate_callback(Object *p_object, real_t p_duration, const Stri
     ERR_FAIL_COND_V(p_duration < 0, false)
 
     // Check whether the object even has the callback
-    ERR_FAIL_COND_V_MSG(!p_object->has_method(p_callback), false, "Object has no callback named: " + se_string(p_callback) + ".")
+    ERR_FAIL_COND_V_MSG(!p_object->has_method(p_callback), false, "Object has no callback named: " + String(p_callback) + ".")
 
     // Build a new InterpolationData
     InterpolateData data;
@@ -1381,7 +1381,7 @@ bool Tween::interpolate_deferred_callback(Object *p_object, real_t p_duration, c
     ERR_FAIL_COND_V(p_duration < 0, false)
 
     // Confirm the callback exists on the object
-    ERR_FAIL_COND_V_MSG(!p_object->has_method(p_callback), false, "Object has no callback named: " + se_string(p_callback) + ".")
+    ERR_FAIL_COND_V_MSG(!p_object->has_method(p_callback), false, "Object has no callback named: " + String(p_callback) + ".")
 
     // Create a new InterpolateData for the callback
     InterpolateData data;
@@ -1524,8 +1524,8 @@ bool Tween::follow_method(Object *p_object, const StringName& p_method, Variant 
     ERR_FAIL_COND_V(p_delay < 0, false)
 
     // Confirm both objects have the target methods
-    ERR_FAIL_COND_V_MSG(!p_object->has_method(p_method), false, "Object has no method named: " + se_string(p_method) + ".")
-    ERR_FAIL_COND_V_MSG(!p_target->has_method(p_target_method), false, "Target has no method named: " + se_string(p_target_method) + ".")
+    ERR_FAIL_COND_V_MSG(!p_object->has_method(p_method), false, "Object has no method named: " + String(p_method) + ".")
+    ERR_FAIL_COND_V_MSG(!p_target->has_method(p_target_method), false, "Target has no method named: " + String(p_target_method) + ".")
 
     // Call the method to get the target value
     Variant::CallError error;
@@ -1658,8 +1658,8 @@ bool Tween::targeting_method(Object *p_object, const StringName& p_method, Objec
     ERR_FAIL_COND_V(p_delay < 0, false)
 
     // Make sure both objects have the given method
-    ERR_FAIL_COND_V_MSG(!p_object->has_method(p_method), false, "Object has no method named: " + se_string(p_method) + ".")
-    ERR_FAIL_COND_V_MSG(!p_initial->has_method(p_initial_method), false, "Initial Object has no method named: " + se_string(p_initial_method) + ".")
+    ERR_FAIL_COND_V_MSG(!p_object->has_method(p_method), false, "Object has no method named: " + String(p_method) + ".")
+    ERR_FAIL_COND_V_MSG(!p_initial->has_method(p_initial_method), false, "Initial Object has no method named: " + String(p_initial_method) + ".")
 
     // Call the method to get the initial value
     Variant::CallError error;

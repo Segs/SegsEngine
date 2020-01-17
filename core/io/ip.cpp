@@ -51,7 +51,7 @@ struct _IP_ResolverPrivate {
 
         volatile IP::ResolverStatus status;
         IP_Address response;
-        se_string hostname;
+        String hostname;
         IP::Type type;
 
         void clear() {
@@ -113,9 +113,9 @@ struct _IP_ResolverPrivate {
         }
     }
 
-    HashMap<se_string, IP_Address> cache;
+    HashMap<String, IP_Address> cache;
 
-    static se_string get_cache_key(se_string_view p_hostname, IP::Type p_type) {
+    static String get_cache_key(se_string_view p_hostname, IP::Type p_type) {
         return ::to_string(p_type) + p_hostname;
     }
 };
@@ -124,7 +124,7 @@ IP_Address IP::resolve_hostname(se_string_view p_hostname, IP::Type p_type) {
 
     resolver->mutex->lock();
 
-    se_string key = _IP_ResolverPrivate::get_cache_key(p_hostname, p_type);
+    String key = _IP_ResolverPrivate::get_cache_key(p_hostname, p_type);
     if (resolver->cache.contains(key) && resolver->cache[key].is_valid()) {
         IP_Address res = resolver->cache[key];
         resolver->mutex->unlock();
@@ -137,7 +137,7 @@ IP_Address IP::resolve_hostname(se_string_view p_hostname, IP::Type p_type) {
     return res;
 }
 
-IP::ResolverID IP::resolve_hostname_queue_item(const se_string &p_hostname, IP::Type p_type) {
+IP::ResolverID IP::resolve_hostname_queue_item(const String &p_hostname, IP::Type p_type) {
 
     resolver->mutex->lock();
 
@@ -149,7 +149,7 @@ IP::ResolverID IP::resolve_hostname_queue_item(const se_string &p_hostname, IP::
         return id;
     }
 
-    se_string key = _IP_ResolverPrivate::get_cache_key(p_hostname, p_type);
+    String key = _IP_ResolverPrivate::get_cache_key(p_hostname, p_type);
     resolver->queue[id].hostname = p_hostname;
     resolver->queue[id].type = p_type;
     if (resolver->cache.contains(key) && resolver->cache[key].is_valid()) {
@@ -213,7 +213,7 @@ void IP::erase_resolve_item(ResolverID p_id) {
     resolver->mutex->unlock();
 }
 
-void IP::clear_cache(const se_string &p_hostname) {
+void IP::clear_cache(const String &p_hostname) {
 
     resolver->mutex->lock();
 
@@ -244,9 +244,9 @@ Array IP::_get_local_addresses() const {
 Array IP::_get_local_interfaces() const {
 
     Array results;
-    Map<se_string, Interface_Info> interfaces;
+    Map<String, Interface_Info> interfaces;
     get_local_interfaces(&interfaces);
-    for (eastl::pair<const se_string,Interface_Info> &E : interfaces) {
+    for (eastl::pair<const String,Interface_Info> &E : interfaces) {
         Interface_Info &c(E.second);
         Dictionary rc;
         rc["name"] = Variant(c.name);
@@ -267,9 +267,9 @@ Array IP::_get_local_interfaces() const {
 
 void IP::get_local_addresses(List<IP_Address> *r_addresses) const {
 
-    Map<se_string, Interface_Info> interfaces;
+    Map<String, Interface_Info> interfaces;
     get_local_interfaces(&interfaces);
-    for (eastl::pair<const se_string,Interface_Info> &E : interfaces) {
+    for (eastl::pair<const String,Interface_Info> &E : interfaces) {
         for (const List<IP_Address>::Element *F = E.second.ip_addresses.front(); F; F = F->next()) {
             r_addresses->push_front(F->deref());
         }

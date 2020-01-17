@@ -59,7 +59,7 @@ class SpriteFrames : public Resource {
     Array _get_animations() const;
     void _set_animations(const Array &p_animations);
 
-    PoolVector<se_string> _get_animation_list() const;
+    PoolVector<String> _get_animation_list() const;
     static void report_missing_animation(const char *name);
 protected:
     static void _bind_methods();
@@ -71,7 +71,7 @@ public:
     void rename_animation(const StringName &p_prev, const StringName &p_next);
 
     void get_animation_list(ListPOD<StringName> *r_animations) const;
-    PoolVector<se_string> get_animation_names() const;
+    PoolVector<String> get_animation_names() const;
 
     const Map<StringName, Anim> & animation_name_map() const { return animations; }
 

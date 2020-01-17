@@ -60,10 +60,10 @@ class EditorExportGDScript : public EditorExportPlugin {
     GDCLASS(EditorExportGDScript,EditorExportPlugin)
 
 public:
-    void _export_file(se_string_view p_path, se_string_view p_type, const Set<se_string> &p_features) override {
+    void _export_file(se_string_view p_path, se_string_view p_type, const Set<String> &p_features) override {
 
         int script_mode = EditorExportPreset::MODE_SCRIPT_COMPILED;
-        se_string script_key;
+        String script_key;
 
         const Ref<EditorExportPreset> &preset = get_export_preset();
 
@@ -80,12 +80,12 @@ public:
             return;
 
         PODVector<uint8_t> file = GDScriptTokenizerBuffer::parse_code_string({(const char *)file_contents.data(), file_contents.size()});
-        se_string base_path(PathUtils::get_basename(p_path));
+        String base_path(PathUtils::get_basename(p_path));
         if (!file.empty()) {
 
             if (script_mode == EditorExportPreset::MODE_SCRIPT_ENCRYPTED) {
 
-                se_string tmp_path = PathUtils::plus_file(EditorSettings::get_singleton()->get_cache_dir(),"script.gde");
+                String tmp_path = PathUtils::plus_file(EditorSettings::get_singleton()->get_cache_dir(),"script.gde");
                 FileAccess *fa = FileAccess::open(tmp_path, FileAccess::WRITE);
 
                 FixedVector<uint8_t,32,true> key;

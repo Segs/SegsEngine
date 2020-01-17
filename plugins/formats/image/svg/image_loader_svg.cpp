@@ -149,7 +149,7 @@ Error ImageLoaderSVG::load_image(ImageData &p_image, FileAccess *f, LoadParams p
     return _create_image(p_image, &src_image, params);
 }
 
-void ImageLoaderSVG::get_recognized_extensions(PODVector<se_string> &p_extensions) const {
+void ImageLoaderSVG::get_recognized_extensions(PODVector<String> &p_extensions) const {
 
     p_extensions.push_back(("svg"));
     p_extensions.push_back(("svgz"));

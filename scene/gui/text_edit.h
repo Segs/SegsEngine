@@ -145,11 +145,11 @@ private:
     bool completion_active;
     bool completion_forced;
     ScriptCodeCompletionOption completion_current;
-    se_string completion_base;
+    String completion_base;
     int completion_index;
     Rect2i completion_rect;
     int completion_line_ofs;
-    se_string completion_hint;
+    String completion_hint;
     int completion_hint_offset;
 
     bool setting_text;
@@ -436,10 +436,10 @@ public:
     void unfold_line(int p_line);
     void toggle_fold_line(int p_line);
 
-    se_string get_text_utf8() const;
-    se_string get_text();
+    String get_text_utf8() const;
+    String get_text();
     //String get_line(int line) const;
-    se_string get_line(int line) const;
+    String get_line(int line) const;
     void set_line(int line, se_string_view new_text);
     void backspace_at_cursor();
 
@@ -519,10 +519,10 @@ public:
     int get_selection_from_column() const;
     int get_selection_to_line() const;
     int get_selection_to_column() const;
-    se_string get_selection_text() const;
+    String get_selection_text() const;
 
-    se_string get_word_under_cursor() const;
-    se_string get_word_at_pos(const Vector2 &p_pos) const;
+    String get_word_under_cursor() const;
+    String get_word_at_pos(const Vector2 &p_pos) const;
 
     bool search(const UIString &p_key, uint32_t p_search_flags, int p_from_line, int p_from_column, int &r_line, int &r_column) const;
 
@@ -620,7 +620,7 @@ public:
 
     void set_completion(bool p_enabled, const Vector<UIString> &p_prefixes);
     void code_complete(const List<ScriptCodeCompletionOption> &p_strings, bool p_forced = false);
-    void set_code_hint(const se_string &p_hint);
+    void set_code_hint(const String &p_hint);
     void query_code_comple();
 
     void set_select_identifiers_on_hover(bool p_enable);
@@ -638,8 +638,8 @@ public:
     PopupMenu *get_menu() const;
 
     UIString get_text_for_completion();
-    se_string get_text_for_completion_utf8() const;
-    se_string get_text_for_lookup_completion();
+    String get_text_for_completion_utf8() const;
+    String get_text_for_lookup_completion();
 
     bool is_text_field() const override;
     TextEdit();
@@ -656,8 +656,8 @@ public:
     virtual void _update_cache() = 0;
     virtual Map<int, TextEdit::HighlighterInfo> _get_line_syntax_highlighting(int p_line) = 0;
 
-    virtual se_string get_name() const = 0;
-    virtual List<se_string> get_supported_languages() = 0;
+    virtual String get_name() const = 0;
+    virtual List<String> get_supported_languages() = 0;
 
     void set_text_editor(TextEdit *p_text_editor);
     TextEdit *get_text_editor();

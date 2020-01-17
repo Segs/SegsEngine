@@ -48,7 +48,7 @@ class EditorHistory {
 
         REF ref;
         ObjectID object;
-        se_string property;
+        String property;
         bool inspector_only;
     };
 
@@ -95,7 +95,7 @@ public:
 
     int get_path_size() const;
     ObjectID get_path_object(int p_index) const;
-    se_string get_path_property(int p_index) const;
+    String get_path_property(int p_index) const;
 
     void clear();
 
@@ -116,7 +116,7 @@ public:
 
     struct EditedScene {
         Node *root;
-        se_string path;
+        String path;
         Dictionary editor_states;
         List<Node *> selection;
         PODVector<EditorHistory::History> history_stored;
@@ -144,10 +144,10 @@ private:
     Vector<EditedScene> edited_scene;
     int current_edited_scene;
 
-    bool _find_updated_instances(Node *p_root, Node *p_node, Set<se_string> &checked_paths);
+    bool _find_updated_instances(Node *p_root, Node *p_node, Set<String> &checked_paths);
 
-    DefHashMap<StringName, se_string> _script_class_icon_paths;
-    DefHashMap<se_string, StringName> _script_class_file_to_path;
+    DefHashMap<StringName, String> _script_class_icon_paths;
+    DefHashMap<String, StringName> _script_class_file_to_path;
 
 public:
     EditorPlugin *get_editor(Object *p_object);
@@ -161,7 +161,7 @@ public:
     Dictionary get_editor_states() const;
     Dictionary get_scene_editor_states(int p_idx) const;
     void set_editor_states(const Dictionary &p_states);
-    void get_editor_breakpoints(List<se_string> *p_breakpoints);
+    void get_editor_breakpoints(List<String> *p_breakpoints);
     void clear_editor_states();
     void save_editor_external_data();
     void apply_changes_in_editors();
@@ -192,7 +192,7 @@ public:
     int get_edited_scene_count() const;
     Vector<EditedScene> get_edited_scenes() const;
     StringName get_scene_title(int p_idx) const;
-    se_string get_scene_path(int p_idx) const;
+    String get_scene_path(int p_idx) const;
     UIString get_scene_type(int p_idx) const;
     void set_scene_path(int p_idx, se_string_view p_path);
     Ref<Script> get_scene_root_script(int p_idx) const;
@@ -222,7 +222,7 @@ public:
     StringName script_class_get_name(se_string_view p_path) const;
     void script_class_set_name(se_string_view p_path, const StringName &p_class);
 
-    se_string script_class_get_icon_path(const StringName &p_class) const;
+    String script_class_get_icon_path(const StringName &p_class) const;
     void script_class_set_icon_path(const StringName &p_class, se_string_view p_icon_path);
     void script_class_clear_icon_paths() { _script_class_icon_paths.clear(); }
     void script_class_save_icon_paths();

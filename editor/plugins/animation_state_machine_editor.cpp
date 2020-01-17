@@ -112,7 +112,7 @@ void AnimationNodeStateMachineEditor::_state_machine_gui_input(const Ref<InputEv
 
         for (const StringName &E : classes) {
 
-            se_string name = StringUtils::replace_first(E,"AnimationNode", "");
+            String name = StringUtils::replace_first(E,"AnimationNode", "");
             if (name == se_string_view("Animation"))
                 continue; // nope
             int idx = menu->get_item_count();
@@ -420,15 +420,15 @@ void AnimationNodeStateMachineEditor::_file_opened(se_string_view p_file) {
 
 void AnimationNodeStateMachineEditor::_add_menu_type(int p_index) {
 
-    se_string base_name;
+    String base_name;
     Ref<AnimationRootNode> node;
 
     if (p_index == MENU_LOAD_FILE) {
 
         open_file->clear_filters();
-        PODVector<se_string> filters;
+        PODVector<String> filters;
         ResourceLoader::get_recognized_extensions_for_type("AnimationRootNode", filters);
-        for (const se_string &E : filters) {
+        for (const String &E : filters) {
             open_file->add_filter("*." + E);
         }
         open_file->popup_centered_ratio();
@@ -441,7 +441,7 @@ void AnimationNodeStateMachineEditor::_add_menu_type(int p_index) {
         node = dynamic_ref_cast<AnimationRootNode>(EditorSettings::get_singleton()->get_resource_clipboard());
 
     } else {
-        se_string type = menu->get_item_metadata(p_index);
+        String type = menu->get_item_metadata(p_index);
 
         Object *obj = ClassDB::instance(StringName(type));
         ERR_FAIL_COND(!obj)
@@ -463,7 +463,7 @@ void AnimationNodeStateMachineEditor::_add_menu_type(int p_index) {
     }
 
     int base = 1;
-    se_string name(base_name);
+    String name(base_name);
     while (state_machine->has_node(StringName(name))) {
         base++;
         name = base_name + " " + itos(base);
@@ -492,7 +492,7 @@ void AnimationNodeStateMachineEditor::_add_animation_type(int p_index) {
     StringName name = base_name;
     while (state_machine->has_node(name)) {
         base++;
-        name = StringName(se_string(base_name.asCString()) + " " + itos(base));
+        name = StringName(String(base_name.asCString()) + " " + itos(base));
     }
 
     updating = true;
@@ -1070,7 +1070,7 @@ void AnimationNodeStateMachineEditor::_notification(int p_what) {
                 while (anodesm) {
                     current_node_playback = refFromVariant<AnimationNodeStateMachinePlayback>(editor->get_tree()->get(
                             StringName(editor->get_base_path() + next + "/playback")));
-                    next = StringName(se_string(next) + "/" + current_node_playback->get_current_node());
+                    next = StringName(String(next) + "/" + current_node_playback->get_current_node());
                     anodesm = dynamic_ref_cast<AnimationNodeStateMachine>(anodesm->get_node(current_node_playback->get_current_node()));
                 }
 
@@ -1107,7 +1107,7 @@ void AnimationNodeStateMachineEditor::_removed_from_graph() {
 
 void AnimationNodeStateMachineEditor::_name_edited(se_string_view p_text) {
 
-    se_string new_name(p_text);
+    String new_name(p_text);
 
     ERR_FAIL_COND(p_text.empty() || StringUtils::contains(p_text,'.') || StringUtils::contains(p_text,'/'))
 
@@ -1116,10 +1116,10 @@ void AnimationNodeStateMachineEditor::_name_edited(se_string_view p_text) {
     }
 
     int base = 1;
-    se_string name(p_text);
+    String name(p_text);
     while (state_machine->has_node(StringName(name))) {
         base++;
-        name = se_string(p_text) + " " + itos(base);
+        name = String(p_text) + " " + itos(base);
     }
 
     updating = true;

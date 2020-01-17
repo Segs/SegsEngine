@@ -54,7 +54,7 @@ class ExportTemplateManager : public ConfirmationDialog {
     FileDialog *template_open;
 
     ConfirmationDialog *remove_confirm;
-    se_string to_remove;
+    String to_remove;
 
     HTTPRequest *request_mirror;
     HTTPRequest *download_templates;
@@ -65,19 +65,19 @@ class ExportTemplateManager : public ConfirmationDialog {
 
     void _update_template_list();
 
-    void _download_template(const se_string &p_version);
-    void _uninstall_template(const se_string &p_version);
+    void _download_template(const String &p_version);
+    void _uninstall_template(const String &p_version);
     void _uninstall_template_confirm();
 
     void ok_pressed() override;
-    bool _install_from_file(const se_string & p_file, bool p_use_progress = true);
+    bool _install_from_file(const String & p_file, bool p_use_progress = true);
 
-    Error _extract_libs_from_apk(const se_string &p_target_name);
+    Error _extract_libs_from_apk(const String &p_target_name);
 
     void _http_download_mirror_completed(int p_status, int p_code, const PoolSeStringArray &headers, const PoolByteArray &p_data);
     void _http_download_templates_completed(int p_status, int p_code, const PoolSeStringArray &headers, const PoolByteArray &p_data);
 
-    void _begin_template_download(const se_string &p_url);
+    void _begin_template_download(const String &p_url);
 
     void _window_template_downloader_closed();
 

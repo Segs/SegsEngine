@@ -147,7 +147,7 @@ class AbstractPolygon2DEditorPlugin : public EditorPlugin {
 
     AbstractPolygon2DEditor *polygon_editor;
     EditorNode *editor;
-    se_string klass;
+    String klass;
 
 public:
     bool forward_canvas_gui_input(const Ref<InputEvent> &p_event) override { return polygon_editor->forward_gui_input(p_event); }

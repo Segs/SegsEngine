@@ -53,7 +53,7 @@ extern const godot_gdnative_core_api_struct api_struct;
 IMPL_GDCLASS(GDNativeLibrary)
 IMPL_GDCLASS(GDNative)
 
-Map<se_string, Vector<Ref<GDNative> > > GDNativeLibrary::loaded_libraries;
+Map<String, Vector<Ref<GDNative> > > GDNativeLibrary::loaded_libraries;
 
 GDNativeLibrary::GDNativeLibrary() {
     config_file = make_ref_counted<ConfigFile>();
@@ -118,13 +118,13 @@ bool GDNativeLibrary::_get(const StringName &p_name, Variant &r_property) const 
 
 void GDNativeLibrary::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
     // set entries
-    List<se_string> entry_key_list;
+    List<String> entry_key_list;
 
     if (config_file->has_section("entry"))
         config_file->get_section_keys("entry", &entry_key_list);
 
-    for (List<se_string>::Element *E = entry_key_list.front(); E; E = E->next()) {
-        const se_string &key = E->deref();
+    for (List<String>::Element *E = entry_key_list.front(); E; E = E->next()) {
+        const String &key = E->deref();
 
         PropertyInfo prop;
 
@@ -135,13 +135,13 @@ void GDNativeLibrary::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
     }
 
     // set dependencies
-    List<se_string> dependency_key_list;
+    List<String> dependency_key_list;
 
     if (config_file->has_section("dependencies"))
         config_file->get_section_keys("dependencies", &dependency_key_list);
 
-    for (List<se_string>::Element *E = dependency_key_list.front(); E; E = E->next()) {
-        const se_string &key = E->deref();
+    for (List<String>::Element *E = dependency_key_list.front(); E; E = E->next()) {
+        const String &key = E->deref();
 
         PropertyInfo prop;
 
@@ -156,18 +156,18 @@ void GDNativeLibrary::set_config_file(Ref<ConfigFile> p_config_file) {
 
     set_singleton(p_config_file->get_value("general", ("singleton"), default_singleton));
     set_load_once(p_config_file->get_value("general", ("load_once"), default_load_once));
-    set_symbol_prefix(p_config_file->get_value("general", ("symbol_prefix"), default_symbol_prefix).as<se_string>());
+    set_symbol_prefix(p_config_file->get_value("general", ("symbol_prefix"), default_symbol_prefix).as<String>());
     set_reloadable(p_config_file->get_value("general", ("reloadable"), default_reloadable));
 
-    se_string entry_lib_path;
+    String entry_lib_path;
     {
 
-        PODVector<se_string> entry_keys;
+        PODVector<String> entry_keys;
 
         if (p_config_file->has_section("entry"))
             p_config_file->get_section_keys_utf8("entry", entry_keys);
 
-        for (se_string &key : entry_keys) {
+        for (String &key : entry_keys) {
 
             Vector<se_string_view> tags = StringUtils::split(key,'.');
 
@@ -185,21 +185,21 @@ void GDNativeLibrary::set_config_file(Ref<ConfigFile> p_config_file) {
                 continue;
             }
 
-            entry_lib_path = p_config_file->get_value("entry", key).as<se_string>();
+            entry_lib_path = p_config_file->get_value("entry", key).as<String>();
             break;
         }
     }
 
-    Vector<se_string> dependency_paths;
+    Vector<String> dependency_paths;
     {
 
-        List<se_string> dependency_keys;
+        List<String> dependency_keys;
 
         if (p_config_file->has_section("dependencies"))
             p_config_file->get_section_keys("dependencies", &dependency_keys);
 
-        for (List<se_string>::Element *E = dependency_keys.front(); E; E = E->next()) {
-            const se_string &key = E->deref();
+        for (List<String>::Element *E = dependency_keys.front(); E; E = E->next()) {
+            const String &key = E->deref();
 
             Vector<se_string_view> tags = StringUtils::split(key,'.');
 
@@ -217,7 +217,7 @@ void GDNativeLibrary::set_config_file(Ref<ConfigFile> p_config_file) {
                 continue;
             }
 
-            dependency_paths = p_config_file->get_value("dependencies", key.data()).as<Vector<se_string>>();
+            dependency_paths = p_config_file->get_value("dependencies", key.data()).as<Vector<String>>();
             break;
         }
     }
@@ -289,7 +289,7 @@ bool GDNative::initialize() {
         return false;
     }
 
-    se_string lib_path(library->get_current_library_path());
+    String lib_path(library->get_current_library_path());
     if (lib_path.empty()) {
         ERR_PRINT("No library set for this platform")
         return false;
@@ -313,7 +313,7 @@ bool GDNative::initialize() {
         path = PathUtils::plus_file(PathUtils::plus_file(PathUtils::get_base_dir(OS::get_singleton()->get_executable_path()),"../Frameworks"),PathUtils::get_file(lib_path));
     }
 #else
-    se_string path = ProjectSettings::get_singleton()->globalize_path(lib_path);
+    String path = ProjectSettings::get_singleton()->globalize_path(lib_path);
 #endif
 
     if (library->should_load_once()) {
@@ -513,7 +513,7 @@ RES GDNativeLibraryResourceLoader::load(se_string_view p_path, se_string_view p_
     return lib;
 }
 
-void GDNativeLibraryResourceLoader::get_recognized_extensions(PODVector<se_string> &p_extensions) const {
+void GDNativeLibraryResourceLoader::get_recognized_extensions(PODVector<String> &p_extensions) const {
     p_extensions.push_back("gdnlib");
 }
 
@@ -521,11 +521,11 @@ bool GDNativeLibraryResourceLoader::handles_type(se_string_view p_type) const {
     return p_type == se_string_view("GDNativeLibrary");
 }
 
-se_string GDNativeLibraryResourceLoader::get_resource_type(se_string_view p_path) const {
-    se_string el = StringUtils::to_lower(PathUtils::get_extension(p_path));
+String GDNativeLibraryResourceLoader::get_resource_type(se_string_view p_path) const {
+    String el = StringUtils::to_lower(PathUtils::get_extension(p_path));
     if (el == "gdnlib")
         return "GDNativeLibrary";
-    return se_string();
+    return String();
 }
 
 Error GDNativeLibraryResourceSaver::save(se_string_view p_path, const RES &p_resource, uint32_t p_flags) {
@@ -550,7 +550,7 @@ bool GDNativeLibraryResourceSaver::recognize(const RES &p_resource) const {
     return object_cast<GDNativeLibrary>(p_resource.get()) != nullptr;
 }
 
-void GDNativeLibraryResourceSaver::get_recognized_extensions(const RES &p_resource, Vector<se_string> *p_extensions) const {
+void GDNativeLibraryResourceSaver::get_recognized_extensions(const RES &p_resource, Vector<String> *p_extensions) const {
     if (object_cast<GDNativeLibrary>(p_resource.get()) != nullptr) {
         p_extensions->push_back("gdnlib");
     }

@@ -104,7 +104,7 @@ void ProjectExportDialog::_add_preset(int p_platform) {
     Ref<EditorExportPreset> preset = EditorExport::get_singleton()->get_export_platform(p_platform)->create_preset();
     ERR_FAIL_COND(not preset)
 
-    se_string name(EditorExport::get_singleton()->get_export_platform(p_platform)->get_name());
+    String name(EditorExport::get_singleton()->get_export_platform(p_platform)->get_name());
     bool make_runnable = true;
     int attempt = 1;
     while (true) {
@@ -158,7 +158,7 @@ void ProjectExportDialog::_update_presets() {
             current_idx = i;
         }
 
-        se_string name = preset->get_name();
+        String name = preset->get_name();
         if (preset->is_runnable())
             name += " (" + (TTR("Runnable")) + ")";
         presets->add_item(StringName(name), preset->get_platform()->get_logo());
@@ -178,7 +178,7 @@ void ProjectExportDialog::_update_export_all() {
     for (int i = 0; i < EditorExport::get_singleton()->get_export_preset_count(); i++) {
         Ref<EditorExportPreset> preset = EditorExport::get_singleton()->get_export_preset(i);
         bool needs_templates;
-        se_string error;
+        String error;
         if (preset->get_export_path().empty() || !preset->get_platform()->can_export(preset, error, needs_templates)) {
             can_export = false;
             break;
@@ -224,7 +224,7 @@ void ProjectExportDialog::_edit_preset(int p_index) {
     delete_preset->set_disabled(false);
     name->set_text_utf8(current->get_name());
 
-    List<se_string> extension_list = current->get_platform()->get_binary_extensions(current);
+    List<String> extension_list = current->get_platform()->get_binary_extensions(current);
     PODVector<se_string_view> extension_vector;
     for (int i = 0; i < extension_list.size(); i++) {
         extension_vector.push_back("*." + extension_list[i]);
@@ -242,11 +242,11 @@ void ProjectExportDialog::_edit_preset(int p_index) {
 
     patches->clear();
     TreeItem *patch_root = patches->create_item();
-    Vector<se_string> patchlist = current->get_patches();
+    Vector<String> patchlist = current->get_patches();
     for (int i = 0; i < patchlist.size(); i++) {
         TreeItem *patch = patches->create_item(patch_root);
         patch->set_cell_mode(0, TreeItem::CELL_MODE_CHECK);
-        se_string file(PathUtils::get_file(patchlist[i]));
+        String file(PathUtils::get_file(patchlist[i]));
         patch->set_editable(0, true);
         patch->set_text_utf8(0, StringUtils::replace(PathUtils::get_file(file),"*", ""));
         if (StringUtils::ends_with(file,'*'))
@@ -270,7 +270,7 @@ void ProjectExportDialog::_edit_preset(int p_index) {
     _fill_resource_tree();
 
     bool needs_templates;
-    se_string error;
+    String error;
     if (!current->get_platform()->can_export(current, error, needs_templates)) {
 
         if (!error.empty()) {
@@ -311,7 +311,7 @@ void ProjectExportDialog::_edit_preset(int p_index) {
     int script_export_mode = current->get_script_export_mode();
     script_mode->select(script_export_mode);
 
-    se_string key = current->get_script_encryption_key();
+    String key = current->get_script_encryption_key();
     if (!updating_script_key) {
         script_key->set_text_utf8(key);
     }
@@ -337,28 +337,28 @@ void ProjectExportDialog::_update_feature_list() {
     Ref<EditorExportPreset> current = get_current_preset();
     ERR_FAIL_COND(not current)
 
-    Set<se_string> fset;
-    List<se_string> features;
+    Set<String> fset;
+    List<String> features;
 
     current->get_platform()->get_platform_features(&features);
     current->get_platform()->get_preset_features(current, &features);
 
-    se_string custom = current->get_custom_features();
+    String custom = current->get_custom_features();
     PODVector<se_string_view> custom_list = StringUtils::split(custom,',');
     for (int i = 0; i < custom_list.size(); i++) {
         se_string_view f =StringUtils::strip_edges( custom_list[i]);
         if (!f.empty()) {
-            features.push_back(se_string(f));
+            features.push_back(String(f));
         }
     }
 
-    for (List<se_string>::Element *E = features.front(); E; E = E->next()) {
+    for (List<String>::Element *E = features.front(); E; E = E->next()) {
         fset.insert(E->deref());
     }
 
     custom_feature_display->clear();
-    for (Set<se_string>::iterator E = fset.begin(); E!=fset.end(); ) {
-        se_string f = *E;
+    for (Set<String>::iterator E = fset.begin(); E!=fset.end(); ) {
+        String f = *E;
         if (++E != fset.end()) {
             f += (", ");
         }
@@ -392,7 +392,7 @@ void ProjectExportDialog::_patch_button_pressed(Object *p_item, int p_column, in
     ERR_FAIL_COND(not current)
 
     if (p_id == 0) {
-        Vector<se_string> patches = current->get_patches();
+        Vector<String> patches = current->get_patches();
         ERR_FAIL_INDEX(patch_index, patches.size());
         se_string_view file_name(PathUtils::get_file(patches[patch_index]));
         patch_erase->set_text(FormatSN(TTR("Delete patch '%.*s' from list?").asCString(), file_name.length(),file_name.data() ));
@@ -412,11 +412,11 @@ void ProjectExportDialog::_patch_edited() {
     Ref<EditorExportPreset> current = get_current_preset();
     ERR_FAIL_COND(not current)
 
-    Vector<se_string> patches = current->get_patches();
+    Vector<String> patches = current->get_patches();
 
     ERR_FAIL_INDEX(index, patches.size())
 
-    se_string patch = patches[index];
+    String patch = patches[index];
     patch.replace("*", "");
 
     if (item->is_checked(0)) {
@@ -431,13 +431,13 @@ void ProjectExportDialog::_patch_selected(se_string_view p_path) {
     Ref<EditorExportPreset> current = get_current_preset();
     ERR_FAIL_COND(not current)
 
-    Vector<se_string> patches = current->get_patches();
+    Vector<String> patches = current->get_patches();
 
     if (patch_index >= patches.size()) {
 
         current->add_patch(PathUtils::path_to(ProjectSettings::get_singleton()->get_resource_path(),p_path) + "*");
     } else {
-        se_string enabled =StringUtils::ends_with( patches[patch_index],"*") ? se_string("*") : se_string();
+        String enabled =StringUtils::ends_with( patches[patch_index],"*") ? String("*") : String();
         current->set_patch(patch_index, PathUtils::path_to(ProjectSettings::get_singleton()->get_resource_path(),p_path) + enabled);
     }
 
@@ -449,7 +449,7 @@ void ProjectExportDialog::_patch_deleted() {
     Ref<EditorExportPreset> current = get_current_preset();
     ERR_FAIL_COND(not current)
 
-    Vector<se_string> patches = current->get_patches();
+    Vector<String> patches = current->get_patches();
     if (patch_index < patches.size()) {
 
         current->remove_patch(patch_index);
@@ -505,9 +505,9 @@ void ProjectExportDialog::set_export_path(se_string_view p_value) {
     current->set_export_path(p_value);
 }
 
-se_string ProjectExportDialog::get_export_path() {
+String ProjectExportDialog::get_export_path() {
     Ref<EditorExportPreset> current = get_current_preset();
-    ERR_FAIL_COND_V(not current, se_string(""))
+    ERR_FAIL_COND_V(not current, String(""))
 
     return current->get_export_path();
 }
@@ -525,7 +525,7 @@ void ProjectExportDialog::_export_path_changed(const StringName &p_property, con
     Ref<EditorExportPreset> current = get_current_preset();
     ERR_FAIL_COND(not current)
 
-    current->set_export_path(p_value.as<se_string>());
+    current->set_export_path(p_value.as<String>());
     _update_presets();
 }
 
@@ -542,7 +542,7 @@ void ProjectExportDialog::_script_export_mode_changed(int p_mode) {
     _update_current_preset();
 }
 
-void ProjectExportDialog::_script_encryption_key_changed(const se_string &p_key) {
+void ProjectExportDialog::_script_encryption_key_changed(const String &p_key) {
 
     if (updating)
         return;
@@ -576,7 +576,7 @@ void ProjectExportDialog::_duplicate_preset() {
     Ref<EditorExportPreset> preset = current->get_platform()->create_preset();
     ERR_FAIL_COND(not preset)
 
-    se_string name = current->get_name() + " (copy)";
+    String name = current->get_name() + " (copy)";
     bool make_runnable = true;
     while (true) {
 
@@ -605,7 +605,7 @@ void ProjectExportDialog::_duplicate_preset() {
     preset->set_export_filter(current->get_export_filter());
     preset->set_include_filter(current->get_include_filter());
     preset->set_exclude_filter(current->get_exclude_filter());
-    Vector<se_string> list = current->get_patches();
+    Vector<String> list = current->get_patches();
     for (int i = 0; i < list.size(); i++) {
         preset->add_patch(list[i]);
     }
@@ -763,7 +763,7 @@ void ProjectExportDialog::drop_data_fw(const Point2 &p_point, const Variant &p_d
         }
 
         Ref<EditorExportPreset> preset = get_current_preset();
-        se_string patch = preset->get_patch(from_pos);
+        String patch = preset->get_patch(from_pos);
         preset->remove_patch(from_pos);
         preset->add_patch(patch, to_pos);
 
@@ -849,7 +849,7 @@ bool ProjectExportDialog::_fill_tree(EditorFileSystemDirectory *p_dir, TreeItem 
         file->set_cell_mode(0, TreeItem::CELL_MODE_CHECK);
         file->set_text_utf8(0, p_dir->get_file(i));
 
-        se_string path = p_dir->get_file_path(i);
+        String path = p_dir->get_file_path(i);
 
         file->set_icon(0, EditorNode::get_singleton()->get_class_icon(type));
         file->set_editable(0, true);
@@ -875,7 +875,7 @@ void ProjectExportDialog::_tree_changed() {
     if (!item)
         return;
 
-    se_string path = item->get_metadata(0);
+    String path = item->get_metadata(0);
     bool added = item->is_checked(0);
 
     if (added) {
@@ -939,7 +939,7 @@ void ProjectExportDialog::_export_project() {
     export_project->set_access(EditorFileDialog::ACCESS_FILESYSTEM);
     export_project->clear_filters();
 
-    List<se_string> extension_list = platform->get_binary_extensions(current);
+    List<String> extension_list = platform->get_binary_extensions(current);
     for (int i = 0; i < extension_list.size(); i++) {
         export_project->add_filter("*." + extension_list[i] + " ; " + platform->get_name() + " Export");
     }
@@ -1359,11 +1359,11 @@ ProjectExportDialog::ProjectExportDialog() {
 
     editor_icons = "EditorIcons";
 
-    default_filename = EditorSettings::get_singleton()->get_project_metadata("export_options", "default_filename", "").as<se_string>();
+    default_filename = EditorSettings::get_singleton()->get_project_metadata("export_options", "default_filename", "").as<String>();
     // If no default set, use project name
     if (default_filename.empty()) {
         // If no project name defined, use a sane default
-        default_filename = ProjectSettings::get_singleton()->get("application/config/name").as<se_string>();
+        default_filename = ProjectSettings::get_singleton()->get("application/config/name").as<String>();
         if (default_filename.empty()) {
             default_filename = "UnnamedProject";
         }

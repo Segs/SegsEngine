@@ -270,7 +270,7 @@ public:
     static void get_virtual_methods(const StringName &p_class, PODVector<MethodInfo> *p_methods, bool p_no_inheritance = false);
 
     static void bind_integer_constant(const StringName &p_class, const StringName &p_enum, const StringName &p_name, int p_constant);
-    static void get_integer_constant_list(const StringName &p_class, ListPOD<se_string> *p_constants, bool p_no_inheritance = false);
+    static void get_integer_constant_list(const StringName &p_class, ListPOD<String> *p_constants, bool p_no_inheritance = false);
     static int get_integer_constant(const StringName &p_class, const StringName &p_name, bool *p_success = nullptr);
 
     static StringName get_integer_constant_enum(const StringName &p_class, const StringName &p_name, bool p_no_inheritance = false);
@@ -287,8 +287,8 @@ public:
     static bool is_class_exposed(StringName p_class);
 
     static void add_resource_base_extension(const StringName &p_extension, const StringName &p_class);
-    static void get_resource_base_extensions(PODVector<se_string> &p_extensions);
-    static void get_extensions_for_type(const StringName &p_class, PODVector<se_string> *p_extensions);
+    static void get_resource_base_extensions(PODVector<String> &p_extensions);
+    static void get_extensions_for_type(const StringName &p_class, PODVector<String> *p_extensions);
 
     static void add_compatibility_class(const StringName &p_class, const StringName &p_fallback);
     static void init();

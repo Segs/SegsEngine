@@ -61,9 +61,9 @@ void EditorSettingsDialog::_settings_changed() {
     timer->start();
 }
 
-void EditorSettingsDialog::_settings_property_edited(const se_string &p_name) {
+void EditorSettingsDialog::_settings_property_edited(const String &p_name) {
 
-    se_string full_name = inspector->get_full_item_path(p_name);
+    String full_name = inspector->get_full_item_path(p_name);
 
     if (full_name == "interface/theme/accent_color" || full_name == "interface/theme/base_color" || full_name == "interface/theme/contrast") {
         EditorSettings::get_singleton()->set_manually("interface/theme/preset", "Custom"); // set preset to Custom
@@ -155,7 +155,7 @@ void EditorSettingsDialog::_unhandled_input(const Ref<InputEvent> &p_event) {
         bool handled = false;
 
         if (ED_IS_SHORTCUT("editor/undo", p_event)) {
-            se_string action(undo_redo->get_current_action_name());
+            String action(undo_redo->get_current_action_name());
             if (!action.empty())
                 EditorNode::get_log()->add_message_utf8("Undo: " + action, EditorLog::MSG_TYPE_EDITOR);
             undo_redo->undo();
@@ -163,7 +163,7 @@ void EditorSettingsDialog::_unhandled_input(const Ref<InputEvent> &p_event) {
         }
         if (ED_IS_SHORTCUT("editor/redo", p_event)) {
             undo_redo->redo();
-            se_string action(undo_redo->get_current_action_name());
+            String action(undo_redo->get_current_action_name());
             if (!action.empty())
                 EditorNode::get_log()->add_message_utf8("Redo: " + action, EditorLog::MSG_TYPE_EDITOR);
             handled = true;
@@ -193,7 +193,7 @@ void EditorSettingsDialog::_update_icons() {
 
 void EditorSettingsDialog::_update_shortcuts() {
 
-    Map<se_string, bool> collapsed;
+    Map<String, bool> collapsed;
 
     if (shortcuts->get_root() && shortcuts->get_root()->get_children()) {
         for (TreeItem *item = shortcuts->get_root()->get_children(); item; item = item->get_next()) {
@@ -203,13 +203,13 @@ void EditorSettingsDialog::_update_shortcuts() {
 
     shortcuts->clear();
 
-    List<se_string> slist;
+    List<String> slist;
     EditorSettings::get_singleton()->get_shortcut_list(&slist);
     TreeItem *root = shortcuts->create_item();
 
-    Map<se_string, TreeItem *> sections;
+    Map<String, TreeItem *> sections;
 
-    for (List<se_string>::Element *E = slist.front(); E; E = E->next()) {
+    for (List<String>::Element *E = slist.front(); E; E = E->next()) {
 
         Ref<ShortCut> sc = EditorSettings::get_singleton()->get_shortcut(E->deref());
         if (!sc->has_meta("original"))
@@ -217,7 +217,7 @@ void EditorSettingsDialog::_update_shortcuts() {
 
         Ref<InputEvent> original(sc->get_meta("original"));
 
-        se_string section_name(StringUtils::get_slice(E->deref(),"/", 0));
+        String section_name(StringUtils::get_slice(E->deref(),"/", 0));
 
         TreeItem *section;
 
@@ -226,7 +226,7 @@ void EditorSettingsDialog::_update_shortcuts() {
         } else {
             section = shortcuts->create_item(root);
 
-            se_string item_name = StringUtils::capitalize(section_name);
+            String item_name = StringUtils::capitalize(section_name);
             section->set_text_utf8(0, item_name);
 
             if (collapsed.contains(item_name)) {
@@ -261,7 +261,7 @@ void EditorSettingsDialog::_update_shortcuts() {
     }
 
     // remove sections with no shortcuts
-    for (eastl::pair<const se_string,TreeItem *> &E : sections) {
+    for (eastl::pair<const String,TreeItem *> &E : sections) {
         TreeItem *section = E.second;
         if (section->get_children() == nullptr) {
             root->remove_child(section);
@@ -274,7 +274,7 @@ void EditorSettingsDialog::_shortcut_button_pressed(Object *p_item, int p_column
     TreeItem *ti = object_cast<TreeItem>(p_item);
     ERR_FAIL_COND(!ti)
 
-    se_string item = ti->get_metadata(0);
+    String item = ti->get_metadata(0);
     Ref<ShortCut> sc = EditorSettings::get_singleton()->get_shortcut(item);
 
     if (p_idx == 0) {
@@ -322,7 +322,7 @@ void EditorSettingsDialog::_wait_for_key(const Ref<InputEvent> &p_event) {
     if (k && k->is_pressed() && k->get_scancode() != 0) {
 
         last_wait_for_key = k;
-        const se_string str = keycode_get_string(k->get_scancode_with_modifiers());
+        const String str = keycode_get_string(k->get_scancode_with_modifiers());
         press_a_key_label->set_text(StringName(str));
         press_a_key->accept_event();
     }

@@ -44,7 +44,7 @@ StringName ResourceImporterImage::get_visible_name() const {
 
     return "Image";
 }
-void ResourceImporterImage::get_recognized_extensions(PODVector<se_string> &p_extensions) const {
+void ResourceImporterImage::get_recognized_extensions(PODVector<String> &p_extensions) const {
 
     ImageLoader::get_recognized_extensions(p_extensions);
 }
@@ -74,7 +74,7 @@ StringName ResourceImporterImage::get_preset_name(int p_idx) const {
 void ResourceImporterImage::get_import_options(ListPOD<ImportOption> *r_options, int p_preset) const {
 }
 
-Error ResourceImporterImage::import(se_string_view p_source_file, se_string_view p_save_path, const Map<StringName, Variant> &p_options, List<se_string> *r_platform_variants, List<se_string> *r_gen_files, Variant *r_metadata) {
+Error ResourceImporterImage::import(se_string_view p_source_file, se_string_view p_save_path, const Map<StringName, Variant> &p_options, List<String> *r_platform_variants, List<String> *r_gen_files, Variant *r_metadata) {
 
     FileAccess *f = FileAccess::open(p_source_file, FileAccess::READ);
 
@@ -89,7 +89,7 @@ Error ResourceImporterImage::import(se_string_view p_source_file, se_string_view
 
     memdelete(f);
 
-    f = FileAccess::open(se_string(p_save_path) + ".image", FileAccess::WRITE);
+    f = FileAccess::open(String(p_save_path) + ".image", FileAccess::WRITE);
     ERR_FAIL_COND_V_MSG(!f, ERR_CANT_CREATE, "Cannot create file in path '" + p_save_path + ".image'.")
 
     //save the header GDIM

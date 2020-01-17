@@ -218,14 +218,14 @@ bool TileSetEditor::can_drop_data_fw(const Point2 &p_point, const Variant &p_dat
 
     if (UIString(d["type"]) == "files") {
 
-        Vector<se_string> files = d["files"].as<Vector<se_string>>();
+        Vector<String> files = d["files"].as<Vector<String>>();
 
         if (files.empty())
             return false;
 
         for (int i = 0; i < files.size(); i++) {
-            se_string file = files[i];
-            se_string ftype = EditorFileSystem::get_singleton()->get_file_type(file);
+            String file = files[i];
+            String ftype = EditorFileSystem::get_singleton()->get_file_type(file);
 
             if (!ClassDB::is_parent_class(StringName(ftype), "Texture")) {
                 return false;
@@ -264,7 +264,7 @@ void TileSetEditor::drop_data_fw(const Point2 &p_point, const Variant &p_data, C
 
     if (UIString(d["type"]) == "files") {
 
-        PoolVector<se_string> files = d["files"].as<PoolVector<se_string>>();
+        PoolVector<String> files = d["files"].as<PoolVector<String>>();
 
         _on_textures_added(files);
     }
@@ -635,10 +635,10 @@ TileSetEditor::TileSetEditor(EditorNode *p_editor) {
     texture_dialog->set_access(EditorFileDialog::ACCESS_RESOURCES);
     texture_dialog->set_mode(EditorFileDialog::MODE_OPEN_FILES);
     texture_dialog->clear_filters();
-    PODVector<se_string> extensions;
+    PODVector<String> extensions;
 
     ResourceLoader::get_recognized_extensions_for_type("Texture", extensions);
-    for (const se_string &ext : extensions) {
+    for (const String &ext : extensions) {
 
         texture_dialog->add_filter("*." + ext + " ; " + StringUtils::to_upper(ext));
     }
@@ -748,7 +748,7 @@ void TileSetEditor::_on_texture_list_selected(int p_index) {
     workspace->update();
 }
 
-void TileSetEditor::_on_textures_added(const PoolVector<se_string> &p_paths) {
+void TileSetEditor::_on_textures_added(const PoolVector<String> &p_paths) {
     int invalid_count = 0;
     for (int i = 0; i < p_paths.size(); i++) {
         Ref<Texture> t = dynamic_ref_cast<Texture>(ResourceLoader::load(p_paths[i]));
@@ -1328,7 +1328,7 @@ void TileSetEditor::_on_workspace_input(const Ref<InputEvent> &p_ie) {
                         undo_redo->add_undo_method(this, "_validate_current_tile_id");
                         undo_redo->add_do_method(tileset.get(), "tile_set_texture", t_id, get_current_texture());
                         undo_redo->add_do_method(tileset.get(), "tile_set_region", t_id, edited_region);
-                        undo_redo->add_do_method(tileset.get(), "tile_set_name", t_id, PathUtils::get_file(get_current_texture()->get_path() + se_string(" ") + StringUtils::num(t_id, 0)));
+                        undo_redo->add_do_method(tileset.get(), "tile_set_name", t_id, PathUtils::get_file(get_current_texture()->get_path() + String(" ") + StringUtils::num(t_id, 0)));
                         if (workspace_mode != WORKSPACE_CREATE_SINGLE) {
                             undo_redo->add_do_method(tileset.get(), "autotile_set_size", t_id, snap_step);
                             undo_redo->add_do_method(tileset.get(), "autotile_set_spacing", t_id, snap_separation.x);

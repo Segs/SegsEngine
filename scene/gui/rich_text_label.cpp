@@ -2457,7 +2457,7 @@ Error RichTextLabel::append_bbcode(se_string_view p_bbcode) {
         } else if (tag == se_string_view("img")) {
 
             auto end = StringUtils::find(p_bbcode,"[", brk_end);
-            if (end == se_string::npos)
+            if (end == String::npos)
                 end = p_bbcode.length();
             se_string_view image = StringUtils::substr(p_bbcode,brk_end + 1, end - brk_end - 1);
 
@@ -2474,7 +2474,7 @@ Error RichTextLabel::append_bbcode(se_string_view p_bbcode) {
 
             se_string_view params = tag.substr(4, tag.length());
             auto sep = params.find("x");
-            if (sep == se_string::npos) {
+            if (sep == String::npos) {
                 width = StringUtils::to_int(params);
             } else {
                 width = StringUtils::to_int(params.substr(0, sep));
@@ -2482,7 +2482,7 @@ Error RichTextLabel::append_bbcode(se_string_view p_bbcode) {
             }
 
             auto end = p_bbcode.find("[", brk_end);
-            if (end == se_string::npos)
+            if (end == String::npos)
                 end = p_bbcode.length();
 
             se_string_view image = p_bbcode.substr(brk_end + 1, end - brk_end - 1);
@@ -2678,9 +2678,9 @@ Error RichTextLabel::append_bbcode(se_string_view p_bbcode) {
             } else {
                 auto identifier = expr_v[0];
                 expr_v.pop_front();
-                PoolVector<se_string> expr;
+                PoolVector<String> expr;
                 for(int i=0; i<expr_v.size();++i)
-                    expr.push_back(se_string(expr_v[i]));
+                    expr.push_back(String(expr_v[i]));
                 Dictionary properties = parse_expressions_for_values(expr);
                 Ref<RichTextEffect> effect = _get_custom_effect_by_code(identifier);
 
@@ -2844,7 +2844,7 @@ void RichTextLabel::set_bbcode(se_string_view p_bbcode) {
     }
 }
 
-const se_string & RichTextLabel::get_bbcode() const {
+const String & RichTextLabel::get_bbcode() const {
 
     return bbcode;
 }
@@ -2861,7 +2861,7 @@ bool RichTextLabel::is_using_bbcode() const {
     return use_bbcode;
 }
 
-se_string RichTextLabel::get_text() {
+String RichTextLabel::get_text() {
     UIString text;
     RichTextItem *it = main;
     while (it) {
@@ -3121,7 +3121,7 @@ Ref<RichTextEffect> RichTextLabel::_get_custom_effect_by_code(se_string_view p_b
     return r;
 }
 
-Dictionary RichTextLabel::parse_expressions_for_values(const PoolVector<se_string> &p_expressions) {
+Dictionary RichTextLabel::parse_expressions_for_values(const PoolVector<String> &p_expressions) {
     using namespace StringUtils;
 
     Dictionary d = Dictionary();

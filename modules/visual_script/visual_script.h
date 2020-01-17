@@ -84,7 +84,7 @@ public:
     Variant get_default_input_value(int p_port) const;
 
     virtual se_string_view get_caption() const = 0;
-    virtual se_string get_text() const;
+    virtual String get_text() const;
     virtual const char *get_category() const = 0;
 
     //used by editor, this is not really saved
@@ -162,7 +162,7 @@ public:
 
     virtual int get_working_memory_size() const { return 0; }
 
-    virtual int step(const Variant **p_inputs, Variant **p_outputs, StartMode p_start_mode, Variant *p_working_mem, Variant::CallError &r_error, se_string &r_error_str) = 0; //do a step, return which sequence port to go out
+    virtual int step(const Variant **p_inputs, Variant **p_outputs, StartMode p_start_mode, Variant *p_working_mem, Variant::CallError &r_error, String &r_error_str) = 0; //do a step, return which sequence port to go out
 
     Ref<VisualScriptNode> get_base_node() { return Ref<VisualScriptNode>(base); }
 
@@ -348,7 +348,7 @@ public:
 
     bool has_source_code() const override;
     se_string_view get_source_code() const override;
-    void set_source_code(se_string p_code) override;
+    void set_source_code(String p_code) override;
     Error reload(bool p_keep_state = false) override;
 
     bool is_tool() const override;
@@ -401,7 +401,7 @@ class VisualScriptInstance : public ScriptInstance {
 
     StringName source;
 
-    void _dependency_step(VisualScriptNodeInstance *node, int p_pass, int *pass_stack, const Variant **input_args, Variant **output_args, Variant *variant_stack, Variant::CallError &r_error, se_string &error_str, VisualScriptNodeInstance **r_error_node);
+    void _dependency_step(VisualScriptNodeInstance *node, int p_pass, int *pass_stack, const Variant **input_args, Variant **output_args, Variant *variant_stack, Variant::CallError &r_error, String &error_str, VisualScriptNodeInstance **r_error_node);
     Variant _call_internal(const StringName &p_method, void *p_stack, int p_stack_size, VisualScriptNodeInstance *p_node, int p_flow_stack_pos, int p_pass, bool p_resuming_yield, Variant::CallError &r_error);
 
     //Map<StringName,Function> functions;
@@ -417,7 +417,7 @@ public:
     bool has_method(const StringName &p_method) const override;
     Variant call(const StringName &p_method, const Variant **p_args, int p_argcount, Variant::CallError &r_error) override;
     void notification(int p_notification) override;
-    se_string to_string(bool *r_valid) override;
+    String to_string(bool *r_valid) override;
 
     bool set_variable(const StringName &p_variable, const Variant &p_value) {
 
@@ -490,7 +490,7 @@ using VisualScriptNodeRegisterFunc = Ref<VisualScriptNode> (*)(se_string_view);
 
 class VisualScriptLanguage : public ScriptLanguage {
 
-    Map<se_string, VisualScriptNodeRegisterFunc> register_funcs;
+    Map<String, VisualScriptNodeRegisterFunc> register_funcs;
 
     struct CallLevel {
 
@@ -502,8 +502,8 @@ class VisualScriptLanguage : public ScriptLanguage {
     };
 
     int _debug_parse_err_node;
-    se_string _debug_parse_err_file;
-    se_string _debug_error;
+    String _debug_parse_err_file;
+    String _debug_error;
     int _debug_call_stack_pos;
     int _debug_max_call_stack;
     CallLevel *_call_stack;
@@ -568,46 +568,46 @@ public:
 
     /* LANGUAGE FUNCTIONS */
     void init() override;
-    se_string get_type() const override;
-    se_string get_extension() const override;
+    String get_type() const override;
+    String get_extension() const override;
     Error execute_file(se_string_view p_path) override;
     void finish() override;
 
     /* EDITOR FUNCTIONS */
-    void get_reserved_words(ListPOD<se_string> *p_words) const override;
-    void get_comment_delimiters(ListPOD<se_string> *p_delimiters) const override;
-    void get_string_delimiters(ListPOD<se_string> *p_delimiters) const override;
+    void get_reserved_words(ListPOD<String> *p_words) const override;
+    void get_comment_delimiters(ListPOD<String> *p_delimiters) const override;
+    void get_string_delimiters(ListPOD<String> *p_delimiters) const override;
     Ref<Script> get_template(se_string_view p_class_name, se_string_view p_base_class_name) const override;
     bool is_using_templates() override;
     void make_template(se_string_view p_class_name, se_string_view p_base_class_name, Ref<Script> &p_script) override;
-    bool validate(se_string_view p_script, int &r_line_error, int &r_col_error, se_string &r_test_error,
-                  se_string_view p_path = {}, DefList<se_string> *r_functions = nullptr,
+    bool validate(se_string_view p_script, int &r_line_error, int &r_col_error, String &r_test_error,
+                  se_string_view p_path = {}, DefList<String> *r_functions = nullptr,
             List<ScriptLanguage::Warning> *r_warnings = nullptr, Set<int> *r_safe_lines = nullptr) const override;
     Script *create_script() const override;
     bool has_named_classes() const override;
     bool supports_builtin_mode() const override;
     int find_function(se_string_view p_function, se_string_view p_code) const override;
-    se_string make_function(const se_string &p_class, const StringName &p_name, const PoolVector<se_string> &p_args) const override;
-    void auto_indent_code(se_string &p_code, int p_from_line, int p_to_line) const override;
+    String make_function(const String &p_class, const StringName &p_name, const PoolVector<String> &p_args) const override;
+    void auto_indent_code(String &p_code, int p_from_line, int p_to_line) const override;
     void add_global_constant(const StringName &p_variable, const Variant &p_value) override;
 
     /* DEBUGGER FUNCTIONS */
 
-    const se_string &debug_get_error() const override;
+    const String &debug_get_error() const override;
     int debug_get_stack_level_count() const override;
     int debug_get_stack_level_line(int p_level) const override;
-    se_string debug_get_stack_level_function(int p_level) const override;
-    se_string debug_get_stack_level_source(int p_level) const override;
-    void debug_get_stack_level_locals(int p_level, ListPOD<se_string> *p_locals, List<Variant> *p_values, int p_max_subitems = -1, int p_max_depth = -1) override;
-    void debug_get_stack_level_members(int p_level, ListPOD<se_string> *p_members, List<Variant> *p_values, int p_max_subitems = -1, int p_max_depth = -1) override;
-    void debug_get_globals(ListPOD<se_string> *p_locals, List<Variant> *p_values, int p_max_subitems = -1, int p_max_depth = -1) override;
-    se_string debug_parse_stack_level_expression(int p_level, se_string_view p_expression, int p_max_subitems = -1, int p_max_depth = -1) override;
+    String debug_get_stack_level_function(int p_level) const override;
+    String debug_get_stack_level_source(int p_level) const override;
+    void debug_get_stack_level_locals(int p_level, ListPOD<String> *p_locals, List<Variant> *p_values, int p_max_subitems = -1, int p_max_depth = -1) override;
+    void debug_get_stack_level_members(int p_level, ListPOD<String> *p_members, List<Variant> *p_values, int p_max_subitems = -1, int p_max_depth = -1) override;
+    void debug_get_globals(ListPOD<String> *p_locals, List<Variant> *p_values, int p_max_subitems = -1, int p_max_depth = -1) override;
+    String debug_parse_stack_level_expression(int p_level, se_string_view p_expression, int p_max_subitems = -1, int p_max_depth = -1) override;
 
     void reload_all_scripts() override;
     void reload_tool_script(const Ref<Script> &p_script, bool p_soft_reload) override;
     /* LOADER FUNCTIONS */
 
-    void get_recognized_extensions(List<se_string> *p_extensions) const override;
+    void get_recognized_extensions(List<String> *p_extensions) const override;
     void get_public_functions(List<MethodInfo> *p_functions) const override;
     void get_public_constants(List<Pair<se_string_view, Variant> > *p_constants) const override;
 
@@ -619,8 +619,8 @@ public:
 
     void add_register_func(se_string_view p_name, VisualScriptNodeRegisterFunc p_func);
     void remove_register_func(se_string_view p_name);
-    Ref<VisualScriptNode> create_node_from_name(const se_string &p_name);
-    void get_registered_node_names(List<se_string> *r_names);
+    Ref<VisualScriptNode> create_node_from_name(const String &p_name);
+    void get_registered_node_names(List<String> *r_names);
 
     VisualScriptLanguage();
     ~VisualScriptLanguage() override;
