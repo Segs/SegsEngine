@@ -234,7 +234,7 @@ List<ClassAPI> generate_c_api_classes() {
 
         {
             ListPOD<StringName> inheriters;
-            ClassDB::get_inheriters_from_class("Reference", &inheriters);
+            ClassDB::get_inheriters_from_class("RefCounted", &inheriters);
             bool is_reference = inheriters.contains(class_name);
             // @Unclear
             class_api.is_reference = !class_api.is_singleton && is_reference;

@@ -5476,7 +5476,7 @@ void GDScriptParser::_determine_inheritance(ClassNode *p_class, bool p_recursive
         // without extends, implicitly extend Reference
         p_class->base_type.has_type = true;
         p_class->base_type.kind = DataType::NATIVE;
-        p_class->base_type.native_type = "Reference";
+        p_class->base_type.native_type = "RefCounted";
     }
 
     if (p_recursive) {

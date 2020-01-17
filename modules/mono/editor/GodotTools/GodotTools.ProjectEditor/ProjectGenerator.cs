@@ -34,11 +34,11 @@ namespace GodotTools.ProjectEditor
             toolsGroup.AddProperty("WarningLevel", "4");
             toolsGroup.AddProperty("ConsolePause", "false");
 
-            var coreApiRef = root.AddItem("Reference", CoreApiProjectName);
+            var coreApiRef = root.AddItem("RefCounted", CoreApiProjectName);
             coreApiRef.AddMetadata("HintPath", Path.Combine("$(ProjectDir)", ".mono", "assemblies", "$(ApiConfiguration)", CoreApiProjectName + ".dll"));
             coreApiRef.AddMetadata("Private", "False");
 
-            var editorApiRef = root.AddItem("Reference", EditorApiProjectName);
+            var editorApiRef = root.AddItem("RefCounted", EditorApiProjectName);
             editorApiRef.Condition = " '$(Configuration)' == 'Tools' ";
             editorApiRef.AddMetadata("HintPath", Path.Combine("$(ProjectDir)", ".mono", "assemblies", "$(ApiConfiguration)", EditorApiProjectName + ".dll"));
             editorApiRef.AddMetadata("Private", "False");
@@ -122,7 +122,7 @@ namespace GodotTools.ProjectEditor
 
             // References
             var referenceGroup = root.AddItemGroup();
-            referenceGroup.AddItem("Reference", "System");
+            referenceGroup.AddItem("RefCounted", "System");
 
             root.AddImport(Path.Combine("$(MSBuildBinPath)", "Microsoft.CSharp.targets").Replace("/", "\\"));
 

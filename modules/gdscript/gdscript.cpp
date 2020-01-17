@@ -1946,7 +1946,7 @@ StringName GDScriptLanguage::get_global_class_name(se_string_view p_path, String
                         break;
                     }
                 } else {
-                    *r_base_type = "Reference";
+                    *r_base_type = "RefCounted";
                     subclass = nullptr;
                 }
             }
