@@ -16,7 +16,7 @@
 			</description>
 		</method>
 		<method name="get_constructor_type" qualifiers="const">
-			<return type="int" enum="Variant.Type">
+			<return type="int" enum="VariantType">
 			</return>
 			<description>
 			</description>
@@ -32,7 +32,7 @@
 		<method name="set_constructor_type">
 			<return type="void">
 			</return>
-			<argument index="0" name="type" type="int" enum="Variant.Type">
+			<argument index="0" name="type" type="int" enum="VariantType">
 			</argument>
 			<description>
 			</description>

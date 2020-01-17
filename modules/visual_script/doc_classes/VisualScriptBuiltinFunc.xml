@@ -170,7 +170,7 @@
 			Convert between types.
 		</constant>
 		<constant name="TYPE_OF" value="52" enum="BuiltinFunc">
-			Return the type of the input as an integer. Check [enum Variant.Type] for the integers that might be returned.
+			Return the type of the input as an integer. Check [enum VariantType] for the integers that might be returned.
 		</constant>
 		<constant name="TYPE_EXISTS" value="53" enum="BuiltinFunc">
 			Checks if a type is registered in the [ClassDB].
