@@ -415,8 +415,8 @@ public:
     TGT_TYPE getT(const StringName &p_name, bool *r_valid = nullptr) const {
         return (TGT_TYPE)get(p_name, r_valid);
     }
-    void set_indexed(const Vector<StringName> &p_names, const Variant &p_value, bool *r_valid = nullptr);
-    Variant get_indexed(const Vector<StringName> &p_names, bool *r_valid = nullptr) const;
+    void set_indexed(const PODVector<StringName> &p_names, const Variant &p_value, bool *r_valid = nullptr);
+    Variant get_indexed(const PODVector<StringName> &p_names, bool *r_valid = nullptr) const;
 
     void get_property_list(ListPOD<PropertyInfo> *p_list, bool p_reversed = false) const;
 
@@ -477,7 +477,7 @@ public:
     bool is_blocking_signals() const;
 
     VariantType get_static_property_type(const StringName &p_property, bool *r_valid = nullptr) const;
-    VariantType get_static_property_type_indexed(const Vector<StringName> &p_path, bool *r_valid = nullptr) const;
+    VariantType get_static_property_type_indexed(const PODVector<StringName> &p_path, bool *r_valid = nullptr) const;
 
     virtual void get_translatable_strings(ListPOD<StringName> *p_strings) const;
     virtual void get_argument_options(const StringName &p_function, int p_idx, ListPOD<String> *r_options) const;

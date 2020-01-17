@@ -856,9 +856,9 @@ void AnimationTreePlayer::_process_animation(float p_delta) {
 
                         tr.track->loc += loc * tr.weight;
 
-                        scale.x -= 1.0;
-                        scale.y -= 1.0;
-                        scale.z -= 1.0;
+                        scale.x -= 1.0f;
+                        scale.y -= 1.0f;
+                        scale.z -= 1.0f;
                         tr.track->scale += scale * tr.weight;
 
                         tr.track->rot = tr.track->rot * empty_rot.slerp(rot, tr.weight);
@@ -1501,11 +1501,11 @@ AnimationTreePlayer::Track *AnimationTreePlayer::_find_track(const NodePath &p_p
     ERR_FAIL_COND_V(!parent, nullptr)
 
     RES resource;
-    Vector<StringName> leftover_path;
+    PODVector<StringName> leftover_path;
     Node *child = parent->get_node_and_resource(p_path, resource, leftover_path);
     if (!child) {
         String err = "Animation track references unknown Node: '" + String(p_path) + "'.";
-        WARN_PRINT(err);
+        WARN_PRINT(err)
         return nullptr;
     }
 

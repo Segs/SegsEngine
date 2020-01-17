@@ -2495,7 +2495,7 @@ void AnimationTrackEdit::_path_entered(se_string_view p_text) {
 bool AnimationTrackEdit::_is_value_key_valid(const Variant &p_key_value, VariantType &r_valid_type) const {
 
     RES res;
-    Vector<StringName> leftover_path;
+    PODVector<StringName> leftover_path;
     Node *node = root->get_node_and_resource(animation->track_get_path(track), res, leftover_path);
 
     Object *obj = nullptr;
@@ -3867,7 +3867,7 @@ PropertyInfo AnimationTrackEditor::_find_hint_for_track(int p_idx, NodePath &r_b
     }
 
     RES res;
-    Vector<StringName> leftover_path;
+    PODVector<StringName> leftover_path;
     Node *node = root->get_node_and_resource(path, res, leftover_path, true);
 
     if (node) {
@@ -4161,7 +4161,7 @@ void AnimationTrackEditor::_update_tracks() {
             if (root && root->has_node_and_resource(path)) {
                 RES res;
                 NodePath base_path;
-                Vector<StringName> leftover_path;
+                PODVector<StringName> leftover_path;
                 Node *node = root->get_node_and_resource(path, res, leftover_path, true);
                 PropertyInfo pinfo = _find_hint_for_track(i, base_path);
 
@@ -4175,8 +4175,8 @@ void AnimationTrackEditor::_update_tracks() {
                         pinfo.name = leftover_path[leftover_path.size() - 1];
                     }
 
-                    for (int j = 0; j < track_edit_plugins.size(); j++) {
-                        track_edit = track_edit_plugins[j]->create_value_track_edit(object, pinfo.type, pinfo.name, pinfo.hint, pinfo.hint_string, pinfo.usage);
+                    for (const Ref<AnimationTrackEditPlugin> & entry : track_edit_plugins) {
+                        track_edit = entry->create_value_track_edit(object, pinfo.type, pinfo.name, pinfo.hint, pinfo.hint_string, pinfo.usage);
                         if (track_edit) {
                             break;
                         }
@@ -5311,17 +5311,16 @@ void AnimationTrackEditor::_edit_menu_pressed(int p_option) {
                     }
 
                     text = node->get_name().asCString();
-                    Vector<StringName> sn = path.get_subnames();
-                    for (int j = 0; j < sn.size(); j++) {
+                    for (const StringName & s : path.get_subnames()) {
                         text += '.';
-                        text += sn[j].asCString();
+                        text += s.asCString();
                     }
 
                     path = NodePath(node->get_path().get_names(), path.get_subnames(), true); //store full path instead for copying
                 } else {
                     text = path.get_sname().asCString();
-                    int sep = StringUtils::find(text,":");
-                    if (sep != -1) {
+                    auto sep = StringUtils::find(text,":");
+                    if (sep != String::npos) {
                         text = StringUtils::substr(text,sep + 1, text.length());
                     }
                 }
@@ -5650,7 +5649,7 @@ void AnimationTrackEditor::_cleanup_animation(const Ref<Animation> &p_animation)
         Object *obj = nullptr;
 
         RES res;
-        Vector<StringName> leftover_path;
+        PODVector<StringName> leftover_path;
 
         Node *node = root->get_node_and_resource(p_animation->track_get_path(i), res, leftover_path);
 
@@ -6045,16 +6044,16 @@ AnimationTrackEditor::AnimationTrackEditor() {
     optimize_vb->add_margin_child(TTR("Max. Linear Error:"), optimize_linear_error);
     optimize_angular_error = memnew(SpinBox);
     optimize_angular_error->set_max(1.0);
-    optimize_angular_error->set_min(0.001);
-    optimize_angular_error->set_step(0.001);
-    optimize_angular_error->set_value(0.01);
+    optimize_angular_error->set_min(0.001f);
+    optimize_angular_error->set_step(0.001f);
+    optimize_angular_error->set_value(0.01f);
 
     optimize_vb->add_margin_child(TTR("Max. Angular Error:"), optimize_angular_error);
     optimize_max_angle = memnew(SpinBox);
     optimize_vb->add_margin_child(TTR("Max Optimizable Angle:"), optimize_max_angle);
     optimize_max_angle->set_max(360.0);
     optimize_max_angle->set_min(0.0);
-    optimize_max_angle->set_step(0.1);
+    optimize_max_angle->set_step(0.1f);
     optimize_max_angle->set_value(22);
 
     optimize_dialog->get_ok()->set_text(TTR("Optimize"));
@@ -6094,7 +6093,7 @@ AnimationTrackEditor::AnimationTrackEditor() {
     scale = memnew(SpinBox);
     scale->set_min(-99999);
     scale->set_max(99999);
-    scale->set_step(0.001);
+    scale->set_step(0.001f);
     vbc->add_margin_child(TTR("Scale Ratio:"), scale);
     scale_dialog->connect("confirmed", this, "_edit_menu_pressed", varray(EDIT_SCALE_CONFIRM));
     add_child(scale_dialog);

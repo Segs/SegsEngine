@@ -286,8 +286,8 @@ Error ResourceInteractiveLoaderBinary::parse_variant(Variant &r_v) {
 
         case VARIANT_NODE_PATH: {
 
-            Vector<StringName> names;
-            Vector<StringName> subnames;
+            PODVector<StringName> names;
+            PODVector<StringName> subnames;
             bool absolute;
 
             int name_count = f->get_16();
@@ -303,7 +303,7 @@ Error ResourceInteractiveLoaderBinary::parse_variant(Variant &r_v) {
             for (uint32_t i = 0; i < subname_count; i++)
                 subnames.push_back(_get_string());
 
-            NodePath np = NodePath(names, subnames, absolute);
+            NodePath np = NodePath(eastl::move(names), eastl::move(subnames), absolute);
 
             r_v = np;
 

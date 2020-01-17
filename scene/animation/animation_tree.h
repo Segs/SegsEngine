@@ -210,7 +210,7 @@ private:
     struct TrackCacheValue : public TrackCache {
 
         Variant value;
-        Vector<StringName> subpath;
+        PODVector<StringName> subpath;
         TrackCacheValue() { type = Animation::TYPE_VALUE; }
     };
 
@@ -222,7 +222,7 @@ private:
     struct TrackCacheBezier : public TrackCache {
 
         float value;
-        Vector<StringName> subpath;
+        PODVector<StringName> subpath;
         TrackCacheBezier() {
             type = Animation::TYPE_BEZIER;
             value = 0;

@@ -1709,7 +1709,7 @@ NodePath Node::get_path_to(const Node *p_node) const {
 
     visited.clear();
 
-    Vector<StringName> path;
+    PODVector<StringName> path;
 
     n = p_node;
 
@@ -1728,7 +1728,7 @@ NodePath Node::get_path_to(const Node *p_node) const {
         n = n->data->parent;
     }
 
-    path.invert();
+    eastl::reverse(path.begin(),path.end());
 
     return NodePath(path, false);
 }
@@ -1742,14 +1742,14 @@ NodePath Node::get_path() const {
 
     const Node *n = this;
 
-    Vector<StringName> path;
+    PODVector<StringName> path;
 
     while (n) {
         path.push_back(n->get_name());
         n = n->data->parent;
     }
 
-    path.invert();
+    eastl::reverse(path.begin(),path.end());
 
     data->path_cache = memnew(NodePath(path, true));
 
@@ -2556,7 +2556,7 @@ bool Node::has_node_and_resource(const NodePath &p_path) const {
     if (!has_node(p_path))
         return false;
     RES res;
-    Vector<StringName> leftover_path;
+    PODVector<StringName> leftover_path;
     Node *node = get_node_and_resource(p_path, res, leftover_path, false);
 
     return node;
@@ -2565,7 +2565,7 @@ bool Node::has_node_and_resource(const NodePath &p_path) const {
 Array Node::_get_node_and_resource(const NodePath &p_path) {
 
     RES res;
-    Vector<StringName> leftover_path;
+    PODVector<StringName> leftover_path;
     Node *node = get_node_and_resource(p_path, res, leftover_path, false);
     Array result;
 
@@ -2579,16 +2579,16 @@ Array Node::_get_node_and_resource(const NodePath &p_path) {
     else
         result.push_back(Variant());
 
-    result.push_back(NodePath(Vector<StringName>(), leftover_path, false));
+    result.push_back(NodePath(eastl::move(PODVector<StringName>()), eastl::move(leftover_path), false));
 
     return result;
 }
 
-Node *Node::get_node_and_resource(const NodePath &p_path, RES &r_res, Vector<StringName> &r_leftover_subpath, bool p_last_is_property) const {
+Node *Node::get_node_and_resource(const NodePath &p_path, RES &r_res, PODVector<StringName> &r_leftover_subpath, bool p_last_is_property) const {
 
     Node *node = get_node(p_path);
     r_res = RES();
-    r_leftover_subpath = Vector<StringName>();
+    r_leftover_subpath = PODVector<StringName>();
     if (!node)
         return nullptr;
 
@@ -2928,33 +2928,33 @@ void Node::_bind_methods() {
     BIND_CONSTANT(NOTIFICATION_EXIT_TREE)
     BIND_CONSTANT(NOTIFICATION_MOVED_IN_PARENT)
     BIND_CONSTANT(NOTIFICATION_READY)
-    BIND_CONSTANT(NOTIFICATION_PAUSED);
-    BIND_CONSTANT(NOTIFICATION_UNPAUSED);
-    BIND_CONSTANT(NOTIFICATION_PHYSICS_PROCESS);
-    BIND_CONSTANT(NOTIFICATION_PROCESS);
-    BIND_CONSTANT(NOTIFICATION_PARENTED);
-    BIND_CONSTANT(NOTIFICATION_UNPARENTED);
-    BIND_CONSTANT(NOTIFICATION_INSTANCED);
-    BIND_CONSTANT(NOTIFICATION_DRAG_BEGIN);
-    BIND_CONSTANT(NOTIFICATION_DRAG_END);
-    BIND_CONSTANT(NOTIFICATION_PATH_CHANGED);
-    BIND_CONSTANT(NOTIFICATION_INTERNAL_PROCESS);
-    BIND_CONSTANT(NOTIFICATION_INTERNAL_PHYSICS_PROCESS);
+    BIND_CONSTANT(NOTIFICATION_PAUSED)
+    BIND_CONSTANT(NOTIFICATION_UNPAUSED)
+    BIND_CONSTANT(NOTIFICATION_PHYSICS_PROCESS)
+    BIND_CONSTANT(NOTIFICATION_PROCESS)
+    BIND_CONSTANT(NOTIFICATION_PARENTED)
+    BIND_CONSTANT(NOTIFICATION_UNPARENTED)
+    BIND_CONSTANT(NOTIFICATION_INSTANCED)
+    BIND_CONSTANT(NOTIFICATION_DRAG_BEGIN)
+    BIND_CONSTANT(NOTIFICATION_DRAG_END)
+    BIND_CONSTANT(NOTIFICATION_PATH_CHANGED)
+    BIND_CONSTANT(NOTIFICATION_INTERNAL_PROCESS)
+    BIND_CONSTANT(NOTIFICATION_INTERNAL_PHYSICS_PROCESS)
 
-    BIND_CONSTANT(NOTIFICATION_WM_MOUSE_ENTER);
-    BIND_CONSTANT(NOTIFICATION_WM_MOUSE_EXIT);
-    BIND_CONSTANT(NOTIFICATION_WM_FOCUS_IN);
-    BIND_CONSTANT(NOTIFICATION_WM_FOCUS_OUT);
-    BIND_CONSTANT(NOTIFICATION_WM_QUIT_REQUEST);
-    BIND_CONSTANT(NOTIFICATION_WM_GO_BACK_REQUEST);
-    BIND_CONSTANT(NOTIFICATION_WM_UNFOCUS_REQUEST);
-    BIND_CONSTANT(NOTIFICATION_OS_MEMORY_WARNING);
-    BIND_CONSTANT(NOTIFICATION_TRANSLATION_CHANGED);
-    BIND_CONSTANT(NOTIFICATION_WM_ABOUT);
-    BIND_CONSTANT(NOTIFICATION_CRASH);
-    BIND_CONSTANT(NOTIFICATION_OS_IME_UPDATE);
-    BIND_CONSTANT(NOTIFICATION_APP_RESUMED);
-    BIND_CONSTANT(NOTIFICATION_APP_PAUSED);
+    BIND_CONSTANT(NOTIFICATION_WM_MOUSE_ENTER)
+    BIND_CONSTANT(NOTIFICATION_WM_MOUSE_EXIT)
+    BIND_CONSTANT(NOTIFICATION_WM_FOCUS_IN)
+    BIND_CONSTANT(NOTIFICATION_WM_FOCUS_OUT)
+    BIND_CONSTANT(NOTIFICATION_WM_QUIT_REQUEST)
+    BIND_CONSTANT(NOTIFICATION_WM_GO_BACK_REQUEST)
+    BIND_CONSTANT(NOTIFICATION_WM_UNFOCUS_REQUEST)
+    BIND_CONSTANT(NOTIFICATION_OS_MEMORY_WARNING)
+    BIND_CONSTANT(NOTIFICATION_TRANSLATION_CHANGED)
+    BIND_CONSTANT(NOTIFICATION_WM_ABOUT)
+    BIND_CONSTANT(NOTIFICATION_CRASH)
+    BIND_CONSTANT(NOTIFICATION_OS_IME_UPDATE)
+    BIND_CONSTANT(NOTIFICATION_APP_RESUMED)
+    BIND_CONSTANT(NOTIFICATION_APP_PAUSED)
 
     BIND_ENUM_CONSTANT(PAUSE_MODE_INHERIT)
     BIND_ENUM_CONSTANT(PAUSE_MODE_STOP)

@@ -40,7 +40,7 @@
 class AnimatedValuesBackup {
     struct Entry {
         Object *object;
-        Vector<StringName> subpath; // Unused if bone
+        PODVector<StringName> subpath; // Unused if bone
         int bone_idx; // -1 if not a bone
         Variant value;
     };
@@ -111,7 +111,7 @@ private:
 
             TrackNodeCache *owner;
             SpecialProperty special; //small optimization
-            Vector<StringName> subpath;
+            PODVector<StringName> subpath;
             Object *object;
             Variant value_accum;
             uint64_t accum_pass;
@@ -128,7 +128,7 @@ private:
 
         struct BezierAnim {
 
-            Vector<StringName> bezier_property;
+            PODVector<StringName> bezier_property;
             TrackNodeCache *owner;
             float bezier_accum;
             Object *object;

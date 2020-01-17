@@ -47,7 +47,7 @@ class AnimationCache : public Object {
         Spatial *spatial;
 
         int bone_idx;
-        Vector<StringName> subpath;
+        PODVector<StringName> subpath;
         bool valid;
         Path() {
             object = nullptr;

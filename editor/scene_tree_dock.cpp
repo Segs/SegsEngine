@@ -1255,7 +1255,7 @@ void SceneTreeDock::_set_owners(Node *p_owner, const Array &p_nodes) {
     }
 }
 
-void SceneTreeDock::_fill_path_renames(Vector<StringName> base_path, Vector<StringName> new_base_path, Node *p_node, List<Pair<NodePath, NodePath> > *p_renames) {
+void SceneTreeDock::_fill_path_renames(PODVector<StringName> base_path, PODVector<StringName> new_base_path, Node *p_node, List<Pair<NodePath, NodePath> > *p_renames) {
 
     base_path.push_back(p_node->get_name());
     if (!new_base_path.empty())
@@ -1283,15 +1283,16 @@ void SceneTreeDock::fill_path_renames(Node *p_node, Node *p_new_parent, List<Pai
     if (!bool(EDITOR_DEF("editors/animation/autorename_animation_tracks", true)))
         return;
 
-    Vector<StringName> base_path;
+    PODVector<StringName> base_path;
     Node *n = p_node->get_parent();
     while (n) {
         base_path.push_back(n->get_name());
         n = n->get_parent();
     }
-    base_path.invert();
+    eastl::reverse(base_path.begin(),base_path.end());
 
-    Vector<StringName> new_base_path;
+
+    PODVector<StringName> new_base_path;
     if (p_new_parent) {
         n = p_new_parent;
         while (n) {
@@ -1299,7 +1300,7 @@ void SceneTreeDock::fill_path_renames(Node *p_node, Node *p_new_parent, List<Pai
             n = n->get_parent();
         }
 
-        new_base_path.invert();
+        eastl::reverse(new_base_path.begin(),new_base_path.end());
     }
 
     _fill_path_renames(base_path, new_base_path, p_node, p_renames);
@@ -1471,15 +1472,15 @@ void SceneTreeDock::_node_prerenamed(Node *p_node, const StringName &p_new_name)
 
     List<Pair<NodePath, NodePath> > path_renames;
 
-    Vector<StringName> base_path;
+    PODVector<StringName> base_path;
     Node *n = p_node->get_parent();
     while (n) {
         base_path.push_back(n->get_name());
         n = n->get_parent();
     }
-    base_path.invert();
+    eastl::reverse(base_path.begin(),base_path.end());
 
-    Vector<StringName> new_base_path = base_path;
+    PODVector<StringName> new_base_path = base_path;
     base_path.push_back(p_node->get_name());
 
     new_base_path.push_back(p_new_name);
@@ -1621,8 +1622,8 @@ void SceneTreeDock::_do_reparent(Node *p_new_parent, int p_position_in_parent, V
             NodePath old_new_name = path_renames[ni].second;
             NodePath new_path;
 
-            const Vector<StringName>& unfixed_new_names = old_new_name.get_names();
-            Vector<StringName> fixed_new_names;
+            const PODVector<StringName>& unfixed_new_names = old_new_name.get_names();
+            PODVector<StringName> fixed_new_names;
 
             // Get last name and replace with fixed new name.
             for (int a = 0; a < unfixed_new_names.size() - 1; a++) {

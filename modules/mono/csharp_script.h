@@ -122,7 +122,7 @@ class CSharpScript : public Script {
     bool exports_invalidated;
     void _update_exports_values(Map<StringName, Variant> &values, PODVector<PropertyInfo> &propnames);
     void _update_member_info_no_exports();
-    virtual void _placeholder_erased(PlaceHolderScriptInstance *p_placeholder);
+    void _placeholder_erased(PlaceHolderScriptInstance *p_placeholder) override;
 #endif
 
     Map<StringName, PropertyInfo> member_info;
@@ -150,7 +150,7 @@ protected:
     static void _bind_methods();
 
     Variant call(const StringName &p_method, const Variant **p_args, int p_argcount, Variant::CallError &r_error) override;
-    virtual void _resource_path_changed();
+    void _resource_path_changed() override;
     bool _get(const StringName &p_name, Variant &r_ret) const;
     bool _set(const StringName &p_name, const Variant &p_value);
     void _get_property_list(ListPOD<PropertyInfo> *p_properties) const;
@@ -196,7 +196,7 @@ public:
     StringName get_script_name() const;
 
     CSharpScript();
-    ~CSharpScript();
+    ~CSharpScript() override;
 };
 
 class CSharpInstance : public ScriptInstance {
@@ -248,7 +248,7 @@ public:
     void get_property_list(ListPOD<PropertyInfo> *p_properties) const override;
     VariantType get_property_type(const StringName &p_name, bool *r_is_valid) const override;
 
-    /* TODO */ void get_method_list(PODVector<MethodInfo> *p_list) const override {}
+    /* TODO */ void get_method_list(PODVector<MethodInfo> * /*p_list*/) const override {}
     bool has_method(const StringName &p_method) const override;
     Variant call(const StringName &p_method, const Variant **p_args, int p_argcount, Variant::CallError &r_error) override;
     void call_multilevel(const StringName &p_method, const Variant **p_args, int p_argcount) override;
@@ -273,12 +273,12 @@ public:
 
     String to_string(bool *r_valid) override;
 
-    virtual Ref<Script> get_script() const;
+    Ref<Script> get_script() const override;
 
-    virtual ScriptLanguage *get_language();
+    ScriptLanguage *get_language() override;
 
     CSharpInstance();
-    ~CSharpInstance();
+    ~CSharpInstance() override;
 };
 
 struct CSharpScriptBinding {
@@ -422,7 +422,7 @@ public:
     void debug_get_stack_level_members(int p_level, ListPOD<String> *p_members, DefList<Variant> *p_values, int p_max_subitems = -1, int p_max_depth = -1) override {}
     void debug_get_globals(ListPOD<String> *p_globals, DefList<Variant> *p_values, int p_max_subitems = -1, int p_max_depth = -1) override {}
 
-    PODVector<StackInfo> debug_get_current_stack_info();
+    PODVector<StackInfo> debug_get_current_stack_info() override;
 
     /* PROFILING FUNCTIONS */
     /* TODO */ void profiling_start() override {}
