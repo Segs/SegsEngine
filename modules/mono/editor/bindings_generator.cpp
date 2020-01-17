@@ -498,7 +498,7 @@ String BindingsGenerator::bbcode_to_xml(se_string_view p_bbcode, const TypeInter
             } else if (tag == "Variant"_sv) {
                 // We use System.Object for Variant, so there is no Variant type in C#
                 xml_output.append("<c>Variant</c>");
-            } else if (tag == "se_string"_sv) {
+            } else if (tag == "String"_sv) {
                 xml_output.append("<see cref=\"string\"/>");
             } else if (tag == "Nil"_sv) {
                 xml_output.append("<see langword=\"null\"/>");

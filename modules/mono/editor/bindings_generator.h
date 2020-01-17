@@ -545,7 +545,7 @@ class BindingsGenerator {
             type_Variant = StaticCString("Variant");
             type_VarArg = StaticCString("VarArg");
             type_Object = StaticCString("Object");
-            type_Reference = StaticCString("Reference");
+            type_Reference = StaticCString("RefCounted");
             type_RID = StaticCString("RID");
             type_String = StaticCString("String");
             type_at_GlobalScope = StaticCString("@GlobalScope");

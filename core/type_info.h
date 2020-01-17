@@ -222,7 +222,7 @@ struct GetTypeInfo<RefPtr> {
     constexpr static const VariantType VARIANT_TYPE = VariantType::OBJECT;
     constexpr static const GodotTypeInfo::Metadata METADATA = GodotTypeInfo::METADATA_NONE;
     static inline PropertyInfo get_class_info() {
-        return PropertyInfo(VariantType::OBJECT, StringName(), PROPERTY_HINT_RESOURCE_TYPE, "Reference");
+        return PropertyInfo(VariantType::OBJECT, StringName(), PROPERTY_HINT_RESOURCE_TYPE, "RefCounted");
     }
 };
 template <>
@@ -230,7 +230,7 @@ struct GetTypeInfo<const RefPtr &> {
     constexpr static const VariantType VARIANT_TYPE = VariantType::OBJECT;
     constexpr static const GodotTypeInfo::Metadata METADATA = GodotTypeInfo::METADATA_NONE;
     static inline PropertyInfo get_class_info() {
-        return PropertyInfo(VariantType::OBJECT, StringName(), PROPERTY_HINT_RESOURCE_TYPE, "Reference");
+        return PropertyInfo(VariantType::OBJECT, StringName(), PROPERTY_HINT_RESOURCE_TYPE, "RefCounted");
     }
 };
 
