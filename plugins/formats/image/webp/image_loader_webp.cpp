@@ -139,7 +139,7 @@ bool ImageLoaderWEBP::can_save(se_string_view extension)
     return se_string_view("webp")==extension;
 }
 
-void ImageLoaderWEBP::get_recognized_extensions(PODVector<se_string> &p_extensions) const {
+void ImageLoaderWEBP::get_recognized_extensions(PODVector<String> &p_extensions) const {
 
     p_extensions.emplace_back("webp");
 }

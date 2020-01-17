@@ -78,15 +78,15 @@ void GDNativeExportPlugin::_export_file(const String &p_path, const String &p_ty
     if (not lib) {
         return;
     }
-    se_string lib_sym_prefix(StringUtils::to_utf8(lib->get_symbol_prefix()).data());
+    String lib_sym_prefix(StringUtils::to_utf8(lib->get_symbol_prefix()).data());
     Ref<ConfigFile> config = lib->get_config_file();
 
     {
 
-        PODVector<se_string> entry_keys;
+        PODVector<String> entry_keys;
         config->get_section_keys_utf8("entry", entry_keys);
 
-        for (const se_string &key : entry_keys) {
+        for (const String &key : entry_keys) {
 
             Vector<String> tags = StringUtils::split(String(key),'.');
 
@@ -115,10 +115,10 @@ void GDNativeExportPlugin::_export_file(const String &p_path, const String &p_ty
     }
 
     {
-        PODVector<se_string> dependency_keys;
+        PODVector<String> dependency_keys;
         config->get_section_keys_utf8("dependencies", dependency_keys);
 
-        for (const se_string &key : dependency_keys) {
+        for (const String &key : dependency_keys) {
 
             Vector<String> tags = StringUtils::split(String(key),'.');
 

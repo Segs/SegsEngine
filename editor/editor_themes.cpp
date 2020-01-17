@@ -286,7 +286,7 @@ Ref<Theme> create_editor_theme(const Ref<Theme>& p_theme) {
     float contrast = EDITOR_GET("interface/theme/contrast");
     float relationship_line_opacity = EDITOR_GET("interface/theme/relationship_line_opacity");
 
-    se_string preset = EDITOR_GET("interface/theme/preset");
+    String preset = EDITOR_GET("interface/theme/preset");
 
     bool highlight_tabs = EDITOR_GET("interface/theme/highlight_tabs");
     int border_size = EDITOR_GET("interface/theme/border_size");
@@ -441,7 +441,7 @@ Ref<Theme> create_editor_theme(const Ref<Theme>& p_theme) {
         QDirIterator embedded_icons(":/icons",{"*.svg"},QDir::NoFilter,QDirIterator::Subdirectories);
         while(embedded_icons.hasNext()) {
             embedded_icons.next();
-            const se_string basename = StringUtils::to_utf8(embedded_icons.fileInfo().baseName());
+            const String basename = StringUtils::to_utf8(embedded_icons.fileInfo().baseName());
             theme->set_icon(StringName(basename), "EditorIcons", p_theme->get_icon(StringName(basename), "EditorIcons"));
         }
     } else {
@@ -1286,7 +1286,7 @@ Ref<Theme> create_editor_theme(const Ref<Theme>& p_theme) {
 Ref<Theme> create_custom_theme(const Ref<Theme>& p_theme) {
     Ref<Theme> theme;
 
-    se_string custom_theme = EditorSettings::get_singleton()->get("interface/theme/custom_theme");
+    String custom_theme = EditorSettings::get_singleton()->get("interface/theme/custom_theme");
     if (!custom_theme.empty()) {
         theme = dynamic_ref_cast<Theme>(ResourceLoader::load(custom_theme));
     }

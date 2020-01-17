@@ -45,7 +45,7 @@ class GDMonoLog {
 	int log_level_id;
 
 	FileAccess *log_file;
-    se_string log_file_path;
+    String log_file_path;
 
     bool _try_create_logs_dir(se_string_view p_logs_dir);
     void _delete_old_log_files(se_string_view p_logs_dir);

@@ -47,18 +47,18 @@
 #define JOIN_SYMBOLS(p_path, name) ((p_path) + SYMBOL_SEPERATOR + (name))
 #endif
 
-typedef DefHashMap<se_string, const lsp::DocumentSymbol *> ClassMembers;
+typedef DefHashMap<String, const lsp::DocumentSymbol *> ClassMembers;
 
 class ExtendGDScriptParser : public GDScriptParser {
 
-    se_string path;
-    Vector<se_string> lines;
+    String path;
+    Vector<String> lines;
 
     lsp::DocumentSymbol class_symbol;
     Vector<lsp::Diagnostic> diagnostics;
     List<lsp::DocumentLink> document_links;
     ClassMembers members;
-    DefHashMap<se_string, ClassMembers> inner_classes;
+    DefHashMap<String, ClassMembers> inner_classes;
 
     void update_diagnostics();
 
@@ -70,26 +70,26 @@ class ExtendGDScriptParser : public GDScriptParser {
     Dictionary dump_function_api(const GDScriptParser::FunctionNode *p_func) const;
     Dictionary dump_class_api(const GDScriptParser::ClassNode *p_class) const;
 
-    se_string parse_documentation(int p_line, bool p_docs_down = false);
+    String parse_documentation(int p_line, bool p_docs_down = false);
     const lsp::DocumentSymbol *search_symbol_defined_at_line(int p_line, const lsp::DocumentSymbol &p_parent) const;
 
     Array member_completions;
 
 
 public:
-    const se_string &get_path() const { return path; }
-    const Vector<se_string> &get_lines() const { return lines; }
+    const String &get_path() const { return path; }
+    const Vector<String> &get_lines() const { return lines; }
     const lsp::DocumentSymbol &get_symbols() const { return class_symbol; }
     const Vector<lsp::Diagnostic> &get_diagnostics() const { return diagnostics; }
     const ClassMembers &get_members() const { return members; }
-    const DefHashMap<se_string, ClassMembers> &get_inner_classes() const { return inner_classes; }
+    const DefHashMap<String, ClassMembers> &get_inner_classes() const { return inner_classes; }
 
     Error get_left_function_call(const lsp::Position &p_position, lsp::Position &r_func_pos, int &r_arg_index) const;
 
-    se_string get_text_for_completion(const lsp::Position &p_cursor) const;
-    se_string get_text_for_lookup_symbol(const lsp::Position &p_cursor, se_string_view p_symbol = {}, bool p_func_requred = false) const;
-    se_string get_identifier_under_position(const lsp::Position &p_position, Vector2i &p_offset) const;
-    se_string get_uri() const;
+    String get_text_for_completion(const lsp::Position &p_cursor) const;
+    String get_text_for_lookup_symbol(const lsp::Position &p_cursor, se_string_view p_symbol = {}, bool p_func_requred = false) const;
+    String get_identifier_under_position(const lsp::Position &p_position, Vector2i &p_offset) const;
+    String get_uri() const;
 
     const lsp::DocumentSymbol *get_symbol_defined_at_line(int p_line) const;
     const lsp::DocumentSymbol *get_member_symbol(se_string_view p_name, se_string_view p_subclass = {}) const;

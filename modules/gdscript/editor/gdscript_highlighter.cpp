@@ -348,12 +348,12 @@ Map<int, TextEdit::HighlighterInfo> GDScriptSyntaxHighlighter::_get_line_syntax_
     return color_map;
 }
 
-se_string GDScriptSyntaxHighlighter::get_name() const {
+String GDScriptSyntaxHighlighter::get_name() const {
     return "GDScript";
 }
 
-List<se_string> GDScriptSyntaxHighlighter::get_supported_languages() {
-    List<se_string> languages;
+List<String> GDScriptSyntaxHighlighter::get_supported_languages() {
+    List<String> languages;
     languages.push_back("GDScript");
     return languages;
 }

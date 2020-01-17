@@ -67,7 +67,7 @@ void PackedData::add_path(se_string_view pkg_path, se_string_view path, uint64_t
 
     if (!exists) {
         //search for dir
-        se_string p = StringUtils::replace_first(path,"res://", "");
+        String p = StringUtils::replace_first(path,"res://", "");
         PackedDir *cd = root;
 
         if (StringUtils::contains(p,'/')) { //in a subdir
@@ -126,7 +126,7 @@ PackedData::PackedData() {
 
 void PackedData::_free_packed_dirs(PackedDir *p_dir) {
 
-    for (eastl::pair<const se_string, PackedDir *> &E : p_dir->subdirs)
+    for (eastl::pair<const String, PackedDir *> &E : p_dir->subdirs)
         _free_packed_dirs(E.second);
     memdelete(p_dir);
 }
@@ -148,12 +148,12 @@ Error DirAccessPack::list_dir_begin() {
     list_dirs.clear();
     list_files.clear();
 
-    for (eastl::pair<const se_string, PackedData::PackedDir *> &E : current->subdirs) {
+    for (eastl::pair<const String, PackedData::PackedDir *> &E : current->subdirs) {
 
         list_dirs.push_back(E.first);
     }
 
-    for (const se_string &E : current->files) {
+    for (const String &E : current->files) {
 
         list_files.push_back(E);
     }
@@ -161,20 +161,20 @@ Error DirAccessPack::list_dir_begin() {
     return OK;
 }
 
-se_string DirAccessPack::get_next() {
+String DirAccessPack::get_next() {
 
     if (!list_dirs.empty()) {
         cdir = true;
-        se_string d = list_dirs.front()->deref();
+        String d = list_dirs.front()->deref();
         list_dirs.pop_front();
         return d;
     } else if (!list_files.empty()) {
         cdir = false;
-        se_string f = list_files.front()->deref();
+        String f = list_files.front()->deref();
         list_files.pop_front();
         return f;
     } else {
-        return se_string();
+        return String();
     }
 
 }
@@ -196,14 +196,14 @@ int DirAccessPack::get_drive_count() {
 
     return 0;
 }
-se_string DirAccessPack::get_drive(int p_drive) {
+String DirAccessPack::get_drive(int p_drive) {
 
-    return se_string();
+    return String();
 }
 
 Error DirAccessPack::change_dir(se_string_view p_dir) {
 
-    se_string nd = PathUtils::from_native_path(p_dir);
+    String nd = PathUtils::from_native_path(p_dir);
     bool absolute = false;
     if (StringUtils::begins_with(nd,"res://")) {
         nd = StringUtils::replace_first(nd,"res://", "");
@@ -231,7 +231,7 @@ Error DirAccessPack::change_dir(se_string_view p_dir) {
 
     for (int i = 0; i < paths.size(); i++) {
 
-        se_string p(paths[i]);
+        String p(paths[i]);
         if (p == ".")
             continue;
         if (p == "..") {
@@ -253,10 +253,10 @@ Error DirAccessPack::change_dir(se_string_view p_dir) {
     return OK;
 }
 
-se_string DirAccessPack::get_current_dir() {
+String DirAccessPack::get_current_dir() {
 
     PackedData::PackedDir *pd = current;
-    se_string p = current->name;
+    String p = current->name;
 
     while (pd->parent) {
         pd = pd->parent;
@@ -297,7 +297,7 @@ size_t DirAccessPack::get_space_left() {
     return 0;
 }
 
-se_string DirAccessPack::get_filesystem_type() const {
+String DirAccessPack::get_filesystem_type() const {
     return "PCK";
 }
 

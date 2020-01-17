@@ -261,9 +261,9 @@ _FORCE_INLINE_ Error NetSocketPosix::_change_multicast_group(IP_Address p_ip, se
 
     IP_Address if_ip;
     uint32_t if_v6id = 0;
-    Map<se_string, IP::Interface_Info> if_info;
+    Map<String, IP::Interface_Info> if_info;
     IP::get_singleton()->get_local_interfaces(&if_info);
-    for (eastl::pair<const se_string,IP::Interface_Info> &E : if_info) {
+    for (eastl::pair<const String,IP::Interface_Info> &E : if_info) {
         IP::Interface_Info &c = E.second;
         if (0!=p_if_name.compare(c.name))
             continue;

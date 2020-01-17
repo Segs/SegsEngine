@@ -103,7 +103,7 @@ void CameraFeed::set_active(bool p_is_active) {
     }
 }
 
-se_string CameraFeed::get_name() const {
+String CameraFeed::get_name() const {
     return name;
 }
 

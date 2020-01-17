@@ -48,7 +48,7 @@ bool MeshLibrary::_set(const StringName &p_name, const Variant &p_value) {
             create_item(idx);
 
         if (what == "name"_sv)
-            set_item_name(idx, p_value.as<se_string>());
+            set_item_name(idx, p_value.as<String>());
         else if (what == "mesh"_sv)
             set_item_mesh(idx, refFromRefPtr<Mesh>(p_value));
         else if (what == "shape"_sv) {
@@ -104,7 +104,7 @@ void MeshLibrary::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
 
     for (const eastl::pair<const int,Item> &E : item_map) {
 
-        se_string name = "item/" + itos(E.first) + "/";
+        String name = "item/" + itos(E.first) + "/";
         p_list->push_back(PropertyInfo(VariantType::STRING, StringName(name + "name")));
         p_list->push_back(PropertyInfo(VariantType::OBJECT, StringName(name + "mesh"), PROPERTY_HINT_RESOURCE_TYPE, "Mesh"));
         p_list->push_back(PropertyInfo(VariantType::TRANSFORM, StringName(name + "mesh_transform")));
@@ -177,7 +177,7 @@ void MeshLibrary::set_item_preview(int p_item, const Ref<Texture> &p_preview) {
     Object_change_notify(this);
 }
 
-const se_string &MeshLibrary::get_item_name(int p_item) const {
+const String &MeshLibrary::get_item_name(int p_item) const {
 
     ERR_FAIL_COND_V_MSG(!item_map.contains(p_item), null_se_string, "Requested for nonexistent MeshLibrary item '" + itos(p_item) + "'.")
     return item_map.at(p_item).name;

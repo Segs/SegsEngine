@@ -155,7 +155,7 @@ class SceneTreeDock : public VBoxContainer {
     EditorNode *editor;
 
     VBoxContainer *create_root_dialog;
-    se_string selected_favorite_root;
+    String selected_favorite_root;
 
     void _add_children_to_popup(Object *p_obj, int p_depth);
 
@@ -212,7 +212,7 @@ class SceneTreeDock : public VBoxContainer {
     void _normalize_drop(Node *&to_node, int &to_pos, int p_type);
 
     void _nodes_dragged(const Array& p_nodes, const NodePath& p_to, int p_type);
-    void _files_dropped(const Vector<se_string> &p_files, const NodePath& p_to, int p_type);
+    void _files_dropped(const Vector<String> &p_files, const NodePath& p_to, int p_type);
     void _script_dropped(se_string_view p_file, const NodePath& p_to);
     void _quick_open();
 
@@ -220,7 +220,7 @@ class SceneTreeDock : public VBoxContainer {
 
     void _filter_changed(se_string_view p_filter);
 
-    void _perform_instance_scenes(const Vector<se_string> &p_files, Node *parent, int p_pos);
+    void _perform_instance_scenes(const Vector<String> &p_files, Node *parent, int p_pos);
     void _replace_with_branch_scene(se_string_view p_file, Node *base);
 
     void _file_selected(UIString p_file);
@@ -249,7 +249,7 @@ public:
     void import_subscene();
     void set_edited_scene(Node *p_scene);
     void instance(se_string_view p_file);
-    void instance_scenes(const Vector<se_string> &p_files, Node *p_parent = nullptr);
+    void instance_scenes(const Vector<String> &p_files, Node *p_parent = nullptr);
     void set_selected(Node *p_node, bool p_emit_selected = false);
     void fill_path_renames(Node *p_node, Node *p_new_parent, List<Pair<NodePath, NodePath> > *p_renames);
     void perform_node_renames(Node *p_base, List<Pair<NodePath, NodePath> > *p_renames, Map<Ref<Animation>, Set<int> > *r_rem_anims = nullptr);

@@ -157,7 +157,7 @@ public:
 
     Basis slerp(const Basis &target, const real_t &t) const;
 
-    operator se_string() const;
+    operator String() const;
 
     /* create / set */
 

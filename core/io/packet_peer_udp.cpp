@@ -70,12 +70,12 @@ Error PacketPeerUDP::leave_multicast_group(IP_Address p_multi_address, se_string
     return _sock->leave_multicast_group(p_multi_address, p_if_name);
 }
 
-se_string PacketPeerUDP::_get_packet_ip() const {
+String PacketPeerUDP::_get_packet_ip() const {
 
     return get_packet_address();
 }
 
-Error PacketPeerUDP::_set_dest_address(const se_string &p_address, int p_port) {
+Error PacketPeerUDP::_set_dest_address(const String &p_address, int p_port) {
 
     IP_Address ip;
     if (StringUtils::is_valid_ip_address(p_address)) {

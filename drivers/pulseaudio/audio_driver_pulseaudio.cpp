@@ -205,7 +205,7 @@ Error AudioDriverPulseAudio::init_device() {
 
     pa_str = pa_stream_new(pa_ctx, "Sound", &spec, &pa_map);
     if (pa_str == nullptr) {
-        ERR_PRINT("PulseAudio: pa_stream_new error: " + se_string(pa_strerror(pa_context_errno(pa_ctx))))
+        ERR_PRINT("PulseAudio: pa_stream_new error: " + String(pa_strerror(pa_context_errno(pa_ctx))))
         ERR_FAIL_V(ERR_CANT_OPEN)
     }
 
@@ -221,7 +221,7 @@ Error AudioDriverPulseAudio::init_device() {
     attr.maxlength = (uint32_t)-1;
     attr.minreq = (uint32_t)-1;
 
-    se_string dev = (device_name == "Default") ? "" : device_name;
+    String dev = (device_name == "Default") ? "" : device_name;
     pa_stream_flags flags = pa_stream_flags(PA_STREAM_INTERPOLATE_TIMING | PA_STREAM_ADJUST_LATENCY | PA_STREAM_AUTO_TIMING_UPDATE);
     int error_code = pa_stream_connect_playback(pa_str, dev.data(), &attr, flags, nullptr, nullptr);
     ERR_FAIL_COND_V(error_code < 0, ERR_CANT_OPEN)
@@ -389,7 +389,7 @@ void AudioDriverPulseAudio::thread_func(void *p_udata) {
                 const void *ptr = ad->samples_out.ptr();
                 ret = pa_stream_write(ad->pa_str, (char *)ptr + write_ofs, bytes_to_write, nullptr, 0LL, PA_SEEK_RELATIVE);
                 if (ret != 0) {
-                    ERR_PRINT("PulseAudio: pa_stream_write error: " + se_string(pa_strerror(ret)));
+                    ERR_PRINT("PulseAudio: pa_stream_write error: " + String(pa_strerror(ret)));
                 } else {
                     avail_bytes -= bytes_to_write;
                     write_ofs += bytes_to_write;
@@ -426,7 +426,7 @@ void AudioDriverPulseAudio::thread_func(void *p_udata) {
 
             uint32_t msec = OS::get_singleton()->get_ticks_msec();
             if (msec > (default_device_msec + 1000)) {
-                se_string old_default_device = ad->default_device;
+                String old_default_device = ad->default_device;
 
                 default_device_msec = msec;
 
@@ -687,7 +687,7 @@ Error AudioDriverPulseAudio::capture_init_device() {
 
     pa_rec_str = pa_stream_new(pa_ctx, "Record", &spec, &pa_rec_map);
     if (pa_rec_str == nullptr) {
-        ERR_PRINT("PulseAudio: pa_stream_new error: " + se_string(pa_strerror(pa_context_errno(pa_ctx))))
+        ERR_PRINT("PulseAudio: pa_stream_new error: " + String(pa_strerror(pa_context_errno(pa_ctx))))
         ERR_FAIL_V(ERR_CANT_OPEN)
     }
 
@@ -695,7 +695,7 @@ Error AudioDriverPulseAudio::capture_init_device() {
     pa_stream_flags flags = pa_stream_flags(PA_STREAM_INTERPOLATE_TIMING | PA_STREAM_ADJUST_LATENCY | PA_STREAM_AUTO_TIMING_UPDATE);
     int error_code = pa_stream_connect_record(pa_rec_str, dev, &attr, flags);
     if (error_code < 0) {
-        ERR_PRINT("PulseAudio: pa_stream_connect_record error: " + se_string(pa_strerror(error_code)))
+        ERR_PRINT("PulseAudio: pa_stream_connect_record error: " + String(pa_strerror(error_code)))
         ERR_FAIL_V(ERR_CANT_OPEN)
     }
 
@@ -712,7 +712,7 @@ void AudioDriverPulseAudio::capture_finish_device() {
     if (pa_rec_str) {
         int ret = pa_stream_disconnect(pa_rec_str);
         if (ret != 0) {
-            ERR_PRINT("PulseAudio: pa_stream_disconnect error: " + se_string(pa_strerror(ret)))
+            ERR_PRINT("PulseAudio: pa_stream_disconnect error: " + String(pa_strerror(ret)))
         }
         pa_stream_unref(pa_rec_str);
         pa_rec_str = nullptr;
@@ -790,10 +790,10 @@ Array AudioDriverPulseAudio::capture_get_device_list() {
     return pa_rec_devices;
 }
 
-se_string AudioDriverPulseAudio::capture_get_device() {
+String AudioDriverPulseAudio::capture_get_device() {
 
     lock();
-    se_string name = capture_device_name;
+    String name = capture_device_name;
     unlock();
 
     return name;

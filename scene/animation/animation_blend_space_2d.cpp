@@ -269,14 +269,14 @@ Vector2 AnimationNodeBlendSpace2D::get_snap() const {
 void AnimationNodeBlendSpace2D::set_x_label(se_string_view p_label) {
     x_label = p_label;
 }
-const se_string &AnimationNodeBlendSpace2D::get_x_label() const {
+const String &AnimationNodeBlendSpace2D::get_x_label() const {
     return x_label;
 }
 
 void AnimationNodeBlendSpace2D::set_y_label(se_string_view p_label) {
     y_label = p_label;
 }
-const se_string &AnimationNodeBlendSpace2D::get_y_label() const {
+const String &AnimationNodeBlendSpace2D::get_y_label() const {
     return y_label;
 }
 

@@ -38,7 +38,7 @@ class FileTypeCache : Object {
 
     GDCLASS(FileTypeCache,Object)
 
-    DefHashMap<se_string, se_string> file_type_map;
+    DefHashMap<String, String> file_type_map;
 
     static FileTypeCache *singleton;
 
@@ -46,7 +46,7 @@ public:
     static FileTypeCache *get_singleton() { return singleton; }
 
     bool has_file(se_string_view p_path) const;
-    se_string get_file_type(se_string_view p_path) const;
+    String get_file_type(se_string_view p_path) const;
     void set_file_type(se_string_view p_path, se_string_view p_type);
 
     void load();

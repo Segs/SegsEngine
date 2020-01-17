@@ -105,13 +105,13 @@ void EditorProfiler::clear() {
     seeking = false;
 }
 
-static se_string _get_percent_txt(float p_value, float p_total) {
+static String _get_percent_txt(float p_value, float p_total) {
     if (p_total == 0.0f)
         p_total = 0.00001f;
-    return se_string(StringUtils::num(p_value / p_total * 100, 1) + "%");
+    return String(StringUtils::num(p_value / p_total * 100, 1) + "%");
 }
 
-se_string EditorProfiler::_get_time_as_text(const Metric &m, float p_time, int p_calls) {
+String EditorProfiler::_get_time_as_text(const Metric &m, float p_time, int p_calls) {
 
     int dmode = display_mode->get_selected();
 
@@ -623,15 +623,15 @@ bool EditorProfiler::is_profiling() {
     return activate->is_pressed();
 }
 
-PODVector<PODVector<se_string> > EditorProfiler::get_data_as_csv() const {
-    PODVector<PODVector<se_string> > res;
+PODVector<PODVector<String> > EditorProfiler::get_data_as_csv() const {
+    PODVector<PODVector<String> > res;
 
     if (frame_metrics.empty()) {
         return res;
     }
 
     // signatures
-    PODVector<se_string> signatures;
+    PODVector<String> signatures;
     const Vector<EditorProfiler::Metric::Category> &categories = frame_metrics[0].categories;
 
     for (int j = 0; j < categories.size(); j++) {
@@ -646,7 +646,7 @@ PODVector<PODVector<se_string> > EditorProfiler::get_data_as_csv() const {
     res.push_back(signatures);
 
     // values
-    PODVector<se_string> values;
+    PODVector<String> values;
     values.resize(signatures.size());
 
     int index = last_metric;

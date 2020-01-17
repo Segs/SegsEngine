@@ -890,7 +890,7 @@ void AnimatedSprite3D::_validate_property(PropertyInfo &property) const {
             if (property.hint_string.empty()) {
                 property.hint_string = (animation);
             } else {
-                property.hint_string = se_string(animation) + "," + property.hint_string;
+                property.hint_string = String(animation) + "," + property.hint_string;
             }
         }
     }

@@ -104,7 +104,7 @@ public:
     virtual Error capture_start() { return FAILED; }
     virtual Error capture_stop() { return FAILED; }
     virtual void capture_set_device(se_string_view /*p_name*/) {}
-    virtual se_string capture_get_device() { return "Default"; }
+    virtual String capture_get_device() { return "Default"; }
     virtual Array capture_get_device_list(); // TODO: convert this and get_device_list to PoolStringArray
 
     virtual float get_latency() { return 0; }
@@ -377,7 +377,7 @@ public:
     Error capture_stop();
 
     Array capture_get_device_list();
-    se_string capture_get_device();
+    String capture_get_device();
     void capture_set_device(se_string_view p_name);
 
     PoolVector<int32_t> get_capture_buffer();

@@ -115,7 +115,7 @@ public:
         origin.z = tz;
     }
 
-    operator se_string() const;
+    operator String() const;
 
     constexpr Transform(real_t xx, real_t xy, real_t xz,
                         real_t yx, real_t yy, real_t yz,

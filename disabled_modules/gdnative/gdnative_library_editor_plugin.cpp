@@ -47,7 +47,7 @@ void GDNativeLibraryEditor::edit(Ref<GDNativeLibrary> p_library) {
         for (List<String>::Element *it = E.second.entries.front(); it; it = it->next()) {
 
             String target = E.first + "." + it->deref();
-            se_string target_utf8 = StringUtils::to_utf8(target).data();
+            String target_utf8 = StringUtils::to_utf8(target).data();
             TargetConfig ecfg;
             ecfg.library = config->get_value(("entry"), target_utf8, "");
             ecfg.dependencies = config->get_value(("dependencies"), target_utf8, Array());
@@ -275,7 +275,7 @@ void GDNativeLibraryEditor::_translate_to_config_file() {
 
                 if (entry_configs[target].library.empty() && entry_configs[target].dependencies.empty())
                     continue;
-                se_string target_utf8 = StringUtils::to_utf8(target).data();
+                String target_utf8 = StringUtils::to_utf8(target).data();
 
                 config->set_value("entry", target_utf8, entry_configs[target].library);
                 config->set_value("dependencies", target_utf8, entry_configs[target].dependencies);

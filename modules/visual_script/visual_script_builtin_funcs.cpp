@@ -695,7 +695,7 @@ VisualScriptBuiltinFunc::BuiltinFunc VisualScriptBuiltinFunc::get_func() {
         return;                                                          \
     }
 
-void VisualScriptBuiltinFunc::exec_func(BuiltinFunc p_func, const Variant **p_inputs, Variant *r_return, Variant::CallError &r_error, se_string &r_error_str) {
+void VisualScriptBuiltinFunc::exec_func(BuiltinFunc p_func, const Variant **p_inputs, Variant *r_return, Variant::CallError &r_error, String &r_error_str) {
 
     switch (p_func) {
         case VisualScriptBuiltinFunc::MATH_SIN: {
@@ -1158,7 +1158,7 @@ void VisualScriptBuiltinFunc::exec_func(BuiltinFunc p_func, const Variant **p_in
                 return;
             }
 
-            se_string str = p_inputs[0]->as<se_string>();
+            String str = p_inputs[0]->as<String>();
 
             if (str.length() != 1) {
                 r_error.error = Variant::CallError::CALL_ERROR_INVALID_ARGUMENT;
@@ -1174,21 +1174,21 @@ void VisualScriptBuiltinFunc::exec_func(BuiltinFunc p_func, const Variant **p_in
         } break;
         case VisualScriptBuiltinFunc::TEXT_STR: {
 
-            se_string str = *p_inputs[0];
+            String str = *p_inputs[0];
 
             *r_return = str;
 
         } break;
         case VisualScriptBuiltinFunc::TEXT_PRINT: {
 
-            se_string str = *p_inputs[0];
+            String str = *p_inputs[0];
             print_line(str);
 
         } break;
 
         case VisualScriptBuiltinFunc::TEXT_PRINTERR: {
 
-            se_string str = *p_inputs[0];
+            String str = *p_inputs[0];
             print_error(str);
 
         } break;
@@ -1200,7 +1200,7 @@ void VisualScriptBuiltinFunc::exec_func(BuiltinFunc p_func, const Variant **p_in
         } break;
         case VisualScriptBuiltinFunc::VAR_TO_STR: {
 
-            se_string vars;
+            String vars;
             VariantWriter::write_to_string(*p_inputs[0], vars);
             *r_return = vars;
         } break;
@@ -1216,7 +1216,7 @@ void VisualScriptBuiltinFunc::exec_func(BuiltinFunc p_func, const Variant **p_in
 
             VariantParser::Stream *ss = VariantParser::get_string_stream(*p_inputs[0]);
 
-            se_string errs;
+            String errs;
             int line;
             Error err = VariantParser::parse(ss, *r_return, errs, line);
             VariantParser::release_stream(ss);
@@ -1224,7 +1224,7 @@ void VisualScriptBuiltinFunc::exec_func(BuiltinFunc p_func, const Variant **p_in
                 r_error.error = Variant::CallError::CALL_ERROR_INVALID_ARGUMENT;
                 r_error.argument = 0;
                 r_error.expected = VariantType::STRING;
-                *r_return = se_string("Parse error at line " + itos(line) + ": " + errs);
+                *r_return = String("Parse error at line " + itos(line) + ": " + errs);
                 return;
             }
 
@@ -1293,10 +1293,10 @@ void VisualScriptBuiltinFunc::exec_func(BuiltinFunc p_func, const Variant **p_in
 
             VALIDATE_ARG_NUM(1);
 
-            Color color = Color::named(p_inputs[0]->as<se_string>());
+            Color color = Color::named(p_inputs[0]->as<String>());
             color.a = *p_inputs[1];
 
-            *r_return = se_string(color);
+            *r_return = String(color);
 
         } break;
         default: {
@@ -1315,7 +1315,7 @@ public:
     //virtual bool is_output_port_unsequenced(int p_idx) const { return false; }
     //virtual bool get_output_port_unsequenced(int p_idx,Variant* r_value,Variant* p_working_mem,String &r_error) const { return true; }
 
-    int step(const Variant **p_inputs, Variant **p_outputs, StartMode p_start_mode, Variant *p_working_mem, Variant::CallError &r_error, se_string &r_error_str) override {
+    int step(const Variant **p_inputs, Variant **p_outputs, StartMode p_start_mode, Variant *p_working_mem, Variant::CallError &r_error, String &r_error_str) override {
 
         VisualScriptBuiltinFunc::exec_func(func, p_inputs, p_outputs[0], r_error, r_error_str);
         return 0;
@@ -1336,7 +1336,7 @@ void VisualScriptBuiltinFunc::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_func", {"which"}), &VisualScriptBuiltinFunc::set_func);
     MethodBinder::bind_method(D_METHOD("get_func"), &VisualScriptBuiltinFunc::get_func);
 
-    se_string cc;
+    String cc;
 
     for (int i = 0; i < FUNC_MAX; i++) {
 

@@ -40,10 +40,10 @@ class ResourceImporter;
 class GODOT_EXPORT ResourceFormatImporter : public ResourceFormatLoader {
 
     struct PathAndType {
-        se_string path;
-        se_string type;
-        se_string importer;
-        se_string group_file;
+        String path;
+        String type;
+        String importer;
+        String group_file;
         Variant metadata;
     };
 
@@ -61,25 +61,25 @@ class GODOT_EXPORT ResourceFormatImporter : public ResourceFormatLoader {
 public:
     static ResourceFormatImporter *get_singleton() { return singleton; }
     RES load(se_string_view p_path, se_string_view p_original_path = se_string_view(), Error *r_error = nullptr) override;
-    void get_recognized_extensions(PODVector<se_string> &p_extensions) const override;
-    void get_recognized_extensions_for_type(se_string_view p_type, PODVector<se_string> &p_extensions) const override;
+    void get_recognized_extensions(PODVector<String> &p_extensions) const override;
+    void get_recognized_extensions_for_type(se_string_view p_type, PODVector<String> &p_extensions) const override;
     bool recognize_path(se_string_view p_path, se_string_view p_for_type = se_string_view()) const override;
     bool handles_type(se_string_view p_type) const override;
-    se_string get_resource_type(se_string_view p_path) const override;
+    String get_resource_type(se_string_view p_path) const override;
     virtual Variant get_resource_metadata(se_string_view p_path) const;
     bool is_import_valid(se_string_view p_path) const override;
-    void get_dependencies(se_string_view p_path, PODVector<se_string> &p_dependencies, bool p_add_types = false) override;
+    void get_dependencies(se_string_view p_path, PODVector<String> &p_dependencies, bool p_add_types = false) override;
     bool is_imported(se_string_view p_path) const override {
         return recognize_path(p_path);
     }
-    se_string get_import_group_file(se_string_view p_path) const override;
+    String get_import_group_file(se_string_view p_path) const override;
     bool exists(se_string_view p_path) const override;
 
     virtual bool can_be_imported(se_string_view p_path) const;
     int get_import_order(se_string_view p_path) const override;
 
-    se_string get_internal_resource_path(se_string_view p_path) const;
-    void get_internal_resource_path_list(se_string_view p_path, DefList<se_string> *r_paths);
+    String get_internal_resource_path(se_string_view p_path) const;
+    void get_internal_resource_path_list(se_string_view p_path, DefList<String> *r_paths);
 
     void add_importer(ResourceImporterInterface *p_importer) {
         importers.push_back(p_importer);
@@ -96,9 +96,9 @@ public:
     void get_importers_for_extension(se_string_view p_extension, PODVector<ResourceImporterInterface *> *r_importers);
 
     bool are_import_settings_valid(se_string_view p_path) const;
-    se_string get_import_settings_hash() const;
+    String get_import_settings_hash() const;
 
-    se_string get_import_base_path(se_string_view p_for_file) const;
+    String get_import_base_path(se_string_view p_for_file) const;
     ResourceFormatImporter();
 };
 
@@ -115,13 +115,13 @@ public:
     StringName get_preset_name(int /*p_idx*/) const override { return {}; }
     StringName get_option_group_file() const override { return {}; }
     Error import(se_string_view p_source_file, se_string_view p_save_path, const Map<StringName, Variant> &p_options,
-            DefList<se_string> *r_platform_variants, DefList<se_string> *r_gen_files = nullptr,
+            DefList<String> *r_platform_variants, DefList<String> *r_gen_files = nullptr,
             Variant *r_metadata = nullptr) override = 0;
     Error import_group_file(se_string_view  /*p_group_file*/,
-            const Map<se_string, Map<StringName, Variant>> & /*p_source_file_options*/,
-            const Map<se_string, se_string> & /*p_base_paths*/) override {
+            const Map<String, Map<StringName, Variant>> & /*p_source_file_options*/,
+            const Map<String, String> & /*p_base_paths*/) override {
         return ERR_UNAVAILABLE;
     }
     bool are_import_settings_valid(se_string_view /*p_path*/) const override { return true; }
-    se_string get_import_settings_string() const override { return se_string(); }
+    String get_import_settings_string() const override { return String(); }
 };

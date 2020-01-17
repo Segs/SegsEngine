@@ -543,7 +543,7 @@ void AudioServer::set_bus_count(int p_count) {
 
     for (int i = cb; i < buses.size(); i++) {
 
-        se_string attempt("New Bus");
+        String attempt("New Bus");
         int attempts = 1;
         while (true) {
 
@@ -721,7 +721,7 @@ void AudioServer::set_bus_name(int p_bus, const StringName &p_name) {
         }
 
         attempts++;
-        attempt = StringName(p_name + se_string(" ") + itos(attempts));
+        attempt = StringName(p_name + String(" ") + itos(attempts));
     }
     bus_map.erase(buses[p_bus]->name);
     buses[p_bus]->name = attempt;
@@ -1030,7 +1030,7 @@ void AudioServer::update() {
                 if (!bus->effects[j].enabled)
                     continue;
 
-                values.push_back(se_string(bus->name) + bus->effects[j].effect->get_name());
+                values.push_back(String(bus->name) + bus->effects[j].effect->get_name());
                 values.push_back(USEC_TO_SEC(bus->effects[j].prof_time));
 
                 // Subtract the effect time from the driver and server times
@@ -1077,7 +1077,7 @@ void AudioServer::update() {
 
 void AudioServer::load_default_bus_layout() {
 
-    se_string layout_path = ProjectSettings::get_singleton()->get("audio/default_bus_layout");
+    String layout_path = ProjectSettings::get_singleton()->get("audio/default_bus_layout");
 
     if (ResourceLoader::exists(layout_path)) {
         Ref<AudioBusLayout> default_layout = dynamic_ref_cast<AudioBusLayout>(ResourceLoader::load(layout_path));
@@ -1325,7 +1325,7 @@ Array AudioServer::capture_get_device_list() {
     return AudioDriver::get_singleton()->capture_get_device_list();
 }
 
-se_string AudioServer::capture_get_device() {
+String AudioServer::capture_get_device() {
 
     return AudioDriver::get_singleton()->capture_get_device();
 }

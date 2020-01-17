@@ -187,7 +187,7 @@ void Polygon2DEditor::_update_bone_list() {
     for (int i = 0; i < node->get_bone_count(); i++) {
         CheckBox *cb = memnew(CheckBox);
         NodePath np = node->get_bone_path(i);
-        se_string name;
+        String name;
         if (np.get_name_count()) {
             name = np.get_name(np.get_name_count() - 1);
         }

@@ -113,7 +113,7 @@ struct GODOT_EXPORT Transform2D {
     _FORCE_INLINE_ void xform(Vector2 *p_array,int size) const;
     _FORCE_INLINE_ void xform_inv(Vector2 *p_array,int size) const;
 
-    operator se_string() const;
+    operator String() const;
 
     Transform2D(real_t xx, real_t xy, real_t yx, real_t yy, real_t ox, real_t oy) {
 

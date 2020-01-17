@@ -64,7 +64,7 @@ void GroupDialog::_group_selected() {
 void GroupDialog::_load_nodes(Node *p_current) {
     StringName item_name = p_current->get_name();
     if (p_current != scene_tree->get_edited_scene_root()) {
-        item_name = StringName(se_string(p_current->get_parent()->get_name()) + "/" + item_name);
+        item_name = StringName(String(p_current->get_parent()->get_name()) + "/" + item_name);
     }
 
     bool keep = true;
@@ -93,7 +93,7 @@ void GroupDialog::_load_nodes(Node *p_current) {
     if (keep) {
         node->set_text(0, item_name);
         node->set_metadata(0, path);
-        node->set_tooltip(0, StringName((se_string)path));
+        node->set_tooltip(0, StringName((String)path));
 
         Ref<Texture> icon = EditorNode::get_singleton()->get_object_icon(p_current, "Node");
         node->set_icon(0, icon);
@@ -222,7 +222,7 @@ void GroupDialog::_group_renamed() {
         return;
     }
 
-    const se_string name(StringUtils::strip_edges(renamed_group->get_text(0)));
+    const String name(StringUtils::strip_edges(renamed_group->get_text(0)));
     for (TreeItem *E = groups_root->get_children(); E; E = E->get_next()) {
         if (E != renamed_group && E->get_text(0) == name) {
             renamed_group->set_text(0, selected_group);

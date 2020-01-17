@@ -610,9 +610,9 @@ bool ArrayMesh::_set(const StringName &p_name, const Variant &p_value) {
 
     if (p_name == "blend_shape/names") {
 
-        PoolVector<se_string> sk(p_value.as<PoolVector<se_string>>());
+        PoolVector<String> sk(p_value.as<PoolVector<String>>());
         int sz = sk.size();
-        PoolVector<se_string>::Read r = sk.read();
+        PoolVector<String>::Read r = sk.read();
         for (int i = 0; i < sz; i++)
             add_blend_shape(StringName(r[i]));
         return true;
@@ -634,7 +634,7 @@ bool ArrayMesh::_set(const StringName &p_name, const Variant &p_value) {
         if (what == "material")
             surface_set_material(idx, refFromRefPtr<Material>(p_value));
         else if (what == "name")
-            surface_set_name(idx, p_value.as<se_string>());
+            surface_set_name(idx, p_value.as<String>());
         return true;
     }
 
@@ -707,7 +707,7 @@ bool ArrayMesh::_set(const StringName &p_name, const Variant &p_value) {
             surface_set_material(idx, refFromRefPtr<Material>(d["material"]));
         }
         if (d.has("name")) {
-            surface_set_name(idx, d["name"].as<se_string>());
+            surface_set_name(idx, d["name"].as<String>());
         }
 
         return true;
@@ -723,7 +723,7 @@ bool ArrayMesh::_get(const StringName &p_name, Variant &r_ret) const {
 
     if (p_name == "blend_shape/names") {
 
-        PoolVector<se_string> sk;
+        PoolVector<String> sk;
         for (int i = 0; i < blend_shapes.size(); i++)
             sk.push_back(blend_shapes[i].asCString());
         r_ret = sk;
@@ -780,7 +780,7 @@ bool ArrayMesh::_get(const StringName &p_name, Variant &r_ret) const {
     Ref<Material> m = surface_get_material(idx);
     if (m)
         d["material"] = m;
-    se_string n = surface_get_name(idx);
+    String n = surface_get_name(idx);
     if (!n.empty())
         d["name"] = n;
 
@@ -985,7 +985,7 @@ void ArrayMesh::surface_set_material(int p_idx, const Ref<Material> &p_material)
     emit_changed();
 }
 
-int ArrayMesh::surface_find_by_name(const se_string &p_name) const {
+int ArrayMesh::surface_find_by_name(const String &p_name) const {
     for (int i = 0; i < surfaces.size(); i++) {
         if (surfaces[i].name == p_name) {
             return i;
@@ -1003,9 +1003,9 @@ void ArrayMesh::surface_set_name(int p_idx, se_string_view p_name) {
     emit_changed();
 }
 
-se_string ArrayMesh::surface_get_name(int p_idx) const {
+String ArrayMesh::surface_get_name(int p_idx) const {
 
-    ERR_FAIL_INDEX_V(p_idx, surfaces.size(), se_string())
+    ERR_FAIL_INDEX_V(p_idx, surfaces.size(), String())
     return surfaces[p_idx].name;
 }
 

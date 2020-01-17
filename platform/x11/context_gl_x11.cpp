@@ -228,7 +228,7 @@ void ContextGL_X11::set_use_vsync(bool p_use) {
     using namespace StringUtils;
     if (!setup) {
         setup = true;
-        se_string extensions(glXQueryExtensionsString(x11_display, DefaultScreen(x11_display)));
+        String extensions(glXQueryExtensionsString(x11_display, DefaultScreen(x11_display)));
         if (contains(extensions,"GLX_EXT_swap_control"))
             glXSwapIntervalEXT = (PFNGLXSWAPINTERVALEXTPROC)glXGetProcAddressARB((const GLubyte *)"glXSwapIntervalEXT");
         if (contains(extensions,"GLX_MESA_swap_control"))

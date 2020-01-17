@@ -394,20 +394,20 @@ bool keycode_has_unicode(uint32_t p_keycode) {
     return true;
 }
 
-se_string keycode_get_string(uint32_t p_code) {
+String keycode_get_string(uint32_t p_code) {
 
-    se_string codestr;
+    String codestr;
     if (p_code & KEY_MASK_SHIFT) {
-        codestr += se_string(find_keycode_name(KEY_SHIFT))+"+";
+        codestr += String(find_keycode_name(KEY_SHIFT))+"+";
     }
     if (p_code & KEY_MASK_ALT) {
-        codestr += se_string(find_keycode_name(KEY_ALT)) + "+";
+        codestr += String(find_keycode_name(KEY_ALT)) + "+";
     }
     if (p_code & KEY_MASK_CTRL) {
-        codestr += se_string(find_keycode_name(KEY_CONTROL)) + "+";
+        codestr += String(find_keycode_name(KEY_CONTROL)) + "+";
     }
     if (p_code & KEY_MASK_META) {
-        codestr += se_string(find_keycode_name(KEY_META)) + "+";
+        codestr += String(find_keycode_name(KEY_META)) + "+";
     }
 
     p_code &= KEY_CODE_MASK;
@@ -418,7 +418,7 @@ se_string keycode_get_string(uint32_t p_code) {
 
         if (kct->code == (int)p_code) {
 
-            codestr += se_string(kct->text);
+            codestr += String(kct->text);
             return codestr;
         }
         kct++;

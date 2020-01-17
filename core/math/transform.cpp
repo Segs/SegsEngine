@@ -193,9 +193,9 @@ Transform Transform::operator*(const Transform &p_transform) const {
     return t;
 }
 
-Transform::operator se_string() const {
+Transform::operator String() const {
 
-    return (se_string)basis + " - " + (se_string)origin;
+    return (String)basis + " - " + (String)origin;
 }
 
 

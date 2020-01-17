@@ -104,16 +104,16 @@ RES _ResourceLoader::load(se_string_view p_path, se_string_view p_type_hint, boo
     Error err = OK;
     RES ret(ResourceLoader::load(p_path, p_type_hint, p_no_cache, &err));
 
-    ERR_FAIL_COND_V_MSG(err != OK, ret, "Error loading resource: '" + se_string(p_path) + "'.")
+    ERR_FAIL_COND_V_MSG(err != OK, ret, "Error loading resource: '" + String(p_path) + "'.")
     return ret;
 }
 
 PoolSeStringArray _ResourceLoader::get_recognized_extensions_for_type(se_string_view p_type) {
 
-    PODVector<se_string> exts;
+    PODVector<String> exts;
     ResourceLoader::get_recognized_extensions_for_type(p_type, exts);
     PoolSeStringArray ret;
-    for (const se_string & E : exts) {
+    for (const String & E : exts) {
         ret.push_back(E);
     }
 
@@ -125,16 +125,16 @@ void _ResourceLoader::set_abort_on_missing_resources(bool p_abort) {
     ResourceLoader::set_abort_on_missing_resources(p_abort);
 }
 
-PODVector<se_string> _ResourceLoader::get_dependencies(se_string_view p_path) {
+PODVector<String> _ResourceLoader::get_dependencies(se_string_view p_path) {
 
-    PODVector<se_string> deps;
+    PODVector<String> deps;
     ResourceLoader::get_dependencies(p_path, deps);
     return deps;
 };
 
 bool _ResourceLoader::has_cached(se_string_view p_path) {
 
-    se_string local_path = ProjectSettings::get_singleton()->localize_path(p_path);
+    String local_path = ProjectSettings::get_singleton()->localize_path(p_path);
     return ResourceCache::has(local_path);
 }
 
@@ -144,13 +144,13 @@ bool _ResourceLoader::exists(se_string_view p_path, se_string_view p_type_hint) 
 
 void _ResourceLoader::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("load_interactive", {"path", "type_hint"}), &_ResourceLoader::load_interactive, {DEFVAL(se_string())});
-    MethodBinder::bind_method(D_METHOD("load", {"path", "type_hint", "no_cache"}), &_ResourceLoader::load, {DEFVAL(se_string()), DEFVAL(false)});
+    MethodBinder::bind_method(D_METHOD("load_interactive", {"path", "type_hint"}), &_ResourceLoader::load_interactive, {DEFVAL(String())});
+    MethodBinder::bind_method(D_METHOD("load", {"path", "type_hint", "no_cache"}), &_ResourceLoader::load, {DEFVAL(String()), DEFVAL(false)});
     MethodBinder::bind_method(D_METHOD("get_recognized_extensions_for_type", {"type"}), &_ResourceLoader::get_recognized_extensions_for_type);
     MethodBinder::bind_method(D_METHOD("set_abort_on_missing_resources", {"abort"}), &_ResourceLoader::set_abort_on_missing_resources);
     MethodBinder::bind_method(D_METHOD("get_dependencies", {"path"}), &_ResourceLoader::get_dependencies);
     MethodBinder::bind_method(D_METHOD("has_cached", {"path"}), &_ResourceLoader::has_cached);
-    MethodBinder::bind_method(D_METHOD("exists", {"path", "type_hint"}), &_ResourceLoader::exists, {DEFVAL(se_string())});
+    MethodBinder::bind_method(D_METHOD("exists", {"path", "type_hint"}), &_ResourceLoader::exists, {DEFVAL(String())});
 }
 
 _ResourceLoader::_ResourceLoader() {
@@ -159,16 +159,16 @@ _ResourceLoader::_ResourceLoader() {
 }
 
 Error _ResourceSaver::save(se_string_view p_path, const RES &p_resource, SaverFlags p_flags) {
-    ERR_FAIL_COND_V_MSG(not p_resource, ERR_INVALID_PARAMETER, "Can't save empty resource to path: " + se_string(p_path) + ".")
+    ERR_FAIL_COND_V_MSG(not p_resource, ERR_INVALID_PARAMETER, "Can't save empty resource to path: " + String(p_path) + ".")
     return ResourceSaver::save(p_path, p_resource, p_flags);
 }
 
-PoolVector<se_string> _ResourceSaver::get_recognized_extensions(const RES &p_resource) {
+PoolVector<String> _ResourceSaver::get_recognized_extensions(const RES &p_resource) {
 
-    ERR_FAIL_COND_V_MSG(not p_resource, PoolVector<se_string>(), "It's not a reference to a valid Resource object.")
-    PODVector<se_string> exts;
+    ERR_FAIL_COND_V_MSG(not p_resource, PoolVector<String>(), "It's not a reference to a valid Resource object.")
+    PODVector<String> exts;
     ResourceSaver::get_recognized_extensions(p_resource, exts);
-    PoolVector<se_string> ret;
+    PoolVector<String> ret;
     for (int i = 0, fin = exts.size(); i < fin; ++i) {
 
         ret.push_back(exts[i]);
@@ -225,7 +225,7 @@ Point2 _OS::get_mouse_position() const {
     return OS::get_singleton()->get_mouse_position();
 }
 
-void _OS::set_window_title(const se_string &p_title) {
+void _OS::set_window_title(const String &p_title) {
 
     OS::get_singleton()->set_window_title(p_title);
 }
@@ -235,7 +235,7 @@ int _OS::get_mouse_button_state() const {
     return OS::get_singleton()->get_mouse_button_state();
 }
 
-const se_string & _OS::get_unique_id() const {
+const String & _OS::get_unique_id() const {
     return OS::get_singleton()->get_unique_id();
 }
 bool _OS::has_touchscreen_ui_hint() const {
@@ -247,7 +247,7 @@ void _OS::set_clipboard(se_string_view p_text) {
 
     OS::get_singleton()->set_clipboard(p_text);
 }
-se_string _OS::get_clipboard() const {
+String _OS::get_clipboard() const {
 
     return OS::get_singleton()->get_clipboard();
 }
@@ -256,8 +256,8 @@ int _OS::get_video_driver_count() const {
     return OS::get_singleton()->get_video_driver_count();
 }
 
-se_string _OS::get_video_driver_name(VideoDriver p_driver) const {
-    return se_string(OS::get_singleton()->get_video_driver_name((int)p_driver));
+String _OS::get_video_driver_name(VideoDriver p_driver) const {
+    return String(OS::get_singleton()->get_video_driver_name((int)p_driver));
 }
 
 _OS::VideoDriver _OS::get_current_video_driver() const {
@@ -268,8 +268,8 @@ int _OS::get_audio_driver_count() const {
     return OS::get_singleton()->get_audio_driver_count();
 }
 
-se_string _OS::get_audio_driver_name(int p_driver) const {
-    return se_string(OS::get_singleton()->get_audio_driver_name(p_driver));
+String _OS::get_audio_driver_name(int p_driver) const {
+    return String(OS::get_singleton()->get_audio_driver_name(p_driver));
 }
 
 PoolSeStringArray _OS::get_connected_midi_inputs() {
@@ -443,7 +443,7 @@ Point2 _OS::get_ime_selection() const {
     return OS::get_singleton()->get_ime_selection();
 }
 
-se_string _OS::get_ime_text() const {
+String _OS::get_ime_text() const {
     return OS::get_singleton()->get_ime_text();
 }
 
@@ -491,24 +491,24 @@ int _OS::get_low_processor_usage_mode_sleep_usec() const {
     return OS::get_singleton()->get_low_processor_usage_mode_sleep_usec();
 }
 
-se_string _OS::get_executable_path() const {
+String _OS::get_executable_path() const {
 
     return OS::get_singleton()->get_executable_path();
 }
 
-Error _OS::shell_open(se_string p_uri) {
+Error _OS::shell_open(String p_uri) {
 
     return OS::get_singleton()->shell_open(eastl::move(p_uri));
 };
 
-int _OS::execute(se_string_view p_path, const Vector<se_string> &p_arguments, bool p_blocking, Array p_output, bool p_read_stderr) {
+int _OS::execute(se_string_view p_path, const Vector<String> &p_arguments, bool p_blocking, Array p_output, bool p_read_stderr) {
 
     OS::ProcessID pid = -2;
     int exitcode = 0;
-    ListPOD<se_string> args;
+    ListPOD<String> args;
     for (int i = 0; i < p_arguments.size(); i++)
         args.push_back(p_arguments[i]);
-    se_string pipe;
+    String pipe;
     Error err = OS::get_singleton()->execute(p_path, args, p_blocking, &pid, &pipe, &exitcode, p_read_stderr);
     p_output.clear();
     p_output.push_back(Variant(pipe));
@@ -530,24 +530,24 @@ int _OS::get_process_id() const {
     return OS::get_singleton()->get_process_id();
 };
 
-bool _OS::has_environment(const se_string &p_var) const {
+bool _OS::has_environment(const String &p_var) const {
 
     return OS::get_singleton()->has_environment(p_var);
 }
-se_string _OS::get_environment(const se_string &p_var) const {
+String _OS::get_environment(const String &p_var) const {
 
     return OS::get_singleton()->get_environment(p_var);
 }
 
-se_string _OS::get_name() const {
+String _OS::get_name() const {
 
     return OS::get_singleton()->get_name();
 }
-PoolVector<se_string> _OS::get_cmdline_args() {
+PoolVector<String> _OS::get_cmdline_args() {
 
-    ListPOD<se_string> cmdline = OS::get_singleton()->get_cmdline_args();
-    PoolVector<se_string> cmdlinev;
-    for (const se_string & E : cmdline) {
+    ListPOD<String> cmdline = OS::get_singleton()->get_cmdline_args();
+    PoolVector<String> cmdlinev;
+    for (const String & E : cmdline) {
 
         cmdlinev.push_back(E);
     }
@@ -555,12 +555,12 @@ PoolVector<se_string> _OS::get_cmdline_args() {
     return cmdlinev;
 }
 
-se_string _OS::get_locale() const {
+String _OS::get_locale() const {
 
     return OS::get_singleton()->get_locale();
 }
 
-se_string _OS::get_latin_keyboard_variant() const {
+String _OS::get_latin_keyboard_variant() const {
     switch (OS::get_singleton()->get_latin_keyboard_variant()) {
         case OS::LATIN_KEYBOARD_QWERTY: return ("QWERTY");
         case OS::LATIN_KEYBOARD_QWERTZ: return ("QWERTZ");
@@ -573,7 +573,7 @@ se_string _OS::get_latin_keyboard_variant() const {
     }
 }
 
-se_string _OS::get_model_name() const {
+String _OS::get_model_name() const {
 
     return OS::get_singleton()->get_model_name();
 }
@@ -682,7 +682,7 @@ uint64_t _OS::get_dynamic_memory_usage() const {
     return OS::get_singleton()->get_dynamic_memory_usage();
 }
 
-void _OS::set_native_icon(const se_string &p_filename) {
+void _OS::set_native_icon(const String &p_filename) {
 
     OS::get_singleton()->set_native_icon(p_filename);
 }
@@ -959,14 +959,14 @@ bool _OS::is_stdout_verbose() const {
     return OS::get_singleton()->is_stdout_verbose();
 }
 
-void _OS::dump_memory_to_file(const se_string &p_file) {
+void _OS::dump_memory_to_file(const String &p_file) {
 
     OS::get_singleton()->dump_memory_to_file(p_file.c_str());
 }
 
 struct _OSCoreBindImg {
 
-    se_string path;
+    String path;
     Size2 size;
     int fmt;
     ObjectID id;
@@ -1009,14 +1009,14 @@ void _OS::print_all_textures_by_size() {
     }
 }
 
-void _OS::print_resources_by_type(const Vector<se_string> &p_types) {
+void _OS::print_resources_by_type(const Vector<String> &p_types) {
 
-    DefHashMap<se_string, int> type_count;
+    DefHashMap<String, int> type_count;
 
     ListPOD<Ref<Resource> > rsrc;
     ResourceCache::get_cached_resources(&rsrc);
 
-    PODVector<se_string> converted_typenames;
+    PODVector<String> converted_typenames;
     converted_typenames.reserve(p_types.size());
     for (int i = 0; i < p_types.size(); i++) {
         converted_typenames.push_back(p_types[i]);
@@ -1025,7 +1025,7 @@ void _OS::print_resources_by_type(const Vector<se_string> &p_types) {
 
         bool found = false;
 
-        for (const se_string &name : converted_typenames) {
+        for (const String &name : converted_typenames) {
             if (r->is_class(name.data()))
                 found = true;
         }
@@ -1044,7 +1044,7 @@ bool _OS::has_virtual_keyboard() const {
     return OS::get_singleton()->has_virtual_keyboard();
 }
 
-void _OS::show_virtual_keyboard(const se_string &p_existing_text) {
+void _OS::show_virtual_keyboard(const String &p_existing_text) {
     OS::get_singleton()->show_virtual_keyboard(p_existing_text, Rect2());
 }
 
@@ -1071,7 +1071,7 @@ void _OS::dump_resources_to_file(se_string_view p_file) {
     OS::get_singleton()->dump_resources_to_file(p_file);
 }
 
-se_string _OS::get_user_data_dir() const {
+String _OS::get_user_data_dir() const {
 
     return OS::get_singleton()->get_user_data_dir();
 };
@@ -1144,12 +1144,12 @@ bool _OS::is_keep_screen_on() const {
     return OS::get_singleton()->is_keep_screen_on();
 }
 
-se_string _OS::get_system_dir(SystemDir p_dir) const {
+String _OS::get_system_dir(SystemDir p_dir) const {
 
     return OS::get_system_dir(OS::SystemDir(p_dir));
 }
 
-se_string _OS::get_scancode_string(uint32_t p_code) const {
+String _OS::get_scancode_string(uint32_t p_code) const {
 
     return keycode_get_string(p_code);
 }
@@ -1176,7 +1176,7 @@ bool _OS::request_permissions() {
     return OS::get_singleton()->request_permissions();
 }
 
-PoolVector<se_string> _OS::get_granted_permissions() const {
+PoolVector<String> _OS::get_granted_permissions() const {
 
     return OS::get_singleton()->get_granted_permissions();
 }
@@ -1325,11 +1325,11 @@ void _OS::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("dump_memory_to_file", {"file"}), &_OS::dump_memory_to_file);
     MethodBinder::bind_method(D_METHOD("dump_resources_to_file", {"file"}), &_OS::dump_resources_to_file);
     MethodBinder::bind_method(D_METHOD("has_virtual_keyboard"), &_OS::has_virtual_keyboard);
-    MethodBinder::bind_method(D_METHOD("show_virtual_keyboard", {"existing_text"}), &_OS::show_virtual_keyboard, {DEFVAL(se_string())});
+    MethodBinder::bind_method(D_METHOD("show_virtual_keyboard", {"existing_text"}), &_OS::show_virtual_keyboard, {DEFVAL(String())});
     MethodBinder::bind_method(D_METHOD("hide_virtual_keyboard"), &_OS::hide_virtual_keyboard);
     MethodBinder::bind_method(D_METHOD("get_virtual_keyboard_height"), &_OS::get_virtual_keyboard_height);
     MethodBinder::bind_method(D_METHOD("print_resources_in_use", {"short"}), &_OS::print_resources_in_use, {DEFVAL(false)});
-    MethodBinder::bind_method(D_METHOD("print_all_resources", {"tofile"}), &_OS::print_all_resources, {DEFVAL(se_string())});
+    MethodBinder::bind_method(D_METHOD("print_all_resources", {"tofile"}), &_OS::print_all_resources, {DEFVAL(String())});
 
     MethodBinder::bind_method(D_METHOD("get_static_memory_usage"), &_OS::get_static_memory_usage);
     MethodBinder::bind_method(D_METHOD("get_static_memory_peak_usage"), &_OS::get_static_memory_peak_usage);
@@ -1933,13 +1933,13 @@ bool _File::is_open() const {
     return f != nullptr;
 }
 
-const se_string & _File::get_path() const {
+const String & _File::get_path() const {
 
     ERR_FAIL_COND_V_MSG(!f, null_se_string, "File must be opened before use.")
     return f->get_path();
 }
 
-const se_string & _File::get_path_absolute() const {
+const String & _File::get_path_absolute() const {
 
     ERR_FAIL_COND_V_MSG(!f, null_se_string, "File must be opened before use.")
     return f->get_path_absolute();
@@ -2034,15 +2034,15 @@ PoolVector<uint8_t> _File::get_buffer(int p_length) const {
     return data;
 }
 
-se_string _File::get_as_text() const {
+String _File::get_as_text() const {
 
-    ERR_FAIL_COND_V_MSG(!f, se_string(), "File must be opened before use.")
+    ERR_FAIL_COND_V_MSG(!f, String(), "File must be opened before use.")
 
-    se_string text;
+    String text;
     size_t original_pos = f->get_position();
     f->seek(0);
 
-    se_string l(get_line());
+    String l(get_line());
     while (!eof_reached()) {
         text += l + "\n";
         l = get_line();
@@ -2054,24 +2054,24 @@ se_string _File::get_as_text() const {
     return text;
 }
 
-se_string _File::get_md5(se_string_view p_path) const {
+String _File::get_md5(se_string_view p_path) const {
 
     return FileAccess::get_md5(p_path);
 }
 
-se_string _File::get_sha256(se_string_view p_path) const {
+String _File::get_sha256(se_string_view p_path) const {
 
     return FileAccess::get_sha256(p_path);
 }
 
-se_string _File::get_line() const {
+String _File::get_line() const {
 
-    ERR_FAIL_COND_V_MSG(!f, se_string(), "File must be opened before use.")
+    ERR_FAIL_COND_V_MSG(!f, String(), "File must be opened before use.")
     return f->get_line();
 }
 
-Vector<se_string> _File::get_csv_line(char p_delim) const {
-    ERR_FAIL_COND_V_MSG(!f, Vector<se_string>(), "File must be opened before use.")
+Vector<String> _File::get_csv_line(char p_delim) const {
+    ERR_FAIL_COND_V_MSG(!f, Vector<String>(), "File must be opened before use.")
     return f->get_csv_line(p_delim);
 }
 
@@ -2156,9 +2156,9 @@ void _File::store_pascal_string(se_string_view p_string) {
     f->store_pascal_string(p_string);
 };
 
-se_string _File::get_pascal_string() {
+String _File::get_pascal_string() {
 
-    ERR_FAIL_COND_V_MSG(!f, se_string(), "File must be opened before use.")
+    ERR_FAIL_COND_V_MSG(!f, String(), "File must be opened before use.")
 
     return f->get_pascal_string();
 };
@@ -2169,10 +2169,10 @@ void _File::store_line(se_string_view p_string) {
     f->store_line(p_string);
 }
 
-void _File::store_csv_line(const PoolVector<se_string> &p_values, char p_delim) {
+void _File::store_csv_line(const PoolVector<String> &p_values, char p_delim) {
     ERR_FAIL_COND_MSG(!f, "File must be opened before use.")
     auto rd = p_values.read();
-    PODVector<se_string> vals(rd.ptr(),rd.ptr()+p_values.size());
+    PODVector<String> vals(rd.ptr(),rd.ptr()+p_values.size());
     f->store_csv_line(vals, p_delim);
 }
 
@@ -2339,11 +2339,11 @@ Error _Directory::list_dir_begin(bool p_skip_navigational, bool p_skip_hidden) {
     return d->list_dir_begin();
 }
 
-se_string _Directory::get_next() {
+String _Directory::get_next() {
 
-    ERR_FAIL_COND_V_MSG(!d, se_string(), "Directory must be opened before use.")
+    ERR_FAIL_COND_V_MSG(!d, String(), "Directory must be opened before use.")
 
-    se_string next = d->get_next();
+    String next = d->get_next();
     while (!next.empty() && ((_list_skip_navigational && (next == "." || next == "..")) || (_list_skip_hidden && d->current_is_hidden()))) {
 
         next = d->get_next();
@@ -2367,9 +2367,9 @@ int _Directory::get_drive_count() {
     ERR_FAIL_COND_V_MSG(!d, 0, "Directory must be opened before use.")
     return d->get_drive_count();
 }
-se_string _Directory::get_drive(int p_drive) {
+String _Directory::get_drive(int p_drive) {
 
-    ERR_FAIL_COND_V_MSG(!d, se_string(), "Directory must be opened before use.")
+    ERR_FAIL_COND_V_MSG(!d, String(), "Directory must be opened before use.")
     return d->get_drive(p_drive);
 }
 int _Directory::get_current_drive() {
@@ -2382,9 +2382,9 @@ Error _Directory::change_dir(se_string_view p_dir) {
     ERR_FAIL_COND_V_MSG(!d, ERR_UNCONFIGURED, "Directory must be opened before use.")
     return d->change_dir(p_dir);
 }
-se_string _Directory::get_current_dir() {
+String _Directory::get_current_dir() {
 
-    ERR_FAIL_COND_V_MSG(!d, se_string(), "Directory must be opened before use.")
+    ERR_FAIL_COND_V_MSG(!d, String(), "Directory must be opened before use.")
     return d->get_current_dir();
 }
 Error _Directory::make_dir(se_string_view p_dir) {
@@ -2513,7 +2513,7 @@ _Marshalls *_Marshalls::get_singleton() {
     return singleton;
 }
 
-se_string _Marshalls::variant_to_base64(const Variant &p_var, bool p_full_objects) {
+String _Marshalls::variant_to_base64(const Variant &p_var, bool p_full_objects) {
 
     int len;
     Error err = encode_variant(p_var, nullptr, len, p_full_objects);
@@ -2526,7 +2526,7 @@ se_string _Marshalls::variant_to_base64(const Variant &p_var, bool p_full_object
     err = encode_variant(p_var, &w[0], len, p_full_objects);
     ERR_FAIL_COND_V_MSG(err != OK, {}, "Error when trying to encode Variant.")
 
-    se_string ret = CryptoCore::b64_encode_str(&w[0], len);
+    String ret = CryptoCore::b64_encode_str(&w[0], len);
     ERR_FAIL_COND_V(ret.empty(), ret)
 
     return ret;
@@ -2535,7 +2535,7 @@ se_string _Marshalls::variant_to_base64(const Variant &p_var, bool p_full_object
 Variant _Marshalls::base64_to_variant(se_string_view p_str, bool p_allow_objects) {
 
     int strlen = p_str.size();
-    se_string cstr(p_str);
+    String cstr(p_str);
 
     PoolVector<uint8_t> buf;
     buf.resize(strlen / 4 * 3 + 1);
@@ -2551,9 +2551,9 @@ Variant _Marshalls::base64_to_variant(se_string_view p_str, bool p_allow_objects
     return v;
 };
 
-se_string _Marshalls::raw_to_base64(const PoolVector<uint8_t> &p_arr) {
+String _Marshalls::raw_to_base64(const PoolVector<uint8_t> &p_arr) {
 
-    se_string ret = CryptoCore::b64_encode_str(p_arr.read().ptr(), p_arr.size());
+    String ret = CryptoCore::b64_encode_str(p_arr.read().ptr(), p_arr.size());
     ERR_FAIL_COND_V(ret.empty(), ret)
     return ret;
 };
@@ -2561,7 +2561,7 @@ se_string _Marshalls::raw_to_base64(const PoolVector<uint8_t> &p_arr) {
 PoolVector<uint8_t> _Marshalls::base64_to_raw(se_string_view p_str) {
 
     int strlen = p_str.size();
-    se_string cstr(p_str);
+    String cstr(p_str);
 
     size_t arr_len = 0;
     PoolVector<uint8_t> buf;
@@ -2576,14 +2576,14 @@ PoolVector<uint8_t> _Marshalls::base64_to_raw(se_string_view p_str) {
     return buf;
 };
 
-se_string _Marshalls::utf8_to_base64(se_string_view p_str) {
+String _Marshalls::utf8_to_base64(se_string_view p_str) {
 
-    se_string ret = CryptoCore::b64_encode_str((const unsigned char *)p_str.data(), p_str.length());
+    String ret = CryptoCore::b64_encode_str((const unsigned char *)p_str.data(), p_str.length());
     ERR_FAIL_COND_V(ret.empty(), ret)
     return ret;
 };
 
-se_string _Marshalls::base64_to_utf8(se_string_view p_str) {
+String _Marshalls::base64_to_utf8(se_string_view p_str) {
 
     int strlen = p_str.length();
 
@@ -2592,9 +2592,9 @@ se_string _Marshalls::base64_to_utf8(se_string_view p_str) {
     PoolVector<uint8_t>::Write w = buf.write();
 
     size_t len = 0;
-    ERR_FAIL_COND_V(CryptoCore::b64_decode(&w[0], buf.size(), &len, (const unsigned char *)p_str.data(), strlen) != OK, se_string())
+    ERR_FAIL_COND_V(CryptoCore::b64_decode(&w[0], buf.size(), &len, (const unsigned char *)p_str.data(), strlen) != OK, String())
 
-    return se_string((const char *)&w[0],len);
+    return String((const char *)&w[0],len);
 };
 
 IMPL_GDCLASS(_Marshalls)
@@ -2692,7 +2692,7 @@ void _Thread::_start_func(void *ud) {
     t->ret = t->target_instance->call(t->target_method, arg, 1, ce);
     if (ce.error != Variant::CallError::CALL_OK) {
 
-        se_string reason;
+        String reason;
         switch (ce.error) {
             case Variant::CallError::CALL_ERROR_INVALID_ARGUMENT: {
 
@@ -2714,7 +2714,7 @@ void _Thread::_start_func(void *ud) {
             }
         }
 
-        ERR_FAIL_MSG("Could not call function '" + se_string(t->target_method.asCString()) + "' to start thread " + t->get_id() + ": " + reason + ".")
+        ERR_FAIL_MSG("Could not call function '" + String(t->target_method.asCString()) + "' to start thread " + t->get_id() + ": " + reason + ".")
     }
 }
 
@@ -2747,10 +2747,10 @@ Error _Thread::start(Object *p_instance, const StringName &p_method, const Varia
     return OK;
 }
 
-se_string _Thread::get_id() const {
+String _Thread::get_id() const {
 
     if (!thread)
-        return se_string();
+        return String();
 
     return itos(thread->get_id());
 }
@@ -2811,7 +2811,7 @@ PoolSeStringArray _ClassDB::get_class_list() const {
     ret.resize(classes.size());
     int idx = 0;
     for (size_t i=0,fin=classes.size(); i<fin; ++i) {
-        ret.set(idx++, se_string(classes[i]));
+        ret.set(idx++, String(classes[i]));
     }
 
     return ret;
@@ -2825,7 +2825,7 @@ PoolSeStringArray _ClassDB::get_inheriters_from_class(const StringName &p_class)
     ret.resize(classes.size());
     int idx = 0;
     for (const StringName &E : classes) {
-        ret.set(idx++, se_string(E));
+        ret.set(idx++, String(E));
     }
 
     return ret;
@@ -2941,13 +2941,13 @@ Array _ClassDB::get_method_list(StringName p_class, bool p_no_inheritance) const
 
 PoolSeStringArray _ClassDB::get_integer_constant_list(const StringName &p_class, bool p_no_inheritance) const {
 
-    ListPOD<se_string> constants;
+    ListPOD<String> constants;
     ClassDB::get_integer_constant_list(p_class, &constants, p_no_inheritance);
 
     PoolSeStringArray ret;
     ret.resize(constants.size());
     int idx = 0;
-    for (const se_string &E : constants) {
+    for (const String &E : constants) {
         ret.set(idx++, Variant(E));
     }
 
@@ -3090,7 +3090,7 @@ Dictionary _Engine::get_license_info() const {
     return Engine::get_singleton()->get_license_info();
 }
 
-se_string _Engine::get_license_text() const {
+String _Engine::get_license_text() const {
     return Engine::get_singleton()->get_license_text();
 }
 
@@ -3197,7 +3197,7 @@ void JSONParseResult::set_error_string(se_string_view p_error_string) {
     error_string = p_error_string;
 }
 
-const se_string & JSONParseResult::get_error_string() const {
+const String & JSONParseResult::get_error_string() const {
     return error_string;
 }
 
@@ -3220,15 +3220,15 @@ Variant JSONParseResult::get_result() const {
 IMPL_GDCLASS(_JSON)
 
 void _JSON::_bind_methods() {
-    MethodBinder::bind_method(D_METHOD("print", {"value", "indent", "sort_keys"}), &_JSON::print, {DEFVAL(se_string()), DEFVAL(false)});
+    MethodBinder::bind_method(D_METHOD("print", {"value", "indent", "sort_keys"}), &_JSON::print, {DEFVAL(String()), DEFVAL(false)});
     MethodBinder::bind_method(D_METHOD("parse", {"json"}), &_JSON::parse);
 }
 
-se_string _JSON::print(const Variant &p_value, se_string_view p_indent, bool p_sort_keys) {
+String _JSON::print(const Variant &p_value, se_string_view p_indent, bool p_sort_keys) {
     return JSON::print(p_value, p_indent, p_sort_keys);
 }
 
-Ref<JSONParseResult> _JSON::parse(const se_string &p_json) {
+Ref<JSONParseResult> _JSON::parse(const String &p_json) {
     Ref<JSONParseResult> result(make_ref_counted<JSONParseResult>());
 
     result->error = JSON::parse(p_json, result->result, result->error_string, result->error_line);

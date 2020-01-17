@@ -197,7 +197,7 @@ void InputDefault::joy_connection_changed(int p_idx, bool p_connected, StringNam
 
     if (p_connected) {
 
-        se_string uidname(p_guid);
+        String uidname(p_guid);
         if (p_guid.empty()) {
             int uidlen = MIN(se_string_view(p_name).length(), 16);
             for (int i = 0; i < uidlen; i++) {
@@ -730,8 +730,8 @@ InputDefault::InputDefault() {
     }
 
     // If defined, parse SDL_GAMECONTROLLERCONFIG for possible new mappings/overrides.
-    se_string env_var = OS::get_singleton()->get_environment("SDL_GAMECONTROLLERCONFIG");
-    se_string env_mapping(env_var);
+    String env_var = OS::get_singleton()->get_environment("SDL_GAMECONTROLLERCONFIG");
+    String env_mapping(env_var);
     if (!env_mapping.empty()) {
 
         PODVector<se_string_view> entries = StringUtils::split(env_mapping,'\n');
@@ -1013,7 +1013,7 @@ void InputDefault::parse_mapping(se_string_view p_mapping) {
         if (entry[idx].empty())
             continue;
 
-        se_string from(StringUtils::replace(StringUtils::get_slice(entry[idx],":", 1)," ", ""));
+        String from(StringUtils::replace(StringUtils::get_slice(entry[idx],":", 1)," ", ""));
         StringName to(StringUtils::replace(StringUtils::get_slice(entry[idx],":", 0)," ", ""));
 
         JoyEvent to_event = _find_to_event(to);

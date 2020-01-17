@@ -613,11 +613,11 @@ static const NSRange kEmptyRange = { NSNotFound, 0 };
     NSPasteboard *pboard = [sender draggingPasteboard];
     NSArray *filenames = [pboard propertyListForType:NSFilenamesPboardType];
 
-    Vector<se_string> files;
+    Vector<String> files;
     for (int i = 0; i < filenames.count; i++) {
         NSString *ns = [filenames objectAtIndex:i];
         char *utfs = strdup([ns UTF8String]);
-        se_string ret;
+        String ret;
         ret.parse_utf8(utfs);
         free(utfs);
         files.push_back(ret);
@@ -2102,7 +2102,7 @@ void OS_OSX::set_clipboard(const String &p_text) {
     [pasteboard writeObjects:copiedStringArray];
 }
 
-se_string OS_OSX::get_clipboard() const {
+String OS_OSX::get_clipboard() const {
 
     NSPasteboard *pasteboard = [NSPasteboard generalPasteboard];
     NSArray *classArray = [NSArray arrayWithObject:[NSString class]];
@@ -2884,7 +2884,7 @@ int OS_OSX::get_power_percent_left() {
     return power_manager->get_power_percent_left();
 }
 
-Error OS_OSX::move_to_trash(const se_string &p_path) {
+Error OS_OSX::move_to_trash(const String &p_path) {
     NSFileManager *fm = [NSFileManager defaultManager];
     NSURL *url = [NSURL fileURLWithPath:@(p_path.utf8().get_data())];
     NSError *err;

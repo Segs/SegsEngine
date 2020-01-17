@@ -114,7 +114,7 @@ public:
 class EditorPropertyPath : public EditorProperty {
     GDCLASS(EditorPropertyPath,EditorProperty)
 
-    PODVector<se_string> extensions;
+    PODVector<String> extensions;
     bool folder;
     bool global;
     bool save_mode;
@@ -177,7 +177,7 @@ private:
     Type hint;
     PropertySelector *selector;
     Button *property;
-    se_string hint_text;
+    String hint_text;
 
     void _property_selected(se_string_view p_selected);
     void _property_select();

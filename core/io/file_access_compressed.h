@@ -61,7 +61,7 @@ class FileAccessCompressed : public FileAccess {
     Vector<ReadBlock> read_blocks;
     uint32_t read_total=0;
 
-    se_string magic;
+    String magic;
     mutable Vector<uint8_t> buffer;
     FileAccess *f = nullptr;
 

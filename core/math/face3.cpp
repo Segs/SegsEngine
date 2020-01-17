@@ -254,9 +254,9 @@ bool Face3::intersects_aabb(const AABB &p_aabb) const {
     return true;
 }
 
-Face3::operator se_string() const {
+Face3::operator String() const {
 
-    return se_string(vertex[0]) + ", " + (se_string)vertex[1] + ", " + (se_string)vertex[2];
+    return String(vertex[0]) + ", " + (String)vertex[1] + ", " + (String)vertex[2];
 }
 
 void Face3::project_range(const Vector3 &p_normal, const Transform &p_transform, real_t &r_min, real_t &r_max) const {

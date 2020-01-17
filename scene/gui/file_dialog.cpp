@@ -127,9 +127,9 @@ void FileDialog::set_enable_multiple_selection(bool p_enable) {
     tree->set_select_mode(p_enable ? Tree::SELECT_MULTI : Tree::SELECT_SINGLE);
 };
 
-Vector<se_string> FileDialog::get_selected_files() const {
+Vector<String> FileDialog::get_selected_files() const {
 
-    Vector<se_string> list;
+    Vector<String> list;
 
     TreeItem *item = tree->get_root();
     while ((item = tree->get_next_selected(item))) {
@@ -165,7 +165,7 @@ void FileDialog::_file_entered(se_string_view p_file) {
 }
 
 void FileDialog::_save_confirm_pressed() {
-    se_string f = PathUtils::plus_file(dir_access->get_current_dir(),file->get_text());
+    String f = PathUtils::plus_file(dir_access->get_current_dir(),file->get_text());
     emit_signal("file_selected", f);
     hide();
 }
@@ -198,9 +198,9 @@ void FileDialog::_action_pressed() {
     if (mode == MODE_OPEN_FILES) {
 
         TreeItem *ti = tree->get_next_selected(nullptr);
-        se_string fbase = dir_access->get_current_dir();
+        String fbase = dir_access->get_current_dir();
 
-        PoolVector<se_string> files;
+        PoolVector<String> files;
         while (ti) {
 
             files.push_back(PathUtils::plus_file(fbase,ti->get_text(0)));
@@ -215,21 +215,21 @@ void FileDialog::_action_pressed() {
         return;
     }
 
-    se_string f = PathUtils::plus_file(dir_access->get_current_dir(),file->get_text());
+    String f = PathUtils::plus_file(dir_access->get_current_dir(),file->get_text());
 
     if ((mode == MODE_OPEN_ANY || mode == MODE_OPEN_FILE) && dir_access->file_exists(f)) {
         emit_signal("file_selected", f);
         hide();
     } else if (mode == MODE_OPEN_ANY || mode == MODE_OPEN_DIR) {
 
-        se_string path = dir_access->get_current_dir();
+        String path = dir_access->get_current_dir();
 
         path =StringUtils::replace(path,"\\", "/");
         TreeItem *item = tree->get_selected();
         if (item) {
             Dictionary d = item->get_metadata(0);
             if (d["dir"] && d["name"] != "..") {
-                path = PathUtils::plus_file(path,d["name"].as<se_string>());
+                path = PathUtils::plus_file(path,d["name"].as<String>());
             }
         }
 
@@ -380,7 +380,7 @@ void FileDialog::_tree_selected() {
 
     if (!d["dir"]) {
 
-        file->set_text_utf8(d["name"].as<se_string>());
+        file->set_text_utf8(d["name"].as<String>());
     } else if (mode == MODE_OPEN_DIR) {
         get_ok()->set_text(RTR("Select This Folder"));
     }
@@ -398,7 +398,7 @@ void FileDialog::_tree_item_activated() {
 
     if (d["dir"]) {
 
-        dir_access->change_dir(d["name"].as<se_string>());
+        dir_access->change_dir(d["name"].as<String>());
         if (mode == MODE_OPEN_FILE || mode == MODE_OPEN_FILES || mode == MODE_OPEN_DIR || mode == MODE_OPEN_ANY)
             file->set_text_utf8("");
         call_deferred("_update_file_list");
@@ -413,9 +413,9 @@ void FileDialog::update_file_name() {
     int idx = filter->get_selected() - 1;
     if ((idx == -1 && filter->get_item_count() == 2) || (filter->get_item_count() > 2 && idx >= 0 && idx < filter->get_item_count() - 2)) {
         if (idx == -1) idx += 1;
-        se_string filter_str = filters[idx];
-        se_string file_str = file->get_text();
-        se_string base_name(PathUtils::get_basename(file_str));
+        String filter_str = filters[idx];
+        String file_str = file->get_text();
+        String base_name(PathUtils::get_basename(file_str));
         file_str = base_name + "." + StringUtils::to_lower(StringUtils::strip_edges(filter_str));
         file->set_text_utf8(file_str);
     }
@@ -432,11 +432,11 @@ void FileDialog::update_file_list() {
     TreeItem *root = tree->create_item();
     Ref<Texture> folder = get_icon("folder");
     const Color folder_color = get_color("folder_icon_modulate");
-    List<se_string> files;
-    List<se_string> dirs;
+    List<String> files;
+    List<String> dirs;
 
     bool is_hidden;
-    se_string item;
+    String item;
 
     while (!(item = dir_access->get_next()).empty()) {
 
@@ -457,7 +457,7 @@ void FileDialog::update_file_list() {
     files.sort_custom<NaturalNoCaseComparator>();
 
     while (!dirs.empty()) {
-        se_string &dir_name = dirs.front()->deref();
+        String &dir_name = dirs.front()->deref();
         TreeItem *ti = tree->create_item(root);
         ti->set_text_utf8(0, dir_name);
         ti->set_icon(0, folder);
@@ -472,7 +472,7 @@ void FileDialog::update_file_list() {
         dirs.pop_front();
     }
 
-    PODVector<se_string> patterns;
+    PODVector<String> patterns;
     // build filter
     if (filter->get_selected() == filter->get_item_count() - 1) {
 
@@ -502,14 +502,14 @@ void FileDialog::update_file_list() {
         }
     }
 
-    se_string base_dir = dir_access->get_current_dir();
+    String base_dir = dir_access->get_current_dir();
 
     while (!files.empty()) {
 
         bool match = patterns.empty();
-        se_string match_str;
+        String match_str;
 
-        for (const se_string & E : patterns) {
+        for (const String & E : patterns) {
 
             if (StringUtils::matchn(files.front()->deref(),E)) {
                 match_str = E;
@@ -559,7 +559,7 @@ void FileDialog::update_filters() {
     filter->clear();
 
     if (filters.size() > 1) {
-        se_string all_filters;
+        String all_filters;
 
         const int max_filters = 5;
 
@@ -596,30 +596,30 @@ void FileDialog::clear_filters() {
 }
 void FileDialog::add_filter(se_string_view p_filter) {
 
-    filters.push_back(se_string(p_filter));
+    filters.push_back(String(p_filter));
     update_filters();
     invalidate();
 }
 
-void FileDialog::set_filters(const Vector<se_string> &p_filters) {
+void FileDialog::set_filters(const Vector<String> &p_filters) {
     filters = p_filters;
     update_filters();
     invalidate();
 }
 
-Vector<se_string> FileDialog::get_filters() const {
+Vector<String> FileDialog::get_filters() const {
     return filters;
 }
 
-se_string FileDialog::get_current_dir() const {
+String FileDialog::get_current_dir() const {
 
     return dir->get_text();
 }
-se_string FileDialog::get_current_file() const {
+String FileDialog::get_current_file() const {
 
     return file->get_text();
 }
-se_string FileDialog::get_current_path() const {
+String FileDialog::get_current_path() const {
 
     return PathUtils::plus_file(dir->get_text(),file->get_text());
 }
@@ -780,7 +780,7 @@ void FileDialog::_make_dir() {
 
 void FileDialog::_select_drive(int p_idx) {
 
-    se_string d = drives->get_item_text_utf8(p_idx);
+    String d = drives->get_item_text_utf8(p_idx);
     dir_access->change_dir(d);
     file->set_text_utf8("");
     invalidate();

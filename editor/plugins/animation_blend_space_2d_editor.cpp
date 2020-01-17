@@ -116,7 +116,7 @@ void AnimationNodeBlendSpace2DEditor::_blend_space_gui_input(const Ref<InputEven
 
         for(const StringName & E : classes) {
 
-            se_string name = StringUtils::replace_first(E,"AnimationNode", "");
+            String name = StringUtils::replace_first(E,"AnimationNode", "");
             if (name == "Animation")
                 continue; // nope
             int idx = menu->get_item_count();
@@ -312,9 +312,9 @@ void AnimationNodeBlendSpace2DEditor::_add_menu_type(int p_index) {
     if (p_index == MENU_LOAD_FILE) {
 
         open_file->clear_filters();
-        PODVector<se_string> filters;
+        PODVector<String> filters;
         ResourceLoader::get_recognized_extensions_for_type("AnimationRootNode", filters);
-        for (const se_string &E : filters) {
+        for (const String &E : filters) {
             open_file->add_filter("*." + E);
         }
         open_file->popup_centered_ratio();
@@ -326,7 +326,7 @@ void AnimationNodeBlendSpace2DEditor::_add_menu_type(int p_index) {
 
         node = dynamic_ref_cast<AnimationRootNode>(EditorSettings::get_singleton()->get_resource_clipboard());
     } else {
-        se_string type = menu->get_item_metadata(p_index);
+        String type = menu->get_item_metadata(p_index);
 
         Object *obj = ClassDB::instance(StringName(type));
         ERR_FAIL_COND(!obj)
@@ -781,7 +781,7 @@ void AnimationNodeBlendSpace2DEditor::_notification(int p_what) {
 
     if (p_what == NOTIFICATION_PROCESS) {
 
-        se_string error;
+        String error;
 
         if (!AnimationTreeEditor::get_singleton()->get_tree()) {
             error = TTR("BlendSpace2D does not belong to an AnimationTree node.");

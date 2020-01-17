@@ -376,9 +376,9 @@ void BaseButton::_unhandled_input(Ref<InputEvent> p_event) {
 
 StringName BaseButton::get_tooltip(const Point2 &p_pos) const {
 
-    se_string tooltip(Control::get_tooltip(p_pos));
+    String tooltip(Control::get_tooltip(p_pos));
     if (shortcut_in_tooltip && shortcut && shortcut->is_valid()) {
-        se_string text = shortcut->get_name() + " (" + shortcut->get_as_text() + ")";
+        String text = shortcut->get_name() + " (" + shortcut->get_as_text() + ")";
         if (StringUtils::compare(shortcut->get_name(),tooltip,StringUtils::CaseInsensitive) != 0) {
             text += "\n" + tooltip;
         }

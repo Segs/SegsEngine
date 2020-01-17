@@ -132,7 +132,7 @@ void MeshInstance::set_mesh(const Ref<Mesh> &p_mesh) {
             BlendShapeTrack mt;
             mt.idx = i;
             mt.value = 0;
-            blend_shape_tracks[StringName("blend_shapes/" + se_string(mesh->get_blend_shape_name(i)))] = mt;
+            blend_shape_tracks[StringName("blend_shapes/" + String(mesh->get_blend_shape_name(i)))] = mt;
         }
 
         mesh->connect(CoreStringNames::get_singleton()->changed, this, SceneStringNames::get_singleton()->_mesh_changed);
@@ -241,7 +241,7 @@ void MeshInstance::create_trimesh_collision() {
 
     StaticBody *static_body = object_cast<StaticBody>(create_trimesh_collision_node());
     ERR_FAIL_COND(!static_body)
-    static_body->set_name(se_string(get_name()) + "_col");
+    static_body->set_name(String(get_name()) + "_col");
 
     add_child(static_body);
     if (get_owner()) {
@@ -271,7 +271,7 @@ void MeshInstance::create_convex_collision() {
 
     StaticBody *static_body = object_cast<StaticBody>(create_convex_collision_node());
     ERR_FAIL_COND(!static_body)
-    static_body->set_name(se_string(get_name()) + "_col");
+    static_body->set_name(String(get_name()) + "_col");
 
     add_child(static_body);
     if (get_owner()) {

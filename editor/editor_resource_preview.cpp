@@ -117,13 +117,13 @@ void EditorResourcePreview::_preview_ready(se_string_view p_str, const Ref<Textu
 
     preview_mutex->lock();
 
-    se_string path(p_str);
+    String path(p_str);
     uint32_t hash = 0;
     uint64_t modified_time = 0;
 
     if (StringUtils::begins_with(p_str,"ID:")) {
         hash = uint32_t(StringUtils::to_int64(StringUtils::get_slice(p_str,':', 2)));
-        path = se_string("ID:") + StringUtils::get_slice(p_str,':', 1);
+        path = String("ID:") + StringUtils::get_slice(p_str,':', 1);
     } else {
         modified_time = FileAccess::get_modified_time(path);
     }
@@ -143,7 +143,7 @@ void EditorResourcePreview::_preview_ready(se_string_view p_str, const Ref<Textu
 }
 
 void EditorResourcePreview::_generate_preview(Ref<ImageTexture> &r_texture, Ref<ImageTexture> &r_small_texture, const QueueItem &p_item, se_string_view cache_base) {
-    se_string type;
+    String type;
 
     if (p_item.resource)
         type = p_item.resource->get_class();
@@ -203,11 +203,11 @@ void EditorResourcePreview::_generate_preview(Ref<ImageTexture> &r_texture, Ref<
         if (r_texture) {
             //wow it generated a preview... save cache
             bool has_small_texture = r_small_texture;
-            ResourceSaver::save(se_string(cache_base) + ".png", r_texture);
+            ResourceSaver::save(String(cache_base) + ".png", r_texture);
             if (has_small_texture) {
-                ResourceSaver::save(se_string(cache_base) + "_small.png", r_small_texture);
+                ResourceSaver::save(String(cache_base) + "_small.png", r_small_texture);
             }
-            FileAccess *f = FileAccess::open(se_string(cache_base) + ".txt", FileAccess::WRITE);
+            FileAccess *f = FileAccess::open(String(cache_base) + ".txt", FileAccess::WRITE);
             ERR_FAIL_COND_MSG(!f, "Cannot create file '" + cache_base + ".txt'. Check user write permissions.");
             f->store_line(itos(thumbnail_size));
             f->store_line(itos(has_small_texture));
@@ -238,7 +238,7 @@ void EditorResourcePreview::_thread() {
 
         if (cache.contains(item.path)) {
             //already has it because someone loaded it, just let it know it's ready
-            se_string path = item.path;
+            String path = item.path;
             if (item.resource) {
                 path += ":" + itos(cache[item.path].last_hash); //keep last hash (see description of what this is in condition below)
             }
@@ -265,13 +265,13 @@ void EditorResourcePreview::_thread() {
 
             } else {
 
-                se_string temp_path = EditorSettings::get_singleton()->get_cache_dir();
-                se_string cache_base(StringUtils::md5_text(ProjectSettings::get_singleton()->globalize_path(item.path)));
+                String temp_path = EditorSettings::get_singleton()->get_cache_dir();
+                String cache_base(StringUtils::md5_text(ProjectSettings::get_singleton()->globalize_path(item.path)));
                 cache_base = PathUtils::plus_file(temp_path,"resthumb-" + cache_base);
 
                 //does not have it, try to load a cached thumbnail
 
-                se_string file = cache_base + ".txt";
+                String file = cache_base + ".txt";
                 FileAccess *f = FileAccess::open(file, FileAccess::READ);
                 if (!f) {
 
@@ -292,8 +292,8 @@ void EditorResourcePreview::_thread() {
                         memdelete(f);
                     } else if (last_modtime != modtime) {
 
-                        se_string last_md5 = f->get_line();
-                        se_string md5 = FileAccess::get_md5(item.path);
+                        String last_md5 = f->get_line();
+                        String md5 = FileAccess::get_md5(item.path);
                         memdelete(f);
 
                         if (last_md5 != md5) {
@@ -363,7 +363,7 @@ void EditorResourcePreview::queue_edited_resource_preview(const Ref<Resource> &p
 
     preview_mutex->lock();
 
-    se_string path_id = "ID:" + itos(p_res->get_instance_id());
+    String path_id = "ID:" + itos(p_res->get_instance_id());
 
     if (cache.contains(path_id) && cache[path_id].last_hash == p_res->hash_edited_version()) {
 
@@ -392,7 +392,7 @@ void EditorResourcePreview::queue_resource_preview(se_string_view p_path, Object
     ERR_FAIL_NULL(p_receiver);
     preview_mutex->lock();
     if (cache.contains_as(p_path)) {
-        auto & entry(cache[se_string(p_path)]);
+        auto & entry(cache[String(p_path)]);
         entry.order = order++;
         p_receiver->call(p_receiver_func, p_path, entry.preview, entry.small_preview, p_userdata);
         preview_mutex->unlock();

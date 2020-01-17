@@ -100,7 +100,7 @@ class CSharpScript : public Script {
     StringName tied_class_namespace_for_reload;
 #endif
 
-    se_string source;
+    String source;
     StringName name;
 
     SelfList<CSharpScript> script_list;
@@ -135,7 +135,7 @@ class CSharpScript : public Script {
     bool _update_exports();
 #ifdef TOOLS_ENABLED
     bool _get_member_export(IMonoClassMember *p_member, bool p_inspect_export, PropertyInfo &r_prop_info, bool &r_exported);
-    static int _try_get_member_export_hint(IMonoClassMember *p_member, ManagedType p_type, VariantType p_variant_type, bool p_allow_generics, PropertyHint &r_hint, se_string &r_hint_string);
+    static int _try_get_member_export_hint(IMonoClassMember *p_member, ManagedType p_type, VariantType p_variant_type, bool p_allow_generics, PropertyHint &r_hint, String &r_hint_string);
 #endif
 
     CSharpInstance *_create_instance(const Variant **p_args, int p_argcount, Object *p_owner, bool p_isref, Variant::CallError &r_error);
@@ -164,7 +164,7 @@ public:
 
     virtual bool has_source_code() const override;
     se_string_view get_source_code() const override;
-    void set_source_code(se_string p_code) override;
+    void set_source_code(String p_code) override;
 
     Error reload(bool p_keep_state = false) override;
 
@@ -271,7 +271,7 @@ public:
     void notification(int p_notification) override;
     void _call_notification(int p_notification);
 
-    se_string to_string(bool *r_valid) override;
+    String to_string(bool *r_valid) override;
 
     virtual Ref<Script> get_script() const;
 
@@ -329,8 +329,8 @@ class CSharpLanguage : public ScriptLanguage {
 
     // For debug_break and debug_break_parse
     int _debug_parse_err_line;
-    se_string _debug_parse_err_file;
-    se_string _debug_error;
+    String _debug_parse_err_file;
+    String _debug_error;
 
     void _load_scripts_metadata();
 
@@ -362,8 +362,8 @@ public:
     static void release_script_gchandle(Ref<MonoGCHandle> &p_gchandle);
     static void release_script_gchandle(MonoObject *p_expected_obj, Ref<MonoGCHandle> &p_gchandle);
 
-    bool debug_break(const se_string &p_error, bool p_allow_continue = true);
-    bool debug_break_parse(se_string_view p_file, int p_line, const se_string &p_error);
+    bool debug_break(const String &p_error, bool p_allow_continue = true);
+    bool debug_break_parse(se_string_view p_file, int p_line, const String &p_error);
 
 #ifdef GD_MONO_HOT_RELOAD
     bool is_assembly_reloading_needed();
@@ -383,44 +383,44 @@ public:
     StringName get_name() const override;
 
     /* LANGUAGE FUNCTIONS */
-    se_string get_type() const override;
-    se_string get_extension() const override;
+    String get_type() const override;
+    String get_extension() const override;
     Error execute_file(se_string_view p_path) override;
     void init() override;
     void finish() override;
 
     /* EDITOR FUNCTIONS */
-    void get_reserved_words(ListPOD<se_string> *p_words) const override;
-    void get_comment_delimiters(ListPOD<se_string> *p_delimiters) const override;
-    void get_string_delimiters(ListPOD<se_string> *p_delimiters) const override;
+    void get_reserved_words(ListPOD<String> *p_words) const override;
+    void get_comment_delimiters(ListPOD<String> *p_delimiters) const override;
+    void get_string_delimiters(ListPOD<String> *p_delimiters) const override;
     Ref<Script> get_template(se_string_view p_class_name, se_string_view p_base_class_name) const override;
     bool is_using_templates() override;
     void make_template(se_string_view p_class_name, se_string_view p_base_class_name, Ref<Script> &p_script) override;
-    bool validate(se_string_view p_script, int &r_line_error, int &r_col_error, se_string &r_test_error,
-                             se_string_view p_path = {}, DefList<se_string> *r_functions = nullptr,
+    bool validate(se_string_view p_script, int &r_line_error, int &r_col_error, String &r_test_error,
+                             se_string_view p_path = {}, DefList<String> *r_functions = nullptr,
                              DefList<Warning> *r_warnings = nullptr, Set<int> *r_safe_lines = nullptr) const override;
-    se_string validate_path(se_string_view p_path) const override;
+    String validate_path(se_string_view p_path) const override;
     Script *create_script() const override;
     bool has_named_classes() const override;
     bool supports_builtin_mode() const override;
     /* TODO? */ int find_function(se_string_view p_function, se_string_view p_code) const override { return -1; }
-    se_string make_function(const se_string &p_class, const StringName &p_name, const PoolVector<se_string> &p_args) const override;
-    se_string _get_indentation() const;
-    /* TODO? */ void auto_indent_code(se_string &p_code, int p_from_line, int p_to_line) const override {}
+    String make_function(const String &p_class, const StringName &p_name, const PoolVector<String> &p_args) const override;
+    String _get_indentation() const;
+    /* TODO? */ void auto_indent_code(String &p_code, int p_from_line, int p_to_line) const override {}
     /* TODO */ void add_global_constant(const StringName &p_variable, const Variant &p_value) override {}
 
     /* DEBUGGER FUNCTIONS */
-    const se_string &debug_get_error() const override;
+    const String &debug_get_error() const override;
     int debug_get_stack_level_count() const override;
     int debug_get_stack_level_line(int p_level) const override;
-    se_string debug_get_stack_level_function(int p_level) const override;
-    se_string debug_get_stack_level_source(int p_level) const override;
+    String debug_get_stack_level_function(int p_level) const override;
+    String debug_get_stack_level_source(int p_level) const override;
     /* TODO */
-    se_string debug_parse_stack_level_expression(int p_level, se_string_view p_expression, int p_max_subitems = -1, int p_max_depth = -1) override { return ""; }
+    String debug_parse_stack_level_expression(int p_level, se_string_view p_expression, int p_max_subitems = -1, int p_max_depth = -1) override { return ""; }
 
-    void debug_get_stack_level_locals(int p_level, ListPOD<se_string> *p_locals, DefList<Variant> *p_values, int p_max_subitems = -1, int p_max_depth = -1) override {}
-    void debug_get_stack_level_members(int p_level, ListPOD<se_string> *p_members, DefList<Variant> *p_values, int p_max_subitems = -1, int p_max_depth = -1) override {}
-    void debug_get_globals(ListPOD<se_string> *p_globals, DefList<Variant> *p_values, int p_max_subitems = -1, int p_max_depth = -1) override {}
+    void debug_get_stack_level_locals(int p_level, ListPOD<String> *p_locals, DefList<Variant> *p_values, int p_max_subitems = -1, int p_max_depth = -1) override {}
+    void debug_get_stack_level_members(int p_level, ListPOD<String> *p_members, DefList<Variant> *p_values, int p_max_subitems = -1, int p_max_depth = -1) override {}
+    void debug_get_globals(ListPOD<String> *p_globals, DefList<Variant> *p_values, int p_max_subitems = -1, int p_max_depth = -1) override {}
 
     PODVector<StackInfo> debug_get_current_stack_info();
 
@@ -439,7 +439,7 @@ public:
     void reload_tool_script(const Ref<Script> &p_script, bool p_soft_reload) override;
 
     /* LOADER FUNCTIONS */
-    void get_recognized_extensions(DefList<se_string> *p_extensions) const override;
+    void get_recognized_extensions(DefList<String> *p_extensions) const override;
 
 #ifdef TOOLS_ENABLED
     Error open_in_external_editor(const Ref<Script> &p_script, int p_line, int p_col) override;
@@ -470,14 +470,14 @@ public:
 class ResourceFormatLoaderCSharpScript : public ResourceFormatLoader {
 public:
     RES load(se_string_view p_path, se_string_view p_original_path = "", Error *r_error = NULL) override;
-    void get_recognized_extensions(PODVector<se_string> &p_extensions) const override;
+    void get_recognized_extensions(PODVector<String> &p_extensions) const override;
     bool handles_type(se_string_view p_type) const override;
-    se_string get_resource_type(se_string_view p_path) const override;
+    String get_resource_type(se_string_view p_path) const override;
 };
 
 class ResourceFormatSaverCSharpScript : public ResourceFormatSaver {
 public:
     Error save(se_string_view p_path, const RES &p_resource, uint32_t p_flags = 0) override;
-    void get_recognized_extensions(const RES &p_resource, PODVector<se_string> &p_extensions) const override;
+    void get_recognized_extensions(const RES &p_resource, PODVector<String> &p_extensions) const override;
     bool recognize(const RES &p_resource) const override;
 };

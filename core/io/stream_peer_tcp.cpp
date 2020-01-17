@@ -335,7 +335,7 @@ uint16_t StreamPeerTCP::get_connected_port() const {
 Error StreamPeerTCP::_connect(se_string_view p_address, int p_port) {
 
     IP_Address ip;
-    se_string s(p_address);
+    String s(p_address);
     if (StringUtils::is_valid_ip_address(s)) {
         ip = IP_Address(s);
     } else {

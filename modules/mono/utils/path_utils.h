@@ -36,28 +36,28 @@
 
 namespace path {
 
-se_string join(se_string_view p_a, se_string_view p_b);
-se_string join(se_string_view p_a, se_string_view p_b, se_string_view p_c);
-se_string join(se_string_view p_a, se_string_view p_b, se_string_view p_c, se_string_view p_d);
+String join(se_string_view p_a, se_string_view p_b);
+String join(se_string_view p_a, se_string_view p_b, se_string_view p_c);
+String join(se_string_view p_a, se_string_view p_b, se_string_view p_c, se_string_view p_d);
 
-se_string find_executable(const UIString &p_name);
+String find_executable(const UIString &p_name);
 
 /// Returns a normalized absolute path to the current working directory
-se_string cwd();
+String cwd();
 
 /**
  * Obtains a normalized absolute path to p_path. Symbolic links are
  * not resolved. The path p_path might not exist in the file system.
  */
-se_string abspath(se_string_view p_path);
+String abspath(se_string_view p_path);
 
 /**
  * Obtains a normalized path to p_path with symbolic links resolved.
  * The resulting path might be either a relative or an absolute path.
  */
-se_string realpath(se_string_view p_path);
+String realpath(se_string_view p_path);
 
-se_string relative_to(se_string_view p_path, se_string_view p_relative_to);
+String relative_to(se_string_view p_path, se_string_view p_relative_to);
 
 } // namespace path
 

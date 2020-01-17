@@ -2229,7 +2229,7 @@ void TextEdit::indent_left() {
     if (is_selection_active() && get_selection_to_column() == 0) {
         end_line--;
     }
-    se_string last_line_text = get_line(end_line);
+    String last_line_text = get_line(end_line);
 
     for (int i = start_line; i <= end_line; i++) {
         UIString line_text = StringUtils::from_utf8(get_line(i));
@@ -5038,7 +5038,7 @@ void TextEdit::set_text(const UIString& p_text) {
     setting_text = false;
 };
 
-se_string TextEdit::get_text() {
+String TextEdit::get_text() {
     UIString longthing;
     int len = m_priv->text.size();
     for (int i = 0; i < len; i++) {
@@ -5051,15 +5051,15 @@ se_string TextEdit::get_text() {
     return StringUtils::to_utf8(longthing);
 };
 
-se_string TextEdit::get_text_for_lookup_completion() {
+String TextEdit::get_text_for_lookup_completion() {
 
     int row, col;
     _get_mouse_pos(get_local_mouse_position(), row, col);
 
-    se_string longthing;
+    String longthing;
     int len = m_priv->text.size();
     for (int i = 0; i < len; i++) {
-        se_string line=StringUtils::to_utf8(m_priv->text[i]).data();
+        String line=StringUtils::to_utf8(m_priv->text[i]).data();
 
         if (i == row) {
             longthing += StringUtils::substr(line,0, col);
@@ -5098,9 +5098,9 @@ UIString TextEdit::get_text_for_completion() {
 
     return longthing;
 };
-se_string TextEdit::get_text_for_completion_utf8() const {
+String TextEdit::get_text_for_completion_utf8() const {
 
-    se_string longthing;
+    String longthing;
     int len = m_priv->text.size();
     uint8_t marker[2] = {0xFF,0xFF};
     for (int i = 0; i < len; i++) {
@@ -5128,10 +5128,10 @@ se_string TextEdit::get_text_for_completion_utf8() const {
 
 //    return m_priv->text[line];
 //};
-se_string TextEdit::get_line(int line) const {
+String TextEdit::get_line(int line) const {
 
     if (line < 0 || line >= m_priv->text.size())
-        return se_string();
+        return String();
 
     return StringUtils::to_utf8(m_priv->text[line]).data();
 };
@@ -5553,8 +5553,8 @@ void TextEdit::select(int p_from_line, int p_from_column, int p_to_line, int p_t
     update();
 }
 void TextEdit::swap_lines(int line1, int line2) {
-    se_string tmp = get_line(line1);
-    se_string tmp2 = get_line(line2);
+    String tmp = get_line(line1);
+    String tmp2 = get_line(line2);
     set_line(line2, tmp);
     set_line(line1, tmp2);
 }
@@ -5583,15 +5583,15 @@ int TextEdit::get_selection_to_column() const {
     return selection.to_column;
 }
 
-se_string TextEdit::get_selection_text() const {
+String TextEdit::get_selection_text() const {
 
     if (!selection.active)
-        return se_string();
+        return String();
 
     return StringUtils::to_utf8(_base_get_text(selection.from_line, selection.from_column, selection.to_line, selection.to_column));
 }
 
-se_string TextEdit::get_word_under_cursor() const {
+String TextEdit::get_word_under_cursor() const {
 
     int prev_cc = cursor.column;
     while (prev_cc > 0) {
@@ -5609,7 +5609,7 @@ se_string TextEdit::get_word_under_cursor() const {
         ++next_cc;
     }
     if (prev_cc == cursor.column || next_cc == cursor.column)
-        return se_string();
+        return String();
     return StringUtils::to_utf8(StringUtils::substr(m_priv->text[cursor.line],prev_cc, next_cc - prev_cc));
 }
 
@@ -6225,9 +6225,9 @@ void TextEdit::toggle_fold_line(int p_line) {
         unfold_line(p_line);
 }
 
-se_string TextEdit::get_text_utf8() const
+String TextEdit::get_text_utf8() const
 {
-    se_string longthing;
+    String longthing;
     int len = m_priv->text.size();
     for (int i = 0; i < len; i++) {
 
@@ -6691,10 +6691,10 @@ static bool _is_completable(CharType c) {
 
 void TextEdit::_update_completion_candidates() {
 
-    se_string l = StringUtils::to_utf8(m_priv->text[cursor.line]).data();
+    String l = StringUtils::to_utf8(m_priv->text[cursor.line]).data();
     int cofs = CLAMP(cursor.column, 0, l.length());
 
-    se_string s;
+    String s;
 
     // Look for keywords first.
 
@@ -6871,7 +6871,7 @@ void TextEdit::query_code_comple() {
     }
 }
 
-void TextEdit::set_code_hint(const se_string &p_hint) {
+void TextEdit::set_code_hint(const String &p_hint) {
 
     completion_hint = p_hint;
     completion_hint_offset = -0xFFFF;
@@ -6888,14 +6888,14 @@ void TextEdit::code_complete(const List<ScriptCodeCompletionOption> &p_strings, 
     _update_completion_candidates();
 }
 
-se_string TextEdit::get_word_at_pos(const Vector2 &p_pos) const {
+String TextEdit::get_word_at_pos(const Vector2 &p_pos) const {
 
     int row, col;
     _get_mouse_pos(p_pos, row, col);
 
     UIString s = m_priv->text[row];
     if (s.length() == 0)
-        return se_string();
+        return String();
     int beg, end;
     if (select_word(s, col, beg, end)) {
 
@@ -6910,7 +6910,7 @@ se_string TextEdit::get_word_at_pos(const Vector2 &p_pos) const {
                         inside_quotes = false;
                         selected_quote = '\0';
                         if (col >= qbegin && col <= qend) {
-                            return se_string(s.midRef(qbegin, qend - qbegin).toUtf8().data());
+                            return String(s.midRef(qbegin, qend - qbegin).toUtf8().data());
                         }
                     } else if (!inside_quotes) {
                         qbegin = i + 1;
@@ -6921,10 +6921,10 @@ se_string TextEdit::get_word_at_pos(const Vector2 &p_pos) const {
             }
         }
 
-        return se_string(s.midRef(beg, end - beg).toUtf8().data());
+        return String(s.midRef(beg, end - beg).toUtf8().data());
     }
 
-    return se_string();
+    return String();
 }
 
 StringName TextEdit::get_tooltip(const Point2 &p_pos) const {

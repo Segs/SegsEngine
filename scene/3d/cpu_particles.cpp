@@ -212,7 +212,7 @@ bool CPUParticles::get_fractional_delta() const {
 
 StringName CPUParticles::get_configuration_warning() const {
 
-    se_string warnings;
+    String warnings;
 
     bool mesh_found = false;
     bool anim_material_found = false;

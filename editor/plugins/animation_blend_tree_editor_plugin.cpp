@@ -172,7 +172,7 @@ void AnimationNodeBlendTreeEditor::_update_graph() {
             if (!(F->deref().usage & PROPERTY_USAGE_EDITOR)) {
                 continue;
             }
-            se_string base_path = AnimationTreeEditor::get_singleton()->get_base_path() + se_string(E) + "/" + F->deref().name;
+            String base_path = AnimationTreeEditor::get_singleton()->get_base_path() + String(E) + "/" + F->deref().name;
             EditorProperty *prop = EditorInspector::instantiate_property_editor(AnimationTreeEditor::get_singleton()->get_tree(), F->deref().type, base_path, F->deref().hint, F->deref().hint_string, F->deref().usage);
             if (prop) {
                 prop->set_object_and_property(AnimationTreeEditor::get_singleton()->get_tree(), StringName(base_path));
@@ -285,14 +285,14 @@ void AnimationNodeBlendTreeEditor::_add_node(int p_idx) {
 
     Ref<AnimationNode> anode;
 
-    se_string base_name;
+    String base_name;
 
     if (p_idx == MENU_LOAD_FILE) {
 
         open_file->clear_filters();
-        PODVector<se_string> filters;
+        PODVector<String> filters;
         ResourceLoader::get_recognized_extensions_for_type("AnimationNode", filters);
-        for (const se_string &E : filters) {
+        for (const String &E : filters) {
             open_file->add_filter("*." + E);
         }
         open_file->popup_centered_ratio();
@@ -337,7 +337,7 @@ void AnimationNodeBlendTreeEditor::_add_node(int p_idx) {
     instance_pos /= graph->get_zoom();
 
     int base = 1;
-    se_string name(base_name);
+    String name(base_name);
     while (blend_tree->has_node(StringName(name))) {
         base++;
         name = base_name + " " + itos(base);
@@ -396,7 +396,7 @@ void AnimationNodeBlendTreeEditor::_disconnection_request(se_string_view p_from,
 
 void AnimationNodeBlendTreeEditor::_anim_selected(int p_index, Array p_options, const StringName &p_node) {
 
-    se_string option = p_options[p_index];
+    String option = p_options[p_index];
 
     Ref<AnimationNodeAnimation> anim = dynamic_ref_cast<AnimationNodeAnimation>(blend_tree->get_node(p_node));
     ERR_FAIL_COND(not anim)
@@ -540,8 +540,8 @@ bool AnimationNodeBlendTreeEditor::_update_filters(const Ref<AnimationNode> &ano
 
     updating = true;
 
-    Set<se_string> paths;
-    HashMap<se_string, Set<se_string> > types;
+    Set<String> paths;
+    HashMap<String, Set<String> > types;
     {
         PODVector<StringName> animations;
         player->get_animation_list(&animations);
@@ -550,7 +550,7 @@ bool AnimationNodeBlendTreeEditor::_update_filters(const Ref<AnimationNode> &ano
 
             Ref<Animation> anim = player->get_animation(E);
             for (int i = 0; i < anim->get_track_count(); i++) {
-                se_string track_path = (se_string)anim->track_get_path(i);
+                String track_path = (String)anim->track_get_path(i);
                 paths.insert(track_path);
 
                 StringName track_type_name;
@@ -579,13 +579,13 @@ bool AnimationNodeBlendTreeEditor::_update_filters(const Ref<AnimationNode> &ano
     filters->clear();
     TreeItem *root = filters->create_item();
 
-    Map<se_string, TreeItem *> parenthood;
+    Map<String, TreeItem *> parenthood;
 
-    for (const se_string &E : paths) {
+    for (const String &E : paths) {
 
         NodePath path(E);
         TreeItem *ti = nullptr;
-        se_string accum;
+        String accum;
         for (int i = 0; i < path.get_name_count(); i++) {
             StringName name(path.get_name(i));
             if (!accum.empty()) {
@@ -629,14 +629,14 @@ bool AnimationNodeBlendTreeEditor::_update_filters(const Ref<AnimationNode> &ano
                 //path in skeleton
                 const StringName &bone = concat;
                 int idx = skeleton->find_bone(bone);
-                List<se_string> bone_path;
+                List<String> bone_path;
                 while (idx != -1) {
                     bone_path.push_front(skeleton->get_bone_name(idx));
                     idx = skeleton->get_bone_parent(idx);
                 }
 
                 accum += ":";
-                for (List<se_string>::Element *F = bone_path.front(); F; F = F->next()) {
+                for (List<String>::Element *F = bone_path.front(); F; F = F->next()) {
                     if (F != bone_path.front()) {
                         accum += "/";
                     }
@@ -675,10 +675,10 @@ bool AnimationNodeBlendTreeEditor::_update_filters(const Ref<AnimationNode> &ano
         } else {
             if (ti) {
                 //just a node, not a property track
-                se_string types_text = "[";
-                if (types.contains((se_string)path)) {
-                    auto & c(types[(se_string)path]);
-                    auto F = types[(se_string)path].begin();
+                String types_text = "[";
+                if (types.contains((String)path)) {
+                    auto & c(types[(String)path]);
+                    auto F = types[(String)path].begin();
                     types_text += *F;
                     ++F;
                     for (;F != c.end(); ++F) {
@@ -733,7 +733,7 @@ void AnimationNodeBlendTreeEditor::_notification(int p_what) {
 
     if (p_what == NOTIFICATION_PROCESS) {
 
-        se_string error;
+        String error;
 
         if (!AnimationTreeEditor::get_singleton()->get_tree()->is_active()) {
             error = TTR("AnimationTree is inactive.\nActivate to enable playback, check node warnings if activation fails.");
@@ -846,20 +846,20 @@ void AnimationNodeBlendTreeEditor::_node_renamed(se_string_view p_text, const Re
 
     const se_string_view base_name(p_text);
     int base = 1;
-    se_string name(p_text);
+    String name(p_text);
     while (blend_tree->has_node(StringName(name))) {
         base++;
-        name = se_string(p_text) + " " + itos(base);
+        name = String(p_text) + " " + itos(base);
     }
 
-    se_string base_path(AnimationTreeEditor::get_singleton()->get_base_path());
+    String base_path(AnimationTreeEditor::get_singleton()->get_base_path());
 
     updating = true;
     undo_redo->create_action_ui(TTR("Node Renamed"));
     undo_redo->add_do_method(blend_tree.get(), "rename_node", prev_name, name);
     undo_redo->add_undo_method(blend_tree.get(), "rename_node", name, prev_name);
-    undo_redo->add_do_method(AnimationTreeEditor::get_singleton()->get_tree(), "rename_parameter", se_string(base_path + prev_name), se_string(base_path + name));
-    undo_redo->add_undo_method(AnimationTreeEditor::get_singleton()->get_tree(), "rename_parameter", se_string(base_path + name), se_string(base_path + prev_name));
+    undo_redo->add_do_method(AnimationTreeEditor::get_singleton()->get_tree(), "rename_parameter", String(base_path + prev_name), String(base_path + name));
+    undo_redo->add_undo_method(AnimationTreeEditor::get_singleton()->get_tree(), "rename_parameter", String(base_path + name), String(base_path + prev_name));
     undo_redo->add_do_method(this, "_update_graph");
     undo_redo->add_undo_method(this, "_update_graph");
     undo_redo->commit_action();
@@ -904,7 +904,7 @@ void AnimationNodeBlendTreeEditor::_node_renamed(se_string_view p_text, const Re
 }
 
 void AnimationNodeBlendTreeEditor::_node_renamed_focus_out(Node *le, const Ref<AnimationNode>& p_node) {
-    _node_renamed(le->call("get_text").as<se_string>(), p_node);
+    _node_renamed(le->call("get_text").as<String>(), p_node);
 }
 
 bool AnimationNodeBlendTreeEditor::can_edit(const Ref<AnimationNode> &p_node) {

@@ -51,7 +51,7 @@ Error ResourceFormatImporter::_get_path_and_type(se_string_view p_path, PathAndT
     ConfigFile import_info;
     bool path_found = false; //first match must have priority
 
-    Error err = import_info.load(se_string(p_path) + ".import");
+    Error err = import_info.load(String(p_path) + ".import");
     if(err!=OK) {
         if (r_valid) {
             *r_valid = false;
@@ -65,29 +65,29 @@ Error ResourceFormatImporter::_get_path_and_type(se_string_view p_path, PathAndT
     if(iter== import_info.all_values().end())
         return ERR_FILE_CORRUPT;
 
-    PODVector<se_string> keys;
+    PODVector<String> keys;
     import_info.get_section_keys(se_string_view("remap"),&keys);
     for(const auto &remap_kv : iter->second) {
         if (!path_found && StringUtils::begins_with(remap_kv.first, "path.") && r_path_and_type.path.empty()) {
             se_string_view feature(StringUtils::get_slice(remap_kv.first, '.', 1));
             if (OS::get_singleton()->has_feature(feature)) {
-                r_path_and_type.path = remap_kv.second.as<se_string>();
+                r_path_and_type.path = remap_kv.second.as<String>();
                 path_found = true; //first match must have priority
             }
 
         }
         else if (!path_found && remap_kv.first == "path") {
-            r_path_and_type.path = remap_kv.second.as<se_string>();
+            r_path_and_type.path = remap_kv.second.as<String>();
             path_found = true; //first match must have priority
         }
         else if (remap_kv.first == "type") {
-            r_path_and_type.type = remap_kv.second.as<se_string>();
+            r_path_and_type.type = remap_kv.second.as<String>();
         }
         else if (remap_kv.first == "importer") {
-            r_path_and_type.importer = remap_kv.second.as<se_string>();
+            r_path_and_type.importer = remap_kv.second.as<String>();
         }
         else if (remap_kv.first == "group_file") {
-            r_path_and_type.group_file = remap_kv.second.as<se_string>();
+            r_path_and_type.group_file = remap_kv.second.as<String>();
         }
         else if (remap_kv.first == "metadata") {
             r_path_and_type.metadata = remap_kv.second;
@@ -131,12 +131,12 @@ RES ResourceFormatImporter::load(se_string_view p_path, se_string_view p_origina
     return res;
 }
 
-void ResourceFormatImporter::get_recognized_extensions(PODVector<se_string> &p_extensions) const {
+void ResourceFormatImporter::get_recognized_extensions(PODVector<String> &p_extensions) const {
 
-    Set<se_string> found;
+    Set<String> found;
 
     for (int i = 0; i < importers.size(); i++) {
-        PODVector<se_string> local_exts;
+        PODVector<String> local_exts;
         importers[i]->get_recognized_extensions(local_exts);
         for (const auto & ext : local_exts) {
             if (!found.contains(ext)) {
@@ -146,7 +146,7 @@ void ResourceFormatImporter::get_recognized_extensions(PODVector<se_string> &p_e
         }
     }
     for (int i = 0; i < owned_importers.size(); i++) {
-        PODVector<se_string> local_exts;
+        PODVector<String> local_exts;
         owned_importers[i]->get_recognized_extensions(local_exts);
         for (const auto & local_ext : local_exts) {
             if (!found.contains(local_ext)) {
@@ -157,14 +157,14 @@ void ResourceFormatImporter::get_recognized_extensions(PODVector<se_string> &p_e
     }
 }
 
-void ResourceFormatImporter::get_recognized_extensions_for_type(se_string_view p_type, PODVector<se_string> &p_extensions) const {
+void ResourceFormatImporter::get_recognized_extensions_for_type(se_string_view p_type, PODVector<String> &p_extensions) const {
 
     if (p_type.empty()) {
         get_recognized_extensions(p_extensions);
         return;
     }
 
-    Set<se_string> found;
+    Set<String> found;
 
     for (int i = 0; i < importers.size(); i++) {
         StringName res_type(importers[i]->get_resource_type());
@@ -174,7 +174,7 @@ void ResourceFormatImporter::get_recognized_extensions_for_type(se_string_view p
         if (!ClassDB::is_parent_class(res_type, StringName(p_type)))
             continue;
 
-        PODVector<se_string> local_exts;
+        PODVector<String> local_exts;
         importers[i]->get_recognized_extensions(local_exts);
         for (size_t j=0,fin=local_exts.size(); j<fin; ++j) {
             if (!found.contains(local_exts[j])) {
@@ -191,7 +191,7 @@ void ResourceFormatImporter::get_recognized_extensions_for_type(se_string_view p
         if (!ClassDB::is_parent_class(res_type, StringName(p_type)))
             continue;
 
-        PODVector<se_string>  local_exts;
+        PODVector<String>  local_exts;
         owned_importers[i]->get_recognized_extensions(local_exts);
         for (size_t j=0,fin=local_exts.size(); j<fin; ++j) {
             if (!found.contains(local_exts[j])) {
@@ -204,12 +204,12 @@ void ResourceFormatImporter::get_recognized_extensions_for_type(se_string_view p
 
 bool ResourceFormatImporter::exists(se_string_view p_path) const {
 
-    return FileAccess::exists(se_string(p_path) + ".import");
+    return FileAccess::exists(String(p_path) + ".import");
 }
 
 bool ResourceFormatImporter::recognize_path(se_string_view p_path, se_string_view /*p_for_type*/) const {
 
-    return FileAccess::exists(se_string(p_path) + ".import");
+    return FileAccess::exists(String(p_path) + ".import");
 }
 
 bool ResourceFormatImporter::can_be_imported(se_string_view p_path) const {
@@ -221,7 +221,7 @@ int ResourceFormatImporter::get_import_order(se_string_view p_path) const {
 
     ResourceImporterInterface *importer = nullptr;
 
-    if (FileAccess::exists(se_string(p_path) + ".import")) {
+    if (FileAccess::exists(String(p_path) + ".import")) {
 
         PathAndType pat;
         Error err = _get_path_and_type(p_path, pat);
@@ -262,38 +262,38 @@ bool ResourceFormatImporter::handles_type(se_string_view p_type) const {
     return true;
 }
 
-se_string ResourceFormatImporter::get_internal_resource_path(se_string_view p_path) const {
+String ResourceFormatImporter::get_internal_resource_path(se_string_view p_path) const {
 
     PathAndType pat;
     Error err = _get_path_and_type(p_path, pat);
 
     if (err != OK) {
 
-        return se_string();
+        return String();
     }
 
     return pat.path;
 }
 
-void ResourceFormatImporter::get_internal_resource_path_list(se_string_view p_path, List<se_string> *r_paths) {
+void ResourceFormatImporter::get_internal_resource_path_list(se_string_view p_path, List<String> *r_paths) {
 
     Error err;
-    FileAccess *f = FileAccess::open(se_string(p_path) + ".import", FileAccess::READ, &err);
+    FileAccess *f = FileAccess::open(String(p_path) + ".import", FileAccess::READ, &err);
 
     if (!f)
         return;
 
     VariantParser::Stream *stream=VariantParser::get_file_stream(f);
 
-    se_string assign;
+    String assign;
     Variant value;
     VariantParser::Tag next_tag;
 
     int lines = 0;
-    se_string error_text;
+    String error_text;
     while (true) {
 
-        assign = Variant().as<se_string>();
+        assign = Variant().as<String>();
         next_tag.fields.clear();
         next_tag.name.clear();
 
@@ -303,7 +303,7 @@ void ResourceFormatImporter::get_internal_resource_path_list(se_string_view p_pa
             memdelete(f);
             return;
         } else if (err != OK) {
-            ERR_PRINT("ResourceFormatImporter::get_internal_resource_path_list - " + se_string(p_path) + ".import:" + ::to_string(lines) +
+            ERR_PRINT("ResourceFormatImporter::get_internal_resource_path_list - " + String(p_path) + ".import:" + ::to_string(lines) +
                       " error: " + error_text)
             VariantParser::release_stream(stream);
             memdelete(f);
@@ -312,9 +312,9 @@ void ResourceFormatImporter::get_internal_resource_path_list(se_string_view p_pa
 
         if (!assign.empty()) {
             if (StringUtils::begins_with(assign,"path.")) {
-                r_paths->push_back(value.as<se_string>());
+                r_paths->push_back(value.as<String>());
             } else if (assign == "path") {
-                r_paths->push_back(value.as<se_string>());
+                r_paths->push_back(value.as<String>());
             }
         } else if (next_tag.name != "remap") {
             break;
@@ -324,12 +324,12 @@ void ResourceFormatImporter::get_internal_resource_path_list(se_string_view p_pa
     memdelete(f);
 }
 
-se_string ResourceFormatImporter::get_import_group_file(se_string_view p_path) const {
+String ResourceFormatImporter::get_import_group_file(se_string_view p_path) const {
 
     bool valid = true;
     PathAndType pat;
     _get_path_and_type(p_path, pat, &valid);
-    return valid ? pat.group_file : se_string();
+    return valid ? pat.group_file : String();
 }
 
 bool ResourceFormatImporter::is_import_valid(se_string_view p_path) const {
@@ -340,14 +340,14 @@ bool ResourceFormatImporter::is_import_valid(se_string_view p_path) const {
     return valid;
 }
 
-se_string ResourceFormatImporter::get_resource_type(se_string_view p_path) const {
+String ResourceFormatImporter::get_resource_type(se_string_view p_path) const {
 
     PathAndType pat;
     Error err = _get_path_and_type(p_path, pat);
 
     if (err != OK) {
 
-        return se_string();
+        return String();
     }
 
     return pat.type;
@@ -365,7 +365,7 @@ Variant ResourceFormatImporter::get_resource_metadata(se_string_view p_path) con
     return pat.metadata;
 }
 
-void ResourceFormatImporter::get_dependencies(se_string_view p_path, PODVector<se_string> &p_dependencies, bool p_add_types) {
+void ResourceFormatImporter::get_dependencies(se_string_view p_path, PODVector<String> &p_dependencies, bool p_add_types) {
 
     PathAndType pat;
     Error err = _get_path_and_type(p_path, pat);
@@ -396,7 +396,7 @@ ResourceImporterInterface *ResourceFormatImporter::get_importer_by_name(se_strin
 void ResourceFormatImporter::get_importers_for_extension(se_string_view p_extension, PODVector<ResourceImporterInterface *> *r_importers) {
 
     for (int i = 0; i < importers.size(); i++) {
-        PODVector<se_string> local_exts;
+        PODVector<String> local_exts;
         importers[i]->get_recognized_extensions(local_exts);
         for (size_t j=0,fin=local_exts.size(); j<fin; ++j) {
             if (StringUtils::to_lower(p_extension) == local_exts[j]) {
@@ -405,7 +405,7 @@ void ResourceFormatImporter::get_importers_for_extension(se_string_view p_extens
         }
     }
     for (int i = 0; i < owned_importers.size(); i++) {
-        PODVector<se_string> local_exts;
+        PODVector<String> local_exts;
         owned_importers[i]->get_recognized_extensions(local_exts);
         for (size_t j=0,fin=local_exts.size(); j<fin; ++j) {
             if (StringUtils::to_lower(p_extension) == local_exts[j]) {
@@ -422,9 +422,9 @@ ResourceImporterInterface *ResourceFormatImporter::get_importer_by_extension(se_
 
     for (ResourceImporterInterface *i : importers) {
 
-        PODVector<se_string> local_exts;
+        PODVector<String> local_exts;
         i->get_recognized_extensions(local_exts);
-        for (const se_string & local_ext : local_exts) {
+        for (const String & local_ext : local_exts) {
             if (StringUtils::to_lower(p_extension) == local_ext && i->get_priority() > priority) {
                 importer = i;
                 priority = i->get_priority();
@@ -432,9 +432,9 @@ ResourceImporterInterface *ResourceFormatImporter::get_importer_by_extension(se_
         }
     }
     for (int i = 0; i < owned_importers.size(); i++) {
-        PODVector<se_string> local_exts;
+        PODVector<String> local_exts;
         owned_importers[i]->get_recognized_extensions(local_exts);
-        for (const se_string & local_ext : local_exts) {
+        for (const String & local_ext : local_exts) {
             if (StringUtils::to_lower(p_extension) == local_ext && importers[i]->get_priority() > priority) {
                 importer = const_cast<ResourceImporterInterface *>(static_cast<const ResourceImporterInterface *>(owned_importers[i].get()));
                 priority = owned_importers[i]->get_priority();
@@ -444,9 +444,9 @@ ResourceImporterInterface *ResourceFormatImporter::get_importer_by_extension(se_
     return importer;
 }
 
-se_string ResourceFormatImporter::get_import_base_path(se_string_view p_for_file) const {
+String ResourceFormatImporter::get_import_base_path(se_string_view p_for_file) const {
 
-    return "res://.import/" + se_string(PathUtils::get_file(p_for_file)) + "-" + StringUtils::md5_text(p_for_file);
+    return "res://.import/" + String(PathUtils::get_file(p_for_file)) + "-" + StringUtils::md5_text(p_for_file);
 }
 
 bool ResourceFormatImporter::are_import_settings_valid(se_string_view p_path) const {
@@ -476,7 +476,7 @@ bool ResourceFormatImporter::are_import_settings_valid(se_string_view p_path) co
     return true;
 }
 
-se_string ResourceFormatImporter::get_import_settings_hash() const {
+String ResourceFormatImporter::get_import_settings_hash() const {
 
     FixedVector<const ResourceImporterInterface *,64,true> sorted_importers;
 
@@ -486,9 +486,9 @@ se_string ResourceFormatImporter::get_import_settings_hash() const {
         sorted_importers.push_back(owned_importers[i].get());
     eastl::sort(sorted_importers.begin(),sorted_importers.end(),SortImporterByName());
 
-    se_string hash;
+    String hash;
     for (const ResourceImporterInterface *imp : sorted_importers) {
-        hash += se_string(":") + imp->get_importer_name() + ":" + imp->get_import_settings_string();
+        hash += String(":") + imp->get_importer_name() + ":" + imp->get_import_settings_string();
     }
     return StringUtils::md5_text(hash);
 }

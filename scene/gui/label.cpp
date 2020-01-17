@@ -86,7 +86,7 @@ void Label::_notification(int p_what) {
         regenerate_word_cache();
         update();
     }
-    se_string xltext(xl_text);
+    String xltext(xl_text);
 
     if (p_what == NOTIFICATION_DRAW) {
 
@@ -586,9 +586,9 @@ StringName Label::get_text() const {
     return text;
 }
 
-se_string Label::get_text_utf8() const
+String Label::get_text_utf8() const
 {
-    return se_string(text);
+    return String(text);
 }
 
 void Label::set_visible_characters(int p_amount) {

@@ -105,7 +105,7 @@ namespace  {
 
             return dynamic_ref_cast<ImageTexture>(p_resource)!=nullptr;
         }
-        void get_recognized_extensions(const RES &p_resource, PODVector<se_string> &p_extensions) const final {
+        void get_recognized_extensions(const RES &p_resource, PODVector<String> &p_extensions) const final {
             if (object_cast<ImageTexture>(p_resource.get()))
                 return m_saver->get_saved_extensions(p_extensions);
         }
@@ -190,7 +190,7 @@ Texture::Texture() {
 
 void ImageTexture::reload_from_file() {
 
-    se_string path = ResourceLoader::path_remap(get_path());
+    String path = ResourceLoader::path_remap(get_path());
     if (!PathUtils::is_resource_file(path))
         return;
 
@@ -253,7 +253,7 @@ void ImageTexture::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
 
 void ImageTexture::_reload_hook(const RID &p_hook) {
 
-    se_string path = get_path();
+    String path = get_path();
     if (!PathUtils::is_resource_file(path))
         return;
 
@@ -333,7 +333,7 @@ void ImageTexture::set_data(const Ref<Image> &p_image) {
 
 void ImageTexture::_resource_path_changed() {
     //TODO: SEGS: ImageTexture::_resource_path_changed - this looks like a dead code?
-    se_string path = get_path();
+    String path = get_path();
 }
 
 Ref<Image> ImageTexture::get_data() const {
@@ -515,7 +515,7 @@ ImageTexture::~ImageTexture() {
 
 //////////////////////////////////////////
 struct StreamTexture::StreamTextureData {
-    se_string path_to_file;
+    String path_to_file;
     RID texture;
     Image::Format format;
     uint32_t flags;
@@ -817,7 +817,7 @@ Error StreamTexture::load(se_string_view p_path) {
     emit_changed();
     return OK;
 }
-se_string StreamTexture::get_load_path() const {
+String StreamTexture::get_load_path() const {
 
     return m_impl_data->path_to_file;
 }
@@ -911,7 +911,7 @@ void StreamTexture::set_flags(uint32_t p_flags) {
 
 void StreamTexture::reload_from_file() {
 
-    se_string path = get_path();
+    String path = get_path();
     if (!PathUtils::is_resource_file(path))
         return;
 
@@ -964,14 +964,14 @@ RES ResourceFormatLoaderStreamTexture::load(se_string_view p_path, se_string_vie
     return st;
 }
 
-void ResourceFormatLoaderStreamTexture::get_recognized_extensions(PODVector<se_string> &p_extensions) const {
+void ResourceFormatLoaderStreamTexture::get_recognized_extensions(PODVector<String> &p_extensions) const {
 
     p_extensions.push_back(("stex"));
 }
 bool ResourceFormatLoaderStreamTexture::handles_type(se_string_view p_type) const {
     return p_type == se_string_view("StreamTexture");
 }
-se_string ResourceFormatLoaderStreamTexture::get_resource_type(se_string_view p_path) const {
+String ResourceFormatLoaderStreamTexture::get_resource_type(se_string_view p_path) const {
 
     if (StringUtils::to_lower(PathUtils::get_extension(p_path)) == "stex")
         return ("StreamTexture");
@@ -2459,7 +2459,7 @@ RES ResourceFormatLoaderTextureLayered::load(se_string_view p_path, se_string_vi
     } else {
         f->close();
         memdelete(f);
-        ERR_FAIL_V_MSG(RES(), "Unrecognized layered texture file format: " + se_string((const char *)header) + ".")
+        ERR_FAIL_V_MSG(RES(), "Unrecognized layered texture file format: " + String((const char *)header) + ".")
     }
 
     int tw = f->get_32();
@@ -2570,7 +2570,7 @@ RES ResourceFormatLoaderTextureLayered::load(se_string_view p_path, se_string_vi
     return lt;
 }
 
-void ResourceFormatLoaderTextureLayered::get_recognized_extensions(PODVector<se_string> &p_extensions) const {
+void ResourceFormatLoaderTextureLayered::get_recognized_extensions(PODVector<String> &p_extensions) const {
 
     p_extensions.push_back(("tex3d"));
     p_extensions.push_back(("texarr"));
@@ -2578,7 +2578,7 @@ void ResourceFormatLoaderTextureLayered::get_recognized_extensions(PODVector<se_
 bool ResourceFormatLoaderTextureLayered::handles_type(se_string_view p_type) const {
     return p_type == se_string_view("Texture3D") || p_type == se_string_view("TextureArray");
 }
-se_string ResourceFormatLoaderTextureLayered::get_resource_type(se_string_view p_path) const {
+String ResourceFormatLoaderTextureLayered::get_resource_type(se_string_view p_path) const {
 
     if (StringUtils::to_lower(PathUtils::get_extension(p_path)) == "tex3d")
         return ("Texture3D");

@@ -79,7 +79,7 @@ private:
     bool force_autohinter;
     Hinting hinting;
 
-    se_string font_path;
+    String font_path;
     Map<CacheID, DynamicFontAtSize *> size_cache;
 
     friend class DynamicFontAtSize;
@@ -94,7 +94,7 @@ protected:
 public:
     void set_font_ptr(const uint8_t *p_font_mem, int p_font_mem_size);
     void set_font_path(se_string_view p_path);
-    const se_string &get_font_path() const;
+    const String &get_font_path() const;
     void set_force_autohinter(bool p_force);
 
     DynamicFontData();
@@ -168,7 +168,7 @@ private:
     Ref<DynamicFontData> font;
     DynamicFontData::CacheID id;
 
-    static HashMap<se_string, PODVector<uint8_t> > _fontdata;
+    static HashMap<String, PODVector<uint8_t> > _fontdata;
     Error _load();
 
 public:

@@ -826,7 +826,7 @@ bool GridMapEditor::forward_spatial_input_event(Camera *p_camera, const Ref<Inpu
 
 struct _CGMEItemSort {
 
-    se_string name;
+    String name;
     int id;
     _FORCE_INLINE_ bool operator<(const _CGMEItemSort &r_it) const { return name < r_it.name; }
 };
@@ -915,13 +915,13 @@ void GridMapEditor::update_palette() {
     }
     il.sort();
 
-    se_string filter(StringUtils::strip_edges(se_string_view(StringUtils::to_utf8(search_box->get_text_ui()).data())));
+    String filter(StringUtils::strip_edges(se_string_view(StringUtils::to_utf8(search_box->get_text_ui()).data())));
 
     int item = 0;
 
     for (List<_CGMEItemSort>::Element *E = il.front(); E; E = E->next()) {
         int id = E->deref().id;
-        se_string name = mesh_library->get_item_name(id);
+        String name = mesh_library->get_item_name(id);
         Ref<Texture> preview = mesh_library->get_item_preview(id);
 
         if (name.empty()) {

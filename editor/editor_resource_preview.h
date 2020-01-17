@@ -64,7 +64,7 @@ class EditorResourcePreview : public Node {
 
     struct QueueItem {
         Ref<Resource> resource;
-        se_string path;
+        String path;
         ObjectID id;
         StringName function;
         Variant userdata;
@@ -85,7 +85,7 @@ class EditorResourcePreview : public Node {
     volatile bool exit;
     volatile bool exited;
     int order;
-    Map<se_string, Item> cache;
+    Map<String, Item> cache;
     PODVector<Ref<EditorResourcePreviewGenerator> > preview_generators;
 
     void _preview_ready(se_string_view p_str, const Ref<Texture> &p_texture, const Ref<Texture> &p_small_texture, ObjectID id, const StringName &p_func, const Variant &p_ud);

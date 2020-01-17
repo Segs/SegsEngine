@@ -172,7 +172,7 @@ class EditorAudioBuses : public VBoxContainer {
     Button *_new;
 
     Timer *save_timer;
-    se_string edited_path;
+    String edited_path;
 
     void _add_bus();
     void _update_buses();

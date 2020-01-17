@@ -411,7 +411,7 @@ void VideoPlayer::_validate_property(PropertyInfo &p_property) const {
 
     if (p_property.name == "bus") {
 
-        se_string options;
+        String options;
         for (int i = 0; i < AudioServer::get_singleton()->get_bus_count(); i++) {
             if (i > 0)
                 options += ',';

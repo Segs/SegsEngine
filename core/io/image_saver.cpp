@@ -49,7 +49,7 @@ struct ImagePluginResolver : public ResolverInterface
         bool res=false;
         auto image_saver_interface = qobject_cast<ImageFormatSaver *>(ob);
         if(image_saver_interface) {
-            print_line(se_string("Adding image saver:")+ob->metaObject()->className());
+            print_line(String("Adding image saver:")+ob->metaObject()->className());
             ImageSaver::add_image_format_saver(image_saver_interface);
             res=true;
         }
@@ -58,7 +58,7 @@ struct ImagePluginResolver : public ResolverInterface
     void plugin_removed(QObject * ob)  override  {
         auto image_saver_interface = qobject_cast<ImageFormatSaver *>(ob);
         if(image_saver_interface) {
-            print_line(se_string("Removing image saver:")+ob->metaObject()->className());
+            print_line(String("Removing image saver:")+ob->metaObject()->className());
             ImageSaver::remove_image_format_saver(image_saver_interface);
         }
     }
@@ -84,7 +84,7 @@ Error ImageSaver::save_image(se_string_view p_file, const Ref<Image> &p_image, F
         Error err;
         f = FileAccess::open(p_file, FileAccess::WRITE, &err);
         if (!f) {
-            ERR_PRINT("Error opening file: " + se_string(p_file))
+            ERR_PRINT("Error opening file: " + String(p_file))
             return err;
         }
     }
@@ -98,7 +98,7 @@ Error ImageSaver::save_image(se_string_view p_file, const Ref<Image> &p_image, F
         ImageData result_data(static_cast<ImageData>(*p_image));
         Error err = g_saver->save_image(result_data, f, {p_quality,false});
         if (err != OK) {
-            ERR_PRINT("Error saving image: " + se_string(p_file))
+            ERR_PRINT("Error saving image: " + String(p_file))
         }
         if (err != ERR_FILE_UNRECOGNIZED) {
 
@@ -137,7 +137,7 @@ Error ImageSaver::save_image(se_string_view ext, const Ref<Image> & p_image, POD
     return ERR_FILE_UNRECOGNIZED;
 }
 
-void ImageSaver::get_recognized_extensions(PODVector<se_string> &p_extensions) {
+void ImageSaver::get_recognized_extensions(PODVector<String> &p_extensions) {
     register_plugin_resolver();
 
     for (ImageFormatSaver *g_saver : g_savers) {

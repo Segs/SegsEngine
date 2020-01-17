@@ -44,7 +44,7 @@ class EditorDirDialog : public ConfirmationDialog {
     AcceptDialog *mkdirerr;
 
     Button *makedir;
-    Set<se_string> opened_paths;
+    Set<String> opened_paths;
 
     Tree *tree;
     bool updating;

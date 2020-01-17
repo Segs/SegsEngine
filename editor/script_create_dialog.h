@@ -51,9 +51,9 @@ class ScriptCreateDialog : public ConfirmationDialog {
     struct ScriptTemplateInfo {
         int id;
         ScriptOrigin origin;
-        se_string dir;
-        se_string name;
-        se_string extension;
+        String dir;
+        String name;
+        String extension;
     };
     LineEdit *class_name;
     Label *error_label;
@@ -71,11 +71,11 @@ class ScriptCreateDialog : public ConfirmationDialog {
     VBoxContainer *path_vb;
     AcceptDialog *alert;
     CreateDialog *select_class;
-    se_string initial_bp;
-    se_string script_template;
+    String initial_bp;
+    String script_template;
     Vector<ScriptTemplateInfo> template_list;
-    Map<se_string, Vector<int> > template_overrides; // name : indices
-    se_string base_type;
+    Map<String, Vector<int> > template_overrides; // name : indices
+    String base_type;
     int current_language;
     int default_language;
     bool path_valid;
@@ -93,7 +93,7 @@ class ScriptCreateDialog : public ConfirmationDialog {
     bool load_enabled;
     bool re_check_path;
 
-    void _update_script_templates(const se_string &p_extension);
+    void _update_script_templates(const String &p_extension);
 
     void _path_hbox_sorted();
     bool _can_be_built_in();
@@ -108,7 +108,7 @@ class ScriptCreateDialog : public ConfirmationDialog {
     void _parent_name_changed(se_string_view p_parent);
     void _template_changed(int p_template = 0);
     void _browse_path(bool browse_parent, bool p_save);
-    void _file_selected(const se_string &p_file);
+    void _file_selected(const String &p_file);
     void _create();
     void _browse_class_in_tree();
     void ok_pressed() override;

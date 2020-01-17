@@ -48,7 +48,7 @@ StringName LayeredTextureImpl::get_visible_name() const {
 
     return is_3d ? StringName("Texture3D") : StringName("TextureArray");
 }
-void LayeredTextureImpl::get_recognized_extensions(PODVector<se_string> &p_extensions) const {
+void LayeredTextureImpl::get_recognized_extensions(PODVector<String> &p_extensions) const {
 
     ImageLoader::get_recognized_extensions(p_extensions);
 }
@@ -190,9 +190,9 @@ void LayeredTextureImpl::_save_tex(const Vector<Ref<Image> > &p_images, se_strin
     memdelete(f);
 }
 
-Error LayeredTextureImpl::import(se_string_view p_source_file, se_string_view _save_path, const Map<StringName, Variant> &p_options, List<se_string> *r_platform_variants, List<se_string> *r_gen_files, Variant *r_metadata) {
+Error LayeredTextureImpl::import(se_string_view p_source_file, se_string_view _save_path, const Map<StringName, Variant> &p_options, List<String> *r_platform_variants, List<String> *r_gen_files, Variant *r_metadata) {
 
-    se_string p_save_path(_save_path);
+    String p_save_path(_save_path);
     int compress_mode = p_options.at("compress/mode");
     int no_bptc_if_rgb = p_options.at("compress/no_bptc_if_rgb");
     int repeat = p_options.at("flags/repeat");
@@ -338,16 +338,16 @@ const char *LayeredTextureImpl::compression_formats[] = {
     "pvrtc",
     nullptr
 };
-se_string LayeredTextureImpl::get_import_settings_string() const {
+String LayeredTextureImpl::get_import_settings_string() const {
 
-    se_string s;
+    String s;
 
     int index = 0;
     while (compression_formats[index]) {
-        StringName setting_path("rendering/vram_compression/import_" + se_string(compression_formats[index]));
+        StringName setting_path("rendering/vram_compression/import_" + String(compression_formats[index]));
         bool test = ProjectSettings::get_singleton()->get(setting_path).as<bool>();
         if (test) {
-            s += se_string(compression_formats[index]);
+            s += String(compression_formats[index]);
         }
         index++;
     }
@@ -369,15 +369,15 @@ bool LayeredTextureImpl::are_import_settings_valid(se_string_view p_path) const 
         return true; //do not care about non vram
     }
 
-    PODVector<se_string> formats_imported;
+    PODVector<String> formats_imported;
     if (metadata.has("imported_formats")) {
-        formats_imported = metadata["imported_formats"].as<PODVector<se_string>>();
+        formats_imported = metadata["imported_formats"].as<PODVector<String>>();
     }
 
     int index = 0;
     bool valid = true;
     while (compression_formats[index]) {
-        StringName setting_path("rendering/vram_compression/import_" + se_string(compression_formats[index]));
+        StringName setting_path("rendering/vram_compression/import_" + String(compression_formats[index]));
         bool test = ProjectSettings::get_singleton()->get(setting_path).as<bool>();
         if (test) {
             auto iter = eastl::find(formats_imported.begin(),formats_imported.end(),compression_formats[index]);

@@ -71,12 +71,12 @@ VARIANT_ENUM_CAST(SceneTree::GroupCallFlags);
 struct SceneTreeDebugAccessor final : public ISceneTreeDebugAccessor{
     SceneTree *m_parent;
     Map<int, NodePath> live_edit_node_path_cache;
-    Map<int, se_string> live_edit_resource_cache;
+    Map<int, String> live_edit_resource_cache;
 
     NodePath live_edit_root;
-    se_string live_edit_scene;
+    String live_edit_scene;
 
-    Map<se_string, Set<Node *>> live_scene_edit_cache;
+    Map<String, Set<Node *>> live_scene_edit_cache;
     Map<Node *, Map<ObjectID, Node *>> live_edit_remove_list;
 
     SceneTreeDebugAccessor(SceneTree *p) : m_parent(p) {
@@ -97,7 +97,7 @@ struct SceneTreeDebugAccessor final : public ISceneTreeDebugAccessor{
         Node *base = nullptr;
         if (m_parent->get_root()->has_node(live_edit_root)) base = m_parent->get_root()->get_node(live_edit_root);
 
-        Map<se_string, Set<Node *>>::iterator E = live_scene_edit_cache.find(live_edit_scene);
+        Map<String, Set<Node *>>::iterator E = live_scene_edit_cache.find(live_edit_scene);
         if (E == live_scene_edit_cache.end()) return; // scene not editable
 
         for (Node *n : E->second) {
@@ -125,7 +125,7 @@ struct SceneTreeDebugAccessor final : public ISceneTreeDebugAccessor{
         Node *base = nullptr;
         if (m_parent->get_root()->has_node(live_edit_root)) base = m_parent->get_root()->get_node(live_edit_root);
 
-        Map<se_string, Set<Node *>>::iterator E = live_scene_edit_cache.find(live_edit_scene);
+        Map<String, Set<Node *>>::iterator E = live_scene_edit_cache.find(live_edit_scene);
         if (E == live_scene_edit_cache.end()) return; // scene not editable
 
         for (Node *n : E->second) {
@@ -161,7 +161,7 @@ struct SceneTreeDebugAccessor final : public ISceneTreeDebugAccessor{
 
         if (!live_edit_resource_cache.contains(p_id)) return;
 
-        se_string resp = live_edit_resource_cache[p_id];
+        String resp = live_edit_resource_cache[p_id];
 
         if (!ResourceCache::has(resp)) return;
 
@@ -177,12 +177,12 @@ struct SceneTreeDebugAccessor final : public ISceneTreeDebugAccessor{
         live_edit_scene = p_scene_from;
     }
 
-    void _live_edit_create_node_func(const NodePath &p_parent, const se_string &p_type, const se_string &p_name) {
+    void _live_edit_create_node_func(const NodePath &p_parent, const String &p_type, const String &p_name) {
 
         Node *base = nullptr;
         if (m_parent->get_root()->has_node(live_edit_root)) base = m_parent->get_root()->get_node(live_edit_root);
 
-        Map<se_string, Set<Node *>>::iterator E = live_scene_edit_cache.find(live_edit_scene);
+        Map<String, Set<Node *>>::iterator E = live_scene_edit_cache.find(live_edit_scene);
         if (E == live_scene_edit_cache.end()) return; // scene not editable
 
         for (Node *n : E->second) {
@@ -201,7 +201,7 @@ struct SceneTreeDebugAccessor final : public ISceneTreeDebugAccessor{
             n2->add_child(no);
         }
     }
-    void _live_edit_instance_node_func(const NodePath &p_parent, se_string_view p_path, const se_string &p_name) {
+    void _live_edit_instance_node_func(const NodePath &p_parent, se_string_view p_path, const String &p_name) {
 
         Ref<PackedScene> ps = dynamic_ref_cast<PackedScene>(ResourceLoader::load(p_path));
 
@@ -210,7 +210,7 @@ struct SceneTreeDebugAccessor final : public ISceneTreeDebugAccessor{
         Node *base = nullptr;
         if (m_parent->get_root()->has_node(live_edit_root)) base = m_parent->get_root()->get_node(live_edit_root);
 
-        Map<se_string, Set<Node *>>::iterator E = live_scene_edit_cache.find(live_edit_scene);
+        Map<String, Set<Node *>>::iterator E = live_scene_edit_cache.find(live_edit_scene);
         if (E == live_scene_edit_cache.end()) return; // scene not editable
 
         for (Node *n : E->second) {
@@ -234,7 +234,7 @@ struct SceneTreeDebugAccessor final : public ISceneTreeDebugAccessor{
         Node *base = nullptr;
         if (m_parent->get_root()->has_node(live_edit_root)) base = m_parent->get_root()->get_node(live_edit_root);
 
-        Map<se_string, Set<Node *>>::iterator E = live_scene_edit_cache.find(live_edit_scene);
+        Map<String, Set<Node *>>::iterator E = live_scene_edit_cache.find(live_edit_scene);
         if (E == live_scene_edit_cache.end()) return; // scene not editable
 
         for (Set<Node *>::iterator F = E->second.begin(); F != E->second.end();) {
@@ -259,7 +259,7 @@ struct SceneTreeDebugAccessor final : public ISceneTreeDebugAccessor{
         Node *base = nullptr;
         if (m_parent->get_root()->has_node(live_edit_root)) base = m_parent->get_root()->get_node(live_edit_root);
 
-        Map<se_string, Set<Node *>>::iterator E = live_scene_edit_cache.find(live_edit_scene);
+        Map<String, Set<Node *>>::iterator E = live_scene_edit_cache.find(live_edit_scene);
         if (E == live_scene_edit_cache.end()) return; // scene not editable
 
         for (Set<Node *>::iterator F = E->second.begin(); F != E->second.end();) {
@@ -286,7 +286,7 @@ struct SceneTreeDebugAccessor final : public ISceneTreeDebugAccessor{
         Node *base = nullptr;
         if (m_parent->get_root()->has_node(live_edit_root)) base = m_parent->get_root()->get_node(live_edit_root);
 
-        Map<se_string, Set<Node *>>::iterator E = live_scene_edit_cache.find(live_edit_scene);
+        Map<String, Set<Node *>>::iterator E = live_scene_edit_cache.find(live_edit_scene);
         if (E == live_scene_edit_cache.end()) return; // scene not editable
 
         for (Set<Node *>::iterator F = E->second.begin(); F != E->second.end();) {
@@ -319,12 +319,12 @@ struct SceneTreeDebugAccessor final : public ISceneTreeDebugAccessor{
             F = N;
         }
     }
-    void _live_edit_duplicate_node_func(const NodePath &p_at, const se_string &p_new_name) {
+    void _live_edit_duplicate_node_func(const NodePath &p_at, const String &p_new_name) {
 
         Node *base = nullptr;
         if (m_parent->get_root()->has_node(live_edit_root)) base = m_parent->get_root()->get_node(live_edit_root);
 
-        Map<se_string, Set<Node *>>::iterator E = live_scene_edit_cache.find(live_edit_scene);
+        Map<String, Set<Node *>>::iterator E = live_scene_edit_cache.find(live_edit_scene);
         if (E == live_scene_edit_cache.end()) return; // scene not editable
 
         for (Node *n : E->second) {
@@ -343,12 +343,12 @@ struct SceneTreeDebugAccessor final : public ISceneTreeDebugAccessor{
         }
     }
     void _live_edit_reparent_node_func(
-            const NodePath &p_at, const NodePath &p_new_place, const se_string &p_new_name, int p_at_pos) {
+            const NodePath &p_at, const NodePath &p_new_place, const String &p_new_name, int p_at_pos) {
 
         Node *base = nullptr;
         if (m_parent->get_root()->has_node(live_edit_root)) base = m_parent->get_root()->get_node(live_edit_root);
 
-        Map<se_string, Set<Node *>>::iterator E = live_scene_edit_cache.find(live_edit_scene);
+        Map<String, Set<Node *>>::iterator E = live_scene_edit_cache.find(live_edit_scene);
         if (E == live_scene_edit_cache.end()) return; // scene not editable
 
         for (Node *n : E->second) {
@@ -368,7 +368,7 @@ struct SceneTreeDebugAccessor final : public ISceneTreeDebugAccessor{
             if (p_at_pos >= 0) nto->move_child(nfrom, p_at_pos);
         }
     }
-    Map<se_string, Set<Node *>> &get_live_scene_edit_cache() {
+    Map<String, Set<Node *>> &get_live_scene_edit_cache() {
         return live_scene_edit_cache;
     }
     Map<Node *, Map<ObjectID, Node *>> &get_live_edit_remove_list() {
@@ -444,7 +444,7 @@ void SceneTree::tree_changed() {
     emit_signal(tree_changed_name);
 }
 #ifdef DEBUG_ENABLED
-Map<se_string, Set<Node *>> &SceneTree::get_live_scene_edit_cache()
+Map<String, Set<Node *>> &SceneTree::get_live_scene_edit_cache()
 {
     return m_debug_data->get_live_scene_edit_cache();
 }
@@ -931,7 +931,7 @@ bool SceneTree::idle(float p_time) {
 
     if (Engine::get_singleton()->is_editor_hint()) {
         //simple hack to reload fallback environment if it changed from editor
-        se_string env_path = ProjectSettings::get_singleton()->get("rendering/environment/default_environment");
+        String env_path = ProjectSettings::get_singleton()->get("rendering/environment/default_environment");
         env_path =StringUtils::strip_edges( env_path); //user may have added a space or two
         se_string_view cpath;
         Ref<Environment> fallback = get_root()->get_world()->get_fallback_environment();
@@ -1668,7 +1668,7 @@ void SceneTree::add_current_scene(Node *p_current) {
     root->add_child(p_current);
 }
 
-void SceneTree::drop_files(const PODVector<se_string> &p_files, int p_from_screen) {
+void SceneTree::drop_files(const PODVector<String> &p_files, int p_from_screen) {
 
     emit_signal("files_dropped", Variant::from(p_files), p_from_screen);
     MainLoop::drop_files(p_files, p_from_screen);
@@ -1951,12 +1951,12 @@ bool SceneTree::is_using_font_oversampling() const {
     return use_font_oversampling;
 }
 
-void SceneTree::get_argument_options(const StringName &p_function, int p_idx, ListPOD<se_string> *r_options) const {
+void SceneTree::get_argument_options(const StringName &p_function, int p_idx, ListPOD<String> *r_options) const {
     using namespace PathUtils;
 
     if (p_function == "change_scene") {
         DirAccessRef dir_access = DirAccess::create(DirAccess::ACCESS_RESOURCES);
-        List<se_string> directories;
+        List<String> directories;
         directories.push_back(dir_access->get_current_dir());
 
         while (!directories.empty()) {
@@ -1964,7 +1964,7 @@ void SceneTree::get_argument_options(const StringName &p_function, int p_idx, Li
             directories.pop_back();
 
             dir_access->list_dir_begin();
-            se_string filename = dir_access->get_next();
+            String filename = dir_access->get_next();
 
             while (!filename.empty()) {
                 if (filename == "." || filename == "..") {
@@ -2058,16 +2058,16 @@ SceneTree::SceneTree() {
 
     { //load default fallback environment
         //get possible extensions
-        PODVector<se_string> exts;
+        PODVector<String> exts;
         ResourceLoader::get_recognized_extensions_for_type("Environment", exts);
-        se_string ext_hint;
-        for (const se_string &E : exts) {
+        String ext_hint;
+        for (const String &E : exts) {
             if (!ext_hint.empty())
                 ext_hint += ',';
             ext_hint += "*." + E;
         }
         //get path
-        se_string env_path = GLOBAL_DEF("rendering/environment/default_environment", "");
+        String env_path = GLOBAL_DEF("rendering/environment/default_environment", "");
         //setup property
         ProjectSettings::get_singleton()->set_custom_property_info("rendering/environment/default_environment",
                 PropertyInfo(VariantType::STRING, "rendering/viewport/default_environment", PROPERTY_HINT_FILE, ext_hint));

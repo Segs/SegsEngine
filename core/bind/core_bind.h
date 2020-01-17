@@ -64,7 +64,7 @@ public:
     INVOCABLE RES load(se_string_view p_path, se_string_view p_type_hint = se_string_view(), bool p_no_cache = false);
     INVOCABLE PoolSeStringArray get_recognized_extensions_for_type(se_string_view p_type);
     INVOCABLE void set_abort_on_missing_resources(bool p_abort);
-    INVOCABLE PODVector<se_string> get_dependencies(se_string_view p_path);
+    INVOCABLE PODVector<String> get_dependencies(se_string_view p_path);
     INVOCABLE bool has_cached(se_string_view p_path);
     INVOCABLE bool exists(se_string_view p_path, se_string_view p_type_hint = se_string_view());
 
@@ -92,7 +92,7 @@ public:
     static _ResourceSaver *get_singleton() { return singleton; }
 
     INVOCABLE Error save(se_string_view p_path, const RES &p_resource, SaverFlags p_flags);
-    INVOCABLE PoolVector<se_string> get_recognized_extensions(const RES &p_resource);
+    INVOCABLE PoolVector<String> get_recognized_extensions(const RES &p_resource);
 
     _ResourceSaver();
 };
@@ -153,11 +153,11 @@ public:
     void global_menu_clear(const StringName &p_menu);
 
     Point2 get_mouse_position() const;
-    void set_window_title(const se_string &p_title);
+    void set_window_title(const String &p_title);
     int get_mouse_button_state() const;
 
     void set_clipboard(se_string_view p_text);
-    se_string get_clipboard() const;
+    String get_clipboard() const;
 
     void set_video_mode(const Size2 &p_size, bool p_fullscreen, bool p_resizeable, int p_screen = 0);
     Size2 get_video_mode(int p_screen = 0) const;
@@ -166,11 +166,11 @@ public:
     Array get_fullscreen_mode_list(int p_screen = 0) const;
 
     virtual int get_video_driver_count() const;
-    virtual se_string get_video_driver_name(VideoDriver p_driver) const;
+    virtual String get_video_driver_name(VideoDriver p_driver) const;
     virtual VideoDriver get_current_video_driver() const;
 
     virtual int get_audio_driver_count() const;
-    virtual se_string get_audio_driver_name(int p_driver) const;
+    virtual String get_audio_driver_name(int p_driver) const;
 
     virtual PoolSeStringArray get_connected_midi_inputs();
     virtual void open_midi_inputs();
@@ -216,7 +216,7 @@ public:
     virtual void set_ime_active(const bool p_active);
     virtual void set_ime_position(const Point2 &p_pos);
     virtual Point2 get_ime_selection() const;
-    virtual se_string get_ime_text() const;
+    virtual String get_ime_text() const;
 
     Error native_video_play(se_string_view p_path, float p_volume, se_string_view p_audio_track, se_string_view p_subtitle_track);
     bool native_video_is_playing();
@@ -230,51 +230,51 @@ public:
     void set_low_processor_usage_mode_sleep_usec(int p_usec);
     int get_low_processor_usage_mode_sleep_usec() const;
 
-    se_string get_executable_path() const;
-    int execute(se_string_view p_path, const Vector<se_string> &p_arguments, bool p_blocking, Array p_output = Array(), bool p_read_stderr = false);
+    String get_executable_path() const;
+    int execute(se_string_view p_path, const Vector<String> &p_arguments, bool p_blocking, Array p_output = Array(), bool p_read_stderr = false);
 
     Error kill(int p_pid);
-    Error shell_open(se_string p_uri);
+    Error shell_open(String p_uri);
 
     int get_process_id() const;
 
-    bool has_environment(const se_string &p_var) const;
-    se_string get_environment(const se_string &p_var) const;
+    bool has_environment(const String &p_var) const;
+    String get_environment(const String &p_var) const;
 
-    se_string get_name() const;
-    PoolVector<se_string> get_cmdline_args();
+    String get_name() const;
+    PoolVector<String> get_cmdline_args();
 
-    se_string get_locale() const;
-    se_string get_latin_keyboard_variant() const;
+    String get_locale() const;
+    String get_latin_keyboard_variant() const;
 
-    se_string get_model_name() const;
+    String get_model_name() const;
 
-    void dump_memory_to_file(const se_string &p_file);
+    void dump_memory_to_file(const String &p_file);
     void dump_resources_to_file(se_string_view p_file);
 
     bool has_virtual_keyboard() const;
-    void show_virtual_keyboard(const se_string &p_existing_text = se_string());
+    void show_virtual_keyboard(const String &p_existing_text = String());
     void hide_virtual_keyboard();
     int get_virtual_keyboard_height();
 
     void print_resources_in_use(bool p_short = false);
     void print_all_resources(se_string_view p_to_file);
     void print_all_textures_by_size();
-    void print_resources_by_type(const Vector<se_string> &p_types);
+    void print_resources_by_type(const Vector<String> &p_types);
 
     bool has_touchscreen_ui_hint() const;
 
     bool is_debug_build() const;
 
-    const se_string &get_unique_id() const;
+    const String &get_unique_id() const;
 
-    se_string get_scancode_string(uint32_t p_code) const;
+    String get_scancode_string(uint32_t p_code) const;
     bool is_scancode_unicode(uint32_t p_unicode) const;
     int find_scancode_from_string(se_string_view p_code) const;
 
     void set_use_file_access_save_and_swap(bool p_enable);
 
-    void set_native_icon(const se_string &p_filename);
+    void set_native_icon(const String &p_filename);
     void set_icon(const Ref<Image> &p_icon);
 
     int get_exit_code() const;
@@ -331,9 +331,9 @@ public:
         SCREEN_ORIENTATION_SENSOR,
     };
 
-    se_string get_system_dir(SystemDir p_dir) const;
+    String get_system_dir(SystemDir p_dir) const;
 
-    se_string get_user_data_dir() const;
+    String get_user_data_dir() const;
 
     void alert(se_string_view p_alert, se_string_view p_title = se_string_view("ALERT!"));
 
@@ -361,7 +361,7 @@ public:
 
     bool request_permission(se_string_view p_name);
     bool request_permissions();
-    PoolVector<se_string> get_granted_permissions() const;
+    PoolVector<String> get_granted_permissions() const;
 
     static _OS *get_singleton() { return singleton; }
 
@@ -479,8 +479,8 @@ public:
     void close(); // Close a file.
     bool is_open() const; // True when file is open.
 
-    const se_string &get_path() const; // Returns the path for the current open file.
-    const se_string &get_path_absolute() const; // Returns the absolute path for the current open file.
+    const String &get_path() const; // Returns the path for the current open file.
+    const String &get_path_absolute() const; // Returns the absolute path for the current open file.
 
     void seek(int64_t p_position); // Seek to a given position.
     void seek_end(int64_t p_position = 0); // Seek from the end of file.
@@ -501,11 +501,11 @@ public:
     Variant get_var(bool p_allow_objects = false) const;
 
     PoolVector<uint8_t> get_buffer(int p_length) const; // Get an array of bytes.
-    se_string get_line() const;
-    Vector<se_string> get_csv_line(char p_delim = ',') const;
-    se_string get_as_text() const;
-    se_string get_md5(se_string_view p_path) const;
-    se_string get_sha256(se_string_view p_path) const;
+    String get_line() const;
+    Vector<String> get_csv_line(char p_delim = ',') const;
+    String get_as_text() const;
+    String get_md5(se_string_view p_path) const;
+    String get_sha256(se_string_view p_path) const;
 
     /* Use this for files WRITTEN in _big_ endian machines (ie, amiga/mac).
      * It's not about the current CPU type but file formats.
@@ -528,10 +528,10 @@ public:
 
     void store_string(se_string_view p_string);
     void store_line(se_string_view p_string);
-    void store_csv_line(const PoolVector<se_string> &p_values, char p_delim = ',');
+    void store_csv_line(const PoolVector<String> &p_values, char p_delim = ',');
 
     virtual void store_pascal_string(se_string_view p_string);
-    virtual se_string get_pascal_string();
+    virtual String get_pascal_string();
 
     void store_buffer(const PoolVector<uint8_t> &p_buffer); // Store an array of bytes.
 
@@ -558,17 +558,17 @@ public:
     Error open(se_string_view p_path);
 
     Error list_dir_begin(bool p_skip_navigational = false, bool p_skip_hidden = false); // This starts dir listing.
-    se_string get_next();
+    String get_next();
     bool current_is_dir() const;
 
     void list_dir_end();
 
     int get_drive_count();
-    se_string get_drive(int p_drive);
+    String get_drive(int p_drive);
     int get_current_drive();
 
     Error change_dir(se_string_view p_dir); // Can be relative or absolute, return false on success.
-    se_string get_current_dir(); // Return current dir location.
+    String get_current_dir(); // Return current dir location.
 
     Error make_dir(se_string_view p_dir);
     Error make_dir_recursive(se_string_view p_dir);
@@ -602,14 +602,14 @@ protected:
 public:
     static _Marshalls *get_singleton();
 
-    se_string variant_to_base64(const Variant &p_var, bool p_full_objects = false);
+    String variant_to_base64(const Variant &p_var, bool p_full_objects = false);
     Variant base64_to_variant(se_string_view p_str, bool p_allow_objects = false);
 
-    se_string raw_to_base64(const PoolVector<uint8_t> &p_arr);
+    String raw_to_base64(const PoolVector<uint8_t> &p_arr);
     PoolVector<uint8_t> base64_to_raw(se_string_view p_str);
 
-    se_string utf8_to_base64(se_string_view p_str);
-    se_string base64_to_utf8(se_string_view p_str);
+    String utf8_to_base64(se_string_view p_str);
+    String base64_to_utf8(se_string_view p_str);
 
     _Marshalls() { singleton = this; }
     ~_Marshalls() override { singleton = nullptr; }
@@ -670,7 +670,7 @@ public:
     };
 
     Error start(Object *p_instance, const StringName &p_method, const Variant &p_userdata = Variant::null_variant, Priority p_priority = PRIORITY_NORMAL);
-    se_string get_id() const;
+    String get_id() const;
     bool is_active() const;
     Variant wait_to_finish();
 
@@ -751,7 +751,7 @@ public:
     Array get_copyright_info() const;
     Dictionary get_donor_info() const;
     Dictionary get_license_info() const;
-    se_string get_license_text() const;
+    String get_license_text() const;
 
     bool is_in_physics_frame() const;
 
@@ -772,7 +772,7 @@ class JSONParseResult : public RefCounted {
     friend class _JSON;
 
     Variant result;
-    se_string error_string;
+    String error_string;
     Error error;
     int error_line=-1;
 
@@ -785,7 +785,7 @@ public:
     Error get_error() const;
 
     void set_error_string(se_string_view p_error_string);
-    const se_string &get_error_string() const;
+    const String &get_error_string() const;
 
     void set_error_line(int p_error_line);
     int get_error_line() const;
@@ -805,8 +805,8 @@ protected:
 public:
     static _JSON *get_singleton() { return singleton; }
 
-    se_string print(const Variant &p_value, se_string_view p_indent = {}, bool p_sort_keys = false);
-    Ref<JSONParseResult> parse(const se_string &p_json);
+    String print(const Variant &p_value, se_string_view p_indent = {}, bool p_sort_keys = false);
+    Ref<JSONParseResult> parse(const String &p_json);
 
     _JSON();
 };

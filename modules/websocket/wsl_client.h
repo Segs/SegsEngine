@@ -54,25 +54,25 @@ private:
     Ref<StreamPeerTCP> _tcp;
     Ref<StreamPeer> _connection;
 
-    se_string _request;
+    String _request;
     int _requested;
 
     uint8_t _resp_buf[WSL_MAX_HEADER_SIZE];
     int _resp_pos;
 
-    se_string _response;
+    String _response;
 
-    se_string _key;
-    se_string _host;
-    PoolVector<se_string> _protocols;
+    String _key;
+    String _host;
+    PoolVector<String> _protocols;
     bool _use_ssl;
 
     void _do_handshake();
-    bool _verify_headers(se_string &r_protocol);
+    bool _verify_headers(String &r_protocol);
 
 public:
     Error set_buffers(int p_in_buffer, int p_in_packets, int p_out_buffer, int p_out_packets) override;
-    Error connect_to_host(se_string_view p_host, se_string_view p_path, uint16_t p_port, bool p_ssl, const PoolVector<se_string> &p_protocol = {}, const PoolVector<se_string> &p_custom_headers = PoolVector<se_string>()) override;
+    Error connect_to_host(se_string_view p_host, se_string_view p_path, uint16_t p_port, bool p_ssl, const PoolVector<String> &p_protocol = {}, const PoolVector<String> &p_custom_headers = PoolVector<String>()) override;
     int get_max_packet_size() const override;
     Ref<WebSocketPeer> get_peer(int p_peer_id) const override;
     void disconnect_from_host(int p_code = 1000, se_string_view p_reason = {}) override;

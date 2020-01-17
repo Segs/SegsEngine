@@ -137,16 +137,16 @@ void ShaderGLES3::unbind() {
     active = nullptr;
 }
 
-static void _display_error_with_code(const se_string &p_error, const Vector<const char *> &p_code) {
+static void _display_error_with_code(const String &p_error, const Vector<const char *> &p_code) {
 
     int line = 1;
-    se_string total_code;
+    String total_code;
 
     for (int i = 0; i < p_code.size(); i++) {
         total_code += p_code[i];
     }
     PODVector<se_string_view> lines;
-    se_string::split_ref(lines,total_code,'\n');
+    String::split_ref(lines,total_code,'\n');
 
     for (size_t j = 0; j < lines.size(); j++) {
 
@@ -312,7 +312,7 @@ ShaderGLES3::Version *ShaderGLES3::get_current_version() {
             ilogmem[iloglen] = 0;
             glGetShaderInfoLog(v.vert_id, iloglen, &iloglen, ilogmem);
 
-            se_string err_string = se_string(get_shader_name()) + ": Vertex Program Compilation Failed:\n";
+            String err_string = String(get_shader_name()) + ": Vertex Program Compilation Failed:\n";
 
             err_string += ilogmem;
             _display_error_with_code(err_string, strings);
@@ -400,7 +400,7 @@ ShaderGLES3::Version *ShaderGLES3::get_current_version() {
             ilogmem[iloglen] = 0;
             glGetShaderInfoLog(v.frag_id, iloglen, &iloglen, ilogmem);
 
-            se_string err_string = se_string(get_shader_name()) + ": Fragment Program Compilation Failed:\n";
+            String err_string = String(get_shader_name()) + ": Fragment Program Compilation Failed:\n";
 
             err_string += ilogmem;
             _display_error_with_code(err_string, strings);
@@ -468,7 +468,7 @@ ShaderGLES3::Version *ShaderGLES3::get_current_version() {
         ilogmem[iloglen] = 0;
         glGetProgramInfoLog(v.id, iloglen, &iloglen, ilogmem);
 
-        se_string err_string = se_string(get_shader_name()) + ": Program LINK FAILED:\n";
+        String err_string = String(get_shader_name()) + ": Program LINK FAILED:\n";
 
         err_string += ilogmem;
         _display_error_with_code(err_string, strings);
@@ -565,12 +565,12 @@ void ShaderGLES3::setup(const char **p_conditional_defines, int p_conditional_co
 
     //split vertex and shader code (thank you, shader compiler programmers from you know what company).
     {
-        se_string globals_tag("\nVERTEX_SHADER_GLOBALS");
-        se_string material_tag("\nMATERIAL_UNIFORMS");
-        se_string code_tag("\nVERTEX_SHADER_CODE");
-        se_string code(vertex_code);
+        String globals_tag("\nVERTEX_SHADER_GLOBALS");
+        String material_tag("\nMATERIAL_UNIFORMS");
+        String code_tag("\nVERTEX_SHADER_CODE");
+        String code(vertex_code);
         auto cpos = code.find(material_tag);
-        if (cpos == se_string::npos) {
+        if (cpos == String::npos) {
             vertex_code0 = code;
         } else {
             vertex_code0 = code.substr(0, cpos);
@@ -578,7 +578,7 @@ void ShaderGLES3::setup(const char **p_conditional_defines, int p_conditional_co
 
             cpos = code.find(globals_tag);
 
-            if (cpos == se_string::npos) {
+            if (cpos == String::npos) {
                 vertex_code1 = code;
             } else {
 
@@ -599,10 +599,10 @@ void ShaderGLES3::setup(const char **p_conditional_defines, int p_conditional_co
     glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &max_image_units);
 
     {
-        se_string globals_tag("\nFRAGMENT_SHADER_GLOBALS");
-        se_string material_tag("\nMATERIAL_UNIFORMS");
-        se_string code_tag("\nFRAGMENT_SHADER_CODE");
-        se_string light_code_tag("\nLIGHT_SHADER_CODE");
+        String globals_tag("\nFRAGMENT_SHADER_GLOBALS");
+        String material_tag("\nMATERIAL_UNIFORMS");
+        String code_tag("\nFRAGMENT_SHADER_CODE");
+        String light_code_tag("\nLIGHT_SHADER_CODE");
         se_string_view code(fragment_code);
         auto cpos = code.find(material_tag);
         if (cpos == code.npos) {
@@ -689,10 +689,10 @@ uint32_t ShaderGLES3::create_custom_shader() {
     return last_custom_code++;
 }
 
-void ShaderGLES3::set_custom_shader_code(uint32_t p_code_id, const se_string &p_vertex,
-        const se_string &p_vertex_globals, const se_string &p_fragment, const se_string &p_light,
-        const se_string &p_fragment_globals, const se_string &p_uniforms, const Vector<StringName> &p_texture_uniforms,
-        const Vector<se_string> &p_custom_defines) {
+void ShaderGLES3::set_custom_shader_code(uint32_t p_code_id, const String &p_vertex,
+        const String &p_vertex_globals, const String &p_fragment, const String &p_light,
+        const String &p_fragment_globals, const String &p_uniforms, const Vector<StringName> &p_texture_uniforms,
+        const Vector<String> &p_custom_defines) {
 
     ERR_FAIL_COND(!custom_code_map.contains(p_code_id))
     CustomCode *cc = &custom_code_map[p_code_id];

@@ -49,7 +49,7 @@ StringName EditorImportPlugin::get_visible_name() const {
     return get_script_instance()->call("get_visible_name");
 }
 
-void EditorImportPlugin::get_recognized_extensions(PODVector<se_string> &p_extensions) const {
+void EditorImportPlugin::get_recognized_extensions(PODVector<String> &p_extensions) const {
     ERR_FAIL_COND(!(get_script_instance() && get_script_instance()->has_method("get_recognized_extensions")))
     Array extensions = get_script_instance()->call("get_recognized_extensions");
     p_extensions.reserve(p_extensions.size()+extensions.size());
@@ -102,7 +102,7 @@ void EditorImportPlugin::get_import_options(ListPOD<ImportOption> *r_options, in
     for (int i = 0; i < options.size(); i++) {
         Dictionary d = options[i];
         ERR_FAIL_COND(!d.has_all(needed))
-        se_string name = d["name"].as<se_string>();
+        String name = d["name"].as<String>();
         Variant default_value = d["default_value"];
 
         PropertyHint hint = PROPERTY_HINT_NONE;
@@ -110,9 +110,9 @@ void EditorImportPlugin::get_import_options(ListPOD<ImportOption> *r_options, in
             hint = (PropertyHint)d["property_hint"].as<int64_t>();
         }
 
-        se_string hint_string;
+        String hint_string;
         if (d.has("hint_string")) {
-            hint_string = d["hint_string"].as<se_string>();
+            hint_string = d["hint_string"].as<String>();
         }
 
         uint32_t usage = PROPERTY_USAGE_DEFAULT;
@@ -134,7 +134,7 @@ bool EditorImportPlugin::get_option_visibility(const StringName &p_option, const
     return get_script_instance()->call("get_option_visibility", p_option, d);
 }
 
-Error EditorImportPlugin::import(se_string_view p_source_file, se_string_view p_save_path, const Map<StringName, Variant> &p_options, List<se_string> *r_platform_variants, List<se_string> *r_gen_files, Variant *r_metadata) {
+Error EditorImportPlugin::import(se_string_view p_source_file, se_string_view p_save_path, const Map<StringName, Variant> &p_options, List<String> *r_platform_variants, List<String> *r_gen_files, Variant *r_metadata) {
 
     ERR_FAIL_COND_V(!(get_script_instance() && get_script_instance()->has_method("import")), ERR_UNAVAILABLE)
     Dictionary options;

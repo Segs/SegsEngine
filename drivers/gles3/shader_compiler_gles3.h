@@ -50,19 +50,19 @@ public:
 
     struct GeneratedCode {
 
-        Vector<se_string> defines;
+        Vector<String> defines;
         Vector<StringName> texture_uniforms;
         Vector<ShaderLanguage::DataType> texture_types;
         Vector<ShaderLanguage::ShaderNode::Uniform::Hint> texture_hints;
 
         Vector<uint32_t> uniform_offsets;
         uint32_t uniform_total_size;
-        se_string uniforms;
-        se_string vertex_global;
-        se_string vertex;
-        se_string fragment_global;
-        se_string fragment;
-        se_string light;
+        String uniforms;
+        String vertex_global;
+        String vertex;
+        String fragment_global;
+        String fragment;
+        String light;
 
         bool uses_fragment_time;
         bool uses_vertex_time;
@@ -73,13 +73,13 @@ private:
 
     struct DefaultIdentifierActions {
 
-        Map<StringName, se_string> renames;
-        Map<StringName, se_string> render_mode_defines;
-        Map<StringName, se_string> usage_defines;
+        Map<StringName, String> renames;
+        Map<StringName, String> render_mode_defines;
+        Map<StringName, String> usage_defines;
     };
 
-    void _dump_function_deps(ShaderLanguage::ShaderNode *p_node, const StringName &p_for_func, const Map<StringName, se_string> &p_func_code, se_string &r_to_add, Set<StringName> &added);
-    se_string _dump_node_code(ShaderLanguage::Node *p_node, int p_level, GeneratedCode &r_gen_code, IdentifierActions &p_actions, const DefaultIdentifierActions &p_default_actions, bool p_assigning);
+    void _dump_function_deps(ShaderLanguage::ShaderNode *p_node, const StringName &p_for_func, const Map<StringName, String> &p_func_code, String &r_to_add, Set<StringName> &added);
+    String _dump_node_code(ShaderLanguage::Node *p_node, int p_level, GeneratedCode &r_gen_code, IdentifierActions &p_actions, const DefaultIdentifierActions &p_default_actions, bool p_assigning);
 
     StringName current_func_name;
     StringName vertex_name;
@@ -95,7 +95,7 @@ private:
     DefaultIdentifierActions actions[VS::SHADER_MAX];
 
 public:
-    Error compile(VS::ShaderMode p_mode, const se_string &p_code, IdentifierActions *p_actions, const se_string &p_path, GeneratedCode &r_gen_code);
+    Error compile(VS::ShaderMode p_mode, const String &p_code, IdentifierActions *p_actions, const String &p_path, GeneratedCode &r_gen_code);
 
     ShaderCompilerGLES3();
 };

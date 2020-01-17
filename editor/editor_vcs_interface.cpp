@@ -100,14 +100,14 @@ bool EditorVCSInterface::_shut_down() {
     return false;
 }
 
-se_string EditorVCSInterface::_get_project_name() {
+String EditorVCSInterface::_get_project_name() {
 
-    return se_string();
+    return String();
 }
 
-se_string EditorVCSInterface::_get_vcs_name() {
+String EditorVCSInterface::_get_vcs_name() {
 
-    return se_string();
+    return String();
 }
 
 bool EditorVCSInterface::initialize(se_string_view p_project_root_path) {
@@ -169,12 +169,12 @@ bool EditorVCSInterface::shut_down() {
     return call("_shut_down");
 }
 
-se_string EditorVCSInterface::get_project_name() {
+String EditorVCSInterface::get_project_name() {
 
     return call("_get_project_name");
 }
 
-se_string EditorVCSInterface::get_vcs_name() {
+String EditorVCSInterface::get_vcs_name() {
 
     return call("_get_vcs_name");
 }

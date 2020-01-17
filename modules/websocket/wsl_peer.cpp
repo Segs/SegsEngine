@@ -41,7 +41,7 @@
 #include "core/string_utils.h"
 #include "core/os/os.h"
 
-se_string WSLPeer::generate_key() {
+String WSLPeer::generate_key() {
     // Random key
     RandomNumberGenerator rng;
     rng.set_seed(OS::get_singleton()->get_unix_time());
@@ -55,8 +55,8 @@ se_string WSLPeer::generate_key() {
     return CryptoCore::b64_encode_str(&w[0], len);
 }
 
-se_string WSLPeer::compute_key_response(se_string_view p_key) {
-    se_string key = se_string(p_key) + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"; // Magic UUID as per RFC
+String WSLPeer::compute_key_response(se_string_view p_key) {
+    String key = String(p_key) + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"; // Magic UUID as per RFC
     PODVector<uint8_t> sha = StringUtils::sha1_buffer(key);
     return CryptoCore::b64_encode_str(sha.data(), sha.size());
 }
@@ -180,7 +180,7 @@ Error WSLPeer::parse_message(const wslay_event_on_msg_recv_arg *arg) {
         size_t len = arg->msg_length;
         close_reason = "";
         if (len > 2 /* first 2 bytes = close code */) {
-            close_reason = se_string((char *)arg->msg + 2, len - 2);
+            close_reason = String((char *)arg->msg + 2, len - 2);
         }
         if (!wslay_event_get_close_sent(_data->ctx)) {
             if (_data->is_server) {

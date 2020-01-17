@@ -56,7 +56,7 @@ public:
     PropertyInfo get_output_value_port_info(int p_idx) const override;
 
     se_string_view get_caption() const override;
-    se_string get_text() const override;
+    String get_text() const override;
     const char *get_category() const override { return "flow_control"; }
 
     void set_return_type(VariantType);
@@ -91,7 +91,7 @@ public:
     PropertyInfo get_output_value_port_info(int p_idx) const override;
 
     se_string_view get_caption() const override;
-    se_string get_text() const override;
+    String get_text() const override;
     const char *get_category() const override { return "flow_control"; }
 
     VisualScriptNodeInstance *instance(VisualScriptInstance *p_instance) override;
@@ -120,7 +120,7 @@ public:
     PropertyInfo get_output_value_port_info(int p_idx) const override;
 
     se_string_view get_caption() const override;
-    se_string get_text() const override;
+    String get_text() const override;
     const char *get_category() const override { return "flow_control"; }
 
     VisualScriptNodeInstance *instance(VisualScriptInstance *p_instance) override;
@@ -149,7 +149,7 @@ public:
     PropertyInfo get_output_value_port_info(int p_idx) const override;
 
     se_string_view get_caption() const override;
-    se_string get_text() const override;
+    String get_text() const override;
     const char *get_category() const override { return "flow_control"; }
 
     VisualScriptNodeInstance *instance(VisualScriptInstance *p_instance) override;
@@ -180,7 +180,7 @@ public:
     PropertyInfo get_output_value_port_info(int p_idx) const override;
 
     se_string_view get_caption() const override;
-    se_string get_text() const override;
+    String get_text() const override;
     const char *get_category() const override { return "flow_control"; }
 
     void set_steps(int p_steps);
@@ -226,7 +226,7 @@ public:
     PropertyInfo get_output_value_port_info(int p_idx) const override;
 
     se_string_view get_caption() const override;
-    se_string get_text() const override;
+    String get_text() const override;
     const char *get_category() const override { return "flow_control"; }
 
     VisualScriptNodeInstance *instance(VisualScriptInstance *p_instance) override;
@@ -240,7 +240,7 @@ class VisualScriptTypeCast : public VisualScriptNode {
 
 
     StringName base_type;
-    se_string script;
+    String script;
 
 protected:
     static void _bind_methods();
@@ -258,14 +258,14 @@ public:
     PropertyInfo get_output_value_port_info(int p_idx) const override;
 
     se_string_view get_caption() const override;
-    se_string get_text() const override;
+    String get_text() const override;
     const char *get_category() const override { return "flow_control"; }
 
     void set_base_type(const StringName &p_type);
     StringName get_base_type() const;
 
     void set_base_script(se_string_view p_path);
-    const se_string &get_base_script() const;
+    const String &get_base_script() const;
 
     TypeGuess guess_output_type(TypeGuess *p_inputs, int p_output) const override;
 

@@ -35,7 +35,7 @@
 IMPL_GDCLASS(Range)
 
 StringName Range::get_configuration_warning() const {
-    se_string warning(Control::get_configuration_warning());
+    String warning(Control::get_configuration_warning());
 
     if (shared->exp_ratio && shared->min <= 0) {
         if (!warning.empty()) {

@@ -125,7 +125,7 @@ void CanvasItemMaterial::_update_shader() {
 
     //must create a shader!
 
-    se_string code("shader_type canvas_item;\nrender_mode ");
+    String code("shader_type canvas_item;\nrender_mode ");
     switch (blend_mode) {
         case BLEND_MODE_MIX: code += "blend_mix"; break;
         case BLEND_MODE_ADD: code += "blend_add"; break;

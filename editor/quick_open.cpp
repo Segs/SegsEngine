@@ -52,18 +52,18 @@ void EditorQuickOpen::popup_dialog(const StringName &p_base, bool p_enable_multi
     _update_search();
 }
 
-se_string EditorQuickOpen::get_selected() const {
+String EditorQuickOpen::get_selected() const {
 
     TreeItem *ti = search_options->get_selected();
     if (!ti)
-        return se_string();
+        return String();
 
     return "res://" + ti->get_text(0);
 }
 
-Vector<se_string> EditorQuickOpen::get_selected_files() const {
+Vector<String> EditorQuickOpen::get_selected_files() const {
 
-    Vector<se_string> files;
+    Vector<String> files;
 
     TreeItem *item = search_options->get_next_selected(search_options->get_root());
     while (item) {
@@ -119,13 +119,13 @@ float EditorQuickOpen::_path_cmp(se_string_view search, se_string_view path) con
     if (search == path) {
         return 1.2f;
     }
-    if (StringUtils::findn(path,search) != se_string::npos) {
+    if (StringUtils::findn(path,search) != String::npos) {
         return 1.1f;
     }
     return StringUtils::similarity(StringUtils::to_lower(path),StringUtils::to_lower(search));
 }
 
-void EditorQuickOpen::_parse_fs(EditorFileSystemDirectory *efsd, Vector<Pair<se_string, Ref<Texture> > > &list) {
+void EditorQuickOpen::_parse_fs(EditorFileSystemDirectory *efsd, Vector<Pair<String, Ref<Texture> > > &list) {
 
     if (!add_directories) {
         for (int i = 0; i < efsd->get_subdir_count(); i++) {
@@ -134,16 +134,16 @@ void EditorQuickOpen::_parse_fs(EditorFileSystemDirectory *efsd, Vector<Pair<se_
         }
     }
 
-    se_string search_text = search_box->get_text();
+    String search_text = search_box->get_text();
 
     if (add_directories) {
-        se_string path = efsd->get_path();
+        String path = efsd->get_path();
         if (!StringUtils::ends_with(path,"/"))
             path += '/';
         if (path != "res://") {
             path = StringUtils::substr(path,6, path.length());
             if (StringUtils::is_subsequence_of(search_text,path,StringUtils::CaseInsensitive)) {
-                Pair<se_string, Ref<Texture> > pair;
+                Pair<String, Ref<Texture> > pair;
                 pair.first = path;
                 pair.second = get_icon("folder", "FileDialog");
 
@@ -168,11 +168,11 @@ void EditorQuickOpen::_parse_fs(EditorFileSystemDirectory *efsd, Vector<Pair<se_
     }
     for (int i = 0; i < efsd->get_file_count(); i++) {
 
-        se_string file = efsd->get_file_path(i);
+        String file = efsd->get_file_path(i);
         file = StringUtils::substr(file,6, file.length());
 
         if (ClassDB::is_parent_class(efsd->get_file_type(i), base_type) && StringUtils::is_subsequence_of(search_text,file,StringUtils::CaseInsensitive)) {
-            Pair<se_string, Ref<Texture> > pair;
+            Pair<String, Ref<Texture> > pair;
             pair.first = file;
             pair.second = get_icon(has_icon(efsd->get_file_type(i), ei) ? efsd->get_file_type(i) : ot, ei);
             list.push_back(pair);
@@ -187,10 +187,10 @@ void EditorQuickOpen::_parse_fs(EditorFileSystemDirectory *efsd, Vector<Pair<se_
     }
 }
 
-Vector<Pair<se_string, Ref<Texture> > > EditorQuickOpen::_sort_fs(Vector<Pair<se_string, Ref<Texture> > > &list) {
+Vector<Pair<String, Ref<Texture> > > EditorQuickOpen::_sort_fs(Vector<Pair<String, Ref<Texture> > > &list) {
 
-    se_string search_text = search_box->get_text();
-    Vector<Pair<se_string, Ref<Texture> > > sorted_list;
+    String search_text = search_box->get_text();
+    Vector<Pair<String, Ref<Texture> > > sorted_list;
 
     if (search_text.empty() || list.empty())
         return list;
@@ -226,7 +226,7 @@ void EditorQuickOpen::_update_search() {
     search_options->clear();
     TreeItem *root = search_options->create_item();
     EditorFileSystemDirectory *efsd = EditorFileSystem::get_singleton()->get_filesystem();
-    Vector<Pair<se_string, Ref<Texture> > > list;
+    Vector<Pair<String, Ref<Texture> > > list;
 
     _parse_fs(efsd, list);
     list = _sort_fs(list);

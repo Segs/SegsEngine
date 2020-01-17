@@ -229,7 +229,7 @@ void VisualShaderEditor::update_custom_nodes() {
     clear_custom_types();
     PODVector<StringName> class_list;
     ScriptServer::get_global_class_list(&class_list);
-    DefMap<se_string,AddInfo> added;
+    DefMap<String,AddInfo> added;
     for (size_t i = 0; i < class_list.size(); i++) {
         if (ScriptServer::get_global_class_native_base(class_list[i]) == "VisualShaderNodeCustom") {
 
@@ -274,7 +274,7 @@ void VisualShaderEditor::update_custom_nodes() {
 
             AddInfo dict{ name, script, description, return_icon_type, category, subcategory };
 
-            se_string key;
+            String key;
             key = category;
             key += "/";
             if (subcategory.empty()) {
@@ -527,7 +527,7 @@ void VisualShaderEditor::_update_graph() {
 
         Ref<VisualShaderNodeExpression> expression_node(dynamic_ref_cast<VisualShaderNodeExpression>(group_node));
         bool is_expression = expression_node;
-        se_string expression;
+        String expression;
 
         GraphNode *node = memnew(GraphNode);
 
@@ -610,14 +610,14 @@ void VisualShaderEditor::_update_graph() {
 
                 Button *add_input_btn = memnew(Button);
                 add_input_btn->set_text(TTR("Add Input"));
-                add_input_btn->connect("pressed", this, "_add_input_port", varray(nodes[n_i], group_node->get_free_input_port_id(), VisualShaderNode::PORT_TYPE_VECTOR, se_string("input" + itos(group_node->get_free_input_port_id()))),ObjectNS::CONNECT_QUEUED);
+                add_input_btn->connect("pressed", this, "_add_input_port", varray(nodes[n_i], group_node->get_free_input_port_id(), VisualShaderNode::PORT_TYPE_VECTOR, String("input" + itos(group_node->get_free_input_port_id()))),ObjectNS::CONNECT_QUEUED);
                 hb2->add_child(add_input_btn);
 
                 hb2->add_spacer();
 
                 Button *add_output_btn = memnew(Button);
                 add_output_btn->set_text(TTR("Add Output"));
-                add_output_btn->connect("pressed", this, "_add_output_port", varray(nodes[n_i], group_node->get_free_output_port_id(), VisualShaderNode::PORT_TYPE_VECTOR, se_string("output" + itos(group_node->get_free_output_port_id()))),ObjectNS::CONNECT_QUEUED);
+                add_output_btn->connect("pressed", this, "_add_output_port", varray(nodes[n_i], group_node->get_free_output_port_id(), VisualShaderNode::PORT_TYPE_VECTOR, String("output" + itos(group_node->get_free_output_port_id()))),ObjectNS::CONNECT_QUEUED);
                 hb2->add_child(add_output_btn);
 
                 node->add_child(hb2);
@@ -1189,7 +1189,7 @@ void VisualShaderEditor::_line_edit_changed(se_string_view p_text, Object *line_
     Ref<VisualShaderNodeUniform> node = dynamic_ref_cast<VisualShaderNodeUniform>(visual_shader->get_node(type, p_node_id));
     ERR_FAIL_COND(not node)
 
-    se_string validated_name = visual_shader->validate_uniform_name(p_text, node);
+    String validated_name = visual_shader->validate_uniform_name(p_text, node);
 
     updating = true;
     undo_redo->create_action_ui(TTR("Set Uniform Name"));
@@ -1205,7 +1205,7 @@ void VisualShaderEditor::_line_edit_changed(se_string_view p_text, Object *line_
 
 void VisualShaderEditor::_line_edit_focus_out(Object *line_edit, int p_node_id) {
 
-    se_string text = object_cast<LineEdit>(line_edit)->get_text();
+    String text = object_cast<LineEdit>(line_edit)->get_text();
     _line_edit_changed(text, line_edit, p_node_id);
 }
 
@@ -1238,7 +1238,7 @@ void VisualShaderEditor::_port_name_focus_out(Object *line_edit, int p_node_id, 
         output_names.push_back(node->get_output_port_name(i));
     }
 
-    se_string validated_name = visual_shader->validate_port_name(text, input_names, output_names);
+    String validated_name = visual_shader->validate_port_name(text, input_names, output_names);
     if (validated_name.empty()) {
         if (!p_output) {
             object_cast<LineEdit>(line_edit)->set_text_utf8(node->get_input_port_name(p_port_id));
@@ -1283,7 +1283,7 @@ void VisualShaderEditor::_edit_port_default_input(Object *p_button, int p_node, 
     ERR_FAIL_COND(!button)
     Variant value = vsn->get_input_port_default_value(p_port);
     property_editor->set_global_position(button->get_global_position() + Vector2(0, button->get_size().height));
-    property_editor->edit(nullptr, se_string(), value.get_type(), value, 0, se_string());
+    property_editor->edit(nullptr, String(), value.get_type(), value, 0, String());
     property_editor->popup();
     editing_node = p_node;
     editing_port = p_port;
@@ -2158,10 +2158,10 @@ void VisualShaderEditor::drop_data_fw(const Point2 &p_point, const Variant &p_da
             if (d["files"].get_type() == VariantType::POOL_STRING_ARRAY) {
 
                 int j = 0;
-                PoolVector<se_string> arr = d["files"].as<PoolVector<se_string>>();
+                PoolVector<String> arr = d["files"].as<PoolVector<String>>();
                 for (int i = 0; i < arr.size(); i++) {
 
-                    const se_string type = ResourceLoader::get_resource_type(arr[i]);
+                    const String type = ResourceLoader::get_resource_type(arr[i]);
                     if (type == "GDScript") {
                         Ref<Script> script(dynamic_ref_cast<Script>(ResourceLoader::load(arr[i])));
                         if (script->get_instance_base_type() == "VisualShaderNodeCustom") {
@@ -2199,7 +2199,7 @@ void VisualShaderEditor::_update_preview() {
         return;
     }
 
-    se_string code(visual_shader->get_code());
+    String code(visual_shader->get_code());
 
     preview_text->set_text_utf8(code);
 
@@ -2216,7 +2216,7 @@ void VisualShaderEditor::_update_preview() {
         preview_text->set_line_as_marked(sl.get_error_line() - 1, true);
         error_text->set_visible(true);
 
-        se_string text = "error(" + itos(sl.get_error_line()) + "): " + sl.get_error_text();
+        String text = "error(" + itos(sl.get_error_line()) + "): " + sl.get_error_text();
         error_text->set_text(StringName(text));
         shader_error = true;
     } else {
@@ -3010,7 +3010,7 @@ public:
     }
 
     static void _bind_methods() {
-        MethodBinder::bind_method("_property_changed", &VisualShaderNodePluginDefaultEditor::_property_changed, {DEFVAL(se_string()), DEFVAL(false)});
+        MethodBinder::bind_method("_property_changed", &VisualShaderNodePluginDefaultEditor::_property_changed, {DEFVAL(String()), DEFVAL(false)});
         MethodBinder::bind_method("_node_changed", &VisualShaderNodePluginDefaultEditor::_node_changed);
         MethodBinder::bind_method("_refresh_request", &VisualShaderNodePluginDefaultEditor::_refresh_request);
         MethodBinder::bind_method("_resource_selected", &VisualShaderNodePluginDefaultEditor::_resource_selected);
@@ -3210,7 +3210,7 @@ void VisualShaderNodePortPreview::_shader_changed() {
     }
 
     Vector<VisualShader::DefaultTextureParam> default_textures;
-    se_string shader_code = shader->generate_preview_shader(type, node, port, default_textures);
+    String shader_code = shader->generate_preview_shader(type, node, port, default_textures);
 
     Ref<Shader> preview_shader(make_ref_counted<Shader>());
     preview_shader->set_code(shader_code);
@@ -3305,7 +3305,7 @@ Ref<Resource> VisualShaderConversionPlugin::convert(const Ref<Resource> &p_resou
 
     Ref<Shader> shader(make_ref_counted<Shader>());
 
-    se_string code = vshader->get_code();
+    String code = vshader->get_code();
     shader->set_code(code);
 
     return shader;

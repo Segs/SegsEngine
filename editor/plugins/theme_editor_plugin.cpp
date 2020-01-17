@@ -125,7 +125,7 @@ struct _TECategory {
     struct Item {
 
         T item;
-        se_string name;
+        String name;
         bool operator<(const Item<T> &p) const { return name < p.name; }
     };
 
@@ -139,7 +139,7 @@ struct _TECategory {
 
 void ThemeEditor::_save_template_cbk(se_string_view fname) {
 
-    se_string filename = file_dialog->get_current_path();
+    String filename = file_dialog->get_current_path();
 
     Map<StringName, _TECategory> categories;
 
@@ -255,7 +255,7 @@ void ThemeEditor::_save_template_cbk(se_string_view fname) {
     file->store_line("; ");
     file->store_line("; ******************* ");
     file->store_line("; ");
-    file->store_line("; Template Generated Using: " + se_string(VERSION_FULL_BUILD));
+    file->store_line("; Template Generated Using: " + String(VERSION_FULL_BUILD));
     file->store_line(";    ");
     file->store_line("; ");
     file->store_line("");
@@ -272,18 +272,18 @@ void ThemeEditor::_save_template_cbk(se_string_view fname) {
 
         _TECategory &tc(E.second);
 
-        se_string underline("; ");
+        String underline("; ");
         for (size_t i = 0,fin=strlen(E.first.asCString()); i < fin; i++)
             underline += '*';
 
         file->store_line("");
         file->store_line(underline);
-        file->store_line(se_string("; ") + E.first);
+        file->store_line(String("; ") + E.first);
         file->store_line(underline);
 
         if (!tc.stylebox_items.empty())
             file->store_line("\n; StyleBox Items:\n");
-        const se_string dot(".");
+        const String dot(".");
         for (const _TECategory::RefItem<StyleBox>  &F : tc.stylebox_items) {
 
             file->store_line(E.first + dot + F.name + " = default");

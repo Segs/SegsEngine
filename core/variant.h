@@ -73,7 +73,7 @@ using PoolByteArray = PoolVector<uint8_t>;
 using PoolIntArray = PoolVector<int>;
 using PoolRealArray = PoolVector<real_t>;
 using PoolStringArray = PoolVector<UIString>;
-using PoolSeStringArray = PoolVector<se_string>;
+using PoolSeStringArray = PoolVector<String>;
 using PoolVector2Array = PoolVector<Vector2>;
 using PoolVector3Array = PoolVector<Vector3>;
 using PoolColorArray = PoolVector<Color>;
@@ -204,7 +204,7 @@ public:
     [[nodiscard]] PODVector<T> asVector() const;
     // Not a recursive loop, as<String>,as<float>,as<StringName> are specialized.
     operator UIString() const;
-    operator se_string() const;
+    operator String() const;
     operator float() const;
     operator StringName() const;
 
@@ -233,7 +233,7 @@ public:
     operator PoolVector<uint8_t>() const;
     operator PoolVector<int>() const;
     operator PoolVector<real_t>() const;
-    operator PoolVector<se_string>() const;
+    operator PoolVector<String>() const;
     operator PoolVector<Vector2>() const;
     operator PoolVector<Vector3>() const;
     operator PoolVector<Color>() const;
@@ -271,7 +271,7 @@ public:
     //explicit Variant(const String &p_string);
     Variant(const char *p_string);
     Variant(se_string_view p_string);
-    Variant(const se_string &p_string);
+    Variant(const String &p_string);
     Variant(StringName p_string);
     Variant(const CharType *p_wstring);
     Variant(const Vector2 &p_vector2);
@@ -296,7 +296,7 @@ public:
     Variant(const PoolVector<int> &p_int_array);
     Variant(const PoolVector<real_t> &p_real_array);
     Variant(const PoolVector<UIString> &p_string_array);
-    Variant(const PoolVector<se_string> &p_string_array);
+    Variant(const PoolVector<String> &p_string_array);
     Variant(const PoolVector<Vector3> &p_vector3_array);
     Variant(const PoolVector<Color> &p_color_array);
     Variant(const PoolVector<Face3> &p_face_array);
@@ -391,7 +391,7 @@ public:
     Variant call(const StringName &p_method, const Variant **p_args, int p_argcount, CallError &r_error);
     Variant call(const StringName &p_method, const Variant &p_arg1 = Variant(), const Variant &p_arg2 = Variant(), const Variant &p_arg3 = Variant(), const Variant &p_arg4 = Variant(), const Variant &p_arg5 = Variant());
 
-    static se_string get_call_error_text(Object *p_base, const StringName &p_method, const Variant **p_argptrs, int p_argcount, const Variant::CallError &ce);
+    static String get_call_error_text(Object *p_base, const StringName &p_method, const Variant **p_argptrs, int p_argcount, const Variant::CallError &ce);
 
     static Variant construct(const VariantType, const Variant **p_args, int p_argcount, CallError &r_error, bool p_strict = true);
 
@@ -425,7 +425,7 @@ public:
 
     [[nodiscard]] bool hash_compare(const Variant &p_variant) const;
     bool booleanize() const;
-    se_string stringify(PODVector<const void *> &stack) const;
+    String stringify(PODVector<const void *> &stack) const;
 
     void static_assign(const Variant &p_variant);
     static void get_constructor_list(VariantType p_type, PODVector<MethodInfo> *p_list);
@@ -436,7 +436,7 @@ public:
     using ObjectDeConstruct = UIString (*)(const Variant &, void *);
     using ObjectConstruct = void (*)(const UIString &, void *, Variant &);
 
-    [[nodiscard]] se_string get_construct_string() const;
+    [[nodiscard]] String get_construct_string() const;
     static void construct_from_string(const UIString &p_string, Variant &r_value, ObjectConstruct p_obj_construct = nullptr, void *p_construct_ud = nullptr);
 
     Variant &operator=(const Variant &p_variant); // only this is enough for all the other types
@@ -483,10 +483,10 @@ const Variant::ObjData &Variant::_get_obj() const {
     return *reinterpret_cast<const ObjData *>(&_data._mem[0]);
 }
 
-GODOT_EXPORT se_string vformat(se_string_view p_text, const Variant &p1 = Variant(), const Variant &p2 = Variant(), const Variant &p3 = Variant(), const Variant &p4 = Variant(), const Variant &p5 = Variant());
+GODOT_EXPORT String vformat(se_string_view p_text, const Variant &p1 = Variant(), const Variant &p2 = Variant(), const Variant &p3 = Variant(), const Variant &p4 = Variant(), const Variant &p5 = Variant());
 
 template <> GODOT_EXPORT UIString Variant::as<UIString>() const;
-template <> GODOT_EXPORT se_string Variant::as<se_string>() const;
+template <> GODOT_EXPORT String Variant::as<String>() const;
 template <> GODOT_EXPORT se_string_view Variant::as<se_string_view>() const;
 template <> GODOT_EXPORT StringName Variant::as<StringName>() const;
 template <> GODOT_EXPORT float Variant::as<float>() const;
@@ -497,9 +497,9 @@ template <> GODOT_EXPORT IP_Address Variant::as<IP_Address>() const;
 template <> GODOT_EXPORT Transform Variant::as<Transform>() const;
 template <> GODOT_EXPORT Basis Variant::as<Basis>() const;
 template <> GODOT_EXPORT Quat Variant::as<Quat>() const;
-template <> GODOT_EXPORT PoolVector<se_string> Variant::as<PoolVector<se_string>>() const;
-template <> GODOT_EXPORT Vector<se_string> Variant::as<Vector<se_string>>() const;
-template <> GODOT_EXPORT PODVector<se_string> Variant::as<PODVector<se_string>>() const;
+template <> GODOT_EXPORT PoolVector<String> Variant::as<PoolVector<String>>() const;
+template <> GODOT_EXPORT Vector<String> Variant::as<Vector<String>>() const;
+template <> GODOT_EXPORT PODVector<String> Variant::as<PODVector<String>>() const;
 template <> GODOT_EXPORT PODVector<uint8_t> Variant::as<PODVector<uint8_t>>() const;
 template <> GODOT_EXPORT PODVector<int> Variant::asVector<int>() const;
 template <> GODOT_EXPORT PODVector<Plane> Variant::asVector<Plane>() const;
@@ -524,7 +524,7 @@ template <> GODOT_EXPORT Variant Variant::from(const Vector<uint8_t> &);
 template <> GODOT_EXPORT Variant Variant::from(const Vector<int> &);
 template <> GODOT_EXPORT Variant Variant::from(const Vector<float> &);
 template <> GODOT_EXPORT Variant Variant::from(const Vector<Variant> &);
-template <> GODOT_EXPORT Variant Variant::from(const Vector<se_string> &);
+template <> GODOT_EXPORT Variant Variant::from(const Vector<String> &);
 template <> GODOT_EXPORT Variant Variant::from(const Vector<se_string_view> &);
 template <> GODOT_EXPORT Variant Variant::from(const Vector<Vector2> &);
 template <> GODOT_EXPORT Variant Variant::from(const Vector<Vector3> &);
@@ -533,7 +533,7 @@ template <> GODOT_EXPORT Variant Variant::from(const Vector<Color> &);
 template <> GODOT_EXPORT Variant Variant::from(const Vector<Plane> &p_array);
 template <> GODOT_EXPORT Variant Variant::from(const Vector<RID> &p_array);
 
-template <> GODOT_EXPORT Variant Variant::from(const PODVector<se_string> &);
+template <> GODOT_EXPORT Variant Variant::from(const PODVector<String> &);
 template <> GODOT_EXPORT Variant Variant::from(const PODVector<se_string_view> &);
 template <> GODOT_EXPORT Variant Variant::from(const PODVector<StringName> &);
 template <> GODOT_EXPORT Variant Variant::from(const Frustum &p_array);

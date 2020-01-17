@@ -202,18 +202,18 @@ void TreeItem::set_text(int p_column, const StringName& p_text) {
     _changed_notify(p_column);
 }
 
-se_string TreeItem::get_text_ui(int p_column) const {
+String TreeItem::get_text_ui(int p_column) const {
 
-    ERR_FAIL_INDEX_V(p_column, cells.size(), se_string())
+    ERR_FAIL_INDEX_V(p_column, cells.size(), String())
     return cells[p_column].text;
 }
-se_string TreeItem::get_text(int p_column) const {
+String TreeItem::get_text(int p_column) const {
 
-    ERR_FAIL_INDEX_V(p_column, cells.size(), se_string())
+    ERR_FAIL_INDEX_V(p_column, cells.size(), String())
     return cells[p_column].text;
 }
 
-void TreeItem::set_suffix(int p_column, se_string p_suffix) {
+void TreeItem::set_suffix(int p_column, String p_suffix) {
 
     ERR_FAIL_INDEX(p_column, cells.size())
     cells.write[p_column].suffix = std::move(p_suffix);
@@ -221,9 +221,9 @@ void TreeItem::set_suffix(int p_column, se_string p_suffix) {
     _changed_notify(p_column);
 }
 
-se_string TreeItem::get_suffix(int p_column) const {
+String TreeItem::get_suffix(int p_column) const {
 
-    ERR_FAIL_INDEX_V(p_column, cells.size(), se_string())
+    ERR_FAIL_INDEX_V(p_column, cells.size(), String())
     return cells[p_column].suffix;
 }
 
@@ -1108,7 +1108,7 @@ void Tree::draw_item_rect(const TreeItem::Cell &p_cell, const Rect2i &p_rect, co
 
     Rect2i rect = p_rect;
     Ref<Font> font = cache.font;
-    se_string text = p_cell.text;
+    String text = p_cell.text;
     if (!p_cell.suffix.empty())
         text += " " + p_cell.suffix;
 
@@ -1364,7 +1364,7 @@ int Tree::draw_item(const Point2i &p_pos, const Point2 &p_draw_ofs, const Size2 
 
                         int option = (int)p_item->cells[i].val;
 
-                        se_string s(RTR("(Other)"));
+                        String s(RTR("(Other)"));
                         PODVector<se_string_view> strings = StringUtils::split(p_item->cells[i].text,',');
                         for (size_t j = 0; j < strings.size(); j++) {
                             int value = j;
@@ -1393,7 +1393,7 @@ int Tree::draw_item(const Point2i &p_pos, const Point2 &p_draw_ofs, const Size2 
 
                         Ref<Texture> updown = cache.updown;
 
-                        se_string valtext(StringUtils::num(p_item->cells[i].val, Math::range_step_decimals(p_item->cells[i].step)));
+                        String valtext(StringUtils::num(p_item->cells[i].val, Math::range_step_decimals(p_item->cells[i].step)));
 
                         if (!p_item->cells[i].suffix.empty())
                             valtext += " " + p_item->cells[i].suffix;
@@ -1904,7 +1904,7 @@ int Tree::propagate_mouse_event(const Point2i &p_pos, int x_ofs, int y_ofs, bool
         /* editing */
 
         bool bring_up_editor = allow_reselect ? (c.selected && already_selected) : c.selected;
-        se_string editor_text = c.text;
+        String editor_text = c.text;
 
         switch (c.mode) {
 
@@ -2089,7 +2089,7 @@ void Tree::_text_editor_modal_close() {
     text_editor_enter(text_editor->get_text());
 }
 
-void Tree::text_editor_enter(const se_string& p_text) {
+void Tree::text_editor_enter(const String& p_text) {
 
     text_editor->hide();
     value_editor->hide();
@@ -2839,7 +2839,7 @@ bool Tree::edit_selected() {
         text_editor->set_position(textedpos);
         text_editor->set_size(rect.size);
         text_editor->clear();
-        text_editor->set_text_utf8(c.mode == TreeItem::CELL_MODE_STRING ? c.text : se_string(StringUtils::num(c.val, Math::range_step_decimals(c.step))));
+        text_editor->set_text_utf8(c.mode == TreeItem::CELL_MODE_STRING ? c.text : String(StringUtils::num(c.val, Math::range_step_decimals(c.step))));
         text_editor->select_all();
 
         if (c.mode == TreeItem::CELL_MODE_RANGE) {
@@ -3660,7 +3660,7 @@ TreeItem *Tree::search_item_text(se_string_view p_find, int *r_col, bool p_selec
     return _search_item_text(from->get_next_visible(true), p_find, r_col, p_selectable);
 }
 
-void Tree::_do_incr_search(const se_string &p_add) {
+void Tree::_do_incr_search(const String &p_add) {
 
     uint64_t time = OS::get_singleton()->get_ticks_usec() / 1000; // convert to msec
     uint64_t diff = time - last_keypress;
@@ -3854,7 +3854,7 @@ StringName Tree::get_tooltip(const Point2 &p_pos) const {
                 }
                 col_width -= size.width;
             }
-            se_string ret;
+            String ret;
             if (it->get_tooltip(col).empty())
                 ret = it->get_text(col);
             else

@@ -44,7 +44,7 @@ Variant RichTextEffect::get_bbcode() const {
     Variant r;
     if (get_script_instance()) {
         if (!get_script_instance()->get("bbcode", r)) {
-            se_string path = get_script_instance()->get_script()->get_path();
+            String path = get_script_instance()->get_script()->get_path();
             r = get_basename(get_file(path));
         }
     }

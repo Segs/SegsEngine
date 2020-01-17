@@ -85,7 +85,7 @@ public:
     int64_t get_64();
     float get_float();
     double get_double();
-    se_string get_string(int p_bytes = -1);
+    String get_string(int p_bytes = -1);
     Variant get_var(bool p_allow_objects = false);
 
     StreamPeer() { big_endian = false; }

@@ -40,7 +40,7 @@ class ResourceFormatPVR : public QObject, public ResourceLoaderInterface , publi
     Q_OBJECT
 public:
     RES load(se_string_view p_path, const String &p_original_path, Error *r_error = nullptr) override;
-    void get_recognized_extensions(PODVector<se_string> &p_extensions) const override;
+    void get_recognized_extensions(PODVector<String> &p_extensions) const override;
     bool handles_type(const String &p_type) const override;
     String get_resource_type(se_string_view p_path) const override;
 

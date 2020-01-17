@@ -250,7 +250,7 @@ void ConnectDialog::set_dst_node(Node *p_node) {
 
 StringName ConnectDialog::get_dst_method_name() const {
 
-    se_string txt = dst_method->get_text();
+    String txt = dst_method->get_text();
     if (StringUtils::contains(txt,'('))
         txt = StringUtils::strip_edges(StringUtils::left(txt,StringUtils::find(txt,"(")));
     return StringName(txt);
@@ -481,10 +481,10 @@ Control *ConnectionsDockTree::make_custom_tooltip(se_string_view p_text) const {
 
     FixedVector<se_string_view,16,true> parts;
 
-    se_string::split_ref(parts,p_text,"::");
+    String::split_ref(parts,p_text,"::");
 
-    se_string text(se_string(TTR("Signal:")) + " [u][b]" + parts[0] + "[/b][/u]");
-    text += se_string(StringUtils::strip_edges(parts[1])) + "\n";
+    String text(String(TTR("Signal:")) + " [u][b]" + parts[0] + "[/b][/u]");
+    text += String(StringUtils::strip_edges(parts[1])) + "\n";
     text += StringUtils::strip_edges(parts[2]);
     help_bit->set_text(text);
     help_bit->call_deferred("set_text", text); //hack so it uses proper theme once inside scene
@@ -541,10 +541,10 @@ void ConnectionsDock::_make_or_edit_connection() {
 
         add_script_function = !found_inherited_function;
     }
-    PoolVector<se_string> script_function_args;
+    PoolVector<String> script_function_args;
     if (add_script_function) {
         // Pick up args here before "it" is deleted by update_tree.
-        script_function_args = it->get_metadata(0).as<Dictionary>()["args"].as<PoolVector<se_string>>();
+        script_function_args = it->get_metadata(0).as<Dictionary>()["args"].as<PoolVector<String>>();
         for (int i = 0; i < cToMake.binds.size(); i++) {
             script_function_args.append("extra_arg_" + itos(i) + ":" + Variant::get_type_name(cToMake.binds[i].get_type()));
         }
@@ -578,7 +578,7 @@ void ConnectionsDock::_connect(const Connection& cToMake) {
 
     if (!source || !target)
         return;
-    se_string translated_fmt(TTR("Connect '%s' to '%s'"));
+    String translated_fmt(TTR("Connect '%s' to '%s'"));
     undo_redo->create_action(FormatVE(translated_fmt.c_str(), cToMake.signal.asCString(), cToMake.method.asCString()));
 
     undo_redo->add_do_method(source, "connect", cToMake.signal, Variant(target), cToMake.method,
@@ -600,7 +600,7 @@ void ConnectionsDock::_disconnect(TreeItem &item) {
     Connection c = item.get_metadata(0);
     ERR_FAIL_COND(c.source != selectedNode) // Shouldn't happen but... Bugcheck.
 
-    se_string translated_fmt(TTR("Disconnect '%s' to '%s'"));
+    String translated_fmt(TTR("Disconnect '%s' to '%s'"));
     undo_redo->create_action(FormatVE(translated_fmt.c_str(), c.signal.asCString(), c.method.asCString()));
 
     undo_redo->add_do_method(selectedNode, "disconnect", c.signal,Variant(c.target), c.method);
@@ -625,8 +625,8 @@ void ConnectionsDock::_disconnect_all() {
         return;
 
     TreeItem *child = item->get_children();
-    se_string signalName = item->get_metadata(0).operator Dictionary()["name"];
-    se_string translated_fmt(TTR("Disconnect all from signal: '%s'"));
+    String signalName = item->get_metadata(0).operator Dictionary()["name"];
+    String translated_fmt(TTR("Disconnect all from signal: '%s'"));
     undo_redo->create_action(FormatVE(translated_fmt.c_str(), signalName.c_str()));
 
     while (child) {
@@ -683,9 +683,9 @@ Open connection dialog with TreeItem data to CREATE a brand-new connection.
 */
 void ConnectionsDock::_open_connection_dialog(TreeItem &item) {
 
-    se_string signal = item.get_metadata(0).operator Dictionary()["name"];
-    const se_string &signalname = signal;
-    se_string midname(selectedNode->get_name());
+    String signal = item.get_metadata(0).operator Dictionary()["name"];
+    const String &signalname = signal;
+    String midname(selectedNode->get_name());
     for (size_t i = 0; i < midname.length(); i++) { //TODO: Regex filter may be cleaner.
         char c = midname[i];
         if (!(c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z' || c >= '0' && c <= '9' || c == '_')) {
@@ -885,7 +885,7 @@ void ConnectionsDock::update_tree() {
 
         ListPOD<MethodInfo> node_signals2;
         Ref<Texture> icon;
-        se_string name;
+        String name;
 
         if (!did_script) {
 
@@ -926,28 +926,28 @@ void ConnectionsDock::update_tree() {
         for (MethodInfo &mi : node_signals2) {
 
             StringName signal_name = mi.name;
-            se_string signaldesc("(");
-            PoolVector<se_string> argnames;
+            String signaldesc("(");
+            PoolVector<String> argnames;
             if (!mi.arguments.empty()) {
                 int idx=0;
                 for (PropertyInfo &pi : mi.arguments) {
                     if (0==idx)
                         signaldesc += ", ";
 
-                    se_string tname("var");
+                    String tname("var");
                     if (pi.type == VariantType::OBJECT && pi.class_name != StringName()) {
                         tname = pi.class_name;
                     } else if (pi.type != VariantType::NIL) {
                         tname = Variant::get_type_name(pi.type);
                     }
-                    signaldesc += se_string(pi.name.empty() ? StringName("arg " + itos(idx++)) : pi.name) + ": " + tname;
-                    argnames.push_back(se_string(pi.name + se_string(":") + tname));
+                    signaldesc += String(pi.name.empty() ? StringName("arg " + itos(idx++)) : pi.name) + ": " + tname;
+                    argnames.push_back(String(pi.name + String(":") + tname));
                 }
             }
             signaldesc += ')';
 
             TreeItem *item = tree->create_item(pitem);
-            item->set_text_utf8(0, se_string(signal_name) + signaldesc);
+            item->set_text_utf8(0, String(signal_name) + signaldesc);
             Dictionary sinfo;
             sinfo["name"] = signal_name;
             sinfo["args"] = argnames;
@@ -956,12 +956,12 @@ void ConnectionsDock::update_tree() {
 
             // Set tooltip with the signal's documentation.
             {
-                se_string descr;
+                String descr;
                 bool found = false;
 
-                Map<StringName, Map<StringName, se_string> >::iterator G = descr_cache.find(base);
+                Map<StringName, Map<StringName, String> >::iterator G = descr_cache.find(base);
                 if (G!=descr_cache.end()) {
-                    Map<StringName, se_string>::iterator F = G->second.find(signal_name);
+                    Map<StringName, String>::iterator F = G->second.find(signal_name);
                     if (F!=G->second.end()) {
                         found = true;
                         descr = F->second;
@@ -988,7 +988,7 @@ void ConnectionsDock::update_tree() {
                 }
 
                 // "::" separators used in make_custom_tooltip for formatting.
-                item->set_tooltip(0, StringName(se_string(signal_name) + "::" + signaldesc + "::" + descr));
+                item->set_tooltip(0, StringName(String(signal_name) + "::" + signaldesc + "::" + descr));
             }
 
             // List existing connections
@@ -1003,7 +1003,7 @@ void ConnectionsDock::update_tree() {
                 if (!target)
                     continue;
 
-                se_string path = se_string(selectedNode->get_path_to(target)) + " :: " + c.method + "()";
+                String path = String(selectedNode->get_path_to(target)) + " :: " + c.method + "()";
                 if (c.flags & ObjectNS::CONNECT_QUEUED)
                     path += " (deferred)";
                 if (c.flags & ObjectNS::CONNECT_ONESHOT)
@@ -1015,7 +1015,7 @@ void ConnectionsDock::update_tree() {
 
                         if (i > 0)
                             path += ", ";
-                        path += c.binds[i].as<se_string>();
+                        path += c.binds[i].as<String>();
                     }
                     path += " )";
                 }

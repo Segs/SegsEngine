@@ -190,7 +190,7 @@ void godot_icall_BindingsGenerator_SetLogPrintEnabled(BindingsGenerator p_handle
 }
 
 int32_t godot_icall_BindingsGenerator_GenerateCsApi(BindingsGenerator *p_handle, MonoString *p_output_dir) {
-    se_string output_dir = GDMonoMarshal::mono_string_to_godot(p_output_dir);
+    String output_dir = GDMonoMarshal::mono_string_to_godot(p_output_dir);
     return p_handle->generate_cs_api(output_dir);
 }
 
@@ -203,7 +203,7 @@ uint32_t godot_icall_BindingsGenerator_CsGlueVersion() {
 }
 
 int32_t godot_icall_ScriptClassParser_ParseFile(MonoString *p_filepath, MonoObject *p_classes) {
-    se_string filepath = GDMonoMarshal::mono_string_to_godot(p_filepath);
+    String filepath = GDMonoMarshal::mono_string_to_godot(p_filepath);
 
     ScriptClassParser scp;
     Error err = scp.parse_file(filepath);
@@ -228,26 +228,26 @@ int32_t godot_icall_ScriptClassParser_ParseFile(MonoString *p_filepath, MonoObje
 uint32_t godot_icall_ExportPlugin_GetExportedAssemblyDependencies(MonoObject *p_initial_dependencies,
         MonoString *p_build_config, MonoString *p_custom_bcl_dir, MonoObject *r_dependencies) {
     Dictionary initial_dependencies = GDMonoMarshal::mono_object_to_variant(p_initial_dependencies);
-    se_string build_config = GDMonoMarshal::mono_string_to_godot(p_build_config);
-    se_string custom_bcl_dir = GDMonoMarshal::mono_string_to_godot(p_custom_bcl_dir);
+    String build_config = GDMonoMarshal::mono_string_to_godot(p_build_config);
+    String custom_bcl_dir = GDMonoMarshal::mono_string_to_godot(p_custom_bcl_dir);
     Dictionary dependencies = GDMonoMarshal::mono_object_to_variant(r_dependencies);
 
     return GodotSharpExport::get_exported_assembly_dependencies(initial_dependencies, build_config, custom_bcl_dir, dependencies);
 }
 
 MonoString *godot_icall_Internal_UpdateApiAssembliesFromPrebuilt(MonoString *p_config) {
-    se_string config = GDMonoMarshal::mono_string_to_godot(p_config);
-    se_string error_str = GDMono::get_singleton()->update_api_assemblies_from_prebuilt(config);
+    String config = GDMonoMarshal::mono_string_to_godot(p_config);
+    String error_str = GDMono::get_singleton()->update_api_assemblies_from_prebuilt(config);
     return GDMonoMarshal::mono_string_from_godot(error_str);
 }
 
 MonoString *godot_icall_Internal_FullTemplatesDir() {
-    se_string full_templates_dir = PathUtils::plus_file(EditorSettings::get_singleton()->get_templates_dir(),VERSION_FULL_CONFIG);
+    String full_templates_dir = PathUtils::plus_file(EditorSettings::get_singleton()->get_templates_dir(),VERSION_FULL_CONFIG);
     return GDMonoMarshal::mono_string_from_godot(full_templates_dir);
 }
 
 MonoString *godot_icall_Internal_SimplifyGodotPath(MonoString *p_path) {
-    se_string path = GDMonoMarshal::mono_string_to_godot(p_path);
+    String path = GDMonoMarshal::mono_string_to_godot(p_path);
     return GDMonoMarshal::mono_string_from_godot(PathUtils::simplify_path(path));
 }
 
@@ -367,18 +367,18 @@ MonoObject *godot_icall_Globals_EditorDef(MonoString *p_setting, MonoObject *p_d
 }
 
 MonoString *godot_icall_Globals_TTR(MonoString *p_text) {
-    se_string text = GDMonoMarshal::mono_string_to_godot(p_text);
-    return GDMonoMarshal::mono_string_from_godot(se_string(TTR(text)));
+    String text = GDMonoMarshal::mono_string_to_godot(p_text);
+    return GDMonoMarshal::mono_string_from_godot(String(TTR(text)));
 }
 
 MonoString *godot_icall_Utils_OS_GetPlatformName() {
-    se_string os_name = OS::get_singleton()->get_name();
+    String os_name = OS::get_singleton()->get_name();
     return GDMonoMarshal::mono_string_from_godot(os_name);
 }
 
 MonoBoolean godot_icall_Utils_OS_UnixFileHasExecutableAccess(MonoString *p_file_path) {
 #ifdef UNIX_ENABLED
-    se_string file_path = GDMonoMarshal::mono_string_to_godot(p_file_path);
+    String file_path = GDMonoMarshal::mono_string_to_godot(p_file_path);
     return access(file_path.c_str(), X_OK) == 0;
 #else
     ERR_FAIL_V(false);

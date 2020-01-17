@@ -147,7 +147,7 @@ class VisualScriptEditor : public ScriptEditorBase {
 
     StringName selected;
 
-    se_string _validate_name(se_string_view p_name) const;
+    String _validate_name(se_string_view p_name) const;
 
     struct Clipboard {
 
@@ -162,7 +162,7 @@ class VisualScriptEditor : public ScriptEditorBase {
 
     PopupMenu *member_popup;
     MemberType member_type;
-    se_string member_name;
+    String member_name;
 
     PortAction port_action;
     int port_action_node;
@@ -179,11 +179,11 @@ class VisualScriptEditor : public ScriptEditorBase {
 
     void connect_data(Ref<VisualScriptNode> vnode_old, Ref<VisualScriptNode> vnode, int new_id);
 
-    void _selected_connect_node(const se_string &p_text, se_string_view p_category, const bool p_connecting = true);
+    void _selected_connect_node(const String &p_text, se_string_view p_category, const bool p_connecting = true);
     void connect_seq(Ref<VisualScriptNode> vnode_old, Ref<VisualScriptNode> vnode_new, int new_id);
 
     void _cancel_connect_node();
-    int _create_new_node_from_name(const se_string &p_text, const Vector2 &p_point, const StringName &p_func = StringName());
+    int _create_new_node_from_name(const String &p_text, const Vector2 &p_point, const StringName &p_func = StringName());
     void _selected_new_virtual_method(se_string_view p_text, se_string_view p_category, const bool p_connecting);
 
     int error_line;
@@ -292,9 +292,9 @@ public:
     void apply_code() override;
     RES get_edited_resource() const override;
     void set_edited_resource(const RES &p_res) override;
-    Vector<se_string> get_functions() override;
+    Vector<String> get_functions() override;
     void reload_text() override;
-    se_string get_name() override;
+    String get_name() override;
     Ref<Texture> get_icon() override;
     bool is_unsaved() override;
     Variant get_edit_state() override;
@@ -310,7 +310,7 @@ public:
     void tag_saved_version() override;
     void reload(bool p_soft) override;
     void get_breakpoints(List<int> *p_breakpoints) override;
-    void add_callback(const StringName &p_function, const PoolVector<se_string> &p_args) override;
+    void add_callback(const StringName &p_function, const PoolVector<String> &p_args) override;
     void update_settings() override;
     bool show_members_overview() override;
     void set_debugger_active(bool p_active) override;
@@ -338,7 +338,7 @@ protected:
     static void _bind_methods();
     static _VisualScriptEditor *singleton;
 
-    static Map<se_string, RefPtr> custom_nodes;
+    static Map<String, RefPtr> custom_nodes;
     static Ref<VisualScriptNode> create_node_custom(se_string_view p_name);
 
 public:

@@ -55,7 +55,7 @@ protected:
         bool open;
         int size;
         int offset;
-        se_string name;
+        String name;
         int access_flags;
     } file;
 

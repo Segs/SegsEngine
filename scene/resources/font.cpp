@@ -235,7 +235,7 @@ Error BitmapFont::create_from_fnt(se_string_view p_file) {
 
     while (true) {
 
-        se_string line = (f->get_line());
+        String line = (f->get_line());
 
         int delimiter = StringUtils::find(line," ");
         se_string_view type = StringUtils::substr(line,0, delimiter);
@@ -248,7 +248,7 @@ Error BitmapFont::create_from_fnt(se_string_view p_file) {
         while (pos < line.size()) {
 
             size_t eq = StringUtils::find(line,"=", pos);
-            if (eq == se_string::npos)
+            if (eq == String::npos)
                 break;
             se_string_view key = StringUtils::substr(line,pos, eq - pos);
             int end = -1;
@@ -296,7 +296,7 @@ Error BitmapFont::create_from_fnt(se_string_view p_file) {
             if (keys.contains("file")) {
 
                 se_string_view base_dir = PathUtils::get_base_dir(p_file);
-                se_string file = PathUtils::plus_file(base_dir,(keys["file"]));
+                String file = PathUtils::plus_file(base_dir,(keys["file"]));
                 Ref<Texture> tex = dynamic_ref_cast<Texture>(ResourceLoader::load(file));
                 if (not tex) {
                     ERR_PRINT("Can't load font texture!")
@@ -700,7 +700,7 @@ RES ResourceFormatLoaderBMFont::load(se_string_view p_path, se_string_view p_ori
     return font;
 }
 
-void ResourceFormatLoaderBMFont::get_recognized_extensions(PODVector<se_string> &p_extensions) const {
+void ResourceFormatLoaderBMFont::get_recognized_extensions(PODVector<String> &p_extensions) const {
 
     p_extensions.push_back(("fnt"));
 }
@@ -710,10 +710,10 @@ bool ResourceFormatLoaderBMFont::handles_type(se_string_view p_type) const {
     return (p_type == se_string_view("BitmapFont"));
 }
 
-se_string ResourceFormatLoaderBMFont::get_resource_type(se_string_view p_path) const {
+String ResourceFormatLoaderBMFont::get_resource_type(se_string_view p_path) const {
 
-    se_string el = StringUtils::to_lower(PathUtils::get_extension(p_path));
+    String el = StringUtils::to_lower(PathUtils::get_extension(p_path));
     if (el == "fnt")
         return ("BitmapFont");
-    return se_string();
+    return String();
 }

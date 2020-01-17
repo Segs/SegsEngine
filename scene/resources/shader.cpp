@@ -47,9 +47,9 @@ ShaderMode Shader::get_mode() const {
     return mode;
 }
 
-void Shader::set_code(const se_string &p_code) {
+void Shader::set_code(const String &p_code) {
 
-    se_string type(ShaderLanguage::get_shader_type(p_code));
+    String type(ShaderLanguage::get_shader_type(p_code));
 
     if (type == "canvas_item") {
         mode = ShaderMode::CANVAS_ITEM;
@@ -65,7 +65,7 @@ void Shader::set_code(const se_string &p_code) {
     emit_changed();
 }
 
-se_string Shader::get_code() const {
+String Shader::get_code() const {
 
     _update_shader();
     return VisualServer::get_singleton()->shader_get_code(shader);
@@ -185,7 +185,7 @@ RES ResourceFormatLoaderShader::load(se_string_view p_path, se_string_view p_ori
 
     Ref<Shader> shader(make_ref_counted<Shader>());
 
-    se_string str = FileAccess::get_file_as_string(p_path);
+    String str = FileAccess::get_file_as_string(p_path);
 
     shader->set_code(str);
 
@@ -195,7 +195,7 @@ RES ResourceFormatLoaderShader::load(se_string_view p_path, se_string_view p_ori
     return shader;
 }
 
-void ResourceFormatLoaderShader::get_recognized_extensions(PODVector<se_string> &p_extensions) const {
+void ResourceFormatLoaderShader::get_recognized_extensions(PODVector<String> &p_extensions) const {
 
     p_extensions.push_back("shader");
 }
@@ -205,12 +205,12 @@ bool ResourceFormatLoaderShader::handles_type(se_string_view p_type) const {
     return (p_type == se_string_view("Shader"));
 }
 
-se_string ResourceFormatLoaderShader::get_resource_type(se_string_view p_path) const {
+String ResourceFormatLoaderShader::get_resource_type(se_string_view p_path) const {
 
-    se_string el = StringUtils::to_lower(PathUtils::get_extension(p_path));
+    String el = StringUtils::to_lower(PathUtils::get_extension(p_path));
     if (el == "shader")
         return ("Shader");
-    return se_string();
+    return String();
 }
 
 Error ResourceFormatSaverShader::save(se_string_view p_path, const RES &p_resource, uint32_t p_flags) {
@@ -218,7 +218,7 @@ Error ResourceFormatSaverShader::save(se_string_view p_path, const RES &p_resour
     Ref<Shader> shader = dynamic_ref_cast<Shader>(p_resource);
     ERR_FAIL_COND_V(not shader, ERR_INVALID_PARAMETER)
 
-    se_string source(shader->get_code());
+    String source(shader->get_code());
 
     Error err;
     FileAccess *file = FileAccess::open(p_path, FileAccess::WRITE, &err);
@@ -239,7 +239,7 @@ Error ResourceFormatSaverShader::save(se_string_view p_path, const RES &p_resour
     return OK;
 }
 
-void ResourceFormatSaverShader::get_recognized_extensions(const RES &p_resource, PODVector<se_string> &p_extensions) const {
+void ResourceFormatSaverShader::get_recognized_extensions(const RES &p_resource, PODVector<String> &p_extensions) const {
 
     if (const Shader *shader = object_cast<Shader>(p_resource.get())) {
         if (shader->is_text_shader()) {

@@ -49,27 +49,27 @@
 #include <cstdio>
 
 namespace {
-    DefHashMap<se_string, Resource *> cached_resources;
+    DefHashMap<String, Resource *> cached_resources;
 
 } // end of anonymous namespace
 
 struct Resource::Data {
     Data(Resource *own) : remapped_list(own) {}
 #ifdef TOOLS_ENABLED
-    static DefHashMap<se_string, DefHashMap<se_string, int> > resource_path_cache; // each tscn has a set of resource paths and IDs
+    static DefHashMap<String, DefHashMap<String, int> > resource_path_cache; // each tscn has a set of resource paths and IDs
     static RWLock *path_cache_lock;
-    se_string import_path;
+    String import_path;
 #endif
     Set<ObjectID> owners;
     SelfList<Resource> remapped_list;
-    se_string name;
-    se_string path_cache;
+    String name;
+    String path_cache;
     Node *local_scene = nullptr;
     int subindex=0;
     bool local_to_scene=false;
 
 };
-DefHashMap<se_string, DefHashMap<se_string, int> > Resource::Data::resource_path_cache;
+DefHashMap<String, DefHashMap<String, int> > Resource::Data::resource_path_cache;
 RWLock *Resource::Data::path_cache_lock;
 
 
@@ -117,7 +117,7 @@ void Resource::set_path(se_string_view p_path, bool p_take_over) {
             bool exists = cached_resources.find_as(p_path)!=cached_resources.end();
             ResourceCache::lock->read_unlock();
 
-            ERR_FAIL_COND_MSG(exists, "Another resource is loaded from path '" + se_string(p_path) + "' (possible cyclic resource inclusion).")
+            ERR_FAIL_COND_MSG(exists, "Another resource is loaded from path '" + String(p_path) + "' (possible cyclic resource inclusion).")
         }
     }
     impl_data->path_cache = p_path;
@@ -133,7 +133,7 @@ void Resource::set_path(se_string_view p_path, bool p_take_over) {
     _resource_path_changed();
 }
 
-const se_string &Resource::get_path() const {
+const String &Resource::get_path() const {
 
     return impl_data->path_cache;
 }
@@ -153,7 +153,7 @@ void Resource::set_name(se_string_view p_name) {
     impl_data->name = p_name;
     Object_change_notify(this,"resource_name");
 }
-const se_string &Resource::get_name() const {
+const String &Resource::get_name() const {
 
     return impl_data->name;
 }
@@ -165,7 +165,7 @@ bool Resource::editor_can_reload_from_file() {
 
 void Resource::reload_from_file() {
 
-    se_string path = get_path();
+    String path = get_path();
     if (!PathUtils::is_resource_file(path))
         return;
 
@@ -348,7 +348,7 @@ uint32_t Resource::hash_edited_version() const {
 
 void Resource::set_import_path(se_string_view p_path) { impl_data->import_path = p_path; }
 
-const se_string &Resource::get_import_path() const { return impl_data->import_path; }
+const String &Resource::get_import_path() const { return impl_data->import_path; }
 
 #endif
 
@@ -414,7 +414,7 @@ void Resource::set_id_for_path(se_string_view p_path, int p_id) {
         if (Resource::Data::path_cache_lock) {
             Resource::Data::path_cache_lock->write_lock();
         }
-        Resource::Data::resource_path_cache[se_string(p_path)].erase(get_path());
+        Resource::Data::resource_path_cache[String(p_path)].erase(get_path());
         if (Resource::Data::path_cache_lock) {
             Resource::Data::path_cache_lock->write_unlock();
         }
@@ -422,7 +422,7 @@ void Resource::set_id_for_path(se_string_view p_path, int p_id) {
         if (Resource::Data::path_cache_lock) {
             Resource::Data::path_cache_lock->write_lock();
         }
-        Resource::Data::resource_path_cache[se_string(p_path)][get_path()] = p_id;
+        Resource::Data::resource_path_cache[String(p_path)][get_path()] = p_id;
         if (Resource::Data::path_cache_lock) {
             Resource::Data::path_cache_lock->write_unlock();
         }
@@ -433,7 +433,7 @@ int Resource::get_id_for_path(se_string_view p_path) const {
     if (Resource::Data::path_cache_lock) {
         Resource::Data::path_cache_lock->read_lock();
     }
-    auto & res_path_cache(Resource::Data::resource_path_cache[se_string(p_path)]);
+    auto & res_path_cache(Resource::Data::resource_path_cache[String(p_path)]);
     auto iter = res_path_cache.find(get_path());
     if (iter!=res_path_cache.end()) {
         int result = iter->second;
@@ -573,14 +573,14 @@ bool ResourceCache::has(se_string_view p_path) {
 }
 
 Resource * ResourceCache::get_unguarded(se_string_view p_path) {
-    return cached_resources.at(se_string(p_path),nullptr);
+    return cached_resources.at(String(p_path),nullptr);
 }
 
 Resource *ResourceCache::get(se_string_view p_path) {
 
     lock->read_lock();
 
-    Resource *res = cached_resources.at(se_string(p_path),nullptr);
+    Resource *res = cached_resources.at(String(p_path),nullptr);
 
     lock->read_unlock();
 
@@ -590,7 +590,7 @@ Resource *ResourceCache::get(se_string_view p_path) {
 void ResourceCache::get_cached_resources(ListPOD<Ref<Resource>> *p_resources) {
 
     lock->read_lock();
-    for(eastl::pair<const se_string,Resource *> & e :cached_resources) {
+    for(eastl::pair<const String,Resource *> & e :cached_resources) {
         p_resources->push_back(Ref<Resource>(e.second));
     }
     lock->read_unlock();
@@ -609,15 +609,15 @@ void ResourceCache::dump(se_string_view p_file, bool p_short) {
 #ifdef DEBUG_ENABLED
     lock->read_lock();
 
-    Map<se_string, int> type_count;
+    Map<String, int> type_count;
 
     FileAccess *f = nullptr;
     if (not p_file.empty()) {
         f = FileAccess::open(p_file, FileAccess::WRITE);
-        ERR_FAIL_COND_MSG(!f, "Cannot create file at path '" + se_string(p_file) + "'.")
+        ERR_FAIL_COND_MSG(!f, "Cannot create file at path '" + String(p_file) + "'.")
     }
 
-    for (eastl::pair<const se_string, Resource *> & e : cached_resources) {
+    for (eastl::pair<const String, Resource *> & e : cached_resources) {
 
         Resource *r = e.second;
 
@@ -629,11 +629,11 @@ void ResourceCache::dump(se_string_view p_file, bool p_short) {
 
         if (!p_short) {
             if (f)
-                f->store_line(se_string(r->get_class()) + ": " + r->get_path());
+                f->store_line(String(r->get_class()) + ": " + r->get_path());
         }
     }
 
-    for (const eastl::pair<const se_string,int> &E : type_count) {
+    for (const eastl::pair<const String,int> &E : type_count) {
 
         if (f)
             f->store_line(E.first + " count: " + itos(E.second));

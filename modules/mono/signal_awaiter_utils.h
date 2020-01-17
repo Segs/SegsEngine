@@ -36,7 +36,7 @@
 
 namespace SignalAwaiterUtils {
 
-Error connect_signal_awaiter(Object *p_source, const se_string &p_signal, Object *p_target, MonoObject *p_awaiter);
+Error connect_signal_awaiter(Object *p_source, const String &p_signal, Object *p_target, MonoObject *p_awaiter);
 }
 
 class SignalAwaiterHandle : public MonoGCHandle {

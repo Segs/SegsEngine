@@ -198,7 +198,7 @@ private:
     void _menu_option(int p_option);
     Spatial *preview_node;
     AABB *preview_bounds;
-    Vector<se_string> selected_files;
+    Vector<String> selected_files;
     AcceptDialog *accept;
 
     Node *target_node;
@@ -385,7 +385,7 @@ private:
 
     Vector3 _get_instance_position(const Point2 &p_pos) const;
     static AABB _calculate_spatial_bounds(const Spatial *p_parent, bool p_exclude_toplevel_transform = true);
-    void _create_preview(const Vector<se_string> &files) const;
+    void _create_preview(const Vector<String> &files) const;
     void _remove_preview();
     bool _cyclical_dependency_exists(se_string_view p_target_scene_path, Node *p_desired_node);
     bool _create_instance(Node *parent, se_string_view path, const Point2 &p_point);
@@ -784,7 +784,7 @@ public:
 private:
     int current_state;
     List<EditorSpatialGizmo *> current_gizmos;
-    DefHashMap<se_string, Vector<Ref<SpatialMaterial> > > materials;
+    DefHashMap<String, Vector<Ref<SpatialMaterial> > > materials;
 
 protected:
     static void _bind_methods();
@@ -793,11 +793,11 @@ protected:
 
 public:
     void create_material(se_string_view p_name, const Color &p_color, bool p_billboard = false, bool p_on_top = false, bool p_use_vertex_color = false);
-    void create_icon_material(const se_string &p_name, const Ref<Texture> &p_texture, bool p_on_top = false, const Color &p_albedo = Color(1, 1, 1, 1));
-    void create_handle_material(const se_string &p_name, bool p_billboard = false);
-    void add_material(const se_string &p_name, const Ref<SpatialMaterial>& p_material);
+    void create_icon_material(const String &p_name, const Ref<Texture> &p_texture, bool p_on_top = false, const Color &p_albedo = Color(1, 1, 1, 1));
+    void create_handle_material(const String &p_name, bool p_billboard = false);
+    void add_material(const String &p_name, const Ref<SpatialMaterial>& p_material);
 
-    Ref<SpatialMaterial> get_material(const se_string &p_name, const Ref<EditorSpatialGizmo> &p_gizmo = Ref<EditorSpatialGizmo>());
+    Ref<SpatialMaterial> get_material(const String &p_name, const Ref<EditorSpatialGizmo> &p_gizmo = Ref<EditorSpatialGizmo>());
 
     virtual se_string_view get_name() const;
     virtual int get_priority() const;

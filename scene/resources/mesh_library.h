@@ -51,7 +51,7 @@ public:
         Transform local_transform;
     };
     struct Item {
-        se_string name;
+        String name;
         Ref<Mesh> mesh;
         Vector<ShapeData> shapes;
         Ref<Texture> preview;
@@ -79,7 +79,7 @@ public:
     void set_item_navmesh_transform(int p_item, const Transform &p_transform);
     void set_item_shapes(int p_item, const Vector<ShapeData> &p_shapes);
     void set_item_preview(int p_item, const Ref<Texture> &p_preview);
-    const se_string &get_item_name(int p_item) const;
+    const String &get_item_name(int p_item) const;
     Ref<Mesh> get_item_mesh(int p_item) const;
     Ref<NavigationMesh> get_item_navmesh(int p_item) const;
     Transform get_item_navmesh_transform(int p_item) const;

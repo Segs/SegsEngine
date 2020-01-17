@@ -324,13 +324,13 @@ public:
     bool supports_builtin_mode() const override;
     int find_function(const String &p_function, const String &p_code) const override;
     String make_function(const String &p_class, const String &p_name, const PoolStringArray &p_args) const override;
-    void auto_indent_code(se_string &p_code, int p_from_line, int p_to_line) const override;
+    void auto_indent_code(String &p_code, int p_from_line, int p_to_line) const override;
     void add_global_constant(const StringName &p_variable, const Variant &p_value) override;
-    const se_string &debug_get_error() const override;
+    const String &debug_get_error() const override;
     int debug_get_stack_level_count() const override;
     int debug_get_stack_level_line(int p_level) const override;
-    se_string debug_get_stack_level_function(int p_level) const override;
-    se_string debug_get_stack_level_source(int p_level) const override;
+    String debug_get_stack_level_function(int p_level) const override;
+    String debug_get_stack_level_source(int p_level) const override;
     void debug_get_stack_level_locals(int p_level, List<se_string_view> *p_locals, List<Variant> *p_values, int p_max_subitems, int p_max_depth) override;
     void debug_get_stack_level_members(int p_level, List<se_string_view> *p_members, List<Variant> *p_values, int p_max_subitems, int p_max_depth) override;
     void debug_get_globals(List<se_string_view> *p_locals, List<Variant> *p_values, int p_max_subitems, int p_max_depth) override;
@@ -386,7 +386,7 @@ public:
 class ResourceFormatLoaderNativeScript : public ResourceFormatLoader {
 public:
     RES load(se_string_view p_path, const String &p_original_path = String(), Error *r_error = nullptr) override;
-    void get_recognized_extensions(PODVector<se_string> &p_extensions) const override;
+    void get_recognized_extensions(PODVector<String> &p_extensions) const override;
     bool handles_type(const String &p_type) const override;
     String get_resource_type(se_string_view p_path) const override;
 };

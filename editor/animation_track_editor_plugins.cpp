@@ -406,17 +406,17 @@ Rect2 AnimationTrackEditSpriteFrame::get_key_rect(int p_index, float p_pixels_se
         sf->get_animation_list(&animations);
 
         int frame = get_animation()->track_get_key_value(get_track(), p_index);
-        se_string animation;
+        String animation;
         if (animations.size() == 1) {
             animation = animations.front();
         } else {
             // Go through other track to find if animation is set
-            se_string animation_path(get_animation()->track_get_path(get_track()));
+            String animation_path(get_animation()->track_get_path(get_track()));
             animation_path = StringUtils::replace(animation_path,":frame", ":animation");
             int animation_track = get_animation()->find_track((NodePath)animation_path);
             float track_time = get_animation()->track_get_key_time(get_track(), p_index);
             int animaiton_index = get_animation()->track_find_key(animation_track, track_time);
-            animation = get_animation()->track_get_key_value(animation_track, animaiton_index).as<se_string>();
+            animation = get_animation()->track_get_key_value(animation_track, animaiton_index).as<String>();
         }
 
         Ref<Texture> texture = sf->get_frame(StringName(animation), frame);
@@ -501,17 +501,17 @@ void AnimationTrackEditSpriteFrame::draw_key(int p_index, float p_pixels_sec, in
         sf->get_animation_list(&animations);
 
         int frame = get_animation()->track_get_key_value(get_track(), p_index);
-        se_string animation;
+        String animation;
         if (animations.size() == 1) {
             animation = animations.front();
         } else {
             // Go through other track to find if animation is set
-            se_string animation_path(get_animation()->track_get_path(get_track()));
+            String animation_path(get_animation()->track_get_path(get_track()));
             animation_path = StringUtils::replace(animation_path,":frame", ":animation");
             int animation_track = get_animation()->find_track((NodePath)animation_path);
             float track_time = get_animation()->track_get_key_time(get_track(), p_index);
             int animaiton_index = get_animation()->track_find_key(animation_track, track_time);
-            animation = get_animation()->track_get_key_value(animation_track, animaiton_index).as<se_string>();
+            animation = get_animation()->track_get_key_value(animation_track, animaiton_index).as<String>();
         }
 
         texture = sf->get_frame(StringName(animation), frame);
@@ -980,10 +980,10 @@ bool AnimationTrackEditTypeAudio::can_drop_data(const Point2 &p_point, const Var
 
         if (drag_data.has("type") && UIString(drag_data["type"]) == "files") {
 
-            PoolVector<se_string> files = drag_data["files"].as<PoolVector<se_string>>();
+            PoolVector<String> files = drag_data["files"].as<PoolVector<String>>();
 
             if (files.size() == 1) {
-                const se_string &file = files[0];
+                const String &file = files[0];
                 Ref<AudioStream> res = dynamic_ref_cast<AudioStream>(ResourceLoader::load(file));
                 if (res) {
                     return true;
@@ -1004,10 +1004,10 @@ void AnimationTrackEditTypeAudio::drop_data(const Point2 &p_point, const Variant
             stream = refFromVariant<AudioStream>(drag_data["resource"]);
         } else if (drag_data.has("type") && UIString(drag_data["type"]) == "files") {
 
-            PoolVector<se_string> files = drag_data["files"].as<PoolVector<se_string>>();
+            PoolVector<String> files = drag_data["files"].as<PoolVector<String>>();
 
             if (files.size() == 1) {
-                const se_string &file = files[0];
+                const String &file = files[0];
                 stream = dynamic_ref_cast<AudioStream>(ResourceLoader::load(file));
             }
         }

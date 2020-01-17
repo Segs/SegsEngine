@@ -38,19 +38,19 @@ class DocData {
 public:
     struct ArgumentDoc {
 
-        se_string name;
-        se_string type;
-        se_string enumeration;
-        se_string default_value;
+        String name;
+        String type;
+        String enumeration;
+        String default_value;
     };
 
     struct MethodDoc {
 
-        se_string name;
-        se_string return_type;
-        se_string return_enum;
-        se_string qualifiers;
-        se_string description;
+        String name;
+        String return_type;
+        String return_enum;
+        String qualifiers;
+        String description;
         Vector<ArgumentDoc> arguments;
         bool operator<(const MethodDoc &p_md) const {
             return name < p_md.name;
@@ -59,20 +59,20 @@ public:
 
     struct ConstantDoc {
 
-        se_string name;
-        se_string value;
-        se_string enumeration;
-        se_string description;
+        String name;
+        String value;
+        String enumeration;
+        String description;
     };
 
     struct PropertyDoc {
 
-        se_string name;
+        String name;
         StringName type;
-        se_string enumeration;
-        se_string description;
-        se_string setter, getter;
-        se_string default_value;
+        String enumeration;
+        String description;
+        String setter, getter;
+        String default_value;
         bool overridden = false;
         bool operator<(const PropertyDoc &p_prop) const {
             return name < p_prop.name;
@@ -83,10 +83,10 @@ public:
 
         StringName name;
         StringName inherits;
-        se_string category;
-        se_string brief_description;
-        se_string description;
-        Vector<se_string> tutorials;
+        String category;
+        String brief_description;
+        String description;
+        Vector<String> tutorials;
         Vector<MethodDoc> methods;
         Vector<MethodDoc> defined_signals;
         Vector<ConstantDoc> constants;
@@ -94,7 +94,7 @@ public:
         Vector<PropertyDoc> theme_properties;
     };
 
-    se_string version;
+    String version;
 
     Map<StringName, ClassDoc> class_list;
     Error _load(Ref<XMLParser> parser);
@@ -105,7 +105,7 @@ public:
     void generate(bool p_basic_types = false);
     Error load_classes(se_string_view p_dir);
     static Error erase_classes(se_string_view p_dir);
-    Error save_classes(se_string_view p_default_path, const Map<StringName, se_string> &p_class_path);
+    Error save_classes(se_string_view p_default_path, const Map<StringName, String> &p_class_path);
 
     Error load_compressed(const uint8_t *p_data, int p_compressed_size, int p_uncompressed_size);
 };

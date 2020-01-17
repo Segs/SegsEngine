@@ -138,7 +138,7 @@ bool AnimationTreePlayer::_set(const StringName &p_name, const Variant &p_value)
             case NODE_ANIMATION: {
 
                 if (node.has("from"))
-                    animation_node_set_master_animation(id, node.get_valid("from").as<se_string>());
+                    animation_node_set_master_animation(id, node.get_valid("from").as<String>());
                 else
                     animation_node_set_animation(id, refFromRefPtr<Animation>(node.get_valid("animation")));
                 Array filters = node.get_valid("filter");
@@ -1220,7 +1220,7 @@ Ref<Animation> AnimationTreePlayer::animation_node_get_animation(const StringNam
     return n->animation;
 }
 
-const se_string & AnimationTreePlayer::animation_node_get_master_animation(const StringName &p_node) const {
+const String & AnimationTreePlayer::animation_node_get_master_animation(const StringName &p_node) const {
 
     GET_NODE_V(NODE_ANIMATION, AnimationNode, null_se_string);
     return n->from;
@@ -1504,7 +1504,7 @@ AnimationTreePlayer::Track *AnimationTreePlayer::_find_track(const NodePath &p_p
     Vector<StringName> leftover_path;
     Node *child = parent->get_node_and_resource(p_path, resource, leftover_path);
     if (!child) {
-        se_string err = "Animation track references unknown Node: '" + se_string(p_path) + "'.";
+        String err = "Animation track references unknown Node: '" + String(p_path) + "'.";
         WARN_PRINT(err);
         return nullptr;
     }
@@ -1642,15 +1642,15 @@ NodePath AnimationTreePlayer::get_master_player() const {
     return master;
 }
 
-PoolVector<se_string> AnimationTreePlayer::_get_node_list() {
+PoolVector<String> AnimationTreePlayer::_get_node_list() {
 
     ListPOD<StringName> nl;
     get_node_list(&nl);
-    PoolVector<se_string> ret;
+    PoolVector<String> ret;
     ret.resize(nl.size());
     int idx = 0;
     for (const StringName &E : nl) {
-        ret.set(idx++, se_string(E));
+        ret.set(idx++, String(E));
     }
 
     return ret;

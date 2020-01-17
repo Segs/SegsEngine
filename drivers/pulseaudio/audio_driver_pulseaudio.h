@@ -53,13 +53,13 @@ class AudioDriverPulseAudio : public AudioDriver {
     pa_channel_map pa_map;
     pa_channel_map pa_rec_map;
 
-    se_string device_name;
-    se_string new_device;
-    se_string default_device;
+    String device_name;
+    String new_device;
+    String default_device;
 
-    se_string capture_device_name;
-    se_string capture_new_device;
-    se_string capture_default_device;
+    String capture_device_name;
+    String capture_new_device;
+    String capture_default_device;
 
     Vector<int32_t> samples_in;
     Vector<int16_t> samples_out;
@@ -112,7 +112,7 @@ public:
 
     Array capture_get_device_list() override;
     void capture_set_device(se_string_view p_name) override;
-    se_string capture_get_device() override;
+    String capture_get_device() override;
 
     void lock() override;
     void unlock() override;

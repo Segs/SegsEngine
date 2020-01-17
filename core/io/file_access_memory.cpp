@@ -34,15 +34,15 @@
 
 #include "core/project_settings.h"
 
-static Map<se_string, PODVector<uint8_t> > *files = nullptr;
+static Map<String, PODVector<uint8_t> > *files = nullptr;
 
 void FileAccessMemory::register_file(se_string_view p_name, const PODVector<uint8_t>& p_data) {
 
     if (!files) {
-        files = memnew((Map<se_string, PODVector<uint8_t> >));
+        files = memnew((Map<String, PODVector<uint8_t> >));
     }
 
-    se_string name;
+    String name;
     if (ProjectSettings::get_singleton())
         name = ProjectSettings::get_singleton()->globalize_path(p_name);
     else
@@ -67,7 +67,7 @@ FileAccess *FileAccessMemory::create() {
 
 bool FileAccessMemory::file_exists(se_string_view p_name) {
 
-    se_string name = fix_path(p_name);
+    String name = fix_path(p_name);
     //name = DirAccess::normalize_path(name);
 
     return files && files->contains(name);
@@ -85,11 +85,11 @@ Error FileAccessMemory::_open(se_string_view p_path, int p_mode_flags) {
 
     ERR_FAIL_COND_V(!files, ERR_FILE_NOT_FOUND)
 
-    se_string name = fix_path(p_path);
+    String name = fix_path(p_path);
     //name = DirAccess::normalize_path(name);
 
-    Map<se_string, PODVector<uint8_t> >::iterator E = files->find(name);
-    ERR_FAIL_COND_V_MSG(E==files->end(), ERR_FILE_NOT_FOUND, "Can't find file '" + se_string(p_path) + "'.")
+    Map<String, PODVector<uint8_t> >::iterator E = files->find(name);
+    ERR_FAIL_COND_V_MSG(E==files->end(), ERR_FILE_NOT_FOUND, "Can't find file '" + String(p_path) + "'.")
 
     data = E->second.data();
     length = E->second.size();

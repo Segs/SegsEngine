@@ -74,8 +74,8 @@ IMPL_GDCLASS(CSharpScript)
 #ifdef TOOLS_ENABLED
 static bool _create_project_solution_if_needed() {
 
-    se_string sln_path = GodotSharpDirs::get_project_sln_path();
-    se_string csproj_path = GodotSharpDirs::get_project_csproj_path();
+    String sln_path = GodotSharpDirs::get_project_sln_path();
+    String csproj_path = GodotSharpDirs::get_project_csproj_path();
 
     if (!FileAccess::exists(sln_path) || !FileAccess::exists(csproj_path)) {
         // A solution does not yet exist, create a new one
@@ -95,12 +95,12 @@ StringName CSharpLanguage::get_name() const {
     return "C#";
 }
 
-se_string CSharpLanguage::get_type() const {
+String CSharpLanguage::get_type() const {
 
     return "CSharpScript";
 }
 
-se_string CSharpLanguage::get_extension() const {
+String CSharpLanguage::get_extension() const {
 
     return "cs";
 }
@@ -129,7 +129,7 @@ void CSharpLanguage::init() {
     // Generate bindings here, before loading assemblies. 'initialize_load_assemblies' aborts
     // the applications if the api assemblies or the main tools assembly is missing, but this
     // is not a problem for BindingsGenerator as it only needs the tools project editor assembly.
-    const ListPOD<se_string> &cmdline_args = OS::get_singleton()->get_cmdline_args();
+    const ListPOD<String> &cmdline_args = OS::get_singleton()->get_cmdline_args();
     BindingsGenerator::handle_cmdline_args(cmdline_args);
 #endif
 
@@ -170,7 +170,7 @@ void CSharpLanguage::finish() {
     finalizing = false;
 }
 
-void CSharpLanguage::get_reserved_words(ListPOD<se_string> *p_words) const {
+void CSharpLanguage::get_reserved_words(ListPOD<String> *p_words) const {
 
     static const char *_reserved_words[] = {
         // Reserved keywords
@@ -286,22 +286,22 @@ void CSharpLanguage::get_reserved_words(ListPOD<se_string> *p_words) const {
     p_words->assign(eastl::begin(_reserved_words),eastl::end(_reserved_words));
 }
 
-void CSharpLanguage::get_comment_delimiters(ListPOD<se_string> *p_delimiters) const {
+void CSharpLanguage::get_comment_delimiters(ListPOD<String> *p_delimiters) const {
 
     p_delimiters->push_back("//"); // single-line comment
     p_delimiters->push_back("/* */"); // delimited comment
 }
 
-void CSharpLanguage::get_string_delimiters(ListPOD<se_string> *p_delimiters) const {
+void CSharpLanguage::get_string_delimiters(ListPOD<String> *p_delimiters) const {
 
     p_delimiters->push_back("' '"); // character literal
     p_delimiters->push_back("\" \""); // regular string literal
     p_delimiters->push_back("@\" \""); // verbatim string literal
 }
 
-static se_string get_base_class_name(se_string_view p_base_class_name, se_string_view p_class_name) {
+static String get_base_class_name(se_string_view p_base_class_name, se_string_view p_class_name) {
 
-    se_string base_class(p_base_class_name);
+    String base_class(p_base_class_name);
     if (p_class_name == se_string_view(base_class)) {
         base_class = "Godot." + base_class;
     }
@@ -310,7 +310,7 @@ static se_string get_base_class_name(se_string_view p_base_class_name, se_string
 
 Ref<Script> CSharpLanguage::get_template(se_string_view p_class_name, se_string_view p_base_class_name) const {
 
-    se_string script_template = "using " BINDINGS_NAMESPACE ";\n"
+    String script_template = "using " BINDINGS_NAMESPACE ";\n"
                              "using System;\n"
                              "\n"
                              "public class %CLASS% : %BASE%\n"
@@ -332,7 +332,7 @@ Ref<Script> CSharpLanguage::get_template(se_string_view p_class_name, se_string_
                              "//  }\n"
                              "}\n";
 
-    se_string base_class_name = get_base_class_name(p_base_class_name, p_class_name);
+    String base_class_name = get_base_class_name(p_base_class_name, p_class_name);
     script_template = script_template.replaced("%BASE%", base_class_name)
                               .replaced("%CLASS%", p_class_name);
 
@@ -350,24 +350,24 @@ bool CSharpLanguage::is_using_templates() {
 
 void CSharpLanguage::make_template(se_string_view p_class_name, se_string_view p_base_class_name, Ref<Script> &p_script) {
 
-    se_string src(p_script->get_source_code());
-    se_string base_class_name = get_base_class_name(p_base_class_name, p_class_name);
+    String src(p_script->get_source_code());
+    String base_class_name = get_base_class_name(p_base_class_name, p_class_name);
     src = src.replaced("%BASE%", base_class_name)
                   .replaced("%CLASS%", p_class_name)
                   .replaced("%TS%", _get_indentation());
     p_script->set_source_code(src);
 }
 /* TODO */
-bool CSharpLanguage::validate(se_string_view p_script, int &r_line_error, int &r_col_error, se_string &r_test_error,
-        se_string_view p_path, DefList<se_string> *r_functions, DefList<ScriptLanguage::Warning> *r_warnings,
+bool CSharpLanguage::validate(se_string_view p_script, int &r_line_error, int &r_col_error, String &r_test_error,
+        se_string_view p_path, DefList<String> *r_functions, DefList<ScriptLanguage::Warning> *r_warnings,
         Set<int> *r_safe_lines) const {
     return true;
 }
 
-se_string CSharpLanguage::validate_path(se_string_view p_path) const {
+String CSharpLanguage::validate_path(se_string_view p_path) const {
 
-    se_string class_name(PathUtils::get_basename(PathUtils::get_file(p_path)));
-    ListPOD<se_string> keywords;
+    String class_name(PathUtils::get_basename(PathUtils::get_file(p_path)));
+    ListPOD<String> keywords;
     get_reserved_words(&keywords);
     if (keywords.contains(class_name)) {
         return TTR("Class name can't be a reserved keyword").asCString();
@@ -465,18 +465,18 @@ static StringName variant_type_to_managed_name(StringName p_var_type_name) {
     return "object";
 }
 
-se_string CSharpLanguage::make_function(const se_string &, const StringName &p_name, const PoolVector<se_string> &p_args) const {
+String CSharpLanguage::make_function(const String &, const StringName &p_name, const PoolVector<String> &p_args) const {
     // FIXME
     // - Due to Godot's API limitation this just appends the function to the end of the file
     // - Use fully qualified name if there is ambiguity
-    se_string s = "private void " + se_string(p_name) + "(";
+    String s = "private void " + String(p_name) + "(";
     for (int i = 0; i < p_args.size(); i++) {
-        const se_string &arg = p_args[i];
+        const String &arg = p_args[i];
 
         if (i > 0)
             s += ", ";
 
-        s += se_string(variant_type_to_managed_name(StringName(StringUtils::get_slice(arg, ':', 1)))) + " " +
+        s += String(variant_type_to_managed_name(StringName(StringUtils::get_slice(arg, ':', 1)))) + " " +
              escape_csharp_keyword(StringUtils::get_slice(arg, ":", 0));
     }
     s += ")\n{\n    // Replace with function body.\n}\n";
@@ -489,7 +489,7 @@ String CSharpLanguage::make_function(const String &, const String &, const PoolS
 }
 #endif
 
-se_string CSharpLanguage::_get_indentation() const {
+String CSharpLanguage::_get_indentation() const {
 #ifdef TOOLS_ENABLED
     if (Engine::get_singleton()->is_editor_hint()) {
         bool use_space_indentation = EDITOR_DEF("text_editor/indent/type", 0);
@@ -497,7 +497,7 @@ se_string CSharpLanguage::_get_indentation() const {
         if (use_space_indentation) {
             int indent_size = EDITOR_DEF("text_editor/indent/size", 4);
 
-            se_string space_indent(indent_size,' ');
+            String space_indent(indent_size,' ');
             return space_indent;
         }
     }
@@ -505,7 +505,7 @@ se_string CSharpLanguage::_get_indentation() const {
     return "\t";
 }
 
-const se_string &CSharpLanguage::debug_get_error() const {
+const String &CSharpLanguage::debug_get_error() const {
 
     return _debug_error;
 }
@@ -528,22 +528,22 @@ int CSharpLanguage::debug_get_stack_level_line(int p_level) const {
     return 1;
 }
 
-se_string CSharpLanguage::debug_get_stack_level_function(int p_level) const {
+String CSharpLanguage::debug_get_stack_level_function(int p_level) const {
 
     if (_debug_parse_err_line >= 0)
-        return se_string();
+        return String();
 
     // TODO: StackTrace
-    return se_string();
+    return String();
 }
 
-se_string CSharpLanguage::debug_get_stack_level_source(int p_level) const {
+String CSharpLanguage::debug_get_stack_level_source(int p_level) const {
 
     if (_debug_parse_err_line >= 0)
         return _debug_parse_err_file;
 
     // TODO: StackTrace
-    return se_string();
+    return String();
 }
 
 PODVector<ScriptLanguage::StackInfo> CSharpLanguage::debug_get_current_stack_info() {
@@ -693,8 +693,8 @@ bool CSharpLanguage::is_assembly_reloading_needed() {
 
     GDMonoAssembly *proj_assembly = gdmono->get_project_assembly();
 
-    se_string appname = ProjectSettings::get_singleton()->get("application/config/name").as<se_string>();
-    se_string appname_safe = OS::get_singleton()->get_safe_dir_name(appname);
+    String appname = ProjectSettings::get_singleton()->get("application/config/name").as<String>();
+    String appname_safe = OS::get_singleton()->get_safe_dir_name(appname);
     if (appname_safe.empty()) {
         appname_safe = "UnnamedProject";
     }
@@ -702,7 +702,7 @@ bool CSharpLanguage::is_assembly_reloading_needed() {
     appname_safe += ".dll";
 
     if (proj_assembly) {
-        se_string proj_asm_path = proj_assembly->get_path();
+        String proj_asm_path = proj_assembly->get_path();
 
         if (!FileAccess::exists(proj_assembly->get_path())) {
             // Maybe it wasn't loaded from the default path, so check this as well
@@ -1015,7 +1015,7 @@ void CSharpLanguage::_load_scripts_metadata() {
 
     scripts_metadata.clear();
 
-    se_string scripts_metadata_filename = "scripts_metadata.";
+    String scripts_metadata_filename = "scripts_metadata.";
 
 #ifdef TOOLS_ENABLED
     scripts_metadata_filename += Engine::get_singleton()->is_editor_hint() ? "editor" : "editor_player";
@@ -1027,17 +1027,17 @@ void CSharpLanguage::_load_scripts_metadata() {
 #endif
 #endif
 
-    se_string scripts_metadata_path = PathUtils::plus_file(GodotSharpDirs::get_res_metadata_dir(),scripts_metadata_filename);
+    String scripts_metadata_path = PathUtils::plus_file(GodotSharpDirs::get_res_metadata_dir(),scripts_metadata_filename);
 
     if (FileAccess::exists(scripts_metadata_path)) {
-        se_string old_json;
+        String old_json;
 
         Error ferr = read_all_file_utf8(scripts_metadata_path, old_json);
 
         ERR_FAIL_COND(ferr != OK);
 
         Variant old_dict_var;
-        se_string err_str;
+        String err_str;
         int err_line;
         Error json_err = JSON::parse(old_json, old_dict_var, err_str, err_line);
         if (json_err != OK) {
@@ -1056,7 +1056,7 @@ void CSharpLanguage::_load_scripts_metadata() {
     }
 }
 
-void CSharpLanguage::get_recognized_extensions(DefList<se_string> *p_extensions) const {
+void CSharpLanguage::get_recognized_extensions(DefList<String> *p_extensions) const {
 
     p_extensions->push_back("cs");
 }
@@ -1091,7 +1091,7 @@ void CSharpLanguage::thread_exit() {
 #endif
 }
 
-bool CSharpLanguage::debug_break_parse(se_string_view p_file, int p_line, const se_string &p_error) {
+bool CSharpLanguage::debug_break_parse(se_string_view p_file, int p_line, const String &p_error) {
 
     // Not a parser error in our case, but it's still used for other type of errors
     if (ScriptDebugger::get_singleton() && Thread::get_caller_id() == Thread::get_main_id()) {
@@ -1105,7 +1105,7 @@ bool CSharpLanguage::debug_break_parse(se_string_view p_file, int p_line, const 
     }
 }
 
-bool CSharpLanguage::debug_break(const se_string &p_error, bool p_allow_continue) {
+bool CSharpLanguage::debug_break(const String &p_error, bool p_allow_continue) {
 
     if (ScriptDebugger::get_singleton() && Thread::get_caller_id() == Thread::get_main_id()) {
         _debug_parse_err_line = -1;
@@ -2020,13 +2020,13 @@ void CSharpInstance::_call_notification(int p_notification) {
     }
 }
 
-se_string CSharpInstance::to_string(bool *r_valid) {
+String CSharpInstance::to_string(bool *r_valid) {
     MonoObject *mono_object = get_mono_object();
 
     if (mono_object == nullptr) {
         if (r_valid)
             *r_valid = false;
-        return se_string();
+        return String();
     }
 
     MonoException *exc = nullptr;
@@ -2036,13 +2036,13 @@ se_string CSharpInstance::to_string(bool *r_valid) {
         GDMonoUtils::set_pending_exception(exc);
         if (r_valid)
             *r_valid = false;
-        return se_string();
+        return String();
     }
 
     if (result == nullptr) {
         if (r_valid)
             *r_valid = false;
-        return se_string();
+        return String();
     }
 
     return GDMonoMarshal::mono_string_to_godot(result);
@@ -2416,7 +2416,7 @@ bool CSharpScript::_get_member_export(IMonoClassMember *p_member, bool p_inspect
 
     // Goddammit, C++. All I wanted was some nested functions.
 #define MEMBER_FULL_QUALIFIED_NAME(m_member) \
-    (m_member->get_enclosing_class()->get_full_name() + "." + (se_string)m_member->get_name())
+    (m_member->get_enclosing_class()->get_full_name() + "." + (String)m_member->get_name())
 
     if (p_member->is_static()) {
         if (p_member->has_attribute(CACHED_CLASS(ExportAttribute)))
@@ -2464,7 +2464,7 @@ bool CSharpScript::_get_member_export(IMonoClassMember *p_member, bool p_inspect
     MonoObject *attr = p_member->get_attribute(CACHED_CLASS(ExportAttribute));
 
     PropertyHint hint = PROPERTY_HINT_NONE;
-    se_string hint_string;
+    String hint_string;
 
     if (variant_type == VariantType::NIL) {
         ERR_PRINT("Unknown exported member type: '" + MEMBER_FULL_QUALIFIED_NAME(p_member) + "'.");
@@ -2490,7 +2490,7 @@ bool CSharpScript::_get_member_export(IMonoClassMember *p_member, bool p_inspect
 #undef MEMBER_FULL_QUALIFIED_NAME
 }
 
-int CSharpScript::_try_get_member_export_hint(IMonoClassMember *p_member, ManagedType p_type, VariantType p_variant_type, bool p_allow_generics, PropertyHint &r_hint, se_string &r_hint_string) {
+int CSharpScript::_try_get_member_export_hint(IMonoClassMember *p_member, ManagedType p_type, VariantType p_variant_type, bool p_allow_generics, PropertyHint &r_hint, String &r_hint_string) {
 
     if (p_variant_type == VariantType::INT && p_type.type_encoding == MONO_TYPE_VALUETYPE && mono_class_is_enum(p_type.type_class->get_mono_ptr())) {
         r_hint = PROPERTY_HINT_ENUM;
@@ -2499,7 +2499,7 @@ int CSharpScript::_try_get_member_export_hint(IMonoClassMember *p_member, Manage
 
         MonoType *enum_basetype = mono_class_enum_basetype(p_type.type_class->get_mono_ptr());
 
-        se_string name_only_hint_string;
+        String name_only_hint_string;
 
         // True: enum Foo { Bar, Baz, Quux }
         // True: enum Foo { Bar = 0, Baz = 1, Quux = 2 }
@@ -2514,7 +2514,7 @@ int CSharpScript::_try_get_member_export_hint(IMonoClassMember *p_member, Manage
                 name_only_hint_string += ",";
             }
 
-            se_string enum_field_name = mono_field_get_name(field);
+            String enum_field_name = mono_field_get_name(field);
             r_hint_string += enum_field_name;
             name_only_hint_string += enum_field_name;
 
@@ -2561,7 +2561,7 @@ int CSharpScript::_try_get_member_export_hint(IMonoClassMember *p_member, Manage
         VariantType elem_variant_type = GDMonoMarshal::managed_to_variant_type(elem_type);
 
         PropertyHint elem_hint = PROPERTY_HINT_NONE;
-        se_string elem_hint_string;
+        String elem_hint_string;
 
         ERR_FAIL_COND_V_MSG(elem_variant_type == VariantType::NIL, -1, "Unknown array element type.");
 
@@ -2625,7 +2625,7 @@ Variant CSharpScript::call(const StringName &p_method, const Variant **p_args, i
 
 void CSharpScript::_resource_path_changed() {
 
-    se_string path = get_path();
+    String path = get_path();
 
     if (!path.empty()) {
         name = StringName(PathUtils::get_basename(PathUtils::get_file(get_path())));
@@ -2801,7 +2801,7 @@ CSharpInstance *CSharpScript::_create_instance(const Variant **p_args, int p_arg
         ERR_FAIL_COND_V_MSG(p_argcount == 0, NULL,
                 "Cannot create script instance. The class '" + script_class->get_full_name() +
                         "' does not define a parameterless constructor." +
-                        (get_path().empty() ? se_string() : " Path: '" + get_path() + "'."));
+                        (get_path().empty() ? String() : " Path: '" + get_path() + "'."));
 
         ERR_FAIL_V_MSG(NULL, "Constructor not found.")
     }
@@ -2924,10 +2924,10 @@ ScriptInstance *CSharpScript::instance_create(Object *p_this) {
         if (!ClassDB::is_parent_class(p_this->get_class_name(), native_name)) {
             if (ScriptDebugger::get_singleton()) {
                 CSharpLanguage::get_singleton()->debug_break_parse(get_path(), 0,
-                        se_string("Script inherits from native type '") + native_name +
+                        String("Script inherits from native type '") + native_name +
                                 "', so it can't be instanced in object of type: '" + p_this->get_class() + "'");
             }
-            ERR_FAIL_V_MSG(nullptr, se_string("Script inherits from native type '") + native_name +
+            ERR_FAIL_V_MSG(nullptr, String("Script inherits from native type '") + native_name +
                                          "', so it can't be instanced in object of type: '" + p_this->get_class() +
                                          "'.")
         }
@@ -2965,7 +2965,7 @@ se_string_view CSharpScript::get_source_code() const {
     return source;
 }
 
-void CSharpScript::set_source_code(se_string p_code) {
+void CSharpScript::set_source_code(String p_code) {
 
     if (source == p_code)
         return;
@@ -3291,7 +3291,7 @@ RES ResourceFormatLoaderCSharpScript::load(se_string_view p_path, se_string_view
     return scriptres;
 }
 
-void ResourceFormatLoaderCSharpScript::get_recognized_extensions(PODVector<se_string> &p_extensions) const {
+void ResourceFormatLoaderCSharpScript::get_recognized_extensions(PODVector<String> &p_extensions) const {
 
     p_extensions.push_back("cs");
 }
@@ -3301,7 +3301,7 @@ bool ResourceFormatLoaderCSharpScript::handles_type(se_string_view p_type) const
     return p_type == se_string_view("Script") || p_type == se_string_view(CSharpLanguage::get_singleton()->get_type());
 }
 
-se_string ResourceFormatLoaderCSharpScript::get_resource_type(se_string_view p_path) const {
+String ResourceFormatLoaderCSharpScript::get_resource_type(se_string_view p_path) const {
 
     return StringUtils::to_lower(PathUtils::get_extension(p_path)) == "cs" ? CSharpLanguage::get_singleton()->get_type() : "";
 }
@@ -3350,7 +3350,7 @@ Error ResourceFormatSaverCSharpScript::save(se_string_view p_path, const RES &p_
     return OK;
 }
 
-void ResourceFormatSaverCSharpScript::get_recognized_extensions(const RES &p_resource, PODVector<se_string> &p_extensions) const {
+void ResourceFormatSaverCSharpScript::get_recognized_extensions(const RES &p_resource, PODVector<String> &p_extensions) const {
 
     if (object_cast<CSharpScript>(p_resource.get())) {
         p_extensions.push_back("cs");

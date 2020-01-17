@@ -224,7 +224,7 @@ public:
         ERR_FAIL_COND(!t)
         t->path = p_path;
     }
-    const se_string &texture_get_path(RID p_texture) const {
+    const String &texture_get_path(RID p_texture) const {
         DummyTexture *t = texture_owner.getornull(p_texture);
         ERR_FAIL_COND_V(!t, null_se_string)
         return t->path;
@@ -255,8 +255,8 @@ public:
 
     RID shader_create() { return RID(); }
 
-    void shader_set_code(RID p_shader, const se_string &p_code) {}
-    se_string shader_get_code(RID p_shader) const { 	return String(); }
+    void shader_set_code(RID p_shader, const String &p_code) {}
+    String shader_get_code(RID p_shader) const { 	return String(); }
     void shader_get_param_list(RID p_shader, PODVector<PropertyInfo> *p_param_list) const {}
 
     void shader_set_default_texture_param(RID p_shader, const StringName &p_name, RID p_texture) {}

@@ -278,7 +278,7 @@ void EditorAudioBus::_name_changed(const StringName &p_new_name) {
     if (p_new_name == AudioServer::get_singleton()->get_bus_name(get_index()))
         return;
 
-    se_string attempt(p_new_name);
+    String attempt(p_new_name);
     int attempts = 1;
 
     while (true) {
@@ -297,7 +297,7 @@ void EditorAudioBus::_name_changed(const StringName &p_new_name) {
         }
 
         attempts++;
-        attempt = se_string(p_new_name) + " " + itos(attempts);
+        attempt = String(p_new_name) + " " + itos(attempts);
     }
     updating_bus = true;
 
@@ -619,7 +619,7 @@ bool EditorAudioBus::can_drop_data(const Point2 &p_point, const Variant &p_data)
     }
 
     Dictionary d = p_data;
-    if (d.has("type") && se_string(d["type"]) == "move_audio_bus" && (int)d["index"] != get_index()) {
+    if (d.has("type") && String(d["type"]) == "move_audio_bus" && (int)d["index"] != get_index()) {
         hovering_drop = true;
         return true;
     }
@@ -660,7 +660,7 @@ Variant EditorAudioBus::get_drag_data_fw(const Point2 &p_point, Control *p_from)
 bool EditorAudioBus::can_drop_data_fw(const Point2 &p_point, const Variant &p_data, Control *p_from) const {
 
     Dictionary d = p_data;
-    if (!d.has("type") || se_string(d["type"]) != "audio_bus_effect")
+    if (!d.has("type") || String(d["type"]) != "audio_bus_effect")
         return false;
 
     TreeItem *item = effects->get_item_at_position(p_point);
@@ -957,7 +957,7 @@ EditorAudioBus::EditorAudioBus(EditorAudioBuses *p_buses, bool p_is_master) {
             continue;
 
         Ref<Texture> icon = EditorNode::get_singleton()->get_class_icon(E);
-        se_string name = StringUtils::replace(E,"AudioEffect", "");
+        String name = StringUtils::replace(E,"AudioEffect", "");
         effect_options->add_item(StringName(name));
         effect_options->set_item_metadata(effect_options->get_item_count() - 1, E);
         effect_options->set_item_icon(effect_options->get_item_count() - 1, icon);
@@ -1009,7 +1009,7 @@ void EditorAudioBusDrop::_notification(int p_what) {
 bool EditorAudioBusDrop::can_drop_data(const Point2 &p_point, const Variant &p_data) const {
 
     Dictionary d = p_data;
-    return d.has("type") && se_string(d["type"]) == "move_audio_bus";
+    return d.has("type") && String(d["type"]) == "move_audio_bus";
 }
 
 void EditorAudioBusDrop::drop_data(const Point2 &p_point, const Variant &p_data) {
@@ -1161,7 +1161,7 @@ void EditorAudioBuses::_duplicate_bus(int p_which) {
     UndoRedo *ur = EditorNode::get_undo_redo();
     ur->create_action_ui(TTR("Duplicate Audio Bus"));
     ur->add_do_method(AudioServer::get_singleton(), "add_bus", add_at_pos);
-    ur->add_do_method(AudioServer::get_singleton(), "set_bus_name", add_at_pos, se_string(AudioServer::get_singleton()->get_bus_name(p_which)) + " Copy");
+    ur->add_do_method(AudioServer::get_singleton(), "set_bus_name", add_at_pos, String(AudioServer::get_singleton()->get_bus_name(p_which)) + " Copy");
     ur->add_do_method(AudioServer::get_singleton(), "set_bus_volume_db", add_at_pos, AudioServer::get_singleton()->get_bus_volume_db(p_which));
     ur->add_do_method(AudioServer::get_singleton(), "set_bus_send", add_at_pos, AudioServer::get_singleton()->get_bus_send(p_which));
     ur->add_do_method(AudioServer::get_singleton(), "set_bus_solo", add_at_pos, AudioServer::get_singleton()->is_bus_solo(p_which));
@@ -1258,7 +1258,7 @@ void EditorAudioBuses::_load_layout() {
 
 void EditorAudioBuses::_load_default_layout() {
 
-    se_string layout_path = ProjectSettings::get_singleton()->get("audio/default_bus_layout");
+    String layout_path = ProjectSettings::get_singleton()->get("audio/default_bus_layout");
 
     Ref<AudioBusLayout> state = dynamic_ref_cast<AudioBusLayout>(ResourceLoader::load(layout_path));
     if (not state) {
@@ -1300,7 +1300,7 @@ void EditorAudioBuses::_file_dialog_callback(se_string_view p_string) {
         Error err = ResourceSaver::save(p_string, AudioServer::get_singleton()->generate_bus_layout());
 
         if (err != OK) {
-            EditorNode::get_singleton()->show_warning(StringName(se_string("Error saving file: ") + p_string));
+            EditorNode::get_singleton()->show_warning(StringName(String("Error saving file: ") + p_string));
             return;
         }
 
@@ -1340,7 +1340,7 @@ EditorAudioBuses::EditorAudioBuses() {
     add_child(top_hb);
 
     file = memnew(Label);
-    se_string layout_path = ProjectSettings::get_singleton()->get("audio/default_bus_layout");
+    String layout_path = ProjectSettings::get_singleton()->get("audio/default_bus_layout");
     file->set_text(TTR("Layout") + ": " + PathUtils::get_file(layout_path));
     file->set_clip_text(true);
     file->set_h_size_flags(SIZE_EXPAND_FILL);
@@ -1396,12 +1396,12 @@ EditorAudioBuses::EditorAudioBuses() {
 
     set_v_size_flags(SIZE_EXPAND_FILL);
 
-    edited_path = ProjectSettings::get_singleton()->get("audio/default_bus_layout").as<se_string>();
+    edited_path = ProjectSettings::get_singleton()->get("audio/default_bus_layout").as<String>();
 
     file_dialog = memnew(EditorFileDialog);
-    PODVector<se_string> ext;
+    PODVector<String> ext;
     ResourceLoader::get_recognized_extensions_for_type("AudioBusLayout", ext);
-    for (const se_string &E : ext) {
+    for (const String &E : ext) {
         file_dialog->add_filter("*." + E + "; Audio Bus Layout");
     }
     add_child(file_dialog);
@@ -1432,7 +1432,7 @@ void AudioBusesEditorPlugin::edit(Object *p_node) {
 
     if (object_cast<AudioBusLayout>(p_node)) {
 
-        se_string path = object_cast<AudioBusLayout>(p_node)->get_path();
+        String path = object_cast<AudioBusLayout>(p_node)->get_path();
         if (PathUtils::is_resource_file(path)) {
             audio_bus_editor->open_layout(path);
         }

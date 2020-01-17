@@ -37,7 +37,7 @@
 class EditorSpinSlider : public Range {
     GDCLASS(EditorSpinSlider,Range)
 
-    se_string label;
+    String label;
     int updown_offset;
     bool hover_updown;
     bool mouse_hover;
@@ -89,7 +89,7 @@ public:
 
     UIString get_text_value() const;
     void set_label(se_string_view p_label);
-    const se_string & get_label() const;
+    const String & get_label() const;
 
     void set_hide_slider(bool p_hide);
     bool is_hiding_slider() const;

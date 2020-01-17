@@ -51,12 +51,12 @@ bool ShortCut::is_shortcut(const Ref<InputEvent> &p_event) const {
     return shortcut && shortcut->shortcut_match(p_event);
 }
 
-se_string ShortCut::get_as_text() const {
+String ShortCut::get_as_text() const {
 
     if (shortcut)
         return shortcut->as_text();
     else
-        return se_string("None");
+        return String("None");
 }
 
 bool ShortCut::is_valid() const {

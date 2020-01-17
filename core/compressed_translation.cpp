@@ -40,7 +40,7 @@ extern "C" {
 struct _PHashTranslationCmp {
 
     int orig_len;
-    se_string compressed;
+    String compressed;
     int offset;
 };
 
@@ -51,7 +51,7 @@ void PHashTranslation::generate(const Ref<Translation> &p_from) {
 
     int size = Math::larger_prime(keys.size());
 
-    Vector<Vector<Pair<int, se_string> > > buckets;
+    Vector<Vector<Pair<int, String> > > buckets;
     Vector<Map<uint32_t, int> > table;
     Vector<uint32_t> hfunc_table;
     Vector<_PHashTranslationCmp> compressed;
@@ -70,7 +70,7 @@ void PHashTranslation::generate(const Ref<Translation> &p_from) {
         //hash string
         se_string_view cs(E);
         uint32_t h = hash(0, cs.data());
-        Pair<int, se_string> p;
+        Pair<int, String> p;
         p.first = idx;
         p.second = cs;
         buckets.write[h % size].push_back(p);
@@ -82,7 +82,7 @@ void PHashTranslation::generate(const Ref<Translation> &p_from) {
         ps.offset = total_compression_size;
 
         if (ps.orig_len != 0) {
-            se_string dst_s;
+            String dst_s;
             dst_s.resize(src_s.size());
             int ret = smaz_compress(src_s.data(), src_s.size(), dst_s.data(), src_s.size());
             if (ret >= src_s.size()) {
@@ -110,7 +110,7 @@ void PHashTranslation::generate(const Ref<Translation> &p_from) {
 
     for (int i = 0; i < size; i++) {
 
-        const Vector<Pair<int, se_string> > &b = buckets[i];
+        const Vector<Pair<int, String> > &b = buckets[i];
         Map<uint32_t, int> &t = table.write[i];
 
         if (b.empty())
@@ -256,10 +256,10 @@ StringName PHashTranslation::get_message(const StringName &p_src_text) const {
         return StringName();
     }
 
-    se_string rstr;
+    String rstr;
     if (bucket.elem[idx].comp_size == bucket.elem[idx].uncomp_size) {
 
-        rstr = se_string(&sptr[bucket.elem[idx].str_offset], bucket.elem[idx].uncomp_size);
+        rstr = String(&sptr[bucket.elem[idx].str_offset], bucket.elem[idx].uncomp_size);
 
     } else {
 

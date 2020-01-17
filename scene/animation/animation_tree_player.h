@@ -167,7 +167,7 @@ private:
         AnimationNode *next;
         float time;
         float step;
-        se_string from;
+        String from;
         bool skip;
 
         HashMap<NodePath, bool> filter;
@@ -333,7 +333,7 @@ private:
     Track *_find_track(const NodePath &p_path);
     void _recompute_caches();
     void _recompute_caches(const StringName &p_node);
-    PoolVector<se_string> _get_node_list();
+    PoolVector<String> _get_node_list();
 
     void _compute_weights(float *p_fallback_weight, HashMap<NodePath, float> *p_weights, float p_coeff, const HashMap<NodePath, bool> *p_filter = nullptr, float p_filtered_coeff = 0);
 
@@ -359,7 +359,7 @@ public:
     void animation_node_set_animation(const StringName &p_node, const Ref<Animation> &p_animation);
     Ref<Animation> animation_node_get_animation(const StringName &p_node) const;
     void animation_node_set_master_animation(const StringName &p_node, se_string_view p_master_animation);
-    const se_string &animation_node_get_master_animation(const StringName &p_node) const;
+    const String &animation_node_get_master_animation(const StringName &p_node) const;
     float animation_node_get_position(const StringName &p_node) const;
 
     void animation_node_set_filter_path(const StringName &p_node, const NodePath &p_track_path, bool p_filter);

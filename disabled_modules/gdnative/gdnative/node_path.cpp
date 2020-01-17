@@ -41,7 +41,7 @@ extern "C" {
 
 void GDAPI godot_node_path_new(godot_node_path *r_dest, const godot_string *p_from) {
     NodePath *dest = (NodePath *)r_dest;
-    const se_string *from = (const se_string *)p_from;
+    const String *from = (const String *)p_from;
     memnew_placement(dest, NodePath(*from));
 }
 
@@ -59,7 +59,7 @@ void GDAPI godot_node_path_destroy(godot_node_path *p_self) {
 godot_string GDAPI godot_node_path_as_string(const godot_node_path *p_self) {
     godot_string ret;
     const NodePath *self = (const NodePath *)p_self;
-    memnew_placement(&ret, se_string(*self));
+    memnew_placement(&ret, String(*self));
     return ret;
 }
 
@@ -77,7 +77,7 @@ godot_string GDAPI godot_node_path_get_name(const godot_node_path *p_self, const
     godot_string dest;
     const NodePath *self = (const NodePath *)p_self;
 
-    memnew_placement(&dest, se_string(self->get_name(p_idx)));
+    memnew_placement(&dest, String(self->get_name(p_idx)));
     return dest;
 }
 
@@ -90,14 +90,14 @@ godot_string GDAPI godot_node_path_get_subname(const godot_node_path *p_self, co
     godot_string dest;
     const NodePath *self = (const NodePath *)p_self;
 
-    memnew_placement(&dest, se_string(self->get_subname(p_idx)));
+    memnew_placement(&dest, String(self->get_subname(p_idx)));
     return dest;
 }
 
 godot_string GDAPI godot_node_path_get_concatenated_subnames(const godot_node_path *p_self) {
     godot_string dest;
     const NodePath *self = (const NodePath *)p_self;
-    memnew_placement(&dest, se_string(self->get_concatenated_subnames()));
+    memnew_placement(&dest, String(self->get_concatenated_subnames()));
     return dest;
 }
 

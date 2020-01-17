@@ -62,7 +62,7 @@ void AnimationNodeStateMachineTransition::set_advance_condition(const StringName
     ERR_FAIL_COND(StringUtils::contains(p_condition,"/") || StringUtils::contains(p_condition,":"))
     advance_condition = p_condition;
     if (not p_condition.empty()) {
-        advance_condition_name = StringName(se_string("conditions/") + p_condition);
+        advance_condition_name = StringName(String("conditions/") + p_condition);
     } else {
         advance_condition_name = StringName();
     }
@@ -922,8 +922,8 @@ void AnimationNodeStateMachine::_get_property_list(ListPOD<PropertyInfo> *p_list
     eastl::sort(names.begin(),names.end(),WrapAlphaCompare());
 
     for (const StringName &E : names) {
-        p_list->push_back(PropertyInfo(VariantType::OBJECT, StringName(se_string("states/") + E + "/node"), PROPERTY_HINT_RESOURCE_TYPE, "AnimationNode", PROPERTY_USAGE_NOEDITOR));
-        p_list->push_back(PropertyInfo(VariantType::VECTOR2, StringName(se_string("states/") + E + "/position"), PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR));
+        p_list->push_back(PropertyInfo(VariantType::OBJECT, StringName(String("states/") + E + "/node"), PROPERTY_HINT_RESOURCE_TYPE, "AnimationNode", PROPERTY_USAGE_NOEDITOR));
+        p_list->push_back(PropertyInfo(VariantType::VECTOR2, StringName(String("states/") + E + "/position"), PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR));
     }
 
     p_list->push_back(PropertyInfo(VariantType::ARRAY, "transitions", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR));

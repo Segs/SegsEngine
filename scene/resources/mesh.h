@@ -166,7 +166,7 @@ class GODOT_EXPORT ArrayMesh : public Mesh {
 
 private:
     struct Surface {
-        se_string name;
+        String name;
         AABB aabb;
         Ref<Material> material;
         bool is_2d;
@@ -220,9 +220,9 @@ public:
     void surface_set_material(int p_idx, const Ref<Material> &p_material) override;
     Ref<Material> surface_get_material(int p_idx) const override;
 
-    int surface_find_by_name(const se_string &p_name) const;
+    int surface_find_by_name(const String &p_name) const;
     void surface_set_name(int p_idx, se_string_view p_name);
-    se_string surface_get_name(int p_idx) const;
+    String surface_get_name(int p_idx) const;
 
     void add_surface_from_mesh_data(const Geometry::MeshData &p_mesh_data);
 

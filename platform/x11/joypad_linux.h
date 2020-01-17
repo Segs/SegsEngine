@@ -59,7 +59,7 @@ private:
         int dpad;
         int fd;
 
-        se_string devpath;
+        String devpath;
         input_absinfo *abs_info[MAX_ABS];
 
         bool force_feedback;
@@ -76,7 +76,7 @@ private:
     Thread *joy_thread;
     InputDefault *input;
     Joypad joypads[JOYPADS_MAX];
-    Vector<se_string> attached_devices;
+    Vector<String> attached_devices;
 
     static void joy_thread_func(void *p_user);
 

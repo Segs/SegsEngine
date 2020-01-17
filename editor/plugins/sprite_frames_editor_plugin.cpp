@@ -53,9 +53,9 @@ void SpriteFramesEditor::_gui_input(const Ref<InputEvent>& p_event) {
 void SpriteFramesEditor::_open_sprite_sheet() {
 
     file_split_sheet->clear_filters();
-    PODVector<se_string> extensions;
+    PODVector<String> extensions;
     ResourceLoader::get_recognized_extensions_for_type("Texture", extensions);
-    for (const se_string &ext : extensions) {
+    for (const String &ext : extensions) {
         file_split_sheet->add_filter("*." + ext);
     }
 
@@ -254,7 +254,7 @@ void SpriteFramesEditor::_notification(int p_what) {
     }
 }
 
-void SpriteFramesEditor::_file_load_request(const PoolVector<se_string> &p_path, int p_at_pos) {
+void SpriteFramesEditor::_file_load_request(const PoolVector<String> &p_path, int p_at_pos) {
 
     ERR_FAIL_COND(!frames->has_animation(edited_anim))
 
@@ -304,9 +304,9 @@ void SpriteFramesEditor::_load_pressed() {
     loading_scene = false;
 
     file->clear_filters();
-    PODVector<se_string> extensions;
+    PODVector<String> extensions;
     ResourceLoader::get_recognized_extensions_for_type("Texture", extensions);
-    for (const se_string &ext : extensions)
+    for (const String &ext : extensions)
         file->add_filter("*." + ext);
 
     file->set_mode(EditorFileDialog::MODE_OPEN_FILES);
@@ -523,14 +523,14 @@ void SpriteFramesEditor::_animation_name_edited() {
     if (!edited)
         return;
 
-    se_string new_name(edited->get_text(0));
+    String new_name(edited->get_text(0));
 
     if (new_name == edited_anim)
         return;
 
     new_name = StringUtils::replace(StringUtils::replace(new_name,"/", "_"),",", " ");
 
-    se_string name = new_name;
+    String name = new_name;
     int counter = 0;
     while (frames->has_animation(StringName(name))) {
         counter++;
@@ -560,7 +560,7 @@ void SpriteFramesEditor::_animation_name_edited() {
 }
 void SpriteFramesEditor::_animation_add() {
 
-    se_string name("New Anim");
+    String name("New Anim");
     int counter = 0;
     while (frames->has_animation(StringName(name))) {
         counter++;
@@ -578,7 +578,7 @@ void SpriteFramesEditor::_animation_add() {
 
     for (List<Node *>::Element *E = nodes.front(); E; E = E->next()) {
 
-        se_string current = E->deref()->call("get_animation");
+        String current = E->deref()->call("get_animation");
         undo_redo->add_do_method(E->deref(), "set_animation", name);
         undo_redo->add_undo_method(E->deref(), "set_animation", current);
     }
@@ -781,14 +781,14 @@ bool SpriteFramesEditor::can_drop_data_fw(const Point2 &p_point, const Variant &
 
     if (UIString(d["type"]) == "files") {
 
-        PoolVector<se_string> files = d["files"].as<PoolVector<se_string>>();
+        PoolVector<String> files = d["files"].as<PoolVector<String>>();
 
         if (files.empty())
             return false;
 
         for (int i = 0; i < files.size(); i++) {
-            se_string file = files[i];
-            se_string ftype = EditorFileSystem::get_singleton()->get_file_type(file);
+            String file = files[i];
+            String ftype = EditorFileSystem::get_singleton()->get_file_type(file);
 
             if (!ClassDB::is_parent_class(StringName(ftype), "Texture")) {
                 return false;
@@ -848,7 +848,7 @@ void SpriteFramesEditor::drop_data_fw(const Point2 &p_point, const Variant &p_da
 
     if (UIString(d["type"]) == "files") {
 
-        PoolVector<se_string> files(d["files"].as<PoolVector<se_string>>());
+        PoolVector<String> files(d["files"].as<PoolVector<String>>());
 
         _file_load_request(files, at_pos);
     }

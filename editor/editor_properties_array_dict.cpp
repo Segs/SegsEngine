@@ -264,7 +264,7 @@ void EditorPropertyArray::update_property() {
     }
 
     if (array.get_type() == VariantType::NIL) {
-        edit->set_text_utf8(se_string("(Nil) ") + arrtype);
+        edit->set_text_utf8(String("(Nil) ") + arrtype);
         edit->set_pressed(false);
         if (vbox) {
             set_bottom_editor(nullptr);
@@ -274,7 +274,7 @@ void EditorPropertyArray::update_property() {
         return;
     }
 
-    edit->set_text_utf8(se_string(arrtype) + " (size " + itos(array.call("size")) + ")");
+    edit->set_text_utf8(String(arrtype) + " (size " + itos(array.call("size")) + ")");
 
     bool unfolded = get_edited_object()->get_tooling_interface()->editor_is_section_unfolded(get_edited_property());
     if (edit->is_pressed() != unfolded) {
@@ -479,10 +479,10 @@ void EditorPropertyArray::setup(VariantType p_array_type, se_string_view p_hint_
 
     if (array_type == VariantType::ARRAY && !p_hint_string.empty()) {
         auto hint_subtype_separator = StringUtils::find(p_hint_string,":");
-        if (hint_subtype_separator != se_string::npos) {
+        if (hint_subtype_separator != String::npos) {
             se_string_view subtype_string = StringUtils::substr(p_hint_string,0, hint_subtype_separator);
             auto slash_pos = StringUtils::find(subtype_string,"/");
-            if (slash_pos != se_string::npos) {
+            if (slash_pos != String::npos) {
                 subtype_hint = PropertyHint(StringUtils::to_int(StringUtils::substr(subtype_string,slash_pos + 1, subtype_string.size() - slash_pos - 1)));
                 subtype_string = StringUtils::substr(subtype_string,0, slash_pos);
             }
@@ -645,7 +645,7 @@ void EditorPropertyDictionary::update_property() {
 
     Dictionary dict = updated_val;
 
-    edit->set_text_utf8(se_string("Dictionary (size ") + itos(dict.size()) + ")");
+    edit->set_text_utf8(String("Dictionary (size ") + itos(dict.size()) + ")");
 
     bool unfolded = get_edited_object()->get_tooling_interface()->editor_is_section_unfolded(get_edited_property());
     if (edit->is_pressed() != unfolded) {
@@ -912,7 +912,7 @@ void EditorPropertyDictionary::update_property() {
             int change_index = 0;
 
             if (i < amount) {
-                se_string cs = key.get_construct_string();
+                String cs = key.get_construct_string();
                 prop->set_label(key.get_construct_string());
                 prop->set_tooltip_utf8(cs);
                 change_index = i + offset;

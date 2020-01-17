@@ -389,7 +389,7 @@ void CollisionObject2D::_update_pickable() {
 
 StringName CollisionObject2D::get_configuration_warning() const {
 
-    se_string warning(Node2D::get_configuration_warning());
+    String warning(Node2D::get_configuration_warning());
 
     if (shapes.empty()) {
         if (!warning.empty()) {

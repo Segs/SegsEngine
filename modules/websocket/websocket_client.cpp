@@ -43,12 +43,12 @@ WebSocketClient::WebSocketClient() {
 WebSocketClient::~WebSocketClient() {
 }
 
-Error WebSocketClient::connect_to_url(se_string_view p_url, const PoolSeStringArray &p_protocols, bool gd_mp_api, const PoolVector<se_string> &p_custom_headers) {
+Error WebSocketClient::connect_to_url(se_string_view p_url, const PoolSeStringArray &p_protocols, bool gd_mp_api, const PoolVector<String> &p_custom_headers) {
     _is_multiplayer = gd_mp_api;
 
-    se_string host(p_url);
-    se_string path("/");
-    auto p_len = se_string::npos;
+    String host(p_url);
+    String path("/");
+    auto p_len = String::npos;
     int port = 80;
     bool ssl = false;
     if (StringUtils::begins_with(host,"wss://")) {
@@ -63,14 +63,14 @@ Error WebSocketClient::connect_to_url(se_string_view p_url, const PoolSeStringAr
 
     // Path
     p_len = StringUtils::find(host,"/");
-    if (p_len != se_string::npos) {
+    if (p_len != String::npos) {
         path = StringUtils::substr(host,p_len, host.length() - p_len);
         host = StringUtils::substr(host,0, p_len);
     }
 
     // Port
     p_len = StringUtils::find_last(host,":");
-    if (p_len != se_string::npos && p_len == StringUtils::find(host,":")) {
+    if (p_len != String::npos && p_len == StringUtils::find(host,":")) {
         port = StringUtils::to_int(StringUtils::substr(host,p_len, host.length() - p_len));
         host = StringUtils::substr(host,0, p_len);
     }
@@ -113,7 +113,7 @@ void WebSocketClient::_on_peer_packet() {
     }
 }
 
-void WebSocketClient::_on_connect(se_string p_protocol) {
+void WebSocketClient::_on_connect(String p_protocol) {
 
     if (_is_multiplayer) {
         // need to wait for ID confirmation...

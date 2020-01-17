@@ -51,10 +51,10 @@ Error MessageQueue::push_call(ObjectID p_id, const StringName &p_method, const V
     int room_needed = sizeof(Message) + sizeof(Variant) * p_argcount;
 
     if ((buffer_end + room_needed) >= buffer_size) {
-        se_string type;
+        String type;
         if (ObjectDB::get_instance(p_id))
             type = ObjectDB::get_instance(p_id)->get_class();
-        print_line(se_string("Failed method: ") + type + ":" + p_method + " target ID: " + ::to_string(p_id));
+        print_line(String("Failed method: ") + type + ":" + p_method + " target ID: " + ::to_string(p_id));
         statistics();
         ERR_FAIL_V_MSG(ERR_OUT_OF_MEMORY, "Message queue out of memory. Try increasing 'message_queue_size_kb' in project settings.");
     }
@@ -101,7 +101,7 @@ Error MessageQueue::push_set(ObjectID p_id, const StringName &p_prop, const Vari
     uint8_t room_needed = sizeof(Message) + sizeof(Variant);
 
     if ((buffer_end + room_needed) >= buffer_size) {
-        se_string type;
+        String type;
         if (ObjectDB::get_instance(p_id))
             type = ObjectDB::get_instance(p_id)->get_class();
         print_line("Failed set: " + type + ":" + p_prop + " target ID: " + ::to_string(p_id));
@@ -223,11 +223,11 @@ void MessageQueue::statistics() {
     print_line("NULL count: " + itos(null_count));
 
     for (const eastl::pair<const StringName,int> &E : set_count) {
-        print_line("SET " + se_string(E.first) + ": " + ::to_string(E.second));
+        print_line("SET " + String(E.first) + ": " + ::to_string(E.second));
     }
 
     for (const eastl::pair<const StringName,int> &E : call_count) {
-        print_line("CALL " + se_string(E.first) + ": " + ::to_string(E.second));
+        print_line("CALL " + String(E.first) + ": " + ::to_string(E.second));
     }
 
     for (const eastl::pair<const int,int> &E : notify_count) {

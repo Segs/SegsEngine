@@ -545,7 +545,7 @@ Error AudioStreamSample::save_to_wav(se_string_view p_path) {
         case AudioStreamSample::FORMAT_IMA_ADPCM: byte_pr_sample = 4; break;
     }
 
-    se_string file_path(p_path);
+    String file_path(p_path);
     if (!StringUtils::ends_with(file_path,".wav")) {
         file_path += (".wav");
     }
@@ -602,9 +602,9 @@ Ref<AudioStreamPlayback> AudioStreamSample::instance_playback() {
     return sample;
 }
 
-se_string AudioStreamSample::get_stream_name() const {
+String AudioStreamSample::get_stream_name() const {
 
-    return se_string();
+    return String();
 }
 
 void AudioStreamSample::_bind_methods() {

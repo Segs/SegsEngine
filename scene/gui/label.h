@@ -113,7 +113,7 @@ public:
 
     void set_text(const StringName &p_string);
     StringName get_text() const;
-    se_string get_text_utf8() const;
+    String get_text_utf8() const;
 
     void set_autowrap(bool p_autowrap);
     bool has_autowrap() const;

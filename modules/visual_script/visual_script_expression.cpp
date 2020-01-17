@@ -41,7 +41,7 @@ IMPL_GDCLASS(VisualScriptExpression)
 bool VisualScriptExpression::_set(const StringName &p_name, const Variant &p_value) {
 
     if ((p_name) == "expression") {
-        expression = p_value.as<se_string>();
+        expression = p_value.as<String>();
         expression_dirty = true;
         ports_changed_notify();
         return true;
@@ -89,7 +89,7 @@ bool VisualScriptExpression::_set(const StringName &p_name, const Variant &p_val
             inputs.write[idx].type = VariantType(int(p_value));
         } else if (what == se_string_view("name")) {
 
-            inputs.write[idx].name = se_string(p_value);
+            inputs.write[idx].name = String(p_value);
         } else {
             return false;
         }
@@ -156,7 +156,7 @@ void VisualScriptExpression::_get_property_list(ListPOD<PropertyInfo> *p_list) c
     p_list->push_back(PropertyInfo(VariantType::BOOL, "sequenced"));
 
     for (int i = 0; i < inputs.size(); i++) {
-        se_string val=::to_string(i);
+        String val=::to_string(i);
         p_list->push_back(PropertyInfo(VariantType::INT, StringName("input_" + val + "/type"), PROPERTY_HINT_ENUM, argt));
         p_list->push_back(PropertyInfo(VariantType::STRING, StringName("input_" + val + "/name")));
     }
@@ -198,7 +198,7 @@ se_string_view VisualScriptExpression::get_caption() const {
 
     return "Expression";
 }
-se_string VisualScriptExpression::get_text() const {
+String VisualScriptExpression::get_text() const {
 
     return expression;
 }
@@ -367,7 +367,7 @@ Error VisualScriptExpression::_get_token(Token &r_token) {
             }
             case '"': {
 
-                se_string str;
+                String str;
                 while (true) {
 
                     char ch = GET_CHAR();
@@ -463,7 +463,7 @@ Error VisualScriptExpression::_get_token(Token &r_token) {
                 if (cchar >= '0' && cchar <= '9') {
                     //a number
 
-                    se_string num;
+                    String num;
 #define READING_SIGN 0
 #define READING_INT 1
 #define READING_DEC 2
@@ -539,7 +539,7 @@ Error VisualScriptExpression::_get_token(Token &r_token) {
 
                 } else if ((cchar >= 'A' && cchar <= 'Z') || (cchar >= 'a' && cchar <= 'z') || cchar == '_') {
 
-                    se_string id;
+                    String id;
                     bool first = true;
 
                     while ((cchar >= 'A' && cchar <= 'Z') || (cchar >= 'a' && cchar <= 'z') || cchar == '_' || (!first && cchar >= '0' && cchar <= '9')) {
@@ -762,7 +762,7 @@ VisualScriptExpression::ENode *VisualScriptExpression::_parse_expression() {
             } break;
             case TK_IDENTIFIER: {
 
-                se_string what(tk.value);
+                String what(tk.value);
                 int index = -1;
                 for (int i = 0; i < inputs.size(); i++) {
                     if (what == inputs[i].name) {
@@ -873,7 +873,7 @@ VisualScriptExpression::ENode *VisualScriptExpression::_parse_expression() {
 
                 int expected_args = VisualScriptBuiltinFunc::get_func_argument_count(bifunc->func);
                 if (bifunc->arguments.size() != expected_args) {
-                    _set_error((se_string("Builtin func '") + VisualScriptBuiltinFunc::get_func_name(bifunc->func) + "' expects " + itos(expected_args) + " arguments.").c_str());
+                    _set_error((String("Builtin func '") + VisualScriptBuiltinFunc::get_func_name(bifunc->func) + "' expects " + itos(expected_args) + " arguments.").c_str());
                 }
 
                 expr = bifunc;
@@ -1241,7 +1241,7 @@ public:
 
     //virtual int get_working_memory_size() const { return 0; }
     //execute by parsing the tree directly
-    virtual bool _execute(const Variant **p_inputs, VisualScriptExpression::ENode *p_node, Variant &r_ret, se_string &r_error_str, Variant::CallError &ce) {
+    virtual bool _execute(const Variant **p_inputs, VisualScriptExpression::ENode *p_node, Variant &r_ret, String &r_error_str, Variant::CallError &ce) {
 
         switch (p_node->type) {
             case VisualScriptExpression::ENode::TYPE_INPUT: {
@@ -1279,7 +1279,7 @@ public:
                 bool valid = true;
                 Variant::evaluate(op->op, a, b, r_ret, valid);
                 if (!valid) {
-                    r_error_str = se_string("Invalid operands to operator ") + Variant::get_operator_name(op->op) + ": " + Variant::get_type_name(a.get_type()) + " and " + Variant::get_type_name(b.get_type()) + ".";
+                    r_error_str = String("Invalid operands to operator ") + Variant::get_operator_name(op->op) + ": " + Variant::get_type_name(a.get_type()) + " and " + Variant::get_type_name(b.get_type()) + ".";
                     return true;
                 }
 
@@ -1319,7 +1319,7 @@ public:
                 bool valid;
                 r_ret = base.get_named(index->name, &valid);
                 if (!valid) {
-                    r_error_str = "Invalid index '" + se_string(index->name) + "' for base of type " + Variant::get_type_name(base.get_type()) + ".";
+                    r_error_str = "Invalid index '" + String(index->name) + "' for base of type " + Variant::get_type_name(base.get_type()) + ".";
                     return true;
                 }
 
@@ -1443,7 +1443,7 @@ public:
                 r_ret = base.call(call->method, (const Variant **)argp.ptr(), argp.size(), ce);
 
                 if (ce.error != Variant::CallError::CALL_OK) {
-                    r_error_str = "On call to '" + se_string(call->method) + "':";
+                    r_error_str = "On call to '" + String(call->method) + "':";
                     return true;
                 }
 
@@ -1452,7 +1452,7 @@ public:
         return false;
     }
 
-    int step(const Variant **p_inputs, Variant **p_outputs, StartMode p_start_mode, Variant *p_working_mem, Variant::CallError &r_error, se_string &r_error_str) override {
+    int step(const Variant **p_inputs, Variant **p_outputs, StartMode p_start_mode, Variant *p_working_mem, Variant::CallError &r_error, String &r_error_str) override {
 
         if (!expression->root || expression->error_set) {
             r_error_str = expression->error_str;

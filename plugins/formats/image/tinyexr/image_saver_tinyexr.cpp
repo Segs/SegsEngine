@@ -273,7 +273,7 @@ Error save_exr(se_string_view p_path, const ImageData &p_img, bool p_grayscale) 
         return res;
 
     const char *err;
-    se_string utf8_filename(p_path);
+    String utf8_filename(p_path);
     int ret = SaveEXRImageToFile(&image, &header, utf8_filename.data(), &err);
     if (ret != TINYEXR_SUCCESS) {
         //TODO: use OsInterface if the reporting is needed.

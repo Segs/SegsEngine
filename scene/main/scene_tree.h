@@ -60,17 +60,17 @@ class ISceneTreeDebugAccessor {
     virtual  void _live_edit_res_set_res_func( int p_id, const StringName &p_prop, se_string_view p_value)=0;
     virtual  void _live_edit_res_call_func( int p_id, const StringName &p_method, VARIANT_ARG_DECLARE)=0;
     virtual  void _live_edit_root_func( const NodePath &p_scene_path, se_string_view p_scene_from)=0;
-    virtual  void _live_edit_create_node_func( const NodePath &p_parent, const se_string &p_type, const se_string &p_name)=0;
-    virtual  void _live_edit_instance_node_func(const NodePath &p_parent,se_string_view p_path, const se_string &p_name)=0;
+    virtual  void _live_edit_create_node_func( const NodePath &p_parent, const String &p_type, const String &p_name)=0;
+    virtual  void _live_edit_instance_node_func(const NodePath &p_parent,se_string_view p_path, const String &p_name)=0;
     virtual  void _live_edit_remove_node_func( const NodePath &p_at)=0;
     virtual  void _live_edit_remove_and_keep_node_func( const NodePath &p_at, ObjectID p_keep_id)=0;
     virtual  void _live_edit_restore_node_func( ObjectID p_id, const NodePath &p_at, int p_at_pos)=0;
-    virtual  void _live_edit_duplicate_node_func( const NodePath &p_at, const se_string &p_new_name)=0;
+    virtual  void _live_edit_duplicate_node_func( const NodePath &p_at, const String &p_new_name)=0;
     virtual  void _live_edit_reparent_node_func(
-             const NodePath &p_at, const NodePath &p_new_place, const se_string &p_new_name, int p_at_pos)=0;
+             const NodePath &p_at, const NodePath &p_new_place, const String &p_new_name, int p_at_pos)=0;
 public:
     virtual ~ISceneTreeDebugAccessor() {}
-    virtual Map<se_string, Set<Node *>> &get_live_scene_edit_cache() = 0;
+    virtual Map<String, Set<Node *>> &get_live_scene_edit_cache() = 0;
     virtual Map<Node *, Map<ObjectID, Node *>> &get_live_edit_remove_list() = 0;
 };
 
@@ -325,7 +325,7 @@ public:
     void set_debug_navigation_hint(bool p_enabled);
     bool is_debugging_navigation_hint() const;
 
-    Map<se_string, Set<Node *> > &get_live_scene_edit_cache();
+    Map<String, Set<Node *> > &get_live_scene_edit_cache();
     Map<Node *, Map<ObjectID, Node *>> &get_live_edit_remove_list();
 #else
     void set_debug_collisions_hint(bool p_enabled) {}
@@ -388,9 +388,9 @@ public:
 
     static SceneTree *get_singleton() { return singleton; }
 
-    void drop_files(const PODVector<se_string> &p_files, int p_from_screen = 0) override;
+    void drop_files(const PODVector<String> &p_files, int p_from_screen = 0) override;
     void global_menu_action(const Variant &p_id, const Variant &p_meta) override;
-    void get_argument_options(const StringName &p_function, int p_idx, ListPOD<se_string> *r_options) const override;
+    void get_argument_options(const StringName &p_function, int p_idx, ListPOD<String> *r_options) const override;
 
     //network API
 

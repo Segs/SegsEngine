@@ -147,7 +147,7 @@ float AnimationNode::_pre_process(const StringName &p_base_path, AnimationNode *
     return t;
 }
 
-void AnimationNode::make_invalid(const se_string &p_reason) {
+void AnimationNode::make_invalid(const String &p_reason) {
     ERR_FAIL_COND(!state)
     state->valid = false;
     if (!state->invalid_reasons.empty()) {
@@ -298,11 +298,11 @@ float AnimationNode::_blend_node(const StringName &p_subpath, const Vector<Strin
     //this is the slowest part of processing, but as strings process in powers of 2, and the paths always exist, it will not result in that many allocations
     if (p_new_parent) {
         new_parent = p_new_parent;
-        new_path = StringName(se_string(base_path) + p_subpath + "/");
+        new_path = StringName(String(base_path) + p_subpath + "/");
     } else {
         ERR_FAIL_COND_V(!parent, 0)
         new_parent = parent;
-        new_path = StringName(se_string(parent->base_path) + p_subpath + "/");
+        new_path = StringName(String(parent->base_path) + p_subpath + "/");
     }
     return p_node->_pre_process(new_path, new_parent, state, p_time, p_seek, p_connections);
 }
@@ -311,8 +311,8 @@ int AnimationNode::get_input_count() const {
 
     return inputs.size();
 }
-se_string AnimationNode::get_input_name(int p_input) {
-    ERR_FAIL_INDEX_V(p_input, inputs.size(), se_string());
+String AnimationNode::get_input_name(int p_input) {
+    ERR_FAIL_INDEX_V(p_input, inputs.size(), String());
     return inputs[p_input].name;
 }
 
@@ -320,14 +320,14 @@ se_string_view AnimationNode::get_caption() const {
     thread_local char buf[512];
     if (get_script_instance()) {
         buf[0]=0;
-        strncat(buf,get_script_instance()->call("get_caption").as<se_string>().c_str(),511);
+        strncat(buf,get_script_instance()->call("get_caption").as<String>().c_str(),511);
         return buf;
     }
 
     return "Node";
 }
 
-void AnimationNode::add_input(const se_string &p_name) {
+void AnimationNode::add_input(const String &p_name) {
     //root nodes can't add inputs
     ERR_FAIL_COND(object_cast<AnimationRootNode>(this) != nullptr)
     Input input;
@@ -389,7 +389,7 @@ Array AnimationNode::_get_filters() const {
 
     const NodePath *K = nullptr;
     while ((K = filter.next(K))) {
-        paths.push_back(se_string(*K)); //use strings, so sorting is possible
+        paths.push_back(String(*K)); //use strings, so sorting is possible
     }
     paths.sort(); //done so every time the scene is saved, it does not change
 
@@ -591,7 +591,7 @@ bool AnimationTree::_update_caches(AnimationPlayer *player) {
                 Node *child = parent->get_node_and_resource(path, resource, leftover_path);
 
                 if (!child) {
-                    ERR_PRINT("AnimationTree: '" + se_string(E) + "', couldn't resolve track:  '" + se_string(path) + "'")
+                    ERR_PRINT("AnimationTree: '" + String(E) + "', couldn't resolve track:  '" + String(path) + "'")
                     continue;
                 }
 
@@ -621,7 +621,7 @@ bool AnimationTree::_update_caches(AnimationPlayer *player) {
                         Spatial *spatial = object_cast<Spatial>(child);
 
                         if (!spatial) {
-                            ERR_PRINT("AnimationTree: '" + se_string(E) + "', transform track does not point to spatial:  '" + se_string(path) + "'");
+                            ERR_PRINT("AnimationTree: '" + String(E) + "', transform track does not point to spatial:  '" + String(path) + "'");
                             continue;
                         }
 
@@ -1340,7 +1340,7 @@ bool AnimationTree::is_state_invalid() const {
 
     return !state.valid;
 }
-se_string AnimationTree::get_invalid_state_reason() const {
+String AnimationTree::get_invalid_state_reason() const {
 
     return state.invalid_reasons;
 }
@@ -1351,7 +1351,7 @@ uint64_t AnimationTree::get_last_process_pass() const {
 
 StringName AnimationTree::get_configuration_warning() const {
 
-    se_string warning(Node::get_configuration_warning());
+    String warning(Node::get_configuration_warning());
 
     if (not root) {
         if (!warning.empty()) {
@@ -1437,7 +1437,7 @@ void AnimationTree::_update_properties_for_node(const StringName &p_base_path, R
         PropertyInfo pinfo = E->deref();
 
         StringName key = pinfo.name;
-        StringName concat(se_string(p_base_path)+key);
+        StringName concat(String(p_base_path)+key);
         if (!property_map.contains(concat)) {
             property_map[concat] = node->get_parameter_default_value(key);
         }
@@ -1452,7 +1452,7 @@ void AnimationTree::_update_properties_for_node(const StringName &p_base_path, R
     node->get_child_nodes(&children);
 
     for (List<AnimationNode::ChildNode>::Element *E = children.front(); E; E = E->next()) {
-        _update_properties_for_node(StringName(se_string(p_base_path) + E->deref().name + "/"), E->deref().node);
+        _update_properties_for_node(StringName(String(p_base_path) + E->deref().name + "/"), E->deref().node);
     }
 }
 

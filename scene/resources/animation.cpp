@@ -301,7 +301,7 @@ bool Animation::_set(const StringName &p_name, const Variant &p_value) {
                 ERR_FAIL_COND_V(!d.has("clips"), false)
 
                 PoolVector<float> times = d["times"];
-                PoolVector<se_string> clips = d["clips"].as<PoolVector<se_string>>();
+                PoolVector<String> clips = d["clips"].as<PoolVector<String>>();
 
                 ERR_FAIL_COND_V(clips.size() != times.size(), false)
 
@@ -310,7 +310,7 @@ bool Animation::_set(const StringName &p_name, const Variant &p_value) {
                     int valcount = times.size();
 
                     PoolVector<float>::Read rt = times.read();
-                    PoolVector<se_string>::Read rc = clips.read();
+                    PoolVector<String>::Read rc = clips.read();
 
                     an->values.resize(valcount);
 
@@ -582,7 +582,7 @@ bool Animation::_get(const StringName &p_name, Variant &r_ret) const {
                 Dictionary d;
 
                 PoolVector<float> key_times;
-                PoolVector<se_string> clips;
+                PoolVector<String> clips;
 
                 int kk = an->values.size();
 
@@ -590,7 +590,7 @@ bool Animation::_get(const StringName &p_name, Variant &r_ret) const {
                 clips.resize(kk);
 
                 PoolVector<float>::Write wti = key_times.write();
-                PoolVector<se_string>::Write wcl = clips.write();
+                PoolVector<String>::Write wcl = clips.write();
 
                 const TKey<StringName> *vls = an->values.ptr();
 

@@ -40,7 +40,7 @@ void DictionaryPropertyEdit::_notif_change() {
     Object_change_notify(this);
 }
 
-void DictionaryPropertyEdit::_notif_changev(const se_string &p_v) {
+void DictionaryPropertyEdit::_notif_changev(const String &p_v) {
     Object_change_notify(this,StringName(p_v));
 }
 
@@ -79,7 +79,7 @@ void DictionaryPropertyEdit::_get_property_list(ListPOD<PropertyInfo> *p_list) c
     keys.sort();
 
     for (int i = 0; i < keys.size(); i++) {
-        se_string index = itos(i);
+        String index = itos(i);
 
         const Variant &key = keys[i];
         PropertyInfo pi(key.get_type(), StringName(index + ": key"));
@@ -125,9 +125,9 @@ bool DictionaryPropertyEdit::_set(const StringName &p_name, const Variant &p_val
     Array keys = dict.keys();
     keys.sort();
 
-    se_string pn(p_name);
+    String pn(p_name);
     auto slash = StringUtils::find(pn,": ");
-    if (slash != se_string::npos && pn.length() > slash) {
+    if (slash != String::npos && pn.length() > slash) {
         se_string_view type = StringUtils::substr(pn,slash + 2, pn.length());
         int index = StringUtils::to_int(StringUtils::substr(pn,0, slash));
         if (type == "key"_sv && index < keys.size()) {
@@ -172,10 +172,10 @@ bool DictionaryPropertyEdit::_get(const StringName &p_name, Variant &r_ret) cons
     Array keys = dict.keys();
     keys.sort();
 
-    se_string pn(p_name);
+    String pn(p_name);
     auto slash = StringUtils::find(pn,": ");
 
-    if (slash != se_string::npos && pn.length() > slash) {
+    if (slash != String::npos && pn.length() > slash) {
 
         se_string_view type = StringUtils::substr(pn,slash + 2, pn.length());
         int index = StringUtils::to_int(StringUtils::substr(pn,0, slash));

@@ -117,10 +117,10 @@ public:
     void unregister_owner(Object *p_owner);
 
     void set_name(se_string_view p_name);
-    const se_string &get_name() const;
+    const String &get_name() const;
 
     virtual void set_path(se_string_view p_path, bool p_take_over = false);
-    const se_string &get_path() const;
+    const String &get_path() const;
 
     void set_subindex(int p_sub_index);
     int get_subindex() const;
@@ -148,7 +148,7 @@ public:
     uint64_t get_import_last_modified_time() const { return import_last_modified_time; }
 
     void set_import_path(se_string_view p_path);
-    const se_string &get_import_path() const;
+    const String &get_import_path() const;
 
 #endif
 

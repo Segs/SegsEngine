@@ -56,9 +56,9 @@ class RenameDialog : public ConfirmationDialog {
 
     void _iterate_scene(const Node *node, const Array &selection, int *count);
     StringName _apply_rename(const Node *node, int count);
-    se_string _substitute(const se_string &subject, const Node *node, int count);
-    se_string _regex(const se_string &pattern, const se_string &subject, const se_string &replacement);
-    se_string _postprocess(const se_string &subject);
+    String _substitute(const String &subject, const Node *node, int count);
+    String _regex(const String &pattern, const String &subject, const String &replacement);
+    String _postprocess(const String &subject);
     void _update_preview(se_string_view new_text = se_string_view());
     void _update_preview_int(int new_value = 0);
     static void _error_handler(void *p_self, se_string_view p_func, se_string_view p_file, int p_line, se_string_view p_error, se_string_view p_errorexp, ErrorHandlerType p_type);

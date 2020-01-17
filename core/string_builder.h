@@ -38,7 +38,7 @@ class StringBuilder {
 
     uint32_t string_length;
 
-    PODVector<se_string> strings;
+    PODVector<String> strings;
     PODVector<const char *> c_strings;
 
     // -1 means it's a Godot String
@@ -49,7 +49,7 @@ public:
     StringBuilder &append(se_string_view p_string);
     StringBuilder &append(const char *p_cstring);
 
-    _FORCE_INLINE_ StringBuilder &operator+(const se_string &p_string) {
+    _FORCE_INLINE_ StringBuilder &operator+(const String &p_string) {
         return append(p_string);
     }
 
@@ -57,7 +57,7 @@ public:
         return append(p_cstring);
     }
 
-    _FORCE_INLINE_ void operator+=(const se_string &p_string) {
+    _FORCE_INLINE_ void operator+=(const String &p_string) {
         append(p_string);
     }
 
@@ -73,9 +73,9 @@ public:
         return string_length;
     }
 
-    se_string as_string() const;
+    String as_string() const;
 
-    _FORCE_INLINE_ operator se_string() const {
+    _FORCE_INLINE_ operator String() const {
         return as_string();
     }
 

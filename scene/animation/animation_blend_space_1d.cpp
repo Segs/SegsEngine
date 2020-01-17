@@ -213,7 +213,7 @@ void AnimationNodeBlendSpace1D::set_value_label(se_string_view p_label) {
     value_label = p_label;
 }
 
-const se_string & AnimationNodeBlendSpace1D::get_value_label() const {
+const String & AnimationNodeBlendSpace1D::get_value_label() const {
     return value_label;
 }
 

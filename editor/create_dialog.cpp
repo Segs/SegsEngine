@@ -56,7 +56,7 @@ void CreateDialog::popup_create(bool p_dont_clear, bool p_replace_mode, const St
     recent->clear();
 
     FileAccess *f = FileAccess::open(PathUtils::plus_file(EditorSettings::get_singleton()->get_project_settings_dir(),
-                                             se_string("create_recent.") + base_type),
+                                             String("create_recent.") + base_type),
             FileAccess::READ);
 
     if (f) {
@@ -64,7 +64,7 @@ void CreateDialog::popup_create(bool p_dont_clear, bool p_replace_mode, const St
         TreeItem *root = recent->create_item();
 
         while (!f->eof_reached()) {
-            se_string l(StringUtils::strip_edges(f->get_line()));
+            String l(StringUtils::strip_edges(f->get_line()));
             StringName name(StringUtils::split(l, ' ')[0]);
 
             if ((ClassDB::class_exists(name) || ScriptServer::is_global_class(name)) && !_is_class_disabled_by_feature_profile(name)) {
@@ -80,7 +80,7 @@ void CreateDialog::popup_create(bool p_dont_clear, bool p_replace_mode, const St
     favorites->clear();
 
     f = FileAccess::open(PathUtils::plus_file(EditorSettings::get_singleton()->get_project_settings_dir(),
-                                 se_string("favorites.") + base_type),
+                                 String("favorites.") + base_type),
             FileAccess::READ);
 
     favorite_list.clear();
@@ -88,7 +88,7 @@ void CreateDialog::popup_create(bool p_dont_clear, bool p_replace_mode, const St
     if (f) {
 
         while (!f->eof_reached()) {
-            se_string l(StringUtils::strip_edges(f->get_line()));
+            String l(StringUtils::strip_edges(f->get_line()));
 
             if (!l.empty()) {
                 favorite_list.push_back(l);
@@ -198,13 +198,13 @@ void CreateDialog::add_type(
     } else {
         item->set_metadata(0, p_type);
         item->set_text_utf8(
-                0, se_string(p_type) + " (" + PathUtils::get_file(ScriptServer::get_global_class_path(p_type)) + ")");
+                0, String(p_type) + " (" + PathUtils::get_file(ScriptServer::get_global_class_path(p_type)) + ")");
     }
     if (!can_instance) {
         item->set_custom_color(0, get_color("disabled_font_color", "Editor"));
         item->set_selectable(0, false);
     } else if (!(*to_select && (*to_select)->get_text(0) == search_box->get_text())) {
-        se_string search_term = StringUtils::to_utf8(search_box->get_text_ui().toLower());
+        String search_term = StringUtils::to_utf8(search_box->get_text_ui().toLower());
 
         // if the node name matches exactly as the search, the node should be selected.
         // this also fixes when the user clicks on recent nodes.
@@ -224,7 +224,7 @@ void CreateDialog::add_type(
             bool is_selected_equal = false;
 
             if (*to_select) {
-                se_string name = StringUtils::to_lower(StringUtils::split((*to_select)->get_text(0), ' ')[0]);
+                String name = StringUtils::to_lower(StringUtils::split((*to_select)->get_text(0), ' ')[0]);
                 is_substring_of_selected = StringUtils::contains(name, search_term);
                 is_subsequence_of_selected = StringUtils::is_subsequence_of(search_term, name);
                 is_selected_equal = name == search_term;
@@ -259,7 +259,7 @@ void CreateDialog::add_type(
         item->set_collapsed(collapse);
     }
 
-    const se_string &description = EditorHelp::get_doc_data()->class_list[p_type].brief_description;
+    const String &description = EditorHelp::get_doc_data()->class_list[p_type].brief_description;
     item->set_tooltip(0, StringName(description));
 
     item->set_icon(0, EditorNode::get_singleton()->get_class_icon(p_type, base_type));
@@ -434,7 +434,7 @@ void CreateDialog::_confirmed() {
     if (!ti) return;
 
     FileAccess *f = FileAccess::open(PathUtils::plus_file(EditorSettings::get_singleton()->get_project_settings_dir(),
-                                             se_string("create_recent.") + base_type),
+                                             String("create_recent.") + base_type),
             FileAccess::WRITE);
 
     if (f) {
@@ -556,7 +556,7 @@ void CreateDialog::_item_selected() {
     StringName name(item->get_text(0));
 
     favorite->set_disabled(false);
-    favorite->set_pressed(favorite_list.contains(se_string(name)));
+    favorite->set_pressed(favorite_list.contains(String(name)));
 
     if (!EditorHelp::get_doc_data()->class_list.contains(name)) return;
 
@@ -570,7 +570,7 @@ void CreateDialog::_favorite_toggled() {
     TreeItem *item = search_options->get_selected();
     if (!item) return;
 
-    se_string name = item->get_text(0);
+    String name = item->get_text(0);
 
     if (!favorite_list.contains(name)) {
         favorite_list.push_back(name);
@@ -586,13 +586,13 @@ void CreateDialog::_favorite_toggled() {
 void CreateDialog::_save_favorite_list() {
 
     FileAccess *f = FileAccess::open(PathUtils::plus_file(EditorSettings::get_singleton()->get_project_settings_dir(),
-                                             se_string("favorites.") + base_type),
+                                             String("favorites.") + base_type),
             FileAccess::WRITE);
 
     if (f) {
 
         for (int i = 0; i < favorite_list.size(); i++) {
-            const se_string &l = favorite_list[i];
+            const String &l = favorite_list[i];
             StringName name(StringUtils::split(l, ' ')[0]);
             if (!(ClassDB::class_exists(name) || ScriptServer::is_global_class(name))) continue;
             f->store_line(l);
@@ -606,7 +606,7 @@ void CreateDialog::_update_favorite_list() {
     favorites->clear();
     TreeItem *root = favorites->create_item();
     for (int i = 0; i < favorite_list.size(); i++) {
-        const se_string &l = favorite_list[i];
+        const String &l = favorite_list[i];
         StringName name(StringUtils::split(l, ' ')[0]);
         if (!((ClassDB::class_exists(name) || ScriptServer::is_global_class(name)) && !_is_class_disabled_by_feature_profile(name)))
             continue;
@@ -685,14 +685,14 @@ void CreateDialog::drop_data_fw(const Point2 &p_point, const Variant &p_data, Co
     TreeItem *ti = favorites->get_item_at_position(p_point);
     if (!ti) return;
 
-    se_string drop_at = ti->get_text(0);
+    String drop_at = ti->get_text(0);
     int ds = favorites->get_drop_section_at_position(p_point);
 
     auto drop_idx = favorite_list.index_of(drop_at);
     if (drop_idx >= favorite_list.size())
         return;
 
-    se_string type = d["class"];
+    String type = d["class"];
 
     auto from_idx = favorite_list.index_of(type);
     if (from_idx >= favorite_list.size())

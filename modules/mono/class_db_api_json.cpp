@@ -232,7 +232,7 @@ void class_db_api_to_json(se_string_view p_output_file, ClassDB::APIType p_api) 
     f->store_string(JSON::print(classes_dict, /*indent: */ "\t"));
     f->close();
 
-    print_line(se_string() + "ClassDB API JSON written to: " + ProjectSettings::get_singleton()->globalize_path(p_output_file));
+    print_line(String() + "ClassDB API JSON written to: " + ProjectSettings::get_singleton()->globalize_path(p_output_file));
 }
 
 #endif // DEBUG_METHODS_ENABLED

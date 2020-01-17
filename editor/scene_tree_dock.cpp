@@ -82,7 +82,7 @@ void SceneTreeDock::_nodes_drag_begin() {
 }
 
 void SceneTreeDock::_quick_open() {
-    Vector<se_string> files = quick_open->get_selected_files();
+    Vector<String> files = quick_open->get_selected_files();
     for (int i = 0; i < files.size(); i++) {
         instance(files[i]);
     }
@@ -163,12 +163,12 @@ void SceneTreeDock::instance(se_string_view p_file) {
 
     ERR_FAIL_COND(!parent)
 
-    Vector<se_string> scenes;
+    Vector<String> scenes;
     scenes.emplace_back(p_file);
     _perform_instance_scenes(scenes, parent, -1);
 }
 
-void SceneTreeDock::instance_scenes(const Vector<se_string> &p_files, Node *p_parent) {
+void SceneTreeDock::instance_scenes(const Vector<String> &p_files, Node *p_parent) {
 
     Node *parent = p_parent;
 
@@ -186,7 +186,7 @@ void SceneTreeDock::instance_scenes(const Vector<se_string> &p_files, Node *p_pa
     _perform_instance_scenes(p_files, parent, -1);
 }
 
-void SceneTreeDock::_perform_instance_scenes(const Vector<se_string> &p_files, Node *parent, int p_pos) {
+void SceneTreeDock::_perform_instance_scenes(const Vector<String> &p_files, Node *parent, int p_pos) {
 
     ERR_FAIL_COND(!parent)
 
@@ -253,10 +253,10 @@ void SceneTreeDock::_perform_instance_scenes(const Vector<se_string> &p_files, N
         editor_data->get_undo_redo().add_do_reference(instanced_scene);
         editor_data->get_undo_redo().add_undo_method(parent, "remove_child", Variant(instanced_scene));
 
-        se_string new_name = parent->validate_child_name(instanced_scene);
+        String new_name = parent->validate_child_name(instanced_scene);
         ScriptEditorDebugger *sed = ScriptEditor::get_singleton()->get_debugger();
         editor_data->get_undo_redo().add_do_method(sed, "live_debug_instance_node", edited_scene->get_path_to(parent), p_files[i], new_name);
-        editor_data->get_undo_redo().add_undo_method(sed, "live_debug_remove_node", NodePath(PathUtils::plus_file(se_string(edited_scene->get_path_to(parent)),new_name)));
+        editor_data->get_undo_redo().add_undo_method(sed, "live_debug_remove_node", NodePath(PathUtils::plus_file(String(edited_scene->get_path_to(parent)),new_name)));
     }
 
     editor_data->get_undo_redo().commit_action();
@@ -338,7 +338,7 @@ bool SceneTreeDock::_track_inherit(se_string_view p_target_scene_path, Node *p_d
         }
         Ref<SceneState> ss = p->get_scene_inherited_state();
         if (ss) {
-            se_string path = ss->get_path();
+            String path = ss->get_path();
             Ref<PackedScene> data = dynamic_ref_cast<PackedScene>(ResourceLoader::load(path));
             if (data) {
                 p = data->instance(PackedScene::GEN_EDIT_STATE_INSTANCE);
@@ -619,7 +619,7 @@ void SceneTreeDock::_tool_selected(int p_tool, bool p_confirm_override) {
                 ScriptEditorDebugger *sed = ScriptEditor::get_singleton()->get_debugger();
 
                 editor_data->get_undo_redo().add_do_method(sed, "live_debug_duplicate_node", edited_scene->get_path_to(node), dup->get_name());
-                editor_data->get_undo_redo().add_undo_method(sed, "live_debug_remove_node", NodePath(PathUtils::plus_file(se_string(edited_scene->get_path_to(parent)),dup->get_name())));
+                editor_data->get_undo_redo().add_undo_method(sed, "live_debug_remove_node", NodePath(PathUtils::plus_file(String(edited_scene->get_path_to(parent)),dup->get_name())));
             }
 
             editor_data->get_undo_redo().commit_action();
@@ -822,7 +822,7 @@ void SceneTreeDock::_tool_selected(int p_tool, bool p_confirm_override) {
 
             new_scene_from_dialog->set_mode(EditorFileDialog::MODE_SAVE_FILE);
 
-            PODVector<se_string> extensions;
+            PODVector<String> extensions;
             Ref<PackedScene> sd(make_ref_counted<PackedScene>());
             ResourceSaver::get_recognized_extensions(sd, extensions);
             new_scene_from_dialog->clear_filters();
@@ -830,9 +830,9 @@ void SceneTreeDock::_tool_selected(int p_tool, bool p_confirm_override) {
                 new_scene_from_dialog->add_filter("*." + extensions[i] + " ; " + StringUtils::to_upper(extensions[i]));
             }
 
-            se_string existing;
+            String existing;
             if (!extensions.empty()) {
-                se_string root_name(tocopy->get_name());
+                String root_name(tocopy->get_name());
                 existing = root_name + "." + StringUtils::to_lower(extensions[0]);
             }
             new_scene_from_dialog->set_current_path(existing);
@@ -849,14 +849,14 @@ void SceneTreeDock::_tool_selected(int p_tool, bool p_confirm_override) {
                 if (node) {
                     Node *root = EditorNode::get_singleton()->get_edited_scene();
                     NodePath path = root->get_path().rel_path_to(node->get_path());
-                    OS::get_singleton()->set_clipboard(se_string(path));
+                    OS::get_singleton()->set_clipboard(String(path));
                 }
             }
         } break;
         case TOOL_OPEN_DOCUMENTATION: {
             List<Node *> selection = editor_selection->get_selected_node_list();
             for (int i = 0; i < selection.size(); i++) {
-                ScriptEditor::get_singleton()->goto_help(se_string("class_name:") + selection[i]->get_class());
+                ScriptEditor::get_singleton()->goto_help(String("class_name:") + selection[i]->get_class());
             }
             EditorNode::get_singleton()->set_visible_editor(EditorNode::EDITOR_SCRIPT);
         } break;
@@ -1636,7 +1636,7 @@ void SceneTreeDock::_do_reparent(Node *p_new_parent, int p_position_in_parent, V
         }
 
         editor_data->get_undo_redo().add_do_method(sed, "live_debug_reparent_node", edited_scene->get_path_to(node), edited_scene->get_path_to(new_parent), new_name, p_position_in_parent + inc);
-        editor_data->get_undo_redo().add_undo_method(sed, "live_debug_reparent_node", NodePath(PathUtils::plus_file(se_string(edited_scene->get_path_to(new_parent)),new_name)), edited_scene->get_path_to(node->get_parent()), node->get_name(), node->get_index());
+        editor_data->get_undo_redo().add_undo_method(sed, "live_debug_reparent_node", NodePath(PathUtils::plus_file(String(edited_scene->get_path_to(new_parent)),new_name)), edited_scene->get_path_to(node->get_parent()), node->get_name(), node->get_index());
 
         if (p_keep_global_xform) {
             if (object_cast<Node2D>(node))
@@ -1974,10 +1974,10 @@ void SceneTreeDock::_do_create(Node *p_parent) {
         editor_data->get_undo_redo().add_do_reference(child);
         editor_data->get_undo_redo().add_undo_method(p_parent, "remove_child", Variant(child));
 
-        se_string new_name = p_parent->validate_child_name(child);
+        String new_name = p_parent->validate_child_name(child);
         ScriptEditorDebugger *sed = ScriptEditor::get_singleton()->get_debugger();
         editor_data->get_undo_redo().add_do_method(sed, "live_debug_create_node", edited_scene->get_path_to(p_parent), child->get_class(), new_name);
-        editor_data->get_undo_redo().add_undo_method(sed, "live_debug_remove_node", NodePath(PathUtils::plus_file(se_string(edited_scene->get_path_to(p_parent)),new_name)));
+        editor_data->get_undo_redo().add_undo_method(sed, "live_debug_remove_node", NodePath(PathUtils::plus_file(String(edited_scene->get_path_to(p_parent)),new_name)));
 
     } else {
 
@@ -2328,7 +2328,7 @@ void SceneTreeDock::_normalize_drop(Node *&to_node, int &to_pos, int p_type) {
     }
 }
 
-void SceneTreeDock::_files_dropped(const Vector<se_string>& p_files, const NodePath& p_to, int p_type) {
+void SceneTreeDock::_files_dropped(const Vector<String>& p_files, const NodePath& p_to, int p_type) {
 
     Node *node = get_node(p_to);
     ERR_FAIL_COND(!node)
@@ -2612,9 +2612,9 @@ void SceneTreeDock::attach_script_to_selected(bool p_extend) {
 
     Ref<Script> existing(refFromRefPtr<Script>(selected->get_script()));
 
-    se_string path(selected->get_filename());
+    String path(selected->get_filename());
     if (path.empty()) {
-        se_string root_path(editor_data->get_edited_scene_root()->get_filename());
+        String root_path(editor_data->get_edited_scene_root()->get_filename());
         if (root_path.empty()) {
             path = PathUtils::plus_file("res://",selected->get_name());
         } else {

@@ -50,7 +50,7 @@ private:
     class PendingPeer : public RefCounted {
 
     private:
-        bool _parse_request(const PoolVector<se_string> &p_protocols);
+        bool _parse_request(const PoolVector<String> &p_protocols);
 
     public:
         Ref<StreamPeerTCP> tcp;
@@ -60,15 +60,15 @@ private:
         int time;
         uint8_t req_buf[WSL_MAX_HEADER_SIZE];
         int req_pos;
-        se_string key;
-        se_string protocol;
+        String key;
+        String protocol;
         bool has_request;
-        se_string response;
+        String response;
         int response_sent;
 
         PendingPeer();
 
-        Error do_handshake(const PoolVector<se_string> &p_protocols);
+        Error do_handshake(const PoolVector<String> &p_protocols);
     };
 
     int _in_buf_size;
@@ -78,11 +78,11 @@ private:
 
     List<Ref<PendingPeer> > _pending;
     Ref<TCP_Server> _server;
-    PoolVector<se_string> _protocols;
+    PoolVector<String> _protocols;
 
 public:
     Error set_buffers(int p_in_buffer, int p_in_packets, int p_out_buffer, int p_out_packets) override;
-    Error listen(int p_port, const PoolVector<se_string> &p_protocols = PoolVector<se_string>(), bool gd_mp_api = false) override;
+    Error listen(int p_port, const PoolVector<String> &p_protocols = PoolVector<String>(), bool gd_mp_api = false) override;
     void stop() override;
     bool is_listening() const override;
     int get_max_packet_size() const override;

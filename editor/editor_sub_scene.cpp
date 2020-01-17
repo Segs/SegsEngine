@@ -169,7 +169,7 @@ void EditorSubScene::_reown(Node *p_node, List<Node *> *p_to_reown) {
 
     if (p_node == scene) {
 
-        scene->set_filename(se_string());
+        scene->set_filename(String());
         p_to_reown->push_back(p_node);
     } else if (p_node->get_owner() == scene) {
 
@@ -217,7 +217,7 @@ void EditorSubScene::move(Node *p_new_parent, Node *p_new_owner) {
 void EditorSubScene::clear() {
 
     path->set_text_utf8("");
-    _path_changed(se_string());
+    _path_changed(String());
 }
 
 void EditorSubScene::_bind_methods() {
@@ -264,10 +264,10 @@ EditorSubScene::EditorSubScene() {
     tree->connect("item_activated", this, "_ok", make_binds(), ObjectNS::CONNECT_QUEUED);
 
     file_dialog = memnew(EditorFileDialog);
-    PODVector<se_string> extensions;
+    PODVector<String> extensions;
     ResourceLoader::get_recognized_extensions_for_type("PackedScene", extensions);
 
-    for (const se_string &E : extensions) {
+    for (const String &E : extensions) {
 
         file_dialog->add_filter("*." + E);
     }

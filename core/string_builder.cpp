@@ -37,7 +37,7 @@ StringBuilder &StringBuilder::append(se_string_view p_string) {
     if (p_string.empty())
         return *this;
 
-    strings.push_back(se_string(p_string));
+    strings.push_back(String(p_string));
     appended_strings.push_back(-1);
 
     string_length += p_string.length();
@@ -57,10 +57,10 @@ StringBuilder &StringBuilder::append(const char *p_cstring) {
     return *this;
 }
 
-se_string StringBuilder::as_string() const {
+String StringBuilder::as_string() const {
 
     if (string_length == 0)
-        return se_string();
+        return String();
 
     char *buffer = memnew_arr(char, string_length);
 
@@ -72,7 +72,7 @@ se_string StringBuilder::as_string() const {
     for (int i = 0; i < appended_strings.size(); i++) {
         if (appended_strings[i] == -1) {
             // Godot string
-            const se_string &s = strings[godot_string_elem];
+            const String &s = strings[godot_string_elem];
 
             memcpy(buffer + current_position, s.c_str(), s.size() * sizeof(char));
 
@@ -93,7 +93,7 @@ se_string StringBuilder::as_string() const {
         }
     }
 
-    se_string final_string = se_string(buffer, string_length);
+    String final_string = String(buffer, string_length);
 
     memdelete_arr(buffer);
 

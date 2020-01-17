@@ -12,8 +12,8 @@ GODOT_EXPORT double to_double(const char *p_str, char **r_end = nullptr);
 [[nodiscard]] inline bool is_subsequence_ofi(se_string_view str,se_string_view p_string) {
     return is_subsequence_of(str,p_string, CaseInsensitive);
 }
-[[nodiscard]] inline se_string to_utf8(const UIString &s) {
-    return se_string(s.toUtf8().data());
+[[nodiscard]] inline String to_utf8(const UIString &s) {
+    return String(s.toUtf8().data());
 }
 [[nodiscard]] inline WString to_wstring(const UIString &s) {
     return s.toStdWString();

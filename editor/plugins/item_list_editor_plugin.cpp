@@ -115,7 +115,7 @@ void ItemListPlugin::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
 
     for (int i = 0; i < get_item_count(); i++) {
 
-        se_string base = itos(i) + "/";
+        String base = itos(i) + "/";
 
         p_list->push_back(PropertyInfo(VariantType::STRING, StringName(base + "text")));
         p_list->push_back(PropertyInfo(VariantType::OBJECT, StringName(base + "icon"), PROPERTY_HINT_RESOURCE_TYPE, "Texture"));

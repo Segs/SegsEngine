@@ -838,7 +838,7 @@ StringName RigidBody2D::get_configuration_warning() const {
 
     Transform2D t = get_transform();
 
-    se_string warning(CollisionObject2D::get_configuration_warning());
+    String warning(CollisionObject2D::get_configuration_warning());
 
     if ((get_mode() == MODE_RIGID || get_mode() == MODE_CHARACTER) && (ABS(t.elements[0].length() - 1.0) > 0.05 || ABS(t.elements[1].length() - 1.0) > 0.05)) {
         if (!warning.empty()) {

@@ -107,7 +107,7 @@ private:
     Label *export_error;
     HBoxContainer *export_templates_error;
 
-    se_string default_filename;
+    String default_filename;
 
     void _patch_selected(se_string_view p_path);
     void _patch_deleted();
@@ -161,7 +161,7 @@ private:
 
     bool updating_script_key;
     void _script_export_mode_changed(int p_mode);
-    void _script_encryption_key_changed(const se_string &p_key);
+    void _script_encryption_key_changed(const String &p_key);
     bool _validate_script_encryption_key(se_string_view p_key);
 
     void _tab_changed(int);
@@ -174,7 +174,7 @@ public:
     void popup_export();
 
     void set_export_path(se_string_view p_value);
-    se_string get_export_path();
+    String get_export_path();
 
     Ref<EditorExportPreset> get_current_preset() const;
 

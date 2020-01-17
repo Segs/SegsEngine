@@ -74,7 +74,7 @@ ObjectID EncodedObjectAsID::get_object_id() const {
 #define ENCODE_FLAG_64 1 << 16
 #define ENCODE_FLAG_OBJECT_AS_ID 1 << 16
 
-static Error _decode_string(const uint8_t *&buf, int &len, int *r_len, se_string &r_string) {
+static Error _decode_string(const uint8_t *&buf, int &len, int *r_len, String &r_string) {
     ERR_FAIL_COND_V(len < 4, ERR_INVALID_DATA)
 
     int32_t strlen = decode_uint32(buf);
@@ -92,7 +92,7 @@ static Error _decode_string(const uint8_t *&buf, int &len, int *r_len, se_string
     ERR_FAIL_ADD_OF(strlen, pad, ERR_FILE_EOF)
     ERR_FAIL_COND_V(strlen < 0 || strlen + pad > len, ERR_FILE_EOF)
 
-    se_string str((const char *)buf, strlen);
+    String str((const char *)buf, strlen);
     ERR_FAIL_COND_V(str.empty(), ERR_INVALID_DATA)
     r_string = str;
 
@@ -176,7 +176,7 @@ Error decode_variant(Variant &r_variant, const uint8_t *p_buffer, int p_len, int
         } break;
         case VariantType::STRING: {
 
-            se_string str;
+            String str;
             Error err = _decode_string(buf, len, r_len, str);
             if (err)
                 return err;
@@ -366,7 +366,7 @@ Error decode_variant(Variant &r_variant, const uint8_t *p_buffer, int p_len, int
 
                 for (uint32_t i = 0; i < total; i++) {
 
-                    se_string str;
+                    String str;
                     Error err = _decode_string(buf, len, r_len, str);
                     if (err)
                         return err;
@@ -411,7 +411,7 @@ Error decode_variant(Variant &r_variant, const uint8_t *p_buffer, int p_len, int
             } else {
                 ERR_FAIL_COND_V(!p_allow_objects, ERR_UNAUTHORIZED)
 
-                se_string str;
+                String str;
                 Error err = _decode_string(buf, len, r_len, str);
                 if (err)
                     return err;
@@ -630,7 +630,7 @@ Error decode_variant(Variant &r_variant, const uint8_t *p_buffer, int p_len, int
             ERR_FAIL_COND_V(len < 4, ERR_INVALID_DATA)
             int32_t count = decode_uint32(buf);
 
-            PoolVector<se_string> strings;
+            PoolVector<String> strings;
             buf += 4;
             len -= 4;
 
@@ -640,7 +640,7 @@ Error decode_variant(Variant &r_variant, const uint8_t *p_buffer, int p_len, int
 
             for (int32_t i = 0; i < count; i++) {
 
-                se_string str;
+                String str;
                 Error err = _decode_string(buf, len, r_len, str);
                 if (err)
                     return err;
@@ -768,7 +768,7 @@ Error decode_variant(Variant &r_variant, const uint8_t *p_buffer, int p_len, int
 
 static void _encode_string(const UIString &p_string, uint8_t *&buf, int &r_len) {
 
-    se_string utf8 = StringUtils::to_utf8(p_string);
+    String utf8 = StringUtils::to_utf8(p_string);
 
     if (buf) {
         encode_uint32(utf8.length(), buf);
@@ -1288,7 +1288,7 @@ Error encode_variant(const Variant &p_variant, uint8_t *r_buffer, int &r_len, bo
         } break;
         case VariantType::POOL_STRING_ARRAY: {
 
-            PoolVector<se_string> data = p_variant;
+            PoolVector<String> data = p_variant;
             int len = data.size();
 
             if (buf) {
@@ -1300,7 +1300,7 @@ Error encode_variant(const Variant &p_variant, uint8_t *r_buffer, int &r_len, bo
 
             for (int i = 0; i < len; i++) {
 
-                se_string utf8(data.get(i));
+                String utf8(data.get(i));
 
                 if (buf) {
                     encode_uint32(utf8.length() + 1, buf);

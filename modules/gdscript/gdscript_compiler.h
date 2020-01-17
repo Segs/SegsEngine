@@ -155,12 +155,12 @@ class GDScriptCompiler {
     int err_line;
     int err_column;
     StringName source;
-    se_string error;
+    String error;
 
 public:
     Error compile(const GDScriptParser *p_parser, GDScript *p_script, bool p_keep_state = false);
 
-    const se_string &get_error() const;
+    const String &get_error() const;
     int get_error_line() const;
     int get_error_column() const;
 

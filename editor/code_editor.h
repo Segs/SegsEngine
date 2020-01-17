@@ -135,7 +135,7 @@ public:
     FindReplaceBar();
 };
 
-using CodeTextEditorCodeCompleteFunc = void (*)(void *, const se_string &, List<ScriptCodeCompletionOption> *, bool &);
+using CodeTextEditorCodeCompleteFunc = void (*)(void *, const String &, List<ScriptCodeCompletionOption> *, bool &);
 
 class CodeTextEditor : public VBoxContainer {
 
@@ -192,7 +192,7 @@ class CodeTextEditor : public VBoxContainer {
 protected:
     virtual void _load_theme_settings() {}
     virtual void _validate_script() {}
-    virtual void _code_complete_script(const se_string &p_code, List<ScriptCodeCompletionOption> *r_options) {}
+    virtual void _code_complete_script(const String &p_code, List<ScriptCodeCompletionOption> *r_options) {}
 
     void _text_changed_idle_timeout();
     void _code_complete_timer_timeout();

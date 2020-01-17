@@ -219,11 +219,11 @@ void EditorInterface::select_file(se_string_view p_file) {
     EditorNode::get_singleton()->get_filesystem_dock()->select_file(p_file);
 }
 
-se_string EditorInterface::get_selected_path() const {
+String EditorInterface::get_selected_path() const {
     return EditorNode::get_singleton()->get_filesystem_dock()->get_selected_path();
 }
 
-const se_string &EditorInterface::get_current_path() const {
+const String &EditorInterface::get_current_path() const {
     return EditorNode::get_singleton()->get_filesystem_dock()->get_current_path();
 }
 
@@ -610,7 +610,7 @@ se_string_view EditorPlugin::get_name() const {
     thread_local char namebuf[512];
     if (get_script_instance() && get_script_instance()->has_method("get_plugin_name")) {
         namebuf[0]=0;
-        strncpy(namebuf,get_script_instance()->call("get_plugin_name").as<se_string>().c_str(),511);
+        strncpy(namebuf,get_script_instance()->call("get_plugin_name").as<String>().c_str(),511);
         return namebuf;
     }
 
@@ -697,10 +697,10 @@ void EditorPlugin::apply_changes() {
     }
 }
 
-void EditorPlugin::get_breakpoints(List<se_string> *p_breakpoints) {
+void EditorPlugin::get_breakpoints(List<String> *p_breakpoints) {
 
     if (get_script_instance() && get_script_instance()->has_method("get_breakpoints")) {
-        PoolVector<se_string> arr(get_script_instance()->call("get_breakpoints").as<PoolVector<se_string>>());
+        PoolVector<String> arr(get_script_instance()->call("get_breakpoints").as<PoolVector<String>>());
         for (int i = 0; i < arr.size(); i++)
             p_breakpoints->push_back(arr[i]);
     }
@@ -755,10 +755,10 @@ public:
     uint32_t get_import_flags() const override {
         return wrapped->get_import_flags();
     }
-    void get_extensions(PODVector<se_string> &p_extensions) const override {
+    void get_extensions(PODVector<String> &p_extensions) const override {
         wrapped->get_extensions(p_extensions);
     }
-    Node *import_scene(se_string_view p_path, uint32_t p_flags, int p_bake_fps, PODVector<se_string> *r_missing_deps, Error *r_err) override {
+    Node *import_scene(se_string_view p_path, uint32_t p_flags, int p_bake_fps, PODVector<String> *r_missing_deps, Error *r_err) override {
         return wrapped->import_scene(p_path,p_flags,p_bake_fps,r_missing_deps,r_err);
     }
     Ref<Animation> import_animation(se_string_view p_path, uint32_t p_flags, int p_bake_fps) override {

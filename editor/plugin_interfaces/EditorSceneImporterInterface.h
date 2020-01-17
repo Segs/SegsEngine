@@ -22,8 +22,8 @@ public:
 
     };
     virtual uint32_t get_import_flags() const=0;
-    virtual void get_extensions(PODVector<se_string> &p_extensions) const = 0;
-    virtual Node *import_scene(se_string_view p_path, uint32_t p_flags, int p_bake_fps, PODVector<se_string> *r_missing_deps, Error *r_err = nullptr)=0;
+    virtual void get_extensions(PODVector<String> &p_extensions) const = 0;
+    virtual Node *import_scene(se_string_view p_path, uint32_t p_flags, int p_bake_fps, PODVector<String> *r_missing_deps, Error *r_err = nullptr)=0;
     virtual Ref<Animation> import_animation(se_string_view p_path, uint32_t p_flags, int p_bake_fps)=0;
 
     virtual ~EditorSceneImporterInterface() = default;
@@ -33,8 +33,8 @@ public:
 class EditorSceneExporterInterface {
 //    friend class ImageSaver;
 public:
-    virtual bool can_save(const se_string &extension)=0; // support for multi-format plugins
-    virtual void get_extensions(Vector<se_string> *p_extensions) const = 0;
+    virtual bool can_save(const String &extension)=0; // support for multi-format plugins
+    virtual void get_extensions(Vector<String> *p_extensions) const = 0;
 public:
     virtual ~EditorSceneExporterInterface() {}
 };

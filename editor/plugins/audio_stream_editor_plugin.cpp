@@ -194,7 +194,7 @@ void AudioStreamEditor::edit(const Ref<AudioStream>& p_stream) {
     stream = p_stream;
     _player->set_stream(stream);
     _current = 0;
-    se_string text = StringUtils::pad_decimals(StringUtils::num(stream->get_length(), 2),2) + "s";
+    String text = StringUtils::pad_decimals(StringUtils::num(stream->get_length(), 2),2) + "s";
     _duration_label->set_text(StringName(text));
 
     if (stream) {

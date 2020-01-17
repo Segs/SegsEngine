@@ -386,7 +386,7 @@ bool ColorPicker::is_deferred_mode() const {
 void ColorPicker::_update_text_value() {
     bool visible = true;
     if (text_is_constructor) {
-        se_string t = FormatVE("Color(%f, %f, %f",color.r,color.g,color.b);
+        String t = FormatVE("Color(%f, %f, %f",color.r,color.g,color.b);
         if (edit_alpha && color.a < 1)
             t += ", " + StringUtils::num(color.a) + ")";
         else

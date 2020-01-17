@@ -43,14 +43,14 @@
 class BindingsGenerator {
 
     struct ConstantInterface {
-        se_string name;
-        se_string proxy_name;
+        String name;
+        String proxy_name;
         int value;
         const DocData::ConstantDoc *const_doc;
 
         ConstantInterface() {}
 
-        ConstantInterface(const se_string &p_name, const se_string &p_proxy_name, int p_value) {
+        ConstantInterface(const String &p_name, const String &p_proxy_name, int p_value) {
             name = p_name;
             proxy_name = p_proxy_name;
             value = p_value;
@@ -74,7 +74,7 @@ class BindingsGenerator {
 
     struct PropertyInterface {
         StringName cname;
-        se_string proxy_name;
+        String proxy_name;
         int index;
 
         StringName setter;
@@ -106,8 +106,8 @@ class BindingsGenerator {
 
         TypeReference type;
 
-        se_string name;
-        se_string default_argument;
+        String name;
+        String default_argument;
         DefaultParamMode def_param_mode;
 
         ArgumentInterface() {
@@ -116,13 +116,13 @@ class BindingsGenerator {
     };
 
     struct MethodInterface {
-        se_string name;
+        String name;
         StringName cname;
 
         /**
          * Name of the C# method
          */
-        se_string proxy_name;
+        String proxy_name;
 
         /**
          * [TypeInterface::name] of the return type
@@ -159,7 +159,7 @@ class BindingsGenerator {
         const DocData::MethodDoc *method_doc;
 
         bool is_deprecated;
-        se_string deprecation_message;
+        String deprecation_message;
 
         void add_argument(const ArgumentInterface &argument) {
             arguments.push_back(argument);
@@ -180,7 +180,7 @@ class BindingsGenerator {
          * Identifier name for this type.
          * Also used to format [c_out].
          */
-        se_string name;
+        String name;
         StringName cname;
 
         /**
@@ -238,7 +238,7 @@ class BindingsGenerator {
          * %0: [c_type] of the parameter
          * %1: name of the parameter
          */
-        se_string c_in;
+        String c_in;
 
         /**
          * Determines the expression that will be passed as argument to ptrcall.
@@ -247,7 +247,7 @@ class BindingsGenerator {
          * Formatting elements:
          * %0 or %s: name of the parameter
          */
-        se_string c_arg_in;
+        String c_arg_in;
 
         /**
          * One or more statements that determine how a variable of this type is returned from a function.
@@ -265,7 +265,7 @@ class BindingsGenerator {
          * %2: [name] of the return type
          * %3: name of the parameter that must be assigned the return value
          */
-        se_string c_out;
+        String c_out;
 
         /**
          * The actual expected type, as seen (in most cases) in Variant copy constructors
@@ -279,19 +279,19 @@ class BindingsGenerator {
          * int: int64_t (because ptrcall only supports int64_t and uint64_t)
          * Reference types override this for the type of the return variable: Ref<RefCounted>
          */
-        se_string c_type;
+        String c_type;
 
         /**
          * Determines the type used for parameters in function signatures.
          */
-        se_string c_type_in;
+        String c_type_in;
 
         /**
          * Determines the return type used for function signatures.
          * Also used to construct a default value to return in case of errors,
          * and to format [c_out].
          */
-        se_string c_type_out;
+        String c_type_out;
 
         // --- C# INTERFACE ---
 
@@ -301,7 +301,7 @@ class BindingsGenerator {
          * Formatting elements:
          * %0 or %s: name of the parameter
          */
-        se_string cs_in;
+        String cs_in;
 
         /**
          * One or more statements that determine how a variable of this type is returned from a method.
@@ -312,23 +312,23 @@ class BindingsGenerator {
          * %2: [cs_type] of the return type
          * %3: [im_type_out] of the return type
          */
-        se_string cs_out;
+        String cs_out;
 
         /**
          * Type used for method signatures, both for parameters and the return type.
          * Same as [proxy_name] except for variable arguments (VarArg) and collections (which include the namespace).
          */
-        se_string cs_type;
+        String cs_type;
 
         /**
          * Type used for parameters of internal call methods.
          */
-        se_string im_type_in;
+        String im_type_in;
 
         /**
          * Type used for the return type of internal call methods.
          */
-        se_string im_type_out;
+        String im_type_out;
 
         const DocData::ClassDoc *class_doc;
 
@@ -355,7 +355,7 @@ class BindingsGenerator {
             return NULL;
         }
 
-        const PropertyInterface *find_property_by_proxy_name(const se_string &p_proxy_name) const {
+        const PropertyInterface *find_property_by_proxy_name(const String &p_proxy_name) const {
             for (const PropertyInterface &E : properties) {
                 if (E.proxy_name == p_proxy_name)
                     return &E;
@@ -376,7 +376,7 @@ class BindingsGenerator {
         }
 
     public:
-        static TypeInterface create_value_type(const se_string &p_name) {
+        static TypeInterface create_value_type(const String &p_name) {
             TypeInterface itype;
             itype.name = p_name;
             itype.cname = StringName(p_name);
@@ -461,15 +461,15 @@ class BindingsGenerator {
     };
 
     struct InternalCall {
-        se_string name;
-        se_string im_type_out; // Return type for the C# method declaration. Also used as companion of [unique_siq]
-        se_string im_sig; // Signature for the C# method declaration
-        se_string unique_sig; // Unique signature to avoid duplicates in containers
+        String name;
+        String im_type_out; // Return type for the C# method declaration. Also used as companion of [unique_siq]
+        String im_sig; // Signature for the C# method declaration
+        String unique_sig; // Unique signature to avoid duplicates in containers
         bool editor_only;
 
         InternalCall() {}
 
-        InternalCall(const se_string &p_name, const se_string &p_im_type_out, const se_string &p_im_sig = se_string(), const se_string &p_unique_sig = se_string()) {
+        InternalCall(const String &p_name, const String &p_im_type_out, const String &p_im_sig = String(), const String &p_unique_sig = String()) {
             name = p_name;
             im_type_out = p_im_type_out;
             im_sig = p_im_sig;
@@ -477,7 +477,7 @@ class BindingsGenerator {
             editor_only = false;
         }
 
-        InternalCall(ClassDB::APIType api_type, const se_string &p_name, const se_string &p_im_type_out, const se_string &p_im_sig = se_string(), const se_string &p_unique_sig = se_string()) {
+        InternalCall(ClassDB::APIType api_type, const String &p_name, const String &p_im_type_out, const String &p_im_sig = String(), const String &p_unique_sig = String()) {
             name = p_name;
             im_type_out = p_im_type_out;
             im_sig = p_im_sig;
@@ -523,7 +523,7 @@ class BindingsGenerator {
         StringName type_Object;
         StringName type_Reference;
         StringName type_RID;
-        StringName type_se_string;
+        StringName type_String;
         StringName type_at_GlobalScope;
         StringName enum_Error;
 
@@ -547,7 +547,7 @@ class BindingsGenerator {
             type_Object = StaticCString("Object");
             type_Reference = StaticCString("Reference");
             type_RID = StaticCString("RID");
-            type_se_string = StaticCString("se_string");
+            type_String = StaticCString("String");
             type_at_GlobalScope = StaticCString("@GlobalScope");
             enum_Error = StaticCString("Error");
 
@@ -570,7 +570,7 @@ class BindingsGenerator {
 
     NameCache name_cache;
 
-    bool has_named_icall(const se_string &p_name, const ListPOD<InternalCall> &p_list) {
+    bool has_named_icall(const String &p_name, const ListPOD<InternalCall> &p_list) {
         for (const InternalCall &E : p_list) {
             if (E.name == p_name)
                 return true;
@@ -587,7 +587,7 @@ class BindingsGenerator {
         return nullptr;
     }
 
-    inline se_string get_unique_sig(const TypeInterface &p_type) {
+    inline String get_unique_sig(const TypeInterface &p_type) {
         if (p_type.is_reference)
             return "Ref";
         else if (p_type.is_object_type)
@@ -598,7 +598,7 @@ class BindingsGenerator {
         return p_type.name;
     }
 
-    se_string bbcode_to_xml(se_string_view p_bbcode, const TypeInterface *p_itype);
+    String bbcode_to_xml(se_string_view p_bbcode, const TypeInterface *p_itype);
 
     int _determine_enum_prefix(const EnumInterface &p_ienum);
     void _apply_prefix_to_enum_constants(EnumInterface &p_ienum, int p_prefix_length);
@@ -635,7 +635,7 @@ class BindingsGenerator {
 
 public:
     Error generate_cs_core_project(se_string_view p_proj_dir);
-    Error generate_cs_editor_project(const se_string &p_proj_dir);
+    Error generate_cs_editor_project(const String &p_proj_dir);
     Error generate_cs_api(se_string_view p_output_dir);
     Error generate_glue(se_string_view p_output_dir);
 
@@ -646,7 +646,7 @@ public:
 
     static uint32_t get_version();
 
-    static void handle_cmdline_args(const ListPOD<se_string> &p_cmdline_args);
+    static void handle_cmdline_args(const ListPOD<String> &p_cmdline_args);
 
     BindingsGenerator() :
             log_print_enabled(true),

@@ -56,9 +56,9 @@ protected:
 
     static void _bind_methods();
 
-    se_string _get_packet_ip() const;
+    String _get_packet_ip() const;
 
-    Error _set_dest_address(const se_string &p_address, int p_port);
+    Error _set_dest_address(const String &p_address, int p_port);
     Error _poll();
 
 public:

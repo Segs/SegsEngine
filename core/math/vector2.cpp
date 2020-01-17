@@ -147,7 +147,7 @@ Vector2 Vector2::snapped(const Vector2 &p_by) const {
                 Math::stepify(y, p_by.y));
 }
 
-Vector2::operator se_string() const
+Vector2::operator String() const
 {
     return FormatVE("%f, %f",x,y);
 }
@@ -245,4 +245,4 @@ bool Vector2i::operator!=(const Vector2i &p_vec2) const {
     return x != p_vec2.x || y != p_vec2.y;
 }
 
-Vector2i::operator se_string() const { return FormatVE("%d, %d",x,y); }
+Vector2i::operator String() const { return FormatVE("%d, %d",x,y); }

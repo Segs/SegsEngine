@@ -58,11 +58,11 @@ void ExportTemplateManager::_update_template_list() {
     DirAccess *d = DirAccess::create(DirAccess::ACCESS_FILESYSTEM);
     Error err = d->change_dir(EditorSettings::get_singleton()->get_templates_dir());
 
-    Set<se_string> templates;
+    Set<String> templates;
     d->list_dir_begin();
     if (err == OK) {
 
-        se_string c = d->get_next();
+        String c = d->get_next();
         while (!c.empty()) {
             if (d->current_is_dir() && !StringUtils::begins_with(c,".")) {
                 templates.insert(c);
@@ -74,7 +74,7 @@ void ExportTemplateManager::_update_template_list() {
 
     memdelete(d);
 
-    const se_string current_version(VERSION_FULL_CONFIG);
+    const String current_version(VERSION_FULL_CONFIG);
     const StringName ui_current_version(VERSION_FULL_CONFIG);
     // Downloadable export templates are only available for stable and official alpha/beta/RC builds
     // (which always have a number following their status, e.g. "alpha1").
@@ -127,7 +127,7 @@ void ExportTemplateManager::_update_template_list() {
         HBoxContainer *hbc = memnew(HBoxContainer);
         Label *version = memnew(Label);
         version->set_modulate(get_color("disabled_font_color", "Editor"));
-        se_string text = *E;
+        String text = *E;
         if (text == current_version) {
             text += " " + TTR("(Current)");
         }
@@ -145,7 +145,7 @@ void ExportTemplateManager::_update_template_list() {
     }
 }
 
-void ExportTemplateManager::_download_template(const se_string &p_version) {
+void ExportTemplateManager::_download_template(const String &p_version) {
 
     while (template_list->get_child_count()) {
         memdelete(template_list->get_child(0));
@@ -159,7 +159,7 @@ void ExportTemplateManager::_download_template(const se_string &p_version) {
     template_download_progress->show();
 }
 
-void ExportTemplateManager::_uninstall_template(const se_string &p_version) {
+void ExportTemplateManager::_uninstall_template(const String &p_version) {
 
     remove_confirm->set_text(FormatSN(TTR("Remove template version '%s'?").asCString(), p_version.c_str()));
     remove_confirm->popup_centered_minsize();
@@ -170,7 +170,7 @@ void ExportTemplateManager::_uninstall_template_confirm() {
     using namespace PathUtils;
 
     DirAccessRef da = DirAccess::create(DirAccess::ACCESS_FILESYSTEM);
-    const se_string templates_dir = EditorSettings::get_singleton()->get_templates_dir();
+    const String templates_dir = EditorSettings::get_singleton()->get_templates_dir();
     Error err = da->change_dir(templates_dir);
     ERR_FAIL_COND_MSG(err != OK, "Could not access templates directory at '" + templates_dir + "'.");
     err = da->change_dir(to_remove);
@@ -186,7 +186,7 @@ void ExportTemplateManager::_uninstall_template_confirm() {
     _update_template_list();
 }
 
-bool ExportTemplateManager::_install_from_file(const se_string &p_file, bool p_use_progress) {
+bool ExportTemplateManager::_install_from_file(const String &p_file, bool p_use_progress) {
     // unzClose() will take care of closing the file stored in the unzFile,
     // so we don't need to `memdelete(fa)` in this method.
     FileAccess *fa = nullptr;
@@ -201,8 +201,8 @@ bool ExportTemplateManager::_install_from_file(const se_string &p_file, bool p_u
     int ret = unzGoToFirstFile(pkg);
 
     int fc = 0; //count them and find version
-    se_string version;
-    se_string contents_dir;
+    String version;
+    String contents_dir;
 
     while (ret == UNZ_OK) {
 
@@ -210,7 +210,7 @@ bool ExportTemplateManager::_install_from_file(const se_string &p_file, bool p_u
         char fname[16384];
         ret = unzGetCurrentFileInfo(pkg, &info, fname, 16384, nullptr, 0, nullptr, 0);
 
-        se_string file(fname);
+        String file(fname);
 
         if (StringUtils::ends_with(file,"version.txt")) {
 
@@ -222,7 +222,7 @@ bool ExportTemplateManager::_install_from_file(const se_string &p_file, bool p_u
             ret = unzReadCurrentFile(pkg, data.ptrw(), data.size());
             unzCloseCurrentFile(pkg);
 
-            se_string data_str((const char *)data.ptr(), data.size());
+            String data_str((const char *)data.ptr(), data.size());
             data_str =StringUtils::strip_edges( data_str);
 
             // Version number should be of the form major.minor[.patch].status[.module_config]
@@ -250,7 +250,7 @@ bool ExportTemplateManager::_install_from_file(const se_string &p_file, bool p_u
         return false;
     }
 
-    se_string template_path = PathUtils::plus_file(EditorSettings::get_singleton()->get_templates_dir(),version);
+    String template_path = PathUtils::plus_file(EditorSettings::get_singleton()->get_templates_dir(),version);
 
     DirAccessRef d = DirAccess::create(DirAccess::ACCESS_FILESYSTEM);
     Error err = d->make_dir_recursive(template_path);
@@ -277,9 +277,9 @@ bool ExportTemplateManager::_install_from_file(const se_string &p_file, bool p_u
         char fname[16384];
         unzGetCurrentFileInfo(pkg, &info, fname, 16384, nullptr, 0, nullptr, 0);
 
-        se_string file_path(PathUtils::simplify_path(fname));
+        String file_path(PathUtils::simplify_path(fname));
 
-        se_string file(PathUtils::get_file(file_path));
+        String file(PathUtils::get_file(file_path));
 
         if (file.empty()) {
             ret = unzGoToNextFile(pkg);
@@ -294,7 +294,7 @@ bool ExportTemplateManager::_install_from_file(const se_string &p_file, bool p_u
         unzReadCurrentFile(pkg, data.ptrw(), data.size());
         unzCloseCurrentFile(pkg);
 
-        se_string base_dir(StringUtils::trim_suffix(PathUtils::get_base_dir(file_path),("/")));
+        String base_dir(StringUtils::trim_suffix(PathUtils::get_base_dir(file_path),("/")));
 
         if (base_dir != contents_dir && StringUtils::begins_with(base_dir,contents_dir)) {
             base_dir = StringUtils::trim_prefix(StringUtils::substr(base_dir,contents_dir.length(), file_path.length()),("/"));
@@ -303,7 +303,7 @@ bool ExportTemplateManager::_install_from_file(const se_string &p_file, bool p_u
             DirAccessRef da = DirAccess::create(DirAccess::ACCESS_FILESYSTEM);
             ERR_CONTINUE(!da)
 
-            se_string output_dir = PathUtils::plus_file(template_path,base_dir);
+            String output_dir = PathUtils::plus_file(template_path,base_dir);
 
             if (!DirAccess::exists(output_dir)) {
                 Error mkdir_err = da->make_dir_recursive(output_dir);
@@ -315,7 +315,7 @@ bool ExportTemplateManager::_install_from_file(const se_string &p_file, bool p_u
             p->step(TTR("Importing:") + " " + file, fc);
         }
 
-        se_string to_write = PathUtils::plus_file(template_path,file);
+        String to_write = PathUtils::plus_file(template_path,file);
         FileAccessRef f = FileAccess::open(to_write, FileAccess::WRITE);
 
         if (!f) {
@@ -363,17 +363,17 @@ void ExportTemplateManager::_http_download_mirror_completed(int p_status, int p_
         return;
     }
 
-    se_string mirror_str;
+    String mirror_str;
     {
         PoolByteArray::Read r = p_data.read();
-        mirror_str = se_string((const char *)r.ptr(), p_data.size());
+        mirror_str = String((const char *)r.ptr(), p_data.size());
     }
 
     template_list_state->hide();
     template_download_progress->hide();
 
     Variant r;
-    se_string errs;
+    String errs;
     int errline;
     Error err = JSON::parse(mirror_str, r, errs, errline);
     if (err != OK) {
@@ -390,7 +390,7 @@ void ExportTemplateManager::_http_download_mirror_completed(int p_status, int p_
             Dictionary m = mirrors[i];
             ERR_CONTINUE(!m.has("url") || !m.has("name"))
             LinkButton *lb = memnew(LinkButton);
-            lb->set_text(m["name"].as<se_string>());
+            lb->set_text(m["name"].as<String>());
             lb->connect("pressed", this, "_begin_template_download", varray(m["url"]));
             template_list->add_child(lb);
             mirrors_found = true;
@@ -430,7 +430,7 @@ void ExportTemplateManager::_http_download_templates_completed(int p_status, int
             if (p_code != 200) {
                 template_list_state->set_text(FormatSN(TTR("Failed: %d").asCString(),p_code));
             } else {
-                se_string path = download_templates->get_download_file();
+                String path = download_templates->get_download_file();
                 template_list_state->set_text(TTR("Download Complete."));
                 template_downloader->hide();
                 bool ret = _install_from_file(path, false);
@@ -453,7 +453,7 @@ void ExportTemplateManager::_http_download_templates_completed(int p_status, int
     set_process(false);
 }
 
-void ExportTemplateManager::_begin_template_download(const se_string &p_url) {
+void ExportTemplateManager::_begin_template_download(const String &p_url) {
 
     if (Input::get_singleton()->is_key_pressed(KEY_SHIFT)) {
         OS::get_singleton()->shell_open(p_url);
@@ -554,7 +554,7 @@ void ExportTemplateManager::_notification(int p_what) {
 }
 
 bool ExportTemplateManager::can_install_android_template() {
-    const se_string templates_dir = PathUtils::plus_file(EditorSettings::get_singleton()->get_templates_dir(), VERSION_FULL_CONFIG);
+    const String templates_dir = PathUtils::plus_file(EditorSettings::get_singleton()->get_templates_dir(), VERSION_FULL_CONFIG);
     return FileAccess::exists(PathUtils::plus_file(templates_dir, "android_source.zip")) &&
            FileAccess::exists(PathUtils::plus_file(templates_dir, "android_release.apk")) &&
            FileAccess::exists(PathUtils::plus_file(templates_dir, "android_debug.apk"));
@@ -588,8 +588,8 @@ Error ExportTemplateManager::install_android_template() {
 
     Error err = da->make_dir_recursive(("android/build"));
     ERR_FAIL_COND_V(err != OK, err)
-    const se_string template_path=PathUtils::plus_file(EditorSettings::get_singleton()->get_templates_dir(),VERSION_FULL_CONFIG);
-    const se_string source_zip = PathUtils::plus_file(template_path,"android_source.zip");
+    const String template_path=PathUtils::plus_file(EditorSettings::get_singleton()->get_templates_dir(),VERSION_FULL_CONFIG);
+    const String source_zip = PathUtils::plus_file(template_path,"android_source.zip");
     ERR_FAIL_COND_V(!FileAccess::exists(source_zip), ERR_CANT_OPEN)
 
     FileAccess *src_f = nullptr;
@@ -609,7 +609,7 @@ Error ExportTemplateManager::install_android_template() {
     ret = unzGoToFirstFile(pkg);
     ProgressDialog::get_singleton()->add_task(("uncompress_src"), TTR("Uncompressing Android Build Sources"), total_files);
 
-    Set<se_string> dirs_tested;
+    Set<String> dirs_tested;
 
     int idx = 0;
     while (ret == UNZ_OK) {
@@ -619,8 +619,8 @@ Error ExportTemplateManager::install_android_template() {
         char fpath[16384];
         ret = unzGetCurrentFileInfo(pkg, &info, fpath, 16384, nullptr, 0, nullptr, 0);
 
-        se_string path(fpath);
-        se_string base_dir = PathUtils::get_base_dir(path);
+        String path(fpath);
+        String base_dir = PathUtils::get_base_dir(path);
 
         if (!StringUtils::ends_with(path,'/')) {
             Vector<uint8_t> data;
@@ -636,7 +636,7 @@ Error ExportTemplateManager::install_android_template() {
                 dirs_tested.insert(base_dir);
             }
 
-            se_string to_write = PathUtils::plus_file(("res://android/build"),path);
+            String to_write = PathUtils::plus_file(("res://android/build"),path);
             FileAccess *f = FileAccess::open(to_write, FileAccess::WRITE);
             if (f) {
                 f->store_buffer(data.ptr(), data.size());
@@ -667,11 +667,11 @@ Error ExportTemplateManager::install_android_template() {
     return OK;
 }
 
-Error ExportTemplateManager::_extract_libs_from_apk(const se_string &p_target_name) {
+Error ExportTemplateManager::_extract_libs_from_apk(const String &p_target_name) {
     using namespace PathUtils;
     using namespace StringUtils;
-    const se_string templates_path = plus_file(EditorSettings::get_singleton()->get_templates_dir(),VERSION_FULL_CONFIG);
-    const se_string apk_file = plus_file(templates_path,"android_" + p_target_name + ".apk");
+    const String templates_path = plus_file(EditorSettings::get_singleton()->get_templates_dir(),VERSION_FULL_CONFIG);
+    const String apk_file = plus_file(templates_path,"android_" + p_target_name + ".apk");
     ERR_FAIL_COND_V(!FileAccess::exists(apk_file), ERR_CANT_OPEN)
 
     FileAccess *src_f = nullptr;
@@ -687,7 +687,7 @@ Error ExportTemplateManager::_extract_libs_from_apk(const se_string &p_target_na
     ProgressDialog::get_singleton()->add_task(("extract_libs_from_apk"), TTR("Extracting Android Libraries From APKs"), 8);
 
     int ret = unzGoToFirstFile(pkg);
-    Set<se_string> dirs_tested;
+    Set<String> dirs_tested;
     int idx = 0;
     while (ret == UNZ_OK) {
         // Get file path.
@@ -695,8 +695,8 @@ Error ExportTemplateManager::_extract_libs_from_apk(const se_string &p_target_na
         char fpath[16384];
         ret = unzGetCurrentFileInfo(pkg, &info, fpath, 16384, nullptr, 0, nullptr, 0);
 
-        se_string path(fpath);
-        se_string base_dir = get_base_dir(path);
+        String path(fpath);
+        String base_dir = get_base_dir(path);
         se_string_view file(get_file(path));
 
         if (!begins_with(base_dir,"lib") || ends_with(path,'/')) {
@@ -713,14 +713,14 @@ Error ExportTemplateManager::_extract_libs_from_apk(const se_string &p_target_na
         unzCloseCurrentFile(pkg);
 
         // We have a "lib" folder in the APK, but it should be "libs/{release,debug}" in the source dir.
-        se_string target_base_dir(replace_first(base_dir,("lib"), plus_file("libs",p_target_name)));
+        String target_base_dir(replace_first(base_dir,("lib"), plus_file("libs",p_target_name)));
 
         if (!dirs_tested.contains(base_dir)) {
             da->make_dir_recursive(plus_file(("android/build"),target_base_dir));
             dirs_tested.insert(base_dir);
         }
 
-        se_string to_write = plus_file(("res://android/build"),plus_file(target_base_dir,get_file(path)));
+        String to_write = plus_file(("res://android/build"),plus_file(target_base_dir,get_file(path)));
         FileAccess *f = FileAccess::open(to_write, FileAccess::WRITE);
         if (f) {
             f->store_buffer(data.ptr(), data.size());

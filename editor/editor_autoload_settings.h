@@ -46,11 +46,11 @@ class EditorAutoloadSettings : public VBoxContainer {
         BUTTON_DELETE
     };
 
-    se_string autoload_changed;
+    String autoload_changed;
 
     struct AutoLoadInfo {
         StringName name;
-        se_string path;
+        String path;
         bool is_singleton;
         bool in_editor;
         int order;
@@ -71,13 +71,13 @@ class EditorAutoloadSettings : public VBoxContainer {
 
     bool updating_autoload;
     int number_of_autoloads;
-    se_string selected_autoload;
+    String selected_autoload;
 
     Tree *tree;
     EditorLineEditFileChooser *autoload_add_path;
     LineEdit *autoload_add_name;
 
-    bool _autoload_name_is_valid(const StringName &p_name, se_string *r_error = nullptr);
+    bool _autoload_name_is_valid(const StringName &p_name, String *r_error = nullptr);
 
     void _autoload_add();
     void _autoload_selected();

@@ -98,7 +98,7 @@ void EditorPath::update_path() {
             set_icon(icon);
 
         if (i == history->get_path_size() - 1) {
-            se_string name;
+            String name;
             if (object_cast<Resource>(obj)) {
 
                 Resource *r = object_cast<Resource>(obj);
@@ -110,7 +110,7 @@ void EditorPath::update_path() {
                 if (name.empty())
                     name = r->get_class();
             } else if (obj->is_class("ScriptEditorDebuggerInspectedObject"))
-                name = obj->call("get_title").as<se_string>();
+                name = obj->call("get_title").as<String>();
             else if (object_cast<Node>(obj))
                 name = object_cast<Node>(obj)->get_name();
             else if (object_cast<Resource>(obj) && !object_cast<Resource>(obj)->get_name().empty())

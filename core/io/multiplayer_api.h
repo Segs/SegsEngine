@@ -63,7 +63,7 @@ class GODOT_EXPORT MultiplayerAPI : public RefCounted {
 public:
     struct ProfilingInfo {
         ObjectID node;
-        se_string node_path;
+        String node_path;
         int incoming_rpc;
         int incoming_rset;
         int outgoing_rpc;

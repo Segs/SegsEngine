@@ -46,8 +46,8 @@ class PCKPacker : public RefCounted {
 
     struct File {
 
-        se_string path;
-        se_string src_path;
+        String path;
+        String src_path;
         int size;
         uint64_t offset_offset;
     };

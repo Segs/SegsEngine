@@ -340,12 +340,12 @@ void EditorSpinSlider::set_label(se_string_view p_label) {
     label = p_label;
     update();
 }
-const se_string &EditorSpinSlider::get_label() const {
+const String &EditorSpinSlider::get_label() const {
     return label;
 }
 
 void EditorSpinSlider::_evaluate_input_text() {
-    se_string text = value_input->get_text();
+    String text = value_input->get_text();
     Ref<Expression> expr(make_ref_counted<Expression>());
     Error err = expr->parse(text);
     if (err != OK) {

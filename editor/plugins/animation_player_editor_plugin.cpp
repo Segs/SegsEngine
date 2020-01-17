@@ -165,7 +165,7 @@ void AnimationPlayerEditor::_autoplay_pressed() {
         return;
     }
 
-    se_string current(animation->get_item_text_utf8(animation->get_selected()));
+    String current(animation->get_item_text_utf8(animation->get_selected()));
     if (player->get_autoplay() == current) {
         //unset
         undo_redo->create_action_ui(TTR("Toggle Autoplay"));
@@ -188,7 +188,7 @@ void AnimationPlayerEditor::_autoplay_pressed() {
 
 void AnimationPlayerEditor::_play_pressed() {
 
-    se_string current;
+    String current;
     if (animation->get_selected() >= 0 && animation->get_selected() < animation->get_item_count()) {
 
         current = animation->get_item_text_utf8(animation->get_selected());
@@ -206,7 +206,7 @@ void AnimationPlayerEditor::_play_pressed() {
 }
 void AnimationPlayerEditor::_play_from_pressed() {
 
-    se_string current;
+    String current;
     if (animation->get_selected() >= 0 && animation->get_selected() < animation->get_item_count()) {
 
         current = animation->get_item_text_utf8(animation->get_selected());
@@ -231,7 +231,7 @@ void AnimationPlayerEditor::_play_from_pressed() {
 
 void AnimationPlayerEditor::_play_bw_pressed() {
 
-    se_string current;
+    String current;
     if (animation->get_selected() >= 0 && animation->get_selected() < animation->get_item_count()) {
 
         current = animation->get_item_text_utf8(animation->get_selected());
@@ -250,7 +250,7 @@ void AnimationPlayerEditor::_play_bw_pressed() {
 
 void AnimationPlayerEditor::_play_bw_from_pressed() {
 
-    se_string current;
+    String current;
     if (animation->get_selected() >= 0 && animation->get_selected() < animation->get_item_count()) {
 
         current = animation->get_item_text_utf8(animation->get_selected());
@@ -325,9 +325,9 @@ void AnimationPlayerEditor::_animation_new() {
     name_title->set_text(TTR("New Animation Name:"));
 
     int count = 1;
-    se_string base(TTR("New Anim"));
+    String base(TTR("New Anim"));
     while (true) {
-        se_string attempt(base);
+        String attempt(base);
         if (count > 1)
             attempt += " (" + itos(count) + ")";
         if (player->has_animation(StringName(attempt))) {
@@ -361,10 +361,10 @@ void AnimationPlayerEditor::_animation_load() {
     ERR_FAIL_COND(!player)
     file->set_mode(EditorFileDialog::MODE_OPEN_FILE);
     file->clear_filters();
-    PODVector<se_string> extensions;
+    PODVector<String> extensions;
 
     ResourceLoader::get_recognized_extensions_for_type("Animation", extensions);
-    for (const se_string &E : extensions) {
+    for (const String &E : extensions) {
 
         file->add_filter("*." + E + " ; " + StringUtils::to_upper(E));
     }
@@ -379,7 +379,7 @@ void AnimationPlayerEditor::_animation_save_in_path(const Ref<Resource> &p_resou
     if (EditorSettings::get_singleton()->get("filesystem/on_save/compress_binary_resources"))
         flg |= ResourceSaver::FLAG_COMPRESS;
 
-    se_string path = ProjectSettings::get_singleton()->localize_path(p_path);
+    String path = ProjectSettings::get_singleton()->localize_path(p_path);
     Error err = ResourceSaver::save(path, p_resource, flg | ResourceSaver::FLAG_REPLACE_SUBRESOURCE_PATHS);
 
     if (err != OK) {
@@ -405,7 +405,7 @@ void AnimationPlayerEditor::_animation_save_as(const Ref<Resource> &p_resource) 
 
     file->set_mode(EditorFileDialog::MODE_SAVE_FILE);
 
-    PODVector<se_string> extensions;
+    PODVector<String> extensions;
     ResourceSaver::get_recognized_extensions(p_resource, extensions);
     file->clear_filters();
     for (size_t i = 0; i < extensions.size(); i++) {
@@ -417,19 +417,19 @@ void AnimationPlayerEditor::_animation_save_as(const Ref<Resource> &p_resource) 
     if (!p_resource->get_path().empty()) {
         file->set_current_path(p_resource->get_path());
         if (!extensions.empty()) {
-            se_string ext = StringUtils::to_lower(PathUtils::get_extension(p_resource->get_path()));
+            String ext = StringUtils::to_lower(PathUtils::get_extension(p_resource->get_path()));
             if (not extensions.contains(ext)) {
                 file->set_current_path(StringUtils::replacen(p_resource->get_path(),"." + ext, "." + extensions[0]));
             }
         }
     } else {
 
-        se_string existing;
+        String existing;
         if (!extensions.empty()) {
             if (!p_resource->get_name().empty()) {
                 existing = p_resource->get_name() + "." + StringUtils::to_lower(extensions[0]);
             } else {
-                existing = se_string("new_" + StringUtils::to_lower(p_resource->get_class()) + ".") + StringUtils::to_lower(extensions[0]);
+                existing = String("new_" + StringUtils::to_lower(p_resource->get_class()) + ".") + StringUtils::to_lower(extensions[0]);
             }
         }
         file->set_current_path(existing);
@@ -508,7 +508,7 @@ void AnimationPlayerEditor::_animation_name_edited() {
 
     player->stop();
 
-    se_string new_name = name->get_text();
+    String new_name = name->get_text();
     if (new_name.empty() || StringUtils::contains(new_name,":") || StringUtils::contains(new_name,"/")) {
         error_dialog->set_text(TTR("Invalid animation name!"));
         error_dialog->popup_centered_minsize();
@@ -527,7 +527,7 @@ void AnimationPlayerEditor::_animation_name_edited() {
     }
 
     if (renaming) {
-        se_string current = animation->get_item_text_utf8(animation->get_selected());
+        String current = animation->get_item_text_utf8(animation->get_selected());
         Ref<Animation> anim = player->get_animation(StringName(current));
 
         undo_redo->create_action_ui(TTR("Rename Animation"));
@@ -568,7 +568,7 @@ void AnimationPlayerEditor::_blend_editor_next_changed(const int p_idx) {
     if (animation->get_item_count() == 0)
         return;
 
-    se_string current = animation->get_item_text_utf8(animation->get_selected());
+    String current = animation->get_item_text_utf8(animation->get_selected());
 
     undo_redo->create_action_ui(TTR("Blend Next Changed"));
     undo_redo->add_do_method(player, "animation_set_next", current, blend_editor.next->get_item_text(p_idx));
@@ -640,14 +640,14 @@ void AnimationPlayerEditor::_blend_edited() {
     if (animation->get_item_count() == 0)
         return;
 
-    se_string current(animation->get_item_text_utf8(animation->get_selected()));
+    String current(animation->get_item_text_utf8(animation->get_selected()));
 
     TreeItem *selected = blend_editor.tree->get_edited();
     if (!selected)
         return;
 
     updating_blends = true;
-    se_string to(selected->get_text(0));
+    String to(selected->get_text(0));
     float blend_time = selected->get_range(1);
     float prev_blend_time = player->get_blend_time(StringName(current), StringName(to));
 
@@ -701,7 +701,7 @@ void AnimationPlayerEditor::set_state(const Dictionary &p_state) {
             ensure_visibility();
 
             if (p_state.has("animation")) {
-                se_string anim = p_state["animation"];
+                String anim = p_state["animation"];
                 if (!anim.empty() && player->has_animation(StringName(anim))) {
                 _select_anim_by_name(StringName(anim));
                 _animation_edit();
@@ -718,7 +718,7 @@ void AnimationPlayerEditor::set_state(const Dictionary &p_state) {
 void AnimationPlayerEditor::_animation_resource_edit() {
 
     if (animation->get_item_count()) {
-        se_string current(animation->get_item_text_utf8(animation->get_selected()));
+        String current(animation->get_item_text_utf8(animation->get_selected()));
         Ref<Animation> anim = player->get_animation(StringName(current));
         editor->edit_resource(anim);
     }
@@ -727,7 +727,7 @@ void AnimationPlayerEditor::_animation_resource_edit() {
 void AnimationPlayerEditor::_animation_edit() {
 
     if (animation->get_item_count()) {
-        se_string current(animation->get_item_text_utf8(animation->get_selected()));
+        String current(animation->get_item_text_utf8(animation->get_selected()));
         Ref<Animation> anim = player->get_animation(StringName(current));
         track_editor->set_animation(anim);
 
@@ -748,8 +748,8 @@ void AnimationPlayerEditor::_dialog_action(se_string_view p_file) {
             ERR_FAIL_COND(!player)
 
             Ref<Resource> res = ResourceLoader::load(p_file, "Animation");
-            ERR_FAIL_COND_MSG(not res, "Cannot load Animation from file '" + se_string(p_file) + "'.")
-            ERR_FAIL_COND_MSG(!res->is_class("Animation"), "Loaded resource from file '" + se_string(p_file) + "' is not Animation.")
+            ERR_FAIL_COND_MSG(not res, "Cannot load Animation from file '" + String(p_file) + "'.")
+            ERR_FAIL_COND_MSG(!res->is_class("Animation"), "Loaded resource from file '" + String(p_file) + "' is not Animation.")
             if (StringUtils::contains(p_file,'/')) {
 
                 p_file = StringUtils::substr(p_file,StringUtils::find_last(p_file,'/') + 1, p_file.length());
@@ -775,7 +775,7 @@ void AnimationPlayerEditor::_dialog_action(se_string_view p_file) {
         }
         case RESOURCE_SAVE: {
 
-            se_string current(animation->get_item_text_utf8(animation->get_selected()));
+            String current(animation->get_item_text_utf8(animation->get_selected()));
             if (!current.empty()) {
                 Ref<Animation> anim = player->get_animation(StringName(current));
 
@@ -789,7 +789,7 @@ void AnimationPlayerEditor::_dialog_action(se_string_view p_file) {
     }
 }
 
-void AnimationPlayerEditor::_scale_changed(const se_string &p_scale) {
+void AnimationPlayerEditor::_scale_changed(const String &p_scale) {
 
     player->set_speed_scale(StringUtils::to_double(p_scale));
 }
@@ -892,7 +892,7 @@ void AnimationPlayerEditor::_update_player() {
     }
 
     if (animation->get_item_count()) {
-        se_string current(animation->get_item_text_utf8(animation->get_selected()));
+        String current(animation->get_item_text_utf8(animation->get_selected()));
         Ref<Animation> anim = player->get_animation(StringName(current));
         track_editor->set_animation(anim);
         Node *root = player->get_node(player->get_root());
@@ -1000,7 +1000,7 @@ void AnimationPlayerEditor::_animation_duplicate() {
     }
     new_anim->set_path("");
 
-    se_string new_name(current);
+    String new_name(current);
     while (player->has_animation(StringName(new_name))) {
 
         new_name = new_name + " (copy)";
@@ -1108,7 +1108,7 @@ void AnimationPlayerEditor::_animation_key_editor_seek(float p_pos, bool p_drag)
 
 void AnimationPlayerEditor::_animation_tool_menu(int p_option) {
 
-    se_string current;
+    String current;
     if (animation->get_selected() >= 0 && animation->get_selected() < animation->get_item_count()) {
         current = animation->get_item_text_utf8(animation->get_selected());
     }
@@ -1177,13 +1177,13 @@ void AnimationPlayerEditor::_animation_tool_menu(int p_option) {
                 return;
             }
 
-            se_string name(anim2->get_name());
+            String name(anim2->get_name());
             if (name.empty()) {
-                name = se_string(TTR("Pasted Animation"));
+                name = String(TTR("Pasted Animation"));
             }
 
             int idx = 1;
-            se_string base = name;
+            String base = name;
             while (player->has_animation(StringName(name))) {
 
                 idx++;
@@ -1207,7 +1207,7 @@ void AnimationPlayerEditor::_animation_tool_menu(int p_option) {
                 return;
             }
 
-            se_string current2(animation->get_item_text_utf8(animation->get_selected()));
+            String current2(animation->get_item_text_utf8(animation->get_selected()));
             Ref<Animation> anim2 = player->get_animation(StringName(current2));
             editor->edit_resource(anim2);
         } break;
@@ -1802,7 +1802,7 @@ AnimationPlayerEditor::AnimationPlayerEditor(EditorNode *p_editor, AnimationPlay
     onion.capture.material = make_ref_counted<ShaderMaterial>();
 
     onion.capture.shader = make_ref_counted<Shader>();
-    onion.capture.shader->set_code(se_string(" \
+    onion.capture.shader->set_code(String(" \
         shader_type canvas_item; \
         \
         uniform vec4 bkg_color; \

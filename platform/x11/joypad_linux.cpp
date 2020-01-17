@@ -378,7 +378,7 @@ void JoypadLinux::open_joypad(const char *p_path) {
             sprintf(uid + se_string_view(uid).length(), "%04x%04x%04x%04x%04x%04x", vendor, 0, product, 0, version, 0);
             input->joy_connection_changed(joy_num, true, name, StringName(uid));
         } else {
-            se_string uidname(uid);
+            String uidname(uid);
             int uidlen = MIN(se_string_view(name).length(), 11);
             for (int i = 0; i < uidlen; i++) {
 

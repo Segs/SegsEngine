@@ -332,16 +332,16 @@ double StreamPeer::get_double() {
 
     return decode_double(buf);
 }
-se_string StreamPeer::get_string(int p_bytes) {
+String StreamPeer::get_string(int p_bytes) {
 
     if (p_bytes < 0)
         p_bytes = get_u32();
-    ERR_FAIL_COND_V(p_bytes < 0, se_string())
+    ERR_FAIL_COND_V(p_bytes < 0, String())
 
-    se_string buf;
+    String buf;
     buf.resize(p_bytes + 1);
     Error err = get_data((uint8_t *)&buf[0], p_bytes);
-    ERR_FAIL_COND_V(err != OK, se_string())
+    ERR_FAIL_COND_V(err != OK, String())
     buf[p_bytes] = 0;
     return buf;
 }

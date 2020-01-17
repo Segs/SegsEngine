@@ -127,8 +127,8 @@ void create_context() {
 int detect_prime() {
     pid_t p;
     int priorities[2];
-    se_string vendors[2];
-    se_string renderers[2];
+    String vendors[2];
+    String renderers[2];
 
     vendors[0] = "Unknown";
     vendors[1] = "Unknown";

@@ -610,12 +610,12 @@ void Area::_validate_property(PropertyInfo &property) const {
 
     if (property.name == "audio_bus_name" || property.name == "reverb_bus_name") {
 
-        se_string options;
+        String options;
         for (int i = 0; i < AudioServer::get_singleton()->get_bus_count(); i++) {
             if (i > 0)
                 options += ',';
             StringName name(AudioServer::get_singleton()->get_bus_name(i));
-            options += se_string(name);
+            options += String(name);
         }
 
         property.hint_string = options;

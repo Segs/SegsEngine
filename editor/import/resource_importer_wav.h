@@ -39,7 +39,7 @@ class ResourceImporterWAV : public ResourceImporter {
 public:
     StringName get_importer_name() const override;
     StringName get_visible_name() const override;
-    void get_recognized_extensions(PODVector<se_string> &p_extensions) const override;
+    void get_recognized_extensions(PODVector<String> &p_extensions) const override;
     StringName get_save_extension() const override;
     StringName get_resource_type() const override;
 
@@ -161,7 +161,7 @@ public:
         }
     }
 
-    Error import(se_string_view p_source_file, se_string_view p_save_path, const Map<StringName, Variant> &p_options, DefList<se_string> *r_platform_variants, DefList<se_string> *r_gen_files = nullptr, Variant *r_metadata = nullptr) override;
+    Error import(se_string_view p_source_file, se_string_view p_save_path, const Map<StringName, Variant> &p_options, DefList<String> *r_platform_variants, DefList<String> *r_gen_files = nullptr, Variant *r_metadata = nullptr) override;
 
     ResourceImporterWAV();
 };

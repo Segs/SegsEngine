@@ -46,7 +46,7 @@ StringName ResourceImporterBitMap::get_visible_name() const {
 
     return "BitMap";
 }
-void ResourceImporterBitMap::get_recognized_extensions(PODVector<se_string> &p_extensions) const {
+void ResourceImporterBitMap::get_recognized_extensions(PODVector<String> &p_extensions) const {
 
     ImageLoader::get_recognized_extensions(p_extensions);
 }
@@ -78,7 +78,7 @@ void ResourceImporterBitMap::get_import_options(ListPOD<ImportOption> *r_options
 }
 
 Error ResourceImporterBitMap::import(se_string_view p_source_file, se_string_view p_save_path,
-        const Map<StringName, Variant> &p_options, List<se_string> *r_platform_variants, List<se_string> *r_gen_files,
+        const Map<StringName, Variant> &p_options, List<String> *r_platform_variants, List<String> *r_gen_files,
         Variant *r_metadata) {
 
     int create_from = p_options.at("create_from");
@@ -111,7 +111,7 @@ Error ResourceImporterBitMap::import(se_string_view p_source_file, se_string_vie
         }
     }
 
-    return ResourceSaver::save(se_string(p_save_path) + ".res", bitmap);
+    return ResourceSaver::save(String(p_save_path) + ".res", bitmap);
 }
 
 ResourceImporterBitMap::ResourceImporterBitMap() {

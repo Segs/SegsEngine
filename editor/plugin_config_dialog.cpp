@@ -52,7 +52,7 @@ void PluginConfigDialog::_clear_fields() {
 
 void PluginConfigDialog::_on_confirmed() {
 
-    se_string path = se_string("res://addons/") + StringUtils::to_utf8(subfolder_edit->get_text_ui()).data();
+    String path = String("res://addons/") + StringUtils::to_utf8(subfolder_edit->get_text_ui()).data();
 
     if (!_edit_mode) {
         DirAccess *d = DirAccess::create(DirAccess::ACCESS_RESOURCES);
@@ -82,7 +82,7 @@ void PluginConfigDialog::_on_confirmed() {
             // Hard-coded GDScript template to keep usability until we use script templates.
             Ref<GDScript> gdscript(make_ref_counted<GDScript>());
             gdscript->set_source_code(
-                    se_string("tool\n"
+                    String("tool\n"
                     "extends EditorPlugin\n"
                     "\n"
                     "func _enter_tree():\n"
@@ -90,12 +90,12 @@ void PluginConfigDialog::_on_confirmed() {
                     "\n"
                     "func _exit_tree():\n"
                     "\tpass\n"));
-            se_string script_path(PathUtils::plus_file(path,script_edit->get_text()));
+            String script_path(PathUtils::plus_file(path,script_edit->get_text()));
             gdscript->set_path(script_path);
             ResourceSaver::save(script_path, gdscript);
             script = gdscript;
         } else {
-            se_string script_path(PathUtils::plus_file(path,script_edit->get_text()));
+            String script_path(PathUtils::plus_file(path,script_edit->get_text()));
             se_string_view class_name(PathUtils::get_basename(PathUtils::get_file(script_path)));
             script = ScriptServer::get_language(lang_idx)->get_template(class_name, "EditorPlugin");
             script->set_path(script_path);
@@ -115,7 +115,7 @@ void PluginConfigDialog::_on_cancelled() {
 
 void PluginConfigDialog::_on_required_text_changed(se_string_view ) {
     int lang_idx = script_option_edit->get_selected();
-    se_string ext(ScriptServer::get_language(lang_idx)->get_extension());
+    String ext(ScriptServer::get_language(lang_idx)->get_extension());
     get_ok()->set_disabled(PathUtils::get_basename(script_edit->get_text()).empty() ||
                            PathUtils::get_extension(script_edit->get_text()) != se_string_view(ext) ||
                            name_edit->get_text().empty());
@@ -138,7 +138,7 @@ void PluginConfigDialog::config(se_string_view p_config_path) {
     if (p_config_path.length()) {
         Ref<ConfigFile> cf(make_ref_counted<ConfigFile>());
         Error err = cf->load(p_config_path);
-        ERR_FAIL_COND_MSG(err != OK, "Cannot load config file from path '" + se_string(p_config_path) + "'.")
+        ERR_FAIL_COND_MSG(err != OK, "Cannot load config file from path '" + String(p_config_path) + "'.")
 
         name_edit->set_text(cf->get_value("plugin", "name", ""));
         subfolder_edit->set_text_utf8(PathUtils::get_file(PathUtils::get_basename(PathUtils::get_base_dir(p_config_path))));

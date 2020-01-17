@@ -3374,7 +3374,7 @@ Viewport::Viewport() {
     set_shadow_atlas_quadrant_subdiv(2, SHADOW_ATLAS_QUADRANT_SUBDIV_16);
     set_shadow_atlas_quadrant_subdiv(3, SHADOW_ATLAS_QUADRANT_SUBDIV_64);
 
-    se_string id = itos(get_instance_id());
+    String id = itos(get_instance_id());
     input_group = StringName("_vp_input" + id);
     gui_input_group = StringName("_vp_gui_input" + id);
     unhandled_input_group = StringName("_vp_unhandled_input" + id);

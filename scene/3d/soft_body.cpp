@@ -409,7 +409,7 @@ void SoftBody::_bind_methods() {
 
 StringName SoftBody::get_configuration_warning() const {
 
-    se_string warning(MeshInstance::get_configuration_warning());
+    String warning(MeshInstance::get_configuration_warning());
 
     if (not get_mesh()) {
         if (!warning.empty())

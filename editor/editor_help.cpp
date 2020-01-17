@@ -103,16 +103,16 @@ void EditorHelp::_class_desc_select(se_string_view p_select) {
     if (StringUtils::begins_with(p_select,"$")) { //enum
         se_string_view select = StringUtils::substr(p_select,1, p_select.length());
         se_string_view class_name;
-        if (StringUtils::find(select,".") != se_string::npos) {
+        if (StringUtils::find(select,".") != String::npos) {
             class_name = StringUtils::get_slice(select,".", 0);
             select = StringUtils::get_slice(select,".", 1);
         } else {
             class_name = "@GlobalScope";
         }
-        emit_signal("go_to_help", se_string("class_enum:") + class_name + ":" + select);
+        emit_signal("go_to_help", String("class_enum:") + class_name + ":" + select);
         return;
     } else if (StringUtils::begins_with(p_select,"#")) {
-        emit_signal("go_to_help", se_string("class_name:") + StringUtils::substr(p_select,1, p_select.length()));
+        emit_signal("go_to_help", String("class_name:") + StringUtils::substr(p_select,1, p_select.length()));
         return;
     } else if (StringUtils::begins_with(p_select,"@")) {
         int tag_end = StringUtils::find(p_select," ");
@@ -120,8 +120,8 @@ void EditorHelp::_class_desc_select(se_string_view p_select) {
         se_string_view tag = StringUtils::substr(p_select,1, tag_end - 1);
         se_string_view link = StringUtils::lstrip(StringUtils::substr(p_select,tag_end + 1, p_select.length())," ");
 
-        se_string topic;
-        Map<se_string, int> *table = nullptr;
+        String topic;
+        Map<String, int> *table = nullptr;
 
         if (tag == "method"_sv) {
             topic = "class_method";
@@ -147,7 +147,7 @@ void EditorHelp::_class_desc_select(se_string_view p_select) {
         } else {
             if (table->contains_as(link)) {
                 // Found in the current page
-                class_desc->scroll_to_line(table->at(se_string(link)));
+                class_desc->scroll_to_line(table->at(String(link)));
             } else {
                 if (topic == "class_enum") {
                     // Try to find the enum in @GlobalScope
@@ -156,7 +156,7 @@ void EditorHelp::_class_desc_select(se_string_view p_select) {
                     for (int i = 0; i < cd.constants.size(); i++) {
                         if (cd.constants[i].enumeration == link) {
                             // Found in @GlobalScope
-                            emit_signal("go_to_help", se_string(topic + ":@GlobalScope:" + link));
+                            emit_signal("go_to_help", String(topic + ":@GlobalScope:" + link));
                             break;
                         }
                     }
@@ -167,7 +167,7 @@ void EditorHelp::_class_desc_select(se_string_view p_select) {
                     for (int i = 0; i < cd.constants.size(); i++) {
                         if (cd.constants[i].name == link) {
                             // Found in @GlobalScope
-                            emit_signal("go_to_help", se_string(topic + ":@GlobalScope:" + link));
+                            emit_signal("go_to_help", String(topic + ":@GlobalScope:" + link));
                             break;
                         }
                     }
@@ -214,9 +214,9 @@ void EditorHelp::_add_type(se_string_view p_type, se_string_view p_enum) {
     class_desc->push_color(type_color);
     if (can_ref) {
         if (p_enum.empty()) {
-            class_desc->push_meta(se_string("#") + t); //class
+            class_desc->push_meta(String("#") + t); //class
         } else {
-            class_desc->push_meta(se_string("$") + p_enum); //class
+            class_desc->push_meta(String("$") + p_enum); //class
         }
     }
     class_desc->add_text_utf8(t);
@@ -264,7 +264,7 @@ void EditorHelp::_add_method(const DocData::MethodDoc &p_method, bool p_overview
     }
 
     if (p_overview && !p_method.description.empty()) {
-        class_desc->push_meta(se_string("@method " + p_method.name));
+        class_desc->push_meta(String("@method " + p_method.name));
     }
 
     class_desc->push_color(headline_color);
@@ -362,10 +362,10 @@ void EditorHelp::_update_doc() {
     Ref<Font> doc_bold_font = get_font("doc_bold", "EditorFonts");
     Ref<Font> doc_title_font = get_font("doc_title", "EditorFonts");
     Ref<Font> doc_code_font = get_font("doc_source", "EditorFonts");
-    se_string link_color_text = title_color.to_html(false);
+    String link_color_text = title_color.to_html(false);
 
     // Class name
-    section_line.push_back(Pair<se_string, int>(TTR("Top").asCString(), 0));
+    section_line.push_back(Pair<String, int>(TTR("Top").asCString(), 0));
     class_desc->push_font(doc_title_font);
     class_desc->push_color(title_color);
     class_desc->add_text((TTR("Class:") + " ").asString());
@@ -463,12 +463,12 @@ void EditorHelp::_update_doc() {
     }
 
     // Properties overview
-    Set<se_string> skip_methods;
+    Set<String> skip_methods;
     bool property_descr = false;
 
     if (!cd.properties.empty()) {
 
-        section_line.push_back(Pair<se_string, int>(TTR("Properties").asCString(), class_desc->get_line_count() - 2));
+        section_line.push_back(Pair<String, int>(TTR("Properties").asCString(), class_desc->get_line_count() - 2));
         class_desc->push_color(title_color);
         class_desc->push_font(doc_title_font);
         class_desc->add_text(TTR("Properties").asCString());
@@ -516,7 +516,7 @@ void EditorHelp::_update_doc() {
             class_desc->push_color(headline_color);
 
             if (describe) {
-                class_desc->push_meta(se_string("@member " + cd.properties[i].name));
+                class_desc->push_meta(String("@member " + cd.properties[i].name));
             }
 
             _add_text(cd.properties[i].name);
@@ -568,7 +568,7 @@ void EditorHelp::_update_doc() {
         if (sort_methods)
             methods.sort();
 
-        section_line.push_back(Pair<se_string, int>(TTR("Methods").asCString(), class_desc->get_line_count() - 2));
+        section_line.push_back(Pair<String, int>(TTR("Methods").asCString(), class_desc->get_line_count() - 2));
         class_desc->push_color(title_color);
         class_desc->push_font(doc_title_font);
         class_desc->add_text(TTR("Methods").asCString());
@@ -587,7 +587,7 @@ void EditorHelp::_update_doc() {
 
             for (int i = 0; i < methods.size(); i++) {
                 se_string_view q = methods[i].qualifiers;
-                if (pass == 0 && StringUtils::find(q,"virtual") != se_string::npos || pass == 1 && StringUtils::find(q,"virtual") == se_string::npos) {
+                if (pass == 0 && StringUtils::find(q,"virtual") != String::npos || pass == 1 && StringUtils::find(q,"virtual") == String::npos) {
                     m.push_back(methods[i]);
                 }
             }
@@ -639,7 +639,7 @@ void EditorHelp::_update_doc() {
     // Theme properties
     if (!cd.theme_properties.empty()) {
 
-        section_line.push_back(Pair<se_string, int>(TTR("Theme Properties").asCString(), class_desc->get_line_count() - 2));
+        section_line.push_back(Pair<String, int>(TTR("Theme Properties").asCString(), class_desc->get_line_count() - 2));
         class_desc->push_color(title_color);
         class_desc->push_font(doc_title_font);
         class_desc->add_text(TTR("Theme Properties").asCString());
@@ -706,7 +706,7 @@ void EditorHelp::_update_doc() {
             cd.defined_signals.sort();
         }
 
-        section_line.push_back(Pair<se_string, int>(TTR("Signals").asCString(), class_desc->get_line_count() - 2));
+        section_line.push_back(Pair<String, int>(TTR("Signals").asCString(), class_desc->get_line_count() - 2));
         class_desc->push_color(title_color);
         class_desc->push_font(doc_title_font);
         class_desc->add_text(TTR("Signals").asCString());
@@ -771,7 +771,7 @@ void EditorHelp::_update_doc() {
     // Constants and enums
     if (!cd.constants.empty()) {
 
-        Map<se_string, Vector<DocData::ConstantDoc> > enums;
+        Map<String, Vector<DocData::ConstantDoc> > enums;
         Vector<DocData::ConstantDoc> constants;
 
         for (int i = 0; i < cd.constants.size(); i++) {
@@ -787,7 +787,7 @@ void EditorHelp::_update_doc() {
         // Enums
         if (!enums.empty()) {
 
-            section_line.push_back(Pair<se_string, int>(TTR("Enumerations").asCString(), class_desc->get_line_count() - 2));
+            section_line.push_back(Pair<String, int>(TTR("Enumerations").asCString(), class_desc->get_line_count() - 2));
             class_desc->push_color(title_color);
             class_desc->push_font(doc_title_font);
             class_desc->add_text(TTR("Enumerations").asCString());
@@ -797,7 +797,7 @@ void EditorHelp::_update_doc() {
 
             class_desc->add_newline();
 
-            for (eastl::pair<const se_string,Vector<DocData::ConstantDoc> > &E : enums) {
+            for (eastl::pair<const String,Vector<DocData::ConstantDoc> > &E : enums) {
 
                 enum_line[E.first] = class_desc->get_line_count() - 2;
 
@@ -822,7 +822,7 @@ void EditorHelp::_update_doc() {
                 class_desc->push_indent(1);
                 Vector<DocData::ConstantDoc> enum_list = E.second;
 
-                Map<se_string, int> enumValuesContainer;
+                Map<String, int> enumValuesContainer;
                 int enumStartingLine = enum_line[E.first];
 
                 for (int i = 0; i < enum_list.size(); i++) {
@@ -873,7 +873,7 @@ void EditorHelp::_update_doc() {
         // Constants
         if (!constants.empty()) {
 
-            section_line.push_back(Pair<se_string, int>(TTR("Constants").asCString(), class_desc->get_line_count() - 2));
+            section_line.push_back(Pair<String, int>(TTR("Constants").asCString(), class_desc->get_line_count() - 2));
             class_desc->push_color(title_color);
             class_desc->push_font(doc_title_font);
             class_desc->add_text(TTR("Constants").asCString());
@@ -889,7 +889,7 @@ void EditorHelp::_update_doc() {
                 class_desc->push_font(doc_code_font);
                 se_string_view cval=constants[i].value;
                 if (StringUtils::begins_with(cval,"Color(") && StringUtils::ends_with(cval,")")) {
-                    se_string stripped = StringUtils::replace(StringUtils::replace(StringUtils::replace(cval," ", ""),"Color(", ""),")", "");
+                    String stripped = StringUtils::replace(StringUtils::replace(StringUtils::replace(cval," ", ""),"Color(", ""),")", "");
                     PODVector<float> color = StringUtils::split_floats(stripped,",");
                     if (color.size() >= 3) {
                         class_desc->push_color(Color(color[0], color[1], color[2]));
@@ -932,7 +932,7 @@ void EditorHelp::_update_doc() {
     // Class description
     if (!cd.description.empty()) {
 
-        section_line.push_back(Pair<se_string, int>(TTR("Class Description").asCString(), class_desc->get_line_count() - 2));
+        section_line.push_back(Pair<String, int>(TTR("Class Description").asCString(), class_desc->get_line_count() - 2));
         description_line = class_desc->get_line_count() - 2;
         class_desc->push_color(title_color);
         class_desc->push_font(doc_title_font);
@@ -971,10 +971,10 @@ void EditorHelp::_update_doc() {
         if (!cd.tutorials.empty()) {
 
             for (int i = 0; i < cd.tutorials.size(); i++) {
-                se_string link = cd.tutorials[i];
-                se_string linktxt = link;
+                String link = cd.tutorials[i];
+                String linktxt = link;
                 size_t seppos = StringUtils::find(linktxt,"//");
-                if (seppos != se_string::npos) {
+                if (seppos != String::npos) {
                     linktxt = StringUtils::right(link,seppos + 2);
                 }
 
@@ -1001,7 +1001,7 @@ void EditorHelp::_update_doc() {
     // Property descriptions
     if (property_descr) {
 
-        section_line.push_back(Pair<se_string, int>(TTR("Property Descriptions").asCString(), class_desc->get_line_count() - 2));
+        section_line.push_back(Pair<String, int>(TTR("Property Descriptions").asCString(), class_desc->get_line_count() - 2));
         class_desc->push_color(title_color);
         class_desc->push_font(doc_title_font);
         class_desc->add_text(TTR("Property Descriptions").asCString());
@@ -1116,7 +1116,7 @@ void EditorHelp::_update_doc() {
     // Method descriptions
     if (method_descr) {
 
-        section_line.push_back(Pair<se_string, int>(TTR("Method Descriptions").asCString(), class_desc->get_line_count() - 2));
+        section_line.push_back(Pair<String, int>(TTR("Method Descriptions").asCString(), class_desc->get_line_count() - 2));
         class_desc->push_color(title_color);
         class_desc->push_font(doc_title_font);
         class_desc->add_text(TTR("Method Descriptions").asCString());
@@ -1184,7 +1184,7 @@ void EditorHelp::_help_callback(se_string_view p_topic) {
 
     se_string_view what = StringUtils::get_slice(p_topic,":", 0);
     se_string_view clss = StringUtils::get_slice(p_topic,":", 1);
-    se_string name;
+    String name;
     if (StringUtils::get_slice_count(p_topic,':') == 3)
         name = StringUtils::get_slice(p_topic,":", 2);
 
@@ -1232,7 +1232,7 @@ static void _add_text_to_rt(se_string_view p_bbcode, RichTextLabel *p_rt) {
     using namespace StringUtils;
 
     DocData *doc = EditorHelp::get_doc_data();
-    se_string base_path;
+    String base_path;
 
     Ref<Font> doc_font = p_rt->get_font("doc", "EditorFonts");
     Ref<Font> doc_bold_font = p_rt->get_font("doc_bold", "EditorFonts");
@@ -1242,7 +1242,7 @@ static void _add_text_to_rt(se_string_view p_bbcode, RichTextLabel *p_rt) {
     Color link_color = accent_color.linear_interpolate(font_color_hl, 0.8f);
     Color code_color = accent_color.linear_interpolate(font_color_hl, 0.6f);
 
-    se_string bbcode(strip_edges(replace(replace(dedent(p_bbcode),"\t", ""),"\r", "")));
+    String bbcode(strip_edges(replace(replace(dedent(p_bbcode),"\t", ""),"\r", "")));
 
     // remove extra new lines around code blocks
     bbcode = bbcode.replaced("[codeblock]\n", "[codeblock]");
@@ -1256,11 +1256,11 @@ static void _add_text_to_rt(se_string_view p_bbcode, RichTextLabel *p_rt) {
 
         size_t brk_pos = StringUtils::find(bbcode,"[", pos);
 
-        if (brk_pos == se_string::npos)
+        if (brk_pos == String::npos)
             brk_pos = bbcode.length();
 
         if (brk_pos > pos) {
-            se_string text(StringUtils::substr(bbcode,pos, brk_pos - pos));
+            String text(StringUtils::substr(bbcode,pos, brk_pos - pos));
             if (!code_tag)
                 text = replace(text,"\n", "\n\n");
             p_rt->add_text_utf8(text);
@@ -1271,9 +1271,9 @@ static void _add_text_to_rt(se_string_view p_bbcode, RichTextLabel *p_rt) {
 
         size_t brk_end = StringUtils::find(bbcode,"]", brk_pos + 1);
 
-        if (brk_end == se_string::npos) {
+        if (brk_end == String::npos) {
 
-            se_string text(StringUtils::substr(bbcode,brk_pos, bbcode.length() - brk_pos));
+            String text(StringUtils::substr(bbcode,brk_pos, bbcode.length() - brk_pos));
             if (!code_tag)
                 text = replace(text,"\n", "\n\n");
             p_rt->add_text_utf8(text);
@@ -1315,8 +1315,8 @@ static void _add_text_to_rt(se_string_view p_bbcode, RichTextLabel *p_rt) {
             se_string_view link_target = StringUtils::lstrip(StringUtils::substr(tag,tag_end + 1, tag.length())," ");
 
             p_rt->push_color(link_color);
-            p_rt->push_meta(se_string("@") + link_tag + " " + link_target);
-            p_rt->add_text_utf8(se_string(link_target) + (StringUtils::begins_with(tag,"method ") ? "()" : ""));
+            p_rt->push_meta(String("@") + link_tag + " " + link_target);
+            p_rt->add_text_utf8(String(link_target) + (StringUtils::begins_with(tag,"method ") ? "()" : ""));
             p_rt->pop();
             p_rt->pop();
             pos = brk_end + 1;
@@ -1324,7 +1324,7 @@ static void _add_text_to_rt(se_string_view p_bbcode, RichTextLabel *p_rt) {
         } else if (doc->class_list.contains_as(tag,SNSVComparer())) {
 
             p_rt->push_color(link_color);
-            p_rt->push_meta(se_string("#") + tag);
+            p_rt->push_meta(String("#") + tag);
             p_rt->add_text_utf8(tag);
             p_rt->pop();
             p_rt->pop();
@@ -1377,7 +1377,7 @@ static void _add_text_to_rt(se_string_view p_bbcode, RichTextLabel *p_rt) {
         } else if (tag == "url"_sv) {
 
             size_t end = StringUtils::find(bbcode,"[", brk_end);
-            if (end == se_string::npos)
+            if (end == String::npos)
                 end = bbcode.length();
             se_string_view url = StringUtils::substr(bbcode,brk_end + 1, end - brk_end - 1);
             p_rt->push_meta(url);
@@ -1393,7 +1393,7 @@ static void _add_text_to_rt(se_string_view p_bbcode, RichTextLabel *p_rt) {
         } else if (tag == "img"_sv) {
 
             auto end = StringUtils::find(bbcode,"[", brk_end);
-            if (end == se_string::npos)
+            if (end == String::npos)
                 end = bbcode.length();
             se_string_view image = StringUtils::substr(bbcode,brk_end + 1, end - brk_end - 1);
 
@@ -1512,11 +1512,11 @@ void EditorHelp::go_to_class(se_string_view p_class, int p_scroll) {
     _goto_desc(p_class, p_scroll);
 }
 
-Vector<Pair<se_string, int> > EditorHelp::get_sections() {
-    Vector<Pair<se_string, int> > sections;
+Vector<Pair<String, int> > EditorHelp::get_sections() {
+    Vector<Pair<String, int> > sections;
 
     for (int i = 0; i < section_line.size(); i++) {
-        sections.push_back(Pair<se_string, int>(section_line[i].first, i));
+        sections.push_back(Pair<String, int>(section_line[i].first, i));
     }
     return sections;
 }
@@ -1615,18 +1615,18 @@ void EditorHelpBit::_meta_clicked(se_string_view p_select) {
         } else {
             class_name = "@Global";
         }
-        _go_to_help(StringName(se_string("class_enum:") + class_name + ":" + select));
+        _go_to_help(StringName(String("class_enum:") + class_name + ":" + select));
         return;
     } else if (StringUtils::begins_with(p_select,"#")) {
 
-        _go_to_help(StringName(se_string("class_name:") + StringUtils::substr(p_select,1, p_select.length())));
+        _go_to_help(StringName(String("class_name:") + StringUtils::substr(p_select,1, p_select.length())));
         return;
     } else if (StringUtils::begins_with(p_select,"@")) {
 
         se_string_view m = StringUtils::substr(p_select,1, p_select.length());
 
         if (StringUtils::contains(m,"."))
-            _go_to_help(StringName(se_string("class_method:") + StringUtils::get_slice(m, ".", 0) + ":" +
+            _go_to_help(StringName(String("class_method:") + StringUtils::get_slice(m, ".", 0) + ":" +
                                    StringUtils::get_slice(m, ".", 0))); // must go somewhere else
     }
 }

@@ -172,11 +172,11 @@ public:
     virtual int get_token_column(int p_offset = 0) const = 0;
     virtual int get_token_line_indent(int p_offset = 0) const = 0;
     virtual int get_token_line_tab_indent(int p_offset = 0) const = 0;
-    virtual se_string get_token_error(int p_offset = 0) const = 0;
+    virtual String get_token_error(int p_offset = 0) const = 0;
     virtual void advance(int p_amount = 1) = 0;
 #ifdef DEBUG_ENABLED
-    virtual const Vector<Pair<int, se_string> > &get_warning_skips() const = 0;
-    virtual const Set<se_string> &get_warning_global_skips() const = 0;
+    virtual const Vector<Pair<int, String> > &get_warning_skips() const = 0;
+    virtual const Set<String> &get_warning_global_skips() const = 0;
     virtual bool is_ignoring_warnings() const = 0;
 #endif // DEBUG_ENABLED
 
@@ -216,7 +216,7 @@ class GDScriptTokenizerText : public GDScriptTokenizer {
     void _make_type(const VariantType &p_type);
     void _make_error(se_string_view p_error);
 
-    se_string code;
+    String code;
     int len;
     int code_pos;
     const char *_code;
@@ -224,12 +224,12 @@ class GDScriptTokenizerText : public GDScriptTokenizer {
     int column;
     TokenData tk_rb[TK_RB_SIZE * 2 + 1];
     int tk_rb_pos;
-    se_string last_error;
+    String last_error;
     bool error_flag;
 
 #ifdef DEBUG_ENABLED
-    Vector<Pair<int, se_string> > warning_skips;
-    Set<se_string> warning_global_skips;
+    Vector<Pair<int, String> > warning_skips;
+    Set<String> warning_global_skips;
     bool ignore_warnings;
 #endif // DEBUG_ENABLED
 
@@ -246,11 +246,11 @@ public:
     int get_token_line_indent(int p_offset = 0) const override;
     int get_token_line_tab_indent(int p_offset = 0) const override;
     const Variant &get_token_constant(int p_offset = 0) const override;
-    se_string get_token_error(int p_offset = 0) const override;
+    String get_token_error(int p_offset = 0) const override;
     void advance(int p_amount = 1) override;
 #ifdef DEBUG_ENABLED
-    const Vector<Pair<int, se_string> > &get_warning_skips() const override { return warning_skips; }
-    const Set<se_string> &get_warning_global_skips() const override { return warning_global_skips; }
+    const Vector<Pair<int, String> > &get_warning_skips() const override { return warning_skips; }
+    const Set<String> &get_warning_global_skips() const override { return warning_global_skips; }
     bool is_ignoring_warnings() const override { return ignore_warnings; }
 #endif // DEBUG_ENABLED
 };
@@ -285,15 +285,15 @@ public:
     int get_token_line_indent(int p_offset = 0) const override;
     int get_token_line_tab_indent(int p_offset = 0) const override { return 0;}
     const Variant &get_token_constant(int p_offset = 0) const override;
-    se_string get_token_error(int p_offset = 0) const override;
+    String get_token_error(int p_offset = 0) const override;
     void advance(int p_amount = 1) override;
 #ifdef DEBUG_ENABLED
-    const Vector<Pair<int, se_string> > &get_warning_skips() const override {
-        static Vector<Pair<int, se_string> > v;
+    const Vector<Pair<int, String> > &get_warning_skips() const override {
+        static Vector<Pair<int, String> > v;
         return v;
     }
-    const Set<se_string> &get_warning_global_skips() const override {
-        static Set<se_string> s;
+    const Set<String> &get_warning_global_skips() const override {
+        static Set<String> s;
         return s;
     }
     bool is_ignoring_warnings() const override { return true; }

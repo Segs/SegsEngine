@@ -170,7 +170,7 @@ public:
         primary_grid_steps->set_step(1);
         primary_grid_steps->set_max(100);
         primary_grid_steps->set_allow_greater(true);
-        primary_grid_steps->set_suffix(se_string(TTR("steps")));
+        primary_grid_steps->set_suffix(String(TTR("steps")));
         primary_grid_steps->set_h_size_flags(SIZE_EXPAND_FILL);
         child_container->add_child(primary_grid_steps);
 
@@ -2237,12 +2237,12 @@ bool CanvasItemEditor::_gui_input_select(const Ref<InputEvent> &p_event) {
                     CanvasItem *item = selection_results[i].item;
 
                     Ref<Texture> icon = EditorNode::get_singleton()->get_object_icon(item, "Node");
-                    se_string node_path = se_string("/") + root_name + "/" + (se_string)root_path.rel_path_to(item->get_path());
+                    String node_path = String("/") + root_name + "/" + (String)root_path.rel_path_to(item->get_path());
 
                     selection_menu->add_item(item->get_name());
                     selection_menu->set_item_icon(i, icon);
                     selection_menu->set_item_metadata(i, node_path);
-                    selection_menu->set_item_tooltip(i, StringName(se_string(item->get_name()) + "\nType: " + item->get_class() + "\nPath: " + se_string(node_path)));
+                    selection_menu->set_item_tooltip(i, StringName(String(item->get_name()) + "\nType: " + item->get_class() + "\nPath: " + String(node_path)));
                 }
 
                 selection_menu_additive_selection = b->get_shift();
@@ -2572,14 +2572,14 @@ void CanvasItemEditor::_draw_text_at_position(Point2 p_position, const UIString&
 }
 
 void CanvasItemEditor::_draw_margin_at_position(int p_value, Point2 p_position, Margin p_side) {
-    se_string str = vformat(("%d px"), p_value);
+    String str = vformat(("%d px"), p_value);
     if (p_value != 0) {
         _draw_text_at_position(p_position, StringUtils::from_utf8(str), p_side);
     }
 }
 
 void CanvasItemEditor::_draw_percentage_at_position(float p_value, Point2 p_position, Margin p_side) {
-    se_string str = FormatVE("%.1f %%", p_value * 100.0f);
+    String str = FormatVE("%.1f %%", p_value * 100.0f);
     if (p_value != 0.0f) {
         _draw_text_at_position(p_position, StringUtils::from_utf8(str), p_side);
     }
@@ -2622,14 +2622,14 @@ void CanvasItemEditor::_draw_guides() {
     Color text_color = get_color("font_color", "Editor");
     text_color.a = 0.5;
     if (drag_type == DRAG_DOUBLE_GUIDE || drag_type == DRAG_V_GUIDE) {
-        se_string str = vformat(("%d px"), xform.affine_inverse().xform(dragged_guide_pos).x);
+        String str = vformat(("%d px"), xform.affine_inverse().xform(dragged_guide_pos).x);
         Ref<Font> font = get_font("font", "Label");
         Size2 text_size = font->get_string_size_utf8(str);
         viewport->draw_string(font, Point2(dragged_guide_pos.x + 10, RULER_WIDTH + text_size.y / 2 + 10), StringUtils::from_utf8(str), text_color);
         viewport->draw_line(Point2(dragged_guide_pos.x, 0), Point2(dragged_guide_pos.x, viewport->get_size().y), guide_color, Math::round(EDSCALE));
     }
     if (drag_type == DRAG_DOUBLE_GUIDE || drag_type == DRAG_H_GUIDE) {
-        se_string str = vformat(("%d px"), xform.affine_inverse().xform(dragged_guide_pos).y);
+        String str = vformat(("%d px"), xform.affine_inverse().xform(dragged_guide_pos).y);
         Ref<Font> font = get_font("font", "Label");
         Size2 text_size = font->get_string_size_utf8(str);
         viewport->draw_string(font, Point2(RULER_WIDTH + 10, dragged_guide_pos.y + text_size.y / 2 + 10), StringUtils::from_utf8(str), text_color);
@@ -3508,7 +3508,7 @@ void CanvasItemEditor::_draw_hover() {
     for (int i = 0; i < hovering_results.size(); i++) {
 
         Ref<Texture> node_icon = hovering_results[i].icon;
-        se_string node_name = hovering_results[i].name;
+        String node_name = hovering_results[i].name;
 
         Ref<Font> font = get_font("font", "Label");
         Size2 node_name_size = font->get_string_size_utf8(node_name);
@@ -4266,7 +4266,7 @@ void CanvasItemEditor::_zoom_on_position(float p_zoom, Point2 p_position) {
 }
 
 void CanvasItemEditor::_update_zoom_label() {
-    se_string zoom_text;
+    String zoom_text;
     // The zoom level displayed is relative to the editor scale
     // (like in most image editors).
     if (zoom >= 10) {
@@ -5828,11 +5828,11 @@ void CanvasItemEditorViewport::_on_change_type_closed() {
     _remove_preview();
 }
 
-void CanvasItemEditorViewport::_create_preview(const Vector<se_string> &files) const {
+void CanvasItemEditorViewport::_create_preview(const Vector<String> &files) const {
 
     bool add_preview = false;
     for (int i = 0; i < files.size(); i++) {
-        se_string path = files[i];
+        String path = files[i];
         RES res(ResourceLoader::load(path));
         ERR_FAIL_COND(not res)
         Ref<Texture> texture = Ref<Texture>(object_cast<Texture>(res.get()));
@@ -5908,10 +5908,10 @@ void CanvasItemEditorViewport::_create_nodes(Node *parent, Node *child, se_strin
     }
 
     if (parent) {
-        se_string new_name(parent->validate_child_name(child));
+        String new_name(parent->validate_child_name(child));
         ScriptEditorDebugger *sed = ScriptEditor::get_singleton()->get_debugger();
         editor_data->get_undo_redo().add_do_method(sed, "live_debug_create_node", editor->get_edited_scene()->get_path_to(parent), child->get_class(), new_name);
-        editor_data->get_undo_redo().add_undo_method(sed, "live_debug_remove_node", NodePath(se_string(editor->get_edited_scene()->get_path_to(parent)) + "/" + new_name));
+        editor_data->get_undo_redo().add_undo_method(sed, "live_debug_remove_node", NodePath(String(editor->get_edited_scene()->get_path_to(parent)) + "/" + new_name));
     }
 
     // handle with different property for texture
@@ -5978,10 +5978,10 @@ bool CanvasItemEditorViewport::_create_instance(Node *parent, se_string_view pat
     editor_data->get_undo_redo().add_do_reference(instanced_scene);
     editor_data->get_undo_redo().add_undo_method(parent, "remove_child", Variant(instanced_scene));
 
-    se_string new_name(parent->validate_child_name(instanced_scene));
+    String new_name(parent->validate_child_name(instanced_scene));
     ScriptEditorDebugger *sed = ScriptEditor::get_singleton()->get_debugger();
     editor_data->get_undo_redo().add_do_method(sed, "live_debug_instance_node", editor->get_edited_scene()->get_path_to(parent), path, new_name);
-    editor_data->get_undo_redo().add_undo_method(sed, "live_debug_remove_node", NodePath(se_string(editor->get_edited_scene()->get_path_to(parent)) + "/" + new_name));
+    editor_data->get_undo_redo().add_undo_method(sed, "live_debug_remove_node", NodePath(String(editor->get_edited_scene()->get_path_to(parent)) + "/" + new_name));
 
     CanvasItem *parent_ci = object_cast<CanvasItem>(parent);
     if (parent_ci) {
@@ -6055,7 +6055,7 @@ void CanvasItemEditorViewport::_perform_drop_data() {
     editor_data->get_undo_redo().commit_action();
 
     if (!error_files.empty()) {
-        se_string files_str;
+        String files_str;
         for (int i = 0; i < error_files.size(); i++) {
             files_str += PathUtils::get_basename(PathUtils::get_file(error_files[i]));
             files_str.push_back(',');
@@ -6075,7 +6075,7 @@ bool CanvasItemEditorViewport::can_drop_data(const Point2 &p_point, const Varian
         return false;
     }
 
-    Vector<se_string> files = d["files"].as<Vector<se_string>>();
+    Vector<String> files = d["files"].as<Vector<String>>();
     bool can_instance = false;
     for (int i = 0; i < files.size(); i++) { // check if dragged files contain resource or scene can be created at least once
         RES res(ResourceLoader::load(files[i]));
@@ -6150,7 +6150,7 @@ void CanvasItemEditorViewport::drop_data(const Point2 &p_point, const Variant &p
     selected_files.clear();
     Dictionary d = p_data;
     if (d.has("type") && UIString(d["type"]) == "files") {
-        selected_files = d["files"].as<Vector<se_string>>();
+        selected_files = d["files"].as<Vector<String>>();
     }
     if (selected_files.empty())
         return;

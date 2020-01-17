@@ -183,15 +183,15 @@ const char *ShaderLanguage::token_names[TK_MAX] = {
     "EOF",
 };
 
-se_string ShaderLanguage::get_token_text(const Token& p_token) {
+String ShaderLanguage::get_token_text(const Token& p_token) {
 
-    se_string name(token_names[p_token.type]);
+    String name(token_names[p_token.type]);
     if (p_token.type == TK_INT_CONSTANT || p_token.type == TK_REAL_CONSTANT) {
         name += "(" + rtos(p_token.constant) + ")";
     } else if (p_token.type == TK_IDENTIFIER) {
-        name += "(" + se_string(p_token.text) + ")";
+        name += "(" + String(p_token.text) + ")";
     } else if (p_token.type == TK_ERROR) {
-        name += "(" + se_string(p_token.text) + ")";
+        name += "(" + String(p_token.text) + ")";
     }
 
     return name;
@@ -502,7 +502,7 @@ ShaderLanguage::Token ShaderLanguage::_get_token() {
                     bool sign_found = false;
                     bool float_suffix_found = false;
 
-                    se_string str;
+                    String str;
                     int i = 0;
 
                     while (true) {
@@ -611,7 +611,7 @@ ShaderLanguage::Token ShaderLanguage::_get_token() {
 
                 if (_is_text_char(GETCHAR(0))) {
                     // parse identifier
-                    se_string str;
+                    String str;
 
                     while (_is_text_char(GETCHAR(0))) {
 
@@ -648,13 +648,13 @@ ShaderLanguage::Token ShaderLanguage::_get_token() {
 #undef GETCHAR
 }
 
-se_string ShaderLanguage::token_debug(const se_string &p_code) {
+String ShaderLanguage::token_debug(const String &p_code) {
 
     clear();
 
     code = p_code;
 
-    se_string output;
+    String output;
 
     Token tk = _get_token();
     while (tk.type != TK_EOF && tk.type != TK_ERROR) {
@@ -2103,7 +2103,7 @@ bool ShaderLanguage::_validate_function_call(BlockNode *p_block, OperatorNode *p
                             if (arg_idx < argcount) {
 
                                 if (p_func->arguments[arg_idx + 1]->type != Node::TYPE_VARIABLE) {
-                                    _set_error("Argument " + itos(arg_idx + 1) + " of function '" + se_string(name) + "' is not a variable");
+                                    _set_error("Argument " + itos(arg_idx + 1) + " of function '" + String(name) + "' is not a variable");
                                     return false;
                                 }
                                 StringName var_name = static_cast<const VariableNode *>(p_func->arguments[arg_idx + 1])->name;
@@ -2119,7 +2119,7 @@ bool ShaderLanguage::_validate_function_call(BlockNode *p_block, OperatorNode *p
                                 }
 
                                 if (!valid) {
-                                    _set_error("Argument " + itos(arg_idx + 1) + " of function '" + se_string(name) + "' can only take a local variable");
+                                    _set_error("Argument " + itos(arg_idx + 1) + " of function '" + String(name) + "' can only take a local variable");
                                     return false;
                                 }
                             }
@@ -2158,7 +2158,7 @@ bool ShaderLanguage::_validate_function_call(BlockNode *p_block, OperatorNode *p
     }
 
     if (failed_builtin) {
-        se_string err(FormatVE("Invalid arguments for built-in function: %s(",name.asCString()));
+        String err(FormatVE("Invalid arguments for built-in function: %s(",name.asCString()));
         for (int i = 0; i < argcount; i++) {
             if (i > 0)
                 err += ",";
@@ -2197,7 +2197,7 @@ bool ShaderLanguage::_validate_function_call(BlockNode *p_block, OperatorNode *p
             continue;
 
         if (!fn.callable) {
-            _set_error("Function '" + se_string(name) + " can't be called from source code.");
+            _set_error("Function '" + String(name) + " can't be called from source code.");
             return false;
         }
 
@@ -2527,7 +2527,7 @@ void ShaderLanguage::get_keyword_list(PODVector<se_string_view> *r_keywords) {
     }
 }
 
-void ShaderLanguage::get_builtin_funcs(PODVector<se_string> *r_keywords) {
+void ShaderLanguage::get_builtin_funcs(PODVector<String> *r_keywords) {
 
     Set<se_string_view> kws;
 
@@ -2649,7 +2649,7 @@ bool ShaderLanguage::_get_completable_identifier(BlockNode *p_block, CompletionT
         tk = _get_token();
 
         if (tk.type == TK_IDENTIFIER) {
-            identifier = StringName(se_string(identifier) + tk.text);
+            identifier = StringName(String(identifier) + tk.text);
         } else {
             _set_tkpos(pos);
         }
@@ -2682,7 +2682,7 @@ bool ShaderLanguage::_is_operator_assign(Operator p_op) const {
     return false;
 }
 
-bool ShaderLanguage::_validate_assign(Node *p_node, const Map<StringName, BuiltInInfo> &p_builtin_types, se_string *r_message) {
+bool ShaderLanguage::_validate_assign(Node *p_node, const Map<StringName, BuiltInInfo> &p_builtin_types, String *r_message) {
 
     if (p_node->type == Node::TYPE_OPERATOR) {
 
@@ -2752,8 +2752,8 @@ bool ShaderLanguage::_validate_assign(Node *p_node, const Map<StringName, BuiltI
         *r_message = "Assignment to constant expression.";
     return false;
 }
-static se_string join_args(const PODVector<ShaderLanguage::Node *> &arguments) {
-    se_string at;
+static String join_args(const PODVector<ShaderLanguage::Node *> &arguments) {
+    String at;
     bool first_done=false;
     for (const ShaderLanguage::Node *argnode : arguments) {
         if (first_done)
@@ -2873,7 +2873,7 @@ ShaderLanguage::Node *ShaderLanguage::_parse_expression(BlockNode *p_block, cons
                 return nullptr;
 
             if (!_validate_function_call(p_block, func, &func->return_cache)) {
-                _set_error("No matching constructor found for: '" + se_string(funcname->name) + "'");
+                _set_error("No matching constructor found for: '" + String(funcname->name) + "'");
                 return nullptr;
             }
 
@@ -2936,7 +2936,7 @@ ShaderLanguage::Node *ShaderLanguage::_parse_expression(BlockNode *p_block, cons
                     return nullptr;
 
                 if (!_validate_function_call(p_block, func, &func->return_cache)) {
-                    _set_error("No matching function found for: '" + se_string(funcname->name) + "'");
+                    _set_error("No matching function found for: '" + String(funcname->name) + "'");
                     return nullptr;
                 }
                 completion_class = TAG_GLOBAL; // reset sub-class
@@ -2954,12 +2954,12 @@ ShaderLanguage::Node *ShaderLanguage::_parse_expression(BlockNode *p_block, cons
                 int array_size = 0;
 
                 if (!_find_identifier(p_block, p_builtin_types, identifier, &data_type, &ident_type, &is_const, &array_size)) {
-                    _set_error("Unknown identifier in expression: " + se_string(identifier));
+                    _set_error("Unknown identifier in expression: " + String(identifier));
                     return nullptr;
                 }
 
                 if (ident_type == IDENTIFIER_FUNCTION) {
-                    _set_error("Can't use function as identifier: " + se_string(identifier));
+                    _set_error("Can't use function as identifier: " + String(identifier));
                     return nullptr;
                 }
 
@@ -3078,7 +3078,7 @@ ShaderLanguage::Node *ShaderLanguage::_parse_expression(BlockNode *p_block, cons
                     return nullptr;
                 }
                 DataType dt = expr->get_datatype();
-                se_string ident(identifier);
+                String ident(identifier);
 
                 bool ok = true;
                 DataType member_type = TYPE_VOID;
@@ -3542,7 +3542,7 @@ ShaderLanguage::Node *ShaderLanguage::_parse_expression(BlockNode *p_block, cons
 
                 if (!_validate_operator(op, &op->return_cache)) {
 
-                    se_string at = join_args(op->arguments);
+                    String at = join_args(op->arguments);
                     _set_error(FormatVE("Invalid arguments to unary operator '%s' :%s",get_operator_text(op->op),at.c_str()));
                     return nullptr;
                 }
@@ -3569,7 +3569,7 @@ ShaderLanguage::Node *ShaderLanguage::_parse_expression(BlockNode *p_block, cons
             expression.write[next_op - 1].node = op;
             if (!_validate_operator(op, &op->return_cache)) {
 
-                se_string at = join_args(op->arguments);
+                String at = join_args(op->arguments);
                 _set_error("Invalid argument to ternary ?: operator: " + at);
                 return nullptr;
             }
@@ -3596,7 +3596,7 @@ ShaderLanguage::Node *ShaderLanguage::_parse_expression(BlockNode *p_block, cons
 
             if (_is_operator_assign(op->op)) {
 
-                se_string assign_message;
+                String assign_message;
                 if (!_validate_assign(expression[next_op - 1].node, p_builtin_types, &assign_message)) {
 
                     _set_error(assign_message);
@@ -3621,7 +3621,7 @@ ShaderLanguage::Node *ShaderLanguage::_parse_expression(BlockNode *p_block, cons
 
             if (!_validate_operator(op, &op->return_cache)) {
 
-                se_string at = join_args(op->arguments);
+                String at = join_args(op->arguments);
                 _set_error(FormatVE("Invalid arguments to operator '%s' :",get_operator_text(op->op),at.c_str()));
                 return nullptr;
             }
@@ -3821,7 +3821,7 @@ Error ShaderLanguage::_parse_block(BlockNode *p_block, const Map<StringName, Bui
                 ShaderLanguage::IdentifierType itype;
                 if (_find_identifier(p_block, p_builtin_types, name, (ShaderLanguage::DataType *)nullptr, &itype)) {
                     if (itype != IDENTIFIER_FUNCTION) {
-                        _set_error("Redefinition of '" + se_string(name) + "'");
+                        _set_error("Redefinition of '" + String(name) + "'");
                         return ERR_PARSE_ERROR;
                     }
                 }
@@ -3934,7 +3934,7 @@ Error ShaderLanguage::_parse_block(BlockNode *p_block, const Map<StringName, Bui
                             }
 
                             if (precision != precision2 || type != type2 || var.array_size != array_size2) {
-                                se_string error_str = "Cannot convert from '";
+                                String error_str = "Cannot convert from '";
                                 if (precision2 != PRECISION_DEFAULT) {
                                     error_str += get_precision_name(precision2);
                                     error_str += " ";
@@ -4585,16 +4585,16 @@ Error ShaderLanguage::_parse_block(BlockNode *p_block, const Map<StringName, Bui
 
     return OK;
 }
-se_string ShaderLanguage::_get_shader_type_list(const Set<StringName> &p_shader_types) const {
+String ShaderLanguage::_get_shader_type_list(const Set<StringName> &p_shader_types) const {
 
     // Return a list of shader types as an human-readable string
-    se_string valid_types;
+    String valid_types;
     for (const StringName &E : p_shader_types) {
         if (valid_types.empty()) {
             valid_types += ", ";
         }
 
-        valid_types += se_string("'") + E + "'";
+        valid_types += String("'") + E + "'";
     }
 
     return valid_types;
@@ -4692,12 +4692,12 @@ Error ShaderLanguage::_parse_shader(const Map<StringName, FunctionInfo> &p_funct
                     }
 
                     if (p_render_modes.find(mode) == -1) {
-                        _set_error("Invalid render mode: '" + se_string(mode) + "'");
+                        _set_error("Invalid render mode: '" + String(mode) + "'");
                         return ERR_PARSE_ERROR;
                     }
 
                     if (shader->render_modes.contains(mode)) {
-                        _set_error("Duplicate render mode: '" + se_string(mode) + "'");
+                        _set_error("Duplicate render mode: '" + String(mode) + "'");
                         return ERR_PARSE_ERROR;
                     }
 
@@ -4760,11 +4760,11 @@ Error ShaderLanguage::_parse_shader(const Map<StringName, FunctionInfo> &p_funct
                 name = tk.text;
 
                 if (_find_identifier(nullptr, Map<StringName, BuiltInInfo>(), name)) {
-                    _set_error("Redefinition of '" + se_string(name) + "'");
+                    _set_error("Redefinition of '" + String(name) + "'");
                     return ERR_PARSE_ERROR;
                 }
                 if (has_builtin(p_functions, name)) {
-                    _set_error("Redefinition of '" + se_string(name) + "'");
+                    _set_error("Redefinition of '" + String(name) + "'");
                     return ERR_PARSE_ERROR;
                 }
                 if (uniform) {
@@ -5013,12 +5013,12 @@ Error ShaderLanguage::_parse_shader(const Map<StringName, FunctionInfo> &p_funct
                 }
 
                 if (_find_identifier(nullptr, Map<StringName, BuiltInInfo>(), name)) {
-                    _set_error("Redefinition of '" + se_string(name) + "'");
+                    _set_error("Redefinition of '" + String(name) + "'");
                     return ERR_PARSE_ERROR;
                 }
 
                 if (has_builtin(p_functions, name)) {
-                    _set_error("Redefinition of '" + se_string(name) + "'");
+                    _set_error("Redefinition of '" + String(name) + "'");
                     return ERR_PARSE_ERROR;
                 }
 
@@ -5076,11 +5076,11 @@ Error ShaderLanguage::_parse_shader(const Map<StringName, FunctionInfo> &p_funct
 
                             name = tk.text;
                             if (_find_identifier(nullptr, Map<StringName, BuiltInInfo>(), name)) {
-                                _set_error("Redefinition of '" + se_string(name) + "'");
+                                _set_error("Redefinition of '" + String(name) + "'");
                                 return ERR_PARSE_ERROR;
                             }
                             if (has_builtin(p_functions, name)) {
-                                _set_error("Redefinition of '" + se_string(name) + "'");
+                                _set_error("Redefinition of '" + String(name) + "'");
                                 return ERR_PARSE_ERROR;
                             }
                             tk = _get_token();
@@ -5181,12 +5181,12 @@ Error ShaderLanguage::_parse_shader(const Map<StringName, FunctionInfo> &p_funct
                     if (_find_identifier(
                                 func_node->body, builtin_types, pname, (ShaderLanguage::DataType *)nullptr, &itype)) {
                         if (itype != IDENTIFIER_FUNCTION) {
-                            _set_error("Redefinition of '" + se_string(pname) + "'");
+                            _set_error("Redefinition of '" + String(pname) + "'");
                             return ERR_PARSE_ERROR;
                         }
                     }
                     if (has_builtin(p_functions, pname)) {
-                        _set_error("Redefinition of '" + se_string(pname) + "'");
+                        _set_error("Redefinition of '" + String(pname) + "'");
                         return ERR_PARSE_ERROR;
                     }
                     FunctionNode::Argument arg;
@@ -5215,11 +5215,11 @@ Error ShaderLanguage::_parse_shader(const Map<StringName, FunctionInfo> &p_funct
                 if (p_functions.contains(name)) {
                     //if one of the core functions, make sure they are of the correct form
                     if (!func_node->arguments.empty()) {
-                        _set_error("Function '" + se_string(name) + "' expects no arguments.");
+                        _set_error("Function '" + String(name) + "' expects no arguments.");
                         return ERR_PARSE_ERROR;
                     }
                     if (func_node->return_type != TYPE_VOID) {
-                        _set_error("Function '" + se_string(name) + "' must be of void return type.");
+                        _set_error("Function '" + String(name) + "' must be of void return type.");
                         return ERR_PARSE_ERROR;
                     }
                 }
@@ -5324,7 +5324,7 @@ Error ShaderLanguage::_find_last_flow_op_in_block(BlockNode *p_block, FlowOperat
     return FAILED;
 }
 // skips over whitespace and /* */ and // comments
-static int _get_first_ident_pos(const se_string &p_code) {
+static int _get_first_ident_pos(const String &p_code) {
 
     int idx = 0;
 
@@ -5368,11 +5368,11 @@ static int _get_first_ident_pos(const se_string &p_code) {
 #undef GETCHAR
 }
 
-se_string ShaderLanguage::get_shader_type(const se_string &p_code) {
+String ShaderLanguage::get_shader_type(const String &p_code) {
 
     bool reading_type = false;
 
-    se_string cur_identifier;
+    String cur_identifier;
 
     for (int i = _get_first_ident_pos(p_code); i < p_code.length(); i++) {
 
@@ -5383,7 +5383,7 @@ se_string ShaderLanguage::get_shader_type(const se_string &p_code) {
             if (!cur_identifier.empty()) {
                 if (!reading_type) {
                     if (cur_identifier != "shader_type") {
-                        return se_string();
+                        return String();
                     }
 
                     reading_type = true;
@@ -5400,10 +5400,10 @@ se_string ShaderLanguage::get_shader_type(const se_string &p_code) {
     if (reading_type)
         return cur_identifier;
 
-    return se_string();
+    return String();
 }
 
-Error ShaderLanguage::compile(const se_string &p_code, const Map<StringName, FunctionInfo> &p_functions, const Vector<StringName> &p_render_modes, const Set<StringName> &p_shader_types) {
+Error ShaderLanguage::compile(const String &p_code, const Map<StringName, FunctionInfo> &p_functions, const Vector<StringName> &p_render_modes, const Set<StringName> &p_shader_types) {
 
     clear();
 
@@ -5420,7 +5420,7 @@ Error ShaderLanguage::compile(const se_string &p_code, const Map<StringName, Fun
     return OK;
 }
 
-Error ShaderLanguage::complete(const se_string &p_code, const Map<StringName, FunctionInfo> &p_functions, const Vector<StringName> &p_render_modes, const Set<StringName> &p_shader_types, List<ScriptCodeCompletionOption> *r_options, se_string &r_call_hint) {
+Error ShaderLanguage::complete(const String &p_code, const Map<StringName, FunctionInfo> &p_functions, const Vector<StringName> &p_render_modes, const Set<StringName> &p_shader_types, List<ScriptCodeCompletionOption> *r_options, String &r_call_hint) {
 
     clear();
 
@@ -5546,7 +5546,7 @@ Error ShaderLanguage::complete(const se_string &p_code, const Map<StringName, Fu
                     continue;
                 if (function.name == completion_function) {
 
-                    se_string calltip;
+                    String calltip;
 
                     calltip += get_datatype_name(function.function->return_type);
                     calltip += " ";
@@ -5584,7 +5584,7 @@ Error ShaderLanguage::complete(const se_string &p_code, const Map<StringName, Fu
 
             int idx = 0;
 
-            se_string calltip;
+            String calltip;
 
             while (builtin_func_defs[idx].name) {
 
@@ -5678,8 +5678,8 @@ Error ShaderLanguage::complete(const se_string &p_code, const Map<StringName, Fu
             }
 
             for (int i = 0; i < limit; i++) {
-                r_options->push_back(ScriptCodeCompletionOption(se_string(&colv[i],1), ScriptCodeCompletionOption::KIND_PLAIN_TEXT));
-                r_options->push_back(ScriptCodeCompletionOption(se_string(&coordv[i],1), ScriptCodeCompletionOption::KIND_PLAIN_TEXT));
+                r_options->push_back(ScriptCodeCompletionOption(String(&colv[i],1), ScriptCodeCompletionOption::KIND_PLAIN_TEXT));
+                r_options->push_back(ScriptCodeCompletionOption(String(&coordv[i],1), ScriptCodeCompletionOption::KIND_PLAIN_TEXT));
             }
 
         } break;
@@ -5688,7 +5688,7 @@ Error ShaderLanguage::complete(const se_string &p_code, const Map<StringName, Fu
     return ERR_PARSE_ERROR;
 }
 
-const se_string & ShaderLanguage::get_error_text() {
+const String & ShaderLanguage::get_error_text() {
 
     return error_str;
 }

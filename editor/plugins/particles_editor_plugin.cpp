@@ -252,11 +252,11 @@ ParticlesEditorBase::ParticlesEditorBase() {
     add_child(emission_tree_dialog);
     emission_tree_dialog->connect("selected", this, "_node_selected");
 
-    PODVector<se_string> extensions;
+    PODVector<String> extensions;
     ResourceLoader::get_recognized_extensions_for_type("Mesh", extensions);
 
     emission_file_dialog->clear_filters();
-    for (const se_string & ext : extensions) {
+    for (const String & ext : extensions) {
 
         emission_file_dialog->add_filter("*." + ext + " ; " + StringUtils::to_upper(ext));
     }

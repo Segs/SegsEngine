@@ -52,7 +52,7 @@ class PackSourceInterface;
 
 struct PackedDataFile {
 
-    se_string pack;
+    String pack;
     uint64_t offset; //if offset is ZERO, the file was ERASED
     uint64_t size;
     uint8_t md5[16];
@@ -69,9 +69,9 @@ public:
 private:
     struct PackedDir {
         PackedDir *parent;
-        se_string name;
-        Map<se_string, PackedDir *> subdirs;
-        Set<se_string> files;
+        String name;
+        Map<String, PackedDir *> subdirs;
+        Set<String> files;
     };
 
     struct PathMD5 {
@@ -153,22 +153,22 @@ class DirAccessPack : public DirAccess {
 
     PackedData::PackedDir *current;
 
-    List<se_string> list_dirs;
-    List<se_string> list_files;
+    List<String> list_dirs;
+    List<String> list_files;
     bool cdir;
 
 public:
     Error list_dir_begin() override;
-    se_string get_next() override;
+    String get_next() override;
     [[nodiscard]] bool current_is_dir() const override;
     [[nodiscard]] bool current_is_hidden() const override;
     void list_dir_end() override;
 
     int get_drive_count() override;
-    se_string get_drive(int p_drive) override;
+    String get_drive(int p_drive) override;
 
     Error change_dir(se_string_view p_dir) override;
-    se_string get_current_dir() override;
+    String get_current_dir() override;
 
     bool file_exists(se_string_view p_file) override;
     bool dir_exists(se_string_view p_dir) override;
@@ -180,7 +180,7 @@ public:
 
     size_t get_space_left() override;
 
-    se_string get_filesystem_type() const override;
+    String get_filesystem_type() const override;
 
     DirAccessPack();
     ~DirAccessPack() override;

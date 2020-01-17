@@ -140,7 +140,7 @@ class AnimationNodeStateMachineEditor : public AnimationTreeNodeEditorPlugin {
     StringName over_node;
     int over_node_what;
 
-    se_string prev_name;
+    String prev_name;
     void _name_edited(se_string_view p_text);
     void _name_edited_focus_out();
     void _open_editor(se_string_view p_name);
@@ -163,7 +163,7 @@ class AnimationNodeStateMachineEditor : public AnimationTreeNodeEditorPlugin {
     float current_length;
 
     float error_time;
-    se_string error_text;
+    String error_text;
 
     EditorFileDialog *open_file;
     Ref<AnimationNode> file_loaded;

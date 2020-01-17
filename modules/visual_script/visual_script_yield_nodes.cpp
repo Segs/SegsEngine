@@ -88,7 +88,7 @@ se_string_view VisualScriptYield::get_caption() const {
     return yield_mode == YIELD_RETURN ? "Yield" : "Wait";
 }
 
-se_string VisualScriptYield::get_text() const {
+String VisualScriptYield::get_text() const {
 
     switch (yield_mode) {
         case YIELD_RETURN: return null_se_string;
@@ -109,7 +109,7 @@ public:
     //virtual bool is_output_port_unsequenced(int p_idx) const { return false; }
     //virtual bool get_output_port_unsequenced(int p_idx,Variant* r_value,Variant* p_working_mem,String &r_error) const { return false; }
 
-    int step(const Variant **p_inputs, Variant **p_outputs, StartMode p_start_mode, Variant *p_working_mem, Variant::CallError &r_error, se_string &r_error_str) override {
+    int step(const Variant **p_inputs, Variant **p_outputs, StartMode p_start_mode, Variant *p_working_mem, Variant::CallError &r_error, String &r_error_str) override {
 
         if (p_start_mode == START_MODE_RESUME_YIELD) {
             return 0; //resuming yield
@@ -331,12 +331,12 @@ se_string_view VisualScriptYieldSignal::get_caption() const {
     return cname[call_mode];
 }
 
-se_string VisualScriptYieldSignal::get_text() const {
+String VisualScriptYieldSignal::get_text() const {
 
     if (call_mode == CALL_MODE_SELF)
-        return "  " + se_string(signal) + "()";
+        return "  " + String(signal) + "()";
     else
-        return "  " + se_string(_get_base_type()) + "." + signal + "()";
+        return "  " + String(_get_base_type()) + "." + signal + "()";
 }
 
 void VisualScriptYieldSignal::set_base_type(const StringName &p_type) {
@@ -417,7 +417,7 @@ void VisualScriptYieldSignal::_validate_property(PropertyInfo &property) const {
 
             Node *bnode = _get_base_node();
             if (bnode) {
-                property.hint_string = (se_string)bnode->get_path(); //convert to loong string
+                property.hint_string = (String)bnode->get_path(); //convert to loong string
             }
         }
     }
@@ -437,7 +437,7 @@ void VisualScriptYieldSignal::_validate_property(PropertyInfo &property) const {
         }
         eastl::sort(mstring.begin(),mstring.end());
 
-        property.hint_string = se_string::joined(mstring,",");
+        property.hint_string = String::joined(mstring,",");
     }
 }
 
@@ -487,7 +487,7 @@ public:
     //virtual bool is_output_port_unsequenced(int p_idx) const { return false; }
     //virtual bool get_output_port_unsequenced(int p_idx,Variant* r_value,Variant* p_working_mem,String &r_error) const { return true; }
 
-    int step(const Variant **p_inputs, Variant **p_outputs, StartMode p_start_mode, Variant *p_working_mem, Variant::CallError &r_error, se_string &r_error_str) override {
+    int step(const Variant **p_inputs, Variant **p_outputs, StartMode p_start_mode, Variant *p_working_mem, Variant::CallError &r_error, String &r_error_str) override {
 
         if (p_start_mode == START_MODE_RESUME_YIELD) {
             return 0; //resuming yield

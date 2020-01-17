@@ -161,21 +161,21 @@ void CustomPropertyEditor::_menu_option(int p_which) {
                 case OBJ_MENU_LOAD: {
 
                     file->set_mode(EditorFileDialog::MODE_OPEN_FILE);
-                    se_string type = hint == PROPERTY_HINT_RESOURCE_TYPE ? hint_text : se_string();
+                    String type = hint == PROPERTY_HINT_RESOURCE_TYPE ? hint_text : String();
 
-                    PODVector<se_string> extensions;
+                    PODVector<String> extensions;
                     for (int i = 0; i < StringUtils::get_slice_count(type,','); i++) {
 
                         ResourceLoader::get_recognized_extensions_for_type(StringUtils::get_slice(type,',', i), extensions);
                     }
 
-                    Set<se_string> valid_extensions;
-                    for (const se_string &E : extensions) {
+                    Set<String> valid_extensions;
+                    for (const String &E : extensions) {
                         valid_extensions.insert(E);
                     }
 
                     file->clear_filters();
-                    for (const se_string &E : valid_extensions) {
+                    for (const String &E : valid_extensions) {
 
                         file->add_filter("*." + E + " ; " + StringUtils::to_upper(E));
                     }
@@ -461,7 +461,7 @@ bool CustomPropertyEditor::edit(Object *p_owner, se_string_view p_name, VariantT
 
             } else if (hint == PROPERTY_HINT_LAYERS_2D_PHYSICS || hint == PROPERTY_HINT_LAYERS_2D_RENDER || hint == PROPERTY_HINT_LAYERS_3D_PHYSICS || hint == PROPERTY_HINT_LAYERS_3D_RENDER) {
 
-                se_string basename;
+                String basename;
                 switch (hint) {
                     case PROPERTY_HINT_LAYERS_2D_RENDER:
                         basename = "layer_names/2d_render";
@@ -1289,11 +1289,11 @@ void CustomPropertyEditor::_action_pressed(int p_which) {
                         PODVector<se_string_view> extensions = StringUtils::split(hint_text,',');
                         for (int i = 0; i < extensions.size(); i++) {
 
-                            se_string filter(extensions[i]);
+                            String filter(extensions[i]);
                             if (StringUtils::begins_with(filter,"."))
-                                filter = se_string("*") + extensions[i];
+                                filter = String("*") + extensions[i];
                             else if (!StringUtils::begins_with(filter,"*"))
-                                filter = se_string("*.") + extensions[i];
+                                filter = String("*.") + extensions[i];
 
                             file->add_filter(filter + " ; " + StringUtils::to_upper(extensions[i]));
                         }
@@ -1384,12 +1384,12 @@ void CustomPropertyEditor::_action_pressed(int p_which) {
 
                 file->set_access(EditorFileDialog::ACCESS_RESOURCES);
                 file->set_mode(EditorFileDialog::MODE_OPEN_FILE);
-                PODVector<se_string> extensions;
+                PODVector<String> extensions;
                 StringName type = hint == PROPERTY_HINT_RESOURCE_TYPE ? StringName(hint_text) : StringName();
 
                 ResourceLoader::get_recognized_extensions_for_type(type, extensions);
                 file->clear_filters();
-                for (const se_string &E : extensions) {
+                for (const String &E : extensions) {
 
                     file->add_filter("*." + E + " ; " + StringUtils::to_upper(E));
                 }
@@ -1552,7 +1552,7 @@ void CustomPropertyEditor::_modified(se_string_view p_string) {
     updating = true;
     switch (type) {
         case VariantType::INT: {
-            se_string text = value_editor[0]->get_text();
+            String text = value_editor[0]->get_text();
             Ref<Expression> expr(make_ref_counted<Expression>());
             Error err = expr->parse(text);
             if (err != OK) {
@@ -1567,7 +1567,7 @@ void CustomPropertyEditor::_modified(se_string_view p_string) {
         case VariantType::REAL: {
 
             if (hint != PROPERTY_HINT_EXP_EASING) {
-                se_string text = value_editor[0]->get_text();
+                String text = value_editor[0]->get_text();
                 v = _parse_real_expression(text);
                 emit_signal("variant_changed");
             }

@@ -235,7 +235,7 @@ bool Particles2D::get_fractional_delta() const {
 
 StringName Particles2D::get_configuration_warning() const {
 
-    se_string warnings;
+    String warnings;
 
     if (not process_material) {
         if (!warnings.empty())

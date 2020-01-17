@@ -140,7 +140,7 @@ int Bone2D::get_index_in_skeleton() const {
 }
 StringName Bone2D::get_configuration_warning() const {
 
-    se_string warning(Node2D::get_configuration_warning());
+    String warning(Node2D::get_configuration_warning());
     if (!skeleton) {
         if (!warning.empty()) {
             warning += "\n\n";

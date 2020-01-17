@@ -443,7 +443,7 @@ void GDScriptTokenizerText::_make_type(const VariantType &p_type) {
     tk_rb_pos = (tk_rb_pos + 1) % TK_RB_SIZE;
 }
 
-//void GDScriptTokenizerText::_make_error(const se_string &p_error) {
+//void GDScriptTokenizerText::_make_error(const String &p_error) {
 
 //    error_flag = true;
 //    last_error = p_error;
@@ -532,7 +532,7 @@ void GDScriptTokenizerText::_advance() {
                 continue;
             case '#': { // line comment skip
 #ifdef DEBUG_ENABLED
-                se_string comment;
+                String comment;
 #endif // DEBUG_ENABLED
                 while (GETCHAR(0) != '\n') {
 #ifdef DEBUG_ENABLED
@@ -549,7 +549,7 @@ void GDScriptTokenizerText::_advance() {
                 se_string_view comment_content = StringUtils::trim_prefix(StringUtils::trim_prefix(comment,"#")," ");
                 if (StringUtils::begins_with(comment_content,"warning-ignore:")) {
                     se_string_view code = StringUtils::get_slice(comment_content,':', 1);
-                    warning_skips.push_back(Pair<int, se_string>(line, StringUtils::to_lower(StringUtils::strip_edges(code))));
+                    warning_skips.push_back(Pair<int, String>(line, StringUtils::to_lower(StringUtils::strip_edges(code))));
                 } else if (StringUtils::begins_with(comment_content,"warning-ignore-all:")) {
                     se_string_view code = StringUtils::get_slice(comment_content,':', 1);
                     warning_global_skips.insert(StringUtils::to_lower(StringUtils::strip_edges(code)));
@@ -787,7 +787,7 @@ void GDScriptTokenizerText::_advance() {
                     string_mode = STRING_MULTILINE;
                 }
 
-                se_string str;
+                String str;
                 while (true) {
                     if (GETCHAR(i) == 0) {
 
@@ -905,7 +905,7 @@ void GDScriptTokenizerText::_advance() {
                     bool bin_found = false;
                     bool sign_found = false;
 
-                    se_string str;
+                    String str;
                     int i = 0;
 
                     while (true) {
@@ -994,7 +994,7 @@ void GDScriptTokenizerText::_advance() {
 
                 if (_is_text_char(GETCHAR(0))) {
                     // parse identifier
-                    se_string str;
+                    String str;
                     str += GETCHAR(0);
 
                     int i = 1;
@@ -1191,13 +1191,13 @@ int GDScriptTokenizerText::get_token_line_tab_indent(int p_offset) const {
     return tk_rb[ofs].constant.operator Vector2().y;
 }
 
-se_string GDScriptTokenizerText::get_token_error(int p_offset) const {
+String GDScriptTokenizerText::get_token_error(int p_offset) const {
 
-    ERR_FAIL_COND_V(p_offset <= -MAX_LOOKAHEAD, se_string())
-    ERR_FAIL_COND_V(p_offset >= MAX_LOOKAHEAD, se_string())
+    ERR_FAIL_COND_V(p_offset <= -MAX_LOOKAHEAD, String())
+    ERR_FAIL_COND_V(p_offset >= MAX_LOOKAHEAD, String())
 
     int ofs = (TK_RB_SIZE + tk_rb_pos + p_offset - MAX_LOOKAHEAD - 1) % TK_RB_SIZE;
-    ERR_FAIL_COND_V(tk_rb[ofs].type != TK_ERROR, se_string())
+    ERR_FAIL_COND_V(tk_rb[ofs].type != TK_ERROR, String())
     return tk_rb[ofs].constant;
 }
 
@@ -1242,7 +1242,7 @@ Error GDScriptTokenizerBuffer::set_code_buffer(const PODVector<uint8_t> &p_buffe
         }
 
         cs.write[cs.size() - 1] = 0;
-        se_string s((const char *)cs.ptr());
+        String s((const char *)cs.ptr());
         b += len;
         total_len -= len + 4;
         identifiers.write[i] = StringName(s);
@@ -1533,9 +1533,9 @@ const Variant &GDScriptTokenizerBuffer::get_token_constant(int p_offset) const {
     ERR_FAIL_UNSIGNED_INDEX_V(constant, (uint32_t)constants.size(), nil);
     return constants[constant];
 }
-se_string GDScriptTokenizerBuffer::get_token_error(int p_offset) const {
+String GDScriptTokenizerBuffer::get_token_error(int p_offset) const {
 
-    ERR_FAIL_V(se_string());
+    ERR_FAIL_V(String());
 }
 
 void GDScriptTokenizerBuffer::advance(int p_amount) {

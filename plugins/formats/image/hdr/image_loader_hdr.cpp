@@ -39,12 +39,12 @@
 
 Error ImageLoaderHDR::load_image(ImageData & p_image, FileAccess *f, LoadParams params) {
 
-    se_string header = f->get_token();
+    String header = f->get_token();
 
     ERR_FAIL_COND_V_MSG(header != "#?RADIANCE" && header != "#?RGBE", ERR_FILE_UNRECOGNIZED, "Unsupported header information in HDR: " + header + ".")
 
     while (true) {
-        se_string line = f->get_line();
+        String line = f->get_line();
         ERR_FAIL_COND_V(f->eof_reached(), ERR_FILE_UNRECOGNIZED)
         if (line.empty()) // empty line indicates end of header
             break;
@@ -55,7 +55,7 @@ Error ImageLoaderHDR::load_image(ImageData & p_image, FileAccess *f, LoadParams 
         }
     }
 
-    se_string token = f->get_token();
+    String token = f->get_token();
 
     ERR_FAIL_COND_V(token != "-Y", ERR_FILE_CORRUPT)
 
@@ -150,7 +150,7 @@ Error ImageLoaderHDR::load_image(ImageData & p_image, FileAccess *f, LoadParams 
     return OK;
 }
 
-void ImageLoaderHDR::get_recognized_extensions(PODVector<se_string> &p_extensions) const {
+void ImageLoaderHDR::get_recognized_extensions(PODVector<String> &p_extensions) const {
 
     p_extensions.push_back("hdr");
 }

@@ -380,7 +380,7 @@ bool CollisionObject::get_capture_input_on_drag() const {
 
 StringName CollisionObject::get_configuration_warning() const {
 
-    se_string warning(Spatial::get_configuration_warning());
+    String warning(Spatial::get_configuration_warning());
 
     if (shapes.empty()) {
         if (!warning.empty()) {

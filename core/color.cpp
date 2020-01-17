@@ -350,8 +350,8 @@ Color Color::contrasted() const {
 }
 
 Color Color::html(se_string_view p_color) {
-    const se_string errcode("Invalid color code: ");
-    se_string exp_color;
+    const String errcode("Invalid color code: ");
+    String exp_color;
     if (p_color.length() == 0)
         return Color();
     if (p_color[0] == '#')
@@ -432,7 +432,7 @@ bool Color::html_is_valid(se_string_view p_color) {
 }
 
 Color Color::named(se_string_view p_name) {
-    se_string name(p_name);
+    String name(p_name);
     // Normalize name
     name = StringUtils::replace(name," ", "");
     name = StringUtils::replace(name,"-", "");
@@ -442,13 +442,13 @@ Color Color::named(se_string_view p_name) {
     name = StringUtils::to_lower(name);
 
     const Map<const char *, Color>::iterator color = _named_colors.find(name.data());
-    ERR_FAIL_COND_V_MSG(color==_named_colors.end(), Color(), "Invalid color name: " + se_string(p_name) + ".")
+    ERR_FAIL_COND_V_MSG(color==_named_colors.end(), Color(), "Invalid color name: " + String(p_name) + ".")
     return color->second;
 }
 
-se_string Color::to_html(bool p_alpha) const {
+String Color::to_html(bool p_alpha) const {
 
-    se_string txt;
+    String txt;
     txt.resize(p_alpha ? 8 : 6);
     _to_hex(r,txt.data());
     _to_hex(g,txt.data()+2);
@@ -511,7 +511,7 @@ Color Color::from_hsv(float p_h, float p_s, float p_v, float p_a) {
     return Color(m + r, m + g, m + b, p_a);
 }
 
-Color::operator se_string() const {
+Color::operator String() const {
 
     return rtos(r) + ", " + rtos(g) + ", " + rtos(b) + ", " + rtos(a);
 }

@@ -87,7 +87,7 @@ void EditorFileServer::_subthread_start(void *s) {
             ERR_FAIL_COND(err != OK)
         }
         passutf8.write[passlen] = 0;
-        se_string s2(passutf8.ptr());
+        String s2(passutf8.ptr());
         if (s2 != cd->efs->password) {
             encode_uint32(ERR_INVALID_DATA, buf4);
             cd->connection->put_data(buf4, 4);
@@ -152,7 +152,7 @@ void EditorFileServer::_subthread_start(void *s) {
                     ERR_FAIL_COND(err != OK)
                 }
                 fileutf8.write[namelen] = 0;
-                se_string s2(fileutf8.ptr());
+                String s2(fileutf8.ptr());
 
                 if (cmd == FileAccessNetwork::COMMAND_FILE_EXISTS) {
                     print_verbose("FILE EXISTS: " + s2);
@@ -319,7 +319,7 @@ void EditorFileServer::start() {
 
     stop();
     port = EDITOR_DEF("filesystem/file_server/port", 6010);
-    password = EDITOR_DEF("filesystem/file_server/password", "").as<se_string>();
+    password = EDITOR_DEF("filesystem/file_server/password", "").as<String>();
     cmd = CMD_ACTIVATE;
 }
 

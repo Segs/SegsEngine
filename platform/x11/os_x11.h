@@ -96,7 +96,7 @@ class OS_X11 : public OS_Unix {
     //Rasterizer *rasterizer;
     VisualServer *visual_server;
     VideoMode current_videomode;
-    ListPOD<se_string> args;
+    ListPOD<String> args;
     Window x11_window;
     Window xdnd_source_window;
     MainLoop *main_loop;
@@ -220,7 +220,7 @@ protected:
     bool is_window_maximize_allowed();
 
 public:
-    se_string get_name() const override;
+    String get_name() const override;
 
     void set_cursor_shape(CursorShape p_shape) override;
     CursorShape get_cursor_shape() const override;
@@ -241,7 +241,7 @@ public:
     bool can_draw() const override;
 
     void set_clipboard(se_string_view p_text) override;
-    se_string get_clipboard() const override;
+    String get_clipboard() const override;
 
     void release_rendering_thread() override;
     void make_rendering_thread() override;

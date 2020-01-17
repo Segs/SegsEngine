@@ -54,8 +54,8 @@ protected:
     void _commit(se_string_view p_msg);
     Array _get_file_diff(se_string_view p_file_path);
     bool _shut_down();
-    se_string _get_project_name();
-    se_string _get_vcs_name();
+    String _get_project_name();
+    String _get_vcs_name();
 
 public:
     static EditorVCSInterface *get_singleton();
@@ -72,8 +72,8 @@ public:
     void commit(se_string_view p_msg);
     Array get_file_diff(se_string_view p_file_path);
     bool shut_down();
-    se_string get_project_name();
-    se_string get_vcs_name();
+    String get_project_name();
+    String get_vcs_name();
 
     EditorVCSInterface();
     ~EditorVCSInterface() override;

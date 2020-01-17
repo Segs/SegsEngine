@@ -70,7 +70,7 @@ void GDMonoLog::mono_log_callback(const char *log_domain, const char *log_level,
 	FileAccess *f = GDMonoLog::get_singleton()->log_file;
 
 	if (GDMonoLog::get_singleton()->log_level_id >= get_log_level_id(log_level)) {
-        se_string text(message);
+        String text(message);
 		text += " (in domain ";
 		text += log_domain;
 		if (log_level) {
@@ -118,7 +118,7 @@ void GDMonoLog::_delete_old_log_files(se_string_view p_logs_dir) {
 
 	ERR_FAIL_COND(da->list_dir_begin() != OK);
 
-    se_string current;
+    String current;
 	while ((current = da->get_next()).length()) {
 		if (da->current_is_dir())
 			continue;
@@ -137,10 +137,10 @@ void GDMonoLog::_delete_old_log_files(se_string_view p_logs_dir) {
 
 void GDMonoLog::initialize() {
 
-    se_string log_level = OS::get_singleton()->get_environment("GODOT_MONO_LOG_LEVEL");
+    String log_level = OS::get_singleton()->get_environment("GODOT_MONO_LOG_LEVEL");
 
     if (log_level.length() != 0 && get_log_level_id(log_level.data()) == -1) {
-        ERR_PRINT(se_string() + "Mono: Ignoring invalid log level (GODOT_MONO_LOG_LEVEL): '" + log_level + "'.")
+        ERR_PRINT(String() + "Mono: Ignoring invalid log level (GODOT_MONO_LOG_LEVEL): '" + log_level + "'.")
         log_level.clear();
 	}
 
@@ -148,7 +148,7 @@ void GDMonoLog::initialize() {
 		log_level = get_default_log_level();
 	}
 
-    se_string logs_dir = GodotSharpDirs::get_mono_logs_dir();
+    String logs_dir = GodotSharpDirs::get_mono_logs_dir();
 
 	if (_try_create_logs_dir(logs_dir)) {
 		_delete_old_log_files(logs_dir);
@@ -156,7 +156,7 @@ void GDMonoLog::initialize() {
 		OS::Date date_now = OS::get_singleton()->get_date();
 		OS::Time time_now = OS::get_singleton()->get_time();
 
-        se_string log_file_name = str_format("%d_%02d_%02d %02d.%02d.%02d",
+        String log_file_name = str_format("%d_%02d_%02d %02d.%02d.%02d",
 				date_now.year, date_now.month, date_now.day,
 				time_now.hour, time_now.min, time_now.sec);
 

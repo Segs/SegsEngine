@@ -339,7 +339,7 @@ EditorAssetLibraryItemDescription::EditorAssetLibraryItemDescription() {
 
 void EditorAssetLibraryItemDownload::_http_download_completed(int p_status, int p_code, const PoolSeStringArray &headers, const PoolByteArray &p_data) {
 
-    se_string error_text;
+    String error_text;
     se_tmp_string<256,true> tmp(" " + host);
     switch (p_status) {
 
@@ -384,7 +384,7 @@ void EditorAssetLibraryItemDownload::_http_download_completed(int p_status, int 
                 error_text = TTR("Request failed, return code:") + " " + itos(p_code);
                 status->set_text(TTR("Failed:") + " " + itos(p_code));
             } else if (!sha256.empty()) {
-                se_string download_sha256 = FileAccess::get_sha256(download->get_download_file());
+                String download_sha256 = FileAccess::get_sha256(download->get_download_file());
                 if (sha256 != download_sha256) {
                     error_text = TTR("Bad download hash, assuming file has been tampered with.") + "\n";
                     error_text += FormatVE(TTR("Expected: %s\nGot: %s").asCString(),sha256.c_str(),download_sha256.c_str());
@@ -488,7 +488,7 @@ void EditorAssetLibraryItemDownload::_close() {
 
 void EditorAssetLibraryItemDownload::_install() {
 
-    const se_string &file(download->get_download_file());
+    const String &file(download->get_download_file());
 
     if (external_install) {
         emit_signal("install_asset", file, title->get_text());
@@ -714,8 +714,8 @@ void EditorAssetLibrary::_image_update(bool use_cache, bool final, const PoolByt
         PoolByteArray image_data = p_data;
 
         if (use_cache) {
-            se_string cache_filename_base = PathUtils::plus_file(EditorSettings::get_singleton()->get_cache_dir(),
-                    se_string("assetimage_" + StringUtils::md5_text(image_queue[p_queue_id].image_url)));
+            String cache_filename_base = PathUtils::plus_file(EditorSettings::get_singleton()->get_cache_dir(),
+                    String("assetimage_" + StringUtils::md5_text(image_queue[p_queue_id].image_url)));
 
             FileAccess *file = FileAccess::open(cache_filename_base + ".data", FileAccess::READ);
 
@@ -787,7 +787,7 @@ void EditorAssetLibrary::_image_update(bool use_cache, bool final, const PoolByt
 }
 
 void EditorAssetLibrary::_image_request_completed(
-        int p_status, int p_code, const PoolVector<se_string> &headers, const PoolByteArray &p_data, int p_queue_id) {
+        int p_status, int p_code, const PoolVector<String> &headers, const PoolByteArray &p_data, int p_queue_id) {
 
     ERR_FAIL_COND(!image_queue.contains(p_queue_id))
 
@@ -797,8 +797,8 @@ void EditorAssetLibrary::_image_request_completed(
             for (int i = 0; i < headers.size(); i++) {
                 se_string_view hdr(headers[i]);
                 if (StringUtils::findn(hdr, "ETag:") == 0) { // Save etag
-                    se_string cache_filename_base = PathUtils::plus_file(EditorSettings::get_singleton()->get_cache_dir(),
-                            se_string("assetimage_" + StringUtils::md5_text(image_queue[p_queue_id].image_url)));
+                    String cache_filename_base = PathUtils::plus_file(EditorSettings::get_singleton()->get_cache_dir(),
+                            String("assetimage_" + StringUtils::md5_text(image_queue[p_queue_id].image_url)));
                     se_string_view new_etag = StringUtils::strip_edges(StringUtils::substr(
                             hdr, StringUtils::find(hdr, ":") + 1));
                     FileAccess *file;
@@ -849,9 +849,9 @@ void EditorAssetLibrary::_update_image_queue() {
     for (eastl::pair<const int, ImageQueue> &E : image_queue) {
         if (!E.second.active && current_images < max_images) {
 
-            se_string cache_filename_base = PathUtils::plus_file(EditorSettings::get_singleton()->get_cache_dir(),
+            String cache_filename_base = PathUtils::plus_file(EditorSettings::get_singleton()->get_cache_dir(),
                     "assetimage_" + StringUtils::md5_text(E.second.image_url));
-            PODVector<se_string> headers;
+            PODVector<String> headers;
 
             if (FileAccess::exists(cache_filename_base + ".etag") && FileAccess::exists(cache_filename_base + ".data")) {
                 FileAccess *file = FileAccess::open(cache_filename_base + ".etag", FileAccess::READ);
@@ -881,7 +881,7 @@ void EditorAssetLibrary::_update_image_queue() {
     }
 }
 
-void EditorAssetLibrary::_request_image(ObjectID p_for, se_string p_image_url, ImageType p_type, int p_image_index) {
+void EditorAssetLibrary::_request_image(ObjectID p_for, String p_image_url, ImageType p_type, int p_image_index) {
 
     ImageQueue iq;
     iq.image_url = std::move(p_image_url);
@@ -905,7 +905,7 @@ void EditorAssetLibrary::_request_image(ObjectID p_for, se_string p_image_url, I
 }
 
 void EditorAssetLibrary::_repository_changed(int p_repository_id) {
-    host = repository->get_item_metadata(p_repository_id).as<se_string>();
+    host = repository->get_item_metadata(p_repository_id).as<String>();
     if (templates_only) {
         _api_request("configure", REQUESTING_CONFIG, "?type=project");
     } else {
@@ -924,26 +924,26 @@ void EditorAssetLibrary::_rerun_search(int p_ignore) {
 
 void EditorAssetLibrary::_search(int p_page) {
 
-    se_string args;
+    String args;
 
     if (templates_only) {
         args += "?type=project&";
     } else {
         args += "?";
     }
-    args += se_string("sort=") + sort_key[sort->get_selected()];
+    args += String("sort=") + sort_key[sort->get_selected()];
 
     // We use the "branch" version, i.e. major.minor, as patch releases should be compatible
-    args += "&godot_version=" + se_string(VERSION_BRANCH);
+    args += "&godot_version=" + String(VERSION_BRANCH);
 
-    se_string support_list;
+    String support_list;
     for (int i = 0; i < SUPPORT_MAX; i++) {
         if (support->get_popup()->is_item_checked(i)) {
-            support_list += se_string(support_key[i]) + "+";
+            support_list += String(support_key[i]) + "+";
         }
     }
     if (!support_list.empty()) {
-        args += se_string("&support=") + StringUtils::substr(support_list,0, support_list.length() - 1);
+        args += String("&support=") + StringUtils::substr(support_list,0, support_list.length() - 1);
     }
 
     if (categories->get_selected() > 0) {
@@ -957,7 +957,7 @@ void EditorAssetLibrary::_search(int p_page) {
     }
 
     if (!filter->get_text_ui().isEmpty()) {
-        args += se_string("&filter=") + StringUtils::http_escape(filter->get_text());
+        args += String("&filter=") + StringUtils::http_escape(filter->get_text());
     }
 
     if (p_page > 0) {
@@ -1071,7 +1071,7 @@ void EditorAssetLibrary::_api_request(se_string_view p_request, RequestType p_re
 
 void EditorAssetLibrary::_http_request_completed(int p_status, int p_code, const PoolSeStringArray &headers, const PoolByteArray &p_data) {
 
-    se_string str;
+    String str;
 
     {
         int datalen = p_data.size();
@@ -1080,7 +1080,7 @@ void EditorAssetLibrary::_http_request_completed(int p_status, int p_code, const
     }
 
     bool error_abort = true;
-    se_string ui_host_suffix(" " + host);
+    String ui_host_suffix(" " + host);
     switch (p_status) {
 
         case HTTPRequest::RESULT_CANT_RESOLVE: {
@@ -1123,7 +1123,7 @@ void EditorAssetLibrary::_http_request_completed(int p_status, int p_code, const
     Dictionary d;
     {
         Variant js;
-        se_string errs;
+        String errs;
         int errl;
         JSON::parse(str, js, errs, errl);
         d = js;
@@ -1228,7 +1228,7 @@ void EditorAssetLibrary::_http_request_completed(int p_status, int p_code, const
 
                 EditorAssetLibraryItem *item = memnew(EditorAssetLibraryItem);
                 asset_items->add_child(item);
-                item->configure(r["title"], r["asset_id"], category_map[r["category_id"]].as<se_string>(), r["category_id"], r["author"].as<se_string>(), r["author_id"], r["cost"].as<se_string>());
+                item->configure(r["title"], r["asset_id"], category_map[r["category_id"]].as<String>(), r["category_id"], r["author"].as<String>(), r["author_id"], r["cost"].as<String>());
                 item->connect("asset_selected", this, "_select_asset");
                 item->connect("author_selected", this, "_select_author");
                 item->connect("category_selected", this, "_select_category");
@@ -1264,11 +1264,11 @@ void EditorAssetLibrary::_http_request_completed(int p_status, int p_code, const
             description->popup_centered_minsize();
             description->connect("confirmed", this, "_install_asset");
 
-            description->configure(r["title"], r["asset_id"], category_map[r["category_id"]].as<se_string>(),
-                    r["category_id"], r["author"].as<se_string>(), r["author_id"], r["cost"].as<se_string>(), r["version"],
-                    r["version_string"].as<se_string>(), r["description"].as<se_string>(),
-                    r["download_url"].as<se_string>(), r["browse_url"].as<se_string>(),
-                    r["download_hash"].as<se_string>());
+            description->configure(r["title"], r["asset_id"], category_map[r["category_id"]].as<String>(),
+                    r["category_id"], r["author"].as<String>(), r["author_id"], r["cost"].as<String>(), r["version"],
+                    r["version_string"].as<String>(), r["description"].as<String>(),
+                    r["download_url"].as<String>(), r["browse_url"].as<String>(),
+                    r["download_hash"].as<String>());
 
             if (r.has("icon_url") && r["icon_url"] != "") {
                 _request_image(description->get_instance_id(), r["icon_url"], IMAGE_QUEUE_ICON, 0);
@@ -1284,10 +1284,10 @@ void EditorAssetLibrary::_http_request_completed(int p_status, int p_code, const
                     ERR_CONTINUE(!p.has("type"));
                     ERR_CONTINUE(!p.has("link"));
 
-                    bool is_video = p.has("type") && se_string(p["type"]) == "video";
-                    se_string video_url;
+                    bool is_video = p.has("type") && String(p["type"]) == "video";
+                    String video_url;
                     if (is_video && p.has("link")) {
-                        video_url = p["link"].as<se_string>();
+                        video_url = p["link"].as<String>();
                     }
 
                     description->add_preview(i, is_video, video_url);

@@ -20,7 +20,7 @@ Synced with upstream up to godotengine/godot@269eb5f06c8874e1257137eabe121d45017
 
 ## Largest differences
 
-* String type has been split into utf8 based se_string and se_string_view and UI only String based on QString.
+* String type has been split into utf8 based String and se_string_view and UI only String based on QString.
 * Many places in the codebase no longer use COW types (Vector), but use EASTL ones instead.
 * Some modules are hard-disabled ( gdnative,camera ), some will make a comback ( mono )
 * (TODO: fill this as we progress)

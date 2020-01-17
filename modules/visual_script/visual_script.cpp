@@ -118,7 +118,7 @@ Array VisualScriptNode::_get_default_input_values() const {
     return values;
 }
 
-se_string VisualScriptNode::get_text() const {
+String VisualScriptNode::get_text() const {
     return {};
 }
 
@@ -683,7 +683,7 @@ void VisualScript::_set_variable_info(const StringName &p_name, const Dictionary
     if (p_info.has("hint"))
         pinfo.hint = PropertyHint(int(p_info["hint"]));
     if (p_info.has("hint_string"))
-        pinfo.hint_string = p_info["hint_string"].as<se_string>();
+        pinfo.hint_string = p_info["hint_string"].as<String>();
     if (p_info.has("usage"))
         pinfo.usage = p_info["usage"];
 
@@ -958,7 +958,7 @@ se_string_view VisualScript::get_source_code() const {
     return {};
 }
 
-void VisualScript::set_source_code(se_string p_code) {
+void VisualScript::set_source_code(String p_code) {
 }
 
 Error VisualScript::reload(bool p_keep_state) {
@@ -1486,7 +1486,7 @@ bool VisualScriptInstance::has_method(const StringName &p_method) const {
 //#define VSDEBUG(m_text) print_line(m_text)
 #define VSDEBUG(m_text)
 
-void VisualScriptInstance::_dependency_step(VisualScriptNodeInstance *node, int p_pass, int *pass_stack, const Variant **input_args, Variant **output_args, Variant *variant_stack, Variant::CallError &r_error, se_string &error_str, VisualScriptNodeInstance **r_error_node) {
+void VisualScriptInstance::_dependency_step(VisualScriptNodeInstance *node, int p_pass, int *pass_stack, const Variant **input_args, Variant **output_args, Variant *variant_stack, Variant::CallError &r_error, String &error_str, VisualScriptNodeInstance **r_error_node) {
 
     ERR_FAIL_COND(node->pass_idx == -1)
 
@@ -1548,7 +1548,7 @@ Variant VisualScriptInstance::_call_internal(const StringName &p_method, void *p
     int *flow_stack = flow_max ? (int *)(output_args + max_output_args) : (int *)nullptr;
     int *pass_stack = flow_stack ? (int *)(flow_stack + flow_max) : (int *)nullptr;
 
-    se_string error_str;
+    String error_str;
 
     VisualScriptNodeInstance *node = p_node;
     bool error = false;
@@ -1743,7 +1743,7 @@ Variant VisualScriptInstance::_call_internal(const StringName &p_method, void *p
                 return_value = *working_mem;
             }
 
-            VSDEBUG("EXITING FUNCTION - VALUE " + se_string(return_value));
+            VSDEBUG("EXITING FUNCTION - VALUE " + String(return_value));
             break; //exit function requested, bye
         }
 
@@ -1874,8 +1874,8 @@ Variant VisualScriptInstance::_call_internal(const StringName &p_method, void *p
 
         //error
         // function, file, line, error, explanation
-        se_string err_file = script->get_path();
-        se_string err_func = p_method.asCString();
+        String err_file = script->get_path();
+        String err_func = p_method.asCString();
         int err_line = current_node_id; //not a line but it works as one
 
         if (node && (r_error.error != Variant::CallError::CALL_ERROR_INVALID_METHOD || error_str.empty())) {
@@ -1936,7 +1936,7 @@ Variant VisualScriptInstance::call(const StringName &p_method, const Variant **p
         return Variant();
     }
 
-    VSDEBUG("CALLING: " + se_string(p_method));
+    VSDEBUG("CALLING: " + String(p_method));
 
     Function *f = &F->second;
 
@@ -2024,7 +2024,7 @@ void VisualScriptInstance::notification(int p_notification) {
     call(VisualScriptLanguage::singleton->notification, &whatp, 1, ce); //do as call
 }
 
-se_string VisualScriptInstance::to_string(bool *r_valid) {
+String VisualScriptInstance::to_string(bool *r_valid) {
     if (has_method(CoreStringNames::get_singleton()->_to_string)) {
         Variant::CallError ce;
         Variant ret = call(CoreStringNames::get_singleton()->_to_string, nullptr, 0, ce);
@@ -2032,16 +2032,16 @@ se_string VisualScriptInstance::to_string(bool *r_valid) {
             if (ret.get_type() != VariantType::STRING) {
                 if (r_valid)
                     *r_valid = false;
-                ERR_FAIL_V_MSG(se_string(), se_string("Wrong type for ") + CoreStringNames::get_singleton()->_to_string + ", must be a String.")
+                ERR_FAIL_V_MSG(String(), String("Wrong type for ") + CoreStringNames::get_singleton()->_to_string + ", must be a String.")
             }
             if (r_valid)
                 *r_valid = true;
-            return ret.as<se_string>();
+            return ret.as<String>();
         }
     }
     if (r_valid)
         *r_valid = false;
-    return se_string();
+    return String();
 }
 
 Ref<Script> VisualScriptInstance::get_script() const {
@@ -2118,7 +2118,7 @@ void VisualScriptInstance::create(const Ref<VisualScript> &p_script, Object *p_o
         Map<StringName, int> local_var_indices;
 
         if (function.node < 0) {
-            VisualScriptLanguage::singleton->debug_break_parse(get_script()->get_path(), 0, "No start node in function: " + se_string(E.first));
+            VisualScriptLanguage::singleton->debug_break_parse(get_script()->get_path(), 0, "No start node in function: " + String(E.first));
 
             ERR_CONTINUE(function.node < 0)
         }
@@ -2127,7 +2127,7 @@ void VisualScriptInstance::create(const Ref<VisualScript> &p_script, Object *p_o
             Ref<VisualScriptFunction> func_node = dynamic_ref_cast<VisualScriptFunction>(script->get_node(E.first, E.second.function_id));
 
             if (not func_node) {
-                VisualScriptLanguage::singleton->debug_break_parse(get_script()->get_path(), 0, "No VisualScriptFunction typed start node in function: " + se_string(E.first));
+                VisualScriptLanguage::singleton->debug_break_parse(get_script()->get_path(), 0, "No VisualScriptFunction typed start node in function: " + String(E.first));
             }
 
             ERR_CONTINUE(not func_node)
@@ -2441,13 +2441,13 @@ StringName VisualScriptLanguage::get_name() const {
 /* LANGUAGE FUNCTIONS */
 void VisualScriptLanguage::init() {
 }
-se_string VisualScriptLanguage::get_type() const {
+String VisualScriptLanguage::get_type() const {
 
     return ("VisualScript");
 }
-se_string VisualScriptLanguage::get_extension() const {
+String VisualScriptLanguage::get_extension() const {
 
-    return se_string("vs");
+    return String("vs");
 }
 Error VisualScriptLanguage::execute_file(se_string_view p_path) {
 
@@ -2457,11 +2457,11 @@ void VisualScriptLanguage::finish() {
 }
 
 /* EDITOR FUNCTIONS */
-void VisualScriptLanguage::get_reserved_words(ListPOD<se_string> *p_words) const {
+void VisualScriptLanguage::get_reserved_words(ListPOD<String> *p_words) const {
 }
-void VisualScriptLanguage::get_comment_delimiters(ListPOD<se_string> *p_delimiters) const {
+void VisualScriptLanguage::get_comment_delimiters(ListPOD<String> *p_delimiters) const {
 }
-void VisualScriptLanguage::get_string_delimiters(ListPOD<se_string> *p_delimiters) const {
+void VisualScriptLanguage::get_string_delimiters(ListPOD<String> *p_delimiters) const {
 }
 Ref<Script> VisualScriptLanguage::get_template(se_string_view p_class_name, se_string_view p_base_class_name) const {
 
@@ -2480,7 +2480,7 @@ void VisualScriptLanguage::make_template(se_string_view p_class_name, se_string_
     script->set_instance_base_type(StringName(p_base_class_name));
 }
 
-bool VisualScriptLanguage::validate(se_string_view p_script, int &r_line_error, int &r_col_error, se_string &r_test_error, se_string_view p_path, DefList<se_string> *r_functions, List<ScriptLanguage::Warning> *r_warnings, Set<int> *r_safe_lines) const {
+bool VisualScriptLanguage::validate(se_string_view p_script, int &r_line_error, int &r_col_error, String &r_test_error, se_string_view p_path, DefList<String> *r_functions, List<ScriptLanguage::Warning> *r_warnings, Set<int> *r_safe_lines) const {
 
     return false;
 }
@@ -2500,12 +2500,12 @@ int VisualScriptLanguage::find_function(se_string_view p_function, se_string_vie
 
     return -1;
 }
-se_string VisualScriptLanguage::make_function(const se_string &p_class, const StringName &p_name, const PoolVector<se_string> &p_args) const {
+String VisualScriptLanguage::make_function(const String &p_class, const StringName &p_name, const PoolVector<String> &p_args) const {
 
-    return se_string();
+    return String();
 }
 
-void VisualScriptLanguage::auto_indent_code(se_string &p_code, int p_from_line, int p_to_line) const {
+void VisualScriptLanguage::auto_indent_code(String &p_code, int p_from_line, int p_to_line) const {
 }
 void VisualScriptLanguage::add_global_constant(const StringName &p_variable, const Variant &p_value) {
 }
@@ -2541,7 +2541,7 @@ bool VisualScriptLanguage::debug_break(se_string_view p_error, bool p_allow_cont
     }
 }
 
-const se_string &VisualScriptLanguage::debug_get_error() const {
+const String &VisualScriptLanguage::debug_get_error() const {
 
     return _debug_error;
 }
@@ -2564,7 +2564,7 @@ int VisualScriptLanguage::debug_get_stack_level_line(int p_level) const {
 
     return *(_call_stack[l].current_id);
 }
-se_string VisualScriptLanguage::debug_get_stack_level_function(int p_level) const {
+String VisualScriptLanguage::debug_get_stack_level_function(int p_level) const {
 
     if (_debug_parse_err_node >= 0)
         return null_se_string;
@@ -2573,16 +2573,16 @@ se_string VisualScriptLanguage::debug_get_stack_level_function(int p_level) cons
     int l = _debug_call_stack_pos - p_level - 1;
     return _call_stack[l].function->asCString();
 }
-se_string VisualScriptLanguage::debug_get_stack_level_source(int p_level) const {
+String VisualScriptLanguage::debug_get_stack_level_source(int p_level) const {
 
     if (_debug_parse_err_node >= 0)
         return _debug_parse_err_file;
 
-    ERR_FAIL_INDEX_V(p_level, _debug_call_stack_pos, se_string())
+    ERR_FAIL_INDEX_V(p_level, _debug_call_stack_pos, String())
     int l = _debug_call_stack_pos - p_level - 1;
     return _call_stack[l].instance->get_script_ptr()->get_path();
 }
-void VisualScriptLanguage::debug_get_stack_level_locals(int p_level, ListPOD<se_string> *p_locals, List<Variant> *p_values, int p_max_subitems, int p_max_depth) {
+void VisualScriptLanguage::debug_get_stack_level_locals(int p_level, ListPOD<String> *p_locals, List<Variant> *p_values, int p_max_subitems, int p_max_depth) {
 
     if (_debug_parse_err_node >= 0)
         return;
@@ -2602,7 +2602,7 @@ void VisualScriptLanguage::debug_get_stack_level_locals(int p_level, ListPOD<se_
     p_values->push_back(node->get_base_node()->get_text());
 
     for (int i = 0; i < node->input_port_count; i++) {
-        se_string name = node->get_base_node()->get_input_value_port_info(i).name.asCString();
+        String name = node->get_base_node()->get_input_value_port_info(i).name.asCString();
         if (name.empty()) {
             name = "in_" + itos(i);
         }
@@ -2623,7 +2623,7 @@ void VisualScriptLanguage::debug_get_stack_level_locals(int p_level, ListPOD<se_
 
     for (int i = 0; i < node->output_port_count; i++) {
 
-        se_string name = node->get_base_node()->get_output_value_port_info(i).name.asCString();
+        String name = node->get_base_node()->get_output_value_port_info(i).name.asCString();
         if (name.empty()) {
             name = "out_" + itos(i);
         }
@@ -2657,7 +2657,7 @@ void VisualScriptLanguage::debug_get_stack_level_locals(int p_level, ListPOD<se_
     }
 */
 }
-void VisualScriptLanguage::debug_get_stack_level_members(int p_level, ListPOD<se_string> *p_members, List<Variant> *p_values, int p_max_subitems, int p_max_depth) {
+void VisualScriptLanguage::debug_get_stack_level_members(int p_level, ListPOD<String> *p_members, List<Variant> *p_values, int p_max_subitems, int p_max_depth) {
 
     if (_debug_parse_err_node >= 0)
         return;
@@ -2674,19 +2674,19 @@ void VisualScriptLanguage::debug_get_stack_level_members(int p_level, ListPOD<se
     for (int i=0,fin=vars.size(); i<fin; ++i) {
         Variant v;
         if (_call_stack[l].instance->get_variable(vars[i], &v)) {
-            p_members->emplace_back(se_string("variables/") + vars[i]);
+            p_members->emplace_back(String("variables/") + vars[i]);
             p_values->push_back(v);
         }
     }
 }
 
-void VisualScriptLanguage::debug_get_globals(ListPOD<se_string> *p_locals, List<Variant> *p_values, int p_max_subitems, int p_max_depth) {
+void VisualScriptLanguage::debug_get_globals(ListPOD<String> *p_locals, List<Variant> *p_values, int p_max_subitems, int p_max_depth) {
 
     //no globals are really reachable in gdscript
 }
-se_string VisualScriptLanguage::debug_parse_stack_level_expression(int p_level, se_string_view p_expression, int p_max_subitems, int p_max_depth) {
+String VisualScriptLanguage::debug_parse_stack_level_expression(int p_level, se_string_view p_expression, int p_max_subitems, int p_max_depth) {
 
-    return se_string();
+    return String();
 }
 
 void VisualScriptLanguage::reload_all_scripts() {
@@ -2695,7 +2695,7 @@ void VisualScriptLanguage::reload_tool_script(const Ref<Script> &p_script, bool 
 }
 /* LOADER FUNCTIONS */
 
-void VisualScriptLanguage::get_recognized_extensions(List<se_string> *p_extensions) const {
+void VisualScriptLanguage::get_recognized_extensions(List<String> *p_extensions) const {
 
     p_extensions->push_back(("vs"));
 }
@@ -2724,23 +2724,23 @@ VisualScriptLanguage *VisualScriptLanguage::singleton = nullptr;
 void VisualScriptLanguage::add_register_func(se_string_view p_name, VisualScriptNodeRegisterFunc p_func) {
 
     ERR_FAIL_COND(register_funcs.contains_as(p_name))
-    register_funcs.emplace(se_string(p_name),p_func);
+    register_funcs.emplace(String(p_name),p_func);
 }
 void VisualScriptLanguage::remove_register_func(se_string_view p_name) {
     ERR_FAIL_COND(!register_funcs.contains_as(p_name))
-    register_funcs.erase(se_string(p_name));
+    register_funcs.erase(String(p_name));
 }
 
-Ref<VisualScriptNode> VisualScriptLanguage::create_node_from_name(const se_string &p_name) {
+Ref<VisualScriptNode> VisualScriptLanguage::create_node_from_name(const String &p_name) {
 
     ERR_FAIL_COND_V(!register_funcs.contains(p_name), Ref<VisualScriptNode>())
 
     return register_funcs[p_name](p_name);
 }
 
-void VisualScriptLanguage::get_registered_node_names(List<se_string> *r_names) {
+void VisualScriptLanguage::get_registered_node_names(List<String> *r_names) {
 
-    for (eastl::pair<const se_string,VisualScriptNodeRegisterFunc> &E : register_funcs) {
+    for (eastl::pair<const String,VisualScriptNodeRegisterFunc> &E : register_funcs) {
         r_names->push_back(E.first);
     }
 }

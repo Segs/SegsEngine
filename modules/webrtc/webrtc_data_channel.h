@@ -62,12 +62,12 @@ public:
     virtual bool was_string_packet() const = 0;
 
     virtual ChannelState get_ready_state() const = 0;
-    virtual se_string get_label() const = 0;
+    virtual String get_label() const = 0;
     virtual bool is_ordered() const = 0;
     virtual int get_id() const = 0;
     virtual int get_max_packet_life_time() const = 0;
     virtual int get_max_retransmits() const = 0;
-    virtual se_string get_protocol() const = 0;
+    virtual String get_protocol() const = 0;
     virtual bool is_negotiated() const = 0;
 
     virtual Error poll() = 0;

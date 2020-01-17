@@ -59,7 +59,7 @@ StringName AnimationNodeAnimation::get_animation() const {
     return animation;
 }
 
-Vector<se_string> (*AnimationNodeAnimation::get_editable_animation_list)() = nullptr;
+Vector<String> (*AnimationNodeAnimation::get_editable_animation_list)() = nullptr;
 
 void AnimationNodeAnimation::get_parameter_list(List<PropertyInfo> *r_list) const {
     r_list->push_back(PropertyInfo(VariantType::REAL, time, PROPERTY_HINT_NONE, "", 0));
@@ -67,8 +67,8 @@ void AnimationNodeAnimation::get_parameter_list(List<PropertyInfo> *r_list) cons
 void AnimationNodeAnimation::_validate_property(PropertyInfo &property) const {
 
     if (property.name == "animation" && get_editable_animation_list) {
-        Vector<se_string> names = get_editable_animation_list();
-        se_string anims;
+        Vector<String> names = get_editable_animation_list();
+        String anims;
         for (int i = 0; i < names.size(); i++) {
 
             if (i > 0) {
@@ -94,7 +94,7 @@ float AnimationNodeAnimation::process(float p_time, bool p_seek) {
 
         AnimationNodeBlendTree *tree = object_cast<AnimationNodeBlendTree>(parent);
         if (tree) {
-            se_string name(tree->get_node_name(Ref<AnimationNodeAnimation>(this)));
+            String name(tree->get_node_name(Ref<AnimationNodeAnimation>(this)));
             make_invalid(FormatVE(RTR_utf8("On BlendTree node '%s', animation not found: '%s'").c_str(), name.c_str(), animation.asCString()));
 
         } else {
@@ -668,7 +668,7 @@ AnimationNodeTimeSeek::AnimationNodeTimeSeek() {
 
 void AnimationNodeTransition::get_parameter_list(List<PropertyInfo> *r_list) const {
 
-    se_string anims;
+    String anims;
     for (int i = 0; i < enabled_inputs; i++) {
         if (i > 0) {
             anims += ',';
@@ -732,7 +732,7 @@ void AnimationNodeTransition::set_input_caption(int p_input, se_string_view p_na
     set_input_name(p_input, p_name);
 }
 
-const se_string & AnimationNodeTransition::get_input_caption(int p_input) const {
+const String & AnimationNodeTransition::get_input_caption(int p_input) const {
     ERR_FAIL_INDEX_V(p_input, MAX_INPUTS, null_se_string);
     return inputs[p_input].name;
 }
@@ -1214,9 +1214,9 @@ void AnimationNodeBlendTree::_get_property_list(ListPOD<PropertyInfo> *p_list) c
     for (const StringName &E : names) {
         StringName name(E);
         if (E != se_string_view("output")) {
-            p_list->push_back(PropertyInfo(VariantType::OBJECT, StringName(se_string("nodes/") + name + "/node"), PROPERTY_HINT_RESOURCE_TYPE, "AnimationNode", PROPERTY_USAGE_NOEDITOR));
+            p_list->push_back(PropertyInfo(VariantType::OBJECT, StringName(String("nodes/") + name + "/node"), PROPERTY_HINT_RESOURCE_TYPE, "AnimationNode", PROPERTY_USAGE_NOEDITOR));
         }
-        p_list->push_back(PropertyInfo(VariantType::VECTOR2, StringName(se_string("nodes/") + name + "/position"), PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR));
+        p_list->push_back(PropertyInfo(VariantType::VECTOR2, StringName(String("nodes/") + name + "/position"), PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR));
     }
 
     p_list->push_back(PropertyInfo(VariantType::ARRAY, "node_connections", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR));

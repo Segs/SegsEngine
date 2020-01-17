@@ -104,7 +104,7 @@ void UPNP::add_device_to_list(UPNPDev *dev, UPNPDev *devlist) {
     devices.push_back(new_device);
 }
 
-char *UPNP::load_description(const se_string & url, int *size, int *status_code) const {
+char *UPNP::load_description(const String & url, int *size, int *status_code) const {
     return (char *)miniwget(url.c_str(), size, 0, status_code);
 }
 
@@ -284,7 +284,7 @@ void UPNP::set_discover_multicast_if(se_string_view m_if) {
     discover_multicast_if = m_if;
 }
 
-const se_string & UPNP::get_discover_multicast_if() const {
+const String & UPNP::get_discover_multicast_if() const {
     return discover_multicast_if;
 }
 
@@ -304,17 +304,17 @@ bool UPNP::is_discover_ipv6() const {
     return discover_ipv6;
 }
 
-se_string UPNP::query_external_address() const {
+String UPNP::query_external_address() const {
     Ref<UPNPDevice> dev = get_gateway();
 
     if (dev == nullptr) {
-        return se_string();
+        return String();
     }
 
     return dev->query_external_address();
 }
 
-int UPNP::add_port_mapping(int port, int port_internal, const se_string & desc, const se_string &proto, int duration) const {
+int UPNP::add_port_mapping(int port, int port_internal, const String & desc, const String &proto, int duration) const {
     Ref<UPNPDevice> dev = get_gateway();
 
     if (dev == nullptr) {

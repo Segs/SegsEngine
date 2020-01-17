@@ -274,17 +274,17 @@ bool try_get_dictionary_key_value_types(const ManagedType &p_dictionary_type, Ma
     return false;
 }
 
-se_string mono_to_utf8_string(MonoString *p_mono_string) {
+String mono_to_utf8_string(MonoString *p_mono_string) {
     MonoError error;
     char *utf8 = mono_string_to_utf8_checked(p_mono_string, &error);
 
     if (!mono_error_ok(&error)) {
-        ERR_PRINT(se_string() + "Failed to convert MonoString* to UTF-8: '" + mono_error_get_message(&error) + "'.")
+        ERR_PRINT(String() + "Failed to convert MonoString* to UTF-8: '" + mono_error_get_message(&error) + "'.")
         mono_error_cleanup(&error);
-        return se_string();
+        return String();
     }
 
-    se_string ret = se_string(utf8);
+    String ret = String(utf8);
 
     mono_free(utf8);
 
@@ -368,7 +368,7 @@ MonoObject *variant_to_mono_object(const Variant *p_var, const ManagedType &p_ty
         case MONO_TYPE_STRING: {
             if (p_var->get_type() == VariantType::NIL)
                 return nullptr; // Otherwise, Variant -> String would return the string "Null"
-            return (MonoObject *)mono_string_from_godot(p_var->as<se_string>());
+            return (MonoObject *)mono_string_from_godot(p_var->as<String>());
         } break;
 
         case MONO_TYPE_VALUETYPE: {
@@ -579,7 +579,7 @@ MonoObject *variant_to_mono_object(const Variant *p_var, const ManagedType &p_ty
 #endif
                 }
                 case VariantType::STRING:
-                    return (MonoObject *)mono_string_from_godot(p_var->as<se_string>());
+                    return (MonoObject *)mono_string_from_godot(p_var->as<String>());
                 case VariantType::VECTOR2: {
                     GDMonoMarshal::M_Vector2 from = MARSHALLED_OUT(Vector2, p_var->operator ::Vector2());
                     return mono_value_box(mono_domain_get(), CACHED_CLASS_RAW(Vector2), &from);
@@ -930,7 +930,7 @@ Variant mono_object_to_variant_no_err(MonoObject *p_obj, const ManagedType &p_ty
     return mono_object_to_variant_impl(p_obj, p_type, /* fail_with_err: */ false);
 }
 
-se_string mono_object_to_variant_string(MonoObject *p_obj, MonoException **r_exc) {
+String mono_object_to_variant_string(MonoObject *p_obj, MonoException **r_exc) {
     ManagedType type = ManagedType::from_class(mono_object_get_class(p_obj));
     Variant var = GDMonoMarshal::mono_object_to_variant_no_err(p_obj, type);
 
@@ -942,12 +942,12 @@ se_string mono_object_to_variant_string(MonoObject *p_obj, MonoException **r_exc
         if (exc) {
             if (r_exc)
                 *r_exc = exc;
-            return se_string();
+            return String();
         }
 
         return GDMonoMarshal::mono_string_to_godot(mono_str);
     } else {
-        return var.as<se_string>();
+        return var.as<String>();
     }
 }
 

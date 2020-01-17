@@ -55,19 +55,19 @@ namespace AssimpImporter {
      */
 struct ImportState {
 
-    se_string path;
+    String path;
     Spatial *root;
     const aiScene *assimp_scene;
     uint32_t max_bone_weights;
 
-    Map<se_string, Ref<Mesh> > mesh_cache;
+    Map<String, Ref<Mesh> > mesh_cache;
     Map<int, Ref<Material> > material_cache;
-    Map<se_string, int> light_cache;
-    Map<se_string, int> camera_cache;
+    Map<String, int> light_cache;
+    Map<String, int> camera_cache;
     // very useful for when you need to ask assimp for the bone mesh
 
     Map<const aiNode *, Node *> assimp_node_map;
-    Map<se_string, Ref<Image> > path_to_image_cache;
+    Map<String, Ref<Image> > path_to_image_cache;
 
     // Generation 3 - determinisitic iteration
     // to lower potential recursion errors
@@ -103,7 +103,7 @@ struct RecursiveState {
             Transform &_node_transform,
             Skeleton *_skeleton,
             Spatial *_new_node,
-            const se_string &_node_name,
+            const String &_node_name,
             const aiNode *_assimp_node,
             Node *_parent_node,
             aiBone *_bone) :
@@ -118,7 +118,7 @@ struct RecursiveState {
     Transform &node_transform;
     Skeleton *skeleton;
     Spatial *new_node;
-    const se_string &node_name;
+    const String &node_name;
     const aiNode *assimp_node;
     Node *parent_node;
     aiBone *bone;

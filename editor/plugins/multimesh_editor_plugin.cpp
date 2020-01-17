@@ -237,7 +237,7 @@ void MultiMeshEditor::_populate() {
 
 void MultiMeshEditor::_browsed(const NodePath &p_path) {
 
-    se_string path(node->get_path_to(get_node(p_path)));
+    String path(node->get_path_to(get_node(p_path)));
 
     if (browsing_source)
         mesh_source->set_text_utf8(path);

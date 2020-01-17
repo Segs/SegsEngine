@@ -99,7 +99,7 @@ void GDScriptTextDocument::initialize() {
 
                 const lsp::DocumentSymbol *symbol = e.second;
                 lsp::CompletionItem item = symbol->make_completion_item();
-                item.data = JOIN_SYMBOLS(se_string(class_p.first), e.first);
+                item.data = JOIN_SYMBOLS(String(class_p.first), e.first);
                 native_member_completions.push_back(item.to_json());
             }
         }
@@ -122,8 +122,8 @@ Variant GDScriptTextDocument::nativeSymbol(const Dictionary &p_params) {
 }
 Array GDScriptTextDocument::documentSymbol(const Dictionary &p_params) {
     Dictionary params = p_params["textDocument"];
-    se_string uri = params["uri"].as<se_string>();
-    se_string path = GDScriptLanguageProtocol::get_singleton()->get_workspace()->get_file_path(uri);
+    String uri = params["uri"].as<String>();
+    String path = GDScriptLanguageProtocol::get_singleton()->get_workspace()->get_file_path(uri);
     Array arr;
     const auto &scripts(GDScriptLanguageProtocol::get_singleton()->get_workspace()->scripts);
     const auto parser = scripts.find_as(path);
@@ -232,7 +232,7 @@ Dictionary GDScriptTextDocument::resolve(const Dictionary &p_params) {
 
     } else if (data.get_type() == VariantType::STRING) {
 
-        se_string query = data;
+        String query = data;
 
         PODVector<se_string_view> param_symbols = StringUtils::split(query,(SYMBOL_SEPERATOR), false);
 
@@ -355,7 +355,7 @@ Variant GDScriptTextDocument::declaration(const Dictionary &p_params) {
     if (arr.empty() && !symbols.empty() && !symbols.front()->native_class.empty()) { // Find a native symbol
         const lsp::DocumentSymbol *symbol = symbols.front();
         if (GDScriptLanguageProtocol::get_singleton()->is_goto_native_symbols_enabled()) {
-            se_string id;
+            String id;
             switch (symbol->kind) {
                 case lsp::SymbolKind::Class:
                     id = "class_name:" + symbol->name;
@@ -408,7 +408,7 @@ GDScriptTextDocument::~GDScriptTextDocument() {
 
 void GDScriptTextDocument::sync_script_content(se_string_view p_path, se_string_view p_content) {
     auto wp = GDScriptLanguageProtocol::get_singleton()->get_workspace();
-    se_string path = wp->get_file_path(p_path);
+    String path = wp->get_file_path(p_path);
     wp->parse_script(path, p_content);
 }
 
@@ -423,7 +423,7 @@ Array GDScriptTextDocument::find_symbols(const lsp::TextDocumentPositionParams &
         lsp::Location location;
         location.uri = symbol->uri;
         location.range = symbol->range;
-        const se_string &path = GDScriptLanguageProtocol::get_singleton()->get_workspace()->get_file_path(symbol->uri);
+        const String &path = GDScriptLanguageProtocol::get_singleton()->get_workspace()->get_file_path(symbol->uri);
         if (file_checker->file_exists(path)) {
             arr.push_back(location.to_json());
         }

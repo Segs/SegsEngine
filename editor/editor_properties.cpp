@@ -269,7 +269,7 @@ void EditorPropertyPath::_path_pressed() {
         add_child(dialog);
     }
 
-    se_string full_path = get_edited_object()->get(get_edited_property());
+    String full_path = get_edited_object()->get(get_edited_property());
 
     dialog->clear_filters();
 
@@ -451,7 +451,7 @@ void EditorPropertyMember::_property_select() {
     } else if (hint == MEMBER_PROPERTY_OF_VARIANT_TYPE) {
 
         VariantType type = VariantType::NIL;
-        se_string tname = hint_text;
+        String tname = hint_text;
         if (StringUtils::contains(tname,"."))
             tname = StringUtils::get_slice(tname,".", 0);
         for (int i = 0; i < (int)VariantType::VARIANT_MAX; i++) {
@@ -761,7 +761,7 @@ void EditorPropertyLayers::update_property() {
 
 void EditorPropertyLayers::setup(LayerType p_layer_type) {
 
-    se_string basename;
+    String basename;
     switch (p_layer_type) {
         case LAYER_RENDER_2D:
             basename = "layer_names/2d_render";
@@ -907,7 +907,7 @@ void EditorPropertyObjectID::update_property() {
 
     ObjectID id = get_edited_object()->get(get_edited_property());
     if (id != 0) {
-        edit->set_text_utf8(se_string(type) + " ID: " + itos(id));
+        edit->set_text_utf8(String(type) + " ID: " + itos(id));
         edit->set_disabled(false);
         edit->set_icon(EditorNode::get_singleton()->get_class_icon(type));
     } else {
@@ -2029,7 +2029,7 @@ void EditorPropertyNodePath::update_property() {
 
     NodePath p = get_edited_object()->get(get_edited_property());
 
-    assign->set_tooltip_utf8(se_string(p));
+    assign->set_tooltip_utf8(String(p));
     if (p == NodePath()) {
         assign->set_icon(Ref<Texture>());
         assign->set_text(TTR("Assign..."));
@@ -2049,16 +2049,16 @@ void EditorPropertyNodePath::update_property() {
 
     if (!base_node || !base_node->has_node(p)) {
         assign->set_icon(Ref<Texture>());
-        assign->set_text_utf8(se_string(p));
+        assign->set_text_utf8(String(p));
         return;
     }
 
     Node *target_node = base_node->get_node(p);
     ERR_FAIL_COND(!target_node)
 
-    if (StringUtils::contains(se_string(target_node->get_name()),"@")) {
+    if (StringUtils::contains(String(target_node->get_name()),"@")) {
         assign->set_icon(Ref<Texture>());
-        assign->set_text_utf8(se_string(p));
+        assign->set_text_utf8(String(p));
         return;
     }
 
@@ -2131,11 +2131,11 @@ void EditorPropertyResource::_file_selected(se_string_view p_path) {
 
     RES res(ResourceLoader::load(p_path));
 
-    ERR_FAIL_COND_MSG(not res, "Cannot load resource from path '" + (se_string)p_path + "'.")
+    ERR_FAIL_COND_MSG(not res, "Cannot load resource from path '" + (String)p_path + "'.")
 
     ListPOD<PropertyInfo> prop_list;
     get_edited_object()->get_property_list(&prop_list);
-    se_string property_types;
+    String property_types;
 
     for (const PropertyInfo &E : prop_list) {
         if (E.name == get_edited_property() && E.hint & PROPERTY_HINT_RESOURCE_TYPE) {
@@ -2145,7 +2145,7 @@ void EditorPropertyResource::_file_selected(se_string_view p_path) {
     if (!property_types.empty()) {
         bool any_type_matches = false;
         const auto split_property_types = property_types.split(',');
-        for (const se_string & prop : split_property_types) {
+        for (const String & prop : split_property_types) {
             if (res->is_class(prop.c_str())) {
                 any_type_matches = true;
                 break;
@@ -2174,19 +2174,19 @@ void EditorPropertyResource::_menu_option(int p_which) {
             file->set_mode(EditorFileDialog::MODE_OPEN_FILE);
             StringName type = base_type;
 
-            PODVector<se_string> extensions;
+            PODVector<String> extensions;
             for (int i = 0; i <StringUtils::get_slice_count( type,','); i++) {
 
                 ResourceLoader::get_recognized_extensions_for_type(StringUtils::get_slice(type,',', i), extensions);
             }
 
-            Set<se_string> valid_extensions;
-            for (const se_string &E : extensions) {
+            Set<String> valid_extensions;
+            for (const String &E : extensions) {
                 valid_extensions.insert(E);
             }
 
             file->clear_filters();
-            for (const se_string &E : valid_extensions) {
+            for (const String &E : valid_extensions) {
 
                 file->add_filter("*." + E + " ; " + StringUtils::to_upper(E));
             }
@@ -2562,12 +2562,12 @@ void EditorPropertyResource::_update_menu() {
 
 void EditorPropertyResource::_sub_inspector_property_keyed(se_string_view p_property, const Variant &p_value, bool) {
 
-    emit_signal("property_keyed_with_value", se_string(get_edited_property()) + ":" + p_property, p_value, false);
+    emit_signal("property_keyed_with_value", String(get_edited_property()) + ":" + p_property, p_value, false);
 }
 
 void EditorPropertyResource::_sub_inspector_resource_selected(const RES &p_resource, se_string_view p_property) {
 
-    emit_signal("resource_selected", se_string(get_edited_property()) + ":" + p_property, p_resource);
+    emit_signal("resource_selected", String(get_edited_property()) + ":" + p_property, p_resource);
 }
 
 void EditorPropertyResource::_sub_inspector_object_id_selected(int p_id) {
@@ -2839,10 +2839,10 @@ bool EditorPropertyResource::_is_drop_valid(const Dictionary &p_drag_data) const
 
     if (drag_data.has("type") && UIString(drag_data["type"]) == "files") {
 
-        Vector<se_string> files = drag_data["files"].as<Vector<se_string>>();
+        Vector<String> files = drag_data["files"].as<Vector<String>>();
 
         if (files.size() == 1) {
-            se_string file = files[0];
+            String file = files[0];
             StringName ftype(EditorFileSystem::get_singleton()->get_file_type(file));
 
             if (!ftype.empty()) {
@@ -2880,10 +2880,10 @@ void EditorPropertyResource::drop_data_fw(const Point2 &p_point, const Variant &
 
     if (drag_data.has("type") && UIString(drag_data["type"]) == "files") {
 
-        Vector<se_string> files = drag_data["files"].as<Vector<se_string>>();
+        Vector<String> files = drag_data["files"].as<Vector<String>>();
 
         if (files.size() == 1) {
-            se_string file = files[0];
+            String file = files[0];
             RES res(ResourceLoader::load(file));
             if (res) {
                 emit_changed(get_edited_property(), res);
@@ -3352,7 +3352,7 @@ bool EditorInspectorDefaultPlugin::parse_property(Object *p_object, VariantType 
             }
             if (p_hint == PROPERTY_HINT_NODE_PATH_VALID_TYPES && !p_hint_text.empty()) {
                 FixedVector<se_string_view,8,true> parts;
-                se_string::split_ref(parts,p_hint_text,',');
+                String::split_ref(parts,p_hint_text,',');
                 PODVector<StringName> sn;
                 sn.reserve(parts.size());
 
@@ -3372,7 +3372,7 @@ bool EditorInspectorDefaultPlugin::parse_property(Object *p_object, VariantType 
             editor->setup(StringName(p_hint == PROPERTY_HINT_RESOURCE_TYPE ? p_hint_text : "Resource"));
 
             if (p_hint == PROPERTY_HINT_RESOURCE_TYPE) {
-                se_string open_in_new = EDITOR_GET("interface/inspector/resources_to_open_in_new_inspector");
+                String open_in_new = EDITOR_GET("interface/inspector/resources_to_open_in_new_inspector");
                 for (int i = 0; i < StringUtils::get_slice_count(open_in_new,','); i++) {
                     StringName type(StringUtils::strip_edges(StringUtils::get_slice(open_in_new,',', i)));
                     for (int j = 0; j < StringUtils::get_slice_count(p_hint_text,','); j++) {

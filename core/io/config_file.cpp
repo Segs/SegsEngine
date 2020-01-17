@@ -42,12 +42,12 @@ IMPL_GDCLASS(ConfigFile)
 
 PoolSeStringArray ConfigFile::_get_sections() const {
 
-    PODVector<se_string> s;
+    PODVector<String> s;
     get_sections(&s);
     PoolSeStringArray arr;
     arr.resize(s.size());
     int idx = 0;
-    for (const se_string &E : s) {
+    for (const String &E : s) {
 
         arr.set(idx++, Variant(E));
     }
@@ -57,12 +57,12 @@ PoolSeStringArray ConfigFile::_get_sections() const {
 
 PoolSeStringArray ConfigFile::_get_section_keys(se_string_view p_section) const {
 
-    PODVector<se_string> s;
+    PODVector<String> s;
     get_section_keys(p_section, &s);
     PoolSeStringArray arr;
     arr.resize(s.size());
     int idx = 0;
-    for (const se_string &E : s) {
+    for (const String &E : s) {
 
         arr.set(idx++, Variant(E));
     }
@@ -71,8 +71,8 @@ PoolSeStringArray ConfigFile::_get_section_keys(se_string_view p_section) const 
 }
 
 void ConfigFile::set_value(se_string_view _section, se_string_view _key, const Variant &p_value) {
-    se_string p_section(_section);
-    se_string p_key(_key);
+    String p_section(_section);
+    String p_key(_key);
     if (p_value.get_type() == VariantType::NIL) {
         //erase
         if (!values.contains(p_section))
@@ -91,8 +91,8 @@ void ConfigFile::set_value(se_string_view _section, se_string_view _key, const V
     }
 }
 Variant ConfigFile::get_value(se_string_view _section, se_string_view _key, const Variant& p_default) const {
-    se_string p_section(_section);
-    se_string p_key(_key);
+    String p_section(_section);
+    String p_key(_key);
     auto iter_section = values.find(p_section);
     if (iter_section==values.end()) {
         ERR_FAIL_COND_V_MSG(p_default.get_type() == VariantType::NIL, p_default, "Couldn't find the given section/key and no default was given.")
@@ -117,11 +117,11 @@ bool ConfigFile::has_section_key(se_string_view p_section, se_string_view p_key)
     return iter->second.contains_as(p_key);
 }
 
-void ConfigFile::get_sections(PODVector<se_string> *r_sections) const {
+void ConfigFile::get_sections(PODVector<String> *r_sections) const {
     r_sections->push_back(values.keys());
 }
-void ConfigFile::get_section_keys(se_string_view _section, PODVector<se_string> *r_keys) const {
-    const se_string p_section(_section);
+void ConfigFile::get_section_keys(se_string_view _section, PODVector<String> *r_keys) const {
+    const String p_section(_section);
     auto iter = values.find_as(_section);
 
     ERR_FAIL_COND_MSG(iter==values.end(), "Cannont get keys from nonexistent section '" + p_section + "'.")
@@ -130,12 +130,12 @@ void ConfigFile::get_section_keys(se_string_view _section, PODVector<se_string> 
 }
 void ConfigFile::erase_section(se_string_view p_section) {
 
-    values.erase(se_string(p_section));
+    values.erase(String(p_section));
 }
 void ConfigFile::erase_section_key(se_string_view p_section, se_string_view p_key) {
 
     auto iter=values.find_as(p_section);
-    ERR_FAIL_COND_MSG(iter==values.end(), "Cannot erase key from nonexistent section '" + se_string(p_section) + "'.")
+    ERR_FAIL_COND_MSG(iter==values.end(), "Cannot erase key from nonexistent section '" + String(p_section) + "'.")
 
     iter->second.erase_as(p_key);
 }
@@ -194,16 +194,16 @@ Error ConfigFile::save_encrypted_pass(se_string_view p_path, se_string_view p_pa
 Error ConfigFile::_internal_save(FileAccess *file) {
 
     bool first=true;
-    for (const eastl::pair<se_string, Map<se_string, Variant> > &E : values) {
+    for (const eastl::pair<String, Map<String, Variant> > &E : values) {
 
         if (!first)
             file->store_string("\n");
         first = false;
         file->store_string("[" + E.first + "]\n\n");
 
-        for (const eastl::pair<se_string, Variant> &F : E.second) {
+        for (const eastl::pair<String, Variant> &F : E.second) {
 
-            se_string vstr;
+            String vstr;
             VariantWriter::write_to_string(F.second, vstr);
             file->store_string(F.first + "=" + vstr + "\n");
         }
@@ -266,18 +266,18 @@ Error ConfigFile::_internal_load(se_string_view p_path, FileAccess *f) {
 
     VariantParser::Stream *stream=VariantParser::get_file_stream(f);
 
-    se_string assign;
+    String assign;
     Variant value;
     VariantParser::Tag next_tag;
 
     int lines = 0;
-    se_string error_text;
+    String error_text;
 
-    se_string section;
+    String section;
 
     while (true) {
 
-        assign = Variant().as<se_string>();
+        assign = Variant().as<String>();
         next_tag.fields.clear();
         next_tag.name.clear();
 
@@ -287,7 +287,7 @@ Error ConfigFile::_internal_load(se_string_view p_path, FileAccess *f) {
             memdelete(f);
             return OK;
         } else if (err != OK) {
-            ERR_PRINT("ConfgFile::load - " + se_string(p_path) + ":" + ::to_string(lines) +
+            ERR_PRINT("ConfgFile::load - " + String(p_path) + ":" + ::to_string(lines) +
                       " error: " + error_text + ".")
             VariantParser::release_stream(stream);
             memdelete(f);

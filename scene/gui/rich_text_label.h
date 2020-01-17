@@ -177,10 +177,10 @@ private:
 
     Rect2 _get_text_rect();
     Ref<RichTextEffect> _get_custom_effect_by_code(se_string_view p_bbcode_identifier);
-    virtual Dictionary parse_expressions_for_values(const PoolVector<se_string> &p_expressions);
+    virtual Dictionary parse_expressions_for_values(const PoolVector<String> &p_expressions);
 
     bool use_bbcode;
-    se_string bbcode;
+    String bbcode;
 
     void _update_all_lines();
 
@@ -190,7 +190,7 @@ protected:
     void _notification(int p_what);
 
 public:
-    se_string get_text();
+    String get_text();
     void add_text_utf8(se_string_view p_text);
     void add_text(const UIString &p_text);
     void add_image(const Ref<Texture> &p_image, const int p_width = 0, const int p_height = 0);
@@ -263,7 +263,7 @@ public:
     bool is_using_bbcode() const;
 
     void set_bbcode(se_string_view p_bbcode);
-    const se_string &get_bbcode() const;
+    const String &get_bbcode() const;
 
     void set_text_utf8(se_string_view p_string);
     void set_text(const UIString &p_string);

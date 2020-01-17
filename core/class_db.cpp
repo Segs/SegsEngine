@@ -159,7 +159,7 @@ StringName ClassDB::get_parent_class(const StringName &p_class) {
         return StringName();
     {
         if (unlikely(iter==classes.end())) {
-            _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "Condition ' " _STR(!ti) " ' is true. returned: " _STR(StringName()),"Cannot get class '" + se_string(p_class) + "'.");
+            _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "Condition ' " _STR(!ti) " ' is true. returned: " _STR(StringName()),"Cannot get class '" + String(p_class) + "'.");
             return StringName();
         }
     }
@@ -171,7 +171,7 @@ ClassDB::APIType ClassDB::get_api_type(const StringName &p_class) {
     RWLockRead _rw_lockr_(lock);
 
     auto iter = classes.find(p_class);
-    ERR_FAIL_COND_V_MSG(iter==classes.end(), API_NONE, "Cannot get class '" + se_string(p_class) + "'.")
+    ERR_FAIL_COND_V_MSG(iter==classes.end(), API_NONE, "Cannot get class '" + String(p_class) + "'.")
     return iter->second.api;
 }
 
@@ -344,14 +344,14 @@ Object *ClassDB::instance(const StringName &p_class) {
                 iter = classes.find(compat_classes[p_class]);
             }
         }
-        ERR_FAIL_COND_V_MSG(iter==classes.end(), nullptr, "Cannot get class '" + se_string(p_class) + "'.")
+        ERR_FAIL_COND_V_MSG(iter==classes.end(), nullptr, "Cannot get class '" + String(p_class) + "'.")
         ti = &iter->second;
-        ERR_FAIL_COND_V_MSG(ti->disabled, nullptr, "Class '" + se_string(p_class) + "' is disabled.")
+        ERR_FAIL_COND_V_MSG(ti->disabled, nullptr, "Class '" + String(p_class) + "' is disabled.")
         ERR_FAIL_COND_V(!ti->creation_func, nullptr)
     }
 #ifdef TOOLS_ENABLED
     if (ti->api == API_EDITOR && !Engine::get_singleton()->is_editor_hint()) {
-        ERR_PRINT("Class '" + se_string(p_class) + "' can only be instantiated by editor.")
+        ERR_PRINT("Class '" + String(p_class) + "' can only be instantiated by editor.")
         return nullptr;
     }
 #endif
@@ -362,7 +362,7 @@ bool ClassDB::can_instance(const StringName &p_class) {
     RWLockRead _rw_lockr_(lock);
 
     auto iter=classes.find(p_class);
-    ERR_FAIL_COND_V_MSG(iter==classes.end(), false, "Cannot get class '" + se_string(p_class) + "'.")
+    ERR_FAIL_COND_V_MSG(iter==classes.end(), false, "Cannot get class '" + String(p_class) + "'.")
     ClassInfo *ti = &iter->second;
 #ifdef TOOLS_ENABLED
     if (ti->api == API_EDITOR && !Engine::get_singleton()->is_editor_hint()) {
@@ -378,7 +378,7 @@ void ClassDB::_add_class2(const StringName &p_class, const StringName &p_inherit
 
     const StringName &name = p_class;
 
-    ERR_FAIL_COND_MSG(classes.contains(name), "Class '" + se_string(p_class) + "' already exists.")
+    ERR_FAIL_COND_MSG(classes.contains(name), "Class '" + String(p_class) + "' already exists.")
 
     classes[name] = ClassInfo();
     ClassInfo &ti = classes[name];
@@ -521,7 +521,7 @@ void ClassDB::bind_integer_constant(
 #endif
 }
 
-void ClassDB::get_integer_constant_list(const StringName &p_class, ListPOD<se_string> *p_constants, bool p_no_inheritance) {
+void ClassDB::get_integer_constant_list(const StringName &p_class, ListPOD<String> *p_constants, bool p_no_inheritance) {
 
     RWLockRead _rw_lockr_(lock);
 
@@ -654,7 +654,7 @@ void ClassDB::add_signal(StringName p_class, const MethodInfo &p_signal) {
 #ifdef DEBUG_METHODS_ENABLED
     ClassInfo *check = type;
     while (check) {
-        ERR_FAIL_COND_MSG(class_signal_map(*check).contains(sname), "Class '" + se_string(p_class) + "' already has signal '" + se_string_view(sname) + "'.")
+        ERR_FAIL_COND_MSG(class_signal_map(*check).contains(sname), "Class '" + String(p_class) + "' already has signal '" + se_string_view(sname) + "'.")
         check = check->inherits_ptr;
     }
 #endif
@@ -743,10 +743,10 @@ void ClassDB::add_property(StringName p_class, const PropertyInfo &p_pinfo, cons
         mb_set = get_method(p_class, p_setter);
 #ifdef DEBUG_METHODS_ENABLED
 
-        ERR_FAIL_COND_MSG(!mb_set, se_string("Invalid setter '") + p_class + "::" + p_setter + "' for property '" + p_pinfo.name + "'.")
+        ERR_FAIL_COND_MSG(!mb_set, String("Invalid setter '") + p_class + "::" + p_setter + "' for property '" + p_pinfo.name + "'.")
 
         int exp_args = 1 + (p_index >= 0 ? 1 : 0);
-        ERR_FAIL_COND_MSG(mb_set->get_argument_count() != exp_args, se_string("Invalid function for setter '") + p_class + "::" + p_setter + " for property '" + p_pinfo.name + "'.");
+        ERR_FAIL_COND_MSG(mb_set->get_argument_count() != exp_args, String("Invalid function for setter '") + p_class + "::" + p_setter + " for property '" + p_pinfo.name + "'.");
 #endif
     }
 
@@ -756,15 +756,15 @@ void ClassDB::add_property(StringName p_class, const PropertyInfo &p_pinfo, cons
         mb_get = get_method(p_class, p_getter);
 #ifdef DEBUG_METHODS_ENABLED
 
-        ERR_FAIL_COND_MSG(!mb_get, se_string("Invalid getter '") + p_class + "::" + p_getter + "' for property '" + p_pinfo.name + "'.")
+        ERR_FAIL_COND_MSG(!mb_get, String("Invalid getter '") + p_class + "::" + p_getter + "' for property '" + p_pinfo.name + "'.")
 
         int exp_args = 0 + (p_index >= 0 ? 1 : 0);
-        ERR_FAIL_COND_MSG(mb_get->get_argument_count() != exp_args, se_string("Invalid function for getter '") + p_class + "::" + p_getter + "' for property: '" + p_pinfo.name + "'.");
+        ERR_FAIL_COND_MSG(mb_get->get_argument_count() != exp_args, String("Invalid function for getter '") + p_class + "::" + p_getter + "' for property: '" + p_pinfo.name + "'.");
 #endif
     }
 
 #ifdef DEBUG_METHODS_ENABLED
-    ERR_FAIL_COND_MSG(type->property_setget.contains(p_pinfo.name), se_string("Object '") + p_class + "' already has property '" + p_pinfo.name + "'.");
+    ERR_FAIL_COND_MSG(type->property_setget.contains(p_pinfo.name), String("Object '") + p_class + "' already has property '" + p_pinfo.name + "'.");
 #endif
 
     OBJTYPE_WLOCK
@@ -1047,27 +1047,27 @@ MethodBind *ClassDB::bind_methodfi(uint32_t p_flags, MethodBind *p_bind, const c
 
 #ifdef DEBUG_ENABLED
 
-    ERR_FAIL_COND_V_MSG(has_method(StringName(instance_type), mdname), nullptr, "Class " + se_string(instance_type) + " already has a method " + se_string(mdname) + ".")
+    ERR_FAIL_COND_V_MSG(has_method(StringName(instance_type), mdname), nullptr, "Class " + String(instance_type) + " already has a method " + String(mdname) + ".")
 #endif
 
     auto iter=classes.find_as(instance_type);
     ClassInfo *type = iter!=classes.end() ? &iter->second : nullptr;
     if (!type) {
         memdelete(p_bind);
-        ERR_FAIL_V_MSG(nullptr, se_string("Couldn't bind method '") + mdname + "' for instance '" + instance_type + "'.")
+        ERR_FAIL_V_MSG(nullptr, String("Couldn't bind method '") + mdname + "' for instance '" + instance_type + "'.")
     }
 
     if (type->method_map.contains(mdname)) {
         memdelete(p_bind);
         // overloading not supported
-        ERR_FAIL_V_MSG(nullptr, se_string("Method already bound '") + instance_type + "::" + mdname + "'.")
+        ERR_FAIL_V_MSG(nullptr, String("Method already bound '") + instance_type + "::" + mdname + "'.")
     }
 
 #ifdef DEBUG_METHODS_ENABLED
 
     if (method_name.parameterCount() > p_bind->get_argument_count()) {
         memdelete(p_bind);
-        ERR_FAIL_V_MSG(nullptr, se_string("Method definition provides more arguments than the method actually has '") + instance_type + "::" + mdname + "'.")
+        ERR_FAIL_V_MSG(nullptr, String("Method definition provides more arguments than the method actually has '") + instance_type + "::" + mdname + "'.")
     }
 
     //p_bind->set_argument_names(method_name.args);
@@ -1145,7 +1145,7 @@ bool ClassDB::is_class_enabled(StringName p_class) {
         }
     }
 
-    ERR_FAIL_COND_V_MSG(iter==classes.end(), false, "Cannot get class '" + se_string(p_class) + "'.")
+    ERR_FAIL_COND_V_MSG(iter==classes.end(), false, "Cannot get class '" + String(p_class) + "'.")
     return !iter->second.disabled;
 }
 
@@ -1154,7 +1154,7 @@ bool ClassDB::is_class_exposed(StringName p_class) {
     RWLockRead _rw_lockr_(lock);
 
     auto iter=classes.find(p_class);
-    ERR_FAIL_COND_V_MSG(iter==classes.end(), false, "Cannot get class '" + se_string(p_class) + "'.")
+    ERR_FAIL_COND_V_MSG(iter==classes.end(), false, "Cannot get class '" + String(p_class) + "'.")
     return iter->second.exposed;
 }
 
@@ -1176,14 +1176,14 @@ void ClassDB::add_resource_base_extension(const StringName &p_extension, const S
     resource_base_extensions[p_extension] = p_class;
 }
 
-void ClassDB::get_resource_base_extensions(PODVector<se_string> &p_extensions) {
+void ClassDB::get_resource_base_extensions(PODVector<String> &p_extensions) {
     for(const auto &p : resource_base_extensions)
     {
         p_extensions.push_back(p.first.asCString());
     }
 }
 
-void ClassDB::get_extensions_for_type(const StringName &p_class, PODVector<se_string> *p_extensions) {
+void ClassDB::get_extensions_for_type(const StringName &p_class, PODVector<String> *p_extensions) {
 
     for (const auto &p : resource_base_extensions) {
         if (is_parent_class(p_class, p.second) || is_parent_class(p.second, p_class))
@@ -1285,7 +1285,7 @@ bool ClassDB::bind_helper(MethodBind *bind, const char *instance_type, const Str
     if (type->method_map.contains(p_name)) {
         memdelete(bind);
         // overloading not supported
-        ERR_FAIL_V_MSG(false, se_string("Method already bound: ") + instance_type + "::" + p_name + ".")
+        ERR_FAIL_V_MSG(false, String("Method already bound: ") + instance_type + "::" + p_name + ".")
     }
     type->method_map[p_name] = bind;
 #ifdef DEBUG_METHODS_ENABLED

@@ -86,7 +86,7 @@ class PopupMenu : public Popup {
     int mouse_over;
     int submenu_over;
     Rect2 parent_rect;
-    se_string _get_accel_text(int p_item) const;
+    String _get_accel_text(int p_item) const;
     int _get_mouse_over(const Point2 &p_over) const;
     Size2 get_minimum_size() const override;
     void _scroll(float p_factor, const Point2 &p_over);
@@ -111,7 +111,7 @@ class PopupMenu : public Popup {
 
     bool allow_search;
     uint64_t search_time_msec;
-    se_string search_string;
+    String search_string;
 
 protected:
     bool has_point(const Point2 &p_point) const override;
@@ -162,7 +162,7 @@ public:
 
     void toggle_item_checked(int p_idx);
 
-    se_string get_item_text_utf8(int p_idx) const;
+    String get_item_text_utf8(int p_idx) const;
     StringName get_item_text(int p_idx) const;
     int get_item_idx_from_text(const StringName &text) const;
     int get_item_idx_from_text_utf8(se_string_view text) const;

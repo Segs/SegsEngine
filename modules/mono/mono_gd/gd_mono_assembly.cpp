@@ -45,11 +45,11 @@
 bool GDMonoAssembly::no_search = false;
 bool GDMonoAssembly::in_preload = false;
 
-Vector<se_string> GDMonoAssembly::search_dirs;
+Vector<String> GDMonoAssembly::search_dirs;
 
-void GDMonoAssembly::fill_search_dirs(Vector<se_string> &r_search_dirs,se_string_view p_custom_config, se_string_view p_custom_bcl_dir) {
+void GDMonoAssembly::fill_search_dirs(Vector<String> &r_search_dirs,se_string_view p_custom_config, se_string_view p_custom_bcl_dir) {
 
-    se_string framework_dir;
+    String framework_dir;
 
     if (!p_custom_bcl_dir.empty()) {
         framework_dir = p_custom_bcl_dir;
@@ -78,7 +78,7 @@ void GDMonoAssembly::fill_search_dirs(Vector<se_string> &r_search_dirs,se_string
     if (p_custom_config.empty()) {
         r_search_dirs.push_back(GodotSharpDirs::get_res_assemblies_dir());
     } else {
-        se_string api_config = p_custom_config == se_string_view("Release") ? "Release" : "Debug";
+        String api_config = p_custom_config == se_string_view("Release") ? "Release" : "Debug";
         r_search_dirs.push_back(PathUtils::plus_file(GodotSharpDirs::get_res_assemblies_base_dir(),api_config));
     }
 
@@ -129,7 +129,7 @@ MonoAssembly *GDMonoAssembly::_search_hook(MonoAssemblyName *aname, void *user_d
 
     (void)user_data; // UNUSED
 
-    se_string name = mono_assembly_name_get_name(aname);
+    String name = mono_assembly_name_get_name(aname);
     bool has_extension = name.ends_with(".dll") || name.ends_with(".exe");
 
     if (no_search)
@@ -176,7 +176,7 @@ MonoAssembly *GDMonoAssembly::_preload_hook(MonoAssemblyName *aname, char **, vo
     no_search = true;
     in_preload = true;
 
-    se_string name = mono_assembly_name_get_name(aname);
+    String name = mono_assembly_name_get_name(aname);
     bool has_extension = name.ends_with(".dll");
 
     GDMonoAssembly *res = nullptr;
@@ -194,15 +194,15 @@ MonoAssembly *GDMonoAssembly::_preload_hook(MonoAssemblyName *aname, char **, vo
     return res ? res->get_assembly() : nullptr;
 }
 
-GDMonoAssembly *GDMonoAssembly::_load_assembly_search(se_string_view p_name, const Vector<se_string> &p_search_dirs, bool p_refonly) {
+GDMonoAssembly *GDMonoAssembly::_load_assembly_search(se_string_view p_name, const Vector<String> &p_search_dirs, bool p_refonly) {
 
     GDMonoAssembly *res = nullptr;
-    se_string path;
+    String path;
 
     bool has_extension = p_name.ends_with(".dll") || p_name.ends_with(".exe");
 
     for (int i = 0; i < p_search_dirs.size(); i++) {
-        const se_string &search_dir = p_search_dirs[i];
+        const String &search_dir = p_search_dirs[i];
 
         if (has_extension) {
             path = PathUtils::plus_file(search_dir,p_name);
@@ -212,14 +212,14 @@ GDMonoAssembly *GDMonoAssembly::_load_assembly_search(se_string_view p_name, con
                     return res;
             }
         } else {
-            path = PathUtils::plus_file(search_dir,se_string(p_name) + ".dll");
+            path = PathUtils::plus_file(search_dir,String(p_name) + ".dll");
             if (FileAccess::exists(path)) {
                 res = _load_assembly_from(p_name, path, p_refonly);
                 if (res != nullptr)
                     return res;
             }
 
-            path = PathUtils::plus_file(search_dir,se_string(p_name) + ".exe");
+            path = PathUtils::plus_file(search_dir,String(p_name) + ".exe");
             if (FileAccess::exists(path)) {
                 res = _load_assembly_from(p_name, path, p_refonly);
                 if (res != nullptr)
@@ -231,14 +231,14 @@ GDMonoAssembly *GDMonoAssembly::_load_assembly_search(se_string_view p_name, con
     return nullptr;
 }
 
-se_string GDMonoAssembly::find_assembly(const se_string &p_name) {
+String GDMonoAssembly::find_assembly(const String &p_name) {
 
-    se_string path;
+    String path;
 
     bool has_extension = p_name.ends_with(".dll") || p_name.ends_with(".exe");
 
     for (int i = 0; i < search_dirs.size(); i++) {
-        const se_string &search_dir = search_dirs[i];
+        const String &search_dir = search_dirs[i];
 
         if (has_extension) {
             path = PathUtils::plus_file(search_dir,p_name);
@@ -255,7 +255,7 @@ se_string GDMonoAssembly::find_assembly(const se_string &p_name) {
         }
     }
 
-    return se_string();
+    return String();
 }
 
 GDMonoAssembly *GDMonoAssembly::_load_assembly_from(se_string_view p_name, se_string_view p_path, bool p_refonly) {
@@ -276,7 +276,7 @@ GDMonoAssembly *GDMonoAssembly::_load_assembly_from(se_string_view p_name, se_st
 }
 
 void GDMonoAssembly::_wrap_mono_assembly(MonoAssembly *assembly) {
-    se_string name = mono_assembly_name_get_name(mono_assembly_get_name(assembly));
+    String name = mono_assembly_name_get_name(mono_assembly_get_name(assembly));
 
     MonoImage *image = mono_assembly_get_image(assembly);
 
@@ -314,7 +314,7 @@ Error GDMonoAssembly::load(bool p_refonly) {
     PODVector<uint8_t> data = FileAccess::get_file_as_array(path);
     ERR_FAIL_COND_V(data.empty(), ERR_FILE_CANT_READ);
 
-    se_string image_filename;
+    String image_filename;
 
 #ifdef ANDROID_ENABLED
     if (path.begins_with("res://")) {
@@ -339,10 +339,10 @@ Error GDMonoAssembly::load(bool p_refonly) {
 
 #ifdef DEBUG_ENABLED
     PODVector<uint8_t> pdb_data;
-    se_string pdb_path(path + ".pdb");
+    String pdb_path(path + ".pdb");
 
     if (!FileAccess::exists(pdb_path)) {
-        pdb_path = se_string(PathUtils::get_basename(path)) + ".pdb"; // without .dll
+        pdb_path = String(PathUtils::get_basename(path)) + ".pdb"; // without .dll
 
         if (!FileAccess::exists(pdb_path))
             goto no_pdb;

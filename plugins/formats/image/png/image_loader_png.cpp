@@ -63,7 +63,7 @@ Error ImageLoaderPNG::load_image(ImageData &p_image,const uint8_t *p_png, int p_
 
     return OK;
 }
-void ImageLoaderPNG::get_recognized_extensions(PODVector<se_string> &p_extensions) const {
+void ImageLoaderPNG::get_recognized_extensions(PODVector<String> &p_extensions) const {
 
     p_extensions.emplace_back("png");
 }

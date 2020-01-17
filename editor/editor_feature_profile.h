@@ -127,7 +127,7 @@ class EditorFeatureProfileManager : public AcceptDialog {
     void _profile_action(int p_action);
     void _profile_selected(int p_what);
 
-    se_string current_profile;
+    String current_profile;
     void _update_profile_list(se_string_view p_select_profile = {});
     void _update_selected_profile();
     void _fill_classes_from(TreeItem *p_parent, const StringName &p_class, se_string_view p_selected);
@@ -137,9 +137,9 @@ class EditorFeatureProfileManager : public AcceptDialog {
 
     void _erase_selected_profile();
     void _create_new_profile();
-    se_string _get_selected_profile();
+    String _get_selected_profile();
 
-    void _import_profiles(const Vector<se_string> &p_paths);
+    void _import_profiles(const Vector<String> &p_paths);
     void _export_profile(se_string_view p_path);
 
     bool updating_features;

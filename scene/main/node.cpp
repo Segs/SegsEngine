@@ -75,7 +75,7 @@ se_string_view _get_name_num_separator() {
 }
 struct Node::PrivData {
 
-    se_string *filename=nullptr;
+    String *filename=nullptr;
     Ref<SceneState> instance_state;
     Ref<SceneState> inherited_state;
 
@@ -349,7 +349,7 @@ void Node::_propagate_exit_tree() {
 
     if (ScriptDebugger::get_singleton() && data->filename && !data->filename->empty()) {
         //used for live edit
-        Map<se_string, Set<Node *> >::iterator E = tree->get_live_scene_edit_cache().find(*data->filename);
+        Map<String, Set<Node *> >::iterator E = tree->get_live_scene_edit_cache().find(*data->filename);
         if (E!=tree->get_live_scene_edit_cache().end()) {
             E->second.erase(this);
             if (E->second.empty()) {
@@ -1015,11 +1015,11 @@ void Node::_set_name_nocheck(const StringName &p_name) {
 
 const char *Node::invalid_character(". : @ / \"");
 //TODO: SEGS: validate_node_name should do what it's named after, not modify the passed name
-bool Node::_validate_node_name(se_string &p_name) {
-    se_string name = p_name;
+bool Node::_validate_node_name(String &p_name) {
+    String name = p_name;
     PODVector<se_string_view> chars = StringUtils::split(Node::invalid_character,' ');
     for (size_t i = 0; i < chars.size(); i++) {
-        name = StringUtils::replace(name,chars[i], se_string());
+        name = StringUtils::replace(name,chars[i], String());
     }
     bool is_valid = name == p_name;
     p_name = name;
@@ -1028,7 +1028,7 @@ bool Node::_validate_node_name(se_string &p_name) {
 
 void Node::set_name(se_string_view p_name) {
 
-    se_string name(p_name);
+    String name(p_name);
     _validate_node_name(name);
 
     ERR_FAIL_COND(name.empty())
@@ -1061,11 +1061,11 @@ void Node::set_human_readable_collision_renaming(bool p_enabled) {
 }
 
 #ifdef TOOLS_ENABLED
-se_string Node::validate_child_name(Node *p_child) {
+String Node::validate_child_name(Node *p_child) {
 
     StringName name = p_child->data->name;
     _generate_serial_child_name(p_child, name);
-    return se_string(name);
+    return String(name);
 }
 #endif
 
@@ -1110,16 +1110,16 @@ void Node::_validate_child_name(Node *p_child, bool p_force_human_readable) {
         if (!unique) {
 
             ERR_FAIL_COND(!node_hrcr_count.ref())
-            se_string name = "@" + se_string(p_child->get_name()) + "@" + itos(node_hrcr_count.get());
+            String name = "@" + String(p_child->get_name()) + "@" + itos(node_hrcr_count.get());
             p_child->data->name = StringName(name);
         }
     }
 }
 
 // Return s + 1 as if it were an integer
-se_string increase_numeric_string(se_string_view s) {
+String increase_numeric_string(se_string_view s) {
 
-    se_string res(s);
+    String res(s);
     bool carry = res.length() > 0;
 
     for (int i = res.length() - 1; i >= 0; i--) {
@@ -1153,7 +1153,7 @@ void Node::_generate_serial_child_name(const Node *p_child, StringName &name) co
             case NAME_CASING_PASCAL_CASE:
                 break;
             case NAME_CASING_CAMEL_CASE: {
-                se_string n(name);
+                String n(name);
                 //TODO: SEGS: consider char_lowercase that is correct and returns more then 1 char!
                 n[0] = StringUtils::char_lowercase(n[0]);
                 name = StringName(n);
@@ -1187,8 +1187,8 @@ void Node::_generate_serial_child_name(const Node *p_child, StringName &name) co
     }
 
     // Extract trailing number
-    se_string name_string(name);
-    se_string nums;
+    String name_string(name);
+    String nums;
     for (int i = name_string.length() - 1; i >= 0; i--) {
         CharType n = name_string[i];
         if (n >= '0' && n <= '9') {
@@ -1258,8 +1258,8 @@ void Node::_add_child_nocheck(Node *p_child, const StringName &p_name) {
 void Node::add_child(Node *p_child, bool p_legible_unique_name) {
 
     ERR_FAIL_NULL(p_child)
-    ERR_FAIL_COND_MSG(p_child == this, "Can't add child '" + se_string(p_child->get_name()) + "' to itself.") // adding to itself!
-    ERR_FAIL_COND_MSG(p_child->data->parent, "Can't add child '" + se_string(p_child->get_name()) + "' to '" + get_name() +
+    ERR_FAIL_COND_MSG(p_child == this, "Can't add child '" + String(p_child->get_name()) + "' to itself.") // adding to itself!
+    ERR_FAIL_COND_MSG(p_child->data->parent, "Can't add child '" + String(p_child->get_name()) + "' to '" + get_name() +
                                                     "', already has a parent '" + p_child->data->parent->get_name() +
                                                     "'.") // Fail if node has a parent
     ERR_FAIL_COND_MSG(blocked > 0, "Parent node is busy setting up children, add_node() failed. Consider using "
@@ -1281,7 +1281,7 @@ void Node::add_child_below_node(Node *p_node, Node *p_child, bool p_legible_uniq
     if (is_a_parent_of(p_node)) {
         move_child(p_child, p_node->get_position_in_parent() + 1);
     } else {
-        WARN_PRINT("Cannot move under node " + se_string(p_node->get_name()) + " as " + p_child->get_name() + " does not share a parent.")
+        WARN_PRINT("Cannot move under node " + String(p_node->get_name()) + " as " + p_child->get_name() + " does not share a parent.")
     }
 }
 
@@ -1342,7 +1342,7 @@ void Node::remove_child(Node *p_child) {
         }
     }
 
-    ERR_FAIL_COND_MSG(idx == -1, "Cannot remove child node " + se_string(p_child->get_name()) + " as it is not a child of this node.")
+    ERR_FAIL_COND_MSG(idx == -1, "Cannot remove child node " + String(p_child->get_name()) + " as it is not a child of this node.")
     //ERR_FAIL_COND( p_child->blocked > 0 )
 
     //if (data->scene) { does not matter
@@ -1467,7 +1467,7 @@ Node *Node::get_node_or_null(const NodePath &p_path) const {
 Node *Node::get_node(const NodePath &p_path) const {
 
     Node *node = get_node_or_null(p_path);
-    ERR_FAIL_COND_V_MSG(!node, nullptr, "Node not found: " + (se_string)p_path + ".")
+    ERR_FAIL_COND_V_MSG(!node, nullptr, "Node not found: " + (String)p_path + ".")
     return node;
 }
 
@@ -1836,7 +1836,7 @@ void Node::print_tree() {
 }
 
 void Node::_print_tree(const Node *p_node) {
-    print_line(se_string(p_node->get_path_to(this)));
+    print_line(String(p_node->get_path_to(this)));
     for (int i = 0; i < data->children.size(); i++)
         data->children[i]->_print_tree(p_node);
 }
@@ -1956,7 +1956,7 @@ void Node::remove_and_skip() {
 
 void Node::set_filename(se_string_view p_filename) {
     if(!data->filename)
-        data->filename = new se_string;
+        data->filename = new String;
     *data->filename = p_filename;
 }
 se_string_view Node::get_filename() const {
@@ -1971,12 +1971,12 @@ void Node::set_editor_description(se_string_view p_editor_description) {
     set_meta("_editor_description_", p_editor_description);
 }
 
-se_string Node::get_editor_description() const {
+String Node::get_editor_description() const {
 
     if (has_meta("_editor_description_")) {
         return get_meta("_editor_description_");
     } else {
-        return se_string();
+        return String();
     }
 }
 
@@ -2269,11 +2269,11 @@ void Node::_duplicate_and_reown(Node *p_new_parent, const Map<Node *, Node *> &p
     } else {
 
         Object *obj = ClassDB::instance(get_class_name());
-        ERR_FAIL_COND_MSG(!obj, "Node: Could not duplicate: " + se_string(get_class()) + ".")
+        ERR_FAIL_COND_MSG(!obj, "Node: Could not duplicate: " + String(get_class()) + ".")
         node = object_cast<Node>(obj);
         if (!node) {
             memdelete(obj);
-            ERR_FAIL_MSG("Node: Could not duplicate: " + se_string(get_class()) + ".")
+            ERR_FAIL_MSG("Node: Could not duplicate: " + String(get_class()) + ".")
         }
     }
 
@@ -2371,12 +2371,12 @@ Node *Node::duplicate_and_reown(const Map<Node *, Node *> &p_reown_map) const {
     ERR_FAIL_COND_V(!get_filename().empty(), nullptr)
 
     Object *obj = ClassDB::instance(get_class_name());
-    ERR_FAIL_COND_V_MSG(!obj, nullptr, "Node: Could not duplicate: " + se_string(get_class()) + ".")
+    ERR_FAIL_COND_V_MSG(!obj, nullptr, "Node: Could not duplicate: " + String(get_class()) + ".")
 
     Node *node = object_cast<Node>(obj);
     if (!node) {
         memdelete(obj);
-        ERR_FAIL_V_MSG(nullptr, "Node: Could not duplicate: " + se_string(get_class()) + ".")
+        ERR_FAIL_V_MSG(nullptr, "Node: Could not duplicate: " + String(get_class()) + ".")
     }
     node->set_name(get_name());
 
@@ -2670,7 +2670,7 @@ static void _Node_debug_sn(Object *p_obj) {
     if (p == n)
         path = n->get_name();
     else
-        path = StringName(se_string(p->get_name()) + "/" + (se_string)p->get_path_to(n));
+        path = StringName(String(p->get_name()) + "/" + (String)p->get_path_to(n));
     print_line(itos(p_obj->get_instance_id()) + " - Stray Node: " + path + " (Type: " + n->get_class() + ")");
 }
 #endif // DEBUG_ENABLED
@@ -2723,7 +2723,7 @@ NodePath Node::get_import_path() const {
 #endif
 }
 
-static void _add_nodes_to_options(const Node *p_base, const Node *p_node, ListPOD<se_string> *r_options) {
+static void _add_nodes_to_options(const Node *p_base, const Node *p_node, ListPOD<String> *r_options) {
 
 #ifdef TOOLS_ENABLED
     const char * quote_style(EDITOR_DEF("text_editor/completion/use_single_quotes", 0) ? "'" : "\"");
@@ -2733,14 +2733,14 @@ static void _add_nodes_to_options(const Node *p_base, const Node *p_node, ListPO
 
     if (p_node != p_base && !p_node->get_owner())
         return;
-    se_string n(p_base->get_path_to(p_node).asString());
+    String n(p_base->get_path_to(p_node).asString());
     r_options->push_back(quote_style + n + quote_style);
     for (int i = 0; i < p_node->get_child_count(); i++) {
         _add_nodes_to_options(p_base, p_node->get_child(i), r_options);
     }
 }
 
-void Node::get_argument_options(const StringName &p_function, int p_idx, ListPOD<se_string> *r_options) const {
+void Node::get_argument_options(const StringName &p_function, int p_idx, ListPOD<String> *r_options) const {
 
     StringName pf = p_function;
     if ((pf == "has_node" || pf == "get_node") && p_idx == 0) {

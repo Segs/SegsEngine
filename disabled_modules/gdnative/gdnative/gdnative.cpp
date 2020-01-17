@@ -145,10 +145,10 @@ void GDAPI godot_print(const godot_string *p_message) {
 }
 
 void _gdnative_report_version_mismatch(const godot_object *p_library, const char *p_ext, godot_gdnative_api_version p_want, godot_gdnative_api_version p_have) {
-    se_string message("Error loading GDNative file ");
+    String message("Error loading GDNative file ");
     GDNativeLibrary *library = (GDNativeLibrary *)p_library;
 
-    message += se_string(library->get_current_library_path()) + ": Extension \"" + p_ext + "\" can't be loaded.\n";
+    message += String(library->get_current_library_path()) + ": Extension \"" + p_ext + "\" can't be loaded.\n";
 
     message += FormatVE("Got version %d.%d but needs %d.%d!",p_have.major,p_have.minor,p_want.major,p_want.minor);
 
@@ -156,7 +156,7 @@ void _gdnative_report_version_mismatch(const godot_object *p_library, const char
 }
 
 void _gdnative_report_loading_error(const godot_object *p_library, const char *p_what) {
-    se_string message("Error loading GDNative file ");
+    String message("Error loading GDNative file ");
     GDNativeLibrary *library = (GDNativeLibrary *)p_library;
 
     message += library->get_current_library_path() + ": " + p_what;

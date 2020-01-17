@@ -105,7 +105,7 @@ public:
     _FORCE_INLINE_ bool operator==(const Quat &p_quat) const;
     _FORCE_INLINE_ bool operator!=(const Quat &p_quat) const;
 
-    operator se_string() const;
+    operator String() const;
 
     inline void set(real_t p_x, real_t p_y, real_t p_z, real_t p_w) {
         x = p_x;

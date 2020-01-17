@@ -4,7 +4,7 @@
 
 using UIString = class QString;
 namespace StringUtils {
-    [[nodiscard]] se_string to_utf8(const UIString &s);
+    [[nodiscard]] String to_utf8(const UIString &s);
 }
 //tool translate
 #ifdef TOOLS_ENABLED
@@ -28,4 +28,4 @@ StringName TTR(se_string_view);
 
 //tool or regular translate
 StringName RTR(const char *);
-se_string RTR_utf8(se_string_view sv);
+String RTR_utf8(se_string_view sv);

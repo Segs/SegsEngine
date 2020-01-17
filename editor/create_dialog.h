@@ -43,7 +43,7 @@ class CreateDialog : public ConfirmationDialog {
 
     GDCLASS(CreateDialog,ConfirmationDialog)
 
-    PODVector<se_string> favorite_list;
+    PODVector<String> favorite_list;
     Tree *favorites;
     Tree *recent;
 

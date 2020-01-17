@@ -155,7 +155,7 @@ GDMonoClass *get_object_class(MonoObject *p_object) {
 }
 
 GDMonoClass *type_get_proxy_class(const StringName &p_type) {
-    se_string class_name(p_type);
+    String class_name(p_type);
 
 	if (class_name[0] == '_')
 		class_name = class_name.substr(1, class_name.length());
@@ -292,7 +292,7 @@ MonoObject *create_managed_from(const Dictionary &p_from, GDMonoClass *p_class) 
 	return mono_object;
 }
 
-MonoDomain *create_domain(const se_string & p_friendly_name) {
+MonoDomain *create_domain(const String & p_friendly_name) {
 	print_verbose("Mono: Creating domain '" + p_friendly_name + "'...");
 
     MonoDomain *domain = mono_domain_create_appdomain((char *)p_friendly_name.c_str(), nullptr);
@@ -307,8 +307,8 @@ MonoDomain *create_domain(const se_string & p_friendly_name) {
 	return domain;
 }
 
-se_string get_exception_name_and_message(MonoException *p_exc) {
-    se_string res;
+String get_exception_name_and_message(MonoException *p_exc) {
+    String res;
 
 	MonoClass *klass = mono_object_get_class((MonoObject *)p_exc);
 	MonoType *type = mono_class_get_type(klass);
@@ -326,7 +326,7 @@ se_string get_exception_name_and_message(MonoException *p_exc) {
 	return res;
 }
 
-void set_exception_message(MonoException *p_exc, const se_string & message) {
+void set_exception_message(MonoException *p_exc, const String & message) {
 	MonoClass *klass = mono_object_get_class((MonoObject *)p_exc);
 	MonoProperty *prop = mono_class_get_property_from_name(klass, "Message");
 	MonoString *msg = GDMonoMarshal::mono_string_from_godot(message);
@@ -358,7 +358,7 @@ void debug_send_unhandled_exception_error(MonoException *p_exc) {
 	separator.line = 0;
 
     PODVector<ScriptLanguage::StackInfo> si;
-    se_string exc_msg;
+    String exc_msg;
 
     while (p_exc != nullptr) {
 		GDMonoClass *st_klass = CACHED_CLASS(System_Diagnostics_StackTrace);
@@ -395,10 +395,10 @@ void debug_send_unhandled_exception_error(MonoException *p_exc) {
 		p_exc = (MonoException *)inner_exc;
 	}
 
-    se_string file = si.size() ? si[0].file : __FILE__;
-    se_string func = si.size() ? si[0].func : FUNCTION_STR;
+    String file = si.size() ? si[0].file : __FILE__;
+    String func = si.size() ? si[0].func : FUNCTION_STR;
 	int line = si.size() ? si[0].line : __LINE__;
-    se_string error_msg = "Unhandled exception";
+    String error_msg = "Unhandled exception";
 
 	ScriptDebugger::get_singleton()->send_error(func, file, line, error_msg, exc_msg, ERR_HANDLER_ERROR, si);
 #endif

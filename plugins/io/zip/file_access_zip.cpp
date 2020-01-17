@@ -196,7 +196,7 @@ unzFile ZipArchive::get_file_handle(se_string_view p_file) const {
 
 bool ZipArchive::try_open_pack(se_string_view p_path, bool p_replace_files) {
 
-    se_string ext = StringUtils::to_lower(PathUtils::get_extension(p_path)); // for case insensitive compare
+    String ext = StringUtils::to_lower(PathUtils::get_extension(p_path)); // for case insensitive compare
     //printf("opening zip pack %ls, %i, %i\n", p_name.c_str(), StringUtils::compare(p_name.extension(),"zip",false), p_name.extension().nocasecmp_to("pcz"));
     if (StringUtils::compare(ext,"zip") != 0 && StringUtils::compare(ext,"pcz") != 0)
         return false;
@@ -216,7 +216,7 @@ bool ZipArchive::try_open_pack(se_string_view p_path, bool p_replace_files) {
     io.zclose_file = godot_close;
     io.zerror_file = godot_testerror;
 
-    unzFile zfile = unzOpen2(se_string(p_path).c_str(), &io);
+    unzFile zfile = unzOpen2(String(p_path).c_str(), &io);
     ERR_FAIL_COND_V(!zfile, false)
 
     unz_global_info64 gi;
@@ -241,7 +241,7 @@ bool ZipArchive::try_open_pack(se_string_view p_path, bool p_replace_files) {
         f.package = pkg_num;
         unzGetFilePos(zfile, &f.file_pos);
 
-        se_string fname = se_string("res://") + filename_inzip;
+        String fname = String("res://") + filename_inzip;
         files[fname] = f;
 
         uint8_t md5[16] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };

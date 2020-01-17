@@ -218,7 +218,7 @@ void PropertySelector::_update_search() {
 
             StringName base(base_type);
             while (base) {
-                methods.push_back(MethodInfo((se_string("*") + base_type).c_str()));
+                methods.push_back(MethodInfo((String("*") + base_type).c_str()));
                 ClassDB::get_method_list(base, &methods, true, true);
                 base = ClassDB::get_parent_class(base);
             }
@@ -240,7 +240,7 @@ void PropertySelector::_update_search() {
 
                 Ref<Texture> icon;
                 script_methods = false;
-                se_string rep = StringUtils::replace(E.name,"*", "");
+                String rep = StringUtils::replace(E.name,"*", "");
                 if (E.name == "*Script Methods") {
                     icon = get_icon("Script", "EditorIcons");
                     script_methods = true;
@@ -269,16 +269,16 @@ void PropertySelector::_update_search() {
 
             MethodInfo mi = E;
 
-            se_string desc;
+            String desc;
             if (StringUtils::contains(mi.name,":")) {
-                desc = se_string(StringUtils::get_slice(mi.name,":", 1)) + " ";
+                desc = String(StringUtils::get_slice(mi.name,":", 1)) + " ";
                 mi.name = StringName(StringUtils::get_slice(mi.name,":", 0));
             } else if (mi.return_val.type != VariantType::NIL)
                 desc = Variant::get_type_name(mi.return_val.type);
             else
                 desc = "void ";
 
-            desc += se_string(" ") + mi.name + " ( ";
+            desc += String(" ") + mi.name + " ( ";
 
             for (size_t i = 0; i < mi.arguments.size(); i++) {
 
@@ -288,10 +288,10 @@ void PropertySelector::_update_search() {
                 if (mi.arguments[i].type == VariantType::NIL)
                     desc += "var ";
                 else if (StringUtils::contains(mi.arguments[i].name,":")) {
-                    desc += se_string(StringUtils::get_slice(mi.arguments[i].name,":", 1)) + " ";
+                    desc += String(StringUtils::get_slice(mi.arguments[i].name,":", 1)) + " ";
                     mi.arguments[i].name = StringName(StringUtils::get_slice(mi.arguments[i].name,":", 0));
                 } else
-                    desc += se_string(Variant::get_type_name(mi.arguments[i].type)) + " ";
+                    desc += String(Variant::get_type_name(mi.arguments[i].type)) + " ";
 
                 desc += mi.arguments[i].name;
             }
@@ -349,7 +349,7 @@ void PropertySelector::_item_selected() {
     }
 
     DocData *dd = EditorHelp::get_doc_data();
-    se_string text;
+    String text;
 
     if (properties) {
 

@@ -113,7 +113,7 @@ public:
 private:
     struct TileData {
 
-        se_string name;
+        String name;
         Ref<Texture> texture;
         Ref<Texture> normal_map;
         Vector2 offset;
@@ -156,7 +156,7 @@ public:
     BitmaskMode autotile_get_bitmask_mode(int p_id) const;
 
     void tile_set_name(int p_id, se_string_view p_name);
-    const se_string &tile_get_name(int p_id) const;
+    const String &tile_get_name(int p_id) const;
 
     void tile_set_texture(int p_id, const Ref<Texture> &p_texture);
     Ref<Texture> tile_get_texture(int p_id) const;

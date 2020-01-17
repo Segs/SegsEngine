@@ -208,7 +208,7 @@ public:
     virtual void texture_bind(RID p_texture, uint32_t p_texture_no) = 0;
 
     virtual void texture_set_path(RID p_texture, se_string_view p_path) = 0;
-    virtual const se_string &texture_get_path(RID p_texture) const = 0;
+    virtual const String &texture_get_path(RID p_texture) const = 0;
 
     virtual void texture_set_shrink_all_x2_on_set_data(bool p_enable) = 0;
 
@@ -235,8 +235,8 @@ public:
 
     virtual RID shader_create() = 0;
 
-    virtual void shader_set_code(RID p_shader, const se_string &p_code) = 0;
-    virtual se_string shader_get_code(RID p_shader) const = 0;
+    virtual void shader_set_code(RID p_shader, const String &p_code) = 0;
+    virtual String shader_get_code(RID p_shader) const = 0;
     virtual void shader_get_param_list(RID p_shader, PODVector<PropertyInfo> *p_param_list) const = 0;
 
     virtual void shader_set_default_texture_param(RID p_shader, const StringName &p_name, RID p_texture) = 0;

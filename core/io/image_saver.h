@@ -15,7 +15,7 @@ public:
     static Error save_image(se_string_view p_file, const Ref<Image> &p_image, FileAccess *p_custom = nullptr, float p_quality = 1.0);
     static Error save_image(se_string_view ext, const Ref<Image> & p_image, PODVector<uint8_t> &tgt, float p_quality = 1.0);
 
-    static void get_recognized_extensions(PODVector<se_string> &p_extensions);
+    static void get_recognized_extensions(PODVector<String> &p_extensions);
     static ImageFormatSaver *recognize(se_string_view p_extension);
 
     static void add_image_format_saver(ImageFormatSaver *p_loader);

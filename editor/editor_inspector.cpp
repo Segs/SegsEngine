@@ -297,7 +297,7 @@ void EditorProperty::set_label(se_string_view p_label) {
     update();
 }
 
-const se_string &EditorProperty::get_label() const {
+const String &EditorProperty::get_label() const {
     return label;
 }
 
@@ -788,14 +788,14 @@ Control *EditorProperty::make_custom_tooltip(se_string_view p_text) const {
     help_bit->add_style_override("panel", get_stylebox("panel", "TooltipPanel"));
     help_bit->get_rich_text()->set_fixed_size_to_width(360 * EDSCALE);
 
-    se_string text = se_string(TTR("Property:")) + " [u][b]" + StringUtils::get_slice(p_text,"::", 0) + "[/b][/u]\n";
+    String text = String(TTR("Property:")) + " [u][b]" + StringUtils::get_slice(p_text,"::", 0) + "[/b][/u]\n";
     text += StringUtils::strip_edges(StringUtils::get_slice(p_text,"::", 1));
     help_bit->set_text(text);
     help_bit->call_deferred("set_text", text); //hack so it uses proper theme once inside scene
     return help_bit;
 }
 
-const se_string& EditorProperty::get_tooltip_text() const {
+const String& EditorProperty::get_tooltip_text() const {
     return tooltip_text;
 }
 
@@ -895,7 +895,7 @@ void EditorInspectorPlugin::add_property_editor(se_string_view p_for_property, C
     added_editors.push_back(ae);
 }
 
-void EditorInspectorPlugin::add_property_editor_for_multiple_properties(se_string_view p_label, const Vector<se_string> &p_properties, Control *p_prop) {
+void EditorInspectorPlugin::add_property_editor_for_multiple_properties(se_string_view p_label, const Vector<String> &p_properties, Control *p_prop) {
 
     AddedEditor ae;
     ae.properties = p_properties;
@@ -1015,7 +1015,7 @@ Control *EditorInspectorCategory::make_custom_tooltip(se_string_view p_text) con
     help_bit->add_style_override("panel", get_stylebox("panel", "TooltipPanel"));
     help_bit->get_rich_text()->set_fixed_size_to_width(360 * EDSCALE);
 
-    se_string text = se_string("[u][b]") + StringUtils::get_slice(p_text,"::", 0) + "[/b][/u]\n";
+    String text = String("[u][b]") + StringUtils::get_slice(p_text,"::", 0) + "[/b][/u]\n";
     text += StringUtils::strip_edges(StringUtils::get_slice(p_text,"::", 1));
     help_bit->set_text(text);
     help_bit->call_deferred("set_text", text); //hack so it uses proper theme once inside scene
@@ -1041,7 +1041,7 @@ void EditorInspectorCategory::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_tooltip_text"), &EditorInspectorCategory::get_tooltip_text);
 }
 
-const se_string &EditorInspectorCategory::get_tooltip_text() const {
+const String &EditorInspectorCategory::get_tooltip_text() const {
 
     return tooltip_text;
 }
@@ -1456,15 +1456,15 @@ void EditorInspector::update_tree() {
 
     //	TreeItem *current_category = NULL;
 
-    se_string filter(search_box ? search_box->get_text() : "");
-    se_string group;
-    se_string group_base;
+    String filter(search_box ? search_box->get_text() : "");
+    String group;
+    String group_base;
     VBoxContainer *category_vbox = nullptr;
 
     ListPOD<PropertyInfo> plist;
     object->get_property_list(&plist, true);
 
-    HashMap<se_string, VBoxContainer *> item_path;
+    HashMap<String, VBoxContainer *> item_path;
     Map<VBoxContainer *, EditorInspectorSection *> section_map;
 
     item_path[""] = main_vbox;
@@ -1517,7 +1517,7 @@ void EditorInspector::update_tree() {
             main_vbox->add_child(category);
             category_vbox = nullptr; //reset
 
-            se_string type(p.name);
+            String type(p.name);
             category->icon = EditorNode::get_singleton()->get_class_icon(StringName(type), "Object");
             category->label = type;
 
@@ -1526,7 +1526,7 @@ void EditorInspector::update_tree() {
                 StringName type2 = p.name;
                 if (!class_descr_cache.contains(type2)) {
 
-                    se_string descr;
+                    String descr;
                     DocData *dd = EditorHelp::get_doc_data();
                     Map<StringName, DocData::ClassDoc>::iterator E = dd->class_list.find(type2);
                     if (E!=dd->class_list.end()) {
@@ -1535,7 +1535,7 @@ void EditorInspector::update_tree() {
                     class_descr_cache[type2] = descr;
                 }
 
-                category->set_tooltip_utf8(se_string(p.name.asCString()) + "::" + (class_descr_cache[type2].empty() ? "" : class_descr_cache[type2]));
+                category->set_tooltip_utf8(String(p.name.asCString()) + "::" + (class_descr_cache[type2].empty() ? "" : class_descr_cache[type2]));
             }
 
             for (List<Ref<EditorInspectorPlugin> >::Element *E = valid_plugins.front(); E; E = E->next()) {
@@ -1556,7 +1556,7 @@ void EditorInspector::update_tree() {
             continue;
         }
 
-        se_string basename(p.name);
+        String basename(p.name);
         if (!group.empty()) {
             if (!group_base.empty()) {
                 if (StringUtils::begins_with(basename,group_base)) {
@@ -1573,7 +1573,7 @@ void EditorInspector::update_tree() {
             basename = group + "/" + basename;
         }
 
-        se_string name(StringUtils::contains(basename,'/') ? StringUtils::right(basename,StringUtils::find_last(basename,'/') + 1) : basename);
+        String name(StringUtils::contains(basename,'/') ? StringUtils::right(basename,StringUtils::find_last(basename,'/') + 1) : basename);
 
         if (capitalize_paths) {
             int dot = StringUtils::find(name,".");
@@ -1592,7 +1592,7 @@ void EditorInspector::update_tree() {
 
         if (use_filter && !filter.empty()) {
 
-            se_string cat(path);
+            String cat(path);
 
             if (capitalize_paths)
                 cat = StringUtils::capitalize(cat);
@@ -1610,7 +1610,7 @@ void EditorInspector::update_tree() {
 
         {
 
-            se_string acc_path;
+            String acc_path;
             int level = 1;
             for (int i = 0; i < StringUtils::get_slice_count(path,'/'); i++) {
                 se_string_view path_name = StringUtils::get_slice(path,'/', i);
@@ -1621,7 +1621,7 @@ void EditorInspector::update_tree() {
                     EditorInspectorSection *section = memnew(EditorInspectorSection);
                     current_vbox->add_child(section);
                     sections.push_back(section);
-                    se_string capitalized_path;
+                    String capitalized_path;
                     if (capitalize_paths) {
                         capitalized_path = StringUtils::capitalize(path_name);
                         path_name = capitalized_path;
@@ -1659,7 +1659,7 @@ void EditorInspector::update_tree() {
             restart_request_props.insert(p.name);
         }
 
-        se_string doc_hint;
+        String doc_hint;
 
         if (use_doc_hints) {
 
@@ -1668,12 +1668,12 @@ void EditorInspector::update_tree() {
                 classname = object_class;
             }
             StringName propname(property_prefix + p.name);
-            se_string descr;
+            String descr;
             bool found = false;
 
-            Map<StringName, Map<StringName, se_string> >::iterator E = descr_cache.find(classname);
+            Map<StringName, Map<StringName, String> >::iterator E = descr_cache.find(classname);
             if (E!=descr_cache.end()) {
-                Map<StringName, se_string>::iterator F = E->second.find(propname);
+                Map<StringName, String>::iterator F = E->second.find(propname);
                 if (F!=E->second.end()) {
                     found = true;
                     descr = F->second;
@@ -2054,11 +2054,11 @@ void EditorInspector::_property_changed_update_all(se_string_view /*p_path*/, co
     update_tree();
 }
 
-void EditorInspector::_multiple_properties_changed(const Vector<se_string>& p_paths, Array p_values) {
+void EditorInspector::_multiple_properties_changed(const Vector<String>& p_paths, Array p_values) {
 
     ERR_FAIL_COND(p_paths.empty() || p_values.empty())
     ERR_FAIL_COND(p_paths.size() != p_values.size())
-    se_string names;
+    String names;
     for (int i = 0; i < p_paths.size(); i++) {
         if (i > 0)
             names += ',';
@@ -2258,11 +2258,11 @@ void EditorInspector::_vscroll_changed(double p_offset) {
     }
 }
 
-void EditorInspector::set_property_prefix(const se_string &p_prefix) {
+void EditorInspector::set_property_prefix(const String &p_prefix) {
     property_prefix = p_prefix;
 }
 
-const se_string &EditorInspector::get_property_prefix() const {
+const String &EditorInspector::get_property_prefix() const {
     return property_prefix;
 }
 

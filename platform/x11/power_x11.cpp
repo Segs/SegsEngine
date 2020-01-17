@@ -74,7 +74,7 @@ static const char *proc_acpi_ac_adapter_path = "/proc/acpi/ac_adapter";
 static const char *sys_class_power_supply_path = "/sys/class/power_supply";
 
 FileAccessRef PowerX11::open_power_file(const char *base, const char *node, const char *key) {
-    se_string path = se_string(base) + "/" + se_string(node) + "/" + se_string(key);
+    String path = String(base) + "/" + String(node) + "/" + String(key);
     FileAccessRef f = FileAccess::open(path, FileAccess::READ);
     return f;
 }
@@ -251,7 +251,7 @@ void PowerX11::check_proc_acpi_ac_adapter(const char *node, bool *have_ac) {
 }
 
 bool PowerX11::GetPowerInfo_Linux_proc_acpi() {
-    se_string node;
+    String node;
     DirAccess *dirp = DirAccess::create(DirAccess::ACCESS_FILESYSTEM);
     bool have_battery = false;
     bool have_ac = false;
@@ -443,7 +443,7 @@ bool PowerX11::GetPowerInfo_Linux_sys_class_power_supply(/*PowerState *state, in
     using namespace eastl; // for _sv suffix
 
     const char *base = sys_class_power_supply_path;
-    se_string name;
+    String name;
 
     DirAccess *dirp = DirAccess::create(DirAccess::ACCESS_FILESYSTEM);
     dirp->change_dir_utf8(base);

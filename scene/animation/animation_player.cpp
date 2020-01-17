@@ -154,7 +154,7 @@ void AnimationPlayer::_validate_property(PropertyInfo &property) const {
         }
         names.sort();
         names.push_front("[stop]");
-        se_string hint;
+        String hint;
         for (List<se_string_view>::Element *E = names.front(); E; E = E->next()) {
 
             if (E != names.front())
@@ -172,9 +172,9 @@ void AnimationPlayer::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
 
     for (const eastl::pair<const StringName,AnimationData> &E : animation_set) {
 
-        anim_names.push_back(PropertyInfo(VariantType::OBJECT, StringName("anims/" + se_string(E.first)), PROPERTY_HINT_RESOURCE_TYPE, "Animation", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL | PROPERTY_USAGE_DO_NOT_SHARE_ON_DUPLICATE));
+        anim_names.push_back(PropertyInfo(VariantType::OBJECT, StringName("anims/" + String(E.first)), PROPERTY_HINT_RESOURCE_TYPE, "Animation", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL | PROPERTY_USAGE_DO_NOT_SHARE_ON_DUPLICATE));
         if (E.second.next != StringName())
-            anim_names.push_back(PropertyInfo(VariantType::STRING, StringName("next/" + se_string(E.first)), PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
+            anim_names.push_back(PropertyInfo(VariantType::STRING, StringName("next/" + String(E.first)), PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
     }
 
     anim_names.sort();
@@ -255,7 +255,7 @@ void AnimationPlayer::_ensure_node_caches(AnimationData *p_anim) {
         RES resource;
         Vector<StringName> leftover_path;
         Node *child = parent->get_node_and_resource(a->track_get_path(i), resource, leftover_path);
-        ERR_CONTINUE_MSG(!child, "On Animation: '" + p_anim->name + "', couldn't resolve track:  '" + se_string(a->track_get_path(i)) + "'."); // couldn't find the child node
+        ERR_CONTINUE_MSG(!child, "On Animation: '" + p_anim->name + "', couldn't resolve track:  '" + String(a->track_get_path(i)) + "'."); // couldn't find the child node
         uint32_t id = resource ? resource->get_instance_id() : child->get_instance_id();
         int bone_idx = -1;
 
@@ -500,7 +500,7 @@ void AnimationPlayer::_animation_process_animation(AnimationData *p_anim, float 
                                 pa->object->set_indexed(pa->subpath, value, &valid); //you are not speshul
 #ifdef DEBUG_ENABLED
                                 if (!valid) {
-                                    ERR_PRINT("Failed setting track value '" + se_string(pa->owner->path) + "'. Check if property exists or the type of key is valid. Animation '" + a->get_name() + "' at node '" + (se_string)get_path() + "'.");
+                                    ERR_PRINT("Failed setting track value '" + String(pa->owner->path) + "'. Check if property exists or the type of key is valid. Animation '" + a->get_name() + "' at node '" + (String)get_path() + "'.");
                                 }
 #endif
 
@@ -508,7 +508,7 @@ void AnimationPlayer::_animation_process_animation(AnimationData *p_anim, float 
                             case SP_NODE2D_POS: {
 #ifdef DEBUG_ENABLED
                                 if (value.get_type() != VariantType::VECTOR2) {
-                                    ERR_PRINT("Position key at time " + rtos(p_time) + " in Animation Track '" + se_string(pa->owner->path) + "' not of type Vector2(). Animation '" + a->get_name() + "' at node '" + (se_string)get_path() + "'.");
+                                    ERR_PRINT("Position key at time " + rtos(p_time) + " in Animation Track '" + String(pa->owner->path) + "' not of type Vector2(). Animation '" + a->get_name() + "' at node '" + (String)get_path() + "'.");
                                 }
 #endif
                                 static_cast<Node2D *>(pa->object)->set_position(value);
@@ -516,7 +516,7 @@ void AnimationPlayer::_animation_process_animation(AnimationData *p_anim, float 
                             case SP_NODE2D_ROT: {
 #ifdef DEBUG_ENABLED
                                 if (value.is_num()) {
-                                    ERR_PRINT("Rotation key at time " + rtos(p_time) + " in Animation Track '" + se_string(pa->owner->path) + "' not numerical. Animation '" + a->get_name() + "' at node '" + (se_string)get_path() + "'.");
+                                    ERR_PRINT("Rotation key at time " + rtos(p_time) + " in Animation Track '" + String(pa->owner->path) + "' not numerical. Animation '" + a->get_name() + "' at node '" + (String)get_path() + "'.");
                                 }
 #endif
 
@@ -525,7 +525,7 @@ void AnimationPlayer::_animation_process_animation(AnimationData *p_anim, float 
                             case SP_NODE2D_SCALE: {
 #ifdef DEBUG_ENABLED
                                 if (value.get_type() != VariantType::VECTOR2) {
-                                    ERR_PRINT("Scale key at time " + rtos(p_time) + " in Animation Track '" + se_string(pa->owner->path) + "' not of type Vector2()." + a->get_name() + "' at node '" + (se_string)get_path() + "'.");
+                                    ERR_PRINT("Scale key at time " + rtos(p_time) + " in Animation Track '" + String(pa->owner->path) + "' not of type Vector2()." + a->get_name() + "' at node '" + (String)get_path() + "'.");
                                 }
 #endif
 
@@ -560,7 +560,7 @@ void AnimationPlayer::_animation_process_animation(AnimationData *p_anim, float 
                     ERR_CONTINUE(s > VARIANT_ARG_MAX);
 #ifdef DEBUG_ENABLED
                     if (!nc->node->has_method(method)) {
-                        ERR_PRINT("Invalid method call '" + se_string(method) + "'. '" + a->get_name() + "' at node '" + (se_string)get_path() + "'.");
+                        ERR_PRINT("Invalid method call '" + String(method) + "'. '" + a->get_name() + "' at node '" + (String)get_path() + "'.");
                     }
 #endif
 
@@ -891,7 +891,7 @@ void AnimationPlayer::_animation_update_transforms() {
                 pa->object->set_indexed(pa->subpath, pa->value_accum, &valid); //you are not speshul
 #ifdef DEBUG_ENABLED
                 if (!valid) {
-                    ERR_PRINT("Failed setting key at time " + rtos(playback.current.pos) + " in Animation '" + get_current_animation() + "' at Node '" + (se_string)get_path() + "', Track '" + se_string(pa->owner->path) + "'. Check if property exists or the type of key is right for the property");
+                    ERR_PRINT("Failed setting key at time " + rtos(playback.current.pos) + " in Animation '" + get_current_animation() + "' at Node '" + (String)get_path() + "', Track '" + String(pa->owner->path) + "'. Check if property exists or the type of key is right for the property");
                 }
 #endif
 
@@ -899,7 +899,7 @@ void AnimationPlayer::_animation_update_transforms() {
             case SP_NODE2D_POS: {
 #ifdef DEBUG_ENABLED
                 if (pa->value_accum.get_type() != VariantType::VECTOR2) {
-                    ERR_PRINT("Position key at time " + rtos(playback.current.pos) + " in Animation '" + get_current_animation() + "' at Node '" + (se_string)get_path() + "', Track '" + se_string(pa->owner->path) + "' not of type Vector2()");
+                    ERR_PRINT("Position key at time " + rtos(playback.current.pos) + " in Animation '" + get_current_animation() + "' at Node '" + (String)get_path() + "', Track '" + String(pa->owner->path) + "' not of type Vector2()");
                 }
 #endif
                 static_cast<Node2D *>(pa->object)->set_position(pa->value_accum);
@@ -907,7 +907,7 @@ void AnimationPlayer::_animation_update_transforms() {
             case SP_NODE2D_ROT: {
 #ifdef DEBUG_ENABLED
                 if (pa->value_accum.is_num()) {
-                    ERR_PRINT("Rotation key at time " + rtos(playback.current.pos) + " in Animation '" + get_current_animation() + "' at Node '" + (se_string)get_path() + "', Track '" + se_string(pa->owner->path) + "' not numerical");
+                    ERR_PRINT("Rotation key at time " + rtos(playback.current.pos) + " in Animation '" + get_current_animation() + "' at Node '" + (String)get_path() + "', Track '" + String(pa->owner->path) + "' not numerical");
                 }
 #endif
 
@@ -916,7 +916,7 @@ void AnimationPlayer::_animation_update_transforms() {
             case SP_NODE2D_SCALE: {
 #ifdef DEBUG_ENABLED
                 if (pa->value_accum.get_type() != VariantType::VECTOR2) {
-                    ERR_PRINT("Scale key at time " + rtos(playback.current.pos) + " in Animation '" + get_current_animation() + "' at Node '" + (se_string)get_path() + "', Track '" + se_string(pa->owner->path) + "' not of type Vector2()");
+                    ERR_PRINT("Scale key at time " + rtos(playback.current.pos) + " in Animation '" + get_current_animation() + "' at Node '" + (String)get_path() + "', Track '" + String(pa->owner->path) + "' not of type Vector2()");
                 }
 #endif
 
@@ -979,7 +979,7 @@ Error AnimationPlayer::add_animation(const StringName &p_name, const Ref<Animati
 #ifdef DEBUG_ENABLED
     ERR_FAIL_COND_V_MSG(StringUtils::contains(p_name, '/') || StringUtils::contains(p_name, ':') ||
                                 StringUtils::contains(p_name, ',') || StringUtils::contains(p_name, '['),
-            ERR_INVALID_PARAMETER, "Invalid animation name: " + se_string(p_name) + ".")
+            ERR_INVALID_PARAMETER, "Invalid animation name: " + String(p_name) + ".")
 #endif
 
     ERR_FAIL_COND_V(not p_animation, ERR_INVALID_PARAMETER)
@@ -1135,8 +1135,8 @@ void AnimationPlayer::queue(const StringName &p_name) {
         queued.push_back(p_name);
 }
 
-PoolVector<se_string> AnimationPlayer::get_queue() {
-    PoolVector<se_string> ret;
+PoolVector<String> AnimationPlayer::get_queue() {
+    PoolVector<String> ret;
     for (const StringName &E : queued) {
         ret.push_back(E.asCString());
     }
@@ -1160,7 +1160,7 @@ void AnimationPlayer::play(const StringName &p_name, float p_custom_blend, float
     if (name.empty())
         name = playback.assigned;
 
-    ERR_FAIL_COND_MSG(!animation_set.contains(name), "Animation not found: " + se_string(name) + ".")
+    ERR_FAIL_COND_MSG(!animation_set.contains(name), "Animation not found: " + String(name) + ".")
 
     Playback &c = playback;
 
@@ -1540,7 +1540,7 @@ NodePath AnimationPlayer::get_root() const {
     return root;
 }
 
-void AnimationPlayer::get_argument_options(const StringName &p_function, int p_idx, ListPOD<se_string> *r_options) const {
+void AnimationPlayer::get_argument_options(const StringName &p_function, int p_idx, ListPOD<String> *r_options) const {
 
 #ifdef TOOLS_ENABLED
     const char *quote_style(EDITOR_DEF("text_editor/completion/use_single_quotes", 0) ? "'" : "\"");
@@ -1548,13 +1548,13 @@ void AnimationPlayer::get_argument_options(const StringName &p_function, int p_i
     const char *quote_style = "\"";
 #endif
 
-    se_string pf(p_function);
+    String pf(p_function);
     if (p_function == "play" || p_function == "play_backwards" || p_function == "remove_animation" || p_function == "has_animation" || p_function == "queue") {
         PODVector<StringName> al;
         get_animation_list(&al);
         for (const StringName &E : al) {
 
-            r_options->emplace_back(quote_style + se_string(E) + quote_style);
+            r_options->emplace_back(quote_style + String(E) + quote_style);
         }
     }
     Node::get_argument_options(p_function, p_idx, r_options);

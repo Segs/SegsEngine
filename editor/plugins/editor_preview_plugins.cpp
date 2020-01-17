@@ -282,13 +282,13 @@ Ref<Texture> EditorPackedScenePreviewPlugin::generate(const RES &p_from, const S
 
 Ref<Texture> EditorPackedScenePreviewPlugin::generate_from_path(se_string_view p_path, const Size2 &p_size) const {
 
-    se_string temp_path = EditorSettings::get_singleton()->get_cache_dir();
-    se_string cache_base = StringUtils::md5_text(ProjectSettings::get_singleton()->globalize_path(p_path));
+    String temp_path = EditorSettings::get_singleton()->get_cache_dir();
+    String cache_base = StringUtils::md5_text(ProjectSettings::get_singleton()->globalize_path(p_path));
     cache_base = PathUtils::plus_file(temp_path,"resthumb-" + cache_base);
 
     //does not have it, try to load a cached thumbnail
 
-    se_string path = cache_base + ".png";
+    String path = cache_base + ".png";
 
     if (!FileAccess::exists(path))
         return Ref<Texture>();
@@ -508,11 +508,11 @@ Ref<Texture> EditorScriptPreviewPlugin::generate(const RES &p_from, const Size2 
     if (code.empty())
         return Ref<Texture>();
 
-    ListPOD<se_string> kwors;
+    ListPOD<String> kwors;
     scr->get_language()->get_reserved_words(&kwors);
 
-    Set<se_string> keywords;
-    for (const se_string &E : kwors) {
+    Set<String> keywords;
+    for (const String &E : kwors) {
 
         keywords.insert(E);
     }
@@ -899,7 +899,7 @@ Ref<Texture> EditorFontPreviewPlugin::generate_from_path(se_string_view p_path, 
 
 Ref<Texture> EditorFontPreviewPlugin::generate(const RES &p_from, const Size2 &p_size) const {
 
-    se_string path = p_from->get_path();
+    String path = p_from->get_path();
     if (!FileAccess::exists(path)) {
         return Ref<Texture>();
     }

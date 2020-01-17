@@ -83,7 +83,7 @@ private:
         List<Connection> connections;
     } graph[TYPE_MAX];
 
-    mutable se_string previous_code;
+    mutable String previous_code;
     ShaderMode shader_mode;
     Vector2 graph_offset;
 
@@ -92,7 +92,7 @@ private:
         const char *string;
     };
 
-    DefHashMap<se_string, int> modes;
+    DefHashMap<String, int> modes;
     Set<StringName> flags;
     volatile mutable bool dirty;
 
@@ -148,10 +148,10 @@ public:
     void set_graph_offset(const Vector2 &p_offset);
     Vector2 get_graph_offset() const;
 
-    se_string generate_preview_shader(Type p_type, int p_node, int p_port, Vector<DefaultTextureParam> &r_default_tex_params) const;
+    String generate_preview_shader(Type p_type, int p_node, int p_port, Vector<DefaultTextureParam> &r_default_tex_params) const;
 
-    se_string validate_port_name(se_string_view p_name, const List<StringName> &p_input_ports, const List<StringName> &p_output_ports) const;
-    se_string validate_uniform_name(se_string_view p_name, const Ref<VisualShaderNodeUniform> &p_uniform) const;
+    String validate_port_name(se_string_view p_name, const List<StringName> &p_input_ports, const List<StringName> &p_output_ports) const;
+    String validate_uniform_name(se_string_view p_name, const Ref<VisualShaderNodeUniform> &p_uniform) const;
 
     VisualShader();
 };
@@ -206,10 +206,10 @@ public:
     virtual Vector<StringName> get_editable_properties() const;
 
     virtual Vector<VisualShader::DefaultTextureParam> get_default_texture_parameters(VisualShader::Type p_type, int p_id) const;
-    virtual se_string generate_global(ShaderMode p_mode, VisualShader::Type p_type, int p_id) const;
-    virtual se_string generate_global_per_node(ShaderMode p_mode, VisualShader::Type p_type, int p_id) const;
-    virtual se_string generate_global_per_func(ShaderMode p_mode, VisualShader::Type p_type, int p_id) const;
-    virtual se_string generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const se_string *p_input_vars, const se_string *p_output_vars, bool p_for_preview = false) const = 0; //if no output is connected, the output var passed will be empty. if no input is connected and input is NIL, the input var passed will be empty
+    virtual String generate_global(ShaderMode p_mode, VisualShader::Type p_type, int p_id) const;
+    virtual String generate_global_per_node(ShaderMode p_mode, VisualShader::Type p_type, int p_id) const;
+    virtual String generate_global_per_func(ShaderMode p_mode, VisualShader::Type p_type, int p_id) const;
+    virtual String generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const String *p_input_vars, const String *p_output_vars, bool p_for_preview = false) const = 0; //if no output is connected, the output var passed will be empty. if no input is connected and input is NIL, the input var passed will be empty
 
     virtual StringName get_warning(ShaderMode p_mode, VisualShader::Type p_type) const;
 
@@ -241,8 +241,8 @@ protected:
     StringName get_output_port_name(int p_port) const override;
 
 protected:
-    se_string generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const se_string *p_input_vars, const se_string *p_output_vars, bool p_for_preview = false) const override;
-    se_string generate_global_per_node(ShaderMode p_mode, VisualShader::Type p_type, int p_id) const override;
+    String generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const String *p_input_vars, const String *p_output_vars, bool p_for_preview = false) const override;
+    String generate_global_per_node(ShaderMode p_mode, VisualShader::Type p_type, int p_id) const override;
 
     static void _bind_methods();
 
@@ -288,11 +288,11 @@ public:
 
     se_string_view get_caption() const override;
 
-    se_string generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const se_string *p_input_vars, const se_string *p_output_vars, bool p_for_preview = false) const override;
+    String generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const String *p_input_vars, const String *p_output_vars, bool p_for_preview = false) const override;
 
     void set_input_name(StringName p_name);
     StringName get_input_name() const;
-    se_string get_input_real_name() const;
+    String get_input_real_name() const;
 
     int get_input_index_count() const;
     PortType get_input_index_type(int p_index) const;
@@ -339,7 +339,7 @@ public:
 
     se_string_view get_caption() const override;
 
-    se_string generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const se_string *p_input_vars, const se_string *p_output_vars, bool p_for_preview = false) const override;
+    String generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const String *p_input_vars, const String *p_output_vars, bool p_for_preview = false) const override;
 
     VisualShaderNodeOutput();
 };
@@ -367,13 +367,13 @@ private:
 
 protected:
     Vector2 size;
-    se_string inputs;
-    se_string outputs;
+    String inputs;
+    String outputs;
     bool editable;
 
     struct Port {
         PortType type;
-        se_string name;
+        String name;
     };
 
     Map<int, Port> input_ports;
@@ -389,21 +389,21 @@ public:
     void set_size(const Vector2 &p_size);
     Vector2 get_size() const;
 
-    void set_inputs(const se_string &p_inputs);
-    se_string get_inputs() const;
+    void set_inputs(const String &p_inputs);
+    String get_inputs() const;
 
-    void set_outputs(const se_string &p_outputs);
-    se_string get_outputs() const;
+    void set_outputs(const String &p_outputs);
+    String get_outputs() const;
 
-    bool is_valid_port_name(const se_string &p_name) const;
+    bool is_valid_port_name(const String &p_name) const;
 
-    void add_input_port(int p_id, int p_type, const se_string &p_name);
+    void add_input_port(int p_id, int p_type, const String &p_name);
     void remove_input_port(int p_id);
     int get_input_port_count() const override;
     bool has_input_port(int p_id) const;
     void clear_input_ports();
 
-    void add_output_port(int p_id, int p_type, const se_string &p_name);
+    void add_output_port(int p_id, int p_type, const String &p_name);
     void remove_output_port(int p_id);
     int get_output_port_count() const override;
     bool has_output_port(int p_id) const;
@@ -411,12 +411,12 @@ public:
 
     void set_input_port_type(int p_id, int p_type);
     PortType get_input_port_type(int p_id) const override;
-    void set_input_port_name(int p_id, const se_string &p_name);
+    void set_input_port_name(int p_id, const String &p_name);
     StringName get_input_port_name(int p_id) const override;
 
     void set_output_port_type(int p_id, int p_type);
     PortType get_output_port_type(int p_id) const override;
-    void set_output_port_name(int p_id, const se_string &p_name);
+    void set_output_port_name(int p_id, const String &p_name);
     StringName get_output_port_name(int p_id) const override;
 
     int get_free_input_port_id() const;
@@ -428,7 +428,7 @@ public:
     void set_editable(bool p_enabled);
     bool is_editable() const;
 
-    se_string generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const se_string *p_input_vars, const se_string *p_output_vars, bool p_for_preview = false) const override;
+    String generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const String *p_input_vars, const String *p_output_vars, bool p_for_preview = false) const override;
 
     VisualShaderNodeGroupBase();
 };
@@ -437,19 +437,19 @@ class VisualShaderNodeExpression : public VisualShaderNodeGroupBase {
     GDCLASS(VisualShaderNodeExpression,VisualShaderNodeGroupBase)
 
 protected:
-    se_string expression;
+    String expression;
 
     static void _bind_methods();
 
 public:
     se_string_view get_caption() const override;
 
-    void set_expression(const se_string &p_expression);
-    se_string get_expression() const;
+    void set_expression(const String &p_expression);
+    String get_expression() const;
 
     void build();
 
-    se_string generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const se_string *p_input_vars, const se_string *p_output_vars, bool p_for_preview = false) const override;
+    String generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const String *p_input_vars, const String *p_output_vars, bool p_for_preview = false) const override;
 
     VisualShaderNodeExpression();
 };
@@ -460,7 +460,7 @@ class VisualShaderNodeGlobalExpression : public VisualShaderNodeExpression {
 public:
     se_string_view get_caption() const override;
 
-    se_string generate_global(ShaderMode p_mode, VisualShader::Type p_type, int p_id) const override;
+    String generate_global(ShaderMode p_mode, VisualShader::Type p_type, int p_id) const override;
 
     VisualShaderNodeGlobalExpression();
 };

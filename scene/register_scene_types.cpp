@@ -1106,9 +1106,9 @@ void register_scene_types() {
 
     bool default_theme_hidpi = GLOBAL_DEF("gui/theme/use_hidpi", false);
     ProjectSettings::get_singleton()->set_custom_property_info("gui/theme/use_hidpi", PropertyInfo(VariantType::BOOL, "gui/theme/use_hidpi", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_RESTART_IF_CHANGED));
-    se_string theme_path = GLOBAL_DEF("gui/theme/custom", "");
+    String theme_path = GLOBAL_DEF("gui/theme/custom", "");
     ProjectSettings::get_singleton()->set_custom_property_info("gui/theme/custom", PropertyInfo(VariantType::STRING, "gui/theme/custom", PROPERTY_HINT_FILE, "*.tres,*.res,*.theme", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_RESTART_IF_CHANGED));
-    se_string font_path = GLOBAL_DEF("gui/theme/custom_font", "");
+    String font_path = GLOBAL_DEF("gui/theme/custom_font", "");
     ProjectSettings::get_singleton()->set_custom_property_info("gui/theme/custom_font", PropertyInfo(VariantType::STRING, "gui/theme/custom_font", PROPERTY_HINT_FILE, "*.tres,*.res,*.font", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_RESTART_IF_CHANGED));
 
     Ref<Font> font;

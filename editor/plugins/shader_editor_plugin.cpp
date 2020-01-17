@@ -181,7 +181,7 @@ void ShaderTextEditor::_load_theme_settings() {
 
 void ShaderTextEditor::_check_shader_mode() {
 
-    se_string type = ShaderLanguage::get_shader_type(get_text_edit()->get_text());
+    String type = ShaderLanguage::get_shader_type(get_text_edit()->get_text());
 
     ShaderMode mode;
 
@@ -199,12 +199,12 @@ void ShaderTextEditor::_check_shader_mode() {
     }
 }
 
-void ShaderTextEditor::_code_complete_script(const se_string &p_code, List<ScriptCodeCompletionOption> *r_options) {
+void ShaderTextEditor::_code_complete_script(const String &p_code, List<ScriptCodeCompletionOption> *r_options) {
 
     _check_shader_mode();
 
     ShaderLanguage sl;
-    se_string calltip;
+    String calltip;
 
     sl.complete(p_code, ShaderTypes::get_singleton()->get_functions(VS::ShaderMode(shader->get_mode())), ShaderTypes::get_singleton()->get_modes(VS::ShaderMode(shader->get_mode())), ShaderTypes::get_singleton()->get_types(), r_options, calltip);
 
@@ -215,7 +215,7 @@ void ShaderTextEditor::_validate_script() {
 
     _check_shader_mode();
 
-    se_string code = get_text_edit()->get_text_utf8();
+    String code = get_text_edit()->get_text_utf8();
     // List<StringName> params;
     // shader->get_param_list(&params);
 
@@ -226,7 +226,7 @@ void ShaderTextEditor::_validate_script() {
             ShaderTypes::get_singleton()->get_types());
 
     if (err != OK) {
-        se_string error_text = "error(" + itos(sl.get_error_line()) + "): " + sl.get_error_text();
+        String error_text = "error(" + itos(sl.get_error_line()) + "): " + sl.get_error_text();
         set_error(StringName(error_text));
         set_error_pos(sl.get_error_line() - 1, 0);
         for (int i = 0; i < get_text_edit()->get_line_count(); i++)
@@ -489,8 +489,8 @@ void ShaderEditor::save_external_data(se_string_view p_str) {
 void ShaderEditor::apply_shaders() {
 
     if (shader) {
-        se_string shader_code = shader->get_code();
-        se_string editor_code = shader_editor->get_text_edit()->get_text_utf8();
+        String shader_code = shader->get_code();
+        String editor_code = shader_editor->get_text_edit()->get_text_utf8();
         if (shader_code != editor_code) {
             shader->set_code(editor_code);
             Object_set_edited(shader.get(),true);
@@ -557,7 +557,7 @@ void ShaderEditor::_update_bookmark_list() {
     bookmarks_menu->add_separator();
 
     for (int i = 0; i < bookmark_list.size(); i++) {
-        se_string line(StringUtils::strip_edges(shader_editor->get_text_edit()->get_line(bookmark_list[i])));
+        String line(StringUtils::strip_edges(shader_editor->get_text_edit()->get_line(bookmark_list[i])));
         // Limit the size of the line if too big.
         if (line.length() > 50) {
             line = StringUtils::substr(line,0, 50);
