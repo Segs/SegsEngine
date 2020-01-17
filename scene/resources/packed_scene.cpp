@@ -1399,18 +1399,18 @@ NodePath SceneState::get_node_path(int p_idx, bool p_for_parent) const {
         }
     }
 
-    Vector<StringName> sub_path;
+    PODVector<StringName> sub_path;
     NodePath base_path;
     int nidx = p_idx;
     while (true) {
         if (nodes[nidx].parent == NO_PARENT_SAVED || nodes[nidx].parent < 0) {
 
-            sub_path.insert(0, ".");
+            sub_path.push_front(".");
             break;
         }
 
         if (!p_for_parent || p_idx != nidx) {
-            sub_path.insert(0, names[nodes[nidx].name]);
+            sub_path.push_front(names[nodes[nidx].name]);
         }
 
         if (nodes[nidx].parent & FLAG_ID_IS_PATH) {
@@ -1434,7 +1434,7 @@ NodePath SceneState::get_node_path(int p_idx, bool p_for_parent) const {
 
 int SceneState::get_node_property_count(int p_idx) const {
 
-    ERR_FAIL_INDEX_V(p_idx, nodes.size(), -1);
+    ERR_FAIL_INDEX_V(p_idx, nodes.size(), -1)
     return nodes[p_idx].properties.size();
 }
 StringName SceneState::get_node_property_name(int p_idx, int p_prop) const {
