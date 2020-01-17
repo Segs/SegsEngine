@@ -19,7 +19,7 @@
 			<description>
 				Adds a custom property info to a property. The dictionary must contain:
 				- [code]name[/code]: [String] (the property's name)
-				- [code]type[/code]: [int] (see [enum Variant.Type])
+				- [code]type[/code]: [int] (see [enum VariantType])
 				- optionally [code]hint[/code]: [int] (see [enum PropertyHint]) and [code]hint_string[/code]: [String]
 				[b]Example:[/b]
 				[codeblock]

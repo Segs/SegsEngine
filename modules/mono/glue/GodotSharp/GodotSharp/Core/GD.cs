@@ -18,7 +18,7 @@ namespace Godot
             return godot_icall_GD_bytes2var(bytes, allow_objects);
         }
 
-        public static object Convert(object what, Variant.Type type)
+        public static object Convert(object what, VariantType type)
         {
             return godot_icall_GD_convert(what, type);
         }
