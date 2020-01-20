@@ -639,10 +639,10 @@ public:
     Error generate_cs_api(se_string_view p_output_dir);
     Error generate_glue(se_string_view p_output_dir);
 
-    _FORCE_INLINE_ bool is_log_print_enabled() { return log_print_enabled; }
-    _FORCE_INLINE_ void set_log_print_enabled(bool p_enabled) { log_print_enabled = p_enabled; }
+    bool is_log_print_enabled() const { return log_print_enabled; }
+    void set_log_print_enabled(bool p_enabled) { log_print_enabled = p_enabled; }
 
-    _FORCE_INLINE_ bool is_initialized() { return initialized; }
+    bool is_initialized() const { return initialized; }
 
     static uint32_t get_version();
 

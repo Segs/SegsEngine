@@ -32,9 +32,9 @@
 #include "core/os/dir_access.h"
 
 #ifdef WINDOWS_ENABLED
-
+//TODO: SEGS: access registry through qt settings wrappers.
 #include "core/os/os.h"
-
+#include "core/ustring.h"
 // Here, after os/os.h
 #include <windows.h>
 
@@ -69,21 +69,21 @@ LONG _RegOpenKey(HKEY hKey, LPCWSTR lpSubKey, PHKEY phkResult) {
 
 LONG _RegKeyQueryString(HKEY hKey, const String &p_value_name, String &r_value) {
 
-	Vector<WCHAR> buffer;
+	PODVector<WCHAR> buffer;
 	buffer.resize(512);
 	DWORD dwBufferSize = buffer.size();
-
-	LONG res = RegQueryValueExW(hKey, p_value_name.c_str(), 0, NULL, (LPBYTE)buffer.ptr(), &dwBufferSize);
+    UIString vn(StringUtils::from_utf8(p_value_name));
+    auto win_api_str= vn.toStdWString();
+	LONG res = RegQueryValueExW(hKey, win_api_str.c_str(), nullptr, nullptr, (LPBYTE)buffer.data(), &dwBufferSize);
 
 	if (res == ERROR_MORE_DATA) {
 		// dwBufferSize now contains the actual size
-		Vector<WCHAR> buffer;
-		buffer.resize(dwBufferSize);
-		res = RegQueryValueExW(hKey, p_value_name.c_str(), 0, NULL, (LPBYTE)buffer.ptr(), &dwBufferSize);
+		buffer.resize(dwBufferSize/2);
+		res = RegQueryValueExW(hKey, win_api_str.c_str(), nullptr, nullptr, (LPBYTE)buffer.data(), &dwBufferSize);
 	}
 
 	if (res == ERROR_SUCCESS) {
-		r_value = String(buffer.ptr(), buffer.size());
+        r_value = StringUtils::utf8(UIString::fromWCharArray(buffer.data(), (dwBufferSize/2)-1)); // string are returned from registry as zero terminated, we don't need that here.
 	} else {
 		r_value = String();
 	}
@@ -94,7 +94,9 @@ LONG _RegKeyQueryString(HKEY hKey, const String &p_value_name, String &r_value) 
 LONG _find_mono_in_reg(const String &p_subkey, MonoRegInfo &r_info, bool p_old_reg = false) {
 
 	HKEY hKey;
-	LONG res = _RegOpenKey(HKEY_LOCAL_MACHINE, p_subkey.c_str(), &hKey);
+    UIString vn(StringUtils::from_utf8(p_subkey));
+    auto win_api_str = vn.toStdWString();
+    LONG res = _RegOpenKey(HKEY_LOCAL_MACHINE, win_api_str.c_str(), &hKey);
 
 	if (res != ERROR_SUCCESS)
 		goto cleanup;
@@ -132,7 +134,9 @@ LONG _find_mono_in_reg_old(const String &p_subkey, MonoRegInfo &r_info) {
 	String default_clr;
 
 	HKEY hKey;
-	LONG res = _RegOpenKey(HKEY_LOCAL_MACHINE, p_subkey.c_str(), &hKey);
+    UIString vn(StringUtils::from_utf8(p_subkey));
+    auto win_api_str = vn.toStdWString();
+    LONG res = _RegOpenKey(HKEY_LOCAL_MACHINE, win_api_str.c_str(), &hKey);
 
 	if (res != ERROR_SUCCESS)
 		goto cleanup;
@@ -171,7 +175,7 @@ String find_msbuild_tools_path() {
 	String vswhere_path = OS::get_singleton()->get_environment(sizeof(size_t) == 8 ? "ProgramFiles(x86)" : "ProgramFiles");
 	vswhere_path += "\\Microsoft Visual Studio\\Installer\\vswhere.exe";
 
-	List<String> vswhere_args;
+	ListPOD<String> vswhere_args;
 	vswhere_args.push_back("-latest");
 	vswhere_args.push_back("-products");
 	vswhere_args.push_back("*");
@@ -180,20 +184,20 @@ String find_msbuild_tools_path() {
 
 	String output;
 	int exit_code;
-	OS::get_singleton()->execute(vswhere_path, vswhere_args, true, NULL, &output, &exit_code);
+	OS::get_singleton()->execute(vswhere_path, vswhere_args, true, nullptr, &output, &exit_code);
 
 	if (exit_code == 0) {
-		Vector<String> lines = output.split("\n");
+		PODVector<se_string_view> lines = StringUtils::split(output,'\n');
 
 		for (int i = 0; i < lines.size(); i++) {
-			const String &line = lines[i];
+			se_string_view line = lines[i];
 			int sep_idx = line.find(":");
 
 			if (sep_idx > 0) {
-				String key = line.substr(0, sep_idx); // No need to trim
+				String key(line.substr(0, sep_idx)); // No need to trim
 
 				if (key == "installationPath") {
-					String val = line.substr(sep_idx + 1, line.length()).strip_edges();
+					String val(StringUtils::strip_edges(line.substr(sep_idx + 1, line.length())));
 
 					ERR_BREAK(val.empty());
 

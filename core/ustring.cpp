@@ -1041,8 +1041,10 @@ bool StringUtils::parse_utf8(UIString &str,const char *p_utf8, int p_len) {
     return !str.isEmpty();
 }
 
-CharString StringUtils::utf8(const UIString &str) {
-    return str.toUtf8();
+String StringUtils::utf8(const UIString &str) {
+
+    auto v=str.toUtf8();
+    return String(v.data(),v.size());
 }
 
 int StringUtils::hex_to_int(const UIString &s,bool p_with_prefix) {

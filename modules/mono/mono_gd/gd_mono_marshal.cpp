@@ -298,7 +298,7 @@ UIString mono_to_utf16_string(MonoString *p_mono_string) {
     if (len == 0)
         return ret;
 
-    return UIString::fromUtf16(mono_string_chars(p_mono_string),len);
+    return UIString::fromWCharArray(mono_string_chars(p_mono_string),len);
 }
 
 MonoObject *variant_to_mono_object(const Variant *p_var) {

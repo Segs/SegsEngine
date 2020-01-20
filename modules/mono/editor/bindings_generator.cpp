@@ -1903,11 +1903,14 @@ Error BindingsGenerator::_generate_glue_method(const BindingsGenerator::TypeInte
 
     if (p_imethod.is_virtual)
         return OK; // Ignore
-
+    /*
+    MethodBindVA<Object,void,int32_t> *actual_bind=reinterpret_cast<MethodBindVA<Object, void, int32_t> *>(method);
+    ERR_FAIL_NULL(ptr);
+    (ptr->*actual_bind->method)(arg1);
+     */
     bool ret_void = p_imethod.return_type.cname == name_cache.type_void;
 
     const TypeInterface *return_type = _get_type_or_placeholder(p_imethod.return_type);
-
     String argc_str = itos(p_imethod.arguments.size());
 
     String c_func_sig = "MethodBind* " CS_PARAM_METHODBIND ", " + p_itype.c_type_in + " " CS_PARAM_INSTANCE;
@@ -1923,7 +1926,7 @@ Error BindingsGenerator::_generate_glue_method(const BindingsGenerator::TypeInte
 
         if (p_imethod.is_vararg) {
             if (i < p_imethod.arguments.size() - 1) {
-                c_in_statements += sformat(arg_type->c_in.size() ? arg_type->c_in : TypeInterface::DEFAULT_VARARG_C_IN, "Variant", c_param_name);
+                c_in_statements += sformat(!arg_type->c_in.empty() ? arg_type->c_in : TypeInterface::DEFAULT_VARARG_C_IN, "Variant", c_param_name);
                 c_in_statements += "\t" C_LOCAL_PTRCALL_ARGS ".set(";
                 c_in_statements += itos(i);
                 c_in_statements += sformat(", &%s_in);\n", c_param_name);
@@ -1931,7 +1934,7 @@ Error BindingsGenerator::_generate_glue_method(const BindingsGenerator::TypeInte
         } else {
             if (i > 0)
                 c_args_var_content += ", ";
-            if (arg_type->c_in.size())
+            if (!arg_type->c_in.empty())
                 c_in_statements += sformat(arg_type->c_in, arg_type->c_type, c_param_name);
             c_args_var_content += sformat(arg_type->c_arg_in, c_param_name);
         }
@@ -1943,6 +1946,7 @@ Error BindingsGenerator::_generate_glue_method(const BindingsGenerator::TypeInte
 
         i++;
     }
+    String cast_to_va_bind = FormatVE("auto *actual_bind = reinterpret_cast<MethodBindVA<%s, %s, int32_t> *>(method)", p_itype.cname.asCString(), return_type->cname.asCString());
 
     if (return_type->ret_as_byref_arg) {
         c_func_sig += ", ";
@@ -2012,7 +2016,7 @@ Error BindingsGenerator::_generate_glue_method(const BindingsGenerator::TypeInte
             p_output.append("\tERR_FAIL_NULL(" CS_PARAM_INSTANCE ");\n");
         }
 
-        if (p_imethod.arguments.size()) {
+        if (!p_imethod.arguments.empty()) {
             if (p_imethod.is_vararg) {
                 String vararg_arg = "arg" + argc_str;
                 String real_argc_str = itos(p_imethod.arguments.size() - 1); // Arguments count without vararg
@@ -2054,7 +2058,7 @@ Error BindingsGenerator::_generate_glue_method(const BindingsGenerator::TypeInte
             }
 
             p_output.append(CS_PARAM_METHODBIND "->call(" CS_PARAM_INSTANCE ", ");
-            p_output.append(p_imethod.arguments.size() ? C_LOCAL_PTRCALL_ARGS ".ptr()" : "NULL");
+            p_output.append(p_imethod.arguments.size() ? C_LOCAL_PTRCALL_ARGS ".ptr()" : "nullptr");
             p_output.append(", total_length, vcall_error);\n");
 
             // See the comment on the C_LOCAL_VARARG_RET declaration
@@ -2063,8 +2067,8 @@ Error BindingsGenerator::_generate_glue_method(const BindingsGenerator::TypeInte
             }
         } else {
             p_output.append("\t" CS_PARAM_METHODBIND "->ptrcall(" CS_PARAM_INSTANCE ", ");
-            p_output.append(p_imethod.arguments.size() ? C_LOCAL_PTRCALL_ARGS ", " : "NULL, ");
-            p_output.append(!ret_void ? "&" C_LOCAL_RET ");\n" : "NULL);\n");
+            p_output.append(p_imethod.arguments.empty() ? "nullptr, " : C_LOCAL_PTRCALL_ARGS ", ");
+            p_output.append(!ret_void ? "&" C_LOCAL_RET ");\n" : "nullptr);\n");
         }
 
         if (!ret_void) {

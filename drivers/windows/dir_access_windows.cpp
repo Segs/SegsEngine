@@ -123,15 +123,17 @@ String DirAccessWindows::get_drive(int p_drive) {
 
     return String(&drives[p_drive],1) + ":";
 }
-
+#include <QDebug>
 Error DirAccessWindows::change_dir(se_string_view _dir)
 {
     String p_dir = fix_path(_dir);
 
     QString real_current_dir_name = QDir::currentPath();
-
+    QString tgt_dir = StringUtils::from_utf8(p_dir);
+    QFileInfo fz(StringUtils::from_utf8(current_dir)+ tgt_dir);
+    qDebug()<< fz.canonicalFilePath();
     QDir cur_dir(StringUtils::from_utf8(current_dir));
-    bool worked = cur_dir.cd(StringUtils::from_utf8(p_dir));
+    bool worked = cur_dir.cd(tgt_dir);
 
     String base = _get_root_path();
     if (!base.empty()) {

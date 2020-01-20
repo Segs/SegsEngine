@@ -229,7 +229,6 @@ void OS_Windows::initialize_core() {
         ticks_per_second = 1000;
     // If timeAtGameStart is 0 then we get the time since
     // the start of the computer when we call GetGameTime()
-    ticks_start = 0;
     ticks_start = get_ticks_usec();
 
     // set minimum resolution for periodic timers, otherwise Sleep(n) may wait at least as
@@ -1059,7 +1058,7 @@ LRESULT OS_Windows::WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
             for (int i = 0; i < fcount; i++) {
 
                 DragQueryFileW(hDropInfo, i, buf, buffsize);
-                String file = QString::fromWCharArray(buf);
+                UIString file = QString::fromWCharArray(buf);
                 files.push_back(StringUtils::to_utf8(file));
             }
 
@@ -1401,12 +1400,11 @@ Error OS_Windows::initialize(const VideoMode &p_desired, int p_video_driver, int
 
 #if defined(OPENGL_ENABLED)
 
-    bool gles3_context = true;
     bool gl_initialization_error = false;
 
     gl_context = nullptr;
     while (!gl_context) {
-        gl_context = memnew(ContextGL_Windows(hWnd, gles3_context));
+        gl_context = memnew(ContextGL_Windows(hWnd, true));
 
         if (gl_context->initialize() != OK) {
             memdelete(gl_context);
@@ -1417,20 +1415,11 @@ Error OS_Windows::initialize(const VideoMode &p_desired, int p_video_driver, int
         }
     }
 
-    while (true) {
-        if (gles3_context) {
-            if (RasterizerGLES3::is_viable() == OK) {
-                RasterizerGLES3::register_config();
-                RasterizerGLES3::make_current();
-                break;
-            } else {
-                gl_initialization_error = true;
-                break;
-            }
-        } else {
-            gl_initialization_error = true;
-            break;
-        }
+    if (RasterizerGLES3::is_viable() == OK) {
+        RasterizerGLES3::register_config();
+        RasterizerGLES3::make_current();
+    } else {
+        gl_initialization_error = true;
     }
 
     if (gl_initialization_error) {
@@ -2457,123 +2446,7 @@ OS::CursorShape OS_Windows::get_cursor_shape() const {
 
 void OS_Windows::set_custom_mouse_cursor(const RES &p_cursor, CursorShape p_shape, const Vector2 &p_hotspot) {
 
-    if (p_cursor) {
-
-        Map<CursorShape, Vector<Variant> >::iterator cursor_c = cursors_cache.find(p_shape);
-
-        if (cursor_c!=cursors_cache.end()) {
-            if (cursor_c->second[0] == p_cursor && cursor_c->second[1] == p_hotspot) {
-                set_cursor_shape(p_shape);
-                return;
-            }
-
-            cursors_cache.erase(p_shape);
-        }
-
-        Ref<Texture> texture = dynamic_ref_cast<Texture>(p_cursor);
-        Ref<AtlasTexture> atlas_texture = dynamic_ref_cast<AtlasTexture>(p_cursor);
-        Ref<Image> image;
-        Size2 texture_size;
-        Rect2 atlas_rect;
-
-        if (texture) {
-            image = texture->get_data();
-        }
-
-        if (not image && atlas_texture) {
-            texture = atlas_texture->get_atlas();
-
-            atlas_rect.size.width = texture->get_width();
-            atlas_rect.size.height = texture->get_height();
-            atlas_rect.position.x = atlas_texture->get_region().position.x;
-            atlas_rect.position.y = atlas_texture->get_region().position.y;
-
-            texture_size.width = atlas_texture->get_region().size.x;
-            texture_size.height = atlas_texture->get_region().size.y;
-        } else if (image) {
-            texture_size.width = texture->get_width();
-            texture_size.height = texture->get_height();
-        }
-
-        ERR_FAIL_COND(not texture)
-        ERR_FAIL_COND(p_hotspot.x < 0 || p_hotspot.y < 0)
-        ERR_FAIL_COND(texture_size.width > 256 || texture_size.height > 256)
-        ERR_FAIL_COND(p_hotspot.x > texture_size.width || p_hotspot.y > texture_size.height)
-
-        image = texture->get_data();
-
-        ERR_FAIL_COND(not image)
-
-        UINT image_size = texture_size.width * texture_size.height;
-
-        // Create the BITMAP with alpha channel
-        COLORREF *buffer = (COLORREF *)memalloc(sizeof(COLORREF) * image_size);
-
-        image->lock();
-        for (UINT index = 0; index < image_size; index++) {
-            int row_index = floor(index / texture_size.width) + atlas_rect.position.y;
-            int column_index = (index % int(texture_size.width)) + atlas_rect.position.x;
-
-            if (atlas_texture) {
-                column_index = MIN(column_index, atlas_rect.size.width - 1);
-                row_index = MIN(row_index, atlas_rect.size.height - 1);
-            }
-
-            *(buffer + index) = image->get_pixel(column_index, row_index).to_argb32();
-        }
-        image->unlock();
-
-        // Using 4 channels, so 4 * 8 bits
-        HBITMAP bitmap = CreateBitmap(texture_size.width, texture_size.height, 1, 4 * 8, buffer);
-        COLORREF clrTransparent = -1;
-
-        // Create the AND and XOR masks for the bitmap
-        HBITMAP hAndMask = nullptr;
-        HBITMAP hXorMask = nullptr;
-
-        GetMaskBitmaps(bitmap, clrTransparent, hAndMask, hXorMask);
-
-        if (nullptr == hAndMask || nullptr == hXorMask) {
-            memfree(buffer);
-            DeleteObject(bitmap);
-            return;
-        }
-
-        // Finally, create the icon
-        ICONINFO iconinfo;
-        iconinfo.fIcon = FALSE;
-        iconinfo.xHotspot = p_hotspot.x;
-        iconinfo.yHotspot = p_hotspot.y;
-        iconinfo.hbmMask = hAndMask;
-        iconinfo.hbmColor = hXorMask;
-
-        if (cursors[p_shape])
-            DestroyIcon(cursors[p_shape]);
-
-        cursors[p_shape] = CreateIconIndirect(&iconinfo);
-
-        Vector<Variant> params;
-        params.push_back(p_cursor);
-        params.push_back(p_hotspot);
-        cursors_cache.emplace(p_shape, params);
-
-        if (p_shape == cursor_shape) {
-            if (mouse_mode == MOUSE_MODE_VISIBLE || mouse_mode == MOUSE_MODE_CONFINED) {
-                SetCursor(cursors[p_shape]);
-            }
-        }
-
-        if (hAndMask != nullptr) {
-            DeleteObject(hAndMask);
-        }
-
-        if (hXorMask != nullptr) {
-            DeleteObject(hXorMask);
-        }
-
-        memfree(buffer);
-        DeleteObject(bitmap);
-    } else {
+    if (!p_cursor) {
         // Reset to default system cursor
         if (cursors[p_shape]) {
             DestroyIcon(cursors[p_shape]);
@@ -2585,7 +2458,117 @@ void OS_Windows::set_custom_mouse_cursor(const RES &p_cursor, CursorShape p_shap
         set_cursor_shape(c);
 
         cursors_cache.erase(p_shape);
+        return;
     }
+    Map<CursorShape, Vector<Variant> >::iterator cursor_c = cursors_cache.find(p_shape);
+
+    if (cursor_c!=cursors_cache.end()) {
+        if (cursor_c->second[0] == p_cursor && cursor_c->second[1] == p_hotspot) {
+            set_cursor_shape(p_shape);
+            return;
+        }
+
+        cursors_cache.erase(p_shape);
+    }
+
+    Ref<Texture> texture = dynamic_ref_cast<Texture>(p_cursor);
+    Ref<AtlasTexture> atlas_texture = dynamic_ref_cast<AtlasTexture>(p_cursor);
+    Ref<Image> image;
+    Size2 texture_size;
+    Rect2 atlas_rect;
+
+    if (texture) {
+        image = texture->get_data();
+    }
+
+    if (not image && atlas_texture) {
+        texture = atlas_texture->get_atlas();
+
+        atlas_rect.size.width = texture->get_width();
+        atlas_rect.size.height = texture->get_height();
+        atlas_rect.position.x = atlas_texture->get_region().position.x;
+        atlas_rect.position.y = atlas_texture->get_region().position.y;
+
+        texture_size.width = atlas_texture->get_region().size.x;
+        texture_size.height = atlas_texture->get_region().size.y;
+    } else if (image) {
+        texture_size.width = texture->get_width();
+        texture_size.height = texture->get_height();
+    }
+
+    ERR_FAIL_COND(not texture)
+    ERR_FAIL_COND(p_hotspot.x < 0 || p_hotspot.y < 0)
+    ERR_FAIL_COND(texture_size.width > 256 || texture_size.height > 256)
+    ERR_FAIL_COND(p_hotspot.x > texture_size.width || p_hotspot.y > texture_size.height)
+
+    image = texture->get_data();
+
+    ERR_FAIL_COND(not image)
+
+    UINT image_size = texture_size.width * texture_size.height;
+
+    // Create the BITMAP with alpha channel
+    COLORREF *buffer = (COLORREF *)memalloc(sizeof(COLORREF) * image_size);
+
+    image->lock();
+    for (UINT index = 0; index < image_size; index++) {
+        int row_index = floor(index / texture_size.width) + atlas_rect.position.y;
+        int column_index = (index % int(texture_size.width)) + atlas_rect.position.x;
+
+        if (atlas_texture) {
+            column_index = MIN(column_index, atlas_rect.size.width - 1);
+            row_index = MIN(row_index, atlas_rect.size.height - 1);
+        }
+
+        *(buffer + index) = image->get_pixel(column_index, row_index).to_argb32();
+    }
+    image->unlock();
+
+    // Using 4 channels, so 4 * 8 bits
+    HBITMAP bitmap = CreateBitmap(texture_size.width, texture_size.height, 1, 4 * 8, buffer);
+    COLORREF clrTransparent = -1;
+
+    // Create the AND and XOR masks for the bitmap
+    HBITMAP hAndMask = nullptr;
+    HBITMAP hXorMask = nullptr;
+
+    GetMaskBitmaps(bitmap, clrTransparent, hAndMask, hXorMask);
+
+    if (nullptr == hAndMask || nullptr == hXorMask) {
+        memfree(buffer);
+        DeleteObject(bitmap);
+        return;
+    }
+
+    // Finally, create the icon
+    ICONINFO iconinfo;
+    iconinfo.fIcon = FALSE;
+    iconinfo.xHotspot = p_hotspot.x;
+    iconinfo.yHotspot = p_hotspot.y;
+    iconinfo.hbmMask = hAndMask;
+    iconinfo.hbmColor = hXorMask;
+
+    if (cursors[p_shape])
+        DestroyIcon(cursors[p_shape]);
+
+    cursors[p_shape] = CreateIconIndirect(&iconinfo);
+
+    Vector<Variant> params;
+    params.push_back(p_cursor);
+    params.push_back(p_hotspot);
+    cursors_cache.emplace(p_shape, params);
+
+    if (p_shape == cursor_shape) {
+        if (mouse_mode == MOUSE_MODE_VISIBLE || mouse_mode == MOUSE_MODE_CONFINED) {
+            SetCursor(cursors[p_shape]);
+        }
+    }
+
+    DeleteObject(hAndMask); // null checked above
+    DeleteObject(hXorMask);
+
+    memfree(buffer);
+    DeleteObject(bitmap);
 }
 
 void OS_Windows::GetMaskBitmaps(HBITMAP hSourceBitmap, COLORREF clrTransparent, OUT HBITMAP &hAndMaskBitmap, OUT HBITMAP &hXorMaskBitmap) {

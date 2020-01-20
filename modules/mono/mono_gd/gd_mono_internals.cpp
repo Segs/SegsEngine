@@ -114,7 +114,7 @@ void unhandled_exception(MonoException *p_exc) {
     if (GDMono::get_singleton()->get_unhandled_exception_policy() == GDMono::POLICY_TERMINATE_APP) {
         // Too bad 'mono_invoke_unhandled_exception_hook' is not exposed to embedders
         GDMono::unhandled_exception_hook((MonoObject *)p_exc, nullptr);
-        GD_UNREACHABLE()
+        GD_UNREACHABLE();
     } else {
 #ifdef DEBUG_ENABLED
         GDMonoUtils::debug_send_unhandled_exception_error((MonoException *)p_exc);

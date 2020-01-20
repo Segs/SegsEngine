@@ -52,19 +52,21 @@ namespace path {
 
 String find_executable(se_string_view p_name) {
 #ifdef WINDOWS_ENABLED
-	Vector<String> exts = OS::get_singleton()->get_environment("PATHEXT").split(ENV_PATH_SEP, false);
+    String path_ext= OS::get_singleton()->get_environment("PATHEXT");
+	PODVector<se_string_view> exts = StringUtils::split(path_ext,ENV_PATH_SEP, false);
 #endif
-    PODVector<String> env_path = OS::get_singleton()->get_environment("PATH").split(ENV_PATH_SEP, false);
+    String path=OS::get_singleton()->get_environment("PATH");
+    PODVector<se_string_view> env_path = StringUtils::split(path,ENV_PATH_SEP, false);
 
 	if (env_path.empty())
         return String();
 
-	for (int i = 0; i < env_path.size(); i++) {
-        String p = path::join(env_path[i], p_name);
+	for (auto & env_p : env_path) {
+        String p = path::join(env_p, p_name);
 
 #ifdef WINDOWS_ENABLED
-		for (int j = 0; j < exts.size(); j++) {
-			String p2 = p + exts[j].to_lower(); // lowercase to reduce risk of case mismatch warning
+		for (auto ext : exts) {
+			String p2 = p + StringUtils::to_lower(ext); // lowercase to reduce risk of case mismatch warning
 
 			if (FileAccess::exists(p2))
 				return p2;
@@ -80,14 +82,14 @@ String find_executable(se_string_view p_name) {
 
 String cwd() {
 #ifdef WINDOWS_ENABLED
-	const DWORD expected_size = ::GetCurrentDirectoryW(0, NULL);
+	const DWORD expected_size = ::GetCurrentDirectoryW(0, nullptr);
 
-	String buffer;
-	buffer.resize((int)expected_size);
-	if (::GetCurrentDirectoryW(expected_size, buffer.ptrw()) == 0)
+    eastl::wstring wbuffer;
+    wbuffer.resize((int)expected_size);
+	if (::GetCurrentDirectoryW(expected_size, wbuffer.data()) == 0)
 		return ".";
-
-	return buffer.simplify_path();
+    String buffer = StringUtils::utf8(UIString::fromWCharArray(wbuffer.data(),wbuffer.size()));
+	return PathUtils::simplify_path(buffer);
 #else
 	char buffer[PATH_MAX];
     if (::getcwd(buffer, sizeof(buffer)) == nullptr)
@@ -110,26 +112,29 @@ String abspath(se_string_view p_path) {
 String realpath(se_string_view p_path) {
 #ifdef WINDOWS_ENABLED
 	// Open file without read/write access
-	HANDLE hFile = ::CreateFileW(p_path.c_str(), 0,
+    UIString str(StringUtils::from_utf8(p_path));
+    auto win_api_str = str.toStdWString();
+	HANDLE hFile = ::CreateFileW(win_api_str.c_str(), 0,
 			FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
-			NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+			nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
 
 	if (hFile == INVALID_HANDLE_VALUE)
-		return p_path;
+		return String(p_path);
 
-	const DWORD expected_size = ::GetFinalPathNameByHandleW(hFile, NULL, 0, FILE_NAME_NORMALIZED);
+	const DWORD expected_size = ::GetFinalPathNameByHandleW(hFile, nullptr, 0, FILE_NAME_NORMALIZED);
 
 	if (expected_size == 0) {
 		::CloseHandle(hFile);
-		return p_path;
-	}
+        return String(p_path);
+    }
 
-	String buffer;
-	buffer.resize((int)expected_size);
-	::GetFinalPathNameByHandleW(hFile, buffer.ptrw(), expected_size, FILE_NAME_NORMALIZED);
+    eastl::wstring wbuffer;
+    wbuffer.resize((int)expected_size);
+    ::GetFinalPathNameByHandleW(hFile, wbuffer.data(), expected_size, FILE_NAME_NORMALIZED);
 
 	::CloseHandle(hFile);
-	return buffer.simplify_path();
+    String buffer = StringUtils::utf8(UIString::fromWCharArray(wbuffer.data(), wbuffer.size()));
+    return PathUtils::simplify_path(buffer);
 #elif UNIX_ENABLED
     String res(p_path);
     char *resolved_path = ::realpath(res.data(), nullptr);
@@ -181,9 +186,9 @@ String relative_to_impl(se_string_view p_path, se_string_view p_relative_to) {
 
 #ifdef WINDOWS_ENABLED
 String get_drive_letter(se_string_view p_norm_path) {
-	int idx = p_norm_path.find(":/");
-	if (idx != -1 && idx < p_norm_path.find("/"))
-		return p_norm_path.substr(0, idx + 1);
+	auto idx = p_norm_path.find(":/");
+	if (idx != String::npos && idx < p_norm_path.find("/"))
+		return String(p_norm_path.substr(0, idx + 1));
 	return String();
 }
 #endif
