@@ -376,6 +376,14 @@ foreach(tgt ${global_targets})
         ${core_sources} ${tool_core_sources}
         service_interfaces/CoreInterface.h
     )
+if(USE_PRECOMPILED_HEADERS)
+	
+    target_precompile_headers(${tgt}_core
+      PRIVATE
+      "$<$<COMPILE_LANGUAGE:C>:<stddef.h$<ANGLE-R>>" # had to add this, otherwise the generated c-header was buggy
+      $<$<COMPILE_LANGUAGE:CXX>:core/precompiled.h>
+    )
+endif()
 
     target_link_libraries(${tgt}_core PRIVATE core_plugin_interfaces )
     target_link_libraries(${tgt}_core PUBLIC se_core)
@@ -404,15 +412,6 @@ foreach(tgt ${global_targets})
     )
 
     set_common_target_properties(${tgt}_core)
-#    set_target_properties(${tgt}_core PROPERTIES UNITY_BUILD ON)
-#    set_target_properties(${tgt}_core PROPERTIES UNITY_BUILD_BATCH_SIZE ${DEFAULT_UNITY_BATCH_SIZE})
-if(USE_PRECOMPILED_HEADERS)
-    target_precompile_headers(${tgt}_core
-      PRIVATE
-      "$<$<COMPILE_LANGUAGE:C>:<stddef.h$<ANGLE-R>>" # had to add this, otherwise the generated c-header was buggy
-      $<$<COMPILE_LANGUAGE:CXX>:core/precompiled.h>
-    )
-endif()
 if(USE_UNITY_BUILDS)
     set_target_properties(${tgt}_core PROPERTIES UNITY_BUILD ON)
     set_target_properties(${tgt}_core PROPERTIES UNITY_BUILD_BATCH_SIZE ${DEFAULT_UNITY_BATCH_SIZE})

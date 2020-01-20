@@ -237,7 +237,7 @@ void erase(UIString &str,int p_pos, int p_chars);
 void erase(String &str,int p_pos, int p_chars);
 
 [[nodiscard]] GODOT_EXPORT CharString ascii(const UIString &str,bool p_allow_extended = false);
-[[nodiscard]] GODOT_EXPORT CharString utf8(const UIString &str);
+[[nodiscard]] GODOT_EXPORT String utf8(const UIString &str);
 GODOT_EXPORT bool parse_utf8(UIString &str,const char *p_utf8, int p_len = -1); //return true on error
 [[nodiscard]] GODOT_EXPORT UIString from_utf8(const char *sv, int p_len= - 1);
 [[nodiscard]] GODOT_EXPORT UIString from_utf8(se_string_view sv);
