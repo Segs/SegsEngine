@@ -38,10 +38,42 @@
 
 using UIString = class QString;
 
+
 class VariantParser {
 public:
-    struct Stream;
+    struct Stream {
 
+        virtual char get_char() = 0;
+        virtual bool is_utf8() const = 0;
+        virtual bool is_eof() const = 0;
+
+        char saved = 0;
+
+        Stream() {}
+        virtual ~Stream() {}
+    };
+    struct StreamFile : public Stream {
+
+        FileAccess *f;
+
+        char get_char() override;
+        bool is_utf8() const override;
+        bool is_eof() const override;
+
+        StreamFile(FileAccess *fl = nullptr) : f(fl) {}
+    };
+
+    struct StreamString : public Stream {
+
+        String s;
+        int pos=0;
+
+        char get_char() override;
+        bool is_utf8() const override;
+        bool is_eof() const override;
+
+        StreamString(const String &str) : s(str) {}
+    };
     using ParseResourceFunc = Error (*)(void *, Stream *, Ref<Resource> &, int &, String &);
 
     struct ResourceParser {

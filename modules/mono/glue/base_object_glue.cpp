@@ -34,6 +34,7 @@
 
 #include "core/reference.h"
 #include "core/string_name.h"
+#include "core/object_db.h"
 
 #include "../csharp_script.h"
 #include "../mono_gd/gd_mono_cache.h"
@@ -68,10 +69,12 @@ void godot_icall_Object_Disposed(MonoObject *p_obj, Object *p_ptr) {
 	void *data = p_ptr->get_script_instance_binding(CSharpLanguage::get_singleton()->get_language_index());
 
 	if (data) {
-		CSharpScriptBinding &script_binding = ((Map<Object *, CSharpScriptBinding>::Element *)data)->get();
+        Map<Object *, CSharpScriptBinding>::iterator iter;
+        iter.mpNode = (Map<Object *, CSharpScriptBinding>::iterator::node_type *)data;
+        CSharpScriptBinding &script_binding = iter->second;
 		if (script_binding.inited) {
 			Ref<MonoGCHandle> &gchandle = script_binding.gchandle;
-			if (gchandle.is_valid()) {
+            if (gchandle) {
 				CSharpLanguage::release_script_gchandle(p_obj, gchandle);
 			}
 		}
@@ -85,7 +88,7 @@ void godot_icall_Reference_Disposed(MonoObject *p_obj, Object *p_ptr, MonoBoolea
 	CRASH_COND(!object_cast<RefCounted>(p_ptr));
 #endif
 
-	Reference *ref = static_cast<Reference *>(p_ptr);
+    RefCounted *ref = static_cast<RefCounted *>(p_ptr);
 
 	if (ref->get_script_instance()) {
 		CSharpInstance *cs_instance = CAST_CSHARP_INSTANCE(ref->get_script_instance());
@@ -114,10 +117,12 @@ void godot_icall_Reference_Disposed(MonoObject *p_obj, Object *p_ptr, MonoBoolea
 		void *data = ref->get_script_instance_binding(CSharpLanguage::get_singleton()->get_language_index());
 
 		if (data) {
-			CSharpScriptBinding &script_binding = ((Map<Object *, CSharpScriptBinding>::Element *)data)->get();
+            Map<Object *, CSharpScriptBinding>::iterator iter;
+            iter.mpNode = (Map<Object *, CSharpScriptBinding>::iterator::node_type *)data;
+            CSharpScriptBinding &script_binding = iter->second;
 			if (script_binding.inited) {
 				Ref<MonoGCHandle> &gchandle = script_binding.gchandle;
-				if (gchandle.is_valid()) {
+                if (gchandle) {
 					CSharpLanguage::release_script_gchandle(p_obj, gchandle);
 				}
 			}
@@ -136,21 +141,20 @@ MonoObject *godot_icall_Object_weakref(Object *p_obj) {
 		return NULL;
 
 	Ref<WeakRef> wref;
-	Reference *ref = object_cast<RefCounted>(p_obj);
+    RefCounted  *ref = object_cast<RefCounted>(p_obj);
 
 	if (ref) {
-		REF r = ref;
-		if (!r.is_valid())
-			return NULL;
-
-		wref.instance();
+        REF r(ref);
+        if (!r)
+            return nullptr;
+        wref= make_ref_counted<WeakRef>();
 		wref->set_ref(r);
 	} else {
-		wref.instance();
-		wref->set_obj(p_obj);
+        wref= make_ref_counted<WeakRef>();
+        wref->set_obj(p_obj);
 	}
 
-	return GDMonoUtils::unmanaged_get_managed(wref.ptr());
+    return GDMonoUtils::unmanaged_get_managed(wref.get());
 }
 
 Error godot_icall_SignalAwaiter_connect(Object *p_source, MonoString *p_signal, Object *p_target, MonoObject *p_awaiter) {
@@ -159,14 +163,14 @@ Error godot_icall_SignalAwaiter_connect(Object *p_source, MonoString *p_signal, 
 }
 
 MonoArray *godot_icall_DynamicGodotObject_SetMemberList(Object *p_ptr) {
-	List<PropertyInfo> property_list;
+    ListPOD<PropertyInfo> property_list;
 	p_ptr->get_property_list(&property_list);
 
 	MonoArray *result = mono_array_new(mono_domain_get(), CACHED_CLASS_RAW(String), property_list.size());
 
 	int i = 0;
-	for (List<PropertyInfo>::Element *E = property_list.front(); E; E = E->next()) {
-		MonoString *boxed = GDMonoMarshal::mono_string_from_godot(E->get().name);
+    for (const PropertyInfo &E : property_list) {
+        MonoString *boxed = GDMonoMarshal::mono_string_from_godot(E.name);
 		mono_array_setref(result, i, boxed);
 		i++;
 	}
@@ -184,12 +188,13 @@ MonoBoolean godot_icall_DynamicGodotObject_InvokeMember(Object *p_ptr, MonoStrin
 
 	for (int i = 0; i < argc; i++) {
 		MonoObject *elem = mono_array_get(p_args, MonoObject *, i);
-		arg_store.set(i, GDMonoMarshal::mono_object_to_variant(elem));
-		args.set(i, &arg_store.get(i));
+        arg_store.emplace_back(GDMonoMarshal::mono_object_to_variant(elem));
 	}
-
+    for (int i = 0; i < argc; i++) {
+        args.push_back(&arg_store[i]);
+    }
 	Variant::CallError error;
-	Variant result = p_ptr->call(StringName(name), args.ptr(), argc, error);
+    Variant result = p_ptr->call(StringName(name), args.data(), argc, error);
 
 	*r_result = GDMonoMarshal::variant_to_mono_object(result);
 
@@ -222,7 +227,7 @@ MonoBoolean godot_icall_DynamicGodotObject_SetMember(Object *p_ptr, MonoString *
 MonoString *godot_icall_Object_ToString(Object *p_ptr) {
 #ifdef DEBUG_ENABLED
 	// Cannot happen in C#; would get an ObjectDisposedException instead.
-	CRASH_COND(p_ptr == NULL);
+    CRASH_COND(p_ptr == NULL)
 
 	if (ScriptDebugger::get_singleton() && !object_cast<RefCounted>(p_ptr)) { // Only if debugging!
 		// Cannot happen either in C#; the handle is nullified when the object is destroyed
@@ -230,7 +235,7 @@ MonoString *godot_icall_Object_ToString(Object *p_ptr) {
 	}
 #endif
 
-	String result = "[" + p_ptr->get_class() + ":" + itos(p_ptr->get_instance_id()) + "]";
+    String result = String("[") + p_ptr->get_class() + ":" + itos(p_ptr->get_instance_id()) + "]";
 	return GDMonoMarshal::mono_string_from_godot(result);
 }
 

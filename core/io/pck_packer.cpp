@@ -116,7 +116,7 @@ Error PCKPacker::flush(bool p_verbose) {
 
     file->store_32(files.size());
 
-    for (int i = 0; i < files.size(); i++) {
+    for (size_t i = 0; i < files.size(); i++) {
 
         file->store_pascal_string(files[i].path);
         files[i].offset_offset = file->get_position();

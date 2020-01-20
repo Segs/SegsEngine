@@ -136,7 +136,7 @@ else( UNIX )
   unset( csharp_mono_compiler CACHE )
   
   include(FindPkgConfig)  # we don't need the pkg-config path on OS X, but we need other macros in this file
-  pkg_check_modules(Mono REQUIRED IMPORTED_TARGET mono-2)
+  pkg_check_modules(Mono REQUIRED IMPORTED_TARGET GLOBAL mono-2)
   add_library(Mono ALIAS PkgConfig::Mono)
 endif()
 

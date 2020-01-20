@@ -297,8 +297,11 @@ UIString mono_to_utf16_string(MonoString *p_mono_string) {
 
     if (len == 0)
         return ret;
-
+#ifdef _WIN32
     return UIString::fromWCharArray(mono_string_chars(p_mono_string),len);
+#else
+    return UIString::fromUtf16(mono_string_chars(p_mono_string),len);
+#endif
 }
 
 MonoObject *variant_to_mono_object(const Variant *p_var) {
@@ -369,7 +372,7 @@ MonoObject *variant_to_mono_object(const Variant *p_var, const ManagedType &p_ty
             if (p_var->get_type() == VariantType::NIL)
                 return nullptr; // Otherwise, Variant -> String would return the string "Null"
             return (MonoObject *)mono_string_from_godot(p_var->as<String>());
-        } break;
+        }
 
         case MONO_TYPE_VALUETYPE: {
             GDMonoClass *vtclass = p_type.type_class;
@@ -503,8 +506,9 @@ MonoObject *variant_to_mono_object(const Variant *p_var, const ManagedType &p_ty
             if (array_type->eklass == CACHED_CLASS_RAW(Color))
                 return (MonoObject *)PoolColorArray_to_mono_array(p_var->operator PoolColorArray());
 
-            ERR_FAIL_V_MSG(NULL, "Attempted to convert Variant to a managed array of unmarshallable element type.");
-        } break;
+            ERR_FAIL_V_MSG(nullptr, "Attempted to convert Variant to a managed array of unmarshallable element type.")
+            break;
+        }
 
         case MONO_TYPE_CLASS: {
             GDMonoClass *type_class = p_type.type_class;
@@ -645,7 +649,7 @@ MonoObject *variant_to_mono_object(const Variant *p_var, const ManagedType &p_ty
                 case VariantType::POOL_COLOR_ARRAY:
                     return (MonoObject *)PoolColorArray_to_mono_array(p_var->operator PoolColorArray());
                 default:
-                    return NULL;
+                    return nullptr;
             }
             break;
             case MONO_TYPE_GENERICINST: {

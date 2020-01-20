@@ -867,8 +867,8 @@ namespace eastl
 
         bool starts_with(value_type c, bool caseSensitive=true) const
         {
-            value_type str[2]{c, 0};
-            return starts_with(view_type(str, 2), caseSensitive);
+
+            return starts_with(view_type(&c, 1), caseSensitive);
         }
 
         bool starts_with(const value_type* substring, bool caseSensitive=true) const
@@ -896,8 +896,7 @@ namespace eastl
 
         bool ends_with(value_type c, bool caseSensitive=true) const
         {
-            value_type str[2]{c, 0};
-            return ends_with(view_type(str, 2), caseSensitive);
+            return ends_with(view_type(&c,1), caseSensitive);
         }
 
         bool ends_with(const value_type* substring, bool caseSensitive=true) const

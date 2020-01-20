@@ -96,7 +96,7 @@ file(GLOB qrc_files "*.qrc" )
 find_package(Mono REQUIRED)
 #include(FindPkgConfig)  # we don't need the pkg-config path on OS X, but we need other macros in this file
 #pkg_check_modules(MONO REQUIRED IMPORTED_TARGET mono-2)
-set(MONO_GLUE_AVAILABLE OFF)
+set(MONO_GLUE_AVAILABLE ON)
 
 foreach(tgt ${global_targets})
     add_library(${tgt}_module_mono STATIC)
