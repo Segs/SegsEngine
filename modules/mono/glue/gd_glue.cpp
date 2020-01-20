@@ -33,11 +33,16 @@
 #ifdef MONO_GLUE_ENABLED
 
 #include "core/array.h"
+#include "core/class_db.h"
 #include "core/io/marshalls.h"
 #include "core/os/os.h"
 #include "core/ustring.h"
+#include "core/object_db.h"
+#include "core/pool_vector.h"
+#include "core/print_string.h"
 #include "core/variant.h"
 #include "core/variant_parser.h"
+#include "core/translation_helpers.h"
 
 #include "../mono_gd/gd_mono_cache.h"
 #include "../mono_gd/gd_mono_utils.h"
@@ -46,7 +51,7 @@ MonoObject *godot_icall_GD_bytes2var(MonoArray *p_bytes, MonoBoolean p_allow_obj
 	Variant ret;
 	PoolByteArray varr = GDMonoMarshal::mono_array_to_PoolByteArray(p_bytes);
 	PoolByteArray::Read r = varr.read();
-	Error err = decode_variant(ret, r.ptr(), varr.size(), NULL, p_allow_objects);
+    Error err = decode_variant(ret, r.ptr(), varr.size(), nullptr, p_allow_objects);
 	if (err != OK) {
 		ret = RTR("Not enough bytes for decoding bytes, or invalid format.");
 	}
@@ -57,8 +62,8 @@ MonoObject *godot_icall_GD_convert(MonoObject *p_what, int32_t p_type) {
 	Variant what = GDMonoMarshal::mono_object_to_variant(p_what);
 	const Variant *args[1] = { &what };
 	Variant::CallError ce;
-	Variant ret = Variant::construct(Variant::Type(p_type), args, 1, ce);
-	ERR_FAIL_COND_V(ce.error != Variant::CallError::CALL_OK, NULL);
+    Variant ret = Variant::construct(VariantType(p_type), args, 1, ce);
+    ERR_FAIL_COND_V(ce.error != Variant::CallError::CALL_OK, NULL)
 	return GDMonoMarshal::variant_to_mono_object(ret);
 }
 
@@ -77,7 +82,7 @@ void godot_icall_GD_print(MonoArray *p_what) {
 	for (int i = 0; i < length; i++) {
 		MonoObject *elem = mono_array_get(p_what, MonoObject *, i);
 
-		MonoException *exc = NULL;
+        MonoException *exc = nullptr;
 		String elem_str = GDMonoMarshal::mono_object_to_variant_string(elem, &exc);
 
 		if (exc) {
@@ -99,7 +104,7 @@ void godot_icall_GD_printerr(MonoArray *p_what) {
 	for (int i = 0; i < length; i++) {
 		MonoObject *elem = mono_array_get(p_what, MonoObject *, i);
 
-		MonoException *exc = NULL;
+        MonoException *exc = nullptr;
 		String elem_str = GDMonoMarshal::mono_object_to_variant_string(elem, &exc);
 
 		if (exc) {
@@ -131,7 +136,7 @@ void godot_icall_GD_printraw(MonoArray *p_what) {
 		str += elem_str;
 	}
 
-	OS::get_singleton()->print("%s", str.utf8().get_data());
+    OS::get_singleton()->print(str);
 }
 
 void godot_icall_GD_prints(MonoArray *p_what) {
@@ -141,7 +146,7 @@ void godot_icall_GD_prints(MonoArray *p_what) {
 	for (int i = 0; i < length; i++) {
 		MonoObject *elem = mono_array_get(p_what, MonoObject *, i);
 
-		MonoException *exc = NULL;
+        MonoException *exc = nullptr;
 		String elem_str = GDMonoMarshal::mono_object_to_variant_string(elem, &exc);
 
 		if (exc) {
@@ -165,7 +170,7 @@ void godot_icall_GD_printt(MonoArray *p_what) {
 	for (int i = 0; i < length; i++) {
 		MonoObject *elem = mono_array_get(p_what, MonoObject *, i);
 
-		MonoException *exc = NULL;
+        MonoException *exc = nullptr;
 		String elem_str = GDMonoMarshal::mono_object_to_variant_string(elem, &exc);
 
 		if (exc) {
@@ -227,15 +232,14 @@ MonoString *godot_icall_GD_str(MonoArray *p_what) {
 MonoObject *godot_icall_GD_str2var(MonoString *p_str) {
 	Variant ret;
 
-	VariantParser::StreamString ss;
-	ss.s = GDMonoMarshal::mono_string_to_godot(p_str);
+    VariantParser::StreamString ss(GDMonoMarshal::mono_string_to_godot(p_str));
 
 	String errs;
 	int line;
 	Error err = VariantParser::parse(&ss, ret, errs, line);
 	if (err != OK) {
 		String err_str = "Parse error at line " + itos(line) + ": " + errs + ".";
-		ERR_PRINTS(err_str);
+        ERR_PRINT(err_str);
 		ret = err_str;
 	}
 
@@ -243,15 +247,15 @@ MonoObject *godot_icall_GD_str2var(MonoString *p_str) {
 }
 
 MonoBoolean godot_icall_GD_type_exists(MonoString *p_type) {
-	return ClassDB::class_exists(GDMonoMarshal::mono_string_to_godot(p_type));
+    return ClassDB::class_exists(StringName(GDMonoMarshal::mono_string_to_godot(p_type)));
 }
 
 void godot_icall_GD_pusherror(MonoString *p_str) {
-	ERR_PRINTS(GDMonoMarshal::mono_string_to_godot(p_str));
+    ERR_PRINT(GDMonoMarshal::mono_string_to_godot(p_str));
 }
 
 void godot_icall_GD_pushwarning(MonoString *p_str) {
-	WARN_PRINTS(GDMonoMarshal::mono_string_to_godot(p_str));
+    WARN_PRINT(GDMonoMarshal::mono_string_to_godot(p_str));
 }
 
 MonoArray *godot_icall_GD_var2bytes(MonoObject *p_var, MonoBoolean p_full_objects) {

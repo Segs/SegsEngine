@@ -422,7 +422,7 @@ class BindingsGenerator {
             // C interface for enums is the same as that of 'uint32_t'. Remember to apply
             // any of the changes done here to the 'uint32_t' type interface as well.
 
-            r_enum_itype.c_arg_in = "&%s_in";
+            r_enum_itype.c_arg_in = "%s_in";
             {
                 // The expected types for parameters and return value in ptrcall are 'int64_t' or 'uint64_t'.
                 r_enum_itype.c_in = "\t%0 %1_in = (%0)%1;\n";
@@ -456,7 +456,7 @@ class BindingsGenerator {
 
             c_arg_in = "%s";
 
-            class_doc = NULL;
+            class_doc = nullptr;
         }
     };
 

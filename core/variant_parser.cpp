@@ -52,57 +52,21 @@
 
 #include "EASTL/sort.h"
 
-struct VariantParser::Stream {
-
-    virtual char get_char() = 0;
-    virtual bool is_utf8() const = 0;
-    virtual bool is_eof() const = 0;
-
-    char saved = 0;
-
-    Stream() {}
-    virtual ~Stream() {}
-};
-namespace {
-
-struct StreamFile : public VariantParser::Stream {
-
-    FileAccess *f;
-
-    char get_char() override;
-    bool is_utf8() const override;
-    bool is_eof() const override;
-
-    StreamFile(FileAccess *fl = nullptr) : f(fl) {}
-};
-
-struct StreamString : public VariantParser::Stream {
-
-    String s;
-    int pos=0;
-
-    char get_char() override;
-    bool is_utf8() const override;
-    bool is_eof() const override;
-
-    StreamString(const String &str) : s(str) {}
-};
-
-char StreamFile::get_char() {
+char VariantParser::StreamFile::get_char() {
 
     return f->get_8();
 }
 
-bool StreamFile::is_utf8() const {
+bool VariantParser::StreamFile::is_utf8() const {
 
     return true;
 }
-bool StreamFile::is_eof() const {
+bool VariantParser::StreamFile::is_eof() const {
 
     return f->eof_reached();
 }
 
-char StreamString::get_char() {
+char VariantParser::StreamString::get_char() {
 
     if (pos >= s.length())
         return 0;
@@ -110,13 +74,12 @@ char StreamString::get_char() {
         return s[pos++];
 }
 
-bool StreamString::is_utf8() const {
+bool VariantParser::StreamString::is_utf8() const {
     return false;
 }
-bool StreamString::is_eof() const {
+bool VariantParser::StreamString::is_eof() const {
     return pos > s.length();
 }
-} // end of anonymous namespace
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
