@@ -2079,7 +2079,7 @@ Error BindingsGenerator::_generate_glue_method(const BindingsGenerator::TypeInte
         p_output.append("\t");
         if(!ret_void)
             p_output.append("auto " C_LOCAL_RET " = ");
-        p_output.append("(" CS_PARAM_INSTANCE "->*bind->"CS_PARAM_METHODBIND")(");
+        p_output.append("(" CS_PARAM_INSTANCE "->*bind->" CS_PARAM_METHODBIND ")(");
         p_output.append(p_imethod.arguments.empty() ? "" : c_args_var_content);
         p_output.append(");\n");
     }
