@@ -77,13 +77,20 @@ public:
 
     PropertyInfo(StringName p_class_name, VariantType t) : class_name(std::move(p_class_name)), type(t) {}
     PropertyInfo(const RawPropertyInfo &rp) :
-        name(rp.name),
-        hint_string(rp.hint_string),
-        class_name(rp.class_name ? StaticCString(rp.class_name, true) : StringName()),
+        name(rp.name ? StaticCString(rp.name, true) : StringName()),
+        hint_string(rp.hint_string ? rp.hint_string : ""),
         type(VariantType(rp.type)),
         hint(rp.hint),
         usage(rp.usage)
-    {}
+    {
+        // Handles ClassName::NestedType -> ClassName.NestedType conversion
+        bool has_class_spec = rp.class_name && se_string_view(rp.class_name).contains(se_string_view("::"));
+        if(has_class_spec) {
+            class_name = StringName(String(rp.class_name).replaced("::","."));
+        }
+        else
+            class_name = StringName(rp.class_name ? StaticCString(rp.class_name, true) : StringName());
+    }
 
     bool operator==(const PropertyInfo &p_info) const {
         return ((type == p_info.type) &&

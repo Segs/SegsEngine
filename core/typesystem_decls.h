@@ -108,12 +108,19 @@ enum PropertyUsageFlags {
     PROPERTY_USAGE_NOEDITOR = PROPERTY_USAGE_STORAGE | PROPERTY_USAGE_NETWORK,
 };
 
-/* This is a skeletong version of actual property info, used to reduce the include hell.*/
+/* This is a skeleton version of actual property info, used to reduce the include hell and allow constexpr construction.*/
+enum class TypePassBy : int8_t {
+    Value,
+    Reference,
+    Pointer,
+};
+
 struct RawPropertyInfo {
-    const char *name;
-    const char *hint_string;
-    const char *class_name; // for classes
+    const char *name=nullptr;
+    const char *hint_string=nullptr;
+    const char *class_name=nullptr; // for classes
     int8_t type = 0;
+    TypePassBy pass_mode = TypePassBy::Value;
     PropertyHint hint = PROPERTY_HINT_NONE;
     uint32_t usage = PROPERTY_USAGE_DEFAULT;
 
