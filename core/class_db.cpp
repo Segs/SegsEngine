@@ -583,7 +583,6 @@ StringName ClassDB::get_integer_constant_enum(
     ClassInfo *type = iter!=classes.end() ? &iter->second : nullptr;
     while (type) {
 
-        const StringName *k = nullptr;
         for(const auto &entry : type->enum_map) {
             if(entry.second.contains(p_name))
                 return entry.first;

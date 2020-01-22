@@ -302,8 +302,8 @@ struct GetTypeInfo<Ref<T>,void> {
     static const VariantType VARIANT_TYPE = VariantType::OBJECT;
     static const GodotTypeInfo::Metadata METADATA = GodotTypeInfo::METADATA_NONE;
 
-    static RawPropertyInfo get_class_info() {
-        return RawPropertyInfo{ nullptr,T::get_class_static(),nullptr,int8_t(VariantType::OBJECT), PROPERTY_HINT_RESOURCE_TYPE };
+    constexpr static inline RawPropertyInfo get_class_info() {
+        return RawPropertyInfo{ nullptr,T::get_class_static(),T::get_class_static(),int8_t(VariantType::OBJECT), TypePassBy::Value, PROPERTY_HINT_RESOURCE_TYPE };
     }
 };
 
@@ -312,8 +312,8 @@ struct GetTypeInfo<const Ref<T> &,void> {
     static const VariantType VARIANT_TYPE = VariantType::OBJECT;
     static const GodotTypeInfo::Metadata METADATA = GodotTypeInfo::METADATA_NONE;
 
-    static inline RawPropertyInfo get_class_info() {
-        return RawPropertyInfo { nullptr,T::get_class_static(),nullptr,int8_t(VariantType::OBJECT), PROPERTY_HINT_RESOURCE_TYPE };
+    constexpr static inline RawPropertyInfo get_class_info() {
+        return RawPropertyInfo { nullptr,T::get_class_static(),T::get_class_static(),int8_t(VariantType::OBJECT), TypePassBy::Reference, PROPERTY_HINT_RESOURCE_TYPE };
     }
 };
 

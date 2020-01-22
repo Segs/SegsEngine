@@ -1929,7 +1929,16 @@ Error BindingsGenerator::_generate_glue_method(const BindingsGenerator::TypeInte
         }
         else {
             //TODO: SEGS: all reference counted types are cast as Ref<RefCounted> here, do we need to dig deeper?
-            const char *fmt = (return_type->is_object_type && return_type->is_reference) ? "Ref<RefCounted>" : return_type->cname.asCString();
+            const char *fmt;
+            if(return_type->is_object_type) {
+                if(return_type->is_reference)
+                    fmt = "Ref<RefCounted>";
+                else
+                    fmt = "Object *";
+            }
+            else
+                fmt = return_type->cname.asCString();
+
             template_return_type = fmt;
         }
     }
@@ -1959,7 +1968,13 @@ Error BindingsGenerator::_generate_glue_method(const BindingsGenerator::TypeInte
 
         c_func_sig += ", ";
         c_func_sig += arg_type->c_type_in;
-        bind_sig += ", " + arg_type->c_type;
+        //special case for NodePath
+        if(arg_type->c_type=="NodePath")
+        {
+            bind_sig += ", NodePath *";
+        }
+        else
+            bind_sig += ", " + arg_type->c_type;
         c_func_sig += " ";
         c_func_sig += c_param_name;
 
@@ -2019,14 +2034,14 @@ Error BindingsGenerator::_generate_glue_method(const BindingsGenerator::TypeInte
         if (return_type->ret_as_byref_arg) {
             p_output.append("\tif (" CS_PARAM_INSTANCE " == NULL) { *arg_ret = ");
             p_output.append(fail_ret);
-            p_output.append("; ERR_FAIL_MSG(\"Parameter ' arg_ret ' is null.\"); }\n");
+            p_output.append("; ERR_FAIL_MSG(\"Parameter ' arg_ret ' is null.\") }\n");
         } else {
             p_output.append("\tERR_FAIL_NULL_V(" CS_PARAM_INSTANCE ", ");
             p_output.append(fail_ret);
-            p_output.append(");\n");
+            p_output.append(")\n");
         }
     } else {
-        p_output.append("\tERR_FAIL_NULL(" CS_PARAM_INSTANCE ");\n");
+        p_output.append("\tERR_FAIL_NULL(" CS_PARAM_INSTANCE ")\n");
     }
 
     if (!p_imethod.arguments.empty()) {

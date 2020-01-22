@@ -169,10 +169,10 @@ struct ArgumentWrapper {
 #ifdef DEBUG_METHODS_ENABLED
 
 struct GetPropertyType {
-    using Result = PropertyInfo;
+    using Result = RawPropertyInfo;
     template<class TS,int IDX>
-    Result static doit() noexcept {
-        return GetTypeInfo<typename std::remove_cv<typename std::remove_reference<TS>::type>::type>::get_class_info();
+    static constexpr Result doit() noexcept {
+        return GetTypeInfo<TS>::get_class_info();
     }
 };
 #endif
