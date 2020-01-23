@@ -101,10 +101,10 @@ public:
 
     StringName get_name() const;
     void set_name(const StringName &p_name);
-    _FORCE_INLINE_ int get_method_id() const { return method_id; }
-    _FORCE_INLINE_ bool is_const() const { return _const; }
-    _FORCE_INLINE_ bool has_return() const { return _returns; }
-    _FORCE_INLINE_ bool is_vararg() const { return _is_vararg; }
+    int get_method_id() const { return method_id; }
+    bool is_const() const { return _const; }
+    bool has_return() const { return _returns; }
+    bool is_vararg() const { return _is_vararg; }
 
     void set_default_arguments(const PODVector<Variant> &p_defargs);
 
@@ -151,7 +151,7 @@ public:
         return (instance->*call_method)(p_args, p_arg_count, r_error);
     }
 
-    void set_method_info(const MethodInfo &p_info, bool p_return_nil_is_variant) {
+    void set_method_info(MethodInfo &&p_info, bool p_return_nil_is_variant) {
 
         set_argument_count(static_cast<int>(p_info.arguments.size()));
 #ifdef DEBUG_METHODS_ENABLED
@@ -171,7 +171,7 @@ public:
             //set_argument_names(names);
         }
         argument_types = at;
-        arguments = p_info;
+        arguments = eastl::move(p_info);
         if (p_return_nil_is_variant) {
             arguments.return_val.usage |= PROPERTY_USAGE_NIL_IS_VARIANT;
         }
@@ -222,12 +222,12 @@ struct MethodBinder {
     }
 
     template <class M>
-    static MethodBind *bind_vararg_method(const StringName &p_name, M p_method, const MethodInfo &p_info = MethodInfo(),
-            const PODVector<Variant> &p_default_args = {}, bool p_return_nil_is_variant = true) {
+    static MethodBind *bind_vararg_method(const StringName &p_name, M p_method, MethodInfo &&p_info,
+            const PODVector<Variant> &p_default_args = null_variant_pvec, bool p_return_nil_is_variant = true) {
 
         GLOBAL_LOCK_FUNCTION
 
-        MethodBind *bind = create_vararg_method_bind(p_method, p_info, p_return_nil_is_variant);
+        MethodBind *bind = create_vararg_method_bind(p_method, eastl::move(p_info), p_return_nil_is_variant);
         ERR_FAIL_COND_V(!bind, nullptr)
         bind->set_name(p_name);
         bind->set_default_arguments(p_default_args);

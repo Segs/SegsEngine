@@ -85,14 +85,14 @@ private:
 #define VARIANT_ARGPTRS_PASS *argptr[0], *argptr[1], *argptr[2], *argptr[3], *argptr[4]
 #define VARIANT_ARGS_FROM_ARRAY(m_arr) m_arr[0], m_arr[1], m_arr[2], m_arr[3], m_arr[4]
 
-#define ADD_SIGNAL(m_signal) ClassDB::add_signal(get_class_static_name(), m_signal)
+#define ADD_SIGNAL(m_signal) ClassDB::add_signal(get_class_static_name(), eastl::move(m_signal))
 #define ADD_PROPERTY(m_property, m_setter, m_getter) ClassDB::add_property(get_class_static_name(), m_property, m_setter, m_getter)
 #define ADD_PROPERTYI(m_property, m_setter, m_getter, m_index) ClassDB::add_property(get_class_static_name(), m_property, m_setter, m_getter, m_index)
 #define ADD_PROPERTY_DEFAULT(m_property, m_default) ClassDB::set_property_default_value(get_class_static_name(), m_property, m_default)
 #define ADD_GROUP(m_name, m_prefix) ClassDB::add_property_group(get_class_static_name(), m_name, m_prefix)
 
 Array convert_property_list(const ListPOD<PropertyInfo> *p_list);
-Array convert_property_vector(const PODVector<PropertyInfo> *p_list);
+Array convert_property_vector(Span<const PropertyInfo> p_list);
 
 /*
    the following is an incomprehensible blob of hacks and workarounds to compensate for many of the fallencies in C++. As a plus, this macro pretty much alone defines the object model.
@@ -456,7 +456,7 @@ public:
 
     void set_script_and_instance(const RefPtr &p_script, ScriptInstance *p_instance);
 
-    void add_user_signal(const MethodInfo &p_signal);
+    void add_user_signal(MethodInfo &&p_signal);
     Error emit_signal(const StringName &p_name, VARIANT_ARG_LIST);
     Error emit_signal(const StringName &p_name, const Variant **p_args, int p_argcount);
     void get_signal_list(ListPOD<MethodInfo> *p_signals) const;

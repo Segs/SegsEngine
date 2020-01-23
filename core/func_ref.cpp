@@ -86,9 +86,8 @@ bool FuncRef::is_valid() const {
 void FuncRef::_bind_methods() {
 
     {
-        MethodInfo mi;
-        mi.name = "call_func";
-		MethodBinder::bind_vararg_method(StaticCString("call_func"), &FuncRef::call_func, mi);
+        MethodInfo mi("call_func");
+        MethodBinder::bind_vararg_method(StaticCString("call_func"), &FuncRef::call_func, eastl::move(mi));
     }
 
     MethodBinder::bind_method(D_METHOD("call_funcv", {"arg_array"}), &FuncRef::call_funcv);

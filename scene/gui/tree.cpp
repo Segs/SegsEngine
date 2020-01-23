@@ -891,7 +891,7 @@ void TreeItem::_bind_methods() {
         MethodInfo mi;
         mi.name = "call_recursive";
         mi.arguments.push_back(PropertyInfo(VariantType::STRING, "method"));
-        auto bind=MethodBinder::bind_vararg_method("call_recursive", &TreeItem::_call_recursive_bind, mi);
+        auto bind=MethodBinder::bind_vararg_method("call_recursive", &TreeItem::_call_recursive_bind, eastl::move(mi));
         bind->set_hint_flags(METHOD_FLAGS_DEFAULT);
     }
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "collapsed"), "set_collapsed", "is_collapsed");

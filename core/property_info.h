@@ -40,7 +40,7 @@ public:
         return *this;
     }
     PropertyInfo() = default;
-
+    PropertyInfo(PropertyInfo &&)=default;
     PropertyInfo(const PropertyInfo &oth) = default;
 
 //    PropertyInfo(VariantType p_type, StringName p_name, PropertyHint p_hint = PROPERTY_HINT_NONE,

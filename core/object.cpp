@@ -199,12 +199,14 @@ Array convert_property_list(const ListPOD<PropertyInfo> *p_list) {
 
     return va;
 }
-Array convert_property_vector(const PODVector<PropertyInfo> *p_list) {
+Array convert_property_vector(Span<const PropertyInfo> p_list) {
 
     Array va;
-    for (const PropertyInfo &E : *p_list) {
+    va.resize(p_list.size());
+    int idx=0;
+    for (const PropertyInfo &E : p_list) {
 
-        va.push_back(Dictionary(E));
+        va[idx++] = eastl::move(Dictionary(E));
     }
 
     return va;
@@ -213,7 +215,7 @@ MethodInfo::operator Dictionary() const {
 
     Dictionary d;
     d["name"] = name;
-    d["args"] = convert_property_vector(&arguments);
+    d["args"] = convert_property_vector(arguments);
     Array da;
     for (const Variant &varg : default_arguments)
         da.push_back(varg);
@@ -223,10 +225,6 @@ MethodInfo::operator Dictionary() const {
     Dictionary r = return_val;
     d["return"] = r;
     return d;
-}
-
-MethodInfo::MethodInfo() :
-        flags(METHOD_FLAG_NORMAL) {
 }
 
 MethodInfo MethodInfo::from_dict(const Dictionary &p_dict) {
@@ -242,7 +240,7 @@ MethodInfo MethodInfo::from_dict(const Dictionary &p_dict) {
 
     for (int i = 0; i < args.size(); i++) {
         Dictionary d = args[i];
-        mi.arguments.push_back(PropertyInfo::from_dict(d));
+        mi.arguments.emplace_back(eastl::move(PropertyInfo::from_dict(d)));
     }
     Array defargs;
     if (p_dict.has("default_args")) {
@@ -260,154 +258,6 @@ MethodInfo MethodInfo::from_dict(const Dictionary &p_dict) {
         mi.flags = p_dict["flags"];
 
     return mi;
-}
-
-MethodInfo::MethodInfo(const char *p_name) :
-        name(p_name),
-        flags(METHOD_FLAG_NORMAL) {
-}
-MethodInfo::MethodInfo(const char *p_name, const PropertyInfo &p_param1) :
-        name(p_name),
-        flags(METHOD_FLAG_NORMAL) {
-    arguments.push_back(p_param1);
-}
-MethodInfo::MethodInfo(const char *p_name, const PropertyInfo &p_param1, const PropertyInfo &p_param2) :
-        name(p_name),
-        flags(METHOD_FLAG_NORMAL) {
-    arguments.push_back(p_param1);
-    arguments.push_back(p_param2);
-}
-
-MethodInfo::MethodInfo(const char *p_name, const PropertyInfo &p_param1, const PropertyInfo &p_param2, const PropertyInfo &p_param3) :
-        name(p_name),
-        flags(METHOD_FLAG_NORMAL) {
-    arguments.push_back(p_param1);
-    arguments.push_back(p_param2);
-    arguments.push_back(p_param3);
-}
-
-MethodInfo::MethodInfo(const char *p_name, const PropertyInfo &p_param1, const PropertyInfo &p_param2, const PropertyInfo &p_param3, const PropertyInfo &p_param4) :
-        name(p_name),
-        flags(METHOD_FLAG_NORMAL) {
-    arguments.push_back(p_param1);
-    arguments.push_back(p_param2);
-    arguments.push_back(p_param3);
-    arguments.push_back(p_param4);
-}
-
-MethodInfo::MethodInfo(const char *p_name, const PropertyInfo &p_param1, const PropertyInfo &p_param2, const PropertyInfo &p_param3, const PropertyInfo &p_param4, const PropertyInfo &p_param5) :
-        name(p_name),
-        flags(METHOD_FLAG_NORMAL) {
-    arguments.push_back(p_param1);
-    arguments.push_back(p_param2);
-    arguments.push_back(p_param3);
-    arguments.push_back(p_param4);
-    arguments.push_back(p_param5);
-}
-
-MethodInfo::MethodInfo(VariantType ret) :
-        flags(METHOD_FLAG_NORMAL) {
-    return_val.type = ret;
-}
-
-MethodInfo::MethodInfo(VariantType ret, const char *p_name) :
-        name(p_name),
-        flags(METHOD_FLAG_NORMAL) {
-    return_val.type = ret;
-}
-MethodInfo::MethodInfo(VariantType ret, const char *p_name, const PropertyInfo &p_param1) :
-        name(p_name),
-        flags(METHOD_FLAG_NORMAL) {
-    return_val.type = ret;
-    arguments.push_back(p_param1);
-}
-MethodInfo::MethodInfo(VariantType ret, const char *p_name, const PropertyInfo &p_param1, const PropertyInfo &p_param2) :
-        name(p_name),
-        flags(METHOD_FLAG_NORMAL) {
-    return_val.type = ret;
-    arguments.push_back(p_param1);
-    arguments.push_back(p_param2);
-}
-
-MethodInfo::MethodInfo(VariantType ret, const char *p_name, const PropertyInfo &p_param1, const PropertyInfo &p_param2, const PropertyInfo &p_param3) :
-        name(p_name),
-        flags(METHOD_FLAG_NORMAL) {
-    return_val.type = ret;
-    arguments.push_back(p_param1);
-    arguments.push_back(p_param2);
-    arguments.push_back(p_param3);
-}
-
-MethodInfo::MethodInfo(VariantType ret, const char *p_name, const PropertyInfo &p_param1, const PropertyInfo &p_param2, const PropertyInfo &p_param3, const PropertyInfo &p_param4) :
-        name(p_name),
-        flags(METHOD_FLAG_NORMAL) {
-    return_val.type = ret;
-    arguments.push_back(p_param1);
-    arguments.push_back(p_param2);
-    arguments.push_back(p_param3);
-    arguments.push_back(p_param4);
-}
-
-MethodInfo::MethodInfo(VariantType ret, const char *p_name, const PropertyInfo &p_param1, const PropertyInfo &p_param2, const PropertyInfo &p_param3, const PropertyInfo &p_param4, const PropertyInfo &p_param5) :
-        name(p_name),
-        flags(METHOD_FLAG_NORMAL) {
-    return_val.type = ret;
-    arguments.push_back(p_param1);
-    arguments.push_back(p_param2);
-    arguments.push_back(p_param3);
-    arguments.push_back(p_param4);
-    arguments.push_back(p_param5);
-}
-
-MethodInfo::MethodInfo(const PropertyInfo &p_ret, const char *p_name) :
-        name(p_name),
-        return_val(p_ret),
-        flags(METHOD_FLAG_NORMAL) {
-}
-
-MethodInfo::MethodInfo(const PropertyInfo &p_ret, const char *p_name, const PropertyInfo &p_param1) :
-        name(p_name),
-        return_val(p_ret),
-        flags(METHOD_FLAG_NORMAL) {
-    arguments.push_back(p_param1);
-}
-
-MethodInfo::MethodInfo(const PropertyInfo &p_ret, const char *p_name, const PropertyInfo &p_param1, const PropertyInfo &p_param2) :
-        name(p_name),
-        return_val(p_ret),
-        flags(METHOD_FLAG_NORMAL) {
-    arguments.push_back(p_param1);
-    arguments.push_back(p_param2);
-}
-
-MethodInfo::MethodInfo(const PropertyInfo &p_ret, const char *p_name, const PropertyInfo &p_param1, const PropertyInfo &p_param2, const PropertyInfo &p_param3) :
-        name(p_name),
-        return_val(p_ret),
-        flags(METHOD_FLAG_NORMAL) {
-    arguments.push_back(p_param1);
-    arguments.push_back(p_param2);
-    arguments.push_back(p_param3);
-}
-
-MethodInfo::MethodInfo(const PropertyInfo &p_ret, const char *p_name, const PropertyInfo &p_param1, const PropertyInfo &p_param2, const PropertyInfo &p_param3, const PropertyInfo &p_param4) :
-        name(p_name),
-        return_val(p_ret),
-        flags(METHOD_FLAG_NORMAL) {
-    arguments.push_back(p_param1);
-    arguments.push_back(p_param2);
-    arguments.push_back(p_param3);
-    arguments.push_back(p_param4);
-}
-
-MethodInfo::MethodInfo(const PropertyInfo &p_ret, const char *p_name, const PropertyInfo &p_param1, const PropertyInfo &p_param2, const PropertyInfo &p_param3, const PropertyInfo &p_param4, const PropertyInfo &p_param5) :
-        name(p_name),
-        return_val(p_ret),
-        flags(METHOD_FLAG_NORMAL) {
-    arguments.push_back(p_param1);
-    arguments.push_back(p_param2);
-    arguments.push_back(p_param3);
-    arguments.push_back(p_param4);
-    arguments.push_back(p_param5);
 }
 
 Object::Connection::operator Variant() const {
@@ -1144,14 +994,14 @@ IObjectTooling *Object::get_tooling_interface() const
     return private_data->get_tooling();
 }
 
-void Object::add_user_signal(const MethodInfo &p_signal) {
+void Object::add_user_signal(MethodInfo &&p_signal) {
 
     ERR_FAIL_COND_MSG(p_signal.name.empty(), "Signal name cannot be empty.")
     ERR_FAIL_COND_MSG(ClassDB::has_signal(get_class_name(), p_signal.name), "User signal's name conflicts with a built-in signal of '" + String(get_class_name()) + "'.")
     ERR_FAIL_COND_MSG(private_data->signal_map.contains(p_signal.name), "Trying to add already existing signal '" + String(p_signal.name) + "'.")
     Signal s;
-    s.user = p_signal;
-    private_data->signal_map[p_signal.name] = s;
+    s.user = eastl::move(p_signal);
+    private_data->signal_map[p_signal.name] = eastl::move(s);
 }
 
 bool Object::_has_user_signal(const StringName &p_name) const {
@@ -1338,10 +1188,10 @@ void Object::_add_user_signal(const StringName &p_name, const Array &p_args) {
         if (d.has("type"))
             param.type = (VariantType)(int)d["type"];
 
-        mi.arguments.push_back(param);
+        mi.arguments.emplace_back(eastl::move(param));
     }
 
-    add_user_signal(mi);
+    add_user_signal(eastl::move(mi));
 }
 
 Array Object::_get_signal_list() const {
@@ -1726,27 +1576,21 @@ void Object::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("has_user_signal", {"signal"}), &Object::_has_user_signal);
 
     {
-        MethodInfo mi;
-        mi.name = "emit_signal";
-        mi.arguments.push_back(PropertyInfo(VariantType::STRING, "signal"));
+        MethodInfo mi("emit_signal",PropertyInfo(VariantType::STRING, "signal"));
 
-        MethodBinder::bind_vararg_method("emit_signal", &Object::_emit_signal, mi, null_variant_pvec, false);
+        MethodBinder::bind_vararg_method("emit_signal", &Object::_emit_signal, eastl::move(mi), null_variant_pvec, false);
     }
 
     {
-        MethodInfo mi;
-        mi.name = "call";
-        mi.arguments.push_back(PropertyInfo(VariantType::STRING, "method"));
+        MethodInfo mi("call",PropertyInfo(VariantType::STRING, "method"));
 
-        MethodBinder::bind_vararg_method("call", &Object::_call_bind, mi);
+        MethodBinder::bind_vararg_method("call", &Object::_call_bind, eastl::move(mi));
     }
 
     {
-        MethodInfo mi;
-        mi.name = "call_deferred";
-        mi.arguments.push_back(PropertyInfo(VariantType::STRING, "method"));
+        MethodInfo mi("call_deferred",PropertyInfo(VariantType::STRING, "method"));
 
-        MethodBinder::bind_vararg_method("call_deferred", &Object::_call_deferred_bind, mi, null_variant_pvec, false);
+        MethodBinder::bind_vararg_method("call_deferred", &Object::_call_deferred_bind, eastl::move(mi), null_variant_pvec, false);
     }
 
     MethodBinder::bind_method(D_METHOD("set_deferred", {"property", "value"}), &Object::set_deferred);

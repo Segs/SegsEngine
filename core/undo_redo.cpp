@@ -594,21 +594,12 @@ void UndoRedo::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("is_commiting_action"), &UndoRedo::is_committing_action);
 
     {
-        MethodInfo mi;
-        mi.name = "add_do_method";
-        mi.arguments.push_back(PropertyInfo(VariantType::OBJECT, "object"));
-        mi.arguments.push_back(PropertyInfo(VariantType::STRING, "method"));
-
-        MethodBinder::bind_vararg_method("add_do_method", &UndoRedo::_add_do_method, mi,null_variant_pvec,false);
+        MethodInfo mi("add_do_method",PropertyInfo(VariantType::OBJECT, "object"),PropertyInfo(VariantType::STRING, "method"));
+        MethodBinder::bind_vararg_method("add_do_method", &UndoRedo::_add_do_method, eastl::move(mi),null_variant_pvec,false);
     }
-
     {
-        MethodInfo mi;
-        mi.name = "add_undo_method";
-        mi.arguments.push_back(PropertyInfo(VariantType::OBJECT, "object"));
-        mi.arguments.push_back(PropertyInfo(VariantType::STRING, "method"));
-
-        MethodBinder::bind_vararg_method("add_undo_method", &UndoRedo::_add_undo_method, mi,null_variant_pvec,false);
+        MethodInfo mi("add_undo_method",PropertyInfo(VariantType::OBJECT, "object"),PropertyInfo(VariantType::STRING, "method"));
+        MethodBinder::bind_vararg_method("add_undo_method", &UndoRedo::_add_undo_method, eastl::move(mi),null_variant_pvec,false);
     }
 
     MethodBinder::bind_method(D_METHOD("add_do_property", {"object", "property", "value"}), &UndoRedo::add_do_property);

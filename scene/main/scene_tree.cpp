@@ -1819,23 +1819,21 @@ void SceneTree::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("queue_delete", {"obj"}), &SceneTree::queue_delete);
 
-    MethodInfo mi;
-    mi.name = "call_group_flags";
-    mi.arguments.push_back(PropertyInfo(VariantType::INT, "flags"));
-    mi.arguments.push_back(PropertyInfo(VariantType::STRING, "group"));
-    mi.arguments.push_back(PropertyInfo(VariantType::STRING, "method"));
+    MethodInfo mi("call_group_flags",
+                  PropertyInfo(VariantType::INT, "flags"),
+                  PropertyInfo(VariantType::STRING, "group"),
+                  PropertyInfo(VariantType::STRING, "method"));
 
-    MethodBinder::bind_vararg_method("call_group_flags", &SceneTree::_call_group_flags, mi);
+    MethodBinder::bind_vararg_method("call_group_flags", &SceneTree::_call_group_flags, eastl::move(mi));
 
     MethodBinder::bind_method(D_METHOD("notify_group_flags", {"call_flags", "group", "notification"}), &SceneTree::notify_group_flags);
     MethodBinder::bind_method(D_METHOD("set_group_flags", {"call_flags", "group", "property", "value"}), &SceneTree::set_group_flags);
 
-    MethodInfo mi2;
-    mi2.name = "call_group";
-    mi2.arguments.push_back(PropertyInfo(VariantType::STRING, "group"));
-    mi2.arguments.push_back(PropertyInfo(VariantType::STRING, "method"));
+    MethodInfo mi2("call_group",
+                   PropertyInfo(VariantType::STRING, "group"),
+                   PropertyInfo(VariantType::STRING, "method"));
 
-    MethodBinder::bind_vararg_method( "call_group", &SceneTree::_call_group, mi2);
+    MethodBinder::bind_vararg_method( "call_group", &SceneTree::_call_group, eastl::move(mi2));
 
     MethodBinder::bind_method(D_METHOD("notify_group", {"group", "notification"}), &SceneTree::notify_group);
     MethodBinder::bind_method(D_METHOD("set_group", {"group", "property", "value"}), &SceneTree::set_group);

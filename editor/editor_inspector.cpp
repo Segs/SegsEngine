@@ -953,10 +953,7 @@ void EditorInspectorPlugin::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("add_property_editor", {"property", "editor"}), &EditorInspectorPlugin::add_property_editor);
     MethodBinder::bind_method(D_METHOD("add_property_editor_for_multiple_properties", {"label", "properties", "editor"}), &EditorInspectorPlugin::add_property_editor_for_multiple_properties);
 
-    MethodInfo vm;
-    vm.name = "can_handle";
-    vm.return_val.type = VariantType::BOOL;
-    vm.arguments.push_back(PropertyInfo(VariantType::OBJECT, "object"));
+    MethodInfo vm(VariantType::BOOL,"can_handle",PropertyInfo(VariantType::OBJECT, "object"));
     BIND_VMETHOD(vm);
     vm.name = "parse_begin";
     vm.return_val.type = VariantType::NIL;
@@ -967,11 +964,11 @@ void EditorInspectorPlugin::_bind_methods() {
     vm.arguments.pop_back();
     vm.name = "parse_property";
     vm.return_val.type = VariantType::BOOL;
-    vm.arguments.push_back(PropertyInfo(VariantType::INT, "type"));
-    vm.arguments.push_back(PropertyInfo(VariantType::STRING, "path"));
-    vm.arguments.push_back(PropertyInfo(VariantType::INT, "hint"));
-    vm.arguments.push_back(PropertyInfo(VariantType::STRING, "hint_text"));
-    vm.arguments.push_back(PropertyInfo(VariantType::INT, "usage"));
+    vm.arguments.emplace_back(VariantType::INT, "type");
+    vm.arguments.emplace_back(VariantType::STRING, "path");
+    vm.arguments.emplace_back(VariantType::INT, "hint");
+    vm.arguments.emplace_back(VariantType::STRING, "hint_text");
+    vm.arguments.emplace_back(VariantType::INT, "usage");
     BIND_VMETHOD(vm);
     vm.arguments.clear();
     vm.name = "parse_end";

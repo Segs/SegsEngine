@@ -106,11 +106,11 @@ struct VariantCaster<char16_t> {
 
 
 template <class T>
-MethodBind *create_vararg_method_bind(Variant (T::*p_method)(const Variant **, int, Variant::CallError &), const MethodInfo &p_info, bool p_return_nil_is_variant) {
+MethodBind *create_vararg_method_bind(Variant (T::*p_method)(const Variant **, int, Variant::CallError &), MethodInfo &&p_info, bool p_return_nil_is_variant) {
 
     MethodBindVarArg<T> *a = memnew((MethodBindVarArg<T>));
     a->set_method(p_method);
-    a->set_method_info(p_info,p_return_nil_is_variant);
+    a->set_method_info(eastl::move(p_info),p_return_nil_is_variant);
     return a;
 }
 

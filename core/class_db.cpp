@@ -434,7 +434,7 @@ void ClassDB::get_method_list(
 
                 // VariantType t=method->get_argument_type(i);
 
-                minfo.arguments.push_back(method->get_argument_info(i));
+                minfo.arguments.emplace_back(eastl::move(method->get_argument_info(i)));
             }
 
             minfo.return_val = method->get_return_info();
@@ -640,7 +640,7 @@ void ClassDB::get_enum_constants(
     }
 }
 
-void ClassDB::add_signal(StringName p_class, const MethodInfo &p_signal) {
+void ClassDB::add_signal(StringName p_class, MethodInfo &&p_signal) {
 
     OBJTYPE_WLOCK;
 
@@ -658,7 +658,7 @@ void ClassDB::add_signal(StringName p_class, const MethodInfo &p_signal) {
     }
 #endif
 
-    class_signal_map(*type)[sname] = p_signal;
+    class_signal_map(*type)[sname] = eastl::move(p_signal);
 }
 
 void ClassDB::get_signal_list(StringName p_class, ListPOD<MethodInfo> *p_signals, bool p_no_inheritance) {

@@ -1543,7 +1543,7 @@ void Variant::get_method_list(PODVector<MethodInfo> *p_list) const {
 #ifdef DEBUG_ENABLED
             pi.name = StaticCString(fd.arg_names[i].data(),true);
 #endif
-            mi.arguments.push_back(pi);
+            mi.arguments.emplace_back(eastl::move(pi));
         }
 
         mi.default_arguments.assign(fd.default_args, fd.default_args+fd.def_count);
@@ -1574,7 +1574,7 @@ void Variant::get_constructor_list(VariantType p_type, PODVector<MethodInfo> *p_
             PropertyInfo pi;
             pi.name = StringName(cd.arg_names[i]);
             pi.type = cd.arg_types[i];
-            mi.arguments.push_back(pi);
+            mi.arguments.emplace_back(eastl::move(pi));
         }
         p_list->push_back(mi);
     }
@@ -1585,14 +1585,13 @@ void Variant::get_constructor_list(VariantType p_type, PODVector<MethodInfo> *p_
         if (!Variant::can_convert(VariantType(i), p_type))
             continue;
 
-        MethodInfo mi;
-        mi.name = Variant::interned_type_name(p_type);
+        MethodInfo mi(p_type);
+        mi.name = eastl::move(Variant::interned_type_name(p_type));
         PropertyInfo pi;
         pi.name = "from";
         pi.type = VariantType(i);
-        mi.arguments.push_back(pi);
-        mi.return_val.type = p_type;
-        p_list->push_back(mi);
+        mi.arguments.emplace_back(eastl::move(pi));
+        p_list->emplace_back(eastl::move(mi));
     }
 }
 

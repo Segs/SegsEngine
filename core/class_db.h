@@ -243,7 +243,7 @@ public:
 
     static uint64_t get_api_hash(APIType p_api);
 
-    static void add_signal(StringName p_class, const MethodInfo &p_signal);
+    static void add_signal(StringName p_class, MethodInfo && p_signal);
     static bool has_signal(StringName p_class, StringName p_signal);
     static bool get_signal(StringName p_class, StringName p_signal, MethodInfo *r_signal);
     static void get_signal_list(StringName p_class, ListPOD<MethodInfo> *p_signals, bool p_no_inheritance = false);

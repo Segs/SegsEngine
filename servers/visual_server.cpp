@@ -90,7 +90,7 @@ Array VisualServer::_shader_get_param_list_bind(RID p_shader) const {
 
     PODVector<PropertyInfo> l;
     shader_get_param_list(p_shader, &l);
-    return convert_property_vector(&l);
+    return convert_property_vector(l);
 }
 
 static Array to_array(const Vector<ObjectID> &ids) {
