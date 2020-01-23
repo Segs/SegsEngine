@@ -38,46 +38,6 @@
 #include "servers/camera/camera_feed.h"
 #include "servers/visual/visual_server_raster.h"
 
-static const GLenum _cube_side_enum[6] = {
-
-    GL_TEXTURE_CUBE_MAP_NEGATIVE_X,
-    GL_TEXTURE_CUBE_MAP_POSITIVE_X,
-    GL_TEXTURE_CUBE_MAP_NEGATIVE_Y,
-    GL_TEXTURE_CUBE_MAP_POSITIVE_Y,
-    GL_TEXTURE_CUBE_MAP_NEGATIVE_Z,
-    GL_TEXTURE_CUBE_MAP_POSITIVE_Z,
-
-};
-
-static _FORCE_INLINE_ void store_transform(const Transform &p_mtx, float *p_array) {
-    p_array[0] = p_mtx.basis.elements[0][0];
-    p_array[1] = p_mtx.basis.elements[1][0];
-    p_array[2] = p_mtx.basis.elements[2][0];
-    p_array[3] = 0;
-    p_array[4] = p_mtx.basis.elements[0][1];
-    p_array[5] = p_mtx.basis.elements[1][1];
-    p_array[6] = p_mtx.basis.elements[2][1];
-    p_array[7] = 0;
-    p_array[8] = p_mtx.basis.elements[0][2];
-    p_array[9] = p_mtx.basis.elements[1][2];
-    p_array[10] = p_mtx.basis.elements[2][2];
-    p_array[11] = 0;
-    p_array[12] = p_mtx.origin.x;
-    p_array[13] = p_mtx.origin.y;
-    p_array[14] = p_mtx.origin.z;
-    p_array[15] = 1;
-}
-
-static _FORCE_INLINE_ void store_camera(const CameraMatrix &p_mtx, float *p_array) {
-
-    for (int i = 0; i < 4; i++) {
-        for (int j = 0; j < 4; j++) {
-
-            p_array[i * 4 + j] = p_mtx.matrix[i][j];
-        }
-    }
-}
-
 /* SHADOW ATLAS API */
 
 RID RasterizerSceneGLES3::shadow_atlas_create() {
@@ -1544,16 +1504,6 @@ void RasterizerSceneGLES3::_setup_geometry(RenderList::Element *e, const Transfo
         }
     }
 }
-
-static const GLenum gl_primitive[] = {
-    GL_POINTS,
-    GL_LINES,
-    GL_LINE_STRIP,
-    GL_LINE_LOOP,
-    GL_TRIANGLES,
-    GL_TRIANGLE_STRIP,
-    GL_TRIANGLE_FAN
-};
 
 void RasterizerSceneGLES3::_render_geometry(RenderList::Element *e) {
 
