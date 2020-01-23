@@ -138,7 +138,7 @@ StringName Variant::interned_type_name(VariantType p_type) {
         case VariantType::POOL_COLOR_ARRAY: return "PoolColorArray";
         default: { }
     }
-    return "";
+    return StringName();
 }
 
 bool Variant::can_convert(VariantType p_type_from, VariantType p_type_to) {

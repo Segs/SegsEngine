@@ -2900,21 +2900,20 @@ void Node::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::NODE_PATH, "_import_path", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "_set_import_path", "_get_import_path");
 
     {
-        MethodInfo mi;
-
-        mi.arguments.push_back(PropertyInfo(VariantType::STRING, "method"));
-
-        mi.name = "rpc";
-        MethodBinder::bind_vararg_method("rpc", &Node::_rpc_bind, mi);
-        mi.name = "rpc_unreliable";
-        MethodBinder::bind_vararg_method("rpc_unreliable", &Node::_rpc_unreliable_bind, mi);
-
-        mi.arguments.push_front(PropertyInfo(VariantType::INT, "peer_id"));
-
-        mi.name = "rpc_id";
-        MethodBinder::bind_vararg_method( "rpc_id", &Node::_rpc_id_bind, mi);
-        mi.name = "rpc_unreliable_id";
-        MethodBinder::bind_vararg_method( "rpc_unreliable_id", &Node::_rpc_unreliable_id_bind, mi);
+        MethodInfo mi("rpc",PropertyInfo(VariantType::STRING, "method"));
+        MethodBinder::bind_vararg_method("rpc", &Node::_rpc_bind, eastl::move(mi));
+    }
+    {
+        MethodInfo mi("rpc_unreliable",PropertyInfo(VariantType::STRING, "method"));
+        MethodBinder::bind_vararg_method("rpc_unreliable", &Node::_rpc_unreliable_bind, eastl::move(mi));
+    }
+    {
+        MethodInfo mi("rpc_id",PropertyInfo(VariantType::INT, "peer_id"),PropertyInfo(VariantType::STRING, "method"));
+        MethodBinder::bind_vararg_method( "rpc_id", &Node::_rpc_id_bind, eastl::move(mi));
+    }
+    {
+        MethodInfo mi("rpc_unreliable_id",PropertyInfo(VariantType::INT, "peer_id"),PropertyInfo(VariantType::STRING, "method"));
+        MethodBinder::bind_vararg_method( "rpc_unreliable_id", &Node::_rpc_unreliable_id_bind, eastl::move(mi));
     }
 
     MethodBinder::bind_method(D_METHOD("rset", {"property", "value"}), &Node::rset);
