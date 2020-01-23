@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef RASTERIZERCANVASGLES3_H
-#define RASTERIZERCANVASGLES3_H
+#pragma once
 
 #include "rasterizer_storage_gles3.h"
 #include "servers/visual/rasterizer.h"
@@ -156,5 +155,32 @@ public:
 
     RasterizerCanvasGLES3() = default;
 };
+// Should not be exported, it's a helper func.
+extern void store_transform(const Transform& p_mtx, float* p_array);
+inline void store_camera(const CameraMatrix& p_mtx, float* p_array) {
 
-#endif // RASTERIZERCANVASGLES3_H
+    for (int i = 0; i < 4; i++) {
+        for (int j = 0; j < 4; j++) {
+            p_array[i * 4 + j] = p_mtx.matrix[i][j];
+        }
+    }
+}
+static constexpr const GLenum gl_primitive[] = {
+    GL_POINTS,
+    GL_LINES,
+    GL_LINE_STRIP,
+    GL_LINE_LOOP,
+    GL_TRIANGLES,
+    GL_TRIANGLE_STRIP,
+    GL_TRIANGLE_FAN
+};
+static constexpr const GLenum _cube_side_enum[6] = {
+
+    GL_TEXTURE_CUBE_MAP_NEGATIVE_X,
+    GL_TEXTURE_CUBE_MAP_POSITIVE_X,
+    GL_TEXTURE_CUBE_MAP_NEGATIVE_Y,
+    GL_TEXTURE_CUBE_MAP_POSITIVE_Y,
+    GL_TEXTURE_CUBE_MAP_NEGATIVE_Z,
+    GL_TEXTURE_CUBE_MAP_POSITIVE_Z,
+
+};

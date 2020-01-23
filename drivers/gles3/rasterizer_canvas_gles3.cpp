@@ -54,7 +54,7 @@ static void store_transform2d(const Transform2D &p_mtx, float *p_array) {
     p_array[15] = 1;
 }
 
-static void store_transform(const Transform &p_mtx, float *p_array) {
+void store_transform(const Transform &p_mtx, float *p_array) {
     p_array[0] = p_mtx.basis.elements[0][0];
     p_array[1] = p_mtx.basis.elements[1][0];
     p_array[2] = p_mtx.basis.elements[2][0];
@@ -71,16 +71,6 @@ static void store_transform(const Transform &p_mtx, float *p_array) {
     p_array[13] = p_mtx.origin.y;
     p_array[14] = p_mtx.origin.z;
     p_array[15] = 1;
-}
-
-static void store_camera(const CameraMatrix &p_mtx, float *p_array) {
-
-    for (int i = 0; i < 4; i++) {
-        for (int j = 0; j < 4; j++) {
-
-            p_array[i * 4 + j] = p_mtx.matrix[i][j];
-        }
-    }
 }
 
 RID RasterizerCanvasGLES3::light_internal_create() {
@@ -591,16 +581,6 @@ void RasterizerCanvasGLES3::_draw_gui_primitive(int p_points, const Vector2 *p_v
 
     storage->frame.canvas_draw_commands++;
 }
-
-static constexpr const GLenum gl_primitive[] = {
-    GL_POINTS,
-    GL_LINES,
-    GL_LINE_STRIP,
-    GL_LINE_LOOP,
-    GL_TRIANGLES,
-    GL_TRIANGLE_STRIP,
-    GL_TRIANGLE_FAN
-};
 
 void _render_line(RasterizerCanvasGLES3 *self,RasterizerCanvas::Item::CommandLine *line)
 {

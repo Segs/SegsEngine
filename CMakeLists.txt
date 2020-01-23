@@ -288,7 +288,7 @@ if(USE_UNITY_BUILDS)
 endif()
 if(USE_PRECOMPILED_HEADERS)
     foreach(tgt ${global_targets})
-        target_precompile_headers(${tgt}_engine REUSE_FROM ${tgt}_core)
+        target_precompile_headers(${tgt}_engine REUSE_FROM se_core)
     endforeach()
 endif()
 

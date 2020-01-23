@@ -91,8 +91,8 @@ struct _VariantCall {
         VariantFunc func;
 
         FuncData() = default;
-        constexpr FuncData(bool p_const, VariantType p_return, bool p_has_return, VariantFunc p_func,
-                const std::initializer_list<Variant> p_defaultarg, std::initializer_list<const Arg> p_argtype1) :
+        FuncData(bool p_const, VariantType p_return, bool p_has_return, VariantFunc p_func,
+                std::initializer_list<Variant> p_defaultarg, std::initializer_list<const Arg> p_argtype1) :
                 return_type(p_return), _const(p_const), returns(p_has_return), func(p_func) {
 
             for(const Arg & a : p_argtype1) {
