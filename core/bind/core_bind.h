@@ -62,7 +62,7 @@ public:
     static _ResourceLoader *get_singleton() { return singleton; }
     INVOCABLE Ref<ResourceInteractiveLoader> load_interactive(se_string_view p_path, se_string_view p_type_hint = se_string_view());
     INVOCABLE RES load(se_string_view p_path, se_string_view p_type_hint = se_string_view(), bool p_no_cache = false);
-    INVOCABLE PoolSeStringArray get_recognized_extensions_for_type(se_string_view p_type);
+    INVOCABLE PoolStringArray get_recognized_extensions_for_type(se_string_view p_type);
     INVOCABLE void set_abort_on_missing_resources(bool p_abort);
     INVOCABLE PODVector<String> get_dependencies(se_string_view p_path);
     INVOCABLE bool has_cached(se_string_view p_path);
@@ -172,7 +172,7 @@ public:
     virtual int get_audio_driver_count() const;
     virtual String get_audio_driver_name(int p_driver) const;
 
-    virtual PoolSeStringArray get_connected_midi_inputs();
+    virtual PoolStringArray get_connected_midi_inputs();
     virtual void open_midi_inputs();
     virtual void close_midi_inputs();
 
@@ -687,8 +687,8 @@ protected:
     static void _bind_methods();
 
 public:
-    PoolSeStringArray get_class_list() const;
-    PoolSeStringArray get_inheriters_from_class(const StringName &p_class) const;
+    PoolStringArray get_class_list() const;
+    PoolStringArray get_inheriters_from_class(const StringName &p_class) const;
     StringName get_parent_class(const StringName &p_class) const;
     bool class_exists(const StringName &p_class) const;
     bool is_parent_class(const StringName &p_class, const StringName &p_inherits) const;
@@ -707,7 +707,7 @@ public:
 
     Array get_method_list(StringName p_class, bool p_no_inheritance = false) const;
 
-    PoolSeStringArray get_integer_constant_list(const StringName &p_class, bool p_no_inheritance = false) const;
+    PoolStringArray get_integer_constant_list(const StringName &p_class, bool p_no_inheritance = false) const;
     bool has_integer_constant(const StringName &p_class, const StringName &p_name) const;
     int get_integer_constant(const StringName &p_class, const StringName &p_name) const;
     StringName get_category(const StringName &p_node) const;

@@ -44,8 +44,8 @@ class GODOT_EXPORT Translation : public Resource {
     String locale;
     Map<StringName, StringName> translation_map;
 
-    PoolSeStringArray _get_message_list() const;
-    PoolSeStringArray _get_messages() const;
+    PoolStringArray _get_message_list() const;
+    PoolStringArray _get_messages() const;
     void _set_messages(const PoolVector<String> &p_messages);
 
 protected:

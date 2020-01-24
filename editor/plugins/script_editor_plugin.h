@@ -405,7 +405,7 @@ class ScriptEditor : public PanelContainer {
     void _on_find_in_files_requested(se_string_view text);
     void _on_find_in_files_result_selected(se_string_view fpath, int line_number, int begin, int end);
     void _start_find_in_files(bool with_replace);
-    void _on_find_in_files_modified_files(const PoolSeStringArray &paths);
+    void _on_find_in_files_modified_files(const PoolStringArray &paths);
 
     static void _open_script_request(se_string_view p_path);
 

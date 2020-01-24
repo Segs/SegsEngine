@@ -48,7 +48,7 @@ protected:
     static void _bind_methods();
 
 public:
-    Error connect_to_url(se_string_view p_url, const PoolSeStringArray &p_protocols = {}, bool gd_mp_api = false, const PoolVector<String> &p_custom_headers = {});
+    Error connect_to_url(se_string_view p_url, const PoolStringArray &p_protocols = {}, bool gd_mp_api = false, const PoolVector<String> &p_custom_headers = {});
 
     void set_verify_ssl_enabled(bool p_verify_ssl);
     bool is_verify_ssl_enabled() const;

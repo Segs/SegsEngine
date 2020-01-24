@@ -40,11 +40,11 @@
 
 IMPL_GDCLASS(ConfigFile)
 
-PoolSeStringArray ConfigFile::_get_sections() const {
+PoolStringArray ConfigFile::_get_sections() const {
 
     PODVector<String> s;
     get_sections(&s);
-    PoolSeStringArray arr;
+    PoolStringArray arr;
     arr.resize(s.size());
     int idx = 0;
     for (const String &E : s) {
@@ -55,11 +55,11 @@ PoolSeStringArray ConfigFile::_get_sections() const {
     return arr;
 }
 
-PoolSeStringArray ConfigFile::_get_section_keys(se_string_view p_section) const {
+PoolStringArray ConfigFile::_get_section_keys(se_string_view p_section) const {
 
     PODVector<String> s;
     get_section_keys(p_section, &s);
-    PoolSeStringArray arr;
+    PoolStringArray arr;
     arr.resize(s.size());
     int idx = 0;
     for (const String &E : s) {

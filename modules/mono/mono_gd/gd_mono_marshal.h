@@ -147,8 +147,8 @@ PoolRealArray mono_array_to_PoolRealArray(MonoArray *p_array);
 
 // PoolStringArray
 
-MonoArray *PoolSeStringArray_to_mono_array(const PoolSeStringArray &p_array);
-PoolSeStringArray mono_array_to_PoolSeStringArray(MonoArray *p_array);
+MonoArray *PoolStringArray_to_mono_array(const PoolStringArray &p_array);
+PoolStringArray mono_array_to_PoolStringArray(MonoArray *p_array);
 
 // PoolColorArray
 

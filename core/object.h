@@ -350,7 +350,7 @@ protected:
         return &_class_name;
     }
 
-    PoolSeStringArray _get_meta_list_bind() const;
+    PoolStringArray _get_meta_list_bind() const;
     Array _get_property_list_bind() const;
     Array _get_method_list_bind() const;
 

@@ -337,7 +337,7 @@ EditorAssetLibraryItemDescription::EditorAssetLibraryItemDescription() {
 }
 ///////////////////////////////////////////////////////////////////////////////////
 
-void EditorAssetLibraryItemDownload::_http_download_completed(int p_status, int p_code, const PoolSeStringArray &headers, const PoolByteArray &p_data) {
+void EditorAssetLibraryItemDownload::_http_download_completed(int p_status, int p_code, const PoolStringArray &headers, const PoolByteArray &p_data) {
 
     String error_text;
     se_tmp_string<256,true> tmp(" " + host);
@@ -1069,7 +1069,7 @@ void EditorAssetLibrary::_api_request(se_string_view p_request, RequestType p_re
     request->request(host + "/" + p_request + p_arguments);
 }
 
-void EditorAssetLibrary::_http_request_completed(int p_status, int p_code, const PoolSeStringArray &headers, const PoolByteArray &p_data) {
+void EditorAssetLibrary::_http_request_completed(int p_status, int p_code, const PoolStringArray &headers, const PoolByteArray &p_data) {
 
     String str;
 

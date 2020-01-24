@@ -803,9 +803,9 @@ static const char *locale_renames[][2] = {
 
 ///////////////////////////////////////////////
 
-PoolSeStringArray Translation::_get_messages() const {
+PoolStringArray Translation::_get_messages() const {
 
-    PoolSeStringArray msgs;
+    PoolStringArray msgs;
     msgs.resize(translation_map.size() * 2);
     int idx = 0;
     for (const eastl::pair<const StringName,StringName> &E : translation_map) {
@@ -818,9 +818,9 @@ PoolSeStringArray Translation::_get_messages() const {
     return msgs;
 }
 
-PoolSeStringArray Translation::_get_message_list() const {
+PoolStringArray Translation::_get_message_list() const {
 
-    PoolSeStringArray msgs;
+    PoolStringArray msgs;
     msgs.resize(translation_map.size());
     int idx = 0;
     for (const eastl::pair<const StringName,StringName> &E : translation_map) {

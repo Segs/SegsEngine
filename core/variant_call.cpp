@@ -796,21 +796,21 @@ struct _VariantCall {
     static void _call_PoolRealArray_invert(Variant &r_ret, Variant &p_self, const Variant ** /*p_args*/) {
         invert(*reinterpret_cast<PoolRealArray *>(p_self._data._mem)); }
 
-    VCALL_LOCALMEM0R(PoolSeStringArray, size)
-    VCALL_LOCALMEM0R(PoolSeStringArray, empty)
-    VCALL_LOCALMEM2(PoolSeStringArray, set)
-    VCALL_LOCALMEM1R(PoolSeStringArray, get)
-    VCALL_LOCALMEM1(PoolSeStringArray, push_back)
-    VCALL_LOCALMEM1(PoolSeStringArray, resize)
-    VCALL_LOCALMEM2R(PoolSeStringArray, insert)
-    VCALL_LOCALMEM1(PoolSeStringArray, remove)
-    VCALL_LOCALMEM1(PoolSeStringArray, append)
-    VCALL_LOCALMEM1(PoolSeStringArray, append_array)
-    static void _call_PoolSeStringArray_invert(Variant &r_ret, Variant &p_self, const Variant ** /*p_args*/) {
-        invert(*reinterpret_cast<PoolSeStringArray *>(p_self._data._mem)); }
+    VCALL_LOCALMEM0R(PoolStringArray, size)
+    VCALL_LOCALMEM0R(PoolStringArray, empty)
+    VCALL_LOCALMEM2(PoolStringArray, set)
+    VCALL_LOCALMEM1R(PoolStringArray, get)
+    VCALL_LOCALMEM1(PoolStringArray, push_back)
+    VCALL_LOCALMEM1(PoolStringArray, resize)
+    VCALL_LOCALMEM2R(PoolStringArray, insert)
+    VCALL_LOCALMEM1(PoolStringArray, remove)
+    VCALL_LOCALMEM1(PoolStringArray, append)
+    VCALL_LOCALMEM1(PoolStringArray, append_array)
+    static void _call_PoolStringArray_invert(Variant &r_ret, Variant &p_self, const Variant ** /*p_args*/) {
+        invert(*reinterpret_cast<PoolStringArray *>(p_self._data._mem)); }
 
-    static void _call_PoolSeStringArray_join(Variant &r_ret, Variant &p_self, const Variant **p_args) {
-        const PoolSeStringArray &lhs(*reinterpret_cast<PoolSeStringArray *>(p_self._data._mem));
+    static void _call_PoolStringArray_join(Variant &r_ret, Variant &p_self, const Variant **p_args) {
+        const PoolStringArray &lhs(*reinterpret_cast<PoolStringArray *>(p_self._data._mem));
         String delimiter(*p_args[0]);
         String rs;
         int s = lhs.size();
@@ -1351,7 +1351,7 @@ Variant Variant::construct(const VariantType p_type, const Variant **p_args, int
             case VariantType::POOL_BYTE_ARRAY: return PoolByteArray();
             case VariantType::POOL_INT_ARRAY: return PoolIntArray();
             case VariantType::POOL_REAL_ARRAY: return PoolRealArray();
-            case VariantType::POOL_STRING_ARRAY: return PoolSeStringArray();
+            case VariantType::POOL_STRING_ARRAY: return PoolStringArray();
             case VariantType::POOL_VECTOR2_ARRAY:
                 return Variant(PoolVector2Array()); // 25
             case VariantType::POOL_VECTOR3_ARRAY: return PoolVector3Array();
@@ -1408,7 +1408,7 @@ Variant Variant::construct(const VariantType p_type, const Variant **p_args, int
             case VariantType::POOL_BYTE_ARRAY: return (PoolByteArray(*p_args[0]));
             case VariantType::POOL_INT_ARRAY: return (PoolIntArray(*p_args[0]));
             case VariantType::POOL_REAL_ARRAY: return (PoolRealArray(*p_args[0]));
-            case VariantType::POOL_STRING_ARRAY: return (PoolSeStringArray(*p_args[0]));
+            case VariantType::POOL_STRING_ARRAY: return (PoolStringArray(*p_args[0]));
             case VariantType::POOL_VECTOR2_ARRAY:
                 return Variant(PoolVector2Array(*p_args[0])); // 25
             case VariantType::POOL_VECTOR3_ARRAY: return (PoolVector3Array(*p_args[0]));
@@ -2016,17 +2016,17 @@ void register_variant_methods() {
     ADDFUNC1(POOL_REAL_ARRAY, NIL, PoolRealArray, resize, INT, "idx")
     ADDFUNC0(POOL_REAL_ARRAY, NIL, PoolRealArray, invert)
 
-    ADDFUNC0R(POOL_STRING_ARRAY, INT, PoolSeStringArray, size)
-    ADDFUNC0R(POOL_STRING_ARRAY, INT, PoolSeStringArray, empty)
-    ADDFUNC2(POOL_STRING_ARRAY, NIL, PoolSeStringArray, set, INT, "idx", STRING, "string")
-    ADDFUNC1(POOL_STRING_ARRAY, NIL, PoolSeStringArray, push_back, STRING, "string")
-    ADDFUNC1(POOL_STRING_ARRAY, NIL, PoolSeStringArray, append, STRING, "string")
-    ADDFUNC1(POOL_STRING_ARRAY, NIL, PoolSeStringArray, append_array, POOL_STRING_ARRAY, "array")
-    ADDFUNC1(POOL_STRING_ARRAY, NIL, PoolSeStringArray, remove, INT, "idx")
-    ADDFUNC2R(POOL_STRING_ARRAY, INT, PoolSeStringArray, insert, INT, "idx", STRING, "string")
-    ADDFUNC1(POOL_STRING_ARRAY, NIL, PoolSeStringArray, resize, INT, "idx")
-    ADDFUNC0(POOL_STRING_ARRAY, NIL, PoolSeStringArray, invert)
-    ADDFUNC1(POOL_STRING_ARRAY, STRING, PoolSeStringArray, join, STRING, "delimiter")
+    ADDFUNC0R(POOL_STRING_ARRAY, INT, PoolStringArray, size)
+    ADDFUNC0R(POOL_STRING_ARRAY, INT, PoolStringArray, empty)
+    ADDFUNC2(POOL_STRING_ARRAY, NIL, PoolStringArray, set, INT, "idx", STRING, "string")
+    ADDFUNC1(POOL_STRING_ARRAY, NIL, PoolStringArray, push_back, STRING, "string")
+    ADDFUNC1(POOL_STRING_ARRAY, NIL, PoolStringArray, append, STRING, "string")
+    ADDFUNC1(POOL_STRING_ARRAY, NIL, PoolStringArray, append_array, POOL_STRING_ARRAY, "array")
+    ADDFUNC1(POOL_STRING_ARRAY, NIL, PoolStringArray, remove, INT, "idx")
+    ADDFUNC2R(POOL_STRING_ARRAY, INT, PoolStringArray, insert, INT, "idx", STRING, "string")
+    ADDFUNC1(POOL_STRING_ARRAY, NIL, PoolStringArray, resize, INT, "idx")
+    ADDFUNC0(POOL_STRING_ARRAY, NIL, PoolStringArray, invert)
+    ADDFUNC1(POOL_STRING_ARRAY, STRING, PoolStringArray, join, STRING, "delimiter")
 
     ADDFUNC0R(POOL_VECTOR2_ARRAY, INT, PoolVector2Array, size)
     ADDFUNC0R(POOL_VECTOR2_ARRAY, INT, PoolVector2Array, empty)

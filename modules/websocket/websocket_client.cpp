@@ -43,7 +43,7 @@ WebSocketClient::WebSocketClient() {
 WebSocketClient::~WebSocketClient() {
 }
 
-Error WebSocketClient::connect_to_url(se_string_view p_url, const PoolSeStringArray &p_protocols, bool gd_mp_api, const PoolVector<String> &p_custom_headers) {
+Error WebSocketClient::connect_to_url(se_string_view p_url, const PoolStringArray &p_protocols, bool gd_mp_api, const PoolVector<String> &p_custom_headers) {
     _is_multiplayer = gd_mp_api;
 
     String host(p_url);
@@ -146,7 +146,7 @@ void WebSocketClient::_on_error() {
 }
 
 void WebSocketClient::_bind_methods() {
-    MethodBinder::bind_method(D_METHOD("connect_to_url", {"url", "protocols", "gd_mp_api", "custom_headers"}), &WebSocketClient::connect_to_url, {DEFVAL(PoolSeStringArray()), DEFVAL(false), DEFVAL(PoolSeStringArray())});
+    MethodBinder::bind_method(D_METHOD("connect_to_url", {"url", "protocols", "gd_mp_api", "custom_headers"}), &WebSocketClient::connect_to_url, {DEFVAL(PoolStringArray()), DEFVAL(false), DEFVAL(PoolStringArray())});
     MethodBinder::bind_method(D_METHOD("disconnect_from_host", {"code", "reason"}), &WebSocketClient::disconnect_from_host, {DEFVAL(1000), DEFVAL("")});
     MethodBinder::bind_method(D_METHOD("get_connected_host"), &WebSocketClient::get_connected_host);
     MethodBinder::bind_method(D_METHOD("get_connected_port"), &WebSocketClient::get_connected_port);
