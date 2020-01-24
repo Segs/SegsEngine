@@ -88,7 +88,7 @@ String cwd() {
     wbuffer.resize((int)expected_size);
 	if (::GetCurrentDirectoryW(expected_size, wbuffer.data()) == 0)
 		return ".";
-    String buffer = StringUtils::utf8(UIString::fromWCharArray(wbuffer.data(),wbuffer.size()));
+    String buffer = StringUtils::utf8(UIString::fromWCharArray(wbuffer.data(),wbuffer.size()-1));
 	return PathUtils::simplify_path(buffer);
 #else
 	char buffer[PATH_MAX];

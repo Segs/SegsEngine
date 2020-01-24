@@ -131,15 +131,15 @@ Error DirAccessWindows::change_dir(se_string_view _dir)
     QString real_current_dir_name = QDir::currentPath();
     QString tgt_dir = StringUtils::from_utf8(p_dir);
     QFileInfo fz(StringUtils::from_utf8(current_dir)+ tgt_dir);
-    qDebug()<< fz.canonicalFilePath();
+
     QDir cur_dir(StringUtils::from_utf8(current_dir));
     bool worked = cur_dir.cd(tgt_dir);
 
-    String base = _get_root_path();
+    const String base(_get_root_path());
     if (!base.empty()) {
 
         real_current_dir_name = cur_dir.path();
-        String new_dir = StringUtils::to_utf8(real_current_dir_name);
+        const String new_dir(StringUtils::to_utf8(real_current_dir_name));
         if (!StringUtils::begins_with(new_dir,base)) {
             worked = false;
         }

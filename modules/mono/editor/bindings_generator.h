@@ -85,16 +85,8 @@ class BindingsGenerator {
 
     struct TypeReference {
         StringName cname;
-        bool is_enum;
-
-        TypeReference() :
-                is_enum(false) {
-        }
-
-        TypeReference(const StringName &p_cname) :
-                cname(p_cname),
-                is_enum(false) {
-        }
+        bool is_enum=false;
+        TypePassBy pass_by;
     };
 
     struct ArgumentInterface {
@@ -132,19 +124,19 @@ class BindingsGenerator {
         /**
          * Determines if the method has a variable number of arguments (VarArg)
          */
-        bool is_vararg;
+        bool is_vararg=false;
 
         /**
          * Virtual methods ("virtual" as defined by the Godot API) are methods that by default do nothing,
          * but can be overridden by the user to add custom functionality.
          * e.g.: _ready, _process, etc.
          */
-        bool is_virtual;
+        bool is_virtual=false;
 
         /**
          * Determines if the call should fallback to Godot's object.Call(string, params) in C#.
          */
-        bool requires_object_call;
+        bool requires_object_call=false;
 
         /**
          * Determines if the method visibility is 'internal' (visible only to files in the same assembly).
@@ -152,26 +144,17 @@ class BindingsGenerator {
          * but are required by properties as getters or setters.
          * Methods that are not meant to be exposed are those that begin with underscore and are not virtual.
          */
-        bool is_internal;
+        bool is_internal=false;
 
         ListPOD<ArgumentInterface> arguments;
 
-        const DocData::MethodDoc *method_doc;
+        const DocData::MethodDoc *method_doc = nullptr;
 
-        bool is_deprecated;
+        bool is_deprecated=false;
         String deprecation_message;
 
         void add_argument(const ArgumentInterface &argument) {
             arguments.push_back(argument);
-        }
-
-        MethodInterface() {
-            is_vararg = false;
-            is_virtual = false;
-            requires_object_call = false;
-            is_internal = false;
-            method_doc = NULL;
-            is_deprecated = false;
         }
     };
 
@@ -343,7 +326,7 @@ class BindingsGenerator {
                     return &E;
             }
 
-            return NULL;
+            return nullptr;
         }
 
         const PropertyInterface *find_property_by_name(const StringName &p_cname) const {
@@ -352,7 +335,7 @@ class BindingsGenerator {
                     return &E;
             }
 
-            return NULL;
+            return nullptr;
         }
 
         const PropertyInterface *find_property_by_proxy_name(const String &p_proxy_name) const {
@@ -361,7 +344,7 @@ class BindingsGenerator {
                     return &E;
             }
 
-            return NULL;
+            return nullptr;
         }
 
     private:

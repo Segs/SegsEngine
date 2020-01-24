@@ -47,7 +47,11 @@ protected:
     void _set_returns(bool p_returns) noexcept { _returns = p_returns; }
 #ifdef DEBUG_METHODS_ENABLED
     virtual PropertyInfo _gen_argument_type_info(int p_arg) const = 0;
-    virtual GodotTypeInfo::Metadata do_get_argument_meta(int p_arg) const = 0;
+    virtual Span<const GodotTypeInfo::Metadata> do_get_argument_meta() const = 0;
+    virtual Span<const TypePassBy> do_get_argument_passby() const {
+        return {};
+    }
+
 #endif
     void set_argument_count(int p_count) noexcept { argument_count = p_count; }
     virtual Variant do_call(Object *p_object, const Variant **p_args, int p_arg_count, Variant::CallError &r_error)=0;
@@ -86,11 +90,13 @@ public:
 //    void set_argument_names(const PODVector<StringName> &p_names); //set by class, db, can't be inferred otherwise
 //    const PODVector<StringName> &get_argument_names() const;
 
-    GodotTypeInfo::Metadata get_argument_meta(int p_arg) const  noexcept
+    Span<const GodotTypeInfo::Metadata> get_arguments_meta() const  noexcept
     {
-        if(p_arg<-1 || p_arg >= argument_count)
-            return GodotTypeInfo::METADATA_NONE;
-        return do_get_argument_meta(p_arg);
+        return do_get_argument_meta();
+    }
+    Span<const TypePassBy> get_arguments_passing() const  noexcept
+    {
+        return do_get_argument_passby();
     }
 
 #endif
@@ -144,8 +150,8 @@ public:
         }
     }
 
-    GodotTypeInfo::Metadata do_get_argument_meta(int) const noexcept override {
-        return GodotTypeInfo::METADATA_NONE;
+    Span<const GodotTypeInfo::Metadata> do_get_argument_meta() const noexcept override {
+        return {};
     }
 #endif
     Variant do_call(Object *p_object, const Variant **p_args, int p_arg_count, Variant::CallError &r_error) override {

@@ -69,8 +69,8 @@ String StringBuilder::as_string() const {
     int godot_string_elem = 0;
     int c_string_elem = 0;
 
-    for (size_t i = 0; i < appended_strings.size(); i++) {
-        if (appended_strings[i] == -1) {
+    for (int appended_string : appended_strings) {
+        if (appended_string == -1) {
             // Godot string
             const String &s = strings[godot_string_elem];
 
@@ -83,11 +83,11 @@ String StringBuilder::as_string() const {
 
             const char *s = c_strings[c_string_elem];
 
-            for (int32_t j = 0; j < appended_strings[i]; j++) {
+            for (int32_t j = 0; j < appended_string; j++) {
                 buffer[current_position + j] = s[j];
             }
 
-            current_position += appended_strings[i];
+            current_position += appended_string;
 
             c_string_elem++;
         }

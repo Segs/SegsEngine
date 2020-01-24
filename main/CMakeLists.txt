@@ -9,7 +9,8 @@ configure_file("splash_editor.h.cmake" "splash_editor.gen.h")
 BIN2HexArray(SOURCE_FILE "app_icon.png" TARGET_VAR app_icon_data)
 configure_file("app_icon.h.cmake" "app_icon.gen.h")
 
-file(GLOB controller_databases ${CMAKE_CURRENT_SOURCE_DIR} "gamecontroller_db/*.txt" )
+file(GLOB controller_databases "${CMAKE_CURRENT_SOURCE_DIR}/gamecontroller_db/*.txt" )
+message("Controller dbs in use : ${controller_databases}")
 add_custom_command(
     COMMAND editor_to_header controllers ${CMAKE_CURRENT_BINARY_DIR}/default_controller_mappings.gen.cpp ${controller_databases}
     OUTPUT  ${CMAKE_CURRENT_BINARY_DIR}/default_controller_mappings.gen.cpp

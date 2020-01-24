@@ -1913,12 +1913,12 @@
 			</return>
 			<argument index="0" name="instance" type="RID">
 			</argument>
-			<argument index="1" name="flag" type="int" enum="VisualServer.InstanceFlags">
+			<argument index="1" name="flag" type="int" enum="VisualServerEnums.InstanceFlags">
 			</argument>
 			<argument index="2" name="enabled" type="bool">
 			</argument>
 			<description>
-				Sets the flag for a given [enum InstanceFlags]. See [enum InstanceFlags] for more details.
+				Sets the flag for a given [enum VisualServerEnums.InstanceFlags]. See [enum VisualServerEnums.InstanceFlags] for more details.
 			</description>
 		</method>
 		<method name="instance_geometry_set_material_override">
