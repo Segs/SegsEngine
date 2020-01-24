@@ -1205,7 +1205,7 @@ void ProjectSettingsEditor::_translation_delete(Object *p_item, int p_column, in
 
     int idx = ti->get_metadata(0);
 
-    PoolSeStringArray translations = ProjectSettings::get_singleton()->get("locale/translations");
+    PoolStringArray translations = ProjectSettings::get_singleton()->get("locale/translations");
 
     ERR_FAIL_INDEX(idx, translations.size())
 
@@ -1381,7 +1381,7 @@ void ProjectSettingsEditor::_translation_res_option_delete(Object *p_item, int p
     int idx = ed->get_metadata(0);
 
     ERR_FAIL_COND(!remaps.has(key))
-    PoolSeStringArray r = remaps[key];
+    PoolStringArray r = remaps[key];
     ERR_FAIL_INDEX(idx, r.size())
     r.remove(idx);
     remaps[key] = r;

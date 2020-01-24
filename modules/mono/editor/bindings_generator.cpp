@@ -103,7 +103,7 @@
 
 #define BINDINGS_GENERATOR_VERSION UINT32_C(11)
 
-const char *BindingsGenerator::TypeInterface::DEFAULT_VARARG_C_IN("\t%0 %1_in = %1;\n");
+const char *BindingsGenerator::TypeInterface::DEFAULT_VARARG_C_IN("\t%0 %1_in = Variant::from(%1);\n");
 
 static String fix_doc_description(se_string_view p_bbcode) {
 
@@ -604,8 +604,8 @@ String BindingsGenerator::bbcode_to_xml(se_string_view p_bbcode, const TypeInter
             pos = brk_end + 1;
             tag_stack.push_front("url");
         } else if (tag == "img"_sv) {
-            int end = bbcode.find("[", brk_end);
-            if (end == -1)
+            auto end = bbcode.find("[", brk_end);
+            if (end == String::npos)
                 end = bbcode.length();
             se_string_view image(StringUtils::substr(bbcode,brk_end + 1, end - brk_end - 1));
 
@@ -1730,6 +1730,7 @@ Error BindingsGenerator::generate_glue(se_string_view p_output_dir) {
     output.append("/* THIS FILE IS GENERATED DO NOT EDIT */\n");
     output.append("#include \"" GLUE_HEADER_FILE "\"\n");
     output.append("#include \"core/method_bind.h\"\n");
+    output.append("#include \"core/pool_vector.h\"\n");
     output.append("\n#ifdef MONO_GLUE_ENABLED\n");
 
     generated_icall_funcs.clear();
@@ -1785,7 +1786,7 @@ Error BindingsGenerator::generate_glue(se_string_view p_output_dir) {
             output.append("(MonoObject* obj) " OPEN_BLOCK
                           "\t" C_MACRO_OBJECT_CONSTRUCT "(instance, \"");
             output.append(itype.name);
-            output.append("\");\n"
+            output.append("\")\n"
                           "\t" C_METHOD_TIE_MANAGED_TO_UNMANAGED "(obj, instance);\n"
                           "\treturn instance;\n" CLOSE_BLOCK "\n");
         }
@@ -1938,9 +1939,13 @@ Error BindingsGenerator::_generate_glue_method(const BindingsGenerator::TypeInte
                 else
                     fmt = "Object *";
             }
-            else
-                fmt = return_type->cname.asCString();
-
+            else {
+                fmt = return_type->c_type.c_str();
+                //fmt = return_type->cname.asCString();
+            }
+            if((fmt=="sbyte") || (p_imethod.cname==se_string_view("process_action"))) {
+                printf("");
+            }
             template_return_type = fmt;
         }
     }
@@ -1952,7 +1957,9 @@ Error BindingsGenerator::_generate_glue_method(const BindingsGenerator::TypeInte
         const TypeInterface *arg_type = _get_type_or_placeholder(iarg.type);
 
         String c_param_name = "arg" + itos(i + 1);
-
+        if(arg_type->name=="RID") {
+            printf("");
+        }
         if (p_imethod.is_vararg) {
             if (i < p_imethod.arguments.size() - 1) {
                 c_in_statements += sformat(!arg_type->c_in.empty() ? arg_type->c_in : TypeInterface::DEFAULT_VARARG_C_IN, "Variant", c_param_name);
@@ -1965,23 +1972,47 @@ Error BindingsGenerator::_generate_glue_method(const BindingsGenerator::TypeInte
                 c_args_var_content += ", ";
             if (!arg_type->c_in.empty())
                 c_in_statements += sformat(arg_type->c_in, arg_type->c_type, c_param_name);
-            c_args_var_content += sformat(arg_type->c_arg_in, c_param_name);
+            if(arg_type->is_reference)
+                c_args_var_content += FormatVE("Ref<RefCounted>((RefCounted *)%s)",c_param_name.c_str());
+            else if(!arg_type->c_in.empty()) // Provided de-marshalling code was used.
+            {
+                c_args_var_content += sformat(arg_type->c_arg_in, c_param_name);
+            }
+            else {
+                switch(iarg.type.pass_by) {
+                case TypePassBy::Value:
+                    if(arg_type->c_type_in.ends_with('*')) // input as pointer, deref
+                        c_args_var_content.push_back('*');
+                    c_args_var_content.append(sformat(arg_type->c_arg_in, c_param_name));
+                    break;
+                case TypePassBy::Reference:
+                    c_args_var_content += "*"+sformat(arg_type->c_arg_in, c_param_name);
+                    break;
+                default:
+                    c_args_var_content += sformat(arg_type->c_arg_in, c_param_name);
+                }
+
+            }
         }
 
         c_func_sig += ", ";
         c_func_sig += arg_type->c_type_in;
         //special case for NodePath
-        bind_sig += ", " + arg_type->c_type;
-        switch(iarg.type.pass_by) {
-            case TypePassBy::Value:
-            break;
-            case TypePassBy::Reference:
-                bind_sig += " &";
-            break;
-            case TypePassBy::Pointer:
-                bind_sig += " *";
-            break;
-            default: ;
+
+        if(arg_type->is_reference) {
+            bind_sig += ", const Ref<RefCounted> &";
+        } else {
+            switch(iarg.type.pass_by) {
+                case TypePassBy::Reference:
+                    bind_sig += ", const "+arg_type->c_type +" &";
+                break;
+                case TypePassBy::Pointer:
+                    bind_sig += ", "+arg_type->c_type+" *";
+                break;
+                case TypePassBy::Value:
+                default:
+                    bind_sig += ", " + arg_type->c_type;
+            }
         }
         c_func_sig += " ";
         c_func_sig += c_param_name;
@@ -2004,7 +2035,6 @@ Error BindingsGenerator::_generate_glue_method(const BindingsGenerator::TypeInte
 
     const InternalCall *im_icall = match->second;
     String icall_method = im_icall->name;
-
     if (generated_icall_funcs.contains(im_icall))
         return OK;
 
@@ -2040,7 +2070,7 @@ Error BindingsGenerator::_generate_glue_method(const BindingsGenerator::TypeInte
         String fail_ret = return_type->c_type_out.ends_with("*") && !return_type->ret_as_byref_arg ? "NULL" : return_type->c_type_out + "()";
 
         if (return_type->ret_as_byref_arg) {
-            p_output.append("\tif (" CS_PARAM_INSTANCE " == NULL) { *arg_ret = ");
+            p_output.append("\tif (" CS_PARAM_INSTANCE " == nullptr) { *arg_ret = ");
             p_output.append(fail_ret);
             p_output.append("; ERR_FAIL_MSG(\"Parameter ' arg_ret ' is null.\") }\n");
         } else {
@@ -2069,10 +2099,10 @@ Error BindingsGenerator::_generate_glue_method(const BindingsGenerator::TypeInte
                             "\t\tMonoObject* elem = mono_array_get(");
             p_output.append(vararg_arg);
             p_output.append(", MonoObject*, i);\n"
-                            "\t\tvarargs.set(i, GDMonoMarshal::mono_object_to_variant(elem));\n"
-                            "\t\t" C_LOCAL_PTRCALL_ARGS ".set(");
+                            "\t\tvarargs[i]= GDMonoMarshal::mono_object_to_variant(elem);\n"
+                            "\t\t" C_LOCAL_PTRCALL_ARGS "[");
             p_output.append(real_argc_str);
-            p_output.append(" + i, &varargs.get(i));\n\t" CLOSE_BLOCK);
+            p_output.append(" + i] = &varargs[i];\n\t" CLOSE_BLOCK);
         } else {
             p_output.append(c_in_statements);
         }
@@ -2095,8 +2125,10 @@ Error BindingsGenerator::_generate_glue_method(const BindingsGenerator::TypeInte
         p_output.append(", total_length, vcall_error);\n");
 
         // See the comment on the C_LOCAL_VARARG_RET declaration
-        if (return_type->cname != name_cache.type_Variant) {
-            p_output.append("\tauto " C_LOCAL_RET " = " C_LOCAL_VARARG_RET ";\n");
+        if (!ret_void) {
+            if (return_type->cname != name_cache.type_Variant) {
+                p_output.append("\tauto " C_LOCAL_RET " = " C_LOCAL_VARARG_RET ";\n");
+            }
         }
     } else {
         p_output.append("\t");
@@ -2260,8 +2292,8 @@ bool BindingsGenerator::_populate_object_type_interfaces() {
 
         itype.cs_in = itype.is_singleton ? BINDINGS_PTR_FIELD : "Object." CS_SMETHOD_GETINSTANCE "(%0)";
 
-        itype.c_type = "Object*";
-        itype.c_type_in = itype.c_type;
+        itype.c_type = "Object";
+        itype.c_type_in = "Object *";
         itype.c_type_out = "MonoObject*";
         itype.cs_type = itype.proxy_name;
         itype.im_type_in = "IntPtr";
@@ -2380,7 +2412,7 @@ bool BindingsGenerator::_populate_object_type_interfaces() {
                 if (!imethod.is_virtual && ClassDB::is_parent_class(return_info.class_name, name_cache.type_Reference) && return_info.hint != PROPERTY_HINT_RESOURCE_TYPE) {
                     /* clang-format off */
                     ERR_PRINT("Return type is reference but hint is not '" _STR(PROPERTY_HINT_RESOURCE_TYPE) "'."
-                            " Are you returning a reference type by pointer? Method: '" + itype.name + "." + imethod.name + "'.");
+                            " Are you returning a reference type by pointer? Method: '" + itype.name + "." + imethod.name + "'.")
                     /* clang-format on */
                     ERR_FAIL_V(false)
                 }
@@ -2414,23 +2446,22 @@ bool BindingsGenerator::_populate_object_type_interfaces() {
                     iarg.type.pass_by = TypePassBy::Value;
                 } else if (!arginfo.class_name.empty()) {
                     iarg.type.cname = arginfo.class_name;
-                    iarg.type.pass_by = TypePassBy::Reference;
+                    iarg.type.pass_by = arg_pass.size() > (i + 1) ? arg_pass[i + 1] : TypePassBy::Reference;
                 } else if (arginfo.hint == PROPERTY_HINT_RESOURCE_TYPE) {
                     iarg.type.cname = StringName(arginfo.hint_string);
                     iarg.type.pass_by = TypePassBy::Reference;
                 } else if (arginfo.type == VariantType::NIL) {
                     iarg.type.cname = name_cache.type_Variant;
+                    iarg.type.pass_by = arg_pass.size() > (i + 1) ? arg_pass[i + 1] : TypePassBy::Value;
                 } else {
                     if (arginfo.type == VariantType::INT) {
                         iarg.type.cname = _get_int_type_name_from_meta(arg_meta.size() > (i+1) ? arg_meta[i+1] : GodotTypeInfo::METADATA_NONE);
-                        iarg.type.pass_by = arg_pass.size() > (i + 1) ? arg_pass[i + 1] : TypePassBy::Value;
                     } else if (arginfo.type == VariantType::REAL) {
                         iarg.type.cname = _get_float_type_name_from_meta(arg_meta.size() > (i + 1) ? arg_meta[i + 1] : GodotTypeInfo::METADATA_NONE);
-                        iarg.type.pass_by = arg_pass.size() > (i + 1) ? arg_pass[i + 1] : TypePassBy::Value;
                     } else {
                         iarg.type.cname = Variant::interned_type_name(arginfo.type);
-                        iarg.type.pass_by = TypePassBy::Value;
                     }
+                    iarg.type.pass_by = arg_pass.size() > (i + 1) ? arg_pass[i + 1] : TypePassBy::Value;
                 }
 
                 iarg.name = escape_csharp_keyword(snake_to_camel_case(iarg.name));
@@ -2708,8 +2739,8 @@ void BindingsGenerator::_populate_builtin_type_interfaces() {
     itype = TypeInterface::create_value_type(StringName("bool"));
     {
         // MonoBoolean <---> bool
-        itype.c_in = "\t%0 %1_in = (%0)%1;\n";
-        itype.c_out = "\treturn (%0)%1;\n";
+        itype.c_in = "\t%0 %1_in = static_cast<%0>(%1);\n";
+        itype.c_out = "\treturn static_cast<%0>(%1);\n";
         itype.c_type = "bool";
         itype.c_type_in = "MonoBoolean";
         itype.c_type_out = itype.c_type_in;
@@ -2727,8 +2758,8 @@ void BindingsGenerator::_populate_builtin_type_interfaces() {
     {                                                             \
         itype = TypeInterface::create_value_type(StringName(m_name)); \
         {                                                         \
-            itype.c_in = "\t%0 %1_in = (%0)%1;\n";                \
-            itype.c_out = "\treturn (%0)%1;\n";                   \
+            itype.c_in = "\t%0 %1_in = static_cast<%0>(%1);\n";                \
+            itype.c_out = "\treturn static_cast<%0>(%1);\n";      \
             itype.c_type = #m_c_type;                             \
             itype.c_arg_in = "%s_in";                             \
         }                                                         \
@@ -2748,9 +2779,9 @@ void BindingsGenerator::_populate_builtin_type_interfaces() {
 
         itype = TypeInterface::create_value_type(StringName("long"));
         {
-            itype.c_out = "\treturn (%0)%1;\n";
-            itype.c_in = "\t%0 %1_in = (%0)*%1;\n";
-            itype.c_out = "\t*%3 = (%0)%1;\n";
+            itype.c_out = "\treturn static_cast<%0>(%1);\n";
+            itype.c_in = "\t%0 %1_in = static_cast<%0>(*%1);\n";
+            itype.c_out = "\t*%3 = static_cast<%0>(%1);\n";
             itype.c_type = "int64_t";
             itype.c_arg_in = "%s_in";
         }
@@ -2766,7 +2797,7 @@ void BindingsGenerator::_populate_builtin_type_interfaces() {
 
         itype = TypeInterface::create_value_type(StringName("ulong"));
         {
-            itype.c_in = "\t%0 %1_in = (%0)*%1;\n";
+            itype.c_in = "\t%0 %1_in = static_cast<%0>(*%1);\n";
             itype.c_out = "\t*%3 = (%0)%1;\n";
             itype.c_type = "int64_t";
             itype.c_arg_in = "%s_in";
@@ -2790,7 +2821,7 @@ void BindingsGenerator::_populate_builtin_type_interfaces() {
         itype.cname = StringName(itype.name);
         itype.proxy_name = "float";
         {
-            itype.c_in = "\t%0 %1_in = (%0)*%1;\n";
+            itype.c_in = "\t%0 %1_in = static_cast<%0>(*%1);\n";
             itype.c_out = "\t*%3 = (%0)%1;\n";
             itype.c_type = "float";
             itype.c_type_in = "float*";
@@ -2812,7 +2843,7 @@ void BindingsGenerator::_populate_builtin_type_interfaces() {
         itype.cname = StringName(itype.name);
         itype.proxy_name = "double";
         {
-            itype.c_in = "\t%0 %1_in = (%0)*%1;\n";
+            itype.c_in = "\t%0 %1_in = static_cast<%0>(*%1);\n";
             itype.c_out = "\t*%3 = (%0)%1;\n";
             itype.c_type = "double";
             itype.c_type_in = "double*";

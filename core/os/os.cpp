@@ -724,7 +724,7 @@ PoolVector<String> OS::get_connected_midi_inputs() {
     if (MIDIDriver::get_singleton())
         return MIDIDriver::get_singleton()->get_connected_inputs();
 
-    PoolSeStringArray list;
+    PoolStringArray list;
     return list;
 }
 

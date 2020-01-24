@@ -158,7 +158,7 @@ class EditorAssetLibraryItemDownload : public PanelContainer {
     void _close();
     void _install();
     void _make_request();
-    void _http_download_completed(int p_status, int p_code, const PoolSeStringArray &headers, const PoolByteArray &p_data);
+    void _http_download_completed(int p_status, int p_code, const PoolStringArray &headers, const PoolByteArray &p_data);
 
 protected:
     void _notification(int p_what);
@@ -288,7 +288,7 @@ class EditorAssetLibrary : public PanelContainer {
     void _rerun_search(int p_ignore);
     void _search_text_entered(se_string_view p_text = se_string_view());
     void _api_request(se_string_view p_request, RequestType p_request_type, se_string_view p_arguments = {});
-    void _http_request_completed(int p_status, int p_code, const PoolSeStringArray &headers, const PoolByteArray &p_data);
+    void _http_request_completed(int p_status, int p_code, const PoolStringArray &headers, const PoolByteArray &p_data);
     void _http_download_completed(int p_status, int p_code, const PoolStringArray &headers, const PoolByteArray &p_data);
 
     void _repository_changed(int p_repository_id);

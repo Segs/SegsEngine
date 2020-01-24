@@ -108,11 +108,11 @@ RES _ResourceLoader::load(se_string_view p_path, se_string_view p_type_hint, boo
     return ret;
 }
 
-PoolSeStringArray _ResourceLoader::get_recognized_extensions_for_type(se_string_view p_type) {
+PoolStringArray _ResourceLoader::get_recognized_extensions_for_type(se_string_view p_type) {
 
     PODVector<String> exts;
     ResourceLoader::get_recognized_extensions_for_type(p_type, exts);
-    PoolSeStringArray ret;
+    PoolStringArray ret;
     for (const String & E : exts) {
         ret.push_back(E);
     }
@@ -272,7 +272,7 @@ String _OS::get_audio_driver_name(int p_driver) const {
     return String(OS::get_singleton()->get_audio_driver_name(p_driver));
 }
 
-PoolSeStringArray _OS::get_connected_midi_inputs() {
+PoolStringArray _OS::get_connected_midi_inputs() {
     return OS::get_singleton()->get_connected_midi_inputs();
 }
 
@@ -2802,12 +2802,12 @@ _Thread::~_Thread() {
 }
 /////////////////////////////////////
 
-PoolSeStringArray _ClassDB::get_class_list() const {
+PoolStringArray _ClassDB::get_class_list() const {
 
     PODVector<StringName> classes;
     ClassDB::get_class_list(&classes);
 
-    PoolSeStringArray ret;
+    PoolStringArray ret;
     ret.resize(classes.size());
     int idx = 0;
     for (size_t i=0,fin=classes.size(); i<fin; ++i) {
@@ -2816,12 +2816,12 @@ PoolSeStringArray _ClassDB::get_class_list() const {
 
     return ret;
 }
-PoolSeStringArray _ClassDB::get_inheriters_from_class(const StringName &p_class) const {
+PoolStringArray _ClassDB::get_inheriters_from_class(const StringName &p_class) const {
 
     ListPOD<StringName> classes;
     ClassDB::get_inheriters_from_class(p_class, &classes);
 
-    PoolSeStringArray ret;
+    PoolStringArray ret;
     ret.resize(classes.size());
     int idx = 0;
     for (const StringName &E : classes) {
@@ -2939,12 +2939,12 @@ Array _ClassDB::get_method_list(StringName p_class, bool p_no_inheritance) const
     return ret;
 }
 
-PoolSeStringArray _ClassDB::get_integer_constant_list(const StringName &p_class, bool p_no_inheritance) const {
+PoolStringArray _ClassDB::get_integer_constant_list(const StringName &p_class, bool p_no_inheritance) const {
 
     ListPOD<String> constants;
     ClassDB::get_integer_constant_list(p_class, &constants, p_no_inheritance);
 
-    PoolSeStringArray ret;
+    PoolStringArray ret;
     ret.resize(constants.size());
     int idx = 0;
     for (const String &E : constants) {

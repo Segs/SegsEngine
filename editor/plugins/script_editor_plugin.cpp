@@ -3101,7 +3101,7 @@ void ScriptEditor::_start_find_in_files(bool with_replace) {
     editor->make_bottom_panel_item_visible(find_in_files);
 }
 
-void ScriptEditor::_on_find_in_files_modified_files(const PoolSeStringArray& paths) {
+void ScriptEditor::_on_find_in_files_modified_files(const PoolStringArray& paths) {
 
     _test_script_times_on_disk();
     _update_modified_scripts_for_external_editor();

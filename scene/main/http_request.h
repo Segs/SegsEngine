@@ -59,7 +59,7 @@ public:
 private:
 
     void _redirect_request(se_string_view p_new_url);
-    void _request_done(int p_status, int p_code, const PoolSeStringArray &headers, const PoolByteArray &p_data);
+    void _request_done(int p_status, int p_code, const PoolStringArray &headers, const PoolByteArray &p_data);
 
 protected:
     void _notification(int p_what);

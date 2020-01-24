@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef SIGNAL_AWAITER_UTILS_H
-#define SIGNAL_AWAITER_UTILS_H
+#pragma once
 
 #include "core/reference.h"
 #include "mono_gc_handle.h"
@@ -39,33 +38,31 @@ namespace SignalAwaiterUtils {
 Error connect_signal_awaiter(Object *p_source, const String &p_signal, Object *p_target, MonoObject *p_awaiter);
 }
 
-class SignalAwaiterHandle : public MonoGCHandle {
+class GODOT_EXPORT SignalAwaiterHandle : public MonoGCHandle {
 
-	GDCLASS(SignalAwaiterHandle, MonoGCHandle);
+    GDCLASS(SignalAwaiterHandle, MonoGCHandle);
 
-	bool completed;
+    bool completed;
 
 #ifdef DEBUG_ENABLED
-	ObjectID conn_target_id;
+    ObjectID conn_target_id;
 #endif
 
-	Variant _signal_callback(const Variant **p_args, int p_argcount, Variant::CallError &r_error);
+    Variant _signal_callback(const Variant **p_args, int p_argcount, Variant::CallError &r_error);
 
 protected:
-	static void _bind_methods();
+    static void _bind_methods();
 
 public:
-	_FORCE_INLINE_ bool is_completed() { return completed; }
-	_FORCE_INLINE_ void set_completed(bool p_completed) { completed = p_completed; }
+    bool is_completed() const { return completed; }
+    void set_completed(bool p_completed) { completed = p_completed; }
 
 #ifdef DEBUG_ENABLED
-	_FORCE_INLINE_ void set_connection_target(Object *p_target) {
-		conn_target_id = p_target->get_instance_id();
-	}
+    _FORCE_INLINE_ void set_connection_target(Object *p_target) {
+        conn_target_id = p_target->get_instance_id();
+    }
 #endif
 
-	SignalAwaiterHandle(MonoObject *p_managed);
-	~SignalAwaiterHandle();
+    SignalAwaiterHandle(MonoObject *p_managed);
+    ~SignalAwaiterHandle() override;
 };
-
-#endif // SIGNAL_AWAITER_UTILS_H

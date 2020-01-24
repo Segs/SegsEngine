@@ -1042,7 +1042,7 @@ ProjectSettings::ProjectSettings() {
     GLOBAL_DEF("audio/default_bus_layout", "res://default_bus_layout.tres");
     custom_prop_info[StaticCString("audio/default_bus_layout")] = PropertyInfo(VariantType::STRING, "audio/default_bus_layout", PROPERTY_HINT_FILE, "*.tres");
 
-    PoolSeStringArray extensions;
+    PoolStringArray extensions;
     extensions.push_back("gd");
     if (Engine::get_singleton()->has_singleton("GodotSharp"))
         extensions.push_back("cs");

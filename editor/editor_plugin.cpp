@@ -778,16 +778,6 @@ void EditorPlugin::remove_scene_import_plugin(const Ref<EditorSceneImporter> &p_
     ResourceImporterScene::get_singleton()->remove_importer(new ImportWrapper(p_importer));
 }
 
-int find(const PoolStringArray &a, const UIString &v) {
-    PoolStringArray::Read r = a.read();
-    for (int j = 0; j < a.size(); ++j) {
-        if (r[j] == v) {
-            return j;
-        }
-    }
-    return -1;
-}
-
 void EditorPlugin::enable_plugin() {
     // Called when the plugin gets enabled in project settings, after it's added to the tree.
     // You can implement it to register autoloads.

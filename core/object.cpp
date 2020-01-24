@@ -968,9 +968,9 @@ Array Object::_get_method_list_bind() const {
     return ret;
 }
 
-PoolSeStringArray Object::_get_meta_list_bind() const {
+PoolStringArray Object::_get_meta_list_bind() const {
 
-    PoolSeStringArray _metaret;
+    PoolStringArray _metaret;
 
     PODVector<Variant> keys(metadata.get_key_list());
     for(const Variant &E : keys ) {

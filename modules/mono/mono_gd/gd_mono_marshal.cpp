@@ -495,7 +495,7 @@ MonoObject *variant_to_mono_object(const Variant *p_var, const ManagedType &p_ty
                 return (MonoObject *)PoolRealArray_to_mono_array(p_var->operator PoolRealArray());
 
             if (array_type->eklass == CACHED_CLASS_RAW(String))
-                return (MonoObject *)PoolSeStringArray_to_mono_array(p_var->as<PoolSeStringArray>());
+                return (MonoObject *)PoolStringArray_to_mono_array(p_var->as<PoolStringArray>());
 
             if (array_type->eklass == CACHED_CLASS_RAW(Vector2))
                 return (MonoObject *)PoolVector2Array_to_mono_array(p_var->operator PoolVector2Array());
@@ -641,7 +641,7 @@ MonoObject *variant_to_mono_object(const Variant *p_var, const ManagedType &p_ty
                 case VariantType::POOL_REAL_ARRAY:
                     return (MonoObject *)PoolRealArray_to_mono_array(p_var->operator PoolRealArray());
                 case VariantType::POOL_STRING_ARRAY:
-                    return (MonoObject *)PoolSeStringArray_to_mono_array(p_var->as<PoolSeStringArray>());
+                    return (MonoObject *)PoolStringArray_to_mono_array(p_var->as<PoolStringArray>());
                 case VariantType::POOL_VECTOR2_ARRAY:
                     return (MonoObject *)PoolVector2Array_to_mono_array(p_var->operator PoolVector2Array());
                 case VariantType::POOL_VECTOR3_ARRAY:
@@ -790,7 +790,7 @@ Variant mono_object_to_variant_impl(MonoObject *p_obj, const ManagedType &p_type
                 return mono_array_to_PoolRealArray((MonoArray *)p_obj);
 
             if (array_type->eklass == CACHED_CLASS_RAW(String))
-                return mono_array_to_PoolSeStringArray((MonoArray *)p_obj);
+                return mono_array_to_PoolStringArray((MonoArray *)p_obj);
 
             if (array_type->eklass == CACHED_CLASS_RAW(Vector2))
                 return Variant::from(mono_array_to_PoolVector2Array((MonoArray *)p_obj));
@@ -1064,8 +1064,8 @@ PoolRealArray mono_array_to_PoolRealArray(MonoArray *p_array) {
     return ret;
 }
 
-MonoArray *PoolSeStringArray_to_mono_array(const PoolSeStringArray &p_array) {
-    PoolSeStringArray::Read r = p_array.read();
+MonoArray *PoolStringArray_to_mono_array(const PoolStringArray &p_array) {
+    PoolStringArray::Read r = p_array.read();
 
     MonoArray *ret = mono_array_new(mono_domain_get(), CACHED_CLASS_RAW(String), p_array.size());
 
@@ -1077,13 +1077,13 @@ MonoArray *PoolSeStringArray_to_mono_array(const PoolSeStringArray &p_array) {
     return ret;
 }
 
-PoolSeStringArray mono_array_to_PoolSeStringArray(MonoArray *p_array) {
-    PoolSeStringArray ret;
+PoolStringArray mono_array_to_PoolStringArray(MonoArray *p_array) {
+    PoolStringArray ret;
     if (!p_array)
         return ret;
     int length = mono_array_length(p_array);
     ret.resize(length);
-    PoolSeStringArray::Write w = ret.write();
+    PoolStringArray::Write w = ret.write();
 
     for (int i = 0; i < length; i++) {
         MonoString *elem = mono_array_get(p_array, MonoString *, i);

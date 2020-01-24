@@ -42,8 +42,8 @@ class GODOT_EXPORT ConfigFile : public RefCounted {
 
     Map<String, Map<String, Variant> > values;
 
-    PoolSeStringArray _get_sections() const;
-    PoolSeStringArray _get_section_keys(se_string_view p_section) const;
+    PoolStringArray _get_sections() const;
+    PoolStringArray _get_section_keys(se_string_view p_section) const;
     Error _internal_load(se_string_view p_path, FileAccess *f);
     Error _internal_save(FileAccess *file);
 

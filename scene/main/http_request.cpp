@@ -155,7 +155,7 @@ bool _handle_response(HTTPRequestData &impl,HTTPRequest *tgt,bool *ret_value) {
     using namespace StringUtils;
 
     if (!impl.client->has_response()) {
-        tgt->call_deferred("_request_done", HTTPRequest::RESULT_NO_RESPONSE, 0, PoolSeStringArray(), PoolByteArray());
+        tgt->call_deferred("_request_done", HTTPRequest::RESULT_NO_RESPONSE, 0, PoolStringArray(), PoolByteArray());
         *ret_value = true;
         return true;
     }
@@ -221,7 +221,7 @@ bool _update_connection(HTTPRequestData &impl,HTTPRequest *tgt) {
 
     switch (impl.client->get_status()) {
         case HTTPClient::STATUS_DISCONNECTED: {
-            tgt->call_deferred("_request_done", HTTPRequest::RESULT_CANT_CONNECT, 0, PoolSeStringArray(), PoolByteArray());
+            tgt->call_deferred("_request_done", HTTPRequest::RESULT_CANT_CONNECT, 0, PoolStringArray(), PoolByteArray());
             return true; // End it, since it's doing something
         }
         case HTTPClient::STATUS_RESOLVING: {
@@ -230,7 +230,7 @@ bool _update_connection(HTTPRequestData &impl,HTTPRequest *tgt) {
             return false;
         }
         case HTTPClient::STATUS_CANT_RESOLVE: {
-            tgt->call_deferred("_request_done", HTTPRequest::RESULT_CANT_RESOLVE, 0, PoolSeStringArray(), PoolByteArray());
+            tgt->call_deferred("_request_done", HTTPRequest::RESULT_CANT_RESOLVE, 0, PoolStringArray(), PoolByteArray());
             return true;
 
         }
@@ -241,7 +241,7 @@ bool _update_connection(HTTPRequestData &impl,HTTPRequest *tgt) {
         } // Connecting to IP
         case HTTPClient::STATUS_CANT_CONNECT: {
 
-            tgt->call_deferred("_request_done", HTTPRequest::RESULT_CANT_CONNECT, 0, PoolSeStringArray(), PoolByteArray());
+            tgt->call_deferred("_request_done", HTTPRequest::RESULT_CANT_CONNECT, 0, PoolStringArray(), PoolByteArray());
             return true;
 
         }
@@ -275,7 +275,7 @@ bool _update_connection(HTTPRequestData &impl,HTTPRequest *tgt) {
 
                 Error err = impl.client->request(impl.method, (impl.request_string), impl.headers, impl.request_data);
                 if (err != OK) {
-                    tgt->call_deferred("_request_done", HTTPRequest::RESULT_CONNECTION_ERROR, 0, PoolSeStringArray(), PoolByteArray());
+                    tgt->call_deferred("_request_done", HTTPRequest::RESULT_CONNECTION_ERROR, 0, PoolStringArray(), PoolByteArray());
                     return true;
                 }
 
@@ -359,11 +359,11 @@ bool _update_connection(HTTPRequestData &impl,HTTPRequest *tgt) {
 
         } // Request resulted in body: break which must be read
         case HTTPClient::STATUS_CONNECTION_ERROR: {
-            tgt->call_deferred("_request_done", HTTPRequest::RESULT_CONNECTION_ERROR, 0, PoolSeStringArray(), PoolByteArray());
+            tgt->call_deferred("_request_done", HTTPRequest::RESULT_CONNECTION_ERROR, 0, PoolStringArray(), PoolByteArray());
             return true;
         }
         case HTTPClient::STATUS_SSL_HANDSHAKE_ERROR: {
-            tgt->call_deferred("_request_done", HTTPRequest::RESULT_SSL_HANDSHAKE_ERROR, 0, PoolSeStringArray(), PoolByteArray());
+            tgt->call_deferred("_request_done", HTTPRequest::RESULT_SSL_HANDSHAKE_ERROR, 0, PoolStringArray(), PoolByteArray());
             return true;
         }
     }
@@ -379,7 +379,7 @@ static void _thread_func(void *p_userdata) {
     Error err = _request(*hrdat);
 
     if (err != OK) {
-        hr->call_deferred("_request_done", HTTPRequest::RESULT_CANT_CONNECT, 0, PoolSeStringArray(), PoolByteArray());
+        hr->call_deferred("_request_done", HTTPRequest::RESULT_CANT_CONNECT, 0, PoolStringArray(), PoolByteArray());
     } else {
         while (!hrdat->thread_request_quit) {
 
@@ -431,7 +431,7 @@ Error HTTPRequest::request(se_string_view p_url, const PODVector<String> &p_cust
         IMPLD()->client->set_blocking_mode(false);
         err = _request(*IMPLD());
         if (err != OK) {
-            call_deferred("_request_done", RESULT_CANT_CONNECT, 0, PoolSeStringArray(), PoolByteArray());
+            call_deferred("_request_done", RESULT_CANT_CONNECT, 0, PoolStringArray(), PoolByteArray());
             return ERR_CANT_CONNECT;
         }
 
@@ -471,7 +471,7 @@ void HTTPRequest::cancel_request() {
     IMPLD()->requesting = false;
 }
 
-void HTTPRequest::_request_done(int p_status, int p_code, const PoolSeStringArray &headers, const PoolByteArray &p_data) {
+void HTTPRequest::_request_done(int p_status, int p_code, const PoolStringArray &headers, const PoolByteArray &p_data) {
 
     cancel_request();
     emit_signal("request_completed", p_status, p_code, headers, p_data);
@@ -580,12 +580,12 @@ int HTTPRequest::get_timeout() {
 void HTTPRequest::_timeout() {
 
     cancel_request();
-    call_deferred("_request_done", RESULT_TIMEOUT, 0, PoolSeStringArray(), PoolByteArray());
+    call_deferred("_request_done", RESULT_TIMEOUT, 0, PoolStringArray(), PoolByteArray());
 }
 
 void HTTPRequest::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("request", {"url", "custom_headers", "ssl_validate_domain", "method", "request_data"}), &HTTPRequest::request, {DEFVAL(PoolSeStringArray()), DEFVAL(true), DEFVAL(HTTPClient::METHOD_GET), DEFVAL(se_string_view())});
+    MethodBinder::bind_method(D_METHOD("request", {"url", "custom_headers", "ssl_validate_domain", "method", "request_data"}), &HTTPRequest::request, {DEFVAL(PoolStringArray()), DEFVAL(true), DEFVAL(HTTPClient::METHOD_GET), DEFVAL(se_string_view())});
     MethodBinder::bind_method(D_METHOD("cancel_request"), &HTTPRequest::cancel_request);
 
     MethodBinder::bind_method(D_METHOD("get_http_client_status"), &HTTPRequest::get_http_client_status);

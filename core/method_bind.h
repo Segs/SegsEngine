@@ -218,7 +218,7 @@ public:
     };
     constexpr static const TypePassBy s_pass_type[sizeof...(Args) + 1] = {
         GetTypeInfo<typename eastl::conditional<eastl::is_same_v<void,RESULT>, bool , RESULT>::type >::PASS_BY,
-        GetTypeInfo<typename eastl::decay<Args>::type>::PASS_BY ...
+        GetTypeInfo<Args>::PASS_BY ...
     };
     Span<const GodotTypeInfo::Metadata> do_get_argument_meta() const override {
         return s_metadata;
