@@ -476,7 +476,7 @@ void Object::set_indexed(const PODVector<StringName> &p_names, const Variant &p_
         return;
     }
 
-    for (int i = 1; i < p_names.size() - 1; i++) {
+    for (size_t i = 1; i < p_names.size() - 1; i++) {
         value_stack.push_back(value_stack.back()->deref().get_named(p_names[i], r_valid));
 
         if (!*r_valid) {
@@ -513,7 +513,7 @@ Variant Object::get_indexed(const PODVector<StringName> &p_names, bool *r_valid)
     bool valid = false;
 
     Variant current_value = get(p_names[0], &valid);
-    for (int i = 1; i < p_names.size(); i++) {
+    for (size_t i = 1; i < p_names.size(); i++) {
         current_value = current_value.get_named(p_names[i], &valid);
 
         if (!valid)
@@ -1100,7 +1100,7 @@ Error Object::emit_signal(const StringName &p_name, const Variant **p_args, int 
             for (int j = 0; j < p_argcount; j++) {
                 bind_mem.write[j] = p_args[j];
             }
-            for (int j = 0; j < c.binds.size(); j++) {
+            for (size_t j = 0; j < c.binds.size(); j++) {
                 bind_mem.write[p_argcount + j] = &c.binds[j];
             }
 

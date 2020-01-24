@@ -141,13 +141,13 @@ bool NodePath::operator==(const NodePath &p_path) const {
     if (data->absolute != p_path.data->absolute)
         return false;
 
-    int path_size = data->path.size();
+    size_t path_size = data->path.size();
 
     if (path_size != p_path.data->path.size()) {
         return false;
     }
 
-    int subpath_size = data->subpath.size();
+    size_t subpath_size = data->subpath.size();
 
     if (subpath_size != p_path.data->subpath.size()) {
         return false;
@@ -156,7 +156,7 @@ bool NodePath::operator==(const NodePath &p_path) const {
     const StringName *l_path_ptr = data->path.data();
     const StringName *r_path_ptr = p_path.data->path.data();
 
-    for (int i = 0; i < path_size; i++) {
+    for (size_t i = 0; i < path_size; i++) {
 
         if (l_path_ptr[i] != r_path_ptr[i])
             return false;
@@ -165,7 +165,7 @@ bool NodePath::operator==(const NodePath &p_path) const {
     const StringName *l_subpath_ptr = data->subpath.data();
     const StringName *r_subpath_ptr = p_path.data->subpath.data();
 
-    for (int i = 0; i < subpath_size; i++) {
+    for (size_t i = 0; i < subpath_size; i++) {
 
         if (l_subpath_ptr[i] != r_subpath_ptr[i])
             return false;
@@ -202,14 +202,14 @@ String NodePath::asString() const {
     if (data->absolute)
         ret = "/";
 
-    for (int i = 0; i < data->path.size(); i++) {
+    for (size_t i = 0; i < data->path.size(); i++) {
 
         if (i > 0)
             ret += '/';
         ret += data->path[i].asCString();
     }
 
-    for (int i = 0; i < data->subpath.size(); i++) {
+    for (size_t i = 0; i < data->subpath.size(); i++) {
 
         ret += String(":") + data->subpath[i].asCString();
     }
@@ -269,7 +269,7 @@ NodePath NodePath::rel_path_to(const NodePath &p_np) const {
     const PODVector<StringName> &dst_dirs(p_np.get_names());
 
     //find common parent
-    int common_parent = 0;
+    size_t common_parent = 0;
 
     while (true) {
         if (src_dirs.size() == common_parent)
@@ -290,7 +290,7 @@ NodePath NodePath::rel_path_to(const NodePath &p_np) const {
         relpath.emplace_back(StaticCString(".."));
     }
 
-    for (int i = common_parent + 1; i < dst_dirs.size(); i++) {
+    for (size_t i = common_parent + 1; i < dst_dirs.size(); i++) {
 
         relpath.push_back(dst_dirs[i]);
     }
@@ -366,7 +366,7 @@ void NodePath::simplify() {
 
     if (!data)
         return;
-    for (int i = 0; i < data->path.size(); i++) {
+    for (size_t i = 0; i < data->path.size(); i++) {
         if (data->path.size() == 1)
             break;
         if (se_string_view(data->path[i]) == "."_sv) {
@@ -414,7 +414,7 @@ NodePath::NodePath(se_string_view p_path) {
 
         int from = subpath_pos + 1;
 
-        for (int i = from; i <= path.length(); i++) {
+        for (size_t i = from; i <= path.length(); i++) {
 
             if (path[i] == ':' || path[i]==0 ) {
 
