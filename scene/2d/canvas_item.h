@@ -211,7 +211,7 @@ private:
 
     Q_INVOKABLE void _toplevel_raise_self();
 
-    void _propagate_visibility_changed(bool p_visible);
+    Q_INVOKABLE void _propagate_visibility_changed(bool p_visible);
 
     Q_INVOKABLE void _update_callback();
 
@@ -255,7 +255,7 @@ public:
     virtual bool _edit_is_selected_on_click(const Point2 &p_point, float p_tolerance) const;
 
     // Save and restore a CanvasItem state
-    virtual void _edit_set_state(const Dictionary &/*p_state*/){}
+    Q_INVOKABLE virtual void _edit_set_state(const Dictionary &/*p_state*/){}
     virtual Dictionary _edit_get_state() const { return Dictionary(); }
 
     // Used to move the node

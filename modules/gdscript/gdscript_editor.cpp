@@ -906,13 +906,13 @@ static bool _guess_expression_type(GDScriptCompletionContext &p_context, const G
                                     }
 
                                     if (!found && all_is_const && baseptr) {
-                                        Vector<const Variant *> argptr;
+                                        FixedVector<const Variant *,5,true> argptr;
                                         for (int i = 0; i < args.size(); i++) {
                                             argptr.push_back(&args[i]);
                                         }
 
                                         Variant::CallError ce;
-                                        Variant ret = mb->call(baseptr, (const Variant **)argptr.ptr(), argptr.size(), ce);
+                                        Variant ret = mb->call(baseptr, argptr.data(), argptr.size(), ce);
 
                                         if (ce.error == Variant::CallError::CALL_OK && ret.get_type() != VariantType::NIL) {
                                             if (ret.get_type() != VariantType::OBJECT || ret.operator Object *() != nullptr) {

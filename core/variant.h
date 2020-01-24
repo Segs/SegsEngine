@@ -185,7 +185,7 @@ public:
     [[nodiscard]] bool is_zero() const;
     [[nodiscard]] bool is_one() const;
 
-    operator bool() const;
+    operator bool() const { return booleanize(); }
     operator signed int() const;
     operator unsigned int() const; // this is the real one
     operator signed short() const;
@@ -223,9 +223,14 @@ public:
     operator RefPtr() const;
     operator RID() const;
 
-    operator Object *() const;
     operator Node *() const;
     operator Control *() const;
+    operator Object *() const {
+
+        if (type == VariantType::OBJECT)
+            return _get_obj().obj;
+        return nullptr;
+    }
 
     operator Dictionary() const;
     operator Array() const;

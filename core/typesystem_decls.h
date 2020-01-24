@@ -120,7 +120,6 @@ struct RawPropertyInfo {
     const char *hint_string=nullptr;
     const char *class_name=nullptr; // for classes
     int8_t type = 0;
-    TypePassBy pass_mode = TypePassBy::Value;
     PropertyHint hint = PROPERTY_HINT_NONE;
     uint32_t usage = PROPERTY_USAGE_DEFAULT;
 

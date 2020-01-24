@@ -25,9 +25,7 @@ protected:
 
 #ifdef DEBUG_METHODS_ENABLED
     VariantType *argument_types=nullptr;
-#endif
-#ifdef DEBUG_METHODS_ENABLED
-    bool checkArgs(const Variant** p_args,int p_arg_count,bool (*const verifiers[])(const Variant &), int max_args, Variant::CallError& r_error)
+    bool checkArgs(const Variant** p_args,int p_arg_count,bool (*const  verifiers[])(const Variant &), int max_args, Variant::CallError& r_error) const
     {
         int max_arg_to_check= p_arg_count<max_args ? p_arg_count : max_args;
         for(int i=0; i<max_arg_to_check; ++i)
@@ -45,13 +43,13 @@ protected:
         return true;
     }
 #endif
-    void _set_const(bool p_const) noexcept;
-    void _set_returns(bool p_returns) noexcept;
+    void _set_const(bool p_const) noexcept { _const = p_const; }
+    void _set_returns(bool p_returns) noexcept { _returns = p_returns; }
 #ifdef DEBUG_METHODS_ENABLED
     virtual PropertyInfo _gen_argument_type_info(int p_arg) const = 0;
     virtual GodotTypeInfo::Metadata do_get_argument_meta(int p_arg) const = 0;
 #endif
-    void set_argument_count(int p_count) { argument_count = p_count; }
+    void set_argument_count(int p_count) noexcept { argument_count = p_count; }
     virtual Variant do_call(Object *p_object, const Variant **p_args, int p_arg_count, Variant::CallError &r_error)=0;
 public:
     const PODVector<Variant> &get_default_arguments() const { return default_arguments; }
@@ -88,7 +86,12 @@ public:
 //    void set_argument_names(const PODVector<StringName> &p_names); //set by class, db, can't be inferred otherwise
 //    const PODVector<StringName> &get_argument_names() const;
 
-    GodotTypeInfo::Metadata get_argument_meta(int p_arg) const  noexcept;
+    GodotTypeInfo::Metadata get_argument_meta(int p_arg) const  noexcept
+    {
+        if(p_arg<-1 || p_arg >= argument_count)
+            return GodotTypeInfo::METADATA_NONE;
+        return do_get_argument_meta(p_arg);
+    }
 
 #endif
     void set_hint_flags(uint32_t p_hint) { hint_flags = p_hint; }

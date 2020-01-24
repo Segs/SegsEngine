@@ -2935,7 +2935,7 @@ void EditorNode::_editor_select(int p_which) {
 void EditorNode::select_editor_by_name(const StringName &p_name) {
     ERR_FAIL_COND(p_name.empty())
 
-    for (int i = 0; i < main_editor_buttons.size(); i++) {
+    for (size_t i = 0; i < main_editor_buttons.size(); i++) {
         if (main_editor_buttons[i]->get_text() == p_name) {
             _editor_select(i);
             return;
@@ -2977,7 +2977,7 @@ void EditorNode::remove_editor_plugin(EditorPlugin *p_editor, bool p_config_chan
 
     if (p_editor->has_main_screen()) {
 
-        for (int i = 0; i < singleton->main_editor_buttons.size(); i++) {
+        for (size_t i = 0; i < singleton->main_editor_buttons.size(); i++) {
 
             if (singleton->main_editor_buttons[i]->get_text() == p_editor->get_name()) {
 
@@ -3167,8 +3167,9 @@ void EditorNode::set_edited_scene(Node *p_scene) {
 
 int EditorNode::_get_current_main_editor() {
 
-    for (int i = 0; i < editor_table.size(); i++) {
-        if (editor_table[i] == editor_plugin_screen) return i;
+    for (size_t i = 0; i < editor_table.size(); i++) {
+        if (editor_table[i] == editor_plugin_screen)
+            return i;
     }
 
     return 0;
@@ -3191,8 +3192,8 @@ void EditorNode::_set_main_scene_state(Dictionary p_state, Node *p_for_scene) {
 
     changing_scene = false;
 
-    int current = -1;
-    for (int i = 0; i < editor_table.size(); i++) {
+    size_t current = size_t(~0);
+    for (size_t i = 0; i < editor_table.size(); i++) {
         if (editor_plugin_screen == editor_table[i]) {
             current = i;
             break;
@@ -4299,7 +4300,7 @@ void EditorNode::_dock_select_input(const Ref<InputEvent> &p_input) {
         dock_slot[nrect]->show();
         dock_select->update();
 
-        for (int i = 0; i < vsplits.size(); i++) {
+        for (size_t i = 0; i < vsplits.size(); i++) {
             bool in_use = dock_slot[i * 2 + 0]->get_tab_count() || dock_slot[i * 2 + 1]->get_tab_count();
             if (in_use)
                 vsplits[i]->show();
@@ -4483,14 +4484,14 @@ void EditorNode::_save_docks_to_config(Ref<ConfigFile> p_layout, se_string_view 
     p_layout->set_value(
             p_section, "dock_filesystem_file_list_display_mode", filesystem_dock->get_file_list_display_mode());
 
-    for (int i = 0; i < vsplits.size(); i++) {
+    for (size_t i = 0; i < vsplits.size(); i++) {
 
         if (vsplits[i]->is_visible_in_tree()) {
             p_layout->set_value(p_section, "dock_split_" + ::to_string(i + 1), vsplits[i]->get_split_offset());
         }
     }
 
-    for (int i = 0; i < hsplits.size(); i++) {
+    for (size_t i = 0; i < hsplits.size(); i++) {
 
         p_layout->set_value(p_section, "dock_hsplit_" + ::to_string(i + 1), hsplits[i]->get_split_offset());
     }
@@ -4545,7 +4546,7 @@ void EditorNode::_update_dock_slots_visibility() {
             dock_slot[i]->hide();
         }
 
-        for (int i = 0; i < vsplits.size(); i++) {
+        for (size_t i = 0; i < vsplits.size(); i++) {
             vsplits[i]->hide();
         }
 
@@ -4566,7 +4567,7 @@ void EditorNode::_update_dock_slots_visibility() {
                 dock_slot[i]->hide();
         }
 
-        for (int i = 0; i < vsplits.size(); i++) {
+        for (size_t i = 0; i < vsplits.size(); i++) {
             bool in_use = dock_slot[i * 2 + 0]->get_tab_count() || dock_slot[i * 2 + 1]->get_tab_count();
             if (in_use)
                 vsplits[i]->show();
@@ -4599,8 +4600,8 @@ void EditorNode::_dock_tab_changed(int p_tab) {
             dock_slot[i]->hide();
         }
 
-        for (int i = 0; i < vsplits.size(); i++) {
-            vsplits[i]->hide();
+        for (VSplitContainer * e : vsplits) {
+            e->hide();
         }
 
         right_hsplit->hide();
@@ -4614,7 +4615,7 @@ void EditorNode::_dock_tab_changed(int p_tab) {
                 dock_slot[i]->hide();
         }
 
-        for (int i = 0; i < vsplits.size(); i++) {
+        for (size_t i = 0; i < vsplits.size(); i++) {
             bool in_use = dock_slot[i * 2 + 0]->get_tab_count() || dock_slot[i * 2 + 1]->get_tab_count();
             if (in_use)
                 vsplits[i]->show();
@@ -4638,9 +4639,8 @@ void EditorNode::_load_docks_from_config(Ref<ConfigFile> p_layout, se_string_vie
         String dock_names = p_layout->get_value(p_section, "dock_" + ::to_string(i + 1)).as<String>();
         PODVector<se_string_view> names = StringUtils::split(dock_names, ',');
 
-        for (int j = 0; j < names.size(); j++) {
+        for (se_string_view name : names) {
 
-            se_string_view name = names[j];
             // find it, in a horribly inefficient way
             int atidx = -1;
             Control *node = nullptr;
@@ -4687,7 +4687,7 @@ void EditorNode::_load_docks_from_config(Ref<ConfigFile> p_layout, se_string_vie
         filesystem_dock->set_file_list_display_mode(dock_filesystem_file_list_display_mode);
     }
 
-    for (int i = 0; i < vsplits.size(); i++) {
+    for (size_t i = 0; i < vsplits.size(); i++) {
 
         if (!p_layout->has_section_key(p_section, "dock_split_" + ::to_string(i + 1))) continue;
 
@@ -4695,13 +4695,13 @@ void EditorNode::_load_docks_from_config(Ref<ConfigFile> p_layout, se_string_vie
         vsplits[i]->set_split_offset(ofs);
     }
 
-    for (int i = 0; i < hsplits.size(); i++) {
+    for (size_t i = 0; i < hsplits.size(); i++) {
         if (!p_layout->has_section_key(p_section, "dock_hsplit_" + ::to_string(i + 1))) continue;
         int ofs = p_layout->get_value(p_section, "dock_hsplit_" + ::to_string(i + 1));
         hsplits[i]->set_split_offset(ofs);
     }
 
-    for (int i = 0; i < vsplits.size(); i++) {
+    for (size_t i = 0; i < vsplits.size(); i++) {
         bool in_use = dock_slot[i * 2 + 0]->get_tab_count() || dock_slot[i * 2 + 1]->get_tab_count();
         if (in_use)
             vsplits[i]->show();
@@ -5048,8 +5048,9 @@ ToolButton *EditorNode::add_bottom_panel_item(const StringName &p_text, Control 
 
 bool EditorNode::are_bottom_panels_hidden() const {
 
-    for (int i = 0; i < bottom_panel_items.size(); i++) {
-        if (bottom_panel_items[i].button->is_pressed()) return false;
+    for (const BottomPanelItem & itm : bottom_panel_items) {
+        if (itm.button->is_pressed())
+            return false;
     }
 
     return true;
@@ -5057,7 +5058,7 @@ bool EditorNode::are_bottom_panels_hidden() const {
 
 void EditorNode::hide_bottom_panel() {
 
-    for (int i = 0; i < bottom_panel_items.size(); i++) {
+    for (size_t i = 0; i < bottom_panel_items.size(); i++) {
 
         if (bottom_panel_items[i].control->is_visible()) {
             _bottom_panel_switch(false, i);
@@ -5068,7 +5069,7 @@ void EditorNode::hide_bottom_panel() {
 
 void EditorNode::make_bottom_panel_item_visible(Control *p_item) {
 
-    for (int i = 0; i < bottom_panel_items.size(); i++) {
+    for (size_t i = 0; i < bottom_panel_items.size(); i++) {
 
         if (bottom_panel_items[i].control == p_item) {
             _bottom_panel_switch(true, i);
@@ -5079,7 +5080,7 @@ void EditorNode::make_bottom_panel_item_visible(Control *p_item) {
 
 void EditorNode::raise_bottom_panel_item(Control *p_item) {
 
-    for (int i = 0; i < bottom_panel_items.size(); i++) {
+    for (size_t i = 0; i < bottom_panel_items.size(); i++) {
 
         if (bottom_panel_items[i].control == p_item) {
             bottom_panel_items[i].button->raise();
@@ -5088,7 +5089,7 @@ void EditorNode::raise_bottom_panel_item(Control *p_item) {
         }
     }
 
-    for (int i = 0; i < bottom_panel_items.size(); i++) {
+    for (size_t i = 0; i < bottom_panel_items.size(); i++) {
         bottom_panel_items[i].button->disconnect("toggled", this, "_bottom_panel_switch");
         bottom_panel_items[i].button->connect("toggled", this, "_bottom_panel_switch", varray(i));
     }
@@ -5096,7 +5097,7 @@ void EditorNode::raise_bottom_panel_item(Control *p_item) {
 
 void EditorNode::remove_bottom_panel_item(Control *p_item) {
 
-    for (int i = 0; i < bottom_panel_items.size(); i++) {
+    for (size_t i = 0; i < bottom_panel_items.size(); i++) {
 
         if (bottom_panel_items[i].control == p_item) {
             if (p_item->is_visible_in_tree()) {
@@ -5110,7 +5111,7 @@ void EditorNode::remove_bottom_panel_item(Control *p_item) {
         }
     }
 
-    for (int i = 0; i < bottom_panel_items.size(); i++) {
+    for (size_t i = 0; i < bottom_panel_items.size(); i++) {
         bottom_panel_items[i].button->disconnect("toggled", this, "_bottom_panel_switch");
         bottom_panel_items[i].button->connect("toggled", this, "_bottom_panel_switch", varray(i));
     }
@@ -5125,7 +5126,7 @@ void EditorNode::_bottom_panel_switch(bool p_enable, int p_idx) {
     }
 
     if (p_enable) {
-        for (int i = 0; i < bottom_panel_items.size(); i++) {
+        for (size_t i = 0; i < bottom_panel_items.size(); i++) {
 
             bottom_panel_items[i].button->set_pressed(i == p_idx);
             bottom_panel_items[i].control->set_visible(i == p_idx);
@@ -6197,7 +6198,7 @@ EditorNode::EditorNode() {
     hsplits.push_back(main_hsplit);
     hsplits.push_back(right_hsplit);
 
-    for (int i = 0; i < vsplits.size(); i++) {
+    for (size_t i = 0; i < vsplits.size(); i++) {
         vsplits[i]->connect("dragged", this, "_dock_split_dragged");
         hsplits[i]->connect("dragged", this, "_dock_split_dragged");
     }
@@ -7151,8 +7152,8 @@ EditorNode::EditorNode() {
     pick_main_scene->get_ok()->set_text(TTR("Select"));
     pick_main_scene->connect("confirmed", this, "_menu_option", varray(SETTINGS_PICK_MAIN_SCENE));
 
-    for (int i = 0; i < _init_callbacks.size(); i++)
-        _init_callbacks[i]();
+    for (const EditorNodeInitCallback & cb : _init_callbacks)
+        cb();
 
     editor_data.add_edited_scene(-1);
     editor_data.set_edited_scene(0);

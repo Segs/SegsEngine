@@ -157,11 +157,6 @@
 #define CASE_TYPE(PREFIX, OP, TYPE) case VariantType::TYPE:
 #endif
 
-Variant::operator bool() const {
-
-    return booleanize();
-}
-
 Variant::operator UIString() const { return as<UIString>(); }
 Variant::operator String() const { return as<String>(); }
 
