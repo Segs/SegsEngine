@@ -57,12 +57,10 @@
 using namespace eastl;
 const UIString s_null_ui_string;
 
-static int findmk(se_string_view &s,const PODVector<se_string_view> &p_keys, int p_from, int *r_key);
 /*
     TODO: SEGS: When replacing QString as the underlying string type consider the following helper class from qt
     QTextBoundaryFinder for grapheme navigation in QChar-like *strings
     QUtf8 from QtCore/private/qutfcodec_p.h>
-    TODO: SEGS: consider splitting strings into two classes user visible (UI) and internal ?
 */
 
 #if defined(MINGW_ENABLED) || defined(_MSC_VER)
@@ -749,7 +747,7 @@ PODVector<float> StringUtils::split_floats_mk(se_string_view str,se_string_view 
 
 UIString StringUtils::join(const UIString &str,const PODVector<UIString> &parts) {
     UIString ret;
-    for (int i = 0; i < parts.size(); ++i) {
+    for (size_t i = 0; i < parts.size(); ++i) {
         if (i > 0) {
             ret += str;
         }
@@ -1570,111 +1568,6 @@ size_t StringUtils::find(se_string_view s,char c, size_t p_from) {
     return s.find(c,p_from);
 }
 
-static int findmk(const UIString &s,const PODVector<UIString> &p_keys, int p_from, int *r_key) {
-
-    if (p_from < 0)
-        return -1;
-    if (p_keys.empty())
-        return -1;
-
-    //int src_len=p_str.length();
-    const UIString *keys = &p_keys[0];
-    int key_count = p_keys.size();
-    int len = s.length();
-
-    if (len == 0)
-        return -1; // won't find anything!
-
-    const CharType *src = s.constData();
-
-    for (int i = p_from; i < len; i++) {
-
-        bool found = true;
-        for (int k = 0; k < key_count; k++) {
-
-            found = true;
-            if (r_key)
-                *r_key = k;
-            const CharType *cmp = keys[k].constData();
-            int l = keys[k].length();
-
-            for (int j = 0; j < l; j++) {
-
-                int read_pos = i + j;
-
-                if (read_pos >= len) {
-
-                    found = false;
-                    break;
-                }
-
-                if (src[read_pos] != cmp[j]) {
-                    found = false;
-                    break;
-                }
-            }
-            if (found)
-                break;
-        }
-
-        if (found)
-            return i;
-    }
-
-    return -1;
-}
-static int findmk(se_string_view &s,const PODVector<se_string_view> &p_keys, int p_from, int *r_key) {
-
-    if (p_from < 0)
-        return -1;
-    if (p_keys.empty())
-        return -1;
-
-    //int src_len=p_str.length();
-    int key_count = p_keys.size();
-    int len = s.length();
-
-    if (len == 0)
-        return -1; // won't find anything!
-
-    const char *src = s.data();
-
-    for (int i = p_from; i < len; i++) {
-
-        bool found = true;
-        for (int k = 0; k < key_count; k++) {
-
-            found = true;
-            if (r_key)
-                *r_key = k;
-            const char *cmp = p_keys[k].data();
-            int l = p_keys[k].length();
-
-            for (int j = 0; j < l; j++) {
-
-                int read_pos = i + j;
-
-                if (read_pos >= len) {
-
-                    found = false;
-                    break;
-                }
-
-                if (src[read_pos] != cmp[j]) {
-                    found = false;
-                    break;
-                }
-            }
-            if (found)
-                break;
-        }
-
-        if (found)
-            return i;
-    }
-
-    return -1;
-}
 int StringUtils::findn(const UIString &s,const UIString &p_str, int p_from) {
 
     if (p_from < 0)
@@ -3440,7 +3333,7 @@ String PathUtils::path_to(se_string_view str,se_string_view p_path) {
     auto dst_dirs = StringUtils::split(dst.substr(1, dst.length() - 2),"/");
 
     //find common parent
-    int common_parent = 0;
+    size_t common_parent = 0;
 
     while (true) {
         if (src_dirs.size() == common_parent)
@@ -3461,7 +3354,7 @@ String PathUtils::path_to(se_string_view str,se_string_view p_path) {
         dir += "../";
     }
 
-    for (int i = common_parent + 1; i < dst_dirs.size(); i++) {
+    for (size_t i = common_parent + 1; i < dst_dirs.size(); i++) {
 
         dir += String(dst_dirs[i]) + "/";
     }
