@@ -50,15 +50,6 @@ PropertyInfo MethodBind::get_return_info() const {
 }
 
 #endif
-void MethodBind::_set_const(bool p_const) noexcept {
-
-    _const = p_const;
-}
-
-void MethodBind::_set_returns(bool p_returns) noexcept {
-
-    _returns = p_returns;
-}
 
 StringName MethodBind::get_name() const {
     return name;
@@ -77,12 +68,7 @@ void MethodBind::set_name(const StringName &p_name) {
 //    return arg_names;
 //}
 
-GodotTypeInfo::Metadata MethodBind::get_argument_meta(int p_arg) const noexcept
-{
-    if(p_arg<-1 || p_arg >= argument_count)
-        return GodotTypeInfo::METADATA_NONE;
-    return do_get_argument_meta(p_arg);
-}
+
 #endif
 
 Variant MethodBind::call(Object *p_object, const Variant **p_args, int p_arg_count, Variant::CallError &r_error)

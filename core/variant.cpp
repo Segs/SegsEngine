@@ -1696,12 +1696,6 @@ Variant::operator RID() const {
     return RID();
 }
 
-Variant::operator Object *() const {
-
-    if (type == VariantType::OBJECT)
-        return _get_obj().obj;
-    return nullptr;
-}
 Variant::operator Node *() const {
 
     if (type == VariantType::OBJECT)

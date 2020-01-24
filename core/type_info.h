@@ -85,16 +85,18 @@ struct GetTypeInfo;
     struct GetTypeInfo<m_type> {                                                      \
         constexpr static const VariantType VARIANT_TYPE = m_var_type;                         \
         constexpr static const GodotTypeInfo::Metadata METADATA = GodotTypeInfo::METADATA_NONE; \
+        constexpr static const TypePassBy PASS_BY = TypePassBy::Value; \
         constexpr static inline RawPropertyInfo get_class_info() {  \
-            return RawPropertyInfo { nullptr,nullptr,nullptr,int8_t(VARIANT_TYPE),TypePassBy::Value};\
+            return RawPropertyInfo { nullptr,nullptr,nullptr,int8_t(VARIANT_TYPE)};\
         }\
     };                                                                                \
     template <>                                                                       \
     struct GetTypeInfo<const m_type &> {                                              \
         constexpr static const VariantType VARIANT_TYPE = m_var_type;                         \
         constexpr static const GodotTypeInfo::Metadata METADATA = GodotTypeInfo::METADATA_NONE; \
+        constexpr static const TypePassBy PASS_BY = TypePassBy::Reference; \
         constexpr static inline RawPropertyInfo get_class_info() {  \
-            return RawPropertyInfo { nullptr,nullptr,nullptr,int8_t(VARIANT_TYPE),TypePassBy::Reference};\
+            return RawPropertyInfo { nullptr,nullptr,nullptr,int8_t(VARIANT_TYPE)};\
         }\
     };
 
@@ -103,16 +105,18 @@ struct GetTypeInfo;
     struct GetTypeInfo<m_type> {                                    \
         constexpr static const VariantType VARIANT_TYPE = m_var_type;       \
         constexpr static const GodotTypeInfo::Metadata METADATA = m_metadata; \
+        constexpr static const TypePassBy PASS_BY = TypePassBy::Value; \
         constexpr static inline RawPropertyInfo get_class_info() {  \
-            return RawPropertyInfo { nullptr,nullptr,nullptr,int8_t(VARIANT_TYPE),TypePassBy::Value};\
+            return RawPropertyInfo { nullptr,nullptr,nullptr,int8_t(VARIANT_TYPE)};\
         }\
     };                                                              \
     template <>                                                     \
     struct GetTypeInfo<const m_type &> {                            \
         constexpr static const VariantType VARIANT_TYPE = m_var_type;       \
         constexpr static const GodotTypeInfo::Metadata METADATA = m_metadata; \
+        constexpr static const TypePassBy PASS_BY = TypePassBy::Reference; \
         constexpr static inline RawPropertyInfo get_class_info() {  \
-            return RawPropertyInfo { nullptr,nullptr,nullptr,int8_t(VARIANT_TYPE),TypePassBy::Reference};\
+            return RawPropertyInfo { nullptr,nullptr,nullptr,int8_t(VARIANT_TYPE)};\
         }\
     };
 
@@ -161,40 +165,45 @@ MAKE_TYPE_INFO(PoolColorArray, VariantType::POOL_COLOR_ARRAY)
     struct GetTypeInfo<Span<type>> {\
         constexpr static const VariantType VARIANT_TYPE = VariantType::ARRAY;\
         constexpr static const GodotTypeInfo::Metadata METADATA = GodotTypeInfo::METADATA_NONE;\
+        constexpr static const TypePassBy PASS_BY = TypePassBy::Value; \
         constexpr static inline RawPropertyInfo get_class_info() {  \
-            return RawPropertyInfo { nullptr,nullptr,nullptr,int8_t(VARIANT_TYPE),TypePassBy::Value};\
+            return RawPropertyInfo { nullptr,nullptr,nullptr,int8_t(VARIANT_TYPE)};\
         }\
     };\
     template <>\
     struct GetTypeInfo<Span<const type>> {\
         constexpr static const VariantType VARIANT_TYPE = VariantType::ARRAY;\
         constexpr static const GodotTypeInfo::Metadata METADATA = GodotTypeInfo::METADATA_NONE;\
+        constexpr static const TypePassBy PASS_BY = TypePassBy::Value; \
         constexpr static inline RawPropertyInfo get_class_info() {  \
-            return RawPropertyInfo { nullptr,nullptr,nullptr,int8_t(VARIANT_TYPE),TypePassBy::Value};\
+            return RawPropertyInfo { nullptr,nullptr,nullptr,int8_t(VARIANT_TYPE)};\
         }\
     };
 template <>
 struct GetTypeInfo<Span<uint8_t>> {
     constexpr static const VariantType VARIANT_TYPE = VariantType::POOL_BYTE_ARRAY;
     constexpr static const GodotTypeInfo::Metadata METADATA = GodotTypeInfo::METADATA_NONE;
+    constexpr static const TypePassBy PASS_BY = TypePassBy::Value;
     constexpr static inline RawPropertyInfo get_class_info() {
-      return RawPropertyInfo{ nullptr, nullptr, nullptr, int8_t(VARIANT_TYPE), TypePassBy::Value };
+        return RawPropertyInfo{ nullptr, nullptr, nullptr, int8_t(VARIANT_TYPE) };
     }
 };
 template <>
 struct GetTypeInfo<Span<const uint8_t>> {
     constexpr static const VariantType VARIANT_TYPE = VariantType::POOL_BYTE_ARRAY;
     constexpr static const GodotTypeInfo::Metadata METADATA = GodotTypeInfo::METADATA_NONE;
+    constexpr static const TypePassBy PASS_BY = TypePassBy::Value;
     constexpr static inline RawPropertyInfo get_class_info() {
-        return RawPropertyInfo{ nullptr, nullptr, nullptr, int8_t(VARIANT_TYPE), TypePassBy::Value };
+        return RawPropertyInfo{ nullptr, nullptr, nullptr, int8_t(VARIANT_TYPE) };
     }
 };
 template <>
 struct GetTypeInfo<Span<const int>> {
     constexpr static const VariantType VARIANT_TYPE = VariantType::POOL_INT_ARRAY;
     constexpr static const GodotTypeInfo::Metadata METADATA = GodotTypeInfo::METADATA_NONE;
+    constexpr static const TypePassBy PASS_BY = TypePassBy::Value;
     constexpr static inline RawPropertyInfo get_class_info() {
-        return RawPropertyInfo{ nullptr, nullptr, nullptr, int8_t(VARIANT_TYPE), TypePassBy::Value };
+        return RawPropertyInfo{ nullptr, nullptr, nullptr, int8_t(VARIANT_TYPE) };
     }
 
 };
@@ -202,8 +211,9 @@ template <>
 struct GetTypeInfo<Span<const float>> {
     constexpr static const VariantType VARIANT_TYPE = VariantType::POOL_REAL_ARRAY;
     constexpr static const GodotTypeInfo::Metadata METADATA = GodotTypeInfo::METADATA_NONE;
+    constexpr static const TypePassBy PASS_BY = TypePassBy::Value;
     constexpr static inline RawPropertyInfo get_class_info() {
-        return RawPropertyInfo{ nullptr, nullptr, nullptr, int8_t(VARIANT_TYPE), TypePassBy::Value };
+        return RawPropertyInfo{ nullptr, nullptr, nullptr, int8_t(VARIANT_TYPE)};
     }
 };
 
@@ -222,16 +232,18 @@ template <>
 struct GetTypeInfo<RefPtr> {
     constexpr static const VariantType VARIANT_TYPE = VariantType::OBJECT;
     constexpr static const GodotTypeInfo::Metadata METADATA = GodotTypeInfo::METADATA_NONE;
+    constexpr static const TypePassBy PASS_BY = TypePassBy::Value;
     constexpr static inline RawPropertyInfo get_class_info() {
-        return RawPropertyInfo{ nullptr,"RefCounted","RefCounted",int8_t(VariantType::OBJECT), TypePassBy::Value, PROPERTY_HINT_RESOURCE_TYPE };
+        return RawPropertyInfo{ nullptr,"RefCounted","RefCounted",int8_t(VariantType::OBJECT), PROPERTY_HINT_RESOURCE_TYPE };
     }
 };
 template <>
 struct GetTypeInfo<const RefPtr &> {
     constexpr static const VariantType VARIANT_TYPE = VariantType::OBJECT;
     constexpr static const GodotTypeInfo::Metadata METADATA = GodotTypeInfo::METADATA_NONE;
+    constexpr static const TypePassBy PASS_BY = TypePassBy::Reference;
     constexpr static inline RawPropertyInfo get_class_info() {
-        return RawPropertyInfo{ nullptr,"RefCounted","RefCounted",int8_t(VariantType::OBJECT), TypePassBy::Reference, PROPERTY_HINT_RESOURCE_TYPE };
+        return RawPropertyInfo{ nullptr,"RefCounted","RefCounted",int8_t(VariantType::OBJECT), PROPERTY_HINT_RESOURCE_TYPE };
     }
 };
 
@@ -240,8 +252,9 @@ template <>
 struct GetTypeInfo<Variant> {
     constexpr static const VariantType VARIANT_TYPE = VariantType::NIL;
     constexpr static const GodotTypeInfo::Metadata METADATA = GodotTypeInfo::METADATA_NONE;
+    constexpr static const TypePassBy PASS_BY = TypePassBy::Value;
     constexpr static inline RawPropertyInfo get_class_info() {
-        return RawPropertyInfo{ nullptr, nullptr, nullptr, int8_t(VARIANT_TYPE), TypePassBy::Value, PROPERTY_HINT_NONE,
+        return RawPropertyInfo{ nullptr, nullptr, nullptr, int8_t(VARIANT_TYPE), PROPERTY_HINT_NONE,
             PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_NIL_IS_VARIANT };
     }
 };
@@ -250,8 +263,9 @@ template <>
 struct GetTypeInfo<const Variant &> {
     constexpr static const VariantType VARIANT_TYPE = VariantType::NIL;
     constexpr static const GodotTypeInfo::Metadata METADATA = GodotTypeInfo::METADATA_NONE;
+    constexpr static const TypePassBy PASS_BY = TypePassBy::Reference;
     constexpr static inline RawPropertyInfo get_class_info() {
-        return RawPropertyInfo{ nullptr, nullptr, nullptr, int8_t(VARIANT_TYPE), TypePassBy::Reference, PROPERTY_HINT_NONE,
+        return RawPropertyInfo{ nullptr, nullptr, nullptr, int8_t(VARIANT_TYPE), PROPERTY_HINT_NONE,
             PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_NIL_IS_VARIANT };
     }
 };
@@ -261,16 +275,18 @@ struct GetTypeInfo<const Variant &> {
     struct GetTypeInfo<m_template<m_type> > {                                         \
         constexpr static const VariantType VARIANT_TYPE = m_var_type;                         \
         constexpr static const GodotTypeInfo::Metadata METADATA = GodotTypeInfo::METADATA_NONE; \
+        constexpr static const TypePassBy PASS_BY = TypePassBy::Reference; \
         constexpr static inline RawPropertyInfo get_class_info() {\
-            return RawPropertyInfo { nullptr,nullptr,nullptr,int8_t(VARIANT_TYPE),TypePassBy::Value};\
+            return RawPropertyInfo { nullptr,nullptr,nullptr,int8_t(VARIANT_TYPE)};\
         }\
     };                                                                                \
     template <>                                                                       \
     struct GetTypeInfo<const m_template<m_type> &> {                                  \
         constexpr static const VariantType VARIANT_TYPE = m_var_type;                         \
         constexpr static const GodotTypeInfo::Metadata METADATA = GodotTypeInfo::METADATA_NONE; \
+        constexpr static const TypePassBy PASS_BY = TypePassBy::Reference; \
         constexpr static inline RawPropertyInfo get_class_info() {\
-            return RawPropertyInfo { nullptr,nullptr,nullptr,int8_t(VARIANT_TYPE),TypePassBy::Reference};\
+            return RawPropertyInfo { nullptr,nullptr,nullptr,int8_t(VARIANT_TYPE)};\
         }\
     };
 
@@ -307,8 +323,9 @@ template <>
 struct GetTypeInfo<Frustum> {
     constexpr static const VariantType VARIANT_TYPE = VariantType::ARRAY;
     constexpr static const GodotTypeInfo::Metadata METADATA = GodotTypeInfo::METADATA_NONE;
+    constexpr static const TypePassBy PASS_BY = TypePassBy::Reference;
     constexpr static inline RawPropertyInfo get_class_info() {
-        return RawPropertyInfo { nullptr,nullptr,nullptr,int8_t(VARIANT_TYPE),TypePassBy::Reference};
+        return RawPropertyInfo { nullptr,nullptr,nullptr,int8_t(VARIANT_TYPE)};
     }
 };
 
@@ -316,8 +333,9 @@ template <typename T>
 struct GetTypeInfo<T *, typename EnableIf<TypeInherits<Object, T>::value>::type> {
     constexpr static const VariantType VARIANT_TYPE = VariantType::OBJECT;
     constexpr static const GodotTypeInfo::Metadata METADATA = GodotTypeInfo::METADATA_NONE;
+    constexpr static const TypePassBy PASS_BY = TypePassBy::Pointer;
     constexpr static inline RawPropertyInfo get_class_info() {
-        return RawPropertyInfo { nullptr,nullptr,T::get_class_static(),int8_t(VARIANT_TYPE),TypePassBy::Pointer};
+        return RawPropertyInfo { nullptr,nullptr,T::get_class_static(),int8_t(VARIANT_TYPE)};
     }
 };
 
@@ -325,8 +343,9 @@ template <typename T>
 struct GetTypeInfo<const T *, typename EnableIf<TypeInherits<Object, T>::value>::type> {
     constexpr static const VariantType VARIANT_TYPE = VariantType::OBJECT;
     constexpr static const GodotTypeInfo::Metadata METADATA = GodotTypeInfo::METADATA_NONE;
+    constexpr static const TypePassBy PASS_BY = TypePassBy::Pointer;
     constexpr static inline RawPropertyInfo get_class_info() {
-        return RawPropertyInfo { nullptr,nullptr,T::get_class_static(),int8_t(VARIANT_TYPE),TypePassBy::Pointer};
+        return RawPropertyInfo { nullptr,nullptr,T::get_class_static(),int8_t(VARIANT_TYPE)};
     }
 };
 
@@ -334,8 +353,9 @@ struct GetTypeInfo<const T *, typename EnableIf<TypeInherits<Object, T>::value>:
     template <> struct GetTypeInfo<m_impl> {                                                                           \
         constexpr static const VariantType VARIANT_TYPE = VariantType::INT;                                            \
         constexpr static const GodotTypeInfo::Metadata METADATA = GodotTypeInfo::METADATA_NONE;                        \
+    constexpr static const TypePassBy PASS_BY = TypePassBy::Value;                                                     \
         constexpr static inline RawPropertyInfo get_class_info() {                                                     \
-            return RawPropertyInfo{ nullptr, nullptr, #m_enum, int8_t(VARIANT_TYPE), TypePassBy::Pointer,              \
+            return RawPropertyInfo{ nullptr, nullptr, #m_enum, int8_t(VARIANT_TYPE),                                   \
                 PROPERTY_HINT_NONE, PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_CLASS_IS_ENUM };                           \
         }                                                                                                              \
     };
