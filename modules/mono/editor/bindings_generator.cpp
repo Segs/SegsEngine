@@ -208,7 +208,7 @@ String BindingsGenerator::bbcode_to_xml(se_string_view p_bbcode, const TypeInter
             brk_pos = bbcode.length();
 
         if (brk_pos > pos) {
-            se_string_view text = bbcode.substr(pos, brk_pos - pos);
+            se_string_view text = StringUtils::substr(bbcode,pos, brk_pos - pos);
             if (code_tag || tag_stack.size() > 0) {
                 xml_output.append(StringUtils::xml_escape(text));
             } else {
@@ -231,7 +231,7 @@ String BindingsGenerator::bbcode_to_xml(se_string_view p_bbcode, const TypeInter
         size_t brk_end = bbcode.find("]", brk_pos + 1);
 
         if (brk_end == String::npos) {
-            se_string_view text = bbcode.substr(brk_pos, bbcode.length() - brk_pos);
+            se_string_view text = StringUtils::substr(bbcode,brk_pos, bbcode.length() - brk_pos);
             if (code_tag || tag_stack.size() > 0) {
                 xml_output.append(StringUtils::xml_escape(text));
             } else {
@@ -250,7 +250,7 @@ String BindingsGenerator::bbcode_to_xml(se_string_view p_bbcode, const TypeInter
             break;
         }
 
-        se_string_view tag = bbcode.substr(brk_pos + 1, brk_end - brk_pos - 1);
+        se_string_view tag = StringUtils::substr(bbcode,brk_pos + 1, brk_end - brk_pos - 1);
 
         if (tag.starts_with('/')) {
             bool tag_ok = tag_stack.size() && tag_stack.front() == tag.substr(1, tag.length());
@@ -296,9 +296,9 @@ String BindingsGenerator::bbcode_to_xml(se_string_view p_bbcode, const TypeInter
             StringName target_cname;
 
             if (link_target_parts.size() == 2) {
-                target_itype = _get_type_or_null(TypeReference(StringName(link_target_parts[0])));
+                target_itype = _get_type_or_null(TypeReference { StringName(link_target_parts[0]) });
                 if (!target_itype) {
-                    target_itype = _get_type_or_null(TypeReference("_" + link_target_parts[0]));
+                    target_itype = _get_type_or_null(TypeReference {"_" + link_target_parts[0]});
                 }
                 target_cname = StringName(link_target_parts[1]);
             } else {
@@ -370,6 +370,8 @@ String BindingsGenerator::bbcode_to_xml(se_string_view p_bbcode, const TypeInter
                 if (enum_types.end()==enum_match && search_cname != target_cname) {
                     enum_match = enum_types.find(target_cname);
                 }
+                if (enum_types.end() == enum_match) // try the fixed name -> "Enum"
+                    enum_match = enum_types.find(search_cname+"Enum");
 
                 if (enum_types.end()!=enum_match) {
                     const TypeInterface &target_enum_itype = enum_match->second;
@@ -526,10 +528,10 @@ String BindingsGenerator::bbcode_to_xml(se_string_view p_bbcode, const TypeInter
             } else if (tag == "PoolColorArray"_sv) {
                 xml_output.append("<see cref=\"" BINDINGS_NAMESPACE ".Color\"/>");
             } else {
-                const TypeInterface *target_itype = _get_type_or_null(TypeReference(StringName(tag)));
+                const TypeInterface *target_itype = _get_type_or_null({StringName(tag)});
 
                 if (!target_itype) {
-                    target_itype = _get_type_or_null(TypeReference("_" + tag));
+                    target_itype = _get_type_or_null({"_" + tag});
                 }
 
                 if (target_itype) {
@@ -585,7 +587,7 @@ String BindingsGenerator::bbcode_to_xml(se_string_view p_bbcode, const TypeInter
             int end = bbcode.find("[", brk_end);
             if (end == -1)
                 end = bbcode.length();
-            String url = bbcode.substr(brk_end + 1, end - brk_end - 1);
+            se_string_view url = StringUtils::substr(bbcode,brk_end + 1, end - brk_end - 1);
             xml_output.append("<a href=\"");
             xml_output.append(url);
             xml_output.append("\">");
@@ -605,7 +607,7 @@ String BindingsGenerator::bbcode_to_xml(se_string_view p_bbcode, const TypeInter
             int end = bbcode.find("[", brk_end);
             if (end == -1)
                 end = bbcode.length();
-            String image = bbcode.substr(brk_end + 1, end - brk_end - 1);
+            se_string_view image(StringUtils::substr(bbcode,brk_end + 1, end - brk_end - 1));
 
             // Not supported. Just append the bbcode.
             xml_output.append("[img]");
@@ -1969,12 +1971,18 @@ Error BindingsGenerator::_generate_glue_method(const BindingsGenerator::TypeInte
         c_func_sig += ", ";
         c_func_sig += arg_type->c_type_in;
         //special case for NodePath
-        if(arg_type->c_type=="NodePath")
-        {
-            bind_sig += ", NodePath *";
+        bind_sig += ", " + arg_type->c_type;
+        switch(iarg.type.pass_by) {
+            case TypePassBy::Value:
+            break;
+            case TypePassBy::Reference:
+                bind_sig += " &";
+            break;
+            case TypePassBy::Pointer:
+                bind_sig += " *";
+            break;
+            default: ;
         }
-        else
-            bind_sig += ", " + arg_type->c_type;
         c_func_sig += " ";
         c_func_sig += c_param_name;
 
@@ -2319,7 +2327,6 @@ bool BindingsGenerator::_populate_object_type_interfaces() {
         PODVector<MethodInfo> method_list;
         ClassDB::get_method_list(type_cname, &method_list, true);
         eastl::sort(method_list.begin(),method_list.end());
-
         for (const MethodInfo &method_info : method_list) {
             int argc = method_info.arguments.size();
 
@@ -2331,9 +2338,7 @@ bool BindingsGenerator::_populate_object_type_interfaces() {
             if (blacklisted_methods.contains(itype.cname) && blacklisted_methods[itype.cname].contains(cname))
                 continue;
 
-            MethodInterface imethod;
-            imethod.name = method_info.name;
-            imethod.cname = cname;
+            MethodInterface imethod { String(method_info.name) ,cname };
 
             if (method_info.flags & METHOD_FLAG_VIRTUAL)
                 imethod.is_virtual = true;
@@ -2341,7 +2346,8 @@ bool BindingsGenerator::_populate_object_type_interfaces() {
             PropertyInfo return_info = method_info.return_val;
 
             MethodBind *m = imethod.is_virtual ? nullptr : ClassDB::get_method(type_cname, method_info.name);
-
+            const Span<const GodotTypeInfo::Metadata> arg_meta(m? m->get_arguments_meta(): Span<const GodotTypeInfo::Metadata>());
+            const Span<const TypePassBy> arg_pass(m? m->get_arguments_passing() : Span<const TypePassBy>());
             imethod.is_vararg = m && m->is_vararg();
 
             if (!m && !imethod.is_virtual) {
@@ -2386,16 +2392,16 @@ bool BindingsGenerator::_populate_object_type_interfaces() {
                 imethod.return_type.cname = name_cache.type_void;
             } else {
                 if (return_info.type == VariantType::INT) {
-                    imethod.return_type.cname = _get_int_type_name_from_meta(m ? m->get_argument_meta(-1) : GodotTypeInfo::METADATA_NONE);
+                    imethod.return_type.cname = _get_int_type_name_from_meta(arg_meta.size()>0 ? arg_meta[0] : GodotTypeInfo::METADATA_NONE);
                 } else if (return_info.type == VariantType::REAL) {
-                    imethod.return_type.cname = _get_float_type_name_from_meta(m ? m->get_argument_meta(-1) : GodotTypeInfo::METADATA_NONE);
+                    imethod.return_type.cname = _get_float_type_name_from_meta(arg_meta.size() > 0 ? arg_meta[0] : GodotTypeInfo::METADATA_NONE);
                 } else {
                     imethod.return_type.cname = Variant::interned_type_name(return_info.type);
                 }
             }
 
             for (int i = 0; i < argc; i++) {
-                PropertyInfo arginfo = method_info.arguments[i];
+                const PropertyInfo &arginfo = method_info.arguments[i];
 
                 StringName orig_arg_name = arginfo.name;
 
@@ -2405,19 +2411,25 @@ bool BindingsGenerator::_populate_object_type_interfaces() {
                 if (arginfo.type == VariantType::INT && arginfo.usage & PROPERTY_USAGE_CLASS_IS_ENUM) {
                     iarg.type.cname = arginfo.class_name;
                     iarg.type.is_enum = true;
+                    iarg.type.pass_by = TypePassBy::Value;
                 } else if (!arginfo.class_name.empty()) {
                     iarg.type.cname = arginfo.class_name;
+                    iarg.type.pass_by = TypePassBy::Reference;
                 } else if (arginfo.hint == PROPERTY_HINT_RESOURCE_TYPE) {
                     iarg.type.cname = StringName(arginfo.hint_string);
+                    iarg.type.pass_by = TypePassBy::Reference;
                 } else if (arginfo.type == VariantType::NIL) {
                     iarg.type.cname = name_cache.type_Variant;
                 } else {
                     if (arginfo.type == VariantType::INT) {
-                        iarg.type.cname = _get_int_type_name_from_meta(m ? m->get_argument_meta(i) : GodotTypeInfo::METADATA_NONE);
+                        iarg.type.cname = _get_int_type_name_from_meta(arg_meta.size() > (i+1) ? arg_meta[i+1] : GodotTypeInfo::METADATA_NONE);
+                        iarg.type.pass_by = arg_pass.size() > (i + 1) ? arg_pass[i + 1] : TypePassBy::Value;
                     } else if (arginfo.type == VariantType::REAL) {
-                        iarg.type.cname = _get_float_type_name_from_meta(m ? m->get_argument_meta(i) : GodotTypeInfo::METADATA_NONE);
+                        iarg.type.cname = _get_float_type_name_from_meta(arg_meta.size() > (i + 1) ? arg_meta[i + 1] : GodotTypeInfo::METADATA_NONE);
+                        iarg.type.pass_by = arg_pass.size() > (i + 1) ? arg_pass[i + 1] : TypePassBy::Value;
                     } else {
                         iarg.type.cname = Variant::interned_type_name(arginfo.type);
+                        iarg.type.pass_by = TypePassBy::Value;
                     }
                 }
 
@@ -2489,7 +2501,11 @@ bool BindingsGenerator::_populate_object_type_interfaces() {
 
         const DefHashMap<StringName, ListPOD<StringName> > &enum_map = class_iter->second.enum_map;
         for(const auto &F: enum_map) {
-            StringName enum_proxy_cname = F.first;
+            auto parts = StringUtils::split(F.first,"::");
+            if(parts.size()>1 && itype.name==parts[0]) {
+                parts.pop_front(); // Skip leading type name, this will be fixed below
+            }
+            StringName enum_proxy_cname(parts.front());
             String enum_proxy_name(enum_proxy_cname);
             if (itype.find_property_by_proxy_name(enum_proxy_name)) {
                 // We have several conflicts between enums and PascalCase properties,
@@ -2528,7 +2544,7 @@ bool BindingsGenerator::_populate_object_type_interfaces() {
 
             TypeInterface enum_itype;
             enum_itype.is_enum = true;
-            enum_itype.name = itype.name + "." + String(F.first);
+            enum_itype.name = itype.name + "." + String(enum_proxy_cname);
             enum_itype.cname = StringName(enum_itype.name);
             enum_itype.proxy_name = itype.proxy_name + "." + enum_proxy_name;
             TypeInterface::postsetup_enum_type(enum_itype);
@@ -3004,8 +3020,10 @@ void BindingsGenerator::_populate_global_constants() {
             ConstantInterface iconstant(constant_name, snake_to_pascal_case(constant_name, true), constant_value);
             iconstant.const_doc = const_doc;
 
-            if (enum_name != StringName()) {
-                EnumInterface ienum(enum_name);
+            if (enum_name.empty()) {
+                global_constants.push_back(iconstant);
+            } else {
+                EnumInterface ienum(StringName(String(enum_name).replaced("::",".")));
                 auto enum_match = global_enums.find(ienum);
                 if (enum_match!=global_enums.end()) {
                     enum_match->constants.push_back(iconstant);
@@ -3013,8 +3031,6 @@ void BindingsGenerator::_populate_global_constants() {
                     ienum.constants.push_back(iconstant);
                     global_enums.push_back(ienum);
                 }
-            } else {
-                global_constants.push_back(iconstant);
             }
         }
 
@@ -3026,6 +3042,7 @@ void BindingsGenerator::_populate_global_constants() {
             enum_itype.cname = ienum.cname;
             enum_itype.proxy_name = StringName(enum_itype.name);
             TypeInterface::postsetup_enum_type(enum_itype);
+
             enum_types.emplace(enum_itype.cname, enum_itype);
 
             int prefix_length = _determine_enum_prefix(ienum);
@@ -3055,6 +3072,7 @@ void BindingsGenerator::_populate_global_constants() {
         enum_itype.cname = E;
         enum_itype.proxy_name = E;
         TypeInterface::postsetup_enum_type(enum_itype);
+        assert(!se_string_view(enum_itype.cname).contains("::"));
         enum_types.emplace(enum_itype.cname, enum_itype);
     }
 }

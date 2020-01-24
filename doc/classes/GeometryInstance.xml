@@ -88,7 +88,7 @@
 			Will allow the GeometryInstance to be used when baking lights using a [GIProbe] or [BakedLightmap].
 		</constant>
 		<constant name="FLAG_DRAW_NEXT_FRAME_IF_VISIBLE" value="1" enum="Flags">
-			Unused in this class, exposed for consistency with [enum VisualServer.InstanceFlags].
+			Unused in this class, exposed for consistency with [enum VisualServerEnums.InstanceFlags].
 		</constant>
 		<constant name="FLAG_MAX" value="2" enum="Flags">
 			Represents the size of the [enum Flags] enum.

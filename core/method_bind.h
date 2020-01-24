@@ -196,10 +196,10 @@ protected:
             // TODO: SEGS: add assertion p_arg_count==0
             (void)p_arg_count;
             (void)p_args;
-            return std::invoke(reinterpret_cast<TFunction>(method), instance);
+            return std::invoke(method, instance);
         } else {
             ArgumentWrapper wrap{ p_args ? p_args : nullptr, p_arg_count, default_arguments };
-            return std::invoke(reinterpret_cast<TFunction>(method), instance,
+            return std::invoke(method, instance,
                     VariantCaster<typename std::tuple_element<Is, Params>::type>::cast(
                             *visit_at_ce<ArgumentWrapper, Args...>(Is, wrap))...);
         }
@@ -207,7 +207,7 @@ protected:
     using Params = std::tuple<Args...>;
     // MethodBind interface
 public:
-    void (Object::*method)();
+    TFunction method;
     constexpr static bool (*verifiers[sizeof...(Args)+1])(const Variant &) = { // +1 is here because vs2017 requires constexpr array of non-zero size
         VariantObjectClassChecker<Args>::check ...
     };
@@ -216,8 +216,15 @@ public:
         GetTypeInfo<typename eastl::conditional<eastl::is_same_v<void,RESULT>, bool , RESULT>::type >::METADATA,
         GetTypeInfo<typename eastl::decay<Args>::type>::METADATA ...
     };
-    GodotTypeInfo::Metadata do_get_argument_meta(int p_arg) const override {
-        return s_metadata[p_arg+1];
+    constexpr static const TypePassBy s_pass_type[sizeof...(Args) + 1] = {
+        GetTypeInfo<typename eastl::conditional<eastl::is_same_v<void,RESULT>, bool , RESULT>::type >::PASS_BY,
+        GetTypeInfo<typename eastl::decay<Args>::type>::PASS_BY ...
+    };
+    Span<const GodotTypeInfo::Metadata> do_get_argument_meta() const override {
+        return s_metadata;
+    }
+    Span<const TypePassBy> do_get_argument_passby() const override {
+        return s_pass_type;
     }
     PropertyInfo _gen_argument_type_info(int p_arg) const override {
         if(p_arg==-1) {
@@ -257,7 +264,7 @@ public:
     }
 
     MethodBindVA (TFunction f) {
-        method = reinterpret_cast<void (Object::*)()>(f); // casting method to a basic Object::method()
+        method = f; // casting method to a basic Object::method()
         instance_class_name = T::get_class_static();
         set_argument_count(sizeof...(Args));
 #ifdef DEBUG_METHODS_ENABLED
