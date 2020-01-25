@@ -1603,10 +1603,10 @@ bool TileMap::_get(const StringName &p_name, Variant &r_ret) const {
 
 void TileMap::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
 
-    PropertyInfo p(VariantType::INT, "format", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL);
+    PropertyInfo p(VariantType::INT, "format", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL);
     p_list->push_back(p);
 
-    p = PropertyInfo(VariantType::OBJECT, "tile_data", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL);
+    p = PropertyInfo(VariantType::OBJECT, "tile_data", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL);
     p_list->push_back(p);
 }
 
@@ -1901,30 +1901,30 @@ void TileMap::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("_set_tile_data"), &TileMap::_set_tile_data);
     MethodBinder::bind_method(D_METHOD("_get_tile_data"), &TileMap::_get_tile_data);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "mode", PROPERTY_HINT_ENUM, "Square,Isometric,Custom"), "set_mode", "get_mode");
-    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "tile_set", PROPERTY_HINT_RESOURCE_TYPE, "TileSet"), "set_tileset", "get_tileset");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "mode", PropertyHint::Enum, "Square,Isometric,Custom"), "set_mode", "get_mode");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "tile_set", PropertyHint::ResourceType, "TileSet"), "set_tileset", "get_tileset");
 
     ADD_GROUP("Cell", "cell_");
-    ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "cell_size", PROPERTY_HINT_RANGE, "1,8192,1"), "set_cell_size", "get_cell_size");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "cell_quadrant_size", PROPERTY_HINT_RANGE, "1,128,1"), "set_quadrant_size", "get_quadrant_size");
+    ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "cell_size", PropertyHint::Range, "1,8192,1"), "set_cell_size", "get_cell_size");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "cell_quadrant_size", PropertyHint::Range, "1,128,1"), "set_quadrant_size", "get_quadrant_size");
     ADD_PROPERTY(PropertyInfo(VariantType::TRANSFORM2D, "cell_custom_transform"), "set_custom_transform", "get_custom_transform");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "cell_half_offset", PROPERTY_HINT_ENUM, "Offset X,Offset Y,Disabled,Offset Negative X,Offset Negative Y"), "set_half_offset", "get_half_offset");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "cell_tile_origin", PROPERTY_HINT_ENUM, "Top Left,Center,Bottom Left"), "set_tile_origin", "get_tile_origin");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "cell_half_offset", PropertyHint::Enum, "Offset X,Offset Y,Disabled,Offset Negative X,Offset Negative Y"), "set_half_offset", "get_half_offset");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "cell_tile_origin", PropertyHint::Enum, "Top Left,Center,Bottom Left"), "set_tile_origin", "get_tile_origin");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "cell_y_sort"), "set_y_sort_mode", "is_y_sort_mode_enabled");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "compatibility_mode"), "set_compatibility_mode", "is_compatibility_mode_enabled");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "centered_textures"), "set_centered_textures", "is_centered_textures_enabled");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "cell_clip_uv"), "set_clip_uv", "get_clip_uv");
 
     ADD_GROUP("Collision", "collision_");
-    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "collision_use_parent", PROPERTY_HINT_NONE, ""), "set_collision_use_parent", "get_collision_use_parent");
-    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "collision_use_kinematic", PROPERTY_HINT_NONE, ""), "set_collision_use_kinematic", "get_collision_use_kinematic");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "collision_friction", PROPERTY_HINT_RANGE, "0,1,0.01"), "set_collision_friction", "get_collision_friction");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "collision_bounce", PROPERTY_HINT_RANGE, "0,1,0.01"), "set_collision_bounce", "get_collision_bounce");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "collision_layer", PROPERTY_HINT_LAYERS_2D_PHYSICS), "set_collision_layer", "get_collision_layer");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "collision_mask", PROPERTY_HINT_LAYERS_2D_PHYSICS), "set_collision_mask", "get_collision_mask");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "collision_use_parent", PropertyHint::None, ""), "set_collision_use_parent", "get_collision_use_parent");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "collision_use_kinematic", PropertyHint::None, ""), "set_collision_use_kinematic", "get_collision_use_kinematic");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "collision_friction", PropertyHint::Range, "0,1,0.01"), "set_collision_friction", "get_collision_friction");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "collision_bounce", PropertyHint::Range, "0,1,0.01"), "set_collision_bounce", "get_collision_bounce");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "collision_layer", PropertyHint::Layers2DPhysics), "set_collision_layer", "get_collision_layer");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "collision_mask", PropertyHint::Layers2DPhysics), "set_collision_mask", "get_collision_mask");
 
     ADD_GROUP("Occluder", "occluder_");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "occluder_light_mask", PROPERTY_HINT_LAYERS_2D_RENDER), "set_occluder_light_mask", "get_occluder_light_mask");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "occluder_light_mask", PropertyHint::Layers2DRenderer), "set_occluder_light_mask", "get_occluder_light_mask");
 
     ADD_PROPERTY_DEFAULT("format", FORMAT_1);
 

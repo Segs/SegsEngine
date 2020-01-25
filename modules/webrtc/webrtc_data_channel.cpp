@@ -52,7 +52,7 @@ void WebRTCDataChannel::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_protocol"), &WebRTCDataChannel::get_protocol);
     MethodBinder::bind_method(D_METHOD("is_negotiated"), &WebRTCDataChannel::is_negotiated);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "write_mode", PROPERTY_HINT_ENUM), "set_write_mode", "get_write_mode");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "write_mode", PropertyHint::Enum), "set_write_mode", "get_write_mode");
 
     BIND_ENUM_CONSTANT(WRITE_MODE_TEXT)
     BIND_ENUM_CONSTANT(WRITE_MODE_BINARY)

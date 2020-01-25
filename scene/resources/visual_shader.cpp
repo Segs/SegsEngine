@@ -138,7 +138,7 @@ void VisualShaderNode::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("_get_default_input_values"), &VisualShaderNode::_get_default_input_values);
 
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "output_port_for_preview"), "set_output_port_for_preview", "get_output_port_for_preview");
-    ADD_PROPERTY(PropertyInfo(VariantType::ARRAY, "default_input_values", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR), "_set_default_input_values", "_get_default_input_values");
+    ADD_PROPERTY(PropertyInfo(VariantType::ARRAY, "default_input_values", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR), "_set_default_input_values", "_get_default_input_values");
     ADD_SIGNAL(MethodInfo("editor_refresh_request"));
 
     BIND_ENUM_CONSTANT(PORT_TYPE_SCALAR)
@@ -971,7 +971,7 @@ bool VisualShader::_get(const StringName &p_name, Variant &r_ret) const {
 void VisualShader::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
 
     //mode
-    p_list->push_back(PropertyInfo(VariantType::INT, "mode", PROPERTY_HINT_ENUM, "Spatial,CanvasItem,Particles"));
+    p_list->push_back(PropertyInfo(VariantType::INT, "mode", PropertyHint::Enum, "Spatial,CanvasItem,Particles"));
     //render modes
 
     Map<String, String> blend_mode_enums;
@@ -1004,7 +1004,7 @@ void VisualShader::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
 
     for (eastl::pair<const String,String> &E : blend_mode_enums) {
 
-        p_list->push_back(PropertyInfo(VariantType::INT, StringName("modes/" + E.first), PROPERTY_HINT_ENUM, E.second));
+        p_list->push_back(PropertyInfo(VariantType::INT, StringName("modes/" + E.first), PropertyHint::Enum, E.second));
     }
 
     for (const String &E : toggles) {
@@ -1018,20 +1018,20 @@ void VisualShader::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
 
             if (E.first != NODE_ID_OUTPUT) {
 
-                p_list->push_back(PropertyInfo(VariantType::OBJECT, prop_name + "/node", PROPERTY_HINT_RESOURCE_TYPE, "VisualShaderNode", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_DO_NOT_SHARE_ON_DUPLICATE));
+                p_list->push_back(PropertyInfo(VariantType::OBJECT, prop_name + "/node", PropertyHint::ResourceType, "VisualShaderNode", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_DO_NOT_SHARE_ON_DUPLICATE));
             }
-            p_list->push_back(PropertyInfo(VariantType::VECTOR2, prop_name + "/position", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR));
+            p_list->push_back(PropertyInfo(VariantType::VECTOR2, prop_name + "/position", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR));
 
             if (object_cast<VisualShaderNodeGroupBase>(E.second.node.get()) != nullptr) {
-                p_list->push_back(PropertyInfo(VariantType::VECTOR2, prop_name + "/size", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR));
-                p_list->push_back(PropertyInfo(VariantType::STRING, prop_name + "/input_ports", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR));
-                p_list->push_back(PropertyInfo(VariantType::STRING, prop_name + "/output_ports", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR));
+                p_list->push_back(PropertyInfo(VariantType::VECTOR2, prop_name + "/size", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR));
+                p_list->push_back(PropertyInfo(VariantType::STRING, prop_name + "/input_ports", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR));
+                p_list->push_back(PropertyInfo(VariantType::STRING, prop_name + "/output_ports", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR));
             }
             if (object_cast<VisualShaderNodeExpression>(E.second.node.get()) != nullptr) {
-                p_list->push_back(PropertyInfo(VariantType::STRING, prop_name + "/expression", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR));
+                p_list->push_back(PropertyInfo(VariantType::STRING, prop_name + "/expression", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR));
             }
         }
-        p_list->push_back(PropertyInfo(VariantType::POOL_INT_ARRAY, StringName("nodes/") + type_string[i] + "/connections", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR));
+        p_list->push_back(PropertyInfo(VariantType::POOL_INT_ARRAY, StringName("nodes/") + type_string[i] + "/connections", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR));
     }
 }
 
@@ -1381,7 +1381,7 @@ void VisualShader::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("_input_type_changed"), &VisualShader::_input_type_changed);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "graph_offset", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR), "set_graph_offset", "get_graph_offset");
+    ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "graph_offset", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR), "set_graph_offset", "get_graph_offset");
 
     BIND_ENUM_CONSTANT(TYPE_VERTEX)
     BIND_ENUM_CONSTANT(TYPE_FRAGMENT)
@@ -1806,7 +1806,7 @@ void VisualShaderNodeInput::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_input_name"), &VisualShaderNodeInput::get_input_name);
     MethodBinder::bind_method(D_METHOD("get_input_real_name"), &VisualShaderNodeInput::get_input_real_name);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "input_name", PROPERTY_HINT_ENUM, ""), "set_input_name", "get_input_name");
+    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "input_name", PropertyHint::Enum, ""), "set_input_name", "get_input_name");
     ADD_SIGNAL(MethodInfo("input_type_changed"));
 }
 VisualShaderNodeInput::VisualShaderNodeInput() {

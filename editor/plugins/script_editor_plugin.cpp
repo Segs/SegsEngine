@@ -3184,8 +3184,8 @@ void ScriptEditor::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_open_scripts"), &ScriptEditor::_get_open_scripts);
     MethodBinder::bind_method(D_METHOD("open_script_create_dialog", {"base_name", "base_path"}), &ScriptEditor::open_script_create_dialog);
 
-    ADD_SIGNAL(MethodInfo("editor_script_changed", PropertyInfo(VariantType::OBJECT, "script", PROPERTY_HINT_RESOURCE_TYPE, "Script")));
-    ADD_SIGNAL(MethodInfo("script_close", PropertyInfo(VariantType::OBJECT, "script", PROPERTY_HINT_RESOURCE_TYPE, "Script")));
+    ADD_SIGNAL(MethodInfo("editor_script_changed", PropertyInfo(VariantType::OBJECT, "script", PropertyHint::ResourceType, "Script")));
+    ADD_SIGNAL(MethodInfo("script_close", PropertyInfo(VariantType::OBJECT, "script", PropertyHint::ResourceType, "Script")));
 }
 
 ScriptEditor::ScriptEditor(EditorNode *p_editor) {
@@ -3634,13 +3634,13 @@ ScriptEditorPlugin::ScriptEditorPlugin(EditorNode *p_node) {
     EDITOR_DEF("text_editor/script_list/script_temperature_history_size", 15);
     EDITOR_DEF("text_editor/script_list/current_script_background_color", Color(1, 1, 1, 0.3));
     EDITOR_DEF("text_editor/script_list/group_help_pages", true);
-    EditorSettings::get_singleton()->add_property_hint(PropertyInfo(VariantType::INT, "text_editor/script_list/sort_scripts_by", PROPERTY_HINT_ENUM, "Name,Path,None"));
+    EditorSettings::get_singleton()->add_property_hint(PropertyInfo(VariantType::INT, "text_editor/script_list/sort_scripts_by", PropertyHint::Enum, "Name,Path,None"));
     EDITOR_DEF("text_editor/script_list/sort_scripts_by", 0);
-    EditorSettings::get_singleton()->add_property_hint(PropertyInfo(VariantType::INT, "text_editor/script_list/list_script_names_as", PROPERTY_HINT_ENUM, "Name,Parent Directory And Name,Full Path"));
+    EditorSettings::get_singleton()->add_property_hint(PropertyInfo(VariantType::INT, "text_editor/script_list/list_script_names_as", PropertyHint::Enum, "Name,Parent Directory And Name,Full Path"));
     EDITOR_DEF("text_editor/script_list/list_script_names_as", 0);
-    EditorSettings::get_singleton()->add_property_hint(PropertyInfo(VariantType::STRING, "text_editor/external/exec_path", PROPERTY_HINT_GLOBAL_FILE));
+    EditorSettings::get_singleton()->add_property_hint(PropertyInfo(VariantType::STRING, "text_editor/external/exec_path", PropertyHint::GlobalFile));
     EDITOR_DEF("text_editor/external/exec_flags", "{file}");
-    EditorSettings::get_singleton()->add_property_hint(PropertyInfo(VariantType::STRING, "text_editor/external/exec_flags", PROPERTY_HINT_PLACEHOLDER_TEXT, "Call flags with placeholders: {project}, {file}, {col}, {line}."));
+    EditorSettings::get_singleton()->add_property_hint(PropertyInfo(VariantType::STRING, "text_editor/external/exec_flags", PropertyHint::PlaceholderText, "Call flags with placeholders: {project}, {file}, {col}, {line}."));
 
     ED_SHORTCUT("script_editor/reopen_closed_script", TTR("Reopen Closed Script"), KEY_MASK_CMD | KEY_MASK_SHIFT | KEY_T);
     ED_SHORTCUT("script_editor/clear_recent", TTR("Clear Recent Scripts"));

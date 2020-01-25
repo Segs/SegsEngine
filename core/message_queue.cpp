@@ -349,7 +349,7 @@ MessageQueue::MessageQueue() {
     buffer_max_used = 0;
     buffer_size = GLOBAL_DEF_RST(prop_name, DEFAULT_QUEUE_SIZE_KB);
     ProjectSettings::get_singleton()->set_custom_property_info(
-            prop_name, PropertyInfo(VariantType::INT, "memory/limits/message_queue/max_size_kb", PROPERTY_HINT_RANGE,
+            prop_name, PropertyInfo(VariantType::INT, "memory/limits/message_queue/max_size_kb", PropertyHint::Range,
                                "0,2048,1,or_greater"));
     buffer_size *= 1024;
     buffer = memnew_arr(uint8_t, buffer_size);

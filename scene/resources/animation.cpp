@@ -621,13 +621,13 @@ bool Animation::_get(const StringName &p_name, Variant &r_ret) const {
 void Animation::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
     for (int i = 0; i < tracks.size(); i++) {
 
-        p_list->push_back(PropertyInfo(VariantType::STRING, StringName("tracks/" + itos(i) + "/type"), PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
-        p_list->push_back(PropertyInfo(VariantType::NODE_PATH, StringName("tracks/" + itos(i) + "/path"), PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
-        p_list->push_back(PropertyInfo(VariantType::INT, StringName("tracks/" + itos(i) + "/interp"), PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
-        p_list->push_back(PropertyInfo(VariantType::BOOL, StringName("tracks/" + itos(i) + "/loop_wrap"), PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
-        p_list->push_back(PropertyInfo(VariantType::BOOL, StringName("tracks/" + itos(i) + "/imported"), PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
-        p_list->push_back(PropertyInfo(VariantType::BOOL, StringName("tracks/" + itos(i) + "/enabled"), PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
-        p_list->push_back(PropertyInfo(VariantType::ARRAY, StringName("tracks/" + itos(i) + "/keys"), PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
+        p_list->push_back(PropertyInfo(VariantType::STRING, StringName("tracks/" + itos(i) + "/type"), PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
+        p_list->push_back(PropertyInfo(VariantType::NODE_PATH, StringName("tracks/" + itos(i) + "/path"), PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
+        p_list->push_back(PropertyInfo(VariantType::INT, StringName("tracks/" + itos(i) + "/interp"), PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
+        p_list->push_back(PropertyInfo(VariantType::BOOL, StringName("tracks/" + itos(i) + "/loop_wrap"), PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
+        p_list->push_back(PropertyInfo(VariantType::BOOL, StringName("tracks/" + itos(i) + "/imported"), PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
+        p_list->push_back(PropertyInfo(VariantType::BOOL, StringName("tracks/" + itos(i) + "/enabled"), PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
+        p_list->push_back(PropertyInfo(VariantType::ARRAY, StringName("tracks/" + itos(i) + "/keys"), PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
     }
 }
 
@@ -2855,9 +2855,9 @@ void Animation::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("clear"), &Animation::clear);
     MethodBinder::bind_method(D_METHOD("copy_track", {"track_idx", "to_animation"}), &Animation::copy_track);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "length", PROPERTY_HINT_RANGE, "0.001,99999,0.001"), "set_length", "get_length");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "length", PropertyHint::Range, "0.001,99999,0.001"), "set_length", "get_length");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "loop"), "set_loop", "has_loop");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "step", PROPERTY_HINT_RANGE, "0,4096,0.001"), "set_step", "get_step");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "step", PropertyHint::Range, "0,4096,0.001"), "set_step", "get_step");
 
     ADD_SIGNAL(MethodInfo("tracks_changed"));
 

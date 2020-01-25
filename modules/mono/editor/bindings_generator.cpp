@@ -1553,7 +1553,7 @@ Error BindingsGenerator::_generate_cs_method(const BindingsGenerator::TypeInterf
 
             arguments_sig += iarg.name;
 
-            if (iarg.default_argument.size()) {
+            if (!iarg.default_argument.empty()) {
                 if (iarg.def_param_mode != ArgumentInterface::CONSTANT)
                     arguments_sig += " = null";
                 else
@@ -1698,7 +1698,7 @@ Error BindingsGenerator::_generate_cs_method(const BindingsGenerator::TypeInterf
         im_call += ".";
         im_call += im_icall->name;
 
-        if (p_imethod.arguments.size())
+        if (!p_imethod.arguments.empty())
             p_output.append(cs_in_statements);
 
         if (return_type->cname == name_cache.type_void) {
@@ -1943,9 +1943,6 @@ Error BindingsGenerator::_generate_glue_method(const BindingsGenerator::TypeInte
                 fmt = return_type->c_type.c_str();
                 //fmt = return_type->cname.asCString();
             }
-            if((fmt=="sbyte") || (p_imethod.cname==se_string_view("process_action"))) {
-                printf("");
-            }
             template_return_type = fmt;
         }
     }
@@ -1957,9 +1954,6 @@ Error BindingsGenerator::_generate_glue_method(const BindingsGenerator::TypeInte
         const TypeInterface *arg_type = _get_type_or_placeholder(iarg.type);
 
         String c_param_name = "arg" + itos(i + 1);
-        if(arg_type->name=="RID") {
-            printf("");
-        }
         if (p_imethod.is_vararg) {
             if (i < p_imethod.arguments.size() - 1) {
                 c_in_statements += sformat(!arg_type->c_in.empty() ? arg_type->c_in : TypeInterface::DEFAULT_VARARG_C_IN, "Variant", c_param_name);
@@ -2409,14 +2403,14 @@ bool BindingsGenerator::_populate_object_type_interfaces() {
                 imethod.return_type.is_enum = true;
             } else if (!return_info.class_name.empty()) {
                 imethod.return_type.cname = return_info.class_name;
-                if (!imethod.is_virtual && ClassDB::is_parent_class(return_info.class_name, name_cache.type_Reference) && return_info.hint != PROPERTY_HINT_RESOURCE_TYPE) {
+                if (!imethod.is_virtual && ClassDB::is_parent_class(return_info.class_name, name_cache.type_Reference) && return_info.hint != PropertyHint::ResourceType) {
                     /* clang-format off */
-                    ERR_PRINT("Return type is reference but hint is not '" _STR(PROPERTY_HINT_RESOURCE_TYPE) "'."
+                    ERR_PRINT("Return type is reference but hint is not '" _STR(PropertyHint::ResourceType) "'."
                             " Are you returning a reference type by pointer? Method: '" + itype.name + "." + imethod.name + "'.")
                     /* clang-format on */
                     ERR_FAIL_V(false)
                 }
-            } else if (return_info.hint == PROPERTY_HINT_RESOURCE_TYPE) {
+            } else if (return_info.hint == PropertyHint::ResourceType) {
                 imethod.return_type.cname = StringName(return_info.hint_string);
             } else if (return_info.type == VariantType::NIL && return_info.usage & PROPERTY_USAGE_NIL_IS_VARIANT) {
                 imethod.return_type.cname = name_cache.type_Variant;
@@ -2447,7 +2441,7 @@ bool BindingsGenerator::_populate_object_type_interfaces() {
                 } else if (!arginfo.class_name.empty()) {
                     iarg.type.cname = arginfo.class_name;
                     iarg.type.pass_by = arg_pass.size() > (i + 1) ? arg_pass[i + 1] : TypePassBy::Reference;
-                } else if (arginfo.hint == PROPERTY_HINT_RESOURCE_TYPE) {
+                } else if (arginfo.hint == PropertyHint::ResourceType) {
                     iarg.type.cname = StringName(arginfo.hint_string);
                     iarg.type.pass_by = TypePassBy::Reference;
                 } else if (arginfo.type == VariantType::NIL) {
@@ -2463,7 +2457,10 @@ bool BindingsGenerator::_populate_object_type_interfaces() {
                     }
                     iarg.type.pass_by = arg_pass.size() > (i + 1) ? arg_pass[i + 1] : TypePassBy::Value;
                 }
-
+                if(iarg.type.cname=="Object" && iarg.type.pass_by==TypePassBy::Value) {
+                    // Fixup for virtual methods, since passing Object by value makes no sense.
+                    iarg.type.pass_by = TypePassBy::Pointer;
+                }
                 iarg.name = escape_csharp_keyword(snake_to_camel_case(iarg.name));
 
                 if (m && m->has_default_argument(i)) {

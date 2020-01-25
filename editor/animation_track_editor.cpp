@@ -571,9 +571,9 @@ public:
 
         if (use_fps && animation->get_step() > 0) {
             float max_frame = animation->get_length() / animation->get_step();
-            p_list->push_back(PropertyInfo(VariantType::REAL, "frame", PROPERTY_HINT_RANGE, "0," + rtos(max_frame) + ",1"));
+            p_list->push_back(PropertyInfo(VariantType::REAL, "frame", PropertyHint::Range, "0," + rtos(max_frame) + ",1"));
         } else {
-            p_list->push_back(PropertyInfo(VariantType::REAL, "time", PROPERTY_HINT_RANGE, "0," + rtos(animation->get_length()) + ",0.01"));
+            p_list->push_back(PropertyInfo(VariantType::REAL, "time", PropertyHint::Range, "0," + rtos(animation->get_length()) + ",0.01"));
         }
 
         switch (animation->track_get_type(track)) {
@@ -596,7 +596,7 @@ public:
                     p_list->push_back(pi);
                 } else {
 
-                    PropertyHint hint = PROPERTY_HINT_NONE;
+                    PropertyHint hint = PropertyHint::None;
                     String hint_string;
 
                     if (v.get_type() == VariantType::OBJECT) {
@@ -604,7 +604,7 @@ public:
                         Ref<Resource> res(v);
                         if (res) {
 
-                            hint = PROPERTY_HINT_RESOURCE_TYPE;
+                            hint = PropertyHint::ResourceType;
                             hint_string = res->get_class();
                         }
                     }
@@ -617,7 +617,7 @@ public:
             case Animation::TYPE_METHOD: {
 
                 p_list->push_back(PropertyInfo(VariantType::STRING, "name"));
-                p_list->push_back(PropertyInfo(VariantType::INT, "arg_count", PROPERTY_HINT_RANGE, "0,5,1"));
+                p_list->push_back(PropertyInfo(VariantType::INT, "arg_count", PropertyHint::Range, "0,5,1"));
 
                 Dictionary d = animation->track_get_key_value(track, key);
                 ERR_FAIL_COND(!d.has("args"))
@@ -632,7 +632,7 @@ public:
 
                 for (int i = 0; i < args.size(); i++) {
 
-                    p_list->push_back(PropertyInfo(VariantType::INT, StringName("args/" + itos(i) + "/type"), PROPERTY_HINT_ENUM, vtypes));
+                    p_list->push_back(PropertyInfo(VariantType::INT, StringName("args/" + itos(i) + "/type"), PropertyHint::Enum, vtypes));
                     if (args[i].get_type() != VariantType::NIL)
                         p_list->push_back(PropertyInfo(args[i].get_type(), StringName("args/" + itos(i) + "/value")));
                 }
@@ -647,9 +647,9 @@ public:
             } break;
             case Animation::TYPE_AUDIO: {
 
-                p_list->push_back(PropertyInfo(VariantType::OBJECT, "stream", PROPERTY_HINT_RESOURCE_TYPE, "AudioStream"));
-                p_list->push_back(PropertyInfo(VariantType::REAL, "start_offset", PROPERTY_HINT_RANGE, "0,3600,0.01,or_greater"));
-                p_list->push_back(PropertyInfo(VariantType::REAL, "end_offset", PROPERTY_HINT_RANGE, "0,3600,0.01,or_greater"));
+                p_list->push_back(PropertyInfo(VariantType::OBJECT, "stream", PropertyHint::ResourceType, "AudioStream"));
+                p_list->push_back(PropertyInfo(VariantType::REAL, "start_offset", PropertyHint::Range, "0,3600,0.01,or_greater"));
+                p_list->push_back(PropertyInfo(VariantType::REAL, "end_offset", PropertyHint::Range, "0,3600,0.01,or_greater"));
 
             } break;
             case Animation::TYPE_ANIMATION: {
@@ -671,13 +671,13 @@ public:
                 }
                 animations += "[stop]";
 
-                p_list->push_back(PropertyInfo(VariantType::STRING, "animation", PROPERTY_HINT_ENUM, animations));
+                p_list->push_back(PropertyInfo(VariantType::STRING, "animation", PropertyHint::Enum, animations));
 
             } break;
         }
 
         if (animation->track_get_type(track) == Animation::TYPE_VALUE) {
-            p_list->push_back(PropertyInfo(VariantType::REAL, "easing", PROPERTY_HINT_EXP_EASING));
+            p_list->push_back(PropertyInfo(VariantType::REAL, "easing", PropertyHint::ExpEasing));
         }
     }
 
@@ -1264,9 +1264,9 @@ public:
 
             if (use_fps && animation->get_step() > 0) {
                 float max_frame = animation->get_length() / animation->get_step();
-                p_list->push_back(PropertyInfo(VariantType::REAL, "frame", PROPERTY_HINT_RANGE, "0," + rtos(max_frame) + ",1"));
+                p_list->push_back(PropertyInfo(VariantType::REAL, "frame", PropertyHint::Range, "0," + rtos(max_frame) + ",1"));
             } else {
-                p_list->push_back(PropertyInfo(VariantType::REAL, "time", PROPERTY_HINT_RANGE, "0," + rtos(animation->get_length()) + ",0.01"));
+                p_list->push_back(PropertyInfo(VariantType::REAL, "time", PropertyHint::Range, "0," + rtos(animation->get_length()) + ",0.01"));
             }
         }
 
@@ -1293,7 +1293,7 @@ public:
                         p_list->push_back(pi);
                     } else {
 
-                        PropertyHint hint = PROPERTY_HINT_NONE;
+                        PropertyHint hint = PropertyHint::None;
                         String hint_string;
 
                         if (v.get_type() == VariantType::OBJECT) {
@@ -1301,7 +1301,7 @@ public:
                             Ref<Resource> res(v);
                             if (res) {
 
-                                hint = PROPERTY_HINT_RESOURCE_TYPE;
+                                hint = PropertyHint::ResourceType;
                                 hint_string = res->get_class();
                             }
                         }
@@ -1310,12 +1310,12 @@ public:
                             p_list->push_back(PropertyInfo(v.get_type(), "value", hint, hint_string));
                     }
 
-                    p_list->push_back(PropertyInfo(VariantType::REAL, "easing", PROPERTY_HINT_EXP_EASING));
+                    p_list->push_back(PropertyInfo(VariantType::REAL, "easing", PropertyHint::ExpEasing));
                 } break;
                 case Animation::TYPE_METHOD: {
 
                     p_list->push_back(PropertyInfo(VariantType::STRING, "name"));
-                    p_list->push_back(PropertyInfo(VariantType::INT, "arg_count", PROPERTY_HINT_RANGE, "0,5,1"));
+                    p_list->push_back(PropertyInfo(VariantType::INT, "arg_count", PropertyHint::Range, "0,5,1"));
 
                     Dictionary d = animation->track_get_key_value(first_track, first_key);
                     ERR_FAIL_COND(!d.has("args"))
@@ -1330,7 +1330,7 @@ public:
 
                     for (int i = 0; i < args.size(); i++) {
 
-                        p_list->push_back(PropertyInfo(VariantType::INT, StringName("args/" + itos(i) + "/type"), PROPERTY_HINT_ENUM, vtypes));
+                        p_list->push_back(PropertyInfo(VariantType::INT, StringName("args/" + itos(i) + "/type"), PropertyHint::Enum, vtypes));
                         if (args[i].get_type() != VariantType::NIL)
                             p_list->push_back(PropertyInfo(args[i].get_type(), StringName("args/" + itos(i) + "/value")));
                     }
@@ -1343,9 +1343,9 @@ public:
                 } break;
                 case Animation::TYPE_AUDIO: {
 
-                    p_list->push_back(PropertyInfo(VariantType::OBJECT, "stream", PROPERTY_HINT_RESOURCE_TYPE, "AudioStream"));
-                    p_list->push_back(PropertyInfo(VariantType::REAL, "start_offset", PROPERTY_HINT_RANGE, "0,3600,0.01,or_greater"));
-                    p_list->push_back(PropertyInfo(VariantType::REAL, "end_offset", PROPERTY_HINT_RANGE, "0,3600,0.01,or_greater"));
+                    p_list->push_back(PropertyInfo(VariantType::OBJECT, "stream", PropertyHint::ResourceType, "AudioStream"));
+                    p_list->push_back(PropertyInfo(VariantType::REAL, "start_offset", PropertyHint::Range, "0,3600,0.01,or_greater"));
+                    p_list->push_back(PropertyInfo(VariantType::REAL, "end_offset", PropertyHint::Range, "0,3600,0.01,or_greater"));
                 } break;
                 case Animation::TYPE_ANIMATION: {
 
@@ -1365,7 +1365,7 @@ public:
                     anims.push_back(StringName("[stop]"));
                     animations = String::joined(anims,",");
 
-                    p_list->push_back(PropertyInfo(VariantType::STRING, "animation", PROPERTY_HINT_ENUM, animations));
+                    p_list->push_back(PropertyInfo(VariantType::STRING, "animation", PropertyHint::Enum, animations));
                 } break;
             }
         }

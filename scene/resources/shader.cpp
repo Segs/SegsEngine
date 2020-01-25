@@ -157,7 +157,7 @@ void Shader::_bind_methods() {
 
     //MethodBinder::bind_method(D_METHOD("get_param_list"),&Shader::get_fragment_code);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "code", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR), "set_code", "get_code");
+    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "code", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR), "set_code", "get_code");
 #ifdef DEBUG_METHODS_ENABLED
     ClassDB::bind_integer_constant(get_class_static_name(), __constant_get_enum_name(ShaderMode::SPATIAL, "MODE_SPATIAL"), "MODE_SPATIAL", (int)ShaderMode::SPATIAL);
     ClassDB::bind_integer_constant(get_class_static_name(), __constant_get_enum_name(ShaderMode::CANVAS_ITEM, "MODE_CANVAS_ITEM"), "MODE_CANVAS_ITEM", (int)ShaderMode::CANVAS_ITEM);

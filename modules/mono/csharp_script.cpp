@@ -2456,14 +2456,14 @@ bool CSharpScript::_get_member_export(IMonoClassMember *p_member, bool p_inspect
     VariantType variant_type = GDMonoMarshal::managed_to_variant_type(type);
 
     if (!p_inspect_export || !exported) {
-        r_prop_info = PropertyInfo(variant_type, p_member->get_name(), PROPERTY_HINT_NONE, "", PROPERTY_USAGE_SCRIPT_VARIABLE);
+        r_prop_info = PropertyInfo(variant_type, p_member->get_name(), PropertyHint::None, "", PROPERTY_USAGE_SCRIPT_VARIABLE);
         r_exported = false;
         return true;
     }
 
     MonoObject *attr = p_member->get_attribute(CACHED_CLASS(ExportAttribute));
 
-    PropertyHint hint = PROPERTY_HINT_NONE;
+    PropertyHint hint = PropertyHint::None;
     String hint_string;
 
     if (variant_type == VariantType::NIL) {
@@ -2493,7 +2493,7 @@ bool CSharpScript::_get_member_export(IMonoClassMember *p_member, bool p_inspect
 int CSharpScript::_try_get_member_export_hint(IMonoClassMember *p_member, ManagedType p_type, VariantType p_variant_type, bool p_allow_generics, PropertyHint &r_hint, String &r_hint_string) {
 
     if (p_variant_type == VariantType::INT && p_type.type_encoding == MONO_TYPE_VALUETYPE && mono_class_is_enum(p_type.type_class->get_mono_ptr())) {
-        r_hint = PROPERTY_HINT_ENUM;
+        r_hint = PropertyHint::Enum;
 
         Vector<MonoClassField *> fields = p_type.type_class->get_enum_fields();
 
@@ -2548,7 +2548,7 @@ int CSharpScript::_try_get_member_export_hint(IMonoClassMember *p_member, Manage
         GDMonoClass *field_native_class = GDMonoUtils::get_class_native_base(p_type.type_class);
         CRASH_COND(field_native_class == NULL);
 
-        r_hint = PROPERTY_HINT_RESOURCE_TYPE;
+        r_hint = PropertyHint::ResourceType;
         r_hint_string = NATIVE_GDMONOCLASS_NAME(field_native_class);
     } else if (p_allow_generics && p_variant_type == VariantType::ARRAY) {
         // Nested arrays are not supported in the inspector
@@ -2560,7 +2560,7 @@ int CSharpScript::_try_get_member_export_hint(IMonoClassMember *p_member, Manage
 
         VariantType elem_variant_type = GDMonoMarshal::managed_to_variant_type(elem_type);
 
-        PropertyHint elem_hint = PROPERTY_HINT_NONE;
+        PropertyHint elem_hint = PropertyHint::None;
         String elem_hint_string;
 
         ERR_FAIL_COND_V_MSG(elem_variant_type == VariantType::NIL, -1, "Unknown array element type.");
@@ -2571,7 +2571,7 @@ int CSharpScript::_try_get_member_export_hint(IMonoClassMember *p_member, Manage
 
         // Format: type/hint:hint_string
         r_hint_string = itos((int)elem_variant_type) + "/" + itos((int)elem_hint) + ":" + elem_hint_string;
-        r_hint = PROPERTY_HINT_TYPE_STRING;
+        r_hint = PropertyHint::TypeString;
 
     } else if (p_allow_generics && p_variant_type == VariantType::DICTIONARY) {
         // TODO: Dictionaries are not supported in the inspector
@@ -2657,7 +2657,7 @@ bool CSharpScript::_set(const StringName &p_name, const Variant &p_value) {
 
 void CSharpScript::_get_property_list(ListPOD<PropertyInfo> *p_properties) const {
 
-    p_properties->push_back(PropertyInfo(VariantType::STRING, CSharpLanguage::singleton->string_names._script_source, PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
+    p_properties->push_back(PropertyInfo(VariantType::STRING, CSharpLanguage::singleton->string_names._script_source, PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
 }
 
 void CSharpScript::_bind_methods() {

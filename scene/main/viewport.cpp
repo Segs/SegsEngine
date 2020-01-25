@@ -163,7 +163,7 @@ void ViewportTexture::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_viewport_path_in_scene", {"path"}), &ViewportTexture::set_viewport_path_in_scene);
     MethodBinder::bind_method(D_METHOD("get_viewport_path_in_scene"), &ViewportTexture::get_viewport_path_in_scene);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::NODE_PATH, "viewport_path", PROPERTY_HINT_NODE_PATH_VALID_TYPES, "Viewport", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_NODE_PATH_FROM_SCENE_ROOT), "set_viewport_path_in_scene", "get_viewport_path_in_scene");
+    ADD_PROPERTY(PropertyInfo(VariantType::NODE_PATH, "viewport_path", PropertyHint::NodePathValidTypes, "Viewport", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_NODE_PATH_FROM_SCENE_ROOT), "set_viewport_path_in_scene", "get_viewport_path_in_scene");
 }
 
 ViewportTexture::ViewportTexture() {
@@ -3237,22 +3237,22 @@ void Viewport::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "size"), "set_size", "get_size");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "size_override_stretch"), "set_size_override_stretch", "is_size_override_stretch_enabled");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "own_world"), "set_use_own_world", "is_using_own_world");
-    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "world", PROPERTY_HINT_RESOURCE_TYPE, "World"), "set_world", "get_world");
-    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "world_2d", PROPERTY_HINT_RESOURCE_TYPE, "World2D", 0), "set_world_2d", "get_world_2d");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "world", PropertyHint::ResourceType, "World"), "set_world", "get_world");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "world_2d", PropertyHint::ResourceType, "World2D", 0), "set_world_2d", "get_world_2d");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "transparent_bg"), "set_transparent_background", "has_transparent_background");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "handle_input_locally"), "set_handle_input_locally", "is_handling_input_locally");
     ADD_GROUP("Rendering", "");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "msaa", PROPERTY_HINT_ENUM, "Disabled,2x,4x,8x,16x,AndroidVR 2x,AndroidVR 4x"), "set_msaa", "get_msaa");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "msaa", PropertyHint::Enum, "Disabled,2x,4x,8x,16x,AndroidVR 2x,AndroidVR 4x"), "set_msaa", "get_msaa");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "hdr"), "set_hdr", "get_hdr");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "disable_3d"), "set_disable_3d", "is_3d_disabled");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "keep_3d_linear"), "set_keep_3d_linear", "get_keep_3d_linear");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "usage", PROPERTY_HINT_ENUM, "2D,2D No-Sampling,3D,3D No-Effects"), "set_usage", "get_usage");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "usage", PropertyHint::Enum, "2D,2D No-Sampling,3D,3D No-Effects"), "set_usage", "get_usage");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "render_direct_to_screen"), "set_use_render_direct_to_screen", "is_using_render_direct_to_screen");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "debug_draw", PROPERTY_HINT_ENUM, "Disabled,Unshaded,Overdraw,Wireframe"), "set_debug_draw", "get_debug_draw");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "debug_draw", PropertyHint::Enum, "Disabled,Unshaded,Overdraw,Wireframe"), "set_debug_draw", "get_debug_draw");
     ADD_GROUP("Render Target", "render_target_");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "render_target_v_flip"), "set_vflip", "get_vflip");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "render_target_clear_mode", PROPERTY_HINT_ENUM, "Always,Never,Next Frame"), "set_clear_mode", "get_clear_mode");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "render_target_update_mode", PROPERTY_HINT_ENUM, "Disabled,Once,When Visible,Always"), "set_update_mode", "get_update_mode");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "render_target_clear_mode", PropertyHint::Enum, "Always,Never,Next Frame"), "set_clear_mode", "get_clear_mode");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "render_target_update_mode", PropertyHint::Enum, "Disabled,Once,When Visible,Always"), "set_update_mode", "get_update_mode");
     ADD_GROUP("Audio Listener", "audio_listener_");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "audio_listener_enable_2d"), "set_as_audio_listener_2d", "is_audio_listener_2d");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "audio_listener_enable_3d"), "set_as_audio_listener", "is_audio_listener");
@@ -3263,15 +3263,15 @@ void Viewport::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "gui_snap_controls_to_pixels"), "set_snap_controls_to_pixels", "is_snap_controls_to_pixels_enabled");
     ADD_GROUP("Shadow Atlas", "shadow_atlas_");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "shadow_atlas_size"), "set_shadow_atlas_size", "get_shadow_atlas_size");
-    ADD_PROPERTYI(PropertyInfo(VariantType::INT, "shadow_atlas_quad_0", PROPERTY_HINT_ENUM, "Disabled,1 Shadow,4 Shadows,16 Shadows,64 Shadows,256 Shadows,1024 Shadows"), "set_shadow_atlas_quadrant_subdiv", "get_shadow_atlas_quadrant_subdiv", 0);
-    ADD_PROPERTYI(PropertyInfo(VariantType::INT, "shadow_atlas_quad_1", PROPERTY_HINT_ENUM, "Disabled,1 Shadow,4 Shadows,16 Shadows,64 Shadows,256 Shadows,1024 Shadows"), "set_shadow_atlas_quadrant_subdiv", "get_shadow_atlas_quadrant_subdiv", 1);
-    ADD_PROPERTYI(PropertyInfo(VariantType::INT, "shadow_atlas_quad_2", PROPERTY_HINT_ENUM, "Disabled,1 Shadow,4 Shadows,16 Shadows,64 Shadows,256 Shadows,1024 Shadows"), "set_shadow_atlas_quadrant_subdiv", "get_shadow_atlas_quadrant_subdiv", 2);
-    ADD_PROPERTYI(PropertyInfo(VariantType::INT, "shadow_atlas_quad_3", PROPERTY_HINT_ENUM, "Disabled,1 Shadow,4 Shadows,16 Shadows,64 Shadows,256 Shadows,1024 Shadows"), "set_shadow_atlas_quadrant_subdiv", "get_shadow_atlas_quadrant_subdiv", 3);
-    ADD_PROPERTY(PropertyInfo(VariantType::TRANSFORM2D, "canvas_transform", PROPERTY_HINT_NONE, "", 0), "set_canvas_transform", "get_canvas_transform");
-    ADD_PROPERTY(PropertyInfo(VariantType::TRANSFORM2D, "global_canvas_transform", PROPERTY_HINT_NONE, "", 0), "set_global_canvas_transform", "get_global_canvas_transform");
+    ADD_PROPERTYI(PropertyInfo(VariantType::INT, "shadow_atlas_quad_0", PropertyHint::Enum, "Disabled,1 Shadow,4 Shadows,16 Shadows,64 Shadows,256 Shadows,1024 Shadows"), "set_shadow_atlas_quadrant_subdiv", "get_shadow_atlas_quadrant_subdiv", 0);
+    ADD_PROPERTYI(PropertyInfo(VariantType::INT, "shadow_atlas_quad_1", PropertyHint::Enum, "Disabled,1 Shadow,4 Shadows,16 Shadows,64 Shadows,256 Shadows,1024 Shadows"), "set_shadow_atlas_quadrant_subdiv", "get_shadow_atlas_quadrant_subdiv", 1);
+    ADD_PROPERTYI(PropertyInfo(VariantType::INT, "shadow_atlas_quad_2", PropertyHint::Enum, "Disabled,1 Shadow,4 Shadows,16 Shadows,64 Shadows,256 Shadows,1024 Shadows"), "set_shadow_atlas_quadrant_subdiv", "get_shadow_atlas_quadrant_subdiv", 2);
+    ADD_PROPERTYI(PropertyInfo(VariantType::INT, "shadow_atlas_quad_3", PropertyHint::Enum, "Disabled,1 Shadow,4 Shadows,16 Shadows,64 Shadows,256 Shadows,1024 Shadows"), "set_shadow_atlas_quadrant_subdiv", "get_shadow_atlas_quadrant_subdiv", 3);
+    ADD_PROPERTY(PropertyInfo(VariantType::TRANSFORM2D, "canvas_transform", PropertyHint::None, "", 0), "set_canvas_transform", "get_canvas_transform");
+    ADD_PROPERTY(PropertyInfo(VariantType::TRANSFORM2D, "global_canvas_transform", PropertyHint::None, "", 0), "set_global_canvas_transform", "get_global_canvas_transform");
 
     ADD_SIGNAL(MethodInfo("size_changed"));
-    ADD_SIGNAL(MethodInfo("gui_focus_changed", PropertyInfo(VariantType::OBJECT, "node", PROPERTY_HINT_RESOURCE_TYPE, "Control")));
+    ADD_SIGNAL(MethodInfo("gui_focus_changed", PropertyInfo(VariantType::OBJECT, "node", PropertyHint::ResourceType, "Control")));
 
     BIND_ENUM_CONSTANT(UPDATE_DISABLED)
     BIND_ENUM_CONSTANT(UPDATE_ONCE)
@@ -3389,7 +3389,7 @@ Viewport::Viewport() {
 
     //gui.tooltip_timer->force_parent_owned();
     gui.tooltip_delay = GLOBAL_DEF("gui/timers/tooltip_delay_sec", 0.5);
-    ProjectSettings::get_singleton()->set_custom_property_info("gui/timers/tooltip_delay_sec", PropertyInfo(VariantType::REAL, "gui/timers/tooltip_delay_sec", PROPERTY_HINT_RANGE, "0,5,0.01,or_greater")); // No negative numbers
+    ProjectSettings::get_singleton()->set_custom_property_info("gui/timers/tooltip_delay_sec", PropertyInfo(VariantType::REAL, "gui/timers/tooltip_delay_sec", PropertyHint::Range, "0,5,0.01,or_greater")); // No negative numbers
 
     gui.tooltip = nullptr;
     gui.tooltip_label = nullptr;

@@ -108,13 +108,13 @@ void PropertySelector::_update_search() {
             Object *obj = ObjectDB::get_instance(script);
             if (object_cast<Script>(obj)) {
 
-                props.push_back(PropertyInfo(VariantType::NIL, "Script Variables", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_CATEGORY));
+                props.push_back(PropertyInfo(VariantType::NIL, "Script Variables", PropertyHint::None, "", PROPERTY_USAGE_CATEGORY));
                 object_cast<Script>(obj)->get_script_property_list(&props);
             }
 
             StringName base(base_type);
             while (base) {
-                props.push_back(PropertyInfo(VariantType::NIL, base, PROPERTY_HINT_NONE, "", PROPERTY_USAGE_CATEGORY));
+                props.push_back(PropertyInfo(VariantType::NIL, base, PropertyHint::None, "", PROPERTY_USAGE_CATEGORY));
                 ClassDB::get_property_list(base, &props, true);
                 base = ClassDB::get_parent_class(base);
             }

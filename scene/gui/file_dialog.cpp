@@ -852,8 +852,8 @@ void FileDialog::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("invalidate"), &FileDialog::invalidate);
 
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "mode_overrides_title"), "set_mode_overrides_title", "is_mode_overriding_title");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "mode", PROPERTY_HINT_ENUM, "Open File,Open Files,Open Folder,Open Any,Save"), "set_mode", "get_mode");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "access", PROPERTY_HINT_ENUM, "Resources,User data,File system"), "set_access", "get_access");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "mode", PropertyHint::Enum, "Open File,Open Files,Open Folder,Open Any,Save"), "set_mode", "get_mode");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "access", PropertyHint::Enum, "Resources,User data,File system"), "set_access", "get_access");
     ADD_PROPERTY(PropertyInfo(VariantType::POOL_STRING_ARRAY, "filters"), "set_filters", "get_filters");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "show_hidden_files"), "set_show_hidden_files", "is_showing_hidden_files");
     ADD_PROPERTY(PropertyInfo(VariantType::STRING, "current_dir"), "set_current_dir", "get_current_dir");

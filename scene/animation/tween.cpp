@@ -164,9 +164,9 @@ bool Tween::_get(const StringName &p_name, Variant &r_ret) const {
 
 void Tween::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
     // Add the property info for the Tween object
-    p_list->push_back(PropertyInfo(VariantType::BOOL, "playback/active", PROPERTY_HINT_NONE, ""));
-    p_list->push_back(PropertyInfo(VariantType::BOOL, "playback/repeat", PROPERTY_HINT_NONE, ""));
-    p_list->push_back(PropertyInfo(VariantType::REAL, "playback/speed", PROPERTY_HINT_RANGE, "-64,64,0.01"));
+    p_list->push_back(PropertyInfo(VariantType::BOOL, "playback/active", PropertyHint::None, ""));
+    p_list->push_back(PropertyInfo(VariantType::BOOL, "playback/repeat", PropertyHint::None, ""));
+    p_list->push_back(PropertyInfo(VariantType::REAL, "playback/speed", PropertyHint::Range, "-64,64,0.01"));
 }
 
 void Tween::_notification(int p_what) {
@@ -265,8 +265,8 @@ void Tween::_bind_methods() {
 
     // Add the properties and tie them to the getters and setters
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "repeat"), "set_repeat", "is_repeat");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "playback_process_mode", PROPERTY_HINT_ENUM, "Physics,Idle"), "set_tween_process_mode", "get_tween_process_mode");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "playback_speed", PROPERTY_HINT_RANGE, "-64,64,0.01"), "set_speed_scale", "get_speed_scale");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "playback_process_mode", PropertyHint::Enum, "Physics,Idle"), "set_tween_process_mode", "get_tween_process_mode");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "playback_speed", PropertyHint::Range, "-64,64,0.01"), "set_speed_scale", "get_speed_scale");
 
     // Bind Idle vs Physics process
     BIND_ENUM_CONSTANT(TWEEN_PROCESS_PHYSICS)

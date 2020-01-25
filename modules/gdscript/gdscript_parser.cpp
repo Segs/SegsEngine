@@ -4119,7 +4119,7 @@ void GDScriptParser::_parse_class(ClassNode *p_class) {
                                             return;
                                         }
 
-                                        current_export.hint = PROPERTY_HINT_FLAGS;
+                                        current_export.hint = PropertyHint::Flags;
                                         _ADVANCE_AND_CONSUME_NEWLINES;
 
                                         bool first = true;
@@ -4161,7 +4161,7 @@ void GDScriptParser::_parse_class(ClassNode *p_class) {
                                             _set_error("Expected \")\" in the layers 2D render hint.");
                                             return;
                                         }
-                                        current_export.hint = PROPERTY_HINT_LAYERS_2D_RENDER;
+                                        current_export.hint = PropertyHint::Layers2DRenderer;
                                         break;
                                     }
 
@@ -4172,7 +4172,7 @@ void GDScriptParser::_parse_class(ClassNode *p_class) {
                                             _set_error("Expected \")\" in the layers 2D physics hint.");
                                             return;
                                         }
-                                        current_export.hint = PROPERTY_HINT_LAYERS_2D_PHYSICS;
+                                        current_export.hint = PropertyHint::Layers2DPhysics;
                                         break;
                                     }
 
@@ -4183,7 +4183,7 @@ void GDScriptParser::_parse_class(ClassNode *p_class) {
                                             _set_error("Expected \")\" in the layers 3D render hint.");
                                             return;
                                         }
-                                        current_export.hint = PROPERTY_HINT_LAYERS_3D_RENDER;
+                                        current_export.hint = PropertyHint::Layers3DRenderer;
                                         break;
                                     }
 
@@ -4194,13 +4194,13 @@ void GDScriptParser::_parse_class(ClassNode *p_class) {
                                             _set_error("Expected \")\" in the layers 3D physics hint.");
                                             return;
                                         }
-                                        current_export.hint = PROPERTY_HINT_LAYERS_3D_PHYSICS;
+                                        current_export.hint = PropertyHint::Layers3DPhysics;
                                         break;
                                     }
 
                                     if (tokenizer->get_token() == GDScriptTokenizer::TK_CONSTANT && tokenizer->get_token_constant().get_type() == VariantType::STRING) {
                                         //enumeration
-                                        current_export.hint = PROPERTY_HINT_ENUM;
+                                        current_export.hint = PropertyHint::Enum;
                                         bool first = true;
                                         while (true) {
 
@@ -4240,7 +4240,7 @@ void GDScriptParser::_parse_class(ClassNode *p_class) {
                                 case VariantType::REAL: {
 
                                     if (tokenizer->get_token() == GDScriptTokenizer::TK_IDENTIFIER && tokenizer->get_token_identifier() == "EASE") {
-                                        current_export.hint = PROPERTY_HINT_EXP_EASING;
+                                        current_export.hint = PropertyHint::ExpEasing;
                                         _ADVANCE_AND_CONSUME_NEWLINES;
                                         if (tokenizer->get_token() != GDScriptTokenizer::TK_PARENTHESIS_CLOSE) {
                                             _set_error("Expected \")\" in the hint.");
@@ -4252,7 +4252,7 @@ void GDScriptParser::_parse_class(ClassNode *p_class) {
                                     // range
                                     if (tokenizer->get_token() == GDScriptTokenizer::TK_IDENTIFIER && tokenizer->get_token_identifier() == "EXP") {
 
-                                        current_export.hint = PROPERTY_HINT_EXP_RANGE;
+                                        current_export.hint = PropertyHint::ExpRange;
                                         _ADVANCE_AND_CONSUME_NEWLINES;
 
                                         if (tokenizer->get_token() == GDScriptTokenizer::TK_PARENTHESIS_CLOSE)
@@ -4263,7 +4263,7 @@ void GDScriptParser::_parse_class(ClassNode *p_class) {
                                         }
                                         _ADVANCE_AND_CONSUME_NEWLINES;
                                     } else
-                                        current_export.hint = PROPERTY_HINT_RANGE;
+                                        current_export.hint = PropertyHint::Range;
 
                                     float sign = 1.0;
 
@@ -4343,7 +4343,7 @@ void GDScriptParser::_parse_class(ClassNode *p_class) {
 
                                     if (tokenizer->get_token() == GDScriptTokenizer::TK_CONSTANT && tokenizer->get_token_constant().get_type() == VariantType::STRING) {
                                         //enumeration
-                                        current_export.hint = PROPERTY_HINT_ENUM;
+                                        current_export.hint = PropertyHint::Enum;
                                         bool first = true;
                                         while (true) {
 
@@ -4381,7 +4381,7 @@ void GDScriptParser::_parse_class(ClassNode *p_class) {
                                         _ADVANCE_AND_CONSUME_NEWLINES;
 
                                         if (tokenizer->get_token() == GDScriptTokenizer::TK_PARENTHESIS_CLOSE)
-                                            current_export.hint = PROPERTY_HINT_DIR;
+                                            current_export.hint = PropertyHint::Dir;
                                         else if (tokenizer->get_token() == GDScriptTokenizer::TK_COMMA) {
 
                                             _ADVANCE_AND_CONSUME_NEWLINES;
@@ -4394,7 +4394,7 @@ void GDScriptParser::_parse_class(ClassNode *p_class) {
                                                 _set_error("Global filesystem hints may only be used in tool scripts.");
                                                 return;
                                             }
-                                            current_export.hint = PROPERTY_HINT_GLOBAL_DIR;
+                                            current_export.hint = PropertyHint::GlobalDir;
                                             _ADVANCE_AND_CONSUME_NEWLINES;
 
                                             if (tokenizer->get_token() != GDScriptTokenizer::TK_PARENTHESIS_CLOSE) {
@@ -4410,7 +4410,7 @@ void GDScriptParser::_parse_class(ClassNode *p_class) {
 
                                     if (tokenizer->get_token() == GDScriptTokenizer::TK_IDENTIFIER && tokenizer->get_token_identifier() == "FILE") {
 
-                                        current_export.hint = PROPERTY_HINT_FILE;
+                                        current_export.hint = PropertyHint::File;
                                         _ADVANCE_AND_CONSUME_NEWLINES;
 
                                         if (tokenizer->get_token() == GDScriptTokenizer::TK_COMMA) {
@@ -4423,7 +4423,7 @@ void GDScriptParser::_parse_class(ClassNode *p_class) {
                                                     _set_error("Global filesystem hints may only be used in tool scripts.");
                                                     return;
                                                 }
-                                                current_export.hint = PROPERTY_HINT_GLOBAL_FILE;
+                                                current_export.hint = PropertyHint::GlobalFile;
                                                 _ADVANCE_AND_CONSUME_NEWLINES;
 
                                                 if (tokenizer->get_token() == GDScriptTokenizer::TK_PARENTHESIS_CLOSE)
@@ -4438,7 +4438,7 @@ void GDScriptParser::_parse_class(ClassNode *p_class) {
 
                                             if (tokenizer->get_token() != GDScriptTokenizer::TK_CONSTANT || tokenizer->get_token_constant().get_type() != VariantType::STRING) {
 
-                                                if (current_export.hint == PROPERTY_HINT_GLOBAL_FILE)
+                                                if (current_export.hint == PropertyHint::GlobalFile)
                                                     _set_error("Expected string constant with filter.");
                                                 else
                                                     _set_error("Expected \"GLOBAL\" or string constant with filter.");
@@ -4457,7 +4457,7 @@ void GDScriptParser::_parse_class(ClassNode *p_class) {
 
                                     if (tokenizer->get_token() == GDScriptTokenizer::TK_IDENTIFIER && tokenizer->get_token_identifier() == "MULTILINE") {
 
-                                        current_export.hint = PROPERTY_HINT_MULTILINE_TEXT;
+                                        current_export.hint = PropertyHint::MultilineText;
                                         _ADVANCE_AND_CONSUME_NEWLINES;
                                         if (tokenizer->get_token() != GDScriptTokenizer::TK_PARENTHESIS_CLOSE) {
                                             _set_error("Expected \")\" in the hint.");
@@ -4477,7 +4477,7 @@ void GDScriptParser::_parse_class(ClassNode *p_class) {
 
                                     se_string_view identifier(tokenizer->get_token_identifier().asCString());
                                     if (identifier == se_string_view("RGB")) {
-                                        current_export.hint = PROPERTY_HINT_COLOR_NO_ALPHA;
+                                        current_export.hint = PropertyHint::ColorNoAlpha;
                                     } else if (identifier == se_string_view("RGBA")) {
                                         //none
                                     } else {
@@ -4521,7 +4521,7 @@ void GDScriptParser::_parse_class(ClassNode *p_class) {
 
                             if (native_class && ClassDB::is_parent_class(native_class->get_name(), "Resource")) {
                                 current_export.type = VariantType::OBJECT;
-                                current_export.hint = PROPERTY_HINT_RESOURCE_TYPE;
+                                current_export.hint = PropertyHint::ResourceType;
                                 current_export.usage |= PROPERTY_USAGE_SCRIPT_VARIABLE;
 
                                 current_export.hint_string = native_class->get_name();
@@ -4548,7 +4548,7 @@ void GDScriptParser::_parse_class(ClassNode *p_class) {
                             }
 
                             current_export.type = VariantType::INT;
-                            current_export.hint = is_flags ? PROPERTY_HINT_FLAGS : PROPERTY_HINT_ENUM;
+                            current_export.hint = is_flags ? PropertyHint::Flags : PropertyHint::Enum;
                             current_export.usage |= PROPERTY_USAGE_SCRIPT_VARIABLE;
                             Dictionary enum_values = constant;
 
@@ -4586,11 +4586,11 @@ void GDScriptParser::_parse_class(ClassNode *p_class) {
                     parenthesis--;
                     if (is_arrayed) {
                         hint_prefix += itos(int8_t(current_export.type));
-                        if (current_export.hint) {
-                            hint_prefix += "/" + itos(current_export.hint);
+                        if (current_export.hint!=PropertyHint::None) {
+                            hint_prefix += "/" + itos((int)current_export.hint);
                         }
                         current_export.hint_string = hint_prefix + ":" + current_export.hint_string;
-                        current_export.hint = PROPERTY_HINT_TYPE_STRING;
+                        current_export.hint = PropertyHint::TypeString;
                         current_export.type = VariantType::ARRAY;
                     }
 
@@ -4864,7 +4864,7 @@ void GDScriptParser::_parse_class(ClassNode *p_class) {
                                 _set_error("The exported constant isn't a type or resource.");
                                 return;
                             }
-                            member._export.hint = PROPERTY_HINT_RESOURCE_TYPE;
+                            member._export.hint = PropertyHint::ResourceType;
                             member._export.hint_string = res->get_class();
                         }
                     }
@@ -4949,7 +4949,7 @@ void GDScriptParser::_parse_class(ClassNode *p_class) {
                     } else if (member.data_type.kind == DataType::NATIVE) {
                         if (ClassDB::is_parent_class(member.data_type.native_type, "Resource")) {
                             member._export.type = VariantType::OBJECT;
-                            member._export.hint = PROPERTY_HINT_RESOURCE_TYPE;
+                            member._export.hint = PropertyHint::ResourceType;
                             member._export.usage |= PROPERTY_USAGE_SCRIPT_VARIABLE;
                             member._export.hint_string = member.data_type.native_type;
                             member._export.class_name = member.data_type.native_type;

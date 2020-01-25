@@ -1019,8 +1019,8 @@ void TabContainer::_bind_methods() {
     ADD_SIGNAL(MethodInfo("tab_selected", PropertyInfo(VariantType::INT, "tab")));
     ADD_SIGNAL(MethodInfo("pre_popup_pressed"));
 
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "tab_align", PROPERTY_HINT_ENUM, "Left,Center,Right"), "set_tab_align", "get_tab_align");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "current_tab", PROPERTY_HINT_RANGE, "-1,4096,1", PROPERTY_USAGE_EDITOR), "set_current_tab", "get_current_tab");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "tab_align", PropertyHint::Enum, "Left,Center,Right"), "set_tab_align", "get_tab_align");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "current_tab", PropertyHint::Range, "-1,4096,1", PROPERTY_USAGE_EDITOR), "set_current_tab", "get_current_tab");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "tabs_visible"), "set_tabs_visible", "are_tabs_visible");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "drag_to_rearrange_enabled"), "set_drag_to_rearrange_enabled", "get_drag_to_rearrange_enabled");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "use_hidden_tabs_for_min_size"), "set_use_hidden_tabs_for_min_size", "get_use_hidden_tabs_for_min_size");

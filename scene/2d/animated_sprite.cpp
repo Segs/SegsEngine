@@ -328,12 +328,12 @@ void SpriteFrames::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("_set_frames"), &SpriteFrames::_set_frames);
     MethodBinder::bind_method(D_METHOD("_get_frames"), &SpriteFrames::_get_frames);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::ARRAY, "frames", PROPERTY_HINT_NONE, "", 0), "_set_frames", "_get_frames"); //compatibility
+    ADD_PROPERTY(PropertyInfo(VariantType::ARRAY, "frames", PropertyHint::None, "", 0), "_set_frames", "_get_frames"); //compatibility
 
     MethodBinder::bind_method(D_METHOD("_set_animations"), &SpriteFrames::_set_animations);
     MethodBinder::bind_method(D_METHOD("_get_animations"), &SpriteFrames::_get_animations);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::ARRAY, "animations", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "_set_animations", "_get_animations"); //compatibility
+    ADD_PROPERTY(PropertyInfo(VariantType::ARRAY, "animations", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "_set_animations", "_get_animations"); //compatibility
 }
 
 SpriteFrames::SpriteFrames() {
@@ -347,7 +347,7 @@ void AnimatedSprite::_validate_property(PropertyInfo &property) const {
         return;
     if (property.name == "animation") {
 
-        property.hint = PROPERTY_HINT_ENUM;
+        property.hint = PropertyHint::Enum;
         ListPOD<StringName> names;
         frames->get_animation_list(&names);
         names.sort(WrapAlphaCompare());
@@ -375,7 +375,7 @@ void AnimatedSprite::_validate_property(PropertyInfo &property) const {
     }
 
     if (property.name == "frame") {
-        property.hint = PROPERTY_HINT_RANGE;
+        property.hint = PropertyHint::Range;
         if (frames->has_animation(animation) && frames->get_frame_count(animation) > 1) {
             property.hint_string = "0," + itos(frames->get_frame_count(animation) - 1) + ",1";
         }
@@ -728,7 +728,7 @@ void AnimatedSprite::_bind_methods() {
     ADD_SIGNAL(MethodInfo("frame_changed"));
     ADD_SIGNAL(MethodInfo("animation_finished"));
 
-    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "frames", PROPERTY_HINT_RESOURCE_TYPE, "SpriteFrames"), "set_sprite_frames", "get_sprite_frames");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "frames", PropertyHint::ResourceType, "SpriteFrames"), "set_sprite_frames", "get_sprite_frames");
     ADD_PROPERTY(PropertyInfo(VariantType::STRING, "animation"), "set_animation", "get_animation");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "frame"), "set_frame", "get_frame");
     ADD_PROPERTY(PropertyInfo(VariantType::REAL, "speed_scale"), "set_speed_scale", "get_speed_scale");

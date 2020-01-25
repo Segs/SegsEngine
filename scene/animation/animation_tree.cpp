@@ -439,8 +439,8 @@ void AnimationNode::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_parameter", {"name", "value"}), &AnimationNode::set_parameter);
     MethodBinder::bind_method(D_METHOD("get_parameter", {"name"}), &AnimationNode::get_parameter);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "filter_enabled", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR), "set_filter_enabled", "is_filter_enabled");
-    ADD_PROPERTY(PropertyInfo(VariantType::ARRAY, "filters", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "_set_filters", "_get_filters");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "filter_enabled", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR), "set_filter_enabled", "is_filter_enabled");
+    ADD_PROPERTY(PropertyInfo(VariantType::ARRAY, "filters", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "_set_filters", "_get_filters");
 
     BIND_VMETHOD(MethodInfo(VariantType::DICTIONARY, "get_child_nodes"));
     BIND_VMETHOD(MethodInfo(VariantType::ARRAY, "get_parameter_list"));
@@ -1572,10 +1572,10 @@ void AnimationTree::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("_node_removed"), &AnimationTree::_node_removed);
     MethodBinder::bind_method(D_METHOD("_clear_caches"), &AnimationTree::_clear_caches);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "tree_root", PROPERTY_HINT_RESOURCE_TYPE, "AnimationRootNode"), "set_tree_root", "get_tree_root");
-    ADD_PROPERTY(PropertyInfo(VariantType::NODE_PATH, "anim_player", PROPERTY_HINT_NODE_PATH_VALID_TYPES, "AnimationPlayer"), "set_animation_player", "get_animation_player");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "tree_root", PropertyHint::ResourceType, "AnimationRootNode"), "set_tree_root", "get_tree_root");
+    ADD_PROPERTY(PropertyInfo(VariantType::NODE_PATH, "anim_player", PropertyHint::NodePathValidTypes, "AnimationPlayer"), "set_animation_player", "get_animation_player");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "active"), "set_active", "is_active");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "process_mode", PROPERTY_HINT_ENUM, "Physics,Idle,Manual"), "set_process_mode", "get_process_mode");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "process_mode", PropertyHint::Enum, "Physics,Idle,Manual"), "set_process_mode", "get_process_mode");
     ADD_GROUP("Root Motion", "root_motion_");
     ADD_PROPERTY(PropertyInfo(VariantType::NODE_PATH, "root_motion_track"), "set_root_motion_track", "get_root_motion_track");
 

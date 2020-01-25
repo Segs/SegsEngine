@@ -844,26 +844,26 @@ void Polygon2D::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "offset"), "set_offset", "get_offset");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "antialiased"), "set_antialiased", "get_antialiased");
     ADD_GROUP("Texture", "");
-    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "texture", PROPERTY_HINT_RESOURCE_TYPE, "Texture"), "set_texture", "get_texture");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "texture", PropertyHint::ResourceType, "Texture"), "set_texture", "get_texture");
     ADD_GROUP("Texture", "texture_");
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "texture_offset"), "set_texture_offset", "get_texture_offset");
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "texture_scale"), "set_texture_scale", "get_texture_scale");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "texture_rotation_degrees", PROPERTY_HINT_RANGE, "-360,360,0.1,or_lesser,or_greater"), "set_texture_rotation_degrees", "get_texture_rotation_degrees");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "texture_rotation", PROPERTY_HINT_NONE, "", 0), "set_texture_rotation", "get_texture_rotation");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "texture_rotation_degrees", PropertyHint::Range, "-360,360,0.1,or_lesser,or_greater"), "set_texture_rotation_degrees", "get_texture_rotation_degrees");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "texture_rotation", PropertyHint::None, "", 0), "set_texture_rotation", "get_texture_rotation");
     ADD_GROUP("Skeleton", "");
-    ADD_PROPERTY(PropertyInfo(VariantType::NODE_PATH, "skeleton", PROPERTY_HINT_NODE_PATH_VALID_TYPES, "Skeleton2D"), "set_skeleton", "get_skeleton");
+    ADD_PROPERTY(PropertyInfo(VariantType::NODE_PATH, "skeleton", PropertyHint::NodePathValidTypes, "Skeleton2D"), "set_skeleton", "get_skeleton");
 
     ADD_GROUP("Invert", "invert_");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "invert_enable"), "set_invert", "get_invert");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "invert_border", PROPERTY_HINT_RANGE, "0.1,16384,0.1"), "set_invert_border", "get_invert_border");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "invert_border", PropertyHint::Range, "0.1,16384,0.1"), "set_invert_border", "get_invert_border");
 
     ADD_GROUP("Data", "");
     ADD_PROPERTY(PropertyInfo(VariantType::POOL_VECTOR2_ARRAY, "polygon"), "set_polygon", "get_polygon");
     ADD_PROPERTY(PropertyInfo(VariantType::POOL_VECTOR2_ARRAY, "uv"), "set_uv", "get_uv");
     ADD_PROPERTY(PropertyInfo(VariantType::POOL_COLOR_ARRAY, "vertex_colors"), "set_vertex_colors", "get_vertex_colors");
     ADD_PROPERTY(PropertyInfo(VariantType::ARRAY, "polygons"), "set_polygons", "get_polygons");
-    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "bones", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR), "_set_bones", "_get_bones");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "internal_vertex_count", PROPERTY_HINT_RANGE, "0,1000"), "set_internal_vertex_count", "get_internal_vertex_count");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "bones", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR), "_set_bones", "_get_bones");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "internal_vertex_count", PropertyHint::Range, "0,1000"), "set_internal_vertex_count", "get_internal_vertex_count");
 }
 
 Polygon2D::Polygon2D() {

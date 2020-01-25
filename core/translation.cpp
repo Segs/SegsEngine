@@ -906,7 +906,7 @@ void Translation::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("_set_messages"), &Translation::_set_messages);
     MethodBinder::bind_method(D_METHOD("_get_messages"), &Translation::_get_messages);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::POOL_STRING_ARRAY, "messages", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "_set_messages", "_get_messages");
+    ADD_PROPERTY(PropertyInfo(VariantType::POOL_STRING_ARRAY, "messages", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "_set_messages", "_get_messages");
     ADD_PROPERTY(PropertyInfo(VariantType::STRING, "locale"), "set_locale", "get_locale");
 }
 
@@ -1193,7 +1193,7 @@ void TranslationServer::setup() {
             idx++;
         }
         ProjectSettings::get_singleton()->set_custom_property_info(
-                "locale/fallback", PropertyInfo(VariantType::STRING, "locale/fallback", PROPERTY_HINT_ENUM,
+                "locale/fallback", PropertyInfo(VariantType::STRING, "locale/fallback", PropertyHint::Enum,
                                            options));
     }
 #endif

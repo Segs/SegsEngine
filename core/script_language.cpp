@@ -123,7 +123,7 @@ void Script::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("is_tool"), &Script::is_tool);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "source_code", PROPERTY_HINT_NONE, "", 0), "set_source_code", "get_source_code");
+    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "source_code", PropertyHint::None, "", 0), "set_source_code", "get_source_code");
 }
 
 void ScriptServer::set_scripting_enabled(bool p_enabled) {
@@ -608,7 +608,7 @@ void PlaceHolderScriptInstance::property_set_fallback(const StringName &p_name, 
             }
         }
         if (!found) {
-            properties.push_back(PropertyInfo(p_value.get_type(), p_name, PROPERTY_HINT_NONE,
+            properties.push_back(PropertyInfo(p_value.get_type(), p_name, PropertyHint::None,
                     nullptr, PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_SCRIPT_VARIABLE));
         }
     }

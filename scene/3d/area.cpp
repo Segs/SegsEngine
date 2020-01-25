@@ -699,37 +699,37 @@ void Area::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_reverb_uniformity", {"amount"}), &Area::set_reverb_uniformity);
     MethodBinder::bind_method(D_METHOD("get_reverb_uniformity"), &Area::get_reverb_uniformity);
 
-    ADD_SIGNAL(MethodInfo("body_shape_entered", PropertyInfo(VariantType::INT, "body_id"), PropertyInfo(VariantType::OBJECT, "body", PROPERTY_HINT_RESOURCE_TYPE, "Node"), PropertyInfo(VariantType::INT, "body_shape"), PropertyInfo(VariantType::INT, "area_shape")));
-    ADD_SIGNAL(MethodInfo("body_shape_exited", PropertyInfo(VariantType::INT, "body_id"), PropertyInfo(VariantType::OBJECT, "body", PROPERTY_HINT_RESOURCE_TYPE, "Node"), PropertyInfo(VariantType::INT, "body_shape"), PropertyInfo(VariantType::INT, "area_shape")));
-    ADD_SIGNAL(MethodInfo("body_entered", PropertyInfo(VariantType::OBJECT, "body", PROPERTY_HINT_RESOURCE_TYPE, "Node")));
-    ADD_SIGNAL(MethodInfo("body_exited", PropertyInfo(VariantType::OBJECT, "body", PROPERTY_HINT_RESOURCE_TYPE, "Node")));
+    ADD_SIGNAL(MethodInfo("body_shape_entered", PropertyInfo(VariantType::INT, "body_id"), PropertyInfo(VariantType::OBJECT, "body", PropertyHint::ResourceType, "Node"), PropertyInfo(VariantType::INT, "body_shape"), PropertyInfo(VariantType::INT, "area_shape")));
+    ADD_SIGNAL(MethodInfo("body_shape_exited", PropertyInfo(VariantType::INT, "body_id"), PropertyInfo(VariantType::OBJECT, "body", PropertyHint::ResourceType, "Node"), PropertyInfo(VariantType::INT, "body_shape"), PropertyInfo(VariantType::INT, "area_shape")));
+    ADD_SIGNAL(MethodInfo("body_entered", PropertyInfo(VariantType::OBJECT, "body", PropertyHint::ResourceType, "Node")));
+    ADD_SIGNAL(MethodInfo("body_exited", PropertyInfo(VariantType::OBJECT, "body", PropertyHint::ResourceType, "Node")));
 
-    ADD_SIGNAL(MethodInfo("area_shape_entered", PropertyInfo(VariantType::INT, "area_id"), PropertyInfo(VariantType::OBJECT, "area", PROPERTY_HINT_RESOURCE_TYPE, "Area"), PropertyInfo(VariantType::INT, "area_shape"), PropertyInfo(VariantType::INT, "self_shape")));
-    ADD_SIGNAL(MethodInfo("area_shape_exited", PropertyInfo(VariantType::INT, "area_id"), PropertyInfo(VariantType::OBJECT, "area", PROPERTY_HINT_RESOURCE_TYPE, "Area"), PropertyInfo(VariantType::INT, "area_shape"), PropertyInfo(VariantType::INT, "self_shape")));
-    ADD_SIGNAL(MethodInfo("area_entered", PropertyInfo(VariantType::OBJECT, "area", PROPERTY_HINT_RESOURCE_TYPE, "Area")));
-    ADD_SIGNAL(MethodInfo("area_exited", PropertyInfo(VariantType::OBJECT, "area", PROPERTY_HINT_RESOURCE_TYPE, "Area")));
+    ADD_SIGNAL(MethodInfo("area_shape_entered", PropertyInfo(VariantType::INT, "area_id"), PropertyInfo(VariantType::OBJECT, "area", PropertyHint::ResourceType, "Area"), PropertyInfo(VariantType::INT, "area_shape"), PropertyInfo(VariantType::INT, "self_shape")));
+    ADD_SIGNAL(MethodInfo("area_shape_exited", PropertyInfo(VariantType::INT, "area_id"), PropertyInfo(VariantType::OBJECT, "area", PropertyHint::ResourceType, "Area"), PropertyInfo(VariantType::INT, "area_shape"), PropertyInfo(VariantType::INT, "self_shape")));
+    ADD_SIGNAL(MethodInfo("area_entered", PropertyInfo(VariantType::OBJECT, "area", PropertyHint::ResourceType, "Area")));
+    ADD_SIGNAL(MethodInfo("area_exited", PropertyInfo(VariantType::OBJECT, "area", PropertyHint::ResourceType, "Area")));
 
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "space_override", PROPERTY_HINT_ENUM, "Disabled,Combine,Combine-Replace,Replace,Replace-Combine"), "set_space_override_mode", "get_space_override_mode");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "space_override", PropertyHint::Enum, "Disabled,Combine,Combine-Replace,Replace,Replace-Combine"), "set_space_override_mode", "get_space_override_mode");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "gravity_point"), "set_gravity_is_point", "is_gravity_a_point");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "gravity_distance_scale", PROPERTY_HINT_EXP_RANGE, "0,1024,0.001,or_greater"), "set_gravity_distance_scale", "get_gravity_distance_scale");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "gravity_distance_scale", PropertyHint::ExpRange, "0,1024,0.001,or_greater"), "set_gravity_distance_scale", "get_gravity_distance_scale");
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR3, "gravity_vec"), "set_gravity_vector", "get_gravity_vector");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "gravity", PROPERTY_HINT_RANGE, "-1024,1024,0.01"), "set_gravity", "get_gravity");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "linear_damp", PROPERTY_HINT_RANGE, "0,100,0.001,or_greater"), "set_linear_damp", "get_linear_damp");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "angular_damp", PROPERTY_HINT_RANGE, "0,100,0.001,or_greater"), "set_angular_damp", "get_angular_damp");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "priority", PROPERTY_HINT_RANGE, "0,128,1"), "set_priority", "get_priority");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "gravity", PropertyHint::Range, "-1024,1024,0.01"), "set_gravity", "get_gravity");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "linear_damp", PropertyHint::Range, "0,100,0.001,or_greater"), "set_linear_damp", "get_linear_damp");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "angular_damp", PropertyHint::Range, "0,100,0.001,or_greater"), "set_angular_damp", "get_angular_damp");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "priority", PropertyHint::Range, "0,128,1"), "set_priority", "get_priority");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "monitoring"), "set_monitoring", "is_monitoring");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "monitorable"), "set_monitorable", "is_monitorable");
     ADD_GROUP("Collision", "collision_");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "collision_layer", PROPERTY_HINT_LAYERS_3D_PHYSICS), "set_collision_layer", "get_collision_layer");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "collision_mask", PROPERTY_HINT_LAYERS_3D_PHYSICS), "set_collision_mask", "get_collision_mask");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "collision_layer", PropertyHint::Layers3DPhysics), "set_collision_layer", "get_collision_layer");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "collision_mask", PropertyHint::Layers3DPhysics), "set_collision_mask", "get_collision_mask");
     ADD_GROUP("Audio Bus", "audio_bus_");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "audio_bus_override"), "set_audio_bus_override", "is_overriding_audio_bus");
-    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "audio_bus_name", PROPERTY_HINT_ENUM, ""), "set_audio_bus", "get_audio_bus");
+    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "audio_bus_name", PropertyHint::Enum, ""), "set_audio_bus", "get_audio_bus");
     ADD_GROUP("Reverb Bus", "reverb_bus_");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "reverb_bus_enable"), "set_use_reverb_bus", "is_using_reverb_bus");
-    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "reverb_bus_name", PROPERTY_HINT_ENUM, ""), "set_reverb_bus", "get_reverb_bus");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "reverb_bus_amount", PROPERTY_HINT_RANGE, "0,1,0.01"), "set_reverb_amount", "get_reverb_amount");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "reverb_bus_uniformity", PROPERTY_HINT_RANGE, "0,1,0.01"), "set_reverb_uniformity", "get_reverb_uniformity");
+    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "reverb_bus_name", PropertyHint::Enum, ""), "set_reverb_bus", "get_reverb_bus");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "reverb_bus_amount", PropertyHint::Range, "0,1,0.01"), "set_reverb_amount", "get_reverb_amount");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "reverb_bus_uniformity", PropertyHint::Range, "0,1,0.01"), "set_reverb_uniformity", "get_reverb_uniformity");
 
     BIND_ENUM_CONSTANT(SPACE_OVERRIDE_DISABLED)
     BIND_ENUM_CONSTANT(SPACE_OVERRIDE_COMBINE)

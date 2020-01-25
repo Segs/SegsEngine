@@ -32,7 +32,7 @@
 				var property_info = {
 				    "name": "category/property_name",
 				    "type": TYPE_INT,
-				    "hint": PROPERTY_HINT_ENUM,
+                    "hint": PropertyHint::Enum,
 				    "hint_string": "one,two,three"
 				}
 

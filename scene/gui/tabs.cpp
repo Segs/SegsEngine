@@ -1006,9 +1006,9 @@ void Tabs::_bind_methods() {
     ADD_SIGNAL(MethodInfo("reposition_active_tab_request", PropertyInfo(VariantType::INT, "idx_to")));
     ADD_SIGNAL(MethodInfo("tab_clicked", PropertyInfo(VariantType::INT, "tab")));
 
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "current_tab", PROPERTY_HINT_RANGE, "-1,4096,1", PROPERTY_USAGE_EDITOR), "set_current_tab", "get_current_tab");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "tab_align", PROPERTY_HINT_ENUM, "Left,Center,Right"), "set_tab_align", "get_tab_align");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "tab_close_display_policy", PROPERTY_HINT_ENUM, "Show Never,Show Active Only,Show Always"), "set_tab_close_display_policy", "get_tab_close_display_policy");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "current_tab", PropertyHint::Range, "-1,4096,1", PROPERTY_USAGE_EDITOR), "set_current_tab", "get_current_tab");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "tab_align", PropertyHint::Enum, "Left,Center,Right"), "set_tab_align", "get_tab_align");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "tab_close_display_policy", PropertyHint::Enum, "Show Never,Show Active Only,Show Always"), "set_tab_close_display_policy", "get_tab_close_display_policy");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "scrolling_enabled"), "set_scrolling_enabled", "get_scrolling_enabled");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "drag_to_rearrange_enabled"), "set_drag_to_rearrange_enabled", "get_drag_to_rearrange_enabled");
 

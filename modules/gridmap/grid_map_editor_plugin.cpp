@@ -1565,7 +1565,7 @@ GridMapEditorPlugin::GridMapEditorPlugin(EditorNode *p_node) {
     editor = p_node;
 
     EDITOR_DEF(("editors/grid_map/editor_side"), 1);
-    EditorSettings::get_singleton()->add_property_hint(PropertyInfo(VariantType::INT, "editors/grid_map/editor_side", PROPERTY_HINT_ENUM, "Left,Right"));
+    EditorSettings::get_singleton()->add_property_hint(PropertyInfo(VariantType::INT, "editors/grid_map/editor_side", PropertyHint::Enum, "Left,Right"));
 
     grid_map_editor = memnew(GridMapEditor(editor));
     switch ((int)EditorSettings::get_singleton()->get("editors/grid_map/editor_side")) {

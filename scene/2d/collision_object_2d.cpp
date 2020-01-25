@@ -427,9 +427,9 @@ void CollisionObject2D::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("shape_owner_clear_shapes", {"owner_id"}), &CollisionObject2D::shape_owner_clear_shapes);
     MethodBinder::bind_method(D_METHOD("shape_find_owner", {"shape_index"}), &CollisionObject2D::shape_find_owner);
 
-    BIND_VMETHOD(MethodInfo("_input_event", PropertyInfo(VariantType::OBJECT, "viewport"), PropertyInfo(VariantType::OBJECT, "event", PROPERTY_HINT_RESOURCE_TYPE, "InputEvent"), PropertyInfo(VariantType::INT, "shape_idx")));
+    BIND_VMETHOD(MethodInfo("_input_event", PropertyInfo(VariantType::OBJECT, "viewport"), PropertyInfo(VariantType::OBJECT, "event", PropertyHint::ResourceType, "InputEvent"), PropertyInfo(VariantType::INT, "shape_idx")));
 
-    ADD_SIGNAL(MethodInfo("input_event", PropertyInfo(VariantType::OBJECT, "viewport", PROPERTY_HINT_RESOURCE_TYPE, "Node"), PropertyInfo(VariantType::OBJECT, "event", PROPERTY_HINT_RESOURCE_TYPE, "InputEvent"), PropertyInfo(VariantType::INT, "shape_idx")));
+    ADD_SIGNAL(MethodInfo("input_event", PropertyInfo(VariantType::OBJECT, "viewport", PropertyHint::ResourceType, "Node"), PropertyInfo(VariantType::OBJECT, "event", PropertyHint::ResourceType, "InputEvent"), PropertyInfo(VariantType::INT, "shape_idx")));
     ADD_SIGNAL(MethodInfo("mouse_entered"));
     ADD_SIGNAL(MethodInfo("mouse_exited"));
 

@@ -40,6 +40,8 @@
 #include "mono_gd/gd_mono_marshal.h"
 #include "mono_gd/gd_mono_utils.h"
 
+IMPL_GDCLASS(SignalAwaiterHandle)
+
 namespace SignalAwaiterUtils {
 
 Error connect_signal_awaiter(Object *p_source, const String &p_signal, Object *p_target, MonoObject *p_awaiter) {

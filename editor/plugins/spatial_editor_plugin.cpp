@@ -5946,9 +5946,9 @@ SpatialEditor::SpatialEditor(EditorNode *p_editor) {
     add_to_group("_spatial_editor_group");
 
     EDITOR_DEF("editors/3d/manipulator_gizmo_size", 80);
-    EditorSettings::get_singleton()->add_property_hint(PropertyInfo(VariantType::INT, "editors/3d/manipulator_gizmo_size", PROPERTY_HINT_RANGE, "16,1024,1"));
+    EditorSettings::get_singleton()->add_property_hint(PropertyInfo(VariantType::INT, "editors/3d/manipulator_gizmo_size", PropertyHint::Range, "16,1024,1"));
     EDITOR_DEF("editors/3d/manipulator_gizmo_opacity", 0.4);
-    EditorSettings::get_singleton()->add_property_hint(PropertyInfo(VariantType::REAL, "editors/3d/manipulator_gizmo_opacity", PROPERTY_HINT_RANGE, "0,1,0.01"));
+    EditorSettings::get_singleton()->add_property_hint(PropertyInfo(VariantType::REAL, "editors/3d/manipulator_gizmo_opacity", PropertyHint::Range, "0,1,0.01"));
 
     over_gizmo_handle = -1;
 }
@@ -6258,10 +6258,10 @@ Ref<EditorSpatialGizmo> EditorSpatialGizmoPlugin::get_gizmo(Spatial *p_spatial) 
 }
 
 void EditorSpatialGizmoPlugin::_bind_methods() {
-#define GIZMO_REF PropertyInfo(VariantType::OBJECT, "gizmo", PROPERTY_HINT_RESOURCE_TYPE, "EditorSpatialGizmo")
+#define GIZMO_REF PropertyInfo(VariantType::OBJECT, "gizmo", PropertyHint::ResourceType, "EditorSpatialGizmo")
 
-    BIND_VMETHOD(MethodInfo(VariantType::BOOL, "has_gizmo", PropertyInfo(VariantType::OBJECT, "spatial", PROPERTY_HINT_RESOURCE_TYPE, "Spatial")))
-    BIND_VMETHOD(MethodInfo(GIZMO_REF, "create_gizmo", PropertyInfo(VariantType::OBJECT, "spatial", PROPERTY_HINT_RESOURCE_TYPE, "Spatial")))
+    BIND_VMETHOD(MethodInfo(VariantType::BOOL, "has_gizmo", PropertyInfo(VariantType::OBJECT, "spatial", PropertyHint::ResourceType, "Spatial")))
+    BIND_VMETHOD(MethodInfo(GIZMO_REF, "create_gizmo", PropertyInfo(VariantType::OBJECT, "spatial", PropertyHint::ResourceType, "Spatial")))
 
     MethodBinder::bind_method(D_METHOD("create_material", {"name", "color", "billboard", "on_top", "use_vertex_color"}), &EditorSpatialGizmoPlugin::create_material, {DEFVAL(false), DEFVAL(false), DEFVAL(false)});
     MethodBinder::bind_method(D_METHOD("create_icon_material", {"name", "texture", "on_top", "color"}), &EditorSpatialGizmoPlugin::create_icon_material, {DEFVAL(false), DEFVAL(Color(1, 1, 1, 1))});
@@ -6282,7 +6282,7 @@ void EditorSpatialGizmoPlugin::_bind_methods() {
     hvget.return_val.usage |= PROPERTY_USAGE_NIL_IS_VARIANT;
     BIND_VMETHOD(hvget)
 
-    BIND_VMETHOD(MethodInfo("set_handle", GIZMO_REF, PropertyInfo(VariantType::INT, "index"), PropertyInfo(VariantType::OBJECT, "camera", PROPERTY_HINT_RESOURCE_TYPE, "Camera"), PropertyInfo(VariantType::VECTOR2, "point")))
+    BIND_VMETHOD(MethodInfo("set_handle", GIZMO_REF, PropertyInfo(VariantType::INT, "index"), PropertyInfo(VariantType::OBJECT, "camera", PropertyHint::ResourceType, "Camera"), PropertyInfo(VariantType::VECTOR2, "point")))
     MethodInfo cm = MethodInfo("commit_handle", GIZMO_REF, PropertyInfo(VariantType::INT, "index"), PropertyInfo(VariantType::NIL, "restore"), PropertyInfo(VariantType::BOOL, "cancel"));
     cm.default_arguments.push_back(false);
     BIND_VMETHOD(cm)

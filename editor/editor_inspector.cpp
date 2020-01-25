@@ -838,12 +838,12 @@ void EditorProperty::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "checked"), "set_checked", "is_checked");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "draw_red"), "set_draw_red", "is_draw_red");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "keying"), "set_keying", "is_keying");
-    ADD_SIGNAL(MethodInfo("property_changed", PropertyInfo(VariantType::STRING, "property"), PropertyInfo(VariantType::NIL, "value", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NIL_IS_VARIANT)));
+    ADD_SIGNAL(MethodInfo("property_changed", PropertyInfo(VariantType::STRING, "property"), PropertyInfo(VariantType::NIL, "value", PropertyHint::None, "", PROPERTY_USAGE_NIL_IS_VARIANT)));
     ADD_SIGNAL(MethodInfo("multiple_properties_changed", PropertyInfo(VariantType::POOL_STRING_ARRAY, "properties"), PropertyInfo(VariantType::ARRAY, "value")));
     ADD_SIGNAL(MethodInfo("property_keyed", PropertyInfo(VariantType::STRING, "property")));
-    ADD_SIGNAL(MethodInfo("property_keyed_with_value", PropertyInfo(VariantType::STRING, "property"), PropertyInfo(VariantType::NIL, "value", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NIL_IS_VARIANT)));
+    ADD_SIGNAL(MethodInfo("property_keyed_with_value", PropertyInfo(VariantType::STRING, "property"), PropertyInfo(VariantType::NIL, "value", PropertyHint::None, "", PROPERTY_USAGE_NIL_IS_VARIANT)));
     ADD_SIGNAL(MethodInfo("property_checked", PropertyInfo(VariantType::STRING, "property"), PropertyInfo(VariantType::STRING, "bool")));
-    ADD_SIGNAL(MethodInfo("resource_selected", PropertyInfo(VariantType::STRING, "path"), PropertyInfo(VariantType::OBJECT, "resource", PROPERTY_HINT_RESOURCE_TYPE, "Resource")));
+    ADD_SIGNAL(MethodInfo("resource_selected", PropertyInfo(VariantType::STRING, "path"), PropertyInfo(VariantType::OBJECT, "resource", PropertyHint::ResourceType, "Resource")));
     ADD_SIGNAL(MethodInfo("object_id_selected", PropertyInfo(VariantType::STRING, "property"), PropertyInfo(VariantType::INT, "id")));
     ADD_SIGNAL(MethodInfo("selected", PropertyInfo(VariantType::STRING, "path"), PropertyInfo(VariantType::INT, "focusable_idx")));
 

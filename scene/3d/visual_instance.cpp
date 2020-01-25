@@ -141,7 +141,7 @@ void VisualInstance::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("get_transformed_aabb"), &VisualInstance::get_transformed_aabb);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "layers", PROPERTY_HINT_LAYERS_3D_RENDER), "set_layer_mask", "get_layer_mask");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "layers", PropertyHint::Layers3DRenderer), "set_layer_mask", "get_layer_mask");
 }
 
 void VisualInstance::set_base(const RID &p_base) {
@@ -303,16 +303,16 @@ void GeometryInstance::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_aabb"), &GeometryInstance::get_aabb);
 
     ADD_GROUP("Geometry", "");
-    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "material_override", PROPERTY_HINT_RESOURCE_TYPE, "ShaderMaterial,SpatialMaterial"), "set_material_override", "get_material_override");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "cast_shadow", PROPERTY_HINT_ENUM, "Off,On,Double-Sided,Shadows Only"), "set_cast_shadows_setting", "get_cast_shadows_setting");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "extra_cull_margin", PROPERTY_HINT_RANGE, "0,16384,0.01"), "set_extra_cull_margin", "get_extra_cull_margin");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "material_override", PropertyHint::ResourceType, "ShaderMaterial,SpatialMaterial"), "set_material_override", "get_material_override");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "cast_shadow", PropertyHint::Enum, "Off,On,Double-Sided,Shadows Only"), "set_cast_shadows_setting", "get_cast_shadows_setting");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "extra_cull_margin", PropertyHint::Range, "0,16384,0.01"), "set_extra_cull_margin", "get_extra_cull_margin");
     ADD_PROPERTYI(PropertyInfo(VariantType::BOOL, "use_in_baked_light"), "set_flag", "get_flag", FLAG_USE_BAKED_LIGHT);
 
     ADD_GROUP("LOD", "lod_");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "lod_min_distance", PROPERTY_HINT_RANGE, "0,32768,0.01"), "set_lod_min_distance", "get_lod_min_distance");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "lod_min_hysteresis", PROPERTY_HINT_RANGE, "0,32768,0.01"), "set_lod_min_hysteresis", "get_lod_min_hysteresis");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "lod_max_distance", PROPERTY_HINT_RANGE, "0,32768,0.01"), "set_lod_max_distance", "get_lod_max_distance");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "lod_max_hysteresis", PROPERTY_HINT_RANGE, "0,32768,0.01"), "set_lod_max_hysteresis", "get_lod_max_hysteresis");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "lod_min_distance", PropertyHint::Range, "0,32768,0.01"), "set_lod_min_distance", "get_lod_min_distance");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "lod_min_hysteresis", PropertyHint::Range, "0,32768,0.01"), "set_lod_min_hysteresis", "get_lod_min_hysteresis");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "lod_max_distance", PropertyHint::Range, "0,32768,0.01"), "set_lod_max_distance", "get_lod_max_distance");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "lod_max_hysteresis", PropertyHint::Range, "0,32768,0.01"), "set_lod_max_hysteresis", "get_lod_max_hysteresis");
 
     //ADD_SIGNAL( MethodInfo("visibility_changed"));
 

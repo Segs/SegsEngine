@@ -309,7 +309,7 @@ void AnimationTreePlayerEditor::_popup_edit_dialog() {
                     master_anim_popup->set_position(popup_pos);
                     master_anim_popup->popup();
                 } else {
-                    property_editor->edit(this, "", VariantType::OBJECT, anim_tree->animation_node_get_animation(edited_node), PROPERTY_HINT_RESOURCE_TYPE, "Animation");
+                    property_editor->edit(this, "", VariantType::OBJECT, anim_tree->animation_node_get_animation(edited_node), PropertyHint::ResourceType, "Animation");
                     property_editor->set_position(popup_pos);
                     property_editor->popup();
                     updating_edit = false;

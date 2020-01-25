@@ -377,9 +377,9 @@ void World2D::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("get_direct_space_state"), &World2D::get_direct_space_state);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::_RID, "canvas", PROPERTY_HINT_NONE, "", 0), "", "get_canvas");
-    ADD_PROPERTY(PropertyInfo(VariantType::_RID, "space", PROPERTY_HINT_NONE, "", 0), "", "get_space");
-    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "direct_space_state", PROPERTY_HINT_RESOURCE_TYPE, "Physics2DDirectSpaceState", 0), "", "get_direct_space_state");
+    ADD_PROPERTY(PropertyInfo(VariantType::_RID, "canvas", PropertyHint::None, "", 0), "", "get_canvas");
+    ADD_PROPERTY(PropertyInfo(VariantType::_RID, "space", PropertyHint::None, "", 0), "", "get_space");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "direct_space_state", PropertyHint::ResourceType, "Physics2DDirectSpaceState", 0), "", "get_direct_space_state");
 }
 
 Physics2DDirectSpaceState *World2D::get_direct_space_state() {
@@ -397,9 +397,9 @@ World2D::World2D() {
     Physics2DServer::get_singleton()->area_set_param(space, Physics2DServer::AREA_PARAM_GRAVITY, GLOBAL_DEF("physics/2d/default_gravity", 98));
     Physics2DServer::get_singleton()->area_set_param(space, Physics2DServer::AREA_PARAM_GRAVITY_VECTOR, GLOBAL_DEF("physics/2d/default_gravity_vector", Vector2(0, 1)));
     Physics2DServer::get_singleton()->area_set_param(space, Physics2DServer::AREA_PARAM_LINEAR_DAMP, GLOBAL_DEF("physics/2d/default_linear_damp", 0.1));
-    ProjectSettings::get_singleton()->set_custom_property_info("physics/2d/default_linear_damp", PropertyInfo(VariantType::REAL, "physics/2d/default_linear_damp", PROPERTY_HINT_RANGE, "-1,100,0.001,or_greater"));
+    ProjectSettings::get_singleton()->set_custom_property_info("physics/2d/default_linear_damp", PropertyInfo(VariantType::REAL, "physics/2d/default_linear_damp", PropertyHint::Range, "-1,100,0.001,or_greater"));
     Physics2DServer::get_singleton()->area_set_param(space, Physics2DServer::AREA_PARAM_ANGULAR_DAMP, GLOBAL_DEF("physics/2d/default_angular_damp", 1.0));
-    ProjectSettings::get_singleton()->set_custom_property_info("physics/2d/default_angular_damp", PropertyInfo(VariantType::REAL, "physics/2d/default_angular_damp", PROPERTY_HINT_RANGE, "-1,100,0.001,or_greater"));
+    ProjectSettings::get_singleton()->set_custom_property_info("physics/2d/default_angular_damp", PropertyInfo(VariantType::REAL, "physics/2d/default_angular_damp", PropertyHint::Range, "-1,100,0.001,or_greater"));
     indexer = memnew(SpatialIndexer2D);
 }
 

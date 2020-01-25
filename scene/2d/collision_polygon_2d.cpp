@@ -308,11 +308,11 @@ void CollisionPolygon2D::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_one_way_collision_margin", {"margin"}), &CollisionPolygon2D::set_one_way_collision_margin);
     MethodBinder::bind_method(D_METHOD("get_one_way_collision_margin"), &CollisionPolygon2D::get_one_way_collision_margin);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "build_mode", PROPERTY_HINT_ENUM, "Solids,Segments"), "set_build_mode", "get_build_mode");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "build_mode", PropertyHint::Enum, "Solids,Segments"), "set_build_mode", "get_build_mode");
     ADD_PROPERTY(PropertyInfo(VariantType::POOL_VECTOR2_ARRAY, "polygon"), "set_polygon", "get_polygon");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "disabled"), "set_disabled", "is_disabled");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "one_way_collision"), "set_one_way_collision", "is_one_way_collision_enabled");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "one_way_collision_margin", PROPERTY_HINT_RANGE, "0,128,0.1"), "set_one_way_collision_margin", "get_one_way_collision_margin");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "one_way_collision_margin", PropertyHint::Range, "0,128,0.1"), "set_one_way_collision_margin", "get_one_way_collision_margin");
 
     BIND_ENUM_CONSTANT(BUILD_SOLIDS)
     BIND_ENUM_CONSTANT(BUILD_SEGMENTS)

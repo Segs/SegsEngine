@@ -355,15 +355,15 @@ void SpriteBase3D::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "flip_h"), "set_flip_h", "is_flipped_h");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "flip_v"), "set_flip_v", "is_flipped_v");
     ADD_PROPERTY(PropertyInfo(VariantType::COLOR, "modulate"), "set_modulate", "get_modulate");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "opacity", PROPERTY_HINT_RANGE, "0,1,0.01"), "set_opacity", "get_opacity");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "pixel_size", PROPERTY_HINT_RANGE, "0.0001,128,0.0001"), "set_pixel_size", "get_pixel_size");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "axis", PROPERTY_HINT_ENUM, "X-Axis,Y-Axis,Z-Axis"), "set_axis", "get_axis");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "opacity", PropertyHint::Range, "0,1,0.01"), "set_opacity", "get_opacity");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "pixel_size", PropertyHint::Range, "0.0001,128,0.0001"), "set_pixel_size", "get_pixel_size");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "axis", PropertyHint::Enum, "X-Axis,Y-Axis,Z-Axis"), "set_axis", "get_axis");
     ADD_GROUP("Flags", "");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "billboard", PROPERTY_HINT_ENUM, "Disabled,Enabled,Y-Billboard"), "set_billboard_mode", "get_billboard_mode");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "billboard", PropertyHint::Enum, "Disabled,Enabled,Y-Billboard"), "set_billboard_mode", "get_billboard_mode");
     ADD_PROPERTYI(PropertyInfo(VariantType::BOOL, "transparent"), "set_draw_flag", "get_draw_flag", FLAG_TRANSPARENT);
     ADD_PROPERTYI(PropertyInfo(VariantType::BOOL, "shaded"), "set_draw_flag", "get_draw_flag", FLAG_SHADED);
     ADD_PROPERTYI(PropertyInfo(VariantType::BOOL, "double_sided"), "set_draw_flag", "get_draw_flag", FLAG_DOUBLE_SIDED);
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "alpha_cut", PROPERTY_HINT_ENUM, "Disabled,Discard,Opaque Pre-Pass"), "set_alpha_cut_mode", "get_alpha_cut_mode");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "alpha_cut", PropertyHint::Enum, "Disabled,Discard,Opaque Pre-Pass"), "set_alpha_cut_mode", "get_alpha_cut_mode");
 
     BIND_ENUM_CONSTANT(FLAG_TRANSPARENT)
     BIND_ENUM_CONSTANT(FLAG_SHADED)
@@ -667,7 +667,7 @@ Rect2 Sprite3D::get_item_rect() const {
 void Sprite3D::_validate_property(PropertyInfo &property) const {
 
     if (property.name == "frame") {
-        property.hint = PROPERTY_HINT_RANGE;
+        property.hint = PropertyHint::Range;
         property.hint_string = "0," + itos(vframes * hframes - 1) + ",1";
         property.usage |= PROPERTY_USAGE_KEYING_INCREMENTS;
     }
@@ -699,12 +699,12 @@ void Sprite3D::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_hframes", {"hframes"}), &Sprite3D::set_hframes);
     MethodBinder::bind_method(D_METHOD("get_hframes"), &Sprite3D::get_hframes);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "texture", PROPERTY_HINT_RESOURCE_TYPE, "Texture"), "set_texture", "get_texture");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "texture", PropertyHint::ResourceType, "Texture"), "set_texture", "get_texture");
     ADD_GROUP("Animation", "");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "vframes", PROPERTY_HINT_RANGE, "1,16384,1"), "set_vframes", "get_vframes");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "hframes", PROPERTY_HINT_RANGE, "1,16384,1"), "set_hframes", "get_hframes");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "vframes", PropertyHint::Range, "1,16384,1"), "set_vframes", "get_vframes");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "hframes", PropertyHint::Range, "1,16384,1"), "set_hframes", "get_hframes");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "frame"), "set_frame", "get_frame");
-    ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "frame_coords", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_EDITOR), "set_frame_coords", "get_frame_coords");
+    ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "frame_coords", PropertyHint::None, "", PROPERTY_USAGE_EDITOR), "set_frame_coords", "get_frame_coords");
     ADD_GROUP("Region", "region_");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "region_enabled"), "set_region", "is_region");
     ADD_PROPERTY(PropertyInfo(VariantType::RECT2, "region_rect"), "set_region_rect", "get_region_rect");
@@ -868,7 +868,7 @@ void AnimatedSprite3D::_validate_property(PropertyInfo &property) const {
         return;
     if (property.name == "animation") {
 
-        property.hint = PROPERTY_HINT_ENUM;
+        property.hint = PropertyHint::Enum;
         ListPOD<StringName> names;
         frames->get_animation_list(&names);
         names.sort(WrapAlphaCompare());
@@ -896,7 +896,7 @@ void AnimatedSprite3D::_validate_property(PropertyInfo &property) const {
     }
 
     if (property.name == "frame") {
-        property.hint = PROPERTY_HINT_RANGE;
+        property.hint = PropertyHint::Range;
         if (frames->has_animation(animation) && frames->get_frame_count(animation) > 1) {
             property.hint_string = "0," + itos(frames->get_frame_count(animation) - 1) + ",1";
         }
@@ -1131,7 +1131,7 @@ void AnimatedSprite3D::_bind_methods() {
 
     ADD_SIGNAL(MethodInfo("frame_changed"));
 
-    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "frames", PROPERTY_HINT_RESOURCE_TYPE, "SpriteFrames"), "set_sprite_frames", "get_sprite_frames");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "frames", PropertyHint::ResourceType, "SpriteFrames"), "set_sprite_frames", "get_sprite_frames");
     ADD_PROPERTY(PropertyInfo(VariantType::STRING, "animation"), "set_animation", "get_animation");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "frame"), "set_frame", "get_frame");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "playing"), "_set_playing", "_is_playing");

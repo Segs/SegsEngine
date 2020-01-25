@@ -287,9 +287,9 @@ void VehicleWheel::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_steering"), &VehicleWheel::get_steering);
 
     ADD_GROUP("Per-Wheel Motion", "");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "engine_force", PROPERTY_HINT_RANGE, "0.00,1024.0,0.01,or_greater"), "set_engine_force", "get_engine_force");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "brake", PROPERTY_HINT_RANGE, "0.0,1.0,0.01"), "set_brake", "get_brake");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "steering", PROPERTY_HINT_RANGE, "-180,180.0,0.01"), "set_steering", "get_steering");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "engine_force", PropertyHint::Range, "0.00,1024.0,0.01,or_greater"), "set_engine_force", "get_engine_force");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "brake", PropertyHint::Range, "0.0,1.0,0.01"), "set_brake", "get_brake");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "steering", PropertyHint::Range, "-180,180.0,0.01"), "set_steering", "get_steering");
     ADD_GROUP("VehicleBody Motion", "");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "use_as_traction"), "set_use_as_traction", "is_used_as_traction");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "use_as_steering"), "set_use_as_steering", "is_used_as_steering");
@@ -957,9 +957,9 @@ void VehicleBody::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_steering"), &VehicleBody::get_steering);
 
     ADD_GROUP("Motion", "");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "engine_force", PROPERTY_HINT_RANGE, "0.00,1024.0,0.01,or_greater"), "set_engine_force", "get_engine_force");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "brake", PROPERTY_HINT_RANGE, "0.0,1.0,0.01"), "set_brake", "get_brake");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "steering", PROPERTY_HINT_RANGE, "-180,180.0,0.01"), "set_steering", "get_steering");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "engine_force", PropertyHint::Range, "0.00,1024.0,0.01,or_greater"), "set_engine_force", "get_engine_force");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "brake", PropertyHint::Range, "0.0,1.0,0.01"), "set_brake", "get_brake");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "steering", PropertyHint::Range, "-180,180.0,0.01"), "set_steering", "get_steering");
 }
 
 VehicleBody::VehicleBody() {

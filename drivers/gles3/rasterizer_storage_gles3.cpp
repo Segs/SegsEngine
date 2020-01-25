@@ -2083,24 +2083,24 @@ void RasterizerStorageGLES3::shader_get_param_list(RID p_shader, PODVector<Prope
             case ShaderLanguage::TYPE_BOOL: pi.type = VariantType::BOOL; break;
             case ShaderLanguage::TYPE_BVEC2:
                 pi.type = VariantType::INT;
-                pi.hint = PROPERTY_HINT_FLAGS;
+                pi.hint = PropertyHint::Flags;
                 pi.hint_string = "x,y";
                 break;
             case ShaderLanguage::TYPE_BVEC3:
                 pi.type = VariantType::INT;
-                pi.hint = PROPERTY_HINT_FLAGS;
+                pi.hint = PropertyHint::Flags;
                 pi.hint_string = "x,y,z";
                 break;
             case ShaderLanguage::TYPE_BVEC4:
                 pi.type = VariantType::INT;
-                pi.hint = PROPERTY_HINT_FLAGS;
+                pi.hint = PropertyHint::Flags;
                 pi.hint_string = "x,y,z,w";
                 break;
             case ShaderLanguage::TYPE_UINT:
             case ShaderLanguage::TYPE_INT: {
                 pi.type = VariantType::INT;
                 if (u.hint == ShaderLanguage::ShaderNode::Uniform::HINT_RANGE) {
-                    pi.hint = PROPERTY_HINT_RANGE;
+                    pi.hint = PropertyHint::Range;
                     char buf[128];
                     snprintf(buf,127,"%f,%f,%f", u.hint_range[0], u.hint_range[1], u.hint_range[2]);
                     pi.hint_string = buf;
@@ -2119,7 +2119,7 @@ void RasterizerStorageGLES3::shader_get_param_list(RID p_shader, PODVector<Prope
             case ShaderLanguage::TYPE_FLOAT: {
                 pi.type = VariantType::REAL;
                 if (u.hint == ShaderLanguage::ShaderNode::Uniform::HINT_RANGE) {
-                    pi.hint = PROPERTY_HINT_RANGE;
+                    pi.hint = PropertyHint::Range;
                     char buf[128];
                     snprintf(buf, 127, "%f,%f,%f", u.hint_range[0], u.hint_range[1], u.hint_range[2]);
                     pi.hint_string = buf;
@@ -2143,7 +2143,7 @@ void RasterizerStorageGLES3::shader_get_param_list(RID p_shader, PODVector<Prope
             case ShaderLanguage::TYPE_USAMPLER2D: {
 
                 pi.type = VariantType::OBJECT;
-                pi.hint = PROPERTY_HINT_RESOURCE_TYPE;
+                pi.hint = PropertyHint::ResourceType;
                 pi.hint_string = "Texture";
             } break;
             case ShaderLanguage::TYPE_SAMPLER2DARRAY:
@@ -2151,20 +2151,20 @@ void RasterizerStorageGLES3::shader_get_param_list(RID p_shader, PODVector<Prope
             case ShaderLanguage::TYPE_USAMPLER2DARRAY: {
 
                 pi.type = VariantType::OBJECT;
-                pi.hint = PROPERTY_HINT_RESOURCE_TYPE;
+                pi.hint = PropertyHint::ResourceType;
                 pi.hint_string = "TextureArray";
             } break;
             case ShaderLanguage::TYPE_SAMPLER3D:
             case ShaderLanguage::TYPE_ISAMPLER3D:
             case ShaderLanguage::TYPE_USAMPLER3D: {
                 pi.type = VariantType::OBJECT;
-                pi.hint = PROPERTY_HINT_RESOURCE_TYPE;
+                pi.hint = PropertyHint::ResourceType;
                 pi.hint_string = "Texture3D";
             } break;
             case ShaderLanguage::TYPE_SAMPLERCUBE: {
 
                 pi.type = VariantType::OBJECT;
-                pi.hint = PROPERTY_HINT_RESOURCE_TYPE;
+                pi.hint = PropertyHint::ResourceType;
                 pi.hint_string = "CubeMap";
             } break;
         }
@@ -7939,7 +7939,7 @@ void RasterizerStorageGLES3::initialize() {
     {
         //transform feedback buffers
         uint32_t xf_feedback_size = GLOBAL_DEF_RST("rendering/limits/buffers/blend_shape_max_buffer_size_kb", 4096);
-        ProjectSettings::get_singleton()->set_custom_property_info("rendering/limits/buffers/blend_shape_max_buffer_size_kb", PropertyInfo(VariantType::INT, "rendering/limits/buffers/blend_shape_max_buffer_size_kb", PROPERTY_HINT_RANGE, "0,8192,1,or_greater"));
+        ProjectSettings::get_singleton()->set_custom_property_info("rendering/limits/buffers/blend_shape_max_buffer_size_kb", PropertyInfo(VariantType::INT, "rendering/limits/buffers/blend_shape_max_buffer_size_kb", PropertyHint::Range, "0,8192,1,or_greater"));
 
         for (int i = 0; i < 2; i++) {
 

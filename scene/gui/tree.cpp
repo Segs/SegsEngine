@@ -896,7 +896,7 @@ void TreeItem::_bind_methods() {
     }
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "collapsed"), "set_collapsed", "is_collapsed");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "disable_folding"), "set_disable_folding", "is_folding_disabled");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "custom_minimum_height", PROPERTY_HINT_RANGE, "0,1000,1"), "set_custom_minimum_height", "get_custom_minimum_height");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "custom_minimum_height", PropertyHint::Range, "0,1000,1"), "set_custom_minimum_height", "get_custom_minimum_height");
 
     BIND_ENUM_CONSTANT(CELL_MODE_STRING)
     BIND_ENUM_CONSTANT(CELL_MODE_CHECK)
@@ -3995,12 +3995,12 @@ void Tree::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "allow_rmb_select"), "set_allow_rmb_select", "get_allow_rmb_select");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "hide_folding"), "set_hide_folding", "is_folding_hidden");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "hide_root"), "set_hide_root", "is_root_hidden");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "drop_mode_flags", PROPERTY_HINT_FLAGS, "On Item,In between"), "set_drop_mode_flags", "get_drop_mode_flags");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "select_mode", PROPERTY_HINT_ENUM, "Single,Row,Multi"), "set_select_mode", "get_select_mode");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "drop_mode_flags", PropertyHint::Flags, "On Item,In between"), "set_drop_mode_flags", "get_drop_mode_flags");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "select_mode", PropertyHint::Enum, "Single,Row,Multi"), "set_select_mode", "get_select_mode");
 
     ADD_SIGNAL(MethodInfo("item_selected"));
     ADD_SIGNAL(MethodInfo("cell_selected"));
-    ADD_SIGNAL(MethodInfo("multi_selected", PropertyInfo(VariantType::OBJECT, "item", PROPERTY_HINT_RESOURCE_TYPE, "TreeItem"), PropertyInfo(VariantType::INT, "column"), PropertyInfo(VariantType::BOOL, "selected")));
+    ADD_SIGNAL(MethodInfo("multi_selected", PropertyInfo(VariantType::OBJECT, "item", PropertyHint::ResourceType, "TreeItem"), PropertyInfo(VariantType::INT, "column"), PropertyInfo(VariantType::BOOL, "selected")));
     ADD_SIGNAL(MethodInfo("item_rmb_selected", PropertyInfo(VariantType::VECTOR2, "position")));
     ADD_SIGNAL(MethodInfo("empty_rmb", PropertyInfo(VariantType::VECTOR2, "position")));
     ADD_SIGNAL(MethodInfo("empty_tree_rmb_selected", PropertyInfo(VariantType::VECTOR2, "position")));
@@ -4008,9 +4008,9 @@ void Tree::_bind_methods() {
     ADD_SIGNAL(MethodInfo("item_rmb_edited"));
     ADD_SIGNAL(MethodInfo("item_custom_button_pressed"));
     ADD_SIGNAL(MethodInfo("item_double_clicked"));
-    ADD_SIGNAL(MethodInfo("item_collapsed", PropertyInfo(VariantType::OBJECT, "item", PROPERTY_HINT_RESOURCE_TYPE, "TreeItem")));
+    ADD_SIGNAL(MethodInfo("item_collapsed", PropertyInfo(VariantType::OBJECT, "item", PropertyHint::ResourceType, "TreeItem")));
     //ADD_SIGNAL( MethodInfo("item_doubleclicked" ) );
-    ADD_SIGNAL(MethodInfo("button_pressed", PropertyInfo(VariantType::OBJECT, "item", PROPERTY_HINT_RESOURCE_TYPE, "TreeItem"), PropertyInfo(VariantType::INT, "column"), PropertyInfo(VariantType::INT, "id")));
+    ADD_SIGNAL(MethodInfo("button_pressed", PropertyInfo(VariantType::OBJECT, "item", PropertyHint::ResourceType, "TreeItem"), PropertyInfo(VariantType::INT, "column"), PropertyInfo(VariantType::INT, "id")));
     ADD_SIGNAL(MethodInfo("custom_popup_edited", PropertyInfo(VariantType::BOOL, "arrow_clicked")));
     ADD_SIGNAL(MethodInfo("item_activated"));
     ADD_SIGNAL(MethodInfo("column_title_pressed", PropertyInfo(VariantType::INT, "column")));

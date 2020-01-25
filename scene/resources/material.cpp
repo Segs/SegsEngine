@@ -119,8 +119,8 @@ void Material::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_render_priority", {"priority"}), &Material::set_render_priority);
     MethodBinder::bind_method(D_METHOD("get_render_priority"), &Material::get_render_priority);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "render_priority", PROPERTY_HINT_RANGE, ::to_string(RENDER_PRIORITY_MIN) + "," + ::to_string(RENDER_PRIORITY_MAX) + ",1"), "set_render_priority", "get_render_priority");
-    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "next_pass", PROPERTY_HINT_RESOURCE_TYPE, "Material"), "set_next_pass", "get_next_pass");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "render_priority", PropertyHint::Range, ::to_string(RENDER_PRIORITY_MIN) + "," + ::to_string(RENDER_PRIORITY_MAX) + ",1"), "set_render_priority", "get_render_priority");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "next_pass", PropertyHint::ResourceType, "Material"), "set_next_pass", "get_next_pass");
 
     BIND_CONSTANT(RENDER_PRIORITY_MAX)
     BIND_CONSTANT(RENDER_PRIORITY_MIN)
@@ -269,7 +269,7 @@ void ShaderMaterial::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("property_can_revert", {"name"}), &ShaderMaterial::property_can_revert);
     MethodBinder::bind_method(D_METHOD("property_get_revert", {"name"}), &ShaderMaterial::property_get_revert);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "shader", PROPERTY_HINT_RESOURCE_TYPE, "Shader"), "set_shader", "get_shader");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "shader", PropertyHint::ResourceType, "Shader"), "set_shader", "get_shader");
 }
 
 void ShaderMaterial::get_argument_options(const StringName &p_function, int p_idx, ListPOD<String> *r_options) const {
@@ -2138,129 +2138,129 @@ void SpatialMaterial::_bind_methods() {
     ADD_PROPERTYI(PropertyInfo(VariantType::BOOL, "vertex_color_is_srgb"), "set_flag", "get_flag", FLAG_SRGB_VERTEX_COLOR);
 
     ADD_GROUP("Parameters", "params_");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "params_diffuse_mode", PROPERTY_HINT_ENUM, "Burley,Lambert,Lambert Wrap,Oren Nayar,Toon"), "set_diffuse_mode", "get_diffuse_mode");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "params_specular_mode", PROPERTY_HINT_ENUM, "SchlickGGX,Blinn,Phong,Toon,Disabled"), "set_specular_mode", "get_specular_mode");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "params_blend_mode", PROPERTY_HINT_ENUM, "Mix,Add,Sub,Mul"), "set_blend_mode", "get_blend_mode");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "params_cull_mode", PROPERTY_HINT_ENUM, "Back,Front,Disabled"), "set_cull_mode", "get_cull_mode");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "params_depth_draw_mode", PROPERTY_HINT_ENUM, "Opaque Only,Always,Never,Opaque Pre-Pass"), "set_depth_draw_mode", "get_depth_draw_mode");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "params_line_width", PROPERTY_HINT_RANGE, "0.1,128,0.1"), "set_line_width", "get_line_width");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "params_point_size", PROPERTY_HINT_RANGE, "0.1,128,0.1"), "set_point_size", "get_point_size");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "params_billboard_mode", PROPERTY_HINT_ENUM, "Disabled,Enabled,Y-Billboard,Particle Billboard"), "set_billboard_mode", "get_billboard_mode");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "params_diffuse_mode", PropertyHint::Enum, "Burley,Lambert,Lambert Wrap,Oren Nayar,Toon"), "set_diffuse_mode", "get_diffuse_mode");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "params_specular_mode", PropertyHint::Enum, "SchlickGGX,Blinn,Phong,Toon,Disabled"), "set_specular_mode", "get_specular_mode");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "params_blend_mode", PropertyHint::Enum, "Mix,Add,Sub,Mul"), "set_blend_mode", "get_blend_mode");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "params_cull_mode", PropertyHint::Enum, "Back,Front,Disabled"), "set_cull_mode", "get_cull_mode");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "params_depth_draw_mode", PropertyHint::Enum, "Opaque Only,Always,Never,Opaque Pre-Pass"), "set_depth_draw_mode", "get_depth_draw_mode");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "params_line_width", PropertyHint::Range, "0.1,128,0.1"), "set_line_width", "get_line_width");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "params_point_size", PropertyHint::Range, "0.1,128,0.1"), "set_point_size", "get_point_size");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "params_billboard_mode", PropertyHint::Enum, "Disabled,Enabled,Y-Billboard,Particle Billboard"), "set_billboard_mode", "get_billboard_mode");
     ADD_PROPERTYI(PropertyInfo(VariantType::BOOL, "params_billboard_keep_scale"), "set_flag", "get_flag", FLAG_BILLBOARD_KEEP_SCALE);
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "params_grow"), "set_grow_enabled", "is_grow_enabled");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "params_grow_amount", PROPERTY_HINT_RANGE, "-16,16,0.001"), "set_grow", "get_grow");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "params_grow_amount", PropertyHint::Range, "-16,16,0.001"), "set_grow", "get_grow");
     ADD_PROPERTYI(PropertyInfo(VariantType::BOOL, "params_use_alpha_scissor"), "set_flag", "get_flag", FLAG_USE_ALPHA_SCISSOR);
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "params_alpha_scissor_threshold", PROPERTY_HINT_RANGE, "0,1,0.01"), "set_alpha_scissor_threshold", "get_alpha_scissor_threshold");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "params_alpha_scissor_threshold", PropertyHint::Range, "0,1,0.01"), "set_alpha_scissor_threshold", "get_alpha_scissor_threshold");
     ADD_GROUP("Particles Anim", "particles_anim_");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "particles_anim_h_frames", PROPERTY_HINT_RANGE, "1,128,1"), "set_particles_anim_h_frames", "get_particles_anim_h_frames");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "particles_anim_v_frames", PROPERTY_HINT_RANGE, "1,128,1"), "set_particles_anim_v_frames", "get_particles_anim_v_frames");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "particles_anim_h_frames", PropertyHint::Range, "1,128,1"), "set_particles_anim_h_frames", "get_particles_anim_h_frames");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "particles_anim_v_frames", PropertyHint::Range, "1,128,1"), "set_particles_anim_v_frames", "get_particles_anim_v_frames");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "particles_anim_loop"), "set_particles_anim_loop", "get_particles_anim_loop");
 
     ADD_GROUP("Albedo", "albedo_");
     ADD_PROPERTY(PropertyInfo(VariantType::COLOR, "albedo_color"), "set_albedo", "get_albedo");
-    ADD_PROPERTYI(PropertyInfo(VariantType::OBJECT, "albedo_texture", PROPERTY_HINT_RESOURCE_TYPE, "Texture"), "set_texture", "get_texture", TEXTURE_ALBEDO);
+    ADD_PROPERTYI(PropertyInfo(VariantType::OBJECT, "albedo_texture", PropertyHint::ResourceType, "Texture"), "set_texture", "get_texture", TEXTURE_ALBEDO);
 
     ADD_GROUP("Metallic", "metallic_");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "metallic", PROPERTY_HINT_RANGE, "0,1,0.01"), "set_metallic", "get_metallic");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "metallic_specular", PROPERTY_HINT_RANGE, "0,1,0.01"), "set_specular", "get_specular");
-    ADD_PROPERTYI(PropertyInfo(VariantType::OBJECT, "metallic_texture", PROPERTY_HINT_RESOURCE_TYPE, "Texture"), "set_texture", "get_texture", TEXTURE_METALLIC);
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "metallic_texture_channel", PROPERTY_HINT_ENUM, "Red,Green,Blue,Alpha,Gray"), "set_metallic_texture_channel", "get_metallic_texture_channel");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "metallic", PropertyHint::Range, "0,1,0.01"), "set_metallic", "get_metallic");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "metallic_specular", PropertyHint::Range, "0,1,0.01"), "set_specular", "get_specular");
+    ADD_PROPERTYI(PropertyInfo(VariantType::OBJECT, "metallic_texture", PropertyHint::ResourceType, "Texture"), "set_texture", "get_texture", TEXTURE_METALLIC);
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "metallic_texture_channel", PropertyHint::Enum, "Red,Green,Blue,Alpha,Gray"), "set_metallic_texture_channel", "get_metallic_texture_channel");
 
     ADD_GROUP("Roughness", "roughness_");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "roughness", PROPERTY_HINT_RANGE, "0,1,0.01"), "set_roughness", "get_roughness");
-    ADD_PROPERTYI(PropertyInfo(VariantType::OBJECT, "roughness_texture", PROPERTY_HINT_RESOURCE_TYPE, "Texture"), "set_texture", "get_texture", TEXTURE_ROUGHNESS);
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "roughness_texture_channel", PROPERTY_HINT_ENUM, "Red,Green,Blue,Alpha,Gray"), "set_roughness_texture_channel", "get_roughness_texture_channel");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "roughness", PropertyHint::Range, "0,1,0.01"), "set_roughness", "get_roughness");
+    ADD_PROPERTYI(PropertyInfo(VariantType::OBJECT, "roughness_texture", PropertyHint::ResourceType, "Texture"), "set_texture", "get_texture", TEXTURE_ROUGHNESS);
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "roughness_texture_channel", PropertyHint::Enum, "Red,Green,Blue,Alpha,Gray"), "set_roughness_texture_channel", "get_roughness_texture_channel");
 
     ADD_GROUP("Emission", "emission_");
     ADD_PROPERTYI(PropertyInfo(VariantType::BOOL, "emission_enabled"), "set_feature", "get_feature", FEATURE_EMISSION);
-    ADD_PROPERTY(PropertyInfo(VariantType::COLOR, "emission", PROPERTY_HINT_COLOR_NO_ALPHA), "set_emission", "get_emission");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "emission_energy", PROPERTY_HINT_RANGE, "0,16,0.01,or_greater"), "set_emission_energy", "get_emission_energy");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "emission_operator", PROPERTY_HINT_ENUM, "Add,Multiply"), "set_emission_operator", "get_emission_operator");
+    ADD_PROPERTY(PropertyInfo(VariantType::COLOR, "emission", PropertyHint::ColorNoAlpha), "set_emission", "get_emission");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "emission_energy", PropertyHint::Range, "0,16,0.01,or_greater"), "set_emission_energy", "get_emission_energy");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "emission_operator", PropertyHint::Enum, "Add,Multiply"), "set_emission_operator", "get_emission_operator");
     ADD_PROPERTYI(PropertyInfo(VariantType::BOOL, "emission_on_uv2"), "set_flag", "get_flag", FLAG_EMISSION_ON_UV2);
-    ADD_PROPERTYI(PropertyInfo(VariantType::OBJECT, "emission_texture", PROPERTY_HINT_RESOURCE_TYPE, "Texture"), "set_texture", "get_texture", TEXTURE_EMISSION);
+    ADD_PROPERTYI(PropertyInfo(VariantType::OBJECT, "emission_texture", PropertyHint::ResourceType, "Texture"), "set_texture", "get_texture", TEXTURE_EMISSION);
 
     ADD_GROUP("NormalMap", "normal_");
     ADD_PROPERTYI(PropertyInfo(VariantType::BOOL, "normal_enabled"), "set_feature", "get_feature", FEATURE_NORMAL_MAPPING);
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "normal_scale", PROPERTY_HINT_RANGE, "-16,16,0.01"), "set_normal_scale", "get_normal_scale");
-    ADD_PROPERTYI(PropertyInfo(VariantType::OBJECT, "normal_texture", PROPERTY_HINT_RESOURCE_TYPE, "Texture"), "set_texture", "get_texture", TEXTURE_NORMAL);
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "normal_scale", PropertyHint::Range, "-16,16,0.01"), "set_normal_scale", "get_normal_scale");
+    ADD_PROPERTYI(PropertyInfo(VariantType::OBJECT, "normal_texture", PropertyHint::ResourceType, "Texture"), "set_texture", "get_texture", TEXTURE_NORMAL);
 
     ADD_GROUP("Rim", "rim_");
     ADD_PROPERTYI(PropertyInfo(VariantType::BOOL, "rim_enabled"), "set_feature", "get_feature", FEATURE_RIM);
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "rim", PROPERTY_HINT_RANGE, "0,1,0.01"), "set_rim", "get_rim");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "rim_tint", PROPERTY_HINT_RANGE, "0,1,0.01"), "set_rim_tint", "get_rim_tint");
-    ADD_PROPERTYI(PropertyInfo(VariantType::OBJECT, "rim_texture", PROPERTY_HINT_RESOURCE_TYPE, "Texture"), "set_texture", "get_texture", TEXTURE_RIM);
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "rim", PropertyHint::Range, "0,1,0.01"), "set_rim", "get_rim");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "rim_tint", PropertyHint::Range, "0,1,0.01"), "set_rim_tint", "get_rim_tint");
+    ADD_PROPERTYI(PropertyInfo(VariantType::OBJECT, "rim_texture", PropertyHint::ResourceType, "Texture"), "set_texture", "get_texture", TEXTURE_RIM);
 
     ADD_GROUP("Clearcoat", "clearcoat_");
     ADD_PROPERTYI(PropertyInfo(VariantType::BOOL, "clearcoat_enabled"), "set_feature", "get_feature", FEATURE_CLEARCOAT);
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "clearcoat", PROPERTY_HINT_RANGE, "0,1,0.01"), "set_clearcoat", "get_clearcoat");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "clearcoat_gloss", PROPERTY_HINT_RANGE, "0,1,0.01"), "set_clearcoat_gloss", "get_clearcoat_gloss");
-    ADD_PROPERTYI(PropertyInfo(VariantType::OBJECT, "clearcoat_texture", PROPERTY_HINT_RESOURCE_TYPE, "Texture"), "set_texture", "get_texture", TEXTURE_CLEARCOAT);
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "clearcoat", PropertyHint::Range, "0,1,0.01"), "set_clearcoat", "get_clearcoat");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "clearcoat_gloss", PropertyHint::Range, "0,1,0.01"), "set_clearcoat_gloss", "get_clearcoat_gloss");
+    ADD_PROPERTYI(PropertyInfo(VariantType::OBJECT, "clearcoat_texture", PropertyHint::ResourceType, "Texture"), "set_texture", "get_texture", TEXTURE_CLEARCOAT);
 
     ADD_GROUP("Anisotropy", "anisotropy_");
     ADD_PROPERTYI(PropertyInfo(VariantType::BOOL, "anisotropy_enabled"), "set_feature", "get_feature", FEATURE_ANISOTROPY);
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "anisotropy", PROPERTY_HINT_RANGE, "-1,1,0.01"), "set_anisotropy", "get_anisotropy");
-    ADD_PROPERTYI(PropertyInfo(VariantType::OBJECT, "anisotropy_flowmap", PROPERTY_HINT_RESOURCE_TYPE, "Texture"), "set_texture", "get_texture", TEXTURE_FLOWMAP);
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "anisotropy", PropertyHint::Range, "-1,1,0.01"), "set_anisotropy", "get_anisotropy");
+    ADD_PROPERTYI(PropertyInfo(VariantType::OBJECT, "anisotropy_flowmap", PropertyHint::ResourceType, "Texture"), "set_texture", "get_texture", TEXTURE_FLOWMAP);
 
     ADD_GROUP("Ambient Occlusion", "ao_");
     ADD_PROPERTYI(PropertyInfo(VariantType::BOOL, "ao_enabled"), "set_feature", "get_feature", FEATURE_AMBIENT_OCCLUSION);
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "ao_light_affect", PROPERTY_HINT_RANGE, "0,1,0.01"), "set_ao_light_affect", "get_ao_light_affect");
-    ADD_PROPERTYI(PropertyInfo(VariantType::OBJECT, "ao_texture", PROPERTY_HINT_RESOURCE_TYPE, "Texture"), "set_texture", "get_texture", TEXTURE_AMBIENT_OCCLUSION);
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "ao_light_affect", PropertyHint::Range, "0,1,0.01"), "set_ao_light_affect", "get_ao_light_affect");
+    ADD_PROPERTYI(PropertyInfo(VariantType::OBJECT, "ao_texture", PropertyHint::ResourceType, "Texture"), "set_texture", "get_texture", TEXTURE_AMBIENT_OCCLUSION);
     ADD_PROPERTYI(PropertyInfo(VariantType::BOOL, "ao_on_uv2"), "set_flag", "get_flag", FLAG_AO_ON_UV2);
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "ao_texture_channel", PROPERTY_HINT_ENUM, "Red,Green,Blue,Alpha,Gray"), "set_ao_texture_channel", "get_ao_texture_channel");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "ao_texture_channel", PropertyHint::Enum, "Red,Green,Blue,Alpha,Gray"), "set_ao_texture_channel", "get_ao_texture_channel");
 
     ADD_GROUP("Depth", "depth_");
     ADD_PROPERTYI(PropertyInfo(VariantType::BOOL, "depth_enabled"), "set_feature", "get_feature", FEATURE_DEPTH_MAPPING);
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "depth_scale", PROPERTY_HINT_RANGE, "-16,16,0.01"), "set_depth_scale", "get_depth_scale");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "depth_scale", PropertyHint::Range, "-16,16,0.01"), "set_depth_scale", "get_depth_scale");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "depth_deep_parallax"), "set_depth_deep_parallax", "is_depth_deep_parallax_enabled");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "depth_min_layers", PROPERTY_HINT_RANGE, "1,32,1"), "set_depth_deep_parallax_min_layers", "get_depth_deep_parallax_min_layers");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "depth_max_layers", PROPERTY_HINT_RANGE, "1,32,1"), "set_depth_deep_parallax_max_layers", "get_depth_deep_parallax_max_layers");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "depth_min_layers", PropertyHint::Range, "1,32,1"), "set_depth_deep_parallax_min_layers", "get_depth_deep_parallax_min_layers");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "depth_max_layers", PropertyHint::Range, "1,32,1"), "set_depth_deep_parallax_max_layers", "get_depth_deep_parallax_max_layers");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "depth_flip_tangent"), "set_depth_deep_parallax_flip_tangent", "get_depth_deep_parallax_flip_tangent");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "depth_flip_binormal"), "set_depth_deep_parallax_flip_binormal", "get_depth_deep_parallax_flip_binormal");
-    ADD_PROPERTYI(PropertyInfo(VariantType::OBJECT, "depth_texture", PROPERTY_HINT_RESOURCE_TYPE, "Texture"), "set_texture", "get_texture", TEXTURE_DEPTH);
+    ADD_PROPERTYI(PropertyInfo(VariantType::OBJECT, "depth_texture", PropertyHint::ResourceType, "Texture"), "set_texture", "get_texture", TEXTURE_DEPTH);
 
     ADD_GROUP("Subsurf Scatter", "subsurf_scatter_");
     ADD_PROPERTYI(PropertyInfo(VariantType::BOOL, "subsurf_scatter_enabled"), "set_feature", "get_feature", FEATURE_SUBSURACE_SCATTERING);
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "subsurf_scatter_strength", PROPERTY_HINT_RANGE, "0,1,0.01"), "set_subsurface_scattering_strength", "get_subsurface_scattering_strength");
-    ADD_PROPERTYI(PropertyInfo(VariantType::OBJECT, "subsurf_scatter_texture", PROPERTY_HINT_RESOURCE_TYPE, "Texture"), "set_texture", "get_texture", TEXTURE_SUBSURFACE_SCATTERING);
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "subsurf_scatter_strength", PropertyHint::Range, "0,1,0.01"), "set_subsurface_scattering_strength", "get_subsurface_scattering_strength");
+    ADD_PROPERTYI(PropertyInfo(VariantType::OBJECT, "subsurf_scatter_texture", PropertyHint::ResourceType, "Texture"), "set_texture", "get_texture", TEXTURE_SUBSURFACE_SCATTERING);
 
     ADD_GROUP("Transmission", "transmission_");
     ADD_PROPERTYI(PropertyInfo(VariantType::BOOL, "transmission_enabled"), "set_feature", "get_feature", FEATURE_TRANSMISSION);
-    ADD_PROPERTY(PropertyInfo(VariantType::COLOR, "transmission", PROPERTY_HINT_COLOR_NO_ALPHA), "set_transmission", "get_transmission");
-    ADD_PROPERTYI(PropertyInfo(VariantType::OBJECT, "transmission_texture", PROPERTY_HINT_RESOURCE_TYPE, "Texture"), "set_texture", "get_texture", TEXTURE_TRANSMISSION);
+    ADD_PROPERTY(PropertyInfo(VariantType::COLOR, "transmission", PropertyHint::ColorNoAlpha), "set_transmission", "get_transmission");
+    ADD_PROPERTYI(PropertyInfo(VariantType::OBJECT, "transmission_texture", PropertyHint::ResourceType, "Texture"), "set_texture", "get_texture", TEXTURE_TRANSMISSION);
 
     ADD_GROUP("Refraction", "refraction_");
     ADD_PROPERTYI(PropertyInfo(VariantType::BOOL, "refraction_enabled"), "set_feature", "get_feature", FEATURE_REFRACTION);
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "refraction_scale", PROPERTY_HINT_RANGE, "-1,1,0.01"), "set_refraction", "get_refraction");
-    ADD_PROPERTYI(PropertyInfo(VariantType::OBJECT, "refraction_texture", PROPERTY_HINT_RESOURCE_TYPE, "Texture"), "set_texture", "get_texture", TEXTURE_REFRACTION);
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "refraction_texture_channel", PROPERTY_HINT_ENUM, "Red,Green,Blue,Alpha,Gray"), "set_refraction_texture_channel", "get_refraction_texture_channel");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "refraction_scale", PropertyHint::Range, "-1,1,0.01"), "set_refraction", "get_refraction");
+    ADD_PROPERTYI(PropertyInfo(VariantType::OBJECT, "refraction_texture", PropertyHint::ResourceType, "Texture"), "set_texture", "get_texture", TEXTURE_REFRACTION);
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "refraction_texture_channel", PropertyHint::Enum, "Red,Green,Blue,Alpha,Gray"), "set_refraction_texture_channel", "get_refraction_texture_channel");
 
     ADD_GROUP("Detail", "detail_");
     ADD_PROPERTYI(PropertyInfo(VariantType::BOOL, "detail_enabled"), "set_feature", "get_feature", FEATURE_DETAIL);
-    ADD_PROPERTYI(PropertyInfo(VariantType::OBJECT, "detail_mask", PROPERTY_HINT_RESOURCE_TYPE, "Texture"), "set_texture", "get_texture", TEXTURE_DETAIL_MASK);
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "detail_blend_mode", PROPERTY_HINT_ENUM, "Mix,Add,Sub,Mul"), "set_detail_blend_mode", "get_detail_blend_mode");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "detail_uv_layer", PROPERTY_HINT_ENUM, "UV1,UV2"), "set_detail_uv", "get_detail_uv");
-    ADD_PROPERTYI(PropertyInfo(VariantType::OBJECT, "detail_albedo", PROPERTY_HINT_RESOURCE_TYPE, "Texture"), "set_texture", "get_texture", TEXTURE_DETAIL_ALBEDO);
-    ADD_PROPERTYI(PropertyInfo(VariantType::OBJECT, "detail_normal", PROPERTY_HINT_RESOURCE_TYPE, "Texture"), "set_texture", "get_texture", TEXTURE_DETAIL_NORMAL);
+    ADD_PROPERTYI(PropertyInfo(VariantType::OBJECT, "detail_mask", PropertyHint::ResourceType, "Texture"), "set_texture", "get_texture", TEXTURE_DETAIL_MASK);
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "detail_blend_mode", PropertyHint::Enum, "Mix,Add,Sub,Mul"), "set_detail_blend_mode", "get_detail_blend_mode");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "detail_uv_layer", PropertyHint::Enum, "UV1,UV2"), "set_detail_uv", "get_detail_uv");
+    ADD_PROPERTYI(PropertyInfo(VariantType::OBJECT, "detail_albedo", PropertyHint::ResourceType, "Texture"), "set_texture", "get_texture", TEXTURE_DETAIL_ALBEDO);
+    ADD_PROPERTYI(PropertyInfo(VariantType::OBJECT, "detail_normal", PropertyHint::ResourceType, "Texture"), "set_texture", "get_texture", TEXTURE_DETAIL_NORMAL);
 
     ADD_GROUP("UV1", "uv1_");
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR3, "uv1_scale"), "set_uv1_scale", "get_uv1_scale");
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR3, "uv1_offset"), "set_uv1_offset", "get_uv1_offset");
     ADD_PROPERTYI(PropertyInfo(VariantType::BOOL, "uv1_triplanar"), "set_flag", "get_flag", FLAG_UV1_USE_TRIPLANAR);
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "uv1_triplanar_sharpness", PROPERTY_HINT_EXP_EASING), "set_uv1_triplanar_blend_sharpness", "get_uv1_triplanar_blend_sharpness");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "uv1_triplanar_sharpness", PropertyHint::ExpEasing), "set_uv1_triplanar_blend_sharpness", "get_uv1_triplanar_blend_sharpness");
 
     ADD_GROUP("UV2", "uv2_");
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR3, "uv2_scale"), "set_uv2_scale", "get_uv2_scale");
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR3, "uv2_offset"), "set_uv2_offset", "get_uv2_offset");
     ADD_PROPERTYI(PropertyInfo(VariantType::BOOL, "uv2_triplanar"), "set_flag", "get_flag", FLAG_UV2_USE_TRIPLANAR);
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "uv2_triplanar_sharpness", PROPERTY_HINT_EXP_EASING), "set_uv2_triplanar_blend_sharpness", "get_uv2_triplanar_blend_sharpness");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "uv2_triplanar_sharpness", PropertyHint::ExpEasing), "set_uv2_triplanar_blend_sharpness", "get_uv2_triplanar_blend_sharpness");
 
     ADD_GROUP("Proximity Fade", "proximity_fade_");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "proximity_fade_enable"), "set_proximity_fade", "is_proximity_fade_enabled");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "proximity_fade_distance", PROPERTY_HINT_RANGE, "0,4096,0.01"), "set_proximity_fade_distance", "get_proximity_fade_distance");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "proximity_fade_distance", PropertyHint::Range, "0,4096,0.01"), "set_proximity_fade_distance", "get_proximity_fade_distance");
     ADD_GROUP("Distance Fade", "distance_fade_");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "distance_fade_mode", PROPERTY_HINT_ENUM, "Disabled,PixelAlpha,PixelDither,ObjectDither"), "set_distance_fade", "get_distance_fade");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "distance_fade_min_distance", PROPERTY_HINT_RANGE, "0,4096,0.01"), "set_distance_fade_min_distance", "get_distance_fade_min_distance");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "distance_fade_max_distance", PROPERTY_HINT_RANGE, "0,4096,0.01"), "set_distance_fade_max_distance", "get_distance_fade_max_distance");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "distance_fade_mode", PropertyHint::Enum, "Disabled,PixelAlpha,PixelDither,ObjectDither"), "set_distance_fade", "get_distance_fade");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "distance_fade_min_distance", PropertyHint::Range, "0,4096,0.01"), "set_distance_fade_min_distance", "get_distance_fade_min_distance");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "distance_fade_max_distance", PropertyHint::Range, "0,4096,0.01"), "set_distance_fade_max_distance", "get_distance_fade_max_distance");
 
     BIND_ENUM_CONSTANT(TEXTURE_ALBEDO)
     BIND_ENUM_CONSTANT(TEXTURE_METALLIC)

@@ -5011,11 +5011,11 @@ void RasterizerSceneGLES3::initialize() {
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
     render_list.max_elements = GLOBAL_DEF_RST("rendering/limits/rendering/max_renderable_elements", (int)RenderList::DEFAULT_MAX_ELEMENTS);
-    ProjectSettings::get_singleton()->set_custom_property_info("rendering/limits/rendering/max_renderable_elements", PropertyInfo(VariantType::INT, "rendering/limits/rendering/max_renderable_elements", PROPERTY_HINT_RANGE, "1024,1000000,1"));
+    ProjectSettings::get_singleton()->set_custom_property_info("rendering/limits/rendering/max_renderable_elements", PropertyInfo(VariantType::INT, "rendering/limits/rendering/max_renderable_elements", PropertyHint::Range, "1024,1000000,1"));
     render_list.max_lights = GLOBAL_DEF("rendering/limits/rendering/max_renderable_lights", (int)RenderList::DEFAULT_MAX_LIGHTS);
-    ProjectSettings::get_singleton()->set_custom_property_info("rendering/limits/rendering/max_renderable_lights", PropertyInfo(VariantType::INT, "rendering/limits/rendering/max_renderable_lights", PROPERTY_HINT_RANGE, "16,4096,1"));
+    ProjectSettings::get_singleton()->set_custom_property_info("rendering/limits/rendering/max_renderable_lights", PropertyInfo(VariantType::INT, "rendering/limits/rendering/max_renderable_lights", PropertyHint::Range, "16,4096,1"));
     render_list.max_reflections = GLOBAL_DEF("rendering/limits/rendering/max_renderable_reflections", (int)RenderList::DEFAULT_MAX_REFLECTIONS);
-    ProjectSettings::get_singleton()->set_custom_property_info("rendering/limits/rendering/max_renderable_reflections", PropertyInfo(VariantType::INT, "rendering/limits/rendering/max_renderable_reflections", PROPERTY_HINT_RANGE, "8,1024,1"));
+    ProjectSettings::get_singleton()->set_custom_property_info("rendering/limits/rendering/max_renderable_reflections", PropertyInfo(VariantType::INT, "rendering/limits/rendering/max_renderable_reflections", PropertyHint::Range, "8,1024,1"));
 
     {
         //quad buffers
@@ -5214,7 +5214,7 @@ void RasterizerSceneGLES3::initialize() {
     {
 
         uint32_t immediate_buffer_size = GLOBAL_DEF("rendering/limits/buffers/immediate_buffer_size_kb", 2048);
-        ProjectSettings::get_singleton()->set_custom_property_info("rendering/limits/buffers/immediate_buffer_size_kb", PropertyInfo(VariantType::INT, "rendering/limits/buffers/immediate_buffer_size_kb", PROPERTY_HINT_RANGE, "0,8192,1,or_greater"));
+        ProjectSettings::get_singleton()->set_custom_property_info("rendering/limits/buffers/immediate_buffer_size_kb", PropertyInfo(VariantType::INT, "rendering/limits/buffers/immediate_buffer_size_kb", PropertyHint::Range, "0,8192,1,or_greater"));
 
         glGenBuffers(1, &state.immediate_buffer);
         glBindBuffer(GL_ARRAY_BUFFER, state.immediate_buffer);
@@ -5239,9 +5239,9 @@ void RasterizerSceneGLES3::initialize() {
 
     {
         GLOBAL_DEF("rendering/quality/subsurface_scattering/quality", 1);
-        ProjectSettings::get_singleton()->set_custom_property_info("rendering/quality/subsurface_scattering/quality", PropertyInfo(VariantType::INT, "rendering/quality/subsurface_scattering/quality", PROPERTY_HINT_ENUM, "Low,Medium,High"));
+        ProjectSettings::get_singleton()->set_custom_property_info("rendering/quality/subsurface_scattering/quality", PropertyInfo(VariantType::INT, "rendering/quality/subsurface_scattering/quality", PropertyHint::Enum, "Low,Medium,High"));
         GLOBAL_DEF("rendering/quality/subsurface_scattering/scale", 1.0);
-        ProjectSettings::get_singleton()->set_custom_property_info("rendering/quality/subsurface_scattering/scale", PropertyInfo(VariantType::INT, "rendering/quality/subsurface_scattering/scale", PROPERTY_HINT_RANGE, "0.01,8,0.01"));
+        ProjectSettings::get_singleton()->set_custom_property_info("rendering/quality/subsurface_scattering/scale", PropertyInfo(VariantType::INT, "rendering/quality/subsurface_scattering/scale", PropertyHint::Range, "0.01,8,0.01"));
         GLOBAL_DEF("rendering/quality/subsurface_scattering/follow_surface", false);
         GLOBAL_DEF("rendering/quality/subsurface_scattering/weight_samples", true);
 

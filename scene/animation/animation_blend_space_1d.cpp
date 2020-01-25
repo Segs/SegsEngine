@@ -85,14 +85,14 @@ void AnimationNodeBlendSpace1D::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("_tree_changed"), &AnimationNodeBlendSpace1D::_tree_changed);
 
     for (int i = 0; i < MAX_BLEND_POINTS; i++) {
-        ADD_PROPERTYI(PropertyInfo(VariantType::OBJECT, StringName("blend_point_" + itos(i) + "/node"), PROPERTY_HINT_RESOURCE_TYPE, "AnimationRootNode", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "_add_blend_point", "get_blend_point_node", i);
-        ADD_PROPERTYI(PropertyInfo(VariantType::REAL, StringName("blend_point_" + itos(i) + "/pos"), PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "set_blend_point_position", "get_blend_point_position", i);
+        ADD_PROPERTYI(PropertyInfo(VariantType::OBJECT, StringName("blend_point_" + itos(i) + "/node"), PropertyHint::ResourceType, "AnimationRootNode", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "_add_blend_point", "get_blend_point_node", i);
+        ADD_PROPERTYI(PropertyInfo(VariantType::REAL, StringName("blend_point_" + itos(i) + "/pos"), PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "set_blend_point_position", "get_blend_point_position", i);
     }
 
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "min_space", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR), "set_min_space", "get_min_space");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "max_space", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR), "set_max_space", "get_max_space");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "snap", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR), "set_snap", "get_snap");
-    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "value_label", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR), "set_value_label", "get_value_label");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "min_space", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR), "set_min_space", "get_min_space");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "max_space", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR), "set_max_space", "get_max_space");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "snap", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR), "set_snap", "get_snap");
+    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "value_label", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR), "set_value_label", "get_value_label");
 }
 
 void AnimationNodeBlendSpace1D::get_child_nodes(List<ChildNode> *r_child_nodes) {

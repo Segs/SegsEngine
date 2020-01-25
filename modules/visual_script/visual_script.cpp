@@ -131,7 +131,7 @@ void VisualScriptNode::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("_set_default_input_values", {"values"}), &VisualScriptNode::_set_default_input_values);
     MethodBinder::bind_method(D_METHOD("_get_default_input_values"), &VisualScriptNode::_get_default_input_values);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::ARRAY, "_default_input_values", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "_set_default_input_values", "_get_default_input_values");
+    ADD_PROPERTY(PropertyInfo(VariantType::ARRAY, "_default_input_values", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "_set_default_input_values", "_get_default_input_values");
     ADD_SIGNAL(MethodInfo("ports_changed"));
 }
 
@@ -142,7 +142,7 @@ VisualScriptNode::TypeGuess VisualScriptNode::guess_output_type(TypeGuess * /*p_
     TypeGuess tg;
 
     tg.type = pinfo.type;
-    if (pinfo.hint == PROPERTY_HINT_RESOURCE_TYPE) {
+    if (pinfo.hint == PropertyHint::ResourceType) {
         tg.gdclass = StringName(pinfo.hint_string);
     }
 
@@ -600,7 +600,7 @@ void VisualScript::add_variable(const StringName &p_name, const Variant &p_defau
     v.default_value = p_default_value;
     v.info.type = p_default_value.get_type();
     v.info.name = p_name;
-    v.info.hint = PROPERTY_HINT_NONE;
+    v.info.hint = PropertyHint::None;
     v._export = p_export;
 
     variables[p_name] = v;
@@ -1360,7 +1360,7 @@ void VisualScript::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("_set_data", {"data"}), &VisualScript::_set_data);
     MethodBinder::bind_method(D_METHOD("_get_data"), &VisualScript::_get_data);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::DICTIONARY, "data", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "_set_data", "_get_data");
+    ADD_PROPERTY(PropertyInfo(VariantType::DICTIONARY, "data", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "_set_data", "_get_data");
 
     ADD_SIGNAL(MethodInfo("node_ports_changed", PropertyInfo(VariantType::STRING, "function"), PropertyInfo(VariantType::INT, "id")));
 }
@@ -2759,7 +2759,7 @@ VisualScriptLanguage::VisualScriptLanguage() {
     _debug_parse_err_file = "";
     _debug_call_stack_pos = 0;
     int dmcs = GLOBAL_DEF("debug/settings/visual_script/max_call_stack", 1024);
-    ProjectSettings::get_singleton()->set_custom_property_info("debug/settings/visual_script/max_call_stack", PropertyInfo(VariantType::INT, "debug/settings/visual_script/max_call_stack", PROPERTY_HINT_RANGE, "1024,4096,1,or_greater")); //minimum is 1024
+    ProjectSettings::get_singleton()->set_custom_property_info("debug/settings/visual_script/max_call_stack", PropertyInfo(VariantType::INT, "debug/settings/visual_script/max_call_stack", PropertyHint::Range, "1024,4096,1,or_greater")); //minimum is 1024
 
     if (ScriptDebugger::get_singleton()) {
         //debugging enabled!

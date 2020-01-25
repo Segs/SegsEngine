@@ -72,7 +72,7 @@ Control *VisualShaderNodePlugin::create_editor(const Ref<Resource> &p_parent_res
 
 void VisualShaderNodePlugin::_bind_methods() {
 
-    BIND_VMETHOD(MethodInfo(VariantType::OBJECT, "create_editor", PropertyInfo(VariantType::OBJECT, "parent_resource", PROPERTY_HINT_RESOURCE_TYPE, "Resource"), PropertyInfo(VariantType::OBJECT, "for_node", PROPERTY_HINT_RESOURCE_TYPE, "VisualShaderNode")));
+    BIND_VMETHOD(MethodInfo(VariantType::OBJECT, "create_editor", PropertyInfo(VariantType::OBJECT, "parent_resource", PropertyHint::ResourceType, "Resource"), PropertyInfo(VariantType::OBJECT, "for_node", PropertyHint::ResourceType, "VisualShaderNode")));
 }
 
 ///////////////////
@@ -1283,7 +1283,7 @@ void VisualShaderEditor::_edit_port_default_input(Object *p_button, int p_node, 
     ERR_FAIL_COND(!button)
     Variant value = vsn->get_input_port_default_value(p_port);
     property_editor->set_global_position(button->get_global_position() + Vector2(0, button->get_size().height));
-    property_editor->edit(nullptr, String(), value.get_type(), value, 0, String());
+    property_editor->edit(nullptr, String(), value.get_type(), value, PropertyHint::None, String());
     property_editor->popup();
     editing_node = p_node;
     editing_port = p_port;

@@ -528,7 +528,7 @@ Variant Object::get_indexed(const PODVector<StringName> &p_names, bool *r_valid)
 void Object::get_property_list(ListPOD<PropertyInfo> *p_list, bool p_reversed) const {
 
     if (script_instance && p_reversed) {
-        p_list->push_back(PropertyInfo(VariantType::NIL, "Script Variables", PROPERTY_HINT_NONE, nullptr, PROPERTY_USAGE_CATEGORY));
+        p_list->push_back(PropertyInfo(VariantType::NIL, "Script Variables", PropertyHint::None, nullptr, PROPERTY_USAGE_CATEGORY));
         script_instance->get_property_list(p_list);
     }
 
@@ -536,13 +536,13 @@ void Object::get_property_list(ListPOD<PropertyInfo> *p_list, bool p_reversed) c
 
     if (!is_class("Script")) { // can still be set, but this is for userfriendliness
         Object_add_tool_properties(p_list);
-        p_list->push_back(PropertyInfo(VariantType::OBJECT, "script", PROPERTY_HINT_RESOURCE_TYPE, "Script", PROPERTY_USAGE_DEFAULT));
+        p_list->push_back(PropertyInfo(VariantType::OBJECT, "script", PropertyHint::ResourceType, "Script", PROPERTY_USAGE_DEFAULT));
     }
     if (!metadata.empty()) {
-        p_list->push_back(PropertyInfo(VariantType::DICTIONARY, "__meta__", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
+        p_list->push_back(PropertyInfo(VariantType::DICTIONARY, "__meta__", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
     }
     if (script_instance && !p_reversed) {
-        p_list->push_back(PropertyInfo(VariantType::NIL, "Script Variables", PROPERTY_HINT_NONE, nullptr, PROPERTY_USAGE_CATEGORY));
+        p_list->push_back(PropertyInfo(VariantType::NIL, "Script Variables", PropertyHint::None, nullptr, PROPERTY_USAGE_CATEGORY));
         script_instance->get_property_list(p_list);
     }
 }
@@ -1631,11 +1631,11 @@ void Object::_bind_methods() {
 
     BIND_CONSTANT(NOTIFICATION_POSTINITIALIZE)
     BIND_CONSTANT(NOTIFICATION_PREDELETE)
-
-    BIND_ENUM_CONSTANT(ObjectNS::CONNECT_QUEUED)
-    BIND_ENUM_CONSTANT(ObjectNS::CONNECT_PERSIST)
-    BIND_ENUM_CONSTANT(ObjectNS::CONNECT_ONESHOT)
-    BIND_ENUM_CONSTANT(ObjectNS::CONNECT_REFERENCE_COUNTED)
+    using namespace ObjectNS;
+    BIND_ENUM_CONSTANT(CONNECT_QUEUED)
+    BIND_ENUM_CONSTANT(CONNECT_PERSIST)
+    BIND_ENUM_CONSTANT(CONNECT_ONESHOT)
+    BIND_ENUM_CONSTANT(CONNECT_REFERENCE_COUNTED)
 }
 
 void Object::call_deferred(const StringName &p_method, VARIANT_ARG_DECLARE) {

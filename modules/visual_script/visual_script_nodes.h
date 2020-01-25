@@ -73,7 +73,7 @@ public:
     String get_text() const override;
     const char *get_category() const override { return "flow_control"; }
 
-    void add_argument(VariantType p_type, const StringName &p_name, int p_index = -1, const PropertyHint p_hint = PROPERTY_HINT_NONE, se_string_view p_hint_string = {});
+    void add_argument(VariantType p_type, const StringName &p_name, int p_index = -1, const PropertyHint p_hint = PropertyHint::None, se_string_view p_hint_string = {});
     void set_argument_type(int p_argidx, VariantType p_type);
     VariantType get_argument_type(int p_argidx) const;
     void set_argument_name(int p_argidx, const StringName &p_name);

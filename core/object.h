@@ -205,7 +205,7 @@ private:
             BaseClassName::_get_property_listv(p_list, p_reversed);                                                      \
         }                                                                                                              \
         p_list->push_back(PropertyInfo(                                                                                \
-                VariantType::NIL, get_class_static_name(), PROPERTY_HINT_NONE, nullptr, PROPERTY_USAGE_CATEGORY));     \
+                VariantType::NIL, get_class_static_name(), PropertyHint::None, nullptr, PROPERTY_USAGE_CATEGORY));     \
         if (!_is_gpl_reversed()) ClassDB::get_property_list(#m_class, p_list, true, this);                             \
         if (m_class::_get_get_property_list() != BaseClassName::_get_get_property_list()) {                              \
             _get_property_list(p_list);                                                                                \

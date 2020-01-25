@@ -191,24 +191,24 @@ StringName ResourceImporterTexture::get_preset_name(int p_idx) const {
 
 void ResourceImporterTexture::get_import_options(ListPOD<ImportOption> *r_options, int p_preset) const {
 
-    r_options->push_back(ImportOption(PropertyInfo(VariantType::INT, "compress/mode", PROPERTY_HINT_ENUM, "Lossless,Lossy,Video RAM,Uncompressed", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_UPDATE_ALL_IF_MODIFIED), p_preset == PRESET_3D ? 2 : 0));
-    r_options->push_back(ImportOption(PropertyInfo(VariantType::REAL, "compress/lossy_quality", PROPERTY_HINT_RANGE, "0,1,0.01"), 0.7));
-    r_options->push_back(ImportOption(PropertyInfo(VariantType::INT, "compress/hdr_mode", PROPERTY_HINT_ENUM, "Enabled,Force RGBE"), 0));
-    r_options->push_back(ImportOption(PropertyInfo(VariantType::INT, "compress/bptc_ldr", PROPERTY_HINT_ENUM, "Enabled,RGBA Only"), 0));
-    r_options->push_back(ImportOption(PropertyInfo(VariantType::INT, "compress/normal_map", PROPERTY_HINT_ENUM, "Detect,Enable,Disabled"), 0));
-    r_options->push_back(ImportOption(PropertyInfo(VariantType::INT, "flags/repeat", PROPERTY_HINT_ENUM, "Disabled,Enabled,Mirrored"), p_preset == PRESET_3D ? 1 : 0));
+    r_options->push_back(ImportOption(PropertyInfo(VariantType::INT, "compress/mode", PropertyHint::Enum, "Lossless,Lossy,Video RAM,Uncompressed", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_UPDATE_ALL_IF_MODIFIED), p_preset == PRESET_3D ? 2 : 0));
+    r_options->push_back(ImportOption(PropertyInfo(VariantType::REAL, "compress/lossy_quality", PropertyHint::Range, "0,1,0.01"), 0.7));
+    r_options->push_back(ImportOption(PropertyInfo(VariantType::INT, "compress/hdr_mode", PropertyHint::Enum, "Enabled,Force RGBE"), 0));
+    r_options->push_back(ImportOption(PropertyInfo(VariantType::INT, "compress/bptc_ldr", PropertyHint::Enum, "Enabled,RGBA Only"), 0));
+    r_options->push_back(ImportOption(PropertyInfo(VariantType::INT, "compress/normal_map", PropertyHint::Enum, "Detect,Enable,Disabled"), 0));
+    r_options->push_back(ImportOption(PropertyInfo(VariantType::INT, "flags/repeat", PropertyHint::Enum, "Disabled,Enabled,Mirrored"), p_preset == PRESET_3D ? 1 : 0));
     r_options->push_back(ImportOption(PropertyInfo(VariantType::BOOL, "flags/filter"), p_preset != PRESET_2D_PIXEL));
     r_options->push_back(ImportOption(PropertyInfo(VariantType::BOOL, "flags/mipmaps"), p_preset == PRESET_3D));
     r_options->push_back(ImportOption(PropertyInfo(VariantType::BOOL, "flags/anisotropic"), false));
-    r_options->push_back(ImportOption(PropertyInfo(VariantType::INT, "flags/srgb", PROPERTY_HINT_ENUM, "Disable,Enable,Detect"), 2));
+    r_options->push_back(ImportOption(PropertyInfo(VariantType::INT, "flags/srgb", PropertyHint::Enum, "Disable,Enable,Detect"), 2));
     r_options->push_back(ImportOption(PropertyInfo(VariantType::BOOL, "process/fix_alpha_border"), p_preset != PRESET_3D));
     r_options->push_back(ImportOption(PropertyInfo(VariantType::BOOL, "process/premult_alpha"), false));
     r_options->push_back(ImportOption(PropertyInfo(VariantType::BOOL, "process/HDR_as_SRGB"), false));
     r_options->push_back(ImportOption(PropertyInfo(VariantType::BOOL, "process/invert_color"), false));
     r_options->push_back(ImportOption(PropertyInfo(VariantType::INT, "stream"), false));
-    r_options->push_back(ImportOption(PropertyInfo(VariantType::INT, "size_limit", PROPERTY_HINT_RANGE, "0,4096,1"), 0));
+    r_options->push_back(ImportOption(PropertyInfo(VariantType::INT, "size_limit", PropertyHint::Range, "0,4096,1"), 0));
     r_options->push_back(ImportOption(PropertyInfo(VariantType::BOOL, "detect_3d"), p_preset == PRESET_DETECT));
-    r_options->push_back(ImportOption(PropertyInfo(VariantType::REAL, "svg/scale", PROPERTY_HINT_RANGE, "0.001,100,0.001"), 1.0));
+    r_options->push_back(ImportOption(PropertyInfo(VariantType::REAL, "svg/scale", PropertyHint::Range, "0.001,100,0.001"), 1.0));
 }
 
 void ResourceImporterTexture::_save_stex(const Ref<Image> &p_image, se_string_view p_to_path, int p_compress_mode,

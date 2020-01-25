@@ -1386,7 +1386,7 @@ void _OS::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "keep_screen_on"), "set_keep_screen_on", "is_keep_screen_on");
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "min_window_size"), "set_min_window_size", "get_min_window_size");
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "max_window_size"), "set_max_window_size", "get_max_window_size");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "screen_orientation", PROPERTY_HINT_ENUM, "Landscape,Portrait,Reverse Landscape,Reverse Portrait,Sensor Landscape,Sensor Portrait,Sensor"), "set_screen_orientation", "get_screen_orientation");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "screen_orientation", PropertyHint::Enum, "Landscape,Portrait,Reverse Landscape,Reverse Portrait,Sensor Landscape,Sensor Portrait,Sensor"), "set_screen_orientation", "get_screen_orientation");
     ADD_GROUP("Window", "window_");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "window_borderless"), "set_borderless_window", "get_borderless_window");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "window_per_pixel_transparency_enabled"), "set_window_per_pixel_transparency_enabled", "get_window_per_pixel_transparency_enabled");
@@ -3179,10 +3179,10 @@ void JSONParseResult::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_error_line", {"error_line"}), &JSONParseResult::set_error_line);
     MethodBinder::bind_method(D_METHOD("set_result", {"result"}), &JSONParseResult::set_result);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "error", PROPERTY_HINT_NONE, "Error", PROPERTY_USAGE_CLASS_IS_ENUM), "set_error", "get_error");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "error", PropertyHint::None, "Error", PROPERTY_USAGE_CLASS_IS_ENUM), "set_error", "get_error");
     ADD_PROPERTY(PropertyInfo(VariantType::STRING, "error_string"), "set_error_string", "get_error_string");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "error_line"), "set_error_line", "get_error_line");
-    ADD_PROPERTY(PropertyInfo(VariantType::NIL, "result", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NIL_IS_VARIANT), "set_result", "get_result");
+    ADD_PROPERTY(PropertyInfo(VariantType::NIL, "result", PropertyHint::None, "", PROPERTY_USAGE_NIL_IS_VARIANT), "set_result", "get_result");
 }
 
 void JSONParseResult::set_error(Error p_error) {

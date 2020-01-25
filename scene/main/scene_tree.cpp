@@ -1878,19 +1878,19 @@ void SceneTree::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "refuse_new_network_connections"), "set_refuse_new_network_connections", "is_refusing_new_network_connections");
     ADD_PROPERTY_DEFAULT("refuse_new_network_connections", false);
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "use_font_oversampling"), "set_use_font_oversampling", "is_using_font_oversampling");
-    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "edited_scene_root", PROPERTY_HINT_RESOURCE_TYPE, "Node", 0), "set_edited_scene_root", "get_edited_scene_root");
-    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "current_scene", PROPERTY_HINT_RESOURCE_TYPE, "Node", 0), "set_current_scene", "get_current_scene");
-    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "network_peer", PROPERTY_HINT_RESOURCE_TYPE, "NetworkedMultiplayerPeer", 0), "set_network_peer", "get_network_peer");
-    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "root", PROPERTY_HINT_RESOURCE_TYPE, "Node", 0), "", "get_root");
-    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "multiplayer", PROPERTY_HINT_RESOURCE_TYPE, "MultiplayerAPI", 0), "set_multiplayer", "get_multiplayer");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "edited_scene_root", PropertyHint::ResourceType, "Node", 0), "set_edited_scene_root", "get_edited_scene_root");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "current_scene", PropertyHint::ResourceType, "Node", 0), "set_current_scene", "get_current_scene");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "network_peer", PropertyHint::ResourceType, "NetworkedMultiplayerPeer", 0), "set_network_peer", "get_network_peer");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "root", PropertyHint::ResourceType, "Node", 0), "", "get_root");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "multiplayer", PropertyHint::ResourceType, "MultiplayerAPI", 0), "set_multiplayer", "get_multiplayer");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "multiplayer_poll"), "set_multiplayer_poll_enabled", "is_multiplayer_poll_enabled");
 
     ADD_SIGNAL(MethodInfo("tree_changed"));
-    ADD_SIGNAL(MethodInfo("node_added", PropertyInfo(VariantType::OBJECT, "node", PROPERTY_HINT_RESOURCE_TYPE, "Node")));
-    ADD_SIGNAL(MethodInfo("node_removed", PropertyInfo(VariantType::OBJECT, "node", PROPERTY_HINT_RESOURCE_TYPE, "Node")));
-    ADD_SIGNAL(MethodInfo("node_renamed", PropertyInfo(VariantType::OBJECT, "node", PROPERTY_HINT_RESOURCE_TYPE, "Node")));
+    ADD_SIGNAL(MethodInfo("node_added", PropertyInfo(VariantType::OBJECT, "node", PropertyHint::ResourceType, "Node")));
+    ADD_SIGNAL(MethodInfo("node_removed", PropertyInfo(VariantType::OBJECT, "node", PropertyHint::ResourceType, "Node")));
+    ADD_SIGNAL(MethodInfo("node_renamed", PropertyInfo(VariantType::OBJECT, "node", PropertyHint::ResourceType, "Node")));
     ADD_SIGNAL(MethodInfo("screen_resized"));
-    ADD_SIGNAL(MethodInfo("node_configuration_warning_changed", PropertyInfo(VariantType::OBJECT, "node", PROPERTY_HINT_RESOURCE_TYPE, "Node")));
+    ADD_SIGNAL(MethodInfo("node_configuration_warning_changed", PropertyInfo(VariantType::OBJECT, "node", PropertyHint::ResourceType, "Node")));
 
     ADD_SIGNAL(MethodInfo("idle_frame"));
     ADD_SIGNAL(MethodInfo("physics_frame"));
@@ -2001,7 +2001,7 @@ SceneTree::SceneTree() {
     debug_navigation_color = GLOBAL_DEF("debug/shapes/navigation/geometry_color", Color(0.1f, 1.0, 0.7f, 0.4f));
     debug_navigation_disabled_color = GLOBAL_DEF("debug/shapes/navigation/disabled_geometry_color", Color(1.0, 0.7f, 0.1f, 0.4f));
     collision_debug_contacts = GLOBAL_DEF("debug/shapes/collision/max_contacts_displayed", 10000);
-    ProjectSettings::get_singleton()->set_custom_property_info("debug/shapes/collision/max_contacts_displayed", PropertyInfo(VariantType::INT, "debug/shapes/collision/max_contacts_displayed", PROPERTY_HINT_RANGE, "0,20000,1")); // No negative
+    ProjectSettings::get_singleton()->set_custom_property_info("debug/shapes/collision/max_contacts_displayed", PropertyInfo(VariantType::INT, "debug/shapes/collision/max_contacts_displayed", PropertyHint::Range, "0,20000,1")); // No negative
 
     tree_version = 1;
     physics_process_time = 1;
@@ -2039,11 +2039,11 @@ SceneTree::SceneTree() {
     current_scene = nullptr;
 
     int ref_atlas_size = GLOBAL_DEF("rendering/quality/reflections/atlas_size", 2048);
-    ProjectSettings::get_singleton()->set_custom_property_info("rendering/quality/reflections/atlas_size", PropertyInfo(VariantType::INT, "rendering/quality/reflections/atlas_size", PROPERTY_HINT_RANGE, "0,8192,or_greater")); //next_power_of_2 will return a 0 as min value
+    ProjectSettings::get_singleton()->set_custom_property_info("rendering/quality/reflections/atlas_size", PropertyInfo(VariantType::INT, "rendering/quality/reflections/atlas_size", PropertyHint::Range, "0,8192,or_greater")); //next_power_of_2 will return a 0 as min value
     int ref_atlas_subdiv = GLOBAL_DEF("rendering/quality/reflections/atlas_subdiv", 8);
-    ProjectSettings::get_singleton()->set_custom_property_info("rendering/quality/reflections/atlas_subdiv", PropertyInfo(VariantType::INT, "rendering/quality/reflections/atlas_subdiv", PROPERTY_HINT_RANGE, "0,32,or_greater")); //next_power_of_2 will return a 0 as min value
+    ProjectSettings::get_singleton()->set_custom_property_info("rendering/quality/reflections/atlas_subdiv", PropertyInfo(VariantType::INT, "rendering/quality/reflections/atlas_subdiv", PropertyHint::Range, "0,32,or_greater")); //next_power_of_2 will return a 0 as min value
     int msaa_mode = GLOBAL_DEF("rendering/quality/filters/msaa", 0);
-    ProjectSettings::get_singleton()->set_custom_property_info("rendering/quality/filters/msaa", PropertyInfo(VariantType::INT, "rendering/quality/filters/msaa", PROPERTY_HINT_ENUM, "Disabled,2x,4x,8x,16x,AndroidVR 2x,AndroidVR 4x"));
+    ProjectSettings::get_singleton()->set_custom_property_info("rendering/quality/filters/msaa", PropertyInfo(VariantType::INT, "rendering/quality/filters/msaa", PropertyHint::Enum, "Disabled,2x,4x,8x,16x,AndroidVR 2x,AndroidVR 4x"));
     root->set_msaa(Viewport::MSAA(msaa_mode));
 
     GLOBAL_DEF("rendering/quality/depth/hdr", true);
@@ -2068,7 +2068,7 @@ SceneTree::SceneTree() {
         String env_path = GLOBAL_DEF("rendering/environment/default_environment", "");
         //setup property
         ProjectSettings::get_singleton()->set_custom_property_info("rendering/environment/default_environment",
-                PropertyInfo(VariantType::STRING, "rendering/viewport/default_environment", PROPERTY_HINT_FILE, ext_hint));
+                PropertyInfo(VariantType::STRING, "rendering/viewport/default_environment", PropertyHint::File, ext_hint));
         env_path =StringUtils::strip_edges( env_path);
         if (!env_path.empty()) {
             Ref<Environment> env = dynamic_ref_cast<Environment>(ResourceLoader::load(env_path));

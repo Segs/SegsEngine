@@ -334,11 +334,11 @@ void RayCast2D::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "enabled"), "set_enabled", "is_enabled");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "exclude_parent"), "set_exclude_parent_body", "get_exclude_parent_body");
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "cast_to"), "set_cast_to", "get_cast_to");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "collision_mask", PROPERTY_HINT_LAYERS_2D_PHYSICS), "set_collision_mask", "get_collision_mask");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "collision_mask", PropertyHint::Layers2DPhysics), "set_collision_mask", "get_collision_mask");
 
     ADD_GROUP("Collide With", "collide_with");
-    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "collide_with_areas", PROPERTY_HINT_LAYERS_3D_PHYSICS), "set_collide_with_areas", "is_collide_with_areas_enabled");
-    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "collide_with_bodies", PROPERTY_HINT_LAYERS_3D_PHYSICS), "set_collide_with_bodies", "is_collide_with_bodies_enabled");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "collide_with_areas", PropertyHint::Layers3DPhysics), "set_collide_with_areas", "is_collide_with_areas_enabled");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "collide_with_bodies", PropertyHint::Layers3DPhysics), "set_collide_with_bodies", "is_collide_with_bodies_enabled");
 }
 
 RayCast2D::RayCast2D() {

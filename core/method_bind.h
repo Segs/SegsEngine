@@ -53,7 +53,7 @@ T* cast_to(::Object *f);
 
 
 // Object enum casts must go here
-VARIANT_ENUM_CAST(ObjectNS::ConnectFlags);
+VARIANT_NS_ENUM_CAST(ObjectNS,ConnectFlags);
 
 template <typename T>
 struct VariantObjectClassChecker {

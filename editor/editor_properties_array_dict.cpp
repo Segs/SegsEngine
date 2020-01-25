@@ -534,7 +534,7 @@ EditorPropertyArray::EditorPropertyArray() {
     changing_type_idx = -1;
 
     subtype = VariantType::NIL;
-    subtype_hint = PROPERTY_HINT_NONE;
+    subtype_hint = PropertyHint::None;
     subtype_hint_string = "";
 }
 

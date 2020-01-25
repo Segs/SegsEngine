@@ -30,6 +30,7 @@
 
 #pragma once
 #include "core/configuration.h"
+#include <stdint.h>
 
 #define CMP_EPSILON 0.00001f
 #define CMP_EPSILON2 (CMP_EPSILON * CMP_EPSILON)
@@ -78,33 +79,33 @@ struct MathConsts<double> {
 
 #define USEC_TO_SEC(m_usec) ((m_usec) / 1000000.0f)
 
-enum ClockDirection {
+enum ClockDirection : int8_t {
 
     CLOCKWISE,
     COUNTERCLOCKWISE
 };
 
-enum Orientation {
+enum Orientation : int8_t {
 
     HORIZONTAL,
     VERTICAL
 };
 
-enum HAlign {
+enum HAlign : int8_t {
 
     HALIGN_LEFT,
     HALIGN_CENTER,
     HALIGN_RIGHT
 };
 
-enum VAlign {
+enum VAlign : int8_t {
 
     VALIGN_TOP,
     VALIGN_CENTER,
     VALIGN_BOTTOM
 };
 
-enum Margin {
+enum Margin : int8_t {
 
     MARGIN_LEFT,
     MARGIN_TOP,
@@ -113,7 +114,7 @@ enum Margin {
     MARGIN_MAX
 };
 
-enum Corner {
+enum Corner : int8_t {
 
     CORNER_TOP_LEFT,
     CORNER_TOP_RIGHT,

@@ -616,12 +616,12 @@ void HTTPRequest::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("_timeout"), &HTTPRequest::_timeout);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "download_file", PROPERTY_HINT_FILE), "set_download_file", "get_download_file");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "download_chunk_size", PROPERTY_HINT_RANGE, "256,16777216"), "set_download_chunk_size", "get_download_chunk_size");
+    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "download_file", PropertyHint::File), "set_download_file", "get_download_file");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "download_chunk_size", PropertyHint::Range, "256,16777216"), "set_download_chunk_size", "get_download_chunk_size");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "use_threads"), "set_use_threads", "is_using_threads");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "body_size_limit", PROPERTY_HINT_RANGE, "-1,2000000000"), "set_body_size_limit", "get_body_size_limit");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "max_redirects", PROPERTY_HINT_RANGE, "-1,64"), "set_max_redirects", "get_max_redirects");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "timeout", PROPERTY_HINT_RANGE, "0,86400"), "set_timeout", "get_timeout");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "body_size_limit", PropertyHint::Range, "-1,2000000000"), "set_body_size_limit", "get_body_size_limit");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "max_redirects", PropertyHint::Range, "-1,64"), "set_max_redirects", "get_max_redirects");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "timeout", PropertyHint::Range, "0,86400"), "set_timeout", "get_timeout");
 
     ADD_SIGNAL(MethodInfo("request_completed", PropertyInfo(VariantType::INT, "result"), PropertyInfo(VariantType::INT, "response_code"), PropertyInfo(VariantType::POOL_STRING_ARRAY, "headers"), PropertyInfo(VariantType::POOL_BYTE_ARRAY, "body")));
 

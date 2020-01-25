@@ -102,12 +102,12 @@ void MeshInstance::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
     ls.sort();
 
     for (List<StringName>::Element *E = ls.front(); E; E = E->next()) {
-        p_list->push_back(PropertyInfo(VariantType::REAL, E->deref(), PROPERTY_HINT_RANGE, "0,1,0.00001"));
+        p_list->push_back(PropertyInfo(VariantType::REAL, E->deref(), PropertyHint::Range, "0,1,0.00001"));
     }
 
     if (mesh) {
         for (int i = 0; i < mesh->get_surface_count(); i++) {
-            p_list->push_back(PropertyInfo(VariantType::OBJECT, StringName("material/" + itos(i)), PROPERTY_HINT_RESOURCE_TYPE, "ShaderMaterial,SpatialMaterial"));
+            p_list->push_back(PropertyInfo(VariantType::OBJECT, StringName("material/" + itos(i)), PropertyHint::ResourceType, "ShaderMaterial,SpatialMaterial"));
         }
     }
 }
@@ -412,9 +412,9 @@ void MeshInstance::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("create_debug_tangents"), &MeshInstance::create_debug_tangents);
     ClassDB::set_method_flags("MeshInstance", "create_debug_tangents", METHOD_FLAGS_DEFAULT | METHOD_FLAG_EDITOR);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "mesh", PROPERTY_HINT_RESOURCE_TYPE, "Mesh"), "set_mesh", "get_mesh");
-    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "skin", PROPERTY_HINT_RESOURCE_TYPE, "Skin"), "set_skin", "get_skin");
-    ADD_PROPERTY(PropertyInfo(VariantType::NODE_PATH, "skeleton", PROPERTY_HINT_NODE_PATH_VALID_TYPES, "Skeleton"), "set_skeleton_path", "get_skeleton_path");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "mesh", PropertyHint::ResourceType, "Mesh"), "set_mesh", "get_mesh");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "skin", PropertyHint::ResourceType, "Skin"), "set_skin", "get_skin");
+    ADD_PROPERTY(PropertyInfo(VariantType::NODE_PATH, "skeleton", PropertyHint::NodePathValidTypes, "Skeleton"), "set_skeleton_path", "get_skeleton_path");
 }
 
 MeshInstance::MeshInstance() {

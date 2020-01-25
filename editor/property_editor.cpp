@@ -73,7 +73,7 @@ void EditorResourceConversionPlugin::_bind_methods() {
     mi.name = "_convert";
     mi.return_val.type = VariantType::OBJECT;
     mi.return_val.class_name = "Resource";
-    mi.return_val.hint = PROPERTY_HINT_RESOURCE_TYPE;
+    mi.return_val.hint = PropertyHint::ResourceType;
     mi.return_val.hint_string = "Resource";
     mi.arguments.push_back(mi.return_val);
     mi.arguments[0].name = "resource";
@@ -128,7 +128,7 @@ void CustomPropertyEditor::_menu_option(int p_which) {
 
         case VariantType::INT: {
 
-            if (hint == PROPERTY_HINT_FLAGS) {
+            if (hint == PropertyHint::Flags) {
 
                 int val = v;
 
@@ -141,7 +141,7 @@ void CustomPropertyEditor::_menu_option(int p_which) {
 
                 v = val;
                 emit_signal("variant_changed");
-            } else if (hint == PROPERTY_HINT_ENUM) {
+            } else if (hint == PropertyHint::Enum) {
 
                 v = menu->get_item_metadata(p_which);
                 emit_signal("variant_changed");
@@ -149,7 +149,7 @@ void CustomPropertyEditor::_menu_option(int p_which) {
         } break;
         case VariantType::STRING: {
 
-            if (hint == PROPERTY_HINT_ENUM) {
+            if (hint == PropertyHint::Enum) {
 
                 v = StringUtils::get_slice(hint_text,',', p_which);
                 emit_signal("variant_changed");
@@ -161,7 +161,7 @@ void CustomPropertyEditor::_menu_option(int p_which) {
                 case OBJ_MENU_LOAD: {
 
                     file->set_mode(EditorFileDialog::MODE_OPEN_FILE);
-                    String type = hint == PROPERTY_HINT_RESOURCE_TYPE ? hint_text : String();
+                    String type = hint == PropertyHint::ResourceType ? hint_text : String();
 
                     PODVector<String> extensions;
                     for (int i = 0; i < StringUtils::get_slice_count(type,','); i++) {
@@ -312,7 +312,7 @@ void CustomPropertyEditor::_menu_option(int p_which) {
                     ERR_BREAK(!obj)
                     Resource *res = object_cast<Resource>(obj);
                     ERR_BREAK(!res)
-                    if (owner && hint == PROPERTY_HINT_RESOURCE_TYPE && hint_text == "Script") {
+                    if (owner && hint == PropertyHint::ResourceType && hint_text == "Script") {
                         //make visual script the right type
                         res->call("set_instance_base_type", owner->get_class());
                     }
@@ -343,7 +343,7 @@ UIString CustomPropertyEditor::get_name() const {
     return name;
 }
 
-bool CustomPropertyEditor::edit(Object *p_owner, se_string_view p_name, VariantType p_type, const Variant &p_variant, int p_hint, se_string_view p_hint_text) {
+bool CustomPropertyEditor::edit(Object *p_owner, se_string_view p_name, VariantType p_type, const Variant &p_variant, PropertyHint p_hint, se_string_view p_hint_text) {
 
     using namespace eastl;
 
@@ -352,7 +352,7 @@ bool CustomPropertyEditor::edit(Object *p_owner, se_string_view p_name, VariantT
     name = StringUtils::from_utf8(p_name);
     v = p_variant;
     field_names.clear();
-    hint = p_hint;
+    hint = PropertyHint(p_hint);
     hint_text = p_hint_text;
     type_button->hide();
     if (color_picker)
@@ -404,7 +404,7 @@ bool CustomPropertyEditor::edit(Object *p_owner, se_string_view p_name, VariantT
         case VariantType::INT:
         case VariantType::REAL: {
 
-            if (hint == PROPERTY_HINT_RANGE) {
+            if (hint == PropertyHint::Range) {
 
                 int c = StringUtils::get_slice_count(hint_text,',');
                 float min = 0, max = 100, step = type == VariantType::REAL ? .01f : 1;
@@ -441,7 +441,7 @@ bool CustomPropertyEditor::edit(Object *p_owner, se_string_view p_name, VariantT
                     set_size(Size2(70, 35) * EDSCALE);
                 }
 
-            } else if (hint == PROPERTY_HINT_ENUM) {
+            } else if (hint == PropertyHint::Enum) {
 
                 PODVector<se_string_view> options = StringUtils::split(hint_text,',');
                 int current_val = 0;
@@ -459,20 +459,20 @@ bool CustomPropertyEditor::edit(Object *p_owner, se_string_view p_name, VariantT
                 updating = false;
                 return false;
 
-            } else if (hint == PROPERTY_HINT_LAYERS_2D_PHYSICS || hint == PROPERTY_HINT_LAYERS_2D_RENDER || hint == PROPERTY_HINT_LAYERS_3D_PHYSICS || hint == PROPERTY_HINT_LAYERS_3D_RENDER) {
+            } else if (hint == PropertyHint::Layers2DPhysics || hint == PropertyHint::Layers2DRenderer || hint == PropertyHint::Layers3DPhysics || hint == PropertyHint::Layers3DRenderer) {
 
                 String basename;
                 switch (hint) {
-                    case PROPERTY_HINT_LAYERS_2D_RENDER:
+                    case PropertyHint::Layers2DRenderer:
                         basename = "layer_names/2d_render";
                         break;
-                    case PROPERTY_HINT_LAYERS_2D_PHYSICS:
+                    case PropertyHint::Layers2DPhysics:
                         basename = "layer_names/2d_physics";
                         break;
-                    case PROPERTY_HINT_LAYERS_3D_RENDER:
+                    case PropertyHint::Layers3DRenderer:
                         basename = "layer_names/3d_render";
                         break;
-                    case PROPERTY_HINT_LAYERS_3D_PHYSICS:
+                    case PropertyHint::Layers3DPhysics:
                         basename = "layer_names/3d_physics";
                         break;
                 }
@@ -500,7 +500,7 @@ bool CustomPropertyEditor::edit(Object *p_owner, se_string_view p_name, VariantT
 
                 set_size(Vector2(4, 4) * EDSCALE + checks20gc->get_position() + checks20gc->get_size());
 
-            } else if (hint == PROPERTY_HINT_EXP_EASING) {
+            } else if (hint == PropertyHint::ExpEasing) {
 
                 easing_draw->set_anchor_and_margin(MARGIN_LEFT, ANCHOR_BEGIN, 5 * EDSCALE);
                 easing_draw->set_anchor_and_margin(MARGIN_RIGHT, ANCHOR_END, -5 * EDSCALE);
@@ -524,7 +524,7 @@ bool CustomPropertyEditor::edit(Object *p_owner, se_string_view p_name, VariantT
                 type_button->show();
                 easing_draw->show();
                 set_size(Size2(200, 150) * EDSCALE);
-            } else if (hint == PROPERTY_HINT_FLAGS) {
+            } else if (hint == PropertyHint::Flags) {
                 PODVector<se_string_view> flags = StringUtils::split(hint_text,',');
                 for (int i = 0; i < flags.size(); i++) {
                     se_string_view flag = flags[i];
@@ -551,20 +551,20 @@ bool CustomPropertyEditor::edit(Object *p_owner, se_string_view p_name, VariantT
         } break;
         case VariantType::STRING: {
 
-            if (hint == PROPERTY_HINT_FILE || hint == PROPERTY_HINT_GLOBAL_FILE) {
+            if (hint == PropertyHint::File || hint == PropertyHint::GlobalFile) {
 
                 List<StringName> names;
                 names.push_back(TTR("File..."));
                 names.push_back(TTR("Clear"));
                 config_action_buttons(names);
 
-            } else if (hint == PROPERTY_HINT_DIR || hint == PROPERTY_HINT_GLOBAL_DIR) {
+            } else if (hint == PropertyHint::Dir || hint == PropertyHint::GlobalDir) {
 
                 List<StringName> names;
                 names.push_back(TTR("Dir..."));
                 names.push_back(TTR("Clear"));
                 config_action_buttons(names);
-            } else if (hint == PROPERTY_HINT_ENUM) {
+            } else if (hint == PropertyHint::Enum) {
 
                 PODVector<se_string_view> options = StringUtils::split(hint_text,',');
                 for (int i = 0; i < options.size(); i++) {
@@ -576,7 +576,7 @@ bool CustomPropertyEditor::edit(Object *p_owner, se_string_view p_name, VariantT
                 updating = false;
                 return false;
 
-            } else if (hint == PROPERTY_HINT_MULTILINE_TEXT) {
+            } else if (hint == PropertyHint::MultilineText) {
 
                 text_edit->show();
                 text_edit->set_text(v);
@@ -594,7 +594,7 @@ bool CustomPropertyEditor::edit(Object *p_owner, se_string_view p_name, VariantT
                 action_buttons[0]->set_text(TTR("Close"));
                 action_buttons[0]->show();
 
-            } else if (hint == PROPERTY_HINT_TYPE_STRING) {
+            } else if (hint == PropertyHint::TypeString) {
 
                 if (!create_dialog) {
                     create_dialog = memnew(CreateDialog);
@@ -613,7 +613,7 @@ bool CustomPropertyEditor::edit(Object *p_owner, se_string_view p_name, VariantT
                 updating = false;
                 return false;
 
-            } else if (hint == PROPERTY_HINT_METHOD_OF_VARIANT_TYPE) {
+            } else if (hint == PropertyHint::MethodOfVariantType) {
 #define MAKE_PROPSELECT                                                          \
     if (!property_select) {                                                      \
         property_select = memnew(PropertySelector);                              \
@@ -635,7 +635,7 @@ bool CustomPropertyEditor::edit(Object *p_owner, se_string_view p_name, VariantT
                 updating = false;
                 return false;
 
-            } else if (hint == PROPERTY_HINT_METHOD_OF_BASE_TYPE) {
+            } else if (hint == PropertyHint::MethodOfBaseType) {
                 MAKE_PROPSELECT
 
                 property_select->select_method_from_base_type(StringName(hint_text), v);
@@ -643,7 +643,7 @@ bool CustomPropertyEditor::edit(Object *p_owner, se_string_view p_name, VariantT
                 updating = false;
                 return false;
 
-            } else if (hint == PROPERTY_HINT_METHOD_OF_INSTANCE) {
+            } else if (hint == PropertyHint::MethodOfInstance) {
 
                 MAKE_PROPSELECT
 
@@ -653,7 +653,7 @@ bool CustomPropertyEditor::edit(Object *p_owner, se_string_view p_name, VariantT
                 updating = false;
                 return false;
 
-            } else if (hint == PROPERTY_HINT_METHOD_OF_SCRIPT) {
+            } else if (hint == PropertyHint::MethodOfScript) {
                 MAKE_PROPSELECT
 
                 Object *obj = ObjectDB::get_instance(StringUtils::to_int64(hint_text));
@@ -664,7 +664,7 @@ bool CustomPropertyEditor::edit(Object *p_owner, se_string_view p_name, VariantT
                 updating = false;
                 return false;
 
-            } else if (hint == PROPERTY_HINT_PROPERTY_OF_VARIANT_TYPE) {
+            } else if (hint == PropertyHint::PropertyOfVariantType) {
 
                 MAKE_PROPSELECT
                 VariantType type = VariantType::NIL;
@@ -683,7 +683,7 @@ bool CustomPropertyEditor::edit(Object *p_owner, se_string_view p_name, VariantT
                 updating = false;
                 return false;
 
-            } else if (hint == PROPERTY_HINT_PROPERTY_OF_BASE_TYPE) {
+            } else if (hint == PropertyHint::PropertyOfBaseType) {
 
                 MAKE_PROPSELECT
 
@@ -692,7 +692,7 @@ bool CustomPropertyEditor::edit(Object *p_owner, se_string_view p_name, VariantT
                 updating = false;
                 return false;
 
-            } else if (hint == PROPERTY_HINT_PROPERTY_OF_INSTANCE) {
+            } else if (hint == PropertyHint::PropertyOfInstance) {
 
                 MAKE_PROPSELECT
 
@@ -703,7 +703,7 @@ bool CustomPropertyEditor::edit(Object *p_owner, se_string_view p_name, VariantT
                 updating = false;
                 return false;
 
-            } else if (hint == PROPERTY_HINT_PROPERTY_OF_SCRIPT) {
+            } else if (hint == PropertyHint::PropertyOfScript) {
                 MAKE_PROPSELECT
 
                 Object *obj = ObjectDB::get_instance(StringUtils::to_int64(hint_text));
@@ -885,7 +885,7 @@ bool CustomPropertyEditor::edit(Object *p_owner, se_string_view p_name, VariantT
             }
 
             color_picker->show();
-            color_picker->set_edit_alpha(hint != PROPERTY_HINT_COLOR_NO_ALPHA);
+            color_picker->set_edit_alpha(hint != PropertyHint::ColorNoAlpha);
             color_picker->set_pick_color(v);
             color_picker->set_focus_on_line_edit();
 
@@ -905,7 +905,7 @@ bool CustomPropertyEditor::edit(Object *p_owner, se_string_view p_name, VariantT
         } break;
         case VariantType::OBJECT: {
 
-            if (hint != PROPERTY_HINT_RESOURCE_TYPE)
+            if (hint != PropertyHint::ResourceType)
                 break;
 
             if (p_name == se_string_view("script") && hint_text == "Script" && object_cast<Node>(owner)) {
@@ -1082,14 +1082,14 @@ void CustomPropertyEditor::_file_selected(se_string_view p_file) {
 
         case VariantType::STRING: {
 
-            if (hint == PROPERTY_HINT_FILE || hint == PROPERTY_HINT_DIR) {
+            if (hint == PropertyHint::File || hint == PropertyHint::Dir) {
 
                 v = ProjectSettings::get_singleton()->localize_path(p_file);
                 emit_signal("variant_changed");
                 hide();
             }
 
-            if (hint == PROPERTY_HINT_GLOBAL_FILE || hint == PROPERTY_HINT_GLOBAL_DIR) {
+            if (hint == PropertyHint::GlobalFile || hint == PropertyHint::GlobalDir) {
 
                 v = p_file;
                 emit_signal("variant_changed");
@@ -1099,7 +1099,7 @@ void CustomPropertyEditor::_file_selected(se_string_view p_file) {
         } break;
         case VariantType::OBJECT: {
 
-            StringName type = hint == PROPERTY_HINT_RESOURCE_TYPE ? StringName(hint_text) : StringName();
+            StringName type = hint == PropertyHint::ResourceType ? StringName(hint_text) : StringName();
 
             RES res(ResourceLoader::load(p_file, type));
             if (not res) {
@@ -1202,7 +1202,7 @@ void CustomPropertyEditor::_node_path_selected(NodePath p_path) {
         return;
     }
 
-    if (hint == PROPERTY_HINT_NODE_PATH_TO_EDITED_NODE && !hint_text.empty()) {
+    if (hint == PropertyHint::NodePathToEditedNode && !hint_text.empty()) {
 
         Node *node = get_node(NodePath(hint_text));
         if (node) {
@@ -1253,7 +1253,7 @@ void CustomPropertyEditor::_action_pressed(int p_which) {
         } break;
         case VariantType::INT: {
 
-            if (hint == PROPERTY_HINT_LAYERS_2D_PHYSICS || hint == PROPERTY_HINT_LAYERS_2D_RENDER || hint == PROPERTY_HINT_LAYERS_3D_PHYSICS || hint == PROPERTY_HINT_LAYERS_3D_RENDER) {
+            if (hint == PropertyHint::Layers2DPhysics || hint == PropertyHint::Layers2DRenderer || hint == PropertyHint::Layers3DPhysics || hint == PropertyHint::Layers3DRenderer) {
 
                 uint32_t f = v;
                 if (checks20[p_which]->is_pressed())
@@ -1268,14 +1268,14 @@ void CustomPropertyEditor::_action_pressed(int p_which) {
         } break;
         case VariantType::STRING: {
 
-            if (hint == PROPERTY_HINT_MULTILINE_TEXT) {
+            if (hint == PropertyHint::MultilineText) {
 
                 hide();
 
-            } else if (hint == PROPERTY_HINT_FILE || hint == PROPERTY_HINT_GLOBAL_FILE) {
+            } else if (hint == PropertyHint::File || hint == PropertyHint::GlobalFile) {
                 if (p_which == 0) {
 
-                    if (hint == PROPERTY_HINT_FILE)
+                    if (hint == PropertyHint::File)
                         file->set_access(EditorFileDialog::ACCESS_RESOURCES);
                     else
                         file->set_access(EditorFileDialog::ACCESS_FILESYSTEM);
@@ -1306,11 +1306,11 @@ void CustomPropertyEditor::_action_pressed(int p_which) {
                     hide();
                 }
 
-            } else if (hint == PROPERTY_HINT_DIR || hint == PROPERTY_HINT_GLOBAL_DIR) {
+            } else if (hint == PropertyHint::Dir || hint == PropertyHint::GlobalDir) {
 
                 if (p_which == 0) {
 
-                    if (hint == PROPERTY_HINT_DIR)
+                    if (hint == PropertyHint::Dir)
                         file->set_access(EditorFileDialog::ACCESS_RESOURCES);
                     else
                         file->set_access(EditorFileDialog::ACCESS_FILESYSTEM);
@@ -1360,7 +1360,7 @@ void CustomPropertyEditor::_action_pressed(int p_which) {
 
                 StringName intype = inheritors_array[0];
 
-                if (hint == PROPERTY_HINT_RESOURCE_TYPE) {
+                if (hint == PropertyHint::ResourceType) {
 
                     Object *obj = ClassDB::instance(intype);
 
@@ -1385,7 +1385,7 @@ void CustomPropertyEditor::_action_pressed(int p_which) {
                 file->set_access(EditorFileDialog::ACCESS_RESOURCES);
                 file->set_mode(EditorFileDialog::MODE_OPEN_FILE);
                 PODVector<String> extensions;
-                StringName type = hint == PROPERTY_HINT_RESOURCE_TYPE ? StringName(hint_text) : StringName();
+                StringName type = hint == PropertyHint::ResourceType ? StringName(hint_text) : StringName();
 
                 ResourceLoader::get_recognized_extensions_for_type(type, extensions);
                 file->clear_filters();
@@ -1566,7 +1566,7 @@ void CustomPropertyEditor::_modified(se_string_view p_string) {
         } break;
         case VariantType::REAL: {
 
-            if (hint != PROPERTY_HINT_EXP_EASING) {
+            if (hint != PropertyHint::ExpEasing) {
                 String text = value_editor[0]->get_text();
                 v = _parse_real_expression(text);
                 emit_signal("variant_changed");

@@ -76,7 +76,7 @@ StringName ResourceImporterCSVTranslation::get_preset_name(int p_idx) const {
 void ResourceImporterCSVTranslation::get_import_options(ListPOD<ImportOption> *r_options, int p_preset) const {
 
     r_options->push_back(ImportOption(PropertyInfo(VariantType::BOOL, "compress"), true));
-    r_options->push_back(ImportOption(PropertyInfo(VariantType::INT, "delimiter", PROPERTY_HINT_ENUM, "Comma,Semicolon,Tab"), 0));
+    r_options->push_back(ImportOption(PropertyInfo(VariantType::INT, "delimiter", PropertyHint::Enum, "Comma,Semicolon,Tab"), 0));
 }
 
 Error ResourceImporterCSVTranslation::import(se_string_view p_source_file, se_string_view p_save_path, const Map<StringName, Variant> &p_options, List<String> *r_platform_variants, List<String> *r_gen_files, Variant *r_metadata) {

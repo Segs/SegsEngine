@@ -233,7 +233,7 @@ uint64_t ClassDB::get_api_hash(APIType p_api) {
                     const PropertyInfo info = mb->get_argument_info(i);
                     hash = hash_djb2_one_64(uint64_t(info.type), hash);
                     hash = hash_djb2_one_64(StringUtils::hash(info.name), hash);
-                    hash = hash_djb2_one_64(info.hint, hash);
+                    hash = hash_djb2_one_64((int)info.hint, hash);
                     hash = hash_djb2_one_64(StringUtils::hash(info.hint_string), hash);
                 }
 
@@ -309,7 +309,7 @@ uint64_t ClassDB::get_api_hash(APIType p_api) {
         for (const PropertyInfo &pi : t.property_list) {
             hash = hash_djb2_one_64(StringUtils::hash(pi.name), hash);
             hash = hash_djb2_one_64(uint64_t(pi.type), hash);
-            hash = hash_djb2_one_64(pi.hint, hash);
+            hash = hash_djb2_one_64((int)pi.hint, hash);
             hash = hash_djb2_one_64(StringUtils::hash(pi.hint_string), hash);
             hash = hash_djb2_one_64(pi.usage, hash);
         }
@@ -724,7 +724,7 @@ void ClassDB::add_property_group(StringName p_class, const char *p_name, const c
     ERR_FAIL_COND(!type)
 
     type->property_list.push_back(
-            PropertyInfo(VariantType::NIL, StringName(p_name), PROPERTY_HINT_NONE, p_prefix, PROPERTY_USAGE_GROUP));
+            PropertyInfo(VariantType::NIL, StringName(p_name), PropertyHint::None, p_prefix, PROPERTY_USAGE_GROUP));
 }
 
 void ClassDB::add_property(StringName p_class, const PropertyInfo &p_pinfo, const StringName &p_setter,

@@ -109,7 +109,7 @@ void ConcavePolygonShape::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("set_faces", {"faces"}), &ConcavePolygonShape::set_faces);
     MethodBinder::bind_method(D_METHOD("get_faces"), &ConcavePolygonShape::get_faces);
-    ADD_PROPERTY(PropertyInfo(VariantType::POOL_VECTOR3_ARRAY, "data", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "set_faces", "get_faces");
+    ADD_PROPERTY(PropertyInfo(VariantType::POOL_VECTOR3_ARRAY, "data", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "set_faces", "get_faces");
 }
 
 ConcavePolygonShape::ConcavePolygonShape() :

@@ -342,11 +342,11 @@ void Button::_bind_methods() {
     BIND_ENUM_CONSTANT(ALIGN_CENTER)
     BIND_ENUM_CONSTANT(ALIGN_RIGHT)
 
-    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "text", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_DEFAULT_INTL), "set_text", "get_text");
-    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "icon", PROPERTY_HINT_RESOURCE_TYPE, "Texture"), "set_button_icon", "get_button_icon");
+    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "text", PropertyHint::None, "", PROPERTY_USAGE_DEFAULT_INTL), "set_text", "get_text");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "icon", PropertyHint::ResourceType, "Texture"), "set_button_icon", "get_button_icon");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "flat"), "set_flat", "is_flat");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "clip_text"), "set_clip_text", "get_clip_text");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "align", PROPERTY_HINT_ENUM, "Left,Center,Right"), "set_text_align", "get_text_align");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "align", PropertyHint::Enum, "Left,Center,Right"), "set_text_align", "get_text_align");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "expand_icon"), "set_expand_icon", "is_expand_icon");
 }
 

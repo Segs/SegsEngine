@@ -486,28 +486,28 @@ void NavigationMesh::_bind_methods() {
     BIND_CONSTANT(PARSED_GEOMETRY_STATIC_COLLIDERS);
     BIND_CONSTANT(PARSED_GEOMETRY_BOTH);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::POOL_VECTOR3_ARRAY, "vertices", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "set_vertices", "get_vertices");
-    ADD_PROPERTY(PropertyInfo(VariantType::ARRAY, "polygons", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "_set_polygons", "_get_polygons");
+    ADD_PROPERTY(PropertyInfo(VariantType::POOL_VECTOR3_ARRAY, "vertices", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "set_vertices", "get_vertices");
+    ADD_PROPERTY(PropertyInfo(VariantType::ARRAY, "polygons", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "_set_polygons", "_get_polygons");
 
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "sample_partition_type/sample_partition_type", PROPERTY_HINT_ENUM, "Watershed,Monotone,Layers"), "set_sample_partition_type", "get_sample_partition_type");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "geometry/parsed_geometry_type", PROPERTY_HINT_ENUM, "Mesh Instances,Static Colliders,Both"), "set_parsed_geometry_type", "get_parsed_geometry_type");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "geometry/collision_mask", PROPERTY_HINT_LAYERS_3D_PHYSICS), "set_collision_mask", "get_collision_mask");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "geometry/source_geometry_mode", PROPERTY_HINT_ENUM, "Navmesh Children, Group With Children, Group Explicit"), "set_source_geometry_mode", "get_source_geometry_mode");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "sample_partition_type/sample_partition_type", PropertyHint::Enum, "Watershed,Monotone,Layers"), "set_sample_partition_type", "get_sample_partition_type");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "geometry/parsed_geometry_type", PropertyHint::Enum, "Mesh Instances,Static Colliders,Both"), "set_parsed_geometry_type", "get_parsed_geometry_type");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "geometry/collision_mask", PropertyHint::Layers3DPhysics), "set_collision_mask", "get_collision_mask");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "geometry/source_geometry_mode", PropertyHint::Enum, "Navmesh Children, Group With Children, Group Explicit"), "set_source_geometry_mode", "get_source_geometry_mode");
     ADD_PROPERTY(PropertyInfo(VariantType::STRING, "geometry/source_group_name"), "set_source_group_name", "get_source_group_name");
 
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "cell/size", PROPERTY_HINT_RANGE, "0.1,1.0,0.01,or_greater"), "set_cell_size", "get_cell_size");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "cell/height", PROPERTY_HINT_RANGE, "0.1,1.0,0.01,or_greater"), "set_cell_height", "get_cell_height");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "agent/height", PROPERTY_HINT_RANGE, "0.1,5.0,0.01,or_greater"), "set_agent_height", "get_agent_height");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "agent/radius", PROPERTY_HINT_RANGE, "0.1,5.0,0.01,or_greater"), "set_agent_radius", "get_agent_radius");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "agent/max_climb", PROPERTY_HINT_RANGE, "0.1,5.0,0.01,or_greater"), "set_agent_max_climb", "get_agent_max_climb");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "agent/max_slope", PROPERTY_HINT_RANGE, "0.0,90.0,0.1"), "set_agent_max_slope", "get_agent_max_slope");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "region/min_size", PROPERTY_HINT_RANGE, "0.0,150.0,0.01,or_greater"), "set_region_min_size", "get_region_min_size");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "region/merge_size", PROPERTY_HINT_RANGE, "0.0,150.0,0.01,or_greater"), "set_region_merge_size", "get_region_merge_size");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "edge/max_length", PROPERTY_HINT_RANGE, "0.0,50.0,0.01,or_greater"), "set_edge_max_length", "get_edge_max_length");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "edge/max_error", PROPERTY_HINT_RANGE, "0.1,3.0,0.01,or_greater"), "set_edge_max_error", "get_edge_max_error");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "polygon/verts_per_poly", PROPERTY_HINT_RANGE, "3.0,12.0,1.0,or_greater"), "set_verts_per_poly", "get_verts_per_poly");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "detail/sample_distance", PROPERTY_HINT_RANGE, "0.0,16.0,0.01,or_greater"), "set_detail_sample_distance", "get_detail_sample_distance");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "detail/sample_max_error", PROPERTY_HINT_RANGE, "0.0,16.0,0.01,or_greater"), "set_detail_sample_max_error", "get_detail_sample_max_error");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "cell/size", PropertyHint::Range, "0.1,1.0,0.01,or_greater"), "set_cell_size", "get_cell_size");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "cell/height", PropertyHint::Range, "0.1,1.0,0.01,or_greater"), "set_cell_height", "get_cell_height");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "agent/height", PropertyHint::Range, "0.1,5.0,0.01,or_greater"), "set_agent_height", "get_agent_height");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "agent/radius", PropertyHint::Range, "0.1,5.0,0.01,or_greater"), "set_agent_radius", "get_agent_radius");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "agent/max_climb", PropertyHint::Range, "0.1,5.0,0.01,or_greater"), "set_agent_max_climb", "get_agent_max_climb");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "agent/max_slope", PropertyHint::Range, "0.0,90.0,0.1"), "set_agent_max_slope", "get_agent_max_slope");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "region/min_size", PropertyHint::Range, "0.0,150.0,0.01,or_greater"), "set_region_min_size", "get_region_min_size");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "region/merge_size", PropertyHint::Range, "0.0,150.0,0.01,or_greater"), "set_region_merge_size", "get_region_merge_size");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "edge/max_length", PropertyHint::Range, "0.0,50.0,0.01,or_greater"), "set_edge_max_length", "get_edge_max_length");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "edge/max_error", PropertyHint::Range, "0.1,3.0,0.01,or_greater"), "set_edge_max_error", "get_edge_max_error");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "polygon/verts_per_poly", PropertyHint::Range, "3.0,12.0,1.0,or_greater"), "set_verts_per_poly", "get_verts_per_poly");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "detail/sample_distance", PropertyHint::Range, "0.0,16.0,0.01,or_greater"), "set_detail_sample_distance", "get_detail_sample_distance");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "detail/sample_max_error", PropertyHint::Range, "0.0,16.0,0.01,or_greater"), "set_detail_sample_max_error", "get_detail_sample_max_error");
 
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "filter/low_hanging_obstacles"), "set_filter_low_hanging_obstacles", "get_filter_low_hanging_obstacles");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "filter/ledge_spans"), "set_filter_ledge_spans", "get_filter_ledge_spans");
@@ -725,7 +725,7 @@ void NavigationMeshInstance::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_enabled", {"enabled"}), &NavigationMeshInstance::set_enabled);
     MethodBinder::bind_method(D_METHOD("is_enabled"), &NavigationMeshInstance::is_enabled);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "navmesh", PROPERTY_HINT_RESOURCE_TYPE, "NavigationMesh"), "set_navigation_mesh", "get_navigation_mesh");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "navmesh", PropertyHint::ResourceType, "NavigationMesh"), "set_navigation_mesh", "get_navigation_mesh");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "enabled"), "set_enabled", "is_enabled");
 }
 

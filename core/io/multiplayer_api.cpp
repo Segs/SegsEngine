@@ -1028,7 +1028,7 @@ void MultiplayerAPI::_bind_methods() {
 
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "allow_object_decoding"), "set_allow_object_decoding", "is_object_decoding_allowed");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "refuse_new_network_connections"), "set_refuse_new_network_connections", "is_refusing_new_network_connections");
-    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "network_peer", PROPERTY_HINT_RESOURCE_TYPE, "NetworkedMultiplayerPeer", 0), "set_network_peer", "get_network_peer");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "network_peer", PropertyHint::ResourceType, "NetworkedMultiplayerPeer", 0), "set_network_peer", "get_network_peer");
     ADD_PROPERTY_DEFAULT("refuse_new_network_connections", false);
 
     ADD_SIGNAL(MethodInfo("network_peer_connected", PropertyInfo(VariantType::INT, "id")));

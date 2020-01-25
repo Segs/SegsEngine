@@ -2798,9 +2798,9 @@ void Node::request_ready() {
 void Node::_bind_methods() {
 
     GLOBAL_DEF("node/name_num_separator", 0);
-    ProjectSettings::get_singleton()->set_custom_property_info("node/name_num_separator", PropertyInfo(VariantType::INT, "node/name_num_separator", PROPERTY_HINT_ENUM, "None,Space,Underscore,Dash"));
+    ProjectSettings::get_singleton()->set_custom_property_info("node/name_num_separator", PropertyInfo(VariantType::INT, "node/name_num_separator", PropertyHint::Enum, "None,Space,Underscore,Dash"));
     GLOBAL_DEF("node/name_casing", NAME_CASING_PASCAL_CASE);
-    ProjectSettings::get_singleton()->set_custom_property_info("node/name_casing", PropertyInfo(VariantType::INT, "node/name_casing", PROPERTY_HINT_ENUM, "PascalCase,camelCase,snake_case"));
+    ProjectSettings::get_singleton()->set_custom_property_info("node/name_casing", PropertyInfo(VariantType::INT, "node/name_casing", PropertyHint::Enum, "PascalCase,camelCase,snake_case"));
 
     MethodBinder::bind_method(D_METHOD("add_child_below_node", {"node", "child_node", "legible_unique_name"}), &Node::add_child_below_node, {DEFVAL(false)});
 
@@ -2897,7 +2897,7 @@ void Node::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("_set_import_path", {"import_path"}), &Node::set_import_path);
     MethodBinder::bind_method(D_METHOD("_get_import_path"), &Node::get_import_path);
-    ADD_PROPERTY(PropertyInfo(VariantType::NODE_PATH, "_import_path", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "_set_import_path", "_get_import_path");
+    ADD_PROPERTY(PropertyInfo(VariantType::NODE_PATH, "_import_path", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "_set_import_path", "_get_import_path");
 
     {
         MethodInfo mi("rpc",PropertyInfo(VariantType::STRING, "method"));
@@ -2971,18 +2971,18 @@ void Node::_bind_methods() {
     ADD_SIGNAL(MethodInfo("tree_exited"));
 
     ADD_GROUP("Pause", "pause_");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "pause_mode", PROPERTY_HINT_ENUM, "Inherit,Stop,Process"), "set_pause_mode", "get_pause_mode");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "pause_mode", PropertyHint::Enum, "Inherit,Stop,Process"), "set_pause_mode", "get_pause_mode");
 
 #ifdef ENABLE_DEPRECATED
     //no longer exists, but remains for compatibility (keep previous scenes folded
-    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "editor/display_folded", PROPERTY_HINT_NONE, "", 0), "set_display_folded", "is_displayed_folded");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "editor/display_folded", PropertyHint::None, "", 0), "set_display_folded", "is_displayed_folded");
 #endif
 
-    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "name", PROPERTY_HINT_NONE, "", 0), "set_name", "get_name");
-    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "filename", PROPERTY_HINT_NONE, "", 0), "set_filename", "get_filename");
-    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "owner", PROPERTY_HINT_RESOURCE_TYPE, "Node", 0), "set_owner", "get_owner");
-    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "multiplayer", PROPERTY_HINT_RESOURCE_TYPE, "MultiplayerAPI", 0), "", "get_multiplayer");
-    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "custom_multiplayer", PROPERTY_HINT_RESOURCE_TYPE, "MultiplayerAPI", 0), "set_custom_multiplayer", "get_custom_multiplayer");
+    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "name", PropertyHint::None, "", 0), "set_name", "get_name");
+    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "filename", PropertyHint::None, "", 0), "set_filename", "get_filename");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "owner", PropertyHint::ResourceType, "Node", 0), "set_owner", "get_owner");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "multiplayer", PropertyHint::ResourceType, "MultiplayerAPI", 0), "", "get_multiplayer");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "custom_multiplayer", PropertyHint::ResourceType, "MultiplayerAPI", 0), "set_custom_multiplayer", "get_custom_multiplayer");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "process_priority"), "set_process_priority", "get_process_priority");
 
 
@@ -2991,9 +2991,9 @@ void Node::_bind_methods() {
     BIND_VMETHOD(MethodInfo("_enter_tree"))
     BIND_VMETHOD(MethodInfo("_exit_tree"))
     BIND_VMETHOD(MethodInfo("_ready"))
-    BIND_VMETHOD(MethodInfo("_input", PropertyInfo(VariantType::OBJECT, "event", PROPERTY_HINT_RESOURCE_TYPE, "InputEvent")))
-    BIND_VMETHOD(MethodInfo("_unhandled_input", PropertyInfo(VariantType::OBJECT, "event", PROPERTY_HINT_RESOURCE_TYPE, "InputEvent")))
-    BIND_VMETHOD(MethodInfo("_unhandled_key_input", PropertyInfo(VariantType::OBJECT, "event", PROPERTY_HINT_RESOURCE_TYPE, "InputEventKey")))
+    BIND_VMETHOD(MethodInfo("_input", PropertyInfo(VariantType::OBJECT, "event", PropertyHint::ResourceType, "InputEvent")))
+    BIND_VMETHOD(MethodInfo("_unhandled_input", PropertyInfo(VariantType::OBJECT, "event", PropertyHint::ResourceType, "InputEvent")))
+    BIND_VMETHOD(MethodInfo("_unhandled_key_input", PropertyInfo(VariantType::OBJECT, "event", PropertyHint::ResourceType, "InputEventKey")))
     BIND_VMETHOD(MethodInfo(VariantType::STRING, "_get_configuration_warning"))
 }
 

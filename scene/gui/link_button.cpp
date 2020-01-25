@@ -141,7 +141,7 @@ void LinkButton::_bind_methods() {
     BIND_ENUM_CONSTANT(UNDERLINE_MODE_NEVER)
 
     ADD_PROPERTY(PropertyInfo(VariantType::STRING, "text"), "set_text", "get_text");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "underline", PROPERTY_HINT_ENUM, "Always,On Hover,Never"), "set_underline_mode", "get_underline_mode");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "underline", PropertyHint::Enum, "Always,On Hover,Never"), "set_underline_mode", "get_underline_mode");
 }
 
 LinkButton::LinkButton() {

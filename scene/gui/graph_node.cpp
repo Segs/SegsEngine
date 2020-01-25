@@ -726,7 +726,7 @@ void GraphNode::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "resizable"), "set_resizable", "is_resizable");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "selected"), "set_selected", "is_selected");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "comment"), "set_comment", "is_comment");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "overlay", PROPERTY_HINT_ENUM, "Disabled,Breakpoint,Position"), "set_overlay", "get_overlay");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "overlay", PropertyHint::Enum, "Disabled,Breakpoint,Position"), "set_overlay", "get_overlay");
 
     ADD_SIGNAL(MethodInfo("offset_changed"));
     ADD_SIGNAL(MethodInfo("dragged", PropertyInfo(VariantType::VECTOR2, "from"), PropertyInfo(VariantType::VECTOR2, "to")));

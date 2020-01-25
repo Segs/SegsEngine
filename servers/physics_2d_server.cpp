@@ -294,11 +294,11 @@ void Physics2DShapeQueryParameters::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_collide_with_areas", {"enable"}), &Physics2DShapeQueryParameters::set_collide_with_areas);
     MethodBinder::bind_method(D_METHOD("is_collide_with_areas_enabled"), &Physics2DShapeQueryParameters::is_collide_with_areas_enabled);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "collision_layer", PROPERTY_HINT_LAYERS_2D_PHYSICS), "set_collision_layer", "get_collision_layer");
-    ADD_PROPERTY(PropertyInfo(VariantType::ARRAY, "exclude", PROPERTY_HINT_NONE, (itos(int8_t(VariantType::_RID)) + ":")), "set_exclude", "get_exclude");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "margin", PROPERTY_HINT_RANGE, "0,100,0.01"), "set_margin", "get_margin");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "collision_layer", PropertyHint::Layers2DPhysics), "set_collision_layer", "get_collision_layer");
+    ADD_PROPERTY(PropertyInfo(VariantType::ARRAY, "exclude", PropertyHint::None, (itos(int8_t(VariantType::_RID)) + ":")), "set_exclude", "get_exclude");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "margin", PropertyHint::Range, "0,100,0.01"), "set_margin", "get_margin");
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "motion"), "set_motion", "get_motion");
-    //ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "shape", PROPERTY_HINT_RESOURCE_TYPE, "Shape2D"), "set_shape", ""); // FIXME: Lacks a getter
+    //ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "shape", PropertyHint::ResourceType, "Shape2D"), "set_shape", ""); // FIXME: Lacks a getter
     ADD_PROPERTY(PropertyInfo(VariantType::_RID, "shape_rid"), "set_shape_rid", "get_shape_rid");
     ADD_PROPERTY(PropertyInfo(VariantType::TRANSFORM2D, "transform"), "set_transform", "get_transform");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "collide_with_bodies"), "set_collide_with_bodies", "is_collide_with_bodies_enabled");
@@ -561,7 +561,7 @@ void Physics2DTestMotionResult::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "collision_point"), "", "get_collision_point");
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "collision_normal"), "", "get_collision_normal");
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "collider_velocity"), "", "get_collider_velocity");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "collider_id", PROPERTY_HINT_OBJECT_ID), "", "get_collider_id");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "collider_id", PropertyHint::ObjectID), "", "get_collider_id");
     ADD_PROPERTY(PropertyInfo(VariantType::_RID, "collider_rid"), "", "get_collider_rid");
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "collider"), "", "get_collider");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "collider_shape"), "", "get_collider_shape");
@@ -832,7 +832,7 @@ void Physics2DServerManager::on_servers_changed() {
         physics_servers+= ',' + String(get_server_name(i));
     }
     ProjectSettings::get_singleton()->set_custom_property_info(setting_property_name,
-            PropertyInfo(VariantType::STRING, StringName(setting_property_name), PROPERTY_HINT_ENUM, physics_servers));
+            PropertyInfo(VariantType::STRING, StringName(setting_property_name), PropertyHint::Enum, physics_servers));
 }
 
 void Physics2DServerManager::register_server(const StringName &p_name, CreatePhysics2DServerCallback p_creat_callback) {

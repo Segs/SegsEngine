@@ -274,7 +274,7 @@ void PHashTranslation::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
     p_list->push_back(PropertyInfo(VariantType::POOL_INT_ARRAY, "hash_table"));
     p_list->push_back(PropertyInfo(VariantType::POOL_INT_ARRAY, "bucket_table"));
     p_list->push_back(PropertyInfo(VariantType::POOL_BYTE_ARRAY, "strings"));
-    p_list->push_back(PropertyInfo(VariantType::OBJECT, "load_from", PROPERTY_HINT_RESOURCE_TYPE, "Translation", PROPERTY_USAGE_EDITOR));
+    p_list->push_back(PropertyInfo(VariantType::OBJECT, "load_from", PropertyHint::ResourceType, "Translation", PROPERTY_USAGE_EDITOR));
 }
 
 IMPL_GDCLASS(PHashTranslation)

@@ -188,15 +188,15 @@ void AudioEffectReverb::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_hpf"), &AudioEffectReverb::get_hpf);
 
     ADD_GROUP("Predelay", "predelay_");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "predelay_msec", PROPERTY_HINT_RANGE, "20,500,1"), "set_predelay_msec", "get_predelay_msec");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "predelay_feedback", PROPERTY_HINT_RANGE, "0,0.98,0.01"), "set_predelay_feedback", "get_predelay_feedback");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "predelay_msec", PropertyHint::Range, "20,500,1"), "set_predelay_msec", "get_predelay_msec");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "predelay_feedback", PropertyHint::Range, "0,0.98,0.01"), "set_predelay_feedback", "get_predelay_feedback");
     ADD_GROUP("", "");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "room_size", PROPERTY_HINT_RANGE, "0,1,0.01"), "set_room_size", "get_room_size");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "damping", PROPERTY_HINT_RANGE, "0,1,0.01"), "set_damping", "get_damping");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "spread", PROPERTY_HINT_RANGE, "0,1,0.01"), "set_spread", "get_spread");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "hipass", PROPERTY_HINT_RANGE, "0,1,0.01"), "set_hpf", "get_hpf");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "dry", PROPERTY_HINT_RANGE, "0,1,0.01"), "set_dry", "get_dry");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "wet", PROPERTY_HINT_RANGE, "0,1,0.01"), "set_wet", "get_wet");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "room_size", PropertyHint::Range, "0,1,0.01"), "set_room_size", "get_room_size");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "damping", PropertyHint::Range, "0,1,0.01"), "set_damping", "get_damping");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "spread", PropertyHint::Range, "0,1,0.01"), "set_spread", "get_spread");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "hipass", PropertyHint::Range, "0,1,0.01"), "set_hpf", "get_hpf");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "dry", PropertyHint::Range, "0,1,0.01"), "set_dry", "get_dry");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "wet", PropertyHint::Range, "0,1,0.01"), "set_wet", "get_wet");
 }
 
 AudioEffectReverb::AudioEffectReverb() {

@@ -2138,7 +2138,7 @@ void EditorPropertyResource::_file_selected(se_string_view p_path) {
     String property_types;
 
     for (const PropertyInfo &E : prop_list) {
-        if (E.name == get_edited_property() && E.hint & PROPERTY_HINT_RESOURCE_TYPE) {
+        if (E.name == get_edited_property() && E.hint == PropertyHint::ResourceType) {
             property_types = E.hint_string;
         }
     }
@@ -2992,32 +2992,32 @@ bool EditorInspectorDefaultPlugin::parse_property(Object *p_object, VariantType 
         } break;
         case VariantType::INT: {
 
-            if (p_hint == PROPERTY_HINT_ENUM) {
+            if (p_hint == PropertyHint::Enum) {
                 EditorPropertyEnum *editor = memnew(EditorPropertyEnum);
                 PODVector<se_string_view> options = StringUtils::split(p_hint_text,',');
                 editor->setup(options);
                 add_property_editor(p_path, editor);
 
-            } else if (p_hint == PROPERTY_HINT_FLAGS) {
+            } else if (p_hint == PropertyHint::Flags) {
                 EditorPropertyFlags *editor = memnew(EditorPropertyFlags);
                 PODVector<se_string_view> options = StringUtils::split(p_hint_text,',');
                 editor->setup(options);
                 add_property_editor(p_path, editor);
 
-            } else if (p_hint == PROPERTY_HINT_LAYERS_2D_PHYSICS || p_hint == PROPERTY_HINT_LAYERS_2D_RENDER || p_hint == PROPERTY_HINT_LAYERS_3D_PHYSICS || p_hint == PROPERTY_HINT_LAYERS_3D_RENDER) {
+            } else if (p_hint == PropertyHint::Layers2DPhysics || p_hint == PropertyHint::Layers2DRenderer || p_hint == PropertyHint::Layers3DPhysics || p_hint == PropertyHint::Layers3DRenderer) {
 
                 EditorPropertyLayers::LayerType lt = EditorPropertyLayers::LAYER_RENDER_2D;
                 switch (p_hint) {
-                    case PROPERTY_HINT_LAYERS_2D_RENDER:
+                    case PropertyHint::Layers2DRenderer:
                         lt = EditorPropertyLayers::LAYER_RENDER_2D;
                         break;
-                    case PROPERTY_HINT_LAYERS_2D_PHYSICS:
+                    case PropertyHint::Layers2DPhysics:
                         lt = EditorPropertyLayers::LAYER_PHYSICS_2D;
                         break;
-                    case PROPERTY_HINT_LAYERS_3D_RENDER:
+                    case PropertyHint::Layers3DRenderer:
                         lt = EditorPropertyLayers::LAYER_RENDER_3D;
                         break;
-                    case PROPERTY_HINT_LAYERS_3D_PHYSICS:
+                    case PropertyHint::Layers3DPhysics:
                         lt = EditorPropertyLayers::LAYER_PHYSICS_3D;
                         break;
                     default: {
@@ -3026,7 +3026,7 @@ bool EditorInspectorDefaultPlugin::parse_property(Object *p_object, VariantType 
                 EditorPropertyLayers *editor = memnew(EditorPropertyLayers);
                 editor->setup(lt);
                 add_property_editor(p_path, editor);
-            } else if (p_hint == PROPERTY_HINT_OBJECT_ID) {
+            } else if (p_hint == PropertyHint::ObjectID) {
 
                 EditorPropertyObjectID *editor = memnew(EditorPropertyObjectID);
                 editor->setup(StringName(p_hint_text));
@@ -3037,7 +3037,7 @@ bool EditorInspectorDefaultPlugin::parse_property(Object *p_object, VariantType 
                 int min = 0, max = 65535, step = 1;
                 bool greater = true, lesser = true;
 
-                if (p_hint == PROPERTY_HINT_RANGE &&StringUtils::get_slice_count( p_hint_text,',') >= 2) {
+                if (p_hint == PropertyHint::Range &&StringUtils::get_slice_count( p_hint_text,',') >= 2) {
                     greater = false; //if using ranged, assume false by default
                     lesser = false;
                     min = StringUtils::to_int(StringUtils::get_slice(p_hint_text,',', 0));
@@ -3065,7 +3065,7 @@ bool EditorInspectorDefaultPlugin::parse_property(Object *p_object, VariantType 
         } break;
         case VariantType::REAL: {
 
-            if (p_hint == PROPERTY_HINT_EXP_EASING) {
+            if (p_hint == PropertyHint::ExpEasing) {
                 EditorPropertyEasing *editor = memnew(EditorPropertyEasing);
                 bool full = true;
                 bool flip = false;
@@ -3090,7 +3090,7 @@ bool EditorInspectorDefaultPlugin::parse_property(Object *p_object, VariantType 
                 bool exp_range = false;
                 bool greater = true, lesser = true;
 
-                if ((p_hint == PROPERTY_HINT_RANGE || p_hint == PROPERTY_HINT_EXP_RANGE) &&StringUtils::get_slice_count( p_hint_text,',') >= 2) {
+                if ((p_hint == PropertyHint::Range || p_hint == PropertyHint::ExpRange) &&StringUtils::get_slice_count( p_hint_text,',') >= 2) {
                     greater = false; //if using ranged, assume false by default
                     lesser = false;
                     min = StringUtils::to_double(StringUtils::get_slice(p_hint_text,',', 0));
@@ -3099,7 +3099,7 @@ bool EditorInspectorDefaultPlugin::parse_property(Object *p_object, VariantType 
                         step = StringUtils::to_double(StringUtils::get_slice(p_hint_text,',', 2));
                     }
                     hide_slider = false;
-                    exp_range = p_hint == PROPERTY_HINT_EXP_RANGE;
+                    exp_range = p_hint == PropertyHint::ExpRange;
                     for (int i = 2; i <StringUtils::get_slice_count( p_hint_text,','); i++) {
                         se_string_view slice = StringUtils::strip_edges(StringUtils::get_slice(p_hint_text,',', i));
                         if (slice == se_string_view("or_greater")) {
@@ -3118,50 +3118,50 @@ bool EditorInspectorDefaultPlugin::parse_property(Object *p_object, VariantType 
         } break;
         case VariantType::STRING: {
 
-            if (p_hint == PROPERTY_HINT_ENUM) {
+            if (p_hint == PropertyHint::Enum) {
                 EditorPropertyTextEnum *editor = memnew(EditorPropertyTextEnum);
                 PODVector<se_string_view> options = StringUtils::split(p_hint_text,',');
                 editor->setup(options);
                 add_property_editor(p_path, editor);
-            } else if (p_hint == PROPERTY_HINT_MULTILINE_TEXT) {
+            } else if (p_hint == PropertyHint::MultilineText) {
                 EditorPropertyMultilineText *editor = memnew(EditorPropertyMultilineText);
                 add_property_editor(p_path, editor);
-            } else if (p_hint == PROPERTY_HINT_TYPE_STRING) {
+            } else if (p_hint == PropertyHint::TypeString) {
                 EditorPropertyClassName *editor = memnew(EditorPropertyClassName);
                 editor->setup("Object", StringName(p_hint_text));
                 add_property_editor(p_path, editor);
-            } else if (p_hint == PROPERTY_HINT_DIR || p_hint == PROPERTY_HINT_FILE || p_hint == PROPERTY_HINT_SAVE_FILE || p_hint == PROPERTY_HINT_GLOBAL_DIR || p_hint == PROPERTY_HINT_GLOBAL_FILE) {
+            } else if (p_hint == PropertyHint::Dir || p_hint == PropertyHint::File || p_hint == PropertyHint::SaveFile || p_hint == PropertyHint::GlobalDir || p_hint == PropertyHint::GlobalFile) {
 
                 PODVector<se_string_view> extensions = StringUtils::split(p_hint_text,',');
-                bool global = p_hint == PROPERTY_HINT_GLOBAL_DIR || p_hint == PROPERTY_HINT_GLOBAL_FILE;
-                bool folder = p_hint == PROPERTY_HINT_DIR || p_hint == PROPERTY_HINT_GLOBAL_DIR;
-                bool save = p_hint == PROPERTY_HINT_SAVE_FILE;
+                bool global = p_hint == PropertyHint::GlobalDir || p_hint == PropertyHint::GlobalFile;
+                bool folder = p_hint == PropertyHint::Dir || p_hint == PropertyHint::GlobalDir;
+                bool save = p_hint == PropertyHint::SaveFile;
                 EditorPropertyPath *editor = memnew(EditorPropertyPath);
                 editor->setup(extensions, folder, global);
                 if (save) {
                     editor->set_save_mode();
                 }
                 add_property_editor(p_path, editor);
-            } else if (p_hint == PROPERTY_HINT_METHOD_OF_VARIANT_TYPE ||
-                       p_hint == PROPERTY_HINT_METHOD_OF_BASE_TYPE ||
-                       p_hint == PROPERTY_HINT_METHOD_OF_INSTANCE ||
-                       p_hint == PROPERTY_HINT_METHOD_OF_SCRIPT ||
-                       p_hint == PROPERTY_HINT_PROPERTY_OF_VARIANT_TYPE ||
-                       p_hint == PROPERTY_HINT_PROPERTY_OF_BASE_TYPE ||
-                       p_hint == PROPERTY_HINT_PROPERTY_OF_INSTANCE ||
-                       p_hint == PROPERTY_HINT_PROPERTY_OF_SCRIPT) {
+            } else if (p_hint == PropertyHint::MethodOfVariantType ||
+                       p_hint == PropertyHint::MethodOfBaseType ||
+                       p_hint == PropertyHint::MethodOfInstance ||
+                       p_hint == PropertyHint::MethodOfScript ||
+                       p_hint == PropertyHint::PropertyOfVariantType ||
+                       p_hint == PropertyHint::PropertyOfBaseType ||
+                       p_hint == PropertyHint::PropertyOfInstance ||
+                       p_hint == PropertyHint::PropertyOfScript) {
 
                 EditorPropertyMember *editor = memnew(EditorPropertyMember);
 
                 EditorPropertyMember::Type type = EditorPropertyMember::MEMBER_METHOD_OF_BASE_TYPE;
                 switch (p_hint) {
-                    case PROPERTY_HINT_METHOD_OF_BASE_TYPE: type = EditorPropertyMember::MEMBER_METHOD_OF_BASE_TYPE; break;
-                    case PROPERTY_HINT_METHOD_OF_INSTANCE: type = EditorPropertyMember::MEMBER_METHOD_OF_INSTANCE; break;
-                    case PROPERTY_HINT_METHOD_OF_SCRIPT: type = EditorPropertyMember::MEMBER_METHOD_OF_SCRIPT; break;
-                    case PROPERTY_HINT_PROPERTY_OF_VARIANT_TYPE: type = EditorPropertyMember::MEMBER_PROPERTY_OF_VARIANT_TYPE; break;
-                    case PROPERTY_HINT_PROPERTY_OF_BASE_TYPE: type = EditorPropertyMember::MEMBER_PROPERTY_OF_BASE_TYPE; break;
-                    case PROPERTY_HINT_PROPERTY_OF_INSTANCE: type = EditorPropertyMember::MEMBER_PROPERTY_OF_INSTANCE; break;
-                    case PROPERTY_HINT_PROPERTY_OF_SCRIPT: type = EditorPropertyMember::MEMBER_PROPERTY_OF_SCRIPT; break;
+                    case PropertyHint::MethodOfBaseType: type = EditorPropertyMember::MEMBER_METHOD_OF_BASE_TYPE; break;
+                    case PropertyHint::MethodOfInstance: type = EditorPropertyMember::MEMBER_METHOD_OF_INSTANCE; break;
+                    case PropertyHint::MethodOfScript: type = EditorPropertyMember::MEMBER_METHOD_OF_SCRIPT; break;
+                    case PropertyHint::PropertyOfVariantType: type = EditorPropertyMember::MEMBER_PROPERTY_OF_VARIANT_TYPE; break;
+                    case PropertyHint::PropertyOfBaseType: type = EditorPropertyMember::MEMBER_PROPERTY_OF_BASE_TYPE; break;
+                    case PropertyHint::PropertyOfInstance: type = EditorPropertyMember::MEMBER_PROPERTY_OF_INSTANCE; break;
+                    case PropertyHint::PropertyOfScript: type = EditorPropertyMember::MEMBER_PROPERTY_OF_SCRIPT; break;
                     default: {
                     }
                 }
@@ -3171,7 +3171,7 @@ bool EditorInspectorDefaultPlugin::parse_property(Object *p_object, VariantType 
             } else {
 
                 EditorPropertyText *editor = memnew(EditorPropertyText);
-                if (p_hint == PROPERTY_HINT_PLACEHOLDER_TEXT) {
+                if (p_hint == PropertyHint::PlaceholderText) {
                     editor->set_placeholder(StringName(p_hint_text));
                 }
                 add_property_editor(p_path, editor);
@@ -3185,7 +3185,7 @@ bool EditorInspectorDefaultPlugin::parse_property(Object *p_object, VariantType 
             double min = -65535, max = 65535, step = default_float_step;
             bool hide_slider = true;
 
-            if (p_hint == PROPERTY_HINT_RANGE &&StringUtils::get_slice_count( p_hint_text,',') >= 2) {
+            if (p_hint == PropertyHint::Range &&StringUtils::get_slice_count( p_hint_text,',') >= 2) {
                 min = StringUtils::to_double(StringUtils::get_slice(p_hint_text,',', 0));
                 max = StringUtils::to_double(StringUtils::get_slice(p_hint_text,',', 1));
                 if (StringUtils::get_slice_count(p_hint_text,',') >= 3) {
@@ -3203,7 +3203,7 @@ bool EditorInspectorDefaultPlugin::parse_property(Object *p_object, VariantType 
             double min = -65535, max = 65535, step = default_float_step;
             bool hide_slider = true;
 
-            if (p_hint == PROPERTY_HINT_RANGE &&StringUtils::get_slice_count( p_hint_text,',') >= 2) {
+            if (p_hint == PropertyHint::Range &&StringUtils::get_slice_count( p_hint_text,',') >= 2) {
                 min = StringUtils::to_double(StringUtils::get_slice(p_hint_text,',', 0));
                 max = StringUtils::to_double(StringUtils::get_slice(p_hint_text,',', 1));
                 if (StringUtils::get_slice_count(p_hint_text,',') >= 3) {
@@ -3220,7 +3220,7 @@ bool EditorInspectorDefaultPlugin::parse_property(Object *p_object, VariantType 
             double min = -65535, max = 65535, step = default_float_step;
             bool hide_slider = true;
 
-            if (p_hint == PROPERTY_HINT_RANGE && StringUtils::get_slice_count(p_hint_text,',') >= 2) {
+            if (p_hint == PropertyHint::Range && StringUtils::get_slice_count(p_hint_text,',') >= 2) {
                 min = StringUtils::to_double(StringUtils::get_slice(p_hint_text,',', 0));
                 max = StringUtils::to_double(StringUtils::get_slice(p_hint_text,',', 1));
                 if (StringUtils::get_slice_count(p_hint_text,',') >= 3) {
@@ -3238,7 +3238,7 @@ bool EditorInspectorDefaultPlugin::parse_property(Object *p_object, VariantType 
             double min = -65535, max = 65535, step = default_float_step;
             bool hide_slider = true;
 
-            if (p_hint == PROPERTY_HINT_RANGE && StringUtils::get_slice_count(p_hint_text,',') >= 2) {
+            if (p_hint == PropertyHint::Range && StringUtils::get_slice_count(p_hint_text,',') >= 2) {
                 min = StringUtils::to_double(StringUtils::get_slice(p_hint_text,',', 0));
                 max = StringUtils::to_double(StringUtils::get_slice(p_hint_text,',', 1));
                 if (StringUtils::get_slice_count(p_hint_text,',') >= 3) {
@@ -3256,7 +3256,7 @@ bool EditorInspectorDefaultPlugin::parse_property(Object *p_object, VariantType 
             double min = -65535, max = 65535, step = default_float_step;
             bool hide_slider = true;
 
-            if (p_hint == PROPERTY_HINT_RANGE && StringUtils::get_slice_count(p_hint_text,',') >= 2) {
+            if (p_hint == PropertyHint::Range && StringUtils::get_slice_count(p_hint_text,',') >= 2) {
                 min = StringUtils::to_double(StringUtils::get_slice(p_hint_text,',', 0));
                 max = StringUtils::to_double(StringUtils::get_slice(p_hint_text,',', 1));
                 if (StringUtils::get_slice_count(p_hint_text,',') >= 3) {
@@ -3273,7 +3273,7 @@ bool EditorInspectorDefaultPlugin::parse_property(Object *p_object, VariantType 
             double min = -65535, max = 65535, step = default_float_step;
             bool hide_slider = true;
 
-            if (p_hint == PROPERTY_HINT_RANGE && StringUtils::get_slice_count(p_hint_text,',') >= 2) {
+            if (p_hint == PropertyHint::Range && StringUtils::get_slice_count(p_hint_text,',') >= 2) {
                 min = StringUtils::to_double(StringUtils::get_slice(p_hint_text,',', 0));
                 max = StringUtils::to_double(StringUtils::get_slice(p_hint_text,',', 1));
                 if (StringUtils::get_slice_count(p_hint_text,',') >= 3) {
@@ -3290,7 +3290,7 @@ bool EditorInspectorDefaultPlugin::parse_property(Object *p_object, VariantType 
             double min = -65535, max = 65535, step = default_float_step;
             bool hide_slider = true;
 
-            if (p_hint == PROPERTY_HINT_RANGE && StringUtils::get_slice_count(p_hint_text,',') >= 2) {
+            if (p_hint == PropertyHint::Range && StringUtils::get_slice_count(p_hint_text,',') >= 2) {
                 min = StringUtils::to_double(StringUtils::get_slice(p_hint_text,',', 0));
                 max = StringUtils::to_double(StringUtils::get_slice(p_hint_text,',', 1));
                 if (StringUtils::get_slice_count(p_hint_text,',') >= 3) {
@@ -3307,7 +3307,7 @@ bool EditorInspectorDefaultPlugin::parse_property(Object *p_object, VariantType 
             double min = -65535, max = 65535, step = default_float_step;
             bool hide_slider = true;
 
-            if (p_hint == PROPERTY_HINT_RANGE && StringUtils::get_slice_count(p_hint_text,',') >= 2) {
+            if (p_hint == PropertyHint::Range && StringUtils::get_slice_count(p_hint_text,',') >= 2) {
                 min = StringUtils::to_double(StringUtils::get_slice(p_hint_text,',', 0));
                 max = StringUtils::to_double(StringUtils::get_slice(p_hint_text,',', 1));
                 if (StringUtils::get_slice_count(p_hint_text,',') >= 3) {
@@ -3324,7 +3324,7 @@ bool EditorInspectorDefaultPlugin::parse_property(Object *p_object, VariantType 
             double min = -65535, max = 65535, step = default_float_step;
             bool hide_slider = true;
 
-            if (p_hint == PROPERTY_HINT_RANGE && StringUtils::get_slice_count(p_hint_text,',') >= 2) {
+            if (p_hint == PropertyHint::Range && StringUtils::get_slice_count(p_hint_text,',') >= 2) {
                 min = StringUtils::to_double(StringUtils::get_slice(p_hint_text,',', 0));
                 max = StringUtils::to_double(StringUtils::get_slice(p_hint_text,',', 1));
                 if (StringUtils::get_slice_count(p_hint_text,',') >= 3) {
@@ -3341,16 +3341,16 @@ bool EditorInspectorDefaultPlugin::parse_property(Object *p_object, VariantType 
         // misc types
         case VariantType::COLOR: {
             EditorPropertyColor *editor = memnew(EditorPropertyColor);
-            editor->setup(p_hint != PROPERTY_HINT_COLOR_NO_ALPHA);
+            editor->setup(p_hint != PropertyHint::ColorNoAlpha);
             add_property_editor(p_path, editor);
         } break;
         case VariantType::NODE_PATH: {
 
             EditorPropertyNodePath *editor = memnew(EditorPropertyNodePath);
-            if (p_hint == PROPERTY_HINT_NODE_PATH_TO_EDITED_NODE && !p_hint_text.empty()) {
+            if (p_hint == PropertyHint::NodePathToEditedNode && !p_hint_text.empty()) {
                 editor->setup((NodePath)p_hint_text, {}, p_usage & PROPERTY_USAGE_NODE_PATH_FROM_SCENE_ROOT);
             }
-            if (p_hint == PROPERTY_HINT_NODE_PATH_VALID_TYPES && !p_hint_text.empty()) {
+            if (p_hint == PropertyHint::NodePathValidTypes && !p_hint_text.empty()) {
                 FixedVector<se_string_view,8,true> parts;
                 String::split_ref(parts,p_hint_text,',');
                 PODVector<StringName> sn;
@@ -3369,9 +3369,9 @@ bool EditorInspectorDefaultPlugin::parse_property(Object *p_object, VariantType 
         } break;
         case VariantType::OBJECT: {
             EditorPropertyResource *editor = memnew(EditorPropertyResource);
-            editor->setup(StringName(p_hint == PROPERTY_HINT_RESOURCE_TYPE ? p_hint_text : "Resource"));
+            editor->setup(StringName(p_hint == PropertyHint::ResourceType ? p_hint_text : "Resource"));
 
-            if (p_hint == PROPERTY_HINT_RESOURCE_TYPE) {
+            if (p_hint == PropertyHint::ResourceType) {
                 String open_in_new = EDITOR_GET("interface/inspector/resources_to_open_in_new_inspector");
                 for (int i = 0; i < StringUtils::get_slice_count(open_in_new,','); i++) {
                     StringName type(StringUtils::strip_edges(StringUtils::get_slice(open_in_new,',', i)));

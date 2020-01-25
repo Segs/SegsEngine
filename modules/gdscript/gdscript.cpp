@@ -720,7 +720,7 @@ bool GDScript::_set(const StringName &p_name, const Variant &p_value) {
 
 void GDScript::_get_property_list(ListPOD<PropertyInfo> *p_properties) const {
 
-    p_properties->push_back(PropertyInfo(VariantType::STRING, "script/source", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
+    p_properties->push_back(PropertyInfo(VariantType::STRING, "script/source", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
 }
 
 void GDScript::_bind_methods() {
@@ -2150,7 +2150,7 @@ GDScriptLanguage::GDScriptLanguage() {
 
     _debug_call_stack_pos = 0;
     int dmcs = GLOBAL_DEF("debug/settings/gdscript/max_call_stack", 1024);
-    ProjectSettings::get_singleton()->set_custom_property_info("debug/settings/gdscript/max_call_stack", PropertyInfo(VariantType::INT, "debug/settings/gdscript/max_call_stack", PROPERTY_HINT_RANGE, "1024,4096,1,or_greater")); //minimum is 1024
+    ProjectSettings::get_singleton()->set_custom_property_info("debug/settings/gdscript/max_call_stack", PropertyInfo(VariantType::INT, "debug/settings/gdscript/max_call_stack", PropertyHint::Range, "1024,4096,1,or_greater")); //minimum is 1024
 
     if (ScriptDebugger::get_singleton()) {
         //debugging enabled!
