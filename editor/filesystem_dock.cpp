@@ -1187,7 +1187,7 @@ void FileSystemDock::_update_project_settings_after_move(const Map<String, Strin
     // Find all project settings of type FILE and replace them if needed.
     const Map<StringName, PropertyInfo> prop_info = ProjectSettings::get_singleton()->get_custom_property_info();
     for (const eastl::pair<const StringName,PropertyInfo> &E : prop_info) {
-        if (E.second.hint == PROPERTY_HINT_FILE) {
+        if (E.second.hint == PropertyHint::File) {
             String old_path = GLOBAL_GET(E.first);
             if (p_renames.contains(old_path)) {
                 ProjectSettings::get_singleton()->set_setting(E.first, p_renames.at(old_path));

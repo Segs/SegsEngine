@@ -123,7 +123,7 @@ void AudioEffectEQ::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
 
     for (int i = 0; i < band_names.size(); i++) {
 
-        p_list->push_back(PropertyInfo(VariantType::REAL, StringName(band_names[i]), PROPERTY_HINT_RANGE, "-60,24,0.1"));
+        p_list->push_back(PropertyInfo(VariantType::REAL, StringName(band_names[i]), PropertyHint::Range, "-60,24,0.1"));
     }
 }
 

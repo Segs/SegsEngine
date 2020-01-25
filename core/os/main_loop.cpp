@@ -45,7 +45,7 @@ void MainLoop::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("idle", {"delta"}), &MainLoop::idle);
     MethodBinder::bind_method(D_METHOD("finish"), &MainLoop::finish);
 
-    BIND_VMETHOD(MethodInfo("_input_event", PropertyInfo(VariantType::OBJECT, "event", PROPERTY_HINT_RESOURCE_TYPE, "InputEvent")))
+    BIND_VMETHOD(MethodInfo("_input_event", PropertyInfo(VariantType::OBJECT, "event", PropertyHint::ResourceType, "InputEvent")))
     BIND_VMETHOD(MethodInfo("_input_text", PropertyInfo(VariantType::STRING, "text")))
     BIND_VMETHOD(MethodInfo("_initialize"))
     BIND_VMETHOD(MethodInfo(VariantType::BOOL, "_iteration", PropertyInfo(VariantType::REAL, "delta")))

@@ -2912,7 +2912,7 @@ void Image::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("load_jpg_from_buffer", {"buffer"}), &Image::load_jpg_from_buffer);
     MethodBinder::bind_method(D_METHOD("load_webp_from_buffer", {"buffer"}), &Image::load_webp_from_buffer);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::DICTIONARY, "data", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_STORAGE), "_set_data", "_get_data");
+    ADD_PROPERTY(PropertyInfo(VariantType::DICTIONARY, "data", PropertyHint::None, "", PROPERTY_USAGE_STORAGE), "_set_data", "_get_data");
 
     BIND_CONSTANT(MAX_WIDTH)
     BIND_CONSTANT(MAX_HEIGHT)

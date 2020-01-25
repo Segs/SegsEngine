@@ -243,7 +243,7 @@ void GDNativeLibrary::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_symbol_prefix", {"symbol_prefix"}), &GDNativeLibrary::set_symbol_prefix);
     MethodBinder::bind_method(D_METHOD("set_reloadable", {"reloadable"}), &GDNativeLibrary::set_reloadable);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "config_file", PROPERTY_HINT_RESOURCE_TYPE, "ConfigFile", 0), "set_config_file", "get_config_file");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "config_file", PropertyType::ResourceType, "ConfigFile", 0), "set_config_file", "get_config_file");
 
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "load_once"), "set_load_once", "should_load_once");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "singleton"), "set_singleton", "is_singleton");
@@ -268,7 +268,7 @@ void GDNative::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("call_native", {"calling_type", "procedure_name", "arguments"}), &GDNative::call_native);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "library", PROPERTY_HINT_RESOURCE_TYPE, "GDNativeLibrary"), "set_library", "get_library");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "library", PropertyType::ResourceType, "GDNativeLibrary"), "set_library", "get_library");
 }
 
 void GDNative::set_library(Ref<GDNativeLibrary> p_library) {

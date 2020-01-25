@@ -1899,7 +1899,7 @@ void GDScriptFunctionState::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("is_valid", {"extended_check"}), &GDScriptFunctionState::is_valid, {DEFVAL(false)});
     MethodBinder::bind_vararg_method("_signal_callback", &GDScriptFunctionState::_signal_callback, MethodInfo("_signal_callback"));
 
-    ADD_SIGNAL(MethodInfo("completed", PropertyInfo(VariantType::NIL, "result", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NIL_IS_VARIANT)));
+    ADD_SIGNAL(MethodInfo("completed", PropertyInfo(VariantType::NIL, "result", PropertyHint::None, "", PROPERTY_USAGE_NIL_IS_VARIANT)));
 }
 
 GDScriptFunctionState::GDScriptFunctionState() {

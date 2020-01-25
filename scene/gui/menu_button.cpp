@@ -115,7 +115,7 @@ void MenuButton::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("is_switch_on_hover"), &MenuButton::is_switch_on_hover);
     MethodBinder::bind_method(D_METHOD("set_disable_shortcuts", {"disabled"}), &MenuButton::set_disable_shortcuts);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::ARRAY, "items", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "_set_items", "_get_items");
+    ADD_PROPERTY(PropertyInfo(VariantType::ARRAY, "items", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "_set_items", "_get_items");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "switch_on_hover"), "set_switch_on_hover", "is_switch_on_hover");
 
     ADD_SIGNAL(MethodInfo("about_to_show"));

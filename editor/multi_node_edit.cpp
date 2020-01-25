@@ -170,7 +170,7 @@ void MultiNodeEdit::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
         }
     }
 
-    p_list->push_back(PropertyInfo(VariantType::OBJECT, "scripts", PROPERTY_HINT_RESOURCE_TYPE, "Script"));
+    p_list->push_back(PropertyInfo(VariantType::OBJECT, "scripts", PropertyHint::ResourceType, "Script"));
 }
 
 void MultiNodeEdit::clear_nodes() {

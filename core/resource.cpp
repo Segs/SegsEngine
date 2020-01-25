@@ -335,7 +335,7 @@ uint32_t Resource::hash_edited_version() const {
 
     for(PropertyInfo &E : plist ) {
 
-        if (E.usage & PROPERTY_USAGE_STORAGE && E.type == VariantType::OBJECT && E.hint == PROPERTY_HINT_RESOURCE_TYPE) {
+        if (E.usage & PROPERTY_USAGE_STORAGE && E.type == VariantType::OBJECT && E.hint == PropertyHint::ResourceType) {
             RES res(refFromVariant<Resource>(get(E.name)));
             if (res) {
                 hash = hash_djb2_one_32(res->hash_edited_version(), hash);
@@ -508,7 +508,7 @@ void Resource::_bind_methods() {
 //        //PropertyInfo pi(fromQVariantType(prop.type()), prop.name(), "set_local_to_scene", "is_local_to_scene");
 //    }
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "resource_local_to_scene"), "set_local_to_scene", "is_local_to_scene");
-    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "resource_path", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_EDITOR), "set_path", "get_path");
+    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "resource_path", PropertyHint::None, "", PROPERTY_USAGE_EDITOR), "set_path", "get_path");
     ADD_PROPERTY(PropertyInfo(VariantType::STRING, "resource_name"), "set_name", "get_name");
 
     BIND_VMETHOD(MethodInfo("_setup_local_to_scene"))

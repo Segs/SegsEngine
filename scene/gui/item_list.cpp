@@ -1565,19 +1565,19 @@ void ItemList::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("_set_items"), &ItemList::_set_items);
     MethodBinder::bind_method(D_METHOD("_get_items"), &ItemList::_get_items);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::ARRAY, "items", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "_set_items", "_get_items");
+    ADD_PROPERTY(PropertyInfo(VariantType::ARRAY, "items", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "_set_items", "_get_items");
 
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "select_mode", PROPERTY_HINT_ENUM, "Single,Multi"), "set_select_mode", "get_select_mode");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "select_mode", PropertyHint::Enum, "Single,Multi"), "set_select_mode", "get_select_mode");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "allow_reselect"), "set_allow_reselect", "get_allow_reselect");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "allow_rmb_select"), "set_allow_rmb_select", "get_allow_rmb_select");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "max_text_lines", PROPERTY_HINT_RANGE, "1,10,1,or_greater"), "set_max_text_lines", "get_max_text_lines");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "max_text_lines", PropertyHint::Range, "1,10,1,or_greater"), "set_max_text_lines", "get_max_text_lines");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "auto_height"), "set_auto_height", "has_auto_height");
     ADD_GROUP("Columns", "");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "max_columns", PROPERTY_HINT_RANGE, "0,10,1,or_greater"), "set_max_columns", "get_max_columns");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "max_columns", PropertyHint::Range, "0,10,1,or_greater"), "set_max_columns", "get_max_columns");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "same_column_width"), "set_same_column_width", "is_same_column_width");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "fixed_column_width", PROPERTY_HINT_RANGE, "0,100,1,or_greater"), "set_fixed_column_width", "get_fixed_column_width");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "fixed_column_width", PropertyHint::Range, "0,100,1,or_greater"), "set_fixed_column_width", "get_fixed_column_width");
     ADD_GROUP("Icon", "");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "icon_mode", PROPERTY_HINT_ENUM, "Top,Left"), "set_icon_mode", "get_icon_mode");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "icon_mode", PropertyHint::Enum, "Top,Left"), "set_icon_mode", "get_icon_mode");
     ADD_PROPERTY(PropertyInfo(VariantType::REAL, "icon_scale"), "set_icon_scale", "get_icon_scale");
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "fixed_icon_size"), "set_fixed_icon_size", "get_fixed_icon_size");
 
@@ -1595,7 +1595,7 @@ void ItemList::_bind_methods() {
     ADD_SIGNAL(MethodInfo("nothing_selected"));
 
     GLOBAL_DEF("gui/timers/incremental_search_max_interval_msec", 2000);
-    ProjectSettings::get_singleton()->set_custom_property_info("gui/timers/incremental_search_max_interval_msec", PropertyInfo(VariantType::INT, "gui/timers/incremental_search_max_interval_msec", PROPERTY_HINT_RANGE, "0,10000,1,or_greater")); // No negative numbers
+    ProjectSettings::get_singleton()->set_custom_property_info("gui/timers/incremental_search_max_interval_msec", PropertyInfo(VariantType::INT, "gui/timers/incremental_search_max_interval_msec", PropertyHint::Range, "0,10000,1,or_greater")); // No negative numbers
 }
 
 ItemList::ItemList() {

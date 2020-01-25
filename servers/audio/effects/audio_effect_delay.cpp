@@ -308,22 +308,22 @@ void AudioEffectDelay::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_feedback_lowpass", {"amount"}), &AudioEffectDelay::set_feedback_lowpass);
     MethodBinder::bind_method(D_METHOD("get_feedback_lowpass"), &AudioEffectDelay::get_feedback_lowpass);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "dry", PROPERTY_HINT_RANGE, "0,1,0.01"), "set_dry", "get_dry");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "dry", PropertyHint::Range, "0,1,0.01"), "set_dry", "get_dry");
 
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "tap1/active"), "set_tap1_active", "is_tap1_active");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "tap1/delay_ms", PROPERTY_HINT_RANGE, "0,1500,1"), "set_tap1_delay_ms", "get_tap1_delay_ms");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "tap1/level_db", PROPERTY_HINT_RANGE, "-60,0,0.01"), "set_tap1_level_db", "get_tap1_level_db");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "tap1/pan", PROPERTY_HINT_RANGE, "-1,1,0.01"), "set_tap1_pan", "get_tap1_pan");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "tap1/delay_ms", PropertyHint::Range, "0,1500,1"), "set_tap1_delay_ms", "get_tap1_delay_ms");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "tap1/level_db", PropertyHint::Range, "-60,0,0.01"), "set_tap1_level_db", "get_tap1_level_db");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "tap1/pan", PropertyHint::Range, "-1,1,0.01"), "set_tap1_pan", "get_tap1_pan");
 
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "tap2/active"), "set_tap2_active", "is_tap2_active");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "tap2/delay_ms", PROPERTY_HINT_RANGE, "0,1500,1"), "set_tap2_delay_ms", "get_tap2_delay_ms");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "tap2/level_db", PROPERTY_HINT_RANGE, "-60,0,0.01"), "set_tap2_level_db", "get_tap2_level_db");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "tap2/pan", PROPERTY_HINT_RANGE, "-1,1,0.01"), "set_tap2_pan", "get_tap2_pan");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "tap2/delay_ms", PropertyHint::Range, "0,1500,1"), "set_tap2_delay_ms", "get_tap2_delay_ms");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "tap2/level_db", PropertyHint::Range, "-60,0,0.01"), "set_tap2_level_db", "get_tap2_level_db");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "tap2/pan", PropertyHint::Range, "-1,1,0.01"), "set_tap2_pan", "get_tap2_pan");
 
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "feedback/active"), "set_feedback_active", "is_feedback_active");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "feedback/delay_ms", PROPERTY_HINT_RANGE, "0,1500,1"), "set_feedback_delay_ms", "get_feedback_delay_ms");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "feedback/level_db", PROPERTY_HINT_RANGE, "-60,0,0.01"), "set_feedback_level_db", "get_feedback_level_db");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "feedback/lowpass", PROPERTY_HINT_RANGE, "1,16000,1"), "set_feedback_lowpass", "get_feedback_lowpass");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "feedback/delay_ms", PropertyHint::Range, "0,1500,1"), "set_feedback_delay_ms", "get_feedback_delay_ms");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "feedback/level_db", PropertyHint::Range, "-60,0,0.01"), "set_feedback_level_db", "get_feedback_level_db");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "feedback/lowpass", PropertyHint::Range, "1,16000,1"), "set_feedback_lowpass", "get_feedback_lowpass");
 }
 
 AudioEffectDelay::AudioEffectDelay() {

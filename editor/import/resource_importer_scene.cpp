@@ -1160,7 +1160,7 @@ void ResourceImporterScene::_make_external_resources(Node *p_node, se_string_vie
 void ResourceImporterScene::get_import_options(ListPOD<ImportOption> *r_options, int p_preset) const {
 
     r_options->push_back(ImportOption(
-            PropertyInfo(VariantType::STRING, "nodes/root_type", PROPERTY_HINT_TYPE_STRING, "Node"), "Spatial"));
+            PropertyInfo(VariantType::STRING, "nodes/root_type", PropertyHint::TypeString, "Node"), "Spatial"));
     r_options->push_back(ImportOption(PropertyInfo(VariantType::STRING, "nodes/root_name"), "Scene Root"));
 
     PODVector<String> script_extentions;
@@ -1186,47 +1186,47 @@ void ResourceImporterScene::get_import_options(ListPOD<ImportOption> *r_options,
                           p_preset == PRESET_SEPARATE_MESHES_MATERIALS_AND_ANIMATIONS;
 
     r_options->push_back(ImportOption(
-            PropertyInfo(VariantType::REAL, "nodes/root_scale", PROPERTY_HINT_RANGE, "0.001,1000,0.001"), 1.0));
+            PropertyInfo(VariantType::REAL, "nodes/root_scale", PropertyHint::Range, "0.001,1000,0.001"), 1.0));
     r_options->push_back(ImportOption(
-            PropertyInfo(VariantType::STRING, "nodes/custom_script", PROPERTY_HINT_FILE, StringName(script_ext_hint)),
+            PropertyInfo(VariantType::STRING, "nodes/custom_script", PropertyHint::File, StringName(script_ext_hint)),
             ""));
     r_options->push_back(ImportOption(
-            PropertyInfo(VariantType::INT, "nodes/storage", PROPERTY_HINT_ENUM, "Single Scene,Instanced Sub-Scenes"),
+            PropertyInfo(VariantType::INT, "nodes/storage", PropertyHint::Enum, "Single Scene,Instanced Sub-Scenes"),
             scenes_out ? 1 : 0));
     r_options->push_back(
-            ImportOption(PropertyInfo(VariantType::INT, "materials/location", PROPERTY_HINT_ENUM, "Node,Mesh"),
+            ImportOption(PropertyInfo(VariantType::INT, "materials/location", PropertyHint::Enum, "Node,Mesh"),
                     meshes_out || materials_out ? 1 : 0));
-    r_options->push_back(ImportOption(PropertyInfo(VariantType::INT, "materials/storage", PROPERTY_HINT_ENUM,
+    r_options->push_back(ImportOption(PropertyInfo(VariantType::INT, "materials/storage", PropertyHint::Enum,
                                               "Built-In,Files (.material),Files (.tres)",
                                               PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_UPDATE_ALL_IF_MODIFIED),
             materials_out ? 1 : 0));
     r_options->push_back(ImportOption(PropertyInfo(VariantType::BOOL, "materials/keep_on_reimport"), materials_out));
     r_options->push_back(ImportOption(PropertyInfo(VariantType::BOOL, "meshes/compress"), true));
     r_options->push_back(ImportOption(PropertyInfo(VariantType::BOOL, "meshes/ensure_tangents"), true));
-    r_options->push_back(ImportOption(PropertyInfo(VariantType::INT, "meshes/storage", PROPERTY_HINT_ENUM,
+    r_options->push_back(ImportOption(PropertyInfo(VariantType::INT, "meshes/storage", PropertyHint::Enum,
                                               "Built-In,Files (.mesh),Files (.tres)"),
             meshes_out ? 1 : 0));
     r_options->push_back(ImportOption(
-            PropertyInfo(VariantType::INT, "meshes/light_baking", PROPERTY_HINT_ENUM, "Disabled,Enable,Gen Lightmaps",
+            PropertyInfo(VariantType::INT, "meshes/light_baking", PropertyHint::Enum, "Disabled,Enable,Gen Lightmaps",
                     PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_UPDATE_ALL_IF_MODIFIED),
             0));
     r_options->push_back(ImportOption(
-            PropertyInfo(VariantType::REAL, "meshes/lightmap_texel_size", PROPERTY_HINT_RANGE, "0.001,100,0.001"),
+            PropertyInfo(VariantType::REAL, "meshes/lightmap_texel_size", PropertyHint::Range, "0.001,100,0.001"),
             0.1));
     r_options->push_back(ImportOption(PropertyInfo(VariantType::BOOL, "external_files/store_in_subdir"), false));
-    r_options->push_back(ImportOption(PropertyInfo(VariantType::BOOL, "animation/import", PROPERTY_HINT_NONE, "",
+    r_options->push_back(ImportOption(PropertyInfo(VariantType::BOOL, "animation/import", PropertyHint::None, "",
                                               PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_UPDATE_ALL_IF_MODIFIED),
             true));
     r_options->push_back(
-            ImportOption(PropertyInfo(VariantType::REAL, "animation/fps", PROPERTY_HINT_RANGE, "1,120,1"), 15));
+            ImportOption(PropertyInfo(VariantType::REAL, "animation/fps", PropertyHint::Range, "1,120,1"), 15));
     r_options->push_back(ImportOption(
-            PropertyInfo(VariantType::STRING, "animation/filter_script", PROPERTY_HINT_MULTILINE_TEXT), ""));
-    r_options->push_back(ImportOption(PropertyInfo(VariantType::INT, "animation/storage", PROPERTY_HINT_ENUM,
+            PropertyInfo(VariantType::STRING, "animation/filter_script", PropertyHint::MultilineText), ""));
+    r_options->push_back(ImportOption(PropertyInfo(VariantType::INT, "animation/storage", PropertyHint::Enum,
                                               "Built-In,Files (.anim),Files (.tres)",
                                               PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_UPDATE_ALL_IF_MODIFIED),
             animations_out));
     r_options->push_back(ImportOption(PropertyInfo(VariantType::BOOL, "animation/keep_custom_tracks"), animations_out));
-    r_options->push_back(ImportOption(PropertyInfo(VariantType::BOOL, "animation/optimizer/enabled", PROPERTY_HINT_NONE,
+    r_options->push_back(ImportOption(PropertyInfo(VariantType::BOOL, "animation/optimizer/enabled", PropertyHint::None,
                                               "", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_UPDATE_ALL_IF_MODIFIED),
             true));
     r_options->push_back(ImportOption(PropertyInfo(VariantType::REAL, "animation/optimizer/max_linear_error"), 0.05));
@@ -1235,7 +1235,7 @@ void ResourceImporterScene::get_import_options(ListPOD<ImportOption> *r_options,
     r_options->push_back(
             ImportOption(PropertyInfo(VariantType::BOOL, "animation/optimizer/remove_unused_tracks"), true));
     r_options->push_back(
-            ImportOption(PropertyInfo(VariantType::INT, "animation/clips/amount", PROPERTY_HINT_RANGE, "0,256,1",
+            ImportOption(PropertyInfo(VariantType::INT, "animation/clips/amount", PropertyHint::Range, "0,256,1",
                                  PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_UPDATE_ALL_IF_MODIFIED),
                     0));
     for (int i = 0; i < 256; i++) {

@@ -110,9 +110,9 @@ bool Skin::_get(const StringName &p_name, Variant &r_ret) const {
     return false;
 }
 void Skin::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
-    p_list->push_back(PropertyInfo(VariantType::INT, "bind_count", PROPERTY_HINT_RANGE, "0,16384,1,or_greater"));
+    p_list->push_back(PropertyInfo(VariantType::INT, "bind_count", PropertyHint::Range, "0,16384,1,or_greater"));
     for (int i = 0; i < get_bind_count(); i++) {
-        p_list->push_back(PropertyInfo(VariantType::INT, StringName("bind/" + itos(i) + "/bone"), PROPERTY_HINT_RANGE, "0,16384,1,or_greater"));
+        p_list->push_back(PropertyInfo(VariantType::INT, StringName("bind/" + itos(i) + "/bone"), PropertyHint::Range, "0,16384,1,or_greater"));
         p_list->push_back(PropertyInfo(VariantType::TRANSFORM, StringName("bind/" + itos(i) + "/pose")));
     }
 }

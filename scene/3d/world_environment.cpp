@@ -112,7 +112,7 @@ void WorldEnvironment::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("set_environment", {"env"}), &WorldEnvironment::set_environment);
     MethodBinder::bind_method(D_METHOD("get_environment"), &WorldEnvironment::get_environment);
-    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "environment", PROPERTY_HINT_RESOURCE_TYPE, "Environment"), "set_environment", "get_environment");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "environment", PropertyHint::ResourceType, "Environment"), "set_environment", "get_environment");
 }
 
 WorldEnvironment::WorldEnvironment() {

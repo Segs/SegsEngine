@@ -304,7 +304,7 @@ struct GetTypeInfo<Ref<T>,void> {
     constexpr static const TypePassBy PASS_BY = TypePassBy::Value;
 
     constexpr static inline RawPropertyInfo get_class_info() {
-        return RawPropertyInfo{ nullptr,T::get_class_static(),T::get_class_static(),int8_t(VariantType::OBJECT), PROPERTY_HINT_RESOURCE_TYPE };
+        return RawPropertyInfo{ nullptr,T::get_class_static(),T::get_class_static(),int8_t(VariantType::OBJECT), PropertyHint::ResourceType };
     }
 };
 
@@ -315,7 +315,7 @@ struct GetTypeInfo<const Ref<T> &,void> {
     constexpr static const TypePassBy PASS_BY = TypePassBy::Reference;
 
     constexpr static inline RawPropertyInfo get_class_info() {
-        return RawPropertyInfo { nullptr,T::get_class_static(),T::get_class_static(),int8_t(VariantType::OBJECT), PROPERTY_HINT_RESOURCE_TYPE };
+        return RawPropertyInfo { nullptr,T::get_class_static(),T::get_class_static(),int8_t(VariantType::OBJECT), PropertyHint::ResourceType };
     }
 };
 

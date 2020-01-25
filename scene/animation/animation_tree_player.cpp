@@ -395,7 +395,7 @@ bool AnimationTreePlayer::_get(const StringName &p_name, Variant &r_ret) const {
 
 void AnimationTreePlayer::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
 
-    p_list->push_back(PropertyInfo(VariantType::DICTIONARY, "data", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_STORAGE | PROPERTY_USAGE_NETWORK));
+    p_list->push_back(PropertyInfo(VariantType::DICTIONARY, "data", PropertyHint::None, "", PROPERTY_USAGE_STORAGE | PROPERTY_USAGE_NETWORK));
 }
 
 void AnimationTreePlayer::advance(float p_time) {
@@ -1826,9 +1826,9 @@ void AnimationTreePlayer::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("recompute_caches"), &AnimationTreePlayer::recompute_caches);
 
     ADD_GROUP("Playback", "playback_");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "playback_process_mode", PROPERTY_HINT_ENUM, "Physics,Idle"), "set_animation_process_mode", "get_animation_process_mode");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "playback_process_mode", PropertyHint::Enum, "Physics,Idle"), "set_animation_process_mode", "get_animation_process_mode");
 
-    ADD_PROPERTY(PropertyInfo(VariantType::NODE_PATH, "master_player", PROPERTY_HINT_NODE_PATH_VALID_TYPES, "AnimationPlayer"), "set_master_player", "get_master_player");
+    ADD_PROPERTY(PropertyInfo(VariantType::NODE_PATH, "master_player", PropertyHint::NodePathValidTypes, "AnimationPlayer"), "set_master_player", "get_master_player");
     ADD_PROPERTY(PropertyInfo(VariantType::NODE_PATH, "base_path"), "set_base_path", "get_base_path");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "active"), "set_active", "is_active");
 

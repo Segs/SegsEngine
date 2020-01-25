@@ -7332,7 +7332,7 @@ void TextEdit::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("is_drawing_minimap"), &TextEdit::is_drawing_minimap);
     MethodBinder::bind_method(D_METHOD("set_minimap_width", {"width"}), &TextEdit::set_minimap_width);
     MethodBinder::bind_method(D_METHOD("get_minimap_width"), &TextEdit::get_minimap_width);
-    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "text", PROPERTY_HINT_MULTILINE_TEXT), "set_text", "get_text");
+    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "text", PropertyHint::MultilineText), "set_text", "get_text");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "readonly"), "set_readonly", "is_readonly");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "highlight_current_line"), "set_highlight_current_line", "is_highlight_current_line_enabled");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "syntax_highlighting"), "set_syntax_coloring", "is_syntax_coloring_enabled");
@@ -7360,7 +7360,7 @@ void TextEdit::_bind_methods() {
     ADD_GROUP("Caret", "caret_");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "caret_block_mode"), "cursor_set_block_mode", "cursor_is_block_mode");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "caret_blink"), "cursor_set_blink_enabled", "cursor_get_blink_enabled");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "caret_blink_speed", PROPERTY_HINT_RANGE, "0.1,10,0.01"), "cursor_set_blink_speed", "cursor_get_blink_speed");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "caret_blink_speed", PropertyHint::Range, "0.1,10,0.01"), "cursor_set_blink_speed", "cursor_get_blink_speed");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "caret_moving_by_right_click"), "set_right_click_moves_caret", "is_right_click_moving_caret");
 
     ADD_SIGNAL(MethodInfo("cursor_changed"));
@@ -7380,7 +7380,7 @@ void TextEdit::_bind_methods() {
     BIND_ENUM_CONSTANT(MENU_MAX)
 
     GLOBAL_DEF("gui/timers/text_edit_idle_detect_sec", 3);
-    ProjectSettings::get_singleton()->set_custom_property_info("gui/timers/text_edit_idle_detect_sec", PropertyInfo(VariantType::REAL, "gui/timers/text_edit_idle_detect_sec", PROPERTY_HINT_RANGE, "0,10,0.01,or_greater")); // No negative numbers.
+    ProjectSettings::get_singleton()->set_custom_property_info("gui/timers/text_edit_idle_detect_sec", PropertyInfo(VariantType::REAL, "gui/timers/text_edit_idle_detect_sec", PropertyHint::Range, "0,10,0.01,or_greater")); // No negative numbers.
 }
 
 TextEdit::TextEdit() {

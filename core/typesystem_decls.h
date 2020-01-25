@@ -30,45 +30,45 @@ enum MethodFlags {
     METHOD_FLAG_VARARG = 128,
     METHOD_FLAGS_DEFAULT = METHOD_FLAG_NORMAL,
 };
-enum PropertyHint : int {
-    PROPERTY_HINT_NONE, ///< no hint provided.
-    PROPERTY_HINT_RANGE, ///< hint_text = "min,max,step,slider; //slider is optional"
-    PROPERTY_HINT_EXP_RANGE, ///< hint_text = "min,max,step", exponential edit
-    PROPERTY_HINT_ENUM, ///< hint_text= "val1,val2,val3,etc"
-    PROPERTY_HINT_EXP_EASING, /// exponential easing function (Math::ease) use "attenuation" hint string to revert (flip h), "full" to also include in/out. (ie: "attenuation,inout")
-    PROPERTY_HINT_LENGTH, ///< hint_text= "length" (as integer)
-    PROPERTY_HINT_SPRITE_FRAME, // FIXME: Obsolete: drop whenever we can break compat. Keeping now for GDNative compat.
-    PROPERTY_HINT_KEY_ACCEL, ///< hint_text= "length" (as integer)
-    PROPERTY_HINT_FLAGS, ///< hint_text= "flag1,flag2,etc" (as bit flags)
-    PROPERTY_HINT_LAYERS_2D_RENDER,
-    PROPERTY_HINT_LAYERS_2D_PHYSICS,
-    PROPERTY_HINT_LAYERS_3D_RENDER,
-    PROPERTY_HINT_LAYERS_3D_PHYSICS,
-    PROPERTY_HINT_FILE, ///< a file path must be passed, hint_text (optionally) is a filter "*.png,*.wav,*.doc,"
-    PROPERTY_HINT_DIR, ///< a directory path must be passed
-    PROPERTY_HINT_GLOBAL_FILE, ///< a file path must be passed, hint_text (optionally) is a filter "*.png,*.wav,*.doc,"
-    PROPERTY_HINT_GLOBAL_DIR, ///< a directory path must be passed
-    PROPERTY_HINT_RESOURCE_TYPE, ///< a resource object type
-    PROPERTY_HINT_MULTILINE_TEXT, ///< used for string properties that can contain multiple lines
-    PROPERTY_HINT_PLACEHOLDER_TEXT, ///< used to set a placeholder text for string properties
-    PROPERTY_HINT_COLOR_NO_ALPHA, ///< used for ignoring alpha component when editing a color
-    PROPERTY_HINT_IMAGE_COMPRESS_LOSSY,
-    PROPERTY_HINT_IMAGE_COMPRESS_LOSSLESS,
-    PROPERTY_HINT_OBJECT_ID,
-    PROPERTY_HINT_TYPE_STRING, ///< a type string, the hint is the base type to choose
-    PROPERTY_HINT_NODE_PATH_TO_EDITED_NODE, ///< so something else can provide this (used in scripts)
-    PROPERTY_HINT_METHOD_OF_VARIANT_TYPE, ///< a method of a type
-    PROPERTY_HINT_METHOD_OF_BASE_TYPE, ///< a method of a base type
-    PROPERTY_HINT_METHOD_OF_INSTANCE, ///< a method of an instance
-    PROPERTY_HINT_METHOD_OF_SCRIPT, ///< a method of a script & base
-    PROPERTY_HINT_PROPERTY_OF_VARIANT_TYPE, ///< a property of a type
-    PROPERTY_HINT_PROPERTY_OF_BASE_TYPE, ///< a property of a base type
-    PROPERTY_HINT_PROPERTY_OF_INSTANCE, ///< a property of an instance
-    PROPERTY_HINT_PROPERTY_OF_SCRIPT, ///< a property of a script & base
-    PROPERTY_HINT_OBJECT_TOO_BIG, ///< object is too big to send
-    PROPERTY_HINT_NODE_PATH_VALID_TYPES,
-    PROPERTY_HINT_SAVE_FILE, ///< a file path must be passed, hint_text (optionally) is a filter "*.png,*.wav,*.doc,". This opens a save dialog
-    PROPERTY_HINT_MAX,
+enum class PropertyHint : int8_t {
+    None=0, ///< no hint provided.
+    Range, ///< hint_text = "min,max,step,slider; //slider is optional"
+    ExpRange, ///< hint_text = "min,max,step", exponential edit
+    Enum, ///< hint_text= "val1,val2,val3,etc"
+    ExpEasing, /// exponential easing function (Math::ease) use "attenuation" hint string to revert (flip h), "full" to also include in/out. (ie: "attenuation,inout")
+    Length, ///< hint_text= "length" (as integer)
+    SpriteFrame, // FIXME: Obsolete: drop whenever we can break compat. Keeping now for GDNative compat.
+    KeyAccel, ///< hint_text= "length" (as integer)
+    Flags, ///< hint_text= "flag1,flag2,etc" (as bit flags)
+    Layers2DRenderer,
+    Layers2DPhysics,
+    Layers3DRenderer,
+    Layers3DPhysics,
+    File, ///< a file path must be passed, hint_text (optionally) is a filter "*.png,*.wav,*.doc,"
+    Dir, ///< a directory path must be passed
+    GlobalFile, ///< a file path must be passed, hint_text (optionally) is a filter "*.png,*.wav,*.doc,"
+    GlobalDir, ///< a directory path must be passed
+    ResourceType, ///< a resource object type
+    MultilineText, ///< used for string properties that can contain multiple lines
+    PlaceholderText, ///< used to set a placeholder text for string properties
+    ColorNoAlpha, ///< used for ignoring alpha component when editing a color
+    ImageCompressLossy,
+    ImageCompressLossless,
+    ObjectID,
+    TypeString, ///< a type string, the hint is the base type to choose
+    NodePathToEditedNode, ///< so something else can provide this (used in scripts)
+    MethodOfVariantType, ///< a method of a type
+    MethodOfBaseType, ///< a method of a base type
+    MethodOfInstance, ///< a method of an instance
+    MethodOfScript, ///< a method of a script & base
+    PropertyOfVariantType, ///< a property of a type
+    PropertyOfBaseType, ///< a property of a base type
+    PropertyOfInstance, ///< a property of an instance
+    PropertyOfScript, ///< a property of a script & base
+    ObjectTooBig, ///< object is too big to send
+    NodePathValidTypes,
+    SaveFile, ///< a file path must be passed, hint_text (optionally) is a filter "*.png,*.wav,*.doc,". This opens a save dialog
+    Max
     // When updating PropertyHint, also sync the hardcoded list in VisualScriptEditorVariableEdit
 };
 
@@ -108,19 +108,19 @@ enum PropertyUsageFlags {
     PROPERTY_USAGE_NOEDITOR = PROPERTY_USAGE_STORAGE | PROPERTY_USAGE_NETWORK,
 };
 
-/* This is a skeleton version of actual property info, used to reduce the include hell and allow constexpr construction.*/
 enum class TypePassBy : int8_t {
     Value,
     Reference,
     Pointer,
 };
 
+/* This is a skeleton version of actual property info, used to reduce the include hell and allow constexpr construction.*/
 struct RawPropertyInfo {
     const char *name=nullptr;
     const char *hint_string=nullptr;
     const char *class_name=nullptr; // for classes
     int8_t type = 0;
-    PropertyHint hint = PROPERTY_HINT_NONE;
+    PropertyHint hint = PropertyHint::None;
     uint32_t usage = PROPERTY_USAGE_DEFAULT;
 
 };

@@ -143,7 +143,7 @@ static String get_type_name(const PropertyInfo &info) {
     if (info.class_name != StringName()) {
         return info.class_name.asCString();
     }
-    if (info.hint == PROPERTY_HINT_RESOURCE_TYPE) {
+    if (info.hint == PropertyType::ResourceType) {
         return StringUtils::to_utf8(info.hint_string).data();
     }
     if (info.type == VariantType::NIL && (info.usage & PROPERTY_USAGE_NIL_IS_VARIANT)) {
@@ -369,7 +369,7 @@ List<ClassAPI> generate_c_api_classes() {
                     if (StringUtils::contains(arg_info.name,':') ) {
                         arg_type = StringUtils::get_slice(arg_info.name.asCString(),':', 1);
                         arg_name = StringUtils::get_slice(arg_info.name.asCString(),':', 0);
-                    } else if (arg_info.hint == PROPERTY_HINT_RESOURCE_TYPE) {
+                    } else if (arg_info.hint == PropertyType::ResourceType) {
                         arg_type = StringUtils::to_utf8(arg_info.hint_string).data();
                     } else if (arg_info.type == VariantType::NIL) {
                         arg_type = "Variant";

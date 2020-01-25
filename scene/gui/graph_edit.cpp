@@ -1320,7 +1320,7 @@ void GraphEdit::_bind_methods() {
     ADD_SIGNAL(MethodInfo("duplicate_nodes_request"));
     ADD_SIGNAL(MethodInfo("copy_nodes_request"));
     ADD_SIGNAL(MethodInfo("paste_nodes_request"));
-    ADD_SIGNAL(MethodInfo("node_selected", PropertyInfo(VariantType::OBJECT, "node", PROPERTY_HINT_RESOURCE_TYPE, "Node")));
+    ADD_SIGNAL(MethodInfo("node_selected", PropertyInfo(VariantType::OBJECT, "node", PropertyHint::ResourceType, "Node")));
     ADD_SIGNAL(MethodInfo("connection_to_empty", PropertyInfo(VariantType::STRING, "from"), PropertyInfo(VariantType::INT, "from_slot"), PropertyInfo(VariantType::VECTOR2, "release_position")));
     ADD_SIGNAL(MethodInfo("connection_from_empty", PropertyInfo(VariantType::STRING, "to"), PropertyInfo(VariantType::INT, "to_slot"), PropertyInfo(VariantType::VECTOR2, "release_position")));
     ADD_SIGNAL(MethodInfo("delete_nodes_request"));

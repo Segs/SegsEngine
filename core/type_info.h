@@ -233,7 +233,7 @@ struct GetTypeInfo<RefPtr> {
     constexpr static const GodotTypeInfo::Metadata METADATA = GodotTypeInfo::METADATA_NONE;
     constexpr static const TypePassBy PASS_BY = TypePassBy::Value;
     constexpr static inline RawPropertyInfo get_class_info() {
-        return RawPropertyInfo{ nullptr,"RefCounted","RefCounted",int8_t(VariantType::OBJECT), PROPERTY_HINT_RESOURCE_TYPE };
+        return RawPropertyInfo{ nullptr,"RefCounted","RefCounted",int8_t(VariantType::OBJECT), PropertyHint::ResourceType };
     }
 };
 template <>
@@ -242,7 +242,7 @@ struct GetTypeInfo<const RefPtr &> {
     constexpr static const GodotTypeInfo::Metadata METADATA = GodotTypeInfo::METADATA_NONE;
     constexpr static const TypePassBy PASS_BY = TypePassBy::Reference;
     constexpr static inline RawPropertyInfo get_class_info() {
-        return RawPropertyInfo{ nullptr,"RefCounted","RefCounted",int8_t(VariantType::OBJECT), PROPERTY_HINT_RESOURCE_TYPE };
+        return RawPropertyInfo{ nullptr,"RefCounted","RefCounted",int8_t(VariantType::OBJECT), PropertyHint::ResourceType };
     }
 };
 
@@ -253,7 +253,7 @@ struct GetTypeInfo<Variant> {
     constexpr static const GodotTypeInfo::Metadata METADATA = GodotTypeInfo::METADATA_NONE;
     constexpr static const TypePassBy PASS_BY = TypePassBy::Value;
     constexpr static inline RawPropertyInfo get_class_info() {
-        return RawPropertyInfo{ nullptr, nullptr, nullptr, int8_t(VARIANT_TYPE), PROPERTY_HINT_NONE,
+        return RawPropertyInfo{ nullptr, nullptr, nullptr, int8_t(VARIANT_TYPE), PropertyHint::None,
             PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_NIL_IS_VARIANT };
     }
 };
@@ -264,7 +264,7 @@ struct GetTypeInfo<const Variant &> {
     constexpr static const GodotTypeInfo::Metadata METADATA = GodotTypeInfo::METADATA_NONE;
     constexpr static const TypePassBy PASS_BY = TypePassBy::Reference;
     constexpr static inline RawPropertyInfo get_class_info() {
-        return RawPropertyInfo{ nullptr, nullptr, nullptr, int8_t(VARIANT_TYPE), PROPERTY_HINT_NONE,
+        return RawPropertyInfo{ nullptr, nullptr, nullptr, int8_t(VARIANT_TYPE), PropertyHint::None,
             PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_NIL_IS_VARIANT };
     }
 };
@@ -355,7 +355,7 @@ struct GetTypeInfo<const T *, typename EnableIf<TypeInherits<Object, T>::value>:
     constexpr static const TypePassBy PASS_BY = TypePassBy::Value;                                                     \
         constexpr static inline RawPropertyInfo get_class_info() {                                                     \
             return RawPropertyInfo{ nullptr, nullptr, #m_enum, int8_t(VARIANT_TYPE),                                   \
-                PROPERTY_HINT_NONE, PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_CLASS_IS_ENUM };                           \
+                PropertyHint::None, PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_CLASS_IS_ENUM };                           \
         }                                                                                                              \
     };
 

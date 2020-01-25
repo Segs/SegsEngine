@@ -419,7 +419,7 @@ void GDScriptLanguage::get_public_functions(List<MethodInfo> *p_functions) const
         MethodInfo mi;
         mi.name = "preload";
         mi.arguments.push_back(PropertyInfo(VariantType::STRING, "path"));
-        mi.return_val = PropertyInfo(VariantType::OBJECT, "", PROPERTY_HINT_RESOURCE_TYPE, "Resource");
+        mi.return_val = PropertyInfo(VariantType::OBJECT, "", PropertyHint::ResourceType, "Resource");
         p_functions->push_back(mi);
     }
     {
@@ -427,7 +427,7 @@ void GDScriptLanguage::get_public_functions(List<MethodInfo> *p_functions) const
         mi.name = "yield";
         mi.arguments = { PropertyInfo(VariantType::OBJECT, "object"),PropertyInfo(VariantType::STRING, "signal") };
         mi.default_arguments = { Variant(),String() };
-        mi.return_val = PropertyInfo(VariantType::OBJECT, "", PROPERTY_HINT_RESOURCE_TYPE, "GDScriptFunctionState");
+        mi.return_val = PropertyInfo(VariantType::OBJECT, "", PropertyHint::ResourceType, "GDScriptFunctionState");
         p_functions->push_back(mi);
     }
     {
@@ -554,7 +554,7 @@ static String _get_visual_datatype(const PropertyInfo &p_info, bool p_isarg = tr
     }
 
     if (p_info.type == VariantType::OBJECT) {
-        if (p_info.hint == PROPERTY_HINT_RESOURCE_TYPE) {
+        if (p_info.hint == PropertyHint::ResourceType) {
             return p_info.hint_string;
         } else {
             return p_info.class_name.asCString();

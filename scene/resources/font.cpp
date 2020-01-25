@@ -124,7 +124,7 @@ void Font::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_string_size", {"string"}), &Font::get_string_size_utf8);
     MethodBinder::bind_method(D_METHOD("get_wordwrap_string_size", {"string", "width"}), &Font::get_wordwrap_string_size_utf8);
     MethodBinder::bind_method(D_METHOD("has_outline"), &Font::has_outline);
-    MethodBinder::bind_method(D_METHOD("draw_char", {"canvas_item", "position", "char", "next", "modulate", "outline"}), &Font::draw_char, {DEFVAL(-1), DEFVAL(Color(1, 1, 1)), DEFVAL(false)});
+    MethodBinder::bind_method(D_METHOD("draw_char", {"canvas_item", "position", "char", "next", "modulate", "outline"}), &Font::draw_char, {DEFVAL(0), DEFVAL(Color(1, 1, 1)), DEFVAL(false)});
     MethodBinder::bind_method(D_METHOD("update_changes"), &Font::update_changes);
 }
 
@@ -660,14 +660,14 @@ void BitmapFont::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_fallback", {"fallback"}), &BitmapFont::set_fallback);
     MethodBinder::bind_method(D_METHOD("get_fallback"), &BitmapFont::get_fallback);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::ARRAY, "textures", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "_set_textures", "_get_textures");
-    ADD_PROPERTY(PropertyInfo(VariantType::POOL_INT_ARRAY, "chars", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "_set_chars", "_get_chars");
-    ADD_PROPERTY(PropertyInfo(VariantType::POOL_INT_ARRAY, "kernings", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "_set_kernings", "_get_kernings");
+    ADD_PROPERTY(PropertyInfo(VariantType::ARRAY, "textures", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "_set_textures", "_get_textures");
+    ADD_PROPERTY(PropertyInfo(VariantType::POOL_INT_ARRAY, "chars", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "_set_chars", "_get_chars");
+    ADD_PROPERTY(PropertyInfo(VariantType::POOL_INT_ARRAY, "kernings", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "_set_kernings", "_get_kernings");
 
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "height", PROPERTY_HINT_RANGE, "-1024,1024,1"), "set_height", "get_height");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "ascent", PROPERTY_HINT_RANGE, "-1024,1024,1"), "set_ascent", "get_ascent");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "height", PropertyHint::Range, "-1024,1024,1"), "set_height", "get_height");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "ascent", PropertyHint::Range, "-1024,1024,1"), "set_ascent", "get_ascent");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "distance_field"), "set_distance_field_hint", "is_distance_field_hint");
-    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "fallback", PROPERTY_HINT_RESOURCE_TYPE, "BitmapFont"), "set_fallback", "get_fallback");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "fallback", PropertyHint::ResourceType, "BitmapFont"), "set_fallback", "get_fallback");
 }
 
 BitmapFont::BitmapFont() {

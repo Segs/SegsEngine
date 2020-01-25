@@ -149,7 +149,7 @@ Vector2 Vector2::snapped(const Vector2 &p_by) const {
 
 Vector2::operator String() const
 {
-    return FormatVE("%f, %f",x,y);
+    return (rtos(x) + ", " + rtos(y));
 }
 
 Vector2 Vector2::clamped(real_t p_len) const {

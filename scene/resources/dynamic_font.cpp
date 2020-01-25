@@ -202,13 +202,13 @@ void DynamicFontData::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_hinting"), &DynamicFontData::get_hinting);
 
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "antialiased"), "set_antialiased", "is_antialiased");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "hinting", PROPERTY_HINT_ENUM, "None,Light,Normal"), "set_hinting", "get_hinting");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "hinting", PropertyHint::Enum, "None,Light,Normal"), "set_hinting", "get_hinting");
 
     BIND_ENUM_CONSTANT(HINTING_NONE)
     BIND_ENUM_CONSTANT(HINTING_LIGHT)
     BIND_ENUM_CONSTANT(HINTING_NORMAL)
 
-    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "font_path", PROPERTY_HINT_FILE, "*.ttf,*.otf"), "set_font_path", "get_font_path");
+    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "font_path", PropertyHint::File, "*.ttf,*.otf"), "set_font_path", "get_font_path");
 }
 
 DynamicFontData::DynamicFontData() {
@@ -1002,10 +1002,10 @@ bool DynamicFont::_get(const StringName &p_name, Variant &r_ret) const {
 void DynamicFont::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
 
     for (int i = 0; i < fallbacks.size(); i++) {
-        p_list->push_back(PropertyInfo(VariantType::OBJECT, StringName("fallback/" + itos(i)), PROPERTY_HINT_RESOURCE_TYPE, "DynamicFontData"));
+        p_list->push_back(PropertyInfo(VariantType::OBJECT, StringName("fallback/" + itos(i)), PropertyHint::ResourceType, "DynamicFontData"));
     }
 
-    p_list->push_back(PropertyInfo(VariantType::OBJECT, StringName("fallback/" + itos(fallbacks.size())), PROPERTY_HINT_RESOURCE_TYPE, "DynamicFontData"));
+    p_list->push_back(PropertyInfo(VariantType::OBJECT, StringName("fallback/" + itos(fallbacks.size())), PropertyHint::ResourceType, "DynamicFontData"));
 }
 
 void DynamicFont::_bind_methods() {
@@ -1036,8 +1036,8 @@ void DynamicFont::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_fallback_count"), &DynamicFont::get_fallback_count);
 
     ADD_GROUP("Settings", "");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "size", PROPERTY_HINT_RANGE, "1,255,1"), "set_size", "get_size");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "outline_size", PROPERTY_HINT_RANGE, "0,255,1"), "set_outline_size", "get_outline_size");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "size", PropertyHint::Range, "1,255,1"), "set_size", "get_size");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "outline_size", PropertyHint::Range, "0,255,1"), "set_outline_size", "get_outline_size");
     ADD_PROPERTY(PropertyInfo(VariantType::COLOR, "outline_color"), "set_outline_color", "get_outline_color");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "use_mipmaps"), "set_use_mipmaps", "get_use_mipmaps");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "use_filter"), "set_use_filter", "get_use_filter");
@@ -1047,7 +1047,7 @@ void DynamicFont::_bind_methods() {
     ADD_PROPERTYI(PropertyInfo(VariantType::INT, "extra_spacing_char"), "set_spacing", "get_spacing", SPACING_CHAR);
     ADD_PROPERTYI(PropertyInfo(VariantType::INT, "extra_spacing_space"), "set_spacing", "get_spacing", SPACING_SPACE);
     ADD_GROUP("Font", "");
-    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "font_data", PROPERTY_HINT_RESOURCE_TYPE, "DynamicFontData"), "set_font_data", "get_font_data");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "font_data", PropertyHint::ResourceType, "DynamicFontData"), "set_font_data", "get_font_data");
 
     BIND_ENUM_CONSTANT(SPACING_TOP)
     BIND_ENUM_CONSTANT(SPACING_BOTTOM)

@@ -150,7 +150,7 @@ void CollisionShape::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("_shape_changed"), &CollisionShape::_shape_changed);
     MethodBinder::bind_method(D_METHOD("_update_debug_shape"), &CollisionShape::_update_debug_shape);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "shape", PROPERTY_HINT_RESOURCE_TYPE, "Shape"), "set_shape", "get_shape");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "shape", PropertyHint::ResourceType, "Shape"), "set_shape", "get_shape");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "disabled"), "set_disabled", "is_disabled");
 }
 

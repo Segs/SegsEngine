@@ -309,7 +309,7 @@ void BoxContainer::_bind_methods() {
     BIND_ENUM_CONSTANT(ALIGN_CENTER)
     BIND_ENUM_CONSTANT(ALIGN_END)
 
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "alignment", PROPERTY_HINT_ENUM, "Begin,Center,End"), "set_alignment", "get_alignment");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "alignment", PropertyHint::Enum, "Begin,Center,End"), "set_alignment", "get_alignment");
 }
 
 MarginContainer *VBoxContainer::add_margin_child(const StringName &p_label, Control *p_control, bool p_expand) {

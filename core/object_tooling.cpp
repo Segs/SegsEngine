@@ -118,7 +118,7 @@ Variant Object_get_fallback(const Object *self,const StringName &p_name,bool &r_
 
 void Object_add_tool_properties(ListPOD<PropertyInfo> *p_list)
 {
-    p_list->push_back(PropertyInfo(VariantType::NIL, "Script", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_GROUP));
+    p_list->push_back(PropertyInfo(VariantType::NIL, "Script", PropertyHint::None, "", PROPERTY_USAGE_GROUP));
 }
 
 bool Object_script_signal_validate(RefPtr script)

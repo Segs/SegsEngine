@@ -106,12 +106,12 @@ void MeshLibrary::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
 
         String name = "item/" + itos(E.first) + "/";
         p_list->push_back(PropertyInfo(VariantType::STRING, StringName(name + "name")));
-        p_list->push_back(PropertyInfo(VariantType::OBJECT, StringName(name + "mesh"), PROPERTY_HINT_RESOURCE_TYPE, "Mesh"));
+        p_list->push_back(PropertyInfo(VariantType::OBJECT, StringName(name + "mesh"), PropertyHint::ResourceType, "Mesh"));
         p_list->push_back(PropertyInfo(VariantType::TRANSFORM, StringName(name + "mesh_transform")));
         p_list->push_back(PropertyInfo(VariantType::ARRAY, StringName(name + "shapes")));
-        p_list->push_back(PropertyInfo(VariantType::OBJECT, StringName(name + "navmesh"), PROPERTY_HINT_RESOURCE_TYPE, "NavigationMesh"));
+        p_list->push_back(PropertyInfo(VariantType::OBJECT, StringName(name + "navmesh"), PropertyHint::ResourceType, "NavigationMesh"));
         p_list->push_back(PropertyInfo(VariantType::TRANSFORM, StringName(name + "navmesh_transform")));
-        p_list->push_back(PropertyInfo(VariantType::OBJECT, StringName(name + "preview"), PROPERTY_HINT_RESOURCE_TYPE, "Texture", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_EDITOR_HELPER));
+        p_list->push_back(PropertyInfo(VariantType::OBJECT, StringName(name + "preview"), PropertyHint::ResourceType, "Texture", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_EDITOR_HELPER));
     }
 }
 

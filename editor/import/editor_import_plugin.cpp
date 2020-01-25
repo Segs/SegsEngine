@@ -105,7 +105,7 @@ void EditorImportPlugin::get_import_options(ListPOD<ImportOption> *r_options, in
         String name = d["name"].as<String>();
         Variant default_value = d["default_value"];
 
-        PropertyHint hint = PROPERTY_HINT_NONE;
+        PropertyHint hint = PropertyHint::None;
         if (d.has("property_hint")) {
             hint = (PropertyHint)d["property_hint"].as<int64_t>();
         }

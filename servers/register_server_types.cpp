@@ -256,7 +256,7 @@ void setup_server_defs()
     // Physics 2D
     GLOBAL_DEF(Physics2DServerManager::setting_property_name, "DEFAULT");
     ProjectSettings::get_singleton()->set_custom_property_info(Physics2DServerManager::setting_property_name,
-            PropertyInfo(VariantType::STRING, StringName(Physics2DServerManager::setting_property_name), PROPERTY_HINT_ENUM, "DEFAULT"));
+            PropertyInfo(VariantType::STRING, StringName(Physics2DServerManager::setting_property_name), PropertyHint::Enum, "DEFAULT"));
 
     Physics2DServerManager::register_server(("GodotPhysics"), &_createGodotPhysics2DCallback);
     Physics2DServerManager::set_default_server(("GodotPhysics"));
@@ -264,7 +264,7 @@ void setup_server_defs()
     // Physics 3D
     GLOBAL_DEF(PhysicsServerManager::setting_property_name, "DEFAULT");
     ProjectSettings::get_singleton()->set_custom_property_info(PhysicsServerManager::setting_property_name,
-        PropertyInfo(VariantType::STRING, StringName(PhysicsServerManager::setting_property_name), PROPERTY_HINT_ENUM, "DEFAULT"));
+        PropertyInfo(VariantType::STRING, StringName(PhysicsServerManager::setting_property_name), PropertyHint::Enum, "DEFAULT"));
 
     PhysicsServerManager::register_server("GodotPhysics", &_createGodotPhysicsCallback);
     PhysicsServerManager::set_default_server(("GodotPhysics"));

@@ -466,18 +466,18 @@ void VideoPlayer::_bind_methods() {
 
     ADD_SIGNAL(MethodInfo("finished"));
 
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "audio_track", PROPERTY_HINT_RANGE, "0,128,1"), "set_audio_track", "get_audio_track");
-    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "stream", PROPERTY_HINT_RESOURCE_TYPE, "VideoStream"), "set_stream", "get_stream");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "audio_track", PropertyHint::Range, "0,128,1"), "set_audio_track", "get_audio_track");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "stream", PropertyHint::ResourceType, "VideoStream"), "set_stream", "get_stream");
     //ADD_PROPERTY( PropertyInfo(VariantType::BOOL, "stream/loop"), "set_loop", "has_loop") ;
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "volume_db", PROPERTY_HINT_RANGE, "-80,24,0.01"), "set_volume_db", "get_volume_db");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "volume", PROPERTY_HINT_EXP_RANGE, "0,15,0.01", 0), "set_volume", "get_volume");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "volume_db", PropertyHint::Range, "-80,24,0.01"), "set_volume_db", "get_volume_db");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "volume", PropertyHint::ExpRange, "0,15,0.01", 0), "set_volume", "get_volume");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "autoplay"), "set_autoplay", "has_autoplay");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "paused"), "set_paused", "is_paused");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "expand"), "set_expand", "has_expand");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "buffering_msec", PROPERTY_HINT_RANGE, "10,1000"), "set_buffering_msec", "get_buffering_msec");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "stream_position", PROPERTY_HINT_RANGE, "0,1280000,0.1", 0), "set_stream_position", "get_stream_position");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "buffering_msec", PropertyHint::Range, "10,1000"), "set_buffering_msec", "get_buffering_msec");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "stream_position", PropertyHint::Range, "0,1280000,0.1", 0), "set_stream_position", "get_stream_position");
 
-    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "bus", PROPERTY_HINT_ENUM, ""), "set_bus", "get_bus");
+    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "bus", PropertyHint::Enum, ""), "set_bus", "get_bus");
 }
 
 VideoPlayer::VideoPlayer() {

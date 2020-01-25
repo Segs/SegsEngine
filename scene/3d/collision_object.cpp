@@ -154,12 +154,12 @@ void CollisionObject::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("shape_find_owner", {"shape_index"}), &CollisionObject::shape_find_owner);
 
     BIND_VMETHOD(MethodInfo("_input_event", PropertyInfo(VariantType::OBJECT, "camera"),
-            PropertyInfo(VariantType::OBJECT, "event", PROPERTY_HINT_RESOURCE_TYPE, "InputEvent"),
+            PropertyInfo(VariantType::OBJECT, "event", PropertyHint::ResourceType, "InputEvent"),
             PropertyInfo(VariantType::VECTOR3, "click_position"), PropertyInfo(VariantType::VECTOR3, "click_normal"),
             PropertyInfo(VariantType::INT, "shape_idx")))
 
-    ADD_SIGNAL(MethodInfo("input_event", PropertyInfo(VariantType::OBJECT, "camera", PROPERTY_HINT_RESOURCE_TYPE, "Node"),
-            PropertyInfo(VariantType::OBJECT, "event", PROPERTY_HINT_RESOURCE_TYPE, "InputEvent"),
+    ADD_SIGNAL(MethodInfo("input_event", PropertyInfo(VariantType::OBJECT, "camera", PropertyHint::ResourceType, "Node"),
+            PropertyInfo(VariantType::OBJECT, "event", PropertyHint::ResourceType, "InputEvent"),
             PropertyInfo(VariantType::VECTOR3, "click_position"), PropertyInfo(VariantType::VECTOR3, "click_normal"),
             PropertyInfo(VariantType::INT, "shape_idx")));
     ADD_SIGNAL(MethodInfo("mouse_entered"));

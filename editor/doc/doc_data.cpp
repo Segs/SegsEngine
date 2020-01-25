@@ -188,7 +188,7 @@ static void return_doc_from_retinfo(DocData::MethodDoc &p_method, const Property
         p_method.return_type = "int";
     } else if (p_retinfo.class_name != StringName()) {
         p_method.return_type = p_retinfo.class_name;
-    } else if (p_retinfo.hint == PROPERTY_HINT_RESOURCE_TYPE) {
+    } else if (p_retinfo.hint == PropertyHint::ResourceType) {
         p_method.return_type = p_retinfo.hint_string;
     } else if (p_retinfo.type == VariantType::NIL && p_retinfo.usage & PROPERTY_USAGE_NIL_IS_VARIANT) {
         p_method.return_type = "Variant";
@@ -210,7 +210,7 @@ static void argument_doc_from_arginfo(DocData::ArgumentDoc &p_argument, const Pr
         p_argument.type = "int";
     } else if (p_arginfo.class_name != StringName()) {
         p_argument.type = p_arginfo.class_name;
-    } else if (p_arginfo.hint == PROPERTY_HINT_RESOURCE_TYPE) {
+    } else if (p_arginfo.hint == PropertyHint::ResourceType) {
         p_argument.type = p_arginfo.hint_string;
     } else if (p_arginfo.type == VariantType::NIL) {
         // Parameters cannot be void, so PROPERTY_USAGE_NIL_IS_VARIANT is not necessary
@@ -323,7 +323,7 @@ void DocData::generate(bool p_basic_types) {
                         prop.type = "int";
                     } else if (retinfo.class_name != StringName()) {
                         prop.type = retinfo.class_name;
-                    } else if (retinfo.hint == PROPERTY_HINT_RESOURCE_TYPE) {
+                    } else if (retinfo.hint == PropertyHint::ResourceType) {
 
                         prop.type = StringName(retinfo.hint_string);
                     } else if (retinfo.type == VariantType::NIL && retinfo.usage & PROPERTY_USAGE_NIL_IS_VARIANT) {
@@ -347,7 +347,7 @@ void DocData::generate(bool p_basic_types) {
 
             if (!found_type) {
 
-                if (E.type == VariantType::OBJECT && E.hint == PROPERTY_HINT_RESOURCE_TYPE)
+                if (E.type == VariantType::OBJECT && E.hint == PropertyHint::ResourceType)
                     prop.type = StringName(E.hint_string);
                 else
                     prop.type = Variant::interned_type_name(E.type);

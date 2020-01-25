@@ -195,7 +195,7 @@ void Theme::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
     for(const eastl::pair<const StringName, DefHashMap<StringName, Ref<Texture> >> &kv : icon_map) {
         for(const auto &kv2 : kv.second) {
             list.push_back(PropertyInfo(VariantType::OBJECT, kv.first + "/icons/" + kv2.first,
-                    PROPERTY_HINT_RESOURCE_TYPE, "Texture", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_STORE_IF_NULL));
+                    PropertyHint::ResourceType, "Texture", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_STORE_IF_NULL));
         }
     }
 
@@ -203,7 +203,7 @@ void Theme::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
 
         for (const auto &f : e.second) {
 
-            list.push_back(PropertyInfo(VariantType::OBJECT,  StringName(String(e.first) + "/styles/" + f.first), PROPERTY_HINT_RESOURCE_TYPE, "StyleBox", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_STORE_IF_NULL));
+            list.push_back(PropertyInfo(VariantType::OBJECT,  StringName(String(e.first) + "/styles/" + f.first), PropertyHint::ResourceType, "StyleBox", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_STORE_IF_NULL));
         }
     }
 
@@ -211,7 +211,7 @@ void Theme::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
 
         for (const auto &f : e.second) {
 
-            list.push_back(PropertyInfo(VariantType::OBJECT,  StringName(String(e.first) + "/fonts/" + f.first), PROPERTY_HINT_RESOURCE_TYPE, "Font", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_STORE_IF_NULL));
+            list.push_back(PropertyInfo(VariantType::OBJECT,  StringName(String(e.first) + "/fonts/" + f.first), PropertyHint::ResourceType, "Font", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_STORE_IF_NULL));
         }
     }
 
@@ -845,7 +845,7 @@ void Theme::_bind_methods() {
     MethodBinder::bind_method("copy_default_theme", &Theme::copy_default_theme);
     MethodBinder::bind_method(D_METHOD("copy_theme", {"other"}), &Theme::copy_theme);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "default_font", PROPERTY_HINT_RESOURCE_TYPE, "Font"), "set_default_font", "get_default_font");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "default_font", PropertyHint::ResourceType, "Font"), "set_default_font", "get_default_font");
 }
 
 Theme::Theme() {

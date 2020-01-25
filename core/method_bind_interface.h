@@ -146,7 +146,7 @@ public:
             char buf[32];
             snprintf(buf,31,"arg_%d",p_arg);
             return PropertyInfo(VariantType::NIL, buf,
-                    PROPERTY_HINT_NONE, nullptr, PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_NIL_IS_VARIANT);
+                    PropertyHint::None, nullptr, PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_NIL_IS_VARIANT);
         }
     }
 

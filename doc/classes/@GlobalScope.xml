@@ -83,16 +83,16 @@
 		</member>
 	</members>
 	<constants>
-		<constant name="MARGIN_LEFT" value="0" enum="Margin">
+        <constant name="Left" value="0" enum="Margin">
 			Left margin, usually used for [Control] or [StyleBox]-derived classes.
 		</constant>
-		<constant name="MARGIN_TOP" value="1" enum="Margin">
+        <constant name="Top" value="1" enum="Margin">
 			Top margin, usually used for [Control] or [StyleBox]-derived classes.
 		</constant>
-		<constant name="MARGIN_RIGHT" value="2" enum="Margin">
+        <constant name="Right" value="2" enum="Margin">
 			Right margin, usually used for [Control] or [StyleBox]-derived classes.
 		</constant>
-		<constant name="MARGIN_BOTTOM" value="3" enum="Margin">
+        <constant name="Bottom" value="3" enum="Margin">
 			Bottom margin, usually used for [Control] or [StyleBox]-derived classes.
 		</constant>
 		<constant name="CORNER_TOP_LEFT" value="0" enum="Corner">
@@ -1313,22 +1313,22 @@
 		<constant name="ERR_PRINTER_ON_FIRE" value="48" enum="Error">
 			Printer on fire error. (This is an easter egg, no engine methods return this error code.)
 		</constant>
-		<constant name="PROPERTY_HINT_NONE" value="0" enum="PropertyHint">
+		<constant name="None" value="0" enum="PropertyHint">
 			No hint for the edited property.
 		</constant>
-		<constant name="PROPERTY_HINT_RANGE" value="1" enum="PropertyHint">
+		<constant name="Range" value="1" enum="PropertyHint">
 			Hints that an integer or float property should be within a range specified via the hint string [code]"min,max"[/code] or [code]"min,max,step"[/code]. The hint string can optionally include [code]"or_greater"[/code] and/or [code]"or_lesser"[/code] to allow manual input going respectively above the max or below the min values. Example: [code]"-360,360,1,or_greater,or_lesser"[/code].
 		</constant>
-		<constant name="PROPERTY_HINT_EXP_RANGE" value="2" enum="PropertyHint">
+		<constant name="ExpRange" value="2" enum="PropertyHint">
 			Hints that an integer or float property should be within an exponential range specified via the hint string [code]"min,max"[/code] or [code]"min,max,step"[/code]. The hint string can optionally include [code]"or_greater"[/code] and/or [code]"or_lesser"[/code] to allow manual input going respectively above the max or below the min values. Example: [code]"0.01,100,0.01,or_greater"[/code].
 		</constant>
-		<constant name="PROPERTY_HINT_ENUM" value="3" enum="PropertyHint">
+		<constant name="Enum" value="3" enum="PropertyHint">
 			Hints that an integer, float or string property is an enumerated value to pick in a list specified via a hint string such as [code]"Hello,Something,Else"[/code].
 		</constant>
-		<constant name="PROPERTY_HINT_EXP_EASING" value="4" enum="PropertyHint">
+		<constant name="ExpEasing" value="4" enum="PropertyHint">
 			Hints that a float property should be edited via an exponential easing function. The hint string can include [code]"attenuation"[/code] to flip the curve horizontally and/or [code]"inout"[/code] to also include in/out easing.
 		</constant>
-		<constant name="PROPERTY_HINT_LENGTH" value="5" enum="PropertyHint">
+		<constant name="Length" value="5" enum="PropertyHint">
 			Deprecated hint, unused.
 		</constant>
 		<constant name="PROPERTY_HINT_KEY_ACCEL" value="7" enum="PropertyHint">

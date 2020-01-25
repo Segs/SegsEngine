@@ -13,7 +13,7 @@ public:
     String hint_string;
     StringName class_name; // for classes
     VariantType type = VariantType(0);
-    PropertyHint hint = PROPERTY_HINT_NONE;
+    PropertyHint hint = PropertyHint::None;
     uint32_t usage = PROPERTY_USAGE_DEFAULT;
 
     PropertyInfo with_added_usage(int p_fl) const {
@@ -52,13 +52,13 @@ public:
 //            hint(p_hint),
 //            usage(p_usage) {
 
-//        if (hint == PROPERTY_HINT_RESOURCE_TYPE) {
+//        if (hint == PropertyHint::ResourceType) {
 //            class_name = StaticCString(p_hint_string,true);
 //        } else {
 //            class_name = p_class_name;
 //        }
 //    }
-    PropertyInfo(VariantType p_type, StringName p_name, PropertyHint p_hint = PROPERTY_HINT_NONE,
+    PropertyInfo(VariantType p_type, StringName p_name, PropertyHint p_hint = PropertyHint::None,
             se_string_view p_hint_string=se_string_view(), uint32_t p_usage = PROPERTY_USAGE_DEFAULT,
             const StringName &p_class_name = StringName()) :
             name(eastl::move(p_name)),
@@ -67,7 +67,7 @@ public:
             hint(p_hint),
             usage(p_usage) {
 
-        if (hint == PROPERTY_HINT_RESOURCE_TYPE) {
+        if (hint == PropertyHint::ResourceType) {
             class_name = StringName(p_hint_string);
         } else {
             class_name = p_class_name;

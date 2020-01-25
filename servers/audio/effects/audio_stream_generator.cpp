@@ -77,8 +77,8 @@ void AudioStreamGenerator::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_buffer_length", {"seconds"}), &AudioStreamGenerator::set_buffer_length);
     MethodBinder::bind_method(D_METHOD("get_buffer_length"), &AudioStreamGenerator::get_buffer_length);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "mix_rate", PROPERTY_HINT_RANGE, "20,192000,1"), "set_mix_rate", "get_mix_rate");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "buffer_length", PROPERTY_HINT_RANGE, "0.01,10,0.01"), "set_buffer_length", "get_buffer_length");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "mix_rate", PropertyHint::Range, "20,192000,1"), "set_mix_rate", "get_mix_rate");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "buffer_length", PropertyHint::Range, "0.01,10,0.01"), "set_buffer_length", "get_buffer_length");
 }
 
 AudioStreamGenerator::AudioStreamGenerator() {

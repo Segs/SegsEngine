@@ -989,7 +989,7 @@ void AudioServer::init() {
 
     channel_disable_threshold_db = GLOBAL_DEF_RST("audio/channel_disable_threshold_db", -60.0);
     channel_disable_frames = float(GLOBAL_DEF_RST("audio/channel_disable_time", 2.0)) * get_mix_rate();
-    ProjectSettings::get_singleton()->set_custom_property_info("audio/channel_disable_time", PropertyInfo(VariantType::REAL, "audio/channel_disable_time", PROPERTY_HINT_RANGE, "0,5,0.01,or_greater"));
+    ProjectSettings::get_singleton()->set_custom_property_info("audio/channel_disable_time", PropertyInfo(VariantType::REAL, "audio/channel_disable_time", PropertyHint::Range, "0,5,0.01,or_greater"));
     buffer_size = 1024; //hardcoded for now
 
     init_channels_and_buffers();
@@ -1571,16 +1571,16 @@ bool AudioBusLayout::_get(const StringName &p_name, Variant &r_ret) const {
 void AudioBusLayout::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
 
     for (int i = 0; i < buses.size(); i++) {
-        p_list->push_back(PropertyInfo(VariantType::STRING, StringName("bus/" + itos(i) + "/name"), PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
-        p_list->push_back(PropertyInfo(VariantType::BOOL, StringName("bus/" + itos(i) + "/solo"), PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
-        p_list->push_back(PropertyInfo(VariantType::BOOL, StringName("bus/" + itos(i) + "/mute"), PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
-        p_list->push_back(PropertyInfo(VariantType::BOOL, StringName("bus/" + itos(i) + "/bypass_fx"), PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
-        p_list->push_back(PropertyInfo(VariantType::REAL, StringName("bus/" + itos(i) + "/volume_db"), PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
-        p_list->push_back(PropertyInfo(VariantType::REAL, StringName("bus/" + itos(i) + "/send"), PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
+        p_list->push_back(PropertyInfo(VariantType::STRING, StringName("bus/" + itos(i) + "/name"), PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
+        p_list->push_back(PropertyInfo(VariantType::BOOL, StringName("bus/" + itos(i) + "/solo"), PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
+        p_list->push_back(PropertyInfo(VariantType::BOOL, StringName("bus/" + itos(i) + "/mute"), PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
+        p_list->push_back(PropertyInfo(VariantType::BOOL, StringName("bus/" + itos(i) + "/bypass_fx"), PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
+        p_list->push_back(PropertyInfo(VariantType::REAL, StringName("bus/" + itos(i) + "/volume_db"), PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
+        p_list->push_back(PropertyInfo(VariantType::REAL, StringName("bus/" + itos(i) + "/send"), PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
 
         for (int j = 0; j < buses[i].effects.size(); j++) {
-            p_list->push_back(PropertyInfo(VariantType::OBJECT, StringName("bus/" + itos(i) + "/effect/" + itos(j) + "/effect"), PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
-            p_list->push_back(PropertyInfo(VariantType::BOOL, StringName("bus/" + itos(i) + "/effect/" + itos(j) + "/enabled"), PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
+            p_list->push_back(PropertyInfo(VariantType::OBJECT, StringName("bus/" + itos(i) + "/effect/" + itos(j) + "/effect"), PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
+            p_list->push_back(PropertyInfo(VariantType::BOOL, StringName("bus/" + itos(i) + "/effect/" + itos(j) + "/enabled"), PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
         }
     }
 }

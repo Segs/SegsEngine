@@ -632,9 +632,9 @@ void AudioStreamSample::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("save_to_wav", {"path"}), &AudioStreamSample::save_to_wav);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::POOL_BYTE_ARRAY, "data", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR), "set_data", "get_data");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "format", PROPERTY_HINT_ENUM, "8-Bit,16-Bit,IMA-ADPCM"), "set_format", "get_format");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "loop_mode", PROPERTY_HINT_ENUM, "Disabled,Forward,Ping-Pong,Backward"), "set_loop_mode", "get_loop_mode");
+    ADD_PROPERTY(PropertyInfo(VariantType::POOL_BYTE_ARRAY, "data", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR), "set_data", "get_data");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "format", PropertyHint::Enum, "8-Bit,16-Bit,IMA-ADPCM"), "set_format", "get_format");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "loop_mode", PropertyHint::Enum, "Disabled,Forward,Ping-Pong,Backward"), "set_loop_mode", "get_loop_mode");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "loop_begin"), "set_loop_begin", "get_loop_begin");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "loop_end"), "set_loop_end", "get_loop_end");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "mix_rate"), "set_mix_rate", "get_mix_rate");

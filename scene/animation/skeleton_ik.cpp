@@ -345,11 +345,11 @@ void SkeletonIK::_validate_property(PropertyInfo &property) const {
                 names += skeleton->get_bone_name(i);
             }
 
-            property.hint = PROPERTY_HINT_ENUM;
+            property.hint = PropertyHint::Enum;
             property.hint_string = names;
         } else {
 
-            property.hint = PROPERTY_HINT_NONE;
+            property.hint = PropertyHint::None;
             property.hint_string = "";
         }
     }
@@ -395,7 +395,7 @@ void SkeletonIK::_bind_methods() {
 
     ADD_PROPERTY(PropertyInfo(VariantType::STRING, "root_bone"), "set_root_bone", "get_root_bone");
     ADD_PROPERTY(PropertyInfo(VariantType::STRING, "tip_bone"), "set_tip_bone", "get_tip_bone");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "interpolation", PROPERTY_HINT_RANGE, "0,1,0.001"), "set_interpolation", "get_interpolation");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "interpolation", PropertyHint::Range, "0,1,0.001"), "set_interpolation", "get_interpolation");
     ADD_PROPERTY(PropertyInfo(VariantType::TRANSFORM, "target"), "set_target_transform", "get_target_transform");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "override_tip_basis"), "set_override_tip_basis", "is_override_tip_basis");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "use_magnet"), "set_use_magnet", "is_using_magnet");

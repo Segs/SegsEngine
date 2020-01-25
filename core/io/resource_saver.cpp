@@ -101,13 +101,13 @@ void ResourceFormatSaver::_bind_methods() {
 
     {
         PropertyInfo arg0 = PropertyInfo(VariantType::STRING, "path");
-        PropertyInfo arg1 = PropertyInfo(VariantType::OBJECT, "resource", PROPERTY_HINT_RESOURCE_TYPE, "Resource");
+        PropertyInfo arg1 = PropertyInfo(VariantType::OBJECT, "resource", PropertyHint::ResourceType, "Resource");
         PropertyInfo arg2 = PropertyInfo(VariantType::INT, "flags");
         ClassDB::add_virtual_method(get_class_static_name(), MethodInfo(VariantType::INT, "save", eastl::move(arg0), eastl::move(arg1), eastl::move(arg2)));
     }
 
-    ClassDB::add_virtual_method(get_class_static_name(), MethodInfo(VariantType::POOL_STRING_ARRAY, "get_recognized_extensions", PropertyInfo(VariantType::OBJECT, "resource", PROPERTY_HINT_RESOURCE_TYPE, "Resource")));
-    ClassDB::add_virtual_method(get_class_static_name(), MethodInfo(VariantType::BOOL, "recognize", PropertyInfo(VariantType::OBJECT, "resource", PROPERTY_HINT_RESOURCE_TYPE, "Resource")));
+    ClassDB::add_virtual_method(get_class_static_name(), MethodInfo(VariantType::POOL_STRING_ARRAY, "get_recognized_extensions", PropertyInfo(VariantType::OBJECT, "resource", PropertyHint::ResourceType, "Resource")));
+    ClassDB::add_virtual_method(get_class_static_name(), MethodInfo(VariantType::BOOL, "recognize", PropertyInfo(VariantType::OBJECT, "resource", PropertyHint::ResourceType, "Resource")));
 }
 
 Error ResourceSaver::save(se_string_view p_path, const RES &p_resource, uint32_t p_flags) {

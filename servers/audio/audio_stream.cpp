@@ -307,8 +307,8 @@ void AudioStreamRandomPitch::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_random_pitch", {"scale"}), &AudioStreamRandomPitch::set_random_pitch);
     MethodBinder::bind_method(D_METHOD("get_random_pitch"), &AudioStreamRandomPitch::get_random_pitch);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "audio_stream", PROPERTY_HINT_RESOURCE_TYPE, "AudioStream"), "set_audio_stream", "get_audio_stream");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "random_pitch", PROPERTY_HINT_RANGE, "1,16,0.01"), "set_random_pitch", "get_random_pitch");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "audio_stream", PropertyHint::ResourceType, "AudioStream"), "set_audio_stream", "get_audio_stream");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "random_pitch", PropertyHint::Range, "1,16,0.01"), "set_random_pitch", "get_random_pitch");
 }
 
 AudioStreamRandomPitch::AudioStreamRandomPitch() {

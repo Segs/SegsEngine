@@ -384,8 +384,8 @@ Point2 CanvasItemEditor::snap_point(Point2 p_target, unsigned int p_modes, unsig
         // Self anchors
         if ((is_snap_active && snap_node_anchors && (p_modes & SNAP_NODE_ANCHORS)) || (p_forced_modes & SNAP_NODE_ANCHORS)) {
             if (const Control *c = object_cast<Control>(p_self_canvas_item)) {
-                Point2 begin = p_self_canvas_item->get_global_transform_with_canvas().xform(_anchor_to_position(c, Point2(c->get_anchor(MARGIN_LEFT), c->get_anchor(MARGIN_TOP))));
-                Point2 end = p_self_canvas_item->get_global_transform_with_canvas().xform(_anchor_to_position(c, Point2(c->get_anchor(MARGIN_RIGHT), c->get_anchor(MARGIN_BOTTOM))));
+                Point2 begin = p_self_canvas_item->get_global_transform_with_canvas().xform(_anchor_to_position(c, Point2(c->get_anchor(Margin::MARGIN_LEFT), c->get_anchor(Margin::MARGIN_TOP))));
+                Point2 end = p_self_canvas_item->get_global_transform_with_canvas().xform(_anchor_to_position(c, Point2(c->get_anchor(Margin::MARGIN_RIGHT), c->get_anchor(Margin::MARGIN_BOTTOM))));
                 _snap_if_closer_point(p_target, output, snap_target, begin, SNAP_TARGET_SELF_ANCHORS, rotation);
                 _snap_if_closer_point(p_target, output, snap_target, end, SNAP_TARGET_SELF_ANCHORS, rotation);
             }
@@ -1586,10 +1586,10 @@ bool CanvasItemEditor::_gui_input_anchors(const Ref<InputEvent> &p_event) {
                 Control *control = object_cast<Control>(selection[0]);
                 if (control && _is_node_movable(control)) {
                     Vector2 anchor_pos[4];
-                    anchor_pos[0] = Vector2(control->get_anchor(MARGIN_LEFT), control->get_anchor(MARGIN_TOP));
-                    anchor_pos[1] = Vector2(control->get_anchor(MARGIN_RIGHT), control->get_anchor(MARGIN_TOP));
-                    anchor_pos[2] = Vector2(control->get_anchor(MARGIN_RIGHT), control->get_anchor(MARGIN_BOTTOM));
-                    anchor_pos[3] = Vector2(control->get_anchor(MARGIN_LEFT), control->get_anchor(MARGIN_BOTTOM));
+                    anchor_pos[0] = Vector2(control->get_anchor(Margin::MARGIN_LEFT), control->get_anchor(Margin::MARGIN_TOP));
+                    anchor_pos[1] = Vector2(control->get_anchor(Margin::MARGIN_RIGHT), control->get_anchor(Margin::MARGIN_TOP));
+                    anchor_pos[2] = Vector2(control->get_anchor(Margin::MARGIN_RIGHT), control->get_anchor(Margin::MARGIN_BOTTOM));
+                    anchor_pos[3] = Vector2(control->get_anchor(Margin::MARGIN_LEFT), control->get_anchor(Margin::MARGIN_BOTTOM));
 
                     Rect2 anchor_rects[4];
                     for (int i = 0; i < 4; i++) {
@@ -2555,16 +2555,16 @@ void CanvasItemEditor::_draw_text_at_position(Point2 p_position, const UIString&
     Ref<Font> font = get_font("font", "Label");
     Size2 text_size = font->get_string_size(p_string);
     switch (p_side) {
-        case MARGIN_LEFT:
+    case Margin::MARGIN_LEFT:
             p_position += Vector2(-text_size.x - 5, text_size.y / 2);
             break;
-        case MARGIN_TOP:
+        case Margin::MARGIN_TOP:
             p_position += Vector2(-text_size.x / 2, -5);
             break;
-        case MARGIN_RIGHT:
+        case Margin::MARGIN_RIGHT:
             p_position += Vector2(5, text_size.y / 2);
             break;
-        case MARGIN_BOTTOM:
+        case Margin::MARGIN_BOTTOM:
             p_position += Vector2(-text_size.x / 2, text_size.y + 5);
             break;
     }

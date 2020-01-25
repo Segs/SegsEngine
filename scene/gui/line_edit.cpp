@@ -1849,7 +1849,7 @@ void LineEdit::_bind_methods() {
     BIND_ENUM_CONSTANT(MENU_MAX)
 
     ADD_PROPERTY(PropertyInfo(VariantType::STRING, "text"), "set_text", "get_text");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "align", PROPERTY_HINT_ENUM, "Left,Center,Right,Fill"), "set_align", "get_align");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "align", PropertyHint::Enum, "Left,Center,Right,Fill"), "set_align", "get_align");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "max_length"), "set_max_length", "get_max_length");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "editable"), "set_editable", "is_editable");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "secret"), "set_secret", "is_secret");
@@ -1859,13 +1859,13 @@ void LineEdit::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "clear_button_enabled"), "set_clear_button_enabled", "is_clear_button_enabled");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "shortcut_keys_enabled"), "set_shortcut_keys_enabled", "is_shortcut_keys_enabled");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "selecting_enabled"), "set_selecting_enabled", "is_selecting_enabled");
-    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "right_icon", PROPERTY_HINT_RESOURCE_TYPE, "Texture"), "set_right_icon", "get_right_icon");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "right_icon", PropertyHint::ResourceType, "Texture"), "set_right_icon", "get_right_icon");
     ADD_GROUP("Placeholder", "placeholder_");
     ADD_PROPERTY(PropertyInfo(VariantType::STRING, "placeholder_text"), "set_placeholder", "get_placeholder");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "placeholder_alpha", PROPERTY_HINT_RANGE, "0,1,0.001"), "set_placeholder_alpha", "get_placeholder_alpha");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "placeholder_alpha", PropertyHint::Range, "0,1,0.001"), "set_placeholder_alpha", "get_placeholder_alpha");
     ADD_GROUP("Caret", "caret_");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "caret_blink"), "cursor_set_blink_enabled", "cursor_get_blink_enabled");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "caret_blink_speed", PROPERTY_HINT_RANGE, "0.1,10,0.01"), "cursor_set_blink_speed", "cursor_get_blink_speed");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "caret_blink_speed", PropertyHint::Range, "0.1,10,0.01"), "cursor_set_blink_speed", "cursor_get_blink_speed");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "caret_position"), "set_cursor_position", "get_cursor_position");
 }
 

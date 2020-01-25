@@ -150,14 +150,14 @@ void VisualScriptExpression::_get_property_list(ListPOD<PropertyInfo> *p_list) c
     char argt[7+(longest_variant_type_name+1)*(int)VariantType::VARIANT_MAX];
     fill_with_all_variant_types("Any",argt);
 
-    p_list->push_back(PropertyInfo(VariantType::STRING, "expression", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR));
-    p_list->push_back(PropertyInfo(VariantType::INT, "out_type", PROPERTY_HINT_ENUM, argt));
-    p_list->push_back(PropertyInfo(VariantType::INT, "input_count", PROPERTY_HINT_RANGE, "0,64,1"));
+    p_list->push_back(PropertyInfo(VariantType::STRING, "expression", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR));
+    p_list->push_back(PropertyInfo(VariantType::INT, "out_type", PropertyHint::Enum, argt));
+    p_list->push_back(PropertyInfo(VariantType::INT, "input_count", PropertyHint::Range, "0,64,1"));
     p_list->push_back(PropertyInfo(VariantType::BOOL, "sequenced"));
 
     for (int i = 0; i < inputs.size(); i++) {
         String val=::to_string(i);
-        p_list->push_back(PropertyInfo(VariantType::INT, StringName("input_" + val + "/type"), PROPERTY_HINT_ENUM, argt));
+        p_list->push_back(PropertyInfo(VariantType::INT, StringName("input_" + val + "/type"), PropertyHint::Enum, argt));
         p_list->push_back(PropertyInfo(VariantType::STRING, StringName("input_" + val + "/name")));
     }
 }

@@ -640,7 +640,7 @@ void ScriptEditorDebugger::_parse_message(const String &p_msg, const Array &p_da
                     if (((Object *)var)->is_class("EncodedObjectAsID")) {
                         var = object_cast<EncodedObjectAsID>(var)->get_object_id();
                         pinfo.type = var.get_type();
-                        pinfo.hint = PROPERTY_HINT_OBJECT_ID;
+                        pinfo.hint = PropertyHint::ObjectID;
                         pinfo.hint_string = "Object";
                     }
                 }
@@ -734,12 +734,12 @@ void ScriptEditorDebugger::_parse_message(const String &p_msg, const Array &p_da
             String n = p_data[ofs + i * 2 + 0];
             Variant v = p_data[ofs + i * 2 + 1];
 
-            PropertyHint h = PROPERTY_HINT_NONE;
+            PropertyHint h = PropertyHint::None;
             const char *hs = "";
 
             if (v.get_type() == VariantType::OBJECT) {
                 v = object_cast<EncodedObjectAsID>(v)->get_object_id();
-                h = PROPERTY_HINT_OBJECT_ID;
+                h = PropertyHint::ObjectID;
                 hs = "Object";
             }
 
@@ -753,12 +753,12 @@ void ScriptEditorDebugger::_parse_message(const String &p_msg, const Array &p_da
 
             String n = p_data[ofs + i * 2 + 0];
             Variant v = p_data[ofs + i * 2 + 1];
-            PropertyHint h = PROPERTY_HINT_NONE;
+            PropertyHint h = PropertyHint::None;
             const char *hs = "";
 
             if (v.get_type() == VariantType::OBJECT) {
                 v = object_cast<EncodedObjectAsID>(v)->get_object_id();
-                h = PROPERTY_HINT_OBJECT_ID;
+                h = PropertyHint::ObjectID;
                 hs = "Object";
             }
 
@@ -776,12 +776,12 @@ void ScriptEditorDebugger::_parse_message(const String &p_msg, const Array &p_da
 
             String n = p_data[ofs + i * 2 + 0];
             Variant v = p_data[ofs + i * 2 + 1];
-            PropertyHint h = PROPERTY_HINT_NONE;
+            PropertyHint h = PropertyHint::None;
             const char *hs = "";
 
             if (v.get_type() == VariantType::OBJECT) {
                 v = object_cast<EncodedObjectAsID>(v)->get_object_id();
-                h = PROPERTY_HINT_OBJECT_ID;
+                h = PropertyHint::ObjectID;
                 hs = "Object";
             }
 

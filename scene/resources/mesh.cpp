@@ -554,6 +554,10 @@ void Mesh::_bind_methods() {
     BIND_ENUM_CONSTANT(ARRAY_WEIGHTS)
     BIND_ENUM_CONSTANT(ARRAY_INDEX)
     BIND_ENUM_CONSTANT(ARRAY_MAX)
+
+    BIND_CONSTANT(NO_INDEX_ARRAY)
+    BIND_CONSTANT(ARRAY_WEIGHTS_SIZE)
+
 }
 
 void Mesh::clear_cache() const {
@@ -795,18 +799,18 @@ void ArrayMesh::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
         return;
 
     if (!blend_shapes.empty()) {
-        p_list->push_back(PropertyInfo(VariantType::POOL_STRING_ARRAY, "blend_shape/names", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
-        p_list->push_back(PropertyInfo(VariantType::INT, "blend_shape/mode", PROPERTY_HINT_ENUM, "Normalized,Relative"));
+        p_list->push_back(PropertyInfo(VariantType::POOL_STRING_ARRAY, "blend_shape/names", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
+        p_list->push_back(PropertyInfo(VariantType::INT, "blend_shape/mode", PropertyHint::Enum, "Normalized,Relative"));
     }
 
     for (int i = 0; i < surfaces.size(); i++) {
 
-        p_list->push_back(PropertyInfo(VariantType::DICTIONARY, StringName("surfaces/" + itos(i)), PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
-        p_list->push_back(PropertyInfo(VariantType::STRING, StringName("surface_" + itos(i + 1) + "/name"), PROPERTY_HINT_NONE, "", PROPERTY_USAGE_EDITOR));
+        p_list->push_back(PropertyInfo(VariantType::DICTIONARY, StringName("surfaces/" + itos(i)), PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
+        p_list->push_back(PropertyInfo(VariantType::STRING, StringName("surface_" + itos(i + 1) + "/name"), PropertyHint::None, "", PROPERTY_USAGE_EDITOR));
         if (surfaces[i].is_2d) {
-            p_list->push_back(PropertyInfo(VariantType::OBJECT, StringName("surface_" + itos(i + 1) + "/material"), PROPERTY_HINT_RESOURCE_TYPE, "ShaderMaterial,CanvasItemMaterial", PROPERTY_USAGE_EDITOR));
+            p_list->push_back(PropertyInfo(VariantType::OBJECT, StringName("surface_" + itos(i + 1) + "/material"), PropertyHint::ResourceType, "ShaderMaterial,CanvasItemMaterial", PROPERTY_USAGE_EDITOR));
         } else {
-            p_list->push_back(PropertyInfo(VariantType::OBJECT, StringName("surface_" + itos(i + 1) + "/material"), PROPERTY_HINT_RESOURCE_TYPE, "ShaderMaterial,SpatialMaterial", PROPERTY_USAGE_EDITOR));
+            p_list->push_back(PropertyInfo(VariantType::OBJECT, StringName("surface_" + itos(i + 1) + "/material"), PropertyHint::ResourceType, "ShaderMaterial,SpatialMaterial", PROPERTY_USAGE_EDITOR));
         }
     }
 }
@@ -1318,32 +1322,8 @@ void ArrayMesh::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_custom_aabb", {"aabb"}), &ArrayMesh::set_custom_aabb);
     MethodBinder::bind_method(D_METHOD("get_custom_aabb"), &ArrayMesh::get_custom_aabb);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "blend_shape_mode", PROPERTY_HINT_ENUM, "Normalized,Relative", PROPERTY_USAGE_NOEDITOR), "set_blend_shape_mode", "get_blend_shape_mode");
-    ADD_PROPERTY(PropertyInfo(VariantType::AABB, "custom_aabb", PROPERTY_HINT_NONE, ""), "set_custom_aabb", "get_custom_aabb");
-
-    BIND_CONSTANT(NO_INDEX_ARRAY)
-    BIND_CONSTANT(ARRAY_WEIGHTS_SIZE)
-
-    BIND_ENUM_CONSTANT(ARRAY_VERTEX)
-    BIND_ENUM_CONSTANT(ARRAY_NORMAL)
-    BIND_ENUM_CONSTANT(ARRAY_TANGENT)
-    BIND_ENUM_CONSTANT(ARRAY_COLOR)
-    BIND_ENUM_CONSTANT(ARRAY_TEX_UV)
-    BIND_ENUM_CONSTANT(ARRAY_TEX_UV2)
-    BIND_ENUM_CONSTANT(ARRAY_BONES)
-    BIND_ENUM_CONSTANT(ARRAY_WEIGHTS)
-    BIND_ENUM_CONSTANT(ARRAY_INDEX)
-    BIND_ENUM_CONSTANT(ARRAY_MAX)
-
-    BIND_ENUM_CONSTANT(ARRAY_FORMAT_VERTEX)
-    BIND_ENUM_CONSTANT(ARRAY_FORMAT_NORMAL)
-    BIND_ENUM_CONSTANT(ARRAY_FORMAT_TANGENT)
-    BIND_ENUM_CONSTANT(ARRAY_FORMAT_COLOR)
-    BIND_ENUM_CONSTANT(ARRAY_FORMAT_TEX_UV)
-    BIND_ENUM_CONSTANT(ARRAY_FORMAT_TEX_UV2)
-    BIND_ENUM_CONSTANT(ARRAY_FORMAT_BONES)
-    BIND_ENUM_CONSTANT(ARRAY_FORMAT_WEIGHTS)
-    BIND_ENUM_CONSTANT(ARRAY_FORMAT_INDEX)
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "blend_shape_mode", PropertyHint::Enum, "Normalized,Relative", PROPERTY_USAGE_NOEDITOR), "set_blend_shape_mode", "get_blend_shape_mode");
+    ADD_PROPERTY(PropertyInfo(VariantType::AABB, "custom_aabb", PropertyHint::None, ""), "set_custom_aabb", "get_custom_aabb");
 }
 
 void ArrayMesh::reload_from_file() {

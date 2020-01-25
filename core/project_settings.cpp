@@ -276,7 +276,7 @@ void ProjectSettings::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
             pi.usage = E.flags;
             p_list->push_back(pi);
         } else
-            p_list->push_back(PropertyInfo(E.type, E.name, PROPERTY_HINT_NONE, nullptr, E.flags));
+            p_list->push_back(PropertyInfo(E.type, E.name, PropertyHint::None, nullptr, E.flags));
     }
 }
 
@@ -1031,16 +1031,16 @@ ProjectSettings::ProjectSettings() {
 
     GLOBAL_DEF("application/config/name", "");
     GLOBAL_DEF("application/config/description", "");
-    custom_prop_info[StaticCString("application/config/description")] = PropertyInfo(VariantType::STRING, "application/config/description", PROPERTY_HINT_MULTILINE_TEXT);
+    custom_prop_info[StaticCString("application/config/description")] = PropertyInfo(VariantType::STRING, "application/config/description", PropertyHint::MultilineText);
     GLOBAL_DEF("application/run/main_scene", "");
-    custom_prop_info[StaticCString("application/run/main_scene")] = PropertyInfo(VariantType::STRING, "application/run/main_scene", PROPERTY_HINT_FILE, "*.tscn,*.scn,*.res");
+    custom_prop_info[StaticCString("application/run/main_scene")] = PropertyInfo(VariantType::STRING, "application/run/main_scene", PropertyHint::File, "*.tscn,*.scn,*.res");
     GLOBAL_DEF("application/run/disable_stdout", false);
     GLOBAL_DEF("application/run/disable_stderr", false);
     GLOBAL_DEF("application/config/use_custom_user_dir", false);
     GLOBAL_DEF("application/config/custom_user_dir_name", "");
     GLOBAL_DEF("application/config/project_settings_override", "");
     GLOBAL_DEF("audio/default_bus_layout", "res://default_bus_layout.tres");
-    custom_prop_info[StaticCString("audio/default_bus_layout")] = PropertyInfo(VariantType::STRING, "audio/default_bus_layout", PROPERTY_HINT_FILE, "*.tres");
+    custom_prop_info[StaticCString("audio/default_bus_layout")] = PropertyInfo(VariantType::STRING, "audio/default_bus_layout", PropertyHint::File, "*.tres");
 
     PoolStringArray extensions;
     extensions.push_back("gd");
@@ -1052,7 +1052,7 @@ ProjectSettings::ProjectSettings() {
     custom_prop_info[StaticCString("editor/search_in_file_extensions")] = PropertyInfo(VariantType::POOL_STRING_ARRAY, "editor/search_in_file_extensions");
 
     GLOBAL_DEF("editor/script_templates_search_path", "res://script_templates");
-    custom_prop_info[StaticCString("editor/script_templates_search_path")] = PropertyInfo(VariantType::STRING, "editor/script_templates_search_path", PROPERTY_HINT_DIR);
+    custom_prop_info[StaticCString("editor/script_templates_search_path")] = PropertyInfo(VariantType::STRING, "editor/script_templates_search_path", PropertyHint::Dir);
 
     action = Dictionary();
     action["deadzone"] = Variant(0.5f);
@@ -1212,27 +1212,27 @@ ProjectSettings::ProjectSettings() {
     GLOBAL_DEF("input/ui_end", action);
     input_presets.push_back(("input/ui_end"));
 
-    custom_prop_info[StaticCString("display/window/handheld/orientation")] = PropertyInfo(VariantType::STRING, "display/window/handheld/orientation", PROPERTY_HINT_ENUM, "landscape,portrait,reverse_landscape,reverse_portrait,sensor_landscape,sensor_portrait,sensor");
-    custom_prop_info[StaticCString("rendering/threads/thread_model")] = PropertyInfo(VariantType::INT, "rendering/threads/thread_model", PROPERTY_HINT_ENUM, "Single-Unsafe,Single-Safe,Multi-Threaded");
-    custom_prop_info[StaticCString("physics/2d/thread_model")] = PropertyInfo(VariantType::INT, "physics/2d/thread_model", PROPERTY_HINT_ENUM, "Single-Unsafe,Single-Safe,Multi-Threaded");
-    custom_prop_info[StaticCString("rendering/quality/intended_usage/framebuffer_allocation")] = PropertyInfo(VariantType::INT, "rendering/quality/intended_usage/framebuffer_allocation", PROPERTY_HINT_ENUM, "2D,2D Without Sampling,3D,3D Without Effects");
+    custom_prop_info[StaticCString("display/window/handheld/orientation")] = PropertyInfo(VariantType::STRING, "display/window/handheld/orientation", PropertyHint::Enum, "landscape,portrait,reverse_landscape,reverse_portrait,sensor_landscape,sensor_portrait,sensor");
+    custom_prop_info[StaticCString("rendering/threads/thread_model")] = PropertyInfo(VariantType::INT, "rendering/threads/thread_model", PropertyHint::Enum, "Single-Unsafe,Single-Safe,Multi-Threaded");
+    custom_prop_info[StaticCString("physics/2d/thread_model")] = PropertyInfo(VariantType::INT, "physics/2d/thread_model", PropertyHint::Enum, "Single-Unsafe,Single-Safe,Multi-Threaded");
+    custom_prop_info[StaticCString("rendering/quality/intended_usage/framebuffer_allocation")] = PropertyInfo(VariantType::INT, "rendering/quality/intended_usage/framebuffer_allocation", PropertyHint::Enum, "2D,2D Without Sampling,3D,3D Without Effects");
 
     GLOBAL_DEF("debug/settings/profiler/max_functions", 16384);
-    custom_prop_info[StaticCString("debug/settings/profiler/max_functions")] = PropertyInfo(VariantType::INT, "debug/settings/profiler/max_functions", PROPERTY_HINT_RANGE, "128,65535,1");
+    custom_prop_info[StaticCString("debug/settings/profiler/max_functions")] = PropertyInfo(VariantType::INT, "debug/settings/profiler/max_functions", PropertyHint::Range, "128,65535,1");
 
     //assigning here, because using GLOBAL_GET on every block for compressing can be slow
     Compression::zstd_long_distance_matching = GLOBAL_DEF("compression/formats/zstd/long_distance_matching", false).as<bool>();
     custom_prop_info[StaticCString("compression/formats/zstd/long_distance_matching")] = PropertyInfo(VariantType::BOOL, "compression/formats/zstd/long_distance_matching");
     Compression::zstd_level = GLOBAL_DEF("compression/formats/zstd/compression_level", 3);
-    custom_prop_info[StaticCString("compression/formats/zstd/compression_level")] = PropertyInfo(VariantType::INT, "compression/formats/zstd/compression_level", PROPERTY_HINT_RANGE, "1,22,1");
+    custom_prop_info[StaticCString("compression/formats/zstd/compression_level")] = PropertyInfo(VariantType::INT, "compression/formats/zstd/compression_level", PropertyHint::Range, "1,22,1");
     Compression::zstd_window_log_size = GLOBAL_DEF("compression/formats/zstd/window_log_size", 27);
-    custom_prop_info[StaticCString("compression/formats/zstd/window_log_size")] = PropertyInfo(VariantType::INT, "compression/formats/zstd/window_log_size", PROPERTY_HINT_RANGE, "10,30,1");
+    custom_prop_info[StaticCString("compression/formats/zstd/window_log_size")] = PropertyInfo(VariantType::INT, "compression/formats/zstd/window_log_size", PropertyHint::Range, "10,30,1");
 
     Compression::zlib_level = GLOBAL_DEF("compression/formats/zlib/compression_level", Z_DEFAULT_COMPRESSION);
-    custom_prop_info[StaticCString("compression/formats/zlib/compression_level")] = PropertyInfo(VariantType::INT, "compression/formats/zlib/compression_level", PROPERTY_HINT_RANGE, "-1,9,1");
+    custom_prop_info[StaticCString("compression/formats/zlib/compression_level")] = PropertyInfo(VariantType::INT, "compression/formats/zlib/compression_level", PropertyHint::Range, "-1,9,1");
 
     Compression::gzip_level = GLOBAL_DEF("compression/formats/gzip/compression_level", Z_DEFAULT_COMPRESSION);
-    custom_prop_info[StaticCString("compression/formats/gzip/compression_level")] = PropertyInfo(VariantType::INT, "compression/formats/gzip/compression_level", PROPERTY_HINT_RANGE, "-1,9,1");
+    custom_prop_info[StaticCString("compression/formats/gzip/compression_level")] = PropertyInfo(VariantType::INT, "compression/formats/gzip/compression_level", PropertyHint::Range, "-1,9,1");
 
     // Would ideally be defined in an Android-specific file, but then it doesn't appear in the docs
     GLOBAL_DEF("android/modules", "");

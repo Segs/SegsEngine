@@ -837,7 +837,7 @@ void NetworkedMultiplayerENet::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_server_relay_enabled", {"enabled"}), &NetworkedMultiplayerENet::set_server_relay_enabled);
     MethodBinder::bind_method(D_METHOD("is_server_relay_enabled"), &NetworkedMultiplayerENet::is_server_relay_enabled);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "compression_mode", PROPERTY_HINT_ENUM, "None,Range Coder,FastLZ,ZLib,ZStd"), "set_compression_mode", "get_compression_mode");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "compression_mode", PropertyHint::Enum, "None,Range Coder,FastLZ,ZLib,ZStd"), "set_compression_mode", "get_compression_mode");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "transfer_channel"), "set_transfer_channel", "get_transfer_channel");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "channel_count"), "set_channel_count", "get_channel_count");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "always_ordered"), "set_always_ordered", "is_always_ordered");

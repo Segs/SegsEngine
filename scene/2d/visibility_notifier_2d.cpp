@@ -147,8 +147,8 @@ void VisibilityNotifier2D::_bind_methods() {
 
     ADD_PROPERTY(PropertyInfo(VariantType::RECT2, "rect"), "set_rect", "get_rect");
 
-    ADD_SIGNAL(MethodInfo("viewport_entered", PropertyInfo(VariantType::OBJECT, "viewport", PROPERTY_HINT_RESOURCE_TYPE, "Viewport")));
-    ADD_SIGNAL(MethodInfo("viewport_exited", PropertyInfo(VariantType::OBJECT, "viewport", PROPERTY_HINT_RESOURCE_TYPE, "Viewport")));
+    ADD_SIGNAL(MethodInfo("viewport_entered", PropertyInfo(VariantType::OBJECT, "viewport", PropertyHint::ResourceType, "Viewport")));
+    ADD_SIGNAL(MethodInfo("viewport_exited", PropertyInfo(VariantType::OBJECT, "viewport", PropertyHint::ResourceType, "Viewport")));
     ADD_SIGNAL(MethodInfo("screen_entered"));
     ADD_SIGNAL(MethodInfo("screen_exited"));
 }

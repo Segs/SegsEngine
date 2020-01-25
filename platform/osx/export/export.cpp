@@ -122,28 +122,28 @@ void EditorExportPlatformOSX::get_preset_features(const Ref<EditorExportPreset> 
 
 void EditorExportPlatformOSX::get_export_options(List<ExportOption> *r_options) {
 
-    r_options->push_back(ExportOption(PropertyInfo(VariantType::STRING, "custom_template/debug", PROPERTY_HINT_GLOBAL_FILE, "*.zip"), ""));
-    r_options->push_back(ExportOption(PropertyInfo(VariantType::STRING, "custom_template/release", PROPERTY_HINT_GLOBAL_FILE, "*.zip"), ""));
+    r_options->push_back(ExportOption(PropertyInfo(VariantType::STRING, "custom_template/debug", PropertyHint::GlobalFile, "*.zip"), ""));
+    r_options->push_back(ExportOption(PropertyInfo(VariantType::STRING, "custom_template/release", PropertyHint::GlobalFile, "*.zip"), ""));
 
-    r_options->push_back(ExportOption(PropertyInfo(VariantType::STRING, "application/name", PROPERTY_HINT_PLACEHOLDER_TEXT, "Game Name"), ""));
+    r_options->push_back(ExportOption(PropertyInfo(VariantType::STRING, "application/name", PropertyHint::PlaceholderText, "Game Name"), ""));
     r_options->push_back(ExportOption(PropertyInfo(VariantType::STRING, "application/info"), "Made with Godot Engine"));
-    r_options->push_back(ExportOption(PropertyInfo(VariantType::STRING, "application/icon", PROPERTY_HINT_FILE, "*.png,*.icns"), ""));
-    r_options->push_back(ExportOption(PropertyInfo(VariantType::STRING, "application/identifier", PROPERTY_HINT_PLACEHOLDER_TEXT, "com.example.game"), ""));
+    r_options->push_back(ExportOption(PropertyInfo(VariantType::STRING, "application/icon", PropertyHint::File, "*.png,*.icns"), ""));
+    r_options->push_back(ExportOption(PropertyInfo(VariantType::STRING, "application/identifier", PropertyHint::PlaceholderText, "com.example.game"), ""));
     r_options->push_back(ExportOption(PropertyInfo(VariantType::STRING, "application/signature"), ""));
     r_options->push_back(ExportOption(PropertyInfo(VariantType::STRING, "application/short_version"), "1.0"));
     r_options->push_back(ExportOption(PropertyInfo(VariantType::STRING, "application/version"), "1.0"));
     r_options->push_back(ExportOption(PropertyInfo(VariantType::STRING, "application/copyright"), ""));
     r_options->push_back(ExportOption(PropertyInfo(VariantType::BOOL, "display/high_res"), false));
-    r_options->push_back(ExportOption(PropertyInfo(VariantType::STRING, "privacy/camera_usage_description", PROPERTY_HINT_PLACEHOLDER_TEXT, "Provide a message if you need to use the camera"), ""));
-    r_options->push_back(ExportOption(PropertyInfo(VariantType::STRING, "privacy/microphone_usage_description", PROPERTY_HINT_PLACEHOLDER_TEXT, "Provide a message if you need to use the microphone"), ""));
+    r_options->push_back(ExportOption(PropertyInfo(VariantType::STRING, "privacy/camera_usage_description", PropertyHint::PlaceholderText, "Provide a message if you need to use the camera"), ""));
+    r_options->push_back(ExportOption(PropertyInfo(VariantType::STRING, "privacy/microphone_usage_description", PropertyHint::PlaceholderText, "Provide a message if you need to use the microphone"), ""));
 
 
 #ifdef OSX_ENABLED
     r_options->push_back(ExportOption(PropertyInfo(VariantType::BOOL, "codesign/enable"), false));
-    r_options->push_back(ExportOption(PropertyInfo(VariantType::STRING, "codesign/identity", PROPERTY_HINT_PLACEHOLDER_TEXT, "Type: Name (ID)"), ""));
+    r_options->push_back(ExportOption(PropertyInfo(VariantType::STRING, "codesign/identity", PropertyHint::PlaceholderText, "Type: Name (ID)"), ""));
     r_options->push_back(ExportOption(PropertyInfo(VariantType::BOOL, "codesign/timestamp"), true));
     r_options->push_back(ExportOption(PropertyInfo(VariantType::BOOL, "codesign/hardened_runtime"), true));
-    r_options->push_back(ExportOption(PropertyInfo(VariantType::STRING, "codesign/entitlements", PROPERTY_HINT_GLOBAL_FILE, "*.plist"), ""));
+    r_options->push_back(ExportOption(PropertyInfo(VariantType::STRING, "codesign/entitlements", PropertyHint::GlobalFile, "*.plist"), ""));
 #endif
 
     r_options->push_back(ExportOption(PropertyInfo(VariantType::BOOL, "texture_format/s3tc"), true));

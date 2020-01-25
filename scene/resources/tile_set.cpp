@@ -341,43 +341,43 @@ void TileSet::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
         int id = E.first;
         String pre = itos(id) + "/";
         p_list->push_back(PropertyInfo(VariantType::STRING, StringName(pre + "name")));
-        p_list->push_back(PropertyInfo(VariantType::OBJECT, StringName(pre + "texture"), PROPERTY_HINT_RESOURCE_TYPE, "Texture"));
-        p_list->push_back(PropertyInfo(VariantType::OBJECT, StringName(pre + "normal_map"), PROPERTY_HINT_RESOURCE_TYPE, "Texture"));
+        p_list->push_back(PropertyInfo(VariantType::OBJECT, StringName(pre + "texture"), PropertyHint::ResourceType, "Texture"));
+        p_list->push_back(PropertyInfo(VariantType::OBJECT, StringName(pre + "normal_map"), PropertyHint::ResourceType, "Texture"));
         p_list->push_back(PropertyInfo(VariantType::VECTOR2, StringName(pre + "tex_offset")));
-        p_list->push_back(PropertyInfo(VariantType::OBJECT, StringName(pre + "material"), PROPERTY_HINT_RESOURCE_TYPE, "ShaderMaterial"));
+        p_list->push_back(PropertyInfo(VariantType::OBJECT, StringName(pre + "material"), PropertyHint::ResourceType, "ShaderMaterial"));
         p_list->push_back(PropertyInfo(VariantType::COLOR, StringName(pre + "modulate")));
         p_list->push_back(PropertyInfo(VariantType::RECT2, StringName(pre + "region")));
-        p_list->push_back(PropertyInfo(VariantType::INT, StringName(pre + "tile_mode"), PROPERTY_HINT_ENUM, "SINGLE_TILE,AUTO_TILE,ATLAS_TILE"));
+        p_list->push_back(PropertyInfo(VariantType::INT, StringName(pre + "tile_mode"), PropertyHint::Enum, "SINGLE_TILE,AUTO_TILE,ATLAS_TILE"));
         if (tile_get_tile_mode(id) == AUTO_TILE) {
-            p_list->push_back(PropertyInfo(VariantType::INT, StringName(pre + "autotile/bitmask_mode"), PROPERTY_HINT_ENUM, "2X2,3X3 (minimal),3X3", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
-            p_list->push_back(PropertyInfo(VariantType::ARRAY, StringName(pre + "autotile/bitmask_flags"), PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
-            p_list->push_back(PropertyInfo(VariantType::VECTOR2, StringName(pre + "autotile/icon_coordinate"), PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
-            p_list->push_back(PropertyInfo(VariantType::VECTOR2, StringName(pre + "autotile/tile_size"), PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
-            p_list->push_back(PropertyInfo(VariantType::INT, StringName(pre + "autotile/spacing"), PROPERTY_HINT_RANGE, "0,256,1", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
-            p_list->push_back(PropertyInfo(VariantType::ARRAY, StringName(pre + "autotile/occluder_map"), PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
-            p_list->push_back(PropertyInfo(VariantType::ARRAY, StringName(pre + "autotile/navpoly_map"), PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
-            p_list->push_back(PropertyInfo(VariantType::ARRAY, StringName(pre + "autotile/priority_map"), PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
-            p_list->push_back(PropertyInfo(VariantType::ARRAY, StringName(pre + "autotile/z_index_map"), PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
+            p_list->push_back(PropertyInfo(VariantType::INT, StringName(pre + "autotile/bitmask_mode"), PropertyHint::Enum, "2X2,3X3 (minimal),3X3", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
+            p_list->push_back(PropertyInfo(VariantType::ARRAY, StringName(pre + "autotile/bitmask_flags"), PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
+            p_list->push_back(PropertyInfo(VariantType::VECTOR2, StringName(pre + "autotile/icon_coordinate"), PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
+            p_list->push_back(PropertyInfo(VariantType::VECTOR2, StringName(pre + "autotile/tile_size"), PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
+            p_list->push_back(PropertyInfo(VariantType::INT, StringName(pre + "autotile/spacing"), PropertyHint::Range, "0,256,1", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
+            p_list->push_back(PropertyInfo(VariantType::ARRAY, StringName(pre + "autotile/occluder_map"), PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
+            p_list->push_back(PropertyInfo(VariantType::ARRAY, StringName(pre + "autotile/navpoly_map"), PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
+            p_list->push_back(PropertyInfo(VariantType::ARRAY, StringName(pre + "autotile/priority_map"), PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
+            p_list->push_back(PropertyInfo(VariantType::ARRAY, StringName(pre + "autotile/z_index_map"), PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
         } else if (tile_get_tile_mode(id) == ATLAS_TILE) {
-            p_list->push_back(PropertyInfo(VariantType::VECTOR2, StringName(pre + "autotile/icon_coordinate"), PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
-            p_list->push_back(PropertyInfo(VariantType::VECTOR2, StringName(pre + "autotile/tile_size"), PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
-            p_list->push_back(PropertyInfo(VariantType::INT, StringName(pre + "autotile/spacing"), PROPERTY_HINT_RANGE, "0,256,1", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
-            p_list->push_back(PropertyInfo(VariantType::ARRAY, StringName(pre + "autotile/occluder_map"), PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
-            p_list->push_back(PropertyInfo(VariantType::ARRAY, StringName(pre + "autotile/navpoly_map"), PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
-            p_list->push_back(PropertyInfo(VariantType::ARRAY, StringName(pre + "autotile/priority_map"), PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
-            p_list->push_back(PropertyInfo(VariantType::ARRAY, StringName(pre + "autotile/z_index_map"), PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
+            p_list->push_back(PropertyInfo(VariantType::VECTOR2, StringName(pre + "autotile/icon_coordinate"), PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
+            p_list->push_back(PropertyInfo(VariantType::VECTOR2, StringName(pre + "autotile/tile_size"), PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
+            p_list->push_back(PropertyInfo(VariantType::INT, StringName(pre + "autotile/spacing"), PropertyHint::Range, "0,256,1", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
+            p_list->push_back(PropertyInfo(VariantType::ARRAY, StringName(pre + "autotile/occluder_map"), PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
+            p_list->push_back(PropertyInfo(VariantType::ARRAY, StringName(pre + "autotile/navpoly_map"), PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
+            p_list->push_back(PropertyInfo(VariantType::ARRAY, StringName(pre + "autotile/priority_map"), PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
+            p_list->push_back(PropertyInfo(VariantType::ARRAY, StringName(pre + "autotile/z_index_map"), PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
         }
         p_list->push_back(PropertyInfo(VariantType::VECTOR2, StringName(pre + "occluder_offset")));
-        p_list->push_back(PropertyInfo(VariantType::OBJECT, StringName(pre + "occluder"), PROPERTY_HINT_RESOURCE_TYPE, "OccluderPolygon2D"));
+        p_list->push_back(PropertyInfo(VariantType::OBJECT, StringName(pre + "occluder"), PropertyHint::ResourceType, "OccluderPolygon2D"));
         p_list->push_back(PropertyInfo(VariantType::VECTOR2, StringName(pre + "navigation_offset")));
-        p_list->push_back(PropertyInfo(VariantType::OBJECT, StringName(pre + "navigation"), PROPERTY_HINT_RESOURCE_TYPE, "NavigationPolygon"));
-        p_list->push_back(PropertyInfo(VariantType::VECTOR2, StringName(pre + "shape_offset"), PROPERTY_HINT_NONE, "", PROPERTY_USAGE_EDITOR));
-        p_list->push_back(PropertyInfo(VariantType::VECTOR2, StringName(pre + "shape_transform"), PROPERTY_HINT_NONE, "", PROPERTY_USAGE_EDITOR));
-        p_list->push_back(PropertyInfo(VariantType::OBJECT, StringName(pre + "shape"), PROPERTY_HINT_RESOURCE_TYPE, "Shape2D", PROPERTY_USAGE_EDITOR));
-        p_list->push_back(PropertyInfo(VariantType::BOOL, StringName(pre + "shape_one_way"), PROPERTY_HINT_NONE, "", PROPERTY_USAGE_EDITOR));
-        p_list->push_back(PropertyInfo(VariantType::REAL,StringName( pre + "shape_one_way_margin"), PROPERTY_HINT_RANGE, "0,128,0.01", PROPERTY_USAGE_EDITOR));
-        p_list->push_back(PropertyInfo(VariantType::ARRAY, StringName(pre + "shapes"), PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR));
-        p_list->push_back(PropertyInfo(VariantType::INT, StringName(pre + "z_index"), PROPERTY_HINT_RANGE, itos(VS::CANVAS_ITEM_Z_MIN) + "," + itos(VS::CANVAS_ITEM_Z_MAX) + ",1"));
+        p_list->push_back(PropertyInfo(VariantType::OBJECT, StringName(pre + "navigation"), PropertyHint::ResourceType, "NavigationPolygon"));
+        p_list->push_back(PropertyInfo(VariantType::VECTOR2, StringName(pre + "shape_offset"), PropertyHint::None, "", PROPERTY_USAGE_EDITOR));
+        p_list->push_back(PropertyInfo(VariantType::VECTOR2, StringName(pre + "shape_transform"), PropertyHint::None, "", PROPERTY_USAGE_EDITOR));
+        p_list->push_back(PropertyInfo(VariantType::OBJECT, StringName(pre + "shape"), PropertyHint::ResourceType, "Shape2D", PROPERTY_USAGE_EDITOR));
+        p_list->push_back(PropertyInfo(VariantType::BOOL, StringName(pre + "shape_one_way"), PropertyHint::None, "", PROPERTY_USAGE_EDITOR));
+        p_list->push_back(PropertyInfo(VariantType::REAL,StringName( pre + "shape_one_way_margin"), PropertyHint::Range, "0,128,0.01", PROPERTY_USAGE_EDITOR));
+        p_list->push_back(PropertyInfo(VariantType::ARRAY, StringName(pre + "shapes"), PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR));
+        p_list->push_back(PropertyInfo(VariantType::INT, StringName(pre + "z_index"), PropertyHint::Range, itos(VS::CANVAS_ITEM_Z_MIN) + "," + itos(VS::CANVAS_ITEM_Z_MAX) + ",1"));
     }
 }
 
@@ -1236,8 +1236,8 @@ void TileSet::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_tiles_ids"), &TileSet::_get_tiles_ids);
 
     BIND_VMETHOD(MethodInfo(VariantType::BOOL, "_is_tile_bound", PropertyInfo(VariantType::INT, "drawn_id"), PropertyInfo(VariantType::INT, "neighbor_id")));
-    BIND_VMETHOD(MethodInfo(VariantType::VECTOR2, "_forward_subtile_selection", PropertyInfo(VariantType::INT, "autotile_id"), PropertyInfo(VariantType::INT, "bitmask"), PropertyInfo(VariantType::OBJECT, "tilemap", PROPERTY_HINT_NONE, "TileMap"), PropertyInfo(VariantType::VECTOR2, "tile_location")));
-    BIND_VMETHOD(MethodInfo(VariantType::VECTOR2, "_forward_atlas_subtile_selection", PropertyInfo(VariantType::INT, "atlastile_id"), PropertyInfo(VariantType::OBJECT, "tilemap", PROPERTY_HINT_NONE, "TileMap"), PropertyInfo(VariantType::VECTOR2, "tile_location")));
+    BIND_VMETHOD(MethodInfo(VariantType::VECTOR2, "_forward_subtile_selection", PropertyInfo(VariantType::INT, "autotile_id"), PropertyInfo(VariantType::INT, "bitmask"), PropertyInfo(VariantType::OBJECT, "tilemap", PropertyHint::None, "TileMap"), PropertyInfo(VariantType::VECTOR2, "tile_location")));
+    BIND_VMETHOD(MethodInfo(VariantType::VECTOR2, "_forward_atlas_subtile_selection", PropertyInfo(VariantType::INT, "atlastile_id"), PropertyInfo(VariantType::OBJECT, "tilemap", PropertyHint::None, "TileMap"), PropertyInfo(VariantType::VECTOR2, "tile_location")));
 
     BIND_ENUM_CONSTANT(BITMASK_2X2)
     BIND_ENUM_CONSTANT(BITMASK_3X3_MINIMAL)

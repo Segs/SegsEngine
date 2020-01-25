@@ -350,7 +350,7 @@ void Control::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
             if (data.icon_override.contains(E))
                 hint |= PROPERTY_USAGE_STORAGE | PROPERTY_USAGE_CHECKED;
 
-            p_list->push_back(PropertyInfo(VariantType::OBJECT, StringName(basename + E), PROPERTY_HINT_RESOURCE_TYPE, "Texture", hint));
+            p_list->push_back(PropertyInfo(VariantType::OBJECT, StringName(basename + E), PropertyHint::ResourceType, "Texture", hint));
         }
     }
     {
@@ -363,7 +363,7 @@ void Control::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
             if (data.shader_override.contains(E))
                 hint |= PROPERTY_USAGE_STORAGE | PROPERTY_USAGE_CHECKED;
 
-            p_list->push_back(PropertyInfo(VariantType::OBJECT, StringName(basename + E), PROPERTY_HINT_RESOURCE_TYPE, "Shader,VisualShader", hint));
+            p_list->push_back(PropertyInfo(VariantType::OBJECT, StringName(basename + E), PropertyHint::ResourceType, "Shader,VisualShader", hint));
         }
     }
     {
@@ -376,7 +376,7 @@ void Control::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
             if (data.style_override.contains(E))
                 hint |= PROPERTY_USAGE_STORAGE | PROPERTY_USAGE_CHECKED;
 
-            p_list->push_back(PropertyInfo(VariantType::OBJECT, StringName(basename + E), PROPERTY_HINT_RESOURCE_TYPE, "StyleBox", hint));
+            p_list->push_back(PropertyInfo(VariantType::OBJECT, StringName(basename + E), PropertyHint::ResourceType, "StyleBox", hint));
         }
     }
     {
@@ -389,7 +389,7 @@ void Control::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
             if (data.font_override.contains(E))
                 hint |= PROPERTY_USAGE_STORAGE | PROPERTY_USAGE_CHECKED;
 
-            p_list->push_back(PropertyInfo(VariantType::OBJECT, StringName(basename + E), PROPERTY_HINT_RESOURCE_TYPE, "Font", hint));
+            p_list->push_back(PropertyInfo(VariantType::OBJECT, StringName(basename + E), PropertyHint::ResourceType, "Font", hint));
         }
     }
     {
@@ -402,7 +402,7 @@ void Control::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
             if (data.color_override.contains(E))
                 hint |= PROPERTY_USAGE_STORAGE | PROPERTY_USAGE_CHECKED;
 
-            p_list->push_back(PropertyInfo(VariantType::COLOR, StringName(basename + E), PROPERTY_HINT_NONE, "", hint));
+            p_list->push_back(PropertyInfo(VariantType::COLOR, StringName(basename + E), PropertyHint::None, "", hint));
         }
     }
     {
@@ -415,7 +415,7 @@ void Control::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
             if (data.constant_override.contains(E))
                 hint |= PROPERTY_USAGE_STORAGE | PROPERTY_USAGE_CHECKED;
 
-            p_list->push_back(PropertyInfo(VariantType::INT, StringName(basename + E), PROPERTY_HINT_RANGE, "-16384,16384", hint));
+            p_list->push_back(PropertyInfo(VariantType::INT, StringName(basename + E), PropertyHint::Range, "-16384,16384", hint));
         }
     }
 }
@@ -2925,7 +2925,7 @@ void Control::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("_override_changed"), &Control::_override_changed);
 
-    BIND_VMETHOD(MethodInfo("_gui_input", PropertyInfo(VariantType::OBJECT, "event", PROPERTY_HINT_RESOURCE_TYPE, "InputEvent")));
+    BIND_VMETHOD(MethodInfo("_gui_input", PropertyInfo(VariantType::OBJECT, "event", PropertyHint::ResourceType, "InputEvent")));
     BIND_VMETHOD(MethodInfo(VariantType::VECTOR2, "_get_minimum_size"));
     MethodInfo get_drag_data = MethodInfo("get_drag_data", PropertyInfo(VariantType::VECTOR2, "position"));
     get_drag_data.return_val.usage |= PROPERTY_USAGE_NIL_IS_VARIANT;
@@ -2936,54 +2936,54 @@ void Control::_bind_methods() {
     BIND_VMETHOD(MethodInfo(VariantType::BOOL, "_clips_input"))
 
     ADD_GROUP("Anchor", "anchor_");
-    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "anchor_left", PROPERTY_HINT_RANGE, "0,1,0.001,or_lesser,or_greater"), "_set_anchor", "get_anchor", MARGIN_LEFT);
-    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "anchor_top", PROPERTY_HINT_RANGE, "0,1,0.001,or_lesser,or_greater"), "_set_anchor", "get_anchor", MARGIN_TOP);
-    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "anchor_right", PROPERTY_HINT_RANGE, "0,1,0.001,or_lesser,or_greater"), "_set_anchor", "get_anchor", MARGIN_RIGHT);
-    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "anchor_bottom", PROPERTY_HINT_RANGE, "0,1,0.001,or_lesser,or_greater"), "_set_anchor", "get_anchor", MARGIN_BOTTOM);
+    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "anchor_left", PropertyHint::Range, "0,1,0.001,or_lesser,or_greater"), "_set_anchor", "get_anchor", MARGIN_LEFT);
+    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "anchor_top", PropertyHint::Range, "0,1,0.001,or_lesser,or_greater"), "_set_anchor", "get_anchor", MARGIN_TOP);
+    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "anchor_right", PropertyHint::Range, "0,1,0.001,or_lesser,or_greater"), "_set_anchor", "get_anchor", MARGIN_RIGHT);
+    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "anchor_bottom", PropertyHint::Range, "0,1,0.001,or_lesser,or_greater"), "_set_anchor", "get_anchor", MARGIN_BOTTOM);
 
     ADD_GROUP("Margin", "margin_");
-    ADD_PROPERTYI(PropertyInfo(VariantType::INT, "margin_left", PROPERTY_HINT_RANGE, "-4096,4096"), "set_margin", "get_margin", MARGIN_LEFT);
-    ADD_PROPERTYI(PropertyInfo(VariantType::INT, "margin_top", PROPERTY_HINT_RANGE, "-4096,4096"), "set_margin", "get_margin", MARGIN_TOP);
-    ADD_PROPERTYI(PropertyInfo(VariantType::INT, "margin_right", PROPERTY_HINT_RANGE, "-4096,4096"), "set_margin", "get_margin", MARGIN_RIGHT);
-    ADD_PROPERTYI(PropertyInfo(VariantType::INT, "margin_bottom", PROPERTY_HINT_RANGE, "-4096,4096"), "set_margin", "get_margin", MARGIN_BOTTOM);
+    ADD_PROPERTYI(PropertyInfo(VariantType::INT, "margin_left", PropertyHint::Range, "-4096,4096"), "set_margin", "get_margin", MARGIN_LEFT);
+    ADD_PROPERTYI(PropertyInfo(VariantType::INT, "margin_top", PropertyHint::Range, "-4096,4096"), "set_margin", "get_margin", MARGIN_TOP);
+    ADD_PROPERTYI(PropertyInfo(VariantType::INT, "margin_right", PropertyHint::Range, "-4096,4096"), "set_margin", "get_margin", MARGIN_RIGHT);
+    ADD_PROPERTYI(PropertyInfo(VariantType::INT, "margin_bottom", PropertyHint::Range, "-4096,4096"), "set_margin", "get_margin", MARGIN_BOTTOM);
 
     ADD_GROUP("Grow Direction", "grow_");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "grow_horizontal", PROPERTY_HINT_ENUM, "Begin,End,Both"), "set_h_grow_direction", "get_h_grow_direction");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "grow_vertical", PROPERTY_HINT_ENUM, "Begin,End,Both"), "set_v_grow_direction", "get_v_grow_direction");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "grow_horizontal", PropertyHint::Enum, "Begin,End,Both"), "set_h_grow_direction", "get_h_grow_direction");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "grow_vertical", PropertyHint::Enum, "Begin,End,Both"), "set_v_grow_direction", "get_v_grow_direction");
 
     ADD_GROUP("Rect", "rect_");
-    ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "rect_position", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_EDITOR), "_set_position", "get_position");
-    ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "rect_global_position", PROPERTY_HINT_NONE, "", 0), "_set_global_position", "get_global_position");
-    ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "rect_size", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_EDITOR), "_set_size", "get_size");
+    ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "rect_position", PropertyHint::None, "", PROPERTY_USAGE_EDITOR), "_set_position", "get_position");
+    ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "rect_global_position", PropertyHint::None, "", 0), "_set_global_position", "get_global_position");
+    ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "rect_size", PropertyHint::None, "", PROPERTY_USAGE_EDITOR), "_set_size", "get_size");
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "rect_min_size"), "set_custom_minimum_size", "get_custom_minimum_size");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "rect_rotation", PROPERTY_HINT_RANGE, "-360,360,0.1,or_lesser,or_greater"), "set_rotation_degrees", "get_rotation_degrees");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "rect_rotation", PropertyHint::Range, "-360,360,0.1,or_lesser,or_greater"), "set_rotation_degrees", "get_rotation_degrees");
 
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "rect_scale"), "set_scale", "get_scale");
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "rect_pivot_offset"), "set_pivot_offset", "get_pivot_offset");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "rect_clip_content"), "set_clip_contents", "is_clipping_contents");
 
     ADD_GROUP("Hint", "hint_");
-    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "hint_tooltip", PROPERTY_HINT_MULTILINE_TEXT), "set_tooltip", "_get_tooltip");
+    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "hint_tooltip", PropertyHint::MultilineText), "set_tooltip", "_get_tooltip");
 
     ADD_GROUP("Focus", "focus_");
-    ADD_PROPERTYI(PropertyInfo(VariantType::NODE_PATH, "focus_neighbour_left", PROPERTY_HINT_NODE_PATH_VALID_TYPES, "Control"), "set_focus_neighbour", "get_focus_neighbour", MARGIN_LEFT);
-    ADD_PROPERTYI(PropertyInfo(VariantType::NODE_PATH, "focus_neighbour_top", PROPERTY_HINT_NODE_PATH_VALID_TYPES, "Control"), "set_focus_neighbour", "get_focus_neighbour", MARGIN_TOP);
-    ADD_PROPERTYI(PropertyInfo(VariantType::NODE_PATH, "focus_neighbour_right", PROPERTY_HINT_NODE_PATH_VALID_TYPES, "Control"), "set_focus_neighbour", "get_focus_neighbour", MARGIN_RIGHT);
-    ADD_PROPERTYI(PropertyInfo(VariantType::NODE_PATH, "focus_neighbour_bottom", PROPERTY_HINT_NODE_PATH_VALID_TYPES, "Control"), "set_focus_neighbour", "get_focus_neighbour", MARGIN_BOTTOM);
-    ADD_PROPERTY(PropertyInfo(VariantType::NODE_PATH, "focus_next", PROPERTY_HINT_NODE_PATH_VALID_TYPES, "Control"), "set_focus_next", "get_focus_next");
-    ADD_PROPERTY(PropertyInfo(VariantType::NODE_PATH, "focus_previous", PROPERTY_HINT_NODE_PATH_VALID_TYPES, "Control"), "set_focus_previous", "get_focus_previous");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "focus_mode", PROPERTY_HINT_ENUM, "None,Click,All"), "set_focus_mode", "get_focus_mode");
+    ADD_PROPERTYI(PropertyInfo(VariantType::NODE_PATH, "focus_neighbour_left", PropertyHint::NodePathValidTypes, "Control"), "set_focus_neighbour", "get_focus_neighbour", MARGIN_LEFT);
+    ADD_PROPERTYI(PropertyInfo(VariantType::NODE_PATH, "focus_neighbour_top", PropertyHint::NodePathValidTypes, "Control"), "set_focus_neighbour", "get_focus_neighbour", MARGIN_TOP);
+    ADD_PROPERTYI(PropertyInfo(VariantType::NODE_PATH, "focus_neighbour_right", PropertyHint::NodePathValidTypes, "Control"), "set_focus_neighbour", "get_focus_neighbour", MARGIN_RIGHT);
+    ADD_PROPERTYI(PropertyInfo(VariantType::NODE_PATH, "focus_neighbour_bottom", PropertyHint::NodePathValidTypes, "Control"), "set_focus_neighbour", "get_focus_neighbour", MARGIN_BOTTOM);
+    ADD_PROPERTY(PropertyInfo(VariantType::NODE_PATH, "focus_next", PropertyHint::NodePathValidTypes, "Control"), "set_focus_next", "get_focus_next");
+    ADD_PROPERTY(PropertyInfo(VariantType::NODE_PATH, "focus_previous", PropertyHint::NodePathValidTypes, "Control"), "set_focus_previous", "get_focus_previous");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "focus_mode", PropertyHint::Enum, "None,Click,All"), "set_focus_mode", "get_focus_mode");
 
     ADD_GROUP("Mouse", "mouse_");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "mouse_filter", PROPERTY_HINT_ENUM, "Stop,Pass,Ignore"), "set_mouse_filter", "get_mouse_filter");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "mouse_default_cursor_shape", PROPERTY_HINT_ENUM, "Arrow,Ibeam,Pointing hand,Cross,Wait,Busy,Drag,Can drop,Forbidden,Vertical resize,Horizontal resize,Secondary diagonal resize,Main diagonal resize,Move,Vertical split,Horizontal split,Help"), "set_default_cursor_shape", "get_default_cursor_shape");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "mouse_filter", PropertyHint::Enum, "Stop,Pass,Ignore"), "set_mouse_filter", "get_mouse_filter");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "mouse_default_cursor_shape", PropertyHint::Enum, "Arrow,Ibeam,Pointing hand,Cross,Wait,Busy,Drag,Can drop,Forbidden,Vertical resize,Horizontal resize,Secondary diagonal resize,Main diagonal resize,Move,Vertical split,Horizontal split,Help"), "set_default_cursor_shape", "get_default_cursor_shape");
 
     ADD_GROUP("Size Flags", "size_flags_");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "size_flags_horizontal", PROPERTY_HINT_FLAGS, "Fill,Expand,Shrink Center,Shrink End"), "set_h_size_flags", "get_h_size_flags");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "size_flags_vertical", PROPERTY_HINT_FLAGS, "Fill,Expand,Shrink Center,Shrink End"), "set_v_size_flags", "get_v_size_flags");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "size_flags_stretch_ratio", PROPERTY_HINT_RANGE, "0,128,0.01"), "set_stretch_ratio", "get_stretch_ratio");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "size_flags_horizontal", PropertyHint::Flags, "Fill,Expand,Shrink Center,Shrink End"), "set_h_size_flags", "get_h_size_flags");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "size_flags_vertical", PropertyHint::Flags, "Fill,Expand,Shrink Center,Shrink End"), "set_v_size_flags", "get_v_size_flags");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "size_flags_stretch_ratio", PropertyHint::Range, "0,128,0.01"), "set_stretch_ratio", "get_stretch_ratio");
     ADD_GROUP("Theme", "");
-    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "theme", PROPERTY_HINT_RESOURCE_TYPE, "Theme"), "set_theme", "get_theme");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "theme", PropertyHint::ResourceType, "Theme"), "set_theme", "get_theme");
     ADD_GROUP("", "");
 
     BIND_ENUM_CONSTANT(FOCUS_NONE)
@@ -3058,7 +3058,7 @@ void Control::_bind_methods() {
     BIND_ENUM_CONSTANT(ANCHOR_END)
 
     ADD_SIGNAL(MethodInfo("resized"));
-    ADD_SIGNAL(MethodInfo("gui_input", PropertyInfo(VariantType::OBJECT, "event", PROPERTY_HINT_RESOURCE_TYPE, "InputEvent")));
+    ADD_SIGNAL(MethodInfo("gui_input", PropertyInfo(VariantType::OBJECT, "event", PropertyHint::ResourceType, "InputEvent")));
     ADD_SIGNAL(MethodInfo("mouse_entered"));
     ADD_SIGNAL(MethodInfo("mouse_exited"));
     ADD_SIGNAL(MethodInfo("focus_entered"));

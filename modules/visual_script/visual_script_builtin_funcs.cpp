@@ -1344,7 +1344,7 @@ void VisualScriptBuiltinFunc::_bind_methods() {
             cc += ",";
         cc += func_name[i];
     }
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "function", PROPERTY_HINT_ENUM, cc), "set_func", "get_func");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "function", PropertyHint::Enum, cc), "set_func", "get_func");
 
     BIND_ENUM_CONSTANT(MATH_SIN)
     BIND_ENUM_CONSTANT(MATH_COS)

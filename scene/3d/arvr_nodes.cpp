@@ -249,7 +249,7 @@ void ARVRController::_notification(int p_what) {
 void ARVRController::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_controller_id", {"controller_id"}), &ARVRController::set_controller_id);
     MethodBinder::bind_method(D_METHOD("get_controller_id"), &ARVRController::get_controller_id);
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "controller_id", PROPERTY_HINT_RANGE, "0,32,1"), "set_controller_id", "get_controller_id");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "controller_id", PropertyHint::Range, "0,32,1"), "set_controller_id", "get_controller_id");
     MethodBinder::bind_method(D_METHOD("get_controller_name"), &ARVRController::get_controller_name);
 
     // passthroughs to information about our related joystick
@@ -262,14 +262,14 @@ void ARVRController::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("get_rumble"), &ARVRController::get_rumble);
     MethodBinder::bind_method(D_METHOD("set_rumble", {"rumble"}), &ARVRController::set_rumble);
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "rumble", PROPERTY_HINT_RANGE, "0.0,1.0,0.01"), "set_rumble", "get_rumble");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "rumble", PropertyHint::Range, "0.0,1.0,0.01"), "set_rumble", "get_rumble");
     ADD_PROPERTY_DEFAULT("rumble", 0.0);
 
     MethodBinder::bind_method(D_METHOD("get_mesh"), &ARVRController::get_mesh);
 
     ADD_SIGNAL(MethodInfo("button_pressed", PropertyInfo(VariantType::INT, "button")));
     ADD_SIGNAL(MethodInfo("button_release", PropertyInfo(VariantType::INT, "button")));
-    ADD_SIGNAL(MethodInfo("mesh_updated", PropertyInfo(VariantType::OBJECT, "mesh", PROPERTY_HINT_RESOURCE_TYPE, "Mesh")));
+    ADD_SIGNAL(MethodInfo("mesh_updated", PropertyInfo(VariantType::OBJECT, "mesh", PropertyHint::ResourceType, "Mesh")));
 };
 
 void ARVRController::set_controller_id(int p_controller_id) {
@@ -455,7 +455,7 @@ void ARVRAnchor::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("set_anchor_id", {"anchor_id"}), &ARVRAnchor::set_anchor_id);
     MethodBinder::bind_method(D_METHOD("get_anchor_id"), &ARVRAnchor::get_anchor_id);
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "anchor_id", PROPERTY_HINT_RANGE, "0,32,1"), "set_anchor_id", "get_anchor_id");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "anchor_id", PropertyHint::Range, "0,32,1"), "set_anchor_id", "get_anchor_id");
     MethodBinder::bind_method(D_METHOD("get_anchor_name"), &ARVRAnchor::get_anchor_name);
 
     MethodBinder::bind_method(D_METHOD("get_is_active"), &ARVRAnchor::get_is_active);
@@ -464,7 +464,7 @@ void ARVRAnchor::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_plane"), &ARVRAnchor::get_plane);
 
     MethodBinder::bind_method(D_METHOD("get_mesh"), &ARVRAnchor::get_mesh);
-    ADD_SIGNAL(MethodInfo("mesh_updated", PropertyInfo(VariantType::OBJECT, "mesh", PROPERTY_HINT_RESOURCE_TYPE, "Mesh")));
+    ADD_SIGNAL(MethodInfo("mesh_updated", PropertyInfo(VariantType::OBJECT, "mesh", PropertyHint::ResourceType, "Mesh")));
 };
 
 void ARVRAnchor::set_anchor_id(int p_anchor_id) {

@@ -100,7 +100,7 @@ class CustomPropertyEditor : public Popup {
     VariantType type;
     Variant v;
     PODVector<se_string_view> field_names;
-    int hint;
+    PropertyHint hint;
     String hint_text;
     LineEdit *value_editor[MAX_VALUE_EDITORS];
     int focused_value_editor;
@@ -169,7 +169,7 @@ public:
 
     void set_read_only(bool p_read_only) { read_only = p_read_only; }
 
-    bool edit(Object *p_owner, se_string_view p_name, VariantType p_type, const Variant &p_variant, int p_hint, se_string_view p_hint_text);
+    bool edit(Object *p_owner, se_string_view p_name, VariantType p_type, const Variant &p_variant, PropertyHint p_hint, se_string_view p_hint_text);
 
     CustomPropertyEditor();
 };

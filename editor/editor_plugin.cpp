@@ -882,10 +882,10 @@ void EditorPlugin::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_editor_interface"), &EditorPlugin::get_editor_interface);
     MethodBinder::bind_method(D_METHOD("get_script_create_dialog"), &EditorPlugin::get_script_create_dialog);
 
-    ClassDB::add_virtual_method(get_class_static_name(), MethodInfo(VariantType::BOOL, "forward_canvas_gui_input", PropertyInfo(VariantType::OBJECT, "event", PROPERTY_HINT_RESOURCE_TYPE, "InputEvent")));
-    ClassDB::add_virtual_method(get_class_static_name(), MethodInfo("forward_canvas_draw_over_viewport", PropertyInfo(VariantType::OBJECT, "overlay", PROPERTY_HINT_RESOURCE_TYPE, "Control")));
-    ClassDB::add_virtual_method(get_class_static_name(), MethodInfo("forward_canvas_force_draw_over_viewport", PropertyInfo(VariantType::OBJECT, "overlay", PROPERTY_HINT_RESOURCE_TYPE, "Control")));
-    ClassDB::add_virtual_method(get_class_static_name(), MethodInfo(VariantType::BOOL, "forward_spatial_gui_input", PropertyInfo(VariantType::OBJECT, "camera", PROPERTY_HINT_RESOURCE_TYPE, "Camera"), PropertyInfo(VariantType::OBJECT, "event", PROPERTY_HINT_RESOURCE_TYPE, "InputEvent")));
+    ClassDB::add_virtual_method(get_class_static_name(), MethodInfo(VariantType::BOOL, "forward_canvas_gui_input", PropertyInfo(VariantType::OBJECT, "event", PropertyHint::ResourceType, "InputEvent")));
+    ClassDB::add_virtual_method(get_class_static_name(), MethodInfo("forward_canvas_draw_over_viewport", PropertyInfo(VariantType::OBJECT, "overlay", PropertyHint::ResourceType, "Control")));
+    ClassDB::add_virtual_method(get_class_static_name(), MethodInfo("forward_canvas_force_draw_over_viewport", PropertyInfo(VariantType::OBJECT, "overlay", PropertyHint::ResourceType, "Control")));
+    ClassDB::add_virtual_method(get_class_static_name(), MethodInfo(VariantType::BOOL, "forward_spatial_gui_input", PropertyInfo(VariantType::OBJECT, "camera", PropertyHint::ResourceType, "Camera"), PropertyInfo(VariantType::OBJECT, "event", PropertyHint::ResourceType, "InputEvent")));
     ClassDB::add_virtual_method(get_class_static_name(), MethodInfo(VariantType::STRING, "get_plugin_name"));
     ClassDB::add_virtual_method(get_class_static_name(), MethodInfo(VariantType::OBJECT, "get_plugin_icon"));
     ClassDB::add_virtual_method(get_class_static_name(), MethodInfo(VariantType::BOOL, "has_main_screen"));
@@ -898,16 +898,16 @@ void EditorPlugin::_bind_methods() {
     ClassDB::add_virtual_method(get_class_static_name(), MethodInfo("save_external_data"));
     ClassDB::add_virtual_method(get_class_static_name(), MethodInfo("apply_changes"));
     ClassDB::add_virtual_method(get_class_static_name(), MethodInfo(VariantType::POOL_STRING_ARRAY, "get_breakpoints"));
-    ClassDB::add_virtual_method(get_class_static_name(), MethodInfo("set_window_layout", PropertyInfo(VariantType::OBJECT, "layout", PROPERTY_HINT_RESOURCE_TYPE, "ConfigFile")));
-    ClassDB::add_virtual_method(get_class_static_name(), MethodInfo("get_window_layout", PropertyInfo(VariantType::OBJECT, "layout", PROPERTY_HINT_RESOURCE_TYPE, "ConfigFile")));
+    ClassDB::add_virtual_method(get_class_static_name(), MethodInfo("set_window_layout", PropertyInfo(VariantType::OBJECT, "layout", PropertyHint::ResourceType, "ConfigFile")));
+    ClassDB::add_virtual_method(get_class_static_name(), MethodInfo("get_window_layout", PropertyInfo(VariantType::OBJECT, "layout", PropertyHint::ResourceType, "ConfigFile")));
     ClassDB::add_virtual_method(get_class_static_name(), MethodInfo(VariantType::BOOL, "build"));
     ClassDB::add_virtual_method(get_class_static_name(), MethodInfo("enable_plugin"));
     ClassDB::add_virtual_method(get_class_static_name(), MethodInfo("disable_plugin"));
 
-    ADD_SIGNAL(MethodInfo("scene_changed", PropertyInfo(VariantType::OBJECT, "scene_root", PROPERTY_HINT_RESOURCE_TYPE, "Node")));
+    ADD_SIGNAL(MethodInfo("scene_changed", PropertyInfo(VariantType::OBJECT, "scene_root", PropertyHint::ResourceType, "Node")));
     ADD_SIGNAL(MethodInfo("scene_closed", PropertyInfo(VariantType::STRING, "filepath")));
     ADD_SIGNAL(MethodInfo("main_screen_changed", PropertyInfo(VariantType::STRING, "screen_name")));
-    ADD_SIGNAL(MethodInfo("resource_saved", PropertyInfo(VariantType::OBJECT, "resource", PROPERTY_HINT_RESOURCE_TYPE, "Resource")));
+    ADD_SIGNAL(MethodInfo("resource_saved", PropertyInfo(VariantType::OBJECT, "resource", PropertyHint::ResourceType, "Resource")));
 
     BIND_ENUM_CONSTANT(CONTAINER_TOOLBAR)
     BIND_ENUM_CONSTANT(CONTAINER_SPATIAL_EDITOR_MENU)

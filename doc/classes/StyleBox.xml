@@ -60,7 +60,7 @@
 			<return type="Vector2">
 			</return>
 			<description>
-				Returns the "offset" of a stylebox. This helper function returns a value equivalent to [code]Vector2(style.get_margin(MARGIN_LEFT), style.get_margin(MARGIN_TOP))[/code].
+                Returns the "offset" of a stylebox. This helper function returns a value equivalent to [code]Vector2(style.get_margin(Margin::Left), style.get_margin(Margin::Top))[/code].
 			</description>
 		</method>
 		<method name="set_default_margin">

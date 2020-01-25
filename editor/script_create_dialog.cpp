@@ -735,7 +735,7 @@ void ScriptCreateDialog::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("config", {"inherits", "path", "built_in_enabled","load_enabled"}), &ScriptCreateDialog::config, {DEFVAL(true),DEFVAL(true)});
 
-    ADD_SIGNAL(MethodInfo("script_created", PropertyInfo(VariantType::OBJECT, "script", PROPERTY_HINT_RESOURCE_TYPE, "Script")));
+    ADD_SIGNAL(MethodInfo("script_created", PropertyInfo(VariantType::OBJECT, "script", PropertyHint::ResourceType, "Script")));
 }
 
 ScriptCreateDialog::ScriptCreateDialog() {

@@ -85,12 +85,12 @@ void ResourceImporterWAV::get_import_options(ListPOD<ImportOption> *r_options, i
 
     r_options->push_back(ImportOption(PropertyInfo(VariantType::BOOL, "force/8_bit"), false));
     r_options->push_back(ImportOption(PropertyInfo(VariantType::BOOL, "force/mono"), false));
-    r_options->push_back(ImportOption(PropertyInfo(VariantType::BOOL, "force/max_rate", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_UPDATE_ALL_IF_MODIFIED), false));
-    r_options->push_back(ImportOption(PropertyInfo(VariantType::REAL, "force/max_rate_hz", PROPERTY_HINT_EXP_RANGE, "11025,192000,1"), 44100));
+    r_options->push_back(ImportOption(PropertyInfo(VariantType::BOOL, "force/max_rate", PropertyHint::None, "", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_UPDATE_ALL_IF_MODIFIED), false));
+    r_options->push_back(ImportOption(PropertyInfo(VariantType::REAL, "force/max_rate_hz", PropertyHint::ExpRange, "11025,192000,1"), 44100));
     r_options->push_back(ImportOption(PropertyInfo(VariantType::BOOL, "edit/trim"), false));
     r_options->push_back(ImportOption(PropertyInfo(VariantType::BOOL, "edit/normalize"), false));
     r_options->push_back(ImportOption(PropertyInfo(VariantType::BOOL, "edit/loop"), false));
-    r_options->push_back(ImportOption(PropertyInfo(VariantType::INT, "compress/mode", PROPERTY_HINT_ENUM, "Disabled,RAM (Ima-ADPCM)"), 0));
+    r_options->push_back(ImportOption(PropertyInfo(VariantType::INT, "compress/mode", PropertyHint::Enum, "Disabled,RAM (Ima-ADPCM)"), 0));
 }
 
 Error ResourceImporterWAV::import(se_string_view p_source_file, se_string_view p_save_path, const Map<StringName, Variant> &p_options, List<String> *r_platform_variants, List<String> *r_gen_files, Variant *r_metadata) {

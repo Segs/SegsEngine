@@ -186,14 +186,14 @@ protected:
         if (sig == StringName())
             return;
 
-        p_list->push_back(PropertyInfo(VariantType::INT, "argument_count", PROPERTY_HINT_RANGE, "0,256"));
+        p_list->push_back(PropertyInfo(VariantType::INT, "argument_count", PropertyHint::Range, "0,256"));
         String argt("Variant");
         for (int i = 1; i < (int)VariantType::VARIANT_MAX; i++) {
             argt += String(",") + Variant::get_type_name(VariantType(i));
         }
 
         for (int i = 0; i < script->custom_signal_get_argument_count(sig); i++) {
-            p_list->push_back(PropertyInfo(VariantType::INT, StringName("argument/" + ::to_string(i + 1) + "/type"), PROPERTY_HINT_ENUM, StringName(argt)));
+            p_list->push_back(PropertyInfo(VariantType::INT, StringName("argument/" + ::to_string(i + 1) + "/type"), PropertyHint::Enum, StringName(argt)));
             p_list->push_back(PropertyInfo(VariantType::STRING, StringName("argument/" + ::to_string(i + 1) + "/name")));
         }
     }
@@ -344,10 +344,10 @@ protected:
         for (int i = 1; i < (int)VariantType::VARIANT_MAX; i++) {
             argt += String(",") + Variant::get_type_name(VariantType(i));
         }
-        p_list->push_back(PropertyInfo(VariantType::INT, "type", PROPERTY_HINT_ENUM, argt.c_str()));
+        p_list->push_back(PropertyInfo(VariantType::INT, "type", PropertyHint::Enum, argt.c_str()));
         p_list->push_back(PropertyInfo(script->get_variable_info(var).type, "value", script->get_variable_info(var).hint, StringName(script->get_variable_info(var).hint_string), PROPERTY_USAGE_DEFAULT));
         // Update this when PropertyHint changes
-        p_list->push_back(PropertyInfo(VariantType::INT, "hint", PROPERTY_HINT_ENUM, "None,Range,ExpRange,Enum,ExpEasing,Length,SpriteFrame,KeyAccel,Flags,Layers2dRender,Layers2dPhysics,Layer3dRender,Layer3dPhysics,File,Dir,GlobalFile,GlobalDir,ResourceType,MultilineText,PlaceholderText,ColorNoAlpha,ImageCompressLossy,ImageCompressLossLess,ObjectId,String,NodePathToEditedNode,MethodOfVariantType,MethodOfBaseType,MethodOfInstance,MethodOfScript,PropertyOfVariantType,PropertyOfBaseType,PropertyOfInstance,PropertyOfScript,ObjectTooBig,NodePathValidTypes"));
+        p_list->push_back(PropertyInfo(VariantType::INT, "hint", PropertyHint::Enum, "None,Range,ExpRange,Enum,ExpEasing,Length,SpriteFrame,KeyAccel,Flags,Layers2dRender,Layers2dPhysics,Layer3dRender,Layer3dPhysics,File,Dir,GlobalFile,GlobalDir,ResourceType,MultilineText,PlaceholderText,ColorNoAlpha,ImageCompressLossy,ImageCompressLossLess,ObjectId,String,NodePathToEditedNode,MethodOfVariantType,MethodOfBaseType,MethodOfInstance,MethodOfScript,PropertyOfVariantType,PropertyOfBaseType,PropertyOfInstance,PropertyOfScript,ObjectTooBig,NodePathValidTypes"));
         p_list->push_back(PropertyInfo(VariantType::STRING, "hint_string"));
         p_list->push_back(PropertyInfo(VariantType::BOOL, "export"));
     }
@@ -795,7 +795,7 @@ void VisualScriptEditor::_update_graph(int p_only_id) {
                             arr.push_back(value);
                             EditorResourcePreview::get_singleton()->queue_edited_resource_preview(res, this, "_button_resource_previewed", arr);
 
-                        } else if (pi.type == VariantType::INT && pi.hint == PROPERTY_HINT_ENUM) {
+                        } else if (pi.type == VariantType::INT && pi.hint == PropertyHint::Enum) {
 
                             button->set_text_utf8(StringUtils::get_slice(pi.hint_string,',', value));
                         } else {
@@ -3603,7 +3603,7 @@ void VisualScriptEditor::_selected_connect_node(const String &p_text, se_string_
                     PropertyHint hint = script->get_node(func, port_action_node)->get_output_value_port_info(port_action_output).hint;
                     se_string_view base_type = script->get_node(func, port_action_node)->get_output_value_port_info(port_action_output).hint_string;
 
-                    if (not base_type.empty() && hint == PROPERTY_HINT_TYPE_STRING) {
+                    if (not base_type.empty() && hint == PropertyHint::TypeString) {
                         vsfc->set_base_type(StringName(base_type));
                     }
                     if (p_text == se_string_view("call") || p_text == se_string_view("call_deferred")) {
@@ -3638,7 +3638,7 @@ void VisualScriptEditor::_selected_connect_node(const String &p_text, se_string_
                         PropertyHint hint = script->get_node(func, port_action_node)->get_output_value_port_info(port_action_output).hint;
                         se_string_view base_type = script->get_node(func, port_action_node)->get_output_value_port_info(port_action_output).hint_string;
 
-                        if (not base_type.empty() && hint == PROPERTY_HINT_TYPE_STRING) {
+                        if (not base_type.empty() && hint == PropertyHint::TypeString) {
                             vspg->set_base_type(StringName(base_type));
                         }
                     }
@@ -3667,7 +3667,7 @@ void VisualScriptEditor::_selected_connect_node(const String &p_text, se_string_
                 } else if (script->get_node(func, port_action_node)) {
                     PropertyHint hint = script->get_node(func, port_action_node)->get_output_value_port_info(port_action_output).hint;
                     se_string_view base_type = script->get_node(func, port_action_node)->get_output_value_port_info(port_action_output).hint_string;
-                    if (not base_type.empty() && hint == PROPERTY_HINT_TYPE_STRING) {
+                    if (not base_type.empty() && hint == PropertyHint::TypeString) {
                         vsp->set_base_type(StringName(base_type));
                     }
                 }
@@ -3864,18 +3864,18 @@ void VisualScriptEditor::_default_value_edited(Node *p_button, int p_id, int p_i
 
             if (script_node) {
                 //pick a node relative to the script, IF the script exists
-                pinfo.hint = PROPERTY_HINT_NODE_PATH_TO_EDITED_NODE;
+                pinfo.hint = PropertyHint::NodePathToEditedNode;
                 pinfo.hint_string = script_node->get_path().asString();
             } else {
                 //pick a path relative to edited scene
-                pinfo.hint = PROPERTY_HINT_NODE_PATH_TO_EDITED_NODE;
+                pinfo.hint = PropertyHint::NodePathToEditedNode;
                 pinfo.hint_string = get_tree()->get_edited_scene_root()->get_path().asString();
             }
         }
     }
 
     if (default_value_edit->edit(nullptr, pinfo.name, pinfo.type, existing, pinfo.hint, pinfo.hint_string)) {
-        if (pinfo.hint == PROPERTY_HINT_MULTILINE_TEXT)
+        if (pinfo.hint == PropertyHint::MultilineText)
             default_value_edit->popup_centered_ratio();
         else
             default_value_edit->popup();

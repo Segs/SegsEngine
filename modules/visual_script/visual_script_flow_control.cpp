@@ -131,7 +131,7 @@ void VisualScriptReturn::_bind_methods() {
     fill_with_all_variant_types("Any",argt);
 
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "return_enabled"), "set_enable_return_value", "is_return_value_enabled");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "return_type", PROPERTY_HINT_ENUM, argt), "set_return_type", "get_return_type");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "return_type", PropertyHint::Enum, argt), "set_return_type", "get_return_type");
 }
 
 class VisualScriptNodeInstanceReturn : public VisualScriptNodeInstance {
@@ -544,7 +544,7 @@ void VisualScriptSequence::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_steps", {"steps"}), &VisualScriptSequence::set_steps);
     MethodBinder::bind_method(D_METHOD("get_steps"), &VisualScriptSequence::get_steps);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "steps", PROPERTY_HINT_RANGE, "1,64,1"), "set_steps", "get_steps");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "steps", PropertyHint::Range, "1,64,1"), "set_steps", "get_steps");
 }
 
 class VisualScriptNodeInstanceSequence : public VisualScriptNodeInstance {
@@ -722,13 +722,13 @@ bool VisualScriptSwitch::_get(const StringName &p_name, Variant &r_ret) const {
 }
 void VisualScriptSwitch::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
 
-    p_list->push_back(PropertyInfo(VariantType::INT, "case_count", PROPERTY_HINT_RANGE, "0,128"));
+    p_list->push_back(PropertyInfo(VariantType::INT, "case_count", PropertyHint::Range, "0,128"));
 
     char argt[7+(longest_variant_type_name+1)*(int)VariantType::VARIANT_MAX];
     fill_with_all_variant_types("Any",argt);
 
     for (int i = 0; i < case_values.size(); i++) {
-        p_list->push_back(PropertyInfo(VariantType::INT, StringName("case/" + itos(i)), PROPERTY_HINT_ENUM, argt));
+        p_list->push_back(PropertyInfo(VariantType::INT, StringName("case/" + itos(i)), PropertyHint::Enum, argt));
     }
 }
 
@@ -773,7 +773,7 @@ PropertyInfo VisualScriptTypeCast::get_input_value_port_info(int p_idx) const {
 
 PropertyInfo VisualScriptTypeCast::get_output_value_port_info(int p_idx) const {
 
-    return PropertyInfo(VariantType::OBJECT, "", PROPERTY_HINT_TYPE_STRING, get_base_type());
+    return PropertyInfo(VariantType::OBJECT, "", PropertyHint::TypeString, get_base_type());
 }
 
 se_string_view VisualScriptTypeCast::get_caption() const {
@@ -922,8 +922,8 @@ void VisualScriptTypeCast::_bind_methods() {
         script_ext_hint += "*." + E->deref();
     }
 
-    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "base_type", PROPERTY_HINT_TYPE_STRING, "Object"), "set_base_type", "get_base_type");
-    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "base_script", PROPERTY_HINT_FILE, script_ext_hint), "set_base_script", "get_base_script");
+    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "base_type", PropertyHint::TypeString, "Object"), "set_base_type", "get_base_type");
+    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "base_script", PropertyHint::File, script_ext_hint), "set_base_script", "get_base_script");
 }
 
 VisualScriptTypeCast::VisualScriptTypeCast() {

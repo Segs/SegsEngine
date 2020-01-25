@@ -625,7 +625,7 @@ if (ScriptInstance *si = obj->get_script_instance()) {
                                              String(PathUtils::get_file(sc.first->get_path())) + "/");
                 if (E.second.get_type() == VariantType::OBJECT) {
                     Variant id = ((Object *)E.second)->get_instance_id();
-                    PropertyInfo pi(id.get_type(), StringName("Constants/" + String(E.first)), PROPERTY_HINT_OBJECT_ID, "Object");
+                    PropertyInfo pi(id.get_type(), StringName("Constants/" + String(E.first)), PropertyHint::ObjectID, "Object");
                     properties.push_back(PropertyDesc(pi, id));
                 } else {
                     PropertyInfo pi(E.second.get_type(), StringName("Constants/" + script_path + E.first.asCString()));
@@ -655,7 +655,7 @@ if (ScriptInstance *si = obj->get_script_instance()) {
             for (eastl::pair<const StringName,Variant> &E : constants) {
                 if (E.second.get_type() == VariantType::OBJECT) {
                     Variant id = ((Object *)E.second)->get_instance_id();
-                    PropertyInfo pi(id.get_type(), StringName("Constants/" + String(E.first)), PROPERTY_HINT_OBJECT_ID, "Object");
+                    PropertyInfo pi(id.get_type(), StringName("Constants/" + String(E.first)), PropertyHint::ObjectID, "Object");
                     properties.push_front(PropertyDesc(pi, E.second));
                 } else {
                     PropertyInfo pi(E.second.get_type(), StringName("Constants/" + String(E.first)));
@@ -693,7 +693,7 @@ if (ScriptInstance *si = obj->get_script_instance()) {
         int len = 0; //test how big is this to encode
         encode_variant(var, nullptr, len);
         if (len > packet_peer_stream->get_output_buffer_max_size()) { //limit to max size
-            prop.push_back(PROPERTY_HINT_OBJECT_TOO_BIG);
+            prop.push_back(PropertyHint::ObjectTooBig);
             prop.push_back("");
             prop.push_back(pi.usage);
             prop.push_back(Variant());

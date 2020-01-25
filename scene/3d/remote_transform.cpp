@@ -209,7 +209,7 @@ void RemoteTransform::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_update_scale", {"update_remote_scale"}), &RemoteTransform::set_update_scale);
     MethodBinder::bind_method(D_METHOD("get_update_scale"), &RemoteTransform::get_update_scale);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::NODE_PATH, "remote_path", PROPERTY_HINT_NODE_PATH_VALID_TYPES, "Spatial"), "set_remote_node", "get_remote_node");
+    ADD_PROPERTY(PropertyInfo(VariantType::NODE_PATH, "remote_path", PropertyHint::NodePathValidTypes, "Spatial"), "set_remote_node", "get_remote_node");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "use_global_coordinates"), "set_use_global_coordinates", "get_use_global_coordinates");
 
     ADD_GROUP("Update", "update_");

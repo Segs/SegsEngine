@@ -517,9 +517,9 @@ Error FileAccessNetwork::_set_unix_permissions(se_string_view p_file, uint32_t p
 void FileAccessNetwork::configure() {
 
     GLOBAL_DEF("network/remote_fs/page_size", 65536);
-    ProjectSettings::get_singleton()->set_custom_property_info("network/remote_fs/page_size", PropertyInfo(VariantType::INT, "network/remote_fs/page_size", PROPERTY_HINT_RANGE, "1,65536,1,or_greater")); //is used as denominator and can't be zero
+    ProjectSettings::get_singleton()->set_custom_property_info("network/remote_fs/page_size", PropertyInfo(VariantType::INT, "network/remote_fs/page_size", PropertyHint::Range, "1,65536,1,or_greater")); //is used as denominator and can't be zero
     GLOBAL_DEF("network/remote_fs/page_read_ahead", 4);
-    ProjectSettings::get_singleton()->set_custom_property_info("network/remote_fs/page_read_ahead", PropertyInfo(VariantType::INT, "network/remote_fs/page_read_ahead", PROPERTY_HINT_RANGE, "0,8,1,or_greater"));
+    ProjectSettings::get_singleton()->set_custom_property_info("network/remote_fs/page_read_ahead", PropertyInfo(VariantType::INT, "network/remote_fs/page_read_ahead", PropertyHint::Range, "0,8,1,or_greater"));
 }
 
 FileAccessNetwork::FileAccessNetwork() {

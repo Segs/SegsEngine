@@ -328,37 +328,37 @@ void AudioEffectChorus::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_dry", {"amount"}), &AudioEffectChorus::set_dry);
     MethodBinder::bind_method(D_METHOD("get_dry"), &AudioEffectChorus::get_dry);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "voice_count", PROPERTY_HINT_RANGE, "1,4,1"), "set_voice_count", "get_voice_count");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "dry", PROPERTY_HINT_RANGE, "0,1,0.01"), "set_dry", "get_dry");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "wet", PROPERTY_HINT_RANGE, "0,1,0.01"), "set_wet", "get_wet");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "voice_count", PropertyHint::Range, "1,4,1"), "set_voice_count", "get_voice_count");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "dry", PropertyHint::Range, "0,1,0.01"), "set_dry", "get_dry");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "wet", PropertyHint::Range, "0,1,0.01"), "set_wet", "get_wet");
 
-    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "voice/1/delay_ms", PROPERTY_HINT_RANGE, "0,50,0.01"), "set_voice_delay_ms", "get_voice_delay_ms", 0);
-    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "voice/1/rate_hz", PROPERTY_HINT_RANGE, "0.1,20,0.1"), "set_voice_rate_hz", "get_voice_rate_hz", 0);
-    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "voice/1/depth_ms", PROPERTY_HINT_RANGE, "0,20,0.01"), "set_voice_depth_ms", "get_voice_depth_ms", 0);
-    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "voice/1/level_db", PROPERTY_HINT_RANGE, "-60,24,0.1"), "set_voice_level_db", "get_voice_level_db", 0);
-    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "voice/1/cutoff_hz", PROPERTY_HINT_RANGE, "1,20500,1"), "set_voice_cutoff_hz", "get_voice_cutoff_hz", 0);
-    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "voice/1/pan", PROPERTY_HINT_RANGE, "-1,1,0.01"), "set_voice_pan", "get_voice_pan", 0);
+    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "voice/1/delay_ms", PropertyHint::Range, "0,50,0.01"), "set_voice_delay_ms", "get_voice_delay_ms", 0);
+    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "voice/1/rate_hz", PropertyHint::Range, "0.1,20,0.1"), "set_voice_rate_hz", "get_voice_rate_hz", 0);
+    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "voice/1/depth_ms", PropertyHint::Range, "0,20,0.01"), "set_voice_depth_ms", "get_voice_depth_ms", 0);
+    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "voice/1/level_db", PropertyHint::Range, "-60,24,0.1"), "set_voice_level_db", "get_voice_level_db", 0);
+    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "voice/1/cutoff_hz", PropertyHint::Range, "1,20500,1"), "set_voice_cutoff_hz", "get_voice_cutoff_hz", 0);
+    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "voice/1/pan", PropertyHint::Range, "-1,1,0.01"), "set_voice_pan", "get_voice_pan", 0);
 
-    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "voice/2/delay_ms", PROPERTY_HINT_RANGE, "0,50,0.01"), "set_voice_delay_ms", "get_voice_delay_ms", 1);
-    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "voice/2/rate_hz", PROPERTY_HINT_RANGE, "0.1,20,0.1"), "set_voice_rate_hz", "get_voice_rate_hz", 1);
-    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "voice/2/depth_ms", PROPERTY_HINT_RANGE, "0,20,0.01"), "set_voice_depth_ms", "get_voice_depth_ms", 1);
-    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "voice/2/level_db", PROPERTY_HINT_RANGE, "-60,24,0.1"), "set_voice_level_db", "get_voice_level_db", 1);
-    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "voice/2/cutoff_hz", PROPERTY_HINT_RANGE, "1,20500,1"), "set_voice_cutoff_hz", "get_voice_cutoff_hz", 1);
-    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "voice/2/pan", PROPERTY_HINT_RANGE, "-1,1,0.01"), "set_voice_pan", "get_voice_pan", 1);
+    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "voice/2/delay_ms", PropertyHint::Range, "0,50,0.01"), "set_voice_delay_ms", "get_voice_delay_ms", 1);
+    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "voice/2/rate_hz", PropertyHint::Range, "0.1,20,0.1"), "set_voice_rate_hz", "get_voice_rate_hz", 1);
+    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "voice/2/depth_ms", PropertyHint::Range, "0,20,0.01"), "set_voice_depth_ms", "get_voice_depth_ms", 1);
+    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "voice/2/level_db", PropertyHint::Range, "-60,24,0.1"), "set_voice_level_db", "get_voice_level_db", 1);
+    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "voice/2/cutoff_hz", PropertyHint::Range, "1,20500,1"), "set_voice_cutoff_hz", "get_voice_cutoff_hz", 1);
+    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "voice/2/pan", PropertyHint::Range, "-1,1,0.01"), "set_voice_pan", "get_voice_pan", 1);
 
-    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "voice/3/delay_ms", PROPERTY_HINT_RANGE, "0,50,0.01"), "set_voice_delay_ms", "get_voice_delay_ms", 2);
-    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "voice/3/rate_hz", PROPERTY_HINT_RANGE, "0.1,20,0.1"), "set_voice_rate_hz", "get_voice_rate_hz", 2);
-    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "voice/3/depth_ms", PROPERTY_HINT_RANGE, "0,20,0.01"), "set_voice_depth_ms", "get_voice_depth_ms", 2);
-    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "voice/3/level_db", PROPERTY_HINT_RANGE, "-60,24,0.1"), "set_voice_level_db", "get_voice_level_db", 2);
-    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "voice/3/cutoff_hz", PROPERTY_HINT_RANGE, "1,20500,1"), "set_voice_cutoff_hz", "get_voice_cutoff_hz", 2);
-    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "voice/3/pan", PROPERTY_HINT_RANGE, "-1,1,0.01"), "set_voice_pan", "get_voice_pan", 2);
+    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "voice/3/delay_ms", PropertyHint::Range, "0,50,0.01"), "set_voice_delay_ms", "get_voice_delay_ms", 2);
+    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "voice/3/rate_hz", PropertyHint::Range, "0.1,20,0.1"), "set_voice_rate_hz", "get_voice_rate_hz", 2);
+    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "voice/3/depth_ms", PropertyHint::Range, "0,20,0.01"), "set_voice_depth_ms", "get_voice_depth_ms", 2);
+    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "voice/3/level_db", PropertyHint::Range, "-60,24,0.1"), "set_voice_level_db", "get_voice_level_db", 2);
+    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "voice/3/cutoff_hz", PropertyHint::Range, "1,20500,1"), "set_voice_cutoff_hz", "get_voice_cutoff_hz", 2);
+    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "voice/3/pan", PropertyHint::Range, "-1,1,0.01"), "set_voice_pan", "get_voice_pan", 2);
 
-    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "voice/4/delay_ms", PROPERTY_HINT_RANGE, "0,50,0.01"), "set_voice_delay_ms", "get_voice_delay_ms", 3);
-    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "voice/4/rate_hz", PROPERTY_HINT_RANGE, "0.1,20,0.1"), "set_voice_rate_hz", "get_voice_rate_hz", 3);
-    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "voice/4/depth_ms", PROPERTY_HINT_RANGE, "0,20,0.01"), "set_voice_depth_ms", "get_voice_depth_ms", 3);
-    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "voice/4/level_db", PROPERTY_HINT_RANGE, "-60,24,0.1"), "set_voice_level_db", "get_voice_level_db", 3);
-    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "voice/4/cutoff_hz", PROPERTY_HINT_RANGE, "1,20500,1"), "set_voice_cutoff_hz", "get_voice_cutoff_hz", 3);
-    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "voice/4/pan", PROPERTY_HINT_RANGE, "-1,1,0.01"), "set_voice_pan", "get_voice_pan", 3);
+    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "voice/4/delay_ms", PropertyHint::Range, "0,50,0.01"), "set_voice_delay_ms", "get_voice_delay_ms", 3);
+    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "voice/4/rate_hz", PropertyHint::Range, "0.1,20,0.1"), "set_voice_rate_hz", "get_voice_rate_hz", 3);
+    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "voice/4/depth_ms", PropertyHint::Range, "0,20,0.01"), "set_voice_depth_ms", "get_voice_depth_ms", 3);
+    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "voice/4/level_db", PropertyHint::Range, "-60,24,0.1"), "set_voice_level_db", "get_voice_level_db", 3);
+    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "voice/4/cutoff_hz", PropertyHint::Range, "1,20500,1"), "set_voice_cutoff_hz", "get_voice_cutoff_hz", 3);
+    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "voice/4/pan", PropertyHint::Range, "-1,1,0.01"), "set_voice_pan", "get_voice_pan", 3);
 }
 
 AudioEffectChorus::AudioEffectChorus() {

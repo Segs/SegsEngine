@@ -125,7 +125,7 @@ void DocDump::dump(se_string_view p_file) {
                 if (i == -1) {
 
                     arginfo = E.return_val;
-                    String type_name = arginfo.hint == PROPERTY_HINT_RESOURCE_TYPE ? arginfo.hint_string : Variant::get_type_name(arginfo.type);
+                    String type_name = arginfo.hint == PropertyHint::ResourceType ? arginfo.hint_string : Variant::get_type_name(arginfo.type);
 
                     if (arginfo.type == VariantType::NIL)
                         continue;
@@ -136,7 +136,7 @@ void DocDump::dump(se_string_view p_file) {
 
                     String type_name;
 
-                    if (arginfo.hint == PROPERTY_HINT_RESOURCE_TYPE)
+                    if (arginfo.hint == PropertyHint::ResourceType)
                         type_name = arginfo.hint_string;
                     else if (arginfo.type == VariantType::NIL)
                         type_name = "Variant";
@@ -207,30 +207,30 @@ void DocDump::dump(se_string_view p_file) {
 
                 String hint;
                 switch (arginfo.hint) {
-                    case PROPERTY_HINT_DIR: hint = "A directory."; break;
-                case PROPERTY_HINT_RANGE:
+                    case PropertyHint::Dir: hint = "A directory."; break;
+                case PropertyHint::Range:
                     hint = String("Range - min: ") + StringUtils::get_slice(arginfo.hint_string,",", 0) + " max: " + StringUtils::get_slice(arginfo.hint_string,",", 1) +
                            " step: " + StringUtils::get_slice(arginfo.hint_string,",", 2);
                     break;
-                    case PROPERTY_HINT_ENUM:
+                    case PropertyHint::Enum:
                         hint = "Values: ";
                         for (int j = 0; j < StringUtils::get_slice_count(arginfo.hint_string,','); j++) {
                             if (j > 0) hint += ", ";
                             hint += String(StringUtils::get_slice(arginfo.hint_string,",", j)) + "=" + itos(j);
                         }
                         break;
-                    case PROPERTY_HINT_LENGTH: hint = "Length: " + arginfo.hint_string; break;
-                    case PROPERTY_HINT_FLAGS:
+                    case PropertyHint::Length: hint = "Length: " + arginfo.hint_string; break;
+                    case PropertyHint::Flags:
                         hint = "Values: ";
                         for (int j = 0; j < StringUtils::get_slice_count(arginfo.hint_string,','); j++) {
                             if (j > 0) hint += ", ";
                             hint += String(StringUtils::get_slice(arginfo.hint_string,",", j)) + "=" + itos((uint64_t)1 << j);
                         }
                         break;
-                    case PROPERTY_HINT_FILE: hint = "A file:"; break;
+                    case PropertyHint::File: hint = "A file:"; break;
                     default: {
                     }
-                        //case PROPERTY_HINT_RESOURCE_TYPE: hint="Type: "+arginfo.hint_string; break;
+                        //case PropertyHint::ResourceType: hint="Type: "+arginfo.hint_string; break;
                 }
                 if (!hint.empty())
                     _write_string(f, 4, hint);
