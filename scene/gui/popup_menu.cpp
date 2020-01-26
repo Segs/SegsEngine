@@ -546,8 +546,8 @@ void PopupMenu::_notification(int p_what) {
                         if (l > item_ofs.x) {
                             labeled_separator_left->draw(ci, Rect2(item_ofs + Point2(0, Math::floor((h - sep_h) / 2.0f)), Size2(MAX(0, l - item_ofs.x), sep_h)));
                         }
-                        if (r < get_size().width - style->get_margin(MARGIN_RIGHT)) {
-                            labeled_separator_right->draw(ci, Rect2(Point2(r, item_ofs.y + Math::floor((h - sep_h) / 2.0f)), Size2(MAX(0, get_size().width - style->get_margin(MARGIN_RIGHT) - r), sep_h)));
+                        if (r < get_size().width - style->get_margin(Margin::Right)) {
+                            labeled_separator_right->draw(ci, Rect2(Point2(r, item_ofs.y + Math::floor((h - sep_h) / 2.0f)), Size2(MAX(0, get_size().width - style->get_margin(Margin::Right) - r), sep_h)));
                         }
                     } else {
                         separator->draw(ci, Rect2(item_ofs + Point2(0, Math::floor((h - sep_h) / 2.0f)), Size2(get_size().width - style->get_minimum_size().width, sep_h)));
@@ -566,7 +566,7 @@ void PopupMenu::_notification(int p_what) {
                 }
 
                 if (!items[i].submenu.empty()) {
-                    submenu->draw(ci, Point2(size.width - style->get_margin(MARGIN_RIGHT) - submenu->get_width(), item_ofs.y + Math::floor(h - submenu->get_height()) / 2), icon_color);
+                    submenu->draw(ci, Point2(size.width - style->get_margin(Margin::Right) - submenu->get_width(), item_ofs.y + Math::floor(h - submenu->get_height()) / 2), icon_color);
                 }
 
                 item_ofs.y += font->get_ascent();
@@ -585,7 +585,7 @@ void PopupMenu::_notification(int p_what) {
                 if (items[i].accel || (items[i].shortcut && items[i].shortcut->is_valid())) {
                     //accelerator
                     String text2 = _get_accel_text(i);
-                    item_ofs.x = size.width - style->get_margin(MARGIN_RIGHT) - font->get_string_size_utf8(text2).width;
+                    item_ofs.x = size.width - style->get_margin(Margin::Right) - font->get_string_size_utf8(text2).width;
                     font->draw_utf8(ci, item_ofs + Point2(0, Math::floor((h - font_h) / 2.0f)), text2, i == mouse_over ? font_color_hover : font_color_accel);
                 }
 

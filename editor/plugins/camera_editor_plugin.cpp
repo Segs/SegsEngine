@@ -81,12 +81,12 @@ CameraEditor::CameraEditor() {
 
     preview->set_text(TTR("Preview"));
     preview->set_toggle_mode(true);
-    preview->set_anchor(MARGIN_LEFT, Control::ANCHOR_END);
-    preview->set_anchor(MARGIN_RIGHT, Control::ANCHOR_END);
-    preview->set_margin(MARGIN_LEFT, -60);
-    preview->set_margin(MARGIN_RIGHT, 0);
-    preview->set_margin(MARGIN_TOP, 0);
-    preview->set_margin(MARGIN_BOTTOM, 10);
+    preview->set_anchor(Margin::Left, Control::ANCHOR_END);
+    preview->set_anchor(Margin::Right, Control::ANCHOR_END);
+    preview->set_margin(Margin::Left, -60);
+    preview->set_margin(Margin::Right, 0);
+    preview->set_margin(Margin::Top, 0);
+    preview->set_margin(Margin::Bottom, 10);
     preview->connect("pressed", this, "_pressed");
 }
 
@@ -116,12 +116,12 @@ CameraEditorPlugin::CameraEditorPlugin(EditorNode *p_node) {
     /*	camera_editor = memnew( CameraEditor );
     editor->get_viewport()->add_child(camera_editor);
 
-    camera_editor->set_anchor(MARGIN_LEFT,Control::ANCHOR_END);
-    camera_editor->set_anchor(MARGIN_RIGHT,Control::ANCHOR_END);
-    camera_editor->set_margin(MARGIN_LEFT,60);
-    camera_editor->set_margin(MARGIN_RIGHT,0);
-    camera_editor->set_margin(MARGIN_TOP,0);
-    camera_editor->set_margin(MARGIN_BOTTOM,10);
+    camera_editor->set_anchor(Margin::LEFT,Control::ANCHOR_END);
+    camera_editor->set_anchor(Margin::RIGHT,Control::ANCHOR_END);
+    camera_editor->set_margin(Margin::LEFT,60);
+    camera_editor->set_margin(Margin::RIGHT,0);
+    camera_editor->set_margin(Margin::TOP,0);
+    camera_editor->set_margin(Margin::BOTTOM,10);
 
 
     camera_editor->hide();

@@ -210,15 +210,15 @@ void TextureRegionEditor::_region_draw() {
     if (node_ninepatch || obj_styleBox) {
         float margins[4] = { 0 };
         if (node_ninepatch) {
-            margins[0] = node_ninepatch->get_patch_margin(MARGIN_TOP);
-            margins[1] = node_ninepatch->get_patch_margin(MARGIN_BOTTOM);
-            margins[2] = node_ninepatch->get_patch_margin(MARGIN_LEFT);
-            margins[3] = node_ninepatch->get_patch_margin(MARGIN_RIGHT);
+            margins[0] = node_ninepatch->get_patch_margin(Margin::Top);
+            margins[1] = node_ninepatch->get_patch_margin(Margin::Bottom);
+            margins[2] = node_ninepatch->get_patch_margin(Margin::Left);
+            margins[3] = node_ninepatch->get_patch_margin(Margin::Right);
         } else if (obj_styleBox) {
-            margins[0] = obj_styleBox->get_margin_size(MARGIN_TOP);
-            margins[1] = obj_styleBox->get_margin_size(MARGIN_BOTTOM);
-            margins[2] = obj_styleBox->get_margin_size(MARGIN_LEFT);
-            margins[3] = obj_styleBox->get_margin_size(MARGIN_RIGHT);
+            margins[0] = obj_styleBox->get_margin_size(Margin::Top);
+            margins[1] = obj_styleBox->get_margin_size(Margin::Bottom);
+            margins[2] = obj_styleBox->get_margin_size(Margin::Left);
+            margins[3] = obj_styleBox->get_margin_size(Margin::Right);
         }
 
         Vector2 pos[4] = {
@@ -265,15 +265,15 @@ void TextureRegionEditor::_region_input(const Ref<InputEvent> &p_input) {
                     edited_margin = -1;
                     float margins[4] = { 0 };
                     if (node_ninepatch) {
-                        margins[0] = node_ninepatch->get_patch_margin(MARGIN_TOP);
-                        margins[1] = node_ninepatch->get_patch_margin(MARGIN_BOTTOM);
-                        margins[2] = node_ninepatch->get_patch_margin(MARGIN_LEFT);
-                        margins[3] = node_ninepatch->get_patch_margin(MARGIN_RIGHT);
+                        margins[0] = node_ninepatch->get_patch_margin(Margin::Top);
+                        margins[1] = node_ninepatch->get_patch_margin(Margin::Bottom);
+                        margins[2] = node_ninepatch->get_patch_margin(Margin::Left);
+                        margins[3] = node_ninepatch->get_patch_margin(Margin::Right);
                     } else if (obj_styleBox) {
-                        margins[0] = obj_styleBox->get_margin_size(MARGIN_TOP);
-                        margins[1] = obj_styleBox->get_margin_size(MARGIN_BOTTOM);
-                        margins[2] = obj_styleBox->get_margin_size(MARGIN_LEFT);
-                        margins[3] = obj_styleBox->get_margin_size(MARGIN_RIGHT);
+                        margins[0] = obj_styleBox->get_margin_size(Margin::Top);
+                        margins[1] = obj_styleBox->get_margin_size(Margin::Bottom);
+                        margins[2] = obj_styleBox->get_margin_size(Margin::Left);
+                        margins[3] = obj_styleBox->get_margin_size(Margin::Right);
                     }
 
                     Vector2 pos[4] = {
@@ -379,7 +379,7 @@ void TextureRegionEditor::_region_input(const Ref<InputEvent> &p_input) {
             } else if (drag) {
                 if (edited_margin >= 0) {
                     undo_redo->create_action_ui(TTR("Set Margin"));
-                    static Margin m[4] = { MARGIN_TOP, MARGIN_BOTTOM, MARGIN_LEFT, MARGIN_RIGHT };
+                    static Margin m[4] = { Margin::Top, Margin::Bottom, Margin::Left, Margin::Right };
                     if (node_ninepatch) {
                         undo_redo->add_do_method(node_ninepatch, "set_patch_margin", m[edited_margin], node_ninepatch->get_patch_margin(m[edited_margin]));
                         undo_redo->add_undo_method(node_ninepatch, "set_patch_margin", m[edited_margin], prev_margin);
@@ -423,7 +423,7 @@ void TextureRegionEditor::_region_input(const Ref<InputEvent> &p_input) {
             if (drag) {
                 drag = false;
                 if (edited_margin >= 0) {
-                    static Margin m[4] = { MARGIN_TOP, MARGIN_BOTTOM, MARGIN_LEFT, MARGIN_RIGHT };
+                    static Margin m[4] = { Margin::Top, Margin::Bottom, Margin::Left, Margin::Right };
                     if (node_ninepatch)
                         node_ninepatch->set_patch_margin(m[edited_margin], prev_margin);
                     if (obj_styleBox)
@@ -470,7 +470,7 @@ void TextureRegionEditor::_region_input(const Ref<InputEvent> &p_input) {
 
                 if (new_margin < 0)
                     new_margin = 0;
-                static Margin m[4] = { MARGIN_TOP, MARGIN_BOTTOM, MARGIN_LEFT, MARGIN_RIGHT };
+                static Margin m[4] = { Margin::Top, Margin::Bottom, Margin::Left, Margin::Right };
                 if (node_ninepatch)
                     node_ninepatch->set_patch_margin(m[edited_margin], new_margin);
                 if (obj_styleBox)
@@ -1027,7 +1027,7 @@ TextureRegionEditor::TextureRegionEditor(EditorNode *p_editor) {
     hscroll->set_step(0.001);
     edit_draw->add_child(hscroll);
     hscroll->set_anchors_and_margins_preset(PRESET_BOTTOM_WIDE);
-    hscroll->set_margin(MARGIN_RIGHT, -vscroll->get_size().x * EDSCALE);
+    hscroll->set_margin(Margin::Right, -vscroll->get_size().x * EDSCALE);
     hscroll->connect("value_changed", this, "_scroll_changed");
 
     updating_scroll = false;

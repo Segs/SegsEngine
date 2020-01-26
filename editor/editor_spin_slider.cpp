@@ -239,7 +239,7 @@ void EditorSpinSlider::_notification(int p_what) {
         if (get_step() == 1) {
             Ref<Texture> updown2 = get_icon("updown", "SpinBox");
             int updown_vofs = (get_size().height - updown2->get_height()) / 2;
-            updown_offset = get_size().width - sb->get_margin(MARGIN_RIGHT) - updown2->get_width();
+            updown_offset = get_size().width - sb->get_margin(Margin::Right) - updown2->get_width();
             Color c(1, 1, 1);
             if (hover_updown) {
                 c *= Color(1.2, 1.2, 1.2);

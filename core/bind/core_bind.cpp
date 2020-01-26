@@ -2070,7 +2070,7 @@ String _File::get_line() const {
     return f->get_line();
 }
 
-Vector<String> _File::get_csv_line(char p_delim) const {
+Vector<String> _File::get_csv_line(int8_t p_delim) const {
     ERR_FAIL_COND_V_MSG(!f, Vector<String>(), "File must be opened before use.")
     return f->get_csv_line(p_delim);
 }
@@ -2169,7 +2169,7 @@ void _File::store_line(se_string_view p_string) {
     f->store_line(p_string);
 }
 
-void _File::store_csv_line(const PoolVector<String> &p_values, char p_delim) {
+void _File::store_csv_line(const PoolVector<String> &p_values, int8_t p_delim) {
     ERR_FAIL_COND_MSG(!f, "File must be opened before use.")
     auto rd = p_values.read();
     PODVector<String> vals(rd.ptr(),rd.ptr()+p_values.size());
@@ -2261,7 +2261,7 @@ void _File::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_real"), &_File::get_real);
     MethodBinder::bind_method(D_METHOD("get_buffer", {"len"}), &_File::get_buffer);
     MethodBinder::bind_method(D_METHOD("get_line"), &_File::get_line);
-    //MethodBinder::bind_method(D_METHOD("get_csv_line", {"delim"}), &_File::get_csv_line, {DEFVAL(',')});
+    MethodBinder::bind_method(D_METHOD("get_csv_line", {"delim"}), &_File::get_csv_line, {DEFVAL(',')});
     MethodBinder::bind_method(D_METHOD("get_as_text"), &_File::get_as_text);
     MethodBinder::bind_method(D_METHOD("get_md5", {"path"}), &_File::get_md5);
     MethodBinder::bind_method(D_METHOD("get_sha256", {"path"}), &_File::get_sha256);
@@ -2279,7 +2279,7 @@ void _File::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("store_real", {"value"}), &_File::store_real);
     MethodBinder::bind_method(D_METHOD("store_buffer", {"buffer"}), &_File::store_buffer);
     MethodBinder::bind_method(D_METHOD("store_line", {"line"}), &_File::store_line);
-    //MethodBinder::bind_method(D_METHOD("store_csv_line", {"values", "delim"}), &_File::store_csv_line, {DEFVAL(',')});
+    MethodBinder::bind_method(D_METHOD("store_csv_line", {"values", "delim"}), &_File::store_csv_line, {DEFVAL(',')});
     MethodBinder::bind_method(D_METHOD("store_string", {"string"}), &_File::store_string);
     MethodBinder::bind_method(D_METHOD("store_var", {"value", "full_objects"}), &_File::store_var, {DEFVAL(false)});
 

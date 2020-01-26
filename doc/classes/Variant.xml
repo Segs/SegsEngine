@@ -21,11 +21,11 @@
 		[codeblock]
 		var foo = 2
 		match typeof(foo):
-		    TYPE_NIL:
+		    NIL:
 		        print("foo is null")
-		    TYPE_INTEGER:
+		    INTEGER:
 		        print("foo is an integer")
-		    TYPE_OBJECT:
+		    OBJECT:
 		        # Note that Objects are their own special category.
 		        # To get the name of the underlying Object type, you need the `get_class()` method.
 		        print("foo is a(n) %s" % foo.get_class()) # inject the class name into a formatted string.

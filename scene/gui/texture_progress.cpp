@@ -65,14 +65,14 @@ Ref<Texture> TextureProgress::get_over_texture() const {
 
 void TextureProgress::set_stretch_margin(Margin p_margin, int p_size) {
     ERR_FAIL_INDEX((int)p_margin, 4);
-    stretch_margin[p_margin] = p_size;
+    stretch_margin[(int)p_margin] = p_size;
     update();
     minimum_size_changed();
 }
 
 int TextureProgress::get_stretch_margin(Margin p_margin) const {
     ERR_FAIL_INDEX_V((int)p_margin, 4, 0);
-    return stretch_margin[p_margin];
+    return stretch_margin[(int)p_margin];
 }
 
 void TextureProgress::set_nine_patch_stretch(bool p_stretch) {
@@ -88,7 +88,7 @@ bool TextureProgress::get_nine_patch_stretch() const {
 Size2 TextureProgress::get_minimum_size() const {
 
     if (nine_patch_stretch)
-        return Size2(stretch_margin[MARGIN_LEFT] + stretch_margin[MARGIN_RIGHT], stretch_margin[MARGIN_TOP] + stretch_margin[MARGIN_BOTTOM]);
+        return Size2(stretch_margin[(int8_t)Margin::Left] + stretch_margin[(int8_t)Margin::Right], stretch_margin[(int8_t)Margin::Top] + stretch_margin[(int8_t)Margin::Bottom]);
     else if (under)
         return under->get_size();
     else if (over)
@@ -208,8 +208,8 @@ Point2 TextureProgress::get_relative_center() {
 
 void TextureProgress::draw_nine_patch_stretched(const Ref<Texture> &p_texture, FillMode p_mode, double p_ratio, const Color &p_modulate) {
     Vector2 texture_size = p_texture->get_size();
-    Vector2 topleft = Vector2(stretch_margin[MARGIN_LEFT], stretch_margin[MARGIN_TOP]);
-    Vector2 bottomright = Vector2(stretch_margin[MARGIN_RIGHT], stretch_margin[MARGIN_BOTTOM]);
+    Vector2 topleft = Vector2(stretch_margin[(int8_t)Margin::Left], stretch_margin[(int8_t)Margin::Top]);
+    Vector2 bottomright = Vector2(stretch_margin[(int8_t)Margin::Right], stretch_margin[(int8_t)Margin::Bottom]);
 
     Rect2 src_rect = Rect2(Point2(), texture_size);
     Rect2 dst_rect = Rect2(Point2(), get_size());
@@ -520,10 +520,10 @@ void TextureProgress::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "radial_center_offset"), "set_radial_center_offset", "get_radial_center_offset");
     ADD_GROUP("Stretch", "stretch_");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "nine_patch_stretch"), "set_nine_patch_stretch", "get_nine_patch_stretch");
-    ADD_PROPERTYI(PropertyInfo(VariantType::INT, "stretch_margin_left", PropertyHint::Range, "0,16384,1"), "set_stretch_margin", "get_stretch_margin", MARGIN_LEFT);
-    ADD_PROPERTYI(PropertyInfo(VariantType::INT, "stretch_margin_top", PropertyHint::Range, "0,16384,1"), "set_stretch_margin", "get_stretch_margin", MARGIN_TOP);
-    ADD_PROPERTYI(PropertyInfo(VariantType::INT, "stretch_margin_right", PropertyHint::Range, "0,16384,1"), "set_stretch_margin", "get_stretch_margin", MARGIN_RIGHT);
-    ADD_PROPERTYI(PropertyInfo(VariantType::INT, "stretch_margin_bottom", PropertyHint::Range, "0,16384,1"), "set_stretch_margin", "get_stretch_margin", MARGIN_BOTTOM);
+    ADD_PROPERTYI(PropertyInfo(VariantType::INT, "stretch_margin_left", PropertyHint::Range, "0,16384,1"), "set_stretch_margin", "get_stretch_margin", (int)Margin::Left);
+    ADD_PROPERTYI(PropertyInfo(VariantType::INT, "stretch_margin_top", PropertyHint::Range, "0,16384,1"), "set_stretch_margin", "get_stretch_margin", (int)Margin::Top);
+    ADD_PROPERTYI(PropertyInfo(VariantType::INT, "stretch_margin_right", PropertyHint::Range, "0,16384,1"), "set_stretch_margin", "get_stretch_margin", (int)Margin::Right);
+    ADD_PROPERTYI(PropertyInfo(VariantType::INT, "stretch_margin_bottom", PropertyHint::Range, "0,16384,1"), "set_stretch_margin", "get_stretch_margin", (int)Margin::Bottom);
 
     BIND_ENUM_CONSTANT(FILL_LEFT_TO_RIGHT)
     BIND_ENUM_CONSTANT(FILL_RIGHT_TO_LEFT)
@@ -544,10 +544,10 @@ TextureProgress::TextureProgress() {
     set_mouse_filter(MOUSE_FILTER_PASS);
 
     nine_patch_stretch = false;
-    stretch_margin[MARGIN_LEFT] = 0;
-    stretch_margin[MARGIN_RIGHT] = 0;
-    stretch_margin[MARGIN_BOTTOM] = 0;
-    stretch_margin[MARGIN_TOP] = 0;
+    stretch_margin[(int8_t)Margin::Left] = 0;
+    stretch_margin[(int8_t)Margin::Right] = 0;
+    stretch_margin[(int8_t)Margin::Bottom] = 0;
+    stretch_margin[(int8_t)Margin::Top] = 0;
 
     tint_under = tint_progress = tint_over = Color(1, 1, 1);
 }

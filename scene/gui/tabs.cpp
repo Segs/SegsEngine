@@ -319,19 +319,19 @@ void Tabs::_notification(int p_what) {
                 Rect2 sb_rect = Rect2(w, 0, tabs[i].size_cache, h);
                 sb->draw(ci, sb_rect);
 
-                w += sb->get_margin(MARGIN_LEFT);
+                w += sb->get_margin(Margin::Left);
 
                 Size2i sb_ms = sb->get_minimum_size();
                 Ref<Texture> icon = tabs[i].icon;
                 if (icon) {
 
-                    icon->draw(ci, Point2i(w, sb->get_margin(MARGIN_TOP) + ((sb_rect.size.y - sb_ms.y) - icon->get_height()) / 2));
+                    icon->draw(ci, Point2i(w, sb->get_margin(Margin::Top) + ((sb_rect.size.y - sb_ms.y) - icon->get_height()) / 2));
                     if (!tabs[i].text.empty())
                         w += icon->get_width() + get_constant("hseparation");
                 }
 
                 font->draw_utf8(ci,
-                        Point2i(w, sb->get_margin(MARGIN_TOP) + ((sb_rect.size.y - sb_ms.y) - font->get_height()) / 2 +
+                        Point2i(w, sb->get_margin(Margin::Top) + ((sb_rect.size.y - sb_ms.y) - font->get_height()) / 2 +
                                            font->get_ascent()),
                         tabs[i].xl_text, col, tabs[i].size_text);
 
@@ -347,7 +347,7 @@ void Tabs::_notification(int p_what) {
                     Rect2 rb_rect;
                     rb_rect.size = style->get_minimum_size() + rb->get_size();
                     rb_rect.position.x = w;
-                    rb_rect.position.y = sb->get_margin(MARGIN_TOP) + ((sb_rect.size.y - sb_ms.y) - (rb_rect.size.y)) / 2;
+                    rb_rect.position.y = sb->get_margin(Margin::Top) + ((sb_rect.size.y - sb_ms.y) - (rb_rect.size.y)) / 2;
 
                     if (rb_hover == i) {
                         if (rb_pressing)
@@ -356,7 +356,7 @@ void Tabs::_notification(int p_what) {
                             style->draw(ci, rb_rect);
                     }
 
-                    rb->draw(ci, Point2i(w + style->get_margin(MARGIN_LEFT), rb_rect.position.y + style->get_margin(MARGIN_TOP)));
+                    rb->draw(ci, Point2i(w + style->get_margin(Margin::Left), rb_rect.position.y + style->get_margin(Margin::Top)));
                     w += rb->get_width();
                     tabs.write[i].rb_rect = rb_rect;
                 }
@@ -371,7 +371,7 @@ void Tabs::_notification(int p_what) {
                     Rect2 cb_rect;
                     cb_rect.size = style->get_minimum_size() + cb->get_size();
                     cb_rect.position.x = w;
-                    cb_rect.position.y = sb->get_margin(MARGIN_TOP) + ((sb_rect.size.y - sb_ms.y) - (cb_rect.size.y)) / 2;
+                    cb_rect.position.y = sb->get_margin(Margin::Top) + ((sb_rect.size.y - sb_ms.y) - (cb_rect.size.y)) / 2;
 
                     if (!tabs[i].disabled && cb_hover == i) {
                         if (cb_pressing)
@@ -380,12 +380,12 @@ void Tabs::_notification(int p_what) {
                             style->draw(ci, cb_rect);
                     }
 
-                    cb->draw(ci, Point2i(w + style->get_margin(MARGIN_LEFT), cb_rect.position.y + style->get_margin(MARGIN_TOP)));
+                    cb->draw(ci, Point2i(w + style->get_margin(Margin::Left), cb_rect.position.y + style->get_margin(Margin::Top)));
                     w += cb->get_width();
                     tabs.write[i].cb_rect = cb_rect;
                 }
 
-                w += sb->get_margin(MARGIN_RIGHT);
+                w += sb->get_margin(Margin::Right);
             }
 
             if (offset > 0 || missing_right) {
@@ -586,7 +586,7 @@ void Tabs::_update_cache() {
         int slen = tabs[i].size_text;
         if (min_width > 0 && mw > limit && i != current) {
             if (lsize > m_width) {
-                slen = m_width - (sb->get_margin(MARGIN_LEFT) + sb->get_margin(MARGIN_RIGHT));
+                slen = m_width - (sb->get_margin(Margin::Left) + sb->get_margin(Margin::Right));
                 if (tabs[i].icon) {
                     slen -= tabs[i].icon->get_width();
                     slen -= get_constant("hseparation");

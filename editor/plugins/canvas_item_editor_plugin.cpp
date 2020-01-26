@@ -384,8 +384,8 @@ Point2 CanvasItemEditor::snap_point(Point2 p_target, unsigned int p_modes, unsig
         // Self anchors
         if ((is_snap_active && snap_node_anchors && (p_modes & SNAP_NODE_ANCHORS)) || (p_forced_modes & SNAP_NODE_ANCHORS)) {
             if (const Control *c = object_cast<Control>(p_self_canvas_item)) {
-                Point2 begin = p_self_canvas_item->get_global_transform_with_canvas().xform(_anchor_to_position(c, Point2(c->get_anchor(Margin::MARGIN_LEFT), c->get_anchor(Margin::MARGIN_TOP))));
-                Point2 end = p_self_canvas_item->get_global_transform_with_canvas().xform(_anchor_to_position(c, Point2(c->get_anchor(Margin::MARGIN_RIGHT), c->get_anchor(Margin::MARGIN_BOTTOM))));
+                Point2 begin = p_self_canvas_item->get_global_transform_with_canvas().xform(_anchor_to_position(c, Point2(c->get_anchor(Margin::Left), c->get_anchor(Margin::Top))));
+                Point2 end = p_self_canvas_item->get_global_transform_with_canvas().xform(_anchor_to_position(c, Point2(c->get_anchor(Margin::Right), c->get_anchor(Margin::Bottom))));
                 _snap_if_closer_point(p_target, output, snap_target, begin, SNAP_TARGET_SELF_ANCHORS, rotation);
                 _snap_if_closer_point(p_target, output, snap_target, end, SNAP_TARGET_SELF_ANCHORS, rotation);
             }
@@ -1586,10 +1586,10 @@ bool CanvasItemEditor::_gui_input_anchors(const Ref<InputEvent> &p_event) {
                 Control *control = object_cast<Control>(selection[0]);
                 if (control && _is_node_movable(control)) {
                     Vector2 anchor_pos[4];
-                    anchor_pos[0] = Vector2(control->get_anchor(Margin::MARGIN_LEFT), control->get_anchor(Margin::MARGIN_TOP));
-                    anchor_pos[1] = Vector2(control->get_anchor(Margin::MARGIN_RIGHT), control->get_anchor(Margin::MARGIN_TOP));
-                    anchor_pos[2] = Vector2(control->get_anchor(Margin::MARGIN_RIGHT), control->get_anchor(Margin::MARGIN_BOTTOM));
-                    anchor_pos[3] = Vector2(control->get_anchor(Margin::MARGIN_LEFT), control->get_anchor(Margin::MARGIN_BOTTOM));
+                    anchor_pos[0] = Vector2(control->get_anchor(Margin::Left), control->get_anchor(Margin::Top));
+                    anchor_pos[1] = Vector2(control->get_anchor(Margin::Right), control->get_anchor(Margin::Top));
+                    anchor_pos[2] = Vector2(control->get_anchor(Margin::Right), control->get_anchor(Margin::Bottom));
+                    anchor_pos[3] = Vector2(control->get_anchor(Margin::Left), control->get_anchor(Margin::Bottom));
 
                     Rect2 anchor_rects[4];
                     for (int i = 0; i < 4; i++) {
@@ -1635,8 +1635,8 @@ bool CanvasItemEditor::_gui_input_anchors(const Ref<InputEvent> &p_event) {
             Transform2D xform = control->get_global_transform_with_canvas().affine_inverse();
 
             Point2 previous_anchor;
-            previous_anchor.x = (drag_type == DRAG_ANCHOR_TOP_LEFT || drag_type == DRAG_ANCHOR_BOTTOM_LEFT) ? control->get_anchor(MARGIN_LEFT) : control->get_anchor(MARGIN_RIGHT);
-            previous_anchor.y = (drag_type == DRAG_ANCHOR_TOP_LEFT || drag_type == DRAG_ANCHOR_TOP_RIGHT) ? control->get_anchor(MARGIN_TOP) : control->get_anchor(MARGIN_BOTTOM);
+            previous_anchor.x = (drag_type == DRAG_ANCHOR_TOP_LEFT || drag_type == DRAG_ANCHOR_BOTTOM_LEFT) ? control->get_anchor(Margin::Left) : control->get_anchor(Margin::Right);
+            previous_anchor.y = (drag_type == DRAG_ANCHOR_TOP_LEFT || drag_type == DRAG_ANCHOR_TOP_RIGHT) ? control->get_anchor(Margin::Top) : control->get_anchor(Margin::Bottom);
             previous_anchor = xform.affine_inverse().xform(_anchor_to_position(control, previous_anchor));
 
             Vector2 new_anchor = xform.xform(snap_point(previous_anchor + (drag_to - drag_from), SNAP_GRID | SNAP_OTHER_NODES, SNAP_NODE_PARENT | SNAP_NODE_SIDES | SNAP_NODE_CENTER, control));
@@ -1648,29 +1648,29 @@ bool CanvasItemEditor::_gui_input_anchors(const Ref<InputEvent> &p_event) {
 
             switch (drag_type) {
                 case DRAG_ANCHOR_TOP_LEFT:
-                    if (!use_single_axis || !use_y) control->set_anchor(MARGIN_LEFT, new_anchor.x, false, false);
-                    if (!use_single_axis || use_y) control->set_anchor(MARGIN_TOP, new_anchor.y, false, false);
+                    if (!use_single_axis || !use_y) control->set_anchor(Margin::Left, new_anchor.x, false, false);
+                    if (!use_single_axis || use_y) control->set_anchor(Margin::Top, new_anchor.y, false, false);
                     break;
                 case DRAG_ANCHOR_TOP_RIGHT:
-                    if (!use_single_axis || !use_y) control->set_anchor(MARGIN_RIGHT, new_anchor.x, false, false);
-                    if (!use_single_axis || use_y) control->set_anchor(MARGIN_TOP, new_anchor.y, false, false);
+                    if (!use_single_axis || !use_y) control->set_anchor(Margin::Right, new_anchor.x, false, false);
+                    if (!use_single_axis || use_y) control->set_anchor(Margin::Top, new_anchor.y, false, false);
                     break;
                 case DRAG_ANCHOR_BOTTOM_RIGHT:
-                    if (!use_single_axis || !use_y) control->set_anchor(MARGIN_RIGHT, new_anchor.x, false, false);
-                    if (!use_single_axis || use_y) control->set_anchor(MARGIN_BOTTOM, new_anchor.y, false, false);
+                    if (!use_single_axis || !use_y) control->set_anchor(Margin::Right, new_anchor.x, false, false);
+                    if (!use_single_axis || use_y) control->set_anchor(Margin::Bottom, new_anchor.y, false, false);
                     break;
                 case DRAG_ANCHOR_BOTTOM_LEFT:
-                    if (!use_single_axis || !use_y) control->set_anchor(MARGIN_LEFT, new_anchor.x, false, false);
-                    if (!use_single_axis || use_y) control->set_anchor(MARGIN_BOTTOM, new_anchor.y, false, false);
+                    if (!use_single_axis || !use_y) control->set_anchor(Margin::Left, new_anchor.x, false, false);
+                    if (!use_single_axis || use_y) control->set_anchor(Margin::Bottom, new_anchor.y, false, false);
                     break;
                 case DRAG_ANCHOR_ALL:
                     if (!use_single_axis || !use_y) {
-                        control->set_anchor(MARGIN_LEFT, new_anchor.x, false, true);
-                        control->set_anchor(MARGIN_RIGHT, new_anchor.x, false, true);
+                        control->set_anchor(Margin::Left, new_anchor.x, false, true);
+                        control->set_anchor(Margin::Right, new_anchor.x, false, true);
                     }
                     if (!use_single_axis || use_y) {
-                        control->set_anchor(MARGIN_TOP, new_anchor.y, false, true);
-                        control->set_anchor(MARGIN_BOTTOM, new_anchor.y, false, true);
+                        control->set_anchor(Margin::Top, new_anchor.y, false, true);
+                        control->set_anchor(Margin::Bottom, new_anchor.y, false, true);
                     }
                     break;
                 default:
@@ -2555,16 +2555,16 @@ void CanvasItemEditor::_draw_text_at_position(Point2 p_position, const UIString&
     Ref<Font> font = get_font("font", "Label");
     Size2 text_size = font->get_string_size(p_string);
     switch (p_side) {
-    case Margin::MARGIN_LEFT:
+    case Margin::Left:
             p_position += Vector2(-text_size.x - 5, text_size.y / 2);
             break;
-        case Margin::MARGIN_TOP:
+        case Margin::Top:
             p_position += Vector2(-text_size.x / 2, -5);
             break;
-        case Margin::MARGIN_RIGHT:
+        case Margin::Right:
             p_position += Vector2(5, text_size.y / 2);
             break;
-        case Margin::MARGIN_BOTTOM:
+        case Margin::Bottom:
             p_position += Vector2(-text_size.x / 2, text_size.y + 5);
             break;
     }
@@ -2959,10 +2959,10 @@ void CanvasItemEditor::_draw_control_anchors(Control *control) {
 
         // Compute the anchors
         float anchors_values[4];
-        anchors_values[0] = control->get_anchor(MARGIN_LEFT);
-        anchors_values[1] = control->get_anchor(MARGIN_TOP);
-        anchors_values[2] = control->get_anchor(MARGIN_RIGHT);
-        anchors_values[3] = control->get_anchor(MARGIN_BOTTOM);
+        anchors_values[0] = control->get_anchor(Margin::Left);
+        anchors_values[1] = control->get_anchor(Margin::Top);
+        anchors_values[2] = control->get_anchor(Margin::Right);
+        anchors_values[3] = control->get_anchor(Margin::Bottom);
 
         Vector2 anchors_pos[4];
         for (int i = 0; i < 4; i++) {
@@ -2991,10 +2991,10 @@ void CanvasItemEditor::_draw_control_helpers(Control *control) {
 
         // Compute the anchors
         float anchors_values[4];
-        anchors_values[0] = control->get_anchor(MARGIN_LEFT);
-        anchors_values[1] = control->get_anchor(MARGIN_TOP);
-        anchors_values[2] = control->get_anchor(MARGIN_RIGHT);
-        anchors_values[3] = control->get_anchor(MARGIN_BOTTOM);
+        anchors_values[0] = control->get_anchor(Margin::Left);
+        anchors_values[1] = control->get_anchor(Margin::Top);
+        anchors_values[2] = control->get_anchor(Margin::Right);
+        anchors_values[3] = control->get_anchor(Margin::Bottom);
 
         Vector2 anchors[4];
         Vector2 anchors_pos[4];
@@ -3069,22 +3069,22 @@ void CanvasItemEditor::_draw_control_helpers(Control *control) {
 
         Rect2 parent_rect = control->get_parent_anchorable_rect();
 
-        node_pos_in_parent[0] = control->get_anchor(MARGIN_LEFT) * parent_rect.size.width + control->get_margin(MARGIN_LEFT) + parent_rect.position.x;
-        node_pos_in_parent[1] = control->get_anchor(MARGIN_TOP) * parent_rect.size.height + control->get_margin(MARGIN_TOP) + parent_rect.position.y;
-        node_pos_in_parent[2] = control->get_anchor(MARGIN_RIGHT) * parent_rect.size.width + control->get_margin(MARGIN_RIGHT) + parent_rect.position.x;
-        node_pos_in_parent[3] = control->get_anchor(MARGIN_BOTTOM) * parent_rect.size.height + control->get_margin(MARGIN_BOTTOM) + parent_rect.position.y;
+        node_pos_in_parent[0] = control->get_anchor(Margin::Left) * parent_rect.size.width + control->get_margin(Margin::Left) + parent_rect.position.x;
+        node_pos_in_parent[1] = control->get_anchor(Margin::Top) * parent_rect.size.height + control->get_margin(Margin::Top) + parent_rect.position.y;
+        node_pos_in_parent[2] = control->get_anchor(Margin::Right) * parent_rect.size.width + control->get_margin(Margin::Right) + parent_rect.position.x;
+        node_pos_in_parent[3] = control->get_anchor(Margin::Bottom) * parent_rect.size.height + control->get_margin(Margin::Bottom) + parent_rect.position.y;
 
         Point2 start, end;
         switch (drag_type) {
             case DRAG_LEFT:
             case DRAG_TOP_LEFT:
             case DRAG_BOTTOM_LEFT:
-                _draw_margin_at_position(control->get_size().width, parent_transform.xform(Vector2((node_pos_in_parent[0] + node_pos_in_parent[2]) / 2, node_pos_in_parent[3])) + Vector2(0, 5), MARGIN_BOTTOM);
+                _draw_margin_at_position(control->get_size().width, parent_transform.xform(Vector2((node_pos_in_parent[0] + node_pos_in_parent[2]) / 2, node_pos_in_parent[3])) + Vector2(0, 5), Margin::Bottom);
                 FALLTHROUGH;
             case DRAG_MOVE:
                 start = Vector2(node_pos_in_parent[0], Math::lerp(node_pos_in_parent[1], node_pos_in_parent[3], ratio));
-                end = start - Vector2(control->get_margin(MARGIN_LEFT), 0);
-                _draw_margin_at_position(control->get_margin(MARGIN_LEFT), parent_transform.xform((start + end) / 2), MARGIN_TOP);
+                end = start - Vector2(control->get_margin(Margin::Left), 0);
+                _draw_margin_at_position(control->get_margin(Margin::Left), parent_transform.xform((start + end) / 2), Margin::Top);
                 viewport->draw_line(parent_transform.xform(start), parent_transform.xform(end), color_base, Math::round(EDSCALE));
                 break;
             default:
@@ -3094,12 +3094,12 @@ void CanvasItemEditor::_draw_control_helpers(Control *control) {
             case DRAG_RIGHT:
             case DRAG_TOP_RIGHT:
             case DRAG_BOTTOM_RIGHT:
-                _draw_margin_at_position(control->get_size().width, parent_transform.xform(Vector2((node_pos_in_parent[0] + node_pos_in_parent[2]) / 2, node_pos_in_parent[3])) + Vector2(0, 5), MARGIN_BOTTOM);
+                _draw_margin_at_position(control->get_size().width, parent_transform.xform(Vector2((node_pos_in_parent[0] + node_pos_in_parent[2]) / 2, node_pos_in_parent[3])) + Vector2(0, 5), Margin::Bottom);
                 FALLTHROUGH;
             case DRAG_MOVE:
                 start = Vector2(node_pos_in_parent[2], Math::lerp(node_pos_in_parent[3], node_pos_in_parent[1], ratio));
-                end = start - Vector2(control->get_margin(MARGIN_RIGHT), 0);
-                _draw_margin_at_position(control->get_margin(MARGIN_RIGHT), parent_transform.xform((start + end) / 2), MARGIN_BOTTOM);
+                end = start - Vector2(control->get_margin(Margin::Right), 0);
+                _draw_margin_at_position(control->get_margin(Margin::Right), parent_transform.xform((start + end) / 2), Margin::Bottom);
                 viewport->draw_line(parent_transform.xform(start), parent_transform.xform(end), color_base, Math::round(EDSCALE));
                 break;
             default:
@@ -3109,12 +3109,12 @@ void CanvasItemEditor::_draw_control_helpers(Control *control) {
             case DRAG_TOP:
             case DRAG_TOP_LEFT:
             case DRAG_TOP_RIGHT:
-                _draw_margin_at_position(control->get_size().height, parent_transform.xform(Vector2(node_pos_in_parent[2], (node_pos_in_parent[1] + node_pos_in_parent[3]) / 2)) + Vector2(5, 0), MARGIN_RIGHT);
+                _draw_margin_at_position(control->get_size().height, parent_transform.xform(Vector2(node_pos_in_parent[2], (node_pos_in_parent[1] + node_pos_in_parent[3]) / 2)) + Vector2(5, 0), Margin::Right);
                 FALLTHROUGH;
             case DRAG_MOVE:
                 start = Vector2(Math::lerp(node_pos_in_parent[0], node_pos_in_parent[2], ratio), node_pos_in_parent[1]);
-                end = start - Vector2(0, control->get_margin(MARGIN_TOP));
-                _draw_margin_at_position(control->get_margin(MARGIN_TOP), parent_transform.xform((start + end) / 2), MARGIN_LEFT);
+                end = start - Vector2(0, control->get_margin(Margin::Top));
+                _draw_margin_at_position(control->get_margin(Margin::Top), parent_transform.xform((start + end) / 2), Margin::Left);
                 viewport->draw_line(parent_transform.xform(start), parent_transform.xform(end), color_base, Math::round(EDSCALE));
                 break;
             default:
@@ -3124,12 +3124,12 @@ void CanvasItemEditor::_draw_control_helpers(Control *control) {
             case DRAG_BOTTOM:
             case DRAG_BOTTOM_LEFT:
             case DRAG_BOTTOM_RIGHT:
-                _draw_margin_at_position(control->get_size().height, parent_transform.xform(Vector2(node_pos_in_parent[2], (node_pos_in_parent[1] + node_pos_in_parent[3]) / 2) + Vector2(5, 0)), MARGIN_RIGHT);
+                _draw_margin_at_position(control->get_size().height, parent_transform.xform(Vector2(node_pos_in_parent[2], (node_pos_in_parent[1] + node_pos_in_parent[3]) / 2) + Vector2(5, 0)), Margin::Right);
                 FALLTHROUGH;
             case DRAG_MOVE:
                 start = Vector2(Math::lerp(node_pos_in_parent[2], node_pos_in_parent[0], ratio), node_pos_in_parent[3]);
-                end = start - Vector2(0, control->get_margin(MARGIN_BOTTOM));
-                _draw_margin_at_position(control->get_margin(MARGIN_BOTTOM), parent_transform.xform((start + end) / 2), MARGIN_RIGHT);
+                end = start - Vector2(0, control->get_margin(Margin::Bottom));
+                _draw_margin_at_position(control->get_margin(Margin::Bottom), parent_transform.xform((start + end) / 2), Margin::Right);
                 viewport->draw_line(parent_transform.xform(start), parent_transform.xform(end), color_base, Math::round(EDSCALE));
                 break;
             default:
@@ -3678,7 +3678,7 @@ void CanvasItemEditor::_draw_viewport() {
     group_button->set_disabled(selection.empty());
     ungroup_button->set_visible(all_group);
 
-    info_overlay->set_margin(MARGIN_LEFT, (show_rulers ? RULER_WIDTH : 0) + 10);
+    info_overlay->set_margin(Margin::Left, (show_rulers ? RULER_WIDTH : 0) + 10);
 
     _draw_grid();
     _draw_ruler_tool();
@@ -3754,17 +3754,17 @@ void CanvasItemEditor::_process_physics_notification()
             Vector2 pivot;
 
             pivot = control->get_pivot_offset();
-            anchors[MARGIN_LEFT] = control->get_anchor(MARGIN_LEFT);
-            anchors[MARGIN_RIGHT] = control->get_anchor(MARGIN_RIGHT);
-            anchors[MARGIN_TOP] = control->get_anchor(MARGIN_TOP);
-            anchors[MARGIN_BOTTOM] = control->get_anchor(MARGIN_BOTTOM);
+            anchors[(int8_t)Margin::Left] = control->get_anchor(Margin::Left);
+            anchors[(int8_t)Margin::Right] = control->get_anchor(Margin::Right);
+            anchors[(int8_t)Margin::Top] = control->get_anchor(Margin::Top);
+            anchors[(int8_t)Margin::Bottom] = control->get_anchor(Margin::Bottom);
 
-            if (pivot != se->prev_pivot || anchors[MARGIN_LEFT] != se->prev_anchors[MARGIN_LEFT] || anchors[MARGIN_RIGHT] != se->prev_anchors[MARGIN_RIGHT] || anchors[MARGIN_TOP] != se->prev_anchors[MARGIN_TOP] || anchors[MARGIN_BOTTOM] != se->prev_anchors[MARGIN_BOTTOM]) {
+            if (pivot != se->prev_pivot || anchors[(int8_t)Margin::Left] != se->prev_anchors[(int8_t)Margin::Left] || anchors[(int8_t)Margin::Right] != se->prev_anchors[(int8_t)Margin::Right] || anchors[(int8_t)Margin::Top] != se->prev_anchors[(int8_t)Margin::Top] || anchors[(int8_t)Margin::Bottom] != se->prev_anchors[(int8_t)Margin::Bottom]) {
                 se->prev_pivot = pivot;
-                se->prev_anchors[MARGIN_LEFT] = anchors[MARGIN_LEFT];
-                se->prev_anchors[MARGIN_RIGHT] = anchors[MARGIN_RIGHT];
-                se->prev_anchors[MARGIN_TOP] = anchors[MARGIN_TOP];
-                se->prev_anchors[MARGIN_BOTTOM] = anchors[MARGIN_BOTTOM];
+                se->prev_anchors[(int8_t)Margin::Left] = anchors[(int8_t)Margin::Left];
+                se->prev_anchors[(int8_t)Margin::Right] = anchors[(int8_t)Margin::Right];
+                se->prev_anchors[(int8_t)Margin::Top] = anchors[(int8_t)Margin::Top];
+                se->prev_anchors[(int8_t)Margin::Bottom] = anchors[(int8_t)Margin::Bottom];
                 viewport->update();
             }
             nb_control++;
@@ -4132,7 +4132,7 @@ void CanvasItemEditor::_popup_warning_depop(Control *p_control) {
     remove_child(timer);
     popup_temporarily_timers.erase(p_control);
     memdelete(timer);
-    info_overlay->set_margin(MARGIN_LEFT, (show_rulers ? RULER_WIDTH : 0) + 10);
+    info_overlay->set_margin(Margin::Left, (show_rulers ? RULER_WIDTH : 0) + 10);
 }
 
 void CanvasItemEditor::_popup_warning_temporarily(Control *p_control, const float p_duration) {
@@ -4150,7 +4150,7 @@ void CanvasItemEditor::_popup_warning_temporarily(Control *p_control, const floa
 
     timer->start(p_duration);
     p_control->show();
-    info_overlay->set_margin(MARGIN_LEFT, (show_rulers ? RULER_WIDTH : 0) + 10);
+    info_overlay->set_margin(Margin::Left, (show_rulers ? RULER_WIDTH : 0) + 10);
 }
 
 void CanvasItemEditor::_update_scroll(float) {
@@ -4216,10 +4216,10 @@ void CanvasItemEditor::_set_anchors_and_margins_to_keep_ratio() {
         if (control) {
             Point2 top_left_anchor = _position_to_anchor(control, Point2());
             Point2 bottom_right_anchor = _position_to_anchor(control, control->get_size());
-            undo_redo->add_do_method(control, "set_anchor", MARGIN_LEFT, top_left_anchor.x, false, true);
-            undo_redo->add_do_method(control, "set_anchor", MARGIN_RIGHT, bottom_right_anchor.x, false, true);
-            undo_redo->add_do_method(control, "set_anchor", MARGIN_TOP, top_left_anchor.y, false, true);
-            undo_redo->add_do_method(control, "set_anchor", MARGIN_BOTTOM, bottom_right_anchor.y, false, true);
+            undo_redo->add_do_method(control, "set_anchor", Margin::Left, top_left_anchor.x, false, true);
+            undo_redo->add_do_method(control, "set_anchor", Margin::Right, bottom_right_anchor.x, false, true);
+            undo_redo->add_do_method(control, "set_anchor", Margin::Top, top_left_anchor.y, false, true);
+            undo_redo->add_do_method(control, "set_anchor", Margin::Bottom, bottom_right_anchor.y, false, true);
             undo_redo->add_do_method(control, "set_meta", "_edit_use_anchors_", true);
 
             bool use_anchors = control->has_meta("_edit_use_anchors_") && control->get_meta("_edit_use_anchors_");
@@ -5257,13 +5257,13 @@ void CanvasItemEditor::add_control_to_info_overlay(Control *p_control) {
 
     p_control->set_h_size_flags(p_control->get_h_size_flags() & ~Control::SIZE_EXPAND_FILL);
     info_overlay->add_child(p_control);
-    info_overlay->set_margin(MARGIN_LEFT, (show_rulers ? RULER_WIDTH : 0) + 10);
+    info_overlay->set_margin(Margin::Left, (show_rulers ? RULER_WIDTH : 0) + 10);
 }
 
 void CanvasItemEditor::remove_control_from_info_overlay(Control *p_control) {
 
     info_overlay->remove_child(p_control);
-    info_overlay->set_margin(MARGIN_LEFT, (show_rulers ? RULER_WIDTH : 0) + 10);
+    info_overlay->set_margin(Margin::Left, (show_rulers ? RULER_WIDTH : 0) + 10);
 }
 
 void CanvasItemEditor::add_control_to_menu_panel(Control *p_control) {
@@ -5406,8 +5406,8 @@ CanvasItemEditor::CanvasItemEditor(EditorNode *p_editor) {
 
     info_overlay = memnew(VBoxContainer);
     info_overlay->set_anchors_and_margins_preset(Control::PRESET_BOTTOM_LEFT);
-    info_overlay->set_margin(MARGIN_LEFT, 10);
-    info_overlay->set_margin(MARGIN_BOTTOM, -15);
+    info_overlay->set_margin(Margin::Left, 10);
+    info_overlay->set_margin(Margin::Bottom, -15);
     info_overlay->set_v_grow_direction(Control::GROW_DIRECTION_BEGIN);
     info_overlay->add_constant_override("separation", 10);
     viewport_scrollable->add_child(info_overlay);

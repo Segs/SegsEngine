@@ -62,7 +62,7 @@ namespace GodotTools.Export
 
                 // Sadly, Godot prints errors when adding an empty file (nothing goes wrong, it's just noise).
                 // Because of this, we add a file which contains a line break.
-                AddFile(path, System.Text.Encoding.UTF8.GetBytes("\n"), remap: false);
+                AddFile(path,"\n", remap: false);
                 Skip();
             }
         }
@@ -342,7 +342,7 @@ namespace GodotTools.Export
 
                         AotCompileAssembly(platform, isDebug, data, assemblyPath, outputFilePathForThisAbi);
 
-                        AddSharedObject(outputFilePathForThisAbi, tags: new[] { abi });
+                        AddSharedObject(outputFilePathForThisAbi, new[] { abi });
                     }
                 }
                 else
@@ -356,7 +356,7 @@ namespace GodotTools.Export
 
                     if (platform == OS.Platforms.OSX)
                     {
-                        AddSharedObject(tempOutputFilePath, tags: null);
+                        AddSharedObject(tempOutputFilePath, null);
                     }
                     else
                     {

@@ -30,7 +30,7 @@ namespace GodotTools.Ides.Rider
                     Globals.EditorDef(editorPathSettingName, "Optional");
                     editorSettings.AddPropertyInfo(new Godot.Collections.Dictionary
                     {
-                        ["type"] = VariantType.String,
+                        ["type"] = VariantType.TypeString,
                         ["name"] = editorPathSettingName,
                         ["hint"] = PropertyHint.File,
                         ["hint_string"] = ""

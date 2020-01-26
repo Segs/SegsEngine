@@ -189,7 +189,7 @@ inline void SpinBox::_adjust_width_for_icon(const Ref<Texture> &icon) {
 
     int w = icon->get_width();
     if (w != last_w) {
-        line_edit->set_margin(MARGIN_RIGHT, -w);
+        line_edit->set_margin(Margin::Right, -w);
         last_w = w;
     }
 }

@@ -1368,7 +1368,7 @@ AnimationNodeStateMachineEditor::AnimationNodeStateMachineEditor() {
     h_scroll = memnew(HScrollBar);
     state_machine_draw->add_child(h_scroll);
     h_scroll->set_anchors_and_margins_preset(PRESET_BOTTOM_WIDE);
-    h_scroll->set_margin(MARGIN_RIGHT, -v_scroll->get_size().x * EDSCALE);
+    h_scroll->set_margin(Margin::Right, -v_scroll->get_size().x * EDSCALE);
     h_scroll->connect("value_changed", this, "_scroll_changed");
 
     error_panel = memnew(PanelContainer);

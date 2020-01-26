@@ -92,10 +92,10 @@ ConnectionInfoDialog::ConnectionInfoDialog() {
     set_title(TTR("Connections to method:"));
 
     VBoxContainer *vbc = memnew(VBoxContainer);
-    vbc->set_anchor_and_margin(MARGIN_LEFT, ANCHOR_BEGIN, 8 * EDSCALE);
-    vbc->set_anchor_and_margin(MARGIN_TOP, ANCHOR_BEGIN, 8 * EDSCALE);
-    vbc->set_anchor_and_margin(MARGIN_RIGHT, ANCHOR_END, -8 * EDSCALE);
-    vbc->set_anchor_and_margin(MARGIN_BOTTOM, ANCHOR_END, -8 * EDSCALE);
+    vbc->set_anchor_and_margin(Margin::Left, ANCHOR_BEGIN, 8 * EDSCALE);
+    vbc->set_anchor_and_margin(Margin::Top, ANCHOR_BEGIN, 8 * EDSCALE);
+    vbc->set_anchor_and_margin(Margin::Right, ANCHOR_END, -8 * EDSCALE);
+    vbc->set_anchor_and_margin(Margin::Bottom, ANCHOR_END, -8 * EDSCALE);
     add_child(vbc);
 
     method = memnew(Label);

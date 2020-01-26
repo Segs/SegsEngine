@@ -1252,9 +1252,9 @@ int Tree::draw_item(const Point2i &p_pos, const Point2 &p_draw_ofs, const Size2 
             if (i == 0) {
 
                 if (p_item->cells[0].selected && select_mode == SELECT_ROW) {
-                    Rect2i row_rect = Rect2i(Point2i(cache.bg->get_margin(MARGIN_LEFT), item_rect.position.y), Size2i(get_size().width - cache.bg->get_minimum_size().width, item_rect.size.y));
+                    Rect2i row_rect = Rect2i(Point2i(cache.bg->get_margin(Margin::Left), item_rect.position.y), Size2i(get_size().width - cache.bg->get_minimum_size().width, item_rect.size.y));
                     //Rect2 r = Rect2i(row_rect.pos,row_rect.size);
-                    //r.grow(cache.selected->get_margin(MARGIN_LEFT));
+                    //r.grow(cache.selected->get_margin(Margin::LEFT));
                     if (has_focus())
                         cache.selected_focus->draw(ci, row_rect);
                     else
@@ -1784,7 +1784,7 @@ int Tree::propagate_mouse_event(const Point2i &p_pos, int x_ofs, int y_ofs, bool
             return -1;
         else if (col == 0) {
             int margin = x_ofs + cache.item_margin; //-cache.hseparation;
-            //int lm = cache.bg->get_margin(MARGIN_LEFT);
+            //int lm = cache.bg->get_margin(Margin::LEFT);
             col_width -= margin;
             col_ofs += margin;
             x -= margin;
@@ -2891,8 +2891,8 @@ void Tree::update_scrollbars() {
     Size2 hmin = h_scroll->get_combined_minimum_size();
     Size2 vmin = v_scroll->get_combined_minimum_size();
 
-    v_scroll->set_begin(Point2(size.width - vmin.width, cache.bg->get_margin(MARGIN_TOP)));
-    v_scroll->set_end(Point2(size.width, size.height - cache.bg->get_margin(MARGIN_TOP) - cache.bg->get_margin(MARGIN_BOTTOM)));
+    v_scroll->set_begin(Point2(size.width - vmin.width, cache.bg->get_margin(Margin::Top)));
+    v_scroll->set_end(Point2(size.width, size.height - cache.bg->get_margin(Margin::Top) - cache.bg->get_margin(Margin::Bottom)));
 
     h_scroll->set_begin(Point2(0, size.height - hmin.height));
     h_scroll->set_end(Point2(size.width - vmin.width, size.height));
@@ -3071,12 +3071,12 @@ void Tree::_notification(int p_what) {
         if (show_column_titles) {
 
             //title buttons
-            int ofs2 = cache.bg->get_margin(MARGIN_LEFT);
+            int ofs2 = cache.bg->get_margin(Margin::Left);
             for (int i = 0; i < columns.size(); i++) {
 
                 Ref<StyleBox> sb = (cache.click_type == Cache::CLICK_TITLE && cache.click_index == i) ? cache.title_button_pressed : ((cache.hover_type == Cache::CLICK_TITLE && cache.hover_index == i) ? cache.title_button_hover : cache.title_button);
                 Ref<Font> f = cache.tb_font;
-                Rect2 tbrect = Rect2(ofs2 - cache.offset.x, bg->get_margin(MARGIN_TOP), get_column_width(i), tbh);
+                Rect2 tbrect = Rect2(ofs2 - cache.offset.x, bg->get_margin(Margin::Top), get_column_width(i), tbh);
                 sb->draw(ci, tbrect);
                 ofs2 += tbrect.size.width;
                 //text
@@ -3382,7 +3382,7 @@ int Tree::get_column_width(int p_column) const {
 
     Ref<StyleBox> bg = cache.bg;
 
-    int expand_area = get_size().width - (bg->get_margin(MARGIN_LEFT) + bg->get_margin(MARGIN_RIGHT));
+    int expand_area = get_size().width - (bg->get_margin(Margin::Left) + bg->get_margin(Margin::Right));
 
     if (v_scroll->is_visible_in_tree())
         expand_area -= v_scroll->get_combined_minimum_size().width;

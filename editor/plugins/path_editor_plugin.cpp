@@ -625,10 +625,10 @@ PathEditorPlugin::PathEditorPlugin(EditorNode *p_node) {
     /*
     collision_polygon_editor = memnew( PathEditor(p_node) );
     editor->get_viewport()->add_child(collision_polygon_editor);
-    collision_polygon_editor->set_margin(MARGIN_LEFT,200);
-    collision_polygon_editor->set_margin(MARGIN_RIGHT,230);
-    collision_polygon_editor->set_margin(MARGIN_TOP,0);
-    collision_polygon_editor->set_margin(MARGIN_BOTTOM,10);
+    collision_polygon_editor->set_margin(Margin::LEFT,200);
+    collision_polygon_editor->set_margin(Margin::RIGHT,230);
+    collision_polygon_editor->set_margin(Margin::TOP,0);
+    collision_polygon_editor->set_margin(Margin::BOTTOM,10);
     collision_polygon_editor->hide();
     */
 }

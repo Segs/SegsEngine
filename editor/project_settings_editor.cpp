@@ -1900,10 +1900,10 @@ ProjectSettingsEditor::ProjectSettingsEditor(EditorData *p_data) {
 
     VBoxContainer *vbc = memnew(VBoxContainer);
     input_base->add_child(vbc);
-    vbc->set_anchor_and_margin(MARGIN_TOP, ANCHOR_BEGIN, 0);
-    vbc->set_anchor_and_margin(MARGIN_BOTTOM, ANCHOR_END, 0);
-    vbc->set_anchor_and_margin(MARGIN_LEFT, ANCHOR_BEGIN, 0);
-    vbc->set_anchor_and_margin(MARGIN_RIGHT, ANCHOR_END, 0);
+    vbc->set_anchor_and_margin(Margin::Top, ANCHOR_BEGIN, 0);
+    vbc->set_anchor_and_margin(Margin::Bottom, ANCHOR_END, 0);
+    vbc->set_anchor_and_margin(Margin::Left, ANCHOR_BEGIN, 0);
+    vbc->set_anchor_and_margin(Margin::Right, ANCHOR_END, 0);
 
     hbc = memnew(HBoxContainer);
     vbc->add_child(hbc);
@@ -1958,8 +1958,8 @@ ProjectSettingsEditor::ProjectSettingsEditor(EditorData *p_data) {
     l->set_text(TTR("Press a Key..."));
     l->set_anchors_and_margins_preset(Control::PRESET_WIDE);
     l->set_align(Label::ALIGN_CENTER);
-    l->set_margin(MARGIN_TOP, 20);
-    l->set_anchor_and_margin(MARGIN_BOTTOM, ANCHOR_BEGIN, 30);
+    l->set_margin(Margin::Top, 20);
+    l->set_anchor_and_margin(Margin::Bottom, ANCHOR_BEGIN, 30);
     press_a_key->get_ok()->set_disabled(true);
     press_a_key_label = l;
     press_a_key->add_child(l);

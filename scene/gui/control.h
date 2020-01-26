@@ -68,7 +68,7 @@ public:
         FOCUS_ALL
     };
 
-    enum SizeFlags {
+    enum SizeFlags : uint8_t {
 
         SIZE_FILL = 1,
         SIZE_EXPAND = 2,

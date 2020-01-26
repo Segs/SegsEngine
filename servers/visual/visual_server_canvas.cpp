@@ -723,10 +723,10 @@ void VisualServerCanvas::canvas_item_add_nine_patch(RID p_item, const Rect2 &p_r
     style->source = p_source;
     style->draw_center = p_draw_center;
     style->color = p_modulate;
-    style->margin[MARGIN_LEFT] = p_topleft.x;
-    style->margin[MARGIN_TOP] = p_topleft.y;
-    style->margin[MARGIN_RIGHT] = p_bottomright.x;
-    style->margin[MARGIN_BOTTOM] = p_bottomright.y;
+    style->margin[(int8_t)Margin::Left] = p_topleft.x;
+    style->margin[(int8_t)Margin::Top] = p_topleft.y;
+    style->margin[(int8_t)Margin::Right] = p_bottomright.x;
+    style->margin[(int8_t)Margin::Bottom] = p_bottomright.y;
     style->axis_x = p_x_axis_mode;
     style->axis_y = p_y_axis_mode;
     canvas_item->rect_dirty = true;

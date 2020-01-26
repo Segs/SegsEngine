@@ -1615,10 +1615,10 @@ void Viewport::_gui_show_tooltip() {
 
         Ref<StyleBox> ttp = gui.tooltip_label->get_stylebox("panel", "TooltipPanel");
 
-        gui.tooltip_label->set_anchor_and_margin(MARGIN_LEFT, Control::ANCHOR_BEGIN, ttp->get_margin(MARGIN_LEFT));
-        gui.tooltip_label->set_anchor_and_margin(MARGIN_TOP, Control::ANCHOR_BEGIN, ttp->get_margin(MARGIN_TOP));
-        gui.tooltip_label->set_anchor_and_margin(MARGIN_RIGHT, Control::ANCHOR_END, -ttp->get_margin(MARGIN_RIGHT));
-        gui.tooltip_label->set_anchor_and_margin(MARGIN_BOTTOM, Control::ANCHOR_END, -ttp->get_margin(MARGIN_BOTTOM));
+        gui.tooltip_label->set_anchor_and_margin(Margin::Left, Control::ANCHOR_BEGIN, ttp->get_margin(Margin::Left));
+        gui.tooltip_label->set_anchor_and_margin(Margin::Top, Control::ANCHOR_BEGIN, ttp->get_margin(Margin::Top));
+        gui.tooltip_label->set_anchor_and_margin(Margin::Right, Control::ANCHOR_END, -ttp->get_margin(Margin::Right));
+        gui.tooltip_label->set_anchor_and_margin(Margin::Bottom, Control::ANCHOR_END, -ttp->get_margin(Margin::Bottom));
         gui.tooltip_label->set_text(tooltip);
     }
 
@@ -2465,22 +2465,22 @@ void Viewport::_gui_input_event(Ref<InputEvent> p_event) {
 
             if (!mods && p_event->is_action_pressed("ui_up") && input->is_action_just_pressed("ui_up")) {
 
-                next = from->_get_focus_neighbour(MARGIN_TOP);
+                next = from->_get_focus_neighbour(Margin::Top);
             }
 
             if (!mods && p_event->is_action_pressed("ui_left") && input->is_action_just_pressed("ui_left")) {
 
-                next = from->_get_focus_neighbour(MARGIN_LEFT);
+                next = from->_get_focus_neighbour(Margin::Left);
             }
 
             if (!mods && p_event->is_action_pressed("ui_right") && input->is_action_just_pressed("ui_right")) {
 
-                next = from->_get_focus_neighbour(MARGIN_RIGHT);
+                next = from->_get_focus_neighbour(Margin::Right);
             }
 
             if (!mods && p_event->is_action_pressed("ui_down") && input->is_action_just_pressed("ui_down")) {
 
-                next = from->_get_focus_neighbour(MARGIN_BOTTOM);
+                next = from->_get_focus_neighbour(Margin::Bottom);
             }
 
             if (next) {

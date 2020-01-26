@@ -105,13 +105,13 @@ enum VAlign : int8_t {
     VALIGN_BOTTOM
 };
 
-enum Margin : int8_t {
+enum class Margin : int8_t {
 
-    MARGIN_LEFT,
-    MARGIN_TOP,
-    MARGIN_RIGHT,
-    MARGIN_BOTTOM,
-    MARGIN_MAX
+    Left,
+    Top,
+    Right,
+    Bottom,
+    Max
 };
 
 enum Corner : int8_t {

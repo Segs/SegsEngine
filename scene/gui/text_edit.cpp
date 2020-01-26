@@ -572,10 +572,10 @@ void TextEdit::_update_scrollbars() {
     Size2 hmin = h_scroll->get_combined_minimum_size();
     Size2 vmin = v_scroll->get_combined_minimum_size();
 
-    v_scroll->set_begin(Point2(size.width - vmin.width, m_priv->cache.style_normal->get_margin(MARGIN_TOP)));
+    v_scroll->set_begin(Point2(size.width - vmin.width, m_priv->cache.style_normal->get_margin(Margin::Top)));
 
-    h_scroll->set_begin(Point2(0, size.height - hmin.height));    v_scroll->set_end(Point2(size.width, size.height - m_priv->cache.style_normal->get_margin(MARGIN_TOP) -
-                                                                                           m_priv->cache.style_normal->get_margin(MARGIN_BOTTOM)));
+    h_scroll->set_begin(Point2(0, size.height - hmin.height));    v_scroll->set_end(Point2(size.width, size.height - m_priv->cache.style_normal->get_margin(Margin::Top) -
+                                                                                           m_priv->cache.style_normal->get_margin(Margin::Bottom)));
 
     h_scroll->set_end(Point2(size.width - vmin.width, size.height));
 
@@ -796,7 +796,7 @@ void TextEdit::_update_selection_mode_line() {
 void TextEdit::_update_minimap_click() {
     Point2 mp = get_local_mouse_position();
 
-    int xmargin_end = get_size().width - m_priv->cache.style_normal->get_margin(MARGIN_RIGHT);
+    int xmargin_end = get_size().width - m_priv->cache.style_normal->get_margin(Margin::Right);
     if (!dragging_minimap && (mp.x < xmargin_end - minimap_width || mp.y > xmargin_end)) {
         minimap_clicked = false;
         return;
@@ -956,8 +956,8 @@ void TextEdit::_notification(int p_what) {
 
             RID ci = get_canvas_item();
             VisualServer::get_singleton()->canvas_item_set_clip(get_canvas_item(), true);
-            int xmargin_beg = m_priv->cache.style_normal->get_margin(MARGIN_LEFT) + m_priv->cache.line_number_w + m_priv->cache.breakpoint_gutter_width + m_priv->cache.fold_gutter_width + m_priv->cache.info_gutter_width;
-            int xmargin_end = size.width - m_priv->cache.style_normal->get_margin(MARGIN_RIGHT) - m_priv->cache.minimap_width;
+            int xmargin_beg = m_priv->cache.style_normal->get_margin(Margin::Left) + m_priv->cache.line_number_w + m_priv->cache.breakpoint_gutter_width + m_priv->cache.fold_gutter_width + m_priv->cache.info_gutter_width;
+            int xmargin_end = size.width - m_priv->cache.style_normal->get_margin(Margin::Right) - m_priv->cache.minimap_width;
             // Let's do it easy for now.
             m_priv->cache.style_normal->draw(ci, Rect2(Point2(), size));
             if (readonly) {
@@ -1418,7 +1418,7 @@ void TextEdit::_notification(int p_what) {
                                 int vertical_gap = (get_row_height() * 40) / 100;
                                 int horizontal_gap = (m_priv->cache.breakpoint_gutter_width * 30) / 100;
                                 int marker_radius = get_row_height() - (vertical_gap * 2);
-                                VisualServer::get_singleton()->canvas_item_add_circle(ci, Point2(m_priv->cache.style_normal->get_margin(MARGIN_LEFT) + horizontal_gap - 2 + marker_radius / 2, ofs_y + vertical_gap + marker_radius / 2), marker_radius, Color(m_priv->cache.bookmark_color.r, m_priv->cache.bookmark_color.g, m_priv->cache.bookmark_color.b));
+                                VisualServer::get_singleton()->canvas_item_add_circle(ci, Point2(m_priv->cache.style_normal->get_margin(Margin::Left) + horizontal_gap - 2 + marker_radius / 2, ofs_y + vertical_gap + marker_radius / 2), marker_radius, Color(m_priv->cache.bookmark_color.r, m_priv->cache.bookmark_color.g, m_priv->cache.bookmark_color.b));
                             }
                         }
 
@@ -1430,7 +1430,7 @@ void TextEdit::_notification(int p_what) {
                                 int marker_height = get_row_height() - (vertical_gap * 2);
                                 int marker_width = m_priv->cache.breakpoint_gutter_width - (horizontal_gap * 2);
                                 // No transparency on marker.
-                                VisualServer::get_singleton()->canvas_item_add_rect(ci, Rect2(m_priv->cache.style_normal->get_margin(MARGIN_LEFT) + horizontal_gap - 2, ofs_y + vertical_gap, marker_width, marker_height), Color(m_priv->cache.breakpoint_color.r, m_priv->cache.breakpoint_color.g, m_priv->cache.breakpoint_color.b));
+                                VisualServer::get_singleton()->canvas_item_add_rect(ci, Rect2(m_priv->cache.style_normal->get_margin(Margin::Left) + horizontal_gap - 2, ofs_y + vertical_gap, marker_width, marker_height), Color(m_priv->cache.breakpoint_color.r, m_priv->cache.breakpoint_color.g, m_priv->cache.breakpoint_color.b));
                             }
                         }
 
@@ -1438,7 +1438,7 @@ void TextEdit::_notification(int p_what) {
                         if (draw_info_gutter && m_priv->text.has_info_icon(line)) {
                             int vertical_gap = (get_row_height() * 40) / 100;
                             int horizontal_gap = (m_priv->cache.info_gutter_width * 30) / 100;
-                            int gutter_left = m_priv->cache.style_normal->get_margin(MARGIN_LEFT) + m_priv->cache.breakpoint_gutter_width;
+                            int gutter_left = m_priv->cache.style_normal->get_margin(Margin::Left) + m_priv->cache.breakpoint_gutter_width;
 
                             Ref<Texture> info_icon = m_priv->text.get_info_icon(line);
                             // Ensure the icon fits the gutter size.
@@ -1467,7 +1467,7 @@ void TextEdit::_notification(int p_what) {
                                 int horizontal_gap = (m_priv->cache.breakpoint_gutter_width * 30) / 100;
                                 int marker_height = get_row_height() - (vertical_gap * 2) + icon_extra_size;
                                 int marker_width = m_priv->cache.breakpoint_gutter_width - (horizontal_gap * 2) + icon_extra_size;
-                                m_priv->cache.executing_icon->draw_rect(ci, Rect2(m_priv->cache.style_normal->get_margin(MARGIN_LEFT) + horizontal_gap - 2 - icon_extra_size / 2, ofs_y + vertical_gap - icon_extra_size / 2, marker_width, marker_height), false, Color(m_priv->cache.executing_line_color.r, m_priv->cache.executing_line_color.g, m_priv->cache.executing_line_color.b));
+                                m_priv->cache.executing_icon->draw_rect(ci, Rect2(m_priv->cache.style_normal->get_margin(Margin::Left) + horizontal_gap - 2 - icon_extra_size / 2, ofs_y + vertical_gap - icon_extra_size / 2, marker_width, marker_height), false, Color(m_priv->cache.executing_line_color.r, m_priv->cache.executing_line_color.g, m_priv->cache.executing_line_color.b));
                             } else {
 #ifdef TOOLS_ENABLED
                                 VisualServer::get_singleton()->canvas_item_add_rect(ci, Rect2(xmargin_beg + ofs_x, ofs_y + get_row_height() - EDSCALE, xmargin_end - xmargin_beg, EDSCALE), m_priv->cache.executing_line_color);
@@ -1480,7 +1480,7 @@ void TextEdit::_notification(int p_what) {
                         // Draw fold markers.
                         if (draw_fold_gutter) {
                             int horizontal_gap = (m_priv->cache.fold_gutter_width * 30) / 100;
-                            int gutter_left = m_priv->cache.style_normal->get_margin(MARGIN_LEFT) + m_priv->cache.breakpoint_gutter_width + m_priv->cache.line_number_w + m_priv->cache.info_gutter_width;
+                            int gutter_left = m_priv->cache.style_normal->get_margin(Margin::Left) + m_priv->cache.breakpoint_gutter_width + m_priv->cache.line_number_w + m_priv->cache.info_gutter_width;
                             if (is_folded(line)) {
                                 int xofs = horizontal_gap - (m_priv->cache.can_fold_icon->get_width()) / 2;
                                 int yofs = (get_row_height() - m_priv->cache.folded_icon->get_height()) / 2;
@@ -1500,7 +1500,7 @@ void TextEdit::_notification(int p_what) {
                                 fc = line_num_padding + fc;
                             }
 
-                            m_priv->cache.font->draw(ci, Point2(m_priv->cache.style_normal->get_margin(MARGIN_LEFT) + m_priv->cache.breakpoint_gutter_width + m_priv->cache.info_gutter_width + ofs_x, yofs + m_priv->cache.font->get_ascent()), fc, m_priv->text.is_safe(line) ? m_priv->cache.safe_line_number_color : m_priv->cache.line_number_color);
+                            m_priv->cache.font->draw(ci, Point2(m_priv->cache.style_normal->get_margin(Margin::Left) + m_priv->cache.breakpoint_gutter_width + m_priv->cache.info_gutter_width + ofs_x, yofs + m_priv->cache.font->get_ascent()), fc, m_priv->text.is_safe(line) ? m_priv->cache.safe_line_number_color : m_priv->cache.line_number_color);
                         }
                     }
 
@@ -2277,7 +2277,7 @@ int TextEdit::_calculate_spaces_till_next_right_indent(int column) {
 void TextEdit::_get_mouse_pos(const Point2i &p_mouse, int &r_row, int &r_col) const {
 
     float rows = p_mouse.y;
-    rows -= m_priv->cache.style_normal->get_margin(MARGIN_TOP);
+    rows -= m_priv->cache.style_normal->get_margin(Margin::Top);
     rows /= get_row_height();
     rows += get_v_scroll_offset();
     int first_vis_line = get_first_visible_line();
@@ -2304,7 +2304,7 @@ void TextEdit::_get_mouse_pos(const Point2i &p_mouse, int &r_row, int &r_col) co
         col = m_priv->text[row].size();
     } else {
 
-        int colx = p_mouse.x - (m_priv->cache.style_normal->get_margin(MARGIN_LEFT) + m_priv->cache.line_number_w + m_priv->cache.breakpoint_gutter_width + m_priv->cache.fold_gutter_width + m_priv->cache.info_gutter_width);
+        int colx = p_mouse.x - (m_priv->cache.style_normal->get_margin(Margin::Left) + m_priv->cache.line_number_w + m_priv->cache.breakpoint_gutter_width + m_priv->cache.fold_gutter_width + m_priv->cache.info_gutter_width);
         colx += cursor.x_ofs;
         col = get_char_pos_for_line(colx, row, wrap_index);
         if (is_wrap_enabled() && wrap_index < times_line_wraps(row)) {
@@ -2348,7 +2348,7 @@ Vector2i TextEdit::_get_cursor_pixel_pos() {
 
     // Calculate final pixel position
     int y = (row - get_v_scroll_offset() + 1 /*Bottom of line*/) * get_row_height();
-    int x = m_priv->cache.style_normal->get_margin(MARGIN_LEFT) + m_priv->cache.line_number_w + m_priv->cache.breakpoint_gutter_width +
+    int x = m_priv->cache.style_normal->get_margin(Margin::Left) + m_priv->cache.line_number_w + m_priv->cache.breakpoint_gutter_width +
             m_priv->cache.fold_gutter_width + m_priv->cache.info_gutter_width - cursor.x_ofs;
     int ix = 0;
     while (ix < rows2[0].size() && ix < cursor.column) {
@@ -2365,7 +2365,7 @@ Vector2i TextEdit::_get_cursor_pixel_pos() {
 void TextEdit::_get_minimap_mouse_row(const Point2i &p_mouse, int &r_row) const {
 
     float rows = p_mouse.y;
-    rows -= m_priv->cache.style_normal->get_margin(MARGIN_TOP);
+    rows -= m_priv->cache.style_normal->get_margin(Margin::Top);
     rows /= (minimap_char_size.y + minimap_line_spacing);
     rows += get_v_scroll_offset();
 
@@ -2491,7 +2491,7 @@ void TextEdit::_gui_input(const Ref<InputEvent> &p_gui_input) {
 
                 // Toggle breakpoint on gutter click.
                 if (draw_breakpoint_gutter) {
-                    int gutter = m_priv->cache.style_normal->get_margin(MARGIN_LEFT);
+                    int gutter = m_priv->cache.style_normal->get_margin(Margin::Left);
                     if (mb->get_position().x > gutter - 6 && mb->get_position().x <= gutter + m_priv->cache.breakpoint_gutter_width - 3) {
                         set_line_as_breakpoint(row, !is_line_set_as_breakpoint(row));
                         emit_signal("breakpoint_toggled", row);
@@ -2501,7 +2501,7 @@ void TextEdit::_gui_input(const Ref<InputEvent> &p_gui_input) {
 
                 // Emit info clicked.
                 if (draw_info_gutter && m_priv->text.has_info_icon(row)) {
-                    int left_margin = m_priv->cache.style_normal->get_margin(MARGIN_LEFT);
+                    int left_margin = m_priv->cache.style_normal->get_margin(Margin::Left);
                     int gutter_left = left_margin + m_priv->cache.breakpoint_gutter_width;
                     if (mb->get_position().x > gutter_left - 6 && mb->get_position().x <= gutter_left + m_priv->cache.info_gutter_width - 3) {
                         emit_signal("info_clicked", row, m_priv->text.get_info(row));
@@ -2512,7 +2512,7 @@ void TextEdit::_gui_input(const Ref<InputEvent> &p_gui_input) {
                 // Toggle fold on gutter click if can.
                 if (draw_fold_gutter) {
 
-                    int left_margin = m_priv->cache.style_normal->get_margin(MARGIN_LEFT);
+                    int left_margin = m_priv->cache.style_normal->get_margin(Margin::Left);
                     int gutter_left = left_margin + m_priv->cache.breakpoint_gutter_width + m_priv->cache.line_number_w + m_priv->cache.info_gutter_width;
                     if (mb->get_position().x > gutter_left - 6 && mb->get_position().x <= gutter_left + m_priv->cache.fold_gutter_width - 3) {
                         if (is_folded(row)) {
@@ -2527,7 +2527,7 @@ void TextEdit::_gui_input(const Ref<InputEvent> &p_gui_input) {
                 // Unfold on folded icon click.
                 if (is_folded(row)) {
                     int line_width = m_priv->text.get_line_width(row);
-                    line_width += m_priv->cache.style_normal->get_margin(MARGIN_LEFT) + m_priv->cache.line_number_w + m_priv->cache.breakpoint_gutter_width + m_priv->cache.info_gutter_width + m_priv->cache.fold_gutter_width - cursor.x_ofs;
+                    line_width += m_priv->cache.style_normal->get_margin(Margin::Left) + m_priv->cache.line_number_w + m_priv->cache.breakpoint_gutter_width + m_priv->cache.info_gutter_width + m_priv->cache.fold_gutter_width - cursor.x_ofs;
                     if (mb->get_position().x > line_width - 3 && mb->get_position().x <= line_width + m_priv->cache.folded_eol_icon->get_width() + 3) {
                         unfold_line(row);
                         return;
@@ -4959,7 +4959,7 @@ Control::CursorShape TextEdit::get_cursor_shape(const Point2 &p_pos) const {
     if (!highlighted_word.isEmpty())
         return CURSOR_POINTING_HAND;
 
-    int gutter = m_priv->cache.style_normal->get_margin(MARGIN_LEFT) + m_priv->cache.line_number_w + m_priv->cache.breakpoint_gutter_width + m_priv->cache.fold_gutter_width + m_priv->cache.info_gutter_width;
+    int gutter = m_priv->cache.style_normal->get_margin(Margin::Left) + m_priv->cache.line_number_w + m_priv->cache.breakpoint_gutter_width + m_priv->cache.fold_gutter_width + m_priv->cache.info_gutter_width;
     if ((completion_active && completion_rect.has_point(p_pos))) {
         return CURSOR_ARROW;
     }
@@ -4967,7 +4967,7 @@ Control::CursorShape TextEdit::get_cursor_shape(const Point2 &p_pos) const {
 
         int row, col;
         _get_mouse_pos(p_pos, row, col);
-        int left_margin = m_priv->cache.style_normal->get_margin(MARGIN_LEFT);
+        int left_margin = m_priv->cache.style_normal->get_margin(Margin::Left);
 
         // Breakpoint icon.
         if (draw_breakpoint_gutter && p_pos.x > left_margin - 6 && p_pos.x <= left_margin + m_priv->cache.breakpoint_gutter_width - 3) {
@@ -4993,7 +4993,7 @@ Control::CursorShape TextEdit::get_cursor_shape(const Point2 &p_pos) const {
 
         return CURSOR_ARROW;
     } else {
-        int xmargin_end = get_size().width - m_priv->cache.style_normal->get_margin(MARGIN_RIGHT);
+        int xmargin_end = get_size().width - m_priv->cache.style_normal->get_margin(Margin::Right);
         if (draw_minimap && p_pos.x > xmargin_end - minimap_width && p_pos.x <= xmargin_end) {
             return CURSOR_ARROW;
         }
@@ -5002,7 +5002,7 @@ Control::CursorShape TextEdit::get_cursor_shape(const Point2 &p_pos) const {
         // EOL fold icon.
         if (is_folded(row)) {
             int line_width = m_priv->text.get_line_width(row);
-            line_width += m_priv->cache.style_normal->get_margin(MARGIN_LEFT) + m_priv->cache.line_number_w + m_priv->cache.breakpoint_gutter_width + m_priv->cache.fold_gutter_width + m_priv->cache.info_gutter_width - cursor.x_ofs;
+            line_width += m_priv->cache.style_normal->get_margin(Margin::Left) + m_priv->cache.line_number_w + m_priv->cache.breakpoint_gutter_width + m_priv->cache.fold_gutter_width + m_priv->cache.info_gutter_width - cursor.x_ofs;
             if (p_pos.x > line_width - 3 && p_pos.x <= line_width + m_priv->cache.folded_eol_icon->get_width() + 3) {
                 return CURSOR_POINTING_HAND;
             }
