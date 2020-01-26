@@ -2857,7 +2857,7 @@ void BindingsGenerator::_populate_builtin_type_interfaces() {
         builtin_types.emplace(itype.cname, itype);
     }
 
-    // se_string
+    // String
     itype = TypeInterface();
     itype.name = "String";
     itype.cname = StringName(itype.name);
@@ -3016,7 +3016,13 @@ void BindingsGenerator::_populate_builtin_type_interfaces() {
     itype.im_type_out = itype.proxy_name;
     builtin_types.emplace(itype.cname, itype);
 }
-
+static bool allUpperCase(se_string_view s) {
+    for(char c : s) {
+        if(StringUtils::char_uppercase(c)!=c)
+            return false;
+    }
+    return true;
+}
 void BindingsGenerator::_populate_global_constants() {
 
     int global_constants_count = GlobalConstants::get_global_constant_count();
@@ -3041,11 +3047,13 @@ void BindingsGenerator::_populate_global_constants() {
                     break;
                 }
             }
-
             int constant_value = GlobalConstants::get_global_constant_value(i);
             StringName enum_name = GlobalConstants::get_global_constant_enum(i);
-
-            ConstantInterface iconstant(constant_name, snake_to_pascal_case(constant_name, true), constant_value);
+            ConstantInterface iconstant;
+            if(allUpperCase(constant_name))
+                iconstant= ConstantInterface(constant_name, snake_to_pascal_case(constant_name, true), constant_value);
+            else
+                iconstant = ConstantInterface(constant_name, constant_name, constant_value);
             iconstant.const_doc = const_doc;
 
             if (enum_name.empty()) {

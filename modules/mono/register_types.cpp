@@ -34,6 +34,7 @@
 #include "core/class_db.h"
 
 #include "csharp_script.h"
+#include "signal_awaiter_utils.h"
 CSharpLanguage *script_language_cs = nullptr;
 Ref<ResourceFormatLoaderCSharpScript> resource_loader_cs;
 Ref<ResourceFormatSaverCSharpScript> resource_saver_cs;
@@ -42,6 +43,9 @@ _GodotSharp *_godotsharp = nullptr;
 void register_mono_types() {
     ClassDB::register_class<CSharpScript>();
     ClassDB::register_class<_GodotSharp>();
+    MonoGCHandle::initialize_class();
+    SignalAwaiterHandle::initialize_class();
+
     _godotsharp = memnew(_GodotSharp);
     Engine::get_singleton()->add_singleton(Engine::Singleton("GodotSharp", _GodotSharp::get_singleton()));
 

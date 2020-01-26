@@ -64,7 +64,7 @@ Size2 CheckBox::get_minimum_size() const {
         minsize.width += get_constant("hseparation");
     }
     Ref<StyleBox> sb = get_stylebox("normal");
-    minsize.height = MAX(minsize.height, tex_size.height + sb->get_margin(MARGIN_TOP) + sb->get_margin(MARGIN_BOTTOM));
+    minsize.height = MAX(minsize.height, tex_size.height + sb->get_margin(Margin::Top) + sb->get_margin(Margin::Bottom));
 
     return minsize;
 }
@@ -73,7 +73,7 @@ void CheckBox::_notification(int p_what) {
 
     if (p_what == NOTIFICATION_THEME_CHANGED) {
 
-        _set_internal_margin(MARGIN_LEFT, get_icon_size().width);
+        _set_internal_margin(Margin::Left, get_icon_size().width);
     } else if (p_what == NOTIFICATION_DRAW) {
 
         RID ci = get_canvas_item();
@@ -83,7 +83,7 @@ void CheckBox::_notification(int p_what) {
         Ref<StyleBox> sb = get_stylebox("normal");
 
         Vector2 ofs;
-        ofs.x = sb->get_margin(MARGIN_LEFT);
+        ofs.x = sb->get_margin(Margin::Left);
         ofs.y = int((get_size().height - get_icon_size().height) / 2) + get_constant("check_vadjust");
 
         if (is_pressed())
@@ -102,7 +102,7 @@ CheckBox::CheckBox(const StringName &p_text) :
         Button(p_text) {
     set_toggle_mode(true);
     set_text_align(ALIGN_LEFT);
-    _set_internal_margin(MARGIN_LEFT, get_icon_size().width);
+    _set_internal_margin(Margin::Left, get_icon_size().width);
 }
 
 CheckBox::~CheckBox() {

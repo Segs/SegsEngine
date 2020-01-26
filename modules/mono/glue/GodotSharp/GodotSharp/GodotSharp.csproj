@@ -8,7 +8,7 @@
     <OutputPath>bin/$(Configuration)</OutputPath>
     <RootNamespace>Godot</RootNamespace>
     <AssemblyName>GodotSharp</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <DocumentationFile>$(OutputPath)/$(AssemblyName).xml</DocumentationFile>
     <BaseIntermediateOutputPath>obj</BaseIntermediateOutputPath>
   </PropertyGroup>

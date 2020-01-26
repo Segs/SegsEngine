@@ -4820,9 +4820,9 @@ VisualScriptEditor::VisualScriptEditor() {
     add_child(select_func_text);
 
     hint_text = memnew(Label);
-    hint_text->set_anchor_and_margin(MARGIN_TOP, ANCHOR_END, -100);
-    hint_text->set_anchor_and_margin(MARGIN_BOTTOM, ANCHOR_END, 0);
-    hint_text->set_anchor_and_margin(MARGIN_RIGHT, ANCHOR_END, 0);
+    hint_text->set_anchor_and_margin(Margin::Top, ANCHOR_END, -100);
+    hint_text->set_anchor_and_margin(Margin::Bottom, ANCHOR_END, 0);
+    hint_text->set_anchor_and_margin(Margin::Right, ANCHOR_END, 0);
     hint_text->set_align(Label::ALIGN_CENTER);
     hint_text->set_valign(Label::VALIGN_CENTER);
     graph->add_child(hint_text);

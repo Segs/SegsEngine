@@ -220,7 +220,7 @@ void Label::_notification(int p_what) {
                 } break;
                 case ALIGN_RIGHT: {
 
-                    x_ofs = int(size.width - style->get_margin(MARGIN_RIGHT) - (taken + spaces * space_w));
+                    x_ofs = int(size.width - style->get_margin(Margin::Right) - (taken + spaces * space_w));
                 } break;
             }
 

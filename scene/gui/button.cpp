@@ -64,7 +64,7 @@ Size2 Button::get_minimum_size() const {
 }
 
 void Button::_set_internal_margin(Margin p_margin, float p_value) {
-    _internal_margin[p_margin] = p_value;
+    _internal_margin[(int8_t)p_margin] = p_value;
 }
 
 void Button::_notification(int p_what) {
@@ -159,8 +159,8 @@ void Button::_notification(int p_what) {
                 }
 
                 float icon_ofs_region = 0;
-                if (_internal_margin[MARGIN_LEFT] > 0) {
-                    icon_ofs_region = _internal_margin[MARGIN_LEFT] + get_constant("hseparation");
+                if (_internal_margin[(int8_t)Margin::Left] > 0) {
+                    icon_ofs_region = _internal_margin[(int8_t)Margin::Left] + get_constant("hseparation");
                 }
 
                 if (expand_icon) {
@@ -188,23 +188,23 @@ void Button::_notification(int p_what) {
             Point2 icon_ofs =
                     _icon ? Point2(icon_region.size.width + get_constant("hseparation"), 0) : Point2();
             int text_clip = size.width - style->get_minimum_size().width - icon_ofs.width;
-            if (_internal_margin[MARGIN_LEFT] > 0) {
-                text_clip -= _internal_margin[MARGIN_LEFT] + get_constant("hseparation");
+            if (_internal_margin[(int8_t)Margin::Left] > 0) {
+                text_clip -= _internal_margin[(int8_t)Margin::Left] + get_constant("hseparation");
             }
-            if (_internal_margin[MARGIN_RIGHT] > 0) {
-                text_clip -= _internal_margin[MARGIN_RIGHT] + get_constant("hseparation");
+            if (_internal_margin[(int8_t)Margin::Right] > 0) {
+                text_clip -= _internal_margin[(int8_t)Margin::Right] + get_constant("hseparation");
             }
             Point2 text_ofs = (size - style->get_minimum_size() - icon_ofs - font->get_string_size_utf8(xl_text) -
-                                      Point2(_internal_margin[MARGIN_RIGHT] - _internal_margin[MARGIN_LEFT], 0)) /
+                                      Point2(_internal_margin[(int8_t)Margin::Right] - _internal_margin[(int8_t)Margin::Left], 0)) /
                               2.0;
 
             switch (align) {
                 case ALIGN_LEFT: {
-                    if (_internal_margin[MARGIN_LEFT] > 0) {
-                        text_ofs.x = style->get_margin(MARGIN_LEFT) + icon_ofs.x + _internal_margin[MARGIN_LEFT] +
+                    if (_internal_margin[(int8_t)Margin::Left] > 0) {
+                        text_ofs.x = style->get_margin(Margin::Left) + icon_ofs.x + _internal_margin[(int8_t)Margin::Left] +
                                      get_constant("hseparation");
                     } else {
-                        text_ofs.x = style->get_margin(MARGIN_LEFT) + icon_ofs.x;
+                        text_ofs.x = style->get_margin(Margin::Left) + icon_ofs.x;
                     }
                     text_ofs.y += style->get_offset().y;
                 } break;
@@ -214,11 +214,11 @@ void Button::_notification(int p_what) {
                     text_ofs += style->get_offset();
                 } break;
                 case ALIGN_RIGHT: {
-                    if (_internal_margin[MARGIN_RIGHT] > 0) {
-                        text_ofs.x = size.x - style->get_margin(MARGIN_RIGHT) - font->get_string_size_utf8(xl_text).x -
-                                     _internal_margin[MARGIN_RIGHT] - get_constant("hseparation");
+                    if (_internal_margin[(int8_t)Margin::Right] > 0) {
+                        text_ofs.x = size.x - style->get_margin(Margin::Right) - font->get_string_size_utf8(xl_text).x -
+                                     _internal_margin[(int8_t)Margin::Right] - get_constant("hseparation");
                     } else {
-                        text_ofs.x = size.x - style->get_margin(MARGIN_RIGHT) - font->get_string_size_utf8(xl_text).x;
+                        text_ofs.x = size.x - style->get_margin(Margin::Right) - font->get_string_size_utf8(xl_text).x;
                     }
                     text_ofs.y += style->get_offset().y;
                 } break;

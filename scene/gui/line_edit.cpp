@@ -805,15 +805,15 @@ void LineEdit::_notification(int p_what) {
                     if (m_priv->window_pos != 0)
                         x_ofs = style->get_offset().x;
                     else
-                        x_ofs = MAX(style->get_margin(MARGIN_LEFT), int(size.width - (cached_text_width)) / 2);
+                        x_ofs = MAX(style->get_margin(Margin::Left), int(size.width - (cached_text_width)) / 2);
                 } break;
                 case ALIGN_RIGHT: {
 
-                    x_ofs = MAX(style->get_margin(MARGIN_LEFT), int(size.width - style->get_margin(MARGIN_RIGHT) - (cached_text_width)));
+                    x_ofs = MAX(style->get_margin(Margin::Left), int(size.width - style->get_margin(Margin::Right) - (cached_text_width)));
                 } break;
             }
 
-            int ofs_max = width - style->get_margin(MARGIN_RIGHT);
+            int ofs_max = width - style->get_margin(Margin::Right);
             int char_ofs = m_priv->window_pos;
 
             int y_area = height - style->get_minimum_size().height;
@@ -842,14 +842,14 @@ void LineEdit::_notification(int p_what) {
                         color_icon = get_color("clear_button_color");
                     }
                 }
-                r_icon->draw(ci, Point2(width - r_icon->get_width() - style->get_margin(MARGIN_RIGHT), height / 2 - r_icon->get_height() / 2), color_icon);
+                r_icon->draw(ci, Point2(width - r_icon->get_width() - style->get_margin(Margin::Right), height / 2 - r_icon->get_height() / 2), color_icon);
 
                 if (align == ALIGN_CENTER) {
                     if (m_priv->window_pos == 0) {
-                        x_ofs = MAX(style->get_margin(MARGIN_LEFT), int(size.width - cached_text_width - r_icon->get_width() - style->get_margin(MARGIN_RIGHT) * 2) / 2);
+                        x_ofs = MAX(style->get_margin(Margin::Left), int(size.width - cached_text_width - r_icon->get_width() - style->get_margin(Margin::Right) * 2) / 2);
                     }
                 } else {
-                    x_ofs = MAX(style->get_margin(MARGIN_LEFT), x_ofs - r_icon->get_width() - style->get_margin(MARGIN_RIGHT));
+                    x_ofs = MAX(style->get_margin(Margin::Left), x_ofs - r_icon->get_width() - style->get_margin(Margin::Right));
                 }
 
                 ofs_max -= r_icon->get_width();
@@ -1125,14 +1125,14 @@ void LineEdit::set_cursor_at_pixel_pos(int p_x) {
                 pixel_ofs = int(size.width - (m_priv->cached_width)) / 2;
 
             if (display_clear_icon)
-                pixel_ofs -= int(r_icon_width / 2 + style->get_margin(MARGIN_RIGHT));
+                pixel_ofs -= int(r_icon_width / 2 + style->get_margin(Margin::Right));
         } break;
         case ALIGN_RIGHT: {
 
-            pixel_ofs = int(size.width - style->get_margin(MARGIN_RIGHT) - (m_priv->cached_width));
+            pixel_ofs = int(size.width - style->get_margin(Margin::Right) - (m_priv->cached_width));
 
             if (display_clear_icon)
-                pixel_ofs -= int(r_icon_width + style->get_margin(MARGIN_RIGHT));
+                pixel_ofs -= int(r_icon_width + style->get_margin(Margin::Right));
         } break;
     }
 
@@ -1179,14 +1179,14 @@ int LineEdit::get_cursor_pixel_pos() {
                 pixel_ofs = int(size.width - (m_priv->cached_width)) / 2;
 
             if (display_clear_icon)
-                pixel_ofs -= int(r_icon_width / 2 + style->get_margin(MARGIN_RIGHT));
+                pixel_ofs -= int(r_icon_width / 2 + style->get_margin(Margin::Right));
         } break;
         case ALIGN_RIGHT: {
 
-            pixel_ofs = int(size.width - style->get_margin(MARGIN_RIGHT) - (m_priv->cached_width));
+            pixel_ofs = int(size.width - style->get_margin(Margin::Right) - (m_priv->cached_width));
 
             if (display_clear_icon)
-                pixel_ofs -= int(r_icon_width + style->get_margin(MARGIN_RIGHT));
+                pixel_ofs -= int(r_icon_width + style->get_margin(Margin::Right));
         } break;
     }
 

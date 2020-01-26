@@ -160,7 +160,7 @@ void GraphNode::_resort() {
 
         Size2i size = c->get_combined_minimum_size();
 
-        Rect2 r(sb->get_margin(MARGIN_LEFT), sb->get_margin(MARGIN_TOP) + vofs, w, size.y);
+        Rect2 r(sb->get_margin(Margin::Left), sb->get_margin(Margin::Top) + vofs, w, size.y);
 
         fit_child_in_rect(c, r);
         cache_y.push_back(vofs + size.y * 0.5f);
@@ -182,7 +182,7 @@ bool GraphNode::has_point(const Point2 &p_point) const {
             return true;
         }
 
-        if (Rect2(0, 0, get_size().width, comment->get_margin(MARGIN_TOP)).has_point(p_point)) {
+        if (Rect2(0, 0, get_size().width, comment->get_margin(Margin::Top)).has_point(p_point)) {
             return true;
         }
 
@@ -223,7 +223,7 @@ void GraphNode::_notification(int p_what) {
             Color title_color = get_color("title_color");
             Point2i icofs = -port->get_size() * 0.5;
             int edgeofs = get_constant("port_offset");
-            icofs.y += sb->get_margin(MARGIN_TOP);
+            icofs.y += sb->get_margin(Margin::Top);
 
             draw_style_box(sb, Rect2(Point2(), get_size()));
 
@@ -247,11 +247,11 @@ void GraphNode::_notification(int p_what) {
                 w -= close->get_width();
 
             draw_string_utf8(title_font,
-                    Point2(sb->get_margin(MARGIN_LEFT) + title_h_offset,
+                    Point2(sb->get_margin(Margin::Left) + title_h_offset,
                             -title_font->get_height() + title_font->get_ascent() + title_offset),
                     title, title_color, w);
             if (show_close) {
-                Vector2 cpos = Point2(w + sb->get_margin(MARGIN_LEFT) + close_h_offset, -close->get_height() + close_offset);
+                Vector2 cpos = Point2(w + sb->get_margin(Margin::Left) + close_h_offset, -close->get_height() + close_offset);
                 draw_texture(close, cpos, close_color);
                 close_rect.position = cpos;
                 close_rect.size = close->get_size();
@@ -491,7 +491,7 @@ void GraphNode::_connpos_update() {
 
         Size2i size = c->get_combined_minimum_size();
 
-        int y = sb->get_margin(MARGIN_TOP) + vofs;
+        int y = sb->get_margin(Margin::Top) + vofs;
         int h = size.y;
 
         if (slot_info.contains(idx)) {

@@ -284,12 +284,12 @@ void ScrollBar::_notification(int p_what) {
             grabber_rect.size.width = get_grabber_size();
             grabber_rect.size.height = get_size().height;
             grabber_rect.position.y = 0;
-            grabber_rect.position.x = get_grabber_offset() + decr->get_width() + bg->get_margin(MARGIN_LEFT);
+            grabber_rect.position.x = get_grabber_offset() + decr->get_width() + bg->get_margin(Margin::Left);
         } else {
 
             grabber_rect.size.width = get_size().width;
             grabber_rect.size.height = get_grabber_size();
-            grabber_rect.position.y = get_grabber_offset() + decr->get_height() + bg->get_margin(MARGIN_TOP);
+            grabber_rect.position.y = get_grabber_offset() + decr->get_height() + bg->get_margin(Margin::Top);
             grabber_rect.position.x = 0;
         }
 
@@ -476,13 +476,13 @@ double ScrollBar::get_area_offset() const {
 
     if (orientation == VERTICAL) {
 
-        ofs += get_stylebox("hscroll")->get_margin(MARGIN_TOP);
+        ofs += get_stylebox("hscroll")->get_margin(Margin::Top);
         ofs += get_icon("decrement")->get_height();
     }
 
     if (orientation == HORIZONTAL) {
 
-        ofs += get_stylebox("hscroll")->get_margin(MARGIN_LEFT);
+        ofs += get_stylebox("hscroll")->get_margin(Margin::Left);
         ofs += get_icon("decrement")->get_width();
     }
 

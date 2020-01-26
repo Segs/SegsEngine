@@ -245,7 +245,7 @@ GDMonoMethod *GDMonoClass::get_fetched_method_unknown_params(const StringName &p
     ERR_FAIL_COND_V(!methods_fetched, NULL)
 
     for(auto & E : methods) {
-        if (E.second->name == p_name)
+        if (E.first.name == p_name)
             return E.second;
     }
 

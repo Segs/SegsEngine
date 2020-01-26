@@ -140,7 +140,7 @@ namespace GodotTools.Build
 
             var outputArray = new Godot.Collections.Array<string>();
             int exitCode = Godot.OS.Execute(vsWherePath, vsWhereArgs,
-                blocking: true, output: (Godot.Collections.Array)outputArray);
+                true, (Godot.Collections.Array)outputArray);
 
             if (exitCode != 0)
                 return string.Empty;

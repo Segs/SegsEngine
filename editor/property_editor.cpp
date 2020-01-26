@@ -502,14 +502,14 @@ bool CustomPropertyEditor::edit(Object *p_owner, se_string_view p_name, VariantT
 
             } else if (hint == PropertyHint::ExpEasing) {
 
-                easing_draw->set_anchor_and_margin(MARGIN_LEFT, ANCHOR_BEGIN, 5 * EDSCALE);
-                easing_draw->set_anchor_and_margin(MARGIN_RIGHT, ANCHOR_END, -5 * EDSCALE);
-                easing_draw->set_anchor_and_margin(MARGIN_TOP, ANCHOR_BEGIN, 5 * EDSCALE);
-                easing_draw->set_anchor_and_margin(MARGIN_BOTTOM, ANCHOR_END, -30 * EDSCALE);
-                type_button->set_anchor_and_margin(MARGIN_LEFT, ANCHOR_BEGIN, 3 * EDSCALE);
-                type_button->set_anchor_and_margin(MARGIN_RIGHT, ANCHOR_END, -3 * EDSCALE);
-                type_button->set_anchor_and_margin(MARGIN_TOP, ANCHOR_END, -25 * EDSCALE);
-                type_button->set_anchor_and_margin(MARGIN_BOTTOM, ANCHOR_END, -7 * EDSCALE);
+                easing_draw->set_anchor_and_margin(Margin::Left, ANCHOR_BEGIN, 5 * EDSCALE);
+                easing_draw->set_anchor_and_margin(Margin::Right, ANCHOR_END, -5 * EDSCALE);
+                easing_draw->set_anchor_and_margin(Margin::Top, ANCHOR_BEGIN, 5 * EDSCALE);
+                easing_draw->set_anchor_and_margin(Margin::Bottom, ANCHOR_END, -30 * EDSCALE);
+                type_button->set_anchor_and_margin(Margin::Left, ANCHOR_BEGIN, 3 * EDSCALE);
+                type_button->set_anchor_and_margin(Margin::Right, ANCHOR_END, -3 * EDSCALE);
+                type_button->set_anchor_and_margin(Margin::Top, ANCHOR_END, -25 * EDSCALE);
+                type_button->set_anchor_and_margin(Margin::Bottom, ANCHOR_END, -7 * EDSCALE);
                 type_button->set_text(TTR("Preset..."));
                 type_button->get_popup()->clear();
                 type_button->get_popup()->add_item(TTR("Linear"), EASING_LINEAR);
@@ -585,10 +585,10 @@ bool CustomPropertyEditor::edit(Object *p_owner, se_string_view p_name, VariantT
                 int button_margin = get_constant("button_margin", "Dialogs");
                 int margin = get_constant("margin", "Dialogs");
 
-                action_buttons[0]->set_anchor(MARGIN_LEFT, ANCHOR_END);
-                action_buttons[0]->set_anchor(MARGIN_TOP, ANCHOR_END);
-                action_buttons[0]->set_anchor(MARGIN_RIGHT, ANCHOR_END);
-                action_buttons[0]->set_anchor(MARGIN_BOTTOM, ANCHOR_END);
+                action_buttons[0]->set_anchor(Margin::Left, ANCHOR_END);
+                action_buttons[0]->set_anchor(Margin::Top, ANCHOR_END);
+                action_buttons[0]->set_anchor(Margin::Right, ANCHOR_END);
+                action_buttons[0]->set_anchor(Margin::Bottom, ANCHOR_END);
                 action_buttons[0]->set_begin(Point2(-70 * EDSCALE, -button_margin + 5 * EDSCALE));
                 action_buttons[0]->set_end(Point2(-margin, -margin));
                 action_buttons[0]->set_text(TTR("Close"));
@@ -1800,10 +1800,10 @@ void CustomPropertyEditor::_focus_exit() {
 void CustomPropertyEditor::config_action_buttons(const List<StringName> &p_strings) {
 
     Ref<StyleBox> sb = get_stylebox("panel");
-    int margin_top = sb->get_margin(MARGIN_TOP);
-    int margin_left = sb->get_margin(MARGIN_LEFT);
-    int margin_bottom = sb->get_margin(MARGIN_BOTTOM);
-    int margin_right = sb->get_margin(MARGIN_RIGHT);
+    int margin_top = sb->get_margin(Margin::Top);
+    int margin_left = sb->get_margin(Margin::Left);
+    int margin_bottom = sb->get_margin(Margin::Bottom);
+    int margin_right = sb->get_margin(Margin::Right);
 
     int max_width = 0;
     int height = 0;
@@ -1970,7 +1970,7 @@ CustomPropertyEditor::CustomPropertyEditor() {
     text_edit = memnew(TextEdit);
     add_child(text_edit);
     text_edit->set_anchors_and_margins_preset(Control::PRESET_WIDE, Control::PRESET_MODE_MINSIZE, 5);
-    text_edit->set_margin(MARGIN_BOTTOM, -30);
+    text_edit->set_margin(Margin::Bottom, -30);
 
     text_edit->hide();
     text_edit->connect("text_changed", this, "_text_edit_changed");

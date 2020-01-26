@@ -75,16 +75,16 @@ void WindowDialog::_fix_size() {
     // Check validity, because the theme could contain a different type of StyleBox.
     if (0==strcmp(panel->get_class(),"StyleBoxTexture")) {
         Ref<StyleBoxTexture> panel_texture(dynamic_ref_cast<StyleBoxTexture>(panel));
-        top = panel_texture->get_expand_margin_size(MARGIN_TOP);
-        left = panel_texture->get_expand_margin_size(MARGIN_LEFT);
-        bottom = panel_texture->get_expand_margin_size(MARGIN_BOTTOM);
-        right = panel_texture->get_expand_margin_size(MARGIN_RIGHT);
+        top = panel_texture->get_expand_margin_size(Margin::Top);
+        left = panel_texture->get_expand_margin_size(Margin::Left);
+        bottom = panel_texture->get_expand_margin_size(Margin::Bottom);
+        right = panel_texture->get_expand_margin_size(Margin::Right);
     } else if (0==strcmp(panel->get_class(),"StyleBoxFlat")) {
         Ref<StyleBoxFlat> panel_flat(dynamic_ref_cast<StyleBoxFlat>(panel));
-        top = panel_flat->get_expand_margin_size(MARGIN_TOP);
-        left = panel_flat->get_expand_margin_size(MARGIN_LEFT);
-        bottom = panel_flat->get_expand_margin_size(MARGIN_BOTTOM);
-        right = panel_flat->get_expand_margin_size(MARGIN_RIGHT);
+        top = panel_flat->get_expand_margin_size(Margin::Top);
+        left = panel_flat->get_expand_margin_size(Margin::Left);
+        bottom = panel_flat->get_expand_margin_size(Margin::Bottom);
+        right = panel_flat->get_expand_margin_size(Margin::Right);
     }
 
     pos.x = MAX(left, MIN(pos.x, viewport_size.x - size.x - right));
@@ -228,7 +228,7 @@ void WindowDialog::_notification(int p_what) {
             close_button->set_normal_texture(get_icon("close", "WindowDialog"));
             close_button->set_pressed_texture(get_icon("close", "WindowDialog"));
             close_button->set_hover_texture(get_icon("close_highlight", "WindowDialog"));
-            close_button->set_anchor(MARGIN_LEFT, ANCHOR_END);
+            close_button->set_anchor(Margin::Left, ANCHOR_END);
             close_button->set_begin(Point2(-get_constant("close_h_ofs", "WindowDialog"), -get_constant("close_v_ofs", "WindowDialog")));
         } break;
 
@@ -604,8 +604,8 @@ AcceptDialog::AcceptDialog() {
     int button_margin = get_constant("button_margin", "Dialogs");
 
     label = memnew(Label);
-    label->set_anchor(MARGIN_RIGHT, ANCHOR_END);
-    label->set_anchor(MARGIN_BOTTOM, ANCHOR_END);
+    label->set_anchor(Margin::Right, ANCHOR_END);
+    label->set_anchor(Margin::Bottom, ANCHOR_END);
     label->set_begin(Point2(margin, margin));
     label->set_end(Point2(-margin, -button_margin - 10));
     add_child(label);

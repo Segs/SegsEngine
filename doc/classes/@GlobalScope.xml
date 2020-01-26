@@ -1331,52 +1331,52 @@
 		<constant name="Length" value="5" enum="PropertyHint">
 			Deprecated hint, unused.
 		</constant>
-		<constant name="PROPERTY_HINT_KEY_ACCEL" value="7" enum="PropertyHint">
+		<constant name="KeyAccel" value="7" enum="PropertyHint">
 			Deprecated hint, unused.
 		</constant>
-		<constant name="PROPERTY_HINT_FLAGS" value="8" enum="PropertyHint">
+		<constant name="Flags" value="8" enum="PropertyHint">
 			Hints that an integer property is a bitmask with named bit flags. For example, to allow toggling bits 0, 1, 2 and 4, the hint could be something like [code]"Bit0,Bit1,Bit2,,Bit4"[/code].
 		</constant>
-		<constant name="PROPERTY_HINT_LAYERS_2D_RENDER" value="9" enum="PropertyHint">
+		<constant name="Layers2DRenderer" value="9" enum="PropertyHint">
 			Hints that an integer property is a bitmask using the optionally named 2D render layers.
 		</constant>
-		<constant name="PROPERTY_HINT_LAYERS_2D_PHYSICS" value="10" enum="PropertyHint">
+		<constant name="Layers2DPhysics" value="10" enum="PropertyHint">
 			Hints that an integer property is a bitmask using the optionally named 2D physics layers.
 		</constant>
-		<constant name="PROPERTY_HINT_LAYERS_3D_RENDER" value="11" enum="PropertyHint">
+		<constant name="Layers3DRenderer" value="11" enum="PropertyHint">
 			Hints that an integer property is a bitmask using the optionally named 3D render layers.
 		</constant>
-		<constant name="PROPERTY_HINT_LAYERS_3D_PHYSICS" value="12" enum="PropertyHint">
+		<constant name="Layers3DPhysics" value="12" enum="PropertyHint">
 			Hints that an integer property is a bitmask using the optionally named 3D physics layers.
 		</constant>
-		<constant name="PROPERTY_HINT_FILE" value="13" enum="PropertyHint">
+		<constant name="File" value="13" enum="PropertyHint">
 			Hints that a string property is a path to a file. Editing it will show a file dialog for picking the path. The hint string can be a set of filters with wildcards like [code]"*.png,*.jpg"[/code].
 		</constant>
-		<constant name="PROPERTY_HINT_DIR" value="14" enum="PropertyHint">
+		<constant name="Dir" value="14" enum="PropertyHint">
 			Hints that a string property is a path to a directory. Editing it will show a file dialog for picking the path.
 		</constant>
-		<constant name="PROPERTY_HINT_GLOBAL_FILE" value="15" enum="PropertyHint">
+		<constant name="GlobalFile" value="15" enum="PropertyHint">
 			Hints that a string property is an absolute path to a file outside the project folder. Editing it will show a file dialog for picking the path. The hint string can be a set of filters with wildcards like [code]"*.png,*.jpg"[/code].
 		</constant>
-		<constant name="PROPERTY_HINT_GLOBAL_DIR" value="16" enum="PropertyHint">
+		<constant name="GlobalDir" value="16" enum="PropertyHint">
 			Hints that a string property is an absolute path to a directory outside the project folder. Editing it will show a file dialog for picking the path.
 		</constant>
-		<constant name="PROPERTY_HINT_RESOURCE_TYPE" value="17" enum="PropertyHint">
+		<constant name="ResourceType" value="17" enum="PropertyHint">
 			Hints that a property is an instance of a [Resource]-derived type, optionally specified via the hint string (e.g. [code]"Texture"[/code]). Editing it will show a popup menu of valid resource types to instantiate.
 		</constant>
-		<constant name="PROPERTY_HINT_MULTILINE_TEXT" value="18" enum="PropertyHint">
+		<constant name="MultilineText" value="18" enum="PropertyHint">
 			Hints that a string property is text with line breaks. Editing it will show a text input field where line breaks can be typed.
 		</constant>
-		<constant name="PROPERTY_HINT_PLACEHOLDER_TEXT" value="19" enum="PropertyHint">
+		<constant name="PlaceholderText" value="19" enum="PropertyHint">
 			Hints that a string property should have a placeholder text visible on its input field, whenever the property is empty. The hint string is the placeholder text to use.
 		</constant>
-		<constant name="PROPERTY_HINT_COLOR_NO_ALPHA" value="20" enum="PropertyHint">
+		<constant name="ColorNoAlpha" value="20" enum="PropertyHint">
 			Hints that a color property should be edited without changing its alpha component, i.e. only R, G and B channels are edited.
 		</constant>
-		<constant name="PROPERTY_HINT_IMAGE_COMPRESS_LOSSY" value="21" enum="PropertyHint">
+		<constant name="ImageCompressLossy" value="21" enum="PropertyHint">
 			Hints that an image is compressed using lossy compression.
 		</constant>
-		<constant name="PROPERTY_HINT_IMAGE_COMPRESS_LOSSLESS" value="22" enum="PropertyHint">
+		<constant name="ImageCompressLossless" value="22" enum="PropertyHint">
 			Hints that an image is compressed using lossless compression.
 		</constant>
 		<constant name="PROPERTY_USAGE_STORAGE" value="1" enum="PropertyUsageFlags">
@@ -1448,88 +1448,88 @@
 		<constant name="METHOD_FLAGS_DEFAULT" value="1" enum="MethodFlags">
 			Default method flags.
 		</constant>
-		<constant name="TYPE_NIL" value="0" enum="VariantType">
+		<constant name="NIL" value="0" enum="VariantType">
 			Variable is of type [Nil] (only applied for [code]null[/code]).
 		</constant>
-		<constant name="TYPE_BOOL" value="1" enum="VariantType">
+		<constant name="BOOL" value="1" enum="VariantType">
 			Variable is of type [bool].
 		</constant>
-		<constant name="TYPE_INT" value="2" enum="VariantType">
+		<constant name="INT" value="2" enum="VariantType">
 			Variable is of type [int].
 		</constant>
-		<constant name="TYPE_REAL" value="3" enum="VariantType">
+		<constant name="REAL" value="3" enum="VariantType">
 			Variable is of type [float] (real).
 		</constant>
-		<constant name="TYPE_STRING" value="4" enum="VariantType">
+		<constant name="STRING" value="4" enum="VariantType">
 			Variable is of type [String].
 		</constant>
-		<constant name="TYPE_VECTOR2" value="5" enum="VariantType">
+		<constant name="VECTOR2" value="5" enum="VariantType">
 			Variable is of type [Vector2].
 		</constant>
-		<constant name="TYPE_RECT2" value="6" enum="VariantType">
+		<constant name="RECT2" value="6" enum="VariantType">
 			Variable is of type [Rect2].
 		</constant>
-		<constant name="TYPE_VECTOR3" value="7" enum="VariantType">
+		<constant name="VECTOR3" value="7" enum="VariantType">
 			Variable is of type [Vector3].
 		</constant>
-		<constant name="TYPE_TRANSFORM2D" value="8" enum="VariantType">
+		<constant name="TRANSFORM2D" value="8" enum="VariantType">
 			Variable is of type [Transform2D].
 		</constant>
-		<constant name="TYPE_PLANE" value="9" enum="VariantType">
+		<constant name="PLANE" value="9" enum="VariantType">
 			Variable is of type [Plane].
 		</constant>
-		<constant name="TYPE_QUAT" value="10" enum="VariantType">
+		<constant name="QUAT" value="10" enum="VariantType">
 			Variable is of type [Quat].
 		</constant>
-		<constant name="TYPE_AABB" value="11" enum="VariantType">
+		<constant name="AABB" value="11" enum="VariantType">
 			Variable is of type [AABB].
 		</constant>
-		<constant name="TYPE_BASIS" value="12" enum="VariantType">
+		<constant name="BASIS" value="12" enum="VariantType">
 			Variable is of type [Basis].
 		</constant>
-		<constant name="TYPE_TRANSFORM" value="13" enum="VariantType">
+		<constant name="TRANSFORM" value="13" enum="VariantType">
 			Variable is of type [Transform].
 		</constant>
-		<constant name="TYPE_COLOR" value="14" enum="VariantType">
+		<constant name="COLOR" value="14" enum="VariantType">
 			Variable is of type [Color].
 		</constant>
-		<constant name="TYPE_NODE_PATH" value="15" enum="VariantType">
+		<constant name="NODE_PATH" value="15" enum="VariantType">
 			Variable is of type [NodePath].
 		</constant>
-		<constant name="TYPE_RID" value="16" enum="VariantType">
+		<constant name="RID" value="16" enum="VariantType">
 			Variable is of type [RID].
 		</constant>
-		<constant name="TYPE_OBJECT" value="17" enum="VariantType">
+		<constant name="OBJECT" value="17" enum="VariantType">
 			Variable is of type [Object].
 		</constant>
-		<constant name="TYPE_DICTIONARY" value="18" enum="VariantType">
+		<constant name="DICTIONARY" value="18" enum="VariantType">
 			Variable is of type [Dictionary].
 		</constant>
-		<constant name="TYPE_ARRAY" value="19" enum="VariantType">
+		<constant name="ARRAY" value="19" enum="VariantType">
 			Variable is of type [Array].
 		</constant>
-		<constant name="TYPE_RAW_ARRAY" value="20" enum="VariantType">
+		<constant name="RAW_ARRAY" value="20" enum="VariantType">
 			Variable is of type [PoolByteArray].
 		</constant>
-		<constant name="TYPE_INT_ARRAY" value="21" enum="VariantType">
+		<constant name="INT_ARRAY" value="21" enum="VariantType">
 			Variable is of type [PoolIntArray].
 		</constant>
-		<constant name="TYPE_REAL_ARRAY" value="22" enum="VariantType">
+		<constant name="REAL_ARRAY" value="22" enum="VariantType">
 			Variable is of type [PoolRealArray].
 		</constant>
-		<constant name="TYPE_STRING_ARRAY" value="23" enum="VariantType">
+		<constant name="STRING_ARRAY" value="23" enum="VariantType">
 			Variable is of type [PoolStringArray].
 		</constant>
-		<constant name="TYPE_VECTOR2_ARRAY" value="24" enum="VariantType">
+		<constant name="VECTOR2_ARRAY" value="24" enum="VariantType">
 			Variable is of type [PoolVector2Array].
 		</constant>
-		<constant name="TYPE_VECTOR3_ARRAY" value="25" enum="VariantType">
+		<constant name="VECTOR3_ARRAY" value="25" enum="VariantType">
 			Variable is of type [PoolVector3Array].
 		</constant>
-		<constant name="TYPE_COLOR_ARRAY" value="26" enum="VariantType">
+		<constant name="COLOR_ARRAY" value="26" enum="VariantType">
 			Variable is of type [PoolColorArray].
 		</constant>
-		<constant name="TYPE_MAX" value="27" enum="VariantType">
+		<constant name="MAX" value="27" enum="VariantType">
 			Represents the size of the [enum VariantType] enum.
 		</constant>
 		<constant name="OP_EQUAL" value="0" enum="Variant.Operator">

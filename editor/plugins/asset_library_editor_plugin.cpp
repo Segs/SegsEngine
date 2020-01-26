@@ -110,10 +110,10 @@ void EditorAssetLibraryItem::_bind_methods() {
 EditorAssetLibraryItem::EditorAssetLibraryItem() {
 
     Ref<StyleBoxEmpty> border(make_ref_counted<StyleBoxEmpty>());
-    border->set_default_margin(MARGIN_LEFT, 5 * EDSCALE);
-    border->set_default_margin(MARGIN_RIGHT, 5 * EDSCALE);
-    border->set_default_margin(MARGIN_BOTTOM, 5 * EDSCALE);
-    border->set_default_margin(MARGIN_TOP, 5 * EDSCALE);
+    border->set_default_margin(Margin::Left, 5 * EDSCALE);
+    border->set_default_margin(Margin::Right, 5 * EDSCALE);
+    border->set_default_margin(Margin::Bottom, 5 * EDSCALE);
+    border->set_default_margin(Margin::Top, 5 * EDSCALE);
     add_style_override("panel", border);
 
     HBoxContainer *hb = memnew(HBoxContainer);
@@ -1463,10 +1463,10 @@ EditorAssetLibrary::EditorAssetLibrary(bool p_templates_only) {
     library_scroll_bg->add_child(library_scroll);
 
     Ref<StyleBoxEmpty> border2(make_ref_counted<StyleBoxEmpty>());
-    border2->set_default_margin(MARGIN_LEFT, 15 * EDSCALE);
-    border2->set_default_margin(MARGIN_RIGHT, 35 * EDSCALE);
-    border2->set_default_margin(MARGIN_BOTTOM, 15 * EDSCALE);
-    border2->set_default_margin(MARGIN_TOP, 15 * EDSCALE);
+    border2->set_default_margin(Margin::Left, 15 * EDSCALE);
+    border2->set_default_margin(Margin::Right, 35 * EDSCALE);
+    border2->set_default_margin(Margin::Bottom, 15 * EDSCALE);
+    border2->set_default_margin(Margin::Top, 15 * EDSCALE);
 
     PanelContainer *library_vb_border = memnew(PanelContainer);
     library_scroll->add_child(library_vb_border);

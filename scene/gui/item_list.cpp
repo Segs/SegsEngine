@@ -840,10 +840,10 @@ void ItemList::_notification(int p_what) {
         Ref<StyleBox> bg = get_stylebox("bg");
 
         int mw = scroll_bar->get_minimum_size().x;
-        scroll_bar->set_anchor_and_margin(MARGIN_LEFT, ANCHOR_END, -mw);
-        scroll_bar->set_anchor_and_margin(MARGIN_RIGHT, ANCHOR_END, 0);
-        scroll_bar->set_anchor_and_margin(MARGIN_TOP, ANCHOR_BEGIN, bg->get_margin(MARGIN_TOP));
-        scroll_bar->set_anchor_and_margin(MARGIN_BOTTOM, ANCHOR_END, -bg->get_margin(MARGIN_BOTTOM));
+        scroll_bar->set_anchor_and_margin(Margin::Left, ANCHOR_END, -mw);
+        scroll_bar->set_anchor_and_margin(Margin::Right, ANCHOR_END, 0);
+        scroll_bar->set_anchor_and_margin(Margin::Top, ANCHOR_BEGIN, bg->get_margin(Margin::Top));
+        scroll_bar->set_anchor_and_margin(Margin::Bottom, ANCHOR_END, -bg->get_margin(Margin::Bottom));
 
         Size2 size = get_size();
 
@@ -1256,7 +1256,7 @@ void ItemList::_notification(int p_what) {
                 break; // done
 
             const int y = base_ofs.y + separators[i];
-            draw_line(Vector2(bg->get_margin(MARGIN_LEFT), y), Vector2(width, y), guide_color);
+            draw_line(Vector2(bg->get_margin(Margin::Left), y), Vector2(width, y), guide_color);
         }
     }
 }

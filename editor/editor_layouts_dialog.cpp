@@ -112,24 +112,24 @@ EditorLayoutsDialog::EditorLayoutsDialog() {
 
     makevb = memnew(VBoxContainer);
     add_child(makevb);
-    makevb->set_anchor_and_margin(MARGIN_LEFT, ANCHOR_BEGIN, 5);
-    makevb->set_anchor_and_margin(MARGIN_RIGHT, ANCHOR_END, -5);
+    makevb->set_anchor_and_margin(Margin::Left, ANCHOR_BEGIN, 5);
+    makevb->set_anchor_and_margin(Margin::Right, ANCHOR_END, -5);
 
     layout_names = memnew(ItemList);
     makevb->add_child(layout_names);
     layout_names->set_visible(true);
-    layout_names->set_margin(MARGIN_TOP, 5);
-    layout_names->set_anchor_and_margin(MARGIN_LEFT, ANCHOR_BEGIN, 5);
-    layout_names->set_anchor_and_margin(MARGIN_RIGHT, ANCHOR_END, -5);
+    layout_names->set_margin(Margin::Top, 5);
+    layout_names->set_anchor_and_margin(Margin::Left, ANCHOR_BEGIN, 5);
+    layout_names->set_anchor_and_margin(Margin::Right, ANCHOR_END, -5);
     layout_names->set_v_size_flags(Control::SIZE_EXPAND_FILL);
     layout_names->set_select_mode(ItemList::SELECT_MULTI);
     layout_names->set_allow_rmb_select(true);
 
     name = memnew(LineEdit);
     makevb->add_child(name);
-    name->set_margin(MARGIN_TOP, 5);
-    name->set_anchor_and_margin(MARGIN_LEFT, ANCHOR_BEGIN, 5);
-    name->set_anchor_and_margin(MARGIN_RIGHT, ANCHOR_END, -5);
+    name->set_margin(Margin::Top, 5);
+    name->set_anchor_and_margin(Margin::Left, ANCHOR_BEGIN, 5);
+    name->set_anchor_and_margin(Margin::Right, ANCHOR_END, -5);
     name->connect("gui_input", this, "_line_gui_input");
     name->connect("focus_entered", layout_names, "unselect_all");
 }

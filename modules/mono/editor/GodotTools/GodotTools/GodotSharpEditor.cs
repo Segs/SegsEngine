@@ -156,7 +156,10 @@ namespace GodotTools
 
         public override void _Notification(int what)
         {
+            Godot.GD.Print($"SharpEditor::_Notification 1{this}");
             base._Notification(what);
+            string tz = editorSettings != null ? "edd" : "no_edd";
+            Godot.GD.Print($"SharpEditor::_Notification 2{tz}");
 
             if (what == NotificationReady)
             {
@@ -200,7 +203,7 @@ namespace GodotTools
             {
                 case ExternalEditorId.None:
                     // Tells the caller to fallback to the global external editor settings or the built-in editor
-                    return Error.Unavailable;
+                    return Error.ErrUnavailable;
                 case ExternalEditorId.VisualStudio:
                     throw new NotSupportedException();
                 case ExternalEditorId.VisualStudioForMac:
@@ -280,7 +283,7 @@ namespace GodotTools
                         if (!osxAppBundleInstalled && _vsCodePath.Empty())
                         {
                             GD.PushError("Cannot find code editor: VSCode");
-                            return Error.FileNotFound;
+                            return Error.ErrFileNotFound;
                         }
 
                         command = osxAppBundleInstalled ? "/usr/bin/open" : _vsCodePath;
@@ -290,7 +293,7 @@ namespace GodotTools
                         if (_vsCodePath.Empty())
                         {
                             GD.PushError("Cannot find code editor: VSCode");
-                            return Error.FileNotFound;
+                            return Error.ErrFileNotFound;
                         }
 
                         command = _vsCodePath;
@@ -328,6 +331,8 @@ namespace GodotTools
 
         public override void EnablePlugin()
         {
+            string tz = editorSettings != null ? "edd" : "no_edd";
+            Godot.GD.Print($"SharpEditor::EnablePlugin 1{tz}");
             base.EnablePlugin();
 
             if (Instance != null)
@@ -338,6 +343,10 @@ namespace GodotTools
             var editorBaseControl = editorInterface.GetBaseControl();
 
             editorSettings = editorInterface.GetEditorSettings();
+            if (editorSettings == null)
+                throw new ArgumentNullException("Editor settings are null");
+            string tz2 = editorSettings != null ? "edd" : "no_edd";
+            Godot.GD.Print($"SharpEditor::EnablePlugin 2{tz2}");
 
             errorDialog = new AcceptDialog();
             editorBaseControl.AddChild(errorDialog);
@@ -379,7 +388,7 @@ namespace GodotTools
                 var aboutLabel = new Label();
                 aboutHBox.AddChild(aboutLabel);
                 aboutLabel.RectMinSize = new Vector2(600, 150) * EditorScale;
-                aboutLabel.SizeFlagsVertical = (int)Control.SizeFlags.ExpandFill;
+                aboutLabel.SizeFlagsVertical = (int)Control.SizeFlags.SizeExpandFill;
                 aboutLabel.Autowrap = true;
                 aboutLabel.Text =
                     "C# support in Godot Engine is in late alpha stage and, while already usable, " +
@@ -416,10 +425,10 @@ namespace GodotTools
             {
                 Text = "Build",
                 HintTooltip = "Build solution",
-                FocusMode = Control.FocusModeEnum.None
+                FocusMode = (int)Control.FocusModeEnum.FocusNone
             };
             buildButton.Connect("pressed", this, nameof(_BuildSolutionPressed));
-            AddControlToContainer(CustomControlContainer.Toolbar, buildButton);
+            AddControlToContainer(CustomControlContainer.ContainerToolbar, buildButton);
 
             // External editor settings
             EditorDef("mono/editor/external_editor", ExternalEditorId.None);
@@ -448,7 +457,7 @@ namespace GodotTools
 
             editorSettings.AddPropertyInfo(new Godot.Collections.Dictionary
             {
-                ["type"] = VariantType.Int,
+                ["type"] = VariantType.TypeInt,
                 ["name"] = "mono/editor/external_editor",
                 ["hint"] = PropertyHint.Enum,
                 ["hint_string"] = settingsHintStr

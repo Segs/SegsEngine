@@ -2312,12 +2312,12 @@ void SpatialEditorViewport::_notification(int p_what) {
         cinema_label->set_visible(show_cinema);
         if (show_cinema) {
             float cinema_half_width = cinema_label->get_size().width / 2.0f;
-            cinema_label->set_anchor_and_margin(MARGIN_LEFT, 0.5f, -cinema_half_width);
+            cinema_label->set_anchor_and_margin(Margin::Left, 0.5f, -cinema_half_width);
         }
 
         if (lock_rotation) {
             float locked_half_width = locked_label->get_size().width / 2.0f;
-            locked_label->set_anchor_and_margin(MARGIN_LEFT, 0.5f, -locked_half_width);
+            locked_label->set_anchor_and_margin(Margin::Left, 0.5f, -locked_half_width);
         }
     }
 
@@ -3645,19 +3645,19 @@ SpatialEditorViewport::SpatialEditorViewport(SpatialEditor *p_spatial_editor, Ed
     preview_node = nullptr;
 
     info_label = memnew(Label);
-    info_label->set_anchor_and_margin(MARGIN_LEFT, ANCHOR_END, -90 * EDSCALE);
-    info_label->set_anchor_and_margin(MARGIN_TOP, ANCHOR_END, -90 * EDSCALE);
-    info_label->set_anchor_and_margin(MARGIN_RIGHT, ANCHOR_END, -10 * EDSCALE);
-    info_label->set_anchor_and_margin(MARGIN_BOTTOM, ANCHOR_END, -10 * EDSCALE);
+    info_label->set_anchor_and_margin(Margin::Left, ANCHOR_END, -90 * EDSCALE);
+    info_label->set_anchor_and_margin(Margin::Top, ANCHOR_END, -90 * EDSCALE);
+    info_label->set_anchor_and_margin(Margin::Right, ANCHOR_END, -10 * EDSCALE);
+    info_label->set_anchor_and_margin(Margin::Bottom, ANCHOR_END, -10 * EDSCALE);
     info_label->set_h_grow_direction(GROW_DIRECTION_BEGIN);
     info_label->set_v_grow_direction(GROW_DIRECTION_BEGIN);
     surface->add_child(info_label);
     info_label->hide();
 
     fps_label = memnew(Label);
-    fps_label->set_anchor_and_margin(MARGIN_LEFT, ANCHOR_END, -90 * EDSCALE);
-    fps_label->set_anchor_and_margin(MARGIN_TOP, ANCHOR_BEGIN, 10 * EDSCALE);
-    fps_label->set_anchor_and_margin(MARGIN_RIGHT, ANCHOR_END, -10 * EDSCALE);
+    fps_label->set_anchor_and_margin(Margin::Left, ANCHOR_END, -90 * EDSCALE);
+    fps_label->set_anchor_and_margin(Margin::Top, ANCHOR_BEGIN, 10 * EDSCALE);
+    fps_label->set_anchor_and_margin(Margin::Right, ANCHOR_END, -10 * EDSCALE);
     fps_label->set_h_grow_direction(GROW_DIRECTION_BEGIN);
     fps_label->set_tooltip(TTR("Note: The FPS value displayed is the editor's framerate.\nIt cannot be used as a reliable indication of in-game performance."));
     fps_label->set_mouse_filter(MOUSE_FILTER_PASS); // Otherwise tooltip doesn't show.
@@ -3665,7 +3665,7 @@ SpatialEditorViewport::SpatialEditorViewport(SpatialEditor *p_spatial_editor, Ed
     fps_label->hide();
 
     cinema_label = memnew(Label);
-    cinema_label->set_anchor_and_margin(MARGIN_TOP, ANCHOR_BEGIN, 10 * EDSCALE);
+    cinema_label->set_anchor_and_margin(Margin::Top, ANCHOR_BEGIN, 10 * EDSCALE);
     cinema_label->set_h_grow_direction(GROW_DIRECTION_END);
     cinema_label->set_align(Label::ALIGN_CENTER);
     surface->add_child(cinema_label);
@@ -3674,8 +3674,8 @@ SpatialEditorViewport::SpatialEditorViewport(SpatialEditor *p_spatial_editor, Ed
     previewing_cinema = false;
 
     locked_label = memnew(Label);
-    locked_label->set_anchor_and_margin(MARGIN_TOP, ANCHOR_END, -20 * EDSCALE);
-    locked_label->set_anchor_and_margin(MARGIN_BOTTOM, ANCHOR_END, -10 * EDSCALE);
+    locked_label->set_anchor_and_margin(Margin::Top, ANCHOR_END, -20 * EDSCALE);
+    locked_label->set_anchor_and_margin(Margin::Bottom, ANCHOR_END, -10 * EDSCALE);
     locked_label->set_h_grow_direction(GROW_DIRECTION_END);
     locked_label->set_v_grow_direction(GROW_DIRECTION_BEGIN);
     locked_label->set_align(Label::ALIGN_CENTER);

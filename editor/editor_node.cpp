@@ -6126,8 +6126,8 @@ EditorNode::EditorNode() {
     gui_base->add_child(progress_dialog);
 
     // take up all screen
-    gui_base->set_anchor(MARGIN_RIGHT, Control::ANCHOR_END);
-    gui_base->set_anchor(MARGIN_BOTTOM, Control::ANCHOR_END);
+    gui_base->set_anchor(Margin::Right, Control::ANCHOR_END);
+    gui_base->set_anchor(Margin::Bottom, Control::ANCHOR_END);
     gui_base->set_end(Point2(0, 0));
 
     main_vbox = memnew(VBoxContainer);

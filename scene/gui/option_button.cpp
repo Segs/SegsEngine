@@ -79,7 +79,7 @@ void OptionButton::_notification(int p_what) {
         case NOTIFICATION_THEME_CHANGED: {
 
             if (has_icon("arrow")) {
-                _set_internal_margin(MARGIN_RIGHT, Control::get_icon("arrow")->get_width());
+                _set_internal_margin(Margin::Right, Control::get_icon("arrow")->get_width());
             }
         } break;
         case NOTIFICATION_VISIBILITY_CHANGED: {
@@ -351,7 +351,7 @@ OptionButton::OptionButton() {
     set_text_align(ALIGN_LEFT);
     set_action_mode(ACTION_MODE_BUTTON_PRESS);
     if (has_icon("arrow")) {
-        _set_internal_margin(MARGIN_RIGHT, Control::get_icon("arrow")->get_width());
+        _set_internal_margin(Margin::Right, Control::get_icon("arrow")->get_width());
     }
     popup = memnew(PopupMenu);
     popup->hide();

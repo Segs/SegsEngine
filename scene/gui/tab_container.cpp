@@ -383,8 +383,8 @@ void TabContainer::_notification(int p_what) {
                 Control *control = object_cast<Control>(tabs[i + first_tab_cache]);
                 StringName text = control->has_meta("_tab_name") ? tr(control->get_meta("_tab_name")) : tr(control->get_name());
 
-                int x_content = tab_rect.position.x + tab_style->get_margin(MARGIN_LEFT);
-                int top_margin = tab_style->get_margin(MARGIN_TOP);
+                int x_content = tab_rect.position.x + tab_style->get_margin(Margin::Left);
+                int top_margin = tab_style->get_margin(Margin::Top);
                 int y_center = top_margin + (tab_rect.size.y - tab_style->get_minimum_size().y) / 2;
 
                 // Draw the tab icon.
@@ -533,12 +533,12 @@ void TabContainer::add_child_notify(Node *p_child) {
     }
     c->set_anchors_and_margins_preset(Control::PRESET_WIDE);
     if (tabs_visible)
-        c->set_margin(MARGIN_TOP, _get_top_margin());
+        c->set_margin(Margin::Top, _get_top_margin());
     Ref<StyleBox> sb = get_stylebox("panel");
-    c->set_margin(Margin(MARGIN_TOP), c->get_margin(Margin(MARGIN_TOP)) + sb->get_margin(Margin(MARGIN_TOP)));
-    c->set_margin(Margin(MARGIN_LEFT), c->get_margin(Margin(MARGIN_LEFT)) + sb->get_margin(Margin(MARGIN_LEFT)));
-    c->set_margin(Margin(MARGIN_RIGHT), c->get_margin(Margin(MARGIN_RIGHT)) - sb->get_margin(Margin(MARGIN_RIGHT)));
-    c->set_margin(Margin(MARGIN_BOTTOM), c->get_margin(Margin(MARGIN_BOTTOM)) - sb->get_margin(Margin(MARGIN_BOTTOM)));
+    c->set_margin(Margin(Margin::Top), c->get_margin(Margin(Margin::Top)) + sb->get_margin(Margin(Margin::Top)));
+    c->set_margin(Margin(Margin::Left), c->get_margin(Margin(Margin::Left)) + sb->get_margin(Margin(Margin::Left)));
+    c->set_margin(Margin(Margin::Right), c->get_margin(Margin(Margin::Right)) - sb->get_margin(Margin(Margin::Right)));
+    c->set_margin(Margin(Margin::Bottom), c->get_margin(Margin(Margin::Bottom)) - sb->get_margin(Margin(Margin::Bottom)));
 
     update();
     p_child->connect("renamed", this, "_child_renamed_callback");
@@ -567,11 +567,11 @@ void TabContainer::set_current_tab(int p_current) {
             c->show();
             c->set_anchors_and_margins_preset(Control::PRESET_WIDE);
             if (tabs_visible)
-                c->set_margin(MARGIN_TOP, _get_top_margin());
-            c->set_margin(Margin(MARGIN_TOP), c->get_margin(Margin(MARGIN_TOP)) + sb->get_margin(Margin(MARGIN_TOP)));
-            c->set_margin(Margin(MARGIN_LEFT), c->get_margin(Margin(MARGIN_LEFT)) + sb->get_margin(Margin(MARGIN_LEFT)));
-            c->set_margin(Margin(MARGIN_RIGHT), c->get_margin(Margin(MARGIN_RIGHT)) - sb->get_margin(Margin(MARGIN_RIGHT)));
-            c->set_margin(Margin(MARGIN_BOTTOM), c->get_margin(Margin(MARGIN_BOTTOM)) - sb->get_margin(Margin(MARGIN_BOTTOM)));
+                c->set_margin(Margin::Top, _get_top_margin());
+            c->set_margin(Margin(Margin::Top), c->get_margin(Margin(Margin::Top)) + sb->get_margin(Margin(Margin::Top)));
+            c->set_margin(Margin(Margin::Left), c->get_margin(Margin(Margin::Left)) + sb->get_margin(Margin(Margin::Left)));
+            c->set_margin(Margin(Margin::Right), c->get_margin(Margin(Margin::Right)) - sb->get_margin(Margin(Margin::Right)));
+            c->set_margin(Margin(Margin::Bottom), c->get_margin(Margin(Margin::Bottom)) - sb->get_margin(Margin(Margin::Bottom)));
 
         } else
             c->hide();
@@ -801,9 +801,9 @@ void TabContainer::set_tabs_visible(bool p_visibe) {
 
         Control *c = tabs[i];
         if (p_visibe)
-            c->set_margin(MARGIN_TOP, _get_top_margin());
+            c->set_margin(Margin::Top, _get_top_margin());
         else
-            c->set_margin(MARGIN_TOP, 0);
+            c->set_margin(Margin::Top, 0);
     }
     update();
 }

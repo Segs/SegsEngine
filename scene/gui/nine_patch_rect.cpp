@@ -50,13 +50,13 @@ void NinePatchRect::_notification(int p_what) {
         texture->get_rect_region(rect, src_rect, rect, src_rect);
 
         RID ci = get_canvas_item();
-        VisualServer::get_singleton()->canvas_item_add_nine_patch(ci, rect, src_rect, texture->get_rid(), Vector2(margin[MARGIN_LEFT], margin[MARGIN_TOP]), Vector2(margin[MARGIN_RIGHT], margin[MARGIN_BOTTOM]), VS::NinePatchAxisMode(axis_h), VS::NinePatchAxisMode(axis_v), draw_center);
+        VisualServer::get_singleton()->canvas_item_add_nine_patch(ci, rect, src_rect, texture->get_rid(), Vector2(margin[(int8_t)Margin::Left], margin[(int8_t)Margin::Top]), Vector2(margin[(int8_t)Margin::Right], margin[(int8_t)Margin::Bottom]), VS::NinePatchAxisMode(axis_h), VS::NinePatchAxisMode(axis_v), draw_center);
     }
 }
 
 Size2 NinePatchRect::get_minimum_size() const {
 
-    return Size2(margin[MARGIN_LEFT] + margin[MARGIN_RIGHT], margin[MARGIN_TOP] + margin[MARGIN_BOTTOM]);
+    return Size2(margin[(int8_t)Margin::Left] + margin[(int8_t)Margin::Right], margin[(int8_t)Margin::Top] + margin[(int8_t)Margin::Bottom]);
 }
 void NinePatchRect::_bind_methods() {
 
@@ -80,10 +80,10 @@ void NinePatchRect::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::RECT2, "region_rect"), "set_region_rect", "get_region_rect");
 
     ADD_GROUP("Patch Margin", "patch_margin_");
-    ADD_PROPERTYI(PropertyInfo(VariantType::INT, "patch_margin_left", PropertyHint::Range, "0,16384,1"), "set_patch_margin", "get_patch_margin", MARGIN_LEFT);
-    ADD_PROPERTYI(PropertyInfo(VariantType::INT, "patch_margin_top", PropertyHint::Range, "0,16384,1"), "set_patch_margin", "get_patch_margin", MARGIN_TOP);
-    ADD_PROPERTYI(PropertyInfo(VariantType::INT, "patch_margin_right", PropertyHint::Range, "0,16384,1"), "set_patch_margin", "get_patch_margin", MARGIN_RIGHT);
-    ADD_PROPERTYI(PropertyInfo(VariantType::INT, "patch_margin_bottom", PropertyHint::Range, "0,16384,1"), "set_patch_margin", "get_patch_margin", MARGIN_BOTTOM);
+    ADD_PROPERTYI(PropertyInfo(VariantType::INT, "patch_margin_left", PropertyHint::Range, "0,16384,1"), "set_patch_margin", "get_patch_margin", (int)Margin::Left);
+    ADD_PROPERTYI(PropertyInfo(VariantType::INT, "patch_margin_top", PropertyHint::Range, "0,16384,1"), "set_patch_margin", "get_patch_margin", (int)Margin::Top);
+    ADD_PROPERTYI(PropertyInfo(VariantType::INT, "patch_margin_right", PropertyHint::Range, "0,16384,1"), "set_patch_margin", "get_patch_margin", (int)Margin::Right);
+    ADD_PROPERTYI(PropertyInfo(VariantType::INT, "patch_margin_bottom", PropertyHint::Range, "0,16384,1"), "set_patch_margin", "get_patch_margin", (int)Margin::Bottom);
     ADD_GROUP("Axis Stretch", "axis_stretch_");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "axis_stretch_horizontal", PropertyHint::Enum, "Stretch,Tile,Tile Fit"), "set_h_axis_stretch_mode", "get_h_axis_stretch_mode");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "axis_stretch_vertical", PropertyHint::Enum, "Stretch,Tile,Tile Fit"), "set_v_axis_stretch_mode", "get_v_axis_stretch_mode");
@@ -116,20 +116,20 @@ Ref<Texture> NinePatchRect::get_texture() const {
 void NinePatchRect::set_patch_margin(Margin p_margin, int p_size) {
 
     ERR_FAIL_INDEX((int)p_margin, 4);
-    margin[p_margin] = p_size;
+    margin[(int)p_margin] = p_size;
     update();
     minimum_size_changed();
     switch (p_margin) {
-        case MARGIN_LEFT:
+        case Margin::Left:
             Object_change_notify(this,"patch_margin_left");
             break;
-        case MARGIN_TOP:
+        case Margin::Top:
             Object_change_notify(this,"patch_margin_top");
             break;
-        case MARGIN_RIGHT:
+        case Margin::Right:
             Object_change_notify(this,"patch_margin_right");
             break;
-        case MARGIN_BOTTOM:
+        case Margin::Bottom:
             Object_change_notify(this,"patch_margin_bottom");
             break;
     }
@@ -138,7 +138,7 @@ void NinePatchRect::set_patch_margin(Margin p_margin, int p_size) {
 int NinePatchRect::get_patch_margin(Margin p_margin) const {
 
     ERR_FAIL_INDEX_V((int)p_margin, 4, 0);
-    return margin[p_margin];
+    return margin[(int)p_margin];
 }
 
 void NinePatchRect::set_region_rect(const Rect2 &p_region_rect) {
@@ -190,10 +190,10 @@ NinePatchRect::AxisStretchMode NinePatchRect::get_v_axis_stretch_mode() const {
 
 NinePatchRect::NinePatchRect() {
 
-    margin[MARGIN_LEFT] = 0;
-    margin[MARGIN_RIGHT] = 0;
-    margin[MARGIN_BOTTOM] = 0;
-    margin[MARGIN_TOP] = 0;
+    margin[(int8_t)Margin::Left] = 0;
+    margin[(int8_t)Margin::Right] = 0;
+    margin[(int8_t)Margin::Bottom] = 0;
+    margin[(int8_t)Margin::Top] = 0;
 
     set_mouse_filter(MOUSE_FILTER_IGNORE);
     draw_center = true;

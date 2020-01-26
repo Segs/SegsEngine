@@ -73,8 +73,8 @@ public:
         SceneTree::init();
 
         Panel *frame = memnew(Panel);
-        frame->set_anchor(MARGIN_RIGHT, Control::ANCHOR_END);
-        frame->set_anchor(MARGIN_BOTTOM, Control::ANCHOR_END);
+        frame->set_anchor(Margin::Right, Control::ANCHOR_END);
+        frame->set_anchor(Margin::Bottom, Control::ANCHOR_END);
         frame->set_end(Point2(0, 0));
 
         Ref<Theme> t(make_ref_counted<Theme>());
@@ -205,7 +205,7 @@ public:
 
         richtext->set_position(Point2(600, 210));
         richtext->set_size(Point2(180, 250));
-        richtext->set_anchor_and_margin(MARGIN_RIGHT, Control::ANCHOR_END, -20);
+        richtext->set_anchor_and_margin(Margin::Right, Control::ANCHOR_END, -20);
 
         frame->add_child(richtext);
 

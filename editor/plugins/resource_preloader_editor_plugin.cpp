@@ -447,8 +447,8 @@ ResourcePreloaderEditorPlugin::ResourcePreloaderEditorPlugin(EditorNode *p_node)
     button = editor->add_bottom_panel_item(TTR("ResourcePreloader"), preloader_editor);
     button->hide();
 
-    //preloader_editor->set_anchor( MARGIN_TOP, Control::ANCHOR_END);
-    //preloader_editor->set_margin( MARGIN_TOP, 120 );
+    //preloader_editor->set_anchor( Margin::TOP, Control::ANCHOR_END);
+    //preloader_editor->set_margin( Margin::TOP, 120 );
 }
 
 ResourcePreloaderEditorPlugin::~ResourcePreloaderEditorPlugin() = default;

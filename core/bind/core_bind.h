@@ -502,7 +502,7 @@ public:
 
     PoolVector<uint8_t> get_buffer(int p_length) const; // Get an array of bytes.
     String get_line() const;
-    Vector<String> get_csv_line(char p_delim = ',') const;
+    Vector<String> get_csv_line(int8_t p_delim = ',') const;
     String get_as_text() const;
     String get_md5(se_string_view p_path) const;
     String get_sha256(se_string_view p_path) const;
@@ -528,7 +528,7 @@ public:
 
     void store_string(se_string_view p_string);
     void store_line(se_string_view p_string);
-    void store_csv_line(const PoolVector<String> &p_values, char p_delim = ',');
+    void store_csv_line(const PoolVector<String> &p_values, int8_t p_delim = ',');
 
     virtual void store_pascal_string(se_string_view p_string);
     virtual String get_pascal_string();

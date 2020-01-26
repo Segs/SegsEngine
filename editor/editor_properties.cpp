@@ -2388,7 +2388,7 @@ void EditorPropertyResource::_resource_preview(se_string_view p_path, const Ref<
         }
 
         if (p_preview) {
-            preview->set_margin(MARGIN_LEFT, assign->get_icon()->get_width() + assign->get_stylebox("normal")->get_default_margin(MARGIN_LEFT) + get_constant("hseparation", "Button"));
+            preview->set_margin(Margin::Left, assign->get_icon()->get_width() + assign->get_stylebox("normal")->get_default_margin(Margin::Left) + get_constant("hseparation", "Button"));
             if (type == "GradientTexture") {
                 preview->set_stretch_mode(TextureRect::STRETCH_SCALE);
                 assign->set_custom_minimum_size(Size2(1, 1));
@@ -2940,9 +2940,9 @@ EditorPropertyResource::EditorPropertyResource() {
     preview = memnew(TextureRect);
     preview->set_expand(true);
     preview->set_anchors_and_margins_preset(PRESET_WIDE);
-    preview->set_margin(MARGIN_TOP, 1);
-    preview->set_margin(MARGIN_BOTTOM, -1);
-    preview->set_margin(MARGIN_RIGHT, -1);
+    preview->set_margin(Margin::Top, 1);
+    preview->set_margin(Margin::Bottom, -1);
+    preview->set_margin(Margin::Right, -1);
     assign->add_child(preview);
     assign->connect("gui_input", this, "_button_input");
 
