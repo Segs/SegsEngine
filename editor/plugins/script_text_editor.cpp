@@ -853,7 +853,7 @@ void ScriptTextEditor::_update_breakpoint_list() {
         if (line.length() > 50) {
             line = StringUtils::substr(line,0, 50);
         }
-        se_tmp_string<64,true> tmp(line);
+        TmpString<64,true> tmp(line);
         breakpoints_menu->add_item(FormatSN("%d - \"%s\"",((int)breakpoint_list[i] + 1),tmp.c_str()));
         breakpoints_menu->set_item_metadata(breakpoints_menu->get_item_count() - 1, breakpoint_list[i]);
     }

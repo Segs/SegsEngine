@@ -8,7 +8,7 @@
 using String = eastl::basic_string<char,wrap_allocator>;
 
 template<int node_count, bool bEnableOverflow = true>
-using se_tmp_string = eastl::fixed_string<char,node_count,bEnableOverflow,wrap_allocator>;
+using TmpString = eastl::fixed_string<char,node_count,bEnableOverflow,wrap_allocator>;
 
 using se_string_view = eastl::basic_string_view<char>;
 

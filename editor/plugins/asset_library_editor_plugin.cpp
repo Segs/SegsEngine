@@ -340,7 +340,7 @@ EditorAssetLibraryItemDescription::EditorAssetLibraryItemDescription() {
 void EditorAssetLibraryItemDownload::_http_download_completed(int p_status, int p_code, const PoolStringArray &headers, const PoolByteArray &p_data) {
 
     String error_text;
-    se_tmp_string<256,true> tmp(" " + host);
+    TmpString<256,true> tmp(" " + host);
     switch (p_status) {
 
         case HTTPRequest::RESULT_CHUNKED_BODY_SIZE_MISMATCH:

@@ -72,7 +72,10 @@ void GDMonoLog::mono_log_callback(const char *log_domain, const char *log_level,
 	if (GDMonoLog::get_singleton()->log_level_id >= get_log_level_id(log_level)) {
         String text(message);
 		text += " (in domain ";
-		text += log_domain;
+        if(log_domain)
+		    text += log_domain;
+        else
+            text += "NullDomain";
 		if (log_level) {
 			text += ", ";
 			text += log_level;

@@ -105,6 +105,9 @@
 
 const char *BindingsGenerator::TypeInterface::DEFAULT_VARARG_C_IN("\t%0 %1_in = Variant::from(%1);\n");
 
+static StringName _get_int_type_name_from_meta(GodotTypeInfo::Metadata p_meta);
+static StringName _get_string_type_name_from_meta(GodotTypeInfo::Metadata p_meta);
+
 static String fix_doc_description(se_string_view p_bbcode) {
 
     // This seems to be the correct way to do this. It's the same EditorHelp does.
@@ -708,14 +711,16 @@ void BindingsGenerator::_generate_method_icalls(const TypeInterface &p_itype) {
 
         if (imethod.is_virtual)
             continue;
-
+        FixedVector<StringName,16,true> unique_parts;
+        String method_signature(p_itype.cname);
+        method_signature+="_"+imethod.cname+"_";
         const TypeInterface *return_type = _get_type_or_placeholder(imethod.return_type);
 
         String im_sig = "IntPtr " CS_PARAM_METHODBIND ", ";
         String im_unique_sig = String(imethod.return_type.cname) + ",IntPtr,IntPtr";
 
         im_sig += "IntPtr " CS_PARAM_INSTANCE;
-
+        method_signature += return_type->cname;
         // Get arguments information
         int i = 0;
         for (const ArgumentInterface &F : imethod.arguments) {
@@ -727,11 +732,18 @@ void BindingsGenerator::_generate_method_icalls(const TypeInterface &p_itype) {
             im_sig += itos(i + 1);
 
             im_unique_sig += ",";
-            im_unique_sig += get_unique_sig(*arg_type);
+            im_unique_sig += get_unique_sig(*arg_type)+arg_type->cname;
+            method_signature+= "_"+String(arg_type->cname);
+            unique_parts.push_back(F.type.cname);
 
             i++;
         }
-
+        method_signature = method_signature.replaced(".","_");
+        uint32_t arg_hash= StringUtils::hash(return_type->cname);
+        for(const StringName &s : unique_parts) {
+            GDMonoUtils::hash_combine(arg_hash, StringUtils::hash(s));
+        }
+        im_unique_sig = method_signature+StringUtils::num_int64(arg_hash,16);
         String im_type_out = return_type->im_type_out;
 
         if (return_type->ret_as_byref_arg) {
@@ -747,9 +759,7 @@ void BindingsGenerator::_generate_method_icalls(const TypeInterface &p_itype) {
 
         // godot_icall_{argc}_{icallcount}
         String icall_method = ICALL_PREFIX;
-        icall_method += itos(imethod.arguments.size());
-        icall_method += "_";
-        icall_method += itos(method_icalls.size());
+        icall_method += method_signature;
 
         InternalCall im_icall = InternalCall(p_itype.api_type, icall_method, im_type_out, im_sig, im_unique_sig);
 
@@ -1381,7 +1391,14 @@ Error BindingsGenerator::_generate_cs_type(const TypeInterface &itype, se_string
 
     return _save_file(p_output_file, output);
 }
-
+static bool covariantSetterGetterTypes(se_string_view getter,se_string_view setter) {
+    using namespace eastl;
+    if(getter==setter)
+        return true;
+    bool getter_stringy_type = (getter=="String"_sv) || (getter == "StringName"_sv) || (getter == "se_string_view"_sv);
+    bool setter_stringy_type = (setter == "String"_sv) || (setter == "StringName"_sv) || (setter == "se_string_view"_sv);
+    return getter_stringy_type== setter_stringy_type;
+}
 Error BindingsGenerator::_generate_cs_property(const BindingsGenerator::TypeInterface &p_itype, const PropertyInterface &p_iprop, StringBuilder &p_output) {
 
     const MethodInterface *setter = p_itype.find_method_by_name(p_iprop.setter);
@@ -1419,7 +1436,12 @@ Error BindingsGenerator::_generate_cs_property(const BindingsGenerator::TypeInte
     }
 
     if (getter && setter) {
-        ERR_FAIL_COND_V(getter->return_type.cname != setter->arguments.back().type.cname, ERR_BUG)
+        if (unlikely(!covariantSetterGetterTypes(getter->return_type.cname , setter->arguments.back().type.cname))) {
+            _err_print_error(FUNCTION_STR, __FILE__, __LINE__,
+                    "Condition ' " _STR(getter->return_type.cname != setter->arguments.back().type.cname)
+                    " ' is true. returned: " _STR(ERR_BUG));
+            return ERR_BUG;
+        }
     }
 
     const TypeReference &proptype_name = getter ? getter->return_type : setter->arguments.back().type;
@@ -1732,6 +1754,10 @@ Error BindingsGenerator::generate_glue(se_string_view p_output_dir) {
     output.append("#include \"core/method_bind.h\"\n");
     output.append("#include \"core/pool_vector.h\"\n");
     output.append("\n#ifdef MONO_GLUE_ENABLED\n");
+    for (const auto &ci : ClassDB::classes) {
+        output.append(FormatVE("#include \"%s\"\n",ci.second.usage_header.asCString()));
+        
+    }
 
     generated_icall_funcs.clear();
 
@@ -1923,7 +1949,7 @@ Error BindingsGenerator::_generate_glue_method(const BindingsGenerator::TypeInte
     String c_func_sig = "MethodBind* " CS_PARAM_METHODBIND ", " + p_itype.c_type_in + " " CS_PARAM_INSTANCE;
     String c_in_statements;
     String c_args_var_content;
-
+     
     String template_return_type="void";
     if (!ret_void) {
         if(return_type->is_enum) {
@@ -2013,6 +2039,7 @@ Error BindingsGenerator::_generate_glue_method(const BindingsGenerator::TypeInte
 
         i++;
     }
+    //-e d:\development\Zc1\project.godot 
     //TODO: generate code that checks that p_itype.cname.asCString() is a class inheriting from class_type
 
     if (return_type->ret_as_byref_arg) {
@@ -2044,9 +2071,6 @@ Error BindingsGenerator::_generate_glue_method(const BindingsGenerator::TypeInte
     p_output.append("(");
     p_output.append(c_func_sig);
     p_output.append(") " OPEN_BLOCK);
-    String cast_to_va_bind = FormatVE("\tauto *bind = reinterpret_cast<MethodBindVA<%s> *>(method);\n",
-            bind_sig.c_str());
-    p_output.append(cast_to_va_bind);
 
     if (!ret_void) {
         String ptrcall_return_type;
@@ -2128,7 +2152,7 @@ Error BindingsGenerator::_generate_glue_method(const BindingsGenerator::TypeInte
         p_output.append("\t");
         if(!ret_void)
             p_output.append("auto " C_LOCAL_RET " = ");
-        p_output.append("(" CS_PARAM_INSTANCE "->*bind->" CS_PARAM_METHODBIND ")(");
+        p_output.append(FormatVE("static_cast<%s *>(" CS_PARAM_INSTANCE ")->%s(", p_itype.cname.asCString(),p_imethod.cname.asCString()));
         p_output.append(p_imethod.arguments.empty() ? "" : c_args_var_content);
         p_output.append(");\n");
     }
@@ -2198,7 +2222,7 @@ const BindingsGenerator::TypeInterface *BindingsGenerator::_get_type_or_placehol
     return &placeholder_types.emplace(placeholder.cname, placeholder).first->second;
 }
 
-StringName BindingsGenerator::_get_int_type_name_from_meta(GodotTypeInfo::Metadata p_meta) {
+StringName _get_int_type_name_from_meta(GodotTypeInfo::Metadata p_meta) {
 
     switch (p_meta) {
         case GodotTypeInfo::METADATA_INT_IS_INT8:
@@ -2222,7 +2246,18 @@ StringName BindingsGenerator::_get_int_type_name_from_meta(GodotTypeInfo::Metada
             return "int";
     }
 }
+static StringName _get_string_type_name_from_meta(GodotTypeInfo::Metadata p_meta) {
 
+    switch (p_meta) {
+    case GodotTypeInfo::METADATA_STRING_NAME:
+        return "StringName";
+    case GodotTypeInfo::METADATA_STRING_VIEW:
+        return "se_string_view";
+    default:
+        // Assume default String type
+        return StringName("String");
+    }
+}
 StringName BindingsGenerator::_get_float_type_name_from_meta(GodotTypeInfo::Metadata p_meta) {
 
     switch (p_meta) {
@@ -2250,7 +2285,6 @@ bool BindingsGenerator::_populate_object_type_interfaces() {
 
     while (!class_list.empty()) {
         StringName type_cname = class_list.front();
-
         ClassDB::APIType api_type = ClassDB::get_api_type(type_cname);
 
         if (api_type == ClassDB::API_NONE) {
@@ -2452,6 +2486,8 @@ bool BindingsGenerator::_populate_object_type_interfaces() {
                         iarg.type.cname = _get_int_type_name_from_meta(arg_meta.size() > (i+1) ? arg_meta[i+1] : GodotTypeInfo::METADATA_NONE);
                     } else if (arginfo.type == VariantType::REAL) {
                         iarg.type.cname = _get_float_type_name_from_meta(arg_meta.size() > (i + 1) ? arg_meta[i + 1] : GodotTypeInfo::METADATA_NONE);
+                    } else if (arginfo.type == VariantType::STRING) {
+                        iarg.type.cname = _get_string_type_name_from_meta(arg_meta.size() > (i + 1) ? arg_meta[i + 1] : GodotTypeInfo::METADATA_NONE);
                     } else {
                         iarg.type.cname = Variant::interned_type_name(arginfo.type);
                     }
@@ -2866,6 +2902,38 @@ void BindingsGenerator::_populate_builtin_type_interfaces() {
     itype.c_out = "\treturn " C_METHOD_MONOSTR_FROM_GODOT "(%1);\n";
     itype.c_arg_in = "%s_in";
     itype.c_type = itype.name;
+    itype.c_type_in = "MonoString*";
+    itype.c_type_out = "MonoString*";
+    itype.cs_type = itype.proxy_name;
+    itype.im_type_in = itype.proxy_name;
+    itype.im_type_out = itype.proxy_name;
+    builtin_types.emplace(itype.cname, itype);
+    
+    // se_string_view
+    itype = TypeInterface();
+    itype.name = "String";
+    itype.cname = "se_string_view";
+    itype.proxy_name = "string";
+    // Use tmp string to allocate the string contents on stack, reducing allocations slightly.
+    itype.c_in = "\tTmpString<512> %1_in(" C_METHOD_MONOSTR_TO_GODOT "(%1));\n";
+    itype.c_out = "\treturn " C_METHOD_MONOSTR_FROM_GODOT "(%1);\n";
+    itype.c_arg_in = "%s_in";
+    itype.c_type = "se_string_view";
+    itype.c_type_in = "MonoString*";
+    itype.c_type_out = "MonoString*";
+    itype.cs_type = itype.proxy_name;
+    itype.im_type_in = itype.proxy_name;
+    itype.im_type_out = itype.proxy_name;
+    builtin_types.emplace(itype.cname, itype);
+    // StringName
+    itype = TypeInterface();
+    itype.name = "String";
+    itype.cname = "StringName";
+    itype.proxy_name = "string";
+    itype.c_in = "\tStringName %1_in(" C_METHOD_MONOSTR_TO_GODOT "(%1));\n";
+    itype.c_out = "\treturn " C_METHOD_MONOSTR_FROM_GODOT "(%1);\n";
+    itype.c_arg_in = "%s_in";
+    itype.c_type = "StringName";
     itype.c_type_in = "MonoString*";
     itype.c_type_out = "MonoString*";
     itype.cs_type = itype.proxy_name;

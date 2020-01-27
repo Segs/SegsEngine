@@ -133,6 +133,7 @@ public:
         Set<StringName> methods_in_properties;
         PODVector<MethodInfo> virtual_methods;
         StringName category;
+        StringName usage_header;
 #endif
         DefHashMap<StringName, PropertySetGet> property_setget;
 
@@ -159,8 +160,10 @@ public:
 
 #ifdef DEBUG_METHODS_ENABLED
     static MethodBind *bind_methodfi(uint32_t p_flags, MethodBind *p_bind, const MethodDefinition &method_name, std::initializer_list<Variant> def_vals);
+    static void _set_class_header(const StringName &p_class, se_string_view header_file);
 #else
     static MethodBind *bind_methodfi(uint32_t p_flags, MethodBind *p_bind, const char *method_name, std::initializer_list<Variant> p_defs);
+    static void _set_class_header(const StringName &, const char *) {}
 #endif
 
     static APIType current_api;

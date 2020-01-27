@@ -136,7 +136,7 @@ MAKE_TYPE_INFO_WITH_META(double, VariantType::REAL, GodotTypeInfo::METADATA_REAL
 
 MAKE_TYPE_INFO(UIString, VariantType::STRING)
 MAKE_TYPE_INFO(String, VariantType::STRING)
-MAKE_TYPE_INFO(se_string_view, VariantType::STRING)
+MAKE_TYPE_INFO_WITH_META(se_string_view, VariantType::STRING,GodotTypeInfo::METADATA_STRING_VIEW)
 MAKE_TYPE_INFO(Vector2, VariantType::VECTOR2)
 MAKE_TYPE_INFO(Rect2, VariantType::RECT2)
 MAKE_TYPE_INFO(Vector3, VariantType::VECTOR3)
@@ -220,7 +220,7 @@ MAKE_GENERIC_SPAN_INFO(Plane)
 MAKE_GENERIC_SPAN_INFO(Vector2)
 MAKE_GENERIC_SPAN_INFO(Vector3)
 
-MAKE_TYPE_INFO(StringName, VariantType::STRING)
+MAKE_TYPE_INFO_WITH_META(StringName, VariantType::STRING,GodotTypeInfo::METADATA_STRING_NAME)
 MAKE_TYPE_INFO(IP_Address, VariantType::STRING)
 
 class BSP_Tree;
