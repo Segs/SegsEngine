@@ -1995,8 +1995,10 @@ Error BindingsGenerator::_generate_glue_method(const BindingsGenerator::TypeInte
         } else {
             if (i > 0)
                 c_args_var_content += ", ";
-            if (!arg_type->c_in.empty())
+            if (!arg_type->c_in.empty()) {
                 c_in_statements += sformat(arg_type->c_in, arg_type->c_type, c_param_name);
+            }
+
             if(arg_type->is_reference)
                 c_args_var_content += FormatVE("Ref<RefCounted>((RefCounted *)%s)",c_param_name.c_str());
             else if(arg_type->is_enum) {

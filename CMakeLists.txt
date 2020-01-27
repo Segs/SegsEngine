@@ -12,7 +12,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 if(MSVC)
-    add_definitions(-D_CRT_SECURE_NO_WARNINGS)
+    add_definitions(-D_CRT_SECURE_NO_WARNINGS -DNOMINMAX)
       add_compile_options (/wd4251) # disable warning related to dll interface needed ... clients of class 
     if (NOT (MSVC_VERSION LESS 1910))
       #add_compile_options (/MP)
