@@ -261,7 +261,7 @@ StringName Button::get_text() const {
 }
 
 
-void Button::set_icon(const Ref<Texture> &p_icon) {
+void Button::set_button_icon(const Ref<Texture> &p_icon) {
 
     if (icon == p_icon)
         return;
@@ -271,7 +271,7 @@ void Button::set_icon(const Ref<Texture> &p_icon) {
     minimum_size_changed();
 }
 
-Ref<Texture> Button::get_icon() const {
+Ref<Texture> Button::get_button_icon() const {
 
     return icon;
 }
@@ -327,8 +327,8 @@ void Button::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("set_text", {"text"}), &Button::set_text);
     MethodBinder::bind_method(D_METHOD("get_text"), &Button::get_text);
-    MethodBinder::bind_method(D_METHOD("set_button_icon", {"texture"}), &Button::set_icon);
-    MethodBinder::bind_method(D_METHOD("get_button_icon"), &Button::get_icon);
+    MethodBinder::bind_method(D_METHOD("set_button_icon", {"texture"}), &Button::set_button_icon);
+    MethodBinder::bind_method(D_METHOD("get_button_icon"), &Button::get_button_icon);
     MethodBinder::bind_method(D_METHOD("set_expand_icon"), &Button::set_expand_icon);
     MethodBinder::bind_method(D_METHOD("is_expand_icon"), &Button::is_expand_icon);
     MethodBinder::bind_method(D_METHOD("set_flat", {"enabled"}), &Button::set_flat);

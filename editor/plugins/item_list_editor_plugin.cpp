@@ -288,8 +288,8 @@ void ItemListEditor::_notification(int p_notification) {
 
     if (p_notification == NOTIFICATION_ENTER_TREE || p_notification == NOTIFICATION_THEME_CHANGED) {
 
-        add_button->set_icon(get_icon("Add", "EditorIcons"));
-        del_button->set_icon(get_icon("Remove", "EditorIcons"));
+        add_button->set_button_icon(get_icon("Add", "EditorIcons"));
+        del_button->set_button_icon(get_icon("Remove", "EditorIcons"));
     } else if (p_notification == NOTIFICATION_READY) {
 
         get_tree()->connect("node_removed", this, "_node_removed");
@@ -345,7 +345,7 @@ void ItemListEditor::edit(Node *p_item_list) {
             item_plugins[i]->set_object(p_item_list);
             property_editor->edit(item_plugins[i]);
 
-            toolbar_button->set_icon(EditorNode::get_singleton()->get_object_icon(item_list, StringName()));
+            toolbar_button->set_button_icon(EditorNode::get_singleton()->get_object_icon(item_list, StringName()));
 
             selected_idx = i;
             return;

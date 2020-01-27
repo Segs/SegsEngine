@@ -114,8 +114,8 @@ void EditorHelpSearch::_update_icons() {
     search_box->set_right_icon(get_icon("Search", "EditorIcons"));
     search_box->set_clear_button_enabled(true);
     search_box->add_icon_override("right_icon", get_icon("Search", "EditorIcons"));
-    case_sensitive_button->set_icon(get_icon("MatchCase", "EditorIcons"));
-    hierarchy_button->set_icon(get_icon("ClassList", "EditorIcons"));
+    case_sensitive_button->set_button_icon(get_icon("MatchCase", "EditorIcons"));
+    hierarchy_button->set_button_icon(get_icon("ClassList", "EditorIcons"));
 
     if (is_visible_in_tree())
         _update_results();

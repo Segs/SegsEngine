@@ -377,13 +377,13 @@ void EditorPropertyArray::update_property() {
             if (is_untyped_array) {
 
                 Button *edit = memnew(Button);
-                edit->set_icon(get_icon("Edit", "EditorIcons"));
+                edit->set_button_icon(get_icon("Edit", "EditorIcons"));
                 hb->add_child(edit);
                 edit->connect("pressed", this, "_change_type", varray(Variant(edit), i + offset));
             } else {
 
                 Button *remove = memnew(Button);
-                remove->set_icon(get_icon("Remove", "EditorIcons"));
+                remove->set_button_icon(get_icon("Remove", "EditorIcons"));
                 remove->connect("pressed", this, "_remove_pressed", varray(i + offset));
                 hb->add_child(remove);
             }
@@ -937,7 +937,7 @@ void EditorPropertyDictionary::update_property() {
             hb->add_child(prop);
             prop->set_h_size_flags(SIZE_EXPAND_FILL);
             Button *edit = memnew(Button);
-            edit->set_icon(get_icon("Edit", "EditorIcons"));
+            edit->set_button_icon(get_icon("Edit", "EditorIcons"));
             hb->add_child(edit);
             edit->connect("pressed", this, "_change_type", varray(Variant(edit), change_index));
 

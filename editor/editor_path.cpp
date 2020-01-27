@@ -95,7 +95,7 @@ void EditorPath::update_path() {
 
         Ref<Texture> icon = EditorNode::get_singleton()->get_object_icon(obj);
         if (icon)
-            set_icon(icon);
+            set_button_icon(icon);
 
         if (i == history->get_path_size() - 1) {
             String name;

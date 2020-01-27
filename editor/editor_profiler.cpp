@@ -421,10 +421,10 @@ void EditorProfiler::_update_frame() {
 void EditorProfiler::_activate_pressed() {
 
     if (activate->is_pressed()) {
-        activate->set_icon(get_icon("Stop", "EditorIcons"));
+        activate->set_button_icon(get_icon("Stop", "EditorIcons"));
         activate->set_text(TTR("Stop"));
     } else {
-        activate->set_icon(get_icon("Play", "EditorIcons"));
+        activate->set_button_icon(get_icon("Play", "EditorIcons"));
         activate->set_text(TTR("Start"));
     }
     emit_signal("enable_profiling", activate->is_pressed());
@@ -439,8 +439,8 @@ void EditorProfiler::_clear_pressed() {
 void EditorProfiler::_notification(int p_what) {
 
     if (p_what == NOTIFICATION_ENTER_TREE) {
-        activate->set_icon(get_icon("Play", "EditorIcons"));
-        clear_button->set_icon(get_icon("Clear", "EditorIcons"));
+        activate->set_button_icon(get_icon("Play", "EditorIcons"));
+        clear_button->set_button_icon(get_icon("Clear", "EditorIcons"));
     }
 }
 

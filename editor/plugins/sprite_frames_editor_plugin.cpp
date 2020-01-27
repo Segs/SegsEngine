@@ -232,17 +232,17 @@ void SpriteFramesEditor::_notification(int p_what) {
 
     switch (p_what) {
         case NOTIFICATION_ENTER_TREE: {
-            load->set_icon(get_icon("Load", "EditorIcons"));
-            load_sheet->set_icon(get_icon("SpriteSheet", "EditorIcons"));
-            copy->set_icon(get_icon("ActionCopy", "EditorIcons"));
-            paste->set_icon(get_icon("ActionPaste", "EditorIcons"));
-            empty->set_icon(get_icon("InsertBefore", "EditorIcons"));
-            empty2->set_icon(get_icon("InsertAfter", "EditorIcons"));
-            move_up->set_icon(get_icon("MoveLeft", "EditorIcons"));
-            move_down->set_icon(get_icon("MoveRight", "EditorIcons"));
-            _delete->set_icon(get_icon("Remove", "EditorIcons"));
-            new_anim->set_icon(get_icon("New", "EditorIcons"));
-            remove_anim->set_icon(get_icon("Remove", "EditorIcons"));
+            load->set_button_icon(get_icon("Load", "EditorIcons"));
+            load_sheet->set_button_icon(get_icon("SpriteSheet", "EditorIcons"));
+            copy->set_button_icon(get_icon("ActionCopy", "EditorIcons"));
+            paste->set_button_icon(get_icon("ActionPaste", "EditorIcons"));
+            empty->set_button_icon(get_icon("InsertBefore", "EditorIcons"));
+            empty2->set_button_icon(get_icon("InsertAfter", "EditorIcons"));
+            move_up->set_button_icon(get_icon("MoveLeft", "EditorIcons"));
+            move_down->set_button_icon(get_icon("MoveRight", "EditorIcons"));
+            _delete->set_button_icon(get_icon("Remove", "EditorIcons"));
+            new_anim->set_button_icon(get_icon("New", "EditorIcons"));
+            remove_anim->set_button_icon(get_icon("Remove", "EditorIcons"));
             FALLTHROUGH;
         }
         case NOTIFICATION_THEME_CHANGED: {

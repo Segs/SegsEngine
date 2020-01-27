@@ -53,15 +53,15 @@ void ColorPicker::_notification(int p_what) {
     switch (p_what) {
         case NOTIFICATION_THEME_CHANGED: {
 
-            btn_pick->set_icon(get_icon("screen_picker", "ColorPicker"));
-            bt_add_preset->set_icon(get_icon("add_preset"));
+            btn_pick->set_button_icon(get_icon("screen_picker", "ColorPicker"));
+            bt_add_preset->set_button_icon(get_icon("add_preset"));
 
             _update_controls();
         } break;
         case NOTIFICATION_ENTER_TREE: {
 
-            btn_pick->set_icon(get_icon("screen_picker", "ColorPicker"));
-            bt_add_preset->set_icon(get_icon("add_preset"));
+            btn_pick->set_button_icon(get_icon("screen_picker", "ColorPicker"));
+            bt_add_preset->set_button_icon(get_icon("add_preset"));
 
             _update_color();
 
@@ -276,12 +276,12 @@ void ColorPicker::_text_type_toggled() {
     text_is_constructor = !text_is_constructor;
     if (text_is_constructor) {
         text_type->set_text("");
-        text_type->set_icon(get_icon("Script", "EditorIcons"));
+        text_type->set_button_icon(get_icon("Script", "EditorIcons"));
 
         c_text->set_editable(false);
     } else {
         text_type->set_text("#");
-        text_type->set_icon(Ref<Texture>());
+        text_type->set_button_icon(Ref<Texture>());
 
         c_text->set_editable(true);
     }

@@ -221,9 +221,9 @@ void ScriptEditorDebugger::debug_copy() {
 void ScriptEditorDebugger::debug_skip_breakpoints() {
     skip_breakpoints_value = !skip_breakpoints_value;
     if (skip_breakpoints_value)
-        skip_breakpoints->set_icon(get_icon("DebugSkipBreakpointsOn", "EditorIcons"));
+        skip_breakpoints->set_button_icon(get_icon("DebugSkipBreakpointsOn", "EditorIcons"));
     else
-        skip_breakpoints->set_icon(get_icon("DebugSkipBreakpointsOff", "EditorIcons"));
+        skip_breakpoints->set_button_icon(get_icon("DebugSkipBreakpointsOff", "EditorIcons"));
 
     if (connection) {
         Array msg;
@@ -1205,20 +1205,20 @@ void ScriptEditorDebugger::_notification(int p_what) {
         case NOTIFICATION_ENTER_TREE: {
 
             inspector->edit(variables);
-            skip_breakpoints->set_icon(get_icon("DebugSkipBreakpointsOff", "EditorIcons"));
-            copy->set_icon(get_icon("ActionCopy", "EditorIcons"));
+            skip_breakpoints->set_button_icon(get_icon("DebugSkipBreakpointsOff", "EditorIcons"));
+            copy->set_button_icon(get_icon("ActionCopy", "EditorIcons"));
 
-            step->set_icon(get_icon("DebugStep", "EditorIcons"));
-            next->set_icon(get_icon("DebugNext", "EditorIcons"));
-            back->set_icon(get_icon("Back", "EditorIcons"));
-            forward->set_icon(get_icon("Forward", "EditorIcons"));
-            dobreak->set_icon(get_icon("Pause", "EditorIcons"));
-            docontinue->set_icon(get_icon("DebugContinue", "EditorIcons"));
+            step->set_button_icon(get_icon("DebugStep", "EditorIcons"));
+            next->set_button_icon(get_icon("DebugNext", "EditorIcons"));
+            back->set_button_icon(get_icon("Back", "EditorIcons"));
+            forward->set_button_icon(get_icon("Forward", "EditorIcons"));
+            dobreak->set_button_icon(get_icon("Pause", "EditorIcons"));
+            docontinue->set_button_icon(get_icon("DebugContinue", "EditorIcons"));
             le_set->connect("pressed", this, "_live_edit_set");
             le_clear->connect("pressed", this, "_live_edit_clear");
             error_tree->connect("item_selected", this, "_error_selected");
             error_tree->connect("item_activated", this, "_error_activated");
-            vmem_refresh->set_icon(get_icon("Reload", "EditorIcons"));
+            vmem_refresh->set_button_icon(get_icon("Reload", "EditorIcons"));
 
             reason->add_color_override("font_color", get_color("error_color", "Editor"));
 
@@ -1292,16 +1292,16 @@ void ScriptEditorDebugger::_notification(int p_what) {
                 if (error_count == 0 && warning_count == 0) {
                     errors_tab->set_name(TTR("Errors"));
                     debugger_button->set_text(TTR("Debugger"));
-                    debugger_button->set_icon(Ref<Texture>());
+                    debugger_button->set_button_icon(Ref<Texture>());
                     tabs->set_tab_icon(errors_tab->get_index(), Ref<Texture>());
                 } else {
                     errors_tab->set_name(TTR("Errors") + " (" + itos(error_count + warning_count) + ")");
                     debugger_button->set_text(TTR("Debugger") + " (" + itos(error_count + warning_count) + ")");
                     if (error_count == 0) {
-                        debugger_button->set_icon(get_icon("Warning", "EditorIcons"));
+                        debugger_button->set_button_icon(get_icon("Warning", "EditorIcons"));
                         tabs->set_tab_icon(errors_tab->get_index(), get_icon("Warning", "EditorIcons"));
                     } else {
-                        debugger_button->set_icon(get_icon("Error", "EditorIcons"));
+                        debugger_button->set_button_icon(get_icon("Error", "EditorIcons"));
                         tabs->set_tab_icon(errors_tab->get_index(), get_icon("Error", "EditorIcons"));
                     }
                 }
@@ -1447,14 +1447,14 @@ void ScriptEditorDebugger::_notification(int p_what) {
         tabs->add_style_override("tab_fg", editor->get_gui_base()->get_stylebox("DebuggerTabFG", "EditorStyles"));
         tabs->add_style_override("tab_bg", editor->get_gui_base()->get_stylebox("DebuggerTabBG", "EditorStyles"));
 
-            copy->set_icon(get_icon("ActionCopy", "EditorIcons"));
-            step->set_icon(get_icon("DebugStep", "EditorIcons"));
-            next->set_icon(get_icon("DebugNext", "EditorIcons"));
-            back->set_icon(get_icon("Back", "EditorIcons"));
-            forward->set_icon(get_icon("Forward", "EditorIcons"));
-            dobreak->set_icon(get_icon("Pause", "EditorIcons"));
-            docontinue->set_icon(get_icon("DebugContinue", "EditorIcons"));
-            vmem_refresh->set_icon(get_icon("Reload", "EditorIcons"));
+            copy->set_button_icon(get_icon("ActionCopy", "EditorIcons"));
+            step->set_button_icon(get_icon("DebugStep", "EditorIcons"));
+            next->set_button_icon(get_icon("DebugNext", "EditorIcons"));
+            back->set_button_icon(get_icon("Back", "EditorIcons"));
+            forward->set_button_icon(get_icon("Forward", "EditorIcons"));
+            dobreak->set_button_icon(get_icon("Pause", "EditorIcons"));
+            docontinue->set_button_icon(get_icon("DebugContinue", "EditorIcons"));
+            vmem_refresh->set_button_icon(get_icon("Reload", "EditorIcons"));
         } break;
     }
 }

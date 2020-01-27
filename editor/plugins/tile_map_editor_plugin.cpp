@@ -68,16 +68,16 @@ void TileMapEditor::_notification(int p_what) {
 
         case NOTIFICATION_ENTER_TREE: {
 
-            paint_button->set_icon(get_icon("Edit", "EditorIcons"));
-            bucket_fill_button->set_icon(get_icon("Bucket", "EditorIcons"));
-            picker_button->set_icon(get_icon("ColorPick", "EditorIcons"));
-            select_button->set_icon(get_icon("ActionCopy", "EditorIcons"));
+            paint_button->set_button_icon(get_icon("Edit", "EditorIcons"));
+            bucket_fill_button->set_button_icon(get_icon("Bucket", "EditorIcons"));
+            picker_button->set_button_icon(get_icon("ColorPick", "EditorIcons"));
+            select_button->set_button_icon(get_icon("ActionCopy", "EditorIcons"));
 
-            rotate_left_button->set_icon(get_icon("RotateLeft", "EditorIcons"));
-            rotate_right_button->set_icon(get_icon("RotateRight", "EditorIcons"));
-            flip_horizontal_button->set_icon(get_icon("MirrorX", "EditorIcons"));
-            flip_vertical_button->set_icon(get_icon("MirrorY", "EditorIcons"));
-            clear_transform_button->set_icon(get_icon("Clear", "EditorIcons"));
+            rotate_left_button->set_button_icon(get_icon("RotateLeft", "EditorIcons"));
+            rotate_right_button->set_button_icon(get_icon("RotateRight", "EditorIcons"));
+            flip_horizontal_button->set_button_icon(get_icon("MirrorX", "EditorIcons"));
+            flip_vertical_button->set_button_icon(get_icon("MirrorY", "EditorIcons"));
+            clear_transform_button->set_button_icon(get_icon("Clear", "EditorIcons"));
 
             search_box->set_right_icon(get_icon("Search", "EditorIcons"));
             search_box->set_clear_button_enabled(true);
@@ -2062,7 +2062,7 @@ TileMapEditor::TileMapEditor(EditorNode *p_editor) {
     // Menu.
     options = memnew(MenuButton);
     options->set_text("TileMap");
-    options->set_icon(EditorNode::get_singleton()->get_gui_base()->get_icon("TileMap", "EditorIcons"));
+    options->set_button_icon(EditorNode::get_singleton()->get_gui_base()->get_icon("TileMap", "EditorIcons"));
     options->set_process_unhandled_key_input(false);
     toolbar_right->add_child(options);
 

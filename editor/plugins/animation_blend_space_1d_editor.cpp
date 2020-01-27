@@ -540,12 +540,12 @@ void AnimationNodeBlendSpace1DEditor::_notification(int p_what) {
         error_panel->add_style_override("panel", get_stylebox("bg", "Tree"));
         error_label->add_color_override("font_color", get_color("error_color", "Editor"));
         panel->add_style_override("panel", get_stylebox("bg", "Tree"));
-        tool_blend->set_icon(get_icon("EditPivot", "EditorIcons"));
-        tool_select->set_icon(get_icon("ToolSelect", "EditorIcons"));
-        tool_create->set_icon(get_icon("EditKey", "EditorIcons"));
-        tool_erase->set_icon(get_icon("Remove", "EditorIcons"));
-        snap->set_icon(get_icon("SnapGrid", "EditorIcons"));
-        open_editor->set_icon(get_icon("Edit", "EditorIcons"));
+        tool_blend->set_button_icon(get_icon("EditPivot", "EditorIcons"));
+        tool_select->set_button_icon(get_icon("ToolSelect", "EditorIcons"));
+        tool_create->set_button_icon(get_icon("EditKey", "EditorIcons"));
+        tool_erase->set_button_icon(get_icon("Remove", "EditorIcons"));
+        snap->set_button_icon(get_icon("SnapGrid", "EditorIcons"));
+        open_editor->set_button_icon(get_icon("Edit", "EditorIcons"));
     }
 
     if (p_what == NOTIFICATION_PROCESS) {

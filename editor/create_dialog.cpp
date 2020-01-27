@@ -470,7 +470,7 @@ void CreateDialog::_notification(int p_what) {
             connect("confirmed", this, "_confirmed");
             search_box->set_right_icon(get_icon("Search", "EditorIcons"));
             search_box->set_clear_button_enabled(true);
-            favorite->set_icon(get_icon("Favorites", "EditorIcons"));
+            favorite->set_button_icon(get_icon("Favorites", "EditorIcons"));
         } break;
         case NOTIFICATION_EXIT_TREE: {
             disconnect("confirmed", this, "_confirmed");
@@ -658,7 +658,7 @@ Variant CreateDialog::get_drag_data_fw(const Point2 &p_point, Control *p_from) {
         d["class"] = ti->get_text(0);
 
         ToolButton *tb = memnew(ToolButton);
-        tb->set_icon(ti->get_icon(0));
+        tb->set_button_icon(ti->get_icon(0));
         tb->set_text_utf8(ti->get_text(0));
         set_drag_preview(tb);
 

@@ -70,17 +70,17 @@ void EditorFileDialog::_notification(int p_what) {
     if (p_what == NOTIFICATION_ENTER_TREE) {
 
         // update icons
-        mode_thumbnails->set_icon(get_icon("FileThumbnail", "EditorIcons"));
-        mode_list->set_icon(get_icon("FileList", "EditorIcons"));
-        dir_prev->set_icon(get_icon("Back", "EditorIcons"));
-        dir_next->set_icon(get_icon("Forward", "EditorIcons"));
-        dir_up->set_icon(get_icon("ArrowUp", "EditorIcons"));
-        refresh->set_icon(get_icon("Reload", "EditorIcons"));
-        favorite->set_icon(get_icon("Favorites", "EditorIcons"));
-        show_hidden->set_icon(get_icon("GuiVisibilityVisible", "EditorIcons"));
+        mode_thumbnails->set_button_icon(get_icon("FileThumbnail", "EditorIcons"));
+        mode_list->set_button_icon(get_icon("FileList", "EditorIcons"));
+        dir_prev->set_button_icon(get_icon("Back", "EditorIcons"));
+        dir_next->set_button_icon(get_icon("Forward", "EditorIcons"));
+        dir_up->set_button_icon(get_icon("ArrowUp", "EditorIcons"));
+        refresh->set_button_icon(get_icon("Reload", "EditorIcons"));
+        favorite->set_button_icon(get_icon("Favorites", "EditorIcons"));
+        show_hidden->set_button_icon(get_icon("GuiVisibilityVisible", "EditorIcons"));
 
-        fav_up->set_icon(get_icon("MoveUp", "EditorIcons"));
-        fav_down->set_icon(get_icon("MoveDown", "EditorIcons"));
+        fav_up->set_button_icon(get_icon("MoveUp", "EditorIcons"));
+        fav_down->set_button_icon(get_icon("MoveDown", "EditorIcons"));
 
     } else if (p_what == NOTIFICATION_PROCESS) {
 
@@ -107,16 +107,16 @@ void EditorFileDialog::_notification(int p_what) {
         set_display_mode((DisplayMode)EditorSettings::get_singleton()->get("filesystem/file_dialog/display_mode").operator int());
 
         // update icons
-        mode_thumbnails->set_icon(get_icon("FileThumbnail", "EditorIcons"));
-        mode_list->set_icon(get_icon("FileList", "EditorIcons"));
-        dir_prev->set_icon(get_icon("Back", "EditorIcons"));
-        dir_next->set_icon(get_icon("Forward", "EditorIcons"));
-        dir_up->set_icon(get_icon("ArrowUp", "EditorIcons"));
-        refresh->set_icon(get_icon("Reload", "EditorIcons"));
-        favorite->set_icon(get_icon("Favorites", "EditorIcons"));
+        mode_thumbnails->set_button_icon(get_icon("FileThumbnail", "EditorIcons"));
+        mode_list->set_button_icon(get_icon("FileList", "EditorIcons"));
+        dir_prev->set_button_icon(get_icon("Back", "EditorIcons"));
+        dir_next->set_button_icon(get_icon("Forward", "EditorIcons"));
+        dir_up->set_button_icon(get_icon("ArrowUp", "EditorIcons"));
+        refresh->set_button_icon(get_icon("Reload", "EditorIcons"));
+        favorite->set_button_icon(get_icon("Favorites", "EditorIcons"));
 
-        fav_up->set_icon(get_icon("MoveUp", "EditorIcons"));
-        fav_down->set_icon(get_icon("MoveDown", "EditorIcons"));
+        fav_up->set_button_icon(get_icon("MoveUp", "EditorIcons"));
+        fav_down->set_button_icon(get_icon("MoveDown", "EditorIcons"));
         // DO NOT CALL UPDATE FILE LIST HERE, ALL HUNDREDS OF HIDDEN DIALOGS WILL RESPOND, CALL INVALIDATE INSTEAD
         invalidate();
     }
@@ -1759,7 +1759,7 @@ EditorFileDialog::~EditorFileDialog() {
 void EditorLineEditFileChooser::_notification(int p_what) {
 
     if (p_what == NOTIFICATION_ENTER_TREE || p_what == NOTIFICATION_THEME_CHANGED)
-        button->set_icon(get_icon("Folder", "EditorIcons"));
+        button->set_button_icon(get_icon("Folder", "EditorIcons"));
 }
 
 void EditorLineEditFileChooser::_bind_methods() {

@@ -68,8 +68,8 @@ public:
     StringName get_text() const;
     void set_text_utf8(se_string_view p_text);
 
-    void set_icon(const Ref<Texture> &p_icon);
-    Ref<Texture> get_icon() const;
+    void set_button_icon(const Ref<Texture> &p_icon);
+    Ref<Texture> get_button_icon() const;
 
     void set_expand_icon(bool p_expand_icon);
     bool is_expand_icon() const;

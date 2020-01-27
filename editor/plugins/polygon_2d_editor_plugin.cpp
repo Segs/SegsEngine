@@ -90,22 +90,22 @@ void Polygon2DEditor::_notification(int p_what) {
         } break;
         case NOTIFICATION_READY: {
 
-            button_uv->set_icon(get_icon("Uv", "EditorIcons"));
+            button_uv->set_button_icon(get_icon("Uv", "EditorIcons"));
 
-            uv_button[UV_MODE_CREATE]->set_icon(get_icon("Edit", "EditorIcons"));
-            uv_button[UV_MODE_CREATE_INTERNAL]->set_icon(get_icon("EditInternal", "EditorIcons"));
-            uv_button[UV_MODE_REMOVE_INTERNAL]->set_icon(get_icon("RemoveInternal", "EditorIcons"));
-            uv_button[UV_MODE_EDIT_POINT]->set_icon(get_icon("ToolSelect", "EditorIcons"));
-            uv_button[UV_MODE_MOVE]->set_icon(get_icon("ToolMove", "EditorIcons"));
-            uv_button[UV_MODE_ROTATE]->set_icon(get_icon("ToolRotate", "EditorIcons"));
-            uv_button[UV_MODE_SCALE]->set_icon(get_icon("ToolScale", "EditorIcons"));
-            uv_button[UV_MODE_ADD_POLYGON]->set_icon(get_icon("Edit", "EditorIcons"));
-            uv_button[UV_MODE_REMOVE_POLYGON]->set_icon(get_icon("Close", "EditorIcons"));
-            uv_button[UV_MODE_PAINT_WEIGHT]->set_icon(get_icon("PaintVertex", "EditorIcons"));
-            uv_button[UV_MODE_CLEAR_WEIGHT]->set_icon(get_icon("UnpaintVertex", "EditorIcons"));
+            uv_button[UV_MODE_CREATE]->set_button_icon(get_icon("Edit", "EditorIcons"));
+            uv_button[UV_MODE_CREATE_INTERNAL]->set_button_icon(get_icon("EditInternal", "EditorIcons"));
+            uv_button[UV_MODE_REMOVE_INTERNAL]->set_button_icon(get_icon("RemoveInternal", "EditorIcons"));
+            uv_button[UV_MODE_EDIT_POINT]->set_button_icon(get_icon("ToolSelect", "EditorIcons"));
+            uv_button[UV_MODE_MOVE]->set_button_icon(get_icon("ToolMove", "EditorIcons"));
+            uv_button[UV_MODE_ROTATE]->set_button_icon(get_icon("ToolRotate", "EditorIcons"));
+            uv_button[UV_MODE_SCALE]->set_button_icon(get_icon("ToolScale", "EditorIcons"));
+            uv_button[UV_MODE_ADD_POLYGON]->set_button_icon(get_icon("Edit", "EditorIcons"));
+            uv_button[UV_MODE_REMOVE_POLYGON]->set_button_icon(get_icon("Close", "EditorIcons"));
+            uv_button[UV_MODE_PAINT_WEIGHT]->set_button_icon(get_icon("PaintVertex", "EditorIcons"));
+            uv_button[UV_MODE_CLEAR_WEIGHT]->set_button_icon(get_icon("UnpaintVertex", "EditorIcons"));
 
-            b_snap_grid->set_icon(get_icon("Grid", "EditorIcons"));
-            b_snap_enable->set_icon(get_icon("SnapGrid", "EditorIcons"));
+            b_snap_grid->set_button_icon(get_icon("Grid", "EditorIcons"));
+            b_snap_enable->set_button_icon(get_icon("SnapGrid", "EditorIcons"));
             uv_icon_zoom->set_texture(get_icon("Zoom", "EditorIcons"));
         } break;
         case NOTIFICATION_VISIBILITY_CHANGED: {

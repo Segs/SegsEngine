@@ -52,8 +52,8 @@ void AudioStreamEditor::_notification(int p_what) {
     }
 
     if (p_what == NOTIFICATION_THEME_CHANGED || p_what == NOTIFICATION_ENTER_TREE) {
-        _play_button->set_icon(get_icon("MainPlay", "EditorIcons"));
-        _stop_button->set_icon(get_icon("Stop", "EditorIcons"));
+        _play_button->set_button_icon(get_icon("MainPlay", "EditorIcons"));
+        _stop_button->set_button_icon(get_icon("Stop", "EditorIcons"));
         _preview->set_frame_color(get_color("dark_color_2", "Editor"));
         set_frame_color(get_color("dark_color_1", "Editor"));
 
@@ -119,11 +119,11 @@ void AudioStreamEditor::_play() {
 
     if (_player->is_playing()) {
         _player->stop();
-        _play_button->set_icon(get_icon("MainPlay", "EditorIcons"));
+        _play_button->set_button_icon(get_icon("MainPlay", "EditorIcons"));
         set_process(false);
     } else {
         _player->play(_current);
-        _play_button->set_icon(get_icon("Pause", "EditorIcons"));
+        _play_button->set_button_icon(get_icon("Pause", "EditorIcons"));
         set_process(true);
     }
 }
@@ -131,7 +131,7 @@ void AudioStreamEditor::_play() {
 void AudioStreamEditor::_stop() {
 
     _player->stop();
-    _play_button->set_icon(get_icon("MainPlay", "EditorIcons"));
+    _play_button->set_button_icon(get_icon("MainPlay", "EditorIcons"));
     _current = 0;
     _indicator->update();
     set_process(false);
@@ -139,7 +139,7 @@ void AudioStreamEditor::_stop() {
 
 void AudioStreamEditor::_on_finished() {
 
-    _play_button->set_icon(get_icon("MainPlay", "EditorIcons"));
+    _play_button->set_button_icon(get_icon("MainPlay", "EditorIcons"));
     if (_current == _player->get_stream()->get_length()) {
         _current = 0;
         _indicator->update();

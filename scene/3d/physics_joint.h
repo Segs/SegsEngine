@@ -274,6 +274,15 @@ public:
 	};
 
 protected:
+    float params_x[PARAM_MAX];
+    bool flags_x[FLAG_MAX];
+    float params_y[PARAM_MAX];
+    bool flags_y[FLAG_MAX];
+    float params_z[PARAM_MAX];
+    bool flags_z[FLAG_MAX];
+
+    int precision;
+public: //made public to allow script access
 	void _set_angular_hi_limit_x(float p_limit_angular);
 	float _get_angular_hi_limit_x() const;
 
@@ -292,14 +301,7 @@ protected:
 	void _set_angular_lo_limit_z(float p_limit_angular);
 	float _get_angular_lo_limit_z() const;
 
-	float params_x[PARAM_MAX];
-	bool flags_x[FLAG_MAX];
-	float params_y[PARAM_MAX];
-	bool flags_y[FLAG_MAX];
-	float params_z[PARAM_MAX];
-	bool flags_z[FLAG_MAX];
-
-	int precision;
+protected:
 
 	RID _configure_joint(PhysicsBody *body_a, PhysicsBody *body_b) override;
 	static void _bind_methods();

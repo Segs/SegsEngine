@@ -112,21 +112,22 @@ class EditorPlugin : public Node {
     friend class EditorData;
     UndoRedo *undo_redo;
 
-    UndoRedo *_get_undo_redo() { return undo_redo; }
 
     bool input_event_forwarding_always_enabled;
     bool force_draw_over_forwarding_enabled;
 
     String last_main_screen_name;
 
+    UndoRedo *_get_undo_redo() { return undo_redo; }
 protected:
     static void _bind_methods();
-    UndoRedo &get_undo_redo() { return *undo_redo; }
 
     void add_custom_type(const StringName &p_type, const StringName &p_base, const Ref<Script> &p_script, const Ref<Texture> &p_icon);
     void remove_custom_type(const StringName &p_type);
 
 public:
+    UndoRedo &get_undo_redo() { return *undo_redo; }
+
     enum CustomControlContainer {
         CONTAINER_TOOLBAR,
         CONTAINER_SPATIAL_EDITOR_MENU,

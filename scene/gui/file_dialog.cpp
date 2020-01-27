@@ -57,9 +57,9 @@ void FileDialog::_notification(int p_what) {
     if (p_what == NOTIFICATION_ENTER_TREE || p_what == NOTIFICATION_THEME_CHANGED) {
 
         if (p_what == NOTIFICATION_ENTER_TREE) {
-            dir_up->set_icon(get_icon("parent_folder"));
-            refresh->set_icon(get_icon("reload"));
-            show_hidden->set_icon(get_icon("toggle_hidden"));
+            dir_up->set_button_icon(get_icon("parent_folder"));
+            refresh->set_button_icon(get_icon("reload"));
+            show_hidden->set_button_icon(get_icon("toggle_hidden"));
         }
 
         Color font_color = get_color("font_color", "ToolButton");

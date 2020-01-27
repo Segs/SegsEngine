@@ -364,8 +364,8 @@ void GroupDialog::_delete_group_item(se_string_view p_name) {
 void GroupDialog::_notification(int p_what) {
     switch (p_what) {
         case NOTIFICATION_ENTER_TREE: {
-            add_button->set_icon(get_icon("Forward", "EditorIcons"));
-            remove_button->set_icon(get_icon("Back", "EditorIcons"));
+            add_button->set_button_icon(get_icon("Forward", "EditorIcons"));
+            remove_button->set_button_icon(get_icon("Back", "EditorIcons"));
 
             add_filter->set_right_icon(get_icon("Search", "EditorIcons"));
             add_filter->set_clear_button_enabled(true);

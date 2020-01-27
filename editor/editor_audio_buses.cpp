@@ -93,14 +93,14 @@ void EditorAudioBus::_notification(int p_what) {
             Color mute_color = EditorSettings::get_singleton()->is_dark_theme() ? Color(1.0, 0.16f, 0.16f) : Color(1.0, 0.44f, 0.44f);
             Color bypass_color = EditorSettings::get_singleton()->is_dark_theme() ? Color(0.13f, 0.8f, 1.0) : Color(0.44f, 0.87f, 1.0);
 
-            solo->set_icon(get_icon("AudioBusSolo", "EditorIcons"));
+            solo->set_button_icon(get_icon("AudioBusSolo", "EditorIcons"));
             solo->add_color_override("icon_color_pressed", solo_color);
-            mute->set_icon(get_icon("AudioBusMute", "EditorIcons"));
+            mute->set_button_icon(get_icon("AudioBusMute", "EditorIcons"));
             mute->add_color_override("icon_color_pressed", mute_color);
-            bypass->set_icon(get_icon("AudioBusBypass", "EditorIcons"));
+            bypass->set_button_icon(get_icon("AudioBusBypass", "EditorIcons"));
             bypass->add_color_override("icon_color_pressed", bypass_color);
 
-            bus_options->set_icon(get_icon("GuiTabMenu", "EditorIcons"));
+            bus_options->set_button_icon(get_icon("GuiTabMenu", "EditorIcons"));
 
             update_bus();
             set_process(true);
@@ -188,11 +188,11 @@ void EditorAudioBus::_notification(int p_what) {
 
             disabled_vu = get_icon("BusVuFrozen", "EditorIcons");
 
-            solo->set_icon(get_icon("AudioBusSolo", "EditorIcons"));
-            mute->set_icon(get_icon("AudioBusMute", "EditorIcons"));
-            bypass->set_icon(get_icon("AudioBusBypass", "EditorIcons"));
+            solo->set_button_icon(get_icon("AudioBusSolo", "EditorIcons"));
+            mute->set_button_icon(get_icon("AudioBusMute", "EditorIcons"));
+            bypass->set_button_icon(get_icon("AudioBusBypass", "EditorIcons"));
 
-            bus_options->set_icon(get_icon("GuiTabMenu", "EditorIcons"));
+            bus_options->set_button_icon(get_icon("GuiTabMenu", "EditorIcons"));
         } break;
         case NOTIFICATION_MOUSE_EXIT:
         case NOTIFICATION_DRAG_END: {

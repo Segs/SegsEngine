@@ -182,7 +182,7 @@ void EditorPropertyMultilineText::_notification(int p_what) {
         case NOTIFICATION_THEME_CHANGED:
         case NOTIFICATION_ENTER_TREE: {
             Ref<Texture> df = get_icon("DistractionFree", "EditorIcons");
-            open_big_text->set_icon(df);
+            open_big_text->set_button_icon(df);
             Ref<Font> font = get_font("font", "Label");
             text->set_custom_minimum_size(Vector2(0, font->get_height() * 6));
 
@@ -321,7 +321,7 @@ void EditorPropertyPath::set_save_mode() {
 void EditorPropertyPath::_notification(int p_what) {
 
     if (p_what == NOTIFICATION_ENTER_TREE || p_what == NOTIFICATION_THEME_CHANGED) {
-        path_edit->set_icon(get_icon("Folder", "EditorIcons"));
+        path_edit->set_button_icon(get_icon("Folder", "EditorIcons"));
     }
 }
 
@@ -909,11 +909,11 @@ void EditorPropertyObjectID::update_property() {
     if (id != 0) {
         edit->set_text_utf8(String(type) + " ID: " + itos(id));
         edit->set_disabled(false);
-        edit->set_icon(EditorNode::get_singleton()->get_class_icon(type));
+        edit->set_button_icon(EditorNode::get_singleton()->get_class_icon(type));
     } else {
         edit->set_text(TTR("[Empty]"));
         edit->set_disabled(true);
-        edit->set_icon(Ref<Texture>());
+        edit->set_button_icon(Ref<Texture>());
     }
 }
 
@@ -2031,7 +2031,7 @@ void EditorPropertyNodePath::update_property() {
 
     assign->set_tooltip_utf8(String(p));
     if (p == NodePath()) {
-        assign->set_icon(Ref<Texture>());
+        assign->set_button_icon(Ref<Texture>());
         assign->set_text(TTR("Assign..."));
         assign->set_flat(false);
         return;
@@ -2048,7 +2048,7 @@ void EditorPropertyNodePath::update_property() {
     }
 
     if (!base_node || !base_node->has_node(p)) {
-        assign->set_icon(Ref<Texture>());
+        assign->set_button_icon(Ref<Texture>());
         assign->set_text_utf8(String(p));
         return;
     }
@@ -2057,13 +2057,13 @@ void EditorPropertyNodePath::update_property() {
     ERR_FAIL_COND(!target_node)
 
     if (StringUtils::contains(String(target_node->get_name()),"@")) {
-        assign->set_icon(Ref<Texture>());
+        assign->set_button_icon(Ref<Texture>());
         assign->set_text_utf8(String(p));
         return;
     }
 
     assign->set_text(target_node->get_name());
-    assign->set_icon(EditorNode::get_singleton()->get_object_icon(target_node, "Node"));
+    assign->set_button_icon(EditorNode::get_singleton()->get_object_icon(target_node, "Node"));
 }
 
 void EditorPropertyNodePath::setup(const NodePath &p_base_hint, PODVector<StringName> &&p_valid_types, bool p_use_path_from_scene_root) {
@@ -2077,7 +2077,7 @@ void EditorPropertyNodePath::_notification(int p_what) {
 
     if (p_what == NOTIFICATION_ENTER_TREE || p_what == NOTIFICATION_THEME_CHANGED) {
         Ref<Texture> t = get_icon("Clear", "EditorIcons");
-        clear->set_icon(t);
+        clear->set_button_icon(t);
     }
 }
 
@@ -2388,7 +2388,7 @@ void EditorPropertyResource::_resource_preview(se_string_view p_path, const Ref<
         }
 
         if (p_preview) {
-            preview->set_margin(Margin::Left, assign->get_icon()->get_width() + assign->get_stylebox("normal")->get_default_margin(Margin::Left) + get_constant("hseparation", "Button"));
+            preview->set_margin(Margin::Left, assign->get_button_icon()->get_width() + assign->get_stylebox("normal")->get_default_margin(Margin::Left) + get_constant("hseparation", "Button"));
             if (type == "GradientTexture") {
                 preview->set_stretch_mode(TextureRect::STRETCH_SCALE);
                 assign->set_custom_minimum_size(Size2(1, 1));
@@ -2701,11 +2701,11 @@ void EditorPropertyResource::update_property() {
 
     preview->set_texture(Ref<Texture>());
     if (res == RES()) {
-        assign->set_icon(Ref<Texture>());
+        assign->set_button_icon(Ref<Texture>());
         assign->set_text(TTR("[empty]"));
     } else {
 
-        assign->set_icon(EditorNode::get_singleton()->get_object_icon(res.get(), "Object"));
+        assign->set_button_icon(EditorNode::get_singleton()->get_object_icon(res.get(), "Object"));
 
         if (!res->get_name().empty()) {
             assign->set_text_utf8(res->get_name());
@@ -2753,7 +2753,7 @@ void EditorPropertyResource::_notification(int p_what) {
 
     if (p_what == NOTIFICATION_ENTER_TREE || p_what == NOTIFICATION_THEME_CHANGED) {
         Ref<Texture> t = get_icon("select_arrow", "Tree");
-        edit->set_icon(t);
+        edit->set_button_icon(t);
     }
 
     if (p_what == NOTIFICATION_DRAG_BEGIN) {

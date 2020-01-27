@@ -17,7 +17,7 @@
 				Adds a camera feed to the camera server.
 			</description>
 		</method>
-		<method name="feeds">
+        <method name="get_feeds">
 			<return type="Array">
 			</return>
 			<description>

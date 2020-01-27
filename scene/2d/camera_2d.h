@@ -81,19 +81,20 @@ protected:
 	bool v_offset_changed;
 
 	Point2 camera_screen_center;
-	void _update_process_mode();
+    bool screen_drawing_enabled;
+    bool limit_drawing_enabled;
+    bool margin_drawing_enabled;
+
+    Camera2DProcessMode process_mode;
+    void _update_process_mode();
 	void _update_scroll();
 
+public:
 	void _make_current(Object *p_which);
 	void _set_current(bool p_current);
 
 	void _set_old_smoothing(float p_enable);
 
-	bool screen_drawing_enabled;
-	bool limit_drawing_enabled;
-	bool margin_drawing_enabled;
-
-	Camera2DProcessMode process_mode;
 
 protected:
 	virtual Transform2D get_camera_transform();

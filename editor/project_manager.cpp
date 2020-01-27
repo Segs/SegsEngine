@@ -1352,7 +1352,7 @@ void ProjectList::create_project_item_control(int p_index) {
 
     Button *show = memnew(Button);
     // Display a folder icon if the project directory can be opened, or a "broken file" icon if it can't
-    show->set_icon(get_icon(!item.missing ? StringName("Load") : StringName("FileBroken"), "EditorIcons"));
+    show->set_button_icon(get_icon(!item.missing ? StringName("Load") : StringName("FileBroken"), "EditorIcons"));
     show->set_flat(true);
     if (!item.grayed) {
         // Don't make the icon less prominent if the parent is already grayed out
@@ -2265,7 +2265,7 @@ void ProjectManager::_language_selected(int p_id) {
     StringName lang = language_btn->get_item_metadata(p_id);
     EditorSettings::get_singleton()->set("interface/editor/editor_language", lang);
     language_btn->set_text(lang);
-    language_btn->set_icon(get_icon("Environment", "EditorIcons"));
+    language_btn->set_button_icon(get_icon("Environment", "EditorIcons"));
 
     language_restart_ask->set_text(TTR("Language changed.\nThe interface will update after restarting the editor or project manager."));
     language_restart_ask->popup_centered();
@@ -2626,7 +2626,7 @@ ProjectManager::ProjectManager() {
             language_btn->set_text_utf8(lang);
         }
     }
-    language_btn->set_icon(get_icon("Environment", "EditorIcons"));
+    language_btn->set_button_icon(get_icon("Environment", "EditorIcons"));
 
     settings_hb->add_child(language_btn);
     language_btn->connect("item_selected", this, "_language_selected");

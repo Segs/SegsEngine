@@ -1480,8 +1480,8 @@ int AnimationTimelineEdit::get_name_limit() const {
 void AnimationTimelineEdit::_notification(int p_what) {
 
     if (p_what == NOTIFICATION_ENTER_TREE) {
-        add_track->set_icon(get_icon("Add", "EditorIcons"));
-        loop->set_icon(get_icon("Loop", "EditorIcons"));
+        add_track->set_button_icon(get_icon("Add", "EditorIcons"));
+        loop->set_button_icon(get_icon("Loop", "EditorIcons"));
         time_icon->set_texture(get_icon("Time", "EditorIcons"));
 
         add_track->get_popup()->clear();
@@ -2922,7 +2922,7 @@ Variant AnimationTrackEdit::get_drag_data(const Point2 &p_point) {
 
     ToolButton *tb = memnew(ToolButton);
     tb->set_text_utf8(path_cache);
-    tb->set_icon(icon_cache);
+    tb->set_button_icon(icon_cache);
     set_drag_preview(tb);
 
     clicking_on_name = false;
@@ -4386,10 +4386,10 @@ MenuButton *AnimationTrackEditor::get_edit_menu() {
 void AnimationTrackEditor::_notification(int p_what) {
     if (p_what == NOTIFICATION_THEME_CHANGED || p_what == NOTIFICATION_ENTER_TREE) {
         zoom_icon->set_texture(get_icon("Zoom", "EditorIcons"));
-        snap->set_icon(get_icon("Snap", "EditorIcons"));
-        view_group->set_icon(get_icon(view_group->is_pressed() ? StringName("AnimationTrackList") : StringName("AnimationTrackGroup"), "EditorIcons"));
-        selected_filter->set_icon(get_icon("AnimationFilter", "EditorIcons"));
-        imported_anim_warning->set_icon(get_icon("NodeWarning", "EditorIcons"));
+        snap->set_button_icon(get_icon("Snap", "EditorIcons"));
+        view_group->set_button_icon(get_icon(view_group->is_pressed() ? StringName("AnimationTrackList") : StringName("AnimationTrackGroup"), "EditorIcons"));
+        selected_filter->set_button_icon(get_icon("AnimationFilter", "EditorIcons"));
+        imported_anim_warning->set_button_icon(get_icon("NodeWarning", "EditorIcons"));
         main_panel->add_style_override("panel", get_stylebox("bg", "Tree"));
     }
 
@@ -5694,7 +5694,7 @@ void AnimationTrackEditor::_cleanup_animation(const Ref<Animation> &p_animation)
 void AnimationTrackEditor::_view_group_toggle() {
 
     _update_tracks();
-    view_group->set_icon(get_icon(view_group->is_pressed() ? StringName("AnimationTrackList") : StringName("AnimationTrackGroup"), "EditorIcons"));
+    view_group->set_button_icon(get_icon(view_group->is_pressed() ? StringName("AnimationTrackList") : StringName("AnimationTrackGroup"), "EditorIcons"));
 }
 
 bool AnimationTrackEditor::is_grouping_tracks() {

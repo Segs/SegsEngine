@@ -331,7 +331,7 @@ void EditorNode::_notification(int p_what) {
 
                 // update the icon itself only when the spinner is visible
                 if (EditorSettings::get_singleton()->get("interface/editor/show_update_spinner")) {
-                    update_spinner->set_icon(
+                    update_spinner->set_button_icon(
                             gui_base->get_icon(StringName("Progress" + itos(update_spinner_step + 1)), "EditorIcons"));
                 }
             }
@@ -456,30 +456,30 @@ void EditorNode::_notification(int p_what) {
                 Ref<Texture> icon = p_editor->get_icon();
 
                 if (icon) {
-                    tb->set_icon(icon);
+                    tb->set_button_icon(icon);
                 } else if (singleton->gui_base->has_icon(StringName(p_editor->get_name()), "EditorIcons")) {
-                    tb->set_icon(singleton->gui_base->get_icon(StringName(p_editor->get_name()), "EditorIcons"));
+                    tb->set_button_icon(singleton->gui_base->get_icon(StringName(p_editor->get_name()), "EditorIcons"));
                 }
             }
 
             _build_icon_type_cache();
 
-            play_button->set_icon(gui_base->get_icon("MainPlay", "EditorIcons"));
-            play_scene_button->set_icon(gui_base->get_icon("PlayScene", "EditorIcons"));
-            play_custom_scene_button->set_icon(gui_base->get_icon("PlayCustom", "EditorIcons"));
-            pause_button->set_icon(gui_base->get_icon("Pause", "EditorIcons"));
-            stop_button->set_icon(gui_base->get_icon("Stop", "EditorIcons"));
+            play_button->set_button_icon(gui_base->get_icon("MainPlay", "EditorIcons"));
+            play_scene_button->set_button_icon(gui_base->get_icon("PlayScene", "EditorIcons"));
+            play_custom_scene_button->set_button_icon(gui_base->get_icon("PlayCustom", "EditorIcons"));
+            pause_button->set_button_icon(gui_base->get_icon("Pause", "EditorIcons"));
+            stop_button->set_button_icon(gui_base->get_icon("Stop", "EditorIcons"));
 
-            prev_scene->set_icon(gui_base->get_icon("PrevScene", "EditorIcons"));
-            distraction_free->set_icon(gui_base->get_icon("DistractionFree", "EditorIcons"));
-            scene_tab_add->set_icon(gui_base->get_icon("Add", "EditorIcons"));
+            prev_scene->set_button_icon(gui_base->get_icon("PrevScene", "EditorIcons"));
+            distraction_free->set_button_icon(gui_base->get_icon("DistractionFree", "EditorIcons"));
+            scene_tab_add->set_button_icon(gui_base->get_icon("Add", "EditorIcons"));
 
-            bottom_panel_raise->set_icon(gui_base->get_icon("ExpandBottomDock", "EditorIcons"));
+            bottom_panel_raise->set_button_icon(gui_base->get_icon("ExpandBottomDock", "EditorIcons"));
 
             // clear_button->set_icon(gui_base->get_icon("Close", "EditorIcons")); don't have access to that node. needs
             // to become a class property
-            dock_tab_move_left->set_icon(theme->get_icon("Back", "EditorIcons"));
-            dock_tab_move_right->set_icon(theme->get_icon("Forward", "EditorIcons"));
+            dock_tab_move_left->set_button_icon(theme->get_icon("Back", "EditorIcons"));
+            dock_tab_move_right->set_button_icon(theme->get_icon("Forward", "EditorIcons"));
 
             PopupMenu *p = help_menu->get_popup();
             p->set_item_icon(p->get_item_index(HELP_SEARCH), gui_base->get_icon("HelpSearch", "EditorIcons"));
@@ -1936,11 +1936,11 @@ void EditorNode::_run(bool p_current, se_string_view p_custom) {
     }
 
     play_button->set_pressed(false);
-    play_button->set_icon(gui_base->get_icon("MainPlay", "EditorIcons"));
+    play_button->set_button_icon(gui_base->get_icon("MainPlay", "EditorIcons"));
     play_scene_button->set_pressed(false);
-    play_scene_button->set_icon(gui_base->get_icon("PlayScene", "EditorIcons"));
+    play_scene_button->set_button_icon(gui_base->get_icon("PlayScene", "EditorIcons"));
     play_custom_scene_button->set_pressed(false);
-    play_custom_scene_button->set_icon(gui_base->get_icon("PlayCustom", "EditorIcons"));
+    play_custom_scene_button->set_button_icon(gui_base->get_icon("PlayCustom", "EditorIcons"));
 
     String main_scene;
     String run_filename;
@@ -2024,14 +2024,14 @@ void EditorNode::_run(bool p_current, se_string_view p_custom) {
     emit_signal("play_pressed");
     if (p_current) {
         play_scene_button->set_pressed(true);
-        play_scene_button->set_icon(gui_base->get_icon("Reload", "EditorIcons"));
+        play_scene_button->set_button_icon(gui_base->get_icon("Reload", "EditorIcons"));
     } else if (!p_custom.empty()) {
         run_custom_filename = p_custom;
         play_custom_scene_button->set_pressed(true);
-        play_custom_scene_button->set_icon(gui_base->get_icon("Reload", "EditorIcons"));
+        play_custom_scene_button->set_button_icon(gui_base->get_icon("Reload", "EditorIcons"));
     } else {
         play_button->set_pressed(true);
-        play_button->set_icon(gui_base->get_icon("Reload", "EditorIcons"));
+        play_button->set_button_icon(gui_base->get_icon("Reload", "EditorIcons"));
     }
     stop_button->set_disabled(false);
 
@@ -2388,11 +2388,11 @@ void EditorNode::_menu_option_confirm(int p_option, bool p_confirmed) {
             editor_run.stop();
             run_custom_filename.clear();
             play_button->set_pressed(false);
-            play_button->set_icon(gui_base->get_icon("MainPlay", "EditorIcons"));
+            play_button->set_button_icon(gui_base->get_icon("MainPlay", "EditorIcons"));
             play_scene_button->set_pressed(false);
-            play_scene_button->set_icon(gui_base->get_icon("PlayScene", "EditorIcons"));
+            play_scene_button->set_button_icon(gui_base->get_icon("PlayScene", "EditorIcons"));
             play_custom_scene_button->set_pressed(false);
-            play_custom_scene_button->set_icon(gui_base->get_icon("PlayCustom", "EditorIcons"));
+            play_custom_scene_button->set_button_icon(gui_base->get_icon("PlayCustom", "EditorIcons"));
             stop_button->set_disabled(true);
 
             if (bool(EDITOR_GET("run/output/always_close_output_on_stop"))) {
@@ -2956,9 +2956,9 @@ void EditorNode::add_editor_plugin(EditorPlugin *p_editor, bool p_config_changed
         Ref<Texture> icon = p_editor->get_icon();
 
         if (icon) {
-            tb->set_icon(icon);
+            tb->set_button_icon(icon);
         } else if (singleton->gui_base->has_icon(StringName(p_editor->get_name()), "EditorIcons")) {
-            tb->set_icon(singleton->gui_base->get_icon(StringName(p_editor->get_name()), "EditorIcons"));
+            tb->set_button_icon(singleton->gui_base->get_icon(StringName(p_editor->get_name()), "EditorIcons"));
         }
 
         tb->set_name(p_editor->get_name());
@@ -6210,7 +6210,7 @@ EditorNode::EditorNode() {
 
     HBoxContainer *dock_hb = memnew(HBoxContainer);
     dock_tab_move_left = memnew(ToolButton);
-    dock_tab_move_left->set_icon(theme->get_icon("Back", "EditorIcons"));
+    dock_tab_move_left->set_button_icon(theme->get_icon("Back", "EditorIcons"));
     dock_tab_move_left->set_focus_mode(Control::FOCUS_NONE);
     dock_tab_move_left->connect("pressed", this, "_dock_move_left");
     dock_hb->add_child(dock_tab_move_left);
@@ -6222,7 +6222,7 @@ EditorNode::EditorNode() {
     dock_hb->add_child(dock_label);
 
     dock_tab_move_right = memnew(ToolButton);
-    dock_tab_move_right->set_icon(theme->get_icon("Forward", "EditorIcons"));
+    dock_tab_move_right->set_button_icon(theme->get_icon("Forward", "EditorIcons"));
     dock_tab_move_right->set_focus_mode(Control::FOCUS_NONE);
     dock_tab_move_right->connect("pressed", this, "_dock_move_right");
 
@@ -6320,14 +6320,14 @@ EditorNode::EditorNode() {
 #endif
     distraction_free->set_tooltip(TTR("Toggle distraction-free mode."));
     distraction_free->connect("pressed", this, "_toggle_distraction_free_mode");
-    distraction_free->set_icon(gui_base->get_icon("DistractionFree", "EditorIcons"));
+    distraction_free->set_button_icon(gui_base->get_icon("DistractionFree", "EditorIcons"));
     distraction_free->set_toggle_mode(true);
 
     scene_tab_add = memnew(ToolButton);
     tabbar_container->add_child(scene_tab_add);
     tabbar_container->add_child(distraction_free);
     scene_tab_add->set_tooltip(TTR("Add a new scene."));
-    scene_tab_add->set_icon(gui_base->get_icon("Add", "EditorIcons"));
+    scene_tab_add->set_button_icon(gui_base->get_icon("Add", "EditorIcons"));
     scene_tab_add->add_color_override("icon_color_normal", Color(0.6f, 0.6f, 0.6f, 0.8f));
     scene_tab_add->connect("pressed", this, "_menu_option", make_binds(FILE_NEW_SCENE));
 
@@ -6362,7 +6362,7 @@ EditorNode::EditorNode() {
     left_menu_hb->add_child(file_menu);
 
     prev_scene = memnew(ToolButton);
-    prev_scene->set_icon(gui_base->get_icon("PrevScene", "EditorIcons"));
+    prev_scene->set_button_icon(gui_base->get_icon("PrevScene", "EditorIcons"));
     prev_scene->set_tooltip(TTR("Go to previously opened scene."));
     prev_scene->set_disabled(true);
     prev_scene->connect("pressed", this, "_menu_option", make_binds(FILE_OPEN_PREV));
@@ -6650,7 +6650,7 @@ EditorNode::EditorNode() {
     play_button = memnew(ToolButton);
     play_hb->add_child(play_button);
     play_button->set_toggle_mode(true);
-    play_button->set_icon(gui_base->get_icon("MainPlay", "EditorIcons"));
+    play_button->set_button_icon(gui_base->get_icon("MainPlay", "EditorIcons"));
     play_button->set_focus_mode(Control::FOCUS_NONE);
     play_button->connect("pressed", this, "_menu_option", make_binds(RUN_PLAY));
     play_button->set_tooltip(TTR("Play the project."));
@@ -6662,7 +6662,7 @@ EditorNode::EditorNode() {
 
     pause_button = memnew(ToolButton);
     pause_button->set_toggle_mode(true);
-    pause_button->set_icon(gui_base->get_icon("Pause", "EditorIcons"));
+    pause_button->set_button_icon(gui_base->get_icon("Pause", "EditorIcons"));
     pause_button->set_focus_mode(Control::FOCUS_NONE);
     pause_button->set_tooltip(TTR("Pause the scene execution for debugging."));
     pause_button->set_disabled(true);
@@ -6677,7 +6677,7 @@ EditorNode::EditorNode() {
     stop_button = memnew(ToolButton);
     play_hb->add_child(stop_button);
     stop_button->set_focus_mode(Control::FOCUS_NONE);
-    stop_button->set_icon(gui_base->get_icon("Stop", "EditorIcons"));
+    stop_button->set_button_icon(gui_base->get_icon("Stop", "EditorIcons"));
     stop_button->connect("pressed", this, "_menu_option", make_binds(RUN_STOP));
     stop_button->set_tooltip(TTR("Stop the scene."));
     stop_button->set_disabled(true);
@@ -6695,7 +6695,7 @@ EditorNode::EditorNode() {
     play_hb->add_child(play_scene_button);
     play_scene_button->set_toggle_mode(true);
     play_scene_button->set_focus_mode(Control::FOCUS_NONE);
-    play_scene_button->set_icon(gui_base->get_icon("PlayScene", "EditorIcons"));
+    play_scene_button->set_button_icon(gui_base->get_icon("PlayScene", "EditorIcons"));
     play_scene_button->connect("pressed", this, "_menu_option", make_binds(RUN_PLAY_SCENE));
     play_scene_button->set_tooltip(TTR("Play the edited scene."));
 #ifdef OSX_ENABLED
@@ -6708,7 +6708,7 @@ EditorNode::EditorNode() {
     play_hb->add_child(play_custom_scene_button);
     play_custom_scene_button->set_toggle_mode(true);
     play_custom_scene_button->set_focus_mode(Control::FOCUS_NONE);
-    play_custom_scene_button->set_icon(gui_base->get_icon("PlayCustom", "EditorIcons"));
+    play_custom_scene_button->set_button_icon(gui_base->get_icon("PlayCustom", "EditorIcons"));
     play_custom_scene_button->connect("pressed", this, "_menu_option", make_binds(RUN_PLAY_CUSTOM_SCENE));
     play_custom_scene_button->set_tooltip(TTR("Play custom scene"));
 #ifdef OSX_ENABLED
@@ -6767,7 +6767,7 @@ EditorNode::EditorNode() {
     update_spinner = memnew(MenuButton);
     update_spinner->set_tooltip(TTR("Spins when the editor window redraws."));
     right_menu_hb->add_child(update_spinner);
-    update_spinner->set_icon(gui_base->get_icon("Progress1", "EditorIcons"));
+    update_spinner->set_button_icon(gui_base->get_icon("Progress1", "EditorIcons"));
     update_spinner->get_popup()->connect("id_pressed", this, "_menu_option");
     p = update_spinner->get_popup();
     p->add_radio_check_item(TTR("Update Continuously"), SETTINGS_UPDATE_CONTINUOUSLY);
@@ -6866,7 +6866,7 @@ EditorNode::EditorNode() {
     bottom_panel_hb->add_child(version_label);
 
     bottom_panel_raise = memnew(ToolButton);
-    bottom_panel_raise->set_icon(gui_base->get_icon("ExpandBottomDock", "EditorIcons"));
+    bottom_panel_raise->set_button_icon(gui_base->get_icon("ExpandBottomDock", "EditorIcons"));
 
     bottom_panel_raise->set_shortcut(
             ED_SHORTCUT("editor/bottom_panel_expand", TTR("Expand Bottom Panel"), KEY_MASK_SHIFT | KEY_F12));

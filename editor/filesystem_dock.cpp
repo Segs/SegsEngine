@@ -317,8 +317,8 @@ void FileSystemDock::_notification(int p_what) {
             EditorResourcePreview::get_singleton()->connect("preview_invalidated", this, "_preview_invalidated");
 
             StringName ei("EditorIcons");
-            button_reload->set_icon(get_icon("Reload", ei));
-            button_toggle_display_mode->set_icon(get_icon("Panels2", ei));
+            button_reload->set_button_icon(get_icon("Reload", ei));
+            button_toggle_display_mode->set_button_icon(get_icon("Panels2", ei));
             button_file_list_display_mode->connect("pressed", this, "_toggle_file_display");
 
             files->connect("item_activated", this, "_file_list_activate_file");
@@ -329,8 +329,8 @@ void FileSystemDock::_notification(int p_what) {
             file_list_search_box->set_right_icon(get_icon("Search", ei));
             file_list_search_box->set_clear_button_enabled(true);
 
-            button_hist_next->set_icon(get_icon("Forward", ei));
-            button_hist_prev->set_icon(get_icon("Back", ei));
+            button_hist_next->set_button_icon(get_icon("Forward", ei));
+            button_hist_prev->set_button_icon(get_icon("Back", ei));
             file_list_popup->connect("id_pressed", this, "_file_list_rmb_option");
             tree_popup->connect("id_pressed", this, "_tree_rmb_option");
 
@@ -383,14 +383,14 @@ void FileSystemDock::_notification(int p_what) {
         case EditorSettings::NOTIFICATION_EDITOR_SETTINGS_CHANGED: {
             // Update icons.
             StringName ei("EditorIcons");
-            button_reload->set_icon(get_icon("Reload", ei));
-            button_toggle_display_mode->set_icon(get_icon("Panels2", ei));
-            button_hist_next->set_icon(get_icon("Forward", ei));
-            button_hist_prev->set_icon(get_icon("Back", ei));
+            button_reload->set_button_icon(get_icon("Reload", ei));
+            button_toggle_display_mode->set_button_icon(get_icon("Panels2", ei));
+            button_hist_next->set_button_icon(get_icon("Forward", ei));
+            button_hist_prev->set_button_icon(get_icon("Back", ei));
             if (file_list_display_mode == FILE_LIST_DISPLAY_LIST) {
-                button_file_list_display_mode->set_icon(get_icon("FileThumbnail", "EditorIcons"));
+                button_file_list_display_mode->set_button_icon(get_icon("FileThumbnail", "EditorIcons"));
             } else {
-                button_file_list_display_mode->set_icon(get_icon("FileList", "EditorIcons"));
+                button_file_list_display_mode->set_button_icon(get_icon("FileList", "EditorIcons"));
             }
 
             tree_search_box->set_right_icon(get_icon("Search", ei));
@@ -549,11 +549,11 @@ void FileSystemDock::_toggle_file_display() {
 void FileSystemDock::_set_file_display(bool p_active) {
     if (p_active) {
         file_list_display_mode = FILE_LIST_DISPLAY_LIST;
-        button_file_list_display_mode->set_icon(get_icon("FileThumbnail", "EditorIcons"));
+        button_file_list_display_mode->set_button_icon(get_icon("FileThumbnail", "EditorIcons"));
         button_file_list_display_mode->set_tooltip(TTR("View items as a grid of thumbnails."));
     } else {
         file_list_display_mode = FILE_LIST_DISPLAY_THUMBNAILS;
-        button_file_list_display_mode->set_icon(get_icon("FileList", "EditorIcons"));
+        button_file_list_display_mode->set_button_icon(get_icon("FileList", "EditorIcons"));
         button_file_list_display_mode->set_tooltip(TTR("View items as a list."));
     }
 
