@@ -317,7 +317,7 @@ se_string_view AnimationNodeBlendSpace1D::get_caption() const {
 }
 
 AnimationNodeBlendSpace1D::AnimationNodeBlendSpace1D() {
-    se_tmp_string<16,false> ts;
+    TmpString<16,false> ts;
     for (int i = 0; i < MAX_BLEND_POINTS; i++) {
         ts.clear();
         ts.append_sprintf("%d",i);

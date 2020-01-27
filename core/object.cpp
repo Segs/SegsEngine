@@ -1468,6 +1468,7 @@ bool Object::initialize_class() {
     if (initialized)
         return false;
     ClassDB::_add_class<Object,void>();
+    ClassDB::_set_class_header(Object::get_class_static_name(),__FILE__);
     _bind_methods();
     initialized = true;
     return true;

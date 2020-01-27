@@ -2525,7 +2525,7 @@ String VisualShaderNodeExpression::generate_code(ShaderMode p_mode, VisualShader
 
     for (int i = 0; i < get_input_port_count(); i++) {
         for (const char *pre_sym : pre_symbols) {
-            se_tmp_string<64, true> pre_sym_str(pre_sym);
+            TmpString<64, true> pre_sym_str(pre_sym);
             for (const char *post_sym : post_symbols) {
                 _expression.replace(
                         pre_sym_str + get_input_port_name(i) + post_sym, pre_sym_str + p_input_vars[i] + post_sym);
@@ -2534,7 +2534,7 @@ String VisualShaderNodeExpression::generate_code(ShaderMode p_mode, VisualShader
     }
     for (int i = 0; i < get_output_port_count(); i++) {
         for (const char *pre_sym : pre_symbols) {
-            se_tmp_string<64, true> pre_sym_str(pre_sym);
+            TmpString<64, true> pre_sym_str(pre_sym);
             for (const char *post_sym : post_symbols) {
                 _expression.replace(
                         pre_sym_str + get_output_port_name(i) + post_sym, pre_sym_str + p_output_vars[i] + post_sym);
