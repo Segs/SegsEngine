@@ -721,7 +721,6 @@ void BindingsGenerator::_generate_method_icalls(const TypeInterface &p_itype) {
         String im_unique_sig = String(imethod.return_type.cname) + ",IntPtr,IntPtr";
 
         im_sig += "IntPtr " CS_PARAM_INSTANCE;
-        method_signature += return_type->cname;
         // Get arguments information
         int i = 0;
         for (const ArgumentInterface &F : imethod.arguments) {
@@ -734,7 +733,6 @@ void BindingsGenerator::_generate_method_icalls(const TypeInterface &p_itype) {
 
             im_unique_sig += ",";
             im_unique_sig += get_unique_sig(*arg_type)+arg_type->cname;
-            method_signature+= "_"+String(arg_type->cname);
             unique_parts.push_back(F.type.cname);
 
             i++;
@@ -745,6 +743,7 @@ void BindingsGenerator::_generate_method_icalls(const TypeInterface &p_itype) {
             GDMonoUtils::hash_combine(arg_hash, StringUtils::hash(s));
         }
         im_unique_sig = method_signature+StringUtils::num_int64(arg_hash,16);
+        method_signature+= StringUtils::num_int64(arg_hash, 16);
         String im_type_out = return_type->im_type_out;
 
         if (return_type->ret_as_byref_arg) {
@@ -1940,11 +1939,7 @@ Error BindingsGenerator::_generate_glue_method(const BindingsGenerator::TypeInte
 
     if (p_imethod.is_virtual)
         return OK; // Ignore
-    /*
-    MethodBindVA<Object,void,int32_t> *actual_bind=reinterpret_cast<MethodBindVA<Object, void, int32_t> *>(method);
-    ERR_FAIL_NULL(ptr);
-    (ptr->*actual_bind->method)(arg1);
-     */
+
     bool ret_void = p_imethod.return_type.cname == name_cache.type_void;
 
     const TypeInterface *return_type = _get_type_or_placeholder(p_imethod.return_type);
@@ -1978,8 +1973,6 @@ Error BindingsGenerator::_generate_glue_method(const BindingsGenerator::TypeInte
             template_return_type = fmt;
         }
     }
-    String bind_sig = FormatVE("%s, %s",class_type.c_str(), template_return_type.c_str());
-
     // Get arguments information
     int i = 0;
     for (const ArgumentInterface &iarg : p_imethod.arguments) {
@@ -2003,7 +1996,10 @@ Error BindingsGenerator::_generate_glue_method(const BindingsGenerator::TypeInte
                 c_args_var_content += FormatVE("Ref<RefCounted>((RefCounted *)%s)",c_param_name.c_str());
             else if(arg_type->is_enum) {
                 // add enum cast
-                String cast_as(arg_type->name);
+                se_string_view enum_name(arg_type->name);
+                if(enum_name.ends_with("Enum"))
+                    enum_name = enum_name.substr(0, enum_name.size()-4);
+                String cast_as(enum_name);
                 c_args_var_content += "(" +cast_as.replaced(".","::")+")";
                 c_args_var_content += sformat(arg_type->c_arg_in, c_param_name);
             }
@@ -2036,21 +2032,6 @@ Error BindingsGenerator::_generate_glue_method(const BindingsGenerator::TypeInte
         c_func_sig += arg_type->c_type_in;
         //special case for NodePath
 
-        if(arg_type->is_reference) {
-            bind_sig += ", const Ref<RefCounted> &";
-        } else {
-            switch(iarg.type.pass_by) {
-                case TypePassBy::Reference:
-                    bind_sig += ", const "+arg_type->c_type +" &";
-                break;
-                case TypePassBy::Pointer:
-                    bind_sig += ", "+arg_type->c_type+" *";
-                break;
-                case TypePassBy::Value:
-                default:
-                    bind_sig += ", " + arg_type->c_type;
-            }
-        }
         c_func_sig += " ";
         c_func_sig += c_param_name;
 
@@ -2156,7 +2137,7 @@ Error BindingsGenerator::_generate_glue_method(const BindingsGenerator::TypeInte
         }
 
         p_output.append(CS_PARAM_METHODBIND "->call(" CS_PARAM_INSTANCE ", ");
-        p_output.append(p_imethod.arguments.size() ? C_LOCAL_PTRCALL_ARGS ".data()" : "nullptr");
+        p_output.append(!p_imethod.arguments.empty() ? C_LOCAL_PTRCALL_ARGS ".data()" : "nullptr");
         p_output.append(", total_length, vcall_error);\n");
 
         // See the comment on the C_LOCAL_VARARG_RET declaration
@@ -2205,9 +2186,13 @@ const BindingsGenerator::TypeInterface *BindingsGenerator::_get_type_or_null(con
         return &obj_type_match.get();
 
     if (p_typeref.is_enum) {
-        const Map<StringName, TypeInterface>::iterator enum_match = enum_types.find(p_typeref.cname);
+        Map<StringName, TypeInterface>::const_iterator enum_match = enum_types.find(p_typeref.cname);
 
         if (enum_match!=enum_types.end())
+            return &enum_match->second;
+        enum_match = enum_types.find(p_typeref.cname+"Enum");
+
+        if (enum_match != enum_types.end())
             return &enum_match->second;
 
         // Enum not found. Most likely because none of its constants were bound, so it's empty. That's fine. Use int instead.
@@ -2333,7 +2318,7 @@ bool BindingsGenerator::_populate_object_type_interfaces() {
 
         itype.c_out = "\treturn ";
         itype.c_out += C_METHOD_UNMANAGED_GET_MANAGED;
-        itype.c_out += itype.is_reference ? "((Object *)%1.get());\n" : "(%1);\n";
+        itype.c_out += itype.is_reference ? "((Object *)%1.get());\n" : "((Object *)%1);\n";
 
         itype.cs_in = itype.is_singleton ? BINDINGS_PTR_FIELD : "Object." CS_SMETHOD_GETINSTANCE "(%0)";
 

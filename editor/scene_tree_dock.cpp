@@ -1084,10 +1084,10 @@ void SceneTreeDock::_notification(int p_what) {
             spatial_editor_plugin->get_spatial_editor()->connect("item_lock_status_changed", scene_tree, "_update_tree");
             spatial_editor_plugin->get_spatial_editor()->connect("item_group_status_changed", scene_tree, "_update_tree");
 
-            button_add->set_icon(get_icon("Add", "EditorIcons"));
-            button_instance->set_icon(get_icon("Instance", "EditorIcons"));
-            button_create_script->set_icon(get_icon("ScriptCreate", "EditorIcons"));
-            button_clear_script->set_icon(get_icon("ScriptRemove", "EditorIcons"));
+            button_add->set_button_icon(get_icon("Add", "EditorIcons"));
+            button_instance->set_button_icon(get_icon("Instance", "EditorIcons"));
+            button_create_script->set_button_icon(get_icon("ScriptCreate", "EditorIcons"));
+            button_clear_script->set_button_icon(get_icon("ScriptRemove", "EditorIcons"));
 
             filter->set_right_icon(get_icon("Search", "EditorIcons"));
             filter->set_clear_button_enabled(true);
@@ -1104,7 +1104,7 @@ void SceneTreeDock::_notification(int p_what) {
 
             ToolButton *node_shortcuts_toggle = memnew(ToolButton);
             node_shortcuts_toggle->set_name("NodeShortcutsToggle");
-            node_shortcuts_toggle->set_icon(get_icon("Favorites", "EditorIcons"));
+            node_shortcuts_toggle->set_button_icon(get_icon("Favorites", "EditorIcons"));
             node_shortcuts_toggle->set_toggle_mode(true);
             node_shortcuts_toggle->set_pressed(EDITOR_GET("_use_favorites_root_selection"));
             node_shortcuts_toggle->set_anchors_and_margins_preset(Control::PRESET_CENTER_RIGHT);
@@ -1123,19 +1123,19 @@ void SceneTreeDock::_notification(int p_what) {
             Button *button_2d = memnew(Button);
             beginner_node_shortcuts->add_child(button_2d);
             button_2d->set_text(TTR("2D Scene"));
-            button_2d->set_icon(get_icon("Node2D", "EditorIcons"));
+            button_2d->set_button_icon(get_icon("Node2D", "EditorIcons"));
             button_2d->connect("pressed", this, "_tool_selected", make_binds(TOOL_CREATE_2D_SCENE, false));
 
             button_3d = memnew(Button);
             beginner_node_shortcuts->add_child(button_3d);
             button_3d->set_text(TTR("3D Scene"));
-            button_3d->set_icon(get_icon("Spatial", "EditorIcons"));
+            button_3d->set_button_icon(get_icon("Spatial", "EditorIcons"));
             button_3d->connect("pressed", this, "_tool_selected", make_binds(TOOL_CREATE_3D_SCENE, false));
 
             Button *button_ui = memnew(Button);
             beginner_node_shortcuts->add_child(button_ui);
             button_ui->set_text(TTR("User Interface"));
-            button_ui->set_icon(get_icon("Control", "EditorIcons"));
+            button_ui->set_button_icon(get_icon("Control", "EditorIcons"));
             button_ui->connect("pressed", this, "_tool_selected", make_binds(TOOL_CREATE_USER_INTERFACE, false));
 
             VBoxContainer *favorite_node_shortcuts = memnew(VBoxContainer);
@@ -1145,7 +1145,7 @@ void SceneTreeDock::_notification(int p_what) {
             Button *button_custom = memnew(Button);
             node_shortcuts->add_child(button_custom);
             button_custom->set_text(TTR("Other Node"));
-            button_custom->set_icon(get_icon("Add", "EditorIcons"));
+            button_custom->set_button_icon(get_icon("Add", "EditorIcons"));
             button_custom->connect("pressed", this, "_tool_selected", make_binds(TOOL_NEW, false));
 
             node_shortcuts->add_spacer();
@@ -1161,10 +1161,10 @@ void SceneTreeDock::_notification(int p_what) {
             clear_inherit_confirm->disconnect("confirmed", this, "_tool_selected");
         } break;
         case EditorSettings::NOTIFICATION_EDITOR_SETTINGS_CHANGED: {
-            button_add->set_icon(get_icon("Add", "EditorIcons"));
-            button_instance->set_icon(get_icon("Instance", "EditorIcons"));
-            button_create_script->set_icon(get_icon("ScriptCreate", "EditorIcons"));
-            button_clear_script->set_icon(get_icon("ScriptRemove", "EditorIcons"));
+            button_add->set_button_icon(get_icon("Add", "EditorIcons"));
+            button_instance->set_button_icon(get_icon("Instance", "EditorIcons"));
+            button_create_script->set_button_icon(get_icon("ScriptCreate", "EditorIcons"));
+            button_clear_script->set_button_icon(get_icon("ScriptRemove", "EditorIcons"));
 
             filter->set_right_icon(get_icon("Search", "EditorIcons"));
             filter->set_clear_button_enabled(true);
@@ -2741,7 +2741,7 @@ void SceneTreeDock::_update_create_root_dialog() {
                     StringName name(StringUtils::get_slice(l,' ', 0));
                     if (ScriptServer::is_global_class(name))
                         name = ScriptServer::get_global_class_native_base(name);
-                    button->set_icon(EditorNode::get_singleton()->get_class_icon(name));
+                    button->set_button_icon(EditorNode::get_singleton()->get_class_icon(name));
                     button->connect("pressed", this, "_favorite_root_selected", make_binds(l));
                 }
             }

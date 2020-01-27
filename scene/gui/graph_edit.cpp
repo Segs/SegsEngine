@@ -283,10 +283,10 @@ void GraphEdit::_notification(int p_what) {
         port_grab_distance_horizontal = get_constant("port_grab_distance_horizontal");
         port_grab_distance_vertical = get_constant("port_grab_distance_vertical");
 
-        zoom_minus->set_icon(get_icon("minus"));
-        zoom_reset->set_icon(get_icon("reset"));
-        zoom_plus->set_icon(get_icon("more"));
-        snap_button->set_icon(get_icon("snap"));
+        zoom_minus->set_button_icon(get_icon("minus"));
+        zoom_reset->set_button_icon(get_icon("reset"));
+        zoom_plus->set_button_icon(get_icon("more"));
+        snap_button->set_button_icon(get_icon("snap"));
     }
     if (p_what == NOTIFICATION_READY) {
         Size2 hmin = h_scroll->get_combined_minimum_size();

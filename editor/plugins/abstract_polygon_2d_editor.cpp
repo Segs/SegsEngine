@@ -216,9 +216,9 @@ void AbstractPolygon2DEditor::_notification(int p_what) {
 
             disable_polygon_editing(false, StringName());
 
-            button_create->set_icon(EditorNode::get_singleton()->get_gui_base()->get_icon("CurveCreate", "EditorIcons"));
-            button_edit->set_icon(EditorNode::get_singleton()->get_gui_base()->get_icon("CurveEdit", "EditorIcons"));
-            button_delete->set_icon(EditorNode::get_singleton()->get_gui_base()->get_icon("CurveDelete", "EditorIcons"));
+            button_create->set_button_icon(EditorNode::get_singleton()->get_gui_base()->get_icon("CurveCreate", "EditorIcons"));
+            button_edit->set_button_icon(EditorNode::get_singleton()->get_gui_base()->get_icon("CurveEdit", "EditorIcons"));
+            button_delete->set_button_icon(EditorNode::get_singleton()->get_gui_base()->get_icon("CurveDelete", "EditorIcons"));
             button_edit->set_pressed(true);
 
             get_tree()->connect("node_removed", this, "_node_removed");

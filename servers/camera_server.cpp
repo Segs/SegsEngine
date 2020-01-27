@@ -50,7 +50,7 @@ CameraServer::CreateFunc CameraServer::create_func = nullptr;
 void CameraServer::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_feed", {"index"}), &CameraServer::get_feed);
     MethodBinder::bind_method(D_METHOD("get_feed_count"), &CameraServer::get_feed_count);
-    MethodBinder::bind_method(D_METHOD("feeds"), &CameraServer::get_feeds);
+    MethodBinder::bind_method(D_METHOD("get_feeds"), &CameraServer::get_feeds);
 
     MethodBinder::bind_method(D_METHOD("add_feed", {"feed"}), &CameraServer::add_feed);
     MethodBinder::bind_method(D_METHOD("remove_feed", {"feed"}), &CameraServer::remove_feed);

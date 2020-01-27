@@ -3865,35 +3865,35 @@ void CanvasItemEditor::_notification(int p_what) {
     }
 
     else if (p_what == NOTIFICATION_ENTER_TREE || p_what == EditorSettings::NOTIFICATION_EDITOR_SETTINGS_CHANGED) {
-        select_button->set_icon(get_icon("ToolSelect", "EditorIcons"));
-        list_select_button->set_icon(get_icon("ListSelect", "EditorIcons"));
-        move_button->set_icon(get_icon("ToolMove", "EditorIcons"));
-        scale_button->set_icon(get_icon("ToolScale", "EditorIcons"));
-        rotate_button->set_icon(get_icon("ToolRotate", "EditorIcons"));
-        smart_snap_button->set_icon(get_icon("Snap", "EditorIcons"));
-        grid_snap_button->set_icon(get_icon("SnapGrid", "EditorIcons"));
-        snap_config_menu->set_icon(get_icon("GuiTabMenu", "EditorIcons"));
-        skeleton_menu->set_icon(get_icon("Bone", "EditorIcons"));
-        override_camera_button->set_icon(get_icon("Camera2D", "EditorIcons"));
-        pan_button->set_icon(get_icon("ToolPan", "EditorIcons"));
-        ruler_button->set_icon(get_icon("Ruler", "EditorIcons"));
-        pivot_button->set_icon(get_icon("EditPivot", "EditorIcons"));
+        select_button->set_button_icon(get_icon("ToolSelect", "EditorIcons"));
+        list_select_button->set_button_icon(get_icon("ListSelect", "EditorIcons"));
+        move_button->set_button_icon(get_icon("ToolMove", "EditorIcons"));
+        scale_button->set_button_icon(get_icon("ToolScale", "EditorIcons"));
+        rotate_button->set_button_icon(get_icon("ToolRotate", "EditorIcons"));
+        smart_snap_button->set_button_icon(get_icon("Snap", "EditorIcons"));
+        grid_snap_button->set_button_icon(get_icon("SnapGrid", "EditorIcons"));
+        snap_config_menu->set_button_icon(get_icon("GuiTabMenu", "EditorIcons"));
+        skeleton_menu->set_button_icon(get_icon("Bone", "EditorIcons"));
+        override_camera_button->set_button_icon(get_icon("Camera2D", "EditorIcons"));
+        pan_button->set_button_icon(get_icon("ToolPan", "EditorIcons"));
+        ruler_button->set_button_icon(get_icon("Ruler", "EditorIcons"));
+        pivot_button->set_button_icon(get_icon("EditPivot", "EditorIcons"));
         select_handle = get_icon("EditorHandle", "EditorIcons");
         anchor_handle = get_icon("EditorControlAnchor", "EditorIcons");
-        lock_button->set_icon(get_icon("Lock", "EditorIcons"));
-        unlock_button->set_icon(get_icon("Unlock", "EditorIcons"));
-        group_button->set_icon(get_icon("Group", "EditorIcons"));
-        ungroup_button->set_icon(get_icon("Ungroup", "EditorIcons"));
-        key_loc_button->set_icon(get_icon("KeyPosition", "EditorIcons"));
-        key_rot_button->set_icon(get_icon("KeyRotation", "EditorIcons"));
-        key_scale_button->set_icon(get_icon("KeyScale", "EditorIcons"));
-        key_insert_button->set_icon(get_icon("Key", "EditorIcons"));
-        key_auto_insert_button->set_icon(get_icon("AutoKey", "EditorIcons"));
+        lock_button->set_button_icon(get_icon("Lock", "EditorIcons"));
+        unlock_button->set_button_icon(get_icon("Unlock", "EditorIcons"));
+        group_button->set_button_icon(get_icon("Group", "EditorIcons"));
+        ungroup_button->set_button_icon(get_icon("Ungroup", "EditorIcons"));
+        key_loc_button->set_button_icon(get_icon("KeyPosition", "EditorIcons"));
+        key_rot_button->set_button_icon(get_icon("KeyRotation", "EditorIcons"));
+        key_scale_button->set_button_icon(get_icon("KeyScale", "EditorIcons"));
+        key_insert_button->set_button_icon(get_icon("Key", "EditorIcons"));
+        key_auto_insert_button->set_button_icon(get_icon("AutoKey", "EditorIcons"));
 
-        zoom_minus->set_icon(get_icon("ZoomLess", "EditorIcons"));
-        zoom_plus->set_icon(get_icon("ZoomMore", "EditorIcons"));
+        zoom_minus->set_button_icon(get_icon("ZoomLess", "EditorIcons"));
+        zoom_plus->set_button_icon(get_icon("ZoomMore", "EditorIcons"));
 
-        presets_menu->set_icon(get_icon("ControlLayout", "EditorIcons"));
+        presets_menu->set_button_icon(get_icon("ControlLayout", "EditorIcons"));
         PopupMenu *p = presets_menu->get_popup();
 
         p->clear();
@@ -3942,7 +3942,7 @@ void CanvasItemEditor::_notification(int p_what) {
         anchors_popup->add_separator();
         anchors_popup->add_icon_item(get_icon("ControlAlignWide", "EditorIcons"), TTR("Full Rect"), ANCHORS_PRESET_WIDE);
 
-        anchor_mode_button->set_icon(get_icon("Anchor", "EditorIcons"));
+        anchor_mode_button->set_button_icon(get_icon("Anchor", "EditorIcons"));
     }
     if (p_what == NOTIFICATION_VISIBILITY_CHANGED) {
         if (!is_visible() && override_camera_button->is_pressed()) {

@@ -317,40 +317,40 @@ void TileSetEditor::_notification(int p_what) {
         case NOTIFICATION_ENTER_TREE:
         case NOTIFICATION_THEME_CHANGED: {
 
-            tileset_toolbar_buttons[TOOL_TILESET_ADD_TEXTURE]->set_icon(get_icon("ToolAddNode", "EditorIcons"));
-            tileset_toolbar_buttons[TOOL_TILESET_REMOVE_TEXTURE]->set_icon(get_icon("Remove", "EditorIcons"));
-            tileset_toolbar_tools->set_icon(get_icon("Tools", "EditorIcons"));
+            tileset_toolbar_buttons[TOOL_TILESET_ADD_TEXTURE]->set_button_icon(get_icon("ToolAddNode", "EditorIcons"));
+            tileset_toolbar_buttons[TOOL_TILESET_REMOVE_TEXTURE]->set_button_icon(get_icon("Remove", "EditorIcons"));
+            tileset_toolbar_tools->set_button_icon(get_icon("Tools", "EditorIcons"));
 
-            tool_workspacemode[WORKSPACE_EDIT]->set_icon(get_icon("Edit", "EditorIcons"));
-            tool_workspacemode[WORKSPACE_CREATE_SINGLE]->set_icon(get_icon("AddSingleTile", "EditorIcons"));
-            tool_workspacemode[WORKSPACE_CREATE_AUTOTILE]->set_icon(get_icon("AddAutotile", "EditorIcons"));
-            tool_workspacemode[WORKSPACE_CREATE_ATLAS]->set_icon(get_icon("AddAtlasTile", "EditorIcons"));
+            tool_workspacemode[WORKSPACE_EDIT]->set_button_icon(get_icon("Edit", "EditorIcons"));
+            tool_workspacemode[WORKSPACE_CREATE_SINGLE]->set_button_icon(get_icon("AddSingleTile", "EditorIcons"));
+            tool_workspacemode[WORKSPACE_CREATE_AUTOTILE]->set_button_icon(get_icon("AddAutotile", "EditorIcons"));
+            tool_workspacemode[WORKSPACE_CREATE_ATLAS]->set_button_icon(get_icon("AddAtlasTile", "EditorIcons"));
 
-            tools[TOOL_SELECT]->set_icon(get_icon("ToolSelect", "EditorIcons"));
-            tools[BITMASK_COPY]->set_icon(get_icon("Duplicate", "EditorIcons"));
-            tools[BITMASK_PASTE]->set_icon(get_icon("Override", "EditorIcons"));
-            tools[BITMASK_CLEAR]->set_icon(get_icon("Clear", "EditorIcons"));
-            tools[SHAPE_NEW_POLYGON]->set_icon(get_icon("CollisionPolygon2D", "EditorIcons"));
-            tools[SHAPE_NEW_RECTANGLE]->set_icon(get_icon("CollisionShape2D", "EditorIcons"));
-            tools[SELECT_PREVIOUS]->set_icon(get_icon("ArrowLeft", "EditorIcons"));
-            tools[SELECT_NEXT]->set_icon(get_icon("ArrowRight", "EditorIcons"));
-            tools[SHAPE_DELETE]->set_icon(get_icon("Remove", "EditorIcons"));
-            tools[SHAPE_KEEP_INSIDE_TILE]->set_icon(get_icon("Snap", "EditorIcons"));
-            tools[TOOL_GRID_SNAP]->set_icon(get_icon("SnapGrid", "EditorIcons"));
-            tools[ZOOM_OUT]->set_icon(get_icon("ZoomLess", "EditorIcons"));
-            tools[ZOOM_1]->set_icon(get_icon("ZoomReset", "EditorIcons"));
-            tools[ZOOM_IN]->set_icon(get_icon("ZoomMore", "EditorIcons"));
-            tools[VISIBLE_INFO]->set_icon(get_icon("InformationSign", "EditorIcons"));
+            tools[TOOL_SELECT]->set_button_icon(get_icon("ToolSelect", "EditorIcons"));
+            tools[BITMASK_COPY]->set_button_icon(get_icon("Duplicate", "EditorIcons"));
+            tools[BITMASK_PASTE]->set_button_icon(get_icon("Override", "EditorIcons"));
+            tools[BITMASK_CLEAR]->set_button_icon(get_icon("Clear", "EditorIcons"));
+            tools[SHAPE_NEW_POLYGON]->set_button_icon(get_icon("CollisionPolygon2D", "EditorIcons"));
+            tools[SHAPE_NEW_RECTANGLE]->set_button_icon(get_icon("CollisionShape2D", "EditorIcons"));
+            tools[SELECT_PREVIOUS]->set_button_icon(get_icon("ArrowLeft", "EditorIcons"));
+            tools[SELECT_NEXT]->set_button_icon(get_icon("ArrowRight", "EditorIcons"));
+            tools[SHAPE_DELETE]->set_button_icon(get_icon("Remove", "EditorIcons"));
+            tools[SHAPE_KEEP_INSIDE_TILE]->set_button_icon(get_icon("Snap", "EditorIcons"));
+            tools[TOOL_GRID_SNAP]->set_button_icon(get_icon("SnapGrid", "EditorIcons"));
+            tools[ZOOM_OUT]->set_button_icon(get_icon("ZoomLess", "EditorIcons"));
+            tools[ZOOM_1]->set_button_icon(get_icon("ZoomReset", "EditorIcons"));
+            tools[ZOOM_IN]->set_button_icon(get_icon("ZoomMore", "EditorIcons"));
+            tools[VISIBLE_INFO]->set_button_icon(get_icon("InformationSign", "EditorIcons"));
             _update_toggle_shape_button();
 
-            tool_editmode[EDITMODE_REGION]->set_icon(get_icon("RegionEdit", "EditorIcons"));
-            tool_editmode[EDITMODE_COLLISION]->set_icon(get_icon("StaticBody2D", "EditorIcons"));
-            tool_editmode[EDITMODE_OCCLUSION]->set_icon(get_icon("LightOccluder2D", "EditorIcons"));
-            tool_editmode[EDITMODE_NAVIGATION]->set_icon(get_icon("Navigation2D", "EditorIcons"));
-            tool_editmode[EDITMODE_BITMASK]->set_icon(get_icon("PackedDataContainer", "EditorIcons"));
-            tool_editmode[EDITMODE_PRIORITY]->set_icon(get_icon("MaterialPreviewLight1", "EditorIcons"));
-            tool_editmode[EDITMODE_ICON]->set_icon(get_icon("LargeTexture", "EditorIcons"));
-            tool_editmode[EDITMODE_Z_INDEX]->set_icon(get_icon("Sort", "EditorIcons"));
+            tool_editmode[EDITMODE_REGION]->set_button_icon(get_icon("RegionEdit", "EditorIcons"));
+            tool_editmode[EDITMODE_COLLISION]->set_button_icon(get_icon("StaticBody2D", "EditorIcons"));
+            tool_editmode[EDITMODE_OCCLUSION]->set_button_icon(get_icon("LightOccluder2D", "EditorIcons"));
+            tool_editmode[EDITMODE_NAVIGATION]->set_button_icon(get_icon("Navigation2D", "EditorIcons"));
+            tool_editmode[EDITMODE_BITMASK]->set_button_icon(get_icon("PackedDataContainer", "EditorIcons"));
+            tool_editmode[EDITMODE_PRIORITY]->set_button_icon(get_icon("MaterialPreviewLight1", "EditorIcons"));
+            tool_editmode[EDITMODE_ICON]->set_button_icon(get_icon("LargeTexture", "EditorIcons"));
+            tool_editmode[EDITMODE_Z_INDEX]->set_button_icon(get_icon("Sort", "EditorIcons"));
 
             scroll->add_style_override("bg", get_stylebox("bg", "Tree"));
         } break;
@@ -2032,10 +2032,10 @@ void TileSetEditor::_update_toggle_shape_button() {
         separator_shape_toggle->hide();
         tools[SHAPE_TOGGLE_TYPE]->hide();
     } else if (concave) {
-        tools[SHAPE_TOGGLE_TYPE]->set_icon(get_icon("ConvexPolygonShape2D", "EditorIcons"));
+        tools[SHAPE_TOGGLE_TYPE]->set_button_icon(get_icon("ConvexPolygonShape2D", "EditorIcons"));
         tools[SHAPE_TOGGLE_TYPE]->set_text("Make Convex");
     } else if (convex) {
-        tools[SHAPE_TOGGLE_TYPE]->set_icon(get_icon("ConcavePolygonShape2D", "EditorIcons"));
+        tools[SHAPE_TOGGLE_TYPE]->set_button_icon(get_icon("ConcavePolygonShape2D", "EditorIcons"));
         tools[SHAPE_TOGGLE_TYPE]->set_text("Make Concave");
     } else {
         // Shouldn't happen

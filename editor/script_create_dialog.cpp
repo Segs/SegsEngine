@@ -72,11 +72,11 @@ void ScriptCreateDialog::_notification(int p_what) {
                 last_lang_icon = language_menu->get_item_icon(default_language);
             }
             if (last_lang_icon) {
-                language_menu->set_icon(last_lang_icon);
+                language_menu->set_button_icon(last_lang_icon);
             }
-            path_button->set_icon(get_icon("Folder", "EditorIcons"));
-            parent_browse_button->set_icon(get_icon("Folder", "EditorIcons"));
-            parent_search_button->set_icon(get_icon("ClassList", "EditorIcons"));
+            path_button->set_button_icon(get_icon("Folder", "EditorIcons"));
+            parent_browse_button->set_button_icon(get_icon("Folder", "EditorIcons"));
+            parent_search_button->set_button_icon(get_icon("ClassList", "EditorIcons"));
             status_panel->add_style_override("panel", get_stylebox("bg", "Tree"));
         } break;
     }

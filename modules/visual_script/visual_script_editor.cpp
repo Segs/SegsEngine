@@ -764,7 +764,7 @@ void VisualScriptEditor::_update_graph(int p_only_id) {
                         }
 
                         Button *rmbtn = memnew(Button);
-                        rmbtn->set_icon(EditorNode::get_singleton()->get_gui_base()->get_icon("Remove", "EditorIcons"));
+                        rmbtn->set_button_icon(EditorNode::get_singleton()->get_gui_base()->get_icon("Remove", "EditorIcons"));
                         hbc->add_child(rmbtn);
                         rmbtn->connect("pressed", this, "_remove_input_port", varray(E, i), ObjectNS::CONNECT_QUEUED);
                     } else {
@@ -826,7 +826,7 @@ void VisualScriptEditor::_update_graph(int p_only_id) {
 
                     if (is_vslist) {
                         Button *rmbtn = memnew(Button);
-                        rmbtn->set_icon(EditorNode::get_singleton()->get_gui_base()->get_icon("Remove", "EditorIcons"));
+                        rmbtn->set_button_icon(EditorNode::get_singleton()->get_gui_base()->get_icon("Remove", "EditorIcons"));
                         hbc->add_child(rmbtn);
                         rmbtn->connect("pressed", this, "_remove_output_port", varray(E, i), ObjectNS::CONNECT_QUEUED);
 
@@ -1052,7 +1052,7 @@ void VisualScriptEditor::_update_members() {
     }
 
     base_type_select->set_text(base_type);
-    base_type_select->set_icon(Control::get_icon(icon_type, "EditorIcons"));
+    base_type_select->set_button_icon(Control::get_icon(icon_type, "EditorIcons"));
 
     updating_members = false;
 }
@@ -1268,7 +1268,7 @@ void VisualScriptEditor::_add_func_input() {
     hbox->add_child(type_box);
 
     Button *delete_button = memnew(Button);
-    delete_button->set_icon(EditorNode::get_singleton()->get_gui_base()->get_icon("Remove", "EditorIcons"));
+    delete_button->set_button_icon(EditorNode::get_singleton()->get_gui_base()->get_icon("Remove", "EditorIcons"));
     delete_button->set_tooltip(TTR("Delete input port"));
     hbox->add_child(delete_button);
 
@@ -2393,7 +2393,7 @@ void VisualScriptEditor::_button_resource_previewed(se_string_view p_path, const
         b->set_text(ud[1]);
     } else {
 
-        b->set_icon(p_preview);
+        b->set_button_icon(p_preview);
     }
 }
 

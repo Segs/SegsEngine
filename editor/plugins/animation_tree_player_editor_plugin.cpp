@@ -890,8 +890,8 @@ void AnimationTreePlayerEditor::_notification(int p_what) {
 
         case NOTIFICATION_ENTER_TREE: {
 
-            play_button->set_icon(get_icon("Play", "EditorIcons"));
-            add_menu->set_icon(get_icon("Add", "EditorIcons"));
+            play_button->set_button_icon(get_icon("Play", "EditorIcons"));
+            add_menu->set_button_icon(get_icon("Add", "EditorIcons"));
         } break;
         case NOTIFICATION_DRAW: {
 

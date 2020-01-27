@@ -47,7 +47,7 @@ void ResourcePreloaderEditor::_gui_input(const Ref<InputEvent>& p_event) {
 void ResourcePreloaderEditor::_notification(int p_what) {
 
     if (p_what == NOTIFICATION_ENTER_TREE) {
-        load->set_icon(get_icon("Folder", "EditorIcons"));
+        load->set_button_icon(get_icon("Folder", "EditorIcons"));
     }
 
     if (p_what == NOTIFICATION_READY) {

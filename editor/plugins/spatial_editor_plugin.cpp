@@ -2340,8 +2340,8 @@ void SpatialEditorViewport::_notification(int p_what) {
 
     if (p_what == NOTIFICATION_THEME_CHANGED) {
 
-        view_menu->set_icon(get_icon("GuiTabMenu", "EditorIcons"));
-        preview_camera->set_icon(get_icon("Camera", "EditorIcons"));
+        view_menu->set_button_icon(get_icon("GuiTabMenu", "EditorIcons"));
+        preview_camera->set_button_icon(get_icon("Camera", "EditorIcons"));
 
         view_menu->add_style_override("normal", editor->get_gui_base()->get_stylebox("Information3dViewport", "EditorStyles"));
         view_menu->add_style_override("hover", editor->get_gui_base()->get_stylebox("Information3dViewport", "EditorStyles"));
@@ -5348,19 +5348,19 @@ void SpatialEditor::_notification(int p_what) {
 
     if (p_what == NOTIFICATION_READY) {
 
-        tool_button[SpatialEditor::TOOL_MODE_SELECT]->set_icon(get_icon("ToolSelect", "EditorIcons"));
-        tool_button[SpatialEditor::TOOL_MODE_MOVE]->set_icon(get_icon("ToolMove", "EditorIcons"));
-        tool_button[SpatialEditor::TOOL_MODE_ROTATE]->set_icon(get_icon("ToolRotate", "EditorIcons"));
-        tool_button[SpatialEditor::TOOL_MODE_SCALE]->set_icon(get_icon("ToolScale", "EditorIcons"));
-        tool_button[SpatialEditor::TOOL_MODE_LIST_SELECT]->set_icon(get_icon("ListSelect", "EditorIcons"));
-        tool_button[SpatialEditor::TOOL_LOCK_SELECTED]->set_icon(get_icon("Lock", "EditorIcons"));
-        tool_button[SpatialEditor::TOOL_UNLOCK_SELECTED]->set_icon(get_icon("Unlock", "EditorIcons"));
-        tool_button[SpatialEditor::TOOL_GROUP_SELECTED]->set_icon(get_icon("Group", "EditorIcons"));
-        tool_button[SpatialEditor::TOOL_UNGROUP_SELECTED]->set_icon(get_icon("Ungroup", "EditorIcons"));
+        tool_button[SpatialEditor::TOOL_MODE_SELECT]->set_button_icon(get_icon("ToolSelect", "EditorIcons"));
+        tool_button[SpatialEditor::TOOL_MODE_MOVE]->set_button_icon(get_icon("ToolMove", "EditorIcons"));
+        tool_button[SpatialEditor::TOOL_MODE_ROTATE]->set_button_icon(get_icon("ToolRotate", "EditorIcons"));
+        tool_button[SpatialEditor::TOOL_MODE_SCALE]->set_button_icon(get_icon("ToolScale", "EditorIcons"));
+        tool_button[SpatialEditor::TOOL_MODE_LIST_SELECT]->set_button_icon(get_icon("ListSelect", "EditorIcons"));
+        tool_button[SpatialEditor::TOOL_LOCK_SELECTED]->set_button_icon(get_icon("Lock", "EditorIcons"));
+        tool_button[SpatialEditor::TOOL_UNLOCK_SELECTED]->set_button_icon(get_icon("Unlock", "EditorIcons"));
+        tool_button[SpatialEditor::TOOL_GROUP_SELECTED]->set_button_icon(get_icon("Group", "EditorIcons"));
+        tool_button[SpatialEditor::TOOL_UNGROUP_SELECTED]->set_button_icon(get_icon("Ungroup", "EditorIcons"));
 
-        tool_option_button[SpatialEditor::TOOL_OPT_LOCAL_COORDS]->set_icon(get_icon("Object", "EditorIcons"));
-        tool_option_button[SpatialEditor::TOOL_OPT_USE_SNAP]->set_icon(get_icon("Snap", "EditorIcons"));
-        tool_option_button[SpatialEditor::TOOL_OPT_OVERRIDE_CAMERA]->set_icon(get_icon("Camera", "EditorIcons"));
+        tool_option_button[SpatialEditor::TOOL_OPT_LOCAL_COORDS]->set_button_icon(get_icon("Object", "EditorIcons"));
+        tool_option_button[SpatialEditor::TOOL_OPT_USE_SNAP]->set_button_icon(get_icon("Snap", "EditorIcons"));
+        tool_option_button[SpatialEditor::TOOL_OPT_OVERRIDE_CAMERA]->set_button_icon(get_icon("Camera", "EditorIcons"));
 
         view_menu->get_popup()->set_item_icon(view_menu->get_popup()->get_item_index(MENU_VIEW_USE_1_VIEWPORT), get_icon("Panels1", "EditorIcons"));
         view_menu->get_popup()->set_item_icon(view_menu->get_popup()->get_item_index(MENU_VIEW_USE_2_VIEWPORTS), get_icon("Panels2", "EditorIcons"));
@@ -5390,18 +5390,18 @@ void SpatialEditor::_notification(int p_what) {
 
         _finish_indicators();
     } else if (p_what == EditorSettings::NOTIFICATION_EDITOR_SETTINGS_CHANGED) {
-        tool_button[SpatialEditor::TOOL_MODE_SELECT]->set_icon(get_icon("ToolSelect", "EditorIcons"));
-        tool_button[SpatialEditor::TOOL_MODE_MOVE]->set_icon(get_icon("ToolMove", "EditorIcons"));
-        tool_button[SpatialEditor::TOOL_MODE_ROTATE]->set_icon(get_icon("ToolRotate", "EditorIcons"));
-        tool_button[SpatialEditor::TOOL_MODE_SCALE]->set_icon(get_icon("ToolScale", "EditorIcons"));
-        tool_button[SpatialEditor::TOOL_MODE_LIST_SELECT]->set_icon(get_icon("ListSelect", "EditorIcons"));
-        tool_button[SpatialEditor::TOOL_LOCK_SELECTED]->set_icon(get_icon("Lock", "EditorIcons"));
-        tool_button[SpatialEditor::TOOL_UNLOCK_SELECTED]->set_icon(get_icon("Unlock", "EditorIcons"));
-        tool_button[SpatialEditor::TOOL_GROUP_SELECTED]->set_icon(get_icon("Group", "EditorIcons"));
-        tool_button[SpatialEditor::TOOL_UNGROUP_SELECTED]->set_icon(get_icon("Ungroup", "EditorIcons"));
+        tool_button[SpatialEditor::TOOL_MODE_SELECT]->set_button_icon(get_icon("ToolSelect", "EditorIcons"));
+        tool_button[SpatialEditor::TOOL_MODE_MOVE]->set_button_icon(get_icon("ToolMove", "EditorIcons"));
+        tool_button[SpatialEditor::TOOL_MODE_ROTATE]->set_button_icon(get_icon("ToolRotate", "EditorIcons"));
+        tool_button[SpatialEditor::TOOL_MODE_SCALE]->set_button_icon(get_icon("ToolScale", "EditorIcons"));
+        tool_button[SpatialEditor::TOOL_MODE_LIST_SELECT]->set_button_icon(get_icon("ListSelect", "EditorIcons"));
+        tool_button[SpatialEditor::TOOL_LOCK_SELECTED]->set_button_icon(get_icon("Lock", "EditorIcons"));
+        tool_button[SpatialEditor::TOOL_UNLOCK_SELECTED]->set_button_icon(get_icon("Unlock", "EditorIcons"));
+        tool_button[SpatialEditor::TOOL_GROUP_SELECTED]->set_button_icon(get_icon("Group", "EditorIcons"));
+        tool_button[SpatialEditor::TOOL_UNGROUP_SELECTED]->set_button_icon(get_icon("Ungroup", "EditorIcons"));
 
-        tool_option_button[SpatialEditor::TOOL_OPT_LOCAL_COORDS]->set_icon(get_icon("Object", "EditorIcons"));
-        tool_option_button[SpatialEditor::TOOL_OPT_USE_SNAP]->set_icon(get_icon("Snap", "EditorIcons"));
+        tool_option_button[SpatialEditor::TOOL_OPT_LOCAL_COORDS]->set_button_icon(get_icon("Object", "EditorIcons"));
+        tool_option_button[SpatialEditor::TOOL_OPT_USE_SNAP]->set_button_icon(get_icon("Snap", "EditorIcons"));
 
         view_menu->get_popup()->set_item_icon(view_menu->get_popup()->get_item_index(MENU_VIEW_USE_1_VIEWPORT), get_icon("Panels1", "EditorIcons"));
         view_menu->get_popup()->set_item_icon(view_menu->get_popup()->get_item_index(MENU_VIEW_USE_2_VIEWPORTS), get_icon("Panels2", "EditorIcons"));

@@ -731,9 +731,9 @@ void TextureRegionEditor::_notification(int p_what) {
             edit_draw->add_style_override("panel", get_stylebox("bg", "Tree"));
         } break;
         case NOTIFICATION_READY: {
-            zoom_out->set_icon(get_icon("ZoomLess", "EditorIcons"));
-            zoom_reset->set_icon(get_icon("ZoomReset", "EditorIcons"));
-            zoom_in->set_icon(get_icon("ZoomMore", "EditorIcons"));
+            zoom_out->set_button_icon(get_icon("ZoomLess", "EditorIcons"));
+            zoom_reset->set_button_icon(get_icon("ZoomReset", "EditorIcons"));
+            zoom_in->set_button_icon(get_icon("ZoomMore", "EditorIcons"));
         } break;
         case NOTIFICATION_VISIBILITY_CHANGED: {
             if (snap_mode == SNAP_AUTOSLICE && is_visible() && autoslice_is_dirty) {

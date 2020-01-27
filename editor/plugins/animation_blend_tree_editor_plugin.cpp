@@ -190,7 +190,7 @@ void AnimationNodeBlendTreeEditor::_update_graph() {
             node->add_child(memnew(HSeparator));
             Button *open_in_editor = memnew(Button);
             open_in_editor->set_text(TTR("Open Editor"));
-            open_in_editor->set_icon(get_icon("Edit", "EditorIcons"));
+            open_in_editor->set_button_icon(get_icon("Edit", "EditorIcons"));
             node->add_child(open_in_editor);
             open_in_editor->connect("pressed", this, "_open_in_editor", varray(E),ObjectNS::CONNECT_QUEUED);
             open_in_editor->set_h_size_flags(SIZE_SHRINK_CENTER);
@@ -201,7 +201,7 @@ void AnimationNodeBlendTreeEditor::_update_graph() {
             node->add_child(memnew(HSeparator));
             Button *edit_filters = memnew(Button);
             edit_filters->set_text(TTR("Edit Filters"));
-            edit_filters->set_icon(get_icon("AnimationFilter", "EditorIcons"));
+            edit_filters->set_button_icon(get_icon("AnimationFilter", "EditorIcons"));
             node->add_child(edit_filters);
             edit_filters->connect("pressed", this, "_edit_filters", varray(E),ObjectNS::CONNECT_QUEUED);
             edit_filters->set_h_size_flags(SIZE_SHRINK_CENTER);
@@ -212,7 +212,7 @@ void AnimationNodeBlendTreeEditor::_update_graph() {
 
             MenuButton *mb = memnew(MenuButton);
             mb->set_text(anim->get_animation());
-            mb->set_icon(get_icon("Animation", "EditorIcons"));
+            mb->set_button_icon(get_icon("Animation", "EditorIcons"));
             Array options;
 
             node->add_child(memnew(HSeparator));

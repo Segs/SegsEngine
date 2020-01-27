@@ -57,8 +57,8 @@ void ProjectExportDialog::_notification(int p_what) {
 
     switch (p_what) {
         case NOTIFICATION_READY: {
-            duplicate_preset->set_icon(get_icon("Duplicate", "EditorIcons"));
-            delete_preset->set_icon(get_icon("Remove", "EditorIcons"));
+            duplicate_preset->set_button_icon(get_icon("Duplicate", "EditorIcons"));
+            delete_preset->set_button_icon(get_icon("Remove", "EditorIcons"));
             connect("confirmed", this, "_export_pck_zip");
             custom_feature_display->get_parent_control()->add_style_override("panel", get_stylebox("bg", "Tree"));
         } break;
@@ -66,8 +66,8 @@ void ProjectExportDialog::_notification(int p_what) {
             EditorSettings::get_singleton()->set_project_metadata("dialog_bounds", "export", get_rect());
         } break;
         case NOTIFICATION_THEME_CHANGED: {
-            duplicate_preset->set_icon(get_icon("Duplicate", "EditorIcons"));
-            delete_preset->set_icon(get_icon("Remove", "EditorIcons"));
+            duplicate_preset->set_button_icon(get_icon("Duplicate", "EditorIcons"));
+            delete_preset->set_button_icon(get_icon("Remove", "EditorIcons"));
             Control *panel = custom_feature_display->get_parent_control();
             if (panel)
                 panel->add_style_override("panel", get_stylebox("bg", "Tree"));

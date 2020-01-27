@@ -98,8 +98,8 @@ void FindReplaceBar::_notification(int p_what) {
 
     if (p_what == NOTIFICATION_READY) {
 
-        find_prev->set_icon(get_icon("MoveUp", "EditorIcons"));
-        find_next->set_icon(get_icon("MoveDown", "EditorIcons"));
+        find_prev->set_button_icon(get_icon("MoveUp", "EditorIcons"));
+        find_next->set_button_icon(get_icon("MoveDown", "EditorIcons"));
         hide_button->set_normal_texture(get_icon("Close", "EditorIcons"));
         hide_button->set_hover_texture(get_icon("Close", "EditorIcons"));
         hide_button->set_pressed_texture(get_icon("Close", "EditorIcons"));
@@ -109,8 +109,8 @@ void FindReplaceBar::_notification(int p_what) {
         set_process_unhandled_input(is_visible_in_tree());
     } else if (p_what == EditorSettings::NOTIFICATION_EDITOR_SETTINGS_CHANGED) {
 
-        find_prev->set_icon(get_icon("MoveUp", "EditorIcons"));
-        find_next->set_icon(get_icon("MoveDown", "EditorIcons"));
+        find_prev->set_button_icon(get_icon("MoveUp", "EditorIcons"));
+        find_next->set_button_icon(get_icon("MoveDown", "EditorIcons"));
         hide_button->set_normal_texture(get_icon("Close", "EditorIcons"));
         hide_button->set_hover_texture(get_icon("Close", "EditorIcons"));
         hide_button->set_pressed_texture(get_icon("Close", "EditorIcons"));
@@ -1508,7 +1508,7 @@ void CodeTextEditor::_set_show_warnings_panel(bool p_show) {
     emit_signal("show_warnings_panel", p_show);
 }
 void CodeTextEditor::_toggle_scripts_pressed() {
-    toggle_scripts_button->set_icon(ScriptEditor::get_singleton()->toggle_scripts_panel() ? get_icon("Back", "EditorIcons") : get_icon("Forward", "EditorIcons"));
+    toggle_scripts_button->set_button_icon(ScriptEditor::get_singleton()->toggle_scripts_panel() ? get_icon("Back", "EditorIcons") : get_icon("Forward", "EditorIcons"));
 }
 void CodeTextEditor::_error_pressed(const Ref<InputEvent> &p_event) {
     Ref<InputEventMouseButton> mb = dynamic_ref_cast<InputEventMouseButton>(p_event);
@@ -1531,7 +1531,7 @@ void CodeTextEditor::_notification(int p_what) {
             _update_font();
         } break;
         case NOTIFICATION_ENTER_TREE: {
-            warning_button->set_icon(get_icon("NodeWarning", "EditorIcons"));
+            warning_button->set_button_icon(get_icon("NodeWarning", "EditorIcons"));
             add_constant_override("separation", 4 * EDSCALE);
         } break;
         case NOTIFICATION_VISIBILITY_CHANGED: {
@@ -1647,7 +1647,7 @@ void CodeTextEditor::show_toggle_scripts_button() {
 }
 
 void CodeTextEditor::update_toggle_scripts_button() {
-    toggle_scripts_button->set_icon(ScriptEditor::get_singleton()->is_scripts_panel_toggled() ? get_icon("Back", "EditorIcons") : get_icon("Forward", "EditorIcons"));
+    toggle_scripts_button->set_button_icon(ScriptEditor::get_singleton()->is_scripts_panel_toggled() ? get_icon("Back", "EditorIcons") : get_icon("Forward", "EditorIcons"));
     toggle_scripts_button->set_tooltip(TTR("Toggle Scripts Panel") + " (" + ED_GET_SHORTCUT("script_editor/toggle_scripts_panel")->get_as_text() + ")");
 }
 

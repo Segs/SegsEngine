@@ -717,7 +717,7 @@ void VisualShaderEditor::_update_graph() {
                         name_box->connect("focus_exited", this, "_port_name_focus_out", varray(Variant(name_box), nodes[n_i], i, false));
 
                         Button *remove_btn = memnew(Button);
-                        remove_btn->set_icon(EditorNode::get_singleton()->get_gui_base()->get_icon("Remove", "EditorIcons"));
+                        remove_btn->set_button_icon(EditorNode::get_singleton()->get_gui_base()->get_icon("Remove", "EditorIcons"));
                         remove_btn->set_tooltip(TTR("Remove") + " " + name_left);
                         remove_btn->connect("pressed", this, "_remove_input_port", varray(nodes[n_i], i),ObjectNS::CONNECT_QUEUED);
                         hb->add_child(remove_btn);
@@ -745,7 +745,7 @@ void VisualShaderEditor::_update_graph() {
                 if (valid_right) {
                     if (is_group) {
                         Button *remove_btn = memnew(Button);
-                        remove_btn->set_icon(EditorNode::get_singleton()->get_gui_base()->get_icon("Remove", "EditorIcons"));
+                        remove_btn->set_button_icon(EditorNode::get_singleton()->get_gui_base()->get_icon("Remove", "EditorIcons"));
                         remove_btn->set_tooltip(TTR("Remove") + " " + name_left);
                         remove_btn->connect("pressed", this, "_remove_output_port", varray(nodes[n_i], i),ObjectNS::CONNECT_QUEUED);
                         hb->add_child(remove_btn);
@@ -1683,7 +1683,7 @@ void VisualShaderEditor::_notification(int p_what) {
 
         node_filter->set_right_icon(Control::get_icon("Search", "EditorIcons"));
 
-        preview_shader->set_icon(Control::get_icon("Shader", "EditorIcons"));
+        preview_shader->set_button_icon(Control::get_icon("Shader", "EditorIcons"));
 
         {
             Color background_color = EDITOR_GET("text_editor/highlighting/background_color");
@@ -1709,7 +1709,7 @@ void VisualShaderEditor::_notification(int p_what) {
             error_text->add_color_override("font_color", get_color("error_color", "Editor"));
         }
 
-        tools->set_icon(EditorNode::get_singleton()->get_gui_base()->get_icon("Tools", "EditorIcons"));
+        tools->set_button_icon(EditorNode::get_singleton()->get_gui_base()->get_icon("Tools", "EditorIcons"));
 
         if (p_what == NOTIFICATION_THEME_CHANGED && is_visible_in_tree())
             _update_graph();

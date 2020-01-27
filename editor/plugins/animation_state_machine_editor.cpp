@@ -915,9 +915,9 @@ void AnimationNodeStateMachineEditor::_notification(int p_what) {
         error_label->add_color_override("font_color", get_color("error_color", "Editor"));
         panel->add_style_override("panel", get_stylebox("bg", "Tree"));
 
-        tool_select->set_icon(get_icon("ToolSelect", "EditorIcons"));
-        tool_create->set_icon(get_icon("ToolAddNode", "EditorIcons"));
-        tool_connect->set_icon(get_icon("ToolConnect", "EditorIcons"));
+        tool_select->set_button_icon(get_icon("ToolSelect", "EditorIcons"));
+        tool_create->set_button_icon(get_icon("ToolAddNode", "EditorIcons"));
+        tool_connect->set_button_icon(get_icon("ToolConnect", "EditorIcons"));
 
         transition_mode->clear();
         transition_mode->add_icon_item(get_icon("TransitionImmediate", "EditorIcons"), TTR("Immediate"));
@@ -932,9 +932,9 @@ void AnimationNodeStateMachineEditor::_notification(int p_what) {
         get_icon("TransitionEndAutoBig", "EditorIcons")->set_flags(Texture::FLAG_FILTER);
         get_icon("TransitionSyncAutoBig", "EditorIcons")->set_flags(Texture::FLAG_FILTER);
 
-        tool_erase->set_icon(get_icon("Remove", "EditorIcons"));
-        tool_autoplay->set_icon(get_icon("AutoPlay", "EditorIcons"));
-        tool_end->set_icon(get_icon("AutoEnd", "EditorIcons"));
+        tool_erase->set_button_icon(get_icon("Remove", "EditorIcons"));
+        tool_autoplay->set_button_icon(get_icon("AutoPlay", "EditorIcons"));
+        tool_end->set_button_icon(get_icon("AutoEnd", "EditorIcons"));
 
         play_mode->clear();
         play_mode->add_icon_item(get_icon("PlayTravel", "EditorIcons"), TTR("Travel"));

@@ -108,7 +108,7 @@ void ProjectSettingsEditor::_notification(int p_what) {
         case NOTIFICATION_ENTER_TREE: {
             globals_editor->edit(ProjectSettings::get_singleton());
 
-            search_button->set_icon(get_icon("Search", "EditorIcons"));
+            search_button->set_button_icon(get_icon("Search", "EditorIcons"));
             search_box->set_right_icon(get_icon("Search", "EditorIcons"));
             search_box->set_clear_button_enabled(true);
 
@@ -135,7 +135,7 @@ void ProjectSettingsEditor::_notification(int p_what) {
                 translation_res_option_file_open->add_filter("*." + E);
             }
 
-            restart_close_button->set_icon(get_icon("Close", "EditorIcons"));
+            restart_close_button->set_button_icon(get_icon("Close", "EditorIcons"));
             restart_container->add_style_override("panel", get_stylebox("bg", "Tree"));
             restart_icon->set_texture(get_icon("StatusWarning", "EditorIcons"));
             restart_label->add_color_override("font_color", get_color("warning_color", "Editor"));
@@ -146,7 +146,7 @@ void ProjectSettingsEditor::_notification(int p_what) {
             set_process_unhandled_input(false);
         } break;
         case EditorSettings::NOTIFICATION_EDITOR_SETTINGS_CHANGED: {
-            search_button->set_icon(get_icon("Search", "EditorIcons"));
+            search_button->set_button_icon(get_icon("Search", "EditorIcons"));
             search_box->set_right_icon(get_icon("Search", "EditorIcons"));
             search_box->set_clear_button_enabled(true);
             action_add_error->add_color_override("font_color", get_color("error_color", "Editor"));

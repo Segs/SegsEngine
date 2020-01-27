@@ -124,20 +124,20 @@ void AnimationPlayerEditor::_notification(int p_what) {
         } break;
         case NOTIFICATION_THEME_CHANGED: {
 
-            autoplay->set_icon(get_icon("AutoPlay", "EditorIcons"));
+            autoplay->set_button_icon(get_icon("AutoPlay", "EditorIcons"));
 
-            play->set_icon(get_icon("PlayStart", "EditorIcons"));
-            play_from->set_icon(get_icon("Play", "EditorIcons"));
-            play_bw->set_icon(get_icon("PlayStartBackwards", "EditorIcons"));
-            play_bw_from->set_icon(get_icon("PlayBackwards", "EditorIcons"));
+            play->set_button_icon(get_icon("PlayStart", "EditorIcons"));
+            play_from->set_button_icon(get_icon("Play", "EditorIcons"));
+            play_bw->set_button_icon(get_icon("PlayStartBackwards", "EditorIcons"));
+            play_bw_from->set_button_icon(get_icon("PlayBackwards", "EditorIcons"));
 
             autoplay_icon = get_icon("AutoPlay", "EditorIcons");
-            stop->set_icon(get_icon("Stop", "EditorIcons"));
+            stop->set_button_icon(get_icon("Stop", "EditorIcons"));
 
-            onion_toggle->set_icon(get_icon("Onion", "EditorIcons"));
-            onion_skinning->set_icon(get_icon("GuiTabMenu", "EditorIcons"));
+            onion_toggle->set_button_icon(get_icon("Onion", "EditorIcons"));
+            onion_skinning->set_button_icon(get_icon("GuiTabMenu", "EditorIcons"));
 
-            pin->set_icon(get_icon("Pin", "EditorIcons"));
+            pin->set_button_icon(get_icon("Pin", "EditorIcons"));
 
             tool_anim->add_style_override("normal", get_stylebox("normal", "Button"));
             track_editor->get_edit_menu()->add_style_override("normal", get_stylebox("normal", "Button"));

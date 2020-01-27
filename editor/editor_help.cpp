@@ -1724,8 +1724,8 @@ void FindBar::_notification(int p_what) {
         case NOTIFICATION_ENTER_TREE:
         case NOTIFICATION_THEME_CHANGED: {
 
-            find_prev->set_icon(get_icon("MoveUp", "EditorIcons"));
-            find_next->set_icon(get_icon("MoveDown", "EditorIcons"));
+            find_prev->set_button_icon(get_icon("MoveUp", "EditorIcons"));
+            find_next->set_button_icon(get_icon("MoveDown", "EditorIcons"));
             hide_button->set_normal_texture(get_icon("Close", "EditorIcons"));
             hide_button->set_hover_texture(get_icon("Close", "EditorIcons"));
             hide_button->set_pressed_texture(get_icon("Close", "EditorIcons"));

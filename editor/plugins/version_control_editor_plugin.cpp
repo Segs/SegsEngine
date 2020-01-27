@@ -477,7 +477,7 @@ VersionControlEditorPlugin::VersionControlEditorPlugin() {
     refresh_button = memnew(Button);
     refresh_button->set_tooltip(TTR("Detect new changes"));
     refresh_button->set_text(TTR("Refresh"));
-    refresh_button->set_icon(EditorNode::get_singleton()->get_gui_base()->get_icon("Reload", "EditorIcons"));
+    refresh_button->set_button_icon(EditorNode::get_singleton()->get_gui_base()->get_icon("Reload", "EditorIcons"));
     refresh_button->connect("pressed", this, "_refresh_stage_area");
     stage_tools->add_child(refresh_button);
 
@@ -569,7 +569,7 @@ VersionControlEditorPlugin::VersionControlEditorPlugin() {
 
     diff_refresh_button = memnew(Button);
     diff_refresh_button->set_tooltip(TTR("Detect changes in file diff"));
-    diff_refresh_button->set_icon(EditorNode::get_singleton()->get_gui_base()->get_icon("Reload", "EditorIcons"));
+    diff_refresh_button->set_button_icon(EditorNode::get_singleton()->get_gui_base()->get_icon("Reload", "EditorIcons"));
     diff_refresh_button->connect("pressed", this, "_refresh_file_diff");
     diff_hbc->add_child(diff_refresh_button);
 

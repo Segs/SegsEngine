@@ -149,10 +149,11 @@ private:
     DefHashMap<uint16_t, Character> char_map;
     Map<KerningPairKey, int> kerning_map;
 
+    Ref<BitmapFont> fallback;
     float height;
     float ascent;
     bool distance_field_hint;
-
+public:
     void _set_chars(const PoolVector<int> &p_chars);
     PoolVector<int> _get_chars() const;
     void _set_kernings(const PoolVector<int> &p_kernings);
@@ -160,7 +161,6 @@ private:
     void _set_textures(const Vector<Variant> &p_textures);
     Vector<Variant> _get_textures() const;
 
-    Ref<BitmapFont> fallback;
 
 protected:
     static void _bind_methods();

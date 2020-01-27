@@ -50,8 +50,8 @@ void Polygon3DEditor::_notification(int p_what) {
 
         case NOTIFICATION_READY: {
 
-            button_create->set_icon(get_icon("Edit", "EditorIcons"));
-            button_edit->set_icon(get_icon("MovePoint", "EditorIcons"));
+            button_create->set_button_icon(get_icon("Edit", "EditorIcons"));
+            button_edit->set_button_icon(get_icon("MovePoint", "EditorIcons"));
             button_edit->set_pressed(true);
             get_tree()->connect("node_removed", this, "_node_removed");
 

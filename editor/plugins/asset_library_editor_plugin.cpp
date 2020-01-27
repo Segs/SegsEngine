@@ -187,11 +187,11 @@ void EditorAssetLibraryItemDescription::set_image(int p_type, int p_index, const
                         Ref<ImageTexture> tex(make_ref_counted<ImageTexture>());
                         tex->create_from_image(thumbnail);
 
-                        preview_images[i].button->set_icon(tex);
+                        preview_images[i].button->set_button_icon(tex);
                         // Make it clearer that clicking it will open an external link
                         preview_images[i].button->set_default_cursor_shape(CURSOR_POINTING_HAND);
                     } else {
-                        preview_images[i].button->set_icon(p_image);
+                        preview_images[i].button->set_button_icon(p_image);
                     }
                     break;
                 }
@@ -276,7 +276,7 @@ void EditorAssetLibraryItemDescription::add_preview(int p_id, bool p_video, se_s
     preview.is_video = p_video;
     preview.button = memnew(Button);
     preview.button->set_flat(true);
-    preview.button->set_icon(get_icon("ThumbnailWait", "EditorIcons"));
+    preview.button->set_button_icon(get_icon("ThumbnailWait", "EditorIcons"));
     preview.button->set_toggle_mode(true);
     preview.button->connect("pressed", this, "_preview_click", varray(p_id));
     preview_hb->add_child(preview.button);
