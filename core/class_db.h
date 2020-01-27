@@ -133,7 +133,7 @@ public:
         Set<StringName> methods_in_properties;
         PODVector<MethodInfo> virtual_methods;
         StringName category;
-        StringName usage_header;
+        String usage_header;
 #endif
         DefHashMap<StringName, PropertySetGet> property_setget;
 

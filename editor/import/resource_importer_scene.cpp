@@ -379,8 +379,7 @@ Node *ResourceImporterScene::_fix_node(
         // remove animations referencing non-importable nodes
         AnimationPlayer *ap = object_cast<AnimationPlayer>(p_node);
 
-        PODVector<StringName> anims;
-        ap->get_animation_list(&anims);
+        PODVector<StringName> anims(ap->get_animation_list());
         for (const StringName &E : anims) {
 
             Ref<Animation> anim = ap->get_animation(E);
@@ -822,8 +821,7 @@ void ResourceImporterScene::_filter_tracks(Node *scene, se_string_view p_text) {
         sv = StringUtils::strip_edges(sv);
     }
 
-    PODVector<StringName> anim_names;
-    anim->get_animation_list(&anim_names);
+    PODVector<StringName> anim_names(anim->get_animation_list());
     for (const StringName &E : anim_names) {
 
         se_string_view name = E;
@@ -917,8 +915,7 @@ void ResourceImporterScene::_optimize_animations(
     AnimationPlayer *anim = object_cast<AnimationPlayer>(n);
     ERR_FAIL_COND(!anim)
 
-    PODVector<StringName> anim_names;
-    anim->get_animation_list(&anim_names);
+    PODVector<StringName> anim_names(anim->get_animation_list());
     for (const StringName &E : anim_names) {
 
         Ref<Animation> a = anim->get_animation(E);
@@ -983,8 +980,7 @@ void ResourceImporterScene::_make_external_resources(Node *p_node, se_string_vie
         if (object_cast<AnimationPlayer>(p_node)) {
             AnimationPlayer *ap = object_cast<AnimationPlayer>(p_node);
 
-            PODVector<StringName> anims;
-            ap->get_animation_list(&anims);
+            PODVector<StringName> anims(ap->get_animation_list());
             for (const StringName &E : anims) {
 
                 Ref<Animation> anim = ap->get_animation(E);

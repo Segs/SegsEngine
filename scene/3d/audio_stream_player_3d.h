@@ -114,31 +114,31 @@ private:
 	bool stream_paused_fade_in;
 	bool stream_paused_fade_out;
 	StringName bus;
+    uint32_t area_mask;
+
+    bool emission_angle_enabled;
+    float emission_angle;
+    float emission_angle_filter_attenuation_db;
+    float attenuation_filter_cutoff_hz;
+    float attenuation_filter_db;
+
+    float max_distance;
+
+    Ref<SpatialVelocityTracker> velocity_tracker;
+
+    DopplerTracking doppler_tracking;
+
+    OutOfRangeMode out_of_range_mode;
 
 	static void _calc_output_vol(const Vector3 &source_dir, real_t tightness, Output &output);
 	void _mix_audio();
 	static void _mix_audios(void *self) { reinterpret_cast<AudioStreamPlayer3D *>(self)->_mix_audio(); }
-
+public:
 	void _set_playing(bool p_enable);
 	bool _is_active() const;
 
 	void _bus_layout_changed();
 
-	uint32_t area_mask;
-
-	bool emission_angle_enabled;
-	float emission_angle;
-	float emission_angle_filter_attenuation_db;
-	float attenuation_filter_cutoff_hz;
-	float attenuation_filter_db;
-
-	float max_distance;
-
-	Ref<SpatialVelocityTracker> velocity_tracker;
-
-	DopplerTracking doppler_tracking;
-
-	OutOfRangeMode out_of_range_mode;
 
 	float _get_attenuation_db(float p_distance) const;
 

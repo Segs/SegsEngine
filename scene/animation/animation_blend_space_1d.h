@@ -54,13 +54,10 @@ class AnimationNodeBlendSpace1D : public AnimationRootNode {
     float snap;
 
     String value_label;
-
-    void _add_blend_point(int p_index, const Ref<AnimationRootNode> &p_node);
-
-    void _tree_changed();
-
     StringName blend_position;
-
+public:
+    void _add_blend_point(int p_index, const Ref<AnimationRootNode> &p_node);
+    void _tree_changed();
 protected:
     void _validate_property(PropertyInfo &property) const override;
     static void _bind_methods();

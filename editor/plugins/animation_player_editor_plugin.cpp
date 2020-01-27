@@ -596,8 +596,7 @@ void AnimationPlayerEditor::_animation_blend() {
     blend_editor.tree->set_column_min_width(0, 10);
     blend_editor.tree->set_column_min_width(1, 3);
 
-    PODVector<StringName> anims;
-    player->get_animation_list(&anims);
+    PODVector<StringName> anims(player->get_animation_list());
     TreeItem *root = blend_editor.tree->create_item();
     updating_blends = true;
 
@@ -831,7 +830,7 @@ void AnimationPlayerEditor::_update_player() {
     updating = true;
     PODVector<StringName> animlist;
     if (player)
-        player->get_animation_list(&animlist);
+        animlist = player->get_animation_list();
 
     animation->clear();
 

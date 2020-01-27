@@ -34,7 +34,11 @@
 #include "editor/editor_node.h"
 #include "scene/3d/navigation_mesh.h"
 
-#include <Recast.h>
+struct rcPolyMeshDetail;
+struct rcPolyMesh;
+struct rcContourSet;
+struct rcCompactHeightfield;
+struct rcHeightfield;
 
 class EditorNavigationMeshGenerator : public Object {
 	GDCLASS(EditorNavigationMeshGenerator,Object)

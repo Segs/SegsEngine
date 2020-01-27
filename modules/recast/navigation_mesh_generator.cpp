@@ -58,6 +58,8 @@
 #include "modules/gridmap/grid_map.h"
 #endif
 
+#include <Recast.h>
+
 IMPL_GDCLASS(EditorNavigationMeshGenerator)
 
 EditorNavigationMeshGenerator *EditorNavigationMeshGenerator::singleton = nullptr;

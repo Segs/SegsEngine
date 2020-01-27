@@ -68,6 +68,7 @@
 #include "scene/gui/popup_menu.h"
 #include "scene/gui/tool_button.h"
 #include "scene/gui/tree.h"
+#include "scene/2d/node_2d.h"
 #include "scene/resources/packed_scene.h"
 #include "scene_tree_editor.h"
 
@@ -1371,8 +1372,7 @@ void SceneTreeDock::perform_node_renames(Node *p_base, List<Pair<NodePath, NodeP
     if (autorename_animation_tracks && object_cast<AnimationPlayer>(p_base)) {
 
         AnimationPlayer *ap = object_cast<AnimationPlayer>(p_base);
-        PODVector<StringName> anims;
-        ap->get_animation_list(&anims);
+        PODVector<StringName> anims(ap->get_animation_list());
         Node *root = ap->get_node(ap->get_root());
 
         if (root) {

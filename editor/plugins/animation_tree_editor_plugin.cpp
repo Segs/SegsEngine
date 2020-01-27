@@ -224,8 +224,7 @@ Vector<String> AnimationTreeEditor::get_animation_list() {
     if (!ap)
         return Vector<String>();
 
-    PODVector<StringName> anims;
-    ap->get_animation_list(&anims);
+    PODVector<StringName> anims(ap->get_animation_list());
     Vector<String> ret;
     for (const StringName &E : anims) {
         ret.emplace_back(E);

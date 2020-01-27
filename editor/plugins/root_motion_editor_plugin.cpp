@@ -75,8 +75,7 @@ void EditorPropertyRootMotion::_node_assign() {
 
     Set<String> paths;
     {
-        PODVector<StringName> animations;
-        player->get_animation_list(&animations);
+        PODVector<StringName> animations(player->get_animation_list());
 
         for (const StringName & E : animations) {
 

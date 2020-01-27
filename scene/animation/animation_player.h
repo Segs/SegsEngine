@@ -30,10 +30,11 @@
 
 #pragma once
 
-#include "scene/2d/node_2d.h"
+//#include "scene/2d/node_2d.h"
 #include "scene/3d/skeleton.h"
 #include "scene/3d/spatial.h"
 #include "scene/resources/animation.h"
+#include "core/map.h"
 
 #ifdef TOOLS_ENABLED
 // To save/restore animated values
@@ -52,6 +53,8 @@ public:
     void update_skeletons();
 };
 #endif
+
+class Node2D;
 
 class GODOT_EXPORT AnimationPlayer : public Node {
     GDCLASS(AnimationPlayer,Node)
@@ -269,19 +272,6 @@ private:
     void _stop_playing_caches();
 
     // bind helpers
-    PoolVector<String> _get_animation_list() const {
-
-        PODVector<StringName> animations;
-        get_animation_list(&animations);
-        PoolVector<String> ret;
-        while (!animations.empty()) {
-
-            ret.push_back(animations.front().asCString());
-            animations.pop_front();
-        }
-        return ret;
-    }
-
     void _animation_changed();
     void _ref_anim(const Ref<Animation> &p_anim);
     void _unref_anim(const Ref<Animation> &p_anim);
@@ -307,7 +297,7 @@ public:
     void rename_animation(const StringName &p_name, const StringName &p_new_name);
     bool has_animation(const StringName &p_name) const;
     Ref<Animation> get_animation(const StringName &p_name) const;
-    void get_animation_list(PODVector<StringName> *p_animations) const;
+    PODVector<StringName> get_animation_list() const;
 
     void set_blend_time(const StringName &p_animation1, const StringName &p_animation2, float p_time);
     float get_blend_time(const StringName &p_animation1, const StringName &p_animation2) const;

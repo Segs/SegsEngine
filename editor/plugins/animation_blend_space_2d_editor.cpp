@@ -105,8 +105,7 @@ void AnimationNodeBlendSpace2DEditor::_blend_space_gui_input(const Ref<InputEven
         if (gp && gp->has_node(gp->get_animation_player())) {
             AnimationPlayer *ap = object_cast<AnimationPlayer>(gp->get_node(gp->get_animation_player()));
             if (ap) {
-                PODVector<StringName> names;
-                ap->get_animation_list(&names);
+                PODVector<StringName> names(ap->get_animation_list());
                 for (const StringName &E : names) {
                     animations_menu->add_icon_item(get_icon("Animation", "EditorIcons"), E);
                     animations_to_add.emplace_back(E);

@@ -72,19 +72,16 @@ protected:
     String x_label;
     String y_label;
     BlendMode blend_mode;
-
-    void _add_blend_point(int p_index, const Ref<AnimationRootNode> &p_node);
-    void _set_triangles(const Vector<int> &p_triangles);
-    Vector<int> _get_triangles() const;
-
-    void _blend_triangle(const Vector2 &p_pos, const Vector2 *p_points, float *r_weights);
-
     bool auto_triangles;
     bool trianges_dirty;
 
+public:
+    void _add_blend_point(int p_index, const Ref<AnimationRootNode> &p_node);
+    void _set_triangles(const PoolVector<int> &p_triangles);
+    PODVector<int> _get_triangles() const;
+    void _blend_triangle(const Vector2 &p_pos, const Vector2 *p_points, float *r_weights);
     void _update_triangles();
     void _queue_auto_triangles();
-
     void _tree_changed();
 
 protected:

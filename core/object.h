@@ -189,6 +189,7 @@ private:
         if (initialized) return false;                                                                                 \
         BaseClassName::initialize_class();                                                                               \
         ClassDB::_add_class<m_class, BaseClassName>();                                                                   \
+        ClassDB::_set_class_header(get_class_static_name(), __FILE__);                                                 \
         if (m_class::_get_bind_methods() != BaseClassName::_get_bind_methods()) _bind_methods();                         \
         initialized = true;                                                                                            \
         return true;                                                                                                   \

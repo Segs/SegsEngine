@@ -299,8 +299,7 @@ void AnimationTreePlayerEditor::_popup_edit_dialog() {
                     master_anim_popup->clear();
                     master_anim_popup->add_item(TTR("Edit Filters"));
                     master_anim_popup->add_separator();
-                    PODVector<StringName> sn;
-                    ap->get_animation_list(&sn);
+                    PODVector<StringName> sn(ap->get_animation_list());
                     eastl::sort(sn.begin(),sn.end(),WrapAlphaCompare());
                     for (const StringName &E : sn) {
                         master_anim_popup->add_item(E);

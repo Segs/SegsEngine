@@ -43,6 +43,8 @@
 #include <BulletCollision/CollisionShapes/btHeightfieldTerrainShape.h>
 #include <btBulletCollisionCommon.h>
 
+
+
 /**
     @author AndreaCatania
 */
@@ -105,11 +107,11 @@ btEmptyShape *ShapeBullet::create_shape_empty() {
     return bulletnew(btEmptyShape);
 }
 
-btStaticPlaneShape *ShapeBullet::create_shape_plane(const btVector3 &planeNormal, btScalar planeConstant) {
+btStaticPlaneShape *ShapeBullet::create_shape_plane(const btVector3 &planeNormal, float planeConstant) {
     return bulletnew(btStaticPlaneShape(planeNormal, planeConstant));
 }
 
-btSphereShape *ShapeBullet::create_shape_sphere(btScalar radius) {
+btSphereShape *ShapeBullet::create_shape_sphere(float radius) {
     return bulletnew(btSphereShape(radius));
 }
 
@@ -117,11 +119,11 @@ btBoxShape *ShapeBullet::create_shape_box(const btVector3 &boxHalfExtents) {
     return bulletnew(btBoxShape(boxHalfExtents));
 }
 
-btCapsuleShapeZ *ShapeBullet::create_shape_capsule(btScalar radius, btScalar height) {
+btCapsuleShapeZ *ShapeBullet::create_shape_capsule(float radius, float height) {
     return bulletnew(btCapsuleShapeZ(radius, height));
 }
 
-btCylinderShape *ShapeBullet::create_shape_cylinder(btScalar radius, btScalar height) {
+btCylinderShape *ShapeBullet::create_shape_cylinder(float radius, float height) {
     return bulletnew(btCylinderShape(btVector3(radius, height / 2.0, radius)));
 }
 
