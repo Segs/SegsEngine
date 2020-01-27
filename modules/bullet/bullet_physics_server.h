@@ -28,21 +28,22 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef BULLET_PHYSICS_SERVER_H
-#define BULLET_PHYSICS_SERVER_H
+#pragma once
 
-#include "area_bullet.h"
 #include "core/rid.h"
-#include "joint_bullet.h"
-#include "rigid_body_bullet.h"
 #include "servers/physics_server.h"
-#include "shape_bullet.h"
-#include "soft_body_bullet.h"
-#include "space_bullet.h"
 
 /**
 	@author AndreaCatania
 */
+class SpaceBullet;
+class AreaBullet;
+class ShapeBullet;
+class RigidBodyBullet;
+class SoftBodyBullet;
+class JointBullet;
+class CollisionObjectBullet;
+class RigidCollisionObjectBullet;
 
 class BulletPhysicsServer : public PhysicsServer {
 	GDCLASS(BulletPhysicsServer,PhysicsServer)
@@ -410,5 +411,3 @@ public:
 	/// Internal APIs
 public:
 };
-
-#endif

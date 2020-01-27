@@ -101,13 +101,13 @@ public:
     void _set_filters(const Array &p_filters);
     friend class AnimationNodeBlendTree;
     float _blend_node(const StringName &p_subpath, const Vector<StringName> &p_connections, AnimationNode *p_new_parent, Ref<AnimationNode> p_node, float p_time, bool p_seek, float p_blend, FilterAction p_filter = FILTER_IGNORE, bool p_optimize = true, float *r_max = nullptr);
-
-protected:
+public:
     void blend_animation(const StringName &p_animation, float p_time, float p_delta, bool p_seeked, float p_blend);
     float blend_node(const StringName &p_sub_path, const Ref<AnimationNode>& p_node, float p_time, bool p_seek, float p_blend, FilterAction p_filter = FILTER_IGNORE, bool p_optimize = true);
     float blend_input(int p_input, float p_time, bool p_seek, float p_blend, FilterAction p_filter = FILTER_IGNORE, bool p_optimize = true);
     void make_invalid(const String &p_reason);
 
+protected:
     static void _bind_methods();
 
     void _validate_property(PropertyInfo &property) const override;

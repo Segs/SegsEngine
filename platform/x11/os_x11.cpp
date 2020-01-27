@@ -468,7 +468,7 @@ Error OS_X11::initialize(const VideoMode &p_desired, int p_video_driver, int p_a
 
     for (int i = 0; i < CURSOR_MAX; i++) {
 
-        cursors[i] = None;
+        cursors[i] = 0; // Using actual zero sine we undef None to prevent it from messing things up
         img[i] = nullptr;
     }
 
@@ -528,7 +528,7 @@ Error OS_X11::initialize(const VideoMode &p_desired, int p_video_driver, int p_a
         XFreePixmap(x11_display, cursormask);
         XFreeGC(x11_display, gc);
 
-        if (cursor == None) {
+        if (cursor == 0) {
             ERR_PRINT("FAILED CREATING CURSOR")
         }
 
@@ -548,7 +548,7 @@ Error OS_X11::initialize(const VideoMode &p_desired, int p_video_driver, int p_a
     xdnd_drop = XInternAtom(x11_display, "XdndDrop", False);
     xdnd_finished = XInternAtom(x11_display, "XdndFinished", False);
     xdnd_selection = XInternAtom(x11_display, "XdndSelection", False);
-    requested = None;
+    requested = 0;
 
     visual_server->init();
 
@@ -788,11 +788,11 @@ void OS_X11::finalize() {
     memdelete(context_gl);
 #endif
     for (int i = 0; i < CURSOR_MAX; i++) {
-        if (cursors[i] != None)
+        if (cursors[i] != 0)
             XFreeCursor(x11_display, cursors[i]);
         if (img[i] != nullptr)
             XcursorImageDestroy(img[i]);
-    };
+    }
 
     if (xic) {
         XDestroyIC(xic);
@@ -835,7 +835,7 @@ void OS_X11::set_mouse_mode(MouseMode p_mode) {
         if (XGrabPointer(
                     x11_display, x11_window, True,
                     ButtonPressMask | ButtonReleaseMask | PointerMotionMask,
-                    GrabModeAsync, GrabModeAsync, x11_window, None, CurrentTime) != GrabSuccess) {
+                    GrabModeAsync, GrabModeAsync, x11_window, 0, CurrentTime) != GrabSuccess) {
             ERR_PRINT("NO GRAB");
         }
 
@@ -843,7 +843,7 @@ void OS_X11::set_mouse_mode(MouseMode p_mode) {
             center.x = current_videomode.width / 2;
             center.y = current_videomode.height / 2;
 
-            XWarpPointer(x11_display, None, x11_window,
+            XWarpPointer(x11_display, 0, x11_window,
                     0, 0, 0, 0, (int)center.x, (int)center.y);
 
             input->set_mouse_position(center);
@@ -866,7 +866,7 @@ void OS_X11::warp_mouse_position(const Point2 &p_to) {
         XGetWindowAttributes(x11_display, x11_window, &xwa);
         printf("%d %d\n", xwa.x, xwa.y); needed? */
 
-        XWarpPointer(x11_display, None, x11_window,
+        XWarpPointer(x11_display, 0, x11_window,
                 0, 0, 0, 0, (int)p_to.x, (int)p_to.y);
     }
 }
@@ -929,7 +929,7 @@ void OS_X11::set_window_per_pixel_transparency_enabled(bool p_enabled) {
 }
 
 void OS_X11::set_window_title(se_string_view p_title) {
-    se_tmp_string<64,true> title(p_title);
+    TmpString<64,true> title(p_title);
     XStoreName(x11_display, x11_window, title.c_str());
 
     Atom _net_wm_name = XInternAtom(x11_display, "_NET_WM_NAME", false);
@@ -1139,7 +1139,7 @@ int OS_X11::get_screen_dpi(int p_screen) const {
     }
 
     //invalid screen?
-    ERR_FAIL_INDEX_V(p_screen, get_screen_count(), 0);
+    ERR_FAIL_INDEX_V(p_screen, get_screen_count(), 0)
 
     //Get physical monitor Dimensions through XRandR and calculate dpi
     Size2 sc = get_screen_size(p_screen);
@@ -1189,7 +1189,7 @@ void OS_X11::set_window_position(const Point2 &p_position) {
         //exclude window decorations
         XSync(x11_display, False);
         Atom prop = XInternAtom(x11_display, "_NET_FRAME_EXTENTS", True);
-        if (prop != None) {
+        if (prop != 0) {
             Atom type;
             int format;
             unsigned long len;
@@ -1222,7 +1222,7 @@ Size2 OS_X11::get_real_window_size() const {
     int w = xwa.width;
     int h = xwa.height;
     Atom prop = XInternAtom(x11_display, "_NET_FRAME_EXTENTS", True);
-    if (prop != None) {
+    if (prop != 0) {
         Atom type;
         int format;
         unsigned long len;
@@ -1655,7 +1655,7 @@ bool OS_X11::get_borderless_window() {
 
     bool borderless = current_videomode.borderless_window;
     Atom prop = XInternAtom(x11_display, "_MOTIF_WM_HINTS", True);
-    if (prop != None) {
+    if (prop != 0) {
 
         Atom type;
         int format;
@@ -1993,25 +1993,25 @@ static Atom pick_target_from_list(Display *p_display, Atom *p_list, int p_count)
 
         Atom atom = p_list[i];
 
-        if (atom != None && UIString(XGetAtomName(p_display, atom)) == target_type)
+        if (atom != 0 && UIString(XGetAtomName(p_display, atom)) == target_type)
             return atom;
     }
-    return None;
+    return 0;
 }
 
 static Atom pick_target_from_atoms(Display *p_disp, Atom p_t1, Atom p_t2, Atom p_t3) {
 
     static const char *target_type = "text/uri-list";
-    if (p_t1 != None && UIString(XGetAtomName(p_disp, p_t1)) == target_type)
+    if (p_t1 != 0 && UIString(XGetAtomName(p_disp, p_t1)) == target_type)
         return p_t1;
 
-    if (p_t2 != None && UIString(XGetAtomName(p_disp, p_t2)) == target_type)
+    if (p_t2 != 0 && UIString(XGetAtomName(p_disp, p_t2)) == target_type)
         return p_t2;
 
-    if (p_t3 != None && UIString(XGetAtomName(p_disp, p_t3)) == target_type)
+    if (p_t3 != 0 && UIString(XGetAtomName(p_disp, p_t3)) == target_type)
         return p_t3;
 
-    return None;
+    return 0;
 }
 
 void OS_X11::_window_changed(XEvent *event) {
@@ -2041,7 +2041,7 @@ void OS_X11::process_xevents() {
         XEvent event;
         XNextEvent(x11_display, &event);
 
-        if (XFilterEvent(&event, None)) {
+        if (XFilterEvent(&event, 0)) {
             continue;
         }
 
@@ -2229,7 +2229,7 @@ void OS_X11::process_xevents() {
                     XGrabPointer(
                             x11_display, x11_window, True,
                             ButtonPressMask | ButtonReleaseMask | PointerMotionMask,
-                            GrabModeAsync, GrabModeAsync, x11_window, None, CurrentTime);
+                            GrabModeAsync, GrabModeAsync, x11_window, 0, CurrentTime);
                 }
 #ifdef TOUCH_ENABLED
                 // Grab touch devices to avoid OS gesture interference
@@ -2500,7 +2500,7 @@ void OS_X11::process_xevents() {
                     printf("No Target '%s'\n", targetname);
                     if (targetname)
                         XFree(targetname);
-                    respond.xselection.property = None;
+                    respond.xselection.property = 0;
                 }
 
                 respond.xselection.type = SelectionNotify;
@@ -2570,7 +2570,7 @@ void OS_X11::process_xevents() {
                     m.message_type = xdnd_status;
                     m.format = 32;
                     m.data.l[0] = x11_window;
-                    m.data.l[1] = (requested != None);
+                    m.data.l[1] = (requested != 0);
                     m.data.l[2] = 0; //empty rectangle
                     m.data.l[3] = 0;
                     m.data.l[4] = xdnd_action_copy;
@@ -2579,7 +2579,7 @@ void OS_X11::process_xevents() {
                     XFlush(x11_display);
                 } else if ((unsigned int)event.xclient.message_type == (unsigned int)xdnd_drop) {
 
-                    if (requested != None) {
+                    if (requested != 0) {
                         xdnd_source_window = event.xclient.data.l[0];
                         if (xdnd_version >= 1)
                             XConvertSelection(x11_display, xdnd_selection, requested, XInternAtom(x11_display, "PRIMARY", 0), x11_window, event.xclient.data.l[2]);
@@ -2596,7 +2596,7 @@ void OS_X11::process_xevents() {
                         m.format = 32;
                         m.data.l[0] = x11_window;
                         m.data.l[1] = 0;
-                        m.data.l[2] = None; //Failed.
+                        m.data.l[2] = 0; //Failed.
                         XSendEvent(x11_display, event.xclient.data.l[0], False, NoEventMask, (XEvent *)&m);
                     }
                 }
@@ -2610,7 +2610,7 @@ void OS_X11::process_xevents() {
 
     if (do_mouse_warp) {
 
-        XWarpPointer(x11_display, None, x11_window,
+        XWarpPointer(x11_display, 0, x11_window,
                 0, 0, 0, 0, (int)current_videomode.width / 2, (int)current_videomode.height / 2);
 
         /*
@@ -2675,7 +2675,7 @@ static String _get_clipboard_impl(Atom p_source, Window x11_window, ::Display *x
         return String(p_internal_clipboard);
     }
 
-    if (Sown != None) {
+    if (Sown != 0) {
         XConvertSelection(x11_display, p_source, target, selection,
                 x11_window, CurrentTime);
         XFlush(x11_display);
@@ -2719,7 +2719,7 @@ static String _get_clipboard_impl(Atom p_source, Window x11_window, ::Display *x
 static String _get_clipboard(Atom p_source, Window x11_window, ::Display *x11_display, se_string_view p_internal_clipboard) {
     String ret;
     Atom utf8_atom = XInternAtom(x11_display, "UTF8_STRING", True);
-    if (utf8_atom != None) {
+    if (utf8_atom != 0) {
         ret = _get_clipboard_impl(p_source, x11_window, x11_display, p_internal_clipboard, utf8_atom);
     }
     if (ret.empty()) {
@@ -2784,16 +2784,16 @@ void OS_X11::move_window_to_foreground() {
 
 void OS_X11::set_cursor_shape(CursorShape p_shape) {
 
-    ERR_FAIL_INDEX(p_shape, CURSOR_MAX);
+    ERR_FAIL_INDEX(p_shape, CURSOR_MAX)
 
     if (p_shape == current_cursor) {
         return;
     }
 
     if (mouse_mode == MOUSE_MODE_VISIBLE || mouse_mode == MOUSE_MODE_CONFINED) {
-        if (cursors[p_shape] != None) {
+        if (cursors[p_shape] != 0) {
             XDefineCursor(x11_display, x11_window, cursors[p_shape]);
-        } else if (cursors[CURSOR_ARROW] != None) {
+        } else if (cursors[CURSOR_ARROW] != 0) {
             XDefineCursor(x11_display, x11_window, cursors[CURSOR_ARROW]);
         }
     }

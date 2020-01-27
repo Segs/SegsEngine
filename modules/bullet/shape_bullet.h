@@ -49,6 +49,7 @@ class ShapeBullet;
 class btCollisionShape;
 class ShapeOwnerBullet;
 class btBvhTriangleMeshShape;
+class btVector3;
 
 template<class TKey, class TData>
 using EUnorderdMap = eastl::unordered_map<TKey,TData,eastl::hash<TKey>,eastl::equal_to<TKey>,wrap_allocator>;
@@ -87,11 +88,11 @@ public:
 
 public:
     static class btEmptyShape *create_shape_empty();
-    static class btStaticPlaneShape *create_shape_plane(const btVector3 &planeNormal, btScalar planeConstant);
-    static class btSphereShape *create_shape_sphere(btScalar radius);
+    static class btStaticPlaneShape *create_shape_plane(const btVector3 &planeNormal, float planeConstant);
+    static class btSphereShape *create_shape_sphere(float radius);
     static class btBoxShape *create_shape_box(const btVector3 &boxHalfExtents);
-    static class btCapsuleShapeZ *create_shape_capsule(btScalar radius, btScalar height);
-    static class btCylinderShape *create_shape_cylinder(btScalar radius, btScalar height);
+    static class btCapsuleShapeZ *create_shape_capsule(float radius, float height);
+    static class btCylinderShape *create_shape_cylinder(float radius, float height);
     /// IMPORTANT: Remember to delete the shape interface by calling: delete my_shape->getMeshInterface();
     static class btConvexPointCloudShape *create_shape_convex(btAlignedObjectArray<btVector3> &p_vertices, const btVector3 &p_local_scaling = btVector3(1, 1, 1));
     static class btScaledBvhTriangleMeshShape *create_shape_concave(btBvhTriangleMeshShape *p_mesh_shape, const btVector3 &p_local_scaling = btVector3(1, 1, 1));
@@ -139,7 +140,7 @@ class BoxShapeBullet : public ShapeBullet {
 public:
     BoxShapeBullet();
 
-    _FORCE_INLINE_ const btVector3 &get_half_extents() { return half_extents; }
+    const btVector3 &get_half_extents() { return half_extents; }
     void set_data(const Variant &p_data) override;
     Variant get_data() const override;
     PhysicsServer::ShapeType get_type() const override;

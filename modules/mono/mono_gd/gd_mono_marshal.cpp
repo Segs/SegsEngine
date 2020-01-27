@@ -994,7 +994,16 @@ MonoArray *PoolIntArray_to_mono_array(const PoolIntArray &p_array) {
 
     return ret;
 }
+MonoArray *PoolIntArray_to_mono_array(const PODVector<int> &p_array) {
 
+    MonoArray *ret = mono_array_new(mono_domain_get(), CACHED_CLASS_RAW(int32_t), p_array.size());
+
+    for (size_t i = 0; i < p_array.size(); i++) {
+        mono_array_set(ret, int32_t, i, p_array[i]);
+    }
+
+    return ret;
+}
 PoolIntArray mono_array_to_PoolIntArray(MonoArray *p_array) {
     PoolIntArray ret;
     if (!p_array)
@@ -1076,7 +1085,24 @@ MonoArray *PoolStringArray_to_mono_array(const PoolStringArray &p_array) {
 
     return ret;
 }
+MonoArray *PoolStringArray_to_mono_array(const PODVector<StringName> &p_array) {
+    MonoArray *ret = mono_array_new(mono_domain_get(), CACHED_CLASS_RAW(String), p_array.size());
 
+    for (size_t i = 0; i < p_array.size(); i++) {
+        MonoString *boxed = mono_string_from_godot(p_array[i]);
+        mono_array_setref(ret, i, boxed);
+    }
+    return ret;
+}
+MonoArray *PoolStringArray_to_mono_array(const PODVector<String> &p_array) {
+    MonoArray *ret = mono_array_new(mono_domain_get(), CACHED_CLASS_RAW(String), p_array.size());
+
+    for (size_t i = 0; i < p_array.size(); i++) {
+        MonoString *boxed = mono_string_from_godot(p_array[i]);
+        mono_array_setref(ret, i, boxed);
+    }
+    return ret;
+}
 PoolStringArray mono_array_to_PoolStringArray(MonoArray *p_array) {
     PoolStringArray ret;
     if (!p_array)

@@ -1090,9 +1090,10 @@ MethodBind *ClassDB::bind_methodfi(uint32_t p_flags, MethodBind *p_bind, const c
 }
 
 void ClassDB::_set_class_header(const StringName &p_class, se_string_view header_file) {
+    //TODO: SEGS: fragile piece of code, assumes that 'project dir' is named SegsEngine.
     int idx  = header_file.find("SegsEngine");
     String hdr(header_file.substr(idx+11));
-    classes[p_class].usage_header = StringName(hdr.replaced(".cpp", ".h"));
+    classes[p_class].usage_header = hdr.replaced(".cpp", ".h");
 }
 
 void ClassDB::add_virtual_method(const StringName &p_class, const MethodInfo &p_method, bool p_virtual) {

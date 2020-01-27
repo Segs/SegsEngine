@@ -660,8 +660,7 @@ public:
 
                     AnimationPlayer *ap = object_cast<AnimationPlayer>(root_path->get_node(animation->track_get_path(track)));
                     if (ap) {
-                        PODVector<StringName> anims;
-                        ap->get_animation_list(&anims);
+                        PODVector<StringName> anims(ap->get_animation_list());
                         animations = String::joined(anims,",");
                     }
                 }
@@ -1359,10 +1358,10 @@ public:
 
                         AnimationPlayer *ap = object_cast<AnimationPlayer>(root_path->get_node(animation->track_get_path(first_track)));
                         if (ap) {
-                            ap->get_animation_list(&anims);
+                            anims = ap->get_animation_list();
                         }
                     }
-                    anims.push_back(StringName("[stop]"));
+                    anims.emplace_back("[stop]");
                     animations = String::joined(anims,",");
 
                     p_list->push_back(PropertyInfo(VariantType::STRING, "animation", PropertyHint::Enum, animations));
@@ -5627,8 +5626,7 @@ void AnimationTrackEditor::_edit_menu_pressed(int p_option) {
         } break;
         case EDIT_CLEAN_UP_ANIMATION_CONFIRM: {
             if (cleanup_all->is_pressed()) {
-                PODVector<StringName> names;
-                AnimationPlayerEditor::singleton->get_player()->get_animation_list(&names);
+                PODVector<StringName> names = AnimationPlayerEditor::singleton->get_player()->get_animation_list();
                 for (const StringName &E : names) {
                     _cleanup_animation(AnimationPlayerEditor::singleton->get_player()->get_animation(E));
                 }

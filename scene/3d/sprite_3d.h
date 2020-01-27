@@ -213,7 +213,7 @@ class AnimatedSprite3D : public SpriteBase3D {
     Color modulate;
 
     void _res_changed();
-
+public:
     void _reset_timeout();
     void _set_playing(bool p_playing);
     bool _is_playing() const;

@@ -156,7 +156,7 @@ class AnimatedSprite : public Node2D {
     bool vflip;
 
     void _res_changed();
-
+public:
     float _get_frame_duration();
     void _reset_timeout();
     void _set_playing(bool p_playing);

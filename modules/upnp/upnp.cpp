@@ -34,6 +34,7 @@
 #include <miniupnpc/upnpcommands.h>
 #include "core/method_bind.h"
 
+#include <miniupnpc/miniupnpc.h>
 #include <cstdlib>
 
 IMPL_GDCLASS(UPNP)

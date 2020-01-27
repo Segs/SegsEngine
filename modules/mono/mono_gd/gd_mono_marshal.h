@@ -133,6 +133,7 @@ Array mono_array_to_Array(MonoArray *p_array);
 // PoolIntArray
 
 MonoArray *PoolIntArray_to_mono_array(const PoolIntArray &p_array);
+MonoArray *PoolIntArray_to_mono_array(const PODVector<int> &p_array);
 PoolIntArray mono_array_to_PoolIntArray(MonoArray *p_array);
 
 // PoolByteArray
@@ -148,6 +149,8 @@ PoolRealArray mono_array_to_PoolRealArray(MonoArray *p_array);
 // PoolStringArray
 
 MonoArray *PoolStringArray_to_mono_array(const PoolStringArray &p_array);
+MonoArray *PoolStringArray_to_mono_array(const PODVector<StringName> &p_array);
+MonoArray *PoolStringArray_to_mono_array(const PODVector<String> &p_array);
 PoolStringArray mono_array_to_PoolStringArray(MonoArray *p_array);
 
 // PoolColorArray

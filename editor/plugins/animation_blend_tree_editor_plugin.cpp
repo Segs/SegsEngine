@@ -224,8 +224,7 @@ void AnimationNodeBlendTreeEditor::_update_graph() {
             if (player->has_node(player->get_animation_player())) {
                 AnimationPlayer *ap = object_cast<AnimationPlayer>(player->get_node(player->get_animation_player()));
                 if (ap) {
-                    PODVector<StringName> anims;
-                    ap->get_animation_list(&anims);
+                    PODVector<StringName> anims(ap->get_animation_list());
 
                     for (const StringName &F : anims) {
                         mb->get_popup()->add_item(F);
@@ -543,8 +542,7 @@ bool AnimationNodeBlendTreeEditor::_update_filters(const Ref<AnimationNode> &ano
     Set<String> paths;
     HashMap<String, Set<String> > types;
     {
-        PODVector<StringName> animations;
-        player->get_animation_list(&animations);
+        PODVector<StringName> animations(player->get_animation_list());
 
         for (StringName E : animations) {
 

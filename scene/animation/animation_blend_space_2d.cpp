@@ -288,27 +288,28 @@ void AnimationNodeBlendSpace2D::_add_blend_point(int p_index, const Ref<Animatio
     }
 }
 
-void AnimationNodeBlendSpace2D::_set_triangles(const Vector<int> &p_triangles) {
+void AnimationNodeBlendSpace2D::_set_triangles(const PoolVector<int> &p_triangles) {
 
     if (auto_triangles)
         return;
+    auto rd=p_triangles.read();
     ERR_FAIL_COND(p_triangles.size() % 3 != 0)
     for (int i = 0; i < p_triangles.size(); i += 3) {
-        add_triangle(p_triangles[i + 0], p_triangles[i + 1], p_triangles[i + 2]);
+        add_triangle(rd[i + 0], rd[i + 1], rd[i + 2]);
     }
 }
 
-Vector<int> AnimationNodeBlendSpace2D::_get_triangles() const {
+PODVector<int> AnimationNodeBlendSpace2D::_get_triangles() const {
 
-    Vector<int> t;
+    PODVector<int> t;
     if (auto_triangles && trianges_dirty)
         return t;
 
     t.resize(triangles.size() * 3);
     for (int i = 0; i < triangles.size(); i++) {
-        t.write[i * 3 + 0] = triangles[i].points[0];
-        t.write[i * 3 + 1] = triangles[i].points[1];
-        t.write[i * 3 + 2] = triangles[i].points[2];
+        t[i * 3 + 0] = triangles[i].points[0];
+        t[i * 3 + 1] = triangles[i].points[1];
+        t[i * 3 + 2] = triangles[i].points[2];
     }
     return t;
 }

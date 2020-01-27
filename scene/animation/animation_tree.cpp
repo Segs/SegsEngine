@@ -562,8 +562,7 @@ bool AnimationTree::_update_caches(AnimationPlayer *player) {
     }
     Node *parent = player->get_node(player->get_root());
 
-    PODVector<StringName> sname;
-    player->get_animation_list(&sname);
+    PODVector<StringName> sname(player->get_animation_list());
 
     for (const StringName &E : sname) {
         Ref<Animation> anim = player->get_animation(E);

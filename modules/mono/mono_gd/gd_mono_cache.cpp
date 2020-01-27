@@ -220,60 +220,60 @@ void update_corlib_cache() {
 
 void update_godot_api_cache() {
 
-	CACHE_CLASS_AND_CHECK(Vector2, GODOT_API_CLASS(Vector2));
-	CACHE_CLASS_AND_CHECK(Rect2, GODOT_API_CLASS(Rect2));
-	CACHE_CLASS_AND_CHECK(Transform2D, GODOT_API_CLASS(Transform2D));
-	CACHE_CLASS_AND_CHECK(Vector3, GODOT_API_CLASS(Vector3));
-	CACHE_CLASS_AND_CHECK(Basis, GODOT_API_CLASS(Basis));
-	CACHE_CLASS_AND_CHECK(Quat, GODOT_API_CLASS(Quat));
-	CACHE_CLASS_AND_CHECK(Transform, GODOT_API_CLASS(Transform));
-	CACHE_CLASS_AND_CHECK(AABB, GODOT_API_CLASS(AABB));
-	CACHE_CLASS_AND_CHECK(Color, GODOT_API_CLASS(Color));
-	CACHE_CLASS_AND_CHECK(Plane, GODOT_API_CLASS(Plane));
-	CACHE_CLASS_AND_CHECK(NodePath, GODOT_API_CLASS(NodePath));
-	CACHE_CLASS_AND_CHECK(RID, GODOT_API_CLASS(RID));
-	CACHE_CLASS_AND_CHECK(GodotObject, GODOT_API_CLASS(Object));
-	CACHE_CLASS_AND_CHECK(GodotResource, GODOT_API_CLASS(Resource));
-	CACHE_CLASS_AND_CHECK(Node, GODOT_API_CLASS(Node));
-	CACHE_CLASS_AND_CHECK(Control, GODOT_API_CLASS(Control));
-	CACHE_CLASS_AND_CHECK(Spatial, GODOT_API_CLASS(Spatial));
-	CACHE_CLASS_AND_CHECK(WeakRef, GODOT_API_CLASS(WeakRef));
-	CACHE_CLASS_AND_CHECK(Array, GODOT_API_NS_CLASS(BINDINGS_NAMESPACE_COLLECTIONS, Array));
-	CACHE_CLASS_AND_CHECK(Dictionary, GODOT_API_NS_CLASS(BINDINGS_NAMESPACE_COLLECTIONS, Dictionary));
-	CACHE_CLASS_AND_CHECK(MarshalUtils, GODOT_API_CLASS(MarshalUtils));
-	CACHE_CLASS_AND_CHECK(ISerializationListener, GODOT_API_CLASS(ISerializationListener));
+    CACHE_CLASS_AND_CHECK(Vector2, GODOT_API_CLASS(Vector2))
+    CACHE_CLASS_AND_CHECK(Rect2, GODOT_API_CLASS(Rect2))
+    CACHE_CLASS_AND_CHECK(Transform2D, GODOT_API_CLASS(Transform2D))
+    CACHE_CLASS_AND_CHECK(Vector3, GODOT_API_CLASS(Vector3))
+    CACHE_CLASS_AND_CHECK(Basis, GODOT_API_CLASS(Basis))
+    CACHE_CLASS_AND_CHECK(Quat, GODOT_API_CLASS(Quat))
+    CACHE_CLASS_AND_CHECK(Transform, GODOT_API_CLASS(Transform))
+    CACHE_CLASS_AND_CHECK(AABB, GODOT_API_CLASS(AABB))
+    CACHE_CLASS_AND_CHECK(Color, GODOT_API_CLASS(Color))
+    CACHE_CLASS_AND_CHECK(Plane, GODOT_API_CLASS(Plane))
+    CACHE_CLASS_AND_CHECK(NodePath, GODOT_API_CLASS(NodePath))
+    CACHE_CLASS_AND_CHECK(RID, GODOT_API_CLASS(RID))
+    CACHE_CLASS_AND_CHECK(GodotObject, GODOT_API_CLASS(Object))
+    CACHE_CLASS_AND_CHECK(GodotResource, GODOT_API_CLASS(Resource))
+    CACHE_CLASS_AND_CHECK(Node, GODOT_API_CLASS(Node))
+    CACHE_CLASS_AND_CHECK(Control, GODOT_API_CLASS(Control))
+    CACHE_CLASS_AND_CHECK(Spatial, GODOT_API_CLASS(Spatial))
+    CACHE_CLASS_AND_CHECK(WeakRef, GODOT_API_CLASS(WeakRef))
+    CACHE_CLASS_AND_CHECK(Array, GODOT_API_NS_CLASS(BINDINGS_NAMESPACE_COLLECTIONS, Array))
+    CACHE_CLASS_AND_CHECK(Dictionary, GODOT_API_NS_CLASS(BINDINGS_NAMESPACE_COLLECTIONS, Dictionary))
+    CACHE_CLASS_AND_CHECK(MarshalUtils, GODOT_API_CLASS(MarshalUtils))
+    CACHE_CLASS_AND_CHECK(ISerializationListener, GODOT_API_CLASS(ISerializationListener))
 
 #ifdef DEBUG_ENABLED
-	CACHE_CLASS_AND_CHECK(DebuggingUtils, GODOT_API_CLASS(DebuggingUtils));
+    CACHE_CLASS_AND_CHECK(DebuggingUtils, GODOT_API_CLASS(DebuggingUtils))
 #endif
 
 	// Attributes
-	CACHE_CLASS_AND_CHECK(ExportAttribute, GODOT_API_CLASS(ExportAttribute));
-	CACHE_FIELD_AND_CHECK(ExportAttribute, hint, CACHED_CLASS(ExportAttribute)->get_field("hint"));
-	CACHE_FIELD_AND_CHECK(ExportAttribute, hintString, CACHED_CLASS(ExportAttribute)->get_field("hintString"));
-	CACHE_CLASS_AND_CHECK(SignalAttribute, GODOT_API_CLASS(SignalAttribute));
-	CACHE_CLASS_AND_CHECK(ToolAttribute, GODOT_API_CLASS(ToolAttribute));
-	CACHE_CLASS_AND_CHECK(RemoteAttribute, GODOT_API_CLASS(RemoteAttribute));
-	CACHE_CLASS_AND_CHECK(SyncAttribute, GODOT_API_CLASS(SyncAttribute));
-	CACHE_CLASS_AND_CHECK(MasterAttribute, GODOT_API_CLASS(MasterAttribute));
-	CACHE_CLASS_AND_CHECK(PuppetAttribute, GODOT_API_CLASS(PuppetAttribute));
-	CACHE_CLASS_AND_CHECK(SlaveAttribute, GODOT_API_CLASS(SlaveAttribute));
-	CACHE_CLASS_AND_CHECK(RemoteSyncAttribute, GODOT_API_CLASS(RemoteSyncAttribute));
-	CACHE_CLASS_AND_CHECK(MasterSyncAttribute, GODOT_API_CLASS(MasterSyncAttribute));
-	CACHE_CLASS_AND_CHECK(PuppetSyncAttribute, GODOT_API_CLASS(PuppetSyncAttribute));
-	CACHE_CLASS_AND_CHECK(GodotMethodAttribute, GODOT_API_CLASS(GodotMethodAttribute));
-	CACHE_FIELD_AND_CHECK(GodotMethodAttribute, methodName, CACHED_CLASS(GodotMethodAttribute)->get_field("methodName"));
+    CACHE_CLASS_AND_CHECK(ExportAttribute, GODOT_API_CLASS(ExportAttribute))
+    CACHE_FIELD_AND_CHECK(ExportAttribute, hint, CACHED_CLASS(ExportAttribute)->get_field("hint"))
+    CACHE_FIELD_AND_CHECK(ExportAttribute, hintString, CACHED_CLASS(ExportAttribute)->get_field("hintString"))
+    CACHE_CLASS_AND_CHECK(SignalAttribute, GODOT_API_CLASS(SignalAttribute))
+    CACHE_CLASS_AND_CHECK(ToolAttribute, GODOT_API_CLASS(ToolAttribute))
+    CACHE_CLASS_AND_CHECK(RemoteAttribute, GODOT_API_CLASS(RemoteAttribute))
+    CACHE_CLASS_AND_CHECK(SyncAttribute, GODOT_API_CLASS(SyncAttribute))
+    CACHE_CLASS_AND_CHECK(MasterAttribute, GODOT_API_CLASS(MasterAttribute))
+    CACHE_CLASS_AND_CHECK(PuppetAttribute, GODOT_API_CLASS(PuppetAttribute))
+    CACHE_CLASS_AND_CHECK(SlaveAttribute, GODOT_API_CLASS(SlaveAttribute))
+    CACHE_CLASS_AND_CHECK(RemoteSyncAttribute, GODOT_API_CLASS(RemoteSyncAttribute))
+    CACHE_CLASS_AND_CHECK(MasterSyncAttribute, GODOT_API_CLASS(MasterSyncAttribute))
+    CACHE_CLASS_AND_CHECK(PuppetSyncAttribute, GODOT_API_CLASS(PuppetSyncAttribute))
+    CACHE_CLASS_AND_CHECK(GodotMethodAttribute, GODOT_API_CLASS(GodotMethodAttribute))
+    CACHE_FIELD_AND_CHECK(GodotMethodAttribute, methodName, CACHED_CLASS(GodotMethodAttribute)->get_field("methodName"))
 
-	CACHE_FIELD_AND_CHECK(GodotObject, ptr, CACHED_CLASS(GodotObject)->get_field(BINDINGS_PTR_FIELD));
-	CACHE_FIELD_AND_CHECK(NodePath, ptr, CACHED_CLASS(NodePath)->get_field(BINDINGS_PTR_FIELD));
-	CACHE_FIELD_AND_CHECK(RID, ptr, CACHED_CLASS(RID)->get_field(BINDINGS_PTR_FIELD));
+    CACHE_FIELD_AND_CHECK(GodotObject, ptr, CACHED_CLASS(GodotObject)->get_field(BINDINGS_PTR_FIELD))
+    CACHE_FIELD_AND_CHECK(NodePath, ptr, CACHED_CLASS(NodePath)->get_field(BINDINGS_PTR_FIELD))
+    CACHE_FIELD_AND_CHECK(RID, ptr, CACHED_CLASS(RID)->get_field(BINDINGS_PTR_FIELD))
 
-	CACHE_METHOD_THUNK_AND_CHECK(GodotObject, Dispose, CACHED_CLASS(GodotObject)->get_method("Dispose", 0));
-	CACHE_METHOD_THUNK_AND_CHECK(Array, GetPtr, GODOT_API_NS_CLASS(BINDINGS_NAMESPACE_COLLECTIONS, Array)->get_method("GetPtr", 0));
-	CACHE_METHOD_THUNK_AND_CHECK(Dictionary, GetPtr, GODOT_API_NS_CLASS(BINDINGS_NAMESPACE_COLLECTIONS, Dictionary)->get_method("GetPtr", 0));
-	CACHE_METHOD_THUNK_AND_CHECK(SignalAwaiter, SignalCallback, GODOT_API_CLASS(SignalAwaiter)->get_method("SignalCallback", 1));
-	CACHE_METHOD_THUNK_AND_CHECK(SignalAwaiter, FailureCallback, GODOT_API_CLASS(SignalAwaiter)->get_method("FailureCallback", 0));
-	CACHE_METHOD_THUNK_AND_CHECK(GodotTaskScheduler, Activate, GODOT_API_CLASS(GodotTaskScheduler)->get_method("Activate", 0));
+    CACHE_METHOD_THUNK_AND_CHECK(GodotObject, Dispose, CACHED_CLASS(GodotObject)->get_method("Dispose", 0))
+    CACHE_METHOD_THUNK_AND_CHECK(Array, GetPtr, GODOT_API_NS_CLASS(BINDINGS_NAMESPACE_COLLECTIONS, Array)->get_method("GetPtr", 0))
+    CACHE_METHOD_THUNK_AND_CHECK(Dictionary, GetPtr, GODOT_API_NS_CLASS(BINDINGS_NAMESPACE_COLLECTIONS, Dictionary)->get_method("GetPtr", 0))
+    CACHE_METHOD_THUNK_AND_CHECK(SignalAwaiter, SignalCallback, GODOT_API_CLASS(SignalAwaiter)->get_method("SignalCallback", 1))
+    CACHE_METHOD_THUNK_AND_CHECK(SignalAwaiter, FailureCallback, GODOT_API_CLASS(SignalAwaiter)->get_method("FailureCallback", 0))
+    CACHE_METHOD_THUNK_AND_CHECK(GodotTaskScheduler, Activate, GODOT_API_CLASS(GodotTaskScheduler)->get_method("Activate", 0))
 
 	// Start of MarshalUtils methods
 

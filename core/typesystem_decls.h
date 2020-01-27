@@ -33,6 +33,9 @@ enum MethodFlags {
     METHOD_FLAG_VARARG = 128,
     METHOD_FLAGS_DEFAULT = METHOD_FLAG_NORMAL,
 };
+#ifdef None
+#undef None
+#endif
 enum class PropertyHint : int8_t {
     None=0, ///< no hint provided.
     Range, ///< hint_text = "min,max,step,slider; //slider is optional"

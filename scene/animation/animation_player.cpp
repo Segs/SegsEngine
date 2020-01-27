@@ -36,6 +36,7 @@
 #include "core/object_tooling.h"
 #include "scene/scene_string_names.h"
 #include "servers/audio/audio_stream.h"
+#include "EASTL/sort.h"
 
 IMPL_GDCLASS(AnimationPlayer)
 
@@ -1088,21 +1089,16 @@ Ref<Animation> AnimationPlayer::get_animation(const StringName &p_name) const {
 
     return data.animation;
 }
-void AnimationPlayer::get_animation_list(PODVector<StringName> *p_animations) const {
+PODVector<StringName> AnimationPlayer::get_animation_list() const {
 
-    ListPOD<StringName> anims;
-
+    PODVector<StringName> anims;
+    anims.reserve(animation_set.size());
     for (const eastl::pair<const StringName,AnimationData> &E : animation_set) {
-
         anims.emplace_back(E.first);
     }
-
-    anims.sort();
-
-    for (se_string_view E : anims) {
-
-        p_animations->emplace_back(E);
-    }
+    //TODO: SEGS: this sort will not sort by alpha comparing names !
+    eastl::sort(anims.begin(),anims.end());
+    return anims;
 }
 
 void AnimationPlayer::set_blend_time(const StringName &p_animation1, const StringName &p_animation2, float p_time) {
@@ -1550,8 +1546,7 @@ void AnimationPlayer::get_argument_options(const StringName &p_function, int p_i
 
     String pf(p_function);
     if (p_function == "play" || p_function == "play_backwards" || p_function == "remove_animation" || p_function == "has_animation" || p_function == "queue") {
-        PODVector<StringName> al;
-        get_animation_list(&al);
+        PODVector<StringName> al(get_animation_list());
         for (const StringName &E : al) {
 
             r_options->emplace_back(quote_style + String(E) + quote_style);
@@ -1634,7 +1629,7 @@ void AnimationPlayer::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("rename_animation", {"name", "newname"}), &AnimationPlayer::rename_animation);
     MethodBinder::bind_method(D_METHOD("has_animation", {"name"}), &AnimationPlayer::has_animation);
     MethodBinder::bind_method(D_METHOD("get_animation", {"name"}), &AnimationPlayer::get_animation);
-    MethodBinder::bind_method(D_METHOD("get_animation_list"), &AnimationPlayer::_get_animation_list);
+    MethodBinder::bind_method(D_METHOD("get_animation_list"), &AnimationPlayer::get_animation_list);
 
     MethodBinder::bind_method(D_METHOD("animation_set_next", {"anim_from", "anim_to"}), &AnimationPlayer::animation_set_next);
     MethodBinder::bind_method(D_METHOD("animation_get_next", {"anim_from"}), &AnimationPlayer::animation_get_next);

@@ -50,6 +50,7 @@
 #include "../utils/string_utils.h"
 #include "csharp_project.h"
 #include "EASTL/sort.h"
+#include "EASTL/unordered_set.h"
 
 
 #define CS_INDENT "    " // 4 whitespaces
@@ -121,13 +122,13 @@ static String snake_to_pascal_case(se_string_view p_identifier, bool p_input_is_
     String ret;
     PODVector<se_string_view> parts = StringUtils::split(p_identifier,"_", true);
 
-    for (int i = 0; i < parts.size(); i++) {
+    for (size_t i = 0; i < parts.size(); i++) {
         String part(parts[i]);
 
         if (part.length()) {
             part[0] = StringUtils::char_uppercase(part[0]);
             if (p_input_is_upper) {
-                for (int j = 1; j < part.length(); j++)
+                for (size_t j = 1; j < part.length(); j++)
                     part[j] = StringUtils::char_lowercase(part[j]);
             }
             ret += part;
@@ -154,7 +155,7 @@ static String snake_to_camel_case(se_string_view p_identifier, bool p_input_is_u
     String ret;
     auto parts = StringUtils::split(p_identifier,'_', true);
 
-    for (int i = 0; i < parts.size(); i++) {
+    for (size_t i = 0; i < parts.size(); i++) {
         String part(parts[i]);
 
         if (part.length()) {
@@ -162,7 +163,7 @@ static String snake_to_camel_case(se_string_view p_identifier, bool p_input_is_u
                 part[0] = StringUtils::char_uppercase(part[0]);
             }
             if (p_input_is_upper) {
-                for (int j = i != 0 ? 1 : 0; j < part.length(); j++)
+                for (size_t j = i != 0 ? 1 : 0; j < part.length(); j++)
                     part[j] = StringUtils::char_lowercase(part[j]);
             }
             ret += part;
@@ -432,7 +433,7 @@ String BindingsGenerator::bbcode_to_xml(se_string_view p_bbcode, const TypeInter
                             xml_output.append(target_iconst->proxy_name);
                             xml_output.append("\"/>");
                         } else {
-                            ERR_PRINT("Cannot resolve global constant reference in documentation: '" + link_target + "'.");
+                            ERR_PRINT("Cannot resolve global constant reference in documentation: '" + link_target + "'.")
 
                             xml_output.append("<c>");
                             xml_output.append(link_target);
@@ -472,7 +473,7 @@ String BindingsGenerator::bbcode_to_xml(se_string_view p_bbcode, const TypeInter
                             xml_output.append(target_iconst->proxy_name);
                             xml_output.append("\"/>");
                         } else {
-                            ERR_PRINT("Cannot resolve constant reference in documentation: '" + link_target + "'.");
+                            ERR_PRINT("Cannot resolve constant reference in documentation: '" + link_target + "'.")
 
                             xml_output.append("<c>");
                             xml_output.append(link_target);
@@ -587,8 +588,8 @@ String BindingsGenerator::bbcode_to_xml(se_string_view p_bbcode, const TypeInter
             pos = brk_end + 1;
             tag_stack.push_front(String(tag));
         } else if (tag == "url"_sv) {
-            int end = bbcode.find("[", brk_end);
-            if (end == -1)
+            size_t end = bbcode.find("[", brk_end);
+            if (end == String::npos)
                 end = bbcode.length();
             se_string_view url = StringUtils::substr(bbcode,brk_end + 1, end - brk_end - 1);
             xml_output.append("<a href=\"");
@@ -640,11 +641,11 @@ String BindingsGenerator::bbcode_to_xml(se_string_view p_bbcode, const TypeInter
 
 int BindingsGenerator::_determine_enum_prefix(const EnumInterface &p_ienum) {
 
-    CRASH_COND(p_ienum.constants.empty());
+    CRASH_COND(p_ienum.constants.empty())
 
     const ConstantInterface &front_iconstant = p_ienum.constants.front();
     auto front_parts = front_iconstant.name.split("_", /* p_allow_empty: */ true);
-    int candidate_len = front_parts.size() - 1;
+    size_t candidate_len = front_parts.size() - 1;
 
     if (candidate_len == 0)
         return 0;
@@ -653,7 +654,7 @@ int BindingsGenerator::_determine_enum_prefix(const EnumInterface &p_ienum) {
 
         auto parts = iconstant.name.split("_", /* p_allow_empty: */ true);
 
-        int i;
+        size_t i;
         for (i = 0; i < candidate_len && i < parts.size(); i++) {
             if (front_parts[i] != parts[i]) {
                 // HARDCODED: Some Flag enums have the prefix 'FLAG_' for everything except 'FLAGS_DEFAULT' (same for 'METHOD_FLAG_' and'METHOD_FLAGS_DEFAULT').
@@ -1301,7 +1302,7 @@ Error BindingsGenerator::_generate_cs_type(const TypeInterface &itype, se_string
         for (const PropertyInterface &iprop : itype.properties) {
             Error prop_err = _generate_cs_property(itype, iprop, output);
             ERR_FAIL_COND_V_MSG(prop_err != OK, prop_err,
-                    String("Failed to generate property '") + iprop.cname + "' for class '" + itype.name + "'.");
+                    String("Failed to generate property '") + iprop.cname + "' for class '" + itype.name + "'.")
         }
     }
 
@@ -1427,12 +1428,12 @@ Error BindingsGenerator::_generate_cs_property(const BindingsGenerator::TypeInte
 
     if (setter) {
         int setter_argc = p_iprop.index != -1 ? 2 : 1;
-        ERR_FAIL_COND_V(setter->arguments.size() != setter_argc, ERR_BUG);
+        ERR_FAIL_COND_V(setter->arguments.size() != setter_argc, ERR_BUG)
     }
 
     if (getter) {
         int getter_argc = p_iprop.index != -1 ? 1 : 0;
-        ERR_FAIL_COND_V(getter->arguments.size() != getter_argc, ERR_BUG);
+        ERR_FAIL_COND_V(getter->arguments.size() != getter_argc, ERR_BUG)
     }
 
     if (getter && setter) {
@@ -1754,8 +1755,13 @@ Error BindingsGenerator::generate_glue(se_string_view p_output_dir) {
     output.append("#include \"core/method_bind.h\"\n");
     output.append("#include \"core/pool_vector.h\"\n");
     output.append("\n#ifdef MONO_GLUE_ENABLED\n");
-    for (const auto &ci : ClassDB::classes) {
-        output.append(FormatVE("#include \"%s\"\n",ci.second.usage_header.asCString()));
+    eastl::unordered_set<String> used;
+    for (OrderedHashMap<StringName, TypeInterface>::Element type_elem = obj_types.front(); type_elem; type_elem = type_elem.next()) {
+        const TypeInterface &itype = type_elem.get();
+        if(used.contains(ClassDB::classes[itype.cname].usage_header))
+            continue;
+        used.insert(ClassDB::classes[itype.cname].usage_header);
+        output.append("#include \""+ClassDB::classes[itype.cname].usage_header+"\"\n");
         
     }
 
@@ -1946,7 +1952,7 @@ Error BindingsGenerator::_generate_glue_method(const BindingsGenerator::TypeInte
 
     se_string_view no_star=se_string_view(p_itype.c_type_in).substr(0,p_itype.c_type_in.size()-1);
     String class_type(p_itype.c_type_in.ends_with('*') ? no_star : p_itype.c_type_in);
-    String c_func_sig = "MethodBind* " CS_PARAM_METHODBIND ", " + p_itype.c_type_in + " " CS_PARAM_INSTANCE;
+    String c_func_sig = p_itype.c_type_in + " " CS_PARAM_INSTANCE;
     String c_in_statements;
     String c_args_var_content;
      
@@ -1978,7 +1984,6 @@ Error BindingsGenerator::_generate_glue_method(const BindingsGenerator::TypeInte
     int i = 0;
     for (const ArgumentInterface &iarg : p_imethod.arguments) {
         const TypeInterface *arg_type = _get_type_or_placeholder(iarg.type);
-
         String c_param_name = "arg" + itos(i + 1);
         if (p_imethod.is_vararg) {
             if (i < p_imethod.arguments.size() - 1) {
@@ -1994,6 +1999,12 @@ Error BindingsGenerator::_generate_glue_method(const BindingsGenerator::TypeInte
                 c_in_statements += sformat(arg_type->c_in, arg_type->c_type, c_param_name);
             if(arg_type->is_reference)
                 c_args_var_content += FormatVE("Ref<RefCounted>((RefCounted *)%s)",c_param_name.c_str());
+            else if(arg_type->is_enum) {
+                // add enum cast
+                String cast_as(arg_type->name);
+                c_args_var_content += "(" +cast_as.replaced(".","::")+")";
+                c_args_var_content += sformat(arg_type->c_arg_in, c_param_name);
+            }
             else if(!arg_type->c_in.empty()) // Provided de-marshalling code was used.
             {
                 c_args_var_content += sformat(arg_type->c_arg_in, c_param_name);
@@ -2007,6 +2018,10 @@ Error BindingsGenerator::_generate_glue_method(const BindingsGenerator::TypeInte
                     break;
                 case TypePassBy::Reference:
                     c_args_var_content += "*"+sformat(arg_type->c_arg_in, c_param_name);
+                    break;
+                case TypePassBy::Pointer:
+                    c_args_var_content += "("+String(arg_type->cname)+"*)";
+                    c_args_var_content += sformat(arg_type->c_arg_in, c_param_name);
                     break;
                 default:
                     c_args_var_content += sformat(arg_type->c_arg_in, c_param_name);
@@ -2316,7 +2331,7 @@ bool BindingsGenerator::_populate_object_type_interfaces() {
 
         itype.c_out = "\treturn ";
         itype.c_out += C_METHOD_UNMANAGED_GET_MANAGED;
-        itype.c_out += itype.is_reference ? "(%1.get());\n" : "(%1);\n";
+        itype.c_out += itype.is_reference ? "((Object *)%1.get());\n" : "(%1);\n";
 
         itype.cs_in = itype.is_singleton ? BINDINGS_PTR_FIELD : "Object." CS_SMETHOD_GETINSTANCE "(%0)";
 
