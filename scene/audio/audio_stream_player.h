@@ -70,7 +70,7 @@ private:
 	void _mix_internal(bool p_fadeout);
 	void _mix_audio();
 	static void _mix_audios(void *self) { reinterpret_cast<AudioStreamPlayer *>(self)->_mix_audio(); }
-
+public:
 	void _set_playing(bool p_enable);
 	bool _is_active() const;
 
