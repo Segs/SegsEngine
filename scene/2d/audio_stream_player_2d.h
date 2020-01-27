@@ -76,19 +76,19 @@ private:
 	bool stream_paused_fade_in;
 	bool stream_paused_fade_out;
 	StringName bus;
+    uint32_t area_mask;
+
+    float max_distance;
+    float attenuation;
 
 	void _mix_audio();
 	static void _mix_audios(void *self) { reinterpret_cast<AudioStreamPlayer2D *>(self)->_mix_audio(); }
-
+public:
 	void _set_playing(bool p_enable);
 	bool _is_active() const;
 
 	void _bus_layout_changed();
 
-	uint32_t area_mask;
-
-	float max_distance;
-	float attenuation;
 
 protected:
 	void _validate_property(PropertyInfo &property) const override;
