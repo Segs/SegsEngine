@@ -48,10 +48,11 @@ class GODOT_EXPORT BitMap : public Resource {
 
     Array _opaque_to_polygons_bind(const Rect2 &p_rect, float p_epsilon) const;
 
-protected:
+public:
     void _set_data(const Dictionary &p_d);
     Dictionary _get_data() const;
 
+protected:
     static void _bind_methods();
 
 public:

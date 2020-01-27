@@ -44,7 +44,7 @@ class PhysicsBody2D : public CollisionObject2D {
 
     uint32_t collision_layer;
     uint32_t collision_mask;
-
+public:
     void _set_layers(uint32_t p_mask);
     uint32_t _get_layers() const;
 
