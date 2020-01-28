@@ -388,11 +388,11 @@ namespace eastl
                 RawLayout raw;
             };
 
-            Layout()                                                  { ResetToSSO(); SetSSOSize(0); } // start as SSO by default
+            Layout() EA_NOEXCEPT                                      { ResetToSSO(); SetSSOSize(0); } // start as SSO by default
             Layout(const Layout& other)                               { Copy(*this, other); }
-            Layout(Layout&& other)                                    { Move(*this, other); }
+            Layout(Layout&& other) EA_NOEXCEPT                        { Move(*this, other); }
             Layout& operator=(const Layout& other)                    { Copy(*this, other); return *this; }
-            Layout& operator=(Layout&& other)                         { Move(*this, other); return *this; }
+            Layout& operator=(Layout&& other) EA_NOEXCEPT             { Move(*this, other); return *this; }
 
             // We are using Heap when the bit is set, easier to conceptualize checking IsHeap instead of IsSSO
             inline bool IsHeap() const EA_NOEXCEPT                    { return !!(sso.mRemainingSizeField.mnRemainingSize & kSSOMask); }
@@ -1033,7 +1033,7 @@ namespace eastl
         value_type* DoAllocate(size_type n);
         void        DoFree(value_type* p, size_type n);
         size_type   GetNewCapacity(size_type currentCapacity);
-        void        AllocateSelf();
+        void        AllocateSelf() EA_NOEXCEPT;
         void        AllocateSelf(size_type n);
         void        DeallocateSelf();
         iterator    InsertInternal(const_iterator p, value_type c);
@@ -3558,7 +3558,7 @@ namespace eastl
 
 
     template <typename T, typename Allocator>
-    inline void basic_string<T, Allocator>::AllocateSelf()
+    inline void basic_string<T, Allocator>::AllocateSelf() EA_NOEXCEPT
     {
         internalLayout().ResetToSSO();
         internalLayout().SetSSOSize(0);

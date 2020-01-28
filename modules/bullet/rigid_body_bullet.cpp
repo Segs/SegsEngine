@@ -36,6 +36,8 @@
 #include "bullet_utilities.h"
 #include "godot_motion_state.h"
 #include "joint_bullet.h"
+#include "shape_bullet.h"
+#include "area_bullet.h"
 #include "core/class_db.h"
 #include "core/string_utils.h"
 #include "core/property_info.h"

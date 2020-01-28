@@ -85,8 +85,7 @@ DefHashMap<StringName, ClassDB::ClassInfo> ClassDB::classes;
 DefHashMap<StringName, StringName> ClassDB::resource_base_extensions;
 HashMap<StringName, StringName> ClassDB::compat_classes;
 
-ClassDB::ClassInfo::ClassInfo() {
-}
+ClassDB::ClassInfo::ClassInfo() = default;
 
 ClassDB::ClassInfo::~ClassInfo() {
     for(auto & entry : method_map) {
@@ -144,7 +143,7 @@ void ClassDB::get_direct_inheriters_from_class(const StringName &p_class, ListPO
 StringName ClassDB::get_parent_class_nocheck(const StringName &p_class) {
 
     RWLockRead _rw_lockr_(lock);
-    auto iter = classes.find(p_class);
+    const auto iter = classes.find(p_class);
     if(iter==classes.end())
         return StringName();
     return iter->second.inherits;
@@ -154,15 +153,15 @@ StringName ClassDB::get_parent_class(const StringName &p_class) {
 
     RWLockRead _rw_lockr_(lock);
 
-    auto iter = classes.find(p_class);
+    const auto iter = classes.find(p_class);
     if(iter==classes.end())
         return StringName();
-    {
-        if (unlikely(iter==classes.end())) {
-            _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "Condition ' " _STR(!ti) " ' is true. returned: " _STR(StringName()),"Cannot get class '" + String(p_class) + "'.");
-            return StringName();
-        }
+
+    if (unlikely(iter==classes.end())) {
+        _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "Condition 'iter==classes.end()' is true. returned: StringName(). Cannot get class '" + String(p_class) + "'.");
+        return StringName();
     }
+
     return iter->second.inherits;
 }
 
@@ -509,7 +508,7 @@ void ClassDB::bind_integer_constant(
         if (StringUtils::contains(p_enum, '.') ) {
             enum_name = StringUtils::get_slice(enum_name, '.', 1);
         }
-        StringName interned_enum_name(enum_name);
+        const StringName interned_enum_name(enum_name);
 
         ListPOD<StringName> &constants_list = type->enum_map[interned_enum_name];
 

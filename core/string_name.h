@@ -69,7 +69,7 @@ class GODOT_EXPORT StringName {
 
     _Data *_data;
 
-    void unref();
+    void unref() noexcept;
     friend void register_core_types();
     friend void unregister_core_types();
 
@@ -122,13 +122,13 @@ public:
 
     StringName& operator=(const StringName &p_name);
     explicit operator UIString() const;
-    operator se_string_view() const
+    operator se_string_view() const noexcept
     {
         return se_string_view(asCString());
     }
 
-    UIString asString() const;
-    const char *asCString() const noexcept;
+    [[nodiscard]] UIString asString() const;
+    [[nodiscard]] const char *asCString() const noexcept;
 
     static StringName search(const char *p_name);
 
@@ -175,7 +175,7 @@ public:
         setupFromCString(StaticCString(s));
     }
 
-    ~StringName() {
+    ~StringName() noexcept {
         if(_data)
             unref();
     }
@@ -189,10 +189,10 @@ struct WrapAlphaCompare
     }
 };
 struct SNSVComparer {
-    bool operator()(const StringName &s,se_string_view b) {
+    bool operator()(const StringName &s,se_string_view b) const {
         return se_string_view(s)<b;
     }
-    bool operator()(se_string_view a,const StringName &b) {
+    bool operator()(se_string_view a,const StringName &b) const {
         return a<se_string_view(b);
     }
 };
@@ -200,6 +200,6 @@ namespace eastl {
 template <typename T> struct hash;
 template <>
 struct hash<StringName> {
-    size_t operator()(StringName val) const { return val.hash(); }
+    size_t operator()(const StringName &val) const { return val.hash(); }
 };
 }

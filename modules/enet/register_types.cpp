@@ -34,7 +34,7 @@
 #include "core/string_name.h"
 #include "core/error_macros.h"
 #include "networked_multiplayer_enet.h"
-
+#include <enet/enet.h>
 static bool enet_ok = false;
 
 void register_enet_types() {

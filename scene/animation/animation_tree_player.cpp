@@ -30,6 +30,7 @@
 
 #include "animation_tree_player.h"
 #include "animation_player.h"
+#include "core/pool_vector.h"
 
 #include "scene/scene_string_names.h"
 #include "core/method_bind.h"
@@ -1362,7 +1363,15 @@ void AnimationTreePlayer::get_node_list(ListPOD<StringName> *p_node_list) const 
         p_node_list->push_back(E.first);
     }
 }
+PODVector<StringName> AnimationTreePlayer::get_node_vector() const {
+    PODVector<StringName> res;
+    res.reserve(node_map.size());
+    for (const eastl::pair<const StringName, NodeBase*>& E : node_map) {
 
+        res.emplace_back(E.first);
+    }
+    return res;
+}
 void AnimationTreePlayer::remove_node(const StringName &p_node) {
 
     ERR_FAIL_COND(!node_map.contains(p_node))
@@ -1644,8 +1653,7 @@ NodePath AnimationTreePlayer::get_master_player() const {
 
 PoolVector<String> AnimationTreePlayer::_get_node_list() {
 
-    ListPOD<StringName> nl;
-    get_node_list(&nl);
+    PODVector<StringName> nl=get_node_vector();
     PoolVector<String> ret;
     ret.resize(nl.size());
     int idx = 0;

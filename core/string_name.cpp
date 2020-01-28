@@ -150,7 +150,7 @@ void StringName::cleanup() {
     configured = false;
 }
 
-void StringName::unref() {
+void StringName::unref() noexcept {
 
     ERR_FAIL_COND(!configured)
     assert(_data);
