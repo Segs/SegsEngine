@@ -66,9 +66,9 @@ if( WIN32 )
         COMMAND "${csharp_mono_bin_dir}/bin/mono.exe" -V
         OUTPUT_VARIABLE csharp_mono_version_string
       )
-	  message("${csharp_mono_version_string}")
+      message("${csharp_mono_version_string}")
       string( REGEX MATCH "([0-9]*)([.])([0-9]*)([.]*)([0-9]*)" csharp_mono_version_temp "${csharp_mono_version_string}" )
-	  
+
       set( CSHARP_MONO_INTERPRETER "${csharp_mono_bin_dir}/bin/mono.exe" CACHE STRING "C# Mono interpreter ${csharp_mono_version_temp}" FORCE )
       mark_as_advanced( CSHARP_MONO_INTERPRETER )
     endif ()
@@ -88,53 +88,12 @@ if( WIN32 )
   target_link_directories(Mono INTERFACE ${csharp_mono_bin_dir}/lib)
   target_include_directories(Mono INTERFACE ${csharp_mono_bin_dir}/include/mono-2.0)
   if(MINGW)
-	target_compile_options(Mono INTERFACE -mms-bitfields)
+    target_compile_options(Mono INTERFACE -mms-bitfields)
   endif()
 else( UNIX )
-  # Search for Mono on non-Win32 systems
-  set( chsarp_mono_names "mcs" "mcs.exe" "dmcs" "dmcs.exe" "smcs" "smcs.exe" "gmcs" "gmcs.exe" )
-  set(
-    csharp_mono_paths
-    "/usr/bin/"
-    "/usr/local/bin/"
-    "/usr/lib/mono/2.0"
-    "/opt/novell/mono/bin"
-  )
-  find_program(
-    csharp_mono_compiler # variable is added to the cache, we removed it below
-    NAMES ${chsarp_mono_names}
-    PATHS ${csharp_mono_paths}
-  )
-
-  if( EXISTS ${csharp_mono_compiler} )
-    # Determine version
-    find_program(
-      csharp_mono_interpreter # variable is added to the cache, we removed it below
-      NAMES mono
-      PATHS ${csharp_mono_paths}
-    )
-    if ( EXISTS ${csharp_mono_interpreter} )
-      execute_process(
-        COMMAND ${csharp_mono_interpreter} -V
-        OUTPUT_VARIABLE csharp_mono_version_string
-      )
-      string( REGEX MATCH "([0-9]*)([.])([0-9]*)([.]*)([0-9]*)" csharp_mono_version_temp ${csharp_mono_version_string} )
-      set( CSHARP_MONO_INTERPRETER ${csharp_mono_interpreter} CACHE STRING "C# Mono interpreter ${csharp_mono_version_temp}" FORCE )
-      mark_as_advanced( CSHARP_MONO_INTERPRETER )
-    endif ( EXISTS ${csharp_mono_interpreter} )
-    unset( csharp_mono_interpreter CACHE )
-
-    # We found Mono compiler
-    set( CSHARP_MONO_VERSION ${csharp_mono_version_temp} CACHE STRING "C# Mono compiler version" )
-    mark_as_advanced( CSHARP_MONO_VERSION )
-    set( CSHARP_MONO_COMPILER ${csharp_mono_compiler} CACHE STRING "C# Mono compiler ${CSHARP_MONO_VERSION}" FORCE )
-    mark_as_advanced( CSHARP_MONO_COMPILER )
-    set( CSHARP_MONO_FOUND 1 CACHE INTERNAL "Boolean indicating if C# Mono was found" )
-  endif( EXISTS ${csharp_mono_compiler} )
-
   # Remove temp variable from cache
   unset( csharp_mono_compiler CACHE )
-  
+
   include(FindPkgConfig)  # we don't need the pkg-config path on OS X, but we need other macros in this file
   pkg_check_modules(Mono REQUIRED IMPORTED_TARGET GLOBAL mono-2)
   add_library(Mono ALIAS PkgConfig::Mono)
