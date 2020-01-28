@@ -446,7 +446,7 @@ public:
 
     Variant &operator=(const Variant &p_variant); // only this is enough for all the other types
     Variant(const Variant &p_variant);
-    constexpr Variant(Variant && oth) : type(oth.type),_data(oth._data) {
+    constexpr Variant(Variant && oth) noexcept : type(oth.type),_data(oth._data) {
         oth.type = VariantType::NIL;
         //NOTE: oth._data is not cleared here since setting type to NIL should suffice.
     }

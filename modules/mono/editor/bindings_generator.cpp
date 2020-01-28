@@ -2136,7 +2136,7 @@ Error BindingsGenerator::_generate_glue_method(const BindingsGenerator::TypeInte
             }
         }
 
-        p_output.append(CS_PARAM_METHODBIND "->call(" CS_PARAM_INSTANCE ", ");
+        p_output.append(FormatVE("static_cast<%s *>(" CS_PARAM_INSTANCE ")->%s(", p_itype.cname.asCString(), p_imethod.cname.asCString()));
         p_output.append(!p_imethod.arguments.empty() ? C_LOCAL_PTRCALL_ARGS ".data()" : "nullptr");
         p_output.append(", total_length, vcall_error);\n");
 

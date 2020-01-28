@@ -16,7 +16,7 @@ public:
     PropertyHint hint = PropertyHint::None;
     uint32_t usage = PROPERTY_USAGE_DEFAULT;
 
-    PropertyInfo with_added_usage(int p_fl) const {
+    [[nodiscard]] PropertyInfo with_added_usage(int p_fl) const {
         PropertyInfo pi = *this;
         pi.usage |= p_fl;
         return pi;
@@ -40,7 +40,7 @@ public:
         return *this;
     }
     PropertyInfo() = default;
-    PropertyInfo(PropertyInfo &&)=default;
+    PropertyInfo(PropertyInfo &&) noexcept = default;
     PropertyInfo(const PropertyInfo &oth) = default;
 
 //    PropertyInfo(VariantType p_type, StringName p_name, PropertyHint p_hint = PROPERTY_HINT_NONE,

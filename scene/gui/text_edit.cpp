@@ -7328,7 +7328,7 @@ void TextEdit::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_breakpoints"), &TextEdit::get_breakpoints_array);
     MethodBinder::bind_method(D_METHOD("remove_breakpoints"), &TextEdit::remove_breakpoints);
 
-    MethodBinder::bind_method(D_METHOD("draw_minimap", {"draw"}), &TextEdit::set_draw_minimap);
+    MethodBinder::bind_method(D_METHOD("set_draw_minimap", {"draw"}), &TextEdit::set_draw_minimap);
     MethodBinder::bind_method(D_METHOD("is_drawing_minimap"), &TextEdit::is_drawing_minimap);
     MethodBinder::bind_method(D_METHOD("set_minimap_width", {"width"}), &TextEdit::set_minimap_width);
     MethodBinder::bind_method(D_METHOD("get_minimap_width"), &TextEdit::get_minimap_width);
@@ -7354,7 +7354,7 @@ void TextEdit::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "scroll_horizontal"), "set_h_scroll", "get_h_scroll");
 
     ADD_GROUP("Minimap", "minimap_");
-    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "minimap_draw"), "draw_minimap", "is_drawing_minimap");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "minimap_draw"), "set_draw_minimap", "is_drawing_minimap");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "minimap_width"), "set_minimap_width", "get_minimap_width");
 
     ADD_GROUP("Caret", "caret_");

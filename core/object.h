@@ -502,7 +502,7 @@ public:
     Object();
     virtual ~Object();
 
-    Object(Object &&) = default;
+    Object(Object &&) noexcept = default;
 };
 
 template <class T>

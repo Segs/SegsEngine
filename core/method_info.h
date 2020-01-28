@@ -48,7 +48,7 @@ public:
     MethodInfo() = default;
     MethodInfo(MethodInfo &&) = default;
     MethodInfo(const MethodInfo &) = default;
-    MethodInfo & operator=(MethodInfo &&) = default;
+    MethodInfo & operator=(MethodInfo &&) noexcept = default;
     MethodInfo & operator=(const MethodInfo &) = default;
 
     MethodInfo(const char *p_name) :

@@ -448,7 +448,7 @@ class BindingsGenerator {
         String im_type_out; // Return type for the C# method declaration. Also used as companion of [unique_siq]
         String im_sig; // Signature for the C# method declaration
         String unique_sig; // Unique signature to avoid duplicates in containers
-        bool editor_only;
+        bool editor_only=false;
 
         InternalCall() {}
 
@@ -457,7 +457,6 @@ class BindingsGenerator {
             im_type_out = p_im_type_out;
             im_sig = p_im_sig;
             unique_sig = p_unique_sig;
-            editor_only = false;
         }
 
         InternalCall(ClassDB::APIType api_type, const String &p_name, const String &p_im_type_out, const String &p_im_sig = String(), const String &p_unique_sig = String()) {
@@ -468,7 +467,7 @@ class BindingsGenerator {
             editor_only = api_type == ClassDB::API_EDITOR;
         }
 
-        inline bool operator==(const InternalCall &p_a) const {
+        bool operator==(const InternalCall &p_a) const {
             return p_a.unique_sig == unique_sig;
         }
     };

@@ -440,6 +440,8 @@ public:
     NodeType node_get_type(const StringName &p_node) const;
 
     void get_node_list(ListPOD<StringName> *p_node_list) const;
+    PODVector<StringName> get_node_vector() const;
+
     void remove_node(const StringName &p_node);
 
     Error connect_nodes(const StringName &p_src_node, const StringName &p_dst_node, int p_dst_input);
