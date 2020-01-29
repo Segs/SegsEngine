@@ -719,7 +719,7 @@ SoftBody::SoftBody() :
 }
 
 SoftBody::~SoftBody() {
-    PhysicsServer::get_singleton()->free(physics_rid);
+    PhysicsServer::get_singleton()->free_rid(physics_rid);
 }
 
 void SoftBody::reset_softbody_pin() {

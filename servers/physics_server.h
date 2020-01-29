@@ -756,7 +756,7 @@ public:
 
     /* MISC */
 
-    virtual void free(RID p_rid) = 0;
+    virtual void free_rid(RID p_rid) = 0;
 
     virtual void set_active(bool p_active) = 0;
     virtual void init() = 0;

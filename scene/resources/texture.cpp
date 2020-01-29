@@ -509,7 +509,7 @@ ImageTexture::ImageTexture() {
 
 ImageTexture::~ImageTexture() {
 
-    VisualServer::get_singleton()->free(texture);
+    VisualServer::get_singleton()->free_rid(texture);
 }
 
 //////////////////////////////////////////
@@ -947,7 +947,7 @@ StreamTexture::StreamTexture() {
 }
 
 StreamTexture::~StreamTexture() {
-    VisualServer::get_singleton()->free(m_impl_data->texture);
+    VisualServer::get_singleton()->free_rid(m_impl_data->texture);
     delete m_impl_data;
 }
 
@@ -1744,7 +1744,7 @@ CubeMap::CubeMap() {
 
 CubeMap::~CubeMap() {
 
-    VisualServer::get_singleton()->free(cubemap);
+    VisualServer::get_singleton()->free_rid(cubemap);
 }
 
 /*	BIND_ENUM(CubeMapSize);
@@ -1855,7 +1855,7 @@ CurveTexture::CurveTexture() {
     _texture = VisualServer::get_singleton()->texture_create();
 }
 CurveTexture::~CurveTexture() {
-    VisualServer::get_singleton()->free(_texture);
+    VisualServer::get_singleton()->free_rid(_texture);
 }
 //////////////////
 
@@ -1874,7 +1874,7 @@ GradientTexture::GradientTexture() {
 }
 
 GradientTexture::~GradientTexture() {
-    VisualServer::get_singleton()->free(texture);
+    VisualServer::get_singleton()->free_rid(texture);
 }
 
 void GradientTexture::_bind_methods() {
@@ -2031,7 +2031,7 @@ ProxyTexture::ProxyTexture() {
 
 ProxyTexture::~ProxyTexture() {
 
-    VisualServer::get_singleton()->free(proxy);
+    VisualServer::get_singleton()->free_rid(proxy);
 }
 //////////////////////////////////////////////
 
@@ -2254,7 +2254,7 @@ AnimatedTexture::AnimatedTexture() {
 }
 
 AnimatedTexture::~AnimatedTexture() {
-    VisualServer::get_singleton()->free(proxy);
+    VisualServer::get_singleton()->free_rid(proxy);
     if (rw_lock) {
         memdelete(rw_lock);
     }
@@ -2413,7 +2413,7 @@ TextureLayered::TextureLayered(bool p_3d) {
 
 TextureLayered::~TextureLayered() {
     if (texture.is_valid()) {
-        VisualServer::get_singleton()->free(texture);
+        VisualServer::get_singleton()->free_rid(texture);
     }
 }
 

@@ -341,5 +341,5 @@ CanvasLayer::CanvasLayer() {
 
 CanvasLayer::~CanvasLayer() {
 
-    VisualServer::get_singleton()->free(canvas);
+    VisualServer::get_singleton()->free_rid(canvas);
 }

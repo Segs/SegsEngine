@@ -67,7 +67,7 @@ SkinReference::~SkinReference() {
         skeleton_node->skin_bindings.erase(this);
     }
 
-    VisualServer::get_singleton()->free(skeleton);
+    VisualServer::get_singleton()->free_rid(skeleton);
 }
 bool Skeleton::_set(const StringName &p_path, const Variant &p_value) {
 

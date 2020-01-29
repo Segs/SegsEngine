@@ -405,7 +405,7 @@ World2D::World2D() {
 
 World2D::~World2D() {
 
-    VisualServer::get_singleton()->free(canvas);
-    Physics2DServer::get_singleton()->free(space);
+    VisualServer::get_singleton()->free_rid(canvas);
+    Physics2DServer::get_singleton()->free_rid(space);
     memdelete(indexer);
 }

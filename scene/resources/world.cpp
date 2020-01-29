@@ -353,8 +353,8 @@ World::World() {
 
 World::~World() {
 
-    PhysicsServer::get_singleton()->free(space);
-    VisualServer::get_singleton()->free(scenario);
+    PhysicsServer::get_singleton()->free_rid(space);
+    VisualServer::get_singleton()->free_rid(scenario);
 
 #ifndef _3D_DISABLED
     memdelete(indexer);

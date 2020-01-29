@@ -118,7 +118,7 @@ void EditorSpatialGizmo::clear() {
     for (int i = 0; i < instances.size(); i++) {
 
         if (instances[i].instance.is_valid())
-            VisualServer::get_singleton()->free(instances[i].instance);
+            VisualServer::get_singleton()->free_rid(instances[i].instance);
     }
 
     billboard_handle = false;
@@ -749,7 +749,7 @@ void EditorSpatialGizmo::free() {
     for (int i = 0; i < instances.size(); i++) {
 
         if (instances[i].instance.is_valid())
-            VisualServer::get_singleton()->free(instances[i].instance);
+            VisualServer::get_singleton()->free_rid(instances[i].instance);
         instances.write[i].instance = RID();
     }
 

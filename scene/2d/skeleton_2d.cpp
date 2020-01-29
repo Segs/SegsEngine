@@ -312,5 +312,5 @@ Skeleton2D::Skeleton2D() {
 
 Skeleton2D::~Skeleton2D() {
 
-    VisualServer::get_singleton()->free(skeleton);
+    VisualServer::get_singleton()->free_rid(skeleton);
 }

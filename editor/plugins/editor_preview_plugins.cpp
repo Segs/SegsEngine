@@ -475,15 +475,15 @@ EditorMaterialPreviewPlugin::EditorMaterialPreviewPlugin() {
 
 EditorMaterialPreviewPlugin::~EditorMaterialPreviewPlugin() {
 
-    VisualServer::get_singleton()->free(sphere);
-    VisualServer::get_singleton()->free(sphere_instance);
-    VisualServer::get_singleton()->free(viewport);
-    VisualServer::get_singleton()->free(light);
-    VisualServer::get_singleton()->free(light_instance);
-    VisualServer::get_singleton()->free(light2);
-    VisualServer::get_singleton()->free(light_instance2);
-    VisualServer::get_singleton()->free(camera);
-    VisualServer::get_singleton()->free(scenario);
+    VisualServer::get_singleton()->free_rid(sphere);
+    VisualServer::get_singleton()->free_rid(sphere_instance);
+    VisualServer::get_singleton()->free_rid(viewport);
+    VisualServer::get_singleton()->free_rid(light);
+    VisualServer::get_singleton()->free_rid(light_instance);
+    VisualServer::get_singleton()->free_rid(light2);
+    VisualServer::get_singleton()->free_rid(light_instance2);
+    VisualServer::get_singleton()->free_rid(camera);
+    VisualServer::get_singleton()->free_rid(scenario);
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -809,14 +809,14 @@ EditorMeshPreviewPlugin::EditorMeshPreviewPlugin() {
 EditorMeshPreviewPlugin::~EditorMeshPreviewPlugin() {
 
     //VisualServer::get_singleton()->free(sphere);
-    VisualServer::get_singleton()->free(mesh_instance);
-    VisualServer::get_singleton()->free(viewport);
-    VisualServer::get_singleton()->free(light);
-    VisualServer::get_singleton()->free(light_instance);
-    VisualServer::get_singleton()->free(light2);
-    VisualServer::get_singleton()->free(light_instance2);
-    VisualServer::get_singleton()->free(camera);
-    VisualServer::get_singleton()->free(scenario);
+    VisualServer::get_singleton()->free_rid(mesh_instance);
+    VisualServer::get_singleton()->free_rid(viewport);
+    VisualServer::get_singleton()->free_rid(light);
+    VisualServer::get_singleton()->free_rid(light_instance);
+    VisualServer::get_singleton()->free_rid(light2);
+    VisualServer::get_singleton()->free_rid(light_instance2);
+    VisualServer::get_singleton()->free_rid(camera);
+    VisualServer::get_singleton()->free_rid(scenario);
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -924,7 +924,7 @@ EditorFontPreviewPlugin::EditorFontPreviewPlugin() {
 
 EditorFontPreviewPlugin::~EditorFontPreviewPlugin() {
 
-    VisualServer::get_singleton()->free(canvas_item);
-    VisualServer::get_singleton()->free(canvas);
-    VisualServer::get_singleton()->free(viewport);
+    VisualServer::get_singleton()->free_rid(canvas_item);
+    VisualServer::get_singleton()->free_rid(canvas);
+    VisualServer::get_singleton()->free_rid(viewport);
 }

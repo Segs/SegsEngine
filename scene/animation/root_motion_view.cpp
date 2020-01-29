@@ -210,5 +210,5 @@ RootMotionView::RootMotionView() {
 
 RootMotionView::~RootMotionView() {
     set_base(RID());
-    VisualServer::get_singleton()->free(immediate);
+    VisualServer::get_singleton()->free_rid(immediate);
 }

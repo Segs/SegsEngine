@@ -1317,7 +1317,7 @@ bool PhysicsServerSW::generic_6dof_joint_get_flag(RID p_joint, Vector3::Axis p_a
     return generic_6dof_joint->get_flag(p_axis, p_flag);
 }
 
-void PhysicsServerSW::free(RID p_rid) {
+void PhysicsServerSW::free_rid(RID p_rid) {
 
     _update_shapes(); //just in case
 
@@ -1382,8 +1382,8 @@ void PhysicsServerSW::free(RID p_rid) {
         }
 
         active_spaces.erase(space);
-        free(space->get_default_area()->get_self());
-        free(space->get_static_global_body());
+        free_rid(space->get_default_area()->get_self());
+        free_rid(space->get_static_global_body());
 
         space_owner.free(p_rid);
         memdelete(space);

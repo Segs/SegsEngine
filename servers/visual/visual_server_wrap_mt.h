@@ -592,7 +592,7 @@ public:
 
     /* FREE */
 
-    FUNC1(free, RID)
+    FUNC1(free_rid, RID)
 
     /* EVENT QUEUING */
 

@@ -670,7 +670,7 @@ void PhysicsServer::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("generic_6dof_joint_set_flag", {"joint", "axis", "flag", "enable"}), &PhysicsServer::generic_6dof_joint_set_flag);
     MethodBinder::bind_method(D_METHOD("generic_6dof_joint_get_flag", {"joint", "axis", "flag"}), &PhysicsServer::generic_6dof_joint_get_flag);
 
-    MethodBinder::bind_method(D_METHOD("free_rid", {"rid"}), &PhysicsServer::free);
+    MethodBinder::bind_method(D_METHOD("free_rid", {"rid"}), &PhysicsServer::free_rid);
 
     MethodBinder::bind_method(D_METHOD("set_active", {"active"}), &PhysicsServer::set_active);
 

@@ -505,5 +505,5 @@ Light2D::Light2D() {
 
 Light2D::~Light2D() {
 
-    VisualServer::get_singleton()->free(canvas_light);
+    VisualServer::get_singleton()->free_rid(canvas_light);
 }

@@ -1506,7 +1506,7 @@ CPUParticles::CPUParticles() {
 }
 
 CPUParticles::~CPUParticles() {
-    VisualServer::get_singleton()->free(multimesh);
+    VisualServer::get_singleton()->free_rid(multimesh);
 
 #ifndef NO_THREADS
     memdelete(update_mutex);

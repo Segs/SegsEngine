@@ -388,5 +388,5 @@ MultiMesh::MultiMesh() {
 
 MultiMesh::~MultiMesh() {
 
-    VisualServer::get_singleton()->free(multimesh);
+    VisualServer::get_singleton()->free_rid(multimesh);
 }

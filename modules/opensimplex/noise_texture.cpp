@@ -57,7 +57,7 @@ NoiseTexture::NoiseTexture() {
 }
 
 NoiseTexture::~NoiseTexture() {
-    VisualServer::get_singleton()->free(texture);
+    VisualServer::get_singleton()->free_rid(texture);
     if (noise_thread) {
         Thread::wait_to_finish(noise_thread);
         memdelete(noise_thread);

@@ -381,7 +381,7 @@ public:
 
 	/* MISC */
 
-	void free(RID p_rid) override;
+	void free_rid(RID p_rid) override;
 
 	void set_active(bool p_active) override {
 		active = p_active;

@@ -357,7 +357,9 @@ String DirAccessUnix::get_current_dir() {
     return current_dir;
 }
 
-Error DirAccessUnix::rename(se_string_view p_path, se_string_view p_new_path) {
+Error DirAccessUnix::rename(se_string_view _path, se_string_view _new_path) {
+    String p_path(_path);
+    String p_new_path(_new_path);
 
     if (PathUtils::is_rel_path(p_path))
         p_path = PathUtils::plus_file(get_current_dir(),p_path);
@@ -372,8 +374,9 @@ Error DirAccessUnix::rename(se_string_view p_path, se_string_view p_new_path) {
     return ::rename(p_path.data(), p_new_path.data()) == 0 ? OK : FAILED;
 }
 
-Error DirAccessUnix::remove(se_string_view p_path) {
+Error DirAccessUnix::remove(se_string_view _path) {
 
+    String p_path(_path);
     if (PathUtils::is_rel_path(p_path))
         p_path = PathUtils::plus_file(get_current_dir(),p_path);
 

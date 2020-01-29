@@ -50,7 +50,7 @@
     }                                                                                      \
     void m_type##_free_cached_ids() {                                                      \
         while (!m_type##_id_pool.empty()) {                                                \
-            server_name->free(m_type##_id_pool.front()->deref());                          \
+            server_name->free_rid(m_type##_id_pool.front()->deref());                      \
             m_type##_id_pool.pop_front();                                                  \
         }                                                                                  \
     }                                                                                      \

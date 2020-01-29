@@ -664,7 +664,7 @@ public:
 
     /* FREE */
 
-    void free(RID p_rid) override; ///< free RIDs associated with the visual server
+    void free_rid(RID p_rid) override; ///< free RIDs associated with the visual server
 
     /* EVENT QUEUING */
 

@@ -543,7 +543,7 @@ void GridMapEditor::_clear_clipboard_data() {
 
     for (List<ClipboardItem>::Element *E = clipboard_items.front(); E; E = E->next()) {
 
-        VisualServer::get_singleton()->free(E->deref().instance);
+        VisualServer::get_singleton()->free_rid(E->deref().instance);
     }
 
     clipboard_items.clear();
@@ -1097,15 +1097,15 @@ void GridMapEditor::_notification(int p_what) {
 
             for (int i = 0; i < 3; i++) {
 
-                VisualServer::get_singleton()->free(grid_instance[i]);
-                VisualServer::get_singleton()->free(grid[i]);
+                VisualServer::get_singleton()->free_rid(grid_instance[i]);
+                VisualServer::get_singleton()->free_rid(grid[i]);
                 grid_instance[i] = RID();
                 grid[i] = RID();
-                VisualServer::get_singleton()->free(selection_level_instance[i]);
+                VisualServer::get_singleton()->free_rid(selection_level_instance[i]);
             }
 
-            VisualServer::get_singleton()->free(selection_instance);
-            VisualServer::get_singleton()->free(paste_instance);
+            VisualServer::get_singleton()->free_rid(selection_instance);
+            VisualServer::get_singleton()->free_rid(paste_instance);
             selection_instance = RID();
             paste_instance = RID();
         } break;
@@ -1156,7 +1156,7 @@ void GridMapEditor::_update_cursor_instance() {
     }
 
     if (cursor_instance.is_valid())
-        VisualServer::get_singleton()->free(cursor_instance);
+        VisualServer::get_singleton()->free_rid(cursor_instance);
     cursor_instance = RID();
 
     if (selected_palette >= 0) {
@@ -1500,24 +1500,24 @@ GridMapEditor::~GridMapEditor() {
     for (int i = 0; i < 3; i++) {
 
         if (grid[i].is_valid())
-            VisualServer::get_singleton()->free(grid[i]);
+            VisualServer::get_singleton()->free_rid(grid[i]);
         if (grid_instance[i].is_valid())
-            VisualServer::get_singleton()->free(grid_instance[i]);
+            VisualServer::get_singleton()->free_rid(grid_instance[i]);
         if (cursor_instance.is_valid())
-            VisualServer::get_singleton()->free(cursor_instance);
+            VisualServer::get_singleton()->free_rid(cursor_instance);
         if (selection_level_instance[i].is_valid())
-            VisualServer::get_singleton()->free(selection_level_instance[i]);
+            VisualServer::get_singleton()->free_rid(selection_level_instance[i]);
         if (selection_level_mesh[i].is_valid())
-            VisualServer::get_singleton()->free(selection_level_mesh[i]);
+            VisualServer::get_singleton()->free_rid(selection_level_mesh[i]);
     }
 
-    VisualServer::get_singleton()->free(selection_mesh);
+    VisualServer::get_singleton()->free_rid(selection_mesh);
     if (selection_instance.is_valid())
-        VisualServer::get_singleton()->free(selection_instance);
+        VisualServer::get_singleton()->free_rid(selection_instance);
 
-    VisualServer::get_singleton()->free(paste_mesh);
+    VisualServer::get_singleton()->free_rid(paste_mesh);
     if (paste_instance.is_valid())
-        VisualServer::get_singleton()->free(paste_instance);
+        VisualServer::get_singleton()->free_rid(paste_instance);
 }
 
 void GridMapEditorPlugin::_notification(int p_what) {

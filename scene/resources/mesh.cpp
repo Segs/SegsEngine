@@ -1345,5 +1345,5 @@ ArrayMesh::ArrayMesh() {
 
 ArrayMesh::~ArrayMesh() {
 
-    VisualServer::get_singleton()->free(mesh);
+    VisualServer::get_singleton()->free_rid(mesh);
 }

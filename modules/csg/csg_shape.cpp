@@ -83,7 +83,7 @@ void CSGShape::set_use_collision(bool p_enable) {
         set_collision_mask(collision_mask);
         _make_dirty(); //force update
     } else {
-        PhysicsServer::get_singleton()->free(root_collision_instance);
+        PhysicsServer::get_singleton()->free_rid(root_collision_instance);
         root_collision_instance = RID();
         root_collision_shape.unref();
     }
@@ -573,7 +573,7 @@ void CSGShape::_notification(int p_what) {
         parent = nullptr;
 
         if (use_collision && is_root_shape() && root_collision_instance.is_valid()) {
-            PhysicsServer::get_singleton()->free(root_collision_instance);
+            PhysicsServer::get_singleton()->free_rid(root_collision_instance);
             root_collision_instance = RID();
             root_collision_shape.unref();
         }

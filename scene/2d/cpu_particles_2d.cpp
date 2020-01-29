@@ -1428,8 +1428,8 @@ CPUParticles2D::CPUParticles2D() {
 }
 
 CPUParticles2D::~CPUParticles2D() {
-    VisualServer::get_singleton()->free(multimesh);
-    VisualServer::get_singleton()->free(mesh);
+    VisualServer::get_singleton()->free_rid(multimesh);
+    VisualServer::get_singleton()->free_rid(mesh);
 
 #ifndef NO_THREADS
     memdelete(update_mutex);

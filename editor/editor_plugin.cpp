@@ -145,18 +145,18 @@ Vector<Ref<Texture> > EditorInterface::make_mesh_previews(const Vector<Ref<Mesh>
         Ref<ImageTexture> it(make_ref_counted<ImageTexture>());
         it->create_from_image(img);
 
-        VisualServer::get_singleton()->free(inst);
+        VisualServer::get_singleton()->free_rid(inst);
 
         textures.push_back(it);
     }
 
-    VisualServer::get_singleton()->free(viewport);
-    VisualServer::get_singleton()->free(light);
-    VisualServer::get_singleton()->free(light_instance);
-    VisualServer::get_singleton()->free(light2);
-    VisualServer::get_singleton()->free(light_instance2);
-    VisualServer::get_singleton()->free(camera);
-    VisualServer::get_singleton()->free(scenario);
+    VisualServer::get_singleton()->free_rid(viewport);
+    VisualServer::get_singleton()->free_rid(light);
+    VisualServer::get_singleton()->free_rid(light_instance);
+    VisualServer::get_singleton()->free_rid(light2);
+    VisualServer::get_singleton()->free_rid(light_instance2);
+    VisualServer::get_singleton()->free_rid(camera);
+    VisualServer::get_singleton()->free_rid(scenario);
 
     return textures;
 }

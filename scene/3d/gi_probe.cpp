@@ -213,7 +213,7 @@ GIProbeData::GIProbeData() {
 
 GIProbeData::~GIProbeData() {
 
-    VisualServer::get_singleton()->free(probe);
+    VisualServer::get_singleton()->free_rid(probe);
 }
 
 //////////////////////
@@ -573,5 +573,5 @@ GIProbe::GIProbe() {
 }
 
 GIProbe::~GIProbe() {
-    VisualServer::get_singleton()->free(gi_probe);
+    VisualServer::get_singleton()->free_rid(gi_probe);
 }

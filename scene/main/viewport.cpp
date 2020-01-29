@@ -180,7 +180,7 @@ ViewportTexture::~ViewportTexture() {
         vp->viewport_textures.erase(this);
     }
 
-    VisualServer::get_singleton()->free(proxy);
+    VisualServer::get_singleton()->free_rid(proxy);
 }
 
 /////////////////////////////////////
@@ -380,13 +380,13 @@ void Viewport::_notification(int p_what) {
             //			SpatialSoundServer::get_singleton()->listener_set_space(internal_listener, RID());
             VisualServer::get_singleton()->viewport_remove_canvas(viewport, current_canvas);
             if (contact_2d_debug.is_valid()) {
-                VisualServer::get_singleton()->free(contact_2d_debug);
+                VisualServer::get_singleton()->free_rid(contact_2d_debug);
                 contact_2d_debug = RID();
             }
 
             if (contact_3d_debug_multimesh.is_valid()) {
-                VisualServer::get_singleton()->free(contact_3d_debug_multimesh);
-                VisualServer::get_singleton()->free(contact_3d_debug_instance);
+                VisualServer::get_singleton()->free_rid(contact_3d_debug_multimesh);
+                VisualServer::get_singleton()->free_rid(contact_3d_debug_instance);
                 contact_3d_debug_instance = RID();
                 contact_3d_debug_multimesh = RID();
             }
@@ -1209,7 +1209,7 @@ void Viewport::enable_camera_override(bool p_enable) {
     if (p_enable) {
         camera_override.rid = VisualServer::get_singleton()->camera_create();
     } else {
-        VisualServer::get_singleton()->free(camera_override.rid);
+        VisualServer::get_singleton()->free_rid(camera_override.rid);
         camera_override.rid = RID();
     }
 
@@ -3424,7 +3424,7 @@ Viewport::~Viewport() {
     for (ViewportTexture * E : viewport_textures) {
         E->vp = nullptr;
     }
-    VisualServer::get_singleton()->free(viewport);
+    VisualServer::get_singleton()->free_rid(viewport);
     //SpatialSoundServer::get_singleton()->free(internal_listener);
     //SpatialSound2DServer::get_singleton()->free(internal_listener_2d);
 }
