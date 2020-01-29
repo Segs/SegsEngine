@@ -2849,11 +2849,11 @@ void SpatialEditorViewport::_init_gizmo_instance(int p_idx) {
 void SpatialEditorViewport::_finish_gizmo_instances() {
 
     for (int i = 0; i < 3; i++) {
-        VisualServer::get_singleton()->free(move_gizmo_instance[i]);
-        VisualServer::get_singleton()->free(move_plane_gizmo_instance[i]);
-        VisualServer::get_singleton()->free(rotate_gizmo_instance[i]);
-        VisualServer::get_singleton()->free(scale_gizmo_instance[i]);
-        VisualServer::get_singleton()->free(scale_plane_gizmo_instance[i]);
+        VisualServer::get_singleton()->free_rid(move_gizmo_instance[i]);
+        VisualServer::get_singleton()->free_rid(move_plane_gizmo_instance[i]);
+        VisualServer::get_singleton()->free_rid(rotate_gizmo_instance[i]);
+        VisualServer::get_singleton()->free_rid(scale_gizmo_instance[i]);
+        VisualServer::get_singleton()->free_rid(scale_plane_gizmo_instance[i]);
     }
 }
 void SpatialEditorViewport::_toggle_camera_preview(bool p_activate) {
@@ -4051,7 +4051,7 @@ SpatialEditor *SpatialEditor::singleton = nullptr;
 SpatialEditorSelectedItem::~SpatialEditorSelectedItem() {
 
     if (sbox_instance.is_valid())
-        VisualServer::get_singleton()->free(sbox_instance);
+        VisualServer::get_singleton()->free_rid(sbox_instance);
 }
 
 void SpatialEditor::select_gizmo_highlight_axis(int p_axis) {
@@ -5144,16 +5144,16 @@ void SpatialEditor::_init_grid() {
 
 void SpatialEditor::_finish_indicators() {
 
-    VisualServer::get_singleton()->free(origin_instance);
-    VisualServer::get_singleton()->free(origin);
+    VisualServer::get_singleton()->free_rid(origin_instance);
+    VisualServer::get_singleton()->free_rid(origin);
 
     _finish_grid();
 }
 
 void SpatialEditor::_finish_grid() {
     for (int i = 0; i < 3; i++) {
-        VisualServer::get_singleton()->free(grid_instance[i]);
-        VisualServer::get_singleton()->free(grid[i]);
+        VisualServer::get_singleton()->free_rid(grid_instance[i]);
+        VisualServer::get_singleton()->free_rid(grid[i]);
     }
 }
 

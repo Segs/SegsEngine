@@ -48,7 +48,7 @@ void Joint2D::_update_joint(bool p_only_free) {
         if (ba.is_valid() && bb.is_valid() && exclude_from_collision)
             Physics2DServer::get_singleton()->joint_disable_collisions_between_bodies(joint, false);
 
-        Physics2DServer::get_singleton()->free(joint);
+        Physics2DServer::get_singleton()->free_rid(joint);
         joint = RID();
         ba = RID();
         bb = RID();

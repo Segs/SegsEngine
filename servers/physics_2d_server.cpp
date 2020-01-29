@@ -727,7 +727,7 @@ void Physics2DServer::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("joint_get_type", {"joint"}), &Physics2DServer::joint_get_type);
 
-    MethodBinder::bind_method(D_METHOD("free_rid", {"rid"}), &Physics2DServer::free);
+    MethodBinder::bind_method(D_METHOD("free_rid", {"rid"}), &Physics2DServer::free_rid);
 
     MethodBinder::bind_method(D_METHOD("set_active", {"active"}), &Physics2DServer::set_active);
 

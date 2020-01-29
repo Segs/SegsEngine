@@ -51,7 +51,7 @@ void Joint::_update_joint(bool p_only_free) {
         if (ba.is_valid() && bb.is_valid())
             PhysicsServer::get_singleton()->body_remove_collision_exception(ba, bb);
 
-        PhysicsServer::get_singleton()->free(joint);
+        PhysicsServer::get_singleton()->free_rid(joint);
         joint = RID();
         ba = RID();
         bb = RID();

@@ -720,7 +720,7 @@ Camera::Camera() {
 
 Camera::~Camera() {
 
-    VisualServer::get_singleton()->free(camera);
+    VisualServer::get_singleton()->free_rid(camera);
 }
 
 ////////////////////////////////////////
@@ -949,5 +949,5 @@ ClippedCamera::ClippedCamera() {
     clip_to_bodies = true;
 }
 ClippedCamera::~ClippedCamera() {
-    PhysicsServer::get_singleton()->free(pyramid_shape);
+    PhysicsServer::get_singleton()->free_rid(pyramid_shape);
 }

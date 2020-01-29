@@ -1499,7 +1499,7 @@ int BulletPhysicsServer::generic_6dof_joint_get_precision(RID p_joint) {
     return generic_6dof_joint->get_precision();
 }
 
-void BulletPhysicsServer::free(RID p_rid) {
+void BulletPhysicsServer::free_rid(RID p_rid) {
     if (shape_owner.owns(p_rid)) {
 
         ShapeBullet *shape = shape_owner.get(p_rid);

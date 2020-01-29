@@ -174,7 +174,7 @@ Shader::Shader() {
 
 Shader::~Shader() {
 
-    VisualServer::get_singleton()->free(shader);
+    VisualServer::get_singleton()->free_rid(shader);
 }
 ////////////
 

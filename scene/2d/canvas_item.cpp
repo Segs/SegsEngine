@@ -109,7 +109,7 @@ void CanvasItemMaterial::_update_shader() {
         shader_map[current_key].users--;
         if (shader_map[current_key].users == 0) {
             //deallocate shader, as it's no longer in use
-            VisualServer::get_singleton()->free(shader_map[current_key].shader);
+            VisualServer::get_singleton()->free_rid(shader_map[current_key].shader);
             shader_map.erase(current_key);
         }
     }
@@ -364,7 +364,7 @@ CanvasItemMaterial::~CanvasItemMaterial() {
         shader_map[current_key].users--;
         if (shader_map[current_key].users == 0) {
             //deallocate shader, as it's no longer in use
-            VisualServer::get_singleton()->free(shader_map[current_key].shader);
+            VisualServer::get_singleton()->free_rid(shader_map[current_key].shader);
             shader_map.erase(current_key);
         }
 
@@ -1373,5 +1373,5 @@ CanvasItem::CanvasItem() :
 
 CanvasItem::~CanvasItem() {
 
-    VisualServer::get_singleton()->free(canvas_item);
+    VisualServer::get_singleton()->free_rid(canvas_item);
 }

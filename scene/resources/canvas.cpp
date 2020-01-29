@@ -47,5 +47,5 @@ Canvas::Canvas() {
 }
 
 Canvas::~Canvas() {
-    VisualServer::get_singleton()->free(canvas);
+    VisualServer::get_singleton()->free_rid(canvas);
 }

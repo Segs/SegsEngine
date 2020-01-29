@@ -178,11 +178,11 @@ RID VisualServer::get_test_texture() {
 void VisualServer::_free_internal_rids() {
 
     if (test_texture.is_valid())
-        free(test_texture);
+        free_rid(test_texture);
     if (white_texture.is_valid())
-        free(white_texture);
+        free_rid(white_texture);
     if (test_material.is_valid())
-        free(test_material);
+        free_rid(test_material);
 }
 
 RID VisualServer::_make_test_cube() {
@@ -2037,7 +2037,7 @@ void VisualServer::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("black_bars_set_margins", {"left", "top", "right", "bottom"}), &VisualServer::black_bars_set_margins);
     MethodBinder::bind_method(D_METHOD("black_bars_set_images", {"left", "top", "right", "bottom"}), &VisualServer::black_bars_set_images);
 
-    MethodBinder::bind_method(D_METHOD("free_rid", {"rid"}), &VisualServer::free); // shouldn't conflict with Object::free()
+    MethodBinder::bind_method(D_METHOD("free_rid", {"rid"}), &VisualServer::free_rid); // shouldn't conflict with Object::free()
 
     MethodBinder::bind_method(D_METHOD("request_frame_drawn_callback", {"where", "method", "userdata"}), &VisualServer::request_frame_drawn_callback);
     MethodBinder::bind_method(D_METHOD("has_changed"), &VisualServer::has_changed);

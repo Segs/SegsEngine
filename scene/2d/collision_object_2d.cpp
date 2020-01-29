@@ -464,5 +464,5 @@ CollisionObject2D::CollisionObject2D() {
 
 CollisionObject2D::~CollisionObject2D() {
 
-    Physics2DServer::get_singleton()->free(rid);
+    Physics2DServer::get_singleton()->free_rid(rid);
 }

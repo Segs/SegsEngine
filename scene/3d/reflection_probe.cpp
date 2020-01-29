@@ -284,5 +284,5 @@ ReflectionProbe::ReflectionProbe() {
 
 ReflectionProbe::~ReflectionProbe() {
 
-    VisualServer::get_singleton()->free(probe);
+    VisualServer::get_singleton()->free_rid(probe);
 }

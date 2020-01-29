@@ -431,5 +431,5 @@ Particles2D::Particles2D() {
 
 Particles2D::~Particles2D() {
 
-    VisualServer::get_singleton()->free(particles);
+    VisualServer::get_singleton()->free_rid(particles);
 }

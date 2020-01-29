@@ -441,5 +441,5 @@ Particles::Particles() {
 
 Particles::~Particles() {
 
-    VisualServer::get_singleton()->free(particles);
+    VisualServer::get_singleton()->free_rid(particles);
 }

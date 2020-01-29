@@ -201,7 +201,7 @@ BakedLightmapData::BakedLightmapData() {
 
 BakedLightmapData::~BakedLightmapData() {
 
-    VisualServer::get_singleton()->free(baked_light);
+    VisualServer::get_singleton()->free_rid(baked_light);
 }
 
 ///////////////////////////

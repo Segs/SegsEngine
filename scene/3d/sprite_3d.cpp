@@ -400,7 +400,7 @@ SpriteBase3D::SpriteBase3D() {
 
 SpriteBase3D::~SpriteBase3D() {
 
-    VisualServer::get_singleton()->free(immediate);
+    VisualServer::get_singleton()->free_rid(immediate);
 }
 
 ///////////////////////////////////////////

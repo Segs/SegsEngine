@@ -357,7 +357,7 @@ Light::~Light() {
     VisualServer::get_singleton()->instance_set_base(get_instance(), RID());
 
     if (light.is_valid())
-        VisualServer::get_singleton()->free(light);
+        VisualServer::get_singleton()->free_rid(light);
 }
 /////////////////////////////////////////
 

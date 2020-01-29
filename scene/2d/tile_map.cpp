@@ -107,7 +107,7 @@ void TileMap::_notification(int p_what) {
                 }
 
                 for (eastl::pair<const PosKey,Quadrant::Occluder> &F : q.occluder_instances) {
-                    VisualServer::get_singleton()->free(F.second.id);
+                    VisualServer::get_singleton()->free_rid(F.second.id);
                 }
                 q.occluder_instances.clear();
             }
@@ -370,7 +370,7 @@ void TileMap::update_dirty_quadrants() {
 
         for (List<RID>::Element *E = q.canvas_items.front(); E; E = E->next()) {
 
-            vs->free(E->deref());
+            vs->free_rid(E->deref());
         }
 
         q.canvas_items.clear();
@@ -391,7 +391,7 @@ void TileMap::update_dirty_quadrants() {
         }
 
         for (eastl::pair<const PosKey,Quadrant::Occluder> &E : q.occluder_instances) {
-            VisualServer::get_singleton()->free(E.second.id);
+            VisualServer::get_singleton()->free_rid(E.second.id);
         }
         q.occluder_instances.clear();
         Ref<ShaderMaterial> prev_material;
@@ -801,14 +801,14 @@ void TileMap::_erase_quadrant(Map<PosKey, Quadrant>::iterator Q) {
 
     Quadrant &q = Q->second;
     if (!use_parent) {
-        Physics2DServer::get_singleton()->free(q.body);
+        Physics2DServer::get_singleton()->free_rid(q.body);
     } else if (collision_parent) {
         collision_parent->remove_shape_owner(q.shape_owner_id);
     }
 
     for (List<RID>::Element *E = q.canvas_items.front(); E; E = E->next()) {
 
-        VisualServer::get_singleton()->free(E->deref());
+        VisualServer::get_singleton()->free_rid(E->deref());
     }
     q.canvas_items.clear();
     if (q.dirty_list.in_list())
@@ -823,7 +823,7 @@ void TileMap::_erase_quadrant(Map<PosKey, Quadrant>::iterator Q) {
     }
 
     for (eastl::pair<const PosKey,Quadrant::Occluder> &E : q.occluder_instances) {
-        VisualServer::get_singleton()->free(E.second.id);
+        VisualServer::get_singleton()->free_rid(E.second.id);
     }
     q.occluder_instances.clear();
 

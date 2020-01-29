@@ -1418,5 +1418,5 @@ Environment::Environment() :
 
 Environment::~Environment() {
 
-    VisualServer::get_singleton()->free(environment);
+    VisualServer::get_singleton()->free_rid(environment);
 }

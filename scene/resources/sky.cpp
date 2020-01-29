@@ -127,7 +127,7 @@ PanoramaSky::PanoramaSky() {
 
 PanoramaSky::~PanoramaSky() {
 
-    VisualServer::get_singleton()->free(sky);
+    VisualServer::get_singleton()->free_rid(sky);
 }
 //////////////////////////////////
 
@@ -592,6 +592,6 @@ ProceduralSky::~ProceduralSky() {
         memdelete(sky_thread);
         sky_thread = nullptr;
     }
-    VisualServer::get_singleton()->free(sky);
-    VisualServer::get_singleton()->free(texture);
+    VisualServer::get_singleton()->free_rid(sky);
+    VisualServer::get_singleton()->free_rid(texture);
 }

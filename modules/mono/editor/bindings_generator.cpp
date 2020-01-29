@@ -1761,7 +1761,7 @@ Error BindingsGenerator::generate_glue(se_string_view p_output_dir) {
             continue;
         used.insert(ClassDB::classes[itype.cname].usage_header);
         output.append("#include \""+ClassDB::classes[itype.cname].usage_header+"\"\n");
-        
+
     }
 
     generated_icall_funcs.clear();
@@ -1950,7 +1950,7 @@ Error BindingsGenerator::_generate_glue_method(const BindingsGenerator::TypeInte
     String c_func_sig = p_itype.c_type_in + " " CS_PARAM_INSTANCE;
     String c_in_statements;
     String c_args_var_content;
-     
+
     String template_return_type="void";
     if (!ret_void) {
         if(return_type->is_enum) {
@@ -2037,7 +2037,7 @@ Error BindingsGenerator::_generate_glue_method(const BindingsGenerator::TypeInte
 
         i++;
     }
-    //-e d:\development\Zc1\project.godot 
+    //-e d:\development\Zc1\project.godot
     //TODO: generate code that checks that p_itype.cname.asCString() is a class inheriting from class_type
 
     if (return_type->ret_as_byref_arg) {
@@ -2135,8 +2135,10 @@ Error BindingsGenerator::_generate_glue_method(const BindingsGenerator::TypeInte
                 p_output.append("auto " C_LOCAL_RET " = ");
             }
         }
-
-        p_output.append(FormatVE("static_cast<%s *>(" CS_PARAM_INSTANCE ")->%s(", p_itype.cname.asCString(), p_imethod.cname.asCString()));
+        se_string_view method_to_call(p_itype.cname);
+        if(se_string_view("new")==method_to_call)
+            method_to_call=se_string_view("_new");
+        p_output.append(FormatVE("static_cast<%s *>(" CS_PARAM_INSTANCE ")->%.*s(", p_itype.cname.asCString(), method_to_call.length(),method_to_call.data()));
         p_output.append(!p_imethod.arguments.empty() ? C_LOCAL_PTRCALL_ARGS ".data()" : "nullptr");
         p_output.append(", total_length, vcall_error);\n");
 
@@ -2910,7 +2912,7 @@ void BindingsGenerator::_populate_builtin_type_interfaces() {
     itype.im_type_in = itype.proxy_name;
     itype.im_type_out = itype.proxy_name;
     builtin_types.emplace(itype.cname, itype);
-    
+
     // se_string_view
     itype = TypeInterface();
     itype.name = "String";

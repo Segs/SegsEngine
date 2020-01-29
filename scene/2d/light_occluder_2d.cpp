@@ -157,7 +157,7 @@ OccluderPolygon2D::OccluderPolygon2D() {
 
 OccluderPolygon2D::~OccluderPolygon2D() {
 
-    VisualServer::get_singleton()->free(occ_polygon);
+    VisualServer::get_singleton()->free_rid(occ_polygon);
 }
 
 void LightOccluder2D::_poly_changed() {
@@ -297,5 +297,5 @@ LightOccluder2D::LightOccluder2D() {
 
 LightOccluder2D::~LightOccluder2D() {
 
-    VisualServer::get_singleton()->free(occluder);
+    VisualServer::get_singleton()->free_rid(occluder);
 }

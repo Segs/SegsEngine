@@ -404,5 +404,5 @@ CollisionObject::CollisionObject() {
 
 CollisionObject::~CollisionObject() {
 
-    PhysicsServer::get_singleton()->free(rid);
+    PhysicsServer::get_singleton()->free_rid(rid);
 }

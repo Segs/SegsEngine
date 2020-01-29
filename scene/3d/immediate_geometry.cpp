@@ -172,5 +172,5 @@ ImmediateGeometry::ImmediateGeometry() {
 
 ImmediateGeometry::~ImmediateGeometry() {
 
-    VisualServer::get_singleton()->free(im);
+    VisualServer::get_singleton()->free_rid(im);
 }

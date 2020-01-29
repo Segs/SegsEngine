@@ -2072,7 +2072,7 @@ void PhysicalBone::_notification(int p_what) {
             }
             parent_skeleton = nullptr;
             if (joint.is_valid()) {
-                PhysicsServer::get_singleton()->free(joint);
+                PhysicsServer::get_singleton()->free_rid(joint);
                 joint = RID();
             }
             break;
@@ -2191,7 +2191,7 @@ void PhysicalBone::_fix_joint_offset() {
 void PhysicalBone::_reload_joint() {
 
     if (joint.is_valid()) {
-        PhysicsServer::get_singleton()->free(joint);
+        PhysicsServer::get_singleton()->free_rid(joint);
         joint = RID();
     }
 

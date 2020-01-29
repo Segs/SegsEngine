@@ -165,7 +165,7 @@ VisualInstance::VisualInstance() {
 
 VisualInstance::~VisualInstance() {
 
-    VisualServer::get_singleton()->free(instance);
+    VisualServer::get_singleton()->free_rid(instance);
 }
 
 void GeometryInstance::set_material_override(const Ref<Material> &p_material) {

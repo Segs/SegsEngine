@@ -1345,7 +1345,7 @@ void AnimationPlayerEditor::_free_onion_layers() {
 
     for (int i = 0; i < onion.captures.size(); i++) {
         if (onion.captures[i].is_valid()) {
-            VisualServer::get_singleton()->free(onion.captures[i]);
+            VisualServer::get_singleton()->free_rid(onion.captures[i]);
         }
     }
     onion.captures.clear();
@@ -1828,8 +1828,8 @@ AnimationPlayerEditor::AnimationPlayerEditor(EditorNode *p_editor, AnimationPlay
 AnimationPlayerEditor::~AnimationPlayerEditor() {
 
     _free_onion_layers();
-    VisualServer::get_singleton()->free(onion.capture.canvas);
-    VisualServer::get_singleton()->free(onion.capture.canvas_item);
+    VisualServer::get_singleton()->free_rid(onion.capture.canvas);
+    VisualServer::get_singleton()->free_rid(onion.capture.canvas_item);
 }
 
 void AnimationPlayerEditorPlugin::_notification(int p_what) {

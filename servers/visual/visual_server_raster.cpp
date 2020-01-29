@@ -69,7 +69,7 @@ void VisualServerRaster::_draw_margins() {
 
 /* FREE */
 
-void VisualServerRaster::free(RID p_rid) {
+void VisualServerRaster::free_rid(RID p_rid) {
 
     if (VSG::storage->free(p_rid))
         return;
@@ -144,7 +144,7 @@ void VisualServerRaster::init() {
 void VisualServerRaster::finish() {
 
     if (test_cube.is_valid()) {
-        free(test_cube);
+        free_rid(test_cube);
     }
 
     VSG::rasterizer->finalize();

@@ -437,8 +437,8 @@ bool GridMap::_octant_update(const OctantKey &p_key) {
 
     for (int i = 0; i < g.multimesh_instances.size(); i++) {
 
-        VisualServer::get_singleton()->free(g.multimesh_instances[i].instance);
-        VisualServer::get_singleton()->free(g.multimesh_instances[i].multimesh);
+        VisualServer::get_singleton()->free_rid(g.multimesh_instances[i].instance);
+        VisualServer::get_singleton()->free_rid(g.multimesh_instances[i].multimesh);
     }
     g.multimesh_instances.clear();
 
@@ -642,11 +642,11 @@ void GridMap::_octant_clean_up(const OctantKey &p_key) {
     Octant &g = *octant_map[p_key];
 
     if (g.collision_debug.is_valid())
-        VisualServer::get_singleton()->free(g.collision_debug);
+        VisualServer::get_singleton()->free_rid(g.collision_debug);
     if (g.collision_debug_instance.is_valid())
-        VisualServer::get_singleton()->free(g.collision_debug_instance);
+        VisualServer::get_singleton()->free_rid(g.collision_debug_instance);
 
-    PhysicsServer::get_singleton()->free(g.static_body);
+    PhysicsServer::get_singleton()->free_rid(g.static_body);
 
     //erase navigation
     if (navigation) {
@@ -660,8 +660,8 @@ void GridMap::_octant_clean_up(const OctantKey &p_key) {
 
     for (int i = 0; i < g.multimesh_instances.size(); i++) {
 
-        VisualServer::get_singleton()->free(g.multimesh_instances[i].instance);
-        VisualServer::get_singleton()->free(g.multimesh_instances[i].multimesh);
+        VisualServer::get_singleton()->free_rid(g.multimesh_instances[i].instance);
+        VisualServer::get_singleton()->free_rid(g.multimesh_instances[i].multimesh);
     }
     g.multimesh_instances.clear();
 }
@@ -979,7 +979,7 @@ Vector3 GridMap::_get_offset() const {
 void GridMap::clear_baked_meshes() {
 
     for (int i = 0; i < baked_meshes.size(); i++) {
-        VisualServer::get_singleton()->free(baked_meshes[i].instance);
+        VisualServer::get_singleton()->free_rid(baked_meshes[i].instance);
     }
     baked_meshes.clear();
 

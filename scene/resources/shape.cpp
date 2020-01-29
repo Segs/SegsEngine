@@ -128,5 +128,5 @@ Shape::Shape(RID p_shape) :
 
 Shape::~Shape() {
 
-    PhysicsServer::get_singleton()->free(shape);
+    PhysicsServer::get_singleton()->free_rid(shape);
 }

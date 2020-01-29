@@ -119,5 +119,5 @@ Shape2D::Shape2D(const RID &p_rid) {
 
 Shape2D::~Shape2D() {
 
-    Physics2DServer::get_singleton()->free(shape);
+    Physics2DServer::get_singleton()->free_rid(shape);
 }
