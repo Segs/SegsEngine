@@ -3048,7 +3048,7 @@ void BindingsGenerator::_populate_builtin_type_interfaces() {
     itype.name = "Array";
     itype.cname = StringName(itype.name);
     itype.proxy_name = StringName(itype.name);
-    itype.c_out = "\treturn memnew(Array(%1));\n";
+    itype.c_out = "\treturn memnew(Array(Variant::from(%1)));\n";
     itype.c_type = itype.name;
     itype.c_type_in = itype.c_type + "*";
     itype.c_type_out = itype.c_type + "*";

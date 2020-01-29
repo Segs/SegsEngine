@@ -135,7 +135,7 @@ void ResourceFormatImporter::get_recognized_extensions(PODVector<String> &p_exte
 
     Set<String> found;
 
-    for (int i = 0; i < importers.size(); i++) {
+    for (size_t i = 0; i < importers.size(); i++) {
         PODVector<String> local_exts;
         importers[i]->get_recognized_extensions(local_exts);
         for (const auto & ext : local_exts) {
@@ -145,7 +145,7 @@ void ResourceFormatImporter::get_recognized_extensions(PODVector<String> &p_exte
             }
         }
     }
-    for (int i = 0; i < owned_importers.size(); i++) {
+    for (size_t i = 0; i < owned_importers.size(); i++) {
         PODVector<String> local_exts;
         owned_importers[i]->get_recognized_extensions(local_exts);
         for (const auto & local_ext : local_exts) {
@@ -166,7 +166,7 @@ void ResourceFormatImporter::get_recognized_extensions_for_type(se_string_view p
 
     Set<String> found;
 
-    for (int i = 0; i < importers.size(); i++) {
+    for (size_t i = 0; i < importers.size(); i++) {
         StringName res_type(importers[i]->get_resource_type());
         if (res_type.empty())
             continue;
@@ -183,7 +183,7 @@ void ResourceFormatImporter::get_recognized_extensions_for_type(se_string_view p
             }
         }
     }
-    for (int i = 0; i < owned_importers.size(); i++) {
+    for (size_t i = 0; i < owned_importers.size(); i++) {
         StringName res_type(owned_importers[i]->get_resource_type());
         if (res_type.empty())
             continue;
@@ -242,7 +242,7 @@ int ResourceFormatImporter::get_import_order(se_string_view p_path) const {
 
 bool ResourceFormatImporter::handles_type(se_string_view p_type) const {
 
-    for (int i = 0; i < importers.size(); i++) {
+    for (size_t i = 0; i < importers.size(); i++) {
 
         StringName res_type(importers[i]->get_resource_type());
         if (res_type.empty())
@@ -250,7 +250,7 @@ bool ResourceFormatImporter::handles_type(se_string_view p_type) const {
         if (ClassDB::is_parent_class(res_type, StringName(p_type)))
             return true;
     }
-    for (int i = 0; i < owned_importers.size(); i++) {
+    for (size_t i = 0; i < owned_importers.size(); i++) {
 
         StringName res_type(owned_importers[i]->get_resource_type());
         if (res_type.empty())
@@ -380,12 +380,12 @@ void ResourceFormatImporter::get_dependencies(se_string_view p_path, PODVector<S
 
 ResourceImporterInterface *ResourceFormatImporter::get_importer_by_name(se_string_view p_name) const {
 
-    for (int i = 0; i < importers.size(); i++) {
+    for (size_t i = 0; i < importers.size(); i++) {
         if (importers[i]->get_importer_name() == p_name) {
             return importers[i];
         }
     }
-    for (int i = 0; i < owned_importers.size(); i++) {
+    for (size_t i = 0; i < owned_importers.size(); i++) {
         if (owned_importers[i]->get_importer_name() == p_name) {
             return const_cast<ResourceImporterInterface *>(static_cast<const ResourceImporterInterface *>(owned_importers[i].get()));
         }
@@ -395,7 +395,7 @@ ResourceImporterInterface *ResourceFormatImporter::get_importer_by_name(se_strin
 
 void ResourceFormatImporter::get_importers_for_extension(se_string_view p_extension, PODVector<ResourceImporterInterface *> *r_importers) {
 
-    for (int i = 0; i < importers.size(); i++) {
+    for (size_t i = 0; i < importers.size(); i++) {
         PODVector<String> local_exts;
         importers[i]->get_recognized_extensions(local_exts);
         for (size_t j=0,fin=local_exts.size(); j<fin; ++j) {
@@ -404,7 +404,7 @@ void ResourceFormatImporter::get_importers_for_extension(se_string_view p_extens
             }
         }
     }
-    for (int i = 0; i < owned_importers.size(); i++) {
+    for (size_t i = 0; i < owned_importers.size(); i++) {
         PODVector<String> local_exts;
         owned_importers[i]->get_recognized_extensions(local_exts);
         for (size_t j=0,fin=local_exts.size(); j<fin; ++j) {
@@ -431,7 +431,7 @@ ResourceImporterInterface *ResourceFormatImporter::get_importer_by_extension(se_
             }
         }
     }
-    for (int i = 0; i < owned_importers.size(); i++) {
+    for (size_t i = 0; i < owned_importers.size(); i++) {
         PODVector<String> local_exts;
         owned_importers[i]->get_recognized_extensions(local_exts);
         for (const String & local_ext : local_exts) {
@@ -459,14 +459,14 @@ bool ResourceFormatImporter::are_import_settings_valid(se_string_view p_path) co
         return false;
     }
     se_string_view pat_importer(pat.importer);
-    for (int i = 0; i < importers.size(); i++) {
+    for (size_t i = 0; i < importers.size(); i++) {
         if (importers[i]->get_importer_name() == pat_importer) {
             if (!importers[i]->are_import_settings_valid(p_path)) { //importer thinks this is not valid
                 return false;
             }
         }
     }
-    for (int i = 0; i < owned_importers.size(); i++) {
+    for (size_t i = 0; i < owned_importers.size(); i++) {
         if (owned_importers[i]->get_importer_name() == pat_importer) {
             if (!owned_importers[i]->are_import_settings_valid(p_path)) { //importer thinks this is not valid
                 return false;
@@ -480,9 +480,9 @@ String ResourceFormatImporter::get_import_settings_hash() const {
 
     FixedVector<const ResourceImporterInterface *,64,true> sorted_importers;
 
-    for(int i=0; i<importers.size(); ++i)
+    for(size_t i=0; i<importers.size(); ++i)
         sorted_importers.push_back(importers[i]);
-    for(int i=0; i<owned_importers.size(); ++i)
+    for(size_t i=0; i<owned_importers.size(); ++i)
         sorted_importers.push_back(owned_importers[i].get());
     eastl::sort(sorted_importers.begin(),sorted_importers.end(),SortImporterByName());
 

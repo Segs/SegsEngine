@@ -465,7 +465,9 @@ Variant Array::max() const {
 const void *Array::id() const {
     return _p->array.ptr();
 }
-
+Array::operator Vector<Variant>() const {
+    return _p->array;
+}
 Array::Array(const Array &p_from) {
 
     _p = nullptr;

@@ -276,7 +276,7 @@ Error QuickHull::build(Span<const Vector3> p_points, Geometry::MeshData &r_mesh)
         int next = -1;
         real_t next_d = 0;
 
-        for (int i = 0; i < f.points_over.size(); i++) {
+        for (size_t i = 0; i < f.points_over.size(); i++) {
 
             real_t d = f.plane.distance_to(p_points[f.points_over[i]]);
 
@@ -356,7 +356,7 @@ Error QuickHull::build(Span<const Vector3> p_points, Geometry::MeshData &r_mesh)
 
             QHFace &lf = F->deref()->deref();
 
-            for (int i = 0; i < lf.points_over.size(); i++) {
+            for (size_t i = 0; i < lf.points_over.size(); i++) {
 
                 if (lf.points_over[i] == f.points_over[next]) //do not add current one
                     continue;

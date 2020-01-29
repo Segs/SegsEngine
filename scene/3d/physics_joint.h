@@ -212,13 +212,13 @@ public:
 		PARAM_RELAXATION,
 		PARAM_MAX
 	};
+public:
+    void _set_swing_span(float p_limit_angular);
+    float _get_swing_span() const;
 
+    void _set_twist_span(float p_limit_angular);
+    float _get_twist_span() const;
 protected:
-	void _set_swing_span(float p_limit_angular);
-	float _get_swing_span() const;
-
-	void _set_twist_span(float p_limit_angular);
-	float _get_twist_span() const;
 
 	float params[PARAM_MAX];
 	RID _configure_joint(PhysicsBody *body_a, PhysicsBody *body_b) override;

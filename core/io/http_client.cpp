@@ -137,15 +137,15 @@ Error HTTPClient::request_raw(Method p_method, se_string_view p_url, const PODVe
     bool add_clen = p_body.size() > 0;
     bool add_uagent = true;
     bool add_accept = true;
-    for (int i = 0; i < p_headers.size(); i++) {
-        request += p_headers[i] + "\r\n";
-        if (add_clen && StringUtils::findn(p_headers[i],("Content-Length:")) == 0) {
+    for (const String &hdr : p_headers) {
+        request += hdr + "\r\n";
+        if (add_clen && StringUtils::findn(hdr,"Content-Length:") == 0) {
             add_clen = false;
         }
-        if (add_uagent && StringUtils::findn(p_headers[i],("User-Agent:")) == 0) {
+        if (add_uagent && StringUtils::findn(hdr,"User-Agent:") == 0) {
             add_uagent = false;
         }
-        if (add_accept && StringUtils::findn(p_headers[i],("Accept:")) == 0) {
+        if (add_accept && StringUtils::findn(hdr,"Accept:") == 0) {
             add_accept = false;
         }
     }
@@ -160,6 +160,8 @@ Error HTTPClient::request_raw(Method p_method, se_string_view p_url, const PODVe
         request += ("Accept: */*\r\n");
     }
     request += ("\r\n");
+
+    //TODO: SEGS: why on earth are there allocations made here, when it could just call connection->put_data a few times?
     PoolVector<uint8_t> data;
     data.resize(request.length());
     memcpy(data.write().ptr(),request.data(),request.size());
@@ -198,15 +200,15 @@ Error HTTPClient::request(Method p_method, se_string_view p_url, const PODVector
     bool add_uagent = true;
     bool add_accept = true;
     bool add_clen = p_body.length() > 0;
-    for (int i = 0; i < p_headers.size(); i++) {
-        request += p_headers[i] + "\r\n";
-        if (add_clen && StringUtils::findn(p_headers[i],("Content-Length:")) == 0) {
+    for (const String &hdr : p_headers) {
+        request += hdr + "\r\n";
+        if (add_clen && StringUtils::findn(hdr,("Content-Length:")) == 0) {
             add_clen = false;
         }
-        if (add_uagent && StringUtils::findn(p_headers[i],("User-Agent:")) == 0) {
+        if (add_uagent && StringUtils::findn(hdr,("User-Agent:")) == 0) {
             add_uagent = false;
         }
-        if (add_accept && StringUtils::findn(p_headers[i],("Accept:")) == 0) {
+        if (add_accept && StringUtils::findn(hdr,("Accept:")) == 0) {
             add_accept = false;
         }
     }
@@ -251,14 +253,14 @@ int HTTPClient::get_response_code() const {
     return response_num;
 }
 
-Error HTTPClient::get_response_headers(List<String> *r_response) {
+Error HTTPClient::get_response_headers(ListPOD<String> *r_response) {
 
     if (response_headers.empty())
         return ERR_INVALID_PARAMETER;
 
-    for (int i = 0; i < response_headers.size(); i++) {
+    for (const String & rhdr : response_headers) {
 
-        r_response->push_back(response_headers[i]);
+        r_response->emplace_back(rhdr);
     }
 
     response_headers.clear();
@@ -782,11 +784,10 @@ String HTTPClient::query_string_from_dict(const Dictionary &p_dict) {
 
 Dictionary HTTPClient::_get_response_headers_as_dictionary() {
 
-    List<String> rh;
+    ListPOD<String> rh;
     get_response_headers(&rh);
     Dictionary ret;
-    for (const List<String>::Element *E = rh.front(); E; E = E->next()) {
-        const String &s = E->deref();
+    for (const String &s : rh) {
         size_t sp = StringUtils::find(s,":");
         if (sp == String::npos)
             continue;
@@ -800,15 +801,18 @@ Dictionary HTTPClient::_get_response_headers_as_dictionary() {
 
 PoolVector<String> HTTPClient::_get_response_headers() {
 
-    List<String> rh;
-    get_response_headers(&rh);
-    PoolVector<String> ret;
-    ret.resize(rh.size());
-    int idx = 0;
-    for (const List<String>::Element *E = rh.front(); E; E = E->next()) {
-        ret.set(idx++, E->deref());
-    }
+    ListPOD<String> response_headers;
+    get_response_headers(&response_headers);
 
+    PoolVector<String> ret;
+    ret.resize(response_headers.size());
+    {
+        auto wr = ret.write();
+        int idx = 0;
+        for (const String &s : response_headers) {
+            wr[idx++] = s;
+        }
+    }
     return ret;
 }
 

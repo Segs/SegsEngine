@@ -1723,7 +1723,7 @@ float Animation::_cubic_interpolate(const float &p_pre_a, const float &p_a, cons
     return _interpolate(p_a, p_b, p_c);
 }
 
-PoolVector<int> Animation::_value_track_get_key_indices(int p_track, float p_time, float p_delta) const {
+PoolVector<int> Animation::value_track_get_key_indices(int p_track, float p_time, float p_delta) const {
 
     List<int> idxs;
     value_track_get_key_indices(p_track, p_time, p_delta, &idxs);
@@ -1736,7 +1736,7 @@ PoolVector<int> Animation::_value_track_get_key_indices(int p_track, float p_tim
     return idxr;
 }
 
-PoolVector<int> Animation::_method_track_get_key_indices(int p_track, float p_time, float p_delta) const {
+PoolVector<int> Animation::method_track_get_key_indices(int p_track, float p_time, float p_delta) const {
 
     List<int> idxs;
     method_track_get_key_indices(p_track, p_time, p_delta, &idxs);
@@ -2809,13 +2809,13 @@ void Animation::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("track_set_interpolation_loop_wrap", {"track_idx", "interpolation"}), &Animation::track_set_interpolation_loop_wrap);
     MethodBinder::bind_method(D_METHOD("track_get_interpolation_loop_wrap", {"track_idx"}), &Animation::track_get_interpolation_loop_wrap);
 
-    MethodBinder::bind_method(D_METHOD("transform_track_interpolate", {"track_idx", "time_sec"}), &Animation::_transform_track_interpolate);
+    MethodBinder::bind_method(D_METHOD("transform_track_interpolate", {"track_idx", "time_sec"}), (Array(Animation::*)(int , float ) const)&Animation::transform_track_interpolate);
     MethodBinder::bind_method(D_METHOD("value_track_set_update_mode", {"track_idx", "mode"}), &Animation::value_track_set_update_mode);
     MethodBinder::bind_method(D_METHOD("value_track_get_update_mode", {"track_idx"}), &Animation::value_track_get_update_mode);
 
-    MethodBinder::bind_method(D_METHOD("value_track_get_key_indices", {"track_idx", "time_sec", "delta"}), &Animation::_value_track_get_key_indices);
+    MethodBinder::bind_method(D_METHOD("value_track_get_key_indices", {"track_idx", "time_sec", "delta"}), (PoolVector<int>(Animation::*)(int, float, float) const)&Animation::value_track_get_key_indices);
 
-    MethodBinder::bind_method(D_METHOD("method_track_get_key_indices", {"track_idx", "time_sec", "delta"}), &Animation::_method_track_get_key_indices);
+    MethodBinder::bind_method(D_METHOD("method_track_get_key_indices", {"track_idx", "time_sec", "delta"}), (PoolVector<int>(Animation::*)(int, float, float) const)&Animation::method_track_get_key_indices);
     MethodBinder::bind_method(D_METHOD("method_track_get_name", {"track_idx", "key_idx"}), &Animation::method_track_get_name);
     MethodBinder::bind_method(D_METHOD("method_track_get_params", {"track_idx", "key_idx"}), &Animation::method_track_get_params);
 

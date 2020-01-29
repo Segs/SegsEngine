@@ -52,7 +52,7 @@ class BakedLightmapData : public Resource {
     };
 
     Vector<User> users;
-
+public:
     void _set_user_data(const Array &p_data);
     Array _get_user_data() const;
 

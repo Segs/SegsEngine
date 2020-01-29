@@ -1822,7 +1822,7 @@ void AnimationTreePlayer::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_master_player", {"nodepath"}), &AnimationTreePlayer::set_master_player);
     MethodBinder::bind_method(D_METHOD("get_master_player"), &AnimationTreePlayer::get_master_player);
 
-    MethodBinder::bind_method(D_METHOD("get_node_list"), &AnimationTreePlayer::_get_node_list);
+    MethodBinder::bind_method(D_METHOD("get_node_vector"), &AnimationTreePlayer::get_node_vector);
 
     MethodBinder::bind_method(D_METHOD("set_animation_process_mode", {"mode"}), &AnimationTreePlayer::set_animation_process_mode);
     MethodBinder::bind_method(D_METHOD("get_animation_process_mode"), &AnimationTreePlayer::get_animation_process_mode);

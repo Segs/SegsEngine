@@ -766,12 +766,12 @@ void ResourceInteractiveLoaderBinary::get_dependencies(FileAccess *p_f, PODVecto
     if (error)
         return;
     p_dependencies.reserve(p_dependencies.size()+external_resources.size());
-    for (int i = 0; i < external_resources.size(); i++) {
+    for (const ExtResource & er : external_resources) {
 
-        String dep = external_resources[i].path;
+        String dep = er.path;
 
-        if (p_add_types && !external_resources[i].type.empty()) {
-            dep += "::" + external_resources[i].type;
+        if (p_add_types && !er.type.empty()) {
+            dep += "::" + er.type;
         }
 
         p_dependencies.push_back(dep);
@@ -821,7 +821,9 @@ void ResourceInteractiveLoaderBinary::open(FileAccess *p_f) {
     if (ver_format > FORMAT_VERSION || ver_major > VERSION_MAJOR) {
 
         f->close();
-        ERR_FAIL_MSG("File format '" + ::to_string(FORMAT_VERSION) + "." + ::to_string(ver_major) + "." + ::to_string(ver_minor) + "' is too new! Please upgrade to a new engine version: " + local_path + ".");
+        ERR_FAIL_MSG("File format '" + ::to_string(FORMAT_VERSION) + "." + ::to_string(ver_major) + "." +
+                     ::to_string(ver_minor) + "' is too new! Please upgrade to a new engine version: " + local_path +
+                     ".");
     }
 
     type = get_unicode_string();
@@ -967,7 +969,7 @@ void ResourceFormatLoaderBinary::get_recognized_extensions(PODVector<String> &p_
     }
 }
 
-bool ResourceFormatLoaderBinary::handles_type(se_string_view p_type) const {
+bool ResourceFormatLoaderBinary::handles_type(se_string_view /*p_type*/) const {
 
     return true; //handles all
 }

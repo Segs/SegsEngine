@@ -1007,7 +1007,7 @@ void InputDefault::parse_mapping(se_string_view p_mapping) {
     mapping.uid = StringName(entry[0]);
     mapping.name = StringName(entry[1]);
 
-    int idx = 1;
+    size_t idx = 1;
     while (++idx < entry.size()) {
 
         if (entry[idx].empty())

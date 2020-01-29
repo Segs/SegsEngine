@@ -224,8 +224,8 @@ void CompositeLogger::logv(se_string_view p_msg, bool p_err) {
         return;
     }
 
-    for (int i = 0; i < loggers.size(); ++i) {
-        loggers[i]->logv(p_msg, p_err);
+    for (Logger * l : loggers) {
+        l->logv(p_msg, p_err);
     }
 }
 void CompositeLogger::log_error(se_string_view p_function, se_string_view p_file, int p_line, se_string_view p_code, se_string_view p_rationale, ErrorType p_type) {
@@ -233,8 +233,8 @@ void CompositeLogger::log_error(se_string_view p_function, se_string_view p_file
         return;
     }
 
-    for (int i = 0; i < loggers.size(); ++i) {
-        loggers[i]->log_error(p_function, p_file, p_line, p_code, p_rationale, p_type);
+    for (Logger * l : loggers) {
+        l->log_error(p_function, p_file, p_line, p_code, p_rationale, p_type);
     }
 }
 
@@ -243,7 +243,7 @@ void CompositeLogger::add_logger(Logger *p_logger) {
 }
 
 CompositeLogger::~CompositeLogger() {
-    for (int i = 0; i < loggers.size(); ++i) {
-        memdelete(loggers[i]);
+    for (Logger * l : loggers) {
+        memdelete(l);
     }
 }

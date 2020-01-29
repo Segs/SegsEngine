@@ -277,7 +277,7 @@ void ProjectExportDialog::_edit_preset(int p_index) {
 
             PODVector<se_string_view> items = StringUtils::split(error,'\n', false);
             error = "";
-            for (int i = 0; i < items.size(); i++) {
+            for (size_t i = 0; i < items.size(); i++) {
                 if (i > 0)
                     error += '\n';
                 error += " - " + items[i];
@@ -345,7 +345,7 @@ void ProjectExportDialog::_update_feature_list() {
 
     String custom = current->get_custom_features();
     PODVector<se_string_view> custom_list = StringUtils::split(custom,',');
-    for (int i = 0; i < custom_list.size(); i++) {
+    for (size_t i = 0; i < custom_list.size(); i++) {
         se_string_view f =StringUtils::strip_edges( custom_list[i]);
         if (!f.empty()) {
             features.push_back(String(f));

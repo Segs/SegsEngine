@@ -219,8 +219,8 @@ private:
     bool loop;
 
     // bind helpers
-private:
-    Array _transform_track_interpolate(int p_track, float p_time) const {
+public:
+    Array transform_track_interpolate(int p_track, float p_time) const {
         Vector3 loc;
         Quat rot;
         Vector3 scale;
@@ -231,9 +231,9 @@ private:
         ret.push_back(scale);
         return ret;
     }
+    PoolVector<int> value_track_get_key_indices(int p_track, float p_time, float p_delta) const;
+    PoolVector<int> method_track_get_key_indices(int p_track, float p_time, float p_delta) const;
 
-    PoolVector<int> _value_track_get_key_indices(int p_track, float p_time, float p_delta) const;
-    PoolVector<int> _method_track_get_key_indices(int p_track, float p_time, float p_delta) const;
 
     bool _transform_track_optimize_key(const TKey<TransformKey> &t0, const TKey<TransformKey> &t1, const TKey<TransformKey> &t2, float p_alowed_linear_err, float p_alowed_angular_err, float p_max_optimizable_angle, const Vector3 &p_norm);
     void _transform_track_optimize(int p_idx, float p_allowed_linear_err = 0.05f, float p_allowed_angular_err = 0.01f, float p_max_optimizable_angle = Math_PI * 0.125f);

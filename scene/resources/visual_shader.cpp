@@ -2115,7 +2115,7 @@ void VisualShaderNodeGroupBase::add_input_port(int p_id, int p_type, const Strin
     PODVector<se_string_view> inputs_strings = StringUtils::split(inputs,';', false);
     int index = 0;
     if (p_id < inputs_strings.size()) {
-        for (int i = 0; i < inputs_strings.size(); i++) {
+        for (size_t i = 0; i < inputs_strings.size(); i++) {
             if (i == p_id) {
                 inputs = StringUtils::insert(inputs,index, str);
                 break;
@@ -2336,7 +2336,7 @@ void VisualShaderNodeGroupBase::set_output_port_type(int p_id, int p_type) {
     PODVector<se_string_view> output_strings = StringUtils::split(outputs,';', false);
     int count = 0;
     int index = 0;
-    for (int i = 0; i < output_strings.size(); i++) {
+    for (size_t i = 0; i < output_strings.size(); i++) {
         PODVector<se_string_view> arr = StringUtils::split(output_strings[i],',');
         if (StringUtils::to_int(arr[0]) == p_id) {
             index += arr[0].size();
@@ -2369,7 +2369,7 @@ void VisualShaderNodeGroupBase::set_output_port_name(int p_id, const String &p_n
     PODVector<se_string_view> output_strings = StringUtils::split(outputs,';', false);
     int count = 0;
     int index = 0;
-    for (int i = 0; i < output_strings.size(); i++) {
+    for (size_t i = 0; i < output_strings.size(); i++) {
         PODVector<se_string_view> arr = StringUtils::split(output_strings[i],',');
         if (StringUtils::to_int(arr[0]) == p_id) {
             index += arr[0].size() + arr[1].size();
@@ -2416,7 +2416,7 @@ void VisualShaderNodeGroupBase::_apply_port_changes() {
     clear_input_ports();
     clear_output_ports();
 
-    for (int i = 0; i < inputs_strings.size(); i++) {
+    for (size_t i = 0; i < inputs_strings.size(); i++) {
         PODVector<se_string_view> arr = StringUtils::split(inputs_strings[i],',');
         ERR_FAIL_COND(arr.size() != 3)
         Port port;
@@ -2424,7 +2424,7 @@ void VisualShaderNodeGroupBase::_apply_port_changes() {
         port.name = arr[2];
         input_ports[i] = port;
     }
-    for (int i = 0; i < outputs_strings.size(); i++) {
+    for (size_t i = 0; i < outputs_strings.size(); i++) {
         PODVector<se_string_view> arr = StringUtils::split(outputs_strings[i],',');
         ERR_FAIL_COND(arr.size() != 3)
         Port port;
