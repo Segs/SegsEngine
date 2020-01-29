@@ -40,25 +40,9 @@
 
 IMPL_GDCLASS(ConfigFile)
 
-PoolStringArray ConfigFile::_get_sections() const {
-
-    PODVector<String> s;
-    get_sections(&s);
-    PoolStringArray arr;
-    arr.resize(s.size());
-    int idx = 0;
-    for (const String &E : s) {
-
-        arr.set(idx++, Variant(E));
-    }
-
-    return arr;
-}
-
 PoolStringArray ConfigFile::_get_section_keys(se_string_view p_section) const {
 
-    PODVector<String> s;
-    get_section_keys(p_section, &s);
+    PODVector<String> s = get_section_keys(p_section);
     PoolStringArray arr;
     arr.resize(s.size());
     int idx = 0;
@@ -117,16 +101,15 @@ bool ConfigFile::has_section_key(se_string_view p_section, se_string_view p_key)
     return iter->second.contains_as(p_key);
 }
 
-void ConfigFile::get_sections(PODVector<String> *r_sections) const {
-    r_sections->push_back(values.keys());
+PODVector<String> ConfigFile::get_sections() const {
+    return values.keys();
 }
-void ConfigFile::get_section_keys(se_string_view _section, PODVector<String> *r_keys) const {
+PODVector<String> ConfigFile::get_section_keys(se_string_view _section) const {
     const String p_section(_section);
     auto iter = values.find_as(_section);
 
-    ERR_FAIL_COND_MSG(iter==values.end(), "Cannont get keys from nonexistent section '" + p_section + "'.")
-    auto keys = iter->second.keys();
-    r_keys->push_back(keys);
+    ERR_FAIL_COND_V_MSG(iter==values.end(), {},"Cannont get keys from nonexistent section '" + p_section + "'.")
+    return iter->second.keys();
 }
 void ConfigFile::erase_section(se_string_view p_section) {
 
@@ -310,7 +293,7 @@ void ConfigFile::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("has_section", {"section"}), &ConfigFile::has_section);
     MethodBinder::bind_method(D_METHOD("has_section_key", {"section", "key"}), &ConfigFile::has_section_key);
 
-    MethodBinder::bind_method(D_METHOD("get_sections"), &ConfigFile::_get_sections);
+    MethodBinder::bind_method(D_METHOD("get_sections"), &ConfigFile::get_sections);
     MethodBinder::bind_method(D_METHOD("get_section_keys", {"section"}), &ConfigFile::_get_section_keys);
 
     MethodBinder::bind_method(D_METHOD("erase_section", {"section"}), &ConfigFile::erase_section);

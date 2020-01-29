@@ -367,8 +367,7 @@ void Control::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
         }
     }
     {
-        PODVector<StringName> names;
-        theme->get_stylebox_list(get_class_name(), &names);
+        PODVector<StringName> names(theme->get_stylebox_list(get_class_name()));
         String basename("custom_styles/");
         for (const StringName &E : names) {
 
@@ -2731,7 +2730,7 @@ void Control::get_argument_options(const StringName &p_function, int p_idx, List
         if (pf == "add_color_override"_sv || pf == "has_color"_sv || pf == "has_color_override"_sv || pf == "get_color"_sv) {
             Theme::get_default()->get_color_list(get_class_name(), &sn);
         } else if (pf == "add_style_override"_sv || pf == "has_style"_sv || pf == "has_style_override"_sv || pf == "get_style"_sv) {
-            Theme::get_default()->get_stylebox_list(get_class_name(), &sn);
+            sn = Theme::get_default()->get_stylebox_list(get_class_name());
         } else if (pf == "add_font_override"_sv || pf == "has_font"_sv || pf == "has_font_override"_sv || pf == "get_font"_sv) {
             Theme::get_default()->get_font_list(get_class_name(), &sn);
         } else if (pf == "add_constant_override"_sv || pf == "has_constant"_sv || pf == "has_constant_override"_sv || pf == "get_constant"_sv) {
@@ -2855,7 +2854,7 @@ void Control::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("add_icon_override", {"name", "texture"}), &Control::add_icon_override);
     MethodBinder::bind_method(D_METHOD("add_shader_override", {"name", "shader"}), &Control::add_shader_override);
-    MethodBinder::bind_method(D_METHOD("add_stylebox_override", {"name", "stylebox"}), &Control::add_style_override);
+    MethodBinder::bind_method(D_METHOD("add_style_override", {"name", "stylebox"}), &Control::add_style_override);
     MethodBinder::bind_method(D_METHOD("add_font_override", {"name", "font"}), &Control::add_font_override);
     MethodBinder::bind_method(D_METHOD("add_color_override", {"name", "color"}), &Control::add_color_override);
     MethodBinder::bind_method(D_METHOD("add_constant_override", {"name", "constant"}), &Control::add_constant_override);

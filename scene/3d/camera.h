@@ -120,7 +120,7 @@ public:
     void set_current(bool p_current);
     bool is_current() const;
 
-    RID get_camera() const;
+    RID get_camera_rid() const;
 
     float get_fov() const;
     float get_size() const;

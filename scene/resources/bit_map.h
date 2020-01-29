@@ -45,8 +45,8 @@ class GODOT_EXPORT BitMap : public Resource {
     int height;
 
     PODVector<Vector2> _march_square(const Rect2i &rect, const Point2i &start) const;
-
-    Array _opaque_to_polygons_bind(const Rect2 &p_rect, float p_epsilon) const;
+public:
+    Array opaque_to_polygons(const Rect2 &p_rect, float p_epsilon) const;
 
 public:
     void _set_data(const Dictionary &p_d);

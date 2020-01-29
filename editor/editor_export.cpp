@@ -745,8 +745,7 @@ Error EditorExportPlatform::export_project_files(const Ref<EditorExportPreset> &
                 continue;
             }
 
-            PODVector<String> remaps;
-            config->get_section_keys("remap", &remaps);
+            PODVector<String> remaps = config->get_section_keys("remap");
 
             Set<String> remap_features;
 
@@ -1374,9 +1373,7 @@ void EditorExport::load_config() {
 
         String option_section = "preset." + ::to_string(index) + ".options";
 
-        PODVector<String> options;
-
-        config->get_section_keys(option_section, &options);
+        PODVector<String> options = config->get_section_keys(option_section);
 
         for (const String &E : options) {
 

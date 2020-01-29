@@ -533,13 +533,13 @@ void Curve::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("bake"), &Curve::bake);
     MethodBinder::bind_method(D_METHOD("get_bake_resolution"), &Curve::get_bake_resolution);
     MethodBinder::bind_method(D_METHOD("set_bake_resolution", {"resolution"}), &Curve::set_bake_resolution);
-    MethodBinder::bind_method(D_METHOD("_get_data"), &Curve::get_data);
-    MethodBinder::bind_method(D_METHOD("_set_data", {"data"}), &Curve::set_data);
+    MethodBinder::bind_method(D_METHOD("get_data"), &Curve::get_data);
+    MethodBinder::bind_method(D_METHOD("set_data", {"data"}), &Curve::set_data);
 
     ADD_PROPERTY(PropertyInfo(VariantType::REAL, "min_value", PropertyHint::Range, "-1024,1024,0.01"), "set_min_value", "get_min_value");
     ADD_PROPERTY(PropertyInfo(VariantType::REAL, "max_value", PropertyHint::Range, "-1024,1024,0.01"), "set_max_value", "get_max_value");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "bake_resolution", PropertyHint::Range, "1,1000,1"), "set_bake_resolution", "get_bake_resolution");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "_data", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "_set_data", "_get_data");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "_data", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "set_data", "get_data");
 
     ADD_SIGNAL(MethodInfo(SIGNAL_RANGE_CHANGED));
 
@@ -633,7 +633,7 @@ Vector2 Curve2D::interpolate(int p_index, float p_offset) const {
 
     if (p_index >= pc - 1)
         return points[pc - 1].pos;
-    else if (p_index < 0)
+    if (p_index < 0)
         return points[0].pos;
 
     Vector2 p0 = points[p_index].pos;

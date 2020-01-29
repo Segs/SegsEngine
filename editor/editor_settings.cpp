@@ -653,8 +653,7 @@ void EditorSettings::_load_defaults(const Ref<ConfigFile> &p_extra_config) {
 
     if (p_extra_config->has_section("presets")) {
 
-        PODVector<String> keys;
-        p_extra_config->get_section_keys("presets", &keys);
+        PODVector<String> keys = p_extra_config->get_section_keys("presets");
 
         for (const String &key : keys) {
 
@@ -1364,8 +1363,7 @@ void EditorSettings::load_text_editor_theme() {
         return;
     }
 
-    PODVector<String> keys;
-    cf->get_section_keys("color_theme", &keys);
+    PODVector<String> keys = cf->get_section_keys("color_theme");
 
     for (const String & key : keys) {
         String val = cf->get_value("color_theme", key);

@@ -499,7 +499,7 @@ static void fill_bits(const BitMap *p_src, Ref<BitMap> &p_map, const Point2i &p_
 
 Vector<PODVector<Vector2> > BitMap::clip_opaque_to_polygons(const Rect2 &p_rect, float p_epsilon) const {
 
-    Rect2i r = Rect2i(0, 0, width, height).clip(p_rect);
+    const Rect2i r = Rect2i(0, 0, width, height).clip(p_rect);
     print_verbose("BitMap: Rect: " + (String)r);
 
     Ref<BitMap> fill(make_ref_counted<BitMap>());
@@ -587,9 +587,9 @@ void BitMap::shrink_mask(int p_pixels, const Rect2 &p_rect) {
     grow_mask(-p_pixels, p_rect);
 }
 
-Array BitMap::_opaque_to_polygons_bind(const Rect2 &p_rect, float p_epsilon) const {
+Array BitMap::opaque_to_polygons(const Rect2 &p_rect, float p_epsilon) const {
 
-    Vector<PODVector<Vector2> > result = clip_opaque_to_polygons(p_rect, p_epsilon);
+    const Vector<PODVector<Vector2> > result = clip_opaque_to_polygons(p_rect, p_epsilon);
 
     // Convert result to bindable types
 
@@ -686,7 +686,7 @@ void BitMap::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("_get_data"), &BitMap::_get_data);
 
     MethodBinder::bind_method(D_METHOD("grow_mask", {"pixels", "rect"}), &BitMap::grow_mask);
-    MethodBinder::bind_method(D_METHOD("opaque_to_polygons", {"rect", "epsilon"}), &BitMap::_opaque_to_polygons_bind, {DEFVAL(2.0)});
+    MethodBinder::bind_method(D_METHOD("opaque_to_polygons", {"rect", "epsilon"}), &BitMap::opaque_to_polygons, {DEFVAL(2.0)});
 
     ADD_PROPERTY(PropertyInfo(VariantType::DICTIONARY, "data", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "_set_data", "_get_data");
 }

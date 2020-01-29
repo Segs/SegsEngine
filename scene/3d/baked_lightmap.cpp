@@ -752,7 +752,7 @@ Ref<BakedLightmapData> BakedLightmap::get_light_data() const {
     return light_data;
 }
 
-void BakedLightmap::_debug_bake() {
+void BakedLightmap::debug_bake() {
     bake(get_parent(), true);
 }
 
@@ -841,7 +841,7 @@ void BakedLightmap::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_image_path"), &BakedLightmap::get_image_path);
 
     MethodBinder::bind_method(D_METHOD("bake", {"from_node", "create_visual_debug"}), &BakedLightmap::bake, {DEFVAL(Variant()), DEFVAL(false)});
-    MethodBinder::bind_method(D_METHOD("debug_bake"), &BakedLightmap::_debug_bake);
+    MethodBinder::bind_method(D_METHOD("debug_bake"), &BakedLightmap::debug_bake);
     ClassDB::set_method_flags(get_class_static_name(), StringName("debug_bake"), METHOD_FLAGS_DEFAULT | METHOD_FLAG_EDITOR);
 
     ADD_GROUP("Bake", "bake_");

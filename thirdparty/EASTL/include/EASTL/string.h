@@ -936,7 +936,7 @@ namespace eastl
             return result;
         }
 
-        static eastl::vector<this_type,allocator_type> split(const value_type* str, value_type separator, bool keepEmptyStrings = false)
+        static eastl::vector<this_type,allocator_type> split_str(const value_type* str, value_type separator, bool keepEmptyStrings = false)
         {
             eastl::vector<this_type,allocator_type> ret;
             const char* strEnd = str + strlen(str);
@@ -1004,7 +1004,7 @@ namespace eastl
 
         eastl::vector<this_type,allocator_type> split(value_type separator, bool keepEmptyStrings = false) const
         {
-            return split(c_str(), separator, keepEmptyStrings);
+            return split_str(c_str(), separator, keepEmptyStrings);
         }
         /// Return a string by joining substrings with a 'glue' string.
         template<typename CONTAINER>

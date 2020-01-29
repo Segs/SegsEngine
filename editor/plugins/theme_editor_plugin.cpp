@@ -84,7 +84,7 @@ void ThemeEditor::_name_menu_about_to_show() {
         switch (type_select->get_selected()) {
 
             case 0: Theme::get_default()->get_icon_list(fromtype, &names); break;
-            case 1: Theme::get_default()->get_stylebox_list(fromtype, &names); break;
+            case 1: names = Theme::get_default()->get_stylebox_list(fromtype); break;
             case 2: Theme::get_default()->get_font_list(fromtype, &names); break;
             case 3: Theme::get_default()->get_color_list(fromtype, &names); break;
             case 4: Theme::get_default()->get_constant_list(fromtype, &names); break;
@@ -92,7 +92,7 @@ void ThemeEditor::_name_menu_about_to_show() {
     } else if (popup_mode == POPUP_REMOVE) {
 
         theme->get_icon_list(fromtype, &names);
-        theme->get_stylebox_list(fromtype, &names);
+        names.push_back(theme->get_stylebox_list(fromtype));
         theme->get_font_list(fromtype, &names);
         theme->get_color_list(fromtype, &names);
         theme->get_constant_list(fromtype, &names);
@@ -155,8 +155,7 @@ void ThemeEditor::_save_template_cbk(se_string_view fname) {
 
         _TECategory &tc(E.second);
 
-        PODVector<StringName> stylebox_list;
-        Theme::get_default()->get_stylebox_list(E.first, &stylebox_list);
+        PODVector<StringName> stylebox_list = Theme::get_default()->get_stylebox_list(E.first);
         for (const StringName &F : stylebox_list) {
             _TECategory::RefItem<StyleBox> it;
             it.name = F;
@@ -355,8 +354,7 @@ void ThemeEditor::_dialog_cbk() {
                 }
             }
             {
-                names.clear();
-                Theme::get_default()->get_stylebox_list(fromtype, &names);
+                names = Theme::get_default()->get_stylebox_list(fromtype);
                 for (const StringName &E : names) {
                     theme->set_stylebox(E, fromtype, Ref<StyleBox>());
                 }
@@ -409,8 +407,7 @@ void ThemeEditor::_dialog_cbk() {
                 }
             }
             {
-                names.clear();
-                Theme::get_default()->get_stylebox_list(fromtype, &names);
+                names = Theme::get_default()->get_stylebox_list(fromtype);
                 for (const StringName &E : names) {
                     theme->clear_stylebox(E, fromtype);
                 }
@@ -476,8 +473,7 @@ void ThemeEditor::_theme_menu_cbk(int p_option) {
                     theme->set_shader(E, type, import ? base_theme->get_shader(E, type) : Ref<Shader>());
                 }
 
-                PODVector<StringName> styleboxs;
-                base_theme->get_stylebox_list(type, &styleboxs);
+                PODVector<StringName> styleboxs = base_theme->get_stylebox_list(type);
 
                 for (const StringName &E : styleboxs) {
                     theme->set_stylebox(E, type, import ? base_theme->get_stylebox(E, type) : Ref<StyleBox>());

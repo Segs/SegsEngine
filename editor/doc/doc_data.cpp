@@ -495,8 +495,7 @@ void DocData::generate(bool p_basic_types) {
                 pd.type = "Font";
                 c.theme_properties.push_back(pd);
             }
-            l.clear();
-            Theme::get_default()->get_stylebox_list(cname, &l);
+            l = Theme::get_default()->get_stylebox_list(cname);
             for (const StringName &E : l) {
 
                 PropertyDoc pd;

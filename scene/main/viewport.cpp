@@ -967,7 +967,7 @@ void Viewport::_camera_set(Camera *p_camera) {
     camera = p_camera;
     if (!camera_override) {
         if (camera)
-            VisualServer::get_singleton()->viewport_attach_camera(viewport, camera->get_camera());
+            VisualServer::get_singleton()->viewport_attach_camera(viewport, camera->get_camera_rid());
         else
             VisualServer::get_singleton()->viewport_attach_camera(viewport, RID());
     }
@@ -1216,7 +1216,7 @@ void Viewport::enable_camera_override(bool p_enable) {
     if (p_enable) {
         VisualServer::get_singleton()->viewport_attach_camera(viewport, camera_override.rid);
     } else if (camera) {
-        VisualServer::get_singleton()->viewport_attach_camera(viewport, camera->get_camera());
+        VisualServer::get_singleton()->viewport_attach_camera(viewport, camera->get_camera_rid());
     } else {
         VisualServer::get_singleton()->viewport_attach_camera(viewport, RID());
     }

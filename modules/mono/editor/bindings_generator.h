@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef BINDINGS_GENERATOR_H
-#define BINDINGS_GENERATOR_H
+#pragma once
 
 #include "core/class_db.h"
 #include "core/string_builder.h"
@@ -608,8 +607,6 @@ class BindingsGenerator {
 
     Error _generate_glue_method(const TypeInterface &p_itype, const MethodInterface &p_imethod, StringBuilder &p_output);
 
-    Error _save_file(se_string_view p_path, const StringBuilder &p_content);
-
     void _log(const char *p_format, ...) _PRINTF_FORMAT_ATTRIBUTE_2_3;
 
     void _initialize();
@@ -637,5 +634,3 @@ public:
 };
 
 #endif
-
-#endif // BINDINGS_GENERATOR_H

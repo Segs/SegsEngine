@@ -56,18 +56,7 @@ PoolVector<String> Theme::_get_icon_list(const String &p_type) const {
 
 PoolVector<String> Theme::_get_stylebox_list(const String &p_type) const {
     PoolVector<String> ilret;
-    PODVector<StringName> il;
-    get_stylebox_list(StringName(p_type), &il);
-    for (const StringName &E : il) {
-        ilret.push_back(String(E));
-    }
-    return ilret;
-}
-
-PoolVector<String> Theme::_get_stylebox_types() const {
-    PoolVector<String> ilret;
-    PODVector<StringName> il;
-    get_stylebox_types(&il);
+    PODVector<StringName> il = get_stylebox_list(StringName(p_type));
     for (const StringName &E : il) {
         ilret.push_back(String(E));
     }
@@ -464,20 +453,26 @@ void Theme::clear_stylebox(const StringName &p_name, const StringName &p_type) {
     emit_changed();
 }
 
-void Theme::get_stylebox_list(const StringName& p_type, PODVector<StringName> *p_list) const {
+PODVector<StringName> Theme::get_stylebox_list(const StringName& p_type) const {
 
     if (!style_map.contains(p_type))
-        return;
-
-    for(const auto & v : style_map.at(p_type)) {
-        p_list->push_back(v.first);
+        return {};
+    PODVector<StringName> res;
+    const  DefHashMap<StringName, Ref<StyleBox> > &smap(style_map.at(p_type));
+    res.reserve(smap.size());
+    for(const auto & v : smap) {
+        res.emplace_back(v.first);
     }
+    return res;
 }
 
-void Theme::get_stylebox_types(PODVector<StringName> *p_list) const {
+PODVector<StringName> Theme::get_stylebox_types() const {
+    PODVector<StringName> res;
+    res.reserve(style_map.size());
     for (const auto & v : style_map) {
-        p_list->push_back(v.first);
+        res.emplace_back(v.first);
     }
+    return res;
 }
 
 void Theme::set_font(const StringName &p_name, const StringName &p_type, const Ref<Font> &p_font) {
@@ -502,7 +497,7 @@ void Theme::set_font(const StringName &p_name, const StringName &p_type, const R
     }
 }
 Ref<Font> Theme::get_font(const StringName &p_name, const StringName &p_type) const {
-    Ref<Font> dummy;
+    const Ref<Font> dummy;
     if (font_map.contains(p_type) && font_map.at(p_type).at(p_name, dummy))
         return font_map.at(p_type).at(p_name);
     if (default_theme_font)
@@ -813,7 +808,7 @@ void Theme::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("has_stylebox", {"name", "type"}), &Theme::has_stylebox);
     MethodBinder::bind_method(D_METHOD("clear_stylebox", {"name", "type"}), &Theme::clear_stylebox);
     MethodBinder::bind_method(D_METHOD("get_stylebox_list", {"type"}), &Theme::_get_stylebox_list);
-    MethodBinder::bind_method(D_METHOD("get_stylebox_types"), &Theme::_get_stylebox_types);
+    MethodBinder::bind_method(D_METHOD("get_stylebox_types"), &Theme::get_stylebox_types);
 
     MethodBinder::bind_method(D_METHOD("set_font", {"name", "type", "font"}), &Theme::set_font);
     MethodBinder::bind_method(D_METHOD("get_font", {"name", "type"}), &Theme::get_font);

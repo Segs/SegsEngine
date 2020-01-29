@@ -288,6 +288,25 @@ struct GetTypeInfo<const Variant &> {
             return RawPropertyInfo { nullptr,nullptr,nullptr,int8_t(VARIANT_TYPE)};\
         }\
     };
+#define MAKE_TEMPLATE_TYPE_INFO_META(m_template, m_type, m_var_type,m_meta)           \
+    template <>                                                                       \
+    struct GetTypeInfo<m_template<m_type> > {                                         \
+        constexpr static const VariantType VARIANT_TYPE = m_var_type;                         \
+        constexpr static const GodotTypeInfo::Metadata METADATA = m_meta; \
+        constexpr static const TypePassBy PASS_BY = TypePassBy::Reference; \
+        constexpr static inline RawPropertyInfo get_class_info() {\
+            return RawPropertyInfo { nullptr,nullptr,nullptr,int8_t(VARIANT_TYPE)};\
+        }\
+    };                                                                                \
+    template <>                                                                       \
+    struct GetTypeInfo<const m_template<m_type> &> {                                  \
+        constexpr static const VariantType VARIANT_TYPE = m_var_type;                         \
+        constexpr static const GodotTypeInfo::Metadata METADATA = m_meta; \
+        constexpr static const TypePassBy PASS_BY = TypePassBy::Reference; \
+        constexpr static inline RawPropertyInfo get_class_info() {\
+            return RawPropertyInfo { nullptr,nullptr,nullptr,int8_t(VARIANT_TYPE)};\
+        }\
+    };
 
 MAKE_TEMPLATE_TYPE_INFO(Vector, uint8_t, VariantType::POOL_BYTE_ARRAY)
 MAKE_TEMPLATE_TYPE_INFO(Vector, int, VariantType::POOL_INT_ARRAY)
@@ -297,14 +316,14 @@ MAKE_TEMPLATE_TYPE_INFO(Vector, Vector2, VariantType::POOL_VECTOR2_ARRAY)
 MAKE_TEMPLATE_TYPE_INFO(Vector, Vector3, VariantType::POOL_VECTOR3_ARRAY)
 MAKE_TEMPLATE_TYPE_INFO(Vector, Color, VariantType::POOL_COLOR_ARRAY)
 
-MAKE_TEMPLATE_TYPE_INFO(PODVector, uint8_t, VariantType::POOL_BYTE_ARRAY)
-MAKE_TEMPLATE_TYPE_INFO(PODVector, int, VariantType::POOL_INT_ARRAY)
-MAKE_TEMPLATE_TYPE_INFO(PODVector, float, VariantType::POOL_REAL_ARRAY)
-MAKE_TEMPLATE_TYPE_INFO(PODVector, String, VariantType::POOL_STRING_ARRAY)
-MAKE_TEMPLATE_TYPE_INFO(PODVector, StringName, VariantType::POOL_STRING_ARRAY)
-MAKE_TEMPLATE_TYPE_INFO(PODVector, Vector2, VariantType::POOL_VECTOR2_ARRAY)
-MAKE_TEMPLATE_TYPE_INFO(PODVector, Vector3, VariantType::POOL_VECTOR3_ARRAY)
-MAKE_TEMPLATE_TYPE_INFO(PODVector, Color, VariantType::POOL_COLOR_ARRAY)
+MAKE_TEMPLATE_TYPE_INFO_META(PODVector, uint8_t, VariantType::POOL_BYTE_ARRAY,GodotTypeInfo::METADATA_NON_COW_CONTAINER)
+MAKE_TEMPLATE_TYPE_INFO_META(PODVector, int, VariantType::POOL_INT_ARRAY,GodotTypeInfo::METADATA_NON_COW_CONTAINER)
+MAKE_TEMPLATE_TYPE_INFO_META(PODVector, float, VariantType::POOL_REAL_ARRAY,GodotTypeInfo::METADATA_NON_COW_CONTAINER)
+MAKE_TEMPLATE_TYPE_INFO_META(PODVector, String, VariantType::POOL_STRING_ARRAY,GodotTypeInfo::METADATA_NON_COW_CONTAINER)
+MAKE_TEMPLATE_TYPE_INFO_META(PODVector, StringName, VariantType::POOL_STRING_ARRAY,GodotTypeInfo::METADATA_NON_COW_CONTAINER)
+MAKE_TEMPLATE_TYPE_INFO_META(PODVector, Vector2, VariantType::POOL_VECTOR2_ARRAY,GodotTypeInfo::METADATA_NON_COW_CONTAINER)
+MAKE_TEMPLATE_TYPE_INFO_META(PODVector, Vector3, VariantType::POOL_VECTOR3_ARRAY,GodotTypeInfo::METADATA_NON_COW_CONTAINER)
+MAKE_TEMPLATE_TYPE_INFO_META(PODVector, Color, VariantType::POOL_COLOR_ARRAY,GodotTypeInfo::METADATA_NON_COW_CONTAINER)
 
 MAKE_TEMPLATE_TYPE_INFO(PODVector, Variant, VariantType::ARRAY)
 MAKE_TEMPLATE_TYPE_INFO(PODVector, Plane, VariantType::ARRAY)
