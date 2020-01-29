@@ -1599,8 +1599,7 @@ Error EditorFileSystem::_reimport_group(se_string_view p_group_file, const Vecto
         }
 
         if (config->has_section("params")) {
-            PODVector<String> sk;
-            config->get_section_keys("params", &sk);
+            PODVector<String> sk = config->get_section_keys("params");
             for (const String &param : sk) {
                 Variant value = config->get_value("params", param);
                 //override with whathever is in file
@@ -1742,8 +1741,7 @@ void EditorFileSystem::_reimport_file(const String &p_file) {
         Error err = cf->load(p_file + ".import");
         if (err == OK) {
             if (cf->has_section("params")) {
-                PODVector<String> sk;
-                cf->get_section_keys("params", &sk);
+                PODVector<String> sk = cf->get_section_keys("params");
                 for (const String &E : sk) {
                     params[StringName(E)] = cf->get_value("params", E);
                 }
@@ -2052,8 +2050,7 @@ void EditorFileSystem::_move_group_files(EditorFileSystemDirectory *efd, se_stri
                 config->set_value("remap", "group_file", p_new_location);
             }
 
-            PODVector<String> sk;
-            config->get_section_keys("params", &sk);
+            PODVector<String> sk = config->get_section_keys("params");
             for (const String & param : sk) {
                 //not very clean, but should work
                 String value = config->get_value("params", param);

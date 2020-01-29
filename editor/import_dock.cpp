@@ -212,8 +212,7 @@ void ImportDock::set_edit_multiple_paths(const Vector<String> &p_paths) {
             }
         }
 
-        PODVector<String> keys;
-        config->get_section_keys("params", &keys);
+        PODVector<String> keys = config->get_section_keys("params");
 
         for (const String &E : keys) {
 

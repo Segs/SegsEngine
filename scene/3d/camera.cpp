@@ -229,7 +229,7 @@ void Camera::set_projection(Camera::Projection p_mode) {
     }
 }
 
-RID Camera::get_camera() const {
+RID Camera::get_camera_rid() const {
 
     return camera;
 };
@@ -532,7 +532,7 @@ void Camera::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_doppler_tracking", {"mode"}), &Camera::set_doppler_tracking);
     MethodBinder::bind_method(D_METHOD("get_doppler_tracking"), &Camera::get_doppler_tracking);
     MethodBinder::bind_method(D_METHOD("get_frustum"), &Camera::get_frustum);
-    MethodBinder::bind_method(D_METHOD("get_camera_rid"), &Camera::get_camera);
+    MethodBinder::bind_method(D_METHOD("get_camera_rid"), &Camera::get_camera_rid);
 
     MethodBinder::bind_method(D_METHOD("set_cull_mask_bit", {"layer", "enable"}), &Camera::set_cull_mask_bit);
     MethodBinder::bind_method(D_METHOD("get_cull_mask_bit", {"layer"}), &Camera::get_cull_mask_bit);

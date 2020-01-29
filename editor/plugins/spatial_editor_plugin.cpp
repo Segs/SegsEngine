@@ -2184,7 +2184,7 @@ void SpatialEditorViewport::_notification(int p_what) {
                 }
                 previewing = cam;
                 previewing->connect("tree_exited", this, "_preview_exited_scene");
-                VisualServer::get_singleton()->viewport_attach_camera(viewport->get_viewport_rid(), cam->get_camera());
+                VisualServer::get_singleton()->viewport_attach_camera(viewport->get_viewport_rid(), cam->get_camera_rid());
                 surface->update();
             }
         }
@@ -2865,7 +2865,7 @@ void SpatialEditorViewport::_toggle_camera_preview(bool p_activate) {
 
         previewing->disconnect("tree_exiting", this, "_preview_exited_scene");
         previewing = nullptr;
-        VisualServer::get_singleton()->viewport_attach_camera(viewport->get_viewport_rid(), camera->get_camera()); //restore
+        VisualServer::get_singleton()->viewport_attach_camera(viewport->get_viewport_rid(), camera->get_camera_rid()); //restore
         if (!preview)
             preview_camera->hide();
         view_menu->set_disabled(false);
@@ -2875,7 +2875,7 @@ void SpatialEditorViewport::_toggle_camera_preview(bool p_activate) {
 
         previewing = preview;
         previewing->connect("tree_exiting", this, "_preview_exited_scene");
-        VisualServer::get_singleton()->viewport_attach_camera(viewport->get_viewport_rid(), preview->get_camera()); //replace
+        VisualServer::get_singleton()->viewport_attach_camera(viewport->get_viewport_rid(), preview->get_camera_rid()); //replace
         view_menu->set_disabled(true);
         surface->update();
     }
@@ -2888,7 +2888,7 @@ void SpatialEditorViewport::_toggle_cinema_preview(bool p_activate) {
             previewing->disconnect("tree_exited", this, "_preview_exited_scene");
 
         previewing = nullptr;
-        VisualServer::get_singleton()->viewport_attach_camera(viewport->get_viewport_rid(), camera->get_camera()); //restore
+        VisualServer::get_singleton()->viewport_attach_camera(viewport->get_viewport_rid(), camera->get_camera_rid()); //restore
         preview_camera->set_pressed(false);
         if (!preview) {
             preview_camera->hide();
@@ -3077,7 +3077,7 @@ void SpatialEditorViewport::set_state(const Dictionary &p_state) {
         if (object_cast<Camera>(pv)) {
             previewing = object_cast<Camera>(pv);
             previewing->connect("tree_exiting", this, "_preview_exited_scene");
-            VisualServer::get_singleton()->viewport_attach_camera(viewport->get_viewport_rid(), previewing->get_camera()); //replace
+            VisualServer::get_singleton()->viewport_attach_camera(viewport->get_viewport_rid(), previewing->get_camera_rid()); //replace
             view_menu->set_disabled(true);
             surface->update();
             preview_camera->set_pressed(true);

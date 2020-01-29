@@ -101,7 +101,7 @@ StringName WorldEnvironment::get_configuration_warning() const {
     }
 
     // Commenting this warning for now, I think it makes no sense. If anyone can figure out what its supposed to do, feedback welcome. Else it should be deprecated.
-    //if (environment && get_viewport() && !get_viewport()->get_camera() && environment->get_background() != Environment::BG_CANVAS) {
+    //if (environment && get_viewport() && !get_viewport()->get_camera_rid() && environment->get_background() != Environment::BG_CANVAS) {
     //	return TTR("This WorldEnvironment is ignored. Either add a Camera (for 3D scenes) or set this environment's Background Mode to Canvas (for 2D scenes).");
     //}
 

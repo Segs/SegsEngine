@@ -144,9 +144,9 @@ private:
     };
 
     void _find_meshes_and_lights(Node *p_at_node, List<PlotMesh> &plot_meshes, List<PlotLight> &plot_lights);
-
-    void _debug_bake();
-
+public:
+    void debug_bake();
+private:
     void _assign_lightmaps();
     void _clear_lightmaps();
 

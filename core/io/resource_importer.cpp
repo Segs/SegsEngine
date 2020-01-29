@@ -65,8 +65,8 @@ Error ResourceFormatImporter::_get_path_and_type(se_string_view p_path, PathAndT
     if(iter== import_info.all_values().end())
         return ERR_FILE_CORRUPT;
 
-    PODVector<String> keys;
-    import_info.get_section_keys(se_string_view("remap"),&keys);
+    PODVector<String> keys = import_info.get_section_keys(se_string_view("remap"));
+
     for(const auto &remap_kv : iter->second) {
         if (!path_found && StringUtils::begins_with(remap_kv.first, "path.") && r_path_and_type.path.empty()) {
             se_string_view feature(StringUtils::get_slice(remap_kv.first, '.', 1));

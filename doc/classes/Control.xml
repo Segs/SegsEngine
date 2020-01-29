@@ -142,7 +142,7 @@
 				Overrides the [Shader] with given [code]name[/code] in the [member theme] resource the control uses. If [code]shader[/code] is empty or invalid, the override is cleared and the shader from assigned [Theme] is used.
 			</description>
 		</method>
-		<method name="add_stylebox_override">
+		<method name="add_style_override">
 			<return type="void">
 			</return>
 			<argument index="0" name="name" type="String">

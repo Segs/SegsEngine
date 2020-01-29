@@ -41,15 +41,15 @@ class CollisionShape : public Spatial {
     OBJ_CATEGORY("3D Physics Nodes");
 
     Ref<Shape> shape;
+    CollisionObject *parent;
+    Node *debug_shape;
 
     uint32_t owner_id;
-    CollisionObject *parent;
-
-    Node *debug_shape;
     bool debug_shape_dirty;
-
-    void resource_changed(const RES& res);
     bool disabled;
+
+public:
+    void resource_changed(const RES& res);
 
 protected:
     void _update_debug_shape();

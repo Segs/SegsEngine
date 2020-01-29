@@ -99,8 +99,7 @@ void EditorLayoutsDialog::_post_popup() {
         return;
     }
 
-    PODVector<String> layouts;
-    config.get_sections(&layouts);
+    PODVector<String> layouts = config.get_sections();
 
     for (const String &E : layouts) {
 

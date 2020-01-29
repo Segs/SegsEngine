@@ -69,7 +69,6 @@ protected:
 
     PoolVector<String> _get_icon_list(const String &p_type) const;
     PoolVector<String> _get_stylebox_list(const String &p_type) const;
-    PoolVector<String> _get_stylebox_types() const;
     PoolVector<String> _get_font_list(const String &p_type) const;
     PoolVector<String> _get_color_list(const String &p_type) const;
     PoolVector<String> _get_constant_list(const String &p_type) const;
@@ -123,8 +122,8 @@ public:
     Ref<StyleBox> get_stylebox(const StringName &p_name, const StringName &p_type) const;
     bool has_stylebox(const StringName &p_name, const StringName &p_type) const;
     void clear_stylebox(const StringName &p_name, const StringName &p_type);
-    void get_stylebox_list(const StringName& p_type, PODVector<StringName> *p_list) const;
-    void get_stylebox_types(PODVector<StringName> *p_list) const;
+    PODVector<StringName> get_stylebox_list(const StringName& p_type) const;
+    PODVector<StringName> get_stylebox_types() const;
 
     void set_font(const StringName &p_name, const StringName &p_type, const Ref<Font> &p_font);
     Ref<Font> get_font(const StringName &p_name, const StringName &p_type) const;

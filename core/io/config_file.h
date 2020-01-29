@@ -42,7 +42,6 @@ class GODOT_EXPORT ConfigFile : public RefCounted {
 
     Map<String, Map<String, Variant> > values;
 
-    PoolStringArray _get_sections() const;
     PoolStringArray _get_section_keys(se_string_view p_section) const;
     Error _internal_load(se_string_view p_path, FileAccess *f);
     Error _internal_save(FileAccess *file);
@@ -58,8 +57,8 @@ public:
     bool has_section(se_string_view p_section) const;
     bool has_section_key(se_string_view p_section, se_string_view p_key) const;
 
-    void get_sections(PODVector<String> *r_sections) const;
-    void get_section_keys(se_string_view p_section, PODVector<String> *r_keys) const;
+    PODVector<String> get_sections() const;
+    PODVector<String> get_section_keys(se_string_view p_section) const;
 
     void erase_section(se_string_view p_section);
     void erase_section_key(se_string_view p_section, se_string_view p_key);

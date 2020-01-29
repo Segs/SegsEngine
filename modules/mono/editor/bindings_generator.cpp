@@ -100,7 +100,9 @@
 #define C_METHOD_MONOSTR_TO_GODOT C_NS_MONOMARSHAL "::mono_string_to_godot"
 #define C_METHOD_MONOSTR_FROM_GODOT C_NS_MONOMARSHAL "::mono_string_from_godot"
 #define C_METHOD_MONOARRAY_TO(m_type) C_NS_MONOMARSHAL "::mono_array_to_" #m_type
+#define C_METHOD_MONOARRAY_TO_NC(m_type) C_NS_MONOMARSHAL "::mono_array_to_NC_" #m_type
 #define C_METHOD_MONOARRAY_FROM(m_type) C_NS_MONOMARSHAL "::" #m_type "_to_mono_array"
+#define C_METHOD_MONOARRAY_FROM_NC(m_type) C_NS_MONOMARSHAL "::" #m_type "_nc_to_mono_array"
 
 #define BINDINGS_GENERATOR_VERSION UINT32_C(11)
 
@@ -108,6 +110,7 @@ const char *BindingsGenerator::TypeInterface::DEFAULT_VARARG_C_IN("\t%0 %1_in = 
 
 static StringName _get_int_type_name_from_meta(GodotTypeInfo::Metadata p_meta);
 static StringName _get_string_type_name_from_meta(GodotTypeInfo::Metadata p_meta);
+static Error _save_file(se_string_view p_path, const StringBuilder& p_content);
 
 static String fix_doc_description(se_string_view p_bbcode) {
 
@@ -405,10 +408,8 @@ String BindingsGenerator::bbcode_to_xml(se_string_view p_bbcode, const TypeInter
                     xml_output.append(link_target);
                     xml_output.append("</c>");
                 } else if (!target_itype && target_cname == name_cache.type_at_GlobalScope) {
-                    StringName target_name = target_cname;
-
                     // Try to find as a global constant
-                    const ConstantInterface *target_iconst = find_constant_by_name(target_name, global_constants);
+                    const ConstantInterface *target_iconst = find_constant_by_name(target_cname, global_constants);
 
                     if (target_iconst) {
                         // Found global constant
@@ -421,7 +422,7 @@ String BindingsGenerator::bbcode_to_xml(se_string_view p_bbcode, const TypeInter
 
                         for (const EnumInterface &E : global_enums) {
                             target_ienum = &E;
-                            target_iconst = find_constant_by_name(target_name, target_ienum->constants);
+                            target_iconst = find_constant_by_name(target_cname, target_ienum->constants);
                             if (target_iconst)
                                 break;
                         }
@@ -441,10 +442,8 @@ String BindingsGenerator::bbcode_to_xml(se_string_view p_bbcode, const TypeInter
                         }
                     }
                 } else {
-                    StringName target_name = target_cname;
-
                     // Try to find the constant in the current class
-                    const ConstantInterface *target_iconst = find_constant_by_name(target_name, target_itype->constants);
+                    const ConstantInterface *target_iconst = find_constant_by_name(target_cname, target_itype->constants);
 
                     if (target_iconst) {
                         // Found constant in current class
@@ -459,7 +458,7 @@ String BindingsGenerator::bbcode_to_xml(se_string_view p_bbcode, const TypeInter
 
                         for (const EnumInterface &E : target_itype->enums) {
                             target_ienum = &E;
-                            target_iconst = find_constant_by_name(target_name, target_ienum->constants);
+                            target_iconst = find_constant_by_name(target_cname, target_ienum->constants);
                             if (target_iconst)
                                 break;
                         }
@@ -644,7 +643,7 @@ int BindingsGenerator::_determine_enum_prefix(const EnumInterface &p_ienum) {
     CRASH_COND(p_ienum.constants.empty())
 
     const ConstantInterface &front_iconstant = p_ienum.constants.front();
-    auto front_parts = front_iconstant.name.split("_", /* p_allow_empty: */ true);
+    auto front_parts = front_iconstant.name.split('_', /* p_allow_empty: */ true);
     size_t candidate_len = front_parts.size() - 1;
 
     if (candidate_len == 0)
@@ -652,7 +651,7 @@ int BindingsGenerator::_determine_enum_prefix(const EnumInterface &p_ienum) {
 
     for (const ConstantInterface &iconstant : p_ienum.constants) {
 
-        auto parts = iconstant.name.split("_", /* p_allow_empty: */ true);
+        auto parts = iconstant.name.split('_', /* p_allow_empty: */ true);
 
         size_t i;
         for (i = 0; i < candidate_len && i < parts.size(); i++) {
@@ -680,7 +679,7 @@ void BindingsGenerator::_apply_prefix_to_enum_constants(BindingsGenerator::EnumI
 
             String constant_name = curr_const.name;
 
-            auto parts = constant_name.split("_", /* p_allow_empty: */ true);
+            auto parts = constant_name.split('_', /* p_allow_empty: */ true);
 
             if (parts.size() <= curr_prefix_length)
                 continue;
@@ -1922,7 +1921,7 @@ uint32_t BindingsGenerator::get_version() {
     return BINDINGS_GENERATOR_VERSION;
 }
 
-Error BindingsGenerator::_save_file(se_string_view p_path, const StringBuilder &p_content) {
+static Error _save_file(se_string_view p_path, const StringBuilder &p_content) {
 
     FileAccessRef file = FileAccess::open(p_path, FileAccess::WRITE);
 
@@ -1951,28 +1950,6 @@ Error BindingsGenerator::_generate_glue_method(const BindingsGenerator::TypeInte
     String c_in_statements;
     String c_args_var_content;
 
-    String template_return_type="void";
-    if (!ret_void) {
-        if(return_type->is_enum) {
-            //TODO: SEGS: use underlying type ?
-            template_return_type = "int";
-        }
-        else {
-            //TODO: SEGS: all reference counted types are cast as Ref<RefCounted> here, do we need to dig deeper?
-            const char *fmt;
-            if(return_type->is_object_type) {
-                if(return_type->is_reference)
-                    fmt = "Ref<RefCounted>";
-                else
-                    fmt = "Object *";
-            }
-            else {
-                fmt = return_type->c_type.c_str();
-                //fmt = return_type->cname.asCString();
-            }
-            template_return_type = fmt;
-        }
-    }
     // Get arguments information
     int i = 0;
     for (const ArgumentInterface &iarg : p_imethod.arguments) {
@@ -3024,10 +3001,29 @@ void BindingsGenerator::_populate_builtin_type_interfaces() {
         builtin_types.emplace(StringName(itype.name), itype);                 \
     }
 
+#define INSERT_ARRAY_NC_FULL(m_name, m_type, m_proxy_t)                          \
+    {                                                                         \
+        itype = TypeInterface();                                              \
+        itype.name = #m_name;                                                 \
+        itype.cname = StringName(itype.name);                                 \
+        itype.proxy_name = #m_proxy_t "[]";                                   \
+        itype.c_in = "\t%0 %1_in = " C_METHOD_MONOARRAY_TO_NC(m_type) "(%1);\n"; \
+        itype.c_out = "\treturn " C_METHOD_MONOARRAY_FROM_NC(m_type) "(%1);\n";  \
+        itype.c_arg_in = "%s_in";                                             \
+        itype.c_type = #m_type;                                               \
+        itype.c_type_in = "MonoArray*";                                       \
+        itype.c_type_out = "MonoArray*";                                      \
+        itype.cs_type = itype.proxy_name;                                     \
+        itype.im_type_in = itype.proxy_name;                                  \
+        itype.im_type_out = itype.proxy_name;                                 \
+        builtin_types.emplace(StringName(itype.name), itype);                 \
+    }
 #define INSERT_ARRAY(m_type, m_proxy_t) INSERT_ARRAY_FULL(m_type, m_type, m_proxy_t)
 
     INSERT_ARRAY(PoolIntArray, int)
+    INSERT_ARRAY_NC_FULL(VecIntArray,VecIntArray, int)
     INSERT_ARRAY_FULL(PoolByteArray, PoolByteArray, byte)
+
 
 #ifdef REAL_T_IS_DOUBLE
     INSERT_ARRAY(PoolRealArray, double)
