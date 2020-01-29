@@ -169,14 +169,14 @@ public:
 
         bandwidth_incoming_pointer = 0;
         bandwidth_incoming_data.resize(16384); // ~128kB
-        for (int i = 0; i < bandwidth_incoming_data.size(); ++i) {
-            bandwidth_incoming_data[i].packet_size = -1;
+        for (BandwidthFrame & frm : bandwidth_incoming_data) {
+            frm.packet_size = -1;
         }
 
         bandwidth_outgoing_pointer = 0;
         bandwidth_outgoing_data.resize(16384); // ~128kB
-        for (int i = 0; i < bandwidth_outgoing_data.size(); ++i) {
-            bandwidth_outgoing_data[i].packet_size = -1;
+        for (BandwidthFrame & frm : bandwidth_outgoing_data) {
+            frm.packet_size = -1;
         }
 #endif
     }
@@ -646,7 +646,7 @@ void MultiplayerAPI::_send_rpc(Node *p_from, int p_to, bool p_unreliable, bool p
 
     // Create base packet, lots of hardcode because it must be tight.
 
-    int ofs = 0;
+    size_t ofs = 0;
 
 #define MAKE_ROOM(m_amount) \
     if (packet_cache.size() < m_amount) packet_cache.resize(m_amount);

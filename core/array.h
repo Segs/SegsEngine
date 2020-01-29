@@ -32,6 +32,7 @@
 
 #include "core/error_list.h"
 #include "core/typedefs.h"
+#include "core/vector.h"
 
 class Variant;
 class ArrayPrivate;
@@ -55,6 +56,8 @@ public:
 
     void set(int p_idx, const Variant &p_value);
     const Variant &get(int p_idx) const;
+
+    operator Vector<Variant>() const;
 
     int size() const;
     bool empty() const;

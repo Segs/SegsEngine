@@ -162,12 +162,12 @@ bool _handle_response(HTTPRequestData &impl,HTTPRequest *tgt,bool *ret_value) {
 
     impl.got_response = true;
     impl.response_code = impl.client->get_response_code();
-    List<String> rheaders;
+    ListPOD<String> rheaders;
     impl.client->get_response_headers(&rheaders);
     impl.response_headers.resize(0);
     impl.downloaded = 0;
-    for (List<String>::Element *E = rheaders.front(); E; E = E->next()) {
-        impl.response_headers.push_back(E->deref());
+    for (const String &E : rheaders) {
+        impl.response_headers.push_back(E);
     }
 
     if (impl.response_code == 301 || impl.response_code == 302) {
@@ -181,10 +181,10 @@ bool _handle_response(HTTPRequestData &impl,HTTPRequest *tgt,bool *ret_value) {
         }
 
         String new_request;
-
-        for (List<String>::Element *E = rheaders.front(); E; E = E->next()) {
-            if (StringUtils::contains(StringUtils::to_lower(E->deref()),"location: ") ) {
-                new_request = (strip_edges(substr(E->deref(),9))).data();
+        //TODO: SEGS: after encountering header with `location:` this does not break, but continues the search, should it?
+        for (const String &E : rheaders) {
+            if (StringUtils::contains(StringUtils::to_lower(E),"location: ") ) {
+                new_request = (strip_edges(substr(E,9))).data();
             }
         }
 

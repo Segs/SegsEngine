@@ -94,7 +94,7 @@ public:
     Ref<ResourceInteractiveLoader> load_interactive(se_string_view p_path, se_string_view p_original_path = se_string_view(), Error *r_error = nullptr) override;
     void get_recognized_extensions_for_type(se_string_view p_type, PODVector<String> &p_extensions) const override;
     void get_recognized_extensions(PODVector<String> &p_extensions) const override;
-    bool handles_type(se_string_view p_type) const override;
+    bool handles_type(se_string_view /*p_type*/) const override;
     String get_resource_type(se_string_view p_path) const override;
     void get_dependencies(se_string_view p_path, PODVector<String> &p_dependencies, bool p_add_types = false) override;
     Error rename_dependencies(se_string_view p_path, const Map<String, String> &p_map) override;

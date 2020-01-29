@@ -4348,7 +4348,7 @@ void AnimationTrackEditor::_animation_update() {
     if (track_edits.size() == animation->get_track_count()) {
         //check tracks are the same
 
-        for (int i = 0; i < track_edits.size(); i++) {
+        for (size_t i = 0; i < track_edits.size(); i++) {
             if (track_edits[i]->get_path() != animation->track_get_path(i)) {
                 same = false;
                 break;
@@ -4799,7 +4799,7 @@ void AnimationTrackEditor::_key_selected(int p_key, bool p_single, int p_track) 
     ki.pos = animation->track_get_key_time(p_track, p_key);
     selection[sk] = ki;
 
-    for (int i = 0; i < track_edits.size(); i++) {
+    for (size_t i = 0; i < track_edits.size(); i++) {
         track_edits[i]->update();
     }
 
@@ -5391,7 +5391,7 @@ void AnimationTrackEditor::_edit_menu_pressed(int p_option) {
 
             int base_track = animation->get_track_count();
             undo_redo->create_action_ui(TTR("Paste Tracks"));
-            for (int i = 0; i < track_clipboard.size(); i++) {
+            for (size_t i = 0; i < track_clipboard.size(); i++) {
                 undo_redo->add_do_method(animation.get(), "add_track", track_clipboard[i].track_type);
                 Node *exists = nullptr;
                 NodePath path = track_clipboard[i].base_path;

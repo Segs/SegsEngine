@@ -100,7 +100,7 @@ public:
 
     void _get_property_list(ListPOD<PropertyInfo> *p_list) const {
 
-        for (int i = 0; i < params.size(); i++) {
+        for (size_t i = 0; i < params.size(); i++) {
             p_list->push_back(PropertyInfo(params[i].get_type(), StringName("bind/" + itos(i + 1))));
         }
     }

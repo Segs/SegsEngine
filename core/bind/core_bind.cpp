@@ -1674,8 +1674,8 @@ Array _Geometry::clip_polygons_2d(const Vector<Vector2> &p_polygon_a, const Vect
 
     Array ret;
 
-    for (int i = 0; i < polys.size(); ++i) {
-        ret.push_back(polys[i]);
+    for (const PODVector<Point2> & poly : polys) {
+        ret.push_back(poly);
     }
     return ret;
 }
@@ -1686,8 +1686,8 @@ Array _Geometry::intersect_polygons_2d(const Vector<Vector2> &p_polygon_a, const
 
     Array ret;
 
-    for (int i = 0; i < polys.size(); ++i) {
-        ret.push_back(polys[i]);
+    for (const PODVector<Point2> & poly : polys) {
+        ret.push_back(poly);
     }
     return ret;
 }

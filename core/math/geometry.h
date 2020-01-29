@@ -706,7 +706,7 @@ public:
         int inside_count = 0;
         int outside_count = 0;
 
-        for (int a = 0; a < poly_count; a++) {
+        for (size_t a = 0; a < poly_count; a++) {
             real_t dist = p_plane.distance_to(polygon[a]);
             if (dist < -CMP_POINT_IN_PLANE_EPSILON) {
                 location_cache[a] = LOC_INSIDE;

@@ -256,9 +256,8 @@ void ResourceSaver::add_custom_savers() {
     PODVector<StringName> global_classes;
     ScriptServer::get_global_class_list(&global_classes);
 
-    for (size_t i=0, fin = global_classes.size(); i<fin; ++i) {
+    for (const StringName &class_name : global_classes) {
 
-        StringName class_name = global_classes[i];
         StringName base_class = ScriptServer::get_global_class_native_base(class_name);
 
         if (base_class == custom_saver_base_class) {
@@ -277,8 +276,8 @@ void ResourceSaver::remove_custom_savers() {
         }
     }
 
-    for (int i = 0; i < custom_savers.size(); ++i) {
-        remove_resource_format_saver(custom_savers[i]);
+    for (const Ref<ResourceFormatSaver> & saver : custom_savers) {
+        remove_resource_format_saver(saver);
     }
 }
 

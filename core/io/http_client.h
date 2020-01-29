@@ -214,7 +214,7 @@ public:
     bool has_response() const;
     bool is_response_chunked() const;
     int get_response_code() const;
-    Error get_response_headers(List<String> *r_response);
+    Error get_response_headers(ListPOD<String> *r_response);
     int get_response_body_length() const;
 
     PoolByteArray read_response_body_chunk(); // Can't get body as partial text because of most encodings UTF8, gzip, etc.

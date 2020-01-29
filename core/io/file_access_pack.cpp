@@ -74,12 +74,12 @@ void PackedData::add_path(se_string_view pkg_path, se_string_view path, uint64_t
 
             PODVector<se_string_view> ds = StringUtils::split(PathUtils::get_base_dir(p),'/');
 
-            for (int j = 0; j < ds.size(); j++) {
-                auto iter =  cd->subdirs.find_as<se_string_view>(ds[j]);
+            for (se_string_view sv : ds) {
+                auto iter =  cd->subdirs.find_as<se_string_view>(sv);
                 if (iter==cd->subdirs.end()) {
 
                     PackedDir *pd = memnew(PackedDir);
-                    pd->name = ds[j];
+                    pd->name = sv;
                     pd->parent = cd;
                     cd->subdirs[pd->name] = pd;
                     cd = pd;

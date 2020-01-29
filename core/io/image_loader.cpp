@@ -100,12 +100,12 @@ Error ImageLoader::load_image(se_string_view p_file, const Ref<Image> &p_image, 
 
     String extension(PathUtils::get_extension(p_file));
 
-    for (int i = 0; i < loader.size(); i++) {
+    for (ImageFormatLoader *ldr : loader) {
 
-        if (!loader_recognizes(loader[i],extension))
+        if (!loader_recognizes(ldr,extension))
             continue;
         ImageData result_data;
-        Error err = loader[i]->load_image(result_data, f, params);
+        Error err = ldr->load_image(result_data, f, params);
         if (err != OK) {
             ERR_PRINT("Error loading image: " + String(p_file))
         }
@@ -132,12 +132,12 @@ ImageData ImageLoader::load_image(se_string_view extension, const uint8_t *data,
 
     ImageData result_data;
     bool loader_found=false;
-    for (int i = 0; i < loader.size(); i++) {
+    for (ImageFormatLoader *ldr : loader) {
 
-        if (!loader_recognizes(loader[i],extension))
+        if (!loader_recognizes(ldr,extension))
             continue;
         loader_found = true;
-        Error err = loader[i]->load_image(result_data, data,sz, params);
+        Error err = ldr->load_image(result_data, data,sz, params);
         if (err != OK) {
             ERR_PRINT("Error loading image from memory")
         }
@@ -157,19 +157,19 @@ ImageData ImageLoader::load_image(se_string_view extension, const uint8_t *data,
 void ImageLoader::get_recognized_extensions(PODVector<String> &p_extensions) {
     register_plugin_resolver();
 
-    for (int i = 0; i < loader.size(); i++) {
+    for (ImageFormatLoader *ldr : loader) {
 
-        loader[i]->get_recognized_extensions(p_extensions);
+        ldr->get_recognized_extensions(p_extensions);
     }
 }
 
 ImageFormatLoader *ImageLoader::recognize(se_string_view p_extension) {
     register_plugin_resolver();
 
-    for (int i = 0; i < loader.size(); i++) {
+    for (ImageFormatLoader *ldr : loader) {
 
-        if (loader_recognizes(loader[i],p_extension))
-            return loader[i];
+        if (loader_recognizes(ldr,p_extension))
+            return ldr;
     }
 
     return nullptr;

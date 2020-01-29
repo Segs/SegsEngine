@@ -788,9 +788,9 @@ Geometry::MeshData Geometry::build_convex_mesh(const PoolVector<Plane> &p_planes
             if (vertices.size() < 3)
                 break;
 
-            for (int k = 0; k < vertices.size(); k++) {
+            for (size_t k = 0; k < vertices.size(); k++) {
 
-                int k_n = (k + 1) % vertices.size();
+                size_t k_n = (k + 1) % vertices.size();
 
                 Vector3 edge0_A = vertices[k];
                 Vector3 edge1_A = vertices[k_n];
@@ -830,10 +830,10 @@ Geometry::MeshData Geometry::build_convex_mesh(const PoolVector<Plane> &p_planes
         MeshData::Face face;
 
         // Add face indices.
-        for (int j = 0; j < vertices.size(); j++) {
+        for (size_t j = 0; j < vertices.size(); j++) {
 
             int idx = -1;
-            for (int k = 0; k < mesh.vertices.size(); k++) {
+            for (size_t k = 0; k < mesh.vertices.size(); k++) {
 
                 if (mesh.vertices[k].distance_to(vertices[j]) < 0.001f) {
 
@@ -1015,7 +1015,7 @@ void Geometry::make_atlas(const PODVector<Size2i> &p_rects, PODVector<Point2i> &
 
     PODVector<_AtlasWorkRect> wrects;
     wrects.resize(p_rects.size());
-    for (int i = 0; i < p_rects.size(); i++) {
+    for (size_t i = 0; i < p_rects.size(); i++) {
         wrects[i].s = p_rects[i];
         wrects[i].idx = i;
     }
@@ -1038,7 +1038,7 @@ void Geometry::make_atlas(const PODVector<Size2i> &p_rects, PODVector<Point2i> &
         //place them
         int ofs = 0;
         int limit_h = 0;
-        for (int j = 0; j < wrects.size(); j++) {
+        for (size_t j = 0; j < wrects.size(); j++) {
 
             if (ofs + wrects[j].s.width > w) {
 
@@ -1086,7 +1086,7 @@ void Geometry::make_atlas(const PODVector<Size2i> &p_rects, PODVector<Point2i> &
     int best = -1;
     real_t best_aspect = 1e20f;
 
-    for (int i = 0; i < results.size(); i++) {
+    for (size_t i = 0; i < results.size(); i++) {
 
         real_t h = next_power_of_2(results[i].max_h);
         real_t w = next_power_of_2(results[i].max_w);
@@ -1099,7 +1099,7 @@ void Geometry::make_atlas(const PODVector<Size2i> &p_rects, PODVector<Point2i> &
 
     r_result.resize(p_rects.size());
 
-    for (int i = 0; i < p_rects.size(); i++) {
+    for (size_t i = 0; i < p_rects.size(); i++) {
 
         r_result[results[best].result[i].idx] = results[best].result[i].p;
     }
