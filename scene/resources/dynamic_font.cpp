@@ -242,7 +242,10 @@ Error DynamicFontAtSize::_load() {
         } else {
 
             FileAccess *f = FileAccess::open(font->font_path, FileAccess::READ);
-            ERR_FAIL_COND_V(!f, ERR_CANT_OPEN)
+            if (!f) {
+                FT_Done_FreeType(m_impl->library);
+                ERR_FAIL_V_MSG(ERR_CANT_OPEN, "Cannot open font file '" + font->font_path + "'.");
+            }
 
             size_t len = f->get_len();
             PODVector<uint8_t> &fontdata = _fontdata[font->font_path];
@@ -258,8 +261,10 @@ Error DynamicFontAtSize::_load() {
     if (font->font_mem == nullptr && !font->font_path.empty()) {
 
         FileAccess *f = FileAccess::open(font->font_path, FileAccess::READ);
-        ERR_FAIL_COND_V(!f, ERR_CANT_OPEN)
-
+        if (!f) {
+            FT_Done_FreeType(m_impl->library);
+            ERR_FAIL_V_MSG(ERR_CANT_OPEN, "Cannot open font file '" + font->font_path + "'.");
+        }
         memset(&m_impl->stream, 0, sizeof(FT_StreamRec));
         m_impl->stream.base = nullptr;
         m_impl->stream.size = f->get_len();
@@ -289,6 +294,7 @@ Error DynamicFontAtSize::_load() {
         error = FT_Open_Face(m_impl->library, &fargs, 0, &m_impl->face);
 
     } else {
+        FT_Done_FreeType(m_impl->library);
         ERR_FAIL_V_MSG(ERR_UNCONFIGURED, "DynamicFont uninitialized.");
     }
 
@@ -1036,8 +1042,8 @@ void DynamicFont::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_fallback_count"), &DynamicFont::get_fallback_count);
 
     ADD_GROUP("Settings", "");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "size", PropertyHint::Range, "1,255,1"), "set_size", "get_size");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "outline_size", PropertyHint::Range, "0,255,1"), "set_outline_size", "get_outline_size");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "size", PropertyHint::Range, "1,1024,1"), "set_size", "get_size");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "outline_size", PropertyHint::Range, "0,1024,1"), "set_outline_size", "get_outline_size");
     ADD_PROPERTY(PropertyInfo(VariantType::COLOR, "outline_color"), "set_outline_color", "get_outline_color");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "use_mipmaps"), "set_use_mipmaps", "get_use_mipmaps");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "use_filter"), "set_use_filter", "get_use_filter");

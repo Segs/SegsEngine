@@ -2410,6 +2410,9 @@ VisualServer::VisualServer() {
     GLOBAL_DEF("rendering/quality/reflections/texture_array_reflections.mobile", false);
     GLOBAL_DEF("rendering/quality/reflections/high_quality_ggx", true);
     GLOBAL_DEF("rendering/quality/reflections/high_quality_ggx.mobile", false);
+    GLOBAL_DEF("rendering/quality/reflections/irradiance_max_size", 128);
+    ProjectSettings::get_singleton()->set_custom_property_info("rendering/quality/reflections/irradiance_max_size", PropertyInfo(VariantType::INT, "rendering/quality/reflections/irradiance_max_size", PropertyHint::Range, "32,2048"));
+
 
     GLOBAL_DEF("rendering/quality/shading/force_vertex_shading", false);
     GLOBAL_DEF("rendering/quality/shading/force_vertex_shading.mobile", true);

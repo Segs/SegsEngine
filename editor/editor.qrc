@@ -56,6 +56,7 @@
         <file alias="AudioBusLayout.svg">icons/icon_audio_bus_layout.svg</file>
         <file alias="AudioBusMute.svg">icons/icon_audio_bus_mute.svg</file>
         <file alias="AudioBusSolo.svg">icons/icon_audio_bus_solo.svg</file>
+        <file alias="AudioStreamOGGVorbis.svg">icons/icon_audio_stream_o_g_g_vorbis.svg</file>
         <file alias="AudioStreamPlayer2D.svg">icons/icon_audio_stream_player_2_d.svg</file>
         <file alias="AudioStreamPlayer3D.svg">icons/icon_audio_stream_player_3_d.svg</file>
         <file alias="AudioStreamPlayer.svg">icons/icon_audio_stream_player.svg</file>
@@ -152,6 +153,7 @@
         <file alias="CPUParticles2D.svg">icons/icon_c_p_u_particles_2_d.svg</file>
         <file alias="CPUParticles.svg">icons/icon_c_p_u_particles.svg</file>
         <file alias="CreateNewSceneFrom.svg">icons/icon_create_new_scene_from.svg</file>
+        <file alias="Crosshair.svg">icons/icon_crosshair.svg</file>
         <file alias="CryptoKey.svg">icons/icon_crypto_key.svg</file>
         <file alias="CubeMap.svg">icons/icon_cube_map.svg</file>
         <file alias="CubeMesh.svg">icons/icon_cube_mesh.svg</file>

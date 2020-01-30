@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<class name="VisualScript" inherits="Script" category="Core" version="3.2">
+<class name="VisualScript" inherits="Script" version="3.2">
 	<brief_description>
 		A script implemented in the Visual Script programming environment.
 	</brief_description>
@@ -63,7 +63,7 @@
 			</return>
 			<argument index="0" name="name" type="String">
 			</argument>
-			<argument index="1" name="type" type="int" enum="VariantType">
+			<argument index="1" name="type" type="int" enum="Variant.Type">
 			</argument>
 			<argument index="2" name="argname" type="String">
 			</argument>
@@ -94,7 +94,7 @@
 			</description>
 		</method>
 		<method name="custom_signal_get_argument_type" qualifiers="const">
-			<return type="int" enum="VariantType">
+			<return type="int" enum="Variant.Type">
 			</return>
 			<argument index="0" name="name" type="String">
 			</argument>
@@ -135,7 +135,7 @@
 			</argument>
 			<argument index="1" name="argidx" type="int">
 			</argument>
-			<argument index="2" name="type" type="int" enum="VariantType">
+			<argument index="2" name="type" type="int" enum="Variant.Type">
 			</argument>
 			<description>
 				Change the type of a custom signal's argument.

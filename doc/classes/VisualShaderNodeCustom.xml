@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<class name="VisualShaderNodeCustom" inherits="VisualShaderNode" category="Core" version="3.2">
+<class name="VisualShaderNodeCustom" inherits="VisualShaderNode" version="3.2">
 	<brief_description>
 		Virtual class to define custom [VisualShaderNode]s for use in the Visual Shader Editor.
 	</brief_description>
@@ -13,7 +13,7 @@
 		[/codeblock]
 	</description>
 	<tutorials>
-		<link>http://docs.godotengine.org/en/latest/tutorials/plugins/editor/visual_shader_plugins.html</link>
+		<link>https://docs.godotengine.org/en/latest/tutorials/plugins/editor/visual_shader_plugins.html</link>
 	</tutorials>
 	<methods>
 		<method name="_get_category" qualifiers="virtual">
@@ -39,7 +39,7 @@
 				Override this method to define the actual shader code of the associated custom node. The shader code should be returned as a string, which can have multiple lines (the [code]"""[/code] multiline string construct can be used for convenience).
 				The [code]input_vars[/code] and [code]output_vars[/code] arrays contain the string names of the various input and output variables, as defined by [code]_get_input_*[/code] and [code]_get_output_*[/code] virtual methods in this class.
 				The output ports can be assigned values in the shader code. For example, [code]return output_vars[0] + " = " + input_vars[0] + ";"[/code].
-				You can customize the generated code based on the shader [code]mode[/code] (see [enum ShaderMode]) and/or [code]type[/code] (see [enum VisualShader.Type]).
+				You can customize the generated code based on the shader [code]mode[/code] (see [enum Shader.Mode]) and/or [code]type[/code] (see [enum VisualShader.Type]).
 				Defining this method is [b]required[/b].
 			</description>
 		</method>
@@ -59,7 +59,7 @@
 			<description>
 				Override this method to add shader code on top of the global shader, to define your own standard library of reusable methods, varyings, constants, uniforms, etc. The shader code should be returned as a string, which can have multiple lines (the [code]"""[/code] multiline string construct can be used for convenience).
 				Be careful with this functionality as it can cause name conflicts with other custom nodes, so be sure to give the defined entities unique names.
-				You can customize the generated code based on the shader [code]mode[/code] (see [enum ShaderMode]).
+				You can customize the generated code based on the shader [code]mode[/code] (see [enum Shader.Mode]).
 				Defining this method is [b]optional[/b].
 			</description>
 		</method>
@@ -144,9 +144,6 @@
 			</description>
 		</method>
 	</methods>
-	<members>
-		<member name="default_input_values" type="Array" setter="_set_default_input_values" getter="_get_default_input_values" override="true" default="[  ]" />
-	</members>
 	<constants>
 	</constants>
 </class>

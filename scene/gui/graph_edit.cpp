@@ -206,6 +206,13 @@ void GraphEdit::_update_scroll() {
     else
         v_scroll->show();
 
+    Size2 hmin = h_scroll->get_combined_minimum_size();
+    Size2 vmin = v_scroll->get_combined_minimum_size();
+
+    // Avoid scrollbar overlapping.
+    h_scroll->set_anchor_and_margin(Margin::Right, ANCHOR_END, v_scroll->is_visible() ? -vmin.width : 0);
+    v_scroll->set_anchor_and_margin(Margin::Bottom, ANCHOR_END, h_scroll->is_visible() ? -hmin.height : 0);
+
     set_block_minimum_size_adjust(false);
 
     if (!awaiting_scroll_offset_update) {
@@ -292,15 +299,16 @@ void GraphEdit::_notification(int p_what) {
         Size2 hmin = h_scroll->get_combined_minimum_size();
         Size2 vmin = v_scroll->get_combined_minimum_size();
 
-        v_scroll->set_anchor_and_margin(Margin::Left, ANCHOR_END, -vmin.width);
-        v_scroll->set_anchor_and_margin(Margin::Right, ANCHOR_END, 0);
-        v_scroll->set_anchor_and_margin(Margin::Top, ANCHOR_BEGIN, 0);
-        v_scroll->set_anchor_and_margin(Margin::Bottom, ANCHOR_END, 0);
 
         h_scroll->set_anchor_and_margin(Margin::Left, ANCHOR_BEGIN, 0);
         h_scroll->set_anchor_and_margin(Margin::Right, ANCHOR_END, 0);
         h_scroll->set_anchor_and_margin(Margin::Top, ANCHOR_END, -hmin.height);
         h_scroll->set_anchor_and_margin(Margin::Bottom, ANCHOR_END, 0);
+
+        v_scroll->set_anchor_and_margin(Margin::Left, ANCHOR_END, -vmin.width);
+        v_scroll->set_anchor_and_margin(Margin::Right, ANCHOR_END, 0);
+        v_scroll->set_anchor_and_margin(Margin::Top, ANCHOR_BEGIN, 0);
+        v_scroll->set_anchor_and_margin(Margin::Bottom, ANCHOR_END, 0);
     }
     if (p_what == NOTIFICATION_DRAW) {
 

@@ -2417,15 +2417,11 @@ VisualScriptEngineSingleton::TypeGuess VisualScriptEngineSingleton::guess_output
 
     return tg;
 }
-
-void VisualScriptEngineSingleton::_bind_methods() {
-
-    MethodBinder::bind_method(D_METHOD("set_singleton", {"name"}), &VisualScriptEngineSingleton::set_singleton);
-    MethodBinder::bind_method(D_METHOD("get_singleton"), &VisualScriptEngineSingleton::get_singleton);
+void VisualScriptEngineSingleton::_validate_property(PropertyInfo &property) const {
 
     String cc;
 
-    auto &singletons(Engine::get_singleton()->get_singletons());
+    const PODVector<Engine::Singleton> &singletons = Engine::get_singleton()->get_singletons();
 
     for (const Engine::Singleton &E : singletons) {
         if (E.name == "VS" || E.name == "PS" || E.name == "PS2D" || E.name == "AS" || E.name == "TS" || E.name == "SS" || E.name == "SS2D")
@@ -2433,10 +2429,18 @@ void VisualScriptEngineSingleton::_bind_methods() {
 
         if (!cc.empty())
             cc += ",";
-        cc += E.name.asCString();
+        cc += E.name;
     }
 
-    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "constant", PropertyHint::Enum, StringName(cc)), "set_singleton", "get_singleton");
+    property.hint = PropertyHint::Enum;
+    property.hint_string = cc;
+}
+void VisualScriptEngineSingleton::_bind_methods() {
+
+    MethodBinder::bind_method(D_METHOD("set_singleton", {"name"}), &VisualScriptEngineSingleton::set_singleton);
+    MethodBinder::bind_method(D_METHOD("get_singleton"), &VisualScriptEngineSingleton::get_singleton);
+
+    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "constant"), "set_singleton", "get_singleton");
 }
 
 VisualScriptEngineSingleton::VisualScriptEngineSingleton() {

@@ -451,8 +451,7 @@ Vector3 SpatialEditorViewport::_get_screen_to_space(const Vector3 &p_vector3) {
     } else {
         cm.set_perspective(get_fov(), get_size().aspect(), get_znear() + p_vector3.z, get_zfar());
     }
-    float screen_w, screen_h;
-    cm.get_viewport_size(screen_w, screen_h);
+    Vector2 screen_he = cm.get_viewport_half_extents();
 
     Transform camera_transform;
     camera_transform.translate(cursor.pos);
@@ -460,7 +459,8 @@ Vector3 SpatialEditorViewport::_get_screen_to_space(const Vector3 &p_vector3) {
     camera_transform.basis.rotate(Vector3(0, 1, 0), -cursor.y_rot);
     camera_transform.translate(0, 0, cursor.distance);
 
-    return camera_transform.xform(Vector3((p_vector3.x / get_size().width * 2.0 - 1.0) * screen_w, ((1.0 - p_vector3.y / get_size().height) * 2.0 - 1.0) * screen_h, -(get_znear() + p_vector3.z)));
+    return camera_transform.xform(Vector3(((p_vector3.x / get_size().width) * 2.0f - 1.0f) * screen_he.x,
+        ((1.0f - (p_vector3.y / get_size().height)) * 2.0f - 1.0f) * screen_he.y, -(get_znear() + p_vector3.z)));
 }
 
 void SpatialEditorViewport::_select_region() {
@@ -468,7 +468,7 @@ void SpatialEditorViewport::_select_region() {
     if (cursor.region_begin == cursor.region_end)
         return; //nothing really
 
-    float z_offset = MAX(0.0, 5.0 - get_znear());
+    float z_offset = MAX(0.0f, 5.0f - get_znear());
 
     Vector3 box[4] = {
         Vector3(
@@ -2160,7 +2160,12 @@ void SpatialEditorViewport::_notification(int p_what) {
 
         call_deferred("update_transform_gizmo_view");
     }
-
+    if (p_what == NOTIFICATION_READY) {
+        // The crosshair icon doesn't depend on the editor theme.
+        crosshair->set_texture(get_icon("Crosshair", "EditorIcons"));
+        // Set the anchors and margins after changing the icon to ensure it's centered correctly.
+        crosshair->set_anchors_and_margins_preset(PRESET_CENTER);
+    }
     if (p_what == NOTIFICATION_PROCESS) {
 
         real_t delta = get_process_delta_time();
@@ -2280,6 +2285,10 @@ void SpatialEditorViewport::_notification(int p_what) {
         } else {
             current_camera = camera;
         }
+
+        // Display the crosshair only while freelooking. Hide it otherwise,
+        // as the crosshair can be distracting.
+        crosshair->set_visible(freelook_active);
 
         if (show_info) {
             String text;
@@ -3570,6 +3579,10 @@ SpatialEditorViewport::SpatialEditorViewport(SpatialEditor *p_spatial_editor, Ed
     viewport->add_child(camera);
     camera->make_current();
     surface->set_focus_mode(FOCUS_ALL);
+
+    crosshair = memnew(TextureRect);
+    crosshair->set_mouse_filter(MOUSE_FILTER_IGNORE);
+    surface->add_child(crosshair);
 
     VBoxContainer *vbox = memnew(VBoxContainer);
     surface->add_child(vbox);

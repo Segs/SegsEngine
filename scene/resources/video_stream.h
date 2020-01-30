@@ -37,10 +37,6 @@ class VideoStreamPlayback : public Resource {
 
     GDCLASS(VideoStreamPlayback,Resource)
 
-protected:
-    static void _bind_methods() {
-    }
-
 public:
     using AudioMixCallback = int (*)(void *, const float *, int);
 
@@ -61,8 +57,6 @@ public:
     virtual void seek(float p_time) = 0;
 
     virtual void set_audio_track(int p_idx) = 0;
-
-    //virtual int mix(int16_t* p_buffer,int p_frames)=0;
 
     virtual Ref<Texture> get_texture() const = 0;
     virtual void update(float p_delta) = 0;

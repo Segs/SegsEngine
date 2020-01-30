@@ -123,7 +123,7 @@
 #error "MBEDTLS_ECDSA_DETERMINISTIC defined, but not all prerequisites"
 #endif
 
-#if defined(MBEDTLS_ECP_C) && ( !defined(MBEDTLS_BIGNUM_C) || (   \
+#if defined(MBEDTLS_ECP_C) && ( !defined(MBEDTLS_BIGNUM_C) || (    \
     !defined(MBEDTLS_ECP_DP_SECP192R1_ENABLED) &&                  \
     !defined(MBEDTLS_ECP_DP_SECP224R1_ENABLED) &&                  \
     !defined(MBEDTLS_ECP_DP_SECP256R1_ENABLED) &&                  \
@@ -279,6 +279,14 @@
 #if defined(MBEDTLS_MEMORY_BUFFER_ALLOC_C) &&                          \
     ( !defined(MBEDTLS_PLATFORM_C) || !defined(MBEDTLS_PLATFORM_MEMORY) )
 #error "MBEDTLS_MEMORY_BUFFER_ALLOC_C defined, but not all prerequisites"
+#endif
+
+#if defined(MBEDTLS_MEMORY_BACKTRACE) && !defined(MBEDTLS_MEMORY_BUFFER_ALLOC_C)
+#error "MBEDTLS_MEMORY_BACKTRACE defined, but not all prerequesites"
+#endif
+
+#if defined(MBEDTLS_MEMORY_DEBUG) && !defined(MBEDTLS_MEMORY_BUFFER_ALLOC_C)
+#error "MBEDTLS_MEMORY_DEBUG defined, but not all prerequesites"
 #endif
 
 #if defined(MBEDTLS_PADLOCK_C) && !defined(MBEDTLS_HAVE_ASM)

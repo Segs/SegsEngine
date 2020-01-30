@@ -73,7 +73,6 @@ Error image_decompress_squish(Image *p_image) {
     return OK;
 }
 
-#ifdef TOOLS_ENABLED
 void image_compress_squish(Image *p_image, float p_lossy_quality, ImageCompressSource p_source) {
 
     if (p_image->get_format() >= Image::FORMAT_DXT1)
@@ -203,18 +202,13 @@ void image_compress_squish(Image *p_image, float p_lossy_quality, ImageCompressS
         p_image->create(p_image->get_width(), p_image->get_height(), p_image->has_mipmaps(), target_format, data);
     }
 }
-#endif
 
 Error ResourceFormatS3TC::compress_image(Image *p_image, CompressParams params)
 {
-#ifdef TOOLS_ENABLED
     if(params.mode!=ImageCompressMode::COMPRESS_S3TC)
         return ERR_UNAVAILABLE;
     image_compress_squish(p_image, params.p_quality, params.source);
     return OK;
-#else
-    return ERR_UNAVAILABLE;
-#endif
 }
 
 Error ResourceFormatS3TC::decompress_image(Image *image)

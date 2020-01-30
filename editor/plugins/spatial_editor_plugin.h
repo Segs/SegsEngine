@@ -52,6 +52,7 @@ class OptionButton;
 class ConfirmationDialog;
 class VSplitContainer;
 class HSplitContainer;
+class TextureRect;
 
 class EditorSpatialGizmo : public SpatialGizmo {
 
@@ -225,6 +226,7 @@ private:
     bool freelook_active;
     real_t freelook_speed;
 
+    TextureRect *crosshair;
     Label *info_label;
     Label *fps_label;
     Label *cinema_label;

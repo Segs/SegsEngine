@@ -1276,7 +1276,7 @@ void _OS::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_processor_count"), &_OS::get_processor_count);
 
     MethodBinder::bind_method(D_METHOD("get_executable_path"), &_OS::get_executable_path);
-    MethodBinder::bind_method(D_METHOD("execute", {"path", "arguments", "blocking", "output", "read_stderr"}), &_OS::execute, {DEFVAL(Array()), DEFVAL(false)});
+    MethodBinder::bind_method(D_METHOD("execute", {"path", "arguments", "blocking", "output", "read_stderr"}), &_OS::execute, {DEFVAL(true), DEFVAL(Array()), DEFVAL(false)});
     MethodBinder::bind_method(D_METHOD("kill", {"pid"}), &_OS::kill);
     MethodBinder::bind_method(D_METHOD("shell_open", {"uri"}), &_OS::shell_open);
     MethodBinder::bind_method(D_METHOD("get_process_id"), &_OS::get_process_id);
@@ -1403,7 +1403,7 @@ void _OS::_bind_methods() {
     ADD_PROPERTY_DEFAULT("current_screen", 0);
     ADD_PROPERTY_DEFAULT("exit_code", 0);
     ADD_PROPERTY_DEFAULT("vsync_enabled", true);
-    ADD_PROPERTY_DEFAULT("vsync_via_compositor", true);
+    ADD_PROPERTY_DEFAULT("vsync_via_compositor", false);
     ADD_PROPERTY_DEFAULT("low_processor_usage_mode", false);
     ADD_PROPERTY_DEFAULT("low_processor_usage_mode_sleep_usec", 6900);
     ADD_PROPERTY_DEFAULT("keep_screen_on", true);
@@ -2798,7 +2798,7 @@ _Thread::_Thread() {
 
 _Thread::~_Thread() {
 
-    ERR_FAIL_COND_MSG(active, "Reference to a Thread object object was lost while the thread is still running...")
+    ERR_FAIL_COND_MSG(active, "Reference to a Thread object was lost while the thread is still running...")
 }
 /////////////////////////////////////
 
@@ -3049,6 +3049,16 @@ float _Engine::get_frames_per_second() const {
     return Engine::get_singleton()->get_frames_per_second();
 }
 
+uint64_t _Engine::get_physics_frames() const {
+
+    return Engine::get_singleton()->get_physics_frames();
+}
+
+uint64_t _Engine::get_idle_frames() const {
+
+    return Engine::get_singleton()->get_idle_frames();
+}
+
 void _Engine::set_time_scale(float p_scale) {
     Engine::get_singleton()->set_time_scale(p_scale);
 }
@@ -3135,6 +3145,9 @@ void _Engine::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("get_frames_drawn"), &_Engine::get_frames_drawn);
     MethodBinder::bind_method(D_METHOD("get_frames_per_second"), &_Engine::get_frames_per_second);
+    MethodBinder::bind_method(D_METHOD("get_physics_frames"), &_Engine::get_physics_frames);
+    MethodBinder::bind_method(D_METHOD("get_idle_frames"), &_Engine::get_idle_frames);
+
 
     MethodBinder::bind_method(D_METHOD("get_main_loop"), &_Engine::get_main_loop);
 

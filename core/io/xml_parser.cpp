@@ -475,6 +475,10 @@ Error XMLParser::open_buffer(const PoolVector<uint8_t> &p_buffer) {
 
     ERR_FAIL_COND_V(p_buffer.empty(), ERR_INVALID_DATA)
 
+    if (data) {
+        memdelete_arr(data);
+    }
+
     length = p_buffer.size();
     data = memnew_arr(char, length + 1);
     memcpy(data, p_buffer.read().ptr(), length);
@@ -492,6 +496,10 @@ Error XMLParser::open(se_string_view p_path) {
 
     length = file->get_len();
     ERR_FAIL_COND_V(length < 1, ERR_FILE_CORRUPT)
+
+    if (data) {
+        memdelete_arr(data);
+    }
 
     data = memnew_arr(char, length + 1);
     file->get_buffer((uint8_t *)data, length);

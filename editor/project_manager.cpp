@@ -1324,7 +1324,9 @@ void ProjectList::create_project_item_control(int p_index) {
     hb->set_is_favorite(item.favorite);
 
     TextureRect *tf = memnew(TextureRect);
-    tf->set_texture(get_icon("DefaultProjectIcon", "EditorIcons"));
+    // The project icon may not be loaded by the time the control is displayed,
+    // so use a loading placeholder.
+    tf->set_texture(get_icon("ProjectIconLoading", "EditorIcons"));
     if (item.missing) {
         tf->set_modulate(Color(1, 1, 1, 0.5));
     }
@@ -1989,6 +1991,7 @@ void ProjectManager::_global_menu_action(const Variant &p_id, const Variant &p_m
     int id = (int)p_id;
     if (id == ProjectList::GLOBAL_NEW_WINDOW) {
         ListPOD<String> args;
+        args.push_back("-p");
         String exec = OS::get_singleton()->get_executable_path();
 
         OS::ProcessID pid = 0;
@@ -2435,12 +2438,11 @@ ProjectManager::ProjectManager() {
     FileDialog::set_default_show_hidden_files(EditorSettings::get_singleton()->get("filesystem/file_dialog/show_hidden_files"));
 
     set_anchors_and_margins_preset(Control::PRESET_WIDE);
-    set_theme(create_editor_theme());
+    set_theme(create_custom_theme());
 
     gui_base = memnew(Control);
     add_child(gui_base);
     gui_base->set_anchors_and_margins_preset(Control::PRESET_WIDE);
-    gui_base->set_theme(create_custom_theme());
 
     Panel *panel = memnew(Panel);
     gui_base->add_child(panel);

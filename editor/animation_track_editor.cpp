@@ -4848,47 +4848,30 @@ struct _AnimMoveRestore {
 
 void AnimationTrackEditor::_clear_key_edit() {
     if (key_edit) {
-
-#if 0
-        // going back seems like the most comfortable thing to do, but it results
-        // in weird behaviors and crashes, because going back to animation editor
-        // triggers the editor setting up again itself
-
-        bool go_back = false;
-        if (EditorNode::get_singleton()->get_inspector()->get_edited_object() == key_edit) {
-            EditorNode::get_singleton()->push_item(nullptr);
-            go_back = true;
-        }
-
-        memdelete(key_edit);
-        key_edit = nullptr;
-
-        if (go_back) {
-            EditorNode::get_singleton()->get_inspector_dock()->go_back();
-        }
-#else
         //if key edit is the object being inspected, remove it first
-        if (EditorNode::get_singleton()->get_inspector()->get_edited_object() == key_edit ||
-                EditorNode::get_singleton()->get_inspector()->get_edited_object() == multi_key_edit) {
+        if (EditorNode::get_singleton()->get_inspector()->get_edited_object() == key_edit) {
             EditorNode::get_singleton()->push_item(nullptr);
         }
 
         //then actually delete it
-        if (key_edit) {
-            memdelete(key_edit);
-            key_edit = nullptr;
-        } else if (multi_key_edit) {
-            memdelete(multi_key_edit);
-            multi_key_edit = nullptr;
+        memdelete(key_edit);
+        key_edit = nullptr;
+    }
+
+    if (multi_key_edit) {
+        if (EditorNode::get_singleton()->get_inspector()->get_edited_object() == multi_key_edit) {
+            EditorNode::get_singleton()->push_item(nullptr);
         }
-#endif
+
+        memdelete(multi_key_edit);
+        multi_key_edit = nullptr;
     }
 }
 
 void AnimationTrackEditor::_clear_selection(bool p_update) {
     selection.clear();
     if (p_update) {
-    for (int i = 0; i < track_edits.size(); i++) {
+    for (size_t i = 0; i < track_edits.size(); i++) {
         track_edits[i]->update();
     }
     }
@@ -4934,7 +4917,7 @@ void AnimationTrackEditor::_update_key_edit() {
 
             if (!key_ofs_map.contains(track)) {
                 key_ofs_map[track] = List<float>();
-                base_map[track] = *memnew(NodePath);
+                base_map[track] = NodePath();
             }
 
             key_ofs_map[track].push_back(animation->track_get_key_time(track, E.first.key));
@@ -6012,6 +5995,7 @@ AnimationTrackEditor::AnimationTrackEditor() {
     keying = false;
     moving_selection = false;
     key_edit = nullptr;
+    multi_key_edit = nullptr;
 
     box_selection = memnew(Control);
     add_child(box_selection);
@@ -6121,6 +6105,9 @@ AnimationTrackEditor::AnimationTrackEditor() {
 AnimationTrackEditor::~AnimationTrackEditor() {
     if (key_edit) {
         memdelete(key_edit);
+    }
+    if (multi_key_edit) {
+        memdelete(multi_key_edit);
     }
 }
 

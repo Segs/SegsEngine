@@ -73,25 +73,24 @@ Variant *GDScriptFunction::_get_variant(int p_address, GDScriptInstance *p_insta
         case ADDR_TYPE_CLASS_CONSTANT: {
 
             //todo change to index!
-            GDScript *o = p_script;
+            GDScript *s = p_script;
 #ifdef DEBUG_ENABLED
             ERR_FAIL_INDEX_V(address, _global_names_count, nullptr)
 #endif
             const StringName *sn = &_global_names_ptr[address];
 
-            while (o) {
-                GDScript *s = o;
-                while (s) {
+            while (s) {
+                GDScript *o = s;
+                while (o) {
 
-                    Map<StringName, Variant>::iterator E = s->constants.find(*sn);
-                    if (E!=s->constants.end()) {
+                    Map<StringName, Variant>::iterator E = o->constants.find(*sn);
+                    if (E!=o->constants.end()) {
                         return &E->second;
                     }
-                    s = s->_base;
+                    o = o->_owner;
                 }
-                o = o->_owner;
+                s = s->_base;
             }
-
             ERR_FAIL_V_MSG(nullptr, "GDScriptCompiler bug.")
         }
         case ADDR_TYPE_LOCAL_CONSTANT: {
@@ -1554,8 +1553,8 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
                 OPCODE_BREAK;
             }
 
-// Enable for debugging
-#if 0
+
+#if 0 // Enable for debugging
             default: {
 
                 err_text = "Illegal opcode " + itos(_code_ptr[ip]) + " at address " + itos(ip);
@@ -1940,17 +1939,18 @@ bool GDScriptDataType::is_type(const Variant &p_variant, bool p_allow_implicit_c
             return false;
         }
         Object *obj = p_variant.operator Object *();
-        if (obj) {
-            if (!ClassDB::is_parent_class(obj->get_class_name(), native_type)) {
-                // Try with underscore prefix
-                StringName underscore_native_type = StringName(String("_") + native_type);
-                if (!ClassDB::is_parent_class(obj->get_class_name(), underscore_native_type)) {
-                    return false;
-                }
+        if (!obj || !ObjectDB::instance_validate(obj)) {
+            return false;
+        }
+        if (!ClassDB::is_parent_class(obj->get_class_name(), native_type)) {
+            // Try with underscore prefix
+            StringName underscore_native_type = StringName(String("_") + native_type);
+            if (!ClassDB::is_parent_class(obj->get_class_name(), underscore_native_type)) {
+                return false;
             }
         }
         return true;
-    } break;
+    }
     case SCRIPT:
     case GDSCRIPT: {
         if (p_variant.get_type() == VariantType::NIL) {
@@ -1960,8 +1960,9 @@ bool GDScriptDataType::is_type(const Variant &p_variant, bool p_allow_implicit_c
             return false;
         }
         Object *obj = p_variant.operator Object *();
-        if(!obj)
+        if (!obj || !ObjectDB::instance_validate(obj)) {
             return false;
+        }
         Ref<Script> base = obj->get_script_instance() ? obj->get_script_instance()->get_script() : Ref<Script>();
         bool valid = false;
         while (base) {
@@ -1972,7 +1973,7 @@ bool GDScriptDataType::is_type(const Variant &p_variant, bool p_allow_implicit_c
             base = base->get_base_script();
         }
         return valid;
-    } break;
+    }
     }
     return false;
 }

@@ -56,7 +56,7 @@ Error MessageQueue::push_call(ObjectID p_id, const StringName &p_method, const V
             type = ObjectDB::get_instance(p_id)->get_class();
         print_line(String("Failed method: ") + type + ":" + p_method + " target ID: " + ::to_string(p_id));
         statistics();
-        ERR_FAIL_V_MSG(ERR_OUT_OF_MEMORY, "Message queue out of memory. Try increasing 'message_queue_size_kb' in project settings.");
+        ERR_FAIL_V_MSG(ERR_OUT_OF_MEMORY, "Message queue out of memory. Try increasing 'memory/limits/message_queue/max_size_kb' in project settings.")
     }
 
     Message *msg = memnew_placement(&buffer[buffer_end], Message);
@@ -106,7 +106,7 @@ Error MessageQueue::push_set(ObjectID p_id, const StringName &p_prop, const Vari
             type = ObjectDB::get_instance(p_id)->get_class();
         print_line("Failed set: " + type + ":" + p_prop + " target ID: " + ::to_string(p_id));
         statistics();
-        ERR_FAIL_V_MSG(ERR_OUT_OF_MEMORY, "Message queue out of memory. Try increasing 'message_queue_size_kb' in project settings.")
+        ERR_FAIL_V_MSG(ERR_OUT_OF_MEMORY, "Message queue out of memory. Try increasing 'memory/limits/message_queue/max_size_kb' in project settings.")
     }
 
     Message *msg = memnew_placement(&buffer[buffer_end], Message);
@@ -135,7 +135,7 @@ Error MessageQueue::push_notification(ObjectID p_id, int p_notification) {
     if ((buffer_end + room_needed) >= buffer_size) {
         print_line("Failed notification: " + itos(p_notification) + " target ID: " + itos(p_id));
         statistics();
-        ERR_FAIL_V_MSG(ERR_OUT_OF_MEMORY, "Message queue out of memory. Try increasing 'message_queue_size_kb' in project settings.")
+        ERR_FAIL_V_MSG(ERR_OUT_OF_MEMORY, "Message queue out of memory. Try increasing 'memory/limits/message_queue/max_size_kb' in project settings.");
     }
 
     Message *msg = memnew_placement(&buffer[buffer_end], Message);

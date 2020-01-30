@@ -90,15 +90,15 @@ public:
     }
     void invert();
 
-    _FORCE_INLINE_ T *ptrw() { return _cowdata.ptrw(); }
-    _FORCE_INLINE_ const T *ptr() const { return _cowdata.ptr(); }
-    _FORCE_INLINE_ void clear() { resize(0); }
-    [[nodiscard]] _FORCE_INLINE_ bool empty() const noexcept { return _cowdata.empty(); }
+    T *ptrw() { return _cowdata.ptrw(); }
+    const T *ptr() const { return _cowdata.ptr(); }
+    void clear() { resize(0); }
+    [[nodiscard]] bool empty() const noexcept { return _cowdata.empty(); }
 
-    _FORCE_INLINE_ void set(int p_index, T p_elem) { _cowdata.set(p_index, p_elem); }
-    [[nodiscard]] _FORCE_INLINE_ int size() const { return _cowdata.size(); }
+    void set(int p_index, T p_elem) { _cowdata.set(p_index, p_elem); }
+    [[nodiscard]] int size() const { return _cowdata.size(); }
     Error resize(int p_size) { return _cowdata.resize(p_size); }
-    _FORCE_INLINE_ const T &operator[](int p_index) const { return _cowdata.get(p_index); }
+    const T &operator[](int p_index) const { return _cowdata.get(p_index); }
     Error insert(int p_pos, T p_val) { return _cowdata.insert(p_pos, p_val); }
     int find(const T &p_val, int p_from = 0) const { return _cowdata.find(p_val, p_from); }
 

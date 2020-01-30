@@ -248,6 +248,10 @@ void DocData::generate(bool p_basic_types) {
     PODVector<StringName> classes;
     ClassDB::get_class_list(&classes);
     eastl::sort(classes.begin(),classes.end(),WrapAlphaCompare());
+    // Move ProjectSettings, so that other classes can register properties there.
+    auto it=classes.find("ProjectSettings");
+    classes.erase_unsorted(it);
+    classes.push_back(StringName("ProjectSettings"));
 
     bool skip_setter_getter_methods = true;
 
@@ -264,7 +268,6 @@ void DocData::generate(bool p_basic_types) {
         ClassDoc &c = class_list[cname];
         c.name = cname;
         c.inherits = ClassDB::get_parent_class(name);
-        c.category = ClassDB::get_category(name);
 
         ListPOD<PropertyInfo> properties;
         ListPOD<PropertyInfo> own_properties;
@@ -291,13 +294,27 @@ void DocData::generate(bool p_basic_types) {
             prop.overridden = inherited;
 
             bool default_value_valid = false;
-            Variant default_value = get_documentation_default_value(name, E.name, default_value_valid);
+            Variant default_value;
 
-            if (inherited) {
-                bool base_default_value_valid = false;
-                Variant base_default_value = get_documentation_default_value(ClassDB::get_parent_class(name), E.name, base_default_value_valid);
-                if (!default_value_valid || !base_default_value_valid || default_value == base_default_value)
+            if (name == "ProjectSettings") {
+                // Special case for project settings, so that settings are not taken from the current project's settings
+                if (E.name == "script" ||
+                        ProjectSettings::get_singleton()->get_order(E.name) >= ProjectSettings::NO_BUILTIN_ORDER_BASE) {
                     continue;
+                }
+                if (E.usage & PROPERTY_USAGE_EDITOR) {
+                    default_value = ProjectSettings::get_singleton()->property_get_revert(E.name);
+                    default_value_valid = true;
+                }
+            } else {
+                default_value = get_documentation_default_value(name, E.name, default_value_valid);
+
+                if (inherited) {
+                    bool base_default_value_valid = false;
+                    Variant base_default_value = get_documentation_default_value(ClassDB::get_parent_class(name), E.name, base_default_value_valid);
+                    if (!default_value_valid || !base_default_value_valid || default_value == base_default_value)
+                        continue;
+                }
             }
 
             if (default_value_valid && default_value.get_type() != VariantType::OBJECT) {
@@ -427,12 +444,8 @@ void DocData::generate(bool p_basic_types) {
                 for (const PropertyInfo &arginfo : EV.arguments) {
 
                     ArgumentDoc argument;
-                    argument.name = arginfo.name;
-                    if (arginfo.type == VariantType::OBJECT && not arginfo.class_name.empty() ) {
-                        argument.type = arginfo.class_name;
-                    } else {
-                        argument.type = Variant::get_type_name(arginfo.type);
-                    }
+                    argument_doc_from_arginfo(argument, arginfo);
+
                     signal.arguments.push_back(argument);
                 }
 
@@ -507,25 +520,27 @@ void DocData::generate(bool p_basic_types) {
     }
 
     {
-        //so it can be documented that it does not exist
+        // So we can document the concept of Variant even if it's not a usable class per se.
         class_list["Variant"] = ClassDoc();
         class_list["Variant"].name = "Variant";
     }
 
     if (!p_basic_types)
         return;
-
+    // Add Variant types.
     for (int i = 0; i < int(VariantType::VARIANT_MAX); i++) {
 
+        if (VariantType(i) == VariantType::NIL)
+            continue; // Not exposed outside of 'null', should not be in class list.
+
         if (VariantType(i) == VariantType::OBJECT)
-            continue; //use the core type instead
+            continue; // Use the core type instead.
 
         StringName cname(Variant::get_type_name(VariantType(i)));
 
         class_list[cname] = ClassDoc();
         ClassDoc &c = class_list[cname];
         c.name = cname;
-        c.category = "Built-In Types";
 
         Variant::CallError cerror;
         Variant v = Variant::construct(VariantType(i), nullptr, 0, cerror);
@@ -546,12 +561,8 @@ void DocData::generate(bool p_basic_types) {
                 PropertyInfo arginfo(mi.arguments[j]);
 
                 ArgumentDoc ad;
+                argument_doc_from_arginfo(ad, mi.arguments[j]);
                 ad.name = arginfo.name;
-
-                if (arginfo.type == VariantType::NIL)
-                    ad.type = "Variant";
-                else
-                    ad.type = Variant::get_type_name(arginfo.type);
 
                 int defarg = mi.default_arguments.size() - mi.arguments.size() + j;
                 if (defarg >= 0)
@@ -836,8 +847,6 @@ Error DocData::_load(Ref<XMLParser> parser) {
         c.name = name;
         if (parser->has_attribute("inherits"))
             c.inherits = StringName(parser->get_attribute_value("inherits"));
-        if (parser->has_attribute("category"))
-            c.category = parser->get_attribute_value("category");
 
         while (parser->read() == OK) {
 
@@ -1018,10 +1027,6 @@ Error DocData::save_classes(se_string_view p_default_path, const Map<StringName,
         if (!c.inherits.empty())
             header += String(" inherits=\"") + c.inherits + "\"";
 
-        String category = c.category;
-        if (c.category.empty())
-            category = "Core";
-        header += " category=\"" + category + "\"";
         header += String(" version=\"") + VERSION_NUMBER + "\"";
         header += '>';
         _write_string(f, 0, header);

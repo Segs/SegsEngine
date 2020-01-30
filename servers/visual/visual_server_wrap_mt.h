@@ -110,7 +110,7 @@ public:
         }
     }
     FUNC1(texture_set_shrink_all_x2_on_set_data, bool)
-    FUNC1(texture_debug_usage, DefList<TextureInfo> *)
+    FUNC1S(texture_debug_usage, DefList<TextureInfo> *)
 
     FUNC1(textures_keep_original, bool)
 
@@ -462,7 +462,7 @@ public:
     FUNC2(scenario_set_fallback_environment, RID, RID)
 
     /* INSTANCING API */
-    // from can be mesh, light,  area and portal so far.
+
     FUNCRID(instance)
 
     FUNC2(instance_set_base, RID, RID) // from can be mesh, light, poly, area and portal so far.
