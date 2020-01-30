@@ -42,177 +42,178 @@
 
 class FabrikInverseKinematic {
 
-	struct EndEffector {
-		BoneId tip_bone;
-		Transform goal_transform;
-	};
+    struct EndEffector {
+        BoneId tip_bone;
+        Transform goal_transform;
+    };
 
-	struct ChainItem {
+    struct ChainItem {
 
-		Vector<ChainItem> children;
-		ChainItem *parent_item;
+        Vector<ChainItem> children;
+        ChainItem *parent_item;
 
-		// Bone info
-		BoneId bone;
-		PhysicalBone *pb;
+        // Bone info
+        BoneId bone;
+        PhysicalBone *pb;
 
-		real_t length;
-		/// Positions relative to root bone
-		Transform initial_transform;
-		Vector3 current_pos;
-		// Direction from this bone to child
-		Vector3 current_ori;
+        real_t length;
+        /// Positions relative to root bone
+        Transform initial_transform;
+        Vector3 current_pos;
+        // Direction from this bone to child
+        Vector3 current_ori;
 
-		ChainItem() :
-				parent_item(nullptr),
-				bone(-1),
-				pb(nullptr),
-				length(0) {}
+        ChainItem() :
+                parent_item(nullptr),
+                bone(-1),
+                pb(nullptr),
+                length(0) {}
 
-		ChainItem *find_child(const BoneId p_bone_id);
-		ChainItem *add_child(const BoneId p_bone_id);
-	};
+        ChainItem *find_child(const BoneId p_bone_id);
+        ChainItem *add_child(const BoneId p_bone_id);
+    };
 
-	struct ChainTip {
-		ChainItem *chain_item;
-		const EndEffector *end_effector;
+    struct ChainTip {
+        ChainItem *chain_item;
+        const EndEffector *end_effector;
 
-		ChainTip() :
-				chain_item(nullptr),
-				end_effector(nullptr) {}
+        ChainTip() :
+                chain_item(nullptr),
+                end_effector(nullptr) {}
 
-		ChainTip(ChainItem *p_chain_item, const EndEffector *p_end_effector) :
-				chain_item(p_chain_item),
-				end_effector(p_end_effector) {}
+        ChainTip(ChainItem *p_chain_item, const EndEffector *p_end_effector) :
+                chain_item(p_chain_item),
+                end_effector(p_end_effector) {}
 
-		ChainTip(const ChainTip &p_other_ct) :
-				chain_item(p_other_ct.chain_item),
-				end_effector(p_other_ct.end_effector) {}
-	};
+        ChainTip(const ChainTip &p_other_ct) :
+                chain_item(p_other_ct.chain_item),
+                end_effector(p_other_ct.end_effector) {}
+    };
 
-	struct Chain {
-		ChainItem chain_root;
-		ChainItem *middle_chain_item;
-		Vector<ChainTip> tips;
-		Vector3 magnet_position;
-	};
+    struct Chain {
+        ChainItem chain_root;
+        ChainItem *middle_chain_item;
+        Vector<ChainTip> tips;
+        Vector3 magnet_position;
+    };
 
 public:
-	struct Task : public RID_Data {
-		RID self;
-		Skeleton *skeleton;
+    struct Task : public RID_Data {
+        RID self;
+        Skeleton *skeleton;
 
-		Chain chain;
+        Chain chain;
 
-		// Settings
-		real_t min_distance;
-		int max_iterations;
+        // Settings
+        real_t min_distance;
+        int max_iterations;
 
-		// Bone data
-		BoneId root_bone;
-		Vector<EndEffector> end_effectors;
+        // Bone data
+        BoneId root_bone;
+        Vector<EndEffector> end_effectors;
 
-		Transform goal_global_transform;
+        Transform goal_global_transform;
 
-		Task() :
-				skeleton(nullptr),
-				min_distance(0.01),
-				max_iterations(10),
-				root_bone(-1) {}
-	};
+        Task() :
+                skeleton(nullptr),
+                min_distance(0.01),
+                max_iterations(10),
+                root_bone(-1) {}
+    };
 
 private:
-	/// Init a chain that starts from the root to tip
-	static bool build_chain(Task *p_task, bool p_force_simple_chain = true);
+    /// Init a chain that starts from the root to tip
+    static bool build_chain(Task *p_task, bool p_force_simple_chain = true);
 
-	static void update_chain(const Skeleton *p_sk, ChainItem *p_chain_item);
+    static void update_chain(const Skeleton *p_sk, ChainItem *p_chain_item);
 
-	static void solve_simple(Task *p_task, bool p_solve_magnet);
-	/// Special solvers that solve only chains with one end effector
-	static void solve_simple_backwards(Chain &r_chain, bool p_solve_magnet);
-	static void solve_simple_forwards(Chain &r_chain, bool p_solve_magnet);
+    static void solve_simple(Task *p_task, bool p_solve_magnet);
+    /// Special solvers that solve only chains with one end effector
+    static void solve_simple_backwards(Chain &r_chain, bool p_solve_magnet);
+    static void solve_simple_forwards(Chain &r_chain, bool p_solve_magnet);
 
 public:
-	static Task *create_simple_task(Skeleton *p_sk, BoneId root_bone, BoneId tip_bone, const Transform &goal_transform);
-	static void free_task(Task *p_task);
-	// The goal of chain should be always in local space
-	static void set_goal(Task *p_task, const Transform &p_goal);
-	static void make_goal(Task *p_task, const Transform &p_inverse_transf, real_t blending_delta);
-	static void solve(Task *p_task, real_t blending_delta, bool override_tip_basis, bool p_use_magnet, const Vector3 &p_magnet_position);
+    static Task *create_simple_task(Skeleton *p_sk, BoneId root_bone, BoneId tip_bone, const Transform &goal_transform);
+    static void free_task(Task *p_task);
+    // The goal of chain should be always in local space
+    static void set_goal(Task *p_task, const Transform &p_goal);
+    static void make_goal(Task *p_task, const Transform &p_inverse_transf, real_t blending_delta);
+    static void solve(Task *p_task, real_t blending_delta, bool override_tip_basis, bool p_use_magnet, const Vector3 &p_magnet_position);
+    static void reset(Task *p_task);
 };
 
 class SkeletonIK : public Node {
-	GDCLASS(SkeletonIK,Node)
+    GDCLASS(SkeletonIK,Node)
 
-	StringName root_bone;
-	StringName tip_bone;
-	real_t interpolation;
-	Transform target;
-	NodePath target_node_path_override;
-	bool override_tip_basis;
-	bool use_magnet;
-	Vector3 magnet_position;
+    StringName root_bone;
+    StringName tip_bone;
+    real_t interpolation;
+    Transform target;
+    NodePath target_node_path_override;
+    bool override_tip_basis;
+    bool use_magnet;
+    Vector3 magnet_position;
 
-	real_t min_distance;
-	int max_iterations;
+    real_t min_distance;
+    int max_iterations;
 
-	Skeleton *skeleton;
-	Spatial *target_node_override;
-	FabrikInverseKinematic::Task *task;
+    Skeleton *skeleton;
+    Spatial *target_node_override;
+    FabrikInverseKinematic::Task *task;
 
 protected:
-	void
-	_validate_property(PropertyInfo &property) const override;
+    void
+    _validate_property(PropertyInfo &property) const override;
 
-	static void _bind_methods();
-	virtual void _notification(int p_what);
+    static void _bind_methods();
+    virtual void _notification(int p_what);
 
 public:
-	SkeletonIK();
-	~SkeletonIK() override;
+    SkeletonIK();
+    ~SkeletonIK() override;
 
-	void set_root_bone(const StringName &p_root_bone);
-	StringName get_root_bone() const;
+    void set_root_bone(const StringName &p_root_bone);
+    StringName get_root_bone() const;
 
-	void set_tip_bone(const StringName &p_tip_bone);
-	StringName get_tip_bone() const;
+    void set_tip_bone(const StringName &p_tip_bone);
+    StringName get_tip_bone() const;
 
-	void set_interpolation(real_t p_interpolation);
-	real_t get_interpolation() const;
+    void set_interpolation(real_t p_interpolation);
+    real_t get_interpolation() const;
 
-	void set_target_transform(const Transform &p_target);
-	const Transform &get_target_transform() const;
+    void set_target_transform(const Transform &p_target);
+    const Transform &get_target_transform() const;
 
-	void set_target_node(const NodePath &p_node);
-	NodePath get_target_node();
+    void set_target_node(const NodePath &p_node);
+    NodePath get_target_node();
 
-	void set_override_tip_basis(bool p_override);
-	bool is_override_tip_basis() const;
+    void set_override_tip_basis(bool p_override);
+    bool is_override_tip_basis() const;
 
-	void set_use_magnet(bool p_use);
-	bool is_using_magnet() const;
+    void set_use_magnet(bool p_use);
+    bool is_using_magnet() const;
 
-	void set_magnet_position(const Vector3 &p_local_position);
-	const Vector3 &get_magnet_position() const;
+    void set_magnet_position(const Vector3 &p_local_position);
+    const Vector3 &get_magnet_position() const;
 
-	void set_min_distance(real_t p_min_distance);
-	real_t get_min_distance() const { return min_distance; }
+    void set_min_distance(real_t p_min_distance);
+    real_t get_min_distance() const { return min_distance; }
 
-	void set_max_iterations(int p_iterations);
-	int get_max_iterations() const { return max_iterations; }
+    void set_max_iterations(int p_iterations);
+    int get_max_iterations() const { return max_iterations; }
 
-	Skeleton *get_parent_skeleton() const { return skeleton; }
+    Skeleton *get_parent_skeleton() const { return skeleton; }
 
-	bool is_running();
+    bool is_running();
 
-	void start(bool p_one_time = false);
-	void stop();
+    void start(bool p_one_time = false);
+    void stop();
 
 private:
-	Transform _get_target_transform();
-	void reload_chain();
-	void reload_goal();
-	void _solve_chain();
+    Transform _get_target_transform();
+    void reload_chain();
+    void reload_goal();
+    void _solve_chain();
 };
 
 #endif // _3D_DISABLED

@@ -57,12 +57,12 @@ Files extracted from upstream source:
 
 Important: enet.h, host.c, protocol.c have been slightly modified
 to be usable by godot socket implementation and allow IPv6.
+Apply the patch in the `patches/` folder when syncing on newer upstream
+commits.
 Two files (godot.cpp and enet/godot.h) have been added to provide
 enet socket implementation using Godot classes.
 It is still possible to build against a system wide ENet but doing so
 will limit it's functionality to IPv4 only.
-Check the diff of enet.h, protocol.c, and host.c with the 1.3.13
-tarball before the next update.
 
 
 ## etc2comp
@@ -243,7 +243,7 @@ from the Android NDK r18.
 ## libwebp
 
 - Upstream: https://chromium.googlesource.com/webm/libwebp/
-- Version: 1.0.3
+- Version: 1.1.0
 - License: BSD-3-Clause
 
 Files extracted from upstream source:
@@ -259,7 +259,7 @@ changes are marked with `// -- GODOT --` comments.
 ## mbedtls
 
 - Upstream: https://tls.mbed.org/
-- Version: 2.16.3
+- Version: 2.16.4
 - License: Apache 2.0
 
 File extracted from upstream release tarball (`-apache.tgz` variant):
@@ -390,19 +390,17 @@ Files extracted from the upstream source:
 ## opus
 
 - Upstream: https://opus-codec.org
-- Version: 1.3.1 (opus) and 0.11 (opusfile)
+- Version: 1.1.5 (opus) and 0.8 (opusfile)
 - License: BSD-3-Clause
 
 Files extracted from upstream source:
 
-- Run `opus/configure` and copy/sync changes to `config.h`
-  (note that this file may have Godot-specific options enabled)
 - all .c and .h files in src/ (both opus and opusfile)
 - all .h files in include/ (both opus and opusfile) as opus/
 - remove unused `opus_demo.c`,
 - remove `http.c`, `wincerts.c` and `winerrno.h` (part of
   unused libopusurl)
-- celt/ and silk/ subfolders (minus tests folders)
+- celt/ and silk/ subfolders
 - COPYING
 
 

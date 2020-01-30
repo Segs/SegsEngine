@@ -568,7 +568,7 @@ private:
     static EditorPluginInitializeCallback plugin_init_callbacks[MAX_INIT_CALLBACKS];
     static int build_callback_count;
     static EditorBuildCallback build_callbacks[MAX_BUILD_CALLBACKS];
-    bool disable_progress_dialog;
+    bool cmdline_export_mode;
     bool restoring_scenes;
     PODVector<Ref<EditorResourceConversionPlugin> > resource_conversion_plugins;
 

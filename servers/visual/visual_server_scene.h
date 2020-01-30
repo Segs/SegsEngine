@@ -413,8 +413,7 @@ public:
 
     RID_Owner<Instance> instance_owner;
 
-    // from can be mesh, light,  area and portal so far.
-    virtual RID instance_create(); // from can be mesh, light, poly, area and portal so far.
+    virtual RID instance_create();
 
     virtual void instance_set_base(RID p_instance, RID p_base); // from can be mesh, light, poly, area and portal so far.
     virtual void instance_set_scenario(RID p_instance, RID p_scenario); // from can be mesh, light, poly, area and portal so far.

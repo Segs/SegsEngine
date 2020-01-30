@@ -213,7 +213,7 @@ void LineEdit::_gui_input(const Ref<InputEvent>& p_event) {
             selection.doubleclick = false;
 
             if (OS::get_singleton()->has_virtual_keyboard())
-                OS::get_singleton()->show_virtual_keyboard(StringUtils::to_utf8(m_priv->text), get_global_rect());
+                OS::get_singleton()->show_virtual_keyboard(StringUtils::to_utf8(m_priv->text), get_global_rect(), max_length);
         }
 
         update();
@@ -997,7 +997,7 @@ void LineEdit::_notification(int p_what) {
             OS::get_singleton()->set_ime_position(get_global_position() + cursor_pos);
 
             if (OS::get_singleton()->has_virtual_keyboard())
-                OS::get_singleton()->show_virtual_keyboard(StringUtils::to_utf8(m_priv->text), get_global_rect());
+                OS::get_singleton()->show_virtual_keyboard(StringUtils::to_utf8(m_priv->text), get_global_rect(), max_length);
 
         } break;
         case NOTIFICATION_FOCUS_EXIT: {
@@ -1299,6 +1299,11 @@ void LineEdit::set_text(const UIString& p_text) {
 
     clear_internal();
     append_at_cursor(StringUtils::to_utf8(p_text));
+
+    if (expand_to_text_length) {
+        minimum_size_changed();
+    }
+
     update();
     cursor_pos = 0;
     m_priv->window_pos = 0;
@@ -1307,6 +1312,10 @@ void LineEdit::set_text_utf8(se_string_view p_text) {
 
     clear_internal();
     append_at_cursor(p_text);
+    if (expand_to_text_length) {
+        minimum_size_changed();
+    }
+
     update();
     cursor_pos = 0;
     m_priv->window_pos = 0;
@@ -1556,6 +1565,7 @@ void LineEdit::set_editable(bool p_editable) {
 
     _generate_context_menu();
 
+    minimum_size_changed();
     update();
 }
 
@@ -1691,7 +1701,11 @@ bool LineEdit::get_expand_to_text_length() const {
 }
 
 void LineEdit::set_clear_button_enabled(bool p_enabled) {
+    if (clear_button_enabled == p_enabled) {
+        return;
+    }
     clear_button_enabled = p_enabled;
+    minimum_size_changed();
     update();
 }
 
@@ -1726,6 +1740,8 @@ void LineEdit::set_right_icon(const Ref<Texture> &p_icon) {
         return;
     }
     right_icon = p_icon;
+
+    minimum_size_changed();
     update();
 }
 

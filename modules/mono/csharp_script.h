@@ -306,7 +306,11 @@ class CSharpLanguage : public ScriptLanguage {
     Mutex *language_bind_mutex;
 
     Map<Object *, CSharpScriptBinding> script_bindings;
-
+#ifdef DEBUG_ENABLED
+    // List of unsafe object references
+    Map<ObjectID, int> unsafe_object_references;
+    Mutex *unsafe_object_references_lock;
+#endif
     struct StringNameCache {
 
         StringName _signal_callback;
@@ -395,7 +399,7 @@ public:
     void get_string_delimiters(ListPOD<String> *p_delimiters) const override;
     Ref<Script> get_template(se_string_view p_class_name, se_string_view p_base_class_name) const override;
     bool is_using_templates() override;
-    void make_template(se_string_view p_class_name, se_string_view p_base_class_name, Ref<Script> &p_script) override;
+    void make_template(se_string_view p_class_name, se_string_view p_base_class_name, const Ref<Script> &p_script) override;
     bool validate(se_string_view p_script, int &r_line_error, int &r_col_error, String &r_test_error,
                              se_string_view p_path = {}, DefList<String> *r_functions = nullptr,
                              DefList<Warning> *r_warnings = nullptr, Set<int> *r_safe_lines = nullptr) const override;
@@ -462,6 +466,9 @@ public:
 #ifdef DEBUG_ENABLED
     PODVector<StackInfo> stack_trace_get_info(MonoObject *p_stack_trace);
 #endif
+
+    void post_unsafe_reference(Object *p_obj);
+    void pre_unsafe_unreference(Object *p_obj);
 
     CSharpLanguage();
     ~CSharpLanguage();

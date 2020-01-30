@@ -664,8 +664,8 @@ void BitmapFont::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::POOL_INT_ARRAY, "chars", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "_set_chars", "_get_chars");
     ADD_PROPERTY(PropertyInfo(VariantType::POOL_INT_ARRAY, "kernings", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "_set_kernings", "_get_kernings");
 
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "height", PropertyHint::Range, "-1024,1024,1"), "set_height", "get_height");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "ascent", PropertyHint::Range, "-1024,1024,1"), "set_ascent", "get_ascent");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "height", PropertyHint::Range, "1,1024,1"), "set_height", "get_height");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "ascent", PropertyHint::Range, "0,1024,1"), "set_ascent", "get_ascent");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "distance_field"), "set_distance_field_hint", "is_distance_field_hint");
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "fallback", PropertyHint::ResourceType, "BitmapFont"), "set_fallback", "get_fallback");
 }

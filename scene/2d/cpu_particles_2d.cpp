@@ -305,15 +305,6 @@ float CPUParticles2D::get_spread() const {
     return spread;
 }
 
-void CPUParticles2D::set_flatness(float p_flatness) {
-
-    flatness = p_flatness;
-}
-float CPUParticles2D::get_flatness() const {
-
-    return flatness;
-}
-
 void CPUParticles2D::set_param(Parameter p_param, float p_value) {
 
     ERR_FAIL_INDEX(p_param, PARAM_MAX);
@@ -387,6 +378,7 @@ bool CPUParticles2D::get_particle_flag(Flags p_flag) const {
 }
 
 void CPUParticles2D::set_emission_shape(EmissionShape p_shape) {
+    ERR_FAIL_INDEX(p_shape, EMISSION_SHAPE_MAX);
 
     emission_shape = p_shape;
     Object_change_notify(this);
@@ -649,6 +641,9 @@ void CPUParticles2D::_particles_process(float p_delta) {
                         p.base_color = emission_colors.get(random_idx);
                     }
                 } break;
+                case EMISSION_SHAPE_MAX: { // Max value for validity check.
+                    break;
+                }
             }
 
             if (!local_coords) {
@@ -1109,7 +1104,6 @@ void CPUParticles2D::convert_from_particles(Node *p_particles) {
     Vector3 dir = material->get_direction();
     set_direction(Vector2(dir.x, dir.y));
     set_spread(material->get_spread());
-    set_flatness(material->get_flatness());
 
     set_color(material->get_color());
 
@@ -1223,9 +1217,6 @@ void CPUParticles2D::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_spread", {"degrees"}), &CPUParticles2D::set_spread);
     MethodBinder::bind_method(D_METHOD("get_spread"), &CPUParticles2D::get_spread);
 
-    MethodBinder::bind_method(D_METHOD("set_flatness", {"amount"}), &CPUParticles2D::set_flatness);
-    MethodBinder::bind_method(D_METHOD("get_flatness"), &CPUParticles2D::get_flatness);
-
     MethodBinder::bind_method(D_METHOD("set_param", {"param", "value"}), &CPUParticles2D::set_param);
     MethodBinder::bind_method(D_METHOD("get_param", {"param"}), &CPUParticles2D::get_param);
 
@@ -1281,7 +1272,6 @@ void CPUParticles2D::_bind_methods() {
     ADD_GROUP("Direction", "");
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "direction"), "set_direction", "get_direction");
     ADD_PROPERTY(PropertyInfo(VariantType::REAL, "spread", PropertyHint::Range, "0,180,0.01"), "set_spread", "get_spread");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "flatness", PropertyHint::Range, "0,1,0.01"), "set_flatness", "get_flatness");
     ADD_GROUP("Gravity", "");
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "gravity"), "set_gravity", "get_gravity");
     ADD_GROUP("Initial Velocity", "initial_");
@@ -1359,6 +1349,7 @@ void CPUParticles2D::_bind_methods() {
     BIND_ENUM_CONSTANT(EMISSION_SHAPE_RECTANGLE)
     BIND_ENUM_CONSTANT(EMISSION_SHAPE_POINTS)
     BIND_ENUM_CONSTANT(EMISSION_SHAPE_DIRECTED_POINTS)
+    BIND_ENUM_CONSTANT(EMISSION_SHAPE_MAX)
 }
 
 CPUParticles2D::CPUParticles2D() {
@@ -1391,7 +1382,6 @@ CPUParticles2D::CPUParticles2D() {
 
     set_direction(Vector2(1, 0));
     set_spread(45);
-    set_flatness(0);
     set_param(PARAM_INITIAL_LINEAR_VELOCITY, 0);
     set_param(PARAM_ANGULAR_VELOCITY, 0);
     set_param(PARAM_ORBIT_VELOCITY, 0);

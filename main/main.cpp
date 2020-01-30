@@ -304,7 +304,7 @@ void Main::print_help(const String &p_binary) {
     OS::get_singleton()->print("  --export-pack <preset> <path>    Same as --export, but only export the game pack for the given preset. The <path> extension determines whether it will be in PCK or ZIP format.\n");
     OS::get_singleton()->print("  --doctool <path>                 Dump the engine API reference to the given <path> in XML format, merging if existing files are found.\n");
     OS::get_singleton()->print("  --no-docbase                     Disallow dumping the base types (used with --doctool).\n");
-    OS::get_singleton()->print("  --build-solutions                Build the scripting solutions (e.g. for C# projects).\n");
+    OS::get_singleton()->print("  --build-solutions                Build the scripting solutions (e.g. for C# projects). Implies --editor and requires a valid project to edit.\n");
 #ifdef DEBUG_METHODS_ENABLED
     OS::get_singleton()->print("  --gdnative-generate-json-api     Generate JSON dump of the Godot API for GDNative bindings.\n");
 #endif
@@ -898,7 +898,7 @@ Error Main::setup(bool p_second_phase) {
 #ifdef TOOLS_ENABLED
         editor = false;
 #else
-        String error_msg = "Error: Could not load game data at path '" + project_path + "'. Is the .pck file missing?\n";
+        const String error_msg = "Error: Couldn't load project data at path \"" + project_path + "\". Is the .pck file missing?\nIf you've renamed the executable, the associated .pck file should also be renamed to match the executable's name (without the extension).\n";
         OS::get_singleton()->print("%s", error_msg.ascii().get_data());
         OS::get_singleton()->alert(error_msg);
 
@@ -1100,7 +1100,7 @@ Error Main::setup(bool p_second_phase) {
         // window compositor ("--enable-vsync-via-compositor" or
         // "--disable-vsync-via-compositor") was present then it overrides the
         // project setting.
-        video_mode.vsync_via_compositor = GLOBAL_DEF("display/window/vsync/vsync_via_compositor", true);
+        video_mode.vsync_via_compositor = GLOBAL_DEF("display/window/vsync/vsync_via_compositor", false);
     }
 
     OS::get_singleton()->_vsync_via_compositor = video_mode.vsync_via_compositor;
@@ -2188,8 +2188,12 @@ bool Main::iteration() {
 #ifdef TOOLS_ENABLED
     if (auto_build_solutions) {
         auto_build_solutions = false;
+        // Only relevant when running the editor.
+        if (!editor) {
+            ERR_FAIL_V_MSG(true, "Command line option --build-solutions was passed, but no project is being edited. Aborting.");
+        }
         if (!EditorNode::get_singleton()->call_build()) {
-            ERR_FAIL_V(true)
+            ERR_FAIL_V_MSG(true, "Command line option --build-solutions was passed, but the build callback failed. Aborting.");
         }
     }
 #endif
@@ -2240,6 +2244,9 @@ void Main::cleanup() {
     ResourceLoader::clear_path_remaps();
 
     ScriptServer::finish_languages();
+
+    // Sync pending commands that may have been queued from a different thread during ScriptServer finalization
+    VisualServer::get_singleton()->sync();
 
 #ifdef TOOLS_ENABLED
     EditorNode::unregister_editor_types();

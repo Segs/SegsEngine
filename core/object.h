@@ -288,6 +288,7 @@ private:
     int _predelete_ok;
     bool _block_signals;
     bool _can_translate;
+    bool _emitting;
     bool _is_queued_for_deletion; // set to true by SceneTree::queue_delete()
 
 

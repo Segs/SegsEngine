@@ -117,6 +117,7 @@ class GDScript : public Script {
     String source;
     String path;
     StringName name;
+    String fully_qualified_name;
     SelfList<GDScript> script_list;
 
     GDScriptInstance *_create_instance(const Variant **p_args, int p_argcount, Object *p_owner, bool p_isref, Variant::CallError &r_error);
@@ -136,6 +137,8 @@ class GDScript : public Script {
 #endif
 
     bool _update_exports();
+
+    void _save_orphaned_subclasses();
 
 protected:
     bool _get(const StringName &p_name, Variant &r_ret) const;
@@ -360,6 +363,7 @@ class GDScriptLanguage : public ScriptLanguage {
     bool profiling;
     uint64_t script_frame_time;
 
+    Map<String, ObjectID> orphan_subclasses;
 public:
     int calls;
 
@@ -457,7 +461,7 @@ public:
     virtual String _get_processed_template(se_string_view p_template, se_string_view p_base_class_name) const;
     Ref<Script> get_template(se_string_view p_class_name, se_string_view p_base_class_name) const override;
     bool is_using_templates() override;
-    void make_template(se_string_view p_class_name, se_string_view p_base_class_name, Ref<Script> &p_script) override;
+    void make_template(se_string_view p_class_name, se_string_view p_base_class_name, const Ref<Script> &p_script) override;
     bool validate(se_string_view p_script, int &r_line_error, int &r_col_error, String &r_test_error, se_string_view p_path = {}, List<String> *r_functions = nullptr, List<ScriptLanguage::Warning> *r_warnings = nullptr, Set<int> *r_safe_lines = nullptr) const override;
     Script *create_script() const override;
     bool has_named_classes() const override;
@@ -510,6 +514,9 @@ public:
 
     bool handles_global_class_type(se_string_view p_type) const override;
     StringName get_global_class_name(se_string_view p_path, String *r_base_type = nullptr, String *r_icon_path = nullptr) const override;
+
+    void add_orphan_subclass(const String &p_qualified_name, const ObjectID &p_subclass);
+    Ref<GDScript> get_orphan_subclass(const String &p_qualified_name);
 
     GDScriptLanguage();
     ~GDScriptLanguage() override;

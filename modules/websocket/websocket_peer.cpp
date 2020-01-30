@@ -51,6 +51,7 @@ void WebSocketPeer::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("close", {"code", "reason"}), &WebSocketPeer::close, {DEFVAL(1000), DEFVAL("")});
     MethodBinder::bind_method(D_METHOD("get_connected_host"), &WebSocketPeer::get_connected_host);
     MethodBinder::bind_method(D_METHOD("get_connected_port"), &WebSocketPeer::get_connected_port);
+    MethodBinder::bind_method(D_METHOD("set_no_delay", {"enabled"}), &WebSocketPeer::set_no_delay);
 
     BIND_ENUM_CONSTANT(WRITE_MODE_TEXT)
     BIND_ENUM_CONSTANT(WRITE_MODE_BINARY)

@@ -171,9 +171,8 @@ Error WSLServer::listen(int p_port, const PoolVector<String> &p_protocols, bool 
     }
 
     _protocols.append_array(p_protocols);
-    _server->listen(p_port);
 
-    return OK;
+    return _server->listen(p_port, bind_ip);
 }
 
 void WSLServer::poll() {
@@ -214,6 +213,7 @@ void WSLServer::poll() {
 
         Ref<WSLPeer> ws_peer(make_ref_counted<WSLPeer>());
         ws_peer->make_context(data, _in_buf_size, _in_pkt_size, _out_buf_size, _out_pkt_size);
+        ws_peer->set_no_delay(true);
 
         _peer_map[id] = ws_peer;
         remove_peers.push_back(ppeer);

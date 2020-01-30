@@ -1004,6 +1004,7 @@ void AnimationPlayerEditor::_animation_duplicate() {
 
         new_name = new_name + " (copy)";
     }
+    new_anim->set_name(new_name);
 
     undo_redo->create_action_ui(TTR("Duplicate Animation"));
     undo_redo->add_do_method(player, "add_animation", new_name, new_anim);

@@ -333,7 +333,7 @@ ScriptInstance *GDScript::instance_create(Object *p_this) {
         if (!ClassDB::is_parent_class(p_this->get_class_name(), top->native->get_name())) {
 
             if (ScriptDebugger::get_singleton()) {
-                GDScriptLanguage::get_singleton()->debug_break_parse(get_path(), 0, "Script inherits from native type '" + String(top->native->get_name()) + "', so it can't be instanced in object of type: '" + p_this->get_class() + "'");
+                GDScriptLanguage::get_singleton()->debug_break_parse(get_path(), 1, "Script inherits from native type '" + String(top->native->get_name()) + "', so it can't be instanced in object of type: '" + p_this->get_class() + "'");
             }
             ERR_FAIL_V_MSG(nullptr, "Script inherits from native type '" + String(top->native->get_name()) + "', so it can't be instanced in object of type '" + p_this->get_class() + "'" + ".");
         }
@@ -928,15 +928,42 @@ GDScript::GDScript() :
     }
 #endif
 }
+void GDScript::_save_orphaned_subclasses() {
+    struct ClassRefWithName {
+        ObjectID id;
+        String fully_qualified_name;
+    };
+    Vector<ClassRefWithName> weak_subclasses;
+    // collect subclasses ObjectID and name
+    for (const auto &E : subclasses) {
+        E.second->_owner = nullptr; //bye, you are no longer owned cause I died
+        ClassRefWithName subclass;
+        subclass.id = E.second->get_instance_id();
+        subclass.fully_qualified_name = E.second->fully_qualified_name;
+        weak_subclasses.push_back(subclass);
+    }
 
+    // clear subclasses to allow unused subclasses to be deleted
+    subclasses.clear();
+    // subclasses are also held by constants, clear those as well
+    constants.clear();
+
+    // keep orphan subclass only for subclasses that are still in use
+    for (int i = 0; i < weak_subclasses.size(); i++) {
+        ClassRefWithName subclass = weak_subclasses[i];
+        Object *obj = ObjectDB::get_instance(subclass.id);
+        if (!obj)
+            continue;
+        // subclass is not released
+        GDScriptLanguage::get_singleton()->add_orphan_subclass(subclass.fully_qualified_name, subclass.id);
+    }
+}
 GDScript::~GDScript() {
     for (eastl::pair<const StringName,GDScriptFunction *> &E : member_functions) {
         memdelete(E.second);
     }
 
-    for (eastl::pair<const StringName,Ref<GDScript> > &E : subclasses) {
-        E.second->_owner = nullptr; //bye, you are no longer owned cause I died
-    }
+    _save_orphaned_subclasses();
 
 #ifdef DEBUG_ENABLED
     if (GDScriptLanguage::get_singleton()->lock) {
@@ -2187,7 +2214,21 @@ GDScriptLanguage::~GDScriptLanguage() {
     }
     singleton = nullptr;
 }
+void GDScriptLanguage::add_orphan_subclass(const String &p_qualified_name, const ObjectID &p_subclass) {
+    orphan_subclasses[p_qualified_name] = p_subclass;
+}
 
+Ref<GDScript> GDScriptLanguage::get_orphan_subclass(const String &p_qualified_name) {
+    auto orphan_subclass_element = orphan_subclasses.find(p_qualified_name);
+    if (orphan_subclasses.end()==orphan_subclass_element)
+        return Ref<GDScript>();
+    ObjectID orphan_subclass = orphan_subclass_element->second;
+    Object *obj = ObjectDB::get_instance(orphan_subclass);
+    orphan_subclasses.erase(orphan_subclass_element);
+    if (!obj)
+        return Ref<GDScript>();
+    return Ref<GDScript>(object_cast<GDScript>(obj));
+}
 /*************** RESOURCE ***************/
 
 RES ResourceFormatLoaderGDScript::load(se_string_view p_path, se_string_view p_original_path, Error *r_error) {

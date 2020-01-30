@@ -33,10 +33,11 @@
 #include "core/typedefs.h"
 #include "core/forward_decls.h"
 #include "EASTL/string_view.h"
+
 /**
  * Error macros. Unlike exceptions and asserts, these macros try to maintain consistency and stability
- * inside the code. It is recommended to always return processable data, so in case of an error, the
- * engine can stay working well.
+ * inside the code. It is recommended to always return processable data, so in case of an error,
+ * the engine can keep working well.
  * In most cases, bugs and/or invalid data are not fatal and should never allow a perfectly running application
  * to fail or crash.
  */
@@ -99,7 +100,11 @@ GODOT_EXPORT void _err_print_index_error(se_string_view p_function, se_string_vi
 #endif
 
 // (*): See https://stackoverflow.com/questions/257418/do-while-0-what-is-it-good-for
-
+/**
+ * If `m_index` is less than 0 or greater than or equal to `m_size`, prints a generic
+ * error message and returns from the function. This macro should be preferred to
+ * `ERR_FAIL_COND` for bounds checking.
+ */
 #define ERR_FAIL_INDEX(m_index, m_size)                                                                             \
     do {                                                                                                            \
         if (unlikely(decltype(m_size)(m_index) < 0 || decltype(m_size)(m_index) >= (m_size))) {                                                     \
@@ -108,6 +113,11 @@ GODOT_EXPORT void _err_print_index_error(se_string_view p_function, se_string_vi
         }                                                                                                           \
     } while (0); // (*)
 
+/**
+ * If `m_index` is less than 0 or greater than or equal to `m_size`, prints a custom
+ * error message and returns from the function. This macro should be preferred to
+ * `ERR_FAIL_COND_MSG` for bounds checking.
+ */
 #define ERR_FAIL_INDEX_MSG(m_index, m_size, m_msg)                                                                         \
     do {                                                                                                                   \
         if (unlikely((m_index) < 0 || (m_index) >= (m_size))) {                                                            \
@@ -116,11 +126,11 @@ GODOT_EXPORT void _err_print_index_error(se_string_view p_function, se_string_vi
         }                                                                                                                  \
     } while (0); // (*)
 
-/** An index has failed if m_index<0 or m_index >=m_size, the function exits.
-* This function returns an error value, if returning Error, please select the most
-* appropriate error condition from error_macros.h
-*/
-
+/**
+ * If `m_index` is less than 0 or greater than or equal to `m_size`,
+ * prints a generic error message and returns the value specified in `m_retval`.
+ * This macro should be preferred to `ERR_FAIL_COND_V` for bounds checking.
+ */
 #define ERR_FAIL_INDEX_V(m_index, m_size, m_retval)                                                                 \
     do {                                                                                                            \
         if (unlikely((m_index) < 0 || (m_index) >= (m_size))) {                                                     \
@@ -129,6 +139,11 @@ GODOT_EXPORT void _err_print_index_error(se_string_view p_function, se_string_vi
         }                                                                                                           \
     } while (0); // (*)
 
+/**
+ * If `m_index` is less than 0 or greater than or equal to `m_size`,
+ * prints a custom error message and returns the value specified in `m_retval`.
+ * This macro should be preferred to `ERR_FAIL_COND_V_MSG` for bounds checking.
+ */
 #define ERR_FAIL_INDEX_V_MSG(m_index, m_size, m_retval, m_msg)                                                             \
     do {                                                                                                                   \
         if (unlikely((m_index) < 0 || (m_index) >= (m_size))) {                                                            \
@@ -137,11 +152,11 @@ GODOT_EXPORT void _err_print_index_error(se_string_view p_function, se_string_vi
         }                                                                                                                  \
     } while (0); // (*)
 
-/** An index has failed if m_index >=m_size, the function exits.
-* This function returns an error value, if returning Error, please select the most
-* appropriate error condition from error_macros.h
-*/
-
+/**
+ * If `m_index` is greater than or equal to `m_size`,
+ * prints a generic error message and returns the value specified in `m_retval`.
+ * This macro should be preferred to `ERR_FAIL_COND_V` for unsigned bounds checking.
+ */
 #define ERR_FAIL_UNSIGNED_INDEX_V(m_index, m_size, m_retval)                                                        \
     do {                                                                                                            \
         if (unlikely((m_index) >= (m_size))) {                                                                      \
@@ -150,6 +165,11 @@ GODOT_EXPORT void _err_print_index_error(se_string_view p_function, se_string_vi
         }                                                                                                           \
     } while (0); // (*)
 
+/**
+ * If `m_index` is greater than or equal to `m_size`,
+ * prints a custom error message and returns the value specified in `m_retval`.
+ * This macro should be preferred to `ERR_FAIL_COND_V_MSG` for unsigned bounds checking.
+ */
 #define ERR_FAIL_UNSIGNED_INDEX_V_MSG(m_index, m_size, m_retval, m_msg)                                                    \
     do {                                                                                                                   \
         if (unlikely((m_index) >= (m_size))) {                                                                             \
@@ -158,9 +178,12 @@ GODOT_EXPORT void _err_print_index_error(se_string_view p_function, se_string_vi
         }                                                                                                                  \
     } while (0); // (*)
 
-/** Use this one if there is no sensible fallback, that is, the error is unrecoverable.
-*   We'll return a null reference and try to keep running.
-*/
+/**
+ * If `m_index` is less than 0 or greater than or equal to `m_size`,
+ * crashes the engine immediately with a generic error message.
+ * Only use this if there's no sensible fallback (i.e. the error is unrecoverable).
+ * This macro should be preferred to `CRASH_COND` for bounds checking.
+ */
 #define CRASH_BAD_INDEX(m_index, m_size)                                                                                      \
     do {                                                                                                                      \
         if (unlikely((m_index) < 0 || (m_index) >= (m_size))) {                                                               \
@@ -169,6 +192,12 @@ GODOT_EXPORT void _err_print_index_error(se_string_view p_function, se_string_vi
         }                                                                                                                     \
     } while (0); // (*)
 
+/**
+ * If `m_index` is less than 0 or greater than or equal to `m_size`,
+ * crashes the engine immediately with a custom error message.
+ * Only use this if there's no sensible fallback (i.e. the error is unrecoverable).
+ * This macro should be preferred to `CRASH_COND` for bounds checking.
+ */
 #define CRASH_BAD_INDEX_MSG(m_index, m_size, m_msg)                                                                              \
     do {                                                                                                                         \
         if (unlikely((m_index) < 0 || (m_index) >= (m_size))) {                                                                  \
@@ -177,14 +206,14 @@ GODOT_EXPORT void _err_print_index_error(se_string_view p_function, se_string_vi
         }                                                                                                                        \
     } while (0); // (*)
 
-/** An error condition happened (m_cond tested true) (WARNING this is the opposite as assert().
-  * the function will exit.
-  */
+/**
+ * If `m_param` is `null`, prints a generic error message and returns from the function.
+ */
 
 #define ERR_FAIL_NULL(m_param)                                                                              \
     {                                                                                                       \
         if (unlikely(!m_param)) {                                                                           \
-            _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "Parameter ' " _STR(m_param) " ' is null."); \
+            _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "Parameter ' \"" _STR(m_param) "\" ' is null."); \
             return;                                                                                         \
         }                                                                                                   \
     }
@@ -192,132 +221,149 @@ GODOT_EXPORT void _err_print_index_error(se_string_view p_function, se_string_vi
 #define ERR_FAIL_NULL_MSG(m_param, m_msg)                                                                   \
     {                                                                                                       \
         if (unlikely(!m_param)) {                                                                           \
-            _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "Parameter ' " _STR(m_param) " ' is null.",DEBUG_STR(m_msg)); \
+            _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "Parameter ' \"" _STR(m_param) "\" ' is null.",DEBUG_STR(m_msg)); \
             return;                                                                                         \
         }                                                                                                   \
     }
-
+/**
+ * If `m_param` is `null`, prints a generic error message and returns the value specified in `m_retval`.
+ */
 #define ERR_FAIL_NULL_V(m_param, m_retval)                                                                  \
     {                                                                                                       \
         if (unlikely(!m_param)) {                                                                           \
-            _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "Parameter ' " _STR(m_param) " ' is null."); \
+            _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "Parameter ' \"" _STR(m_param) "\" ' is null."); \
             return m_retval;                                                                                \
         }                                                                                                   \
     }
 
+/**
+ * If `m_param` is `null`, prints a custom error message and returns the value specified in `m_retval`.
+ */
 #define ERR_FAIL_NULL_V_MSG(m_param, m_retval, m_msg)                                                       \
     {                                                                                                       \
         if (unlikely(!m_param)) {                                                                           \
-            _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "Parameter ' " _STR(m_param) " ' is null.",DEBUG_STR(m_msg)); \
+            _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "Parameter ' \"" _STR(m_param) "\" ' is null.",DEBUG_STR(m_msg)); \
             return m_retval;                                                                                \
         }                                                                                                   \
     }
 
-/** An error condition happened (m_cond tested true) (WARNING this is the opposite as assert().
- * the function will exit.
+/**
+ * If `m_cond` evaluates to `true`, prints a generic error message and returns from the function.
  */
-
 #define ERR_FAIL_COND(m_cond)                                                                              \
     {                                                                                                      \
         if (unlikely(m_cond)) {                                                                            \
-            _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "Condition ' " _STR(m_cond) " ' is true."); \
+            _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "Condition ' \"" _STR(m_cond) "\" ' is true."); \
             return;                                                                                        \
         }                                                                                                  \
     }
+/**
+ * Prints a generic error message for given condition
+ */
 #define ERR_REPORT_COND(m_cond)\
-    _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "Condition ' " _STR(m_cond) " ' is true.");
+    _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "Condition ' \"" _STR(m_cond) "\" ' is true.");
 
+/**
+ * If `m_cond` evaluates to `true`, prints a custom error message and returns from the function.
+ */
 #define ERR_FAIL_COND_MSG(m_cond, m_msg)                                                                          \
     {                                                                                                             \
         if (unlikely(m_cond)) {                                                                                   \
-            _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "Condition ' " _STR(m_cond) " ' is true.", DEBUG_STR(m_msg)); \
+            _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "Condition ' \"" _STR(m_cond) "\" ' is true.", DEBUG_STR(m_msg)); \
             return;                                                                                               \
         }                                                                                                         \
     }
 
-/** Use this one if there is no sensible fallback, that is, the error is unrecoverable.
+/**
+ * If `m_cond` evaluates to `true`, crashes the engine immediately with a generic error message.
+ * Only use this if there's no sensible fallback (i.e. the error is unrecoverable).
  */
-
 #define CRASH_COND(m_cond)                                                                                        \
     {                                                                                                             \
         if (unlikely(m_cond)) {                                                                                   \
-            _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "FATAL: Condition ' " _STR(m_cond) " ' is true."); \
+            _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "FATAL: Condition ' \"" _STR(m_cond) "\" ' is true."); \
             GENERATE_TRAP                                                                                         \
         }                                                                                                         \
     }
 
+/**
+ * If `m_cond` evaluates to `true`, crashes the engine immediately with a custom error message.
+ * Only use this if there's no sensible fallback (i.e. the error is unrecoverable).
+ */
 #define CRASH_COND_MSG(m_cond, m_msg)                                                                                    \
     {                                                                                                                    \
         if (unlikely(m_cond)) {                                                                                          \
-            _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "FATAL: Condition ' " _STR(m_cond) " ' is true.", DEBUG_STR(m_msg)); \
+            _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "FATAL: Condition ' \"" _STR(m_cond) "\" ' is true.", DEBUG_STR(m_msg)); \
             GENERATE_TRAP                                                                                                \
         }                                                                                                                \
     }
 
-/** An error condition happened (m_cond tested true) (WARNING this is the opposite as assert().
- * the function will exit.
- * This function returns an error value, if returning Error, please select the most
- * appropriate error condition from error_macros.h
+/**
+ * If `m_cond` evaluates to `true`, prints a generic error message and returns the value specified in `m_retval`.
  */
-
 #define ERR_FAIL_COND_V(m_cond, m_retval)                                                                                            \
     {                                                                                                                                \
         if (unlikely(m_cond)) {                                                                                                      \
-            _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "Condition ' " _STR(m_cond) " ' is true. returned: " _STR(m_retval)); \
+            _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "Condition ' \"" _STR(m_cond) "\" ' is true. returned: " _STR(m_retval)); \
             return m_retval;                                                                                                         \
         }                                                                                                                            \
     }
-
+/**
+ * If `m_cond` evaluates to `true`, prints a custom error message and returns the value specified in `m_retval`.
+ */
 #define ERR_FAIL_COND_V_MSG(m_cond, m_retval, m_msg)                                                                                        \
     {                                                                                                                                       \
         if (unlikely(m_cond)) {                                                                                                             \
-            _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "Condition ' " _STR(m_cond) " ' is true. returned: " _STR(m_retval), DEBUG_STR(m_msg)); \
+            _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "Condition ' \"" _STR(m_cond) "\" ' is true. returned: " _STR(m_retval), DEBUG_STR(m_msg)); \
             return m_retval;                                                                                                                \
         }                                                                                                                                   \
     }
-/** An error condition happened (m_cond tested true) (WARNING this is the opposite as assert().
- * the loop will skip to the next iteration.
+/**
+ * If `m_cond` evaluates to `true`, prints a custom error message and continues the loop the macro is located in.
  */
-
 #define ERR_CONTINUE(m_cond)                                                                                             \
     {                                                                                                                    \
         if (unlikely(m_cond)) {                                                                                          \
-            _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "Condition ' " _STR(m_cond) " ' is true. Continuing..:"); \
+            _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "Condition ' \"" _STR(m_cond) "\" ' is true. Continuing..:"); \
             continue;                                                                                                    \
         }                                                                                                                \
     }
 
+/**
+ * If `m_cond` evaluates to `true`, prints a custom error message and continues the loop the macro is located in.
+ */
 #define ERR_CONTINUE_MSG(m_cond, m_msg)                                                                                         \
     {                                                                                                                           \
         if (unlikely(m_cond)) {                                                                                                 \
-            _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "Condition ' " _STR(m_cond) " ' is true. Continuing..:", DEBUG_STR(m_msg)); \
+            _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "Condition ' \"" _STR(m_cond) "\" ' is true. Continuing..:", DEBUG_STR(m_msg)); \
             continue;                                                                                                           \
         }                                                                                                                       \
     }
 
-/** An error condition happened (m_cond tested true) (WARNING this is the opposite as assert().
- * the loop will break
+/**
+ * If `m_cond` evaluates to `true`, prints a generic error message and breaks from the loop the macro is located in.
  */
-
 #define ERR_BREAK(m_cond)                                                                                              \
     {                                                                                                                  \
         if (unlikely(m_cond)) {                                                                                        \
-            _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "Condition ' " _STR(m_cond) " ' is true. Breaking..:"); \
+            _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "Condition ' \"" _STR(m_cond) "\" ' is true. Breaking..:"); \
             break;                                                                                                     \
         }                                                                                                              \
     }
-
+/**
+ * If `m_cond` evaluates to `true`, prints a custom error message and breaks from the loop the macro is located in.
+ */
 #define ERR_BREAK_MSG(m_cond, m_msg)                                                                                          \
     {                                                                                                                         \
         if (unlikely(m_cond)) {                                                                                               \
-            _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "Condition ' " _STR(m_cond) " ' is true. Breaking..:", DEBUG_STR(m_msg)); \
+            _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "Condition ' \"" _STR(m_cond) "\" ' is true. Breaking..:", DEBUG_STR(m_msg)); \
             break;                                                                                                            \
         }                                                                                                                     \
     }
 
-/** Print an error string and return
+/**
+ * Prints a generic error message and returns from the function.
  */
-
 #define ERR_FAIL()                                                                     \
     {                                                                                  \
         _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "Method/Function Failed."); \
@@ -397,12 +443,15 @@ GODOT_EXPORT void _err_print_index_error(se_string_view p_function, se_string_vi
             first_print = false;                                                               \
         }                                                                                      \
     }
-
+/**
+ * Prints a custom deprecation warning message without returning.
+ * This should be preferred to `WARN_PRINT` for deprecation warnings.
+ */
 #define WARN_DEPRECATED_MSG(m_msg)                                                                                                                               \
     {                                                                                                                                                            \
         static volatile bool warning_shown = false;                                                                                                              \
         if (!warning_shown) {                                                                                                                                    \
-            _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "This method has been deprecated and will be removed in the future", DEBUG_STR(m_msg), ERR_HANDLER_WARNING); \
+            _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "This method has been deprecated and will be removed in the future.", DEBUG_STR(m_msg), ERR_HANDLER_WARNING); \
             warning_shown = true;                                                                                                                                \
         }                                                                                                                                                        \
     }

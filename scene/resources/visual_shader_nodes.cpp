@@ -105,7 +105,7 @@ VARIANT_ENUM_CAST(VisualShaderNodeVectorDerivativeFunc::Function)
 VARIANT_ENUM_CAST(VisualShaderNodeTextureUniform::TextureType)
 VARIANT_ENUM_CAST(VisualShaderNodeTextureUniform::ColorDefault)
 VARIANT_ENUM_CAST(VisualShaderNodeIs::Function)
-VARIANT_ENUM_CAST(VisualShaderNodeCompare::ComparsionType)
+VARIANT_ENUM_CAST(VisualShaderNodeCompare::ComparisonType)
 VARIANT_ENUM_CAST(VisualShaderNodeCompare::Function)
 VARIANT_ENUM_CAST(VisualShaderNodeCompare::Condition)
 
@@ -834,7 +834,7 @@ String VisualShaderNodeCubeMap::generate_global(ShaderMode p_mode, VisualShader:
             case TYPE_COLOR: u += (" : hint_albedo"); break;
             case TYPE_NORMALMAP: u += (" : hint_normal"); break;
         }
-        return u + ";";
+        return u + ";\n";
     }
     return String();
 }
@@ -850,30 +850,32 @@ String VisualShaderNodeCubeMap::generate_code(ShaderMode p_mode, VisualShader::T
     } else {
         return String();
     }
+    code += "\t{\n";
 
     if (id.empty()) {
-        code += "\tvec4 " + id + "_read = vec4(0.0);\n";
-        code += "\t" + p_output_vars[0] + " = " + id + "_read.rgb;\n";
-        code += "\t" + p_output_vars[1] + " = " + id + "_read.a;\n";
+        code += "\t\tvec4 " + id + "_read = vec4(0.0);\n";
+        code += "\t\t" + p_output_vars[0] + " = " + id + "_read.rgb;\n";
+        code += "\t\t" + p_output_vars[1] + " = " + id + "_read.a;\n";
         return code;
     }
 
     if (p_input_vars[0].empty()) { // Use UV by default.
 
         if (p_input_vars[1].empty()) {
-            code += "\tvec4 " + id + "_read = texture( " + id + " , vec3( UV, 0.0 ) );\n";
+            code += "\t\tvec4 " + id + "_read = texture( " + id + " , vec3( UV, 0.0 ) );\n";
         } else {
-            code += "\tvec4 " + id + "_read = textureLod( " + id + " , vec3( UV, 0.0 )" + " , " + p_input_vars[1] + " );\n";
+            code += "\t\tvec4 " + id + "_read = textureLod( " + id + " , vec3( UV, 0.0 )" + " , " + p_input_vars[1] + " );\n";
         }
 
     } else if (p_input_vars[1].empty()) {
         //no lod
-        code += "\tvec4 " + id + "_read = texture( " + id + " , " + p_input_vars[0] + " );\n";
+        code += "\t\tvec4 " + id + "_read = texture( " + id + " , " + p_input_vars[0] + " );\n";
     } else {
-        code += "\tvec4 " + id + "_read = textureLod( " + id + " , " + p_input_vars[0] + " , " + p_input_vars[1] + " );\n";
+        code += "\t\tvec4 " + id + "_read = textureLod( " + id + " , " + p_input_vars[0] + " , " + p_input_vars[1] + " );\n";
     }
-    code += "\t" + p_output_vars[0] + " = " + id + "_read.rgb;\n";
-    code += "\t" + p_output_vars[1] + " = " + id + "_read.a;\n";
+    code += "\t\t" + p_output_vars[0] + " = " + id + "_read.rgb;\n";
+    code += "\t\t" + p_output_vars[1] + " = " + id + "_read.a;\n";
+    code += "\t}\n";
 
     return code;
 }
@@ -3882,7 +3884,7 @@ String VisualShaderNodeCompare::generate_code(ShaderMode p_mode, VisualShader::T
     return code;
 }
 
-void VisualShaderNodeCompare::set_comparsion_type(ComparsionType p_type) {
+void VisualShaderNodeCompare::set_comparison_type(ComparisonType p_type) {
 
     ctype = p_type;
 
@@ -3907,7 +3909,7 @@ void VisualShaderNodeCompare::set_comparsion_type(ComparsionType p_type) {
     emit_changed();
 }
 
-VisualShaderNodeCompare::ComparsionType VisualShaderNodeCompare::get_comparsion_type() const {
+VisualShaderNodeCompare::ComparisonType VisualShaderNodeCompare::get_comparsion_type() const {
 
     return ctype;
 }
@@ -3945,8 +3947,8 @@ Vector<StringName> VisualShaderNodeCompare::get_editable_properties() const {
 
 void VisualShaderNodeCompare::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_comparsion_type", {"type"}), &VisualShaderNodeCompare::set_comparsion_type);
-    MethodBinder::bind_method(D_METHOD("get_comparsion_type"), &VisualShaderNodeCompare::get_comparsion_type);
+    MethodBinder::bind_method(D_METHOD("set_comparison_type", {"type"}), &VisualShaderNodeCompare::set_comparison_type);
+    MethodBinder::bind_method(D_METHOD("get_comparison_type"), &VisualShaderNodeCompare::get_comparsion_type);
 
     MethodBinder::bind_method(D_METHOD("set_function", {"func"}), &VisualShaderNodeCompare::set_function);
     MethodBinder::bind_method(D_METHOD("get_function"), &VisualShaderNodeCompare::get_function);
@@ -3954,7 +3956,7 @@ void VisualShaderNodeCompare::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_condition", {"condition"}), &VisualShaderNodeCompare::set_condition);
     MethodBinder::bind_method(D_METHOD("get_condition"), &VisualShaderNodeCompare::get_condition);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "type", PropertyHint::Enum, "Scalar,Vector,Boolean,Transform"), "set_comparsion_type", "get_comparsion_type");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "type", PropertyHint::Enum, "Scalar,Vector,Boolean,Transform"), "set_comparison_type", "get_comparison_type");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "function", PropertyHint::Enum, "a == b,a != b,a > b,a >= b,a < b,a <= b"), "set_function", "get_function");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "condition", PropertyHint::Enum, "All,Any"), "set_condition", "get_condition");
 

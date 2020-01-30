@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<class name="Mesh" inherits="Resource" category="Core" version="3.2">
+<class name="Mesh" inherits="Resource" version="3.2">
 	<brief_description>
 		A [Resource] that contains vertex array-based geometry.
 	</brief_description>
@@ -103,6 +103,7 @@
 	</methods>
 	<members>
 		<member name="lightmap_size_hint" type="Vector2" setter="set_lightmap_size_hint" getter="get_lightmap_size_hint" default="Vector2( 0, 0 )">
+			Sets a hint to be used for lightmap resolution in [BakedLightmap]. Overrides [member BakedLightmap.bake_default_texels_per_unit].
 		</member>
 	</members>
 	<constants>
@@ -128,89 +129,103 @@
 			Render array as triangle fans.
 		</constant>
 		<constant name="BLEND_SHAPE_MODE_NORMALIZED" value="0" enum="BlendShapeMode">
+			Blend shapes are normalized.
 		</constant>
 		<constant name="BLEND_SHAPE_MODE_RELATIVE" value="1" enum="BlendShapeMode">
+			Blend shapes are relative to base weight.
 		</constant>
 		<constant name="ARRAY_FORMAT_VERTEX" value="1" enum="ArrayFormat">
-			Array format will include vertices (mandatory).
+			Mesh array contains vertices. All meshes require a vertex array so this should always be present.
 		</constant>
 		<constant name="ARRAY_FORMAT_NORMAL" value="2" enum="ArrayFormat">
-			Array format will include normals
+			Mesh array contains normals.
 		</constant>
 		<constant name="ARRAY_FORMAT_TANGENT" value="4" enum="ArrayFormat">
-			Array format will include tangents
+			Mesh array contains tangents.
 		</constant>
 		<constant name="ARRAY_FORMAT_COLOR" value="8" enum="ArrayFormat">
-			Array format will include a color array.
+			Mesh array contains colors.
 		</constant>
 		<constant name="ARRAY_FORMAT_TEX_UV" value="16" enum="ArrayFormat">
-			Array format will include UVs.
+			Mesh array contains UVs.
 		</constant>
 		<constant name="ARRAY_FORMAT_TEX_UV2" value="32" enum="ArrayFormat">
-			Array format will include another set of UVs.
+			Mesh array contains second UV.
 		</constant>
 		<constant name="ARRAY_FORMAT_BONES" value="64" enum="ArrayFormat">
-			Array format will include bone indices.
+			Mesh array contains bones.
 		</constant>
 		<constant name="ARRAY_FORMAT_WEIGHTS" value="128" enum="ArrayFormat">
-			Array format will include bone weights.
+			Mesh array contains bone weights.
 		</constant>
 		<constant name="ARRAY_FORMAT_INDEX" value="256" enum="ArrayFormat">
-			Index array will be used.
+			Mesh array uses indices.
 		</constant>
 		<constant name="ARRAY_COMPRESS_BASE" value="9" enum="ArrayFormat">
+			Used internally to calculate other [code]ARRAY_COMPRESS_*[/code] enum values. Do not use.
 		</constant>
 		<constant name="ARRAY_COMPRESS_VERTEX" value="512" enum="ArrayFormat">
+			Flag used to mark a compressed (half float) vertex array.
 		</constant>
 		<constant name="ARRAY_COMPRESS_NORMAL" value="1024" enum="ArrayFormat">
+			Flag used to mark a compressed (half float) normal array.
 		</constant>
 		<constant name="ARRAY_COMPRESS_TANGENT" value="2048" enum="ArrayFormat">
+			Flag used to mark a compressed (half float) tangent array.
 		</constant>
 		<constant name="ARRAY_COMPRESS_COLOR" value="4096" enum="ArrayFormat">
+			Flag used to mark a compressed (half float) color array.
 		</constant>
 		<constant name="ARRAY_COMPRESS_TEX_UV" value="8192" enum="ArrayFormat">
+			Flag used to mark a compressed (half float) UV coordinates array.
 		</constant>
 		<constant name="ARRAY_COMPRESS_TEX_UV2" value="16384" enum="ArrayFormat">
+			Flag used to mark a compressed (half float) UV coordinates array for the second UV coordinates.
 		</constant>
 		<constant name="ARRAY_COMPRESS_BONES" value="32768" enum="ArrayFormat">
+			Flag used to mark a compressed bone array.
 		</constant>
 		<constant name="ARRAY_COMPRESS_WEIGHTS" value="65536" enum="ArrayFormat">
+			Flag used to mark a compressed (half float) weight array.
 		</constant>
 		<constant name="ARRAY_COMPRESS_INDEX" value="131072" enum="ArrayFormat">
+			Flag used to mark a compressed index array.
 		</constant>
 		<constant name="ARRAY_FLAG_USE_2D_VERTICES" value="262144" enum="ArrayFormat">
+			Flag used to mark that the array contains 2D vertices.
 		</constant>
 		<constant name="ARRAY_FLAG_USE_16_BIT_BONES" value="524288" enum="ArrayFormat">
+			Flag used to mark that the array uses 16-bit bones instead of 8-bit.
 		</constant>
 		<constant name="ARRAY_COMPRESS_DEFAULT" value="97280" enum="ArrayFormat">
+			Used to set flags [constant ARRAY_COMPRESS_VERTEX], [constant ARRAY_COMPRESS_NORMAL], [constant ARRAY_COMPRESS_TANGENT], [constant ARRAY_COMPRESS_COLOR], [constant ARRAY_COMPRESS_TEX_UV], [constant ARRAY_COMPRESS_TEX_UV2] and [constant ARRAY_COMPRESS_WEIGHTS] quickly.
 		</constant>
 		<constant name="ARRAY_VERTEX" value="0" enum="ArrayType">
-			[PoolVector3Array], [PoolVector2Array], or [Array] of vertex positions.
+			Array of vertices.
 		</constant>
 		<constant name="ARRAY_NORMAL" value="1" enum="ArrayType">
-			[PoolVector3Array] of vertex normals.
+			Array of normals.
 		</constant>
 		<constant name="ARRAY_TANGENT" value="2" enum="ArrayType">
-			[PoolRealArray] of vertex tangents. Each element in groups of 4 floats, first 3 floats determine the tangent, and the last the binormal direction as -1 or 1.
+			Array of tangents as an array of floats, 4 floats per tangent.
 		</constant>
 		<constant name="ARRAY_COLOR" value="3" enum="ArrayType">
-			[PoolColorArray] of vertex colors.
+			Array of colors.
 		</constant>
 		<constant name="ARRAY_TEX_UV" value="4" enum="ArrayType">
-			[PoolVector2Array] for UV coordinates.
+			Array of UV coordinates.
 		</constant>
 		<constant name="ARRAY_TEX_UV2" value="5" enum="ArrayType">
-			[PoolVector2Array] for second UV coordinates.
+			Array of second set of UV coordinates.
 		</constant>
 		<constant name="ARRAY_BONES" value="6" enum="ArrayType">
-			[PoolRealArray] or [PoolIntArray] of bone indices. Each element in groups of 4 floats.
+			Array of bone data.
 		</constant>
 		<constant name="ARRAY_WEIGHTS" value="7" enum="ArrayType">
-			[PoolRealArray] of bone weights. Each element in groups of 4 floats.
+			Array of weights.
 		</constant>
 		<constant name="ARRAY_INDEX" value="8" enum="ArrayType">
-			[PoolIntArray] of integers used as indices referencing vertices, colors, normals, tangents, and textures. All of those arrays must have the same number of elements as the vertex array. No index can be beyond the vertex array size. When this index array is present, it puts the function into "index mode," where the index selects the *i*'th vertex, normal, tangent, color, UV, etc. This means if you want to have different normals or colors along an edge, you have to duplicate the vertices.
-			For triangles, the index array is interpreted as triples, referring to the vertices of each triangle. For lines, the index array is in pairs indicating the start and end of each line.
+			Array of indices.
 		</constant>
 		<constant name="ARRAY_MAX" value="9" enum="ArrayType">
 			Represents the size of the [enum ArrayType] enum.

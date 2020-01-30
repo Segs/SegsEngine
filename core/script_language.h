@@ -274,7 +274,7 @@ public:
     virtual void get_comment_delimiters(ListPOD<String> *p_delimiters) const = 0;
     virtual void get_string_delimiters(ListPOD<String> *p_delimiters) const = 0;
     virtual Ref<Script> get_template(se_string_view p_class_name, se_string_view p_base_class_name) const = 0;
-    virtual void make_template(se_string_view /*p_class_name*/, se_string_view /*p_base_class_name*/, Ref<Script> & /*p_script*/) {}
+    virtual void make_template(se_string_view /*p_class_name*/, se_string_view /*p_base_class_name*/, const Ref<Script> & /*p_script*/) {}
     virtual bool is_using_templates() { return false; }
     virtual bool validate(se_string_view p_script, int &r_line_error, int &r_col_error, String &r_test_error,
             se_string_view p_path = {}, DefList<String> *r_functions = nullptr,

@@ -90,11 +90,7 @@ void DocDump::dump(se_string_view p_file) {
         StringName inherits = ClassDB::get_parent_class(name);
         if (!inherits.empty())
             header += String(" inherits=\"") + inherits + "\"";
-        StringName category = ClassDB::get_category(name);
-        if (category.empty())
-            category = "Core";
-        header += String(" category=\"") + category + "\"";
-        header += '>';
+
         _write_string(f, 0, header);
         _write_string(f, 1, "<brief_description>");
         _write_string(f, 1, "</brief_description>");

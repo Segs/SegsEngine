@@ -828,6 +828,7 @@ bool Tween::start() {
     // Are there any pending updates?
     if (pending_update != 0) {
         // Start the tweens after deferring
+        call_deferred("start");
         return true;
     }
 

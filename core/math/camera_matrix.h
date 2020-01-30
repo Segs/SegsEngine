@@ -86,7 +86,7 @@ struct GODOT_EXPORT CameraMatrix {
     Frustum get_projection_planes(const Transform &p_transform) const;
 
     bool get_endpoints(const Transform &p_transform, Vector3 *p_8points) const;
-    void get_viewport_size(real_t &r_width, real_t &r_height) const;
+    Vector2 get_viewport_half_extents() const;
 
     void invert();
     CameraMatrix inverse() const;

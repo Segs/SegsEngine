@@ -87,6 +87,7 @@ void _err_print_error(se_string_view p_function, se_string_view p_file, int p_li
 
 void _err_print_index_error(se_string_view p_function, se_string_view p_file, int p_line, int64_t p_index, int64_t p_size, se_string_view p_index_str, se_string_view p_size_str, se_string_view p_message, bool fatal) {
     String fstr(fatal ? "FATAL: " : "");
-    String err(fstr + "Index " + p_index_str + "=" + itos(p_index) + " out of size (" + p_size_str + "=" + itos(p_size) + ")");
+    String err(fstr + "Index " + p_index_str + " = " + itos(p_index) + " is out of bounds (" + p_size_str + " = " + itos(p_size) + ").");
+
     _err_print_error(p_function, p_file, p_line, err, p_message);
 }

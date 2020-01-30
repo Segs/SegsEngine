@@ -2,6 +2,7 @@ using GodotTools.Core;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
 using Microsoft.Build.Construction;
 
 namespace GodotTools.ProjectEditor
@@ -34,11 +35,11 @@ namespace GodotTools.ProjectEditor
             toolsGroup.AddProperty("WarningLevel", "4");
             toolsGroup.AddProperty("ConsolePause", "false");
 
-            var coreApiRef = root.AddItem("RefCounted", CoreApiProjectName);
+            var coreApiRef = root.AddItem("Reference", CoreApiProjectName);
             coreApiRef.AddMetadata("HintPath", Path.Combine("$(ProjectDir)", ".mono", "assemblies", "$(ApiConfiguration)", CoreApiProjectName + ".dll"));
             coreApiRef.AddMetadata("Private", "False");
 
-            var editorApiRef = root.AddItem("RefCounted", EditorApiProjectName);
+            var editorApiRef = root.AddItem("Reference", EditorApiProjectName);
             editorApiRef.Condition = " '$(Configuration)' == 'Tools' ";
             editorApiRef.AddMetadata("HintPath", Path.Combine("$(ProjectDir)", ".mono", "assemblies", "$(ApiConfiguration)", EditorApiProjectName + ".dll"));
             editorApiRef.AddMetadata("Private", "False");
@@ -99,7 +100,8 @@ namespace GodotTools.ProjectEditor
             mainGroup.AddProperty("OutputPath", Path.Combine("bin", "$(Configuration)"));
             mainGroup.AddProperty("RootNamespace", IdentifierUtils.SanitizeQualifiedIdentifier(name, allowEmptyIdentifiers: true));
             mainGroup.AddProperty("AssemblyName", name);
-            mainGroup.AddProperty("TargetFrameworkVersion", "v4.5");
+            mainGroup.AddProperty("TargetFrameworkVersion", "v4.7");
+            mainGroup.AddProperty("GodotProjectGeneratorVersion", Assembly.GetExecutingAssembly().GetName().Version.ToString());
 
             var debugGroup = root.AddPropertyGroup();
             debugGroup.Condition = " '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ";
@@ -122,7 +124,7 @@ namespace GodotTools.ProjectEditor
 
             // References
             var referenceGroup = root.AddItemGroup();
-            referenceGroup.AddItem("RefCounted", "System");
+            referenceGroup.AddItem("Reference", "System");
 
             root.AddImport(Path.Combine("$(MSBuildBinPath)", "Microsoft.CSharp.targets").Replace("/", "\\"));
 

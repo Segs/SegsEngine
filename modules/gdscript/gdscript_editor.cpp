@@ -122,7 +122,7 @@ bool GDScriptLanguage::is_using_templates() {
     return true;
 }
 
-void GDScriptLanguage::make_template(se_string_view p_class_name, se_string_view p_base_class_name, Ref<Script> &p_script) {
+void GDScriptLanguage::make_template(se_string_view p_class_name, se_string_view p_base_class_name, const Ref<Script> &p_script) {
 
     String _template(_get_processed_template(p_script->get_source_code(), p_base_class_name));
     p_script->set_source_code(_template);
@@ -344,7 +344,9 @@ void GDScriptLanguage::debug_get_stack_level_members(int p_level, ListPOD<String
 
 ScriptInstance *GDScriptLanguage::debug_get_stack_level_instance(int p_level) {
 
-    ERR_FAIL_COND_V(_debug_parse_err_line >= 0, nullptr)
+    if (_debug_parse_err_line >= 0)
+        return nullptr;
+
     ERR_FAIL_INDEX_V(p_level, _debug_call_stack_pos, nullptr)
 
     int l = _debug_call_stack_pos - p_level - 1;
@@ -562,7 +564,7 @@ static String _get_visual_datatype(const PropertyInfo &p_info, bool p_isarg = tr
     }
     if (p_info.type == VariantType::NIL) {
         if (p_isarg || (p_info.usage & PROPERTY_USAGE_NIL_IS_VARIANT)) {
-            return "var";
+            return "Variant";
         } else {
             return "void";
         }
@@ -1740,14 +1742,12 @@ static String _make_arguments_hint(const MethodInfo &p_info, int p_arg_idx) {
     for (const PropertyInfo &E : p_info.arguments) {
         if (i > 0) {
             arghint += (", ");
-        } else {
-            arghint += (" ");
         }
 
         if (i == p_arg_idx) {
             arghint.append(cursor_bytes);
         }
-        arghint += _get_visual_datatype(E, true) + " " + E.name.asCString();
+        arghint += E.name + ": " + _get_visual_datatype(E, true);
 
         if (i - def_args >= 0) {
             arghint += (" = ") + p_info.default_arguments[i - def_args].get_construct_string();
@@ -1763,9 +1763,8 @@ static String _make_arguments_hint(const MethodInfo &p_info, int p_arg_idx) {
     if (p_info.flags & METHOD_FLAG_VARARG) {
         if (!p_info.arguments.empty()) {
             arghint += (", ");
-        } else {
-            arghint += (" ");
         }
+
         if (p_arg_idx >= int(p_info.arguments.size())) {
             arghint.append(cursor_bytes);
         }
@@ -1773,9 +1772,6 @@ static String _make_arguments_hint(const MethodInfo &p_info, int p_arg_idx) {
         if (p_arg_idx >= int(p_info.arguments.size())) {
             arghint.append(cursor_bytes);
         }
-    }
-    if (!p_info.arguments.empty() || (p_info.flags & METHOD_FLAG_VARARG)) {
-        arghint += ' ';
     }
 
     arghint += ')';
@@ -1791,14 +1787,12 @@ static String _make_arguments_hint(const GDScriptParser::FunctionNode *p_functio
     for (int i = 0; i < p_function->arguments.size(); i++) {
         if (i > 0) {
             arghint += (", ");
-        } else {
-            arghint += (" ");
         }
 
         if (i == p_arg_idx) {
             arghint.append(cursor_loc);
         }
-        arghint += p_function->argument_types[i].to_string() + " " + p_function->arguments[i].asCString();
+        arghint += String(p_function->arguments[i]) + ": " + p_function->argument_types[i].to_string();
 
         if (i - def_args >= 0) {
             String def_val("<unknown>");
@@ -1822,9 +1816,6 @@ static String _make_arguments_hint(const GDScriptParser::FunctionNode *p_functio
         }
     }
 
-    if (!p_function->arguments.empty()) {
-        arghint += ' ';
-    }
     arghint += ')';
 
     return arghint;

@@ -2457,9 +2457,9 @@ void Control::_window_find_focus_neighbour(const Vector2 &p_dir, Node *p_at, con
         Transform2D xform = c->get_global_transform();
 
         points[0] = xform.xform(Point2());
-        points[1] = xform.xform(Point2(get_size().x, 0));
-        points[2] = xform.xform(get_size());
-        points[3] = xform.xform(Point2(0, get_size().y));
+        points[1] = xform.xform(Point2(c->get_size().x, 0));
+        points[2] = xform.xform(c->get_size());
+        points[3] = xform.xform(Point2(0, c->get_size().y));
 
         float min = 1e7;
 
@@ -2664,6 +2664,12 @@ Vector2 Control::get_pivot_offset() const {
 void Control::set_scale(const Vector2 &p_scale) {
 
     data.scale = p_scale;
+    // Avoid having 0 scale values, can lead to errors in physics and rendering.
+    if (data.scale.x == 0)
+        data.scale.x = CMP_EPSILON;
+    if (data.scale.y == 0)
+        data.scale.y = CMP_EPSILON;
+
     update();
     _notify_transform();
 }

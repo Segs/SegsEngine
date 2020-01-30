@@ -506,22 +506,23 @@ void NetworkedMultiplayerENet::disconnect_peer(int p_peer, bool now) {
     ERR_FAIL_COND(!D(private_data)->peer_map.contains(p_peer))
 
     if (now) {
+        int *id = (int *)D(private_data)->peer_map[p_peer]->data;
         enet_peer_disconnect_now(D(private_data)->peer_map[p_peer], 0);
 
         // enet_peer_disconnect_now doesn't generate ENET_EVENT_TYPE_DISCONNECT,
         // notify everyone else, send disconnect signal & remove from peer_map like in poll()
-        int *id = nullptr;
-        for (eastl::pair<const int,ENetPeer *> &E : D(private_data)->peer_map) {
+        if (server_relay) {
+            for (const auto & peer_pair : D(private_data)->peer_map) {
 
-            if (E.first == p_peer) {
-                id = (int *)(E.second->data);
-                continue;
+                if (peer_pair.first == p_peer) {
+                    continue;
+                }
+
+                ENetPacket *packet = enet_packet_create(NULL, 8, ENET_PACKET_FLAG_RELIABLE);
+                encode_uint32(SYSMSG_REMOVE_PEER, &packet->data[0]);
+                encode_uint32(p_peer, &packet->data[4]);
+                enet_peer_send(peer_pair.second, SYSCH_CONFIG, packet);
             }
-
-            ENetPacket *packet = enet_packet_create(nullptr, 8, ENET_PACKET_FLAG_RELIABLE);
-            encode_uint32(SYSMSG_REMOVE_PEER, &packet->data[0]);
-            encode_uint32(p_peer, &packet->data[4]);
-            enet_peer_send(E.second, SYSCH_CONFIG, packet);
         }
         if (id)
             memdelete(id);

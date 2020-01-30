@@ -38,6 +38,7 @@ IMPL_GDCLASS(WebSocketServer)
 
 WebSocketServer::WebSocketServer() {
     _peer_id = 1;
+    bind_ip = IP_Address("*");
 }
 
 WebSocketServer::~WebSocketServer() {
@@ -52,6 +53,10 @@ void WebSocketServer::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_peer_address", {"id"}), &WebSocketServer::get_peer_address);
     MethodBinder::bind_method(D_METHOD("get_peer_port", {"id"}), &WebSocketServer::get_peer_port);
     MethodBinder::bind_method(D_METHOD("disconnect_peer", {"id", "code", "reason"}), &WebSocketServer::disconnect_peer, {DEFVAL(1000), DEFVAL("")});
+
+    MethodBinder::bind_method(D_METHOD("get_bind_ip"), &WebSocketServer::get_bind_ip);
+    MethodBinder::bind_method(D_METHOD("set_bind_ip"), &WebSocketServer::set_bind_ip);
+    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "bind_ip"), "set_bind_ip", "get_bind_ip");
 
     MethodBinder::bind_method(D_METHOD("get_private_key"), &WebSocketServer::get_private_key);
     MethodBinder::bind_method(D_METHOD("set_private_key"), &WebSocketServer::set_private_key);
@@ -70,6 +75,17 @@ void WebSocketServer::_bind_methods() {
     ADD_SIGNAL(MethodInfo("client_connected", PropertyInfo(VariantType::INT, "id"), PropertyInfo(VariantType::STRING, "protocol")));
     ADD_SIGNAL(MethodInfo("data_received", PropertyInfo(VariantType::INT, "id")));
 }
+
+IP_Address WebSocketServer::get_bind_ip() const {
+    return bind_ip;
+}
+
+void WebSocketServer::set_bind_ip(const IP_Address &p_bind_ip) {
+    ERR_FAIL_COND(is_listening());
+    ERR_FAIL_COND(!p_bind_ip.is_valid() && !p_bind_ip.is_wildcard());
+    bind_ip = p_bind_ip;
+}
+
 Ref<CryptoKey> WebSocketServer::get_private_key() const {
     return private_key;
 }
@@ -101,7 +117,7 @@ NetworkedMultiplayerPeer::ConnectionStatus WebSocketServer::get_connection_statu
         return CONNECTION_CONNECTED;
 
     return CONNECTION_DISCONNECTED;
-};
+}
 
 bool WebSocketServer::is_server() const {
 

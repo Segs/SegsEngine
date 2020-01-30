@@ -77,7 +77,7 @@ public:
     bool is_initialized() const { return _initialized; }
 
     void poll();
-    Error start(int p_port);
+    Error start(int p_port, const IP_Address &p_bind_ip);
     void stop();
 
     void notify_all_clients(se_string_view p_method, const Variant &p_params = Variant());

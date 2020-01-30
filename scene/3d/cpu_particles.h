@@ -79,6 +79,7 @@ public:
         EMISSION_SHAPE_BOX,
         EMISSION_SHAPE_POINTS,
         EMISSION_SHAPE_DIRECTED_POINTS,
+        EMISSION_SHAPE_MAX,
     };
 
 private:

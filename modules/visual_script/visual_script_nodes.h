@@ -627,7 +627,7 @@ class VisualScriptEngineSingleton : public VisualScriptNode {
     StringName singleton;
 
     static void _bind_methods();
-
+    void _validate_property(PropertyInfo &property) const override;
 public:
     int get_output_sequence_port_count() const override;
     bool has_input_sequence_port() const override;

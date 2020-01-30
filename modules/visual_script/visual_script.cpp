@@ -2475,7 +2475,7 @@ bool VisualScriptLanguage::is_using_templates() {
     return true;
 }
 
-void VisualScriptLanguage::make_template(se_string_view p_class_name, se_string_view p_base_class_name, Ref<Script> &p_script) {
+void VisualScriptLanguage::make_template(se_string_view p_class_name, se_string_view p_base_class_name, const Ref<Script> &p_script) {
     Ref<VisualScript> script = dynamic_ref_cast<VisualScript>(p_script);
     script->set_instance_base_type(StringName(p_base_class_name));
 }

@@ -109,6 +109,7 @@ public:
     WriteMode get_write_mode() const override;
     void set_write_mode(WriteMode p_mode) override;
     bool was_string_packet() const override;
+    void set_no_delay(bool p_enabled) override;
 
     void make_context(PeerData *p_data, unsigned int p_in_buf_size, unsigned int p_in_pkt_size, unsigned int p_out_buf_size, unsigned int p_out_pkt_size);
     Error parse_message(const wslay_event_on_msg_recv_arg *arg);

@@ -858,10 +858,10 @@ EditorPropertyLayers::EditorPropertyLayers() {
 
 ///////////////////// INT /////////////////////////
 
-void EditorPropertyInteger::_value_changed(double val) {
+void EditorPropertyInteger::_value_changed(int64_t val) {
     if (setting)
         return;
-    emit_changed(get_edited_property(), (int64_t)val);
+    emit_changed(get_edited_property(), val);
 }
 
 void EditorPropertyInteger::update_property() {
@@ -869,6 +869,12 @@ void EditorPropertyInteger::update_property() {
     setting = true;
     spin->set_value(val);
     setting = false;
+#ifdef DEBUG_ENABLED
+    // If spin (currently EditorSplinSlider : Range) is changed so that it can use int64_t, then the below warning wouldn't be a problem.
+    if (val != (int64_t)(double)(val)) {
+        WARN_PRINT("Cannot reliably represent '" + itos(val) + "' in the inspector, value is too large.");
+    }
+#endif
 }
 
 void EditorPropertyInteger::_bind_methods() {
@@ -876,7 +882,7 @@ void EditorPropertyInteger::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("_value_changed"), &EditorPropertyInteger::_value_changed);
 }
 
-void EditorPropertyInteger::setup(int p_min, int p_max, int p_step, bool p_allow_greater, bool p_allow_lesser) {
+void EditorPropertyInteger::setup(int64_t p_min, int64_t p_max, int64_t p_step, bool p_allow_greater, bool p_allow_lesser) {
     spin->set_min(p_min);
     spin->set_max(p_max);
     spin->set_step(p_step);
