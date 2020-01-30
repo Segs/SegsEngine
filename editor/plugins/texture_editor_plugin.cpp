@@ -106,9 +106,9 @@ void TextureEditor::_notification(int p_what) {
         if (draw_from.x < 0)
             draw_from.x = 0;
 
-        draw_string_utf8(font, draw_from + Vector2(2, 2), text, Color(0, 0, 0, 0.5f), size.width);
-        draw_string_utf8(font, draw_from - Vector2(2, 2), text, Color(0, 0, 0, 0.5f), size.width);
-        draw_string_utf8(font, draw_from, text, Color(1, 1, 1, 1), size.width);
+        draw_string(font, draw_from + Vector2(2, 2), text, Color(0, 0, 0, 0.5f), size.width);
+        draw_string(font, draw_from - Vector2(2, 2), text, Color(0, 0, 0, 0.5f), size.width);
+        draw_string(font, draw_from, text, Color(1, 1, 1, 1), size.width);
     }
 }
 

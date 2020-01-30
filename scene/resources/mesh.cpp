@@ -153,18 +153,12 @@ void Mesh::generate_debug_mesh_lines(PODVector<Vector3> &r_lines) {
 
     r_lines = debug_lines;
 }
-void Mesh::generate_debug_mesh_indices(Vector<Vector3> &r_points) {
+void Mesh::generate_debug_mesh_indices(PoolVector<Vector3> &r_points) {
     Ref<TriangleMesh> tm = generate_triangle_mesh();
     if (not tm)
         return;
 
-    PoolVector<Vector3> vertices = tm->get_vertices();
-
-    int vertices_size = vertices.size();
-    r_points.resize(vertices_size);
-    for (int i = 0; i < vertices_size; ++i) {
-        r_points.write[i] = vertices[i];
-    }
+    r_points = tm->get_vertices();
 }
 
 bool Mesh::surface_is_softbody_friendly(int p_idx) const {

@@ -715,7 +715,7 @@ public:
 
             Vector<Point2> triangles;
             Vector<Color> triangle_colors;
-            Vector<Point2> lines;
+            PoolVector<Point2> lines;
             Vector<Color> line_colors;
             bool antialiased;
             bool multiline;

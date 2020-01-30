@@ -246,7 +246,7 @@ void GraphNode::_notification(int p_what) {
             if (show_close)
                 w -= close->get_width();
 
-            draw_string_utf8(title_font,
+            draw_string(title_font,
                     Point2(sb->get_margin(Margin::Left) + title_h_offset,
                             -title_font->get_height() + title_font->get_ascent() + title_offset),
                     title, title_color, w);

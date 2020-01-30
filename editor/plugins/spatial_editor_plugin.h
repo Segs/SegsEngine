@@ -104,8 +104,6 @@ public:
     bool valid;
     bool hidden;
 
-    void _set_spatial_node(Node *p_node) { set_spatial_node(object_cast<Spatial>(p_node)); }
-
 protected:
     static void _bind_methods();
 
@@ -115,7 +113,7 @@ public:
     void add_collision_segments(const PODVector<Vector3> &p_lines);
     void add_collision_triangles(const Ref<TriangleMesh> &p_tmesh);
     void add_unscaled_billboard(const Ref<Material> &p_material, float p_scale = 1, const Color &p_modulate = Color(1, 1, 1));
-    void add_handles(const Vector<Vector3> &p_handles, const Ref<Material> &p_material, bool p_billboard = false, bool p_secondary = false);
+    void add_handles(const PoolVector<Vector3> &p_handles, const Ref<Material> &p_material, bool p_billboard = false, bool p_secondary = false);
     void add_solid_box(Ref<Material> &p_material, Vector3 p_size, Vector3 p_position = Vector3());
 
     virtual bool is_handle_highlighted(int p_idx) const;
@@ -124,6 +122,7 @@ public:
     virtual void set_handle(int p_idx, Camera *p_camera, const Point2 &p_point);
     virtual void commit_handle(int p_idx, const Variant &p_restore, bool p_cancel = false);
 
+    void set_spatial_node(Node *p_node) { set_spatial_node(object_cast<Spatial>(p_node)); }
     void set_spatial_node(Spatial *p_node);
     Spatial *get_spatial_node() const { return spatial_node; }
     Ref<EditorSpatialGizmoPlugin> get_plugin() const { return Ref<EditorSpatialGizmoPlugin>(gizmo_plugin); }

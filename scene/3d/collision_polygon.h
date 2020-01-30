@@ -41,7 +41,7 @@ class CollisionPolygon : public Spatial {
 
 protected:
     AABB aabb;
-    Vector<Point2> polygon;
+    PODVector<Vector2> polygon;
 	float depth;
 
 	uint32_t owner_id;
@@ -63,8 +63,8 @@ public:
 	void set_depth(float p_depth);
 	float get_depth() const;
 
-	void set_polygon(const Vector<Point2> &p_polygon);
-	Vector<Point2> get_polygon() const;
+    void set_polygon(const PODVector<Vector2> &p_polygon);
+    const PODVector<Vector2> &get_polygon() const;
 
 	void set_disabled(bool p_disabled);
 	bool is_disabled() const;

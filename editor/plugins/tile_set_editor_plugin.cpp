@@ -1172,7 +1172,7 @@ void TileSetEditor::_on_workspace_overlay_draw() {
             workspace_overlay->draw_rect(region, c);
             region.position.y += region.size.y - 2;
             c = Color(0.1f, 0.1f, 0.1f);
-            workspace_overlay->draw_string(font, region.position, tile_id_name, c);
+            workspace_overlay->draw_ui_string(font, region.position, tile_id_name, c);
         }
         delete tiles;
     }

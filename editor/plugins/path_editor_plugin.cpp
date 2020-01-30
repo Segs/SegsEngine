@@ -258,8 +258,8 @@ void PathSpatialGizmo::redraw() {
 
     if (PathEditorPlugin::singleton->get_edited_path() == path) {
         v3p.clear();
-        Vector<Vector3> handles;
-        Vector<Vector3> sec_handles;
+        PoolVector<Vector3> handles;
+        PoolVector<Vector3> sec_handles;
 
         for (int i = 0; i < c->get_point_count(); i++) {
 

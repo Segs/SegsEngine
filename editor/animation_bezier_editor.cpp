@@ -310,7 +310,7 @@ void AnimationBezierTrackEdit::_notification(int p_what) {
 
                 Vector2 string_pos = Point2(ofs, vofs + (h - font->get_height()) / 2 + font->get_ascent());
                 string_pos = string_pos.floor();
-                draw_string_utf8(font, string_pos, text, color, limit - ofs - hsep);
+                draw_string(font, string_pos, text, color, limit - ofs - hsep);
 
                 vofs += h + vsep;
             }
@@ -350,7 +350,7 @@ void AnimationBezierTrackEdit::_notification(int p_what) {
                 ac.a = 0.5;
                 draw_rect(rect, ac);
             }
-            draw_string_utf8(font, Point2(margin, vofs + font->get_ascent()), path, cc, limit - margin - hsep);
+            draw_string(font, Point2(margin, vofs + font->get_ascent()), path, cc, limit - margin - hsep);
 
             vofs += font->get_height() + vsep;
         }
@@ -386,7 +386,7 @@ void AnimationBezierTrackEdit::_notification(int p_what) {
                     draw_line(Point2(limit, i), Point2(right_limit, i), lc);
                     Color c = color;
                     c.a *= 0.5f;
-                    draw_string_utf8(font, Point2(limit + 8, i - 2), rtos(Math::stepify((iv + 1) * scale, step)), c);
+                    draw_string(font, Point2(limit + 8, i - 2), rtos(Math::stepify((iv + 1) * scale, step)), c);
                 }
 
                 first = false;
@@ -461,8 +461,8 @@ void AnimationBezierTrackEdit::_notification(int p_what) {
                     ep.point_rect.size = bezier_icon->get_size();
                     if (selection.contains(i)) {
                         draw_texture(selected_icon, ep.point_rect.position);
-                        draw_string_utf8(font, ep.point_rect.position + Vector2(8, -font->get_height() - 4), TTR("Time:") + " " + rtos(Math::stepify(offset, 0.001f)), accent);
-                        draw_string_utf8(font, ep.point_rect.position + Vector2(8, -8), TTR("Value:") + " " + rtos(Math::stepify(value, 0.001f)), accent);
+                        draw_string(font, ep.point_rect.position + Vector2(8, -font->get_height() - 4), TTR("Time:") + " " + rtos(Math::stepify(offset, 0.001f)), accent);
+                        draw_string(font, ep.point_rect.position + Vector2(8, -8), TTR("Value:") + " " + rtos(Math::stepify(value, 0.001f)), accent);
                     } else {
                         draw_texture(bezier_icon, ep.point_rect.position);
                     }

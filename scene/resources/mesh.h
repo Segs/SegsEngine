@@ -136,7 +136,7 @@ public:
     PoolVector<Face3> get_faces() const;
     Ref<TriangleMesh> generate_triangle_mesh() const;
     void generate_debug_mesh_lines(PODVector<Vector3> &r_lines);
-    void generate_debug_mesh_indices(Vector<Vector3> &r_points);
+    void generate_debug_mesh_indices(PoolVector<Vector3> &r_points);
 
     Ref<Shape> create_trimesh_shape() const;
     Ref<Shape> create_convex_shape() const;

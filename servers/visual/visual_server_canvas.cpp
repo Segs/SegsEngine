@@ -489,7 +489,7 @@ void VisualServerCanvas::canvas_item_add_line(RID p_item, const Point2 &p_from, 
     canvas_item->commands.push_back(line);
 }
 
-void VisualServerCanvas::canvas_item_add_polyline(RID p_item, const Vector<Point2> &p_points, const Vector<Color> &p_colors, float p_width, bool p_antialiased) {
+void VisualServerCanvas::canvas_item_add_polyline(RID p_item, const PoolVector<Point2> &p_points, const Vector<Color> &p_colors, float p_width, bool p_antialiased) {
 
     ERR_FAIL_COND(p_points.size() < 2)
     Item *canvas_item = canvas_item_owner.getornull(p_item);
@@ -534,7 +534,7 @@ void VisualServerCanvas::canvas_item_add_polyline(RID p_item, const Vector<Point
                 pline->line_colors.resize(pline->lines.size());
             }
         }
-
+        auto linewrite = pline->lines.write();
         for (int i = 0; i < p_points.size(); i++) {
 
             Vector2 t;
@@ -550,8 +550,8 @@ void VisualServerCanvas::canvas_item_add_polyline(RID p_item, const Vector<Point
             Vector2 tangent = ((t + prev_t).normalized()) * p_width * 0.5;
 
             if (p_antialiased) {
-                pline->lines.write[i] = p_points[i] + tangent;
-                pline->lines.write[p_points.size() * 2 - i - 1] = p_points[i] - tangent;
+                linewrite[i] = p_points[i] + tangent;
+                linewrite[p_points.size() * 2 - i - 1] = p_points[i] - tangent;
                 if (pline->line_colors.size() > 1) {
                     pline->line_colors.write[i] = p_colors[i];
                     pline->line_colors.write[p_points.size() * 2 - i - 1] = p_colors[i];

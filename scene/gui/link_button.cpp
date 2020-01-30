@@ -114,7 +114,7 @@ void LinkButton::_notification(int p_what) {
 
             Ref<Font> font = get_font("font");
 
-            draw_string_utf8(font, Vector2(0, font->get_ascent()), text, color);
+            draw_string(font, Vector2(0, font->get_ascent()), text, color);
 
             if (do_underline) {
                 int underline_spacing = get_constant("underline_spacing");

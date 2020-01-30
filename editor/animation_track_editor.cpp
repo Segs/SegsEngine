@@ -1650,7 +1650,7 @@ void AnimationTimelineEdit::_notification(int p_what) {
 
                         draw_line(Point2(get_name_limit() + i, 0), Point2(get_name_limit() + i, h), linecolor, Math::round(EDSCALE));
                         UIString num(UIString::number(frame));
-                        draw_string(font, Point2(get_name_limit() + i + 3 * EDSCALE, (h - font->get_height()) / 2 + font->get_ascent()).floor(), num, sub ? color_time_dec : color_time_sec, zoomw - i);
+                        draw_ui_string(font, Point2(get_name_limit() + i + 3 * EDSCALE, (h - font->get_height()) / 2 + font->get_ascent()).floor(), num, sub ? color_time_dec : color_time_sec, zoomw - i);
                         prev_frame_ofs = i + font->get_string_size(num).x + 5 * EDSCALE;
                     }
                 }
@@ -1670,7 +1670,7 @@ void AnimationTimelineEdit::_notification(int p_what) {
 
                     int scd = sc < 0 ? prev_sc : sc;
                     draw_line(Point2(get_name_limit() + i, 0), Point2(get_name_limit() + i, h), linecolor, Math::round(EDSCALE));
-                    draw_string_utf8(font, Point2(get_name_limit() + i + 3, (h - font->get_height()) / 2 + font->get_ascent()).floor(),
+                    draw_string(font, Point2(get_name_limit() + i + 3, (h - font->get_height()) / 2 + font->get_ascent()).floor(),
                             StringUtils::num((scd - scd % step) / double(SC_ADJ), decimals),
                                 sub ? color_time_dec : color_time_sec, zoomw - i);
                 }
@@ -2022,7 +2022,7 @@ void AnimationTrackEdit::_notification(int p_what) {
 
             Vector2 string_pos = Point2(ofs, (get_size().height - font->get_height()) / 2 + font->get_ascent());
             string_pos = string_pos.floor();
-            draw_string(font, string_pos, StringUtils::from_utf8(text), text_color, limit - ofs - hsep);
+            draw_ui_string(font, string_pos, StringUtils::from_utf8(text), text_color, limit - ofs - hsep);
 
             draw_line(Point2(limit, 0), Point2(limit, get_size().height), linecolor, Math::round(EDSCALE));
         }
@@ -2322,7 +2322,7 @@ void AnimationTrackEdit::draw_key(int p_index, float p_pixels_sec, int p_x, bool
 
         int limit = MAX(0, p_clip_right - p_x - icon_to_draw->get_width());
         if (limit > 0) {
-            draw_string_utf8(font, Vector2(p_x + icon_to_draw->get_width(), int(get_size().height - font->get_height()) / 2 + font->get_ascent()), text, color, limit);
+            draw_string(font, Vector2(p_x + icon_to_draw->get_width(), int(get_size().height - font->get_height()) / 2 + font->get_ascent()), text, color, limit);
         }
     }
 
@@ -3201,7 +3201,7 @@ void AnimationTrackEditGroup::_notification(int p_what) {
         int ofs = 0;
         draw_texture(icon, Point2(ofs, int(get_size().height - icon->get_height()) / 2));
         ofs += separation + icon->get_width();
-        draw_string(font, Point2(ofs, int(get_size().height - font->get_height()) / 2 + font->get_ascent()), node_name, color, timeline->get_name_limit() - ofs);
+        draw_ui_string(font, Point2(ofs, int(get_size().height - font->get_height()) / 2 + font->get_ascent()), node_name, color, timeline->get_name_limit() - ofs);
 
         int px = (-timeline->get_value() + timeline->get_play_position()) * timeline->get_zoom_scale() + timeline->get_name_limit();
 

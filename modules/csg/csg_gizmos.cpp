@@ -392,7 +392,7 @@ void CSGShapeSpatialGizmoPlugin::redraw(EditorSpatialGizmo *p_gizmo) {
         CSGSphere *s = object_cast<CSGSphere>(cs);
 
         float r = s->get_radius();
-        Vector<Vector3> handles;
+        PoolVector<Vector3> handles;
         handles.push_back(Vector3(r, 0, 0));
         p_gizmo->add_handles(handles, handles_material);
     }
@@ -400,7 +400,7 @@ void CSGShapeSpatialGizmoPlugin::redraw(EditorSpatialGizmo *p_gizmo) {
     if (object_cast<CSGBox>(cs)) {
         CSGBox *s = object_cast<CSGBox>(cs);
 
-        Vector<Vector3> handles;
+        PoolVector<Vector3> handles;
         handles.push_back(Vector3(s->get_width() * 0.5f, 0, 0));
         handles.push_back(Vector3(0, s->get_height() * 0.5f, 0));
         handles.push_back(Vector3(0, 0, s->get_depth() * 0.5f));
@@ -410,7 +410,7 @@ void CSGShapeSpatialGizmoPlugin::redraw(EditorSpatialGizmo *p_gizmo) {
     if (object_cast<CSGCylinder>(cs)) {
         CSGCylinder *s = object_cast<CSGCylinder>(cs);
 
-        Vector<Vector3> handles;
+        PoolVector<Vector3> handles;
         handles.push_back(Vector3(s->get_radius(), 0, 0));
         handles.push_back(Vector3(0, s->get_height() * 0.5f, 0));
         p_gizmo->add_handles(handles, handles_material);
@@ -419,7 +419,7 @@ void CSGShapeSpatialGizmoPlugin::redraw(EditorSpatialGizmo *p_gizmo) {
     if (object_cast<CSGTorus>(cs)) {
         CSGTorus *s = object_cast<CSGTorus>(cs);
 
-        Vector<Vector3> handles;
+        PoolVector<Vector3> handles;
         handles.push_back(Vector3(s->get_inner_radius(), 0, 0));
         handles.push_back(Vector3(s->get_outer_radius(), 0, 0));
         p_gizmo->add_handles(handles, handles_material);

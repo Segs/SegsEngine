@@ -670,11 +670,11 @@ void CurveEditor::_draw() {
         // X axis
         float y = curve.get_min_value();
         Vector2 off(0, font_height - 1);
-        draw_string_utf8(font, get_view_pos(Vector2(0, y)) + off, "0.0", text_color);
-        draw_string_utf8(font, get_view_pos(Vector2(0.25f, y)) + off, "0.25", text_color);
-        draw_string_utf8(font, get_view_pos(Vector2(0.5f, y)) + off, "0.5", text_color);
-        draw_string_utf8(font, get_view_pos(Vector2(0.75f, y)) + off, "0.75", text_color);
-        draw_string_utf8(font, get_view_pos(Vector2(1, y)) + off, "1.0", text_color);
+        draw_string(font, get_view_pos(Vector2(0, y)) + off, "0.0", text_color);
+        draw_string(font, get_view_pos(Vector2(0.25f, y)) + off, "0.25", text_color);
+        draw_string(font, get_view_pos(Vector2(0.5f, y)) + off, "0.5", text_color);
+        draw_string(font, get_view_pos(Vector2(0.75f, y)) + off, "0.75", text_color);
+        draw_string(font, get_view_pos(Vector2(1, y)) + off, "1.0", text_color);
     }
 
     {
@@ -683,9 +683,9 @@ void CurveEditor::_draw() {
         float m1 = 0.5f * (curve.get_min_value() + curve.get_max_value());
         float m2 = curve.get_max_value();
         Vector2 off(1, -1);
-        draw_string_utf8(font, get_view_pos(Vector2(0, m0)) + off, StringUtils::num(m0, 2), text_color);
-        draw_string_utf8(font, get_view_pos(Vector2(0, m1)) + off, StringUtils::num(m1, 2), text_color);
-        draw_string_utf8(font, get_view_pos(Vector2(0, m2)) + off, StringUtils::num(m2, 3), text_color);
+        draw_string(font, get_view_pos(Vector2(0, m0)) + off, StringUtils::num(m0, 2), text_color);
+        draw_string(font, get_view_pos(Vector2(0, m1)) + off, StringUtils::num(m1, 2), text_color);
+        draw_string(font, get_view_pos(Vector2(0, m2)) + off, StringUtils::num(m2, 3), text_color);
     }
 
     // Draw tangents for current point
@@ -746,10 +746,10 @@ void CurveEditor::_draw() {
 
     if (_selected_point > 0 && _selected_point + 1 < curve.get_point_count()) {
         text_color.a *= 0.4f;
-        draw_string_utf8(font, Vector2(50, font_height), TTR("Hold Shift to edit tangents individually"), text_color);
+        draw_string(font, Vector2(50, font_height), TTR("Hold Shift to edit tangents individually"), text_color);
     } else if (curve.get_point_count() == 0) {
         text_color.a *= 0.4f;
-        draw_string_utf8(font, Vector2(50, font_height), TTR("Right click to add point"), text_color);
+        draw_string(font, Vector2(50, font_height), TTR("Right click to add point"), text_color);
     }
 }
 
