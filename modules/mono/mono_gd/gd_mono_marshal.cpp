@@ -1018,6 +1018,17 @@ PoolIntArray mono_array_to_PoolIntArray(MonoArray *p_array) {
 
     return ret;
 }
+PODVector<int> mono_array_to_NC_VecInt(MonoArray* p_array) {
+    PODVector<int> ret;
+    if (!p_array)
+        return ret;
+    int length = mono_array_length(p_array);
+    ret.reserve(length);
+    for (int i = 0; i < length; i++) {
+        ret.push_back(mono_array_get(p_array, int32_t, i));
+    }
+    return ret;
+}
 
 MonoArray *PoolByteArray_to_mono_array(const PoolByteArray &p_array) {
     PoolByteArray::Read r = p_array.read();
@@ -1045,7 +1056,18 @@ PoolByteArray mono_array_to_PoolByteArray(MonoArray *p_array) {
 
     return ret;
 }
+PODVector<uint8_t> mono_array_to_NC_VecByte(MonoArray* p_array) {
+    PODVector<uint8_t> ret;
+    if (!p_array)
+        return ret;
+    ret.reserve(mono_array_length(p_array));
 
+    for (int i = 0; i < mono_array_length(p_array); i++) {
+        ret.emplace_back(mono_array_get(p_array, uint8_t, i));
+    }
+
+    return ret;
+}
 MonoArray *PoolRealArray_to_mono_array(const PoolRealArray &p_array) {
     PoolRealArray::Read r = p_array.read();
 
@@ -1174,7 +1196,19 @@ PoolVector2Array mono_array_to_PoolVector2Array(MonoArray *p_array) {
 
     return ret;
 }
+PODVector<Vector2> mono_array_to_NC_VecVector2(MonoArray* p_array) {
+    PODVector<Vector2> ret;
+    if (!p_array)
+        return ret;
+    int length = mono_array_length(p_array);
+    ret.reserve(length);
 
+    for (int i = 0; i < length; i++) {
+        ret.emplace_back(MARSHALLED_IN(Vector2, (M_Vector2*)mono_array_addr_with_size(p_array, sizeof(M_Vector2), i)));
+    }
+
+    return ret;
+}
 MonoArray *PoolVector3Array_to_mono_array(const PoolVector3Array &p_array) {
     PoolVector3Array::Read r = p_array.read();
 

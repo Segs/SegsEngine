@@ -1172,9 +1172,9 @@ void ScriptEditorDebugger::_performance_draw() {
         c.set_hsv(Math::fmod(h + 0.4f, 0.9f), c.get_s() * 0.9f, c.get_v() * value_multiplier);
 
         c.a = 0.6f;
-        perf_draw->draw_string_utf8(graph_font, r.position + Point2(0, graph_font->get_ascent()), perf_items[pi]->get_text(0), c, r.size.x);
+        perf_draw->draw_string(graph_font, r.position + Point2(0, graph_font->get_ascent()), perf_items[pi]->get_text(0), c, r.size.x);
         c.a = 0.9f;
-        perf_draw->draw_string_utf8(graph_font, r.position + Point2(0, graph_font->get_ascent() + graph_font->get_height()), perf_items[pi]->get_text(1), c, r.size.y);
+        perf_draw->draw_string(graph_font, r.position + Point2(0, graph_font->get_ascent() + graph_font->get_height()), perf_items[pi]->get_text(1), c, r.size.y);
 
         float spacing = point_sep / float(cols);
         float from = r.size.width;

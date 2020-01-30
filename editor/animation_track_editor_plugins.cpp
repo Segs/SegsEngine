@@ -692,7 +692,7 @@ void AnimationTrackEditSubAnim::draw_key(int p_index, float p_pixels_sec, int p_
 
         int limit = to_x - from_x - 4;
         if (limit > 0) {
-            draw_string_utf8(font, Point2(from_x + 2, int(get_size().height - font->get_height()) / 2 + font->get_ascent()), anim, color);
+            draw_string(font, Point2(from_x + 2, int(get_size().height - font->get_height()) / 2 + font->get_ascent()), anim, color);
         }
 
         if (p_selected) {
@@ -1275,7 +1275,7 @@ void AnimationTrackEditTypeAnimation::draw_key(int p_index, float p_pixels_sec, 
 
         int limit = to_x - from_x - 4;
         if (limit > 0) {
-            draw_string_utf8(font, Point2(from_x + 2, int(get_size().height - font->get_height()) / 2 + font->get_ascent()), anim, color);
+            draw_string(font, Point2(from_x + 2, int(get_size().height - font->get_height()) / 2 + font->get_ascent()), anim, color);
         }
 
         if (p_selected) {

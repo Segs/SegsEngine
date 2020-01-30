@@ -666,7 +666,7 @@ void AbstractPolygon2DEditor::forward_canvas_draw_over_viewport(Control *p_overl
                 Ref<Font> font = get_font("font", "Label");
                 UIString num(UIString::number(vertex.vertex));
                 Size2 num_size = font->get_string_size(num);
-                p_overlay->draw_string(font, point - num_size * 0.5, num, Color(1.0, 1.0, 1.0, 0.5));
+                p_overlay->draw_ui_string(font, point - num_size * 0.5, num, Color(1.0, 1.0, 1.0, 0.5));
             }
         }
     }

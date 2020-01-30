@@ -344,7 +344,7 @@ Error AudioDriverWASAPI::init_render_device(bool reinit) {
     // Sample rate is independent of channels (ref: https://stackoverflow.com/questions/11048825/audio-sample-frequency-rely-on-channels)
     samples_in.resize(buffer_frames * channels);
 
-    capture_position = 0;
+    input_position = 0;
     input_size = 0;
 
     print_verbose("WASAPI: detected " + itos(channels) + " channels");

@@ -2584,7 +2584,7 @@ void CanvasItemEditor::_draw_text_at_position(Point2 p_position, const UIString&
             p_position += Vector2(-text_size.x / 2, text_size.y + 5);
             break;
     }
-    viewport->draw_string(font, p_position, p_string, color);
+    viewport->draw_ui_string(font, p_position, p_string, color);
 }
 
 void CanvasItemEditor::_draw_margin_at_position(int p_value, Point2 p_position, Margin p_side) {
@@ -2641,14 +2641,14 @@ void CanvasItemEditor::_draw_guides() {
         String str = vformat(("%d px"), Math::round(xform.affine_inverse().xform(dragged_guide_pos).x));
         Ref<Font> font = get_font("font", "Label");
         Size2 text_size = font->get_string_size_utf8(str);
-        viewport->draw_string(font, Point2(dragged_guide_pos.x + 10, RULER_WIDTH + text_size.y / 2 + 10), StringUtils::from_utf8(str), text_color);
+        viewport->draw_ui_string(font, Point2(dragged_guide_pos.x + 10, RULER_WIDTH + text_size.y / 2 + 10), StringUtils::from_utf8(str), text_color);
         viewport->draw_line(Point2(dragged_guide_pos.x, 0), Point2(dragged_guide_pos.x, viewport->get_size().y), guide_color, Math::round(EDSCALE));
     }
     if (drag_type == DRAG_DOUBLE_GUIDE || drag_type == DRAG_H_GUIDE) {
         String str = vformat(("%d px"), Math::round(xform.affine_inverse().xform(dragged_guide_pos).y));
         Ref<Font> font = get_font("font", "Label");
         Size2 text_size = font->get_string_size_utf8(str);
-        viewport->draw_string(font, Point2(RULER_WIDTH + 10, dragged_guide_pos.y + text_size.y / 2 + 10), StringUtils::from_utf8(str), text_color);
+        viewport->draw_ui_string(font, Point2(RULER_WIDTH + 10, dragged_guide_pos.y + text_size.y / 2 + 10), StringUtils::from_utf8(str), text_color);
         viewport->draw_line(Point2(0, dragged_guide_pos.y), Point2(viewport->get_size().x, dragged_guide_pos.y), guide_color, Math::round(EDSCALE));
     }
 }
@@ -2723,7 +2723,7 @@ void CanvasItemEditor::_draw_rulers() {
             viewport->draw_line(
                     Point2(position.x, 0), Point2(position.x, RULER_WIDTH), graduation_color, Math::round(EDSCALE));
             float val = (ruler_transform * major_subdivide * minor_subdivide).xform(Point2(i, 0)).x;
-            viewport->draw_string_utf8(font, Point2(position.x + 2, font->get_height()),
+            viewport->draw_string(font, Point2(position.x + 2, font->get_height()),
                     FormatVE(((int)val == val) ? "%d" : "%.1f", val), font_color);
         } else {
             if (i % minor_subdivision == 0) {
@@ -2747,7 +2747,7 @@ void CanvasItemEditor::_draw_rulers() {
 
             Transform2D text_xform = Transform2D(-Math_PI / 2.0f, Point2(font->get_height(), position.y - 2));
             viewport->draw_set_transform_matrix(viewport->get_transform() * text_xform);
-            viewport->draw_string_utf8(font, Point2(), FormatVE(((int)val == val) ? "%d" : "%.1f", val), font_color);
+            viewport->draw_string(font, Point2(), FormatVE(((int)val == val) ? "%d" : "%.1f", val), font_color);
             viewport->draw_set_transform_matrix(viewport->get_transform());
 
         } else {
@@ -2871,7 +2871,7 @@ void CanvasItemEditor::_draw_ruler_tool() {
         Point2 text_pos = (begin + end) / 2 - Vector2(text_width / 2, text_height / 2);
         text_pos.x = CLAMP(text_pos.x, text_width / 2, viewport->get_rect().size.x - text_width * 1.5f);
         text_pos.y = CLAMP(text_pos.y, text_height * 1.5f, viewport->get_rect().size.y - text_height * 1.5f);
-        viewport->draw_string_utf8(font, text_pos, FormatVE("%.2f px", length_vector.length()), font_color);
+        viewport->draw_string(font, text_pos, FormatVE("%.2f px", length_vector.length()), font_color);
 
         if (draw_secondary_lines) {
             const float horizontal_angle_rad = atan2(length_vector.y, length_vector.x);
@@ -2881,16 +2881,16 @@ void CanvasItemEditor::_draw_ruler_tool() {
 
             Point2 text_pos2 = text_pos;
             text_pos2.x = begin.x < text_pos.x ? MIN(text_pos.x - text_width, begin.x - text_width / 2) : MAX(text_pos.x + text_width, begin.x - text_width / 2);
-            viewport->draw_string_utf8(font, text_pos2, FormatVE("%.2f px", length_vector.y), font_secondary_color);
+            viewport->draw_string(font, text_pos2, FormatVE("%.2f px", length_vector.y), font_secondary_color);
 
             Point2 v_angle_text_pos = Point2();
             v_angle_text_pos.x = CLAMP(begin.x - angle_text_width / 2, angle_text_width / 2, viewport->get_rect().size.x - angle_text_width);
             v_angle_text_pos.y = begin.y < end.y ? MIN(text_pos2.y - 2 * text_height, begin.y - text_height * 0.5f) : MAX(text_pos2.y + text_height * 3, begin.y + text_height * 1.5f);
-            viewport->draw_string_utf8(font, v_angle_text_pos, FormatVE("%d deg", vertical_angle), font_secondary_color);
+            viewport->draw_string(font, v_angle_text_pos, FormatVE("%d deg", vertical_angle), font_secondary_color);
 
             text_pos2 = text_pos;
             text_pos2.y = end.y < text_pos.y ? MIN(text_pos.y - text_height * 2, end.y - text_height / 2) : MAX(text_pos.y + text_height * 2, end.y - text_height / 2);
-            viewport->draw_string_utf8(font, text_pos2, FormatVE("%.2f px", length_vector.x), font_secondary_color);
+            viewport->draw_string(font, text_pos2, FormatVE("%.2f px", length_vector.x), font_secondary_color);
 
             Point2 h_angle_text_pos = Point2();
             h_angle_text_pos.x = CLAMP(end.x - angle_text_width / 2, angle_text_width / 2, viewport->get_rect().size.x - angle_text_width);
@@ -2907,7 +2907,7 @@ void CanvasItemEditor::_draw_ruler_tool() {
                     h_angle_text_pos.y = MIN(text_pos.y - height_multiplier * text_height, MIN(end.y - text_height * 0.5f, text_pos2.y - height_multiplier * text_height));
                 }
             }
-            viewport->draw_string_utf8(font, h_angle_text_pos, FormatVE("%d deg", horizontal_angle), font_secondary_color);
+            viewport->draw_string(font, h_angle_text_pos, FormatVE("%d deg", horizontal_angle), font_secondary_color);
 
             // Angle arcs
             int arc_point_count = 8;
@@ -2946,17 +2946,17 @@ void CanvasItemEditor::_draw_ruler_tool() {
             text_pos.y = CLAMP(text_pos.y, text_height * 2.5f, viewport->get_rect().size.y - text_height / 2);
 
             if (draw_secondary_lines) {
-                viewport->draw_string_utf8(font, text_pos, FormatVE("%.2f units", (length_vector / grid_step).length()), font_color);
+                viewport->draw_string(font, text_pos, FormatVE("%.2f units", (length_vector / grid_step).length()), font_color);
 
                 Point2 text_pos2 = text_pos;
                 text_pos2.x = begin.x < text_pos.x ? MIN(text_pos.x - text_width, begin.x - text_width / 2) : MAX(text_pos.x + text_width, begin.x - text_width / 2);
-                viewport->draw_string_utf8(font, text_pos2, FormatVE("%d units", (int)(length_vector.y / grid_step.y)), font_secondary_color);
+                viewport->draw_string(font, text_pos2, FormatVE("%d units", (int)(length_vector.y / grid_step.y)), font_secondary_color);
 
                 text_pos2 = text_pos;
                 text_pos2.y = end.y < text_pos.y ? MIN(text_pos.y - text_height * 2, end.y + text_height / 2) : MAX(text_pos.y + text_height * 2, end.y + text_height / 2);
-                viewport->draw_string_utf8(font, text_pos2, FormatVE("%d units", (int)(length_vector.x / grid_step.x)), font_secondary_color);
+                viewport->draw_string(font, text_pos2, FormatVE("%d units", (int)(length_vector.x / grid_step.x)), font_secondary_color);
             } else {
-                viewport->draw_string_utf8(font, text_pos, FormatVE("%d units", roundf((length_vector / grid_step).length())), font_color);
+                viewport->draw_string(font, text_pos, FormatVE("%d units", roundf((length_vector / grid_step).length())), font_color);
             }
         }
     } else {
@@ -3544,7 +3544,7 @@ void CanvasItemEditor::_draw_hover() {
         viewport->draw_texture(node_icon, pos, Color(1.0, 1.0, 1.0, 0.5));
 
         // Draw name
-        viewport->draw_string_utf8(font, pos + Point2(node_icon->get_size().x + 4, item_size.y - 3), node_name, Color(1.0, 1.0, 1.0, 0.5));
+        viewport->draw_string(font, pos + Point2(node_icon->get_size().x + 4, item_size.y - 3), node_name, Color(1.0, 1.0, 1.0, 0.5));
     }
 }
 

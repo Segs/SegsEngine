@@ -1219,7 +1219,7 @@ void ItemList::_notification(int p_what) {
                     text_ofs += base_ofs;
                     text_ofs += items[i].rect_cache.position;
 
-                    draw_string(font, text_ofs, item_text, modulate, max_len + 1);
+                    draw_ui_string(font, text_ofs, item_text, modulate, max_len + 1);
                 }
             }
 

@@ -1882,7 +1882,7 @@ void TextEdit::_notification(int p_what) {
                     }
 
                     title_pos.x = icon_area.position.x + icon_area.size.width + icon_hsep;
-                    draw_string_utf8(m_priv->cache.font, title_pos, completion_options[l].display, text_color, completion_rect.size.width - (icon_area_size.x + icon_hsep));
+                    draw_string(m_priv->cache.font, title_pos, completion_options[l].display, text_color, completion_rect.size.width - (icon_area_size.x + icon_hsep));
                 }
 
                 if (scrollw) {
@@ -1962,7 +1962,7 @@ void TextEdit::_notification(int p_what) {
                     char cursor[2] = {c_cursor_marker,0};
                     Point2 round_ofs = hint_ofs + sb->get_offset() + Vector2(0, font->get_ascent() + font->get_height() * i + spacing);
                     round_ofs = round_ofs.round();
-                    draw_string_utf8(font, round_ofs, StringUtils::replace(l,cursor,""), font_color);
+                    draw_string(font, round_ofs, StringUtils::replace(l,cursor,""), font_color);
 
                     if (end > 0) {
                         Vector2 b = hint_ofs + sb->get_offset() + Vector2(begin, font->get_height() + font->get_height() * i + spacing - 1);

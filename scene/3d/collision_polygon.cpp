@@ -49,7 +49,7 @@ void CollisionPolygon::_build_polygon() {
     if (polygon.empty())
         return;
 
-    PODVector<PODVector<Vector2> > decomp = Geometry::decompose_polygon_in_convex({polygon.ptr(),polygon.size()});
+    PODVector<PODVector<Vector2> > decomp = Geometry::decompose_polygon_in_convex(polygon);
     if (decomp.empty())
         return;
 
@@ -122,7 +122,7 @@ void CollisionPolygon::_notification(int p_what) {
     }
 }
 
-void CollisionPolygon::set_polygon(const Vector<Point2> &p_polygon) {
+void CollisionPolygon::set_polygon(const PODVector<Vector2> &p_polygon) {
 
     polygon = p_polygon;
     if (parent) {
@@ -132,7 +132,7 @@ void CollisionPolygon::set_polygon(const Vector<Point2> &p_polygon) {
     update_gizmo();
 }
 
-Vector<Point2> CollisionPolygon::get_polygon() const {
+const PODVector<Vector2> &CollisionPolygon::get_polygon() const {
 
     return polygon;
 }

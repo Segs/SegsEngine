@@ -673,35 +673,36 @@ int BindingsGenerator::_determine_enum_prefix(const EnumInterface &p_ienum) {
 
 void BindingsGenerator::_apply_prefix_to_enum_constants(BindingsGenerator::EnumInterface &p_ienum, int p_prefix_length) {
 
-    if (p_prefix_length > 0) {
-        for (ConstantInterface &curr_const : p_ienum.constants) {
-            int curr_prefix_length = p_prefix_length;
+    if (p_prefix_length <= 0)
+        return;
 
-            String constant_name = curr_const.name;
+    for (ConstantInterface &curr_const : p_ienum.constants) {
+        int curr_prefix_length = p_prefix_length;
 
-            auto parts = constant_name.split('_', /* p_allow_empty: */ true);
+        String constant_name = curr_const.name;
 
-            if (parts.size() <= curr_prefix_length)
-                continue;
+        auto parts = constant_name.split('_', /* p_allow_empty: */ true);
 
-            if (parts[curr_prefix_length][0] >= '0' && parts[curr_prefix_length][0] <= '9') {
-                // The name of enum constants may begin with a numeric digit when strip from the enum prefix,
-                // so we make the prefix for this constant one word shorter in those cases.
-                for (curr_prefix_length = curr_prefix_length - 1; curr_prefix_length > 0; curr_prefix_length--) {
-                    if (parts[curr_prefix_length][0] < '0' || parts[curr_prefix_length][0] > '9')
-                        break;
-                }
+        if (parts.size() <= curr_prefix_length)
+            continue;
+
+        if (parts[curr_prefix_length][0] >= '0' && parts[curr_prefix_length][0] <= '9') {
+            // The name of enum constants may begin with a numeric digit when strip from the enum prefix,
+            // so we make the prefix for this constant one word shorter in those cases.
+            for (curr_prefix_length = curr_prefix_length - 1; curr_prefix_length > 0; curr_prefix_length--) {
+                if (parts[curr_prefix_length][0] < '0' || parts[curr_prefix_length][0] > '9')
+                    break;
             }
-
-            constant_name = "";
-            for (int i = curr_prefix_length; i < parts.size(); i++) {
-                if (i > curr_prefix_length)
-                    constant_name += "_";
-                constant_name += parts[i];
-            }
-
-            curr_const.proxy_name = snake_to_pascal_case(constant_name, true);
         }
+
+        constant_name = "";
+        for (int i = curr_prefix_length; i < parts.size(); i++) {
+            if (i > curr_prefix_length)
+                constant_name += "_";
+            constant_name += parts[i];
+        }
+
+        curr_const.proxy_name = snake_to_pascal_case(constant_name, true);
     }
 }
 
@@ -1943,14 +1944,15 @@ Error BindingsGenerator::_generate_glue_method(const BindingsGenerator::TypeInte
 
     const TypeInterface *return_type = _get_type_or_placeholder(p_imethod.return_type);
     String argc_str = itos(p_imethod.arguments.size());
-
     se_string_view no_star=se_string_view(p_itype.c_type_in).substr(0,p_itype.c_type_in.size()-1);
     String class_type(p_itype.c_type_in.ends_with('*') ? no_star : p_itype.c_type_in);
     String c_func_sig = p_itype.c_type_in + " " CS_PARAM_INSTANCE;
     String c_in_statements;
     String c_args_var_content;
 
-    // Get arguments information
+    if(p_imethod.cname=="_set_triangles") {
+        printf("");
+    }       // Get arguments information
     int i = 0;
     for (const ArgumentInterface &iarg : p_imethod.arguments) {
         const TypeInterface *arg_type = _get_type_or_placeholder(iarg.type);
@@ -2239,6 +2241,26 @@ static StringName _get_string_type_name_from_meta(GodotTypeInfo::Metadata p_meta
         return StringName("String");
     }
 }
+static StringName _get_variant_type_name_from_meta(VariantType tp,GodotTypeInfo::Metadata p_meta) {
+    if(GodotTypeInfo::METADATA_NON_COW_CONTAINER==p_meta) {
+        switch(tp) {
+
+            case VariantType::POOL_BYTE_ARRAY:
+                return StringName("VecByte");
+
+            case VariantType::POOL_INT_ARRAY:
+                return StringName("VecInt");
+            case VariantType::POOL_REAL_ARRAY: break;
+            case VariantType::POOL_STRING_ARRAY: break;
+            case VariantType::POOL_VECTOR2_ARRAY:
+                return StringName("VecVector2");
+            case VariantType::POOL_VECTOR3_ARRAY: break;
+            case VariantType::POOL_COLOR_ARRAY: break;
+            default: ;
+        }
+    }
+    return Variant::interned_type_name(tp);
+}
 StringName BindingsGenerator::_get_float_type_name_from_meta(GodotTypeInfo::Metadata p_meta) {
 
     switch (p_meta) {
@@ -2387,6 +2409,7 @@ bool BindingsGenerator::_populate_object_type_interfaces() {
             PropertyInfo return_info = method_info.return_val;
 
             MethodBind *m = imethod.is_virtual ? nullptr : ClassDB::get_method(type_cname, method_info.name);
+
             const Span<const GodotTypeInfo::Metadata> arg_meta(m? m->get_arguments_meta(): Span<const GodotTypeInfo::Metadata>());
             const Span<const TypePassBy> arg_pass(m? m->get_arguments_passing() : Span<const TypePassBy>());
             imethod.is_vararg = m && m->is_vararg();
@@ -2470,7 +2493,8 @@ bool BindingsGenerator::_populate_object_type_interfaces() {
                     } else if (arginfo.type == VariantType::STRING) {
                         iarg.type.cname = _get_string_type_name_from_meta(arg_meta.size() > (i + 1) ? arg_meta[i + 1] : GodotTypeInfo::METADATA_NONE);
                     } else {
-                        iarg.type.cname = Variant::interned_type_name(arginfo.type);
+                        
+                        iarg.type.cname = _get_variant_type_name_from_meta(arginfo.type, arg_meta.size() > (i + 1) ? arg_meta[i + 1] : GodotTypeInfo::METADATA_NONE);
                     }
                     iarg.type.pass_by = arg_pass.size() > (i + 1) ? arg_pass[i + 1] : TypePassBy::Value;
                 }
@@ -3007,7 +3031,7 @@ void BindingsGenerator::_populate_builtin_type_interfaces() {
         itype.name = #m_name;                                                 \
         itype.cname = StringName(itype.name);                                 \
         itype.proxy_name = #m_proxy_t "[]";                                   \
-        itype.c_in = "\t%0 %1_in = " C_METHOD_MONOARRAY_TO_NC(m_type) "(%1);\n"; \
+        itype.c_in = "\tauto %1_in = " C_METHOD_MONOARRAY_TO_NC(m_type) "(%1);\n"; \
         itype.c_out = "\treturn " C_METHOD_MONOARRAY_FROM_NC(m_type) "(%1);\n";  \
         itype.c_arg_in = "%s_in";                                             \
         itype.c_type = #m_type;                                               \
@@ -3021,7 +3045,9 @@ void BindingsGenerator::_populate_builtin_type_interfaces() {
 #define INSERT_ARRAY(m_type, m_proxy_t) INSERT_ARRAY_FULL(m_type, m_type, m_proxy_t)
 
     INSERT_ARRAY(PoolIntArray, int)
-    INSERT_ARRAY_NC_FULL(VecIntArray,VecIntArray, int)
+    INSERT_ARRAY_NC_FULL(VecInt,VecInt, int)
+    INSERT_ARRAY_NC_FULL(VecByte, VecByte, byte)
+    INSERT_ARRAY_NC_FULL(VecVector2, VecVector2, Vector2)
     INSERT_ARRAY_FULL(PoolByteArray, PoolByteArray, byte)
 
 

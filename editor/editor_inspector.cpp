@@ -265,7 +265,7 @@ void EditorProperty::_notification(int p_what) {
         }
 
         int v_ofs = (size.height - font->get_height()) / 2;
-        draw_string(font, Point2(ofs, v_ofs + font->get_ascent()), StringUtils::from_utf8(label), color, text_limit);
+        draw_ui_string(font, Point2(ofs, v_ofs + font->get_ascent()), StringUtils::from_utf8(label), color, text_limit);
 
         if (keying) {
             Ref<Texture> key;
@@ -1001,7 +1001,7 @@ void EditorInspectorCategory::_notification(int p_what) {
         }
 
         Color color = get_color("font_color", "Tree");
-        draw_string_utf8(font, Point2(ofs, font->get_ascent() + (get_size().height - font->get_height()) / 2).floor(), label, color, get_size().width);
+        draw_string(font, Point2(ofs, font->get_ascent() + (get_size().height - font->get_height()) / 2).floor(), label, color, get_size().width);
     }
 }
 
@@ -1120,7 +1120,7 @@ void EditorInspectorSection::_notification(int p_what) {
         const int arrow_margin = 3;
 
         Color color = get_color("font_color", "Tree");
-        draw_string_utf8(font, Point2(Math::round((16 + arrow_margin) * EDSCALE), font->get_ascent() + (h - font->get_height()) / 2).floor(), label, color, get_size().width);
+        draw_string(font, Point2(Math::round((16 + arrow_margin) * EDSCALE), font->get_ascent() + (h - font->get_height()) / 2).floor(), label, color, get_size().width);
 
         if (arrow) {
             draw_texture(arrow, Point2(Math::round(arrow_margin * EDSCALE), (h - arrow->get_height()) / 2).floor());

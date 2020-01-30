@@ -1510,7 +1510,7 @@ void EditorAudioMeterNotches::_draw_audio_notches() {
                 1);
 
         if (n.render_db_value) {
-            draw_string(font,
+            draw_ui_string(font,
                     Vector2(line_length + label_space,
                             (1.0f - n.relative_position) * (get_size().y - btm_padding - top_padding) + font_height / 4 + top_padding),
                     UIString::number(Math::abs(n.db_value)) + "dB",

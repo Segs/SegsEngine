@@ -643,7 +643,7 @@ void _render_poly_line(RasterizerCanvasGLES3 *self, RasterizerCanvas::Item::Comm
         if (pline->multiline) {
             //needs to be different
         } else {
-            self->_draw_generic(GL_LINE_LOOP, pline->lines.size(), pline->lines.ptr(), nullptr, pline->line_colors.ptr(), pline->line_colors.size() == 1);
+            self->_draw_generic(GL_LINE_LOOP, pline->lines.size(), pline->lines.read().ptr(), nullptr, pline->line_colors.ptr(), pline->line_colors.size() == 1);
         }
         glDisable(GL_LINE_SMOOTH);
     } else {
@@ -658,14 +658,14 @@ void _render_poly_line(RasterizerCanvasGLES3 *self, RasterizerCanvas::Item::Comm
 
             while (todo) {
                 int to_draw = MIN(max_per_call, todo);
-                self->_draw_generic(GL_LINES, to_draw * 2, &pline->lines.ptr()[offset], nullptr, pline->line_colors.size() == 1 ? pline->line_colors.ptr() : &pline->line_colors.ptr()[offset], pline->line_colors.size() == 1);
+                self->_draw_generic(GL_LINES, to_draw * 2, &pline->lines.read().ptr()[offset], nullptr, pline->line_colors.size() == 1 ? pline->line_colors.ptr() : &pline->line_colors.ptr()[offset], pline->line_colors.size() == 1);
                 todo -= to_draw;
                 offset += to_draw * 2;
             }
 
         } else {
 
-            self->_draw_generic(GL_LINE_STRIP, pline->lines.size(), pline->lines.ptr(), nullptr, pline->line_colors.ptr(), pline->line_colors.size() == 1);
+            self->_draw_generic(GL_LINE_STRIP, pline->lines.size(), pline->lines.read().ptr(), nullptr, pline->line_colors.ptr(), pline->line_colors.size() == 1);
         }
 
         if (pline->antialiased)
