@@ -80,8 +80,8 @@ void AudioStreamEditor::_draw_preview() {
     Ref<AudioStreamPreview> preview = AudioStreamPreviewGenerator::get_singleton()->generate_preview(stream);
     float preview_len = preview->get_length();
 
-    Vector<Vector2> lines;
-    lines.resize(size.width * 2);
+    PODVector<Vector2> lines;
+    lines.reserve(size.width * 2);
 
     for (int i = 0; i < size.width; i++) {
 
@@ -90,9 +90,8 @@ void AudioStreamEditor::_draw_preview() {
         float max = preview->get_max(ofs, ofs_n) * 0.5 + 0.5;
         float min = preview->get_min(ofs, ofs_n) * 0.5 + 0.5;
 
-        int idx = i;
-        lines.write[idx * 2 + 0] = Vector2(i + 1, rect.position.y + min * rect.size.y);
-        lines.write[idx * 2 + 1] = Vector2(i + 1, rect.position.y + max * rect.size.y);
+        lines.emplace_back(i + 1, rect.position.y + min * rect.size.y);
+        lines.emplace_back(i + 1, rect.position.y + max * rect.size.y);
     }
 
     Vector<Color> color;

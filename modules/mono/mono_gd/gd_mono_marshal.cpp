@@ -1181,7 +1181,17 @@ MonoArray *PoolVector2Array_to_mono_array(const PoolVector2Array &p_array) {
 
     return ret;
 }
+MonoArray *PoolVector2Array_to_mono_array(const PODVector<Vector2> &p_array) {
 
+    MonoArray *ret = mono_array_new(mono_domain_get(), CACHED_CLASS_RAW(Vector2), p_array.size());
+
+    for (int i = 0; i < p_array.size(); i++) {
+        M_Vector2 *raw = (M_Vector2 *)mono_array_addr_with_size(ret, sizeof(M_Vector2), i);
+        *raw = MARSHALLED_OUT(Vector2, p_array[i]);
+    }
+
+    return ret;
+}
 PoolVector2Array mono_array_to_PoolVector2Array(MonoArray *p_array) {
     PoolVector2Array ret;
     if (!p_array)

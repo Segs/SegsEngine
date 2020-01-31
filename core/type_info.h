@@ -163,7 +163,7 @@ MAKE_TYPE_INFO(PoolColorArray, VariantType::POOL_COLOR_ARRAY)
     template <>\
     struct GetTypeInfo<Span<type>> {\
         constexpr static const VariantType VARIANT_TYPE = VariantType::ARRAY;\
-        constexpr static const GodotTypeInfo::Metadata METADATA = GodotTypeInfo::METADATA_NONE;\
+        constexpr static const GodotTypeInfo::Metadata METADATA = GodotTypeInfo::METADATA_NON_COW_CONTAINER;\
         constexpr static const TypePassBy PASS_BY = TypePassBy::Value; \
         constexpr static inline RawPropertyInfo get_class_info() {  \
             return RawPropertyInfo { nullptr,nullptr,nullptr,int8_t(VARIANT_TYPE)};\
@@ -172,7 +172,7 @@ MAKE_TYPE_INFO(PoolColorArray, VariantType::POOL_COLOR_ARRAY)
     template <>\
     struct GetTypeInfo<Span<const type>> {\
         constexpr static const VariantType VARIANT_TYPE = VariantType::ARRAY;\
-        constexpr static const GodotTypeInfo::Metadata METADATA = GodotTypeInfo::METADATA_NONE;\
+        constexpr static const GodotTypeInfo::Metadata METADATA = GodotTypeInfo::METADATA_NON_COW_CONTAINER;\
         constexpr static const TypePassBy PASS_BY = TypePassBy::Value; \
         constexpr static inline RawPropertyInfo get_class_info() {  \
             return RawPropertyInfo { nullptr,nullptr,nullptr,int8_t(VARIANT_TYPE)};\
@@ -181,7 +181,7 @@ MAKE_TYPE_INFO(PoolColorArray, VariantType::POOL_COLOR_ARRAY)
 template <>
 struct GetTypeInfo<Span<uint8_t>> {
     constexpr static const VariantType VARIANT_TYPE = VariantType::POOL_BYTE_ARRAY;
-    constexpr static const GodotTypeInfo::Metadata METADATA = GodotTypeInfo::METADATA_NONE;
+    constexpr static const GodotTypeInfo::Metadata METADATA = GodotTypeInfo::METADATA_NON_COW_CONTAINER;
     constexpr static const TypePassBy PASS_BY = TypePassBy::Value;
     constexpr static inline RawPropertyInfo get_class_info() {
         return RawPropertyInfo{ nullptr, nullptr, nullptr, int8_t(VARIANT_TYPE) };
@@ -190,7 +190,7 @@ struct GetTypeInfo<Span<uint8_t>> {
 template <>
 struct GetTypeInfo<Span<const uint8_t>> {
     constexpr static const VariantType VARIANT_TYPE = VariantType::POOL_BYTE_ARRAY;
-    constexpr static const GodotTypeInfo::Metadata METADATA = GodotTypeInfo::METADATA_NONE;
+    constexpr static const GodotTypeInfo::Metadata METADATA = GodotTypeInfo::METADATA_NON_COW_CONTAINER;
     constexpr static const TypePassBy PASS_BY = TypePassBy::Value;
     constexpr static inline RawPropertyInfo get_class_info() {
         return RawPropertyInfo{ nullptr, nullptr, nullptr, int8_t(VARIANT_TYPE) };
@@ -199,7 +199,7 @@ struct GetTypeInfo<Span<const uint8_t>> {
 template <>
 struct GetTypeInfo<Span<const int>> {
     constexpr static const VariantType VARIANT_TYPE = VariantType::POOL_INT_ARRAY;
-    constexpr static const GodotTypeInfo::Metadata METADATA = GodotTypeInfo::METADATA_NONE;
+    constexpr static const GodotTypeInfo::Metadata METADATA = GodotTypeInfo::METADATA_NON_COW_CONTAINER;
     constexpr static const TypePassBy PASS_BY = TypePassBy::Value;
     constexpr static inline RawPropertyInfo get_class_info() {
         return RawPropertyInfo{ nullptr, nullptr, nullptr, int8_t(VARIANT_TYPE) };
@@ -209,7 +209,7 @@ struct GetTypeInfo<Span<const int>> {
 template <>
 struct GetTypeInfo<Span<const float>> {
     constexpr static const VariantType VARIANT_TYPE = VariantType::POOL_REAL_ARRAY;
-    constexpr static const GodotTypeInfo::Metadata METADATA = GodotTypeInfo::METADATA_NONE;
+    constexpr static const GodotTypeInfo::Metadata METADATA = GodotTypeInfo::METADATA_NON_COW_CONTAINER;
     constexpr static const TypePassBy PASS_BY = TypePassBy::Value;
     constexpr static inline RawPropertyInfo get_class_info() {
         return RawPropertyInfo{ nullptr, nullptr, nullptr, int8_t(VARIANT_TYPE)};
@@ -328,6 +328,16 @@ MAKE_TEMPLATE_TYPE_INFO_META(PODVector, Color, VariantType::POOL_COLOR_ARRAY,God
 MAKE_TEMPLATE_TYPE_INFO(PODVector, Variant, VariantType::ARRAY)
 MAKE_TEMPLATE_TYPE_INFO(PODVector, Plane, VariantType::ARRAY)
 
+// Return by vector of pointers
+template <typename T>
+struct GetTypeInfo<PODVector<T *> > {
+    constexpr static const VariantType VARIANT_TYPE = VariantType::ARRAY;
+    constexpr static const GodotTypeInfo::Metadata METADATA = GodotTypeInfo::METADATA_NON_COW_CONTAINER;
+    constexpr static const TypePassBy PASS_BY = TypePassBy::Value;
+    constexpr static inline RawPropertyInfo get_class_info() {
+        return RawPropertyInfo { nullptr,nullptr,nullptr,int8_t(VARIANT_TYPE)};
+    }\
+};
 
 MAKE_TEMPLATE_TYPE_INFO(Vector, Variant, VariantType::ARRAY)
 MAKE_TEMPLATE_TYPE_INFO(Vector, RID, VariantType::ARRAY)

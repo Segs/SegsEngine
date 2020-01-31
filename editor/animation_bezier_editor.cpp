@@ -128,8 +128,10 @@ void AnimationBezierTrackEdit::_draw_track(int p_track, const Color &p_color) {
         from_x = MAX(from_x, limit);
         to_x = MIN(to_x, right_limit);
 
-        Vector<Vector2> lines;
-
+        PODVector<Vector2> lines;
+        int diff = to_x-from_x;
+        if(diff>0)
+            lines.reserve(diff-1);
         Vector2 prev_pos;
 
         for (int j = from_x; j <= to_x; j++) {
@@ -176,8 +178,8 @@ void AnimationBezierTrackEdit::_draw_track(int p_track, const Color &p_color) {
             Vector2 pos(j, h);
 
             if (j > from_x) {
-                lines.push_back(prev_pos);
-                lines.push_back(pos);
+                lines.emplace_back(prev_pos);
+                lines.emplace_back(j,h);
             }
             prev_pos = pos;
         }

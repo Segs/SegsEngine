@@ -1107,7 +1107,7 @@ void Geometry::make_atlas(const PODVector<Size2i> &p_rects, PODVector<Point2i> &
     r_size = Size2(results[best].max_w, results[best].max_h);
 }
 
-PODVector<PODVector<Point2> > Geometry::_polypaths_do_operation(PolyBooleanOperation p_op, const Vector<Point2> &p_polypath_a, const Vector<Point2> &p_polypath_b, bool is_a_open) {
+PODVector<PODVector<Point2> > Geometry::_polypaths_do_operation(PolyBooleanOperation p_op, const PODVector<Point2> &p_polypath_a, const PODVector<Point2> &p_polypath_b, bool is_a_open) {
 
     using namespace ClipperLib;
 
@@ -1159,7 +1159,7 @@ PODVector<PODVector<Point2> > Geometry::_polypaths_do_operation(PolyBooleanOpera
     return polypaths;
 }
 
-PODVector<PODVector<Point2> > Geometry::_polypath_offset(const Vector<Point2> &p_polypath, real_t p_delta, PolyJoinType p_join_type, PolyEndType p_end_type) {
+PODVector<PODVector<Point2> > Geometry::_polypath_offset(const PODVector<Point2> &p_polypath, real_t p_delta, PolyJoinType p_join_type, PolyEndType p_end_type) {
 
     using namespace ClipperLib;
 

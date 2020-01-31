@@ -35,6 +35,7 @@
 #include "core/forward_decls.h"
 #include "core/ref_ptr.h"
 #include "core/vector.h"
+#include "core/array.h"
 
 #include <cstdint>
 #include <type_traits>
@@ -318,6 +319,15 @@ public:
     template<class T>
     static Variant from(const T &v) {
         return Variant(v);
+    }
+    template<class T>
+    static Variant from(const PODVector<T *> &ar) {
+        Array res;
+        int idx=0;
+        res.resize(ar.size());
+        for(T * v : ar)
+            res[idx++] = Variant(v);
+        return res;
     }
     template<class T>
     static Variant fromVector(Span<const T> v);

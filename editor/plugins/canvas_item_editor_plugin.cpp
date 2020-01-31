@@ -6139,8 +6139,7 @@ bool CanvasItemEditorViewport::can_drop_data(const Point2 &p_point, const Varian
 
 void CanvasItemEditorViewport::_show_resource_type_selector() {
     _remove_preview();
-    List<BaseButton *> btn_list;
-    button_group->get_buttons(&btn_list);
+    PODVector<BaseButton *> btn_list = button_group->get_buttons();
 
     for (int i = 0; i < btn_list.size(); i++) {
         CheckBox *check = object_cast<CheckBox>(btn_list[i]);

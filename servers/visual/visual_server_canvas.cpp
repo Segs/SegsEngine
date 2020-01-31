@@ -489,7 +489,7 @@ void VisualServerCanvas::canvas_item_add_line(RID p_item, const Point2 &p_from, 
     canvas_item->commands.push_back(line);
 }
 
-void VisualServerCanvas::canvas_item_add_polyline(RID p_item, const PoolVector<Point2> &p_points, const Vector<Color> &p_colors, float p_width, bool p_antialiased) {
+void VisualServerCanvas::canvas_item_add_polyline(RID p_item, const PODVector<Point2> &p_points, const Vector<Color> &p_colors, float p_width, bool p_antialiased) {
 
     ERR_FAIL_COND(p_points.size() < 2)
     Item *canvas_item = canvas_item_owner.getornull(p_item);
@@ -534,7 +534,7 @@ void VisualServerCanvas::canvas_item_add_polyline(RID p_item, const PoolVector<P
                 pline->line_colors.resize(pline->lines.size());
             }
         }
-        auto linewrite = pline->lines.write();
+        auto &linewrite = pline->lines;
         for (int i = 0; i < p_points.size(); i++) {
 
             Vector2 t;
@@ -574,7 +574,7 @@ void VisualServerCanvas::canvas_item_add_polyline(RID p_item, const PoolVector<P
     canvas_item->commands.push_back(pline);
 }
 
-void VisualServerCanvas::canvas_item_add_multiline(RID p_item, const Vector<Point2> &p_points, const Vector<Color> &p_colors, float p_width, bool p_antialiased) {
+void VisualServerCanvas::canvas_item_add_multiline(RID p_item, const PODVector<Vector2> &p_points, const Vector<Color> &p_colors, float p_width, bool p_antialiased) {
 
     ERR_FAIL_COND(p_points.size() < 2)
     Item *canvas_item = canvas_item_owner.getornull(p_item);

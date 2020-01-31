@@ -1053,7 +1053,8 @@ void EditorPropertyEasing::_draw_easing() {
         line_color = get_color("font_color", "Label") * Color(1, 1, 1, 0.9f);
     }
 
-    Vector<Point2> lines;
+    PODVector<Point2> lines;
+    lines.reserve(points*2);
     for (int i = 1; i <= points; i++) {
 
         float ifl = i / float(points);
@@ -1066,8 +1067,8 @@ void EditorPropertyEasing::_draw_easing() {
             iflp = 1.0f - iflp;
         }
 
-        lines.push_back(Point2(ifl * s.width, h * s.height));
-        lines.push_back(Point2(iflp * s.width, prev * s.height));
+        lines.emplace_back(ifl * s.width, h * s.height);
+        lines.emplace_back(iflp * s.width, prev * s.height);
         prev = h;
     }
 

@@ -1656,7 +1656,7 @@ PODVector<Vector3> _Geometry::clip_polygon(Span<const Vector3> p_points, const P
     return Geometry::clip_polygon(p_points, p_plane);
 }
 
-Array _Geometry::merge_polygons_2d(const Vector<Vector2> &p_polygon_a, const Vector<Vector2> &p_polygon_b) {
+Array _Geometry::merge_polygons_2d(const PODVector<Vector2> &p_polygon_a, const PODVector<Vector2> &p_polygon_b) {
 
     PODVector<PODVector<Point2> > polys(Geometry::merge_polygons_2d(p_polygon_a, p_polygon_b));
 
@@ -1668,7 +1668,7 @@ Array _Geometry::merge_polygons_2d(const Vector<Vector2> &p_polygon_a, const Vec
     return ret;
 }
 
-Array _Geometry::clip_polygons_2d(const Vector<Vector2> &p_polygon_a, const Vector<Vector2> &p_polygon_b) {
+Array _Geometry::clip_polygons_2d(const PODVector<Vector2> &p_polygon_a, const PODVector<Vector2> &p_polygon_b) {
 
     PODVector<PODVector<Point2> > polys(Geometry::clip_polygons_2d(p_polygon_a, p_polygon_b));
 
@@ -1680,7 +1680,7 @@ Array _Geometry::clip_polygons_2d(const Vector<Vector2> &p_polygon_a, const Vect
     return ret;
 }
 
-Array _Geometry::intersect_polygons_2d(const Vector<Vector2> &p_polygon_a, const Vector<Vector2> &p_polygon_b) {
+Array _Geometry::intersect_polygons_2d(const PODVector<Vector2> &p_polygon_a, const PODVector<Vector2> &p_polygon_b) {
 
     PODVector<PODVector<Point2> > polys(Geometry::intersect_polygons_2d(p_polygon_a, p_polygon_b));
 
@@ -1692,7 +1692,7 @@ Array _Geometry::intersect_polygons_2d(const Vector<Vector2> &p_polygon_a, const
     return ret;
 }
 
-Array _Geometry::exclude_polygons_2d(const Vector<Vector2> &p_polygon_a, const Vector<Vector2> &p_polygon_b) {
+Array _Geometry::exclude_polygons_2d(const PODVector<Vector2> &p_polygon_a, const PODVector<Vector2> &p_polygon_b) {
 
     PODVector<PODVector<Point2> > polys(Geometry::exclude_polygons_2d(p_polygon_a, p_polygon_b));
 
@@ -1704,7 +1704,7 @@ Array _Geometry::exclude_polygons_2d(const Vector<Vector2> &p_polygon_a, const V
     return ret;
 }
 
-Array _Geometry::clip_polyline_with_polygon_2d(const Vector<Vector2> &p_polyline, const Vector<Vector2> &p_polygon) {
+Array _Geometry::clip_polyline_with_polygon_2d(const PODVector<Vector2> &p_polyline, const PODVector<Vector2> &p_polygon) {
 
     PODVector<PODVector<Point2> > polys(Geometry::clip_polyline_with_polygon_2d(p_polyline, p_polygon));
 
@@ -1716,7 +1716,7 @@ Array _Geometry::clip_polyline_with_polygon_2d(const Vector<Vector2> &p_polyline
     return ret;
 }
 
-Array _Geometry::intersect_polyline_with_polygon_2d(const Vector<Vector2> &p_polyline, const Vector<Vector2> &p_polygon) {
+Array _Geometry::intersect_polyline_with_polygon_2d(const PODVector<Vector2> &p_polyline, const PODVector<Vector2> &p_polygon) {
 
     PODVector<PODVector<Point2> > polys(Geometry::intersect_polyline_with_polygon_2d(p_polyline, p_polygon));
 
@@ -1728,7 +1728,7 @@ Array _Geometry::intersect_polyline_with_polygon_2d(const Vector<Vector2> &p_pol
     return ret;
 }
 
-Array _Geometry::offset_polygon_2d(const Vector<Vector2> &p_polygon, real_t p_delta, PolyJoinType p_join_type) {
+Array _Geometry::offset_polygon_2d(const PODVector<Vector2> &p_polygon, real_t p_delta, PolyJoinType p_join_type) {
 
     PODVector<PODVector<Point2> > polys(Geometry::offset_polygon_2d(p_polygon, p_delta, Geometry::PolyJoinType(p_join_type)));
 
@@ -1740,7 +1740,7 @@ Array _Geometry::offset_polygon_2d(const Vector<Vector2> &p_polygon, real_t p_de
     return ret;
 }
 
-Array _Geometry::offset_polyline_2d(const Vector<Vector2> &p_polygon, real_t p_delta, PolyJoinType p_join_type, PolyEndType p_end_type) {
+Array _Geometry::offset_polyline_2d(const PODVector<Vector2> &p_polygon, real_t p_delta, PolyJoinType p_join_type, PolyEndType p_end_type) {
 
     PODVector<PODVector<Point2> > polys(Geometry::offset_polyline_2d(p_polygon, p_delta, Geometry::PolyJoinType(p_join_type), Geometry::PolyEndType(p_end_type)));
 

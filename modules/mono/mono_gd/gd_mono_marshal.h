@@ -163,11 +163,14 @@ PoolColorArray mono_array_to_PoolColorArray(MonoArray *p_array);
 // PoolVector2Array
 
 MonoArray *PoolVector2Array_to_mono_array(const PoolVector2Array &p_array);
+MonoArray *PoolVector2Array_to_mono_array(const PODVector<Vector2> &p_array);
 PoolVector2Array mono_array_to_PoolVector2Array(MonoArray *p_array);
 PODVector<Vector2> mono_array_to_NC_VecVector2(MonoArray* p_array);
 // PoolVector3Array
 
 MonoArray *PoolVector3Array_to_mono_array(const PoolVector3Array &p_array);
+MonoArray *PoolVector3Array_NC_to_mono_array(const PODVector<Vector3> &p_array);
+PODVector<Vector3> mono_array_to_NC_VecVector3(MonoArray* p_array);
 PoolVector3Array mono_array_to_PoolVector3Array(MonoArray *p_array);
 
 // Structures

@@ -415,14 +415,14 @@ public:
         OPERATION_XOR
     };
     // 2D polygon boolean operations.
-    Array merge_polygons_2d(const Vector<Vector2> &p_polygon_a, const Vector<Vector2> &p_polygon_b); // Union (add).
-    Array clip_polygons_2d(const Vector<Vector2> &p_polygon_a, const Vector<Vector2> &p_polygon_b); // Difference (subtract).
-    Array intersect_polygons_2d(const Vector<Vector2> &p_polygon_a, const Vector<Vector2> &p_polygon_b); // Common area (multiply).
-    Array exclude_polygons_2d(const Vector<Vector2> &p_polygon_a, const Vector<Vector2> &p_polygon_b); // All but common area (xor).
+    Array merge_polygons_2d(const PODVector<Vector2> &p_polygon_a, const PODVector<Vector2> &p_polygon_b); // Union (add).
+    Array clip_polygons_2d(const PODVector<Vector2> &p_polygon_a, const PODVector<Vector2> &p_polygon_b); // Difference (subtract).
+    Array intersect_polygons_2d(const PODVector<Vector2> &p_polygon_a, const PODVector<Vector2> &p_polygon_b); // Common area (multiply).
+    Array exclude_polygons_2d(const PODVector<Vector2> &p_polygon_a, const PODVector<Vector2> &p_polygon_b); // All but common area (xor).
 
     // 2D polyline vs polygon operations.
-    Array clip_polyline_with_polygon_2d(const Vector<Vector2> &p_polyline, const Vector<Vector2> &p_polygon); // Cut.
-    Array intersect_polyline_with_polygon_2d(const Vector<Vector2> &p_polyline, const Vector<Vector2> &p_polygon); // Chop.
+    Array clip_polyline_with_polygon_2d(const PODVector<Vector2> &p_polyline, const PODVector<Vector2> &p_polygon); // Cut.
+    Array intersect_polyline_with_polygon_2d(const PODVector<Vector2> &p_polyline, const PODVector<Vector2> &p_polygon); // Chop.
 
     // 2D offset polygons/polylines.
     enum PolyJoinType {
@@ -437,8 +437,8 @@ public:
         END_SQUARE,
         END_ROUND
     };
-    Array offset_polygon_2d(const Vector<Vector2> &p_polygon, real_t p_delta, PolyJoinType p_join_type = JOIN_SQUARE);
-    Array offset_polyline_2d(const Vector<Vector2> &p_polygon, real_t p_delta, PolyJoinType p_join_type = JOIN_SQUARE, PolyEndType p_end_type = END_SQUARE);
+    Array offset_polygon_2d(const PODVector<Vector2> &p_polygon, real_t p_delta, PolyJoinType p_join_type = JOIN_SQUARE);
+    Array offset_polyline_2d(const PODVector<Vector2> &p_polygon, real_t p_delta, PolyJoinType p_join_type = JOIN_SQUARE, PolyEndType p_end_type = END_SQUARE);
 
     Dictionary make_atlas(const Vector<Size2> &p_rects);
 
