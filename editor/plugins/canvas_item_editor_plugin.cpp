@@ -5772,7 +5772,7 @@ CanvasItemEditor *CanvasItemEditor::singleton = nullptr;
 
 void CanvasItemEditorPlugin::edit(Object *p_object) {
 
-    canvas_item_editor->set_undo_redo(&get_undo_redo());
+    canvas_item_editor->set_undo_redo(get_undo_redo());
     canvas_item_editor->edit(object_cast<CanvasItem>(p_object));
 }
 

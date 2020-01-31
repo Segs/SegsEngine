@@ -1845,7 +1845,7 @@ void AnimationPlayerEditorPlugin::_notification(int p_what) {
 
 void AnimationPlayerEditorPlugin::edit(Object *p_object) {
 
-    anim_editor->set_undo_redo(&get_undo_redo());
+    anim_editor->set_undo_redo(get_undo_redo());
     if (!p_object)
         return;
     anim_editor->edit(object_cast<AnimationPlayer>(p_object));

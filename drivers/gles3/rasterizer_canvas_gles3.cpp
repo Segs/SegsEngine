@@ -638,12 +638,12 @@ void _render_poly_line(RasterizerCanvasGLES3 *self, RasterizerCanvas::Item::Comm
 
     if (!pline->triangles.empty()) {
 
-        self->_draw_generic(GL_TRIANGLE_STRIP, pline->triangles.size(), pline->triangles.ptr(), nullptr, pline->triangle_colors.ptr(), pline->triangle_colors.size() == 1);
+        self->_draw_generic(GL_TRIANGLE_STRIP, pline->triangles.size(), pline->triangles.ptr(), nullptr, pline->triangle_colors.data(), pline->triangle_colors.size() == 1);
         glEnable(GL_LINE_SMOOTH);
         if (pline->multiline) {
             //needs to be different
         } else {
-            self->_draw_generic(GL_LINE_LOOP, pline->lines.size(), pline->lines.data(), nullptr, pline->line_colors.ptr(), pline->line_colors.size() == 1);
+            self->_draw_generic(GL_LINE_LOOP, pline->lines.size(), pline->lines.data(), nullptr, pline->line_colors.data(), pline->line_colors.size() == 1);
         }
         glDisable(GL_LINE_SMOOTH);
     } else {
@@ -658,14 +658,14 @@ void _render_poly_line(RasterizerCanvasGLES3 *self, RasterizerCanvas::Item::Comm
 
             while (todo) {
                 int to_draw = MIN(max_per_call, todo);
-                self->_draw_generic(GL_LINES, to_draw * 2, &pline->lines.data()[offset], nullptr, pline->line_colors.size() == 1 ? pline->line_colors.ptr() : &pline->line_colors.ptr()[offset], pline->line_colors.size() == 1);
+                self->_draw_generic(GL_LINES, to_draw * 2, &pline->lines.data()[offset], nullptr, pline->line_colors.size() == 1 ? pline->line_colors.data() : &pline->line_colors.data()[offset], pline->line_colors.size() == 1);
                 todo -= to_draw;
                 offset += to_draw * 2;
             }
 
         } else {
 
-            self->_draw_generic(GL_LINE_STRIP, pline->lines.size(), pline->lines.data(), nullptr, pline->line_colors.ptr(), pline->line_colors.size() == 1);
+            self->_draw_generic(GL_LINE_STRIP, pline->lines.size(), pline->lines.data(), nullptr, pline->line_colors.data(), pline->line_colors.size() == 1);
         }
 
         if (pline->antialiased)

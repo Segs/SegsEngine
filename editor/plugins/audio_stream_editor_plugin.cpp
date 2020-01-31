@@ -94,7 +94,7 @@ void AudioStreamEditor::_draw_preview() {
         lines.emplace_back(i + 1, rect.position.y + max * rect.size.y);
     }
 
-    Vector<Color> color;
+    PODVector<Color> color;
     color.push_back(get_color("contrast_color_2", "Editor"));
 
     VisualServer::get_singleton()->canvas_item_add_multiline(_preview->get_canvas_item(), lines, color);

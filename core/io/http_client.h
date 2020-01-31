@@ -192,10 +192,10 @@ private:
 #else
 #include "platform/javascript/http_client.h.inc"
 #endif
-
+public:
     PoolVector<String> _get_response_headers();
-    Dictionary _get_response_headers_as_dictionary();
-
+    Dictionary get_response_headers_as_dictionary();
+private:
     static void _bind_methods();
 
 public:

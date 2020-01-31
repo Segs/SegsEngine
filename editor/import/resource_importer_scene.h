@@ -44,7 +44,7 @@ class EditorSceneImporter : public EditorSceneImporterInterface,public RefCounte
 
 protected:
     static void _bind_methods();
-
+public:
     Node *import_scene_from_other_importer(se_string_view p_path, uint32_t p_flags, int p_bake_fps);
     Ref<Animation> import_animation_from_other_importer(se_string_view p_path, uint32_t p_flags, int p_bake_fps);
 

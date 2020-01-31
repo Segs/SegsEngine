@@ -782,7 +782,7 @@ String HTTPClient::query_string_from_dict(const Dictionary &p_dict) {
     return query;
 }
 
-Dictionary HTTPClient::_get_response_headers_as_dictionary() {
+Dictionary HTTPClient::get_response_headers_as_dictionary() {
 
     ListPOD<String> rh;
     get_response_headers(&rh);
@@ -829,7 +829,7 @@ void HTTPClient::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("is_response_chunked"), &HTTPClient::is_response_chunked);
     MethodBinder::bind_method(D_METHOD("get_response_code"), &HTTPClient::get_response_code);
     MethodBinder::bind_method(D_METHOD("get_response_headers"), &HTTPClient::_get_response_headers);
-    MethodBinder::bind_method(D_METHOD("get_response_headers_as_dictionary"), &HTTPClient::_get_response_headers_as_dictionary);
+    MethodBinder::bind_method(D_METHOD("get_response_headers_as_dictionary"), &HTTPClient::get_response_headers_as_dictionary);
     MethodBinder::bind_method(D_METHOD("get_response_body_length"), &HTTPClient::get_response_body_length);
     MethodBinder::bind_method(D_METHOD("read_response_body_chunk"), &HTTPClient::read_response_body_chunk);
     MethodBinder::bind_method(D_METHOD("set_read_chunk_size", {"bytes"}), &HTTPClient::set_read_chunk_size);
