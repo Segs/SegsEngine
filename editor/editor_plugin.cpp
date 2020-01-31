@@ -864,7 +864,7 @@ void EditorPlugin::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("make_bottom_panel_item_visible", {"item"}), &EditorPlugin::make_bottom_panel_item_visible);
     MethodBinder::bind_method(D_METHOD("hide_bottom_panel"), &EditorPlugin::hide_bottom_panel);
 
-    MethodBinder::bind_method(D_METHOD("get_undo_redo"), &EditorPlugin::_get_undo_redo);
+    MethodBinder::bind_method(D_METHOD("get_undo_redo"), &EditorPlugin::get_undo_redo);
     MethodBinder::bind_method(D_METHOD("queue_save_layout"), &EditorPlugin::queue_save_layout);
     MethodBinder::bind_method(D_METHOD("add_import_plugin", {"importer"}), &EditorPlugin::add_import_plugin);
     MethodBinder::bind_method(D_METHOD("remove_import_plugin", {"importer"}), &EditorPlugin::remove_import_plugin);
