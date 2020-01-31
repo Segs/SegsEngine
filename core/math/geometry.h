@@ -785,42 +785,42 @@ public:
         END_ROUND
     };
 
-    static PODVector<PODVector<Point2> > merge_polygons_2d(const Vector<Point2> &p_polygon_a, const Vector<Point2> &p_polygon_b) {
+    static PODVector<PODVector<Point2> > merge_polygons_2d(const PODVector<Point2> &p_polygon_a, const PODVector<Point2> &p_polygon_b) {
 
         return _polypaths_do_operation(OPERATION_UNION, p_polygon_a, p_polygon_b);
     }
 
-    static PODVector<PODVector<Point2> > clip_polygons_2d(const Vector<Point2> &p_polygon_a, const Vector<Point2> &p_polygon_b) {
+    static PODVector<PODVector<Point2> > clip_polygons_2d(const PODVector<Point2> &p_polygon_a, const PODVector<Point2> &p_polygon_b) {
 
         return _polypaths_do_operation(OPERATION_DIFFERENCE, p_polygon_a, p_polygon_b);
     }
 
-    static PODVector<PODVector<Point2> > intersect_polygons_2d(const Vector<Point2> &p_polygon_a, const Vector<Point2> &p_polygon_b) {
+    static PODVector<PODVector<Point2> > intersect_polygons_2d(const PODVector<Point2> &p_polygon_a, const PODVector<Point2> &p_polygon_b) {
 
         return _polypaths_do_operation(OPERATION_INTERSECTION, p_polygon_a, p_polygon_b);
     }
 
-    static PODVector<PODVector<Point2> > exclude_polygons_2d(const Vector<Point2> &p_polygon_a, const Vector<Point2> &p_polygon_b) {
+    static PODVector<PODVector<Point2> > exclude_polygons_2d(const PODVector<Point2> &p_polygon_a, const PODVector<Point2> &p_polygon_b) {
 
         return _polypaths_do_operation(OPERATION_XOR, p_polygon_a, p_polygon_b);
     }
 
-    static PODVector<PODVector<Point2> > clip_polyline_with_polygon_2d(const Vector<Vector2> &p_polyline, const Vector<Vector2> &p_polygon) {
+    static PODVector<PODVector<Point2> > clip_polyline_with_polygon_2d(const PODVector<Vector2> &p_polyline, const PODVector<Vector2> &p_polygon) {
 
         return _polypaths_do_operation(OPERATION_DIFFERENCE, p_polyline, p_polygon, true);
     }
 
-    static PODVector<PODVector<Point2> > intersect_polyline_with_polygon_2d(const Vector<Vector2> &p_polyline, const Vector<Vector2> &p_polygon) {
+    static PODVector<PODVector<Point2> > intersect_polyline_with_polygon_2d(const PODVector<Vector2> &p_polyline, const PODVector<Vector2> &p_polygon) {
 
         return _polypaths_do_operation(OPERATION_INTERSECTION, p_polyline, p_polygon, true);
     }
 
-    static PODVector<PODVector<Point2> > offset_polygon_2d(const Vector<Vector2> &p_polygon, real_t p_delta, PolyJoinType p_join_type) {
+    static PODVector<PODVector<Point2> > offset_polygon_2d(const PODVector<Vector2> &p_polygon, real_t p_delta, PolyJoinType p_join_type) {
 
         return _polypath_offset(p_polygon, p_delta, p_join_type, END_POLYGON);
     }
 
-    static PODVector<PODVector<Point2> > offset_polyline_2d(const Vector<Vector2> &p_polygon, real_t p_delta, PolyJoinType p_join_type, PolyEndType p_end_type) {
+    static PODVector<PODVector<Point2> > offset_polyline_2d(const PODVector<Vector2> &p_polygon, real_t p_delta, PolyJoinType p_join_type, PolyEndType p_end_type) {
 
         ERR_FAIL_COND_V_MSG(p_end_type == END_POLYGON, PODVector<PODVector<Point2> >(), "Attempt to offset a polyline like a polygon (use offset_polygon_2d instead).")
 
@@ -983,6 +983,6 @@ public:
     static void make_atlas(const PODVector<Size2i> &p_rects, PODVector<Point2i> &r_result, Size2i &r_size);
 
 private:
-    static PODVector<PODVector<Point2> > _polypaths_do_operation(PolyBooleanOperation p_op, const Vector<Point2> &p_polypath_a, const Vector<Point2> &p_polypath_b, bool is_a_open = false);
-    static PODVector<PODVector<Point2> > _polypath_offset(const Vector<Point2> &p_polypath, real_t p_delta, PolyJoinType p_join_type, PolyEndType p_end_type);
+    static PODVector<PODVector<Point2> > _polypaths_do_operation(PolyBooleanOperation p_op, const PODVector<Point2> &p_polypath_a, const PODVector<Point2> &p_polypath_b, bool is_a_open = false);
+    static PODVector<PODVector<Point2> > _polypath_offset(const PODVector<Point2> &p_polypath, real_t p_delta, PolyJoinType p_join_type, PolyEndType p_end_type);
 };

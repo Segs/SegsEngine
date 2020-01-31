@@ -268,16 +268,16 @@ void SpriteEditor::_update_mesh_data() {
         computed_outline_lines.resize(lines.size());
         for (int pi = 0; pi < lines.size(); pi++) {
 
-            Vector<Vector2> ol;
+            PODVector<Vector2> ol;
             PODVector<Vector2> col;
 
-            ol.resize(lines[pi].size());
+            ol.reserve(lines[pi].size());
             col.reserve(lines[pi].size());
 
             for (size_t i = 0; i < lines[pi].size(); i++) {
                 Vector2 vtx = lines[pi][i];
 
-                ol.write[i] = vtx;
+                ol.emplace_back(vtx);
 
                 vtx -= rect.position; //offset by rect position
 
@@ -293,7 +293,7 @@ void SpriteEditor::_update_mesh_data() {
                 col.emplace_back(vtx);
             }
 
-            outline_lines.write[pi] = ol;
+            outline_lines.write[pi] = eastl::move(ol);
             computed_outline_lines.write[pi] = col;
         }
     }
@@ -378,7 +378,7 @@ void SpriteEditor::_convert_to_polygon_2d_node() {
     for (int i = 0; i < computed_outline_lines.size(); i++) {
 
         const PODVector<Vector2> &outline = computed_outline_lines[i];
-        Vector<Vector2> uv_outline = outline_lines[i];
+        const PODVector<Vector2> &uv_outline = outline_lines[i];
 
         PoolIntArray pia;
         pia.resize(outline.size());
@@ -491,10 +491,10 @@ void SpriteEditor::_debug_uv_draw() {
 
     } else if ((selected_menu_item == MENU_OPTION_CONVERT_TO_POLYGON_2D || selected_menu_item == MENU_OPTION_CREATE_COLLISION_POLY_2D || selected_menu_item == MENU_OPTION_CREATE_LIGHT_OCCLUDER_2D) && !outline_lines.empty()) {
         for (int i = 0; i < outline_lines.size(); i++) {
-            Vector<Vector2> outline = outline_lines[i];
+            PODVector<Vector2> outline = outline_lines[i];
 
             debug_uv->draw_polyline(outline, color);
-            debug_uv->draw_line(outline[0], outline[outline.size() - 1], color);
+            debug_uv->draw_line(outline.front(), outline.back(), color);
         }
     }
 }

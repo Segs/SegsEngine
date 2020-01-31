@@ -102,7 +102,7 @@
 #define C_METHOD_MONOARRAY_TO(m_type) C_NS_MONOMARSHAL "::mono_array_to_" #m_type
 #define C_METHOD_MONOARRAY_TO_NC(m_type) C_NS_MONOMARSHAL "::mono_array_to_NC_" #m_type
 #define C_METHOD_MONOARRAY_FROM(m_type) C_NS_MONOMARSHAL "::" #m_type "_to_mono_array"
-#define C_METHOD_MONOARRAY_FROM_NC(m_type) C_NS_MONOMARSHAL "::" #m_type "_nc_to_mono_array"
+#define C_METHOD_MONOARRAY_FROM_NC(m_type) C_NS_MONOMARSHAL "::" #m_type "_NC_to_mono_array"
 
 #define BINDINGS_GENERATOR_VERSION UINT32_C(11)
 
@@ -2250,12 +2250,17 @@ static StringName _get_variant_type_name_from_meta(VariantType tp,GodotTypeInfo:
 
             case VariantType::POOL_INT_ARRAY:
                 return StringName("VecInt");
-            case VariantType::POOL_REAL_ARRAY: break;
-            case VariantType::POOL_STRING_ARRAY: break;
+            case VariantType::POOL_REAL_ARRAY:
+                return StringName("VecFloat");
+            case VariantType::POOL_STRING_ARRAY:
+                return StringName("VecString");
             case VariantType::POOL_VECTOR2_ARRAY:
                 return StringName("VecVector2");
-            case VariantType::POOL_VECTOR3_ARRAY: break;
-            case VariantType::POOL_COLOR_ARRAY: break;
+            case VariantType::POOL_VECTOR3_ARRAY:
+                return StringName("VecVector3");
+
+            case VariantType::POOL_COLOR_ARRAY:
+                return StringName("VecColor");
             default: ;
         }
     }
@@ -2493,7 +2498,7 @@ bool BindingsGenerator::_populate_object_type_interfaces() {
                     } else if (arginfo.type == VariantType::STRING) {
                         iarg.type.cname = _get_string_type_name_from_meta(arg_meta.size() > (i + 1) ? arg_meta[i + 1] : GodotTypeInfo::METADATA_NONE);
                     } else {
-                        
+
                         iarg.type.cname = _get_variant_type_name_from_meta(arginfo.type, arg_meta.size() > (i + 1) ? arg_meta[i + 1] : GodotTypeInfo::METADATA_NONE);
                     }
                     iarg.type.pass_by = arg_pass.size() > (i + 1) ? arg_pass[i + 1] : TypePassBy::Value;
@@ -3047,7 +3052,11 @@ void BindingsGenerator::_populate_builtin_type_interfaces() {
     INSERT_ARRAY(PoolIntArray, int)
     INSERT_ARRAY_NC_FULL(VecInt,VecInt, int)
     INSERT_ARRAY_NC_FULL(VecByte, VecByte, byte)
+    INSERT_ARRAY_NC_FULL(VecFloat,VecFloat, float)
+    INSERT_ARRAY_NC_FULL(VecString, VecString, string)
     INSERT_ARRAY_NC_FULL(VecVector2, VecVector2, Vector2)
+    INSERT_ARRAY_NC_FULL(VecVector3, VecVector3, Vector3)
+    INSERT_ARRAY_NC_FULL(VecColor, VecColor, Color)
     INSERT_ARRAY_FULL(PoolByteArray, PoolByteArray, byte)
 
 

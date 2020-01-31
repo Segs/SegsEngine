@@ -487,21 +487,13 @@ BaseButton::~BaseButton() {
     }
 }
 
-void ButtonGroup::get_buttons(List<BaseButton *> *r_buttons) {
-
+PODVector<BaseButton *> ButtonGroup::get_buttons() {
+    PODVector<BaseButton *> res;
+    res.reserve(buttons.size());
     for (BaseButton * E : buttons) {
-        r_buttons->push_back(E);
+        res.push_back(E);
     }
-}
-
-Array ButtonGroup::_get_buttons() {
-
-    Array btns;
-    for (BaseButton * E : buttons) {
-        btns.push_back(Variant(E));
-    }
-
-    return btns;
+    return res;
 }
 
 BaseButton *ButtonGroup::get_pressed_button() {
@@ -517,7 +509,7 @@ BaseButton *ButtonGroup::get_pressed_button() {
 void ButtonGroup::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("get_pressed_button"), &ButtonGroup::get_pressed_button);
-    MethodBinder::bind_method(D_METHOD("get_buttons"), &ButtonGroup::_get_buttons);
+    MethodBinder::bind_method(D_METHOD("get_buttons"), &ButtonGroup::get_buttons);
 }
 
 ButtonGroup::ButtonGroup() {

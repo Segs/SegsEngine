@@ -299,8 +299,8 @@ void AnimationTrackEditAudio::draw_key(int p_index, float p_pixels_sec, int p_x,
         Rect2 rect = Rect2(from_x, (get_size().height - fh) / 2, to_x - from_x, fh);
         draw_rect(rect, Color(0.25, 0.25, 0.25));
 
-        Vector<Vector2> lines;
-        lines.resize((to_x - from_x + 1) * 2);
+        PODVector<Vector2> lines;
+        lines.reserve((to_x - from_x + 1) * 2);
         preview_len = preview->get_length();
 
         for (int i = from_x; i < to_x; i++) {
@@ -311,8 +311,8 @@ void AnimationTrackEditAudio::draw_key(int p_index, float p_pixels_sec, int p_x,
             float min = preview->get_min(ofs, ofs_n) * 0.5 + 0.5;
 
             int idx = i - from_x;
-            lines.write[idx * 2 + 0] = Vector2(i, rect.position.y + min * rect.size.y);
-            lines.write[idx * 2 + 1] = Vector2(i, rect.position.y + max * rect.size.y);
+            lines.emplace_back(i, rect.position.y + min * rect.size.y);
+            lines.emplace_back(i, rect.position.y + max * rect.size.y);
         }
 
         Vector<Color> color;
@@ -659,7 +659,7 @@ void AnimationTrackEditSubAnim::draw_key(int p_index, float p_pixels_sec, int p_
         bg.b = 1 - color.b;
         draw_rect(rect, bg);
 
-        Vector<Vector2> lines;
+        PODVector<Vector2> lines;
         Vector<Color> colorv;
         {
             Ref<Animation> animation = ap->get_animation(anim);
@@ -918,8 +918,8 @@ void AnimationTrackEditTypeAudio::draw_key(int p_index, float p_pixels_sec, int 
     Rect2 rect = Rect2(from_x, (h - fh) / 2, to_x - from_x, fh);
     draw_rect(rect, Color(0.25, 0.25, 0.25));
 
-    Vector<Vector2> lines;
-    lines.resize((to_x - from_x + 1) * 2);
+    PODVector<Vector2> lines;
+    lines.reserve((to_x - from_x + 1) * 2);
     preview_len = preview->get_length();
 
     for (int i = from_x; i < to_x; i++) {
@@ -933,8 +933,8 @@ void AnimationTrackEditTypeAudio::draw_key(int p_index, float p_pixels_sec, int 
         float min = preview->get_min(ofs, ofs_n) * 0.5f + 0.5f;
 
         int idx = i - from_x;
-        lines.write[idx * 2 + 0] = Vector2(i, rect.position.y + min * rect.size.y);
-        lines.write[idx * 2 + 1] = Vector2(i, rect.position.y + max * rect.size.y);
+        lines.emplace_back(i, rect.position.y + min * rect.size.y);
+        lines.emplace_back(i, rect.position.y + max * rect.size.y);
     }
 
     Vector<Color> color;
@@ -1242,7 +1242,7 @@ void AnimationTrackEditTypeAnimation::draw_key(int p_index, float p_pixels_sec, 
         bg.b = 1 - color.b;
         draw_rect(rect, bg);
 
-        Vector<Vector2> lines;
+        PODVector<Vector2> lines;
         Vector<Color> colorv;
         {
             Ref<Animation> animation = ap->get_animation(anim);
