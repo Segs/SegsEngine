@@ -559,8 +559,8 @@ public:
 
     virtual void canvas_item_add_line(RID p_item, const Point2 &p_from, const Point2 &p_to, const Color &p_color, float p_width = 1.0, bool p_antialiased = false) = 0;
     //TODO: SEGS: move p_points using `PODVector<Point2> &&`, will need to consider scripting api?
-    virtual void canvas_item_add_polyline(RID p_item, const PODVector<Vector2> &p_points, const Vector<Color> &p_colors, float p_width = 1.0, bool p_antialiased = false) = 0;
-    virtual void canvas_item_add_multiline(RID p_item, const PODVector<Vector2> &p_points, const Vector<Color> &p_colors, float p_width = 1.0, bool p_antialiased = false) = 0;
+    virtual void canvas_item_add_polyline(RID p_item, const PODVector<Vector2> &p_points, const PODVector<Color> &p_colors, float p_width = 1.0, bool p_antialiased = false) = 0;
+    virtual void canvas_item_add_multiline(RID p_item, const PODVector<Vector2> &p_points, const PODVector<Color> &p_colors, float p_width = 1.0, bool p_antialiased = false) = 0;
     virtual void canvas_item_add_rect(RID p_item, const Rect2 &p_rect, const Color &p_color) = 0;
     virtual void canvas_item_add_circle(RID p_item, const Point2 &p_pos, float p_radius, const Color &p_color) = 0;
     virtual void canvas_item_add_texture_rect(RID p_item, const Rect2 &p_rect, RID p_texture, bool p_tile = false, const Color &p_modulate = Color(1, 1, 1), bool p_transpose = false, RID p_normal_map = RID()) = 0;

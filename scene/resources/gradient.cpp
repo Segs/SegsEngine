@@ -32,6 +32,7 @@
 
 #include "core/core_string_names.h"
 #include "core/method_bind.h"
+#include "EASTL/sort.h"
 
 IMPL_GDCLASS(Gradient)
 
@@ -45,10 +46,10 @@ IMPL_GDCLASS(Gradient)
 Gradient::Gradient() {
     //Set initial color ramp transition from black to white
     points.resize(2);
-    points.write[0].color = Color(0, 0, 0, 1);
-    points.write[0].offset = 0;
-    points.write[1].color = Color(1, 1, 1, 1);
-    points.write[1].offset = 1;
+    points[0].color = Color(0, 0, 0, 1);
+    points[0].offset = 0;
+    points[1].color = Color(1, 1, 1, 1);
+    points[1].offset = 1;
     is_sorted = true;
 }
 
@@ -89,35 +90,82 @@ Vector<float> Gradient::get_offsets() const {
     return offsets;
 }
 
-Vector<Color> Gradient::get_colors() const {
-    Vector<Color> colors;
-    colors.resize(points.size());
+PODVector<Color> Gradient::get_colors() const {
+    PODVector<Color> colors;
+    colors.reserve(points.size());
     for (int i = 0; i < points.size(); i++) {
-        colors.write[i] = points[i].color;
+        colors.emplace_back(points[i].color);
     }
     return colors;
 }
 
-void Gradient::set_offsets(const Vector<float> &p_offsets) {
+Color Gradient::get_color_at_offset(float p_offset) {
+
+    if (points.empty())
+        return Color(0, 0, 0, 1);
+
+    if (!is_sorted) {
+        eastl::sort(points.begin(),points.end());
+        is_sorted = true;
+    }
+
+    //binary search
+    int low = 0;
+    int high = points.size() - 1;
+    int middle = 0;
+
+#ifdef DEBUG_ENABLED
+    if (low > high)
+        ERR_PRINT("low > high, this may be a bug")
+        #endif
+
+                while (low <= high) {
+            middle = (low + high) / 2;
+            const Point &point = points[middle];
+            if (point.offset > p_offset) {
+                high = middle - 1; //search low end of array
+            } else if (point.offset < p_offset) {
+                low = middle + 1; //search high end of array
+            } else {
+                return point.color;
+            }
+        }
+
+            //return interpolated value
+            if (points[middle].offset > p_offset) {
+                middle--;
+            }
+    int first = middle;
+    int second = middle + 1;
+    if (second >= points.size())
+        return points[points.size() - 1].color;
+    if (first < 0)
+        return points[0].color;
+    const Point &pointFirst = points[first];
+    const Point &pointSecond = points[second];
+    return pointFirst.color.linear_interpolate(pointSecond.color, (p_offset - pointFirst.offset) / (pointSecond.offset - pointFirst.offset));
+}
+
+void Gradient::set_offsets(const PODVector<float> &p_offsets) {
     points.resize(p_offsets.size());
     for (int i = 0; i < points.size(); i++) {
-        points.write[i].offset = p_offsets[i];
+        points[i].offset = p_offsets[i];
     }
     is_sorted = false;
     emit_signal(CoreStringNames::get_singleton()->changed);
 }
 
-void Gradient::set_colors(const Vector<Color> &p_colors) {
+void Gradient::set_colors(const PODVector<Color> &p_colors) {
     if (points.size() < p_colors.size())
         is_sorted = false;
     points.resize(p_colors.size());
     for (int i = 0; i < points.size(); i++) {
-        points.write[i].color = p_colors[i];
+        points[i].color = p_colors[i];
     }
     emit_signal(CoreStringNames::get_singleton()->changed);
 }
 
-Vector<Gradient::Point> &Gradient::get_points() {
+PODVector<Gradient::Point> &Gradient::get_points() {
     return points;
 }
 
@@ -135,12 +183,12 @@ void Gradient::add_point(float p_offset, const Color &p_color) {
 void Gradient::remove_point(int p_index) {
 
     ERR_FAIL_INDEX(p_index, points.size())
-    ERR_FAIL_COND(points.size() <= 2)
-    points.remove(p_index);
+            ERR_FAIL_COND(points.size() <= 2)
+            points.erase_at(p_index);
     emit_signal(CoreStringNames::get_singleton()->changed);
 }
 
-void Gradient::set_points(Vector<Gradient::Point> &p_points) {
+void Gradient::set_points(const PODVector<Gradient::Point> &p_points) {
     points = p_points;
     is_sorted = false;
     emit_signal(CoreStringNames::get_singleton()->changed);
@@ -151,7 +199,7 @@ void Gradient::set_offset(int pos, const float offset) {
     ERR_FAIL_COND(pos < 0)
     if (points.size() <= pos)
         points.resize(pos + 1);
-    points.write[pos].offset = offset;
+    points[pos].offset = offset;
     is_sorted = false;
     emit_signal(CoreStringNames::get_singleton()->changed);
 }
@@ -167,7 +215,7 @@ void Gradient::set_color(int pos, const Color &color) {
         points.resize(pos + 1);
         is_sorted = false;
     }
-    points.write[pos].color = color;
+    points[pos].color = color;
     emit_signal(CoreStringNames::get_singleton()->changed);
 }
 

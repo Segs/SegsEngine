@@ -714,9 +714,9 @@ public:
         struct CommandPolyLine : public Command {
 
             Vector<Point2> triangles;
-            Vector<Color> triangle_colors;
+            PODVector<Color> triangle_colors;
             PODVector<Point2> lines;
-            Vector<Color> line_colors;
+            PODVector<Color> line_colors;
             bool antialiased;
             bool multiline;
             CommandPolyLine() {

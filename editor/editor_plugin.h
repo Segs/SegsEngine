@@ -118,15 +118,14 @@ class EditorPlugin : public Node {
 
     String last_main_screen_name;
 
-    UndoRedo *_get_undo_redo() { return undo_redo; }
 protected:
     static void _bind_methods();
-
+public:
     void add_custom_type(const StringName &p_type, const StringName &p_base, const Ref<Script> &p_script, const Ref<Texture> &p_icon);
     void remove_custom_type(const StringName &p_type);
 
 public:
-    UndoRedo &get_undo_redo() { return *undo_redo; }
+    UndoRedo *get_undo_redo() { return undo_redo; }
 
     enum CustomControlContainer {
         CONTAINER_TOOLBAR,

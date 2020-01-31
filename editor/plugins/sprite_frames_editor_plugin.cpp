@@ -1083,7 +1083,7 @@ SpriteFramesEditor::SpriteFramesEditor() {
 
 void SpriteFramesEditorPlugin::edit(Object *p_object) {
 
-    frames_editor->set_undo_redo(&get_undo_redo());
+    frames_editor->set_undo_redo(get_undo_redo());
 
     SpriteFrames *s;
     AnimatedSprite *animated_sprite = object_cast<AnimatedSprite>(p_object);
