@@ -195,6 +195,7 @@ void main() {
 #else
     vec4 color = textureLod(source, uv_interp, 0.0);
 #endif
+#endif
 
 #ifdef LINEAR_TO_SRGB
     // regular Linear -> SRGB conversion
@@ -217,12 +218,10 @@ void main() {
 
     color.rgb = mix(pow((color.rgb + vec3(0.055)) * (1.0 / (1.0 + 0.055)), vec3(2.4)), color.rgb * (1.0 / 12.92), lessThan(color.rgb, vec3(0.04045)));
 #endif
-#ifndef USE_PANORAMA
 
 #ifdef DEBUG_GRADIENT
     color.rg = uv_interp;
     color.b = 0.0;
-#endif
 
 #endif
 
@@ -230,7 +229,6 @@ void main() {
     color.a = 1.0;
 #endif
 
-#ifndef USE_PANORAMA
 
 #ifdef GAUSSIAN_HORIZONTAL
     color *= 0.38774;
@@ -246,8 +244,6 @@ void main() {
     color += texture(source, uv_interp + vec2(0.0, 2.0) * pixel_size) * 0.06136;
     color += texture(source, uv_interp + vec2(0.0, -1.0) * pixel_size) * 0.24477;
     color += texture(source, uv_interp + vec2(0.0, -2.0) * pixel_size) * 0.06136;
-#endif
-
 #endif
 
 #ifdef USE_BCS

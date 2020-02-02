@@ -2086,7 +2086,7 @@ void EditorFileSystem::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("is_scanning"), &EditorFileSystem::is_scanning);
     MethodBinder::bind_method(D_METHOD("get_scanning_progress"), &EditorFileSystem::get_scanning_progress);
     MethodBinder::bind_method(D_METHOD("scan"), &EditorFileSystem::scan);
-    MethodBinder::bind_method(D_METHOD("scan_sources"), &EditorFileSystem::scan_changes);
+    MethodBinder::bind_method(D_METHOD("scan_changes"), &EditorFileSystem::scan_changes);
     MethodBinder::bind_method(D_METHOD("update_file", {"path"}), &EditorFileSystem::update_file);
     MethodBinder::bind_method(D_METHOD("get_filesystem_path", {"path"}), &EditorFileSystem::get_filesystem_path);
     MethodBinder::bind_method(D_METHOD("get_file_type", {"path"}), &EditorFileSystem::get_file_type);

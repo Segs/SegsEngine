@@ -156,10 +156,7 @@ namespace GodotTools
 
         public override void _Notification(int what)
         {
-            Godot.GD.Print($"SharpEditor::_Notification 1{this}");
             base._Notification(what);
-            string tz = editorSettings != null ? "edd" : "no_edd";
-            Godot.GD.Print($"SharpEditor::_Notification 2{tz}");
 
             if (what == NotificationReady)
             {
@@ -203,7 +200,7 @@ namespace GodotTools
             {
                 case ExternalEditorId.None:
                     // Tells the caller to fallback to the global external editor settings or the built-in editor
-                    return Error.ErrUnavailable;
+                    return Error.Unavailable;
                 case ExternalEditorId.VisualStudio:
                     throw new NotSupportedException();
                 case ExternalEditorId.VisualStudioForMac:
@@ -213,7 +210,7 @@ namespace GodotTools
                     string scriptPath = ProjectSettings.GlobalizePath(script.ResourcePath);
                     RiderPathManager.OpenFile(GodotSharpDirs.ProjectSlnPath, scriptPath, line);
                     return Error.Ok;
-                }        
+                }
                 case ExternalEditorId.MonoDevelop:
                 {
                     string scriptPath = ProjectSettings.GlobalizePath(script.ResourcePath);
@@ -283,7 +280,7 @@ namespace GodotTools
                         if (!osxAppBundleInstalled && _vsCodePath.Empty())
                         {
                             GD.PushError("Cannot find code editor: VSCode");
-                            return Error.ErrFileNotFound;
+                            return Error.FileNotFound;
                         }
 
                         command = osxAppBundleInstalled ? "/usr/bin/open" : _vsCodePath;
@@ -293,7 +290,7 @@ namespace GodotTools
                         if (_vsCodePath.Empty())
                         {
                             GD.PushError("Cannot find code editor: VSCode");
-                            return Error.ErrFileNotFound;
+                            return Error.FileNotFound;
                         }
 
                         command = _vsCodePath;
@@ -331,8 +328,6 @@ namespace GodotTools
 
         public override void EnablePlugin()
         {
-            string tz = editorSettings != null ? "edd" : "no_edd";
-            Godot.GD.Print($"SharpEditor::EnablePlugin 1{tz}");
             base.EnablePlugin();
 
             if (Instance != null)
@@ -345,8 +340,6 @@ namespace GodotTools
             editorSettings = editorInterface.GetEditorSettings();
             if (editorSettings == null)
                 throw new ArgumentNullException("Editor settings are null");
-            string tz2 = editorSettings != null ? "edd" : "no_edd";
-            Godot.GD.Print($"SharpEditor::EnablePlugin 2{tz2}");
 
             errorDialog = new AcceptDialog();
             editorBaseControl.AddChild(errorDialog);
@@ -388,7 +381,7 @@ namespace GodotTools
                 var aboutLabel = new Label();
                 aboutHBox.AddChild(aboutLabel);
                 aboutLabel.RectMinSize = new Vector2(600, 150) * EditorScale;
-                aboutLabel.SizeFlagsVertical = (int)Control.SizeFlags.SizeExpandFill;
+                aboutLabel.SizeFlagsVertical = (int)Control.SizeFlags.ExpandFill;
                 aboutLabel.Autowrap = true;
                 aboutLabel.Text =
                     "C# support in Godot Engine is in late alpha stage and, while already usable, " +
@@ -425,10 +418,10 @@ namespace GodotTools
             {
                 Text = "Build",
                 HintTooltip = "Build solution",
-                FocusMode = (int)Control.FocusModeEnum.FocusNone
+                FocusMode = (int)Control.FocusModeEnum.None
             };
             buildButton.Connect("pressed", this, nameof(_BuildSolutionPressed));
-            AddControlToContainer(CustomControlContainer.ContainerToolbar, buildButton);
+            AddControlToContainer(CustomControlContainer.Toolbar, buildButton);
 
             // External editor settings
             EditorDef("mono/editor/external_editor", ExternalEditorId.None);
@@ -457,7 +450,7 @@ namespace GodotTools
 
             editorSettings.AddPropertyInfo(new Godot.Collections.Dictionary
             {
-                ["type"] = VariantType.TypeInt,
+                ["type"] = VariantType.Int,
                 ["name"] = "mono/editor/external_editor",
                 ["hint"] = PropertyHint.Enum,
                 ["hint_string"] = settingsHintStr

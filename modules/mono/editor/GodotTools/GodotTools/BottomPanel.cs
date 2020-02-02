@@ -205,9 +205,9 @@ namespace GodotTools
             if (what == EditorSettings.NotificationEditorSettingsChanged)
             {
                 var editorBaseControl = editorInterface.GetBaseControl();
-                panelTabs.AddStyleboxOverride("panel", editorBaseControl.GetStylebox("DebuggerPanel", "EditorStyles"));
-                panelTabs.AddStyleboxOverride("tab_fg", editorBaseControl.GetStylebox("DebuggerTabFG", "EditorStyles"));
-                panelTabs.AddStyleboxOverride("tab_bg", editorBaseControl.GetStylebox("DebuggerTabBG", "EditorStyles"));
+                panelTabs.AddStyleOverride("panel", editorBaseControl.GetStylebox("DebuggerPanel", "EditorStyles"));
+                panelTabs.AddStyleOverride("tab_fg", editorBaseControl.GetStylebox("DebuggerTabFG", "EditorStyles"));
+                panelTabs.AddStyleOverride("tab_bg", editorBaseControl.GetStylebox("DebuggerTabBG", "EditorStyles"));
             }
         }
 
@@ -249,18 +249,18 @@ namespace GodotTools
 
             var editorBaseControl = editorInterface.GetBaseControl();
 
-            SizeFlagsVertical = (int)SizeFlags.SizeExpandFill;
-            SetAnchorsAndMarginsPreset(LayoutPreset.PresetWide);
+            SizeFlagsVertical = (int)SizeFlags.ExpandFill;
+            SetAnchorsAndMarginsPreset(LayoutPreset.Wide);
 
             panelTabs = new TabContainer
             {
-                TabAlign = (int)TabContainer.TabAlignEnum.AlignLeft,
+                TabAlign = (int)TabContainer.TabAlignEnum.Left,
                 RectMinSize = new Vector2(0, 228) * EditorScale,
-                SizeFlagsVertical = (int)SizeFlags.SizeExpandFill
+                SizeFlagsVertical = (int)SizeFlags.ExpandFill
             };
-            panelTabs.AddStyleboxOverride("panel", editorBaseControl.GetStylebox("DebuggerPanel", "EditorStyles"));
-            panelTabs.AddStyleboxOverride("tab_fg", editorBaseControl.GetStylebox("DebuggerTabFG", "EditorStyles"));
-            panelTabs.AddStyleboxOverride("tab_bg", editorBaseControl.GetStylebox("DebuggerTabBG", "EditorStyles"));
+            panelTabs.AddStyleOverride("panel", editorBaseControl.GetStylebox("DebuggerPanel", "EditorStyles"));
+            panelTabs.AddStyleOverride("tab_fg", editorBaseControl.GetStylebox("DebuggerTabFG", "EditorStyles"));
+            panelTabs.AddStyleOverride("tab_bg", editorBaseControl.GetStylebox("DebuggerTabBG", "EditorStyles"));
             AddChild(panelTabs);
 
             {
@@ -268,17 +268,17 @@ namespace GodotTools
                 panelBuildsTab = new VBoxContainer
                 {
                     Name = "Builds".TTR(),
-                    SizeFlagsHorizontal = (int)SizeFlags.SizeExpandFill
+                    SizeFlagsHorizontal = (int)SizeFlags.ExpandFill
                 };
                 panelTabs.AddChild(panelBuildsTab);
 
-                var toolBarHBox = new HBoxContainer { SizeFlagsHorizontal = (int)SizeFlags.SizeExpandFill };
+                var toolBarHBox = new HBoxContainer { SizeFlagsHorizontal = (int)SizeFlags.ExpandFill };
                 panelBuildsTab.AddChild(toolBarHBox);
 
                 var buildProjectBtn = new Button
                 {
                     Text = "Build Project".TTR(),
-                    FocusMode = (int)FocusModeEnum.FocusNone
+                    FocusMode = (int)FocusModeEnum.None
                 };
                 buildProjectBtn.Connect("pressed", this, nameof(BuildProjectPressed));
                 toolBarHBox.AddChild(buildProjectBtn);
@@ -291,7 +291,7 @@ namespace GodotTools
                     ToggleMode = true,
                     Pressed = true,
                     Visible = false,
-                    FocusMode = (int)FocusModeEnum.FocusNone
+                    FocusMode = (int)FocusModeEnum.None
                 };
                 warningsBtn.Connect("toggled", this, nameof(_WarningsToggled));
                 toolBarHBox.AddChild(warningsBtn);
@@ -302,7 +302,7 @@ namespace GodotTools
                     ToggleMode = true,
                     Pressed = true,
                     Visible = false,
-                    FocusMode = (int)FocusModeEnum.FocusNone
+                    FocusMode = (int)FocusModeEnum.None
                 };
                 errorsBtn.Connect("toggled", this, nameof(_ErrorsToggled));
                 toolBarHBox.AddChild(errorsBtn);
@@ -312,7 +312,7 @@ namespace GodotTools
                 viewLogBtn = new Button
                 {
                     Text = "View log".TTR(),
-                    FocusMode = (int)FocusModeEnum.FocusNone,
+                    FocusMode = (int)FocusModeEnum.None,
                     Visible = false
                 };
                 viewLogBtn.Connect("pressed", this, nameof(_ViewLogPressed));
@@ -320,20 +320,20 @@ namespace GodotTools
 
                 var hsc = new HSplitContainer
                 {
-                    SizeFlagsHorizontal = (int)SizeFlags.SizeExpandFill,
-                    SizeFlagsVertical = (int)SizeFlags.SizeExpandFill
+                    SizeFlagsHorizontal = (int)SizeFlags.ExpandFill,
+                    SizeFlagsVertical = (int)SizeFlags.ExpandFill
                 };
                 panelBuildsTab.AddChild(hsc);
 
-                buildTabsList = new ItemList { SizeFlagsHorizontal = (int)SizeFlags.SizeExpandFill };
+                buildTabsList = new ItemList { SizeFlagsHorizontal = (int)SizeFlags.ExpandFill };
                 buildTabsList.Connect("item_selected", this, nameof(_BuildTabsItemSelected));
                 buildTabsList.Connect("nothing_selected", this, nameof(_BuildTabsNothingSelected));
                 hsc.AddChild(buildTabsList);
 
                 buildTabs = new TabContainer
                 {
-                    TabAlign = (int)TabContainer.TabAlignEnum.AlignLeft,
-                    SizeFlagsHorizontal = (int)SizeFlags.SizeExpandFill,
+                    TabAlign = (int)TabContainer.TabAlignEnum.Left,
+                    SizeFlagsHorizontal = (int)SizeFlags.ExpandFill,
                     TabsVisible = false
                 };
                 hsc.AddChild(buildTabs);

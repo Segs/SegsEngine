@@ -45,6 +45,7 @@
 #include "core/print_string.h"
 #include "core/os/thread.h"
 #include "core/project_settings.h"
+#include "core/string_formatter.h"
 
 #include "../csharp_script.h"
 #include "../godotsharp_dirs.h"
@@ -800,6 +801,8 @@ bool GDMono::_load_core_api_assembly(LoadedApiAssembly &r_loaded_api_assembly, s
                                   PathUtils::plus_file(GodotSharpDirs::get_data_editor_prebuilt_api_dir(),p_config);
 
     String assembly_path = PathUtils::plus_file(assembly_dir,CORE_API_ASSEMBLY_NAME ".dll");
+    if (OS::get_singleton()->is_stdout_verbose())
+        OS::get_singleton()->print(FormatVE("Mono: Searching for assembly %s\n",assembly_path.c_str()));
 
     bool success = FileAccess::exists(assembly_path) &&
                    load_assembly_from(CORE_API_ASSEMBLY_NAME, assembly_path, &r_loaded_api_assembly.assembly, p_refonly);
@@ -833,6 +836,8 @@ bool GDMono::_load_editor_api_assembly(LoadedApiAssembly &r_loaded_api_assembly,
                                   PathUtils::plus_file(GodotSharpDirs::get_data_editor_prebuilt_api_dir(),p_config);
 
     String assembly_path = PathUtils::plus_file(assembly_dir,EDITOR_API_ASSEMBLY_NAME ".dll");
+    if (OS::get_singleton()->is_stdout_verbose())
+        OS::get_singleton()->print(FormatVE("Mono: Searching for assembly %s\n",assembly_path.c_str()));
 
     bool success = FileAccess::exists(assembly_path) &&
                    load_assembly_from(EDITOR_API_ASSEMBLY_NAME, assembly_path, &r_loaded_api_assembly.assembly, p_refonly);

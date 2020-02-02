@@ -74,7 +74,6 @@
 #define CLOSE_BLOCK_L4 INDENT4 CLOSE_BLOCK
 
 #define CS_FIELD_MEMORYOWN "memoryOwn"
-#define CS_PARAM_METHODBIND "method"
 #define CS_PARAM_INSTANCE "ptr"
 #define CS_SMETHOD_GETINSTANCE "GetPtr"
 #define CS_METHOD_CALL "Call"
@@ -717,7 +716,7 @@ void BindingsGenerator::_generate_method_icalls(const TypeInterface &p_itype) {
         method_signature+="_"+imethod.cname+"_";
         const TypeInterface *return_type = _get_type_or_placeholder(imethod.return_type);
 
-        String im_sig = "IntPtr " CS_PARAM_METHODBIND ", ";
+        String im_sig;
         String im_unique_sig = String(imethod.return_type.cname) + ",IntPtr,IntPtr";
 
         im_sig += "IntPtr " CS_PARAM_INSTANCE;
@@ -1542,12 +1541,10 @@ Error BindingsGenerator::_generate_cs_method(const BindingsGenerator::TypeInterf
 
     const TypeInterface *return_type = _get_type_or_placeholder(p_imethod.return_type);
 
-    String method_bind_field = "method_bind_" + itos(p_method_bind_count);
-
     String arguments_sig;
     String cs_in_statements;
 
-    String icall_params = method_bind_field + ", ";
+    String icall_params;
     icall_params += sformat(p_itype.cs_in, "this");
 
     StringBuilder default_args_doc;
@@ -1627,13 +1624,6 @@ Error BindingsGenerator::_generate_cs_method(const BindingsGenerator::TypeInterf
 
     // Generate method
     {
-        if (!p_imethod.is_virtual && !p_imethod.requires_object_call) {
-            p_output.append(MEMBER_BEGIN "[DebuggerBrowsable(DebuggerBrowsableState.Never)]" MEMBER_BEGIN "private static IntPtr ");
-            p_output.append(method_bind_field + " = Object." ICALL_GET_METHODBIND "(" BINDINGS_NATIVE_NAME_FIELD ", \"");
-            p_output.append(p_imethod.name);
-            p_output.append("\");\n");
-        }
-
         if (p_imethod.method_doc && p_imethod.method_doc->description.size()) {
             String xml_summary = bbcode_to_xml(fix_doc_description(p_imethod.method_doc->description), &p_itype);
             PODVector<String> summary_lines = xml_summary.length() ? xml_summary.split('\n') : PODVector<String>();
@@ -1754,6 +1744,15 @@ Error BindingsGenerator::generate_glue(se_string_view p_output_dir) {
     output.append("#include \"core/method_bind.h\"\n");
     output.append("#include \"core/pool_vector.h\"\n");
     output.append("\n#ifdef MONO_GLUE_ENABLED\n");
+    output.append("\nstruct AutoRef {\n");
+    output.append("    Object *self;\n");
+    output.append("    AutoRef(Object *s) : self(s) {}\n");
+    output.append("    template<class T>\n");
+    output.append("    operator Ref<T>() {\n");
+    output.append("        return Ref<T>((T*)self);\n");
+    output.append("    }\n");
+    output.append("};\n");
+
     eastl::unordered_set<String> used;
     for (OrderedHashMap<StringName, TypeInterface>::Element type_elem = obj_types.front(); type_elem; type_elem = type_elem.next()) {
         const TypeInterface &itype = type_elem.get();
@@ -1972,7 +1971,7 @@ Error BindingsGenerator::_generate_glue_method(const BindingsGenerator::TypeInte
             }
 
             if(arg_type->is_reference)
-                c_args_var_content += FormatVE("Ref<RefCounted>((RefCounted *)%s)",c_param_name.c_str());
+                c_args_var_content += FormatVE("AutoRef(%s)",c_param_name.c_str());
             else if(arg_type->is_enum) {
                 // add enum cast
                 se_string_view enum_name(arg_type->name);
@@ -2114,7 +2113,7 @@ Error BindingsGenerator::_generate_glue_method(const BindingsGenerator::TypeInte
                 p_output.append("auto " C_LOCAL_RET " = ");
             }
         }
-        se_string_view method_to_call(p_itype.cname);
+        se_string_view method_to_call(p_imethod.cname);
         if(se_string_view("new")==method_to_call)
             method_to_call=se_string_view("_new");
         p_output.append(FormatVE("static_cast<%s *>(" CS_PARAM_INSTANCE ")->%.*s(", p_itype.cname.asCString(), method_to_call.length(),method_to_call.data()));

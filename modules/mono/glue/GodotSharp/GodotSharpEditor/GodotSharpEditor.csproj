@@ -8,7 +8,10 @@
     <OutputPath>bin/$(Configuration)</OutputPath>
     <RootNamespace>Godot</RootNamespace>
     <AssemblyName>GodotSharpEditor</AssemblyName>
-    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
+    <GodotSourceRootPath>$(SolutionDir)/../../../../</GodotSourceRootPath>
+    <DataDirToolsOutputPath>$(GodotSourceRootPath)/bin/GodotSharp/Api/$(Configuration)</DataDirToolsOutputPath>
+
+    <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
     <DocumentationFile>$(OutputPath)/$(AssemblyName).xml</DocumentationFile>
     <BaseIntermediateOutputPath>obj</BaseIntermediateOutputPath>
   </PropertyGroup>
@@ -16,6 +19,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>portable</DebugType>
     <Optimize>false</Optimize>
+    <OutputPath>bin\Debug</OutputPath>
     <DefineConstants>$(GodotDefineConstants);GODOT;DEBUG;</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -24,6 +28,7 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>portable</DebugType>
     <Optimize>true</Optimize>
+    <OutputPath>bin\Release</OutputPath>
     <DefineConstants>$(GodotDefineConstants);GODOT;</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -41,5 +46,15 @@
       <Private>False</Private>
     </ProjectReference>
   </ItemGroup>
+  <Target Name="CopyToDataDir" AfterTargets="Build">
+    <ItemGroup>
+      <GodotCopy Include="$(OutputPath)\Godot*.dll" />
+      <GodotCopy Include="$(OutputPath)\Godot*.xml" />
+    </ItemGroup>
+    <ItemGroup Condition=" '$(Configuration)' == 'Debug' ">
+      <GodotCopy Include="$(OutputPath)\Godot*.pdb" />
+    </ItemGroup>
+    <Copy SourceFiles="@(GodotCopy)" DestinationFolder="$(DataDirToolsOutputPath)" ContinueOnError="false" />
+  </Target>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>
