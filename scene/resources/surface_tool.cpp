@@ -78,12 +78,12 @@ bool SurfaceTool::Vertex::operator==(const Vertex &p_vertex) const {
     if (bones.size() != p_vertex.bones.size())
         return false;
 
-    for (int i = 0; i < bones.size(); i++) {
+    for (size_t i = 0, fin = bones.size(); i < fin; ++i) {
         if (bones[i] != p_vertex.bones[i])
             return false;
     }
 
-    for (int i = 0; i < weights.size(); i++) {
+    for (size_t i = 0, fin = weights.size(); i < fin; ++i) {
         if (weights[i] != p_vertex.weights[i])
             return false;
     }

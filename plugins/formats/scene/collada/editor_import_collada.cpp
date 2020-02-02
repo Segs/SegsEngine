@@ -639,7 +639,7 @@ Error ColladaImport::_create_mesh_surfaces(bool p_optimize, Ref<ArrayMesh> &p_me
 
             int index_ofs = 0;
             int wstride = p_skin_controller->weights.sources.size();
-            for (int w_i = 0; w_i < p_skin_controller->weights.sets.size(); w_i++) {
+            for (size_t w_i = 0; w_i < p_skin_controller->weights.sets.size(); w_i++) {
 
                 int amount = p_skin_controller->weights.sets[w_i];
 

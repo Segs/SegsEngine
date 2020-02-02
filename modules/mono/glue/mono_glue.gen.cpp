@@ -50189,12 +50189,12 @@ Object* godot_icall__VisualScriptEditor_get_singleton() {
 namespace GodotSharpBindings
 {
 
-uint64_t get_core_api_hash() { return 6744823453537507880U; }
+uint64_t get_core_api_hash() { return 3106367961743451925U; }
 #ifdef TOOLS_ENABLED
-uint64_t get_editor_api_hash() { return 9903797007625671521U; }
+uint64_t get_editor_api_hash() { return 11503419152231262158U; }
 #endif // TOOLS_ENABLED
 uint32_t get_bindings_version() { return 11; }
-uint32_t get_cs_glue_version() { return 1580605359; }
+uint32_t get_cs_glue_version() { return 1580659777; }
 
 void register_generated_icalls() {
     godot_register_glue_header_icalls();
@@ -52648,7 +52648,7 @@ void register_generated_icalls() {
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorFileSystem_is_scanning_68fe5f59", (void*)godot_icall_EditorFileSystem_is_scanning_68fe5f59);
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorFileSystem_get_scanning_progress_4edcd7a9", (void*)godot_icall_EditorFileSystem_get_scanning_progress_4edcd7a9);
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorFileSystem_scan_c8e54a7b", (void*)godot_icall_EditorFileSystem_scan_c8e54a7b);
-	mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorFileSystem_scan_changes_c8e54a7b", (void*)godot_icall_EditorFileSystem_scan_changes_c8e54a7b);
+    mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorFileSystem_scan_changes_c8e54a7b", (void*)godot_icall_EditorFileSystem_scan_changes_c8e54a7b);
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorFileSystem_update_file_919b8b17", (void*)godot_icall_EditorFileSystem_update_file_919b8b17);
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorFileSystem_get_filesystem_path_ee0151f2", (void*)godot_icall_EditorFileSystem_get_filesystem_path_ee0151f2);
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorFileSystem_get_file_type_94caa437", (void*)godot_icall_EditorFileSystem_get_file_type_94caa437);
@@ -54743,8 +54743,8 @@ void register_generated_icalls() {
     mono_add_internal_call("Godot.NativeCalls::godot_icall_Physics2DShapeQueryParameters_get_motion_9b4ea24e", (void*)godot_icall_Physics2DShapeQueryParameters_get_motion_9b4ea24e);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_Physics2DShapeQueryParameters_set_margin_904508bb", (void*)godot_icall_Physics2DShapeQueryParameters_set_margin_904508bb);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_Physics2DShapeQueryParameters_get_margin_4edcd7a9", (void*)godot_icall_Physics2DShapeQueryParameters_get_margin_4edcd7a9);
-	mono_add_internal_call("Godot.NativeCalls::godot_icall_Physics2DShapeQueryParameters_set_collision_mask_e1ae93bc", (void*)godot_icall_Physics2DShapeQueryParameters_set_collision_mask_e1ae93bc);
-	mono_add_internal_call("Godot.NativeCalls::godot_icall_Physics2DShapeQueryParameters_get_collision_mask_1f886eb0", (void*)godot_icall_Physics2DShapeQueryParameters_get_collision_mask_1f886eb0);
+    mono_add_internal_call("Godot.NativeCalls::godot_icall_Physics2DShapeQueryParameters_set_collision_mask_e1ae93bc", (void*)godot_icall_Physics2DShapeQueryParameters_set_collision_mask_e1ae93bc);
+    mono_add_internal_call("Godot.NativeCalls::godot_icall_Physics2DShapeQueryParameters_get_collision_mask_1f886eb0", (void*)godot_icall_Physics2DShapeQueryParameters_get_collision_mask_1f886eb0);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_Physics2DShapeQueryParameters_set_exclude_2923a790", (void*)godot_icall_Physics2DShapeQueryParameters_set_exclude_2923a790);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_Physics2DShapeQueryParameters_get_exclude_d80382d4", (void*)godot_icall_Physics2DShapeQueryParameters_get_exclude_d80382d4);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_Physics2DShapeQueryParameters_set_collide_with_bodies_ba24800b", (void*)godot_icall_Physics2DShapeQueryParameters_set_collide_with_bodies_ba24800b);

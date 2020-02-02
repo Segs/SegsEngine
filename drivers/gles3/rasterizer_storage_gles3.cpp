@@ -3955,7 +3955,7 @@ AABB RasterizerStorageGLES3::mesh_get_aabb(RID p_mesh, RID p_skeleton) const {
 
     if (sk && sk->size != 0) {
 
-        for (int i = 0; i < mesh->surfaces.size(); i++) {
+        for (size_t i = 0; i < mesh->surfaces.size(); i++) {
 
             AABB laabb;
             if ((mesh->surfaces[i]->format & VS::ARRAY_FORMAT_BONES) && !mesh->surfaces[i]->skeleton_bone_aabb.empty()) {
