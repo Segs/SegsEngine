@@ -252,7 +252,7 @@ namespace GodotTools
 
             editorSettings.AddPropertyInfo(new Godot.Collections.Dictionary
             {
-                ["type"] = Godot.VariantType.TypeInt,
+                ["type"] = Godot.VariantType.Int,
                 ["name"] = "mono/builds/build_tool",
                 ["hint"] = Godot.PropertyHint.Enum,
                 ["hint_string"] = OS.IsWindows ?

@@ -101,7 +101,7 @@ OPTION(MONO_GLUE_AVAILABLE "Use mono glue?" OFF)
 foreach(tgt ${global_targets})
     add_library(${tgt}_module_mono STATIC)
     if(MONO_GLUE_AVAILABLE)
-        target_sources(${tgt}_module_mono PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/glue2/mono_glue.gen.cpp)
+        target_sources(${tgt}_module_mono PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/glue/mono_glue.gen.cpp)
         target_compile_definitions(${tgt}_module_mono PRIVATE MONO_GLUE_ENABLED)
     endif()
 #TODO: only set hot reload on non-release builds

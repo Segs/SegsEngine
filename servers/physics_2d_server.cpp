@@ -284,8 +284,8 @@ void Physics2DShapeQueryParameters::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_margin", {"margin"}), &Physics2DShapeQueryParameters::set_margin);
     MethodBinder::bind_method(D_METHOD("get_margin"), &Physics2DShapeQueryParameters::get_margin);
 
-    MethodBinder::bind_method(D_METHOD("set_collision_layer", {"collision_layer"}), &Physics2DShapeQueryParameters::set_collision_mask);
-    MethodBinder::bind_method(D_METHOD("get_collision_layer"), &Physics2DShapeQueryParameters::get_collision_mask);
+    MethodBinder::bind_method(D_METHOD("set_collision_mask", {"collision_masks"}), &Physics2DShapeQueryParameters::set_collision_mask);
+    MethodBinder::bind_method(D_METHOD("get_collision_mask"), &Physics2DShapeQueryParameters::get_collision_mask);
 
     MethodBinder::bind_method(D_METHOD("set_exclude", {"exclude"}), &Physics2DShapeQueryParameters::set_exclude);
     MethodBinder::bind_method(D_METHOD("get_exclude"), &Physics2DShapeQueryParameters::get_exclude);
@@ -296,7 +296,7 @@ void Physics2DShapeQueryParameters::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_collide_with_areas", {"enable"}), &Physics2DShapeQueryParameters::set_collide_with_areas);
     MethodBinder::bind_method(D_METHOD("is_collide_with_areas_enabled"), &Physics2DShapeQueryParameters::is_collide_with_areas_enabled);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "collision_layer", PropertyHint::Layers2DPhysics), "set_collision_layer", "get_collision_layer");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "collision_mask", PropertyHint::Layers2DPhysics), "set_collision_mask", "get_collision_mask");
     ADD_PROPERTY(PropertyInfo(VariantType::ARRAY, "exclude", PropertyHint::None, (itos(int8_t(VariantType::_RID)) + ":")), "set_exclude", "get_exclude");
     ADD_PROPERTY(PropertyInfo(VariantType::REAL, "margin", PropertyHint::Range, "0,100,0.01"), "set_margin", "get_margin");
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "motion"), "set_motion", "get_motion");
@@ -319,8 +319,8 @@ Dictionary Physics2DDirectSpaceState::_intersect_ray(const Vector2 &p_from, cons
 
     RayResult inters;
     Set<RID> exclude;
-    for (int i = 0; i < p_exclude.size(); i++)
-        exclude.insert(p_exclude[i]);
+    for (RID i : p_exclude)
+        exclude.emplace(i);
 
     bool res = intersect_ray(p_from, p_to, inters, exclude, p_layers, p_collide_with_bodies, p_collide_with_areas);
 

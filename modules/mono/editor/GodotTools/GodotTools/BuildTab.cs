@@ -250,7 +250,7 @@ namespace GodotTools
         {
             base._Ready();
 
-            issuesList = new ItemList { SizeFlagsVertical = (int)SizeFlags.SizeExpandFill };
+            issuesList = new ItemList { SizeFlagsVertical = (int)SizeFlags.ExpandFill };
             issuesList.Connect("item_activated", this, nameof(_IssueActivated));
             AddChild(issuesList);
         }
