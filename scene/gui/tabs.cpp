@@ -62,7 +62,7 @@ Size2 Tabs::get_minimum_size() const {
                 ms.width += get_constant("hseparation");
         }
 
-        ms.width += Math::ceil(font->get_string_size_utf8(tabs[i].xl_text).width);
+        ms.width += Math::ceil(font->get_string_size(tabs[i].xl_text).width);
 
         if (tabs[i].disabled)
             ms.width += tab_disabled->get_minimum_size().width;
@@ -330,7 +330,7 @@ void Tabs::_notification(int p_what) {
                         w += icon->get_width() + get_constant("hseparation");
                 }
 
-                font->draw_utf8(ci,
+                font->draw(ci,
                         Point2i(w, sb->get_margin(Margin::Top) + ((sb_rect.size.y - sb_ms.y) - font->get_height()) / 2 +
                                            font->get_ascent()),
                         tabs[i].xl_text, col, tabs[i].size_text);
@@ -559,7 +559,7 @@ void Tabs::_update_cache() {
     for (int i = 0; i < tabs.size(); i++) {
         tabs.write[i].ofs_cache = mw;
         tabs.write[i].size_cache = get_tab_width(i);
-        tabs.write[i].size_text = Math::ceil(font->get_string_size_utf8(tabs[i].xl_text).width);
+        tabs.write[i].size_text = Math::ceil(font->get_string_size(tabs[i].xl_text).width);
         mw += tabs[i].size_cache;
         if (tabs[i].size_cache <= min_width || i == current) {
             size_fixed += tabs[i].size_cache;
@@ -825,7 +825,7 @@ int Tabs::get_tab_width(int p_idx) const {
             x += get_constant("hseparation");
     }
 
-    x += Math::ceil(font->get_string_size_utf8(tabs[p_idx].xl_text).width);
+    x += Math::ceil(font->get_string_size(tabs[p_idx].xl_text).width);
 
     if (tabs[p_idx].disabled)
         x += tab_disabled->get_minimum_size().width;

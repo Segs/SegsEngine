@@ -391,13 +391,13 @@ void ColorPicker::_update_text_value() {
             t += ", " + StringUtils::num(color.a) + ")";
         else
             t += ')';
-        c_text->set_text_utf8(t);
+        c_text->set_text(t);
     }
 
     if (color.r > 1 || color.g > 1 || color.b > 1 || color.r < 0 || color.g < 0 || color.b < 0) {
         visible = false;
     } else if (!text_is_constructor) {
-        c_text->set_text_utf8(color.to_html(edit_alpha && color.a < 1));
+        c_text->set_text(color.to_html(edit_alpha && color.a < 1));
     }
 
     text_type->set_visible(visible);
@@ -426,17 +426,17 @@ void ColorPicker::_hsv_draw(int p_which, Control *c) {
             c->get_size(),
             Vector2(0, c->get_size().y)
         };
-        Vector<Color> colors;
+        PoolVector<Color> colors;
         colors.push_back(Color(1, 1, 1, 1));
         colors.push_back(Color(1, 1, 1, 1));
         colors.push_back(Color(0, 0, 0, 1));
         colors.push_back(Color(0, 0, 0, 1));
         c->draw_polygon(points, colors);
-        Vector<Color> colors2;
-        colors2.emplace_back(Color::from_hsv(h, 1, 1,0));
-        colors2.emplace_back(Color::from_hsv(h, 1, 1,1));
-        colors2.emplace_back(Color::from_hsv(h, 1, 0,1));
-        colors2.emplace_back(Color::from_hsv(h, 1, 0,0));
+        PoolVector<Color> colors2;
+        colors2.push_back(Color::from_hsv(h, 1, 1,0));
+        colors2.push_back(Color::from_hsv(h, 1, 1,1));
+        colors2.push_back(Color::from_hsv(h, 1, 0,1));
+        colors2.push_back(Color::from_hsv(h, 1, 0,0));
         c->draw_polygon(points, colors2);
         int x = CLAMP(c->get_size().x * s, 0, c->get_size().x);
         int y = CLAMP(c->get_size().y - c->get_size().y * v, 0, c->get_size().y);

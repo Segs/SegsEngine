@@ -60,7 +60,7 @@ class EditorInterface : public Node {
 protected:
     static void _bind_methods();
     static EditorInterface *singleton;
-
+public:
     Array _make_mesh_previews(const Array &p_meshes, int p_preview_size);
 
 public:

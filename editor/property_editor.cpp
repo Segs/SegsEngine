@@ -545,7 +545,7 @@ bool CustomPropertyEditor::edit(Object *p_owner, se_string_view p_name, VariantT
                 List<StringName> names;
                 names.push_back(StringName("value:"));
                 config_value_editors(1, 1, 50, names);
-                value_editor[0]->set_text_utf8(StringUtils::num(v));
+                value_editor[0]->set_text(StringUtils::num(v));
             }
 
         } break;
@@ -718,7 +718,7 @@ bool CustomPropertyEditor::edit(Object *p_owner, se_string_view p_name, VariantT
                 List<StringName> names;
                 names.push_back(StringName("string:"));
                 config_value_editors(1, 1, 50, names);
-                value_editor[0]->set_text(v);
+                value_editor[0]->set_text_uistring(v);
             }
 
         } break;
@@ -728,8 +728,8 @@ bool CustomPropertyEditor::edit(Object *p_owner, se_string_view p_name, VariantT
             field_names.push_back("y");
             config_value_editors_utf8(2, 2, 10, field_names);
             Vector2 vec = v;
-            value_editor[0]->set_text_utf8(StringUtils::num(vec.x));
-            value_editor[1]->set_text_utf8(StringUtils::num(vec.y));
+            value_editor[0]->set_text(StringUtils::num(vec.x));
+            value_editor[1]->set_text(StringUtils::num(vec.y));
         } break;
         case VariantType::RECT2: {
 
@@ -739,10 +739,10 @@ bool CustomPropertyEditor::edit(Object *p_owner, se_string_view p_name, VariantT
             field_names.push_back("h");
             config_value_editors_utf8(4, 4, 10, field_names);
             Rect2 r = v;
-            value_editor[0]->set_text_utf8(StringUtils::num(r.position.x));
-            value_editor[1]->set_text_utf8(StringUtils::num(r.position.y));
-            value_editor[2]->set_text_utf8(StringUtils::num(r.size.x));
-            value_editor[3]->set_text_utf8(StringUtils::num(r.size.y));
+            value_editor[0]->set_text(StringUtils::num(r.position.x));
+            value_editor[1]->set_text(StringUtils::num(r.position.y));
+            value_editor[2]->set_text(StringUtils::num(r.size.x));
+            value_editor[3]->set_text(StringUtils::num(r.size.y));
         } break;
         case VariantType::VECTOR3: {
 
@@ -751,9 +751,9 @@ bool CustomPropertyEditor::edit(Object *p_owner, se_string_view p_name, VariantT
             field_names.push_back("z");
             config_value_editors_utf8(3, 3, 10, field_names);
             Vector3 vec = v;
-            value_editor[0]->set_text_utf8(StringUtils::num(vec.x));
-            value_editor[1]->set_text_utf8(StringUtils::num(vec.y));
-            value_editor[2]->set_text_utf8(StringUtils::num(vec.z));
+            value_editor[0]->set_text(StringUtils::num(vec.x));
+            value_editor[1]->set_text(StringUtils::num(vec.y));
+            value_editor[2]->set_text(StringUtils::num(vec.z));
         } break;
         case VariantType::PLANE: {
 
@@ -763,10 +763,10 @@ bool CustomPropertyEditor::edit(Object *p_owner, se_string_view p_name, VariantT
             field_names.push_back("d");
             config_value_editors_utf8(4, 4, 10, field_names);
             Plane plane = v;
-            value_editor[0]->set_text_utf8(StringUtils::num(plane.normal.x));
-            value_editor[1]->set_text_utf8(StringUtils::num(plane.normal.y));
-            value_editor[2]->set_text_utf8(StringUtils::num(plane.normal.z));
-            value_editor[3]->set_text_utf8(StringUtils::num(plane.d));
+            value_editor[0]->set_text(StringUtils::num(plane.normal.x));
+            value_editor[1]->set_text(StringUtils::num(plane.normal.y));
+            value_editor[2]->set_text(StringUtils::num(plane.normal.z));
+            value_editor[3]->set_text(StringUtils::num(plane.d));
 
         } break;
         case VariantType::QUAT: {
@@ -777,10 +777,10 @@ bool CustomPropertyEditor::edit(Object *p_owner, se_string_view p_name, VariantT
             field_names.push_back("w");
             config_value_editors_utf8(4, 4, 10, field_names);
             Quat q = v;
-            value_editor[0]->set_text_utf8(StringUtils::num(q.x));
-            value_editor[1]->set_text_utf8(StringUtils::num(q.y));
-            value_editor[2]->set_text_utf8(StringUtils::num(q.z));
-            value_editor[3]->set_text_utf8(StringUtils::num(q.w));
+            value_editor[0]->set_text(StringUtils::num(q.x));
+            value_editor[1]->set_text(StringUtils::num(q.y));
+            value_editor[2]->set_text(StringUtils::num(q.z));
+            value_editor[3]->set_text(StringUtils::num(q.w));
 
         } break;
         case VariantType::AABB: {
@@ -794,12 +794,12 @@ bool CustomPropertyEditor::edit(Object *p_owner, se_string_view p_name, VariantT
             config_value_editors_utf8(6, 3, 16, field_names);
 
             AABB aabb = v;
-            value_editor[0]->set_text_utf8(StringUtils::num(aabb.position.x));
-            value_editor[1]->set_text_utf8(StringUtils::num(aabb.position.y));
-            value_editor[2]->set_text_utf8(StringUtils::num(aabb.position.z));
-            value_editor[3]->set_text_utf8(StringUtils::num(aabb.size.x));
-            value_editor[4]->set_text_utf8(StringUtils::num(aabb.size.y));
-            value_editor[5]->set_text_utf8(StringUtils::num(aabb.size.z));
+            value_editor[0]->set_text(StringUtils::num(aabb.position.x));
+            value_editor[1]->set_text(StringUtils::num(aabb.position.y));
+            value_editor[2]->set_text(StringUtils::num(aabb.position.z));
+            value_editor[3]->set_text(StringUtils::num(aabb.size.x));
+            value_editor[4]->set_text(StringUtils::num(aabb.size.y));
+            value_editor[5]->set_text(StringUtils::num(aabb.size.z));
 
         } break;
         case VariantType::TRANSFORM2D: {
@@ -815,7 +815,7 @@ bool CustomPropertyEditor::edit(Object *p_owner, se_string_view p_name, VariantT
             Transform2D basis = v;
             for (int i = 0; i < 6; i++) {
 
-                value_editor[i]->set_text_utf8(StringUtils::num(basis.elements[i / 2][i % 2]));
+                value_editor[i]->set_text(StringUtils::num(basis.elements[i / 2][i % 2]));
             }
 
         } break;
@@ -835,7 +835,7 @@ bool CustomPropertyEditor::edit(Object *p_owner, se_string_view p_name, VariantT
             Basis basis = v;
             for (int i = 0; i < 9; i++) {
 
-                value_editor[i]->set_text_utf8(StringUtils::num(basis.elements[i / 3][i % 3]));
+                value_editor[i]->set_text(StringUtils::num(basis.elements[i / 3][i % 3]));
             }
 
         } break;
@@ -858,12 +858,12 @@ bool CustomPropertyEditor::edit(Object *p_owner, se_string_view p_name, VariantT
             Transform tr = v;
             for (int i = 0; i < 9; i++) {
 
-                value_editor[i / 3 * 4 + i % 3]->set_text_utf8(StringUtils::num(tr.basis.elements[i / 3][i % 3]));
+                value_editor[i / 3 * 4 + i % 3]->set_text(StringUtils::num(tr.basis.elements[i / 3][i % 3]));
             }
 
-            value_editor[3]->set_text_utf8(StringUtils::num(tr.origin.x));
-            value_editor[7]->set_text_utf8(StringUtils::num(tr.origin.y));
-            value_editor[11]->set_text_utf8(StringUtils::num(tr.origin.z));
+            value_editor[3]->set_text(StringUtils::num(tr.origin.x));
+            value_editor[7]->set_text(StringUtils::num(tr.origin.y));
+            value_editor[11]->set_text(StringUtils::num(tr.origin.z));
 
         } break;
         case VariantType::COLOR: {
@@ -1523,7 +1523,7 @@ void CustomPropertyEditor::_draw_easing() {
         prev = h;
     }
 
-    f->draw(ci, Point2(10, 10 + f->get_ascent()), UIString::number(exp,'g',2), color);
+    f->draw_ui_string(ci, Point2(10, 10 + f->get_ascent()), UIString::number(exp,'g',2), color);
 }
 
 void CustomPropertyEditor::_text_edit_changed() {

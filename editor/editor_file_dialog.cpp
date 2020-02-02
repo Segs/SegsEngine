@@ -211,7 +211,7 @@ Vector<String> EditorFileDialog::get_selected_files() const {
 
 void EditorFileDialog::update_dir() {
 
-    dir->set_text_utf8(dir_access->get_current_dir());
+    dir->set_text(dir_access->get_current_dir());
 
     // Disable "Open" button only when selecting file(s) mode.
     get_ok()->set_disabled(_is_open_should_be_disabled());
@@ -234,7 +234,7 @@ void EditorFileDialog::update_dir() {
 void EditorFileDialog::_dir_entered(se_string_view p_dir) {
 
     dir_access->change_dir(p_dir);
-    file->set_text_utf8("");
+    file->set_text("");
     invalidate();
     update_dir();
     _push_history();
@@ -280,7 +280,7 @@ void EditorFileDialog::_post_popup() {
         recent->clear();
 
         bool res = access == ACCESS_RESOURCES;
-        Vector<String> recentd = EditorSettings::get_singleton()->get_recent_dirs();
+        PODVector<String> recentd = EditorSettings::get_singleton()->get_recent_dirs();
         for (int i = 0; i < recentd.size(); i++) {
             bool cres = StringUtils::begins_with(recentd[i],"res://");
             if (cres != res)
@@ -446,7 +446,7 @@ void EditorFileDialog::_action_pressed() {
                     String str(StringUtils::strip_edges(StringUtils::get_slice(flt,",", 0)));
                     f += StringUtils::substr(str,1, str.length() - 1);
                     _request_single_thumbnail(PathUtils::plus_file(get_current_dir(),PathUtils::get_file(f)));
-                    file->set_text_utf8(PathUtils::get_file(f));
+                    file->set_text(PathUtils::get_file(f));
                     valid = true;
                 }
             } else {
@@ -474,7 +474,7 @@ void EditorFileDialog::_action_pressed() {
 
 void EditorFileDialog::_cancel_pressed() {
 
-    file->set_text_utf8("");
+    file->set_text("");
     invalidate();
     hide();
 }
@@ -489,7 +489,7 @@ void EditorFileDialog::_item_selected(int p_item) {
 
     if (!d["dir"]) {
 
-        file->set_text(d["name"]);
+        file->set_text_uistring(d["name"]);
         _request_single_thumbnail(PathUtils::plus_file(get_current_dir(),get_current_file()));
     } else if (mode == MODE_OPEN_DIR) {
         get_ok()->set_text(TTR("Select This Folder"));
@@ -508,7 +508,7 @@ void EditorFileDialog::_multi_selected(int p_item, bool p_selected) {
 
     if (!d["dir"] && p_selected) {
 
-        file->set_text(d["name"]);
+        file->set_text_uistring(d["name"]);
         _request_single_thumbnail(PathUtils::plus_file(get_current_dir(),get_current_file()));
     }
 
@@ -680,7 +680,7 @@ bool EditorFileDialog::_is_open_should_be_disabled() {
     if (mode == MODE_OPEN_ANY || mode == MODE_SAVE_FILE)
         return false;
 
-    Vector<int> items = item_list->get_selected_items();
+    PODVector<int> items = item_list->get_selected_items();
     if (items.empty())
         return mode != MODE_OPEN_DIR; // In "Open folder" mode, having nothing selected picks the current folder.
 
@@ -708,7 +708,7 @@ void EditorFileDialog::update_file_name() {
         } else {
             file_str = base_name + "." + StringUtils::to_lower(StringUtils::strip_edges(PathUtils::get_extension(filter_str)));
         }
-        file->set_text_utf8(file_str);
+        file->set_text(file_str);
     }
 }
 
@@ -978,7 +978,7 @@ void EditorFileDialog::set_current_dir(se_string_view p_dir) {
 }
 void EditorFileDialog::set_current_file(se_string_view p_file) {
 
-    file->set_text_utf8(p_file);
+    file->set_text(p_file);
     update_dir();
     invalidate();
     int lp = StringUtils::find_last(p_file,'.');
@@ -1114,7 +1114,7 @@ void EditorFileDialog::_make_dir_confirm() {
     } else {
         mkdirerr->popup_centered_minsize(Size2(250, 50) * EDSCALE);
     }
-    makedirname->set_text_utf8(""); // reset label
+    makedirname->set_text(""); // reset label
 }
 
 void EditorFileDialog::_make_dir() {
@@ -1149,7 +1149,7 @@ void EditorFileDialog::_select_drive(int p_idx) {
 
     String d = drives->get_item_text_utf8(p_idx);
     dir_access->change_dir(d);
-    file->set_text_utf8("");
+    file->set_text("");
     invalidate();
     update_dir();
     _push_history();
@@ -1176,7 +1176,7 @@ void EditorFileDialog::_update_drives() {
 void EditorFileDialog::_favorite_selected(int p_idx) {
 
     dir_access->change_dir(favorites->get_item_metadata(p_idx).as<String>());
-    file->set_text_utf8("");
+    file->set_text("");
     update_dir();
     invalidate();
     _push_history();
@@ -1187,14 +1187,14 @@ void EditorFileDialog::_favorite_move_up() {
     int current = favorites->get_current();
 
     if (current > 0 && current < favorites->get_item_count()) {
-        Vector<String> favorited = EditorSettings::get_singleton()->get_favorites();
+        PODVector<String> favorited = EditorSettings::get_singleton()->get_favorites();
 
-        int a_idx = favorited.find(favorites->get_item_metadata(current - 1));
-        int b_idx = favorited.find(favorites->get_item_metadata(current));
+        int a_idx = favorited.index_of(favorites->get_item_metadata(current - 1));
+        int b_idx = favorited.index_of(favorites->get_item_metadata(current));
 
         if (a_idx == -1 || b_idx == -1)
             return;
-        SWAP(favorited.write[a_idx], favorited.write[b_idx]);
+        SWAP(favorited[a_idx], favorited[b_idx]);
 
         EditorSettings::get_singleton()->set_favorites(favorited);
 
@@ -1207,14 +1207,14 @@ void EditorFileDialog::_favorite_move_down() {
     int current = favorites->get_current();
 
     if (current >= 0 && current < favorites->get_item_count() - 1) {
-        Vector<String> favorited = EditorSettings::get_singleton()->get_favorites();
+        PODVector<String> favorited = EditorSettings::get_singleton()->get_favorites();
 
-        int a_idx = favorited.find(favorites->get_item_metadata(current + 1));
-        int b_idx = favorited.find(favorites->get_item_metadata(current));
+        int a_idx = favorited.index_of(favorites->get_item_metadata(current + 1));
+        int b_idx = favorited.index_of(favorites->get_item_metadata(current));
 
         if (a_idx == -1 || b_idx == -1)
             return;
-        SWAP(favorited.write[a_idx], favorited.write[b_idx]);
+        SWAP(favorited[a_idx], favorited[b_idx]);
 
         EditorSettings::get_singleton()->set_favorites(favorited);
 
@@ -1234,7 +1234,7 @@ void EditorFileDialog::_update_favorites() {
 
     favorite->set_pressed(false);
 
-    Vector<String> favorited = EditorSettings::get_singleton()->get_favorites();
+    const PODVector<String> &favorited = EditorSettings::get_singleton()->get_favorites();
     for (int i = 0; i < favorited.size(); i++) {
         bool cres = StringUtils::begins_with(favorited[i],"res://");
         if (cres != res)
@@ -1277,7 +1277,7 @@ void EditorFileDialog::_favorite_pressed() {
     if (!StringUtils::ends_with(cd,"/"))
         cd += '/';
 
-    Vector<String> favorited = EditorSettings::get_singleton()->get_favorites();
+    PODVector<String> favorited = EditorSettings::get_singleton()->get_favorites();
 
     bool found = false;
     for (int i = 0; i < favorited.size(); i++) {
@@ -1292,7 +1292,7 @@ void EditorFileDialog::_favorite_pressed() {
     }
 
     if (found)
-        favorited.erase(cd);
+        favorited.erase_first(cd);
     else
         favorited.push_back(cd);
 
@@ -1303,7 +1303,7 @@ void EditorFileDialog::_favorite_pressed() {
 
 void EditorFileDialog::_recent_selected(int p_idx) {
 
-    Vector<String> recentd = EditorSettings::get_singleton()->get_recent_dirs();
+    const PODVector<String> &recentd = EditorSettings::get_singleton()->get_recent_dirs();
     ERR_FAIL_INDEX(p_idx, recentd.size());
 
     dir_access->change_dir(recent->get_item_metadata(p_idx).as<String>());
@@ -1479,7 +1479,7 @@ void EditorFileDialog::set_default_display_mode(DisplayMode p_mode) {
 void EditorFileDialog::_save_to_recent() {
 
     String dir = get_current_dir();
-    Vector<String> recent = EditorSettings::get_singleton()->get_recent_dirs();
+    PODVector<String> recent = EditorSettings::get_singleton()->get_recent_dirs();
 
     const int max = 20;
     int count = 0;
@@ -1488,14 +1488,14 @@ void EditorFileDialog::_save_to_recent() {
     for (int i = 0; i < recent.size(); i++) {
         bool cres = StringUtils::begins_with(recent[i],"res://");
         if (recent[i] == dir || res == cres && count > max) {
-            recent.remove(i);
+            recent.erase_at(i);
             i--;
         } else {
             count++;
         }
     }
 
-    recent.insert(0, dir);
+    recent.insert_at(0, dir);
 
     EditorSettings::get_singleton()->set_recent_dirs(recent);
 }
@@ -1773,7 +1773,7 @@ void EditorLineEditFileChooser::_bind_methods() {
 
 void EditorLineEditFileChooser::_chosen(se_string_view p_text) {
 
-    line_edit->set_text_utf8(p_text);
+    line_edit->set_text(p_text);
     line_edit->emit_signal("text_entered", p_text);
 }
 

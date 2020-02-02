@@ -414,7 +414,7 @@ void PropertySelector::select_method_from_base_type(const StringName &p_base, co
     virtuals_only = p_virtuals_only;
 
     popup_centered_ratio(0.6f);
-    search_box->set_text_utf8("");
+    search_box->set_text("");
     search_box->grab_focus();
     _update_search();
 }
@@ -431,7 +431,7 @@ void PropertySelector::select_method_from_script(const Ref<Script> &p_script, co
     virtuals_only = false;
 
     popup_centered_ratio(0.6f);
-    search_box->set_text_utf8("");
+    search_box->set_text("");
     search_box->grab_focus();
     _update_search();
 }
@@ -447,7 +447,7 @@ void PropertySelector::select_method_from_basic_type(VariantType p_type, const U
     virtuals_only = false;
 
     popup_centered_ratio(0.6f);
-    search_box->set_text_utf8("");
+    search_box->set_text("");
     search_box->grab_focus();
     _update_search();
 }
@@ -468,7 +468,7 @@ void PropertySelector::select_method_from_instance(Object *p_instance, const UIS
     virtuals_only = false;
 
     popup_centered_ratio(0.6f);
-    search_box->set_text_utf8("");
+    search_box->set_text("");
     search_box->grab_focus();
     _update_search();
 }
@@ -484,7 +484,7 @@ void PropertySelector::select_property_from_base_type(const StringName &p_base, 
     virtuals_only = false;
 
     popup_centered_ratio(0.6f);
-    search_box->set_text_utf8("");
+    search_box->set_text("");
     search_box->grab_focus();
     _update_search();
 }
@@ -502,7 +502,7 @@ void PropertySelector::select_property_from_script(const Ref<Script> &p_script, 
     virtuals_only = false;
 
     popup_centered_ratio(0.6f);
-    search_box->set_text_utf8("");
+    search_box->set_text("");
     search_box->grab_focus();
     _update_search();
 }
@@ -519,7 +519,7 @@ void PropertySelector::select_property_from_basic_type(VariantType p_type, const
     virtuals_only = false;
 
     popup_centered_ratio(0.6f);
-    search_box->set_text_utf8("");
+    search_box->set_text("");
     search_box->grab_focus();
     _update_search();
 }
@@ -535,7 +535,7 @@ void PropertySelector::select_property_from_instance(Object *p_instance, const U
     virtuals_only = false;
 
     popup_centered_ratio(0.6f);
-    search_box->set_text_utf8("");
+    search_box->set_text("");
     search_box->grab_focus();
     _update_search();
 }

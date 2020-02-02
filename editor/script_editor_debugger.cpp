@@ -555,8 +555,8 @@ void ScriptEditorDebugger::_parse_message(const String &p_msg, const Array &p_da
         EditorNode::get_singleton()->get_pause_button()->set_pressed(false);
     } else if (p_msg == "message:click_ctrl") {
 
-        clicked_ctrl->set_text(p_data[0]);
-        clicked_ctrl_type->set_text(p_data[1]);
+        clicked_ctrl->set_text_uistring(p_data[0]);
+        clicked_ctrl_type->set_text_uistring(p_data[1]);
 
     } else if (p_msg == "message:scene_tree") {
 
@@ -698,7 +698,7 @@ void ScriptEditorDebugger::_parse_message(const String &p_msg, const Array &p_da
         }
 
         vmem_total->set_tooltip(TTR("Bytes:") + " " + itos(total));
-        vmem_total->set_text_utf8(PathUtils::humanize_size(total));
+        vmem_total->set_text(PathUtils::humanize_size(total));
 
     } else if (p_msg == "stack_dump") {
 
@@ -1864,7 +1864,7 @@ void ScriptEditorDebugger::update_live_edit_root() {
             msg.push_back("");
         ppeer->put_var(msg);
     }
-    live_edit_root->set_text(StringUtils::from_utf8((String)np));
+    live_edit_root->set_text_uistring(StringUtils::from_utf8((String)np));
 }
 
 void ScriptEditorDebugger::live_debug_create_node(const NodePath &p_parent, se_string_view p_type, se_string_view p_name) {

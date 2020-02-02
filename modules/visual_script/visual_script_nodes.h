@@ -1077,11 +1077,11 @@ class VisualScriptDeconstruct : public VisualScriptNode {
     void _update_elements();
     VariantType type;
 
-    void _set_elem_cache(const Array &p_elements);
-    Array _get_elem_cache() const;
 
     void _validate_property(PropertyInfo &property) const override;
-
+public:
+    void _set_elem_cache(const Array &p_elements);
+    Array _get_elem_cache() const;
 protected:
     static void _bind_methods();
 

@@ -3646,7 +3646,7 @@ void EditorNode::_load_error_notify(void *p_ud, se_string_view p_text) {
 
     EditorNode *en = (EditorNode *)p_ud;
     en->load_errors->add_image(en->gui_base->get_icon("Error", "EditorIcons"));
-    en->load_errors->add_text_utf8(String(p_text) + "\n");
+    en->load_errors->add_text(String(p_text) + "\n");
     en->load_error_dialog->popup_centered_ratio(0.5f);
 }
 
@@ -5864,7 +5864,7 @@ int EditorNode::execute_and_show_output(const StringName &p_title, se_string_vie
         if (prev_len != eta.output.length()) {
             se_string_view to_add = StringUtils::substr(eta.output, prev_len, eta.output.length());
             prev_len = eta.output.length();
-            execute_outputs->add_text_utf8(to_add);
+            execute_outputs->add_text(to_add);
             Main::iteration();
         }
         eta.execute_output_mutex->unlock();
@@ -5874,7 +5874,7 @@ int EditorNode::execute_and_show_output(const StringName &p_title, se_string_vie
     Thread::wait_to_finish(eta.execute_output_thread);
     memdelete(eta.execute_output_thread);
     memdelete(eta.execute_output_mutex);
-    execute_outputs->add_text_utf8("\nExit Code: " + itos(eta.exitcode));
+    execute_outputs->add_text("\nExit Code: " + itos(eta.exitcode));
 
     if (p_close_on_errors && eta.exitcode != 0) {
         execute_output_dialog->hide();

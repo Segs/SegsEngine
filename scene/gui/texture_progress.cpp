@@ -375,19 +375,19 @@ void TextureProgress::_notification(int p_what) {
                                     if (corners[i] > from && corners[i] < to)
                                         pts.append(corners[i]);
                                 pts.sort();
-                                Vector<Point2> uvs;
+                                PoolVector<Point2> uvs;
                                 PODVector<Point2> points;
                                 points.reserve(pts.size()+1);
                                 uvs.push_back(get_relative_center());
                                 points.emplace_back(s.x * get_relative_center().x, s.y * get_relative_center().y);
                                 for (int i = 0; i < pts.size(); i++) {
                                     Point2 uv = unit_val_to_uv(pts[i]);
-                                    if (uvs.find(uv) >= 0)
+                                    if (uvs.contains(uv))
                                         continue;
                                     uvs.push_back(uv);
                                     points.emplace_back(uv.x * s.x, uv.y * s.y);
                                 }
-                                Vector<Color> colors;
+                                PoolVector<Color> colors;
                                 colors.push_back(tint_progress);
                                 draw_polygon(points, colors, uvs, progress);
                             }

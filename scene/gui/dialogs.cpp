@@ -218,9 +218,9 @@ void WindowDialog::_notification(int p_what) {
             Color title_color = get_color("title_color", "WindowDialog");
             int title_height = get_constant("title_height", "WindowDialog");
             int font_height = title_font->get_height() - title_font->get_descent() * 2;
-            int x = (size.x - title_font->get_string_size_utf8(xl_title).x) / 2;
+            int x = (size.x - title_font->get_string_size(xl_title).x) / 2;
             int y = (-title_height + font_height) / 2;
-            title_font->draw(canvas, Point2(x, y), StringUtils::from_utf8(xl_title), title_color, size.x - panel->get_minimum_size().x);
+            title_font->draw_ui_string(canvas, Point2(x, y), StringUtils::from_utf8(xl_title), title_color, size.x - panel->get_minimum_size().x);
         } break;
 
         case NOTIFICATION_THEME_CHANGED:
@@ -322,7 +322,7 @@ Size2 WindowDialog::get_minimum_size() const {
     Ref<Font> font = get_font("title_font", "WindowDialog");
 
     const int button_width = close_button->get_combined_minimum_size().x;
-    const int title_width = font->get_string_size_utf8(xl_title).x;
+    const int title_width = font->get_string_size(xl_title).x;
     const int padding = button_width / 2;
     const int button_area = button_width + padding;
 

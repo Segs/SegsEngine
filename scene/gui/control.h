@@ -44,8 +44,8 @@ class Theme;
 class GODOT_EXPORT Control : public CanvasItem {
 
     GDCLASS(Control,CanvasItem)
-    Q_GADGET
-    Q_CLASSINFO("Category","GUI Nodes")
+//    Q_GADGET
+//    Q_CLASSINFO("Category","GUI Nodes")
 
     OBJ_CATEGORY("GUI Nodes")
 

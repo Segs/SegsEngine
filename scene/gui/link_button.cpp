@@ -60,7 +60,7 @@ LinkButton::UnderlineMode LinkButton::get_underline_mode() const {
 
 Size2 LinkButton::get_minimum_size() const {
 
-    return get_font("font")->get_string_size_utf8(text);
+    return get_font("font")->get_string_size(text);
 }
 
 void LinkButton::_notification(int p_what) {
@@ -118,7 +118,7 @@ void LinkButton::_notification(int p_what) {
 
             if (do_underline) {
                 int underline_spacing = get_constant("underline_spacing");
-                int width = font->get_string_size_utf8(text).width;
+                int width = font->get_string_size(text).width;
                 int y = font->get_ascent() + underline_spacing;
 
                 draw_line(Vector2(0, y), Vector2(width, y), color);

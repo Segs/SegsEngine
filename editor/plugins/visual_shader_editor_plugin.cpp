@@ -570,7 +570,7 @@ void VisualShaderEditor::_update_graph() {
             _update_created_node(node);
 
             LineEdit *uniform_name = memnew(LineEdit);
-            uniform_name->set_text(uniform->get_uniform_name().asString());
+            uniform_name->set_text_uistring(uniform->get_uniform_name().asString());
             node->add_child(uniform_name);
             uniform_name->connect("text_entered", this, "_line_edit_changed", varray(Variant(uniform_name), Variant(nodes[n_i])));
             uniform_name->connect("focus_exited", this, "_line_edit_focus_out", varray(Variant(uniform_name), Variant(nodes[n_i])));
@@ -712,7 +712,7 @@ void VisualShaderEditor::_update_graph() {
                         hb->add_child(name_box);
                         name_box->set_custom_minimum_size(Size2(65 * EDSCALE, 0));
                         name_box->set_h_size_flags(SIZE_EXPAND_FILL);
-                        name_box->set_text(name_left.asString());
+                        name_box->set_text_uistring(name_left.asString());
                         name_box->connect("text_entered", this, "_change_input_port_name", varray(Variant(name_box), nodes[n_i], i));
                         name_box->connect("focus_exited", this, "_port_name_focus_out", varray(Variant(name_box), nodes[n_i], i, false));
 
@@ -754,7 +754,7 @@ void VisualShaderEditor::_update_graph() {
                         hb->add_child(name_box);
                         name_box->set_custom_minimum_size(Size2(65 * EDSCALE, 0));
                         name_box->set_h_size_flags(SIZE_EXPAND_FILL);
-                        name_box->set_text(name_right.asString());
+                        name_box->set_text_uistring(name_right.asString());
                         name_box->connect("text_entered", this, "_change_output_port_name", varray(Variant(name_box), nodes[n_i], i));
                         name_box->connect("focus_exited", this, "_port_name_focus_out", varray(Variant(name_box), nodes[n_i], i, true));
 
@@ -1200,7 +1200,7 @@ void VisualShaderEditor::_line_edit_changed(se_string_view p_text, Object *line_
     undo_redo->commit_action();
     updating = false;
 
-    object_cast<LineEdit>(line_edit)->set_text_utf8(validated_name);
+    object_cast<LineEdit>(line_edit)->set_text(validated_name);
 }
 
 void VisualShaderEditor::_line_edit_focus_out(Object *line_edit, int p_node_id) {
@@ -1241,9 +1241,9 @@ void VisualShaderEditor::_port_name_focus_out(Object *line_edit, int p_node_id, 
     String validated_name = visual_shader->validate_port_name(text, input_names, output_names);
     if (validated_name.empty()) {
         if (!p_output) {
-            object_cast<LineEdit>(line_edit)->set_text_utf8(node->get_input_port_name(p_port_id));
+            object_cast<LineEdit>(line_edit)->set_text(node->get_input_port_name(p_port_id));
         } else {
-            object_cast<LineEdit>(line_edit)->set_text_utf8(node->get_output_port_name(p_port_id));
+            object_cast<LineEdit>(line_edit)->set_text(node->get_output_port_name(p_port_id));
         }
         return;
     }
@@ -3258,9 +3258,9 @@ Size2 VisualShaderNodePortPreview::get_minimum_size() const {
 
 void VisualShaderNodePortPreview::_notification(int p_what) {
     if (p_what == NOTIFICATION_DRAW) {
-        Vector<Vector2> points;
-        Vector<Vector2> uvs;
-        Vector<Color> colors;
+        PODVector<Vector2> points;
+        PoolVector<Vector2> uvs;
+        PoolVector<Color> colors;
         points.push_back(Vector2());
         uvs.push_back(Vector2(0, 0));
         colors.push_back(Color(1, 1, 1, 1));

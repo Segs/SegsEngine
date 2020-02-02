@@ -257,12 +257,12 @@ void EditorAssetLibraryItemDescription::configure(const StringName &p_title, int
     sha256 = p_sha256_hash;
     item->configure(p_title, p_asset_id, p_category, p_category_id, p_author, p_author_id, p_cost);
     description->clear();
-    description->add_text(TTR("Version:").asString() + " " + StringUtils::from_utf8(p_version_string) + "\n");
-    description->add_text(TTR("Contents:").asString() + " ");
+    description->add_text_uistring(TTR("Version:").asString() + " " + StringUtils::from_utf8(p_version_string) + "\n");
+    description->add_text_uistring(TTR("Contents:").asString() + " ");
     description->push_meta(p_browse_url);
-    description->add_text(TTR("View Files").asString());
+    description->add_text_uistring(TTR("View Files").asString());
     description->pop();
-    description->add_text("\n" + TTR("Description:").asString() + "\n\n");
+    description->add_text_uistring("\n" + TTR("Description:").asString() + "\n\n");
     description->append_bbcode(p_description);
     set_title(p_title);
 }

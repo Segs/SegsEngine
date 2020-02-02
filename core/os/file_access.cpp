@@ -349,7 +349,7 @@ String FileAccess::get_line() const {
     return line;
 }
 
-Vector<String> FileAccess::get_csv_line(char p_delim) const {
+PODVector<String> FileAccess::get_csv_line(char p_delim) const {
 
     String l;
     int qc = 0;
@@ -369,7 +369,7 @@ Vector<String> FileAccess::get_csv_line(char p_delim) const {
 
     l = StringUtils::substr(l,0, l.length() - 1);
 
-    Vector<String> strings;
+    PODVector<String> strings;
 
     bool in_quote = false;
     String current;
@@ -377,8 +377,8 @@ Vector<String> FileAccess::get_csv_line(char p_delim) const {
 
         char c = l[i];
         if (!in_quote && c == p_delim) {
-            strings.push_back(current);
-            current.clear();
+            strings.emplace_back(eastl::move(current));
+            current = {};
         } else if (c == '"') {
             if (l[i + 1] == '"') {
                 current += '"';
@@ -392,7 +392,7 @@ Vector<String> FileAccess::get_csv_line(char p_delim) const {
         }
     }
 
-    strings.push_back(current);
+    strings.emplace_back(eastl::move(current));
 
     return strings;
 }

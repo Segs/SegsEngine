@@ -733,7 +733,7 @@ void VisualServerCanvas::canvas_item_add_nine_patch(RID p_item, const Rect2 &p_r
 
     canvas_item->commands.push_back(style);
 }
-void VisualServerCanvas::canvas_item_add_primitive(RID p_item, const Vector<Point2> &p_points, const Vector<Color> &p_colors, const Vector<Point2> &p_uvs, RID p_texture, float p_width, RID p_normal_map) {
+void VisualServerCanvas::canvas_item_add_primitive(RID p_item, const PODVector<Point2> &p_points, const PoolVector<Color> &p_colors, const PoolVector<Point2> &p_uvs, RID p_texture, float p_width, RID p_normal_map) {
 
     Item *canvas_item = canvas_item_owner.getornull(p_item);
     ERR_FAIL_COND(!canvas_item)
@@ -751,7 +751,7 @@ void VisualServerCanvas::canvas_item_add_primitive(RID p_item, const Vector<Poin
     canvas_item->commands.push_back(prim);
 }
 
-void VisualServerCanvas::canvas_item_add_polygon(RID p_item, Span<const Point2> p_points, const Vector<Color> &p_colors, const Vector<Point2> &p_uvs, RID p_texture, RID p_normal_map, bool p_antialiased) {
+void VisualServerCanvas::canvas_item_add_polygon(RID p_item, Span<const Point2> p_points, const PoolVector<Color> &p_colors, const PoolVector<Point2> &p_uvs, RID p_texture, RID p_normal_map, bool p_antialiased) {
 
     Item *canvas_item = canvas_item_owner.getornull(p_item);
     ERR_FAIL_COND(!canvas_item)
@@ -782,7 +782,8 @@ void VisualServerCanvas::canvas_item_add_polygon(RID p_item, Span<const Point2> 
     canvas_item->commands.push_back(polygon);
 }
 
-void VisualServerCanvas::canvas_item_add_triangle_array(RID p_item, Span<const int> p_indices, Span<const Point2> p_points, const Vector<Color> &p_colors, const Vector<Point2> &p_uvs, const Vector<int> &p_bones, const Vector<float> &p_weights, RID p_texture, int p_count, RID p_normal_map, bool p_antialiased, bool p_antialiasing_use_indices) {
+void VisualServerCanvas::canvas_item_add_triangle_array(RID p_item, Span<const int> p_indices, Span<const Point2> p_points, const PoolVector<Color> &p_colors, const PoolVector
+        <Point2> &p_uvs, const PoolVector<int> &p_bones, const PoolVector<float> &p_weights, RID p_texture, int p_count, RID p_normal_map, bool p_antialiased, bool p_antialiasing_use_indices) {
 
     Item *canvas_item = canvas_item_owner.getornull(p_item);
     ERR_FAIL_COND(!canvas_item)

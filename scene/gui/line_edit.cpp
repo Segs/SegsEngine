@@ -1295,7 +1295,7 @@ void LineEdit::delete_text(int p_from_column, int p_to_column) {
     }
 }
 
-void LineEdit::set_text(const UIString& p_text) {
+void LineEdit::set_text_uistring(const UIString& p_text) {
 
     clear_internal();
     append_at_cursor(StringUtils::to_utf8(p_text));
@@ -1308,7 +1308,7 @@ void LineEdit::set_text(const UIString& p_text) {
     cursor_pos = 0;
     m_priv->window_pos = 0;
 }
-void LineEdit::set_text_utf8(se_string_view p_text) {
+void LineEdit::set_text(se_string_view p_text) {
 
     clear_internal();
     append_at_cursor(p_text);
@@ -1478,7 +1478,7 @@ Size2 LineEdit::get_minimum_size() const {
 
     if (expand_to_text_length) {
         // Add a space because some fonts are too exact, and because cursor needs a bit more when at the end.
-        min_size.width = MAX(min_size.width, font->get_string_size(m_priv->text).x + space_size);
+        min_size.width = MAX(min_size.width, font->get_ui_string_size(m_priv->text).x + space_size);
     }
 
     min_size.height = font->get_height();
@@ -1519,7 +1519,7 @@ void LineEdit::set_max_length(int p_max_length) {
 
     ERR_FAIL_COND(p_max_length < 0)
     max_length = p_max_length;
-    set_text(m_priv->text);
+    set_text_uistring(m_priv->text);
 }
 
 int LineEdit::get_max_length() const {
@@ -1810,7 +1810,7 @@ void LineEdit::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("select", {"from", "to"}), &LineEdit::select, {DEFVAL(0), DEFVAL(-1)});
     MethodBinder::bind_method(D_METHOD("select_all"), &LineEdit::select_all);
     MethodBinder::bind_method(D_METHOD("deselect"), &LineEdit::deselect);
-    MethodBinder::bind_method(D_METHOD("set_text", {"text"}), &LineEdit::set_text_utf8);
+    MethodBinder::bind_method(D_METHOD("set_text", {"text"}), &LineEdit::set_text);
     MethodBinder::bind_method(D_METHOD("get_text"), &LineEdit::get_text);
     MethodBinder::bind_method(D_METHOD("set_placeholder", {"text"}), &LineEdit::set_placeholder);
     MethodBinder::bind_method(D_METHOD("get_placeholder"), &LineEdit::get_placeholder);

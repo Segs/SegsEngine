@@ -39,7 +39,7 @@ IMPL_GDCLASS(EditorSubScene)
 
 void EditorSubScene::_path_selected(se_string_view p_path) {
 
-    path->set_text_utf8(p_path);
+    path->set_text(p_path);
     _path_changed(p_path);
 }
 
@@ -216,7 +216,7 @@ void EditorSubScene::move(Node *p_new_parent, Node *p_new_owner) {
 
 void EditorSubScene::clear() {
 
-    path->set_text_utf8("");
+    path->set_text("");
     _path_changed(String());
 }
 

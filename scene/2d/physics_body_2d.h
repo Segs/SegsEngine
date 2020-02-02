@@ -184,7 +184,7 @@ private:
 
     void _body_inout(int p_status, ObjectID p_instance, int p_body_shape, int p_local_shape);
     void _direct_state_changed(Object *p_state);
-
+public:
     bool _test_motion(const Vector2 &p_motion, bool p_infinite_inertia = true, float p_margin = 0.08, const Ref<Physics2DTestMotionResult> &p_result = Ref<Physics2DTestMotionResult>());
 
 protected:
@@ -300,13 +300,13 @@ private:
     Vector<Collision> colliders;
     Vector<Ref<KinematicCollision2D> > slide_colliders;
     Ref<KinematicCollision2D> motion_cache;
-
+    Transform2D last_valid_transform;
+public:
     _FORCE_INLINE_ bool _ignores_mode(Physics2DServer::BodyMode) const;
 
     Ref<KinematicCollision2D> _move(const Vector2 &p_motion, bool p_infinite_inertia = true, bool p_exclude_raycast_shapes = true, bool p_test_only = false);
     Ref<KinematicCollision2D> _get_slide_collision(int p_bounce);
 
-    Transform2D last_valid_transform;
     void _direct_state_changed(Object *p_state);
 
 protected:

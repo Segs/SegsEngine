@@ -167,7 +167,7 @@ void EditorDirDialog::_make_dir_confirm() {
         //reload(PathUtils::plus_file(dir,makedirname->get_text()));
         EditorFileSystem::get_singleton()->scan_changes(); //we created a dir, so rescan changes
     }
-    makedirname->set_text_utf8(""); // reset label
+    makedirname->set_text(""); // reset label
 }
 
 void EditorDirDialog::_bind_methods() {

@@ -453,7 +453,7 @@ private:
 
     UndoRedo *undo_redo;
     bool _build_bones_list(Node *p_node);
-    bool _get_bone_shape(Vector<Vector2> *shape, PODVector<Vector2> *outline_shape, eastl::pair<const BoneKey, BoneList> &bone);
+    bool _get_bone_shape(PODVector<Vector2> *shape, PODVector<Vector2> *outline_shape, eastl::pair<const BoneKey, BoneList> &bone);
 
     List<CanvasItem *> _get_edited_canvas_items(bool retreive_locked = false, bool remove_canvas_item_if_parent_in_selection = true);
     Rect2 _get_encompassing_rect_from_list(List<CanvasItem *> p_list);

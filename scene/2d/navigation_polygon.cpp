@@ -100,7 +100,7 @@ void NavigationPolygon::_set_polygons(const Array &p_array) {
 
     polygons.resize(p_array.size());
     for (int i = 0; i < p_array.size(); i++) {
-        polygons.write[i].indices = p_array[i].as<Vector<int>>();
+        polygons.write[i].indices = p_array[i].as<PoolVector<int>>();
     }
 }
 
@@ -135,7 +135,7 @@ Array NavigationPolygon::_get_outlines() const {
     return ret;
 }
 
-void NavigationPolygon::add_polygon(const Vector<int> &p_polygon) {
+void NavigationPolygon::add_polygon(const PoolVector<int> &p_polygon) {
 
     Polygon polygon;
     polygon.indices = p_polygon;
@@ -152,9 +152,9 @@ int NavigationPolygon::get_polygon_count() const {
 
     return polygons.size();
 }
-Vector<int> NavigationPolygon::get_polygon(int p_idx) {
+PoolVector<int> NavigationPolygon::get_polygon(int p_idx) {
 
-    ERR_FAIL_INDEX_V(p_idx, polygons.size(), Vector<int>());
+    ERR_FAIL_INDEX_V(p_idx, polygons.size(), {});
     return polygons[p_idx].indices;
 }
 void NavigationPolygon::clear_polygons() {
@@ -426,22 +426,23 @@ void NavigationPolygonInstance::_notification(int p_what) {
                 } else {
                     color = get_tree()->get_debug_navigation_disabled_color();
                 }
-                Vector<Color> colors;
+                PoolVector<Color> colors;
                 PODVector<Vector2> vertices;
                 vertices.reserve(vsize);
                 colors.resize(vsize);
                 {
                     PoolVector<Vector2>::Read vr = verts.read();
+                    auto wr(colors.write());
                     for (int i = 0; i < vsize; i++) {
                         vertices.emplace_back(vr[i]);
-                        colors.write[i] = color;
+                        wr[i] = color;
                     }
                 }
 
                 PODVector<int> indices;
                 indices.reserve(navpoly->get_polygon_count()*2*3);
                 for (int i = 0; i < navpoly->get_polygon_count(); i++) {
-                    Vector<int> polygon = navpoly->get_polygon(i);
+                    PoolVector<int> polygon = navpoly->get_polygon(i);
 
                     for (int j = 2; j < polygon.size(); j++) {
 

@@ -1084,7 +1084,7 @@ void RasterizerCanvasGLES3::_canvas_item_render_commands(Item *p_item, Item *cur
                     glVertexAttrib4f(VS::ARRAY_COLOR, 1, 1, 1, 1);
                 }
 
-                _draw_gui_primitive(primitive->points.size(), primitive->points.ptr(), primitive->colors.ptr(), primitive->uvs.ptr());
+                _draw_gui_primitive(primitive->points.size(), primitive->points.data(), primitive->colors.read().ptr(), primitive->uvs.read().ptr());
 
             } break;
             case Item::Command::TYPE_POLYGON: {
@@ -1099,7 +1099,7 @@ void RasterizerCanvasGLES3::_canvas_item_render_commands(Item *p_item, Item *cur
                     state.canvas_shader.set_uniform(CanvasShaderGLES3::COLOR_TEXPIXEL_SIZE, texpixel_size);
                 }
 
-                _draw_polygon(polygon->indices.data(), polygon->count, polygon->points.size(), polygon->points.data(), polygon->uvs.ptr(), polygon->colors.ptr(), polygon->colors.size() == 1, polygon->bones.ptr(), polygon->weights.ptr());
+                _draw_polygon(polygon->indices.data(), polygon->count, polygon->points.size(), polygon->points.data(), polygon->uvs.read().ptr(), polygon->colors.read().ptr(), polygon->colors.size() == 1, polygon->bones.read().ptr(), polygon->weights.read().ptr());
 #ifdef GLES_OVER_GL
                 if (polygon->antialiased) {
                     glEnable(GL_LINE_SMOOTH);

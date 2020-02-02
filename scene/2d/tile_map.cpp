@@ -637,29 +637,31 @@ void TileMap::update_dirty_quadrants() {
                             int vsize = navigation_polygon_vertices.size();
 
                             if (vsize > 2) {
-                                Vector<Color> colors;
+                                PoolVector<Color> colors;
                                 PODVector<Vector2> vertices;
                                 vertices.reserve(vsize);
                                 colors.resize(vsize);
                                 {
+                                    auto colr_wr(colors.write());
                                     PoolVector<Vector2>::Read vr = navigation_polygon_vertices.read();
                                     vertices.assign(vr.ptr(),vr.ptr()+vsize);
                                     for (int j = 0; j < vsize; j++) {
-                                        colors.write[j] = debug_navigation_color;
+                                        colr_wr[j] = debug_navigation_color;
                                     }
                                 }
 
                                 PODVector<int> indices;
 
                                 for (int j = 0; j < navpoly->get_polygon_count(); j++) {
-                                    Vector<int> polygon = navpoly->get_polygon(j);
+                                    PoolVector<int> polygon = navpoly->get_polygon(j);
+                                    auto rd(polygon.read());
 
                                     for (int k = 2; k < polygon.size(); k++) {
 
                                         int kofs[3] = { 0, k - 1, k };
                                         for (int l = 0; l < 3; l++) {
 
-                                            int idx = polygon[kofs[l]];
+                                            int idx = rd[kofs[l]];
                                             ERR_FAIL_INDEX(idx, vsize);
                                             indices.push_back(idx);
                                         }

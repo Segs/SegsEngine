@@ -240,9 +240,9 @@ void MultiMeshEditor::_browsed(const NodePath &p_path) {
     String path(node->get_path_to(get_node(p_path)));
 
     if (browsing_source)
-        mesh_source->set_text_utf8(path);
+        mesh_source->set_text(path);
     else
-        surface_source->set_text_utf8(path);
+        surface_source->set_text(path);
 }
 
 void MultiMeshEditor::_menu_option(int p_option) {
@@ -253,8 +253,8 @@ void MultiMeshEditor::_menu_option(int p_option) {
 
             if (_last_pp_node != node) {
 
-                surface_source->set_text_utf8("..");
-                mesh_source->set_text_utf8("..");
+                surface_source->set_text("..");
+                mesh_source->set_text("..");
                 populate_axis->select(1);
                 populate_rotate_random->set_value(0);
                 populate_tilt_random->set_value(0);

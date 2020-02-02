@@ -106,7 +106,7 @@ class SceneState : public RefCounted {
     _FORCE_INLINE_ Ref<SceneState> _get_base_scene_state() const;
 
     static bool disable_placeholders;
-
+public:
     PoolVector<String> _get_node_groups(int p_idx) const;
 
     int _find_base_scene_node_remap_key(int p_idx) const;
@@ -158,7 +158,7 @@ public:
     Ref<PackedScene> get_node_instance(int p_idx) const;
     String get_node_instance_placeholder(int p_idx) const;
     bool is_node_instance_placeholder(int p_idx) const;
-    Vector<StringName> get_node_groups(int p_idx) const;
+    PODVector<StringName> get_node_groups(int p_idx) const;
     int get_node_index(int p_idx) const;
 
     int get_node_property_count(int p_idx) const;
@@ -204,7 +204,7 @@ class PackedScene : public Resource {
     RES_BASE_EXTENSION("scn")
 
     Ref<SceneState> state;
-
+public:
     void _set_bundled_scene(const Dictionary &p_scene);
     Dictionary _get_bundled_scene() const;
 

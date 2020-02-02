@@ -209,34 +209,34 @@ public:
 
         frame->add_child(richtext);
 
-        richtext->add_text_utf8("Hello, My Friends!\n\nWelcome to the amazing world of ");
+        richtext->add_text("Hello, My Friends!\n\nWelcome to the amazing world of ");
 
         richtext->add_newline();
         richtext->add_newline();
 
         richtext->push_color(Color(1, 0.5, 0.5));
-        richtext->add_text_utf8("leprechauns");
+        richtext->add_text("leprechauns");
         richtext->pop();
 
-        richtext->add_text_utf8(" and ");
+        richtext->add_text(" and ");
         richtext->push_color(Color(0, 1.0, 0.5));
-        richtext->add_text_utf8("faeries.\n");
+        richtext->add_text("faeries.\n");
         richtext->pop();
-        richtext->add_text_utf8("In this new episode, we will attempt to ");
+        richtext->add_text("In this new episode, we will attempt to ");
         richtext->push_font(richtext->get_font("mono_font", "Fonts"));
         richtext->push_color(Color(0.7f, 0.5f, 1.0f));
-        richtext->add_text_utf8("deliver something nice");
+        richtext->add_text("deliver something nice");
         richtext->pop();
         richtext->pop();
-        richtext->add_text_utf8(" to all the viewers! Unfortunately, I need to ");
+        richtext->add_text(" to all the viewers! Unfortunately, I need to ");
         richtext->push_underline();
-        richtext->add_text_utf8("keep writing a lot of text");
+        richtext->add_text("keep writing a lot of text");
         richtext->pop();
-        richtext->add_text_utf8(" so the label control overflows and the scrollbar appears.\n");
+        richtext->add_text(" so the label control overflows and the scrollbar appears.\n");
         richtext->push_meta("http://www.scrollingcapabilities.xz");
-        richtext->add_text_utf8("This allows to test for the scrolling capabilities ");
+        richtext->add_text("This allows to test for the scrolling capabilities ");
         richtext->pop();
-        richtext->add_text_utf8("of the rich text label for huge text (not like this text will really be huge but, you know).\nAs long as it is so long that it will work nicely for a test/demo, then it's welcomed in my book...\nChanging subject, the day is cloudy today and I'm wondering if I'll get che chance to travel somewhere nice. Sometimes, watching the clouds from satellite images may give a nice insight about how pressure zones in our planet work, although it also makes it pretty obvious to see why most weather forecasts get it wrong so often.\nClouds are so difficult to predict!\nBut it's pretty cool how our civilization has adapted to having water falling from the sky each time it rains...");
+        richtext->add_text("of the rich text label for huge text (not like this text will really be huge but, you know).\nAs long as it is so long that it will work nicely for a test/demo, then it's welcomed in my book...\nChanging subject, the day is cloudy today and I'm wondering if I'll get che chance to travel somewhere nice. Sometimes, watching the clouds from satellite images may give a nice insight about how pressure zones in our planet work, although it also makes it pretty obvious to see why most weather forecasts get it wrong so often.\nClouds are so difficult to predict!\nBut it's pretty cool how our civilization has adapted to having water falling from the sky each time it rains...");
 
         TabContainer *tabc = memnew(TabContainer);
 

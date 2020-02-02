@@ -106,8 +106,8 @@ Size2 AnimationTreePlayerEditor::get_node_size(const StringName &p_node) const {
     count += inputs ? inputs : 1;
     StringName name(p_node);
 
-    float name_w = font->get_string_size_utf8(p_node).width;
-    float type_w = font->get_string_size_utf8(_node_type_names[type]).width;
+    float name_w = font->get_string_size(p_node).width;
+    float type_w = font->get_string_size(_node_type_names[type]).width;
     float max_w = MAX(name_w, type_w);
 
     switch (type) {
@@ -282,7 +282,7 @@ void AnimationTreePlayerEditor::_popup_edit_dialog() {
         edit_label[0]->set_position(Point2(5, 5));
         edit_label[0]->show();
         edit_line[0]->set_begin(Point2(15, 25));
-        edit_line[0]->set_text_utf8(edited_node);
+        edit_line[0]->set_text(edited_node);
         edit_line[0]->show();
         edit_dialog->set_size(Size2(150, 50));
 
@@ -320,7 +320,7 @@ void AnimationTreePlayerEditor::_popup_edit_dialog() {
                 edit_label[0]->set_position(Point2(5, 5));
                 edit_label[0]->show();
                 edit_line[0]->set_begin(Point2(15, 25));
-                edit_line[0]->set_text_utf8(rtos(anim_tree->timescale_node_get_scale(edited_node)));
+                edit_line[0]->set_text(rtos(anim_tree->timescale_node_get_scale(edited_node)));
                 edit_line[0]->show();
                 edit_dialog->set_size(Size2(150, 50));
                 break;
@@ -329,13 +329,13 @@ void AnimationTreePlayerEditor::_popup_edit_dialog() {
                 edit_label[0]->set_position(Point2(5, 5));
                 edit_label[0]->show();
                 edit_line[0]->set_begin(Point2(15, 25));
-                edit_line[0]->set_text_utf8(rtos(anim_tree->oneshot_node_get_fadein_time(edited_node)));
+                edit_line[0]->set_text(rtos(anim_tree->oneshot_node_get_fadein_time(edited_node)));
                 edit_line[0]->show();
                 edit_label[1]->set_text(TTR("Fade Out (s):"));
                 edit_label[1]->set_position(Point2(5, 55));
                 edit_label[1]->show();
                 edit_line[1]->set_begin(Point2(15, 75));
-                edit_line[1]->set_text_utf8(rtos(anim_tree->oneshot_node_get_fadeout_time(edited_node)));
+                edit_line[1]->set_text(rtos(anim_tree->oneshot_node_get_fadeout_time(edited_node)));
                 edit_line[1]->show();
 
                 edit_option->clear();
@@ -355,13 +355,13 @@ void AnimationTreePlayerEditor::_popup_edit_dialog() {
                 edit_label[2]->set_position(Point2(5, 145));
                 edit_label[2]->show();
                 edit_line[2]->set_begin(Point2(15, 165));
-                edit_line[2]->set_text_utf8(rtos(anim_tree->oneshot_node_get_autorestart_delay(edited_node)));
+                edit_line[2]->set_text(rtos(anim_tree->oneshot_node_get_autorestart_delay(edited_node)));
                 edit_line[2]->show();
                 edit_label[3]->set_text(TTR("Random Restart (s):"));
                 edit_label[3]->set_position(Point2(5, 195));
                 edit_label[3]->show();
                 edit_line[3]->set_begin(Point2(15, 215));
-                edit_line[3]->set_text_utf8(rtos(anim_tree->oneshot_node_get_autorestart_random_delay(edited_node)));
+                edit_line[3]->set_text(rtos(anim_tree->oneshot_node_get_autorestart_random_delay(edited_node)));
                 edit_line[3]->show();
 
                 filter_button->set_begin(Point2(10, 245));
@@ -449,7 +449,7 @@ void AnimationTreePlayerEditor::_popup_edit_dialog() {
                 edit_label[0]->set_position(Point2(5, 5));
                 edit_label[0]->show();
                 edit_line[0]->set_begin(Point2(15, 25));
-                edit_line[0]->set_text_utf8(rtos(anim_tree->transition_node_get_xfade_time(edited_node)));
+                edit_line[0]->set_text(rtos(anim_tree->transition_node_get_xfade_time(edited_node)));
                 edit_line[0]->show();
 
                 edit_label[1]->set_text(TTR("Current:"));
@@ -568,7 +568,7 @@ void AnimationTreePlayerEditor::_draw_node(const StringName &p_node) {
                 default: {
                 }
             }
-            font->draw(ci, ofs + ascofs + Point2(3, 0), StringUtils::from_utf8(text), font_color);
+            font->draw_ui_string(ci, ofs + ascofs + Point2(3, 0), StringUtils::from_utf8(text), font_color);
 
             ofs.y += h;
         }
@@ -938,11 +938,11 @@ void AnimationTreePlayerEditor::_notification(int p_what) {
             switch (anim_tree->get_last_error()) {
 
                 case AnimationTreePlayer::CONNECT_OK: {
-                    f->draw_utf8(get_canvas_item(), status_offset, TTR("Animation tree is valid."), Color(0, 1, 0.6, 0.8));
+                    f->draw(get_canvas_item(), status_offset, TTR("Animation tree is valid."), Color(0, 1, 0.6, 0.8));
                 } break;
                 default: {
 
-                    f->draw_utf8(get_canvas_item(), status_offset, TTR("Animation tree is invalid."), Color(1, 0.6, 0.0, 0.8));
+                    f->draw(get_canvas_item(), status_offset, TTR("Animation tree is invalid."), Color(1, 0.6, 0.0, 0.8));
                 } break;
             }
 

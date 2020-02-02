@@ -240,11 +240,11 @@ void SurfaceTool::add_smooth_group(bool p_smooth) {
     }
 }
 
-void SurfaceTool::add_triangle_fan(const Vector<Vector3> &p_vertices, const Vector<Vector2> &p_uvs, const Vector<Color> &p_colors, const Vector<Vector2> &p_uv2s, const Vector<Vector3> &p_normals, const PODVector<Plane> &p_tangents) {
+void SurfaceTool::add_triangle_fan(const PoolVector<Vector3> &p_vertices, const PoolVector<Vector2> &p_uvs, const PoolVector<Color> &p_colors, const PoolVector<Vector2> &p_uv2s, const PoolVector<Vector3> &p_normals, const PODVector<Plane> &p_tangents) {
     ERR_FAIL_COND(!begun)
     ERR_FAIL_COND(primitive != Mesh::PRIMITIVE_TRIANGLES)
     ERR_FAIL_COND(p_vertices.size() < 3)
-
+    //TODO: SEGS: fix this mess
 #define ADD_POINT(n)                    \
     {                                   \
         if (p_colors.size() > n)        \

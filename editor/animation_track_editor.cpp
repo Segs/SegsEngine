@@ -1651,7 +1651,7 @@ void AnimationTimelineEdit::_notification(int p_what) {
                         draw_line(Point2(get_name_limit() + i, 0), Point2(get_name_limit() + i, h), linecolor, Math::round(EDSCALE));
                         UIString num(UIString::number(frame));
                         draw_ui_string(font, Point2(get_name_limit() + i + 3 * EDSCALE, (h - font->get_height()) / 2 + font->get_ascent()).floor(), num, sub ? color_time_dec : color_time_sec, zoomw - i);
-                        prev_frame_ofs = i + font->get_string_size(num).x + 5 * EDSCALE;
+                        prev_frame_ofs = i + font->get_ui_string_size(num).x + 5 * EDSCALE;
                     }
                 }
             }
@@ -2864,7 +2864,7 @@ void AnimationTrackEdit::_gui_input(const Ref<InputEvent> &p_event) {
             path->connect("text_entered", this, "_path_entered");
         }
 
-        path->set_text_utf8((String)animation->track_get_path(track));
+        path->set_text((String)animation->track_get_path(track));
         Vector2 theme_ofs = path->get_stylebox("normal", "LineEdit")->get_offset();
         path->set_position(get_global_position() + path_rect.position - theme_ofs);
         path->set_size(path_rect.size);

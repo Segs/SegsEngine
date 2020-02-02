@@ -171,6 +171,12 @@ class GridMap : public Spatial {
         Vector3 dir;
         float param[VS::LIGHT_PARAM_MAX];
     };
+    struct BakedMesh {
+        Ref<Mesh> mesh;
+        RID instance;
+    };
+
+    Vector<BakedMesh> baked_meshes;
 
     _FORCE_INLINE_ Vector3 _octant_get_offset(const OctantKey &p_key) const {
 
@@ -187,19 +193,12 @@ class GridMap : public Spatial {
 
     void _queue_octants_dirty();
     void _update_octants_callback();
-
+public:
     void resource_changed(const RES &p_res);
-
+protected:
     void _clear_internal();
 
     Vector3 _get_offset() const;
-
-    struct BakedMesh {
-        Ref<Mesh> mesh;
-        RID instance;
-    };
-
-    Vector<BakedMesh> baked_meshes;
 
 protected:
     bool _set(const StringName &p_name, const Variant &p_value);

@@ -74,10 +74,12 @@ protected:
     static void _bind_methods();
 
     virtual IP_Address _resolve_hostname(se_string_view p_hostname, Type p_type = TYPE_ANY) = 0;
-    Array _get_local_addresses() const;
-    Array _get_local_interfaces() const;
 
     static IP *(*_create)();
+
+public:
+    Array _get_local_addresses() const;
+    Array _get_local_interfaces() const;
 
 public:
     struct Interface_Info {

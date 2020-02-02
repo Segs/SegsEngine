@@ -147,7 +147,7 @@ void AnimationNodeBlendTreeEditor::_update_graph() {
         int base = 0;
         if (E != se_string_view("output")) {
             LineEdit *name = memnew(LineEdit);
-            name->set_text_utf8(E);
+            name->set_text(E);
             name->set_expand_to_text_length(true);
             node->add_child(name);
             node->set_slot(0, false, 0, Color(), true, 0, get_color("font_color", "Label"));

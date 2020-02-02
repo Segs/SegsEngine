@@ -46,7 +46,7 @@ class PacketPeer : public RefCounted {
     bool allow_object_decoding = false;
 
     static void _bind_methods();
-
+public:
     Variant _bnd_get_var(bool p_allow_objects = false);
     Error _put_packet(const PoolVector<uint8_t> &p_buffer);
     PoolVector<uint8_t> _get_packet();

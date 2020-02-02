@@ -54,10 +54,7 @@ class Theme : public Resource {
     DefHashMap<StringName, DefHashMap<StringName, Color> > color_map;
     DefHashMap<StringName, DefHashMap<StringName, int> > constant_map;
 
-protected:
-    bool _set(const StringName &p_name, const Variant &p_value);
-    bool _get(const StringName &p_name, Variant &r_ret) const;
-    void _get_property_list(ListPOD<PropertyInfo> *p_list) const;
+    Ref<Font> default_theme_font;
 
     static Ref<Theme> project_default_theme;
     static Ref<Theme> default_theme;
@@ -65,14 +62,18 @@ protected:
     static Ref<StyleBox> default_style;
     static Ref<Font> default_font;
 
-    Ref<Font> default_theme_font;
-
+public:
     PoolVector<String> _get_icon_list(const String &p_type) const;
     PoolVector<String> _get_stylebox_list(const String &p_type) const;
     PoolVector<String> _get_font_list(const String &p_type) const;
     PoolVector<String> _get_color_list(const String &p_type) const;
     PoolVector<String> _get_constant_list(const String &p_type) const;
     PoolVector<String> _get_type_list(se_string_view p_type) const;
+protected:
+    bool _set(const StringName &p_name, const Variant &p_value);
+    bool _get(const StringName &p_name, Variant &r_ret) const;
+    void _get_property_list(ListPOD<PropertyInfo> *p_list) const;
+
 
     static void _bind_methods();
 

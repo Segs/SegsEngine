@@ -121,7 +121,7 @@ private:
         Ref<Mesh> mesh;
         Transform local_xform;
     };
-
+public:
     void _find_meshes(Node *p_at_node, List<PlotMesh> &plot_meshes);
     void _debug_bake();
 

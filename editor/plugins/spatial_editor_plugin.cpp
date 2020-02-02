@@ -2430,9 +2430,9 @@ void SpatialEditorViewport::_draw() {
         Ref<Font> font = get_font("font", "Label");
         Point2 msgpos = Point2(5, get_size().y - 20);
         UIString msg(message.asString());
-        font->draw(ci, msgpos + Point2(1, 1), msg, Color(0, 0, 0, 0.8f));
-        font->draw(ci, msgpos + Point2(-1, -1), msg, Color(0, 0, 0, 0.8f));
-        font->draw(ci, msgpos, msg, Color(1, 1, 1, 1));
+        font->draw_ui_string(ci, msgpos + Point2(1, 1), msg, Color(0, 0, 0, 0.8f));
+        font->draw_ui_string(ci, msgpos + Point2(-1, -1), msg, Color(0, 0, 0, 0.8f));
+        font->draw_ui_string(ci, msgpos, msg, Color(1, 1, 1, 1));
     }
 
     if (_edit.mode == TRANSFORM_ROTATE) {
@@ -4264,13 +4264,13 @@ void SpatialEditor::set_state(const Dictionary &p_state) {
     }
 
     if (d.has("translate_snap"))
-        snap_translate->set_text(d["translate_snap"]);
+        snap_translate->set_text_uistring(d["translate_snap"]);
 
     if (d.has("rotate_snap"))
-        snap_rotate->set_text(d["rotate_snap"]);
+        snap_rotate->set_text_uistring(d["rotate_snap"]);
 
     if (d.has("scale_snap"))
-        snap_scale->set_text(d["scale_snap"]);
+        snap_scale->set_text_uistring(d["scale_snap"]);
 
     if (d.has("local_coords")) {
         tool_option_button[TOOL_OPT_LOCAL_COORDS]->set_pressed(d["local_coords"]);
@@ -4532,9 +4532,9 @@ void SpatialEditor::_menu_item_pressed(int p_option) {
 
             for (int i = 0; i < 3; i++) {
 
-                xform_translate[i]->set_text_utf8("0");
-                xform_rotate[i]->set_text_utf8("0");
-                xform_scale[i]->set_text_utf8("1");
+                xform_translate[i]->set_text("0");
+                xform_rotate[i]->set_text("0");
+                xform_scale[i]->set_text("1");
             }
 
             xform_dialog->popup_centered(Size2(320, 240) * EDSCALE);
@@ -5849,15 +5849,15 @@ SpatialEditor::SpatialEditor(EditorNode *p_editor) {
     snap_dialog->add_child(snap_dialog_vbc);
 
     snap_translate = memnew(LineEdit);
-    snap_translate->set_text_utf8("1");
+    snap_translate->set_text("1");
     snap_dialog_vbc->add_margin_child(TTR("Translate Snap:"), snap_translate);
 
     snap_rotate = memnew(LineEdit);
-    snap_rotate->set_text_utf8("15");
+    snap_rotate->set_text("15");
     snap_dialog_vbc->add_margin_child(TTR("Rotate Snap (deg.):"), snap_rotate);
 
     snap_scale = memnew(LineEdit);
-    snap_scale->set_text_utf8("10");
+    snap_scale->set_text("10");
     snap_dialog_vbc->add_margin_child(TTR("Scale Snap (%):"), snap_scale);
 
     /* SETTINGS DIALOG */

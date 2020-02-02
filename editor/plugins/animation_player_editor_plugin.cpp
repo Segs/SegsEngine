@@ -338,7 +338,7 @@ void AnimationPlayerEditor::_animation_new() {
         break;
     }
 
-    name->set_text_utf8(base);
+    name->set_text(base);
     name_dialog->popup_centered(Size2(300, 90));
     name->select_all();
     name->grab_focus();
@@ -351,7 +351,7 @@ void AnimationPlayerEditor::_animation_rename() {
     StringName selected_name = animation->get_item_text(selected);
 
     name_title->set_text(TTR("Change Animation Name:"));
-    name->set_text(selected_name.asString());
+    name->set_text_uistring(selected_name.asString());
     renaming = true;
     name_dialog->popup_centered(Size2(300, 90));
     name->select_all();
@@ -811,7 +811,7 @@ void AnimationPlayerEditor::_update_animation() {
         stop->set_pressed(true);
     }
 
-    scale->set_text_utf8(StringUtils::num(player->get_speed_scale(), 2));
+    scale->set_text(StringUtils::num(player->get_speed_scale(), 2));
     const auto &current = player->get_assigned_animation();
 
     for (int i = 0; i < animation->get_item_count(); i++) {

@@ -501,7 +501,7 @@ Error _OS::shell_open(String p_uri) {
     return OS::get_singleton()->shell_open(eastl::move(p_uri));
 };
 
-int _OS::execute(se_string_view p_path, const Vector<String> &p_arguments, bool p_blocking, Array p_output, bool p_read_stderr) {
+int _OS::execute(se_string_view p_path, const PODVector<String> &p_arguments, bool p_blocking, Array p_output, bool p_read_stderr) {
 
     OS::ProcessID pid = -2;
     int exitcode = 0;
@@ -1009,23 +1009,18 @@ void _OS::print_all_textures_by_size() {
     }
 }
 
-void _OS::print_resources_by_type(const Vector<String> &p_types) {
+void _OS::print_resources_by_type(const PODVector<String> &p_types) {
 
     DefHashMap<String, int> type_count;
 
     ListPOD<Ref<Resource> > rsrc;
     ResourceCache::get_cached_resources(&rsrc);
 
-    PODVector<String> converted_typenames;
-    converted_typenames.reserve(p_types.size());
-    for (int i = 0; i < p_types.size(); i++) {
-        converted_typenames.push_back(p_types[i]);
-    }
     for (const Ref<Resource> &r : rsrc) {
 
         bool found = false;
 
-        for (const String &name : converted_typenames) {
+        for (const String &name : p_types) {
             if (r->is_class(name.data()))
                 found = true;
         }
@@ -1626,14 +1621,14 @@ PoolVector<Vector3> _Geometry::segment_intersects_convex(const Vector3 &p_from, 
     return r;
 }
 
-bool _Geometry::is_polygon_clockwise(const Vector<Vector2> &p_polygon) {
+bool _Geometry::is_polygon_clockwise(const PODVector<Vector2> &p_polygon) {
 
-    return Geometry::is_polygon_clockwise({p_polygon.ptr(),p_polygon.size()});
+    return Geometry::is_polygon_clockwise(p_polygon);
 }
 
-bool _Geometry::is_point_in_polygon(const Point2 &p_point, const Vector<Vector2> &p_polygon) {
+bool _Geometry::is_point_in_polygon(const Point2 &p_point, const PODVector<Vector2> &p_polygon) {
 
-    return Geometry::is_point_in_polygon(p_point, {p_polygon.ptr(),p_polygon.size()});
+    return Geometry::is_point_in_polygon(p_point, p_polygon);
 }
 
 PODVector<int> _Geometry::triangulate_polygon(Span<const Vector2> p_polygon) {
@@ -1752,7 +1747,7 @@ Array _Geometry::offset_polyline_2d(const PODVector<Vector2> &p_polygon, real_t 
     return ret;
 }
 
-Dictionary _Geometry::make_atlas(const Vector<Size2> &p_rects) {
+Dictionary _Geometry::make_atlas(const PODVector<Size2> &p_rects) {
 
     Dictionary ret;
 
@@ -1859,14 +1854,14 @@ _Geometry::_Geometry() {
 
 ///////////////////////// FILE
 
-Error _File::open_encrypted(se_string_view p_path, ModeFlags p_mode_flags, const Vector<uint8_t> &p_key) {
+Error _File::open_encrypted(se_string_view p_path, ModeFlags p_mode_flags, const PODVector<uint8_t> &p_key) {
 
     Error err = open(p_path, p_mode_flags);
     if (err)
         return err;
 
     FileAccessEncrypted *fae = memnew(FileAccessEncrypted);
-    err = fae->open_and_parse(f, {p_key.ptr(),p_key.size()}, (p_mode_flags == WRITE) ? FileAccessEncrypted::MODE_WRITE_AES256 : FileAccessEncrypted::MODE_READ);
+    err = fae->open_and_parse(f, p_key, (p_mode_flags == WRITE) ? FileAccessEncrypted::MODE_WRITE_AES256 : FileAccessEncrypted::MODE_READ);
     if (err) {
         memdelete(fae);
         close();
@@ -2070,8 +2065,8 @@ String _File::get_line() const {
     return f->get_line();
 }
 
-Vector<String> _File::get_csv_line(int8_t p_delim) const {
-    ERR_FAIL_COND_V_MSG(!f, Vector<String>(), "File must be opened before use.")
+PODVector<String> _File::get_csv_line(int8_t p_delim) const {
+    ERR_FAIL_COND_V_MSG(!f, {}, "File must be opened before use.")
     return f->get_csv_line(p_delim);
 }
 

@@ -80,8 +80,8 @@ void CircleShape2D::draw(const RID &p_to_rid, const Color &p_color) {
         points[i]= Vector2(Math::cos(i * Math_PI * 2 / 24.0f), Math::sin(i * Math_PI * 2 / 24.0f)) * get_radius();
     }
 
-    Vector<Color> col;
-    col.emplace_back(p_color);
+    PoolVector<Color> col;
+    col.push_back(p_color);
     VisualServer::get_singleton()->canvas_item_add_polygon(p_to_rid, points, col);
 }
 

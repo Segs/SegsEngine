@@ -94,7 +94,7 @@ Error ResourceImporterCSVTranslation::import(se_string_view p_source_file, se_st
 
     ERR_FAIL_COND_V_MSG(!f, ERR_INVALID_PARAMETER, "Cannot open file from path '" + p_source_file + "'.")
 
-    Vector<String> line = f->get_csv_line(delimiter);
+    PODVector<String> line = f->get_csv_line(delimiter);
     ERR_FAIL_COND_V(line.size() <= 1, ERR_PARSE_ERROR)
 
     Vector<String> locales;

@@ -75,9 +75,9 @@ public:
 class GODOT_EXPORT Resource : public RefCounted {
 
     GDCLASS(Resource,RefCounted)
-    Q_GADGET
-    Q_CLASSINFO("Category","Resources")
-    Q_PROPERTY(bool resource_local_to_scene READ is_local_to_scene WRITE set_local_to_scene )
+//    Q_GADGET
+//    Q_CLASSINFO("Category","Resources")
+//    Q_PROPERTY(bool resource_local_to_scene READ is_local_to_scene WRITE set_local_to_scene )
     OBJ_CATEGORY("Resources")
 private:
     friend class ResBase;
@@ -99,10 +99,10 @@ protected:
 
     virtual void _resource_path_changed();
     static void _bind_methods();
-
+public:
     void _set_path(se_string_view p_path);
     void _take_over_path(se_string_view p_path);
-Q_SIGNALS:
+//Q_SIGNALS:
     void changed();
 public:
     virtual StringName get_base_extension() const { return StringName("res"); }
@@ -129,8 +129,8 @@ public:
     Ref<Resource> duplicate_for_local_scene(Node *p_for_scene, DefMap<Ref<Resource>, Ref<Resource> > &remap_cache);
     void configure_for_local_scene(Node *p_for_scene, DefMap<Ref<Resource>, Ref<Resource> > &remap_cache);
 
-    Q_INVOKABLE void set_local_to_scene(bool p_enable);
-    Q_INVOKABLE bool is_local_to_scene() const;
+    /*Q_INVOKABLE*/ void set_local_to_scene(bool p_enable);
+    /*Q_INVOKABLE*/ bool is_local_to_scene() const;
 
     virtual void setup_local_to_scene();
 

@@ -136,16 +136,16 @@ void CollisionShape2D::_notification(int p_what) {
                 }
                 Vector2 line_to(0, 20);
                 draw_line(Vector2(), line_to, draw_col, 2, true);
-                Vector<Vector2> pts;
+                PODVector<Vector2> pts;
                 float tsize = 8;
                 pts.push_back(line_to + (Vector2(0, tsize)));
                 pts.push_back(line_to + (Vector2(0.707 * tsize, 0)));
                 pts.push_back(line_to + (Vector2(-0.707 * tsize, 0)));
-                Vector<Color> cols;
+                PoolVector<Color> cols;
                 for (int i = 0; i < 3; i++)
                     cols.push_back(draw_col);
 
-                draw_primitive(pts, cols, Vector<Vector2>());
+                draw_primitive(pts, cols, PoolVector<Vector2>());
             }
         } break;
     }

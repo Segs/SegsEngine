@@ -51,7 +51,7 @@ void SpinBox::_value_changed(double) {
         value = prefix + " " + value;
     if (!suffix.empty())
         value += " " + suffix;
-    line_edit->set_text_utf8(value);
+    line_edit->set_text(value);
 }
 
 void SpinBox::_text_entered(se_string_view p_string) {

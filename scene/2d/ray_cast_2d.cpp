@@ -182,16 +182,16 @@ void RayCast2D::_notification(int p_what) {
                 draw_col.b = g;
             }
             draw_line(Vector2(), cast_to, draw_col, 2, true);
-            Vector<Vector2> pts;
+            PODVector<Vector2> pts;
             float tsize = 8;
             pts.push_back(xf.xform(Vector2(tsize, 0)));
             pts.push_back(xf.xform(Vector2(0, 0.707 * tsize)));
             pts.push_back(xf.xform(Vector2(0, -0.707 * tsize)));
-            Vector<Color> cols;
+            PoolVector<Color> cols;
             for (int i = 0; i < 3; i++)
                 cols.push_back(draw_col);
 
-            draw_primitive(pts, cols, Vector<Vector2>());
+            draw_primitive(pts, cols, PoolVector<Vector2>());
 
         } break;
 

@@ -71,7 +71,7 @@ void ThemeEditor::_refresh_interval() {
 
 void ThemeEditor::_type_menu_cbk(int p_option) {
 
-    type_edit->set_text(type_menu->get_popup()->get_item_text(p_option).asCString());
+    type_edit->set_text_uistring(type_menu->get_popup()->get_item_text(p_option).asCString());
 }
 
 void ThemeEditor::_name_menu_about_to_show() {
@@ -108,7 +108,7 @@ void ThemeEditor::_name_menu_about_to_show() {
 
 void ThemeEditor::_name_menu_cbk(int p_option) {
 
-    name_edit->set_text(name_menu->get_popup()->get_item_text(p_option).asCString());
+    name_edit->set_text_uistring(name_menu->get_popup()->get_item_text(p_option).asCString());
 }
 
 struct _TECategory {
@@ -729,10 +729,10 @@ ThemeEditor::ThemeEditor() {
     main_hb->add_child(second_vb);
     second_vb->add_constant_override("separation", 10 * EDSCALE);
     LineEdit *le = memnew(LineEdit);
-    le->set_text_utf8("LineEdit");
+    le->set_text("LineEdit");
     second_vb->add_child(le);
     le = memnew(LineEdit);
-    le->set_text(TTR("Disabled LineEdit").asString());
+    le->set_text_uistring(TTR("Disabled LineEdit").asString());
     le->set_editable(false);
     second_vb->add_child(le);
     TextEdit *te = memnew(TextEdit);

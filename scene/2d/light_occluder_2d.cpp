@@ -194,7 +194,7 @@ void LightOccluder2D::_notification(int p_what) {
 
                 if (poly.size()) {
                     if (occluder_polygon->is_closed()) {
-                        Vector<Color> color;
+                        PoolVector<Color> color;
                         color.push_back(Color(0, 0, 0, 0.6f));
                         draw_polygon(poly, color);
                     } else {

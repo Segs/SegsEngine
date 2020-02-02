@@ -92,7 +92,7 @@ private:
     ToolButton *refresh;
     ToolButton *show_hidden;
 
-    Vector<String> filters;
+    PODVector<String> filters;
 
     bool mode_overrides_title;
 
@@ -136,8 +136,8 @@ protected:
 public:
     void clear_filters();
     void add_filter(se_string_view p_filter);
-    void set_filters(const Vector<String> &p_filters);
-    Vector<String> get_filters() const;
+    void set_filters(const PODVector<String> &p_filters);
+    const PODVector<String> &get_filters() const;
 
     void set_enable_multiple_selection(bool p_enable);
     Vector<String> get_selected_files() const;

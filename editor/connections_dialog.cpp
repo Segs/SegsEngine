@@ -290,7 +290,7 @@ StringName ConnectDialog::get_dst_method_name() const {
 
 void ConnectDialog::set_dst_method(const StringName &p_method) {
 
-    dst_method->set_text_utf8(p_method);
+    dst_method->set_text(p_method);
 }
 
 const PODVector<Variant> &ConnectDialog::get_binds() const {
@@ -353,7 +353,7 @@ void ConnectDialog::init(const Connection& c, bool bEdit) {
 
 void ConnectDialog::popup_dialog(const UIString &p_for_signal) {
 
-    from_signal->set_text(p_for_signal);
+    from_signal->set_text_uistring(p_for_signal);
     error_label->add_color_override("font_color", get_color("error_color", "Editor"));
     if (!advanced->is_pressed())
         error_label->set_visible(!_find_first_script(get_tree()->get_edited_scene_root(), get_tree()->get_edited_scene_root()));

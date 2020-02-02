@@ -52,7 +52,7 @@ bool MeshLibrary::_set(const StringName &p_name, const Variant &p_value) {
         else if (what == "mesh"_sv)
             set_item_mesh(idx, refFromRefPtr<Mesh>(p_value));
         else if (what == "shape"_sv) {
-            Vector<ShapeData> shapes;
+            PoolVector<ShapeData> shapes;
             ShapeData sd;
             sd.shape = refFromVariant<Shape>(p_value);
             shapes.push_back(sd);
@@ -140,7 +140,7 @@ void MeshLibrary::set_item_mesh(int p_item, const Ref<Mesh> &p_mesh) {
     Object_change_notify(this);
 }
 
-void MeshLibrary::set_item_shapes(int p_item, const Vector<ShapeData> &p_shapes) {
+void MeshLibrary::set_item_shapes(int p_item, const PoolVector<ShapeData> &p_shapes) {
 
     ERR_FAIL_COND(!item_map.contains(p_item))
     item_map[p_item].shapes = p_shapes;
@@ -189,9 +189,9 @@ Ref<Mesh> MeshLibrary::get_item_mesh(int p_item) const {
     return item_map.at(p_item).mesh;
 }
 
-Vector<MeshLibrary::ShapeData> MeshLibrary::get_item_shapes(int p_item) const {
+PoolVector<MeshLibrary::ShapeData> MeshLibrary::get_item_shapes(int p_item) const {
 
-    ERR_FAIL_COND_V(!item_map.contains(p_item), Vector<ShapeData>())
+    ERR_FAIL_COND_V(!item_map.contains(p_item), PoolVector<ShapeData>())
     return item_map.at(p_item).shapes;
 }
 
@@ -273,7 +273,7 @@ int MeshLibrary::get_last_unused_item_id() const {
 void MeshLibrary::_set_item_shapes(int p_item, const Array &p_shapes) {
 
     ERR_FAIL_COND(p_shapes.size() & 1)
-    Vector<ShapeData> shapes;
+    PoolVector<ShapeData> shapes;
     for (int i = 0; i < p_shapes.size(); i += 2) {
         ShapeData sd;
         sd.shape = refFromVariant<Shape>(p_shapes[i + 0]);
@@ -289,7 +289,7 @@ void MeshLibrary::_set_item_shapes(int p_item, const Array &p_shapes) {
 
 Array MeshLibrary::_get_item_shapes(int p_item) const {
 
-    Vector<ShapeData> shapes = get_item_shapes(p_item);
+    PoolVector<ShapeData> shapes = get_item_shapes(p_item);
     Array ret;
     for (int i = 0; i < shapes.size(); i++) {
         ret.push_back(shapes[i].shape);

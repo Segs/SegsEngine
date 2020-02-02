@@ -317,7 +317,7 @@ private:
                 if (sp.empty() && mode == MODE_IMPORT)
                     sp = (TTR("Imported Project"));
 
-                project_name->set_text_utf8(sp);
+                project_name->set_text(sp);
                 _text_changed(sp);
             }
         }
@@ -336,7 +336,7 @@ private:
                 install_path_container->hide();
                 get_ok()->set_disabled(false);
             } else if (StringUtils::ends_with(p,".zip")) {
-                install_path->set_text_utf8(PathUtils::get_base_dir(p));
+                install_path->set_text(PathUtils::get_base_dir(p));
                 install_path_container->show();
                 get_ok()->set_disabled(false);
             } else {
@@ -346,7 +346,7 @@ private:
             }
         }
         String sp = PathUtils::simplify_path(p);
-        project_path->set_text_utf8(sp);
+        project_path->set_text(sp);
         _path_text_changed(sp);
         if (StringUtils::ends_with(p,".zip")) {
             install_path->call_deferred("grab_focus");
@@ -358,14 +358,14 @@ private:
     void _path_selected(se_string_view p_path) {
 
         String sp = PathUtils::simplify_path(p_path);
-        project_path->set_text_utf8(sp);
+        project_path->set_text(sp);
         _path_text_changed(sp);
         get_ok()->call_deferred("grab_focus");
     }
 
     void _install_path_selected(se_string_view p_path) {
         String sp = PathUtils::simplify_path(p_path);
-        install_path->set_text_utf8(sp);
+        install_path->set_text(sp);
         _path_text_changed(sp);
         get_ok()->call_deferred("grab_focus");
     }
@@ -408,7 +408,7 @@ private:
 
                     d->change_dir(project_name->get_text());
                     String dir_str = d->get_current_dir();
-                    project_path->set_text_utf8(dir_str);
+                    project_path->set_text(dir_str);
                     _path_text_changed(dir_str);
                     created_folder_path = d->get_current_dir();
                     create_dir->set_disabled(true);
@@ -688,7 +688,7 @@ public:
     }
 
     void set_project_path(se_string_view p_path) {
-        project_path->set_text_utf8(p_path);
+        project_path->set_text(p_path);
     }
 
     void show_dialog() {
@@ -719,7 +719,7 @@ public:
                 get_ok()->set_disabled(true);
             } else if (current->has_setting("application/config/name")) {
                 String proj = current->get("application/config/name");
-                project_name->set_text_utf8(proj);
+                project_name->set_text(proj);
                 _text_changed(proj);
             }
 
@@ -731,16 +731,16 @@ public:
 
             fav_dir = EditorSettings::get_singleton()->get("filesystem/directories/default_project_path").as<String>();
             if (!fav_dir.empty()) {
-                project_path->set_text_utf8(fav_dir);
+                project_path->set_text(fav_dir);
                 fdialog->set_current_dir(fav_dir);
             } else {
                 DirAccess *d = DirAccess::create(DirAccess::ACCESS_FILESYSTEM);
-                project_path->set_text_utf8(d->get_current_dir());
+                project_path->set_text(d->get_current_dir());
                 fdialog->set_current_dir(d->get_current_dir());
                 memdelete(d);
             }
             String proj(TTR("New Game Project"));
-            project_name->set_text_utf8(proj);
+            project_name->set_text(proj);
             _text_changed(proj);
 
             project_path->set_editable(true);
@@ -775,7 +775,7 @@ public:
 
                 set_title((TTR("Install Project:")) + " " + zip_title);
                 get_ok()->set_text(TTR("Install & Edit"));
-                project_name->set_text_utf8(zip_title);
+                project_name->set_text(zip_title);
                 name_container->show();
                 install_path_container->hide();
                 rasterizer_container->hide();

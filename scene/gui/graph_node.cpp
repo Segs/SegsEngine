@@ -386,7 +386,7 @@ Size2 GraphNode::get_minimum_size() const {
     bool first = true;
 
     Size2 minsize;
-    minsize.x = title_font->get_string_size_utf8(title).x;
+    minsize.x = title_font->get_string_size(title).x;
     if (show_close) {
         Ref<Texture> close = get_icon("close");
         minsize.x += sep + close->get_width();

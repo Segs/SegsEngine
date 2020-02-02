@@ -155,6 +155,7 @@ private:
 
 protected:
     static void _bind_methods();
+public:
     //bind helpers
     Dictionary _get_range_config(int p_column) {
         Dictionary d;
@@ -515,6 +516,7 @@ private:
 protected:
     static void _bind_methods();
 
+public:
     //bind helpers
     TreeItem *_create_item(Object *p_parent, int p_idx = -1) {
         return create_item(object_cast<TreeItem>(p_parent), p_idx);

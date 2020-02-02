@@ -323,9 +323,16 @@ public:
         w = Write();
         resize(s - 1);
     }
-
-    inline int size() const;
-    inline bool empty() const;
+    [[nodiscard]] bool contains(const T &v) const {
+        auto rd=read();
+        for(int i=0,fin=size(); i<fin; ++i)
+            if(rd[i]==v)
+                return true;
+        return false;
+    }
+    int size() const;
+    bool empty() const;
+    void clear() { pv_unreference(); }
     const T & get(int p_index) const;
     void set(int p_index, const T &p_val);
     void push_back(const T &p_val);
@@ -381,7 +388,7 @@ public:
     }
     bool is_locked() const { return alloc && alloc->lock > 0; }
 
-    inline const T & operator[](int p_index) const;
+    const T & operator[](int p_index) const;
 
     Error resize(int p_size);
 
@@ -448,7 +455,14 @@ const T & PoolVector<T>::operator[](int p_index) const {
 template <class T>
 Error PoolVector<T>::resize(int p_size) {
 
-    ERR_FAIL_COND_V_MSG(p_size < 0, ERR_INVALID_PARAMETER, "Size of PoolVector cannot be negative.")
+    {
+        if (unlikely(p_size < 0)) {
+            _err_print_error(FUNCTION_STR, __FILE__, __LINE__,
+                    "Condition ' \"" _STR(p_size < 0) "\" ' is true. returned: " _STR(ERR_INVALID_PARAMETER),
+                    DEBUG_STR("Size of PoolVector cannot be negative."));
+            return ERR_INVALID_PARAMETER;
+        }
+    }
 
     if (alloc == nullptr) {
 

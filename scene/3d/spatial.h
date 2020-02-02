@@ -108,9 +108,9 @@ class GODOT_EXPORT Spatial : public Node {
     void _propagate_transform_changed(Spatial *p_origin);
 
     void _propagate_visibility_changed();
-
-protected:
+public:
     _FORCE_INLINE_ void set_ignore_transform_notification(bool p_ignore) { data.ignore_notification = p_ignore; }
+protected:
 
     _FORCE_INLINE_ void _update_local_transform() const;
 

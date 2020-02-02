@@ -41,7 +41,7 @@ void RunSettingsDialog::popup_run_settings() {
 
 void RunSettingsDialog::set_custom_arguments(const UIString &p_arguments) {
 
-    arguments->set_text(p_arguments);
+    arguments->set_text_uistring(p_arguments);
 }
 String RunSettingsDialog::get_custom_arguments() const {
 

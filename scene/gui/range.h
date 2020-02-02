@@ -52,11 +52,11 @@ class Range : public Control {
     void _ref_shared(Shared *p_shared);
     void _unref_shared();
 
-    void _share(Node *p_range);
 
     void _value_changed_notify();
     void _changed_notify(StringName p_what = "");
-
+public:
+    void _share(Node *p_range);
 protected:
     virtual void _value_changed(double) {}
 

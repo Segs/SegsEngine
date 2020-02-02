@@ -139,22 +139,22 @@ void AnimationTrackEditColor::draw_key_link(int p_index, float p_pixels_sec, int
 
     int y_from = (get_size().height - fh) / 2;
 
-    Vector<Vector2> points;
-    Vector<Color> colors;
+    PODVector<Vector2> points;
+    PoolVector<Color> colors;
 
-    points.push_back(Vector2(x_from, y_from));
+    points.emplace_back(x_from, y_from);
     colors.push_back(color);
 
-    points.push_back(Vector2(x_to, y_from));
+    points.emplace_back(x_to, y_from);
     colors.push_back(color_next);
 
-    points.push_back(Vector2(x_to, y_from + fh));
+    points.emplace_back(x_to, y_from + fh);
     colors.push_back(color_next);
 
-    points.push_back(Vector2(x_from, y_from + fh));
+    points.emplace_back(x_from, y_from + fh);
     colors.push_back(color);
 
-    draw_primitive(points, colors, Vector<Vector2>());
+    draw_primitive(points, colors, PoolVector<Vector2>());
 }
 
 void AnimationTrackEditColor::draw_key(int p_index, float p_pixels_sec, int p_x, bool p_selected, int p_clip_left, int p_clip_right) {

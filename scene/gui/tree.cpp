@@ -1121,7 +1121,7 @@ void Tree::draw_item_rect(const TreeItem::Cell &p_cell, const Rect2i &p_rect, co
         }
         w += bmsize.width + cache.hseparation;
     }
-    w += font->get_string_size_utf8(text).width;
+    w += font->get_string_size(text).width;
 
     switch (p_cell.text_align) {
         case TreeItem::ALIGN_LEFT:
@@ -1149,7 +1149,7 @@ void Tree::draw_item_rect(const TreeItem::Cell &p_cell, const Rect2i &p_rect, co
     }
 
     rect.position.y += Math::floor((rect.size.y - font->get_height()) / 2.0f) + font->get_ascent();
-    font->draw_utf8(ci, rect.position, text, p_color, rect.size.x);
+    font->draw(ci, rect.position, text, p_color, rect.size.x);
 }
 
 int Tree::draw_item(const Point2i &p_pos, const Point2 &p_draw_ofs, const Size2 &p_draw_size, TreeItem *p_item) {
@@ -1382,7 +1382,7 @@ int Tree::draw_item(const Point2i &p_pos, const Point2 &p_draw_ofs, const Size2 
 
                         Ref<Texture> downarrow = cache.select_arrow;
 
-                        font->draw_utf8(ci, text_pos, s, col, item_rect.size.x - downarrow->get_width());
+                        font->draw(ci, text_pos, s, col, item_rect.size.x - downarrow->get_width());
 
                         Point2i arrow_pos = item_rect.position;
                         arrow_pos.x += item_rect.size.x - downarrow->get_width();
@@ -1398,7 +1398,7 @@ int Tree::draw_item(const Point2i &p_pos, const Point2 &p_draw_ofs, const Size2 
                         if (!p_item->cells[i].suffix.empty())
                             valtext += " " + p_item->cells[i].suffix;
 
-                        font->draw_utf8(ci, text_pos, valtext, col, item_rect.size.x - updown->get_width());
+                        font->draw(ci, text_pos, valtext, col, item_rect.size.x - updown->get_width());
 
                         if (!p_item->cells[i].editable)
                             break;
@@ -2839,7 +2839,7 @@ bool Tree::edit_selected() {
         text_editor->set_position(textedpos);
         text_editor->set_size(rect.size);
         text_editor->clear();
-        text_editor->set_text_utf8(c.mode == TreeItem::CELL_MODE_STRING ? c.text : String(StringUtils::num(c.val, Math::range_step_decimals(c.step))));
+        text_editor->set_text(c.mode == TreeItem::CELL_MODE_STRING ? c.text : String(StringUtils::num(c.val, Math::range_step_decimals(c.step))));
         text_editor->select_all();
 
         if (c.mode == TreeItem::CELL_MODE_RANGE) {

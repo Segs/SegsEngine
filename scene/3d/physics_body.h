@@ -292,8 +292,8 @@ private:
     Vector<Collision> colliders;
     Vector<Ref<KinematicCollision> > slide_colliders;
     Ref<KinematicCollision> motion_cache;
-
-    _FORCE_INLINE_ bool _ignores_mode(PhysicsServer::BodyMode) const;
+public:
+    bool _ignores_mode(PhysicsServer::BodyMode) const;
 
     Ref<KinematicCollision> _move(const Vector3 &p_motion, bool p_infinite_inertia = true, bool p_exclude_raycast_shapes = true, bool p_test_only = false);
     Ref<KinematicCollision> _get_slide_collision(int p_bounce);

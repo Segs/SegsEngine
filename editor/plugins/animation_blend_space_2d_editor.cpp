@@ -484,8 +484,8 @@ void AnimationNodeBlendSpace2DEditor::_blend_space_draw() {
     //triangles first
     for (int i = 0; i < blend_space->get_triangle_count(); i++) {
 
-        Vector<Vector2> points;
-        points.resize(3);
+        PODVector<Vector2> points;
+        points.reserve(3);
 
         for (int j = 0; j < 3; j++) {
             int point_idx = blend_space->get_triangle_point(i, j);
@@ -500,7 +500,7 @@ void AnimationNodeBlendSpace2DEditor::_blend_space_draw() {
             point = (point - blend_space->get_min_space()) / (blend_space->get_max_space() - blend_space->get_min_space());
             point *= s;
             point.y = s.height - point.y;
-            points.write[j] = point;
+            points.emplace_back(point);
         }
 
         for (int j = 0; j < 3; j++) {
@@ -516,11 +516,11 @@ void AnimationNodeBlendSpace2DEditor::_blend_space_draw() {
             color.a *= 0.2f;
         }
 
-        Vector<Color> colors;
+        PoolVector<Color> colors;
         colors.push_back(color);
         colors.push_back(color);
         colors.push_back(color);
-        blend_space_draw->draw_primitive(points, colors, Vector<Vector2>());
+        blend_space_draw->draw_primitive(points, colors, PoolVector<Vector2>());
     }
 
     points.clear();
@@ -631,8 +631,8 @@ void AnimationNodeBlendSpace2DEditor::_update_space() {
     min_x_value->set_value(blend_space->get_min_space().x);
     min_y_value->set_value(blend_space->get_min_space().y);
 
-    label_x->set_text_utf8(blend_space->get_x_label());
-    label_y->set_text_utf8(blend_space->get_y_label());
+    label_x->set_text(blend_space->get_x_label());
+    label_y->set_text(blend_space->get_y_label());
 
     snap_x->set_value(blend_space->get_snap().x);
     snap_y->set_value(blend_space->get_snap().y);

@@ -392,7 +392,7 @@ FindInFilesDialog::FindInFilesDialog() {
 }
 
 void FindInFilesDialog::set_search_text(se_string_view text) {
-    _search_text_line_edit->set_text_utf8(text);
+    _search_text_line_edit->set_text(text);
     _on_search_text_modified(text);
 }
 
@@ -487,7 +487,7 @@ void FindInFilesDialog::_on_folder_selected(se_string_view path) {
     int i = StringUtils::find(path,"://");
     if (i != -1)
         path = StringUtils::right(path,i + 3);
-    _folder_line_edit->set_text_utf8(path);
+    _folder_line_edit->set_text(path);
 }
 
 void FindInFilesDialog::_bind_methods() {
@@ -675,15 +675,15 @@ void FindInFilesPanel::_on_result_found(se_string_view fpath, int line_number, i
 
     Ref<Font> font = _results_display->get_font("font");
 
-    float raw_text_width = font->get_string_size_utf8(text).x;
-    float item_text_width = font->get_string_size_utf8(item_text).x;
+    float raw_text_width = font->get_string_size(text).x;
+    float item_text_width = font->get_string_size(item_text).x;
 
     Result r;
     r.line_number = line_number;
     r.begin = begin;
     r.end = end;
-    r.draw_begin = item_text_width - raw_text_width + font->get_string_size_utf8(StringUtils::left(text,r.begin)).x;
-    r.draw_width = font->get_string_size_utf8(StringUtils::substr(text,r.begin, r.end - r.begin)).x;
+    r.draw_begin = item_text_width - raw_text_width + font->get_string_size(StringUtils::left(text,r.begin)).x;
+    r.draw_width = font->get_string_size(StringUtils::substr(text,r.begin, r.end - r.begin)).x;
     _result_items[item] = r;
 
     if (_with_replace) {

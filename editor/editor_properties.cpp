@@ -116,7 +116,7 @@ void EditorPropertyText::_text_changed(se_string_view p_string) {
 void EditorPropertyText::update_property() {
     UIString s = get_edited_object()->get(get_edited_property());
     updating = true;
-    text->set_text(s);
+    text->set_text_uistring(s);
     text->set_editable(!is_read_only());
     updating = false;
 }
@@ -299,7 +299,7 @@ void EditorPropertyPath::_path_pressed() {
 void EditorPropertyPath::update_property() {
 
     StringName full_path = get_edited_object()->get(get_edited_property());
-    path->set_text_utf8(full_path);
+    path->set_text(full_path);
     path->set_tooltip(full_path);
 }
 
@@ -1073,7 +1073,7 @@ void EditorPropertyEasing::_draw_easing() {
     }
 
     easing_draw->draw_multiline(lines, line_color, 1.0, true);
-    f->draw(ci, Point2(10, 10 + f->get_ascent()), StringUtils::from_utf8(StringUtils::num(exp, 2)), font_color);
+    f->draw_ui_string(ci, Point2(10, 10 + f->get_ascent()), StringUtils::from_utf8(StringUtils::num(exp, 2)), font_color);
 }
 
 void EditorPropertyEasing::update_property() {
@@ -1090,7 +1090,7 @@ void EditorPropertyEasing::_set_preset(int p_preset) {
 void EditorPropertyEasing::_setup_spin() {
     setting = true;
     spin->setup_and_show();
-    spin->get_line_edit()->set_text_utf8(rtos(get_edited_object()->get(get_edited_property())));
+    spin->get_line_edit()->set_text(rtos(get_edited_object()->get(get_edited_property())));
     setting = false;
     spin->show();
 }

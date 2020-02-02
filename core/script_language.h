@@ -114,7 +114,7 @@ protected:
 
     friend class PlaceHolderScriptInstance;
     virtual void _placeholder_erased(PlaceHolderScriptInstance * /*p_placeholder*/) {}
-
+public:
     Variant _get_property_default_value(const StringName &p_property);
     Array _get_script_property_list();
     Array _get_script_method_list();

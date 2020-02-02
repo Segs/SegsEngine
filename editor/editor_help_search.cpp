@@ -250,7 +250,7 @@ void EditorHelpSearch::popup_dialog(se_string_view p_term) {
             old_search = true;
         else
             old_term = p_term;
-        search_box->set_text_utf8(p_term);
+        search_box->set_text(p_term);
         search_box->select_all();
     }
     search_box->grab_focus();

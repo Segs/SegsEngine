@@ -37,8 +37,10 @@
 #include "scene/resources/texture.h"
 #include "core/list.h"
 #include "core/math/transform_2d.h"
-
-
+#include "a_star.h"
+#include "a_star.h"
+#include "a_star.h"
+#include "a_star.h"
 
 class CanvasLayer;
 class Viewport;
@@ -164,7 +166,7 @@ public:
 class GODOT_EXPORT CanvasItem : public Node {
 
     GDCLASS(CanvasItem,Node)
-    Q_GADGET
+//    Q_GADGET
 
 public:
     enum BlendMode {
@@ -210,9 +212,9 @@ private:
     mutable bool global_invalid;
     static CanvasItem *current_item_drawn;
 
-    Q_INVOKABLE void _toplevel_raise_self();
-    Q_INVOKABLE void _propagate_visibility_changed(bool p_visible);
-    Q_INVOKABLE void _update_callback();
+    /*Q_INVOKABLE*/ void _toplevel_raise_self();
+    /*Q_INVOKABLE*/ void _propagate_visibility_changed(bool p_visible);
+    /*Q_INVOKABLE*/ void _update_callback();
 
     void _enter_canvas();
     void _exit_canvas();
@@ -253,7 +255,7 @@ public:
     virtual bool _edit_is_selected_on_click(const Point2 &p_point, float p_tolerance) const;
 
     // Save and restore a CanvasItem state
-    Q_INVOKABLE virtual void _edit_set_state(const Dictionary &/*p_state*/){}
+    /*Q_INVOKABLE*/ virtual void _edit_set_state(const Dictionary &/*p_state*/){}
     virtual Dictionary _edit_get_state() const { return Dictionary(); }
 
     // Used to move the node
@@ -315,9 +317,9 @@ public:
     void draw_texture_rect(const Ref<Texture> &p_texture, const Rect2 &p_rect, bool p_tile = false, const Color &p_modulate = Color(1, 1, 1), bool p_transpose = false, const Ref<Texture> &p_normal_map = Ref<Texture>());
     void draw_texture_rect_region(const Ref<Texture> &p_texture, const Rect2 &p_rect, const Rect2 &p_src_rect, const Color &p_modulate = Color(1, 1, 1), bool p_transpose = false, const Ref<Texture> &p_normal_map = Ref<Texture>(), bool p_clip_uv = false);
     void draw_style_box(const Ref<StyleBox> &p_style_box, const Rect2 &p_rect);
-    void draw_primitive(const Vector<Point2> &p_points, const Vector<Color> &p_colors, const Vector<Point2> &p_uvs, Ref<Texture> p_texture = Ref<Texture>(), float p_width = 1, const Ref<Texture> &p_normal_map = Ref<Texture>());
-    void draw_polygon(Span<const Point2> p_points, const Vector<Color> &p_colors, const Vector<Point2> &p_uvs = Vector<Point2>(), Ref<Texture> p_texture = Ref<Texture>(), const Ref<Texture> &p_normal_map = Ref<Texture>(), bool p_antialiased = false);
-    void draw_colored_polygon(Span<const Point2> p_points, const Color &p_color, const Vector<Point2> &p_uvs = Vector<Point2>(), Ref<Texture> p_texture = Ref<Texture>(), const Ref<Texture> &p_normal_map = Ref<Texture>(), bool p_antialiased = false);
+    void draw_primitive(const PODVector<Vector2> &p_points, const PoolVector<Color> &p_colors, const PoolVector<Point2> &p_uvs, Ref<Texture> p_texture = Ref<Texture>(), float p_width = 1, const Ref<Texture> &p_normal_map = Ref<Texture>());
+    void draw_polygon(Span<const Point2> p_points, const PoolVector<Color> &p_colors, const PoolVector<Point2> &p_uvs = PoolVector<Point2>(), Ref<Texture> p_texture = Ref<Texture>(), const Ref<Texture> &p_normal_map = Ref<Texture>(), bool p_antialiased = false);
+    void draw_colored_polygon(Span<const Point2> p_points, const Color &p_color, const PoolVector<Point2> &p_uvs = PoolVector<Point2>(), Ref<Texture> p_texture = Ref<Texture>(), const Ref<Texture> &p_normal_map = Ref<Texture>(), bool p_antialiased = false);
 
     void draw_mesh(const Ref<Mesh> &p_mesh, const Ref<Texture> &p_texture, const Ref<Texture> &p_normal_map, const Transform2D &p_transform = Transform2D(), const Color &p_modulate = Color(1, 1, 1));
     void draw_multimesh(const Ref<MultiMesh> &p_multimesh, const Ref<Texture> &p_texture, const Ref<Texture> &p_normal_map);

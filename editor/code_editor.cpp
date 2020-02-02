@@ -51,7 +51,7 @@ void GotoLineDialog::popup_find_line(TextEdit *p_edit) {
 
     text_editor = p_edit;
 
-    line->set_text_utf8(itos(text_editor->cursor_get_line()));
+    line->set_text(itos(text_editor->cursor_get_line()));
     line->select_all();
     popup_centered(Size2(180, 80) * EDSCALE);
     line->grab_focus();
@@ -449,7 +449,7 @@ void FindReplaceBar::_show_search(bool p_focus_replace, bool p_show_only) {
     }
 
     if (text_edit->is_selection_active() && !selection_only->is_pressed()) {
-        search_text->set_text_utf8(text_edit->get_selection_text());
+        search_text->set_text(text_edit->get_selection_text());
     }
 
     if (!get_search_text().isEmpty()) {

@@ -55,13 +55,14 @@ class VisualScriptNode : public Resource {
     Array default_input_values;
     bool breakpoint;
 
+public:
     void _set_default_input_values(Array p_values);
     Array _get_default_input_values() const;
 
     void validate_input_default_values();
 
-protected:
     void ports_changed_notify();
+protected:
     static void _bind_methods();
 
 public:
@@ -264,6 +265,7 @@ private:
     void _update_placeholders();
 #endif
 
+public:
     void _set_variable_info(const StringName &p_name, const Dictionary &p_info);
     Dictionary _get_variable_info(const StringName &p_name) const;
 

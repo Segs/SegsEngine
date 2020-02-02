@@ -1378,11 +1378,11 @@ String SceneState::get_node_instance_placeholder(int p_idx) const {
     return String();
 }
 
-Vector<StringName> SceneState::get_node_groups(int p_idx) const {
-    ERR_FAIL_INDEX_V(p_idx, nodes.size(), Vector<StringName>());
-    Vector<StringName> groups;
+PODVector<StringName> SceneState::get_node_groups(int p_idx) const {
+    ERR_FAIL_INDEX_V(p_idx, nodes.size(), {});
+    PODVector<StringName> groups;
     for (int i = 0; i < nodes[p_idx].groups.size(); i++) {
-        groups.push_back(names[nodes[p_idx].groups[i]]);
+        groups.emplace_back(names[nodes[p_idx].groups[i]]);
     }
     return groups;
 }
@@ -1642,7 +1642,7 @@ void SceneState::add_editable_instance(const NodePath &p_path) {
 
 PoolVector<String> SceneState::_get_node_groups(int p_idx) const {
 
-    Vector<StringName> groups = get_node_groups(p_idx);
+    PODVector<StringName> groups = get_node_groups(p_idx);
     PoolVector<String> ret;
 
     for (int i = 0; i < groups.size(); i++)

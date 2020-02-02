@@ -52,15 +52,15 @@ public:
     virtual float get_descent() const = 0;
 
     virtual Size2 get_char_size(CharType p_char, CharType p_next = 0) const = 0;
-    Size2 get_string_size(const UIString &p_string) const;
-    Size2 get_string_size_utf8(se_string_view p_string) const;
-    Size2 get_wordwrap_string_size(const UIString &p_string, float p_width) const;
-    Size2 get_wordwrap_string_size_utf8(se_string_view p_string, float p_width) const;
+    Size2 get_ui_string_size(const UIString &p_string) const;
+    Size2 get_string_size(se_string_view p_string) const;
+    Size2 get_wordwrap_ui_string_size(const UIString &p_string, float p_width) const;
+    Size2 get_wordwrap_string_size(se_string_view p_string, float p_width) const;
 
     virtual bool is_distance_field_hint() const = 0;
 
-    void draw_utf8(RID p_canvas_item, const Point2 &p_pos, se_string_view p_text, const Color &p_modulate = Color(1, 1, 1), int p_clip_w = -1, const Color &p_outline_modulate = Color(1, 1, 1)) const;
-    void draw(RID p_canvas_item, const Point2 &p_pos, const UIString &p_text, const Color &p_modulate = Color(1, 1, 1), int p_clip_w = -1, const Color &p_outline_modulate = Color(1, 1, 1)) const;
+    void draw(RID p_canvas_item, const Point2 &p_pos, se_string_view p_text, const Color &p_modulate = Color(1, 1, 1), int p_clip_w = -1, const Color &p_outline_modulate = Color(1, 1, 1)) const;
+    void draw_ui_string(RID p_canvas_item, const Point2 &p_pos, const UIString &p_text, const Color &p_modulate = Color(1, 1, 1), int p_clip_w = -1, const Color &p_outline_modulate = Color(1, 1, 1)) const;
     void draw_halign(RID p_canvas_item, const Point2 &p_pos, HAlign p_align, float p_width, const UIString &p_text, const Color &p_modulate = Color(1, 1, 1), const Color &p_outline_modulate = Color(1, 1, 1)) const;
     void draw_halign_utf8(RID p_canvas_item, const Point2 &p_pos, HAlign p_align, float p_width, se_string_view p_text, const Color &p_modulate = Color(1, 1, 1), const Color &p_outline_modulate = Color(1, 1, 1)) const;
 

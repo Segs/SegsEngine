@@ -101,17 +101,17 @@ class PopupMenu : public Popup {
     bool hide_on_window_lose_focus;
     Vector2 moved;
 
-    Array _get_items() const;
-    void _set_items(const Array &p_items);
 
     Map<Ref<ShortCut>, int> shortcut_refcount;
-
-    void _ref_shortcut(Ref<ShortCut> p_sc);
-    void _unref_shortcut(Ref<ShortCut> p_sc);
-
     bool allow_search;
     uint64_t search_time_msec;
     String search_string;
+public:
+    Array _get_items() const;
+    void _set_items(const Array &p_items);
+    void _ref_shortcut(Ref<ShortCut> p_sc);
+    void _unref_shortcut(Ref<ShortCut> p_sc);
+
 
 protected:
     bool has_point(const Point2 &p_point) const override;
