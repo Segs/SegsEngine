@@ -169,7 +169,7 @@ static se_string_view _opstr(SL::Operator p_op) {
 
 static String _mkid(const String &p_id) {
 
-    String id = "m_" + p_id.replaced("__", "_dus_");//doubleunderscore is reserved in glsl
+    String id = ("m_" + p_id).replaced("__", "_dus_");//doubleunderscore is reserved in glsl
     return id;
 }
 

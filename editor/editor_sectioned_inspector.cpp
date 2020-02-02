@@ -220,7 +220,7 @@ void SectionedInspector::edit(Object *p_object) {
 }
 
 void SectionedInspector::update_category_list() {
-
+    using namespace StringUtils;
     sections->clear();
 
     Object *o = ObjectDB::get_instance(obj);
@@ -252,6 +252,9 @@ void SectionedInspector::update_category_list() {
                 StringUtils::begins_with(pi.name, "_global_script"))
             continue;
 
+        if (!filter.empty() && !is_subsequence_of(filter, capitalize(pi.name), CaseInsensitive) && !is_subsequence_of(filter,capitalize(String(pi.name).replaced("/", " "))))
+            continue;
+
         auto sp = StringUtils::find(pi.name,"/");
         String p_name(pi.name);
         if (sp == String::npos)
@@ -260,8 +263,6 @@ void SectionedInspector::update_category_list() {
         PODVector<se_string_view> sectionarr = StringUtils::split(p_name,'/');
         String metasection;
 
-        if (!filter.empty() && !StringUtils::is_subsequence_of(filter,StringUtils::capitalize(sectionarr[sectionarr.size() - 1]),StringUtils::CaseInsensitive))
-            continue;
 
         int sc = MIN(2, sectionarr.size() - 1);
 

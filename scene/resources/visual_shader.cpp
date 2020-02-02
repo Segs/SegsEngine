@@ -52,6 +52,8 @@ IMPL_GDCLASS(VisualShaderNodeGlobalExpression)
 VARIANT_ENUM_CAST(VisualShader::Type)
 VARIANT_ENUM_CAST(VisualShaderNode::PortType)
 
+
+
 void VisualShaderNode::set_output_port_for_preview(int p_index) {
 
     port_preview = p_index;
@@ -153,6 +155,7 @@ void VisualShaderNode::_bind_methods() {
 
 VisualShaderNode::VisualShaderNode() {
     port_preview = -1;
+    simple_decl = true;
 }
 
 /////////////////////////////////////////////////////////
@@ -262,6 +265,7 @@ String VisualShaderNodeCustom::generate_code(ShaderMode p_mode, VisualShader::Ty
         StringUtils::erase(code,code.size() - 1,1);
         code += '}';
     }
+    code += "\n";
     return code;
 }
 
@@ -294,6 +298,7 @@ void VisualShaderNodeCustom::_bind_methods() {
 }
 
 VisualShaderNodeCustom::VisualShaderNodeCustom() {
+    simple_decl = false;
 }
 
 /////////////////////////////////////////////////////////
@@ -1170,15 +1175,29 @@ Error VisualShader::_write_node(Type type, StringBuilder &global_code, StringBui
     output_vars.resize(vsnode->get_output_port_count());
     String *outputs = output_vars.ptrw();
 
-    for (int i = 0; i < output_count; i++) {
+    if (vsnode->is_simple_decl()) { // less code to generate for some simple_decl nodes
+        for (int i = 0; i < output_count; i++) {
+            String var_name = "n_out" + itos(node) + "p" + itos(i);
+            switch (vsnode->get_output_port_type(i)) {
+                case VisualShaderNode::PORT_TYPE_SCALAR: outputs[i] = "float " + var_name; break;
+                case VisualShaderNode::PORT_TYPE_VECTOR: outputs[i] = "vec3 " + var_name; break;
+                case VisualShaderNode::PORT_TYPE_BOOLEAN: outputs[i] = "bool " + var_name; break;
+                case VisualShaderNode::PORT_TYPE_TRANSFORM: outputs[i] = "mat4 " + var_name; break;
+                default: {
+                }
+            }
+        }
 
-        outputs[i] = "n_out" + itos(node) + "p" + itos(i);
-        switch (vsnode->get_output_port_type(i)) {
-            case VisualShaderNode::PORT_TYPE_SCALAR: code += String() + "\tfloat " + outputs[i] + ";\n"; break;
-            case VisualShaderNode::PORT_TYPE_VECTOR: code += String() + "\tvec3 " + outputs[i] + ";\n"; break;
-            case VisualShaderNode::PORT_TYPE_BOOLEAN: code += String() + "\tbool " + outputs[i] + ";\n"; break;
-            case VisualShaderNode::PORT_TYPE_TRANSFORM: code += String() + "\tmat4 " + outputs[i] + ";\n"; break;
-            default: {
+    } else {
+        for (int i = 0; i < output_count; i++) {
+            outputs[i] = "n_out" + itos(node) + "p" + itos(i);
+            switch (vsnode->get_output_port_type(i)) {
+                case VisualShaderNode::PORT_TYPE_SCALAR: code += String() + "\tfloat " + outputs[i] + ";\n"; break;
+                case VisualShaderNode::PORT_TYPE_VECTOR: code += String() + "\tvec3 " + outputs[i] + ";\n"; break;
+                case VisualShaderNode::PORT_TYPE_BOOLEAN: code += String() + "\tbool " + outputs[i] + ";\n"; break;
+                case VisualShaderNode::PORT_TYPE_TRANSFORM: code += String() + "\tmat4 " + outputs[i] + ";\n"; break;
+                default: {
+                }
             }
         }
     }
@@ -1901,7 +1920,7 @@ const VisualShaderNodeOutput::Port VisualShaderNodeOutput::ports[] = {
     { ShaderMode::CANVAS_ITEM, VisualShader::TYPE_FRAGMENT, VisualShaderNode::PORT_TYPE_SCALAR, "normalmap_depth", "NORMALMAP_DEPTH" },
     // Canvas Item, Light
     { ShaderMode::CANVAS_ITEM, VisualShader::TYPE_LIGHT, VisualShaderNode::PORT_TYPE_VECTOR, "light", "LIGHT.rgb" },
-    { ShaderMode::CANVAS_ITEM, VisualShader::TYPE_LIGHT, VisualShaderNode::PORT_TYPE_SCALAR, "light_alpha", "LIGHT.rgb" },
+    { ShaderMode::CANVAS_ITEM, VisualShader::TYPE_LIGHT, VisualShaderNode::PORT_TYPE_SCALAR, "light_alpha", "LIGHT.a" },
     // Particles, Vertex
     { ShaderMode::PARTICLES, VisualShader::TYPE_VERTEX, VisualShaderNode::PORT_TYPE_VECTOR, "color", "COLOR.rgb" },
     { ShaderMode::PARTICLES, VisualShader::TYPE_VERTEX, VisualShaderNode::PORT_TYPE_SCALAR, "alpha", "COLOR.a" },
@@ -2517,6 +2536,7 @@ VisualShaderNodeGroupBase::VisualShaderNodeGroupBase() {
     inputs = "";
     outputs = "";
     editable = false;
+    simple_decl = false;
 }
 
 ////////////// Expression

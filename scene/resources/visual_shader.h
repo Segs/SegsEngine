@@ -165,12 +165,12 @@ public:
 class VisualShaderNode : public Resource {
     GDCLASS(VisualShaderNode,Resource)
 
+    Map<int, Variant> default_input_values;
     int port_preview;
 
-    Map<int, Variant> default_input_values;
-
-
 protected:
+    bool simple_decl;
+
     static void _bind_methods();
 
 public:
@@ -182,6 +182,8 @@ public:
         PORT_TYPE_SAMPLER,
         PORT_TYPE_MAX,
     };
+
+    bool is_simple_decl() const { return simple_decl; }
 
     virtual se_string_view get_caption() const = 0;
 

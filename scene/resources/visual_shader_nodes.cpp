@@ -497,7 +497,7 @@ String VisualShaderNodeTexture::generate_global(ShaderMode p_mode, VisualShader:
             case TYPE_COLOR: u += (" : hint_albedo"); break;
             case TYPE_NORMALMAP: u += (" : hint_normal"); break;
         }
-        return u + ";";
+        return u + ";\n";
     }
 
     return String();
@@ -675,6 +675,26 @@ String VisualShaderNodeTexture::generate_code(ShaderMode p_mode, VisualShader::T
 
 void VisualShaderNodeTexture::set_source(Source p_source) {
     source = p_source;
+    switch (source) {
+        case SOURCE_TEXTURE:
+            simple_decl = true;
+            break;
+        case SOURCE_SCREEN:
+            simple_decl = false;
+            break;
+        case SOURCE_2D_TEXTURE:
+            simple_decl = false;
+            break;
+        case SOURCE_2D_NORMAL:
+            simple_decl = false;
+            break;
+        case SOURCE_DEPTH:
+            simple_decl = false;
+            break;
+        case SOURCE_PORT:
+            simple_decl = false;
+            break;
+    }
     emit_changed();
     emit_signal("editor_refresh_request");
 }
@@ -950,6 +970,7 @@ void VisualShaderNodeCubeMap::_bind_methods() {
 VisualShaderNodeCubeMap::VisualShaderNodeCubeMap() {
     texture_type = TYPE_DATA;
     source = SOURCE_TEXTURE;
+    simple_decl = false;
 }
 ////////////// Scalar Op
 
@@ -1241,6 +1262,35 @@ String VisualShaderNodeColorOp::generate_code(ShaderMode p_mode, VisualShader::T
 void VisualShaderNodeColorOp::set_operator(Operator p_op) {
 
     op = p_op;
+    switch (op) {
+        case OP_SCREEN:
+            simple_decl = true;
+            break;
+        case OP_DIFFERENCE:
+            simple_decl = true;
+            break;
+        case OP_DARKEN:
+            simple_decl = true;
+            break;
+        case OP_LIGHTEN:
+            simple_decl = true;
+            break;
+        case OP_OVERLAY:
+            simple_decl = false;
+            break;
+        case OP_DODGE:
+            simple_decl = true;
+            break;
+        case OP_BURN:
+            simple_decl = true;
+            break;
+        case OP_SOFT_LIGHT:
+            simple_decl = false;
+            break;
+        case OP_HARD_LIGHT:
+            simple_decl = false;
+            break;
+    }
     emit_changed();
 }
 
@@ -1653,6 +1703,13 @@ String VisualShaderNodeVectorFunc::generate_code(ShaderMode p_mode, VisualShader
 void VisualShaderNodeVectorFunc::set_function(Function p_func) {
 
     func = p_func;
+    if (func == FUNC_RGB2HSV) {
+        simple_decl = false;
+    } else if (func == FUNC_HSV2RGB) {
+        simple_decl = false;
+    } else {
+        simple_decl = true;
+    }
     emit_changed();
 }
 
@@ -1805,6 +1862,7 @@ void VisualShaderNodeColorFunc::_bind_methods() {
 VisualShaderNodeColorFunc::VisualShaderNodeColorFunc() {
     func = FUNC_GRAYSCALE;
     set_input_port_default_value(0, Vector3());
+    simple_decl = false;
 }
 
 ////////////// Transform Func
@@ -3264,6 +3322,7 @@ StringName VisualShaderNodeTextureUniform::get_input_port_default_hint(int p_por
 VisualShaderNodeTextureUniform::VisualShaderNodeTextureUniform() {
     texture_type = TYPE_DATA;
     color_default = COLOR_DEFAULT_WHITE;
+    simple_decl = false;
 }
 
 ////////////// Texture Uniform (Triplanar)
@@ -3500,6 +3559,7 @@ VisualShaderNodeIf::VisualShaderNodeIf() {
     set_input_port_default_value(3, Vector3(0.0, 0.0, 0.0));
     set_input_port_default_value(4, Vector3(0.0, 0.0, 0.0));
     set_input_port_default_value(5, Vector3(0.0, 0.0, 0.0));
+    simple_decl = false;
 }
 
 ////////////// Switch
@@ -3562,6 +3622,7 @@ VisualShaderNodeSwitch::VisualShaderNodeSwitch() {
     set_input_port_default_value(0, false);
     set_input_port_default_value(1, Vector3(1.0, 1.0, 1.0));
     set_input_port_default_value(2, Vector3(0.0, 0.0, 0.0));
+    simple_decl = false;
 }
 
 ////////////// Switch(scalar)
@@ -3892,18 +3953,22 @@ void VisualShaderNodeCompare::set_comparison_type(ComparisonType p_type) {
         case CTYPE_SCALAR:
             set_input_port_default_value(0, 0.0);
             set_input_port_default_value(1, 0.0);
+            simple_decl = true;
             break;
         case CTYPE_VECTOR:
             set_input_port_default_value(0, Vector3(0.0, 0.0, 0.0));
             set_input_port_default_value(1, Vector3(0.0, 0.0, 0.0));
+            simple_decl = false;
             break;
         case CTYPE_BOOLEAN:
             set_input_port_default_value(0, false);
             set_input_port_default_value(1, false);
+            simple_decl = true;
             break;
         case CTYPE_TRANSFORM:
             set_input_port_default_value(0, Transform());
             set_input_port_default_value(1, Transform());
+            simple_decl = true;
             break;
     }
     emit_changed();
