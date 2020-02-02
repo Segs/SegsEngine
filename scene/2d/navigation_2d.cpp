@@ -257,7 +257,7 @@ PODVector<Vector2> Navigation2D::get_simple_path(const Vector2 &p_start, const V
         for (List<Polygon>::Element *F = E.second.polygons.front(); F; F = F->next()) {
 
             Polygon &p = F->deref();
-            if (begin_d || end_d) {
+            if (begin_d!=0.0f || end_d!=0.0f) {
                 for (int i = 2; i < p.edges.size(); i++) {
 
                     if (begin_d > 0) {
@@ -486,48 +486,49 @@ PODVector<Vector2> Navigation2D::get_simple_path(const Vector2 &p_start, const V
         open_list.erase(least_cost_poly);
     }
 
-    if (found_route) {
+    if (!found_route)
+        return {};
 
-        PODVector<Vector2> path;
+    PODVector<Vector2> path;
 
-        if (p_optimize) {
-            //string pulling
+    if (p_optimize) {
+        //string pulling
 
-            Vector2 apex_point = end_point;
-            Vector2 portal_left = apex_point;
-            Vector2 portal_right = apex_point;
-            Polygon *left_poly = end_poly;
-            Polygon *right_poly = end_poly;
-            Polygon *p = end_poly;
+        Vector2 apex_point = end_point;
+        Vector2 portal_left = apex_point;
+        Vector2 portal_right = apex_point;
+        Polygon *left_poly = end_poly;
+        Polygon *right_poly = end_poly;
+        Polygon *p = end_poly;
 
-            while (p) {
+        while (p) {
 
-                Vector2 left;
-                Vector2 right;
+            Vector2 left;
+            Vector2 right;
 
-//#define CLOCK_TANGENT(m_a,m_b,m_c) ( ((m_a)-(m_c)).cross((m_a)-(m_b)) )
+            //#define CLOCK_TANGENT(m_a,m_b,m_c) ( ((m_a)-(m_c)).cross((m_a)-(m_b)) )
 #define CLOCK_TANGENT(m_a, m_b, m_c) ((((m_a).x - (m_c).x) * ((m_b).y - (m_c).y) - ((m_b).x - (m_c).x) * ((m_a).y - (m_c).y)))
 
-                if (p == begin_poly) {
-                    left = begin_point;
-                    right = begin_point;
-                } else {
-                    int prev = p->prev_edge;
-                    int prev_n = (p->prev_edge + 1) % p->edges.size();
-                    left = _get_vertex(p->edges[prev].point);
-                    right = _get_vertex(p->edges[prev_n].point);
+            if (p == begin_poly) {
+                left = begin_point;
+                right = begin_point;
+            } else {
+                int prev = p->prev_edge;
+                int prev_n = (p->prev_edge + 1) % p->edges.size();
+                left = _get_vertex(p->edges[prev].point);
+                right = _get_vertex(p->edges[prev_n].point);
 
-                    if (p->clockwise) {
-                        SWAP(left, right);
-                    }
-                    /*if (CLOCK_TANGENT(apex_point,left,(left+right)*0.5) < 0){
+                if (p->clockwise) {
+                    SWAP(left, right);
+                }
+                /*if (CLOCK_TANGENT(apex_point,left,(left+right)*0.5) < 0){
                         SWAP(left,right);
                     }*/
-                }
+            }
 
-                bool skip = false;
+            bool skip = false;
 
-                /*
+            /*
                 print_line("-----\nAPEX: "+(apex_point-end_point));
                 print_line("LEFT:");
                 print_line("\tPortal: "+(portal_left-end_point));
@@ -543,79 +544,77 @@ PODVector<Vector2> Navigation2D::get_simple_path(const Vector2 &p_start, const V
                 print_line("\tRight Test: "+rtos(CLOCK_TANGENT(apex_point,right,portal_left)));
                 */
 
-                if (CLOCK_TANGENT(apex_point, portal_left, left) >= 0) {
-                    //process
-                    if (portal_left.is_equal_approx(apex_point) || CLOCK_TANGENT(apex_point, left, portal_right) > 0) {
-                        left_poly = p;
-                        portal_left = left;
-                    } else {
+            if (CLOCK_TANGENT(apex_point, portal_left, left) >= 0) {
+                //process
+                if (portal_left.is_equal_approx(apex_point) || CLOCK_TANGENT(apex_point, left, portal_right) > 0) {
+                    left_poly = p;
+                    portal_left = left;
+                } else {
 
-                        apex_point = portal_right;
-                        p = right_poly;
-                        left_poly = p;
-                        portal_left = apex_point;
-                        portal_right = apex_point;
-                        if (!path.size() || !path[path.size() - 1].is_equal_approx(apex_point))
-                            path.push_back(apex_point);
-                        skip = true;
-                    }
+                    apex_point = portal_right;
+                    p = right_poly;
+                    left_poly = p;
+                    portal_left = apex_point;
+                    portal_right = apex_point;
+                    if (!path.size() || !path[path.size() - 1].is_equal_approx(apex_point))
+                        path.push_back(apex_point);
+                    skip = true;
                 }
-
-                if (!skip && CLOCK_TANGENT(apex_point, portal_right, right) <= 0) {
-                    //process
-                    if (portal_right.is_equal_approx(apex_point) || CLOCK_TANGENT(apex_point, right, portal_left) < 0) {
-                        right_poly = p;
-                        portal_right = right;
-                    } else {
-
-                        apex_point = portal_left;
-                        p = left_poly;
-                        right_poly = p;
-                        portal_right = apex_point;
-                        portal_left = apex_point;
-                        if (!path.size() || !path[path.size() - 1].is_equal_approx(apex_point))
-                            path.push_back(apex_point);
-                    }
-                }
-
-                if (p != begin_poly)
-                    p = p->edges[p->prev_edge].C;
-                else
-                    p = nullptr;
             }
 
-        } else {
-            //midpoints
-            Polygon *p = end_poly;
+            if (!skip && CLOCK_TANGENT(apex_point, portal_right, right) <= 0) {
+                //process
+                if (portal_right.is_equal_approx(apex_point) || CLOCK_TANGENT(apex_point, right, portal_left) < 0) {
+                    right_poly = p;
+                    portal_right = right;
+                } else {
 
-            while (true) {
-                int prev = p->prev_edge;
-                int prev_n = (p->prev_edge + 1) % p->edges.size();
-                Vector2 point = (_get_vertex(p->edges[prev].point) + _get_vertex(p->edges[prev_n].point)) * 0.5;
-                path.push_back(point);
-                p = p->edges[prev].C;
-                if (p == begin_poly)
-                    break;
+                    apex_point = portal_left;
+                    p = left_poly;
+                    right_poly = p;
+                    portal_right = apex_point;
+                    portal_left = apex_point;
+                    if (!path.size() || !path[path.size() - 1].is_equal_approx(apex_point))
+                        path.push_back(apex_point);
+                }
             }
+
+            if (p != begin_poly)
+                p = p->edges[p->prev_edge].C;
+            else
+                p = nullptr;
         }
 
-        if (path.empty() || !path[path.size() - 1].is_equal_approx(begin_point)) {
-            path.push_back(begin_point); // Add the begin point
-        } else {
-            path.back() = begin_point; // Replace first midpoint by the exact begin point
-        }
-        eastl::reverse(path.begin(),path.end());
+    } else {
+        //midpoints
+        Polygon *p = end_poly;
 
-        if (path.size() <= 1 || !path[path.size() - 1].is_equal_approx(end_point)) {
-            path.push_back(end_point); // Add the end point
-        } else {
-            path.back() = end_point; // Replace last midpoint by the exact end point
+        while (true) {
+            int prev = p->prev_edge;
+            int prev_n = (p->prev_edge + 1) % p->edges.size();
+            Vector2 point = (_get_vertex(p->edges[prev].point) + _get_vertex(p->edges[prev_n].point)) * 0.5;
+            path.push_back(point);
+            p = p->edges[prev].C;
+            if (p == begin_poly)
+                break;
         }
-
-        return path;
     }
 
-    return {};
+    if (path.empty() || !path[path.size() - 1].is_equal_approx(begin_point)) {
+        path.push_back(begin_point); // Add the begin point
+    } else {
+        path.back() = begin_point; // Replace first midpoint by the exact begin point
+    }
+    eastl::reverse(path.begin(),path.end());
+
+    if (path.size() <= 1 || !path[path.size() - 1].is_equal_approx(end_point)) {
+        path.push_back(end_point); // Add the end point
+    } else {
+        path.back() = end_point; // Replace last midpoint by the exact end point
+    }
+
+    return path;
+
 }
 
 Vector2 Navigation2D::get_closest_point(const Vector2 &p_point) {
