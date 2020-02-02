@@ -105,12 +105,12 @@ class Navigation2D : public Node2D {
 
 	struct Connection {
 
-		Polygon *A;
-		int A_edge;
-		Polygon *B;
+        List<ConnectionPending> pending;
+        Polygon *A;
+        Polygon *B;
+        int A_edge;
 		int B_edge;
 
-		List<ConnectionPending> pending;
 
 		Connection() {
 			A = nullptr;

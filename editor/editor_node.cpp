@@ -2865,19 +2865,20 @@ void EditorNode::_discard_changes(se_string_view p_str) {
 }
 
 void EditorNode::_update_debug_options() {
+    Variant false_var(false);
 
     bool check_deploy_remote =
-            EditorSettings::get_singleton()->get_project_metadata("debug_options", "run_deploy_remote_debug", false);
+            EditorSettings::get_singleton()->get_project_metadata("debug_options", "run_deploy_remote_debug", false_var);
     bool check_file_server =
-            EditorSettings::get_singleton()->get_project_metadata("debug_options", "run_file_server", false);
+            EditorSettings::get_singleton()->get_project_metadata("debug_options", "run_file_server", false_var);
     bool check_debug_collisons =
-            EditorSettings::get_singleton()->get_project_metadata("debug_options", "run_debug_collisons", false);
+            EditorSettings::get_singleton()->get_project_metadata("debug_options", "run_debug_collisons", false_var);
     bool check_debug_navigation =
-            EditorSettings::get_singleton()->get_project_metadata("debug_options", "run_debug_navigation", false);
+            EditorSettings::get_singleton()->get_project_metadata("debug_options", "run_debug_navigation", false_var);
     bool check_live_debug =
-            EditorSettings::get_singleton()->get_project_metadata("debug_options", "run_live_debug", false);
+            EditorSettings::get_singleton()->get_project_metadata("debug_options", "run_live_debug", false_var);
     bool check_reload_scripts =
-            EditorSettings::get_singleton()->get_project_metadata("debug_options", "run_reload_scripts", false);
+            EditorSettings::get_singleton()->get_project_metadata("debug_options", "run_reload_scripts", false_var);
 
     if (check_deploy_remote) _menu_option_confirm(RUN_DEPLOY_REMOTE_DEBUG, true);
     if (check_file_server) _menu_option_confirm(RUN_FILE_SERVER, true);
