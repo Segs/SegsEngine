@@ -104,18 +104,18 @@ bool ScriptCreateDialog::_can_be_built_in() {
 
 void ScriptCreateDialog::config(se_string_view p_base_name, se_string_view p_base_path, bool p_built_in_enabled, bool p_load_enabled) {
 
-    class_name->set_text_utf8("");
+    class_name->set_text("");
     class_name->deselect();
-    parent_name->set_text_utf8(p_base_name);
+    parent_name->set_text(p_base_name);
     parent_name->deselect();
 
     if (!p_base_path.empty()) {
         initial_bp = PathUtils::get_basename(p_base_path);
-        file_path->set_text_utf8(initial_bp + "." + ScriptServer::get_language(language_menu->get_selected())->get_extension());
+        file_path->set_text(initial_bp + "." + ScriptServer::get_language(language_menu->get_selected())->get_extension());
         current_language = language_menu->get_selected();
     } else {
         initial_bp = "";
-        file_path->set_text_utf8("");
+        file_path->set_text("");
     }
     file_path->deselect();
 
@@ -380,7 +380,7 @@ void ScriptCreateDialog::_lang_changed(int l) {
         path = "class" + selected_ext;
         _path_changed(path);
     }
-    file_path->set_text_utf8(path);
+    file_path->set_text(path);
 
     bool use_templates = language->is_using_templates();
     template_menu->set_disabled(!use_templates);
@@ -545,10 +545,10 @@ void ScriptCreateDialog::_file_selected(const String &p_file) {
 
     String p = ProjectSettings::get_singleton()->localize_path(p_file);
     if (is_browsing_parent) {
-        parent_name->set_text_utf8("\"" + p + "\"");
+        parent_name->set_text("\"" + p + "\"");
         _parent_name_changed(parent_name->get_text());
     } else {
-        file_path->set_text_utf8(p);
+        file_path->set_text(p);
         _path_changed(p);
 
         String filename(PathUtils::get_basename(PathUtils::get_file(p)));
@@ -561,7 +561,7 @@ void ScriptCreateDialog::_file_selected(const String &p_file) {
 
 void ScriptCreateDialog::_create() {
 
-    parent_name->set_text_utf8(StringUtils::split(select_class->get_selected_type(),' ')[0]);
+    parent_name->set_text(StringUtils::split(select_class->get_selected_type(),' ')[0]);
     _parent_name_changed(parent_name->get_text());
 }
 
@@ -656,7 +656,7 @@ void ScriptCreateDialog::_update_dialog() {
         class_name->set_editable(false);
         class_name->set_placeholder(TTR("N/A"));
         class_name->set_placeholder_alpha(1);
-        class_name->set_text_utf8("");
+        class_name->set_text("");
     }
 
     /* Is script Built-in */

@@ -114,7 +114,7 @@ private:
     real_t icon_scale;
 
     bool do_autoscroll_to_bottom;
-
+public:
     Array _get_items() const;
     void _set_items(const Array &p_items);
 
@@ -173,7 +173,7 @@ public:
     void unselect(int p_idx);
     void unselect_all();
     bool is_selected(int p_idx) const;
-    Vector<int> get_selected_items();
+    PODVector<int> get_selected_items();
     bool is_anything_selected();
 
     void set_current(int p_current);

@@ -81,11 +81,11 @@ void Gradient::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::POOL_COLOR_ARRAY, "colors"), COLOR_RAMP_SET_COLORS, COLOR_RAMP_GET_COLORS);
 }
 
-Vector<float> Gradient::get_offsets() const {
-    Vector<float> offsets;
-    offsets.resize(points.size());
+PODVector<float> Gradient::get_offsets() const {
+    PODVector<float> offsets;
+    offsets.reserve(points.size());
     for (int i = 0; i < points.size(); i++) {
-        offsets.write[i] = points[i].offset;
+        offsets.emplace_back(points[i].offset);
     }
     return offsets;
 }

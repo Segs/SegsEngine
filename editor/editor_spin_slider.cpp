@@ -201,7 +201,7 @@ void EditorSpinSlider::_notification(int p_what) {
         int sep_base = 4 * EDSCALE;
         int sep = sep_base + sb->get_offset().x; //make it have the same margin on both sides, looks better
 
-        int string_width = font->get_string_size_utf8(label).width;
+        int string_width = font->get_string_size(label).width;
         int number_width = get_size().width - sb->get_minimum_size().width - string_width - sep;
 
         Ref<Texture> updown = get_icon("updown", "SpinBox");
@@ -428,7 +428,7 @@ void EditorSpinSlider::set_custom_label_color(bool p_use_custom_label_color, Col
 
 void EditorSpinSlider::_focus_entered() {
     Rect2 gr = get_global_rect();
-    value_input->set_text(get_text_value());
+    value_input->set_text_uistring(get_text_value());
     value_input->set_position(gr.position);
     value_input->set_size(gr.size);
     value_input->call_deferred("show_modal");

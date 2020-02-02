@@ -42,12 +42,12 @@
 IMPL_GDCLASS(PluginConfigDialog)
 
 void PluginConfigDialog::_clear_fields() {
-    name_edit->set_text_utf8("");
-    subfolder_edit->set_text_utf8("");
+    name_edit->set_text("");
+    subfolder_edit->set_text("");
     desc_edit->set_text(UIString());
-    author_edit->set_text_utf8("");
-    version_edit->set_text_utf8("");
-    script_edit->set_text_utf8("");
+    author_edit->set_text("");
+    version_edit->set_text("");
+    script_edit->set_text("");
 }
 
 void PluginConfigDialog::_on_confirmed() {
@@ -143,12 +143,12 @@ void PluginConfigDialog::config(se_string_view p_config_path) {
         Error err = cf->load(p_config_path);
         ERR_FAIL_COND_MSG(err != OK, "Cannot load config file from path '" + String(p_config_path) + "'.")
 
-        name_edit->set_text(cf->get_value("plugin", "name", ""));
-        subfolder_edit->set_text_utf8(PathUtils::get_file(PathUtils::get_basename(PathUtils::get_base_dir(p_config_path))));
+        name_edit->set_text_uistring(cf->get_value("plugin", "name", ""));
+        subfolder_edit->set_text(PathUtils::get_file(PathUtils::get_basename(PathUtils::get_base_dir(p_config_path))));
         desc_edit->set_text(cf->get_value("plugin", "description", ""));
-        author_edit->set_text(cf->get_value("plugin", "author", ""));
-        version_edit->set_text(cf->get_value("plugin", "version", ""));
-        script_edit->set_text(cf->get_value("plugin", "script", ""));
+        author_edit->set_text_uistring(cf->get_value("plugin", "author", ""));
+        version_edit->set_text_uistring(cf->get_value("plugin", "version", ""));
+        script_edit->set_text_uistring(cf->get_value("plugin", "script", ""));
 
         _edit_mode = true;
         active_edit->hide();

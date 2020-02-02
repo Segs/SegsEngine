@@ -118,7 +118,7 @@ public:
     virtual int get_buffer(uint8_t *p_dst, int p_length) const; ///< get an array of bytes
     virtual String get_line() const;
     virtual String get_token() const;
-    virtual Vector<String> get_csv_line(char p_delim = ',') const;
+    virtual PODVector<String> get_csv_line(char p_delim = ',') const;
     virtual String get_as_utf8_string() const;
 
     /**< use this for files WRITTEN in _big_ endian machines (ie, amiga/mac)

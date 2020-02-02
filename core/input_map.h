@@ -55,7 +55,7 @@ private:
     static InputMap *singleton;
 
     mutable Map<StringName, Action> input_map;
-
+public:
     Array _get_action_list(const StringName &p_action);
     Array _get_actions();
 

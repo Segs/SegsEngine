@@ -1069,7 +1069,7 @@ void Polygon2DEditor::_uv_draw() {
         poly_line_color.a *= 0.25f;
     }
     Color polygon_line_color = Color(0.5, 0.5, 0.9f);
-    Vector<Color> polygon_fill_color;
+    PoolVector<Color> polygon_fill_color;
     {
         Color pf = polygon_line_color;
         pf.a *= 0.5f;

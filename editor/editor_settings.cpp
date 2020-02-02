@@ -1256,7 +1256,7 @@ Variant EditorSettings::get_project_metadata(se_string_view p_section, se_string
     return cf->get_value(p_section, p_key, p_default);
 }
 
-void EditorSettings::set_favorites(const Vector<String> &p_favorites) {
+void EditorSettings::set_favorites(const PODVector<String> &p_favorites) {
 
     favorites = p_favorites;
     FileAccess *f = FileAccess::open(PathUtils::plus_file(get_project_settings_dir(),"favorites"), FileAccess::WRITE);
@@ -1267,12 +1267,12 @@ void EditorSettings::set_favorites(const Vector<String> &p_favorites) {
     }
 }
 
-const Vector<String> &EditorSettings::get_favorites() const {
+const PODVector<String> &EditorSettings::get_favorites() const {
 
     return favorites;
 }
 
-void EditorSettings::set_recent_dirs(const Vector<String> &p_recent_dirs) {
+void EditorSettings::set_recent_dirs(const PODVector<String> &p_recent_dirs) {
 
     recent_dirs = p_recent_dirs;
     FileAccess *f = FileAccess::open(PathUtils::plus_file(get_project_settings_dir(),"recent_dirs"), FileAccess::WRITE);
@@ -1283,7 +1283,7 @@ void EditorSettings::set_recent_dirs(const Vector<String> &p_recent_dirs) {
     }
 }
 
-const Vector<String> &EditorSettings::get_recent_dirs() const {
+const PODVector<String> &EditorSettings::get_recent_dirs() const {
 
     return recent_dirs;
 }

@@ -239,7 +239,7 @@ void EditorAudioBus::update_bus() {
 
     float db_value = AudioServer::get_singleton()->get_bus_volume_db(index);
     slider->set_value(_scaled_db_to_normalized_volume(db_value));
-    track_name->set_text_utf8(AudioServer::get_singleton()->get_bus_name(index));
+    track_name->set_text(AudioServer::get_singleton()->get_bus_name(index));
     if (is_master)
         track_name->set_editable(false);
 
@@ -1470,7 +1470,7 @@ Size2 EditorAudioMeterNotches::get_minimum_size() const {
 
     for (int i = 0; i < notches.size(); i++) {
         if (notches[i].render_db_value) {
-            width = MAX(width, font->get_string_size(UIString::number(Math::abs(notches[i].db_value)) + "dB").x);
+            width = MAX(width, font->get_ui_string_size(UIString::number(Math::abs(notches[i].db_value)) + "dB").x);
             height += font_height;
         }
     }

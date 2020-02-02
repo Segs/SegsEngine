@@ -58,9 +58,10 @@ void Navigation::_navmesh_link(int p_id) {
         Polygon &p = P->deref();
         p.owner = &nm;
 
-        Vector<int> poly = nm.navmesh->get_polygon(i);
+        PoolVector<int> poly = nm.navmesh->get_polygon(i);
         int plen = poly.size();
-        const int *indices = poly.ptr();
+        auto rd(poly.read());
+        const int *indices = rd.ptr();
         bool valid = true;
         p.edges.resize(plen);
 
@@ -234,14 +235,14 @@ void Navigation::navmesh_set_transform(int p_id, const Transform &p_xform) {
 }
 void Navigation::navmesh_remove(int p_id) {
 
-	ERR_FAIL_COND_MSG(!navmesh_map.contains(p_id), "Trying to remove nonexisting navmesh with id: " + itos(p_id));
+    ERR_FAIL_COND_MSG(!navmesh_map.contains(p_id), "Trying to remove nonexisting navmesh with id: " + itos(p_id));
     _navmesh_unlink(p_id);
     navmesh_map.erase(p_id);
 }
 
-void Navigation::_clip_path(Vector<Vector3> &path, Polygon *from_poly, const Vector3 &p_to_point, Polygon *p_to_poly) {
+void Navigation::_clip_path(PODVector<Vector3> &path, Polygon *from_poly, const Vector3 &p_to_point, Polygon *p_to_poly) {
 
-    Vector3 from = path[path.size() - 1];
+    Vector3 from = path.back();
 
     if (from.distance_to(p_to_point) < CMP_EPSILON)
         return;
@@ -273,7 +274,7 @@ void Navigation::_clip_path(Vector<Vector3> &path, Polygon *from_poly, const Vec
     }
 }
 
-Vector<Vector3> Navigation::get_simple_path(const Vector3 &p_start, const Vector3 &p_end, bool p_optimize) {
+PODVector<Vector3> Navigation::get_simple_path(const Vector3 &p_start, const Vector3 &p_end, bool p_optimize) {
 
     Polygon *begin_poly = nullptr;
     Polygon *end_poly = nullptr;
@@ -315,15 +316,14 @@ Vector<Vector3> Navigation::get_simple_path(const Vector3 &p_start, const Vector
 
     if (!begin_poly || !end_poly) {
 
-        return Vector<Vector3>(); //no path
+        return {}; //no path
     }
 
     if (begin_poly == end_poly) {
 
-        Vector<Vector3> path;
-        path.resize(2);
-        path.write[0] = begin_point;
-        path.write[1] = end_point;
+        PODVector<Vector3> path(2);
+        path[0] = begin_point;
+        path[1] = end_point;
         return path;
     }
 
@@ -433,124 +433,118 @@ Vector<Vector3> Navigation::get_simple_path(const Vector3 &p_start, const Vector
         open_list.erase(least_cost_poly);
     }
 
-    if (found_route) {
+    if (!found_route) {
+        return {};
+    }
+    PODVector<Vector3> path;
 
-        Vector<Vector3> path;
+    if (p_optimize) {
+        //string pulling
 
-        if (p_optimize) {
-            //string pulling
+        Polygon *apex_poly = end_poly;
+        Vector3 apex_point = end_point;
+        Vector3 portal_left = apex_point;
+        Vector3 portal_right = apex_point;
+        Polygon *left_poly = end_poly;
+        Polygon *right_poly = end_poly;
+        Polygon *p = end_poly;
+        path.push_back(end_point);
 
-            Polygon *apex_poly = end_poly;
-            Vector3 apex_point = end_point;
-            Vector3 portal_left = apex_point;
-            Vector3 portal_right = apex_point;
-            Polygon *left_poly = end_poly;
-            Polygon *right_poly = end_poly;
-            Polygon *p = end_poly;
-            path.push_back(end_point);
+        while (p) {
 
-            while (p) {
-
-                Vector3 left;
-                Vector3 right;
+            Vector3 left;
+            Vector3 right;
 
 #define CLOCK_TANGENT(m_a, m_b, m_c) (((m_a) - (m_c)).cross((m_a) - (m_b)))
 
-                if (p == begin_poly) {
-                    left = begin_point;
-                    right = begin_point;
-                } else {
-                    int prev = p->prev_edge;
-                    int prev_n = (p->prev_edge + 1) % p->edges.size();
-                    left = _get_vertex(p->edges[prev].point);
-                    right = _get_vertex(p->edges[prev_n].point);
-
-                    //if (CLOCK_TANGENT(apex_point,left,(left+right)*0.5).dot(up) < 0){
-                    if (p->clockwise) {
-                        SWAP(left, right);
-                    }
-                }
-
-                bool skip = false;
-
-                if (CLOCK_TANGENT(apex_point, portal_left, left).dot(up) >= 0) {
-                    //process
-                    if (portal_left == apex_point || CLOCK_TANGENT(apex_point, left, portal_right).dot(up) > 0) {
-                        left_poly = p;
-                        portal_left = left;
-                    } else {
-
-                        _clip_path(path, apex_poly, portal_right, right_poly);
-
-                        apex_point = portal_right;
-                        p = right_poly;
-                        left_poly = p;
-                        apex_poly = p;
-                        portal_left = apex_point;
-                        portal_right = apex_point;
-                        path.push_back(apex_point);
-                        skip = true;
-                    }
-                }
-
-                if (!skip && CLOCK_TANGENT(apex_point, portal_right, right).dot(up) <= 0) {
-                    //process
-                    if (portal_right == apex_point || CLOCK_TANGENT(apex_point, right, portal_left).dot(up) < 0) {
-                        right_poly = p;
-                        portal_right = right;
-                    } else {
-
-                        _clip_path(path, apex_poly, portal_left, left_poly);
-
-                        apex_point = portal_left;
-                        p = left_poly;
-                        right_poly = p;
-                        apex_poly = p;
-                        portal_right = apex_point;
-                        portal_left = apex_point;
-                        path.push_back(apex_point);
-                    }
-                }
-
-                if (p != begin_poly)
-                    p = p->edges[p->prev_edge].C;
-                else
-                    p = nullptr;
-            }
-
-            if (path[path.size() - 1] != begin_point)
-                path.push_back(begin_point);
-
-            path.invert();
-
-        } else {
-            //midpoints
-            Polygon *p = end_poly;
-
-            path.push_back(end_point);
-            while (true) {
+            if (p == begin_poly) {
+                left = begin_point;
+                right = begin_point;
+            } else {
                 int prev = p->prev_edge;
-#ifdef USE_ENTRY_POINT
-                Vector3 point = p->entry;
-#else
                 int prev_n = (p->prev_edge + 1) % p->edges.size();
-                Vector3 point = (_get_vertex(p->edges[prev].point) + _get_vertex(p->edges[prev_n].point)) * 0.5;
-#endif
-                path.push_back(point);
-                p = p->edges[prev].C;
-                if (p == begin_poly)
-                    break;
+                left = _get_vertex(p->edges[prev].point);
+                right = _get_vertex(p->edges[prev_n].point);
+
+                //if (CLOCK_TANGENT(apex_point,left,(left+right)*0.5).dot(up) < 0){
+                if (p->clockwise) {
+                    SWAP(left, right);
+                }
             }
 
-            path.push_back(begin_point);
+            bool skip = false;
 
-            path.invert();
+            if (CLOCK_TANGENT(apex_point, portal_left, left).dot(up) >= 0) {
+                //process
+                if (portal_left == apex_point || CLOCK_TANGENT(apex_point, left, portal_right).dot(up) > 0) {
+                    left_poly = p;
+                    portal_left = left;
+                } else {
+
+                    _clip_path(path, apex_poly, portal_right, right_poly);
+
+                    apex_point = portal_right;
+                    p = right_poly;
+                    left_poly = p;
+                    apex_poly = p;
+                    portal_left = apex_point;
+                    portal_right = apex_point;
+                    path.push_back(apex_point);
+                    skip = true;
+                }
+            }
+
+            if (!skip && CLOCK_TANGENT(apex_point, portal_right, right).dot(up) <= 0) {
+                //process
+                if (portal_right == apex_point || CLOCK_TANGENT(apex_point, right, portal_left).dot(up) < 0) {
+                    right_poly = p;
+                    portal_right = right;
+                } else {
+
+                    _clip_path(path, apex_poly, portal_left, left_poly);
+
+                    apex_point = portal_left;
+                    p = left_poly;
+                    right_poly = p;
+                    apex_poly = p;
+                    portal_right = apex_point;
+                    portal_left = apex_point;
+                    path.push_back(apex_point);
+                }
+            }
+
+            if (p != begin_poly)
+                p = p->edges[p->prev_edge].C;
+            else
+                p = nullptr;
         }
 
-        return path;
-    }
+        if (path[path.size() - 1] != begin_point)
+            path.push_back(begin_point);
 
-    return Vector<Vector3>();
+    } else {
+        //midpoints
+        Polygon *p = end_poly;
+
+        path.push_back(end_point);
+        while (true) {
+            int prev = p->prev_edge;
+#ifdef USE_ENTRY_POINT
+            Vector3 point = p->entry;
+#else
+            int prev_n = (p->prev_edge + 1) % p->edges.size();
+            Vector3 point = (_get_vertex(p->edges[prev].point) + _get_vertex(p->edges[prev_n].point)) * 0.5;
+#endif
+            path.push_back(point);
+            p = p->edges[prev].C;
+            if (p == begin_poly)
+                break;
+        }
+
+        path.push_back(begin_point);
+    }
+    eastl::reverse(path.begin(),path.end());
+    return path;
 }
 
 Vector3 Navigation::get_closest_point_to_segment(const Vector3 &p_from, const Vector3 &p_to, const bool &p_use_collision) {

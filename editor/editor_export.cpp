@@ -577,7 +577,7 @@ void EditorExportPlugin::add_file(se_string_view p_path, const PODVector<uint8_t
     extra_files.push_back(ef);
 }
 
-void EditorExportPlugin::add_shared_object(se_string_view p_path, const Vector<String> &tags) {
+void EditorExportPlugin::add_shared_object(se_string_view p_path, const PODVector<String> &tags) {
 
     shared_objects.push_back(SharedObject(p_path, tags));
 }

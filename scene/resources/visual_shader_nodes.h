@@ -1700,7 +1700,7 @@ public:
     String generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const String *p_input_vars, const String *p_output_vars, bool p_for_preview = false) const override; //if no output is connected, the output var passed will be empty. if no input is connected and input is NIL, the input var passed will be empty
 
     void set_comparison_type(ComparisonType p_type);
-    ComparisonType get_comparsion_type() const;
+    ComparisonType get_comparison_type() const;
 
     void set_function(Function p_func);
     Function get_function() const;

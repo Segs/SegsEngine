@@ -615,7 +615,7 @@ void ScriptTextEditor::_validate_script() {
 
                 warnings_panel->push_cell();
                 warnings_panel->push_color(warnings_panel->get_color("warning_color", "Editor"));
-                warnings_panel->add_text_utf8(FormatVE(
+                warnings_panel->add_text(FormatVE(
                         TTR("Missing connected method '%s' for signal '%s' from node '%s' to node '%s'.").asCString(),
                         connection.method.asCString(), connection.signal.asCString(), source_path.c_str(), target_path.c_str()));
                 warnings_panel->pop(); // Color.
@@ -637,14 +637,14 @@ void ScriptTextEditor::_validate_script() {
         warnings_panel->push_cell();
         warnings_panel->push_meta(w.line - 1);
         warnings_panel->push_color(warnings_panel->get_color("warning_color", "Editor"));
-        warnings_panel->add_text((TTR("Line") + " " + itos(w.line)).asString());
-        warnings_panel->add_text_utf8(" (" + w.string_code + "):");
+        warnings_panel->add_text_uistring((TTR("Line") + " " + itos(w.line)).asString());
+        warnings_panel->add_text(" (" + w.string_code + "):");
         warnings_panel->pop(); // Color.
         warnings_panel->pop(); // Meta goto.
         warnings_panel->pop(); // Cell.
 
         warnings_panel->push_cell();
-        warnings_panel->add_text_utf8(w.message);
+        warnings_panel->add_text(w.message);
         warnings_panel->pop(); // Cell.
 
         Dictionary ignore_meta;
@@ -652,7 +652,7 @@ void ScriptTextEditor::_validate_script() {
         ignore_meta["code"] = StringUtils::to_lower(w.string_code);
         warnings_panel->push_cell();
         warnings_panel->push_meta(ignore_meta);
-        warnings_panel->add_text(TTR("(ignore)").asString());
+        warnings_panel->add_text_uistring(TTR("(ignore)").asString());
         warnings_panel->pop(); // Meta ignore.
         warnings_panel->pop(); // Cell.
     }

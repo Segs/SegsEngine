@@ -622,7 +622,7 @@ void CreateDialog::_history_selected() {
     TreeItem *item = recent->get_selected();
     if (!item) return;
 
-    search_box->set_text_utf8(StringUtils::get_slice(item->get_text(0), ' ', 0));
+    search_box->set_text(StringUtils::get_slice(item->get_text(0), ' ', 0));
     favorites->deselect_all();
     _update_search();
 }
@@ -632,7 +632,7 @@ void CreateDialog::_favorite_selected() {
     TreeItem *item = favorites->get_selected();
     if (!item) return;
 
-    search_box->set_text_utf8(StringUtils::get_slice(item->get_text(0), ' ', 0));
+    search_box->set_text(StringUtils::get_slice(item->get_text(0), ' ', 0));
     recent->deselect_all();
     _update_search();
 }

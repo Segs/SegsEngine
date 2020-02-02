@@ -142,7 +142,7 @@ Vector<String> FileDialog::get_selected_files() const {
 
 void FileDialog::update_dir() {
 
-    dir->set_text_utf8(dir_access->get_current_dir());
+    dir->set_text(dir_access->get_current_dir());
     if (drives->is_visible()) {
         drives->select(dir_access->get_current_drive());
     }
@@ -154,7 +154,7 @@ void FileDialog::update_dir() {
 void FileDialog::_dir_entered(se_string_view p_dir) {
 
     dir_access->change_dir(p_dir);
-    file->set_text_utf8("");
+    file->set_text("");
     invalidate();
     update_dir();
 }
@@ -279,7 +279,7 @@ void FileDialog::_action_pressed() {
                 if (!valid && filterSliceCount > 0) {
                     se_string_view str = StringUtils::strip_edges(StringUtils::get_slice(flt,(','), 0));
                     f += StringUtils::substr(str,1, str.length() - 1);
-                    file->set_text_utf8(PathUtils::get_file(f));
+                    file->set_text(PathUtils::get_file(f));
                     valid = true;
                 }
             } else {
@@ -306,7 +306,7 @@ void FileDialog::_action_pressed() {
 
 void FileDialog::_cancel_pressed() {
 
-    file->set_text_utf8("");
+    file->set_text("");
     invalidate();
     hide();
 }
@@ -380,7 +380,7 @@ void FileDialog::_tree_selected() {
 
     if (!d["dir"]) {
 
-        file->set_text_utf8(d["name"].as<String>());
+        file->set_text(d["name"].as<String>());
     } else if (mode == MODE_OPEN_DIR) {
         get_ok()->set_text(RTR("Select This Folder"));
     }
@@ -400,7 +400,7 @@ void FileDialog::_tree_item_activated() {
 
         dir_access->change_dir(d["name"].as<String>());
         if (mode == MODE_OPEN_FILE || mode == MODE_OPEN_FILES || mode == MODE_OPEN_DIR || mode == MODE_OPEN_ANY)
-            file->set_text_utf8("");
+            file->set_text("");
         call_deferred("_update_file_list");
         call_deferred("_update_dir");
     } else {
@@ -417,7 +417,7 @@ void FileDialog::update_file_name() {
         String file_str = file->get_text();
         String base_name(PathUtils::get_basename(file_str));
         file_str = base_name + "." + StringUtils::to_lower(StringUtils::strip_edges(filter_str));
-        file->set_text_utf8(file_str);
+        file->set_text(file_str);
     }
 }
 
@@ -596,18 +596,18 @@ void FileDialog::clear_filters() {
 }
 void FileDialog::add_filter(se_string_view p_filter) {
 
-    filters.push_back(String(p_filter));
+    filters.emplace_back(p_filter);
     update_filters();
     invalidate();
 }
 
-void FileDialog::set_filters(const Vector<String> &p_filters) {
+void FileDialog::set_filters(const PODVector<String> &p_filters) {
     filters = p_filters;
     update_filters();
     invalidate();
 }
 
-Vector<String> FileDialog::get_filters() const {
+const PODVector<String> &FileDialog::get_filters() const {
     return filters;
 }
 
@@ -631,7 +631,7 @@ void FileDialog::set_current_dir(se_string_view p_dir) {
 }
 void FileDialog::set_current_file(se_string_view p_file) {
 
-    file->set_text_utf8(p_file);
+    file->set_text(p_file);
     update_dir();
     invalidate();
     int lp = StringUtils::find_last(p_file,'.');
@@ -769,7 +769,7 @@ void FileDialog::_make_dir_confirm() {
     } else {
         mkdirerr->popup_centered_minsize(Size2(250, 50));
     }
-    makedirname->set_text_utf8(""); // reset label
+    makedirname->set_text(""); // reset label
 }
 
 void FileDialog::_make_dir() {
@@ -782,7 +782,7 @@ void FileDialog::_select_drive(int p_idx) {
 
     String d = drives->get_item_text_utf8(p_idx);
     dir_access->change_dir(d);
-    file->set_text_utf8("");
+    file->set_text("");
     invalidate();
     update_dir();
 }
@@ -1017,7 +1017,7 @@ void LineEditFileChooser::_bind_methods() {
 
 void LineEditFileChooser::_chosen(se_string_view p_text) {
 
-    line_edit->set_text_utf8(p_text);
+    line_edit->set_text(p_text);
     line_edit->emit_signal("text_entered", p_text);
 }
 

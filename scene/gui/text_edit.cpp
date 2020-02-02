@@ -1500,7 +1500,7 @@ void TextEdit::_notification(int p_what) {
                                 fc = line_num_padding + fc;
                             }
 
-                            m_priv->cache.font->draw(ci, Point2(m_priv->cache.style_normal->get_margin(Margin::Left) + m_priv->cache.breakpoint_gutter_width + m_priv->cache.info_gutter_width + ofs_x, yofs + m_priv->cache.font->get_ascent()), fc, m_priv->text.is_safe(line) ? m_priv->cache.safe_line_number_color : m_priv->cache.line_number_color);
+                            m_priv->cache.font->draw_ui_string(ci, Point2(m_priv->cache.style_normal->get_margin(Margin::Left) + m_priv->cache.breakpoint_gutter_width + m_priv->cache.info_gutter_width + ofs_x, yofs + m_priv->cache.font->get_ascent()), fc, m_priv->text.is_safe(line) ? m_priv->cache.safe_line_number_color : m_priv->cache.line_number_color);
                         }
                     }
 
@@ -1811,11 +1811,11 @@ void TextEdit::_notification(int p_what) {
                 int lines = MIN(completion_options.size(), maxlines);
                 int w = 0;
                 int h = lines * get_row_height();
-                int nofs = m_priv->cache.font->get_string_size_utf8(completion_base).width;
+                int nofs = m_priv->cache.font->get_string_size(completion_base).width;
 
                 if (completion_options.size() < 50) {
                     for (int i = 0; i < completion_options.size(); i++) {
-                        int w2 = MIN(m_priv->cache.font->get_string_size_utf8(completion_options[i].display).x, cmax_width);
+                        int w2 = MIN(m_priv->cache.font->get_string_size(completion_options[i].display).x, cmax_width);
                         if (w2 > w)
                             w = w2;
                     }
@@ -1922,10 +1922,10 @@ void TextEdit::_notification(int p_what) {
                 for (int i = 0; i < sc; i++) {
 
                     se_string_view l = StringUtils::get_slice(completion_hint,"\n", i);
-                    int len = font->get_string_size_utf8(l).x;
+                    int len = font->get_string_size(l).x;
                     max_w = MAX(len, max_w);
                     if (i == 0) {
-                        offset = font->get_string_size_utf8(StringUtils::substr(l,0, StringUtils::find(l,c_cursor_marker))).x;
+                        offset = font->get_string_size(StringUtils::substr(l,0, StringUtils::find(l,c_cursor_marker))).x;
                     } else {
                         spacing += m_priv->cache.line_spacing;
                     }
@@ -1955,8 +1955,8 @@ void TextEdit::_notification(int p_what) {
                     se_string_view l = StringUtils::get_slice(completion_hint,"\n", i);
                     //TODO: replace construction of Strings here with 'char' search
                     if (StringUtils::contains(l,c_cursor_marker)) {
-                        begin = font->get_string_size_utf8(StringUtils::substr(l,0, StringUtils::find(l,c_cursor_marker))).x;
-                        end = font->get_string_size_utf8(StringUtils::substr(l,0, StringUtils::rfind(l,c_cursor_marker))).x;
+                        begin = font->get_string_size(StringUtils::substr(l,0, StringUtils::find(l,c_cursor_marker))).x;
+                        end = font->get_string_size(StringUtils::substr(l,0, StringUtils::rfind(l,c_cursor_marker))).x;
                     }
 
                     char cursor[2] = {c_cursor_marker,0};
@@ -5330,19 +5330,19 @@ void TextEdit::add_keyword_color(se_string_view p_keyword, const Color &p_color)
     update();
 }
 
-bool TextEdit::has_keyword_color(const UIString& p_keyword) const {
+bool TextEdit::has_keyword_color_uistr(const UIString& p_keyword) const {
     return m_priv->keywords.contains(p_keyword);
 }
-bool TextEdit::has_keyword_color_utf8(se_string_view p_keyword) const {
+bool TextEdit::has_keyword_color(se_string_view p_keyword) const {
     return m_priv->keywords.contains(StringUtils::from_utf8(p_keyword));
 }
-Color TextEdit::get_keyword_color(const UIString& p_keyword) const {
+Color TextEdit::get_keyword_color_uistr(const UIString& p_keyword) const {
 
     auto iter = m_priv->keywords.find(p_keyword);
     ERR_FAIL_COND_V(iter==m_priv->keywords.end(), Color())
     return iter->second;
 }
-Color TextEdit::get_keyword_color_utf8(se_string_view p_keyword) const {
+Color TextEdit::get_keyword_color(se_string_view p_keyword) const {
 
     auto iter = m_priv->keywords.find(StringUtils::from_utf8(p_keyword));
     ERR_FAIL_COND_V(iter==m_priv->keywords.end(), Color())
@@ -7318,8 +7318,8 @@ void TextEdit::_bind_methods() {
 
 
     MethodBinder::bind_method(D_METHOD("add_keyword_color", {"keyword", "color"}), &TextEdit::add_keyword_color);
-    MethodBinder::bind_method(D_METHOD("has_keyword_color", {"keyword"}), &TextEdit::has_keyword_color_utf8);
-    MethodBinder::bind_method(D_METHOD("get_keyword_color", {"keyword"}), &TextEdit::get_keyword_color_utf8);
+    MethodBinder::bind_method(D_METHOD("has_keyword_color", {"keyword"}), &TextEdit::has_keyword_color);
+    MethodBinder::bind_method(D_METHOD("get_keyword_color", {"keyword"}), &TextEdit::get_keyword_color);
     MethodBinder::bind_method(D_METHOD("add_color_region", {"begin_key", "end_key", "color", "line_only"}), &TextEdit::add_color_region, {DEFVAL(false)});
     MethodBinder::bind_method(D_METHOD("clear_colors"), &TextEdit::clear_colors);
     MethodBinder::bind_method(D_METHOD("menu_option", {"option"}), &TextEdit::menu_option);

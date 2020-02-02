@@ -558,8 +558,8 @@ void DependencyRemoveDialog::ok_pressed() {
     }
 
     // If some files/dirs would be deleted, favorite dirs need to be updated
-    const Vector<String> &previous_favorites(EditorSettings::get_singleton()->get_favorites());
-    Vector<String> new_favorites;
+    const PODVector<String> &previous_favorites(EditorSettings::get_singleton()->get_favorites());
+    PODVector<String> new_favorites;
 
     for (int i = 0; i < previous_favorites.size(); ++i) {
         if (StringUtils::ends_with(previous_favorites[i],"/")) {

@@ -615,7 +615,7 @@ void VisualScriptEditor::_update_graph(int p_only_id) {
             } else if (object_cast<VisualScriptExpression>(node.get())) {
                 has_gnode_text = true;
                 LineEdit *line_edit = memnew(LineEdit);
-                line_edit->set_text_utf8(node->get_text());
+                line_edit->set_text(node->get_text());
                 line_edit->set_expand_to_text_length(true);
                 line_edit->add_font_override("font", get_font("source", "EditorFonts"));
                 gnode->add_child(line_edit);
@@ -744,7 +744,7 @@ void VisualScriptEditor::_update_graph(int p_only_id) {
                             LineEdit *name_box = memnew(LineEdit);
                             hbc->add_child(name_box);
                             name_box->set_custom_minimum_size(Size2(60 * EDSCALE, 0));
-                            name_box->set_text_utf8(left_name);
+                            name_box->set_text(left_name);
                             name_box->set_expand_to_text_length(true);
                             name_box->connect("resized", this, "_update_node_size", def_args);
                             name_box->connect("focus_exited", this, "_port_name_focus_out", varray(Variant(name_box), E, i, true));
@@ -845,7 +845,7 @@ void VisualScriptEditor::_update_graph(int p_only_id) {
                             LineEdit *name_box = memnew(LineEdit);
                             hbc->add_child(name_box);
                             name_box->set_custom_minimum_size(Size2(60 * EDSCALE, 0));
-                            name_box->set_text_utf8(right_name);
+                            name_box->set_text(right_name);
                             name_box->set_expand_to_text_length(true);
                             name_box->connect("resized", this, "_update_node_size", def_args);
                             name_box->connect("focus_exited", this, "_port_name_focus_out", varray(Variant(name_box), E, i, false));
@@ -1196,7 +1196,7 @@ void VisualScriptEditor::_member_edited() {
 void VisualScriptEditor::_create_function_dialog() {
     function_create_dialog->popup_centered();
     function_create_dialog->set_position(graph->get_global_position() + Vector2(55, 80));
-    func_name_box->set_text_utf8("");
+    func_name_box->set_text("");
     func_name_box->grab_focus();
     for (int i = 0; i < func_input_vbox->get_child_count(); i++) {
         Node *nd = func_input_vbox->get_child(i);
@@ -1252,7 +1252,7 @@ void VisualScriptEditor::_add_func_input() {
 
     LineEdit *name_box = memnew(LineEdit);
     name_box->set_h_size_flags(SIZE_EXPAND_FILL);
-    name_box->set_text_utf8("input");
+    name_box->set_text("input");
     name_box->connect("focus_entered", this, "_deselect_input_names");
     hbox->add_child(name_box);
 
@@ -1378,7 +1378,7 @@ void VisualScriptEditor::_member_button(Object *p_item, int p_column, int p_butt
         selected = StringName(ti->get_text(0));
         function_name_edit->set_position(Input::get_singleton()->get_mouse_position() - Vector2(60, -10));
         function_name_edit->popup();
-        function_name_box->set_text_utf8(selected);
+        function_name_box->set_text(selected);
         function_name_box->select_all();
     }
 }
@@ -4543,7 +4543,7 @@ void VisualScriptEditor::_member_option(int p_option) {
             } else if (p_option == MEMBER_EDIT) {
                 selected = StringName(members->get_selected()->get_text(0));
                 function_name_edit->popup();
-                function_name_box->set_text_utf8(selected);
+                function_name_box->set_text(selected);
                 function_name_box->select_all();
             }
         } break;
@@ -4782,7 +4782,7 @@ VisualScriptEditor::VisualScriptEditor() {
     func_name_box = memnew(LineEdit);
     func_name_box->set_h_size_flags(SIZE_EXPAND_FILL);
     func_name_box->set_placeholder(TTR("function_name"));
-    func_name_box->set_text_utf8("");
+    func_name_box->set_text("");
     func_name_box->connect("focus_entered", this, "_deselect_input_names");
     func_name_hbox->add_child(func_name_box);
 

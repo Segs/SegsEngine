@@ -95,8 +95,8 @@ private:
     String config_file_path;
     String project_config_dir;
 
-    Vector<String> favorites;
-    Vector<String> recent_dirs;
+    PODVector<String> favorites;
+    PODVector<String> recent_dirs;
 
     bool save_changed_setting;
     bool optimize_save; //do not save stuff that came from config but was not set from engine
@@ -105,6 +105,7 @@ private:
     bool _set_only(const StringName &p_name, const Variant &p_value);
     bool _get(const StringName &p_name, Variant &r_ret) const;
     void _initial_set(const StringName &p_name, const Variant &p_value);
+public:
     void _get_property_list(ListPOD<PropertyInfo> *p_list) const;
     void _add_property_info_bind(const Dictionary &p_info);
 
@@ -164,10 +165,10 @@ public:
     void set_project_metadata(se_string_view p_section, se_string_view p_key, const Variant& p_data);
     Variant get_project_metadata(se_string_view p_section, se_string_view p_key, const Variant& p_default) const;
 
-    void set_favorites(const Vector<String> &p_favorites);
-    const Vector<String> &get_favorites() const;
-    void set_recent_dirs(const Vector<String> &p_recent_dirs);
-    const Vector<String> &get_recent_dirs() const;
+    void set_favorites(const PODVector<String> &p_favorites);
+    const PODVector<String> &get_favorites() const;
+    void set_recent_dirs(const PODVector<String> &p_recent_dirs);
+    const PODVector<String> &get_recent_dirs() const;
     void load_favorites();
 
     bool is_dark_theme();

@@ -593,7 +593,7 @@ inline void set_inner_corner_radius(const Rect2 style_rect, const Rect2 inner_re
     rad = MIN(border_bottom, border_left);
     inner_corner_radius[3] = MAX(corner_radius[3] - rad, 0);
 }
-inline void draw_ring(PODVector<Vector2> &verts, PODVector<int> &indices, Vector<Color> &colors, const Rect2 &style_rect, const int corner_radius[4],
+inline void draw_ring(PODVector<Vector2> &verts, PODVector<int> &indices, PoolVector<Color> &colors, const Rect2 &style_rect, const int corner_radius[4],
         Rect2 ring_rect, Rect2 inner_rect, const Color &inner_color, const Color &outer_color, const int corner_detail, const bool fill_center = false) {
 
     int vert_offset = verts.size();
@@ -756,8 +756,8 @@ void StyleBoxFlat::draw(RID p_canvas_item, const Rect2 &p_rect) const {
     }
     PODVector<Point2> verts;
     PODVector<int> indices;
-    Vector<Color> colors;
-    Vector<Point2> uvs;
+    PoolVector<Color> colors;
+    PoolVector<Point2> uvs;
 
     //DRAW SHADOW
     if (draw_shadow) {
@@ -848,9 +848,10 @@ void StyleBoxFlat::draw(RID p_canvas_item, const Rect2 &p_rect) const {
     //COMPUTE UV COORDINATES
     Rect2 uv_rect = style_rect.grow(aa_on ? aa_size_grow : 0);
     uvs.resize(verts.size());
+    auto uv_wr(uvs.write());
     for (int i = 0; i < verts.size(); i++) {
-        uvs.write[i].x = (verts[i].x - uv_rect.position.x) / uv_rect.size.width;
-        uvs.write[i].y = (verts[i].y - uv_rect.position.y) / uv_rect.size.height;
+        uv_wr[i].x = (verts[i].x - uv_rect.position.x) / uv_rect.size.width;
+        uv_wr[i].y = (verts[i].y - uv_rect.position.y) / uv_rect.size.height;
     }
     //DRAWING
     VisualServer *vs = VisualServer::get_singleton();

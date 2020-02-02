@@ -114,7 +114,7 @@ public:
     void add_weights(Span<const float> p_weights);
     void add_smooth_group(bool p_smooth);
 
-    void add_triangle_fan(const Vector<Vector3> &p_vertices, const Vector<Vector2> &p_uvs = Vector<Vector2>(), const Vector<Color> &p_colors = Vector<Color>(), const Vector<Vector2> &p_uv2s = Vector<Vector2>(), const Vector<Vector3> &p_normals = Vector<Vector3>(), const PODVector<Plane> &p_tangents = PODVector<Plane>());
+    void add_triangle_fan(const PoolVector<Vector3> &p_vertices, const PoolVector<Vector2> &p_uvs = PoolVector<Vector2>(), const PoolVector<Color> &p_colors = PoolVector<Color>(), const PoolVector<Vector2> &p_uv2s = PoolVector<Vector2>(), const PoolVector<Vector3> &p_normals = PoolVector<Vector3>(), const PODVector<Plane> &p_tangents = PODVector<Plane>());
 
     void add_index(int p_index);
 

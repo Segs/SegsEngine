@@ -56,9 +56,9 @@ struct PtrToArg<CharType> {
 
 
 void Font::draw_halign(RID p_canvas_item, const Point2 &p_pos, HAlign p_align, float p_width, const UIString &p_text, const Color &p_modulate, const Color &p_outline_modulate) const {
-    float length = get_string_size(p_text).width;
+    float length = get_ui_string_size(p_text).width;
     if (length >= p_width) {
-        draw(p_canvas_item, p_pos, p_text, p_modulate, p_width, p_outline_modulate);
+        draw_ui_string(p_canvas_item, p_pos, p_text, p_modulate, p_width, p_outline_modulate);
         return;
     }
 
@@ -77,12 +77,12 @@ void Font::draw_halign(RID p_canvas_item, const Point2 &p_pos, HAlign p_align, f
             ERR_PRINT("Unknown halignment type")
         } break;
     }
-    draw(p_canvas_item, p_pos + Point2(ofs, 0), p_text, p_modulate, p_width, p_outline_modulate);
+    draw_ui_string(p_canvas_item, p_pos + Point2(ofs, 0), p_text, p_modulate, p_width, p_outline_modulate);
 }
 void Font::draw_halign_utf8(RID p_canvas_item, const Point2 &p_pos, HAlign p_align, float p_width, se_string_view p_text, const Color &p_modulate, const Color &p_outline_modulate) const {
     draw_halign(p_canvas_item, p_pos, p_align, p_width, StringUtils::from_utf8(p_text), p_modulate, p_outline_modulate);
 }
-void Font::draw(RID p_canvas_item, const Point2 &p_pos, const UIString &p_text, const Color &p_modulate, int p_clip_w, const Color &p_outline_modulate) const {
+void Font::draw_ui_string(RID p_canvas_item, const Point2 &p_pos, const UIString &p_text, const Color &p_modulate, int p_clip_w, const Color &p_outline_modulate) const {
     Vector2 ofs;
 
     int chars_drawn = 0;
@@ -106,8 +106,8 @@ void Font::draw(RID p_canvas_item, const Point2 &p_pos, const UIString &p_text, 
         }
     }
 }
-void Font::draw_utf8(RID p_canvas_item, const Point2 &p_pos, se_string_view p_text, const Color &p_modulate, int p_clip_w, const Color &p_outline_modulate) const {
-    draw(p_canvas_item, p_pos, StringUtils::from_utf8(p_text), p_modulate, p_clip_w, p_outline_modulate);
+void Font::draw(RID p_canvas_item, const Point2 &p_pos, se_string_view p_text, const Color &p_modulate, int p_clip_w, const Color &p_outline_modulate) const {
+    draw_ui_string(p_canvas_item, p_pos, StringUtils::from_utf8(p_text), p_modulate, p_clip_w, p_outline_modulate);
 }
 void Font::update_changes() {
 
@@ -116,13 +116,13 @@ void Font::update_changes() {
 
 void Font::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("draw", {"canvas_item", "position", "string", "modulate", "clip_w", "outline_modulate"}), &Font::draw_utf8, {DEFVAL(Color(1, 1, 1)), DEFVAL(-1), DEFVAL(Color(1, 1, 1))});
+    MethodBinder::bind_method(D_METHOD("draw", {"canvas_item", "position", "string", "modulate", "clip_w", "outline_modulate"}), &Font::draw, {DEFVAL(Color(1, 1, 1)), DEFVAL(-1), DEFVAL(Color(1, 1, 1))});
     MethodBinder::bind_method(D_METHOD("get_ascent"), &Font::get_ascent);
     MethodBinder::bind_method(D_METHOD("get_descent"), &Font::get_descent);
     MethodBinder::bind_method(D_METHOD("get_height"), &Font::get_height);
     MethodBinder::bind_method(D_METHOD("is_distance_field_hint"), &Font::is_distance_field_hint);
-    MethodBinder::bind_method(D_METHOD("get_string_size", {"string"}), &Font::get_string_size_utf8);
-    MethodBinder::bind_method(D_METHOD("get_wordwrap_string_size", {"string", "width"}), &Font::get_wordwrap_string_size_utf8);
+    MethodBinder::bind_method(D_METHOD("get_string_size", {"string"}), &Font::get_string_size);
+    MethodBinder::bind_method(D_METHOD("get_wordwrap_string_size", {"string", "width"}), &Font::get_wordwrap_string_size);
     MethodBinder::bind_method(D_METHOD("has_outline"), &Font::has_outline);
     MethodBinder::bind_method(D_METHOD("draw_char", {"canvas_item", "position", "char", "next", "modulate", "outline"}), &Font::draw_char, {DEFVAL(0), DEFVAL(Color(1, 1, 1)), DEFVAL(false)});
     MethodBinder::bind_method(D_METHOD("update_changes"), &Font::update_changes);
@@ -499,7 +499,7 @@ void BitmapFont::clear() {
     distance_field_hint = false;
 }
 
-Size2 Font::get_string_size(const UIString &p_string) const {
+Size2 Font::get_ui_string_size(const UIString &p_string) const {
 
     float w = 0;
 
@@ -516,7 +516,7 @@ Size2 Font::get_string_size(const UIString &p_string) const {
     return Size2(w, get_height());
 }
 
-Size2 Font::get_string_size_utf8(se_string_view p_string) const {
+Size2 Font::get_string_size(se_string_view p_string) const {
 
     Size2 res(0, get_height());
     QString a(QString::fromUtf8(p_string.data(),p_string.size()));
@@ -529,7 +529,7 @@ Size2 Font::get_string_size_utf8(se_string_view p_string) const {
 
     return res;
 }
-Size2 Font::get_wordwrap_string_size(const UIString &p_string, float p_width) const {
+Size2 Font::get_wordwrap_ui_string_size(const UIString &p_string, float p_width) const {
 
     ERR_FAIL_COND_V(p_width <= 0, Vector2(0, get_height()))
 
@@ -546,10 +546,10 @@ Size2 Font::get_wordwrap_string_size(const UIString &p_string, float p_width) co
         line_w = 0;
         PODVector<UIString> words = StringUtils::split(t,' ');
         for (const UIString &word : words) {
-            line_w += get_string_size(word).x;
+            line_w += get_ui_string_size(word).x;
             if (line_w > p_width) {
                 h += get_height();
-                line_w = get_string_size(word).x;
+                line_w = get_ui_string_size(word).x;
             } else {
                 line_w += space_w;
             }
@@ -558,9 +558,9 @@ Size2 Font::get_wordwrap_string_size(const UIString &p_string, float p_width) co
 
     return Size2(p_width, h);
 }
-Size2 Font::get_wordwrap_string_size_utf8(se_string_view p_string, float p_width) const {
+Size2 Font::get_wordwrap_string_size(se_string_view p_string, float p_width) const {
 
-    return get_wordwrap_string_size(StringUtils::from_utf8(p_string),p_width);
+    return get_wordwrap_ui_string_size(StringUtils::from_utf8(p_string),p_width);
 }
 void BitmapFont::set_fallback(const Ref<BitmapFont> &p_fallback) {
 

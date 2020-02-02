@@ -82,8 +82,8 @@ real_t CapsuleShape2D::get_height() const {
 void CapsuleShape2D::draw(const RID &p_to_rid, const Color &p_color) {
 
     PODVector<Vector2> points = _get_points();
-    Vector<Color> col;
-    col.emplace_back(p_color);
+    PoolVector<Color> col;
+    col.push_back(p_color);
     VisualServer::get_singleton()->canvas_item_add_polygon(p_to_rid, points, col);
 }
 

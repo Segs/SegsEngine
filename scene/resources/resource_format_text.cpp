@@ -46,6 +46,8 @@
 #include "core/os/dir_access.h"
 #include "core/version.h"
 
+#include "EASTL/sort.h"
+
 #define _printerr() ERR_PRINT(res_path + ":" + itos(lines) + " - Parse Error: " + error_text)
 namespace {
 class ResourceFormatSaverTextInstance {
@@ -1732,7 +1734,7 @@ Error ResourceFormatSaverTextInstance::save(se_string_view p_path, const RES &p_
             NodePath owner = state->get_node_owner_path(i);
             Ref<PackedScene> instance = state->get_node_instance(i);
             String instance_placeholder = state->get_node_instance_placeholder(i);
-            Vector<StringName> groups = state->get_node_groups(i);
+            PODVector<StringName> groups = state->get_node_groups(i);
 
             String header("[node");
             header += " name=\"" + StringUtils::c_escape(name) + "\"";
@@ -1750,9 +1752,9 @@ Error ResourceFormatSaverTextInstance::save(se_string_view p_path, const RES &p_
             }
 
             if (!groups.empty()) {
-                groups.sort_custom<WrapAlphaCompare>();
+                eastl::sort(groups.begin(),groups.end(),WrapAlphaCompare());
                 String sgroups(" groups=[\n");
-                for (int j = 0; j < groups.size(); j++) {
+                for (size_t j = 0; j < groups.size(); j++) {
                     sgroups += "\"" + StringUtils::c_escape(groups[j]) + "\",\n";
                 }
                 sgroups += ']';

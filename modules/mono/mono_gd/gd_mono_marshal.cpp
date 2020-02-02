@@ -35,6 +35,7 @@
 #include "gd_mono_class.h"
 #include "core/pool_vector.h"
 #include "core/rid.h"
+#include "core/math/face3.h"
 
 namespace GDMonoMarshal {
 
@@ -994,6 +995,18 @@ MonoArray *PoolIntArray_to_mono_array(const PoolIntArray &p_array) {
 
     return ret;
 }
+MonoArray *PoolIntArray_to_mono_array(const Vector<int> &p_array) {
+    auto r = p_array.ptr();
+
+    MonoArray *ret = mono_array_new(mono_domain_get(), CACHED_CLASS_RAW(int32_t), p_array.size());
+
+    for (int i = 0; i < p_array.size(); i++) {
+        mono_array_set(ret, int32_t, i, r[i]);
+    }
+
+    return ret;
+}
+
 MonoArray *PoolIntArray_to_mono_array(const PODVector<int> &p_array) {
 
     MonoArray *ret = mono_array_new(mono_domain_get(), CACHED_CLASS_RAW(int32_t), p_array.size());
@@ -1041,7 +1054,15 @@ MonoArray *PoolByteArray_to_mono_array(const PoolByteArray &p_array) {
 
     return ret;
 }
+MonoArray *PoolByteArray_to_mono_array(const PODVector<uint8_t> &p_array) {
+    MonoArray *ret = mono_array_new(mono_domain_get(), CACHED_CLASS_RAW(uint8_t), p_array.size());
 
+    for (int i = 0, fin = p_array.size(); i < fin; ++i) {
+        mono_array_set(ret, uint8_t, i, p_array[i]);
+    }
+
+    return ret;
+}
 PoolByteArray mono_array_to_PoolByteArray(MonoArray *p_array) {
     PoolByteArray ret;
     if (!p_array)
@@ -1079,7 +1100,16 @@ MonoArray *PoolRealArray_to_mono_array(const PoolRealArray &p_array) {
 
     return ret;
 }
+MonoArray *PoolRealArray_to_mono_array(const PODVector<float> &p_array)
+{
+    MonoArray *ret = mono_array_new(mono_domain_get(), REAL_T_MONOCLASS, p_array.size());
 
+    for (int i = 0,fin=p_array.size(); i<fin; i++) {
+        mono_array_set(ret, real_t, i, p_array[i]);
+    }
+
+    return ret;
+}
 PoolRealArray mono_array_to_PoolRealArray(MonoArray *p_array) {
     PoolRealArray ret;
     if (!p_array)
@@ -1094,7 +1124,18 @@ PoolRealArray mono_array_to_PoolRealArray(MonoArray *p_array) {
 
     return ret;
 }
+PODVector<float> mono_array_to_NC_VecFloat(MonoArray *p_array) {
+    PODVector<float> ret;
+    if (!p_array)
+        return ret;
+    int length = mono_array_length(p_array);
+    ret.reserve(length);
+    for (int i = 0; i < length; i++) {
+        ret.emplace_back(mono_array_get(p_array, real_t, i));
+    }
 
+    return ret;
+}
 MonoArray *PoolStringArray_to_mono_array(const PoolStringArray &p_array) {
     PoolStringArray::Read r = p_array.read();
 
@@ -1140,7 +1181,19 @@ PoolStringArray mono_array_to_PoolStringArray(MonoArray *p_array) {
 
     return ret;
 }
+PODVector<String> mono_array_to_NC_VecString(MonoArray *p_array) {
+    PODVector<String> ret;
+    if (!p_array)
+        return ret;
+    int length = mono_array_length(p_array);
+    ret.reserve(length);
+    for (int i = 0; i < length; i++) {
+        MonoString *elem = mono_array_get(p_array, MonoString *, i);
+        ret.emplace_back(mono_string_to_godot(elem));
+    }
 
+    return ret;
+}
 MonoArray *PoolColorArray_to_mono_array(const PoolColorArray &p_array) {
     PoolColorArray::Read r = p_array.read();
 
@@ -1153,7 +1206,16 @@ MonoArray *PoolColorArray_to_mono_array(const PoolColorArray &p_array) {
 
     return ret;
 }
+MonoArray *PoolColorArray_to_mono_array(const PODVector<Color> &p_array) {
+    MonoArray *ret = mono_array_new(mono_domain_get(), CACHED_CLASS_RAW(Color), p_array.size());
 
+    for (int i = 0; i < p_array.size(); i++) {
+        M_Color *raw = (M_Color *)mono_array_addr_with_size(ret, sizeof(M_Color), i);
+        *raw = MARSHALLED_OUT(Color, p_array[i]);
+    }
+
+    return ret;
+}
 PoolColorArray mono_array_to_PoolColorArray(MonoArray *p_array) {
     PoolColorArray ret;
     if (!p_array)
@@ -1168,7 +1230,18 @@ PoolColorArray mono_array_to_PoolColorArray(MonoArray *p_array) {
 
     return ret;
 }
+PODVector<Color> mono_array_to_NC_VecColor(MonoArray* p_array) {
+    PODVector<Color> ret;
+    if (!p_array)
+        return ret;
+    int length = mono_array_length(p_array);
+    ret.reserve(length);
+    for (int i = 0; i < length; i++) {
+        ret.emplace_back(MARSHALLED_IN(Color, (M_Color *)mono_array_addr_with_size(p_array, sizeof(M_Color), i)));
+    }
 
+    return ret;
+}
 MonoArray *PoolVector2Array_to_mono_array(const PoolVector2Array &p_array) {
     PoolVector2Array::Read r = p_array.read();
 
@@ -1219,6 +1292,7 @@ PODVector<Vector2> mono_array_to_NC_VecVector2(MonoArray* p_array) {
 
     return ret;
 }
+
 MonoArray *PoolVector3Array_to_mono_array(const PoolVector3Array &p_array) {
     PoolVector3Array::Read r = p_array.read();
 
@@ -1228,10 +1302,32 @@ MonoArray *PoolVector3Array_to_mono_array(const PoolVector3Array &p_array) {
         M_Vector3 *raw = (M_Vector3 *)mono_array_addr_with_size(ret, sizeof(M_Vector3), i);
         *raw = MARSHALLED_OUT(Vector3, r[i]);
     }
-
     return ret;
 }
 
+MonoArray *PoolVector3Array_to_mono_array(const PODVector<Vector3> &p_array) {
+    MonoArray *ret = mono_array_new(mono_domain_get(), CACHED_CLASS_RAW(Vector3), p_array.size());
+
+    for (int i = 0, fin = p_array.size(); i < fin; ++i) {
+        M_Vector3 *raw = (M_Vector3 *)mono_array_addr_with_size(ret, sizeof(M_Vector3), i);
+        *raw = MARSHALLED_OUT(Vector3, p_array[i]);
+    }
+    return ret;
+}
+
+PODVector<Vector3> mono_array_to_NC_VecVector3(MonoArray *p_array) {
+    PODVector<Vector3> ret;
+    if (!p_array)
+        return ret;
+    int length = mono_array_length(p_array);
+    ret.reserve(length);
+
+    for (int i = 0; i < length; i++) {
+        ret.emplace_back(MARSHALLED_IN(Vector3, (M_Vector3 *)mono_array_addr_with_size(p_array, sizeof(M_Vector3), i)));
+    }
+
+    return ret;
+}
 PoolVector3Array mono_array_to_PoolVector3Array(MonoArray *p_array) {
     PoolVector3Array ret;
     if (!p_array)
@@ -1246,5 +1342,25 @@ PoolVector3Array mono_array_to_PoolVector3Array(MonoArray *p_array) {
 
     return ret;
 }
+
+MonoArray * PoolVector3Array_to_mono_array(const PoolVector<Face3>& p_array)
+{
+    auto r = p_array.read();
+
+    MonoArray *ret = mono_array_new(mono_domain_get(), CACHED_CLASS_RAW(Vector3), p_array.size()*3);
+
+    for (int i = 0; i < p_array.size(); i++) {
+        M_Vector3 *raw = (M_Vector3 *)mono_array_addr_with_size(ret, sizeof(M_Vector3), 3*i+0);
+        *raw = MARSHALLED_OUT(Vector3, r[i].vertex[0]);
+        raw = (M_Vector3 *)mono_array_addr_with_size(ret, sizeof(M_Vector3), 3 * i + 1);
+        *raw = MARSHALLED_OUT(Vector3, r[i].vertex[1]);
+        raw = (M_Vector3 *)mono_array_addr_with_size(ret, sizeof(M_Vector3), 3 * i + 2);
+        *raw = MARSHALLED_OUT(Vector3, r[i].vertex[2]);
+    }
+
+    return ret;
+}
+
+
 
 } // namespace GDMonoMarshal

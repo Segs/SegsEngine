@@ -188,8 +188,8 @@ Map<int, TextEdit::HighlighterInfo> GDScriptSyntaxHighlighter::_get_line_syntax_
 
             UIString word = StringUtils::substr(str,j, to - j);
             Color col = Color();
-            if (text_editor->has_keyword_color(word)) {
-                col = text_editor->get_keyword_color(word);
+            if (text_editor->has_keyword_color_uistr(word)) {
+                col = text_editor->get_keyword_color_uistr(word);
             } else if (text_editor->has_member_color(word)) {
                 col = text_editor->get_member_color(word);
                 for (int k = j - 1; k >= 0; k--) {

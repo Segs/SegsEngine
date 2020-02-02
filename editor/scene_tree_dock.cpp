@@ -2582,7 +2582,7 @@ UIString SceneTreeDock::get_filter() {
 
 void SceneTreeDock::set_filter(const UIString &p_filter) {
 
-    filter->set_text(p_filter);
+    filter->set_text_uistring(p_filter);
     scene_tree->set_filter(p_filter);
 }
 

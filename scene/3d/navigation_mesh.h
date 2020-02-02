@@ -42,7 +42,7 @@ class NavigationMesh : public Resource {
 
     PoolVector<Vector3> vertices;
     struct Polygon {
-        Vector<int> indices;
+        PoolVector<int> indices;
     };
     Vector<Polygon> polygons;
     Ref<ArrayMesh> debug_mesh;
@@ -58,7 +58,7 @@ class NavigationMesh : public Resource {
 protected:
     static void _bind_methods();
     void _validate_property(PropertyInfo &property) const override;
-
+public:
     void _set_polygons(const Array &p_array);
     Array _get_polygons() const;
 
@@ -182,9 +182,9 @@ public:
     void set_vertices(const PoolVector<Vector3> &p_vertices);
     PoolVector<Vector3> get_vertices() const;
 
-    void add_polygon(const Vector<int> &p_polygon);
+    void add_polygon(const PoolVector<int> &p_polygon);
     int get_polygon_count() const;
-    Vector<int> get_polygon(int p_idx);
+    PoolVector<int> get_polygon(int p_idx);
     void clear_polygons();
 
     Ref<Mesh> get_debug_mesh();

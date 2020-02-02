@@ -354,17 +354,17 @@ void GradientEdit::_notification(int p_what) {
                 continue;
             }
 
-            Vector<Vector2> points;
-            Vector<Color> colors;
-            points.push_back(Vector2(prev.offset * total_w, h));
-            points.push_back(Vector2(prev.offset * total_w, 0));
-            points.push_back(Vector2(next.offset * total_w, 0));
-            points.push_back(Vector2(next.offset * total_w, h));
+            PODVector<Vector2> points;
+            PoolVector<Color> colors;
+            points.emplace_back(prev.offset * total_w, h);
+            points.emplace_back(prev.offset * total_w, 0);
+            points.emplace_back(next.offset * total_w, 0);
+            points.emplace_back(next.offset * total_w, h);
             colors.push_back(prev.color);
             colors.push_back(prev.color);
             colors.push_back(next.color);
             colors.push_back(next.color);
-            draw_primitive(points, colors, Vector<Point2>());
+            draw_primitive(points, colors, PoolVector<Point2>());
             prev = next;
         }
 
@@ -429,12 +429,12 @@ void GradientEdit::_draw_checker(int x, int y, int w, int h) {
         Vector2(x + w, y + h),
         Vector2(x + w, y)
     };
-    Vector<Color> colorPoints;
+    PoolVector<Color> colorPoints;
     colorPoints.push_back(Color(1, 1, 1, 1));
     colorPoints.push_back(Color(1, 1, 1, 1));
     colorPoints.push_back(Color(1, 1, 1, 1));
     colorPoints.push_back(Color(1, 1, 1, 1));
-    Vector<Vector2> uvPoints;
+    PoolVector<Vector2> uvPoints;
     //Draw checker pattern pixel-perfect and scale it by 2.
     uvPoints.push_back(Vector2(x, y));
     uvPoints.push_back(Vector2(x, y + h * .5f / checker->get_height()));

@@ -542,7 +542,7 @@ void VisualScriptPropertySelector::select_method_from_base_type(se_string_view p
 
     show_window(.5f);
     if (clear_text)
-    search_box->set_text_utf8("");
+    search_box->set_text("");
     else
         search_box->select_all();
     search_box->grab_focus();
@@ -568,7 +568,7 @@ void VisualScriptPropertySelector::select_from_base_type(se_string_view p_base, 
 
     show_window(.5f);
     if (clear_text)
-    search_box->set_text_utf8("");
+    search_box->set_text("");
     else
         search_box->select_all();
     search_box->grab_focus();
@@ -592,7 +592,7 @@ void VisualScriptPropertySelector::select_from_script(const Ref<Script> &p_scrip
 
     show_window(.5f);
     if (clear_text)
-    search_box->set_text_utf8("");
+    search_box->set_text("");
     else
         search_box->select_all();
     search_box->grab_focus();
@@ -615,7 +615,7 @@ void VisualScriptPropertySelector::select_from_basic_type(VariantType p_type, co
 
     show_window(.5f);
     if (clear_text)
-    search_box->set_text_utf8("");
+    search_box->set_text("");
     else
         search_box->select_all();
     search_box->grab_focus();
@@ -637,7 +637,7 @@ void VisualScriptPropertySelector::select_from_action(se_string_view p_type, con
 
     show_window(.5f);
     if (clear_text)
-    search_box->set_text_utf8("");
+    search_box->set_text("");
     else
         search_box->select_all();
     search_box->grab_focus();
@@ -659,7 +659,7 @@ void VisualScriptPropertySelector::select_from_instance(Object *p_instance, cons
 
     show_window(.5f);
     if (clear_text)
-    search_box->set_text_utf8("");
+    search_box->set_text("");
     else
         search_box->select_all();
     search_box->grab_focus();
@@ -680,7 +680,7 @@ void VisualScriptPropertySelector::select_from_visual_script(se_string_view p_ba
     virtuals_only = false;
     show_window(.5f);
     if (clear_text)
-    search_box->set_text_utf8("");
+    search_box->set_text("");
     else
         search_box->select_all();
     search_box->grab_focus();

@@ -908,7 +908,7 @@ void ItemList::_notification(int p_what) {
 
                 if (!items[i].text.empty()) {
 
-                    Size2 s = font->get_string_size_utf8(items[i].text);
+                    Size2 s = font->get_string_size(items[i].text);
                     //s.width=MIN(s.width,fixed_column_width);
 
                     if (icon_mode == ICON_MODE_TOP) {
@@ -1150,7 +1150,7 @@ void ItemList::_notification(int p_what) {
 
                 int max_len = -1;
 
-                Vector2 size2 = font->get_string_size_utf8(items[i].text);
+                Vector2 size2 = font->get_string_size(items[i].text);
                 if (fixed_column_width)
                     max_len = fixed_column_width;
                 else if (same_column_width)
@@ -1385,8 +1385,8 @@ real_t ItemList::get_icon_scale() const {
     return icon_scale;
 }
 
-Vector<int> ItemList::get_selected_items() {
-    Vector<int> selected;
+PODVector<int> ItemList::get_selected_items() {
+    PODVector<int> selected;
     for (int i = 0; i < items.size(); i++) {
         if (items[i].selected) {
             selected.push_back(i);

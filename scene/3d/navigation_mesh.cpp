@@ -60,11 +60,12 @@ void NavigationMesh::create_from_mesh(const Ref<Mesh> &p_mesh) {
         PoolVector<int>::Read r = iarr.read();
 
         for (int j = 0; j < rlen; j += 3) {
-            Vector<int> vi;
+            PoolVector<int> vi;
             vi.resize(3);
-            vi.write[0] = r[j + 0] + from;
-            vi.write[1] = r[j + 1] + from;
-            vi.write[2] = r[j + 2] + from;
+            auto wr(vi.write());
+            wr[0] = r[j + 0] + from;
+            wr[1] = r[j + 1] + from;
+            wr[2] = r[j + 2] + from;
 
             add_polygon(vi);
         }
@@ -275,7 +276,7 @@ void NavigationMesh::_set_polygons(const Array &p_array) {
 
     polygons.resize(p_array.size());
     for (int i = 0; i < p_array.size(); i++) {
-        polygons.write[i].indices = p_array[i].as<Vector<int>>();
+        polygons.write[i].indices = p_array[i].as<PoolVector<int>>();
     }
     Object_change_notify(this);
 }
@@ -291,7 +292,7 @@ Array NavigationMesh::_get_polygons() const {
     return ret;
 }
 
-void NavigationMesh::add_polygon(const Vector<int> &p_polygon) {
+void NavigationMesh::add_polygon(const PoolVector<int> &p_polygon) {
 
     Polygon polygon;
     polygon.indices = p_polygon;
@@ -302,9 +303,9 @@ int NavigationMesh::get_polygon_count() const {
 
     return polygons.size();
 }
-Vector<int> NavigationMesh::get_polygon(int p_idx) {
+PoolVector<int> NavigationMesh::get_polygon(int p_idx) {
 
-    ERR_FAIL_INDEX_V(p_idx, polygons.size(), Vector<int>());
+    ERR_FAIL_INDEX_V(p_idx, polygons.size(), PoolVector<int>());
     return polygons[p_idx].indices;
 }
 void NavigationMesh::clear_polygons() {
@@ -321,7 +322,7 @@ Ref<Mesh> NavigationMesh::get_debug_mesh() {
     PoolVector<Vector3>::Read vr = vertices.read();
     List<Face3> faces;
     for (int i = 0; i < get_polygon_count(); i++) {
-        Vector<int> p = get_polygon(i);
+        PoolVector<int> p = get_polygon(i);
 
         for (int j = 2; j < p.size(); j++) {
             Face3 f;

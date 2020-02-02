@@ -39,7 +39,7 @@ class ResourcePreloader : public Node {
     GDCLASS(ResourcePreloader,Node)
 
     Map<StringName, Ref<Resource>> resources;
-
+public:
     void _set_resources(const Array &p_data);
     Array _get_resources() const;
     PoolVector<String> _get_resource_list() const;

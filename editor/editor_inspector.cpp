@@ -890,12 +890,12 @@ void EditorInspectorPlugin::add_property_editor(se_string_view p_for_property, C
     ERR_FAIL_COND(object_cast<EditorProperty>(p_prop) == nullptr)
 
     AddedEditor ae;
-    ae.properties.emplace_back(p_for_property);
+    ae.properties.push_back(String(p_for_property));
     ae.property_editor = p_prop;
     added_editors.push_back(ae);
 }
 
-void EditorInspectorPlugin::add_property_editor_for_multiple_properties(se_string_view p_label, const Vector<String> &p_properties, Control *p_prop) {
+void EditorInspectorPlugin::add_property_editor_for_multiple_properties(se_string_view p_label, const PoolVector<String> &p_properties, Control *p_prop) {
 
     AddedEditor ae;
     ae.properties = p_properties;
@@ -988,7 +988,7 @@ void EditorInspectorCategory::_notification(int p_what) {
 
         int hs = get_constant("hseparation", "Tree");
 
-        int w = font->get_string_size_utf8(label).width;
+        int w = font->get_string_size(label).width;
         if (icon) {
             w += hs + icon->get_width();
         }

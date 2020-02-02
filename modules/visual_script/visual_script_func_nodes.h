@@ -65,7 +65,7 @@ private:
     RPCCallMode rpc_call_mode;
     StringName singleton;
     bool validate;
-
+public:
     Node *_get_base_node() const;
     StringName _get_base_type() const;
 
@@ -179,7 +179,7 @@ private:
     void _update_base_type();
 
     void _update_cache();
-
+public:
     void _set_type_cache(const Dictionary &p_type);
     Dictionary _get_type_cache() const;
 
@@ -267,6 +267,7 @@ private:
 
     void _update_cache();
 
+public:
     void _set_type_cache(VariantType p_type);
     VariantType _get_type_cache() const;
 

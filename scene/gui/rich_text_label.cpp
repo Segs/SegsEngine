@@ -1802,11 +1802,11 @@ void RichTextLabel::_invalidate_current_line(RichTextItemFrame *p_frame) {
     }
 }
 
-void RichTextLabel::add_text_utf8(se_string_view p_text) {
-    add_text(StringUtils::from_utf8(p_text));
+void RichTextLabel::add_text(se_string_view p_text) {
+    add_text_uistring(StringUtils::from_utf8(p_text));
 }
 
-void RichTextLabel::add_text(const UIString &p_text) {
+void RichTextLabel::add_text_uistring(const UIString &p_text) {
 
     if (current->type == ITEM_TABLE)
         return; //can't add anything here
@@ -2304,7 +2304,7 @@ Error RichTextLabel::append_bbcode(se_string_view p_bbcode) {
             brk_pos = p_bbcode.length();
 
         if (brk_pos > pos) {
-            add_text_utf8(StringUtils::substr(p_bbcode,pos, brk_pos - pos));
+            add_text(StringUtils::substr(p_bbcode,pos, brk_pos - pos));
         }
 
         if (brk_pos == p_bbcode.length())
@@ -2314,7 +2314,7 @@ Error RichTextLabel::append_bbcode(se_string_view p_bbcode) {
 
         if (brk_end == -1) {
             //no close, add the rest
-            add_text_utf8(StringUtils::substr(p_bbcode,brk_pos, p_bbcode.length() - brk_pos));
+            add_text(StringUtils::substr(p_bbcode,brk_pos, p_bbcode.length() - brk_pos));
             break;
         }
 
@@ -2333,7 +2333,7 @@ Error RichTextLabel::append_bbcode(se_string_view p_bbcode) {
 
             if (!tag_ok) {
 
-                add_text_utf8("[");
+                add_text("[");
                 pos++;
                 continue;
             }
@@ -2673,7 +2673,7 @@ Error RichTextLabel::append_bbcode(se_string_view p_bbcode) {
         } else {
             auto expr_v = split(tag, ' ', false);
             if (expr_v.empty()) {
-                add_text_utf8("[");
+                add_text("[");
                 pos = brk_pos + 1;
             } else {
                 auto identifier = expr_v[0];
@@ -2690,7 +2690,7 @@ Error RichTextLabel::append_bbcode(se_string_view p_bbcode) {
                     tag_stack.push_front(identifier);
                     set_process_internal(true);
                 } else {
-            add_text_utf8("["); //ignore
+            add_text("["); //ignore
             pos = brk_pos + 1;
         }
     }
@@ -2840,7 +2840,7 @@ void RichTextLabel::set_bbcode(se_string_view p_bbcode) {
         parse_bbcode(p_bbcode);
     else { // raw text
         clear();
-        add_text_utf8(p_bbcode);
+        add_text(p_bbcode);
     }
 }
 
@@ -2880,11 +2880,11 @@ String RichTextLabel::get_text() {
 
 void RichTextLabel::set_text(const UIString &p_string) {
     clear();
-    add_text(p_string);
+    add_text_uistring(p_string);
 }
 void RichTextLabel::set_text_utf8(se_string_view p_string) {
     clear();
-    add_text_utf8(p_string);
+    add_text(p_string);
 }
 
 void RichTextLabel::set_percent_visible(float p_percent) {
@@ -2944,7 +2944,7 @@ void RichTextLabel::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("_gui_input"), &RichTextLabel::_gui_input);
     MethodBinder::bind_method(D_METHOD("_scroll_changed"), &RichTextLabel::_scroll_changed);
     MethodBinder::bind_method(D_METHOD("get_text"), &RichTextLabel::get_text);
-    MethodBinder::bind_method(D_METHOD("add_text", {"text"}), &RichTextLabel::add_text_utf8);
+    MethodBinder::bind_method(D_METHOD("add_text", {"text"}), &RichTextLabel::add_text);
     MethodBinder::bind_method(D_METHOD("set_text", {"text"}), &RichTextLabel::set_text_utf8);
     MethodBinder::bind_method(D_METHOD("add_image", {"image", "width", "height"}), &RichTextLabel::add_image, {DEFVAL(0), DEFVAL(0)});
     MethodBinder::bind_method(D_METHOD("newline"), &RichTextLabel::add_newline);

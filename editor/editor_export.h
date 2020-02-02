@@ -143,9 +143,9 @@ public:
 
 struct SharedObject {
     String path;
-    Vector<String> tags;
+    PODVector<String> tags;
 
-    SharedObject(se_string_view p_path, const Vector<String> &p_tags) :
+    SharedObject(se_string_view p_path, const PODVector<String> &p_tags) :
             path(p_path),
             tags(p_tags) {
     }
@@ -282,11 +282,11 @@ class EditorExportPlugin : public RefCounted {
 protected:
     void set_export_preset(const Ref<EditorExportPreset> &p_preset);
     Ref<EditorExportPreset> get_export_preset() const;
-
+public: // exposed to scripting
     void add_file(se_string_view p_path, const PODVector<uint8_t> &p_file, bool p_remap);
-    void add_shared_object(se_string_view p_path, const Vector<String> &tags);
-
+    void add_shared_object(se_string_view p_path, const PODVector<String> &tags);
     void skip();
+protected:
 
     virtual void _export_file(se_string_view p_path, se_string_view p_type, const Set<String> &p_features);
     virtual void _export_begin(const Set<String> &p_features, bool p_debug, se_string_view p_path, int p_flags);

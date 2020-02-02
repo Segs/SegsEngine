@@ -334,9 +334,10 @@ protected:
 
     Vector<Piece> pieces;
     Size2i size;
-
+public:
     Array _get_data() const;
     void _set_data(const Array &p_array);
+protected:
     static void _bind_methods();
 
 public:
@@ -471,7 +472,7 @@ private:
     int depth;
     bool is_3d;
 
-
+public:
     void _set_data(const Dictionary &p_data);
     Dictionary _get_data() const;
 

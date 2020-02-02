@@ -318,7 +318,7 @@ void AnimationNodeBlendSpace1DEditor::_update_space() {
     max_value->set_value(blend_space->get_max_space());
     min_value->set_value(blend_space->get_min_space());
 
-    label_value->set_text_utf8(blend_space->get_value_label());
+    label_value->set_text(blend_space->get_value_label());
 
     snap_value->set_value(blend_space->get_snap());
 

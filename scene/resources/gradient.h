@@ -70,7 +70,7 @@ public:
 	Color get_color(int pos) const;
 
     void set_offsets(const PODVector<float> &p_offsets);
-	Vector<float> get_offsets() const;
+    PODVector<float> get_offsets() const;
 
     void set_colors(const PODVector<Color> &p_colors);
     PODVector<Color> get_colors() const;

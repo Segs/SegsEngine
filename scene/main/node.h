@@ -48,8 +48,8 @@ enum MultiplayerAPI_RPCMode : int8_t;
 class GODOT_EXPORT Node : public Object {
 
     GDCLASS(Node,Object)
-    Q_GADGET
-    Q_CLASSINFO("Category","Nodes")
+//    Q_GADGET
+//    Q_CLASSINFO("Category","Nodes")
     OBJ_CATEGORY("Nodes")
 
 public:
@@ -111,6 +111,7 @@ private:
 
     Ref<MultiplayerAPI> multiplayer;
 
+public:
     void _print_tree_pretty(const UIString &prefix, const bool last);
     void _print_tree(const Node *p_node);
 
@@ -135,15 +136,13 @@ private:
     void _duplicate_signals(const Node *p_original, Node *p_copy) const;
     void _duplicate_and_reown(Node *p_new_parent, const DefMap<Node *, Node *> &p_reown_map) const;
     Node *_duplicate(int p_flags, DefMap<const Node *, Node *> *r_duplimap = nullptr) const;
-
     Array _get_children() const;
     Array _get_groups() const;
-
     Variant _rpc_bind(const Variant **p_args, int p_argcount, Variant::CallError &r_error);
     Variant _rpc_unreliable_bind(const Variant **p_args, int p_argcount, Variant::CallError &r_error);
     Variant _rpc_id_bind(const Variant **p_args, int p_argcount, Variant::CallError &r_error);
     Variant _rpc_unreliable_id_bind(const Variant **p_args, int p_argcount, Variant::CallError &r_error);
-
+private:
     friend class SceneTree;
 
     void _set_tree(SceneTree *p_tree);

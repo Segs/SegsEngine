@@ -139,8 +139,9 @@ class CSharpScript : public Script {
 #endif
 
     CSharpInstance *_create_instance(const Variant **p_args, int p_argcount, Object *p_owner, bool p_isref, Variant::CallError &r_error);
+public:
     Variant _new(const Variant **p_args, int p_argcount, Variant::CallError &r_error);
-
+private:
     // Do not use unless you know what you are doing
     friend void GDMonoInternals::tie_managed_to_unmanaged(MonoObject *, Object *);
     static Ref<CSharpScript> create_for_managed_type(GDMonoClass *p_class, GDMonoClass *p_native);

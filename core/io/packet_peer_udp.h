@@ -55,7 +55,7 @@ protected:
     Ref<NetSocket> _sock;
 
     static void _bind_methods();
-
+public:
     String _get_packet_ip() const;
 
     Error _set_dest_address(const String &p_address, int p_port);

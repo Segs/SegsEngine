@@ -119,7 +119,7 @@ void MeshLibraryEditor::_import_scene(Node *p_scene,const Ref<MeshLibrary> &p_li
         p_library->set_item_mesh(id, mesh);
         mesh_instances[id] = mi;
 
-        Vector<MeshLibrary::ShapeData> collisions;
+        PoolVector<MeshLibrary::ShapeData> collisions;
 
         for (int j = 0; j < mi->get_child_count(); j++) {
 

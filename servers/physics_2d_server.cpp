@@ -36,6 +36,7 @@
 #include "core/project_settings.h"
 #include "core/method_arg_casters.h"
 #include "core/method_enum_caster.h"
+#include "core/pool_vector.h"
 
 IMPL_GDCLASS(Physics2DDirectBodyState)
 IMPL_GDCLASS(Physics2DShapeQueryParameters)
@@ -233,20 +234,21 @@ int Physics2DShapeQueryParameters::get_collision_mask() const {
     return collision_mask;
 }
 
-void Physics2DShapeQueryParameters::set_exclude(const Vector<RID> &p_exclude) {
+void Physics2DShapeQueryParameters::set_exclude(const PoolVector<RID> &p_exclude) {
 
     exclude.clear();
     for (int i = 0; i < p_exclude.size(); i++)
         exclude.insert(p_exclude[i]);
 }
 
-Vector<RID> Physics2DShapeQueryParameters::get_exclude() const {
+PoolVector<RID> Physics2DShapeQueryParameters::get_exclude() const {
 
-    Vector<RID> ret;
+    PoolVector<RID> ret;
     ret.resize(exclude.size());
     int idx = 0;
+    auto wr(ret.write());
     for (const RID &E : exclude) {
-        ret.write[idx] = E;
+        wr[idx] = E;
     }
     return ret;
 }
@@ -313,7 +315,7 @@ Physics2DShapeQueryParameters::Physics2DShapeQueryParameters() {
     collide_with_areas = false;
 }
 
-Dictionary Physics2DDirectSpaceState::_intersect_ray(const Vector2 &p_from, const Vector2 &p_to, const Vector<RID> &p_exclude, uint32_t p_layers, bool p_collide_with_bodies, bool p_collide_with_areas) {
+Dictionary Physics2DDirectSpaceState::_intersect_ray(const Vector2 &p_from, const Vector2 &p_to, const PODVector<RID> &p_exclude, uint32_t p_layers, bool p_collide_with_bodies, bool p_collide_with_areas) {
 
     RayResult inters;
     Set<RID> exclude;

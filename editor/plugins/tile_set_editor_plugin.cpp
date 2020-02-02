@@ -1168,7 +1168,7 @@ void TileSetEditor::_on_workspace_overlay_draw() {
                 c = COLOR_ATLAS;
             UIString tile_id_name = UIString("%1: %2").arg(t_id).arg(StringUtils::from_utf8(tileset->tile_get_name(t_id)));
             Ref<Font> font = get_font("font", "Label");
-            region.set_size(font->get_string_size(tile_id_name));
+            region.set_size(font->get_ui_string_size(tile_id_name));
             workspace_overlay->draw_rect(region, c);
             region.position.y += region.size.y - 2;
             c = Color(0.1f, 0.1f, 0.1f);
@@ -2637,7 +2637,7 @@ void TileSetEditor::draw_polygon_shapes() {
                         }
                     }
                     PODVector<Vector2> polygon;
-                    Vector<Color> colors;
+                    PoolVector<Color> colors;
                     if (!creating_shape && shape == edited_collision_shape && current_shape.size() > 2) {
                         for (int j = 0; j < current_shape.size(); j++) {
                             polygon.emplace_back(current_shape[j]);
@@ -2677,7 +2677,7 @@ void TileSetEditor::draw_polygon_shapes() {
                     Color c_border = Color(0, 1, 1);
 
                     PODVector<Vector2> polygon;
-                    Vector<Color> colors;
+                    PoolVector<Color> colors;
                     Vector2 anchor = WORKSPACE_MARGIN;
                     anchor += tileset->tile_get_region(get_current_tile()).position;
                     if (!creating_shape && shape == edited_occlusion_shape && current_shape.size() > 2) {
@@ -2728,7 +2728,7 @@ void TileSetEditor::draw_polygon_shapes() {
                             c_border = Color(0.9f, 0.7f, 0.07f, 1);
                         }
                         PODVector<Vector2> polygon;
-                        Vector<Color> colors;
+                        PoolVector<Color> colors;
                         if (!creating_shape && shape == edited_occlusion_shape && current_shape.size() > 2) {
                             for (int j = 0; j < current_shape.size(); j++) {
                                 polygon.push_back(current_shape[j]);
@@ -2766,7 +2766,7 @@ void TileSetEditor::draw_polygon_shapes() {
                     Color c_border = Color(0, 1, 1);
 
                     PODVector<Vector2> polygon;
-                    Vector<Color> colors;
+                    PoolVector<Color> colors;
                     Vector2 anchor = WORKSPACE_MARGIN;
                     anchor += tileset->tile_get_region(get_current_tile()).position;
                     if (!creating_shape && shape == edited_navigation_shape && current_shape.size() > 2) {
@@ -2816,7 +2816,7 @@ void TileSetEditor::draw_polygon_shapes() {
                             c_border = Color(0.9f, 0.7f, 0.07f, 1);
                         }
                         PODVector<Vector2> polygon;
-                        Vector<Color> colors;
+                        PoolVector<Color> colors;
                         if (!creating_shape && shape == edited_navigation_shape && current_shape.size() > 2) {
                             for (int j = 0; j < current_shape.size(); j++) {
                                 polygon.push_back(current_shape[j]);
@@ -2934,7 +2934,7 @@ void TileSetEditor::close_shape(const Vector2 &shape_anchor) {
         Ref<NavigationPolygon> shape(make_ref_counted<NavigationPolygon>());
 
         PoolVector<Vector2> polygon;
-        Vector<int> indices;
+        PoolVector<int> indices;
         polygon.resize(current_shape.size());
         PoolVector<Vector2>::Write w = polygon.write();
 

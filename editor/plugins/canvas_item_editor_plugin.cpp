@@ -671,12 +671,12 @@ void CanvasItemEditor::_get_bones_at_pos(const Point2 &p_pos, Vector<_SelectResu
     for (eastl::pair<const BoneKey,BoneList> &E : bone_list) {
         Node2D *from_node = object_cast<Node2D>(ObjectDB::get_instance(E.first.from));
 
-        Vector<Vector2> bone_shape;
+        PODVector<Vector2> bone_shape;
         if (!_get_bone_shape(&bone_shape, nullptr, E))
             continue;
 
         // Check if the point is inside the Polygon2D
-        if (Geometry::is_point_in_polygon(screen_pos, {bone_shape.ptr(),bone_shape.size()})) {
+        if (Geometry::is_point_in_polygon(screen_pos, bone_shape)) {
             // Check if the item is already in the list
             bool duplicate = false;
             for (int i = 0; i < r_items.size(); i++) {
@@ -698,7 +698,7 @@ void CanvasItemEditor::_get_bones_at_pos(const Point2 &p_pos, Vector<_SelectResu
     }
 }
 
-bool CanvasItemEditor::_get_bone_shape(Vector<Vector2> *shape, PODVector<Vector2> *outline_shape, eastl::pair<const BoneKey, BoneList> &bone) {
+bool CanvasItemEditor::_get_bone_shape(PODVector<Vector2> *shape, PODVector<Vector2> *outline_shape, eastl::pair<const BoneKey, BoneList> &bone) {
     int bone_width = EditorSettings::get_singleton()->get("editors/2d/bone_width");
     int bone_outline_width = EditorSettings::get_singleton()->get("editors/2d/bone_outline_size");
 
@@ -2569,7 +2569,7 @@ void CanvasItemEditor::_draw_text_at_position(Point2 p_position, const UIString&
     Color color = get_color("font_color", "Editor");
     color.a = 0.8f;
     Ref<Font> font = get_font("font", "Label");
-    Size2 text_size = font->get_string_size(p_string);
+    Size2 text_size = font->get_ui_string_size(p_string);
     switch (p_side) {
     case Margin::Left:
             p_position += Vector2(-text_size.x - 5, text_size.y / 2);
@@ -2640,14 +2640,14 @@ void CanvasItemEditor::_draw_guides() {
     if (drag_type == DRAG_DOUBLE_GUIDE || drag_type == DRAG_V_GUIDE) {
         String str = vformat(("%d px"), Math::round(xform.affine_inverse().xform(dragged_guide_pos).x));
         Ref<Font> font = get_font("font", "Label");
-        Size2 text_size = font->get_string_size_utf8(str);
+        Size2 text_size = font->get_string_size(str);
         viewport->draw_ui_string(font, Point2(dragged_guide_pos.x + 10, RULER_WIDTH + text_size.y / 2 + 10), StringUtils::from_utf8(str), text_color);
         viewport->draw_line(Point2(dragged_guide_pos.x, 0), Point2(dragged_guide_pos.x, viewport->get_size().y), guide_color, Math::round(EDSCALE));
     }
     if (drag_type == DRAG_DOUBLE_GUIDE || drag_type == DRAG_H_GUIDE) {
         String str = vformat(("%d px"), Math::round(xform.affine_inverse().xform(dragged_guide_pos).y));
         Ref<Font> font = get_font("font", "Label");
-        Size2 text_size = font->get_string_size_utf8(str);
+        Size2 text_size = font->get_string_size(str);
         viewport->draw_ui_string(font, Point2(RULER_WIDTH + 10, dragged_guide_pos.y + text_size.y / 2 + 10), StringUtils::from_utf8(str), text_color);
         viewport->draw_line(Point2(0, dragged_guide_pos.y), Point2(viewport->get_size().x, dragged_guide_pos.y), guide_color, Math::round(EDSCALE));
     }
@@ -3434,7 +3434,7 @@ void CanvasItemEditor::_draw_bones() {
 
         for (eastl::pair<const BoneKey,BoneList> &E : bone_list) {
 
-            Vector<Vector2> bone_shape;
+            PODVector<Vector2> bone_shape;
             PODVector<Vector2> bone_shape_outline;
             if (!_get_bone_shape(&bone_shape, &bone_shape_outline, E))
                 continue;
@@ -3443,7 +3443,7 @@ void CanvasItemEditor::_draw_bones() {
             if (!from_node->is_visible_in_tree())
                 continue;
 
-            Vector<Color> colors;
+            PoolVector<Color> colors;
             if (from_node->has_meta("_edit_ik_")) {
                 colors.push_back(bone_ik_color);
                 colors.push_back(bone_ik_color);
@@ -3456,7 +3456,7 @@ void CanvasItemEditor::_draw_bones() {
                 colors.push_back(bone_color2);
             }
 
-            Vector<Color> outline_colors;
+            PoolVector<Color> outline_colors;
 
             if (editor_selection->is_selected(from_node)) {
                 outline_colors.push_back(bone_selected_color);
@@ -3475,7 +3475,7 @@ void CanvasItemEditor::_draw_bones() {
             }
 
             VisualServer::get_singleton()->canvas_item_add_polygon(ci, bone_shape_outline, outline_colors);
-            VisualServer::get_singleton()->canvas_item_add_primitive(ci, bone_shape, colors, Vector<Vector2>(), RID());
+            VisualServer::get_singleton()->canvas_item_add_primitive(ci, bone_shape, colors, PoolVector<Vector2>(), RID());
         }
     }
 }
@@ -3527,7 +3527,7 @@ void CanvasItemEditor::_draw_hover() {
         String node_name = hovering_results[i].name;
 
         Ref<Font> font = get_font("font", "Label");
-        Size2 node_name_size = font->get_string_size_utf8(node_name);
+        Size2 node_name_size = font->get_string_size(node_name);
         Size2 item_size = Size2(node_icon->get_size().x + 4 + node_name_size.x, MAX(node_icon->get_size().y, node_name_size.y - 3));
 
         Point2 pos = transform.xform(hovering_results[i].position) - Point2(0, item_size.y) + (Point2(node_icon->get_size().x, -node_icon->get_size().y) / 4);

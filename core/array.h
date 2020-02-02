@@ -103,7 +103,6 @@ public:
 
     Variant min() const;
     Variant max() const;
-
     const void *id() const;
 
     Array(const Array &p_from);

@@ -386,7 +386,7 @@ void EditorFeatureProfileManager::_update_profile_list(se_string_view p_select_p
     profile_actions[PROFILE_EXPORT]->set_disabled(selected_profile.empty());
     profile_actions[PROFILE_SET]->set_disabled(selected_profile.empty());
 
-    current_profile_name->set_text_utf8(current_profile);
+    current_profile_name->set_text(current_profile);
 
     _update_selected_profile();
 }

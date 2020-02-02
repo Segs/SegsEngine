@@ -100,7 +100,7 @@ void TextureEditor::_notification(int p_what) {
         }
         String text = itos(texture->get_width()) + "x" + itos(texture->get_height()) + " " + format;
 
-        Size2 rect = font->get_string_size_utf8(text);
+        Size2 rect = font->get_string_size(text);
 
         Vector2 draw_from = size - rect + Size2(-2, font->get_ascent() - 2);
         if (draw_from.x < 0)

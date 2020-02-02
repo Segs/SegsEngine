@@ -163,7 +163,7 @@ void AnimationNodeStateMachineEditor::_state_machine_gui_input(const Ref<InputEv
 
                 name_edit->set_global_position(state_machine_draw->get_global_transform().xform(edit_rect.position));
                 name_edit->set_size(edit_rect.size);
-                name_edit->set_text_utf8(node_rects[i].node_name);
+                name_edit->set_text(node_rects[i].node_name);
                 name_edit->show_modal();
                 name_edit->grab_focus();
                 name_edit->select_all();
@@ -636,7 +636,7 @@ void AnimationNodeStateMachineEditor::_state_machine_draw() {
         Ref<StyleBox> sb = E == selected_node ? style_selected : style;
 
         Size2 s = sb->get_minimum_size();
-        int strsize = font->get_string_size_utf8(E).width;
+        int strsize = font->get_string_size(E).width;
         s.width += strsize;
         s.height += MAX(font->get_height(), play->get_height());
         s.width += sep + play->get_width();
@@ -768,7 +768,7 @@ void AnimationNodeStateMachineEditor::_state_machine_draw() {
         Ref<AnimationNode> anode = state_machine->get_node(name);
         bool needs_editor = AnimationTreeEditor::get_singleton()->can_edit(anode);
         Ref<StyleBox> sb = name == selected_node ? style_selected : style;
-        int strsize = font->get_string_size_utf8(name).width;
+        int strsize = font->get_string_size(name).width;
 
         NodeRect &nr = node_rects.write[i];
 
@@ -791,7 +791,7 @@ void AnimationNodeStateMachineEditor::_state_machine_draw() {
 
         if (state_machine->get_end_node() == name) {
 
-            int endofs = nr.node.size.x - font->get_string_size_utf8(TTR("End")).x;
+            int endofs = nr.node.size.x - font->get_string_size(TTR("End")).x;
             state_machine_draw->draw_ui_string(font, offset + Vector2(endofs, -font->get_height() - 3 * EDSCALE + font->get_ascent()),
                     StringUtils::from_utf8(TTR("End")), font_color);
         }

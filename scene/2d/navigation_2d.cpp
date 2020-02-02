@@ -57,9 +57,10 @@ void Navigation2D::_navpoly_link(int p_id) {
         Polygon &p = P->deref();
         p.owner = &nm;
 
-        Vector<int> poly = nm.navpoly->get_polygon(i);
+        PoolVector<int> poly = nm.navpoly->get_polygon(i);
+        auto rd(poly.read());
         int plen = poly.size();
-        const int *indices = poly.ptr();
+        const int *indices = rd.ptr();
         bool valid = true;
         p.edges.resize(plen);
 
@@ -238,7 +239,7 @@ void Navigation2D::navpoly_remove(int p_id) {
     navpoly_map.erase(p_id);
 }
 
-Vector<Vector2> Navigation2D::get_simple_path(const Vector2 &p_start, const Vector2 &p_end, bool p_optimize) {
+PODVector<Vector2> Navigation2D::get_simple_path(const Vector2 &p_start, const Vector2 &p_end, bool p_optimize) {
 
     Polygon *begin_poly = nullptr;
     Polygon *end_poly = nullptr;
@@ -332,15 +333,14 @@ Vector<Vector2> Navigation2D::get_simple_path(const Vector2 &p_start, const Vect
 
     if (!begin_poly || !end_poly) {
 
-        return Vector<Vector2>(); //no path
+        return {}; //no path
     }
 
     if (begin_poly == end_poly) {
 
-        Vector<Vector2> path;
-        path.resize(2);
-        path.write[0] = begin_point;
-        path.write[1] = end_point;
+        PODVector<Vector2> path(2);
+        path[0] = begin_point;
+        path[1] = end_point;
         return path;
     }
 
@@ -488,7 +488,7 @@ Vector<Vector2> Navigation2D::get_simple_path(const Vector2 &p_start, const Vect
 
     if (found_route) {
 
-        Vector<Vector2> path;
+        PODVector<Vector2> path;
 
         if (p_optimize) {
             //string pulling
@@ -602,21 +602,20 @@ Vector<Vector2> Navigation2D::get_simple_path(const Vector2 &p_start, const Vect
         if (path.empty() || !path[path.size() - 1].is_equal_approx(begin_point)) {
             path.push_back(begin_point); // Add the begin point
         } else {
-            path.write[path.size() - 1] = begin_point; // Replace first midpoint by the exact begin point
+            path.back() = begin_point; // Replace first midpoint by the exact begin point
         }
-
-        path.invert();
+        eastl::reverse(path.begin(),path.end());
 
         if (path.size() <= 1 || !path[path.size() - 1].is_equal_approx(end_point)) {
             path.push_back(end_point); // Add the end point
         } else {
-            path.write[path.size() - 1] = end_point; // Replace last midpoint by the exact end point
+            path.back() = end_point; // Replace last midpoint by the exact end point
         }
 
         return path;
     }
 
-    return Vector<Vector2>();
+    return {};
 }
 
 Vector2 Navigation2D::get_closest_point(const Vector2 &p_point) {

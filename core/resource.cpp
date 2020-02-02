@@ -486,15 +486,16 @@ void Resource::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("setup_local_to_scene"), &Resource::setup_local_to_scene);
 
     MethodBinder::bind_method(D_METHOD("duplicate", {"subresources"}), &Resource::duplicate, {DEFVAL(false)});
-    const auto &mo = Resource::staticMetaObject;
-    for(int i=0; i<mo.methodCount(); ++i) {
-        const auto &method(mo.method(i));
-        if(method.methodType()==QMetaMethod::Signal) {
-            const char *z=method.typeName();
-            printf("%s",z);
-            ADD_SIGNAL(MethodInfo(method.name().constData()));
-        }
-    }
+//    const auto &mo = Resource::staticMetaObject;
+//    for(int i=0; i<mo.methodCount(); ++i) {
+//        const auto &method(mo.method(i));
+//        if(method.methodType()==QMetaMethod::Signal) {
+//            const char *z=method.typeName();
+//            printf("%s",z);
+//            ADD_SIGNAL(MethodInfo(method.name().constData()));
+//        }
+//    }
+    ADD_SIGNAL(MethodInfo("changed"));
     ADD_GROUP("Resource", "resource_");
     //    for(int enum_idx = 0; enum_idx < mo.enumeratorCount(); ++enum_idx) {
     //        const QMetaEnum &me(mo.enumerator(enum_idx));

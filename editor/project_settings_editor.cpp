@@ -819,8 +819,8 @@ void ProjectSettingsEditor::_item_selected(se_string_view p_path) {
 
     if (p_path.empty())
         return;
-    category->set_text_utf8(globals_editor->get_current_section());
-    property->set_text_utf8(p_path);
+    category->set_text(globals_editor->get_current_section());
+    property->set_text(p_path);
     popup_copy_to_feature->set_disabled(false);
 }
 

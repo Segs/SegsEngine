@@ -248,8 +248,9 @@ private:
     List<Node *> selected_node_list;
 
     void _update_nl();
-    Array _get_transformable_selected_nodes();
     void _emit_change();
+public: // script bindings.
+    Array _get_transformable_selected_nodes();
 
 protected:
     static void _bind_methods();

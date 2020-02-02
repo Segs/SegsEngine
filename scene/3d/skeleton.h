@@ -121,7 +121,7 @@ private:
 
     void _make_dirty();
     bool dirty;
-
+public:
     // bind helpers
     Array _get_bound_child_nodes_to_bone(int p_bone) const {
 

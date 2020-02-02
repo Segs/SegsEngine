@@ -191,7 +191,6 @@ private:
     _FORCE_INLINE_ void _update_group_order(SceneTreeGroup &g, bool p_use_priority = false);
     void _update_listener();
 
-    Array _get_nodes_in_group(const StringName &p_group);
 
     Node *current_scene;
 
@@ -224,6 +223,14 @@ private:
 
     static SceneTree *singleton;
     friend class Node;
+    //optimization
+    friend class CanvasItem;
+    friend class Spatial;
+    friend class Viewport;
+
+    SelfList<Node>::List xform_change_list;
+
+    friend class ScriptDebuggerRemote;
 
     void tree_changed();
     void node_added(Node *p_node);
@@ -236,18 +243,8 @@ private:
 
     void _notify_group_pause(const StringName &p_group, int p_notification);
     void _call_input_pause(const StringName &p_group, const StringName &p_method, const Ref<InputEvent> &p_input);
-    Variant _call_group_flags(const Variant **p_args, int p_argcount, Variant::CallError &r_error);
-    Variant _call_group(const Variant **p_args, int p_argcount, Variant::CallError &r_error);
 
     void _flush_delete_queue();
-    //optimization
-    friend class CanvasItem;
-    friend class Spatial;
-    friend class Viewport;
-
-    SelfList<Node>::List xform_change_list;
-
-    friend class ScriptDebuggerRemote;
 #ifdef DEBUG_ENABLED
     ISceneTreeDebugAccessor *m_debug_data=nullptr;
     ISceneTreeDebugAccessor *debug() { return m_debug_data;}
@@ -265,6 +262,11 @@ private:
 protected:
     void _notification(int p_notification);
     static void _bind_methods();
+
+public:
+    Array _get_nodes_in_group(const StringName &p_group);
+    Variant _call_group_flags(const Variant **p_args, int p_argcount, Variant::CallError &r_error);
+    Variant _call_group(const Variant **p_args, int p_argcount, Variant::CallError &r_error);
 
 public:
     enum GroupCallFlags {

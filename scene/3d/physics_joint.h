@@ -128,7 +128,7 @@ protected:
 	bool flags[FLAG_MAX];
 	RID _configure_joint(PhysicsBody *body_a, PhysicsBody *body_b) override;
 	static void _bind_methods();
-
+public:
 	void _set_upper_limit(float p_limit);
 	float _get_upper_limit() const;
 
@@ -179,13 +179,13 @@ public:
 
 	};
 
-protected:
+public:
 	void _set_upper_limit_angular(float p_limit_angular);
 	float _get_upper_limit_angular() const;
 
 	void _set_lower_limit_angular(float p_limit_angular);
 	float _get_lower_limit_angular() const;
-
+protected:
 	float params[PARAM_MAX];
 	RID _configure_joint(PhysicsBody *body_a, PhysicsBody *body_b) override;
 	static void _bind_methods();

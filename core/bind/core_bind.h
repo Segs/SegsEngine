@@ -231,7 +231,7 @@ public:
     int get_low_processor_usage_mode_sleep_usec() const;
 
     String get_executable_path() const;
-    int execute(se_string_view p_path, const Vector<String> &p_arguments, bool p_blocking=true, Array p_output = Array(), bool p_read_stderr = false);
+    int execute(se_string_view p_path, const PODVector<String> &p_arguments, bool p_blocking=true, Array p_output = Array(), bool p_read_stderr = false);
 
     Error kill(int p_pid);
     Error shell_open(String p_uri);
@@ -260,7 +260,7 @@ public:
     void print_resources_in_use(bool p_short = false);
     void print_all_resources(se_string_view p_to_file);
     void print_all_textures_by_size();
-    void print_resources_by_type(const Vector<String> &p_types);
+    void print_resources_by_type(const PODVector<String> &p_types);
 
     bool has_touchscreen_ui_hint() const;
 
@@ -401,8 +401,8 @@ public:
     real_t segment_intersects_circle(const Vector2 &p_from, const Vector2 &p_to, const Vector2 &p_circle_pos, real_t p_circle_radius);
     int get_uv84_normal_bit(const Vector3 &p_vector);
 
-    bool is_polygon_clockwise(const Vector<Vector2> &p_polygon);
-    bool is_point_in_polygon(const Point2 &p_point, const Vector<Vector2> &p_polygon);
+    bool is_polygon_clockwise(const PODVector<Vector2> &p_polygon);
+    bool is_point_in_polygon(const Point2 &p_point, const PODVector<Vector2> &p_polygon);
     PODVector<int> triangulate_polygon(Span<const Vector2> p_polygon);
     PODVector<int> triangulate_delaunay_2d(Span<const Vector2> p_points);
     PODVector<Point2> convex_hull_2d(Span<const Point2> p_points);
@@ -440,7 +440,7 @@ public:
     Array offset_polygon_2d(const PODVector<Vector2> &p_polygon, real_t p_delta, PolyJoinType p_join_type = JOIN_SQUARE);
     Array offset_polyline_2d(const PODVector<Vector2> &p_polygon, real_t p_delta, PolyJoinType p_join_type = JOIN_SQUARE, PolyEndType p_end_type = END_SQUARE);
 
-    Dictionary make_atlas(const Vector<Size2> &p_rects);
+    Dictionary make_atlas(const PODVector<Size2> &p_rects);
 
     _Geometry();
 };
@@ -471,7 +471,7 @@ public:
         COMPRESSION_GZIP = Compression::MODE_GZIP
     };
 
-    Error open_encrypted(se_string_view p_path, ModeFlags p_mode_flags, const Vector<uint8_t> &p_key);
+    Error open_encrypted(se_string_view p_path, ModeFlags p_mode_flags, const PODVector<uint8_t> &p_key);
     Error open_encrypted_pass(se_string_view p_path, ModeFlags p_mode_flags, se_string_view p_pass);
     Error open_compressed(se_string_view p_path, ModeFlags p_mode_flags, CompressionMode p_compress_mode = COMPRESSION_FASTLZ);
 
@@ -502,7 +502,7 @@ public:
 
     PoolVector<uint8_t> get_buffer(int p_length) const; // Get an array of bytes.
     String get_line() const;
-    Vector<String> get_csv_line(int8_t p_delim = ',') const;
+    PODVector<String> get_csv_line(int8_t p_delim = ',') const;
     String get_as_text() const;
     String get_md5(se_string_view p_path) const;
     String get_sha256(se_string_view p_path) const;

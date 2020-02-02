@@ -1936,7 +1936,17 @@ Vector<RID> Variant::as<Vector<RID>>() const {
         rids.write[i] = va[i];
     return rids;
 }
+template<>
+PoolVector<RID> Variant::as<PoolVector<RID>>() const {
 
+    Array va = operator Array();
+    PoolVector<RID> rids;
+    rids.resize(va.size());
+    auto wr(rids.write());
+    for (int i = 0; i < rids.size(); i++)
+        wr[i] = va[i];
+    return rids;
+}
 template<>
 Vector<Vector2> Variant::as<Vector<Vector2>>() const {
 
@@ -2367,6 +2377,11 @@ template<>
 Variant Variant::from(const Vector<RID> &p_array) {
     return fromVector<RID>({p_array.ptr(),p_array.size()});
 }
+template<>
+Variant Variant::from(const PoolVector<RID> &p_array) {
+    return fromVector<RID>({p_array.read().ptr(),p_array.size()});
+}
+
 template<>
 Variant Variant::from(const Vector<Vector2> &p_array) {
     return fromVectorBuiltin<Vector2>({p_array.ptr(),p_array.size()});

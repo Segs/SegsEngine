@@ -71,7 +71,7 @@ private:
 
 protected:
     static void _bind_methods();
-
+public:
     void _set_transform_array(const PoolVector<Vector3> &p_array);
     PoolVector<Vector3> _get_transform_array() const;
 

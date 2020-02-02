@@ -533,6 +533,7 @@ template <> GODOT_EXPORT Vector<Variant> Variant::as<Vector<Variant>>() const;
 template <> GODOT_EXPORT Vector<Vector2> Variant::as<Vector<Vector2>>() const;
 template <> GODOT_EXPORT Vector<Vector3> Variant::as<Vector<Vector3>>() const;
 template <> GODOT_EXPORT Vector<RID> Variant::as<Vector<RID>>() const;
+template <> GODOT_EXPORT PoolVector<RID> Variant::as<PoolVector<RID>>() const;
 template <> GODOT_EXPORT Vector<Color> Variant::as<Vector<Color>>() const;
 
 template <> GODOT_EXPORT Variant Variant::from(const Vector<uint8_t> &);
@@ -547,9 +548,25 @@ template <> GODOT_EXPORT Variant Variant::from(const Vector<Color> &);
 
 template <> GODOT_EXPORT Variant Variant::from(const Vector<Plane> &p_array);
 template <> GODOT_EXPORT Variant Variant::from(const Vector<RID> &p_array);
+template <> GODOT_EXPORT Variant Variant::from(const PoolVector<RID> &p_array);
 
 template <> GODOT_EXPORT Variant Variant::from(const PODVector<String> &);
 template <> GODOT_EXPORT Variant Variant::from(const PODVector<se_string_view> &);
 template <> GODOT_EXPORT Variant Variant::from(const PODVector<StringName> &);
 template <> GODOT_EXPORT Variant Variant::from(const Frustum &p_array);
 template <> GODOT_EXPORT Variant Variant::from(const Span<const Vector2> &);
+
+
+template<class T>
+PODVector<T> asVec(const Array &a) {
+    PODVector<T> res;
+    res.reserve(a.size());
+    for(int i=0,fin=a.size(); i<fin; ++i)
+        res.emplace_back(a.get(i).as<T>());
+}
+template<class T>
+PoolVector<T> asPool(const Array &a) {
+    PoolVector<T> res;
+    for(int i=0,fin=a.size(); i<fin; ++i)
+        res.push_back(a.get(i).as<T>());
+}

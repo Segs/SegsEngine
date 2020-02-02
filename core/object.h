@@ -37,7 +37,7 @@
 #include "core/forward_decls.h"
 #include "core/dictionary.h"
 
-#include <QObject>
+//#include <QObject>
 
 class IObjectTooling;
 
@@ -238,10 +238,10 @@ class ScriptInstance;
 using ObjectID = uint64_t;
 
 class GODOT_EXPORT Object {
-    Q_GADGET
+    //Q_GADGET
     // Non-copyable
 
-    Q_DISABLE_COPY(Object)
+    //Q_DISABLE_COPY(Object)
     //Q_PROPERTY(RefPtr script READ get_script WRITE set_script)
     static constexpr TypeInfo typeInfoStatic = TypeInfo( "Object", nullptr);
 public:
@@ -294,7 +294,7 @@ private:
 
     bool _predelete();
     void _postinitialize();
-
+public:
     void _add_user_signal(const StringName &p_name, const Array &p_args = Array());
     bool _has_user_signal(const StringName &p_name) const;
     Variant _emit_signal(const Variant **p_args, int p_argcount, Variant::CallError &r_error);
@@ -305,9 +305,8 @@ private:
     Variant _get_bind(const StringName &p_name) const;
     void _set_indexed_bind(const NodePath &p_name, const Variant &p_value);
     Variant _get_indexed_bind(const NodePath &p_name) const;
-
     void property_list_changed_notify();
-
+private:
     friend class RefCounted;
 protected:
     virtual bool _initialize_classv() { return initialize_class(); }
@@ -339,10 +338,10 @@ protected:
         return &Object::_notification;
     }
 
+public:
     void cancel_delete();
 
     virtual void _changed_callback(Object *p_changed, StringName p_prop);
-
     Variant _call_bind(const Variant **p_args, int p_argcount, Variant::CallError &r_error);
     Variant _call_deferred_bind(const Variant **p_args, int p_argcount, Variant::CallError &r_error);
 
@@ -351,7 +350,7 @@ protected:
             _class_name = get_class_static_name();
         return &_class_name;
     }
-
+public:
     PoolStringArray _get_meta_list_bind() const;
     Array _get_property_list_bind() const;
     Array _get_method_list_bind() const;
@@ -440,8 +439,8 @@ public:
 
     /* SCRIPT */
 
-    Q_INVOKABLE void set_script(const RefPtr &p_script);
-    Q_INVOKABLE RefPtr get_script() const;
+    void set_script(const RefPtr &p_script);
+    RefPtr get_script() const;
 
     /* SCRIPT */
 
@@ -535,7 +534,7 @@ const T *object_cast(const Object *p_object) {
 }
 namespace ObjectNS
 {
-    Q_NAMESPACE
+    //Q_NAMESPACE
     enum ConnectFlags : uint8_t {
 
         CONNECT_QUEUED = 1,
@@ -543,7 +542,7 @@ namespace ObjectNS
         CONNECT_ONESHOT = 4,
         CONNECT_REFERENCE_COUNTED = 8,
     };
-    Q_ENUM_NS(ConnectFlags)
+    //Q_ENUM_NS(ConnectFlags)
     template<class T>
     T* cast_to(::Object *f) {
         return object_cast<T>(f);

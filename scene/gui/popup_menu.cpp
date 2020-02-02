@@ -89,14 +89,14 @@ Size2 PopupMenu::get_minimum_size() const {
             has_check = true;
 
         StringName text(items[i].xl_text);
-        size.width += font->get_string_size_utf8(text).width;
+        size.width += font->get_string_size(text).width;
         if (i > 0)
             size.height += vseparation;
 
         if (items[i].accel || (items[i].shortcut && items[i].shortcut->is_valid())) {
 
             int accel_w = hseparation * 2;
-            accel_w += font->get_string_size_utf8(_get_accel_text(i)).width;
+            accel_w += font->get_string_size(_get_accel_text(i)).width;
             accel_max_w = MAX(accel_w, accel_max_w);
         }
 
@@ -539,7 +539,7 @@ void PopupMenu::_notification(int p_what) {
 
                     int sep_h = separator->get_center_size().height + separator->get_minimum_size().height;
                     if (!text.empty()) {
-                        int ss = font->get_string_size_utf8(text).width;
+                        int ss = font->get_string_size(text).width;
                         int center = (get_size().width) / 2;
                         int l = center - ss / 2;
                         int r = center + ss / 2;
@@ -573,20 +573,20 @@ void PopupMenu::_notification(int p_what) {
                 if (items[i].separator) {
 
                     if (!text.empty()) {
-                        int center = (get_size().width - font->get_string_size_utf8(text).width) / 2;
-                        font->draw_utf8(ci, Point2(center, item_ofs.y + Math::floor((h - font_h) / 2.0f)), text, font_color_disabled);
+                        int center = (get_size().width - font->get_string_size(text).width) / 2;
+                        font->draw(ci, Point2(center, item_ofs.y + Math::floor((h - font_h) / 2.0f)), text, font_color_disabled);
                     }
                 } else {
 
                     item_ofs.x += icon_ofs + check_ofs;
-                    font->draw_utf8(ci, item_ofs + Point2(0, Math::floor((h - font_h) / 2.0f)), text, items[i].disabled ? font_color_disabled : (i == mouse_over ? font_color_hover : font_color));
+                    font->draw(ci, item_ofs + Point2(0, Math::floor((h - font_h) / 2.0f)), text, items[i].disabled ? font_color_disabled : (i == mouse_over ? font_color_hover : font_color));
                 }
 
                 if (items[i].accel || (items[i].shortcut && items[i].shortcut->is_valid())) {
                     //accelerator
                     String text2 = _get_accel_text(i);
-                    item_ofs.x = size.width - style->get_margin(Margin::Right) - font->get_string_size_utf8(text2).width;
-                    font->draw_utf8(ci, item_ofs + Point2(0, Math::floor((h - font_h) / 2.0f)), text2, i == mouse_over ? font_color_hover : font_color_accel);
+                    item_ofs.x = size.width - style->get_margin(Margin::Right) - font->get_string_size(text2).width;
+                    font->draw(ci, item_ofs + Point2(0, Math::floor((h - font_h) / 2.0f)), text2, i == mouse_over ? font_color_hover : font_color_accel);
                 }
 
                 items.write[i]._ofs_cache = ofs.y;

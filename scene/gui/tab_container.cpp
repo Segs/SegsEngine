@@ -400,7 +400,7 @@ void TabContainer::_notification(int p_what) {
 
                 // Draw the tab text.
                 Point2i text_pos(x_content, y_center - (font->get_height() / 2) + font->get_ascent());
-                font->draw_utf8(canvas, text_pos, text, font_color);
+                font->draw(canvas, text_pos, text, font_color);
 
                 x += tab_width;
                 last_tab_cache = i + first_tab_cache;
@@ -464,7 +464,7 @@ int TabContainer::_get_tab_width(int p_index) const {
     // Get the width of the text displayed on the tab.
     Ref<Font> font = get_font("font");
     StringName text = control->has_meta("_tab_name") ? tr(control->get_meta("_tab_name")) : control->get_name();
-    int width = font->get_string_size_utf8(text).width;
+    int width = font->get_string_size(text).width;
 
     // Add space for a tab icon.
     if (control->has_meta("_tab_icon")) {

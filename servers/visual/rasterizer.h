@@ -760,9 +760,9 @@ public:
 
         struct CommandPrimitive : public Command {
 
-            Vector<Point2> points;
-            Vector<Point2> uvs;
-            Vector<Color> colors;
+            PODVector<Point2> points;
+            PoolVector<Point2> uvs;
+            PoolVector<Color> colors;
             RID texture;
             RID normal_map;
             float width;
@@ -777,10 +777,10 @@ public:
 
             PODVector<int> indices;
             PODVector<Point2> points;
-            Vector<Point2> uvs;
-            Vector<Color> colors;
-            Vector<int> bones;
-            Vector<float> weights;
+            PoolVector<Point2> uvs;
+            PoolVector<Color> colors;
+            PoolVector<int> bones;
+            PoolVector<float> weights;
             RID texture;
             RID normal_map;
             int count;

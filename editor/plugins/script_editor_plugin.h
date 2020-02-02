@@ -328,8 +328,6 @@ class ScriptEditor : public PanelContainer {
 
     void _trim_trailing_whitespace(TextEdit *tx);
 
-    void _goto_script_line2(int p_line);
-    void _goto_script_line(REF p_script, int p_line);
     void _set_execution(REF p_script, int p_line);
     void _clear_execution(REF p_script);
     void _breaked(bool p_breaked, bool p_can_debug);
@@ -366,9 +364,6 @@ class ScriptEditor : public PanelContainer {
 
     void _script_split_dragged(float);
 
-    Variant get_drag_data_fw(const Point2 &p_point, Control *p_from);
-    bool can_drop_data_fw(const Point2 &p_point, const Variant &p_data, Control *p_from) const;
-    void drop_data_fw(const Point2 &p_point, const Variant &p_data, Control *p_from);
 
     void _unhandled_input(const Ref<InputEvent> &p_event);
 
@@ -396,8 +391,6 @@ class ScriptEditor : public PanelContainer {
     int file_dialog_option;
     void _file_dialog_action(se_string_view p_file);
 
-    Ref<Script> _get_current_script();
-    Array _get_open_scripts() const;
 
     Ref<TextFile> _load_text_file(se_string_view p_path, Error *r_error);
     Error _save_text_file(Ref<TextFile> p_text_file, se_string_view p_path);
@@ -410,6 +403,14 @@ class ScriptEditor : public PanelContainer {
     static void _open_script_request(se_string_view p_path);
 
     static ScriptEditor *script_editor;
+public:
+    Ref<Script> _get_current_script();
+    Array _get_open_scripts() const;
+    void _goto_script_line2(int p_line);
+    void _goto_script_line(REF p_script, int p_line);
+    Variant get_drag_data_fw(const Point2 &p_point, Control *p_from);
+    bool can_drop_data_fw(const Point2 &p_point, const Variant &p_data, Control *p_from) const;
+    void drop_data_fw(const Point2 &p_point, const Variant &p_data, Control *p_from);
 
 protected:
     void _notification(int p_what);

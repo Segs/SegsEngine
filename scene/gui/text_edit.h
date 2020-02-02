@@ -250,7 +250,7 @@ private:
     bool shortcut_keys_enabled;
 
     int executing_line;
-
+public:
     void _generate_context_menu();
     int get_visible_rows() const;
     int get_total_visible_rows() const;
@@ -545,10 +545,10 @@ public:
     bool is_insert_mode() const;
 
     void add_keyword_color(se_string_view p_keyword, const Color &p_color);
-    bool has_keyword_color(const UIString& p_keyword) const;
-    bool has_keyword_color_utf8(se_string_view p_keyword) const;
-    Color get_keyword_color(const UIString& p_keyword) const;
-    Color get_keyword_color_utf8(se_string_view p_keyword) const;
+    bool has_keyword_color_uistr(const UIString& p_keyword) const;
+    bool has_keyword_color(se_string_view p_keyword) const;
+    Color get_keyword_color_uistr(const UIString& p_keyword) const;
+    Color get_keyword_color(se_string_view p_keyword) const;
 
     void add_color_region(se_string_view p_begin_key = {}, se_string_view p_end_key = {}, const Color &p_color = Color(), bool p_line_only = false);
     void clear_colors();

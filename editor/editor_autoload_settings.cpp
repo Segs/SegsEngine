@@ -122,9 +122,9 @@ bool EditorAutoloadSettings::_autoload_name_is_valid(const StringName &p_name, S
 void EditorAutoloadSettings::_autoload_add() {
 
     if (autoload_add(StringName(autoload_add_name->get_text()), autoload_add_path->get_line_edit()->get_text()))
-        autoload_add_path->get_line_edit()->set_text_utf8("");
+        autoload_add_path->get_line_edit()->set_text("");
 
-    autoload_add_name->set_text_utf8("");
+    autoload_add_name->set_text("");
 }
 
 void EditorAutoloadSettings::_autoload_selected() {
@@ -317,7 +317,7 @@ void EditorAutoloadSettings::_autoload_open(se_string_view fpath) {
 
 void EditorAutoloadSettings::_autoload_file_callback(se_string_view p_path) {
 
-    autoload_add_name->set_text_utf8(PathUtils::get_basename(PathUtils::get_file(p_path)));
+    autoload_add_name->set_text(PathUtils::get_basename(PathUtils::get_file(p_path)));
 }
 
 Node *EditorAutoloadSettings::_create_autoload(se_string_view p_path) {

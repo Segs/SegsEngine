@@ -159,7 +159,7 @@ class Navigation : public Spatial {
 	int last_id;
 
 	Vector3 up;
-	void _clip_path(Vector<Vector3> &path, Polygon *from_poly, const Vector3 &p_to_point, Polygon *p_to_poly);
+	void _clip_path(PODVector<Vector3> &path, Polygon *from_poly, const Vector3 &p_to_point, Polygon *p_to_poly);
 
 protected:
 	static void _bind_methods();
@@ -173,7 +173,7 @@ public:
 	void navmesh_set_transform(int p_id, const Transform &p_xform);
 	void navmesh_remove(int p_id);
 
-	Vector<Vector3> get_simple_path(const Vector3 &p_start, const Vector3 &p_end, bool p_optimize = true);
+	PODVector<Vector3> get_simple_path(const Vector3 &p_start, const Vector3 &p_end, bool p_optimize = true);
 	Vector3 get_closest_point_to_segment(const Vector3 &p_from, const Vector3 &p_to, const bool &p_use_collision = false);
 	Vector3 get_closest_point(const Vector3 &p_point);
 	Vector3 get_closest_point_normal(const Vector3 &p_point);

@@ -90,7 +90,7 @@ protected:
     void _get_property_list(ListPOD<PropertyInfo> *p_list) const;
 
     static ProjectSettings *singleton;
-
+public:
     Error _load_settings_text(se_string_view p_path);
     Error _load_settings_binary(se_string_view p_path);
     Error _load_settings_text_or_binary(se_string_view p_text_path, se_string_view p_bin_path);

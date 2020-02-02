@@ -172,16 +172,16 @@ void CollisionPolygon2D::_notification(int p_what) {
                 dcol.a = 1.0;
                 Vector2 line_to(0, 20);
                 draw_line(Vector2(), line_to, dcol, 3);
-                Vector<Vector2> pts;
+                PODVector<Vector2> pts;
                 float tsize = 8;
                 pts.push_back(line_to + (Vector2(0, tsize)));
                 pts.push_back(line_to + (Vector2(0.707f * tsize, 0)));
                 pts.push_back(line_to + (Vector2(-0.707f * tsize, 0)));
-                Vector<Color> cols;
+                PoolVector<Color> cols;
                 for (int i = 0; i < 3; i++)
                     cols.push_back(dcol);
 
-                draw_primitive(pts, cols, Vector<Vector2>()); //small arrow
+                draw_primitive(pts, cols, PoolVector<Vector2>()); //small arrow
             }
         } break;
     }

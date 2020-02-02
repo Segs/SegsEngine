@@ -3909,7 +3909,7 @@ void VisualShaderNodeCompare::set_comparison_type(ComparisonType p_type) {
     emit_changed();
 }
 
-VisualShaderNodeCompare::ComparisonType VisualShaderNodeCompare::get_comparsion_type() const {
+VisualShaderNodeCompare::ComparisonType VisualShaderNodeCompare::get_comparison_type() const {
 
     return ctype;
 }
@@ -3948,7 +3948,7 @@ Vector<StringName> VisualShaderNodeCompare::get_editable_properties() const {
 void VisualShaderNodeCompare::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("set_comparison_type", {"type"}), &VisualShaderNodeCompare::set_comparison_type);
-    MethodBinder::bind_method(D_METHOD("get_comparison_type"), &VisualShaderNodeCompare::get_comparsion_type);
+    MethodBinder::bind_method(D_METHOD("get_comparison_type"), &VisualShaderNodeCompare::get_comparison_type);
 
     MethodBinder::bind_method(D_METHOD("set_function", {"func"}), &VisualShaderNodeCompare::set_function);
     MethodBinder::bind_method(D_METHOD("get_function"), &VisualShaderNodeCompare::get_function);

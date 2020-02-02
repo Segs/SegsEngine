@@ -41,7 +41,7 @@ VARIANT_ENUM_CAST(Button::TextAlign);
 
 Size2 Button::get_minimum_size() const {
 
-    Size2 minsize = get_font("font")->get_string_size_utf8(xl_text);
+    Size2 minsize = get_font("font")->get_string_size(xl_text);
     if (clip_text)
         minsize.width = 0;
 
@@ -166,7 +166,7 @@ void Button::_notification(int p_what) {
                 if (expand_icon) {
                     Size2 _size = get_size() - style->get_offset() * 2;
                     _size.width -= get_constant("hseparation") + icon_ofs_region;
-                    if (!clip_text) _size.width -= get_font("font")->get_string_size_utf8(xl_text).width;
+                    if (!clip_text) _size.width -= get_font("font")->get_string_size(xl_text).width;
                     float icon_width = _icon->get_width() * _size.height / _icon->get_height();
                     float icon_height = _size.height;
 
@@ -194,7 +194,7 @@ void Button::_notification(int p_what) {
             if (_internal_margin[(int8_t)Margin::Right] > 0) {
                 text_clip -= _internal_margin[(int8_t)Margin::Right] + get_constant("hseparation");
             }
-            Point2 text_ofs = (size - style->get_minimum_size() - icon_ofs - font->get_string_size_utf8(xl_text) -
+            Point2 text_ofs = (size - style->get_minimum_size() - icon_ofs - font->get_string_size(xl_text) -
                                       Point2(_internal_margin[(int8_t)Margin::Right] - _internal_margin[(int8_t)Margin::Left], 0)) /
                               2.0;
 
@@ -215,17 +215,17 @@ void Button::_notification(int p_what) {
                 } break;
                 case ALIGN_RIGHT: {
                     if (_internal_margin[(int8_t)Margin::Right] > 0) {
-                        text_ofs.x = size.x - style->get_margin(Margin::Right) - font->get_string_size_utf8(xl_text).x -
+                        text_ofs.x = size.x - style->get_margin(Margin::Right) - font->get_string_size(xl_text).x -
                                      _internal_margin[(int8_t)Margin::Right] - get_constant("hseparation");
                     } else {
-                        text_ofs.x = size.x - style->get_margin(Margin::Right) - font->get_string_size_utf8(xl_text).x;
+                        text_ofs.x = size.x - style->get_margin(Margin::Right) - font->get_string_size(xl_text).x;
                     }
                     text_ofs.y += style->get_offset().y;
                 } break;
             }
 
             text_ofs.y += font->get_ascent();
-            font->draw_utf8(ci, text_ofs.floor(), xl_text, color, clip_text ? text_clip : -1);
+            font->draw(ci, text_ofs.floor(), xl_text, color, clip_text ? text_clip : -1);
 
             if (_icon && icon_region.size.width > 0) {
                 draw_texture_rect_region(_icon, icon_region, Rect2(Point2(), _icon->get_size()), color_icon);
@@ -359,8 +359,8 @@ Button::Button(const StringName &p_text) {
     set_text(p_text);
     align = ALIGN_CENTER;
 
-    for (int i = 0; i < 4; i++) {
-        _internal_margin[i] = 0;
+    for (float & margin : _internal_margin) {
+        margin = 0;
     }
 }
 

@@ -135,9 +135,9 @@ void Polygon2D::_notification(int p_what) {
             }
 
             PODVector<Vector2> points;
-            Vector<Vector2> uvs;
-            Vector<int> bones;
-            Vector<float> weights;
+            PoolVector<Vector2> uvs;
+            PoolVector<int> bones;
+            PoolVector<float> weights;
 
             int len = polygon.size();
             if ((invert || polygons.empty()) && internal_vertices > 0) {
@@ -218,18 +218,18 @@ void Polygon2D::_notification(int p_what) {
                 Size2 tex_size = texture->get_size();
 
                 uvs.resize(len);
-
+                auto uv_wr(uvs.write());
                 if (points.size() == uv.size()) {
 
                     PoolVector<Vector2>::Read uvr = uv.read();
 
                     for (int i = 0; i < len; i++) {
-                        uvs.write[i] = texmat.xform(uvr[i]) / tex_size;
+                        uv_wr[i] = texmat.xform(uvr[i]) / tex_size;
                     }
 
                 } else {
                     for (int i = 0; i < len; i++) {
-                        uvs.write[i] = texmat.xform(points[i]) / tex_size;
+                        uv_wr[i] = texmat.xform(points[i]) / tex_size;
                     }
                 }
             }
@@ -240,8 +240,8 @@ void Polygon2D::_notification(int p_what) {
                 bones.resize(vc * 4);
                 weights.resize(vc * 4);
 
-                int *bonesw = bones.ptrw();
-                float *weightsw = weights.ptrw();
+                auto bonesw = bones.write();
+                auto weightsw = weights.write();
 
                 for (int i = 0; i < vc * 4; i++) {
                     bonesw[i] = 0;
@@ -297,13 +297,9 @@ void Polygon2D::_notification(int p_what) {
                 }
             }
 
-            Vector<Color> colors;
+            PoolVector<Color> colors;
             if (vertex_colors.size() == points.size()) {
-                colors.resize(len);
-                PoolVector<Color>::Read color_r = vertex_colors.read();
-                for (int i = 0; i < len; i++) {
-                    colors.write[i] = color_r[i];
-                }
+                colors = vertex_colors;
             } else {
                 colors.push_back(color);
             }

@@ -201,7 +201,7 @@ void FileSystemDock::_update_tree(const Vector<String> &p_uncollapsed_paths, boo
     favorites->set_metadata(0, "Favorites");
     favorites->set_collapsed(p_uncollapsed_paths.find("Favorites") < 0);
 
-    Vector<String> favorite_paths = EditorSettings::get_singleton()->get_favorites();
+    PODVector<String> favorite_paths = EditorSettings::get_singleton()->get_favorites();
     for (int i = 0; i < favorite_paths.size(); i++) {
         String fave = favorite_paths[i];
         if (!StringUtils::begins_with(fave,"res://"))
@@ -460,9 +460,9 @@ const String &FileSystemDock::get_current_path() const {
 
 void FileSystemDock::_set_current_path_text(se_string_view p_path) {
     if (p_path == se_string_view("Favorites")) {
-        current_path->set_text(TTR("Favorites").asString());
+        current_path->set_text_uistring(TTR("Favorites").asString());
     } else {
-        current_path->set_text_utf8(path);
+        current_path->set_text(path);
     }
 }
 
@@ -674,7 +674,7 @@ void FileSystemDock::_update_file_list(bool p_keep_selection) {
     List<FileInfo> filelist;
     if (path == "Favorites") {
         // Display the favorites.
-        Vector<String> favorites = EditorSettings::get_singleton()->get_favorites();
+        PODVector<String> favorites = EditorSettings::get_singleton()->get_favorites();
         for (int i = 0; i < favorites.size(); i++) {
             String favorite = favorites[i];
             String text;
@@ -1217,8 +1217,8 @@ void FileSystemDock::_update_project_settings_after_move(const Map<String, Strin
 
 void FileSystemDock::_update_favorites_list_after_move(const Map<String, String> &p_files_renames, const Map<String, String> &p_folders_renames) const {
 
-    Vector<String> favorites = EditorSettings::get_singleton()->get_favorites();
-    Vector<String> new_favorites;
+    PODVector<String> favorites = EditorSettings::get_singleton()->get_favorites();
+    PODVector<String> new_favorites;
 
     for (int i = 0; i < favorites.size(); i++) {
         String old_path = favorites[i];
@@ -1582,7 +1582,7 @@ void FileSystemDock::_tree_rmb_option(int p_option) {
 }
 
 void FileSystemDock::_file_list_rmb_option(int p_option) {
-    Vector<int> selected_id = files->get_selected_items();
+    PODVector<int> selected_id = files->get_selected_items();
     Vector<String> selected;
     for (int i = 0; i < selected_id.size(); i++) {
         selected.push_back(files->get_item_metadata(selected_id[i]));
@@ -1655,9 +1655,9 @@ void FileSystemDock::_file_option(int p_option, const Vector<String> &p_selected
 
         case FILE_ADD_FAVORITE: {
             // Add the files from favorites.
-            Vector<String> favorites = EditorSettings::get_singleton()->get_favorites();
+            PODVector<String> favorites = EditorSettings::get_singleton()->get_favorites();
             for (int i = 0; i < p_selected.size(); i++) {
-                if (favorites.find(p_selected[i]) == -1) {
+                if (!favorites.contains(p_selected[i])) {
                     favorites.push_back(p_selected[i]);
                 }
             }
@@ -1667,9 +1667,9 @@ void FileSystemDock::_file_option(int p_option, const Vector<String> &p_selected
 
         case FILE_REMOVE_FAVORITE: {
             // Remove the files from favorites.
-            Vector<String> favorites = EditorSettings::get_singleton()->get_favorites();
+            PODVector<String> favorites = EditorSettings::get_singleton()->get_favorites();
             for (int i = 0; i < p_selected.size(); i++) {
-                favorites.erase(p_selected[i]);
+                favorites.erase_first(p_selected[i]);
             }
             EditorSettings::get_singleton()->set_favorites(favorites);
             _update_tree(_compute_uncollapsed_paths());
@@ -1717,13 +1717,13 @@ void FileSystemDock::_file_option(int p_option, const Vector<String> &p_selected
                     if (to_rename.is_file) {
                         String name(PathUtils::get_file(to_rename.path));
                         rename_dialog->set_title(TTR("Renaming file:") + " " + name);
-                        rename_dialog_text->set_text_utf8(name);
+                        rename_dialog_text->set_text(name);
                         rename_dialog_text->select(0, StringUtils::find_last(name,'.'));
                     }
                     else {
                         String name(PathUtils::get_file(StringUtils::substr(to_rename.path, 0, to_rename.path.length() - 1)));
                         rename_dialog->set_title(TTR("Renaming folder:") + " " + name);
-                        rename_dialog_text->set_text_utf8(name);
+                        rename_dialog_text->set_text(name);
                         rename_dialog_text->select(0, name.length());
                     }
                     rename_dialog->popup_centered_minsize(Size2(250, 80) * EDSCALE);
@@ -1762,12 +1762,12 @@ void FileSystemDock::_file_option(int p_option, const Vector<String> &p_selected
                 if (to_duplicate.is_file) {
                     String name(PathUtils::get_file(to_duplicate.path));
                     duplicate_dialog->set_title(TTR("Duplicating file:") + " " + name);
-                    duplicate_dialog_text->set_text_utf8(name);
+                    duplicate_dialog_text->set_text(name);
                     duplicate_dialog_text->select(0, StringUtils::find_last(name,'.'));
                 } else {
                     String name(PathUtils::get_file(StringUtils::substr(to_duplicate.path,0, to_duplicate.path.length() - 1)));
                     duplicate_dialog->set_title(TTR("Duplicating folder:") + " " + name);
-                    duplicate_dialog_text->set_text_utf8(name);
+                    duplicate_dialog_text->set_text(name);
                     duplicate_dialog_text->select(0, name.length());
                 }
                 duplicate_dialog->popup_centered_minsize(Size2(250, 80) * EDSCALE);
@@ -1790,14 +1790,14 @@ void FileSystemDock::_file_option(int p_option, const Vector<String> &p_selected
         } break;
 
         case FILE_NEW_FOLDER: {
-            make_dir_dialog_text->set_text_utf8("new folder");
+            make_dir_dialog_text->set_text("new folder");
             make_dir_dialog_text->select_all();
             make_dir_dialog->popup_centered_minsize(Size2(250, 80) * EDSCALE);
             make_dir_dialog_text->grab_focus();
         } break;
 
         case FILE_NEW_SCENE: {
-            make_scene_dialog_text->set_text_utf8("new scene");
+            make_scene_dialog_text->set_text("new scene");
             make_scene_dialog_text->select_all();
             make_scene_dialog->popup_centered_minsize(Size2(250, 80) * EDSCALE);
             make_scene_dialog_text->grab_focus();
@@ -1854,9 +1854,9 @@ void FileSystemDock::_search_changed(const String &p_text, const Control *p_from
     searched_string = StringUtils::to_lower(p_text);
 
     if (p_from == tree_search_box)
-        file_list_search_box->set_text_utf8(searched_string);
+        file_list_search_box->set_text(searched_string);
     else // File_list_search_box.
-        tree_search_box->set_text_utf8(searched_string);
+        tree_search_box->set_text(searched_string);
     bool unfold_path = p_text.empty() && not path.empty();
     switch (display_mode) {
         case DISPLAY_MODE_TREE_ONLY: {
@@ -2016,7 +2016,7 @@ void FileSystemDock::drop_data_fw(const Point2 &p_point, const Variant &p_data, 
         return;
     Dictionary drag_data = p_data;
 
-    Vector<String> dirs = EditorSettings::get_singleton()->get_favorites();
+    PODVector<String> dirs = EditorSettings::get_singleton()->get_favorites();
 
     if (drag_data.has("favorite")) {
 
@@ -2042,7 +2042,7 @@ void FileSystemDock::drop_data_fw(const Point2 &p_point, const Variant &p_data, 
             drop_position = dirs.size();
         } else {
             // Drop in the list.
-            drop_position = dirs.find(ti->get_metadata(0));
+            drop_position = dirs.index_of(ti->get_metadata(0));
             if (drop_section == 1) {
                 drop_position++;
             }
@@ -2052,7 +2052,7 @@ void FileSystemDock::drop_data_fw(const Point2 &p_point, const Variant &p_data, 
         Vector<int> to_remove;
         int offset = 0;
         for (int i = 0; i < files.size(); i++) {
-            int to_remove_pos = dirs.find(files[i]);
+            int to_remove_pos = dirs.index_of(files[i]);
             to_remove.push_back(to_remove_pos);
             if (to_remove_pos < drop_position) {
                 offset++;
@@ -2061,12 +2061,12 @@ void FileSystemDock::drop_data_fw(const Point2 &p_point, const Variant &p_data, 
         drop_position -= offset;
         to_remove.sort();
         for (int i = 0; i < to_remove.size(); i++) {
-            dirs.remove(to_remove[i] - i);
+            dirs.erase_at(to_remove[i] - i);
         }
 
         // Re-add them at the right position.
         for (int i = 0; i < files.size(); i++) {
-            dirs.insert(drop_position, files[i]);
+            dirs.insert_at(drop_position, files[i]);
             drop_position++;
         }
 
@@ -2105,9 +2105,9 @@ void FileSystemDock::drop_data_fw(const Point2 &p_point, const Variant &p_data, 
         } else if (favorite) {
             // Add the files from favorites
             PoolVector<String> fnames(drag_data["files"].as<PoolVector<String>>());
-            Vector<String> favorites = EditorSettings::get_singleton()->get_favorites();
+            PODVector<String> favorites = EditorSettings::get_singleton()->get_favorites();
             for (int i = 0; i < fnames.size(); i++) {
-                if (favorites.find(fnames[i]) == -1) {
+                if (!favorites.contains(fnames[i])) {
                     favorites.push_back(fnames[i]);
                 }
             }
@@ -2179,7 +2179,7 @@ void FileSystemDock::_file_and_folders_fill_popup(
     Vector<String> filenames;
     Vector<String> foldernames;
 
-    Vector<String> favorites = EditorSettings::get_singleton()->get_favorites();
+    const PODVector<String> &favorites = EditorSettings::get_singleton()->get_favorites();
 
     bool all_files = true;
     bool all_files_scenes = true;

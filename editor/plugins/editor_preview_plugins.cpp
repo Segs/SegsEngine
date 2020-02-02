@@ -854,7 +854,7 @@ Ref<Texture> EditorFontPreviewPlugin::generate_from_path(se_string_view p_path, 
 
     UIString sampled_text = "Abg";
 
-    Vector2 size = sampled_font->get_string_size(sampled_text);
+    Vector2 size = sampled_font->get_ui_string_size(sampled_text);
 
     Vector2 pos;
 
@@ -863,7 +863,7 @@ Ref<Texture> EditorFontPreviewPlugin::generate_from_path(se_string_view p_path, 
 
     Ref<Font> font = sampled_font;
 
-    font->draw(canvas_item, pos, sampled_text);
+    font->draw_ui_string(canvas_item, pos, sampled_text);
 
     preview_done = false;
     VisualServer::get_singleton()->viewport_set_update_mode(viewport, VS::VIEWPORT_UPDATE_ONCE); //once used for capture

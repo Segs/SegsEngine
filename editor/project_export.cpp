@@ -195,7 +195,7 @@ void ProjectExportDialog::_update_export_all() {
 void ProjectExportDialog::_edit_preset(int p_index) {
 
     if (p_index < 0 || p_index >= presets->get_item_count()) {
-        name->set_text_utf8("");
+        name->set_text("");
         name->set_editable(false);
         export_path->hide();
         runnable->set_disabled(true);
@@ -222,7 +222,7 @@ void ProjectExportDialog::_edit_preset(int p_index) {
     export_path->show();
     duplicate_preset->set_disabled(false);
     delete_preset->set_disabled(false);
-    name->set_text_utf8(current->get_name());
+    name->set_text(current->get_name());
 
     List<String> extension_list = current->get_platform()->get_binary_extensions(current);
     PODVector<se_string_view> extension_vector;
@@ -237,8 +237,8 @@ void ProjectExportDialog::_edit_preset(int p_index) {
     parameters->edit(current.get());
 
     export_filter->select(current->get_export_filter());
-    include_filters->set_text_utf8(current->get_include_filter());
-    exclude_filters->set_text_utf8(current->get_exclude_filter());
+    include_filters->set_text(current->get_include_filter());
+    exclude_filters->set_text(current->get_exclude_filter());
 
     patches->clear();
     TreeItem *patch_root = patches->create_item();
@@ -303,7 +303,7 @@ void ProjectExportDialog::_edit_preset(int p_index) {
         get_ok()->set_disabled(false);
     }
 
-    custom_features->set_text_utf8(current->get_custom_features());
+    custom_features->set_text(current->get_custom_features());
     _update_feature_list();
     _update_export_all();
     minimum_size_changed();
@@ -313,7 +313,7 @@ void ProjectExportDialog::_edit_preset(int p_index) {
 
     String key = current->get_script_encryption_key();
     if (!updating_script_key) {
-        script_key->set_text_utf8(key);
+        script_key->set_text(key);
     }
     if (script_export_mode == EditorExportPreset::MODE_SCRIPT_ENCRYPTED) {
         script_key->set_editable(true);
@@ -362,7 +362,7 @@ void ProjectExportDialog::_update_feature_list() {
         if (++E != fset.end()) {
             f += (", ");
         }
-        custom_feature_display->add_text_utf8(f);
+        custom_feature_display->add_text(f);
     }
 }
 

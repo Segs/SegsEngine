@@ -3904,7 +3904,7 @@ void NavigationMeshSpatialGizmoPlugin::redraw(EditorSpatialGizmo *p_gizmo) {
     PoolVector<Vector3>::Read vr = vertices.read();
     List<Face3> faces;
     for (int i = 0; i < navmeshie->get_polygon_count(); i++) {
-        Vector<int> p = navmeshie->get_polygon(i);
+        PoolVector<int> p = navmeshie->get_polygon(i);
 
         for (int j = 2; j < p.size(); j++) {
             Face3 f;

@@ -103,14 +103,14 @@ void EditorLog::add_message_utf8(se_string_view p_msg, MessageType p_type) {
             log->push_color(get_color("error_color", "Editor"));
             Ref<Texture> icon = get_icon("Error", "EditorIcons");
             log->add_image(icon);
-            log->add_text_utf8(" ");
+            log->add_text(" ");
             tool_button->set_button_icon(icon);
         } break;
         case MSG_TYPE_WARNING: {
             log->push_color(get_color("warning_color", "Editor"));
             Ref<Texture> icon = get_icon("Warning", "EditorIcons");
             log->add_image(icon);
-            log->add_text_utf8(" ");
+            log->add_text(" ");
             tool_button->set_button_icon(icon);
         } break;
         case MSG_TYPE_EDITOR: {
@@ -119,7 +119,7 @@ void EditorLog::add_message_utf8(se_string_view p_msg, MessageType p_type) {
         } break;
     }
 
-    log->add_text_utf8(p_msg);
+    log->add_text(p_msg);
 
     if (restore)
         log->pop();
@@ -136,14 +136,14 @@ void EditorLog::add_message(const UIString &p_msg, MessageType p_type) {
             log->push_color(get_color("error_color", "Editor"));
             Ref<Texture> icon = get_icon("Error", "EditorIcons");
             log->add_image(icon);
-            log->add_text_utf8(" ");
+            log->add_text(" ");
             tool_button->set_button_icon(icon);
         } break;
         case MSG_TYPE_WARNING: {
             log->push_color(get_color("warning_color", "Editor"));
             Ref<Texture> icon = get_icon("Warning", "EditorIcons");
             log->add_image(icon);
-            log->add_text_utf8(" ");
+            log->add_text(" ");
             tool_button->set_button_icon(icon);
         } break;
         case MSG_TYPE_EDITOR: {
@@ -152,7 +152,7 @@ void EditorLog::add_message(const UIString &p_msg, MessageType p_type) {
         } break;
     }
 
-    log->add_text(p_msg);
+    log->add_text_uistring(p_msg);
 
     if (restore)
         log->pop();

@@ -122,8 +122,8 @@ void EditorNetworkProfiler::add_node_frame_data(const MultiplayerAPI::ProfilingI
 }
 
 void EditorNetworkProfiler::set_bandwidth(int p_incoming, int p_outgoing) {
-    incoming_bandwidth_text->set_text_utf8(FormatVE(TTR("%s/s").asCString(), PathUtils::humanize_size(p_incoming).c_str()));
-    outgoing_bandwidth_text->set_text_utf8(FormatVE(TTR("%s/s").asCString(), PathUtils::humanize_size(p_outgoing).c_str()));
+    incoming_bandwidth_text->set_text(FormatVE(TTR("%s/s").asCString(), PathUtils::humanize_size(p_incoming).c_str()));
+    outgoing_bandwidth_text->set_text(FormatVE(TTR("%s/s").asCString(), PathUtils::humanize_size(p_outgoing).c_str()));
 }
 
 bool EditorNetworkProfiler::is_profiling() {
