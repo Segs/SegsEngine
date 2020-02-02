@@ -69,7 +69,7 @@ void PHashTranslation::generate(const Ref<Translation> &p_from) {
 
         //hash string
         se_string_view cs(E);
-        uint32_t h = hash(0, cs.data());
+        uint32_t h = hash(0, E.asCString());
         Pair<int, String> p;
         p.first = idx;
         p.second = cs;
@@ -224,8 +224,7 @@ StringName PHashTranslation::get_message(const StringName &p_src_text) const {
     if (htsize == 0)
         return StringName();
 
-    se_string_view str(p_src_text);
-    uint32_t h = hash(0, str.data());
+    uint32_t h = hash(0, p_src_text.asCString());
 
     const uint32_t *htptr = (const uint32_t *)hash_table.data();
     const uint32_t *btptr = (const uint32_t *)bucket_table.data();
@@ -239,7 +238,7 @@ StringName PHashTranslation::get_message(const StringName &p_src_text) const {
 
     const Bucket &bucket = *(const Bucket *)&btptr[p];
 
-    h = hash(bucket.func, str.data());
+    h = hash(bucket.func, p_src_text.asCString());
 
     int idx = -1;
 

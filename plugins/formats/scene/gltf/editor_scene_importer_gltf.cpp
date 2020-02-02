@@ -2616,8 +2616,8 @@ T EditorSceneImporterGLTF::_interpolate_track(const PODVector<float> &p_times, c
 
     //could use binary search, worth it?
     int idx = -1;
-    for (int i = 0; i < p_times.size(); i++) {
-        if (p_times[i] > p_time)
+    for (float t : p_times) {
+        if (t > p_time)
             break;
         idx++;
     }

@@ -914,27 +914,28 @@ RefPtr Object::get_script() const {
 
 bool Object::has_meta(se_string_view p_name) const {
 
-    return metadata.has(p_name.data());
+    return metadata.has(Variant(p_name));
 }
 
 void Object::set_meta(se_string_view p_name, const Variant &p_value) {
-
+    Variant key(p_name);
     if (p_value.get_type() == VariantType::NIL) {
-        metadata.erase(p_name.data());
+        metadata.erase(key);
         return;
     }
 
-    metadata[p_name.data()] = p_value;
+    metadata[key] = p_value;
 }
 
 Variant Object::get_meta(se_string_view p_name) const {
 
-    ERR_FAIL_COND_V(!metadata.has(p_name.data()), Variant())
-    return metadata[p_name];
+    Variant key(p_name);
+    ERR_FAIL_COND_V(!metadata.has(key), Variant())
+    return metadata[key];
 }
 
 void Object::remove_meta(se_string_view p_name) {
-    metadata.erase(p_name);
+    metadata.erase(Variant(p_name));
 }
 
 Array Object::_get_property_list_bind() const {

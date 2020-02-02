@@ -563,10 +563,12 @@ PODVector<T> asVec(const Array &a) {
     res.reserve(a.size());
     for(int i=0,fin=a.size(); i<fin; ++i)
         res.emplace_back(a.get(i).as<T>());
+    return res;
 }
 template<class T>
 PoolVector<T> asPool(const Array &a) {
     PoolVector<T> res;
     for(int i=0,fin=a.size(); i<fin; ++i)
         res.push_back(a.get(i).as<T>());
+    return res;
 }
