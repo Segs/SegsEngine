@@ -284,7 +284,8 @@ void FindReplaceBar::_replace_all() {
     }
 
     text_edit->set_v_scroll(vsval);
-    set_error(FormatSN(TTR("Replaced %d occurrence(s).").asCString(), rc));
+    matches_label->add_color_override("font_color", rc > 0 ? get_color("font_color", "Label") : get_color("error_color", "Editor"));
+    matches_label->set_text(FormatSN(TTR("%d replaced.").asCString(), rc));
 
     text_edit->call_deferred("connect", "text_changed", Variant(this), "_editor_text_changed");
     results_count = -1;

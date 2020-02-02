@@ -101,9 +101,14 @@ static Ref<ImageTexture> editor_generate_icon(const QString &resource_path,bool 
     // dumb gizmo check
     bool is_gizmo = QFileInfo(resource_path).baseName().startsWith("Gizmo");
     QByteArray resource_data = resource_file.readAll();
-    LoadParams svg_load = {p_scale, false, true, p_convert_color };
+    // Upsample icon generation only if the editor scale isn't an integer multiplier.
+    // Generating upsampled icons is slower, and the benefit is hardly visible
+    // with integer editor scales.
+    const bool upsample = !Math::is_equal_approx(Math::round(p_scale), p_scale);
+
+    LoadParams svg_load = {p_scale, false, upsample, p_convert_color };
+
     img->create(ImageLoader::load_image("svg",(const uint8_t *)resource_data.data(),resource_data.size(),svg_load));
-    img->shrink_x2();
 
     if (p_scale - (float)(int)p_scale > 0.0f || is_gizmo || p_force_filter)
         icon->create_from_image(img); // in this case filter really helps
@@ -118,11 +123,19 @@ static Ref<ImageTexture> editor_generate_icon(const QString &resource_path,bool 
 #endif
 
 static void editor_register_and_generate_icons(
-        const Ref<Theme> &p_theme, bool p_dark_theme = true, int p_thumb_size = 32, bool p_only_thumbs = false) {
+
+    const Ref<Theme> &p_theme, bool p_dark_theme = true, int p_thumb_size = 32, bool p_only_thumbs = false) {
     ImageFormatLoader * loader= ImageLoader::recognize("svg");
     if (loader) {
+        // The default icon theme is designed to be used for a dark theme.
+        // This dictionary stores color codes to convert to other colors
+        // for better readability on a light theme.
         //Dictionary dark_icon_color_dictionary;
         PODVector<eastl::pair<Color,Color>> dark_icon_color_dictionary;
+        // The names of the icons to never convert, even if one of their colors
+        // are contained in the dictionary above.
+        Set<se_string_view> exceptions;
+
         if (!p_dark_theme) {
             dark_icon_color_dictionary.reserve(100);
             // convert color:                              FROM       TO
@@ -188,9 +201,31 @@ static void editor_register_and_generate_icons(
             ADD_CONVERT_COLOR(dark_icon_color_dictionary, "#69ec9a", "#2ce573"); // VS rid
             ADD_CONVERT_COLOR(dark_icon_color_dictionary, "#79f3e8", "#12d5c3"); // VS object
             ADD_CONVERT_COLOR(dark_icon_color_dictionary, "#77edb1", "#57e99f"); // VS dict
+
+            exceptions.insert("EditorPivot");
+            exceptions.insert("EditorHandle");
+            exceptions.insert("Editor3DHandle");
+            exceptions.insert("Godot");
+            exceptions.insert("PanoramaSky");
+            exceptions.insert("ProceduralSky");
+            exceptions.insert("EditorControlAnchor");
+            exceptions.insert("DefaultProjectIcon");
+            exceptions.insert("GuiCloseCustomizable");
+            exceptions.insert("GuiGraphNodePort");
+            exceptions.insert("GuiResizer");
+            exceptions.insert("ZoomMore");
+            exceptions.insert("ZoomLess");
+            exceptions.insert("ZoomReset");
+            exceptions.insert("LockViewport");
+            exceptions.insert("GroupViewport");
+            exceptions.insert("StatusError");
+            exceptions.insert("StatusSuccess");
+            exceptions.insert("StatusWarning");
+            exceptions.insert("NodeWarning");
+            exceptions.insert("OverbrightIndicator");
         }
 
-        // these ones should be converted even if we are using a dark theme
+        // These ones should be converted even if we are using a dark theme.
         const Color error_color = p_theme->get_color("error_color", "Editor");
         const Color success_color = p_theme->get_color("success_color", "Editor");
         const Color warning_color = p_theme->get_color("warning_color", "Editor");
@@ -200,56 +235,29 @@ static void editor_register_and_generate_icons(
         // Setup svg color conversion
         loader->set_loader_option(0,&dark_icon_color_dictionary);
 
-        PODVector<se_string_view> exceptions;
-        exceptions.push_back("EditorPivot");
-        exceptions.push_back("EditorHandle");
-        exceptions.push_back("Editor3DHandle");
-        exceptions.push_back("Godot");
-        exceptions.push_back("PanoramaSky");
-        exceptions.push_back("ProceduralSky");
-        exceptions.push_back("EditorControlAnchor");
-        exceptions.push_back("DefaultProjectIcon");
-        exceptions.push_back("GuiCloseCustomizable");
-        exceptions.push_back("GuiGraphNodePort");
-        exceptions.push_back("GuiResizer");
-        exceptions.push_back("ZoomMore");
-        exceptions.push_back("ZoomLess");
-        exceptions.push_back("ZoomReset");
-        exceptions.push_back("LockViewport");
-        exceptions.push_back("GroupViewport");
-        exceptions.push_back("StatusError");
-        exceptions.push_back("StatusSuccess");
-        exceptions.push_back("StatusWarning");
-        exceptions.push_back("NodeWarning");
-        exceptions.push_back("OverbrightIndicator");
-
-
         // generate icons
         if (!p_only_thumbs) {
             QDirIterator embedded_icons(":/icons", { "*.svg" });
             while (embedded_icons.hasNext()) {
                 const QString resourcepath = embedded_icons.next();
                 const QString base_name = embedded_icons.fileInfo().baseName();
-                auto is_exception = exceptions.find(qPrintable(base_name));
-                if (is_exception!=exceptions.end())
-                    exceptions.erase(is_exception);
+                auto is_exception = exceptions.contains(qPrintable(base_name));
                 Ref<ImageTexture> icon = editor_generate_icon(resourcepath, !is_exception);
                 p_theme->set_icon(StringName(StringUtils::to_utf8(base_name)), "EditorIcons", icon);
             }
         }
 
-        // generate thumb files with the given thumb size
-        bool force_filter = p_thumb_size != 64 && p_thumb_size != 32; // we don't need filter with original resolution
+        // Generate thumbnail icons with the given thumbnail size.
+        // We don't need filtering when generating at one of the default resolutions.
+        const bool force_filter = p_thumb_size != 64 && p_thumb_size != 32;
         if (p_thumb_size >= 64) {
-            float scale = (float)p_thumb_size / 64.0f * EDSCALE;
+            const float scale = (float)p_thumb_size / 64.0f * EDSCALE;
             QDirIterator embedded_icons(":/icons/big_thumbs", { "*.svg" });
             while (embedded_icons.hasNext()) {
                 const QString resourcepath = embedded_icons.next();
                 const QString base_name = embedded_icons.fileInfo().baseName();
-                auto is_exception = exceptions.find(qPrintable(base_name));
-                if (is_exception!=exceptions.end())
-                    exceptions.erase(is_exception);
-                Ref<ImageTexture> icon =
+                auto is_exception = exceptions.contains(qPrintable(base_name));
+                const Ref<ImageTexture> icon =
                         editor_generate_icon(resourcepath, !p_dark_theme && !is_exception, scale, force_filter);
                 p_theme->set_icon(StringName(StringUtils::to_utf8(base_name)), "EditorIcons", icon);
             }
@@ -259,9 +267,7 @@ static void editor_register_and_generate_icons(
             while (embedded_icons.hasNext()) {
                 const QString resourcepath = embedded_icons.next();
                 const QString base_name = embedded_icons.fileInfo().baseName();
-                auto is_exception = exceptions.find(qPrintable(base_name));
-                if (is_exception!=exceptions.end())
-                    exceptions.erase(is_exception);
+                auto is_exception = exceptions.contains(qPrintable(base_name));
                 Ref<ImageTexture> icon =
                         editor_generate_icon(resourcepath, !p_dark_theme && !is_exception, scale, force_filter);
                 p_theme->set_icon(StringName(StringUtils::to_utf8(base_name)), "EditorIcons", icon);

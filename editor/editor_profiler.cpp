@@ -106,22 +106,23 @@ void EditorProfiler::clear() {
 }
 
 static String _get_percent_txt(float p_value, float p_total) {
-    if (p_total == 0.0f)
+    if (p_total == 0.0f) {
         p_total = 0.00001f;
+    }
     return String(StringUtils::num(p_value / p_total * 100, 1) + "%");
 }
 
 String EditorProfiler::_get_time_as_text(const Metric &m, float p_time, int p_calls) {
 
-    int dmode = display_mode->get_selected();
+    const int dmode = display_mode->get_selected();
 
     if (dmode == DISPLAY_FRAME_TIME) {
-        return rtos(p_time);
+        return StringUtils::pad_decimals(rtos(p_time*1000),2) + " ms";
     } else if (dmode == DISPLAY_AVERAGE_TIME) {
         if (p_calls == 0)
-            return "0";
+            return "0.00 ms";
         else
-            return rtos(p_time / p_calls);
+            return StringUtils::pad_decimals(rtos(1000*(p_time / p_calls)),2)+" ms";
     } else if (dmode == DISPLAY_FRAME_PERCENT) {
         return _get_percent_txt(p_time, m.frame_time);
     } else if (dmode == DISPLAY_PHYSICS_FRAME_PERCENT) {
@@ -731,7 +732,7 @@ EditorProfiler::EditorProfiler() {
     h_split->set_v_size_flags(SIZE_EXPAND_FILL);
 
     variables = memnew(Tree);
-    variables->set_custom_minimum_size(Size2(300, 0) * EDSCALE);
+    variables->set_custom_minimum_size(Size2(320, 0) * EDSCALE);
     variables->set_hide_folding(true);
     h_split->add_child(variables);
     variables->set_hide_root(true);
@@ -739,10 +740,10 @@ EditorProfiler::EditorProfiler() {
     variables->set_column_titles_visible(true);
     variables->set_column_title(0, TTR("Name"));
     variables->set_column_expand(0, true);
-    variables->set_column_min_width(0, 60);
+    variables->set_column_min_width(0, 60 * EDSCALE);
     variables->set_column_title(1, TTR("Time"));
     variables->set_column_expand(1, false);
-    variables->set_column_min_width(1, 60 * EDSCALE);
+    variables->set_column_min_width(1, 100 * EDSCALE);
     variables->set_column_title(2, TTR("Calls"));
     variables->set_column_expand(2, false);
     variables->set_column_min_width(2, 60 * EDSCALE);
@@ -751,7 +752,6 @@ EditorProfiler::EditorProfiler() {
     graph = memnew(TextureRect);
     graph->set_expand(true);
     graph->set_mouse_filter(MOUSE_FILTER_STOP);
-    //graph->set_ignore_mouse(false);
     graph->connect("draw", this, "_graph_tex_draw");
     graph->connect("gui_input", this, "_graph_tex_input");
     graph->connect("mouse_exited", this, "_graph_tex_mouse_exit");
@@ -762,12 +762,9 @@ EditorProfiler::EditorProfiler() {
     int metric_size = CLAMP(int(EDITOR_DEF("debugger/profiler_frame_history_size", 600)), 60, 1024);
     frame_metrics.resize(metric_size);
     last_metric = -1;
-    //cursor_metric=-1;
     hover_metric = -1;
 
     EDITOR_DEF("debugger/profiler_frame_max_functions", 64);
-
-    //display_mode=DISPLAY_FRAME_TIME;
 
     frame_delay = memnew(Timer);
     frame_delay->set_wait_time(0.1);
@@ -786,6 +783,4 @@ EditorProfiler::EditorProfiler() {
 
     seeking = false;
     graph_height = 1;
-
-    //activate->set_disabled(true);
 }

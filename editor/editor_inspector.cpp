@@ -1403,6 +1403,7 @@ bool EditorInspector::_is_property_disabled_by_feature_profile(const StringName 
 
 void EditorInspector::update_tree() {
 
+    using namespace StringUtils;
     //to update properly if all is refreshed
     StringName current_selected = property_selected;
     int current_focusable = -1;
@@ -1556,9 +1557,9 @@ void EditorInspector::update_tree() {
         String basename(p.name);
         if (!group.empty()) {
             if (!group_base.empty()) {
-                if (StringUtils::begins_with(basename,group_base)) {
-                    basename = StringUtils::replace_first(basename,group_base, "");
-                } else if (StringUtils::begins_with(group_base,basename)) {
+                if (begins_with(basename,group_base)) {
+                    basename = replace_first(basename,group_base, "");
+                } else if (begins_with(group_base,basename)) {
                     //keep it, this is used pretty often
                 } else {
                     group = ""; //no longer using group base, clear
@@ -1570,32 +1571,33 @@ void EditorInspector::update_tree() {
             basename = group + "/" + basename;
         }
 
-        String name(StringUtils::contains(basename,'/') ? StringUtils::right(basename,StringUtils::find_last(basename,'/') + 1) : basename);
+        String name(contains(basename,'/') ? right(basename,find_last(basename,'/') + 1) : basename);
 
         if (capitalize_paths) {
-            int dot = StringUtils::find(name,".");
-            if (dot != -1) {
-                se_string_view ov = StringUtils::right(name,dot);
-                name = StringUtils::substr(name,0, dot);
-                name = StringUtils::capitalize(name);
+            auto dot = find(name,".");
+            if (dot != String::npos) {
+                se_string_view ov = right(name,dot);
+                name = substr(name,0, dot);
+                name = capitalize(name);
                 name += ov;
 
             } else {
-                name = StringUtils::capitalize(name);
+                name = capitalize(name);
             }
         }
 
-        se_string_view path = StringUtils::left(basename,StringUtils::find_last(basename,'/'));
+        se_string_view path = left(basename,find_last(basename,'/'));
 
         if (use_filter && !filter.empty()) {
 
             String cat(path);
 
             if (capitalize_paths)
-                cat = StringUtils::capitalize(cat);
+                cat = capitalize(cat);
 
-            if (!StringUtils::is_subsequence_of(filter,cat,StringUtils::CaseInsensitive) && !StringUtils::is_subsequence_of(filter,name))
+            if (!is_subsequence_of(filter,cat,CaseInsensitive) && !is_subsequence_of(filter,name,CaseInsensitive) && !to_lower(property_prefix).contains(to_lower(filter)))
                 continue;
+
         }
 
         if (category_vbox == nullptr) {

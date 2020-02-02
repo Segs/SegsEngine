@@ -639,7 +639,7 @@ void ScriptCreateDialog::_update_dialog() {
         script_ok = false;
     }
     if (script_ok) {
-        _msg_script_valid(true, TTR("Script is valid."));
+        _msg_script_valid(true, TTR("Script path/name is valid."));
     }
 
     // Does script have named classes?

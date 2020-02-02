@@ -632,7 +632,7 @@ ShaderLanguage::Token ShaderLanguage::_get_token() {
                         idx++;
                     }
 
-                    return _make_token(TK_IDENTIFIER, StringName(str));
+                    return _make_token(TK_IDENTIFIER, StringName(str.replaced("dus_", "_")));
                 }
 
                 if (GETCHAR(0) > 32)
