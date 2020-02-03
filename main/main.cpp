@@ -761,7 +761,7 @@ Error Main::setup(bool p_second_phase) {
                 project_path = path;
             }
 #ifdef TOOLS_ENABLED
-            editor = true;
+            //editor = true;
 #endif
         } else if (*I == "-b" || *I == "--breakpoints") { // add breakpoints
 
