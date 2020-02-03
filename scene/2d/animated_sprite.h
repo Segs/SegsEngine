@@ -41,7 +41,7 @@ class SpriteFrames : public Resource {
 
         float speed;
         bool loop;
-        Vector<Ref<Texture> > frames;
+        PoolVector<Ref<Texture> > frames;
 
         Anim() {
             loop = true;
@@ -127,7 +127,7 @@ public:
         ERR_FAIL_COND(p_idx < 0)
         if (p_idx >= E->second.frames.size())
             return;
-        E->second.frames.write[p_idx] = p_frame;
+        E->second.frames.set(p_idx,p_frame);
     }
     void remove_frame(const StringName &p_anim, int p_idx);
     void clear(const StringName &p_anim);

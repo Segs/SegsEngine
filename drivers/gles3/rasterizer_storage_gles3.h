@@ -710,7 +710,7 @@ public:
         VS::MultimeshTransformFormat transform_format;
         VS::MultimeshColorFormat color_format;
         VS::MultimeshCustomDataFormat custom_data_format;
-        Vector<float> data;
+        PoolVector<float> data;
         AABB aabb;
         SelfList<MultiMesh> update_list;
         SelfList<MultiMesh> mesh_list;
@@ -781,7 +781,7 @@ public:
             RID texture;
             Vector<Vector3> normals;
             Vector<Plane> tangents;
-            Vector<Color> colors;
+            PODVector<Color> colors;
             Vector<Vector2> uvs;
             Vector<Vector2> uvs2;
             VS::PrimitiveType primitive;
@@ -826,7 +826,7 @@ public:
     struct Skeleton : RID_Data {
         int size=0; // put first to align from parent members
         Set<RasterizerScene::InstanceBase *> instances; //instances using skeleton
-        Vector<float> skel_texture;
+        PoolVector<float> skel_texture;
         SelfList<Skeleton> update_list;
         Transform2D base_transform_2d;
         GLuint texture=0;

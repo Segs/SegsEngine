@@ -485,7 +485,7 @@ public:
     // don't use these in a game!
     FUNC2RC(Vector<ObjectID>, instances_cull_aabb, const AABB &, RID)
     FUNC3RC(Vector<ObjectID>, instances_cull_ray, const Vector3 &, const Vector3 &, RID)
-    FUNC2RC(Vector<ObjectID>, instances_cull_convex, const Vector<Plane> &, RID)
+    FUNC2RC(Vector<ObjectID>, instances_cull_convex, Span<const Plane>, RID)
 
     FUNC3(instance_geometry_set_flag, RID, VS::InstanceFlags, bool)
     FUNC2(instance_geometry_set_cast_shadows_setting, RID, VS::ShadowCastingSetting)

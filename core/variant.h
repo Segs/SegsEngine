@@ -526,27 +526,19 @@ template <> GODOT_EXPORT Span<const float> Variant::as<Span<const float>>() cons
 template <> GODOT_EXPORT Span<const Vector2> Variant::as<Span<const Vector2>>() const;
 template <> GODOT_EXPORT Span<const Vector3> Variant::as<Span<const Vector3>>() const;
 
-template <> GODOT_EXPORT Vector<uint8_t> Variant::as<Vector<uint8_t>>() const;
-template <> GODOT_EXPORT Vector<int> Variant::as<Vector<int>>() const;
 template <> GODOT_EXPORT Vector<float> Variant::as<Vector<float>>() const;
 template <> GODOT_EXPORT Vector<Variant> Variant::as<Vector<Variant>>() const;
 template <> GODOT_EXPORT Vector<Vector2> Variant::as<Vector<Vector2>>() const;
 template <> GODOT_EXPORT Vector<Vector3> Variant::as<Vector<Vector3>>() const;
 template <> GODOT_EXPORT Vector<RID> Variant::as<Vector<RID>>() const;
 template <> GODOT_EXPORT PoolVector<RID> Variant::as<PoolVector<RID>>() const;
-template <> GODOT_EXPORT Vector<Color> Variant::as<Vector<Color>>() const;
 
-template <> GODOT_EXPORT Variant Variant::from(const Vector<uint8_t> &);
-template <> GODOT_EXPORT Variant Variant::from(const Vector<int> &);
 template <> GODOT_EXPORT Variant Variant::from(const Vector<float> &);
 template <> GODOT_EXPORT Variant Variant::from(const Vector<Variant> &);
 template <> GODOT_EXPORT Variant Variant::from(const Vector<String> &);
-template <> GODOT_EXPORT Variant Variant::from(const Vector<se_string_view> &);
 template <> GODOT_EXPORT Variant Variant::from(const Vector<Vector2> &);
 template <> GODOT_EXPORT Variant Variant::from(const Vector<Vector3> &);
-template <> GODOT_EXPORT Variant Variant::from(const Vector<Color> &);
 
-template <> GODOT_EXPORT Variant Variant::from(const Vector<Plane> &p_array);
 template <> GODOT_EXPORT Variant Variant::from(const Vector<RID> &p_array);
 template <> GODOT_EXPORT Variant Variant::from(const PoolVector<RID> &p_array);
 

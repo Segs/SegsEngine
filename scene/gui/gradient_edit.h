@@ -60,9 +60,9 @@ protected:
 	static void _bind_methods();
 
 public:
-	void set_ramp(const Vector<float> &p_offsets, const Vector<Color> &p_colors);
-	Vector<float> get_offsets() const;
-	Vector<Color> get_colors() const;
+	void set_ramp(const Vector<float> &p_offsets, const PODVector<Color> &p_colors);
+    PODVector<float> get_offsets() const;
+    PODVector<Color> get_colors() const;
 	void set_points(const PODVector<Gradient::Point> &p_points);
     PODVector<Gradient::Point> &get_points();
 	Size2 get_minimum_size() const override;

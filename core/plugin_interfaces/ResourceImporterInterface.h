@@ -67,6 +67,6 @@ public:
      * @param tgt will contain a vector of all resource names that need to be reimported
      * @note this method should not be called until editor ends it's current scan/import proces
      */
-    virtual void build_reconfigured_list(Vector<String> & /*tgt*/) {}
+    virtual void build_reconfigured_list(PODVector<String> &) {}
     virtual ~ResourceImporterInterface() = default;
 };

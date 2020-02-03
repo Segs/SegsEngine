@@ -77,7 +77,7 @@ void ResourceImporterTexture::_texture_reimport_normal(StringName p_tex_path) {
     singleton->mutex->unlock();
 }
 
-void ResourceImporterTexture::build_reconfigured_list(Vector<String> &to_reimport) {
+void ResourceImporterTexture::build_reconfigured_list(PODVector<String> &to_reimport) {
 
     mutex->lock();
 

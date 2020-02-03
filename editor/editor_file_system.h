@@ -273,7 +273,7 @@ public:
     String get_file_type(se_string_view p_file) const;
     EditorFileSystemDirectory *find_file(se_string_view p_file, int *r_index) const;
 
-    void reimport_files(const Vector<String> &p_files);
+    void reimport_files(const PODVector<String> &p_files);
 
     void update_script_classes();
 

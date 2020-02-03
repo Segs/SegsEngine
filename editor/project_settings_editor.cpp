@@ -1309,7 +1309,7 @@ void ProjectSettingsEditor::_translation_res_option_changed() {
     String path = ed->get_metadata(1);
     int which = ed->get_range(1);
 
-    Vector<String> langs = TranslationServer::get_all_locales();
+    PODVector<String> langs = TranslationServer::get_all_locales();
 
     ERR_FAIL_INDEX(which, langs.size())
 
@@ -1504,8 +1504,8 @@ void ProjectSettingsEditor::_update_translations() {
         }
     }
 
-    Vector<String> langs = TranslationServer::get_all_locales();
-    Vector<String> names = TranslationServer::get_all_locale_names();
+    PODVector<String> langs = TranslationServer::get_all_locales();
+    PODVector<String> names = TranslationServer::get_all_locale_names();
 
     //update filter tab
     Array l_filter_all;
@@ -1647,9 +1647,10 @@ void ProjectSettingsEditor::_update_translations() {
                     t2->set_text(1, StringName(langnames));
                     t2->set_editable(1, true);
                     t2->set_metadata(1, path);
-                    int idx = langs.find(locale);
-                    if (idx < 0)
-                        idx = 0;
+                    auto iter = langs.find(locale);
+                    if (iter==langs.end())
+                        iter = langs.begin();
+                    int idx = eastl::distance(langs.begin(),iter);
 
                     int f_idx = translation_locales_idxs_remap.find(idx);
                     if (f_idx != -1 && fl_idx_count > 0 && filter_mode == SHOW_ONLY_SELECTED_LOCALES) {

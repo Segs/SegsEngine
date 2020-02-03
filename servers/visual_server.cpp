@@ -115,8 +115,8 @@ Array VisualServer::_instances_cull_ray_bind(const Vector3 &p_from, const Vector
 }
 
 Array VisualServer::_instances_cull_convex_bind(const Array &p_convex, RID p_scenario) const {
-
-    Vector<Plane> planes;
+    //TODO: SEGS: use a fixed vector here, with a sane'ish number of on-stack entries, and marked as growing to allow for larger counts.
+    PODVector<Plane> planes;
     for (int i = 0; i < p_convex.size(); ++i) {
         Variant v = p_convex[i];
         ERR_FAIL_COND_V(v.get_type() != VariantType::PLANE, Array())

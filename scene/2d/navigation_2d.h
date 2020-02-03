@@ -90,7 +90,7 @@ class Navigation2D : public Node2D {
 			}
 		};
 
-		Vector<Edge> edges;
+		PODVector<Edge> edges;
 
 		Vector2 center;
 		Vector2 entry;
@@ -143,7 +143,7 @@ class Navigation2D : public Node2D {
 		return p;
 	}
 
-	_FORCE_INLINE_ Vector2 _get_vertex(const Point &p_point) const {
+	Vector2 _get_vertex(const Point &p_point) const {
 
 		return Vector2(p_point.x, p_point.y) * cell_size;
 	}

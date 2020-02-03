@@ -250,8 +250,9 @@ void SpriteFrames::_set_frames(const Array &p_frames) {
     ERR_FAIL_COND(E==animations.end())
 
     E->second.frames.resize(p_frames.size());
+    auto wr(E->second.frames.write());
     for (int i = 0; i < E->second.frames.size(); i++)
-        E->second.frames.write[i] = refFromVariant<Texture>(p_frames[i]);
+        wr[i] = refFromVariant<Texture>(p_frames[i]);
 }
 Array SpriteFrames::_get_frames() const {
 

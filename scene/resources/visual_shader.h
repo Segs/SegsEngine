@@ -125,7 +125,7 @@ public:
     Vector2 get_node_position(Type p_type, int p_id) const;
     Ref<VisualShaderNode> get_node(Type p_type, int p_id) const;
 
-    Vector<int> get_node_list(Type p_type) const;
+    PODVector<int> get_node_list(Type p_type) const;
     int get_valid_node_id(Type p_type) const;
 
     int find_node_id(Type p_type, const Ref<VisualShaderNode> &p_node) const;

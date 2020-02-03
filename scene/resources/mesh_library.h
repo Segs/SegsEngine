@@ -93,7 +93,7 @@ public:
 
     int find_item_by_name(se_string_view p_name) const;
 
-    Vector<int> get_item_list() const;
+    PODVector<int> get_item_list() const;
     int get_last_unused_item_id() const;
 
     MeshLibrary();

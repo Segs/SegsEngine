@@ -168,10 +168,10 @@ public:
     void remove_tool_menu_item(const StringName &p_name);
 
     void set_input_event_forwarding_always_enabled();
-    bool is_input_event_forwarding_always_enabled() { return input_event_forwarding_always_enabled; }
+    bool is_input_event_forwarding_always_enabled() const { return input_event_forwarding_always_enabled; }
 
     void set_force_draw_over_forwarding_enabled();
-    bool is_force_draw_over_forwarding_enabled() { return force_draw_over_forwarding_enabled; }
+    bool is_force_draw_over_forwarding_enabled() const { return force_draw_over_forwarding_enabled; }
 
     void notify_main_screen_changed(se_string_view screen_name);
     void notify_scene_changed(const Node *scn_root);

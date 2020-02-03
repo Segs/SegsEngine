@@ -46,7 +46,7 @@ public:
     Map<StringName, Variant> values;
     List<PropertyInfo> properties;
     ResourceImporterInterface *importer;
-    Vector<String> paths;
+    PODVector<String> paths;
     Set<StringName> checked;
     bool checking;
 
@@ -191,7 +191,7 @@ void ImportDock::_update_options(const Ref<ConfigFile> &p_config) {
     }
 }
 
-void ImportDock::set_edit_multiple_paths(const Vector<String> &p_paths) {
+void ImportDock::set_edit_multiple_paths(const PODVector<String> &p_paths) {
 
     clear();
 

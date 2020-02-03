@@ -178,7 +178,7 @@ void MeshLibraryEditor::_import_scene(Node *p_scene,const Ref<MeshLibrary> &p_li
 
         Vector<Ref<Mesh> > meshes;
         Vector<Transform> transforms;
-        Vector<int> ids = p_library->get_item_list();
+        PODVector<int> ids = p_library->get_item_list();
         for (int i = 0; i < ids.size(); i++) {
 
             if (mesh_instances.contains(ids[i])) {

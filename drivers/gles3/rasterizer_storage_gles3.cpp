@@ -3966,7 +3966,8 @@ AABB RasterizerStorageGLES3::mesh_get_aabb(RID p_mesh, RID p_skeleton) const {
 
                 int sbs = sk->size;
                 ERR_CONTINUE(bs > sbs);
-                const float *texture = sk->skel_texture.ptr();
+                auto skel_tex_rd(sk->skel_texture.read());
+                const float *texture = skel_tex_rd.ptr();
 
                 bool first = true;
                 if (sk->use_2d) {
@@ -4331,13 +4332,14 @@ void RasterizerStorageGLES3::multimesh_allocate(RID p_multimesh, int p_instances
         int format_floats = multimesh->color_floats + multimesh->xform_floats + multimesh->custom_data_floats;
 
         multimesh->data.resize(format_floats * p_instances);
+        auto multimesh_wr(multimesh->data.write());
 
-        float *dataptr = multimesh->data.ptrw();
+        float *dataptr = multimesh_wr.ptr();
 
         for (int i = 0; i < p_instances * format_floats; i += format_floats) {
 
-            int color_from = 0;
-            int custom_data_from = 0;
+            int color_from;
+            int custom_data_from;
 
             if (multimesh->transform_format == VS::MULTIMESH_TRANSFORM_2D) {
                 dataptr[i + 0] = 1.0;
@@ -4466,7 +4468,9 @@ void RasterizerStorageGLES3::multimesh_instance_set_transform(RID p_multimesh, i
     ERR_FAIL_COND(multimesh->transform_format == VS::MULTIMESH_TRANSFORM_2D)
 
     int stride = multimesh->color_floats + multimesh->xform_floats + multimesh->custom_data_floats;
-    float *dataptr = &multimesh->data.write[stride * p_index];
+    auto multimesh_wr(multimesh->data.write());
+
+    float *dataptr = &multimesh_wr[stride * p_index];
 
     dataptr[0] = p_transform.basis.elements[0][0];
     dataptr[1] = p_transform.basis.elements[0][1];
@@ -4497,7 +4501,8 @@ void RasterizerStorageGLES3::multimesh_instance_set_transform_2d(RID p_multimesh
     ERR_FAIL_COND(multimesh->transform_format == VS::MULTIMESH_TRANSFORM_3D)
 
     int stride = multimesh->color_floats + multimesh->xform_floats + multimesh->custom_data_floats;
-    float *dataptr = &multimesh->data.write[stride * p_index];
+    auto multimesh_wr(multimesh->data.write());
+    float *dataptr = &multimesh_wr[stride * p_index];
 
     dataptr[0] = p_transform.elements[0][0];
     dataptr[1] = p_transform.elements[1][0];
@@ -4525,7 +4530,9 @@ void RasterizerStorageGLES3::multimesh_instance_set_color(RID p_multimesh, int p
 
 
     int stride = multimesh->color_floats + multimesh->xform_floats + multimesh->custom_data_floats;
-    float *dataptr = &multimesh->data.write[stride * p_index + multimesh->xform_floats];
+    auto multimesh_wr(multimesh->data.write());
+
+    float *dataptr = &multimesh_wr[stride * p_index + multimesh->xform_floats];
 
     if (multimesh->color_format == VS::MULTIMESH_COLOR_8BIT) {
 
@@ -4559,7 +4566,9 @@ void RasterizerStorageGLES3::multimesh_instance_set_custom_data(RID p_multimesh,
     ERR_FAIL_INDEX(multimesh->custom_data_format, VS::MULTIMESH_CUSTOM_DATA_MAX);
 
     int stride = multimesh->color_floats + multimesh->xform_floats + multimesh->custom_data_floats;
-    float *dataptr = &multimesh->data.write[stride * p_index + multimesh->xform_floats + multimesh->color_floats];
+    auto multimesh_wr(multimesh->data.write());
+
+    float *dataptr = &multimesh_wr[stride * p_index + multimesh->xform_floats + multimesh->color_floats];
 
     if (multimesh->custom_data_format == VS::MULTIMESH_CUSTOM_DATA_8BIT) {
 
@@ -4599,7 +4608,9 @@ Transform RasterizerStorageGLES3::multimesh_instance_get_transform(RID p_multime
     ERR_FAIL_COND_V(multimesh->transform_format == VS::MULTIMESH_TRANSFORM_2D, Transform())
 
     int stride = multimesh->color_floats + multimesh->xform_floats + multimesh->custom_data_floats;
-    float *dataptr = &multimesh->data.write[stride * p_index];
+    auto multimesh_wr(multimesh->data.write());
+
+    float *dataptr = &multimesh_wr[stride * p_index];
 
     Transform xform;
 
@@ -4626,7 +4637,9 @@ Transform2D RasterizerStorageGLES3::multimesh_instance_get_transform_2d(RID p_mu
     ERR_FAIL_COND_V(multimesh->transform_format == VS::MULTIMESH_TRANSFORM_3D, Transform2D())
 
     int stride = multimesh->color_floats + multimesh->xform_floats + multimesh->custom_data_floats;
-    float *dataptr = &multimesh->data.write[stride * p_index];
+    auto multimesh_wr(multimesh->data.write());
+
+    float* dataptr = &multimesh_wr[stride * p_index];
 
     Transform2D xform;
 
@@ -4648,7 +4661,9 @@ Color RasterizerStorageGLES3::multimesh_instance_get_color(RID p_multimesh, int 
     ERR_FAIL_INDEX_V(multimesh->color_format, VS::MULTIMESH_COLOR_MAX, Color())
 
     int stride = multimesh->color_floats + multimesh->xform_floats + multimesh->custom_data_floats;
-    float *dataptr = &multimesh->data.write[stride * p_index + multimesh->xform_floats];
+    auto multimesh_wr(multimesh->data.write());
+
+    float* dataptr = &multimesh_wr[stride * p_index + multimesh->xform_floats];
 
     if (multimesh->color_format == VS::MULTIMESH_COLOR_8BIT) {
         union {
@@ -4682,7 +4697,9 @@ Color RasterizerStorageGLES3::multimesh_instance_get_custom_data(RID p_multimesh
     ERR_FAIL_INDEX_V(multimesh->custom_data_format, VS::MULTIMESH_CUSTOM_DATA_MAX, Color())
 
     int stride = multimesh->color_floats + multimesh->xform_floats + multimesh->custom_data_floats;
-    float *dataptr = &multimesh->data.write[stride * p_index + multimesh->xform_floats + multimesh->color_floats];
+    auto multimesh_wr(multimesh->data.write());
+
+    float* dataptr = &multimesh_wr[stride * p_index + multimesh->xform_floats + multimesh->color_floats];
 
     if (multimesh->custom_data_format == VS::MULTIMESH_CUSTOM_DATA_8BIT) {
         union {
@@ -4711,14 +4728,14 @@ void RasterizerStorageGLES3::multimesh_set_as_bulk_array(RID p_multimesh, const 
 
     MultiMesh *multimesh = multimesh_owner.getornull(p_multimesh);
     ERR_FAIL_COND(!multimesh)
-    ERR_FAIL_COND(!multimesh->data.ptr())
+    ERR_FAIL_COND(multimesh->data.empty())
 
     int dsize = multimesh->data.size();
 
     ERR_FAIL_COND(dsize != p_array.size())
 
     PoolVector<float>::Read r = p_array.read();
-    memcpy(multimesh->data.ptrw(), r.ptr(), dsize * sizeof(float));
+    memcpy(multimesh->data.write().ptr(), r.ptr(), dsize * sizeof(float));
 
     multimesh->dirty_data = true;
     multimesh->dirty_aabb = true;
@@ -4762,7 +4779,7 @@ void RasterizerStorageGLES3::update_dirty_multimeshes() {
         if (multimesh->size && multimesh->dirty_data) {
 
             glBindBuffer(GL_ARRAY_BUFFER, multimesh->buffer);
-            glBufferSubData(GL_ARRAY_BUFFER, 0, multimesh->data.size() * sizeof(float), multimesh->data.ptr());
+            glBufferSubData(GL_ARRAY_BUFFER, 0, multimesh->data.size() * sizeof(float), multimesh->data.read().ptr());
             glBindBuffer(GL_ARRAY_BUFFER, 0);
         }
 
@@ -4778,7 +4795,9 @@ void RasterizerStorageGLES3::update_dirty_multimeshes() {
 
             int stride = multimesh->color_floats + multimesh->xform_floats + multimesh->custom_data_floats;
             int count = multimesh->data.size();
-            float *data = multimesh->data.ptrw();
+            auto multimesh_wr(multimesh->data.write());
+
+            float* data = &multimesh_wr[0];
 
             AABB aabb;
 
@@ -5043,7 +5062,9 @@ void RasterizerStorageGLES3::skeleton_bone_set_transform(RID p_skeleton, int p_b
     ERR_FAIL_INDEX(p_bone, skeleton->size)
     ERR_FAIL_COND(skeleton->use_2d)
 
-    float *texture = skeleton->skel_texture.ptrw();
+    auto skeleton_wr(skeleton->skel_texture.write());
+
+    float *texture = &skeleton_wr[0];
 
     int base_ofs = ((p_bone / 256) * 256) * 3 * 4 + (p_bone % 256) * 4;
 
@@ -5075,7 +5096,9 @@ Transform RasterizerStorageGLES3::skeleton_bone_get_transform(RID p_skeleton, in
     ERR_FAIL_INDEX_V(p_bone, skeleton->size, Transform())
     ERR_FAIL_COND_V(skeleton->use_2d, Transform())
 
-    const float *texture = skeleton->skel_texture.ptr();
+    auto skeleton_rd(skeleton->skel_texture.read());
+
+    const float* texture = &skeleton_rd[0];
 
     Transform ret;
 
@@ -5106,7 +5129,9 @@ void RasterizerStorageGLES3::skeleton_bone_set_transform_2d(RID p_skeleton, int 
     ERR_FAIL_INDEX(p_bone, skeleton->size);
     ERR_FAIL_COND(!skeleton->use_2d)
 
-    float *texture = skeleton->skel_texture.ptrw();
+    auto skeleton_wr(skeleton->skel_texture.write());
+
+    float* texture = &skeleton_wr[0];
 
     int base_ofs = ((p_bone / 256) * 256) * 2 * 4 + (p_bone % 256) * 4;
 
@@ -5132,7 +5157,9 @@ Transform2D RasterizerStorageGLES3::skeleton_bone_get_transform_2d(RID p_skeleto
     ERR_FAIL_INDEX_V(p_bone, skeleton->size, Transform2D());
     ERR_FAIL_COND_V(!skeleton->use_2d, Transform2D())
 
-    const float *texture = skeleton->skel_texture.ptr();
+    auto skeleton_rd(skeleton->skel_texture.read());
+
+    const float* texture = &skeleton_rd[0];
 
     Transform2D ret;
 
@@ -5172,7 +5199,7 @@ void RasterizerStorageGLES3::update_dirty_skeletons() {
                 height++;
 
             glBindTexture(GL_TEXTURE_2D, skeleton->texture);
-            glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 256, height * (skeleton->use_2d ? 2 : 3), GL_RGBA, GL_FLOAT, skeleton->skel_texture.ptr());
+            glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 256, height * (skeleton->use_2d ? 2 : 3), GL_RGBA, GL_FLOAT, skeleton->skel_texture.read().ptr());
         }
 
         for (RasterizerScene::InstanceBase *E : skeleton->instances) {

@@ -477,15 +477,16 @@ void VoxelLightBaker::_plot_face(int p_idx, int p_level, int p_x, int p_y, int p
     }
 }
 
-Vector<Color> VoxelLightBaker::_get_bake_texture(Ref<Image> p_image, const Color &p_color_mul, const Color &p_color_add) {
+PODVector<Color> VoxelLightBaker::_get_bake_texture(Ref<Image> p_image, const Color &p_color_mul,
+        const Color &p_color_add) {
 
-    Vector<Color> ret;
+    PODVector<Color> ret;
 
     if (not p_image || p_image->empty()) {
 
         ret.resize(bake_texture_size * bake_texture_size);
         for (int i = 0; i < bake_texture_size * bake_texture_size; i++) {
-            ret.write[i] = p_color_add;
+            ret[i] = p_color_add;
         }
 
         return ret;
@@ -509,13 +510,13 @@ Vector<Color> VoxelLightBaker::_get_bake_texture(Ref<Image> p_image, const Color
 
         c.a = r[i * 4 + 3] / 255.0;
 
-        ret.write[i] = c;
+        ret[i] = c;
     }
 
     return ret;
 }
 
-VoxelLightBaker::MaterialCache VoxelLightBaker::_get_material_cache(const Ref<Material>& p_material) {
+const VoxelLightBaker::MaterialCache &VoxelLightBaker::_get_material_cache(const Ref<Material> &p_material) {
 
     //this way of obtaining materials is inaccurate and also does not support some compressed formats very well
     Ref<SpatialMaterial> mat = dynamic_ref_cast<SpatialMaterial>(p_material);
@@ -567,7 +568,7 @@ VoxelLightBaker::MaterialCache VoxelLightBaker::_get_material_cache(const Ref<Ma
     }
 
     material_cache[p_material] = mc;
-    return mc;
+    return material_cache[p_material];
 }
 
 void VoxelLightBaker::plot_mesh(const Transform &p_xform, Ref<Mesh> &p_mesh, const Vector<Ref<Material> > &p_materials, const Ref<Material> &p_override_material) {

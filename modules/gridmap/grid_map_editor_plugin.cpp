@@ -902,15 +902,14 @@ void GridMapEditor::update_palette() {
     search_box->set_editable(true);
     info_message->hide();
 
-    Vector<int> ids;
-    ids = mesh_library->get_item_list();
+    PODVector<int> ids = mesh_library->get_item_list();
 
     List<_CGMEItemSort> il;
-    for (int i = 0; i < ids.size(); i++) {
+    for (int id : ids) {
 
         _CGMEItemSort is;
-        is.id = ids[i];
-        is.name = mesh_library->get_item_name(ids[i]);
+        is.id = id;
+        is.name = mesh_library->get_item_name(id);
         il.push_back(is);
     }
     il.sort();

@@ -102,8 +102,8 @@ public:
 
     StringName translate(const StringName &p_message) const;
 
-    static Vector<String> get_all_locales();
-    static Vector<String> get_all_locale_names();
+    static PODVector<String> get_all_locales();
+    static PODVector<String> get_all_locale_names();
     static bool is_locale_valid(se_string_view p_locale);
     static String standardize_locale(se_string_view p_locale);
     static se_string_view get_language_code(se_string_view p_locale);

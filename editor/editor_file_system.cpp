@@ -519,7 +519,7 @@ bool EditorFileSystem::_update_scan_actions() {
 
     bool fs_changed = false;
 
-    Vector<String> reimports;
+    PODVector<String> reimports;
     PoolVector<String> reloads;
 
     for (ItemAction &ia : scan_actions) {
@@ -1937,7 +1937,7 @@ void EditorFileSystem::_find_group_files(EditorFileSystemDirectory *efd, Map<Str
     }
 }
 
-void EditorFileSystem::reimport_files(const Vector<String> &p_files) {
+void EditorFileSystem::reimport_files(const PODVector<String> &p_files) {
 
     { //check that .import folder exists
         DirAccess *da = DirAccess::open("res://");
@@ -2018,8 +2018,7 @@ void EditorFileSystem::reimport_files(const Vector<String> &p_files) {
 
 Error EditorFileSystem::_resource_import(se_string_view p_path) {
 
-    Vector<String> files;
-    files.push_back(String(p_path));
+    PODVector<String> files { String(p_path) };
 
     singleton->update_file(p_path);
     singleton->reimport_files(files);

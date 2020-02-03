@@ -933,15 +933,9 @@ void EditorPlugin::_bind_methods() {
     BIND_ENUM_CONSTANT(DOCK_SLOT_MAX)
 }
 
-EditorPlugin::EditorPlugin() :
-        undo_redo(nullptr),
-        input_event_forwarding_always_enabled(false),
-        force_draw_over_forwarding_enabled(false),
-        last_main_screen_name("") {
-}
+EditorPlugin::EditorPlugin() = default;
 
-EditorPlugin::~EditorPlugin() {
-}
+EditorPlugin::~EditorPlugin() = default;
 
 EditorPluginCreateFunc EditorPlugins::creation_funcs[MAX_CREATE_FUNCS];
 

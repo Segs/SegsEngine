@@ -457,30 +457,33 @@ void GradientEdit::_color_changed(const Color &p_color) {
     emit_signal("ramp_changed");
 }
 
-void GradientEdit::set_ramp(const Vector<float> &p_offsets, const Vector<Color> &p_colors) {
+void GradientEdit::set_ramp(const Vector<float> &p_offsets, const PODVector<Color> &p_colors) {
 
     ERR_FAIL_COND(p_offsets.size() != p_colors.size())
     points.clear();
+    points.reserve(p_offsets.size());
     for (int i = 0; i < p_offsets.size(); i++) {
         Gradient::Point p;
         p.offset = p_offsets[i];
         p.color = p_colors[i];
-        points.push_back(p);
+        points.emplace_back(p);
     }
 
     eastl::sort(points.begin(),points.end());
     update();
 }
 
-Vector<float> GradientEdit::get_offsets() const {
-    Vector<float> ret;
+PODVector<float> GradientEdit::get_offsets() const {
+    PODVector<float> ret;
+    ret.reserve(points.size());
     for (int i = 0; i < points.size(); i++)
         ret.push_back(points[i].offset);
     return ret;
 }
 
-Vector<Color> GradientEdit::get_colors() const {
-    Vector<Color> ret;
+PODVector<Color> GradientEdit::get_colors() const {
+    PODVector<Color> ret;
+    ret.reserve(points.size());
     for (int i = 0; i < points.size(); i++)
         ret.push_back(points[i].color);
     return ret;

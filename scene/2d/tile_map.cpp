@@ -560,7 +560,7 @@ void TileMap::update_dirty_quadrants() {
                 tex->draw_rect_region(canvas_item, rect, r, modulate, c.transpose, normal_map, clip_uv);
             }
 
-            Vector<TileSet::ShapeData> shapes = tile_set->tile_get_shapes(c.id);
+            const PODVector<TileSet::ShapeData> &shapes = tile_set->tile_get_shapes(c.id);
 
             for (int j = 0; j < shapes.size(); j++) {
                 Ref<Shape2D> shape = shapes[j].shape;

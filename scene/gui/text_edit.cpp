@@ -6134,8 +6134,8 @@ bool TextEdit::is_folded(int p_line) const {
     return !is_line_hidden(p_line) && is_line_hidden(p_line + 1);
 }
 
-Vector<int> TextEdit::get_folded_lines() const {
-    Vector<int> folded_lines;
+PODVector<int> TextEdit::get_folded_lines() const {
+    PODVector<int> folded_lines;
 
     for (int i = 0; i < m_priv->text.size(); i++) {
         if (is_folded(i)) {

@@ -49,6 +49,8 @@
 #include "scene/main/viewport.h"
 #include "scene/resources/packed_scene.h"
 
+#include "EASTL/sort.h"
+
 IMPL_GDCLASS(FileSystemDock)
 
 Ref<Texture> FileSystemDock::_get_tree_item_icon(EditorFileSystemDirectory *p_dir, int p_idx) {
@@ -1505,9 +1507,9 @@ void FileSystemDock::_move_operation_confirm(se_string_view p_to_path, bool over
     }
 }
 
-Vector<String> FileSystemDock::_tree_get_selected(bool remove_self_inclusion) {
+PODVector<String> FileSystemDock::_tree_get_selected(bool remove_self_inclusion) {
     // Build a list of selected items with the active one at the first position.
-    Vector<String> selected_strings;
+    PODVector<String> selected_strings;
 
     TreeItem *favorites_item = tree->get_root()->get_children();
     TreeItem *active_selected = tree->get_selected();
@@ -1530,26 +1532,27 @@ Vector<String> FileSystemDock::_tree_get_selected(bool remove_self_inclusion) {
     return selected_strings;
 }
 
-Vector<String> FileSystemDock::_remove_self_included_paths(Vector<String> selected_strings) {
+PODVector<String> FileSystemDock::_remove_self_included_paths(const PODVector<String> &selected_strings) {
     // Remove paths or files that are included into another.
-    if (selected_strings.size() > 1) {
-        selected_strings.sort_custom<NaturalNoCaseComparator>();
+    PODVector<String> res = selected_strings;
+    if (res.size() > 1) {
+        eastl::sort(res.begin(), res.end(), NaturalNoCaseComparator());
         String last_path;
-        for (int i = 0; i < selected_strings.size(); i++) {
-            if (!last_path.empty() && StringUtils::begins_with(selected_strings[i],last_path)) {
-                selected_strings.remove(i);
+        for (int i = 0; i < res.size(); i++) {
+            if (!last_path.empty() && StringUtils::begins_with(res[i],last_path)) {
+                res.erase_at(i);
                 i--;
             }
-            if (StringUtils::ends_with(selected_strings[i],"/")) {
-                last_path = selected_strings[i];
+            if (StringUtils::ends_with(res[i],"/")) {
+                last_path = res[i];
             }
         }
     }
-    return selected_strings;
+    return res;
 }
 
 void FileSystemDock::_tree_rmb_option(int p_option) {
-    Vector<String> selected_strings = _tree_get_selected(false);
+    PODVector<String> selected_strings = _tree_get_selected(false);
 
     // Execute the current option.
     switch (p_option) {
@@ -1583,14 +1586,15 @@ void FileSystemDock::_tree_rmb_option(int p_option) {
 
 void FileSystemDock::_file_list_rmb_option(int p_option) {
     PODVector<int> selected_id = files->get_selected_items();
-    Vector<String> selected;
-    for (int i = 0; i < selected_id.size(); i++) {
-        selected.push_back(files->get_item_metadata(selected_id[i]));
+    PODVector<String> selected;
+    selected.reserve(selected_id.size());
+    for (int i : selected_id) {
+        selected.emplace_back(files->get_item_metadata(i));
     }
     _file_option(p_option, selected);
 }
 
-void FileSystemDock::_file_option(int p_option, const Vector<String> &p_selected) {
+void FileSystemDock::_file_option(int p_option, const PODVector<String> &p_selected) {
     // The first one should be the active item.
 
     switch (p_option) {
@@ -1696,7 +1700,7 @@ void FileSystemDock::_file_option(int p_option, const Vector<String> &p_selected
         case FILE_MOVE: {
             // Move the files to a given location.
             to_move.clear();
-            Vector<String> collapsed_paths = _remove_self_included_paths(p_selected);
+            PODVector<String> collapsed_paths = _remove_self_included_paths(p_selected);
             for (int i = collapsed_paths.size() - 1; i >= 0; i--) {
                 String fpath = collapsed_paths[i];
                 if (fpath != "res://") {
@@ -1736,7 +1740,7 @@ void FileSystemDock::_file_option(int p_option, const Vector<String> &p_selected
             // Remove the selected files.
             Vector<String> remove_files;
             Vector<String> remove_folders;
-            Vector<String> collapsed_paths = _remove_self_included_paths(p_selected);
+            PODVector<String> collapsed_paths = _remove_self_included_paths(p_selected);
 
             for (int i = 0; i < collapsed_paths.size(); i++) {
                 String fpath = collapsed_paths[i];
@@ -1901,7 +1905,7 @@ Variant FileSystemDock::get_drag_data_fw(const Point2 &p_point, Control *p_from)
     bool all_favorites = true;
     bool all_not_favorites = true;
 
-    Vector<String> paths;
+    PODVector<String> paths;
 
     if (p_from == tree) {
         // Check if the first selected is in favorite.
@@ -2172,7 +2176,7 @@ void FileSystemDock::_get_drag_target_folder(String &target, bool &target_favori
 }
 
 void FileSystemDock::_file_and_folders_fill_popup(
-        PopupMenu *p_popup, const Vector<String>& p_paths, bool p_display_path_dependent_options) {
+        PopupMenu *p_popup, const PODVector<String> &p_paths, bool p_display_path_dependent_options) {
     // Add options for files and folders.
     ERR_FAIL_COND_MSG(p_paths.empty(), "Path cannot be empty.")
 
@@ -2186,7 +2190,7 @@ void FileSystemDock::_file_and_folders_fill_popup(
     bool all_folders = true;
     bool all_favorites = true;
     bool all_not_favorites = true;
-    for (int i = 0; i < p_paths.size(); i++) {
+    for (size_t i = 0; i < p_paths.size(); i++) {
         String fpath = p_paths[i];
         if (StringUtils::ends_with(fpath, "/")) {
             foldernames.push_back(fpath);
@@ -2285,7 +2289,7 @@ void FileSystemDock::_file_and_folders_fill_popup(
 
 void FileSystemDock::_tree_rmb_select(const Vector2 &p_pos) {
     // Right click is pressed in the tree.
-    Vector<String> paths = _tree_get_selected(false);
+    PODVector<String> paths = _tree_get_selected(false);
 
     if (paths.size() == 1) {
         if (StringUtils::ends_with(paths[0],"/")) {
@@ -2324,7 +2328,7 @@ void FileSystemDock::_tree_empty_selected() {
 
 void FileSystemDock::_file_list_rmb_select(int p_item, const Vector2 &p_pos) {
     // Right click is pressed in the file list.
-    Vector<String> paths;
+    PODVector<String> paths;
     for (int i = 0; i < files->get_item_count(); i++) {
         if (!files->is_selected(i))
             continue;
@@ -2431,7 +2435,7 @@ void FileSystemDock::_update_import_dock() {
         return;
 
     // List selected.
-    Vector<String> selected;
+    PODVector<String> selected;
     if (display_mode == DISPLAY_MODE_TREE_ONLY) {
         // Use the tree
         selected = _tree_get_selected();
@@ -2447,11 +2451,9 @@ void FileSystemDock::_update_import_dock() {
     }
 
     // Check import.
-    Vector<String> imports;
+    PODVector<String> imports;
     String import_type;
-    for (int i = 0; i < selected.size(); i++) {
-        String fpath = selected[i];
-
+    for (const String &fpath : selected) {
         if (StringUtils::ends_with(fpath,"/")) {
             imports.clear();
             break;
@@ -2476,7 +2478,7 @@ void FileSystemDock::_update_import_dock() {
             imports.clear();
             break;
         }
-        imports.push_back(fpath);
+        imports.emplace_back(fpath);
     }
 
     if (imports.empty()) {

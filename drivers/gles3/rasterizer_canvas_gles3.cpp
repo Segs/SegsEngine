@@ -652,8 +652,8 @@ void _render_poly_line(RasterizerCanvasGLES3 *self, RasterizerCanvas::Item::Comm
             glEnable(GL_LINE_SMOOTH);
 
         if (pline->multiline) {
-            int todo = pline->lines.size() / 2;
-            int max_per_call = self->data.polygon_buffer_size / (sizeof(real_t) * 4);
+            size_t todo = pline->lines.size() / 2;
+            uint32_t max_per_call = self->data.polygon_buffer_size / (sizeof(real_t) * 4);
             int offset = 0;
 
             while (todo) {
@@ -822,8 +822,7 @@ void _render_multimesh(RasterizerCanvasGLES3 *self,RasterizerCanvas::Item::Comma
         amount = multi_mesh->size;
     }
 
-    for (int j = 0; j < mesh_data->surfaces.size(); j++) {
-        RasterizerStorageGLES3::Surface *s = mesh_data->surfaces[j];
+    for (RasterizerStorageGLES3::Surface* s : mesh_data->surfaces) {
         // materials are ignored in 2D meshes, could be added but many things (ie, lighting mode, reading from screen, etc) would break as they are not meant be set up at this point of drawing
         glBindVertexArray(s->instancing_array_id);
 

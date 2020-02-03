@@ -40,7 +40,7 @@ class LineBuilder {
 public:
 	// TODO Move in a struct and reference it
 	// Input
-	Vector<Vector2> points;
+	PODVector<Vector2> points;
 	Line2D::LineJointMode joint_mode;
 	Line2D::LineCapMode begin_cap_mode;
 	Line2D::LineCapMode end_cap_mode;

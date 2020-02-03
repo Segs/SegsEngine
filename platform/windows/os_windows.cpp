@@ -2794,22 +2794,22 @@ void OS_Windows::set_native_icon(const String &p_filename) {
 
     // Read the big icon
     DWORD bytecount_big = icon_dir->idEntries[big_icon_index].dwBytesInRes;
-    Vector<uint8_t> data_big;
+    PODVector<uint8_t> data_big;
     data_big.resize(bytecount_big);
     pos = icon_dir->idEntries[big_icon_index].dwImageOffset;
     f->seek(pos);
-    f->get_buffer((uint8_t *)&data_big.write[0], bytecount_big);
-    HICON icon_big = CreateIconFromResource((PBYTE)&data_big.write[0], bytecount_big, TRUE, 0x00030000);
+    f->get_buffer((uint8_t *)data_big.data(), bytecount_big);
+    HICON icon_big = CreateIconFromResource((PBYTE)data_big.data(), bytecount_big, TRUE, 0x00030000);
     ERR_FAIL_COND_MSG(!icon_big, "Could not create " + itos(big_icon_width) + "x" + itos(big_icon_width) + " @" + itos(big_icon_cc) + " icon, error: " + format_error_message(GetLastError()) + ".")
 
     // Read the small icon
     DWORD bytecount_small = icon_dir->idEntries[small_icon_index].dwBytesInRes;
-    Vector<uint8_t> data_small;
+    PODVector<uint8_t> data_small;
     data_small.resize(bytecount_small);
     pos = icon_dir->idEntries[small_icon_index].dwImageOffset;
     f->seek(pos);
-    f->get_buffer((uint8_t *)&data_small.write[0], bytecount_small);
-    HICON icon_small = CreateIconFromResource((PBYTE)&data_small.write[0], bytecount_small, TRUE, 0x00030000);
+    f->get_buffer((uint8_t *)data_small.data(), bytecount_small);
+    HICON icon_small = CreateIconFromResource((PBYTE)data_small.data(), bytecount_small, TRUE, 0x00030000);
     ERR_FAIL_COND_MSG(!icon_small, "Could not create 16x16 @" + itos(small_icon_cc) + " icon, error: " + format_error_message(GetLastError()) + ".")
 
     // Online tradition says to be sure last error is cleared and set the small icon first
@@ -2839,9 +2839,9 @@ void OS_Windows::set_icon(const Ref<Image> &p_icon) {
 
     /* Create temporary bitmap buffer */
     int icon_len = 40 + h * w * 4;
-    Vector<BYTE> v;
+    PODVector<BYTE> v;
     v.resize(icon_len);
-    BYTE *icon_bmp = v.ptrw();
+    BYTE *icon_bmp = v.data();
 
     encode_uint32(40, &icon_bmp[0]);
     encode_uint32(w, &icon_bmp[4]);
