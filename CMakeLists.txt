@@ -110,6 +110,8 @@ foreach(tgt ${global_targets})
     endif()
     target_link_libraries(segs_${tgt} ${tgt}_engine Qt5::Core EASTL_Import)
     set_target_properties(segs_${tgt} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin)
+    set_target_properties(${tgt}_engine PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin)
+
     target_compile_definitions(segs_${tgt} PRIVATE ${godot_${tgt}_DEFINES})
     target_include_directories(segs_${tgt} PRIVATE ${PROJECT_BINARY_DIR})
     if(USE_TRACY_PROFILER)
