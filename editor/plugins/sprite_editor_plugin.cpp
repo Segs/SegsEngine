@@ -69,9 +69,9 @@ PODVector<Vector2> expand(const PODVector<Vector2> &points, const Rect2i &rect, 
     ClipperLib::PolyTree solution;
     ClipperLib::PolyTree out;
 
-    for (int i = 0; i < points.size(); i++) {
+    for (auto point : points) {
 
-        subj << ClipperLib::IntPoint(points[i].x * PRECISION, points[i].y * PRECISION);
+        subj << ClipperLib::IntPoint(point.x * PRECISION, point.y * PRECISION);
     }
     ClipperLib::ClipperOffset co;
     co.AddPath(subj, ClipperLib::jtMiter, ClipperLib::etClosedPolygon);
@@ -110,9 +110,9 @@ PODVector<Vector2> expand(const PODVector<Vector2> &points, const Rect2i &rect, 
 
     int lasti = p2->Contour.size() - 1;
     Vector2 prev = Vector2(p2->Contour[lasti].X / PRECISION, p2->Contour[lasti].Y / PRECISION);
-    for (size_t i = 0; i < p2->Contour.size(); i++) {
+    for (ClipperLib::IntPoint c_p : p2->Contour) {
 
-        Vector2 cur = Vector2(p2->Contour[i].X / PRECISION, p2->Contour[i].Y / PRECISION);
+        Vector2 cur = Vector2(c_p.X / PRECISION, c_p.Y / PRECISION);
         if (cur.distance_to(prev) > 0.5f) {
             outPoints.push_back(cur);
             prev = cur;
@@ -608,5 +608,4 @@ SpriteEditorPlugin::SpriteEditorPlugin(EditorNode *p_node) {
     //sprite_editor->options->hide();
 }
 
-SpriteEditorPlugin::~SpriteEditorPlugin() {
-}
+SpriteEditorPlugin::~SpriteEditorPlugin() = default;

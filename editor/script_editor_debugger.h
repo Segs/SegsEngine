@@ -135,8 +135,8 @@ private:
     Button *dobreak;
     Button *docontinue;
 
-    List<Vector<float> > perf_history;
-    Vector<float> perf_max;
+    ListPOD<PODVector<float> > perf_history;
+    PODVector<float> perf_max;
     Vector<TreeItem *> perf_items;
 
     Map<int, StringName> profiler_signature;

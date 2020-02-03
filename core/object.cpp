@@ -1067,7 +1067,7 @@ Error Object::emit_signal(const StringName &p_name, const Variant **p_args, int 
 
     OBJ_DEBUG_LOCK
 
-    Vector<const Variant *> bind_mem;
+    FixedVector<const Variant *,16,true> bind_mem; // upto 16 binds will not heap alloc here.
 
     Error err = OK;
 
@@ -1089,13 +1089,13 @@ Error Object::emit_signal(const StringName &p_name, const Variant **p_args, int 
             bind_mem.resize(p_argcount + c.binds.size());
 
             for (int j = 0; j < p_argcount; j++) {
-                bind_mem.write[j] = p_args[j];
+                bind_mem[j] = p_args[j];
             }
             for (size_t j = 0; j < c.binds.size(); j++) {
-                bind_mem.write[p_argcount + j] = &c.binds[j];
+                bind_mem[p_argcount + j] = &c.binds[j];
             }
 
-            args = (const Variant **)bind_mem.ptr();
+            args = (const Variant **)bind_mem.data();
             argc = bind_mem.size();
         }
 

@@ -106,7 +106,7 @@ public:
 
     int find(const T &p_val, int p_from = 0) const;
 
-    _FORCE_INLINE_ CowData();
+    constexpr CowData() noexcept : _ptr(nullptr) {}
     _FORCE_INLINE_ ~CowData();
     _FORCE_INLINE_ CowData(const CowData<T> &p_from) { _ref(p_from); }
 };

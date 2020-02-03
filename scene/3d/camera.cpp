@@ -352,8 +352,8 @@ bool Camera::is_position_behind(const Vector3 &p_pos) const {
     return eyedir.dot(p_pos) < (eyedir.dot(t.origin) + near);
 }
 
-Vector<Vector3> Camera::get_near_plane_points() const {
-    ERR_FAIL_COND_V_MSG(!is_inside_tree(), Vector<Vector3>(), "Camera is not inside scene.")
+PODVector<Vector3> Camera::get_near_plane_points() const {
+    ERR_FAIL_COND_V_MSG(!is_inside_tree(),{}, "Camera is not inside scene.")
 
     Size2 viewport_size = get_viewport()->get_visible_rect().size;
 
@@ -367,8 +367,8 @@ Vector<Vector3> Camera::get_near_plane_points() const {
     Vector3 endpoints[8];
     cm.get_endpoints(Transform(), endpoints);
 
-    Vector<Vector3> points;
-    points.push_back(Vector3());
+    PODVector<Vector3> points = { Vector3(0,0,0) };
+
     for (int i = 0; i < 4; i++) {
         points.push_back(endpoints[i + 4]);
     }
@@ -779,7 +779,7 @@ void ClippedCamera::_notification(int p_what) {
         clip_offset = 0; //reset by defau;t
 
         { //check if points changed
-            Vector<Vector3> local_points = get_near_plane_points();
+            PODVector<Vector3> local_points = get_near_plane_points();
 
             bool all_equal = true;
 

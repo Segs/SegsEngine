@@ -59,20 +59,20 @@ struct _GlobalConstant {
 #endif
 };
 
-static Vector<_GlobalConstant> _global_constants;
+static PODVector<_GlobalConstant> _global_constants;
 
 #ifdef DEBUG_METHODS_ENABLED
 
 #define BIND_GLOBAL_CONSTANT(m_constant) \
-    _global_constants.push_back(_GlobalConstant(StringName(), #m_constant, m_constant));
+    _global_constants.emplace_back(StringName(), #m_constant, m_constant);
 
 #define BIND_GLOBAL_ENUM_CONSTANT(m_constant) \
-    _global_constants.push_back(_GlobalConstant(__constant_get_enum_name(m_constant, #m_constant), #m_constant, int(m_constant)));
+    _global_constants.emplace_back(__constant_get_enum_name(m_constant, #m_constant), #m_constant, int(m_constant));
 #define BIND_GLOBAL_CLASS_ENUM_CONSTANT(m_class,m_constant) \
-    _global_constants.push_back(_GlobalConstant(StringName(#m_class), #m_constant, int(m_class::m_constant)));
+    _global_constants.emplace_back(StringName(#m_class), #m_constant, int(m_class::m_constant));
 
 #define BIND_GLOBAL_ENUM_CONSTANT_CUSTOM(m_custom_name, m_constant) \
-    _global_constants.push_back(_GlobalConstant(__constant_get_enum_name(m_constant, #m_constant), m_custom_name, int(m_constant)));
+    _global_constants.emplace_back(__constant_get_enum_name(m_constant, #m_constant), m_custom_name, int(m_constant));
 
 #else
 

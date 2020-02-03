@@ -195,10 +195,10 @@ Vector<Pair<String, Ref<Texture> > > EditorQuickOpen::_sort_fs(Vector<Pair<Strin
     if (search_text.empty() || list.empty())
         return list;
 
-    Vector<float> scores;
+    PODVector<float> scores;
     scores.resize(list.size());
     for (int i = 0; i < list.size(); i++)
-        scores.write[i] = _path_cmp(search_text, list[i].first);
+        scores[i] = _path_cmp(search_text, list[i].first);
 
     while (!list.empty()) {
 
@@ -215,7 +215,7 @@ Vector<Pair<String, Ref<Texture> > > EditorQuickOpen::_sort_fs(Vector<Pair<Strin
 
         sorted_list.push_back(list[best_idx]);
         list.remove(best_idx);
-        scores.remove(best_idx);
+        scores.erase_at(best_idx);
     }
 
     return sorted_list;

@@ -206,11 +206,6 @@ template <class T> void CowData<T>::_ref(const CowData &p_from) {
     }
 }
 
-template <class T> CowData<T>::CowData() {
-
-    _ptr = nullptr;
-}
-
 template <class T> CowData<T>::~CowData() {
 
     _unref(_ptr);

@@ -629,7 +629,7 @@ void VisualServerScene::instance_set_blend_shape_weight(RID p_instance, int p_sh
     }
 
     ERR_FAIL_INDEX(p_shape, instance->blend_values.size());
-    instance->blend_values.write[p_shape] = p_weight;
+    instance->blend_values[p_shape] = p_weight;
 }
 
 void VisualServerScene::instance_set_surface_material(RID p_instance, int p_surface, RID p_material) {
@@ -826,7 +826,7 @@ Vector<ObjectID> VisualServerScene::instances_cull_ray(const Vector3 &p_from, co
 
     return instances;
 }
-Vector<ObjectID> VisualServerScene::instances_cull_convex(const Vector<Plane> &p_convex, RID p_scenario) const {
+Vector<ObjectID> VisualServerScene::instances_cull_convex(Span<const Plane> p_convex, RID p_scenario) const {
 
     Vector<ObjectID> instances;
     Scenario *scenario = scenario_owner.get(p_scenario);
@@ -836,7 +836,7 @@ Vector<ObjectID> VisualServerScene::instances_cull_convex(const Vector<Plane> &p
     int culled = 0;
     Instance *cull[1024];
 
-    culled = scenario->octree.cull_convex({p_convex.ptr(),p_convex.size()}, cull, 1024);
+    culled = scenario->octree.cull_convex(p_convex, cull, 1024);
 
     for (int i = 0; i < culled; i++) {
 
@@ -1280,7 +1280,7 @@ void VisualServerScene::_update_instance_lightmap_captures(Instance *p_instance)
     //print_line("update captures for pos: " + p_instance->transform.origin);
 
     for (int i = 0; i < 12; i++)
-        new (&p_instance->lightmap_capture_data.ptrw()[i]) Color;
+        new (&p_instance->lightmap_capture_data.data()[i]) Color;
 
     //this could use some sort of blending..
     for (List<Instance *>::Element *E = geom->lightmap_captures.front(); E; E = E->next()) {
@@ -1300,7 +1300,7 @@ void VisualServerScene::_update_instance_lightmap_captures(Instance *p_instance)
 
             Vector3 dir = to_cell_xform.basis.xform(cone_traces[i]).normalized();
             Color capture = _light_capture_voxel_cone_trace(octree_r.ptr(), pos, dir, cone_aperture, cell_subdiv);
-            p_instance->lightmap_capture_data.write[i] += capture;
+            p_instance->lightmap_capture_data[i] += capture;
         }
     }
 }
@@ -3313,7 +3313,7 @@ void VisualServerScene::_update_dirty_instance(Instance *p_instance) {
             if (new_blend_shape_count != p_instance->blend_values.size()) {
                 p_instance->blend_values.resize(new_blend_shape_count);
                 for (int i = 0; i < new_blend_shape_count; i++) {
-                    p_instance->blend_values.write[i] = 0;
+                    p_instance->blend_values[i] = 0;
                 }
             }
         }

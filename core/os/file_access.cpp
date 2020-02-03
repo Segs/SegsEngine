@@ -279,58 +279,6 @@ String FileAccess::get_token() const {
     return token;
 }
 
-class CharBuffer {
-    Vector<char> vector;
-    char stack_buffer[256];
-
-    char *buffer = stack_buffer;
-    int capacity;
-    int written=0;
-
-    bool grow() {
-
-        if (vector.resize(next_power_of_2(1 + written)) != OK) {
-
-            return false;
-        }
-
-        if (buffer == stack_buffer) { // first chunk?
-
-            for (int i = 0; i < written; i++) {
-
-                vector.write[i] = stack_buffer[i];
-            }
-        }
-
-        buffer = vector.ptrw();
-        capacity = vector.size();
-        ERR_FAIL_COND_V(written >= capacity, false)
-
-        return true;
-    }
-
-public:
-    CharBuffer() :
-            buffer(stack_buffer),
-            capacity(sizeof(stack_buffer) / sizeof(char)) {
-    }
-
-    void push_back(char c) {
-
-        if (written >= capacity) {
-
-            ERR_FAIL_COND(!grow())
-        }
-
-        buffer[written++] = c;
-    }
-
-    const char *get_data() const {
-
-        return buffer;
-    }
-};
-
 String FileAccess::get_line() const {
 
     String line;
@@ -352,7 +300,7 @@ String FileAccess::get_line() const {
 PODVector<String> FileAccess::get_csv_line(char p_delim) const {
 
     String l;
-    int qc = 0;
+    int qc;
     do {
         if (eof_reached())
             break;

@@ -284,19 +284,19 @@ void Line2D::_draw() {
 
     // TODO Is this really needed?
     // Copy points for faster access
-    Vector<Vector2> points;
+    PODVector<Vector2> points;
     points.resize(_points.size());
     int len = points.size();
     {
         PoolVector<Vector2>::Read points_read = _points.read();
         for (int i = 0; i < len; ++i) {
-            points.write[i] = points_read[i];
+            points[i] = points_read[i];
         }
     }
 
     // TODO Maybe have it as member rather than copying parameters and allocating memory?
     LineBuilder lb;
-    lb.points = points;
+    lb.points = eastl::move(points);
     lb.default_color = _default_color;
     lb.gradient = _gradient.get();
     lb.texture_mode = _texture_mode;

@@ -131,20 +131,20 @@ public:
         insert(i, p_val);
     }
 
-    _FORCE_INLINE_ Vector() {}
-    _FORCE_INLINE_ Vector(const Vector &p_from) { _cowdata._ref(p_from._cowdata); }
-    inline Vector &operator=(const Vector &p_from) {
+    constexpr Vector() noexcept = default;
+    Vector(const Vector &p_from) { _cowdata._ref(p_from._cowdata); }
+    Vector &operator=(const Vector &p_from) {
         _cowdata._ref(p_from._cowdata);
         return *this;
     }
 
     explicit Vector(Span<const T> p_from) {
         resize(p_from.size());
-        if(p_from.size()!=0) {
+        if(!p_from.empty()) {
             eastl::copy(p_from.begin(),p_from.end(),ptrw());
         }
     }
-    _FORCE_INLINE_ ~Vector() {}
+    ~Vector() = default;
 };
 
 template <class T>

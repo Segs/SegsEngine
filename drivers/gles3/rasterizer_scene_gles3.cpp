@@ -1279,7 +1279,7 @@ void RasterizerSceneGLES3::_setup_geometry(RenderList::Element *e, const Transfo
 
             if (!s->blend_shapes.empty() && !e->instance->blend_values.empty()) {
                 //blend shapes, use transform feedback
-                storage->mesh_render_blend_shapes(s, e->instance->blend_values.ptr());
+                storage->mesh_render_blend_shapes(s, e->instance->blend_values.data());
                 //rebind shader
                 state.scene_shader.bind();
 #ifdef DEBUG_ENABLED
@@ -1607,7 +1607,7 @@ void RasterizerSceneGLES3::_render_geometry(RenderList::Element *e) {
                 if (!c.colors.empty()) {
 
                     glEnableVertexAttribArray(VS::ARRAY_COLOR);
-                    glBufferSubData(GL_ARRAY_BUFFER, buf_ofs, sizeof(Color) * vertices, c.colors.ptr());
+                    glBufferSubData(GL_ARRAY_BUFFER, buf_ofs, sizeof(Color) * vertices, c.colors.data());
                     glVertexAttribPointer(VS::ARRAY_COLOR, 4, GL_FLOAT, false, sizeof(Color), CAST_INT_TO_UCHAR_PTR(buf_ofs));
                     buf_ofs += sizeof(Color) * vertices;
 
@@ -1881,7 +1881,7 @@ void RasterizerSceneGLES3::_setup_light(RenderList::Element *e, const Transform 
         }
     } else if (!e->instance->lightmap_capture_data.empty()) {
 
-        glUniform4fv(state.scene_shader.get_uniform_location(SceneShaderGLES3::LIGHTMAP_CAPTURES), 12, (const GLfloat *)e->instance->lightmap_capture_data.ptr());
+        glUniform4fv(state.scene_shader.get_uniform_location(SceneShaderGLES3::LIGHTMAP_CAPTURES), 12, (const GLfloat *)e->instance->lightmap_capture_data.data());
         state.scene_shader.set_uniform(SceneShaderGLES3::LIGHTMAP_CAPTURE_SKY, false);
 
     } else if (e->instance->lightmap.is_valid()) {

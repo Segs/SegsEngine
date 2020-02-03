@@ -539,11 +539,11 @@ Error ProjectSettings::_load_settings_binary(se_string_view p_path) {
         String key(cs.data());
 
         uint32_t vlen = f->get_32();
-        Vector<uint8_t> d;
+        PODVector<uint8_t> d;
         d.resize(vlen);
-        f->get_buffer(d.ptrw(), vlen);
+        f->get_buffer(d.data(), vlen);
         Variant value;
-        err = decode_variant(value, d.ptr(), d.size(), nullptr, true);
+        err = decode_variant(value, d.data(), d.size(), nullptr, true);
         ERR_CONTINUE_MSG(err != OK, "Error decoding property: " + key + ".")
         set(StringName(key), value);
     }
@@ -697,16 +697,16 @@ Error ProjectSettings::_save_settings_binary(se_string_view p_file, const Map<St
             ERR_FAIL_V(err)
         }
 
-        Vector<uint8_t> buff;
+        PODVector<uint8_t> buff;
         buff.resize(len);
 
-        err = encode_variant(p_custom_features, buff.ptrw(), len, false);
+        err = encode_variant(p_custom_features, buff.data(), len, false);
         if (err != OK) {
             memdelete(file);
             ERR_FAIL_V(err)
         }
         file->store_32(len);
-        file->store_buffer(buff.ptr(), buff.size());
+        file->store_buffer(buff.data(), buff.size());
 
     } else {
         file->store_32(count); //store how many properties are saved
@@ -733,15 +733,15 @@ Error ProjectSettings::_save_settings_binary(se_string_view p_file, const Map<St
                 memdelete(file);
             ERR_FAIL_COND_V_MSG(err != OK, ERR_INVALID_DATA, "Error when trying to encode Variant.")
 
-            Vector<uint8_t> buff;
+            PODVector<uint8_t> buff;
             buff.resize(len);
 
-            err = encode_variant(value, buff.ptrw(), len, true);
+            err = encode_variant(value, buff.data(), len, true);
             if (err != OK)
                 memdelete(file);
             ERR_FAIL_COND_V_MSG(err != OK, ERR_INVALID_DATA, "Error when trying to encode Variant.")
             file->store_32(len);
-            file->store_buffer(buff.ptr(), buff.size());
+            file->store_buffer(buff.data(), buff.size());
         }
     }
 

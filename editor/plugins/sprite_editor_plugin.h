@@ -64,7 +64,7 @@ class SpriteEditor : public Control {
     Vector<PODVector<Vector2> > computed_outline_lines;
     Vector<Vector2> computed_vertices;
     Vector<Vector2> computed_uv;
-    Vector<int> computed_indices;
+    PODVector<int> computed_indices;
 
     SpinBox *simplification;
     SpinBox *grow_pixels;

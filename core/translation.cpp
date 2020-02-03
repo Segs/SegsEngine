@@ -1016,9 +1016,9 @@ Array TranslationServer::get_loaded_locales() const {
     return locales;
 }
 
-Vector<String> TranslationServer::get_all_locales() {
+PODVector<String> TranslationServer::get_all_locales() {
 
-    Vector<String> locales;
+    PODVector<String> locales;
 
     const char **ptr = locale_list;
 
@@ -1030,9 +1030,9 @@ Vector<String> TranslationServer::get_all_locales() {
     return locales;
 }
 
-Vector<String> TranslationServer::get_all_locale_names() {
+PODVector<String> TranslationServer::get_all_locale_names() {
 
-    Vector<String> locales;
+    PODVector<String> locales;
 
     const char **ptr = locale_names;
 

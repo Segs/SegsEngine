@@ -239,14 +239,14 @@ void MeshLibrary::clear() {
     emit_changed();
 }
 
-Vector<int> MeshLibrary::get_item_list() const {
+PODVector<int> MeshLibrary::get_item_list() const {
 
-    Vector<int> ret;
-    ret.resize(item_map.size());
-    int idx = 0;
+    PODVector<int> ret;
+    ret.reserve(item_map.size());
+
     for (const eastl::pair<const int,Item> &E : item_map) {
 
-        ret.write[idx++] = E.first;
+        ret.push_back(E.first);
     }
 
     return ret;

@@ -102,7 +102,7 @@ public:
         Vector<RID> reflection_probe_instances;
         Vector<RID> gi_probe_instances;
 
-        Vector<float> blend_values;
+        PODVector<float> blend_values;
 
         VS::ShadowCastingSetting cast_shadows;
 
@@ -119,7 +119,8 @@ public:
 
         InstanceBase *lightmap_capture;
         RID lightmap;
-        Vector<Color> lightmap_capture_data; //in a array (12 values) to avoid wasting space if unused. Alpha is unused, but needed to send to shader
+        // eastl::unique_ptr<eastl::array<Color,12>>
+        PODVector<Color> lightmap_capture_data; //in a array (12 values) to avoid wasting space if unused. Alpha is unused, but needed to send to shader
 
         virtual void base_removed() = 0;
         virtual void base_changed(bool p_aabb, bool p_materials) = 0;

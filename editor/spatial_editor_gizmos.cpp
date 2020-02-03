@@ -452,7 +452,7 @@ void EditorSpatialGizmo::add_solid_box(Ref<Material> &p_material, Vector3 p_size
     add_mesh(m);
 }
 
-bool EditorSpatialGizmo::intersect_frustum(const Camera *p_camera, const Vector<Plane> &p_frustum) {
+bool EditorSpatialGizmo::intersect_frustum(const Camera *p_camera, Span<const Plane> p_frustum) {
 
     ERR_FAIL_COND_V(!spatial_node, false)
     ERR_FAIL_COND_V(!valid, false)
@@ -462,7 +462,7 @@ bool EditorSpatialGizmo::intersect_frustum(const Camera *p_camera, const Vector<
     if (selectable_icon_size > 0.0f) {
         Vector3 origin = spatial_node->get_global_transform().get_origin();
 
-        const Plane *p = p_frustum.ptr();
+        const Plane *p = p_frustum.data();
         int fc = p_frustum.size();
 
         bool any_out = false;
@@ -480,18 +480,15 @@ bool EditorSpatialGizmo::intersect_frustum(const Camera *p_camera, const Vector<
 
     if (!collision_segments.empty()) {
 
-        const Plane *p = p_frustum.ptr();
-        int fc = p_frustum.size();
-
         int vc = collision_segments.size();
         const Vector3 *vptr = collision_segments.ptr();
         Transform t = spatial_node->get_global_transform();
 
         bool any_out = false;
-        for (int j = 0; j < fc; j++) {
+        for (const Plane & p : p_frustum) {
             for (int i = 0; i < vc; i++) {
                 Vector3 v = t.xform(vptr[i]);
-                if (p[j].is_point_over(v)) {
+                if (p.is_point_over(v)) {
                     any_out = true;
                     break;
                 }

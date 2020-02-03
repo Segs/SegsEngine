@@ -113,7 +113,7 @@ void TileSetEditor::_import_node(Node *p_node, const Ref<TileSet> &p_library) {
             phys_offset += -s / 2;
         }
 
-        Vector<TileSet::ShapeData> collisions;
+        PODVector<TileSet::ShapeData> collisions;
         Ref<NavigationPolygon> nav_poly;
         Ref<OccluderPolygon2D> occluder;
         bool found_collisions = false;
@@ -1993,7 +1993,7 @@ void TileSetEditor::_update_tile_data() {
     if (get_current_tile() < 0)
         return;
 
-    Vector<TileSet::ShapeData> sd = tileset->tile_get_shapes(get_current_tile());
+    const PODVector<TileSet::ShapeData> &sd = tileset->tile_get_shapes(get_current_tile());
     if (tileset->tile_get_tile_mode(get_current_tile()) == TileSet::SINGLE_TILE) {
         SubtileData data;
         for (int i = 0; i < sd.size(); i++) {
@@ -2598,7 +2598,7 @@ void TileSetEditor::draw_polygon_shapes() {
 
     switch (edit_mode) {
         case EDITMODE_COLLISION: {
-            Vector<TileSet::ShapeData> sd = tileset->tile_get_shapes(t_id);
+            const PODVector<TileSet::ShapeData> &sd = tileset->tile_get_shapes(t_id);
             for (int i = 0; i < sd.size(); i++) {
                 Vector2 coord = Vector2(0, 0);
                 Vector2 anchor = Vector2(0, 0);
@@ -3004,7 +3004,7 @@ void TileSetEditor::select_coord(const Vector2 &coord) {
             }
         }
     } else {
-        Vector<TileSet::ShapeData> sd = tileset->tile_get_shapes(get_current_tile());
+        const PODVector<TileSet::ShapeData> &sd = tileset->tile_get_shapes(get_current_tile());
         bool found_collision_shape = false;
         for (int i = 0; i < sd.size(); i++) {
             if (sd[i].autotile_coord == coord) {
@@ -3378,7 +3378,7 @@ bool TilesetEditorContext::_set(const StringName &p_name, const Variant &p_value
         tileset->set_script(p_value);
         return true;
     } else if (name == "selected_collision_one_way"_sv) {
-        Vector<TileSet::ShapeData> sd = tileset->tile_get_shapes(tileset_editor->get_current_tile());
+        const PODVector<TileSet::ShapeData> &sd = tileset->tile_get_shapes(tileset_editor->get_current_tile());
         for (int index = 0; index < sd.size(); index++) {
             if (sd[index].shape == tileset_editor->edited_collision_shape) {
                 tileset->tile_set_shape_one_way(tileset_editor->get_current_tile(), index, p_value);
@@ -3387,7 +3387,7 @@ bool TilesetEditorContext::_set(const StringName &p_name, const Variant &p_value
         }
         return false;
     } else if (name == "selected_collision_one_way_margin"_sv) {
-        Vector<TileSet::ShapeData> sd = tileset->tile_get_shapes(tileset_editor->get_current_tile());
+        const PODVector<TileSet::ShapeData>& sd = tileset->tile_get_shapes(tileset_editor->get_current_tile());
         for (int index = 0; index < sd.size(); index++) {
             if (sd[index].shape == tileset_editor->edited_collision_shape) {
                 tileset->tile_set_shape_one_way_margin(tileset_editor->get_current_tile(), index, p_value);
@@ -3438,7 +3438,7 @@ bool TilesetEditorContext::_get(const StringName &p_name, Variant &r_ret) const 
         r_ret = tileset_editor->edited_collision_shape;
         v = true;
     } else if (name == "selected_collision_one_way"_sv) {
-        Vector<TileSet::ShapeData> sd = tileset->tile_get_shapes(tileset_editor->get_current_tile());
+        const PODVector<TileSet::ShapeData>& sd = tileset->tile_get_shapes(tileset_editor->get_current_tile());
         for (int index = 0; index < sd.size(); index++) {
             if (sd[index].shape == tileset_editor->edited_collision_shape) {
                 r_ret = sd[index].one_way_collision;
@@ -3447,7 +3447,7 @@ bool TilesetEditorContext::_get(const StringName &p_name, Variant &r_ret) const 
             }
         }
     } else if (name == "selected_collision_one_way_margin"_sv) {
-        Vector<TileSet::ShapeData> sd = tileset->tile_get_shapes(tileset_editor->get_current_tile());
+        const PODVector<TileSet::ShapeData>& sd = tileset->tile_get_shapes(tileset_editor->get_current_tile());
         for (int index = 0; index < sd.size(); index++) {
             if (sd[index].shape == tileset_editor->edited_collision_shape) {
                 r_ret = sd[index].one_way_collision_margin;

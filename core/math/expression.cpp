@@ -1316,7 +1316,7 @@ const char *Expression::token_name[TK_MAX] = {
 
 Expression::ENode *Expression::_parse_expression() {
 
-    Vector<ExpressionNode> expression;
+    FixedVector<ExpressionNode,8,true> expression;
 
     while (true) {
         //keep appending stuff to expression
@@ -1869,9 +1869,9 @@ Expression::ENode *Expression::_parse_expression() {
                 op->op = expression[i].op;
                 op->nodes[0] = expression[i + 1].node;
                 op->nodes[1] = nullptr;
-                expression.write[i].is_op = false;
-                expression.write[i].node = op;
-                expression.remove(i + 1);
+                expression[i].is_op = false;
+                expression[i].node = op;
+                expression.erase_at(i + 1);
             }
 
         } else {
@@ -1904,9 +1904,9 @@ Expression::ENode *Expression::_parse_expression() {
             op->nodes[1] = expression[next_op + 1].node; //next expression goes as right
 
             //replace all 3 nodes by this operator and make it an expression
-            expression.write[next_op - 1].node = op;
-            expression.remove(next_op);
-            expression.remove(next_op);
+            expression[next_op - 1].node = op;
+            expression.erase_at(next_op);
+            expression.erase_at(next_op);
         }
     }
 

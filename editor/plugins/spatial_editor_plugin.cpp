@@ -489,7 +489,7 @@ void SpatialEditorViewport::_select_region() {
                 z_offset)
     };
 
-    Vector<Plane> frustum;
+    FixedVector<Plane,6,false> frustum;
 
     Vector3 cam_pos = _get_camera_position();
 

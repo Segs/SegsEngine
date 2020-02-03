@@ -293,7 +293,7 @@ void EditorNode::_unhandled_input(const Ref<InputEvent> &p_event) {
 static void update_reconfigured_resources() {
     if (!EditorFileSystem::get_singleton()->is_scanning() && !EditorFileSystem::get_singleton()->is_importing()) {
         ResourceImporterInterface *tex = ResourceFormatImporter::get_singleton()->get_importer_by_name("texture");
-        Vector<String> to_reimport;
+        PODVector<String> to_reimport;
         tex->build_reconfigured_list(to_reimport);
         if (!to_reimport.empty()) {
             EditorFileSystem::get_singleton()->reimport_files(to_reimport);
@@ -3028,7 +3028,7 @@ void EditorNode::_update_addon_config() {
 
     if (_initializing_addons) return;
 
-    Vector<se_string_view> enabled_addons;
+    PODVector<se_string_view> enabled_addons;
 
     for (eastl::pair<const StringName, EditorPlugin *> &E : plugin_addons) {
         enabled_addons.emplace_back(E.first);
@@ -5294,7 +5294,7 @@ Variant EditorNode::drag_resource(const Ref<Resource> &p_res, Control *p_from) {
     return drag_data;
 }
 
-Variant EditorNode::drag_files_and_dirs(const Vector<String> &p_paths, Control *p_from) {
+Variant EditorNode::drag_files_and_dirs(const PODVector<String> &p_paths, Control *p_from) {
 
     bool has_folder = false;
     bool has_file = false;

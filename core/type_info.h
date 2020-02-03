@@ -308,13 +308,10 @@ struct GetTypeInfo<const Variant &> {
         }\
     };
 
-MAKE_TEMPLATE_TYPE_INFO(Vector, uint8_t, VariantType::POOL_BYTE_ARRAY)
-MAKE_TEMPLATE_TYPE_INFO(Vector, int, VariantType::POOL_INT_ARRAY)
 MAKE_TEMPLATE_TYPE_INFO(Vector, float, VariantType::POOL_REAL_ARRAY)
 MAKE_TEMPLATE_TYPE_INFO(Vector, String, VariantType::POOL_STRING_ARRAY)
 MAKE_TEMPLATE_TYPE_INFO(Vector, Vector2, VariantType::POOL_VECTOR2_ARRAY)
 MAKE_TEMPLATE_TYPE_INFO(Vector, Vector3, VariantType::POOL_VECTOR3_ARRAY)
-MAKE_TEMPLATE_TYPE_INFO(Vector, Color, VariantType::POOL_COLOR_ARRAY)
 
 MAKE_TEMPLATE_TYPE_INFO_META(PODVector, uint8_t, VariantType::POOL_BYTE_ARRAY,GodotTypeInfo::METADATA_NON_COW_CONTAINER)
 MAKE_TEMPLATE_TYPE_INFO_META(PODVector, int, VariantType::POOL_INT_ARRAY,GodotTypeInfo::METADATA_NON_COW_CONTAINER)
@@ -343,7 +340,6 @@ struct GetTypeInfo<PODVector<T *> > {
 MAKE_TEMPLATE_TYPE_INFO(Vector, Variant, VariantType::ARRAY)
 MAKE_TEMPLATE_TYPE_INFO(Vector, RID, VariantType::ARRAY)
 MAKE_TEMPLATE_TYPE_INFO(PoolVector, RID, VariantType::ARRAY)
-MAKE_TEMPLATE_TYPE_INFO(Vector, Plane, VariantType::ARRAY)
 MAKE_TEMPLATE_TYPE_INFO(Vector, StringName, VariantType::POOL_STRING_ARRAY)
 
 MAKE_TEMPLATE_TYPE_INFO(PoolVector, Plane, VariantType::ARRAY)

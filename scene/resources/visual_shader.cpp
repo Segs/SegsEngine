@@ -359,11 +359,12 @@ Ref<VisualShaderNode> VisualShader::get_node(Type p_type, int p_id) const {
     return g->nodes.at(p_id).node;
 }
 
-Vector<int> VisualShader::get_node_list(Type p_type) const {
-    ERR_FAIL_INDEX_V(p_type, TYPE_MAX, Vector<int>())
+PODVector<int> VisualShader::get_node_list(Type p_type) const {
+    ERR_FAIL_INDEX_V(p_type, TYPE_MAX, PODVector<int>())
     const Graph *g = &graph[p_type];
 
-    Vector<int> ret;
+    PODVector<int> ret;
+    ret.reserve(g->nodes.size());
     for (const eastl::pair<const int,Node> &E : g->nodes) {
         ret.push_back(E.first);
     }
@@ -898,7 +899,7 @@ bool VisualShader::_set(const StringName &p_name, const Variant &p_value) {
         String index(StringUtils::get_slice(name,'/', 2));
         if (index == "connections") {
 
-            Vector<int> conns = p_value.as<Vector<int>>();
+            PoolVector<int> conns = p_value.as<PoolVector<int>>();
             if (conns.size() % 4 == 0) {
                 for (int i = 0; i < conns.size(); i += 4) {
                     connect_nodes_forced(type, conns[i + 0], conns[i + 1], conns[i + 2], conns[i + 3]);

@@ -2048,14 +2048,6 @@ Vector<Variant> Variant::as<Vector<Variant>>() const {
     }
     return to;
 }
-template<>
-Vector<uint8_t> Variant::as<Vector<uint8_t>>() const {
-    return asInternalVector<uint8_t>(*this);
-    }
-template<>
-Vector<int> Variant::as<Vector<int>>() const {
-    return asInternalVector<int>(*this);
-}
 
 template<>
 Vector<real_t> Variant::as<Vector<real_t>>() const {
@@ -2092,10 +2084,6 @@ template<>
 Vector<Vector3> Variant::as<Vector<Vector3>>() const {
     return asInternalVector<Vector3>(*this);
     }
-template<>
-Vector<Color> Variant::as<Vector<Color>>() const {
-    return asInternalVector<Color>(*this);
-}
 
 Variant::operator Margin() const {
 

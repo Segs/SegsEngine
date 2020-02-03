@@ -320,7 +320,7 @@ void MeshInstance::_mesh_changed() {
 void MeshInstance::create_debug_tangents() {
 
     Vector<Vector3> lines;
-    Vector<Color> colors;
+    PODVector<Color> colors;
 
     Ref<Mesh> mesh = get_mesh();
     if (not mesh)

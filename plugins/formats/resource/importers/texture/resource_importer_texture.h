@@ -90,7 +90,7 @@ public:
             DefList<String> *r_platform_variants, DefList<String> *r_gen_files = nullptr,
             Variant *r_metadata = nullptr) override;
 
-    void build_reconfigured_list(Vector<String> &editor_is_scanning_or_importing) override;
+    void build_reconfigured_list(PODVector<String> &editor_is_scanning_or_importing) override;
 
     bool are_import_settings_valid(se_string_view p_path) const override;
     String get_import_settings_string() const override;

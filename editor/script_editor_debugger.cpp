@@ -363,16 +363,13 @@ void ScriptEditorDebugger::_file_selected(se_string_view p_file) {
             file->store_csv_line(line);
 
             // values
-            List<Vector<float> >::Element *E = perf_history.back();
-            while (E) {
-
-                Vector<float> &perf_data = E->deref();
+            for(auto riter=perf_history.rbegin(),rfin=perf_history.rend(); riter!=rfin; ++riter) {
+                const PODVector<float> &perf_data = *riter;
                 for (int i = 0; i < perf_data.size(); i++) {
 
                     line[i] = StringUtils::num_real(perf_data[i]);
                 }
                 file->store_csv_line(line);
-                E = E->prev();
             }
             file->store_string("\n");
 
@@ -811,10 +808,10 @@ void ScriptEditorDebugger::_parse_message(const String &p_msg, const Array &p_da
 
     } else if (p_msg == "performance") {
         Array arr = p_data[0];
-        Vector<float> p;
+        PODVector<float> p;
         p.resize(arr.size());
         for (int i = 0; i < arr.size(); i++) {
-            p.write[i] = arr[i];
+            p[i] = arr[i];
             if (i < perf_items.size()) {
 
                 const float v = p[i];
@@ -837,10 +834,10 @@ void ScriptEditorDebugger::_parse_message(const String &p_msg, const Array &p_da
                 perf_items[i]->set_text(1, label);
                 perf_items[i]->set_tooltip(1, tooltip);
                 if (p[i] > perf_max[i])
-                    perf_max.write[i] = p[i];
+                    perf_max[i] = p[i];
             }
         }
-        perf_history.push_front(p);
+        perf_history.emplace_front(eastl::move(p));
         perf_draw->update();
 
     } else if (p_msg == "error") {
@@ -1180,20 +1177,19 @@ void ScriptEditorDebugger::_performance_draw() {
         float spacing = point_sep / float(cols);
         float from = r.size.width;
 
-        List<Vector<float> >::Element *E = perf_history.front();
         float prev = -1;
-        while (from >= 0 && E) {
-
+        for(const PODVector<float> &history : perf_history) {
+            if(from<0)
+                break;
             float m = perf_max[pi];
             if (m == 0)
                 m = 0.00001;
-            float h2 = E->deref()[pi] / m;
+            float h2 = history[pi] / m;
             h2 = (1.0 - h2) * r.size.y;
 
-            if (E != perf_history.front())
+            if (&history != &perf_history.front())
                 perf_draw->draw_line(r.position + Point2(from, h2), r.position + Point2(from + spacing, prev), c, Math::round(EDSCALE), true);
             prev = h2;
-            E = E->next();
             from -= spacing;
         }
     }
@@ -1484,7 +1480,7 @@ void ScriptEditorDebugger::start() {
     perf_history.clear();
     for (int i = 0; i < Performance::MONITOR_MAX; i++) {
 
-        perf_max.write[i] = 0;
+        perf_max[i] = 0;
     }
 
     int remote_port = (int)EditorSettings::get_singleton()->get("network/debug/remote_port");
@@ -2517,7 +2513,7 @@ ScriptEditorDebugger::ScriptEditorDebugger(EditorNode *p_editor) {
             it->set_selectable(1, false);
             it->set_text_utf8(0, StringUtils::capitalize(name));
             perf_items.push_back(it);
-            perf_max.write[i] = 0;
+            perf_max[i] = 0;
         }
 
         info_message = memnew(Label);

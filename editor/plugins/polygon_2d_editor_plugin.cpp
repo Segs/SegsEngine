@@ -713,7 +713,7 @@ void Polygon2DEditor::_uv_input(const Ref<InputEvent> &p_input) {
                             }
 
                             polygon_create.clear();
-                        } else if (polygon_create.find(closest) == -1) {
+                        } else if (!polygon_create.contains(closest)) {
                             //add temporarily if not exists
                             polygon_create.push_back(closest);
                         }
