@@ -1345,12 +1345,12 @@ void EditorNode::save_all_scenes() {
     _save_all_scenes();
 }
 
-void EditorNode::save_scene_list(const Vector<String> &p_scene_filenames) {
-
+void EditorNode::save_scene_list(const PODVector<String> &p_scene_filenames) {
+    //TODO: SEGS: this function does repeated vector::contains calls, consider creating a temporary Set to speed up lookups?
     for (int i = 0; i < editor_data.get_edited_scene_count(); i++) {
         Node *scene = editor_data.get_edited_scene_root(i);
 
-        if (scene && p_scene_filenames.find(String(scene->get_filename())) >= 0) {
+        if (scene && p_scene_filenames.contains(String(scene->get_filename()))) {
             _save_scene(scene->get_filename(), i);
         }
     }
@@ -5408,7 +5408,7 @@ void EditorNode::_global_menu_action(const Variant &p_id, const Variant &p_meta)
     }
 }
 
-void EditorNode::_dropped_files(const Vector<String> &p_files, int p_screen) {
+void EditorNode::_dropped_files(const PODVector<String> &p_files, int p_screen) {
 
     String to_path = ProjectSettings::get_singleton()->globalize_path(get_filesystem_dock()->get_selected_path());
 
@@ -5417,19 +5417,18 @@ void EditorNode::_dropped_files(const Vector<String> &p_files, int p_screen) {
     EditorFileSystem::get_singleton()->scan_changes();
 }
 
-void EditorNode::_add_dropped_files_recursive(const Vector<String> &p_files, se_string_view to_path) {
+void EditorNode::_add_dropped_files_recursive(const PODVector<String> &p_files, se_string_view to_path) {
 
     DirAccessRef dir = DirAccess::create(DirAccess::ACCESS_FILESYSTEM);
     se_string_view just_copy[2] = { "ttf", "otf" };
 
-    for (int i = 0; i < p_files.size(); i++) {
+    for (const String& from : p_files) {
 
-        const String &from = p_files[i];
         String to(PathUtils::plus_file(to_path, PathUtils::get_file(from)));
 
         if (dir->dir_exists(from)) {
 
-            Vector<String> sub_files;
+            PODVector<String> sub_files;
 
             DirAccessRef sub_dir = DirAccess::open(from);
             sub_dir->list_dir_begin();
@@ -5441,7 +5440,7 @@ void EditorNode::_add_dropped_files_recursive(const Vector<String> &p_files, se_
                     continue;
                 }
 
-                sub_files.push_back(PathUtils::plus_file(from, next_file));
+                sub_files.emplace_back(PathUtils::plus_file(from, next_file));
                 next_file = sub_dir->get_next();
             }
 

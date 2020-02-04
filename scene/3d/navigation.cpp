@@ -80,7 +80,7 @@ void Navigation::_navmesh_link(int p_id) {
             Vector3 ep = nm.xform.xform(r[idx]);
             center += ep;
             e.point = _get_point(ep);
-            p.edges.write[j] = e;
+            p.edges[j] = e;
 
             if (j >= 2) {
                 Vector3 epa = nm.xform.xform(r[indices[j - 2]]);
@@ -124,16 +124,16 @@ void Navigation::_navmesh_link(int p_id) {
                     ConnectionPending pending;
                     pending.polygon = &p;
                     pending.edge = j;
-                    p.edges.write[j].P = C->second.pending.push_back(pending);
+                    p.edges[j].P = C->second.pending.push_back(pending);
                     continue;
                 }
 
                 C->second.B = &p;
                 C->second.B_edge = j;
-                C->second.A->edges.write[C->second.A_edge].C = &p;
-                C->second.A->edges.write[C->second.A_edge].C_edge = j;
-                p.edges.write[j].C = C->second.A;
-                p.edges.write[j].C_edge = C->second.A_edge;
+                C->second.A->edges[C->second.A_edge].C = &p;
+                C->second.A->edges[C->second.A_edge].C_edge = j;
+                p.edges[j].C = C->second.A;
+                p.edges[j].C_edge = C->second.A_edge;
                 //connection successful.
             }
         }
@@ -153,7 +153,7 @@ void Navigation::_navmesh_unlink(int p_id) {
         Polygon &p = E->deref();
 
         int ec = p.edges.size();
-        Polygon::Edge *edges = p.edges.ptrw();
+        Polygon::Edge *edges = p.edges.data();
 
         for (int i = 0; i < ec; i++) {
             int next = (i + 1) % ec;
@@ -169,10 +169,10 @@ void Navigation::_navmesh_unlink(int p_id) {
             } else if (C->second.B) {
                 //disconnect
 
-                C->second.B->edges.write[C->second.B_edge].C = nullptr;
-                C->second.B->edges.write[C->second.B_edge].C_edge = -1;
-                C->second.A->edges.write[C->second.A_edge].C = nullptr;
-                C->second.A->edges.write[C->second.A_edge].C_edge = -1;
+                C->second.B->edges[C->second.B_edge].C = nullptr;
+                C->second.B->edges[C->second.B_edge].C_edge = -1;
+                C->second.A->edges[C->second.A_edge].C = nullptr;
+                C->second.A->edges[C->second.A_edge].C_edge = -1;
 
                 if (C->second.A == &E->deref()) {
 
@@ -189,11 +189,11 @@ void Navigation::_navmesh_unlink(int p_id) {
 
                     C->second.B = cp.polygon;
                     C->second.B_edge = cp.edge;
-                    C->second.A->edges.write[C->second.A_edge].C = cp.polygon;
-                    C->second.A->edges.write[C->second.A_edge].C_edge = cp.edge;
-                    cp.polygon->edges.write[cp.edge].C = C->second.A;
-                    cp.polygon->edges.write[cp.edge].C_edge = C->second.A_edge;
-                    cp.polygon->edges.write[cp.edge].P = nullptr;
+                    C->second.A->edges[C->second.A_edge].C = cp.polygon;
+                    C->second.A->edges[C->second.A_edge].C_edge = cp.edge;
+                    cp.polygon->edges[cp.edge].C = C->second.A;
+                    cp.polygon->edges[cp.edge].C_edge = C->second.A_edge;
+                    cp.polygon->edges[cp.edge].P = nullptr;
                 }
 
             } else {
@@ -390,7 +390,7 @@ PODVector<Vector3> Navigation::get_simple_path(const Vector3 &p_start, const Vec
 
         for (int i = 0; i < p->edges.size(); i++) {
 
-            Polygon::Edge &e = p->edges.write[i];
+            Polygon::Edge &e = p->edges[i];
 
             if (!e.C)
                 continue;

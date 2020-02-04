@@ -481,31 +481,31 @@ void SoftBody::become_mesh_owner() {
     if (not mesh)
         return;
 
-    if (!mesh_owner) {
-        mesh_owner = true;
+    if (mesh_owner) // TODO: SEGS: already has owner, report this ?
+        return;
 
-        Vector<Ref<Material> > copy_materials;
-        copy_materials.append_array(materials);
+    mesh_owner = true;
 
-        ERR_FAIL_COND(!mesh->get_surface_count())
+    PODVector<Ref<Material> > copy_materials(materials);
 
-        // Get current mesh array and create new mesh array with necessary flag for softbody
-        Array surface_arrays = mesh->surface_get_arrays(0);
-        Array surface_blend_arrays = mesh->surface_get_blend_shape_arrays(0);
-        uint32_t surface_format = mesh->surface_get_format(0);
+    ERR_FAIL_COND(!mesh->get_surface_count())
 
-        surface_format &= ~(Mesh::ARRAY_COMPRESS_VERTEX | Mesh::ARRAY_COMPRESS_NORMAL);
-        surface_format |= Mesh::ARRAY_FLAG_USE_DYNAMIC_UPDATE;
+    // Get current mesh array and create new mesh array with necessary flag for softbody
+    Array surface_arrays = mesh->surface_get_arrays(0);
+    Array surface_blend_arrays = mesh->surface_get_blend_shape_arrays(0);
+    uint32_t surface_format = mesh->surface_get_format(0);
 
-        Ref<ArrayMesh> soft_mesh(make_ref_counted<ArrayMesh>());
-        soft_mesh->add_surface_from_arrays(Mesh::PRIMITIVE_TRIANGLES, surface_arrays, surface_blend_arrays, surface_format);
-        soft_mesh->surface_set_material(0, mesh->surface_get_material(0));
+    surface_format &= ~(Mesh::ARRAY_COMPRESS_VERTEX | Mesh::ARRAY_COMPRESS_NORMAL);
+    surface_format |= Mesh::ARRAY_FLAG_USE_DYNAMIC_UPDATE;
 
-        set_mesh(soft_mesh);
+    Ref<ArrayMesh> soft_mesh(make_ref_counted<ArrayMesh>());
+    soft_mesh->add_surface_from_arrays(Mesh::PRIMITIVE_TRIANGLES, surface_arrays, surface_blend_arrays, surface_format);
+    soft_mesh->surface_set_material(0, mesh->surface_get_material(0));
 
-        for (int i = copy_materials.size() - 1; 0 <= i; --i) {
-            set_surface_material(i, copy_materials[i]);
-        }
+    set_mesh(soft_mesh);
+
+    for (int i = copy_materials.size() - 1; 0 <= i; --i) {
+        set_surface_material(i, copy_materials[i]);
     }
 }
 

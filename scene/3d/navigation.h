@@ -92,7 +92,7 @@ class Navigation : public Spatial {
 			}
 		};
 
-		Vector<Edge> edges;
+		PODVector<Edge> edges;
 
 		Vector3 center;
 		Vector3 entry;

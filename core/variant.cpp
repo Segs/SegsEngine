@@ -1887,23 +1887,6 @@ Span<const Vector3> Variant::as<Span<const Vector3>>() const {
     return Span<const Vector3>(tmp->read().ptr(),tmp->size());
 }
 
-template<>
-Vector<String> Variant::as<Vector<String>>() const {
-
-    Vector<String> res;
-    PoolVector<String> tmp;
-    if (type == VariantType::POOL_STRING_ARRAY) {
-        tmp = *reinterpret_cast<const PoolVector<String> *>(_data._mem);
-    }
-    else
-        tmp = _convert_array_from_variant<PoolVector<String> >(*this);
-
-    for(int i=0,fin=tmp.size(); i<fin; ++i)
-    {
-        res.emplace_back(tmp[i]);
-    }
-    return res;
-}
 Variant::operator PoolVector<Vector3>() const {
 
     if (type == VariantType::POOL_VECTOR3_ARRAY)
@@ -2212,14 +2195,21 @@ Variant::Variant(const Dictionary &p_dictionary) {
     type = VariantType::DICTIONARY;
     memnew_placement(_data._mem, Dictionary(p_dictionary));
 }
+Variant::Variant(Dictionary && p_dictionary) noexcept {
 
+    type = VariantType::DICTIONARY;
+    memnew_placement(_data._mem, Dictionary(eastl::move(p_dictionary)));
+}
 Variant::Variant(const Array &p_array) {
     static_assert(sizeof(_data._mem)>=sizeof(Array));
 
     type = VariantType::ARRAY;
     memnew_placement(_data._mem, Array(p_array));
 }
-
+Variant::Variant(Array && p_array) noexcept {
+    type = VariantType::ARRAY;
+    memnew_placement(_data._mem, Array(eastl::move(p_array)));
+}
 Variant::Variant(const PoolVector<Plane> &p_array) {
 
     type = VariantType::ARRAY;
@@ -2520,10 +2510,6 @@ Variant Variant::from(const Vector<int> &p_array) {
 template<>
 Variant Variant::from(const Vector<float> &p_array) {
     return fromVectorBuiltin<float>({p_array.ptr(),p_array.size()});
-}
-template<>
-Variant Variant::from(const Vector<String> &p_array) {
-    return fromVectorBuiltin<String>({p_array.ptr(),p_array.size()});
 }
 template<>
 Variant Variant::from(const Vector<se_string_view> &p_array) {

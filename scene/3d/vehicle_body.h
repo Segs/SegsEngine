@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef VEHICLE_BODY_H
-#define VEHICLE_BODY_H
+#pragma once
 
 #include "scene/3d/physics_body.h"
 
@@ -164,10 +163,10 @@ class VehicleBody : public RigidBody {
 
     Set<RID> exclude;
 
-    Vector<Vector3> m_forwardWS;
-    Vector<Vector3> m_axle;
-    Vector<real_t> m_forwardImpulse;
-    Vector<real_t> m_sideImpulse;
+    PODVector<Vector3> m_forwardWS;
+    PODVector<Vector3> m_axle;
+    PODVector<real_t> m_forwardImpulse;
+    PODVector<real_t> m_sideImpulse;
 
     struct btVehicleWheelContactPoint {
         PhysicsDirectBodyState *m_s;
@@ -190,7 +189,7 @@ class VehicleBody : public RigidBody {
     void _update_wheel(int p_idx, PhysicsDirectBodyState *s);
 
     friend class VehicleWheel;
-    Vector<VehicleWheel *> wheels;
+    PODVector<VehicleWheel *> wheels;
 
     static void _bind_methods();
 
@@ -208,5 +207,3 @@ public:
 
     VehicleBody();
 };
-
-#endif // VEHICLE_BODY_H

@@ -114,7 +114,7 @@ private:
     LineEdit *file_list_search_box;
 
     String searched_string;
-    Vector<String> uncollapsed_paths_before_search;
+    PODVector<String> uncollapsed_paths_before_search;
 
     TextureRect *search_icon;
     HBoxContainer *path_hb;
@@ -161,7 +161,7 @@ private:
     Vector<FileOrFolder> to_move;
     String to_move_path;
 
-    Vector<String> history;
+    PODVector<String> history;
     int history_pos;
     int history_max_size;
 
@@ -176,9 +176,9 @@ private:
     bool import_dock_needs_update;
 
     Ref<Texture> _get_tree_item_icon(EditorFileSystemDirectory *p_dir, int p_idx);
-    bool _create_tree(TreeItem *p_parent, EditorFileSystemDirectory *p_dir, Vector<String> &uncollapsed_paths, bool p_select_in_favorites, bool p_unfold_path=false);
-    Vector<String> _compute_uncollapsed_paths();
-    void _update_tree(const Vector<String> &p_uncollapsed_paths = Vector<String>(), bool p_uncollapse_root = false, bool p_select_in_favorites = false, bool p_unfold_path=false);
+    bool _create_tree(TreeItem *p_parent, EditorFileSystemDirectory *p_dir, PODVector<String> &uncollapsed_paths, bool p_select_in_favorites, bool p_unfold_path=false);
+    PODVector<String> _compute_uncollapsed_paths();
+    void _update_tree(const PODVector<String> &p_uncollapsed_paths = null_string_pvec, bool p_uncollapse_root = false, bool p_select_in_favorites = false, bool p_unfold_path=false);
     void _navigate_to_path(se_string_view p_path, bool p_select_in_favorites = false);
 
     void _file_list_gui_input(const Ref<InputEvent>& p_event);
@@ -199,8 +199,8 @@ private:
 
     void _update_import_dock();
 
-    void _get_all_items_in_dir(EditorFileSystemDirectory *efsd, Vector<String> &files, Vector<String> &folders) const;
-    void _find_remaps(EditorFileSystemDirectory *efsd, const Map<String, String> &renames, Vector<String> &to_remaps) const;
+    void _get_all_items_in_dir(EditorFileSystemDirectory *efsd, PODVector<String> &files, PODVector<String> &folders) const;
+    void _find_remaps(EditorFileSystemDirectory *efsd, const Map<String, String> &renames, PODVector<String> &to_remaps) const;
     void _try_move_item(const FileOrFolder &p_item, se_string_view p_new_path, Map<String, String> &p_file_renames, Map<String, String> &p_folder_renames);
     void _try_duplicate_item(const FileOrFolder &p_item, const String &p_new_path) const;
     void _update_dependencies_after_move(const Map<String, String> &p_renames) const;
@@ -250,7 +250,7 @@ private:
         String name;
         String path;
         StringName type;
-        Vector<String> sources;
+        PODVector<String> sources;
         bool import_broken;
 
         bool operator<(const FileInfo &fi) const {
@@ -258,7 +258,7 @@ private:
         }
     };
 
-    void _search(EditorFileSystemDirectory *p_path, List<FileInfo> *matches, int p_max_items);
+    void _search(EditorFileSystemDirectory *p_path, ListPOD<FileInfo> *matches, int p_max_items);
 
     void _set_current_path_text(se_string_view p_path);
 

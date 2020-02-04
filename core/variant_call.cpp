@@ -1052,7 +1052,7 @@ struct _VariantCall {
 
         int arg_count;
         Vector<VariantType> arg_types;
-        Vector<String> arg_names;
+        PODVector<String> arg_names;
         VariantConstructFunc func;
     };
 

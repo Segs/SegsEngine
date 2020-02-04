@@ -63,9 +63,9 @@ class ScriptTextEditor : public ScriptEditorBase {
 
     PODVector<String> functions;
 
-    List<Connection> missing_connections;
+    ListPOD<Connection> missing_connections;
 
-    Vector<String> member_keywords;
+    PODVector<String> member_keywords;
 
     HBoxContainer *edit_hb;
 
@@ -200,6 +200,7 @@ public:
     void reload_text() override;
     String get_name() override;
     Ref<Texture> get_icon() override;
+    void _validate_missing_connections(int &warning_nb);
     bool is_unsaved() override;
     Variant get_edit_state() override;
     void set_edit_state(const Variant &p_state) override;

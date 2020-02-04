@@ -59,7 +59,7 @@ void ResourcePreloaderEditor::_notification(int p_what) {
     }
 }
 
-void ResourcePreloaderEditor::_files_load_request(const Vector<String> &p_paths) {
+void ResourcePreloaderEditor::_files_load_request(const PODVector<String> &p_paths) {
 
     for (int i = 0; i < p_paths.size(); i++) {
 
@@ -341,7 +341,7 @@ void ResourcePreloaderEditor::drop_data_fw(const Point2 &p_point, const Variant 
 
     if (d["type"].as<String>() == "files") {
 
-        Vector<String> files(d["files"].as<Vector<String>>());
+        PODVector<String> files(d["files"].as<PODVector<String>>());
 
         _files_load_request(files);
     }

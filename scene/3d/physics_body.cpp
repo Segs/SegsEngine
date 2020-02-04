@@ -1263,11 +1263,11 @@ Ref<KinematicCollision> KinematicBody::_get_slide_collision(int p_bounce) {
     }
 
     if (not slide_colliders[p_bounce]) {
-        slide_colliders.write[p_bounce] = make_ref_counted<KinematicCollision>();
-        slide_colliders.write[p_bounce]->owner = this;
+        slide_colliders[p_bounce] = make_ref_counted<KinematicCollision>();
+        slide_colliders[p_bounce]->owner = this;
     }
 
-    slide_colliders.write[p_bounce]->collision = colliders[p_bounce];
+    slide_colliders[p_bounce]->collision = colliders[p_bounce];
     return slide_colliders[p_bounce];
 }
 
@@ -1330,7 +1330,7 @@ KinematicBody::~KinematicBody() {
 
     for (int i = 0; i < slide_colliders.size(); i++) {
         if (slide_colliders[i]) {
-            slide_colliders.write[i]->owner = nullptr;
+            slide_colliders[i]->owner = nullptr;
         }
     }
 }

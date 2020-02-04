@@ -32,39 +32,39 @@ float AssimpUtils::get_fbx_fps(int32_t time_mode, const aiScene *p_scene) {
 }
 
 void AssimpUtils::find_texture_path(se_string_view p_path, DirAccess *dir, String &path, bool &found, const String &extension) {
-    Vector<String> paths;
+    FixedVector<String,32,true> paths;
     using namespace PathUtils;
-    paths.push_back(String(get_basename(path)) + extension);
-    paths.push_back(path + extension);
-    paths.push_back(path);
-    paths.push_back(plus_file(get_base_dir(p_path),String(get_basename(get_file(path))) + extension));
-    paths.push_back(plus_file(get_base_dir(p_path),String(get_file(path)) + extension));
-    paths.push_back(plus_file(get_base_dir(p_path),get_file(path)));
-    paths.push_back(plus_file(get_base_dir(p_path),"textures/" + get_basename(get_file(path)) + extension));
-    paths.push_back(plus_file(get_base_dir(p_path),"textures/" + get_file(path) + extension));
-    paths.push_back(plus_file(get_base_dir(p_path),"textures/" + get_file(path)));
-    paths.push_back(plus_file(get_base_dir(p_path),"Textures/" + get_basename(get_file(path)) + extension));
-    paths.push_back(plus_file(get_base_dir(p_path),"Textures/" + get_file(path) + extension));
-    paths.push_back(plus_file(get_base_dir(p_path),"Textures/" + get_file(path)));
-    paths.push_back(plus_file(get_base_dir(p_path),"../Textures/" + get_file(path) + extension));
-    paths.push_back(plus_file(get_base_dir(p_path),"../Textures/" + get_basename(get_file(path)) + extension));
-    paths.push_back(plus_file(get_base_dir(p_path),"../Textures/" + get_file(path)));
-    paths.push_back(plus_file(get_base_dir(p_path),"../textures/" + get_basename(get_file(path)) + extension));
-    paths.push_back(plus_file(get_base_dir(p_path),"../textures/" + get_file(path) + extension));
-    paths.push_back(plus_file(get_base_dir(p_path),"../textures/" + get_file(path)));
-    paths.push_back(plus_file(get_base_dir(p_path),"texture/" + get_basename(get_file(path)) + extension));
-    paths.push_back(plus_file(get_base_dir(p_path),"texture/" + get_file(path) + extension));
-    paths.push_back(plus_file(get_base_dir(p_path),"texture/" + get_file(path)));
-    paths.push_back(plus_file(get_base_dir(p_path),"Texture/" + get_basename(get_file(path)) + extension));
-    paths.push_back(plus_file(get_base_dir(p_path),"Texture/" + get_file(path) + extension));
-    paths.push_back(plus_file(get_base_dir(p_path),"Texture/" + get_file(path)));
-    paths.push_back(plus_file(get_base_dir(p_path),"../Texture/" + get_file(path) + extension));
-    paths.push_back(plus_file(get_base_dir(p_path),"../Texture/" + get_basename(get_file(path)) + extension));
-    paths.push_back(plus_file(get_base_dir(p_path),"../Texture/" + get_file(path)));
-    paths.push_back(plus_file(get_base_dir(p_path),"../texture/" + get_basename(get_file(path)) + extension));
-    paths.push_back(plus_file(get_base_dir(p_path),"../texture/" + get_file(path) + extension));
-    paths.push_back(plus_file(get_base_dir(p_path),"../texture/" + get_file(path)));
-    for (int i = 0; i < paths.size(); i++) {
+    paths.emplace_back(String(get_basename(path)) + extension);
+    paths.emplace_back(path + extension);
+    paths.emplace_back(path);
+    paths.emplace_back(plus_file(get_base_dir(p_path),String(get_basename(get_file(path))) + extension));
+    paths.emplace_back(plus_file(get_base_dir(p_path),String(get_file(path)) + extension));
+    paths.emplace_back(plus_file(get_base_dir(p_path),get_file(path)));
+    paths.emplace_back(plus_file(get_base_dir(p_path),"textures/" + get_basename(get_file(path)) + extension));
+    paths.emplace_back(plus_file(get_base_dir(p_path),"textures/" + get_file(path) + extension));
+    paths.emplace_back(plus_file(get_base_dir(p_path),"textures/" + get_file(path)));
+    paths.emplace_back(plus_file(get_base_dir(p_path),"Textures/" + get_basename(get_file(path)) + extension));
+    paths.emplace_back(plus_file(get_base_dir(p_path),"Textures/" + get_file(path) + extension));
+    paths.emplace_back(plus_file(get_base_dir(p_path),"Textures/" + get_file(path)));
+    paths.emplace_back(plus_file(get_base_dir(p_path),"../Textures/" + get_file(path) + extension));
+    paths.emplace_back(plus_file(get_base_dir(p_path),"../Textures/" + get_basename(get_file(path)) + extension));
+    paths.emplace_back(plus_file(get_base_dir(p_path),"../Textures/" + get_file(path)));
+    paths.emplace_back(plus_file(get_base_dir(p_path),"../textures/" + get_basename(get_file(path)) + extension));
+    paths.emplace_back(plus_file(get_base_dir(p_path),"../textures/" + get_file(path) + extension));
+    paths.emplace_back(plus_file(get_base_dir(p_path),"../textures/" + get_file(path)));
+    paths.emplace_back(plus_file(get_base_dir(p_path),"texture/" + get_basename(get_file(path)) + extension));
+    paths.emplace_back(plus_file(get_base_dir(p_path),"texture/" + get_file(path) + extension));
+    paths.emplace_back(plus_file(get_base_dir(p_path),"texture/" + get_file(path)));
+    paths.emplace_back(plus_file(get_base_dir(p_path),"Texture/" + get_basename(get_file(path)) + extension));
+    paths.emplace_back(plus_file(get_base_dir(p_path),"Texture/" + get_file(path) + extension));
+    paths.emplace_back(plus_file(get_base_dir(p_path),"Texture/" + get_file(path)));
+    paths.emplace_back(plus_file(get_base_dir(p_path),"../Texture/" + get_file(path) + extension));
+    paths.emplace_back(plus_file(get_base_dir(p_path),"../Texture/" + get_basename(get_file(path)) + extension));
+    paths.emplace_back(plus_file(get_base_dir(p_path),"../Texture/" + get_file(path)));
+    paths.emplace_back(plus_file(get_base_dir(p_path),"../texture/" + get_basename(get_file(path)) + extension));
+    paths.emplace_back(plus_file(get_base_dir(p_path),"../texture/" + get_file(path) + extension));
+    paths.emplace_back(plus_file(get_base_dir(p_path),"../texture/" + get_file(path)));
+    for (size_t i = 0; i < paths.size(); i++) {
         if (dir->file_exists(paths[i])) {
             found = true;
             path = paths[i];

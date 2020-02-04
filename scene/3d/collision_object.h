@@ -38,20 +38,16 @@ class CollisionObject : public Spatial {
 
     GDCLASS(CollisionObject,Spatial)
 
-    bool area;
-
-    RID rid;
-
     struct ShapeData {
 
-        Object *owner;
+        Object* owner;
         Transform xform;
         struct ShapeBase {
             Ref<Shape> shape;
             int index;
         };
 
-        Vector<ShapeBase> shapes;
+        PODVector<ShapeBase> shapes;
         bool disabled;
 
         ShapeData() {
@@ -60,10 +56,11 @@ class CollisionObject : public Spatial {
         }
     };
 
+    RID rid;
     int total_subshapes;
-
     Map<uint32_t, ShapeData> shapes;
 
+    bool area;
     bool capture_input_on_drag;
     bool ray_pickable;
 

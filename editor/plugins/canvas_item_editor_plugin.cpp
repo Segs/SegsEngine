@@ -5846,33 +5846,34 @@ void CanvasItemEditorViewport::_on_change_type_closed() {
     _remove_preview();
 }
 
-void CanvasItemEditorViewport::_create_preview(const Vector<String> &files) const {
+void CanvasItemEditorViewport::_create_preview(const PODVector<String> &files) const {
 
     bool add_preview = false;
-    for (int i = 0; i < files.size(); i++) {
-        String path = files[i];
+    for (const String &path : files) {
         RES res(ResourceLoader::load(path));
         ERR_FAIL_COND(not res)
         Ref<Texture> texture = Ref<Texture>(object_cast<Texture>(res.get()));
         Ref<PackedScene> scene = Ref<PackedScene>(object_cast<PackedScene>(res.get()));
-        if (texture != nullptr || scene != nullptr) {
-            if (texture != nullptr) {
-                Sprite *sprite = memnew(Sprite);
-                sprite->set_texture(texture);
-                sprite->set_modulate(Color(1, 1, 1, 0.7f));
-                preview_node->add_child(sprite);
-                label->show();
-                label_desc->show();
-            } else {
-                if (scene) {
-                    Node *instance = scene->instance();
-                    if (instance) {
-                        preview_node->add_child(instance);
-                    }
+
+        if (texture == nullptr && scene == nullptr)
+            continue;
+
+        if (texture != nullptr) {
+            Sprite *sprite = memnew(Sprite);
+            sprite->set_texture(texture);
+            sprite->set_modulate(Color(1, 1, 1, 0.7f));
+            preview_node->add_child(sprite);
+            label->show();
+            label_desc->show();
+        } else {
+            if (scene) {
+                Node *instance = scene->instance();
+                if (instance) {
+                    preview_node->add_child(instance);
                 }
             }
-            add_preview = true;
         }
+        add_preview = true;
     }
 
     if (add_preview)
@@ -6093,7 +6094,7 @@ bool CanvasItemEditorViewport::can_drop_data(const Point2 &p_point, const Varian
         return false;
     }
 
-    Vector<String> files = d["files"].as<Vector<String>>();
+    PODVector<String> files(d["files"].as<PODVector<String>>());
     bool can_instance = false;
     for (int i = 0; i < files.size(); i++) { // check if dragged files contain resource or scene can be created at least once
         RES res(ResourceLoader::load(files[i]));
@@ -6167,7 +6168,7 @@ void CanvasItemEditorViewport::drop_data(const Point2 &p_point, const Variant &p
     selected_files.clear();
     Dictionary d = p_data;
     if (d.has("type") && UIString(d["type"]) == "files") {
-        selected_files = d["files"].as<Vector<String>>();
+        selected_files = d["files"].as<PODVector<String>>();
     }
     if (selected_files.empty())
         return;

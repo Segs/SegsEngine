@@ -108,6 +108,10 @@ public:
 
     Array(const Array &p_from);
     Array(PODVector<Variant> &&v) noexcept;
+    Array(Array &&from) noexcept {
+        _p = from._p;
+        from._p = nullptr;
+    }
     Array();
     ~Array();
 };

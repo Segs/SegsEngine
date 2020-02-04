@@ -60,13 +60,13 @@ void AnimationTreeEditor::edit(AnimationTree *p_tree) {
 
     tree = p_tree;
 
-    Vector<String> path;
-    if (tree->has_meta("_tree_edit_path")) {
-        path = tree->get_meta("_tree_edit_path").as<Vector<String>>();
-        edit_path(path);
-    } else {
+    if (!tree->has_meta("_tree_edit_path")) {
         current_root = 0;
+        return;
     }
+
+    PODVector<String> path(tree->get_meta("_tree_edit_path").as<PODVector<String>>());
+    edit_path(path);
 }
 
 void AnimationTreeEditor::_path_button_pressed(int p_path) {
@@ -104,49 +104,51 @@ void AnimationTreeEditor::_update_path() {
     }
 }
 
-void AnimationTreeEditor::edit_path(const Vector<String> &p_path) {
+void AnimationTreeEditor::edit_path(const PODVector<String> &p_path) {
 
     button_path.clear();
 
     Ref<AnimationNode> node = tree->get_tree_root();
 
-    if (node) {
-        current_root = node->get_instance_id();
-
-        for (int i = 0; i < p_path.size(); i++) {
-
-            Ref<AnimationNode> child = node->get_child_by_name(StringName(p_path[i]));
-            ERR_BREAK(not child);
-            node = child;
-            button_path.push_back(p_path[i]);
-        }
-
-        edited_path = button_path;
-
-        for (int i = 0; i < editors.size(); i++) {
-            if (editors[i]->can_edit(node)) {
-                editors[i]->edit(node);
-                editors[i]->show();
-            } else {
-                editors[i]->edit(Ref<AnimationNode>());
-                editors[i]->hide();
-            }
-        }
-    } else {
+    if (!node) {
         current_root = 0;
         edited_path = button_path;
+        _update_path();
+        return;
+    }
+
+    current_root = node->get_instance_id();
+
+    for (int i = 0; i < p_path.size(); i++) {
+
+        Ref<AnimationNode> child = node->get_child_by_name(StringName(p_path[i]));
+        ERR_BREAK(not child);
+        node = child;
+        button_path.push_back(p_path[i]);
+    }
+
+    edited_path = button_path;
+
+    for (int i = 0; i < editors.size(); i++) {
+        if (editors[i]->can_edit(node)) {
+            editors[i]->edit(node);
+            editors[i]->show();
+        } else {
+            editors[i]->edit(Ref<AnimationNode>());
+            editors[i]->hide();
+        }
     }
 
     _update_path();
 }
 
-Vector<String> AnimationTreeEditor::get_edited_path() const {
+const PODVector<String>& AnimationTreeEditor::get_edited_path() const {
     return button_path;
 }
 
 void AnimationTreeEditor::enter_editor(se_string_view p_path) {
 
-    Vector<String> path = eastl::move(edited_path);
+    PODVector<String> path(eastl::move(edited_path));
     path.emplace_back(p_path);
     edit_path(path);
 }
@@ -189,7 +191,7 @@ void AnimationTreeEditor::add_plugin(AnimationTreeNodeEditorPlugin *p_editor) {
 void AnimationTreeEditor::remove_plugin(AnimationTreeNodeEditorPlugin *p_editor) {
     ERR_FAIL_COND(p_editor->get_parent() != editor_base)
     editor_base->remove_child(p_editor);
-    editors.erase(p_editor);
+    editors.erase_first(p_editor);
 }
 
 String AnimationTreeEditor::get_base_path() {
@@ -209,23 +211,23 @@ bool AnimationTreeEditor::can_edit(const Ref<AnimationNode> &p_node) const {
     return false;
 }
 
-Vector<String> AnimationTreeEditor::get_animation_list() {
+PODVector<String> AnimationTreeEditor::get_animation_list() {
 
     if (!singleton->is_visible()) {
-        return Vector<String>();
+        return {};
     }
 
     AnimationTree *tree = singleton->tree;
     if (!tree || !tree->has_node(tree->get_animation_player()))
-        return Vector<String>();
+        return {};
 
     AnimationPlayer *ap = object_cast<AnimationPlayer>(tree->get_node(tree->get_animation_player()));
 
     if (!ap)
-        return Vector<String>();
+        return {};
 
     PODVector<StringName> anims(ap->get_animation_list());
-    Vector<String> ret;
+    PODVector<String> ret;
     for (const StringName &E : anims) {
         ret.emplace_back(E);
     }

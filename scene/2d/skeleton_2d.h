@@ -88,7 +88,7 @@ class Skeleton2D : public Node2D {
 		Transform2D rest_inverse;
 	};
 
-	Vector<Bone> bones;
+	PODVector<Bone> bones;
 
 	bool bone_setup_dirty;
 	void _make_bone_setup_dirty();

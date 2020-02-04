@@ -502,8 +502,8 @@ private:
     void _update_recent_scenes();
     void _open_recent_scene(int p_idx);
     void _global_menu_action(const Variant &p_id, const Variant &p_meta);
-    void _dropped_files(const Vector<String> &p_files, int p_screen);
-    void _add_dropped_files_recursive(const Vector<String> &p_files, se_string_view to_path);
+    void _dropped_files(const PODVector<String> &p_files, int p_screen);
+    void _add_dropped_files_recursive(const PODVector<String> &p_files, se_string_view to_path);
     UIString _recent_scene;
 
     void _exit_editor();
@@ -831,7 +831,7 @@ public:
     void remove_tool_menu_item(const StringName &p_name);
 
     void save_all_scenes();
-    void save_scene_list(const Vector<String> &p_scene_filenames);
+    void save_scene_list(const PODVector<String> &p_scene_filenames);
     void restart_editor();
 
     void dim_editor(bool p_dimming, bool p_force_dim = false);

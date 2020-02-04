@@ -309,7 +309,6 @@ struct GetTypeInfo<const Variant &> {
     };
 
 MAKE_TEMPLATE_TYPE_INFO(Vector, float, VariantType::POOL_REAL_ARRAY)
-MAKE_TEMPLATE_TYPE_INFO(Vector, String, VariantType::POOL_STRING_ARRAY)
 MAKE_TEMPLATE_TYPE_INFO(Vector, Vector2, VariantType::POOL_VECTOR2_ARRAY)
 MAKE_TEMPLATE_TYPE_INFO(Vector, Vector3, VariantType::POOL_VECTOR3_ARRAY)
 

@@ -283,10 +283,10 @@ ZipArchive::ZipArchive(QObject *ob) : QObject(ob) {
 
 ZipArchive::~ZipArchive() {
 
-    for (int i = 0; i < packages.size(); i++) {
+    for (auto &package : packages) {
 
-        FileAccess *f = (FileAccess *)unzGetOpaque(packages[i].zfile);
-        unzClose(packages[i].zfile);
+        FileAccess *f = (FileAccess *)unzGetOpaque(package.zfile);
+        unzClose(package.zfile);
         memdelete(f);
     }
 

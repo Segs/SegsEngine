@@ -72,6 +72,16 @@ public:
     uint32_t hash() const;
     Dictionary &operator=(const Dictionary &p_dictionary);
 
+    Dictionary &operator=(Dictionary &&p_from) noexcept {
+        if (this == &p_from)
+            return *this;
+        if (_p)
+            _unref();
+        _p = p_from._p;
+        p_from._p = nullptr;
+        return *this;
+    }
+
     const Variant *next(const Variant *p_key = nullptr) const;
 
     Array keys() const;
@@ -82,6 +92,10 @@ public:
     const void *id() const;
 
     Dictionary(const Dictionary &p_from);
+    Dictionary(Dictionary && p_from) noexcept {
+        _p = p_from._p;
+        p_from._p = nullptr;
+    }
     Dictionary();
     ~Dictionary();
 };

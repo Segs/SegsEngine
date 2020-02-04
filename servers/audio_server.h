@@ -347,40 +347,20 @@ class AudioBusLayout : public Resource {
 
     friend class AudioServer;
 
-    struct Bus {
-
-        StringName name;
-        bool solo;
-        bool mute;
-        bool bypass;
-
-        struct Effect {
-            Ref<AudioEffect> effect;
-            bool enabled;
-        };
-
-        Vector<Effect> effects;
-
-        float volume_db;
-        StringName send;
-
-        Bus() {
-            solo = false;
-            mute = false;
-            bypass = false;
-            volume_db = 0;
-        }
-    };
-
-    Vector<Bus> buses;
-
+    void *m_priv; // PIMPL data
+    // Used by audio server to retrieve/set the layout
+    void generate_bus_layout(const PODVector<AudioServerBus *> &buses);
+    size_t bus_count() const;
+    void fill_bus_info(int idx, AudioServerBus *tgt);
 protected:
     bool _set(const StringName &p_name, const Variant &p_value);
     bool _get(const StringName &p_name, Variant &r_ret) const;
     void _get_property_list(ListPOD<PropertyInfo> *p_list) const;
 
 public:
+
     AudioBusLayout();
+    ~AudioBusLayout() override;
 };
 
 using AS = AudioServer;

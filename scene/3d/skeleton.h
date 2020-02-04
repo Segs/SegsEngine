@@ -66,11 +66,6 @@ class GODOT_EXPORT Skeleton : public Spatial {
     GDCLASS(Skeleton,Spatial)
 private:
 	friend class SkinReference;
-
-	Set<SkinReference *> skin_bindings;
-
-	void _skin_changed();
-
     struct Bone {
 
         String name;
@@ -86,15 +81,15 @@ private:
         Transform pose;
         Transform pose_global;
 
-		bool custom_pose_enable;
-		Transform custom_pose;
-		float global_pose_override_amount;
-		bool global_pose_override_reset;
-		Transform global_pose_override;
+        bool custom_pose_enable;
+        Transform custom_pose;
+        float global_pose_override_amount;
+        bool global_pose_override_reset;
+        Transform global_pose_override;
 
 #ifndef _3D_DISABLED
-        PhysicalBone *physical_bone;
-        PhysicalBone *cache_parent_physical_bone;
+        PhysicalBone* physical_bone;
+        PhysicalBone* cache_parent_physical_bone;
 #endif // _3D_DISABLED
 
         List<uint32_t> nodes_bound;
@@ -103,9 +98,9 @@ private:
             parent = -1;
             enabled = true;
             disable_rest = false;
-			custom_pose_enable = false;
-			global_pose_override_amount = 0;
-			global_pose_override_reset = false;
+            custom_pose_enable = false;
+            global_pose_override_amount = 0;
+            global_pose_override_reset = false;
 #ifndef _3D_DISABLED
             physical_bone = nullptr;
             cache_parent_physical_bone = nullptr;
@@ -114,13 +109,14 @@ private:
     };
 
 
-    Vector<Bone> bones;
-    Vector<int> process_order;
+	Set<SkinReference *> skin_bindings;
+    PODVector<Bone> bones;
+    PODVector<int> process_order;
     bool process_order_dirty;
-
-
-    void _make_dirty();
     bool dirty;
+
+	void _skin_changed();
+    void _make_dirty();
 public:
     // bind helpers
     Array _get_bound_child_nodes_to_bone(int p_bone) const {
@@ -130,7 +126,6 @@ public:
         get_bound_child_nodes_to_bone(p_bone, &children);
 
         for (int i = 0; i < children.size(); i++) {
-
             bound.push_back(Variant(children[i]));
         }
         return bound;

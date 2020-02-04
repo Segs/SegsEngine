@@ -202,7 +202,7 @@ public:
 
         struct Source {
 
-            Vector<String> sarray;
+            PODVector<String> sarray;
             PODVector<float> array;
             int stride;
         };
@@ -225,7 +225,7 @@ public:
 
         struct Source {
 
-            Vector<String> sarray; //maybe for names
+            PODVector<String> sarray; //maybe for names
             PODVector<float> array;
             int stride = 1;
         };
@@ -265,7 +265,7 @@ public:
         struct Source {
 
             int stride;
-            Vector<String> sarray; //maybe for names
+            PODVector<String> sarray; //maybe for names
             PODVector<float> array;
             Source() { stride = 1; }
         };
@@ -436,7 +436,7 @@ public:
         };
 
         Map<String, Material> material_map;
-        Vector<String> skeletons;
+        PODVector<String> skeletons;
 
         NodeGeometry() { type = TYPE_GEOMETRY; }
     };
@@ -458,10 +458,10 @@ public:
     struct VisualScene {
 
         String name;
-        Vector<Node *> root_nodes;
+        PODVector<Node *> root_nodes;
 
         ~VisualScene() {
-            for (int i = 0; i < root_nodes.size(); i++)
+            for (size_t i = 0; i < root_nodes.size(); i++)
                 memdelete(root_nodes[i]);
         }
     };
@@ -471,7 +471,7 @@ public:
         String name;
         float begin;
         float end;
-        Vector<String> tracks;
+        PODVector<String> tracks;
 
         AnimationClip() {
             begin = 0;
@@ -503,9 +503,7 @@ public:
             PODVector<float> data;
             Point2 in_tangent;
             Point2 out_tangent;
-            InterpolationType interp_type;
-
-            Key() { interp_type = INTERP_LINEAR; }
+            InterpolationType interp_type= INTERP_LINEAR;
         };
 
         PODVector<float> get_value_at_time(float p_time) const;
@@ -624,7 +622,7 @@ private: // private stuff
 
     Variant _parse_param(XMLParser &parser);
     PODVector<float> _read_float_array(XMLParser &parser);
-    Vector<String> _read_string_array(XMLParser &parser);
+    PODVector<String> _read_string_array(XMLParser &parser);
     Transform _read_transform(XMLParser &parser);
     String _read_empty_draw_type(XMLParser &parser);
 

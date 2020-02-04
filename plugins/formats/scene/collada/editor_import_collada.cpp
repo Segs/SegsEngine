@@ -99,7 +99,7 @@ struct ColladaImport {
     void create_animations(bool p_make_tracks_in_all_bones, bool p_import_value_tracks);
 
     Set<String> tracks_in_clips;
-    Vector<String> missing_textures;
+    PODVector<String> missing_textures;
 
     void _pre_process_lights(Collada::Node *p_node);
 
@@ -1105,7 +1105,7 @@ Error ColladaImport::_create_resources(Collada::Node *p_node, bool p_use_compres
                     ERR_FAIL_COND_V(!collada.state.skin_controller_data_map.contains(ngsource), ERR_INVALID_DATA)
                     skin = &collada.state.skin_controller_data_map[ngsource];
 
-                    Vector<String> skeletons = ng2->skeletons;
+                    const PODVector<String> &skeletons = ng2->skeletons;
 
                     ERR_FAIL_COND_V(skeletons.empty(), ERR_INVALID_DATA)
 
@@ -1163,22 +1163,20 @@ Error ColladaImport::_create_resources(Collada::Node *p_node, bool p_use_compres
                         bool valid = false;
                         if (morph->sources.contains(target)) {
                             valid = true;
-                            Vector<String> names = morph->sources[target].sarray;
-                            for (int i = 0; i < names.size(); i++) {
-
-                                String meshid2 = names[i];
-                                if (collada.state.mesh_data_map.contains(meshid2)) {
-                                    Ref<ArrayMesh> mesh(make_ref_counted<ArrayMesh>());
-                                    const Collada::MeshData &meshdata = collada.state.mesh_data_map[meshid2];
-                                    mesh->set_name(meshdata.name);
-                                    Error err = _create_mesh_surfaces(false, mesh, ng2->material_map, meshdata, apply_xform, bone_remap, skin, nullptr,
-                                            Vector<Ref<ArrayMesh>>(), false);
-                                    ERR_FAIL_COND_V(err, err)
-
-                                    morphs.push_back(mesh);
-                                } else {
+                            const PODVector<String> &names = morph->sources[target].sarray;
+                            for (const String& meshid2 : names) {
+                                if (!collada.state.mesh_data_map.contains(meshid2)) {
                                     valid = false;
-                                }
+                                    continue; // TODO: SEGS: shouldn't this just break out of the loop here ?
+                                } 
+                                Ref<ArrayMesh> mesh(make_ref_counted<ArrayMesh>());
+                                const Collada::MeshData &meshdata = collada.state.mesh_data_map[meshid2];
+                                mesh->set_name(meshdata.name);
+                                Error err = _create_mesh_surfaces(false, mesh, ng2->material_map, meshdata, apply_xform, bone_remap, skin, nullptr,
+                                        Vector<Ref<ArrayMesh>>(), false);
+                                ERR_FAIL_COND_V(err, err)
+
+                                morphs.push_back(mesh);
                             }
                         }
 

@@ -218,7 +218,7 @@ bool TileSetEditor::can_drop_data_fw(const Point2 &p_point, const Variant &p_dat
 
     if (UIString(d["type"]) == "files") {
 
-        Vector<String> files = d["files"].as<Vector<String>>();
+        PODVector<String> files(d["files"].as<PODVector<String>>());
 
         if (files.empty())
             return false;

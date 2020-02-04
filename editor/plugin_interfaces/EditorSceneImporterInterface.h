@@ -34,7 +34,7 @@ class EditorSceneExporterInterface {
 //    friend class ImageSaver;
 public:
     virtual bool can_save(const String &extension)=0; // support for multi-format plugins
-    virtual void get_extensions(Vector<String> *p_extensions) const = 0;
-public:
-    virtual ~EditorSceneExporterInterface() {}
+    virtual void get_extensions(PODVector<String> *p_extensions) const = 0;
+
+    virtual ~EditorSceneExporterInterface() = default;
 };

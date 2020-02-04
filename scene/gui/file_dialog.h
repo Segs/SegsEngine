@@ -140,7 +140,7 @@ public:
     const PODVector<String> &get_filters() const;
 
     void set_enable_multiple_selection(bool p_enable);
-    Vector<String> get_selected_files() const;
+    PODVector<String> get_selected_files() const;
 
     String get_current_dir() const;
     String get_current_file() const;

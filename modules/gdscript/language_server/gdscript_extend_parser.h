@@ -52,7 +52,7 @@ typedef DefHashMap<String, const lsp::DocumentSymbol *> ClassMembers;
 class ExtendGDScriptParser : public GDScriptParser {
 
     String path;
-    Vector<String> lines;
+    PODVector<String> lines;
 
     lsp::DocumentSymbol class_symbol;
     Vector<lsp::Diagnostic> diagnostics;
@@ -78,7 +78,7 @@ class ExtendGDScriptParser : public GDScriptParser {
 
 public:
     const String &get_path() const { return path; }
-    const Vector<String> &get_lines() const { return lines; }
+    const PODVector<String> &get_lines() const { return lines; }
     const lsp::DocumentSymbol &get_symbols() const { return class_symbol; }
     const Vector<lsp::Diagnostic> &get_diagnostics() const { return diagnostics; }
     const ClassMembers &get_members() const { return members; }
