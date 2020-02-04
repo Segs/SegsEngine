@@ -7119,7 +7119,7 @@ MonoArray* godot_icall_BitmapFont__get_kernings_2a166acd(Object * ptr) {
 
 void godot_icall_BitmapFont__set_textures_2923a790(Object * ptr, Array* arg1) {
     ERR_FAIL_NULL(ptr)
-    static_cast<BitmapFont *>(ptr)->_set_textures(*arg1);
+    static_cast<BitmapFont *>(ptr)->_set_textures(arg1->vals());
 }
 
 Array* godot_icall_BitmapFont__get_textures_d80382d4(Object * ptr) {
@@ -32030,7 +32030,7 @@ Dictionary* godot_icall_RichTextLabel_parse_expressions_for_values_8a00ce5a(Obje
 
 void godot_icall_RichTextLabel_set_effects_2923a790(Object * ptr, Array* arg1) {
     ERR_FAIL_NULL(ptr)
-    static_cast<RichTextLabel *>(ptr)->set_effects(*arg1);
+    static_cast<RichTextLabel *>(ptr)->set_effects(arg1->vals());
 }
 
 Array* godot_icall_RichTextLabel_get_effects_d80382d4(Object * ptr) {

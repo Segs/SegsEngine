@@ -65,7 +65,7 @@ private:
     bool error;
     Variant value;
 
-    Vector<ClassDecl> classes;
+    PODVector<ClassDecl> classes;
 
     enum Token {
         TK_BRACKET_OPEN,
@@ -106,7 +106,7 @@ public:
         return error_str;
     }
 
-    Vector<ClassDecl> get_classes();
+    const PODVector<ClassDecl> &get_classes() { return classes; }
 };
 
 #endif // SCRIPT_CLASS_PARSER_H

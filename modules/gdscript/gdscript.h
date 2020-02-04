@@ -238,7 +238,7 @@ class GDScriptInstance : public ScriptInstance {
 #ifdef DEBUG_ENABLED
     Map<StringName, int> member_indices_cache; //used only for hot script reloading
 #endif
-    Vector<Variant> members;
+    PODVector<Variant> members;
     bool base_ref;
 
     void _ml_call_reversed(GDScript *sptr, const StringName &p_method, const Variant **p_args, int p_argcount);
@@ -328,7 +328,7 @@ class GDScriptLanguage : public ScriptLanguage {
     static GDScriptLanguage *singleton;
 
     Variant *_global_array;
-    Vector<Variant> global_array;
+    PODVector<Variant> global_array;
     Map<StringName, int> globals;
     Map<StringName, Variant> named_globals;
 

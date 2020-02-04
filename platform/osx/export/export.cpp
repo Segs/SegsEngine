@@ -691,7 +691,7 @@ Error EditorExportPlatformOSX::export_project(const Ref<EditorExportPreset> &p_p
 
         if (export_format == "dmg") {
             String pack_path = tmp_app_path_name + "/Contents/Resources/" + pkg_name + ".pck";
-            Vector<SharedObject> shared_objects;
+            PODVector<SharedObject> shared_objects;
             err = save_pack(p_preset, pack_path, &shared_objects);
 
             // see if we can code sign our new package
@@ -736,7 +736,7 @@ Error EditorExportPlatformOSX::export_project(const Ref<EditorExportPreset> &p_p
 
             String pack_path = PathUtils::plus_file(EditorSettings::get_singleton()->get_cache_dir(),pkg_name + ".pck");
 
-            Vector<SharedObject> shared_objects;
+            PODVector<SharedObject> shared_objects;
             err = save_pack(p_preset, pack_path, &shared_objects);
 
             if (err == OK) {

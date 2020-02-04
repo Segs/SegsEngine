@@ -454,8 +454,8 @@ void MultiplayerAPI::_process_rpc(Node *p_node, const StringName &p_name, int p_
                                          ::to_string(p_node->get_network_master()) + ".")
 
     int argc = p_packet[p_offset];
-    Vector<Variant> args;
-    Vector<const Variant *> argp;
+    PODVector<Variant> args;
+    PODVector<const Variant *> argp;
     args.resize(argc);
     argp.resize(argc);
 
@@ -468,18 +468,18 @@ void MultiplayerAPI::_process_rpc(Node *p_node, const StringName &p_name, int p_
         ERR_FAIL_COND_MSG(p_offset >= p_packet_len, "Invalid packet received. Size too small.")
 
         int vlen;
-        Error err = decode_variant(args.write[i], &p_packet[p_offset], p_packet_len - p_offset, &vlen, allow_object_decoding || network_peer->is_object_decoding_allowed());
+        Error err = decode_variant(args[i], &p_packet[p_offset], p_packet_len - p_offset, &vlen, allow_object_decoding || network_peer->is_object_decoding_allowed());
         ERR_FAIL_COND_MSG(err != OK, "Invalid packet received. Unable to decode RPC argument.")
 
-        argp.write[i] = &args[i];
+        argp[i] = &args[i];
         p_offset += vlen;
     }
 
     Variant::CallError ce;
 
-    p_node->call(p_name, (const Variant **)argp.ptr(), argc, ce);
+    p_node->call(p_name, (const Variant **)argp.data(), argc, ce);
     if (ce.error != Variant::CallError::CALL_OK) {
-        String error = Variant::get_call_error_text(p_node, p_name, (const Variant **)argp.ptr(), argc, ce);
+        String error = Variant::get_call_error_text(p_node, p_name, (const Variant **)argp.data(), argc, ce);
         error = "RPC - " + error;
         ERR_PRINT(error)
     }
@@ -540,15 +540,15 @@ void MultiplayerAPI::_process_simplify_path(int p_from, const uint8_t *p_packet,
     String pname(path);
     int len = encode_cstring(pname.data(), nullptr);
 
-    Vector<uint8_t> packet;
+    PODVector<uint8_t> packet;
 
     packet.resize(1 + len);
-    packet.write[0] = NETWORK_COMMAND_CONFIRM_PATH;
-    encode_cstring(pname.data(), &packet.write[1]);
+    packet[0] = NETWORK_COMMAND_CONFIRM_PATH;
+    encode_cstring(pname.data(), &packet[1]);
 
     network_peer->set_transfer_mode(NetworkedMultiplayerPeer::TRANSFER_MODE_RELIABLE);
     network_peer->set_target_peer(p_from);
-    network_peer->put_packet(packet.ptr(), packet.size());
+    network_peer->put_packet(packet.data(), packet.size());
 }
 
 void MultiplayerAPI::_process_confirm_path(int p_from, const uint8_t *p_packet, int p_packet_len) {
@@ -600,16 +600,16 @@ bool MultiplayerAPI::_send_confirm_path(const NodePath& p_path, PathSentCache *p
         String pname(p_path);
         int len = encode_cstring(pname.data(), nullptr);
 
-        Vector<uint8_t> packet;
+        PODVector<uint8_t> packet;
 
         packet.resize(1 + 4 + len);
-        packet.write[0] = NETWORK_COMMAND_SIMPLIFY_PATH;
-        encode_uint32(psc->id, &packet.write[1]);
-        encode_cstring(pname.data(), &packet.write[5]);
+        packet[0] = NETWORK_COMMAND_SIMPLIFY_PATH;
+        encode_uint32(psc->id, &packet[1]);
+        encode_cstring(pname.data(), &packet[5]);
 
         network_peer->set_target_peer(peer); // To all of you.
         network_peer->set_transfer_mode(NetworkedMultiplayerPeer::TRANSFER_MODE_RELIABLE);
-        network_peer->put_packet(packet.ptr(), packet.size());
+        network_peer->put_packet(packet.data(), packet.size());
 
         psc->confirmed_peers.emplace(peer, false); // Insert into confirmed, but as false since it was not confirmed.
     }

@@ -727,6 +727,4 @@ Error ScriptClassParser::parse_file(se_string_view p_filepath) {
 
 
 
-Vector<ScriptClassParser::ClassDecl> ScriptClassParser::get_classes() {
-    return classes;
-}
+

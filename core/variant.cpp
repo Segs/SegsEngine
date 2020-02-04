@@ -2370,6 +2370,16 @@ Variant Variant::from(const PODVector<String> &p_array) {
     return fromVectorBuiltin<String>(p_array);
 }
 template<>
+Variant Variant::move_from(PODVector<Variant> &&p_array) {
+    return Array(eastl::move(p_array));
+}
+template<>
+Variant Variant::from(const PODVector<Variant> &p_array) {
+    Array res;
+    res.push_back(p_array.data(),p_array.size());
+    return res;
+}
+template<>
 Variant Variant::from(const PODVector<se_string_view> &p_array) {
     Variant res;
     PoolVector<String> *plane_array = memnew_placement(res._data._mem, PoolVector<String>);

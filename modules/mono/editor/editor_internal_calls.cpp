@@ -211,7 +211,7 @@ int32_t godot_icall_ScriptClassParser_ParseFile(MonoString *p_filepath, MonoObje
     Error err = scp.parse_file(filepath);
     if (err == OK) {
         Array classes = GDMonoMarshal::mono_object_to_variant(p_classes);
-        const Vector<ScriptClassParser::ClassDecl> &class_decls = scp.get_classes();
+        const PODVector<ScriptClassParser::ClassDecl> &class_decls = scp.get_classes();
 
         for (int i = 0; i < class_decls.size(); i++) {
             const ScriptClassParser::ClassDecl &classDecl = class_decls[i];

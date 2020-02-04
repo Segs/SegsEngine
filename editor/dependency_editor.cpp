@@ -40,6 +40,7 @@
 #include "editor_node.h"
 #include "scene/gui/item_list.h"
 #include "scene/gui/margin_container.h"
+#include "EASTL/sort.h"
 
 IMPL_GDCLASS(DependencyEditor)
 IMPL_GDCLASS(DependencyEditorOwners)
@@ -333,7 +334,7 @@ void DependencyEditorOwners::_fill_owners(EditorFileSystemDirectory *efsd) {
 
     for (int i = 0; i < efsd->get_file_count(); i++) {
 
-        Vector<String> deps = efsd->get_file_deps(i);
+        const PODVector<String> &deps = efsd->get_file_deps(i);
         bool found = false;
         for (int j = 0; j < deps.size(); j++) {
             if (deps[j] == editing) {
@@ -392,7 +393,7 @@ void DependencyRemoveDialog::_find_files_in_removed_folder(EditorFileSystemDirec
     }
 }
 
-void DependencyRemoveDialog::_find_all_removed_dependencies(EditorFileSystemDirectory *efsd, Vector<RemovedDependency> &p_removed) {
+void DependencyRemoveDialog::_find_all_removed_dependencies(EditorFileSystemDirectory *efsd, PODVector<RemovedDependency> &p_removed) {
     if (!efsd)
         return;
 
@@ -407,7 +408,7 @@ void DependencyRemoveDialog::_find_all_removed_dependencies(EditorFileSystemDire
         if (all_remove_files.contains(path))
             continue;
 
-        Vector<String> all_deps = efsd->get_file_deps(i);
+        const PODVector<String> &all_deps = efsd->get_file_deps(i);
         for (int j = 0; j < all_deps.size(); ++j) {
             if (all_remove_files.contains(all_deps[j])) {
                 RemovedDependency dep;
@@ -421,7 +422,7 @@ void DependencyRemoveDialog::_find_all_removed_dependencies(EditorFileSystemDire
     }
 }
 
-void DependencyRemoveDialog::_build_removed_dependency_tree(const Vector<RemovedDependency> &p_removed) {
+void DependencyRemoveDialog::_build_removed_dependency_tree(const PODVector<RemovedDependency> &p_removed) {
     owners->clear();
     owners->create_item(); // root
 
@@ -459,7 +460,7 @@ void DependencyRemoveDialog::_build_removed_dependency_tree(const Vector<Removed
     }
 }
 
-void DependencyRemoveDialog::show(const Vector<String> &p_folders, const Vector<String> &p_files) {
+void DependencyRemoveDialog::show(const PODVector<String> &p_folders, const PODVector<String> &p_files) {
     all_remove_files.clear();
     dirs_to_delete.clear();
     files_to_delete.clear();
@@ -475,9 +476,9 @@ void DependencyRemoveDialog::show(const Vector<String> &p_folders, const Vector<
         files_to_delete.push_back(p_files[i]);
     }
 
-    Vector<RemovedDependency> removed_deps;
+    PODVector<RemovedDependency> removed_deps;
     _find_all_removed_dependencies(EditorFileSystem::get_singleton()->get_filesystem(), removed_deps);
-    removed_deps.sort();
+    eastl::sort(removed_deps.begin(),removed_deps.end());
     if (removed_deps.empty()) {
         owners->hide();
         text->set_text(TTR("Remove selected files from the project? (Can't be restored)"));
@@ -563,10 +564,10 @@ void DependencyRemoveDialog::ok_pressed() {
 
     for (int i = 0; i < previous_favorites.size(); ++i) {
         if (StringUtils::ends_with(previous_favorites[i],"/")) {
-            if (dirs_to_delete.find(previous_favorites[i]) < 0)
+            if (not dirs_to_delete.contains(previous_favorites[i]))
                 new_favorites.push_back(previous_favorites[i]);
         } else {
-            if (files_to_delete.find(previous_favorites[i]) < 0)
+            if (not files_to_delete.contains(previous_favorites[i]))
                 new_favorites.push_back(previous_favorites[i]);
         }
     }
@@ -709,7 +710,7 @@ bool OrphanResourcesDialog::_fill_owners(EditorFileSystemDirectory *efsd, HashMa
     for (int i = 0; i < efsd->get_file_count(); i++) {
 
         if (!p_parent) {
-            const Vector<String> &deps = efsd->get_file_deps(i);
+            const PODVector<String> &deps = efsd->get_file_deps(i);
             for (int j = 0; j < deps.size(); j++) {
 
                 if (!refs.contains(deps[j])) {

@@ -824,7 +824,7 @@ void ScriptEditorDebugger::_parse_message(const String &p_msg, const Array &p_da
                     } break;
                     case Performance::MONITOR_TYPE_TIME: {
                         label = StringName(StringUtils::pad_decimals(rtos(v * 1000),2) + " ms");
-                        tooltip = tooltip;
+                        //tooltip = tooltip;
                     } break;
                     default: {
                         tooltip = tooltip + " " + perf_items[i]->get_text_ui(0);

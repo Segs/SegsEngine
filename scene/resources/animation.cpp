@@ -1076,7 +1076,7 @@ void Animation::track_insert_key(int p_track, float p_time, const Variant &p_key
             k.time = p_time;
             k.transition = p_transition;
             k.method = d["method"];
-            k.params = d["args"].as<Vector<Variant>>();
+            k.params = d["args"].as<PODVector<Variant>>();
 
             _insert(p_time, mt->methods, k);
 
@@ -1458,7 +1458,7 @@ void Animation::track_set_key_value(int p_track, int p_key_idx, const Variant &p
             if (d.has("method"))
                 mt->methods.write[p_key_idx].method = d["method"];
             if (d.has("args"))
-                mt->methods.write[p_key_idx].params = d["args"].as<Vector<Variant>>();
+                mt->methods.write[p_key_idx].params = d["args"].as<PODVector<Variant>>();
 
         } break;
         case TYPE_BEZIER: {
@@ -2265,15 +2265,15 @@ void Animation::method_track_get_key_indices(int p_track, float p_time, float p_
 
     _method_track_get_key_indices_in_range(mt, from_time, to_time, p_indices);
 }
-Vector<Variant> Animation::method_track_get_params(int p_track, int p_key_idx) const {
+const PODVector<Variant> &Animation::method_track_get_params(int p_track, int p_key_idx) const {
 
-    ERR_FAIL_INDEX_V(p_track, tracks.size(), Vector<Variant>())
+    ERR_FAIL_INDEX_V(p_track, tracks.size(), null_variant_pvec)
     Track *t = tracks[p_track];
-    ERR_FAIL_COND_V(t->type != TYPE_METHOD, Vector<Variant>())
+    ERR_FAIL_COND_V(t->type != TYPE_METHOD, null_variant_pvec)
 
     MethodTrack *pm = static_cast<MethodTrack *>(t);
 
-    ERR_FAIL_INDEX_V(p_key_idx, pm->methods.size(), Vector<Variant>())
+    ERR_FAIL_INDEX_V(p_key_idx, pm->methods.size(), null_variant_pvec)
 
     const MethodKey &mk = pm->methods[p_key_idx];
 

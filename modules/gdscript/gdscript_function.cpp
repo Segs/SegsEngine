@@ -68,7 +68,7 @@ Variant *GDScriptFunction::_get_variant(int p_address, GDScriptInstance *p_insta
             }
 #endif
             //member indexing is O(1)
-            return &p_instance->members.write[address];
+            return &p_instance->members[address];
         }
         case ADDR_TYPE_CLASS_CONSTANT: {
 

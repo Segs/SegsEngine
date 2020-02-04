@@ -203,7 +203,7 @@ PoolVector<int> BitmapFont::_get_kernings() const {
     return kernings;
 }
 
-void BitmapFont::_set_textures(const Vector<Variant> &p_textures) {
+void BitmapFont::_set_textures(const PODVector<Variant> &p_textures) {
 
     textures.clear();
     textures.reserve(p_textures.size());

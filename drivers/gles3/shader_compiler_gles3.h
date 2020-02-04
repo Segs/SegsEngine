@@ -50,7 +50,7 @@ public:
 
     struct GeneratedCode {
 
-        Vector<String> defines;
+        PODVector<String> defines;
         PODVector<StringName> texture_uniforms;
         Vector<ShaderLanguage::DataType> texture_types;
         Vector<ShaderLanguage::ShaderNode::Uniform::Hint> texture_hints;

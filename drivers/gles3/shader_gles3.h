@@ -136,7 +136,7 @@ private:
         String uniforms;
         uint32_t version;
         PODVector<StringName> texture_uniforms;
-        Vector<String> custom_defines;
+        PODVector<String> custom_defines;
         Set<uint32_t> versions;
     };
 
@@ -145,7 +145,7 @@ private:
         GLuint vert_id=0;
         GLuint frag_id=0;
         GLint *uniform_location=nullptr;
-        Vector<GLint> texture_uniform_locations;
+        PODVector<GLint> texture_uniform_locations;
         uint32_t code_version=0;
         bool ok=false;
     };
@@ -324,7 +324,7 @@ public:
     uint32_t create_custom_shader();
     void set_custom_shader_code(uint32_t p_code_id, const String &p_vertex, const String &p_vertex_globals,
             const String &p_fragment, const String &p_light, const String &p_fragment_globals, const String &p_uniforms,
-            const PODVector<StringName> &p_texture_uniforms, const Vector<String> &p_custom_defines);
+            const PODVector<StringName> &p_texture_uniforms, const PODVector<String> &p_custom_defines);
     void set_custom_shader(uint32_t p_code_id);
     void free_custom_shader(uint32_t p_code_id);
 

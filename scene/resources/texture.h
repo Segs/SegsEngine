@@ -332,7 +332,7 @@ protected:
         Ref<Texture> texture;
     };
 
-    Vector<Piece> pieces;
+    PODVector<Piece> pieces;
     Size2i size;
 public:
     Array _get_data() const;

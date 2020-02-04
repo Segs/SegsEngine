@@ -242,7 +242,7 @@ void ProjectExportDialog::_edit_preset(int p_index) {
 
     patches->clear();
     TreeItem *patch_root = patches->create_item();
-    Vector<String> patchlist = current->get_patches();
+    const PODVector<String> &patchlist = current->get_patches();
     for (int i = 0; i < patchlist.size(); i++) {
         TreeItem *patch = patches->create_item(patch_root);
         patch->set_cell_mode(0, TreeItem::CELL_MODE_CHECK);
@@ -392,7 +392,7 @@ void ProjectExportDialog::_patch_button_pressed(Object *p_item, int p_column, in
     ERR_FAIL_COND(not current)
 
     if (p_id == 0) {
-        Vector<String> patches = current->get_patches();
+        const PODVector<String> &patches = current->get_patches();
         ERR_FAIL_INDEX(patch_index, patches.size());
         se_string_view file_name(PathUtils::get_file(patches[patch_index]));
         patch_erase->set_text(FormatSN(TTR("Delete patch '%.*s' from list?").asCString(), file_name.length(),file_name.data() ));
@@ -412,7 +412,7 @@ void ProjectExportDialog::_patch_edited() {
     Ref<EditorExportPreset> current = get_current_preset();
     ERR_FAIL_COND(not current)
 
-    Vector<String> patches = current->get_patches();
+    const PODVector<String> &patches = current->get_patches();
 
     ERR_FAIL_INDEX(index, patches.size())
 
@@ -431,7 +431,7 @@ void ProjectExportDialog::_patch_selected(se_string_view p_path) {
     Ref<EditorExportPreset> current = get_current_preset();
     ERR_FAIL_COND(not current)
 
-    Vector<String> patches = current->get_patches();
+    const PODVector<String> &patches = current->get_patches();
 
     if (patch_index >= patches.size()) {
 
@@ -449,7 +449,7 @@ void ProjectExportDialog::_patch_deleted() {
     Ref<EditorExportPreset> current = get_current_preset();
     ERR_FAIL_COND(not current)
 
-    Vector<String> patches = current->get_patches();
+    const PODVector<String> &patches = current->get_patches();
     if (patch_index < patches.size()) {
 
         current->remove_patch(patch_index);
@@ -605,7 +605,7 @@ void ProjectExportDialog::_duplicate_preset() {
     preset->set_export_filter(current->get_export_filter());
     preset->set_include_filter(current->get_include_filter());
     preset->set_exclude_filter(current->get_exclude_filter());
-    Vector<String> list = current->get_patches();
+    const PODVector<String> &list = current->get_patches();
     for (int i = 0; i < list.size(); i++) {
         preset->add_patch(list[i]);
     }

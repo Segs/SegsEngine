@@ -197,7 +197,7 @@ protected:
         RID trimesh_shape = ps->shape_create(PhysicsServer::SHAPE_CONCAVE_POLYGON);
         ps->shape_set_data(trimesh_shape, Variant::from(p_faces));
         p_faces = ps->shape_get_data(trimesh_shape).as<Vector<Vector3>>(); // optimized one
-        Vector<Vector3> normals; // for drawing
+        PODVector<Vector3> normals; // for drawing
         for (int i = 0; i < p_faces.size() / 3; i++) {
 
             Plane p(p_faces[i * 3 + 0], p_faces[i * 3 + 1], p_faces[i * 3 + 2]);
@@ -342,7 +342,7 @@ public:
             Transform t = ps->body_get_state(mover, PhysicsServer::BODY_STATE_TRANSFORM);
             t.origin += Vector3(joy_speed * joy_direction.x * p_time, -joy_speed * joy_direction.y * p_time, 0);
             ps->body_set_state(mover, PhysicsServer::BODY_STATE_TRANSFORM, t);
-        };
+        }
 
         Transform cameratr;
         cameratr.rotate(Vector3(0, 1, 0), ofs_x);

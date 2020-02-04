@@ -52,17 +52,17 @@ class FileAccessCompressed : public FileAccess {
         int offset;
     };
 
-    mutable Vector<uint8_t> comp_buffer;
+    mutable PODVector<uint8_t> comp_buffer;
     uint8_t *read_ptr=nullptr;
     mutable int read_block=0;
     int read_block_count=0;
     mutable int read_block_size=0;
     mutable int read_pos=0;
-    Vector<ReadBlock> read_blocks;
+    PODVector<ReadBlock> read_blocks;
     uint32_t read_total=0;
 
     String magic;
-    mutable Vector<uint8_t> buffer;
+    mutable PODVector<uint8_t> buffer;
     FileAccess *f = nullptr;
 
 public:

@@ -275,7 +275,7 @@ public:
     void set_percent_visible(float p_percent);
     float get_percent_visible() const;
 
-    void set_effects(const Vector<Variant> &effects);
+    void set_effects(const PODVector<Variant> &effects);
     Vector<Variant> get_effects();
 
     void install_effect(const Variant& effect);

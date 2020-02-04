@@ -203,8 +203,8 @@ float AnimationNode::_blend_node(const StringName &p_subpath, const PODVector<St
         p_node->blends.resize(blend_count);
     }
 
-    float *blendw = p_node->blends.ptrw();
-    const float *blendr = blends.ptr();
+    float *blendw = p_node->blends.data();
+    const float *blendr = blends.data();
 
     bool any_valid = false;
 
@@ -830,7 +830,7 @@ void AnimationTree::_process_graph(float p_delta) {
         // root source blends
 
         root->blends.resize(state.track_count);
-        float *src_blendsw = root->blends.ptrw();
+        float *src_blendsw = root->blends.data();
         for (int i = 0; i < state.track_count; i++) {
             src_blendsw[i] = 1.0; //by default all go to 1 for the root input
         }
@@ -1031,7 +1031,7 @@ void AnimationTree::_process_graph(float p_delta) {
                         for (List<int>::Element *F = indices.front(); F; F = F->next()) {
 
                             StringName method = a->method_track_get_name(i, F->deref());
-                            Vector<Variant> params = a->method_track_get_params(i, F->deref());
+                            const PODVector<Variant> &params = a->method_track_get_params(i, F->deref());
 
                             int s = params.size();
 

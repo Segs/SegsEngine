@@ -218,12 +218,12 @@ Error GDScriptWorkspace::initialize() {
             class_symbol.children.push_back(symbol);
         }
 
-        Vector<DocData::PropertyDoc> properties;
-        properties.append_array(class_data.properties);
+        PODVector<DocData::PropertyDoc> properties;
+        properties.push_back(class_data.properties);
         const int theme_prop_start_idx = properties.size();
-        properties.append_array(class_data.theme_properties);
+        properties.push_back(class_data.theme_properties);
 
-        for (int i = 0; i < class_data.properties.size(); i++) {
+        for (size_t i = 0; i < class_data.properties.size(); i++) {
             const DocData::PropertyDoc &data = class_data.properties[i];
             lsp::DocumentSymbol symbol;
             symbol.name = data.name;
@@ -239,10 +239,10 @@ Error GDScriptWorkspace::initialize() {
             class_symbol.children.push_back(symbol);
         }
 
-        Vector<DocData::MethodDoc> methods_signals;
-        methods_signals.append_array(class_data.methods);
+        PODVector<DocData::MethodDoc> methods_signals;
+        methods_signals.push_back(class_data.methods);
         const int signal_start_idx = methods_signals.size();
-        methods_signals.append_array(class_data.defined_signals);
+        methods_signals.push_back(class_data.defined_signals);
 
         for (int i = 0; i < methods_signals.size(); i++) {
             const DocData::MethodDoc &data = methods_signals[i];

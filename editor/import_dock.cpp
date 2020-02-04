@@ -399,8 +399,8 @@ static bool _find_owners(EditorFileSystemDirectory *efsd, se_string_view p_path)
 
     for (int i = 0; i < efsd->get_file_count(); i++) {
 
-        Vector<String> deps = efsd->get_file_deps(i);
-        if (deps.find(String(p_path)) != -1)
+        const PODVector<String> &deps = efsd->get_file_deps(i);
+        if (deps.contains(String(p_path)))
             return true;
     }
 

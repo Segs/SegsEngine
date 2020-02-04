@@ -136,10 +136,10 @@ String EditorFileSystemDirectory::get_named_file_path(se_string_view named_file)
 
     return "res://" + file;
 }
-static const Vector<String> null_vec;
-const Vector<String> &EditorFileSystemDirectory::get_file_deps(int p_idx) const {
 
-    ERR_FAIL_INDEX_V(p_idx, files.size(), null_vec)
+const PODVector<String> &EditorFileSystemDirectory::get_file_deps(int p_idx) const {
+
+    ERR_FAIL_INDEX_V(p_idx, files.size(), null_string_pvec)
     return files[p_idx]->deps;
 }
 
@@ -1405,17 +1405,12 @@ void EditorFileSystem::_save_late_updated_files() {
     }
 }
 
-Vector<String> EditorFileSystem::_get_dependencies(se_string_view p_path) {
+PODVector<String> EditorFileSystem::_get_dependencies(se_string_view p_path) {
 
     PODVector<String> deps;
     ResourceLoader::get_dependencies(p_path, deps);
 
-    Vector<String> ret;
-    for (const String &E : deps) {
-        ret.push_back(E);
-    }
-
-    return ret;
+    return deps;
 }
 
 StringName EditorFileSystem::_get_global_script_class(
@@ -1564,7 +1559,7 @@ void EditorFileSystem::update_file(se_string_view p_file) {
     _queue_update_script_classes();
 }
 
-Error EditorFileSystem::_reimport_group(se_string_view p_group_file, const Vector<String> &p_files) {
+Error EditorFileSystem::_reimport_group(se_string_view p_group_file, const PODVector<String> &p_files) {
 
     String importer_name;
 
@@ -1924,7 +1919,7 @@ void EditorFileSystem::_reimport_file(const String &p_file) {
     EditorResourcePreview::get_singleton()->check_for_invalidation(p_file);
 }
 
-void EditorFileSystem::_find_group_files(EditorFileSystemDirectory *efd, Map<String, Vector<String> > &group_files, Set<String> &groups_to_reimport) {
+void EditorFileSystem::_find_group_files(EditorFileSystemDirectory *efd, Map<String, PODVector<String> > &group_files, Set<String> &groups_to_reimport) {
 
     for (EditorFileSystemDirectory::FileInfo * fi : efd->files) {
         if (groups_to_reimport.contains(fi->import_group_file)) {
@@ -1996,9 +1991,9 @@ void EditorFileSystem::reimport_files(const PODVector<String> &p_files) {
     //reimport groups
 
     if (!groups_to_reimport.empty()) {
-        Map<String, Vector<String> > group_files;
+        Map<String, PODVector<String> > group_files;
         _find_group_files(filesystem, group_files, groups_to_reimport);
-        for (eastl::pair<const String,Vector<String> > &E : group_files) {
+        for (eastl::pair<const String,PODVector<String> > &E : group_files) {
 
             Error err = _reimport_group(E.first, E.second);
             if (err == OK) {

@@ -125,7 +125,7 @@ private:
     struct MethodKey : public Key {
 
         StringName method;
-        Vector<Variant> params;
+        PODVector<Variant> params;
     };
 
     struct MethodTrack : public Track {
@@ -318,7 +318,7 @@ public:
     UpdateMode value_track_get_update_mode(int p_track) const;
 
     void method_track_get_key_indices(int p_track, float p_time, float p_delta, DefList<int> *p_indices) const;
-    Vector<Variant> method_track_get_params(int p_track, int p_key_idx) const;
+    const PODVector<Variant> &method_track_get_params(int p_track, int p_key_idx) const;
     StringName method_track_get_name(int p_track, int p_key_idx) const;
 
     void copy_track(int p_track, Ref<Animation> p_to_animation);

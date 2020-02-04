@@ -70,9 +70,7 @@ void DocData::merge_from(const DocData &p_data) {
         c.brief_description = cf.brief_description;
         c.tutorials = cf.tutorials;
 
-        for (int i = 0; i < c.methods.size(); i++) {
-
-            MethodDoc &m = c.methods.write[i];
+        for (MethodDoc &m : c.methods) {
 
             for (int j = 0; j < cf.methods.size(); j++) {
 
@@ -83,16 +81,16 @@ void DocData::merge_from(const DocData &p_data) {
                 // since polymorphic functions are allowed we need to check the type of
                 // the arguments so we make sure they are different.
                 int arg_count = cf.methods[j].arguments.size();
-                Vector<bool> arg_used;
+                PODVector<bool> arg_used;
                 arg_used.resize(arg_count);
                 for (int l = 0; l < arg_count; ++l)
-                    arg_used.write[l] = false;
+                    arg_used[l] = false;
                 // also there is no guarantee that argument ordering will match, so we
                 // have to check one by one so we make sure we have an exact match
                 for (int k = 0; k < arg_count; ++k) {
                     for (int l = 0; l < arg_count; ++l)
                         if (cf.methods[j].arguments[k].type == m.arguments[l].type && !arg_used[l]) {
-                            arg_used.write[l] = true;
+                            arg_used[l] = true;
                             break;
                         }
                 }
@@ -112,7 +110,7 @@ void DocData::merge_from(const DocData &p_data) {
 
         for (int i = 0; i < c.defined_signals.size(); i++) {
 
-            MethodDoc &m = c.defined_signals.write[i];
+            MethodDoc &m = c.defined_signals[i];
 
             for (int j = 0; j < cf.defined_signals.size(); j++) {
 
@@ -125,9 +123,7 @@ void DocData::merge_from(const DocData &p_data) {
             }
         }
 
-        for (int i = 0; i < c.constants.size(); i++) {
-
-            ConstantDoc &m = c.constants.write[i];
+        for (ConstantDoc &m : c.constants) {
 
             for (int j = 0; j < cf.constants.size(); j++) {
 
@@ -140,9 +136,7 @@ void DocData::merge_from(const DocData &p_data) {
             }
         }
 
-        for (int i = 0; i < c.properties.size(); i++) {
-
-            PropertyDoc &p = c.properties.write[i];
+        for (PropertyDoc &p : c.properties) {
 
             for (int j = 0; j < cf.properties.size(); j++) {
 
@@ -155,9 +149,7 @@ void DocData::merge_from(const DocData &p_data) {
             }
         }
 
-        for (int i = 0; i < c.theme_properties.size(); i++) {
-
-            PropertyDoc &p = c.theme_properties.write[i];
+        for (PropertyDoc &p : c.theme_properties) {
 
             for (int j = 0; j < cf.theme_properties.size(); j++) {
 
@@ -705,7 +697,7 @@ void DocData::generate(bool p_basic_types) {
     }
 }
 
-static Error _parse_methods(Ref<XMLParser> &parser, Vector<DocData::MethodDoc> &methods) {
+static Error _parse_methods(Ref<XMLParser> &parser, PODVector<DocData::MethodDoc> &methods) {
 
     const String section(parser->get_node_name());
     se_string_view element = StringUtils::substr(section,0, section.length() - 1);
@@ -1043,7 +1035,7 @@ Error DocData::save_classes(se_string_view p_default_path, const Map<StringName,
         _write_string(f, 1, "</tutorials>");
         _write_string(f, 1, "<methods>");
 
-        c.methods.sort();
+        eastl::sort(c.methods.begin(),c.methods.end());
 
         for (int i = 0; i < c.methods.size(); i++) {
 
@@ -1098,8 +1090,7 @@ Error DocData::save_classes(se_string_view p_default_path, const Map<StringName,
 
         if (!c.properties.empty()) {
             _write_string(f, 1, "<members>");
-
-            c.properties.sort();
+            eastl::sort(c.properties.begin(),c.properties.end());
 
             for (int i = 0; i < c.properties.size(); i++) {
 
@@ -1124,7 +1115,7 @@ Error DocData::save_classes(se_string_view p_default_path, const Map<StringName,
 
         if (!c.defined_signals.empty()) {
 
-            c.defined_signals.sort();
+            eastl::sort(c.defined_signals.begin(),c.defined_signals.end());
 
             _write_string(f, 1, "<signals>");
             for (int i = 0; i < c.defined_signals.size(); i++) {
@@ -1166,7 +1157,7 @@ Error DocData::save_classes(se_string_view p_default_path, const Map<StringName,
 
         if (!c.theme_properties.empty()) {
 
-            c.theme_properties.sort();
+            eastl::sort(c.theme_properties.begin(),c.theme_properties.end());
 
             _write_string(f, 1, "<theme_items>");
             for (int i = 0; i < c.theme_properties.size(); i++) {

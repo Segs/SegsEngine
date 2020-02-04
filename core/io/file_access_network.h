@@ -65,7 +65,7 @@ class FileAccessNetworkClient {
     Ref<StreamPeerTCP> client;
     int last_id;
 
-    Vector<uint8_t> block;
+    PODVector<uint8_t> block;
 
     void _thread_func();
     static void _thread_func(void *s);
@@ -105,24 +105,9 @@ class FileAccessNetwork : public FileAccess {
 
     int page_size;
     int read_ahead;
-
-    mutable int waiting_on_page;
-    mutable int last_activity_val;
-    struct Page {
-        int activity;
-        bool queued;
-        PODVector<uint8_t> buffer;
-        Page() {
-            activity = 0;
-            queued = false;
-        }
-    };
-
-    mutable Vector<Page> pages;
-
-    mutable Error response;
-
     uint64_t exists_modtime;
+    void *m_priv;
+
     friend class FileAccessNetworkClient;
     void _queue_page(int p_page) const;
     void _respond(size_t p_len, Error p_status);

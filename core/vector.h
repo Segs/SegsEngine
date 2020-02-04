@@ -179,13 +179,17 @@ bool Vector<T>::push_back(T p_elem) {
 
 #ifndef __MINGW32__
 extern template class EXPORT_TEMPLATE_DECLARE(GODOT_EXPORT) eastl::vector<class StringName,wrap_allocator>;
+extern template class EXPORT_TEMPLATE_DECLARE(GODOT_EXPORT) eastl::vector<String,wrap_allocator>;
 extern template class EXPORT_TEMPLATE_DECLARE(GODOT_EXPORT) eastl::vector<uint8_t,wrap_allocator>;
+extern template class EXPORT_TEMPLATE_DECLARE(GODOT_EXPORT) eastl::vector<int,wrap_allocator>;
+extern template class EXPORT_TEMPLATE_DECLARE(GODOT_EXPORT) eastl::vector<float,wrap_allocator>;
 extern template class EXPORT_TEMPLATE_DECLARE(GODOT_EXPORT) eastl::vector<class Variant,wrap_allocator>;
 extern template class EXPORT_TEMPLATE_DECLARE(GODOT_EXPORT) eastl::vector<struct PropertyInfo,wrap_allocator>;
+extern template class EXPORT_TEMPLATE_DECLARE(GODOT_EXPORT) eastl::vector<struct Vector2,wrap_allocator>;
+extern template class EXPORT_TEMPLATE_DECLARE(GODOT_EXPORT) eastl::vector<struct Vector3,wrap_allocator>;
 extern template class EXPORT_TEMPLATE_DECLARE(GODOT_EXPORT) Vector<UIString>;
 extern template class EXPORT_TEMPLATE_DECLARE(GODOT_EXPORT) Vector<Variant>;
-extern template class EXPORT_TEMPLATE_DECLARE(GODOT_EXPORT) eastl::vector<struct Vector2>;
-extern template class EXPORT_TEMPLATE_DECLARE(GODOT_EXPORT) eastl::vector<struct Vector3>;
 #endif
 extern const Vector<Variant> null_variant_vec;
 extern const PODVector<Variant> null_variant_pvec;
+extern const PODVector<String> null_string_pvec;

@@ -183,7 +183,7 @@ void ARVRServer::remove_interface(const Ref<ARVRInterface> &p_interface) {
     print_verbose(String("ARVR: Removed interface") + p_interface->get_name());
 
     emit_signal("interface_removed", p_interface->get_name());
-    interfaces.remove(idx);
+    interfaces.erase_at(idx);
 };
 
 int ARVRServer::get_interface_count() const {
@@ -290,7 +290,7 @@ void ARVRServer::remove_tracker(ARVRPositionalTracker *p_tracker) {
     ERR_FAIL_COND(idx == -1)
 
     emit_signal("tracker_removed", p_tracker->get_name(), p_tracker->get_type(), p_tracker->get_tracker_id());
-    trackers.remove(idx);
+    trackers.erase_at(idx);
 };
 
 int ARVRServer::get_tracker_count() const {
@@ -355,7 +355,7 @@ void ARVRServer::_process() {
         if (not interfaces[i]) {
             // ignore, not a valid reference
         } else if (interfaces[i]->is_initialized()) {
-            interfaces.write[i]->process();
+            interfaces[i]->process();
         }
     }
 };
@@ -377,13 +377,8 @@ ARVRServer::ARVRServer() {
 ARVRServer::~ARVRServer() {
     primary_interface.unref();
 
-    while (!interfaces.empty()) {
-        interfaces.remove(0);
-    }
-
-    while (!trackers.empty()) {
-        trackers.remove(0);
-    }
+    interfaces.clear();
+    trackers.clear();
 
     singleton = nullptr;
 };

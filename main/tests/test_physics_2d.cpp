@@ -290,7 +290,7 @@ protected:
         ps->body_add_shape(plane_body, plane);
     }
 
-    void _add_concave(const Vector<Vector2> &p_points, const Transform2D &p_xform = Transform2D()) {
+    void _add_concave(const PODVector<Vector2> &p_points, const Transform2D &p_xform = Transform2D()) {
 
         Physics2DServer *ps = Physics2DServer::get_singleton();
         VisualServer *vs = VisualServer::get_singleton();
@@ -402,7 +402,7 @@ public:
 
         Point2 prev;
 
-        Vector<Point2> parr;
+        PODVector<Point2> parr;
         for (int i = 0; i < 30; i++) {
 
             Point2 p(i * 60, Math::randf() * 70 + 340);

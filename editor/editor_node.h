@@ -484,7 +484,7 @@ private:
     void _discard_changes(se_string_view p_str = se_string_view ());
 
     void _inherit_request(se_string_view p_file);
-    void _instance_request(const Vector<String> &p_files);
+    void _instance_request(const PODVector<String> &p_files);
 
     void _display_top_editors(bool p_display);
     void _set_top_editors(PODVector<EditorPlugin *> &&p_editor_plugins_over);
@@ -749,7 +749,7 @@ public:
     static VSplitContainer *get_top_split() { return singleton->top_split; }
 
     void request_instance_scene(se_string_view p_path);
-    void request_instance_scenes(const Vector<String> &p_files);
+    void request_instance_scenes(const PODVector<String> &p_files);
     FileSystemDock *get_filesystem_dock();
     ImportDock *get_import_dock();
     SceneTreeDock *get_scene_tree_dock();

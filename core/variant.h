@@ -321,6 +321,10 @@ public:
         return Variant(v);
     }
     template<class T>
+    static Variant move_from(T &&v) {
+        return Variant(eastl::move(v));
+    }
+    template<class T>
     static Variant from(const PODVector<T *> &ar) {
         Array res;
         int idx=0;
@@ -545,9 +549,11 @@ template <> GODOT_EXPORT Variant Variant::from(const PoolVector<RID> &p_array);
 template <> GODOT_EXPORT Variant Variant::from(const PODVector<String> &);
 template <> GODOT_EXPORT Variant Variant::from(const PODVector<se_string_view> &);
 template <> GODOT_EXPORT Variant Variant::from(const PODVector<StringName> &);
+template <> GODOT_EXPORT Variant Variant::from(const PODVector<Variant> &);
 template <> GODOT_EXPORT Variant Variant::from(const Frustum &p_array);
 template <> GODOT_EXPORT Variant Variant::from(const Span<const Vector2> &);
 
+template <> GODOT_EXPORT Variant Variant::move_from(PODVector<Variant> &&);
 
 template<class T>
 PODVector<T> asVec(const Array &a) {

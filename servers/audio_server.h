@@ -145,7 +145,7 @@ public:
 };
 
 class AudioBusLayout;
-
+struct AudioServerBus;
 class AudioServer : public Object {
 
     GDCLASS(AudioServer,Object)
@@ -184,50 +184,9 @@ private:
 
     float global_rate_scale;
 
-    struct Bus {
-
-        StringName name;
-        bool solo;
-        bool mute;
-        bool bypass;
-
-        bool soloed;
-
-        //Each channel is a stereo pair.
-        struct Channel {
-            bool used;
-            bool active;
-            AudioFrame peak_volume;
-            Vector<AudioFrame> buffer;
-            Vector<Ref<AudioEffectInstance> > effect_instances;
-            uint64_t last_mix_with_audio;
-            Channel() {
-                last_mix_with_audio = 0;
-                used = false;
-                active = false;
-                peak_volume = AudioFrame(0, 0);
-            }
-        };
-
-        Vector<Channel> channels;
-
-        struct Effect {
-            Ref<AudioEffect> effect;
-            bool enabled;
-#ifdef DEBUG_ENABLED
-            uint64_t prof_time;
-#endif
-        };
-
-        Vector<Effect> effects;
-        float volume_db;
-        StringName send;
-        int index_cache;
-    };
-
-    Vector<Vector<AudioFrame> > temp_buffer; //temp_buffer for each level
-    Vector<Bus *> buses;
-    Map<StringName, Bus *> bus_map;
+    PODVector<PODVector<AudioFrame> > temp_buffer; //temp_buffer for each level
+    PODVector<AudioServerBus *> buses;
+    Map<StringName, AudioServerBus *> bus_map;
 
     void _update_bus_effects(int p_bus);
 
