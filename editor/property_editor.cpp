@@ -277,7 +277,7 @@ void CustomPropertyEditor::_menu_option(int p_which) {
 
                         int to_type = p_which - CONVERT_BASE_ID;
 
-                        Vector<Ref<EditorResourceConversionPlugin> > conversions = EditorNode::get_singleton()->find_resource_conversion_plugin(RES(v));
+                        PODVector<Ref<EditorResourceConversionPlugin> > conversions = EditorNode::get_singleton()->find_resource_conversion_plugin(RES(v));
 
                         ERR_FAIL_INDEX(to_type, conversions.size())
 
@@ -914,7 +914,7 @@ bool CustomPropertyEditor::edit(Object *p_owner, se_string_view p_name, VariantT
             } else if (!hint_text.empty()) {
                 int idx = 0;
 
-                Vector<EditorData::CustomType> custom_resources;
+                PODVector<EditorData::CustomType> custom_resources;
 
                 if (EditorNode::get_editor_data().get_custom_types().contains("Resource")) {
                     custom_resources = EditorNode::get_editor_data().get_custom_types().at("Resource");
@@ -1021,7 +1021,7 @@ bool CustomPropertyEditor::edit(Object *p_owner, se_string_view p_name, VariantT
 
             if (RES(v)) {
 
-                Vector<Ref<EditorResourceConversionPlugin> > conversions = EditorNode::get_singleton()->find_resource_conversion_plugin(RES(v));
+                PODVector<Ref<EditorResourceConversionPlugin> > conversions = EditorNode::get_singleton()->find_resource_conversion_plugin(RES(v));
                 if (!conversions.empty()) {
                     menu->add_separator();
                 }

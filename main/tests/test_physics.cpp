@@ -150,7 +150,7 @@ protected:
         PoolVector<Plane> box_planes = Geometry::build_box_planes(Vector3(0.5, 0.5, 0.5));
         RID box_mesh = vs->mesh_create();
         Geometry::MeshData box_data = Geometry::build_convex_mesh(box_planes);
-        vs->mesh_add_surface_from_mesh_data(box_mesh, box_data);
+        vs->mesh_add_surface_from_mesh_data(box_mesh, eastl::move(box_data));
         type_mesh_map[PhysicsServer::SHAPE_BOX] = box_mesh;
 
         RID box_shape = ps->shape_create(PhysicsServer::SHAPE_BOX);
@@ -163,7 +163,7 @@ protected:
 
         RID capsule_mesh = vs->mesh_create();
         Geometry::MeshData capsule_data = Geometry::build_convex_mesh(capsule_planes);
-        vs->mesh_add_surface_from_mesh_data(capsule_mesh, capsule_data);
+        vs->mesh_add_surface_from_mesh_data(capsule_mesh, eastl::move(capsule_data));
 
         type_mesh_map[PhysicsServer::SHAPE_CAPSULE] = capsule_mesh;
 
@@ -181,7 +181,7 @@ protected:
         RID convex_mesh = vs->mesh_create();
         Geometry::MeshData convex_data = Geometry::build_convex_mesh(convex_planes);
         QuickHull::build(convex_data.vertices, convex_data);
-        vs->mesh_add_surface_from_mesh_data(convex_mesh, convex_data);
+        vs->mesh_add_surface_from_mesh_data(convex_mesh, eastl::move(convex_data));
 
         type_mesh_map[PhysicsServer::SHAPE_CONVEX_POLYGON] = convex_mesh;
 
@@ -371,7 +371,7 @@ public:
 
         RID capsule_mesh = vs->mesh_create();
         Geometry::MeshData capsule_data = Geometry::build_convex_mesh(capsule_planes);
-        vs->mesh_add_surface_from_mesh_data(capsule_mesh, capsule_data);
+        vs->mesh_add_surface_from_mesh_data(capsule_mesh, eastl::move(capsule_data));
         type_mesh_map[PhysicsServer::SHAPE_CAPSULE] = capsule_mesh;
 
         RID capsule_shape = ps->shape_create(PhysicsServer::SHAPE_CAPSULE);

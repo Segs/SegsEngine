@@ -1032,7 +1032,7 @@ void ScriptEditorDebugger::_parse_message(const String &p_msg, const Array &p_da
                 item.signature = StringName("categ::" + name + "::" + item.name);
                 item.name = StringUtils::capitalize(item.name);
                 c.total_time += item.total;
-                c.items.write[j / 2] = item;
+                c.items[j / 2] = item;
             }
             metric.categories.push_back(c);
         }
@@ -1073,7 +1073,7 @@ void ScriptEditorDebugger::_parse_message(const String &p_msg, const Array &p_da
             item.calls = calls;
             item.self = self;
             item.total = total;
-            funcs.items.write[i] = item;
+            funcs.items[i] = item;
         }
 
         metric.categories.push_back(funcs);

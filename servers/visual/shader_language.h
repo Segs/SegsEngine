@@ -705,7 +705,7 @@ private:
 
     Node *_parse_and_reduce_expression(BlockNode *p_block, const Map<StringName, BuiltInInfo> &p_builtin_types);
     Error _parse_block(BlockNode *p_block, const Map<StringName, BuiltInInfo> &p_builtin_types, bool p_just_one = false, bool p_can_break = false, bool p_can_continue = false);
-    Error _parse_shader(const Map<StringName, FunctionInfo> &p_functions, const Vector<StringName> &p_render_modes, const Set<StringName> &p_shader_types);
+    Error _parse_shader(const Map<StringName, FunctionInfo> &p_functions, const PODVector<StringName> &p_render_modes, const Set<StringName> &p_shader_types);
 
     Error _find_last_flow_op_in_block(BlockNode *p_block, FlowOperation p_op);
     Error _find_last_flow_op_in_op(ControlFlowNode *p_flow, FlowOperation p_op);
@@ -715,8 +715,8 @@ public:
     void clear();
 
     static String get_shader_type(const String &p_code);
-    Error compile(const String &p_code, const Map<StringName, FunctionInfo> &p_functions, const Vector<StringName> &p_render_modes, const Set<StringName> &p_shader_types);
-    Error complete(const String &p_code, const Map<StringName, FunctionInfo> &p_functions, const Vector<StringName> &p_render_modes, const Set<StringName> &p_shader_types, List<ScriptCodeCompletionOption> *r_options, String &r_call_hint);
+    Error compile(const String &p_code, const Map<StringName, FunctionInfo> &p_functions, const PODVector<StringName> &p_render_modes, const Set<StringName> &p_shader_types);
+    Error complete(const String &p_code, const Map<StringName, FunctionInfo> &p_functions, const PODVector<StringName> &p_render_modes, const Set<StringName> &p_shader_types, List<ScriptCodeCompletionOption> *r_options, String &r_call_hint);
 
     const String &get_error_text();
     int get_error_line();

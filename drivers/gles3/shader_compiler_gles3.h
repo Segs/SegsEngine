@@ -51,7 +51,7 @@ public:
     struct GeneratedCode {
 
         Vector<String> defines;
-        Vector<StringName> texture_uniforms;
+        PODVector<StringName> texture_uniforms;
         Vector<ShaderLanguage::DataType> texture_types;
         Vector<ShaderLanguage::ShaderNode::Uniform::Hint> texture_hints;
 

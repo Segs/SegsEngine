@@ -214,15 +214,15 @@ bool ExportTemplateManager::_install_from_file(const String &p_file, bool p_use_
 
         if (StringUtils::ends_with(file,"version.txt")) {
 
-            Vector<uint8_t> data;
+            PODVector<uint8_t> data;
             data.resize(info.uncompressed_size);
 
             //read
             unzOpenCurrentFile(pkg);
-            ret = unzReadCurrentFile(pkg, data.ptrw(), data.size());
+            ret = unzReadCurrentFile(pkg, data.data(), data.size());
             unzCloseCurrentFile(pkg);
 
-            String data_str((const char *)data.ptr(), data.size());
+            String data_str((const char *)data.data(), data.size());
             data_str =StringUtils::strip_edges( data_str);
 
             // Version number should be of the form major.minor[.patch].status[.module_config]
@@ -286,12 +286,12 @@ bool ExportTemplateManager::_install_from_file(const String &p_file, bool p_use_
             continue;
         }
 
-        Vector<uint8_t> data;
+        PODVector<uint8_t> data;
         data.resize(info.uncompressed_size);
 
         //read
         unzOpenCurrentFile(pkg);
-        unzReadCurrentFile(pkg, data.ptrw(), data.size());
+        unzReadCurrentFile(pkg, data.data(), data.size());
         unzCloseCurrentFile(pkg);
 
         String base_dir(StringUtils::trim_suffix(PathUtils::get_base_dir(file_path),("/")));
@@ -324,7 +324,7 @@ bool ExportTemplateManager::_install_from_file(const String &p_file, bool p_use_
             ERR_CONTINUE_MSG(true, "Can't open file from path '" + (to_write) + "'.")
         }
 
-        f->store_buffer(data.ptr(), data.size());
+        f->store_buffer(data.data(), data.size());
 
 #ifndef WINDOWS_ENABLED
         FileAccess::set_unix_permissions(to_write, (info.external_fa >> 16) & 0x01FF);
@@ -623,12 +623,12 @@ Error ExportTemplateManager::install_android_template() {
         String base_dir = PathUtils::get_base_dir(path);
 
         if (!StringUtils::ends_with(path,'/')) {
-            Vector<uint8_t> data;
+            PODVector<uint8_t> data;
             data.resize(info.uncompressed_size);
 
             // Read.
             unzOpenCurrentFile(pkg);
-            unzReadCurrentFile(pkg, data.ptrw(), data.size());
+            unzReadCurrentFile(pkg, data.data(), data.size());
             unzCloseCurrentFile(pkg);
 
             if (!dirs_tested.contains(base_dir)) {
@@ -639,7 +639,7 @@ Error ExportTemplateManager::install_android_template() {
             String to_write = PathUtils::plus_file(("res://android/build"),path);
             FileAccess *f = FileAccess::open(to_write, FileAccess::WRITE);
             if (f) {
-                f->store_buffer(data.ptr(), data.size());
+                f->store_buffer(data.data(), data.size());
                 memdelete(f);
 #ifndef WINDOWS_ENABLED
                 FileAccess::set_unix_permissions(to_write, (info.external_fa >> 16) & 0x01FF);
@@ -704,12 +704,12 @@ Error ExportTemplateManager::_extract_libs_from_apk(const String &p_target_name)
             continue;
         }
 
-        Vector<uint8_t> data;
+        PODVector<uint8_t> data;
         data.resize(info.uncompressed_size);
 
         // Read.
         unzOpenCurrentFile(pkg);
-        unzReadCurrentFile(pkg, data.ptrw(), data.size());
+        unzReadCurrentFile(pkg, data.data(), data.size());
         unzCloseCurrentFile(pkg);
 
         // We have a "lib" folder in the APK, but it should be "libs/{release,debug}" in the source dir.
@@ -723,7 +723,7 @@ Error ExportTemplateManager::_extract_libs_from_apk(const String &p_target_name)
         String to_write = plus_file(("res://android/build"),plus_file(target_base_dir,get_file(path)));
         FileAccess *f = FileAccess::open(to_write, FileAccess::WRITE);
         if (f) {
-            f->store_buffer(data.ptr(), data.size());
+            f->store_buffer(data.data(), data.size());
             memdelete(f);
 #ifndef WINDOWS_ENABLED
             // We can't retrieve Unix permissions from the APK it seems, so simply set 0755 as should be.

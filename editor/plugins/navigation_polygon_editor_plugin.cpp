@@ -74,7 +74,7 @@ Variant NavigationPolygonEditor::_get_polygon(int p_idx) const {
         return Variant(PODVector<Vector2>());
 }
 
-void NavigationPolygonEditor::_set_polygon(int p_idx, const Vector<Vector2> &p_polygon) const {
+void NavigationPolygonEditor::_set_polygon(int p_idx, const PoolVector<Vector2> &p_polygon) const {
 
     Ref<NavigationPolygon> navpoly = _ensure_navpoly();
     navpoly->set_outline(p_idx, Variant::from(p_polygon));

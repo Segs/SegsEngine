@@ -395,9 +395,10 @@ void ScriptCreateDialog::_lang_changed(int l) {
         template_menu->add_item(TTR("Default"));
         ScriptTemplateInfo *templates = template_list.ptrw();
 
-        Vector<StringName> origin_names;
-        origin_names.push_back(TTR("Project"));
-        origin_names.push_back(TTR("Editor"));
+        PODVector<StringName> origin_names {
+            TTR("Project"),
+            TTR("Editor")
+        };
         int cur_origin = -1;
 
         // Populate script template items previously sorted and now grouped by origin

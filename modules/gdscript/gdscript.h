@@ -90,7 +90,7 @@ class GDScript : public Script {
     Map<StringName, GDScriptFunction *> member_functions;
     Map<StringName, MemberInfo> member_indices; //members are just indices to the instanced script.
     Map<StringName, Ref<GDScript> > subclasses;
-    Map<StringName, Vector<StringName> > _signals;
+    Map<StringName, PODVector<StringName> > _signals;
 
 #ifdef TOOLS_ENABLED
 

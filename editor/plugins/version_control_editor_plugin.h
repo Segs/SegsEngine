@@ -61,7 +61,7 @@ private:
     static VersionControlEditorPlugin *singleton;
 
     int staged_files_count;
-    Vector<StringName> available_addons;
+    PODVector<StringName> available_addons;
 
     PopupMenu *version_control_actions;
     AcceptDialog *set_up_dialog;
@@ -133,7 +133,7 @@ public:
     VBoxContainer *get_version_commit_dock() const { return version_commit_dock; }
     PanelContainer *get_version_control_dock() const { return version_control_dock; }
 
-    Vector<StringName> get_available_vcs_names() const { return available_addons; }
+    const PODVector<StringName> &get_available_vcs_names() const { return available_addons; }
     bool is_vcs_initialized() const;
     const String get_vcs_name() const;
 

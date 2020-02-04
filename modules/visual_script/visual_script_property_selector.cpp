@@ -161,7 +161,7 @@ void VisualScriptPropertySelector::_update_search() {
                 if (!(F.usage & PROPERTY_USAGE_EDITOR) && !(F.usage & PROPERTY_USAGE_SCRIPT_VARIABLE))
                     continue;
 
-                if (!type_filter.empty() && type_filter.find(F.type) == -1)
+                if (!type_filter.empty() and not type_filter.contains(F.type))
                     continue;
 
                 // capitalize() also converts underscore to space, we'll match again both possible styles
@@ -551,8 +551,8 @@ void VisualScriptPropertySelector::select_method_from_base_type(se_string_view p
     _update_search();
 }
 
-void VisualScriptPropertySelector::set_type_filter(const Vector<VariantType> &p_type_filter) {
-    type_filter = p_type_filter;
+void VisualScriptPropertySelector::set_type_filter(PODVector<VariantType> &&p_type_filter) {
+    type_filter = eastl::move(p_type_filter);
 }
 
 void VisualScriptPropertySelector::select_from_base_type(se_string_view p_base, const UIString &p_current, bool p_virtuals_only, bool p_seq_connect, const bool p_connecting, bool clear_text) {

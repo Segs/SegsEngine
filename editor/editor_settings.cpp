@@ -643,7 +643,7 @@ void EditorSettings::_load_defaults(const Ref<ConfigFile> &p_extra_config) {
 
     if (p_extra_config->has_section("init_projects") && p_extra_config->has_section_key("init_projects", "list")) {
 
-        Vector<String> list = p_extra_config->get_value("init_projects", "list").as<Vector<String>>();
+        PoolVector<String> list = p_extra_config->get_value("init_projects", "list").as<PoolVector<String>>();
         for (int i = 0; i < list.size(); i++) {
 
             const String &name = list[i];
@@ -993,12 +993,12 @@ void EditorSettings::setup_language() {
 
         if (etl->lang == lang) {
 
-            Vector<uint8_t> data;
+            PODVector<uint8_t> data;
             data.resize(etl->uncomp_size);
-            Compression::decompress(data.ptrw(), etl->uncomp_size, etl->data, etl->comp_size, Compression::MODE_DEFLATE);
+            Compression::decompress(data.data(), etl->uncomp_size, etl->data, etl->comp_size, Compression::MODE_DEFLATE);
 
             FileAccessMemory *fa = memnew(FileAccessMemory);
-            fa->open_custom(data.ptr(), data.size());
+            fa->open_custom(data.data(), data.size());
 
             Ref<Translation> tr = dynamic_ref_cast<Translation>(TranslationLoaderPO::load_translation(fa, nullptr, "translation_" + String(etl->lang)));
 

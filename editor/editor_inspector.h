@@ -91,7 +91,7 @@ private:
 
     float split_ratio;
 
-    Vector<Control *> focusables;
+    PODVector<Control *> focusables;
     Control *label_reference;
     Control *bottom_editor;
 
@@ -305,7 +305,7 @@ class EditorInspector : public ScrollContainer {
 
     void _property_changed(se_string_view p_path, const Variant &p_value, se_string_view p_name = se_string_view(), bool changing = false);
     void _property_changed_update_all(se_string_view p_path, const Variant &p_value, se_string_view p_name = {}, bool p_changing = false);
-    void _multiple_properties_changed(const Vector<String> &p_paths, Array p_values);
+    void _multiple_properties_changed(const PODVector<String> &p_paths, Array p_values);
     void _property_keyed(const StringName &p_path, bool p_advance);
     void _property_keyed_with_value(se_string_view p_path, const Variant &p_value, bool p_advance);
 

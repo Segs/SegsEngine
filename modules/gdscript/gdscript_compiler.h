@@ -99,7 +99,7 @@ class GDScriptCompiler {
         HashMap<Variant, int, Hasher<Variant>, VariantComparator> constant_map;
         Map<StringName, int> name_map;
 #ifdef TOOLS_ENABLED
-        Vector<StringName> named_globals;
+        PODVector<StringName> named_globals;
 #endif
 
         int get_name_map_pos(const StringName &p_identifier) {
@@ -121,7 +121,7 @@ class GDScriptCompiler {
             return pos;
         }
 
-        Vector<int> opcodes;
+        PODVector<int> opcodes;
         void alloc_stack(int p_level) {
             if (p_level >= stack_max) stack_max = p_level + 1;
         }

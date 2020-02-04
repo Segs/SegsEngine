@@ -489,7 +489,7 @@ void EditorData::add_custom_type(const StringName &p_type, const StringName &p_i
     ct.icon = p_icon;
     ct.script = p_script;
     if (!custom_types.contains(p_inherits)) {
-        custom_types[p_inherits] = Vector<CustomType>();
+        custom_types[p_inherits] = {};
     }
 
     custom_types[p_inherits].push_back(ct);
@@ -497,20 +497,22 @@ void EditorData::add_custom_type(const StringName &p_type, const StringName &p_i
 
 Object *EditorData::instance_custom_type(const StringName &p_type, const StringName & p_inherits) {
 
-    if (get_custom_types().contains(p_inherits)) {
-        const Vector<CustomType> &ct(get_custom_types().at(p_inherits));
-        for (int i = 0; i < get_custom_types().at(p_inherits).size(); i++) {
-            if (ct[i].name == p_type) {
-                Ref<Script> script = ct[i].script;
+    if (!get_custom_types().contains(p_inherits)) {
+        return nullptr;
+    }
 
-                Object *ob = ClassDB::instance(p_inherits);
-                ERR_FAIL_COND_V(!ob, nullptr)
-                if (ob->is_class("Node")) {
-                    ob->call("set_name", p_type);
-                }
-                ob->set_script(script.get_ref_ptr());
-                return ob;
+    const PODVector<CustomType> &ct(get_custom_types().at(p_inherits));
+    for (int i = 0; i < get_custom_types().at(p_inherits).size(); i++) {
+        if (ct[i].name == p_type) {
+            Ref<Script> script = ct[i].script;
+
+            Object *ob = ClassDB::instance(p_inherits);
+            ERR_FAIL_COND_V(!ob, nullptr)
+            if (ob->is_class("Node")) {
+                ob->call("set_name", p_type);
             }
+            ob->set_script(script.get_ref_ptr());
+            return ob;
         }
     }
 
@@ -519,11 +521,11 @@ Object *EditorData::instance_custom_type(const StringName &p_type, const StringN
 
 void EditorData::remove_custom_type(const StringName &p_type) {
 
-    for (eastl::pair<const StringName,Vector<CustomType> > &E : custom_types) {
+    for (eastl::pair<const StringName,PODVector<CustomType> > &E : custom_types) {
 
         for (int i = 0; i < E.second.size(); i++) {
             if (E.second[i].name == p_type) {
-                E.second.remove(i);
+                E.second.erase_at(i);
                 if (E.second.empty()) {
                     custom_types.erase(E.first);
                 }

@@ -116,7 +116,7 @@ ConnectionInfoDialog::ConnectionInfoDialog() {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Vector<String> ScriptTextEditor::get_functions() {
+PODVector<String> ScriptTextEditor::get_functions() {
 
     String errortxt;
     int line = -1, col;

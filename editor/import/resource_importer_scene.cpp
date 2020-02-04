@@ -303,7 +303,7 @@ static se_string_view _fixstr(se_string_view p_what, se_string_view p_str) {
         return String(StringUtils::substr(what, 0, what.length() - (p_str.length() + 1))) + end;
     return what;
 }
-static void _gen_shape_list(const Ref<Mesh> &mesh, List<Ref<Shape>> &r_shape_list, bool p_convex) {
+static void _gen_shape_list(const Ref<Mesh> &mesh, ListPOD<Ref<Shape>> &r_shape_list, bool p_convex) {
 
     if (!p_convex) {
 
@@ -311,17 +311,15 @@ static void _gen_shape_list(const Ref<Mesh> &mesh, List<Ref<Shape>> &r_shape_lis
         r_shape_list.push_back(shape);
     } else {
 
-        Vector<Ref<Shape>> cd = mesh->convex_decompose();
+        PODVector<Ref<Shape>> cd = mesh->convex_decompose();
         if (!cd.empty()) {
-            for (int i = 0; i < cd.size(); i++) {
-                r_shape_list.push_back(cd[i]);
-            }
+            r_shape_list.insert(r_shape_list.end(), eastl::make_move_iterator(cd.begin()), eastl::make_move_iterator(cd.end()));
         }
     }
 }
 
 Node *ResourceImporterScene::_fix_node(
-        Node *p_node, Node *p_root, Map<Ref<Mesh>, List<Ref<Shape>>> &collision_map, LightBakeMode p_light_bake_mode) {
+        Node *p_node, Node *p_root, Map<Ref<Mesh>, ListPOD<Ref<Shape>>> &collision_map, LightBakeMode p_light_bake_mode) {
 
     // children first
     for (int i = 0; i < p_node->get_child_count(); i++) {
@@ -407,7 +405,7 @@ Node *ResourceImporterScene::_fix_node(
             Ref<Mesh> mesh = mi->get_mesh();
 
             if (mesh) {
-                List<Ref<Shape>> shapes;
+                ListPOD<Ref<Shape>> shapes;
                 String fixed_name;
                 if (collision_map.contains(mesh)) {
                     shapes = collision_map[mesh];
@@ -437,10 +435,10 @@ Node *ResourceImporterScene::_fix_node(
                     p_node = col;
 
                     int idx = 0;
-                    for (List<Ref<Shape>>::Element *E = shapes.front(); E; E = E->next()) {
+                    for (const Ref<Shape> &E : shapes) {
 
                         CollisionShape *cshape = memnew(CollisionShape);
-                        cshape->set_shape(E->deref());
+                        cshape->set_shape(E);
                         col->add_child(cshape);
 
                         cshape->set_name("shape" + itos(idx));
@@ -492,7 +490,7 @@ Node *ResourceImporterScene::_fix_node(
         Ref<Mesh> mesh = mi->get_mesh();
 
         if (mesh) {
-            List<Ref<Shape>> shapes;
+            ListPOD<Ref<Shape>> shapes;
             if (collision_map.contains(mesh)) {
                 shapes = collision_map[mesh];
             } else {
@@ -510,10 +508,10 @@ Node *ResourceImporterScene::_fix_node(
             mi->set_owner(rigid_body->get_owner());
 
             int idx = 0;
-            for (List<Ref<Shape>>::Element *E = shapes.front(); E; E = E->next()) {
+            for (const Ref<Shape> &E : shapes) {
 
                 CollisionShape *cshape = memnew(CollisionShape);
-                cshape->set_shape(E->deref());
+                cshape->set_shape(E);
                 rigid_body->add_child(cshape);
 
                 cshape->set_name("shape" + itos(idx));
@@ -529,7 +527,7 @@ Node *ResourceImporterScene::_fix_node(
         Ref<Mesh> mesh = mi->get_mesh();
 
         if (mesh) {
-            List<Ref<Shape>> shapes;
+            ListPOD<Ref<Shape>> shapes;
             String fixed_name;
             if (collision_map.contains(mesh)) {
                 shapes = collision_map[mesh];
@@ -560,10 +558,10 @@ Node *ResourceImporterScene::_fix_node(
                 col->set_owner(mi->get_owner());
 
                 int idx = 0;
-                for (List<Ref<Shape>>::Element *E = shapes.front(); E; E = E->next()) {
+                for (const Ref<Shape> &E : shapes) {
 
                     CollisionShape *cshape = memnew(CollisionShape);
-                    cshape->set_shape(E->deref());
+                    cshape->set_shape(E);
                     col->add_child(cshape);
 
                     cshape->set_name("shape" + itos(idx));
@@ -639,7 +637,7 @@ Node *ResourceImporterScene::_fix_node(
         Ref<ArrayMesh> mesh = dynamic_ref_cast<ArrayMesh>(mi->get_mesh());
         if (mesh) {
 
-            List<Ref<Shape>> shapes;
+            ListPOD<Ref<Shape>> shapes;
             if (collision_map.contains(mesh)) {
                 shapes = collision_map[mesh];
             } else if (_teststr(mesh->get_name(), "col")) {
@@ -659,10 +657,10 @@ Node *ResourceImporterScene::_fix_node(
                 col->set_owner(p_node->get_owner());
 
                 int idx = 0;
-                for (List<Ref<Shape>>::Element *E = shapes.front(); E; E = E->next()) {
+                for (const Ref<Shape> &E : shapes) {
 
                     CollisionShape *cshape = memnew(CollisionShape);
-                    cshape->set_shape(E->deref());
+                    cshape->set_shape(E);
                     col->add_child(cshape);
 
                     cshape->set_name("shape" + itos(idx));
@@ -1417,7 +1415,7 @@ Error ResourceImporterScene::import(se_string_view p_source_file, se_string_view
     float anim_optimizer_maxang = p_options.at("animation/optimizer/max_angle");
     int light_bake_mode = p_options.at("meshes/light_baking");
 
-    Map<Ref<Mesh>, List<Ref<Shape>>> collision_map;
+    Map<Ref<Mesh>, ListPOD<Ref<Shape>>> collision_map;
 
     scene = _fix_node(scene, scene, collision_map, LightBakeMode(light_bake_mode));
 

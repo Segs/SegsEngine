@@ -201,7 +201,7 @@ class VisualScriptSwitch : public VisualScriptNode {
         Case() { type = VariantType::NIL; }
     };
 
-    Vector<Case> case_values;
+    PODVector<Case> case_values;
 
     friend class VisualScriptNodeInstanceSwitch;
 

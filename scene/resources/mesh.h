@@ -153,7 +153,7 @@ public:
 
     static ConvexDecompositionFunc convex_composition_function;
 
-    Vector<Ref<Shape>> convex_decompose() const;
+    PODVector<Ref<Shape>> convex_decompose() const;
 
     Mesh();
 };
@@ -175,7 +175,7 @@ private:
     RID mesh;
     AABB aabb;
     BlendShapeMode blend_shape_mode;
-    Vector<StringName> blend_shapes;
+    PODVector<StringName> blend_shapes;
     AABB custom_aabb;
 
     void _recompute_aabb();
@@ -224,7 +224,7 @@ public:
     void surface_set_name(int p_idx, se_string_view p_name);
     String surface_get_name(int p_idx) const;
 
-    void add_surface_from_mesh_data(const Geometry::MeshData &p_mesh_data);
+    void add_surface_from_mesh_data(Geometry::MeshData &&p_mesh_data);
 
     void set_custom_aabb(const AABB &p_custom);
     AABB get_custom_aabb() const;

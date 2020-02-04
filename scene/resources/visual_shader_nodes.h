@@ -60,7 +60,7 @@ public:
     void set_constant(float p_value);
     float get_constant() const;
 
-    Vector<StringName> get_editable_properties() const override;
+    PODVector<StringName> get_editable_properties() const override;
 
     VisualShaderNodeScalarConstant();
 };
@@ -91,7 +91,7 @@ public:
     void set_constant(bool p_value);
     bool get_constant() const;
 
-    Vector<StringName> get_editable_properties() const override;
+    PODVector<StringName> get_editable_properties() const override;
 
     VisualShaderNodeBooleanConstant();
 };
@@ -122,7 +122,7 @@ public:
     void set_constant(Color p_value);
     Color get_constant() const;
 
-    Vector<StringName> get_editable_properties() const override;
+    PODVector<StringName> get_editable_properties() const override;
 
     VisualShaderNodeColorConstant();
 };
@@ -153,7 +153,7 @@ public:
     void set_constant(Vector3 p_value);
     Vector3 get_constant() const;
 
-    Vector<StringName> get_editable_properties() const override;
+    PODVector<StringName> get_editable_properties() const override;
 
     VisualShaderNodeVec3Constant();
 };
@@ -184,7 +184,7 @@ public:
     void set_constant(Transform p_value);
     Transform get_constant() const;
 
-    Vector<StringName> get_editable_properties() const override;
+    PODVector<StringName> get_editable_properties() const override;
 
     VisualShaderNodeTransformConstant();
 };
@@ -247,7 +247,7 @@ public:
     void set_texture_type(TextureType p_type);
     TextureType get_texture_type() const;
 
-    Vector<StringName> get_editable_properties() const override;
+    PODVector<StringName> get_editable_properties() const override;
 
     StringName get_warning(ShaderMode p_mode, VisualShader::Type p_type) const override;
 
@@ -305,7 +305,7 @@ public:
     void set_texture_type(TextureType p_type);
     TextureType get_texture_type() const;
 
-    Vector<StringName> get_editable_properties() const override;
+    PODVector<StringName> get_editable_properties() const override;
 
     VisualShaderNodeCubeMap();
 };
@@ -354,7 +354,7 @@ public:
     void set_operator(Operator p_op);
     Operator get_operator() const;
 
-    Vector<StringName> get_editable_properties() const override;
+    PODVector<StringName> get_editable_properties() const override;
 
     VisualShaderNodeScalarOp();
 };
@@ -401,7 +401,7 @@ public:
     void set_operator(Operator p_op);
     Operator get_operator() const;
 
-    Vector<StringName> get_editable_properties() const override;
+    PODVector<StringName> get_editable_properties() const override;
 
     VisualShaderNodeVectorOp();
 };
@@ -447,7 +447,7 @@ public:
     void set_operator(Operator p_op);
     Operator get_operator() const;
 
-    Vector<StringName> get_editable_properties() const override;
+    PODVector<StringName> get_editable_properties() const override;
 
     VisualShaderNodeColorOp();
 };
@@ -490,7 +490,7 @@ public:
     void set_operator(Operator p_op);
     Operator get_operator() const;
 
-    Vector<StringName> get_editable_properties() const override;
+    PODVector<StringName> get_editable_properties() const override;
 
     VisualShaderNodeTransformMult();
 };
@@ -532,7 +532,7 @@ public:
     void set_operator(Operator p_op);
     Operator get_operator() const;
 
-    Vector<StringName> get_editable_properties() const override;
+    PODVector<StringName> get_editable_properties() const override;
 
     VisualShaderNodeTransformVecMult();
 };
@@ -602,7 +602,7 @@ public:
     void set_function(Function p_func);
     Function get_function() const;
 
-    Vector<StringName> get_editable_properties() const override;
+    PODVector<StringName> get_editable_properties() const override;
 
     VisualShaderNodeScalarFunc();
 };
@@ -675,7 +675,7 @@ public:
     void set_function(Function p_func);
     Function get_function() const;
 
-    Vector<StringName> get_editable_properties() const override;
+    PODVector<StringName> get_editable_properties() const override;
 
     VisualShaderNodeVectorFunc();
 };
@@ -714,7 +714,7 @@ public:
     void set_function(Function p_func);
     Function get_function() const;
 
-    Vector<StringName> get_editable_properties() const override;
+    PODVector<StringName> get_editable_properties() const override;
 
     VisualShaderNodeColorFunc();
 };
@@ -754,7 +754,7 @@ public:
     void set_function(Function p_func);
     Function get_function() const;
 
-    Vector<StringName> get_editable_properties() const override;
+    PODVector<StringName> get_editable_properties() const override;
 
     VisualShaderNodeTransformFunc();
 };
@@ -914,7 +914,7 @@ public:
     void set_function(Function p_func);
     Function get_function() const;
 
-    Vector<StringName> get_editable_properties() const override;
+    PODVector<StringName> get_editable_properties() const override;
 
     VisualShaderNodeScalarDerivativeFunc();
 };
@@ -953,7 +953,7 @@ public:
     void set_function(Function p_func);
     Function get_function() const;
 
-    Vector<StringName> get_editable_properties() const override;
+    PODVector<StringName> get_editable_properties() const override;
 
     VisualShaderNodeVectorDerivativeFunc();
 };
@@ -1465,7 +1465,7 @@ public:
     String generate_global(ShaderMode p_mode, VisualShader::Type p_type, int p_id) const override;
     String generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const String *p_input_vars, const String *p_output_vars, bool p_for_preview = false) const override; //if no output is connected, the output var passed will be empty. if no input is connected and input is NIL, the input var passed will be empty
 
-    Vector<StringName> get_editable_properties() const override;
+    PODVector<StringName> get_editable_properties() const override;
 
     void set_texture_type(TextureType p_type);
     TextureType get_texture_type() const;
@@ -1643,7 +1643,7 @@ public:
     void set_function(Function p_func);
     Function get_function() const;
 
-    Vector<StringName> get_editable_properties() const override;
+    PODVector<StringName> get_editable_properties() const override;
 
     VisualShaderNodeIs();
 };
@@ -1708,7 +1708,7 @@ public:
     void set_condition(Condition p_cond);
     Condition get_condition() const;
 
-    Vector<StringName> get_editable_properties() const override;
+    PODVector<StringName> get_editable_properties() const override;
     StringName get_warning(ShaderMode p_mode, VisualShader::Type p_type) const override;
 
     VisualShaderNodeCompare();

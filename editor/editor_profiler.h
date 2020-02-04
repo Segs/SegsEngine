@@ -72,10 +72,10 @@ public:
                 int calls;
             };
 
-            Vector<Item> items;
+            PODVector<Item> items;
         };
 
-        Vector<Category> categories;
+        PODVector<Category> categories;
 
         Map<StringName, Category *> category_ptrs;
         Map<StringName, Category::Item *> item_ptrs;
@@ -114,7 +114,7 @@ private:
 
     SpinBox *cursor_metric_edit;
 
-    Vector<Metric> frame_metrics;
+    PODVector<Metric> frame_metrics;
     int last_metric;
 
     int max_functions;

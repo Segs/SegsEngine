@@ -879,7 +879,7 @@ bool GDScript::has_script_signal(const StringName &p_signal) const {
 }
 void GDScript::get_script_signal_list(ListPOD<MethodInfo> *r_signals) const {
 
-    for (const eastl::pair<const StringName,Vector<StringName> > &E : _signals) {
+    for (const eastl::pair<const StringName, PODVector<StringName> > &E : _signals) {
 
         MethodInfo mi;
         mi.name = E.first;

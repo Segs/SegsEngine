@@ -35,9 +35,7 @@
 #include "core/math/rect2.h"
 #include "core/math/triangulate.h"
 #include "core/math/vector3.h"
-
-template <class T>
-class PoolVector;
+#include "core/pool_vector.h"
 
 class GODOT_EXPORT Geometry {
 public:
@@ -903,17 +901,14 @@ public:
 
         struct Face {
             Plane plane;
-            Vector<int> indices;
+            PODVector<int> indices;
         };
-
-        Vector<Face> faces;
-
         struct Edge {
             int a, b;
         };
 
-        Vector<Edge> edges;
-
+        PODVector<Face> faces;
+        PODVector<Edge> edges;
         PODVector<Vector3> vertices;
 
         void optimize_vertices();

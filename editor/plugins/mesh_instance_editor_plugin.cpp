@@ -172,7 +172,7 @@ void MeshInstanceEditor::_menu_option(int p_option) {
                 return;
             }
 
-            Vector<Ref<Shape> > shapes = mesh->convex_decompose();
+            PODVector<Ref<Shape> > shapes = mesh->convex_decompose();
 
             if (shapes.empty()) {
                 err_dialog->set_text(TTR("Failed creating shapes!"));

@@ -2988,7 +2988,8 @@ public:
     Ref<VisualShaderNode> node;
     Vector<EditorProperty *> properties;
 
-    void setup(const Ref<Resource>& p_parent_resource, const Vector<EditorProperty *>& p_properties, const Vector<StringName> &p_names, const Ref<VisualShaderNode>& p_node) {
+    void setup(const Ref<Resource>& p_parent_resource, const Vector<EditorProperty *>& p_properties, const PODVector<StringName> &
+            p_names, const Ref<VisualShaderNode>& p_node) {
         parent_resource = p_parent_resource;
         updating = false;
         node = p_node;
@@ -3032,7 +3033,7 @@ Control *VisualShaderNodePluginDefault::create_editor(const Ref<Resource> &p_par
         return input_editor;
     }
 
-    Vector<StringName> properties = p_node->get_editable_properties();
+    PODVector<StringName> properties = p_node->get_editable_properties();
     if (properties.empty()) {
         return nullptr;
     }
@@ -3078,7 +3079,7 @@ Control *VisualShaderNodePluginDefault::create_editor(const Ref<Resource> &p_par
         }
 
         editors.push_back(prop);
-        properties.push_back(pinfo[i].name);
+        properties.emplace_back(pinfo[i].name);
     }
     VisualShaderNodePluginDefaultEditor *editor = memnew(VisualShaderNodePluginDefaultEditor);
     editor->setup(p_parent_resource, editors, properties, p_node);

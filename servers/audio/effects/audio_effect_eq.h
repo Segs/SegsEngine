@@ -56,7 +56,7 @@ class AudioEffectEQ : public AudioEffect {
     EQ eq;
     Vector<float> gain;
     Map<StringName, int> prop_band_map;
-    Vector<StringName> band_names;
+    PODVector<StringName> band_names;
 
 protected:
     bool _set(const StringName &p_name, const Variant &p_value);

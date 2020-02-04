@@ -1493,11 +1493,11 @@ void EditorHelp::go_to_class(se_string_view p_class, int p_scroll) {
     _goto_desc(p_class, p_scroll);
 }
 
-Vector<Pair<String, int> > EditorHelp::get_sections() {
-    Vector<Pair<String, int> > sections;
+PODVector<Pair<String, int> > EditorHelp::get_sections() {
+    PODVector<Pair<String, int> > sections;
 
     for (int i = 0; i < section_line.size(); i++) {
-        sections.push_back(Pair<String, int>(section_line[i].first, i));
+        sections.emplace_back(section_line[i].first, i);
     }
     return sections;
 }

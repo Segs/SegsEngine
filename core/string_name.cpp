@@ -40,6 +40,8 @@
 template class EXPORT_TEMPLATE_DEFINE(GODOT_EXPORT) eastl::vector<StringName,wrap_allocator>;
 template class EXPORT_TEMPLATE_DEFINE(GODOT_EXPORT) eastl::list<StringName,wrap_allocator>;
 
+const PODVector<StringName> g_null_stringname_vec; //!< Can be used wherever user needs to return/pass a const PODVector<StringName> reference.
+
 namespace
 {
 static Mutex *lock=nullptr;

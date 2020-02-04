@@ -559,9 +559,9 @@ void Mesh::clear_cache() const {
     debug_lines.clear();
 }
 
-Vector<Ref<Shape> > Mesh::convex_decompose() const {
+PODVector<Ref<Shape>> Mesh::convex_decompose() const {
 
-    ERR_FAIL_COND_V(!convex_composition_function, Vector<Ref<Shape> >())
+    ERR_FAIL_COND_V(!convex_composition_function, {})
 
     PoolVector<Face3> faces = get_faces();
     Vector<Face3> f3;
@@ -573,8 +573,8 @@ Vector<Ref<Shape> > Mesh::convex_decompose() const {
 
     Vector<Vector<Face3> > decomposed = convex_composition_function(f3);
 
-    Vector<Ref<Shape> > ret;
-
+    PODVector<Ref<Shape> > ret;
+    ret.reserve(decomposed.size());
     for (int i = 0; i < decomposed.size(); i++) {
         Set<Vector3> points;
         for (int j = 0; j < decomposed[i].size(); j++) {
@@ -595,7 +595,7 @@ Vector<Ref<Shape> > Mesh::convex_decompose() const {
 
         Ref<ConvexPolygonShape> shape(make_ref_counted<ConvexPolygonShape>());
         shape->set_points(convex_points);
-        ret.push_back(shape);
+        ret.emplace_back(eastl::move(shape));
     }
 
     return ret;
@@ -895,14 +895,14 @@ void ArrayMesh::add_blend_shape(const StringName &p_name) {
 
     StringName name = p_name;
 
-    if (blend_shapes.find(name) != -1) {
+    if (blend_shapes.contains(name)) {
 
         int count = 2;
         do {
 
             name = p_name + " " + itos(count);
             count++;
-        } while (blend_shapes.find(name) != -1);
+        } while (blend_shapes.contains(name));
     }
 
     blend_shapes.push_back(name);
@@ -1028,9 +1028,8 @@ Ref<Material> ArrayMesh::surface_get_material(int p_idx) const {
     return surfaces[p_idx].material;
 }
 
-void ArrayMesh::add_surface_from_mesh_data(const Geometry::MeshData &p_mesh_data) {
+void ArrayMesh::add_surface_from_mesh_data(Geometry::MeshData &&p_mesh_data) {
 
-    VisualServer::get_singleton()->mesh_add_surface_from_mesh_data(mesh, p_mesh_data);
     AABB aabb;
     for (int i = 0; i < p_mesh_data.vertices.size(); i++) {
 
@@ -1039,6 +1038,7 @@ void ArrayMesh::add_surface_from_mesh_data(const Geometry::MeshData &p_mesh_data
         else
             aabb.expand_to(p_mesh_data.vertices[i]);
     }
+    VisualServer::get_singleton()->mesh_add_surface_from_mesh_data(mesh, eastl::move(p_mesh_data));
 
     Surface s;
     s.aabb = aabb;

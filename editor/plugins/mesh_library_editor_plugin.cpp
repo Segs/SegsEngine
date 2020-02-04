@@ -176,19 +176,19 @@ void MeshLibraryEditor::_import_scene(Node *p_scene,const Ref<MeshLibrary> &p_li
 
     if (true) {
 
-        Vector<Ref<Mesh> > meshes;
-        Vector<Transform> transforms;
+        PODVector<Ref<Mesh> > meshes;
+        PODVector<Transform> transforms;
         PODVector<int> ids = p_library->get_item_list();
         for (int i = 0; i < ids.size(); i++) {
 
             if (mesh_instances.contains(ids[i])) {
 
-                meshes.push_back(p_library->get_item_mesh(ids[i]));
-                transforms.push_back(mesh_instances[ids[i]]->get_transform());
+                meshes.emplace_back(p_library->get_item_mesh(ids[i]));
+                transforms.emplace_back(mesh_instances[ids[i]]->get_transform());
             }
         }
 
-        Vector<Ref<Texture> > textures = EditorInterface::get_singleton()->make_mesh_previews(meshes, &transforms, EditorSettings::get_singleton()->get("editors/grid_map/preview_size"));
+        PODVector<Ref<Texture> > textures = EditorInterface::get_singleton()->make_mesh_previews(meshes, &transforms, EditorSettings::get_singleton()->get("editors/grid_map/preview_size"));
         int j = 0;
         for (int i = 0; i < ids.size(); i++) {
 

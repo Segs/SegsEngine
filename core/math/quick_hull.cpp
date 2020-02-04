@@ -467,7 +467,7 @@ Error QuickHull::build(Span<const Vector3> p_points, Geometry::MeshData &r_mesh)
                                 break;
                             }
                             if (idx != a) {
-                                f.indices.insert(i + 1, idx);
+                                f.indices.insert_at(i + 1, idx);
                                 i++;
                                 merged++;
                             }
@@ -504,19 +504,19 @@ Error QuickHull::build(Span<const Vector3> p_points, Geometry::MeshData &r_mesh)
     //fill mesh
     r_mesh.faces.clear();
     r_mesh.faces.resize(ret_faces.size());
-
+    auto &face_wr(r_mesh.faces);
     int idx = 0;
     for (List<Geometry::MeshData::Face>::Element *E = ret_faces.front(); E; E = E->next()) {
-        r_mesh.faces.write[idx++] = E->deref();
+        face_wr[idx++] = E->deref();
     }
-    r_mesh.edges.resize(ret_edges.size());
+    r_mesh.edges.reserve(ret_edges.size());
     idx = 0;
     for (eastl::pair<const QHEdge,QHRetFaceConnect> &E : ret_edges) {
 
         Geometry::MeshData::Edge e;
         e.a = E.first.vertices[0];
         e.b = E.first.vertices[1];
-        r_mesh.edges.write[idx++] = e;
+        r_mesh.edges.emplace_back(e);
     }
 
     r_mesh.vertices.assign(p_points.begin(),p_points.end());
