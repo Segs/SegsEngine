@@ -1096,10 +1096,10 @@ Error VisualShader::_write_node(Type type, StringBuilder &global_code, StringBui
     // then this node
 
     code += String("// ") + vsnode->get_caption() + ":" + itos(node) + "\n";
-    Vector<String> input_vars;
+    PODVector<String> input_vars;
 
     input_vars.resize(vsnode->get_input_port_count());
-    String *inputs = input_vars.ptrw();
+    String *inputs = input_vars.data();
 
     for (int i = 0; i < input_count; i++) {
         ConnectionKey ck;
@@ -1172,18 +1172,18 @@ Error VisualShader::_write_node(Type type, StringBuilder &global_code, StringBui
     }
 
     int output_count = vsnode->get_output_port_count();
-    Vector<String> output_vars;
-    output_vars.resize(vsnode->get_output_port_count());
-    String *outputs = output_vars.ptrw();
+    PODVector<String> output_vars;
+    output_vars.reserve(output_count);
+    String *outputs = output_vars.data();
 
     if (vsnode->is_simple_decl()) { // less code to generate for some simple_decl nodes
         for (int i = 0; i < output_count; i++) {
             String var_name = "n_out" + itos(node) + "p" + itos(i);
             switch (vsnode->get_output_port_type(i)) {
-                case VisualShaderNode::PORT_TYPE_SCALAR: outputs[i] = "float " + var_name; break;
-                case VisualShaderNode::PORT_TYPE_VECTOR: outputs[i] = "vec3 " + var_name; break;
-                case VisualShaderNode::PORT_TYPE_BOOLEAN: outputs[i] = "bool " + var_name; break;
-                case VisualShaderNode::PORT_TYPE_TRANSFORM: outputs[i] = "mat4 " + var_name; break;
+                case VisualShaderNode::PORT_TYPE_SCALAR: output_vars.emplace_back("float " + var_name); break;
+                case VisualShaderNode::PORT_TYPE_VECTOR: output_vars.emplace_back("vec3 " + var_name); break;
+                case VisualShaderNode::PORT_TYPE_BOOLEAN: output_vars.emplace_back("bool " + var_name); break;
+                case VisualShaderNode::PORT_TYPE_TRANSFORM: output_vars.emplace_back("mat4 " + var_name); break;
                 default: {
                 }
             }
@@ -1191,12 +1191,13 @@ Error VisualShader::_write_node(Type type, StringBuilder &global_code, StringBui
 
     } else {
         for (int i = 0; i < output_count; i++) {
-            outputs[i] = "n_out" + itos(node) + "p" + itos(i);
+            output_vars.emplace_back("n_out" + itos(node) + "p" + itos(i));
+            const String &nout(output_vars.back());
             switch (vsnode->get_output_port_type(i)) {
-                case VisualShaderNode::PORT_TYPE_SCALAR: code += String() + "\tfloat " + outputs[i] + ";\n"; break;
-                case VisualShaderNode::PORT_TYPE_VECTOR: code += String() + "\tvec3 " + outputs[i] + ";\n"; break;
-                case VisualShaderNode::PORT_TYPE_BOOLEAN: code += String() + "\tbool " + outputs[i] + ";\n"; break;
-                case VisualShaderNode::PORT_TYPE_TRANSFORM: code += String() + "\tmat4 " + outputs[i] + ";\n"; break;
+                case VisualShaderNode::PORT_TYPE_SCALAR: code += "\tfloat " + nout + ";\n"; break;
+                case VisualShaderNode::PORT_TYPE_VECTOR: code += "\tvec3 " + nout + ";\n"; break;
+                case VisualShaderNode::PORT_TYPE_BOOLEAN: code += "\tbool " + nout + ";\n"; break;
+                case VisualShaderNode::PORT_TYPE_TRANSFORM: code += "\tmat4 " + nout + ";\n"; break;
                 default: {
                 }
             }

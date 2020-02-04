@@ -46,28 +46,29 @@ IMPL_GDCLASS(NavigationPolygonInstance)
 #ifdef TOOLS_ENABLED
 Rect2 NavigationPolygon::_edit_get_rect() const {
 
-    if (rect_cache_dirty) {
-        item_rect = Rect2();
-        bool first = true;
+    if (!rect_cache_dirty) {
+        return item_rect;
+    }
+    item_rect = Rect2();
+    bool first = true;
 
-        for (int i = 0; i < outlines.size(); i++) {
-            const PoolVector<Vector2> &outline = outlines[i];
-            const int outline_size = outline.size();
-            if (outline_size < 3)
-                continue;
-            PoolVector<Vector2>::Read p = outline.read();
-            for (int j = 0; j < outline_size; j++) {
-                if (first) {
-                    item_rect = Rect2(p[j], Vector2(0, 0));
-                    first = false;
-                } else {
-                    item_rect.expand_to(p[j]);
-                }
+    for (int i = 0; i < outlines.size(); i++) {
+        const PoolVector<Vector2> &outline = outlines[i];
+        const int outline_size = outline.size();
+        if (outline_size < 3)
+            continue;
+        PoolVector<Vector2>::Read p = outline.read();
+        for (int j = 0; j < outline_size; j++) {
+            if (first) {
+                item_rect = Rect2(p[j], Vector2(0, 0));
+                first = false;
+            } else {
+                item_rect.expand_to(p[j]);
             }
         }
-
-        rect_cache_dirty = false;
     }
+
+    rect_cache_dirty = false;
     return item_rect;
 }
 
@@ -100,7 +101,7 @@ void NavigationPolygon::_set_polygons(const Array &p_array) {
 
     polygons.resize(p_array.size());
     for (int i = 0; i < p_array.size(); i++) {
-        polygons.write[i].indices = p_array[i].as<PoolVector<int>>();
+        polygons[i].indices = p_array[i].as<PoolVector<int>>();
     }
 }
 
@@ -119,7 +120,7 @@ void NavigationPolygon::_set_outlines(const Array &p_array) {
 
     outlines.resize(p_array.size());
     for (int i = 0; i < p_array.size(); i++) {
-        outlines.write[i] = p_array[i];
+        outlines[i] = p_array[i];
     }
     rect_cache_dirty = true;
 }
@@ -144,7 +145,7 @@ void NavigationPolygon::add_polygon(const PoolVector<int> &p_polygon) {
 
 void NavigationPolygon::add_outline_at_index(const PoolVector<Vector2> &p_outline, int p_index) {
 
-    outlines.insert(p_index, p_outline);
+    outlines.insert_at(p_index, p_outline);
     rect_cache_dirty = true;
 }
 
@@ -175,14 +176,14 @@ int NavigationPolygon::get_outline_count() const {
 
 void NavigationPolygon::set_outline(int p_idx, const PoolVector<Vector2> &p_outline) {
     ERR_FAIL_INDEX(p_idx, outlines.size())
-    outlines.write[p_idx] = p_outline;
+    outlines[p_idx] = p_outline;
     rect_cache_dirty = true;
 }
 
 void NavigationPolygon::remove_outline(int p_idx) {
 
     ERR_FAIL_INDEX(p_idx, outlines.size())
-    outlines.remove(p_idx);
+    outlines.erase_at(p_idx);
     rect_cache_dirty = true;
 }
 

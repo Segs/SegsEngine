@@ -51,7 +51,7 @@ protected:
 public:
     void get_parameter_list(List<PropertyInfo> *r_list) const override;
 
-    static Vector<String> (*get_editable_animation_list)();
+    static PODVector<String> (*get_editable_animation_list)();
 
     se_string_view get_caption() const override;
     float process(float p_time, bool p_seek) override;

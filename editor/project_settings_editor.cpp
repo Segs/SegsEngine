@@ -43,6 +43,7 @@
 #include "scene/gui/margin_container.h"
 #include "scene/gui/tab_container.h"
 #include "scene/resources/style_box.h"
+#include "EASTL/sort.h"
 
 
 IMPL_GDCLASS(ProjectSettingsEditor)
@@ -1611,11 +1612,11 @@ void ProjectSettingsEditor::_update_translations() {
         Dictionary remaps = ProjectSettings::get_singleton()->get("locale/translation_remaps");
         PODVector<Variant> rk(remaps.get_key_list());
 
-        Vector<String> keys;
+        PODVector<String> keys;
         for (const Variant &E : rk) {
-            keys.push_back(E);
+            keys.emplace_back(E.as<String>());
         }
-        keys.sort();
+        eastl::sort(keys.begin(), keys.end());
 
         for (int i = 0; i < keys.size(); i++) {
 
@@ -1625,41 +1626,43 @@ void ProjectSettingsEditor::_update_translations() {
             t->set_tooltip(0, StringName(keys[i]));
             t->set_metadata(0, keys[i]);
             t->add_button(0, get_icon("Remove", "EditorIcons"), 0, false, TTR("Remove"));
-            if (keys[i] == remap_selected) {
-                t->select(0);
-                translation_res_option_add_button->set_disabled(false);
 
-                PoolVector<String> selected(remaps[keys[i]].as<PoolVector<String>>());
-                for (int j = 0; j < selected.size(); j++) {
+            if (keys[i] != remap_selected)
+                continue;
 
-                    String s2 = selected[j];
-                    int qp = StringUtils::find_last(s2,':');
-                    String path(StringUtils::substr(s2,0, qp));
-                    String locale(StringUtils::substr(s2,qp + 1, s2.length()));
+            t->select(0);
+            translation_res_option_add_button->set_disabled(false);
 
-                    TreeItem *t2 = translation_remap_options->create_item(root2);
-                    t2->set_editable(0, false);
-                    t2->set_text(0, StringName(StringUtils::replace_first(path,"res://", se_string_view())));
-                    t2->set_tooltip(0, StringName(path));
-                    t2->set_metadata(0, j);
-                    t2->add_button(0, get_icon("Remove", "EditorIcons"), 0, false, TTR("Remove"));
-                    t2->set_cell_mode(1, TreeItem::CELL_MODE_RANGE);
-                    t2->set_text(1, StringName(langnames));
-                    t2->set_editable(1, true);
-                    t2->set_metadata(1, path);
-                    auto iter = langs.find(locale);
-                    if (iter==langs.end())
-                        iter = langs.begin();
-                    int idx = eastl::distance(langs.begin(),iter);
+            PoolVector<String> selected(remaps[keys[i]].as<PoolVector<String>>());
+            for (int j = 0; j < selected.size(); j++) {
 
-                    int f_idx = translation_locales_idxs_remap.find(idx);
-                    if (f_idx != -1 && fl_idx_count > 0 && filter_mode == SHOW_ONLY_SELECTED_LOCALES) {
+                String s2 = selected[j];
+                int qp = StringUtils::find_last(s2,':');
+                String path(StringUtils::substr(s2,0, qp));
+                String locale(StringUtils::substr(s2,qp + 1, s2.length()));
 
-                        t2->set_range(1, f_idx);
-                    } else {
+                TreeItem *t2 = translation_remap_options->create_item(root2);
+                t2->set_editable(0, false);
+                t2->set_text(0, StringName(StringUtils::replace_first(path,"res://", se_string_view())));
+                t2->set_tooltip(0, StringName(path));
+                t2->set_metadata(0, j);
+                t2->add_button(0, get_icon("Remove", "EditorIcons"), 0, false, TTR("Remove"));
+                t2->set_cell_mode(1, TreeItem::CELL_MODE_RANGE);
+                t2->set_text(1, StringName(langnames));
+                t2->set_editable(1, true);
+                t2->set_metadata(1, path);
+                auto iter = langs.find(locale);
+                if (iter==langs.end())
+                    iter = langs.begin();
+                int idx = eastl::distance(langs.begin(),iter);
 
-                        t2->set_range(1, idx);
-                    }
+                int f_idx = translation_locales_idxs_remap.find(idx);
+                if (f_idx != -1 && fl_idx_count > 0 && filter_mode == SHOW_ONLY_SELECTED_LOCALES) {
+
+                    t2->set_range(1, f_idx);
+                } else {
+
+                    t2->set_range(1, idx);
                 }
             }
         }

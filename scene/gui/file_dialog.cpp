@@ -86,40 +86,38 @@ void FileDialog::_notification(int p_what) {
 void FileDialog::_unhandled_input(const Ref<InputEvent> &p_event) {
 
     Ref<InputEventKey> k = dynamic_ref_cast<InputEventKey>(p_event);
-    if (k && is_window_modal_on_top()) {
 
-        if (k->is_pressed()) {
+    if (!k || !is_window_modal_on_top() || !k->is_pressed())
+        return;
 
-            bool handled = true;
+    bool handled = true;
 
-            switch (k->get_scancode()) {
+    switch (k->get_scancode()) {
 
-                case KEY_H: {
+        case KEY_H: {
 
-                    if (k->get_command()) {
-                        set_show_hidden_files(!show_hidden_files);
-                    } else {
-                        handled = false;
-                    }
-
-                } break;
-                case KEY_F5: {
-
-                    invalidate();
-                } break;
-                case KEY_BACKSPACE: {
-
-                    _dir_entered((".."));
-                } break;
-                default: {
-                    handled = false;
-                }
+            if (k->get_command()) {
+                set_show_hidden_files(!show_hidden_files);
+            } else {
+                handled = false;
             }
 
-            if (handled)
-                accept_event();
+        } break;
+        case KEY_F5: {
+
+            invalidate();
+        } break;
+        case KEY_BACKSPACE: {
+
+            _dir_entered("..");
+        } break;
+        default: {
+            handled = false;
         }
     }
+
+    if (handled)
+        accept_event();
 }
 
 void FileDialog::set_enable_multiple_selection(bool p_enable) {
@@ -127,18 +125,18 @@ void FileDialog::set_enable_multiple_selection(bool p_enable) {
     tree->set_select_mode(p_enable ? Tree::SELECT_MULTI : Tree::SELECT_SINGLE);
 };
 
-Vector<String> FileDialog::get_selected_files() const {
+PODVector<String> FileDialog::get_selected_files() const {
 
-    Vector<String> list;
+    PODVector<String> list;
 
     TreeItem *item = tree->get_root();
     while ((item = tree->get_next_selected(item))) {
 
-        list.push_back(PathUtils::plus_file(dir_access->get_current_dir(),item->get_text(0)));
+        list.emplace_back(PathUtils::plus_file(dir_access->get_current_dir(),item->get_text(0)));
     }
 
     return list;
-};
+}
 
 void FileDialog::update_dir() {
 

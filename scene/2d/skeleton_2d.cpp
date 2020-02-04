@@ -32,6 +32,7 @@
 #include "core/method_bind.h"
 #include "core/translation_helpers.h"
 #include "servers/visual_server.h"
+#include "EASTL/sort.h"
 
 IMPL_GDCLASS(Bone2D)
 IMPL_GDCLASS(Skeleton2D)
@@ -74,7 +75,7 @@ void Bone2D::_notification(int p_what) {
         if (skeleton) {
             for (int i = 0; i < skeleton->bones.size(); i++) {
                 if (skeleton->bones[i].bone == this) {
-                    skeleton->bones.remove(i);
+                    skeleton->bones.erase_at(i);
                     break;
                 }
             }
@@ -193,17 +194,16 @@ void Skeleton2D::_update_bone_setup() {
 
     bone_setup_dirty = false;
     VisualServer::get_singleton()->skeleton_allocate(skeleton, bones.size(), true);
-
-    bones.sort(); //sorty so they are always in the same order/index
+    eastl::sort(bones.begin(), bones.end()); //sorty so they are always in the same order/index
 
     for (int i = 0; i < bones.size(); i++) {
-        bones.write[i].rest_inverse = bones[i].bone->get_skeleton_rest().affine_inverse(); //bind pose
-        bones.write[i].bone->skeleton_index = i;
+        bones[i].rest_inverse = bones[i].bone->get_skeleton_rest().affine_inverse(); //bind pose
+        bones[i].bone->skeleton_index = i;
         Bone2D *parent_bone = object_cast<Bone2D>(bones[i].bone->get_parent());
         if (parent_bone) {
-            bones.write[i].parent_index = parent_bone->skeleton_index;
+            bones[i].parent_index = parent_bone->skeleton_index;
         } else {
-            bones.write[i].parent_index = -1;
+            bones[i].parent_index = -1;
         }
     }
 
@@ -237,9 +237,9 @@ void Skeleton2D::_update_transform() {
 
         ERR_CONTINUE(bones[i].parent_index >= i);
         if (bones[i].parent_index >= 0) {
-            bones.write[i].accum_transform = bones[bones[i].parent_index].accum_transform * bones[i].bone->get_transform();
+            bones[i].accum_transform = bones[bones[i].parent_index].accum_transform * bones[i].bone->get_transform();
         } else {
-            bones.write[i].accum_transform = bones[i].bone->get_transform();
+            bones[i].accum_transform = bones[i].bone->get_transform();
         }
     }
 

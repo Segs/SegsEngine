@@ -314,11 +314,11 @@ Array PhysicsDirectSpaceState::_intersect_shape(const Ref<PhysicsShapeQueryParam
 
     ERR_FAIL_COND_V(not p_shape_query, Array())
 
-    Vector<ShapeResult> sr;
+    PODVector<ShapeResult> sr;
     sr.resize(p_max_results);
-    int rc = intersect_shape(p_shape_query->shape, p_shape_query->transform, p_shape_query->margin, sr.ptrw(), sr.size(), p_shape_query->exclude, p_shape_query->collision_mask, p_shape_query->collide_with_bodies, p_shape_query->collide_with_areas);
-    Array ret;
-    ret.resize(rc);
+    int rc = intersect_shape(p_shape_query->shape, p_shape_query->transform, p_shape_query->margin, sr.data(), sr.size(), p_shape_query->exclude, p_shape_query->collision_mask, p_shape_query->collide_with_bodies, p_shape_query->collide_with_areas);
+    PODVector<Variant> ret;
+    ret.reserve(rc);
     for (int i = 0; i < rc; i++) {
 
         Dictionary d;
@@ -326,10 +326,10 @@ Array PhysicsDirectSpaceState::_intersect_shape(const Ref<PhysicsShapeQueryParam
         d["collider_id"] = sr[i].collider_id;
         d["collider"] = Variant(sr[i].collider);
         d["shape"] = sr[i].shape;
-        ret[i] = d;
+        ret.emplace_back(eastl::move(d));
     }
 
-    return ret;
+    return Array(eastl::move(ret));
 }
 
 Array PhysicsDirectSpaceState::_cast_motion(const Ref<PhysicsShapeQueryParameters> &p_shape_query, const Vector3 &p_motion) {
@@ -350,17 +350,17 @@ Array PhysicsDirectSpaceState::_collide_shape(const Ref<PhysicsShapeQueryParamet
 
     ERR_FAIL_COND_V(not p_shape_query, Array())
 
-    Vector<Vector3> ret;
+    PODVector<Vector3> ret;
     ret.resize(p_max_results * 2);
     int rc = 0;
-    bool res = collide_shape(p_shape_query->shape, p_shape_query->transform, p_shape_query->margin, ret.ptrw(), p_max_results, rc, p_shape_query->exclude, p_shape_query->collision_mask, p_shape_query->collide_with_bodies, p_shape_query->collide_with_areas);
+    bool res = collide_shape(p_shape_query->shape, p_shape_query->transform, p_shape_query->margin, ret.data(), p_max_results, rc, p_shape_query->exclude, p_shape_query->collision_mask, p_shape_query->collide_with_bodies, p_shape_query->collide_with_areas);
     if (!res)
         return Array();
-    Array r;
+    PODVector<Variant> r;
     r.resize(rc * 2);
     for (int i = 0; i < rc * 2; i++)
         r[i] = ret[i];
-    return r;
+    return Array(eastl::move(r));
 }
 Dictionary PhysicsDirectSpaceState::_get_rest_info(const Ref<PhysicsShapeQueryParameters> &p_shape_query) {
 

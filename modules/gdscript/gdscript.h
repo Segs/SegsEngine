@@ -309,7 +309,7 @@ struct GDScriptWarning {
         STANDALONE_TERNARY, // Return value of ternary expression is discarded
         WARNING_MAX,
     } code;
-    Vector<String> symbols;
+    PODVector<String> symbols;
     int line;
 
     String get_name() const;

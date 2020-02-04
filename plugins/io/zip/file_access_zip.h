@@ -45,12 +45,8 @@ class ZipArchive : public QObject, public PackSourceInterface {
 public:
 	struct File {
 
-		int package;
+		int package = -1;
 		unz_file_pos file_pos;
-		File() {
-
-			package = -1;
-		}
 	};
 
 private:
@@ -58,7 +54,7 @@ private:
         String filename;
 		unzFile zfile;
 	};
-	Vector<Package> packages;
+	PODVector<Package> packages;
 
     Map<String, File> files;
 

@@ -151,7 +151,7 @@ protected:
     static void _bind_methods();
 
 public:
-    void _setup_filters(Vector<String> options);
+    void _setup_filters(const PODVector<String> &options);
     void add_filter_option();
     void add_search_box();
     void set_filter_size(int h_size);

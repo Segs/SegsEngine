@@ -97,8 +97,8 @@ Error ResourceImporterCSVTranslation::import(se_string_view p_source_file, se_st
     PODVector<String> line = f->get_csv_line(delimiter);
     ERR_FAIL_COND_V(line.size() <= 1, ERR_PARSE_ERROR)
 
-    Vector<String> locales;
-    Vector<Ref<Translation> > translations;
+    PODVector<String> locales;
+    PODVector<Ref<Translation> > translations;
 
     for (int i = 1; i < line.size(); i++) {
 
@@ -108,7 +108,7 @@ Error ResourceImporterCSVTranslation::import(se_string_view p_source_file, se_st
         locales.push_back(String(locale));
         Ref<Translation> translation=make_ref_counted<Translation>();
         translation->set_locale(locale);
-        translations.push_back(translation);
+        translations.emplace_back(eastl::move(translation));
     }
 
     line = f->get_csv_line(delimiter);
@@ -119,7 +119,7 @@ Error ResourceImporterCSVTranslation::import(se_string_view p_source_file, se_st
         if (!key.empty()) {
 
             for (int i = 1; i < line.size(); i++) {
-                translations.write[i - 1]->add_message(StringName(key), StringName(StringUtils::c_unescape(line[i])));
+                translations[i - 1]->add_message(StringName(key), StringName(StringUtils::c_unescape(line[i])));
             }
         }
 

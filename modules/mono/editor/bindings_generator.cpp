@@ -901,7 +901,7 @@ Error BindingsGenerator::generate_cs_core_project(se_string_view p_proj_dir) {
     String base_gen_dir = path::join(p_proj_dir, "Generated");
     String godot_objects_gen_dir = path::join(base_gen_dir, "GodotObjects");
 
-    Vector<String> compile_items;
+    PODVector<String> compile_items;
 
     // Generate source file for global scope constants and enums
     {
@@ -912,7 +912,7 @@ Error BindingsGenerator::generate_cs_core_project(se_string_view p_proj_dir) {
         if (save_err != OK)
             return save_err;
 
-        compile_items.push_back(output_file);
+        compile_items.emplace_back(output_file);
     }
 
     for (OrderedHashMap<StringName, TypeInterface>::Element E = obj_types.front(); E; E = E.next()) {
@@ -930,7 +930,7 @@ Error BindingsGenerator::generate_cs_core_project(se_string_view p_proj_dir) {
         if (err != OK)
             return err;
 
-        compile_items.push_back(output_file);
+        compile_items.emplace_back(output_file);
     }
 
     // Generate sources from compressed files
@@ -1016,7 +1016,7 @@ Error BindingsGenerator::generate_cs_editor_project(const String &p_proj_dir) {
     String base_gen_dir = path::join(p_proj_dir, "Generated");
     String godot_objects_gen_dir = path::join(base_gen_dir, "GodotObjects");
 
-    Vector<String> compile_items;
+    PODVector<String> compile_items;
 
     for (OrderedHashMap<StringName, TypeInterface>::Element E = obj_types.front(); E; E = E.next()) {
         const TypeInterface &itype = E.get();
@@ -1033,7 +1033,7 @@ Error BindingsGenerator::generate_cs_editor_project(const String &p_proj_dir) {
         if (err != OK)
             return err;
 
-        compile_items.push_back(output_file);
+        compile_items.emplace_back(output_file);
     }
 
     StringBuilder cs_icalls_content;
@@ -1076,7 +1076,7 @@ Error BindingsGenerator::generate_cs_editor_project(const String &p_proj_dir) {
     if (err != OK)
         return err;
 
-    compile_items.push_back(internal_methods_file);
+    compile_items.emplace_back(internal_methods_file);
 
     StringBuilder includes_props_content;
     includes_props_content.append("<Project>\n"

@@ -1316,7 +1316,7 @@ bool EditorFileSystem::_find_file(se_string_view p_file, EditorFileSystemDirecto
 
     return cpos != -1;
 }
-
+//TODO: SEGS: this could return either a naked pointer or a string view.
 String EditorFileSystem::get_file_type(se_string_view p_file) const {
 
     EditorFileSystemDirectory *fs = nullptr;

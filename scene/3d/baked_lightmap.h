@@ -51,7 +51,7 @@ class BakedLightmapData : public Resource {
         int instance_index;
     };
 
-    Vector<User> users;
+    PODVector<User> users;
 public:
     void _set_user_data(const Array &p_data);
     Array _get_user_data() const;
@@ -131,7 +131,7 @@ private:
 
     struct PlotMesh {
         Ref<Material> override_material;
-        Vector<Ref<Material> > instance_materials;
+        PODVector<Ref<Material> > instance_materials;
         Ref<Mesh> mesh;
         Transform local_xform;
         NodePath path;

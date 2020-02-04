@@ -295,8 +295,11 @@ public:
     Variant(const RID &p_rid);
     explicit Variant(const Object *p_object);
     Variant(const Dictionary &p_dictionary);
+    Variant(Dictionary&& p_dictionary) noexcept;
 
     Variant(const Array &p_array);
+    Variant(Array &&p_array) noexcept;
+
     Variant(const PoolVector<Plane> &p_array); // helper
     Variant(const PoolVector<uint8_t> &p_raw_array);
     Variant(const PoolVector<int> &p_int_array);
@@ -517,7 +520,6 @@ template <> GODOT_EXPORT Transform Variant::as<Transform>() const;
 template <> GODOT_EXPORT Basis Variant::as<Basis>() const;
 template <> GODOT_EXPORT Quat Variant::as<Quat>() const;
 template <> GODOT_EXPORT PoolVector<String> Variant::as<PoolVector<String>>() const;
-template <> GODOT_EXPORT Vector<String> Variant::as<Vector<String>>() const;
 template <> GODOT_EXPORT PODVector<String> Variant::as<PODVector<String>>() const;
 template <> GODOT_EXPORT PODVector<uint8_t> Variant::as<PODVector<uint8_t>>() const;
 template <> GODOT_EXPORT PODVector<int> Variant::asVector<int>() const;
@@ -539,7 +541,6 @@ template <> GODOT_EXPORT PoolVector<RID> Variant::as<PoolVector<RID>>() const;
 
 template <> GODOT_EXPORT Variant Variant::from(const Vector<float> &);
 template <> GODOT_EXPORT Variant Variant::from(const Vector<Variant> &);
-template <> GODOT_EXPORT Variant Variant::from(const Vector<String> &);
 template <> GODOT_EXPORT Variant Variant::from(const Vector<Vector2> &);
 template <> GODOT_EXPORT Variant Variant::from(const Vector<Vector3> &);
 

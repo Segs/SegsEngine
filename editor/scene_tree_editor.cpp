@@ -1007,7 +1007,7 @@ bool SceneTreeEditor::can_drop_data_fw(const Point2 &p_point, const Variant &p_d
 
     if (UIString(d["type"]) == "files") {
 
-        Vector<String> files = d["files"].as<Vector<String>>();
+        PODVector<String> files(d["files"].as<PODVector<String>>());
 
         if (files.empty())
             return false; //weird
@@ -1017,8 +1017,7 @@ bool SceneTreeEditor::can_drop_data_fw(const Point2 &p_point, const Variant &p_d
             return true;
         }
 
-        for (int i = 0; i < files.size(); i++) {
-            String file = files[i];
+        for (const String &file : files) {
             String ftype = EditorFileSystem::get_singleton()->get_file_type(file);
             if (ftype != "PackedScene")
                 return false;
@@ -1068,7 +1067,7 @@ void SceneTreeEditor::drop_data_fw(const Point2 &p_point, const Variant &p_data,
 
     if (UIString(d["type"]) == "files") {
 
-        Vector<String> files = d["files"].as<Vector<String>>();
+        PODVector<String> files(d["files"].as<PODVector<String>>());
 
         String ftype = EditorFileSystem::get_singleton()->get_file_type(files[0]);
         if (_is_script_type(StringName(ftype))) {

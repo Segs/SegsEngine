@@ -564,6 +564,31 @@ Ref<Texture> ScriptTextEditor::get_icon() {
     return Ref<Texture>();
 }
 
+void ScriptTextEditor::_validate_missing_connections(int &warning_nb) {
+    Node *base = get_tree()->get_edited_scene_root();
+    if (!base || missing_connections.empty())
+        return;
+
+    warnings_panel->push_table(1);
+    for (const Connection &connection : missing_connections) {
+
+        String base_path(base->get_name());
+        String source_path = base == connection.source ? base_path : base_path + "/" + String(base->get_path_to(object_cast<Node>(connection.source)));
+        String target_path = base == connection.target ? base_path : base_path + "/" + String(base->get_path_to(object_cast<Node>(connection.target)));
+
+        warnings_panel->push_cell();
+        warnings_panel->push_color(warnings_panel->get_color("warning_color", "Editor"));
+        warnings_panel->add_text(FormatVE(
+                TTR("Missing connected method '%s' for signal '%s' from node '%s' to node '%s'.").asCString(),
+                connection.method.asCString(), connection.signal.asCString(), source_path.c_str(), target_path.c_str()));
+        warnings_panel->pop(); // Color.
+        warnings_panel->pop(); // Cell.
+    }
+    warnings_panel->pop(); // Table.
+
+    warning_nb += missing_connections.size();
+}
+
 void ScriptTextEditor::_validate_script() {
 
     String errortxt;
@@ -603,28 +628,7 @@ void ScriptTextEditor::_validate_script() {
 
     // Add missing connections.
     if (GLOBAL_GET("debug/gdscript/warnings/enable").booleanize()) {
-        Node *base = get_tree()->get_edited_scene_root();
-        if (base && !missing_connections.empty()) {
-            warnings_panel->push_table(1);
-            for (List<Connection>::Element *E = missing_connections.front(); E; E = E->next()) {
-                Connection connection = E->deref();
-
-                String base_path(base->get_name());
-                String source_path = base == connection.source ? base_path : base_path + "/" + String(base->get_path_to(object_cast<Node>(connection.source)));
-                String target_path = base == connection.target ? base_path : base_path + "/" + String(base->get_path_to(object_cast<Node>(connection.target)));
-
-                warnings_panel->push_cell();
-                warnings_panel->push_color(warnings_panel->get_color("warning_color", "Editor"));
-                warnings_panel->add_text(FormatVE(
-                        TTR("Missing connected method '%s' for signal '%s' from node '%s' to node '%s'.").asCString(),
-                        connection.method.asCString(), connection.signal.asCString(), source_path.c_str(), target_path.c_str()));
-                warnings_panel->pop(); // Color.
-                warnings_panel->pop(); // Cell.
-            }
-            warnings_panel->pop(); // Table.
-
-            warning_nb += missing_connections.size();
-        }
+        _validate_missing_connections(warning_nb);
     }
 
     code_editor->set_warning_nb(warning_nb);

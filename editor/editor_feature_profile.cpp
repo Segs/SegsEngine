@@ -38,6 +38,7 @@
 #include "editor_node.h"
 #include "editor_scale.h"
 #include "core/translation_helpers.h"
+#include "EASTL/sort.h"
 
 IMPL_GDCLASS(EditorFeatureProfile)
 IMPL_GDCLASS(EditorFeatureProfileManager)
@@ -341,7 +342,7 @@ void EditorFeatureProfileManager::_update_profile_list(se_string_view p_select_p
         selected_profile = p_select_profile;
     }
 
-    Vector<String> profiles;
+    PODVector<String> profiles;
     DirAccessRef d = DirAccess::open(EditorSettings::get_singleton()->get_feature_profiles_dir());
     ERR_FAIL_COND_MSG(!d, "Cannot open directory '" + EditorSettings::get_singleton()->get_feature_profiles_dir() + "'.")
     d->list_dir_begin();
@@ -359,7 +360,7 @@ void EditorFeatureProfileManager::_update_profile_list(se_string_view p_select_p
         }
     }
 
-    profiles.sort();
+    eastl::sort(profiles.begin(), profiles.end());
 
     profile_list->clear();
 

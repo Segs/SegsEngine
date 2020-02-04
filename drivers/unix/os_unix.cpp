@@ -331,17 +331,17 @@ Error OS_Unix::execute(se_string_view p_path, const ListPOD<String> &p_arguments
             setsid();
         }
 
-        Vector<String> cs;
-        cs.push_back(String(p_path));
+        PODVector<String> cs;
+        cs.emplace_back(p_path);
         for (const String &arg : p_arguments)
-            cs.push_back(arg);
+            cs.emplace_back(arg);
 
-        Vector<char *> args;
+        PODVector<char *> args;
         for (int i = 0; i < cs.size(); i++)
             args.push_back((char *)cs[i].data());
         args.push_back(nullptr);
 
-        execvp(String(p_path).c_str(), &args[0]);
+        execvp(cs.front().c_str(), &args[0]);
         // still alive? something failed..
         fprintf(stderr, "**ERROR** OS_Unix::execute - Could not create child process while executing: %s\n", String(p_path).c_str());
         abort();

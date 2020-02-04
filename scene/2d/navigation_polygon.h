@@ -40,8 +40,8 @@ class NavigationPolygon : public Resource {
     struct Polygon {
         PoolVector<int> indices;
     };
-    Vector<Polygon> polygons;
-    Vector<PoolVector<Vector2> > outlines;
+    PODVector<Polygon> polygons;
+    PODVector<PoolVector<Vector2> > outlines;
 
     mutable Rect2 item_rect;
     mutable bool rect_cache_dirty;

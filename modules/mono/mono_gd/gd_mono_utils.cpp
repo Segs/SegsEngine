@@ -57,7 +57,7 @@ namespace GDMonoUtils {
 MonoObject *unmanaged_get_managed(Object *unmanaged) {
 
     if (!unmanaged)
-        return NULL;
+        return nullptr;
 
     if (unmanaged->get_script_instance()) {
         CSharpInstance *cs_instance = CAST_CSHARP_INSTANCE(unmanaged->get_script_instance());
@@ -158,7 +158,7 @@ bool is_thread_attached() {
 void runtime_object_init(MonoObject *p_this_obj, GDMonoClass *p_class, MonoException **r_exc) {
     GDMonoMethod *ctor = p_class->get_method(".ctor", 0);
     ERR_FAIL_NULL(ctor);
-    ctor->invoke_raw(p_this_obj, NULL, r_exc);
+    ctor->invoke_raw(p_this_obj, nullptr, r_exc);
 }
 
 GDMonoClass *get_object_class(MonoObject *p_object) {
@@ -245,15 +245,15 @@ MonoObject *create_managed_from(const RID &p_from) {
 
 MonoObject *create_managed_from(const Array &p_from, GDMonoClass *p_class) {
     MonoObject *mono_object = mono_object_new(mono_domain_get(), p_class->get_mono_ptr());
-    ERR_FAIL_NULL_V(mono_object, NULL);
+    ERR_FAIL_NULL_V(mono_object, nullptr);
 
     // Search constructor that takes a pointer as parameter
     MonoMethod *m;
-    void *iter = NULL;
+    void *iter = nullptr;
     while ((m = mono_class_get_methods(p_class->get_mono_ptr(), &iter))) {
         if (strcmp(mono_method_get_name(m), ".ctor") == 0) {
             MonoMethodSignature *sig = mono_method_signature(m);
-            void *front = NULL;
+            void *front = nullptr;
             if (mono_signature_get_param_count(sig) == 1 &&
                     mono_class_from_mono_type(mono_signature_get_params(sig, &front)) == CACHED_CLASS(IntPtr)->get_mono_ptr()) {
                 break;
@@ -261,12 +261,12 @@ MonoObject *create_managed_from(const Array &p_from, GDMonoClass *p_class) {
         }
     }
 
-    CRASH_COND(m == NULL);
+    CRASH_COND(m == nullptr);
 
     Array *new_array = memnew(Array(p_from));
     void *args[1] = { &new_array };
 
-    MonoException *exc = NULL;
+    MonoException *exc = nullptr;
     GDMonoUtils::runtime_invoke(m, mono_object, args, &exc);
     UNHANDLED_EXCEPTION(exc);
 
@@ -579,7 +579,7 @@ bool generic_ienumerable_is_assignable_from(MonoReflectionType *p_reftype, MonoR
 
 bool generic_idictionary_is_assignable_from(MonoReflectionType *p_reftype, MonoReflectionType **r_key_reftype, MonoReflectionType **r_value_reftype) {
     NO_GLUE_RET(false);
-    MonoException *exc = NULL;
+    MonoException *exc = nullptr;
     MonoBoolean res = CACHED_METHOD_THUNK(MarshalUtils, GenericIDictionaryIsAssignableFromType_with_info).invoke(p_reftype, r_key_reftype, r_value_reftype, &exc);
     UNHANDLED_EXCEPTION(exc);
     return (bool)res;

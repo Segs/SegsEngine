@@ -297,12 +297,12 @@ void CollisionObject2D::shape_owner_remove_shape(uint32_t p_owner, int p_shape) 
         Physics2DServer::get_singleton()->body_remove_shape(rid, index_to_remove);
     }
 
-    shapes[p_owner].shapes.remove(p_shape);
+    shapes[p_owner].shapes.erase_at(p_shape);
 
     for (eastl::pair<const uint32_t,ShapeData> &E : shapes) {
         for (int i = 0; i < E.second.shapes.size(); i++) {
             if (E.second.shapes[i].index > index_to_remove) {
-                E.second.shapes.write[i].index -= 1;
+                E.second.shapes[i].index -= 1;
             }
         }
     }

@@ -59,27 +59,28 @@ StringName AnimationNodeAnimation::get_animation() const {
     return animation;
 }
 
-Vector<String> (*AnimationNodeAnimation::get_editable_animation_list)() = nullptr;
+PODVector<String> (*AnimationNodeAnimation::get_editable_animation_list)() = nullptr;
 
 void AnimationNodeAnimation::get_parameter_list(List<PropertyInfo> *r_list) const {
     r_list->push_back(PropertyInfo(VariantType::REAL, time, PropertyHint::None, "", 0));
 }
 void AnimationNodeAnimation::_validate_property(PropertyInfo &property) const {
 
-    if (property.name == "animation" && get_editable_animation_list) {
-        Vector<String> names = get_editable_animation_list();
-        String anims;
-        for (int i = 0; i < names.size(); i++) {
+    if (se_string_view(property.name) != se_string_view("animation") || !get_editable_animation_list)
+        return;
 
-            if (i > 0) {
-                anims += ',';
-            }
-            anims += names[i];
+    PODVector<String> names = get_editable_animation_list();
+    String anims;
+    for (int i = 0; i < names.size(); i++) {
+
+        if (i > 0) {
+            anims += ',';
         }
-        if (!anims.empty()) {
-            property.hint = PropertyHint::Enum;
-            property.hint_string = anims;
-        }
+        anims += names[i];
+    }
+    if (!anims.empty()) {
+        property.hint = PropertyHint::Enum;
+        property.hint_string = anims;
     }
 }
 

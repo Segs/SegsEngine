@@ -214,7 +214,7 @@ class Physics2DShapeQueryResult : public RefCounted {
 
     GDCLASS(Physics2DShapeQueryResult,RefCounted)
 
-    Vector<Physics2DDirectSpaceState::ShapeResult> result;
+    PODVector<Physics2DDirectSpaceState::ShapeResult> result;
 
     friend class Physics2DDirectSpaceState;
 

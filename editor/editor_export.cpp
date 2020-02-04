@@ -505,7 +505,7 @@ void EditorExportPlatform::_edit_files_with_filter(DirAccess *da, const PODVecto
         cur_dir += '/';
     String cur_dir_no_prefix = StringUtils::replace(cur_dir,"res://", "");
 
-    Vector<String> dirs;
+    PODVector<String> dirs;
     String f;
     while (!(f = da->get_next()).empty()) {
         if (da->current_is_dir())

@@ -267,16 +267,16 @@ void NavigationMesh::set_vertices(const PoolVector<Vector3> &p_vertices) {
     Object_change_notify(this);
 }
 
-PoolVector<Vector3> NavigationMesh::get_vertices() const {
+const PoolVector<Vector3> &NavigationMesh::get_vertices() const {
 
     return vertices;
 }
 
 void NavigationMesh::_set_polygons(const Array &p_array) {
-
-    polygons.resize(p_array.size());
+    polygons.clear();
+    polygons.reserve(p_array.size());
     for (int i = 0; i < p_array.size(); i++) {
-        polygons.write[i].indices = p_array[i].as<PoolVector<int>>();
+        polygons.emplace_back(Polygon{p_array[i].as<PoolVector<int>>()});
     }
     Object_change_notify(this);
 }

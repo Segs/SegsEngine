@@ -3289,28 +3289,30 @@ AABB SpatialEditorViewport::_calculate_spatial_bounds(const Spatial *p_parent, b
     return bounds;
 }
 
-void SpatialEditorViewport::_create_preview(const Vector<String> &files) const {
+void SpatialEditorViewport::_create_preview(const PODVector<String> &files) const {
     for (int i = 0; i < files.size(); i++) {
         const String &path = files[i];
         RES res(ResourceLoader::load(path));
         ERR_CONTINUE(not res)
         Ref<PackedScene> scene = dynamic_ref_cast<PackedScene>(res);
         Ref<Mesh> mesh = dynamic_ref_cast<Mesh>(res);
-        if (mesh != nullptr || scene != nullptr) {
-            if (mesh != nullptr) {
-                MeshInstance *mesh_instance = memnew(MeshInstance);
-                mesh_instance->set_mesh(mesh);
-                preview_node->add_child(mesh_instance);
-            } else {
-                if (scene) {
-                    Node *instance = scene->instance();
-                    if (instance) {
-                        preview_node->add_child(instance);
-                    }
+
+        if (mesh == nullptr && scene == nullptr)
+            continue;
+
+        if (mesh != nullptr) {
+            MeshInstance *mesh_instance = memnew(MeshInstance);
+            mesh_instance->set_mesh(mesh);
+            preview_node->add_child(mesh_instance);
+        } else {
+            if (scene) {
+                Node *instance = scene->instance();
+                if (instance) {
+                    preview_node->add_child(instance);
                 }
             }
-            editor->get_scene_root()->add_child(preview_node);
         }
+        editor->get_scene_root()->add_child(preview_node);
     }
     *preview_bounds = _calculate_spatial_bounds(preview_node);
 }
@@ -3404,7 +3406,7 @@ bool SpatialEditorViewport::_create_instance(Node *parent, se_string_view path, 
 void SpatialEditorViewport::_perform_drop_data() {
     _remove_preview();
 
-    Vector<String> error_files;
+    PODVector<String> error_files;
 
     editor_data->get_undo_redo().create_action_ui(TTR("Create Node"));
 
@@ -3419,7 +3421,7 @@ void SpatialEditorViewport::_perform_drop_data() {
         if (mesh != nullptr || scene != nullptr) {
             bool success = _create_instance(target_node, path, drop_pos);
             if (!success) {
-                error_files.push_back(path);
+                error_files.emplace_back(path);
             }
         }
     }
@@ -3444,7 +3446,7 @@ bool SpatialEditorViewport::can_drop_data_fw(const Point2 &p_point, const Varian
     if (!preview_node->is_inside_tree()) {
         Dictionary d = p_data;
         if (d.has("type") && UIString(d["type"]) == "files") {
-            Vector<String> files(d["files"].as<Vector<String>>());
+            PODVector<String> files(d["files"].as<PODVector<String>>());
 
             PODVector<String> scene_extensions;
             ResourceLoader::get_recognized_extensions_for_type("PackedScene", scene_extensions);
@@ -3456,31 +3458,33 @@ bool SpatialEditorViewport::can_drop_data_fw(const Point2 &p_point, const Varian
             for(const String &s : mesh_extensions)
                 fast_check.emplace(s);
             for (int i = 0; i < files.size(); i++) {
-                if (fast_check.contains(PathUtils::get_extension(files[i]))) {
-                    RES res(ResourceLoader::load(files[i]));
-                    if (not res) {
-                        continue;
-                    }
 
-                    se_string_view type(res->get_class());
-                    if (type == se_string_view("PackedScene")) {
-                        Ref<PackedScene> sdata = dynamic_ref_cast<PackedScene>(ResourceLoader::load(files[i]));
-                        Node *instanced_scene = sdata->instance(PackedScene::GEN_EDIT_STATE_INSTANCE);
-                        if (!instanced_scene) {
-                            continue;
-                        }
-                        memdelete(instanced_scene);
-                    } else if (type == se_string_view("Mesh") || type == se_string_view("ArrayMesh") || type == se_string_view("PrimitiveMesh")) {
-                        Ref<Mesh> mesh = dynamic_ref_cast<Mesh>(ResourceLoader::load(files[i]));
-                        if (not mesh) {
-                            continue;
-                        }
-                    } else {
+                if (!fast_check.contains(PathUtils::get_extension(files[i])))
+                    continue;
+
+                RES res(ResourceLoader::load(files[i]));
+                if (not res) {
+                    continue;
+                }
+
+                se_string_view type(res->get_class());
+                if (type == se_string_view("PackedScene")) {
+                    Ref<PackedScene> sdata = dynamic_ref_cast<PackedScene>(ResourceLoader::load(files[i]));
+                    Node *instanced_scene = sdata->instance(PackedScene::GEN_EDIT_STATE_INSTANCE);
+                    if (!instanced_scene) {
                         continue;
                     }
-                    can_instance = true;
-                    break;
+                    memdelete(instanced_scene);
+                } else if (type == se_string_view("Mesh") || type == se_string_view("ArrayMesh") || type == se_string_view("PrimitiveMesh")) {
+                    Ref<Mesh> mesh = dynamic_ref_cast<Mesh>(ResourceLoader::load(files[i]));
+                    if (not mesh) {
+                        continue;
+                    }
+                } else {
+                    continue;
                 }
+                can_instance = true;
+                break;
             }
             if (can_instance) {
                 _create_preview(files);
@@ -3507,7 +3511,7 @@ void SpatialEditorViewport::drop_data_fw(const Point2 &p_point, const Variant &p
     selected_files.clear();
     Dictionary d = p_data;
     if (d.has("type") && UIString(d["type"]) == "files") {
-        selected_files = d["files"].as<Vector<String>>();
+        selected_files = d["files"].as<PODVector<String>>();
     }
 
     List<Node *> list = editor->get_editor_selection()->get_selected_node_list();

@@ -472,11 +472,11 @@ void ScriptCreateDialog::_update_script_templates(const String &p_extension) {
     template_list.clear();
     template_overrides.clear();
 
-    Vector<String> dirs;
+    PODVector<String> dirs;
 
     // Ordered from local to global for correct override mechanism
-    dirs.push_back(EditorSettings::get_singleton()->get_project_script_templates_dir());
-    dirs.push_back(EditorSettings::get_singleton()->get_script_templates_dir());
+    dirs.emplace_back(EditorSettings::get_singleton()->get_project_script_templates_dir());
+    dirs.emplace_back(EditorSettings::get_singleton()->get_script_templates_dir());
 
     for (int i = 0; i < dirs.size(); i++) {
 

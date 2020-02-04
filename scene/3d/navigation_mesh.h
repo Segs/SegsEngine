@@ -44,7 +44,7 @@ class NavigationMesh : public Resource {
     struct Polygon {
         PoolVector<int> indices;
     };
-    Vector<Polygon> polygons;
+    PODVector<Polygon> polygons;
     Ref<ArrayMesh> debug_mesh;
 
     struct _EdgeKey {
@@ -180,7 +180,7 @@ public:
     void create_from_mesh(const Ref<Mesh> &p_mesh);
 
     void set_vertices(const PoolVector<Vector3> &p_vertices);
-    PoolVector<Vector3> get_vertices() const;
+    const PoolVector<Vector3> &get_vertices() const;
 
     void add_polygon(const PoolVector<int> &p_polygon);
     int get_polygon_count() const;

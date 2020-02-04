@@ -2465,7 +2465,7 @@ void OS_Windows::set_custom_mouse_cursor(const RES &p_cursor, CursorShape p_shap
         cursors_cache.erase(p_shape);
         return;
     }
-    Map<CursorShape, Vector<Variant> >::iterator cursor_c = cursors_cache.find(p_shape);
+    Map<CursorShape, PODVector<Variant> >::iterator cursor_c = cursors_cache.find(p_shape);
 
     if (cursor_c!=cursors_cache.end()) {
         if (cursor_c->second[0] == p_cursor && cursor_c->second[1] == p_hotspot) {
@@ -2558,10 +2558,10 @@ void OS_Windows::set_custom_mouse_cursor(const RES &p_cursor, CursorShape p_shap
 
     cursors[p_shape] = CreateIconIndirect(&iconinfo);
 
-    Vector<Variant> params;
+    PODVector<Variant> params;
     params.push_back(p_cursor);
     params.push_back(p_hotspot);
-    cursors_cache.emplace(p_shape, params);
+    cursors_cache.emplace(p_shape, eastl::move(params));
 
     if (p_shape == cursor_shape) {
         if (mouse_mode == MOUSE_MODE_VISIBLE || mouse_mode == MOUSE_MODE_CONFINED) {

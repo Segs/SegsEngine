@@ -532,7 +532,7 @@ private:
 
                     int ret = unzGoToFirstFile(pkg);
 
-                    Vector<String> failed_files;
+                    PODVector<String> failed_files;
 
                     int idx = 0;
                     while (ret == UNZ_OK) {
@@ -582,7 +582,7 @@ private:
                                 f->store_buffer(data.ptr(), data.size());
                                 memdelete(f);
                             } else {
-                                failed_files.push_back(path);
+                                failed_files.emplace_back(eastl::move(path));
                             }
                         }
 
@@ -2483,7 +2483,7 @@ ProjectManager::ProjectManager() {
     Label *sort_label = memnew(Label);
     sort_label->set_text(TTR("Sort:"));
     sort_filters->add_child(sort_label);
-    Vector<String> sort_filter_titles;
+    PODVector<String> sort_filter_titles;
     sort_filter_titles.push_back(TTR("Name").asCString());
     sort_filter_titles.push_back(TTR("Path").asCString());
     sort_filter_titles.push_back(TTR("Last Modified").asCString());
@@ -2709,10 +2709,10 @@ ProjectManager::~ProjectManager() {
         EditorSettings::destroy();
 }
 
-void ProjectListFilter::_setup_filters(Vector<String> options) {
+void ProjectListFilter::_setup_filters(const PODVector<String> &options) {
 
     filter_option->clear();
-    for (int i = 0; i < options.size(); i++)
+    for (size_t i = 0; i < options.size(); i++)
         filter_option->add_item(StringName(options[i]));
 }
 

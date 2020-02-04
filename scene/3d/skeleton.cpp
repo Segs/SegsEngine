@@ -665,7 +665,7 @@ void Skeleton::physical_bones_stop_simulation() {
     _pb_stop_simulation(this);
 }
 
-void _pb_start_simulation(const Skeleton *p_skeleton, Node *p_node, const Vector<int> &p_sim_bones) {
+void _pb_start_simulation(const Skeleton *p_skeleton, Node *p_node, const PODVector<int> &p_sim_bones) {
 
     for (int i = p_node->get_child_count() - 1; 0 <= i; --i) {
         _pb_start_simulation(p_skeleton, p_node->get_child(i), p_sim_bones);
@@ -692,7 +692,7 @@ void _pb_start_simulation(const Skeleton *p_skeleton, Node *p_node, const Vector
 
 void Skeleton::physical_bones_start_simulation_on(const Array &p_bones) {
 
-    Vector<int> sim_bones;
+    PODVector<int> sim_bones;
     if (p_bones.empty()) {
         sim_bones.push_back(0); // if no bones is specified, activate ragdoll on full body
     } else {
@@ -702,7 +702,7 @@ void Skeleton::physical_bones_start_simulation_on(const Array &p_bones) {
             if (VariantType::STRING == p_bones.get(i).get_type()) {
                 int bone_id = find_bone(p_bones.get(i).as<String>());
                 if (bone_id != -1)
-                    sim_bones.write[c++] = bone_id;
+                    sim_bones[c++] = bone_id;
             }
         }
         sim_bones.resize(c);

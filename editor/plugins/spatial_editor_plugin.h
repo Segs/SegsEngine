@@ -198,7 +198,7 @@ private:
     void _menu_option(int p_option);
     Spatial *preview_node;
     AABB *preview_bounds;
-    Vector<String> selected_files;
+    PODVector<String> selected_files;
     AcceptDialog *accept;
 
     Node *target_node;
@@ -386,7 +386,7 @@ private:
 
     Vector3 _get_instance_position(const Point2 &p_pos) const;
     static AABB _calculate_spatial_bounds(const Spatial *p_parent, bool p_exclude_toplevel_transform = true);
-    void _create_preview(const Vector<String> &files) const;
+    void _create_preview(const PODVector<String> &files) const;
     void _remove_preview();
     bool _cyclical_dependency_exists(se_string_view p_target_scene_path, Node *p_desired_node);
     bool _create_instance(Node *parent, se_string_view path, const Point2 &p_point);
