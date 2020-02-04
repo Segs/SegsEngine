@@ -187,17 +187,17 @@ private:
 
     StringName name;
     Vector<Variant> constants;
-    Vector<StringName> global_names;
+    PODVector<StringName> global_names;
 #ifdef TOOLS_ENABLED
-    Vector<StringName> named_globals;
+    PODVector<StringName> named_globals;
 #endif
-    Vector<int> default_arguments;
-    Vector<int> code;
+    PODVector<int> default_arguments;
+    PODVector<int> code;
     Vector<GDScriptDataType> argument_types;
     GDScriptDataType return_type;
 
 #ifdef TOOLS_ENABLED
-    Vector<StringName> arg_names;
+    PODVector<StringName> arg_names;
 #endif
 
     ListPOD<StackDebug> stack_debug;

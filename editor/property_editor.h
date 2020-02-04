@@ -108,7 +108,7 @@ class CustomPropertyEditor : public Popup {
     HScrollBar *scroll[4];
     Button *action_buttons[MAX_ACTION_BUTTONS];
     MenuButton *type_button;
-    Vector<StringName> inheritors_array;
+    PODVector<StringName> inheritors_array;
     TextureRect *texture_preview;
     ColorPicker *color_picker;
     TextEdit *text_edit;

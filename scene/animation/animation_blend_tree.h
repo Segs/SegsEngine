@@ -337,7 +337,7 @@ class AnimationNodeBlendTree : public AnimationRootNode {
     struct Node {
         Ref<AnimationNode> node;
         Vector2 position;
-        Vector<StringName> connections;
+        PODVector<StringName> connections;
     };
 
     Map<StringName, Node> nodes;
@@ -370,7 +370,7 @@ public:
     void rename_node(const StringName &p_name, const StringName &p_new_name);
     bool has_node(const StringName &p_name) const;
     StringName get_node_name(const Ref<AnimationNode> &p_node) const;
-    Vector<StringName> get_node_connection_array(const StringName &p_name) const;
+    const PODVector<StringName> &get_node_connection_array(const StringName &p_name) const;
 
     void set_node_position(const StringName &p_node, const Vector2 &p_position);
     Vector2 get_node_position(const StringName &p_node) const;

@@ -1582,7 +1582,7 @@ void SceneTreeDock::_do_reparent(Node *p_new_parent, int p_position_in_parent, V
     editor_data->get_undo_redo().create_action_ui(TTR("Reparent Node"));
 
     List<Pair<NodePath, NodePath> > path_renames;
-    Vector<StringName> former_names;
+    PODVector<StringName> former_names;
 
     int inc = 0;
 
@@ -1592,7 +1592,7 @@ void SceneTreeDock::_do_reparent(Node *p_new_parent, int p_position_in_parent, V
         Node *node = p_nodes[ni];
 
         fill_path_renames(node, new_parent, &path_renames);
-        former_names.push_back(node->get_name());
+        former_names.emplace_back(node->get_name());
 
         List<Node *> owned;
         node->get_owned_by(node->get_owner(), &owned);

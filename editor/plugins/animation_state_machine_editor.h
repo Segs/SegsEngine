@@ -87,7 +87,7 @@ class AnimationNodeStateMachineEditor : public AnimationTreeNodeEditorPlugin {
 
     PopupMenu *menu;
     PopupMenu *animations_menu;
-    Vector<StringName> animations_to_add;
+    PODVector<StringName> animations_to_add;
 
     Vector2 add_node_pos;
 

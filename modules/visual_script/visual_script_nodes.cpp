@@ -97,8 +97,8 @@ bool VisualScriptFunction::_set(const StringName &p_name, const Variant &p_value
         arguments.resize(new_argc);
 
         for (int i = argc; i < new_argc; i++) {
-            arguments.write[i].name = StringName("arg" + itos(i + 1));
-            arguments.write[i].type = VariantType::NIL;
+            arguments[i].name = StringName("arg" + itos(i + 1));
+            arguments[i].type = VariantType::NIL;
         }
         ports_changed_notify();
         Object_change_notify(this);
@@ -111,7 +111,7 @@ bool VisualScriptFunction::_set(const StringName &p_name, const Variant &p_value
         if (what == se_string_view("type")) {
 
             VariantType new_type = VariantType(int(p_value));
-            arguments.write[idx].type = new_type;
+            arguments[idx].type = new_type;
             ports_changed_notify();
 
             return true;
@@ -119,7 +119,7 @@ bool VisualScriptFunction::_set(const StringName &p_name, const Variant &p_value
 
         if (what == se_string_view("name")) {
 
-            arguments.write[idx].name = p_value;
+            arguments[idx].name = p_value;
             ports_changed_notify();
             return true;
         }
@@ -268,7 +268,7 @@ void VisualScriptFunction::add_argument(VariantType p_type, const StringName &p_
     arg.hint = p_hint;
     arg.hint_string = p_hint_string;
     if (p_index >= 0)
-        arguments.insert(p_index, arg);
+        arguments.insert_at(p_index, arg);
     else
         arguments.push_back(arg);
 
@@ -278,7 +278,7 @@ void VisualScriptFunction::set_argument_type(int p_argidx, VariantType p_type) {
 
     ERR_FAIL_INDEX(p_argidx, arguments.size());
 
-    arguments.write[p_argidx].type = p_type;
+    arguments[p_argidx].type = p_type;
     ports_changed_notify();
 }
 VariantType VisualScriptFunction::get_argument_type(int p_argidx) const {
@@ -290,7 +290,7 @@ void VisualScriptFunction::set_argument_name(int p_argidx, const StringName &p_n
 
     ERR_FAIL_INDEX(p_argidx, arguments.size());
 
-    arguments.write[p_argidx].name = p_name;
+    arguments[p_argidx].name = p_name;
     ports_changed_notify();
 }
 StringName VisualScriptFunction::get_argument_name(int p_argidx) const {
@@ -302,7 +302,7 @@ void VisualScriptFunction::remove_argument(int p_argidx) {
 
     ERR_FAIL_INDEX(p_argidx, arguments.size());
 
-    arguments.remove(p_argidx);
+    arguments.erase_at(p_argidx);
     ports_changed_notify();
 }
 
@@ -471,8 +471,8 @@ bool VisualScriptLists::_set(const StringName &p_name, const Variant &p_value) {
         inputports.resize(new_argc);
 
         for (int i = argc; i < new_argc; i++) {
-            inputports.write[i].name = StringName("arg" + itos(i + 1));
-            inputports.write[i].type = VariantType::NIL;
+            inputports[i].name = StringName("arg" + itos(i + 1));
+            inputports[i].type = VariantType::NIL;
         }
         ports_changed_notify();
         Object_change_notify(this);
@@ -485,7 +485,7 @@ bool VisualScriptLists::_set(const StringName &p_name, const Variant &p_value) {
         if (what == se_string_view("type")) {
 
             VariantType new_type = VariantType(int(p_value));
-            inputports.write[idx].type = new_type;
+            inputports[idx].type = new_type;
             ports_changed_notify();
 
             return true;
@@ -493,7 +493,7 @@ bool VisualScriptLists::_set(const StringName &p_name, const Variant &p_value) {
 
         if (what == se_string_view("name")) {
 
-            inputports.write[idx].name = p_value;
+            inputports[idx].name = p_value;
             ports_changed_notify();
             return true;
         }
@@ -509,8 +509,8 @@ bool VisualScriptLists::_set(const StringName &p_name, const Variant &p_value) {
         outputports.resize(new_argc);
 
         for (int i = argc; i < new_argc; i++) {
-            outputports.write[i].name = StringName("arg" + itos(i + 1));
-            outputports.write[i].type = VariantType::NIL;
+            outputports[i].name = StringName("arg" + itos(i + 1));
+            outputports[i].type = VariantType::NIL;
         }
         ports_changed_notify();
         Object_change_notify(this);
@@ -523,7 +523,7 @@ bool VisualScriptLists::_set(const StringName &p_name, const Variant &p_value) {
         if (what == se_string_view("type")) {
 
             VariantType new_type = VariantType(int(p_value));
-            outputports.write[idx].type = new_type;
+            outputports[idx].type = new_type;
             ports_changed_notify();
 
             return true;
@@ -531,7 +531,7 @@ bool VisualScriptLists::_set(const StringName &p_name, const Variant &p_value) {
 
         if (what == se_string_view("name")) {
 
-            outputports.write[idx].name = p_value;
+            outputports[idx].name = p_value;
             ports_changed_notify();
             return true;
         }
@@ -632,7 +632,7 @@ void VisualScriptLists::add_input_data_port(VariantType p_type, const StringName
     inp.name = p_name;
     inp.type = p_type;
     if (p_index >= 0)
-        inputports.insert(p_index, inp);
+        inputports.insert_at(p_index, inp);
     else
         inputports.push_back(inp);
 
@@ -646,7 +646,7 @@ void VisualScriptLists::set_input_data_port_type(int p_idx, VariantType p_type) 
 
     ERR_FAIL_INDEX(p_idx, inputports.size())
 
-    inputports.write[p_idx].type = p_type;
+    inputports[p_idx].type = p_type;
     ports_changed_notify();
     Object_change_notify(this);
 }
@@ -657,7 +657,7 @@ void VisualScriptLists::set_input_data_port_name(int p_idx, const StringName &p_
 
     ERR_FAIL_INDEX(p_idx, inputports.size())
 
-    inputports.write[p_idx].name = p_name;
+    inputports[p_idx].name = p_name;
     ports_changed_notify();
     Object_change_notify(this);
 }
@@ -668,7 +668,7 @@ void VisualScriptLists::remove_input_data_port(int p_argidx) {
 
     ERR_FAIL_INDEX(p_argidx, inputports.size())
 
-    inputports.remove(p_argidx);
+    inputports.erase_at(p_argidx);
 
     ports_changed_notify();
     Object_change_notify(this);
@@ -684,7 +684,7 @@ void VisualScriptLists::add_output_data_port(VariantType p_type, const StringNam
     out.name = p_name;
     out.type = p_type;
     if (p_index >= 0)
-        outputports.insert(p_index, out);
+        outputports.insert_at(p_index, out);
     else
         outputports.push_back(out);
 
@@ -698,7 +698,7 @@ void VisualScriptLists::set_output_data_port_type(int p_idx, VariantType p_type)
 
     ERR_FAIL_INDEX(p_idx, outputports.size());
 
-    outputports.write[p_idx].type = p_type;
+    outputports[p_idx].type = p_type;
     ports_changed_notify();
     Object_change_notify(this);
 }
@@ -709,7 +709,7 @@ void VisualScriptLists::set_output_data_port_name(int p_idx, const StringName &p
 
     ERR_FAIL_INDEX(p_idx, outputports.size());
 
-    outputports.write[p_idx].name = p_name;
+    outputports[p_idx].name = p_name;
     ports_changed_notify();
     Object_change_notify(this);
 }
@@ -720,7 +720,7 @@ void VisualScriptLists::remove_output_data_port(int p_argidx) {
 
     ERR_FAIL_INDEX(p_argidx, outputports.size());
 
-    outputports.remove(p_argidx);
+    outputports.erase_at(p_argidx);
 
     ports_changed_notify();
     Object_change_notify(this);
@@ -4023,8 +4023,8 @@ void VisualScriptDeconstruct::_set_elem_cache(const Array &p_elements) {
     ERR_FAIL_COND(p_elements.size() % 2 == 1)
     elements.resize(p_elements.size() / 2);
     for (int i = 0; i < elements.size(); i++) {
-        elements.write[i].name = p_elements[i * 2 + 0];
-        elements.write[i].type = VariantType(int(p_elements[i * 2 + 1]));
+        elements[i].name = p_elements[i * 2 + 0];
+        elements[i].type = VariantType(int(p_elements[i * 2 + 1]));
     }
 }
 

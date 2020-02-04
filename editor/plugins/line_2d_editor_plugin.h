@@ -46,7 +46,7 @@ protected:
 
 	bool _is_line() const override;
 	Variant _get_polygon(int p_idx) const override;
-	void _set_polygon(int p_idx, const Vector<Vector2> &p_polygon) const override;
+	void _set_polygon(int p_idx, const PoolVector<Vector2> &p_polygon) const override;
 	void _action_set_polygon(int p_idx, const Variant &p_previous, const Variant &p_polygon) override;
 
 public:

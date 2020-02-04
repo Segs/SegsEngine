@@ -691,7 +691,7 @@ uint32_t ShaderGLES3::create_custom_shader() {
 
 void ShaderGLES3::set_custom_shader_code(uint32_t p_code_id, const String &p_vertex,
         const String &p_vertex_globals, const String &p_fragment, const String &p_light,
-        const String &p_fragment_globals, const String &p_uniforms, const Vector<StringName> &p_texture_uniforms,
+        const String &p_fragment_globals, const String &p_uniforms, const PODVector<StringName> &p_texture_uniforms,
         const Vector<String> &p_custom_defines) {
 
     ERR_FAIL_COND(!custom_code_map.contains(p_code_id))

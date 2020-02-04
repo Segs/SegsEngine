@@ -97,30 +97,31 @@ void EditorPath::update_path() {
         if (icon)
             set_button_icon(icon);
 
-        if (i == history->get_path_size() - 1) {
-            String name;
-            if (object_cast<Resource>(obj)) {
+        if (i != history->get_path_size() - 1)
+            continue;
 
-                Resource *r = object_cast<Resource>(obj);
-                if (PathUtils::is_resource_file(r->get_path()))
-                    name = PathUtils::get_file(r->get_path());
-                else
-                    name = r->get_name();
+        String name;
+        if (object_cast<Resource>(obj)) {
 
-                if (name.empty())
-                    name = r->get_class();
-            } else if (obj->is_class("ScriptEditorDebuggerInspectedObject"))
-                name = obj->call("get_title").as<String>();
-            else if (object_cast<Node>(obj))
-                name = object_cast<Node>(obj)->get_name();
-            else if (object_cast<Resource>(obj) && !object_cast<Resource>(obj)->get_name().empty())
-                name = object_cast<Resource>(obj)->get_name();
+            Resource *r = object_cast<Resource>(obj);
+            if (PathUtils::is_resource_file(r->get_path()))
+                name = PathUtils::get_file(r->get_path());
             else
-                name = obj->get_class();
+                name = r->get_name();
 
-            set_text_utf8(" " + name); // An extra space so the text is not too close of the icon.
-            set_tooltip_utf8(obj->get_class());
-        }
+            if (name.empty())
+                name = r->get_class();
+        } else if (obj->is_class("ScriptEditorDebuggerInspectedObject"))
+            name = obj->call("get_title").as<String>();
+        else if (object_cast<Node>(obj))
+            name = object_cast<Node>(obj)->get_name();
+        else if (object_cast<Resource>(obj) && !object_cast<Resource>(obj)->get_name().empty())
+            name = object_cast<Resource>(obj)->get_name();
+        else
+            name = obj->get_class();
+
+        set_text_utf8(" " + name); // An extra space so the text is not too close of the icon.
+        set_tooltip_utf8(obj->get_class());
     }
 }
 

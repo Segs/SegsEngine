@@ -2066,19 +2066,6 @@ Vector<UIString> Variant::as<Vector<UIString>>() const {
     }
     return to;
 }
-template<>
-Vector<StringName> Variant::as<Vector<StringName>>() const {
-
-    PoolVector<String> from = as<PoolVector<String>>();
-    Vector<StringName> to;
-    int len = from.size();
-    to.resize(len);
-    for (int i = 0; i < len; i++) {
-
-        to.write[i] = StringName(from[i]);
-    }
-    return to;
-}
 
 template<>
 Vector<Vector3> Variant::as<Vector<Vector3>>() const {

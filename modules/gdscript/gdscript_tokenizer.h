@@ -266,7 +266,7 @@ class GDScriptTokenizerBuffer : public GDScriptTokenizer {
         TOKEN_LINE_MASK = (1 << TOKEN_LINE_BITS) - 1,
     };
 
-    Vector<StringName> identifiers;
+    PODVector<StringName> identifiers;
     Vector<Variant> constants;
     VMap<uint32_t, uint32_t> lines;
     Vector<uint32_t> tokens;

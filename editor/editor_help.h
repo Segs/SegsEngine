@@ -110,7 +110,7 @@ class EditorHelp : public VBoxContainer {
 
     StringName edited_class;
 
-    Vector<Pair<String, int> > section_line;
+    PODVector<Pair<String, int> > section_line;
     Map<String, int> method_line;
     Map<String, int> signal_line;
     Map<String, int> property_line;
@@ -175,7 +175,7 @@ public:
     void go_to_help(se_string_view p_help);
     void go_to_class(se_string_view p_class, int p_scroll = 0);
 
-    Vector<Pair<String, int> > get_sections();
+    PODVector<Pair<String, int> > get_sections();
     void scroll_to_section(int p_section_index);
 
     void popup_search();

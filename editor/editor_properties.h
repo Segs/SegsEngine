@@ -227,8 +227,8 @@ class EditorPropertyFlags : public EditorProperty {
     GDCLASS(EditorPropertyFlags,EditorProperty)
 
     VBoxContainer *vbox;
-    Vector<CheckBox *> flags;
-    Vector<int> flag_indices;
+    PODVector<CheckBox *> flags;
+    PODVector<int> flag_indices;
 
     void _flag_toggled();
 
@@ -592,7 +592,7 @@ class EditorPropertyResource : public EditorProperty {
     Button *edit;
     PopupMenu *menu;
     EditorFileDialog *file;
-    Vector<StringName> inheritors_array;
+    PODVector<StringName> inheritors_array;
     EditorInspector *sub_inspector;
     VBoxContainer *sub_inspector_vbox;
 

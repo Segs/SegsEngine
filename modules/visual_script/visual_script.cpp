@@ -1498,7 +1498,7 @@ void VisualScriptInstance::_dependency_step(VisualScriptNodeInstance *node, int 
     if (!node->dependencies.empty()) {
 
         int dc = node->dependencies.size();
-        VisualScriptNodeInstance **deps = node->dependencies.ptrw();
+        VisualScriptNodeInstance **deps = node->dependencies.data();
 
         for (int i = 0; i < dc; i++) {
 
@@ -1590,7 +1590,7 @@ Variant VisualScriptInstance::_call_internal(const StringName &p_method, void *p
             if (!node->dependencies.empty()) {
 
                 int dc = node->dependencies.size();
-                VisualScriptNodeInstance **deps = node->dependencies.ptrw();
+                VisualScriptNodeInstance **deps = node->dependencies.data();
 
                 for (int i = 0; i < dc; i++) {
 
@@ -1690,7 +1690,7 @@ Variant VisualScriptInstance::_call_internal(const StringName &p_method, void *p
                 state->flow_stack_pos = flow_stack_pos;
                 state->stack.resize(p_stack_size);
                 state->pass = p_pass;
-                memcpy(state->stack.ptrw(), p_stack, p_stack_size);
+                memcpy(state->stack.data(), p_stack, p_stack_size);
                 //step 2, run away, return directly
                 r_error.error = Variant::CallError::CALL_OK;
 
@@ -2231,7 +2231,7 @@ void VisualScriptInstance::create(const Ref<VisualScript> &p_script, Object *p_o
                 from->output_ports[dc.from_port] = stack_pos;
             }
 
-            if (from->get_sequence_output_count() == 0 && to->dependencies.find(from) == -1) {
+            if (from->get_sequence_output_count() == 0 and not to->dependencies.contains(from)) {
                 //if the node we are reading from has no output sequence, we must call step() before reading from it.
                 if (from->pass_idx == -1) {
                     from->pass_idx = function.pass_stack_size;
@@ -2355,11 +2355,11 @@ Variant VisualScriptFunctionState::_signal_callback(const Variant **p_args, int 
 
     r_error.error = Variant::CallError::CALL_OK;
 
-    Variant *working_mem = ((Variant *)stack.ptr()) + working_mem_index;
+    Variant *working_mem = ((Variant *)stack.data()) + working_mem_index;
 
     *working_mem = args; //arguments go to working mem.
 
-    Variant ret = instance->_call_internal(function, stack.ptrw(), stack.size(), node, flow_stack_pos, pass, true, r_error);
+    Variant ret = instance->_call_internal(function, stack.data(), stack.size(), node, flow_stack_pos, pass, true, r_error);
     function = StringName(); //invalidate
     return ret;
 }
@@ -2401,11 +2401,11 @@ Variant VisualScriptFunctionState::resume(Array p_args) {
     Variant::CallError r_error;
     r_error.error = Variant::CallError::CALL_OK;
 
-    Variant *working_mem = ((Variant *)stack.ptr()) + working_mem_index;
+    Variant *working_mem = ((Variant *)stack.data()) + working_mem_index;
 
     *working_mem = p_args; //arguments go to working mem.
 
-    Variant ret = instance->_call_internal(function, stack.ptrw(), stack.size(), node, flow_stack_pos, pass, true, r_error);
+    Variant ret = instance->_call_internal(function, stack.data(), stack.size(), node, flow_stack_pos, pass, true, r_error);
     function = StringName(); //invalidate
     return ret;
 }
@@ -2424,7 +2424,7 @@ VisualScriptFunctionState::VisualScriptFunctionState() {
 VisualScriptFunctionState::~VisualScriptFunctionState() {
 
     if (function != StringName()) {
-        Variant *s = ((Variant *)stack.ptr());
+        Variant *s = ((Variant *)stack.data());
         for (int i = 0; i < variant_stack_size; i++) {
             s[i].~Variant();
         }

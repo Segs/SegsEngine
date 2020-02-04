@@ -754,10 +754,10 @@ Vector3 ConvexPolygonShapeSW::get_support(const Vector3 &p_normal) const {
 
 void ConvexPolygonShapeSW::get_supports(const Vector3 &p_normal, int p_max, Vector3 *r_supports, int &r_amount) const {
 
-    const Geometry::MeshData::Face *faces = mesh.faces.ptr();
+    const Geometry::MeshData::Face *faces = mesh.faces.data();
     int fc = mesh.faces.size();
 
-    const Geometry::MeshData::Edge *edges = mesh.edges.ptr();
+    const Geometry::MeshData::Edge *edges = mesh.edges.data();
     int ec = mesh.edges.size();
 
     const Vector3 *vertices = mesh.vertices.data();
@@ -782,7 +782,7 @@ void ConvexPolygonShapeSW::get_supports(const Vector3 &p_normal, int p_max, Vect
         if (faces[i].plane.normal.dot(p_normal) > _FACE_IS_VALID_SUPPORT_THRESHOLD) {
 
             int ic = faces[i].indices.size();
-            const int *ind = faces[i].indices.ptr();
+            const int *ind = faces[i].indices.data();
 
             bool valid = false;
             for (int j = 0; j < ic; j++) {
@@ -824,7 +824,7 @@ void ConvexPolygonShapeSW::get_supports(const Vector3 &p_normal, int p_max, Vect
 
 bool ConvexPolygonShapeSW::intersect_segment(const Vector3 &p_begin, const Vector3 &p_end, Vector3 &r_result, Vector3 &r_normal) const {
 
-    const Geometry::MeshData::Face *faces = mesh.faces.ptr();
+    const Geometry::MeshData::Face *faces = mesh.faces.data();
     int fc = mesh.faces.size();
 
     const Vector3 *vertices = mesh.vertices.data();
@@ -839,7 +839,7 @@ bool ConvexPolygonShapeSW::intersect_segment(const Vector3 &p_begin, const Vecto
             continue; //opposing face
 
         int ic = faces[i].indices.size();
-        const int *ind = faces[i].indices.ptr();
+        const int *ind = faces[i].indices.data();
 
         for (int j = 1; j < ic - 1; j++) {
 
@@ -864,7 +864,7 @@ bool ConvexPolygonShapeSW::intersect_segment(const Vector3 &p_begin, const Vecto
 
 bool ConvexPolygonShapeSW::intersect_point(const Vector3 &p_point) const {
 
-    const Geometry::MeshData::Face *faces = mesh.faces.ptr();
+    const Geometry::MeshData::Face *faces = mesh.faces.data();
     int fc = mesh.faces.size();
 
     for (int i = 0; i < fc; i++) {
@@ -878,7 +878,7 @@ bool ConvexPolygonShapeSW::intersect_point(const Vector3 &p_point) const {
 
 Vector3 ConvexPolygonShapeSW::get_closest_point_to(const Vector3 &p_point) const {
 
-    const Geometry::MeshData::Face *faces = mesh.faces.ptr();
+    const Geometry::MeshData::Face *faces = mesh.faces.data();
     int fc = mesh.faces.size();
     const Vector3 *vertices = mesh.vertices.data();
 
@@ -891,7 +891,7 @@ Vector3 ConvexPolygonShapeSW::get_closest_point_to(const Vector3 &p_point) const
         all_inside = false;
         bool is_inside = true;
         int ic = faces[i].indices.size();
-        const int *indices = faces[i].indices.ptr();
+        const int *indices = faces[i].indices.data();
 
         for (int j = 0; j < ic; j++) {
 
@@ -917,7 +917,7 @@ Vector3 ConvexPolygonShapeSW::get_closest_point_to(const Vector3 &p_point) const
     Vector3 min_point;
 
     //check edges
-    const Geometry::MeshData::Edge *edges = mesh.edges.ptr();
+    const Geometry::MeshData::Edge *edges = mesh.edges.data();
     int ec = mesh.edges.size();
     for (int i = 0; i < ec; i++) {
 

@@ -2489,7 +2489,7 @@ bool CSharpScript::_get_signal(GDMonoClass *p_class, GDMonoClass *p_delegate, Ve
             // Arguments are accessibles as arguments of .Invoke method
             GDMonoMethod *invoke = p_delegate->get_method("Invoke", -1);
 
-            Vector<StringName> names;
+            PODVector<StringName> names;
             Vector<ManagedType> types;
             invoke->get_parameter_names(names);
             invoke->get_parameter_types(types);

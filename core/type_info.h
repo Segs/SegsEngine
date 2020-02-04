@@ -340,7 +340,7 @@ struct GetTypeInfo<PODVector<T *> > {
 MAKE_TEMPLATE_TYPE_INFO(Vector, Variant, VariantType::ARRAY)
 MAKE_TEMPLATE_TYPE_INFO(Vector, RID, VariantType::ARRAY)
 MAKE_TEMPLATE_TYPE_INFO(PoolVector, RID, VariantType::ARRAY)
-MAKE_TEMPLATE_TYPE_INFO(Vector, StringName, VariantType::POOL_STRING_ARRAY)
+//MAKE_TEMPLATE_TYPE_INFO(Vector, StringName, VariantType::POOL_STRING_ARRAY)
 
 MAKE_TEMPLATE_TYPE_INFO(PoolVector, Plane, VariantType::ARRAY)
 MAKE_TEMPLATE_TYPE_INFO(PoolVector, Face3, VariantType::POOL_VECTOR3_ARRAY)

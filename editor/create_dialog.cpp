@@ -384,13 +384,14 @@ void CreateDialog::_update_search() {
                 ClassDB::is_parent_class(type, base_type)) {
             // there are custom types based on this... cool.
 
-            const Vector<EditorData::CustomType> &ct = EditorNode::get_editor_data().get_custom_types().at(type);
-            for (int i = 0; i < ct.size(); i++) {
+            const PODVector<EditorData::CustomType> &ct = EditorNode::get_editor_data().get_custom_types().at(type);
+            for (size_t idx_c = 0; idx_c < ct.size(); idx_c++) {
 
                 bool show = StringUtils::is_subsequence_of(
-                        search_box->get_text(), ct[i].name, StringUtils::CaseInsensitive);
+                        search_box->get_text(), ct[idx_c].name, StringUtils::CaseInsensitive);
 
-                if (!show) continue;
+                if (!show)
+                    continue;
 
                 if (!search_options_types.contains(type)) add_type(type, search_options_types, root, &to_select);
 
@@ -402,12 +403,12 @@ void CreateDialog::_update_search() {
 
                 TreeItem *item = search_options->create_item(ti);
                 item->set_metadata(0, type);
-                item->set_text(0, ct[i].name);
-                if (ct[i].icon) {
-                    item->set_icon(0, ct[i].icon);
+                item->set_text(0, ct[idx_c].name);
+                if (ct[idx_c].icon) {
+                    item->set_icon(0, ct[idx_c].icon);
                 }
 
-                if (!to_select || ct[i].name == search_box->get_text()) {
+                if (!to_select || ct[idx_c].name == search_box->get_text()) {
                     to_select = item;
                 }
             }

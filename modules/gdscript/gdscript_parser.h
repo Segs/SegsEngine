@@ -179,7 +179,7 @@ public:
 
         struct Signal {
             StringName name;
-            Vector<StringName> arguments;
+            PODVector<StringName> arguments;
             int emissions;
             int line;
         };

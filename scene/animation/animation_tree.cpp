@@ -130,7 +130,8 @@ void AnimationNode::blend_animation(const StringName &p_animation, float p_time,
     state->animation_states.push_back(anim_state);
 }
 
-float AnimationNode::_pre_process(const StringName &p_base_path, AnimationNode *p_parent, State *p_state, float p_time, bool p_seek, const Vector<StringName> &p_connections) {
+float AnimationNode::_pre_process(const StringName &p_base_path, AnimationNode *p_parent, State *p_state, float p_time, bool p_seek, const PODVector<
+        StringName> &p_connections) {
 
     base_path = p_base_path;
     parent = p_parent;
@@ -188,10 +189,10 @@ float AnimationNode::blend_input(int p_input, float p_time, bool p_seek, float p
 
 float AnimationNode::blend_node(const StringName &p_sub_path, const Ref<AnimationNode>& p_node, float p_time, bool p_seek, float p_blend, FilterAction p_filter, bool p_optimize) {
 
-    return _blend_node(p_sub_path, Vector<StringName>(), this, p_node, p_time, p_seek, p_blend, p_filter, p_optimize);
+    return _blend_node(p_sub_path, {}, this, p_node, p_time, p_seek, p_blend, p_filter, p_optimize);
 }
 
-float AnimationNode::_blend_node(const StringName &p_subpath, const Vector<StringName> &p_connections, AnimationNode *p_new_parent, Ref<AnimationNode> p_node, float p_time, bool p_seek, float p_blend, FilterAction p_filter, bool p_optimize, float *r_max) {
+float AnimationNode::_blend_node(const StringName &p_subpath, const PODVector<StringName> &p_connections, AnimationNode *p_new_parent, Ref<AnimationNode> p_node, float p_time, bool p_seek, float p_blend, FilterAction p_filter, bool p_optimize, float *r_max) {
 
     ERR_FAIL_COND_V(not p_node, 0)
     ERR_FAIL_COND_V(!state, 0)
@@ -841,11 +842,11 @@ void AnimationTree::_process_graph(float p_delta) {
 
         if (started) {
             //if started, seek
-            root->_pre_process(SceneStringNames::get_singleton()->parameters_base_path, nullptr, &state, 0, true, Vector<StringName>());
+            root->_pre_process(SceneStringNames::get_singleton()->parameters_base_path, nullptr, &state, 0, true, {});
             started = false;
         }
 
-        root->_pre_process(SceneStringNames::get_singleton()->parameters_base_path, nullptr, &state, p_delta, false, Vector<StringName>());
+        root->_pre_process(SceneStringNames::get_singleton()->parameters_base_path, nullptr, &state, p_delta, false, {});
     }
 
     if (!state.valid) {

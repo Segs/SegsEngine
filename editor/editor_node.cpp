@@ -3973,26 +3973,27 @@ Ref<Script> EditorNode::get_object_custom_type_base(const Object *p_object) cons
 
     Ref<Script> script(refFromRefPtr<Script>(p_object->get_script()));
 
-    if (script) {
-        // Uncommenting would break things! Consider adding a parameter if you need it.
-        // StringName name = EditorNode::get_editor_data().script_class_get_name(base_script->get_path());
-        // if (name != StringName())
-        // 	return name;
+    if (!script) {
+        return {};
+    }
+    // Uncommenting would break things! Consider adding a parameter if you need it.
+    // StringName name = EditorNode::get_editor_data().script_class_get_name(base_script->get_path());
+    // if (name != StringName())
+    // 	return name;
 
-        // should probably be deprecated in 4.x
-        StringName base = script->get_instance_base_type();
-        if (base != StringName() && EditorNode::get_editor_data().get_custom_types().contains(base)) {
-            const Vector<EditorData::CustomType> &types = EditorNode::get_editor_data().get_custom_types().at(base);
+    // should probably be deprecated in 4.x
+    StringName base = script->get_instance_base_type();
+    if (not base.empty() && EditorNode::get_editor_data().get_custom_types().contains(base)) {
+        const PODVector<EditorData::CustomType> &types = EditorNode::get_editor_data().get_custom_types().at(base);
 
-            Ref<Script> base_script = script;
-            while (base_script) {
-                for (int i = 0; i < types.size(); ++i) {
-                    if (types[i].script == base_script) {
-                        return types[i].script;
-                    }
+        Ref<Script> base_script = script;
+        while (base_script) {
+            for (int i = 0; i < types.size(); ++i) {
+                if (types[i].script == base_script) {
+                    return types[i].script;
                 }
-                base_script = base_script->get_base_script();
             }
+            base_script = base_script->get_base_script();
         }
     }
 
@@ -4007,24 +4008,26 @@ StringName EditorNode::get_object_custom_type_name(const Object *p_object) const
         script = Ref<Script>(ObjectNS::cast_to<Script>((Object *)p_object));
     }
 
-    if (script) {
-        Ref<Script> base_script = script;
-        while (base_script) {
-            StringName name = EditorNode::get_editor_data().script_class_get_name(base_script->get_path());
-            if (name != StringName()) return name;
+    if (!script) {
+        return StringName();
+    }
 
-            // should probably be deprecated in 4.x
-            StringName base = base_script->get_instance_base_type();
-            if (base != StringName() && EditorNode::get_editor_data().get_custom_types().contains(base)) {
-                const Vector<EditorData::CustomType> &types = EditorNode::get_editor_data().get_custom_types().at(base);
-                for (int i = 0; i < types.size(); ++i) {
-                    if (types[i].script == base_script) {
-                        return types[i].name;
-                    }
+    Ref<Script> base_script = script;
+    while (base_script) {
+        StringName name = EditorNode::get_editor_data().script_class_get_name(base_script->get_path());
+        if (name != StringName()) return name;
+
+        // should probably be deprecated in 4.x
+        StringName base = base_script->get_instance_base_type();
+        if (base != StringName() && EditorNode::get_editor_data().get_custom_types().contains(base)) {
+            const PODVector<EditorData::CustomType> &types = EditorNode::get_editor_data().get_custom_types().at(base);
+            for (int i = 0; i < types.size(); ++i) {
+                if (types[i].script == base_script) {
+                    return types[i].name;
                 }
             }
-            base_script = base_script->get_base_script();
         }
+        base_script = base_script->get_base_script();
     }
 
     return StringName();
@@ -4064,7 +4067,7 @@ Ref<Texture> EditorNode::get_object_icon(const Object *p_object, const StringNam
             // should probably be deprecated in 4.x
             StringName base = base_script->get_instance_base_type();
             if (base != StringName() && EditorNode::get_editor_data().get_custom_types().contains(base)) {
-                const Vector<EditorData::CustomType> &types = EditorNode::get_editor_data().get_custom_types().at(base);
+                const PODVector<EditorData::CustomType> &types = EditorNode::get_editor_data().get_custom_types().at(base);
                 for (int i = 0; i < types.size(); ++i) {
                     if (types[i].script == base_script && types[i].icon) {
                         return types[i].icon;
@@ -4120,9 +4123,9 @@ Ref<Texture> EditorNode::get_class_icon(const StringName &p_class, const StringN
         return dynamic_ref_cast<Texture>(icon);
     }
 
-    const Map<StringName, Vector<EditorData::CustomType>> &p_map = EditorNode::get_editor_data().get_custom_types();
-    for (const eastl::pair<const StringName, Vector<EditorData::CustomType>> &E : p_map) {
-        const Vector<EditorData::CustomType> &ct = E.second;
+    const Map<StringName, PODVector<EditorData::CustomType>> &p_map = EditorNode::get_editor_data().get_custom_types();
+    for (const eastl::pair<const StringName, PODVector<EditorData::CustomType>> &E : p_map) {
+        const PODVector<EditorData::CustomType> &ct = E.second;
         for (int i = 0; i < ct.size(); ++i) {
             if (ct[i].name == p_class) {
                 if (ct[i].icon) {
@@ -5612,14 +5615,14 @@ void EditorNode::remove_resource_conversion_plugin(const Ref<EditorResourceConve
     resource_conversion_plugins.erase_first(p_plugin);
 }
 
-Vector<Ref<EditorResourceConversionPlugin>> EditorNode::find_resource_conversion_plugin(
+PODVector<Ref<EditorResourceConversionPlugin>> EditorNode::find_resource_conversion_plugin(
         const Ref<Resource> &p_for_resource) {
 
-    Vector<Ref<EditorResourceConversionPlugin>> ret;
+    PODVector<Ref<EditorResourceConversionPlugin>> ret;
 
     for (int i = 0; i < resource_conversion_plugins.size(); i++) {
         if (resource_conversion_plugins[i] && resource_conversion_plugins[i]->handles(p_for_resource)) {
-            ret.push_back(resource_conversion_plugins[i]);
+            ret.emplace_back(resource_conversion_plugins[i]);
         }
     }
 

@@ -681,7 +681,7 @@ class CanvasItemEditorViewport : public Control {
     GDCLASS(CanvasItemEditorViewport,Control)
 
     StringName default_type;
-    Vector<StringName> types;
+    PODVector<StringName> types;
 
     Vector<String> selected_files;
     Node *target_node;

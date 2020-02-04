@@ -61,6 +61,7 @@
 #include "text_editor.h"
 
 #include "filesystem_dock.h"
+#include "EASTL/sort.h"
 
 IMPL_GDCLASS(ScriptEditorQuickOpen)
 IMPL_GDCLASS(ScriptEditorBase)
@@ -158,7 +159,7 @@ public:
     ~EditorScriptCodeCompletionCache() override = default;
 };
 
-void ScriptEditorQuickOpen::popup_dialog(const Vector<String> &p_functions, bool p_dontclear) {
+void ScriptEditorQuickOpen::popup_dialog(const PODVector<String> &p_functions, bool p_dontclear) {
 
     popup_centered_ratio(0.6f);
     if (p_dontclear)
@@ -1719,9 +1720,9 @@ void ScriptEditor::_update_members_overview() {
         return;
     }
 
-    Vector<String> functions = se->get_functions();
+    PODVector<String> functions = se->get_functions();
     if (EditorSettings::get_singleton()->get("text_editor/tools/sort_members_outline_alphabetically")) {
-        functions.sort();
+        eastl::sort(functions.begin(), functions.end());
     }
 
     for (int i = 0; i < functions.size(); i++) {
@@ -1778,7 +1779,7 @@ void ScriptEditor::_update_help_overview() {
         return;
     }
 
-    Vector<Pair<String, int> > sections = se->get_sections();
+    PODVector<Pair<String, int> > sections = se->get_sections();
     for (int i = 0; i < sections.size(); i++) {
         help_overview->add_item(StringName(sections[i].first));
         help_overview->set_item_metadata(i, sections[i].second);

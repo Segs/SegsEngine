@@ -1612,24 +1612,24 @@ Array VisualServer::mesh_surface_get_arrays(RID p_mesh, int p_surface) const {
 Array VisualServer::mesh_surface_get_blend_shape_arrays(RID p_mesh, int p_surface) const {
 
     Vector<PoolVector<uint8_t> > blend_shape_data = mesh_surface_get_blend_shapes(p_mesh, p_surface);
-    if (!blend_shape_data.empty()) {
-        int vertex_len = mesh_surface_get_array_len(p_mesh, p_surface);
-
-        PoolVector<uint8_t> index_data = mesh_surface_get_index_array(p_mesh, p_surface);
-        int index_len = mesh_surface_get_array_index_len(p_mesh, p_surface);
-
-        uint32_t format = mesh_surface_get_format(p_mesh, p_surface);
-
-        Array blend_shape_array;
-        blend_shape_array.resize(blend_shape_data.size());
-        for (int i = 0; i < blend_shape_data.size(); i++) {
-            blend_shape_array.set(i, _get_array_from_surface(format, blend_shape_data[i], vertex_len, index_data, index_len));
-        }
-
-        return blend_shape_array;
-    } else {
+    if (blend_shape_data.empty()) {
         return Array();
     }
+
+    int vertex_len = mesh_surface_get_array_len(p_mesh, p_surface);
+
+    PoolVector<uint8_t> index_data = mesh_surface_get_index_array(p_mesh, p_surface);
+    int index_len = mesh_surface_get_array_index_len(p_mesh, p_surface);
+
+    uint32_t format = mesh_surface_get_format(p_mesh, p_surface);
+
+    Array blend_shape_array;
+    blend_shape_array.resize(blend_shape_data.size());
+    for (int i = 0; i < blend_shape_data.size(); i++) {
+        blend_shape_array.set(i, _get_array_from_surface(format, blend_shape_data[i], vertex_len, index_data, index_len));
+    }
+
+    return blend_shape_array;
 }
 
 Array VisualServer::_mesh_surface_get_skeleton_aabb_bind(RID p_mesh, int p_surface) const {
@@ -2330,21 +2330,18 @@ void VisualServer::_camera_set_orthogonal(RID p_camera, float p_size, float p_z_
     camera_set_orthogonal(p_camera, p_size, p_z_near, p_z_far);
 }
 
-void VisualServer::mesh_add_surface_from_mesh_data(RID p_mesh, const Geometry::MeshData &p_mesh_data) {
+void VisualServer::mesh_add_surface_from_mesh_data(RID p_mesh, Geometry::MeshData &&p_mesh_data) {
 
     PoolVector<Vector3> vertices;
     PoolVector<Vector3> normals;
-
-    for (int i = 0; i < p_mesh_data.faces.size(); i++) {
-
-        const Geometry::MeshData::Face &f = p_mesh_data.faces[i];
-
-        for (int j = 2; j < f.indices.size(); j++) {
 
 #define _ADD_VERTEX(m_idx)                                      \
     vertices.push_back(p_mesh_data.vertices[f.indices[m_idx]]); \
     normals.push_back(f.plane.normal);
 
+    for (const Geometry::MeshData::Face &f : p_mesh_data.faces) {
+
+        for (int j = 2; j < f.indices.size(); j++) {
             _ADD_VERTEX(0);
             _ADD_VERTEX(j - 1);
             _ADD_VERTEX(j);
@@ -2356,12 +2353,14 @@ void VisualServer::mesh_add_surface_from_mesh_data(RID p_mesh, const Geometry::M
     d[VS::ARRAY_VERTEX] = vertices;
     d[VS::ARRAY_NORMAL] = normals;
     mesh_add_surface_from_arrays(p_mesh, VS::PRIMITIVE_TRIANGLES, d);
+    p_mesh_data = {}; // Set with empty to properly clean the passed in object
+#undef _ADD_VERTEX
 }
 
 void VisualServer::mesh_add_surface_from_planes(RID p_mesh, const PoolVector<Plane> &p_planes) {
 
     Geometry::MeshData mdata = Geometry::build_convex_mesh(p_planes);
-    mesh_add_surface_from_mesh_data(p_mesh, mdata);
+    mesh_add_surface_from_mesh_data(p_mesh, eastl::move(mdata));
 }
 
 void VisualServer::immediate_vertex_2d(RID p_immediate, const Vector2 &p_vertex) {

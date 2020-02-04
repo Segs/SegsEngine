@@ -96,8 +96,8 @@ String VisualShaderNode::generate_global_per_func(ShaderMode p_mode, VisualShade
     return String();
 }
 
-Vector<StringName> VisualShaderNode::get_editable_properties() const {
-    return Vector<StringName>();
+PODVector<StringName> VisualShaderNode::get_editable_properties() const {
+    return PODVector<StringName>();
 }
 
 Array VisualShaderNode::get_default_input_values() const {
@@ -1844,9 +1844,9 @@ void VisualShaderNodeInput::_validate_property(PropertyInfo &property) const {
     }
 }
 
-Vector<StringName> VisualShaderNodeInput::get_editable_properties() const {
-    Vector<StringName> props;
-    props.push_back("input_name");
+PODVector<StringName> VisualShaderNodeInput::get_editable_properties() const {
+    PODVector<StringName> props { "input_name" };
+
     return props;
 }
 

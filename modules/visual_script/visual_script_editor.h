@@ -292,7 +292,7 @@ public:
     void apply_code() override;
     RES get_edited_resource() const override;
     void set_edited_resource(const RES &p_res) override;
-    Vector<String> get_functions() override;
+    PODVector<String> get_functions() override;
     void reload_text() override;
     String get_name() override;
     Ref<Texture> get_icon() override;

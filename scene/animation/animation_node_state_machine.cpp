@@ -589,13 +589,12 @@ StringName AnimationNodeStateMachine::get_node_name(const Ref<AnimationNode> &p_
 }
 
 void AnimationNodeStateMachine::get_child_nodes(List<ChildNode> *r_child_nodes) {
-    Vector<StringName> nodes;
+    PODVector<StringName> nodes;
 
     for (eastl::pair<const StringName,State> &E : states) {
         nodes.push_back(E.first);
     }
-
-    nodes.sort_custom<WrapAlphaCompare>();
+    eastl::sort(nodes.begin(), nodes.end(), WrapAlphaCompare());
 
     for (int i = 0; i < nodes.size(); i++) {
         ChildNode cn;

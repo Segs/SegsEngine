@@ -2053,7 +2053,7 @@ void EditorInspector::_property_changed_update_all(se_string_view /*p_path*/, co
     update_tree();
 }
 
-void EditorInspector::_multiple_properties_changed(const Vector<String>& p_paths, Array p_values) {
+void EditorInspector::_multiple_properties_changed(const PODVector<String> &p_paths, Array p_values) {
 
     ERR_FAIL_COND(p_paths.empty() || p_values.empty())
     ERR_FAIL_COND(p_paths.size() != p_values.size())

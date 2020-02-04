@@ -102,7 +102,7 @@ bool AbstractPolygon2DEditor::_is_empty() const {
 
     for (int i = 0; i < n; i++) {
 
-        Vector<Vector2> vertices = _get_polygon(i).as<Vector<Vector2>>();
+        PoolVector<Vector2> vertices = _get_polygon(i).as<PoolVector<Vector2>>();
 
         if (!vertices.empty())
             return false;
@@ -131,7 +131,7 @@ Variant AbstractPolygon2DEditor::_get_polygon(int p_idx) const {
     return _get_node()->get("polygon");
 }
 
-void AbstractPolygon2DEditor::_set_polygon(int p_idx, const Vector<Vector2> &p_polygon) const {
+void AbstractPolygon2DEditor::_set_polygon(int p_idx, const PoolVector<Vector2> &p_polygon) const {
 
     _get_node()->set("polygon", Variant::from(p_polygon));
 }
@@ -360,7 +360,7 @@ bool AbstractPolygon2DEditor::forward_gui_input(const Ref<InputEvent> &p_event) 
                             return true;
                         } else {
 
-                            Vector<Vector2> vertices2 = _get_polygon(insert.polygon).as<Vector<Vector2>>();
+                            PoolVector<Vector2> vertices2 = _get_polygon(insert.polygon).as<PoolVector<Vector2>>();
                             pre_move_edit = vertices2;
                             edited_point = PosVertex(insert.polygon, insert.vertex + 1, xform.affine_inverse().xform(insert.pos));
                             vertices2.insert(edited_point.vertex, edited_point.pos);
@@ -379,7 +379,7 @@ bool AbstractPolygon2DEditor::forward_gui_input(const Ref<InputEvent> &p_event) 
 
                         if (closest.valid()) {
 
-                            pre_move_edit = _get_polygon(closest.polygon).as<Vector<Vector2>>();
+                            pre_move_edit = _get_polygon(closest.polygon).as<PoolVector<Vector2>>();
                             edited_point = PosVertex(closest, xform.affine_inverse().xform(closest.pos));
                             selected_point = closest;
                             edge_point = PosVertex();
@@ -507,9 +507,9 @@ bool AbstractPolygon2DEditor::forward_gui_input(const Ref<InputEvent> &p_event) 
 
             if (!wip_active) {
 
-                Vector<Vector2> vertices = _get_polygon(edited_point.polygon).as<Vector<Vector2>>();
+                PoolVector<Vector2> vertices = _get_polygon(edited_point.polygon).as<PoolVector<Vector2>>();
                 ERR_FAIL_INDEX_V(edited_point.vertex, vertices.size(), false)
-                vertices.write[edited_point.vertex] = cpoint - _get_offset(edited_point.polygon);
+                vertices.write()[edited_point.vertex] = cpoint - _get_offset(edited_point.polygon);
                 _set_polygon(edited_point.polygon, vertices);
             }
 

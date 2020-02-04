@@ -45,7 +45,7 @@ class VisualScriptFunction : public VisualScriptNode {
         String hint_string;
     };
 
-    Vector<Argument> arguments;
+    PODVector<Argument> arguments;
 
     bool stack_less;
     int stack_size;
@@ -114,8 +114,8 @@ class VisualScriptLists : public VisualScriptNode {
     };
 
 protected:
-    Vector<Port> inputports;
-    Vector<Port> outputports;
+    PODVector<Port> inputports;
+    PODVector<Port> outputports;
 
     enum {
         OUTPUT_EDITABLE = 0x0001,
@@ -1072,7 +1072,7 @@ class VisualScriptDeconstruct : public VisualScriptNode {
         VariantType type;
     };
 
-    Vector<Element> elements;
+    PODVector<Element> elements;
 
     void _update_elements();
     VariantType type;

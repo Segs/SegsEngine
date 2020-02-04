@@ -41,9 +41,9 @@ IMPL_GDCLASS(EditorProfiler)
 void EditorProfiler::_make_metric_ptrs(Metric &m) {
 
     for (int i = 0; i < m.categories.size(); i++) {
-        m.category_ptrs[m.categories[i].signature] = &m.categories.write[i];
+        m.category_ptrs[m.categories[i].signature] = &m.categories[i];
         for (int j = 0; j < m.categories[i].items.size(); j++) {
-            m.item_ptrs[m.categories[i].items[j].signature] = &m.categories.write[i].items.write[j];
+            m.item_ptrs[m.categories[i].items[j].signature] = &m.categories[i].items[j];
         }
     }
 }
@@ -54,8 +54,8 @@ void EditorProfiler::add_frame_metric(const Metric &p_metric, bool p_final) {
     if (last_metric >= frame_metrics.size())
         last_metric = 0;
 
-    frame_metrics.write[last_metric] = p_metric;
-    _make_metric_ptrs(frame_metrics.write[last_metric]);
+    frame_metrics[last_metric] = p_metric;
+    _make_metric_ptrs(frame_metrics[last_metric]);
 
     updating_frame = true;
     cursor_metric_edit->set_max(frame_metrics[last_metric].frame_number);
@@ -223,10 +223,10 @@ void EditorProfiler::_update_plot() {
         highest *= 1.2; //leave some upper room
         graph_height = highest;
 
-        Vector<int> columnv;
+        PODVector<int> columnv;
         columnv.resize(h * 4);
 
-        int *column = columnv.ptrw();
+        int *column = columnv.data();
 
         Map<StringName, int> plot_prev;
         //Map<StringName,int> plot_max;
@@ -633,7 +633,7 @@ PODVector<PODVector<String> > EditorProfiler::get_data_as_csv() const {
 
     // signatures
     PODVector<String> signatures;
-    const Vector<EditorProfiler::Metric::Category> &categories = frame_metrics[0].categories;
+    const PODVector<EditorProfiler::Metric::Category> &categories = frame_metrics[0].categories;
 
     for (int j = 0; j < categories.size(); j++) {
 
@@ -664,7 +664,7 @@ PODVector<PODVector<String> > EditorProfiler::get_data_as_csv() const {
             continue;
         }
         int it = 0;
-        const Vector<EditorProfiler::Metric::Category> &frame_cat = frame_metrics[index].categories;
+        const PODVector<EditorProfiler::Metric::Category> &frame_cat = frame_metrics[index].categories;
 
         for (int j = 0; j < frame_cat.size(); j++) {
 

@@ -124,7 +124,7 @@ class VisualScriptNodeInstance {
     int sequence_index;
     VisualScriptNodeInstance **sequence_outputs;
     int sequence_output_count;
-    Vector<VisualScriptNodeInstance *> dependencies;
+    PODVector<VisualScriptNodeInstance *> dependencies;
     int *input_ports;
     int input_port_count;
     int *output_ports;
@@ -467,7 +467,7 @@ class VisualScriptFunctionState : public RefCounted {
     ObjectID script_id;
     VisualScriptInstance *instance;
     StringName function;
-    Vector<uint8_t> stack;
+    PODVector<uint8_t> stack;
     int working_mem_index;
     int variant_stack_size;
     VisualScriptNodeInstance *node;

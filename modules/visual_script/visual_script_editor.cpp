@@ -2428,7 +2428,7 @@ void VisualScriptEditor::set_edited_resource(const RES &p_res) {
     _update_members();
 }
 
-Vector<String> VisualScriptEditor::get_functions() {
+PODVector<String> VisualScriptEditor::get_functions() {
 
     return {};
 }

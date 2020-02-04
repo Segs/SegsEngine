@@ -4645,7 +4645,7 @@ String ShaderLanguage::_get_shader_type_list(const Set<StringName> &p_shader_typ
 //	}
 //	return OK;
 //}
-Error ShaderLanguage::_parse_shader(const Map<StringName, FunctionInfo> &p_functions, const Vector<StringName> &p_render_modes, const Set<StringName> &p_shader_types) {
+Error ShaderLanguage::_parse_shader(const Map<StringName, FunctionInfo> &p_functions, const PODVector<StringName> &p_render_modes, const Set<StringName> &p_shader_types) {
 
     Token tk = _get_token();
 
@@ -4697,7 +4697,7 @@ Error ShaderLanguage::_parse_shader(const Map<StringName, FunctionInfo> &p_funct
                         return ERR_PARSE_ERROR;
                     }
 
-                    if (p_render_modes.find(mode) == -1) {
+                    if (not p_render_modes.contains(mode)) {
                         _set_error("Invalid render mode: '" + String(mode) + "'");
                         return ERR_PARSE_ERROR;
                     }
@@ -5409,7 +5409,7 @@ String ShaderLanguage::get_shader_type(const String &p_code) {
     return String();
 }
 
-Error ShaderLanguage::compile(const String &p_code, const Map<StringName, FunctionInfo> &p_functions, const Vector<StringName> &p_render_modes, const Set<StringName> &p_shader_types) {
+Error ShaderLanguage::compile(const String &p_code, const Map<StringName, FunctionInfo> &p_functions, const PODVector<StringName> &p_render_modes, const Set<StringName> &p_shader_types) {
 
     clear();
 
@@ -5426,7 +5426,7 @@ Error ShaderLanguage::compile(const String &p_code, const Map<StringName, Functi
     return OK;
 }
 
-Error ShaderLanguage::complete(const String &p_code, const Map<StringName, FunctionInfo> &p_functions, const Vector<StringName> &p_render_modes, const Set<StringName> &p_shader_types, List<ScriptCodeCompletionOption> *r_options, String &r_call_hint) {
+Error ShaderLanguage::complete(const String &p_code, const Map<StringName, FunctionInfo> &p_functions, const PODVector<StringName> &p_render_modes, const Set<StringName> &p_shader_types, List<ScriptCodeCompletionOption> *r_options, String &r_call_hint) {
 
     clear();
 

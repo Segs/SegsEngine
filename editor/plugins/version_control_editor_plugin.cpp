@@ -64,7 +64,7 @@ void VersionControlEditorPlugin::_bind_methods() {
 
 void VersionControlEditorPlugin::_selected_a_vcs(int p_id) {
 
-    Vector<StringName> available_addons = get_available_vcs_names();
+    const PODVector<StringName> &available_addons = get_available_vcs_names();
     const StringName selected_vcs = StringName(set_up_choice->get_item_text_utf8(p_id));
 }
 
@@ -74,7 +74,7 @@ void VersionControlEditorPlugin::_populate_available_vcs_names() {
 
     if (!called) {
 
-        Vector<StringName> available_addons = get_available_vcs_names();
+        const PODVector<StringName> &available_addons = get_available_vcs_names();
         for (int i = 0; i < available_addons.size(); i++) {
 
             set_up_choice->add_item(available_addons[i]);
@@ -92,7 +92,7 @@ VersionControlEditorPlugin *VersionControlEditorPlugin::get_singleton() {
 void VersionControlEditorPlugin::popup_vcs_set_up_dialog(const Control *p_gui_base) {
 
     fetch_available_vcs_addon_names();
-    Vector<StringName> available_addons = get_available_vcs_names();
+    const PODVector<StringName> &available_addons = get_available_vcs_names();
     if (available_addons.size() >= 1) {
     Size2 popup_size = Size2(400, 100);
     Size2 window_size = p_gui_base->get_viewport_rect().size;

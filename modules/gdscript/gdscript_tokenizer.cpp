@@ -1229,7 +1229,7 @@ Error GDScriptTokenizerBuffer::set_code_buffer(const PODVector<uint8_t> &p_buffe
     const uint8_t *b = &buf[24];
     total_len -= 24;
 
-    identifiers.resize(identifier_count);
+    identifiers.reserve(identifier_count);
     for (int i = 0; i < identifier_count; i++) {
 
         int len = decode_uint32(b);
@@ -1245,7 +1245,7 @@ Error GDScriptTokenizerBuffer::set_code_buffer(const PODVector<uint8_t> &p_buffe
         String s((const char *)cs.ptr());
         b += len;
         total_len -= len + 4;
-        identifiers.write[i] = StringName(s);
+        identifiers.emplace_back(s);
     }
 
     constants.resize(constant_count);

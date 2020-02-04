@@ -86,12 +86,12 @@ public:
     Vector<float> blends;
     State *state;
 
-    float _pre_process(const StringName &p_base_path, AnimationNode *p_parent, State *p_state, float p_time, bool p_seek, const Vector<StringName> &p_connections);
+    float _pre_process(const StringName &p_base_path, AnimationNode *p_parent, State *p_state, float p_time, bool p_seek, const PODVector<StringName> &p_connections);
     void _pre_update_animations(HashMap<NodePath, int> *track_map);
 
     //all this is temporary
     StringName base_path;
-    Vector<StringName> connections;
+    PODVector<StringName> connections;
     AnimationNode *parent;
 
     HashMap<NodePath, bool> filter;
@@ -100,7 +100,7 @@ public:
     Array _get_filters() const;
     void _set_filters(const Array &p_filters);
     friend class AnimationNodeBlendTree;
-    float _blend_node(const StringName &p_subpath, const Vector<StringName> &p_connections, AnimationNode *p_new_parent, Ref<AnimationNode> p_node, float p_time, bool p_seek, float p_blend, FilterAction p_filter = FILTER_IGNORE, bool p_optimize = true, float *r_max = nullptr);
+    float _blend_node(const StringName &p_subpath, const PODVector<StringName> &p_connections, AnimationNode *p_new_parent, Ref<AnimationNode> p_node, float p_time, bool p_seek, float p_blend, FilterAction p_filter = FILTER_IGNORE, bool p_optimize = true, float *r_max = nullptr);
 public:
     void blend_animation(const StringName &p_animation, float p_time, float p_delta, bool p_seeked, float p_blend);
     float blend_node(const StringName &p_sub_path, const Ref<AnimationNode>& p_node, float p_time, bool p_seek, float p_blend, FilterAction p_filter = FILTER_IGNORE, bool p_optimize = true);

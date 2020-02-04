@@ -58,7 +58,7 @@ class ScriptEditorQuickOpen : public ConfirmationDialog {
     void _update_search();
 
     void _sbox_input(const Ref<InputEvent> &p_ie);
-    Vector<String> functions;
+    PODVector<String> functions;
 
     void _confirmed();
     void _text_changed(se_string_view p_newtext);
@@ -68,7 +68,7 @@ protected:
     static void _bind_methods();
 
 public:
-    void popup_dialog(const Vector<String> &p_functions, bool p_dontclear = false);
+    void popup_dialog(const PODVector<String> &p_functions, bool p_dontclear = false);
     ScriptEditorQuickOpen();
 };
 
@@ -87,7 +87,7 @@ public:
 
     virtual void apply_code() = 0;
     virtual RES get_edited_resource() const = 0;
-    virtual Vector<String> get_functions() = 0;
+    virtual PODVector<String> get_functions() = 0;
     virtual void set_edited_resource(const RES &p_res) = 0;
     virtual void reload_text() = 0;
     virtual String get_name() = 0;

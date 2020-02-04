@@ -58,16 +58,17 @@ void Geometry::MeshData::optimize_vertices() {
     Map<int, int> vtx_remap;
 
     for (int i = 0; i < faces.size(); i++) {
+        auto &idx_wr(faces[i].indices);
 
-        for (int j = 0; j < faces[i].indices.size(); j++) {
+        for (int j = 0; j < idx_wr.size(); j++) {
 
-            int idx = faces[i].indices[j];
+            int idx = idx_wr[j];
             if (!vtx_remap.contains(idx)) {
                 int ni = vtx_remap.size();
                 vtx_remap[idx] = ni;
             }
 
-            faces.write[i].indices.write[j] = vtx_remap[idx];
+            idx_wr[j] = vtx_remap[idx];
         }
     }
 
@@ -85,8 +86,8 @@ void Geometry::MeshData::optimize_vertices() {
             vtx_remap[b] = ni;
         }
 
-        edges.write[i].a = vtx_remap[a];
-        edges.write[i].b = vtx_remap[b];
+        edges[i].a = vtx_remap[a];
+        edges[i].b = vtx_remap[b];
     }
 
     PODVector<Vector3> new_vertices;

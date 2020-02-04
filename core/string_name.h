@@ -181,6 +181,7 @@ public:
     }
 };
 GODOT_EXPORT StringName operator+(StringName v,se_string_view sv);
+extern const PODVector<StringName> g_null_stringname_vec;
 
 struct WrapAlphaCompare
 {

@@ -365,7 +365,7 @@ String ShaderCompilerGLES3::_dump_node_code(SL::Node *p_node, int p_level, Gener
 
             Vector<int> uniform_sizes;
             Vector<int> uniform_alignments;
-            Vector<StringName> uniform_defines;
+            PODVector<StringName> uniform_defines;
             uniform_sizes.resize(max_uniforms);
             uniform_alignments.resize(max_uniforms);
             uniform_defines.resize(max_uniforms);
@@ -384,7 +384,7 @@ String ShaderCompilerGLES3::_dump_node_code(SL::Node *p_node, int p_level, Gener
                 if (SL::is_sampler_type(E.second.type)) {
                     r_gen_code.vertex_global += ucode;
                     r_gen_code.fragment_global += ucode;
-                    r_gen_code.texture_uniforms.write[E.second.texture_order] = StringName(_mkid(E.first.asCString()).c_str());
+                    r_gen_code.texture_uniforms[E.second.texture_order] = StringName(_mkid(E.first.asCString()).c_str());
                     r_gen_code.texture_hints.write[E.second.texture_order] = E.second.hint;
                     r_gen_code.texture_types.write[E.second.texture_order] = E.second.type;
                 } else {
@@ -393,7 +393,7 @@ String ShaderCompilerGLES3::_dump_node_code(SL::Node *p_node, int p_level, Gener
                         r_gen_code.defines.push_back("#define USE_MATERIAL\n");
                         uses_uniforms = true;
                     }
-                    uniform_defines.write[E.second.order] = StringName(ucode.c_str());
+                    uniform_defines[E.second.order] = StringName(ucode.c_str());
                     uniform_sizes.write[E.second.order] = _get_datatype_size(E.second.type);
                     uniform_alignments.write[E.second.order] = _get_datatype_alignment(E.second.type);
                 }
@@ -824,7 +824,7 @@ String ShaderCompilerGLES3::_dump_node_code(SL::Node *p_node, int p_level, Gener
 Error ShaderCompilerGLES3::compile(VS::ShaderMode p_mode, const String &p_code, IdentifierActions *p_actions, const String &p_path, GeneratedCode &r_gen_code) {
 
     Error err = parser.compile(p_code, ShaderTypes::get_singleton()->get_functions(p_mode),
-        ShaderTypes::get_singleton()->get_modes(p_mode), ShaderTypes::get_singleton()->get_types());
+            ShaderTypes::get_singleton()->get_modes(p_mode), ShaderTypes::get_singleton()->get_types());
 
     if (err != OK) {
         PODVector<se_string_view> shader;

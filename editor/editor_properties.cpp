@@ -656,9 +656,9 @@ class EditorPropertyLayersGrid : public Control {
 
 public:
     uint32_t value;
-    Vector<Rect2> flag_rects;
-    Vector<StringName> names;
-    Vector<StringName> tooltips;
+    PODVector<Rect2> flag_rects;
+    PODVector<StringName> names;
+    PODVector<StringName> tooltips;
 
     Size2 get_minimum_size() const override {
         Ref<Font> font = get_font("font", "Label");
@@ -777,8 +777,8 @@ void EditorPropertyLayers::setup(LayerType p_layer_type) {
             break;
     }
 
-    Vector<StringName> names;
-    Vector<StringName> tooltips;
+    PODVector<StringName> names;
+    PODVector<StringName> tooltips;
     for (int i = 0; i < 20; i++) {
         StringName name;
         StringName lname(basename + "/layer_" + itos(i + 1));
@@ -794,8 +794,8 @@ void EditorPropertyLayers::setup(LayerType p_layer_type) {
         tooltips.push_back(name + "\n" + FormatVE(TTR("Bit %d, value %d").asCString(), i, 1 << i));
     }
 
-    grid->names = names;
-    grid->tooltips = tooltips;
+    grid->names = eastl::move(names);
+    grid->tooltips = eastl::move(tooltips);
 }
 
 void EditorPropertyLayers::_button_pressed() {
@@ -2307,7 +2307,7 @@ void EditorPropertyResource::_menu_option(int p_which) {
 
                 int to_type = p_which - CONVERT_BASE_ID;
 
-                Vector<Ref<EditorResourceConversionPlugin> > conversions = EditorNode::get_singleton()->find_resource_conversion_plugin(res);
+                PODVector<Ref<EditorResourceConversionPlugin> > conversions = EditorNode::get_singleton()->find_resource_conversion_plugin(res);
 
                 ERR_FAIL_INDEX(to_type, conversions.size())
 
@@ -2425,7 +2425,7 @@ void EditorPropertyResource::_update_menu_items() {
     } else if (!base_type.empty()) {
         int idx = 0;
 
-        Vector<EditorData::CustomType> custom_resources;
+        PODVector<EditorData::CustomType> custom_resources;
 
         if (EditorNode::get_editor_data().get_custom_types().contains("Resource")) {
             custom_resources = EditorNode::get_editor_data().get_custom_types().at("Resource");
@@ -2535,7 +2535,7 @@ void EditorPropertyResource::_update_menu_items() {
 
     if (res) {
 
-        Vector<Ref<EditorResourceConversionPlugin> > conversions = EditorNode::get_singleton()->find_resource_conversion_plugin(res);
+        PODVector<Ref<EditorResourceConversionPlugin> > conversions(EditorNode::get_singleton()->find_resource_conversion_plugin(res));
         if (!conversions.empty()) {
             menu->add_separator();
         }
@@ -2846,7 +2846,7 @@ bool EditorPropertyResource::_is_drop_valid(const Dictionary &p_drag_data) const
 
     if (drag_data.has("type") && UIString(drag_data["type"]) == "files") {
 
-        Vector<String> files = drag_data["files"].as<Vector<String>>();
+        PoolVector<String> files = drag_data["files"].as<PoolVector<String>>();
 
         if (files.size() == 1) {
             String file = files[0];
@@ -2887,7 +2887,7 @@ void EditorPropertyResource::drop_data_fw(const Point2 &p_point, const Variant &
 
     if (drag_data.has("type") && UIString(drag_data["type"]) == "files") {
 
-        Vector<String> files = drag_data["files"].as<Vector<String>>();
+        PoolVector<String> files = drag_data["files"].as<PoolVector<String>>();
 
         if (files.size() == 1) {
             String file = files[0];

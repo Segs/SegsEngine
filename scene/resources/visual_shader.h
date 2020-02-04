@@ -207,7 +207,7 @@ public:
 
     virtual bool is_port_separator(int p_index) const;
 
-    virtual Vector<StringName> get_editable_properties() const;
+    virtual PODVector<StringName> get_editable_properties() const;
 
     virtual Vector<VisualShader::DefaultTextureParam> get_default_texture_parameters(VisualShader::Type p_type, int p_id) const;
     virtual String generate_global(ShaderMode p_mode, VisualShader::Type p_type, int p_id) const;
@@ -305,7 +305,7 @@ public:
 
     PortType get_input_type_by_name(StringName p_name) const;
 
-    Vector<StringName> get_editable_properties() const override;
+    PODVector<StringName> get_editable_properties() const override;
 
     VisualShaderNodeInput();
 };
