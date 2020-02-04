@@ -44,6 +44,8 @@
 #include "scene/resources/font.h"
 #include "scene/resources/style_box.h"
 
+#include "EASTL/sort.h"
+
 using namespace eastl;
 
 IMPL_GDCLASS(FindBar)
@@ -753,7 +755,7 @@ void EditorHelp::_update_doc() {
     if (!cd.defined_signals.empty()) {
 
         if (sort_methods) {
-            cd.defined_signals.sort();
+            eastl::sort(cd.defined_signals.begin(),cd.defined_signals.end());
         }
 
         section_line.push_back(Pair<String, int>(TTR("Signals").asCString(), class_desc->get_line_count() - 2));

@@ -39,7 +39,7 @@
 
 namespace GodotSharpExport {
 
-Error get_assembly_dependencies(GDMonoAssembly *p_assembly, const Vector<String> &p_search_dirs, Dictionary &r_dependencies);
+Error get_assembly_dependencies(GDMonoAssembly *p_assembly, const PODVector<String> &p_search_dirs, Dictionary &r_dependencies);
 
 Error get_exported_assembly_dependencies(const Dictionary &p_initial_dependencies,
 		se_string_view p_build_config, se_string_view p_custom_lib_dir, Dictionary &r_dependencies);

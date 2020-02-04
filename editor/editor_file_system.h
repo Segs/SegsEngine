@@ -61,7 +61,7 @@ class EditorFileSystemDirectory : public Object {
         uint64_t import_modified_time;
         bool import_valid;
         String import_group_file;
-        Vector<String> deps;
+        PODVector<String> deps;
         bool verified; //used for checking changes
         StringName script_class_name;
         StringName script_class_extends;
@@ -93,7 +93,7 @@ public:
     String get_file_path(int p_idx) const;
     String get_named_file_path(se_string_view file) const;
     StringName get_file_type(int p_idx) const;
-    const Vector<String> &get_file_deps(int p_idx) const;
+    const PODVector<String> &get_file_deps(int p_idx) const;
     bool get_file_import_is_valid(int p_idx) const;
     StringName get_file_script_class_name(int p_idx) const; //used for scripts
     StringName get_file_script_class_extends(int p_idx) const; //used for scripts
@@ -171,7 +171,7 @@ class EditorFileSystem : public Node {
         String type;
         uint64_t modification_time;
         uint64_t import_modification_time;
-        Vector<String> deps;
+        PODVector<String> deps;
         bool import_valid;
         String import_group_file;
         StringName script_class_name;
@@ -218,13 +218,13 @@ class EditorFileSystem : public Node {
     void _update_extensions();
 
     void _reimport_file(const String &p_file);
-    Error _reimport_group(se_string_view p_group_file, const Vector<String> &p_files);
+    Error _reimport_group(se_string_view p_group_file, const PODVector<String> &p_files);
 
     bool _test_for_reimport(se_string_view p_path, bool p_only_imported_files);
 
     bool reimport_on_missing_imported_files;
 
-    Vector<String> _get_dependencies(se_string_view p_path);
+    PODVector<String> _get_dependencies(se_string_view p_path);
 
     struct ImportFile {
         String path;
@@ -244,7 +244,7 @@ class EditorFileSystem : public Node {
 
     bool using_fat32_or_exfat; // Workaround for projects in FAT32 or exFAT filesystem (pendrives, most of the time)
 
-    void _find_group_files(EditorFileSystemDirectory *efd, DefMap<String, Vector<String> > &group_files, Set<String> &groups_to_reimport);
+    void _find_group_files(EditorFileSystemDirectory *efd, DefMap<String, PODVector<String> > &group_files, Set<String> &groups_to_reimport);
 
     void _move_group_files(EditorFileSystemDirectory *efd, se_string_view p_group_file, se_string_view p_new_location);
 

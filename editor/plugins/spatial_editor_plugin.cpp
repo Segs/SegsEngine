@@ -2737,9 +2737,9 @@ void SpatialEditorViewport::_menu_option(int p_option) {
             bool current = view_menu->get_popup()->is_item_checked(idx);
             current = !current;
             if (current)
-                camera->set_cull_mask((1 << 20) - 1 | 1 << GIZMO_BASE_LAYER + index | 1 << GIZMO_EDIT_LAYER | 1 << GIZMO_GRID_LAYER);
+                camera->set_cull_mask((1 << 20) - 1 | 1 << (GIZMO_BASE_LAYER + index) | 1 << GIZMO_EDIT_LAYER | 1 << GIZMO_GRID_LAYER);
             else
-                camera->set_cull_mask((1 << 20) - 1 | 1 << GIZMO_BASE_LAYER + index | 1 << GIZMO_GRID_LAYER);
+                camera->set_cull_mask((1 << 20) - 1 | 1 << (GIZMO_BASE_LAYER + index) | 1 << GIZMO_GRID_LAYER);
             view_menu->get_popup()->set_item_checked(idx, current);
 
         } break;
@@ -2815,7 +2815,7 @@ void SpatialEditorViewport::_preview_exited_scene() {
 
 void SpatialEditorViewport::_init_gizmo_instance(int p_idx) {
 
-    uint32_t layer = 1 << GIZMO_BASE_LAYER + p_idx;
+    uint32_t layer = 1 << (GIZMO_BASE_LAYER + p_idx);
 
     for (int i = 0; i < 3; i++) {
         move_gizmo_instance[i] = VisualServer::get_singleton()->instance_create();
@@ -3575,7 +3575,7 @@ SpatialEditorViewport::SpatialEditorViewport(SpatialEditor *p_spatial_editor, Ed
     surface->set_clip_contents(true);
     camera = memnew(Camera);
     camera->set_disable_gizmo(true);
-    camera->set_cull_mask((1 << 20) - 1 | 1 << GIZMO_BASE_LAYER + p_index | 1 << GIZMO_EDIT_LAYER | 1 << GIZMO_GRID_LAYER);
+    camera->set_cull_mask((1 << 20) - 1 | 1 << (GIZMO_BASE_LAYER + p_index) | 1 << GIZMO_EDIT_LAYER | 1 << GIZMO_GRID_LAYER);
     viewport->add_child(camera);
     camera->make_current();
     surface->set_focus_mode(FOCUS_ALL);

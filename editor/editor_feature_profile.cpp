@@ -724,13 +724,13 @@ void EditorFeatureProfileManager::_update_selected_profile() {
     _class_list_item_selected();
 }
 
-void EditorFeatureProfileManager::_import_profiles(const Vector<String> &p_paths) {
+void EditorFeatureProfileManager::_import_profiles(const PODVector<String> &p_paths) {
 
     //test it first
-    for (int i = 0; i < p_paths.size(); i++) {
+    for (const String &path : p_paths) {
         Ref<EditorFeatureProfile> profile(make_ref_counted<EditorFeatureProfile>());
-        Error err = profile->load_from_file(p_paths[i]);
-        String basefile(PathUtils::get_file(p_paths[i]));
+        Error err = profile->load_from_file(path);
+        String basefile(PathUtils::get_file(path));
         if (err != OK) {
             EditorNode::get_singleton()->show_warning(FormatSN(TTR("File '%s' format is invalid, import aborted.").asCString(), basefile.c_str()));
             return;

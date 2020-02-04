@@ -3517,7 +3517,7 @@ void EditorNode::request_instance_scene(se_string_view p_path) {
     scene_tree_dock->instance(p_path);
 }
 
-void EditorNode::request_instance_scenes(const Vector<String> &p_files) {
+void EditorNode::request_instance_scenes(const PODVector<String> &p_files) {
 
     scene_tree_dock->instance_scenes(p_files);
 }
@@ -3545,7 +3545,7 @@ void EditorNode::_inherit_request(se_string_view p_file) {
     _dialog_action(p_file);
 }
 
-void EditorNode::_instance_request(const Vector<String> &p_files) {
+void EditorNode::_instance_request(const PODVector<String> &p_files) {
 
     request_instance_scenes(p_files);
 }
@@ -3611,7 +3611,7 @@ void EditorNode::_update_recent_scenes() {
 
 void EditorNode::_quick_opened() {
 
-    Vector<String> files = quick_open->get_selected_files();
+    PODVector<String> files(quick_open->get_selected_files());
 
     for (int i = 0; i < files.size(); i++) {
         String res_path = files[i];

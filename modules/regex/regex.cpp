@@ -294,7 +294,7 @@ String RegEx::sub(const String &p_subject, const String &p_replacement, bool p_a
     const int safety_zone = 1;
 
     PCRE2_SIZE olength = p_subject.length() + 1; // space for output string and one terminating \0 character
-    Vector<char> output;
+    PODVector<char> output;
     output.resize(olength + safety_zone);
 
     uint32_t flags = PCRE2_SUBSTITUTE_OVERFLOW_LENGTH;
@@ -310,7 +310,7 @@ String RegEx::sub(const String &p_subject, const String &p_replacement, bool p_a
     pcre2_match_context_8 *mctx = pcre2_match_context_create_8(gctx);
     PCRE2_SPTR8 s = (PCRE2_SPTR8)p_subject.c_str();
     PCRE2_SPTR8 r = (PCRE2_SPTR8)p_replacement.c_str();
-    PCRE2_UCHAR8 *o = (PCRE2_UCHAR8 *)output.ptrw();
+    PCRE2_UCHAR8 *o = (PCRE2_UCHAR8 *)output.data();
 
     pcre2_match_data_8 *match = pcre2_match_data_create_from_pattern_8(c, gctx);
 
@@ -318,7 +318,7 @@ String RegEx::sub(const String &p_subject, const String &p_replacement, bool p_a
 
     if (res == PCRE2_ERROR_NOMEMORY) {
         output.resize(olength + safety_zone);
-        o = (PCRE2_UCHAR8 *)output.ptrw();
+        o = (PCRE2_UCHAR8 *)output.data();
         res = pcre2_substitute_8(c, s, length, p_offset, flags, match, mctx, r, p_replacement.length(), o, &olength);
     }
 
@@ -328,7 +328,7 @@ String RegEx::sub(const String &p_subject, const String &p_replacement, bool p_a
     if (res < 0)
         return String();
 
-    return String(output.ptr(), olength);
+    return String(output.data(), olength);
 }
 
 bool RegEx::is_valid() const {

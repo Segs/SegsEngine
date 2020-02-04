@@ -1700,7 +1700,7 @@ Error GDScriptCompiler::_parse_function(GDScript *p_script, const GDScriptParser
         gdfunc->rpc_mode = p_func->rpc_mode;
         gdfunc->argument_types.resize(p_func->argument_types.size());
         for (int i = 0; i < p_func->argument_types.size(); i++) {
-            gdfunc->argument_types.write[i] = _gdtype_from_datatype(p_func->argument_types[i]);
+            gdfunc->argument_types[i] = _gdtype_from_datatype(p_func->argument_types[i]);
         }
         gdfunc->return_type = _gdtype_from_datatype(p_func->return_type);
     } else {
@@ -1719,11 +1719,11 @@ Error GDScriptCompiler::_parse_function(GDScript *p_script, const GDScriptParser
     if (!codegen.constant_map.empty()) {
         gdfunc->_constant_count = codegen.constant_map.size();
         gdfunc->constants.resize(codegen.constant_map.size());
-        gdfunc->_constants_ptr = gdfunc->constants.ptrw();
+        gdfunc->_constants_ptr = gdfunc->constants.data();
         const Variant *K = nullptr;
         while ((K = codegen.constant_map.next(K))) {
             int idx = codegen.constant_map[*K];
-            gdfunc->constants.write[idx] = *K;
+            gdfunc->constants[idx] = *K;
         }
     } else {
 

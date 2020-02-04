@@ -66,7 +66,7 @@ public:
         Ref<Animation> animation;
         float time;
         float delta;
-        const Vector<float> *track_blends;
+        const PODVector<float> *track_blends;
         float blend;
         bool seeked;
     };
@@ -83,7 +83,7 @@ public:
         uint64_t last_pass;
     };
 
-    Vector<float> blends;
+    PODVector<float> blends;
     State *state;
 
     float _pre_process(const StringName &p_base_path, AnimationNode *p_parent, State *p_state, float p_time, bool p_seek, const PODVector<StringName> &p_connections);

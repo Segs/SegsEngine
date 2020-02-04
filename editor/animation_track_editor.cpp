@@ -242,13 +242,13 @@ public:
                     d_new["method"] = p_value;
                 } else if (name == "arg_count"_sv) {
 
-                    Vector<Variant> args = d_old["args"].as<Vector<Variant>>();
+                    Array args = d_old["args"].as<Array>();
                     args.resize(p_value);
                     d_new["args"] = Variant::from(args);
                     change_notify_deserved = true;
                 } else if (StringUtils::begins_with(name,"args/")) {
 
-                    Vector<Variant> args = d_old["args"].as<Vector<Variant>>();
+                    Array args = d_old["args"].as<Array>();
                     int idx = StringUtils::to_int(StringUtils::get_slice(name,"/", 1));
                     ERR_FAIL_INDEX_V(idx, args.size(), false)
 
@@ -261,10 +261,10 @@ public:
                             if (Variant::can_convert(args[idx].get_type(), t)) {
                                 Variant old = args[idx];
                                 Variant *ptrs[1] = { &old };
-                                args.write[idx] = Variant::construct(t, (const Variant **)ptrs, 1, err);
+                                args[idx] = Variant::construct(t, (const Variant **)ptrs, 1, err);
                             } else {
 
-                                args.write[idx] = Variant::construct(t, nullptr, 0, err);
+                                args[idx] = Variant::construct(t, nullptr, 0, err);
                             }
                             change_notify_deserved = true;
                             d_new["args"] = Variant::from(args);
@@ -277,7 +277,7 @@ public:
                             _fix_node_path(value);
                         }
 
-                        args.write[idx] = value;
+                        args[idx] = value;
                         d_new["args"] = Variant::from(args);
                         mergeable = true;
                     }

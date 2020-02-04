@@ -882,7 +882,7 @@ void AnimationTreePlayer::_process_animation(float p_delta) {
                         for (List<int>::Element *F = indices.front(); F; F = F->next()) {
 
                             StringName method = a->method_track_get_name(tr.local_track, F->deref());
-                            Vector<Variant> args = a->method_track_get_params(tr.local_track, F->deref());
+                            PODVector<Variant> args = a->method_track_get_params(tr.local_track, F->deref());
                             args.resize(VARIANT_ARG_MAX);
                             tr.track->object->call(method, args[0], args[1], args[2], args[3], args[4]);
                         }

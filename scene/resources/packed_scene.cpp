@@ -926,7 +926,7 @@ Error SceneState::pack(Node *p_scene) {
     while ((K = variant_map.next(K))) {
 
         int idx = variant_map[*K];
-        variants.write[idx] = *K;
+        variants[idx] = *K;
     }
 
     node_paths.resize(nodepath_map.size());
@@ -1148,7 +1148,7 @@ void SceneState::set_bundled_scene(const Dictionary &p_dictionary) {
         variants.resize(varcount);
         for (int i = 0; i < varcount; i++) {
 
-            variants.write[i] = svariants[i];
+            variants[i] = svariants[i];
         }
 
     } else {
@@ -1178,7 +1178,7 @@ void SceneState::set_bundled_scene(const Dictionary &p_dictionary) {
             nd.groups.resize(r[idx++]);
             for (int j = 0; j < nd.groups.size(); j++) {
 
-                nd.groups.write[j] = r[idx++];
+                nd.groups[j] = r[idx++];
             }
         }
     }

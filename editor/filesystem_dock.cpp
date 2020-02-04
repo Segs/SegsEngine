@@ -1001,7 +1001,7 @@ void FileSystemDock::_find_remaps(EditorFileSystemDirectory *efsd, const Map<Str
         _find_remaps(efsd->get_subdir(i), renames, to_remaps);
     }
     for (int i = 0; i < efsd->get_file_count(); i++) {
-        const Vector<String> &deps = efsd->get_file_deps(i);
+        const PODVector<String> &deps = efsd->get_file_deps(i);
         for (int j = 0; j < deps.size(); j++) {
             if (renames.contains(deps[j])) {
                 to_remaps.push_back(efsd->get_file_path(i));
@@ -1617,7 +1617,7 @@ void FileSystemDock::_file_option(int p_option, const PODVector<String> &p_selec
             TreeItem *selected = tree->get_root();
             selected = tree->get_next_selected(selected);
             while (selected) {
-                if (p_selected.find(selected->get_metadata(0)) >= 0) {
+                if (p_selected.contains(selected->get_metadata(0))) {
                     selected->set_collapsed(false);
                 }
                 selected = tree->get_next_selected(selected);
@@ -1738,17 +1738,17 @@ void FileSystemDock::_file_option(int p_option, const PODVector<String> &p_selec
 
         case FILE_REMOVE: {
             // Remove the selected files.
-            Vector<String> remove_files;
-            Vector<String> remove_folders;
+            PODVector<String> remove_files;
+            PODVector<String> remove_folders;
             PODVector<String> collapsed_paths = _remove_self_included_paths(p_selected);
 
             for (int i = 0; i < collapsed_paths.size(); i++) {
                 String fpath = collapsed_paths[i];
                 if (fpath != "res://") {
                     if (StringUtils::ends_with(fpath,"/")) {
-                        remove_folders.push_back(fpath);
+                        remove_folders.emplace_back(fpath);
                     } else {
-                        remove_files.push_back(fpath);
+                        remove_files.emplace_back(fpath);
                     }
                 }
             }

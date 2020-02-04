@@ -199,9 +199,9 @@ void EditorFileDialog::set_enable_multiple_selection(bool p_enable) {
     item_list->set_select_mode(p_enable ? ItemList::SELECT_MULTI : ItemList::SELECT_SINGLE);
 };
 
-Vector<String> EditorFileDialog::get_selected_files() const {
+PODVector<String> EditorFileDialog::get_selected_files() const {
 
-    Vector<String> list;
+    PODVector<String> list;
     for (int i = 0; i < item_list->get_item_count(); i++) {
         if (item_list->is_selected(i))
             list.push_back(item_list->get_item_text(i).asCString());
@@ -1126,17 +1126,17 @@ void EditorFileDialog::_make_dir() {
 void EditorFileDialog::_delete_items() {
 
     // Collect the selected folders and files to delete and check them in the deletion dependency dialog.
-    Vector<String> folders;
-    Vector<String> files;
+    PODVector<String> folders;
+    PODVector<String> files;
     for (int i = 0; i < item_list->get_item_count(); i++) {
         if (!item_list->is_selected(i)) {
             continue;
         }
         Dictionary item_meta = item_list->get_item_metadata(i);
         if (item_meta["dir"]) {
-            folders.push_back(item_meta["path"]);
+            folders.emplace_back(item_meta["path"]);
         } else {
-            files.push_back(item_meta["path"]);
+            files.emplace_back(item_meta["path"]);
         }
     }
     if (folders.size() + files.size() > 0) {

@@ -61,9 +61,9 @@ String EditorQuickOpen::get_selected() const {
     return "res://" + ti->get_text(0);
 }
 
-Vector<String> EditorQuickOpen::get_selected_files() const {
+PODVector<String> EditorQuickOpen::get_selected_files() const {
 
-    Vector<String> files;
+    PODVector<String> files;
 
     TreeItem *item = search_options->get_next_selected(search_options->get_root());
     while (item) {
@@ -125,7 +125,7 @@ float EditorQuickOpen::_path_cmp(se_string_view search, se_string_view path) con
     return StringUtils::similarity(StringUtils::to_lower(path),StringUtils::to_lower(search));
 }
 
-void EditorQuickOpen::_parse_fs(EditorFileSystemDirectory *efsd, Vector<Pair<String, Ref<Texture> > > &list) {
+void EditorQuickOpen::_parse_fs(EditorFileSystemDirectory *efsd, PODVector<Pair<String, Ref<Texture> > > &list) {
 
     if (!add_directories) {
         for (int i = 0; i < efsd->get_subdir_count(); i++) {
@@ -158,7 +158,7 @@ void EditorQuickOpen::_parse_fs(EditorFileSystemDirectory *efsd, Vector<Pair<Str
                     }
 
                     pos = this_sim >= other_sim ? pos - 1 : pos;
-                    list.insert(pos, pair);
+                    list.insert_at(pos, pair);
 
                 } else {
                     list.push_back(pair);
@@ -187,10 +187,10 @@ void EditorQuickOpen::_parse_fs(EditorFileSystemDirectory *efsd, Vector<Pair<Str
     }
 }
 
-Vector<Pair<String, Ref<Texture> > > EditorQuickOpen::_sort_fs(Vector<Pair<String, Ref<Texture> > > &list) {
+PODVector<Pair<String, Ref<Texture> > > EditorQuickOpen::_sort_fs(PODVector<Pair<String, Ref<Texture> > > &list) {
 
     String search_text = search_box->get_text();
-    Vector<Pair<String, Ref<Texture> > > sorted_list;
+    PODVector<Pair<String, Ref<Texture> > > sorted_list;
 
     if (search_text.empty() || list.empty())
         return list;
@@ -214,7 +214,7 @@ Vector<Pair<String, Ref<Texture> > > EditorQuickOpen::_sort_fs(Vector<Pair<Strin
         }
 
         sorted_list.push_back(list[best_idx]);
-        list.remove(best_idx);
+        list.erase_at(best_idx);
         scores.erase_at(best_idx);
     }
 
@@ -226,7 +226,7 @@ void EditorQuickOpen::_update_search() {
     search_options->clear();
     TreeItem *root = search_options->create_item();
     EditorFileSystemDirectory *efsd = EditorFileSystem::get_singleton()->get_filesystem();
-    Vector<Pair<String, Ref<Texture> > > list;
+    PODVector<Pair<String, Ref<Texture> > > list;
 
     _parse_fs(efsd, list);
     list = _sort_fs(list);

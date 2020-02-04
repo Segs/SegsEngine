@@ -1114,7 +1114,7 @@ void AnimationTreePlayerEditor::_file_dialog_selected(se_string_view p_path) {
     switch (file_op) {
 
         case MENU_IMPORT_ANIMATIONS: {
-            Vector<String> files = file_dialog->get_selected_files();
+            const PODVector<String> files = file_dialog->get_selected_files();
 
             for (int i = 0; i < files.size(); i++) {
 

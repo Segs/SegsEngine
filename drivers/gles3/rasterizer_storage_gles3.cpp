@@ -2199,7 +2199,9 @@ void RasterizerStorageGLES3::_update_shader(Shader *p_shader) const {
         return;
     }
 
-    p_shader->shader->set_custom_shader_code(p_shader->custom_code_id, gen_code.vertex, gen_code.vertex_global, gen_code.fragment, gen_code.light, gen_code.fragment_global, gen_code.uniforms, gen_code.texture_uniforms, gen_code.defines);
+    p_shader->shader->set_custom_shader_code(p_shader->custom_code_id, gen_code.vertex, gen_code.vertex_global,
+            gen_code.fragment, gen_code.light, gen_code.fragment_global, gen_code.uniforms, gen_code.texture_uniforms,
+            gen_code.defines);
 
     p_shader->ubo_size = gen_code.uniform_total_size;
     p_shader->ubo_offsets = gen_code.uniform_offsets;

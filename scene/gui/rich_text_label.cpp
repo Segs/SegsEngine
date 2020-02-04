@@ -2906,7 +2906,7 @@ float RichTextLabel::get_percent_visible() const {
     return percent_visible;
 }
 
-void RichTextLabel::set_effects(const Vector<Variant> &effects) {
+void RichTextLabel::set_effects(const PODVector<Variant> &effects) {
     custom_effects.clear();
     for (int i = 0; i < effects.size(); i++) {
         Ref<RichTextEffect> effect = Ref<RichTextEffect>(effects[i]);

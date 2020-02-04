@@ -67,26 +67,21 @@ private:
     String include_filter;
     String exclude_filter;
     String export_path;
-
     String exporter;
+    String name;
+    String custom_features;
+    String script_key;
+
     Set<String> selected_files;
-    bool runnable;
-
-    Vector<String> patches;
-
-    friend class EditorExport;
-    friend class EditorExportPlatform;
-
+    PODVector<String> patches;
     List<PropertyInfo> properties;
     Map<StringName, Variant> values;
 
-    String name;
-
-    String custom_features;
-
     int script_mode;
-    String script_key;
+    bool runnable;
 
+    friend class EditorExport;
+    friend class EditorExportPlatform;
 protected:
     bool _set(const StringName &p_name, const Variant &p_value);
     bool _get(const StringName &p_name, Variant &r_ret) const;
@@ -97,7 +92,7 @@ public:
 
     bool has(const StringName &p_property) const { return values.contains(p_property); }
 
-    Vector<String> get_files_to_export() const;
+    PODVector<String> get_files_to_export() const;
 
     void add_export_file(se_string_view p_path);
     void remove_export_file(se_string_view p_path);
@@ -122,7 +117,7 @@ public:
     void set_patch(int p_index, se_string_view p_path);
     const String &get_patch(int p_index);
     void remove_patch(int p_idx);
-    Vector<String> get_patches() const;
+    const PODVector<String> &get_patches() const { return patches; }
 
     void set_custom_features(se_string_view p_custom_features);
     const String & get_custom_features() const;
@@ -170,11 +165,11 @@ private:
     void _export_find_resources(EditorFileSystemDirectory *p_dir, Set<String> &p_paths);
     void _export_find_dependencies(se_string_view p_path, Set<String> &p_paths);
 
-    void gen_debug_flags(Vector<String> &r_flags, int p_flags);
+    void gen_debug_flags(PODVector<String> &r_flags, int p_flags);
     static Error _save_pack_file(void *p_userdata, se_string_view p_path, const PODVector<uint8_t> &p_data, int p_file, int p_total);
     static Error _save_zip_file(void *p_userdata, se_string_view p_path, const PODVector<uint8_t> &p_data, int p_file, int p_total);
 
-    void _edit_files_with_filter(DirAccess *da, const Vector<String> &p_filters, Set<String> &r_list, bool exclude);
+    void _edit_files_with_filter(DirAccess *da, const PODVector<String> &p_filters, Set<String> &r_list, bool exclude);
     void _edit_filter_list(Set<String> &r_list, se_string_view p_filter, bool exclude);
 
     static Error _add_shared_object(void *p_userdata, const SharedObject &p_so);
@@ -189,7 +184,7 @@ protected:
 
     bool exists_export_template(se_string_view template_file_name, String *err) const;
     String find_export_template(se_string_view template_file_name, String *err = nullptr) const;
-    void gen_export_flags(Vector<String> &r_flags, int p_flags);
+    void gen_export_flags(PODVector<String> &r_flags, int p_flags);
 
 public:
     virtual void get_preset_features(const Ref<EditorExportPreset> &p_preset, List<String> *r_features) = 0;
@@ -216,7 +211,7 @@ public:
 
     Error export_project_files(const Ref<EditorExportPreset> &p_preset, EditorExportSaveFunction p_func, void *p_udata, EditorExportSaveSharedObject p_so_func = nullptr);
 
-    Error save_pack(const Ref<EditorExportPreset> &p_preset, se_string_view p_path, Vector<SharedObject> *p_so_files = nullptr, bool p_embed = false, int64_t *r_embedded_start = nullptr, int64_t *r_embedded_size = nullptr);
+    Error save_pack(const Ref<EditorExportPreset> &p_preset, se_string_view p_path, PODVector<SharedObject> *p_so_files = nullptr, bool p_embed = false, int64_t *r_embedded_start = nullptr, int64_t *r_embedded_size = nullptr);
     Error save_zip(const Ref<EditorExportPreset> &p_preset, const String &p_path);
 
     virtual bool poll_export() { return false; }
@@ -257,13 +252,13 @@ class EditorExportPlugin : public RefCounted {
 
     Ref<EditorExportPreset> export_preset;
 
-    Vector<SharedObject> shared_objects;
+    PODVector<SharedObject> shared_objects;
     struct ExtraFile {
         String path;
         PODVector<uint8_t> data;
         bool remap;
     };
-    Vector<ExtraFile> extra_files;
+    PODVector<ExtraFile> extra_files;
     bool skipped;
 
     _FORCE_INLINE_ void _clear() {
@@ -301,9 +296,9 @@ public:
 class EditorExport : public Node {
     GDCLASS(EditorExport,Node)
 
-    Vector<Ref<EditorExportPlatform> > export_platforms;
-    Vector<Ref<EditorExportPreset> > export_presets;
-    Vector<Ref<EditorExportPlugin> > export_plugins;
+    PODVector<Ref<EditorExportPlatform> > export_platforms;
+    PODVector<Ref<EditorExportPreset> > export_presets;
+    PODVector<Ref<EditorExportPlugin> > export_plugins;
 
     Timer *save_timer;
     bool block_save;
@@ -333,7 +328,7 @@ public:
 
     void add_export_plugin(const Ref<EditorExportPlugin> &p_plugin);
     void remove_export_plugin(const Ref<EditorExportPlugin> &p_plugin);
-    Vector<Ref<EditorExportPlugin> > get_export_plugins();
+    const PODVector<Ref<EditorExportPlugin> > &get_export_plugins();
 
     void load_config();
 

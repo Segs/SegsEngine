@@ -1,6 +1,7 @@
 #pragma once
 #include "core/godot_export.h"
 #include <stdint.h>
+#include <stddef.h>
 
 namespace eastl {
     template <typename T, typename Allocator>
@@ -17,6 +18,8 @@ namespace eastl {
     class basic_string;
     template<class T>
     class basic_string_view;
+    template <typename T, ptrdiff_t Extent>
+    class span;
 }
 
 template <class T>

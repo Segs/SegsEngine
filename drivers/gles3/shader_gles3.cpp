@@ -137,7 +137,7 @@ void ShaderGLES3::unbind() {
     active = nullptr;
 }
 
-static void _display_error_with_code(const String &p_error, const Vector<const char *> &p_code) {
+static void _display_error_with_code(const String &p_error, const PODVector<const char *> &p_code) {
 
     int line = 1;
     String total_code;
@@ -195,7 +195,7 @@ ShaderGLES3::Version *ShaderGLES3::get_current_version() {
     v.ok = false;
     /* SETUP CONDITIONALS */
 
-    Vector<const char *> strings;
+    PODVector<const char *> strings;
     strings.push_back("#version 330\n");
 
     for (size_t i = 0; i < custom_defines.size(); i++) {
@@ -427,7 +427,7 @@ ShaderGLES3::Version *ShaderGLES3::get_current_version() {
     //if feedback exists, set it up
 
     if (feedback_count) {
-        Vector<const char *> feedback;
+        PODVector<const char *> feedback;
         for (int i = 0; i < feedback_count; i++) {
 
             if (feedbacks[i].conditional == -1 || (1 << feedbacks[i].conditional) & conditional_version.version) {
@@ -437,7 +437,7 @@ ShaderGLES3::Version *ShaderGLES3::get_current_version() {
         }
 
         if (!feedback.empty()) {
-            glTransformFeedbackVaryings(v.id, feedback.size(), feedback.ptr(), GL_INTERLEAVED_ATTRIBS);
+            glTransformFeedbackVaryings(v.id, feedback.size(), feedback.data(), GL_INTERLEAVED_ATTRIBS);
         }
     }
 
@@ -520,7 +520,7 @@ ShaderGLES3::Version *ShaderGLES3::get_current_version() {
         v.texture_uniform_locations.resize(cc->texture_uniforms.size());
         for (int i = 0; i < cc->texture_uniforms.size(); i++) {
 
-            v.texture_uniform_locations.write[i] = glGetUniformLocation(v.id, cc->texture_uniforms[i].asCString());
+            v.texture_uniform_locations[i] = glGetUniformLocation(v.id, cc->texture_uniforms[i].asCString());
             glUniform1i(v.texture_uniform_locations[i], i + base_material_tex_index);
         }
     }
@@ -692,7 +692,7 @@ uint32_t ShaderGLES3::create_custom_shader() {
 void ShaderGLES3::set_custom_shader_code(uint32_t p_code_id, const String &p_vertex,
         const String &p_vertex_globals, const String &p_fragment, const String &p_light,
         const String &p_fragment_globals, const String &p_uniforms, const PODVector<StringName> &p_texture_uniforms,
-        const Vector<String> &p_custom_defines) {
+        const PODVector<String> &p_custom_defines) {
 
     ERR_FAIL_COND(!custom_code_map.contains(p_code_id))
     CustomCode *cc = &custom_code_map[p_code_id];

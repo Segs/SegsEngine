@@ -83,7 +83,7 @@ void SceneTreeDock::_nodes_drag_begin() {
 }
 
 void SceneTreeDock::_quick_open() {
-    Vector<String> files = quick_open->get_selected_files();
+    PODVector<String> files(quick_open->get_selected_files());
     for (int i = 0; i < files.size(); i++) {
         instance(files[i]);
     }
@@ -164,12 +164,11 @@ void SceneTreeDock::instance(se_string_view p_file) {
 
     ERR_FAIL_COND(!parent)
 
-    Vector<String> scenes;
-    scenes.emplace_back(p_file);
+    String scenes[1] {String(p_file)};
     _perform_instance_scenes(scenes, parent, -1);
 }
 
-void SceneTreeDock::instance_scenes(const Vector<String> &p_files, Node *p_parent) {
+void SceneTreeDock::instance_scenes(const PODVector<String> &p_files, Node *p_parent) {
 
     Node *parent = p_parent;
 
@@ -187,7 +186,7 @@ void SceneTreeDock::instance_scenes(const Vector<String> &p_files, Node *p_paren
     _perform_instance_scenes(p_files, parent, -1);
 }
 
-void SceneTreeDock::_perform_instance_scenes(const Vector<String> &p_files, Node *parent, int p_pos) {
+void SceneTreeDock::_perform_instance_scenes(Span<const String> p_files, Node *parent, int p_pos) {
 
     ERR_FAIL_COND(!parent)
 
@@ -1019,13 +1018,13 @@ void SceneTreeDock::_tool_selected(int p_tool, bool p_confirm_override) {
                     } break;
                 }
             }
-
-            editor_data->get_undo_redo().create_action_ui(TTR("New Scene Root"));
-            editor_data->get_undo_redo().add_do_method(editor, "set_edited_scene", Variant(new_node));
-            editor_data->get_undo_redo().add_do_method(scene_tree, "update_tree");
-            editor_data->get_undo_redo().add_do_reference(new_node);
-            editor_data->get_undo_redo().add_undo_method(editor, "set_edited_scene", Variant((Object *)nullptr));
-            editor_data->get_undo_redo().commit_action();
+            UndoRedo &ur(editor_data->get_undo_redo());
+            ur.create_action_ui(TTR("New Scene Root"));
+            ur.add_do_method(editor, "set_edited_scene", Variant(new_node));
+            ur.add_do_method(scene_tree, "update_tree");
+            ur.add_do_reference(new_node);
+            ur.add_undo_method(editor, "set_edited_scene", Variant((Object *)nullptr));
+            ur.commit_action();
 
             editor->edit_node(new_node);
             editor_selection->clear();
@@ -2329,7 +2328,7 @@ void SceneTreeDock::_normalize_drop(Node *&to_node, int &to_pos, int p_type) {
     }
 }
 
-void SceneTreeDock::_files_dropped(const Vector<String>& p_files, const NodePath& p_to, int p_type) {
+void SceneTreeDock::_files_dropped(const PODVector<String> &p_files, const NodePath& p_to, int p_type) {
 
     Node *node = get_node(p_to);
     ERR_FAIL_COND(!node)

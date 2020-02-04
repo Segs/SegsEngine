@@ -1235,7 +1235,7 @@ void GDScriptFunctions::call(Function p_func, const Variant **p_args, int p_arg_
 
             for (eastl::pair<const StringName,GDScript::MemberInfo> &E : gd_ref->member_indices) {
                 if (d.has(E.first)) {
-                    ins->members.write[E.second.index] = d[E.first];
+                    ins->members[E.second.index] = d[E.first];
                 }
             }
 

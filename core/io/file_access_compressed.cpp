@@ -55,7 +55,7 @@ void FileAccessCompressed::configure(se_string_view p_magic, Compression::Mode p
         if (write_max > write_buffer_size) {                \
             write_buffer_size = next_power_of_2(write_max); \
             buffer.resize(write_buffer_size);               \
-            write_ptr = buffer.ptrw();                      \
+            write_ptr = buffer.data();                      \
         }                                                   \
     }
 
@@ -80,14 +80,14 @@ Error FileAccessCompressed::open_after_magic(FileAccess *p_base) {
 
     comp_buffer.resize(max_bs);
     buffer.resize(block_size);
-    read_ptr = buffer.ptrw();
-    f->get_buffer(comp_buffer.ptrw(), read_blocks[0].csize);
+    read_ptr = buffer.data();
+    f->get_buffer(comp_buffer.data(), read_blocks[0].csize);
     at_end = false;
     read_eof = false;
     read_block_count = bc;
     read_block_size = read_blocks.size() == 1 ? read_total : block_size;
 
-    Compression::decompress(buffer.ptrw(), read_block_size, comp_buffer.ptr(), read_blocks[0].csize, cmode);
+    Compression::decompress(buffer.data(), read_block_size, comp_buffer.data(), read_blocks[0].csize, cmode);
     read_block = 0;
     read_pos = 0;
 
@@ -118,7 +118,7 @@ Error FileAccessCompressed::_open(se_string_view p_path, int p_mode_flags) {
         write_buffer_size = 256;
         buffer.resize(256);
         write_max = 0;
-        write_ptr = buffer.ptrw();
+        write_ptr = buffer.data();
 
         //don't store anything else unless it's done saving!
     } else {
@@ -215,8 +215,8 @@ void FileAccessCompressed::seek(size_t p_position) {
 
                 read_block = block_idx;
                 f->seek(read_blocks[read_block].offset);
-                f->get_buffer(comp_buffer.ptrw(), read_blocks[read_block].csize);
-                Compression::decompress(buffer.ptrw(), read_blocks.size() == 1 ? read_total : block_size, comp_buffer.ptr(), read_blocks[read_block].csize, cmode);
+                f->get_buffer(comp_buffer.data(), read_blocks[read_block].csize);
+                Compression::decompress(buffer.data(), read_blocks.size() == 1 ? read_total : block_size, comp_buffer.data(), read_blocks[read_block].csize, cmode);
                 read_block_size = read_block == read_block_count - 1 ? read_total % block_size : block_size;
             }
 
@@ -286,8 +286,8 @@ uint8_t FileAccessCompressed::get_8() const {
 
         if (read_block < read_block_count) {
             //read another block of compressed data
-            f->get_buffer(comp_buffer.ptrw(), read_blocks[read_block].csize);
-            Compression::decompress(buffer.ptrw(), read_blocks.size() == 1 ? read_total : block_size, comp_buffer.ptr(), read_blocks[read_block].csize, cmode);
+            f->get_buffer(comp_buffer.data(), read_blocks[read_block].csize);
+            Compression::decompress(buffer.data(), read_blocks.size() == 1 ? read_total : block_size, comp_buffer.data(), read_blocks[read_block].csize, cmode);
             read_block_size = read_block == read_block_count - 1 ? read_total % block_size : block_size;
             read_pos = 0;
 
@@ -318,8 +318,8 @@ int FileAccessCompressed::get_buffer(uint8_t *p_dst, int p_length) const {
 
             if (read_block < read_block_count) {
                 //read another block of compressed data
-                f->get_buffer(comp_buffer.ptrw(), read_blocks[read_block].csize);
-                Compression::decompress(buffer.ptrw(), read_blocks.size() == 1 ? read_total : block_size, comp_buffer.ptr(), read_blocks[read_block].csize, cmode);
+                f->get_buffer(comp_buffer.data(), read_blocks[read_block].csize);
+                Compression::decompress(buffer.data(), read_blocks.size() == 1 ? read_total : block_size, comp_buffer.data(), read_blocks[read_block].csize, cmode);
                 read_block_size = read_block == read_block_count - 1 ? read_total % block_size : block_size;
                 read_pos = 0;
 

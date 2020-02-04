@@ -47,6 +47,28 @@
 //#define DEBUG_TIME(m_what) printf("MS: %s - %lli\n",m_what,OS::get_singleton()->get_ticks_usec());
 #define DEBUG_PRINT(m_p)
 #define DEBUG_TIME(m_what)
+namespace {
+struct FileAccessNetwork_priv {
+    mutable int waiting_on_page;
+    mutable int last_activity_val;
+    struct Page {
+        int activity;
+        bool queued;
+        PODVector<uint8_t> buffer;
+        Page() {
+            activity = 0;
+            queued = false;
+        }
+    };
+
+    mutable PODVector<Page> pages;
+
+    mutable Error response;
+
+};
+
+}
+#define D_PRIV() ((FileAccessNetwork_priv *)m_priv)
 
 void FileAccessNetworkClient::lock_mutex() {
 
@@ -260,20 +282,20 @@ FileAccessNetworkClient::~FileAccessNetworkClient() {
 void FileAccessNetwork::_set_block(int p_offset, const PODVector<uint8_t> &p_block) {
 
     int page = p_offset / page_size;
-    ERR_FAIL_INDEX(page, pages.size())
-    if (page < pages.size() - 1) {
+    ERR_FAIL_INDEX(page, D_PRIV()->pages.size())
+    if (page < D_PRIV()->pages.size() - 1) {
         ERR_FAIL_COND(p_block.size() != page_size)
     } else {
         ERR_FAIL_COND((p_block.size() != (int)(total_size % page_size)))
     }
 
     buffer_mutex->lock();
-    pages.write[page].buffer = p_block;
-    pages.write[page].queued = false;
+    D_PRIV()->pages[page].buffer = p_block;
+    D_PRIV()->pages[page].queued = false;
     buffer_mutex->unlock();
 
-    if (waiting_on_page == page) {
-        waiting_on_page = -1;
+    if (D_PRIV()->waiting_on_page == page) {
+        D_PRIV()->waiting_on_page = -1;
         page_sem->post();
     }
 }
@@ -281,13 +303,13 @@ void FileAccessNetwork::_set_block(int p_offset, const PODVector<uint8_t> &p_blo
 void FileAccessNetwork::_respond(size_t p_len, Error p_status) {
 
     DEBUG_PRINT("GOT RESPONSE - len: " + itos(p_len) + " status: " + itos(p_status));
-    response = p_status;
-    if (response != OK)
+    D_PRIV()->response = p_status;
+    if (D_PRIV()->response != OK)
         return;
     opened = true;
     total_size = p_len;
     int pc = ((total_size - 1) / page_size) + 1;
-    pages.resize(pc);
+    D_PRIV()->pages.resize(pc);
 }
 
 Error FileAccessNetwork::_open(se_string_view p_path, int p_mode_flags) {
@@ -321,7 +343,7 @@ Error FileAccessNetwork::_open(se_string_view p_path, int p_mode_flags) {
     DEBUG_TIME("open_end");
     DEBUG_PRINT("WAIT ENDED...");
 
-    return response;
+    return D_PRIV()->response;
 }
 
 void FileAccessNetwork::close() {
@@ -335,7 +357,7 @@ void FileAccessNetwork::close() {
     nc->lock_mutex();
     nc->put_32(id);
     nc->put_32(COMMAND_CLOSE);
-    pages.clear();
+    D_PRIV()->pages.clear();
     opened = false;
     nc->unlock_mutex();
 }
@@ -386,9 +408,9 @@ uint8_t FileAccessNetwork::get_8() const {
 
 void FileAccessNetwork::_queue_page(int p_page) const {
 
-    if (p_page >= pages.size())
+    if (p_page >= D_PRIV()->pages.size())
         return;
-    if (pages[p_page].buffer.empty() && !pages[p_page].queued) {
+    if (D_PRIV()->pages[p_page].buffer.empty() && !D_PRIV()->pages[p_page].queued) {
 
         FileAccessNetworkClient *nc = FileAccessNetworkClient::singleton;
 
@@ -398,7 +420,7 @@ void FileAccessNetwork::_queue_page(int p_page) const {
         br.offset = size_t(p_page) * page_size;
         br.size = page_size;
         nc->block_requests.push_back(br);
-        pages.write[p_page].queued = true;
+        D_PRIV()->pages[p_page].queued = true;
         nc->blockrequest_mutex->unlock();
         DEBUG_PRINT("QUEUE PAGE POST");
         nc->sem->post();
@@ -426,8 +448,8 @@ int FileAccessNetwork::get_buffer(uint8_t *p_dst, int p_length) const {
 
         if (page != last_page) {
             buffer_mutex->lock();
-            if (pages[page].buffer.empty()) {
-                waiting_on_page = page;
+            if (D_PRIV()->pages[page].buffer.empty()) {
+                D_PRIV()->waiting_on_page = page;
                 for (int j = 0; j < read_ahead; j++) {
 
                     _queue_page(page + j);
@@ -446,7 +468,7 @@ int FileAccessNetwork::get_buffer(uint8_t *p_dst, int p_length) const {
                 buffer_mutex->unlock();
             }
 
-            buff = pages.write[page].buffer.data();
+            buff = D_PRIV()->pages[page].buffer.data();
             last_page_buff = buff;
             last_page = page;
         }
@@ -524,6 +546,8 @@ void FileAccessNetwork::configure() {
 
 FileAccessNetwork::FileAccessNetwork() {
 
+    m_priv = new FileAccessNetwork_priv;
+
     eof_flag = false;
     opened = false;
     pos = 0;
@@ -537,8 +561,8 @@ FileAccessNetwork::FileAccessNetwork() {
     nc->unlock_mutex();
     page_size = GLOBAL_GET("network/remote_fs/page_size");
     read_ahead = GLOBAL_GET("network/remote_fs/page_read_ahead");
-    last_activity_val = 0;
-    waiting_on_page = -1;
+    D_PRIV()->last_activity_val = 0;
+    D_PRIV()->waiting_on_page = -1;
     last_page = -1;
 }
 
@@ -554,4 +578,7 @@ FileAccessNetwork::~FileAccessNetwork() {
     id = nc->last_id++;
     nc->accesses.erase(id);
     nc->unlock_mutex();
+    delete D_PRIV();
+    m_priv = nullptr;
 }
+#undef D_PRIV

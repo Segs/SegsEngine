@@ -186,14 +186,14 @@ private:
     GDScript *_script;
 
     StringName name;
-    Vector<Variant> constants;
+    PODVector<Variant> constants;
     PODVector<StringName> global_names;
 #ifdef TOOLS_ENABLED
     PODVector<StringName> named_globals;
 #endif
     PODVector<int> default_arguments;
     PODVector<int> code;
-    Vector<GDScriptDataType> argument_types;
+    PODVector<GDScriptDataType> argument_types;
     GDScriptDataType return_type;
 
 #ifdef TOOLS_ENABLED

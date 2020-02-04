@@ -45,9 +45,9 @@
 bool GDMonoAssembly::no_search = false;
 bool GDMonoAssembly::in_preload = false;
 
-Vector<String> GDMonoAssembly::search_dirs;
+PODVector<String> GDMonoAssembly::search_dirs;
 
-void GDMonoAssembly::fill_search_dirs(Vector<String> &r_search_dirs,se_string_view p_custom_config, se_string_view p_custom_bcl_dir) {
+void GDMonoAssembly::fill_search_dirs(PODVector<String> &r_search_dirs,se_string_view p_custom_config, se_string_view p_custom_bcl_dir) {
 
     String framework_dir;
 
@@ -194,7 +194,7 @@ MonoAssembly *GDMonoAssembly::_preload_hook(MonoAssemblyName *aname, char **, vo
     return res ? res->get_assembly() : nullptr;
 }
 
-GDMonoAssembly *GDMonoAssembly::_load_assembly_search(se_string_view p_name, const Vector<String> &p_search_dirs, bool p_refonly) {
+GDMonoAssembly *GDMonoAssembly::_load_assembly_search(se_string_view p_name, const PODVector<String> &p_search_dirs, bool p_refonly) {
 
     GDMonoAssembly *res = nullptr;
     String path;

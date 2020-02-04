@@ -554,7 +554,7 @@ void AnimationPlayer::_animation_process_animation(AnimationData *p_anim, float 
                 for (List<int>::Element *E = indices.front(); E; E = E->next()) {
 
                     StringName method = a->method_track_get_name(i, E->deref());
-                    Vector<Variant> params = a->method_track_get_params(i, E->deref());
+                    const PODVector<Variant> &params = a->method_track_get_params(i, E->deref());
 
                     int s = params.size();
 

@@ -1002,13 +1002,13 @@ bool GDScriptInstance::set(const StringName &p_name, const Variant &p_value) {
                     const Variant *value = &p_value;
                     Variant converted = Variant::construct(member->data_type.builtin_type, &value, 1, ce);
                     if (ce.error == Variant::CallError::CALL_OK) {
-                        members.write[member->index] = converted;
+                        members[member->index] = converted;
                         return true;
                     } else {
                         return false;
                     }
                 } else {
-                    members.write[member->index] = p_value;
+                    members[member->index] = p_value;
                 }
             }
             return true;
@@ -1344,7 +1344,7 @@ void GDScriptInstance::reload_members() {
 
     members.resize(script->member_indices.size()); //resize
 
-    Vector<Variant> new_members;
+    PODVector<Variant> new_members;
     new_members.resize(script->member_indices.size());
 
     //pass the values to the new indices
@@ -1352,7 +1352,7 @@ void GDScriptInstance::reload_members() {
 
         if (member_indices_cache.contains(E.first)) {
             Variant value = members[member_indices_cache[E.first]];
-            new_members.write[E.second.index] = value;
+            new_members[E.second.index] = value;
         }
     }
 
@@ -1402,12 +1402,12 @@ void GDScriptLanguage::_add_global(const StringName &p_name, const Variant &p_va
 
     if (globals.contains(p_name)) {
         //overwrite existing
-        global_array.write[globals[p_name]] = p_value;
+        global_array[globals[p_name]] = p_value;
         return;
     }
     globals[p_name] = global_array.size();
     global_array.push_back(p_value);
-    _global_array = global_array.ptrw();
+    _global_array = global_array.data();
 }
 
 void GDScriptLanguage::add_global_constant(const StringName &p_variable, const Variant &p_value) {
