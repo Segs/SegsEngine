@@ -147,8 +147,8 @@ private:
 
         bool erase(const Element *p_I) {
 
-            ERR_FAIL_COND_V(!p_I, false)
-            ERR_FAIL_COND_V(p_I->data != this, false)
+            ERR_FAIL_COND_V(!p_I, false);
+            ERR_FAIL_COND_V(p_I->data != this, false);
 
             if (first == p_I) {
                 first = p_I->next_ptr;
@@ -455,7 +455,7 @@ public:
 
     T &operator[](int p_index) {
 
-        CRASH_BAD_INDEX(p_index, size())
+        CRASH_BAD_INDEX(p_index, size());
 
         Element *I = front();
         int c = 0;
@@ -474,7 +474,7 @@ public:
 
     const T &operator[](int p_index) const {
 
-        CRASH_BAD_INDEX(p_index, size())
+        CRASH_BAD_INDEX(p_index, size());
 
         const Element *I = front();
         int c = 0;
@@ -493,7 +493,7 @@ public:
 
     void move_to_back(Element *p_I) {
 
-        ERR_FAIL_COND(p_I->data != _data)
+        ERR_FAIL_COND(p_I->data != _data);
         if (!p_I->next_ptr)
             return;
 
@@ -530,7 +530,7 @@ public:
 
     void move_to_front(Element *p_I) {
 
-        ERR_FAIL_COND(p_I->data != _data)
+        ERR_FAIL_COND(p_I->data != _data);
         if (!p_I->prev_ptr)
             return;
 
@@ -645,7 +645,7 @@ public:
     struct AuxiliaryComparator {
 
         C compare;
-        _FORCE_INLINE_ bool operator()(const Element *a, const Element *b) const {
+        bool operator()(const Element *a, const Element *b) const {
 
             return compare(a->value, b->value);
         }

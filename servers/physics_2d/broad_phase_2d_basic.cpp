@@ -337,19 +337,19 @@ void BroadPhase2DBasic::remove(ID p_id) {
 CollisionObject2DSW *BroadPhase2DBasic::get_object(ID p_id) const {
 
     Map<ID, Element>::const_iterator E = element_map.find(p_id);
-    ERR_FAIL_COND_V(E==element_map.end(),nullptr)
+    ERR_FAIL_COND_V(E==element_map.end(),nullptr);
     return E->second.owner;
 }
 bool BroadPhase2DBasic::is_static(ID p_id) const {
 
     Map<ID, Element>::const_iterator E = element_map.find(p_id);
-    ERR_FAIL_COND_V(E==element_map.end(),false)
+    ERR_FAIL_COND_V(E==element_map.end(),false);
     return E->second._static;
 }
 int BroadPhase2DBasic::get_subindex(ID p_id) const {
 
     Map<ID, Element>::const_iterator E = element_map.find(p_id);
-    ERR_FAIL_COND_V(E==element_map.end(),-1)
+    ERR_FAIL_COND_V(E==element_map.end(),-1);
     return E->second.subindex;
 }
 

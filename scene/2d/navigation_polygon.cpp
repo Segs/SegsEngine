@@ -188,7 +188,7 @@ void NavigationPolygon::remove_outline(int p_idx) {
 }
 
 PoolVector<Vector2> NavigationPolygon::get_outline(int p_idx) const {
-    ERR_FAIL_INDEX_V(p_idx, outlines.size(), PoolVector<Vector2>())
+    ERR_FAIL_INDEX_V(p_idx, outlines.size(), PoolVector<Vector2>());
     return outlines[p_idx];
 }
 

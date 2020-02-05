@@ -135,7 +135,7 @@ static String _parser_expr(const GDScriptParser::Node *p_expr) {
                     FALLTHROUGH;
                 case GDScriptParser::OperatorNode::OP_CALL: {
 
-                    ERR_FAIL_COND_V(c_node->arguments.empty(), String())
+                    ERR_FAIL_COND_V(c_node->arguments.empty(), String());
                     String func_name;
                     const GDScriptParser::Node *nfunc = c_node->arguments[0];
                     int arg_ofs = 0;
@@ -151,9 +151,9 @@ static String _parser_expr(const GDScriptParser::Node *p_expr) {
                         arg_ofs = 1;
                     } else {
 
-                        ERR_FAIL_COND_V(c_node->arguments.size() < 2, String())
+                        ERR_FAIL_COND_V(c_node->arguments.size() < 2, String());
                         nfunc = c_node->arguments[1];
-                        ERR_FAIL_COND_V(nfunc->type != GDScriptParser::Node::TYPE_IDENTIFIER, String())
+                        ERR_FAIL_COND_V(nfunc->type != GDScriptParser::Node::TYPE_IDENTIFIER, String());
 
                         if (c_node->arguments[0]->type != GDScriptParser::Node::TYPE_SELF)
                             func_name = _parser_expr(c_node->arguments[0]) + ".";
@@ -177,7 +177,7 @@ static String _parser_expr(const GDScriptParser::Node *p_expr) {
                 } break;
                 case GDScriptParser::OperatorNode::OP_INDEX: {
 
-                    ERR_FAIL_COND_V(c_node->arguments.size() != 2, String())
+                    ERR_FAIL_COND_V(c_node->arguments.size() != 2, String());
 
                     //index with []
                     txt = _parser_expr(c_node->arguments[0]) + "[" + _parser_expr(c_node->arguments[1]) + "]";
@@ -185,7 +185,7 @@ static String _parser_expr(const GDScriptParser::Node *p_expr) {
                 } break;
                 case GDScriptParser::OperatorNode::OP_INDEX_NAMED: {
 
-                    ERR_FAIL_COND_V(c_node->arguments.size() != 2, String())
+                    ERR_FAIL_COND_V(c_node->arguments.size() != 2, String());
 
                     txt = _parser_expr(c_node->arguments[0]) + "." + _parser_expr(c_node->arguments[1]);
 
@@ -428,7 +428,7 @@ static void _parser_show_function(const GDScriptParser::FunctionNode *p_func, in
     _parser_show_block(p_func->body, p_indent + 1);
 }
 
-static void _parser_show_class(const GDScriptParser::ClassNode *p_class, int p_indent, const Vector<se_string_view> &p_code) {
+static void _parser_show_class(const GDScriptParser::ClassNode *p_class, int p_indent, const PODVector<se_string_view> &p_code) {
 
     if (p_indent == 0 && (!p_class->extends_file.empty() || !p_class->extends_class.empty())) {
 
@@ -436,9 +436,8 @@ static void _parser_show_class(const GDScriptParser::ClassNode *p_class, int p_i
         print_line("\n");
     }
 
-    for (int i = 0; i < p_class->subclasses.size(); i++) {
+    for (const GDScriptParser::ClassNode* subclass : p_class->subclasses) {
 
-        const GDScriptParser::ClassNode *subclass = p_class->subclasses[i];
         String line = String("class ") + subclass->name;
         if (!subclass->extends_file.empty() || !subclass->extends_class.empty())
             line += " " + _parser_extends(subclass);
@@ -529,7 +528,7 @@ static String _disassemble_addr(const Ref<GDScript> &p_script, const GDScriptFun
     return "<err>";
 }
 
-static void _disassemble_class(const Ref<GDScript> &p_class, const Vector<se_string_view> &p_code) {
+static void _disassemble_class(const Ref<GDScript> &p_class, const PODVector<se_string_view> &p_code) {
 
     const Map<StringName, GDScriptFunction *> &mf = p_class->debug_get_member_functions();
 
@@ -947,17 +946,17 @@ MainLoop *test(TestType p_type) {
     }
 
     FileAccess *fa = FileAccess::open(test, FileAccess::READ);
-    ERR_FAIL_COND_V_MSG(!fa, nullptr, "Could not open file: " + test)
+    ERR_FAIL_COND_V_MSG(!fa, nullptr, "Could not open file: " + test);
 
-    Vector<uint8_t> buf;
+    PODVector<uint8_t> buf;
     int flen = fa->get_len();
     buf.resize(fa->get_len() + 1);
-    fa->get_buffer(buf.ptrw(), flen);
-    buf.write[flen] = 0;
+    fa->get_buffer(buf.data(), flen);
+    buf[flen] = 0;
 
     se_string_view code((const char *)&buf[0]);
 
-    Vector<se_string_view> lines;
+    PODVector<se_string_view> lines;
     int last = 0;
 
     for (size_t i = 0; i <= code.length(); i++) {
@@ -1023,7 +1022,7 @@ MainLoop *test(TestType p_type) {
         }
 
         const GDScriptParser::Node *root = parser.get_parse_tree();
-        ERR_FAIL_COND_V(root->type != GDScriptParser::Node::TYPE_CLASS, nullptr)
+        ERR_FAIL_COND_V(root->type != GDScriptParser::Node::TYPE_CLASS, nullptr);
         const GDScriptParser::ClassNode *cnode = static_cast<const GDScriptParser::ClassNode *>(root);
 
         _parser_show_class(cnode, 0, lines);

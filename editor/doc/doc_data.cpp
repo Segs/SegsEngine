@@ -709,7 +709,7 @@ static Error _parse_methods(Ref<XMLParser> &parser, PODVector<DocData::MethodDoc
             if (parser->get_node_name() == element) {
 
                 DocData::MethodDoc method;
-                ERR_FAIL_COND_V(!parser->has_attribute("name"), ERR_FILE_CORRUPT)
+                ERR_FAIL_COND_V(!parser->has_attribute("name"), ERR_FILE_CORRUPT);
                 method.name = parser->get_attribute_value("name");
                 if (parser->has_attribute("qualifiers"))
                     method.qualifiers = parser->get_attribute_value("qualifiers");
@@ -721,7 +721,7 @@ static Error _parse_methods(Ref<XMLParser> &parser, PODVector<DocData::MethodDoc
                         const String & name(parser->get_node_name());
                         if (name == "return") {
 
-                            ERR_FAIL_COND_V(!parser->has_attribute("type"), ERR_FILE_CORRUPT)
+                            ERR_FAIL_COND_V(!parser->has_attribute("type"), ERR_FILE_CORRUPT);
                             method.return_type = parser->get_attribute_value("type");
                             if (parser->has_attribute("enum")) {
                                 method.return_enum = parser->get_attribute_value("enum");
@@ -729,9 +729,9 @@ static Error _parse_methods(Ref<XMLParser> &parser, PODVector<DocData::MethodDoc
                         } else if (name == "argument") {
 
                             DocData::ArgumentDoc argument;
-                            ERR_FAIL_COND_V(!parser->has_attribute("name"), ERR_FILE_CORRUPT)
+                            ERR_FAIL_COND_V(!parser->has_attribute("name"), ERR_FILE_CORRUPT);
                             argument.name = parser->get_attribute_value("name");
-                            ERR_FAIL_COND_V(!parser->has_attribute("type"), ERR_FILE_CORRUPT)
+                            ERR_FAIL_COND_V(!parser->has_attribute("type"), ERR_FILE_CORRUPT);
                             argument.type = parser->get_attribute_value("type");
                             if (parser->has_attribute("enum")) {
                                 argument.enumeration = parser->get_attribute_value("enum");
@@ -829,9 +829,9 @@ Error DocData::_load(Ref<XMLParser> parser) {
         if (parser->get_node_type() != XMLParser::NODE_ELEMENT)
             continue; //no idea what this may be, but skipping anyway
 
-        ERR_FAIL_COND_V(parser->get_node_name() != "class", ERR_FILE_CORRUPT)
+        ERR_FAIL_COND_V(parser->get_node_name() != "class", ERR_FILE_CORRUPT);
 
-        ERR_FAIL_COND_V(!parser->has_attribute("name"), ERR_FILE_CORRUPT)
+        ERR_FAIL_COND_V(!parser->has_attribute("name"), ERR_FILE_CORRUPT);
         StringName name(parser->get_attribute_value("name"));
         class_list[name] = ClassDoc();
         ClassDoc &c = class_list[name];
@@ -877,12 +877,12 @@ Error DocData::_load(Ref<XMLParser> parser) {
                 } else if (name2 == "methods") {
 
                     Error err2 = _parse_methods(parser, c.methods);
-                    ERR_FAIL_COND_V(err2, err2)
+                    ERR_FAIL_COND_V(err2, err2);
 
                 } else if (name2 == "signals") {
 
                     Error err2 = _parse_methods(parser, c.defined_signals);
-                    ERR_FAIL_COND_V(err2, err2)
+                    ERR_FAIL_COND_V(err2, err2);
                 } else if (name2 == "members") {
 
                     while (parser->read() == OK) {
@@ -895,9 +895,9 @@ Error DocData::_load(Ref<XMLParser> parser) {
 
                                 PropertyDoc prop2;
 
-                                ERR_FAIL_COND_V(!parser->has_attribute("name"), ERR_FILE_CORRUPT)
+                                ERR_FAIL_COND_V(!parser->has_attribute("name"), ERR_FILE_CORRUPT);
                                 prop2.name = parser->get_attribute_value("name");
-                                ERR_FAIL_COND_V(!parser->has_attribute("type"), ERR_FILE_CORRUPT)
+                                ERR_FAIL_COND_V(!parser->has_attribute("type"), ERR_FILE_CORRUPT);
                                 prop2.type = StringName(parser->get_attribute_value("type"));
                                 if (parser->has_attribute("setter"))
                                     prop2.setter = parser->get_attribute_value("setter");
@@ -931,9 +931,9 @@ Error DocData::_load(Ref<XMLParser> parser) {
 
                                 PropertyDoc prop2;
 
-                                ERR_FAIL_COND_V(!parser->has_attribute("name"), ERR_FILE_CORRUPT)
+                                ERR_FAIL_COND_V(!parser->has_attribute("name"), ERR_FILE_CORRUPT);
                                 prop2.name = parser->get_attribute_value("name");
-                                ERR_FAIL_COND_V(!parser->has_attribute("type"), ERR_FILE_CORRUPT)
+                                ERR_FAIL_COND_V(!parser->has_attribute("type"), ERR_FILE_CORRUPT);
                                 prop2.type = StringName(parser->get_attribute_value("type"));
                                 if (!parser->is_empty()) {
                                     parser->read();
@@ -960,9 +960,9 @@ Error DocData::_load(Ref<XMLParser> parser) {
                             if (name3 == "constant") {
 
                                 ConstantDoc constant2;
-                                ERR_FAIL_COND_V(!parser->has_attribute("name"), ERR_FILE_CORRUPT)
+                                ERR_FAIL_COND_V(!parser->has_attribute("name"), ERR_FILE_CORRUPT);
                                 constant2.name = parser->get_attribute_value("name");
-                                ERR_FAIL_COND_V(!parser->has_attribute("value"), ERR_FILE_CORRUPT)
+                                ERR_FAIL_COND_V(!parser->has_attribute("value"), ERR_FILE_CORRUPT);
                                 constant2.value = parser->get_attribute_value("value");
                                 if (parser->has_attribute("enum")) {
                                     constant2.enumeration = parser->get_attribute_value("enum");

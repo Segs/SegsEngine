@@ -524,7 +524,7 @@ void RigidBodyBullet::set_param(PhysicsServer::BodyParameter p_param, real_t p_v
             scratch_space_override_modificator();
             break;
         default:
-            WARN_PRINT("Parameter " + itos(p_param) + " not supported by bullet. Value: " + itos(p_value))
+            WARN_PRINT("Parameter " + itos(p_param) + " not supported by bullet. Value: " + itos(p_value));
     }
 }
 
@@ -545,7 +545,7 @@ real_t RigidBodyBullet::get_param(PhysicsServer::BodyParameter p_param) const {
         case PhysicsServer::BODY_PARAM_GRAVITY_SCALE:
             return gravity_scale;
         default:
-            WARN_PRINT("Parameter " + itos(p_param) + " not supported by bullet")
+            WARN_PRINT("Parameter " + itos(p_param) + " not supported by bullet");
             return 0;
     }
 }

@@ -110,7 +110,7 @@ class CSharpScript : public Script {
         VariantType type;
     };
 
-    Map<StringName, Vector<Argument> > _signals;
+    Map<StringName, PODVector<Argument> > _signals;
     bool signals_invalidated;
 
 #ifdef TOOLS_ENABLED
@@ -130,7 +130,7 @@ class CSharpScript : public Script {
     void _clear();
 
     void load_script_signals(GDMonoClass *p_class, GDMonoClass *p_native_class);
-    bool _get_signal(GDMonoClass *p_class, GDMonoClass *p_delegate, Vector<Argument> &params);
+    bool _get_signal(GDMonoClass *p_class, GDMonoClass *p_delegate, PODVector<Argument> &params);
 
     bool _update_exports();
 #ifdef TOOLS_ENABLED

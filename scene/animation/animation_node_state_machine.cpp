@@ -187,9 +187,9 @@ float AnimationNodeStateMachinePlayback::get_current_length() const {
 
 bool AnimationNodeStateMachinePlayback::_travel(AnimationNodeStateMachine *p_state_machine, const StringName &p_travel) {
 
-    ERR_FAIL_COND_V(!playing, false)
-    ERR_FAIL_COND_V(!p_state_machine->states.contains(p_travel), false)
-    ERR_FAIL_COND_V(!p_state_machine->states.contains(current), false)
+    ERR_FAIL_COND_V(!playing, false);
+    ERR_FAIL_COND_V(!p_state_machine->states.contains(p_travel), false);
+    ERR_FAIL_COND_V(!p_state_machine->states.contains(current), false);
 
     path.clear(); //a new one will be needed
 
@@ -573,7 +573,7 @@ void AnimationNodeStateMachine::add_node(const StringName &p_name, Ref<Animation
 
 Ref<AnimationNode> AnimationNodeStateMachine::get_node(const StringName &p_name) const {
 
-    ERR_FAIL_COND_V(!states.contains(p_name), Ref<AnimationNode>())
+    ERR_FAIL_COND_V(!states.contains(p_name), Ref<AnimationNode>());
 
     return states.at(p_name).node;
 }
@@ -731,7 +731,7 @@ void AnimationNodeStateMachine::add_transition(const StringName &p_from, const S
 }
 
 Ref<AnimationNodeStateMachineTransition> AnimationNodeStateMachine::get_transition(int p_transition) const {
-    ERR_FAIL_INDEX_V(p_transition, transitions.size(), Ref<AnimationNodeStateMachineTransition>())
+    ERR_FAIL_INDEX_V(p_transition, transitions.size(), Ref<AnimationNodeStateMachineTransition>());
     return transitions[p_transition].transition;
 }
 StringName AnimationNodeStateMachine::get_transition_from(int p_transition) const {
@@ -807,7 +807,7 @@ Vector2 AnimationNodeStateMachine::get_graph_offset() const {
 float AnimationNodeStateMachine::process(float p_time, bool p_seek) {
 
     Ref<AnimationNodeStateMachinePlayback> playback = refFromRefPtr<AnimationNodeStateMachinePlayback>(get_parameter(this->playback));
-    ERR_FAIL_COND_V(not playback, 0.0)
+    ERR_FAIL_COND_V(not playback, 0.0);
 
     return playback->process(this, p_time, p_seek);
 }
@@ -847,7 +847,7 @@ bool AnimationNodeStateMachine::_set(const StringName &p_name, const Variant &p_
     } else if (p_name == "transitions") {
 
         Array trans = p_value;
-        ERR_FAIL_COND_V(trans.size() % 3 != 0, false)
+        ERR_FAIL_COND_V(trans.size() % 3 != 0, false);
 
         for (int i = 0; i < trans.size(); i += 3) {
             add_transition(trans[i], trans[i + 1], refFromRefPtr<AnimationNodeStateMachineTransition>(trans[i + 2]));
@@ -938,7 +938,7 @@ void AnimationNodeStateMachine::set_node_position(const StringName &p_name, cons
 
 Vector2 AnimationNodeStateMachine::get_node_position(const StringName &p_name) const {
 
-    ERR_FAIL_COND_V(!states.contains(p_name), Vector2())
+    ERR_FAIL_COND_V(!states.contains(p_name), Vector2());
     return states.at(p_name).position;
 }
 

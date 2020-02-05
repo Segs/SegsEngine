@@ -172,8 +172,8 @@ public:
 
 #ifdef DEBUG_ENABLED
 
-        ERR_FAIL_COND_V(!p_rid.is_valid(), nullptr)
-        ERR_FAIL_COND_V(!id_map.contains(p_rid.get_data()), nullptr)
+        ERR_FAIL_COND_V(!p_rid.is_valid(), nullptr);
+        ERR_FAIL_COND_V(!id_map.contains(p_rid.get_data()), nullptr);
 #endif
         return static_cast<T *>(p_rid.get_data());
     }
@@ -183,7 +183,7 @@ public:
 #ifdef DEBUG_ENABLED
 
         if (p_rid.get_data()) {
-            ERR_FAIL_COND_V(!id_map.contains(p_rid.get_data()), nullptr)
+            ERR_FAIL_COND_V(!id_map.contains(p_rid.get_data()), nullptr);
         }
 #endif
         return static_cast<T *>(p_rid.get_data());

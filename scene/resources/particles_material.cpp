@@ -1045,7 +1045,7 @@ float ParticlesMaterial::get_lifetime_randomness() const {
 
 RID ParticlesMaterial::get_shader_rid() const {
 
-    ERR_FAIL_COND_V(!shader_map.contains(current_key), RID())
+    ERR_FAIL_COND_V(!shader_map.contains(current_key), RID());
     return shader_map[current_key].shader;
 }
 

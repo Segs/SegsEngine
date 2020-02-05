@@ -144,7 +144,7 @@ IP::ResolverID IP::resolve_hostname_queue_item(const String &p_hostname, IP::Typ
     ResolverID id = resolver->find_empty_id();
 
     if (id == RESOLVER_INVALID_ID) {
-        WARN_PRINT("Out of resolver queries")
+        WARN_PRINT("Out of resolver queries");
         resolver->mutex->unlock();
         return id;
     }
@@ -312,8 +312,8 @@ IP *(*IP::_create)() = nullptr;
 
 IP *IP::create() {
 
-    ERR_FAIL_COND_V_MSG(singleton, nullptr, "IP singleton already exists.")
-    ERR_FAIL_COND_V(!_create, nullptr)
+    ERR_FAIL_COND_V_MSG(singleton, nullptr, "IP singleton already exists.");
+    ERR_FAIL_COND_V(!_create, nullptr);
     return _create();
 }
 

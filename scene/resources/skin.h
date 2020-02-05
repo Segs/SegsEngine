@@ -64,14 +64,14 @@ public:
 
     inline int get_bind_bone(int p_index) const {
 #ifdef DEBUG_ENABLED
-        ERR_FAIL_INDEX_V(p_index, bind_count, -1)
+        ERR_FAIL_INDEX_V(p_index, bind_count, -1);
 #endif
         return binds_ptr[p_index].bone;
     }
 
     inline Transform get_bind_pose(int p_index) const {
 #ifdef DEBUG_ENABLED
-        ERR_FAIL_INDEX_V(p_index, bind_count, Transform())
+        ERR_FAIL_INDEX_V(p_index, bind_count, Transform());
 #endif
         return binds_ptr[p_index].pose;
     }

@@ -86,8 +86,7 @@ public:
             i = (i + p_buffer.size() - 1) % p_buffer.size();
         }
 
-        ERR_FAIL_COND_V_MSG(i == p_pointer, total_bandwidth,
-                "Reached the end of the bandwidth profiler buffer, values might be inaccurate.")
+        ERR_FAIL_COND_V_MSG(i == p_pointer, total_bandwidth, "Reached the end of the bandwidth profiler buffer, values might be inaccurate.");
 #endif
         return total_bandwidth;
     }
@@ -404,7 +403,7 @@ Node *MultiplayerAPI::_process_get_node(int p_from, const uint8_t *p_packet, int
 
         int ofs = target & 0x7FFFFFFF;
 
-        ERR_FAIL_COND_V_MSG(ofs >= p_packet_len, nullptr, "Invalid packet received. Size smaller than declared.")
+        ERR_FAIL_COND_V_MSG(ofs >= p_packet_len, nullptr, "Invalid packet received. Size smaller than declared.");
 
         se_string_view paths((const char *)&p_packet[ofs], p_packet_len - ofs);
 
@@ -419,10 +418,10 @@ Node *MultiplayerAPI::_process_get_node(int p_from, const uint8_t *p_packet, int
         uint32_t id = target;
 
         Map<int, PathGetCache>::iterator E = path_get_cache.find(p_from);
-        ERR_FAIL_COND_V_MSG(E==path_get_cache.end(), nullptr, "Invalid packet received. Requests invalid peer cache.")
+        ERR_FAIL_COND_V_MSG(E==path_get_cache.end(), nullptr, "Invalid packet received. Requests invalid peer cache.");
 
         Map<int, PathGetCache::NodeInfo>::iterator F = E->second.nodes.find(id);
-        ERR_FAIL_COND_V_MSG(F==E->second.nodes.end(), nullptr, "Invalid packet received. Unabled to find requested cached node.")
+        ERR_FAIL_COND_V_MSG(F==E->second.nodes.end(), nullptr, "Invalid packet received. Unabled to find requested cached node.");
 
         PathGetCache::NodeInfo *ni = &F->second;
         // Do proper caching later.
@@ -907,9 +906,9 @@ void MultiplayerAPI::rsetp(Node *p_node, int p_peer_id, bool p_unreliable, const
 
 Error MultiplayerAPI::send_bytes(const PoolVector<uint8_t>& p_data, int p_to, NetworkedMultiplayerPeer::TransferMode p_mode) {
 
-    ERR_FAIL_COND_V_MSG(p_data.size() < 1, ERR_INVALID_DATA, "Trying to send an empty raw packet.")
-    ERR_FAIL_COND_V_MSG(not network_peer, ERR_UNCONFIGURED, "Trying to send a raw packet while no network peer is active.")
-    ERR_FAIL_COND_V_MSG(network_peer->get_connection_status() != NetworkedMultiplayerPeer::CONNECTION_CONNECTED, ERR_UNCONFIGURED, "Trying to send a raw packet via a network peer which is not connected.")
+    ERR_FAIL_COND_V_MSG(p_data.size() < 1, ERR_INVALID_DATA, "Trying to send an empty raw packet.");
+    ERR_FAIL_COND_V_MSG(not network_peer, ERR_UNCONFIGURED, "Trying to send a raw packet while no network peer is active.");
+    ERR_FAIL_COND_V_MSG(network_peer->get_connection_status() != NetworkedMultiplayerPeer::CONNECTION_CONNECTED, ERR_UNCONFIGURED, "Trying to send a raw packet via a network peer which is not connected.");
 
     MAKE_ROOM(p_data.size() + 1)
     PoolVector<uint8_t>::Read r = p_data.read();
@@ -938,14 +937,14 @@ void MultiplayerAPI::_process_raw(int p_from, const uint8_t *p_packet, int p_pac
 
 int MultiplayerAPI::get_network_unique_id() const {
 
-    ERR_FAIL_COND_V_MSG(not network_peer, 0, "No network peer is assigned. Unable to get unique network ID.")
+    ERR_FAIL_COND_V_MSG(not network_peer, 0, "No network peer is assigned. Unable to get unique network ID.");
     return network_peer->get_unique_id();
 }
 
 bool MultiplayerAPI::is_network_server() const {
 
     // XXX Maybe fail silently? Maybe should actually return true to make development of both local and online multiplayer easier?
-    ERR_FAIL_COND_V_MSG(not network_peer, false, "No network peer is assigned. I can't be a server.")
+    ERR_FAIL_COND_V_MSG(not network_peer, false, "No network peer is assigned. I can't be a server.");
     return network_peer->is_server();
 }
 
@@ -957,13 +956,13 @@ void MultiplayerAPI::set_refuse_new_network_connections(bool p_refuse) {
 
 bool MultiplayerAPI::is_refusing_new_network_connections() const {
 
-    ERR_FAIL_COND_V_MSG(not network_peer, false, "No network peer is assigned. Unable to get 'refuse_new_connections'.")
+    ERR_FAIL_COND_V_MSG(not network_peer, false, "No network peer is assigned. Unable to get 'refuse_new_connections'.");
     return network_peer->is_refusing_new_connections();
 }
 
 PODVector<int> MultiplayerAPI::get_network_connected_peers() const {
 
-    ERR_FAIL_COND_V_MSG(not network_peer, PODVector<int>(), "No network peer is assigned. Assume no peers are connected.")
+    ERR_FAIL_COND_V_MSG(not network_peer, PODVector<int>(), "No network peer is assigned. Assume no peers are connected.");
 
     PODVector<int> ret;
     ret.reserve(connected_peers.size());

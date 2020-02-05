@@ -59,7 +59,7 @@ Error ImageLoaderPNG::load_image(ImageData &p_image, FileAccess *f, LoadParams p
 Error ImageLoaderPNG::load_image(ImageData &p_image,const uint8_t *p_png, int p_size,LoadParams params) {
 
     Error err = PNGDriverCommon::png_to_image(p_png, p_size, p_image);
-    ERR_FAIL_COND_V(err, ERR_CANT_OPEN)
+    ERR_FAIL_COND_V(err, ERR_CANT_OPEN);
 
     return OK;
 }
@@ -71,7 +71,7 @@ void ImageLoaderPNG::get_recognized_extensions(PODVector<String> &p_extensions) 
 ImageData ImageLoaderPNG::load_mem_png(const uint8_t *p_png, int p_size) {
     ImageData dat;
     Error err = PNGDriverCommon::png_to_image(p_png, p_size, dat);
-    ERR_FAIL_COND_V(err, ImageData())
+    ERR_FAIL_COND_V(err, ImageData());
     return dat;
 }
 

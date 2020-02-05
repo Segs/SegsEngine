@@ -498,7 +498,7 @@ MainLoop *test() {
     }
 
     FileAccess *fa = FileAccess::open(test, FileAccess::READ);
-    ERR_FAIL_COND_V_MSG(!fa, nullptr, "Could not open file: " + test)
+    ERR_FAIL_COND_V_MSG(!fa, nullptr, "Could not open file: " + test);
 
     Vector<uint8_t> buf;
     int flen = fa->get_len();

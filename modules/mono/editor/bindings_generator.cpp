@@ -884,14 +884,14 @@ void BindingsGenerator::_generate_global_constants(StringBuilder &p_output) {
 
 Error BindingsGenerator::generate_cs_core_project(se_string_view p_proj_dir) {
 
-    ERR_FAIL_COND_V(!initialized, ERR_UNCONFIGURED)
+    ERR_FAIL_COND_V(!initialized, ERR_UNCONFIGURED);
 
     DirAccessRef da = DirAccess::create(DirAccess::ACCESS_FILESYSTEM);
-    ERR_FAIL_COND_V(!da, ERR_CANT_CREATE)
+    ERR_FAIL_COND_V(!da, ERR_CANT_CREATE);
 
     if (!DirAccess::exists(p_proj_dir)) {
         Error err = da->make_dir_recursive(p_proj_dir);
-        ERR_FAIL_COND_V_MSG(err != OK, ERR_CANT_CREATE, "Cannot create directory '" + p_proj_dir + "'.")
+        ERR_FAIL_COND_V_MSG(err != OK, ERR_CANT_CREATE, "Cannot create directory '" + p_proj_dir + "'.");
     }
 
     da->change_dir(p_proj_dir);
@@ -999,14 +999,14 @@ Error BindingsGenerator::generate_cs_core_project(se_string_view p_proj_dir) {
 
 Error BindingsGenerator::generate_cs_editor_project(const String &p_proj_dir) {
 
-    ERR_FAIL_COND_V(!initialized, ERR_UNCONFIGURED)
+    ERR_FAIL_COND_V(!initialized, ERR_UNCONFIGURED);
 
     DirAccessRef da = DirAccess::create(DirAccess::ACCESS_FILESYSTEM);
-    ERR_FAIL_COND_V(!da, ERR_CANT_CREATE)
+    ERR_FAIL_COND_V(!da, ERR_CANT_CREATE);
 
     if (!DirAccess::exists(p_proj_dir)) {
         Error err = da->make_dir_recursive(p_proj_dir);
-        ERR_FAIL_COND_V(err != OK, ERR_CANT_CREATE)
+        ERR_FAIL_COND_V(err != OK, ERR_CANT_CREATE);
     }
 
     da->change_dir(p_proj_dir);
@@ -1101,16 +1101,16 @@ Error BindingsGenerator::generate_cs_editor_project(const String &p_proj_dir) {
 
 Error BindingsGenerator::generate_cs_api(se_string_view p_output_dir) {
 
-    ERR_FAIL_COND_V(!initialized, ERR_UNCONFIGURED)
+    ERR_FAIL_COND_V(!initialized, ERR_UNCONFIGURED);
 
     String output_dir = path::abspath(path::realpath(p_output_dir));
 
     DirAccessRef da = DirAccess::create(DirAccess::ACCESS_FILESYSTEM);
-    ERR_FAIL_COND_V(!da, ERR_CANT_CREATE)
+    ERR_FAIL_COND_V(!da, ERR_CANT_CREATE);
 
     if (!DirAccess::exists(output_dir)) {
         Error err = da->make_dir_recursive(output_dir);
-        ERR_FAIL_COND_V(err != OK, ERR_CANT_CREATE)
+        ERR_FAIL_COND_V(err != OK, ERR_CANT_CREATE);
     }
 
     Error proj_err;
@@ -1260,7 +1260,7 @@ Error BindingsGenerator::_generate_cs_type(const TypeInterface &itype, se_string
 
         for (const EnumInterface &ienum : itype.enums) {
 
-            ERR_FAIL_COND_V(ienum.constants.empty(), ERR_BUG)
+            ERR_FAIL_COND_V(ienum.constants.empty(), ERR_BUG);
 
             output.append(MEMBER_BEGIN "public enum ");
             output.append(ienum.cname);
@@ -1300,7 +1300,7 @@ Error BindingsGenerator::_generate_cs_type(const TypeInterface &itype, se_string
         for (const PropertyInterface &iprop : itype.properties) {
             Error prop_err = _generate_cs_property(itype, iprop, output);
             ERR_FAIL_COND_V_MSG(prop_err != OK, prop_err,
-                    String("Failed to generate property '") + iprop.cname + "' for class '" + itype.name + "'.")
+                    String("Failed to generate property '") + iprop.cname + "' for class '" + itype.name + "'.");
         }
     }
 
@@ -1364,7 +1364,7 @@ Error BindingsGenerator::_generate_cs_type(const TypeInterface &itype, se_string
 
         Error method_err = _generate_cs_method(itype, imethod, method_bind_count, output);
         ERR_FAIL_COND_V_MSG(method_err != OK, method_err,
-                "Failed to generate method '" + imethod.name + "' for class '" + itype.name + "'.")
+                "Failed to generate method '" + imethod.name + "' for class '" + itype.name + "'.");
     }
 
     if (itype.is_singleton) {
@@ -1406,7 +1406,7 @@ Error BindingsGenerator::_generate_cs_property(const BindingsGenerator::TypeInte
     const TypeInterface *current_type = &p_itype;
     while (!setter && current_type->base_name != StringName()) {
         OrderedHashMap<StringName, TypeInterface>::Element base_match = obj_types.find(current_type->base_name);
-        ERR_FAIL_COND_V(!base_match, ERR_BUG)
+        ERR_FAIL_COND_V(!base_match, ERR_BUG);
         current_type = &base_match.get();
         setter = current_type->find_method_by_name(p_iprop.setter);
     }
@@ -1417,21 +1417,21 @@ Error BindingsGenerator::_generate_cs_property(const BindingsGenerator::TypeInte
     current_type = &p_itype;
     while (!getter && current_type->base_name != StringName()) {
         OrderedHashMap<StringName, TypeInterface>::Element base_match = obj_types.find(current_type->base_name);
-        ERR_FAIL_COND_V(!base_match, ERR_BUG)
+        ERR_FAIL_COND_V(!base_match, ERR_BUG);
         current_type = &base_match.get();
         getter = current_type->find_method_by_name(p_iprop.getter);
     }
 
-    ERR_FAIL_COND_V(!setter && !getter, ERR_BUG)
+    ERR_FAIL_COND_V(!setter && !getter, ERR_BUG);
 
     if (setter) {
         int setter_argc = p_iprop.index != -1 ? 2 : 1;
-        ERR_FAIL_COND_V(setter->arguments.size() != setter_argc, ERR_BUG)
+        ERR_FAIL_COND_V(setter->arguments.size() != setter_argc, ERR_BUG);
     }
 
     if (getter) {
         int getter_argc = p_iprop.index != -1 ? 1 : 0;
-        ERR_FAIL_COND_V(getter->arguments.size() != getter_argc, ERR_BUG)
+        ERR_FAIL_COND_V(getter->arguments.size() != getter_argc, ERR_BUG);
     }
 
     if (getter && setter) {
@@ -1446,7 +1446,7 @@ Error BindingsGenerator::_generate_cs_property(const BindingsGenerator::TypeInte
     const TypeReference &proptype_name = getter ? getter->return_type : setter->arguments.back().type;
 
     const TypeInterface *prop_itype = _get_type_or_null(proptype_name);
-    ERR_FAIL_NULL_V(prop_itype, ERR_BUG) // Property type not found
+    ERR_FAIL_NULL_V(prop_itype, ERR_BUG); // Property type not found
 
     if (p_iprop.prop_doc && p_iprop.prop_doc->description.size()) {
         String xml_summary = bbcode_to_xml(fix_doc_description(p_iprop.prop_doc->description), &p_itype);
@@ -1650,7 +1650,7 @@ Error BindingsGenerator::_generate_cs_method(const BindingsGenerator::TypeInterf
 
         if (p_imethod.is_deprecated) {
             if (p_imethod.deprecation_message.empty())
-                WARN_PRINT("An empty deprecation message is discouraged. Method: '" + p_imethod.proxy_name + "'.")
+                WARN_PRINT("An empty deprecation message is discouraged. Method: '" + p_imethod.proxy_name + "'.");
 
             p_output.append(MEMBER_BEGIN "[Obsolete(\"");
             p_output.append(p_imethod.deprecation_message);
@@ -1732,10 +1732,10 @@ Error BindingsGenerator::_generate_cs_method(const BindingsGenerator::TypeInterf
 
 Error BindingsGenerator::generate_glue(se_string_view p_output_dir) {
 
-    ERR_FAIL_COND_V(!initialized, ERR_UNCONFIGURED)
+    ERR_FAIL_COND_V(!initialized, ERR_UNCONFIGURED);
 
     bool dir_exists = DirAccess::exists(p_output_dir);
-    ERR_FAIL_COND_V_MSG(!dir_exists, ERR_FILE_BAD_PATH, "The output directory does not exist.")
+    ERR_FAIL_COND_V_MSG(!dir_exists, ERR_FILE_BAD_PATH, "The output directory does not exist.");
 
     StringBuilder output;
 
@@ -1788,7 +1788,7 @@ Error BindingsGenerator::generate_glue(se_string_view p_output_dir) {
         for (const MethodInterface &imethod : itype.methods) {
             Error method_err = _generate_glue_method(itype, imethod, output);
             ERR_FAIL_COND_V_MSG(method_err != OK, method_err,
-                    "Failed to generate method '" + imethod.name + "' for class '" + itype.name + "'.")
+                    "Failed to generate method '" + imethod.name + "' for class '" + itype.name + "'.");
         }
 
         if (itype.is_singleton) {
@@ -2028,7 +2028,7 @@ Error BindingsGenerator::_generate_glue_method(const BindingsGenerator::TypeInte
     }
 
     Map<const MethodInterface *, const InternalCall *>::const_iterator match = method_icalls_map.find(&p_imethod);
-    ERR_FAIL_COND_V(match==method_icalls_map.end(), ERR_BUG)
+    ERR_FAIL_COND_V(match==method_icalls_map.end(), ERR_BUG);
 
     const InternalCall *im_icall = match->second;
     String icall_method = im_icall->name;
@@ -2177,7 +2177,7 @@ const BindingsGenerator::TypeInterface *BindingsGenerator::_get_type_or_null(con
 
         // Enum not found. Most likely because none of its constants were bound, so it's empty. That's fine. Use int instead.
         const Map<StringName, TypeInterface>::iterator int_match = builtin_types.find(name_cache.type_int);
-        ERR_FAIL_COND_V(int_match==builtin_types.end(), nullptr)
+        ERR_FAIL_COND_V(int_match==builtin_types.end(), nullptr);
         return &int_match->second;
     }
 
@@ -2420,7 +2420,7 @@ bool BindingsGenerator::_populate_object_type_interfaces() {
 
             if (!m && !imethod.is_virtual) {
                 ERR_FAIL_COND_V_MSG(!virtual_method_list.find(method_info), false,
-                        "Missing MethodBind for non-virtual method: '" + itype.name + "." + imethod.name + "'.")
+                        "Missing MethodBind for non-virtual method: '" + itype.name + "." + imethod.name + "'.");
 
                 // A virtual method without the virtual flag. This is a special case.
 
@@ -2438,7 +2438,7 @@ bool BindingsGenerator::_populate_object_type_interfaces() {
                 if (itype.cname != name_cache.type_Object || imethod.name != "free") {
                     WARN_PRINT("Notification: New unexpected virtual non-overridable method found."
                                 " We only expected Object.free, but found '" +
-                                itype.name + "." + imethod.name + "'.")
+                                itype.name + "." + imethod.name + "'.");
                 }
             } else if (return_info.type == VariantType::INT && return_info.usage & PROPERTY_USAGE_CLASS_IS_ENUM) {
                 imethod.return_type.cname = return_info.class_name;
@@ -2591,7 +2591,7 @@ bool BindingsGenerator::_populate_object_type_interfaces() {
             for (const StringName &constant_cname : enum_constants) {
                 String constant_name(constant_cname);
                 auto value = class_iter->second.constant_map.find(constant_cname);
-                ERR_FAIL_COND_V(value==class_iter->second.constant_map.end(), false)
+                ERR_FAIL_COND_V(value==class_iter->second.constant_map.end(), false);
                 constants.remove(constant_name);
 
                 ConstantInterface iconstant(constant_name, snake_to_pascal_case(constant_name, true), value->second);
@@ -2626,7 +2626,7 @@ bool BindingsGenerator::_populate_object_type_interfaces() {
 
         for (const String &constant_name : constants) {
             auto value = class_iter->second.constant_map.find(StringName(constant_name));
-            ERR_FAIL_COND_V(value==class_iter->second.constant_map.end(), false)
+            ERR_FAIL_COND_V(value==class_iter->second.constant_map.end(), false);
 
             ConstantInterface iconstant(constant_name, snake_to_pascal_case(constant_name, true), value->second);
 
@@ -2698,7 +2698,7 @@ bool BindingsGenerator::_arg_default_value_from_variant(const Variant &p_val, Ar
             break;
         case VariantType::OBJECT:
             ERR_FAIL_COND_V_MSG(!p_val.is_zero(), false,
-                    "Parameter of type '" + String(r_iarg.type.cname) + "' can only have null/zero as the default value.")
+                    "Parameter of type '" + String(r_iarg.type.cname) + "' can only have null/zero as the default value.");
 
             r_iarg.default_argument = "null";
             break;
@@ -2708,10 +2708,10 @@ bool BindingsGenerator::_arg_default_value_from_variant(const Variant &p_val, Ar
             break;
         case VariantType::_RID:
             ERR_FAIL_COND_V_MSG(r_iarg.type.cname != name_cache.type_RID, false,
-                    "Parameter of type '" + String(r_iarg.type.cname) + "' cannot have a default value of type '" + String(name_cache.type_RID) + "'.")
+                    "Parameter of type '" + String(r_iarg.type.cname) + "' cannot have a default value of type '" + String(name_cache.type_RID) + "'.");
 
             ERR_FAIL_COND_V_MSG(!p_val.is_zero(), false,
-                    "Parameter of type '" + String(r_iarg.type.cname) + "' can only have null/zero as the default value.")
+                    "Parameter of type '" + String(r_iarg.type.cname) + "' can only have null/zero as the default value.");
 
             r_iarg.default_argument = "null";
             break;

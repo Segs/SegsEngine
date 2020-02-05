@@ -133,7 +133,7 @@ Expression::BuiltinFunc Expression::find_function(se_string_view p_string) {
 
 se_string_view Expression::get_func_name(BuiltinFunc p_func) {
 
-    ERR_FAIL_INDEX_V(p_func, FUNC_MAX, se_string_view())
+    ERR_FAIL_INDEX_V(p_func, FUNC_MAX, se_string_view());
     return func_name[p_func];
 }
 
@@ -2201,7 +2201,7 @@ Error Expression::parse(se_string_view p_expression, const PODVector<String> &p_
 
 Variant Expression::execute(const Array& p_inputs, Object *p_base, bool p_show_error) {
 
-    ERR_FAIL_COND_V_MSG(error_set, Variant(), "There was previously a parse error: " + error_str + ".")
+    ERR_FAIL_COND_V_MSG(error_set, Variant(), "There was previously a parse error: " + error_str + ".");
 
     execution_error = false;
     Variant output;
@@ -2210,7 +2210,7 @@ Variant Expression::execute(const Array& p_inputs, Object *p_base, bool p_show_e
     if (err) {
         execution_error = true;
         error_str = error_txt;
-        ERR_FAIL_COND_V_MSG(p_show_error, Variant(), error_str)
+        ERR_FAIL_COND_V_MSG(p_show_error, Variant(), error_str);
     }
 
     return output;

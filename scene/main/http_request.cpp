@@ -130,7 +130,7 @@ Error _parse_url(HTTPRequestData &impl,se_string_view p_url) {
         ERR_FAIL_V_MSG(ERR_INVALID_PARAMETER, "Malformed URL: " + impl.url + ".")
     }
 
-    ERR_FAIL_COND_V_MSG(impl.url.length() < 1, ERR_INVALID_PARAMETER, "URL too short: " + impl.url + ".")
+    ERR_FAIL_COND_V_MSG(impl.url.length() < 1, ERR_INVALID_PARAMETER, "URL too short: " + impl.url + ".");
 
     int slash_pos = StringUtils::find(impl.url,"/");
 
@@ -145,7 +145,7 @@ Error _parse_url(HTTPRequestData &impl,se_string_view p_url) {
     if (colon_pos != -1) {
         impl.port = StringUtils::to_int(StringUtils::substr(impl.url,colon_pos + 1));
         impl.url = StringUtils::substr(impl.url,0, colon_pos);
-        ERR_FAIL_COND_V(impl.port < 1 || impl.port > 65535, ERR_INVALID_PARAMETER)
+        ERR_FAIL_COND_V(impl.port < 1 || impl.port > 65535, ERR_INVALID_PARAMETER);
     }
 
     return OK;
@@ -399,8 +399,8 @@ void HTTPRequest::_redirect_request(se_string_view /*p_new_url*/) {
 #define IMPLD() ((HTTPRequestData*)m_impl)
 Error HTTPRequest::request(se_string_view p_url, const PODVector<String> &p_custom_headers, bool p_ssl_validate_domain, HTTPClient::Method p_method, se_string_view p_request_data) {
 
-    ERR_FAIL_COND_V(!is_inside_tree(), ERR_UNCONFIGURED)
-    ERR_FAIL_COND_V_MSG(IMPLD()->requesting, ERR_BUSY, "HTTPRequest is processing a request. Wait for completion or cancel it before attempting a new one.")
+    ERR_FAIL_COND_V(!is_inside_tree(), ERR_UNCONFIGURED);
+    ERR_FAIL_COND_V_MSG(IMPLD()->requesting, ERR_BUSY, "HTTPRequest is processing a request. Wait for completion or cancel it before attempting a new one.");
 
     if (IMPLD()->timeout > 0) {
         timer->stop();

@@ -507,7 +507,7 @@ Object *EditorData::instance_custom_type(const StringName &p_type, const StringN
             Ref<Script> script = ct[i].script;
 
             Object *ob = ClassDB::instance(p_inherits);
-            ERR_FAIL_COND_V(!ob, nullptr)
+            ERR_FAIL_COND_V(!ob, nullptr);
             if (ob->is_class("Node")) {
                 ob->call("set_name", p_type);
             }
@@ -638,10 +638,10 @@ bool EditorData::check_and_update_scene(int p_idx) {
         ep.step(TTR("Storing local changes..."), 0);
         //pack first, so it stores diffs to previous version of saved scene
         Error err = pscene->pack(edited_scene[p_idx].root);
-        ERR_FAIL_COND_V(err != OK, false)
+        ERR_FAIL_COND_V(err != OK, false);
         ep.step(TTR("Updating scene..."), 1);
         Node *new_scene = pscene->instance(PackedScene::GEN_EDIT_STATE_MAIN);
-        ERR_FAIL_COND_V(!new_scene, false)
+        ERR_FAIL_COND_V(!new_scene, false);
 
         //transfer selection
         PODVector<Node *> new_selection;
@@ -735,7 +735,7 @@ uint64_t EditorData::get_scene_version(int p_idx) const {
 
 UIString EditorData::get_scene_type(int p_idx) const {
 
-    ERR_FAIL_INDEX_V(p_idx, edited_scene.size(), UIString())
+    ERR_FAIL_INDEX_V(p_idx, edited_scene.size(), UIString());
     if (!edited_scene[p_idx].root)
         return UIString();
     return UIString(edited_scene[p_idx].root->get_class());
@@ -753,7 +753,7 @@ void EditorData::move_edited_scene_to_index(int p_idx) {
 
 Ref<Script> EditorData::get_scene_root_script(int p_idx) const {
 
-    ERR_FAIL_INDEX_V(p_idx, edited_scene.size(), Ref<Script>())
+    ERR_FAIL_INDEX_V(p_idx, edited_scene.size(), Ref<Script>());
     if (!edited_scene[p_idx].root)
         return Ref<Script>();
     Ref<Script> s(refFromRefPtr<Script>(edited_scene[p_idx].root->get_script()));
@@ -768,7 +768,7 @@ Ref<Script> EditorData::get_scene_root_script(int p_idx) const {
 }
 
 StringName EditorData::get_scene_title(int p_idx) const {
-    ERR_FAIL_INDEX_V(p_idx, edited_scene.size(), StringName())
+    ERR_FAIL_INDEX_V(p_idx, edited_scene.size(), StringName());
     if (!edited_scene[p_idx].root)
         return TTR("[empty]");
     if (edited_scene[p_idx].root->get_filename().empty())
@@ -1007,8 +1007,8 @@ void EditorSelection::_node_removed(Node *p_node) {
 
 void EditorSelection::add_node(Node *p_node) {
 
-    ERR_FAIL_NULL(p_node)
-    ERR_FAIL_COND(!p_node->is_inside_tree())
+    ERR_FAIL_NULL(p_node);
+    ERR_FAIL_COND(!p_node->is_inside_tree());
     if (selection.contains(p_node))
         return;
 
@@ -1031,7 +1031,7 @@ void EditorSelection::add_node(Node *p_node) {
 
 void EditorSelection::remove_node(Node *p_node) {
 
-    ERR_FAIL_NULL(p_node)
+    ERR_FAIL_NULL(p_node);
 
     if (!selection.contains(p_node))
         return;

@@ -61,7 +61,7 @@ Error ResourceFormatSaver::save(se_string_view p_path, const Ref<Resource> &p_re
     }
     Ref<ImageTexture> texture = dynamic_ref_cast<ImageTexture>( p_resource );
     if(texture) {
-        ERR_FAIL_COND_V_MSG(!texture->get_width(), ERR_INVALID_PARAMETER, "Can't save empty texture as PNG.")
+        ERR_FAIL_COND_V_MSG(!texture->get_width(), ERR_INVALID_PARAMETER, "Can't save empty texture as PNG.");
         Ref<Image> img = texture->get_data();
         Ref<Image> source_image = prepareForPngStorage(img);
         return ImageSaver::save_image(p_path,source_image);
@@ -215,17 +215,17 @@ bool ResourceSaver::add_custom_resource_format_saver(se_string_view script_path)
         return false;
 
     Ref<Resource> res = ResourceLoader::load(script_path);
-    ERR_FAIL_COND_V(not res, false)
-    ERR_FAIL_COND_V(!res->is_class("Script"), false)
+    ERR_FAIL_COND_V(not res, false);
+    ERR_FAIL_COND_V(!res->is_class("Script"), false);
 
     Ref<Script> s = dynamic_ref_cast<Script>(res);
     StringName ibt = s->get_instance_base_type();
     bool valid_type = ClassDB::is_parent_class(ibt, "ResourceFormatSaver");
-    ERR_FAIL_COND_V_MSG(!valid_type, false, "Script does not inherit a CustomResourceSaver: " + String(script_path) + ".")
+    ERR_FAIL_COND_V_MSG(!valid_type, false, "Script does not inherit a CustomResourceSaver: " + String(script_path) + ".");
 
     Object *obj = ClassDB::instance(ibt);
 
-    ERR_FAIL_COND_V_MSG(obj == nullptr, false, "Cannot instance script as custom resource saver, expected 'ResourceFormatSaver' inheritance, got: " + String(ibt) + ".")
+    ERR_FAIL_COND_V_MSG(obj == nullptr, false, "Cannot instance script as custom resource saver, expected 'ResourceFormatSaver' inheritance, got: " + String(ibt) + ".");
 
     auto *crl = object_cast<ResourceFormatSaver>(obj);
     crl->set_script(s.get_ref_ptr());

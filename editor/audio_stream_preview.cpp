@@ -167,7 +167,7 @@ void AudioStreamPreviewGenerator::_preview_thread(void *p_preview) {
 }
 
 Ref<AudioStreamPreview> AudioStreamPreviewGenerator::generate_preview(const Ref<AudioStream> &p_stream) {
-    ERR_FAIL_COND_V(not p_stream, Ref<AudioStreamPreview>())
+    ERR_FAIL_COND_V(not p_stream, Ref<AudioStreamPreview>());
 
     if (previews.contains(p_stream->get_instance_id())) {
         return previews[p_stream->get_instance_id()].preview;

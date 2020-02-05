@@ -56,13 +56,13 @@ void StyleBox::set_default_margin(Margin p_margin, float p_value) {
     emit_changed();
 }
 float StyleBox::get_default_margin(Margin p_margin) const {
-    ERR_FAIL_INDEX_V((int)p_margin, (int)Margin::Max,0)
+    ERR_FAIL_INDEX_V((int)p_margin, (int)Margin::Max,0);
 
     return margin[(int)p_margin];
 }
 
 float StyleBox::get_margin(Margin p_margin) const {
-    ERR_FAIL_INDEX_V((int)p_margin, (int)Margin::Max,0)
+    ERR_FAIL_INDEX_V((int)p_margin, (int)Margin::Max,0);
 
     if (margin[(int)p_margin] < 0)
         return get_style_margin(p_margin);
@@ -174,13 +174,13 @@ void StyleBoxTexture::set_margin_size(Margin p_margin, float p_size) {
     Object_change_notify(this,StaticCString(margin_prop[(int)p_margin],true));
 }
 float StyleBoxTexture::get_margin_size(Margin p_margin) const {
-    ERR_FAIL_INDEX_V((int)p_margin, (int)Margin::Max,0)
+    ERR_FAIL_INDEX_V((int)p_margin, (int)Margin::Max,0);
 
     return margin[(int)p_margin];
 }
 
 float StyleBoxTexture::get_style_margin(Margin p_margin) const {
-    ERR_FAIL_INDEX_V((int)p_margin, (int)Margin::Max,0)
+    ERR_FAIL_INDEX_V((int)p_margin, (int)Margin::Max,0);
 
     return margin[(int)p_margin];
 }

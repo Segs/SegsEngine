@@ -85,7 +85,7 @@ Ref<TriangleMesh> Mesh::generate_triangle_mesh() const {
             continue;
 
         Array a = surface_get_arrays(i);
-        ERR_FAIL_COND_V(a.empty(), Ref<TriangleMesh>())
+        ERR_FAIL_COND_V(a.empty(), Ref<TriangleMesh>());
 
         int vc = surface_get_array_len(i);
         PoolVector<Vector3> vertices = a[ARRAY_VERTEX];
@@ -239,7 +239,7 @@ Ref<Shape> Mesh::create_convex_shape() const {
     for (int i = 0; i < get_surface_count(); i++) {
 
         Array a = surface_get_arrays(i);
-        ERR_FAIL_COND_V(a.empty(), Ref<ConvexPolygonShape>())
+        ERR_FAIL_COND_V(a.empty(), Ref<ConvexPolygonShape>());
         PoolVector<Vector3> v = a[ARRAY_VERTEX];
         vertices.append_array(v);
     }
@@ -373,7 +373,7 @@ Ref<Mesh> Mesh::create_outline(float p_margin) const {
         }
     }
 
-    ERR_FAIL_COND_V(arrays.size() != ARRAY_MAX, Ref<ArrayMesh>())
+    ERR_FAIL_COND_V(arrays.size() != ARRAY_MAX, Ref<ArrayMesh>());
 
     {
         PoolVector<int>::Write ir;
@@ -381,7 +381,7 @@ Ref<Mesh> Mesh::create_outline(float p_margin) const {
         bool has_indices = false;
         PoolVector<Vector3> vertices = arrays[ARRAY_VERTEX];
         int vc = vertices.size();
-        ERR_FAIL_COND_V(!vc, Ref<ArrayMesh>())
+        ERR_FAIL_COND_V(!vc, Ref<ArrayMesh>());
         PoolVector<Vector3>::Write r = vertices.write();
 
         if (indices.size()) {
@@ -561,7 +561,7 @@ void Mesh::clear_cache() const {
 
 PODVector<Ref<Shape>> Mesh::convex_decompose() const {
 
-    ERR_FAIL_COND_V(!convex_composition_function, {})
+    ERR_FAIL_COND_V(!convex_composition_function, {});
 
     PoolVector<Face3> faces = get_faces();
     PODVector<Face3> f3;
@@ -646,11 +646,11 @@ bool ArrayMesh::_set(const StringName &p_name, const Variant &p_value) {
 
         //create
         Dictionary d = p_value;
-        ERR_FAIL_COND_V(!d.has("primitive"), false)
+        ERR_FAIL_COND_V(!d.has("primitive"), false);
 
         if (d.has("arrays")) {
             //old format
-            ERR_FAIL_COND_V(!d.has("morph_arrays"), false)
+            ERR_FAIL_COND_V(!d.has("morph_arrays"), false);
             add_surface_from_arrays(PrimitiveType(int(d["primitive"])), d["arrays"], d["morph_arrays"]);
 
         } else if (d.has("array_data")) {
@@ -660,12 +660,12 @@ bool ArrayMesh::_set(const StringName &p_name, const Variant &p_value) {
             if (d.has("array_index_data"))
                 array_index_data = d["array_index_data"];
 
-            ERR_FAIL_COND_V(!d.has("format"), false)
+            ERR_FAIL_COND_V(!d.has("format"), false);
             uint32_t format = d["format"];
 
             uint32_t primitive = d["primitive"];
 
-            ERR_FAIL_COND_V(!d.has("vertex_count"), false)
+            ERR_FAIL_COND_V(!d.has("vertex_count"), false);
             int vertex_count = d["vertex_count"];
 
             int index_count = 0;
@@ -682,7 +682,7 @@ bool ArrayMesh::_set(const StringName &p_name, const Variant &p_value) {
                 }
             }
 
-            ERR_FAIL_COND_V(!d.has("aabb"), false)
+            ERR_FAIL_COND_V(!d.has("aabb"), false);
             AABB aabb = d["aabb"];
 
             Vector<AABB> bone_aabb;
@@ -746,7 +746,7 @@ bool ArrayMesh::_get(const StringName &p_name, Variant &r_ret) const {
         return false;
 
     int idx = StringUtils::to_int(StringUtils::get_slice(p_name,'/', 1));
-    ERR_FAIL_INDEX_V(idx, surfaces.size(), false)
+    ERR_FAIL_INDEX_V(idx, surfaces.size(), false);
 
     Dictionary d;
 
@@ -766,18 +766,18 @@ bool ArrayMesh::_get(const StringName &p_name, Variant &r_ret) const {
     }
     d["skeleton_aabb"] = arr;
 
-    Vector<PoolVector<uint8_t> > blend_shape_data = VisualServer::get_singleton()->mesh_surface_get_blend_shapes(mesh, idx);
+    PODVector<PoolVector<uint8_t> > blend_shape_data = VisualServer::get_singleton()->mesh_surface_get_blend_shapes(mesh, idx);
 
     Array md;
     for (int i = 0; i < blend_shape_data.size(); i++) {
         md.push_back(blend_shape_data[i]);
     }
-
-    d["blend_shape_data"] = md;
+    d["blend_shape_data"] = eastl::move(md);
 
     Ref<Material> m = surface_get_material(idx);
     if (m)
         d["material"] = m;
+
     String n = surface_get_name(idx);
     if (!n.empty())
         d["name"] = n;
@@ -1003,7 +1003,7 @@ void ArrayMesh::surface_set_name(int p_idx, se_string_view p_name) {
 
 String ArrayMesh::surface_get_name(int p_idx) const {
 
-    ERR_FAIL_INDEX_V(p_idx, surfaces.size(), String())
+    ERR_FAIL_INDEX_V(p_idx, surfaces.size(), String());
     return surfaces[p_idx].name;
 }
 
@@ -1024,7 +1024,7 @@ void ArrayMesh::surface_set_custom_aabb(int p_idx, const AABB &p_aabb) {
 
 Ref<Material> ArrayMesh::surface_get_material(int p_idx) const {
 
-    ERR_FAIL_INDEX_V(p_idx, surfaces.size(), Ref<Material>())
+    ERR_FAIL_INDEX_V(p_idx, surfaces.size(), Ref<Material>());
     return surfaces[p_idx].material;
 }
 
@@ -1110,8 +1110,8 @@ struct ArrayMeshLightmapSurface {
 
 Error ArrayMesh::lightmap_unwrap(const Transform &p_base_transform, float p_texel_size) {
 
-    ERR_FAIL_COND_V(!array_mesh_lightmap_unwrap_callback, ERR_UNCONFIGURED)
-    ERR_FAIL_COND_V_MSG(!blend_shapes.empty(), ERR_UNAVAILABLE, "Can't unwrap mesh with blend shapes.")
+    ERR_FAIL_COND_V(!array_mesh_lightmap_unwrap_callback, ERR_UNCONFIGURED);
+    ERR_FAIL_COND_V_MSG(!blend_shapes.empty(), ERR_UNAVAILABLE, "Can't unwrap mesh with blend shapes.");
 
     Vector<float> vertices;
     Vector<float> normals;
@@ -1125,9 +1125,9 @@ Error ArrayMesh::lightmap_unwrap(const Transform &p_base_transform, float p_texe
         ArrayMeshLightmapSurface s;
         s.primitive = surface_get_primitive_type(i);
 
-        ERR_FAIL_COND_V_MSG(s.primitive != Mesh::PRIMITIVE_TRIANGLES, ERR_UNAVAILABLE, "Only triangles are supported for lightmap unwrap.")
+        ERR_FAIL_COND_V_MSG(s.primitive != Mesh::PRIMITIVE_TRIANGLES, ERR_UNAVAILABLE, "Only triangles are supported for lightmap unwrap.");
         s.format = surface_get_format(i);
-        ERR_FAIL_COND_V_MSG(!(s.format & ARRAY_FORMAT_NORMAL), ERR_UNAVAILABLE, "Normals are required for lightmap unwrap.")
+        ERR_FAIL_COND_V_MSG(!(s.format & ARRAY_FORMAT_NORMAL), ERR_UNAVAILABLE, "Normals are required for lightmap unwrap.");
 
         Array arrays = surface_get_arrays(i);
         s.material = surface_get_material(i);
@@ -1226,11 +1226,11 @@ Error ArrayMesh::lightmap_unwrap(const Transform &p_base_transform, float p_texe
     //go through all indices
     for (int i = 0; i < gen_index_count; i += 3) {
 
-        ERR_FAIL_INDEX_V(gen_vertices[gen_indices[i + 0]], uv_index.size(), ERR_BUG)
-        ERR_FAIL_INDEX_V(gen_vertices[gen_indices[i + 1]], uv_index.size(), ERR_BUG)
-        ERR_FAIL_INDEX_V(gen_vertices[gen_indices[i + 2]], uv_index.size(), ERR_BUG)
+        ERR_FAIL_INDEX_V(gen_vertices[gen_indices[i + 0]], uv_index.size(), ERR_BUG);
+        ERR_FAIL_INDEX_V(gen_vertices[gen_indices[i + 1]], uv_index.size(), ERR_BUG);
+        ERR_FAIL_INDEX_V(gen_vertices[gen_indices[i + 2]], uv_index.size(), ERR_BUG);
 
-        ERR_FAIL_COND_V(uv_index[gen_vertices[gen_indices[i + 0]]].first != uv_index[gen_vertices[gen_indices[i + 1]]].first || uv_index[gen_vertices[gen_indices[i + 0]]].first != uv_index[gen_vertices[gen_indices[i + 2]]].first, ERR_BUG)
+        ERR_FAIL_COND_V(uv_index[gen_vertices[gen_indices[i + 0]]].first != uv_index[gen_vertices[gen_indices[i + 1]]].first || uv_index[gen_vertices[gen_indices[i + 0]]].first != uv_index[gen_vertices[gen_indices[i + 2]]].first, ERR_BUG);
 
         int surface = uv_index[gen_vertices[gen_indices[i + 0]]].first;
 

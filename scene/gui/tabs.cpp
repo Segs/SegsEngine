@@ -457,7 +457,7 @@ void Tabs::set_tab_title(int p_tab, const StringName &p_title) {
 
 StringName Tabs::get_tab_title(int p_tab) const {
 
-    ERR_FAIL_INDEX_V(p_tab, tabs.size(), StringName())
+    ERR_FAIL_INDEX_V(p_tab, tabs.size(), StringName());
     return tabs[p_tab].text;
 }
 

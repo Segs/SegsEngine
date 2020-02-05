@@ -1409,7 +1409,7 @@ void SpatialMaterial::set_flag(Flags p_flag, bool p_enabled) {
 
 bool SpatialMaterial::get_flag(Flags p_flag) const {
 
-    ERR_FAIL_INDEX_V(p_flag, FLAG_MAX, false)
+    ERR_FAIL_INDEX_V(p_flag, FLAG_MAX, false);
     return flags[p_flag];
 }
 
@@ -1426,7 +1426,7 @@ void SpatialMaterial::set_feature(Feature p_feature, bool p_enabled) {
 
 bool SpatialMaterial::get_feature(Feature p_feature) const {
 
-    ERR_FAIL_INDEX_V(p_feature, FEATURE_MAX, false)
+    ERR_FAIL_INDEX_V(p_feature, FEATURE_MAX, false);
     return features[p_feature];
 }
 
@@ -1442,7 +1442,7 @@ void SpatialMaterial::set_texture(TextureParam p_param, const Ref<Texture> &p_te
 
 Ref<Texture> SpatialMaterial::get_texture(TextureParam p_param) const {
 
-    ERR_FAIL_INDEX_V(p_param, TEXTURE_MAX, Ref<Texture>())
+    ERR_FAIL_INDEX_V(p_param, TEXTURE_MAX, Ref<Texture>());
     return textures[p_param];
 }
 
@@ -1938,7 +1938,7 @@ SpatialMaterial::EmissionOperator SpatialMaterial::get_emission_operator() const
 
 RID SpatialMaterial::get_shader_rid() const {
 
-    ERR_FAIL_COND_V(!shader_map.contains(current_key), RID())
+    ERR_FAIL_COND_V(!shader_map.contains(current_key), RID());
     return shader_map[current_key].shader;
 }
 

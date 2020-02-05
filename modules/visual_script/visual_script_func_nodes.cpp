@@ -2472,7 +2472,7 @@ VisualScriptEmitSignal::VisualScriptEmitSignal() {
 static Ref<VisualScriptNode> create_basic_type_call_node(se_string_view p_name) {
 
     PODVector<se_string_view > path = StringUtils::split(p_name,'/');
-    ERR_FAIL_COND_V(path.size() < 4, Ref<VisualScriptNode>())
+    ERR_FAIL_COND_V(path.size() < 4, Ref<VisualScriptNode>());
     se_string_view  base_type = path[2];
     se_string_view  method = path[3];
 
@@ -2488,7 +2488,7 @@ static Ref<VisualScriptNode> create_basic_type_call_node(se_string_view p_name) 
         }
     }
 
-    ERR_FAIL_COND_V(type == VariantType::VARIANT_MAX, Ref<VisualScriptNode>())
+    ERR_FAIL_COND_V(type == VariantType::VARIANT_MAX, Ref<VisualScriptNode>());
 
     node->set_call_mode(VisualScriptFunctionCall::CALL_MODE_BASIC_TYPE);
     node->set_basic_type(type);

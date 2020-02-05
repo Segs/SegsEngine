@@ -20,6 +20,9 @@ namespace eastl {
     class basic_string_view;
     template <typename T, ptrdiff_t Extent>
     class span;
+    template <typename Allocator, typename Element,
+        typename Container = eastl::vector<Element, Allocator> >
+    class bitvector;
 }
 
 template <class T>
@@ -39,6 +42,8 @@ struct Comparator;
 
 template<class T>
 using PODVector = eastl::vector<T,wrap_allocator>;
+
+using BitVector = eastl::bitvector<wrap_allocator,size_t>;
 
 template <class T>
 class Vector;

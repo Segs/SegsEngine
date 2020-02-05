@@ -1188,7 +1188,7 @@ GDScriptParser::Node *GDScriptParser::_parse_expression(Node *p_parent, bool p_s
             return nullptr; //nothing
         }
 
-        ERR_FAIL_COND_V_MSG(!expr, nullptr, "GDScriptParser bug, couldn't figure out what expression is.")
+        ERR_FAIL_COND_V_MSG(!expr, nullptr, "GDScriptParser bug, couldn't figure out what expression is.");
 
         /******************/
         /* Parse Indexing */
@@ -5531,7 +5531,7 @@ String GDScriptParser::DataType::to_string() const {
             return native_type.asCString();
         }
         case CLASS: {
-            ERR_FAIL_COND_V(!class_type, String())
+            ERR_FAIL_COND_V(!class_type, String());
             if (is_meta_type) {
                 return "GDScript";
             }
@@ -6098,8 +6098,8 @@ bool GDScriptParser::_is_type_compatible(const DataType &p_container, const Data
     }
 
     // Should never get here unresolved
-    ERR_FAIL_COND_V(p_container.kind == DataType::UNRESOLVED, false)
-    ERR_FAIL_COND_V(p_expression.kind == DataType::UNRESOLVED, false)
+    ERR_FAIL_COND_V(p_container.kind == DataType::UNRESOLVED, false);
+    ERR_FAIL_COND_V(p_expression.kind == DataType::UNRESOLVED, false);
 
     if (p_container.kind == DataType::BUILTIN && p_expression.kind == DataType::BUILTIN) {
         bool valid = p_container.builtin_type == p_expression.builtin_type;

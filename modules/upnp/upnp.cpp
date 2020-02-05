@@ -49,9 +49,9 @@ bool UPNP::is_common_device(se_string_view dev) const {
 }
 
 int UPNP::discover(int timeout, int ttl, se_string_view device_filter) {
-    ERR_FAIL_COND_V(timeout < 0, UPNP_RESULT_INVALID_PARAM)
-    ERR_FAIL_COND_V(ttl < 0, UPNP_RESULT_INVALID_PARAM)
-    ERR_FAIL_COND_V(ttl > 255, UPNP_RESULT_INVALID_PARAM)
+    ERR_FAIL_COND_V(timeout < 0, UPNP_RESULT_INVALID_PARAM);
+    ERR_FAIL_COND_V(ttl < 0, UPNP_RESULT_INVALID_PARAM);
+    ERR_FAIL_COND_V(ttl > 255, UPNP_RESULT_INVALID_PARAM);
 
     devices.clear();
 
@@ -239,7 +239,7 @@ int UPNP::get_device_count() const {
 }
 
 Ref<UPNPDevice> UPNP::get_device(int index) const {
-    ERR_FAIL_INDEX_V(index, devices.size(), Ref<UPNPDevice>())
+    ERR_FAIL_INDEX_V(index, devices.size(), Ref<UPNPDevice>());
 
     return devices[index];
 }
@@ -268,7 +268,7 @@ void UPNP::clear_devices() {
 }
 
 Ref<UPNPDevice> UPNP::get_gateway() const {
-    ERR_FAIL_COND_V(devices.empty(), Ref<UPNPDevice>())
+    ERR_FAIL_COND_V(devices.empty(), Ref<UPNPDevice>());
 
     for (size_t i = 0; i < devices.size(); i++) {
         Ref<UPNPDevice> dev = get_device(i);

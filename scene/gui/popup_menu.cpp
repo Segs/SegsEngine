@@ -46,7 +46,7 @@ IMPL_GDCLASS(PopupMenu)
 
 String PopupMenu::_get_accel_text(int p_item) const {
 
-    ERR_FAIL_INDEX_V(p_item, items.size(), String())
+    ERR_FAIL_INDEX_V(p_item, items.size(), String());
 
     if (items[p_item].shortcut)
         return items[p_item].shortcut->get_as_text();

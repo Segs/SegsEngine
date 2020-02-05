@@ -221,11 +221,11 @@ Error Image::save_png_func(se_string_view p_path, const Ref<Image> &p_img)
 {
     PODVector<uint8_t> buffer;
     Ref<Image> source_image = prepareForPngStorage(p_img);
-    ERR_FAIL_COND_V(source_image==nullptr, FAILED)
+    ERR_FAIL_COND_V(source_image==nullptr, FAILED);
     Error err = ImageSaver::save_image("png",source_image,buffer);
-    ERR_FAIL_COND_V(err, err)
+    ERR_FAIL_COND_V(err, err);
     FileAccess *file = FileAccess::open(p_path, FileAccess::WRITE, &err);
-    ERR_FAIL_COND_V(err, err)
+    ERR_FAIL_COND_V(err, err);
 
     file->store_buffer(buffer.data(), buffer.size());
     if (file->get_error() != OK && file->get_error() != ERR_FILE_EOF) {
@@ -241,11 +241,11 @@ Error Image::save_png_func(se_string_view p_path, const Ref<Image> &p_img)
 Error Image::save_exr_func(se_string_view p_path, const Ref<Image> &source_image, bool greyscale)
 {
     PODVector<uint8_t> buffer;
-    ERR_FAIL_COND_V(source_image==nullptr, FAILED)
+    ERR_FAIL_COND_V(source_image==nullptr, FAILED);
     Error err = ImageSaver::save_image("exr",source_image,buffer);
-    ERR_FAIL_COND_V(err, err)
+    ERR_FAIL_COND_V(err, err);
     FileAccess *file = FileAccess::open(p_path, FileAccess::WRITE, &err);
-    ERR_FAIL_COND_V(err, err)
+    ERR_FAIL_COND_V(err, err);
 
     file->store_buffer(buffer.data(), buffer.size());
     if (file->get_error() != OK && file->get_error() != ERR_FILE_EOF) {
@@ -260,12 +260,12 @@ Error Image::save_exr_func(se_string_view p_path, const Ref<Image> &source_image
 
 Error Image::compress_image(Image *img, CompressParams p)
 {
-    ERR_FAIL_COND_V(s_codecs.at(int(p.mode))==nullptr,ERR_UNAVAILABLE)
+    ERR_FAIL_COND_V(s_codecs.at(int(p.mode))==nullptr,ERR_UNAVAILABLE);
     return s_codecs.at(int(p.mode))->compress_image(img,p);
 }
 Error Image::decompress_image(Image *img, CompressParams p)
 {
-    ERR_FAIL_COND_V(s_codecs.at(int(p.mode))==nullptr,FAILED)
+    ERR_FAIL_COND_V(s_codecs.at(int(p.mode))==nullptr,FAILED);
     return s_codecs.at(int(p.mode))->decompress_image(img);
 }
 
@@ -1577,9 +1577,9 @@ void Image::normalize() {
 
 Error Image::generate_mipmaps(bool p_renormalize) {
 
-    ERR_FAIL_COND_V_MSG(!_can_modify(format), ERR_UNAVAILABLE, "Cannot generate mipmaps in compressed or custom image formats.")
+    ERR_FAIL_COND_V_MSG(!_can_modify(format), ERR_UNAVAILABLE, "Cannot generate mipmaps in compressed or custom image formats.");
 
-    ERR_FAIL_COND_V_MSG(width == 0 || height == 0, ERR_UNCONFIGURED, "Cannot generate mipmaps with width or height equal to 0.")
+    ERR_FAIL_COND_V_MSG(width == 0 || height == 0, ERR_UNCONFIGURED, "Cannot generate mipmaps with width or height equal to 0.");
 
     int mmcount;
 
@@ -2451,10 +2451,10 @@ PODVector<uint8_t> Image::lossy_packer(const Ref<Image> &p_image, float qualt)
 Ref<Image> Image::lossy_unpacker(const PODVector<uint8_t> &p_buffer)
 {
     int size = p_buffer.size() - 4;
-    ERR_FAIL_COND_V(size <= 0, Ref<Image>())
+    ERR_FAIL_COND_V(size <= 0, Ref<Image>());
     const uint8_t *r = p_buffer.data();
 
-    ERR_FAIL_COND_V(r[0] != 'W' || r[1] != 'E' || r[2] != 'B' || r[3] != 'P', Ref<Image>())
+    ERR_FAIL_COND_V(r[0] != 'W' || r[1] != 'E' || r[2] != 'B' || r[3] != 'P', Ref<Image>());
 
     Ref<Image> res(make_ref_counted<Image>());
 
@@ -2475,9 +2475,9 @@ PODVector<uint8_t> Image::lossless_packer(const Ref<Image> &p_image)
 Ref<Image> Image::lossless_unpacker(const PODVector<uint8_t> &p_data)
 {
     const int len = p_data.size();
-    ERR_FAIL_COND_V(len < 4, {})
+    ERR_FAIL_COND_V(len < 4, {});
     const uint8_t *r = p_data.data();
-    ERR_FAIL_COND_V(r[0] != 'P' || r[1] != 'N' || r[2] != 'G' || r[3] != ' ', {})
+    ERR_FAIL_COND_V(r[0] != 'P' || r[1] != 'N' || r[2] != 'G' || r[3] != ' ', {});
     Ref<Image> res(make_ref_counted<Image>());
 
     if(OK!=res->_load_from_buffer(&r[4], len - 4,"png"))
@@ -2541,10 +2541,10 @@ Color Image::get_pixel(int p_x, int p_y) const {
 
     uint8_t *ptr = write_lock.ptr();
 #ifdef DEBUG_ENABLED
-    ERR_FAIL_COND_V_MSG(!ptr, Color(), "Image must be locked with 'lock()' before using get_pixel().")
+    ERR_FAIL_COND_V_MSG(!ptr, Color(), "Image must be locked with 'lock()' before using get_pixel().");
 
-    ERR_FAIL_INDEX_V(p_x, width, Color())
-    ERR_FAIL_INDEX_V(p_y, height, Color())
+    ERR_FAIL_INDEX_V(p_x, width, Color());
+    ERR_FAIL_INDEX_V(p_y, height, Color());
 
 #endif
 
@@ -2788,8 +2788,8 @@ void Image::set_pixel(int p_x, int p_y, const Color &p_color) {
 
 Image::DetectChannels Image::get_detected_channels() {
 
-    ERR_FAIL_COND_V(data.size() == 0, DETECTED_RGBA)
-    ERR_FAIL_COND_V(is_compressed(), DETECTED_RGBA)
+    ERR_FAIL_COND_V(data.size() == 0, DETECTED_RGBA);
+    ERR_FAIL_COND_V(is_compressed(), DETECTED_RGBA);
     bool r = false, g = false, b = false, a = false, c = false;
     lock();
     for (int i = 0; i < width; i++) {
@@ -3015,7 +3015,7 @@ Ref<Image> Image::rgbe_to_srgb() {
     if (data.size() == 0)
         return Ref<Image>();
 
-    ERR_FAIL_COND_V(format != FORMAT_RGBE9995, Ref<Image>())
+    ERR_FAIL_COND_V(format != FORMAT_RGBE9995, Ref<Image>());
 
     Ref<Image> new_image(make_ref_counted<Image>());
 
@@ -3220,7 +3220,7 @@ void Image::fix_alpha_edges() {
 
 se_string_view Image::get_format_name(Format p_format) {
 
-    ERR_FAIL_INDEX_V(p_format, FORMAT_MAX, se_string_view())
+    ERR_FAIL_INDEX_V(p_format, FORMAT_MAX, se_string_view());
     return format_names[p_format];
 }
 
@@ -3247,11 +3247,11 @@ Error Image::_load_from_buffer(const PoolVector<uint8_t> &p_array, const char *e
     return _load_from_buffer(r.ptr(),buffer_size,ext);
 }
 Error Image::_load_from_buffer(const uint8_t *p_array,int buffer_size, const char *ext) {
-    ERR_FAIL_COND_V(buffer_size == 0, ERR_INVALID_PARAMETER)
-    ERR_FAIL_COND_V(!ext, ERR_INVALID_PARAMETER)
+    ERR_FAIL_COND_V(buffer_size == 0, ERR_INVALID_PARAMETER);
+    ERR_FAIL_COND_V(!ext, ERR_INVALID_PARAMETER);
 
     ImageData d = ImageLoader::load_image(ext,p_array, buffer_size);
-    ERR_FAIL_COND_V(d.data.size()==0, ERR_PARSE_ERROR)
+    ERR_FAIL_COND_V(d.data.size()==0, ERR_PARSE_ERROR);
 
     create(eastl::move(d));
 
@@ -3304,7 +3304,7 @@ Ref<Image> prepareForPngStorage(const Ref<Image> &img)
         source_image = dynamic_ref_cast<Image>(source_image->duplicate());
         source_image->decompress();
     }
-    ERR_FAIL_COND_V(source_image->is_compressed(), Ref<Image>())
+    ERR_FAIL_COND_V(source_image->is_compressed(), Ref<Image>());
     bool need_convert = source_image->get_format()!=ImageData::FORMAT_L8
             && source_image->get_format()!=ImageData::FORMAT_LA8
             && source_image->get_format()!=ImageData::FORMAT_RGB8

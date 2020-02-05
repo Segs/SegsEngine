@@ -341,7 +341,7 @@ Dictionary Physics2DDirectSpaceState::_intersect_ray(const Vector2 &p_from, cons
 
 Array Physics2DDirectSpaceState::_intersect_shape(const Ref<Physics2DShapeQueryParameters> &p_shape_query, int p_max_results) {
 
-    ERR_FAIL_COND_V(not p_shape_query, Array())
+    ERR_FAIL_COND_V(not p_shape_query, Array());
 
     PODVector<ShapeResult> sr;
     sr.resize(p_max_results);
@@ -364,7 +364,7 @@ Array Physics2DDirectSpaceState::_intersect_shape(const Ref<Physics2DShapeQueryP
 
 Array Physics2DDirectSpaceState::_cast_motion(const Ref<Physics2DShapeQueryParameters> &p_shape_query) {
 
-    ERR_FAIL_COND_V(not p_shape_query, Array())
+    ERR_FAIL_COND_V(not p_shape_query, Array());
 
     float closest_safe, closest_unsafe;
     bool res = cast_motion(p_shape_query->shape, p_shape_query->transform, p_shape_query->motion, p_shape_query->margin, closest_safe, closest_unsafe, p_shape_query->exclude, p_shape_query->collision_mask, p_shape_query->collide_with_bodies, p_shape_query->collide_with_areas);
@@ -422,7 +422,7 @@ Array Physics2DDirectSpaceState::_intersect_point_on_canvas(const Vector2 &p_poi
 
 Array Physics2DDirectSpaceState::_collide_shape(const Ref<Physics2DShapeQueryParameters> &p_shape_query, int p_max_results) {
 
-    ERR_FAIL_COND_V(not p_shape_query, Array())
+    ERR_FAIL_COND_V(not p_shape_query, Array());
 
     PODVector<Vector2> ret;
     ret.resize(p_max_results * 2);
@@ -439,7 +439,7 @@ Array Physics2DDirectSpaceState::_collide_shape(const Ref<Physics2DShapeQueryPar
 }
 Dictionary Physics2DDirectSpaceState::_get_rest_info(const Ref<Physics2DShapeQueryParameters> &p_shape_query) {
 
-    ERR_FAIL_COND_V(not p_shape_query, Dictionary())
+    ERR_FAIL_COND_V(not p_shape_query, Dictionary());
 
     ShapeRestInfo sri;
 
@@ -871,12 +871,12 @@ int Physics2DServerManager::get_servers_count() {
 }
 
 StringName Physics2DServerManager::get_server_name(int p_id) {
-    ERR_FAIL_INDEX_V(p_id, get_servers_count(), StringName())
+    ERR_FAIL_INDEX_V(p_id, get_servers_count(), StringName());
     return physics_2d_servers[p_id].name;
 }
 
 Physics2DServer *Physics2DServerManager::new_default_server() {
-    ERR_FAIL_COND_V(default_server_id == -1, nullptr)
+    ERR_FAIL_COND_V(default_server_id == -1, nullptr);
     return physics_2d_servers[default_server_id].create_callback();
 }
 
@@ -902,7 +902,7 @@ Physics2DServer *initialize_2d_physics() {
         // Physics server not found, Use the default physics
         physics_2d_server = Physics2DServerManager::new_default_server();
     }
-    ERR_FAIL_COND_V(!physics_2d_server,nullptr)
+    ERR_FAIL_COND_V(!physics_2d_server,nullptr);
     physics_2d_server->init();
     return physics_2d_server;
 }

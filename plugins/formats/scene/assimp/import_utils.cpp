@@ -129,7 +129,7 @@ Ref<Image> AssimpUtils::load_image(ImportState &state, const aiScene *p_scene, s
     PODVector<se_string_view> split_path = StringUtils::split(get_basename(p_path),'*');
     if (split_path.size() == 2) {
         size_t texture_idx = StringUtils::to_int(split_path[1]);
-        ERR_FAIL_COND_V(texture_idx >= p_scene->mNumTextures, Ref<Image>())
+        ERR_FAIL_COND_V(texture_idx >= p_scene->mNumTextures, Ref<Image>());
                 aiTexture *tex = p_scene->mTextures[texture_idx];
         String filename = AssimpUtils::get_raw_string_from_assimp(tex->mFilename);
         filename = get_file(filename);
@@ -137,7 +137,7 @@ Ref<Image> AssimpUtils::load_image(ImportState &state, const aiScene *p_scene, s
         if (tex->mHeight == 0) {
             Ref<Image> img(make_ref_counted<Image>());
             Error e=img->load_from_buffer((uint8_t *)tex->pcData, tex->mWidth,tex->achFormatHint);
-            ERR_FAIL_COND_V(e!=OK, Ref<Image>())
+            ERR_FAIL_COND_V(e!=OK, Ref<Image>());
                     state.path_to_image_cache.emplace(String(p_path), img);
         } else {
             Ref<Image> img(make_ref_counted<Image>());
@@ -145,7 +145,7 @@ Ref<Image> AssimpUtils::load_image(ImportState &state, const aiScene *p_scene, s
             uint32_t size = tex->mWidth * tex->mHeight;
             arr.resize(size);
             memcpy(arr.write().ptr(), tex->pcData, size);
-            ERR_FAIL_COND_V(arr.size() % 4 != 0, Ref<Image>())
+            ERR_FAIL_COND_V(arr.size() % 4 != 0, Ref<Image>());
                     //ARGB8888 to RGBA8888
                     for (int32_t i = 0; i < arr.size() / 4; i++) {
                 arr.write().ptr()[(4 * i) + 3] = arr[(4 * i) + 0];
@@ -154,7 +154,7 @@ Ref<Image> AssimpUtils::load_image(ImportState &state, const aiScene *p_scene, s
                 arr.write().ptr()[(4 * i) + 2] = arr[(4 * i) + 3];
             }
             img->create(tex->mWidth, tex->mHeight, true, Image::FORMAT_RGBA8, arr);
-            ERR_FAIL_COND_V(not img, Ref<Image>())
+            ERR_FAIL_COND_V(not img, Ref<Image>());
             state.path_to_image_cache.emplace(String(p_path), img);
             return img;
         }

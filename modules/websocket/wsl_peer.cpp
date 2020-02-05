@@ -237,7 +237,7 @@ void WSLPeer::poll() {
 
 Error WSLPeer::put_packet(const uint8_t *p_buffer, int p_buffer_size) {
 
-    ERR_FAIL_COND_V(!is_connected_to_host(), FAILED)
+    ERR_FAIL_COND_V(!is_connected_to_host(), FAILED);
 
     struct wslay_event_msg msg; // Should I use fragmented?
     msg.opcode = write_mode == WRITE_MODE_TEXT ? WSLAY_TEXT_FRAME : WSLAY_BINARY_FRAME;
@@ -256,7 +256,7 @@ Error WSLPeer::get_packet(const uint8_t **r_buffer, int &r_buffer_size) {
 
     r_buffer_size = 0;
 
-    ERR_FAIL_COND_V(!is_connected_to_host(), FAILED)
+    ERR_FAIL_COND_V(!is_connected_to_host(), FAILED);
 
     if (_in_buffer.packets_left() == 0)
         return ERR_UNAVAILABLE;
@@ -307,14 +307,14 @@ void WSLPeer::close(int p_code, se_string_view p_reason) {
 
 IP_Address WSLPeer::get_connected_host() const {
 
-    ERR_FAIL_COND_V(!is_connected_to_host() || not _data->tcp, IP_Address())
+    ERR_FAIL_COND_V(!is_connected_to_host() || not _data->tcp, IP_Address());
 
     return _data->tcp->get_connected_host();
 }
 
 uint16_t WSLPeer::get_connected_port() const {
 
-    ERR_FAIL_COND_V(!is_connected_to_host() || not _data->tcp, 0)
+    ERR_FAIL_COND_V(!is_connected_to_host() || not _data->tcp, 0);
 
     return _data->tcp->get_connected_port();
 }

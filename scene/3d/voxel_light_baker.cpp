@@ -1818,8 +1818,8 @@ Error VoxelLightBaker::make_lightmap(const Transform &p_xform, Ref<Mesh> &p_mesh
             PoolVector<Vector2> uv2 = arrays[Mesh::ARRAY_TEX_UV2];
             PoolVector<int> indices = arrays[Mesh::ARRAY_INDEX];
 
-            ERR_FAIL_COND_V(vertices.size() == 0, ERR_INVALID_PARAMETER)
-            ERR_FAIL_COND_V(uv2.size() == 0, ERR_INVALID_PARAMETER)
+            ERR_FAIL_COND_V(vertices.size() == 0, ERR_INVALID_PARAMETER);
+            ERR_FAIL_COND_V(uv2.size() == 0, ERR_INVALID_PARAMETER);
 
             int vc = vertices.size();
             PoolVector<Vector3>::Read vr = vertices.read();
@@ -1884,9 +1884,9 @@ Error VoxelLightBaker::make_lightmap(const Transform &p_xform, Ref<Mesh> &p_mesh
         PoolVector<Vector2> uv2 = arrays[Mesh::ARRAY_TEX_UV2];
         PoolVector<int> indices = arrays[Mesh::ARRAY_INDEX];
 
-        ERR_FAIL_COND_V(vertices.size() == 0, ERR_INVALID_PARAMETER)
-        ERR_FAIL_COND_V(normals.size() == 0, ERR_INVALID_PARAMETER)
-        ERR_FAIL_COND_V(uv2.size() == 0, ERR_INVALID_PARAMETER)
+        ERR_FAIL_COND_V(vertices.size() == 0, ERR_INVALID_PARAMETER);
+        ERR_FAIL_COND_V(normals.size() == 0, ERR_INVALID_PARAMETER);
+        ERR_FAIL_COND_V(uv2.size() == 0, ERR_INVALID_PARAMETER);
 
         int vc = vertices.size();
         PoolVector<Vector3>::Read vr = vertices.read();
@@ -2341,7 +2341,7 @@ Ref<MultiMesh> VoxelLightBaker::create_debug_multimesh(DebugMode p_mode) {
 
     Ref<MultiMesh> mm;
 
-    ERR_FAIL_COND_V(p_mode == DEBUG_LIGHT && bake_light.empty(), mm)
+    ERR_FAIL_COND_V(p_mode == DEBUG_LIGHT && bake_light.empty(), mm);
     mm = make_ref_counted<MultiMesh>();
 
     mm->set_transform_format(MultiMesh::TRANSFORM_3D);

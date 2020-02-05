@@ -1190,7 +1190,7 @@ AudioServer *AudioServer::singleton = nullptr;
 void *AudioServer::audio_data_alloc(uint32_t p_data_len, const uint8_t *p_from_data) {
 
     void *ad = memalloc(p_data_len);
-    ERR_FAIL_COND_V(!ad, nullptr)
+    ERR_FAIL_COND_V(!ad, nullptr);
     if (p_from_data) {
         memcpy(ad, p_from_data, p_data_len);
     }

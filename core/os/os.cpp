@@ -199,7 +199,7 @@ int OS::get_process_id() const {
 
 void OS::vibrate_handheld(int p_duration_ms) {
 
-    WARN_PRINT("vibrate_handheld() only works with Android and iOS")
+    WARN_PRINT("vibrate_handheld() only works with Android and iOS");
 }
 
 bool OS::is_stdout_verbose() const {
@@ -410,8 +410,8 @@ Error OS::dialog_show(UIString p_title, UIString p_description, const PODVector<
 
 Error OS::dialog_input_text(const UIString &p_title, const UIString &p_description, const UIString &p_partial, Object *p_obj, const StringName &p_callback) {
 
-    ERR_FAIL_COND_V(!p_obj, FAILED)
-    ERR_FAIL_COND_V(p_callback.empty(), FAILED)
+    ERR_FAIL_COND_V(!p_obj, FAILED);
+    ERR_FAIL_COND_V(p_callback.empty(), FAILED);
     print(FormatVE("%s\n---------\n%s\n[%s]:\n",qPrintable(p_title), qPrintable(p_description), qPrintable(p_partial)));
 
     String res(StringUtils::strip_edges(get_stdin_string()));
@@ -700,7 +700,7 @@ int OS::get_audio_driver_count() const {
 const char *OS::get_audio_driver_name(int p_driver) const {
 
     AudioDriver *driver = AudioDriverManager::get_driver(p_driver);
-    ERR_FAIL_COND_V_MSG(!driver, "", "Cannot get audio driver at index '" + itos(p_driver) + "'.")
+    ERR_FAIL_COND_V_MSG(!driver, "", "Cannot get audio driver at index '" + itos(p_driver) + "'.");
     return AudioDriverManager::get_driver(p_driver)->get_name();
 }
 

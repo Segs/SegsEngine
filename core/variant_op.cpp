@@ -2953,7 +2953,7 @@ void Variant::get_property_list(ListPOD<PropertyInfo> *p_list) const {
                 if (ScriptDebugger::get_singleton() && _get_obj().ref.is_null()) {
                     //only if debugging!
                     if (!ObjectDB::instance_validate(obj)) {
-                        WARN_PRINT("Attempted get_property list on stray pointer.")
+                        WARN_PRINT("Attempted get_property list on stray pointer.");
                         return;
                     }
                 }
@@ -3896,6 +3896,6 @@ static const char *_op_names[int8_t(Variant::OP_MAX)] = {
 
 const char *Variant::get_operator_name(Operator p_op) {
 
-    ERR_FAIL_INDEX_V(p_op, OP_MAX, nullptr)
+    ERR_FAIL_INDEX_V(p_op, OP_MAX, nullptr);
     return _op_names[p_op];
 }

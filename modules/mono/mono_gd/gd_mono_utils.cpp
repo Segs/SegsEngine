@@ -71,7 +71,7 @@ MonoObject *unmanaged_get_managed(Object *unmanaged) {
 
     void *data = unmanaged->get_script_instance_binding(CSharpLanguage::get_singleton()->get_language_index());
 
-    ERR_FAIL_NULL_V(data, nullptr)
+    ERR_FAIL_NULL_V(data, nullptr);
     Map<Object *, CSharpScriptBinding>::iterator iter;
     iter.mpNode = (Map<Object *, CSharpScriptBinding>::iterator::node_type *)data;
     CSharpScriptBinding &script_binding = iter->second;
@@ -83,12 +83,12 @@ MonoObject *unmanaged_get_managed(Object *unmanaged) {
             // Already had a binding that needs to be setup
             CSharpLanguage::get_singleton()->setup_csharp_script_binding(script_binding, unmanaged);
 
-            ERR_FAIL_COND_V(!script_binding.inited, nullptr)
+            ERR_FAIL_COND_V(!script_binding.inited, nullptr);
         }
     }
 
     Ref<MonoGCHandle> &gchandle = script_binding.gchandle;
-    ERR_FAIL_COND_V(!gchandle, nullptr)
+    ERR_FAIL_COND_V(!gchandle, nullptr);
 
     MonoObject *target = gchandle->get_target();
 
@@ -105,7 +105,7 @@ MonoObject *unmanaged_get_managed(Object *unmanaged) {
 #endif
 
     MonoObject *mono_object = GDMonoUtils::create_managed_for_godot_object(script_binding.wrapper_class, script_binding.type_name, unmanaged);
-    ERR_FAIL_NULL_V(mono_object, nullptr)
+    ERR_FAIL_NULL_V(mono_object, nullptr);
 
     gchandle->set_handle(MonoGCHandle::new_strong_handle(mono_object), MonoGCHandle::STRONG_HANDLE);
 
@@ -206,10 +206,10 @@ GDMonoClass *get_class_native_base(GDMonoClass *p_class) {
 MonoObject *create_managed_for_godot_object(GDMonoClass *p_class, const StringName &p_native, Object *p_object) {
     bool parent_is_object_class = ClassDB::is_parent_class(p_object->get_class_name(), p_native);
     ERR_FAIL_COND_V_MSG(!parent_is_object_class, nullptr,
-            "Type inherits from native type '" + p_native + "', so it can't be instanced in object of type: '" + p_object->get_class() + "'.")
+            "Type inherits from native type '" + p_native + "', so it can't be instanced in object of type: '" + p_object->get_class() + "'.");
 
     MonoObject *mono_object = mono_object_new(mono_domain_get(), p_class->get_mono_ptr());
-    ERR_FAIL_NULL_V(mono_object, nullptr)
+    ERR_FAIL_NULL_V(mono_object, nullptr);
 
     CACHED_FIELD(GodotObject, ptr)->set_value_raw(mono_object, p_object);
 

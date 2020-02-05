@@ -43,9 +43,9 @@ void TCP_Server::_bind_methods() {
 
 Error TCP_Server::listen(uint16_t p_port, const IP_Address &p_bind_address) {
 
-    ERR_FAIL_COND_V(not _sock, ERR_UNAVAILABLE)
-    ERR_FAIL_COND_V(_sock->is_open(), ERR_ALREADY_IN_USE)
-    ERR_FAIL_COND_V(!p_bind_address.is_valid() && !p_bind_address.is_wildcard(), ERR_INVALID_PARAMETER)
+    ERR_FAIL_COND_V(not _sock, ERR_UNAVAILABLE);
+    ERR_FAIL_COND_V(_sock->is_open(), ERR_ALREADY_IN_USE);
+    ERR_FAIL_COND_V(!p_bind_address.is_valid() && !p_bind_address.is_wildcard(), ERR_INVALID_PARAMETER);
 
     Error err;
     IP::Type ip_type = IP::TYPE_ANY;
@@ -56,7 +56,7 @@ Error TCP_Server::listen(uint16_t p_port, const IP_Address &p_bind_address) {
 
     err = _sock->open(NetSocket::TYPE_TCP, ip_type);
 
-    ERR_FAIL_COND_V(err != OK, ERR_CANT_CREATE)
+    ERR_FAIL_COND_V(err != OK, ERR_CANT_CREATE);
 
     _sock->set_blocking_enabled(false);
     _sock->set_reuse_address_enabled(true);
@@ -79,14 +79,14 @@ Error TCP_Server::listen(uint16_t p_port, const IP_Address &p_bind_address) {
 }
 
 bool TCP_Server::is_listening() const {
-    ERR_FAIL_COND_V(not _sock, false)
+    ERR_FAIL_COND_V(not _sock, false);
 
     return _sock->is_open();
 }
 
 bool TCP_Server::is_connection_available() const {
 
-    ERR_FAIL_COND_V(not _sock, false)
+    ERR_FAIL_COND_V(not _sock, false);
 
     if (!_sock->is_open())
         return false;

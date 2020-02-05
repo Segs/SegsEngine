@@ -59,7 +59,7 @@ bool GDScriptCompiler::_is_class_member_property(GDScript *owner, const StringNa
         scr = scr->_base;
     }
 
-    ERR_FAIL_COND_V(!nc, false)
+    ERR_FAIL_COND_V(!nc, false);
 
     return ClassDB::has_property(nc->get_name(), p_name);
 }
@@ -95,7 +95,7 @@ void GDScriptCompiler::_set_error(const char *p_error, const GDScriptParser::Nod
 
 bool GDScriptCompiler::_create_unary_operator(CodeGen &codegen, const GDScriptParser::OperatorNode *on, Variant::Operator op, int p_stack_level) {
 
-    ERR_FAIL_COND_V(on->arguments.size() != 1, false)
+    ERR_FAIL_COND_V(on->arguments.size() != 1, false);
 
     int src_address_a = _parse_expression(codegen, on->arguments[0], p_stack_level);
     if (src_address_a < 0)
@@ -111,7 +111,7 @@ bool GDScriptCompiler::_create_unary_operator(CodeGen &codegen, const GDScriptPa
 
 bool GDScriptCompiler::_create_binary_operator(CodeGen &codegen, const GDScriptParser::OperatorNode *on, Variant::Operator op, int p_stack_level, bool p_initializer, int p_index_addr) {
 
-    ERR_FAIL_COND_V(on->arguments.size() != 2, false)
+    ERR_FAIL_COND_V(on->arguments.size() != 2, false);
 
     int src_address_a = _parse_expression(codegen, on->arguments[0], p_stack_level, false, p_initializer,p_index_addr);
     if (src_address_a < 0)
@@ -548,7 +548,7 @@ int GDScriptCompiler::_parse_expression(CodeGen &codegen, const GDScriptParser::
                 //call/constructor operator
                 case GDScriptParser::OperatorNode::OP_PARENT_CALL: {
 
-                    ERR_FAIL_COND_V(on->arguments.empty(), -1)
+                    ERR_FAIL_COND_V(on->arguments.empty(), -1);
 
                     const GDScriptParser::IdentifierNode *in = (const GDScriptParser::IdentifierNode *)on->arguments[0];
 
@@ -580,7 +580,7 @@ int GDScriptCompiler::_parse_expression(CodeGen &codegen, const GDScriptParser::
 
                     if (on->arguments[0]->type == GDScriptParser::Node::TYPE_TYPE) {
                         //construct a basic type
-                        ERR_FAIL_COND_V(on->arguments.empty(), -1)
+                        ERR_FAIL_COND_V(on->arguments.empty(), -1);
 
                         const GDScriptParser::TypeNode *tn = (const GDScriptParser::TypeNode *)on->arguments[0];
                         int vtype = (int)tn->vtype;
@@ -610,7 +610,7 @@ int GDScriptCompiler::_parse_expression(CodeGen &codegen, const GDScriptParser::
                     } else if (on->arguments[0]->type == GDScriptParser::Node::TYPE_BUILT_IN_FUNCTION) {
                         //built in function
 
-                        ERR_FAIL_COND_V(on->arguments.empty(), -1)
+                        ERR_FAIL_COND_V(on->arguments.empty(), -1);
 
                         PODVector<int> arguments;
                         int slevel = p_stack_level;
@@ -637,7 +637,7 @@ int GDScriptCompiler::_parse_expression(CodeGen &codegen, const GDScriptParser::
 
                     } else {
                         //regular function
-                        ERR_FAIL_COND_V(on->arguments.size() < 2, -1)
+                        ERR_FAIL_COND_V(on->arguments.size() < 2, -1);
 
                         const GDScriptParser::Node *instance = on->arguments[0];
 
@@ -686,7 +686,7 @@ int GDScriptCompiler::_parse_expression(CodeGen &codegen, const GDScriptParser::
                 } break;
                 case GDScriptParser::OperatorNode::OP_YIELD: {
 
-                    ERR_FAIL_COND_V(!on->arguments.empty() && on->arguments.size() != 2, -1)
+                    ERR_FAIL_COND_V(!on->arguments.empty() && on->arguments.size() != 2, -1);
 
                     PODVector<int> arguments;
                     int slevel = p_stack_level;
@@ -715,7 +715,7 @@ int GDScriptCompiler::_parse_expression(CodeGen &codegen, const GDScriptParser::
                 case GDScriptParser::OperatorNode::OP_INDEX:
                 case GDScriptParser::OperatorNode::OP_INDEX_NAMED: {
 
-                    ERR_FAIL_COND_V(on->arguments.size() != 2, -1)
+                    ERR_FAIL_COND_V(on->arguments.size() != 2, -1);
 
                     int slevel = p_stack_level;
                     bool named = (on->op == GDScriptParser::OperatorNode::OP_INDEX_NAMED);
@@ -962,7 +962,7 @@ int GDScriptCompiler::_parse_expression(CodeGen &codegen, const GDScriptParser::
                 case GDScriptParser::OperatorNode::OP_INIT_ASSIGN:
                 case GDScriptParser::OperatorNode::OP_ASSIGN: {
 
-                    ERR_FAIL_COND_V(on->arguments.size() != 2, -1)
+                    ERR_FAIL_COND_V(on->arguments.size() != 2, -1);
 
                     if (on->arguments[0]->type == GDScriptParser::Node::TYPE_OPERATOR && (static_cast<GDScriptParser::OperatorNode *>(on->arguments[0])->op == GDScriptParser::OperatorNode::OP_INDEX || static_cast<GDScriptParser::OperatorNode *>(on->arguments[0])->op == GDScriptParser::OperatorNode::OP_INDEX_NAMED)) {
 
@@ -1224,7 +1224,7 @@ int GDScriptCompiler::_parse_expression(CodeGen &codegen, const GDScriptParser::
                 } break;
                 case GDScriptParser::OperatorNode::OP_IS: {
 
-                    ERR_FAIL_COND_V(on->arguments.size() != 2, false)
+                    ERR_FAIL_COND_V(on->arguments.size() != 2, false);
 
                     int slevel = p_stack_level;
 
@@ -1245,8 +1245,8 @@ int GDScriptCompiler::_parse_expression(CodeGen &codegen, const GDScriptParser::
 
                 } break;
                 case GDScriptParser::OperatorNode::OP_IS_BUILTIN: {
-                    ERR_FAIL_COND_V(on->arguments.size() != 2, false)
-                    ERR_FAIL_COND_V(on->arguments[1]->type != GDScriptParser::Node::TYPE_TYPE, false)
+                    ERR_FAIL_COND_V(on->arguments.size() != 2, false);
+                    ERR_FAIL_COND_V(on->arguments[1]->type != GDScriptParser::Node::TYPE_TYPE, false);
 
                     int slevel = p_stack_level;
 
@@ -1881,7 +1881,7 @@ Error GDScriptCompiler::_parse_class_level(GDScript *p_script, const GDScriptPar
         case GDScriptDataType::NATIVE: {
             int native_idx = GDScriptLanguage::get_singleton()->get_global_map().at(base_type.native_type);
             native = refFromRefPtr<GDScriptNativeClass>(GDScriptLanguage::get_singleton()->get_global_array()[native_idx]);
-            ERR_FAIL_COND_V(not native, ERR_BUG)
+            ERR_FAIL_COND_V(not native, ERR_BUG);
             p_script->native = native;
         } break;
         case GDScriptDataType::GDSCRIPT: {
@@ -2173,7 +2173,7 @@ Error GDScriptCompiler::compile(const GDScriptParser *p_parser, GDScript *p_scri
     parser = p_parser;
     main_script = p_script;
     const GDScriptParser::Node *root = parser->get_parse_tree();
-    ERR_FAIL_COND_V(root->type != GDScriptParser::Node::TYPE_CLASS, ERR_INVALID_DATA)
+    ERR_FAIL_COND_V(root->type != GDScriptParser::Node::TYPE_CLASS, ERR_INVALID_DATA);
 
     source = StringName(p_script->get_path());
 

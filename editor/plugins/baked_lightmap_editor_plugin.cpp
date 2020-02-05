@@ -98,7 +98,7 @@ void BakedLightmapEditorPlugin::bake_func_begin(int p_steps) {
 
 bool BakedLightmapEditorPlugin::bake_func_step(int p_step, se_string_view p_description) {
 
-    ERR_FAIL_COND_V(tmp_progress == nullptr, false)
+    ERR_FAIL_COND_V(tmp_progress == nullptr, false);
     return tmp_progress->step(StringName(p_description), p_step, false);
 }
 

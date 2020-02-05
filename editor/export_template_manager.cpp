@@ -567,36 +567,36 @@ Error ExportTemplateManager::install_android_template() {
     // and android_debug.apk, to place them in the libs folder.
 
     DirAccessRef da = DirAccess::open(("res://"));
-    ERR_FAIL_COND_V(!da, ERR_CANT_CREATE)
+    ERR_FAIL_COND_V(!da, ERR_CANT_CREATE);
 
     // Make res://android dir (if it does not exist).
     da->make_dir(("android"));
     {
         // Add an empty .gdignore file to avoid scan.
         FileAccessRef f = FileAccess::open(("res://android/.gdignore"), FileAccess::WRITE);
-        ERR_FAIL_COND_V(!f, ERR_CANT_CREATE)
+        ERR_FAIL_COND_V(!f, ERR_CANT_CREATE);
         f->store_line("");
         f->close();
     }
     {
         // Add version, to ensure building won't work if template and Godot version don't match.
         FileAccessRef f = FileAccess::open(("res://android/.build_version"), FileAccess::WRITE);
-        ERR_FAIL_COND_V(!f, ERR_CANT_CREATE)
+        ERR_FAIL_COND_V(!f, ERR_CANT_CREATE);
         f->store_line(VERSION_FULL_CONFIG);
         f->close();
     }
 
     Error err = da->make_dir_recursive(("android/build"));
-    ERR_FAIL_COND_V(err != OK, err)
+    ERR_FAIL_COND_V(err != OK, err);
     const String template_path=PathUtils::plus_file(EditorSettings::get_singleton()->get_templates_dir(),VERSION_FULL_CONFIG);
     const String source_zip = PathUtils::plus_file(template_path,"android_source.zip");
-    ERR_FAIL_COND_V(!FileAccess::exists(source_zip), ERR_CANT_OPEN)
+    ERR_FAIL_COND_V(!FileAccess::exists(source_zip), ERR_CANT_OPEN);
 
     FileAccess *src_f = nullptr;
     zlib_filefunc_def io = zipio_create_io_from_file(&src_f);
 
     unzFile pkg = unzOpen2(source_zip.c_str(), &io);
-    ERR_FAIL_COND_V_MSG(!pkg, ERR_CANT_OPEN, "Android sources not in ZIP format.")
+    ERR_FAIL_COND_V_MSG(!pkg, ERR_CANT_OPEN, "Android sources not in ZIP format.");
 
     int ret = unzGoToFirstFile(pkg);
 
@@ -660,9 +660,9 @@ Error ExportTemplateManager::install_android_template() {
 
     // Extract libs from pre-built APKs.
     err = _extract_libs_from_apk(("release"));
-    ERR_FAIL_COND_V_MSG(err != OK, err, "Can't extract Android libs from android_release.apk.")
+    ERR_FAIL_COND_V_MSG(err != OK, err, "Can't extract Android libs from android_release.apk.");
     err = _extract_libs_from_apk(("debug"));
-    ERR_FAIL_COND_V_MSG(err != OK, err, "Can't extract Android libs from android_debug.apk.")
+    ERR_FAIL_COND_V_MSG(err != OK, err, "Can't extract Android libs from android_debug.apk.");
 
     return OK;
 }
@@ -672,16 +672,16 @@ Error ExportTemplateManager::_extract_libs_from_apk(const String &p_target_name)
     using namespace StringUtils;
     const String templates_path = plus_file(EditorSettings::get_singleton()->get_templates_dir(),VERSION_FULL_CONFIG);
     const String apk_file = plus_file(templates_path,"android_" + p_target_name + ".apk");
-    ERR_FAIL_COND_V(!FileAccess::exists(apk_file), ERR_CANT_OPEN)
+    ERR_FAIL_COND_V(!FileAccess::exists(apk_file), ERR_CANT_OPEN);
 
     FileAccess *src_f = nullptr;
     zlib_filefunc_def io = zipio_create_io_from_file(&src_f);
 
     unzFile pkg = unzOpen2(apk_file.c_str(), &io);
-    ERR_FAIL_COND_V_MSG(!pkg, ERR_CANT_OPEN, "Android APK can't be extracted.")
+    ERR_FAIL_COND_V_MSG(!pkg, ERR_CANT_OPEN, "Android APK can't be extracted.");
 
     DirAccessRef da = DirAccess::open(("res://"));
-    ERR_FAIL_COND_V(!da, ERR_CANT_CREATE)
+    ERR_FAIL_COND_V(!da, ERR_CANT_CREATE);
 
     // 8 steps because 4 arches, 2 libs per arch.
     ProgressDialog::get_singleton()->add_task(("extract_libs_from_apk"), TTR("Extracting Android Libraries From APKs"), 8);

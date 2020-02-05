@@ -87,7 +87,7 @@ bool AnimationPlayer::_set(const StringName &p_name, const Variant &p_value) {
 
         Array array = p_value;
         int len = array.size();
-        ERR_FAIL_COND_V(len % 3, false)
+        ERR_FAIL_COND_V(len % 3, false);
 
         for (int i = 0; i < len / 3; i++) {
 
@@ -980,10 +980,10 @@ Error AnimationPlayer::add_animation(const StringName &p_name, const Ref<Animati
 #ifdef DEBUG_ENABLED
     ERR_FAIL_COND_V_MSG(StringUtils::contains(p_name, '/') || StringUtils::contains(p_name, ':') ||
                                 StringUtils::contains(p_name, ',') || StringUtils::contains(p_name, '['),
-            ERR_INVALID_PARAMETER, "Invalid animation name: " + String(p_name) + ".")
+            ERR_INVALID_PARAMETER, "Invalid animation name: " + String(p_name) + ".");
 #endif
 
-    ERR_FAIL_COND_V(not p_animation, ERR_INVALID_PARAMETER)
+    ERR_FAIL_COND_V(not p_animation, ERR_INVALID_PARAMETER);
 
     if (animation_set.contains(p_name)) {
 
@@ -1083,7 +1083,7 @@ bool AnimationPlayer::has_animation(const StringName &p_name) const {
 }
 Ref<Animation> AnimationPlayer::get_animation(const StringName &p_name) const {
 
-    ERR_FAIL_COND_V(!animation_set.contains(p_name), Ref<Animation>())
+    ERR_FAIL_COND_V(!animation_set.contains(p_name), Ref<Animation>());
 
     const AnimationData &data = animation_set.at(p_name);
 
@@ -1364,13 +1364,13 @@ bool AnimationPlayer::is_valid() const {
 
 float AnimationPlayer::get_current_animation_position() const {
 
-    ERR_FAIL_COND_V(!playback.current.from, 0)
+    ERR_FAIL_COND_V(!playback.current.from, 0);
     return playback.current.pos;
 }
 
 float AnimationPlayer::get_current_animation_length() const {
 
-    ERR_FAIL_COND_V(!playback.current.from, 0)
+    ERR_FAIL_COND_V(!playback.current.from, 0);
     return playback.current.from->animation->get_length();
 }
 

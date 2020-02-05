@@ -146,8 +146,8 @@ bool BitMap::get_bit(const Point2 &p_pos) const {
 
     int x = Math::fast_ftoi(p_pos.x);
     int y = Math::fast_ftoi(p_pos.y);
-    ERR_FAIL_INDEX_V(x, width, false)
-    ERR_FAIL_INDEX_V(y, height, false)
+    ERR_FAIL_INDEX_V(x, width, false);
+    ERR_FAIL_INDEX_V(y, height, false);
 
     int ofs = width * y + x;
     int bbyte = ofs / 8;
@@ -213,7 +213,7 @@ PODVector<Vector2> BitMap::_march_square(const Rect2i &rect, const Point2i &star
             sv += (rect.has_point(bl) && get_bit(bl)) ? 4 : 0;
             Point2i br = Point2i(curx, cury);
             sv += (rect.has_point(br) && get_bit(br)) ? 8 : 0;
-            ERR_FAIL_COND_V(sv == 0 || sv == 15, PODVector<Vector2>())
+            ERR_FAIL_COND_V(sv == 0 || sv == 15, PODVector<Vector2>());
         }
 
         switch (sv) {
@@ -338,7 +338,7 @@ PODVector<Vector2> BitMap::_march_square(const Rect2i &rect, const Point2i &star
         prevx = stepx;
         prevy = stepy;
 
-        ERR_FAIL_COND_V((int)count > width * height, _points)
+        ERR_FAIL_COND_V((int)count > width * height, _points);
     } while (curx != startx || cury != starty);
     return _points;
 }
@@ -402,7 +402,7 @@ static PODVector<Vector2> rdp(const PODVector<Vector2> &v, float optimization) {
 static PODVector<Vector2> reduce(const PODVector<Vector2> &points, const Rect2i &rect, float epsilon) {
     int size = points.size();
     // if there are less than 3 points, then we have nothing
-    ERR_FAIL_COND_V(size < 3, PODVector<Vector2>())
+    ERR_FAIL_COND_V(size < 3, PODVector<Vector2>());
     // if there are less than 9 points (but more than 3), then we don't need to reduce it
     if (size < 9) {
         return points;

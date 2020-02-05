@@ -64,7 +64,7 @@ PODVector<Vector3> ConcavePolygonShape::get_debug_mesh_lines() {
 
     PoolVector<Vector3> data = get_faces();
     int datalen = data.size();
-    ERR_FAIL_COND_V((datalen % 3) != 0, PODVector<Vector3>())
+    ERR_FAIL_COND_V((datalen % 3) != 0, PODVector<Vector3>());
 
     PoolVector<Vector3>::Read r = data.read();
 

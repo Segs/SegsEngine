@@ -50,7 +50,7 @@ IMPL_GDCLASS(SceneTreeDialog)
 
 Node *SceneTreeEditor::get_scene_node() {
 
-    ERR_FAIL_COND_V(!is_inside_tree(), nullptr)
+    ERR_FAIL_COND_V(!is_inside_tree(), nullptr);
 
     return get_tree()->get_edited_scene_root();
 }

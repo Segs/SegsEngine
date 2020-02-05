@@ -87,7 +87,7 @@ void AnimationNodeAnimation::_validate_property(PropertyInfo &property) const {
 float AnimationNodeAnimation::process(float p_time, bool p_seek) {
 
     AnimationPlayer *ap = state->player;
-    ERR_FAIL_COND_V(!ap, 0)
+    ERR_FAIL_COND_V(!ap, 0);
 
     float time = get_parameter(this->time);
 
@@ -914,7 +914,7 @@ void AnimationNodeBlendTree::add_node(const StringName &p_name, Ref<AnimationNod
 
 Ref<AnimationNode> AnimationNodeBlendTree::get_node(const StringName &p_name) const {
 
-    ERR_FAIL_COND_V(!nodes.contains(p_name), Ref<AnimationNode>())
+    ERR_FAIL_COND_V(!nodes.contains(p_name), Ref<AnimationNode>());
 
     return nodes.at(p_name).node;
 }
@@ -935,7 +935,7 @@ void AnimationNodeBlendTree::set_node_position(const StringName &p_node, const V
 }
 
 Vector2 AnimationNodeBlendTree::get_node_position(const StringName &p_node) const {
-    ERR_FAIL_COND_V(!nodes.contains(p_node), Vector2())
+    ERR_FAIL_COND_V(!nodes.contains(p_node), Vector2());
     return nodes.at(p_node).position;
 }
 
@@ -961,7 +961,7 @@ bool AnimationNodeBlendTree::has_node(const StringName &p_name) const {
 
 const PODVector<StringName> &AnimationNodeBlendTree::get_node_connection_array(const StringName &p_name) const {
 
-    ERR_FAIL_COND_V(!nodes.contains(p_name), g_null_stringname_vec)
+    ERR_FAIL_COND_V(!nodes.contains(p_name), g_null_stringname_vec);
     return nodes.at(p_name).connections;
 }
 void AnimationNodeBlendTree::remove_node(const StringName &p_name) {
@@ -1157,7 +1157,7 @@ bool AnimationNodeBlendTree::_set(const StringName &p_name, const Variant &p_val
     } else if (p_name == "node_connections") {
 
         Array conns = p_value;
-        ERR_FAIL_COND_V(conns.size() % 3 != 0, false)
+        ERR_FAIL_COND_V(conns.size() % 3 != 0, false);
 
         for (int i = 0; i < conns.size(); i += 3) {
             connect_node(conns[i], conns[i + 1], conns[i + 2]);

@@ -87,7 +87,7 @@ void VisualServerRaster::free_rid(RID p_rid) {
 
 void VisualServerRaster::request_frame_drawn_callback(Object *p_where, const StringName &p_method, const Variant &p_userdata) {
 
-    ERR_FAIL_NULL(p_where)
+    ERR_FAIL_NULL(p_where);
     FrameDrawnCallbacks fdc;
     fdc.object = p_where->get_instance_id();
     fdc.method = p_method;

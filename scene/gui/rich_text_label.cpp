@@ -404,7 +404,7 @@ Rect2 RichTextLabel::_get_text_rect() {
 }
 int RichTextLabel::_process_line(RichTextItemFrame *p_frame, const Vector2 &p_ofs, int &y, int p_width, int p_line, ProcessMode p_mode, const Ref<Font> &p_base_font, const Color &p_base_color, const Color &p_font_color_shadow, bool p_shadow_as_outline, const Point2 &shadow_ofs, const Point2i &p_click_pos, RichTextItem **r_click_item, int *r_click_char, bool *r_outside, int p_char_count) {
 
-    ERR_FAIL_INDEX_V((int)p_mode, 3, 0)
+    ERR_FAIL_INDEX_V((int)p_mode, 3, 0);
 
     RID ci;
     if (r_outside)
@@ -428,7 +428,7 @@ int RichTextLabel::_process_line(RichTextItemFrame *p_frame, const Vector2 &p_of
 
     if (p_mode != PROCESS_CACHE) {
 
-        ERR_FAIL_INDEX_V(line, l.offset_caches.size(), 0)
+        ERR_FAIL_INDEX_V(line, l.offset_caches.size(), 0);
         line_ofs = l.offset_caches[line];
     }
 
@@ -1687,7 +1687,7 @@ bool RichTextLabel::_find_strikethrough(RichTextItem *p_item) {
 }
 
 bool RichTextLabel::_find_by_type(RichTextItem *p_item, ItemType p_type) {
-    ERR_FAIL_INDEX_V((int)p_type, int(ITEM_TYPE_MAX), false)
+    ERR_FAIL_INDEX_V((int)p_type, int(ITEM_TYPE_MAX), false);
 
     RichTextItem *item = p_item;
 
@@ -2174,7 +2174,7 @@ void RichTextLabel::push_cell() {
 
 int RichTextLabel::get_current_table_column() const {
 
-    ERR_FAIL_COND_V(current->type != ITEM_TABLE, -1)
+    ERR_FAIL_COND_V(current->type != ITEM_TABLE, -1);
 
     ItemTable *table = static_cast<ItemTable *>(current);
 
@@ -2734,7 +2734,7 @@ void RichTextLabel::set_selection_enabled(bool p_enabled) {
 
 bool RichTextLabel::search(const UIString &p_string, bool p_from_selection, bool p_search_previous) {
 
-    ERR_FAIL_COND_V(!selection.enabled, false)
+    ERR_FAIL_COND_V(!selection.enabled, false);
     RichTextItem *it = main;
     int charidx = 0;
 

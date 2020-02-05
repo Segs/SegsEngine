@@ -1044,15 +1044,15 @@ bool sat_2d_calculate_penetration(const Shape2DSW *p_shape_A, const Transform2D 
 
     Physics2DServer::ShapeType type_A = p_shape_A->get_type();
 
-    ERR_FAIL_COND_V(type_A == Physics2DServer::SHAPE_LINE, false)
-    //ERR_FAIL_COND_V(type_A==Physics2DServer::SHAPE_RAY,false)
-    ERR_FAIL_COND_V(p_shape_A->is_concave(), false)
+    ERR_FAIL_COND_V(type_A == Physics2DServer::SHAPE_LINE, false);
+    //ERR_FAIL_COND_V(type_A==Physics2DServer::SHAPE_RAY,false);
+    ERR_FAIL_COND_V(p_shape_A->is_concave(), false);
 
     Physics2DServer::ShapeType type_B = p_shape_B->get_type();
 
-    ERR_FAIL_COND_V(type_B == Physics2DServer::SHAPE_LINE, false)
-    //ERR_FAIL_COND_V(type_B==Physics2DServer::SHAPE_RAY,false)
-    ERR_FAIL_COND_V(p_shape_B->is_concave(), false)
+    ERR_FAIL_COND_V(type_B == Physics2DServer::SHAPE_LINE, false);
+    //ERR_FAIL_COND_V(type_B==Physics2DServer::SHAPE_RAY,false);
+    ERR_FAIL_COND_V(p_shape_B->is_concave(), false);
 
     static const Collision2DFunc collision_table[5][5] = {
         { _collision_segment_segment<false, false, false>,
@@ -1335,7 +1335,7 @@ bool sat_2d_calculate_penetration(const Shape2DSW *p_shape_A, const Transform2D 
         }
     }
 
-    ERR_FAIL_COND_V(!collision_func, false)
+    ERR_FAIL_COND_V(!collision_func, false);
 
     collision_func(A, *transform_A, B, *transform_B, &callback, *motion_A, *motion_B, margin_A, margin_B);
 

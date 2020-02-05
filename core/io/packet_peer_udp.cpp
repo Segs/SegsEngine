@@ -50,13 +50,13 @@ void PacketPeerUDP::set_broadcast_enabled(bool p_enabled) {
 
 Error PacketPeerUDP::join_multicast_group(IP_Address p_multi_address, se_string_view p_if_name) {
 
-    ERR_FAIL_COND_V(not _sock, ERR_UNAVAILABLE)
-    ERR_FAIL_COND_V(!p_multi_address.is_valid(), ERR_INVALID_PARAMETER)
+    ERR_FAIL_COND_V(not _sock, ERR_UNAVAILABLE);
+    ERR_FAIL_COND_V(!p_multi_address.is_valid(), ERR_INVALID_PARAMETER);
 
     if (!_sock->is_open()) {
         IP::Type ip_type = p_multi_address.is_ipv4() ? IP::TYPE_IPV4 : IP::TYPE_IPV6;
         Error err = _sock->open(NetSocket::TYPE_UDP, ip_type);
-        ERR_FAIL_COND_V(err != OK, err)
+        ERR_FAIL_COND_V(err != OK, err);
         _sock->set_blocking_enabled(false);
         _sock->set_broadcasting_enabled(broadcast);
     }
@@ -65,8 +65,8 @@ Error PacketPeerUDP::join_multicast_group(IP_Address p_multi_address, se_string_
 
 Error PacketPeerUDP::leave_multicast_group(IP_Address p_multi_address, se_string_view p_if_name) {
 
-    ERR_FAIL_COND_V(not _sock, ERR_UNAVAILABLE)
-    ERR_FAIL_COND_V(!_sock->is_open(), ERR_UNCONFIGURED)
+    ERR_FAIL_COND_V(not _sock, ERR_UNAVAILABLE);
+    ERR_FAIL_COND_V(!_sock->is_open(), ERR_UNCONFIGURED);
     return _sock->leave_multicast_group(p_multi_address, p_if_name);
 }
 
@@ -123,8 +123,8 @@ Error PacketPeerUDP::get_packet(const uint8_t **r_buffer, int &r_buffer_size) {
 
 Error PacketPeerUDP::put_packet(const uint8_t *p_buffer, int p_buffer_size) {
 
-    ERR_FAIL_COND_V(not _sock, ERR_UNAVAILABLE)
-    ERR_FAIL_COND_V(!peer_addr.is_valid(), ERR_UNCONFIGURED)
+    ERR_FAIL_COND_V(not _sock, ERR_UNAVAILABLE);
+    ERR_FAIL_COND_V(!peer_addr.is_valid(), ERR_UNCONFIGURED);
 
     Error err;
     int sent = -1;
@@ -132,7 +132,7 @@ Error PacketPeerUDP::put_packet(const uint8_t *p_buffer, int p_buffer_size) {
     if (!_sock->is_open()) {
         IP::Type ip_type = peer_addr.is_ipv4() ? IP::TYPE_IPV4 : IP::TYPE_IPV6;
         err = _sock->open(NetSocket::TYPE_UDP, ip_type);
-        ERR_FAIL_COND_V(err != OK, err)
+        ERR_FAIL_COND_V(err != OK, err);
         _sock->set_blocking_enabled(false);
         _sock->set_broadcasting_enabled(broadcast);
     }
@@ -161,9 +161,9 @@ int PacketPeerUDP::get_max_packet_size() const {
 
 Error PacketPeerUDP::listen(int p_port, const IP_Address &p_bind_address, int p_recv_buffer_size) {
 
-    ERR_FAIL_COND_V(not _sock, ERR_UNAVAILABLE)
-    ERR_FAIL_COND_V(_sock->is_open(), ERR_ALREADY_IN_USE)
-    ERR_FAIL_COND_V(!p_bind_address.is_valid() && !p_bind_address.is_wildcard(), ERR_INVALID_PARAMETER)
+    ERR_FAIL_COND_V(not _sock, ERR_UNAVAILABLE);
+    ERR_FAIL_COND_V(_sock->is_open(), ERR_ALREADY_IN_USE);
+    ERR_FAIL_COND_V(!p_bind_address.is_valid() && !p_bind_address.is_wildcard(), ERR_INVALID_PARAMETER);
 
     Error err;
     IP::Type ip_type = IP::TYPE_ANY;
@@ -199,13 +199,13 @@ void PacketPeerUDP::close() {
 
 Error PacketPeerUDP::wait() {
 
-    ERR_FAIL_COND_V(not _sock, ERR_UNAVAILABLE)
+    ERR_FAIL_COND_V(not _sock, ERR_UNAVAILABLE);
     return _sock->poll(NetSocket::POLL_TYPE_IN, -1);
 }
 
 Error PacketPeerUDP::_poll() {
 
-    ERR_FAIL_COND_V(not _sock, ERR_UNAVAILABLE)
+    ERR_FAIL_COND_V(not _sock, ERR_UNAVAILABLE);
 
     if (!_sock->is_open()) {
         return FAILED;
@@ -227,7 +227,7 @@ Error PacketPeerUDP::_poll() {
 
         if (rb.space_left() < read + 24) {
 #ifdef TOOLS_ENABLED
-            WARN_PRINT("Buffer full, dropping packets!")
+            WARN_PRINT("Buffer full, dropping packets!");
 #endif
             continue;
         }

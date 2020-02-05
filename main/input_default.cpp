@@ -1108,7 +1108,7 @@ bool InputDefault::is_joy_mapped(int p_device) {
 }
 
 StringName InputDefault::get_joy_guid_remapped(int p_device) const {
-    ERR_FAIL_COND_V(!joy_names.contains(p_device), StringName())
+    ERR_FAIL_COND_V(!joy_names.contains(p_device), StringName());
     return joy_names.at(p_device).uid;
 }
 
@@ -1156,7 +1156,8 @@ static const char *_axes[JOY_AXIS_MAX] = {
 };
 
 StringName InputDefault::get_joy_button_string(int p_button) {
-    ERR_FAIL_INDEX_V(p_button, JOY_BUTTON_MAX, StringName())
+    ERR_FAIL_INDEX_V(p_button, JOY_BUTTON_MAX, StringName());
+
     return StringName(_buttons[p_button]);
 }
 
@@ -1179,7 +1180,8 @@ int InputDefault::get_unused_joy_id() {
 }
 
 StringName InputDefault::get_joy_axis_string(int p_axis) {
-    ERR_FAIL_INDEX_V(p_axis, JOY_AXIS_MAX, StringName())
+    ERR_FAIL_INDEX_V(p_axis, JOY_AXIS_MAX, StringName());
+
     return StringName(_axes[p_axis]);
 }
 

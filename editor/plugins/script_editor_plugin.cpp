@@ -2008,7 +2008,7 @@ Ref<TextFile> ScriptEditor::_load_text_file(se_string_view p_path, Error *r_erro
     Ref<TextFile> text_res(text_file);
     Error err = text_file->load_text(path);
 
-    ERR_FAIL_COND_V_MSG(err != OK, Ref<TextFile>(), "Cannot load text file '" + path + "'.")
+    ERR_FAIL_COND_V_MSG(err != OK, Ref<TextFile>(), "Cannot load text file '" + path + "'.");
 
     text_file->set_file_path(local_path);
     text_file->set_path(local_path, true);
@@ -2026,14 +2026,14 @@ Ref<TextFile> ScriptEditor::_load_text_file(se_string_view p_path, Error *r_erro
 
 Error ScriptEditor::_save_text_file(Ref<TextFile> p_text_file, se_string_view p_path) {
     Ref<TextFile> sqscr = dynamic_ref_cast<TextFile>(p_text_file);
-    ERR_FAIL_COND_V(not sqscr, ERR_INVALID_PARAMETER)
+    ERR_FAIL_COND_V(not sqscr, ERR_INVALID_PARAMETER);
 
     String source(sqscr->get_text());
 
     Error err;
     FileAccess *file = FileAccess::open(p_path, FileAccess::WRITE, &err);
 
-    ERR_FAIL_COND_V_MSG(err, err, "Cannot save text file '" + String(p_path) + "'.")
+    ERR_FAIL_COND_V_MSG(err, err, "Cannot save text file '" + String(p_path) + "'.");
 
     file->store_string(source);
     if (file->get_error() != OK && file->get_error() != ERR_FILE_EOF) {
@@ -2173,7 +2173,7 @@ bool ScriptEditor::edit(const RES &p_resource, int p_line, int p_col, bool p_gra
         if (se)
             break;
     }
-    ERR_FAIL_COND_V(!se, false)
+    ERR_FAIL_COND_V(!se, false);
 
     if (p_resource->get_class_name() != StringName("VisualScript")) {
         bool highlighter_set = false;
@@ -3228,7 +3228,7 @@ ScriptEditor::ScriptEditor(EditorNode *p_editor) {
 
     script_list = memnew(ItemList);
     scripts_vbox->add_child(script_list);
-    script_list->set_custom_minimum_size(Size2(150, 90) * EDSCALE); //need to give a bit of limit to avoid it from disappearing
+    script_list->set_custom_minimum_size(Size2(150, 60) * EDSCALE); //need to give a bit of limit to avoid it from disappearing
     script_list->set_v_size_flags(SIZE_EXPAND_FILL);
     script_split->set_split_offset(140);
     _sort_list_on_update = true;
@@ -3273,14 +3273,14 @@ ScriptEditor::ScriptEditor(EditorNode *p_editor) {
     overview_vbox->add_child(members_overview);
 
     members_overview->set_allow_reselect(true);
-    members_overview->set_custom_minimum_size(Size2(0, 90) * EDSCALE); //need to give a bit of limit to avoid it from disappearing
+    members_overview->set_custom_minimum_size(Size2(0, 60) * EDSCALE); //need to give a bit of limit to avoid it from disappearing
     members_overview->set_v_size_flags(SIZE_EXPAND_FILL);
     members_overview->set_allow_rmb_select(true);
 
     help_overview = memnew(ItemList);
     overview_vbox->add_child(help_overview);
     help_overview->set_allow_reselect(true);
-    help_overview->set_custom_minimum_size(Size2(0, 90) * EDSCALE); //need to give a bit of limit to avoid it from disappearing
+    help_overview->set_custom_minimum_size(Size2(0, 60) * EDSCALE); //need to give a bit of limit to avoid it from disappearing
     help_overview->set_v_size_flags(SIZE_EXPAND_FILL);
 
     tab_container = memnew(TabContainer);

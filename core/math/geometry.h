@@ -820,7 +820,7 @@ public:
 
     static PODVector<PODVector<Point2> > offset_polyline_2d(const PODVector<Vector2> &p_polygon, real_t p_delta, PolyJoinType p_join_type, PolyEndType p_end_type) {
 
-        ERR_FAIL_COND_V_MSG(p_end_type == END_POLYGON, PODVector<PODVector<Point2> >(), "Attempt to offset a polyline like a polygon (use offset_polygon_2d instead).")
+        ERR_FAIL_COND_V_MSG(p_end_type == END_POLYGON, PODVector<PODVector<Point2> >(), "Attempt to offset a polyline like a polygon (use offset_polygon_2d instead).");
 
         return _polypath_offset(p_polygon, p_delta, p_join_type, p_end_type);
     }

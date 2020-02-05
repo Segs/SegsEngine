@@ -86,7 +86,7 @@ Error ResourceImporterOGGVorbis::import(se_string_view p_source_file, se_string_
 
     FileAccess *f = FileAccess::open(p_source_file, FileAccess::READ);
 
-    ERR_FAIL_COND_V_MSG(!f, ERR_CANT_OPEN, "Cannot open file '" + String(p_source_file) + "'.")
+    ERR_FAIL_COND_V_MSG(!f, ERR_CANT_OPEN, "Cannot open file '" + String(p_source_file) + "'.");
 
     int len = int(f->get_len());
 
@@ -101,7 +101,7 @@ Error ResourceImporterOGGVorbis::import(se_string_view p_source_file, se_string_
     Ref<AudioStreamOGGVorbis> ogg_stream(make_ref_counted<AudioStreamOGGVorbis>());
 
     ogg_stream->set_data(data);
-    ERR_FAIL_COND_V(!ogg_stream->get_data().size(), ERR_FILE_CORRUPT)
+    ERR_FAIL_COND_V(!ogg_stream->get_data().size(), ERR_FILE_CORRUPT);
     ogg_stream->set_loop(loop);
     ogg_stream->set_loop_offset(loop_offset);
 

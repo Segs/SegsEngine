@@ -283,11 +283,11 @@ static uint32_t twiddle_uv(uint32_t p_height, uint32_t p_width, uint32_t p_y, ui
 
     int shift_count;
 
-    ERR_FAIL_COND_V(p_y >= p_height, 0)
-    ERR_FAIL_COND_V(p_x >= p_width, 0)
+    ERR_FAIL_COND_V(p_y >= p_height, 0);
+    ERR_FAIL_COND_V(p_x >= p_width, 0);
 
-    ERR_FAIL_COND_V(!is_po2(p_height), 0)
-    ERR_FAIL_COND_V(!is_po2(p_width), 0)
+    ERR_FAIL_COND_V(!is_po2(p_height), 0);
+    ERR_FAIL_COND_V(!is_po2(p_width), 0);
 
     if (p_height < p_width) {
         min_dimension = p_height;
@@ -449,7 +449,7 @@ static Error _pvrtc_decompress(Image *p_img) {
 
     ERR_FAIL_COND_V(p_img->get_format() != Image::FORMAT_PVRTC2 && p_img->get_format() != Image::FORMAT_PVRTC2A &&
                         p_img->get_format() != Image::FORMAT_PVRTC4 && p_img->get_format() != Image::FORMAT_PVRTC4A,
-        ERR_FILE_UNRECOGNIZED)
+        ERR_FILE_UNRECOGNIZED);
 
     bool _2bit = (p_img->get_format() == Image::FORMAT_PVRTC2 || p_img->get_format() == Image::FORMAT_PVRTC2A);
 
@@ -541,14 +541,14 @@ RES ResourceFormatPVR::load(se_string_view p_path, se_string_view p_original_pat
 
     FileAccessRef faref(f);
 
-    ERR_FAIL_COND_V(err, RES())
+    ERR_FAIL_COND_V(err, RES());
 
     if (r_error)
         *r_error = ERR_FILE_CORRUPT;
 
     uint32_t hsize = f->get_32();
 
-    ERR_FAIL_COND_V(hsize != 52, RES())
+    ERR_FAIL_COND_V(hsize != 52, RES());
     uint32_t height = f->get_32();
     uint32_t width = f->get_32();
     uint32_t mipmaps = f->get_32();
@@ -557,7 +557,7 @@ RES ResourceFormatPVR::load(se_string_view p_path, se_string_view p_original_pat
     f->seek(f->get_position() + 20); // bpp, rmask, gmask, bmask, amask
     uint8_t pvrid[5] = { 0, 0, 0, 0, 0 };
     f->get_buffer(pvrid, 4);
-    ERR_FAIL_COND_V(UIString((char *)pvrid) != "PVR!", RES())
+    ERR_FAIL_COND_V(UIString((char *)pvrid) != "PVR!", RES());
     f->get_32(); // surfcount
 
     /*
@@ -577,12 +577,12 @@ RES ResourceFormatPVR::load(se_string_view p_path, se_string_view p_original_pat
     PoolVector<uint8_t> data;
     data.resize(surfsize);
 
-    ERR_FAIL_COND_V(data.size() == 0, RES())
+    ERR_FAIL_COND_V(data.size() == 0, RES());
 
     PoolVector<uint8_t>::Write w = data.write();
     f->get_buffer(&w[0], surfsize);
     err = f->get_error();
-    ERR_FAIL_COND_V(err != OK, RES())
+    ERR_FAIL_COND_V(err != OK, RES());
 
     Image::Format format = Image::FORMAT_MAX;
 
@@ -638,7 +638,7 @@ RES ResourceFormatPVR::load(se_string_view p_path, se_string_view p_original_pat
         tex_flags |= Texture::FLAG_MIPMAPS;
 
     Ref<Image> image(make_ref_counted<Image>(width, height, mipmaps, format, data));
-    ERR_FAIL_COND_V(image->empty(), RES())
+    ERR_FAIL_COND_V(image->empty(), RES());
 
     Ref<ImageTexture> texture(make_ref_counted<ImageTexture>());
     texture->create_from_image(image, tex_flags);

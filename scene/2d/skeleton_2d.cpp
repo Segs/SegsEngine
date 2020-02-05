@@ -135,7 +135,7 @@ float Bone2D::get_default_length() const {
 }
 
 int Bone2D::get_index_in_skeleton() const {
-    ERR_FAIL_COND_V(!skeleton, -1)
+    ERR_FAIL_COND_V(!skeleton, -1);
     skeleton->_update_bone_setup();
     return skeleton_index;
 }
@@ -252,7 +252,7 @@ void Skeleton2D::_update_transform() {
 
 int Skeleton2D::get_bone_count() const {
 
-    ERR_FAIL_COND_V(!is_inside_tree(), 0)
+    ERR_FAIL_COND_V(!is_inside_tree(), 0);
 
     if (bone_setup_dirty) {
         const_cast<Skeleton2D *>(this)->_update_bone_setup();
@@ -263,7 +263,7 @@ int Skeleton2D::get_bone_count() const {
 
 Bone2D *Skeleton2D::get_bone(int p_idx) {
 
-    ERR_FAIL_COND_V(!is_inside_tree(), nullptr)
+    ERR_FAIL_COND_V(!is_inside_tree(), nullptr);
     ERR_FAIL_INDEX_V(p_idx, bones.size(), nullptr);
 
     return bones[p_idx].bone;

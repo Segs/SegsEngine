@@ -1314,7 +1314,7 @@ void VisualShaderEditor::_add_texture_node(se_string_view p_path) {
 }
 VisualShaderNode *VisualShaderEditor::_add_node(int p_idx, int p_op_idx) {
 
-    ERR_FAIL_INDEX_V(p_idx, add_options.size(),nullptr)
+    ERR_FAIL_INDEX_V(p_idx, add_options.size(),nullptr);
 
     Ref<VisualShaderNode> vsnode;
 
@@ -1322,7 +1322,7 @@ VisualShaderNode *VisualShaderEditor::_add_node(int p_idx, int p_op_idx) {
 
     if (!is_custom && !add_options[p_idx].type.empty()) {
         VisualShaderNode *vsn = object_cast<VisualShaderNode>(ClassDB::instance(add_options[p_idx].type));
-        ERR_FAIL_COND_V(!vsn,nullptr)
+        ERR_FAIL_COND_V(!vsn,nullptr);
 
         VisualShaderNodeScalarConstant *constant = object_cast<VisualShaderNodeScalarConstant>(vsn);
 
@@ -1408,10 +1408,10 @@ VisualShaderNode *VisualShaderEditor::_add_node(int p_idx, int p_op_idx) {
 
         vsnode = Ref<VisualShaderNode>(vsn);
     } else {
-        ERR_FAIL_COND_V(not add_options[p_idx].script,nullptr)
+        ERR_FAIL_COND_V(not add_options[p_idx].script,nullptr);
         StringName base_type = add_options[p_idx].script->get_instance_base_type();
         VisualShaderNode *vsn = object_cast<VisualShaderNode>(ClassDB::instance(base_type));
-        ERR_FAIL_COND_V(!vsn,nullptr)
+        ERR_FAIL_COND_V(!vsn,nullptr);
         vsnode = Ref<VisualShaderNode>(vsn);
         vsnode->set_script(add_options[p_idx].script.get_ref_ptr());
     }
@@ -3305,7 +3305,7 @@ bool VisualShaderConversionPlugin::handles(const Ref<Resource> &p_resource) cons
 Ref<Resource> VisualShaderConversionPlugin::convert(const Ref<Resource> &p_resource) const {
 
     Ref<VisualShader> vshader = dynamic_ref_cast<VisualShader>(p_resource);
-    ERR_FAIL_COND_V(not vshader, Ref<Resource>())
+    ERR_FAIL_COND_V(not vshader, Ref<Resource>());
 
     Ref<Shader> shader(make_ref_counted<Shader>());
 

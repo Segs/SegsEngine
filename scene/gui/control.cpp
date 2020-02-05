@@ -1857,7 +1857,7 @@ Rect2 Control::get_global_rect() const {
 }
 
 Rect2 Control::get_window_rect() const {
-    ERR_FAIL_COND_V(!is_inside_tree(), Rect2())
+    ERR_FAIL_COND_V(!is_inside_tree(), Rect2());
     Rect2 gr = get_global_rect();
     gr.position += get_viewport()->get_visible_rect().position;
     return gr;
@@ -1975,7 +1975,7 @@ static Control *_next_control(Control *p_from) {
     }
 
     int next = p_from->get_position_in_parent();
-    ERR_FAIL_INDEX_V(next, parent->get_child_count(), nullptr)
+    ERR_FAIL_INDEX_V(next, parent->get_child_count(), nullptr);
     for (int i = (next + 1); i < parent->get_child_count(); i++) {
 
         Control *c = object_cast<Control>(parent->get_child(i));
@@ -2002,7 +2002,7 @@ Control *Control::find_next_valid_focus() const {
             Control *c;
             if (n) {
                 c = object_cast<Control>(n);
-                ERR_FAIL_COND_V_MSG(!c, nullptr, "Next focus node is not a control: " + n->get_name() + ".")
+                ERR_FAIL_COND_V_MSG(!c, nullptr, "Next focus node is not a control: " + n->get_name() + ".");
             } else {
                 return nullptr;
             }
@@ -2093,7 +2093,7 @@ Control *Control::find_prev_valid_focus() const {
             Control *c;
             if (n) {
                 c = object_cast<Control>(n);
-                ERR_FAIL_COND_V_MSG(!c, nullptr, "Previous focus node is not a control: " + n->get_name() + ".")
+                ERR_FAIL_COND_V_MSG(!c, nullptr, "Previous focus node is not a control: " + n->get_name() + ".");
             } else {
                 return nullptr;
             }
@@ -2160,7 +2160,7 @@ void Control::grab_focus() {
     ERR_FAIL_COND(!is_inside_tree())
 
     if (data.focus_mode == FOCUS_NONE) {
-        WARN_PRINT("This control can't grab focus. Use set_focus_mode() to allow a control to get focus.")
+        WARN_PRINT("This control can't grab focus. Use set_focus_mode() to allow a control to get focus.");
         return;
     }
 
@@ -2339,7 +2339,7 @@ void Control::set_focus_neighbour(Margin p_margin, const NodePath &p_neighbour) 
 
 NodePath Control::get_focus_neighbour(Margin p_margin) const {
 
-    ERR_FAIL_INDEX_V((int)p_margin, 4, NodePath())
+    ERR_FAIL_INDEX_V((int)p_margin, 4, NodePath());
     return data.focus_neighbour[(int)p_margin];
 }
 
@@ -2375,7 +2375,7 @@ Control *Control::_get_focus_neighbour(Margin p_margin, int p_count) {
         Node *n = get_node(data.focus_neighbour[(int)p_margin]);
         if (n) {
             c = object_cast<Control>(n);
-            ERR_FAIL_COND_V_MSG(!c, nullptr, String("Neighbor focus node is not a control: ") + n->get_name() + ".")
+            ERR_FAIL_COND_V_MSG(!c, nullptr, String("Neighbor focus node is not a control: ") + n->get_name() + ".");
         } else {
             return nullptr;
         }
@@ -2598,7 +2598,7 @@ bool Control::pass_on_modal_close_click() const {
 
 Control *Control::get_focus_owner() const {
 
-    ERR_FAIL_COND_V(!is_inside_tree(), nullptr)
+    ERR_FAIL_COND_V(!is_inside_tree(), nullptr);
     return get_viewport()->_gui_get_focus_owner();
 }
 

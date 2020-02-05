@@ -106,7 +106,7 @@ bool VisualScriptFunction::_set(const StringName &p_name, const Variant &p_value
     }
     if (StringUtils::begins_with(p_name,"argument_")) {
         int idx = StringUtils::to_int(StringUtils::get_slice(StringUtils::get_slice(p_name,'_', 1),'/', 0)) - 1;
-        ERR_FAIL_INDEX_V(idx, arguments.size(), false)
+        ERR_FAIL_INDEX_V(idx, arguments.size(), false);
         se_string_view what = StringUtils::get_slice(p_name,'/', 1);
         if (what == se_string_view("type")) {
 
@@ -157,7 +157,7 @@ bool VisualScriptFunction::_get(const StringName &p_name, Variant &r_ret) const 
     }
     if (StringUtils::begins_with(p_name,"argument_")) {
         int idx = StringUtils::to_int(StringUtils::get_slice(StringUtils::get_slice(p_name,'_', 1),'/', 0)) - 1;
-        ERR_FAIL_INDEX_V(idx, arguments.size(), false)
+        ERR_FAIL_INDEX_V(idx, arguments.size(), false);
         se_string_view what = StringUtils::get_slice(p_name,'/', 1);
         if (what == se_string_view("type")) {
             r_ret = arguments[idx].type;
@@ -480,7 +480,7 @@ bool VisualScriptLists::_set(const StringName &p_name, const Variant &p_value) {
     }
     if (StringUtils::begins_with(p_name,"input_") && is_input_port_editable()) {
         int idx = to_int(get_slice(get_slice(p_name,'_', 1),'/', 0)) - 1;
-        ERR_FAIL_INDEX_V(idx, inputports.size(), false)
+        ERR_FAIL_INDEX_V(idx, inputports.size(), false);
         se_string_view what = get_slice(p_name,'/', 1);
         if (what == se_string_view("type")) {
 
@@ -518,7 +518,7 @@ bool VisualScriptLists::_set(const StringName &p_name, const Variant &p_value) {
     }
     if (begins_with(p_name,"output_") && is_output_port_editable()) {
         int idx = to_int(get_slice(get_slice(p_name,'_', 1),'/', 0)) - 1;
-        ERR_FAIL_INDEX_V(idx, outputports.size(), false)
+        ERR_FAIL_INDEX_V(idx, outputports.size(), false);
         se_string_view what = get_slice(p_name,'/', 1);
         if (what == se_string_view("type")) {
 
@@ -555,7 +555,7 @@ bool VisualScriptLists::_get(const StringName &p_name, Variant &r_ret) const {
     if (begins_with(p_name,"input_") && is_input_port_editable()) {
         int idx = to_int(get_slice(get_slice(p_name,'_', 1),'/', 0)) - 1;
 
-        ERR_FAIL_INDEX_V(idx, inputports.size(), false)
+        ERR_FAIL_INDEX_V(idx, inputports.size(), false);
         se_string_view what = get_slice(p_name,'/', 1);
         if (what == se_string_view("type")) {
             r_ret = inputports[idx].type;
@@ -573,7 +573,7 @@ bool VisualScriptLists::_get(const StringName &p_name, Variant &r_ret) const {
     }
     if (begins_with(p_name,"output_") && is_output_port_editable()) {
         int idx = to_int(get_slice(get_slice(p_name,'_', 1),'/', 0)) - 1;
-        ERR_FAIL_INDEX_V(idx, outputports.size(), false)
+        ERR_FAIL_INDEX_V(idx, outputports.size(), false);
         se_string_view what = get_slice(p_name,'/', 1);
         if (what == se_string_view("type")) {
             r_ret = outputports[idx].type;
@@ -3512,7 +3512,7 @@ static Map<String, Pair<VariantType, MethodInfo> > constructor_map;
 static Ref<VisualScriptNode> create_constructor_node(se_string_view p_name) {
 
     auto constructor_iter = constructor_map.find_as(p_name);
-    ERR_FAIL_COND_V(constructor_iter==constructor_map.end(), Ref<VisualScriptNode>())
+    ERR_FAIL_COND_V(constructor_iter==constructor_map.end(), Ref<VisualScriptNode>());
 
     Ref<VisualScriptConstructor> vsc(make_ref_counted<VisualScriptConstructor>());
     vsc->set_constructor_type(constructor_iter->second.first);

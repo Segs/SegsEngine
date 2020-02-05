@@ -133,7 +133,7 @@ VisualScriptBuiltinFunc::BuiltinFunc VisualScriptBuiltinFunc::find_function(se_s
 
 se_string_view VisualScriptBuiltinFunc::get_func_name(BuiltinFunc p_func) {
 
-    ERR_FAIL_INDEX_V(p_func, FUNC_MAX, {})
+    ERR_FAIL_INDEX_V(p_func, FUNC_MAX, {});
     return func_name[p_func];
 }
 

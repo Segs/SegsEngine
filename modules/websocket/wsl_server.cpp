@@ -49,18 +49,18 @@ WSLServer::PendingPeer::PendingPeer() {
 bool WSLServer::PendingPeer::_parse_request(const PoolVector<String> &p_protocols) {
     PODVector<se_string_view> psa = StringUtils::split(se_string_view((const char *)req_buf),"\r\n");
     int len = psa.size();
-    ERR_FAIL_COND_V_MSG(len < 4, false, "Not enough response headers, got: " + itos(len) + ", expected >= 4.")
+    ERR_FAIL_COND_V_MSG(len < 4, false, "Not enough response headers, got: " + itos(len) + ", expected >= 4.");
 
     PODVector<se_string_view> req = StringUtils::split(psa[0]," ", false);
-    ERR_FAIL_COND_V_MSG(req.size() < 2, false, "Invalid protocol or status code.")
+    ERR_FAIL_COND_V_MSG(req.size() < 2, false, "Invalid protocol or status code.");
 
     // Wrong protocol
-    ERR_FAIL_COND_V_MSG(req[0] != "GET"_sv || req[2] != "HTTP/1.1"_sv, false, "Invalid method or HTTP version.")
+    ERR_FAIL_COND_V_MSG(req[0] != "GET"_sv || req[2] != "HTTP/1.1"_sv, false, "Invalid method or HTTP version.");
 
     Map<String, String> headers;
     for (int i = 1; i < len; i++) {
         PODVector<se_string_view> header = StringUtils::split(psa[i],":", false, 1);
-        ERR_FAIL_COND_V_MSG(header.size() != 2, false, String("Invalid header -> ") + psa[i])
+        ERR_FAIL_COND_V_MSG(header.size() != 2, false, String("Invalid header -> ") + psa[i]);
         String name = StringUtils::to_lower(header[0]);
         se_string_view value =StringUtils::strip_edges( header[1]);
         if (headers.contains(name))
@@ -72,7 +72,7 @@ bool WSLServer::PendingPeer::_parse_request(const PoolVector<String> &p_protocol
     ERR_FAIL_COND_V_MSG(!headers.contains(NAME) || StringUtils::to_lower(headers[NAME]) != VALUE, false, \
             "Missing or invalid header '" + String(NAME) + "'. Expected value '" + VALUE + "'.");
 #define _WSL_CHECK_EX(NAME) \
-    ERR_FAIL_COND_V_MSG(!headers.contains(NAME), false, "Missing header '" + String(NAME) + "'.")
+    ERR_FAIL_COND_V_MSG(!headers.contains(NAME), false, "Missing header '" + String(NAME) + "'.");
     _WSL_CHECK("upgrade", "websocket")
     _WSL_CHECK("sec-websocket-version", "13")
     _WSL_CHECK_EX("sec-websocket-key")
@@ -118,7 +118,7 @@ Error WSLServer::PendingPeer::do_handshake(const PoolVector<String> & p_protocol
     if (!has_request) {
         int read = 0;
         while (true) {
-            ERR_FAIL_COND_V_MSG(req_pos >= WSL_MAX_HEADER_SIZE, ERR_OUT_OF_MEMORY, "Response headers too big.")
+            ERR_FAIL_COND_V_MSG(req_pos >= WSL_MAX_HEADER_SIZE, ERR_OUT_OF_MEMORY, "Response headers too big.");
             Error err = connection->get_partial_data(&req_buf[req_pos], 1, read);
             if (err != OK) // Got an error
                 return FAILED;
@@ -159,7 +159,7 @@ Error WSLServer::PendingPeer::do_handshake(const PoolVector<String> & p_protocol
 }
 
 Error WSLServer::listen(int p_port, const PoolVector<String> &p_protocols, bool gd_mp_api) {
-    ERR_FAIL_COND_V(is_listening(), ERR_ALREADY_IN_USE)
+    ERR_FAIL_COND_V(is_listening(), ERR_ALREADY_IN_USE);
 
     _is_multiplayer = gd_mp_api;
     _is_multiplayer = gd_mp_api;
@@ -272,18 +272,18 @@ bool WSLServer::has_peer(int p_id) const {
 }
 
 Ref<WebSocketPeer> WSLServer::get_peer(int p_id) const {
-    ERR_FAIL_COND_V(!has_peer(p_id), Ref<WebSocketPeer>())
+    ERR_FAIL_COND_V(!has_peer(p_id), Ref<WebSocketPeer>());
     return _peer_map.at(p_id);
 }
 
 IP_Address WSLServer::get_peer_address(int p_peer_id) const {
-    ERR_FAIL_COND_V(!has_peer(p_peer_id), IP_Address())
+    ERR_FAIL_COND_V(!has_peer(p_peer_id), IP_Address());
 
     return _peer_map.at(p_peer_id)->get_connected_host();
 }
 
 int WSLServer::get_peer_port(int p_peer_id) const {
-    ERR_FAIL_COND_V(!has_peer(p_peer_id), 0)
+    ERR_FAIL_COND_V(!has_peer(p_peer_id), 0);
 
     return _peer_map.at(p_peer_id)->get_connected_port();
 }
@@ -295,7 +295,7 @@ void WSLServer::disconnect_peer(int p_peer_id, int p_code, se_string_view p_reas
 }
 
 Error WSLServer::set_buffers(int p_in_buffer, int p_in_packets, int p_out_buffer, int p_out_packets) {
-    ERR_FAIL_COND_V_MSG(_server->is_listening(), FAILED, "Buffers sizes can only be set before listening or connecting.")
+    ERR_FAIL_COND_V_MSG(_server->is_listening(), FAILED, "Buffers sizes can only be set before listening or connecting.");
 
     _in_buf_size = nearest_shift(p_in_buffer - 1) + 10;
     _in_pkt_size = nearest_shift(p_in_packets - 1);

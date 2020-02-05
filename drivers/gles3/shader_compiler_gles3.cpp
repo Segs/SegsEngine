@@ -363,12 +363,10 @@ String ShaderCompilerGLES3::_dump_node_code(SL::Node *p_node, int p_level, Gener
             r_gen_code.texture_hints.resize(max_texture_uniforms);
             r_gen_code.texture_types.resize(max_texture_uniforms);
 
-            Vector<int> uniform_sizes;
-            Vector<int> uniform_alignments;
-            PODVector<StringName> uniform_defines;
-            uniform_sizes.resize(max_uniforms);
-            uniform_alignments.resize(max_uniforms);
-            uniform_defines.resize(max_uniforms);
+            auto uniform_sizes = eastl::make_unique<int[]>(max_uniforms);
+            auto uniform_alignments = eastl::make_unique<int[]>(max_uniforms);
+            auto uniform_defines = eastl::make_unique<StringName[]>(max_uniforms);
+
             bool uses_uniforms = false;
 
             for (eastl::pair<const StringName,SL::ShaderNode::Uniform> &E : pnode->uniforms) {
@@ -394,8 +392,8 @@ String ShaderCompilerGLES3::_dump_node_code(SL::Node *p_node, int p_level, Gener
                         uses_uniforms = true;
                     }
                     uniform_defines[E.second.order] = StringName(ucode.c_str());
-                    uniform_sizes.write[E.second.order] = _get_datatype_size(E.second.type);
-                    uniform_alignments.write[E.second.order] = _get_datatype_alignment(E.second.type);
+                    uniform_sizes[E.second.order] = _get_datatype_size(E.second.type);
+                    uniform_alignments[E.second.order] = _get_datatype_alignment(E.second.type);
                 }
 
                 p_actions.uniforms->emplace(E.first, E.second);
@@ -407,7 +405,7 @@ String ShaderCompilerGLES3::_dump_node_code(SL::Node *p_node, int p_level, Gener
 
             // add up
             int offset = 0;
-            for (int i = 0; i < uniform_sizes.size(); i++) {
+            for (int i = 0; i < max_uniforms; i++) {
 
                 int align = offset % uniform_alignments[i];
 
@@ -694,7 +692,7 @@ String ShaderCompilerGLES3::_dump_node_code(SL::Node *p_node, int p_level, Gener
                 case SL::OP_CALL:
                 case SL::OP_CONSTRUCT: {
 
-                    ERR_FAIL_COND_V(onode->arguments[0]->type != SL::Node::TYPE_VARIABLE, String())
+                    ERR_FAIL_COND_V(onode->arguments[0]->type != SL::Node::TYPE_VARIABLE, String());
 
                     SL::VariableNode *vnode = (SL::VariableNode *)onode->arguments[0];
 

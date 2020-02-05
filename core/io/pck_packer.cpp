@@ -72,7 +72,7 @@ Error PCKPacker::pck_start(se_string_view p_file, int p_alignment) {
 
     file = FileAccess::open(p_file, FileAccess::WRITE);
 
-    ERR_FAIL_COND_V_MSG(!file, ERR_CANT_CREATE, "Can't open file to write: " + String(p_file) + ".")
+    ERR_FAIL_COND_V_MSG(!file, ERR_CANT_CREATE, "Can't open file to write: " + String(p_file) + ".");
 
     alignment = p_alignment;
 
@@ -115,7 +115,7 @@ Error PCKPacker::add_file(se_string_view p_file, se_string_view p_src) {
 
 Error PCKPacker::flush(bool p_verbose) {
 
-    ERR_FAIL_COND_V_MSG(!file, ERR_INVALID_PARAMETER, "File must be opened before use.")
+    ERR_FAIL_COND_V_MSG(!file, ERR_INVALID_PARAMETER, "File must be opened before use.");
     // write the index
 
     file->store_32(files.size());
@@ -167,7 +167,7 @@ Error PCKPacker::flush(bool p_verbose) {
         count += 1;
         if (p_verbose) {
             if (count % 100 == 0) {
-                printf("%i/%lu (%.2f)\r", count, files.size(), float(count) / files.size() * 100);
+                printf("%i/%llu (%.2f)\r", count, files.size(), float(count) / files.size() * 100);
                 fflush(stdout);
             }
         }

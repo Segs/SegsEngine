@@ -79,7 +79,7 @@ bool MeshLibrary::_get(const StringName &p_name, Variant &r_ret) const {
 
     se_string_view name(p_name);
     int idx = StringUtils::to_int(StringUtils::get_slice(name,'/', 1));
-    ERR_FAIL_COND_V(!item_map.contains(idx), false)
+    ERR_FAIL_COND_V(!item_map.contains(idx), false);
     se_string_view what = StringUtils::get_slice(name,'/', 2);
 
     if (what == "name"_sv)
@@ -179,31 +179,31 @@ void MeshLibrary::set_item_preview(int p_item, const Ref<Texture> &p_preview) {
 
 const String &MeshLibrary::get_item_name(int p_item) const {
 
-    ERR_FAIL_COND_V_MSG(!item_map.contains(p_item), null_se_string, "Requested for nonexistent MeshLibrary item '" + itos(p_item) + "'.")
+    ERR_FAIL_COND_V_MSG(!item_map.contains(p_item), null_se_string, "Requested for nonexistent MeshLibrary item '" + itos(p_item) + "'.");
     return item_map.at(p_item).name;
 }
 
 Ref<Mesh> MeshLibrary::get_item_mesh(int p_item) const {
 
-    ERR_FAIL_COND_V_MSG(!item_map.contains(p_item), Ref<Mesh>(), "Requested for nonexistent MeshLibrary item '" + itos(p_item) + "'.")
+    ERR_FAIL_COND_V_MSG(!item_map.contains(p_item), Ref<Mesh>(), "Requested for nonexistent MeshLibrary item '" + itos(p_item) + "'.");
     return item_map.at(p_item).mesh;
 }
 
 PoolVector<MeshLibrary::ShapeData> MeshLibrary::get_item_shapes(int p_item) const {
 
-    ERR_FAIL_COND_V(!item_map.contains(p_item), PoolVector<ShapeData>())
+    ERR_FAIL_COND_V(!item_map.contains(p_item), PoolVector<ShapeData>());
     return item_map.at(p_item).shapes;
 }
 
 Ref<NavigationMesh> MeshLibrary::get_item_navmesh(int p_item) const {
 
-    ERR_FAIL_COND_V(!item_map.contains(p_item), Ref<NavigationMesh>())
+    ERR_FAIL_COND_V(!item_map.contains(p_item), Ref<NavigationMesh>());
     return item_map.at(p_item).navmesh;
 }
 
 Transform MeshLibrary::get_item_navmesh_transform(int p_item) const {
 
-    ERR_FAIL_COND_V(!item_map.contains(p_item), Transform())
+    ERR_FAIL_COND_V(!item_map.contains(p_item), Transform());
     return item_map.at(p_item).navmesh_transform;
 }
 
@@ -214,7 +214,7 @@ Ref<Texture> MeshLibrary::get_item_preview(int p_item) const {
         return Ref<Texture>();
     }
 
-    ERR_FAIL_COND_V_MSG(!item_map.contains(p_item), Ref<Texture>(), "Requested for nonexistent MeshLibrary item '" + itos(p_item) + "'.")
+    ERR_FAIL_COND_V_MSG(!item_map.contains(p_item), Ref<Texture>(), "Requested for nonexistent MeshLibrary item '" + itos(p_item) + "'.");
     return item_map.at(p_item).preview;
 }
 

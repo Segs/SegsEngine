@@ -410,7 +410,7 @@ void GDMonoAssembly::unload() {
 
 GDMonoClass *GDMonoAssembly::get_class(const StringName &p_namespace, const StringName &p_name) {
 
-    ERR_FAIL_COND_V(!loaded, nullptr)
+    ERR_FAIL_COND_V(!loaded, nullptr);
 
     ClassKey key(p_namespace, p_name);
 
@@ -434,7 +434,7 @@ GDMonoClass *GDMonoAssembly::get_class(const StringName &p_namespace, const Stri
 
 GDMonoClass *GDMonoAssembly::get_class(MonoClass *p_mono_class) {
 
-    ERR_FAIL_COND_V(!loaded, nullptr)
+    ERR_FAIL_COND_V(!loaded, nullptr);
 
     Map<MonoClass *, GDMonoClass *>::iterator match = cached_raw.find(p_mono_class);
 

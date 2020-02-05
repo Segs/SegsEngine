@@ -43,7 +43,7 @@ Error ImageLoaderTinyEXR::load_image(ImageData &p_image, FileAccess *f, LoadPara
 
     PoolVector<uint8_t> src_image;
     int src_image_len = f->get_len();
-    ERR_FAIL_COND_V(src_image_len == 0, ERR_FILE_CORRUPT)
+    ERR_FAIL_COND_V(src_image_len == 0, ERR_FILE_CORRUPT);
     src_image.resize(src_image_len);
 
     PoolVector<uint8_t>::Write w = src_image.write();

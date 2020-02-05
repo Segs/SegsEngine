@@ -523,7 +523,7 @@ PoolVector<uint8_t> AudioStreamSample::get_data() const {
 
 Error AudioStreamSample::save_to_wav(se_string_view p_path) {
     if (format == AudioStreamSample::FORMAT_IMA_ADPCM) {
-        WARN_PRINT("Saving IMA_ADPC samples are not supported yet")
+        WARN_PRINT("Saving IMA_ADPC samples are not supported yet");
         return ERR_UNAVAILABLE;
     }
 
@@ -552,7 +552,7 @@ Error AudioStreamSample::save_to_wav(se_string_view p_path) {
 
     FileAccessRef file = FileAccess::open(file_path, FileAccess::WRITE); //Overrides existing file if present
 
-    ERR_FAIL_COND_V(!file, ERR_FILE_CANT_WRITE)
+    ERR_FAIL_COND_V(!file, ERR_FILE_CANT_WRITE);
 
     // Create WAV Header
     file->store_string("RIFF"); //ChunkID

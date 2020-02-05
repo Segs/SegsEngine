@@ -377,17 +377,17 @@ Color Color::html(se_string_view p_color) {
     int a = 255;
     if (alpha) {
         a = _parse_col(p_color, 0);
-        ERR_FAIL_COND_V_MSG(a < 0, Color(), errcode + p_color + ".")
+        ERR_FAIL_COND_V_MSG(a < 0, Color(), errcode + p_color + ".");
     }
 
     int from = alpha ? 2 : 0;
 
     int r = _parse_col(p_color, from + 0);
-    ERR_FAIL_COND_V_MSG(r < 0, Color(), errcode + p_color + ".")
+    ERR_FAIL_COND_V_MSG(r < 0, Color(), errcode + p_color + ".");
     int g = _parse_col(p_color, from + 2);
-    ERR_FAIL_COND_V_MSG(g < 0, Color(), errcode + p_color + ".")
+    ERR_FAIL_COND_V_MSG(g < 0, Color(), errcode + p_color + ".");
     int b = _parse_col(p_color, from + 4);
-    ERR_FAIL_COND_V_MSG(b < 0, Color(), errcode + p_color + ".")
+    ERR_FAIL_COND_V_MSG(b < 0, Color(), errcode + p_color + ".");
 
     return Color(r / 255.0f, g / 255.0f, b / 255.0f, a / 255.0f);
 }
@@ -442,7 +442,7 @@ Color Color::named(se_string_view p_name) {
     name = StringUtils::to_lower(name);
 
     const Map<const char *, Color>::iterator color = _named_colors.find(name.data());
-    ERR_FAIL_COND_V_MSG(color==_named_colors.end(), Color(), "Invalid color name: " + String(p_name) + ".")
+    ERR_FAIL_COND_V_MSG(color==_named_colors.end(), Color(), "Invalid color name: " + String(p_name) + ".");
     return color->second;
 }
 

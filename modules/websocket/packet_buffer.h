@@ -57,8 +57,8 @@ public:
             ERR_FAIL_V(ERR_OUT_OF_MEMORY)
         }
 #else
-        ERR_FAIL_COND_V(p_payload && (uint32_t)_payload.space_left() < p_size, ERR_OUT_OF_MEMORY)
-        ERR_FAIL_COND_V(p_info && _packets.space_left() < 1, ERR_OUT_OF_MEMORY)
+        ERR_FAIL_COND_V(p_payload && (uint32_t)_payload.space_left() < p_size, ERR_OUT_OF_MEMORY);
+        ERR_FAIL_COND_V(p_info && _packets.space_left() < 1, ERR_OUT_OF_MEMORY);
 #endif
 
         // If p_info is NULL, only the payload is written
@@ -78,11 +78,11 @@ public:
     }
 
     Error read_packet(uint8_t *r_payload, int p_bytes, T *r_info, int &r_read) {
-        ERR_FAIL_COND_V(_packets.data_left() < 1, ERR_UNAVAILABLE)
+        ERR_FAIL_COND_V(_packets.data_left() < 1, ERR_UNAVAILABLE);
         _Packet p;
         _packets.read(&p, 1);
-        ERR_FAIL_COND_V(_payload.data_left() < (int)p.size, ERR_BUG)
-        ERR_FAIL_COND_V(p_bytes < (int)p.size, ERR_OUT_OF_MEMORY)
+        ERR_FAIL_COND_V(_payload.data_left() < (int)p.size, ERR_BUG);
+        ERR_FAIL_COND_V(p_bytes < (int)p.size, ERR_OUT_OF_MEMORY);
 
         r_read = p.size;
         memcpy(r_info, &p.info, sizeof(T));

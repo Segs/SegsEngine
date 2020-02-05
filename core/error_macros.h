@@ -137,7 +137,7 @@ GODOT_EXPORT void _err_print_index_error(se_string_view p_function, se_string_vi
             _err_print_index_error(FUNCTION_STR, __FILE__, __LINE__, m_index, m_size, _STR(m_index), _STR(m_size),""); \
             return m_retval;                                                                                        \
         }                                                                                                           \
-    } while (0); // (*)
+    } while (0)
 
 /**
  * If `m_index` is less than 0 or greater than or equal to `m_size`,
@@ -150,7 +150,7 @@ GODOT_EXPORT void _err_print_index_error(se_string_view p_function, se_string_vi
             _err_print_index_error(FUNCTION_STR, __FILE__, __LINE__, m_index, m_size, _STR(m_index), _STR(m_size), DEBUG_STR(m_msg)); \
             return m_retval;                                                                                               \
         }                                                                                                                  \
-    } while (0); // (*)
+    } while (0)
 
 /**
  * If `m_index` is greater than or equal to `m_size`,
@@ -190,7 +190,7 @@ GODOT_EXPORT void _err_print_index_error(se_string_view p_function, se_string_vi
             _err_print_index_error(FUNCTION_STR, __FILE__, __LINE__, m_index, m_size, _STR(m_index), _STR(m_size), "", true); \
             GENERATE_TRAP                                                                                                     \
         }                                                                                                                     \
-    } while (0); // (*)
+    } while (0)
 
 /**
  * If `m_index` is less than 0 or greater than or equal to `m_size`,
@@ -204,48 +204,49 @@ GODOT_EXPORT void _err_print_index_error(se_string_view p_function, se_string_vi
             _err_print_index_error(FUNCTION_STR, __FILE__, __LINE__, m_index, m_size, _STR(m_index), _STR(m_size), DEBUG_STR(m_msg), true); \
             GENERATE_TRAP                                                                                                        \
         }                                                                                                                        \
-    } while (0); // (*)
+    } while (0)
 
 /**
  * If `m_param` is `null`, prints a generic error message and returns from the function.
  */
 
 #define ERR_FAIL_NULL(m_param)                                                                              \
-    {                                                                                                       \
+    do {                                                                                                    \
         if (unlikely(!m_param)) {                                                                           \
             _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "Parameter ' \"" _STR(m_param) "\" ' is null."); \
             return;                                                                                         \
         }                                                                                                   \
-    }
+    } while (0)
 
 #define ERR_FAIL_NULL_MSG(m_param, m_msg)                                                                   \
-    {                                                                                                       \
+do {                                                                                                        \
         if (unlikely(!m_param)) {                                                                           \
             _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "Parameter ' \"" _STR(m_param) "\" ' is null.",DEBUG_STR(m_msg)); \
             return;                                                                                         \
         }                                                                                                   \
-    }
-/**
+    } while (0)
+
+ /**
  * If `m_param` is `null`, prints a generic error message and returns the value specified in `m_retval`.
  */
 #define ERR_FAIL_NULL_V(m_param, m_retval)                                                                  \
-    {                                                                                                       \
+    do {                                                                                                    \
         if (unlikely(!m_param)) {                                                                           \
             _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "Parameter ' \"" _STR(m_param) "\" ' is null."); \
             return m_retval;                                                                                \
         }                                                                                                   \
-    }
+    } while (0)
 
 /**
  * If `m_param` is `null`, prints a custom error message and returns the value specified in `m_retval`.
  */
 #define ERR_FAIL_NULL_V_MSG(m_param, m_retval, m_msg)                                                       \
-    {                                                                                                       \
+    do {                                                                                                    \
         if (unlikely(!m_param)) {                                                                           \
             _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "Parameter ' \"" _STR(m_param) "\" ' is null.",DEBUG_STR(m_msg)); \
             return m_retval;                                                                                \
         }                                                                                                   \
-    }
+    } while (0)
 
 /**
  * If `m_cond` evaluates to `true`, prints a generic error message and returns from the function.
@@ -302,23 +303,24 @@ GODOT_EXPORT void _err_print_index_error(se_string_view p_function, se_string_vi
  * If `m_cond` evaluates to `true`, prints a generic error message and returns the value specified in `m_retval`.
  */
 #define ERR_FAIL_COND_V(m_cond, m_retval)                                                                                            \
-    {                                                                                                                                \
+    do {                                                                                                                         \
         if (unlikely(m_cond)) {                                                                                                      \
             _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "Condition ' \"" _STR(m_cond) "\" ' is true. returned: " _STR(m_retval)); \
             return m_retval;                                                                                                         \
         }                                                                                                                            \
-    }
-/**
+    } while (0)
+ /**
  * If `m_cond` evaluates to `true`, prints a custom error message and returns the value specified in `m_retval`.
  */
 #define ERR_FAIL_COND_V_MSG(m_cond, m_retval, m_msg)                                                                                        \
-    {                                                                                                                                       \
+    do {                                                                                                                                    \
         if (unlikely(m_cond)) {                                                                                                             \
             _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "Condition ' \"" _STR(m_cond) "\" ' is true. returned: " _STR(m_retval), DEBUG_STR(m_msg)); \
             return m_retval;                                                                                                                \
         }                                                                                                                                   \
-    }
-/**
+    } while (0)
+
+ /**
  * If `m_cond` evaluates to `true`, prints a custom error message and continues the loop the macro is located in.
  */
 #define ERR_CONTINUE(m_cond)                                                                                             \
@@ -430,20 +432,20 @@ GODOT_EXPORT void _err_print_index_error(se_string_view p_function, se_string_vi
 /** Print a warning string.
  */
 
-#define WARN_PRINT(m_string)                                                               \
-    {                                                                                      \
-        _err_print_error(FUNCTION_STR, __FILE__, __LINE__, m_string,{}, ERR_HANDLER_WARNING); \
-    }
+#define WARN_PRINT(m_string)                                                                   \
+   do {                                                                                        \
+         _err_print_error(FUNCTION_STR, __FILE__, __LINE__, m_string,{}, ERR_HANDLER_WARNING); \
+   } while(0)
 
 #define WARN_PRINT_ONCE(m_string)                                                              \
-    {                                                                                          \
+   do {                                                                                        \
         static bool first_print = true;                                                        \
         if (first_print) {                                                                     \
             _err_print_error(FUNCTION_STR, __FILE__, __LINE__, m_string,{}, ERR_HANDLER_WARNING); \
             first_print = false;                                                               \
         }                                                                                      \
-    }
-/**
+   } while(0)
+ /**
  * Prints a custom deprecation warning message without returning.
  * This should be preferred to `WARN_PRINT` for deprecation warnings.
  */

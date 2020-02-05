@@ -217,8 +217,8 @@ int AnimationNodeBlendSpace2D::get_triangle_point(int p_triangle, int p_point) {
 
     _update_triangles();
 
-    ERR_FAIL_INDEX_V(p_point, 3, -1)
-    ERR_FAIL_INDEX_V(p_triangle, triangles.size(), -1)
+    ERR_FAIL_INDEX_V(p_point, 3, -1);
+    ERR_FAIL_INDEX_V(p_triangle, triangles.size(), -1);
     return triangles[p_triangle].points[p_point];
 }
 void AnimationNodeBlendSpace2D::remove_triangle(int p_triangle) {
@@ -489,7 +489,7 @@ float AnimationNodeBlendSpace2D::process(float p_time, bool p_seek) {
             }
         }
 
-        ERR_FAIL_COND_V(blend_triangle == -1, 0) //should never reach here
+        ERR_FAIL_COND_V(blend_triangle == -1, 0); //should never reach here;
 
         int triangle_points[3];
         for (int j = 0; j < 3; j++) {

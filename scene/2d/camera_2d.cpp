@@ -101,7 +101,7 @@ Transform2D Camera2D::get_camera_transform() {
     if (!get_tree())
         return Transform2D();
 
-    ERR_FAIL_COND_V(custom_viewport && !ObjectDB::get_instance(custom_viewport_id), Transform2D())
+    ERR_FAIL_COND_V(custom_viewport && !ObjectDB::get_instance(custom_viewport_id), Transform2D());
 
     Size2 screen_size = viewport->get_visible_rect().size;
 

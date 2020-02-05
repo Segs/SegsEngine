@@ -63,7 +63,7 @@ MonoObject *godot_icall_GD_convert(MonoObject *p_what, int32_t p_type) {
 	const Variant *args[1] = { &what };
 	Variant::CallError ce;
     Variant ret = Variant::construct(VariantType(p_type), args, 1, ce);
-    ERR_FAIL_COND_V(ce.error != Variant::CallError::CALL_OK, NULL)
+    ERR_FAIL_COND_V(ce.error != Variant::CallError::CALL_OK, NULL);
 	return GDMonoMarshal::variant_to_mono_object(ret);
 }
 

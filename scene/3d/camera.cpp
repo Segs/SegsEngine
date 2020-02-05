@@ -291,7 +291,7 @@ Vector3 Camera::project_ray_normal(const Point2 &p_pos) const {
 
 Vector3 Camera::project_local_ray_normal(const Point2 &p_pos) const {
 
-    ERR_FAIL_COND_V_MSG(!is_inside_tree(), Vector3(), "Camera is not inside scene.")
+    ERR_FAIL_COND_V_MSG(!is_inside_tree(), Vector3(), "Camera is not inside scene.");
 
     Size2 viewport_size = get_viewport()->get_camera_rect_size();
     Vector2 cpos = get_viewport()->get_camera_coords(p_pos);
@@ -315,11 +315,11 @@ Vector3 Camera::project_local_ray_normal(const Point2 &p_pos) const {
 
 Vector3 Camera::project_ray_origin(const Point2 &p_pos) const {
 
-    ERR_FAIL_COND_V_MSG(!is_inside_tree(), Vector3(), "Camera is not inside scene.")
+    ERR_FAIL_COND_V_MSG(!is_inside_tree(), Vector3(), "Camera is not inside scene.");
 
     Size2 viewport_size = get_viewport()->get_camera_rect_size();
     Vector2 cpos = get_viewport()->get_camera_coords(p_pos);
-    ERR_FAIL_COND_V(viewport_size.y == 0, Vector3())
+    ERR_FAIL_COND_V(viewport_size.y == 0, Vector3());
 
     if (mode == PROJECTION_PERSPECTIVE) {
 
@@ -353,7 +353,7 @@ bool Camera::is_position_behind(const Vector3 &p_pos) const {
 }
 
 PODVector<Vector3> Camera::get_near_plane_points() const {
-    ERR_FAIL_COND_V_MSG(!is_inside_tree(),{}, "Camera is not inside scene.")
+    ERR_FAIL_COND_V_MSG(!is_inside_tree(),{}, "Camera is not inside scene.");
 
     Size2 viewport_size = get_viewport()->get_visible_rect().size;
 
@@ -377,7 +377,7 @@ PODVector<Vector3> Camera::get_near_plane_points() const {
 
 Point2 Camera::unproject_position(const Vector3 &p_pos) const {
 
-    ERR_FAIL_COND_V_MSG(!is_inside_tree(), Vector2(), "Camera is not inside scene.")
+    ERR_FAIL_COND_V_MSG(!is_inside_tree(), Vector2(), "Camera is not inside scene.");
 
     Size2 viewport_size = get_viewport()->get_visible_rect().size;
 
@@ -402,7 +402,7 @@ Point2 Camera::unproject_position(const Vector3 &p_pos) const {
 
 Vector3 Camera::project_position(const Point2 &p_point, float p_z_depth) const {
 
-    ERR_FAIL_COND_V_MSG(!is_inside_tree(), Vector3(), "Camera is not inside scene.")
+    ERR_FAIL_COND_V_MSG(!is_inside_tree(), Vector3(), "Camera is not inside scene.");
 
     if (p_z_depth == 0.0f && mode != PROJECTION_ORTHOGONAL) {
         return get_global_transform().origin;
@@ -653,7 +653,7 @@ bool Camera::get_cull_mask_bit(int p_layer) const {
 
 Frustum Camera::get_frustum() const {
 
-    ERR_FAIL_COND_V(!is_inside_world(), Frustum())
+    ERR_FAIL_COND_V(!is_inside_world(), Frustum());
 
     Size2 viewport_size = get_viewport()->get_visible_rect().size;
     CameraMatrix cm;

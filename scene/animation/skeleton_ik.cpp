@@ -59,7 +59,7 @@ FabrikInverseKinematic::ChainItem *FabrikInverseKinematic::ChainItem::add_child(
 /// Build a chain that starts from the root to tip
 bool FabrikInverseKinematic::build_chain(Task *p_task, bool p_force_simple_chain) {
 
-    ERR_FAIL_COND_V(-1 == p_task->root_bone, false)
+    ERR_FAIL_COND_V(-1 == p_task->root_bone, false);
 
     Chain &chain(p_task->chain);
 
@@ -80,7 +80,7 @@ bool FabrikInverseKinematic::build_chain(Task *p_task, bool p_force_simple_chain
     for (int x = p_task->end_effectors.size() - 1; 0 <= x; --x) {
 
         const EndEffector *ee(&p_task->end_effectors[x]);
-        ERR_FAIL_COND_V(p_task->root_bone >= ee->tip_bone, false)
+        ERR_FAIL_COND_V(p_task->root_bone >= ee->tip_bone, false);
         ERR_FAIL_INDEX_V(ee->tip_bone, p_task->skeleton->get_bone_count(), false);
 
         sub_chain_size = 0;

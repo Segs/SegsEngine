@@ -1449,7 +1449,7 @@ Vector<ProjectList::Item> ProjectList::get_selected_projects() const {
             items.write[j++] = item;
         }
     }
-    ERR_FAIL_COND_V(j != items.size(), items)
+    ERR_FAIL_COND_V(j != items.size(), items);
     return items;
 }
 
@@ -2587,7 +2587,7 @@ ProjectManager::ProjectManager() {
         tabs->add_child(asset_library);
         asset_library->connect("install_asset", this, "_install_project");
     } else {
-        WARN_PRINT("Asset Library not available, as it requires SSL to work.")
+        WARN_PRINT("Asset Library not available, as it requires SSL to work.");
     }
 
     HBoxContainer *settings_hb = memnew(HBoxContainer);

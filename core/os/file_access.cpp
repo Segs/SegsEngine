@@ -48,7 +48,7 @@ bool FileAccess::backup_save = false;
 
 FileAccess *FileAccess::create(AccessType p_access) {
 
-    ERR_FAIL_INDEX_V(p_access, ACCESS_MAX, nullptr)
+    ERR_FAIL_INDEX_V(p_access, ACCESS_MAX, nullptr);
 
     FileAccess *ret = create_func[p_access]();
     ret->_set_access_type(p_access);
@@ -360,7 +360,7 @@ String FileAccess::get_as_utf8_string() const {
     s.resize(len + 1);
 
     int r = get_buffer((uint8_t *)s.data(), len);
-    ERR_FAIL_COND_V(r != len, String())
+    ERR_FAIL_COND_V(r != len, String());
     s[len] = 0;
     return s;
 }
@@ -439,7 +439,7 @@ uint64_t FileAccess::get_modified_time(se_string_view p_file) {
         return 0;
 
     FileAccess *fa = create_for_path(p_file);
-    ERR_FAIL_COND_V_MSG(!fa, 0, "Cannot create FileAccess for path '" + String(p_file) + "'.")
+    ERR_FAIL_COND_V_MSG(!fa, 0, "Cannot create FileAccess for path '" + String(p_file) + "'.");
 
     uint64_t mt = fa->_get_modified_time(p_file);
     memdelete(fa);
@@ -452,7 +452,7 @@ uint32_t FileAccess::get_unix_permissions(se_string_view p_file) {
         return 0;
 
     FileAccess *fa = create_for_path(p_file);
-    ERR_FAIL_COND_V_MSG(!fa, 0, "Cannot create FileAccess for path '" + String(p_file) + "'.")
+    ERR_FAIL_COND_V_MSG(!fa, 0, "Cannot create FileAccess for path '" + String(p_file) + "'.");
 
     uint32_t mt = fa->_get_unix_permissions(p_file);
     memdelete(fa);
@@ -462,7 +462,7 @@ uint32_t FileAccess::get_unix_permissions(se_string_view p_file) {
 Error FileAccess::set_unix_permissions(se_string_view p_file, uint32_t p_permissions) {
 
     FileAccess *fa = create_for_path(p_file);
-    ERR_FAIL_COND_V_MSG(!fa, ERR_CANT_CREATE, "Cannot create FileAccess for path '" + String(p_file) + "'.")
+    ERR_FAIL_COND_V_MSG(!fa, ERR_CANT_CREATE, "Cannot create FileAccess for path '" + String(p_file) + "'.");
 
     Error err = fa->_set_unix_permissions(p_file, p_permissions);
     memdelete(fa);

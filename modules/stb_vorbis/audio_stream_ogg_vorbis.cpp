@@ -62,7 +62,7 @@ void AudioStreamPlaybackOGGVorbis::_mix_internal(AudioFrame *p_buffer, int p_fra
 
         if (todo) {
             //end of file!
-            if (vorbis_stream->loop) {
+            if (vorbis_stream->loop && mixed > 0) {
                 //loop
                 seek(vorbis_stream->loop_offset);
                 loops++;
@@ -134,7 +134,7 @@ Ref<AudioStreamPlayback> AudioStreamOGGVorbis::instance_playback() {
 
     Ref<AudioStreamPlaybackOGGVorbis> ovs;
 
-    ERR_FAIL_COND_V(data == nullptr, ovs)
+    ERR_FAIL_COND_V(data == nullptr, ovs);
 
     ovs = make_ref_counted<AudioStreamPlaybackOGGVorbis>();
     ovs->vorbis_stream = Ref<AudioStreamOGGVorbis>(this);
@@ -149,7 +149,7 @@ Ref<AudioStreamPlayback> AudioStreamOGGVorbis::instance_playback() {
 
         AudioServer::get_singleton()->audio_data_free(ovs->ogg_alloc.alloc_buffer);
         ovs->ogg_alloc.alloc_buffer = nullptr;
-        ERR_FAIL_COND_V(!ovs->ogg_stream, Ref<AudioStreamPlaybackOGGVorbis>())
+        ERR_FAIL_COND_V(!ovs->ogg_stream, Ref<AudioStreamPlaybackOGGVorbis>());
     }
 
     return ovs;

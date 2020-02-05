@@ -126,7 +126,7 @@ int WebRTCDataChannelJS::get_available_packet_count() const {
 }
 
 Error WebRTCDataChannelJS::get_packet(const uint8_t **r_buffer, int &r_buffer_size) {
-	ERR_FAIL_COND_V(get_ready_state() != STATE_OPEN, ERR_UNCONFIGURED)
+	ERR_FAIL_COND_V(get_ready_state() != STATE_OPEN, ERR_UNCONFIGURED);
 
 	if (queue_count == 0)
 		return ERR_UNAVAILABLE;
@@ -155,7 +155,7 @@ Error WebRTCDataChannelJS::get_packet(const uint8_t **r_buffer, int &r_buffer_si
 }
 
 Error WebRTCDataChannelJS::put_packet(const uint8_t *p_buffer, int p_buffer_size) {
-	ERR_FAIL_COND_V(get_ready_state() != STATE_OPEN, ERR_UNCONFIGURED)
+	ERR_FAIL_COND_V(get_ready_state() != STATE_OPEN, ERR_UNCONFIGURED);
 
 	int is_bin = _write_mode == WebRTCDataChannel::WRITE_MODE_BINARY ? 1 : 0;
 

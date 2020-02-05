@@ -55,11 +55,11 @@ CryptoKey *CryptoKeyMbedTLS::create() {
 }
 
 Error CryptoKeyMbedTLS::load(se_string_view p_path) {
-    ERR_FAIL_COND_V_MSG(locks, ERR_ALREADY_IN_USE, "Key is in use")
+    ERR_FAIL_COND_V_MSG(locks, ERR_ALREADY_IN_USE, "Key is in use");
 
     PoolByteArray out;
     FileAccess *f = FileAccess::open(p_path, FileAccess::READ);
-    ERR_FAIL_COND_V_MSG(!f, ERR_INVALID_PARAMETER, "Cannot open CryptoKeyMbedTLS file '" + String(p_path) + "'.")
+    ERR_FAIL_COND_V_MSG(!f, ERR_INVALID_PARAMETER, "Cannot open CryptoKeyMbedTLS file '" + String(p_path) + "'.");
 
     int flen = f->get_len();
     out.resize(flen + 1);
@@ -73,7 +73,7 @@ Error CryptoKeyMbedTLS::load(se_string_view p_path) {
     int ret = mbedtls_pk_parse_key(&pkey, out.read().ptr(), out.size(), nullptr, 0);
     // We MUST zeroize the memory for safety!
     mbedtls_platform_zeroize(out.write().ptr(), out.size());
-    ERR_FAIL_COND_V_MSG(ret, FAILED, "Error parsing private key '" + itos(ret) + "'.")
+    ERR_FAIL_COND_V_MSG(ret, FAILED, "Error parsing private key '" + itos(ret) + "'.");
 
     return OK;
 }
@@ -104,11 +104,11 @@ X509Certificate *X509CertificateMbedTLS::create() {
 }
 
 Error X509CertificateMbedTLS::load(se_string_view p_path) {
-    ERR_FAIL_COND_V_MSG(locks, ERR_ALREADY_IN_USE, "Certificate is in use")
+    ERR_FAIL_COND_V_MSG(locks, ERR_ALREADY_IN_USE, "Certificate is in use");
 
     PoolByteArray out;
     FileAccess *f = FileAccess::open(p_path, FileAccess::READ);
-    ERR_FAIL_COND_V_MSG(!f, ERR_INVALID_PARAMETER, "Cannot open X509CertificateMbedTLS file '" + String(p_path) + "'.")
+    ERR_FAIL_COND_V_MSG(!f, ERR_INVALID_PARAMETER, "Cannot open X509CertificateMbedTLS file '" + String(p_path) + "'.");
 
     int flen = f->get_len();
     out.resize(flen + 1);
@@ -120,22 +120,22 @@ Error X509CertificateMbedTLS::load(se_string_view p_path) {
     memdelete(f);
 
     int ret = mbedtls_x509_crt_parse(&cert, out.read().ptr(), out.size());
-    ERR_FAIL_COND_V_MSG(ret, FAILED, "Error parsing some certificates: " + itos(ret))
+    ERR_FAIL_COND_V_MSG(ret, FAILED, "Error parsing some certificates: " + itos(ret));
 
     return OK;
 }
 
 Error X509CertificateMbedTLS::load_from_memory(const uint8_t *p_buffer, int p_len) {
-    ERR_FAIL_COND_V_MSG(locks, ERR_ALREADY_IN_USE, "Certificate is in use")
+    ERR_FAIL_COND_V_MSG(locks, ERR_ALREADY_IN_USE, "Certificate is in use");
 
     int ret = mbedtls_x509_crt_parse(&cert, p_buffer, p_len);
-    ERR_FAIL_COND_V_MSG(ret, FAILED, "Error parsing certificates: " + itos(ret))
+    ERR_FAIL_COND_V_MSG(ret, FAILED, "Error parsing certificates: " + itos(ret));
     return OK;
 }
 
 Error X509CertificateMbedTLS::save(se_string_view p_path) {
     FileAccess *f = FileAccess::open(p_path, FileAccess::WRITE);
-    ERR_FAIL_COND_V_MSG(!f, ERR_INVALID_PARAMETER, "Cannot save X509CertificateMbedTLS file '" + String(p_path) + "'.")
+    ERR_FAIL_COND_V_MSG(!f, ERR_INVALID_PARAMETER, "Cannot save X509CertificateMbedTLS file '" + String(p_path) + "'.");
 
     mbedtls_x509_crt *crt = &cert;
     while (crt) {
@@ -235,15 +235,15 @@ void CryptoMbedTLS::load_default_certificates(se_string_view p_path) {
 Ref<CryptoKey> CryptoMbedTLS::generate_rsa(int p_bytes) {
     Ref<CryptoKeyMbedTLS> out(make_ref_counted<CryptoKeyMbedTLS>());
     int ret = mbedtls_pk_setup(&(out->pkey), mbedtls_pk_info_from_type(MBEDTLS_PK_RSA));
-    ERR_FAIL_COND_V(ret != 0, Ref<CryptoKey>())
+    ERR_FAIL_COND_V(ret != 0, Ref<CryptoKey>());
     ret = mbedtls_rsa_gen_key(mbedtls_pk_rsa(out->pkey), mbedtls_ctr_drbg_random, &ctr_drbg, p_bytes, 65537);
-    ERR_FAIL_COND_V(ret != 0, Ref<CryptoKey>())
+    ERR_FAIL_COND_V(ret != 0, Ref<CryptoKey>());
     return out;
 }
 
 Ref<X509Certificate> CryptoMbedTLS::generate_self_signed_certificate(Ref<CryptoKey> p_key, se_string_view p_issuer_name, se_string_view p_not_before, se_string_view p_not_after) {
     Ref<CryptoKeyMbedTLS> key = dynamic_ref_cast<CryptoKeyMbedTLS>(p_key);
-    ERR_FAIL_COND_V_MSG(not key, Ref<X509Certificate>(), "Invalid private key argument.")
+    ERR_FAIL_COND_V_MSG(not key, Ref<X509Certificate>(), "Invalid private key argument.");
 
     assert(key);
 
@@ -261,7 +261,7 @@ Ref<X509Certificate> CryptoMbedTLS::generate_self_signed_certificate(Ref<CryptoK
     mbedtls_mpi_init(&serial);
     uint8_t rand_serial[20];
     mbedtls_ctr_drbg_random(&ctr_drbg, rand_serial, 20);
-    ERR_FAIL_COND_V(mbedtls_mpi_read_binary(&serial, rand_serial, 20), Ref<X509Certificate>())
+    ERR_FAIL_COND_V(mbedtls_mpi_read_binary(&serial, rand_serial, 20), Ref<X509Certificate>());
     mbedtls_x509write_crt_set_serial(&crt, &serial);
 
     mbedtls_x509write_crt_set_validity(&crt, String(p_not_before).data(), String(p_not_after).data());

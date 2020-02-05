@@ -879,7 +879,7 @@ bool ShaderLanguage::_find_identifier(const BlockNode *p_block, const Map<String
             function = p_block->parent_function;
             break;
         } else {
-            ERR_FAIL_COND_V(!p_block->parent_block, false)
+            ERR_FAIL_COND_V(!p_block->parent_block, false);
             p_block = p_block->parent_block;
         }
     }
@@ -2040,11 +2040,11 @@ const ShaderLanguage::BuiltinFuncOutArgs ShaderLanguage::builtin_func_out_args[]
 
 bool ShaderLanguage::_validate_function_call(BlockNode *p_block, OperatorNode *p_func, DataType *r_ret_type) {
 
-    ERR_FAIL_COND_V(p_func->op != OP_CALL && p_func->op != OP_CONSTRUCT, false)
+    ERR_FAIL_COND_V(p_func->op != OP_CALL && p_func->op != OP_CONSTRUCT, false);
 
     PODVector<DataType> args;
 
-    ERR_FAIL_COND_V(p_func->arguments[0]->type != Node::TYPE_VARIABLE, false)
+    ERR_FAIL_COND_V(p_func->arguments[0]->type != Node::TYPE_VARIABLE, false);
 
     StringName name = static_cast<VariableNode *>(p_func->arguments[0])->name;
     args.reserve(p_func->arguments.size());
@@ -3050,7 +3050,7 @@ ShaderLanguage::Node *ShaderLanguage::_parse_expression(BlockNode *p_block, cons
             //nothing
         }
 
-        ERR_FAIL_COND_V(!expr, nullptr)
+        ERR_FAIL_COND_V(!expr, nullptr);
 
         /* OK now see what's NEXT to the operator.. */
         /* OK now see what's NEXT to the operator.. */
@@ -3504,7 +3504,7 @@ ShaderLanguage::Node *ShaderLanguage::_parse_expression(BlockNode *p_block, cons
             }
         }
 
-        ERR_FAIL_COND_V(next_op == -1, nullptr)
+        ERR_FAIL_COND_V(next_op == -1, nullptr);
 
         // OK! create operator..
         // OK! create operator..
@@ -3639,7 +3639,7 @@ ShaderLanguage::Node *ShaderLanguage::_reduce_expression(BlockNode *p_block, Sha
 
     if (op->op == OP_CONSTRUCT) {
 
-        ERR_FAIL_COND_V(op->arguments[0]->type != Node::TYPE_VARIABLE, p_node)
+        ERR_FAIL_COND_V(op->arguments[0]->type != Node::TYPE_VARIABLE, p_node);
 
         DataType type = op->get_datatype();
         DataType base = get_scalar_type(type);

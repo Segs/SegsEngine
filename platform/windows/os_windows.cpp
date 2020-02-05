@@ -418,7 +418,7 @@ LRESULT OS_Windows::WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
                 break;
             }
 
-            UINT dwSize;
+            UINT dwSize=0;
 
             GetRawInputData((HRAWINPUT)lParam, RID_INPUT, nullptr, &dwSize, sizeof(RAWINPUTHEADER));
             LPBYTE lpb = new (std::nothrow) BYTE[dwSize];
@@ -2201,8 +2201,9 @@ Error OS_Windows::open_dynamic_library(se_string_view p_path, void *&p_library_h
     using PAddDllDirectory = DLL_DIRECTORY_COOKIE (*)(PCWSTR);
     using PRemoveDllDirectory = BOOL (*)(DLL_DIRECTORY_COOKIE);
 
-    PAddDllDirectory add_dll_directory = (PAddDllDirectory)GetProcAddress(GetModuleHandle("kernel32.dll"), "AddDllDirectory");
-    PRemoveDllDirectory remove_dll_directory = (PRemoveDllDirectory)GetProcAddress(GetModuleHandle("kernel32.dll"), "RemoveDllDirectory");
+    HMODULE h_kern = GetModuleHandle("kernel32.dll");
+    PAddDllDirectory add_dll_directory = (PAddDllDirectory)GetProcAddress(h_kern, "AddDllDirectory");
+    PRemoveDllDirectory remove_dll_directory = (PRemoveDllDirectory)GetProcAddress(h_kern, "RemoveDllDirectory");
 
     bool has_dll_directory_api = ((add_dll_directory != nullptr) && (remove_dll_directory != nullptr));
     DLL_DIRECTORY_COOKIE cookie = nullptr;
@@ -2213,7 +2214,7 @@ Error OS_Windows::open_dynamic_library(se_string_view p_path, void *&p_library_h
 
     p_library_handle = (void *)LoadLibraryExW(qUtf16Printable(StringUtils::from_utf8(path)), nullptr,
             (p_also_set_library_path && has_dll_directory_api) ? LOAD_LIBRARY_SEARCH_DEFAULT_DIRS : 0);
-    ERR_FAIL_COND_V_MSG(!p_library_handle, ERR_CANT_OPEN, "Can't open dynamic library: " + p_path + ", error: " + format_error_message(GetLastError()) + ".")
+    ERR_FAIL_COND_V_MSG(!p_library_handle, ERR_CANT_OPEN, "Can't open dynamic library: " + p_path + ", error: " + format_error_message(GetLastError()) + ".");
 
     if (cookie) {
         remove_dll_directory(cookie);
@@ -2353,8 +2354,7 @@ uint64_t OS_Windows::get_system_time_msecs() const {
     GetSystemTime(&st);
     FILETIME ft;
     SystemTimeToFileTime(&st, &ft);
-    uint64_t ret;
-    ret = ft.dwHighDateTime;
+    uint64_t ret = ft.dwHighDateTime;
     ret <<= 32;
     ret |= ft.dwLowDateTime;
 
@@ -2645,7 +2645,7 @@ Error OS_Windows::execute(se_string_view p_path, const ListPOD<String> &p_argume
 
         FILE *f = _wpopen(qUtf16Printable(StringUtils::from_utf8(argss)), L"r");
 
-        ERR_FAIL_COND_V(!f, ERR_CANT_OPEN)
+        ERR_FAIL_COND_V(!f, ERR_CANT_OPEN);
 
         char buf[65535];
         while (fgets(buf, 65535, f)) {
@@ -2680,7 +2680,7 @@ Error OS_Windows::execute(se_string_view p_path, const ListPOD<String> &p_argume
 
     auto modstr = StringUtils::from_utf8(cmdline).toStdWString();
     int ret = CreateProcessW(nullptr, modstr.data(), nullptr, nullptr, 0, NORMAL_PRIORITY_CLASS & CREATE_NO_WINDOW, nullptr, nullptr, si_w, &pi.pi);
-    ERR_FAIL_COND_V(ret == 0, ERR_CANT_FORK)
+    ERR_FAIL_COND_V(ret == 0, ERR_CANT_FORK);
 
     if (p_blocking) {
 
@@ -2703,7 +2703,7 @@ Error OS_Windows::execute(se_string_view p_path, const ListPOD<String> &p_argume
 
 Error OS_Windows::kill(const ProcessID &p_pid) {
 
-    ERR_FAIL_COND_V(!process_map->contains(p_pid), FAILED)
+    ERR_FAIL_COND_V(!process_map->contains(p_pid), FAILED);
 
     const PROCESS_INFORMATION pi = (*process_map)[p_pid].pi;
     process_map->erase(p_pid);
@@ -2914,7 +2914,7 @@ String OS_Windows::get_stdin_string(bool p_block) {
     if (p_block) {
         char buff[1024];
         return fgets(buff, 1024, stdin);
-    };
+    }
 
     return String();
 }

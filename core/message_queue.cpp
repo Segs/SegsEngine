@@ -128,7 +128,7 @@ Error MessageQueue::push_notification(ObjectID p_id, int p_notification) {
 
     _THREAD_SAFE_METHOD_
 
-    ERR_FAIL_COND_V(p_notification < 0, ERR_INVALID_PARAMETER)
+    ERR_FAIL_COND_V(p_notification < 0, ERR_INVALID_PARAMETER);
 
     uint8_t room_needed = sizeof(Message);
 

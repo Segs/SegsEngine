@@ -370,7 +370,7 @@ void VisibilityEnabler2D::set_enabler(Enabler p_enabler, bool p_enable) {
 }
 bool VisibilityEnabler2D::is_enabler_enabled(Enabler p_enabler) const {
 
-    ERR_FAIL_INDEX_V(p_enabler, ENABLER_MAX, false)
+    ERR_FAIL_INDEX_V(p_enabler, ENABLER_MAX, false);
     return enabler[p_enabler];
 }
 

@@ -336,27 +336,27 @@ String StreamPeer::get_string(int p_bytes) {
 
     if (p_bytes < 0)
         p_bytes = get_u32();
-    ERR_FAIL_COND_V(p_bytes < 0, String())
+    ERR_FAIL_COND_V(p_bytes < 0, String());
 
     String buf;
     buf.resize(p_bytes + 1);
     Error err = get_data((uint8_t *)&buf[0], p_bytes);
-    ERR_FAIL_COND_V(err != OK, String())
+    ERR_FAIL_COND_V(err != OK, String());
     buf[p_bytes] = 0;
     return buf;
 }
 Variant StreamPeer::get_var(bool p_allow_objects) {
 
     int len = get_32();
-    ERR_FAIL_COND_V(len >= 512*1024*1024, Variant())
+    ERR_FAIL_COND_V(len >= 512*1024*1024, Variant());
     PODVector<uint8_t> var;
     var.resize(len);
     Error err = get_data(var.data(), len);
-    ERR_FAIL_COND_V(err != OK, Variant())
+    ERR_FAIL_COND_V(err != OK, Variant());
 
     Variant ret;
     err = decode_variant(ret, var.data(), len, nullptr, p_allow_objects);
-    ERR_FAIL_COND_V_MSG(err != OK, Variant(), "Error when trying to decode Variant.")
+    ERR_FAIL_COND_V_MSG(err != OK, Variant(), "Error when trying to decode Variant.");
 
     return ret;
 }

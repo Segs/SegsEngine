@@ -1306,7 +1306,7 @@ void AnimationPlayerEditor::_editor_visibility_changed() {
 
 bool AnimationPlayerEditor::_are_onion_layers_valid() {
 
-    ERR_FAIL_COND_V(!onion.past && !onion.future, false)
+    ERR_FAIL_COND_V(!onion.past && !onion.future, false);
 
     Point2 capture_size = get_tree()->get_root()->get_size();
     return onion.captures.size() == onion.get_needed_capture_count() && onion.capture_size == capture_size;

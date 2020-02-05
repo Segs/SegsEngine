@@ -388,7 +388,7 @@ int Skeleton::find_bone(se_string_view p_name) const {
 }
 const String &Skeleton::get_bone_name(int p_bone) const {
 
-    ERR_FAIL_INDEX_V(p_bone, bones.size(), null_se_string)
+    ERR_FAIL_INDEX_V(p_bone, bones.size(), null_se_string);
 
     return bones[p_bone].name;
 }

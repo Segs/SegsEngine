@@ -307,7 +307,7 @@ Variant Tween::_get_initial_val(const InterpolateData &p_data) const {
         case TARGETING_METHOD: {
             // Get the object that is being targeted
             Object *object = ObjectDB::get_instance(p_data.target_id);
-            ERR_FAIL_COND_V(object == nullptr, p_data.initial_val)
+            ERR_FAIL_COND_V(object == nullptr, p_data.initial_val);
 
             // Are we targeting a property or a method?
             Variant initial_val;
@@ -315,12 +315,12 @@ Variant Tween::_get_initial_val(const InterpolateData &p_data) const {
                 // Get the property from the target object
                 bool valid = false;
                 initial_val = object->get_indexed(p_data.target_key, &valid);
-                ERR_FAIL_COND_V(!valid, p_data.initial_val)
+                ERR_FAIL_COND_V(!valid, p_data.initial_val);
             } else {
                 // Call the method and get the initial value from it
                 Variant::CallError error;
                 initial_val = object->call(p_data.target_key[0], nullptr, 0, error);
-                ERR_FAIL_COND_V(error.error != Variant::CallError::CALL_OK, p_data.initial_val)
+                ERR_FAIL_COND_V(error.error != Variant::CallError::CALL_OK, p_data.initial_val);
             }
             return initial_val;
         }
@@ -380,7 +380,7 @@ const Variant &Tween::_get_delta_val(InterpolateData &p_data) {
         case FOLLOW_METHOD: {
             // We're following an object, so grab that instance
             Object *target = ObjectDB::get_instance(p_data.target_id);
-            ERR_FAIL_COND_V(target == nullptr, p_data.initial_val)
+            ERR_FAIL_COND_V(target == nullptr, p_data.initial_val);
 
             // We want to figure out the final value
             Variant final_val;
@@ -388,12 +388,12 @@ const Variant &Tween::_get_delta_val(InterpolateData &p_data) {
                 // Read the property as-is
                 bool valid = false;
                 final_val = target->get_indexed(p_data.target_key, &valid);
-                ERR_FAIL_COND_V(!valid, p_data.initial_val)
+                ERR_FAIL_COND_V(!valid, p_data.initial_val);
             } else {
                 // We're looking at a method. Call the method on the target object
                 Variant::CallError error;
                 final_val = target->call(p_data.target_key[0], nullptr, 0, error);
-                ERR_FAIL_COND_V(error.error != Variant::CallError::CALL_OK, p_data.initial_val)
+                ERR_FAIL_COND_V(error.error != Variant::CallError::CALL_OK, p_data.initial_val);
             }
 
             // If we're looking at an INT value, instead convert it to a REAL
@@ -597,7 +597,7 @@ bool Tween::_apply_tween_value(InterpolateData &p_data, Variant &value) {
 
     // Get the object we want to apply the new value to
     Object *object = ObjectDB::get_instance(p_data.id);
-    ERR_FAIL_COND_V(object == nullptr, false)
+    ERR_FAIL_COND_V(object == nullptr, false);
 
     // What kind of data are we mutating?
     switch (p_data.type) {
@@ -824,7 +824,7 @@ float Tween::get_speed_scale() const {
 }
 
 bool Tween::start() {
-    ERR_FAIL_COND_V_MSG(!is_inside_tree(), false, "Tween was not added to the SceneTree!")
+    ERR_FAIL_COND_V_MSG(!is_inside_tree(), false, "Tween was not added to the SceneTree!");
     // Are there any pending updates?
     if (pending_update != 0) {
         // Start the tweens after deferring
@@ -1213,31 +1213,31 @@ bool Tween::_build_interpolation(InterpolateType p_interpolation_type, Object *p
     // Validate and apply interpolation data
 
     // Give it the object
-    ERR_FAIL_COND_V_MSG(p_object == nullptr, false, "Invalid object provided to Tween.")
-    ERR_FAIL_COND_V_MSG(!ObjectDB::instance_validate(p_object), false, "Invalid object provided to Tween.")
+    ERR_FAIL_COND_V_MSG(p_object == nullptr, false, "Invalid object provided to Tween.");
+    ERR_FAIL_COND_V_MSG(!ObjectDB::instance_validate(p_object), false, "Invalid object provided to Tween.");
     data.id = p_object->get_instance_id();
 
     // Validate the initial and final values
     ERR_FAIL_COND_V_MSG(p_initial_val.get_type() != p_final_val.get_type(), false,
             FormatVE("Initial value type '%s' does not match final value type '%s'.",
-                    Variant::get_type_name(p_initial_val.get_type()), Variant::get_type_name(p_final_val.get_type())))
+                    Variant::get_type_name(p_initial_val.get_type()), Variant::get_type_name(p_final_val.get_type())));
     data.initial_val = p_initial_val;
     data.final_val = p_final_val;
 
     // Check the Duration
-    ERR_FAIL_COND_V_MSG(p_duration < 0, false, "Only non-negative duration values allowed in Tweens.")
+    ERR_FAIL_COND_V_MSG(p_duration < 0, false, "Only non-negative duration values allowed in Tweens.");
     data.duration = p_duration;
 
     // Tween Delay
-    ERR_FAIL_COND_V_MSG(p_delay < 0, false, "Only non-negative delay values allowed in Tweens.")
+    ERR_FAIL_COND_V_MSG(p_delay < 0, false, "Only non-negative delay values allowed in Tweens.");
     data.delay = p_delay;
 
     // Transition type
-    ERR_FAIL_COND_V_MSG(p_trans_type < 0 || p_trans_type >= TRANS_COUNT, false, "Invalid transition type provided to Tween.")
+    ERR_FAIL_COND_V_MSG(p_trans_type < 0 || p_trans_type >= TRANS_COUNT, false, "Invalid transition type provided to Tween.");
     data.trans_type = p_trans_type;
 
     // Easing type
-    ERR_FAIL_COND_V_MSG(p_ease_type < 0 || p_ease_type >= EASE_COUNT, false, "Invalid easing type provided to Tween.")
+    ERR_FAIL_COND_V_MSG(p_ease_type < 0 || p_ease_type >= EASE_COUNT, false, "Invalid easing type provided to Tween.");
     data.ease_type = p_ease_type;
 
     // Is the property defined?
@@ -1245,7 +1245,7 @@ bool Tween::_build_interpolation(InterpolateType p_interpolation_type, Object *p
         // Check that the object actually contains the given property
         bool prop_valid = false;
         p_object->get_indexed(p_property->get_subnames(), &prop_valid);
-        ERR_FAIL_COND_V_MSG(!prop_valid, false, String("Tween target object has no property named: ") + p_property->get_concatenated_subnames() + ".")
+        ERR_FAIL_COND_V_MSG(!prop_valid, false, String("Tween target object has no property named: ") + p_property->get_concatenated_subnames() + ".");
 
         data.key = p_property->get_subnames();
         data.concatenated_key = p_property->get_concatenated_subnames();
@@ -1254,7 +1254,7 @@ bool Tween::_build_interpolation(InterpolateType p_interpolation_type, Object *p
     // Is the method defined?
     if (p_method) {
         // Does the object even have the requested method?
-        ERR_FAIL_COND_V_MSG(!p_object->has_method(*p_method), false, String("Tween target object has no method named: ") + *p_method + ".")
+        ERR_FAIL_COND_V_MSG(!p_object->has_method(*p_method), false, String("Tween target object has no method named: ") + *p_method + ".");
 
         data.key.push_back(*p_method);
         data.concatenated_key = *p_method;
@@ -1316,14 +1316,14 @@ bool Tween::interpolate_callback(Object *p_object, real_t p_duration, const Stri
     }
 
     // Check that the target object is valid
-    ERR_FAIL_COND_V(p_object == nullptr, false)
-    ERR_FAIL_COND_V(!ObjectDB::instance_validate(p_object), false)
+    ERR_FAIL_COND_V(p_object == nullptr, false);
+    ERR_FAIL_COND_V(!ObjectDB::instance_validate(p_object), false);
 
     // Duration cannot be negative
-    ERR_FAIL_COND_V(p_duration < 0, false)
+    ERR_FAIL_COND_V(p_duration < 0, false);
 
     // Check whether the object even has the callback
-    ERR_FAIL_COND_V_MSG(!p_object->has_method(p_callback), false, "Object has no callback named: " + String(p_callback) + ".")
+    ERR_FAIL_COND_V_MSG(!p_object->has_method(p_callback), false, "Object has no callback named: " + String(p_callback) + ".");
 
     // Build a new InterpolationData
     InterpolateData data;
@@ -1375,14 +1375,14 @@ bool Tween::interpolate_deferred_callback(Object *p_object, real_t p_duration, c
     }
 
     // Check that the target object is valid
-    ERR_FAIL_COND_V(p_object == nullptr, false)
-    ERR_FAIL_COND_V(!ObjectDB::instance_validate(p_object), false)
+    ERR_FAIL_COND_V(p_object == nullptr, false);
+    ERR_FAIL_COND_V(!ObjectDB::instance_validate(p_object), false);
 
     // No negative durations allowed
-    ERR_FAIL_COND_V(p_duration < 0, false)
+    ERR_FAIL_COND_V(p_duration < 0, false);
 
     // Confirm the callback exists on the object
-    ERR_FAIL_COND_V_MSG(!p_object->has_method(p_callback), false, "Object has no callback named: " + String(p_callback) + ".")
+    ERR_FAIL_COND_V_MSG(!p_object->has_method(p_callback), false, "Object has no callback named: " + String(p_callback) + ".");
 
     // Create a new InterpolateData for the callback
     InterpolateData data;
@@ -1445,35 +1445,35 @@ bool Tween::follow_property(Object *p_object, NodePath p_property, Variant p_ini
     if (p_initial_val.get_type() == VariantType::INT) p_initial_val = p_initial_val.operator real_t();
 
     // Confirm the source and target objects are valid
-    ERR_FAIL_COND_V(p_object == nullptr, false)
-    ERR_FAIL_COND_V(!ObjectDB::instance_validate(p_object), false)
-    ERR_FAIL_COND_V(p_target == nullptr, false)
-    ERR_FAIL_COND_V(!ObjectDB::instance_validate(p_target), false)
+    ERR_FAIL_COND_V(p_object == nullptr, false);
+    ERR_FAIL_COND_V(!ObjectDB::instance_validate(p_object), false);
+    ERR_FAIL_COND_V(p_target == nullptr, false);
+    ERR_FAIL_COND_V(!ObjectDB::instance_validate(p_target), false);
 
     // No negative durations
-    ERR_FAIL_COND_V(p_duration < 0, false)
+    ERR_FAIL_COND_V(p_duration < 0, false);
 
     // Ensure transition and easing types are valid
-    ERR_FAIL_COND_V(p_trans_type < 0 || p_trans_type >= TRANS_COUNT, false)
-    ERR_FAIL_COND_V(p_ease_type < 0 || p_ease_type >= EASE_COUNT, false)
+    ERR_FAIL_COND_V(p_trans_type < 0 || p_trans_type >= TRANS_COUNT, false);
+    ERR_FAIL_COND_V(p_ease_type < 0 || p_ease_type >= EASE_COUNT, false);
 
     // No negative delays
-    ERR_FAIL_COND_V(p_delay < 0, false)
+    ERR_FAIL_COND_V(p_delay < 0, false);
 
     // Confirm the source and target objects have the desired properties
     bool prop_valid = false;
     p_object->get_indexed(p_property.get_subnames(), &prop_valid);
-    ERR_FAIL_COND_V(!prop_valid, false)
+    ERR_FAIL_COND_V(!prop_valid, false);
 
     bool target_prop_valid = false;
     Variant target_val = p_target->get_indexed(p_target_property.get_subnames(), &target_prop_valid);
-    ERR_FAIL_COND_V(!target_prop_valid, false)
+    ERR_FAIL_COND_V(!target_prop_valid, false);
 
     // Convert target INT to REAL since it is better for interpolation
     if (target_val.get_type() == VariantType::INT) target_val = target_val.operator real_t();
 
     // Verify that the target value and initial value are the same type
-    ERR_FAIL_COND_V(target_val.get_type() != p_initial_val.get_type(), false)
+    ERR_FAIL_COND_V(target_val.get_type() != p_initial_val.get_type(), false);
 
     // Create a new InterpolateData
     InterpolateData data;
@@ -1509,33 +1509,33 @@ bool Tween::follow_method(Object *p_object, const StringName& p_method, Variant 
     if (p_initial_val.get_type() == VariantType::INT) p_initial_val = p_initial_val.operator real_t();
 
     // Verify the source and target objects are valid
-    ERR_FAIL_COND_V(p_object == nullptr, false)
-    ERR_FAIL_COND_V(!ObjectDB::instance_validate(p_object), false)
-    ERR_FAIL_COND_V(p_target == nullptr, false)
-    ERR_FAIL_COND_V(!ObjectDB::instance_validate(p_target), false)
+    ERR_FAIL_COND_V(p_object == nullptr, false);
+    ERR_FAIL_COND_V(!ObjectDB::instance_validate(p_object), false);
+    ERR_FAIL_COND_V(p_target == nullptr, false);
+    ERR_FAIL_COND_V(!ObjectDB::instance_validate(p_target), false);
 
     // No negative durations
-    ERR_FAIL_COND_V(p_duration < 0, false)
+    ERR_FAIL_COND_V(p_duration < 0, false);
 
     // Ensure that the transition and ease types are valid
-    ERR_FAIL_COND_V(p_trans_type < 0 || p_trans_type >= TRANS_COUNT, false)
-    ERR_FAIL_COND_V(p_ease_type < 0 || p_ease_type >= EASE_COUNT, false)
+    ERR_FAIL_COND_V(p_trans_type < 0 || p_trans_type >= TRANS_COUNT, false);
+    ERR_FAIL_COND_V(p_ease_type < 0 || p_ease_type >= EASE_COUNT, false);
 
     // No negative delays
-    ERR_FAIL_COND_V(p_delay < 0, false)
+    ERR_FAIL_COND_V(p_delay < 0, false);
 
     // Confirm both objects have the target methods
-    ERR_FAIL_COND_V_MSG(!p_object->has_method(p_method), false, "Object has no method named: " + String(p_method) + ".")
-    ERR_FAIL_COND_V_MSG(!p_target->has_method(p_target_method), false, "Target has no method named: " + String(p_target_method) + ".")
+    ERR_FAIL_COND_V_MSG(!p_object->has_method(p_method), false, "Object has no method named: " + String(p_method) + ".");
+    ERR_FAIL_COND_V_MSG(!p_target->has_method(p_target_method), false, "Target has no method named: " + String(p_target_method) + ".");
 
     // Call the method to get the target value
     Variant::CallError error;
     Variant target_val = p_target->call(p_target_method, nullptr, 0, error);
-    ERR_FAIL_COND_V(error.error != Variant::CallError::CALL_OK, false)
+    ERR_FAIL_COND_V(error.error != Variant::CallError::CALL_OK, false);
 
     // Convert target INT values to REAL as they are better for interpolation
     if (target_val.get_type() == VariantType::INT) target_val = target_val.operator real_t();
-    ERR_FAIL_COND_V(target_val.get_type() != p_initial_val.get_type(), false)
+    ERR_FAIL_COND_V(target_val.get_type() != p_initial_val.get_type(), false);
 
     // Make the new InterpolateData for the method follow
     InterpolateData data;
@@ -1575,33 +1575,33 @@ bool Tween::targeting_property(Object *p_object, NodePath p_property, Object *p_
     if (p_final_val.get_type() == VariantType::INT) p_final_val = p_final_val.operator real_t();
 
     // Verify both objects are valid
-    ERR_FAIL_COND_V(p_object == nullptr, false)
-    ERR_FAIL_COND_V(!ObjectDB::instance_validate(p_object), false)
-    ERR_FAIL_COND_V(p_initial == nullptr, false)
-    ERR_FAIL_COND_V(!ObjectDB::instance_validate(p_initial), false)
+    ERR_FAIL_COND_V(p_object == nullptr, false);
+    ERR_FAIL_COND_V(!ObjectDB::instance_validate(p_object), false);
+    ERR_FAIL_COND_V(p_initial == nullptr, false);
+    ERR_FAIL_COND_V(!ObjectDB::instance_validate(p_initial), false);
 
     // No negative durations
-    ERR_FAIL_COND_V(p_duration < 0, false)
+    ERR_FAIL_COND_V(p_duration < 0, false);
 
     // Ensure transition and easing types are valid
-    ERR_FAIL_COND_V(p_trans_type < 0 || p_trans_type >= TRANS_COUNT, false)
-    ERR_FAIL_COND_V(p_ease_type < 0 || p_ease_type >= EASE_COUNT, false)
+    ERR_FAIL_COND_V(p_trans_type < 0 || p_trans_type >= TRANS_COUNT, false);
+    ERR_FAIL_COND_V(p_ease_type < 0 || p_ease_type >= EASE_COUNT, false);
 
     // No negative delays
-    ERR_FAIL_COND_V(p_delay < 0, false)
+    ERR_FAIL_COND_V(p_delay < 0, false);
 
     // Ensure the initial and target properties exist on their objects
     bool prop_valid = false;
     p_object->get_indexed(p_property.get_subnames(), &prop_valid);
-    ERR_FAIL_COND_V(!prop_valid, false)
+    ERR_FAIL_COND_V(!prop_valid, false);
 
     bool initial_prop_valid = false;
     Variant initial_val = p_initial->get_indexed(p_initial_property.get_subnames(), &initial_prop_valid);
-    ERR_FAIL_COND_V(!initial_prop_valid, false)
+    ERR_FAIL_COND_V(!initial_prop_valid, false);
 
     // Convert the initial INT value to REAL as it is better for interpolation
     if (initial_val.get_type() == VariantType::INT) initial_val = initial_val.operator real_t();
-    ERR_FAIL_COND_V(initial_val.get_type() != p_final_val.get_type(), false)
+    ERR_FAIL_COND_V(initial_val.get_type() != p_final_val.get_type(), false);
 
     // Build the InterpolateData object
     InterpolateData data;
@@ -1643,33 +1643,33 @@ bool Tween::targeting_method(Object *p_object, const StringName& p_method, Objec
     if (p_final_val.get_type() == VariantType::INT) p_final_val = p_final_val.as<real_t>();
 
     // Make sure the given objects are valid
-    ERR_FAIL_COND_V(p_object == nullptr, false)
-    ERR_FAIL_COND_V(!ObjectDB::instance_validate(p_object), false)
-    ERR_FAIL_COND_V(p_initial == nullptr, false)
-    ERR_FAIL_COND_V(!ObjectDB::instance_validate(p_initial), false)
+    ERR_FAIL_COND_V(p_object == nullptr, false);
+    ERR_FAIL_COND_V(!ObjectDB::instance_validate(p_object), false);
+    ERR_FAIL_COND_V(p_initial == nullptr, false);
+    ERR_FAIL_COND_V(!ObjectDB::instance_validate(p_initial), false);
 
     // No negative durations
-    ERR_FAIL_COND_V(p_duration < 0, false)
+    ERR_FAIL_COND_V(p_duration < 0, false);
 
     // Ensure transition and easing types are valid
-    ERR_FAIL_COND_V(p_trans_type < 0 || p_trans_type >= TRANS_COUNT, false)
-    ERR_FAIL_COND_V(p_ease_type < 0 || p_ease_type >= EASE_COUNT, false)
+    ERR_FAIL_COND_V(p_trans_type < 0 || p_trans_type >= TRANS_COUNT, false);
+    ERR_FAIL_COND_V(p_ease_type < 0 || p_ease_type >= EASE_COUNT, false);
 
     // No negative delays
-    ERR_FAIL_COND_V(p_delay < 0, false)
+    ERR_FAIL_COND_V(p_delay < 0, false);
 
     // Make sure both objects have the given method
-    ERR_FAIL_COND_V_MSG(!p_object->has_method(p_method), false, "Object has no method named: " + String(p_method) + ".")
-    ERR_FAIL_COND_V_MSG(!p_initial->has_method(p_initial_method), false, "Initial Object has no method named: " + String(p_initial_method) + ".")
+    ERR_FAIL_COND_V_MSG(!p_object->has_method(p_method), false, "Object has no method named: " + String(p_method) + ".");
+    ERR_FAIL_COND_V_MSG(!p_initial->has_method(p_initial_method), false, "Initial Object has no method named: " + String(p_initial_method) + ".");
 
     // Call the method to get the initial value
     Variant::CallError error;
     Variant initial_val = p_initial->call(p_initial_method, nullptr, 0, error);
-    ERR_FAIL_COND_V(error.error != Variant::CallError::CALL_OK, false)
+    ERR_FAIL_COND_V(error.error != Variant::CallError::CALL_OK, false);
 
     // Convert initial INT values to REAL as they aer better for interpolation
     if (initial_val.get_type() == VariantType::INT) initial_val = initial_val.operator real_t();
-    ERR_FAIL_COND_V(initial_val.get_type() != p_final_val.get_type(), false)
+    ERR_FAIL_COND_V(initial_val.get_type() != p_final_val.get_type(), false);
 
     // Build the new InterpolateData object
     InterpolateData data;

@@ -930,7 +930,7 @@ void Object::set_meta(se_string_view p_name, const Variant &p_value) {
 Variant Object::get_meta(se_string_view p_name) const {
 
     Variant key(p_name);
-    ERR_FAIL_COND_V(!metadata.has(key), Variant())
+    ERR_FAIL_COND_V(!metadata.has(key), Variant());
     return metadata[key];
 }
 
@@ -1015,12 +1015,12 @@ Variant Object::_emit_signal(const Variant **p_args, int p_argcount, Variant::Ca
 
     r_error.error = Variant::CallError::CALL_ERROR_TOO_FEW_ARGUMENTS;
 
-    ERR_FAIL_COND_V(p_argcount < 1, Variant())
+    ERR_FAIL_COND_V(p_argcount < 1, Variant());
     if (p_args[0]->get_type() != VariantType::STRING) {
         r_error.error = Variant::CallError::CALL_ERROR_INVALID_ARGUMENT;
         r_error.argument = 0;
         r_error.expected = VariantType::STRING;
-        ERR_FAIL_COND_V(p_args[0]->get_type() != VariantType::STRING, Variant())
+        ERR_FAIL_COND_V(p_args[0]->get_type() != VariantType::STRING, Variant());
     }
 
     r_error.error = Variant::CallError::CALL_OK;
@@ -1050,7 +1050,7 @@ Error Object::emit_signal(const StringName &p_name, const Variant **p_args, int 
         bool signal_is_valid = ClassDB::has_signal(get_class_name(), p_name);
         //check in script
         ERR_FAIL_COND_V_MSG(!signal_is_valid && !script.is_null() && !refFromRefPtr<Script>(script)->has_script_signal(p_name),
-                ERR_UNAVAILABLE, "Can't emit non-existing signal " + String("\"") + p_name + "\".")
+                ERR_UNAVAILABLE, "Can't emit non-existing signal " + String("\"") + p_name + "\".");
 #endif
         //not connected? just return
         return ERR_UNAVAILABLE;
@@ -1315,7 +1315,7 @@ void Object::get_signals_connected_to_this(ListPOD<Connection> *p_connections) c
 
 Error Object::connect(const StringName &p_signal, Object *p_to_object, const StringName &p_to_method, const PODVector<Variant> &p_binds, uint32_t p_flags) {
 
-    ERR_FAIL_NULL_V(p_to_object, ERR_INVALID_PARAMETER)
+    ERR_FAIL_NULL_V(p_to_object, ERR_INVALID_PARAMETER);
 
     Signal *s = private_data->signal_map.getptr(p_signal);
     if (!s) {
@@ -1731,7 +1731,7 @@ bool Object::is_queued_for_deletion() const {
 
 void *Object::get_script_instance_binding(int p_script_language_index) {
 #ifdef DEBUG_ENABLED
-    ERR_FAIL_INDEX_V(p_script_language_index, MAX_SCRIPT_INSTANCE_BINDINGS, nullptr)
+    ERR_FAIL_INDEX_V(p_script_language_index, MAX_SCRIPT_INSTANCE_BINDINGS, nullptr);
 #endif
 
     //it's up to the script language to make this thread safe, if the function is called twice due to threads being out of syncro
@@ -1820,7 +1820,7 @@ ObjectID ObjectDB::instance_counter = 1;
 HashMap<Object *, ObjectID> ObjectDB::instance_checks;
 ObjectID ObjectDB::add_instance(Object *p_object) {
 
-    ERR_FAIL_COND_V(p_object->get_instance_id() != 0, 0)
+    ERR_FAIL_COND_V(p_object->get_instance_id() != 0, 0);
 
     rw_lock->write_lock();
     ObjectID instance_id = ++instance_counter;
@@ -1889,7 +1889,7 @@ void ObjectDB::cleanup() {
     rw_lock->write_lock();
     if (instances.size()) {
 
-        WARN_PRINT("ObjectDB Instances still exist!")
+        WARN_PRINT("ObjectDB Instances still exist!");
         if (OS::get_singleton()->is_stdout_verbose()) {
             const ObjectID *K = nullptr;
             while ((K = instances.next(K))) {

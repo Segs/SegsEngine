@@ -393,7 +393,7 @@ Error EditorExportPlatformOSX::_code_sign(const Ref<EditorExportPreset> &p_prese
 
     String str;
     Error err = OS::get_singleton()->execute(("codesign"), args, true, nullptr, &str, nullptr, true);
-    ERR_FAIL_COND_V(err != OK, err)
+    ERR_FAIL_COND_V(err != OK, err);
 
     print_line(String("codesign (") + p_path + "): " + str);
     if (StringUtils::contains(str,"no identity found")) {
@@ -426,7 +426,7 @@ Error EditorExportPlatformOSX::_create_dmg(se_string_view p_dmg_path, se_string_
 
     String str;
     Error err = OS::get_singleton()->execute(("hdiutil"), args, true, nullptr, &str, nullptr, true);
-    ERR_FAIL_COND_V(err != OK, err)
+    ERR_FAIL_COND_V(err != OK, err);
 
     print_line("hdiutil returned: " + str);
     if (StringUtils::contains(str,"create failed")) {

@@ -351,7 +351,7 @@ void EditorAutoloadSettings::_autoload_text_changed(se_string_view p_name) {
 
 Node *EditorAutoloadSettings::_create_autoload(se_string_view p_path) {
     RES res(ResourceLoader::load(p_path));
-    ERR_FAIL_COND_V_MSG(not res, nullptr, String("Can't autoload: ") + p_path + ".")
+    ERR_FAIL_COND_V_MSG(not res, nullptr, String("Can't autoload: ") + p_path + ".");
     Node *n = nullptr;
     if (res->is_class("PackedScene")) {
         Ref<PackedScene> ps = dynamic_ref_cast<PackedScene>(res);
@@ -360,17 +360,17 @@ Node *EditorAutoloadSettings::_create_autoload(se_string_view p_path) {
         Ref<Script> s = dynamic_ref_cast<Script>(res);
         StringName ibt = s->get_instance_base_type();
         bool valid_type = ClassDB::is_parent_class(ibt, "Node");
-        ERR_FAIL_COND_V_MSG(!valid_type, nullptr, String("Script does not inherit a Node: ") + p_path + ".")
+        ERR_FAIL_COND_V_MSG(!valid_type, nullptr, String("Script does not inherit a Node: ") + p_path + ".");
 
         Object *obj = ClassDB::instance(ibt);
 
-        ERR_FAIL_COND_V_MSG(obj == nullptr, nullptr, "Cannot instance script for autoload, expected 'Node' inheritance, got: " + String(ibt) + ".")
+        ERR_FAIL_COND_V_MSG(obj == nullptr, nullptr, "Cannot instance script for autoload, expected 'Node' inheritance, got: " + String(ibt) + ".");
 
         n = object_cast<Node>(obj);
         n->set_script(s.get_ref_ptr());
     }
 
-    ERR_FAIL_COND_V_MSG(!n, nullptr, String("Path in autoload not a node or script: ") + p_path + ".")
+    ERR_FAIL_COND_V_MSG(!n, nullptr, String("Path in autoload not a node or script: ") + p_path + ".");
 
     return n;
 }

@@ -52,7 +52,7 @@ void Vector3::set_axis(int p_axis, real_t p_value) {
 }
 real_t Vector3::get_axis(int p_axis) const {
 
-    ERR_FAIL_INDEX_V(p_axis, 3, 0)
+    ERR_FAIL_INDEX_V(p_axis, 3, 0);
     return operator[](p_axis);
 }
 

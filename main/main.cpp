@@ -1471,7 +1471,7 @@ static MainTimerSync main_timer_sync;
 
 bool Main::start() {
 
-    ERR_FAIL_COND_V(!_start_success, false)
+    ERR_FAIL_COND_V(!_start_success, false);
 
     bool hasicon = false;
     String doc_tool;
@@ -1565,7 +1565,7 @@ bool Main::start() {
         Engine::get_singleton()->set_editor_hint(true); // Needed to instance editor-only classes for their default values
         {
             DirAccessRef da = DirAccess::open(doc_tool);
-            ERR_FAIL_COND_V_MSG(!da, false, "Argument supplied to --doctool must be a base Godot build directory.")
+            ERR_FAIL_COND_V_MSG(!da, false, "Argument supplied to --doctool must be a base Godot build directory.");
         }
         DocData doc;
         doc.generate(doc_base);
@@ -1641,7 +1641,7 @@ bool Main::start() {
     } else if (!script.empty()) {
 
         Ref<Script> script_res = dynamic_ref_cast<Script>(ResourceLoader::load(script));
-        ERR_FAIL_COND_V_MSG(not script_res, false, "Can't load script: " + script)
+        ERR_FAIL_COND_V_MSG(not script_res, false, "Can't load script: " + script);
 
         if (check_only) {
             if (!script_res->is_valid()) {
@@ -1682,7 +1682,7 @@ bool Main::start() {
         } else {
 
             Object *ml = ClassDB::instance(StringName(main_loop_type));
-            ERR_FAIL_COND_V_MSG(!ml, false, "Can't instance MainLoop type.")
+            ERR_FAIL_COND_V_MSG(!ml, false, "Can't instance MainLoop type.");
 
             main_loop = object_cast<MainLoop>(ml);
             if (!main_loop) {
@@ -1939,7 +1939,7 @@ bool Main::start() {
                 if (scenedata)
                     scene = scenedata->instance();
 
-                ERR_FAIL_COND_V_MSG(!scene, false, "Failed loading scene: " + local_game_path)
+                ERR_FAIL_COND_V_MSG(!scene, false, "Failed loading scene: " + local_game_path);
                 sml->add_current_scene(scene);
 #ifdef OSX_ENABLED
                 String mac_iconpath = GLOBAL_DEF("application/config/macos_native_icon", "Variant()");
@@ -2031,7 +2031,7 @@ static uint64_t idle_process_max = 0;
 bool Main::iteration() {
     SCOPE_AUTONAMED;
     //for now do not error on this
-    //ERR_FAIL_COND_V(iterating, false)
+    //ERR_FAIL_COND_V(iterating, false);
 
     iterating++;
     uint64_t ticks = OS::get_singleton()->get_ticks_usec();

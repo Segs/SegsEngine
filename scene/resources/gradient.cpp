@@ -205,7 +205,7 @@ void Gradient::set_offset(int pos, const float offset) {
 }
 
 float Gradient::get_offset(int pos) const {
-    ERR_FAIL_INDEX_V(pos, points.size(), 0.0)
+    ERR_FAIL_INDEX_V(pos, points.size(), 0.0);
     return points[pos].offset;
 }
 

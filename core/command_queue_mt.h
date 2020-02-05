@@ -362,7 +362,7 @@ class GODOT_EXPORT CommandQueueMT {
                 }
 
                 // if this happens, it's a bug
-                ERR_FAIL_COND_V((COMMAND_MEM_SIZE - write_ptr) < 8, nullptr)
+                ERR_FAIL_COND_V((COMMAND_MEM_SIZE - write_ptr) < 8, nullptr);
                 // zero means, wrap to beginning
 
                 uint32_t *p = (uint32_t *)&command_mem[write_ptr];

@@ -79,12 +79,12 @@ Variant ConfigFile::get_value(se_string_view _section, se_string_view _key, cons
     String p_key(_key);
     auto iter_section = values.find(p_section);
     if (iter_section==values.end()) {
-        ERR_FAIL_COND_V_MSG(p_default.get_type() == VariantType::NIL, p_default, "Couldn't find the given section/key and no default was given.")
+        ERR_FAIL_COND_V_MSG(p_default.get_type() == VariantType::NIL, p_default, "Couldn't find the given section/key and no default was given.");
         return p_default;
     }
     auto iter_key = iter_section->second.find(p_key);
     if (iter_key==iter_section->second.end()) {
-        ERR_FAIL_COND_V_MSG(p_default.get_type() == VariantType::NIL, p_default, "Couldn't find the given section/key and no default was given.")
+        ERR_FAIL_COND_V_MSG(p_default.get_type() == VariantType::NIL, p_default, "Couldn't find the given section/key and no default was given.");
         return p_default;
     }
     return iter_key->second;
@@ -108,7 +108,7 @@ PODVector<String> ConfigFile::get_section_keys(se_string_view _section) const {
     const String p_section(_section);
     auto iter = values.find_as(_section);
 
-    ERR_FAIL_COND_V_MSG(iter==values.end(), {},"Cannont get keys from nonexistent section '" + p_section + "'.")
+    ERR_FAIL_COND_V_MSG(iter==values.end(), {},"Cannont get keys from nonexistent section '" + p_section + "'.");
     return iter->second.keys();
 }
 void ConfigFile::erase_section(se_string_view p_section) {

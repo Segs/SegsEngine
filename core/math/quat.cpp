@@ -104,7 +104,7 @@ void Quat::set_euler_yxz(const Vector3 &p_euler) {
 // This implementation uses YXZ convention (Z is the first rotation).
 Vector3 Quat::get_euler_yxz() const {
 #ifdef MATH_CHECKS
-    ERR_FAIL_COND_V_MSG(!is_normalized(), Vector3(0, 0, 0), "The quaternion must be normalized.")
+    ERR_FAIL_COND_V_MSG(!is_normalized(), Vector3(0, 0, 0), "The quaternion must be normalized.");
 #endif
     Basis m(*this);
     return m.get_euler_yxz();
@@ -144,15 +144,15 @@ bool Quat::is_normalized() const {
 
 Quat Quat::inverse() const {
 #ifdef MATH_CHECKS
-    ERR_FAIL_COND_V_MSG(!is_normalized(), Quat(), "The quaternion must be normalized.")
+    ERR_FAIL_COND_V_MSG(!is_normalized(), Quat(), "The quaternion must be normalized.");
 #endif
     return Quat(-x, -y, -z, w);
 }
 
 Quat Quat::slerp(const Quat &q, const real_t &t) const {
 #ifdef MATH_CHECKS
-    ERR_FAIL_COND_V_MSG(!is_normalized(), Quat(), "The start quaternion must be normalized.")
-    ERR_FAIL_COND_V_MSG(!q.is_normalized(), Quat(), "The end quaternion must be normalized.")
+    ERR_FAIL_COND_V_MSG(!is_normalized(), Quat(), "The start quaternion must be normalized.");
+    ERR_FAIL_COND_V_MSG(!q.is_normalized(), Quat(), "The end quaternion must be normalized.");
 #endif
     Quat to1;
     real_t omega, cosom, sinom, scale0, scale1;
@@ -198,8 +198,8 @@ Quat Quat::slerp(const Quat &q, const real_t &t) const {
 
 Quat Quat::slerpni(const Quat &q, const real_t &t) const {
 #ifdef MATH_CHECKS
-    ERR_FAIL_COND_V_MSG(!is_normalized(), Quat(), "The start quaternion must be normalized.")
-    ERR_FAIL_COND_V_MSG(!q.is_normalized(), Quat(), "The end quaternion must be normalized.")
+    ERR_FAIL_COND_V_MSG(!is_normalized(), Quat(), "The start quaternion must be normalized.");
+    ERR_FAIL_COND_V_MSG(!q.is_normalized(), Quat(), "The end quaternion must be normalized.");
 #endif
     const Quat &from = *this;
 

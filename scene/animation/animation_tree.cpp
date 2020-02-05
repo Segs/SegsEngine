@@ -76,9 +76,9 @@ void AnimationNode::set_parameter(const StringName &p_name, const Variant &p_val
 }
 
 Variant AnimationNode::get_parameter(const StringName &p_name) const {
-    ERR_FAIL_COND_V(!state, Variant())
-    ERR_FAIL_COND_V(!state->tree->property_parent_map.contains(base_path), Variant())
-    ERR_FAIL_COND_V(!state->tree->property_parent_map[base_path].contains(p_name), Variant())
+    ERR_FAIL_COND_V(!state, Variant());
+    ERR_FAIL_COND_V(!state->tree->property_parent_map.contains(base_path), Variant());
+    ERR_FAIL_COND_V(!state->tree->property_parent_map[base_path].contains(p_name), Variant());
 
     StringName path = state->tree->property_parent_map[base_path][p_name];
     return state->tree->property_map[path];
@@ -159,10 +159,10 @@ void AnimationNode::make_invalid(const String &p_reason) {
 
 float AnimationNode::blend_input(int p_input, float p_time, bool p_seek, float p_blend, FilterAction p_filter, bool p_optimize) {
     ERR_FAIL_INDEX_V(p_input, inputs.size(), 0);
-    ERR_FAIL_COND_V(!state, 0)
+    ERR_FAIL_COND_V(!state, 0);
 
     AnimationNodeBlendTree *blend_tree = object_cast<AnimationNodeBlendTree>(parent);
-    ERR_FAIL_COND_V(!blend_tree, 0)
+    ERR_FAIL_COND_V(!blend_tree, 0);
 
     StringName node_name = connections[p_input];
 
@@ -198,8 +198,8 @@ float AnimationNode::blend_node(const StringName &p_sub_path, const Ref<Animatio
 
 float AnimationNode::_blend_node(const StringName &p_subpath, const PODVector<StringName> &p_connections, AnimationNode *p_new_parent, Ref<AnimationNode> p_node, float p_time, bool p_seek, float p_blend, FilterAction p_filter, bool p_optimize, float *r_max) {
 
-    ERR_FAIL_COND_V(not p_node, 0)
-    ERR_FAIL_COND_V(!state, 0)
+    ERR_FAIL_COND_V(not p_node, 0);
+    ERR_FAIL_COND_V(!state, 0);
 
     int blend_count = blends.size();
 
@@ -305,7 +305,7 @@ float AnimationNode::_blend_node(const StringName &p_subpath, const PODVector<St
         new_parent = p_new_parent;
         new_path = StringName(String(base_path) + p_subpath + "/");
     } else {
-        ERR_FAIL_COND_V(!parent, 0)
+        ERR_FAIL_COND_V(!parent, 0);
         new_parent = parent;
         new_path = StringName(String(parent->base_path) + p_subpath + "/");
     }

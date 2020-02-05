@@ -62,8 +62,8 @@ bool VideoPlayer::mix(AudioFrame *p_buffer, int p_frames) {
 
 // Called from main thread (eg VideoStreamPlaybackWebm::update)
 int VideoPlayer::_audio_mix_callback(void *p_udata, const float *p_data, int p_frames) {
-    ERR_FAIL_NULL_V(p_udata, 0)
-    ERR_FAIL_NULL_V(p_data, 0)
+    ERR_FAIL_NULL_V(p_udata, 0);
+    ERR_FAIL_NULL_V(p_data, 0);
 
     VideoPlayer *vp = (VideoPlayer *)p_udata;
 

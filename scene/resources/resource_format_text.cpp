@@ -144,7 +144,7 @@ Error ResourceInteractiveLoaderText::_parse_ext_resource_dummy(DummyReadData *p_
 
     int id = token.value;
 
-    ERR_FAIL_COND_V(!p_data->rev_external_resources.contains(id), ERR_PARSE_ERROR)
+    ERR_FAIL_COND_V(!p_data->rev_external_resources.contains(id), ERR_PARSE_ERROR);
 
     r_res = p_data->rev_external_resources[id];
 
@@ -220,7 +220,7 @@ Error ResourceInteractiveLoaderText::_parse_ext_resource(VariantParser::Stream *
         r_res = ResourceLoader::load(path, type);
 
         if (not r_res) {
-            WARN_PRINT("Couldn't load external resource: " + path)
+            WARN_PRINT("Couldn't load external resource: " + path);
         }
     } else {
         r_res = RES();
@@ -776,7 +776,7 @@ void ResourceInteractiveLoaderText::get_dependencies(FileAccess *p_f, PODVector<
 Error ResourceInteractiveLoaderText::rename_dependencies(FileAccess *p_f, se_string_view p_path, const Map<String, String> &p_map) {
 
     open(p_f, true);
-    ERR_FAIL_COND_V(error != OK, error)
+    ERR_FAIL_COND_V(error != OK, error);
     ignore_resource_parsing = true;
     //FileAccess
 
@@ -1288,7 +1288,7 @@ Ref<ResourceInteractiveLoader> ResourceFormatLoaderText::load_interactive(se_str
     Error err;
     FileAccess *f = FileAccess::open(p_path, FileAccess::READ, &err);
 
-    ERR_FAIL_COND_V(err != OK, Ref<ResourceInteractiveLoader>())
+    ERR_FAIL_COND_V(err != OK, Ref<ResourceInteractiveLoader>());
 
     Ref<ResourceInteractiveLoaderText> ria(make_ref_counted<ResourceInteractiveLoaderText>());
     se_string_view  path = !p_original_path.empty() ? p_original_path : p_path;
@@ -1384,7 +1384,7 @@ Error ResourceFormatLoaderText::convert_file_to_binary(se_string_view p_src_path
     Error err;
     FileAccess *f = FileAccess::open(p_src_path, FileAccess::READ, &err);
 
-    ERR_FAIL_COND_V(err != OK, ERR_CANT_OPEN)
+    ERR_FAIL_COND_V(err != OK, ERR_CANT_OPEN);
 
     Ref<ResourceInteractiveLoaderText> ria(make_ref_counted<ResourceInteractiveLoaderText>());
     se_string_view path = p_src_path;
@@ -1523,7 +1523,7 @@ Error ResourceFormatSaverTextInstance::save(se_string_view p_path, const RES &p_
 
     Error err;
     f = FileAccess::open(p_path, FileAccess::WRITE, &err);
-    ERR_FAIL_COND_V(err, ERR_CANT_OPEN)
+    ERR_FAIL_COND_V(err, ERR_CANT_OPEN);
     FileAccessRef _fref(f);
 
     local_path = ProjectSettings::get_singleton()->localize_path(p_path);

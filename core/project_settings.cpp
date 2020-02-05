@@ -217,7 +217,7 @@ bool ProjectSettings::_get(const StringName &p_name, Variant &r_ret) const {
         name = feature_overrides.at(name);
     }
     if (!props.contains(name)) {
-        WARN_PRINT("Property not found: " + String(name))
+        WARN_PRINT("Property not found: " + String(name));
         return false;
     }
     r_ret = props.at(name).variant;
@@ -352,7 +352,7 @@ Error ProjectSettings::_setup(se_string_view p_path, se_string_view p_main_pack,
     if (!p_main_pack.empty()) {
 
         bool ok = _load_resource_pack(p_main_pack);
-        ERR_FAIL_COND_V_MSG(!ok, ERR_CANT_OPEN, "Cannot open resource pack '" + String(p_main_pack) + "'.")
+        ERR_FAIL_COND_V_MSG(!ok, ERR_CANT_OPEN, "Cannot open resource pack '" + String(p_main_pack) + "'.");
 
         Error err = _load_settings_text_or_binary("res://project.godot", "res://project.binary");
         if (err == OK) {
@@ -445,7 +445,7 @@ Error ProjectSettings::_setup(se_string_view p_path, se_string_view p_main_pack,
     // or, if requested (`p_upwards`) in parent directories.
 
     DirAccess *d = DirAccess::create(DirAccess::ACCESS_FILESYSTEM);
-    ERR_FAIL_COND_V_MSG(!d, ERR_CANT_CREATE, "Cannot create DirAccess for path '" + String(p_path) + "'.")
+    ERR_FAIL_COND_V_MSG(!d, ERR_CANT_CREATE, "Cannot create DirAccess for path '" + String(p_path) + "'.");
     d->change_dir(p_path);
 
     String current_dir = d->get_current_dir();
@@ -639,7 +639,7 @@ Error ProjectSettings::_load_settings_text_or_binary(se_string_view p_text_path,
 
 int ProjectSettings::get_order(const StringName &p_name) const {
 
-    ERR_FAIL_COND_V_MSG(!props.contains(p_name), -1, "Request for nonexistent project setting: " + String(p_name) + ".")
+    ERR_FAIL_COND_V_MSG(!props.contains(p_name), -1, "Request for nonexistent project setting: " + String(p_name) + ".");
     return props.at(p_name).order;
 }
 
@@ -671,7 +671,7 @@ Error ProjectSettings::_save_settings_binary(se_string_view p_file, const Map<St
 
     Error err;
     FileAccess *file = FileAccess::open(p_file, FileAccess::WRITE, &err);
-    ERR_FAIL_COND_V_MSG(err != OK, err, "Couldn't save project.binary at " + String(p_file) + ".")
+    ERR_FAIL_COND_V_MSG(err != OK, err, "Couldn't save project.binary at " + String(p_file) + ".");
 
     uint8_t hdr[4] = { 'E', 'C', 'F', 'G' };
     file->store_buffer(hdr, 4);
@@ -731,7 +731,7 @@ Error ProjectSettings::_save_settings_binary(se_string_view p_file, const Map<St
             err = encode_variant(value, nullptr, len, true);
             if (err != OK)
                 memdelete(file);
-            ERR_FAIL_COND_V_MSG(err != OK, ERR_INVALID_DATA, "Error when trying to encode Variant.")
+            ERR_FAIL_COND_V_MSG(err != OK, ERR_INVALID_DATA, "Error when trying to encode Variant.");
 
             PODVector<uint8_t> buff;
             buff.resize(len);
@@ -739,7 +739,7 @@ Error ProjectSettings::_save_settings_binary(se_string_view p_file, const Map<St
             err = encode_variant(value, buff.data(), len, true);
             if (err != OK)
                 memdelete(file);
-            ERR_FAIL_COND_V_MSG(err != OK, ERR_INVALID_DATA, "Error when trying to encode Variant.")
+            ERR_FAIL_COND_V_MSG(err != OK, ERR_INVALID_DATA, "Error when trying to encode Variant.");
             file->store_32(len);
             file->store_buffer(buff.data(), buff.size());
         }
@@ -756,7 +756,7 @@ Error ProjectSettings::_save_settings_text(se_string_view p_file, const Map<Stri
     Error err;
     FileAccess *file = FileAccess::open(p_file, FileAccess::WRITE, &err);
 
-    ERR_FAIL_COND_V_MSG(err != OK, err, "Couldn't save project.godot - " + String(p_file) + ".")
+    ERR_FAIL_COND_V_MSG(err != OK, err, "Couldn't save project.godot - " + String(p_file) + ".");
 
     file->store_line(("; Engine configuration file."));
     file->store_line(("; It's best edited using the editor UI and not directly,"));
@@ -810,7 +810,7 @@ Error ProjectSettings::_save_custom_bnd(se_string_view p_file) { // add other pa
 
 Error ProjectSettings::save_custom(se_string_view p_path, const CustomMap &p_custom, const PODVector<String> &p_custom_features, bool p_merge_with_current) {
 
-    ERR_FAIL_COND_V_MSG(p_path.empty(), ERR_INVALID_PARAMETER, "Project settings save path cannot be empty.")
+    ERR_FAIL_COND_V_MSG(p_path.empty(), ERR_INVALID_PARAMETER, "Project settings save path cannot be empty.");
 
     Set<_VCSort> vclist;
 

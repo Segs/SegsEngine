@@ -42,8 +42,8 @@
 
 Error FileAccessEncrypted::open_and_parse(FileAccess *p_base, Span<const uint8_t> p_key, Mode p_mode) {
 
-    ERR_FAIL_COND_V_MSG(file != nullptr, ERR_ALREADY_IN_USE, "Can't open file while another file from path '" + file->get_path_absolute() + "' is open.")
-    ERR_FAIL_COND_V(p_key.size() != 32, ERR_INVALID_PARAMETER)
+    ERR_FAIL_COND_V_MSG(file != nullptr, ERR_ALREADY_IN_USE, "Can't open file while another file from path '" + file->get_path_absolute() + "' is open.");
+    ERR_FAIL_COND_V(p_key.size() != 32, ERR_INVALID_PARAMETER);
 
     pos = 0;
     eofed = false;
@@ -61,17 +61,17 @@ Error FileAccessEncrypted::open_and_parse(FileAccess *p_base, Span<const uint8_t
         writing = false;
         key = FixedVector<uint8_t,32,true>(p_key.begin(),p_key.end());
         uint32_t magic = p_base->get_32();
-        ERR_FAIL_COND_V(magic != COMP_MAGIC, ERR_FILE_UNRECOGNIZED)
+        ERR_FAIL_COND_V(magic != COMP_MAGIC, ERR_FILE_UNRECOGNIZED);
 
         mode = Mode(p_base->get_32());
-        ERR_FAIL_INDEX_V(mode, MODE_MAX, ERR_FILE_CORRUPT)
-        ERR_FAIL_COND_V(mode == 0, ERR_FILE_CORRUPT)
+        ERR_FAIL_INDEX_V(mode, MODE_MAX, ERR_FILE_CORRUPT);
+        ERR_FAIL_COND_V(mode == 0, ERR_FILE_CORRUPT);
 
         unsigned char md5d[16];
         p_base->get_buffer(md5d, 16);
         length = p_base->get_64();
         base = p_base->get_position();
-        ERR_FAIL_COND_V(p_base->get_len() < base + length, ERR_FILE_CORRUPT)
+        ERR_FAIL_COND_V(p_base->get_len() < base + length, ERR_FILE_CORRUPT);
         uint32_t ds = length;
         if (ds % 16) {
             ds += 16 - (ds % 16);
@@ -80,7 +80,7 @@ Error FileAccessEncrypted::open_and_parse(FileAccess *p_base, Span<const uint8_t
         data.resize(ds);
 
         uint32_t blen = p_base->get_buffer(data.data(), ds);
-        ERR_FAIL_COND_V(blen != ds, ERR_FILE_CORRUPT)
+        ERR_FAIL_COND_V(blen != ds, ERR_FILE_CORRUPT);
 
         CryptoCore::AESContext ctx;
         ctx.set_decode_key(key.data(), 256);
@@ -93,9 +93,9 @@ Error FileAccessEncrypted::open_and_parse(FileAccess *p_base, Span<const uint8_t
         data.resize(length);
 
         unsigned char hash[16];
-        ERR_FAIL_COND_V(CryptoCore::md5(data.data(), data.size(), hash) != OK, ERR_BUG)
+        ERR_FAIL_COND_V(CryptoCore::md5(data.data(), data.size(), hash) != OK, ERR_BUG);
 
-        ERR_FAIL_COND_V_MSG(StringUtils::md5(hash) != StringUtils::md5(md5d), ERR_FILE_CORRUPT, "The MD5 sum of the decrypted file does not match the expected value. It could be that the file is corrupt, or that the provided decryption key is invalid.")
+        ERR_FAIL_COND_V_MSG(StringUtils::md5(hash) != StringUtils::md5(md5d), ERR_FILE_CORRUPT, "The MD5 sum of the decrypted file does not match the expected value. It could be that the file is corrupt, or that the provided decryption key is invalid.");
 
         file = p_base;
     }
@@ -106,7 +106,7 @@ Error FileAccessEncrypted::open_and_parse(FileAccess *p_base, Span<const uint8_t
 Error FileAccessEncrypted::open_and_parse_password(FileAccess *p_base, se_string_view p_key, Mode p_mode) {
 
     String cs = StringUtils::md5_text(p_key);
-    ERR_FAIL_COND_V(cs.length() != 32, ERR_INVALID_PARAMETER)
+    ERR_FAIL_COND_V(cs.length() != 32, ERR_INVALID_PARAMETER);
     uint8_t key[32];
     memcpy(key,cs.c_str(),32);
 
@@ -214,7 +214,7 @@ bool FileAccessEncrypted::eof_reached() const {
 
 uint8_t FileAccessEncrypted::get_8() const {
 
-    ERR_FAIL_COND_V_MSG(writing, 0, "File has not been opened in read mode.")
+    ERR_FAIL_COND_V_MSG(writing, 0, "File has not been opened in read mode.");
     if (pos >= data.size()) {
         eofed = true;
         return 0;
@@ -226,7 +226,7 @@ uint8_t FileAccessEncrypted::get_8() const {
 }
 int FileAccessEncrypted::get_buffer(uint8_t *p_dst, int p_length) const {
 
-    ERR_FAIL_COND_V_MSG(writing, 0, "File has not been opened in read mode.")
+    ERR_FAIL_COND_V_MSG(writing, 0, "File has not been opened in read mode.");
 
     int to_copy = MIN(p_length, data.size() - pos);
     for (int i = 0; i < to_copy; i++) {

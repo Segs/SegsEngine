@@ -160,7 +160,7 @@ void VersionControlEditorPlugin::_send_commit_msg() {
         version_control_dock_button->set_pressed(false);
     } else {
 
-        WARN_PRINT("No VCS addon is initialized. Select a Version Control Addon from Project menu")
+        WARN_PRINT("No VCS addon is initialized. Select a Version Control Addon from Project menu");
     }
 
     _update_commit_status();
@@ -203,7 +203,7 @@ void VersionControlEditorPlugin::_refresh_stage_area() {
             commit_status->set_text("New changes detected");
         }
     } else {
-        WARN_PRINT("No VCS addon is initialized. Select a Version Control Addon from Project menu.")
+        WARN_PRINT("No VCS addon is initialized. Select a Version Control Addon from Project menu.");
     }
 }
 
@@ -211,7 +211,7 @@ void VersionControlEditorPlugin::_stage_selected() {
 
     if (!EditorVCSInterface::get_singleton()) {
 
-        WARN_PRINT("No VCS addon is initialized. Select a Version Control Addon from Project menu")
+        WARN_PRINT("No VCS addon is initialized. Select a Version Control Addon from Project menu");
         return;
     }
 
@@ -244,7 +244,7 @@ void VersionControlEditorPlugin::_stage_all() {
 
     if (!EditorVCSInterface::get_singleton()) {
 
-        WARN_PRINT("No VCS addon is initialized. Select a Version Control Addon from Project menu")
+        WARN_PRINT("No VCS addon is initialized. Select a Version Control Addon from Project menu");
         return;
     }
 

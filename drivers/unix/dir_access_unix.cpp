@@ -271,7 +271,7 @@ String DirAccessUnix::get_drive(int p_drive) {
     List<String> list;
     _get_drives(&list);
 
-    ERR_FAIL_INDEX_V(p_drive, list.size(), String())
+    ERR_FAIL_INDEX_V(p_drive, list.size(), String());
 
     return list[p_drive];
 }
@@ -308,7 +308,7 @@ Error DirAccessUnix::change_dir(se_string_view _dir) {
     // prev_dir is the directory we are changing out of
     UIString prev_dir;
     char real_current_dir_name[2048];
-    ERR_FAIL_COND_V(getcwd(real_current_dir_name, 2048) == nullptr, ERR_BUG)
+    ERR_FAIL_COND_V(getcwd(real_current_dir_name, 2048) == nullptr, ERR_BUG);
     if (StringUtils::parse_utf8(prev_dir,real_current_dir_name))
         prev_dir = real_current_dir_name; //no utf8, maybe latin?
 
@@ -329,7 +329,7 @@ Error DirAccessUnix::change_dir(se_string_view _dir) {
 
     String base = _get_root_path();
     if (!base.empty() && !StringUtils::begins_with(try_dir,base)) {
-        ERR_FAIL_COND_V(getcwd(real_current_dir_name, 2048) == nullptr, ERR_BUG)
+        ERR_FAIL_COND_V(getcwd(real_current_dir_name, 2048) == nullptr, ERR_BUG);
         String new_dir = real_current_dir_name;
 
         if (!StringUtils::begins_with(new_dir,base)) {
@@ -339,7 +339,7 @@ Error DirAccessUnix::change_dir(se_string_view _dir) {
 
     // the directory exists, so set current_dir to try_dir
     current_dir = try_dir;
-    ERR_FAIL_COND_V(chdir(StringUtils::to_utf8(prev_dir).data()) != 0, ERR_BUG)
+    ERR_FAIL_COND_V(chdir(StringUtils::to_utf8(prev_dir).data()) != 0, ERR_BUG);
     return OK;
 }
 

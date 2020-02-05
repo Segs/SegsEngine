@@ -231,7 +231,7 @@ public:
     BIND2RC(VS::PrimitiveType, mesh_surface_get_primitive_type, RID, int)
 
     BIND2RC(AABB, mesh_surface_get_aabb, RID, int)
-    BIND2RC(Vector<PoolVector<uint8_t> >, mesh_surface_get_blend_shapes, RID, int)
+    BIND2RC(PODVector<PoolVector<uint8_t> >, mesh_surface_get_blend_shapes, RID, int)
     BIND2RC(Vector<AABB>, mesh_surface_get_skeleton_aabb, RID, int)
 
     BIND2(mesh_remove_surface, RID, int)

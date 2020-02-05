@@ -483,7 +483,7 @@ void Text::set_line_wrap_amount(int p_line, int p_wrap_amount) const {
 
 int Text::get_line_wrap_amount(int p_line) const {
 
-    ERR_FAIL_INDEX_V(p_line, text.size(), -1)
+    ERR_FAIL_INDEX_V(p_line, text.size(), -1);
 
     return text[p_line].wrap_amount_cache;
 }
@@ -4184,8 +4184,8 @@ UIString TextEdit::_base_get_text(int p_from_line, int p_from_column, int p_to_l
     ERR_FAIL_INDEX_V(p_from_column, m_priv->text[p_from_line].length() + 1, UIString());
     ERR_FAIL_INDEX_V(p_to_line, m_priv->text.size(), UIString());
     ERR_FAIL_INDEX_V(p_to_column, m_priv->text[p_to_line].length() + 1, UIString());
-    ERR_FAIL_COND_V(p_to_line < p_from_line, UIString()) // 'from > to'.
-    ERR_FAIL_COND_V(p_to_line == p_from_line && p_to_column < p_from_column, UIString()) // 'from > to'.
+    ERR_FAIL_COND_V(p_to_line < p_from_line, UIString()); // 'from > to'.
+    ERR_FAIL_COND_V(p_to_line == p_from_line && p_to_column < p_from_column, UIString()); // 'from > to'.;
 
     UIString ret;
 
@@ -4545,7 +4545,7 @@ void TextEdit::update_cursor_wrap_offset() {
 
 bool TextEdit::line_wraps(int line) const {
 
-    ERR_FAIL_INDEX_V(line, m_priv->text.size(), 0)
+    ERR_FAIL_INDEX_V(line, m_priv->text.size(), 0);
     if (!is_wrap_enabled())
         return false;
     return m_priv->text.get_line_width(line) > wrap_at;
@@ -4553,7 +4553,7 @@ bool TextEdit::line_wraps(int line) const {
 
 int TextEdit::times_line_wraps(int line) const {
 
-    ERR_FAIL_INDEX_V(line, m_priv->text.size(), 0)
+    ERR_FAIL_INDEX_V(line, m_priv->text.size(), 0);
     if (!line_wraps(line))
         return 0;
 
@@ -4570,7 +4570,7 @@ int TextEdit::times_line_wraps(int line) const {
 
 Vector<UIString> TextEdit::get_wrap_rows_text(int p_line) const {
 
-    ERR_FAIL_INDEX_V(p_line, m_priv->text.size(), Vector<UIString>())
+    ERR_FAIL_INDEX_V(p_line, m_priv->text.size(), Vector<UIString>());
 
     Vector<UIString> lines;
     if (!line_wraps(p_line)) {
@@ -5339,13 +5339,13 @@ bool TextEdit::has_keyword_color(se_string_view p_keyword) const {
 Color TextEdit::get_keyword_color_uistr(const UIString& p_keyword) const {
 
     auto iter = m_priv->keywords.find(p_keyword);
-    ERR_FAIL_COND_V(iter==m_priv->keywords.end(), Color())
+    ERR_FAIL_COND_V(iter==m_priv->keywords.end(), Color());
     return iter->second;
 }
 Color TextEdit::get_keyword_color(se_string_view p_keyword) const {
 
     auto iter = m_priv->keywords.find(StringUtils::from_utf8(p_keyword));
-    ERR_FAIL_COND_V(iter==m_priv->keywords.end(), Color())
+    ERR_FAIL_COND_V(iter==m_priv->keywords.end(), Color());
     return iter->second;
 }
 
@@ -5564,22 +5564,22 @@ bool TextEdit::is_selection_active() const {
 }
 int TextEdit::get_selection_from_line() const {
 
-    ERR_FAIL_COND_V(!selection.active, -1)
+    ERR_FAIL_COND_V(!selection.active, -1);
     return selection.from_line;
 }
 int TextEdit::get_selection_from_column() const {
 
-    ERR_FAIL_COND_V(!selection.active, -1)
+    ERR_FAIL_COND_V(!selection.active, -1);
     return selection.from_column;
 }
 int TextEdit::get_selection_to_line() const {
 
-    ERR_FAIL_COND_V(!selection.active, -1)
+    ERR_FAIL_COND_V(!selection.active, -1);
     return selection.to_line;
 }
 int TextEdit::get_selection_to_column() const {
 
-    ERR_FAIL_COND_V(!selection.active, -1)
+    ERR_FAIL_COND_V(!selection.active, -1);
     return selection.to_column;
 }
 

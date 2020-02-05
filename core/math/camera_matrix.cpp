@@ -278,7 +278,7 @@ bool CameraMatrix::get_endpoints(const Transform &p_transform, Vector3 *p_8point
 
         Vector3 point;
         bool res = planes[intersections[i][0]].intersect_3(planes[intersections[i][1]], planes[intersections[i][2]], &point);
-        ERR_FAIL_COND_V(!res, false)
+        ERR_FAIL_COND_V(!res, false);
         p_8points[i] = p_transform.xform(point);
     }
 

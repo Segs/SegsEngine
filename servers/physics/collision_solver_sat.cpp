@@ -1464,15 +1464,15 @@ bool sat_calculate_penetration(const ShapeSW *p_shape_A, const Transform &p_tran
 
     PhysicsServer::ShapeType type_A = p_shape_A->get_type();
 
-    ERR_FAIL_COND_V(type_A == PhysicsServer::SHAPE_PLANE, false)
-    ERR_FAIL_COND_V(type_A == PhysicsServer::SHAPE_RAY, false)
-    ERR_FAIL_COND_V(p_shape_A->is_concave(), false)
+    ERR_FAIL_COND_V(type_A == PhysicsServer::SHAPE_PLANE, false);
+    ERR_FAIL_COND_V(type_A == PhysicsServer::SHAPE_RAY, false);
+    ERR_FAIL_COND_V(p_shape_A->is_concave(), false);
 
     PhysicsServer::ShapeType type_B = p_shape_B->get_type();
 
-    ERR_FAIL_COND_V(type_B == PhysicsServer::SHAPE_PLANE, false)
-    ERR_FAIL_COND_V(type_B == PhysicsServer::SHAPE_RAY, false)
-    ERR_FAIL_COND_V(p_shape_B->is_concave(), false)
+    ERR_FAIL_COND_V(type_B == PhysicsServer::SHAPE_PLANE, false);
+    ERR_FAIL_COND_V(type_B == PhysicsServer::SHAPE_RAY, false);
+    ERR_FAIL_COND_V(p_shape_B->is_concave(), false);
 
     static const CollisionFunc collision_table[6][6] = {
         { _collision_sphere_sphere<false>,
@@ -1581,7 +1581,7 @@ bool sat_calculate_penetration(const ShapeSW *p_shape_A, const Transform &p_tran
     } else {
         collision_func = collision_table[type_A - 2][type_B - 2];
     }
-    ERR_FAIL_COND_V(!collision_func, false)
+    ERR_FAIL_COND_V(!collision_func, false);
 
     collision_func(A, *transform_A, B, *transform_B, &callback, margin_A, margin_B);
 

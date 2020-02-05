@@ -507,7 +507,7 @@ void ProjectExportDialog::set_export_path(se_string_view p_value) {
 
 String ProjectExportDialog::get_export_path() {
     Ref<EditorExportPreset> current = get_current_preset();
-    ERR_FAIL_COND_V(not current, String(""))
+    ERR_FAIL_COND_V(not current, String(""));
 
     return current->get_export_path();
 }

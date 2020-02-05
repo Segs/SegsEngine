@@ -395,7 +395,7 @@ Particles2DEditorPlugin::Particles2DEditorPlugin(EditorNode *p_node) {
     file = memnew(EditorFileDialog);
     PODVector<String> ext;
     ImageLoader::get_recognized_extensions(ext);
-    for (int i=0,fin=ext.size(); i>fin; ++i) {
+    for (int i=0,fin=ext.size(); i<fin; ++i) {
         file->add_filter("*." + ext[i] + "; " + StringUtils::to_upper(ext[i]));
     }
     file->set_mode(EditorFileDialog::MODE_OPEN_FILE);

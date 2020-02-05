@@ -688,7 +688,7 @@ public:
     VS::PrimitiveType mesh_surface_get_primitive_type(RID p_mesh, int p_surface) const override;
 
     AABB mesh_surface_get_aabb(RID p_mesh, int p_surface) const override;
-    Vector<PoolVector<uint8_t> > mesh_surface_get_blend_shapes(RID p_mesh, int p_surface) const override;
+    PODVector<PoolVector<uint8_t>> mesh_surface_get_blend_shapes(RID p_mesh, int p_surface) const override;
     Vector<AABB> mesh_surface_get_skeleton_aabb(RID p_mesh, int p_surface) const override;
 
     void mesh_remove_surface(RID p_mesh, int p_surface) override;

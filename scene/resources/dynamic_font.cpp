@@ -69,14 +69,14 @@ struct DynamicFontAtSize::ImplData
         int mw = w + fa->rect_margin * 2;
         int mh = h + fa->rect_margin * 2;
 
-        ERR_FAIL_COND_V(mw > 4096, DynamicFontAtSize::Character::not_found())
-            ERR_FAIL_COND_V(mh > 4096, DynamicFontAtSize::Character::not_found())
+        ERR_FAIL_COND_V(mw > 4096, DynamicFontAtSize::Character::not_found());
+            ERR_FAIL_COND_V(mh > 4096, DynamicFontAtSize::Character::not_found());
 
             int color_size = bitmap.pixel_mode == FT_PIXEL_MODE_BGRA ? 4 : 2;
         Image::Format require_format = color_size == 4 ? Image::FORMAT_RGBA8 : Image::FORMAT_LA8;
 
         DynamicFontAtSize::TexturePosition tex_pos = fa->_find_texture_pos_for_glyph(color_size, require_format, mw, mh);
-        ERR_FAIL_COND_V(tex_pos.index < 0, Character::not_found())
+        ERR_FAIL_COND_V(tex_pos.index < 0, Character::not_found());
 
             //fit character in char texture
 
@@ -89,7 +89,7 @@ struct DynamicFontAtSize::ImplData
                 for (int j = 0; j < w; j++) {
 
                     int ofs = ((i + tex_pos.y + fa->rect_margin) * tex.texture_size + j + tex_pos.x + fa->rect_margin) * color_size;
-                    ERR_FAIL_COND_V(ofs >= tex.imgdata.size(), Character::not_found())
+                    ERR_FAIL_COND_V(ofs >= tex.imgdata.size(), Character::not_found());
                         switch (bitmap.pixel_mode) {
                         case FT_PIXEL_MODE_MONO: {
                             int byte = i * bitmap.pitch + (j >> 3);
@@ -230,7 +230,7 @@ Error DynamicFontAtSize::_load() {
 
     int error = FT_Init_FreeType(&m_impl->library);
 
-    ERR_FAIL_COND_V_MSG(error != 0, ERR_CANT_CREATE, "Error initializing FreeType.")
+    ERR_FAIL_COND_V_MSG(error != 0, ERR_CANT_CREATE, "Error initializing FreeType.");
 
     // FT_OPEN_STREAM is extremely slow only on Android.
     if (OS::get_singleton()->get_name() == "Android" && font->font_mem == nullptr && !font->font_path.empty()) {
@@ -309,7 +309,7 @@ Error DynamicFontAtSize::_load() {
         FT_Done_FreeType(m_impl->library);
     }
 
-    ERR_FAIL_COND_V(error, ERR_FILE_CANT_OPEN)
+    ERR_FAIL_COND_V(error, ERR_FILE_CANT_OPEN);
 
     if (FT_HAS_COLOR(m_impl->face) && m_impl->face->num_fixed_sizes > 0) {
         int best_match = 0;
@@ -359,7 +359,7 @@ float DynamicFontAtSize::get_descent() const {
 
 const Pair<const DynamicFontAtSize::Character *, DynamicFontAtSize *> DynamicFontAtSize::_find_char_with_font(CharType p_char, const PODVector<Ref<DynamicFontAtSize> > &p_fallbacks) const {
     const Character *chr = char_map.getptr(p_char);
-    ERR_FAIL_COND_V(!chr, (Pair<const Character *, DynamicFontAtSize *>(NULL, NULL)))
+    ERR_FAIL_COND_V(!chr, (Pair<const Character *, DynamicFontAtSize *>(NULL, NULL)));
 
     if (!chr->found) {
 
@@ -383,7 +383,7 @@ const Pair<const DynamicFontAtSize::Character *, DynamicFontAtSize *> DynamicFon
         //not found, try 0xFFFD to display 'not found'.
         const_cast<DynamicFontAtSize *>(this)->_update_char(0xFFFD);
         chr = char_map.getptr(0xFFFD);
-        ERR_FAIL_COND_V(!chr, (Pair<const Character *, DynamicFontAtSize *>(NULL, NULL)))
+        ERR_FAIL_COND_V(!chr, (Pair<const Character *, DynamicFontAtSize *>(NULL, NULL)));
     }
 
     return Pair<const Character *, DynamicFontAtSize *>(chr, const_cast<DynamicFontAtSize *>(this));
@@ -397,7 +397,7 @@ Size2 DynamicFontAtSize::get_char_size(CharType p_char, CharType p_next, const P
 
     Pair<const Character *, DynamicFontAtSize *> char_pair_with_font = _find_char_with_font(p_char, p_fallbacks);
     const Character *ch = char_pair_with_font.first;
-    ERR_FAIL_COND_V(!ch, Size2())
+    ERR_FAIL_COND_V(!ch, Size2());
 
     Size2 ret(0, get_height());
 
@@ -429,7 +429,7 @@ float DynamicFontAtSize::draw_char(RID p_canvas_item, const Point2 &p_pos, CharT
     const Character *ch = char_pair_with_font.first;
     DynamicFontAtSize *font = char_pair_with_font.second;
 
-    ERR_FAIL_COND_V(!ch, 0.0)
+    ERR_FAIL_COND_V(!ch, 0.0);
 
     float advance = 0.0;
     // use normal character size if there's no outline charater
@@ -446,7 +446,7 @@ float DynamicFontAtSize::draw_char(RID p_canvas_item, const Point2 &p_pos, CharT
         }
     }
     if (ch->found) {
-        ERR_FAIL_COND_V(ch->texture_idx < -1 || ch->texture_idx >= font->textures.size(), 0)
+        ERR_FAIL_COND_V(ch->texture_idx < -1 || ch->texture_idx >= font->textures.size(), 0);
 
         if (!p_advance_only && ch->texture_idx != -1) {
             Point2 cpos = p_pos;
@@ -565,7 +565,7 @@ DynamicFontAtSize::TexturePosition DynamicFontAtSize::_find_texture_pos_for_glyp
         {
             //zero texture
             PoolVector<uint8_t>::Write w = tex.imgdata.write();
-            ERR_FAIL_COND_V(texsize * texsize * p_color_size > tex.imgdata.size(), ret)
+            ERR_FAIL_COND_V(texsize * texsize * p_color_size > tex.imgdata.size(), ret);
             for (int i = 0; i < texsize * texsize * p_color_size; i++) {
                 w[i] = 0;
             }
@@ -950,7 +950,7 @@ int DynamicFont::get_fallback_count() const {
 }
 Ref<DynamicFontData> DynamicFont::get_fallback(int p_idx) const {
 
-    ERR_FAIL_INDEX_V(p_idx, fallbacks.size(), Ref<DynamicFontData>())
+    ERR_FAIL_INDEX_V(p_idx, fallbacks.size(), Ref<DynamicFontData>());
 
     return fallbacks[p_idx];
 }

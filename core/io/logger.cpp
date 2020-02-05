@@ -204,9 +204,9 @@ void StdLogger::logv(se_string_view p_format, bool p_err) {
     }
 
     if (p_err) {
-        fprintf(stderr, "%.*s",p_format.length(),p_format.data());
+        fprintf(stderr, "%.*s",uint32_t(p_format.length()),p_format.data());
     } else {
-        printf("%.*s",p_format.length(),p_format.data());
+        printf("%.*s", uint32_t(p_format.length()),p_format.data());
 #ifdef DEBUG_ENABLED
         fflush(stdout);
 #endif

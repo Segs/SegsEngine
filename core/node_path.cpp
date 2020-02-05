@@ -102,8 +102,8 @@ int NodePath::get_name_count() const {
 }
 StringName NodePath::get_name(int p_idx) const {
 
-    ERR_FAIL_COND_V(!data, StringName())
-    ERR_FAIL_INDEX_V(p_idx, data->path.size(), StringName())
+    ERR_FAIL_COND_V(!data, StringName());
+    ERR_FAIL_INDEX_V(p_idx, data->path.size(), StringName());
     return data->path[p_idx];
 }
 
@@ -116,8 +116,8 @@ int NodePath::get_subname_count() const {
 }
 StringName NodePath::get_subname(int p_idx) const {
 
-    ERR_FAIL_COND_V(!data, StringName())
-    ERR_FAIL_INDEX_V(p_idx, data->subpath.size(), StringName())
+    ERR_FAIL_COND_V(!data, StringName());
+    ERR_FAIL_INDEX_V(p_idx, data->subpath.size(), StringName());
     return data->subpath[p_idx];
 }
 
@@ -246,7 +246,7 @@ const PODVector<StringName> &NodePath::get_subnames() const {
 }
 
 StringName NodePath::get_concatenated_subnames() const {
-    ERR_FAIL_COND_V(!data, StringName())
+    ERR_FAIL_COND_V(!data, StringName());
 
     if (!data->concatenated_subpath) {
         int spc = data->subpath.size();
@@ -262,8 +262,8 @@ StringName NodePath::get_concatenated_subnames() const {
 
 NodePath NodePath::rel_path_to(const NodePath &p_np) const {
 
-    ERR_FAIL_COND_V(!is_absolute(), NodePath())
-    ERR_FAIL_COND_V(!p_np.is_absolute(), NodePath())
+    ERR_FAIL_COND_V(!is_absolute(), NodePath());
+    ERR_FAIL_COND_V(!p_np.is_absolute(), NodePath());
 
     const PODVector<StringName> &src_dirs(get_names());
     const PODVector<StringName> &dst_dirs(p_np.get_names());

@@ -207,7 +207,7 @@ Ref<ARVRInterface> ARVRServer::find_interface(const StringName &p_name) const {
         }
     }
 
-    ERR_FAIL_COND_V(idx == -1, Ref<ARVRInterface>())
+    ERR_FAIL_COND_V(idx == -1, Ref<ARVRInterface>());
 
     return interfaces[idx];
 };
@@ -304,7 +304,7 @@ ARVRPositionalTracker *ARVRServer::get_tracker(int p_index) const {
 };
 
 ARVRPositionalTracker *ARVRServer::find_by_type_and_id(TrackerType p_tracker_type, int p_tracker_id) const {
-    ERR_FAIL_COND_V(p_tracker_id == 0, nullptr)
+    ERR_FAIL_COND_V(p_tracker_id == 0, nullptr);
 
     for (int i = 0; i < trackers.size(); i++) {
         if (trackers[i]->get_type() == p_tracker_type && trackers[i]->get_tracker_id() == p_tracker_id) {

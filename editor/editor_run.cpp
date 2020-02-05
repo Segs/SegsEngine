@@ -201,7 +201,7 @@ Error EditorRun::run(se_string_view p_scene, se_string_view p_custom_args, const
 
     pid = 0;
     Error err = OS::get_singleton()->execute_utf8(exec, args, false, &pid);
-    ERR_FAIL_COND_V(err, err)
+    ERR_FAIL_COND_V(err, err);
 
     status = STATUS_PLAY;
 

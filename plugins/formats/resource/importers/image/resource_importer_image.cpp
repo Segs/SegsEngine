@@ -34,6 +34,7 @@
 #include "core/io/resource_saver.h"
 #include "core/os/file_access.h"
 #include "core/string_utils.h"
+#include "EASTL/unique_ptr.h"
 
 StringName ResourceImporterImage::get_importer_name() const {
 
@@ -78,19 +79,17 @@ Error ResourceImporterImage::import(se_string_view p_source_file, se_string_view
 
     FileAccess *f = FileAccess::open(p_source_file, FileAccess::READ);
 
-    ERR_FAIL_COND_V_MSG(!f, ERR_CANT_OPEN, "Cannot open file from path '" + p_source_file + "'.")
+    ERR_FAIL_COND_V_MSG(!f, ERR_CANT_OPEN, "Cannot open file from path '" + p_source_file + "'.");
 
     size_t len = f->get_len();
+    auto data = eastl::make_unique<uint8_t[]>(len);
 
-    Vector<uint8_t> data;
-    data.resize(len);
-
-    f->get_buffer(data.ptrw(), len);
+    f->get_buffer(data.get(), len);
 
     memdelete(f);
 
     f = FileAccess::open(String(p_save_path) + ".image", FileAccess::WRITE);
-    ERR_FAIL_COND_V_MSG(!f, ERR_CANT_CREATE, "Cannot create file in path '" + p_save_path + ".image'.")
+    ERR_FAIL_COND_V_MSG(!f, ERR_CANT_CREATE, "Cannot create file in path '" + p_save_path + ".image'.");
 
     //save the header GDIM
     const uint8_t header[4] = { 'G', 'D', 'I', 'M' };
@@ -98,7 +97,7 @@ Error ResourceImporterImage::import(se_string_view p_source_file, se_string_view
     //SAVE the extension (so it can be recognized by the loader later
     f->store_pascal_string(StringUtils::to_lower(PathUtils::get_extension(p_source_file)));
     //SAVE the actual image
-    f->store_buffer(data.ptr(), len);
+    f->store_buffer(data.get(), len);
 
     memdelete(f);
 

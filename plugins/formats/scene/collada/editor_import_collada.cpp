@@ -138,7 +138,7 @@ Error ColladaImport::_populate_skeleton(Skeleton *p_skeleton, Collada::Node *p_n
         p_skeleton->set_bone_rest(r_bone, collada.fix_transform(collada.state.bone_rest_map[joint->sid]));
         //should map this bone to something for animation?
     } else {
-        WARN_PRINT("Collada: Joint has no rest.")
+        WARN_PRINT("Collada: Joint has no rest.");
     }
 
     int id = r_bone++;
@@ -327,7 +327,7 @@ Error ColladaImport::_create_scene(Collada::Node *p_node, Spatial *p_parent) {
         } break;
         case Collada::Node::TYPE_SKELETON: {
 
-            ERR_FAIL_COND_V(!skeleton_map.contains(p_node), ERR_CANT_CREATE)
+            ERR_FAIL_COND_V(!skeleton_map.contains(p_node), ERR_CANT_CREATE);
             Skeleton *sk = skeleton_map[p_node];
             node = sk;
         } break;
@@ -361,10 +361,10 @@ Error ColladaImport::_create_scene(Collada::Node *p_node, Spatial *p_parent) {
 
 Error ColladaImport::_create_material(const String &p_target) {
 
-    ERR_FAIL_COND_V(material_cache.contains(p_target), ERR_ALREADY_EXISTS)
-    ERR_FAIL_COND_V(!collada.state.material_map.contains(p_target), ERR_INVALID_PARAMETER)
+    ERR_FAIL_COND_V(material_cache.contains(p_target), ERR_ALREADY_EXISTS);
+    ERR_FAIL_COND_V(!collada.state.material_map.contains(p_target), ERR_INVALID_PARAMETER);
     Collada::Material &src_mat = collada.state.material_map[p_target];
-    ERR_FAIL_COND_V(!collada.state.effect_map.contains(src_mat.instance_effect), ERR_INVALID_PARAMETER)
+    ERR_FAIL_COND_V(!collada.state.effect_map.contains(src_mat.instance_effect), ERR_INVALID_PARAMETER);
     Collada::Effect &effect = collada.state.effect_map[src_mat.instance_effect];
 
     Ref<SpatialMaterial> material(make_ref_counted<SpatialMaterial>());
@@ -498,14 +498,14 @@ Error ColladaImport::_create_mesh_surfaces(bool p_optimize, Ref<ArrayMesh> &p_me
     if (p_morph_data) {
 
         //add morphie target
-        ERR_FAIL_COND_V(!p_morph_data->targets.contains("MORPH_TARGET"), ERR_INVALID_DATA)
+        ERR_FAIL_COND_V(!p_morph_data->targets.contains("MORPH_TARGET"), ERR_INVALID_DATA);
         String mt = p_morph_data->targets.at("MORPH_TARGET");
-        ERR_FAIL_COND_V(!p_morph_data->sources.contains(mt), ERR_INVALID_DATA)
+        ERR_FAIL_COND_V(!p_morph_data->sources.contains(mt), ERR_INVALID_DATA);
         int morph_targets = p_morph_data->sources.at(mt).sarray.size();
         for (int i = 0; i < morph_targets; i++) {
 
             String target = p_morph_data->sources.at(mt).sarray[i];
-            ERR_FAIL_COND_V(!collada.state.mesh_data_map.contains(target), ERR_INVALID_DATA)
+            ERR_FAIL_COND_V(!collada.state.mesh_data_map.contains(target), ERR_INVALID_DATA);
             String name = collada.state.mesh_data_map[target].name;
 
             p_mesh->add_blend_shape(StringName(name));
@@ -522,17 +522,17 @@ Error ColladaImport::_create_mesh_surfaces(bool p_optimize, Ref<ArrayMesh> &p_me
         const Collada::MeshData::Primitives &p = meshdata.primitives[p_i];
 
         /* VERTEX SOURCE */
-        ERR_FAIL_COND_V(!p.sources.contains("VERTEX"), ERR_INVALID_DATA)
+        ERR_FAIL_COND_V(!p.sources.contains("VERTEX"), ERR_INVALID_DATA);
 
         String vertex_src_id = p.sources.at("VERTEX").source;
         int vertex_ofs = p.sources.at("VERTEX").offset;
 
-        ERR_FAIL_COND_V(!meshdata.vertices.contains(vertex_src_id), ERR_INVALID_DATA)
+        ERR_FAIL_COND_V(!meshdata.vertices.contains(vertex_src_id), ERR_INVALID_DATA);
 
-        ERR_FAIL_COND_V(!meshdata.vertices.at(vertex_src_id).sources.contains("POSITION"), ERR_INVALID_DATA)
+        ERR_FAIL_COND_V(!meshdata.vertices.at(vertex_src_id).sources.contains("POSITION"), ERR_INVALID_DATA);
         String position_src_id = meshdata.vertices.at(vertex_src_id).sources.at("POSITION");
 
-        ERR_FAIL_COND_V(!meshdata.sources.contains(position_src_id), ERR_INVALID_DATA)
+        ERR_FAIL_COND_V(!meshdata.sources.contains(position_src_id), ERR_INVALID_DATA);
 
         const Collada::MeshData::Source *vertex_src = &meshdata.sources.at(position_src_id);
 
@@ -545,7 +545,7 @@ Error ColladaImport::_create_mesh_surfaces(bool p_optimize, Ref<ArrayMesh> &p_me
 
             String normal_source_id = p.sources.at("NORMAL").source;
             normal_ofs = p.sources.at("NORMAL").offset;
-            ERR_FAIL_COND_V(!meshdata.sources.contains(normal_source_id), ERR_INVALID_DATA)
+            ERR_FAIL_COND_V(!meshdata.sources.contains(normal_source_id), ERR_INVALID_DATA);
             normal_src = &meshdata.sources.at(normal_source_id);
         }
 
@@ -556,7 +556,7 @@ Error ColladaImport::_create_mesh_surfaces(bool p_optimize, Ref<ArrayMesh> &p_me
 
             String binormal_source_id = p.sources.at("TEXBINORMAL").source;
             binormal_ofs = p.sources.at("TEXBINORMAL").offset;
-            ERR_FAIL_COND_V(!meshdata.sources.contains(binormal_source_id), ERR_INVALID_DATA)
+            ERR_FAIL_COND_V(!meshdata.sources.contains(binormal_source_id), ERR_INVALID_DATA);
             binormal_src = &meshdata.sources.at(binormal_source_id);
         }
 
@@ -567,7 +567,7 @@ Error ColladaImport::_create_mesh_surfaces(bool p_optimize, Ref<ArrayMesh> &p_me
 
             String tangent_source_id = p.sources.at("TEXTANGENT").source;
             tangent_ofs = p.sources.at("TEXTANGENT").offset;
-            ERR_FAIL_COND_V(!meshdata.sources.contains(tangent_source_id), ERR_INVALID_DATA)
+            ERR_FAIL_COND_V(!meshdata.sources.contains(tangent_source_id), ERR_INVALID_DATA);
             tangent_src = &meshdata.sources.at(tangent_source_id);
         }
 
@@ -578,7 +578,7 @@ Error ColladaImport::_create_mesh_surfaces(bool p_optimize, Ref<ArrayMesh> &p_me
 
             String uv_source_id = p.sources.at("TEXCOORD0").source;
             uv_ofs = p.sources.at("TEXCOORD0").offset;
-            ERR_FAIL_COND_V(!meshdata.sources.contains(uv_source_id), ERR_INVALID_DATA)
+            ERR_FAIL_COND_V(!meshdata.sources.contains(uv_source_id), ERR_INVALID_DATA);
             uv_src = &meshdata.sources.at(uv_source_id);
         }
 
@@ -589,7 +589,7 @@ Error ColladaImport::_create_mesh_surfaces(bool p_optimize, Ref<ArrayMesh> &p_me
 
             String uv2_source_id = p.sources.at("TEXCOORD1").source;
             uv2_ofs = p.sources.at("TEXCOORD1").offset;
-            ERR_FAIL_COND_V(!meshdata.sources.contains(uv2_source_id), ERR_INVALID_DATA)
+            ERR_FAIL_COND_V(!meshdata.sources.contains(uv2_source_id), ERR_INVALID_DATA);
             uv2_src = &meshdata.sources.at(uv2_source_id);
         }
 
@@ -600,7 +600,7 @@ Error ColladaImport::_create_mesh_surfaces(bool p_optimize, Ref<ArrayMesh> &p_me
 
             String color_source_id = p.sources.at("COLOR").source;
             color_ofs = p.sources.at("COLRO").offset;
-            ERR_FAIL_COND_V(!meshdata.sources.contains(color_source_id), ERR_INVALID_DATA)
+            ERR_FAIL_COND_V(!meshdata.sources.contains(color_source_id), ERR_INVALID_DATA);
             color_src = &meshdata.sources.at(color_source_id);
         }
 
@@ -720,7 +720,7 @@ Error ColladaImport::_create_mesh_surfaces(bool p_optimize, Ref<ArrayMesh> &p_me
             int amount;
             if (!p.polygons.empty()) {
 
-                ERR_FAIL_INDEX_V(p_j, p.polygons.size(), ERR_INVALID_DATA)
+                ERR_FAIL_INDEX_V(p_j, p.polygons.size(), ERR_INVALID_DATA);
                 amount = p.polygons[p_j];
             } else {
                 amount = 3; //triangles;
@@ -735,7 +735,7 @@ Error ColladaImport::_create_mesh_surfaces(bool p_optimize, Ref<ArrayMesh> &p_me
                 int src = _prim_ofs;
                 //_prim_ofs+=p.sources.size()
 
-                ERR_FAIL_INDEX_V(src, p.indices.size(), ERR_INVALID_DATA)
+                ERR_FAIL_INDEX_V(src, p.indices.size(), ERR_INVALID_DATA);
 
                 Collada::Vertex vertex;
                 if (!p_optimize)
@@ -743,7 +743,7 @@ Error ColladaImport::_create_mesh_surfaces(bool p_optimize, Ref<ArrayMesh> &p_me
 
                 int vertex_index = p.indices[src + vertex_ofs]; //used for index field (later used by controllers)
                 int vertex_pos = (vertex_src->stride ? vertex_src->stride : 3) * vertex_index;
-                ERR_FAIL_INDEX_V(vertex_pos, vertex_src->array.size(), ERR_INVALID_DATA)
+                ERR_FAIL_INDEX_V(vertex_pos, vertex_src->array.size(), ERR_INVALID_DATA);
                 vertex.vertex = Vector3(vertex_src->array[vertex_pos + 0], vertex_src->array[vertex_pos + 1], vertex_src->array[vertex_pos + 2]);
 
                 if (pre_weights.contains(vertex_index)) {
@@ -753,17 +753,17 @@ Error ColladaImport::_create_mesh_surfaces(bool p_optimize, Ref<ArrayMesh> &p_me
                 if (normal_src) {
 
                     int normal_pos = (normal_src->stride ? normal_src->stride : 3) * p.indices[src + normal_ofs];
-                    ERR_FAIL_INDEX_V(normal_pos, normal_src->array.size(), ERR_INVALID_DATA)
+                    ERR_FAIL_INDEX_V(normal_pos, normal_src->array.size(), ERR_INVALID_DATA);
                     vertex.normal = Vector3(normal_src->array[normal_pos + 0], normal_src->array[normal_pos + 1], normal_src->array[normal_pos + 2]);
 
                     if (tangent_src && binormal_src) {
 
                         int binormal_pos = (binormal_src->stride ? binormal_src->stride : 3) * p.indices[src + binormal_ofs];
-                        ERR_FAIL_INDEX_V(binormal_pos, binormal_src->array.size(), ERR_INVALID_DATA)
+                        ERR_FAIL_INDEX_V(binormal_pos, binormal_src->array.size(), ERR_INVALID_DATA);
                         Vector3 binormal = Vector3(binormal_src->array[binormal_pos + 0], binormal_src->array[binormal_pos + 1], binormal_src->array[binormal_pos + 2]);
 
                         int tangent_pos = (tangent_src->stride ? tangent_src->stride : 3) * p.indices[src + tangent_ofs];
-                        ERR_FAIL_INDEX_V(tangent_pos, tangent_src->array.size(), ERR_INVALID_DATA)
+                        ERR_FAIL_INDEX_V(tangent_pos, tangent_src->array.size(), ERR_INVALID_DATA);
                         Vector3 tangent = Vector3(tangent_src->array[tangent_pos + 0], tangent_src->array[tangent_pos + 1], tangent_src->array[tangent_pos + 2]);
 
                         vertex.tangent.normal = tangent;
@@ -774,21 +774,21 @@ Error ColladaImport::_create_mesh_surfaces(bool p_optimize, Ref<ArrayMesh> &p_me
                 if (uv_src) {
 
                     int uv_pos = (uv_src->stride ? uv_src->stride : 2) * p.indices[src + uv_ofs];
-                    ERR_FAIL_INDEX_V(uv_pos, uv_src->array.size(), ERR_INVALID_DATA)
+                    ERR_FAIL_INDEX_V(uv_pos, uv_src->array.size(), ERR_INVALID_DATA);
                     vertex.uv = Vector3(uv_src->array[uv_pos + 0], 1.0 - uv_src->array[uv_pos + 1], 0);
                 }
 
                 if (uv2_src) {
 
                     int uv2_pos = (uv2_src->stride ? uv2_src->stride : 2) * p.indices[src + uv2_ofs];
-                    ERR_FAIL_INDEX_V(uv2_pos, uv2_src->array.size(), ERR_INVALID_DATA)
+                    ERR_FAIL_INDEX_V(uv2_pos, uv2_src->array.size(), ERR_INVALID_DATA);
                     vertex.uv2 = Vector3(uv2_src->array[uv2_pos + 0], 1.0 - uv2_src->array[uv2_pos + 1], 0);
                 }
 
                 if (color_src) {
 
                     int color_pos = (color_src->stride ? color_src->stride : 3) * p.indices[src + color_ofs]; // colors are RGB in collada..
-                    ERR_FAIL_INDEX_V(color_pos, color_src->array.size(), ERR_INVALID_DATA)
+                    ERR_FAIL_INDEX_V(color_pos, color_src->array.size(), ERR_INVALID_DATA);
                     vertex.color = Color(color_src->array[color_pos + 0], color_src->array[color_pos + 1], color_src->array[color_pos + 2], (color_src->stride > 3) ? color_src->array[color_pos + 3] : 1.0);
                 }
 
@@ -892,7 +892,7 @@ Error ColladaImport::_create_mesh_surfaces(bool p_optimize, Ref<ArrayMesh> &p_me
                         material = dynamic_ref_cast<SpatialMaterial>(material_cache[target]);
 
                 } else if (!p.material.empty()) {
-                    WARN_PRINT("Collada: Unreferenced material in geometry instance: " + p.material)
+                    WARN_PRINT("Collada: Unreferenced material in geometry instance: " + p.material);
                 }
             }
 
@@ -1024,26 +1024,26 @@ Error ColladaImport::_create_resources(Collada::Node *p_node, bool p_use_compres
 
                 const Collada::CurveData &cd = collada.state.curve_data_map[ng->source];
 
-                ERR_FAIL_COND_V(!cd.control_vertices.contains("POSITION"), ERR_INVALID_DATA)
-                ERR_FAIL_COND_V(!cd.control_vertices.contains("IN_TANGENT"), ERR_INVALID_DATA)
-                ERR_FAIL_COND_V(!cd.control_vertices.contains("OUT_TANGENT"), ERR_INVALID_DATA)
-                ERR_FAIL_COND_V(!cd.control_vertices.contains("INTERPOLATION"), ERR_INVALID_DATA)
+                ERR_FAIL_COND_V(!cd.control_vertices.contains("POSITION"), ERR_INVALID_DATA);
+                ERR_FAIL_COND_V(!cd.control_vertices.contains("IN_TANGENT"), ERR_INVALID_DATA);
+                ERR_FAIL_COND_V(!cd.control_vertices.contains("OUT_TANGENT"), ERR_INVALID_DATA);
+                ERR_FAIL_COND_V(!cd.control_vertices.contains("INTERPOLATION"), ERR_INVALID_DATA);
 
-                ERR_FAIL_COND_V(!cd.sources.contains(cd.control_vertices.at("POSITION")), ERR_INVALID_DATA)
+                ERR_FAIL_COND_V(!cd.sources.contains(cd.control_vertices.at("POSITION")), ERR_INVALID_DATA);
                 const Collada::CurveData::Source &vertices = cd.sources.at(cd.control_vertices.at("POSITION"));
-                ERR_FAIL_COND_V(vertices.stride != 3, ERR_INVALID_DATA)
+                ERR_FAIL_COND_V(vertices.stride != 3, ERR_INVALID_DATA);
 
-                ERR_FAIL_COND_V(!cd.sources.contains(cd.control_vertices.at("IN_TANGENT")), ERR_INVALID_DATA)
+                ERR_FAIL_COND_V(!cd.sources.contains(cd.control_vertices.at("IN_TANGENT")), ERR_INVALID_DATA);
                 const Collada::CurveData::Source &in_tangents = cd.sources.at(cd.control_vertices.at("IN_TANGENT"));
-                ERR_FAIL_COND_V(in_tangents.stride != 3, ERR_INVALID_DATA)
+                ERR_FAIL_COND_V(in_tangents.stride != 3, ERR_INVALID_DATA);
 
-                ERR_FAIL_COND_V(!cd.sources.contains(cd.control_vertices.at("OUT_TANGENT")), ERR_INVALID_DATA)
+                ERR_FAIL_COND_V(!cd.sources.contains(cd.control_vertices.at("OUT_TANGENT")), ERR_INVALID_DATA);
                 const Collada::CurveData::Source &out_tangents = cd.sources.at(cd.control_vertices.at("OUT_TANGENT"));
-                ERR_FAIL_COND_V(out_tangents.stride != 3, ERR_INVALID_DATA)
+                ERR_FAIL_COND_V(out_tangents.stride != 3, ERR_INVALID_DATA);
 
-                ERR_FAIL_COND_V(!cd.sources.contains(cd.control_vertices.at("INTERPOLATION")), ERR_INVALID_DATA)
+                ERR_FAIL_COND_V(!cd.sources.contains(cd.control_vertices.at("INTERPOLATION")), ERR_INVALID_DATA);
                 const Collada::CurveData::Source &interps = cd.sources.at(cd.control_vertices.at("INTERPOLATION"));
-                ERR_FAIL_COND_V(interps.stride != 1, ERR_INVALID_DATA)
+                ERR_FAIL_COND_V(interps.stride != 1, ERR_INVALID_DATA);
 
                 const Collada::CurveData::Source *tilts = nullptr;
                 if (cd.control_vertices.contains("TILT") && cd.sources.contains(cd.control_vertices.at("TILT")))
@@ -1087,7 +1087,7 @@ Error ColladaImport::_create_resources(Collada::Node *p_node, bool p_use_compres
 
             MeshInstance *mi = object_cast<MeshInstance>(node);
 
-            ERR_FAIL_COND_V(!mi, ERR_BUG)
+            ERR_FAIL_COND_V(!mi, ERR_BUG);
 
             Collada::SkinControllerData *skin = nullptr;
             Collada::MorphControllerData *morph = nullptr;
@@ -1102,19 +1102,19 @@ Error ColladaImport::_create_resources(Collada::Node *p_node, bool p_use_compres
 
                 if (collada.state.skin_controller_data_map.contains(ngsource)) {
 
-                    ERR_FAIL_COND_V(!collada.state.skin_controller_data_map.contains(ngsource), ERR_INVALID_DATA)
+                    ERR_FAIL_COND_V(!collada.state.skin_controller_data_map.contains(ngsource), ERR_INVALID_DATA);
                     skin = &collada.state.skin_controller_data_map[ngsource];
 
                     const PODVector<String> &skeletons = ng2->skeletons;
 
-                    ERR_FAIL_COND_V(skeletons.empty(), ERR_INVALID_DATA)
+                    ERR_FAIL_COND_V(skeletons.empty(), ERR_INVALID_DATA);
 
                     String skname = skeletons[0];
-                    ERR_FAIL_COND_V(!node_map.contains(skname), ERR_INVALID_DATA)
+                    ERR_FAIL_COND_V(!node_map.contains(skname), ERR_INVALID_DATA);
                     NodeMap nmsk = node_map[skname];
                     Skeleton *sk = object_cast<Skeleton>(nmsk.node);
-                    ERR_FAIL_COND_V(!sk, ERR_INVALID_DATA)
-                    ERR_FAIL_COND_V(!skeleton_bone_map.contains(sk), ERR_INVALID_DATA)
+                    ERR_FAIL_COND_V(!sk, ERR_INVALID_DATA);
+                    ERR_FAIL_COND_V(!skeleton_bone_map.contains(sk), ERR_INVALID_DATA);
                     Map<String, int> &bone_remap_map = skeleton_bone_map[sk];
 
                     meshid = skin->base;
@@ -1135,10 +1135,10 @@ Error ColladaImport::_create_resources(Collada::Node *p_node, bool p_use_compres
                         apply_xform = Transform();
                     }
 
-                    ERR_FAIL_COND_V(!skin->weights.sources.contains("JOINT"), ERR_INVALID_DATA)
+                    ERR_FAIL_COND_V(!skin->weights.sources.contains("JOINT"), ERR_INVALID_DATA);
 
                     String joint_id = skin->weights.sources["JOINT"].source;
-                    ERR_FAIL_COND_V(!skin->sources.contains(joint_id), ERR_INVALID_DATA)
+                    ERR_FAIL_COND_V(!skin->sources.contains(joint_id), ERR_INVALID_DATA);
 
                     Collada::SkinControllerData::Source *joint_src = &skin->sources[joint_id];
 
@@ -1147,7 +1147,7 @@ Error ColladaImport::_create_resources(Collada::Node *p_node, bool p_use_compres
                     for (int i = 0; i < bone_remap.size(); i++) {
 
                         String str = joint_src->sarray[i];
-                        ERR_FAIL_COND_V(!bone_remap_map.contains(str), ERR_INVALID_DATA)
+                        ERR_FAIL_COND_V(!bone_remap_map.contains(str), ERR_INVALID_DATA);
                         bone_remap.write[i] = bone_remap_map[str];
                     }
                 }
@@ -1174,7 +1174,7 @@ Error ColladaImport::_create_resources(Collada::Node *p_node, bool p_use_compres
                                 mesh->set_name(meshdata.name);
                                 Error err = _create_mesh_surfaces(false, mesh, ng2->material_map, meshdata, apply_xform, bone_remap, skin, nullptr,
                                         Vector<Ref<ArrayMesh>>(), false);
-                                ERR_FAIL_COND_V(err, err)
+                                ERR_FAIL_COND_V(err, err);
 
                                 morphs.push_back(mesh);
                             }
@@ -1186,7 +1186,7 @@ Error ColladaImport::_create_resources(Collada::Node *p_node, bool p_use_compres
                     }
                 }
 
-                ERR_FAIL_COND_V_MSG(!ngsource.empty(), ERR_INVALID_DATA, "Controller instance source '" + ngsource + "' is neither skin or morph!")
+                ERR_FAIL_COND_V_MSG(!ngsource.empty(), ERR_INVALID_DATA, "Controller instance source '" + ngsource + "' is neither skin or morph!");
 
             } else {
                 meshid = ng2->source;
@@ -1199,17 +1199,17 @@ Error ColladaImport::_create_resources(Collada::Node *p_node, bool p_use_compres
                 if (collada.state.mesh_data_map.contains(meshid)) {
                     //bleh, must ignore invalid
 
-                    ERR_FAIL_COND_V(!collada.state.mesh_data_map.contains(meshid), ERR_INVALID_DATA)
+                    ERR_FAIL_COND_V(!collada.state.mesh_data_map.contains(meshid), ERR_INVALID_DATA);
                     mesh = make_ref_counted<ArrayMesh>();
                     const Collada::MeshData &meshdata = collada.state.mesh_data_map[meshid];
                     mesh->set_name(meshdata.name);
                     Error err = _create_mesh_surfaces(morphs.empty(), mesh, ng2->material_map, meshdata, apply_xform, bone_remap, skin, morph, morphs, p_use_compression, use_mesh_builtin_materials);
-                    ERR_FAIL_COND_V_MSG(err, err, "Cannot create mesh surface.")
+                    ERR_FAIL_COND_V_MSG(err, err, "Cannot create mesh surface.");
 
                     mesh_cache[meshid] = mesh;
                 } else {
 
-                    WARN_PRINT("Collada: Will not import geometry: " + meshid)
+                    WARN_PRINT("Collada: Will not import geometry: " + meshid);
                 }
             }
 
@@ -1256,10 +1256,10 @@ Error ColladaImport::_create_resources(Collada::Node *p_node, bool p_use_compres
 Error ColladaImport::load(se_string_view p_path, int p_flags, bool p_force_make_tangents, bool p_use_compression) {
 
     Error err = collada.load(p_path, p_flags);
-    ERR_FAIL_COND_V_MSG(err, err, "Cannot load file '" + p_path + "'.")
+    ERR_FAIL_COND_V_MSG(err, err, "Cannot load file '" + p_path + "'.");
 
     force_make_tangents = p_force_make_tangents;
-    ERR_FAIL_COND_V(!collada.state.visual_scene_map.contains(collada.state.root_visual_scene), ERR_INVALID_DATA)
+    ERR_FAIL_COND_V(!collada.state.visual_scene_map.contains(collada.state.root_visual_scene), ERR_INVALID_DATA);
     Collada::VisualScene &vs = collada.state.visual_scene_map[collada.state.root_visual_scene];
 
     scene = memnew(Spatial); // root
@@ -1276,7 +1276,7 @@ Error ColladaImport::load(se_string_view p_path, int p_flags, bool p_force_make_
         Error err2 = _create_scene_skeletons(vs.root_nodes[i]);
         if (err2 != OK) {
             memdelete(scene);
-            ERR_FAIL_COND_V(err2, err2)
+            ERR_FAIL_COND_V(err2, err2);
         }
     }
 
@@ -1285,13 +1285,13 @@ Error ColladaImport::load(se_string_view p_path, int p_flags, bool p_force_make_
         Error err2 = _create_scene(vs.root_nodes[i], scene);
         if (err2 != OK) {
             memdelete(scene);
-            ERR_FAIL_COND_V(err2, err2)
+            ERR_FAIL_COND_V(err2, err2);
         }
 
         Error err3 = _create_resources(vs.root_nodes[i], p_use_compression);
         if (err3 != OK) {
             memdelete(scene);
-            ERR_FAIL_COND_V(err3, err3)
+            ERR_FAIL_COND_V(err3, err3);
         }
     }
 
@@ -1407,7 +1407,7 @@ void ColladaImport::create_animations(bool p_make_tracks_in_all_bones, bool p_im
 
                 node = node_name_map[at.target];
             } else {
-                WARN_PRINT("Collada: Couldn't find node: " + at.target)
+                WARN_PRINT("Collada: Couldn't find node: " + at.target);
                 continue;
             }
         } else {
@@ -1587,7 +1587,7 @@ void ColladaImport::create_animation(int p_clip, bool p_make_tracks_in_all_bones
                 }
 
                 if (xform_idx == -1) {
-                    WARN_PRINT("Collada: Couldn't find matching node " + at.target + " xform for track " + at.param + ".")
+                    WARN_PRINT("Collada: Couldn't find matching node " + at.target + " xform for track " + at.param + ".");
                     continue;
                 }
 
@@ -1665,7 +1665,7 @@ void ColladaImport::create_animation(int p_clip, bool p_make_tracks_in_all_bones
 
             Collada::Node *cn = collada.state.scene_map[E.first];
             if (cn->ignore_anim) {
-                WARN_PRINT("Collada: Ignoring animation on node: " + path)
+                WARN_PRINT("Collada: Ignoring animation on node: " + path);
                 continue;
             }
 
@@ -1732,9 +1732,9 @@ void ColladaImport::create_animation(int p_clip, bool p_make_tracks_in_all_bones
 
                 } else if (data.size() == 16) {
                     //matrix
-                    WARN_PRINT("Collada: Value keys for matrices not supported.")
+                    WARN_PRINT("Collada: Value keys for matrices not supported.");
                 } else {
-                    WARN_PRINT("Collada: Unexpected amount of value keys: " + itos(data.size()))
+                    WARN_PRINT("Collada: Unexpected amount of value keys: " + itos(data.size()));
                 }
 
                 animation->track_insert_key(track, time, value);
@@ -1774,7 +1774,7 @@ Node *EditorSceneImporterCollada::import_scene(se_string_view p_path, uint32_t p
 
     Error err = state.load(p_path, flags, p_flags & EditorSceneImporter::IMPORT_GENERATE_TANGENT_ARRAYS, p_flags & EditorSceneImporter::IMPORT_USE_COMPRESSION);
 
-    ERR_FAIL_COND_V_MSG(err != OK, nullptr, "Cannot load scene from file '" + p_path + "'.")
+    ERR_FAIL_COND_V_MSG(err != OK, nullptr, "Cannot load scene from file '" + p_path + "'.");
 
     if (!state.missing_textures.empty()) {
 
@@ -1827,7 +1827,7 @@ Ref<Animation> EditorSceneImporterCollada::import_animation(se_string_view p_pat
     state.use_mesh_builtin_materials = false;
 
     Error err = state.load(p_path, Collada::IMPORT_FLAG_ANIMATION, p_flags & EditorSceneImporter::IMPORT_GENERATE_TANGENT_ARRAYS);
-    ERR_FAIL_COND_V_MSG(err != OK, Ref<Animation>(), "Cannot load animation from file '" + p_path + "'.")
+    ERR_FAIL_COND_V_MSG(err != OK, Ref<Animation>(), "Cannot load animation from file '" + p_path + "'.");
 
     state.create_animations(p_flags & EditorSceneImporter::IMPORT_ANIMATION_FORCE_ALL_TRACKS_IN_ALL_CLIPS, p_flags & EditorSceneImporter::IMPORT_ANIMATION_KEEP_VALUE_TRACKS);
     if (state.scene)

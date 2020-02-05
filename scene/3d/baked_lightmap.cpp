@@ -116,18 +116,18 @@ int BakedLightmapData::get_user_count() const {
 }
 NodePath BakedLightmapData::get_user_path(int p_user) const {
 
-    ERR_FAIL_INDEX_V(p_user, users.size(), NodePath())
+    ERR_FAIL_INDEX_V(p_user, users.size(), NodePath());
     return users[p_user].path;
 }
 Ref<Texture> BakedLightmapData::get_user_lightmap(int p_user) const {
 
-    ERR_FAIL_INDEX_V(p_user, users.size(), Ref<Texture>())
+    ERR_FAIL_INDEX_V(p_user, users.size(), Ref<Texture>());
     return users[p_user].lightmap;
 }
 
 int BakedLightmapData::get_user_instance(int p_user) const {
 
-    ERR_FAIL_INDEX_V(p_user, users.size(), -1)
+    ERR_FAIL_INDEX_V(p_user, users.size(), -1);
     return users[p_user].instance_index;
 }
 
@@ -620,7 +620,7 @@ BakedLightmap::BakeError BakedLightmap::bake(Node *p_from_node, bool p_create_vi
                 if (bake_end_function) {
                     bake_end_function();
                 }
-                ERR_FAIL_COND_V(err != OK, BAKE_ERROR_CANT_CREATE_IMAGE)
+                ERR_FAIL_COND_V(err != OK, BAKE_ERROR_CANT_CREATE_IMAGE);
             }
 
             new_light_data->add_user(E->deref().path, texture, E->deref().instance_idx);

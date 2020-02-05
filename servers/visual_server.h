@@ -198,7 +198,7 @@ public:
     virtual VS::PrimitiveType mesh_surface_get_primitive_type(RID p_mesh, int p_surface) const = 0;
 
     virtual AABB mesh_surface_get_aabb(RID p_mesh, int p_surface) const = 0;
-    virtual Vector<PoolVector<uint8_t> > mesh_surface_get_blend_shapes(RID p_mesh, int p_surface) const = 0;
+    virtual PODVector<PoolVector<uint8_t> > mesh_surface_get_blend_shapes(RID p_mesh, int p_surface) const = 0;
     virtual Vector<AABB> mesh_surface_get_skeleton_aabb(RID p_mesh, int p_surface) const = 0;
     Array _mesh_surface_get_skeleton_aabb_bind(RID p_mesh, int p_surface) const;
 

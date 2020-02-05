@@ -327,7 +327,7 @@ Error ResourceInteractiveLoaderBinary::parse_variant(Variant &r_v) {
                     String path = res_path + "::" + ::to_string(index);
                     RES res(ResourceLoader::load(path));
                     if (not res) {
-                        WARN_PRINT("Couldn't load resource: " + path)
+                        WARN_PRINT("Couldn't load resource: " + path);
                     }
                     r_v = res;
 
@@ -350,7 +350,7 @@ Error ResourceInteractiveLoaderBinary::parse_variant(Variant &r_v) {
                     RES res(ResourceLoader::load(path, exttype));
 
                     if (not res) {
-                        WARN_PRINT(("Couldn't load resource: " + path))
+                        WARN_PRINT(("Couldn't load resource: " + path));
                     }
                     r_v = res;
 
@@ -360,7 +360,7 @@ Error ResourceInteractiveLoaderBinary::parse_variant(Variant &r_v) {
                     int erindex = f->get_32();
 
                     if (erindex < 0 || erindex >= external_resources.size()) {
-                        WARN_PRINT("Broken external resource! (index out of size)")
+                        WARN_PRINT("Broken external resource! (index out of size)");
                         r_v = Variant();
                     } else {
 
@@ -375,7 +375,7 @@ Error ResourceInteractiveLoaderBinary::parse_variant(Variant &r_v) {
                         RES res(ResourceLoader::load(path, exttype));
 
                         if (not res) {
-                            WARN_PRINT(("Couldn't load resource: " + path))
+                            WARN_PRINT(("Couldn't load resource: " + path));
                         }
                         r_v = res;
                     }
@@ -396,10 +396,10 @@ Error ResourceInteractiveLoaderBinary::parse_variant(Variant &r_v) {
             for (uint32_t i = 0; i < len; i++) {
                 Variant key;
                 Error err = parse_variant(key);
-                ERR_FAIL_COND_V_MSG(err, ERR_FILE_CORRUPT, "Error when trying to parse Variant.")
+                ERR_FAIL_COND_V_MSG(err, ERR_FILE_CORRUPT, "Error when trying to parse Variant.");
                 Variant value;
                 err = parse_variant(value);
-                ERR_FAIL_COND_V_MSG(err, ERR_FILE_CORRUPT, "Error when trying to parse Variant.")
+                ERR_FAIL_COND_V_MSG(err, ERR_FILE_CORRUPT, "Error when trying to parse Variant.");
                 d[key] = value;
             }
             r_v = d;
@@ -413,7 +413,7 @@ Error ResourceInteractiveLoaderBinary::parse_variant(Variant &r_v) {
             for (uint32_t i = 0; i < len; i++) {
                 Variant val;
                 Error err = parse_variant(val);
-                ERR_FAIL_COND_V_MSG(err, ERR_FILE_CORRUPT, "Error when trying to parse Variant.")
+                ERR_FAIL_COND_V_MSG(err, ERR_FILE_CORRUPT, "Error when trying to parse Variant.");
                 a[i] = val;
             }
             r_v = a;
@@ -623,7 +623,7 @@ Error ResourceInteractiveLoaderBinary::poll() {
     if (s >= internal_resources.size()) {
 
         error = ERR_BUG;
-        ERR_FAIL_COND_V(s >= internal_resources.size(), error)
+        ERR_FAIL_COND_V(s >= internal_resources.size(), error);
     }
 
     bool main = s == (internal_resources.size() - 1);
@@ -927,7 +927,7 @@ Ref<ResourceInteractiveLoader> ResourceFormatLoaderBinary::load_interactive(se_s
     Error err;
     FileAccess *f = FileAccess::open(p_path, FileAccess::READ, &err);
 
-    ERR_FAIL_COND_V_MSG(err != OK, Ref<ResourceInteractiveLoader>(), "Cannot open file '" + String(p_path) + "'.")
+    ERR_FAIL_COND_V_MSG(err != OK, Ref<ResourceInteractiveLoader>(), "Cannot open file '" + String(p_path) + "'.");
 
     Ref<ResourceInteractiveLoaderBinary> ria(make_ref_counted<ResourceInteractiveLoaderBinary>());
     se_string_view path = !p_original_path.empty() ? p_original_path : p_path;
@@ -991,7 +991,7 @@ Error ResourceFormatLoaderBinary::rename_dependencies(se_string_view _path, cons
     //Error error=OK;
     String p_path(_path);
     FileAccess *f = FileAccess::open(p_path, FileAccess::READ);
-    ERR_FAIL_COND_V_MSG(!f, ERR_CANT_OPEN, "Cannot open file '" + p_path + "'.")
+    ERR_FAIL_COND_V_MSG(!f, ERR_CANT_OPEN, "Cannot open file '" + p_path + "'.");
 
     FileAccess *fw = nullptr; //=FileAccess::open(p_path+".depren");
 
@@ -1011,7 +1011,7 @@ Error ResourceFormatLoaderBinary::rename_dependencies(se_string_view _path, cons
         if (err) {
             memdelete(fac);
             memdelete(facw);
-            ERR_FAIL_COND_V_MSG(err, ERR_FILE_CORRUPT, "Cannot create file '" + p_path + ".depren'.")
+            ERR_FAIL_COND_V_MSG(err, ERR_FILE_CORRUPT, "Cannot create file '" + p_path + ".depren'.");
         }
 
         fw = facw;
@@ -1027,7 +1027,7 @@ Error ResourceFormatLoaderBinary::rename_dependencies(se_string_view _path, cons
         if (!fw) {
             memdelete(f);
         }
-        ERR_FAIL_COND_V_MSG(!fw, ERR_CANT_CREATE, "Cannot create file '" + p_path + ".depren'.")
+        ERR_FAIL_COND_V_MSG(!fw, ERR_CANT_CREATE, "Cannot create file '" + p_path + ".depren'.");
 
         uint8_t magic[4] = { 'R', 'S', 'R', 'C' };
         fw->store_buffer(magic, 4);
@@ -1058,12 +1058,12 @@ Error ResourceFormatLoaderBinary::rename_dependencies(se_string_view _path, cons
         memdelete(da);
         //use the old approach
 
-        WARN_PRINT("This file is old, so it can't refactor dependencies, opening and resaving '" + p_path + "'.")
+        WARN_PRINT("This file is old, so it can't refactor dependencies, opening and resaving '" + p_path + "'.");
 
         Error err;
         f = FileAccess::open(p_path, FileAccess::READ, &err);
 
-        ERR_FAIL_COND_V_MSG(err != OK, ERR_FILE_CANT_OPEN, "Cannot open file '" + p_path + "'.")
+        ERR_FAIL_COND_V_MSG(err != OK, ERR_FILE_CANT_OPEN, "Cannot open file '" + p_path + "'.");
 
         Ref<ResourceInteractiveLoaderBinary> ria(make_ref_counted<ResourceInteractiveLoaderBinary>());
         ria->local_path = ProjectSettings::get_singleton()->localize_path(p_path);
@@ -1078,9 +1078,9 @@ Error ResourceFormatLoaderBinary::rename_dependencies(se_string_view _path, cons
             err = ria->poll();
         }
 
-        ERR_FAIL_COND_V(err != ERR_FILE_EOF, ERR_FILE_CORRUPT)
+        ERR_FAIL_COND_V(err != ERR_FILE_EOF, ERR_FILE_CORRUPT);
         RES res(ria->get_resource());
-        ERR_FAIL_COND_V(not res, ERR_FILE_CORRUPT)
+        ERR_FAIL_COND_V(not res, ERR_FILE_CORRUPT);
 
         return ResourceFormatSaverBinary::singleton->save(p_path, res);
     }
@@ -1412,7 +1412,7 @@ void ResourceFormatSaverBinaryInstance::write_variant(FileAccess *f, const Varia
         case VariantType::_RID: {
 
             f->store_32(VARIANT_RID);
-            WARN_PRINT("Can't save RIDs.")
+            WARN_PRINT("Can't save RIDs.");
             RID val = p_property;
             f->store_32(val.get_id());
         } break;
@@ -1696,7 +1696,7 @@ Error ResourceFormatSaverBinaryInstance::save(se_string_view p_path, const RES &
         f = FileAccess::open(p_path, FileAccess::WRITE, &err);
     }
 
-    ERR_FAIL_COND_V_MSG(err != OK, err, "Cannot create file '" + String(p_path) + "'.")
+    ERR_FAIL_COND_V_MSG(err != OK, err, "Cannot create file '" + String(p_path) + "'.");
 
     relative_paths = p_flags & ResourceSaver::FLAG_RELATIVE_PATHS;
     skip_editor = p_flags & ResourceSaver::FLAG_OMIT_EDITOR_PROPERTIES;

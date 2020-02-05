@@ -763,7 +763,7 @@ RigidBody2D::CCDMode RigidBody2D::get_continuous_collision_detection_mode() cons
 
 Array RigidBody2D::get_colliding_bodies() const {
 
-    ERR_FAIL_COND_V(!contact_monitor, Array())
+    ERR_FAIL_COND_V(!contact_monitor, Array());
 
     Array ret;
     ret.resize(contact_monitor->body_map.size());
@@ -1254,7 +1254,7 @@ Vector2 KinematicBody2D::get_floor_velocity() const {
 
 bool KinematicBody2D::test_move(const Transform2D &p_from, const Vector2 &p_motion, bool p_infinite_inertia) {
 
-    ERR_FAIL_COND_V(!is_inside_tree(), false)
+    ERR_FAIL_COND_V(!is_inside_tree(), false);
 
     return Physics2DServer::get_singleton()->body_test_motion(get_rid(), p_from, p_motion, p_infinite_inertia, margin);
 }
