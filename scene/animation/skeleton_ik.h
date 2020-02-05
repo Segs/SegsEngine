@@ -49,25 +49,22 @@ class FabrikInverseKinematic {
 
     struct ChainItem {
 
-        Vector<ChainItem> children;
-        ChainItem *parent_item;
+        PODVector<ChainItem> children;
+        ChainItem *parent_item = nullptr;
 
         // Bone info
-        BoneId bone;
-        PhysicalBone *pb;
+        PhysicalBone *pb = nullptr;
+        BoneId bone = -1;
 
-        real_t length;
+        real_t length = 0;
+
         /// Positions relative to root bone
         Transform initial_transform;
         Vector3 current_pos;
         // Direction from this bone to child
         Vector3 current_ori;
 
-        ChainItem() :
-                parent_item(nullptr),
-                bone(-1),
-                pb(nullptr),
-                length(0) {}
+        ChainItem()  {}
 
         ChainItem *find_child(const BoneId p_bone_id);
         ChainItem *add_child(const BoneId p_bone_id);
@@ -93,7 +90,7 @@ class FabrikInverseKinematic {
     struct Chain {
         ChainItem chain_root;
         ChainItem *middle_chain_item;
-        Vector<ChainTip> tips;
+        PODVector<ChainTip> tips;
         Vector3 magnet_position;
     };
 
@@ -110,7 +107,7 @@ public:
 
         // Bone data
         BoneId root_bone;
-        Vector<EndEffector> end_effectors;
+        PODVector<EndEffector> end_effectors;
 
         Transform goal_global_transform;
 

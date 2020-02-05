@@ -585,11 +585,11 @@ void SpatialEditorViewport::_compute_edit(const Point2 &p_point) {
     spatial_editor->update_transform_gizmo();
     _edit.center = spatial_editor->get_gizmo_transform().origin;
 
-    List<Node *> &selection = editor_selection->get_selected_node_list();
+    const PODVector<Node *> &selection = editor_selection->get_selected_node_list();
 
-    for (List<Node *>::Element *E = selection.front(); E; E = E->next()) {
+    for (Node *E : selection) {
 
-        Spatial *sp = object_cast<Spatial>(E->deref());
+        Spatial *sp = object_cast<Spatial>(E);
         if (!sp)
             continue;
 
@@ -972,11 +972,11 @@ void SpatialEditorViewport::_sinput(const Ref<InputEvent> &p_event) {
                     //cancel motion
                     _edit.mode = TRANSFORM_NONE;
 
-                    List<Node *> &selection = editor_selection->get_selected_node_list();
+                    const PODVector<Node *> &selection = editor_selection->get_selected_node_list();
 
-                    for (List<Node *>::Element *E = selection.front(); E; E = E->next()) {
+                    for (Node * E : selection) {
 
-                        Spatial *sp = object_cast<Spatial>(E->deref());
+                        Spatial *sp = object_cast<Spatial>(E);
                         if (!sp)
                             continue;
 
@@ -1194,11 +1194,11 @@ void SpatialEditorViewport::_sinput(const Ref<InputEvent> &p_event) {
                         static const char *_transform_name[4] = { "None", "Rotate", "Translate", "Scale" };
                         undo_redo->create_action(_transform_name[_edit.mode]);
 
-                        List<Node *> &selection = editor_selection->get_selected_node_list();
+                        const PODVector<Node *> &selection = editor_selection->get_selected_node_list();
 
-                        for (List<Node *>::Element *E = selection.front(); E; E = E->next()) {
+                        for (Node * E : selection) {
 
-                            Spatial *sp = object_cast<Spatial>(E->deref());
+                            Spatial *sp = object_cast<Spatial>(E);
                             if (!sp)
                                 continue;
 
@@ -1381,7 +1381,7 @@ void SpatialEditorViewport::_sinput(const Ref<InputEvent> &p_event) {
                             motion = Vector3(scale, scale, scale);
                         }
 
-                        List<Node *> &selection = editor_selection->get_selected_node_list();
+                        const PODVector<Node *> &selection = editor_selection->get_selected_node_list();
 
                         // Disable local transformation for TRANSFORM_VIEW
                         bool local_coords = spatial_editor->are_local_coords_enabled() && _edit.plane != TRANSFORM_VIEW;
@@ -1397,9 +1397,9 @@ void SpatialEditorViewport::_sinput(const Ref<InputEvent> &p_event) {
                                     .arg(motion_snapped.y, snap_step_decimals)
                                     .arg(motion_snapped.z, snap_step_decimals))));
 
-                        for (List<Node *>::Element *E = selection.front(); E; E = E->next()) {
+                        for (Node *E : selection) {
 
-                            Spatial *sp = object_cast<Spatial>(E->deref());
+                            Spatial *sp = object_cast<Spatial>(E);
                             if (!sp) {
                                 continue;
                             }
@@ -1509,7 +1509,7 @@ void SpatialEditorViewport::_sinput(const Ref<InputEvent> &p_event) {
                             }
                         }
 
-                        List<Node *> &selection = editor_selection->get_selected_node_list();
+                        const PODVector<Node *> &selection = editor_selection->get_selected_node_list();
 
                         // Disable local transformation for TRANSFORM_VIEW
                         bool local_coords = spatial_editor->are_local_coords_enabled() && _edit.plane != TRANSFORM_VIEW;
@@ -1524,9 +1524,9 @@ void SpatialEditorViewport::_sinput(const Ref<InputEvent> &p_event) {
                                     .arg(motion_snapped.y, snap_step_decimals)
                                     .arg(motion_snapped.z, snap_step_decimals)));
 
-                        for (List<Node *>::Element *E = selection.front(); E; E = E->next()) {
+                        for (Node *E : selection) {
 
-                            Spatial *sp = object_cast<Spatial>(E->deref());
+                            Spatial *sp = object_cast<Spatial>(E);
                             if (!sp) {
                                 continue;
                             }
@@ -1618,13 +1618,13 @@ void SpatialEditorViewport::_sinput(const Ref<InputEvent> &p_event) {
                         set_message(FormatSN(TTR("Rotating %s degrees.").asCString(), StringUtils::num(angle, snap_step_decimals).c_str()));
                         angle = Math::deg2rad(angle);
 
-                        List<Node *> &selection = editor_selection->get_selected_node_list();
+                        const PODVector<Node *> &selection = editor_selection->get_selected_node_list();
 
                         bool local_coords = spatial_editor->are_local_coords_enabled() && _edit.plane != TRANSFORM_VIEW; // Disable local transformation for TRANSFORM_VIEW
 
-                        for (List<Node *>::Element *E = selection.front(); E; E = E->next()) {
+                        for (Node *E : selection) {
 
-                            Spatial *sp = object_cast<Spatial>(E->deref());
+                            Spatial *sp = object_cast<Spatial>(E);
                             if (!sp)
                                 continue;
 
@@ -1858,11 +1858,11 @@ void SpatialEditorViewport::_sinput(const Ref<InputEvent> &p_event) {
                 return;
             }
 
-            List<Node *> &selection = editor_selection->get_selected_node_list();
+            const PODVector<Node *> &selection = editor_selection->get_selected_node_list();
 
-            for (List<Node *>::Element *E = selection.front(); E; E = E->next()) {
+            for (Node *E : selection) {
 
-                Spatial *sp = object_cast<Spatial>(E->deref());
+                Spatial *sp = object_cast<Spatial>(E);
                 if (!sp)
                     continue;
 
@@ -2594,13 +2594,13 @@ void SpatialEditorViewport::_menu_option(int p_option) {
 
             Transform camera_transform = camera->get_global_transform();
 
-            List<Node *> &selection = editor_selection->get_selected_node_list();
+            const PODVector<Node *> &selection = editor_selection->get_selected_node_list();
 
             undo_redo->create_action_ui(TTR("Align Transform with View"));
 
-            for (List<Node *>::Element *E = selection.front(); E; E = E->next()) {
+            for (Node *E : selection) {
 
-                Spatial *sp = object_cast<Spatial>(E->deref());
+                Spatial *sp = object_cast<Spatial>(E);
                 if (!sp)
                     continue;
 
@@ -2631,12 +2631,12 @@ void SpatialEditorViewport::_menu_option(int p_option) {
 
             Transform camera_transform = camera->get_global_transform();
 
-            List<Node *> &selection = editor_selection->get_selected_node_list();
+            const PODVector<Node *> &selection = editor_selection->get_selected_node_list();
 
             undo_redo->create_action_ui(TTR("Align Rotation with View"));
-            for (List<Node *>::Element *E = selection.front(); E; E = E->next()) {
+            for (Node *E : selection) {
 
-                Spatial *sp = object_cast<Spatial>(E->deref());
+                Spatial *sp = object_cast<Spatial>(E);
                 if (!sp)
                     continue;
 
@@ -3174,11 +3174,11 @@ void SpatialEditorViewport::focus_selection() {
     Vector3 center;
     int count = 0;
 
-    List<Node *> &selection = editor_selection->get_selected_node_list();
+    const PODVector<Node *> &selection = editor_selection->get_selected_node_list();
 
-    for (List<Node *>::Element *E = selection.front(); E; E = E->next()) {
+    for (Node *E : selection) {
 
-        Spatial *sp = object_cast<Spatial>(E->deref());
+        Spatial *sp = object_cast<Spatial>(E);
         if (!sp)
             continue;
 
@@ -3514,11 +3514,12 @@ void SpatialEditorViewport::drop_data_fw(const Point2 &p_point, const Variant &p
         selected_files = d["files"].as<PODVector<String>>();
     }
 
-    List<Node *> list = editor->get_editor_selection()->get_selected_node_list();
+    const PODVector<Node *> &list = editor->get_editor_selection()->get_selected_node_list();
+    Node *tgt = nullptr;
     if (list.empty()) {
         Node *root_node = editor->get_edited_scene();
         if (root_node) {
-            list.push_back(root_node);
+            tgt = root_node;
         } else {
             accept->set_text(TTR("No parent to instance a child at."));
             accept->popup_centered_minsize();
@@ -3526,14 +3527,16 @@ void SpatialEditorViewport::drop_data_fw(const Point2 &p_point, const Variant &p
             return;
         }
     }
-    if (list.size() != 1) {
+    else if (list.size() != 1) {
         accept->set_text(TTR("This operation requires a single selected node."));
         accept->popup_centered_minsize();
         _remove_preview();
         return;
     }
+    else
+        tgt = list[0];
 
-    target_node = list[0];
+    target_node = tgt;
     if (is_shift && target_node != editor->get_edited_scene()) {
         target_node = target_node->get_parent();
     }
@@ -4085,16 +4088,16 @@ void SpatialEditor::select_gizmo_highlight_axis(int p_axis) {
 
 void SpatialEditor::update_transform_gizmo() {
 
-    List<Node *> &selection = editor_selection->get_selected_node_list();
+    const PODVector<Node *> &selection = editor_selection->get_selected_node_list();
     AABB center;
     bool first = true;
 
     Basis gizmo_basis;
     bool local_gizmo_coords = are_local_coords_enabled();
 
-    for (List<Node *>::Element *E = selection.front(); E; E = E->next()) {
+    for (Node * E : selection) {
 
-        Spatial *sp = object_cast<Spatial>(E->deref());
+        Spatial *sp = object_cast<Spatial>(E);
         if (!sp)
             continue;
 
@@ -4400,11 +4403,11 @@ void SpatialEditor::_xform_dialog_action() {
 
     undo_redo->create_action_ui(TTR("XForm Dialog"));
 
-    List<Node *> &selection = editor_selection->get_selected_node_list();
+    const PODVector<Node *> &selection = editor_selection->get_selected_node_list();
 
-    for (List<Node *>::Element *E = selection.front(); E; E = E->next()) {
+    for (Node *E : selection) {
 
-        Spatial *sp = object_cast<Spatial>(E->deref());
+        Spatial *sp = object_cast<Spatial>(E);
         if (!sp)
             continue;
 
@@ -4654,11 +4657,11 @@ void SpatialEditor::_menu_item_pressed(int p_option) {
         case MENU_LOCK_SELECTED: {
             undo_redo->create_action_ui(TTR("Lock Selected"));
 
-            List<Node *> &selection = editor_selection->get_selected_node_list();
+            const PODVector<Node *> &selection = editor_selection->get_selected_node_list();
 
-            for (List<Node *>::Element *E = selection.front(); E; E = E->next()) {
+            for (Node * E : selection) {
 
-                Spatial *spatial = object_cast<Spatial>(E->deref());
+                Spatial *spatial = object_cast<Spatial>(E);
                 if (!spatial || !spatial->is_visible_in_tree())
                     continue;
 
@@ -4678,11 +4681,11 @@ void SpatialEditor::_menu_item_pressed(int p_option) {
         case MENU_UNLOCK_SELECTED: {
             undo_redo->create_action_ui(TTR("Unlock Selected"));
 
-            List<Node *> &selection = editor_selection->get_selected_node_list();
+            const PODVector<Node *> &selection = editor_selection->get_selected_node_list();
 
-            for (List<Node *>::Element *E = selection.front(); E; E = E->next()) {
+            for (Node * E : selection) {
 
-                Spatial *spatial = object_cast<Spatial>(E->deref());
+                Spatial *spatial = object_cast<Spatial>(E);
                 if (!spatial || !spatial->is_visible_in_tree())
                     continue;
 
@@ -4702,11 +4705,11 @@ void SpatialEditor::_menu_item_pressed(int p_option) {
         case MENU_GROUP_SELECTED: {
             undo_redo->create_action_ui(TTR("Group Selected"));
 
-            List<Node *> &selection = editor_selection->get_selected_node_list();
+            const PODVector<Node *> &selection = editor_selection->get_selected_node_list();
 
-            for (List<Node *>::Element *E = selection.front(); E; E = E->next()) {
+            for (Node * E : selection) {
 
-                Spatial *spatial = object_cast<Spatial>(E->deref());
+                Spatial *spatial = object_cast<Spatial>(E);
                 if (!spatial || !spatial->is_visible_in_tree())
                     continue;
 
@@ -4725,11 +4728,11 @@ void SpatialEditor::_menu_item_pressed(int p_option) {
         } break;
         case MENU_UNGROUP_SELECTED: {
             undo_redo->create_action_ui(TTR("Ungroup Selected"));
-            List<Node *> &selection = editor_selection->get_selected_node_list();
+            const PODVector<Node *> &selection = editor_selection->get_selected_node_list();
 
-            for (List<Node *>::Element *E = selection.front(); E; E = E->next()) {
+            for (Node * E : selection) {
 
-                Spatial *spatial = object_cast<Spatial>(E->deref());
+                Spatial *spatial = object_cast<Spatial>(E);
                 if (!spatial || !spatial->is_visible_in_tree())
                     continue;
 
@@ -5187,20 +5190,20 @@ void SpatialEditor::_refresh_menu_icons() {
     bool all_locked = true;
     bool all_grouped = true;
 
-    List<Node *> &selection = editor_selection->get_selected_node_list();
+    const PODVector<Node *> &selection = editor_selection->get_selected_node_list();
 
     if (selection.empty()) {
         all_locked = false;
         all_grouped = false;
     } else {
-        for (List<Node *>::Element *E = selection.front(); E; E = E->next()) {
-            if (object_cast<Spatial>(E->deref()) && !object_cast<Spatial>(E->deref())->has_meta("_edit_lock_")) {
+        for (Node * E : selection) {
+            if (object_cast<Spatial>(E) && !object_cast<Spatial>(E)->has_meta("_edit_lock_")) {
                 all_locked = false;
                 break;
             }
         }
-        for (List<Node *>::Element *E = selection.front(); E; E = E->next()) {
-            if (object_cast<Spatial>(E->deref()) && !object_cast<Spatial>(E->deref())->has_meta("_edit_group_")) {
+        for (Node * E : selection) {
+            if (object_cast<Spatial>(E) && !object_cast<Spatial>(E)->has_meta("_edit_group_")) {
                 all_grouped = false;
                 break;
             }
@@ -5250,11 +5253,11 @@ Set<RID> _get_physics_bodies_rid(Node *node) {
 }
 
 void SpatialEditor::snap_selected_nodes_to_floor() {
-    List<Node *> &selection = editor_selection->get_selected_node_list();
+    const PODVector<Node *> &selection = editor_selection->get_selected_node_list();
     Dictionary snap_data;
 
-    for (List<Node *>::Element *E = selection.front(); E; E = E->next()) {
-        Spatial *sp = object_cast<Spatial>(E->deref());
+    for (Node * E : selection) {
+        Spatial *sp = object_cast<Spatial>(E);
         if (sp) {
             Vector3 from = Vector3();
             Vector3 position_offset = Vector3();

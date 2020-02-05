@@ -57,7 +57,7 @@ void AudioEffectChorusInstance::_process_chunk(const AudioFrame *p_src_frames, A
 
     //fill ringbuffer
     for (int i = 0; i < p_frame_count; i++) {
-        audio_buffer.write[(buffer_pos + i) & buffer_mask] = p_src_frames[i];
+        audio_buffer[(buffer_pos + i) & buffer_mask] = p_src_frames[i];
         p_dst_frames[i] = p_src_frames[i] * base->dry;
     }
 
@@ -73,7 +73,7 @@ void AudioEffectChorusInstance::_process_chunk(const AudioFrame *p_src_frames, A
 
         unsigned int local_rb_pos = buffer_pos;
         AudioFrame *dst_buff = p_dst_frames;
-        AudioFrame *rb_buff = audio_buffer.ptrw();
+        AudioFrame *rb_buff = audio_buffer.data();
 
         double delay_msec = v.delay;
         unsigned int delay_frames = Math::fast_ftoi((delay_msec / 1000.0) * mix_rate);
@@ -178,7 +178,7 @@ Ref<AudioEffectInstance> AudioEffectChorus::instance() {
     ins->buffer_pos = 0;
     ins->audio_buffer.resize(ringbuff_size);
     for (int i = 0; i < ringbuff_size; i++) {
-        ins->audio_buffer.write[i] = AudioFrame(0, 0);
+        ins->audio_buffer[i] = AudioFrame(0, 0);
     }
 
     return ins;

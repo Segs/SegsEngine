@@ -353,14 +353,14 @@ public:
             Map<RID, LightCache> light_cache_changes;
             PoolVector<int> light_data;
             PoolVector<LocalData> local_data;
-            Vector<Vector<uint32_t> > level_cell_lists;
+            PODVector<PODVector<uint32_t> > level_cell_lists;
             RID probe_data;
             bool enabled;
             int bake_dynamic_range;
             RasterizerStorage::GIProbeCompression compression;
 
-            Vector<PoolVector<uint8_t> > mipmaps_3d;
-            Vector<PoolVector<CompBlockS3TC> > mipmaps_s3tc; //for s3tc
+            PODVector<PoolVector<uint8_t> > mipmaps_3d;
+            PODVector<PoolVector<CompBlockS3TC> > mipmaps_s3tc; //for s3tc
 
             int updating_stage;
             float propagate;
@@ -496,7 +496,7 @@ public:
     List<Instance *> probe_bake_list;
 
     bool _render_reflection_probe_step(Instance *p_instance, int p_step);
-    void _gi_probe_fill_local_data(int p_idx, int p_level, int p_x, int p_y, int p_z, const GIProbeDataCell *p_cell, const GIProbeDataHeader *p_header, InstanceGIProbeData::LocalData *p_local_data, Vector<uint32_t> *prev_cell);
+    void _gi_probe_fill_local_data(int p_idx, int p_level, int p_x, int p_y, int p_z, const GIProbeDataCell *p_cell, const GIProbeDataHeader *p_header, InstanceGIProbeData::LocalData *p_local_data, PODVector<uint32_t> *prev_cell);
 
     _FORCE_INLINE_ uint32_t _gi_bake_find_cell(const GIProbeDataCell *cells, int x, int y, int z, int p_cell_subdiv);
     void _bake_gi_downscale_light(int p_idx, int p_level, const GIProbeDataCell *p_cells, const GIProbeDataHeader *p_header, InstanceGIProbeData::LocalData *p_local_data, float p_propagate);

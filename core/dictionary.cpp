@@ -284,6 +284,6 @@ Dictionary::Dictionary() {
     _p->refcount.init();
 }
 Dictionary::~Dictionary() {
-
-    _unref();
+    if(_p)
+        _unref();
 }

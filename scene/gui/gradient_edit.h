@@ -38,37 +38,37 @@
 
 class GradientEdit : public Control {
 
-	GDCLASS(GradientEdit,Control)
+    GDCLASS(GradientEdit,Control)
 
-	PopupPanel *popup;
-	ColorPicker *picker;
+    PopupPanel *popup;
+    ColorPicker *picker;
 
-	Ref<ImageTexture> checker;
+    Ref<ImageTexture> checker;
 
-	bool grabbing;
-	int grabbed;
+    bool grabbing;
+    int grabbed;
     PODVector<Gradient::Point> points;
 
-	void _draw_checker(int x, int y, int w, int h);
-	void _color_changed(const Color &p_color);
-	int _get_point_from_pos(int x);
-	void _show_color_picker();
+    void _draw_checker(int x, int y, int w, int h);
+    void _color_changed(const Color &p_color);
+    int _get_point_from_pos(int x);
+    void _show_color_picker();
 
 protected:
-	void _gui_input(const Ref<InputEvent> &p_event);
-	void _notification(int p_what);
-	static void _bind_methods();
+    void _gui_input(const Ref<InputEvent> &p_event);
+    void _notification(int p_what);
+    static void _bind_methods();
 
 public:
-	void set_ramp(const Vector<float> &p_offsets, const PODVector<Color> &p_colors);
+    void set_ramp(Span<const float> p_offsets, const PODVector<Color> &p_colors);
     PODVector<float> get_offsets() const;
     PODVector<Color> get_colors() const;
-	void set_points(const PODVector<Gradient::Point> &p_points);
+    void set_points(const PODVector<Gradient::Point> &p_points);
     PODVector<Gradient::Point> &get_points();
-	Size2 get_minimum_size() const override;
+    Size2 get_minimum_size() const override;
 
-	GradientEdit();
-	~GradientEdit() override;
+    GradientEdit();
+    ~GradientEdit() override;
 };
 
 #endif // GRADIENT_EDIT_H

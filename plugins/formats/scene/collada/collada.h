@@ -184,7 +184,7 @@ public:
             int vertex_size;
         };
 
-        Vector<Primitives> primitives;
+        PODVector<Primitives> primitives;
 
         bool found_double_sided;
         bool double_sided;
@@ -292,22 +292,9 @@ public:
             bool operator<(const Weight w) const { return weight > w.weight; } //heaviest first
         };
 
-        Vector<Weight> weights;
+        PODVector<Weight> weights;
 
-        void fix_weights() {
-
-            weights.sort();
-            if (weights.size() > 4) {
-                //cap to 4 and make weights add up 1
-                weights.resize(4);
-                float total = 0;
-                for (int i = 0; i < 4; i++)
-                    total += weights[i].weight;
-                if (total)
-                    for (int i = 0; i < 4; i++)
-                        weights.write[i].weight /= total;
-            }
-        }
+        void fix_weights();
 
         void fix_unit_scale(Collada &state);
 
@@ -386,10 +373,10 @@ public:
         String id;
         String empty_draw_type;
         bool noname;
-        Vector<XForm> xform_list;
+        PODVector<XForm> xform_list;
         Transform default_transform;
         Transform post_transform;
-        Vector<Node *> children;
+        PODVector<Node *> children;
 
         Node *parent;
 
@@ -508,7 +495,7 @@ public:
 
         PODVector<float> get_value_at_time(float p_time) const;
 
-        Vector<Key> keys;
+        PODVector<Key> keys;
 
         AnimationTrack() { property = false; }
     };
@@ -564,10 +551,10 @@ public:
         String root_visual_scene;
         String root_physics_scene;
 
-        Vector<AnimationClip> animation_clips;
-        Vector<AnimationTrack> animation_tracks;
-        Map<String, Vector<int> > referenced_tracks;
-        Map<String, Vector<int> > by_id_tracks;
+        PODVector<AnimationClip> animation_clips;
+        PODVector<AnimationTrack> animation_tracks;
+        Map<String, PODVector<int> > referenced_tracks;
+        Map<String, PODVector<int> > by_id_tracks;
 
         float animation_length;
 

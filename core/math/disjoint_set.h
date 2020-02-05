@@ -62,9 +62,9 @@ public:
 
     void create_union(T a, T b);
 
-    void get_representatives(Vector<T> &out_roots);
+    void get_representatives(PODVector<T> &out_roots);
 
-    void get_members(Vector<T> &out_members, T representative);
+    void get_members(PODVector<T> &out_members, T representative);
 };
 
 /* FUNCTIONS */
@@ -126,7 +126,7 @@ void DisjointSet<T, C, AL>::create_union(T a, T b) {
 }
 
 template <typename T, class C, class AL>
-void DisjointSet<T, C, AL>::get_representatives(Vector<T> &out_representatives) {
+void DisjointSet<T, C, AL>::get_representatives(PODVector<T> &out_representatives) {
     for (auto &itr : elements) {
         Element *element = itr.second;
         if (element->parent == element) {
@@ -136,7 +136,7 @@ void DisjointSet<T, C, AL>::get_representatives(Vector<T> &out_representatives) 
 }
 
 template <typename T, class C, class AL>
-void DisjointSet<T, C, AL>::get_members(Vector<T> &out_members, T representative) {
+void DisjointSet<T, C, AL>::get_members(PODVector<T> &out_members, T representative) {
     auto rep_itr = elements.find(representative);
     ERR_FAIL_COND(rep_itr == elements.end());
 
@@ -146,7 +146,7 @@ void DisjointSet<T, C, AL>::get_members(Vector<T> &out_members, T representative
     for (auto &itr : elements) {
         Element *parent = get_parent(itr.second);
         if (parent == rep_element) {
-            out_members.push_back(itr.first);
+            out_members.emplace_back(itr.first);
         }
     }
 }

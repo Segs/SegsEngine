@@ -31,6 +31,8 @@
 #include "collada.h"
 #include "core/string_utils.h"
 
+#include "EASTL/sort.h"
+
 #include <cstdio>
 
 //#define DEBUG_DEFAULT_ANIMATION
@@ -59,6 +61,21 @@ Transform Collada::get_root_transform() const {
     unit_scale_transform.scale(Vector3(state.unit_scale, state.unit_scale, state.unit_scale));
 #endif
     return unit_scale_transform;
+}
+
+void Collada::Vertex::fix_weights() {
+    //TODO: SEGS: consdier using some kind of small-count sort here ?
+    eastl::sort(weights.begin(),weights.end());
+    if (weights.size() > 4) {
+        //cap to 4 and make weights add up 1
+        weights.resize(4);
+        float total = 0;
+        for (int i = 0; i < 4; i++)
+            total += weights[i].weight;
+        if (total)
+            for (int i = 0; i < 4; i++)
+                weights[i].weight /= total;
+    }
 }
 
 void Collada::Vertex::fix_unit_scale(Collada &state) {
@@ -1287,7 +1304,7 @@ void Collada::_parse_skin_controller(XMLParser &parser, String p_id) {
 
     /* STORE REST MATRICES */
 
-    Vector<Transform> rests;
+    PODVector<Transform> rests;
     ERR_FAIL_COND(!skindata.joints.sources.contains("JOINT"))
     ERR_FAIL_COND(!skindata.joints.sources.contains("INV_BIND_MATRIX"))
 
@@ -1570,8 +1587,8 @@ Collada::Node *Collada::_parse_visual_scene_node(XMLParser &parser) {
         found_name = true;
     }
 
-    Vector<Node::XForm> xform_list;
-    Vector<Node *> children;
+    PODVector<Node::XForm> xform_list;
+    PODVector<Node *> children;
 
     String empty_draw_type = "";
 
@@ -1700,9 +1717,9 @@ Collada::Node *Collada::_parse_visual_scene_node(XMLParser &parser) {
     }
 
     node->noname = !found_name;
-    node->xform_list = xform_list;
-    node->children = children;
-    for (int i = 0; i < children.size(); i++) {
+    node->xform_list = eastl::move(xform_list);
+    node->children = eastl::move(children);
+    for (size_t i = 0; i < children.size(); i++) {
         node->children[i]->parent = node;
     }
 
@@ -1875,7 +1892,7 @@ void Collada::_parse_animation(XMLParser &parser) {
             track.keys.resize(key_count);
 
             for (int j = 0; j < key_count; j++) {
-                track.keys.write[j].time = time_keys[j];
+                track.keys[j].time = time_keys[j];
                 state.animation_length = MAX(state.animation_length, time_keys[j]);
             }
 
@@ -1895,9 +1912,9 @@ void Collada::_parse_animation(XMLParser &parser) {
             ERR_CONTINUE_MSG((output.size() / stride) != key_count, "Wrong number of keys in output.")
 
             for (int j = 0; j < key_count; j++) {
-                track.keys.write[j].data.resize(output_len);
+                track.keys[j].data.resize(output_len);
                 for (int k = 0; k < output_len; k++)
-                    track.keys.write[j].data[k] = output[l + j * stride + k]; //super weird but should work:
+                    track.keys[j].data[k] = output[l + j * stride + k]; //super weird but should work:
             }
 
             if (sampler.contains("INTERPOLATION")) {
@@ -1909,28 +1926,28 @@ void Collada::_parse_animation(XMLParser &parser) {
 
                 for (int j = 0; j < key_count; j++) {
                     if (interps[j] == "BEZIER")
-                        track.keys.write[j].interp_type = AnimationTrack::INTERP_BEZIER;
+                        track.keys[j].interp_type = AnimationTrack::INTERP_BEZIER;
                     else
-                        track.keys.write[j].interp_type = AnimationTrack::INTERP_LINEAR;
+                        track.keys[j].interp_type = AnimationTrack::INTERP_LINEAR;
                 }
             }
 
             if (sampler.contains("IN_TANGENT") && sampler.contains("OUT_TANGENT")) {
                 //bezier control points..
                 String intangent_id = _uri_to_id(sampler["IN_TANGENT"]);
-                ERR_CONTINUE(!float_sources.contains(intangent_id));
+                ERR_CONTINUE(!float_sources.contains(intangent_id))
                 PODVector<float> &intangents = float_sources[intangent_id];
 
-                ERR_CONTINUE(intangents.size() != key_count * 2 * names.size());
+                ERR_CONTINUE(intangents.size() != key_count * 2 * names.size())
 
                 String outangent_id = _uri_to_id(sampler["OUT_TANGENT"]);
-                ERR_CONTINUE(!float_sources.contains(outangent_id));
+                ERR_CONTINUE(!float_sources.contains(outangent_id))
                 PODVector<float> &outangents = float_sources[outangent_id];
-                ERR_CONTINUE(outangents.size() != key_count * 2 * names.size());
+                ERR_CONTINUE(outangents.size() != key_count * 2 * names.size())
 
                 for (int j = 0; j < key_count; j++) {
-                    track.keys.write[j].in_tangent = Vector2(intangents[j * 2 * names.size() + 0 + l * 2], intangents[j * 2 * names.size() + 1 + l * 2]);
-                    track.keys.write[j].out_tangent = Vector2(outangents[j * 2 * names.size() + 0 + l * 2], outangents[j * 2 * names.size() + 1 + l * 2]);
+                    track.keys[j].in_tangent = Vector2(intangents[j * 2 * names.size() + 0 + l * 2], intangents[j * 2 * names.size() + 1 + l * 2]);
+                    track.keys[j].out_tangent = Vector2(outangents[j * 2 * names.size() + 0 + l * 2], outangents[j * 2 * names.size() + 1 + l * 2]);
                 }
             }
 
@@ -1953,13 +1970,13 @@ void Collada::_parse_animation(XMLParser &parser) {
             state.animation_tracks.push_back(track);
 
             if (!state.referenced_tracks.contains(target))
-                state.referenced_tracks[target] = Vector<int>();
+                state.referenced_tracks[target] = {};
 
             state.referenced_tracks[target].push_back(state.animation_tracks.size() - 1);
 
             if (!id.empty()) {
                 if (!state.by_id_tracks.contains(id))
-                    state.by_id_tracks[id] = Vector<int>();
+                    state.by_id_tracks[id] = {};
 
                 state.by_id_tracks[id].push_back(state.animation_tracks.size() - 1);
             }
@@ -2109,7 +2126,7 @@ void Collada::_joint_set_owner(Collada::Node *p_node, NodeSkeleton *p_owner) {
 
         for (int i = 0; i < nj->children.size(); i++) {
 
-            _joint_set_owner(nj->children.write[i], p_owner);
+            _joint_set_owner(nj->children[i], p_owner);
         }
     }
 }
@@ -2138,7 +2155,7 @@ void Collada::_create_skeletons(Collada::Node **p_node, NodeSkeleton *p_skeleton
     }
 
     for (int i = 0; i < node->children.size(); i++) {
-        _create_skeletons(&node->children.write[i], p_skeleton);
+        _create_skeletons(&node->children[i], p_skeleton);
     }
 }
 
@@ -2147,7 +2164,7 @@ bool Collada::_remove_node(Node *p_parent, Node *p_node) {
     for (int i = 0; i < p_parent->children.size(); i++) {
 
         if (p_parent->children[i] == p_node) {
-            p_parent->children.remove(i);
+            p_parent->children.erase_at(i);
             return true;
         }
         if (_remove_node(p_parent->children[i], p_node))
@@ -2299,10 +2316,10 @@ bool Collada::_optimize_skeletons(VisualScene *p_vscene, Node *p_node) {
         if (parent->parent) {
             Node *gp = parent->parent;
             bool found = false;
-            for (int i = 0; i < gp->children.size(); i++) {
+            for (size_t i = 0; i < gp->children.size(); i++) {
 
                 if (gp->children[i] == parent) {
-                    gp->children.write[i] = node;
+                    gp->children[i] = node;
                     found = true;
                     break;
                 }
@@ -2333,7 +2350,7 @@ bool Collada::_optimize_skeletons(VisualScene *p_vscene, Node *p_node) {
         return true;
     }
 
-    for (int i = 0; i < node->children.size(); i++) {
+    for (size_t i = 0; i < node->children.size(); i++) {
 
         if (_optimize_skeletons(p_vscene, node->children[i]))
             return false; //stop processing, go up
@@ -2405,7 +2422,7 @@ bool Collada::_move_geometry_to_skeletons(VisualScene *p_vscene, Node *p_node, L
     for (int i = 0; i < p_node->children.size(); i++) {
 
         if (_move_geometry_to_skeletons(p_vscene, p_node->children[i], p_mgeom)) {
-            p_node->children.remove(i);
+            p_node->children.erase_at(i);
             i--;
         }
     }
@@ -2451,21 +2468,21 @@ void Collada::_optimize() {
     for (eastl::pair<const String, VisualScene> & E : state.visual_scene_map) {
 
         VisualScene &vs(E.second);
-        for (int i = 0; i < vs.root_nodes.size(); i++) {
+        for (size_t i = 0; i < vs.root_nodes.size(); i++) {
             _create_skeletons(&vs.root_nodes[i]);
         }
 
-        for (int i = 0; i < vs.root_nodes.size(); i++) {
+        for (size_t i = 0; i < vs.root_nodes.size(); i++) {
             _merge_skeletons(&vs, vs.root_nodes[i]);
         }
 
         _merge_skeletons2(&vs);
 
-        for (int i = 0; i < vs.root_nodes.size(); i++) {
+        for (size_t i = 0; i < vs.root_nodes.size(); i++) {
             _optimize_skeletons(&vs, vs.root_nodes[i]);
         }
 
-        for (int i = 0; i < vs.root_nodes.size(); i++) {
+        for (size_t i = 0; i < vs.root_nodes.size(); i++) {
 
             ListPOD<Node *> mgeom;
             if (_move_geometry_to_skeletons(&vs, vs.root_nodes[i], &mgeom)) {
@@ -2481,7 +2498,7 @@ void Collada::_optimize() {
             }
         }
 
-        for (int i = 0; i < vs.root_nodes.size(); i++) {
+        for (size_t i = 0; i < vs.root_nodes.size(); i++) {
             _find_morph_nodes(&vs, vs.root_nodes[i]);
         }
     }

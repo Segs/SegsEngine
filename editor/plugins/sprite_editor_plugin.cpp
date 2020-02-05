@@ -209,7 +209,7 @@ void SpriteEditor::_update_mesh_data() {
 
     float epsilon = simplification->get_value();
 
-    Vector<PODVector<Vector2> > lines = bm->clip_opaque_to_polygons(rect, epsilon);
+    PODVector<PODVector<Vector2> > lines = bm->clip_opaque_to_polygons(rect, epsilon);
 
     uv_lines.clear();
 
@@ -219,7 +219,7 @@ void SpriteEditor::_update_mesh_data() {
 
     Size2 img_size = Vector2(image->get_width(), image->get_height());
     for (int i = 0; i < lines.size(); i++) {
-        lines.write[i] = expand(lines[i], rect, epsilon);
+        lines[i] = expand(lines[i], rect, epsilon);
     }
 
     if (selected_menu_item == MENU_OPTION_CONVERT_TO_MESH_2D) {

@@ -319,7 +319,7 @@ void MeshInstance::_mesh_changed() {
 
 void MeshInstance::create_debug_tangents() {
 
-    Vector<Vector3> lines;
+    PODVector<Vector3> lines;
     PODVector<Color> colors;
 
     Ref<Mesh> mesh = get_mesh();
@@ -335,27 +335,27 @@ void MeshInstance::create_debug_tangents() {
         Vector<float> tangents = arrays[Mesh::ARRAY_TANGENT].as<Vector<float>>();
         if (tangents.empty())
             continue;
-
+        lines.reserve(6*verts.size());
         for (int j = 0; j < verts.size(); j++) {
             Vector3 v = verts[j];
             Vector3 n = norms[j];
             Vector3 t = Vector3(tangents[j * 4 + 0], tangents[j * 4 + 1], tangents[j * 4 + 2]);
             Vector3 b = (n.cross(t)).normalized() * tangents[j * 4 + 3];
 
-            lines.push_back(v); //normal
-            colors.push_back(Color(0, 0, 1)); //color
-            lines.push_back(v + n * 0.04f); //normal
-            colors.push_back(Color(0, 0, 1)); //color
+            lines.emplace_back(v); //normal
+            colors.emplace_back(0, 0, 1); //color
+            lines.emplace_back(v + n * 0.04f); //normal
+            colors.emplace_back(0, 0, 1); //color
 
-            lines.push_back(v); //tangent
-            colors.push_back(Color(1, 0, 0)); //color
-            lines.push_back(v + t * 0.04f); //tangent
-            colors.push_back(Color(1, 0, 0)); //color
+            lines.emplace_back(v); //tangent
+            colors.emplace_back(1, 0, 0); //color
+            lines.emplace_back(v + t * 0.04f); //tangent
+            colors.emplace_back(1, 0, 0); //color
 
-            lines.push_back(v); //binormal
-            colors.push_back(Color(0, 1, 0)); //color
-            lines.push_back(v + b * 0.04f); //binormal
-            colors.push_back(Color(0, 1, 0)); //color
+            lines.emplace_back(v); //binormal
+            colors.emplace_back(0, 1, 0); //color
+            lines.emplace_back(v + b * 0.04f); //binormal
+            colors.emplace_back(0, 1, 0); //color
         }
     }
 

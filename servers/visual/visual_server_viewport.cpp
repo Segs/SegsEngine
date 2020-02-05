@@ -35,6 +35,8 @@
 #include "visual_server_globals.h"
 #include "visual_server_scene.h"
 
+#include "EASTL/sort.h"
+
 static Transform2D _canvas_get_transform(VisualServerViewport::Viewport *p_viewport, VisualServerCanvas::Canvas *p_canvas, VisualServerViewport::Viewport::CanvasData *p_canvas_data, const Vector2 &p_vp_size) {
 
     Transform2D xf = p_viewport->global_transform;
@@ -278,7 +280,7 @@ void VisualServerViewport::draw_viewports() {
     }
 
     //sort viewports
-    active_viewports.sort_custom<ViewportSort>();
+    eastl::sort(active_viewports.begin(),active_viewports.end(),ViewportSort());
 
     //draw viewports
     for (int i = 0; i < active_viewports.size(); i++) {
@@ -402,10 +404,10 @@ void VisualServerViewport::viewport_set_active(RID p_viewport, bool p_active) {
     ERR_FAIL_COND(!viewport)
 
     if (p_active) {
-        ERR_FAIL_COND(active_viewports.find(viewport) != -1) //already active
+        ERR_FAIL_COND(active_viewports.contains(viewport)) //already active
         active_viewports.push_back(viewport);
     } else {
-        active_viewports.erase(viewport);
+        active_viewports.erase_first(viewport);
     }
 }
 
@@ -459,7 +461,7 @@ void VisualServerViewport::viewport_set_render_direct_to_screen(RID p_viewport, 
     VSG::storage->render_target_set_flag(viewport->render_target, RasterizerStorage::RENDER_TARGET_DIRECT_TO_SCREEN, p_enable);
     viewport->viewport_render_direct_to_screen = p_enable;
 
-	// if attached to screen already, setup screen size and position, this needs to happen after setting flag to avoid an unnecessary buffer allocation
+    // if attached to screen already, setup screen size and position, this needs to happen after setting flag to avoid an unnecessary buffer allocation
     if (VSG::rasterizer->is_low_end() && viewport->viewport_to_screen_rect != Rect2() && p_enable) {
 
         VSG::storage->render_target_set_size(viewport->render_target, viewport->viewport_to_screen_rect.size.x, viewport->viewport_to_screen_rect.size.y);
@@ -727,7 +729,7 @@ bool VisualServerViewport::free(RID p_rid) {
         }
 
         viewport_set_scenario(p_rid, RID());
-        active_viewports.erase(viewport);
+        active_viewports.erase_first(viewport);
 
         viewport_owner.free(p_rid);
         memdelete(viewport);

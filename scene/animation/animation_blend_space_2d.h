@@ -61,7 +61,7 @@ protected:
         int points[3];
     };
 
-    Vector<BlendTriangle> triangles;
+    PODVector<BlendTriangle> triangles;
 
     StringName blend_position;
     StringName closest;

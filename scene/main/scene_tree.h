@@ -96,7 +96,7 @@ public:
 };
 struct SceneTreeGroup
 {
-    Vector<Node *> nodes;
+    PODVector<Node *> nodes;
     //uint64_t last_tree_version;
     bool changed=false;
 };
@@ -183,8 +183,8 @@ private:
     void _update_root_rect();
 
     List<ObjectID> delete_queue;
-
-    Map<UGCall, Vector<Variant> > unique_group_calls;
+    //TODO: SEGS: consider replacing PODVector below with FixedVector<Variant,VARIANT_ARG_MAX>
+    Map<UGCall, PODVector<Variant> > unique_group_calls;
     bool ugc_locked;
     void _flush_ugc();
 

@@ -232,7 +232,7 @@ public:
 
         ObjectID instance_id;
         GDScriptInstance *instance;
-        Vector<uint8_t> stack;
+        PODVector<uint8_t> stack;
         int stack_size;
         Variant self;
         uint32_t alloca_size;

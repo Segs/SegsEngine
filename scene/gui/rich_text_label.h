@@ -113,7 +113,7 @@ private:
     RichTextItemMeta *meta_hovering;
     Variant current_meta;
 
-    Vector<Ref<RichTextEffect> > custom_effects;
+    PODVector<Ref<RichTextEffect> > custom_effects;
 
     void _invalidate_current_line(RichTextItemFrame *p_frame);
     void _validate_line_caches(RichTextItemFrame *p_frame);
@@ -168,7 +168,7 @@ private:
     bool _find_layout_subitem(RichTextItem *from, RichTextItem *to);
     bool _find_by_type(RichTextItem *p_item, ItemType p_type);
 
-    void _fetch_item_fx_stack(RichTextItem *p_item, Vector<RichTextItemFX *> &r_stack);
+    void _fetch_item_fx_stack(RichTextItem *p_item, PODVector<RichTextItemFX *> &r_stack);
 
     void _update_scroll();
     void _update_fx(RichTextItemFrame *p_frame, float p_delta_time);
@@ -276,7 +276,7 @@ public:
     float get_percent_visible() const;
 
     void set_effects(const PODVector<Variant> &effects);
-    Vector<Variant> get_effects();
+    PODVector<Variant> get_effects();
 
     void install_effect(const Variant& effect);
 

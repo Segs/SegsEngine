@@ -78,7 +78,7 @@ class SceneTreeEditor : public Control {
 
     void _renamed();
     UndoRedo *undo_redo;
-
+    //TODO: SEGS: consider using unordered_set here, since this is only used for belongs-to queries.
     Set<Node *> marked;
     bool marked_selectable;
     bool marked_children_selectable;

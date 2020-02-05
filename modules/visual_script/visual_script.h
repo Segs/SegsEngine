@@ -398,7 +398,7 @@ class VisualScriptInstance : public ScriptInstance {
 
     Map<StringName, Function> functions;
 
-    Vector<Variant> default_values;
+    PODVector<Variant> default_values;
     int max_input_args, max_output_args;
 
     StringName source;

@@ -329,7 +329,7 @@ Node *SceneState::instance(GenEditState p_edit_state) const {
     //do connections
 
     int cc = connections.size();
-    const ConnectionData *cdata = connections.ptr();
+    const ConnectionData *cdata = connections.data();
 
     for (int i = 0; i < cc; i++) {
 
@@ -932,7 +932,7 @@ Error SceneState::pack(Node *p_scene) {
     node_paths.resize(nodepath_map.size());
     for (const eastl::pair<const Node *,int> &E : nodepath_map) {
 
-        node_paths.write[E.second] = scene->get_path_to(E.first);
+        node_paths[E.second] = scene->get_path_to(E.first);
     }
 
     return OK;
@@ -1026,7 +1026,7 @@ Variant SceneState::get_property_value(int p_node, const StringName &p_property,
         int pc = nodes[p_node].properties.size();
         const StringName *namep = names.data();
 
-        const NodeData::Property *p = nodes[p_node].properties.ptr();
+        const NodeData::Property *p = nodes[p_node].properties.data();
         for (int i = 0; i < pc; i++) {
             if (p_property == namep[p[i].name]) {
                 found = true;
@@ -1172,8 +1172,8 @@ void SceneState::set_bundled_scene(const Dictionary &p_dictionary) {
             nd.properties.resize(r[idx++]);
             for (int j = 0; j < nd.properties.size(); j++) {
 
-                nd.properties.write[j].name = r[idx++];
-                nd.properties.write[j].value = r[idx++];
+                nd.properties[j].name = r[idx++];
+                nd.properties[j].value = r[idx++];
             }
             nd.groups.resize(r[idx++]);
             for (int j = 0; j < nd.groups.size(); j++) {
@@ -1190,7 +1190,7 @@ void SceneState::set_bundled_scene(const Dictionary &p_dictionary) {
         PoolVector<int>::Read r = sconns.read();
         int idx = 0;
         for (int i = 0; i < conn_count; i++) {
-            ConnectionData &cd = connections.write[i];
+            ConnectionData &cd = connections[i];
             cd.from = r[idx++];
             cd.to = r[idx++];
             cd.signal = r[idx++];
@@ -1200,7 +1200,7 @@ void SceneState::set_bundled_scene(const Dictionary &p_dictionary) {
 
             for (int j = 0; j < cd.binds.size(); j++) {
 
-                cd.binds.write[j] = r[idx++];
+                cd.binds[j] = r[idx++];
             }
         }
     }
@@ -1211,7 +1211,7 @@ void SceneState::set_bundled_scene(const Dictionary &p_dictionary) {
     }
     node_paths.resize(np.size());
     for (int i = 0; i < np.size(); i++) {
-        node_paths.write[i] = np[i];
+        node_paths[i] = np[i].as<NodePath>();
     }
 
     Array ei;
@@ -1225,7 +1225,7 @@ void SceneState::set_bundled_scene(const Dictionary &p_dictionary) {
 
     editable_instances.resize(ei.size());
     for (int i = 0; i < editable_instances.size(); i++) {
-        editable_instances.write[i] = ei[i];
+        editable_instances[i] = ei[i];
     }
 
     //path=p_dictionary["path"];
@@ -1550,7 +1550,7 @@ bool SceneState::has_connection(const NodePath &p_node_from, const StringName &p
     return false;
 }
 
-Vector<NodePath> SceneState::get_editable_instances() const {
+const PODVector<NodePath> &SceneState::get_editable_instances() const {
     return editable_instances;
 }
 //add
@@ -1618,7 +1618,7 @@ void SceneState::set_base_scene(int p_idx) {
     ERR_FAIL_INDEX(p_idx, variants.size())
     base_scene_idx = p_idx;
 }
-void SceneState::add_connection(int p_from, int p_to, int p_signal, int p_method, int p_flags, const Vector<int> &p_binds) {
+void SceneState::add_connection(int p_from, int p_to, int p_signal, int p_method, int p_flags, PODVector<int> &&p_binds) {
 
     ERR_FAIL_INDEX(p_signal, names.size())
     ERR_FAIL_INDEX(p_method, names.size())
@@ -1632,8 +1632,8 @@ void SceneState::add_connection(int p_from, int p_to, int p_signal, int p_method
     c.signal = p_signal;
     c.method = p_method;
     c.flags = p_flags;
-    c.binds = p_binds;
-    connections.push_back(c);
+    c.binds = eastl::move(p_binds);
+    connections.emplace_back(c);
 }
 void SceneState::add_editable_instance(const NodePath &p_path) {
 

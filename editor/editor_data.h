@@ -118,7 +118,7 @@ public:
         Node *root;
         String path;
         Dictionary editor_states;
-        List<Node *> selection;
+        PODVector<Node *> selection;
         PODVector<EditorHistory::History> history_stored;
         int history_current;
         Dictionary custom_state;
@@ -141,7 +141,7 @@ private:
 
     void _cleanup_history();
 
-    Vector<EditedScene> edited_scene;
+    PODVector<EditedScene> edited_scene;
     int current_edited_scene;
 
     bool _find_updated_instances(Node *p_root, Node *p_node, Set<String> &checked_paths);
@@ -244,8 +244,8 @@ private:
 
     void _node_removed(Node *p_node);
 
-    List<Object *> editor_plugins;
-    List<Node *> selected_node_list;
+    ListPOD<Object *> editor_plugins;
+    PODVector<Node *> selected_node_list;
 
     void _update_nl();
     void _emit_change();
@@ -273,8 +273,8 @@ public:
     void update();
     void clear();
 
-    List<Node *> &get_selected_node_list();
-    List<Node *> get_full_selected_node_list();
+    const PODVector<Node *> &get_selected_node_list();
+    PODVector<Node *> get_full_selected_node_list();
     Map<Node *, Object *> &get_selection() { return selection; }
 
     EditorSelection();

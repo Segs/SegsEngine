@@ -58,10 +58,9 @@ int TabContainer::_get_top_margin() const {
     Ref<Font> font = get_font("font");
     int content_height = font->get_height();
 
-    Vector<Control *> tabs = _get_tabs();
-    for (int i = 0; i < tabs.size(); i++) {
+    PODVector<Control *> tabs = _get_tabs();
+    for (Control *c : tabs) {
 
-        Control *c = tabs[i];
         if (!c->has_meta("_tab_icon"))
             continue;
 
@@ -105,7 +104,6 @@ void TabContainer::_gui_input(const Ref<InputEvent> &p_event) {
         if (get_tab_count() == 0)
             return;
 
-        Vector<Control *> tabs = _get_tabs();
 
         // Handle navigation buttons.
         if (buttons_visible_cache) {
@@ -117,6 +115,9 @@ void TabContainer::_gui_input(const Ref<InputEvent> &p_event) {
             Ref<Texture> increment = get_icon("increment");
             Ref<Texture> decrement = get_icon("decrement");
             if (pos.x > size.width - increment->get_width() - popup_ofs) {
+
+                PODVector<Control *> tabs = _get_tabs();
+
                 if (last_tab_cache < tabs.size() - 1) {
                     first_tab_cache += 1;
                     update();
@@ -229,7 +230,6 @@ void TabContainer::_notification(int p_what) {
         } break;
         case NOTIFICATION_RESIZED: {
 
-            Vector<Control *> tabs = _get_tabs();
             int side_margin = get_constant("side_margin");
             Ref<Texture> menu = get_icon("menu");
             Ref<Texture> increment = get_icon("increment");
@@ -246,6 +246,7 @@ void TabContainer::_notification(int p_what) {
 
             // Find the width of all tabs after first_tab_cache.
             int all_tabs_width = 0;
+            PODVector<Control *> tabs = _get_tabs();
             for (int i = first_tab_cache; i < tabs.size(); i++) {
                 int tab_width = _get_tab_width(i);
                 all_tabs_width += tab_width;
@@ -274,7 +275,6 @@ void TabContainer::_notification(int p_what) {
                 return;
             }
 
-            Vector<Control *> tabs = _get_tabs();
             Ref<StyleBox> tab_bg = get_stylebox("tab_bg");
             Ref<StyleBox> tab_fg = get_stylebox("tab_fg");
             Ref<StyleBox> tab_disabled = get_stylebox("tab_disabled");
@@ -300,6 +300,7 @@ void TabContainer::_notification(int p_what) {
 
             // Check if all tabs would fit into the header area.
             int all_tabs_width = 0;
+            PODVector<Control *> tabs = _get_tabs();
             for (int i = 0; i < tabs.size(); i++) {
                 if (get_tab_hidden(i)) {
                     continue;
@@ -327,7 +328,7 @@ void TabContainer::_notification(int p_what) {
 
             // Go through the visible tabs to find the width they occupy.
             all_tabs_width = 0;
-            Vector<int> tab_widths;
+            FixedVector<int,256,true> tab_widths;
             for (int i = first_tab_cache; i < tabs.size(); i++) {
                 if (get_tab_hidden(i)) {
                     continue;
@@ -491,9 +492,10 @@ int TabContainer::_get_tab_width(int p_index) const {
     return width;
 }
 
-Vector<Control *> TabContainer::_get_tabs() const {
+PODVector<Control *> TabContainer::_get_tabs() const {
 
-    Vector<Control *> controls;
+    PODVector<Control *> controls;
+
     for (int i = 0; i < get_child_count(); i++) {
 
         Control *control = object_cast<Control>(get_child(i));
@@ -559,7 +561,7 @@ void TabContainer::set_current_tab(int p_current) {
     current = p_current;
 
     Ref<StyleBox> sb = get_stylebox("panel");
-    Vector<Control *> tabs = _get_tabs();
+    PODVector<Control *> tabs = _get_tabs();
     for (int i = 0; i < tabs.size(); i++) {
 
         Control *c = tabs[i];
@@ -602,7 +604,7 @@ int TabContainer::get_previous_tab() const {
 
 Control *TabContainer::get_tab_control(int p_idx) const {
 
-    Vector<Control *> tabs = _get_tabs();
+    PODVector<Control *> tabs = _get_tabs();
     if (p_idx >= 0 && p_idx < tabs.size())
         return tabs[p_idx];
     else
@@ -610,12 +612,7 @@ Control *TabContainer::get_tab_control(int p_idx) const {
 }
 
 Control *TabContainer::get_current_tab_control() const {
-
-    Vector<Control *> tabs = _get_tabs();
-    if (current >= 0 && current < tabs.size())
-        return tabs[current];
-    else
-        return nullptr;
+    return get_tab_control(current);
 }
 
 void TabContainer::remove_child_notify(Node *p_child) {
@@ -762,7 +759,7 @@ int TabContainer::get_tab_idx_at_point(const Point2 &p_point) const {
     }
 
     // get the tab at the point
-    Vector<Control *> tabs = _get_tabs();
+    //PODVector<Control *> tabs = _get_tabs();
     int px = p_point.x;
     px -= tabs_ofs_cache;
     for (int i = first_tab_cache; i <= last_tab_cache; i++) {
@@ -796,10 +793,9 @@ void TabContainer::set_tabs_visible(bool p_visible) {
 
     tabs_visible = p_visible;
 
-    Vector<Control *> tabs = _get_tabs();
-    for (int i = 0; i < tabs.size(); i++) {
+    PODVector<Control *> tabs = _get_tabs();
+    for (Control *c : tabs) {
 
-        Control *c = tabs[i];
         if (p_visible)
             c->set_margin(Margin::Top, _get_top_margin());
         else
@@ -904,10 +900,8 @@ bool TabContainer::get_tab_hidden(int p_tab) const {
 
 void TabContainer::get_translatable_strings(ListPOD<StringName> *p_strings) const {
 
-    Vector<Control *> tabs = _get_tabs();
-    for (int i = 0; i < tabs.size(); i++) {
-
-        Control *c = tabs[i];
+    PODVector<Control *> tabs = _get_tabs();
+    for (Control *c : tabs) {
 
         if (!c->has_meta("_tab_name"))
             continue;
@@ -923,10 +917,8 @@ Size2 TabContainer::get_minimum_size() const {
 
     Size2 ms;
 
-    Vector<Control *> tabs = _get_tabs();
-    for (int i = 0; i < tabs.size(); i++) {
-
-        Control *c = tabs[i];
+    PODVector<Control *> tabs = _get_tabs();
+    for (Control *c : tabs) {
 
         if (!c->is_visible_in_tree() && !use_hidden_tabs_for_min_size)
             continue;

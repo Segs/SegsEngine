@@ -761,7 +761,7 @@ PhysicsServer::~PhysicsServer() {
     singleton = nullptr;
 }
 
-Vector<PhysicsServerManager::ClassInfo> PhysicsServerManager::physics_servers;
+PODVector<PhysicsServerManager::ClassInfo> PhysicsServerManager::physics_servers;
 int PhysicsServerManager::default_server_id = -1;
 int PhysicsServerManager::default_server_priority = -1;
 const StaticCString PhysicsServerManager::setting_property_name("physics/3d/physics_engine");

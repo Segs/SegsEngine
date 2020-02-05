@@ -75,7 +75,7 @@ void AnimationNodeBlendSpace2D::add_blend_point(const Ref<AnimationRootNode> &p_
         for (int i = 0; i < triangles.size(); i++) {
             for (int j = 0; j < 3; j++) {
                 if (triangles[i].points[j] >= p_at_index) {
-                    triangles.write[i].points[j]++;
+                    triangles[i].points[j]++;
                 }
             }
         }
@@ -129,11 +129,11 @@ void AnimationNodeBlendSpace2D::remove_blend_point(int p_point) {
                 erase = true;
                 break;
             } else if (triangles[i].points[j] > p_point) {
-                triangles.write[i].points[j]--;
+                triangles[i].points[j]--;
             }
         }
         if (erase) {
-            triangles.remove(i);
+            triangles.erase_at(i);
 
             i--;
         }
@@ -210,7 +210,7 @@ void AnimationNodeBlendSpace2D::add_triangle(int p_x, int p_y, int p_z, int p_at
     if (p_at_index == -1 || p_at_index == triangles.size()) {
         triangles.push_back(t);
     } else {
-        triangles.insert(p_at_index, t);
+        triangles.insert_at(p_at_index, t);
     }
 }
 int AnimationNodeBlendSpace2D::get_triangle_point(int p_triangle, int p_point) {
@@ -224,7 +224,7 @@ int AnimationNodeBlendSpace2D::get_triangle_point(int p_triangle, int p_point) {
 void AnimationNodeBlendSpace2D::remove_triangle(int p_triangle) {
     ERR_FAIL_INDEX(p_triangle, triangles.size())
 
-    triangles.remove(p_triangle);
+    triangles.erase_at(p_triangle);
 }
 
 int AnimationNodeBlendSpace2D::get_triangle_count() const {
@@ -334,13 +334,13 @@ void AnimationNodeBlendSpace2D::_update_triangles() {
         return;
     }
 
-    Vector<Vector2> points;
-    points.resize(blend_points_used);
+    PODVector<Vector2> points;
+    points.reserve(blend_points_used);
     for (int i = 0; i < blend_points_used; i++) {
-        points.write[i] = blend_points[i].position;
+        points.emplace_back(blend_points[i].position);
     }
 
-    PODVector<Delaunay2D::Triangle> triangles = Delaunay2D::triangulate(Span<Vector2>(points.ptrw(),points.size()));
+    PODVector<Delaunay2D::Triangle> triangles = Delaunay2D::triangulate(points);
 
     for (const Delaunay2D::Triangle & tri : triangles) {
         add_triangle(tri.points[0], tri.points[1], tri.points[2]);
@@ -474,14 +474,14 @@ float AnimationNodeBlendSpace2D::process(float p_time, bool p_seek) {
                     blend_triangle = i;
                     first = false;
                     float d = s[0].distance_to(s[1]);
-                    if (d == 0.0) {
+                    if (d == 0.0f) {
                         blend_weights[j] = 1.0;
                         blend_weights[(j + 1) % 3] = 0.0;
                         blend_weights[(j + 2) % 3] = 0.0;
                     } else {
                         float c = s[0].distance_to(closest2) / d;
 
-                        blend_weights[j] = 1.0 - c;
+                        blend_weights[j] = 1.0f - c;
                         blend_weights[(j + 1) % 3] = c;
                         blend_weights[(j + 2) % 3] = 0.0;
                     }

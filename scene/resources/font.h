@@ -159,7 +159,7 @@ public:
     void _set_kernings(const PoolVector<int> &p_kernings);
     PoolVector<int> _get_kernings() const;
     void _set_textures(const PODVector<Variant> &p_textures);
-    Vector<Variant> _get_textures() const;
+    PODVector<Variant> _get_textures() const;
 
 
 protected:

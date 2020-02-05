@@ -43,7 +43,8 @@
 #include "servers/audio/audio_driver_dummy.h"
 #include "servers/audio/effects/audio_effect_compressor.h"
 
-using namespace eastl; // for string view suffic
+using namespace eastl; // for string view suffix
+
 #ifdef TOOLS_ENABLED
 
 #define MARK_EDITED Object_set_edited(this,true);
@@ -1647,7 +1648,7 @@ AudioBusLayout::AudioBusLayout() {
 }
 
 AudioBusLayout::~AudioBusLayout() {
-    delete D();
+    memdelete(D());
     m_priv = nullptr;
 }
 

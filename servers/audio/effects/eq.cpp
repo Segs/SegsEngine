@@ -110,9 +110,9 @@ void EQ::recalculate_band_coefficients() {
 
         ERR_CONTINUE(roots == 0)
 
-        band.write[i].c1 = 2.0 * ((0.5 - r1) / 2.0f);
-        band.write[i].c2 = 2.0 * r1;
-        band.write[i].c3 = 2.0 * (0.5 + r1) * std::cos(th);
+        band[i].c1 = 2.0 * ((0.5 - r1) / 2.0f);
+        band[i].c2 = 2.0 * r1;
+        band[i].c3 = 2.0 * (0.5 + r1) * std::cos(th);
         //printf("band %i, coefs = %f,%f,%f\n",i,(float)bands[i].c1,(float)bands[i].c2,(float)bands[i].c3);
     }
 }
@@ -177,12 +177,12 @@ float EQ::get_band_frequency(int p_band) {
     ERR_FAIL_INDEX_V(p_band, band.size(), 0);
     return band[p_band].freq;
 }
-void EQ::set_bands(const Vector<float> &p_bands) {
+void EQ::set_bands(const PODVector<float> &p_bands) {
 
     band.resize(p_bands.size());
     for (int i = 0; i < p_bands.size(); i++) {
 
-        band.write[i].freq = p_bands[i];
+        band[i].freq = p_bands[i];
     }
 
     recalculate_band_coefficients();

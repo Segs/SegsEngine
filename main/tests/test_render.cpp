@@ -81,7 +81,7 @@ public:
         test_cube = vs->get_test_cube();
         scenario = vs->scenario_create();
 
-        Vector<Vector3> vts;
+        FixedVector<Vector3,8> vts;
 
         /*
         PoolVector<Plane> sp = Geometry::build_sphere_planes(2,5,5);
@@ -124,7 +124,7 @@ public:
         vts.push_back(Vector3(-1, -1, -1));
 
         Geometry::MeshData md;
-        Error err = QuickHull::build({vts.ptr(),vts.size()}, md);
+        Error err = QuickHull::build(vts, md);
         print_line("ERR: " + itos(err));
         test_cube = vs->mesh_create();
         vs->mesh_add_surface_from_mesh_data(test_cube, eastl::move(md));

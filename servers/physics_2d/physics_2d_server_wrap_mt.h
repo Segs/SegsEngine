@@ -117,9 +117,9 @@ public:
     }
 
     FUNC2(space_set_debug_contacts, RID, int);
-    Vector<Vector2> space_get_contacts(RID p_space) const override {
+    const PODVector<Vector2> &space_get_contacts(RID p_space) const override {
 
-        ERR_FAIL_COND_V(main_thread != Thread::get_caller_id(), Vector<Vector2>())
+        ERR_FAIL_COND_V(main_thread != Thread::get_caller_id(), null_vec2_pvec)
         return physics_2d_server->space_get_contacts(p_space);
     }
 

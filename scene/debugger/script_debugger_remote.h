@@ -56,9 +56,9 @@ class GODOT_EXPORT ScriptDebuggerRemote : public ScriptDebugger {
         }
     };
 
-    Vector<ScriptLanguage::ProfilingInfo> profile_info;
-    Vector<ScriptLanguage::ProfilingInfo *> profile_info_ptrs;
-    Vector<MultiplayerAPI::ProfilingInfo> network_profile_info;
+    PODVector<ScriptLanguage::ProfilingInfo> profile_info;
+    PODVector<ScriptLanguage::ProfilingInfo *> profile_info_ptrs;
+    PODVector<MultiplayerAPI::ProfilingInfo> network_profile_info;
 
     Map<StringName, int> profiler_function_signature_map;
     float frame_time, idle_time, physics_time, physics_frame_time;
@@ -144,7 +144,7 @@ class GODOT_EXPORT ScriptDebuggerRemote : public ScriptDebugger {
         Array data;
     };
 
-    Vector<FrameData> profile_frame_data;
+    PODVector<FrameData> profile_frame_data;
 
     void _put_variable(se_string_view p_name, const Variant &p_variable);
 

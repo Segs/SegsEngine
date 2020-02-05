@@ -57,7 +57,7 @@ public:
         Transform2D ysort_xform;
         Vector2 ysort_pos;
 
-        Vector<Item *> child_items;
+        PODVector<Item *> child_items;
 
         Item() {
             children_order_dirty = true;
@@ -114,7 +114,6 @@ public:
 
     struct Canvas : public VisualServerViewport::CanvasBase {
 
-        Set<RID> viewports;
         struct ChildItem {
 
             Point2 mirror;
@@ -124,18 +123,17 @@ public:
             }
         };
 
+        Set<RID> viewports;
         Set<RasterizerCanvas::Light *> lights;
-
         Set<RasterizerCanvas::LightOccluderInstance *> occluders;
-
-        bool children_order_dirty;
-        Vector<ChildItem> child_items;
+        PODVector<ChildItem> child_items;
         Color modulate;
         RID parent;
         float parent_scale;
+        bool children_order_dirty;
 
         int find_item(Item *p_item) {
-            for (int i = 0; i < child_items.size(); i++) {
+            for (size_t i = 0; i < child_items.size(); i++) {
                 if (child_items[i].item == p_item)
                     return i;
             }
@@ -144,13 +142,13 @@ public:
         void erase_item(Item *p_item) {
             int idx = find_item(p_item);
             if (idx >= 0)
-                child_items.remove(idx);
+                child_items.erase_at(idx);
         }
 
         Canvas() {
             modulate = Color(1, 1, 1, 1);
             children_order_dirty = true;
-            parent_scale = 1.0;
+            parent_scale = 1.0f;
         }
     };
 

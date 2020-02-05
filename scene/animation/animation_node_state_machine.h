@@ -153,7 +153,7 @@ private:
         Ref<AnimationNodeStateMachineTransition> transition;
     };
 
-    Vector<Transition> transitions;
+    PODVector<Transition> transitions;
 
     StringName playback;
 

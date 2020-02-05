@@ -74,7 +74,7 @@ void MeshInstanceEditor::_menu_option(int p_option) {
             EditorSelection *editor_selection = EditorNode::get_singleton()->get_editor_selection();
             UndoRedo *ur = EditorNode::get_singleton()->get_undo_redo();
 
-            List<Node *> selection = editor_selection->get_selected_node_list();
+            const PODVector<Node *> &selection = editor_selection->get_selected_node_list();
 
             if (selection.empty()) {
                 Ref<Shape> shape = trimesh_shape ? mesh->create_trimesh_shape() : mesh->create_convex_shape();
@@ -104,9 +104,9 @@ void MeshInstanceEditor::_menu_option(int p_option) {
 
             ur->create_action_ui(TTR("Create Static Trimesh Body"));
 
-            for (List<Node *>::Element *E = selection.front(); E; E = E->next()) {
+            for (Node * E : selection) {
 
-                MeshInstance *instance = object_cast<MeshInstance>(E->deref());
+                MeshInstance *instance = object_cast<MeshInstance>(E);
                 if (!instance)
                     continue;
 

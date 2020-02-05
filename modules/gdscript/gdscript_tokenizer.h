@@ -175,7 +175,7 @@ public:
     virtual String get_token_error(int p_offset = 0) const = 0;
     virtual void advance(int p_amount = 1) = 0;
 #ifdef DEBUG_ENABLED
-    virtual const Vector<Pair<int, String> > &get_warning_skips() const = 0;
+    virtual const PODVector<Pair<int, String> > &get_warning_skips() const = 0;
     virtual const Set<String> &get_warning_global_skips() const = 0;
     virtual bool is_ignoring_warnings() const = 0;
 #endif // DEBUG_ENABLED
@@ -228,7 +228,7 @@ class GDScriptTokenizerText : public GDScriptTokenizer {
     bool error_flag;
 
 #ifdef DEBUG_ENABLED
-    Vector<Pair<int, String> > warning_skips;
+    PODVector<Pair<int, String> > warning_skips;
     Set<String> warning_global_skips;
     bool ignore_warnings;
 #endif // DEBUG_ENABLED
@@ -249,7 +249,7 @@ public:
     String get_token_error(int p_offset = 0) const override;
     void advance(int p_amount = 1) override;
 #ifdef DEBUG_ENABLED
-    const Vector<Pair<int, String> > &get_warning_skips() const override { return warning_skips; }
+    const PODVector<Pair<int, String> > &get_warning_skips() const override { return warning_skips; }
     const Set<String> &get_warning_global_skips() const override { return warning_global_skips; }
     bool is_ignoring_warnings() const override { return ignore_warnings; }
 #endif // DEBUG_ENABLED
@@ -267,9 +267,9 @@ class GDScriptTokenizerBuffer : public GDScriptTokenizer {
     };
 
     PODVector<StringName> identifiers;
-    Vector<Variant> constants;
+    PODVector<Variant> constants;
     VMap<uint32_t, uint32_t> lines;
-    Vector<uint32_t> tokens;
+    PODVector<uint32_t> tokens;
     Variant nil;
     int token;
 
@@ -288,12 +288,12 @@ public:
     String get_token_error(int p_offset = 0) const override;
     void advance(int p_amount = 1) override;
 #ifdef DEBUG_ENABLED
-    const Vector<Pair<int, String> > &get_warning_skips() const override {
-        static Vector<Pair<int, String> > v;
+    const PODVector<Pair<int, String> > &get_warning_skips() const override {
+        static const PODVector<Pair<int, String> > v;
         return v;
     }
     const Set<String> &get_warning_global_skips() const override {
-        static Set<String> s;
+        static const Set<String> s;
         return s;
     }
     bool is_ignoring_warnings() const override { return true; }

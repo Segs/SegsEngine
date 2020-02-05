@@ -41,8 +41,8 @@ class AudioEffectEQInstance : public AudioEffectInstance {
     friend class AudioEffectEQ;
     Ref<AudioEffectEQ> base;
 
-    Vector<EQ::BandProcess> bands[2];
-    Vector<float> gains;
+    PODVector<EQ::BandProcess> bands[2];
+    PODVector<float> gains;
 
 public:
     void process(const AudioFrame *p_src_frames, AudioFrame *p_dst_frames, int p_frame_count) override;
@@ -54,7 +54,7 @@ class AudioEffectEQ : public AudioEffect {
     friend class AudioEffectEQInstance;
 
     EQ eq;
-    Vector<float> gain;
+    PODVector<float> gain;
     Map<StringName, int> prop_band_map;
     PODVector<StringName> band_names;
 

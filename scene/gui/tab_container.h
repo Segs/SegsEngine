@@ -63,7 +63,7 @@ private:
     bool use_hidden_tabs_for_min_size;
     int tabs_rearrange_group;
 
-    Vector<Control *> _get_tabs() const;
+    PODVector<Control *> _get_tabs() const;
     int _get_tab_width(int p_index) const;
     void _on_theme_changed();
     void _on_mouse_exited();

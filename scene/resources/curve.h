@@ -139,13 +139,13 @@ protected:
 private:
     void mark_dirty();
 
-    Vector<Point> _points;
-    bool _baked_cache_dirty;
-    Vector<real_t> _baked_cache;
-    int _bake_resolution;
+    PODVector<Point> _points;
+    PODVector<real_t> _baked_cache;
     float _min_value;
     float _max_value;
+    int _bake_resolution;
     int _minmax_set_once; // Encodes whether min and max have been set a first time, first bit for min and second for max.
+    bool _baked_cache_dirty;
 };
 
 
@@ -160,12 +160,12 @@ class GODOT_EXPORT Curve2D : public Resource {
         Vector2 pos;
     };
 
-    Vector<Point> points;
+    PODVector<Point> points;
 
     struct BakedPoint {
 
-        float ofs;
         Vector2 point;
+        float ofs;
     };
 
     mutable bool baked_cache_dirty;
@@ -218,16 +218,13 @@ class GODOT_EXPORT Curve3D : public Resource {
     GDCLASS(Curve3D,Resource)
 
     struct Point {
-
         Vector3 in;
         Vector3 out;
         Vector3 pos;
-        float tilt;
-
-        Point() { tilt = 0; }
+        float tilt=0.0f;
     };
 
-    Vector<Point> points;
+    PODVector<Point> points;
 
     struct BakedPoint {
 

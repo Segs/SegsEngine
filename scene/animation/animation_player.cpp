@@ -37,6 +37,7 @@
 #include "scene/scene_string_names.h"
 #include "servers/audio/audio_stream.h"
 #include "EASTL/sort.h"
+#include "EASTL/vector_set.h"
 
 IMPL_GDCLASS(AnimationPlayer)
 
@@ -124,10 +125,9 @@ bool AnimationPlayer::_get(const StringName &p_name, Variant &r_ret) const {
 
     } else if (name == se_string_view("blend_times")) {
 
-        Vector<BlendKey> keys;
+        eastl::vector_set<BlendKey,eastl::less<BlendKey>,wrap_allocator> keys;
         for (const eastl::pair<const BlendKey,float> &E : blend_times) {
-
-            keys.ordered_insert(E.first);
+            keys.insert(E.first);
         }
 
         Array array;
@@ -252,7 +252,7 @@ void AnimationPlayer::_ensure_node_caches(AnimationData *p_anim) {
 
     for (int i = 0; i < a->get_track_count(); i++) {
 
-        p_anim->node_cache.write[i] = nullptr;
+        p_anim->node_cache[i] = nullptr;
         RES resource;
         PODVector<StringName> leftover_path;
         Node *child = parent->get_node_and_resource(a->track_get_path(i), resource, leftover_path);
@@ -282,7 +282,7 @@ void AnimationPlayer::_ensure_node_caches(AnimationData *p_anim) {
         if (!node_cache_map.contains(key))
             node_cache_map[key] = TrackNodeCache();
 
-        p_anim->node_cache.write[i] = &node_cache_map[key];
+        p_anim->node_cache[i] = &node_cache_map[key];
         p_anim->node_cache[i]->path = a->track_get_path(i);
         p_anim->node_cache[i]->node = child;
         p_anim->node_cache[i]->resource = resource;
@@ -1578,7 +1578,7 @@ AnimatedValuesBackup AnimationPlayer::backup_animated_values() {
             entry.object = nc->skeleton;
             entry.bone_idx = nc->bone_idx;
             entry.value = nc->skeleton->get_bone_pose(nc->bone_idx);
-            backup.entries.push_back(entry);
+            backup.entries.emplace_back(eastl::move(entry));
         } else {
             if (nc->spatial) {
                 AnimatedValuesBackup::Entry entry;
@@ -1586,17 +1586,17 @@ AnimatedValuesBackup AnimationPlayer::backup_animated_values() {
                 entry.subpath.push_back("transform");
                 entry.value = nc->spatial->get_transform();
                 entry.bone_idx = -1;
-                backup.entries.push_back(entry);
+                backup.entries.emplace_back(eastl::move(entry));
             } else {
                 for (eastl::pair<const StringName,TrackNodeCache::PropertyAnim> &E : nc->property_anim) {
                     AnimatedValuesBackup::Entry entry;
-                    entry.object = E.second.object;
-                    entry.subpath = E.second.subpath;
                     bool valid;
                     entry.value = E.second.object->get_indexed(E.second.subpath, &valid);
-                    entry.bone_idx = -1;
                     if (valid)
-                        backup.entries.push_back(entry);
+                        entry.object = E.second.object;
+                        entry.subpath = E.second.subpath;
+                        entry.bone_idx = -1;
+                        backup.entries.emplace_back(eastl::move(entry));
                 }
             }
         }
@@ -1607,13 +1607,11 @@ AnimatedValuesBackup AnimationPlayer::backup_animated_values() {
 
 void AnimationPlayer::restore_animated_values(const AnimatedValuesBackup &p_backup) {
 
-    for (int i = 0; i < p_backup.entries.size(); i++) {
-
-        const AnimatedValuesBackup::Entry *entry = &p_backup.entries[i];
-        if (entry->bone_idx == -1) {
-            entry->object->set_indexed(entry->subpath, entry->value);
+    for (const AnimatedValuesBackup::Entry &entry : p_backup.entries) {
+        if (entry.bone_idx == -1) {
+            entry.object->set_indexed(entry.subpath, entry.value);
         } else {
-            object_cast<Skeleton>(entry->object)->set_bone_pose(entry->bone_idx, entry->value);
+            object_cast<Skeleton>(entry.object)->set_bone_pose(entry.bone_idx, entry.value);
         }
     }
 }
