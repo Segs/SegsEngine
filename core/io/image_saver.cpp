@@ -75,7 +75,7 @@ void ImageSaver::register_plugin_resolver()
 }
 
 Error ImageSaver::save_image(se_string_view p_file, const Ref<Image> &p_image, FileAccess *p_custom, float p_quality) {
-    ERR_FAIL_COND_V(not p_image, ERR_INVALID_PARAMETER)
+    ERR_FAIL_COND_V(not p_image, ERR_INVALID_PARAMETER);
 
     register_plugin_resolver();
 

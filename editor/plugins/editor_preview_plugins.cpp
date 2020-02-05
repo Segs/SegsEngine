@@ -335,7 +335,7 @@ bool EditorMaterialPreviewPlugin::generate_small_preview_automatically() const {
 Ref<Texture> EditorMaterialPreviewPlugin::generate(const RES &p_from, const Size2 &p_size) const {
 
     Ref<Material> material = dynamic_ref_cast<Material>(p_from);
-    ERR_FAIL_COND_V(not material, Ref<Texture>())
+    ERR_FAIL_COND_V(not material, Ref<Texture>());
 
     if (material->get_shader_mode() == ShaderMode::SPATIAL) {
 
@@ -353,7 +353,7 @@ Ref<Texture> EditorMaterialPreviewPlugin::generate(const RES &p_from, const Size
         Ref<Image> img = VisualServer::get_singleton()->texture_get_data(viewport_texture);
         VisualServer::get_singleton()->mesh_surface_set_material(sphere, 0, RID());
 
-        ERR_FAIL_COND_V(not img, Ref<ImageTexture>())
+        ERR_FAIL_COND_V(not img, Ref<ImageTexture>());
 
         img->convert(Image::FORMAT_RGBA8);
         int thumbnail_size = MAX(p_size.x, p_size.y);
@@ -621,7 +621,7 @@ bool EditorAudioStreamPreviewPlugin::handles(se_string_view p_type) const {
 Ref<Texture> EditorAudioStreamPreviewPlugin::generate(const RES &p_from, const Size2 &p_size) const {
 
     Ref<AudioStream> stream = dynamic_ref_cast<AudioStream>(p_from);
-    ERR_FAIL_COND_V(not stream, Ref<Texture>())
+    ERR_FAIL_COND_V(not stream, Ref<Texture>());
 
     PoolVector<uint8_t> img;
 
@@ -633,7 +633,7 @@ Ref<Texture> EditorAudioStreamPreviewPlugin::generate(const RES &p_from, const S
     uint8_t *imgw = imgdata.ptr();
 
     Ref<AudioStreamPlayback> playback = stream->instance_playback();
-    ERR_FAIL_COND_V(not playback, Ref<Texture>())
+    ERR_FAIL_COND_V(not playback, Ref<Texture>());
 
     float len_s = stream->get_length();
     if (len_s == 0) {
@@ -718,7 +718,7 @@ bool EditorMeshPreviewPlugin::handles(se_string_view p_type) const {
 Ref<Texture> EditorMeshPreviewPlugin::generate(const RES &p_from, const Size2 &p_size) const {
 
     Ref<Mesh> mesh = dynamic_ref_cast<Mesh>(p_from);
-    ERR_FAIL_COND_V(not mesh, Ref<Texture>())
+    ERR_FAIL_COND_V(not mesh, Ref<Texture>());
 
     VisualServer::get_singleton()->instance_set_base(mesh_instance, mesh->get_rid());
 
@@ -749,7 +749,7 @@ Ref<Texture> EditorMeshPreviewPlugin::generate(const RES &p_from, const Size2 &p
     }
 
     Ref<Image> img = VisualServer::get_singleton()->texture_get_data(viewport_texture);
-    ERR_FAIL_COND_V(not img, Ref<ImageTexture>())
+    ERR_FAIL_COND_V(not img, Ref<ImageTexture>());
 
     VisualServer::get_singleton()->instance_set_base(mesh_instance, RID());
 
@@ -876,7 +876,7 @@ Ref<Texture> EditorFontPreviewPlugin::generate_from_path(se_string_view p_path, 
     VisualServer::get_singleton()->canvas_item_clear(canvas_item);
 
     Ref<Image> img = VisualServer::get_singleton()->texture_get_data(viewport_texture);
-    ERR_FAIL_COND_V(not img, Ref<ImageTexture>())
+    ERR_FAIL_COND_V(not img, Ref<ImageTexture>());
 
     img->convert(Image::FORMAT_RGBA8);
 

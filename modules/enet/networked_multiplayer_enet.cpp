@@ -125,35 +125,35 @@ void NetworkedMultiplayerENet::set_target_peer(int p_peer) {
 
 int NetworkedMultiplayerENet::get_packet_peer() const {
 
-    ERR_FAIL_COND_V(!active, 1)
-    ERR_FAIL_COND_V(D(private_data)->incoming_packets.empty(), 1)
+    ERR_FAIL_COND_V(!active, 1);
+    ERR_FAIL_COND_V(D(private_data)->incoming_packets.empty(), 1);
 
     return D(private_data)->incoming_packets.front()->deref().from;
 }
 
 int NetworkedMultiplayerENet::get_packet_channel() const {
 
-    ERR_FAIL_COND_V(!active, -1)
-    ERR_FAIL_COND_V(D(private_data)->incoming_packets.empty(), -1)
+    ERR_FAIL_COND_V(!active, -1);
+    ERR_FAIL_COND_V(D(private_data)->incoming_packets.empty(), -1);
 
     return D(private_data)->incoming_packets.front()->deref().channel;
 }
 
 int NetworkedMultiplayerENet::get_last_packet_channel() const {
 
-    ERR_FAIL_COND_V(!active, -1)
-    ERR_FAIL_COND_V(!D(private_data)->current_packet.packet, -1)
+    ERR_FAIL_COND_V(!active, -1);
+    ERR_FAIL_COND_V(!D(private_data)->current_packet.packet, -1);
 
     return D(private_data)->current_packet.channel;
 }
 
 Error NetworkedMultiplayerENet::create_server(int p_port, int p_max_clients, int p_in_bandwidth, int p_out_bandwidth) {
 
-    ERR_FAIL_COND_V(active, ERR_ALREADY_IN_USE)
-    ERR_FAIL_COND_V(p_port < 0 || p_port > 65535, ERR_INVALID_PARAMETER)
-    ERR_FAIL_COND_V(p_max_clients < 1 || p_max_clients > 4095, ERR_INVALID_PARAMETER)
-    ERR_FAIL_COND_V(p_in_bandwidth < 0, ERR_INVALID_PARAMETER)
-    ERR_FAIL_COND_V(p_out_bandwidth < 0, ERR_INVALID_PARAMETER)
+    ERR_FAIL_COND_V(active, ERR_ALREADY_IN_USE);
+    ERR_FAIL_COND_V(p_port < 0 || p_port > 65535, ERR_INVALID_PARAMETER);
+    ERR_FAIL_COND_V(p_max_clients < 1 || p_max_clients > 4095, ERR_INVALID_PARAMETER);
+    ERR_FAIL_COND_V(p_in_bandwidth < 0, ERR_INVALID_PARAMETER);
+    ERR_FAIL_COND_V(p_out_bandwidth < 0, ERR_INVALID_PARAMETER);
 
     ENetAddress address;
     memset(&address, 0, sizeof(address));
@@ -171,7 +171,7 @@ Error NetworkedMultiplayerENet::create_server(int p_port, int p_max_clients, int
             p_in_bandwidth /* limit incoming bandwidth if > 0 */,
             p_out_bandwidth /* limit outgoing bandwidth if > 0 */);
 
-    ERR_FAIL_COND_V(!D(private_data)->host, ERR_CANT_CREATE)
+    ERR_FAIL_COND_V(!D(private_data)->host, ERR_CANT_CREATE);
 
     D(private_data)->_setup_compressor();
     active = true;
@@ -183,11 +183,11 @@ Error NetworkedMultiplayerENet::create_server(int p_port, int p_max_clients, int
 }
 Error NetworkedMultiplayerENet::create_client(se_string_view p_address, int p_port, int p_in_bandwidth, int p_out_bandwidth, int p_client_port) {
 
-    ERR_FAIL_COND_V(active, ERR_ALREADY_IN_USE)
-    ERR_FAIL_COND_V(p_port < 0 || p_port > 65535, ERR_INVALID_PARAMETER)
-    ERR_FAIL_COND_V(p_client_port < 0 || p_client_port > 65535, ERR_INVALID_PARAMETER)
-    ERR_FAIL_COND_V(p_in_bandwidth < 0, ERR_INVALID_PARAMETER)
-    ERR_FAIL_COND_V(p_out_bandwidth < 0, ERR_INVALID_PARAMETER)
+    ERR_FAIL_COND_V(active, ERR_ALREADY_IN_USE);
+    ERR_FAIL_COND_V(p_port < 0 || p_port > 65535, ERR_INVALID_PARAMETER);
+    ERR_FAIL_COND_V(p_client_port < 0 || p_client_port > 65535, ERR_INVALID_PARAMETER);
+    ERR_FAIL_COND_V(p_in_bandwidth < 0, ERR_INVALID_PARAMETER);
+    ERR_FAIL_COND_V(p_out_bandwidth < 0, ERR_INVALID_PARAMETER);
 
     if (p_client_port != 0) {
         ENetAddress c_client;
@@ -213,7 +213,7 @@ Error NetworkedMultiplayerENet::create_client(se_string_view p_address, int p_po
                 p_out_bandwidth /* limit outgoing bandwidth if > 0 */);
     }
 
-    ERR_FAIL_COND_V(!D(private_data)->host, ERR_CANT_CREATE)
+    ERR_FAIL_COND_V(!D(private_data)->host, ERR_CANT_CREATE);
 
     D(private_data)->_setup_compressor();
 
@@ -223,7 +223,7 @@ Error NetworkedMultiplayerENet::create_client(se_string_view p_address, int p_po
     } else {
         ip = IP::get_singleton()->resolve_hostname(p_address);
 
-        ERR_FAIL_COND_V(!ip.is_valid(), ERR_CANT_RESOLVE)
+        ERR_FAIL_COND_V(!ip.is_valid(), ERR_CANT_RESOLVE);
     }
 
     ENetAddress address;
@@ -237,7 +237,7 @@ Error NetworkedMultiplayerENet::create_client(se_string_view p_address, int p_po
 
     if (peer == nullptr) {
         enet_host_destroy(D(private_data)->host);
-        ERR_FAIL_COND_V(!peer, ERR_CANT_CREATE)
+        ERR_FAIL_COND_V(!peer, ERR_CANT_CREATE);
     }
 
     // Technically safe to ignore the peer or anything else.
@@ -482,7 +482,7 @@ void NetworkedMultiplayerENet::poll() {
 }
 
 bool NetworkedMultiplayerENet::is_server() const {
-    ERR_FAIL_COND_V(!active, false)
+    ERR_FAIL_COND_V(!active, false);
 
     return server;
 }
@@ -541,7 +541,7 @@ int NetworkedMultiplayerENet::get_available_packet_count() const {
 
 Error NetworkedMultiplayerENet::get_packet(const uint8_t **r_buffer, int &r_buffer_size) {
 
-    ERR_FAIL_COND_V(D(private_data)->incoming_packets.empty(), ERR_UNAVAILABLE)
+    ERR_FAIL_COND_V(D(private_data)->incoming_packets.empty(), ERR_UNAVAILABLE);
 
     _pop_current_packet();
 
@@ -556,8 +556,8 @@ Error NetworkedMultiplayerENet::get_packet(const uint8_t **r_buffer, int &r_buff
 
 Error NetworkedMultiplayerENet::put_packet(const uint8_t *p_buffer, int p_buffer_size) {
 
-    ERR_FAIL_COND_V(!active, ERR_UNCONFIGURED)
-    ERR_FAIL_COND_V(connection_status != CONNECTION_CONNECTED, ERR_UNCONFIGURED)
+    ERR_FAIL_COND_V(!active, ERR_UNCONFIGURED);
+    ERR_FAIL_COND_V(connection_status != CONNECTION_CONNECTED, ERR_UNCONFIGURED);
 
     int packet_flags = 0;
     int channel = SYSCH_RELIABLE;
@@ -588,7 +588,7 @@ Error NetworkedMultiplayerENet::put_packet(const uint8_t *p_buffer, int p_buffer
     if (target_peer != 0) {
 
         E = D(private_data)->peer_map.find(ABS(target_peer));
-        ERR_FAIL_COND_V_MSG(E==D(private_data)->peer_map.end(), ERR_INVALID_PARAMETER, "Invalid target peer '" + itos(target_peer) + "'.")
+        ERR_FAIL_COND_V_MSG(E==D(private_data)->peer_map.end(), ERR_INVALID_PARAMETER, "Invalid target peer '" + itos(target_peer) + "'.");
     }
 
     ENetPacket *packet = enet_packet_create(nullptr, p_buffer_size + 8, packet_flags);
@@ -622,7 +622,7 @@ Error NetworkedMultiplayerENet::put_packet(const uint8_t *p_buffer, int p_buffer
         }
     } else {
 
-        ERR_FAIL_COND_V(!D(private_data)->peer_map.contains(1), ERR_BUG)
+        ERR_FAIL_COND_V(!D(private_data)->peer_map.contains(1), ERR_BUG);
         enet_peer_send(D(private_data)->peer_map[1], channel, packet); // Send to server for broadcast
     }
 
@@ -671,7 +671,7 @@ uint32_t NetworkedMultiplayerENet::_gen_unique_id() const {
 
 int NetworkedMultiplayerENet::get_unique_id() const {
 
-    ERR_FAIL_COND_V(!active, 0)
+    ERR_FAIL_COND_V(!active, 0);
     return unique_id;
 }
 
@@ -802,9 +802,9 @@ void NetworkedMultiplayerENet_Priv::enet_compressor_destroy(void *context) {
 
 IP_Address NetworkedMultiplayerENet::get_peer_address(int p_peer_id) const {
 
-    ERR_FAIL_COND_V(!D(private_data)->peer_map.contains(p_peer_id), IP_Address())
-    ERR_FAIL_COND_V(!is_server() && p_peer_id != 1, IP_Address())
-    ERR_FAIL_COND_V(D(private_data)->peer_map.at(p_peer_id) == nullptr, IP_Address())
+    ERR_FAIL_COND_V(!D(private_data)->peer_map.contains(p_peer_id), IP_Address());
+    ERR_FAIL_COND_V(!is_server() && p_peer_id != 1, IP_Address());
+    ERR_FAIL_COND_V(D(private_data)->peer_map.at(p_peer_id) == nullptr, IP_Address());
 
     IP_Address out;
     out.set_ipv6((uint8_t *)&(D(private_data)->peer_map.at(p_peer_id)->address.host));
@@ -814,9 +814,9 @@ IP_Address NetworkedMultiplayerENet::get_peer_address(int p_peer_id) const {
 
 int NetworkedMultiplayerENet::get_peer_port(int p_peer_id) const {
 
-    ERR_FAIL_COND_V(!D(private_data)->peer_map.contains(p_peer_id), 0)
-    ERR_FAIL_COND_V(!is_server() && p_peer_id != 1, 0)
-    ERR_FAIL_COND_V(D(private_data)->peer_map.at(p_peer_id,nullptr) == nullptr, 0)
+    ERR_FAIL_COND_V(!D(private_data)->peer_map.contains(p_peer_id), 0);
+    ERR_FAIL_COND_V(!is_server() && p_peer_id != 1, 0);
+    ERR_FAIL_COND_V(D(private_data)->peer_map.at(p_peer_id,nullptr) == nullptr, 0);
     return D(private_data)->peer_map.at(p_peer_id)->address.port;
 }
 

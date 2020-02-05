@@ -390,7 +390,7 @@ public:
 template <class T, bool use_pairs, class AL>
 T *Octree<T, use_pairs, AL>::get(OctreeElementID p_id) const {
     const typename ElementMap::const_iterator E = element_map.find(p_id);
-    ERR_FAIL_COND_V(E==element_map.end(), nullptr)
+    ERR_FAIL_COND_V(E==element_map.end(), nullptr);
     return E->second.userdata;
 }
 
@@ -398,7 +398,7 @@ template <class T, bool use_pairs, class AL>
 bool Octree<T, use_pairs, AL>::is_pairable(OctreeElementID p_id) const {
 
     const typename ElementMap::const_iterator E = element_map.find(p_id);
-    ERR_FAIL_COND_V(E==element_map.end(), false)
+    ERR_FAIL_COND_V(E==element_map.end(), false);
     return E->second.pairable;
 }
 
@@ -406,7 +406,7 @@ template <class T, bool use_pairs, class AL>
 int Octree<T, use_pairs, AL>::get_subindex(OctreeElementID p_id) const {
 
     const typename ElementMap::const_iterator E = element_map.find(p_id);
-    ERR_FAIL_COND_V(E==element_map.end(), -1)
+    ERR_FAIL_COND_V(E==element_map.end(), -1);
     return E->second.subindex;
 }
 
@@ -785,15 +785,15 @@ OctreeElementID Octree<T, use_pairs, AL>::create(T *p_userdata, const AABB &p_aa
 
 // check for AABB validity
 #ifdef DEBUG_ENABLED
-    ERR_FAIL_COND_V(p_aabb.position.x > 1e15f || p_aabb.position.x < -1e15f, 0)
-    ERR_FAIL_COND_V(p_aabb.position.y > 1e15f || p_aabb.position.y < -1e15f, 0)
-    ERR_FAIL_COND_V(p_aabb.position.z > 1e15f || p_aabb.position.z < -1e15f, 0)
-    ERR_FAIL_COND_V(p_aabb.size.x > 1e15f || p_aabb.size.x < 0.0f, 0)
-    ERR_FAIL_COND_V(p_aabb.size.y > 1e15f || p_aabb.size.y < 0.0f, 0)
-    ERR_FAIL_COND_V(p_aabb.size.z > 1e15f || p_aabb.size.z < 0.0f, 0)
-    ERR_FAIL_COND_V(Math::is_nan(p_aabb.size.x), 0)
-    ERR_FAIL_COND_V(Math::is_nan(p_aabb.size.y), 0)
-    ERR_FAIL_COND_V(Math::is_nan(p_aabb.size.z), 0)
+    ERR_FAIL_COND_V(p_aabb.position.x > 1e15f || p_aabb.position.x < -1e15f, 0);
+    ERR_FAIL_COND_V(p_aabb.position.y > 1e15f || p_aabb.position.y < -1e15f, 0);
+    ERR_FAIL_COND_V(p_aabb.position.z > 1e15f || p_aabb.position.z < -1e15f, 0);
+    ERR_FAIL_COND_V(p_aabb.size.x > 1e15f || p_aabb.size.x < 0.0f, 0);
+    ERR_FAIL_COND_V(p_aabb.size.y > 1e15f || p_aabb.size.y < 0.0f, 0);
+    ERR_FAIL_COND_V(p_aabb.size.z > 1e15f || p_aabb.size.z < 0.0f, 0);
+    ERR_FAIL_COND_V(Math::is_nan(p_aabb.size.x), 0);
+    ERR_FAIL_COND_V(Math::is_nan(p_aabb.size.y), 0);
+    ERR_FAIL_COND_V(Math::is_nan(p_aabb.size.z), 0);
 
 #endif
     typename ElementMap::iterator E = element_map.emplace(last_element_id++,

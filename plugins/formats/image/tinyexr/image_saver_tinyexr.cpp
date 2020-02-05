@@ -173,7 +173,7 @@ Error prepare_exr_save(EXRImage &image,EXRHeader &header, const ImageData &p_img
     };
 
     int channel_count = get_channel_count(format);
-    ERR_FAIL_COND_V(p_grayscale && channel_count != 1, ERR_INVALID_PARAMETER)
+    ERR_FAIL_COND_V(p_grayscale && channel_count != 1, ERR_INVALID_PARAMETER);
 
     int target_pixel_type = get_target_pixel_type(format);
     int target_pixel_type_size = get_pixel_type_size(target_pixel_type);

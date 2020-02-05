@@ -503,7 +503,7 @@ void VisualServerViewport::viewport_set_vflip(RID p_viewport, bool p_enable) {
 RID VisualServerViewport::viewport_get_texture(RID p_viewport) const {
 
     const Viewport *viewport = viewport_owner.getornull(p_viewport);
-    ERR_FAIL_COND_V(!viewport, RID())
+    ERR_FAIL_COND_V(!viewport, RID());
 
     return VSG::storage->render_target_get_texture(viewport->render_target);
 }

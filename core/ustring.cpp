@@ -1375,7 +1375,7 @@ static double built_in_strtod(const CharType *string, /* A decimal ASCII floatin
 
     if (exp > maxExponent) {
         exp = maxExponent;
-        WARN_PRINT("Exponent too high")
+        WARN_PRINT("Exponent too high");
     }
     dblExp = 1.0;
     for (d = powersOf10; exp != 0; exp >>= 1, ++d) {
@@ -1971,7 +1971,7 @@ void StringUtils::Inplace::replace(UIString &s,int i,int len, const UIString &p_
 
 UIString StringUtils::repeat(const UIString &str,int p_count) {
 
-    ERR_FAIL_COND_V_MSG(p_count < 0, UIString(), "Parameter count should be a positive number.")
+    ERR_FAIL_COND_V_MSG(p_count < 0, UIString(), "Parameter count should be a positive number.");
 
     UIString new_string;
 
@@ -1985,7 +1985,7 @@ UIString StringUtils::repeat(const UIString &str,int p_count) {
 }
 String StringUtils::repeat(se_string_view str,int p_count) {
 
-    ERR_FAIL_COND_V_MSG(p_count < 0, String(), "Parameter count should be a positive number.")
+    ERR_FAIL_COND_V_MSG(p_count < 0, String(), "Parameter count should be a positive number.");
 
     String new_string;
 
@@ -2012,7 +2012,7 @@ se_string_view StringUtils::right(se_string_view s,int p_pos){
 }
 CharType StringUtils::ord_at(const UIString &str,int p_idx) {
 
-    ERR_FAIL_INDEX_V(p_idx, str.length(), 0)
+    ERR_FAIL_INDEX_V(p_idx, str.length(), 0);
     return str[p_idx];
 }
 

@@ -636,8 +636,8 @@ PoolVector<Vector2> TileMapEditor::_bucket_fill(const Point2i &p_start, bool era
         if (r != bucket_cache_rect)
             _clear_bucket_cache();
         // Cache grid is not initialized
-        if (bucket_cache_visited == nullptr) {
-            bucket_cache_visited = new bool[area];
+        if (bucket_cache_visited.empty()) {
+            bucket_cache_visited.resize(area);
             invalidate_cache = true;
         }
         // Tile ID changed or position wasn't visited by the previous fill
@@ -901,10 +901,7 @@ void TileMapEditor::_draw_fill_preview(Control *p_viewport, int p_cell, const Po
 }
 
 void TileMapEditor::_clear_bucket_cache() {
-    if (bucket_cache_visited) {
-        delete[] bucket_cache_visited;
-        bucket_cache_visited = nullptr;
-    }
+    bucket_cache_visited.set_capacity(0); // this will clear the buffer, and release the underlying memory.
 }
 
 void TileMapEditor::_update_copydata() {
@@ -1933,7 +1930,6 @@ TileMapEditor::TileMapEditor(EditorNode *p_editor) {
     transpose = false;
 
     bucket_cache_tile = -1;
-    bucket_cache_visited = nullptr;
 
     ED_SHORTCUT("tile_map_editor/erase_selection", TTR("Erase Selection"), KEY_DELETE);
     ED_SHORTCUT("tile_map_editor/find_tile", TTR("Find Tile"), KEY_MASK_CMD + KEY_F);

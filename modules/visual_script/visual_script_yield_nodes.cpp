@@ -316,7 +316,7 @@ PropertyInfo VisualScriptYieldSignal::get_output_value_port_info(int p_idx) cons
 
     if (!ClassDB::get_signal(_get_base_type(), signal, &sr))
         return PropertyInfo(); //no signal
-    ERR_FAIL_INDEX_V(p_idx, sr.arguments.size(), PropertyInfo())
+    ERR_FAIL_INDEX_V(p_idx, sr.arguments.size(), PropertyInfo());
     return sr.arguments[p_idx];
 }
 

@@ -57,7 +57,7 @@ bool GridMap::_set(const StringName &p_name, const Variant &p_value) {
             PoolVector<int> cells = d["cells"];
             int amount = cells.size();
             PoolVector<int>::Read r = cells.read();
-            ERR_FAIL_COND_V(amount % 3, false) // not even
+            ERR_FAIL_COND_V(amount % 3, false); // not even
             cell_map.clear();
             for (int i = 0; i < amount / 3; i++) {
 
@@ -348,9 +348,9 @@ void GridMap::set_cell_item(int p_x, int p_y, int p_z, int p_item, int p_rot) {
 
 int GridMap::get_cell_item(int p_x, int p_y, int p_z) const {
 
-    ERR_FAIL_INDEX_V(ABS(p_x), 1 << 20, INVALID_CELL_ITEM)
-    ERR_FAIL_INDEX_V(ABS(p_y), 1 << 20, INVALID_CELL_ITEM)
-    ERR_FAIL_INDEX_V(ABS(p_z), 1 << 20, INVALID_CELL_ITEM)
+    ERR_FAIL_INDEX_V(ABS(p_x), 1 << 20, INVALID_CELL_ITEM);
+    ERR_FAIL_INDEX_V(ABS(p_y), 1 << 20, INVALID_CELL_ITEM);
+    ERR_FAIL_INDEX_V(ABS(p_z), 1 << 20, INVALID_CELL_ITEM);
 
     IndexKey key;
     key.x = p_x;
@@ -364,9 +364,9 @@ int GridMap::get_cell_item(int p_x, int p_y, int p_z) const {
 
 int GridMap::get_cell_item_orientation(int p_x, int p_y, int p_z) const {
 
-    ERR_FAIL_INDEX_V(ABS(p_x), 1 << 20, -1)
-    ERR_FAIL_INDEX_V(ABS(p_y), 1 << 20, -1)
-    ERR_FAIL_INDEX_V(ABS(p_z), 1 << 20, -1)
+    ERR_FAIL_INDEX_V(ABS(p_x), 1 << 20, -1);
+    ERR_FAIL_INDEX_V(ABS(p_y), 1 << 20, -1);
+    ERR_FAIL_INDEX_V(ABS(p_z), 1 << 20, -1);
 
     IndexKey key;
     key.x = p_x;
@@ -411,7 +411,7 @@ void GridMap::_octant_transform(const OctantKey &p_key) {
 }
 
 bool GridMap::_octant_update(const OctantKey &p_key) {
-    ERR_FAIL_COND_V(!octant_map.contains(p_key), false)
+    ERR_FAIL_COND_V(!octant_map.contains(p_key), false);
     Octant &g = *octant_map[p_key];
     if (!g.dirty)
         return false;

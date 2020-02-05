@@ -106,18 +106,18 @@ bool WSLClient::_verify_headers(String &r_protocol) {
     String s((char *)_resp_buf);
     PODVector<se_string_view> psa = StringUtils::split(s,"\r\n");
     int len = psa.size();
-    ERR_FAIL_COND_V_MSG(len < 4, false, "Not enough response headers, got: " + itos(len) + ", expected >= 4.")
+    ERR_FAIL_COND_V_MSG(len < 4, false, "Not enough response headers, got: " + itos(len) + ", expected >= 4.");
 
     PODVector<se_string_view> req = StringUtils::split(psa[0],' ', false);
-    ERR_FAIL_COND_V_MSG(req.size() < 2, false, "Invalid protocol or status code.")
+    ERR_FAIL_COND_V_MSG(req.size() < 2, false, "Invalid protocol or status code.");
 
     // Wrong protocol
-    ERR_FAIL_COND_V_MSG(req[0] != "HTTP/1.1"_sv || req[1] != "101"_sv, false, "Invalid protocol or status code.")
+    ERR_FAIL_COND_V_MSG(req[0] != "HTTP/1.1"_sv || req[1] != "101"_sv, false, "Invalid protocol or status code.");
 
     Map<String, String> headers;
     for (int i = 1; i < len; i++) {
         PODVector<se_string_view> header = StringUtils::split(psa[i],":", false, 1);
-        ERR_FAIL_COND_V_MSG(header.size() != 2, false, String("Invalid header -> ") + psa[i] + ".")
+        ERR_FAIL_COND_V_MSG(header.size() != 2, false, String("Invalid header -> ") + psa[i] + ".");
         String name = StringUtils::to_lower(header[0]);
         se_string_view value = StringUtils::strip_edges( header[1]);
         if (headers.contains(name))
@@ -139,9 +139,9 @@ bool WSLClient::_verify_headers(String &r_protocol) {
 #undef _WSL_CHECK
     if (_protocols.size() == 0) {
         // We didn't request a custom protocol
-        ERR_FAIL_COND_V(headers.contains("sec-websocket-protocol"), false)
+        ERR_FAIL_COND_V(headers.contains("sec-websocket-protocol"), false);
     } else {
-        ERR_FAIL_COND_V(!headers.contains("sec-websocket-protocol"), false)
+        ERR_FAIL_COND_V(!headers.contains("sec-websocket-protocol"), false);
         r_protocol = headers["sec-websocket-protocol"];
         bool valid = false;
         for (int i = 0; i < _protocols.size(); i++) {
@@ -159,7 +159,7 @@ bool WSLClient::_verify_headers(String &r_protocol) {
 Error WSLClient::connect_to_host(se_string_view p_host, se_string_view p_path, uint16_t p_port, bool p_ssl,
         const PoolVector<String> &p_protocols, const PoolVector<String> &p_custom_headers) {
 
-    ERR_FAIL_COND_V(_connection, ERR_ALREADY_IN_USE)
+    ERR_FAIL_COND_V(_connection, ERR_ALREADY_IN_USE);
 
     _peer = make_ref_counted<WSLPeer>();
     IP_Address addr;
@@ -170,7 +170,7 @@ Error WSLClient::connect_to_host(se_string_view p_host, se_string_view p_path, u
         addr = p_host;
     }
 
-    ERR_FAIL_COND_V(!addr.is_valid(), ERR_INVALID_PARAMETER)
+    ERR_FAIL_COND_V(!addr.is_valid(), ERR_INVALID_PARAMETER);
 
     String port;
     if ((p_port != 80 && !p_ssl) || (p_port != 443 && p_ssl)) {
@@ -284,7 +284,7 @@ void WSLClient::poll() {
 
 Ref<WebSocketPeer> WSLClient::get_peer(int p_peer_id) const {
 
-    ERR_FAIL_COND_V(p_peer_id != 1, Ref<WebSocketPeer>())
+    ERR_FAIL_COND_V(p_peer_id != 1, Ref<WebSocketPeer>());
 
     return _peer;
 }
@@ -331,7 +331,7 @@ uint16_t WSLClient::get_connected_port() const {
 }
 
 Error WSLClient::set_buffers(int p_in_buffer, int p_in_packets, int p_out_buffer, int p_out_packets) {
-    ERR_FAIL_COND_V_MSG(_connection, FAILED, "Buffers sizes can only be set before listening or connecting.")
+    ERR_FAIL_COND_V_MSG(_connection, FAILED, "Buffers sizes can only be set before listening or connecting.");
 
     _in_buf_size = nearest_shift(p_in_buffer - 1) + 10;
     _in_pkt_size = nearest_shift(p_in_packets - 1);

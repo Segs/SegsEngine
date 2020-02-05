@@ -191,7 +191,7 @@ void AudioEffectRecord::ensure_thread_stopped() {
 void AudioEffectRecord::set_recording_active(bool p_record) {
     if (p_record) {
         if (current_instance == nullptr) {
-            WARN_PRINT("Recording should not be set as active before Godot has initialized.")
+            WARN_PRINT("Recording should not be set as active before Godot has initialized.");
             recording_active = false;
             return;
         }
@@ -222,8 +222,8 @@ Ref<AudioStreamSample> AudioEffectRecord::get_recording() const {
 
     PODVector<uint8_t> dst_data;
 
-    ERR_FAIL_COND_V(not current_instance, Ref<AudioStreamSample>())
-    ERR_FAIL_COND_V(current_instance->recording_data.empty(), Ref<AudioStreamSample>())
+    ERR_FAIL_COND_V(not current_instance, Ref<AudioStreamSample>());
+    ERR_FAIL_COND_V(current_instance->recording_data.empty(), Ref<AudioStreamSample>());
 
     if (dst_format == AudioStreamSample::FORMAT_8_BITS) {
         int data_size = current_instance->recording_data.size();

@@ -194,7 +194,7 @@ Ref<Resource> Resource::duplicate_for_local_scene(Node *p_for_scene, Map<Ref<Res
     get_property_list(&plist);
 
     Resource *r = object_cast<Resource>(ClassDB::instance(get_class_name()));
-    ERR_FAIL_COND_V(!r, Ref<Resource>())
+    ERR_FAIL_COND_V(!r, Ref<Resource>());
 
     r->impl_data->local_scene = p_for_scene;
 
@@ -263,7 +263,7 @@ Ref<Resource> Resource::duplicate(bool p_subresources) const {
     get_property_list(&plist);
 
     Resource *r = (Resource *)ClassDB::instance(get_class_name());
-    ERR_FAIL_COND_V(!r, Ref<Resource>())
+    ERR_FAIL_COND_V(!r, Ref<Resource>());
 
     for(PropertyInfo &E : plist ) {
 
@@ -533,7 +533,7 @@ Resource::~Resource() {
         ResourceCache::lock->write_unlock();
     }
     if (!impl_data->owners.empty()) {
-        WARN_PRINT("Resource is still owned.")
+        WARN_PRINT("Resource is still owned.");
     }
     memdelete(impl_data);
     impl_data = nullptr;

@@ -81,7 +81,7 @@ const String &InstancePlaceholder::get_instance_path() const {
 
 Node *InstancePlaceholder::create_instance(bool p_replace, const Ref<PackedScene> &p_custom_scene) {
 
-    ERR_FAIL_COND_V(!is_inside_tree(), nullptr)
+    ERR_FAIL_COND_V(!is_inside_tree(), nullptr);
 
     Node *base = get_parent();
     if (!base)

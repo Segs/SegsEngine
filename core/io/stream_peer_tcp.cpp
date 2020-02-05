@@ -40,7 +40,7 @@ VARIANT_ENUM_CAST(StreamPeerTCP::Status);
 
 Error StreamPeerTCP::_poll_connection() {
 
-    ERR_FAIL_COND_V(status != STATUS_CONNECTING || not _sock || !_sock->is_open(), FAILED)
+    ERR_FAIL_COND_V(status != STATUS_CONNECTING || not _sock || !_sock->is_open(), FAILED);
 
     Error err = _sock->connect_to_host(peer_host, peer_port);
 
@@ -77,15 +77,15 @@ void StreamPeerTCP::accept_socket(Ref<NetSocket> p_sock, IP_Address p_host, uint
 
 Error StreamPeerTCP::connect_to_host(const IP_Address &p_host, uint16_t p_port) {
 
-    ERR_FAIL_COND_V(not _sock, ERR_UNAVAILABLE)
-    ERR_FAIL_COND_V(_sock->is_open(), ERR_ALREADY_IN_USE)
-    ERR_FAIL_COND_V(!p_host.is_valid(), ERR_INVALID_PARAMETER)
+    ERR_FAIL_COND_V(not _sock, ERR_UNAVAILABLE);
+    ERR_FAIL_COND_V(_sock->is_open(), ERR_ALREADY_IN_USE);
+    ERR_FAIL_COND_V(!p_host.is_valid(), ERR_INVALID_PARAMETER);
 
     Error err;
     IP::Type ip_type = p_host.is_ipv4() ? IP::TYPE_IPV4 : IP::TYPE_IPV6;
 
     err = _sock->open(NetSocket::TYPE_TCP, ip_type);
-    ERR_FAIL_COND_V(err != OK, FAILED)
+    ERR_FAIL_COND_V(err != OK, FAILED);
 
     _sock->set_blocking_enabled(false);
 
@@ -110,7 +110,7 @@ Error StreamPeerTCP::connect_to_host(const IP_Address &p_host, uint16_t p_port) 
 
 Error StreamPeerTCP::write(const uint8_t *p_data, int p_bytes, int &r_sent, bool p_block) {
 
-    ERR_FAIL_COND_V(not _sock, ERR_UNAVAILABLE)
+    ERR_FAIL_COND_V(not _sock, ERR_UNAVAILABLE);
 
     if (status == STATUS_NONE || status == STATUS_ERROR) {
 
@@ -318,7 +318,7 @@ Error StreamPeerTCP::get_partial_data(uint8_t *p_buffer, int p_bytes, int &r_rec
 
 int StreamPeerTCP::get_available_bytes() const {
 
-    ERR_FAIL_COND_V(not _sock, -1)
+    ERR_FAIL_COND_V(not _sock, -1);
     return _sock->get_available_bytes();
 }
 

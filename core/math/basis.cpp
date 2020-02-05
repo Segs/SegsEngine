@@ -143,7 +143,7 @@ Basis Basis::diagonalize() {
 //NOTE: only implemented for symmetric matrices
 //with the Jacobi iterative method method
 #ifdef MATH_CHECKS
-    ERR_FAIL_COND_V(!is_symmetric(), Basis())
+    ERR_FAIL_COND_V(!is_symmetric(), Basis());
 #endif
     const int ite_max = 1024;
 
@@ -305,17 +305,17 @@ Vector3 Basis::get_scale() const {
 // This (internal) function is too specific and named too ugly to expose to users, and probably there's no need to do so.
 Vector3 Basis::rotref_posscale_decomposition(Basis &rotref) const {
 #ifdef MATH_CHECKS
-    ERR_FAIL_COND_V(determinant() == 0.0f, Vector3())
+    ERR_FAIL_COND_V(determinant() == 0.0f, Vector3());
 
     Basis m = transposed() * (*this);
-    ERR_FAIL_COND_V(!m.is_diagonal(), Vector3())
+    ERR_FAIL_COND_V(!m.is_diagonal(), Vector3());
 #endif
     Vector3 scale = get_scale();
     Basis inv_scale = Basis().scaled(scale.inverse()); // this will also absorb the sign of scale
     rotref = (*this) * inv_scale;
 
 #ifdef MATH_CHECKS
-    ERR_FAIL_COND_V(!rotref.is_orthogonal(), Vector3())
+    ERR_FAIL_COND_V(!rotref.is_orthogonal(), Vector3());
 #endif
     return scale.abs();
 }
@@ -439,7 +439,7 @@ Vector3 Basis::get_euler_xyz() const {
 
     Vector3 euler;
 #ifdef MATH_CHECKS
-    ERR_FAIL_COND_V(!is_rotation(), euler)
+    ERR_FAIL_COND_V(!is_rotation(), euler);
 #endif
     real_t sy = elements[0][2];
     if (sy < 1.0f) {
@@ -619,7 +619,7 @@ Basis::operator String() const {
 Quat Basis::get_quat() const {
 
 #ifdef MATH_CHECKS
-    ERR_FAIL_COND_V_MSG(!is_rotation(), Quat(), "Basis must be normalized in order to be casted to a Quaternion. Use get_rotation_quat() or call orthonormalized() instead.")
+    ERR_FAIL_COND_V_MSG(!is_rotation(), Quat(), "Basis must be normalized in order to be casted to a Quaternion. Use get_rotation_quat() or call orthonormalized() instead.");
 #endif
     /* Allow getting a quaternion from an unnormalized transform */
     Basis m = *this;

@@ -40,7 +40,7 @@ String GDMonoClass::get_full_name(MonoClass *p_mono_class) {
     // mono_type_get_full_name is not exposed to embedders, but this seems to do the job
     MonoReflectionType *type_obj = mono_type_get_object(mono_domain_get(), get_mono_type(p_mono_class));
 
-    MonoException *exc = NULL;
+    MonoException *exc = nullptr;
     MonoString *str = GDMonoUtils::object_to_string((MonoObject *)type_obj, &exc);
     UNHANDLED_EXCEPTION(exc);
 
@@ -76,12 +76,12 @@ bool GDMonoClass::is_assignable_from(GDMonoClass *p_from) const {
 
 GDMonoClass *GDMonoClass::get_parent_class() {
     MonoClass *parent_mono_class = mono_class_get_parent(mono_class);
-    return parent_mono_class ? GDMono::get_singleton()->get_class(parent_mono_class) : NULL;
+    return parent_mono_class ? GDMono::get_singleton()->get_class(parent_mono_class) : nullptr;
 }
 
 GDMonoClass *GDMonoClass::get_nesting_class() {
     MonoClass *nesting_type = mono_class_get_nesting_type(mono_class);
-    return nesting_type ? GDMono::get_singleton()->get_class(nesting_type) : NULL;
+    return nesting_type ? GDMono::get_singleton()->get_class(nesting_type) : nullptr;
 }
 
 #ifdef TOOLS_ENABLED
@@ -92,9 +92,9 @@ Vector<MonoClassField *> GDMonoClass::get_enum_fields() {
 
     Vector<MonoClassField *> enum_fields;
 
-    void *iter = NULL;
-    MonoClassField *raw_field = NULL;
-    while ((raw_field = mono_class_get_fields(get_mono_ptr(), &iter)) != NULL) {
+    void *iter = nullptr;
+    MonoClassField *raw_field = nullptr;
+    while ((raw_field = mono_class_get_fields(get_mono_ptr(), &iter)) != nullptr) {
         uint32_t field_flags = mono_field_get_flags(raw_field);
 
         // Enums have an instance field named value__ which holds the value of the enum.
@@ -126,21 +126,21 @@ bool GDMonoClass::has_attribute(GDMonoClass *p_attr_class) {
 MonoObject *GDMonoClass::get_attribute(GDMonoClass *p_attr_class) {
 
 #ifdef DEBUG_ENABLED
-    ERR_FAIL_NULL_V(p_attr_class, NULL);
+    ERR_FAIL_NULL_V(p_attr_class, nullptr);
 #endif
 
     if (!attrs_fetched)
         fetch_attributes();
 
     if (!attributes)
-        return NULL;
+        return nullptr;
 
     return mono_custom_attrs_get_attr(attributes, p_attr_class->get_mono_ptr());
 }
 
 void GDMonoClass::fetch_attributes() {
 
-    ERR_FAIL_COND(attributes != NULL);
+    ERR_FAIL_COND(attributes != nullptr);
 
     attributes = mono_custom_attrs_from_class(get_mono_ptr());
     attrs_fetched = true;
@@ -167,7 +167,7 @@ void GDMonoClass::fetch_methods_with_godot_api_checks(GDMonoClass *p_native_base
 #ifdef DEBUG_ENABLED
             String fullname = method->get_ret_type_full_name() + " " + name + "(" + method->get_signature_desc(true) + ")";
             WARN_PRINT("Method '" + fullname + "' is hidden by Godot API method. Should be '" +
-                        method->get_full_name_no_class() + "'. In class '" + namespace_name + "." + class_name + "'.")
+                        method->get_full_name_no_class() + "'. In class '" + namespace_name + "." + class_name + "'.");
 #endif
             continue;
         }
@@ -186,7 +186,7 @@ void GDMonoClass::fetch_methods_with_godot_api_checks(GDMonoClass *p_native_base
                     // found
                     String fullname = m->get_ret_type_full_name() + " " + name + "(" + m->get_signature_desc(true) + ")";
                     WARN_PRINT("Method '" + fullname + "' should be '" + m->get_full_name_no_class() +
-                                "'. In class '" + namespace_name + "." + class_name + "'.")
+                                "'. In class '" + namespace_name + "." + class_name + "'.");
                     break;
                 }
 
@@ -198,7 +198,7 @@ void GDMonoClass::fetch_methods_with_godot_api_checks(GDMonoClass *p_native_base
         }
 #endif
 
-        uint32_t flags = mono_method_get_flags(method->mono_method, NULL);
+        uint32_t flags = mono_method_get_flags(method->mono_method, nullptr);
 
         if (!(flags & MONO_METHOD_ATTR_VIRTUAL))
             continue;
@@ -242,7 +242,7 @@ void GDMonoClass::fetch_methods_with_godot_api_checks(GDMonoClass *p_native_base
 
 GDMonoMethod *GDMonoClass::get_fetched_method_unknown_params(const StringName &p_name) {
 
-    ERR_FAIL_COND_V(!methods_fetched, NULL)
+    ERR_FAIL_COND_V(!methods_fetched, NULL);
 
     for(auto & E : methods) {
         if (E.first.name == p_name)
@@ -305,7 +305,7 @@ GDMonoMethod *GDMonoClass::get_method(MonoMethod *p_raw_method, const StringName
 
 GDMonoMethod *GDMonoClass::get_method(MonoMethod *p_raw_method, const StringName &p_name, int p_params_count) {
 
-    ERR_FAIL_NULL_V(p_raw_method, NULL)
+    ERR_FAIL_NULL_V(p_raw_method, NULL);
 
     MethodKey key = MethodKey(p_name, p_params_count);
 
@@ -326,7 +326,7 @@ GDMonoMethod *GDMonoClass::get_method_with_desc(const String &p_description, boo
     MonoMethod *method = mono_method_desc_search_in_class(desc, mono_class);
     mono_method_desc_free(desc);
 
-    ERR_FAIL_COND_V(mono_method_get_class(method) != mono_class, NULL)
+    ERR_FAIL_COND_V(mono_method_get_class(method) != mono_class, NULL);
 
     return get_method(method);
 }
@@ -353,24 +353,24 @@ GDMonoField *GDMonoClass::get_field(const StringName &p_name) {
     return nullptr;
 }
 
-const Vector<GDMonoField *> &GDMonoClass::get_all_fields() {
+const PODVector<GDMonoField *> &GDMonoClass::get_all_fields() {
 
     if (fields_fetched)
         return fields_list;
 
     void *iter = nullptr;
-    MonoClassField *raw_field = nullptr;
+    MonoClassField *raw_field;
     while ((raw_field = mono_class_get_fields(mono_class, &iter)) != nullptr) {
         StringName name(mono_field_get_name(raw_field));
 
         Map<StringName, GDMonoField *>::iterator match = fields.find(name);
 
         if (match!=fields.end()) {
-            fields_list.push_back(match->second);
+            fields_list.emplace_back(match->second);
         } else {
             GDMonoField *field = memnew(GDMonoField(raw_field, this));
             fields.emplace(name, field);
-            fields_list.push_back(field);
+            fields_list.emplace_back(field);
         }
     }
 
@@ -401,24 +401,24 @@ GDMonoProperty *GDMonoClass::get_property(const StringName &p_name) {
     return nullptr;
 }
 
-const Vector<GDMonoProperty *> &GDMonoClass::get_all_properties() {
+const PODVector<GDMonoProperty *> &GDMonoClass::get_all_properties() {
 
     if (properties_fetched)
         return properties_list;
 
     void *iter = nullptr;
-    MonoProperty *raw_property = nullptr;
+    MonoProperty *raw_property;
     while ((raw_property = mono_class_get_properties(mono_class, &iter)) != nullptr) {
         StringName name(mono_property_get_name(raw_property));
 
         Map<StringName, GDMonoProperty *>::iterator match = properties.find(name);
 
         if (match!=properties.end()) {
-            properties_list.push_back(match->second);
+            properties_list.emplace_back(match->second);
         } else {
             GDMonoProperty *property = memnew(GDMonoProperty(raw_property, this));
             properties.emplace(name, property);
-            properties_list.push_back(property);
+            properties_list.emplace_back(property);
         }
     }
 
@@ -427,25 +427,26 @@ const Vector<GDMonoProperty *> &GDMonoClass::get_all_properties() {
     return properties_list;
 }
 
-const Vector<GDMonoClass *> &GDMonoClass::get_all_delegates() {
+const PODVector<GDMonoClass *> &GDMonoClass::get_all_delegates() {
     if (delegates_fetched)
         return delegates_list;
 
     void *iter = nullptr;
     MonoClass *raw_class = nullptr;
     while ((raw_class = mono_class_get_nested_types(mono_class, &iter)) != nullptr) {
-        if (mono_class_is_delegate(raw_class)) {
-            StringName name(mono_class_get_name(raw_class));
+        if (!mono_class_is_delegate(raw_class))
+            continue;
 
-            Map<StringName, GDMonoClass *>::iterator match = delegates.find(name);
+        StringName name(mono_class_get_name(raw_class));
 
-            if (match!=delegates.end()) {
-                delegates_list.push_back(match->second);
-            } else {
-                GDMonoClass *delegate = memnew(GDMonoClass(StringName(mono_class_get_namespace(raw_class)), StringName(mono_class_get_name(raw_class)), raw_class, assembly));
-                delegates.emplace(name, delegate);
-                delegates_list.push_back(delegate);
-            }
+        Map<StringName, GDMonoClass *>::iterator match = delegates.find(name);
+
+        if (match!=delegates.end()) {
+            delegates_list.push_back(match->second);
+        } else {
+            GDMonoClass *delegate = memnew(GDMonoClass(StringName(mono_class_get_namespace(raw_class)), StringName(mono_class_get_name(raw_class)), raw_class, assembly));
+            delegates.emplace(name, delegate);
+            delegates_list.push_back(delegate);
         }
     }
 
@@ -454,17 +455,19 @@ const Vector<GDMonoClass *> &GDMonoClass::get_all_delegates() {
     return delegates_list;
 }
 
-const Vector<GDMonoMethod *> &GDMonoClass::get_all_methods() {
+const PODVector<GDMonoMethod *> &GDMonoClass::get_all_methods() {
 
-    if (!method_list_fetched) {
-        void *iter = nullptr;
-        MonoMethod *raw_method = nullptr;
-        while ((raw_method = mono_class_get_methods(get_mono_ptr(), &iter)) != nullptr) {
-            method_list.push_back(memnew(GDMonoMethod(StringName(mono_method_get_name(raw_method)), raw_method)));
-        }
-
-        method_list_fetched = true;
+    if (method_list_fetched) {
+        return method_list;
     }
+
+    void *iter = nullptr;
+    MonoMethod *raw_method;
+    while ((raw_method = mono_class_get_methods(get_mono_ptr(), &iter)) != nullptr) {
+        method_list.emplace_back(memnew(GDMonoMethod(StringName(mono_method_get_name(raw_method)), raw_method)));
+    }
+
+    method_list_fetched = true;
 
     return method_list;
 }
@@ -533,7 +536,7 @@ GDMonoClass::~GDMonoClass() {
         methods.clear();
     }
 
-    for (int i = 0; i < method_list.size(); ++i) {
-        memdelete(method_list[i]);
+    for (auto &method : method_list) {
+        memdelete(method);
     }
 }

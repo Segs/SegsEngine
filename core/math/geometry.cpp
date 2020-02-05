@@ -205,7 +205,7 @@ static bool _group_face(_FaceClassify *p_faces, int len, int p_index, int p_grou
 
     for (int i = 0; i < 3; i++) {
 
-        ERR_FAIL_INDEX_V(p_faces[p_index].links[i].face, len, true)
+        ERR_FAIL_INDEX_V(p_faces[p_index].links[i].face, len, true);
         _group_face(p_faces, len, p_faces[p_index].links[i].face, p_group);
     }
 
@@ -237,7 +237,7 @@ PoolVector<PoolVector<Face3> > Geometry::separate_objects(const PoolVector<Face3
 
     bool error = _connect_faces(_fcptr, len, -1);
 
-    ERR_FAIL_COND_V_MSG(error, PoolVector<PoolVector<Face3> >(), "Invalid geometry.")
+    ERR_FAIL_COND_V_MSG(error, PoolVector<PoolVector<Face3> >(), "Invalid geometry.");
 
     // Group connected faces in separate objects.
 

@@ -258,7 +258,7 @@ void EditorExportPreset::set_patch(int p_index, se_string_view p_path) {
 }
 const String &EditorExportPreset::get_patch(int p_index) {
 
-    ERR_FAIL_INDEX_V(p_index, patches.size(), null_se_string)
+    ERR_FAIL_INDEX_V(p_index, patches.size(), null_se_string);
     return patches[p_index];
 }
 
@@ -553,7 +553,7 @@ void EditorExportPlatform::_edit_filter_list(Set<String> &r_list, se_string_view
     }
 
     DirAccess *da = DirAccess::open("res://");
-    ERR_FAIL_NULL(da)
+    ERR_FAIL_NULL(da);
     _edit_files_with_filter(da, filters, r_list, exclude);
     memdelete(da);
 }
@@ -909,7 +909,7 @@ Error EditorExportPlatform::save_pack(const Ref<EditorExportPreset> &p_preset, s
 
     String tmppath = PathUtils::plus_file(EditorSettings::get_singleton()->get_cache_dir(),"packtmp");
     FileAccess *ftmp = FileAccess::open(tmppath, FileAccess::WRITE);
-    ERR_FAIL_COND_V_MSG(!ftmp, ERR_CANT_CREATE, "Cannot create file '" + tmppath + "'.")
+    ERR_FAIL_COND_V_MSG(!ftmp, ERR_CANT_CREATE, "Cannot create file '" + tmppath + "'.");
 
     PackData pd;
     pd.ep = &ep;
@@ -1260,7 +1260,7 @@ int EditorExport::get_export_preset_count() const {
 
 Ref<EditorExportPreset> EditorExport::get_export_preset(int p_idx) {
 
-    ERR_FAIL_INDEX_V(p_idx, export_presets.size(), Ref<EditorExportPreset>())
+    ERR_FAIL_INDEX_V(p_idx, export_presets.size(), Ref<EditorExportPreset>());
     return export_presets[p_idx];
 }
 

@@ -541,7 +541,7 @@ Vector2 GraphNode::get_connection_input_position(int p_idx) {
     if (connpos_dirty)
         _connpos_update();
 
-    ERR_FAIL_INDEX_V(p_idx, conn_input_cache.size(), Vector2())
+    ERR_FAIL_INDEX_V(p_idx, conn_input_cache.size(), Vector2());
     Vector2 pos = conn_input_cache[p_idx].pos;
     pos.x *= get_scale().x;
     pos.y *= get_scale().y;

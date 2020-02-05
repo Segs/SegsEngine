@@ -58,7 +58,7 @@ template <class T>
 class VectorWriteProxy {
 public:
     _FORCE_INLINE_ T &operator[](int p_index) {
-        CRASH_BAD_INDEX(p_index, ((Vector<T> *)(this))->_cowdata.size())
+        CRASH_BAD_INDEX(p_index, ((Vector<T> *)(this))->_cowdata.size());
 
         return ((Vector<T> *)(this))->_cowdata.ptrw()[p_index];
     }
@@ -79,7 +79,7 @@ public:
     template<class... Args>
     bool emplace_back(Args&&... args) {
         Error err = resize(size() + 1);
-        ERR_FAIL_COND_V(err, true)
+        ERR_FAIL_COND_V(err, true);
         memnew_placement(&ptrw()[size() - 1],T(eastl::forward<Args>(args)...));
         return false;
     }
@@ -160,7 +160,7 @@ template <class T>
 bool Vector<T>::push_back(T p_elem) {
 
     Error err = resize(size() + 1);
-    ERR_FAIL_COND_V(err, true)
+    ERR_FAIL_COND_V(err, true);
     set(size() - 1, p_elem);
 
     return false;

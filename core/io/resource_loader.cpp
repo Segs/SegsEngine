@@ -246,7 +246,7 @@ RES ResourceFormatLoader::load(se_string_view p_path, se_string_view p_original_
         if (r_error)
             *r_error = err;
 
-        ERR_FAIL_COND_V_MSG(err != OK, RES(), "Failed to load resource '" + String(p_path) + "'.")
+        ERR_FAIL_COND_V_MSG(err != OK, RES(), "Failed to load resource '" + String(p_path) + "'.");
     }
 }
 
@@ -309,10 +309,10 @@ RES ResourceLoader::_load(se_string_view p_path, se_string_view p_original_path,
         return res;
     }
 
-    ERR_FAIL_COND_V_MSG(found, RES(), "Failed loading resource: " + String(p_path) + ".")
+    ERR_FAIL_COND_V_MSG(found, RES(), "Failed loading resource: " + String(p_path) + ".");
 #ifdef TOOLS_ENABLED
     FileAccessRef file_check = FileAccess::create(FileAccess::ACCESS_RESOURCES);
-    ERR_FAIL_COND_V_MSG(!file_check->file_exists(p_path), RES(), "Resource file not found: " + p_path + ".")
+    ERR_FAIL_COND_V_MSG(!file_check->file_exists(p_path), RES(), "Resource file not found: " + p_path + ".");
 #endif
     ERR_FAIL_V_MSG(RES(), "No loader found for resource: " + String(p_path) + ".")
 }
@@ -389,7 +389,7 @@ RES ResourceLoader::load(se_string_view p_path, se_string_view p_type_hint, bool
 
         {
             bool success = _add_to_loading_map(local_path);
-            ERR_FAIL_COND_V_MSG(!success, RES(), "Resource: '" + local_path + "' is already being loaded. Cyclic reference?")
+            ERR_FAIL_COND_V_MSG(!success, RES(), "Resource: '" + local_path + "' is already being loaded. Cyclic reference?");
         }
 
         //lock first if possible
@@ -509,7 +509,7 @@ Ref<ResourceInteractiveLoader> ResourceLoader::load_interactive(se_string_view p
     if (!p_no_cache) {
 
         bool success = _add_to_loading_map(local_path);
-        ERR_FAIL_COND_V_MSG(!success, Ref<ResourceInteractiveLoader>(), "Resource: '" + local_path + "' is already being loaded. Cyclic reference?")
+        ERR_FAIL_COND_V_MSG(!success, Ref<ResourceInteractiveLoader>(), "Resource: '" + local_path + "' is already being loaded. Cyclic reference?");
 
         if (ResourceCache::has(local_path)) {
 
@@ -560,7 +560,7 @@ Ref<ResourceInteractiveLoader> ResourceLoader::load_interactive(se_string_view p
         _remove_from_loading_map(local_path);
     }
 
-    ERR_FAIL_COND_V_MSG(found, Ref<ResourceInteractiveLoader>(), "Failed loading resource: " + path + ".")
+    ERR_FAIL_COND_V_MSG(found, Ref<ResourceInteractiveLoader>(), "Failed loading resource: " + path + ".");
 
     ERR_FAIL_V_MSG(Ref<ResourceInteractiveLoader>(), "No loader found for resource: " + path + ".")
 }
@@ -821,7 +821,7 @@ String ResourceLoader::_path_remap(se_string_view p_path, bool *r_translation_re
         // (e.g. 'ru_RU' -> 'ru' if the former has no specific mapping).
 
         String locale = TranslationServer::get_singleton()->get_locale();
-        ERR_FAIL_COND_V_MSG(locale.length() < 2, new_path, "Could not remap path '" + p_path + "' for translation as configured locale '" + locale + "' is invalid.")
+        ERR_FAIL_COND_V_MSG(locale.length() < 2, new_path, "Could not remap path '" + p_path + "' for translation as configured locale '" + locale + "' is invalid.");
         String lang(TranslationServer::get_language_code(locale));
 
         PODVector<String> &res_remaps = translation_remaps[new_path];
@@ -1010,17 +1010,17 @@ bool ResourceLoader::add_custom_resource_format_loader(se_string_view script_pat
         return false;
 
     Ref<Resource> res = ResourceLoader::load(script_path);
-    ERR_FAIL_COND_V(not res, false)
-    ERR_FAIL_COND_V(!res->is_class("Script"), false)
+    ERR_FAIL_COND_V(not res, false);
+    ERR_FAIL_COND_V(!res->is_class("Script"), false);
 
     Ref<Script> s(dynamic_ref_cast<Script>(res));
     StringName ibt = s->get_instance_base_type();
     bool valid_type = ClassDB::is_parent_class(ibt, "ResourceFormatLoader");
-    ERR_FAIL_COND_V_MSG(!valid_type, false, "Script does not inherit a CustomResourceLoader: " + String(script_path) + ".")
+    ERR_FAIL_COND_V_MSG(!valid_type, false, "Script does not inherit a CustomResourceLoader: " + String(script_path) + ".");
 
     Object *obj = ClassDB::instance(ibt);
 
-    ERR_FAIL_COND_V_MSG(obj == nullptr, false, "Cannot instance script as custom resource loader, expected 'ResourceFormatLoader' inheritance, got: " + String(ibt) + ".")
+    ERR_FAIL_COND_V_MSG(obj == nullptr, false, "Cannot instance script as custom resource loader, expected 'ResourceFormatLoader' inheritance, got: " + String(ibt) + ".");
 
     auto *crl = object_cast<ResourceFormatLoader>(obj);
     crl->set_script(s.get_ref_ptr());

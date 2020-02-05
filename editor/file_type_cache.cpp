@@ -49,7 +49,7 @@ String FileTypeCache::get_file_type(se_string_view p_path) const {
 
     GLOBAL_LOCK_FUNCTION
     auto iter = file_type_map.find_as(p_path);
-    ERR_FAIL_COND_V(iter==file_type_map.end(), String())
+    ERR_FAIL_COND_V(iter==file_type_map.end(), String());
     return iter->second;
 }
 void FileTypeCache::set_file_type(se_string_view p_path, se_string_view p_type) {

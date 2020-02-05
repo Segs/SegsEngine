@@ -430,7 +430,7 @@ void UndoRedo::commit_action() {
 
 bool UndoRedo::redo() {
 
-    ERR_FAIL_COND_V(pimpl->action_level > 0, false)
+    ERR_FAIL_COND_V(pimpl->action_level > 0, false);
     bool res = pimpl->redo();
     if(res)
         emit_signal("version_changed");
@@ -439,7 +439,7 @@ bool UndoRedo::redo() {
 
 bool UndoRedo::undo() {
 
-    ERR_FAIL_COND_V(pimpl->action_level > 0, false)
+    ERR_FAIL_COND_V(pimpl->action_level > 0, false);
     bool res = pimpl->undo();
     if(res)
         emit_signal("version_changed");
@@ -462,7 +462,7 @@ void UndoRedo::clear_history(bool p_increase_version) {
 
 se_string_view UndoRedo::get_current_action_name() const {
 
-    ERR_FAIL_COND_V(pimpl->action_level > 0, {})
+    ERR_FAIL_COND_V(pimpl->action_level > 0, {});
     if (pimpl->current_action < 0)
         return {};
     return pimpl->actions[pimpl->current_action].name;

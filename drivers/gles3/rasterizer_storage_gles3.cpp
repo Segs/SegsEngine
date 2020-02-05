@@ -539,7 +539,7 @@ Ref<Image> RasterizerStorageGLES3::_get_gl_image_and_format(const Ref<Image> &p_
         if (image) {
             image = dynamic_ref_cast<Image>(image->duplicate());
             image->decompress();
-            ERR_FAIL_COND_V(image->is_compressed(), image)
+            ERR_FAIL_COND_V(image->is_compressed(), image);
             image->convert(Image::FORMAT_RGBA8);
         }
 
@@ -559,7 +559,7 @@ Ref<Image> RasterizerStorageGLES3::_get_gl_image_and_format(const Ref<Image> &p_
 RID RasterizerStorageGLES3::texture_create() {
 
     Texture *texture = memnew(Texture);
-    ERR_FAIL_COND_V(!texture, RID())
+    ERR_FAIL_COND_V(!texture, RID());
     glGenTextures(1, &texture->tex_id);
     texture->active = false;
     texture->total_data_size = 0;
@@ -984,9 +984,9 @@ Ref<Image> RasterizerStorageGLES3::texture_get_data(RID p_texture, int p_layer) 
 
     Texture *texture = texture_owner.get(p_texture);
 
-    ERR_FAIL_COND_V(!texture, Ref<Image>())
-    ERR_FAIL_COND_V(!texture->active, Ref<Image>())
-    ERR_FAIL_COND_V(texture->data_size == 0 && !texture->render_target, Ref<Image>())
+    ERR_FAIL_COND_V(!texture, Ref<Image>());
+    ERR_FAIL_COND_V(!texture->active, Ref<Image>());
+    ERR_FAIL_COND_V(texture->data_size == 0 && !texture->render_target, Ref<Image>());
 
     if (texture->type == VS::TEXTURE_TYPE_CUBEMAP && p_layer < 6 && texture->images[p_layer]) {
         return texture->images[p_layer];
@@ -1269,7 +1269,7 @@ uint32_t RasterizerStorageGLES3::texture_get_flags(RID p_texture) const {
 
     Texture *texture = texture_owner.get(p_texture);
 
-    ERR_FAIL_COND_V(!texture, 0)
+    ERR_FAIL_COND_V(!texture, 0);
 
     return texture->flags;
 }
@@ -1277,7 +1277,7 @@ Image::Format RasterizerStorageGLES3::texture_get_format(RID p_texture) const {
 
     Texture *texture = texture_owner.get(p_texture);
 
-    ERR_FAIL_COND_V(!texture, Image::FORMAT_L8)
+    ERR_FAIL_COND_V(!texture, Image::FORMAT_L8);
 
     return texture->format;
 }
@@ -1285,7 +1285,7 @@ Image::Format RasterizerStorageGLES3::texture_get_format(RID p_texture) const {
 VS::TextureType RasterizerStorageGLES3::texture_get_type(RID p_texture) const {
     Texture *texture = texture_owner.get(p_texture);
 
-    ERR_FAIL_COND_V(!texture, VS::TEXTURE_TYPE_2D)
+    ERR_FAIL_COND_V(!texture, VS::TEXTURE_TYPE_2D);
 
     return texture->type;
 }
@@ -1293,7 +1293,7 @@ uint32_t RasterizerStorageGLES3::texture_get_texid(RID p_texture) const {
 
     Texture *texture = texture_owner.get(p_texture);
 
-    ERR_FAIL_COND_V(!texture, 0)
+    ERR_FAIL_COND_V(!texture, 0);
 
     return texture->tex_id;
 }
@@ -1310,7 +1310,7 @@ uint32_t RasterizerStorageGLES3::texture_get_width(RID p_texture) const {
 
     Texture *texture = texture_owner.get(p_texture);
 
-    ERR_FAIL_COND_V(!texture, 0)
+    ERR_FAIL_COND_V(!texture, 0);
 
     return texture->width;
 }
@@ -1318,7 +1318,7 @@ uint32_t RasterizerStorageGLES3::texture_get_height(RID p_texture) const {
 
     Texture *texture = texture_owner.get(p_texture);
 
-    ERR_FAIL_COND_V(!texture, 0)
+    ERR_FAIL_COND_V(!texture, 0);
 
     return texture->height;
 }
@@ -1327,7 +1327,7 @@ uint32_t RasterizerStorageGLES3::texture_get_depth(RID p_texture) const {
 
     Texture *texture = texture_owner.get(p_texture);
 
-    ERR_FAIL_COND_V(!texture, 0)
+    ERR_FAIL_COND_V(!texture, 0);
 
     return texture->depth;
 }
@@ -1356,7 +1356,7 @@ void RasterizerStorageGLES3::texture_set_path(RID p_texture, se_string_view p_pa
 const String &RasterizerStorageGLES3::texture_get_path(RID p_texture) const {
 
     Texture *texture = texture_owner.get(p_texture);
-    ERR_FAIL_COND_V(!texture, null_se_string)
+    ERR_FAIL_COND_V(!texture, null_se_string);
     return texture->path;
 }
 void RasterizerStorageGLES3::texture_debug_usage(List<VisualServer::TextureInfo> *r_info) {
@@ -1418,8 +1418,8 @@ void RasterizerStorageGLES3::texture_set_detect_normal_callback(RID p_texture, V
 RID RasterizerStorageGLES3::texture_create_radiance_cubemap(RID p_source, int p_resolution) const {
 
     Texture *texture = texture_owner.get(p_source);
-    ERR_FAIL_COND_V(!texture, RID())
-    ERR_FAIL_COND_V(texture->type != VS::TEXTURE_TYPE_CUBEMAP, RID())
+    ERR_FAIL_COND_V(!texture, RID());
+    ERR_FAIL_COND_V(texture->type != VS::TEXTURE_TYPE_CUBEMAP, RID());
 
     bool use_float = config.framebuffer_half_float_supported;
 
@@ -1563,7 +1563,7 @@ RID RasterizerStorageGLES3::texture_create_radiance_cubemap(RID p_source, int p_
 Size2 RasterizerStorageGLES3::texture_size_with_proxy(RID p_texture) const {
 
     const Texture *texture = texture_owner.getornull(p_texture);
-    ERR_FAIL_COND_V(!texture, Size2())
+    ERR_FAIL_COND_V(!texture, Size2());
     if (texture->proxy) {
         return Size2(texture->proxy->width, texture->proxy->height);
     } else {
@@ -2077,7 +2077,7 @@ void RasterizerStorageGLES3::shader_set_code(RID p_shader, const String &p_code)
 String RasterizerStorageGLES3::shader_get_code(RID p_shader) const {
 
     const Shader *shader = shader_owner.get(p_shader);
-    ERR_FAIL_COND_V(!shader, String())
+    ERR_FAIL_COND_V(!shader, String());
 
     return shader->code;
 }
@@ -2365,7 +2365,7 @@ void RasterizerStorageGLES3::shader_set_default_texture_param(RID p_shader, cons
 RID RasterizerStorageGLES3::shader_get_default_texture_param(RID p_shader, const StringName &p_name) const {
 
     const Shader *shader = shader_owner.get(p_shader);
-    ERR_FAIL_COND_V(!shader, RID())
+    ERR_FAIL_COND_V(!shader, RID());
 
     const Map<StringName, RID>::const_iterator E = shader->default_textures.find(p_name);
     if (E==shader->default_textures.end())
@@ -2413,7 +2413,7 @@ void RasterizerStorageGLES3::material_set_shader(RID p_material, RID p_shader) {
 RID RasterizerStorageGLES3::material_get_shader(RID p_material) const {
 
     const Material *material = material_owner.get(p_material);
-    ERR_FAIL_COND_V(!material, RID())
+    ERR_FAIL_COND_V(!material, RID());
 
     if (material->shader)
         return material->shader->self;
@@ -2436,7 +2436,7 @@ void RasterizerStorageGLES3::material_set_param(RID p_material, const StringName
 Variant RasterizerStorageGLES3::material_get_param(RID p_material, const StringName &p_param) const {
 
     const Material *material = material_owner.get(p_material);
-    ERR_FAIL_COND_V(!material, Variant())
+    ERR_FAIL_COND_V(!material, Variant());
 
     if (material->params.contains(p_param))
         return material->params.at(p_param);
@@ -2446,7 +2446,7 @@ Variant RasterizerStorageGLES3::material_get_param(RID p_material, const StringN
 
 Variant RasterizerStorageGLES3::material_get_param_default(RID p_material, const StringName &p_param) const {
     const Material *material = material_owner.get(p_material);
-    ERR_FAIL_COND_V(!material, Variant())
+    ERR_FAIL_COND_V(!material, Variant());
 
     if (material->shader) {
         if (material->shader->uniforms.contains(p_param)) {
@@ -2477,7 +2477,7 @@ void RasterizerStorageGLES3::material_set_next_pass(RID p_material, RID p_next_m
 bool RasterizerStorageGLES3::material_is_animated(RID p_material) {
 
     Material *material = material_owner.get(p_material);
-    ERR_FAIL_COND_V(!material, false)
+    ERR_FAIL_COND_V(!material, false);
     if (material->dirty_list.in_list()) {
         _update_material(material);
     }
@@ -2491,7 +2491,7 @@ bool RasterizerStorageGLES3::material_is_animated(RID p_material) {
 bool RasterizerStorageGLES3::material_casts_shadows(RID p_material) {
 
     Material *material = material_owner.get(p_material);
-    ERR_FAIL_COND_V(!material, false)
+    ERR_FAIL_COND_V(!material, false);
     if (material->dirty_list.in_list()) {
         _update_material(material);
     }
@@ -3685,7 +3685,7 @@ void RasterizerStorageGLES3::mesh_set_blend_shape_count(RID p_mesh, int p_amount
 int RasterizerStorageGLES3::mesh_get_blend_shape_count(RID p_mesh) const {
 
     const Mesh *mesh = mesh_owner.getornull(p_mesh);
-    ERR_FAIL_COND_V(!mesh, 0)
+    ERR_FAIL_COND_V(!mesh, 0);
 
     return mesh->blend_shape_count;
 }
@@ -3700,7 +3700,7 @@ void RasterizerStorageGLES3::mesh_set_blend_shape_mode(RID p_mesh, VS::BlendShap
 VS::BlendShapeMode RasterizerStorageGLES3::mesh_get_blend_shape_mode(RID p_mesh) const {
 
     const Mesh *mesh = mesh_owner.getornull(p_mesh);
-    ERR_FAIL_COND_V(!mesh, VS::BLEND_SHAPE_MODE_NORMALIZED)
+    ERR_FAIL_COND_V(!mesh, VS::BLEND_SHAPE_MODE_NORMALIZED);
 
     return mesh->blend_shape_mode;
 }
@@ -3745,7 +3745,7 @@ void RasterizerStorageGLES3::mesh_surface_set_material(RID p_mesh, int p_surface
 RID RasterizerStorageGLES3::mesh_surface_get_material(RID p_mesh, int p_surface) const {
 
     const Mesh *mesh = mesh_owner.getornull(p_mesh);
-    ERR_FAIL_COND_V(!mesh, RID())
+    ERR_FAIL_COND_V(!mesh, RID());
     ERR_FAIL_INDEX_V(p_surface, mesh->surfaces.size(), RID());
 
     return mesh->surfaces[p_surface]->material;
@@ -3754,7 +3754,7 @@ RID RasterizerStorageGLES3::mesh_surface_get_material(RID p_mesh, int p_surface)
 int RasterizerStorageGLES3::mesh_surface_get_array_len(RID p_mesh, int p_surface) const {
 
     const Mesh *mesh = mesh_owner.getornull(p_mesh);
-    ERR_FAIL_COND_V(!mesh, 0)
+    ERR_FAIL_COND_V(!mesh, 0);
     ERR_FAIL_INDEX_V(p_surface, mesh->surfaces.size(), 0);
 
     return mesh->surfaces[p_surface]->array_len;
@@ -3762,7 +3762,7 @@ int RasterizerStorageGLES3::mesh_surface_get_array_len(RID p_mesh, int p_surface
 int RasterizerStorageGLES3::mesh_surface_get_array_index_len(RID p_mesh, int p_surface) const {
 
     const Mesh *mesh = mesh_owner.getornull(p_mesh);
-    ERR_FAIL_COND_V(!mesh, 0)
+    ERR_FAIL_COND_V(!mesh, 0);
     ERR_FAIL_INDEX_V(p_surface, mesh->surfaces.size(), 0);
 
     return mesh->surfaces[p_surface]->index_array_len;
@@ -3771,7 +3771,7 @@ int RasterizerStorageGLES3::mesh_surface_get_array_index_len(RID p_mesh, int p_s
 PoolVector<uint8_t> RasterizerStorageGLES3::mesh_surface_get_array(RID p_mesh, int p_surface) const {
 
     const Mesh *mesh = mesh_owner.getornull(p_mesh);
-    ERR_FAIL_COND_V(!mesh, PoolVector<uint8_t>())
+    ERR_FAIL_COND_V(!mesh, PoolVector<uint8_t>());
     ERR_FAIL_INDEX_V(p_surface, mesh->surfaces.size(), PoolVector<uint8_t>());
 
     Surface *surface = mesh->surfaces[p_surface];
@@ -3791,7 +3791,7 @@ PoolVector<uint8_t> RasterizerStorageGLES3::mesh_surface_get_array(RID p_mesh, i
 
 PoolVector<uint8_t> RasterizerStorageGLES3::mesh_surface_get_index_array(RID p_mesh, int p_surface) const {
     const Mesh *mesh = mesh_owner.getornull(p_mesh);
-    ERR_FAIL_COND_V(!mesh, PoolVector<uint8_t>())
+    ERR_FAIL_COND_V(!mesh, PoolVector<uint8_t>());
     ERR_FAIL_INDEX_V(p_surface, mesh->surfaces.size(), PoolVector<uint8_t>());
 
     Surface *surface = mesh->surfaces[p_surface];
@@ -3817,7 +3817,7 @@ uint32_t RasterizerStorageGLES3::mesh_surface_get_format(RID p_mesh, int p_surfa
 
     const Mesh *mesh = mesh_owner.getornull(p_mesh);
 
-    ERR_FAIL_COND_V(!mesh, 0)
+    ERR_FAIL_COND_V(!mesh, 0);
     ERR_FAIL_INDEX_V(p_surface, mesh->surfaces.size(), 0);
 
     return mesh->surfaces[p_surface]->format;
@@ -3826,7 +3826,7 @@ uint32_t RasterizerStorageGLES3::mesh_surface_get_format(RID p_mesh, int p_surfa
 VS::PrimitiveType RasterizerStorageGLES3::mesh_surface_get_primitive_type(RID p_mesh, int p_surface) const {
 
     const Mesh *mesh = mesh_owner.getornull(p_mesh);
-    ERR_FAIL_COND_V(!mesh, VS::PRIMITIVE_MAX)
+    ERR_FAIL_COND_V(!mesh, VS::PRIMITIVE_MAX);
     ERR_FAIL_INDEX_V(p_surface, mesh->surfaces.size(), VS::PRIMITIVE_MAX);
 
     return mesh->surfaces[p_surface]->primitive;
@@ -3835,18 +3835,21 @@ VS::PrimitiveType RasterizerStorageGLES3::mesh_surface_get_primitive_type(RID p_
 AABB RasterizerStorageGLES3::mesh_surface_get_aabb(RID p_mesh, int p_surface) const {
 
     const Mesh *mesh = mesh_owner.getornull(p_mesh);
-    ERR_FAIL_COND_V(!mesh, AABB())
-    ERR_FAIL_INDEX_V(p_surface, mesh->surfaces.size(), AABB())
+    ERR_FAIL_COND_V(!mesh, AABB());
+    ERR_FAIL_INDEX_V(p_surface, mesh->surfaces.size(), AABB());
 
     return mesh->surfaces[p_surface]->aabb;
 }
-Vector<PoolVector<uint8_t> > RasterizerStorageGLES3::mesh_surface_get_blend_shapes(RID p_mesh, int p_surface) const {
 
+PODVector<PoolVector<uint8_t>> RasterizerStorageGLES3::mesh_surface_get_blend_shapes(RID p_mesh, int p_surface) const {
+
+    PODVector<PoolVector<uint8_t> > bsarr;
     const Mesh *mesh = mesh_owner.getornull(p_mesh);
-    ERR_FAIL_COND_V(!mesh, Vector<PoolVector<uint8_t> >())
-    ERR_FAIL_INDEX_V(p_surface, mesh->surfaces.size(), Vector<PoolVector<uint8_t> >())
+    ERR_FAIL_COND_V(!mesh, bsarr);
+    ERR_FAIL_INDEX_V(p_surface, mesh->surfaces.size(), bsarr);
 
-    Vector<PoolVector<uint8_t> > bsarr;
+
+
 
     for (size_t i = 0; i < mesh->surfaces[p_surface]->blend_shapes.size(); i++) {
 
@@ -3859,7 +3862,7 @@ Vector<PoolVector<uint8_t> > RasterizerStorageGLES3::mesh_surface_get_blend_shap
             glGetBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, mesh->surfaces[p_surface]->array_byte_size, w.ptr());
         }
 
-        bsarr.push_back(ret);
+        bsarr.emplace_back(ret);
     }
 
     return bsarr;
@@ -3868,8 +3871,10 @@ Vector<PoolVector<uint8_t> > RasterizerStorageGLES3::mesh_surface_get_blend_shap
 Vector<AABB> RasterizerStorageGLES3::mesh_surface_get_skeleton_aabb(RID p_mesh, int p_surface) const {
 
     const Mesh *mesh = mesh_owner.getornull(p_mesh);
-    ERR_FAIL_COND_V(!mesh, Vector<AABB>())
-    ERR_FAIL_INDEX_V(p_surface, mesh->surfaces.size(), Vector<AABB>())
+    ERR_FAIL_COND_V(!mesh, Vector<AABB>());
+    ERR_FAIL_INDEX_V(p_surface, mesh->surfaces.size(), Vector<AABB>());
+
+
 
     return mesh->surfaces[p_surface]->skeleton_bone_aabb;
 }
@@ -3918,7 +3923,7 @@ void RasterizerStorageGLES3::mesh_remove_surface(RID p_mesh, int p_surface) {
 int RasterizerStorageGLES3::mesh_get_surface_count(RID p_mesh) const {
 
     const Mesh *mesh = mesh_owner.getornull(p_mesh);
-    ERR_FAIL_COND_V(!mesh, 0)
+    ERR_FAIL_COND_V(!mesh, 0);
     return mesh->surfaces.size();
 }
 
@@ -3934,7 +3939,7 @@ void RasterizerStorageGLES3::mesh_set_custom_aabb(RID p_mesh, const AABB &p_aabb
 AABB RasterizerStorageGLES3::mesh_get_custom_aabb(RID p_mesh) const {
 
     const Mesh *mesh = mesh_owner.getornull(p_mesh);
-    ERR_FAIL_COND_V(!mesh, AABB())
+    ERR_FAIL_COND_V(!mesh, AABB());
 
     return mesh->custom_aabb;
 }
@@ -3942,7 +3947,7 @@ AABB RasterizerStorageGLES3::mesh_get_custom_aabb(RID p_mesh) const {
 AABB RasterizerStorageGLES3::mesh_get_aabb(RID p_mesh, RID p_skeleton) const {
 
     Mesh *mesh = mesh_owner.get(p_mesh);
-    ERR_FAIL_COND_V(!mesh, AABB())
+    ERR_FAIL_COND_V(!mesh, AABB());
 
     if (mesh->custom_aabb != AABB()) {
         return mesh->custom_aabb;
@@ -4429,7 +4434,7 @@ void RasterizerStorageGLES3::multimesh_allocate(RID p_multimesh, int p_instances
 int RasterizerStorageGLES3::multimesh_get_instance_count(RID p_multimesh) const {
 
     MultiMesh *multimesh = multimesh_owner.getornull(p_multimesh);
-    ERR_FAIL_COND_V(!multimesh, 0)
+    ERR_FAIL_COND_V(!multimesh, 0);
 
     return multimesh->size;
 }
@@ -4597,7 +4602,7 @@ void RasterizerStorageGLES3::multimesh_instance_set_custom_data(RID p_multimesh,
 RID RasterizerStorageGLES3::multimesh_get_mesh(RID p_multimesh) const {
 
     MultiMesh *multimesh = multimesh_owner.getornull(p_multimesh);
-    ERR_FAIL_COND_V(!multimesh, RID())
+    ERR_FAIL_COND_V(!multimesh, RID());
 
     return multimesh->mesh;
 }
@@ -4605,9 +4610,9 @@ RID RasterizerStorageGLES3::multimesh_get_mesh(RID p_multimesh) const {
 Transform RasterizerStorageGLES3::multimesh_instance_get_transform(RID p_multimesh, int p_index) const {
 
     MultiMesh *multimesh = multimesh_owner.getornull(p_multimesh);
-    ERR_FAIL_COND_V(!multimesh, Transform())
+    ERR_FAIL_COND_V(!multimesh, Transform());
     ERR_FAIL_INDEX_V(p_index, multimesh->size, Transform());
-    ERR_FAIL_COND_V(multimesh->transform_format == VS::MULTIMESH_TRANSFORM_2D, Transform())
+    ERR_FAIL_COND_V(multimesh->transform_format == VS::MULTIMESH_TRANSFORM_2D, Transform());
 
     int stride = multimesh->color_floats + multimesh->xform_floats + multimesh->custom_data_floats;
     auto multimesh_wr(multimesh->data.write());
@@ -4634,9 +4639,9 @@ Transform RasterizerStorageGLES3::multimesh_instance_get_transform(RID p_multime
 Transform2D RasterizerStorageGLES3::multimesh_instance_get_transform_2d(RID p_multimesh, int p_index) const {
 
     MultiMesh *multimesh = multimesh_owner.getornull(p_multimesh);
-    ERR_FAIL_COND_V(!multimesh, Transform2D())
+    ERR_FAIL_COND_V(!multimesh, Transform2D());
     ERR_FAIL_INDEX_V(p_index, multimesh->size, Transform2D());
-    ERR_FAIL_COND_V(multimesh->transform_format == VS::MULTIMESH_TRANSFORM_3D, Transform2D())
+    ERR_FAIL_COND_V(multimesh->transform_format == VS::MULTIMESH_TRANSFORM_3D, Transform2D());
 
     int stride = multimesh->color_floats + multimesh->xform_floats + multimesh->custom_data_floats;
     auto multimesh_wr(multimesh->data.write());
@@ -4657,10 +4662,10 @@ Transform2D RasterizerStorageGLES3::multimesh_instance_get_transform_2d(RID p_mu
 
 Color RasterizerStorageGLES3::multimesh_instance_get_color(RID p_multimesh, int p_index) const {
     MultiMesh *multimesh = multimesh_owner.getornull(p_multimesh);
-    ERR_FAIL_COND_V(!multimesh, Color())
+    ERR_FAIL_COND_V(!multimesh, Color());
     ERR_FAIL_INDEX_V(p_index, multimesh->size, Color());
-    ERR_FAIL_COND_V(multimesh->color_format == VS::MULTIMESH_COLOR_NONE, Color())
-    ERR_FAIL_INDEX_V(multimesh->color_format, VS::MULTIMESH_COLOR_MAX, Color())
+    ERR_FAIL_COND_V(multimesh->color_format == VS::MULTIMESH_COLOR_NONE, Color());
+    ERR_FAIL_INDEX_V(multimesh->color_format, VS::MULTIMESH_COLOR_MAX, Color());
 
     int stride = multimesh->color_floats + multimesh->xform_floats + multimesh->custom_data_floats;
     auto multimesh_wr(multimesh->data.write());
@@ -4693,10 +4698,10 @@ Color RasterizerStorageGLES3::multimesh_instance_get_color(RID p_multimesh, int 
 Color RasterizerStorageGLES3::multimesh_instance_get_custom_data(RID p_multimesh, int p_index) const {
 
     MultiMesh *multimesh = multimesh_owner.getornull(p_multimesh);
-    ERR_FAIL_COND_V(!multimesh, Color())
+    ERR_FAIL_COND_V(!multimesh, Color());
     ERR_FAIL_INDEX_V(p_index, multimesh->size, Color());
-    ERR_FAIL_COND_V(multimesh->custom_data_format == VS::MULTIMESH_CUSTOM_DATA_NONE, Color())
-    ERR_FAIL_INDEX_V(multimesh->custom_data_format, VS::MULTIMESH_CUSTOM_DATA_MAX, Color())
+    ERR_FAIL_COND_V(multimesh->custom_data_format == VS::MULTIMESH_CUSTOM_DATA_NONE, Color());
+    ERR_FAIL_INDEX_V(multimesh->custom_data_format, VS::MULTIMESH_CUSTOM_DATA_MAX, Color());
 
     int stride = multimesh->color_floats + multimesh->xform_floats + multimesh->custom_data_floats;
     auto multimesh_wr(multimesh->data.write());
@@ -4757,7 +4762,7 @@ void RasterizerStorageGLES3::multimesh_set_visible_instances(RID p_multimesh, in
 int RasterizerStorageGLES3::multimesh_get_visible_instances(RID p_multimesh) const {
 
     MultiMesh *multimesh = multimesh_owner.getornull(p_multimesh);
-    ERR_FAIL_COND_V(!multimesh, -1)
+    ERR_FAIL_COND_V(!multimesh, -1);
 
     return multimesh->visible_instances;
 }
@@ -4765,7 +4770,7 @@ int RasterizerStorageGLES3::multimesh_get_visible_instances(RID p_multimesh) con
 AABB RasterizerStorageGLES3::multimesh_get_aabb(RID p_multimesh) const {
 
     MultiMesh *multimesh = multimesh_owner.getornull(p_multimesh);
-    ERR_FAIL_COND_V(!multimesh, AABB())
+    ERR_FAIL_COND_V(!multimesh, AABB());
 
     const_cast<RasterizerStorageGLES3 *>(this)->update_dirty_multimeshes(); //update pending AABBs
 
@@ -4982,7 +4987,7 @@ void RasterizerStorageGLES3::immediate_clear(RID p_immediate) {
 AABB RasterizerStorageGLES3::immediate_get_aabb(RID p_immediate) const {
 
     Immediate *im = immediate_owner.get(p_immediate);
-    ERR_FAIL_COND_V(!im, AABB())
+    ERR_FAIL_COND_V(!im, AABB());
     return im->aabb;
 }
 
@@ -4997,7 +5002,7 @@ void RasterizerStorageGLES3::immediate_set_material(RID p_immediate, RID p_mater
 RID RasterizerStorageGLES3::immediate_get_material(RID p_immediate) const {
 
     const Immediate *im = immediate_owner.get(p_immediate);
-    ERR_FAIL_COND_V(!im, RID())
+    ERR_FAIL_COND_V(!im, RID());
     return im->material;
 }
 
@@ -5051,7 +5056,7 @@ void RasterizerStorageGLES3::skeleton_allocate(RID p_skeleton, int p_bones, bool
 int RasterizerStorageGLES3::skeleton_get_bone_count(RID p_skeleton) const {
 
     Skeleton *skeleton = skeleton_owner.getornull(p_skeleton);
-    ERR_FAIL_COND_V(!skeleton, 0)
+    ERR_FAIL_COND_V(!skeleton, 0);
 
     return skeleton->size;
 }
@@ -5094,9 +5099,9 @@ Transform RasterizerStorageGLES3::skeleton_bone_get_transform(RID p_skeleton, in
 
     Skeleton *skeleton = skeleton_owner.getornull(p_skeleton);
 
-    ERR_FAIL_COND_V(!skeleton, Transform())
-    ERR_FAIL_INDEX_V(p_bone, skeleton->size, Transform())
-    ERR_FAIL_COND_V(skeleton->use_2d, Transform())
+    ERR_FAIL_COND_V(!skeleton, Transform());
+    ERR_FAIL_INDEX_V(p_bone, skeleton->size, Transform());
+    ERR_FAIL_COND_V(skeleton->use_2d, Transform());
 
     auto skeleton_rd(skeleton->skel_texture.read());
 
@@ -5155,9 +5160,9 @@ Transform2D RasterizerStorageGLES3::skeleton_bone_get_transform_2d(RID p_skeleto
 
     Skeleton *skeleton = skeleton_owner.getornull(p_skeleton);
 
-    ERR_FAIL_COND_V(!skeleton, Transform2D())
+    ERR_FAIL_COND_V(!skeleton, Transform2D());
     ERR_FAIL_INDEX_V(p_bone, skeleton->size, Transform2D());
-    ERR_FAIL_COND_V(!skeleton->use_2d, Transform2D())
+    ERR_FAIL_COND_V(!skeleton->use_2d, Transform2D());
 
     auto skeleton_rd(skeleton->skel_texture.read());
 
@@ -5357,7 +5362,7 @@ void RasterizerStorageGLES3::light_omni_set_shadow_mode(RID p_light, VS::LightOm
 VS::LightOmniShadowMode RasterizerStorageGLES3::light_omni_get_shadow_mode(RID p_light) {
 
     const Light *light = light_owner.getornull(p_light);
-    ERR_FAIL_COND_V(!light, VS::LIGHT_OMNI_SHADOW_CUBE)
+    ERR_FAIL_COND_V(!light, VS::LIGHT_OMNI_SHADOW_CUBE);
 
     return light->omni_shadow_mode;
 }
@@ -5395,7 +5400,7 @@ void RasterizerStorageGLES3::light_directional_set_blend_splits(RID p_light, boo
 bool RasterizerStorageGLES3::light_directional_get_blend_splits(RID p_light) const {
 
     const Light *light = light_owner.getornull(p_light);
-    ERR_FAIL_COND_V(!light, false)
+    ERR_FAIL_COND_V(!light, false);
 
     return light->directional_blend_splits;
 }
@@ -5403,7 +5408,7 @@ bool RasterizerStorageGLES3::light_directional_get_blend_splits(RID p_light) con
 VS::LightDirectionalShadowMode RasterizerStorageGLES3::light_directional_get_shadow_mode(RID p_light) {
 
     const Light *light = light_owner.getornull(p_light);
-    ERR_FAIL_COND_V(!light, VS::LIGHT_DIRECTIONAL_SHADOW_ORTHOGONAL)
+    ERR_FAIL_COND_V(!light, VS::LIGHT_DIRECTIONAL_SHADOW_ORTHOGONAL);
 
     return light->directional_shadow_mode;
 }
@@ -5419,7 +5424,7 @@ void RasterizerStorageGLES3::light_directional_set_shadow_depth_range_mode(RID p
 VS::LightDirectionalShadowDepthRangeMode RasterizerStorageGLES3::light_directional_get_shadow_depth_range_mode(RID p_light) const {
 
     const Light *light = light_owner.getornull(p_light);
-    ERR_FAIL_COND_V(!light, VS::LIGHT_DIRECTIONAL_SHADOW_DEPTH_RANGE_STABLE)
+    ERR_FAIL_COND_V(!light, VS::LIGHT_DIRECTIONAL_SHADOW_DEPTH_RANGE_STABLE);
 
     return light->directional_range_mode;
 }
@@ -5427,7 +5432,7 @@ VS::LightDirectionalShadowDepthRangeMode RasterizerStorageGLES3::light_direction
 VS::LightType RasterizerStorageGLES3::light_get_type(RID p_light) const {
 
     const Light *light = light_owner.getornull(p_light);
-    ERR_FAIL_COND_V(!light, VS::LIGHT_DIRECTIONAL)
+    ERR_FAIL_COND_V(!light, VS::LIGHT_DIRECTIONAL);
 
     return light->type;
 }
@@ -5435,7 +5440,7 @@ VS::LightType RasterizerStorageGLES3::light_get_type(RID p_light) const {
 float RasterizerStorageGLES3::light_get_param(RID p_light, VS::LightParam p_param) {
 
     const Light *light = light_owner.getornull(p_light);
-    ERR_FAIL_COND_V(!light, VS::LIGHT_DIRECTIONAL)
+    ERR_FAIL_COND_V(!light, VS::LIGHT_DIRECTIONAL);
 
     return light->param[p_param];
 }
@@ -5443,14 +5448,14 @@ float RasterizerStorageGLES3::light_get_param(RID p_light, VS::LightParam p_para
 Color RasterizerStorageGLES3::light_get_color(RID p_light) {
 
     const Light *light = light_owner.getornull(p_light);
-    ERR_FAIL_COND_V(!light, Color())
+    ERR_FAIL_COND_V(!light, Color());
 
     return light->color;
 }
 
 bool RasterizerStorageGLES3::light_get_use_gi(RID p_light) {
     Light *light = light_owner.getornull(p_light);
-    ERR_FAIL_COND_V(!light, false)
+    ERR_FAIL_COND_V(!light, false);
 
     return light->use_gi;
 }
@@ -5458,7 +5463,7 @@ bool RasterizerStorageGLES3::light_get_use_gi(RID p_light) {
 bool RasterizerStorageGLES3::light_has_shadow(RID p_light) const {
 
     const Light *light = light_owner.getornull(p_light);
-    ERR_FAIL_COND_V(!light, VS::LIGHT_DIRECTIONAL)
+    ERR_FAIL_COND_V(!light, VS::LIGHT_DIRECTIONAL);
 
     return light->shadow;
 }
@@ -5466,7 +5471,7 @@ bool RasterizerStorageGLES3::light_has_shadow(RID p_light) const {
 uint64_t RasterizerStorageGLES3::light_get_version(RID p_light) const {
 
     const Light *light = light_owner.getornull(p_light);
-    ERR_FAIL_COND_V(!light, 0)
+    ERR_FAIL_COND_V(!light, 0);
 
     return light->version;
 }
@@ -5474,7 +5479,7 @@ uint64_t RasterizerStorageGLES3::light_get_version(RID p_light) const {
 AABB RasterizerStorageGLES3::light_get_aabb(RID p_light) const {
 
     const Light *light = light_owner.getornull(p_light);
-    ERR_FAIL_COND_V(!light, AABB())
+    ERR_FAIL_COND_V(!light, AABB());
 
     switch (light->type) {
 
@@ -5483,16 +5488,16 @@ AABB RasterizerStorageGLES3::light_get_aabb(RID p_light) const {
             float len = light->param[VS::LIGHT_PARAM_RANGE];
             float size = Math::tan(Math::deg2rad(light->param[VS::LIGHT_PARAM_SPOT_ANGLE])) * len;
             return AABB(Vector3(-size, -size, -len), Vector3(size * 2, size * 2, len));
-        };
+        }
         case VS::LIGHT_OMNI: {
 
             float r = light->param[VS::LIGHT_PARAM_RANGE];
             return AABB(-Vector3(r, r, r), Vector3(r, r, r) * 2);
-        };
+        }
         case VS::LIGHT_DIRECTIONAL: {
 
             return AABB();
-        };
+        }
     }
 
     ERR_FAIL_V(AABB());
@@ -5625,7 +5630,7 @@ void RasterizerStorageGLES3::reflection_probe_set_resolution(RID p_probe, int p_
 
 AABB RasterizerStorageGLES3::reflection_probe_get_aabb(RID p_probe) const {
     const ReflectionProbe *reflection_probe = reflection_probe_owner.getornull(p_probe);
-    ERR_FAIL_COND_V(!reflection_probe, AABB())
+    ERR_FAIL_COND_V(!reflection_probe, AABB());
 
     AABB aabb;
     aabb.position = -reflection_probe->extents;
@@ -5636,7 +5641,7 @@ AABB RasterizerStorageGLES3::reflection_probe_get_aabb(RID p_probe) const {
 VS::ReflectionProbeUpdateMode RasterizerStorageGLES3::reflection_probe_get_update_mode(RID p_probe) const {
 
     const ReflectionProbe *reflection_probe = reflection_probe_owner.getornull(p_probe);
-    ERR_FAIL_COND_V(!reflection_probe, VS::REFLECTION_PROBE_UPDATE_ALWAYS)
+    ERR_FAIL_COND_V(!reflection_probe, VS::REFLECTION_PROBE_UPDATE_ALWAYS);
 
     return reflection_probe->update_mode;
 }
@@ -5644,7 +5649,7 @@ VS::ReflectionProbeUpdateMode RasterizerStorageGLES3::reflection_probe_get_updat
 uint32_t RasterizerStorageGLES3::reflection_probe_get_cull_mask(RID p_probe) const {
 
     const ReflectionProbe *reflection_probe = reflection_probe_owner.getornull(p_probe);
-    ERR_FAIL_COND_V(!reflection_probe, 0)
+    ERR_FAIL_COND_V(!reflection_probe, 0);
 
     return reflection_probe->cull_mask;
 }
@@ -5652,14 +5657,14 @@ uint32_t RasterizerStorageGLES3::reflection_probe_get_cull_mask(RID p_probe) con
 Vector3 RasterizerStorageGLES3::reflection_probe_get_extents(RID p_probe) const {
 
     const ReflectionProbe *reflection_probe = reflection_probe_owner.getornull(p_probe);
-    ERR_FAIL_COND_V(!reflection_probe, Vector3())
+    ERR_FAIL_COND_V(!reflection_probe, Vector3());
 
     return reflection_probe->extents;
 }
 Vector3 RasterizerStorageGLES3::reflection_probe_get_origin_offset(RID p_probe) const {
 
     const ReflectionProbe *reflection_probe = reflection_probe_owner.getornull(p_probe);
-    ERR_FAIL_COND_V(!reflection_probe, Vector3())
+    ERR_FAIL_COND_V(!reflection_probe, Vector3());
 
     return reflection_probe->origin_offset;
 }
@@ -5667,7 +5672,7 @@ Vector3 RasterizerStorageGLES3::reflection_probe_get_origin_offset(RID p_probe) 
 bool RasterizerStorageGLES3::reflection_probe_renders_shadows(RID p_probe) const {
 
     const ReflectionProbe *reflection_probe = reflection_probe_owner.getornull(p_probe);
-    ERR_FAIL_COND_V(!reflection_probe, false)
+    ERR_FAIL_COND_V(!reflection_probe, false);
 
     return reflection_probe->enable_shadows;
 }
@@ -5675,7 +5680,7 @@ bool RasterizerStorageGLES3::reflection_probe_renders_shadows(RID p_probe) const
 float RasterizerStorageGLES3::reflection_probe_get_origin_max_distance(RID p_probe) const {
 
     const ReflectionProbe *reflection_probe = reflection_probe_owner.getornull(p_probe);
-    ERR_FAIL_COND_V(!reflection_probe, 0)
+    ERR_FAIL_COND_V(!reflection_probe, 0);
 
     return reflection_probe->max_distance;
 }
@@ -5710,7 +5715,7 @@ void RasterizerStorageGLES3::gi_probe_set_bounds(RID p_probe, const AABB &p_boun
 AABB RasterizerStorageGLES3::gi_probe_get_bounds(RID p_probe) const {
 
     const GIProbe *gip = gi_probe_owner.getornull(p_probe);
-    ERR_FAIL_COND_V(!gip, AABB())
+    ERR_FAIL_COND_V(!gip, AABB());
 
     return gip->bounds;
 }
@@ -5728,7 +5733,7 @@ void RasterizerStorageGLES3::gi_probe_set_cell_size(RID p_probe, float p_size) {
 float RasterizerStorageGLES3::gi_probe_get_cell_size(RID p_probe) const {
 
     const GIProbe *gip = gi_probe_owner.getornull(p_probe);
-    ERR_FAIL_COND_V(!gip, 0)
+    ERR_FAIL_COND_V(!gip, 0);
 
     return gip->cell_size;
 }
@@ -5744,7 +5749,7 @@ void RasterizerStorageGLES3::gi_probe_set_to_cell_xform(RID p_probe, const Trans
 Transform RasterizerStorageGLES3::gi_probe_get_to_cell_xform(RID p_probe) const {
 
     const GIProbe *gip = gi_probe_owner.getornull(p_probe);
-    ERR_FAIL_COND_V(!gip, Transform())
+    ERR_FAIL_COND_V(!gip, Transform());
 
     return gip->to_cell;
 }
@@ -5760,7 +5765,7 @@ void RasterizerStorageGLES3::gi_probe_set_dynamic_data(RID p_probe, const PoolVe
 PoolVector<int> RasterizerStorageGLES3::gi_probe_get_dynamic_data(RID p_probe) const {
 
     const GIProbe *gip = gi_probe_owner.getornull(p_probe);
-    ERR_FAIL_COND_V(!gip, PoolVector<int>())
+    ERR_FAIL_COND_V(!gip, PoolVector<int>());
 
     return gip->dynamic_data;
 }
@@ -5775,7 +5780,7 @@ void RasterizerStorageGLES3::gi_probe_set_dynamic_range(RID p_probe, int p_range
 int RasterizerStorageGLES3::gi_probe_get_dynamic_range(RID p_probe) const {
 
     const GIProbe *gip = gi_probe_owner.getornull(p_probe);
-    ERR_FAIL_COND_V(!gip, 0)
+    ERR_FAIL_COND_V(!gip, 0);
 
     return gip->dynamic_range;
 }
@@ -5823,7 +5828,7 @@ void RasterizerStorageGLES3::gi_probe_set_interior(RID p_probe, bool p_enable) {
 bool RasterizerStorageGLES3::gi_probe_is_interior(RID p_probe) const {
 
     const GIProbe *gip = gi_probe_owner.getornull(p_probe);
-    ERR_FAIL_COND_V(!gip, false)
+    ERR_FAIL_COND_V(!gip, false);
 
     return gip->interior;
 }
@@ -5839,14 +5844,14 @@ void RasterizerStorageGLES3::gi_probe_set_compress(RID p_probe, bool p_enable) {
 bool RasterizerStorageGLES3::gi_probe_is_compressed(RID p_probe) const {
 
     const GIProbe *gip = gi_probe_owner.getornull(p_probe);
-    ERR_FAIL_COND_V(!gip, false)
+    ERR_FAIL_COND_V(!gip, false);
 
     return gip->compress;
 }
 float RasterizerStorageGLES3::gi_probe_get_energy(RID p_probe) const {
 
     const GIProbe *gip = gi_probe_owner.getornull(p_probe);
-    ERR_FAIL_COND_V(!gip, 0)
+    ERR_FAIL_COND_V(!gip, 0);
 
     return gip->energy;
 }
@@ -5854,7 +5859,7 @@ float RasterizerStorageGLES3::gi_probe_get_energy(RID p_probe) const {
 float RasterizerStorageGLES3::gi_probe_get_bias(RID p_probe) const {
 
     const GIProbe *gip = gi_probe_owner.getornull(p_probe);
-    ERR_FAIL_COND_V(!gip, 0)
+    ERR_FAIL_COND_V(!gip, 0);
 
     return gip->bias;
 }
@@ -5862,7 +5867,7 @@ float RasterizerStorageGLES3::gi_probe_get_bias(RID p_probe) const {
 float RasterizerStorageGLES3::gi_probe_get_normal_bias(RID p_probe) const {
 
     const GIProbe *gip = gi_probe_owner.getornull(p_probe);
-    ERR_FAIL_COND_V(!gip, 0)
+    ERR_FAIL_COND_V(!gip, 0);
 
     return gip->normal_bias;
 }
@@ -5870,7 +5875,7 @@ float RasterizerStorageGLES3::gi_probe_get_normal_bias(RID p_probe) const {
 float RasterizerStorageGLES3::gi_probe_get_propagation(RID p_probe) const {
 
     const GIProbe *gip = gi_probe_owner.getornull(p_probe);
-    ERR_FAIL_COND_V(!gip, 0)
+    ERR_FAIL_COND_V(!gip, 0);
 
     return gip->propagation;
 }
@@ -5878,7 +5883,7 @@ float RasterizerStorageGLES3::gi_probe_get_propagation(RID p_probe) const {
 uint32_t RasterizerStorageGLES3::gi_probe_get_version(RID p_probe) {
 
     const GIProbe *gip = gi_probe_owner.getornull(p_probe);
-    ERR_FAIL_COND_V(!gip, 0)
+    ERR_FAIL_COND_V(!gip, 0);
 
     return gip->version;
 }
@@ -5992,7 +5997,7 @@ void RasterizerStorageGLES3::lightmap_capture_set_bounds(RID p_capture, const AA
 AABB RasterizerStorageGLES3::lightmap_capture_get_bounds(RID p_capture) const {
 
     const LightmapCapture *capture = lightmap_capture_data_owner.getornull(p_capture);
-    ERR_FAIL_COND_V(!capture, AABB())
+    ERR_FAIL_COND_V(!capture, AABB());
     return capture->bounds;
 }
 void RasterizerStorageGLES3::lightmap_capture_set_octree(RID p_capture, const PoolVector<uint8_t> &p_octree) {
@@ -6013,7 +6018,7 @@ void RasterizerStorageGLES3::lightmap_capture_set_octree(RID p_capture, const Po
 PoolVector<uint8_t> RasterizerStorageGLES3::lightmap_capture_get_octree(RID p_capture) const {
 
     const LightmapCapture *capture = lightmap_capture_data_owner.getornull(p_capture);
-    ERR_FAIL_COND_V(!capture, PoolVector<uint8_t>())
+    ERR_FAIL_COND_V(!capture, PoolVector<uint8_t>());
 
     if (capture->octree.size() == 0)
         return PoolVector<uint8_t>();
@@ -6037,7 +6042,7 @@ void RasterizerStorageGLES3::lightmap_capture_set_octree_cell_transform(RID p_ca
 
 Transform RasterizerStorageGLES3::lightmap_capture_get_octree_cell_transform(RID p_capture) const {
     const LightmapCapture *capture = lightmap_capture_data_owner.getornull(p_capture);
-    ERR_FAIL_COND_V(!capture, Transform())
+    ERR_FAIL_COND_V(!capture, Transform());
     return capture->cell_xform;
 }
 
@@ -6049,7 +6054,7 @@ void RasterizerStorageGLES3::lightmap_capture_set_octree_cell_subdiv(RID p_captu
 
 int RasterizerStorageGLES3::lightmap_capture_get_octree_cell_subdiv(RID p_capture) const {
     const LightmapCapture *capture = lightmap_capture_data_owner.getornull(p_capture);
-    ERR_FAIL_COND_V(!capture, 0)
+    ERR_FAIL_COND_V(!capture, 0);
     return capture->cell_subdiv;
 }
 
@@ -6063,13 +6068,13 @@ void RasterizerStorageGLES3::lightmap_capture_set_energy(RID p_capture, float p_
 float RasterizerStorageGLES3::lightmap_capture_get_energy(RID p_capture) const {
 
     const LightmapCapture *capture = lightmap_capture_data_owner.getornull(p_capture);
-    ERR_FAIL_COND_V(!capture, 0)
+    ERR_FAIL_COND_V(!capture, 0);
     return capture->energy;
 }
 
 const PoolVector<RasterizerStorage::LightmapCaptureOctree> *RasterizerStorageGLES3::lightmap_capture_get_octree_ptr(RID p_capture) const {
     const LightmapCapture *capture = lightmap_capture_data_owner.getornull(p_capture);
-    ERR_FAIL_COND_V(!capture, nullptr)
+    ERR_FAIL_COND_V(!capture, nullptr);
     return &capture->octree;
 }
 
@@ -6092,7 +6097,7 @@ void RasterizerStorageGLES3::particles_set_emitting(RID p_particles, bool p_emit
 
 bool RasterizerStorageGLES3::particles_get_emitting(RID p_particles) {
     Particles *particles = particles_owner.getornull(p_particles);
-    ERR_FAIL_COND_V(!particles, false)
+    ERR_FAIL_COND_V(!particles, false);
 
     return particles->emitting;
 }
@@ -6316,7 +6321,7 @@ void RasterizerStorageGLES3::particles_request_process(RID p_particles) {
 AABB RasterizerStorageGLES3::particles_get_current_aabb(RID p_particles) {
 
     const Particles *particles = particles_owner.getornull(p_particles);
-    ERR_FAIL_COND_V(!particles, AABB())
+    ERR_FAIL_COND_V(!particles, AABB());
 
     const float *data;
     glBindBuffer(GL_ARRAY_BUFFER, particles->particle_buffers[0]);
@@ -6368,7 +6373,7 @@ AABB RasterizerStorageGLES3::particles_get_current_aabb(RID p_particles) {
 AABB RasterizerStorageGLES3::particles_get_aabb(RID p_particles) const {
 
     const Particles *particles = particles_owner.getornull(p_particles);
-    ERR_FAIL_COND_V(!particles, AABB())
+    ERR_FAIL_COND_V(!particles, AABB());
 
     return particles->custom_aabb;
 }
@@ -6384,7 +6389,7 @@ void RasterizerStorageGLES3::particles_set_emission_transform(RID p_particles, c
 int RasterizerStorageGLES3::particles_get_draw_passes(RID p_particles) const {
 
     const Particles *particles = particles_owner.getornull(p_particles);
-    ERR_FAIL_COND_V(!particles, 0)
+    ERR_FAIL_COND_V(!particles, 0);
 
     return particles->draw_passes.size();
 }
@@ -6392,7 +6397,7 @@ int RasterizerStorageGLES3::particles_get_draw_passes(RID p_particles) const {
 RID RasterizerStorageGLES3::particles_get_draw_pass_mesh(RID p_particles, int p_pass) const {
 
     const Particles *particles = particles_owner.getornull(p_particles);
-    ERR_FAIL_COND_V(!particles, RID())
+    ERR_FAIL_COND_V(!particles, RID());
     ERR_FAIL_INDEX_V(p_pass, particles->draw_passes.size(), RID());
 
     return particles->draw_passes[p_pass];
@@ -6656,7 +6661,7 @@ void RasterizerStorageGLES3::update_particles() {
 bool RasterizerStorageGLES3::particles_is_inactive(RID p_particles) const {
 
     const Particles *particles = particles_owner.getornull(p_particles);
-    ERR_FAIL_COND_V(!particles, false)
+    ERR_FAIL_COND_V(!particles, false);
     return !particles->emitting && particles->inactive;
 }
 
@@ -6971,7 +6976,7 @@ void RasterizerStorageGLES3::_render_target_allocate(RenderTarget *rt) {
         int max_samples = 0;
         glGetIntegerv(GL_MAX_SAMPLES, &max_samples);
         if (msaa > max_samples) {
-            WARN_PRINT("MSAA must be <= GL_MAX_SAMPLES, falling-back to GL_MAX_SAMPLES = " + itos(max_samples))
+            WARN_PRINT("MSAA must be <= GL_MAX_SAMPLES, falling-back to GL_MAX_SAMPLES = " + itos(max_samples));
             msaa = max_samples;
         }
 
@@ -7295,7 +7300,7 @@ void RasterizerStorageGLES3::render_target_set_size(RID p_render_target, int p_w
 RID RasterizerStorageGLES3::render_target_get_texture(RID p_render_target) const {
 
     RenderTarget *rt = render_target_owner.getornull(p_render_target);
-    ERR_FAIL_COND_V(!rt, RID())
+    ERR_FAIL_COND_V(!rt, RID());
 
     if (rt->external.fbo == 0) {
         return rt->texture;
@@ -7416,7 +7421,7 @@ void RasterizerStorageGLES3::render_target_set_flag(RID p_render_target, RenderT
 bool RasterizerStorageGLES3::render_target_was_used(RID p_render_target) {
 
     RenderTarget *rt = render_target_owner.getornull(p_render_target);
-    ERR_FAIL_COND_V(!rt, false)
+    ERR_FAIL_COND_V(!rt, false);
 
     return rt->used_in_frame;
 }
@@ -7484,7 +7489,7 @@ RID RasterizerStorageGLES3::canvas_light_shadow_buffer_create(int p_width) {
 
     if (status != GL_FRAMEBUFFER_COMPLETE) {
         memdelete(cls);
-        ERR_FAIL_COND_V(status != GL_FRAMEBUFFER_COMPLETE, RID())
+        ERR_FAIL_COND_V(status != GL_FRAMEBUFFER_COMPLETE, RID());
     }
 
     return canvas_light_shadow_owner.make_rid(cls);
@@ -7652,7 +7657,7 @@ bool RasterizerStorageGLES3::free(RID p_rid) {
     } else if (texture_owner.owns(p_rid)) {
         // delete the texture
         Texture *texture = texture_owner.get(p_rid);
-        ERR_FAIL_COND_V(texture->render_target, true) //can't free the render target texture, dude
+        ERR_FAIL_COND_V(texture->render_target, true); //can't free the render target texture, dude
         info.texture_mem -= texture->total_data_size;
         texture_owner.free(p_rid);
         memdelete(texture);

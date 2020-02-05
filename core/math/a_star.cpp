@@ -119,7 +119,7 @@ Vector3 AStar::get_point_position(int p_id) const {
 
     AStarPoint *p;
     bool p_exists = points.lookup(p_id, p);
-    ERR_FAIL_COND_V(!p_exists, Vector3())
+    ERR_FAIL_COND_V(!p_exists, Vector3());
 
     return p->pos;
 }
@@ -137,7 +137,7 @@ real_t AStar::get_point_weight_scale(int p_id) const {
 
     AStarPoint *p;
     bool p_exists = points.lookup(p_id, p);
-    ERR_FAIL_COND_V(!p_exists, 0)
+    ERR_FAIL_COND_V(!p_exists, 0);
 
     return p->weight_scale;
 }
@@ -277,7 +277,7 @@ PODVector<int> AStar::get_point_connections(int p_id) {
 
     AStarPoint *p;
     bool p_exists = points.lookup(p_id, p);
-    ERR_FAIL_COND_V(!p_exists, PODVector<int>())
+    ERR_FAIL_COND_V(!p_exists, PODVector<int>());
 
     PODVector<int> point_list;
     point_list.reserve(p->neighbours.get_num_elements());
@@ -445,11 +445,11 @@ float AStar::_estimate_cost(int p_from_id, int p_to_id) {
 
     AStarPoint *from_point;
     bool from_exists = points.lookup(p_from_id, from_point);
-    ERR_FAIL_COND_V(!from_exists, 0)
+    ERR_FAIL_COND_V(!from_exists, 0);
 
     AStarPoint *to_point;
     bool to_exists = points.lookup(p_to_id, to_point);
-    ERR_FAIL_COND_V(!to_exists, 0)
+    ERR_FAIL_COND_V(!to_exists, 0);
 
     return from_point->pos.distance_to(to_point->pos);
 }
@@ -474,11 +474,11 @@ PoolVector<Vector3> AStar::get_point_path(int p_from_id, int p_to_id) {
 
     AStarPoint *a;
     bool from_exists = points.lookup(p_from_id, a);
-    ERR_FAIL_COND_V(!from_exists, PoolVector<Vector3>())
+    ERR_FAIL_COND_V(!from_exists, PoolVector<Vector3>());
 
     AStarPoint *b;
     bool to_exists = points.lookup(p_to_id, b);
-    ERR_FAIL_COND_V(!to_exists, PoolVector<Vector3>())
+    ERR_FAIL_COND_V(!to_exists, PoolVector<Vector3>());
 
     if (a == b) {
         PoolVector<Vector3> ret;
@@ -522,11 +522,11 @@ PoolVector<int> AStar::get_id_path(int p_from_id, int p_to_id) {
 
     AStarPoint *a;
     bool from_exists = points.lookup(p_from_id, a);
-    ERR_FAIL_COND_V(!from_exists, PoolVector<int>())
+    ERR_FAIL_COND_V(!from_exists, PoolVector<int>());
 
     AStarPoint *b;
     bool to_exists = points.lookup(p_to_id, b);
-    ERR_FAIL_COND_V(!to_exists, PoolVector<int>())
+    ERR_FAIL_COND_V(!to_exists, PoolVector<int>());
 
     if (a == b) {
         PoolVector<int> ret;
@@ -579,7 +579,7 @@ bool AStar::is_point_disabled(int p_id) const {
 
     AStarPoint *p;
     bool p_exists = points.lookup(p_id, p);
-    ERR_FAIL_COND_V(!p_exists, false)
+    ERR_FAIL_COND_V(!p_exists, false);
 
     return !p->enabled;
 }

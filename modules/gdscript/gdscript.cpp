@@ -80,7 +80,7 @@ void GDScriptNativeClass::_bind_methods() {
 Variant GDScriptNativeClass::_new() {
 
     Object *o = instance();
-    ERR_FAIL_COND_V_MSG(!o, Variant(), "Class type: '" + String(name) + "' is not instantiable.")
+    ERR_FAIL_COND_V_MSG(!o, Variant(), "Class type: '" + String(name) + "' is not instantiable.");
 
     RefCounted *ref = object_cast<RefCounted>(o);
     if (ref) {
@@ -137,7 +137,7 @@ GDScriptInstance *GDScript::_create_instance(const Variant **p_args, int p_argco
         GDScriptLanguage::singleton->lock->unlock();
 #endif
 
-        ERR_FAIL_COND_V(r_error.error != Variant::CallError::CALL_OK, nullptr) //error constructing
+        ERR_FAIL_COND_V(r_error.error != Variant::CallError::CALL_OK, nullptr); // error constructing.
     }
 
     //@TODO make thread safe
@@ -162,13 +162,13 @@ Variant GDScript::_new(const Variant **p_args, int p_argcount, Variant::CallErro
         _baseptr = _baseptr->_base;
     }
 
-    ERR_FAIL_COND_V(not _baseptr->native, Variant())
+    ERR_FAIL_COND_V(not _baseptr->native, Variant());
     if (_baseptr->native.get()) {
         owner = _baseptr->native->instance();
     } else {
         owner = memnew(RefCounted); //by default, no base means use reference
     }
-    ERR_FAIL_COND_V_MSG(!owner, Variant(), "Can't inherit from a virtual class.")
+    ERR_FAIL_COND_V_MSG(!owner, Variant(), "Can't inherit from a virtual class.");
 
     RefCounted *r = object_cast<RefCounted>(owner);
     if (r) {
@@ -427,7 +427,7 @@ bool GDScript::_update_exports() {
         if (err == OK) {
 
             const GDScriptParser::Node *root = parser.get_parse_tree();
-            ERR_FAIL_COND_V(root->type != GDScriptParser::Node::TYPE_CLASS, false)
+            ERR_FAIL_COND_V(root->type != GDScriptParser::Node::TYPE_CLASS, false);
 
             const GDScriptParser::ClassNode *c = static_cast<const GDScriptParser::ClassNode *>(root);
 
@@ -563,7 +563,7 @@ Error GDScript::reload(bool p_keep_state) {
     GDScriptLanguage::singleton->lock->unlock();
 #endif
 
-    ERR_FAIL_COND_V(!p_keep_state && has_instances, ERR_ALREADY_IN_USE)
+    ERR_FAIL_COND_V(!p_keep_state && has_instances, ERR_ALREADY_IN_USE);
 
     String basedir = path;
 
@@ -658,7 +658,7 @@ Variant GDScript::call(const StringName &p_method, const Variant **p_args, int p
         Map<StringName, GDScriptFunction *>::iterator E = top->member_functions.find(p_method);
         if (E!=top->member_functions.end()) {
 
-            ERR_FAIL_COND_V_MSG(!E->second->is_static(), Variant(), "Can't call non-static function '" + String(p_method) + "' in script.")
+            ERR_FAIL_COND_V_MSG(!E->second->is_static(), Variant(), "Can't call non-static function '" + String(p_method) + "' in script.");
 
             return E->second->call(nullptr, p_args, p_argcount, r_error);
         }
@@ -742,10 +742,10 @@ Error GDScript::load_byte_code(se_string_view p_path) {
     if (StringUtils::ends_with(p_path,"gde")) {
 
         FileAccess *fa = FileAccess::open(p_path, FileAccess::READ);
-        ERR_FAIL_COND_V(!fa, ERR_CANT_OPEN)
+        ERR_FAIL_COND_V(!fa, ERR_CANT_OPEN);
 
         FileAccessEncrypted *fae = memnew(FileAccessEncrypted);
-        ERR_FAIL_COND_V(!fae, ERR_CANT_OPEN)
+        ERR_FAIL_COND_V(!fae, ERR_CANT_OPEN);
 
         uint8_t key[32];
         for (int i = 0; i < 32; i++) {
@@ -759,7 +759,7 @@ Error GDScript::load_byte_code(se_string_view p_path) {
             memdelete(fa);
             memdelete(fae);
 
-            ERR_FAIL_COND_V(err, err)
+            ERR_FAIL_COND_V(err, err);
         }
 
         bytecode.resize(fae->get_len());
@@ -772,7 +772,7 @@ Error GDScript::load_byte_code(se_string_view p_path) {
         bytecode = FileAccess::get_file_as_array(p_path);
     }
 
-    ERR_FAIL_COND_V(bytecode.empty(), ERR_PARSE_ERROR)
+    ERR_FAIL_COND_V(bytecode.empty(), ERR_PARSE_ERROR);
     path = p_path;
 
     String basedir = path;
@@ -818,7 +818,7 @@ Error GDScript::load_source_code(se_string_view p_path) {
     FileAccess *f = FileAccess::open(p_path, FileAccess::READ, &err);
     if (err) {
 
-        ERR_FAIL_COND_V(err, err)
+        ERR_FAIL_COND_V(err, err);
     }
 
     int len = f->get_len();
@@ -826,7 +826,7 @@ Error GDScript::load_source_code(se_string_view p_path) {
     int r = f->get_buffer(sourcef.data(), len);
     f->close();
     memdelete(f);
-    ERR_FAIL_COND_V(r != len, ERR_CANT_OPEN)
+    ERR_FAIL_COND_V(r != len, ERR_CANT_OPEN);
     sourcef[len] = 0;
 
     se_string_view s((const char *)sourcef.data(),len+1);
@@ -1987,8 +1987,8 @@ StringName GDScriptLanguage::get_global_class_name(se_string_view p_path, String
 #ifdef DEBUG_ENABLED
 String GDScriptWarning::get_message() const {
 
-#define CHECK_SYMBOLS(m_amount) ERR_FAIL_COND_V(symbols.size() < m_amount, String())
-#define CHECK_SYMBOLS_EMPTY() ERR_FAIL_COND_V(symbols.empty(), String())
+#define CHECK_SYMBOLS(m_amount) ERR_FAIL_COND_V(symbols.size() < m_amount, String());
+#define CHECK_SYMBOLS_EMPTY() ERR_FAIL_COND_V(symbols.empty(), String());
     switch (code) {
         case UNASSIGNED_VARIABLE_OP_ASSIGN: {
             CHECK_SYMBOLS_EMPTY()
@@ -2105,7 +2105,7 @@ String GDScriptWarning::get_name() const {
 }
 
 const char *GDScriptWarning::get_name_from_code(Code p_code) {
-    ERR_FAIL_COND_V(p_code < 0 || p_code >= WARNING_MAX, nullptr)
+    ERR_FAIL_COND_V(p_code < 0 || p_code >= WARNING_MAX, nullptr);
 
     static const char *names[] = {
         "UNASSIGNED_VARIABLE",
@@ -2245,11 +2245,11 @@ RES ResourceFormatLoaderGDScript::load(se_string_view p_path, se_string_view p_o
         script->set_script_path(p_original_path); // script needs this.
         script->set_path(p_original_path);
         Error err = script->load_byte_code(p_path);
-        ERR_FAIL_COND_V_MSG(err != OK, RES(), "Cannot load byte code from file '" + String(p_path) + "'.")
+        ERR_FAIL_COND_V_MSG(err != OK, RES(), "Cannot load byte code from file '" + String(p_path) + "'.");
 
     } else {
         Error err = script->load_source_code(p_path);
-        ERR_FAIL_COND_V_MSG(err != OK, RES(), "Cannot load source code from file '" + String(p_path) + "'.")
+        ERR_FAIL_COND_V_MSG(err != OK, RES(), "Cannot load source code from file '" + String(p_path) + "'.");
 
         script->set_script_path(p_original_path); // script needs this.
         script->set_path(p_original_path);
@@ -2305,14 +2305,14 @@ void ResourceFormatLoaderGDScript::get_dependencies(se_string_view p_path, PODVe
 Error ResourceFormatSaverGDScript::save(se_string_view p_path, const RES &p_resource, uint32_t p_flags) {
 
     Ref<GDScript> sqscr = dynamic_ref_cast<GDScript>(p_resource);
-    ERR_FAIL_COND_V(not sqscr, ERR_INVALID_PARAMETER)
+    ERR_FAIL_COND_V(not sqscr, ERR_INVALID_PARAMETER);
 
     String source(sqscr->get_source_code());
 
     Error err;
     FileAccess *file = FileAccess::open(p_path, FileAccess::WRITE, &err);
 
-    ERR_FAIL_COND_V_MSG(err, err, "Cannot save GDScript file '" + String(p_path) + "'.")
+    ERR_FAIL_COND_V_MSG(err, err, "Cannot save GDScript file '" + String(p_path) + "'.");
 
     file->store_string(source);
     if (file->get_error() != OK && file->get_error() != ERR_FILE_EOF) {

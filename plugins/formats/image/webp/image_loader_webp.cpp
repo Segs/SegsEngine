@@ -41,9 +41,9 @@
 
 static PODVector<uint8_t> _webp_lossy_pack(const ImageData &p_image, float p_quality) {
 
-    ERR_FAIL_COND_V(p_image.data.size()==0, PODVector<uint8_t>())
+    ERR_FAIL_COND_V(p_image.data.size()==0, PODVector<uint8_t>());
 
-    ERR_FAIL_COND_V(p_image.format!=ImageData::FORMAT_RGBA8 && p_image.format!=ImageData::FORMAT_RGB8, PODVector<uint8_t>())
+    ERR_FAIL_COND_V(p_image.format!=ImageData::FORMAT_RGBA8 && p_image.format!=ImageData::FORMAT_RGB8, PODVector<uint8_t>());
 
     Size2 s(p_image.width, p_image.height);
     const PoolVector<uint8_t> &data = p_image.data;
@@ -58,7 +58,7 @@ static PODVector<uint8_t> _webp_lossy_pack(const ImageData &p_image, float p_qua
         dst_size = WebPEncodeRGBA(r.ptr(), s.width, s.height, 4 * s.width, CLAMP(p_quality * 100.0f, 0, 100.0), &dst_buff);
     }
 
-    ERR_FAIL_COND_V(dst_size == 0, PODVector<uint8_t>())
+    ERR_FAIL_COND_V(dst_size == 0, PODVector<uint8_t>());
     PODVector<uint8_t> dst;
     dst.resize(4 + dst_size);
     dst[0] = 'W';
@@ -89,7 +89,7 @@ Error webp_load_image_from_buffer(ImageData &p_image, const uint8_t *p_buffer, i
     }
     dst_w.release();
 
-    ERR_FAIL_COND_V_MSG(errdec, ERR_FILE_CORRUPT, "Failed decoding WebP image.")
+    ERR_FAIL_COND_V_MSG(errdec, ERR_FILE_CORRUPT, "Failed decoding WebP image.");
 
     p_image.width=features.width;
     p_image.height=features.height;
@@ -103,7 +103,7 @@ Error ImageLoaderWEBP::load_image(ImageData &p_image, FileAccess *f, LoadParams 
 
     PoolVector<uint8_t> src_image;
     int src_image_len = f->get_len();
-    ERR_FAIL_COND_V(src_image_len == 0, ERR_FILE_CORRUPT)
+    ERR_FAIL_COND_V(src_image_len == 0, ERR_FILE_CORRUPT);
     src_image.resize(src_image_len);
 
     PoolVector<uint8_t>::Write w = src_image.write();

@@ -457,7 +457,7 @@ StringName RenameDialog::_apply_rename(const Node *node, int count) {
 
 String RenameDialog::_substitute(const String &subject, const Node *node, int count) {
     char buffmt_val[16];
-    snprintf(buffmt_val,15,"%%0%dd",spn_count_padding->get_value());
+    snprintf(buffmt_val,15,"%%0%dd",(int)spn_count_padding->get_value());
     String result = subject;
     result.replace("${COUNTER}", FormatVE(buffmt_val,count));
 

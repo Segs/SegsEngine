@@ -423,7 +423,7 @@ Node *ResourceImporterScene::_fix_node(
                     fixed_name = _fixstr(name, "convcolonly");
                 }
 
-                ERR_FAIL_COND_V(fixed_name.empty(), nullptr)
+                ERR_FAIL_COND_V(fixed_name.empty(), nullptr);
 
                 if (!shapes.empty()) {
 
@@ -579,7 +579,7 @@ Node *ResourceImporterScene::_fix_node(
         MeshInstance *mi = object_cast<MeshInstance>(p_node);
 
         Ref<ArrayMesh> mesh = dynamic_ref_cast<ArrayMesh>(mi->get_mesh());
-        ERR_FAIL_COND_V(not mesh, nullptr)
+        ERR_FAIL_COND_V(not mesh, nullptr);
         NavigationMeshInstance *nmi = memnew(NavigationMeshInstance);
 
         nmi->set_name(_fixstr(name, "navmesh"));
@@ -1280,7 +1280,7 @@ Node *ResourceImporterScene::import_scene_from_other_importer(
         if (importer != nullptr) break;
     }
 
-    ERR_FAIL_COND_V(importer == nullptr, nullptr)
+    ERR_FAIL_COND_V(importer == nullptr, nullptr);
 
     PODVector<String> missing;
     Error err;
@@ -1311,7 +1311,7 @@ Ref<Animation> ResourceImporterScene::import_animation_from_other_importer(
         if (importer != nullptr) break;
     }
 
-    ERR_FAIL_COND_V(importer == nullptr, Ref<Animation>())
+    ERR_FAIL_COND_V(importer == nullptr, Ref<Animation>());
 
     return importer->import_animation(p_path, p_flags, p_bake_fps);
 }
@@ -1345,7 +1345,7 @@ Error ResourceImporterScene::import(se_string_view p_source_file, se_string_view
         if (importer != nullptr) break;
     }
 
-    ERR_FAIL_COND_V(nullptr == importer, ERR_FILE_UNRECOGNIZED)
+    ERR_FAIL_COND_V(nullptr == importer, ERR_FILE_UNRECOGNIZED);
 
     float fps = p_options.at("animation/fps");
 
@@ -1468,8 +1468,7 @@ Error ResourceImporterScene::import(se_string_view p_source_file, se_string_view
             DirAccess *da = DirAccess::open(base_path);
             Error err2 = da->make_dir(subdir_name);
             memdelete(da);
-            ERR_FAIL_COND_V_MSG(err2 != OK && err2 != ERR_ALREADY_EXISTS, err2,
-                    "Cannot make directory '" + String(subdir_name) + "'.")
+            ERR_FAIL_COND_V_MSG(err2 != OK && err2 != ERR_ALREADY_EXISTS, err2, "Cannot make directory '" + String(subdir_name) + "'.");
             base_path = PathUtils::plus_file(base_path, subdir_name);
         }
     }
@@ -1574,7 +1573,7 @@ Error ResourceImporterScene::import(se_string_view p_source_file, se_string_view
             Ref<PackedScene> packer(make_ref_counted<PackedScene>());
             packer->pack(child);
             err = ResourceSaver::save(path, packer); // do not take over, let the changed files reload themselves
-            ERR_FAIL_COND_V_MSG(err != OK, err, "Cannot save scene to file '" + path + "'.")
+            ERR_FAIL_COND_V_MSG(err != OK, err, "Cannot save scene to file '" + path + "'.");
         }
     }
 
@@ -1583,7 +1582,7 @@ Error ResourceImporterScene::import(se_string_view p_source_file, se_string_view
     print_verbose("Saving scene to: " + String(p_save_path) + ".scn");
     err = ResourceSaver::save(
             String(p_save_path) + ".scn", packer); // do not take over, let the changed files reload themselves
-    ERR_FAIL_COND_V_MSG(err != OK, err, "Cannot save scene to file '" + String(p_save_path) + ".scn'.")
+    ERR_FAIL_COND_V_MSG(err != OK, err, "Cannot save scene to file '" + String(p_save_path) + ".scn'.");
 
     memdelete(scene);
 
@@ -1612,10 +1611,10 @@ Node *EditorSceneImporterESCN::import_scene(se_string_view p_path, uint32_t /*p_
     Error error;
     Ref<PackedScene> ps =
             dynamic_ref_cast<PackedScene>(ResourceFormatLoaderText::singleton->load(p_path, p_path, &error));
-    ERR_FAIL_COND_V_MSG(not ps, nullptr, "Cannot load scene as text resource from path '" + String(p_path) + "'.")
+    ERR_FAIL_COND_V_MSG(not ps, nullptr, "Cannot load scene as text resource from path '" + String(p_path) + "'.");
 
     Node *scene = ps->instance();
-    ERR_FAIL_COND_V(!scene, nullptr)
+    ERR_FAIL_COND_V(!scene, nullptr);
 
     return scene;
 }

@@ -80,7 +80,7 @@ bool VisualScriptExpression::_set(const StringName &p_name, const Variant &p_val
     if (StringUtils::begins_with(p_name,"input_")) {
 
         int idx = StringUtils::to_int(StringUtils::get_slice(StringUtils::get_slice(p_name,'_', 1),'/', 0));
-        ERR_FAIL_INDEX_V(idx, inputs.size(), false)
+        ERR_FAIL_INDEX_V(idx, inputs.size(), false);
 
         se_string_view what = StringUtils::get_slice(p_name,'/', 1);
 
@@ -127,7 +127,7 @@ bool VisualScriptExpression::_get(const StringName &p_name, Variant &r_ret) cons
     if (StringUtils::begins_with(UIString(p_name),"input_")) {
 
         int idx = StringUtils::to_int(StringUtils::get_slice(StringUtils::get_slice(p_name,'_', 1),'/', 0));
-        ERR_FAIL_INDEX_V(idx, inputs.size(), false)
+        ERR_FAIL_INDEX_V(idx, inputs.size(), false);
 
         se_string_view what = StringUtils::get_slice(p_name,'/', 1);
 

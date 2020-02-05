@@ -130,7 +130,7 @@ bool ResourcePreloader::has_resource(const StringName &p_name) const {
 }
 RES ResourcePreloader::get_resource(const StringName &p_name) const {
 
-    ERR_FAIL_COND_V(!resources.contains(p_name), RES())
+    ERR_FAIL_COND_V(!resources.contains(p_name), RES());
     return resources.at(p_name);
 }
 

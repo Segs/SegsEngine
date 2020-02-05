@@ -508,7 +508,7 @@ bool AbstractPolygon2DEditor::forward_gui_input(const Ref<InputEvent> &p_event) 
             if (!wip_active) {
 
                 PoolVector<Vector2> vertices = _get_polygon(edited_point.polygon).as<PoolVector<Vector2>>();
-                ERR_FAIL_INDEX_V(edited_point.vertex, vertices.size(), false)
+                ERR_FAIL_INDEX_V(edited_point.vertex, vertices.size(), false);
                 vertices.write()[edited_point.vertex] = cpoint - _get_offset(edited_point.polygon);
                 _set_polygon(edited_point.polygon, vertices);
             }

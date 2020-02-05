@@ -153,7 +153,7 @@ void CollisionObject2D::shape_owner_set_disabled(uint32_t p_owner, bool p_disabl
 
 bool CollisionObject2D::is_shape_owner_disabled(uint32_t p_owner) const {
 
-    ERR_FAIL_COND_V(!shapes.contains(p_owner), false)
+    ERR_FAIL_COND_V(!shapes.contains(p_owner), false);
 
     return shapes.at(p_owner).disabled;
 }
@@ -174,7 +174,7 @@ void CollisionObject2D::shape_owner_set_one_way_collision(uint32_t p_owner, bool
 
 bool CollisionObject2D::is_shape_owner_one_way_collision_enabled(uint32_t p_owner) const {
 
-    ERR_FAIL_COND_V(!shapes.contains(p_owner), false)
+    ERR_FAIL_COND_V(!shapes.contains(p_owner), false);
 
     return shapes.at(p_owner).one_way_collision;
 }
@@ -195,7 +195,7 @@ void CollisionObject2D::shape_owner_set_one_way_collision_margin(uint32_t p_owne
 
 float CollisionObject2D::get_shape_owner_one_way_collision_margin(uint32_t p_owner) const {
 
-    ERR_FAIL_COND_V(!shapes.contains(p_owner), 0)
+    ERR_FAIL_COND_V(!shapes.contains(p_owner), 0);
 
     return shapes.at(p_owner).one_way_collision_margin;
 }
@@ -234,14 +234,14 @@ void CollisionObject2D::shape_owner_set_transform(uint32_t p_owner, const Transf
 }
 Transform2D CollisionObject2D::shape_owner_get_transform(uint32_t p_owner) const {
 
-    ERR_FAIL_COND_V(!shapes.contains(p_owner), Transform2D())
+    ERR_FAIL_COND_V(!shapes.contains(p_owner), Transform2D());
 
     return shapes.at(p_owner).xform;
 }
 
 Object *CollisionObject2D::shape_owner_get_owner(uint32_t p_owner) const {
 
-    ERR_FAIL_COND_V(!shapes.contains(p_owner), nullptr)
+    ERR_FAIL_COND_V(!shapes.contains(p_owner), nullptr);
 
     return shapes.at(p_owner).owner;
 }
@@ -264,22 +264,23 @@ void CollisionObject2D::shape_owner_add_shape(uint32_t p_owner, const Ref<Shape2
 
     total_subshapes++;
 }
+
 int CollisionObject2D::shape_owner_get_shape_count(uint32_t p_owner) const {
 
-    ERR_FAIL_COND_V(!shapes.contains(p_owner), 0)
+    ERR_FAIL_COND_V(!shapes.contains(p_owner), 0);
 
     return shapes.at(p_owner).shapes.size();
 }
 Ref<Shape2D> CollisionObject2D::shape_owner_get_shape(uint32_t p_owner, int p_shape) const {
 
-    ERR_FAIL_COND_V(!shapes.contains(p_owner), Ref<Shape2D>())
-    ERR_FAIL_INDEX_V(p_shape, shapes.at(p_owner).shapes.size(), Ref<Shape2D>())
-
+    ERR_FAIL_COND_V(!shapes.contains(p_owner), Ref<Shape2D>());
+    ERR_FAIL_INDEX_V(p_shape, shapes.at(p_owner).shapes.size(), Ref<Shape2D>());
+;
     return shapes.at(p_owner).shapes[p_shape].shape;
 }
 int CollisionObject2D::shape_owner_get_shape_index(uint32_t p_owner, int p_shape) const {
 
-    ERR_FAIL_COND_V(!shapes.contains(p_owner), -1)
+    ERR_FAIL_COND_V(!shapes.contains(p_owner), -1);
     ERR_FAIL_INDEX_V(p_shape, shapes.at(p_owner).shapes.size(), -1);
 
     return shapes.at(p_owner).shapes[p_shape].index;

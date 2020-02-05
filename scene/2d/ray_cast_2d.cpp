@@ -246,7 +246,7 @@ void RayCast2D::add_exception_rid(const RID &p_rid) {
 
 void RayCast2D::add_exception(const Object *p_object) {
 
-    ERR_FAIL_NULL(p_object)
+    ERR_FAIL_NULL(p_object);
     const CollisionObject2D *co = object_cast<CollisionObject2D>(p_object);
     if (!co)
         return;
@@ -260,7 +260,7 @@ void RayCast2D::remove_exception_rid(const RID &p_rid) {
 
 void RayCast2D::remove_exception(const Object *p_object) {
 
-    ERR_FAIL_NULL(p_object)
+    ERR_FAIL_NULL(p_object);
     const CollisionObject2D *co = object_cast<CollisionObject2D>(p_object);
     if (!co)
         return;

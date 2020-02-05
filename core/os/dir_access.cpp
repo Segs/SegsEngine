@@ -257,7 +257,7 @@ DirAccess *DirAccess::open(se_string_view p_path, Error *r_error) {
 
     DirAccess *da = create_for_path(p_path);
 
-    ERR_FAIL_COND_V_MSG(!da, nullptr, "Cannot create DirAccess for path '" + String(p_path) + "'.")
+    ERR_FAIL_COND_V_MSG(!da, nullptr, "Cannot create DirAccess for path '" + String(p_path) + "'.");
     Error err = da->change_dir(p_path);
     if (r_error)
         *r_error = err;
@@ -407,35 +407,35 @@ Error DirAccess::_copy_dir(DirAccess *p_target_da, se_string_view  p_to, int p_c
         String target_dir = String(p_to) + rel_path;
         if (!p_target_da->dir_exists(target_dir)) {
             Error err = p_target_da->make_dir(target_dir);
-            ERR_FAIL_COND_V_MSG(err != OK, err, "Cannot create directory '" + target_dir + "'.")
+            ERR_FAIL_COND_V_MSG(err != OK, err, "Cannot create directory '" + target_dir + "'.");
         }
 
         Error err = change_dir(E->deref());
-        ERR_FAIL_COND_V_MSG(err != OK, err, "Cannot change current directory to '" + String(rel_path) + "'.")
+        ERR_FAIL_COND_V_MSG(err != OK, err, "Cannot change current directory to '" + String(rel_path) + "'.");
         err = _copy_dir(p_target_da, String(p_to) + rel_path + "/", p_chmod_flags);
         if (err) {
             change_dir("..");
             ERR_FAIL_V_MSG(err, "Failed to copy recursively.")
         }
         err = change_dir("..");
-        ERR_FAIL_COND_V_MSG(err != OK, err, "Failed to go back.")
+        ERR_FAIL_COND_V_MSG(err != OK, err, "Failed to go back.");
     }
 
     return OK;
 }
 
 Error DirAccess::copy_dir(se_string_view  p_from, se_string_view p_to, int p_chmod_flags) {
-    ERR_FAIL_COND_V_MSG(!dir_exists(p_from), ERR_FILE_NOT_FOUND, "Source directory doesn't exist.")
+    ERR_FAIL_COND_V_MSG(!dir_exists(p_from), ERR_FILE_NOT_FOUND, "Source directory doesn't exist.");
 
     DirAccess *target_da = DirAccess::create_for_path(p_to);
-    ERR_FAIL_COND_V_MSG(!target_da, ERR_CANT_CREATE, "Cannot create DirAccess for path '" + String(p_to) + "'.")
+    ERR_FAIL_COND_V_MSG(!target_da, ERR_CANT_CREATE, "Cannot create DirAccess for path '" + String(p_to) + "'.");
 
     if (!target_da->dir_exists(p_to)) {
         Error err = target_da->make_dir_recursive(p_to);
         if (err) {
             memdelete(target_da);
         }
-        ERR_FAIL_COND_V_MSG(err != OK, err, "Cannot create directory '" + String(p_to) + "'.")
+        ERR_FAIL_COND_V_MSG(err != OK, err, "Cannot create directory '" + String(p_to) + "'.");
     }
 
     DirChanger dir_changer(this, p_from);

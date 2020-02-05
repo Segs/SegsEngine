@@ -351,8 +351,8 @@ uint64_t XMLParser::get_node_offset() const {
 
 Error XMLParser::seek(uint64_t p_pos) {
 
-    ERR_FAIL_COND_V(!data, ERR_FILE_EOF)
-    ERR_FAIL_COND_V(p_pos >= length, ERR_FILE_EOF)
+    ERR_FAIL_COND_V(!data, ERR_FILE_EOF);
+    ERR_FAIL_COND_V(p_pos >= length, ERR_FILE_EOF);
 
     P = data + p_pos;
 
@@ -405,12 +405,12 @@ XMLParser::NodeType XMLParser::get_node_type() {
 }
 const String &XMLParser::get_node_data() const {
 
-    ERR_FAIL_COND_V(node_type != NODE_TEXT, null_se_string)
+    ERR_FAIL_COND_V(node_type != NODE_TEXT, null_se_string);
     return node_name;
 }
 
 const String &XMLParser::get_node_name() const {
-    ERR_FAIL_COND_V(node_type == NODE_TEXT, null_se_string)
+    ERR_FAIL_COND_V(node_type == NODE_TEXT, null_se_string);
     return node_name;
 }
 int XMLParser::get_attribute_count() const {
@@ -419,12 +419,12 @@ int XMLParser::get_attribute_count() const {
 }
 const String &XMLParser::get_attribute_name(int p_idx) const {
 
-    ERR_FAIL_INDEX_V(p_idx, attributes.size(), null_se_string)
+    ERR_FAIL_INDEX_V(p_idx, attributes.size(), null_se_string);
     return attributes[p_idx].name;
 }
 const String &XMLParser::get_attribute_value(int p_idx) const {
 
-    ERR_FAIL_INDEX_V(p_idx, attributes.size(), null_se_string)
+    ERR_FAIL_INDEX_V(p_idx, attributes.size(), null_se_string);
     return attributes[p_idx].value;
 }
 bool XMLParser::has_attribute(se_string_view p_name) const {
@@ -447,7 +447,7 @@ const String & XMLParser::get_attribute_value(se_string_view p_name) const {
         }
     }
 
-    ERR_FAIL_COND_V_MSG(idx < 0, null_se_string, "Attribute not found: " + String(p_name) + ".")
+    ERR_FAIL_COND_V_MSG(idx < 0, null_se_string, "Attribute not found: " + String(p_name) + ".");
 
     return attributes[idx].value;
 }
@@ -473,7 +473,7 @@ bool XMLParser::is_empty() const {
 
 Error XMLParser::open_buffer(const PoolVector<uint8_t> &p_buffer) {
 
-    ERR_FAIL_COND_V(p_buffer.empty(), ERR_INVALID_DATA)
+    ERR_FAIL_COND_V(p_buffer.empty(), ERR_INVALID_DATA);
 
     if (data) {
         memdelete_arr(data);
@@ -492,10 +492,10 @@ Error XMLParser::open(se_string_view p_path) {
     Error err;
     FileAccess *file = FileAccess::open(p_path, FileAccess::READ, &err);
 
-    ERR_FAIL_COND_V_MSG(err != OK, err, "Cannot open file '" + String(p_path) + "'.")
+    ERR_FAIL_COND_V_MSG(err != OK, err, "Cannot open file '" + String(p_path) + "'.");
 
     length = file->get_len();
-    ERR_FAIL_COND_V(length < 1, ERR_FILE_CORRUPT)
+    ERR_FAIL_COND_V(length < 1, ERR_FILE_CORRUPT);
 
     if (data) {
         memdelete_arr(data);

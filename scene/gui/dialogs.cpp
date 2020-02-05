@@ -462,7 +462,7 @@ bool AcceptDialog::has_autowrap() {
 
 void AcceptDialog::register_text_enter(Node *p_line_edit) {
 
-    ERR_FAIL_NULL(p_line_edit)
+    ERR_FAIL_NULL(p_line_edit);
     LineEdit *line_edit = object_cast<LineEdit>(p_line_edit);
     if (line_edit)
         line_edit->connect("text_entered", this, "_builtin_text_entered");

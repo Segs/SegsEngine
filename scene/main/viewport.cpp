@@ -115,22 +115,22 @@ NodePath ViewportTexture::get_viewport_path_in_scene() const {
 
 int ViewportTexture::get_width() const {
 
-    ERR_FAIL_COND_V(!vp, 0)
+    ERR_FAIL_COND_V(!vp, 0);
     return vp->size.width;
 }
 int ViewportTexture::get_height() const {
 
-    ERR_FAIL_COND_V(!vp, 0)
+    ERR_FAIL_COND_V(!vp, 0);
     return vp->size.height;
 }
 Size2 ViewportTexture::get_size() const {
 
-    ERR_FAIL_COND_V(!vp, Size2())
+    ERR_FAIL_COND_V(!vp, Size2());
     return vp->size;
 }
 RID ViewportTexture::get_rid() const {
 
-    //ERR_FAIL_COND_V(!vp, RID())
+    //ERR_FAIL_COND_V(!vp, RID());
     return proxy;
 }
 
@@ -140,7 +140,7 @@ bool ViewportTexture::has_alpha() const {
 }
 Ref<Image> ViewportTexture::get_data() const {
 
-    ERR_FAIL_COND_V(!vp, Ref<Image>())
+    ERR_FAIL_COND_V(!vp, Ref<Image>());
     return VisualServer::get_singleton()->texture_get_data(vp->texture_rid);
 }
 void ViewportTexture::set_flags(uint32_t p_flags) {
@@ -3088,7 +3088,7 @@ bool Viewport::is_input_handled() const {
     if (handle_input_locally) {
         return local_input_handled;
     } else {
-        ERR_FAIL_COND_V(!is_inside_tree(), false)
+        ERR_FAIL_COND_V(!is_inside_tree(), false);
         return get_tree()->is_input_handled();
     }
 }

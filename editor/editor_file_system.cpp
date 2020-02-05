@@ -85,7 +85,7 @@ int EditorFileSystemDirectory::get_subdir_count() const {
 
 EditorFileSystemDirectory *EditorFileSystemDirectory::get_subdir(int p_idx) {
 
-    ERR_FAIL_INDEX_V(p_idx, subdirs.size(), nullptr)
+    ERR_FAIL_INDEX_V(p_idx, subdirs.size(), nullptr);
     return subdirs[p_idx];
 }
 
@@ -96,7 +96,7 @@ int EditorFileSystemDirectory::get_file_count() const {
 
 String EditorFileSystemDirectory::get_file(int p_idx) const {
 
-    ERR_FAIL_INDEX_V(p_idx, files.size(), String())
+    ERR_FAIL_INDEX_V(p_idx, files.size(), String());
 
     return files[p_idx]->file;
 }
@@ -139,13 +139,13 @@ String EditorFileSystemDirectory::get_named_file_path(se_string_view named_file)
 
 const PODVector<String> &EditorFileSystemDirectory::get_file_deps(int p_idx) const {
 
-    ERR_FAIL_INDEX_V(p_idx, files.size(), null_string_pvec)
+    ERR_FAIL_INDEX_V(p_idx, files.size(), null_string_pvec);
     return files[p_idx]->deps;
 }
 
 bool EditorFileSystemDirectory::get_file_import_is_valid(int p_idx) const {
 
-    ERR_FAIL_INDEX_V(p_idx, files.size(), false)
+    ERR_FAIL_INDEX_V(p_idx, files.size(), false);
     return files[p_idx]->import_valid;
 }
 
@@ -163,7 +163,7 @@ const String & EditorFileSystemDirectory::get_file_script_class_icon_path(int p_
 
 StringName EditorFileSystemDirectory::get_file_type(int p_idx) const {
 
-    ERR_FAIL_INDEX_V(p_idx, files.size(), "")
+    ERR_FAIL_INDEX_V(p_idx, files.size(), "");
     return files[p_idx]->type;
 }
 
@@ -1139,7 +1139,7 @@ void EditorFileSystem::_notification(int p_what) {
                 Thread::wait_to_finish(thread);
                 memdelete(thread);
                 thread = nullptr;
-                WARN_PRINT("Scan thread aborted...")
+                WARN_PRINT("Scan thread aborted...");
                 set_process(false);
             }
 
@@ -1584,7 +1584,7 @@ Error EditorFileSystem::_reimport_group(se_string_view p_group_file, const PODVe
         importer_name = file_importer_name;
 
         ResourceImporterInterface *importer = ResourceFormatImporter::get_singleton()->get_importer_by_name(importer_name);
-        ERR_FAIL_COND_V(importer==nullptr, ERR_FILE_CORRUPT)
+        ERR_FAIL_COND_V(importer==nullptr, ERR_FILE_CORRUPT);
         ListPOD<ResourceImporter::ImportOption> options;
         importer->get_import_options(&options);
         //set default values
@@ -1605,7 +1605,7 @@ Error EditorFileSystem::_reimport_group(se_string_view p_group_file, const PODVe
         base_paths[p_files[i]] = ResourceFormatImporter::get_singleton()->get_import_base_path(p_files[i]);
     }
 
-    ERR_FAIL_COND_V(importer_name.empty(), ERR_UNCONFIGURED)
+    ERR_FAIL_COND_V(importer_name.empty(), ERR_UNCONFIGURED);
 
     ResourceImporterInterface *importer = ResourceFormatImporter::get_singleton()->get_importer_by_name(importer_name);
 
@@ -1617,7 +1617,7 @@ Error EditorFileSystem::_reimport_group(se_string_view p_group_file, const PODVe
         const String &file = E.first;
         String base_path = ResourceFormatImporter::get_singleton()->get_import_base_path(file);
         FileAccessRef f = FileAccess::open(file + ".import", FileAccess::WRITE);
-        ERR_FAIL_COND_V(!f, ERR_FILE_CANT_OPEN)
+        ERR_FAIL_COND_V(!f, ERR_FILE_CANT_OPEN);
 
         //write manually, as order matters ([remap] has to go first for performance).
         f->store_line("[remap]");
@@ -1678,7 +1678,7 @@ Error EditorFileSystem::_reimport_group(se_string_view p_group_file, const PODVe
 
         // Store the md5's of the various files. These are stored separately so that the .import files can be version controlled.
         FileAccessRef md5s = FileAccess::open(base_path + ".md5", FileAccess::WRITE);
-        ERR_FAIL_COND_V_MSG(!md5s, ERR_FILE_CANT_OPEN, "Cannot open MD5 file '" + base_path + ".md5'.")
+        ERR_FAIL_COND_V_MSG(!md5s, ERR_FILE_CANT_OPEN, "Cannot open MD5 file '" + base_path + ".md5'.");
 
         md5s->store_line("source_md5=\"" + FileAccess::get_md5(file) + "\"");
         if (!dest_paths.empty()) {
@@ -1689,7 +1689,7 @@ Error EditorFileSystem::_reimport_group(se_string_view p_group_file, const PODVe
         EditorFileSystemDirectory *fs = nullptr;
         int cpos = -1;
         bool found = _find_file(file, &fs, cpos);
-        ERR_FAIL_COND_V_MSG(!found, ERR_UNCONFIGURED, "Can't find file '" + file + "'.")
+        ERR_FAIL_COND_V_MSG(!found, ERR_UNCONFIGURED, "Can't find file '" + file + "'.");
 
         //update modified times, to avoid reimport
         fs->files[cpos]->modified_time = FileAccess::get_modified_time(file);

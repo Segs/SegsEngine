@@ -186,7 +186,7 @@ NetworkedMultiplayerPeer::ConnectionStatus WebRTCMultiplayer::get_connection_sta
 }
 
 Error WebRTCMultiplayer::initialize(int p_self_id, bool p_server_compat) {
-    ERR_FAIL_COND_V(p_self_id < 0 || p_self_id > ~(1 << 31), ERR_INVALID_PARAMETER)
+    ERR_FAIL_COND_V(p_self_id < 0 || p_self_id > ~(1 << 31), ERR_INVALID_PARAMETER);
     unique_id = p_self_id;
     server_compat = p_server_compat;
 
@@ -199,7 +199,7 @@ Error WebRTCMultiplayer::initialize(int p_self_id, bool p_server_compat) {
 }
 
 int WebRTCMultiplayer::get_unique_id() const {
-    ERR_FAIL_COND_V(connection_status == CONNECTION_DISCONNECTED, 1)
+    ERR_FAIL_COND_V(connection_status == CONNECTION_DISCONNECTED, 1);
     return unique_id;
 }
 
@@ -218,7 +218,7 @@ bool WebRTCMultiplayer::has_peer(int p_peer_id) {
 }
 
 Dictionary WebRTCMultiplayer::get_peer(int p_peer_id) {
-    ERR_FAIL_COND_V(!peer_map.contains(p_peer_id), Dictionary())
+    ERR_FAIL_COND_V(!peer_map.contains(p_peer_id), Dictionary());
     Dictionary out;
     _peer_to_dict(peer_map[p_peer_id], out);
     return out;
@@ -235,12 +235,12 @@ Dictionary WebRTCMultiplayer::get_peers() {
 }
 
 Error WebRTCMultiplayer::add_peer(Ref<WebRTCPeerConnection> p_peer, int p_peer_id, int p_unreliable_lifetime) {
-    ERR_FAIL_COND_V(p_peer_id < 0 || p_peer_id > ~(1 << 31), ERR_INVALID_PARAMETER)
-    ERR_FAIL_COND_V(p_unreliable_lifetime < 0, ERR_INVALID_PARAMETER)
-    ERR_FAIL_COND_V(refuse_connections, ERR_UNAUTHORIZED)
+    ERR_FAIL_COND_V(p_peer_id < 0 || p_peer_id > ~(1 << 31), ERR_INVALID_PARAMETER);
+    ERR_FAIL_COND_V(p_unreliable_lifetime < 0, ERR_INVALID_PARAMETER);
+    ERR_FAIL_COND_V(refuse_connections, ERR_UNAUTHORIZED);
     // Peer must be valid, and in new state (to create data channels)
-    ERR_FAIL_COND_V(not p_peer, ERR_INVALID_PARAMETER)
-    ERR_FAIL_COND_V(p_peer->get_connection_state() != WebRTCPeerConnection::STATE_NEW, ERR_INVALID_PARAMETER)
+    ERR_FAIL_COND_V(not p_peer, ERR_INVALID_PARAMETER);
+    ERR_FAIL_COND_V(p_peer->get_connection_state() != WebRTCPeerConnection::STATE_NEW, ERR_INVALID_PARAMETER);
 
     Ref<ConnectedPeer> peer(make_ref_counted<ConnectedPeer>());
     peer->connection = p_peer;
@@ -252,17 +252,17 @@ Error WebRTCMultiplayer::add_peer(Ref<WebRTCPeerConnection> p_peer, int p_peer_i
 
     cfg["id"] = 1;
     peer->channels[CH_RELIABLE] = p_peer->create_data_channel("reliable", cfg);
-    ERR_FAIL_COND_V(not peer->channels[CH_RELIABLE], FAILED)
+    ERR_FAIL_COND_V(not peer->channels[CH_RELIABLE], FAILED);
 
     cfg["id"] = 2;
     cfg["maxPacketLifetime"] = p_unreliable_lifetime;
     peer->channels[CH_ORDERED] = p_peer->create_data_channel("ordered", cfg);
-    ERR_FAIL_COND_V(not peer->channels[CH_ORDERED], FAILED)
+    ERR_FAIL_COND_V(not peer->channels[CH_ORDERED], FAILED);
 
     cfg["id"] = 3;
     cfg["ordered"] = false;
     peer->channels[CH_UNRELIABLE] = p_peer->create_data_channel("unreliable", cfg);
-    ERR_FAIL_COND_V(not peer->channels[CH_UNRELIABLE], FAILED)
+    ERR_FAIL_COND_V(not peer->channels[CH_UNRELIABLE], FAILED);
 
     peer_map[p_peer_id] = peer; // add the new peer connection to the peer_map
 
@@ -302,7 +302,7 @@ Error WebRTCMultiplayer::get_packet(const uint8_t **r_buffer, int &r_buffer_size
 }
 
 Error WebRTCMultiplayer::put_packet(const uint8_t *p_buffer, int p_buffer_size) {
-    ERR_FAIL_COND_V(connection_status == CONNECTION_DISCONNECTED, ERR_UNCONFIGURED)
+    ERR_FAIL_COND_V(connection_status == CONNECTION_DISCONNECTED, ERR_UNCONFIGURED);
 
     int ch = CH_RELIABLE;
     switch (transfer_mode) {
@@ -322,10 +322,10 @@ Error WebRTCMultiplayer::put_packet(const uint8_t *p_buffer, int p_buffer_size) 
     if (target_peer > 0) {
 
         E = peer_map.find(target_peer);
-        ERR_FAIL_COND_V_MSG(E==peer_map.end(), ERR_INVALID_PARAMETER, "Invalid target peer: " + itos(target_peer) + ".")
+        ERR_FAIL_COND_V_MSG(E==peer_map.end(), ERR_INVALID_PARAMETER, "Invalid target peer: " + itos(target_peer) + ".");
 
-        ERR_FAIL_COND_V(E->second->channels.size() <= ch, ERR_BUG)
-        ERR_FAIL_COND_V(not E->second->channels[ch], ERR_BUG)
+        ERR_FAIL_COND_V(E->second->channels.size() <= ch, ERR_BUG);
+        ERR_FAIL_COND_V(not E->second->channels[ch], ERR_BUG);
         return E->second->channels[ch]->put_packet(p_buffer, p_buffer_size);
 
     } else {

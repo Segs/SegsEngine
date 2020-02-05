@@ -151,7 +151,7 @@ Error AudioDriverWASAPI::audio_device_init(AudioDeviceWASAPI *p_device, bool p_c
     CoInitialize(nullptr);
 
     HRESULT hr = CoCreateInstance(CLSID_MMDeviceEnumerator, nullptr, CLSCTX_ALL, IID_IMMDeviceEnumerator, (void **)&enumerator);
-    ERR_FAIL_COND_V(hr != S_OK, ERR_CANT_OPEN)
+    ERR_FAIL_COND_V(hr != S_OK, ERR_CANT_OPEN);
 
     if (p_device->device_name == "Default") {
         hr = enumerator->GetDefaultAudioEndpoint(p_capture ? eCapture : eRender, eConsole, &device);
@@ -159,14 +159,14 @@ Error AudioDriverWASAPI::audio_device_init(AudioDeviceWASAPI *p_device, bool p_c
         IMMDeviceCollection *devices = nullptr;
 
         hr = enumerator->EnumAudioEndpoints(p_capture ? eCapture : eRender, DEVICE_STATE_ACTIVE, &devices);
-        ERR_FAIL_COND_V(hr != S_OK, ERR_CANT_OPEN)
+        ERR_FAIL_COND_V(hr != S_OK, ERR_CANT_OPEN);
 
         LPWSTR strId = nullptr;
         bool found = false;
 
         UINT count = 0;
         hr = devices->GetCount(&count);
-        ERR_FAIL_COND_V(hr != S_OK, ERR_CANT_OPEN)
+        ERR_FAIL_COND_V(hr != S_OK, ERR_CANT_OPEN);
 
         for (ULONG i = 0; i < count && !found; i++) {
             IMMDevice *tmp_device = nullptr;
@@ -216,7 +216,7 @@ Error AudioDriverWASAPI::audio_device_init(AudioDeviceWASAPI *p_device, bool p_c
             return ERR_CANT_OPEN;
         }
     } else {
-        ERR_FAIL_COND_V(hr != S_OK, ERR_CANT_OPEN)
+        ERR_FAIL_COND_V(hr != S_OK, ERR_CANT_OPEN);
     }
 
     hr = enumerator->RegisterEndpointNotificationCallback(&notif_client);
@@ -234,11 +234,11 @@ Error AudioDriverWASAPI::audio_device_init(AudioDeviceWASAPI *p_device, bool p_c
             return ERR_CANT_OPEN;
         }
     } else {
-        ERR_FAIL_COND_V(hr != S_OK, ERR_CANT_OPEN)
+        ERR_FAIL_COND_V(hr != S_OK, ERR_CANT_OPEN);
     }
 
     hr = p_device->audio_client->GetMixFormat(&pwfex);
-    ERR_FAIL_COND_V(hr != S_OK, ERR_CANT_OPEN)
+    ERR_FAIL_COND_V(hr != S_OK, ERR_CANT_OPEN);
 
     print_verbose("WASAPI: wFormatTag = " + itos(pwfex->wFormatTag));
     print_verbose("WASAPI: nChannels = " + itos(pwfex->nChannels));
@@ -298,14 +298,14 @@ Error AudioDriverWASAPI::audio_device_init(AudioDeviceWASAPI *p_device, bool p_c
     }
 
     hr = p_device->audio_client->Initialize(AUDCLNT_SHAREMODE_SHARED, streamflags, p_capture ? REFTIMES_PER_SEC : 0, 0, pwfex, nullptr);
-    ERR_FAIL_COND_V_MSG(hr != S_OK, ERR_CANT_OPEN, "WASAPI: Initialize failed with error 0x" + StringUtils::num_uint64(hr, 16) + ".")
+    ERR_FAIL_COND_V_MSG(hr != S_OK, ERR_CANT_OPEN, "WASAPI: Initialize failed with error 0x" + StringUtils::num_uint64(hr, 16) + ".");
 
     if (p_capture) {
         hr = p_device->audio_client->GetService(IID_IAudioCaptureClient, (void **)&p_device->capture_client);
     } else {
         hr = p_device->audio_client->GetService(IID_IAudioRenderClient, (void **)&p_device->render_client);
     }
-    ERR_FAIL_COND_V(hr != S_OK, ERR_CANT_OPEN)
+    ERR_FAIL_COND_V(hr != S_OK, ERR_CANT_OPEN);
 
     // Free memory
     CoTaskMemFree(pwfex);
@@ -329,14 +329,14 @@ Error AudioDriverWASAPI::init_render_device(bool reinit) {
             break;
 
         default:
-            WARN_PRINT("WASAPI: Unsupported number of channels: " + itos(audio_output.channels))
+            WARN_PRINT("WASAPI: Unsupported number of channels: " + itos(audio_output.channels));
             channels = 2;
             break;
     }
 
     UINT32 max_frames;
     HRESULT hr = audio_output.audio_client->GetBufferSize(&max_frames);
-    ERR_FAIL_COND_V(hr != S_OK, ERR_CANT_OPEN)
+    ERR_FAIL_COND_V(hr != S_OK, ERR_CANT_OPEN);
 
     // Due to WASAPI Shared Mode we have no control of the buffer size
     buffer_frames = max_frames;
@@ -362,7 +362,7 @@ Error AudioDriverWASAPI::init_capture_device(bool reinit) {
     // Get the max frames
     UINT32 max_frames;
     HRESULT hr = audio_input.audio_client->GetBufferSize(&max_frames);
-    ERR_FAIL_COND_V(hr != S_OK, ERR_CANT_OPEN)
+    ERR_FAIL_COND_V(hr != S_OK, ERR_CANT_OPEN);
 
     input_buffer_init(max_frames);
 
@@ -435,14 +435,14 @@ Array AudioDriverWASAPI::audio_device_get_list(bool p_capture) {
     CoInitialize(nullptr);
 
     HRESULT hr = CoCreateInstance(CLSID_MMDeviceEnumerator, nullptr, CLSCTX_ALL, IID_IMMDeviceEnumerator, (void **)&enumerator);
-    ERR_FAIL_COND_V(hr != S_OK, Array())
+    ERR_FAIL_COND_V(hr != S_OK, Array());
 
     hr = enumerator->EnumAudioEndpoints(p_capture ? eCapture : eRender, DEVICE_STATE_ACTIVE, &devices);
-    ERR_FAIL_COND_V(hr != S_OK, Array())
+    ERR_FAIL_COND_V(hr != S_OK, Array());
 
     UINT count = 0;
     hr = devices->GetCount(&count);
-    ERR_FAIL_COND_V(hr != S_OK, Array())
+    ERR_FAIL_COND_V(hr != S_OK, Array());
 
     for (ULONG i = 0; i < count; i++) {
         IMMDevice *device = nullptr;
@@ -649,7 +649,7 @@ void AudioDriverWASAPI::thread_func(void *p_udata) {
 
             if (invalidated) {
                 // Device is not valid anymore
-                WARN_PRINT("WASAPI: Current device invalidated, closing device")
+                WARN_PRINT("WASAPI: Current device invalidated, closing device");
 
                 Error err = ad->finish_render_device();
                 if (err != OK) {

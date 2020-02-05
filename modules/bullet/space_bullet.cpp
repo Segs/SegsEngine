@@ -116,7 +116,7 @@ bool BulletPhysicsDirectSpaceState::intersect_ray(const Vector3 &p_from, const V
             r_result.collider_id = gObj->get_instance_id();
             r_result.collider = 0 == r_result.collider_id ? nullptr : ObjectDB::get_instance(r_result.collider_id);
         } else {
-            WARN_PRINT("The raycast performed has hit a collision object that is not part of Godot scene, please check it.")
+            WARN_PRINT("The raycast performed has hit a collision object that is not part of Godot scene, please check it.");
         }
         return true;
     } else {
@@ -284,7 +284,7 @@ bool BulletPhysicsDirectSpaceState::rest_info(RID p_shape, const Transform &p_sh
 Vector3 BulletPhysicsDirectSpaceState::get_closest_point_to_object_volume(RID p_object, const Vector3 p_point) const {
 
     RigidCollisionObjectBullet *rigid_object = space->get_physics_server()->get_rigid_collisin_object(p_object);
-    ERR_FAIL_COND_V(!rigid_object, Vector3())
+    ERR_FAIL_COND_V(!rigid_object, Vector3());
 
     btVector3 out_closest_point(0, 0, 0);
     btScalar out_distance = 1e20;
@@ -395,7 +395,7 @@ void SpaceBullet::set_param(PhysicsServer::AreaParameter p_param, const Variant 
         case PhysicsServer::AREA_PARAM_GRAVITY_POINT_ATTENUATION:
             break;
         default:
-            WARN_PRINT("This set parameter (" + itos(p_param) + ") is ignored, the SpaceBullet doesn't support it.")
+            WARN_PRINT("This set parameter (" + itos(p_param) + ") is ignored, the SpaceBullet doesn't support it.");
             break;
     }
 }
@@ -1134,7 +1134,7 @@ public:
 
                     if (cs->getNumChildShapes() > 1) {
                         const btDbvt *tree = cs->getDynamicAabbTree();
-                        ERR_FAIL_COND_V(tree == nullptr, true)
+                        ERR_FAIL_COND_V(tree == nullptr, true);
 
                         // Transform bounds into compound shape local space
                         const btTransform other_in_compound_space = co->getWorldTransform().inverse();
@@ -1245,7 +1245,7 @@ bool SpaceBullet::recover_from_penetration(RigidBodyBullet *p_body, const btTran
             if (otherObject->getCollisionShape()->isCompound()) {
                 const btCompoundShape *cs = static_cast<const btCompoundShape *>(otherObject->getCollisionShape());
                 int shape_idx = recover_broad_result.results[i].compound_child_index;
-                ERR_FAIL_COND_V(shape_idx < 0 || shape_idx >= cs->getNumChildShapes(), false)
+                ERR_FAIL_COND_V(shape_idx < 0 || shape_idx >= cs->getNumChildShapes(), false);
 
                 if (cs->getChildShape(shape_idx)->isConvex()) {
                     if (RFP_convex_convex_test(kin_shape.shape, static_cast<const btConvexShape *>(cs->getChildShape(shape_idx)), otherObject, kinIndex, shape_idx, shape_transform, otherObject->getWorldTransform() * cs->getChildTransform(shape_idx), p_recover_movement_scale, r_delta_recover_movement, r_recover_result)) {
@@ -1444,7 +1444,7 @@ int SpaceBullet::recover_from_penetration_ray(RigidBodyBullet *p_body, const btT
             if (otherObject->getCollisionShape()->isCompound()) {
                 const btCompoundShape *cs = static_cast<const btCompoundShape *>(otherObject->getCollisionShape());
                 int shape_idx = recover_broad_result.results[i].compound_child_index;
-                ERR_FAIL_COND_V(shape_idx < 0 || shape_idx >= cs->getNumChildShapes(), false)
+                ERR_FAIL_COND_V(shape_idx < 0 || shape_idx >= cs->getNumChildShapes(), false);
 
                 RecoverResult recover_result;
                 if (RFP_convex_world_test(kin_shape.shape, cs->getChildShape(shape_idx), p_body->get_bt_collision_object(), otherObject, kinIndex, shape_idx, shape_transform, otherObject->getWorldTransform() * cs->getChildTransform(shape_idx), p_recover_movement_scale, r_delta_recover_movement, &recover_result)) {

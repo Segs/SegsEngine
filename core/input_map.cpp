@@ -141,7 +141,7 @@ void InputMap::action_add_event(const StringName &p_action, const Ref<InputEvent
 
 bool InputMap::action_has_event(const StringName &p_action, const Ref<InputEvent> &p_event) {
 
-    ERR_FAIL_COND_V_MSG(!input_map.contains(p_action), false, "Request for nonexistent InputMap action '" + String(p_action) + "'.")
+    ERR_FAIL_COND_V_MSG(!input_map.contains(p_action), false, "Request for nonexistent InputMap action '" + String(p_action) + "'.");
     return (_find_event(input_map[p_action], p_event) != input_map[p_action].inputs.end());
 }
 
@@ -189,7 +189,7 @@ bool InputMap::event_is_action(const Ref<InputEvent> &p_event, const StringName 
 
 bool InputMap::event_get_action_status(const Ref<InputEvent> &p_event, const StringName &p_action, bool *p_pressed, float *p_strength) const {
     Map<StringName, Action>::iterator E = input_map.find(p_action);
-    ERR_FAIL_COND_V_MSG(E==input_map.end(), false, "Request for nonexistent InputMap action '" + String(p_action) + "'.")
+    ERR_FAIL_COND_V_MSG(E==input_map.end(), false, "Request for nonexistent InputMap action '" + String(p_action) + "'.");
     //TODO: SEGS: holding a ref to p_event is not needed here, a simpler object_cast(p_event.ptr) would work here
     Ref<InputEventAction> input_event_action(dynamic_ref_cast<InputEventAction>(p_event));
     if (input_event_action) {

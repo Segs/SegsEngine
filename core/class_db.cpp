@@ -170,7 +170,7 @@ ClassDB::APIType ClassDB::get_api_type(const StringName &p_class) {
     RWLockRead _rw_lockr_(lock);
 
     auto iter = classes.find(p_class);
-    ERR_FAIL_COND_V_MSG(iter==classes.end(), API_NONE, "Cannot get class '" + String(p_class) + "'.")
+    ERR_FAIL_COND_V_MSG(iter==classes.end(), API_NONE, "Cannot get class '" + String(p_class) + "'.");
     return iter->second.api;
 }
 
@@ -343,10 +343,10 @@ Object *ClassDB::instance(const StringName &p_class) {
                 iter = classes.find(compat_classes[p_class]);
             }
         }
-        ERR_FAIL_COND_V_MSG(iter==classes.end(), nullptr, "Cannot get class '" + String(p_class) + "'.")
+        ERR_FAIL_COND_V_MSG(iter==classes.end(), nullptr, "Cannot get class '" + String(p_class) + "'.");
         ti = &iter->second;
-        ERR_FAIL_COND_V_MSG(ti->disabled, nullptr, "Class '" + String(p_class) + "' is disabled.")
-        ERR_FAIL_COND_V(!ti->creation_func, nullptr)
+        ERR_FAIL_COND_V_MSG(ti->disabled, nullptr, "Class '" + String(p_class) + "' is disabled.");
+        ERR_FAIL_COND_V(!ti->creation_func, nullptr);
     }
 #ifdef TOOLS_ENABLED
     if (ti->api == API_EDITOR && !Engine::get_singleton()->is_editor_hint()) {
@@ -361,7 +361,7 @@ bool ClassDB::can_instance(const StringName &p_class) {
     RWLockRead _rw_lockr_(lock);
 
     auto iter=classes.find(p_class);
-    ERR_FAIL_COND_V_MSG(iter==classes.end(), false, "Cannot get class '" + String(p_class) + "'.")
+    ERR_FAIL_COND_V_MSG(iter==classes.end(), false, "Cannot get class '" + String(p_class) + "'.");
     ClassInfo *ti = &iter->second;
 #ifdef TOOLS_ENABLED
     if (ti->api == API_EDITOR && !Engine::get_singleton()->is_editor_hint()) {
@@ -1038,14 +1038,14 @@ MethodBind *ClassDB::bind_methodfi(uint32_t p_flags, MethodBind *p_bind, const c
 #endif
 
     OBJTYPE_WLOCK;
-    ERR_FAIL_COND_V(!p_bind, nullptr)
+    ERR_FAIL_COND_V(!p_bind, nullptr);
     p_bind->set_name(mdname);
 
     const char *instance_type = p_bind->get_instance_class();
 
 #ifdef DEBUG_ENABLED
 
-    ERR_FAIL_COND_V_MSG(has_method(StringName(instance_type), mdname), nullptr, "Class " + String(instance_type) + " already has a method " + String(mdname) + ".")
+    ERR_FAIL_COND_V_MSG(has_method(StringName(instance_type), mdname), nullptr, "Class " + String(instance_type) + " already has a method " + String(mdname) + ".");
 #endif
 
     auto iter=classes.find_as(instance_type);
@@ -1150,7 +1150,7 @@ bool ClassDB::is_class_enabled(StringName p_class) {
         }
     }
 
-    ERR_FAIL_COND_V_MSG(iter==classes.end(), false, "Cannot get class '" + String(p_class) + "'.")
+    ERR_FAIL_COND_V_MSG(iter==classes.end(), false, "Cannot get class '" + String(p_class) + "'.");
     return !iter->second.disabled;
 }
 
@@ -1159,13 +1159,13 @@ bool ClassDB::is_class_exposed(StringName p_class) {
     RWLockRead _rw_lockr_(lock);
 
     auto iter=classes.find(p_class);
-    ERR_FAIL_COND_V_MSG(iter==classes.end(), false, "Cannot get class '" + String(p_class) + "'.")
+    ERR_FAIL_COND_V_MSG(iter==classes.end(), false, "Cannot get class '" + String(p_class) + "'.");
     return iter->second.exposed;
 }
 
 StringName ClassDB::get_category(const StringName &p_node) {
 
-    ERR_FAIL_COND_V(!classes.contains(p_node), StringName())
+    ERR_FAIL_COND_V(!classes.contains(p_node), StringName());
 #ifdef DEBUG_ENABLED
     return classes[p_node].category;
 #else
@@ -1285,7 +1285,7 @@ bool ClassDB::bind_helper(MethodBind *bind, const char *instance_type, const Str
     if (iter==classes.end()) {
         memdelete(bind);
     }
-    ERR_FAIL_COND_V(iter==classes.end(), false)
+    ERR_FAIL_COND_V(iter==classes.end(), false);
     auto type = &iter->second;
     if (type->method_map.contains(p_name)) {
         memdelete(bind);

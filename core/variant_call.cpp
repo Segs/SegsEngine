@@ -1309,7 +1309,7 @@ void Variant::call_ptr(const StringName &p_method, const Variant **p_args, int p
 Variant Variant::construct(const VariantType p_type, const Variant **p_args, int p_argcount, CallError &r_error, bool p_strict) {
 
     r_error.error = Variant::CallError::CALL_ERROR_INVALID_METHOD;
-    ERR_FAIL_INDEX_V(int(p_type), int(VariantType::VARIANT_MAX), Variant())
+    ERR_FAIL_INDEX_V(int(p_type), int(VariantType::VARIANT_MAX), Variant());
 
     r_error.error = Variant::CallError::CALL_OK;
     if (p_argcount == 0) { //generic construct
@@ -1619,7 +1619,7 @@ void Variant::get_constants_for_type(VariantType p_type, ListPOD<StringName> *p_
 
 bool Variant::has_constant(VariantType p_type, const StringName &p_value) {
 
-    ERR_FAIL_INDEX_V((int)p_type, (int)VariantType::VARIANT_MAX, false)
+    ERR_FAIL_INDEX_V((int)p_type, (int)VariantType::VARIANT_MAX, false);
     _VariantCall::ConstantData &cd = _VariantCall::constant_data[(int)p_type];
     return cd.value.contains(p_value) || cd.variant_value.contains(p_value);
 }
@@ -1629,7 +1629,7 @@ Variant Variant::get_constant_value(VariantType p_type, const StringName &p_valu
     if (r_valid)
         *r_valid = false;
 
-    ERR_FAIL_INDEX_V((int)p_type, (int)VariantType::VARIANT_MAX, 0)
+    ERR_FAIL_INDEX_V((int)p_type, (int)VariantType::VARIANT_MAX, 0);
     _VariantCall::ConstantData &cd = _VariantCall::constant_data[(int)p_type];
 
     Map<StringName, int>::iterator E = cd.value.find(p_value);

@@ -357,8 +357,8 @@ public:
             p_to = size() + p_to;
         }
 
-        ERR_FAIL_INDEX_V(p_from, size(), PoolVector<T>())
-        ERR_FAIL_INDEX_V(p_to, size(), PoolVector<T>())
+        ERR_FAIL_INDEX_V(p_from, size(), PoolVector<T>());
+        ERR_FAIL_INDEX_V(p_to, size(), PoolVector<T>());
 
         PoolVector<T> slice;
         int span = 1 + p_to - p_from;
@@ -375,7 +375,7 @@ public:
     Error insert(int p_pos, const T &p_val) {
 
         int s = size();
-        ERR_FAIL_INDEX_V(p_pos, s + 1, ERR_INVALID_PARAMETER)
+        ERR_FAIL_INDEX_V(p_pos, s + 1, ERR_INVALID_PARAMETER);
         resize(s + 1);
         {
             Write w = write();
@@ -430,7 +430,7 @@ const T &PoolVector<T>::get(int p_index) const {
 template <class T>
 void PoolVector<T>::set(int p_index, const T &p_val) {
 
-    ERR_FAIL_INDEX(p_index, size())
+    ERR_FAIL_INDEX(p_index, size());
 
     Write w = write();
     w[p_index] = p_val;
@@ -446,7 +446,7 @@ void PoolVector<T>::push_back(const T &p_val) {
 template <class T>
 const T & PoolVector<T>::operator[](int p_index) const {
 
-    CRASH_BAD_INDEX(p_index, size())
+    CRASH_BAD_INDEX(p_index, size());
 
     Read r = read();
     return r[p_index];
@@ -472,7 +472,7 @@ Error PoolVector<T>::resize(int p_size) {
             return ERR_OUT_OF_MEMORY;
     } else {
 
-        ERR_FAIL_COND_V_MSG(alloc->lock > 0, ERR_LOCKED, "Can't resize PoolVector if locked.") //can't resize if locked!
+        ERR_FAIL_COND_V_MSG(alloc->lock > 0, ERR_LOCKED, "Can't resize PoolVector if locked."); //can't resize if locked!
     }
 
     size_t new_size = sizeof(T) * p_size;

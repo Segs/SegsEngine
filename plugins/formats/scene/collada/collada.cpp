@@ -50,7 +50,7 @@
 String Collada::Effect::get_texture_path(const String &p_source, Collada &state) const {
 
     const String &image = p_source;
-    ERR_FAIL_COND_V(!state.state.image_map.contains(image), "")
+    ERR_FAIL_COND_V(!state.state.image_map.contains(image), "");
     return state.state.image_map[image].path;
 }
 
@@ -210,7 +210,7 @@ Transform Collada::Node::get_global_transform() const {
 
 PODVector<float> Collada::AnimationTrack::get_value_at_time(float p_time) const {
 
-    ERR_FAIL_COND_V(keys.empty(), PODVector<float>())
+    ERR_FAIL_COND_V(keys.empty(), PODVector<float>());
     int i = 0;
 
     for (i = 0; i < keys.size(); i++) {
@@ -465,7 +465,7 @@ Transform Collada::_read_transform(XMLParser &parser) {
             break; // end parsing text
     }
 
-    ERR_FAIL_COND_V(array.size() != 16, Transform())
+    ERR_FAIL_COND_V(array.size() != 16, Transform());
     PODVector<float> farr;
     farr.resize(16);
     for (int i = 0; i < 16; i++) {
@@ -726,7 +726,7 @@ void Collada::_parse_effect_material(XMLParser &parser, Effect &effect, String &
                                     String uri = effect.params[surface];
 
                                     if (parser.has_attribute("bumptype") && parser.get_attribute_value("bumptype") != "NORMALMAP") {
-                                        WARN_PRINT("'bump' texture type is not NORMALMAP, only NORMALMAP is supported.")
+                                        WARN_PRINT("'bump' texture type is not NORMALMAP, only NORMALMAP is supported.");
                                     }
 
                                     effect.bump.texture = uri;
@@ -1494,9 +1494,9 @@ Collada::Node *Collada::_parse_visual_instance_geometry(XMLParser &parser) {
             if (state.skin_controller_data_map.contains(geom->source)) {
                 SkinControllerData *skin = &state.skin_controller_data_map[geom->source];
                 //case where skeletons reference bones with IDREF (XSI)
-                ERR_FAIL_COND_V(!skin->joints.sources.contains("JOINT"), geom)
+                ERR_FAIL_COND_V(!skin->joints.sources.contains("JOINT"), geom);
                 String joint_arr = skin->joints.sources["JOINT"];
-                ERR_FAIL_COND_V(!skin->sources.contains(joint_arr), geom)
+                ERR_FAIL_COND_V(!skin->sources.contains(joint_arr), geom);
                 Collada::SkinControllerData::Source &joint_source = skin->sources[joint_arr];
                 geom->skeletons = joint_source.sarray; //quite crazy, but should work.
             }
@@ -2374,10 +2374,10 @@ bool Collada::_move_geometry_to_skeletons(VisualScene *p_vscene, Node *p_node, L
 
             String nodeid = ng->skeletons[0];
 
-            ERR_FAIL_COND_V(!state.scene_map.contains(nodeid), false) //weird, it should have it...
+            ERR_FAIL_COND_V(!state.scene_map.contains(nodeid), false); //weird, it should have it...
             NodeJoint *nj = SAFE_CAST<NodeJoint *>(state.scene_map[nodeid]);
-            ERR_FAIL_COND_V(!nj, false)
-            ERR_FAIL_COND_V(!nj->owner, false) //weird, node should have a skeleton owner
+            ERR_FAIL_COND_V(!nj, false);
+            ERR_FAIL_COND_V(!nj->owner, false); //weird, node should have a skeleton owner
 
             NodeSkeleton *sk = nj->owner;
 
@@ -2392,10 +2392,10 @@ bool Collada::_move_geometry_to_skeletons(VisualScene *p_vscene, Node *p_node, L
                 p = p->parent; // try again
             }
 
-            ERR_FAIL_COND_V(node_is_parent_of_skeleton, false)
+            ERR_FAIL_COND_V(node_is_parent_of_skeleton, false);
 
             //this should be correct
-            ERR_FAIL_COND_V(!state.skin_controller_data_map.contains(ng->source), false)
+            ERR_FAIL_COND_V(!state.skin_controller_data_map.contains(ng->source), false);
             SkinControllerData &skin = state.skin_controller_data_map[ng->source];
             Transform skel_inv = sk->get_global_transform().affine_inverse();
             p_node->default_transform = skel_inv * (skin.bind_shape /* p_node->get_global_transform()*/); // i honestly have no idea what to do with a previous model xform.. most exporters ignore it
@@ -2508,7 +2508,7 @@ int Collada::get_uv_channel(String p_name) {
 
     if (!channel_map.contains(p_name)) {
 
-        ERR_FAIL_COND_V(channel_map.size() == 2, 0)
+        ERR_FAIL_COND_V(channel_map.size() == 2, 0);
 
         channel_map[p_name] = channel_map.size();
     }
@@ -2521,7 +2521,7 @@ Error Collada::load(se_string_view p_path, int p_flags) {
     Ref<XMLParser> parserr(make_ref_counted<XMLParser>());
     XMLParser &parser = *parserr;
     Error err = parser.open(p_path);
-    ERR_FAIL_COND_V_MSG(err, err, "Cannot open Collada file '" + p_path + "'.")
+    ERR_FAIL_COND_V_MSG(err, err, "Cannot open Collada file '" + p_path + "'.");
 
     state.local_path = ProjectSettings::get_singleton()->localize_path(p_path);
     state.import_flags = p_flags;
@@ -2537,7 +2537,7 @@ Error Collada::load(se_string_view p_path, int p_flags) {
         }
     }
 
-    ERR_FAIL_COND_V_MSG(err != OK, ERR_FILE_CORRUPT, "Corrupted Collada file '" + p_path + "'.")
+    ERR_FAIL_COND_V_MSG(err != OK, ERR_FILE_CORRUPT, "Corrupted Collada file '" + p_path + "'.");
 
     /* Start loading Collada */
 

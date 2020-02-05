@@ -37,7 +37,7 @@
 #ifdef DEBUG_METHODS_ENABLED
 PropertyInfo MethodBind::get_argument_info(int p_argument) const {
 
-    ERR_FAIL_INDEX_V(p_argument, get_argument_count(), PropertyInfo())
+    ERR_FAIL_INDEX_V(p_argument, get_argument_count(), PropertyInfo());
 
     PropertyInfo info = _gen_argument_type_info(p_argument);
     info.name = StringName("arg" + itos(p_argument));

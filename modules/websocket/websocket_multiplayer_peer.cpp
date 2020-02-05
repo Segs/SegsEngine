@@ -109,7 +109,7 @@ int WebSocketMultiplayerPeer::get_available_packet_count() const {
 
 Error WebSocketMultiplayerPeer::get_packet(const uint8_t **r_buffer, int &r_buffer_size) {
 
-    ERR_FAIL_COND_V_MSG(!_is_multiplayer, ERR_UNCONFIGURED, "Please use get_peer(ID).get_packet/var to communicate with peers when not using the MultiplayerAPI.")
+    ERR_FAIL_COND_V_MSG(!_is_multiplayer, ERR_UNCONFIGURED, "Please use get_peer(ID).get_packet/var to communicate with peers when not using the MultiplayerAPI.");
 
     r_buffer_size = 0;
 
@@ -129,7 +129,7 @@ Error WebSocketMultiplayerPeer::get_packet(const uint8_t **r_buffer, int &r_buff
 
 Error WebSocketMultiplayerPeer::put_packet(const uint8_t *p_buffer, int p_buffer_size) {
 
-    ERR_FAIL_COND_V_MSG(!_is_multiplayer, ERR_UNCONFIGURED, "Please use get_peer(ID).put_packet/var to communicate with peers when not using the MultiplayerAPI.")
+    ERR_FAIL_COND_V_MSG(!_is_multiplayer, ERR_UNCONFIGURED, "Please use get_peer(ID).put_packet/var to communicate with peers when not using the MultiplayerAPI.");
 
     PoolVector<uint8_t> buffer = _make_pkt(SYS_NONE, get_unique_id(), _target_peer, p_buffer, p_buffer_size);
 
@@ -161,8 +161,8 @@ void WebSocketMultiplayerPeer::set_target_peer(int p_target_peer) {
 
 int WebSocketMultiplayerPeer::get_packet_peer() const {
 
-    ERR_FAIL_COND_V_MSG(!_is_multiplayer, 1, "This function is not available when not using the MultiplayerAPI.")
-    ERR_FAIL_COND_V(_incoming_packets.empty(), 1)
+    ERR_FAIL_COND_V_MSG(!_is_multiplayer, 1, "This function is not available when not using the MultiplayerAPI.");
+    ERR_FAIL_COND_V(_incoming_packets.empty(), 1);
 
     return _incoming_packets.front()->deref().source;
 }
@@ -267,10 +267,10 @@ Error WebSocketMultiplayerPeer::_server_relay(int32_t p_from, int32_t p_to, cons
 
     } else {
 
-        ERR_FAIL_COND_V(p_to == p_from, FAILED)
+        ERR_FAIL_COND_V(p_to == p_from, FAILED);
 
         Ref<WebSocketPeer> peer_to = get_peer(p_to);
-        ERR_FAIL_COND_V(not peer_to, FAILED)
+        ERR_FAIL_COND_V(not peer_to, FAILED);
 
         return peer_to->put_packet(p_buffer, p_buffer_size); // Sending to specific peer
     }

@@ -271,7 +271,7 @@ Transform Spatial::get_transform() const {
 }
 Transform Spatial::get_global_transform() const {
 
-    ERR_FAIL_COND_V(!is_inside_tree(), Transform())
+    ERR_FAIL_COND_V(!is_inside_tree(), Transform());
 
     if (data.dirty & DIRTY_GLOBAL) {
 
@@ -318,7 +318,7 @@ Transform Spatial::get_relative_transform(const Node *p_parent) const {
     if (p_parent == this)
         return Transform();
 
-    ERR_FAIL_COND_V(!data.parent, Transform())
+    ERR_FAIL_COND_V(!data.parent, Transform());
 
     if (p_parent == data.parent)
         return get_transform();
@@ -516,8 +516,8 @@ bool Spatial::is_set_as_toplevel() const {
 
 Ref<World> Spatial::get_world() const {
 
-    ERR_FAIL_COND_V(!is_inside_world(), Ref<World>())
-    ERR_FAIL_COND_V(!data.viewport, Ref<World>())
+    ERR_FAIL_COND_V(!is_inside_world(), Ref<World>());
+    ERR_FAIL_COND_V(!data.viewport, Ref<World>());
 
     return data.viewport->find_world();
 }

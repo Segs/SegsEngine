@@ -80,7 +80,7 @@ Error FileAccessUnix::_open(se_string_view p_path, int p_mode_flags) {
     path = fix_path(p_path);
     //printf("opening %ls, %i\n", path.c_str(), Memory::get_static_mem_usage());
 
-    ERR_FAIL_COND_V_MSG(f, ERR_ALREADY_IN_USE, "File is already in use.")
+    ERR_FAIL_COND_V_MSG(f, ERR_ALREADY_IN_USE, "File is already in use.");
     const char *mode_string;
 
     if (p_mode_flags == READ)
@@ -202,7 +202,7 @@ void FileAccessUnix::seek_end(int64_t p_position) {
 
 size_t FileAccessUnix::get_position() const {
 
-    ERR_FAIL_COND_V_MSG(!f, 0, "File must be opened before use.")
+    ERR_FAIL_COND_V_MSG(!f, 0, "File must be opened before use.");
 
     long pos = ftell(f);
     if (pos < 0) {
@@ -214,14 +214,14 @@ size_t FileAccessUnix::get_position() const {
 
 size_t FileAccessUnix::get_len() const {
 
-    ERR_FAIL_COND_V_MSG(!f, 0, "File must be opened before use.")
+    ERR_FAIL_COND_V_MSG(!f, 0, "File must be opened before use.");
 
     long pos = ftell(f);
-    ERR_FAIL_COND_V(pos < 0, 0)
-    ERR_FAIL_COND_V(fseek(f, 0, SEEK_END), 0)
+    ERR_FAIL_COND_V(pos < 0, 0);
+    ERR_FAIL_COND_V(fseek(f, 0, SEEK_END), 0);
     long size = ftell(f);
-    ERR_FAIL_COND_V(size < 0, 0)
-    ERR_FAIL_COND_V(fseek(f, pos, SEEK_SET), 0)
+    ERR_FAIL_COND_V(size < 0, 0);
+    ERR_FAIL_COND_V(fseek(f, pos, SEEK_SET), 0);
 
     return size;
 }
@@ -233,7 +233,7 @@ bool FileAccessUnix::eof_reached() const {
 
 uint8_t FileAccessUnix::get_8() const {
 
-    ERR_FAIL_COND_V_MSG(!f, 0, "File must be opened before use.")
+    ERR_FAIL_COND_V_MSG(!f, 0, "File must be opened before use.");
     uint8_t b;
     if (fread(&b, 1, 1, f) == 0) {
         check_errors();
@@ -244,7 +244,7 @@ uint8_t FileAccessUnix::get_8() const {
 
 int FileAccessUnix::get_buffer(uint8_t *p_dst, int p_length) const {
 
-    ERR_FAIL_COND_V_MSG(!f, -1, "File must be opened before use.")
+    ERR_FAIL_COND_V_MSG(!f, -1, "File must be opened before use.");
     int read = fread(p_dst, 1, p_length, f);
     check_errors();
     return read;

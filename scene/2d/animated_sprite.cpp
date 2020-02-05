@@ -124,7 +124,7 @@ void SpriteFrames::add_frame(const StringName &p_anim, const Ref<Texture> &p_fra
 
 int SpriteFrames::get_frame_count(const StringName &p_anim) const {
     const Map<StringName, Anim>::const_iterator E = animations.find(p_anim);
-    ERR_FAIL_COND_V_MSG(E==animations.end(), 0, "Animation '" + String(p_anim) + "' doesn't exist.")
+    ERR_FAIL_COND_V_MSG(E==animations.end(), 0, "Animation '" + String(p_anim) + "' doesn't exist.");
 
     return E->second.frames.size();
 }
@@ -228,7 +228,7 @@ void SpriteFrames::set_animation_speed(const StringName &p_anim, float p_fps) {
 float SpriteFrames::get_animation_speed(const StringName &p_anim) const {
 
     Map<StringName, Anim>::const_iterator E = animations.find(p_anim);
-    ERR_FAIL_COND_V_MSG(E==animations.end(),0, "Animation '" + String(p_anim) + "' doesn't exist.")
+    ERR_FAIL_COND_V_MSG(E==animations.end(),0, "Animation '" + String(p_anim) + "' doesn't exist.");
     return E->second.speed;
 }
 
@@ -239,7 +239,7 @@ void SpriteFrames::set_animation_loop(const StringName &p_anim, bool p_loop) {
 }
 bool SpriteFrames::get_animation_loop(const StringName &p_anim) const {
     Map<StringName, Anim>::const_iterator E = animations.find(p_anim);
-    ERR_FAIL_COND_V_MSG(E==animations.end(),false, "Animation '" + String(p_anim) + "' doesn't exist.")
+    ERR_FAIL_COND_V_MSG(E==animations.end(),false, "Animation '" + String(p_anim) + "' doesn't exist.");
     return E->second.loop;
 }
 

@@ -1065,7 +1065,7 @@ StringName TranslationServer::translate(const StringName &p_message) const {
     if (!enabled)
         return p_message;
 
-    ERR_FAIL_COND_V_MSG(locale.length() < 2, p_message, "Could not translate message as configured locale '" + locale + "' is invalid.")
+    ERR_FAIL_COND_V_MSG(locale.length() < 2, p_message, "Could not translate message as configured locale '" + locale + "' is invalid.");
 
     // Locale can be of the form 'll_CC', i.e. language code and regional code,
     // e.g. 'en_US', 'en_GB', etc. It might also be simply 'll', e.g. 'en'.

@@ -83,7 +83,7 @@ bool EditorSettings::_set_only(const StringName &p_name, const Variant &p_value)
     if (se_string_view(p_name) == se_string_view("shortcuts")) {
 
         Array arr = p_value;
-        ERR_FAIL_COND_V(!arr.empty() && arr.size() & 1, true)
+        ERR_FAIL_COND_V(!arr.empty() && arr.size() & 1, true);
         for (int i = 0; i < arr.size(); i += 2) {
 
             String name = arr[i];
@@ -156,7 +156,7 @@ bool EditorSettings::_get(const StringName &p_name, Variant &r_ret) const {
 
     const VariantContainer *v = props.getptr(p_name);
     if (!v) {
-        WARN_PRINT("EditorSettings::_get - Property not found: " + String(p_name))
+        WARN_PRINT("EditorSettings::_get - Property not found: " + String(p_name));
         return false;
     }
     r_ret = v->variant;
@@ -935,7 +935,7 @@ void EditorSettings::create() {
         singleton = dynamic_ref_cast<EditorSettings>(ResourceLoader::load(config_file_path, "EditorSettings"));
 
         if (not singleton) {
-            WARN_PRINT("Could not open config file.")
+            WARN_PRINT("Could not open config file.");
             goto fail;
         }
 
@@ -1152,7 +1152,7 @@ Variant _EDITOR_DEF(const StringName &p_setting, const Variant &p_default, bool 
 
 Variant _EDITOR_GET(const StringName &p_setting) {
 
-    ERR_FAIL_COND_V(!EditorSettings::get_singleton()->has_setting(p_setting), Variant())
+    ERR_FAIL_COND_V(!EditorSettings::get_singleton()->has_setting(p_setting), Variant());
     return EditorSettings::get_singleton()->get(p_setting);
 }
 
@@ -1477,7 +1477,7 @@ void EditorSettings::add_shortcut(se_string_view p_name, Ref<ShortCut> &p_shortc
 bool EditorSettings::is_shortcut(se_string_view p_name, const Ref<InputEvent> &p_event) const {
 
     const Map<String, Ref<ShortCut> >::const_iterator E = shortcuts.find_as(p_name);
-    ERR_FAIL_COND_V_MSG(E==shortcuts.end(), false, "Unknown Shortcut: " + String(p_name) + ".")
+    ERR_FAIL_COND_V_MSG(E==shortcuts.end(), false, "Unknown Shortcut: " + String(p_name) + ".");
 
     return E->second->is_shortcut(p_event);
 }
@@ -1507,7 +1507,7 @@ Ref<ShortCut> ED_GET_SHORTCUT(se_string_view p_path) {
 
     Ref<ShortCut> sc = EditorSettings::get_singleton()->get_shortcut(p_path);
 
-    ERR_FAIL_COND_V_MSG(not sc, sc, "Used ED_GET_SHORTCUT with invalid shortcut: " + String(p_path) + ".")
+    ERR_FAIL_COND_V_MSG(not sc, sc, "Used ED_GET_SHORTCUT with invalid shortcut: " + String(p_path) + ".");
     return sc;
 }
 

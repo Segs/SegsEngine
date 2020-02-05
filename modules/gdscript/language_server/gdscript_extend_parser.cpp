@@ -367,7 +367,7 @@ void ExtendGDScriptParser::parse_function_symbol(const GDScriptParser::FunctionN
 }
 
 String ExtendGDScriptParser::parse_documentation(int p_line, bool p_docs_down) {
-    ERR_FAIL_INDEX_V(p_line, lines.size(), String())
+    ERR_FAIL_INDEX_V(p_line, lines.size(), String());
 
     List<se_string_view> doc_lines;
 
@@ -472,9 +472,9 @@ String ExtendGDScriptParser::get_text_for_lookup_symbol(const lsp::Position &p_c
 
 String ExtendGDScriptParser::get_identifier_under_position(const lsp::Position &p_position, Vector2i &p_offset) const {
 
-    ERR_FAIL_INDEX_V(p_position.line, lines.size(), {})
+    ERR_FAIL_INDEX_V(p_position.line, lines.size(), {});
     se_string_view line = lines[p_position.line];
-    ERR_FAIL_INDEX_V(p_position.character, line.size(), {})
+    ERR_FAIL_INDEX_V(p_position.character, line.size(), {});
 
     int start_pos = p_position.character;
     for (int c = p_position.character; c >= 0; c--) {
@@ -628,7 +628,7 @@ const Array &ExtendGDScriptParser::get_member_completions() {
 
 Dictionary ExtendGDScriptParser::dump_function_api(const GDScriptParser::FunctionNode *p_func) const {
     Dictionary func;
-    ERR_FAIL_NULL_V(p_func, func)
+    ERR_FAIL_NULL_V(p_func, func);
     func["name"] = p_func->name;
     func["return_type"] = p_func->return_type.to_string();
     func["rpc_mode"] = (int)p_func->rpc_mode;
@@ -663,7 +663,7 @@ Dictionary ExtendGDScriptParser::dump_function_api(const GDScriptParser::Functio
 Dictionary ExtendGDScriptParser::dump_class_api(const GDScriptParser::ClassNode *p_class) const {
     Dictionary class_api;
 
-    ERR_FAIL_NULL_V(p_class, class_api)
+    ERR_FAIL_NULL_V(p_class, class_api);
 
     class_api["name"] = p_class->name;
     class_api["path"] = path;
@@ -691,7 +691,7 @@ Dictionary ExtendGDScriptParser::dump_class_api(const GDScriptParser::ClassNode 
 
         const GDScriptParser::ClassNode::Constant &c = E.second;
         const GDScriptParser::ConstantNode *node = dynamic_cast<const GDScriptParser::ConstantNode *>(c.expression);
-        ERR_FAIL_COND_V(!node, class_api)
+        ERR_FAIL_COND_V(!node, class_api);
 
         Dictionary api;
         api["name"] = E.first;

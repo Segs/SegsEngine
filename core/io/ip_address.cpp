@@ -185,7 +185,7 @@ bool IP_Address::is_ipv4() const {
 
 const uint8_t *IP_Address::get_ipv4() const {
     // Fail if not the correct IPv4 (it's an IPv6), but we don't want to return a null pointer risking an engine crash.
-    ERR_FAIL_COND_V_MSG(!is_ipv4(), &(field8[12]), "IPv4 requested, but current IP is IPv6.")
+    ERR_FAIL_COND_V_MSG(!is_ipv4(), &(field8[12]), "IPv4 requested, but current IP is IPv6.");
     return &(field8[12]);
 }
 

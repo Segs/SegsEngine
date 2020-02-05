@@ -199,12 +199,12 @@ void Array::erase(const Variant &p_value) {
 }
 
 Variant Array::front() const {
-    ERR_FAIL_COND_V_MSG(_p->array.empty(), Variant(), "Can't take value from empty array.")
+    ERR_FAIL_COND_V_MSG(_p->array.empty(), Variant(), "Can't take value from empty array.");
     return operator[](0);
 }
 
 Variant Array::back() const {
-    ERR_FAIL_COND_V_MSG(_p->array.empty(), Variant(), "Can't take value from empty array.")
+    ERR_FAIL_COND_V_MSG(_p->array.empty(), Variant(), "Can't take value from empty array.");
     return operator[](_p->array.size() - 1);
 }
 
@@ -322,7 +322,7 @@ Array Array::slice(int p_begin, int p_end, int p_step, bool p_deep) const { // l
     int x = p_begin;
     int new_arr_i = 0;
 
-    ERR_FAIL_COND_V(p_step == 0, new_arr)
+    ERR_FAIL_COND_V(p_step == 0, new_arr);
     if (Array::_clamp_index(p_begin) == Array::_clamp_index(p_end)) { // don't include element twice
         new_arr.resize(1);
         // new_arr[0] = 1;
@@ -362,7 +362,7 @@ Array &Array::sort() {
 
 Array &Array::sort_custom(Object *p_obj, const StringName &p_function) {
 
-    ERR_FAIL_NULL_V(p_obj, *this)
+    ERR_FAIL_NULL_V(p_obj, *this);
     auto &wr(_p->array);
 
     SortArray<Variant, _ArrayVariantSortCustom, true> avs;
@@ -394,7 +394,7 @@ int Array::bsearch(const Variant &p_value, bool p_before) {
 
 int Array::bsearch_custom(const Variant &p_value, Object *p_obj, const StringName &p_function, bool p_before) {
 
-    ERR_FAIL_NULL_V(p_obj, 0)
+    ERR_FAIL_NULL_V(p_obj, 0);
 
     _ArrayVariantSortCustom less;
     less.obj = p_obj;

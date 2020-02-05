@@ -427,7 +427,7 @@ void ShaderEditor::goto_line_selection(int p_line, int p_begin, int p_end) {
 
 void ShaderEditor::_check_for_external_edit() {
 
-    if (not shader || not shader) {
+    if (not shader) {
         return;
     }
 

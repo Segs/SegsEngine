@@ -1683,7 +1683,7 @@ Variant::operator RID() const {
     if (type == VariantType::OBJECT && _get_obj().obj) {
 #ifdef DEBUG_ENABLED
         if (ScriptDebugger::get_singleton()) {
-            ERR_FAIL_COND_V_MSG(!ObjectDB::instance_validate(_get_obj().obj), RID(), "Invalid pointer (object was deleted).")
+            ERR_FAIL_COND_V_MSG(!ObjectDB::instance_validate(_get_obj().obj), RID(), "Invalid pointer (object was deleted).");
         }
 #endif
         Variant::CallError ce;
@@ -1853,35 +1853,35 @@ PODVector<int> Variant::asVector<int>() const {
 
 template<>
 Span<const uint8_t> Variant::as<Span<const uint8_t>>() const {
-    ERR_FAIL_COND_V(type != VariantType::POOL_BYTE_ARRAY, Span<const uint8_t>())
+    ERR_FAIL_COND_V(type != VariantType::POOL_BYTE_ARRAY, Span<const uint8_t>());
 
     auto tmp = reinterpret_cast<const PoolVector<uint8_t> *>(_data._mem);
     return Span<const uint8_t>(tmp->read().ptr(),tmp->size());
 }
 template<>
 Span<const int> Variant::as<Span<const int>>() const {
-    ERR_FAIL_COND_V(type != VariantType::POOL_INT_ARRAY, Span<const int>())
+    ERR_FAIL_COND_V(type != VariantType::POOL_INT_ARRAY, Span<const int>());
 
     auto tmp = reinterpret_cast<const PoolVector<int> *>(_data._mem);
     return Span<const int>(tmp->read().ptr(),tmp->size());
 }
 template<>
 Span<const float> Variant::as<Span<const float>>() const {
-    ERR_FAIL_COND_V(type != VariantType::POOL_REAL_ARRAY, Span<const float>())
+    ERR_FAIL_COND_V(type != VariantType::POOL_REAL_ARRAY, Span<const float>());
 
     auto tmp = reinterpret_cast<const PoolVector<float> *>(_data._mem);
     return Span<const float>(tmp->read().ptr(), tmp->size());
 }
 template<>
 Span<const Vector2> Variant::as<Span<const Vector2>>() const {
-    ERR_FAIL_COND_V(type != VariantType::POOL_VECTOR2_ARRAY, Span<const Vector2>())
+    ERR_FAIL_COND_V(type != VariantType::POOL_VECTOR2_ARRAY, Span<const Vector2>());
 
     auto tmp = reinterpret_cast<const PoolVector<Vector2> *>(_data._mem);
     return Span<const Vector2>(tmp->read().ptr(),tmp->size());
 }
 template<>
 Span<const Vector3> Variant::as<Span<const Vector3>>() const {
-    ERR_FAIL_COND_V(type != VariantType::POOL_VECTOR3_ARRAY, Span<const Vector3>())
+    ERR_FAIL_COND_V(type != VariantType::POOL_VECTOR3_ARRAY, Span<const Vector3>());
 
     auto tmp = reinterpret_cast<const PoolVector<Vector3> *>(_data._mem);
     return Span<const Vector3>(tmp->read().ptr(),tmp->size());
@@ -3273,7 +3273,7 @@ String vformat(se_string_view p_text, const Variant &p1, const Variant &p2, cons
     bool error = false;
     String fmt = StringUtils::sprintf(p_text,args, &error);
 
-    ERR_FAIL_COND_V(error, String())
+    ERR_FAIL_COND_V(error, String());
 
     return fmt;
 }

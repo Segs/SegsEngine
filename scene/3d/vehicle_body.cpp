@@ -136,7 +136,6 @@ void VehicleWheel::_update(PhysicsDirectBodyState *s) {
         }
 
     }
-
     else // Not in contact : position wheel in a nice (rest length) position
     {
         m_raycastInfo.m_suspensionLength = m_suspensionRestLength;

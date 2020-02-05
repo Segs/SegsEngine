@@ -86,7 +86,7 @@ Vector3 ARVRCamera::project_local_ray_normal(const Point2 &p_pos) const {
         return Camera::project_local_ray_normal(p_pos);
     }
 
-    ERR_FAIL_COND_V_MSG(!is_inside_tree(), Vector3(), "Camera is not inside scene.")
+    ERR_FAIL_COND_V_MSG(!is_inside_tree(), Vector3(), "Camera is not inside scene.");
 
     Size2 viewport_size = get_viewport()->get_camera_rect_size();
     Vector2 cpos = get_viewport()->get_camera_coords(p_pos);
@@ -111,7 +111,7 @@ Point2 ARVRCamera::unproject_position(const Vector3 &p_pos) const {
         return Camera::unproject_position(p_pos);
     }
 
-    ERR_FAIL_COND_V_MSG(!is_inside_tree(), Vector2(), "Camera is not inside scene.")
+    ERR_FAIL_COND_V_MSG(!is_inside_tree(), Vector2(), "Camera is not inside scene.");
 
     Size2 viewport_size = get_viewport()->get_visible_rect().size;
 
@@ -140,7 +140,7 @@ Vector3 ARVRCamera::project_position(const Point2 &p_point, float p_z_depth) con
         return Camera::project_position(p_point, p_z_depth);
     }
 
-    ERR_FAIL_COND_V_MSG(!is_inside_tree(), Vector3(), "Camera is not inside scene.")
+    ERR_FAIL_COND_V_MSG(!is_inside_tree(), Vector3(), "Camera is not inside scene.");
 
     Size2 viewport_size = get_viewport()->get_visible_rect().size;
 
@@ -169,7 +169,7 @@ Frustum ARVRCamera::get_frustum() const {
         return Camera::get_frustum();
     }
 
-    ERR_FAIL_COND_V(!is_inside_world(), Frustum())
+    ERR_FAIL_COND_V(!is_inside_world(), Frustum());
 
     Size2 viewport_size = get_viewport()->get_visible_rect().size;
     CameraMatrix cm = arvr_interface->get_projection_for_eye(ARVRInterface::EYE_MONO, viewport_size.aspect(), get_znear(), get_zfar());

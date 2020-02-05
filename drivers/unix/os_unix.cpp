@@ -298,7 +298,7 @@ Error OS_Unix::execute(se_string_view p_path, const ListPOD<String> &p_arguments
         }
         FILE *f = popen(argss.c_str(), "r");
 
-        ERR_FAIL_COND_V_MSG(!f, ERR_CANT_OPEN, "Cannot pipe stream from process running with following arguments '" + argss + "'.")
+        ERR_FAIL_COND_V_MSG(!f, ERR_CANT_OPEN, "Cannot pipe stream from process running with following arguments '" + argss + "'.");
 
         char buf[65535];
 
@@ -320,7 +320,7 @@ Error OS_Unix::execute(se_string_view p_path, const ListPOD<String> &p_arguments
     }
 
     pid_t pid = fork();
-    ERR_FAIL_COND_V(pid < 0, ERR_CANT_FORK)
+    ERR_FAIL_COND_V(pid < 0, ERR_CANT_FORK);
 
     if (pid == 0) {
         // is child
@@ -423,7 +423,7 @@ Error OS_Unix::open_dynamic_library(se_string_view p_path, void *&p_library_hand
     }
 
     p_library_handle = dlopen(String(path).c_str(), RTLD_NOW);
-    ERR_FAIL_COND_V_MSG(!p_library_handle, ERR_CANT_OPEN, "Can't open dynamic library: " + String(p_path) + ". Error: " + dlerror())
+    ERR_FAIL_COND_V_MSG(!p_library_handle, ERR_CANT_OPEN, "Can't open dynamic library: " + String(p_path) + ". Error: " + dlerror());
     return OK;
 }
 
@@ -442,7 +442,7 @@ Error OS_Unix::get_dynamic_library_symbol_handle(void *p_library_handle, se_stri
 
     error = dlerror();
     if (error != nullptr) {
-        ERR_FAIL_COND_V_MSG(!p_optional, ERR_CANT_RESOLVE, String("Can't resolve symbol ") + p_name + ". Error: " + error + ".")
+        ERR_FAIL_COND_V_MSG(!p_optional, ERR_CANT_RESOLVE, String("Can't resolve symbol ") + p_name + ". Error: " + error + ".");
 
         return ERR_CANT_RESOLVE;
     }

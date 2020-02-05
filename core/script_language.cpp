@@ -138,14 +138,14 @@ bool ScriptServer::is_scripting_enabled() {
 
 ScriptLanguage *ScriptServer::get_language(int p_idx) {
 
-    ERR_FAIL_INDEX_V(p_idx, _language_count, nullptr)
+    ERR_FAIL_INDEX_V(p_idx, _language_count, nullptr);
 
     return _languages[p_idx];
 }
 
 void ScriptServer::register_language(ScriptLanguage *p_language) {
 
-    ERR_FAIL_COND(_language_count >= MAX_LANGUAGES)
+    ERR_FAIL_COND(_language_count >= MAX_LANGUAGES);
     _languages[_language_count++] = p_language;
 }
 
@@ -237,20 +237,20 @@ bool ScriptServer::is_global_class(const StringName &p_class) {
     return global_classes.contains(p_class);
 }
 StringName ScriptServer::get_global_class_language(const StringName &p_class) {
-    ERR_FAIL_COND_V(!global_classes.contains(p_class), StringName())
+    ERR_FAIL_COND_V(!global_classes.contains(p_class), StringName());
     return global_classes[p_class].language;
 }
 se_string_view ScriptServer::get_global_class_path(const StringName & p_class) {
-    ERR_FAIL_COND_V(!global_classes.contains(p_class), se_string_view())
+    ERR_FAIL_COND_V(!global_classes.contains(p_class), se_string_view());
     return global_classes[p_class].path;
 }
 
 StringName ScriptServer::get_global_class_base(se_string_view p_class) {
-    ERR_FAIL_COND_V(!global_classes.contains(StringName(p_class)), StringName())
+    ERR_FAIL_COND_V(!global_classes.contains(StringName(p_class)), StringName());
     return global_classes[StringName(p_class)].base;
 }
 StringName ScriptServer::get_global_class_native_base(const StringName &p_class) {
-    ERR_FAIL_COND_V(!global_classes.contains((p_class)), StringName())
+    ERR_FAIL_COND_V(!global_classes.contains((p_class)), StringName());
     StringName base = global_classes[(p_class)].base;
     while (global_classes.contains(base)) {
         base = global_classes[base].base;

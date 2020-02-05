@@ -160,7 +160,7 @@ Error ResourceFormatSaverCrypto::save(se_string_view p_path, const RES &p_resour
     } else {
         ERR_FAIL_V(ERR_INVALID_PARAMETER)
     }
-    ERR_FAIL_COND_V_MSG(err != OK, err, "Cannot save Crypto resource to file '" + String(p_path) + "'.")
+    ERR_FAIL_COND_V_MSG(err != OK, err, "Cannot save Crypto resource to file '" + String(p_path) + "'.");
     return OK;
 }
 

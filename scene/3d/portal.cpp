@@ -42,7 +42,7 @@ bool Portal::_set(const StringName &p_name, const Variant &p_value) {
         PoolVector<float> src_coords = p_value;
         Vector<Point2> points;
         int src_coords_size = src_coords.size();
-        ERR_FAIL_COND_V(src_coords_size % 2, false)
+        ERR_FAIL_COND_V(src_coords_size % 2, false);
         points.resize(src_coords_size / 2);
         for (int i = 0; i < points.size(); i++) {
 

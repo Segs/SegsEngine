@@ -690,7 +690,7 @@ bool VisualScriptSwitch::_set(const StringName &p_name, const Variant &p_value) 
     if (StringUtils::begins_with(p_name,"case/")) {
 
         int idx = StringUtils::to_int(StringUtils::get_slice(p_name,'/', 1));
-        ERR_FAIL_INDEX_V(idx, case_values.size(), false)
+        ERR_FAIL_INDEX_V(idx, case_values.size(), false);
 
         case_values[idx].type = VariantType(int(p_value));
         Object_change_notify(this);
@@ -712,7 +712,7 @@ bool VisualScriptSwitch::_get(const StringName &p_name, Variant &r_ret) const {
     if (StringUtils::begins_with(p_name,"case/")) {
 
         int idx = StringUtils::to_int(StringUtils::get_slice(p_name,'/', 1));
-        ERR_FAIL_INDEX_V(idx, case_values.size(), false)
+        ERR_FAIL_INDEX_V(idx, case_values.size(), false);
 
         r_ret = case_values[idx].type;
         return true;

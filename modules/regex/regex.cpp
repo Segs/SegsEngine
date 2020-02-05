@@ -207,7 +207,7 @@ Error RegEx::compile(const String &p_pattern) {
 
 Ref<RegExMatch> RegEx::search(const String &p_subject, int p_offset, int p_end) const {
 
-    ERR_FAIL_COND_V(!is_valid(), Ref<RegExMatch>())
+    ERR_FAIL_COND_V(!is_valid(), Ref<RegExMatch>());
 
     Ref<RegExMatch> result(make_ref_counted<RegExMatch>());
 
@@ -283,7 +283,7 @@ Array RegEx::search_all(const String &p_subject, int p_offset, int p_end) const 
 
 String RegEx::sub(const String &p_subject, const String &p_replacement, bool p_all, int p_offset, int p_end) const {
 
-    ERR_FAIL_COND_V(!is_valid(), String())
+    ERR_FAIL_COND_V(!is_valid(), String());
 
     // safety_zone is the number of chars we allocate in addition to the number of chars expected in order to
     // guard against the PCRE API writing one additional \0 at the end. PCRE's API docs are unclear on whether
@@ -341,7 +341,7 @@ String RegEx::get_pattern() const {
 
 int RegEx::get_group_count() const {
 
-    ERR_FAIL_COND_V(!is_valid(), 0)
+    ERR_FAIL_COND_V(!is_valid(), 0);
 
     uint32_t count;
 
@@ -354,7 +354,7 @@ Array RegEx::get_names() const {
 
     Array result;
 
-    ERR_FAIL_COND_V(!is_valid(), result)
+    ERR_FAIL_COND_V(!is_valid(), result);
 
     uint32_t count;
     const char *table;

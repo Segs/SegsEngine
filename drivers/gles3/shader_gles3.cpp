@@ -98,7 +98,7 @@ void ShaderGLES3::bind_uniforms() {
 
 GLint ShaderGLES3::get_uniform_location(int p_index) const {
 
-    ERR_FAIL_COND_V(!version, -1)
+    ERR_FAIL_COND_V(!version, -1);
 
     return version->uniform_location[p_index];
 }
@@ -113,7 +113,7 @@ bool ShaderGLES3::bind() {
         return false;
     }
 
-    ERR_FAIL_COND_V(!version, false)
+    ERR_FAIL_COND_V(!version, false);
 
     if (!version->ok) { //broken, unable to bind (do not throw error, you saw it before already when it failed compilation).
         glUseProgram(0);
@@ -165,7 +165,7 @@ ShaderGLES3::Version *ShaderGLES3::get_current_version() {
 
         if (conditional_version.code_version != 0) {
             CustomCode *cc = custom_code_map.getptr(conditional_version.code_version);
-            ERR_FAIL_COND_V(!cc, _v)
+            ERR_FAIL_COND_V(!cc, _v);
             if (cc->version == _v->code_version)
                 return _v;
         } else {
@@ -224,7 +224,7 @@ ShaderGLES3::Version *ShaderGLES3::get_current_version() {
     if (conditional_version.code_version > 0) {
         //do custom code related stuff
 
-        ERR_FAIL_COND_V(!custom_code_map.contains(conditional_version.code_version), nullptr)
+        ERR_FAIL_COND_V(!custom_code_map.contains(conditional_version.code_version), nullptr);
         cc = &custom_code_map[conditional_version.code_version];
         v.code_version = cc->version;
     }
@@ -233,7 +233,7 @@ ShaderGLES3::Version *ShaderGLES3::get_current_version() {
 
     v.id = glCreateProgram();
 
-    ERR_FAIL_COND_V(v.id == 0, nullptr)
+    ERR_FAIL_COND_V(v.id == 0, nullptr);
 
     /* VERTEX SHADER */
 
@@ -456,7 +456,7 @@ ShaderGLES3::Version *ShaderGLES3::get_current_version() {
             glDeleteShader(v.vert_id);
             glDeleteProgram(v.id);
             v.id = 0;
-            ERR_FAIL_COND_V(iloglen < 0, nullptr)
+            ERR_FAIL_COND_V(iloglen < 0, nullptr);
         }
 
         if (iloglen == 0) {
@@ -537,7 +537,7 @@ ShaderGLES3::Version *ShaderGLES3::get_current_version() {
 
 GLint ShaderGLES3::get_uniform_location(se_string_view p_name) const {
 
-    ERR_FAIL_COND_V(!version, -1)
+    ERR_FAIL_COND_V(!version, -1);
     return glGetUniformLocation(version->id, p_name.data());
 }
 

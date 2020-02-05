@@ -6226,8 +6226,8 @@ void EditorSpatialGizmoPlugin::add_material(const String &p_name, const Ref<Spat
 }
 
 Ref<SpatialMaterial> EditorSpatialGizmoPlugin::get_material(const String &p_name, const Ref<EditorSpatialGizmo> &p_gizmo) {
-    ERR_FAIL_COND_V(!materials.contains(p_name), Ref<SpatialMaterial>())
-    ERR_FAIL_COND_V(materials[p_name].empty(), Ref<SpatialMaterial>())
+    ERR_FAIL_COND_V(!materials.contains(p_name), Ref<SpatialMaterial>());
+    ERR_FAIL_COND_V(materials[p_name].empty(), Ref<SpatialMaterial>());
 
     if (not p_gizmo || materials[p_name].size() == 1)
             return materials[p_name][0];

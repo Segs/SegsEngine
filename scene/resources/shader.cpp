@@ -216,7 +216,7 @@ String ResourceFormatLoaderShader::get_resource_type(se_string_view p_path) cons
 Error ResourceFormatSaverShader::save(se_string_view p_path, const RES &p_resource, uint32_t p_flags) {
 
     Ref<Shader> shader = dynamic_ref_cast<Shader>(p_resource);
-    ERR_FAIL_COND_V(not shader, ERR_INVALID_PARAMETER)
+    ERR_FAIL_COND_V(not shader, ERR_INVALID_PARAMETER);
 
     String source(shader->get_code());
 
@@ -225,7 +225,7 @@ Error ResourceFormatSaverShader::save(se_string_view p_path, const RES &p_resour
 
     if (err) {
 
-        ERR_FAIL_COND_V(err, err)
+        ERR_FAIL_COND_V(err, err);
     }
 
     file->store_string(source);

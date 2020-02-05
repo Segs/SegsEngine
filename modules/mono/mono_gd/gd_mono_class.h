@@ -77,29 +77,29 @@ class GDMonoClass {
     MonoClass *mono_class;
     GDMonoAssembly *assembly;
 
-    bool attrs_fetched;
     MonoCustomAttrInfo *attributes;
 
     // This contains both the original method names and remapped method names from the native Godot identifiers to the C# functions.
     // Most method-related functions refer to this and it's possible this is unintuitive for outside users; this may be a prime location for refactoring or renaming.
-    bool methods_fetched;
     DefHashMap<MethodKey, GDMonoMethod *, MethodKey::Hasher> methods;
 
-    bool method_list_fetched;
-    Vector<GDMonoMethod *> method_list;
+    PODVector<GDMonoMethod *> method_list;
 
-    bool fields_fetched;
     Map<StringName, GDMonoField *> fields;
-    Vector<GDMonoField *> fields_list;
+    PODVector<GDMonoField *> fields_list;
 
-    bool properties_fetched;
     Map<StringName, GDMonoProperty *> properties;
-    Vector<GDMonoProperty *> properties_list;
+    PODVector<GDMonoProperty *> properties_list;
 
-    bool delegates_fetched;
     Map<StringName, GDMonoClass *> delegates;
-    Vector<GDMonoClass *> delegates_list;
+    PODVector<GDMonoClass *> delegates_list;
 
+    bool attrs_fetched;
+    bool methods_fetched;
+    bool method_list_fetched;
+    bool fields_fetched;
+    bool properties_fetched;
+    bool delegates_fetched;
     friend class GDMonoAssembly;
     GDMonoClass(const StringName &p_namespace, const StringName &p_name, MonoClass *p_class, GDMonoAssembly *p_assembly);
 
@@ -146,14 +146,14 @@ public:
     GDMonoMethod *get_method_with_desc(const String &p_description, bool p_include_namespace);
 
     GDMonoField *get_field(const StringName &p_name);
-    const Vector<GDMonoField *> &get_all_fields();
+    const PODVector<GDMonoField *> &get_all_fields();
 
     GDMonoProperty *get_property(const StringName &p_name);
-    const Vector<GDMonoProperty *> &get_all_properties();
+    const PODVector<GDMonoProperty *> &get_all_properties();
 
-    const Vector<GDMonoClass *> &get_all_delegates();
+    const PODVector<GDMonoClass *> &get_all_delegates();
 
-    const Vector<GDMonoMethod *> &get_all_methods();
+    const PODVector<GDMonoMethod *> &get_all_methods();
 
     ~GDMonoClass();
 };

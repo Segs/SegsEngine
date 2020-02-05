@@ -88,7 +88,7 @@ static bool _create_project_solution_if_needed() {
 }
 #endif
 
-CSharpLanguage *CSharpLanguage::singleton = NULL;
+CSharpLanguage *CSharpLanguage::singleton = nullptr;
 
 StringName CSharpLanguage::get_name() const {
 
@@ -653,7 +653,7 @@ void CSharpLanguage::pre_unsafe_unreference(Object *p_obj) {
 
 void CSharpLanguage::frame() {
 
-    if (gdmono && gdmono->is_runtime_initialized() && gdmono->get_core_api_assembly() != NULL) {
+    if (gdmono && gdmono->is_runtime_initialized() && gdmono->get_core_api_assembly() != nullptr) {
         const Ref<MonoGCHandle> &task_scheduler_handle = GDMonoCache::cached_data.task_scheduler_handle;
 
         if (task_scheduler_handle) {
@@ -921,12 +921,12 @@ void CSharpLanguage::reload_assemblies(bool p_soft_reload) {
             GDMonoAssembly *project_assembly = gdmono->get_project_assembly();
 
             // Search in project and tools assemblies first as those are the most likely to have the class
-            GDMonoClass *script_class = (project_assembly ? project_assembly->get_class(class_namespace, class_name) : NULL);
+            GDMonoClass *script_class = (project_assembly ? project_assembly->get_class(class_namespace, class_name) : nullptr);
 
 #ifdef TOOLS_ENABLED
             if (!script_class) {
                 GDMonoAssembly *tools_assembly = gdmono->get_tools_assembly();
-                script_class = (tools_assembly ? tools_assembly->get_class(class_namespace, class_name) : NULL);
+                script_class = (tools_assembly ? tools_assembly->get_class(class_namespace, class_name) : nullptr);
             }
 #endif
 
@@ -1302,16 +1302,16 @@ bool CSharpLanguage::setup_csharp_script_binding(CSharpScriptBinding &r_script_b
     auto classinfo = iter!=ClassDB::classes.end() ? &iter->second : nullptr;
     while (classinfo && !classinfo->exposed)
         classinfo = classinfo->inherits_ptr;
-    ERR_FAIL_NULL_V(classinfo, false)
+    ERR_FAIL_NULL_V(classinfo, false);
     type_name = classinfo->name;
 
     GDMonoClass *type_class = GDMonoUtils::type_get_proxy_class(type_name);
 
-    ERR_FAIL_NULL_V(type_class, false)
+    ERR_FAIL_NULL_V(type_class, false);
 
     MonoObject *mono_object = GDMonoUtils::create_managed_for_godot_object(type_class, type_name, p_object);
 
-    ERR_FAIL_NULL_V(mono_object, false)
+    ERR_FAIL_NULL_V(mono_object, false);
 
     r_script_binding.inited = true;
     r_script_binding.type_name = type_name;
@@ -1490,7 +1490,7 @@ CSharpInstance *CSharpInstance::create_for_managed_type(Object *p_owner, CSharpS
 
 MonoObject *CSharpInstance::get_mono_object() const {
 
-    ERR_FAIL_COND_V(!gchandle, nullptr)
+    ERR_FAIL_COND_V(!gchandle, nullptr);
     return gchandle->get_target();
 }
 
@@ -1500,12 +1500,12 @@ Object *CSharpInstance::get_owner() {
 
 bool CSharpInstance::set(const StringName &p_name, const Variant &p_value) {
 
-    ERR_FAIL_COND_V(!script, false)
+    ERR_FAIL_COND_V(!script, false);
 
     GD_MONO_SCOPE_THREAD_ATTACH
 
     MonoObject *mono_object = get_mono_object();
-    ERR_FAIL_NULL_V(mono_object, false)
+    ERR_FAIL_NULL_V(mono_object, false);
 
     GDMonoClass *top = script->script_class;
 
@@ -1554,12 +1554,12 @@ bool CSharpInstance::set(const StringName &p_name, const Variant &p_value) {
 
 bool CSharpInstance::get(const StringName &p_name, Variant &r_ret) const {
 
-    ERR_FAIL_COND_V(!script, false)
+    ERR_FAIL_COND_V(!script, false);
 
     GD_MONO_SCOPE_THREAD_ATTACH;
 
     MonoObject *mono_object = get_mono_object();
-    ERR_FAIL_NULL_V(mono_object, false)
+    ERR_FAIL_NULL_V(mono_object, false);
 
     GDMonoClass *top = script->script_class;
 
@@ -1654,7 +1654,7 @@ void CSharpInstance::get_property_list(ListPOD<PropertyInfo> *p_properties) cons
     GD_MONO_SCOPE_THREAD_ATTACH
 
     MonoObject *mono_object = get_mono_object();
-    ERR_FAIL_NULL(mono_object)
+    ERR_FAIL_NULL(mono_object);
 
     GDMonoClass *top = script->script_class;
 
@@ -1843,8 +1843,8 @@ MonoObject *CSharpInstance::_internal_new_managed() {
 
     CSharpLanguage::get_singleton()->release_script_gchandle(gchandle);
 
-    ERR_FAIL_NULL_V(owner, nullptr)
-    ERR_FAIL_COND_V(!script, nullptr)
+    ERR_FAIL_NULL_V(owner, nullptr);
+    ERR_FAIL_COND_V(!script, nullptr);
 
     MonoObject *mono_object = mono_object_new(mono_domain_get(), script->script_class->get_mono_ptr());
 
@@ -2053,7 +2053,7 @@ void CSharpInstance::notification(int p_notification) {
         _call_notification(p_notification);
 
         MonoObject *mono_object = get_mono_object();
-        ERR_FAIL_NULL(mono_object)
+        ERR_FAIL_NULL(mono_object);
 
         MonoException *exc = nullptr;
         GDMonoUtils::dispose(mono_object, &exc);
@@ -2072,7 +2072,7 @@ void CSharpInstance::_call_notification(int p_notification) {
     GD_MONO_SCOPE_THREAD_ATTACH;
 
     MonoObject *mono_object = get_mono_object();
-    ERR_FAIL_NULL(mono_object)
+    ERR_FAIL_NULL(mono_object);
 
     // Custom version of _call_multilevel, optimized for _notification
 
@@ -2248,48 +2248,49 @@ void CSharpScript::_update_exports_values(Map<StringName, Variant> &values, PODV
 
 void CSharpScript::_update_member_info_no_exports() {
 
-    if (exports_invalidated) {
-        GD_MONO_ASSERT_THREAD_ATTACHED;
-        exports_invalidated = false;
+    if (!exports_invalidated)
+        return;
 
-        member_info.clear();
+    GD_MONO_ASSERT_THREAD_ATTACHED;
+    exports_invalidated = false;
 
-        GDMonoClass *top = script_class;
+    member_info.clear();
 
-        while (top && top != native) {
-            PropertyInfo prop_info;
-            bool exported;
+    GDMonoClass *top = script_class;
 
-            const Vector<GDMonoField *> &fields = top->get_all_fields();
+    while (top && top != native) {
+        PropertyInfo prop_info;
+        bool exported;
 
-            for (int i = fields.size() - 1; i >= 0; i--) {
-                GDMonoField *field = fields[i];
+        const PODVector<GDMonoField *> &fields = top->get_all_fields();
 
-                if (_get_member_export(field, /* inspect export: */ false, prop_info, exported)) {
-                    StringName member_name = field->get_name();
+        for (int i = fields.size() - 1; i >= 0; i--) {
+            GDMonoField *field = fields[i];
 
-                    member_info[member_name] = prop_info;
-                    exported_members_cache.push_front(prop_info);
-                    exported_members_defval_cache[member_name] = Variant();
-                }
+            if (_get_member_export(field, /* inspect export: */ false, prop_info, exported)) {
+                StringName member_name = field->get_name();
+
+                member_info[member_name] = prop_info;
+                exported_members_cache.push_front(prop_info);
+                exported_members_defval_cache[member_name] = Variant();
             }
-
-            const Vector<GDMonoProperty *> &properties = top->get_all_properties();
-
-            for (int i = properties.size() - 1; i >= 0; i--) {
-                GDMonoProperty *property = properties[i];
-
-                if (_get_member_export(property, /* inspect export: */ false, prop_info, exported)) {
-                    StringName member_name = property->get_name();
-
-                    member_info[member_name] = prop_info;
-                    exported_members_cache.push_front(prop_info);
-                    exported_members_defval_cache[member_name] = Variant();
-                }
-            }
-
-            top = top->get_parent_class();
         }
+
+        const PODVector<GDMonoProperty *> &properties = top->get_all_properties();
+
+        for (int i = properties.size() - 1; i >= 0; i--) {
+            GDMonoProperty *property = properties[i];
+
+            if (_get_member_export(property, /* inspect export: */ false, prop_info, exported)) {
+                StringName member_name = property->get_name();
+
+                member_info[member_name] = prop_info;
+                exported_members_cache.push_front(prop_info);
+                exported_members_defval_cache[member_name] = Variant();
+            }
+        }
+
+        top = top->get_parent_class();
     }
 }
 #endif
@@ -2333,14 +2334,14 @@ bool CSharpScript::_update_exports() {
         ERR_FAIL_NULL_V_MSG(ctor, NULL,
                 "Cannot construct temporary MonoObject because the class does not define a parameterless constructor: '" + get_path() + "'.");
 
-        MonoException *ctor_exc = NULL;
-        ctor->invoke(tmp_object, NULL, &ctor_exc);
+        MonoException *ctor_exc = nullptr;
+        ctor->invoke(tmp_object, nullptr, &ctor_exc);
 
         Object *tmp_native = GDMonoMarshal::unbox<Object *>(CACHED_FIELD(GodotObject, ptr)->get_value(tmp_object));
         if (ctor_exc) {
             // TODO: Should we free 'tmp_native' if the exception was thrown after its creation?
             MonoGCHandle::free_handle(tmp_pinned_gchandle);
-            tmp_object = NULL;
+            tmp_object = nullptr;
 
             ERR_PRINT("Exception thrown from constructor of temporary MonoObject:");
             GDMonoUtils::debug_print_unhandled_exception(ctor_exc);
@@ -2353,7 +2354,7 @@ bool CSharpScript::_update_exports() {
             PropertyInfo prop_info;
             bool exported;
 
-            const Vector<GDMonoField *> &fields = top->get_all_fields();
+            const PODVector<GDMonoField *> &fields = top->get_all_fields();
 
             for (int i = fields.size() - 1; i >= 0; i--) {
                 GDMonoField *field = fields[i];
@@ -2374,7 +2375,7 @@ bool CSharpScript::_update_exports() {
                 }
             }
 
-            const Vector<GDMonoProperty *> &properties = top->get_all_properties();
+            const PODVector<GDMonoProperty *> &properties = top->get_all_properties();
 
             for (int i = properties.size() - 1; i >= 0; i--) {
                 GDMonoProperty *property = properties[i];
@@ -2387,7 +2388,7 @@ bool CSharpScript::_update_exports() {
                         exported_members_cache.push_front(prop_info);
 
                         if (tmp_object) {
-                            MonoException *exc = NULL;
+                            MonoException *exc = nullptr;
                             MonoObject *ret = property->get_value(tmp_object, &exc);
                             if (exc) {
                                 exported_members_defval_cache[member_name] = Variant();
@@ -2431,7 +2432,7 @@ bool CSharpScript::_update_exports() {
 
     placeholder_fallback_enabled = false;
 
-    if (placeholders.size()) {
+    if (!placeholders.empty()) {
         // Update placeholders if any
         Map<StringName, Variant> values;
         PODVector<PropertyInfo> propnames;
@@ -2461,14 +2462,14 @@ void CSharpScript::load_script_signals(GDMonoClass *p_class, GDMonoClass *p_nati
 
     GDMonoClass *top = p_class;
     while (top && top != p_native_class) {
-        const Vector<GDMonoClass *> &delegates = top->get_all_delegates();
+        const PODVector<GDMonoClass *> &delegates = top->get_all_delegates();
         for (int i = delegates.size() - 1; i >= 0; --i) {
-            Vector<Argument> parameters;
+            PODVector<Argument> parameters;
 
             GDMonoClass *delegate = delegates[i];
 
             if (_get_signal(top, delegate, parameters)) {
-                _signals[delegate->get_name()] = parameters;
+                _signals[delegate->get_name()] = eastl::move(parameters);
             }
         }
 
@@ -2478,38 +2479,40 @@ void CSharpScript::load_script_signals(GDMonoClass *p_class, GDMonoClass *p_nati
     signals_invalidated = false;
 }
 
-bool CSharpScript::_get_signal(GDMonoClass *p_class, GDMonoClass *p_delegate, Vector<Argument> &params) {
+bool CSharpScript::_get_signal(GDMonoClass *p_class, GDMonoClass *p_delegate, PODVector<CSharpScript::Argument> &params) {
 
     GD_MONO_SCOPE_THREAD_ATTACH;
 
-    if (p_delegate->has_attribute(CACHED_CLASS(SignalAttribute))) {
-        MonoType *raw_type = p_delegate->get_mono_type();
+    if (!p_delegate->has_attribute(CACHED_CLASS(SignalAttribute))) {
+        return false;
+    }
 
-        if (mono_type_get_type(raw_type) == MONO_TYPE_CLASS) {
-            // Arguments are accessibles as arguments of .Invoke method
-            GDMonoMethod *invoke = p_delegate->get_method("Invoke", -1);
+    MonoType *raw_type = p_delegate->get_mono_type();
 
-            PODVector<StringName> names;
-            Vector<ManagedType> types;
-            invoke->get_parameter_names(names);
-            invoke->get_parameter_types(types);
+    if (mono_type_get_type(raw_type) == MONO_TYPE_CLASS) {
+        // Arguments are accessibles as arguments of .Invoke method
+        GDMonoMethod *invoke = p_delegate->get_method("Invoke", -1);
 
-            if (names.size() == types.size()) {
-                for (int i = 0; i < names.size(); ++i) {
-                    Argument arg;
-                    arg.name = names[i];
-                    arg.type = GDMonoMarshal::managed_to_variant_type(types[i]);
+        PODVector<StringName> names;
+        Vector<ManagedType> types;
+        invoke->get_parameter_names(names);
+        invoke->get_parameter_types(types);
 
-                    if (arg.type == VariantType::NIL) {
-                        ERR_PRINT("Unknown type of signal parameter: '" + arg.name + "' in '" + p_class->get_full_name() + "'.");
-                        return false;
-                    }
+        if (names.size() == types.size()) {
+            for (int i = 0; i < names.size(); ++i) {
+                Argument arg;
+                arg.name = names[i];
+                arg.type = GDMonoMarshal::managed_to_variant_type(types[i]);
 
-                    params.push_back(arg);
+                if (arg.type == VariantType::NIL) {
+                    ERR_PRINT("Unknown type of signal parameter: '" + arg.name + "' in '" + p_class->get_full_name() + "'.");
+                    return false;
                 }
 
-                return true;
+                params.push_back(arg);
             }
+
+            return true;
         }
     }
 
@@ -2633,7 +2636,7 @@ int CSharpScript::_try_get_member_export_hint(IMonoClassMember *p_member, Manage
             // Instead of using mono_field_get_value_object, we can do this without boxing. Check the
             // internal mono functions: ves_icall_System_Enum_GetEnumValuesAndNames and the get_enum_field.
 
-            MonoObject *val_obj = mono_field_get_value_object(mono_domain_get(), field, NULL);
+            MonoObject *val_obj = mono_field_get_value_object(mono_domain_get(), field, nullptr);
 
             ERR_FAIL_NULL_V_MSG(val_obj, -1, "Failed to get '" + enum_field_name + "' constant enum value.");
 
@@ -2706,7 +2709,7 @@ void CSharpScript::_clear() {
 
 Variant CSharpScript::call(const StringName &p_method, const Variant **p_args, int p_argcount, Variant::CallError &r_error) {
 
-    if (unlikely(GDMono::get_singleton() == NULL)) {
+    if (unlikely(GDMono::get_singleton() == nullptr)) {
         // Probably not the best error but eh.
         r_error.error = Variant::CallError::CALL_ERROR_INSTANCE_IS_NULL;
         return Variant();
@@ -2720,7 +2723,7 @@ Variant CSharpScript::call(const StringName &p_method, const Variant **p_args, i
         GDMonoMethod *method = top->get_method(p_method, p_argcount);
 
         if (method && method->is_static()) {
-            MonoObject *result = method->invoke(NULL, p_args);
+            MonoObject *result = method->invoke(nullptr, p_args);
 
             if (result) {
                 return GDMonoMarshal::mono_object_to_variant(result);
@@ -3002,7 +3005,7 @@ Variant CSharpScript::_new(const Variant **p_args, int p_argcount, Variant::Call
 
     r_error.error = Variant::CallError::CALL_OK;
 
-    ERR_FAIL_NULL_V(native, Variant())
+    ERR_FAIL_NULL_V(native, Variant());
 
     GD_MONO_SCOPE_THREAD_ATTACH;
 
@@ -3100,7 +3103,7 @@ void CSharpScript::get_script_method_list(PODVector<MethodInfo> *p_list) const {
     GD_MONO_SCOPE_THREAD_ATTACH;
 
     // TODO: Filter out things unsuitable for explicit calls, like constructors.
-    const Vector<GDMonoMethod *> &methods = script_class->get_all_methods();
+    const PODVector<GDMonoMethod *> &methods = script_class->get_all_methods();
     for (int i = 0; i < methods.size(); ++i) {
         p_list->push_back(methods[i]->get_method_info());
     }
@@ -3142,98 +3145,98 @@ Error CSharpScript::reload(bool p_keep_state) {
     bool has_instances;
     {
         SCOPED_MUTEX_LOCK(CSharpLanguage::get_singleton()->script_instances_mutex)
-        has_instances = instances.size();
+        has_instances = !instances.empty();
     }
 
-    ERR_FAIL_COND_V(!p_keep_state && has_instances, ERR_ALREADY_IN_USE)
+    ERR_FAIL_COND_V(!p_keep_state && has_instances, ERR_ALREADY_IN_USE);
 
     GD_MONO_SCOPE_THREAD_ATTACH;
 
     GDMonoAssembly *project_assembly = GDMono::get_singleton()->get_project_assembly();
 
-    if (project_assembly) {
-        const Variant *script_metadata_var = CSharpLanguage::get_singleton()->get_scripts_metadata().getptr(get_path());
-        if (script_metadata_var) {
-            Dictionary script_metadata = script_metadata_var->as<Dictionary>()["class"];
-            const Variant *namespace_ = script_metadata.getptr("namespace");
-            const Variant *class_name = script_metadata.getptr("class_name");
-            ERR_FAIL_NULL_V(namespace_, ERR_BUG)
-            ERR_FAIL_NULL_V(class_name, ERR_BUG)
-            GDMonoClass *klass = project_assembly->get_class(*namespace_, *class_name);
-            if (klass) {
-                bool obj_type = CACHED_CLASS(GodotObject)->is_assignable_from(klass);
-                ERR_FAIL_COND_V(!obj_type, ERR_BUG)
-                script_class = klass;
-            }
-        } else {
-            // Missing script metadata. Fallback to legacy method
-            script_class = project_assembly->get_object_derived_class(name);
+    if (!project_assembly)
+        return ERR_FILE_MISSING_DEPENDENCIES;
+
+    const Variant *script_metadata_var = CSharpLanguage::get_singleton()->get_scripts_metadata().getptr(get_path());
+    if (script_metadata_var) {
+        Dictionary script_metadata = script_metadata_var->as<Dictionary>()["class"];
+        const Variant *namespace_ = script_metadata.getptr("namespace");
+        const Variant *class_name = script_metadata.getptr("class_name");
+        ERR_FAIL_NULL_V(namespace_, ERR_BUG);
+        ERR_FAIL_NULL_V(class_name, ERR_BUG);
+        GDMonoClass *klass = project_assembly->get_class(*namespace_, *class_name);
+        if (klass) {
+            bool obj_type = CACHED_CLASS(GodotObject)->is_assignable_from(klass);
+            ERR_FAIL_COND_V(!obj_type, ERR_BUG);
+            script_class = klass;
         }
-
-        valid = script_class != nullptr;
-
-        if (script_class) {
-#ifdef DEBUG_ENABLED
-            print_verbose("Found class " + script_class->get_full_name() + " for script " + get_path());
-#endif
-
-            tool = script_class->has_attribute(CACHED_CLASS(ToolAttribute));
-
-            if (!tool) {
-                GDMonoClass *nesting_class = script_class->get_nesting_class();
-                tool = nesting_class && nesting_class->has_attribute(CACHED_CLASS(ToolAttribute));
-            }
-
-#if TOOLS_ENABLED
-            if (!tool) {
-                tool = script_class->get_assembly() == GDMono::get_singleton()->get_tools_assembly();
-            }
-#endif
-
-            native = GDMonoUtils::get_class_native_base(script_class);
-
-            CRASH_COND(native == nullptr)
-
-            GDMonoClass *base_class = script_class->get_parent_class();
-
-            if (base_class != native)
-                base = base_class;
-
-#ifdef DEBUG_ENABLED
-            // For debug builds, we must fetch from all native base methods as well.
-            // Native base methods must be fetched before the current class.
-            // Not needed if the script class itself is a native class.
-
-            if (script_class != native) {
-                GDMonoClass *native_top = native;
-                while (native_top) {
-                    native_top->fetch_methods_with_godot_api_checks(native);
-
-                    if (native_top == CACHED_CLASS(GodotObject))
-                        break;
-
-                    native_top = native_top->get_parent_class();
-                }
-            }
-#endif
-
-            script_class->fetch_methods_with_godot_api_checks(native);
-
-            // Need to fetch method from base classes as well
-            GDMonoClass *top = script_class;
-            while (top && top != native) {
-                top->fetch_methods_with_godot_api_checks(native);
-                top = top->get_parent_class();
-            }
-
-            load_script_signals(script_class, native);
-            _update_exports();
-        }
-
-        return OK;
+    } else {
+        // Missing script metadata. Fallback to legacy method
+        script_class = project_assembly->get_object_derived_class(name);
     }
 
-    return ERR_FILE_MISSING_DEPENDENCIES;
+    valid = script_class != nullptr;
+
+    if (script_class) {
+#ifdef DEBUG_ENABLED
+        print_verbose("Found class " + script_class->get_full_name() + " for script " + get_path());
+#endif
+
+        tool = script_class->has_attribute(CACHED_CLASS(ToolAttribute));
+
+        if (!tool) {
+            GDMonoClass *nesting_class = script_class->get_nesting_class();
+            tool = nesting_class && nesting_class->has_attribute(CACHED_CLASS(ToolAttribute));
+        }
+
+#if TOOLS_ENABLED
+        if (!tool) {
+            tool = script_class->get_assembly() == GDMono::get_singleton()->get_tools_assembly();
+        }
+#endif
+
+        native = GDMonoUtils::get_class_native_base(script_class);
+
+        CRASH_COND(native == nullptr)
+
+        GDMonoClass *base_class = script_class->get_parent_class();
+
+        if (base_class != native)
+            base = base_class;
+
+#ifdef DEBUG_ENABLED
+        // For debug builds, we must fetch from all native base methods as well.
+        // Native base methods must be fetched before the current class.
+        // Not needed if the script class itself is a native class.
+
+        if (script_class != native) {
+            GDMonoClass *native_top = native;
+            while (native_top) {
+                native_top->fetch_methods_with_godot_api_checks(native);
+
+                if (native_top == CACHED_CLASS(GodotObject))
+                    break;
+
+                native_top = native_top->get_parent_class();
+            }
+        }
+#endif
+
+        script_class->fetch_methods_with_godot_api_checks(native);
+
+        // Need to fetch method from base classes as well
+        GDMonoClass *top = script_class;
+        while (top && top != native) {
+            top->fetch_methods_with_godot_api_checks(native);
+            top = top->get_parent_class();
+        }
+
+        load_script_signals(script_class, native);
+        _update_exports();
+    }
+
+    return OK;
+
 }
 
 ScriptLanguage *CSharpScript::get_language() const {
@@ -3311,7 +3314,7 @@ Error CSharpScript::load_source_code(se_string_view p_path) {
             ferr == ERR_INVALID_DATA ?
                     "Script '" + p_path + "' contains invalid unicode (UTF-8), so it was not loaded."
                                           " Please ensure that scripts are saved in valid UTF-8 unicode." :
-                    "Failed to read file: '" + p_path + "'.")
+                    "Failed to read file: '" + p_path + "'.");
 
 #ifdef TOOLS_ENABLED
     source_changed_cache = true;
@@ -3371,7 +3374,7 @@ RES ResourceFormatLoaderCSharpScript::load(se_string_view p_path, se_string_view
 
 #if defined(DEBUG_ENABLED) || defined(TOOLS_ENABLED)
     Error err = script->load_source_code(p_path);
-    ERR_FAIL_COND_V_MSG(err != OK, RES(), "Cannot load C# script file '" + p_path + "'.")
+    ERR_FAIL_COND_V_MSG(err != OK, RES(), "Cannot load C# script file '" + p_path + "'.");
 #endif
 
     script->set_path(p_original_path);
@@ -3402,7 +3405,7 @@ String ResourceFormatLoaderCSharpScript::get_resource_type(se_string_view p_path
 Error ResourceFormatSaverCSharpScript::save(se_string_view p_path, const RES &p_resource, uint32_t p_flags) {
 
     Ref<CSharpScript> sqscr = dynamic_ref_cast<CSharpScript>(p_resource);
-    ERR_FAIL_COND_V(!sqscr, ERR_INVALID_PARAMETER)
+    ERR_FAIL_COND_V(!sqscr, ERR_INVALID_PARAMETER);
 
     se_string_view source = sqscr->get_source_code();
 
@@ -3422,7 +3425,7 @@ Error ResourceFormatSaverCSharpScript::save(se_string_view p_path, const RES &p_
 
     Error err;
     FileAccess *file = FileAccess::open(p_path, FileAccess::WRITE, &err);
-    ERR_FAIL_COND_V_MSG(err != OK, err, "Cannot save C# script file '" + p_path + "'.")
+    ERR_FAIL_COND_V_MSG(err != OK, err, "Cannot save C# script file '" + p_path + "'.");
 
     file->store_string(source);
 

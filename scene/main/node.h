@@ -235,7 +235,7 @@ public:
     Node *find_parent(se_string_view p_mask) const;
 
     _FORCE_INLINE_ SceneTree *get_tree() const {
-        ERR_FAIL_COND_V(!tree, nullptr)
+        ERR_FAIL_COND_V(!tree, nullptr);
         return tree;
     }
 

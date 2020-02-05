@@ -422,7 +422,7 @@ bool Area::is_monitoring() const {
 
 Array Area::get_overlapping_bodies() const {
 
-    ERR_FAIL_COND_V(!monitoring, Array())
+    ERR_FAIL_COND_V(!monitoring, Array());
     Array ret;
     ret.resize(body_map.size());
     int idx = 0;
@@ -457,7 +457,7 @@ bool Area::is_monitorable() const {
 
 Array Area::get_overlapping_areas() const {
 
-    ERR_FAIL_COND_V(!monitoring, Array())
+    ERR_FAIL_COND_V(!monitoring, Array());
     Array ret;
     ret.resize(area_map.size());
     int idx = 0;
@@ -475,7 +475,7 @@ Array Area::get_overlapping_areas() const {
 
 bool Area::overlaps_area(Node *p_area) const {
 
-    ERR_FAIL_NULL_V(p_area, false)
+    ERR_FAIL_NULL_V(p_area, false);
     const Map<ObjectID, AreaState>::const_iterator E = area_map.find(p_area->get_instance_id());
     if (E==area_map.end())
         return false;
@@ -484,7 +484,7 @@ bool Area::overlaps_area(Node *p_area) const {
 
 bool Area::overlaps_body(Node *p_body) const {
 
-    ERR_FAIL_NULL_V(p_body, false)
+    ERR_FAIL_NULL_V(p_body, false);
     const Map<ObjectID, BodyState>::const_iterator E = body_map.find(p_body->get_instance_id());
     if (E==body_map.end())
         return false;

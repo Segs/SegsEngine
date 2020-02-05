@@ -406,7 +406,7 @@ void Node::_propagate_exit_tree() {
 
 void Node::move_child(Node *p_child, int p_pos) {
 
-    ERR_FAIL_NULL(p_child)
+    ERR_FAIL_NULL(p_child);
     ERR_FAIL_INDEX_MSG(p_pos, data->children.size() + 1, "Invalid new child position: " + itos(p_pos) + ".")
     ERR_FAIL_COND_MSG(p_child->data->parent != this, "Child is not a child of this node.")
     ERR_FAIL_COND_MSG(blocked > 0, "Parent node is busy setting up children, move_child() failed. Consider using call_deferred(\"move_child\") instead (or \"popup\" if this is from a popup).")
@@ -571,7 +571,7 @@ int Node::get_network_master() const {
 
 bool Node::is_network_master() const {
 
-    ERR_FAIL_COND_V(!is_inside_tree(), false)
+    ERR_FAIL_COND_V(!is_inside_tree(), false);
 
     return get_multiplayer()->get_network_unique_id() == data->network_master;
 }
@@ -838,7 +838,7 @@ bool Node::can_process_notification(int p_what) const {
 
 bool Node::can_process() const {
 
-    ERR_FAIL_COND_V(!is_inside_tree(), false)
+    ERR_FAIL_COND_V(!is_inside_tree(), false);
 
     if (get_tree()->is_paused()) {
 
@@ -1257,13 +1257,13 @@ void Node::_add_child_nocheck(Node *p_child, const StringName &p_name) {
 
 void Node::add_child(Node *p_child, bool p_legible_unique_name) {
 
-    ERR_FAIL_NULL(p_child)
-    ERR_FAIL_COND_MSG(p_child == this, "Can't add child '" + String(p_child->get_name()) + "' to itself.") // adding to itself!
+    ERR_FAIL_NULL(p_child);
+    ERR_FAIL_COND_MSG(p_child == this, "Can't add child '" + String(p_child->get_name()) + "' to itself."); // adding to itself!
     ERR_FAIL_COND_MSG(p_child->data->parent, "Can't add child '" + String(p_child->get_name()) + "' to '" + get_name() +
                                                     "', already has a parent '" + p_child->data->parent->get_name() +
-                                                    "'.") // Fail if node has a parent
+                                                    "'."); // Fail if node has a parent
     ERR_FAIL_COND_MSG(blocked > 0, "Parent node is busy setting up children, add_node() failed. Consider using "
-                                         "call_deferred(\"add_child\", child) instead.")
+                                         "call_deferred(\"add_child\", child) instead.");
 
     /* Validate name */
     _validate_child_name(p_child, p_legible_unique_name);
@@ -1273,15 +1273,15 @@ void Node::add_child(Node *p_child, bool p_legible_unique_name) {
 
 void Node::add_child_below_node(Node *p_node, Node *p_child, bool p_legible_unique_name) {
 
-    ERR_FAIL_NULL(p_node)
-    ERR_FAIL_NULL(p_child)
+    ERR_FAIL_NULL(p_node);
+    ERR_FAIL_NULL(p_child);
 
     add_child(p_child, p_legible_unique_name);
 
     if (is_a_parent_of(p_node)) {
         move_child(p_child, p_node->get_position_in_parent() + 1);
     } else {
-        WARN_PRINT("Cannot move under node " + String(p_node->get_name()) + " as " + p_child->get_name() + " does not share a parent.")
+        WARN_PRINT("Cannot move under node " + String(p_node->get_name()) + " as " + p_child->get_name() + " does not share a parent.");
     }
 }
 
@@ -1318,8 +1318,8 @@ void Node::_propagate_validate_owner() {
 
 void Node::remove_child(Node *p_child) {
 
-    ERR_FAIL_NULL(p_child)
-    ERR_FAIL_COND_MSG(blocked > 0, "Parent node is busy setting up children, remove_node() failed. Consider using call_deferred(\"remove_child\", child) instead.")
+    ERR_FAIL_NULL(p_child);
+    ERR_FAIL_COND_MSG(blocked > 0, "Parent node is busy setting up children, remove_node() failed. Consider using call_deferred(\"remove_child\", child) instead.");
 
     int child_count = data->children.size();
     Node **children = data->children.ptrw();
@@ -1382,7 +1382,7 @@ int Node::get_child_count() const {
 }
 Node *Node::get_child(int p_index) const {
 
-    ERR_FAIL_INDEX_V(p_index, data->children.size(), nullptr)
+    ERR_FAIL_INDEX_V(p_index, data->children.size(), nullptr);
 
     return data->children[p_index];
 }
@@ -1406,7 +1406,7 @@ Node *Node::get_node_or_null(const NodePath &p_path) const {
         return nullptr;
     }
 
-    ERR_FAIL_COND_V_MSG(!inside_tree && p_path.is_absolute(), nullptr, "Can't use get_node() with absolute paths from outside the active scene tree.")
+    ERR_FAIL_COND_V_MSG(!inside_tree && p_path.is_absolute(), nullptr, "Can't use get_node() with absolute paths from outside the active scene tree.");
 
     Node *current = nullptr;
     Node *root = nullptr;
@@ -1467,7 +1467,7 @@ Node *Node::get_node_or_null(const NodePath &p_path) const {
 Node *Node::get_node(const NodePath &p_path) const {
 
     Node *node = get_node_or_null(p_path);
-    ERR_FAIL_COND_V_MSG(!node, nullptr, "Node not found: " + (String)p_path + ".")
+    ERR_FAIL_COND_V_MSG(!node, nullptr, "Node not found: " + (String)p_path + ".");
     return node;
 }
 
@@ -1516,7 +1516,7 @@ Node *Node::find_parent(se_string_view p_mask) const {
 
 bool Node::is_a_parent_of(const Node *p_node) const {
 
-    ERR_FAIL_NULL_V(p_node, false)
+    ERR_FAIL_NULL_V(p_node, false);
     Node *p = p_node->data->parent;
     while (p) {
 
@@ -1530,12 +1530,12 @@ bool Node::is_a_parent_of(const Node *p_node) const {
 
 bool Node::is_greater_than(const Node *p_node) const {
 
-    ERR_FAIL_NULL_V(p_node, false)
-    ERR_FAIL_COND_V(!inside_tree, false)
-    ERR_FAIL_COND_V(!p_node->inside_tree, false)
+    ERR_FAIL_NULL_V(p_node, false);
+    ERR_FAIL_COND_V(!inside_tree, false);
+    ERR_FAIL_COND_V(!p_node->inside_tree, false);
 
-    ERR_FAIL_COND_V(data->depth < 0, false)
-    ERR_FAIL_COND_V(p_node->data->depth < 0, false)
+    ERR_FAIL_COND_V(data->depth < 0, false);
+    ERR_FAIL_COND_V(p_node->data->depth < 0, false);
 #ifdef NO_ALLOCA
 
     Vector<int> this_stack;
@@ -1554,20 +1554,20 @@ bool Node::is_greater_than(const Node *p_node) const {
 
     int idx = data->depth - 1;
     while (n) {
-        ERR_FAIL_INDEX_V(idx, data->depth, false)
+        ERR_FAIL_INDEX_V(idx, data->depth, false);
         this_stack[idx--] = n->data->pos;
         n = n->data->parent;
     }
-    ERR_FAIL_COND_V(idx != -1, false)
+    ERR_FAIL_COND_V(idx != -1, false);
     n = p_node;
     idx = p_node->data->depth - 1;
     while (n) {
-        ERR_FAIL_INDEX_V(idx, p_node->data->depth, false)
+        ERR_FAIL_INDEX_V(idx, p_node->data->depth, false);
         that_stack[idx--] = n->data->pos;
 
         n = n->data->parent;
     }
-    ERR_FAIL_COND_V(idx != -1, false)
+    ERR_FAIL_COND_V(idx != -1, false);
     idx = 0;
 
     bool res;
@@ -1607,7 +1607,7 @@ void Node::_set_owner_nocheck(Node *p_owner) {
     if (data->owner == p_owner)
         return;
 
-    ERR_FAIL_COND(data->owner)
+    ERR_FAIL_COND(data->owner);
     data->owner = p_owner;
     data->owner->data->owned.push_back(this);
     data->OW = data->owner->data->owned.back();
@@ -1622,7 +1622,7 @@ void Node::set_owner(Node *p_owner) {
         data->owner = nullptr;
     }
 
-    ERR_FAIL_COND(p_owner == this)
+    ERR_FAIL_COND(p_owner == this);
 
     if (!p_owner)
         return;
@@ -1640,7 +1640,7 @@ void Node::set_owner(Node *p_owner) {
         check = check->data->parent;
     }
 
-    ERR_FAIL_COND(!owner_valid)
+    ERR_FAIL_COND(!owner_valid);
 
     _set_owner_nocheck(p_owner);
 }
@@ -1681,7 +1681,7 @@ Node *Node::find_common_parent_with(const Node *p_node) const {
 
 NodePath Node::get_path_to(const Node *p_node) const {
 
-    ERR_FAIL_NULL_V(p_node, NodePath())
+    ERR_FAIL_NULL_V(p_node, NodePath());
 
     if (this == p_node)
         return NodePath(".");
@@ -1705,7 +1705,7 @@ NodePath Node::get_path_to(const Node *p_node) const {
         common_parent = common_parent->data->parent;
     }
 
-    ERR_FAIL_COND_V(!common_parent, NodePath()) //nodes not in the same tree
+    ERR_FAIL_COND_V(!common_parent, NodePath()); //nodes not in the same tree
 
     visited.clear();
 
@@ -1735,7 +1735,7 @@ NodePath Node::get_path_to(const Node *p_node) const {
 
 NodePath Node::get_path() const {
 
-    ERR_FAIL_COND_V_MSG(!is_inside_tree(), NodePath(), "Cannot get path of node as it is not in a scene tree.")
+    ERR_FAIL_COND_V_MSG(!is_inside_tree(), NodePath(), "Cannot get path of node as it is not in a scene tree.");
 
     if (data->path_cache)
         return *data->path_cache;
@@ -1982,8 +1982,8 @@ String Node::get_editor_description() const {
 
 void Node::set_editable_instance(Node *p_node, bool p_editable) {
 
-    ERR_FAIL_NULL(p_node)
-    ERR_FAIL_COND(!is_a_parent_of(p_node))
+    ERR_FAIL_NULL(p_node);
+    ERR_FAIL_COND(!is_a_parent_of(p_node));
     NodePath p = get_path_to(p_node);
     if (!p_editable) {
         data->editable_instances.erase(p);
@@ -1999,7 +1999,7 @@ bool Node::is_editable_instance(const Node *p_node) const {
 
     if (!p_node)
         return false; //easier, null is never editable :)
-    ERR_FAIL_COND_V(!is_a_parent_of(p_node), false)
+    ERR_FAIL_COND_V(!is_a_parent_of(p_node), false);
     NodePath p = get_path_to(p_node);
     return data->editable_instances.contains(p);
 }
@@ -2065,25 +2065,25 @@ Node *Node::_duplicate(int p_flags, Map<const Node *, Node *> *r_duplimap) const
     } else if ((p_flags & DUPLICATE_USE_INSTANCING) && !get_filename().empty()) {
 
         Ref<PackedScene> res = dynamic_ref_cast<PackedScene>(ResourceLoader::load(get_filename()));
-        ERR_FAIL_COND_V(not res, nullptr)
+        ERR_FAIL_COND_V(not res, nullptr);
         PackedScene::GenEditState ges = PackedScene::GEN_EDIT_STATE_DISABLED;
 #ifdef TOOLS_ENABLED
         if (p_flags & DUPLICATE_FROM_EDITOR)
             ges = PackedScene::GEN_EDIT_STATE_INSTANCE;
 #endif
         node = res->instance(ges);
-        ERR_FAIL_COND_V(!node, nullptr)
+        ERR_FAIL_COND_V(!node, nullptr);
 
         instanced = true;
 
     } else {
 
         Object *obj = ClassDB::instance(get_class_name());
-        ERR_FAIL_COND_V(!obj, nullptr)
+        ERR_FAIL_COND_V(!obj, nullptr);
         node = object_cast<Node>(obj);
         if (!node)
             memdelete(obj);
-        ERR_FAIL_COND_V(!node, nullptr)
+        ERR_FAIL_COND_V(!node, nullptr);
     }
 
     if (!get_filename().empty()) { //an instance
@@ -2368,10 +2368,10 @@ void Node::_duplicate_signals(const Node *p_original, Node *p_copy) const {
 
 Node *Node::duplicate_and_reown(const Map<Node *, Node *> &p_reown_map) const {
 
-    ERR_FAIL_COND_V(!get_filename().empty(), nullptr)
+    ERR_FAIL_COND_V(!get_filename().empty(), nullptr);
 
     Object *obj = ClassDB::instance(get_class_name());
-    ERR_FAIL_COND_V_MSG(!obj, nullptr, "Node: Could not duplicate: " + String(get_class()) + ".")
+    ERR_FAIL_COND_V_MSG(!obj, nullptr, "Node: Could not duplicate: " + String(get_class()) + ".");
 
     Node *node = object_cast<Node>(obj);
     if (!node) {
@@ -2429,8 +2429,8 @@ struct _NodeReplaceByPair {
 
 void Node::replace_by(Node *p_node, bool p_keep_data) {
 
-    ERR_FAIL_NULL(p_node)
-    ERR_FAIL_COND(p_node->data->parent)
+    ERR_FAIL_NULL(p_node);
+    ERR_FAIL_COND(p_node->data->parent);
 
     List<Node *> owned = data->owned;
     List<Node *> owned_by_owner;

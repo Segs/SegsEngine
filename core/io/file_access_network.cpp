@@ -225,7 +225,7 @@ Error FileAccessNetworkClient::connect(const String &p_host, int p_port, const S
 
     DEBUG_PRINT("IP: " + String(ip) + " port " + ::to_string(p_port));
     Error err = client->connect_to_host(ip, p_port);
-    ERR_FAIL_COND_V_MSG(err != OK, err, FormatVE("Cannot connect to host with IP: %s and port: %d",String(ip).c_str(),p_port))
+    ERR_FAIL_COND_V_MSG(err != OK, err, FormatVE("Cannot connect to host with IP: %s and port: %d",String(ip).c_str(),p_port));
     while (client->get_status() == StreamPeerTCP::STATUS_CONNECTING) {
         //DEBUG_PRINT("trying to connect....");
         OS::get_singleton()->delay_usec(1000);
@@ -314,7 +314,7 @@ void FileAccessNetwork::_respond(size_t p_len, Error p_status) {
 
 Error FileAccessNetwork::_open(se_string_view p_path, int p_mode_flags) {
 
-    ERR_FAIL_COND_V(p_mode_flags != READ, ERR_UNAVAILABLE)
+    ERR_FAIL_COND_V(p_mode_flags != READ, ERR_UNAVAILABLE);
     if (opened)
         close();
     FileAccessNetworkClient *nc = FileAccessNetworkClient::singleton;
@@ -384,18 +384,18 @@ void FileAccessNetwork::seek_end(int64_t p_position) {
 }
 size_t FileAccessNetwork::get_position() const {
 
-    ERR_FAIL_COND_V_MSG(!opened, 0, "File must be opened before use.")
+    ERR_FAIL_COND_V_MSG(!opened, 0, "File must be opened before use.");
     return pos;
 }
 size_t FileAccessNetwork::get_len() const {
 
-    ERR_FAIL_COND_V_MSG(!opened, 0, "File must be opened before use.")
+    ERR_FAIL_COND_V_MSG(!opened, 0, "File must be opened before use.");
     return total_size;
 }
 
 bool FileAccessNetwork::eof_reached() const {
 
-    ERR_FAIL_COND_V_MSG(!opened, false, "File must be opened before use.")
+    ERR_FAIL_COND_V_MSG(!opened, false, "File must be opened before use.");
     return eof_flag;
 }
 

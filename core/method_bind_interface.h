@@ -80,7 +80,7 @@ public:
 
     _FORCE_INLINE_ VariantType get_argument_type(int p_argument) const {
 
-        ERR_FAIL_COND_V(p_argument < -1 || p_argument > argument_count, VariantType::NIL)
+        ERR_FAIL_COND_V(p_argument < -1 || p_argument > argument_count, VariantType::NIL);
         return argument_types[p_argument + 1];
     }
 
@@ -237,7 +237,7 @@ struct MethodBinder {
         GLOBAL_LOCK_FUNCTION
 
         MethodBind *bind = create_vararg_method_bind(p_method, eastl::move(p_info), p_return_nil_is_variant);
-        ERR_FAIL_COND_V(!bind, nullptr)
+        ERR_FAIL_COND_V(!bind, nullptr);
         bind->set_name(p_name);
         bind->set_default_arguments(p_default_args);
 

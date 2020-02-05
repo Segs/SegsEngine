@@ -56,7 +56,7 @@ const char *ScriptClassParser::token_names[ScriptClassParser::TK_MAX] = {
 
 String ScriptClassParser::get_token_name(ScriptClassParser::Token p_token) {
 
-    ERR_FAIL_INDEX_V(p_token, TK_MAX, "<error>")
+    ERR_FAIL_INDEX_V(p_token, TK_MAX, "<error>");
     return token_names[p_token];
 }
 
@@ -649,7 +649,7 @@ static void run_dummy_preprocessor(String &r_source, se_string_view p_filepath) 
     bool *include_lines = memnew_arr(bool, lines.size());
 
     int if_level = -1;
-    Vector<bool> is_branch_being_compiled;
+    PODVector<bool> is_branch_being_compiled;
 
     for (size_t i = 0; i < lines.size(); i++) {
         const se_string_view line = lines[i];
@@ -658,34 +658,35 @@ static void run_dummy_preprocessor(String &r_source, se_string_view p_filepath) 
 
         size_t j;
         for (j = 0; j < line_len; j++) {
-            if (line[j] != ' ' && line[j] != '\t') {
-                if (line[j] == '#') {
-                    // First non-whitespace char of the line is '#'
-                    include_lines[i] = false;
+            if (line[j] == ' ' || line[j] == '\t')
+                continue;
 
-                    se_string_view directive = get_preprocessor_directive(line, j);
+            if (line[j] != '#') {
+                // First non-whitespace char of the line is not '#'
+                include_lines[i] = if_level == -1 || is_branch_being_compiled[if_level];
+                break;
+            } else {
+                // First non-whitespace char of the line is '#'
+                include_lines[i] = false;
 
-                    if (directive == "if"_sv) {
-                        if_level++;
-                        is_branch_being_compiled.push_back(if_level == 0 || is_branch_being_compiled[if_level - 1]);
-                    } else if (directive == "elif"_sv) {
-                        ERR_CONTINUE_MSG(if_level == -1, String("Found unexpected '#elif' directive. File: '") + p_filepath + "'.")
-                        is_branch_being_compiled.write[if_level] = false;
-                    } else if (directive == "else"_sv) {
-                        ERR_CONTINUE_MSG(if_level == -1, String("Found unexpected '#else' directive. File: '") + p_filepath + "'.")
-                        is_branch_being_compiled.write[if_level] = false;
-                    } else if (directive == "endif"_sv) {
-                        ERR_CONTINUE_MSG(if_level == -1, String("Found unexpected '#endif' directive. File: '") + p_filepath + "'.")
-                        is_branch_being_compiled.remove(if_level);
-                        if_level--;
-                    }
+                se_string_view directive = get_preprocessor_directive(line, j);
 
-                    break;
-                } else {
-                    // First non-whitespace char of the line is not '#'
-                    include_lines[i] = if_level == -1 || is_branch_being_compiled[if_level];
-                    break;
+                if (directive == "if"_sv) {
+                    if_level++;
+                    is_branch_being_compiled.push_back(if_level == 0 || is_branch_being_compiled[if_level - 1]);
+                } else if (directive == "elif"_sv) {
+                    ERR_CONTINUE_MSG(if_level == -1, String("Found unexpected '#elif' directive. File: '") + p_filepath + "'.")
+                    is_branch_being_compiled[if_level] = false;
+                } else if (directive == "else"_sv) {
+                    ERR_CONTINUE_MSG(if_level == -1, String("Found unexpected '#else' directive. File: '") + p_filepath + "'.")
+                    is_branch_being_compiled[if_level] = false;
+                } else if (directive == "endif"_sv) {
+                    ERR_CONTINUE_MSG(if_level == -1, String("Found unexpected '#endif' directive. File: '") + p_filepath + "'.")
+                    is_branch_being_compiled.erase_at(if_level);
+                    if_level--;
                 }
+
+                break;
             }
         }
 
@@ -719,7 +720,7 @@ Error ScriptClassParser::parse_file(se_string_view p_filepath) {
             ferr == ERR_INVALID_DATA ?
                     "File '" + p_filepath + "' contains invalid unicode (UTF-8), so it was not loaded."
                                             " Please ensure that scripts are saved in valid UTF-8 unicode." :
-                    "Failed to read file: '" + p_filepath + "'.")
+                    "Failed to read file: '" + p_filepath + "'.");
 
     run_dummy_preprocessor(source, p_filepath);
     return parse(source);

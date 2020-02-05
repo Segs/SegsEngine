@@ -128,7 +128,7 @@ public:
     bool _set(const StringName &p_name, const Variant &p_value) {
         using namespace eastl;
         int key = animation->track_find_key(track, key_ofs, true);
-        ERR_FAIL_COND_V(key == -1, false)
+        ERR_FAIL_COND_V(key == -1, false);
 
         se_string_view name(p_name);
         if (name == "time"_sv || name == "frame"_sv) {
@@ -250,7 +250,7 @@ public:
 
                     Array args = d_old["args"].as<Array>();
                     int idx = StringUtils::to_int(StringUtils::get_slice(name,"/", 1));
-                    ERR_FAIL_INDEX_V(idx, args.size(), false)
+                    ERR_FAIL_INDEX_V(idx, args.size(), false);
 
                     se_string_view what = StringUtils::get_slice(name,"/", 2);
                     if (what == "type"_sv) {
@@ -434,7 +434,7 @@ public:
         using namespace eastl;
 
         int key = animation->track_find_key(track, key_ofs, true);
-        ERR_FAIL_COND_V(key == -1, false)
+        ERR_FAIL_COND_V(key == -1, false);
 
         se_string_view name(p_name);
         if (name == "time"_sv) {
@@ -461,7 +461,7 @@ public:
             case Animation::TYPE_TRANSFORM: {
 
                 Dictionary d = animation->track_get_key_value(track, key);
-                ERR_FAIL_COND_V(!d.has(name), false)
+                ERR_FAIL_COND_V(!d.has(name), false);
                 r_ret = d[p_name];
                 return true;
 
@@ -480,12 +480,12 @@ public:
 
                 if (name == "name"_sv) {
 
-                    ERR_FAIL_COND_V(!d.has("method"), false)
+                    ERR_FAIL_COND_V(!d.has("method"), false);
                     r_ret = d["method"];
                     return true;
                 }
 
-                ERR_FAIL_COND_V(!d.has("args"), false)
+                ERR_FAIL_COND_V(!d.has("args"), false);
 
                 Vector<Variant> args = d["args"].as<Vector<Variant>>();;
 
@@ -803,7 +803,7 @@ public:
 
                 float key_ofs = F->deref();
                 int key = animation->track_find_key(track, key_ofs, true);
-                ERR_FAIL_COND_V(key == -1, false)
+                ERR_FAIL_COND_V(key == -1, false);
 
                 se_string_view name(p_name);
                 if (name == "time"_sv || name == "frame"_sv) {
@@ -1115,7 +1115,7 @@ public:
                     case Animation::TYPE_TRANSFORM: {
 
                         Dictionary d = animation->track_get_key_value(track, key);
-                        ERR_FAIL_COND_V(!d.has(name), false)
+                        ERR_FAIL_COND_V(!d.has(name), false);
                         r_ret = d[p_name];
                         return true;
 
@@ -1134,12 +1134,12 @@ public:
 
                         if (name == "name"_sv) {
 
-                            ERR_FAIL_COND_V(!d.has("method"), false)
+                            ERR_FAIL_COND_V(!d.has("method"), false);
                             r_ret = d["method"];
                             return true;
                         }
 
-                        ERR_FAIL_COND_V(!d.has("args"), false)
+                        ERR_FAIL_COND_V(!d.has("args"), false);
 
                         Vector<Variant> args = d["args"].as<Vector<Variant>>();
 
@@ -3852,7 +3852,7 @@ void AnimationTrackEditor::_confirm_insert_list() {
 PropertyInfo AnimationTrackEditor::_find_hint_for_track(int p_idx, NodePath &r_base_path, Variant *r_current_val) {
 
     r_base_path = NodePath();
-    ERR_FAIL_COND_V(not animation, PropertyInfo())
+    ERR_FAIL_COND_V(not animation, PropertyInfo());
     ERR_FAIL_INDEX_V(p_idx, animation->get_track_count(), PropertyInfo());
 
     if (!root) {

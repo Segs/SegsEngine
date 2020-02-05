@@ -156,7 +156,7 @@ void GDScriptLanguageProtocol::poll() {
 Error GDScriptLanguageProtocol::start(int p_port, const IP_Address &p_bind_ip) {
     if (server == nullptr) {
         server = dynamic_cast<WebSocketServer *>(ClassDB::instance("WebSocketServer"));
-        ERR_FAIL_COND_V(!server, FAILED)
+        ERR_FAIL_COND_V(!server, FAILED);
         server->set_buffers(8192, 1024, 8192, 1024); // 8mb should be way more than enough
         server->connect("data_received", this, "on_data_received");
         server->connect("client_connected", this, "on_client_connected");

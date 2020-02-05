@@ -53,7 +53,7 @@ uint32_t ResourceImporterOBJ::get_import_flags() const {
 static Error _parse_material_library(se_string_view p_path, Map<String, Ref<SpatialMaterial> > &material_map, PODVector<String> *r_missing_deps) {
 
     FileAccessRef f = FileAccess::open(p_path, FileAccess::READ);
-    ERR_FAIL_COND_V_MSG(!f, ERR_CANT_OPEN, vformat("Couldn't open MTL file '%s', it may not exist or not be readable.", p_path))
+    ERR_FAIL_COND_V_MSG(!f, ERR_CANT_OPEN, vformat("Couldn't open MTL file '%s', it may not exist or not be readable.", p_path));
 
     Ref<SpatialMaterial> current;
     String current_name;
@@ -71,13 +71,13 @@ static Error _parse_material_library(se_string_view p_path, Map<String, Ref<Spat
             material_map[current_name] = current;
         } else if (StringUtils::begins_with(l,"Ka ")) {
             //uv
-            WARN_PRINT("OBJ: Ambient light for material '" + current_name + "' is ignored in PBR")
+            WARN_PRINT("OBJ: Ambient light for material '" + current_name + "' is ignored in PBR");
 
         } else if (StringUtils::begins_with(l,"Kd ")) {
             //normal
-            ERR_FAIL_COND_V(not current, ERR_FILE_CORRUPT)
+            ERR_FAIL_COND_V(not current, ERR_FILE_CORRUPT);
             PODVector<se_string_view> v = StringUtils::split(l," ", false);
-            ERR_FAIL_COND_V(v.size() < 4, ERR_INVALID_DATA)
+            ERR_FAIL_COND_V(v.size() < 4, ERR_INVALID_DATA);
             Color c = current->get_albedo();
             c.r = StringUtils::to_float(v[1]);
             c.g = StringUtils::to_float(v[2]);
@@ -85,9 +85,9 @@ static Error _parse_material_library(se_string_view p_path, Map<String, Ref<Spat
             current->set_albedo(c);
         } else if (StringUtils::begins_with(l,"Ks ")) {
             //normal
-            ERR_FAIL_COND_V(not current, ERR_FILE_CORRUPT)
+            ERR_FAIL_COND_V(not current, ERR_FILE_CORRUPT);
             PODVector<se_string_view> v = StringUtils::split(l," ", false);
-            ERR_FAIL_COND_V(v.size() < 4, ERR_INVALID_DATA)
+            ERR_FAIL_COND_V(v.size() < 4, ERR_INVALID_DATA);
             float r = StringUtils::to_float(v[1]);
             float g = StringUtils::to_float(v[2]);
             float b = StringUtils::to_float(v[3]);
@@ -95,16 +95,16 @@ static Error _parse_material_library(se_string_view p_path, Map<String, Ref<Spat
             current->set_metallic(metalness);
         } else if (StringUtils::begins_with(l,"Ns ")) {
             //normal
-            ERR_FAIL_COND_V(not current, ERR_FILE_CORRUPT)
+            ERR_FAIL_COND_V(not current, ERR_FILE_CORRUPT);
             PODVector<se_string_view> v = StringUtils::split(l," ", false);
-            ERR_FAIL_COND_V(v.size() != 2, ERR_INVALID_DATA)
+            ERR_FAIL_COND_V(v.size() != 2, ERR_INVALID_DATA);
             float s = StringUtils::to_float(v[1]);
             current->set_metallic((1000.0f - s) / 1000.0f);
         } else if (StringUtils::begins_with(l,"d ")) {
             //normal
-            ERR_FAIL_COND_V(not current, ERR_FILE_CORRUPT)
+            ERR_FAIL_COND_V(not current, ERR_FILE_CORRUPT);
             PODVector<se_string_view> v = StringUtils::split(l," ", false);
-            ERR_FAIL_COND_V(v.size() != 2, ERR_INVALID_DATA)
+            ERR_FAIL_COND_V(v.size() != 2, ERR_INVALID_DATA);
             float d = StringUtils::to_float(v[1]);
             Color c = current->get_albedo();
             c.a = d;
@@ -114,9 +114,9 @@ static Error _parse_material_library(se_string_view p_path, Map<String, Ref<Spat
             }
         } else if (StringUtils::begins_with(l,"Tr ")) {
             //normal
-            ERR_FAIL_COND_V(not current, ERR_FILE_CORRUPT)
+            ERR_FAIL_COND_V(not current, ERR_FILE_CORRUPT);
             PODVector<se_string_view> v = StringUtils::split(l," ", false);
-            ERR_FAIL_COND_V(v.size() != 2, ERR_INVALID_DATA)
+            ERR_FAIL_COND_V(v.size() != 2, ERR_INVALID_DATA);
             float d = StringUtils::to_float(v[1]);
             Color c = current->get_albedo();
             c.a = 1.0f - d;
@@ -127,11 +127,11 @@ static Error _parse_material_library(se_string_view p_path, Map<String, Ref<Spat
 
         } else if (StringUtils::begins_with(l,"map_Ka ")) {
             //uv
-            WARN_PRINT("OBJ: Ambient light texture for material '" + current_name + "' is ignored in PBR")
+            WARN_PRINT("OBJ: Ambient light texture for material '" + current_name + "' is ignored in PBR");
 
         } else if (StringUtils::begins_with(l,"map_Kd ")) {
             //normal
-            ERR_FAIL_COND_V(not current, ERR_FILE_CORRUPT)
+            ERR_FAIL_COND_V(not current, ERR_FILE_CORRUPT);
 
             String p(StringUtils::strip_edges(StringUtils::replace(StringUtils::replace(l,"map_Kd", ""),"\\", "/")));
             String path;
@@ -151,7 +151,7 @@ static Error _parse_material_library(se_string_view p_path, Map<String, Ref<Spat
 
         } else if (StringUtils::begins_with(l,"map_Ks ")) {
             //normal
-            ERR_FAIL_COND_V(not current, ERR_FILE_CORRUPT)
+            ERR_FAIL_COND_V(not current, ERR_FILE_CORRUPT);
 
             String p(StringUtils::strip_edges(StringUtils::replace(StringUtils::replace(l,"map_Ks", ""),"\\", "/")));
             String path;
@@ -171,7 +171,7 @@ static Error _parse_material_library(se_string_view p_path, Map<String, Ref<Spat
 
         } else if (StringUtils::begins_with(l,"map_Ns ")) {
             //normal
-            ERR_FAIL_COND_V(not current, ERR_FILE_CORRUPT)
+            ERR_FAIL_COND_V(not current, ERR_FILE_CORRUPT);
 
             String p(StringUtils::strip_edges(StringUtils::replace(StringUtils::replace(l,"map_Ns", ""),"\\", "/")));
             String path;
@@ -190,7 +190,7 @@ static Error _parse_material_library(se_string_view p_path, Map<String, Ref<Spat
             }
         } else if (StringUtils::begins_with(l,"map_bump ")) {
             //normal
-            ERR_FAIL_COND_V(not current, ERR_FILE_CORRUPT)
+            ERR_FAIL_COND_V(not current, ERR_FILE_CORRUPT);
 
             String p(StringUtils::strip_edges(StringUtils::replace(StringUtils::replace(l,"map_bump", ""),"\\", "/")));
             String path = PathUtils::plus_file(base_path,p);
@@ -215,7 +215,7 @@ static Error _parse_obj(se_string_view p_path, List<Ref<Mesh>> &r_meshes, bool p
         bool p_optimize, Vector3 p_scale_mesh, Vector3 p_offset_mesh, PODVector<String> *r_missing_deps) {
 
     FileAccessRef f = FileAccess::open(p_path, FileAccess::READ);
-    ERR_FAIL_COND_V_MSG(!f, ERR_CANT_OPEN, vformat("Couldn't open OBJ file '%s', it may not exist or not be readable.", p_path))
+    ERR_FAIL_COND_V_MSG(!f, ERR_CANT_OPEN, vformat("Couldn't open OBJ file '%s', it may not exist or not be readable.", p_path));
 
     Ref<ArrayMesh> mesh(make_ref_counted<ArrayMesh>());
 
@@ -253,7 +253,7 @@ static Error _parse_obj(se_string_view p_path, List<Ref<Mesh>> &r_meshes, bool p
         if (StringUtils::begins_with(l,"v ")) {
             //vertex
             PODVector<se_string_view> v = StringUtils::split(l," ", false);
-            ERR_FAIL_COND_V(v.size() < 4, ERR_FILE_CORRUPT)
+            ERR_FAIL_COND_V(v.size() < 4, ERR_FILE_CORRUPT);
             Vector3 vtx;
             vtx.x = StringUtils::to_float(v[1]) * scale_mesh.x + offset_mesh.x;
             vtx.y = StringUtils::to_float(v[2]) * scale_mesh.y + offset_mesh.y;
@@ -262,7 +262,7 @@ static Error _parse_obj(se_string_view p_path, List<Ref<Mesh>> &r_meshes, bool p
         } else if (StringUtils::begins_with(l,"vt ")) {
             //uv
             PODVector<se_string_view> v = StringUtils::split(l," ", false);
-            ERR_FAIL_COND_V(v.size() < 3, ERR_FILE_CORRUPT)
+            ERR_FAIL_COND_V(v.size() < 3, ERR_FILE_CORRUPT);
             Vector2 uv;
             uv.x = StringUtils::to_float(v[1]);
             uv.y = 1.0f - StringUtils::to_float(v[2]);
@@ -271,7 +271,7 @@ static Error _parse_obj(se_string_view p_path, List<Ref<Mesh>> &r_meshes, bool p
         } else if (StringUtils::begins_with(l,"vn ")) {
             //normal
             PODVector<se_string_view> v = StringUtils::split(l," ", false);
-            ERR_FAIL_COND_V(v.size() < 4, ERR_FILE_CORRUPT)
+            ERR_FAIL_COND_V(v.size() < 4, ERR_FILE_CORRUPT);
             Vector3 nrm;
             nrm.x = StringUtils::to_float(v[1]);
             nrm.y = StringUtils::to_float(v[2]);
@@ -281,21 +281,21 @@ static Error _parse_obj(se_string_view p_path, List<Ref<Mesh>> &r_meshes, bool p
             //vertex
 
             PODVector<se_string_view> v = StringUtils::split(l," ", false);
-            ERR_FAIL_COND_V(v.size() < 4, ERR_FILE_CORRUPT)
+            ERR_FAIL_COND_V(v.size() < 4, ERR_FILE_CORRUPT);
 
             //not very fast, could be sped up
 
             PODVector<se_string_view> face[3];
             face[0] = StringUtils::split(v[1],"/");
             face[1] = StringUtils::split(v[2],"/");
-            ERR_FAIL_COND_V(face[0].empty(), ERR_FILE_CORRUPT)
+            ERR_FAIL_COND_V(face[0].empty(), ERR_FILE_CORRUPT);
 
-            ERR_FAIL_COND_V(face[0].size() != face[1].size(), ERR_FILE_CORRUPT)
+            ERR_FAIL_COND_V(face[0].size() != face[1].size(), ERR_FILE_CORRUPT);
             for (size_t i = 2; i < v.size() - 1; i++) {
 
                 face[2] = StringUtils::split(v[i + 1],"/");
 
-                ERR_FAIL_COND_V(face[0].size() != face[2].size(), ERR_FILE_CORRUPT)
+                ERR_FAIL_COND_V(face[0].size() != face[2].size(), ERR_FILE_CORRUPT);
                 for (int j = 0; j < 3; j++) {
 
                     int idx = j;
@@ -308,7 +308,7 @@ static Error _parse_obj(se_string_view p_path, List<Ref<Mesh>> &r_meshes, bool p
                         int norm = StringUtils::to_int(face[idx][2]) - 1;
                         if (norm < 0)
                             norm += normals.size() + 1;
-                        ERR_FAIL_INDEX_V(norm, normals.size(), ERR_FILE_CORRUPT)
+                        ERR_FAIL_INDEX_V(norm, normals.size(), ERR_FILE_CORRUPT);
                         surf_tool->add_normal(normals[norm]);
                     }
 
@@ -316,14 +316,14 @@ static Error _parse_obj(se_string_view p_path, List<Ref<Mesh>> &r_meshes, bool p
                         int uv = StringUtils::to_int(face[idx][1]) - 1;
                         if (uv < 0)
                             uv += uvs.size() + 1;
-                        ERR_FAIL_INDEX_V(uv, uvs.size(), ERR_FILE_CORRUPT)
+                        ERR_FAIL_INDEX_V(uv, uvs.size(), ERR_FILE_CORRUPT);
                         surf_tool->add_uv(uvs[uv]);
                     }
 
                     int vtx = StringUtils::to_int(face[idx][0]) - 1;
                     if (vtx < 0)
                         vtx += vertices.size() + 1;
-                    ERR_FAIL_INDEX_V(vtx, vertices.size(), ERR_FILE_CORRUPT)
+                    ERR_FAIL_INDEX_V(vtx, vertices.size(), ERR_FILE_CORRUPT);
 
                     Vector3 vertex = vertices[vtx];
                     //if (weld_vertices)
@@ -515,14 +515,14 @@ Error ResourceImporterOBJ::import(se_string_view p_source_file, se_string_view p
     Error err = _parse_obj(p_source_file, meshes, true, p_options.at("generate_tangents").as<bool>(),
             p_options.at("optimize_mesh").as<bool>(), p_options.at("scale_mesh"),p_options.at("offset_mesh"), nullptr);
 
-    ERR_FAIL_COND_V(err != OK, err)
-    ERR_FAIL_COND_V(meshes.size() != 1, ERR_BUG)
+    ERR_FAIL_COND_V(err != OK, err);
+    ERR_FAIL_COND_V(meshes.size() != 1, ERR_BUG);
 
     String save_path = String(p_save_path) + ".mesh";
 
     err = ResourceSaver::save(save_path, meshes.front()->deref());
 
-    ERR_FAIL_COND_V_MSG(err != OK, err, "Cannot save Mesh to file '" + save_path + "'.")
+    ERR_FAIL_COND_V_MSG(err != OK, err, "Cannot save Mesh to file '" + save_path + "'.");
 
     r_gen_files->push_back(save_path);
 

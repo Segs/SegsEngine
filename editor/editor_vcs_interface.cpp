@@ -67,7 +67,7 @@ void EditorVCSInterface::_bind_methods() {
 
 bool EditorVCSInterface::_initialize(se_string_view p_project_root_path) {
 
-    WARN_PRINT("Selected VCS addon does not implement an initialization function. This warning will be suppressed.")
+    WARN_PRINT("Selected VCS addon does not implement an initialization function. This warning will be suppressed.");
     return true;
 }
 

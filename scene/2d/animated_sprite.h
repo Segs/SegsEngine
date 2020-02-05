@@ -92,7 +92,7 @@ public:
             _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "Animation missing: " _STR(Ref<Texture>()));
             return Ref<Texture>();
         }
-        ERR_FAIL_COND_V(p_idx < 0, Ref<Texture>())
+        ERR_FAIL_COND_V(p_idx < 0, Ref<Texture>());
         if (p_idx >= E->second.frames.size())
             return Ref<Texture>();
 
@@ -107,7 +107,7 @@ public:
             _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "Animation missing: " _STR(Ref<Texture>()));
             return Ref<Texture>();
         }
-        ERR_FAIL_COND_V(p_idx < 0, Ref<Texture>())
+        ERR_FAIL_COND_V(p_idx < 0, Ref<Texture>());
 
         const Map<StringName, Anim>::const_iterator EN = animations.find(E->second.normal_name);
 

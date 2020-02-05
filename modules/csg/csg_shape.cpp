@@ -499,7 +499,7 @@ AABB CSGShape::get_aabb() const {
 }
 
 PoolVector<Vector3> CSGShape::get_brush_faces() {
-    ERR_FAIL_COND_V(!is_inside_tree(), PoolVector<Vector3>())
+    ERR_FAIL_COND_V(!is_inside_tree(), PoolVector<Vector3>());
     CSGBrush *b = _get_brush();
     if (!b) {
         return PoolVector<Vector3>();
@@ -764,7 +764,7 @@ CSGBrush *CSGMesh::_build_brush() {
 
         if (arrays.empty()) {
             _make_dirty();
-            ERR_FAIL_COND_V(arrays.empty(), nullptr)
+            ERR_FAIL_COND_V(arrays.empty(), nullptr);
         }
 
         PoolVector<Vector3> avertices = arrays[Mesh::ARRAY_VERTEX];

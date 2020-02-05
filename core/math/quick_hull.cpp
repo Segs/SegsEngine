@@ -286,7 +286,7 @@ Error QuickHull::build(Span<const Vector3> p_points, Geometry::MeshData &r_mesh)
             }
         }
 
-        ERR_FAIL_COND_V(next == -1, ERR_BUG)
+        ERR_FAIL_COND_V(next == -1, ERR_BUG);
 
         Vector3 v = p_points[f.points_over[next]];
 

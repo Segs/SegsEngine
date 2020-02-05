@@ -827,7 +827,7 @@ void SurfaceTool::append_from(const Ref<Mesh> &p_existing, int p_surface, const 
         index_array.push_back(dst_index);
     }
     if (index_array.size() % 3) {
-        WARN_PRINT("SurfaceTool: Index array not a multiple of 3.")
+        WARN_PRINT("SurfaceTool: Index array not a multiple of 3.");
     }
 }
 

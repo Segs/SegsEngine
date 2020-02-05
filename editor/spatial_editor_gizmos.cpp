@@ -100,7 +100,7 @@ IMPL_GDCLASS(JointSpatialGizmoPlugin)
 
 bool EditorSpatialGizmo::is_editable() const {
 
-    ERR_FAIL_COND_V(!spatial_node, false)
+    ERR_FAIL_COND_V(!spatial_node, false);
     Node *edited_root = spatial_node->get_tree()->get_edited_scene_root();
     if (spatial_node == edited_root)
         return true;
@@ -146,7 +146,7 @@ StringName EditorSpatialGizmo::get_handle_name(int p_idx) const {
         return get_script_instance()->call("get_handle_name", p_idx);
     }
 
-    ERR_FAIL_COND_V(!gizmo_plugin, StringName())
+    ERR_FAIL_COND_V(!gizmo_plugin, StringName());
     return gizmo_plugin->get_handle_name(this, p_idx);
 }
 
@@ -156,7 +156,7 @@ bool EditorSpatialGizmo::is_handle_highlighted(int p_idx) const {
         return get_script_instance()->call("is_handle_highlighted", p_idx);
     }
 
-    ERR_FAIL_COND_V(!gizmo_plugin, false)
+    ERR_FAIL_COND_V(!gizmo_plugin, false);
     return gizmo_plugin->is_handle_highlighted(this, p_idx);
 }
 
@@ -166,7 +166,7 @@ Variant EditorSpatialGizmo::get_handle_value(int p_idx) {
         return get_script_instance()->call("get_handle_value", p_idx);
     }
 
-    ERR_FAIL_COND_V(!gizmo_plugin, Variant())
+    ERR_FAIL_COND_V(!gizmo_plugin, Variant());
     return gizmo_plugin->get_handle_value(this, p_idx);
 }
 
@@ -454,8 +454,8 @@ void EditorSpatialGizmo::add_solid_box(Ref<Material> &p_material, Vector3 p_size
 
 bool EditorSpatialGizmo::intersect_frustum(const Camera *p_camera, Span<const Plane> p_frustum) {
 
-    ERR_FAIL_COND_V(!spatial_node, false)
-    ERR_FAIL_COND_V(!valid, false)
+    ERR_FAIL_COND_V(!spatial_node, false);
+    ERR_FAIL_COND_V(!valid, false);
 
     if (hidden && !gizmo_plugin->is_selectable_when_hidden()) return false;
 
@@ -523,8 +523,8 @@ bool EditorSpatialGizmo::intersect_frustum(const Camera *p_camera, Span<const Pl
 
 bool EditorSpatialGizmo::intersect_ray(Camera *p_camera, const Point2 &p_point, Vector3 &r_pos, Vector3 &r_normal, int *r_gizmo_handle, bool p_sec_first) {
 
-    ERR_FAIL_COND_V(!spatial_node, false)
-    ERR_FAIL_COND_V(!valid, false)
+    ERR_FAIL_COND_V(!spatial_node, false);
+    ERR_FAIL_COND_V(!valid, false);
 
     if (hidden && !gizmo_plugin->is_selectable_when_hidden()) return false;
 

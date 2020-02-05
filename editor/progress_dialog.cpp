@@ -218,7 +218,7 @@ void ProgressDialog::add_task(const StringName &p_task, const StringName &p_labe
 
 bool ProgressDialog::task_step(const StringName &p_task, const StringName &p_state, int p_step, bool p_force_redraw) {
 
-    ERR_FAIL_COND_V(!tasks.contains(p_task), cancelled)
+    ERR_FAIL_COND_V(!tasks.contains(p_task), cancelled);
 
     if (!p_force_redraw) {
         uint64_t tus = OS::get_singleton()->get_ticks_usec();
@@ -243,7 +243,7 @@ bool ProgressDialog::task_step(const StringName &p_task, const StringName &p_sta
 }
 bool ProgressDialog::task_step(const StringName &p_task, se_string_view p_state, int p_step, bool p_force_redraw) {
 
-    ERR_FAIL_COND_V(!tasks.contains(p_task), cancelled)
+    ERR_FAIL_COND_V(!tasks.contains(p_task), cancelled);
 
     if (!p_force_redraw) {
         uint64_t tus = OS::get_singleton()->get_ticks_usec();

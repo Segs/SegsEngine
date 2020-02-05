@@ -321,7 +321,7 @@ bool AnimationTreePlayer::_set(const StringName &p_name, const Variant &p_value)
         else if (type == "transition")
             nt = NODE_TRANSITION;
 
-        ERR_FAIL_COND_V(nt == NODE_MAX, false)
+        ERR_FAIL_COND_V(nt == NODE_MAX, false);
 
         if (nt != NODE_OUTPUT)
             add_node(nt, id);
@@ -401,7 +401,7 @@ bool AnimationTreePlayer::_set(const StringName &p_name, const Variant &p_value)
     }
 
     Array connections = data.get_valid("connections");
-    ERR_FAIL_COND_V(connections.size() % 3, false)
+    ERR_FAIL_COND_V(connections.size() % 3, false);
 
     int cc = connections.size() / 3;
 
@@ -677,7 +677,7 @@ void AnimationTreePlayer::_compute_weights(float *p_fallback_weight, HashMap<Nod
 
 float AnimationTreePlayer::_process_node(const StringName &p_node, AnimationTreeNode **r_prev_anim, float p_time, bool p_seek, float p_fallback_weight, HashMap<NodePath, float> *p_weights) {
 
-    ERR_FAIL_COND_V(!node_map.contains(p_node), 0)
+    ERR_FAIL_COND_V(!node_map.contains(p_node), 0);
     AnimationTreeNodeBase *nb = node_map[p_node];
 
     //transform to seconds...
@@ -1179,14 +1179,14 @@ void AnimationTreePlayer::add_node(NodeType p_type, const StringName &p_node) {
 
 StringName AnimationTreePlayer::node_get_input_source(const StringName &p_node, int p_input) const {
 
-    ERR_FAIL_COND_V(!node_map.contains(p_node), StringName())
+    ERR_FAIL_COND_V(!node_map.contains(p_node), StringName());
     ERR_FAIL_INDEX_V(p_input, node_map.at(p_node)->inputs.size(), StringName());
     return node_map.at(p_node)->inputs[p_input].node;
 }
 
 int AnimationTreePlayer::node_get_input_count(const StringName &p_node) const {
 
-    ERR_FAIL_COND_V(!node_map.contains(p_node), -1)
+    ERR_FAIL_COND_V(!node_map.contains(p_node), -1);
     return node_map.at(p_node)->inputs.size();
 }
 #define GET_NODE(m_type, m_cast)                                                             \
@@ -1382,18 +1382,18 @@ void AnimationTreePlayer::node_set_position(const StringName &p_node, const Vect
 
 AnimationTreePlayer::NodeType AnimationTreePlayer::node_get_type(const StringName &p_node) const {
 
-    ERR_FAIL_COND_V(!node_map.contains(p_node), NODE_OUTPUT)
+    ERR_FAIL_COND_V(!node_map.contains(p_node), NODE_OUTPUT);
     return node_map.at(p_node)->type;
 }
 Point2 AnimationTreePlayer::node_get_position(const StringName &p_node) const {
 
-    ERR_FAIL_COND_V(!node_map.contains(p_node), Point2())
+    ERR_FAIL_COND_V(!node_map.contains(p_node), Point2());
     return node_map.at(p_node)->pos;
 }
 
 #define GET_NODE_V(m_type, m_cast, m_ret)                                                             \
-    ERR_FAIL_COND_V(!node_map.contains(p_node), m_ret)                                                    \
-    ERR_FAIL_COND_V_MSG(node_map.at(p_node)->type != m_type, m_ret, "Invalid parameter for node type.") \
+    ERR_FAIL_COND_V(!node_map.contains(p_node), m_ret);                                                    \
+    ERR_FAIL_COND_V_MSG(node_map.at(p_node)->type != m_type, m_ret, "Invalid parameter for node type."); \
     m_cast *n = static_cast<m_cast *>(node_map.at(p_node));
 
 Ref<Animation> AnimationTreePlayer::animation_node_get_animation(const StringName &p_node) const {
@@ -1579,7 +1579,7 @@ void AnimationTreePlayer::remove_node(const StringName &p_node) {
 
 AnimationTreePlayer::ConnectError AnimationTreePlayer::_cycle_test(const StringName &p_at_node) {
 
-    ERR_FAIL_COND_V(!node_map.contains(p_at_node), CONNECT_INCOMPLETE)
+    ERR_FAIL_COND_V(!node_map.contains(p_at_node), CONNECT_INCOMPLETE);
 
     AnimationTreeNodeBase *nb = node_map[p_at_node];
     if (nb->cycletest)
@@ -1609,9 +1609,9 @@ void AnimationTreePlayer::_clear_cycle_test() {
 
 Error AnimationTreePlayer::connect_nodes(const StringName &p_src_node, const StringName &p_dst_node, int p_dst_input) {
 
-    ERR_FAIL_COND_V(!node_map.contains(p_src_node), ERR_INVALID_PARAMETER)
-    ERR_FAIL_COND_V(!node_map.contains(p_dst_node), ERR_INVALID_PARAMETER)
-    ERR_FAIL_COND_V(p_src_node == p_dst_node, ERR_INVALID_PARAMETER)
+    ERR_FAIL_COND_V(!node_map.contains(p_src_node), ERR_INVALID_PARAMETER);
+    ERR_FAIL_COND_V(!node_map.contains(p_dst_node), ERR_INVALID_PARAMETER);
+    ERR_FAIL_COND_V(p_src_node == p_dst_node, ERR_INVALID_PARAMETER);
 
     //NodeBase *src = node_map[p_src_node];
     AnimationTreeNodeBase *dst = node_map[p_dst_node];
@@ -1647,9 +1647,9 @@ Error AnimationTreePlayer::connect_nodes(const StringName &p_src_node, const Str
 
 bool AnimationTreePlayer::are_nodes_connected(const StringName &p_src_node, const StringName &p_dst_node, int p_dst_input) const {
 
-    ERR_FAIL_COND_V(!node_map.contains(p_src_node), false)
-    ERR_FAIL_COND_V(!node_map.contains(p_dst_node), false)
-    ERR_FAIL_COND_V(p_src_node == p_dst_node, false)
+    ERR_FAIL_COND_V(!node_map.contains(p_src_node), false);
+    ERR_FAIL_COND_V(!node_map.contains(p_dst_node), false);
+    ERR_FAIL_COND_V(p_src_node == p_dst_node, false);
 
     AnimationTreeNodeBase *dst = node_map.at(p_dst_node);
 
@@ -1688,14 +1688,14 @@ void AnimationTreePlayer::get_connection_list(List<Connection> *p_connections) c
 AnimationTreePlayer::Track *AnimationTreePlayer::_find_track(const NodePath &p_path) {
 
     Node *parent = get_node(base_path);
-    ERR_FAIL_COND_V(!parent, nullptr)
+    ERR_FAIL_COND_V(!parent, nullptr);
 
     RES resource;
     PODVector<StringName> leftover_path;
     Node *child = parent->get_node_and_resource(p_path, resource, leftover_path);
     if (!child) {
         String err = "Animation track references unknown Node: '" + String(p_path) + "'.";
-        WARN_PRINT(err)
+        WARN_PRINT(err);
         return nullptr;
     }
 
@@ -1889,11 +1889,11 @@ Error AnimationTreePlayer::node_rename(const StringName &p_node, const StringNam
 
     if (p_new_name == p_node)
         return OK;
-    ERR_FAIL_COND_V(!node_map.contains(p_node), ERR_ALREADY_EXISTS)
-    ERR_FAIL_COND_V(node_map.contains(p_new_name), ERR_ALREADY_EXISTS)
-    ERR_FAIL_COND_V(p_new_name == StringName(), ERR_INVALID_DATA)
-    ERR_FAIL_COND_V(p_node == out_name, ERR_INVALID_DATA)
-    ERR_FAIL_COND_V(p_new_name == out_name, ERR_INVALID_DATA)
+    ERR_FAIL_COND_V(!node_map.contains(p_node), ERR_ALREADY_EXISTS);
+    ERR_FAIL_COND_V(node_map.contains(p_new_name), ERR_ALREADY_EXISTS);
+    ERR_FAIL_COND_V(p_new_name == StringName(), ERR_INVALID_DATA);
+    ERR_FAIL_COND_V(p_node == out_name, ERR_INVALID_DATA);
+    ERR_FAIL_COND_V(p_new_name == out_name, ERR_INVALID_DATA);
 
     for (eastl::pair<const StringName,AnimationTreeNodeBase *> &E : node_map) {
 

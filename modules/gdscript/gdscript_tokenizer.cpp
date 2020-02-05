@@ -1109,75 +1109,75 @@ void GDScriptTokenizerText::set_code(se_string_view p_code) {
 }
 
 GDScriptTokenizerText::Token GDScriptTokenizerText::get_token(int p_offset) const {
-    ERR_FAIL_COND_V(p_offset <= -MAX_LOOKAHEAD, TK_ERROR)
-    ERR_FAIL_COND_V(p_offset >= MAX_LOOKAHEAD, TK_ERROR)
+    ERR_FAIL_COND_V(p_offset <= -MAX_LOOKAHEAD, TK_ERROR);
+    ERR_FAIL_COND_V(p_offset >= MAX_LOOKAHEAD, TK_ERROR);
 
     int ofs = (TK_RB_SIZE + tk_rb_pos + p_offset - MAX_LOOKAHEAD - 1) % TK_RB_SIZE;
     return tk_rb[ofs].type;
 }
 
 int GDScriptTokenizerText::get_token_line(int p_offset) const {
-    ERR_FAIL_COND_V(p_offset <= -MAX_LOOKAHEAD, -1)
-    ERR_FAIL_COND_V(p_offset >= MAX_LOOKAHEAD, -1)
+    ERR_FAIL_COND_V(p_offset <= -MAX_LOOKAHEAD, -1);
+    ERR_FAIL_COND_V(p_offset >= MAX_LOOKAHEAD, -1);
 
     int ofs = (TK_RB_SIZE + tk_rb_pos + p_offset - MAX_LOOKAHEAD - 1) % TK_RB_SIZE;
     return tk_rb[ofs].line;
 }
 
 int GDScriptTokenizerText::get_token_column(int p_offset) const {
-    ERR_FAIL_COND_V(p_offset <= -MAX_LOOKAHEAD, -1)
-    ERR_FAIL_COND_V(p_offset >= MAX_LOOKAHEAD, -1)
+    ERR_FAIL_COND_V(p_offset <= -MAX_LOOKAHEAD, -1);
+    ERR_FAIL_COND_V(p_offset >= MAX_LOOKAHEAD, -1);
 
     int ofs = (TK_RB_SIZE + tk_rb_pos + p_offset - MAX_LOOKAHEAD - 1) % TK_RB_SIZE;
     return tk_rb[ofs].col;
 }
 
 const Variant &GDScriptTokenizerText::get_token_constant(int p_offset) const {
-    ERR_FAIL_COND_V(p_offset <= -MAX_LOOKAHEAD, tk_rb[0].constant)
-    ERR_FAIL_COND_V(p_offset >= MAX_LOOKAHEAD, tk_rb[0].constant)
+    ERR_FAIL_COND_V(p_offset <= -MAX_LOOKAHEAD, tk_rb[0].constant);
+    ERR_FAIL_COND_V(p_offset >= MAX_LOOKAHEAD, tk_rb[0].constant);
 
     int ofs = (TK_RB_SIZE + tk_rb_pos + p_offset - MAX_LOOKAHEAD - 1) % TK_RB_SIZE;
-    ERR_FAIL_COND_V(tk_rb[ofs].type != TK_CONSTANT, tk_rb[0].constant)
+    ERR_FAIL_COND_V(tk_rb[ofs].type != TK_CONSTANT, tk_rb[0].constant);
     return tk_rb[ofs].constant;
 }
 
 StringName GDScriptTokenizerText::get_token_identifier(int p_offset) const {
 
-    ERR_FAIL_COND_V(p_offset <= -MAX_LOOKAHEAD, StringName())
-    ERR_FAIL_COND_V(p_offset >= MAX_LOOKAHEAD, StringName())
+    ERR_FAIL_COND_V(p_offset <= -MAX_LOOKAHEAD, StringName());
+    ERR_FAIL_COND_V(p_offset >= MAX_LOOKAHEAD, StringName());
 
     int ofs = (TK_RB_SIZE + tk_rb_pos + p_offset - MAX_LOOKAHEAD - 1) % TK_RB_SIZE;
-    ERR_FAIL_COND_V(tk_rb[ofs].type != TK_IDENTIFIER, StringName())
+    ERR_FAIL_COND_V(tk_rb[ofs].type != TK_IDENTIFIER, StringName());
     return tk_rb[ofs].identifier;
 }
 
 GDScriptFunctions::Function GDScriptTokenizerText::get_token_built_in_func(int p_offset) const {
 
-    ERR_FAIL_COND_V(p_offset <= -MAX_LOOKAHEAD, GDScriptFunctions::FUNC_MAX)
-    ERR_FAIL_COND_V(p_offset >= MAX_LOOKAHEAD, GDScriptFunctions::FUNC_MAX)
+    ERR_FAIL_COND_V(p_offset <= -MAX_LOOKAHEAD, GDScriptFunctions::FUNC_MAX);
+    ERR_FAIL_COND_V(p_offset >= MAX_LOOKAHEAD, GDScriptFunctions::FUNC_MAX);
 
     int ofs = (TK_RB_SIZE + tk_rb_pos + p_offset - MAX_LOOKAHEAD - 1) % TK_RB_SIZE;
-    ERR_FAIL_COND_V(tk_rb[ofs].type != TK_BUILT_IN_FUNC, GDScriptFunctions::FUNC_MAX)
+    ERR_FAIL_COND_V(tk_rb[ofs].type != TK_BUILT_IN_FUNC, GDScriptFunctions::FUNC_MAX);
     return tk_rb[ofs].func;
 }
 
 VariantType GDScriptTokenizerText::get_token_type(int p_offset) const {
 
-    ERR_FAIL_COND_V(p_offset <= -MAX_LOOKAHEAD, VariantType::NIL)
-    ERR_FAIL_COND_V(p_offset >= MAX_LOOKAHEAD, VariantType::NIL)
+    ERR_FAIL_COND_V(p_offset <= -MAX_LOOKAHEAD, VariantType::NIL);
+    ERR_FAIL_COND_V(p_offset >= MAX_LOOKAHEAD, VariantType::NIL);
 
     int ofs = (TK_RB_SIZE + tk_rb_pos + p_offset - MAX_LOOKAHEAD - 1) % TK_RB_SIZE;
-    ERR_FAIL_COND_V(tk_rb[ofs].type != TK_BUILT_IN_TYPE, VariantType::NIL)
+    ERR_FAIL_COND_V(tk_rb[ofs].type != TK_BUILT_IN_TYPE, VariantType::NIL);
     return tk_rb[ofs].vtype;
 }
 
 int GDScriptTokenizerText::get_token_line_indent(int p_offset) const {
 
-    ERR_FAIL_COND_V(p_offset <= -MAX_LOOKAHEAD, 0)
-    ERR_FAIL_COND_V(p_offset >= MAX_LOOKAHEAD, 0)
+    ERR_FAIL_COND_V(p_offset <= -MAX_LOOKAHEAD, 0);
+    ERR_FAIL_COND_V(p_offset >= MAX_LOOKAHEAD, 0);
 
     int ofs = (TK_RB_SIZE + tk_rb_pos + p_offset - MAX_LOOKAHEAD - 1) % TK_RB_SIZE;
-    ERR_FAIL_COND_V(tk_rb[ofs].type != TK_NEWLINE, 0)
+    ERR_FAIL_COND_V(tk_rb[ofs].type != TK_NEWLINE, 0);
     return tk_rb[ofs].constant.operator Vector2().x;
 }
 
@@ -1193,11 +1193,11 @@ int GDScriptTokenizerText::get_token_line_tab_indent(int p_offset) const {
 
 String GDScriptTokenizerText::get_token_error(int p_offset) const {
 
-    ERR_FAIL_COND_V(p_offset <= -MAX_LOOKAHEAD, String())
-    ERR_FAIL_COND_V(p_offset >= MAX_LOOKAHEAD, String())
+    ERR_FAIL_COND_V(p_offset <= -MAX_LOOKAHEAD, String());
+    ERR_FAIL_COND_V(p_offset >= MAX_LOOKAHEAD, String());
 
     int ofs = (TK_RB_SIZE + tk_rb_pos + p_offset - MAX_LOOKAHEAD - 1) % TK_RB_SIZE;
-    ERR_FAIL_COND_V(tk_rb[ofs].type != TK_ERROR, String())
+    ERR_FAIL_COND_V(tk_rb[ofs].type != TK_ERROR, String());
     return tk_rb[ofs].constant;
 }
 
@@ -1216,10 +1216,10 @@ Error GDScriptTokenizerBuffer::set_code_buffer(const PODVector<uint8_t> &p_buffe
 
     const uint8_t *buf = p_buffer.data();
     int total_len = p_buffer.size();
-    ERR_FAIL_COND_V(p_buffer.size() < 24 || p_buffer[0] != 'G' || p_buffer[1] != 'D' || p_buffer[2] != 'S' || p_buffer[3] != 'C', ERR_INVALID_DATA)
+    ERR_FAIL_COND_V(p_buffer.size() < 24 || p_buffer[0] != 'G' || p_buffer[1] != 'D' || p_buffer[2] != 'S' || p_buffer[3] != 'C', ERR_INVALID_DATA);
 
     int version = decode_uint32(&buf[4]);
-    ERR_FAIL_COND_V_MSG(version > BYTECODE_VERSION, ERR_INVALID_DATA, "Bytecode is too recent! Please use a newer engine version.")
+    ERR_FAIL_COND_V_MSG(version > BYTECODE_VERSION, ERR_INVALID_DATA, "Bytecode is too recent! Please use a newer engine version.");
 
     int identifier_count = decode_uint32(&buf[8]);
     int constant_count = decode_uint32(&buf[12]);
@@ -1233,7 +1233,7 @@ Error GDScriptTokenizerBuffer::set_code_buffer(const PODVector<uint8_t> &p_buffe
     for (int i = 0; i < identifier_count; i++) {
 
         int len = decode_uint32(b);
-        ERR_FAIL_COND_V(len > total_len, ERR_INVALID_DATA)
+        ERR_FAIL_COND_V(len > total_len, ERR_INVALID_DATA);
         b += 4;
         PODVector<uint8_t> cs;
         cs.resize(len);
@@ -1262,7 +1262,7 @@ Error GDScriptTokenizerBuffer::set_code_buffer(const PODVector<uint8_t> &p_buffe
         constants.emplace_back(eastl::move(v));
     }
 
-    ERR_FAIL_COND_V(line_count * 8 > total_len, ERR_INVALID_DATA)
+    ERR_FAIL_COND_V(line_count * 8 > total_len, ERR_INVALID_DATA);
 
     for (int i = 0; i < line_count; i++) {
 
@@ -1279,10 +1279,10 @@ Error GDScriptTokenizerBuffer::set_code_buffer(const PODVector<uint8_t> &p_buffe
 
     for (int i = 0; i < token_count; i++) {
 
-        ERR_FAIL_COND_V(total_len < 1, ERR_INVALID_DATA)
+        ERR_FAIL_COND_V(total_len < 1, ERR_INVALID_DATA);
 
         if ((*b) & TOKEN_BYTE_MASK) { //little endian always
-            ERR_FAIL_COND_V(total_len < 4, ERR_INVALID_DATA)
+            ERR_FAIL_COND_V(total_len < 4, ERR_INVALID_DATA);
 
             tokens[i] = decode_uint32(b) & ~TOKEN_BYTE_MASK;
             b += 4;

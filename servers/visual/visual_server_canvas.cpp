@@ -302,7 +302,7 @@ void VisualServerCanvas::render_canvas(Canvas *p_canvas, const Transform2D &p_tr
 RID VisualServerCanvas::canvas_create() {
 
     Canvas *canvas = memnew(Canvas);
-    ERR_FAIL_COND_V(!canvas, RID())
+    ERR_FAIL_COND_V(!canvas, RID());
     RID rid = canvas_owner.make_rid(canvas);
 
     return rid;
@@ -342,7 +342,7 @@ void VisualServerCanvas::canvas_set_parent(RID p_canvas, RID p_parent, float p_s
 RID VisualServerCanvas::canvas_item_create() {
 
     Item *canvas_item = memnew(Item);
-    ERR_FAIL_COND_V(!canvas_item, RID())
+    ERR_FAIL_COND_V(!canvas_item, RID());
 
     return canvas_item_owner.make_rid(canvas_item);
 }
@@ -1326,15 +1326,15 @@ bool VisualServerCanvas::free(RID p_rid) {
     if (canvas_owner.owns(p_rid)) {
 
         Canvas *canvas = canvas_owner.get(p_rid);
-        ERR_FAIL_COND_V(!canvas, false)
+        ERR_FAIL_COND_V(!canvas, false);
 
         while (!canvas->viewports.empty()) {
 
             VisualServerViewport::Viewport *vp = VSG::viewport->viewport_owner.get(*canvas->viewports.begin());
-            ERR_FAIL_COND_V(!vp, true)
+            ERR_FAIL_COND_V(!vp, true);
 
             Map<RID, VisualServerViewport::Viewport::CanvasData>::iterator E = vp->canvas_map.find(p_rid);
-            ERR_FAIL_COND_V(E==vp->canvas_map.end(), true)
+            ERR_FAIL_COND_V(E==vp->canvas_map.end(), true);
             vp->canvas_map.erase(p_rid);
 
             canvas->viewports.erase(canvas->viewports.begin());
@@ -1362,7 +1362,7 @@ bool VisualServerCanvas::free(RID p_rid) {
     } else if (canvas_item_owner.owns(p_rid)) {
 
         Item *canvas_item = canvas_item_owner.get(p_rid);
-        ERR_FAIL_COND_V(!canvas_item, true)
+        ERR_FAIL_COND_V(!canvas_item, true);
 
         if (canvas_item->parent.is_valid()) {
 
@@ -1399,7 +1399,7 @@ bool VisualServerCanvas::free(RID p_rid) {
     } else if (canvas_light_owner.owns(p_rid)) {
 
         RasterizerCanvas::Light *canvas_light = canvas_light_owner.get(p_rid);
-        ERR_FAIL_COND_V(!canvas_light, true)
+        ERR_FAIL_COND_V(!canvas_light, true);
 
         if (canvas_light->canvas.is_valid()) {
             Canvas *canvas = canvas_owner.get(canvas_light->canvas);
@@ -1418,7 +1418,7 @@ bool VisualServerCanvas::free(RID p_rid) {
     } else if (canvas_light_occluder_owner.owns(p_rid)) {
 
         RasterizerCanvas::LightOccluderInstance *occluder = canvas_light_occluder_owner.get(p_rid);
-        ERR_FAIL_COND_V(!occluder, true)
+        ERR_FAIL_COND_V(!occluder, true);
 
         if (occluder->polygon.is_valid()) {
 
@@ -1440,7 +1440,7 @@ bool VisualServerCanvas::free(RID p_rid) {
     } else if (canvas_light_occluder_polygon_owner.owns(p_rid)) {
 
         LightOccluderPolygon *occluder_poly = canvas_light_occluder_polygon_owner.get(p_rid);
-        ERR_FAIL_COND_V(!occluder_poly, true)
+        ERR_FAIL_COND_V(!occluder_poly, true);
         VSG::storage->free(occluder_poly->occluder);
 
         while (!occluder_poly->owners.empty()) {

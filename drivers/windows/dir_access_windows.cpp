@@ -280,7 +280,7 @@ size_t DirAccessWindows::get_space_left() {
 String DirAccessWindows::get_filesystem_type() const {
     String path = fix_path(const_cast<DirAccessWindows *>(this)->get_current_dir());
     int unit_end = StringUtils::find(path,":");
-    ERR_FAIL_COND_V(unit_end == -1, String())
+    ERR_FAIL_COND_V(unit_end == -1, String());
     String unit = String(StringUtils::substr(path,0, unit_end + 1)) + "\\";
     QStorageInfo info(StringUtils::from_utf8(path));
     return StringUtils::to_utf8(info.fileSystemType());

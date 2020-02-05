@@ -83,7 +83,7 @@ Node *SceneState::instance(GenEditState p_edit_state) const {
     }
 
     int nc = nodes.size();
-    ERR_FAIL_COND_V(nc == 0, nullptr)
+    ERR_FAIL_COND_V(nc == 0, nullptr);
 
     const PODVector<StringName> &snames(names);
     size_t sname_count = names.size();
@@ -111,12 +111,12 @@ Node *SceneState::instance(GenEditState p_edit_state) const {
 
         if (i > 0) {
 
-            ERR_FAIL_COND_V_MSG(n.parent == -1, nullptr, FormatVE("Invalid scene: node %s does not specify its parent node.", snames[n.name].asCString()))
+            ERR_FAIL_COND_V_MSG(n.parent == -1, nullptr, FormatVE("Invalid scene: node %s does not specify its parent node.", snames[n.name].asCString()));
             NODE_FROM_ID(nparent, n.parent)
 #ifdef DEBUG_ENABLED
             if (!nparent && (n.parent & FLAG_ID_IS_PATH)) {
 
-                WARN_PRINT("Parent path '" + (String)node_paths[n.parent & FLAG_MASK] + "' for node '" + snames[n.name] + "' has vanished when instancing: '" + (String)get_path() + "'.")
+                WARN_PRINT("Parent path '" + (String)node_paths[n.parent & FLAG_MASK] + "' for node '" + snames[n.name] + "' has vanished when instancing: '" + (String)get_path() + "'.");
             }
 #endif
             parent = nparent;
@@ -127,9 +127,9 @@ Node *SceneState::instance(GenEditState p_edit_state) const {
         if (i == 0 && base_scene_idx >= 0) {
             //scene inheritance on root node
             Ref<PackedScene> sdata(props[base_scene_idx]);
-            ERR_FAIL_COND_V(not sdata, nullptr)
+            ERR_FAIL_COND_V(not sdata, nullptr);
             node = sdata->instance(p_edit_state == GEN_EDIT_STATE_DISABLED ? PackedScene::GEN_EDIT_STATE_DISABLED : PackedScene::GEN_EDIT_STATE_INSTANCE); //only main gets main edit state
-            ERR_FAIL_COND_V(!node, nullptr)
+            ERR_FAIL_COND_V(!node, nullptr);
             if (p_edit_state != GEN_EDIT_STATE_DISABLED) {
                 node->set_scene_inherited_state(sdata->get_state());
             }
@@ -142,9 +142,9 @@ Node *SceneState::instance(GenEditState p_edit_state) const {
                 if (disable_placeholders) {
 
                     Ref<PackedScene> sdata = dynamic_ref_cast<PackedScene>(ResourceLoader::load(path, "PackedScene"));
-                    ERR_FAIL_COND_V(not sdata, nullptr)
+                    ERR_FAIL_COND_V(not sdata, nullptr);
                     node = sdata->instance(p_edit_state == GEN_EDIT_STATE_DISABLED ? PackedScene::GEN_EDIT_STATE_DISABLED : PackedScene::GEN_EDIT_STATE_INSTANCE);
-                    ERR_FAIL_COND_V(!node, nullptr)
+                    ERR_FAIL_COND_V(!node, nullptr);
                 } else {
                     InstancePlaceholder *ip = memnew(InstancePlaceholder);
                     ip->set_instance_path(path);
@@ -153,9 +153,9 @@ Node *SceneState::instance(GenEditState p_edit_state) const {
                 node->set_scene_instance_load_placeholder(true);
             } else {
                 Ref<PackedScene> sdata(props[n.instance & FLAG_MASK]);
-                ERR_FAIL_COND_V(not sdata, nullptr)
+                ERR_FAIL_COND_V(not sdata, nullptr);
                 node = sdata->instance(p_edit_state == GEN_EDIT_STATE_DISABLED ? PackedScene::GEN_EDIT_STATE_DISABLED : PackedScene::GEN_EDIT_STATE_INSTANCE);
-                ERR_FAIL_COND_V(!node, nullptr)
+                ERR_FAIL_COND_V(!node, nullptr);
             }
 
         } else if (n.type == TYPE_INSTANCED) {
@@ -164,7 +164,7 @@ Node *SceneState::instance(GenEditState p_edit_state) const {
                 node = parent->_get_child_by_name(snames[n.name]);
 #ifdef DEBUG_ENABLED
                 if (!node) {
-                    WARN_PRINT("Node '" + (String)ret_nodes[0]->get_path_to(parent) + "/" + snames[n.name] + "' was modified from inside an instance, but it has vanished.")
+                    WARN_PRINT("Node '" + (String)ret_nodes[0]->get_path_to(parent) + "/" + snames[n.name] + "' was modified from inside an instance, but it has vanished.");
                 }
 #endif
             }
@@ -176,7 +176,7 @@ Node *SceneState::instance(GenEditState p_edit_state) const {
                     memdelete(obj);
                     obj = nullptr;
                 }
-                WARN_PRINT("Warning node of type " + snames[n.type] + " does not exist.")
+                WARN_PRINT("Warning node of type " + snames[n.type] + " does not exist.");
                 if (n.parent >= 0 && n.parent < nc && ret_nodes[n.parent]) {
                     if (object_cast<Spatial>(ret_nodes[n.parent])) {
                         obj = memnew(Spatial);
@@ -212,8 +212,8 @@ Node *SceneState::instance(GenEditState p_edit_state) const {
                 for (int j = 0; j < nprop_count; j++) {
 
                     bool valid;
-                    ERR_FAIL_INDEX_V(nprops[j].name, sname_count, nullptr)
-                    ERR_FAIL_INDEX_V(nprops[j].value, prop_count, nullptr)
+                    ERR_FAIL_INDEX_V(nprops[j].name, sname_count, nullptr);
+                    ERR_FAIL_INDEX_V(nprops[j].value, prop_count, nullptr);
 
                     if (snames[nprops[j].name] == CoreStringNames::get_singleton()->_script) {
                         //work around to avoid old script variables from disappearing, should be the proper fix to:
@@ -279,7 +279,7 @@ Node *SceneState::instance(GenEditState p_edit_state) const {
             //groups
             for (int j = 0; j < n.groups.size(); j++) {
 
-                ERR_FAIL_INDEX_V(n.groups[j], sname_count, nullptr)
+                ERR_FAIL_INDEX_V(n.groups[j], sname_count, nullptr);
                 node->add_to_group(snames[n.groups[j]], true);
             }
 
@@ -710,7 +710,7 @@ Error SceneState::_parse_connections(Node *p_owner, Node *p_node, Map<StringName
     p_node->get_signal_list(&_signals);
     _signals.sort();
 
-    //ERR_FAIL_COND_V( !node_map.has(p_node), ERR_BUG)
+    //ERR_FAIL_COND_V( !node_map.has(p_node), ERR_BUG);
     //NodeData &nd = nodes[node_map[p_node]];
 
     for (const MethodInfo &E : _signals) {
@@ -1019,7 +1019,7 @@ Variant SceneState::get_property_value(int p_node, const StringName &p_property,
 
     found = false;
 
-    ERR_FAIL_COND_V(p_node < 0, Variant())
+    ERR_FAIL_COND_V(p_node < 0, Variant());
 
     if (p_node < nodes.size()) {
         //find in built-in nodes
@@ -1046,7 +1046,7 @@ Variant SceneState::get_property_value(int p_node, const StringName &p_property,
 
 bool SceneState::is_node_in_group(int p_node, const StringName &p_group) const {
 
-    ERR_FAIL_COND_V(p_node < 0, false)
+    ERR_FAIL_COND_V(p_node < 0, false);
 
     if (p_node < nodes.size()) {
         const StringName *namep = names.data();
@@ -1072,8 +1072,8 @@ void SceneState::set_disable_placeholders(bool p_disable) {
 
 bool SceneState::is_connection(int p_node, const StringName &p_signal, int p_to_node, const StringName &p_to_method) const {
 
-    ERR_FAIL_COND_V(p_node < 0, false)
-    ERR_FAIL_COND_V(p_to_node < 0, false)
+    ERR_FAIL_COND_V(p_node < 0, false);
+    ERR_FAIL_COND_V(p_to_node < 0, false);
 
     if (p_node < nodes.size() && p_to_node < nodes.size()) {
 
@@ -1434,7 +1434,7 @@ NodePath SceneState::get_node_path(int p_idx, bool p_for_parent) const {
 
 int SceneState::get_node_property_count(int p_idx) const {
 
-    ERR_FAIL_INDEX_V(p_idx, nodes.size(), -1)
+    ERR_FAIL_INDEX_V(p_idx, nodes.size(), -1);
     return nodes[p_idx].properties.size();
 }
 StringName SceneState::get_node_property_name(int p_idx, int p_prop) const {
@@ -1717,7 +1717,7 @@ bool PackedScene::can_instance() const {
 Node *PackedScene::instance(GenEditState p_edit_state) const {
 
 #ifndef TOOLS_ENABLED
-    ERR_FAIL_COND_V_MSG(p_edit_state != GEN_EDIT_STATE_DISABLED, NULL, "Edit state is only for editors, does not work without tools compiled.")
+    ERR_FAIL_COND_V_MSG(p_edit_state != GEN_EDIT_STATE_DISABLED, NULL, "Edit state is only for editors, does not work without tools compiled.");
 #endif
 
     Node *s = state->instance((SceneState::GenEditState)p_edit_state);

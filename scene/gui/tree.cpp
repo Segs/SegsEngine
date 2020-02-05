@@ -204,12 +204,12 @@ void TreeItem::set_text(int p_column, const StringName& p_text) {
 
 String TreeItem::get_text_ui(int p_column) const {
 
-    ERR_FAIL_INDEX_V(p_column, cells.size(), String())
+    ERR_FAIL_INDEX_V(p_column, cells.size(), String());
     return cells[p_column].text;
 }
 String TreeItem::get_text(int p_column) const {
 
-    ERR_FAIL_INDEX_V(p_column, cells.size(), String())
+    ERR_FAIL_INDEX_V(p_column, cells.size(), String());
     return cells[p_column].text;
 }
 
@@ -223,7 +223,7 @@ void TreeItem::set_suffix(int p_column, String p_suffix) {
 
 String TreeItem::get_suffix(int p_column) const {
 
-    ERR_FAIL_INDEX_V(p_column, cells.size(), String())
+    ERR_FAIL_INDEX_V(p_column, cells.size(), String());
     return cells[p_column].suffix;
 }
 
@@ -578,8 +578,8 @@ Ref<Texture> TreeItem::get_button(int p_column, int p_idx) const {
 }
 
 StringName TreeItem::get_button_tooltip(int p_column, int p_idx) const {
-    ERR_FAIL_INDEX_V(p_column, cells.size(), StringName())
-    ERR_FAIL_INDEX_V(p_idx, cells[p_column].buttons.size(), StringName())
+    ERR_FAIL_INDEX_V(p_column, cells.size(), StringName());
+    ERR_FAIL_INDEX_V(p_idx, cells[p_column].buttons.size(), StringName());
     return cells[p_column].buttons[p_idx].tooltip;
 }
 
@@ -685,7 +685,7 @@ void TreeItem::set_tooltip(int p_column, const StringName &p_tooltip) {
 
 StringName TreeItem::get_tooltip(int p_column) const {
 
-    ERR_FAIL_INDEX_V(p_column, cells.size(), StringName())
+    ERR_FAIL_INDEX_V(p_column, cells.size(), StringName());
     return cells[p_column].tooltip;
 }
 
@@ -1028,7 +1028,7 @@ int Tree::compute_item_height(TreeItem *p_item) const {
     if (p_item == root && hide_root)
         return 0;
 
-    ERR_FAIL_COND_V(not cache.font, 0)
+    ERR_FAIL_COND_V(not cache.font, 0);
     int height = cache.font->get_height();
 
     for (int i = 0; i < columns.size(); i++) {
@@ -1175,7 +1175,7 @@ int Tree::draw_item(const Point2i &p_pos, const Point2 &p_draw_ofs, const Size2 
         //draw separation.
         //if (p_item->get_parent()!=root || !hide_root)
 
-        ERR_FAIL_COND_V(not cache.font, -1)
+        ERR_FAIL_COND_V(not cache.font, -1);
         Ref<Font> font = cache.font;
 
         int font_ascent = font->get_ascent();
@@ -2786,7 +2786,7 @@ void Tree::_gui_input(Ref<InputEvent> p_event) {
 bool Tree::edit_selected() {
 
     TreeItem *s = get_selected();
-    ERR_FAIL_COND_V_MSG(!s, false, "No item selected.")
+    ERR_FAIL_COND_V_MSG(!s, false, "No item selected.");
     ensure_cursor_is_visible();
     int col = get_selected_column();
     ERR_FAIL_INDEX_V_MSG(col, columns.size(), false, "No item column selected.");
@@ -2926,7 +2926,7 @@ void Tree::update_scrollbars() {
 
 int Tree::_get_title_button_height() const {
 
-    ERR_FAIL_COND_V(not cache.font || not cache.title_button, 0)
+    ERR_FAIL_COND_V(not cache.font || not cache.title_button, 0);
     return show_column_titles ? cache.font->get_height() + cache.title_button->get_minimum_size().height : 0;
 }
 
@@ -3120,7 +3120,7 @@ Size2 Tree::get_minimum_size() const {
 
 TreeItem *Tree::create_item(TreeItem *p_parent, int p_idx) {
 
-    ERR_FAIL_COND_V(blocked > 0, nullptr)
+    ERR_FAIL_COND_V(blocked > 0, nullptr);
 
     TreeItem *ti = nullptr;
 
@@ -3128,7 +3128,7 @@ TreeItem *Tree::create_item(TreeItem *p_parent, int p_idx) {
 
         // Append or insert a new item to the given parent.
         ti = memnew(TreeItem(this));
-        ERR_FAIL_COND_V(!ti, nullptr)
+        ERR_FAIL_COND_V(!ti, nullptr);
         ti->cells.resize(columns.size());
 
         TreeItem *prev = nullptr;
@@ -3155,7 +3155,7 @@ TreeItem *Tree::create_item(TreeItem *p_parent, int p_idx) {
         if (!root) {
             // No root exists, make the given item the new root.
             ti = memnew(TreeItem(this));
-            ERR_FAIL_COND_V(!ti, nullptr)
+            ERR_FAIL_COND_V(!ti, nullptr);
             ti->cells.resize(columns.size());
 
             root = ti;
@@ -3378,7 +3378,7 @@ TreeItem *Tree::get_next_selected(TreeItem *p_item) {
 }
 
 int Tree::get_column_width(int p_column) const {
-    ERR_FAIL_INDEX_V(p_column, columns.size(), -1)
+    ERR_FAIL_INDEX_V(p_column, columns.size(), -1);
 
     if (!columns[p_column].expand)
         return columns[p_column].min_width;
@@ -3406,7 +3406,7 @@ int Tree::get_column_width(int p_column) const {
     if (expand_area < expanding_total)
         return columns[p_column].min_width;
 
-    ERR_FAIL_COND_V(expanding_columns == 0, -1) // shouldn't happen
+    ERR_FAIL_COND_V(expanding_columns == 0, -1); // shouldn't happen;
 
     return expand_area * columns[p_column].min_width / expanding_total;
 }
@@ -3545,7 +3545,7 @@ int Tree::get_pressed_button() const {
 Rect2 Tree::get_item_rect(TreeItem *p_item, int p_column) const {
 
     ERR_FAIL_NULL_V(p_item, Rect2());
-    ERR_FAIL_COND_V(p_item->tree != this, Rect2())
+    ERR_FAIL_COND_V(p_item->tree != this, Rect2());
     if (p_column != -1) {
         ERR_FAIL_INDEX_V(p_column, columns.size(), Rect2());
     }

@@ -75,7 +75,7 @@ Variant *GDScriptFunction::_get_variant(int p_address, GDScriptInstance *p_insta
             //todo change to index!
             GDScript *s = p_script;
 #ifdef DEBUG_ENABLED
-            ERR_FAIL_INDEX_V(address, _global_names_count, nullptr)
+            ERR_FAIL_INDEX_V(address, _global_names_count, nullptr);
 #endif
             const StringName *sn = &_global_names_ptr[address];
 
@@ -95,27 +95,27 @@ Variant *GDScriptFunction::_get_variant(int p_address, GDScriptInstance *p_insta
         }
         case ADDR_TYPE_LOCAL_CONSTANT: {
 #ifdef DEBUG_ENABLED
-            ERR_FAIL_INDEX_V(address, _constant_count, nullptr)
+            ERR_FAIL_INDEX_V(address, _constant_count, nullptr);
 #endif
             return &_constants_ptr[address];
         }
         case ADDR_TYPE_STACK:
         case ADDR_TYPE_STACK_VARIABLE: {
 #ifdef DEBUG_ENABLED
-            ERR_FAIL_INDEX_V(address, _stack_size, nullptr)
+            ERR_FAIL_INDEX_V(address, _stack_size, nullptr);
 #endif
             return &p_stack[address];
         }
         case ADDR_TYPE_GLOBAL: {
 #ifdef DEBUG_ENABLED
-            ERR_FAIL_INDEX_V(address, GDScriptLanguage::get_singleton()->get_global_array_size(), nullptr)
+            ERR_FAIL_INDEX_V(address, GDScriptLanguage::get_singleton()->get_global_array_size(), nullptr);
 #endif
             return &GDScriptLanguage::get_singleton()->get_global_array()[address];
         }
 #ifdef TOOLS_ENABLED
         case ADDR_TYPE_NAMED_GLOBAL: {
 #ifdef DEBUG_ENABLED
-            ERR_FAIL_INDEX_V(address, _named_globals_count, nullptr)
+            ERR_FAIL_INDEX_V(address, _named_globals_count, nullptr);
 #endif
             StringName id = _named_globals_ptr[address];
 
@@ -1842,7 +1842,7 @@ bool GDScriptFunctionState::is_valid(bool p_extended_check) const {
 
 Variant GDScriptFunctionState::resume(const Variant &p_arg) {
 
-    ERR_FAIL_COND_V(!function, Variant())
+    ERR_FAIL_COND_V(!function, Variant());
     if (state.instance_id && !ObjectDB::get_instance(state.instance_id)) {
 #ifdef DEBUG_ENABLED
         ERR_FAIL_V_MSG(Variant(), "Resumed function '" + String(function->get_name()) + "()' after yield, but class instance is gone. At script: " + state.script->get_path() + ":" + ::to_string(state.line));

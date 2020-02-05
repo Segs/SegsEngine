@@ -119,7 +119,7 @@ RES TranslationLoaderPO::load_translation(FileAccess *f, Error *r_error, se_stri
             continue; //nothing to read or comment
         }
 
-        ERR_FAIL_COND_V_MSG(!StringUtils::begins_with(l,"\"") || status == STATUS_NONE, RES(), String(p_path) + ":" + ::to_string(line) + " Invalid line '" + l + "' while parsing: ")
+        ERR_FAIL_COND_V_MSG(!StringUtils::begins_with(l,"\"") || status == STATUS_NONE, RES(), String(p_path) + ":" + ::to_string(line) + " Invalid line '" + l + "' while parsing: ");
 
         l = StringUtils::substr(l,1, l.length());
         //find final quote
@@ -132,7 +132,7 @@ RES TranslationLoaderPO::load_translation(FileAccess *f, Error *r_error, se_stri
             }
         }
 
-        ERR_FAIL_COND_V_MSG(end_pos == -1, RES(), String(p_path) + ":" + ::to_string(line) + " Expected '\"' at end of message while parsing file: ")
+        ERR_FAIL_COND_V_MSG(end_pos == -1, RES(), String(p_path) + ":" + ::to_string(line) + " Expected '\"' at end of message while parsing file: ");
 
         l = StringUtils::substr(l,0, end_pos);
         l = StringUtils::c_unescape(l);
@@ -157,7 +157,7 @@ RES TranslationLoaderPO::load_translation(FileAccess *f, Error *r_error, se_stri
             config = msg_str;
     }
 
-    ERR_FAIL_COND_V_MSG(config.empty(), RES(), "No config found in file: " + String(p_path) + ".")
+    ERR_FAIL_COND_V_MSG(config.empty(), RES(), "No config found in file: " + String(p_path) + ".");
 
     PODVector<se_string_view> configs = StringUtils::split(config,'\n');
     for (size_t i = 0; i < configs.size(); i++) {
@@ -186,7 +186,7 @@ RES TranslationLoaderPO::load(se_string_view p_path, se_string_view p_original_p
         *r_error = ERR_CANT_OPEN;
 
     FileAccess *f = FileAccess::open(p_path, FileAccess::READ);
-    ERR_FAIL_COND_V_MSG(!f, RES(), "Cannot open file '" + String(p_path) + "'.")
+    ERR_FAIL_COND_V_MSG(!f, RES(), "Cannot open file '" + String(p_path) + "'.");
 
     return load_translation(f, r_error);
 }

@@ -100,7 +100,7 @@ Error ResourceImporterWAV::import(se_string_view p_source_file, se_string_view p
     Error err;
     FileAccess *file = FileAccess::open(p_source_file, FileAccess::READ, &err);
 
-    ERR_FAIL_COND_V_MSG(err != OK, ERR_CANT_OPEN, String("Cannot open file '") + p_source_file + "'.")
+    ERR_FAIL_COND_V_MSG(err != OK, ERR_CANT_OPEN, String("Cannot open file '") + p_source_file + "'.");
 
     /* CHECK RIFF */
     char riff[5];
@@ -209,7 +209,7 @@ Error ResourceImporterWAV::import(se_string_view p_source_file, se_string_view p
             if (format_channels == 0) {
                 file->close();
                 memdelete(file);
-                ERR_FAIL_COND_V(format_channels == 0, ERR_INVALID_DATA)
+                ERR_FAIL_COND_V(format_channels == 0, ERR_INVALID_DATA);
             }
             frames /= format_channels;
             frames /= format_bits >> 3;

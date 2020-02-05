@@ -154,7 +154,7 @@ bool GDScriptLanguage::validate(se_string_view p_script, int &r_line_error, int 
     } else {
 
         const GDScriptParser::Node *root = parser.get_parse_tree();
-        ERR_FAIL_COND_V(root->type != GDScriptParser::Node::TYPE_CLASS, false)
+        ERR_FAIL_COND_V(root->type != GDScriptParser::Node::TYPE_CLASS, false);
 
         const GDScriptParser::ClassNode *cl = static_cast<const GDScriptParser::ClassNode *>(root);
         Map<int, String> funcs;
@@ -285,7 +285,7 @@ String GDScriptLanguage::debug_get_stack_level_function(int p_level) const {
     if (_debug_parse_err_line >= 0)
         return {};
 
-    ERR_FAIL_INDEX_V(p_level, _debug_call_stack_pos, {})
+    ERR_FAIL_INDEX_V(p_level, _debug_call_stack_pos, {});
     int l = _debug_call_stack_pos - p_level - 1;
     return _call_stack[l].function->get_name().asCString();
 }
@@ -294,7 +294,7 @@ String GDScriptLanguage::debug_get_stack_level_source(int p_level) const {
     if (_debug_parse_err_line >= 0)
         return _debug_parse_err_file;
 
-    ERR_FAIL_INDEX_V(p_level, _debug_call_stack_pos, String())
+    ERR_FAIL_INDEX_V(p_level, _debug_call_stack_pos, String());
     int l = _debug_call_stack_pos - p_level - 1;
     return _call_stack[l].function->get_source().asCString();
 }
@@ -347,7 +347,7 @@ ScriptInstance *GDScriptLanguage::debug_get_stack_level_instance(int p_level) {
     if (_debug_parse_err_line >= 0)
         return nullptr;
 
-    ERR_FAIL_INDEX_V(p_level, _debug_call_stack_pos, nullptr)
+    ERR_FAIL_INDEX_V(p_level, _debug_call_stack_pos, nullptr);
 
     int l = _debug_call_stack_pos - p_level - 1;
     ScriptInstance *instance = _call_stack[l].instance;

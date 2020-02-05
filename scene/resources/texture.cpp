@@ -79,12 +79,12 @@ namespace  {
             Error err;
             Ref<ImageTexture> texture(dynamic_ref_cast<ImageTexture>(p_resource));
 
-            ERR_FAIL_COND_V_MSG(not texture, ERR_INVALID_PARAMETER, "Can't save invalid texture as PNG.")
-            ERR_FAIL_COND_V_MSG(!texture->get_width(), ERR_INVALID_PARAMETER, "Can't save empty texture as PNG.")
+            ERR_FAIL_COND_V_MSG(not texture, ERR_INVALID_PARAMETER, "Can't save invalid texture as PNG.");
+            ERR_FAIL_COND_V_MSG(!texture->get_width(), ERR_INVALID_PARAMETER, "Can't save empty texture as PNG.");
 
             Ref<Image> img(texture->get_data());
             FileAccess *file = FileAccess::open(p_path, FileAccess::WRITE, &err);
-            ERR_FAIL_COND_V_MSG(err, err, vformat(("Can't save using saver wrapper at path: '%s'."), p_path))
+            ERR_FAIL_COND_V_MSG(err, err, vformat(("Can't save using saver wrapper at path: '%s'."), p_path));
             PODVector<uint8_t> buffer;
             err = m_saver->save_image(*img,buffer,{});
 
@@ -572,16 +572,16 @@ Error StreamTexture::_load_data(se_string_view p_path, int &tw, int &th, int &tw
 
     m_impl_data->alpha_cache.reset(nullptr); // TODO: memory de-allocation, check if actually needed ?
 
-    ERR_FAIL_COND_V(not image, ERR_INVALID_PARAMETER)
+    ERR_FAIL_COND_V(not image, ERR_INVALID_PARAMETER);
 
     FileAccess *f = FileAccess::open(p_path, FileAccess::READ);
-    ERR_FAIL_COND_V(!f, ERR_CANT_OPEN)
+    ERR_FAIL_COND_V(!f, ERR_CANT_OPEN);
 
     uint8_t header[4];
     f->get_buffer(header, 4);
     if (header[0] != 'G' || header[1] != 'D' || header[2] != 'S' || header[3] != 'T') {
         memdelete(f);
-        ERR_FAIL_COND_V(header[0] != 'G' || header[1] != 'D' || header[2] != 'S' || header[3] != 'T', ERR_FILE_CORRUPT)
+        ERR_FAIL_COND_V(header[0] != 'G' || header[1] != 'D' || header[2] != 'S' || header[3] != 'T', ERR_FILE_CORRUPT);
     }
 
     tw = f->get_16();
@@ -672,7 +672,7 @@ Error StreamTexture::_load_data(se_string_view p_path, int &tw, int &th, int &tw
 
             if (not img || img->empty()) {
                 memdelete(f);
-                ERR_FAIL_COND_V(not img || img->empty(), ERR_FILE_CORRUPT)
+                ERR_FAIL_COND_V(not img || img->empty(), ERR_FILE_CORRUPT);
             }
 
             total_size += img->get_data().size();
@@ -1388,7 +1388,7 @@ uint32_t LargeTexture::get_flags() const {
 
 int LargeTexture::add_piece(const Point2 &p_offset, const Ref<Texture> &p_texture) {
 
-    ERR_FAIL_COND_V(not p_texture, -1)
+    ERR_FAIL_COND_V(not p_texture, -1);
     Piece p;
     p.offset = p_offset;
     p.texture = p_texture;
@@ -2350,7 +2350,7 @@ void TextureLayered::set_layer_data(const Ref<Image> &p_image, int p_layer) {
 
 Ref<Image> TextureLayered::get_layer_data(int p_layer) const {
 
-    ERR_FAIL_COND_V(!texture.is_valid(), Ref<Image>())
+    ERR_FAIL_COND_V(!texture.is_valid(), Ref<Image>());
     return VisualServer::get_singleton()->texture_get_data(texture, p_layer);
 }
 
@@ -2438,7 +2438,7 @@ RES ResourceFormatLoaderTextureLayered::load(se_string_view p_path, se_string_vi
     }
 
     FileAccess *f = FileAccess::open(p_path, FileAccess::READ);
-    ERR_FAIL_COND_V(!f, RES())
+    ERR_FAIL_COND_V(!f, RES());
 
     uint8_t header[5] = { 0, 0, 0, 0, 0 };
     f->get_buffer(header, 4);
@@ -2447,13 +2447,13 @@ RES ResourceFormatLoaderTextureLayered::load(se_string_view p_path, se_string_vi
         if (not tex3d) {
             f->close();
             memdelete(f);
-            ERR_FAIL_COND_V(not tex3d, RES())
+            ERR_FAIL_COND_V(not tex3d, RES());
         }
     } else if (header[0] == 'G' && header[1] == 'D' && header[2] == 'A' && header[3] == 'T') {
         if (not texarr) {
             f->close();
             memdelete(f);
-            ERR_FAIL_COND_V(not texarr, RES())
+            ERR_FAIL_COND_V(not texarr, RES());
         }
     } else {
         f->close();

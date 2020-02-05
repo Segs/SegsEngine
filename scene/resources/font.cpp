@@ -230,7 +230,7 @@ Error BitmapFont::create_from_fnt(se_string_view p_file) {
 
     FileAccess *f = FileAccess::open(p_file, FileAccess::READ);
 
-    ERR_FAIL_COND_V_MSG(!f, ERR_FILE_NOT_FOUND, "Can't open font: " + p_file + ".")
+    ERR_FAIL_COND_V_MSG(!f, ERR_FILE_NOT_FOUND, "Can't open font: " + p_file + ".");
 
     clear();
 
@@ -397,7 +397,7 @@ int BitmapFont::get_texture_count() const {
 
 Ref<Texture> BitmapFont::get_texture(int p_idx) const {
 
-    ERR_FAIL_INDEX_V(p_idx, textures.size(), Ref<Texture>())
+    ERR_FAIL_INDEX_V(p_idx, textures.size(), Ref<Texture>());
     return textures[p_idx];
 }
 
@@ -532,7 +532,7 @@ Size2 Font::get_string_size(se_string_view p_string) const {
 }
 Size2 Font::get_wordwrap_ui_string_size(const UIString &p_string, float p_width) const {
 
-    ERR_FAIL_COND_V(p_width <= 0, Vector2(0, get_height()))
+    ERR_FAIL_COND_V(p_width <= 0, Vector2(0, get_height()));
 
     int l = p_string.length();
     if (l == 0)
@@ -587,7 +587,7 @@ float BitmapFont::draw_char(RID p_canvas_item, const Point2 &p_pos, CharType p_c
         return 0;
     }
 
-    ERR_FAIL_COND_V(c->second.texture_idx < -1 || c->second.texture_idx >= textures.size(), 0)
+    ERR_FAIL_COND_V(c->second.texture_idx < -1 || c->second.texture_idx >= textures.size(), 0);
     if (!p_outline && c->second.texture_idx != -1) {
         Point2 cpos = p_pos;
         cpos.x += c->second.h_align;

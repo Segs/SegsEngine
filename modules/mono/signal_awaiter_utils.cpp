@@ -46,8 +46,8 @@ namespace SignalAwaiterUtils {
 
 Error connect_signal_awaiter(Object *p_source, const String &p_signal, Object *p_target, MonoObject *p_awaiter) {
 
-    ERR_FAIL_NULL_V(p_source, ERR_INVALID_DATA)
-    ERR_FAIL_NULL_V(p_target, ERR_INVALID_DATA)
+    ERR_FAIL_NULL_V(p_source, ERR_INVALID_DATA);
+    ERR_FAIL_NULL_V(p_target, ERR_INVALID_DATA);
 
     Ref<SignalAwaiterHandle> sa_con(make_ref_counted<SignalAwaiterHandle>(p_awaiter));
 #ifdef DEBUG_ENABLED
@@ -75,7 +75,7 @@ Variant SignalAwaiterHandle::_signal_callback(const Variant **p_args, int p_argc
 
 #ifdef DEBUG_ENABLED
     ERR_FAIL_COND_V_MSG(conn_target_id && !ObjectDB::get_instance(conn_target_id), Variant(),
-            "Resumed after await, but class instance is gone.")
+            "Resumed after await, but class instance is gone.");
 #endif
 
     if (p_argcount < 1) {

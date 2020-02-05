@@ -630,7 +630,7 @@ void Curve2D::clear_points() {
 Vector2 Curve2D::interpolate(int p_index, float p_offset) const {
 
     int pc = points.size();
-    ERR_FAIL_COND_V(pc == 0, Vector2())
+    ERR_FAIL_COND_V(pc == 0, Vector2());
 
     if (p_index >= pc - 1)
         return points[pc - 1].pos;
@@ -778,7 +778,7 @@ Vector2 Curve2D::interpolate_baked(float p_offset, bool p_cubic) const {
 
     //validate//
     int pc = baked_point_cache.size();
-    ERR_FAIL_COND_V_MSG(pc == 0, Vector2(), "No points in Curve2D.")
+    ERR_FAIL_COND_V_MSG(pc == 0, Vector2(), "No points in Curve2D.");
 
     if (pc == 1)
         return baked_point_cache.get(0);
@@ -841,7 +841,7 @@ Vector2 Curve2D::get_closest_point(const Vector2 &p_to_point) const {
 
     //validate//
     int pc = baked_point_cache.size();
-    ERR_FAIL_COND_V_MSG(pc == 0, Vector2(), "No points in Curve2D.")
+    ERR_FAIL_COND_V_MSG(pc == 0, Vector2(), "No points in Curve2D.");
 
     if (pc == 1)
         return baked_point_cache.get(0);
@@ -877,7 +877,7 @@ float Curve2D::get_closest_offset(const Vector2 &p_to_point) const {
 
     //validate//
     int pc = baked_point_cache.size();
-    ERR_FAIL_COND_V_MSG(pc == 0, 0.0f, "No points in Curve2D.")
+    ERR_FAIL_COND_V_MSG(pc == 0, 0.0f, "No points in Curve2D.");
 
     if (pc == 1)
         return 0.0f;
@@ -1133,7 +1133,7 @@ void Curve3D::clear_points() {
 Vector3 Curve3D::interpolate(int p_index, float p_offset) const {
 
     int pc = points.size();
-    ERR_FAIL_COND_V(pc == 0, Vector3())
+    ERR_FAIL_COND_V(pc == 0, Vector3());
 
     if (p_index >= pc - 1)
         return points[pc - 1].pos;
@@ -1340,7 +1340,7 @@ Vector3 Curve3D::interpolate_baked(float p_offset, bool p_cubic) const {
 
     //validate//
     int pc = baked_point_cache.size();
-    ERR_FAIL_COND_V_MSG(pc == 0, Vector3(), "No points in Curve3D.")
+    ERR_FAIL_COND_V_MSG(pc == 0, Vector3(), "No points in Curve3D.");
 
     if (pc == 1)
         return baked_point_cache.get(0);
@@ -1382,7 +1382,7 @@ float Curve3D::interpolate_baked_tilt(float p_offset) const {
 
     //validate//
     int pc = baked_tilt_cache.size();
-    ERR_FAIL_COND_V_MSG(pc == 0, 0, "No tilts in Curve3D.")
+    ERR_FAIL_COND_V_MSG(pc == 0, 0, "No tilts in Curve3D.");
 
     if (pc == 1)
         return baked_tilt_cache.get(0);
@@ -1418,7 +1418,7 @@ Vector3 Curve3D::interpolate_baked_up_vector(float p_offset, bool p_apply_tilt) 
     //validate//
     // curve may not have baked up vectors
     int count = baked_up_vector_cache.size();
-    ERR_FAIL_COND_V_MSG(count == 0, Vector3(0, 1, 0), "No up vectors in Curve3D.")
+    ERR_FAIL_COND_V_MSG(count == 0, Vector3(0, 1, 0), "No up vectors in Curve3D.");
 
     if (count == 1)
         return baked_up_vector_cache.get(0);
@@ -1486,7 +1486,7 @@ Vector3 Curve3D::get_closest_point(const Vector3 &p_to_point) const {
 
     //validate//
     int pc = baked_point_cache.size();
-    ERR_FAIL_COND_V_MSG(pc == 0, Vector3(), "No points in Curve3D.")
+    ERR_FAIL_COND_V_MSG(pc == 0, Vector3(), "No points in Curve3D.");
 
     if (pc == 1)
         return baked_point_cache.get(0);
@@ -1522,7 +1522,7 @@ float Curve3D::get_closest_offset(const Vector3 &p_to_point) const {
 
     //validate//
     int pc = baked_point_cache.size();
-    ERR_FAIL_COND_V_MSG(pc == 0, 0.0f, "No points in Curve3D.")
+    ERR_FAIL_COND_V_MSG(pc == 0, 0.0f, "No points in Curve3D.");
 
     if (pc == 1)
         return 0.0f;

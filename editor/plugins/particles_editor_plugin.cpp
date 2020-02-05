@@ -78,7 +78,7 @@ bool ParticlesEditorBase::_generate(PoolVector<Vector3> &points, PoolVector<Vect
             float areapos = Math::random(0.0f, area_accum);
 
             Map<float, int>::iterator E = triangle_area_map.lower_bound(areapos);
-            ERR_FAIL_COND_V(E==triangle_area_map.end(), false)
+            ERR_FAIL_COND_V(E==triangle_area_map.end(), false);
             int index = E->second;
             ERR_FAIL_INDEX_V(index, geometry.size(), false);
 

@@ -255,7 +255,7 @@ bool SpatialMaterialConversionPlugin::handles(const Ref<Resource> &p_resource) c
 Ref<Resource> SpatialMaterialConversionPlugin::convert(const Ref<Resource> &p_resource) const {
 
     Ref<SpatialMaterial> mat = dynamic_ref_cast<SpatialMaterial>(p_resource);
-    ERR_FAIL_COND_V(not mat, Ref<Resource>())
+    ERR_FAIL_COND_V(not mat, Ref<Resource>());
 
     Ref<ShaderMaterial> smat(make_ref_counted<ShaderMaterial>());
 
@@ -299,7 +299,7 @@ bool ParticlesMaterialConversionPlugin::handles(const Ref<Resource> &p_resource)
 Ref<Resource> ParticlesMaterialConversionPlugin::convert(const Ref<Resource> &p_resource) const {
 
     Ref<ParticlesMaterial> mat = dynamic_ref_cast<ParticlesMaterial>(p_resource);
-    ERR_FAIL_COND_V(not mat, Ref<Resource>())
+    ERR_FAIL_COND_V(not mat, Ref<Resource>());
 
     Ref<ShaderMaterial> smat(make_ref_counted<ShaderMaterial>());
 
@@ -335,7 +335,7 @@ bool CanvasItemMaterialConversionPlugin::handles(const Ref<Resource> &p_resource
 Ref<Resource> CanvasItemMaterialConversionPlugin::convert(const Ref<Resource> &p_resource) const {
 
     Ref<CanvasItemMaterial> mat = dynamic_ref_cast<CanvasItemMaterial>(p_resource);
-    ERR_FAIL_COND_V(not mat, Ref<Resource>())
+    ERR_FAIL_COND_V(not mat, Ref<Resource>());
 
     Ref<ShaderMaterial> smat(make_ref_counted<ShaderMaterial>());
 

@@ -49,7 +49,7 @@ int SemaphoreWindows::get() const {
 	long previous;
 	switch (WaitForSingleObjectEx(semaphore, 0, false)) {
 		case WAIT_OBJECT_0: {
-			ERR_FAIL_COND_V(!ReleaseSemaphore(semaphore, 1, &previous), -1)
+			ERR_FAIL_COND_V(!ReleaseSemaphore(semaphore, 1, &previous), -1);
 			return previous + 1;
 		}
         case WAIT_TIMEOUT: {

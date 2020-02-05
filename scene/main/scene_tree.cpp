@@ -479,7 +479,7 @@ SceneTreeGroup *SceneTree::add_to_group(const StringName &p_group, Node *p_node)
         E = group_map.emplace(p_group, SceneTreeGroup()).first;
     }
 
-    ERR_FAIL_COND_V_MSG(E->second.nodes.contains(p_node), &E->second, "Already in group: " + p_group + ".")
+    ERR_FAIL_COND_V_MSG(E->second.nodes.contains(p_node), &E->second, "Already in group: " + p_group + ".");
     E->second.nodes.push_back(p_node);
     //E->get().last_tree_version=0;
     E->second.changed = true;
@@ -1353,10 +1353,10 @@ Variant SceneTree::_call_group_flags(const Variant **p_args, int p_argcount, Var
 
     r_error.error = Variant::CallError::CALL_OK;
 
-    ERR_FAIL_COND_V(p_argcount < 3, Variant())
-    ERR_FAIL_COND_V(!p_args[0]->is_num(), Variant())
-    ERR_FAIL_COND_V(p_args[1]->get_type() != VariantType::STRING, Variant())
-    ERR_FAIL_COND_V(p_args[2]->get_type() != VariantType::STRING, Variant())
+    ERR_FAIL_COND_V(p_argcount < 3, Variant());
+    ERR_FAIL_COND_V(!p_args[0]->is_num(), Variant());
+    ERR_FAIL_COND_V(p_args[1]->get_type() != VariantType::STRING, Variant());
+    ERR_FAIL_COND_V(p_args[2]->get_type() != VariantType::STRING, Variant());
 
     int flags = *p_args[0];
     StringName group = *p_args[1];
@@ -1376,9 +1376,9 @@ Variant SceneTree::_call_group(const Variant **p_args, int p_argcount, Variant::
 
     r_error.error = Variant::CallError::CALL_OK;
 
-    ERR_FAIL_COND_V(p_argcount < 2, Variant())
-    ERR_FAIL_COND_V(p_args[0]->get_type() != VariantType::STRING, Variant())
-    ERR_FAIL_COND_V(p_args[1]->get_type() != VariantType::STRING, Variant())
+    ERR_FAIL_COND_V(p_argcount < 2, Variant());
+    ERR_FAIL_COND_V(p_args[0]->get_type() != VariantType::STRING, Variant());
+    ERR_FAIL_COND_V(p_args[1]->get_type() != VariantType::STRING, Variant());
 
     StringName group = *p_args[0];
     StringName method = *p_args[1];
@@ -1497,7 +1497,7 @@ void SceneTree::_update_root_rect() {
     float video_mode_aspect = video_mode.aspect();
 
     if (use_font_oversampling && stretch_aspect == STRETCH_ASPECT_IGNORE) {
-        WARN_PRINT("Font oversampling only works with the resize modes 'Keep Width', 'Keep Height', and 'Expand'.")
+        WARN_PRINT("Font oversampling only works with the resize modes 'Keep Width', 'Keep Height', and 'Expand'.");
     }
 
     if (stretch_aspect == STRETCH_ASPECT_IGNORE || Math::is_equal_approx(viewport_aspect, video_mode_aspect)) {
@@ -1580,7 +1580,7 @@ void SceneTree::_update_root_rect() {
             root->update_canvas_items(); //force them to update just in case
 
             if (use_font_oversampling) {
-                WARN_PRINT("Font oversampling does not work in 'Viewport' stretch mode, only '2D'.")
+                WARN_PRINT("Font oversampling does not work in 'Viewport' stretch mode, only '2D'.");
             }
 
         } break;
@@ -1655,7 +1655,7 @@ Error SceneTree::change_scene_to(const Ref<PackedScene> &p_scene) {
     Node *new_scene = nullptr;
     if (p_scene) {
         new_scene = p_scene->instance();
-        ERR_FAIL_COND_V(!new_scene, ERR_CANT_CREATE)
+        ERR_FAIL_COND_V(!new_scene, ERR_CANT_CREATE);
     }
 
     call_deferred("_change_scene", Variant(new_scene));
@@ -1663,7 +1663,7 @@ Error SceneTree::change_scene_to(const Ref<PackedScene> &p_scene) {
 }
 Error SceneTree::reload_current_scene() {
 
-    ERR_FAIL_COND_V(!current_scene, ERR_UNCONFIGURED)
+    ERR_FAIL_COND_V(!current_scene, ERR_UNCONFIGURED);
     se_string_view fname = current_scene->get_filename();
     return change_scene(fname);
 }

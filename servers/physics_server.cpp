@@ -312,7 +312,7 @@ Dictionary PhysicsDirectSpaceState::_intersect_ray(const Vector3 &p_from, const 
 
 Array PhysicsDirectSpaceState::_intersect_shape(const Ref<PhysicsShapeQueryParameters> &p_shape_query, int p_max_results) {
 
-    ERR_FAIL_COND_V(not p_shape_query, Array())
+    ERR_FAIL_COND_V(not p_shape_query, Array());
 
     PODVector<ShapeResult> sr;
     sr.resize(p_max_results);
@@ -334,7 +334,7 @@ Array PhysicsDirectSpaceState::_intersect_shape(const Ref<PhysicsShapeQueryParam
 
 Array PhysicsDirectSpaceState::_cast_motion(const Ref<PhysicsShapeQueryParameters> &p_shape_query, const Vector3 &p_motion) {
 
-    ERR_FAIL_COND_V(not p_shape_query, Array())
+    ERR_FAIL_COND_V(not p_shape_query, Array());
 
     float closest_safe, closest_unsafe;
     bool res = cast_motion(p_shape_query->shape, p_shape_query->transform, p_motion, p_shape_query->margin, closest_safe, closest_unsafe, p_shape_query->exclude, p_shape_query->collision_mask, p_shape_query->collide_with_bodies, p_shape_query->collide_with_areas);
@@ -348,7 +348,7 @@ Array PhysicsDirectSpaceState::_cast_motion(const Ref<PhysicsShapeQueryParameter
 }
 Array PhysicsDirectSpaceState::_collide_shape(const Ref<PhysicsShapeQueryParameters> &p_shape_query, int p_max_results) {
 
-    ERR_FAIL_COND_V(not p_shape_query, Array())
+    ERR_FAIL_COND_V(not p_shape_query, Array());
 
     PODVector<Vector3> ret;
     ret.resize(p_max_results * 2);
@@ -364,7 +364,7 @@ Array PhysicsDirectSpaceState::_collide_shape(const Ref<PhysicsShapeQueryParamet
 }
 Dictionary PhysicsDirectSpaceState::_get_rest_info(const Ref<PhysicsShapeQueryParameters> &p_shape_query) {
 
-    ERR_FAIL_COND_V(not p_shape_query, Dictionary())
+    ERR_FAIL_COND_V(not p_shape_query, Dictionary());
 
     ShapeRestInfo sri;
 
@@ -809,12 +809,12 @@ int PhysicsServerManager::get_servers_count() {
 }
 
 StringName PhysicsServerManager::get_server_name(int p_id) {
-    ERR_FAIL_INDEX_V(p_id, get_servers_count(), StringName())
+    ERR_FAIL_INDEX_V(p_id, get_servers_count(), StringName());
     return physics_servers[p_id].name;
 }
 
 PhysicsServer *PhysicsServerManager::new_default_server() {
-    ERR_FAIL_COND_V(default_server_id == -1, nullptr)
+    ERR_FAIL_COND_V(default_server_id == -1, nullptr);
     return physics_servers[default_server_id].create_callback();
 }
 
@@ -839,7 +839,7 @@ PhysicsServer * initialize_3d_physics() {
         // Physics server not found, Use the default physics
         physics_server = PhysicsServerManager::new_default_server();
     }
-    ERR_FAIL_COND_V(!physics_server,nullptr)
+    ERR_FAIL_COND_V(!physics_server,nullptr);
     physics_server->init();
     return physics_server;
 }

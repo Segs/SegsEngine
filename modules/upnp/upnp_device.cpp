@@ -39,7 +39,7 @@ IMPL_GDCLASS(UPNPDevice)
 VARIANT_ENUM_CAST(UPNPDevice::IGDStatus)
 
 String UPNPDevice::query_external_address() const {
-    ERR_FAIL_COND_V(!is_valid_gateway(), null_se_string)
+    ERR_FAIL_COND_V(!is_valid_gateway(), null_se_string);
 
     char addr[16];
     int i = UPNP_GetExternalIPAddress(
@@ -47,17 +47,17 @@ String UPNPDevice::query_external_address() const {
             (igd_service_type).data(),
             (char *)&addr);
 
-    ERR_FAIL_COND_V(i != UPNPCOMMAND_SUCCESS, null_se_string)
+    ERR_FAIL_COND_V(i != UPNPCOMMAND_SUCCESS, null_se_string);
 
     return String(addr);
 }
 
 int UPNPDevice::add_port_mapping(int port, int port_internal, const String &desc, const String &proto, int duration) const {
-    ERR_FAIL_COND_V(!is_valid_gateway(), UPNP::UPNP_RESULT_INVALID_GATEWAY)
-    ERR_FAIL_COND_V(port < 1 || port > 65535, UPNP::UPNP_RESULT_INVALID_PORT)
-    ERR_FAIL_COND_V(port_internal < 0 || port_internal > 65535, UPNP::UPNP_RESULT_INVALID_PORT) // Needs to allow 0 because 0 signifies "use external port as internal port"
-    ERR_FAIL_COND_V(proto != "UDP" && proto != "TCP", UPNP::UPNP_RESULT_INVALID_PROTOCOL)
-    ERR_FAIL_COND_V(duration < 0, UPNP::UPNP_RESULT_INVALID_DURATION)
+    ERR_FAIL_COND_V(!is_valid_gateway(), UPNP::UPNP_RESULT_INVALID_GATEWAY);
+    ERR_FAIL_COND_V(port < 1 || port > 65535, UPNP::UPNP_RESULT_INVALID_PORT);
+    ERR_FAIL_COND_V(port_internal < 0 || port_internal > 65535, UPNP::UPNP_RESULT_INVALID_PORT); // Needs to allow 0 because 0 signifies "use external port as internal port"
+    ERR_FAIL_COND_V(proto != "UDP" && proto != "TCP", UPNP::UPNP_RESULT_INVALID_PROTOCOL);
+    ERR_FAIL_COND_V(duration < 0, UPNP::UPNP_RESULT_INVALID_DURATION);
 
     if (port_internal < 1) {
         port_internal = port;
@@ -74,14 +74,14 @@ int UPNPDevice::add_port_mapping(int port, int port_internal, const String &desc
             nullptr, // Remote host, always NULL as IGDs don't support it
             duration > 0 ? (itos(duration)).data() : nullptr);
 
-    ERR_FAIL_COND_V(i != UPNPCOMMAND_SUCCESS, UPNP::upnp_result(i))
+    ERR_FAIL_COND_V(i != UPNPCOMMAND_SUCCESS, UPNP::upnp_result(i));
 
     return UPNP::UPNP_RESULT_SUCCESS;
 }
 
 int UPNPDevice::delete_port_mapping(int port, se_string_view proto) const {
-    ERR_FAIL_COND_V(port < 1 || port > 65535, UPNP::UPNP_RESULT_INVALID_PORT)
-    ERR_FAIL_COND_V(proto != se_string_view("UDP") && proto != se_string_view("TCP"), UPNP::UPNP_RESULT_INVALID_PROTOCOL)
+    ERR_FAIL_COND_V(port < 1 || port > 65535, UPNP::UPNP_RESULT_INVALID_PORT);
+    ERR_FAIL_COND_V(proto != se_string_view("UDP") && proto != se_string_view("TCP"), UPNP::UPNP_RESULT_INVALID_PROTOCOL);
 
     int i = UPNP_DeletePortMapping(
             (igd_control_url).data(),
@@ -91,7 +91,7 @@ int UPNPDevice::delete_port_mapping(int port, se_string_view proto) const {
             nullptr // Remote host, always NULL as IGDs don't support it
     );
 
-    ERR_FAIL_COND_V(i != UPNPCOMMAND_SUCCESS, UPNP::upnp_result(i))
+    ERR_FAIL_COND_V(i != UPNPCOMMAND_SUCCESS, UPNP::upnp_result(i));
 
     return UPNP::UPNP_RESULT_SUCCESS;
 }

@@ -291,7 +291,7 @@ void CanvasItemMaterial::_validate_property(PropertyInfo &property) const {
 
 RID CanvasItemMaterial::get_shader_rid() const {
 
-    ERR_FAIL_COND_V(!shader_map.contains(current_key), RID())
+    ERR_FAIL_COND_V(!shader_map.contains(current_key), RID());
     return shader_map[current_key].shader;
 }
 
@@ -504,7 +504,7 @@ Transform2D CanvasItem::get_global_transform_with_canvas() const {
 
 Transform2D CanvasItem::get_global_transform() const {
 #ifdef DEBUG_ENABLED
-    ERR_FAIL_COND_V(!is_inside_tree(), get_transform())
+    ERR_FAIL_COND_V(!is_inside_tree(), get_transform());
 #endif
     if (global_invalid) {
 
@@ -800,11 +800,11 @@ void CanvasItem::draw_rect(const Rect2 &p_rect, const Color &p_color, bool p_fil
 
     if (p_filled) {
         if (p_width != 1.0f) {
-            WARN_PRINT("The draw_rect() \"width\" argument has no effect when \"filled\" is \"true\".")
+            WARN_PRINT("The draw_rect() \"width\" argument has no effect when \"filled\" is \"true\".");
         }
 
         if (p_antialiased) {
-            WARN_PRINT("The draw_rect() \"antialiased\" argument has no effect when \"filled\" is \"true\".")
+            WARN_PRINT("The draw_rect() \"antialiased\" argument has no effect when \"filled\" is \"true\".");
         }
 
         VisualServer::get_singleton()->canvas_item_add_rect(canvas_item, p_rect, p_color);
@@ -966,8 +966,8 @@ void CanvasItem::draw_string(const Ref<Font> &p_font, const Point2 &p_pos, se_st
 
 float CanvasItem::draw_char(const Ref<Font> &p_font, const Point2 &p_pos, QChar p_char, QChar p_next, const Color &p_modulate) {
 
-    ERR_FAIL_COND_V_MSG(!drawing, 0, "Drawing is only allowed inside NOTIFICATION_DRAW, _draw() function or 'draw' signal.")
-    ERR_FAIL_COND_V(not p_font, 0)
+    ERR_FAIL_COND_V_MSG(!drawing, 0, "Drawing is only allowed inside NOTIFICATION_DRAW, _draw() function or 'draw' signal.");
+    ERR_FAIL_COND_V(not p_font, 0);
 
     if (p_font->has_outline()) {
         p_font->draw_char(canvas_item, p_pos, p_char, p_next, Color(1, 1, 1), true);
@@ -1007,13 +1007,13 @@ void CanvasItem::_notify_transform(CanvasItem *p_node) {
 
 Rect2 CanvasItem::get_viewport_rect() const {
 
-    ERR_FAIL_COND_V(!is_inside_tree(), Rect2())
+    ERR_FAIL_COND_V(!is_inside_tree(), Rect2());
     return get_viewport()->get_visible_rect();
 }
 
 RID CanvasItem::get_canvas() const {
 
-    ERR_FAIL_COND_V(!is_inside_tree(), RID())
+    ERR_FAIL_COND_V(!is_inside_tree(), RID());
 
     if (canvas_layer)
         return canvas_layer->get_canvas();
@@ -1042,7 +1042,7 @@ CanvasItem *CanvasItem::get_toplevel() const {
 
 Ref<World2D> CanvasItem::get_world_2d() const {
 
-    ERR_FAIL_COND_V(!is_inside_tree(), Ref<World2D>())
+    ERR_FAIL_COND_V(!is_inside_tree(), Ref<World2D>());
 
     CanvasItem *tl = get_toplevel();
 
@@ -1055,7 +1055,7 @@ Ref<World2D> CanvasItem::get_world_2d() const {
 
 RID CanvasItem::get_viewport_rid() const {
 
-    ERR_FAIL_COND_V(!is_inside_tree(), RID())
+    ERR_FAIL_COND_V(!is_inside_tree(), RID());
     return get_viewport()->get_viewport_rid();
 }
 
@@ -1109,7 +1109,7 @@ Ref<Material> CanvasItem::get_material() const {
 
 Vector2 CanvasItem::make_canvas_position_local(const Vector2 &screen_point) const {
 
-    ERR_FAIL_COND_V(!is_inside_tree(), screen_point)
+    ERR_FAIL_COND_V(!is_inside_tree(), screen_point);
 
     Transform2D local_matrix = (get_canvas_transform() * get_global_transform()).affine_inverse();
 
@@ -1118,21 +1118,21 @@ Vector2 CanvasItem::make_canvas_position_local(const Vector2 &screen_point) cons
 
 Ref<InputEvent> CanvasItem::make_input_local(const Ref<InputEvent> &p_event) const {
 
-    ERR_FAIL_COND_V(not p_event, p_event)
-    ERR_FAIL_COND_V(!is_inside_tree(), p_event)
+    ERR_FAIL_COND_V(not p_event, p_event);
+    ERR_FAIL_COND_V(!is_inside_tree(), p_event);
 
     return p_event->xformed_by((get_canvas_transform() * get_global_transform()).affine_inverse());
 }
 
 Vector2 CanvasItem::get_global_mouse_position() const {
 
-    ERR_FAIL_COND_V(!get_viewport(), Vector2())
+    ERR_FAIL_COND_V(!get_viewport(), Vector2());
     return get_canvas_transform().affine_inverse().xform(get_viewport()->get_mouse_position());
 }
 
 Vector2 CanvasItem::get_local_mouse_position() const {
 
-    ERR_FAIL_COND_V(!get_viewport(), Vector2())
+    ERR_FAIL_COND_V(!get_viewport(), Vector2());
 
     return get_global_transform().affine_inverse().xform(get_global_mouse_position());
 }
@@ -1288,7 +1288,7 @@ void CanvasItem::_bind_methods() {
 
 Transform2D CanvasItem::get_canvas_transform() const {
 
-    ERR_FAIL_COND_V(!is_inside_tree(), Transform2D())
+    ERR_FAIL_COND_V(!is_inside_tree(), Transform2D());
 
     if (canvas_layer)
         return canvas_layer->get_transform();
@@ -1300,7 +1300,7 @@ Transform2D CanvasItem::get_canvas_transform() const {
 
 Transform2D CanvasItem::get_viewport_transform() const {
 
-    ERR_FAIL_COND_V(!is_inside_tree(), Transform2D())
+    ERR_FAIL_COND_V(!is_inside_tree(), Transform2D());
 
     if (canvas_layer) {
 

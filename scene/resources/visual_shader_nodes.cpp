@@ -3735,7 +3735,7 @@ String VisualShaderNodeFresnel::generate_code(ShaderMode p_mode, VisualShader::T
         view = p_input_vars[1];
     }
 
-    return "\t" + p_output_vars[0] + " = " + p_input_vars[2] + " ? (pow(clamp(dot(" + normal + ", " + view + "), 0.0, 1.0), " + p_input_vars[3] + ")) : (pow(1.0 - clamp(dot(" + normal + ", " + view + "), 0.0, 1.0), " + p_input_vars[3] + "));";
+    return "\t" + p_output_vars[0] + " = " + p_input_vars[2] + " ? (pow(clamp(dot(" + normal + ", " + view + "), 0.0, 1.0), " + p_input_vars[3] + ")) : (pow(1.0 - clamp(dot(" + normal + ", " + view + "), 0.0, 1.0), " + p_input_vars[3] + "));\n";
 }
 
 StringName VisualShaderNodeFresnel::get_input_port_default_hint(int p_port) const {

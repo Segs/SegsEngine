@@ -795,7 +795,7 @@ bool RigidBody::get_axis_lock(PhysicsServer::BodyAxis p_axis) const {
 
 Array RigidBody::get_colliding_bodies() const {
 
-    ERR_FAIL_COND_V(!contact_monitor, Array())
+    ERR_FAIL_COND_V(!contact_monitor, Array());
 
     Array ret;
     ret.resize(contact_monitor->body_map.size());
@@ -1185,7 +1185,7 @@ Vector3 KinematicBody::get_floor_normal() const {
 
 bool KinematicBody::test_move(const Transform &p_from, const Vector3 &p_motion, bool p_infinite_inertia) {
 
-    ERR_FAIL_COND_V(!is_inside_tree(), false)
+    ERR_FAIL_COND_V(!is_inside_tree(), false);
 
     return PhysicsServer::get_singleton()->body_test_motion(get_rid(), p_from, p_motion, p_infinite_inertia);
 }

@@ -120,7 +120,7 @@ int Physics2DDirectSpaceStateSW::intersect_point_on_canvas(const Vector2 &p_poin
 
 bool Physics2DDirectSpaceStateSW::intersect_ray(const Vector2 &p_from, const Vector2 &p_to, RayResult &r_result, const Set<RID> &p_exclude, uint32_t p_collision_mask, bool p_collide_with_bodies, bool p_collide_with_areas) {
 
-    ERR_FAIL_COND_V(space->locked, false)
+    ERR_FAIL_COND_V(space->locked, false);
 
     Vector2 begin, end;
     Vector2 normal;
@@ -204,7 +204,7 @@ int Physics2DDirectSpaceStateSW::intersect_shape(const RID &p_shape, const Trans
         return 0;
 
     Shape2DSW *shape = Physics2DServerSW::singletonsw->shape_owner.get(p_shape);
-    ERR_FAIL_COND_V(!shape, 0)
+    ERR_FAIL_COND_V(!shape, 0);
 
     Rect2 aabb = p_xform.xform(shape->get_aabb());
     aabb = aabb.grow(p_margin);
@@ -246,7 +246,7 @@ int Physics2DDirectSpaceStateSW::intersect_shape(const RID &p_shape, const Trans
 bool Physics2DDirectSpaceStateSW::cast_motion(const RID &p_shape, const Transform2D &p_xform, const Vector2 &p_motion, real_t p_margin, real_t &p_closest_safe, real_t &p_closest_unsafe, const Set<RID> &p_exclude, uint32_t p_collision_mask, bool p_collide_with_bodies, bool p_collide_with_areas) {
 
     Shape2DSW *shape = Physics2DServerSW::singletonsw->shape_owner.get(p_shape);
-    ERR_FAIL_COND_V(!shape, false)
+    ERR_FAIL_COND_V(!shape, false);
 
     Rect2 aabb = p_xform.xform(shape->get_aabb());
     aabb = aabb.merge(Rect2(aabb.position + p_motion, aabb.size)); //motion
@@ -319,7 +319,7 @@ bool Physics2DDirectSpaceStateSW::collide_shape(RID p_shape, const Transform2D &
         return false;
 
     Shape2DSW *shape = Physics2DServerSW::singletonsw->shape_owner.get(p_shape);
-    ERR_FAIL_COND_V(!shape, 0)
+    ERR_FAIL_COND_V(!shape, 0);
 
     Rect2 aabb = p_shape_xform.xform(shape->get_aabb());
     aabb = aabb.merge(Rect2(aabb.position + p_motion, aabb.size)); //motion
@@ -410,7 +410,7 @@ static void _rest_cbk_result(const Vector2 &p_point_A, const Vector2 &p_point_B,
 bool Physics2DDirectSpaceStateSW::rest_info(RID p_shape, const Transform2D &p_shape_xform, const Vector2 &p_motion, real_t p_margin, ShapeRestInfo *r_info, const Set<RID> &p_exclude, uint32_t p_collision_mask, bool p_collide_with_bodies, bool p_collide_with_areas) {
 
     Shape2DSW *shape = Physics2DServerSW::singletonsw->shape_owner.get(p_shape);
-    ERR_FAIL_COND_V(!shape, 0)
+    ERR_FAIL_COND_V(!shape, 0);
 
     Rect2 aabb = p_shape_xform.xform(shape->get_aabb());
     aabb = aabb.merge(Rect2(aabb.position + p_motion, aabb.size)); //motion

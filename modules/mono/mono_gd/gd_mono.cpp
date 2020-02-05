@@ -300,7 +300,7 @@ void GDMono::determine_mono_dirs(String &r_assembly_rootdir, String &r_config_di
 
 void GDMono::initialize() {
 
-    ERR_FAIL_NULL(Engine::get_singleton())
+    ERR_FAIL_NULL(Engine::get_singleton());
 
     print_verbose("Mono: Initializing module...");
 
@@ -364,7 +364,7 @@ void GDMono::initialize() {
     // Otherwise registration fails with the error: 'assertion 'hash != nullptr' failed'.
 
     root_domain = gd_initialize_mono_runtime();
-    ERR_FAIL_NULL_MSG(root_domain, "Mono: Failed to initialize runtime.")
+    ERR_FAIL_NULL_MSG(root_domain, "Mono: Failed to initialize runtime.");
 
     GDMonoUtils::set_main_thread(GDMonoUtils::get_current_thread());
 
@@ -531,14 +531,14 @@ bool GDMono::load_assembly(const String &p_name, MonoAssemblyName *p_aname, GDMo
     if (!assembly)
         return false;
 
-    ERR_FAIL_COND_V(status != MONO_IMAGE_OK, false)
+    ERR_FAIL_COND_V(status != MONO_IMAGE_OK, false);
 
     uint32_t domain_id = mono_domain_get_id(mono_domain_get());
 
     GDMonoAssembly **stored_assembly = &assemblies[domain_id][p_name];
 
-    ERR_FAIL_COND_V(stored_assembly == nullptr, false)
-    ERR_FAIL_COND_V((*stored_assembly)->get_assembly() != assembly, false)
+    ERR_FAIL_COND_V(stored_assembly == nullptr, false);
+    ERR_FAIL_COND_V((*stored_assembly)->get_assembly() != assembly, false);
 
     *r_assembly = *stored_assembly;
 
@@ -640,11 +640,11 @@ bool GDMono::copy_prebuilt_api_assembly(ApiAssemblyInfo::Type p_api_type, se_str
 
     String xml_file = assembly_name + ".xml";
     if (da->copy(PathUtils::plus_file(src_dir,xml_file), PathUtils::plus_file(dst_dir,xml_file)) != OK)
-        WARN_PRINT("Failed to copy '" + xml_file + "'.")
+        WARN_PRINT("Failed to copy '" + xml_file + "'.");
 
     String pdb_file = assembly_name + ".pdb";
     if (da->copy(PathUtils::plus_file(src_dir,pdb_file), PathUtils::plus_file(dst_dir,pdb_file)) != OK)
-        WARN_PRINT("Failed to copy '" + pdb_file + "'.")
+        WARN_PRINT("Failed to copy '" + pdb_file + "'.");
 
     String assembly_file = assembly_name + ".dll";
     if (da->copy(PathUtils::plus_file(src_dir,assembly_file), PathUtils::plus_file(dst_dir,assembly_file)) != OK) {
@@ -998,20 +998,20 @@ void GDMono::_install_trace_listener() {
     install_func->invoke_raw(nullptr, nullptr, &exc);
     if (exc) {
         GDMonoUtils::debug_print_unhandled_exception(exc);
-        ERR_PRINT("Failed to install 'System.Diagnostics.Trace' listener.")
+        ERR_PRINT("Failed to install 'System.Diagnostics.Trace' listener.");
     }
 #endif
 }
 
 Error GDMono::_load_scripts_domain() {
 
-    ERR_FAIL_COND_V(scripts_domain != nullptr, ERR_BUG)
+    ERR_FAIL_COND_V(scripts_domain != nullptr, ERR_BUG);
 
     print_verbose("Mono: Loading scripts domain...");
 
     scripts_domain = GDMonoUtils::create_domain("GodotEngine.Domain.Scripts");
 
-    ERR_FAIL_NULL_V_MSG(scripts_domain, ERR_CANT_CREATE, "Mono: Could not create scripts app domain.")
+    ERR_FAIL_NULL_V_MSG(scripts_domain, ERR_CANT_CREATE, "Mono: Could not create scripts app domain.");
 
     mono_domain_set(scripts_domain, true);
 
@@ -1020,7 +1020,7 @@ Error GDMono::_load_scripts_domain() {
 
 Error GDMono::_unload_scripts_domain() {
 
-    ERR_FAIL_NULL_V(scripts_domain, ERR_BUG)
+    ERR_FAIL_NULL_V(scripts_domain, ERR_BUG);
 
     print_verbose("Mono: Unloading scripts domain...");
 
@@ -1030,7 +1030,7 @@ Error GDMono::_unload_scripts_domain() {
     finalizing_scripts_domain = true;
 
     if (!mono_domain_finalize(scripts_domain, 2000)) {
-        ERR_PRINT("Mono: Domain finalization timeout.")
+        ERR_PRINT("Mono: Domain finalization timeout.");
     }
 
     finalizing_scripts_domain = false;

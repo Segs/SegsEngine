@@ -826,7 +826,7 @@ void TabContainer::set_tab_title(int p_tab, const StringName &p_title) {
 StringName TabContainer::get_tab_title(int p_tab) const {
 
     Control *child = _get_tab(p_tab);
-    ERR_FAIL_COND_V(!child, StringName())
+    ERR_FAIL_COND_V(!child, StringName());
     if (child->has_meta("_tab_name"))
         return child->get_meta("_tab_name");
     else
@@ -843,7 +843,7 @@ void TabContainer::set_tab_icon(int p_tab, const Ref<Texture> &p_icon) {
 Ref<Texture> TabContainer::get_tab_icon(int p_tab) const {
 
     Control *child = _get_tab(p_tab);
-    ERR_FAIL_COND_V(!child, Ref<Texture>())
+    ERR_FAIL_COND_V(!child, Ref<Texture>());
     if (child->has_meta("_tab_icon"))
         return refFromRefPtr<Texture>(child->get_meta("_tab_icon"));
     else
@@ -861,7 +861,7 @@ void TabContainer::set_tab_disabled(int p_tab, bool p_disabled) {
 bool TabContainer::get_tab_disabled(int p_tab) const {
 
     Control *child = _get_tab(p_tab);
-    ERR_FAIL_COND_V(!child, false)
+    ERR_FAIL_COND_V(!child, false);
     if (child->has_meta("_tab_disabled"))
         return child->get_meta("_tab_disabled");
     else
@@ -891,7 +891,7 @@ void TabContainer::set_tab_hidden(int p_tab, bool p_hidden) {
 bool TabContainer::get_tab_hidden(int p_tab) const {
 
     Control *child = _get_tab(p_tab);
-    ERR_FAIL_COND_V(!child, false)
+    ERR_FAIL_COND_V(!child, false);
     if (child->has_meta("_tab_hidden"))
         return child->get_meta("_tab_hidden");
     else

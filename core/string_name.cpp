@@ -381,9 +381,9 @@ StringName::StringName(se_string_view p_name) {
 
 StringName StringName::search(const char *p_name) {
 
-    ERR_FAIL_COND_V(!configured, StringName())
+    ERR_FAIL_COND_V(!configured, StringName());
 
-    ERR_FAIL_COND_V(!p_name, StringName())
+    ERR_FAIL_COND_V(!p_name, StringName());
     if (!p_name[0])
         return StringName();
 
@@ -412,7 +412,7 @@ StringName StringName::search(const char *p_name) {
 
 //StringName StringName::search(const String &p_name) {
 
-//    ERR_FAIL_COND_V(p_name.isEmpty(), StringName())
+//    ERR_FAIL_COND_V(p_name.isEmpty(), StringName());
 
 //    MutexLock mlocker(*lock);
 

@@ -49,7 +49,7 @@ class RingBuffer {
 
 public:
     T read() {
-        ERR_FAIL_COND_V(space_left() < 1, T())
+        ERR_FAIL_COND_V(space_left() < 1, T());
         return data.ptr()[inc(read_pos, 1)];
     }
 
@@ -141,7 +141,7 @@ public:
     }
 
     Error write(const T &p_v) {
-        ERR_FAIL_COND_V(space_left() < 1, FAILED)
+        ERR_FAIL_COND_V(space_left() < 1, FAILED);
         data.write[inc(write_pos, 1)] = p_v;
         return OK;
     }

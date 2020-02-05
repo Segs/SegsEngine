@@ -729,7 +729,7 @@ public:
     void set_can_preview(Camera *p_preview);
 
     SpatialEditorViewport *get_editor_viewport(int p_idx) {
-        ERR_FAIL_INDEX_V(p_idx, static_cast<int>(VIEWPORTS_COUNT), nullptr)
+        ERR_FAIL_INDEX_V(p_idx, static_cast<int>(VIEWPORTS_COUNT), nullptr);
         return viewports[p_idx];
     }
 

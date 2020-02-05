@@ -343,30 +343,30 @@ void EditorPlugin::remove_autoload_singleton(const StringName &p_name) {
 }
 
 ToolButton *EditorPlugin::add_control_to_bottom_panel(Control *p_control, const StringName &p_title) {
-    ERR_FAIL_NULL_V(p_control, nullptr)
+    ERR_FAIL_NULL_V(p_control, nullptr);
     return EditorNode::get_singleton()->add_bottom_panel_item(p_title, p_control);
 }
 
 void EditorPlugin::add_control_to_dock(DockSlot p_slot, Control *p_control) {
 
-    ERR_FAIL_NULL(p_control)
+    ERR_FAIL_NULL(p_control);
     EditorNode::get_singleton()->add_control_to_dock(EditorNode::DockSlot(p_slot), p_control);
 }
 
 void EditorPlugin::remove_control_from_docks(Control *p_control) {
 
-    ERR_FAIL_NULL(p_control)
+    ERR_FAIL_NULL(p_control);
     EditorNode::get_singleton()->remove_control_from_dock(p_control);
 }
 
 void EditorPlugin::remove_control_from_bottom_panel(Control *p_control) {
 
-    ERR_FAIL_NULL(p_control)
+    ERR_FAIL_NULL(p_control);
     EditorNode::get_singleton()->remove_bottom_panel_item(p_control);
 }
 
 void EditorPlugin::add_control_to_container(CustomControlContainer p_location, Control *p_control) {
-    ERR_FAIL_NULL(p_control)
+    ERR_FAIL_NULL(p_control);
 
     switch (p_location) {
 

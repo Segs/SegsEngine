@@ -63,7 +63,7 @@
 using namespace eastl;
 const char *GDScriptFunctions::get_func_name(Function p_func) {
 
-    ERR_FAIL_INDEX_V(p_func, FUNC_MAX, "")
+    ERR_FAIL_INDEX_V(p_func, FUNC_MAX, "");
 
     static const char *_names[FUNC_MAX] = {
         "sin",

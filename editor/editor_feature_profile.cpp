@@ -138,7 +138,7 @@ bool EditorFeatureProfile::is_feature_disabled(Feature p_feature) const {
 }
 
 se_string_view EditorFeatureProfile::get_feature_name(Feature p_feature) {
-    ERR_FAIL_INDEX_V(p_feature, FEATURE_MAX, {})
+    ERR_FAIL_INDEX_V(p_feature, FEATURE_MAX, {});
     return feature_names[p_feature];
 }
 
@@ -180,7 +180,7 @@ Error EditorFeatureProfile::save_to_file(se_string_view p_path) {
     json["disabled_features"] = dis_features;
 
     FileAccessRef f = FileAccess::open(p_path, FileAccess::WRITE);
-    ERR_FAIL_COND_V_MSG(!f, ERR_CANT_CREATE, String("Cannot create file '") + p_path + "'.")
+    ERR_FAIL_COND_V_MSG(!f, ERR_CANT_CREATE, String("Cannot create file '") + p_path + "'.");
 
     String text = JSON::print(json, "\t");
     f->store_string(text);

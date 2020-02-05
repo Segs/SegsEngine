@@ -41,29 +41,29 @@ Error ImageLoaderHDR::load_image(ImageData & p_image, FileAccess *f, LoadParams 
 
     String header = f->get_token();
 
-    ERR_FAIL_COND_V_MSG(header != "#?RADIANCE" && header != "#?RGBE", ERR_FILE_UNRECOGNIZED, "Unsupported header information in HDR: " + header + ".")
+    ERR_FAIL_COND_V_MSG(header != "#?RADIANCE" && header != "#?RGBE", ERR_FILE_UNRECOGNIZED, "Unsupported header information in HDR: " + header + ".");
 
     while (true) {
         String line = f->get_line();
-        ERR_FAIL_COND_V(f->eof_reached(), ERR_FILE_UNRECOGNIZED)
+        ERR_FAIL_COND_V(f->eof_reached(), ERR_FILE_UNRECOGNIZED);
         if (line.empty()) // empty line indicates end of header
             break;
         if (StringUtils::begins_with(line,"FORMAT=")) { // leave option to implement other commands
-            ERR_FAIL_COND_V_MSG(line != "FORMAT=32-bit_rle_rgbe", ERR_FILE_UNRECOGNIZED, "Only 32-bit_rle_rgbe is supported for HDR files.")
+            ERR_FAIL_COND_V_MSG(line != "FORMAT=32-bit_rle_rgbe", ERR_FILE_UNRECOGNIZED, "Only 32-bit_rle_rgbe is supported for HDR files.");
         } else if (!StringUtils::begins_with(line,"#")) { // not comment
-            WARN_PRINT("Ignoring unsupported header information in HDR: " + line + ".")
+            WARN_PRINT("Ignoring unsupported header information in HDR: " + line + ".");
         }
     }
 
     String token = f->get_token();
 
-    ERR_FAIL_COND_V(token != "-Y", ERR_FILE_CORRUPT)
+    ERR_FAIL_COND_V(token != "-Y", ERR_FILE_CORRUPT);
 
     int height = StringUtils::to_int(f->get_token());
 
     token = f->get_token();
 
-    ERR_FAIL_COND_V(token != "+X", ERR_FILE_CORRUPT)
+    ERR_FAIL_COND_V(token != "+X", ERR_FILE_CORRUPT);
 
     int width = StringUtils::to_int(f->get_line());
 
@@ -101,7 +101,7 @@ Error ImageLoaderHDR::load_image(ImageData & p_image, FileAccess *f, LoadParams 
                 len <<= 8;
                 len |= f->get_8();
 
-                ERR_FAIL_COND_V_MSG(len != width, ERR_FILE_CORRUPT, "Invalid decoded scanline length, corrupt HDR.")
+                ERR_FAIL_COND_V_MSG(len != width, ERR_FILE_CORRUPT, "Invalid decoded scanline length, corrupt HDR.");
 
                 for (int k = 0; k < 4; ++k) {
                     int i = 0;

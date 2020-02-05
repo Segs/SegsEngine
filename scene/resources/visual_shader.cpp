@@ -206,7 +206,7 @@ void VisualShaderNodeCustom::update_ports() {
 }
 
 se_string_view VisualShaderNodeCustom::get_caption() const {
-    ERR_FAIL_COND_V(!get_script_instance(), null_se_string)
+    ERR_FAIL_COND_V(!get_script_instance(), null_se_string);
     if (get_script_instance()->has_method("_get_name")) {
         return get_script_instance()->call("_get_name").as<String>();
     }
@@ -218,12 +218,12 @@ int VisualShaderNodeCustom::get_input_port_count() const {
 }
 
 VisualShaderNodeCustom::PortType VisualShaderNodeCustom::get_input_port_type(int p_port) const {
-    ERR_FAIL_INDEX_V(p_port, input_ports.size(), PORT_TYPE_SCALAR)
+    ERR_FAIL_INDEX_V(p_port, input_ports.size(), PORT_TYPE_SCALAR);
     return (PortType)input_ports[p_port].type;
 }
 
 StringName VisualShaderNodeCustom::get_input_port_name(int p_port) const {
-    ERR_FAIL_INDEX_V(p_port, input_ports.size(), StringName())
+    ERR_FAIL_INDEX_V(p_port, input_ports.size(), StringName());
     return input_ports[p_port].name;
 }
 
@@ -232,19 +232,19 @@ int VisualShaderNodeCustom::get_output_port_count() const {
 }
 
 VisualShaderNodeCustom::PortType VisualShaderNodeCustom::get_output_port_type(int p_port) const {
-    ERR_FAIL_INDEX_V(p_port, output_ports.size(), PORT_TYPE_SCALAR)
+    ERR_FAIL_INDEX_V(p_port, output_ports.size(), PORT_TYPE_SCALAR);
     return (PortType)output_ports[p_port].type;
 }
 
 StringName VisualShaderNodeCustom::get_output_port_name(int p_port) const {
-    ERR_FAIL_INDEX_V(p_port, output_ports.size(), StringName())
+    ERR_FAIL_INDEX_V(p_port, output_ports.size(), StringName());
     return output_ports[p_port].name;
 }
 
 String VisualShaderNodeCustom::generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const String *p_input_vars, const String *p_output_vars, bool p_for_preview) const {
 
-    ERR_FAIL_COND_V(!get_script_instance(), String())
-    ERR_FAIL_COND_V(!get_script_instance()->has_method("_get_code"), String())
+    ERR_FAIL_COND_V(!get_script_instance(), String());
+    ERR_FAIL_COND_V(!get_script_instance()->has_method("_get_code"), String());
     Array input_vars;
     for (int i = 0; i < get_input_port_count(); i++) {
         input_vars.push_back(p_input_vars[i]);
@@ -270,7 +270,7 @@ String VisualShaderNodeCustom::generate_code(ShaderMode p_mode, VisualShader::Ty
 }
 
 String VisualShaderNodeCustom::generate_global_per_node(ShaderMode p_mode, VisualShader::Type p_type, int p_id) const {
-    ERR_FAIL_COND_V(!get_script_instance(), String())
+    ERR_FAIL_COND_V(!get_script_instance(), String());
     if (get_script_instance()->has_method("_get_global_code")) {
         String code = String("// ") + get_caption() + "\n";
         code += (String)get_script_instance()->call("_get_global_code", (int)p_mode);
@@ -346,21 +346,21 @@ void VisualShader::set_node_position(Type p_type, int p_id, const Vector2 &p_pos
 }
 
 Vector2 VisualShader::get_node_position(Type p_type, int p_id) const {
-    ERR_FAIL_INDEX_V(p_type, TYPE_MAX, Vector2())
+    ERR_FAIL_INDEX_V(p_type, TYPE_MAX, Vector2());
     const Graph *g = &graph[p_type];
-    ERR_FAIL_COND_V(!g->nodes.contains(p_id), Vector2())
+    ERR_FAIL_COND_V(!g->nodes.contains(p_id), Vector2());
     return g->nodes.at(p_id).position;
 }
 
 Ref<VisualShaderNode> VisualShader::get_node(Type p_type, int p_id) const {
-    ERR_FAIL_INDEX_V(p_type, TYPE_MAX, Ref<VisualShaderNode>())
+    ERR_FAIL_INDEX_V(p_type, TYPE_MAX, Ref<VisualShaderNode>());
     const Graph *g = &graph[p_type];
-    ERR_FAIL_COND_V(!g->nodes.contains(p_id), Ref<VisualShaderNode>())
+    ERR_FAIL_COND_V(!g->nodes.contains(p_id), Ref<VisualShaderNode>());
     return g->nodes.at(p_id).node;
 }
 
 PODVector<int> VisualShader::get_node_list(Type p_type) const {
-    ERR_FAIL_INDEX_V(p_type, TYPE_MAX, PODVector<int>())
+    ERR_FAIL_INDEX_V(p_type, TYPE_MAX, PODVector<int>());
     const Graph *g = &graph[p_type];
 
     PODVector<int> ret;
@@ -372,7 +372,7 @@ PODVector<int> VisualShader::get_node_list(Type p_type) const {
     return ret;
 }
 int VisualShader::get_valid_node_id(Type p_type) const {
-    ERR_FAIL_INDEX_V(p_type, TYPE_MAX, NODE_ID_INVALID)
+    ERR_FAIL_INDEX_V(p_type, TYPE_MAX, NODE_ID_INVALID);
     const Graph *g = &graph[p_type];
     return !g->nodes.empty() ? MAX(2, g->nodes.rbegin()->first + 1) : 2;
 }
@@ -508,15 +508,15 @@ Error VisualShader::connect_nodes(Type p_type, int p_from_node, int p_from_port,
     ERR_FAIL_INDEX_V(p_type, TYPE_MAX, ERR_CANT_CONNECT);
     Graph *g = &graph[p_type];
 
-    ERR_FAIL_COND_V(!g->nodes.contains(p_from_node), ERR_INVALID_PARAMETER)
-    ERR_FAIL_INDEX_V(p_from_port, g->nodes[p_from_node].node->get_output_port_count(), ERR_INVALID_PARAMETER)
-    ERR_FAIL_COND_V(!g->nodes.contains(p_to_node), ERR_INVALID_PARAMETER)
-    ERR_FAIL_INDEX_V(p_to_port, g->nodes[p_to_node].node->get_input_port_count(), ERR_INVALID_PARAMETER)
+    ERR_FAIL_COND_V(!g->nodes.contains(p_from_node), ERR_INVALID_PARAMETER);
+    ERR_FAIL_INDEX_V(p_from_port, g->nodes[p_from_node].node->get_output_port_count(), ERR_INVALID_PARAMETER);
+    ERR_FAIL_COND_V(!g->nodes.contains(p_to_node), ERR_INVALID_PARAMETER);
+    ERR_FAIL_INDEX_V(p_to_port, g->nodes[p_to_node].node->get_input_port_count(), ERR_INVALID_PARAMETER);
 
     VisualShaderNode::PortType from_port_type = g->nodes[p_from_node].node->get_output_port_type(p_from_port);
     VisualShaderNode::PortType to_port_type = g->nodes[p_to_node].node->get_input_port_type(p_to_port);
 
-    ERR_FAIL_COND_V_MSG(!is_port_types_compatible(from_port_type, to_port_type), ERR_INVALID_PARAMETER, "Incompatible port types (scalar/vec/bool) with transform.")
+    ERR_FAIL_COND_V_MSG(!is_port_types_compatible(from_port_type, to_port_type), ERR_INVALID_PARAMETER, "Incompatible port types (scalar/vec/bool) with transform.");
 
     for (List<Connection>::Element *E = g->connections.front(); E; E = E->next()) {
 
@@ -659,9 +659,9 @@ bool VisualShader::is_text_shader() const {
 String VisualShader::generate_preview_shader(Type p_type, int p_node, int p_port, Vector<DefaultTextureParam> &default_tex_params) const {
 
     Ref<VisualShaderNode> node = get_node(p_type, p_node);
-    ERR_FAIL_COND_V(not node, String())
-    ERR_FAIL_COND_V(p_port < 0 || p_port >= node->get_output_port_count(), String())
-    ERR_FAIL_COND_V(node->get_output_port_type(p_port) == VisualShaderNode::PORT_TYPE_TRANSFORM, String())
+    ERR_FAIL_COND_V(not node, String());
+    ERR_FAIL_COND_V(p_port < 0 || p_port >= node->get_output_port_count(), String());
+    ERR_FAIL_COND_V(node->get_output_port_type(p_port) == VisualShaderNode::PORT_TYPE_TRANSFORM, String());
 
     StringBuilder global_code;
     StringBuilder global_code_per_node;
@@ -712,7 +712,7 @@ String VisualShader::generate_preview_shader(Type p_type, int p_node, int p_port
 
     Set<int> processed;
     Error err = _write_node(p_type, global_code, global_code_per_node, global_code_per_func, code, default_tex_params, input_connections, output_connections, p_node, processed, true, classes);
-    ERR_FAIL_COND_V(err != OK, String())
+    ERR_FAIL_COND_V(err != OK, String());
 
     if (node->get_output_port_type(p_port) == VisualShaderNode::PORT_TYPE_SCALAR) {
         code += "\tCOLOR.rgb = vec3( n_out" + itos(p_node) + "p" + itos(p_port) + " );\n";
@@ -835,7 +835,7 @@ String VisualShader::validate_uniform_name(se_string_view p_name, const Ref<Visu
             while (name.length() && name[name.length() - 1] >= '0' && name[name.length() - 1] <= '9') {
                 name = StringUtils::substr(name,0, name.length() - 1);
             }
-            ERR_FAIL_COND_V(name.empty(), String())
+            ERR_FAIL_COND_V(name.empty(), String());
             name += itos(attempt);
         } else {
             break;
@@ -2339,7 +2339,7 @@ void VisualShaderNodeGroupBase::set_input_port_type(int p_id, int p_type) {
 }
 
 VisualShaderNodeGroupBase::PortType VisualShaderNodeGroupBase::get_input_port_type(int p_id) const {
-    ERR_FAIL_COND_V(!input_ports.contains(p_id), (PortType)0)
+    ERR_FAIL_COND_V(!input_ports.contains(p_id), (PortType)0);
     return input_ports.at(p_id).type;
 }
 
@@ -2372,7 +2372,7 @@ void VisualShaderNodeGroupBase::set_input_port_name(int p_id, const String &p_na
 }
 
 StringName VisualShaderNodeGroupBase::get_input_port_name(int p_id) const {
-    ERR_FAIL_COND_V(!input_ports.contains(p_id), StringName())
+    ERR_FAIL_COND_V(!input_ports.contains(p_id), StringName());
     return StringName(input_ports.at(p_id).name);
 }
 
@@ -2405,7 +2405,7 @@ void VisualShaderNodeGroupBase::set_output_port_type(int p_id, int p_type) {
 }
 
 VisualShaderNodeGroupBase::PortType VisualShaderNodeGroupBase::get_output_port_type(int p_id) const {
-    ERR_FAIL_COND_V(!output_ports.contains(p_id), (PortType)0)
+    ERR_FAIL_COND_V(!output_ports.contains(p_id), (PortType)0);
     return output_ports.at(p_id).type;
 }
 
@@ -2438,7 +2438,7 @@ void VisualShaderNodeGroupBase::set_output_port_name(int p_id, const String &p_n
 }
 
 StringName VisualShaderNodeGroupBase::get_output_port_name(int p_id) const {
-    ERR_FAIL_COND_V(!output_ports.contains(p_id), StringName())
+    ERR_FAIL_COND_V(!output_ports.contains(p_id), StringName());
     return StringName(output_ports.at(p_id).name);
 }
 
@@ -2455,7 +2455,7 @@ void VisualShaderNodeGroupBase::set_control(Control *p_control, int p_index) {
 }
 
 Control *VisualShaderNodeGroupBase::get_control(int p_index) {
-    ERR_FAIL_COND_V(!controls.contains(p_index), nullptr)
+    ERR_FAIL_COND_V(!controls.contains(p_index), nullptr);
     return controls[p_index];
 }
 
@@ -2612,7 +2612,7 @@ String VisualShaderNodeExpression::generate_code(ShaderMode p_mode, VisualShader
     code += output_initializer;
     code += String("\t{");
     code += _expression;
-    code += String("\n\t}");
+    code += String("\n\t}\n");
 
     return code;
 }

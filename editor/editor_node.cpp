@@ -729,7 +729,7 @@ Error EditorNode::load_resource(se_string_view p_resource, bool p_ignore_broken_
 
     Error err;
     RES res(ResourceLoader::load(p_resource, {}, false, &err));
-    ERR_FAIL_COND_V(not res, ERR_CANT_OPEN)
+    ERR_FAIL_COND_V(not res, ERR_CANT_OPEN);
     if (p_ignore_broken_deps) {
         inspector_dock->edit_resource(res);
         return OK;
@@ -3072,7 +3072,7 @@ void EditorNode::set_addon_plugin_enabled(const StringName &p_addon, bool p_enab
         ps->set("editor_plugins/enabled", enabled_plugins);
         ps->save();
         WARN_PRINT(
-                String("Addon '") + p_addon + "' failed to load. No directory found. Removing from enabled plugins.")
+                String("Addon '") + p_addon + "' failed to load. No directory found. Removing from enabled plugins.");
         return;
     }
     Error err = cf->load(addon_path);
@@ -3969,7 +3969,7 @@ void EditorNode::stop_child_process() {
 }
 
 Ref<Script> EditorNode::get_object_custom_type_base(const Object *p_object) const {
-    ERR_FAIL_COND_V(!p_object, Ref<Script>())
+    ERR_FAIL_COND_V(!p_object, Ref<Script>());
 
     Ref<Script> script(refFromRefPtr<Script>(p_object->get_script()));
 
@@ -4001,7 +4001,7 @@ Ref<Script> EditorNode::get_object_custom_type_base(const Object *p_object) cons
 }
 
 StringName EditorNode::get_object_custom_type_name(const Object *p_object) const {
-    ERR_FAIL_COND_V(!p_object, StringName())
+    ERR_FAIL_COND_V(!p_object, StringName());
 
     Ref<Script> script(refFromRefPtr<Script>(p_object->get_script()));
     if (not script && p_object->is_class("Script")) {
@@ -4047,7 +4047,7 @@ Ref<ImageTexture> EditorNode::_load_custom_class_icon(se_string_view p_path) con
 }
 
 Ref<Texture> EditorNode::get_object_icon(const Object *p_object, const StringName &p_fallback) const {
-    ERR_FAIL_COND_V(!p_object || !gui_base, Ref<Texture>())
+    ERR_FAIL_COND_V(!p_object || !gui_base, Ref<Texture>());
 
     Ref<Script> script(refFromRefPtr<Script>(p_object->get_script()));
     if (not script && p_object->is_class("Script")) {
@@ -4090,7 +4090,7 @@ Ref<Texture> EditorNode::get_object_icon(const Object *p_object, const StringNam
 }
 
 Ref<Texture> EditorNode::get_class_icon(const StringName &p_class, const StringName &p_fallback) const {
-    ERR_FAIL_COND_V_MSG(p_class.empty(), Ref<Texture>(), "Class name cannot be empty.")
+    ERR_FAIL_COND_V_MSG(p_class.empty(), Ref<Texture>(), "Class name cannot be empty.");
 
     if (gui_base->has_icon(p_class, "EditorIcons")) {
         return gui_base->get_icon(p_class, "EditorIcons");
@@ -4272,7 +4272,7 @@ void EditorNode::show_warning(const StringName &p_text, const StringName &p_titl
         warning->set_title(p_title);
         warning->popup_centered_minsize();
     } else {
-        WARN_PRINT(String(p_title) + " " + p_text)
+        WARN_PRINT(String(p_title) + " " + p_text);
     }
 }
 void EditorNode::_copy_warning(se_string_view p_str) {
@@ -5353,7 +5353,7 @@ Variant EditorNode::drag_files_and_dirs(const PODVector<String> &p_paths, Contro
 
 void EditorNode::add_tool_menu_item(
         const StringName &p_name, Object *p_handler, se_string_view p_callback, const Variant &p_ud) {
-    ERR_FAIL_NULL(p_handler)
+    ERR_FAIL_NULL(p_handler);
     int idx = tool_menu->get_item_count();
     tool_menu->add_item(p_name, TOOLS_CUSTOM);
 
@@ -5366,8 +5366,8 @@ void EditorNode::add_tool_menu_item(
 }
 
 void EditorNode::add_tool_submenu_item(const StringName &p_name, PopupMenu *p_submenu) {
-    ERR_FAIL_NULL(p_submenu)
-    ERR_FAIL_COND(p_submenu->get_parent() != nullptr)
+    ERR_FAIL_NULL(p_submenu);
+    ERR_FAIL_COND(p_submenu->get_parent() != nullptr);
 
     tool_menu->add_child(p_submenu);
     tool_menu->add_submenu_item(p_name, p_submenu->get_name(), TOOLS_CUSTOM);
@@ -5860,7 +5860,7 @@ int EditorNode::execute_and_show_output(const StringName &p_title, se_string_vie
 
     eta.execute_output_thread = Thread::create(_execute_thread, &eta);
 
-    ERR_FAIL_COND_V(!eta.execute_output_thread, 0)
+    ERR_FAIL_COND_V(!eta.execute_output_thread, 0);
 
     while (!eta.done) {
         eta.execute_output_mutex->lock();
@@ -6041,7 +6041,7 @@ EditorNode::EditorNode() {
             add_plugin_resolver(new ResourcePluginResolver);
             resource_importers_registered = true;
         } else
-            WARN_PRINT("Attempted to register resource importer resolver again.")
+            WARN_PRINT("Attempted to register resource importer resolver again.");
 
         Ref<ResourceImporterWAV> import_wav(make_ref_counted<ResourceImporterWAV>());
         ResourceFormatImporter::get_singleton()->add_importer(import_wav);
@@ -6058,7 +6058,7 @@ EditorNode::EditorNode() {
                 add_plugin_resolver(new EditorPluginResolver(import_scene.get()));
                 registered = true;
             } else
-                WARN_PRINT("Attempted to register resource loader again.")
+                WARN_PRINT("Attempted to register resource loader again.");
 
             static EditorSceneImporterESCN import_escn;
             import_scene->add_importer(&import_escn);
@@ -7011,7 +7011,7 @@ EditorNode::EditorNode() {
     if (StreamPeerSSL::is_available()) {
         add_editor_plugin(memnew(AssetLibraryEditorPlugin(this)));
     } else {
-        WARN_PRINT("Asset Library not available, as it requires SSL to work.")
+        WARN_PRINT("Asset Library not available, as it requires SSL to work.");
     }
 
     // add interface before adding plugins

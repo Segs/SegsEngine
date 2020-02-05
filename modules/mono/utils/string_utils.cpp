@@ -178,7 +178,7 @@ Error read_all_file_utf8(se_string_view p_path, String &r_content) {
 
     Error err;
     String res = FileAccess::get_file_as_string(p_path,&err);
-    ERR_FAIL_COND_V_MSG(err != OK, err, "Cannot open file '" + p_path + "'.")
+    ERR_FAIL_COND_V_MSG(err != OK, err, "Cannot open file '" + p_path + "'.");
 
     r_content = res;
     return OK;

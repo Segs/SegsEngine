@@ -77,7 +77,7 @@ Error HTTPClient::connect_to_host(const String &p_host, int p_port, bool p_ssl, 
         conn_host = StringUtils::substr(conn_host,8, conn_host.length() - 8);
     }
 
-    ERR_FAIL_COND_V(conn_host.length() < HOST_MIN_LEN, ERR_INVALID_PARAMETER)
+    ERR_FAIL_COND_V(conn_host.length() < HOST_MIN_LEN, ERR_INVALID_PARAMETER);
 
     if (conn_port < 0) {
         if (ssl) {
@@ -123,9 +123,9 @@ Ref<StreamPeer> HTTPClient::get_connection() const {
 Error HTTPClient::request_raw(Method p_method, se_string_view p_url, const PODVector<String> &p_headers, const PoolVector<uint8_t> &p_body) {
 
     ERR_FAIL_INDEX_V(p_method, METHOD_MAX, ERR_INVALID_PARAMETER);
-    ERR_FAIL_COND_V(!StringUtils::begins_with(p_url,"/"), ERR_INVALID_PARAMETER)
-    ERR_FAIL_COND_V(status != STATUS_CONNECTED, ERR_INVALID_PARAMETER)
-    ERR_FAIL_COND_V(not connection, ERR_INVALID_DATA)
+    ERR_FAIL_COND_V(!StringUtils::begins_with(p_url,"/"), ERR_INVALID_PARAMETER);
+    ERR_FAIL_COND_V(status != STATUS_CONNECTED, ERR_INVALID_PARAMETER);
+    ERR_FAIL_COND_V(not connection, ERR_INVALID_DATA);
 
     String request = String(_methods[p_method]) + " " + p_url + " HTTP/1.1\r\n";
     if ((ssl && conn_port == PORT_HTTPS) || (!ssl && conn_port == PORT_HTTP)) {
@@ -185,10 +185,10 @@ Error HTTPClient::request_raw(Method p_method, se_string_view p_url, const PODVe
 
 Error HTTPClient::request(Method p_method, se_string_view p_url, const PODVector<String> &p_headers, const String &p_body) {
 
-    ERR_FAIL_INDEX_V(p_method, METHOD_MAX, ERR_INVALID_PARAMETER)
-    ERR_FAIL_COND_V(!StringUtils::begins_with(p_url,"/"), ERR_INVALID_PARAMETER)
-    ERR_FAIL_COND_V(status != STATUS_CONNECTED, ERR_INVALID_PARAMETER)
-    ERR_FAIL_COND_V(not connection, ERR_INVALID_DATA)
+    ERR_FAIL_INDEX_V(p_method, METHOD_MAX, ERR_INVALID_PARAMETER);
+    ERR_FAIL_COND_V(!StringUtils::begins_with(p_url,"/"), ERR_INVALID_PARAMETER);
+    ERR_FAIL_COND_V(status != STATUS_CONNECTED, ERR_INVALID_PARAMETER);
+    ERR_FAIL_COND_V(not connection, ERR_INVALID_DATA);
 
     String request = String(_methods[p_method]) + " " + p_url + " HTTP/1.1\r\n";
     if ((ssl && conn_port == PORT_HTTPS) || (!ssl && conn_port == PORT_HTTP)) {
@@ -298,7 +298,7 @@ Error HTTPClient::poll() {
     switch (status) {
 
         case STATUS_RESOLVING: {
-            ERR_FAIL_COND_V(resolving == IP::RESOLVER_INVALID_ID, ERR_BUG)
+            ERR_FAIL_COND_V(resolving == IP::RESOLVER_INVALID_ID, ERR_BUG);
 
             IP::ResolverStatus rstatus = IP::get_singleton()->get_resolve_item_status(resolving);
             switch (rstatus) {
@@ -520,7 +520,7 @@ int HTTPClient::get_response_body_length() const {
 
 PoolByteArray HTTPClient::read_response_body_chunk() {
 
-    ERR_FAIL_COND_V(status != STATUS_BODY, PoolByteArray())
+    ERR_FAIL_COND_V(status != STATUS_BODY, PoolByteArray());
 
     PoolByteArray ret;
     Error err = OK;

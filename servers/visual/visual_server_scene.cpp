@@ -258,7 +258,7 @@ void VisualServerScene::_instance_unpair(void *p_self, OctreeElementID, Instance
 RID VisualServerScene::scenario_create() {
 
     Scenario *scenario = memnew(Scenario);
-    ERR_FAIL_COND_V(!scenario, RID())
+    ERR_FAIL_COND_V(!scenario, RID());
     RID scenario_rid = scenario_owner.make_rid(scenario);
     scenario->self = scenario_rid;
 
@@ -322,7 +322,7 @@ void VisualServerScene::_instance_queue_update(Instance *p_instance, bool p_upda
 RID VisualServerScene::instance_create() {
 
     Instance *instance = memnew(Instance);
-    ERR_FAIL_COND_V(!instance, RID())
+    ERR_FAIL_COND_V(!instance, RID());
 
     RID instance_rid = instance_owner.make_rid(instance);
     instance->self = instance_rid;
@@ -784,7 +784,7 @@ Vector<ObjectID> VisualServerScene::instances_cull_aabb(const AABB &p_aabb, RID 
 
     Vector<ObjectID> instances;
     Scenario *scenario = scenario_owner.get(p_scenario);
-    ERR_FAIL_COND_V(!scenario, instances)
+    ERR_FAIL_COND_V(!scenario, instances);
 
     const_cast<VisualServerScene *>(this)->update_dirty_instances(); // check dirty instances before culling
 
@@ -808,7 +808,7 @@ Vector<ObjectID> VisualServerScene::instances_cull_ray(const Vector3 &p_from, co
 
     Vector<ObjectID> instances;
     Scenario *scenario = scenario_owner.get(p_scenario);
-    ERR_FAIL_COND_V(!scenario, instances)
+    ERR_FAIL_COND_V(!scenario, instances);
     const_cast<VisualServerScene *>(this)->update_dirty_instances(); // check dirty instances before culling
 
     int culled = 0;
@@ -830,7 +830,7 @@ Vector<ObjectID> VisualServerScene::instances_cull_convex(Span<const Plane> p_co
 
     Vector<ObjectID> instances;
     Scenario *scenario = scenario_owner.get(p_scenario);
-    ERR_FAIL_COND_V(!scenario, instances)
+    ERR_FAIL_COND_V(!scenario, instances);
     const_cast<VisualServerScene *>(this)->update_dirty_instances(); // check dirty instances before culling
 
     int culled = 0;
@@ -2213,7 +2213,7 @@ bool VisualServerScene::_render_reflection_probe_step(Instance *p_instance, int 
 
     InstanceReflectionProbeData *reflection_probe = static_cast<InstanceReflectionProbeData *>(p_instance->base_data);
     Scenario *scenario = p_instance->scenario;
-    ERR_FAIL_COND_V(!scenario, true)
+    ERR_FAIL_COND_V(!scenario, true);
 
     VisualServerRaster::redraw_request(); //update, so it updates in editor
 

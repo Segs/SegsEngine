@@ -122,7 +122,7 @@ bool JoypadWindows::is_xinput_device(const GUID *p_guid) {
     for (unsigned int i = 0; i < dev_list_count; i++) {
 
         RID_DEVICE_INFO rdi;
-        char dev_name[128];
+        char dev_name[128]={0};
         UINT rdiSize = sizeof(rdi);
         UINT nameSize = sizeof(dev_name);
 

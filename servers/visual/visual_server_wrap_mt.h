@@ -177,7 +177,7 @@ public:
     FUNC2RC(VS::PrimitiveType, mesh_surface_get_primitive_type, RID, int)
 
     FUNC2RC(AABB, mesh_surface_get_aabb, RID, int)
-    FUNC2RC(Vector<PoolVector<uint8_t> >, mesh_surface_get_blend_shapes, RID, int)
+    FUNC2RC(PODVector<PoolVector<uint8_t> >, mesh_surface_get_blend_shapes, RID, int)
     FUNC2RC(Vector<AABB>, mesh_surface_get_skeleton_aabb, RID, int)
 
     FUNC2(mesh_remove_surface, RID, int)

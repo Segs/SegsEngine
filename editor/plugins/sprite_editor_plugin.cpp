@@ -63,7 +63,7 @@ void SpriteEditor::edit(Sprite *p_sprite) {
 
 PODVector<Vector2> expand(const PODVector<Vector2> &points, const Rect2i &rect, float epsilon = 2.0) {
     int size = points.size();
-    ERR_FAIL_COND_V(size < 2, PODVector<Vector2>())
+    ERR_FAIL_COND_V(size < 2, PODVector<Vector2>());
 
     ClipperLib::Path subj;
     ClipperLib::PolyTree solution;
@@ -79,7 +79,7 @@ PODVector<Vector2> expand(const PODVector<Vector2> &points, const Rect2i &rect, 
 
     ClipperLib::PolyNode *p = solution.GetFirst();
 
-    ERR_FAIL_COND_V(!p, points)
+    ERR_FAIL_COND_V(!p, points);
 
     while (p->IsHole()) {
         p = p->GetNext();
@@ -102,7 +102,7 @@ PODVector<Vector2> expand(const PODVector<Vector2> &points, const Rect2i &rect, 
 
     PODVector<Vector2> outPoints;
     ClipperLib::PolyNode *p2 = out.GetFirst();
-    ERR_FAIL_COND_V(!p2, points)
+    ERR_FAIL_COND_V(!p2, points);
 
     while (p2->IsHole()) {
         p2 = p2->GetNext();

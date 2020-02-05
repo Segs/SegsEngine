@@ -524,7 +524,7 @@ void CanvasItemEditor::_keying_changed() {
 }
 
 Rect2 CanvasItemEditor::_get_encompassing_rect_from_list(List<CanvasItem *> p_list) {
-    ERR_FAIL_COND_V(p_list.empty(), Rect2())
+    ERR_FAIL_COND_V(p_list.empty(), Rect2());
 
     // Handles the first element
     CanvasItem *canvas_item = p_list.front()->deref();
@@ -847,7 +847,7 @@ List<CanvasItem *> CanvasItemEditor::_get_edited_canvas_items(bool retreive_lock
 }
 
 Vector2 CanvasItemEditor::_anchor_to_position(const Control *p_control, Vector2 anchor) {
-    ERR_FAIL_COND_V(!p_control, Vector2())
+    ERR_FAIL_COND_V(!p_control, Vector2());
 
     Transform2D parent_transform = p_control->get_transform().affine_inverse();
     Rect2 parent_rect = p_control->get_parent_anchorable_rect();
@@ -856,11 +856,11 @@ Vector2 CanvasItemEditor::_anchor_to_position(const Control *p_control, Vector2 
 }
 
 Vector2 CanvasItemEditor::_position_to_anchor(const Control *p_control, Vector2 position) {
-    ERR_FAIL_COND_V(!p_control, Vector2())
+    ERR_FAIL_COND_V(!p_control, Vector2());
 
     Rect2 parent_rect = p_control->get_parent_anchorable_rect();
-    ERR_FAIL_COND_V(parent_rect.size.x == 0.0f, Vector2())
-    ERR_FAIL_COND_V(parent_rect.size.y == 0.0f, Vector2())
+    ERR_FAIL_COND_V(parent_rect.size.x == 0.0f, Vector2());
+    ERR_FAIL_COND_V(parent_rect.size.y == 0.0f, Vector2());
 
     return (p_control->get_transform().xform(position) - parent_rect.position) / parent_rect.size;
 }
@@ -3592,7 +3592,7 @@ void CanvasItemEditor::_draw_locks_and_groups(Node *p_node, const Transform2D &p
 }
 
 bool CanvasItemEditor::_build_bones_list(Node *p_node) {
-    ERR_FAIL_COND_V(!p_node, false)
+    ERR_FAIL_COND_V(!p_node, false);
 
     bool has_child_bones = false;
 
@@ -6034,7 +6034,7 @@ void CanvasItemEditorViewport::_perform_drop_data() {
             continue;
         }
         Ref<PackedScene> scene = Ref<PackedScene>(dynamic_ref_cast<PackedScene>(res));
-        if (scene != nullptr && scene) {
+        if (scene) {
             if (!target_node) {
                 // Without root node act the same as "Load Inherited Scene"
                 Error err = EditorNode::get_singleton()->load_scene(path, false, true);
@@ -6049,7 +6049,7 @@ void CanvasItemEditorViewport::_perform_drop_data() {
             }
         } else {
             Ref<Texture> texture(dynamic_ref_cast<Texture>(res));
-            if (texture != nullptr && texture) {
+            if (texture) {
                 Node *child;
                 if (default_type == "Light2D")
                     child = memnew(Light2D);

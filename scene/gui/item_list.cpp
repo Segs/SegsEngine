@@ -90,7 +90,7 @@ void ItemList::set_item_text(int p_idx, const StringName &p_text) {
 
 StringName ItemList::get_item_text(int p_idx) const {
 
-    ERR_FAIL_INDEX_V(p_idx, items.size(), StringName())
+    ERR_FAIL_INDEX_V(p_idx, items.size(), StringName());
     return items[p_idx].text;
 }
 
@@ -100,7 +100,7 @@ void ItemList::set_item_tooltip_enabled(int p_idx, const bool p_enabled) {
 }
 
 bool ItemList::is_item_tooltip_enabled(int p_idx) const {
-    ERR_FAIL_INDEX_V(p_idx, items.size(), false)
+    ERR_FAIL_INDEX_V(p_idx, items.size(), false);
     return items[p_idx].tooltip_enabled;
 }
 

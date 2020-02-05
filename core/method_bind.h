@@ -247,7 +247,7 @@ public:
         r_error.error=Variant::CallError::CALL_OK;
 #ifdef DEBUG_METHODS_ENABLED
 
-        ERR_FAIL_COND_V(!instance,Variant())
+        ERR_FAIL_COND_V(!instance,Variant());
         if(!checkArgs(p_args,p_arg_count,verifiers,sizeof...(Args),r_error))
             return Variant::null_variant;
 

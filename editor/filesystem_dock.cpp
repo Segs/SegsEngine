@@ -1464,7 +1464,6 @@ void FileSystemDock::_move_operation_confirm(se_string_view p_to_path, bool over
         if (!can_move) {
             // Ask to do something.
             overwrite_dialog->popup_centered_minsize();
-            overwrite_dialog->grab_focus();
             return;
         }
     }
@@ -1472,9 +1471,7 @@ void FileSystemDock::_move_operation_confirm(se_string_view p_to_path, bool over
     // Check groups.
     for (int i = 0; i < to_move.size(); i++) {
 
-        print_line("is group: " + to_move[i].path + ": " + itos(EditorFileSystem::get_singleton()->is_group_file(to_move[i].path)));
         if (to_move[i].is_file && EditorFileSystem::get_singleton()->is_group_file(to_move[i].path)) {
-            print_line("move to: " + PathUtils::plus_file(p_to_path,PathUtils::get_file(to_move[i].path)));
             EditorFileSystem::get_singleton()->move_group_file(to_move[i].path, PathUtils::plus_file(p_to_path,PathUtils::get_file(to_move[i].path)));
         }
     }
@@ -2102,11 +2099,15 @@ void FileSystemDock::drop_data_fw(const Point2 &p_point, const Variant &p_data, 
             PoolVector<String> fnames(drag_data["files"].as<PoolVector<String>>());
             to_move.clear();
             for (int i = 0; i < fnames.size(); i++) {
-                to_move.push_back(FileOrFolder(fnames[i], !StringUtils::ends_with(fnames[i],"/")));
+                if (PathUtils::get_base_dir(fnames[i]) != to_dir) {
+                    to_move.push_back(FileOrFolder(fnames[i], !StringUtils::ends_with(fnames[i],"/")));
+                }
             }
-            _move_operation_confirm(to_dir);
+            if (!to_move.empty()) {
+                _move_operation_confirm(to_dir);
+            }
         } else if (favorite) {
-            // Add the files from favorites
+            // Add the files from favorites.
             PoolVector<String> fnames(drag_data["files"].as<PoolVector<String>>());
             PODVector<String> favorites = EditorSettings::get_singleton()->get_favorites();
             for (int i = 0; i < fnames.size(); i++) {
@@ -2154,6 +2155,11 @@ void FileSystemDock::_get_drag_target_folder(String &target, bool &target_favori
                     if (StringUtils::ends_with(fpath,"/")) {
                         // We drop on a folder.
                         target = fpath;
+                        return;
+                    }
+                    else {
+                        // We drop on the folder that the target file is in.
+                        target = PathUtils::get_base_dir(fpath);
                         return;
                     }
                 } else {
