@@ -612,7 +612,7 @@ int RichTextLabel::_process_line(RichTextItemFrame *p_frame, const Vector2 &p_of
                 ItemFade *fade = nullptr;
                 int it_char_start = p_char_count;
 
-                Vector<RichTextItemFX *> fx_stack = Vector<RichTextItemFX *>();
+                PODVector<RichTextItemFX *> fx_stack;
                 _fetch_item_fx_stack(text, fx_stack);
                 bool custom_fx_ok = true;
 
@@ -1700,7 +1700,7 @@ bool RichTextLabel::_find_by_type(RichTextItem *p_item, ItemType p_type) {
     return false;
 }
 
-void RichTextLabel::_fetch_item_fx_stack(RichTextItem *p_item, Vector<RichTextItemFX *> &r_stack) {
+void RichTextLabel::_fetch_item_fx_stack(RichTextItem *p_item, PODVector<RichTextItemFX *> &r_stack) {
     RichTextItem *item = p_item;
     while (item) {
         if (item->type == ITEM_CUSTOMFX || item->type == ITEM_SHAKE || item->type == ITEM_WAVE || item->type == ITEM_TORNADO || item->type == ITEM_RAINBOW) {
@@ -2916,8 +2916,8 @@ void RichTextLabel::set_effects(const PODVector<Variant> &effects) {
     parse_bbcode(bbcode);
 }
 
-Vector<Variant> RichTextLabel::get_effects() {
-    Vector<Variant> r;
+PODVector<Variant> RichTextLabel::get_effects() {
+    PODVector<Variant> r;
     for (int i = 0; i < custom_effects.size(); i++) {
         r.push_back(Variant(custom_effects[i].get_ref_ptr()));
     }

@@ -47,6 +47,8 @@
 #include "core/string_utils.h"
 #include "core/string_utils.inl"
 
+#include "EASTL/sort.h"
+
 #include <QtCore/QRegularExpression>
 
 uint32_t EditorSceneImporterGLTF::get_import_flags() const {
@@ -1471,11 +1473,11 @@ Error EditorSceneImporterGLTF::_parse_materials(GLTFState &state) {
     return OK;
 }
 
-EditorSceneImporterGLTF::GLTFNodeIndex EditorSceneImporterGLTF::_find_highest_node(GLTFState &state, const Vector<GLTFNodeIndex> &subset) {
+EditorSceneImporterGLTF::GLTFNodeIndex EditorSceneImporterGLTF::_find_highest_node(GLTFState &state, const PODVector<GLTFNodeIndex> &subset) {
     int highest = -1;
     GLTFNodeIndex best_node = -1;
 
-    for (int i = 0; i < subset.size(); ++i) {
+    for (size_t i = 0; i < subset.size(); ++i) {
         const GLTFNodeIndex node_i = subset[i];
         const GLTFNode *node = state.nodes[node_i];
 
@@ -1526,7 +1528,7 @@ void EditorSceneImporterGLTF::_capture_nodes_for_multirooted_skin(GLTFState &sta
         }
     }
 
-    Vector<GLTFNodeIndex> roots;
+    PODVector<GLTFNodeIndex> roots;
     disjoint_set.get_representatives(roots);
 
     if (roots.size() <= 1) {
@@ -1562,7 +1564,7 @@ void EditorSceneImporterGLTF::_capture_nodes_for_multirooted_skin(GLTFState &sta
         }
 
         // replace the roots
-        roots.write[i] = current_node;
+        roots[i] = current_node;
     }
 
     // Climb up the tree until they all have the same parent
@@ -1587,7 +1589,7 @@ void EditorSceneImporterGLTF::_capture_nodes_for_multirooted_skin(GLTFState &sta
                     skin.non_joints.push_back(parent);
                 }
 
-                roots.write[i] = parent;
+                roots[i] = parent;
             }
         }
 
@@ -1615,27 +1617,26 @@ Error EditorSceneImporterGLTF::_expand_skin(GLTFState &state, GLTFSkin &skin) {
         }
     }
 
-    Vector<GLTFNodeIndex> out_owners;
+    PODVector<GLTFNodeIndex> out_owners;
     disjoint_set.get_representatives(out_owners);
 
-    Vector<GLTFNodeIndex> out_roots;
+    PODVector<GLTFNodeIndex> out_roots;
 
     for (int i = 0; i < out_owners.size(); ++i) {
-        Vector<GLTFNodeIndex> set;
+        PODVector<GLTFNodeIndex> set;
         disjoint_set.get_members(set, out_owners[i]);
 
         const GLTFNodeIndex root = _find_highest_node(state, set);
         ERR_FAIL_COND_V(root < 0, FAILED);
         out_roots.push_back(root);
     }
-
-    out_roots.sort();
+    eastl::sort(out_roots.begin(),out_roots.end());
 
     for (int i = 0; i < out_roots.size(); ++i) {
         _capture_nodes_in_skin(state, skin, out_roots[i]);
     }
 
-    skin.roots = out_roots;
+    skin.roots = eastl::move(out_roots);
 
     return OK;
 }
@@ -1664,19 +1665,19 @@ Error EditorSceneImporterGLTF::_verify_skin(GLTFState &state, GLTFSkin &skin) {
             disjoint_set.create_union(parent, node_index);
         }
     }
-    Vector<GLTFNodeIndex> out_owners;
+    PODVector<GLTFNodeIndex> out_owners;
     disjoint_set.get_representatives(out_owners);
 
-    Vector<GLTFNodeIndex> out_roots;
+    PODVector<GLTFNodeIndex> out_roots;
     for (int i = 0; i < out_owners.size(); ++i) {
-        Vector<GLTFNodeIndex> set;
+        PODVector<GLTFNodeIndex> set;
         disjoint_set.get_members(set, out_owners[i]);
 
         const GLTFNodeIndex root = _find_highest_node(state, set);
         ERR_FAIL_COND_V(root < 0, FAILED)
         out_roots.push_back(root);
     }
-    out_roots.sort();
+    eastl::sort(out_roots.begin(),out_roots.end());
 
     ERR_FAIL_COND_V(out_roots.size() == 0, FAILED)
     // Make sure the roots are the exact same (they better be)
@@ -1789,16 +1790,17 @@ Error EditorSceneImporterGLTF::_determine_skeletons(GLTFState &state) {
                     }
 
     { // attempt to joint all touching subsets (siblings/parent are part of another skin)
-        Vector<GLTFNodeIndex> groups_representatives;
+        PODVector<GLTFNodeIndex> groups_representatives;
         skeleton_sets.get_representatives(groups_representatives);
 
-        Vector<GLTFNodeIndex> highest_group_members;
-        Vector<Vector<GLTFNodeIndex> > groups;
-        for (int i = 0; i < groups_representatives.size(); ++i) {
-            Vector<GLTFNodeIndex> group;
-            skeleton_sets.get_members(group, groups_representatives[i]);
-            highest_group_members.push_back(_find_highest_node(state, group));
-            groups.push_back(group);
+        PODVector<GLTFNodeIndex> highest_group_members;
+        PODVector<PODVector<GLTFNodeIndex> > groups;
+        groups.reserve(groups_representatives.size());
+        for (const GLTFNodeIndex grp_rep : groups_representatives) {
+            PODVector<GLTFNodeIndex> group;
+            skeleton_sets.get_members(group, grp_rep);
+            highest_group_members.emplace_back(_find_highest_node(state, group));
+            groups.emplace_back(eastl::move(group));
         }
 
         for (int i = 0; i < highest_group_members.size(); ++i) {
@@ -1818,9 +1820,9 @@ Error EditorSceneImporterGLTF::_determine_skeletons(GLTFState &state) {
             const GLTFNodeIndex node_i_parent = state.nodes[node_i]->parent;
             if (node_i_parent >= 0) {
                 for (int j = 0; j < groups.size() && i != j; ++j) {
-                    const Vector<GLTFNodeIndex> &group = groups[j];
+                    const PODVector<GLTFNodeIndex> &group = groups[j];
 
-                    if (group.find(node_i_parent) >= 0) {
+                    if (group.contains(node_i_parent)) {
                         const GLTFNodeIndex node_j = highest_group_members[j];
                         skeleton_sets.create_union(node_i, node_j);
                     }
@@ -1830,7 +1832,7 @@ Error EditorSceneImporterGLTF::_determine_skeletons(GLTFState &state) {
                 }
 
     // At this point, the skeleton groups should be finalized
-    Vector<GLTFNodeIndex> skeleton_owners;
+    PODVector<GLTFNodeIndex> skeleton_owners;
     skeleton_sets.get_representatives(skeleton_owners);
 
     // Mark all the skins actual skeletons, after we have merged them
@@ -1839,7 +1841,7 @@ Error EditorSceneImporterGLTF::_determine_skeletons(GLTFState &state) {
         const GLTFNodeIndex skeleton_owner = skeleton_owners[skel_i];
         GLTFSkeleton skeleton;
 
-        Vector<GLTFNodeIndex> skeleton_nodes;
+        PODVector<GLTFNodeIndex> skeleton_nodes;
         skeleton_sets.get_members(skeleton_nodes, skeleton_owner);
 
         for (GLTFSkinIndex skin_i = 0; skin_i < state.skins.size(); ++skin_i) {
@@ -1855,7 +1857,7 @@ Error EditorSceneImporterGLTF::_determine_skeletons(GLTFState &state) {
         }
     }
 
-        Vector<GLTFNodeIndex> non_joints;
+        PODVector<GLTFNodeIndex> non_joints;
         for (int i = 0; i < skeleton_nodes.size(); ++i) {
             const GLTFNodeIndex node_i = skeleton_nodes[i];
 
@@ -1889,7 +1891,7 @@ Error EditorSceneImporterGLTF::_determine_skeletons(GLTFState &state) {
     return OK;
 }
 
-Error EditorSceneImporterGLTF::_reparent_non_joint_skeleton_subtrees(GLTFState &state, GLTFSkeleton &skeleton, const Vector<GLTFNodeIndex> &non_joints) {
+Error EditorSceneImporterGLTF::_reparent_non_joint_skeleton_subtrees(GLTFState &state, GLTFSkeleton &skeleton, const PODVector<GLTFNodeIndex> &non_joints) {
 
     DisjointSet<GLTFNodeIndex> subtree_set;
 
@@ -1907,23 +1909,23 @@ Error EditorSceneImporterGLTF::_reparent_non_joint_skeleton_subtrees(GLTFState &
         subtree_set.insert(node_i);
 
         const GLTFNodeIndex parent_i = state.nodes[node_i]->parent;
-        if (parent_i >= 0 && non_joints.find(parent_i) >= 0 && !state.nodes[parent_i]->joint) {
+        if (parent_i >= 0 && non_joints.contains(parent_i) && !state.nodes[parent_i]->joint) {
             subtree_set.create_union(parent_i, node_i);
         }
     }
 
     // Find all the non joint subtrees and re-parent them to a new "fake" joint
 
-    Vector<GLTFNodeIndex> non_joint_subtree_roots;
+    PODVector<GLTFNodeIndex> non_joint_subtree_roots;
     subtree_set.get_representatives(non_joint_subtree_roots);
 
     for (int root_i = 0; root_i < non_joint_subtree_roots.size(); ++root_i) {
         const GLTFNodeIndex subtree_root = non_joint_subtree_roots[root_i];
 
-        Vector<GLTFNodeIndex> subtree_nodes;
+        PODVector<GLTFNodeIndex> subtree_nodes;
         subtree_set.get_members(subtree_nodes, subtree_root);
 
-        for (int subtree_i = 0; subtree_i < subtree_nodes.size(); ++subtree_i) {
+        for (size_t subtree_i = 0; subtree_i < subtree_nodes.size(); ++subtree_i) {
             ERR_FAIL_COND_V(_reparent_to_fake_joint(state, skeleton, subtree_nodes[subtree_i]), FAILED);
 
             // We modified the tree, recompute all the heights
@@ -2024,13 +2026,13 @@ Error EditorSceneImporterGLTF::_determine_skeleton_roots(GLTFState &state, const
 
     GLTFSkeleton &skeleton = state.skeletons.write[skel_i];
 
-    Vector<GLTFNodeIndex> owners;
+    PODVector<GLTFNodeIndex> owners;
     disjoint_set.get_representatives(owners);
 
     Vector<GLTFNodeIndex> roots;
 
     for (int i = 0; i < owners.size(); ++i) {
-        Vector<GLTFNodeIndex> set;
+        PODVector<GLTFNodeIndex> set;
         disjoint_set.get_members(set, owners[i]);
         const GLTFNodeIndex root = _find_highest_node(state, set);
         ERR_FAIL_COND_V(root < 0, FAILED);

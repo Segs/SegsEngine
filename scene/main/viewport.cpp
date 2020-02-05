@@ -413,7 +413,7 @@ void Viewport::_notification(int p_what) {
                 VisualServer::get_singleton()->canvas_item_clear(contact_2d_debug);
                 VisualServer::get_singleton()->canvas_item_set_draw_index(contact_2d_debug, 0xFFFFF); //very high index
 
-                Vector<Vector2> points = Physics2DServer::get_singleton()->space_get_contacts(find_world_2d()->get_space());
+                const PODVector<Vector2> &points = Physics2DServer::get_singleton()->space_get_contacts(find_world_2d()->get_space());
                 int point_count = Physics2DServer::get_singleton()->space_get_contact_count(find_world_2d()->get_space());
                 Color ccol = get_tree()->get_debug_collision_contact_color();
 
@@ -425,7 +425,7 @@ void Viewport::_notification(int p_what) {
 
             if (get_tree()->is_debugging_collisions_hint() && contact_3d_debug_multimesh.is_valid()) {
 
-                Vector<Vector3> points = PhysicsServer::get_singleton()->space_get_contacts(find_world()->get_space());
+                const PODVector<Vector3> & points = PhysicsServer::get_singleton()->space_get_contacts(find_world()->get_space());
                 int point_count = PhysicsServer::get_singleton()->space_get_contact_count(find_world()->get_space());
 
                 VisualServer::get_singleton()->multimesh_set_visible_instances(contact_3d_debug_multimesh, point_count);

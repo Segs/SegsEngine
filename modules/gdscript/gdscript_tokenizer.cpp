@@ -1235,20 +1235,20 @@ Error GDScriptTokenizerBuffer::set_code_buffer(const PODVector<uint8_t> &p_buffe
         int len = decode_uint32(b);
         ERR_FAIL_COND_V(len > total_len, ERR_INVALID_DATA)
         b += 4;
-        Vector<uint8_t> cs;
+        PODVector<uint8_t> cs;
         cs.resize(len);
         for (int j = 0; j < len; j++) {
-            cs.write[j] = b[j] ^ 0xb6;
+            cs[j] = b[j] ^ 0xb6;
         }
 
-        cs.write[cs.size() - 1] = 0;
-        String s((const char *)cs.ptr());
+        cs[cs.size() - 1] = 0;
+        String s((const char *)cs.data());
         b += len;
         total_len -= len + 4;
         identifiers.emplace_back(s);
     }
 
-    constants.resize(constant_count);
+    constants.reserve(constant_count);
     for (int i = 0; i < constant_count; i++) {
 
         Variant v;
@@ -1259,7 +1259,7 @@ Error GDScriptTokenizerBuffer::set_code_buffer(const PODVector<uint8_t> &p_buffe
             return err;
         b += len;
         total_len -= len;
-        constants.write[i] = v;
+        constants.emplace_back(eastl::move(v));
     }
 
     ERR_FAIL_COND_V(line_count * 8 > total_len, ERR_INVALID_DATA)
@@ -1284,10 +1284,10 @@ Error GDScriptTokenizerBuffer::set_code_buffer(const PODVector<uint8_t> &p_buffe
         if ((*b) & TOKEN_BYTE_MASK) { //little endian always
             ERR_FAIL_COND_V(total_len < 4, ERR_INVALID_DATA)
 
-            tokens.write[i] = decode_uint32(b) & ~TOKEN_BYTE_MASK;
+            tokens[i] = decode_uint32(b) & ~TOKEN_BYTE_MASK;
             b += 4;
         } else {
-            tokens.write[i] = *b;
+            tokens[i] = *b;
             b += 1;
             total_len--;
         }
@@ -1305,7 +1305,7 @@ PODVector<uint8_t> GDScriptTokenizerBuffer::parse_code_string(se_string_view p_c
     Map<StringName, int> identifier_map;
     HashMap<Variant, int, Hasher<Variant>, VariantComparator> constant_map;
     Map<uint32_t, int> line_map;
-    Vector<uint32_t> token_array;
+    PODVector<uint32_t> token_array;
 
     GDScriptTokenizerText tt;
     tt.set_code(p_code);

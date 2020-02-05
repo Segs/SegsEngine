@@ -642,13 +642,14 @@ void HTTPRequest::_bind_methods() {
 }
 
 HTTPRequest::HTTPRequest() {
+    HTTPRequestData *dat = memnew(HTTPRequestData);
+    m_impl = dat;
+    initialize(*dat);
+
     timer = memnew(Timer);
     timer->set_one_shot(true);
     timer->connect("timeout", this, "_timeout");
     add_child(timer);
-    HTTPRequestData *dat = memnew(HTTPRequestData);
-    m_impl = dat;
-    initialize(*dat);
 }
 
 HTTPRequest::~HTTPRequest() {

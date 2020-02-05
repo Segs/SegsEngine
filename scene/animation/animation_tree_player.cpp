@@ -40,6 +40,201 @@ IMPL_GDCLASS(AnimationTreePlayer)
 VARIANT_ENUM_CAST(AnimationTreePlayer::NodeType);
 VARIANT_ENUM_CAST(AnimationTreePlayer::AnimationProcessMode);
 
+namespace  {
+struct AnimationTreeInput {
+
+    StringName node;
+    //AnimationTreeInput() { node=-1;  }
+};
+} // end of anonymous namespace block 1
+
+
+struct AnimationTreeNodeBase {
+    using NodeType = AnimationTreePlayer::NodeType;
+    Point2 pos;
+    bool cycletest;
+    NodeType type;
+
+    PODVector<AnimationTreeInput> inputs;
+
+    AnimationTreeNodeBase() { cycletest = false; };
+    virtual ~AnimationTreeNodeBase() { cycletest = false; }
+};
+
+struct AnimationTreeNodeOut : public AnimationTreeNodeBase {
+
+    AnimationTreeNodeOut() {
+        type = NodeType::NODE_OUTPUT;
+        inputs.resize(1);
+    }
+};
+
+struct AnimationTreeNode : public AnimationTreeNodeBase {
+
+    Ref<Animation> animation;
+
+    struct TrackRef {
+        int local_track;
+        AnimationTreePlayer::Track *track;
+        float weight;
+    };
+
+    uint64_t last_version;
+    ListPOD<TrackRef> tref;
+    String from;
+    AnimationTreeNode *next;
+    float time;
+    float step;
+    bool skip;
+
+    HashMap<NodePath, bool> filter;
+
+    AnimationTreeNode() {
+        type = NodeType::NODE_ANIMATION;
+        next = nullptr;
+        last_version = 0;
+        skip = false;
+    }
+};
+
+namespace {
+struct OneShotNode : public AnimationTreeNodeBase {
+
+    float fade_in;
+    float fade_out;
+    float autorestart_delay;
+    float autorestart_random_delay;
+    float time;
+    float remaining;
+    float autorestart_remaining;
+
+    bool active;
+    bool start;
+    bool autorestart;
+    bool mix;
+
+
+    HashMap<NodePath, bool> filter;
+
+    OneShotNode() {
+        type = NodeType::NODE_ONESHOT;
+        fade_in = 0;
+        fade_out = 0;
+        inputs.resize(2);
+        autorestart = false;
+        autorestart_delay = 1;
+        autorestart_remaining = 0;
+        mix = false;
+        active = false;
+        start = false;
+    }
+};
+
+struct MixNode : public AnimationTreeNodeBase {
+
+    float amount;
+    MixNode() {
+        type = NodeType::NODE_MIX;
+        inputs.resize(2);
+    }
+};
+
+struct Blend2Node : public AnimationTreeNodeBase {
+
+    HashMap<NodePath, bool> filter;
+    float value;
+    Blend2Node() {
+        type = NodeType::NODE_BLEND2;
+        value = 0;
+        inputs.resize(2);
+    }
+};
+
+struct Blend3Node : public AnimationTreeNodeBase {
+
+    float value;
+    Blend3Node() {
+        type = NodeType::NODE_BLEND3;
+        value = 0;
+        inputs.resize(3);
+    }
+};
+
+struct Blend4Node : public AnimationTreeNodeBase {
+
+    Point2 value;
+    Blend4Node() {
+        type = NodeType::NODE_BLEND4;
+        inputs.resize(4);
+    }
+};
+
+struct TimeScaleNode : public AnimationTreeNodeBase {
+
+    float scale;
+    TimeScaleNode() {
+        type = NodeType::NODE_TIMESCALE;
+        scale = 1;
+        inputs.resize(1);
+    }
+};
+
+struct TimeSeekNode : public AnimationTreeNodeBase {
+
+    float seek_pos;
+
+    TimeSeekNode() {
+        type = NodeType::NODE_TIMESEEK;
+        inputs.resize(1);
+        seek_pos = -1;
+    }
+};
+
+
+struct TransitionNode : public AnimationTreeNodeBase {
+
+    struct InputData {
+
+        bool auto_advance;
+        InputData() { auto_advance = false; }
+    };
+
+    PODVector<InputData> input_data;
+
+    float prev_time=0.0f;
+    float prev_xfading=0.0f;
+    int prev=-1;
+
+    float time;
+    int current=0;
+    float xfade=0.0f;
+
+    bool switched;
+
+    TransitionNode() {
+        type = NodeType::NODE_TRANSITION;
+        inputs.resize(1);
+        input_data.resize(1);
+        switched = false;
+    }
+    void set_current(int p_current) {
+
+        ERR_FAIL_INDEX(p_current, inputs.size());
+
+        if (current == p_current)
+            return;
+
+        prev = current;
+        prev_xfading = xfade;
+        prev_time = time;
+        time = 0;
+        current = p_current;
+        switched = true;
+    }
+};
+
+} // end of anonymous namespace
+
 void AnimationTreePlayer::set_animation_process_mode(AnimationProcessMode p_mode) {
 
     if (animation_process_mode == p_mode)
@@ -248,9 +443,9 @@ bool AnimationTreePlayer::_get(const StringName &p_name, Variant &r_ret) const {
 
     Array nodes;
 
-    for (const eastl::pair<const StringName,NodeBase *> &E : node_map) {
+    for (const eastl::pair<const StringName,AnimationTreeNodeBase *> &E : node_map) {
 
-        NodeBase *n = E.second;
+        AnimationTreeNodeBase *n = E.second;
 
         Dictionary node;
         node["id"] = E.first;
@@ -275,7 +470,7 @@ bool AnimationTreePlayer::_get(const StringName &p_name, Variant &r_ret) const {
 
             } break;
             case NODE_ANIMATION: {
-                AnimationNode *an = static_cast<AnimationNode *>(n);
+                AnimationTreeNode *an = static_cast<AnimationTreeNode *>(n);
                 if (master != NodePath() && !an->from.empty()) {
                     node["from"] = an->from;
                 } else {
@@ -480,10 +675,10 @@ void AnimationTreePlayer::_compute_weights(float *p_fallback_weight, HashMap<Nod
     *p_fallback_weight *= p_coeff;
 }
 
-float AnimationTreePlayer::_process_node(const StringName &p_node, AnimationNode **r_prev_anim, float p_time, bool p_seek, float p_fallback_weight, HashMap<NodePath, float> *p_weights) {
+float AnimationTreePlayer::_process_node(const StringName &p_node, AnimationTreeNode **r_prev_anim, float p_time, bool p_seek, float p_fallback_weight, HashMap<NodePath, float> *p_weights) {
 
     ERR_FAIL_COND_V(!node_map.contains(p_node), 0)
-    NodeBase *nb = node_map[p_node];
+    AnimationTreeNodeBase *nb = node_map[p_node];
 
     //transform to seconds...
 
@@ -491,7 +686,7 @@ float AnimationTreePlayer::_process_node(const StringName &p_node, AnimationNode
 
         case NODE_OUTPUT: {
 
-            NodeOut *on = static_cast<NodeOut *>(nb);
+            AnimationTreeNodeOut *on = static_cast<AnimationTreeNodeOut *>(nb);
             HashMap<NodePath, float> weights;
 
             return _process_node(on->inputs[0].node, r_prev_anim, p_time, p_seek, p_fallback_weight, &weights);
@@ -499,7 +694,7 @@ float AnimationTreePlayer::_process_node(const StringName &p_node, AnimationNode
         } break;
         case NODE_ANIMATION: {
 
-            AnimationNode *an = static_cast<AnimationNode *>(nb);
+            AnimationTreeNode *an = static_cast<AnimationTreeNode *>(nb);
 
             float rem = 0;
             if (an->animation) {
@@ -531,19 +726,19 @@ float AnimationTreePlayer::_process_node(const StringName &p_node, AnimationNode
 
                 an->skip = true;
 
-                for (List<AnimationNode::TrackRef>::Element *E = an->tref.front(); E; E = E->next()) {
-                    NodePath track_path = an->animation->track_get_path(E->deref().local_track);
+                for (AnimationTreeNode::TrackRef &E : an->tref) {
+                    NodePath track_path = an->animation->track_get_path(E.local_track);
                     if (an->filter.contains(track_path) && an->filter[track_path]) {
-                        E->deref().weight = 0;
+                        E.weight = 0;
                     } else {
                         if (p_weights->contains(track_path)) {
                             float weight = (*p_weights)[track_path];
-                            E->deref().weight = weight;
+                            E.weight = weight;
                         } else {
-                            E->deref().weight = p_fallback_weight;
+                            E.weight = p_fallback_weight;
                         }
                     }
-                    if (E->deref().weight > CMP_EPSILON)
+                    if (E.weight > CMP_EPSILON)
                         an->skip = false;
                 }
 
@@ -796,7 +991,7 @@ void AnimationTreePlayer::_process_animation(float p_delta) {
         _recompute_caches();
 
     active_list = nullptr;
-    AnimationNode *prev = nullptr;
+    AnimationTreeNode *prev = nullptr;
 
     if (reset_request) {
 
@@ -832,7 +1027,7 @@ void AnimationTreePlayer::_process_animation(float p_delta) {
 
     /* STEP 2 PROCESS ANIMATIONS */
 
-    AnimationNode *anim_list = active_list;
+    AnimationTreeNode *anim_list = active_list;
     Quat empty_rot;
 
     while (anim_list) {
@@ -841,9 +1036,8 @@ void AnimationTreePlayer::_process_animation(float p_delta) {
             //check if animation is meaningful
             Animation *a = anim_list->animation.operator->();
 
-            for (List<AnimationNode::TrackRef>::Element *E = anim_list->tref.front(); E; E = E->next()) {
+            for (AnimationTreeNode::TrackRef &tr : anim_list->tref) {
 
-                AnimationNode::TrackRef &tr = E->deref();
                 if (tr.track == nullptr || tr.local_track < 0 || tr.weight < CMP_EPSILON || !a->track_is_enabled(tr.local_track))
                     continue;
 
@@ -934,13 +1128,13 @@ void AnimationTreePlayer::add_node(NodeType p_type, const StringName &p_node) {
     ERR_FAIL_COND(p_type == NODE_OUTPUT)
     ERR_FAIL_COND(node_map.contains(p_node))
 
-    NodeBase *n = nullptr;
+    AnimationTreeNodeBase *n = nullptr;
 
     switch (p_type) {
 
         case NODE_ANIMATION: {
 
-            n = memnew(AnimationNode);
+            n = memnew(AnimationTreeNode);
         } break;
         case NODE_ONESHOT: {
 
@@ -1002,14 +1196,14 @@ int AnimationTreePlayer::node_get_input_count(const StringName &p_node) const {
 
 void AnimationTreePlayer::animation_node_set_animation(const StringName &p_node, const Ref<Animation> &p_animation) {
 
-    GET_NODE(NODE_ANIMATION, AnimationNode);
+    GET_NODE(NODE_ANIMATION, AnimationTreeNode);
     n->animation = p_animation;
     dirty_caches = true;
 }
 
 void AnimationTreePlayer::animation_node_set_master_animation(const StringName &p_node, se_string_view p_master_animation) {
 
-    GET_NODE(NODE_ANIMATION, AnimationNode);
+    GET_NODE(NODE_ANIMATION, AnimationTreeNode);
     n->from = p_master_animation;
     dirty_caches = true;
     if (master != NodePath())
@@ -1018,7 +1212,7 @@ void AnimationTreePlayer::animation_node_set_master_animation(const StringName &
 
 void AnimationTreePlayer::animation_node_set_filter_path(const StringName &p_node, const NodePath &p_track_path, bool p_filter) {
 
-    GET_NODE(NODE_ANIMATION, AnimationNode);
+    GET_NODE(NODE_ANIMATION, AnimationTreeNode);
 
     if (p_filter)
         n->filter[p_track_path] = true;
@@ -1028,7 +1222,7 @@ void AnimationTreePlayer::animation_node_set_filter_path(const StringName &p_nod
 
 void AnimationTreePlayer::animation_node_set_get_filtered_paths(const StringName &p_node, ListPOD<NodePath> *r_paths) const {
 
-    GET_NODE(NODE_ANIMATION, AnimationNode)
+    GET_NODE(NODE_ANIMATION, AnimationTreeNode)
 
     n->filter.get_key_list(*r_paths);
 }
@@ -1164,7 +1358,7 @@ void AnimationTreePlayer::transition_node_set_input_auto_advance(const StringNam
     GET_NODE(NODE_TRANSITION, TransitionNode);
     ERR_FAIL_INDEX(p_input, n->input_data.size());
 
-    n->input_data.write[p_input].auto_advance = p_auto_advance;
+    n->input_data[p_input].auto_advance = p_auto_advance;
 }
 void AnimationTreePlayer::transition_node_set_xfade_time(const StringName &p_node, float p_time) {
 
@@ -1172,20 +1366,7 @@ void AnimationTreePlayer::transition_node_set_xfade_time(const StringName &p_nod
     n->xfade = p_time;
 }
 
-void AnimationTreePlayer::TransitionNode::set_current(int p_current) {
 
-    ERR_FAIL_INDEX(p_current, inputs.size());
-
-    if (current == p_current)
-        return;
-
-    prev = current;
-    prev_xfading = xfade;
-    prev_time = time;
-    time = 0;
-    current = p_current;
-    switched = true;
-}
 
 void AnimationTreePlayer::transition_node_set_current(const StringName &p_node, int p_current) {
 
@@ -1217,25 +1398,25 @@ Point2 AnimationTreePlayer::node_get_position(const StringName &p_node) const {
 
 Ref<Animation> AnimationTreePlayer::animation_node_get_animation(const StringName &p_node) const {
 
-    GET_NODE_V(NODE_ANIMATION, AnimationNode, Ref<Animation>());
+    GET_NODE_V(NODE_ANIMATION, AnimationTreeNode, Ref<Animation>());
     return n->animation;
 }
 
 const String & AnimationTreePlayer::animation_node_get_master_animation(const StringName &p_node) const {
 
-    GET_NODE_V(NODE_ANIMATION, AnimationNode, null_se_string);
+    GET_NODE_V(NODE_ANIMATION, AnimationTreeNode, null_se_string);
     return n->from;
 }
 
 float AnimationTreePlayer::animation_node_get_position(const StringName &p_node) const {
 
-    GET_NODE_V(NODE_ANIMATION, AnimationNode, 0);
+    GET_NODE_V(NODE_ANIMATION, AnimationTreeNode, 0);
     return n->time;
 }
 
 bool AnimationTreePlayer::animation_node_is_path_filtered(const StringName &p_node, const NodePath &p_path) const {
 
-    GET_NODE_V(NODE_ANIMATION, AnimationNode, 0);
+    GET_NODE_V(NODE_ANIMATION, AnimationTreeNode, 0);
     return n->filter.contains(p_path);
 }
 
@@ -1326,8 +1507,8 @@ void AnimationTreePlayer::transition_node_delete_input(const StringName &p_node,
     if (n->inputs.size() <= 1)
         return;
 
-    n->inputs.remove(p_input);
-    n->input_data.remove(p_input);
+    n->inputs.erase_at(p_input);
+    n->input_data.erase_at(p_input);
     last_error = _cycle_test(out_name);
 }
 
@@ -1358,7 +1539,7 @@ int AnimationTreePlayer::transition_node_get_current(const StringName &p_node) c
 /*misc  */
 void AnimationTreePlayer::get_node_list(ListPOD<StringName> *p_node_list) const {
 
-    for (const eastl::pair<const StringName,NodeBase *> &E : node_map) {
+    for (const eastl::pair<const StringName,AnimationTreeNodeBase *> &E : node_map) {
 
         p_node_list->push_back(E.first);
     }
@@ -1366,7 +1547,7 @@ void AnimationTreePlayer::get_node_list(ListPOD<StringName> *p_node_list) const 
 PODVector<StringName> AnimationTreePlayer::get_node_vector() const {
     PODVector<StringName> res;
     res.reserve(node_map.size());
-    for (const eastl::pair<const StringName, NodeBase*>& E : node_map) {
+    for (const eastl::pair<const StringName, AnimationTreeNodeBase*>& E : node_map) {
 
         res.emplace_back(E.first);
     }
@@ -1377,13 +1558,13 @@ void AnimationTreePlayer::remove_node(const StringName &p_node) {
     ERR_FAIL_COND(!node_map.contains(p_node))
     ERR_FAIL_COND_MSG(p_node == out_name, "Node 0 (output) can't be removed.")
 
-    for (eastl::pair<const StringName,NodeBase *> &E : node_map) {
+    for (eastl::pair<const StringName,AnimationTreeNodeBase *> &E : node_map) {
 
-        NodeBase *nb = E.second;
+        AnimationTreeNodeBase *nb = E.second;
         for (int i = 0; i < nb->inputs.size(); i++) {
 
             if (nb->inputs[i].node == p_node)
-                nb->inputs.write[i].node = StringName();
+                nb->inputs[i].node = StringName();
         }
     }
 
@@ -1400,7 +1581,7 @@ AnimationTreePlayer::ConnectError AnimationTreePlayer::_cycle_test(const StringN
 
     ERR_FAIL_COND_V(!node_map.contains(p_at_node), CONNECT_INCOMPLETE)
 
-    NodeBase *nb = node_map[p_at_node];
+    AnimationTreeNodeBase *nb = node_map[p_at_node];
     if (nb->cycletest)
         return CONNECT_CYCLE;
 
@@ -1420,8 +1601,8 @@ AnimationTreePlayer::ConnectError AnimationTreePlayer::_cycle_test(const StringN
 
 // Use this function to not alter next complete _cycle_test().
 void AnimationTreePlayer::_clear_cycle_test() {
-    for (eastl::pair<const StringName,NodeBase *> &E : node_map) {
-        NodeBase *nb = E.second;
+    for (eastl::pair<const StringName,AnimationTreeNodeBase *> &E : node_map) {
+        AnimationTreeNodeBase *nb = E.second;
         nb->cycletest = false;
     }
 }
@@ -1433,22 +1614,22 @@ Error AnimationTreePlayer::connect_nodes(const StringName &p_src_node, const Str
     ERR_FAIL_COND_V(p_src_node == p_dst_node, ERR_INVALID_PARAMETER)
 
     //NodeBase *src = node_map[p_src_node];
-    NodeBase *dst = node_map[p_dst_node];
+    AnimationTreeNodeBase *dst = node_map[p_dst_node];
     ERR_FAIL_INDEX_V(p_dst_input, dst->inputs.size(), ERR_INVALID_PARAMETER);
 
     //int oldval = dst->inputs[p_dst_input].node;
 
-    for (eastl::pair<const StringName,NodeBase *> &E : node_map) {
+    for (eastl::pair<const StringName,AnimationTreeNodeBase *> &E : node_map) {
 
-        NodeBase *nb = E.second;
+        AnimationTreeNodeBase *nb = E.second;
         for (int i = 0; i < nb->inputs.size(); i++) {
 
             if (nb->inputs[i].node == p_src_node)
-                nb->inputs.write[i].node = StringName();
+                nb->inputs[i].node = StringName();
         }
     }
 
-    dst->inputs.write[p_dst_input].node = p_src_node;
+    dst->inputs[p_dst_input].node = p_src_node;
 
     _clear_cycle_test();
 
@@ -1470,7 +1651,7 @@ bool AnimationTreePlayer::are_nodes_connected(const StringName &p_src_node, cons
     ERR_FAIL_COND_V(!node_map.contains(p_dst_node), false)
     ERR_FAIL_COND_V(p_src_node == p_dst_node, false)
 
-    NodeBase *dst = node_map.at(p_dst_node);
+    AnimationTreeNodeBase *dst = node_map.at(p_dst_node);
 
     return dst->inputs[p_dst_input].node == p_src_node;
 }
@@ -1479,18 +1660,18 @@ void AnimationTreePlayer::disconnect_nodes(const StringName &p_node, int p_input
 
     ERR_FAIL_COND(!node_map.contains(p_node))
 
-    NodeBase *dst = node_map[p_node];
+    AnimationTreeNodeBase *dst = node_map[p_node];
     ERR_FAIL_INDEX(p_input, dst->inputs.size());
-    dst->inputs.write[p_input].node = StringName();
+    dst->inputs[p_input].node = StringName();
     last_error = CONNECT_INCOMPLETE;
     dirty_caches = true;
 }
 
 void AnimationTreePlayer::get_connection_list(List<Connection> *p_connections) const {
 
-    for (const eastl::pair<const StringName,NodeBase *> &E : node_map) {
+    for (const eastl::pair<const StringName,AnimationTreeNodeBase *> &E : node_map) {
 
-        NodeBase *nb = E.second;
+        AnimationTreeNodeBase *nb = E.second;
         for (int i = 0; i < nb->inputs.size(); i++) {
 
             if (nb->inputs[i].node != StringName()) {
@@ -1559,11 +1740,11 @@ void AnimationTreePlayer::_recompute_caches(const StringName &p_node) {
 
     ERR_FAIL_COND(!node_map.contains(p_node))
 
-    NodeBase *nb = node_map[p_node];
+    AnimationTreeNodeBase *nb = node_map[p_node];
 
     if (nb->type == NODE_ANIMATION) {
 
-        AnimationNode *an = static_cast<AnimationNode *>(nb);
+        AnimationTreeNode *an = static_cast<AnimationTreeNode *>(nb);
         an->tref.clear();
 
         if (an->animation) {
@@ -1576,7 +1757,7 @@ void AnimationTreePlayer::_recompute_caches(const StringName &p_node) {
                 if (!tr)
                     continue;
 
-                AnimationNode::TrackRef tref;
+                AnimationTreeNode::TrackRef tref;
                 tref.local_track = i;
                 tref.track = tr;
                 tref.weight = 0;
@@ -1685,11 +1866,11 @@ void AnimationTreePlayer::_update_sources() {
         ERR_FAIL_COND(!ap)
     }
 
-    for (eastl::pair<const StringName,NodeBase *> &E : node_map) {
+    for (eastl::pair<const StringName,AnimationTreeNodeBase *> &E : node_map) {
 
         if (E.second->type == NODE_ANIMATION) {
 
-            AnimationNode *an = static_cast<AnimationNode *>(E.second);
+            AnimationTreeNode *an = static_cast<AnimationTreeNode *>(E.second);
 
             if (!an->from.empty()) {
 
@@ -1714,13 +1895,13 @@ Error AnimationTreePlayer::node_rename(const StringName &p_node, const StringNam
     ERR_FAIL_COND_V(p_node == out_name, ERR_INVALID_DATA)
     ERR_FAIL_COND_V(p_new_name == out_name, ERR_INVALID_DATA)
 
-    for (eastl::pair<const StringName,NodeBase *> &E : node_map) {
+    for (eastl::pair<const StringName,AnimationTreeNodeBase *> &E : node_map) {
 
-        NodeBase *nb = E.second;
+        AnimationTreeNodeBase *nb = E.second;
         for (int i = 0; i < nb->inputs.size(); i++) {
 
             if (nb->inputs[i].node == p_node) {
-                nb->inputs.write[i].node = p_new_name;
+                nb->inputs[i].node = p_new_name;
             }
         }
     }
@@ -1858,7 +2039,7 @@ void AnimationTreePlayer::_bind_methods() {
 AnimationTreePlayer::AnimationTreePlayer() {
 
     active_list = nullptr;
-    out = memnew(NodeOut);
+    out = memnew(AnimationTreeNodeOut);
     out_name = "out";
     out->pos = Point2(40, 40);
     node_map.emplace(out_name, out);

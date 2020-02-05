@@ -292,8 +292,8 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
 
     if (p_state) {
         //use existing (supplied) state (yielded)
-        stack = (Variant *)p_state->stack.ptr();
-        call_args = (Variant **)&p_state->stack.ptr()[sizeof(Variant) * p_state->stack_size]; //ptr() to avoid bounds check
+        stack = (Variant *)p_state->stack.data();
+        call_args = (Variant **)&p_state->stack.data()[sizeof(Variant) * p_state->stack_size]; //ptr() to avoid bounds check
         line = p_state->line;
         ip = p_state->ip;
         alloca_size = p_state->stack.size();
@@ -1268,7 +1268,7 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
                 gdfs->state.stack.resize(alloca_size);
                 //copy variant stack
                 for (int i = 0; i < _stack_size; i++) {
-                    memnew_placement(&gdfs->state.stack.write[sizeof(Variant) * i], Variant(stack[i]));
+                    memnew_placement(&gdfs->state.stack[sizeof(Variant) * i], Variant(stack[i]));
                 }
                 gdfs->state.stack_size = _stack_size;
                 gdfs->state.self = self;
@@ -1882,7 +1882,7 @@ Variant GDScriptFunctionState::resume(const Variant &p_arg) {
             GDScriptLanguage::get_singleton()->exit_function();
         if (state.stack_size) {
             //free stack
-            Variant *stack = (Variant *)state.stack.ptr();
+            Variant *stack = (Variant *)state.stack.data();
             for (int i = 0; i < state.stack_size; i++)
                 stack[i].~Variant();
         }

@@ -479,7 +479,7 @@ SceneTreeGroup *SceneTree::add_to_group(const StringName &p_group, Node *p_node)
         E = group_map.emplace(p_group, SceneTreeGroup()).first;
     }
 
-    ERR_FAIL_COND_V_MSG(E->second.nodes.find(p_node) != -1, &E->second, "Already in group: " + p_group + ".")
+    ERR_FAIL_COND_V_MSG(E->second.nodes.contains(p_node), &E->second, "Already in group: " + p_group + ".")
     E->second.nodes.push_back(p_node);
     //E->get().last_tree_version=0;
     E->second.changed = true;
@@ -491,7 +491,7 @@ void SceneTree::remove_from_group(const StringName &p_group, Node *p_node) {
     Map<StringName, SceneTreeGroup>::iterator E = group_map.find(p_group);
     ERR_FAIL_COND(E==group_map.end())
 
-    E->second.nodes.erase(p_node);
+    E->second.nodes.erase_first(p_node);
     if (E->second.nodes.empty())
         group_map.erase(E);
 }
@@ -521,7 +521,7 @@ void SceneTree::_flush_ugc() {
 
     while (!unique_group_calls.empty()) {
 
-        Map<UGCall, Vector<Variant> >::iterator E = unique_group_calls.begin();
+        auto E = unique_group_calls.begin();
 
         Variant v[VARIANT_ARG_MAX];
         for (int i = 0; i < E->second.size(); i++)
@@ -542,7 +542,7 @@ void SceneTree::_update_group_order(SceneTreeGroup &g, bool p_use_priority) {
     if (g.nodes.empty())
         return;
 
-    Node **nodes = g.nodes.ptrw();
+    Node **nodes = g.nodes.data();
     int node_count = g.nodes.size();
 
     if (p_use_priority) {
@@ -577,21 +577,21 @@ void SceneTree::call_group_flags(uint32_t p_call_flags, const StringName &p_grou
 
         VARIANT_ARGPTRS
 
-        Vector<Variant> args;
+        PODVector<Variant> args;
         for (int i = 0; i < VARIANT_ARG_MAX; i++) {
             if (argptr[i]->get_type() == VariantType::NIL)
                 break;
             args.push_back(*argptr[i]);
         }
 
-        unique_group_calls[ug] = args;
+        unique_group_calls[ug] = eastl::move(args);
         return;
     }
 
     _update_group_order(g);
 
-    Vector<Node *> nodes_copy = g.nodes;
-    Node **nodes = nodes_copy.ptrw();
+    PODVector<Node *> nodes_copy = g.nodes;
+    Node **nodes = nodes_copy.data();
     int node_count = nodes_copy.size();
 
     call_lock++;
@@ -645,8 +645,8 @@ void SceneTree::notify_group_flags(uint32_t p_call_flags, const StringName &p_gr
 
     _update_group_order(g);
 
-    Vector<Node *> nodes_copy = g.nodes;
-    Node **nodes = nodes_copy.ptrw();
+    PODVector<Node *> nodes_copy = g.nodes;
+    Node **nodes = nodes_copy.data();
     int node_count = nodes_copy.size();
 
     call_lock++;
@@ -694,8 +694,8 @@ void SceneTree::set_group_flags(uint32_t p_call_flags, const StringName &p_group
 
     _update_group_order(g);
 
-    Vector<Node *> nodes_copy = g.nodes;
-    Node **nodes = nodes_copy.ptrw();
+    PODVector<Node *> nodes_copy = g.nodes;
+    Node **nodes = nodes_copy.data();
     int node_count = nodes_copy.size();
 
     call_lock++;
@@ -1267,10 +1267,10 @@ void SceneTree::_call_input_pause(const StringName &p_group, const StringName &p
 
     //copy, so copy on write happens in case something is removed from process while being called
     //performance is not lost because only if something is added/removed the vector is copied.
-    Vector<Node *> nodes_copy = g.nodes;
+    PODVector<Node *> nodes_copy = g.nodes;
 
     int node_count = nodes_copy.size();
-    Node **nodes = nodes_copy.ptrw();
+    Node **nodes = nodes_copy.data();
 
     Variant arg = p_input;
     const Variant *v[1] = { &arg };
@@ -1311,10 +1311,10 @@ void SceneTree::_notify_group_pause(const StringName &p_group, int p_notificatio
 
     //copy, so copy on write happens in case something is removed from process while being called
     //performance is not lost because only if something is added/removed the vector is copied.
-    Vector<Node *> nodes_copy = g.nodes;
+    PODVector<Node *> nodes_copy = g.nodes;
 
     int node_count = nodes_copy.size();
-    Node **nodes = nodes_copy.ptrw();
+    Node **nodes = nodes_copy.data();
 
     call_lock++;
 
@@ -1416,7 +1416,7 @@ Array SceneTree::_get_nodes_in_group(const StringName &p_group) {
 
     ret.resize(nc);
 
-    Node **ptr = E->second.nodes.ptrw();
+    Node **ptr = E->second.nodes.data();
     for (int i = 0; i < nc; i++) {
 
         ret[i] = Variant(ptr[i]);
@@ -1439,7 +1439,7 @@ void SceneTree::get_nodes_in_group(const StringName &p_group, Deque<Node *> *p_l
     int nc = E->second.nodes.size();
     if (nc == 0)
         return;
-    Node **ptr = E->second.nodes.ptrw();
+    Node **ptr = E->second.nodes.data();
     for (int i = 0; i < nc; i++) {
 
         p_list->push_back(ptr[i]);

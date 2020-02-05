@@ -833,17 +833,17 @@ void ScriptDebuggerRemote::_send_profiling_data(bool p_for_frame) {
 
     for (int i = 0; i < ScriptServer::get_language_count(); i++) {
         if (p_for_frame)
-            ofs += ScriptServer::get_language(i)->profiling_get_frame_data(&profile_info.write[ofs], profile_info.size() - ofs);
+            ofs += ScriptServer::get_language(i)->profiling_get_frame_data(&profile_info[ofs], profile_info.size() - ofs);
         else
-            ofs += ScriptServer::get_language(i)->profiling_get_accumulated_data(&profile_info.write[ofs], profile_info.size() - ofs);
+            ofs += ScriptServer::get_language(i)->profiling_get_accumulated_data(&profile_info[ofs], profile_info.size() - ofs);
     }
 
     for (int i = 0; i < ofs; i++) {
-        profile_info_ptrs.write[i] = &profile_info.write[i];
+        profile_info_ptrs[i] = &profile_info[i];
     }
 
     SortArray<ScriptLanguage::ProfilingInfo *, ProfileInfoSort> sa;
-    sa.sort(profile_info_ptrs.ptrw(), ofs);
+    sa.sort(profile_info_ptrs.data(), ofs);
 
     int to_send = MIN(ofs, max_frame_functions);
 
@@ -984,7 +984,7 @@ void ScriptDebuggerRemote::idle_poll() {
 void ScriptDebuggerRemote::_send_network_profiling_data() {
     ERR_FAIL_COND(not multiplayer)
 
-    int n_nodes = multiplayer->get_profiling_frame(&network_profile_info.write[0]);
+    int n_nodes = multiplayer->get_profiling_frame(&network_profile_info[0]);
 
     packet_peer_stream->put_var("network_profile");
     packet_peer_stream->put_var(n_nodes * 6);
@@ -1162,7 +1162,7 @@ void ScriptDebuggerRemote::add_profiling_frame_data(const StringName &p_name, co
     if (idx == -1) {
         profile_frame_data.push_back(fd);
     } else {
-        profile_frame_data.write[idx] = fd;
+        profile_frame_data[idx] = fd;
     }
 }
 

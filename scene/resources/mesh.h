@@ -40,7 +40,15 @@
 #include "servers/visual_server_enums.h"
 
 class Material;
-
+//SEGS: In the future this is meant to replace passing Surface data in Array
+class GODOT_EXPORT SurfaceArrays {
+public:
+    explicit operator Array() {
+        Array res;
+        res.resize(VS::ARRAY_MAX);
+        return res;
+    }
+};
 class GODOT_EXPORT Mesh : public Resource {
     GDCLASS(Mesh,Resource)
 
@@ -149,7 +157,7 @@ public:
     Size2 get_lightmap_size_hint() const;
     void clear_cache() const;
 
-    using ConvexDecompositionFunc = Vector< Vector<Face3>> (*)(const Vector<Face3> &);
+    using ConvexDecompositionFunc = PODVector< PODVector<Face3>> (*)(const PODVector<Face3> &);
 
     static ConvexDecompositionFunc convex_composition_function;
 
@@ -171,7 +179,7 @@ private:
         Ref<Material> material;
         bool is_2d;
     };
-    Vector<Surface> surfaces;
+    PODVector<Surface> surfaces;
     RID mesh;
     AABB aabb;
     BlendShapeMode blend_shape_mode;

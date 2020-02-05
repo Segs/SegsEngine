@@ -32,6 +32,7 @@
 #include "core/method_bind.h"
 #include "scene/resources/material.h"
 #include "scene/resources/mesh_enum_casters.h"
+#include "EASTL/sort.h"
 
 constexpr float _VERTEX_SNAP = 0.0001f;
 constexpr float EQ_VERTEX_DIST = 0.00001f;
@@ -128,16 +129,15 @@ void SurfaceTool::add_vertex(const Vector3 &p_vertex) {
             }
         } else if (vtx.weights.size() > expected_vertices) {
             //more than required, sort, cap and normalize.
-            Vector<WeightSort> weights;
+            PODVector<WeightSort> weights;
             for (int i = 0; i < vtx.weights.size(); i++) {
                 WeightSort ws;
                 ws.index = vtx.bones[i];
                 ws.weight = vtx.weights[i];
-                weights.push_back(ws);
+                weights.emplace_back(ws);
             }
-
             //sort
-            weights.sort();
+            eastl::sort(weights.begin(),weights.end());
             //cap
             weights.resize(expected_vertices);
             //renormalize
@@ -504,18 +504,14 @@ void SurfaceTool::deindex() {
 
     if (index_array.empty())
         return; //nothing to deindex
-    Vector<Vertex> varr;
+    PODVector<Vertex> varr;
     varr.resize(vertex_array.size());
     int idx = 0;
-    for (const Vertex &E : vertex_array) {
-
-        varr.write[idx++] = E;
-    }
+    vertex_array.assign(vertex_array.begin(),vertex_array.end());
     vertex_array.clear();
     for (int E : index_array) {
-
         ERR_FAIL_INDEX(E, varr.size())
-        vertex_array.push_back(varr[E]);
+        vertex_array.emplace_back(varr[E]);
     }
     format &= ~Mesh::ARRAY_FORMAT_INDEX;
     index_array.clear();
@@ -528,9 +524,9 @@ void SurfaceTool::_create_list(const Ref<Mesh> &p_existing, int p_surface, PODVe
     _create_list_from_arrays(arr, r_vertex, r_index, lformat);
 }
 
-Vector<SurfaceTool::Vertex> SurfaceTool::create_vertex_array_from_triangle_arrays(const Array &p_arrays) {
+PODVector<SurfaceTool::Vertex> SurfaceTool::create_vertex_array_from_triangle_arrays(const Array &p_arrays) {
 
-    Vector<SurfaceTool::Vertex> ret;
+    PODVector<SurfaceTool::Vertex> ret;
 
     PoolVector<Vector3> varr = p_arrays[VS::ARRAY_VERTEX];
     PoolVector<Vector3> narr = p_arrays[VS::ARRAY_NORMAL];
@@ -592,7 +588,7 @@ Vector<SurfaceTool::Vertex> SurfaceTool::create_vertex_array_from_triangle_array
         rw = warr.read();
     }
     ret.resize(vc);
-    Vertex *tgt = ret.ptrw();
+    Vertex *tgt = ret.data();
     if (lformat & VS::ARRAY_FORMAT_VERTEX)
         for (int i = 0; i < vc; i++) {
             tgt[i].vertex = varr[i];

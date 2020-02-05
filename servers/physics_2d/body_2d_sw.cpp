@@ -437,7 +437,6 @@ void Body2DSW::integrate_forces(real_t p_step) {
     area_angular_damp = 0;
     area_linear_damp = 0;
     if (ac) {
-        areas.sort();
         const AreaCMP *aa = &areas[0];
         // damp_area = aa[ac-1].area;
         for (int i = ac - 1; i >= 0 && !stopped; i--) {

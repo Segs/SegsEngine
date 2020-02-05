@@ -77,7 +77,7 @@ private:
 
     Rect2 close_rect;
 
-    Vector<int> cache_y;
+    PODVector<int> cache_y;
 
     struct ConnCache {
         Vector2 pos;
@@ -85,8 +85,8 @@ private:
         Color color;
     };
 
-    Vector<ConnCache> conn_input_cache;
-    Vector<ConnCache> conn_output_cache;
+    PODVector<ConnCache> conn_input_cache;
+    PODVector<ConnCache> conn_output_cache;
 
     Map<int, Slot> slot_info;
 

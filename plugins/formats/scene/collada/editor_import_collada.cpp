@@ -45,6 +45,7 @@
 #include "scene/resources/packed_scene.h"
 #include "scene/resources/surface_tool.h"
 
+#include "EASTL/sort.h"
 #include <QHash>
 
 struct ColladaImport {
@@ -609,7 +610,7 @@ Error ColladaImport::_create_mesh_surfaces(bool p_optimize, Ref<ArrayMesh> &p_me
         /* ADD WEIGHTS IF EXIST */
         /************************/
 
-        Map<int, Vector<Collada::Vertex::Weight> > pre_weights;
+        Map<int, PODVector<Collada::Vertex::Weight> > pre_weights;
 
         bool has_weights = false;
 
@@ -643,7 +644,7 @@ Error ColladaImport::_create_mesh_surfaces(bool p_optimize, Ref<ArrayMesh> &p_me
 
                 int amount = p_skin_controller->weights.sets[w_i];
 
-                Vector<Collada::Vertex::Weight> weights;
+                PODVector<Collada::Vertex::Weight> weights;
 
                 for (int a_i = 0; a_i < amount; a_i++) {
 
@@ -663,12 +664,11 @@ Error ColladaImport::_create_mesh_surfaces(bool p_optimize, Ref<ArrayMesh> &p_me
 
                     w.bone_idx = bone_remap[bone_index];
 
-                    weights.push_back(w);
+                    weights.emplace_back(w);
                 }
 
                 /* FIX WEIGHTS */
-
-                weights.sort();
+                eastl::sort(weights.begin(),weights.end());
 
                 if (weights.size() > 4) {
                     //cap to 4 and make weights add up 1
@@ -681,7 +681,7 @@ Error ColladaImport::_create_mesh_surfaces(bool p_optimize, Ref<ArrayMesh> &p_me
                     total += weights[i].weight;
                 if (total)
                     for (int i = 0; i < weights.size(); i++)
-                        weights.write[i].weight /= total;
+                        weights[i].weight /= total;
 
                 if (weights.empty() || total == 0) { //if nothing, add a weight to bone 0
                     //no weights assigned
@@ -692,7 +692,7 @@ Error ColladaImport::_create_mesh_surfaces(bool p_optimize, Ref<ArrayMesh> &p_me
                     weights.push_back(w);
                 }
 
-                pre_weights[w_i] = weights;
+                pre_weights[w_i] = eastl::move(weights);
 
                 index_ofs += wstride * amount;
             }
@@ -1168,7 +1168,7 @@ Error ColladaImport::_create_resources(Collada::Node *p_node, bool p_use_compres
                                 if (!collada.state.mesh_data_map.contains(meshid2)) {
                                     valid = false;
                                     continue; // TODO: SEGS: shouldn't this just break out of the loop here ?
-                                } 
+                                }
                                 Ref<ArrayMesh> mesh(make_ref_counted<ArrayMesh>());
                                 const Collada::MeshData &meshdata = collada.state.mesh_data_map[meshid2];
                                 mesh->set_name(meshdata.name);
@@ -1219,7 +1219,7 @@ Error ColladaImport::_create_resources(Collada::Node *p_node, bool p_use_compres
                 if (!use_mesh_builtin_materials) {
                     const Collada::MeshData &meshdata = collada.state.mesh_data_map[meshid];
 
-                    for (int i = 0; i < meshdata.primitives.size(); i++) {
+                    for (size_t i = 0; i < meshdata.primitives.size(); i++) {
 
                         String matname = meshdata.primitives[i].material;
 
@@ -1244,7 +1244,7 @@ Error ColladaImport::_create_resources(Collada::Node *p_node, bool p_use_compres
         }
     }
 
-    for (int i = 0; i < p_node->children.size(); i++) {
+    for (size_t i = 0; i < p_node->children.size(); i++) {
 
         Error err = _create_resources(p_node->children[i], p_use_compression);
         if (err)
@@ -1265,13 +1265,13 @@ Error ColladaImport::load(se_string_view p_path, int p_flags, bool p_force_make_
     scene = memnew(Spatial); // root
 
     //determine what's going on with the lights
-    for (int i = 0; i < vs.root_nodes.size(); i++) {
+    for (size_t i = 0; i < vs.root_nodes.size(); i++) {
 
         _pre_process_lights(vs.root_nodes[i]);
     }
     //import scene
 
-    for (int i = 0; i < vs.root_nodes.size(); i++) {
+    for (size_t i = 0; i < vs.root_nodes.size(); i++) {
 
         Error err2 = _create_scene_skeletons(vs.root_nodes[i]);
         if (err2 != OK) {
@@ -1280,7 +1280,7 @@ Error ColladaImport::load(se_string_view p_path, int p_flags, bool p_force_make_
         }
     }
 
-    for (int i = 0; i < vs.root_nodes.size(); i++) {
+    for (size_t i = 0; i < vs.root_nodes.size(); i++) {
 
         Error err2 = _create_scene(vs.root_nodes[i], scene);
         if (err2 != OK) {
@@ -1354,16 +1354,16 @@ void ColladaImport::_fix_param_animation_tracks() {
 
                                 ERR_FAIL_COND(weight_src.array.size() != target_src.sarray.size())
 
-                                for (int i = 0; i < weight_src.array.size(); i++) {
+                                for (size_t i = 0; i < weight_src.array.size(); i++) {
 
                                     String track_name = weights + "(" + itos(i) + ")";
                                     String mesh_name = target_src.sarray[i];
                                     if (collada.state.mesh_name_map.contains(mesh_name) && collada.state.referenced_tracks.contains(track_name)) {
 
-                                        const Vector<int> &rt = collada.state.referenced_tracks[track_name];
+                                        const PODVector<int> &rt = collada.state.referenced_tracks[track_name];
 
-                                        for (int rti = 0; rti < rt.size(); rti++) {
-                                            Collada::AnimationTrack *at = &collada.state.animation_tracks.write[rt[rti]];
+                                        for (size_t rti = 0; rti < rt.size(); rti++) {
+                                            Collada::AnimationTrack *at = &collada.state.animation_tracks[rt[rti]];
 
                                             at->target = E.first;
                                             at->param = "morph/" + collada.state.mesh_name_map[mesh_name];
@@ -1389,9 +1389,9 @@ void ColladaImport::_fix_param_animation_tracks() {
 void ColladaImport::create_animations(bool p_make_tracks_in_all_bones, bool p_import_value_tracks) {
 
     _fix_param_animation_tracks();
-    for (int i = 0; i < collada.state.animation_clips.size(); i++) {
+    for (size_t i = 0; i < collada.state.animation_clips.size(); i++) {
 
-        for (int j = 0; j < collada.state.animation_clips[i].tracks.size(); j++)
+        for (size_t j = 0; j < collada.state.animation_clips[i].tracks.size(); j++)
             tracks_in_clips.insert(collada.state.animation_clips[i].tracks[j]);
     }
 
@@ -1464,7 +1464,7 @@ void ColladaImport::create_animation(int p_clip, bool p_make_tracks_in_all_bones
                 String n = collada.state.animation_clips[i].tracks[j];
                 if (collada.state.by_id_tracks.contains(n)) {
 
-                    const Vector<int> &ti = collada.state.by_id_tracks[n];
+                    const PODVector<int> &ti = collada.state.by_id_tracks[n];
                     for (int k = 0; k < ti.size(); k++) {
                         track_filter.insert(ti[k]);
                     }
@@ -1479,7 +1479,7 @@ void ColladaImport::create_animation(int p_clip, bool p_make_tracks_in_all_bones
             String n = collada.state.animation_clips[p_clip].tracks[j];
             if (collada.state.by_id_tracks.contains(n)) {
 
-                const Vector<int> &ti = collada.state.by_id_tracks[n];
+                const PODVector<int> &ti = collada.state.by_id_tracks[n];
                 for (int k = 0; k < ti.size(); k++) {
                     track_filter.insert(ti[k]);
                 }
@@ -1594,7 +1594,7 @@ void ColladaImport::create_animation(int p_clip, bool p_make_tracks_in_all_bones
                 PODVector<float> data = at.get_value_at_time(snapshots[i]);
                 ERR_CONTINUE(data.empty())
 
-                Collada::Node::XForm &xf = cn->xform_list.write[xform_idx];
+                Collada::Node::XForm &xf = cn->xform_list[xform_idx];
 
                 if (at.component == "ANGLE") {
                     ERR_CONTINUE(data.size() != 1)

@@ -103,7 +103,7 @@ private:
 
     struct TransformTrack : public Track {
 
-        Vector<TKey<TransformKey> > transforms;
+        PODVector<TKey<TransformKey> > transforms;
 
         TransformTrack() : Track(TYPE_TRANSFORM) {}
     };
@@ -114,7 +114,7 @@ private:
 
         UpdateMode update_mode = UPDATE_CONTINUOUS;
         bool update_on_seek;
-        Vector<TKey<Variant> > values;
+        PODVector<TKey<Variant> > values;
 
         ValueTrack() : Track(TYPE_VALUE) {
         }
@@ -130,7 +130,7 @@ private:
 
     struct MethodTrack : public Track {
 
-        Vector<MethodKey> methods;
+        PODVector<MethodKey> methods;
         MethodTrack() : Track(TYPE_METHOD) {}
     };
 
@@ -144,7 +144,7 @@ private:
 
     struct BezierTrack : public Track {
 
-        Vector<TKey<BezierKey> > values;
+        PODVector<TKey<BezierKey> > values;
 
         BezierTrack() : Track(TYPE_BEZIER) {}
     };
@@ -163,7 +163,7 @@ private:
 
     struct AudioTrack : public Track {
 
-        Vector<TKey<AudioKey> > values;
+        PODVector<TKey<AudioKey> > values;
 
         AudioTrack() : Track(TYPE_AUDIO) {}
     };
@@ -172,12 +172,12 @@ private:
 
     struct AnimationTrack : public Track {
 
-        Vector<TKey<StringName> > values;
+        PODVector<TKey<StringName> > values;
 
         AnimationTrack() : Track(TYPE_ANIMATION) {}
     };
 
-    Vector<Track *> tracks;
+    PODVector<Track *> tracks;
 
     /*
     template<class T>
@@ -189,8 +189,6 @@ private:
     template <class T, class V>
     int _insert(float p_time, T &p_keys, const V &p_value);
 
-    template <class K>
-    inline int _find(const Vector<K> &p_keys, float p_time) const;
 
     _FORCE_INLINE_ Animation::TransformKey _interpolate(const Animation::TransformKey &p_a, const Animation::TransformKey &p_b, float p_c) const;
 
@@ -206,10 +204,10 @@ private:
     _FORCE_INLINE_ float _cubic_interpolate(const float &p_pre_a, const float &p_a, const float &p_b, const float &p_post_b, float p_c) const;
 
     template <class T>
-    _FORCE_INLINE_ T _interpolate(const Vector<TKey<T> > &p_keys, float p_time, InterpolationType p_interp, bool p_loop_wrap, bool *p_ok) const;
+    _FORCE_INLINE_ T _interpolate(const PODVector<TKey<T> > &p_keys, float p_time, InterpolationType p_interp, bool p_loop_wrap, bool *p_ok) const;
 
     template <class T>
-    _FORCE_INLINE_ void _track_get_key_indices_in_range(const Vector<T> &p_array, float from_time, float to_time, DefList<int> *p_indices) const;
+    _FORCE_INLINE_ void _track_get_key_indices_in_range(const PODVector<T> &p_array, float from_time, float to_time, DefList<int> *p_indices) const;
 
     _FORCE_INLINE_ void _value_track_get_key_indices_in_range(const ValueTrack *vt, float from_time, float to_time, DefList<int> *p_indices) const;
     _FORCE_INLINE_ void _method_track_get_key_indices_in_range(const MethodTrack *mt, float from_time, float to_time, DefList<int> *p_indices) const;

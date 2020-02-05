@@ -37,11 +37,17 @@
 #include "scene/3d/spatial.h"
 #include "scene/resources/animation.h"
 
+struct AnimationTreeNodeBase;
+struct AnimationTreeNodeOut;
+struct AnimationTreeNode;
+
 class AnimationTreePlayer : public Node {
 
     GDCLASS(AnimationTreePlayer,Node)
 
     OBJ_CATEGORY("Animation Nodes");
+    friend AnimationTreeNodeBase;
+    friend AnimationTreeNode;
 
 public:
     enum AnimationProcessMode {
@@ -49,7 +55,7 @@ public:
         ANIMATION_PROCESS_IDLE,
     };
 
-    enum NodeType {
+    enum NodeType : int8_t {
 
         NODE_OUTPUT,
         NODE_ANIMATION,
@@ -95,7 +101,7 @@ private:
                 return id < p_right.id;
         }
     };
-
+protected:
     struct Track {
         uint32_t id;
         Object *object;
@@ -125,205 +131,24 @@ private:
 
     TrackMap track_map;
 
-    struct Input {
-
-        StringName node;
-        //Input() { node=-1;  }
-    };
-
-    struct NodeBase {
-
-        bool cycletest;
-
-        NodeType type;
-        Point2 pos;
-
-        Vector<Input> inputs;
-
-        NodeBase() { cycletest = false; };
-        virtual ~NodeBase() { cycletest = false; }
-    };
-
-    struct NodeOut : public NodeBase {
-
-        NodeOut() {
-            type = NODE_OUTPUT;
-            inputs.resize(1);
-        }
-    };
-
-    struct AnimationNode : public NodeBase {
-
-        Ref<Animation> animation;
-
-        struct TrackRef {
-            int local_track;
-            Track *track;
-            float weight;
-        };
-
-        uint64_t last_version;
-        List<TrackRef> tref;
-        AnimationNode *next;
-        float time;
-        float step;
-        String from;
-        bool skip;
-
-        HashMap<NodePath, bool> filter;
-
-        AnimationNode() {
-            type = NODE_ANIMATION;
-            next = nullptr;
-            last_version = 0;
-            skip = false;
-        }
-    };
-
-    struct OneShotNode : public NodeBase {
-
-        bool active;
-        bool start;
-        float fade_in;
-        float fade_out;
-
-        bool autorestart;
-        float autorestart_delay;
-        float autorestart_random_delay;
-        bool mix;
-
-        float time;
-        float remaining;
-        float autorestart_remaining;
-
-        HashMap<NodePath, bool> filter;
-
-        OneShotNode() {
-            type = NODE_ONESHOT;
-            fade_in = 0;
-            fade_out = 0;
-            inputs.resize(2);
-            autorestart = false;
-            autorestart_delay = 1;
-            autorestart_remaining = 0;
-            mix = false;
-            active = false;
-            start = false;
-        }
-    };
-
-    struct MixNode : public NodeBase {
-
-        float amount;
-        MixNode() {
-            type = NODE_MIX;
-            inputs.resize(2);
-        }
-    };
-
-    struct Blend2Node : public NodeBase {
-
-        float value;
-        HashMap<NodePath, bool> filter;
-        Blend2Node() {
-            type = NODE_BLEND2;
-            value = 0;
-            inputs.resize(2);
-        }
-    };
-
-    struct Blend3Node : public NodeBase {
-
-        float value;
-        Blend3Node() {
-            type = NODE_BLEND3;
-            value = 0;
-            inputs.resize(3);
-        }
-    };
-
-    struct Blend4Node : public NodeBase {
-
-        Point2 value;
-        Blend4Node() {
-            type = NODE_BLEND4;
-            inputs.resize(4);
-        }
-    };
-
-    struct TimeScaleNode : public NodeBase {
-
-        float scale;
-        TimeScaleNode() {
-            type = NODE_TIMESCALE;
-            scale = 1;
-            inputs.resize(1);
-        }
-    };
-
-    struct TimeSeekNode : public NodeBase {
-
-        float seek_pos;
-
-        TimeSeekNode() {
-            type = NODE_TIMESEEK;
-            inputs.resize(1);
-            seek_pos = -1;
-        }
-    };
-
-    struct TransitionNode : public NodeBase {
-
-        struct InputData {
-
-            bool auto_advance;
-            InputData() { auto_advance = false; }
-        };
-
-        Vector<InputData> input_data;
-
-        float prev_time;
-        float prev_xfading;
-        int prev;
-        bool switched;
-
-        float time;
-        int current;
-
-        float xfade;
-
-        TransitionNode() {
-            type = NODE_TRANSITION;
-            xfade = 0;
-            inputs.resize(1);
-            input_data.resize(1);
-            current = 0;
-            prev = -1;
-            prev_time = 0;
-            prev_xfading = 0;
-            switched = false;
-        }
-        void set_current(int p_current);
-    };
-
     void _update_sources();
 
     StringName out_name;
-    NodeOut *out;
+    AnimationTreeNodeOut *out;
 
     NodePath base_path;
     NodePath master;
 
     ConnectError last_error;
-    AnimationNode *active_list;
+    AnimationTreeNode *active_list;
     AnimationProcessMode animation_process_mode;
     bool processing;
     bool active;
     bool dirty_caches;
-    Map<StringName, NodeBase *> node_map;
+    Map<StringName, AnimationTreeNodeBase *> node_map;
 
     // return time left to finish animation
-    float _process_node(const StringName &p_node, AnimationNode **r_prev_anim, float p_time, bool p_seek = false, float p_fallback_weight = 1.0, HashMap<NodePath, float> *p_weights = nullptr);
+    float _process_node(const StringName &p_node, AnimationTreeNode **r_prev_anim, float p_time, bool p_seek = false, float p_fallback_weight = 1.0, HashMap<NodePath, float> *p_weights = nullptr);
     void _process_animation(float p_delta);
     bool reset_request;
 

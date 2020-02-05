@@ -2273,7 +2273,7 @@ void VisualScriptInstance::create(const Ref<VisualScript> &p_script, Object *p_o
 
                     //unassigned, connect to default val
                     instance->input_ports[i] = default_values.size() | VisualScriptNodeInstance::INPUT_DEFAULT_VALUE_BIT;
-                    default_values.push_back(node->get_default_input_value(i));
+                    default_values.emplace_back(node->get_default_input_value(i));
                 }
             }
 

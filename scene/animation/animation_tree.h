@@ -55,7 +55,7 @@ public:
         String name;
     };
 
-    Vector<Input> inputs;
+    PODVector<Input> inputs;
 
     float process_input(int p_input, float p_time, bool p_seek, float p_blend);
 
@@ -284,16 +284,16 @@ private:
     void _tree_changed();
     void _update_properties();
     List<PropertyInfo> properties;
-    HashMap<StringName, HashMap<StringName, StringName> > property_parent_map;
-    HashMap<StringName, Variant> property_map;
+    DefHashMap<StringName, DefHashMap<StringName, StringName> > property_parent_map;
+    DefHashMap<StringName, Variant> property_map;
 
     struct Activity {
         uint64_t last_pass;
         float activity;
     };
 
-    HashMap<StringName, Vector<Activity> > input_activity_map;
-    HashMap<StringName, Vector<Activity> *> input_activity_map_get;
+    DefHashMap<StringName, PODVector<Activity> > input_activity_map;
+    DefHashMap<StringName, PODVector<Activity> *> input_activity_map_get;
 
     void _update_properties_for_node(const StringName &p_base_path, Ref<AnimationNode> node);
 

@@ -208,7 +208,7 @@ class PhysicsShapeQueryResult : public RefCounted {
 
     GDCLASS(PhysicsShapeQueryResult,RefCounted)
 
-    Vector<PhysicsDirectSpaceState::ShapeResult> result;
+    PODVector<PhysicsDirectSpaceState::ShapeResult> result;
 
     friend class PhysicsDirectSpaceState;
 
@@ -288,7 +288,7 @@ public:
     virtual PhysicsDirectSpaceState *space_get_direct_state(RID p_space) = 0;
 
     virtual void space_set_debug_contacts(RID p_space, int p_max_contacts) = 0;
-    virtual Vector<Vector3> space_get_contacts(RID p_space) const = 0;
+    virtual const PODVector<Vector3> &space_get_contacts(RID p_space) const = 0;
     virtual int space_get_contact_count(RID p_space) const = 0;
 
     //missing space parameters
@@ -799,7 +799,7 @@ class PhysicsServerManager {
         ClassInfo &operator=(const ClassInfo &p_ci) = default;
     };
 
-    static Vector<ClassInfo> physics_servers;
+    static PODVector<ClassInfo> physics_servers;
     static int default_server_id;
     static int default_server_priority;
 

@@ -232,12 +232,10 @@ Ref<RegExMatch> RegEx::search(const String &p_subject, int p_offset, int p_end) 
     uint32_t size = pcre2_get_ovector_count_8(match);
     PCRE2_SIZE *ovector = pcre2_get_ovector_pointer_8(match);
 
-    result->data.resize(size);
+    result->data.reserve(size);
 
     for (uint32_t i = 0; i < size; i++) {
-
-        result->data.write[i].start = ovector[i * 2];
-        result->data.write[i].end = ovector[i * 2 + 1];
+        result->data.emplace_back(RegExMatch::Range {int(ovector[i * 2]),int(ovector[i * 2 + 1])});
     }
 
     pcre2_match_data_free_8(match);

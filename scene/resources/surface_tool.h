@@ -130,7 +130,7 @@ public:
     PODVector<Vertex> &get_vertex_array() { return vertex_array; }
 
     void create_from_triangle_arrays(const Array &p_arrays);
-    static Vector<Vertex> create_vertex_array_from_triangle_arrays(const Array &p_arrays);
+    static PODVector<Vertex> create_vertex_array_from_triangle_arrays(const Array &p_arrays);
     Array commit_to_arrays();
     void create_from(const Ref<Mesh> &p_existing, int p_surface);
     void create_from_blend_shape(const Ref<Mesh> &p_existing, int p_surface, StringName p_blend_shape_name);

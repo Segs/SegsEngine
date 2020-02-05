@@ -120,17 +120,6 @@ public:
         sort_custom<_DefaultComparator<T> >();
     }
 
-    void ordered_insert(const T &p_val) {
-        int i;
-        for (i = 0; i < _cowdata.size(); i++) {
-
-            if (p_val < operator[](i)) {
-                break;
-            }
-        }
-        insert(i, p_val);
-    }
-
     constexpr Vector() noexcept = default;
     Vector(const Vector &p_from) { _cowdata._ref(p_from._cowdata); }
     Vector &operator=(const Vector &p_from) {
@@ -191,5 +180,7 @@ extern template class EXPORT_TEMPLATE_DECLARE(GODOT_EXPORT) Vector<UIString>;
 extern template class EXPORT_TEMPLATE_DECLARE(GODOT_EXPORT) Vector<Variant>;
 #endif
 extern const Vector<Variant> null_variant_vec;
+extern const PODVector<struct Vector2> null_vec2_pvec;
+extern const PODVector<struct Vector3> null_vec3_pvec;
 extern const PODVector<Variant> null_variant_pvec;
 extern const PODVector<String> null_string_pvec;

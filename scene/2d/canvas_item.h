@@ -37,10 +37,6 @@
 #include "scene/resources/texture.h"
 #include "core/list.h"
 #include "core/math/transform_2d.h"
-#include "a_star.h"
-#include "a_star.h"
-#include "a_star.h"
-#include "a_star.h"
 
 class CanvasLayer;
 class Viewport;

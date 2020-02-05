@@ -41,7 +41,7 @@ class GODOT_EXPORT Skin : public Resource {
         Transform pose;
     };
 
-    Vector<Bind> binds;
+    PODVector<Bind> binds;
 
     Bind *binds_ptr;
     int bind_count;

@@ -497,7 +497,7 @@ static void fill_bits(const BitMap *p_src, Ref<BitMap> &p_map, const Point2i &p_
     print_verbose("BitMap: Max stack size: " + itos(stack.size()));
 }
 
-Vector<PODVector<Vector2> > BitMap::clip_opaque_to_polygons(const Rect2 &p_rect, float p_epsilon) const {
+PODVector<PODVector<Vector2> > BitMap::clip_opaque_to_polygons(const Rect2 &p_rect, float p_epsilon) const {
 
     const Rect2i r = Rect2i(0, 0, width, height).clip(p_rect);
     print_verbose("BitMap: Rect: " + (String)r);
@@ -505,7 +505,7 @@ Vector<PODVector<Vector2> > BitMap::clip_opaque_to_polygons(const Rect2 &p_rect,
     Ref<BitMap> fill(make_ref_counted<BitMap>());
     fill->create(get_size());
 
-    Vector<PODVector<Vector2> > polygons;
+    PODVector<PODVector<Vector2> > polygons;
     for (int i = r.position.y; i < r.position.y + r.size.height; i++) {
         for (int j = r.position.x; j < r.position.x + r.size.width; j++) {
             if (!fill->get_bit(Point2(j, i)) && get_bit(Point2(j, i))) {
@@ -519,7 +519,7 @@ Vector<PODVector<Vector2> > BitMap::clip_opaque_to_polygons(const Rect2 &p_rect,
                     print_verbose("Invalid polygon, skipped");
                     continue;
                 }
-                polygons.push_back(polygon);
+                polygons.emplace_back(eastl::move(polygon));
                 fill_bits(this, fill, Point2i(j, i), r);
             }
         }
@@ -589,7 +589,7 @@ void BitMap::shrink_mask(int p_pixels, const Rect2 &p_rect) {
 
 Array BitMap::opaque_to_polygons(const Rect2 &p_rect, float p_epsilon) const {
 
-    const Vector<PODVector<Vector2> > result = clip_opaque_to_polygons(p_rect, p_epsilon);
+    const PODVector<PODVector<Vector2> > result(clip_opaque_to_polygons(p_rect, p_epsilon));
 
     // Convert result to bindable types
 

@@ -45,7 +45,7 @@ class AnimatedValuesBackup {
         int bone_idx; // -1 if not a bone
         Variant value;
     };
-    Vector<Entry> entries;
+    PODVector<Entry> entries;
 
     friend class AnimationPlayer;
 
@@ -193,7 +193,7 @@ private:
     struct AnimationData {
         String name;
         StringName next;
-        Vector<TrackNodeCache *> node_cache;
+        PODVector<TrackNodeCache *> node_cache;
         Ref<Animation> animation;
     };
 

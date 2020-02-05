@@ -118,7 +118,7 @@ public:
     real_t space_get_param(RID p_space, SpaceParameter p_param) const override;
 
     void space_set_debug_contacts(RID p_space, int p_max_contacts) override;
-    Vector<Vector2> space_get_contacts(RID p_space) const override;
+    const PODVector<Vector2> &space_get_contacts(RID p_space) const override;
     int space_get_contact_count(RID p_space) const override;
 
     // this function only works on physics process, errors and returns null otherwise

@@ -948,9 +948,9 @@ Vector3 ConvexPolygonShapeSW::get_moment_of_inertia(real_t p_mass) const {
             (p_mass / 3.0f) * (extents.y * extents.y + extents.y * extents.y));
 }
 
-void ConvexPolygonShapeSW::_setup(const Vector<Vector3> &p_vertices) {
+void ConvexPolygonShapeSW::_setup(const PODVector<Vector3> &p_vertices) {
 
-    Error err = QuickHull::build({p_vertices.ptr(),p_vertices.size()}, mesh);
+    Error err = QuickHull::build(p_vertices, mesh);
     if (err != OK)
         ERR_PRINT("Failed to build QuickHull");
 
@@ -969,7 +969,7 @@ void ConvexPolygonShapeSW::_setup(const Vector<Vector3> &p_vertices) {
 
 void ConvexPolygonShapeSW::set_data(const Variant &p_data) {
 
-    _setup(p_data.as<Vector<Vector3>>());
+    _setup(p_data.as<PODVector<Vector3>>());
 }
 
 Variant ConvexPolygonShapeSW::get_data() const {

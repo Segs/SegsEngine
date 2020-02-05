@@ -298,10 +298,10 @@ void Physics2DServerSW::space_set_debug_contacts(RID p_space, int p_max_contacts
     space->set_debug_contacts(p_max_contacts);
 }
 
-Vector<Vector2> Physics2DServerSW::space_get_contacts(RID p_space) const {
+const PODVector<Vector2> &Physics2DServerSW::space_get_contacts(RID p_space) const {
 
     Space2DSW *space = space_owner.get(p_space);
-    ERR_FAIL_COND_V(!space, Vector<Vector2>())
+    ERR_FAIL_COND_V(!space, null_vec2_pvec)
     return space->get_debug_contacts();
 }
 

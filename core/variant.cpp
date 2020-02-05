@@ -59,6 +59,7 @@
 #include "scene/gui/control.h"
 #include "scene/main/node.h"
 
+#include "EASTL/sort.h"
 
 template class EXPORT_TEMPLATE_DEFINE(GODOT_EXPORT) eastl::vector<Variant,wrap_allocator>;
 
@@ -1452,7 +1453,7 @@ String Variant::stringify(PODVector<const void *> &stack) const {
             String str("{");
             PODVector<Variant> keys(d.get_key_list());
 
-            Vector<_VariantStrPair> pairs;
+            PODVector<_VariantStrPair> pairs;
 
             for(Variant &E : keys ) {
 
@@ -1462,8 +1463,7 @@ String Variant::stringify(PODVector<const void *> &stack) const {
 
                 pairs.push_back(sp);
             }
-
-            pairs.sort();
+            eastl::sort(pairs.begin(),pairs.end());
 
             for (int i = 0; i < pairs.size(); i++) {
                 if (i > 0)

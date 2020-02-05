@@ -505,8 +505,8 @@ class ConcavePolygonShape2DSW : public ConcaveShape2DSW {
         int points[2];
     };
 
-    Vector<Segment> segments;
-    Vector<Point2> points;
+    PODVector<Segment> segments;
+    PODVector<Point2> points;
 
     struct BVH {
 
@@ -514,7 +514,7 @@ class ConcavePolygonShape2DSW : public ConcaveShape2DSW {
         int left, right;
     };
 
-    Vector<BVH> bvh;
+    PODVector<BVH> bvh;
     int bvh_depth;
 
     struct BVH_CompareX {

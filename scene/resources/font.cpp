@@ -214,11 +214,12 @@ void BitmapFont::_set_textures(const PODVector<Variant> &p_textures) {
     }
 }
 
-Vector<Variant> BitmapFont::_get_textures() const {
+PODVector<Variant> BitmapFont::_get_textures() const {
 
-    Vector<Variant> rtextures;
+    PODVector<Variant> rtextures;
+    rtextures.reserve(textures.size());
     for (int i = 0; i < textures.size(); i++)
-        rtextures.push_back(Variant(textures[i].get_ref_ptr()));
+        rtextures.emplace_back(textures[i].get_ref_ptr());
     return rtextures;
 }
 

@@ -564,14 +564,14 @@ PODVector<Ref<Shape>> Mesh::convex_decompose() const {
     ERR_FAIL_COND_V(!convex_composition_function, {})
 
     PoolVector<Face3> faces = get_faces();
-    Vector<Face3> f3;
+    PODVector<Face3> f3;
     f3.resize(faces.size());
     PoolVector<Face3>::Read f = faces.read();
     for (int i = 0; i < f3.size(); i++) {
-        f3.write[i] = f[i];
+        f3[i] = f[i];
     }
 
-    Vector<Vector<Face3> > decomposed = convex_composition_function(f3);
+    PODVector<PODVector<Face3> > decomposed = convex_composition_function(f3);
 
     PODVector<Ref<Shape> > ret;
     ret.reserve(decomposed.size());
@@ -828,7 +828,7 @@ void ArrayMesh::add_surface(uint32_t p_format, PrimitiveType p_primitive, const 
     Surface s;
     s.aabb = p_aabb;
     s.is_2d = p_format & ARRAY_FLAG_USE_2D_VERTICES;
-    surfaces.push_back(s);
+    surfaces.emplace_back(eastl::move(s));
     _recompute_aabb();
 
     VisualServer::get_singleton()->mesh_add_surface(mesh, p_format, (VS::PrimitiveType)p_primitive, p_array, p_vertex_count, p_index_array, p_index_count, p_aabb, p_blend_shapes, p_bone_aabbs);
@@ -939,7 +939,7 @@ void ArrayMesh::surface_remove(int p_idx) {
 
     ERR_FAIL_INDEX(p_idx, surfaces.size());
     VisualServer::get_singleton()->mesh_remove_surface(mesh, p_idx);
-    surfaces.remove(p_idx);
+    surfaces.erase_at(p_idx);
 
     clear_cache();
     _recompute_aabb();
@@ -976,7 +976,7 @@ void ArrayMesh::surface_set_material(int p_idx, const Ref<Material> &p_material)
     ERR_FAIL_INDEX(p_idx, surfaces.size());
     if (surfaces[p_idx].material == p_material)
         return;
-    surfaces.write[p_idx].material = p_material;
+    surfaces[p_idx].material = p_material;
     VisualServer::get_singleton()->mesh_surface_set_material(mesh, p_idx, not p_material ? RID() : p_material->get_rid());
 
     Object_change_notify(this,"material");
@@ -997,7 +997,7 @@ void ArrayMesh::surface_set_name(int p_idx, se_string_view p_name) {
 
     ERR_FAIL_INDEX(p_idx, surfaces.size())
 
-    surfaces.write[p_idx].name = p_name;
+    surfaces[p_idx].name = p_name;
     emit_changed();
 }
 
@@ -1017,7 +1017,7 @@ void ArrayMesh::surface_update_region(int p_surface, int p_offset, const PoolVec
 void ArrayMesh::surface_set_custom_aabb(int p_idx, const AABB &p_aabb) {
 
     ERR_FAIL_INDEX(p_idx, surfaces.size());
-    surfaces.write[p_idx].aabb = p_aabb;
+    surfaces[p_idx].aabb = p_aabb;
     // set custom aabb too?
     emit_changed();
 }
@@ -1049,7 +1049,7 @@ void ArrayMesh::add_surface_from_mesh_data(Geometry::MeshData &&p_mesh_data) {
 
     clear_cache();
 
-    surfaces.push_back(s);
+    surfaces.emplace_back(eastl::move(s));
     Object_change_notify(this);
 
     emit_changed();
@@ -1103,7 +1103,7 @@ bool (*array_mesh_lightmap_unwrap_callback)(float p_texel_size, const float *p_v
 struct ArrayMeshLightmapSurface {
 
     Ref<Material> material;
-    Vector<SurfaceTool::Vertex> vertices;
+    PODVector<SurfaceTool::Vertex> vertices;
     Mesh::PrimitiveType primitive;
     uint32_t format;
 };
@@ -1131,7 +1131,7 @@ Error ArrayMesh::lightmap_unwrap(const Transform &p_base_transform, float p_texe
 
         Array arrays = surface_get_arrays(i);
         s.material = surface_get_material(i);
-        s.vertices = SurfaceTool::create_vertex_array_from_triangle_arrays(arrays);
+        s.vertices = eastl::move(SurfaceTool::create_vertex_array_from_triangle_arrays(arrays));
 
         PoolVector<Vector3> rvertices = arrays[Mesh::ARRAY_VERTEX];
         int vc = rvertices.size();
@@ -1236,7 +1236,7 @@ Error ArrayMesh::lightmap_unwrap(const Transform &p_base_transform, float p_texe
 
         for (int j = 0; j < 3; j++) {
 
-            SurfaceTool::Vertex v = surfaces[surface].vertices[uv_index[gen_vertices[gen_indices[i + j]]].second];
+            const SurfaceTool::Vertex &v = surfaces[surface].vertices[uv_index[gen_vertices[gen_indices[i + j]]].second];
 
             if (surfaces[surface].format & ARRAY_FORMAT_COLOR) {
                 surfaces_tools.write[surface]->add_color(v.color);

@@ -382,9 +382,10 @@ Ref<PackedScene> ResourceInteractiveLoaderText::_parse_node_tag(VariantParser::R
                 binds = next_tag.fields["binds"];
             }
 
-            Vector<int> bind_ints;
+            PODVector<int> bind_ints;
+            bind_ints.reserve(binds.size());
             for (int i = 0; i < binds.size(); i++) {
-                bind_ints.push_back(packed_scene->get_state()->add_value(binds[i]));
+                bind_ints.emplace_back(packed_scene->get_state()->add_value(binds[i]));
             }
 
             packed_scene->get_state()->add_connection(
@@ -393,7 +394,7 @@ Ref<PackedScene> ResourceInteractiveLoaderText::_parse_node_tag(VariantParser::R
                     packed_scene->get_state()->add_name(signal),
                     packed_scene->get_state()->add_name(method),
                     flags,
-                    bind_ints);
+                    eastl::move(bind_ints));
 
             error = VariantParser::parse_tag(stream, lines, error_text, next_tag, &parser);
 
@@ -1816,9 +1817,9 @@ Error ResourceFormatSaverTextInstance::save(se_string_view p_path, const RES &p_
             f->store_line("]");
         }
 
-        Vector<NodePath> editable_instances = state->get_editable_instances();
-        for (int i = 0; i < editable_instances.size(); i++) {
-            f->store_line("\n[editable path=\"" + (String)editable_instances[i] + "\"]");
+        const PODVector<NodePath> &editable_instances = state->get_editable_instances();
+        for (const NodePath &np : editable_instances) {
+            f->store_line("\n[editable path=\"" + (String)np + "\"]");
         }
     }
 

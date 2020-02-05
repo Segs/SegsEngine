@@ -83,7 +83,7 @@ void SoftBodyBullet::update_visual_server(SoftBodyVisualServerHandler *p_visual_
     const btSoftBody::tNodeArray &nodes(bt_soft_body->m_nodes);
     const int nodes_count = nodes.size();
 
-    const Vector<int> *vs_indices;
+    const PODVector<int> *vs_indices;
     const void *vertex_position;
     const void *vertex_normal;
 
@@ -327,10 +327,11 @@ void SoftBodyBullet::set_trimesh_body_shape(const PoolVector<int>& p_indices, co
 
     {
         /// This is the map of visual server indices to physics indices (So it's the inverse of idices_map), Thanks to it I don't need make a heavy search in the indices_map
-        Vector<int> vs_indices_to_physics_table;
+        PODVector<int> vs_indices_to_physics_table;
 
         { // Map vertices
-            indices_table.resize(0);
+            indices_table.clear();
+            //TODO: SEGS: consider shrink_to_fit call ?
 
             int index = 0;
             Map<Vector3, int> unique_vertices;
@@ -349,17 +350,17 @@ void SoftBodyBullet::set_trimesh_body_shape(const PoolVector<int>& p_indices, co
                 } else {
                     // Create new one
                     unique_vertices[p_vertices_read[vs_vertex_index]] = vertex_id = index++;
-                    indices_table.push_back(Vector<int>());
+                    indices_table.emplace_back();
                 }
 
-                indices_table.write[vertex_id].push_back(vs_vertex_index);
+                indices_table[vertex_id].emplace_back(vs_vertex_index);
                 vs_indices_to_physics_table.push_back(vertex_id);
             }
         }
 
         const int indices_map_size(indices_table.size());
 
-        Vector<btScalar> bt_vertices;
+        PODVector<btScalar> bt_vertices;
 
         { // Parse vertices to bullet
 
@@ -367,13 +368,13 @@ void SoftBodyBullet::set_trimesh_body_shape(const PoolVector<int>& p_indices, co
             PoolVector<Vector3>::Read p_vertices_read = p_vertices.read();
 
             for (int i = 0; i < indices_map_size; ++i) {
-                bt_vertices.write[3 * i + 0] = p_vertices_read[indices_table[i][0]].x;
-                bt_vertices.write[3 * i + 1] = p_vertices_read[indices_table[i][0]].y;
-                bt_vertices.write[3 * i + 2] = p_vertices_read[indices_table[i][0]].z;
+                bt_vertices[3 * i + 0] = p_vertices_read[indices_table[i][0]].x;
+                bt_vertices[3 * i + 1] = p_vertices_read[indices_table[i][0]].y;
+                bt_vertices[3 * i + 2] = p_vertices_read[indices_table[i][0]].z;
             }
         }
 
-        Vector<int> bt_triangles;
+        PODVector<int> bt_triangles;
         const int triangles_size(p_indices.size() / 3);
 
         { // Parse indices
@@ -383,9 +384,9 @@ void SoftBodyBullet::set_trimesh_body_shape(const PoolVector<int>& p_indices, co
             PoolVector<int>::Read p_indices_read = p_indices.read();
 
             for (int i = 0; i < triangles_size; ++i) {
-                bt_triangles.write[3 * i + 0] = vs_indices_to_physics_table[p_indices_read[3 * i + 2]];
-                bt_triangles.write[3 * i + 1] = vs_indices_to_physics_table[p_indices_read[3 * i + 1]];
-                bt_triangles.write[3 * i + 2] = vs_indices_to_physics_table[p_indices_read[3 * i + 0]];
+                bt_triangles[3 * i + 0] = vs_indices_to_physics_table[p_indices_read[3 * i + 2]];
+                bt_triangles[3 * i + 1] = vs_indices_to_physics_table[p_indices_read[3 * i + 1]];
+                bt_triangles[3 * i + 2] = vs_indices_to_physics_table[p_indices_read[3 * i + 0]];
             }
         }
 
@@ -459,7 +460,7 @@ void SoftBodyBullet::pin_node(int p_node_index) {
 void SoftBodyBullet::unpin_node(int p_node_index) {
     const int id = search_node_pinned(p_node_index);
     if (-1 != id) {
-        pinned_nodes.remove(id);
+        pinned_nodes.erase_at(id);
     }
 }
 

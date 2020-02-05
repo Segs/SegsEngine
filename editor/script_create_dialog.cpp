@@ -393,9 +393,9 @@ void ScriptCreateDialog::_lang_changed(int l) {
         StringName last_template = EditorSettings::get_singleton()->get_project_metadata("script_setup", "last_selected_template", "");
 
         template_menu->add_item(TTR("Default"));
-        ScriptTemplateInfo *templates = template_list.ptrw();
+        ScriptTemplateInfo *templates = template_list.data();
 
-        PODVector<StringName> origin_names {
+        const StringName origin_names[2] = {
             TTR("Project"),
             TTR("Editor")
         };
@@ -420,8 +420,8 @@ void ScriptCreateDialog::_lang_changed(int l) {
             templates[i].id = new_id;
         }
         // Disable overridden
-        for (eastl::pair<const String,Vector<int> > &E : template_overrides) {
-            const Vector<int> &overrides = E.second;
+        for (eastl::pair<const String,PODVector<int> > &E : template_overrides) {
+            const PODVector<int> &overrides = E.second;
 
             if (overrides.size() == 1) {
                 continue; // doesn't override anything
@@ -480,7 +480,7 @@ void ScriptCreateDialog::_update_script_templates(const String &p_extension) {
 
     for (int i = 0; i < dirs.size(); i++) {
 
-        PODVector<String> list = EditorSettings::get_singleton()->get_script_templates(p_extension, dirs[i]);
+        PODVector<String> list(EditorSettings::get_singleton()->get_script_templates(p_extension, dirs[i]));
 
         for (const String & entry : list) {
             ScriptTemplateInfo sinfo;
@@ -491,11 +491,11 @@ void ScriptCreateDialog::_update_script_templates(const String &p_extension) {
             template_list.push_back(sinfo);
 
             if (!template_overrides.contains(sinfo.name)) {
-                Vector<int> overrides;
+                PODVector<int> overrides;
                 overrides.push_back(template_list.size() - 1); // first one
                 template_overrides.emplace(sinfo.name, overrides);
             } else {
-                Vector<int> &overrides = template_overrides[sinfo.name];
+                PODVector<int> &overrides = template_overrides[sinfo.name];
                 overrides.push_back(template_list.size() - 1);
             }
         }

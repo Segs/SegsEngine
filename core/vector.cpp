@@ -16,3 +16,5 @@ template class EXPORT_TEMPLATE_DEFINE(GODOT_EXPORT) Vector<Variant>;
 
 const Vector<Variant> null_variant_vec;
 const PODVector<Variant> null_variant_pvec;
+const PODVector<Vector2> null_vec2_pvec;
+const PODVector<Vector3> null_vec3_pvec;

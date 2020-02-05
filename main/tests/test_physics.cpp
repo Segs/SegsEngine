@@ -190,13 +190,13 @@ protected:
         type_shape_map[PhysicsServer::SHAPE_CONVEX_POLYGON] = convex_shape;
     }
 
-    void make_trimesh(Vector<Vector3> p_faces, const Transform &p_xform = Transform()) {
+    void make_trimesh(PODVector<Vector3> p_faces, const Transform &p_xform = Transform()) {
 
         VisualServer *vs = VisualServer::get_singleton();
         PhysicsServer *ps = PhysicsServer::get_singleton();
         RID trimesh_shape = ps->shape_create(PhysicsServer::SHAPE_CONCAVE_POLYGON);
         ps->shape_set_data(trimesh_shape, Variant::from(p_faces));
-        p_faces = ps->shape_get_data(trimesh_shape).as<Vector<Vector3>>(); // optimized one
+        p_faces = ps->shape_get_data(trimesh_shape).as<PODVector<Vector3>>(); // optimized one
         PODVector<Vector3> normals; // for drawing
         for (int i = 0; i < p_faces.size() / 3; i++) {
 
@@ -226,21 +226,21 @@ protected:
 
     void make_grid(int p_width, int p_height, float p_cellsize, float p_cellheight, const Transform &p_xform = Transform()) {
 
-        Vector<Vector<float> > grid;
+        PODVector<PODVector<float> > grid;
 
         grid.resize(p_width);
 
         for (int i = 0; i < p_width; i++) {
 
-            grid.write[i].resize(p_height);
+            grid[i].resize(p_height);
 
             for (int j = 0; j < p_height; j++) {
 
-                grid.write[i].write[j] = 1.0f + Math::random(-p_cellheight, p_cellheight);
+                grid[i][j] = 1.0f + Math::random(-p_cellheight, p_cellheight);
             }
         }
 
-        Vector<Vector3> faces;
+        PODVector<Vector3> faces;
 
         for (int i = 1; i < p_width; i++) {
 

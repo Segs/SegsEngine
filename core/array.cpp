@@ -410,7 +410,7 @@ Array &Array::invert() {
 
 void Array::push_front(const Variant &p_value) {
 
-    _p->array.insert(0, p_value);
+    _p->array.push_front(p_value);
 }
 
 Variant Array::pop_back() {

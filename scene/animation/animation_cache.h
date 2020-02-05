@@ -60,7 +60,7 @@ class AnimationCache : public Object {
     };
 
     Set<Node *> connected_nodes;
-    Vector<Path> path_cache;
+    PODVector<Path> path_cache;
 
     Node *root;
     Ref<Animation> animation;

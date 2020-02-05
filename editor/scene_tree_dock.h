@@ -160,7 +160,7 @@ class SceneTreeDock : public VBoxContainer {
     void _add_children_to_popup(Object *p_obj, int p_depth);
 
     void _node_reparent(const NodePath& p_path, bool p_keep_global_xform);
-    void _do_reparent(Node *p_new_parent, int p_position_in_parent, Vector<Node *> p_nodes, bool p_keep_global_xform);
+    void _do_reparent(Node *p_new_parent, int p_position_in_parent, PODVector<Node *> p_nodes, bool p_keep_global_xform);
 
     bool _is_collapsed_recursive(TreeItem *p_item) const;
     void _set_collapsed_recursive(TreeItem *p_item, bool p_collapsed);
@@ -205,9 +205,9 @@ class SceneTreeDock : public VBoxContainer {
     bool _validate_no_foreign();
     void _selection_changed();
     void _update_script_button();
-    Node *_get_selection_group_tail(Node *p_node, List<Node *> p_list);
+    Node *_get_selection_group_tail(Node *p_node, const PODVector<Node *> &p_list);
 
-    void _fill_path_renames(PODVector<StringName> base_path, PODVector<StringName> new_base_path, Node *p_node, List<Pair<NodePath, NodePath> > *p_renames);
+    void _fill_path_renames(PODVector<StringName> base_path, PODVector<StringName> new_base_path, Node *p_node, PODVector<Pair<NodePath, NodePath> > &p_renames);
 
     void _normalize_drop(Node *&to_node, int &to_pos, int p_type);
 
@@ -251,8 +251,8 @@ public:
     void instance(se_string_view p_file);
     void instance_scenes(const PODVector<String> &p_files, Node *p_parent = nullptr);
     void set_selected(Node *p_node, bool p_emit_selected = false);
-    void fill_path_renames(Node *p_node, Node *p_new_parent, List<Pair<NodePath, NodePath> > *p_renames);
-    void perform_node_renames(Node *p_base, List<Pair<NodePath, NodePath> > *p_renames, Map<Ref<Animation>, Set<int> > *r_rem_anims = nullptr);
+    void fill_path_renames(Node *p_node, Node *p_new_parent, PODVector<Pair<NodePath, NodePath> > &p_renames);
+    void perform_node_renames(Node *p_base, PODVector<Pair<NodePath, NodePath> > &p_renames, Map<Ref<Animation>, Set<int> > *r_rem_anims = nullptr);
     SceneTreeEditor *get_tree_editor() { return scene_tree; }
     EditorData *get_editor_data() { return editor_data; }
 

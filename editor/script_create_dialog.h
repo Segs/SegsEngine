@@ -73,8 +73,8 @@ class ScriptCreateDialog : public ConfirmationDialog {
     CreateDialog *select_class;
     String initial_bp;
     String script_template;
-    Vector<ScriptTemplateInfo> template_list;
-    Map<String, Vector<int> > template_overrides; // name : indices
+    PODVector<ScriptTemplateInfo> template_list;
+    Map<String, PODVector<int> > template_overrides; // name : indices
     String base_type;
     int current_language;
     int default_language;

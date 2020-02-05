@@ -85,7 +85,7 @@ private:
         }
     };
 
-    Vector<Cell> bake_cells;
+    PODVector<Cell> bake_cells;
     int cell_subdiv;
 
     struct Light {
@@ -107,7 +107,7 @@ private:
 
     int first_leaf;
 
-    Vector<Light> bake_light;
+    PODVector<Light> bake_light;
 
     struct MaterialCache {
         //128x128 textures

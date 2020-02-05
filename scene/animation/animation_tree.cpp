@@ -177,12 +177,16 @@ float AnimationNode::blend_input(int p_input, float p_time, bool p_seek, float p
     //inputs.write[p_input].last_pass = state->last_pass;
     float activity = 0;
     float ret = _blend_node(node_name, blend_tree->get_node_connection_array(node_name), nullptr, node, p_time, p_seek, p_blend, p_filter, p_optimize, &activity);
+    auto ac_iter = state->tree->input_activity_map.find(base_path);
 
-    Vector<AnimationTree::Activity> *activity_ptr = state->tree->input_activity_map.getptr(base_path);
+    if(state->tree->input_activity_map.end()==ac_iter)
+        return ret;
 
-    if (activity_ptr && p_input < activity_ptr->size()) {
-        activity_ptr->write[p_input].last_pass = state->last_pass;
-        activity_ptr->write[p_input].activity = activity;
+    PODVector<AnimationTree::Activity> &activity_ptr = ac_iter->second;
+
+    if (p_input < activity_ptr.size()) {
+        activity_ptr[p_input].last_pass = state->last_pass;
+        activity_ptr[p_input].activity = activity;
     }
     return ret;
 }
@@ -341,13 +345,13 @@ void AnimationNode::add_input(const String &p_name) {
 void AnimationNode::set_input_name(int p_input, se_string_view p_name) {
     ERR_FAIL_INDEX(p_input, inputs.size());
     ERR_FAIL_COND(StringUtils::contains(p_name,".") || StringUtils::contains(p_name,"/"))
-    inputs.write[p_input].name = p_name;
+    inputs[p_input].name = p_name;
     emit_changed();
 }
 
 void AnimationNode::remove_input(int p_index) {
     ERR_FAIL_INDEX(p_index, inputs.size());
-    inputs.remove(p_index);
+    inputs.erase_at(p_index);
     emit_changed();
 }
 
@@ -1413,19 +1417,20 @@ void AnimationTree::_tree_changed() {
 void AnimationTree::_update_properties_for_node(const StringName &p_base_path, Ref<AnimationNode> node) {
 
     if (!property_parent_map.contains(p_base_path)) {
-        property_parent_map[p_base_path] = HashMap<StringName, StringName>();
+        property_parent_map[p_base_path] = {};
     }
 
     if (node->get_input_count() && !input_activity_map.contains(p_base_path)) {
 
-        Vector<Activity> activity;
+        PODVector<Activity> activity;
+        activity.reserve(node->get_input_count());
         for (int i = 0; i < node->get_input_count(); i++) {
             Activity a;
             a.activity = 0;
             a.last_pass = 0;
-            activity.push_back(a);
+            activity.emplace_back(a);
         }
-        input_activity_map[p_base_path] = activity;
+        input_activity_map[p_base_path] = eastl::move(activity);
         //TODO: why is the last character trimmed below, document this or remove the trimming.
         input_activity_map_get[StringName(StringUtils::substr(p_base_path, 0, se_string_view(p_base_path).length() - 1))] =
                 &input_activity_map[p_base_path];
@@ -1495,7 +1500,7 @@ bool AnimationTree::_get(const StringName &p_name, Variant &r_ret) const {
     }
 
     if (property_map.contains(p_name)) {
-        r_ret = property_map[p_name];
+        r_ret = property_map.at(p_name);
         return true;
     }
 
@@ -1531,7 +1536,7 @@ float AnimationTree::get_connection_activity(const StringName &p_path, int p_con
     if (!input_activity_map_get.contains(p_path)) {
         return 0;
     }
-    const Vector<Activity> *activity = input_activity_map_get[p_path];
+    const PODVector<Activity> *activity = input_activity_map_get.at(p_path);
 
     if (!activity || p_connection < 0 || p_connection >= activity->size()) {
         return 0;

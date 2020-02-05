@@ -641,11 +641,11 @@ Ref<Texture> EditorAudioStreamPreviewPlugin::generate(const RES &p_from, const S
     }
     int frame_length = AudioServer::get_singleton()->get_mix_rate() * len_s;
 
-    Vector<AudioFrame> frames;
+    PODVector<AudioFrame> frames;
     frames.resize(frame_length);
 
     playback->start();
-    playback->mix(frames.ptrw(), 1, frames.size());
+    playback->mix(frames.data(), 1, frames.size());
     playback->stop();
 
     for (int i = 0; i < w; i++) {

@@ -210,7 +210,7 @@ class EditorSceneImporterGLTF : public QObject, public EditorSceneImporterInterf
 
         // The roots of the skin. In the case of multiple roots, their parent *must*
         // be the same (the roots must be siblings)
-        Vector<GLTFNodeIndex> roots;
+        PODVector<GLTFNodeIndex> roots;
 
         // The GLTF Skeleton this Skin points to (after we determine skeletons)
         GLTFSkeletonIndex skeleton;
@@ -353,7 +353,7 @@ class EditorSceneImporterGLTF : public QObject, public EditorSceneImporterInterf
 
     Error _parse_materials(GLTFState &state);
 
-    GLTFNodeIndex _find_highest_node(GLTFState &state, const Vector<GLTFNodeIndex> &subset);
+    GLTFNodeIndex _find_highest_node(GLTFState &state, const PODVector<GLTFNodeIndex> &subset);
 
     bool _capture_nodes_in_skin(GLTFState &state, GLTFSkin &skin, const GLTFNodeIndex node_index);
     void _capture_nodes_for_multirooted_skin(GLTFState &state, GLTFSkin &skin);
@@ -362,7 +362,7 @@ class EditorSceneImporterGLTF : public QObject, public EditorSceneImporterInterf
     Error _parse_skins(GLTFState &state);
 
     Error _determine_skeletons(GLTFState &state);
-    Error _reparent_non_joint_skeleton_subtrees(GLTFState &state, GLTFSkeleton &skeleton, const Vector<GLTFNodeIndex> &non_joints);
+    Error _reparent_non_joint_skeleton_subtrees(GLTFState &state, GLTFSkeleton &skeleton, const PODVector<GLTFNodeIndex> &non_joints);
     Error _reparent_to_fake_joint(GLTFState &state, GLTFSkeleton &skeleton, const GLTFNodeIndex node_index);
     Error _determine_skeleton_roots(GLTFState &state, const GLTFSkeletonIndex skel_i);
 
